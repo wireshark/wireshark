@@ -21,14 +21,14 @@
 void proto_register_rs_misc (void);
 void proto_reg_handoff_rs_misc (void);
 
-static int proto_rs_misc = -1;
-static int hf_rs_misc_opnum = -1;
-static int hf_rs_misc_login_get_info_rqst_var = -1;
-static int hf_rs_misc_login_get_info_rqst_key_size = -1;
-static int hf_rs_misc_login_get_info_rqst_key_t = -1;
+static int proto_rs_misc;
+static int hf_rs_misc_opnum;
+static int hf_rs_misc_login_get_info_rqst_var;
+static int hf_rs_misc_login_get_info_rqst_key_size;
+static int hf_rs_misc_login_get_info_rqst_key_t;
 
 
-static gint ett_rs_misc = -1;
+static gint ett_rs_misc;
 
 
 static e_guid_t uuid_rs_misc = { 0x4c878280, 0x5000, 0x0000, { 0x0d, 0x00, 0x02, 0x87, 0x14, 0x00, 0x00, 0x00 } };

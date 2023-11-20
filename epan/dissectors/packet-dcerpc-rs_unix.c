@@ -21,10 +21,10 @@
 void proto_register_rs_unix (void);
 void proto_reg_handoff_rs_unix (void);
 
-static int proto_rs_unix = -1;
-static int hf_rs_unix_opnum = -1;
+static int proto_rs_unix;
+static int hf_rs_unix_opnum;
 
-static gint ett_rs_unix = -1;
+static gint ett_rs_unix;
 
 
 static e_guid_t uuid_rs_unix = { 0x361993c0, 0xb000, 0x0000, { 0x0d, 0x00, 0x00, 0x87, 0x84, 0x00, 0x00, 0x00 } };

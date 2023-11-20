@@ -131,62 +131,62 @@ void proto_reg_handoff_hsrp(void);
 
 static dissector_handle_t hsrp_handle;
 
-static gint proto_hsrp = -1;
+static gint proto_hsrp;
 
-static gint hf_hsrp_version = -1;
-static gint hf_hsrp_opcode = -1;
+static gint hf_hsrp_version;
+static gint hf_hsrp_opcode;
 /* Opcode 0-2 */
-static gint hf_hsrp_state = -1;
-static gint hf_hsrp_hellotime = -1;
-static gint hf_hsrp_holdtime = -1;
-static gint hf_hsrp_priority = -1;
-static gint hf_hsrp_group = -1;
-static gint hf_hsrp_reserved = -1;
-static gint hf_hsrp_auth_data = -1;
-static gint hf_hsrp_virt_ip_addr = -1;
+static gint hf_hsrp_state;
+static gint hf_hsrp_hellotime;
+static gint hf_hsrp_holdtime;
+static gint hf_hsrp_priority;
+static gint hf_hsrp_group;
+static gint hf_hsrp_reserved;
+static gint hf_hsrp_auth_data;
+static gint hf_hsrp_virt_ip_addr;
 /* Advertise (3) */
-static gint hf_hsrp_adv_type = -1;
-static gint hf_hsrp_adv_length = -1;
-static gint hf_hsrp_adv_state = -1;
-static gint hf_hsrp_adv_reserved1 = -1;
-static gint hf_hsrp_adv_activegrp = -1;
-static gint hf_hsrp_adv_passivegrp = -1;
-static gint hf_hsrp_adv_reserved2 = -1;
+static gint hf_hsrp_adv_type;
+static gint hf_hsrp_adv_length;
+static gint hf_hsrp_adv_state;
+static gint hf_hsrp_adv_reserved1;
+static gint hf_hsrp_adv_activegrp;
+static gint hf_hsrp_adv_passivegrp;
+static gint hf_hsrp_adv_reserved2;
 
-static gint ett_hsrp = -1;
+static gint ett_hsrp;
 
 /* HSRPv2 */
-static gint hf_hsrp2_version = -1;
-static gint hf_hsrp2_opcode = -1;
-static gint hf_hsrp2_state = -1;
-static gint hf_hsrp2_group_state_tlv = -1;
-static gint hf_hsrp2_interface_state_tlv = -1;
-static gint hf_hsrp2_text_auth_tlv = -1;
-static gint hf_hsrp2_md5_auth_tlv = -1;
-static gint hf_hsrp2_ipversion = -1;
-static gint hf_hsrp2_hellotime = -1;
-static gint hf_hsrp2_holdtime = -1;
-static gint hf_hsrp2_priority = -1;
-static gint hf_hsrp2_identifier = -1;
-static gint hf_hsrp2_group = -1;
-static gint hf_hsrp2_virt_ip_addr = -1;
-static gint hf_hsrp2_virt_ip_addr_v6 = -1;
-static gint hf_hsrp2_auth_data = -1;
-static gint hf_hsrp2_active_group = -1;
-static gint hf_hsrp2_passive_group = -1;
-static gint hf_hsrp2_md5_algorithm = -1;
-static gint hf_hsrp2_md5_padding = -1;
-static gint hf_hsrp2_md5_flags = -1;
-static gint hf_hsrp2_md5_ip_address= -1;
-static gint hf_hsrp2_md5_key_id= -1;
-static gint hf_hsrp2_md5_auth_data= -1;
+static gint hf_hsrp2_version;
+static gint hf_hsrp2_opcode;
+static gint hf_hsrp2_state;
+static gint hf_hsrp2_group_state_tlv;
+static gint hf_hsrp2_interface_state_tlv;
+static gint hf_hsrp2_text_auth_tlv;
+static gint hf_hsrp2_md5_auth_tlv;
+static gint hf_hsrp2_ipversion;
+static gint hf_hsrp2_hellotime;
+static gint hf_hsrp2_holdtime;
+static gint hf_hsrp2_priority;
+static gint hf_hsrp2_identifier;
+static gint hf_hsrp2_group;
+static gint hf_hsrp2_virt_ip_addr;
+static gint hf_hsrp2_virt_ip_addr_v6;
+static gint hf_hsrp2_auth_data;
+static gint hf_hsrp2_active_group;
+static gint hf_hsrp2_passive_group;
+static gint hf_hsrp2_md5_algorithm;
+static gint hf_hsrp2_md5_padding;
+static gint hf_hsrp2_md5_flags;
+static gint hf_hsrp2_md5_ip_address;
+static gint hf_hsrp2_md5_key_id;
+static gint hf_hsrp2_md5_auth_data;
 
-static gint ett_hsrp2_group_state_tlv = -1;
-static gint ett_hsrp2_interface_state_tlv = -1;
-static gint ett_hsrp2_text_auth_tlv = -1;
-static gint ett_hsrp2_md5_auth_tlv = -1;
+static gint ett_hsrp2_group_state_tlv;
+static gint ett_hsrp2_interface_state_tlv;
+static gint ett_hsrp2_text_auth_tlv;
+static gint ett_hsrp2_md5_auth_tlv;
 
-static expert_field ei_hsrp_unknown_tlv = EI_INIT;
+static expert_field ei_hsrp_unknown_tlv;
 
 #define UDP_PORT_HSRP   1985
 #define UDP_PORT_HSRP2_V6   2029

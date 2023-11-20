@@ -26,43 +26,43 @@ void proto_register_rtpdump(void);
 void proto_reg_handoff_rtpdump(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_rtpdump = -1;
+static int proto_rtpdump;
 
-static gint hf_rtpdump_text_header = -1;
-static gint hf_rtpdump_play_program = -1;
-static gint hf_rtpdump_version = -1;
-static gint hf_rtpdump_txt_ipv4 = -1;
-static gint hf_rtpdump_txt_ipv6 = -1;
-static gint hf_rtpdump_txt_port = -1;
+static gint hf_rtpdump_text_header;
+static gint hf_rtpdump_play_program;
+static gint hf_rtpdump_version;
+static gint hf_rtpdump_txt_ipv4;
+static gint hf_rtpdump_txt_ipv6;
+static gint hf_rtpdump_txt_port;
 
-static gint hf_rtpdump_binary_header = -1;
-static gint hf_rtpdump_ts_sec = -1;
-static gint hf_rtpdump_ts_usec = -1;
-static gint hf_rtpdump_ts = -1;
-static gint hf_rtpdump_bin_addr = -1;
-static gint hf_rtpdump_bin_port = -1;
-static gint hf_rtpdump_padding = -1;
+static gint hf_rtpdump_binary_header;
+static gint hf_rtpdump_ts_sec;
+static gint hf_rtpdump_ts_usec;
+static gint hf_rtpdump_ts;
+static gint hf_rtpdump_bin_addr;
+static gint hf_rtpdump_bin_port;
+static gint hf_rtpdump_padding;
 
-static gint hf_rtpdump_pkt = -1;
-static gint hf_rtpdump_pkt_len = -1;
-static gint hf_rtpdump_pkt_plen = -1;
-static gint hf_rtpdump_pkt_offset = -1;
-static gint hf_rtpdump_pkt_data = -1;
+static gint hf_rtpdump_pkt;
+static gint hf_rtpdump_pkt_len;
+static gint hf_rtpdump_pkt_plen;
+static gint hf_rtpdump_pkt_offset;
+static gint hf_rtpdump_pkt_data;
 
 /* Initialize the subtree pointers */
-static gint ett_rtpdump = -1;
-static gint ett_rtpdump_text_header = -1;
-static gint ett_rtpdump_binary_header = -1;
-static gint ett_rtpdump_pkt = -1;
+static gint ett_rtpdump;
+static gint ett_rtpdump_text_header;
+static gint ett_rtpdump_binary_header;
+static gint ett_rtpdump_pkt;
 
-static expert_field ei_rtpdump_unknown_program = EI_INIT;
-static expert_field ei_rtpdump_unknown_version = EI_INIT;
-static expert_field ei_rtpdump_bad_txt_addr = EI_INIT;
-static expert_field ei_rtpdump_bad_txt_port = EI_INIT;
-static expert_field ei_rtpdump_bin_ipv6 = EI_INIT;
-static expert_field ei_rtpdump_addrs_match = EI_INIT;
-static expert_field ei_rtpdump_addrs_mismatch = EI_INIT;
-static expert_field ei_rtpdump_caplen = EI_INIT;
+static expert_field ei_rtpdump_unknown_program;
+static expert_field ei_rtpdump_unknown_version;
+static expert_field ei_rtpdump_bad_txt_addr;
+static expert_field ei_rtpdump_bad_txt_port;
+static expert_field ei_rtpdump_bin_ipv6;
+static expert_field ei_rtpdump_addrs_match;
+static expert_field ei_rtpdump_addrs_mismatch;
+static expert_field ei_rtpdump_caplen;
 
 /* Reasonable minimum length for the RTP header (including the magic):
  * - 13 for "#!rtpplay1.0 "

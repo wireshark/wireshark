@@ -37,35 +37,35 @@ enum {
     PARAMETER_COMMAND_APDU_7816            = 0x10
 };
 
-static int proto_btsap                                                     = -1;
-static int hf_btsap_header_msg_id                                          = -1;
-static int hf_btsap_header_number_of_parameters                            = -1;
-static int hf_btsap_header_reserved                                        = -1;
-static int hf_btsap_parameter                                              = -1;
-static int hf_btsap_parameter_id                                           = -1;
-static int hf_btsap_parameter_reserved                                     = -1;
-static int hf_btsap_parameter_length                                       = -1;
-static int hf_btsap_parameter_padding                                      = -1;
-static int hf_btsap_parameter_max_msg_size                                 = -1;
-static int hf_btsap_parameter_connection_status                            = -1;
-static int hf_btsap_parameter_result_code                                  = -1;
-static int hf_btsap_parameter_disconnection_type                           = -1;
-static int hf_btsap_parameter_status_change                                = -1;
-static int hf_btsap_parameter_transport_protocol                           = -1;
-static int hf_btsap_parameter_card_reader_status_card_reader_identity      = -1;
-static int hf_btsap_parameter_card_reader_status_card_reader_removable     = -1;
-static int hf_btsap_parameter_card_reader_status_card_reader_present       = -1;
-static int hf_btsap_parameter_card_reader_status_card_reader_present_lower = -1;
-static int hf_btsap_parameter_card_reader_status_card_present              = -1;
-static int hf_btsap_parameter_card_reader_status_card_powered              = -1;
+static int proto_btsap;
+static int hf_btsap_header_msg_id;
+static int hf_btsap_header_number_of_parameters;
+static int hf_btsap_header_reserved;
+static int hf_btsap_parameter;
+static int hf_btsap_parameter_id;
+static int hf_btsap_parameter_reserved;
+static int hf_btsap_parameter_length;
+static int hf_btsap_parameter_padding;
+static int hf_btsap_parameter_max_msg_size;
+static int hf_btsap_parameter_connection_status;
+static int hf_btsap_parameter_result_code;
+static int hf_btsap_parameter_disconnection_type;
+static int hf_btsap_parameter_status_change;
+static int hf_btsap_parameter_transport_protocol;
+static int hf_btsap_parameter_card_reader_status_card_reader_identity;
+static int hf_btsap_parameter_card_reader_status_card_reader_removable;
+static int hf_btsap_parameter_card_reader_status_card_reader_present;
+static int hf_btsap_parameter_card_reader_status_card_reader_present_lower;
+static int hf_btsap_parameter_card_reader_status_card_present;
+static int hf_btsap_parameter_card_reader_status_card_powered;
 
-static int hf_btsap_data                                                   = -1;
+static int hf_btsap_data;
 
-static gint ett_btsap                                                      = -1;
-static gint ett_btsap_parameter                                            = -1;
+static gint ett_btsap;
+static gint ett_btsap_parameter;
 
-static expert_field ei_btsap_parameter_error = EI_INIT;
-static expert_field ei_unexpected_data = EI_INIT;
+static expert_field ei_btsap_parameter_error;
+static expert_field ei_unexpected_data;
 
 static gint top_dissect = TOP_DISSECT_INTERNAL;
 

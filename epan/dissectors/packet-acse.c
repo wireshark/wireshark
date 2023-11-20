@@ -52,8 +52,8 @@ void proto_register_acse(void);
 void proto_reg_handoff_acse(void);
 
 /* Initialize the protocol and registered fields */
-int proto_acse = -1;
-int proto_clacse = -1;
+int proto_acse;
+int proto_clacse;
 
 
 

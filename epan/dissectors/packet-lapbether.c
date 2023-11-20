@@ -18,11 +18,11 @@
 void proto_register_lapbether(void);
 void proto_reg_handoff_lapbether(void);
 
-static int proto_lapbether = -1;
+static int proto_lapbether;
 
-static int hf_lapbether_length = -1;
+static int hf_lapbether_length;
 
-static gint ett_lapbether = -1;
+static gint ett_lapbether;
 
 static dissector_handle_t lapbether_handle;
 static dissector_handle_t lapb_handle;

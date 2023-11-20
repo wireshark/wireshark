@@ -24,26 +24,26 @@ void proto_register_gsm_bsslap(void);
 static dissector_handle_t bsslap_rrlp_handle = NULL;
 
 /* Initialize the protocol and registered fields */
-static int proto_gsm_bsslap = -1;
-static int hf_gsm_bsslap_msg_type = -1;
-int hf_gsm_a_bsslap_elem_id = -1;
-static int hf_gsm_bsslap_ta = -1;
-static int hf_gsm_bsslap_timer_value = -1;
-static int hf_gsm_bsslap_ms_pow = -1;
-static int hf_gsm_bsslap_cause = -1;
-static int hf_gsm_bsslap_rrlp_flg = -1;
-static int hf_gsm_bsslap_tfi = -1;
-static int hf_gsm_bsslap_poll_rep = -1;
-static int hf_gsm_bsslap_lac = -1;
-static int hf_gsm_bsslap_cell_id_disc = -1;
-static int hf_gsm_bsslap_encryption_key = -1;
+static int proto_gsm_bsslap;
+static int hf_gsm_bsslap_msg_type;
+int hf_gsm_a_bsslap_elem_id;
+static int hf_gsm_bsslap_ta;
+static int hf_gsm_bsslap_timer_value;
+static int hf_gsm_bsslap_ms_pow;
+static int hf_gsm_bsslap_cause;
+static int hf_gsm_bsslap_rrlp_flg;
+static int hf_gsm_bsslap_tfi;
+static int hf_gsm_bsslap_poll_rep;
+static int hf_gsm_bsslap_lac;
+static int hf_gsm_bsslap_cell_id_disc;
+static int hf_gsm_bsslap_encryption_key;
 
 /* Initialize the subtree pointers */
-static int ett_gsm_bsslap = -1;
-static int ett_bsslap_cell_list = -1;
+static int ett_gsm_bsslap;
+static int ett_bsslap_cell_list;
 
-static expert_field ei_gsm_bsslap_missing_mandatory_element = EI_INIT;
-static expert_field ei_gsm_bsslap_not_decoded_yet = EI_INIT;
+static expert_field ei_gsm_bsslap_missing_mandatory_element;
+static expert_field ei_gsm_bsslap_not_decoded_yet;
 
 /* Table 5.1: Element Indentifier codes */
 #define BSSLAP_PARAM_TIMING_ADVANCE                  0x01

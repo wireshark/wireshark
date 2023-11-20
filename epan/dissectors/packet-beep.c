@@ -36,30 +36,30 @@ static dissector_handle_t beep_handle;
 static range_t *global_beep_tcp_ports = NULL;
 static int global_beep_strict_term = TRUE;
 
-static int proto_beep = -1;
+static int proto_beep;
 
-static int hf_beep_req = -1;
-static int hf_beep_cmd = -1;
-static int hf_beep_req_chan = -1;
-/* static int hf_beep_rsp_chan = -1; */
-static int hf_beep_seq_chan = -1;
-/* static int hf_beep_rsp = -1; */
-static int hf_beep_more = -1;
-static int hf_beep_msgno = -1;
-static int hf_beep_ansno = -1;
-static int hf_beep_seqno = -1;
-static int hf_beep_size = -1;
-static int hf_beep_channel = -1;
-static int hf_beep_mime_header = -1;
-static int hf_beep_header = -1;
+static int hf_beep_req;
+static int hf_beep_cmd;
+static int hf_beep_req_chan;
+/* static int hf_beep_rsp_chan; */
+static int hf_beep_seq_chan;
+/* static int hf_beep_rsp; */
+static int hf_beep_more;
+static int hf_beep_msgno;
+static int hf_beep_ansno;
+static int hf_beep_seqno;
+static int hf_beep_size;
+static int hf_beep_channel;
+static int hf_beep_mime_header;
+static int hf_beep_header;
 #if 0
-static int hf_beep_status = -1;
+static int hf_beep_status;
 #endif
-static int hf_beep_ackno = -1;
-static int hf_beep_window = -1;
-static int hf_beep_payload = -1;
-static int hf_beep_payload_undissected = -1;
-static int hf_beep_crlf_terminator = -1;
+static int hf_beep_ackno;
+static int hf_beep_window;
+static int hf_beep_payload;
+static int hf_beep_payload_undissected;
+static int hf_beep_crlf_terminator;
 
 #if 0
 static const value_string beep_status_vals[] = {
@@ -98,15 +98,15 @@ static int *seq_chan_hfa[]   = { &hf_beep_channel, &hf_beep_seq_chan, NULL };
 static int *seq_ackno_hfa[]  = { &hf_beep_ackno, NULL };
 static int *seq_window_hfa[] = { &hf_beep_window, NULL };
 
-static int ett_beep = -1;
-static int ett_mime_header = -1;
-static int ett_header = -1;
-static int ett_trailer = -1;
+static int ett_beep;
+static int ett_mime_header;
+static int ett_header;
+static int ett_trailer;
 
-static expert_field ei_beep_more = EI_INIT;
-static expert_field ei_beep_cr_terminator = EI_INIT;
-static expert_field ei_beep_lf_terminator = EI_INIT;
-static expert_field ei_beep_invalid_terminator = EI_INIT;
+static expert_field ei_beep_more;
+static expert_field ei_beep_cr_terminator;
+static expert_field ei_beep_lf_terminator;
+static expert_field ei_beep_invalid_terminator;
 
 /* Get the state of the more flag ... */
 

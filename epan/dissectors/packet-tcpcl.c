@@ -58,8 +58,8 @@ void proto_reg_handoff_tcpclv3(void);
 
 static const char magic[] = {'d', 't', 'n', '!'};
 
-static int proto_tcpcl = -1;
-static int proto_tcpcl_exts = -1;
+static int proto_tcpcl;
+static int proto_tcpcl_exts;
 /// Protocol column name
 static const char *const proto_name_tcpcl = "TCPCL";
 
@@ -137,117 +137,117 @@ static const value_string v4_msg_reject_reason_vals[]={
     {0, NULL},
 };
 
-static int hf_chdr_tree = -1;
-static int hf_chdr_magic = -1;
-static int hf_chdr_version = -1;
-static int hf_chdr_related = -1;
+static int hf_chdr_tree;
+static int hf_chdr_magic;
+static int hf_chdr_version;
+static int hf_chdr_related;
 
 /* TCP Convergence Header Variables */
-static int hf_tcpclv3_mhdr = -1;
-static int hf_tcpclv3_pkt_type = -1;
+static int hf_tcpclv3_mhdr;
+static int hf_tcpclv3_pkt_type;
 
 /* Refuse-Bundle reason code */
-static int hf_tcpclv3_refuse_reason_code = -1;
+static int hf_tcpclv3_refuse_reason_code;
 
-static int hf_tcpclv3_chdr_flags = -1;
-static int hf_tcpclv3_chdr_keep_alive = -1;
-static int hf_tcpclv3_chdr_flags_ack_req = -1;
-static int hf_tcpclv3_chdr_flags_frag_enable = -1;
-static int hf_tcpclv3_chdr_flags_nak = -1;
-static int hf_tcpclv3_chdr_local_eid_length = -1;
-static int hf_tcpclv3_chdr_local_eid = -1;
+static int hf_tcpclv3_chdr_flags;
+static int hf_tcpclv3_chdr_keep_alive;
+static int hf_tcpclv3_chdr_flags_ack_req;
+static int hf_tcpclv3_chdr_flags_frag_enable;
+static int hf_tcpclv3_chdr_flags_nak;
+static int hf_tcpclv3_chdr_local_eid_length;
+static int hf_tcpclv3_chdr_local_eid;
 
 /* TCP Convergence Data Header Variables */
-static int hf_tcpclv3_data_procflags = -1;
-static int hf_tcpclv3_data_procflags_start = -1;
-static int hf_tcpclv3_data_procflags_end = -1;
-static int hf_tcpclv3_xfer_id = -1;
-static int hf_tcpclv3_data_segment_length = -1;
-static int hf_tcpclv3_data_segment_data = -1;
+static int hf_tcpclv3_data_procflags;
+static int hf_tcpclv3_data_procflags_start;
+static int hf_tcpclv3_data_procflags_end;
+static int hf_tcpclv3_xfer_id;
+static int hf_tcpclv3_data_segment_length;
+static int hf_tcpclv3_data_segment_data;
 
 /* TCP Convergence Ack Variables */
-static int hf_tcpclv3_ack_length = -1;
+static int hf_tcpclv3_ack_length;
 
 /* TCP Convergence Shutdown Header Variables */
-static int hf_tcpclv3_shutdown_flags = -1;
-static int hf_tcpclv3_shutdown_flags_reason = -1;
-static int hf_tcpclv3_shutdown_flags_delay = -1;
-static int hf_tcpclv3_shutdown_reason = -1;
-static int hf_tcpclv3_shutdown_delay = -1;
+static int hf_tcpclv3_shutdown_flags;
+static int hf_tcpclv3_shutdown_flags_reason;
+static int hf_tcpclv3_shutdown_flags_delay;
+static int hf_tcpclv3_shutdown_reason;
+static int hf_tcpclv3_shutdown_delay;
 
-static int hf_tcpclv4_chdr_flags = -1;
-static int hf_tcpclv4_chdr_flags_cantls = -1;
-static int hf_tcpclv4_negotiate_use_tls = -1;
+static int hf_tcpclv4_chdr_flags;
+static int hf_tcpclv4_chdr_flags_cantls;
+static int hf_tcpclv4_negotiate_use_tls;
 
-static int hf_tcpclv4_mhdr_tree = -1;
-static int hf_tcpclv4_mhdr_type = -1;
-static int hf_tcpclv4_sess_init_keepalive = -1;
-static int hf_tcpclv4_sess_init_seg_mru = -1;
-static int hf_tcpclv4_sess_init_xfer_mru = -1;
-static int hf_tcpclv4_sess_init_nodeid_len = -1;
-static int hf_tcpclv4_sess_init_nodeid_data = -1;
-static int hf_tcpclv4_sess_init_extlist_len = -1;
-static int hf_tcpclv4_sess_init_related = -1;
-static int hf_tcpclv4_negotiate_keepalive = -1;
+static int hf_tcpclv4_mhdr_tree;
+static int hf_tcpclv4_mhdr_type;
+static int hf_tcpclv4_sess_init_keepalive;
+static int hf_tcpclv4_sess_init_seg_mru;
+static int hf_tcpclv4_sess_init_xfer_mru;
+static int hf_tcpclv4_sess_init_nodeid_len;
+static int hf_tcpclv4_sess_init_nodeid_data;
+static int hf_tcpclv4_sess_init_extlist_len;
+static int hf_tcpclv4_sess_init_related;
+static int hf_tcpclv4_negotiate_keepalive;
 
-static int hf_tcpclv4_sess_term_flags = -1;
-static int hf_tcpclv4_sess_term_flags_reply = -1;
-static int hf_tcpclv4_sess_term_reason = -1;
-static int hf_tcpclv4_sess_term_related = -1;
+static int hf_tcpclv4_sess_term_flags;
+static int hf_tcpclv4_sess_term_flags_reply;
+static int hf_tcpclv4_sess_term_reason;
+static int hf_tcpclv4_sess_term_related;
 
-static int hf_tcpclv4_sessext_tree = -1;
-static int hf_tcpclv4_sessext_flags = -1;
-static int hf_tcpclv4_sessext_flags_crit = -1;
-static int hf_tcpclv4_sessext_type = -1;
-static int hf_tcpclv4_sessext_len = -1;
-static int hf_tcpclv4_sessext_data = -1;
+static int hf_tcpclv4_sessext_tree;
+static int hf_tcpclv4_sessext_flags;
+static int hf_tcpclv4_sessext_flags_crit;
+static int hf_tcpclv4_sessext_type;
+static int hf_tcpclv4_sessext_len;
+static int hf_tcpclv4_sessext_data;
 
-static int hf_tcpclv4_xferext_tree = -1;
-static int hf_tcpclv4_xferext_flags = -1;
-static int hf_tcpclv4_xferext_flags_crit = -1;
-static int hf_tcpclv4_xferext_type = -1;
-static int hf_tcpclv4_xferext_len = -1;
-static int hf_tcpclv4_xferext_data = -1;
+static int hf_tcpclv4_xferext_tree;
+static int hf_tcpclv4_xferext_flags;
+static int hf_tcpclv4_xferext_flags_crit;
+static int hf_tcpclv4_xferext_type;
+static int hf_tcpclv4_xferext_len;
+static int hf_tcpclv4_xferext_data;
 
-static int hf_tcpclv4_xfer_flags = -1;
-static int hf_tcpclv4_xfer_flags_start = -1;
-static int hf_tcpclv4_xfer_flags_end = -1;
-static int hf_tcpclv4_xfer_id = -1;
-static int hf_tcpclv4_xfer_total_len = -1;
-static int hf_tcpclv4_xfer_segment_extlist_len = -1;
-static int hf_tcpclv4_xfer_segment_data_len = -1;
-static int hf_tcpclv4_xfer_segment_data = -1;
-static int hf_tcpclv4_xfer_segment_seen_len = -1;
-static int hf_tcpclv4_xfer_segment_related_start = -1;
-static int hf_tcpclv4_xfer_segment_time_start = -1;
-static int hf_tcpclv4_xfer_segment_related_ack = -1;
-static int hf_tcpclv4_xfer_segment_time_diff = -1;
-static int hf_tcpclv4_xfer_ack_ack_len = -1;
-static int hf_tcpclv4_xfer_ack_related_start = -1;
-static int hf_tcpclv4_xfer_ack_time_start = -1;
-static int hf_tcpclv4_xfer_ack_related_seg = -1;
-static int hf_tcpclv4_xfer_ack_time_diff = -1;
-static int hf_tcpclv4_xfer_refuse_reason = -1;
-static int hf_tcpclv4_xfer_refuse_related_seg = -1;
-static int hf_tcpclv4_msg_reject_reason = -1;
-static int hf_tcpclv4_msg_reject_head = -1;
+static int hf_tcpclv4_xfer_flags;
+static int hf_tcpclv4_xfer_flags_start;
+static int hf_tcpclv4_xfer_flags_end;
+static int hf_tcpclv4_xfer_id;
+static int hf_tcpclv4_xfer_total_len;
+static int hf_tcpclv4_xfer_segment_extlist_len;
+static int hf_tcpclv4_xfer_segment_data_len;
+static int hf_tcpclv4_xfer_segment_data;
+static int hf_tcpclv4_xfer_segment_seen_len;
+static int hf_tcpclv4_xfer_segment_related_start;
+static int hf_tcpclv4_xfer_segment_time_start;
+static int hf_tcpclv4_xfer_segment_related_ack;
+static int hf_tcpclv4_xfer_segment_time_diff;
+static int hf_tcpclv4_xfer_ack_ack_len;
+static int hf_tcpclv4_xfer_ack_related_start;
+static int hf_tcpclv4_xfer_ack_time_start;
+static int hf_tcpclv4_xfer_ack_related_seg;
+static int hf_tcpclv4_xfer_ack_time_diff;
+static int hf_tcpclv4_xfer_refuse_reason;
+static int hf_tcpclv4_xfer_refuse_related_seg;
+static int hf_tcpclv4_msg_reject_reason;
+static int hf_tcpclv4_msg_reject_head;
 
-static int hf_tcpclv4_xferext_transferlen_total_len = -1;
+static int hf_tcpclv4_xferext_transferlen_total_len;
 
-static int hf_othername_bundleeid = -1;
+static int hf_othername_bundleeid;
 
 /*TCP Convergence Layer Reassembly boilerplate*/
-static int hf_xfer_fragments = -1;
-static int hf_xfer_fragment = -1;
-static int hf_xfer_fragment_overlap = -1;
-static int hf_xfer_fragment_overlap_conflicts = -1;
-static int hf_xfer_fragment_multiple_tails = -1;
-static int hf_xfer_fragment_too_long_fragment = -1;
-static int hf_xfer_fragment_error = -1;
-static int hf_xfer_fragment_count = -1;
-static int hf_xfer_reassembled_in = -1;
-static int hf_xfer_reassembled_length = -1;
-static int hf_xfer_reassembled_data = -1;
+static int hf_xfer_fragments;
+static int hf_xfer_fragment;
+static int hf_xfer_fragment_overlap;
+static int hf_xfer_fragment_overlap_conflicts;
+static int hf_xfer_fragment_multiple_tails;
+static int hf_xfer_fragment_too_long_fragment;
+static int hf_xfer_fragment_error;
+static int hf_xfer_fragment_count;
+static int hf_xfer_reassembled_in;
+static int hf_xfer_reassembled_length;
+static int hf_xfer_reassembled_data;
 
 static hf_register_info hf_tcpcl[] = {
     {&hf_chdr_tree, {"Contact Header", "tcpcl.contact_hdr", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
@@ -487,24 +487,24 @@ static int *const v4_xferext_flags[] = {
 };
 
 /* Tree Node Variables */
-static gint ett_proto_tcpcl = -1;
-static gint ett_chdr = -1;
-static gint ett_tcpclv3_chdr_flags = -1;
-static gint ett_tcpclv3_mhdr = -1;
-static gint ett_tcpclv3_data_procflags = -1;
-static gint ett_tcpclv3_shutdown_flags = -1;
-static gint ett_xfer_fragment = -1;
-static gint ett_xfer_fragments = -1;
-static gint ett_tcpclv4_chdr_flags = -1;
-static gint ett_tcpclv4_mhdr = -1;
-static gint ett_tcpclv4_sess_term_flags = -1;
-static gint ett_tcpclv4_xfer_flags = -1;
-static gint ett_tcpclv4_sessext = -1;
-static gint ett_tcpclv4_sessext_flags = -1;
-static gint ett_tcpclv4_sessext_data = -1;
-static gint ett_tcpclv4_xferext = -1;
-static gint ett_tcpclv4_xferext_flags = -1;
-static gint ett_tcpclv4_xferext_data = -1;
+static gint ett_proto_tcpcl;
+static gint ett_chdr;
+static gint ett_tcpclv3_chdr_flags;
+static gint ett_tcpclv3_mhdr;
+static gint ett_tcpclv3_data_procflags;
+static gint ett_tcpclv3_shutdown_flags;
+static gint ett_xfer_fragment;
+static gint ett_xfer_fragments;
+static gint ett_tcpclv4_chdr_flags;
+static gint ett_tcpclv4_mhdr;
+static gint ett_tcpclv4_sess_term_flags;
+static gint ett_tcpclv4_xfer_flags;
+static gint ett_tcpclv4_sessext;
+static gint ett_tcpclv4_sessext_flags;
+static gint ett_tcpclv4_sessext_data;
+static gint ett_tcpclv4_xferext;
+static gint ett_tcpclv4_xferext_flags;
+static gint ett_tcpclv4_xferext_data;
 
 static gint *ett[] = {
     &ett_proto_tcpcl,
@@ -527,38 +527,38 @@ static gint *ett[] = {
     &ett_xfer_fragments,
 };
 
-static expert_field ei_invalid_magic = EI_INIT;
-static expert_field ei_invalid_version = EI_INIT;
-static expert_field ei_mismatch_version = EI_INIT;
-static expert_field ei_chdr_duplicate = EI_INIT;
-static expert_field ei_length_clamped = EI_INIT;
+static expert_field ei_invalid_magic;
+static expert_field ei_invalid_version;
+static expert_field ei_mismatch_version;
+static expert_field ei_chdr_duplicate;
+static expert_field ei_length_clamped;
 
-static expert_field ei_tcpclv3_eid_length = EI_INIT;
-static expert_field ei_tcpclv3_invalid_msg_type = EI_INIT;
-static expert_field ei_tcpclv3_data_flags = EI_INIT;
-static expert_field ei_tcpclv3_segment_length = EI_INIT;
-static expert_field ei_tcpclv3_ack_length = EI_INIT;
+static expert_field ei_tcpclv3_eid_length;
+static expert_field ei_tcpclv3_invalid_msg_type;
+static expert_field ei_tcpclv3_data_flags;
+static expert_field ei_tcpclv3_segment_length;
+static expert_field ei_tcpclv3_ack_length;
 
-static expert_field ei_tcpclv4_invalid_msg_type = EI_INIT;
-static expert_field ei_tcpclv4_invalid_sessext_type = EI_INIT;
-static expert_field ei_tcpclv4_invalid_xferext_type = EI_INIT;
-static expert_field ei_tcpclv4_extitem_critical = EI_INIT;
-static expert_field ei_tcpclv4_sess_init_missing = EI_INIT;
-static expert_field ei_tcpclv4_sess_init_duplicate = EI_INIT;
-static expert_field ei_tcpclv4_sess_term_duplicate = EI_INIT;
-static expert_field ei_tcpclv4_sess_term_reply_flag = EI_INIT;
-static expert_field ei_tcpclv4_xfer_seg_over_seg_mru = EI_INIT;
-static expert_field ei_tcpclv4_xfer_seg_missing_start = EI_INIT;
-static expert_field ei_tcpclv4_xfer_seg_duplicate_start = EI_INIT;
-static expert_field ei_tcpclv4_xfer_seg_missing_end = EI_INIT;
-static expert_field ei_tcpclv4_xfer_seg_duplicate_end = EI_INIT;
-static expert_field ei_tcpclv4_xfer_seg_no_relation = EI_INIT;
-static expert_field ei_xfer_seg_over_total_len = EI_INIT;
-static expert_field ei_xfer_mismatch_total_len = EI_INIT;
-static expert_field ei_xfer_ack_mismatch_flags = EI_INIT;
-static expert_field ei_xfer_ack_no_relation = EI_INIT;
-static expert_field ei_tcpclv4_xfer_refuse_no_transfer = EI_INIT;
-static expert_field ei_tcpclv4_xferload_over_xfer_mru = EI_INIT;
+static expert_field ei_tcpclv4_invalid_msg_type;
+static expert_field ei_tcpclv4_invalid_sessext_type;
+static expert_field ei_tcpclv4_invalid_xferext_type;
+static expert_field ei_tcpclv4_extitem_critical;
+static expert_field ei_tcpclv4_sess_init_missing;
+static expert_field ei_tcpclv4_sess_init_duplicate;
+static expert_field ei_tcpclv4_sess_term_duplicate;
+static expert_field ei_tcpclv4_sess_term_reply_flag;
+static expert_field ei_tcpclv4_xfer_seg_over_seg_mru;
+static expert_field ei_tcpclv4_xfer_seg_missing_start;
+static expert_field ei_tcpclv4_xfer_seg_duplicate_start;
+static expert_field ei_tcpclv4_xfer_seg_missing_end;
+static expert_field ei_tcpclv4_xfer_seg_duplicate_end;
+static expert_field ei_tcpclv4_xfer_seg_no_relation;
+static expert_field ei_xfer_seg_over_total_len;
+static expert_field ei_xfer_mismatch_total_len;
+static expert_field ei_xfer_ack_mismatch_flags;
+static expert_field ei_xfer_ack_no_relation;
+static expert_field ei_tcpclv4_xfer_refuse_no_transfer;
+static expert_field ei_tcpclv4_xferload_over_xfer_mru;
 
 static ei_register_info ei_tcpcl[] = {
     {&ei_invalid_magic, { "tcpcl.invalid_contact_magic", PI_PROTOCOL, PI_ERROR, "Magic string is invalid", EXPFILL}},

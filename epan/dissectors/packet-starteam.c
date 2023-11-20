@@ -24,31 +24,31 @@
 void proto_register_starteam(void);
 void proto_reg_handoff_starteam(void);
 
-static int proto_starteam = -1;
+static int proto_starteam;
 
-static int hf_starteam_mdh_session_tag = -1;
-static int hf_starteam_mdh_ctimestamp = -1;
-static int hf_starteam_mdh_flags = -1;
-static int hf_starteam_mdh_keyid = -1;
-static int hf_starteam_mdh_reserved = -1;
-static int hf_starteam_ph_signature = -1;
-static int hf_starteam_ph_packet_size = -1;
-static int hf_starteam_ph_data_size = -1;
-static int hf_starteam_ph_data_flags = -1;
-static int hf_starteam_id_revision_level = -1;
-static int hf_starteam_id_client = -1;
-static int hf_starteam_id_connect = -1;
-static int hf_starteam_id_component = -1;
-static int hf_starteam_id_command = -1;
-static int hf_starteam_id_command_time = -1;
-static int hf_starteam_id_command_userid = -1;
-static int hf_starteam_data_data = -1;
+static int hf_starteam_mdh_session_tag;
+static int hf_starteam_mdh_ctimestamp;
+static int hf_starteam_mdh_flags;
+static int hf_starteam_mdh_keyid;
+static int hf_starteam_mdh_reserved;
+static int hf_starteam_ph_signature;
+static int hf_starteam_ph_packet_size;
+static int hf_starteam_ph_data_size;
+static int hf_starteam_ph_data_flags;
+static int hf_starteam_id_revision_level;
+static int hf_starteam_id_client;
+static int hf_starteam_id_connect;
+static int hf_starteam_id_component;
+static int hf_starteam_id_command;
+static int hf_starteam_id_command_time;
+static int hf_starteam_id_command_userid;
+static int hf_starteam_data_data;
 
-static gint ett_starteam = -1;
-static gint ett_starteam_mdh = -1;
-static gint ett_starteam_ph = -1;
-static gint ett_starteam_id = -1;
-static gint ett_starteam_data = -1;
+static gint ett_starteam;
+static gint ett_starteam_mdh;
+static gint ett_starteam_ph;
+static gint ett_starteam_id;
+static gint ett_starteam_data;
 
 static dissector_handle_t starteam_tcp_handle;
 

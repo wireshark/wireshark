@@ -45,25 +45,25 @@ static int ipx_tap = -1;
 
 */
 
-static int proto_ipx = -1;
-static int hf_ipx_checksum = -1;
-static int hf_ipx_len = -1;
-static int hf_ipx_src = -1;
-static int hf_ipx_dst = -1;
-static int hf_ipx_addr = -1;
-static int hf_ipx_hops = -1;
-static int hf_ipx_packet_type = -1;
-static int hf_ipx_dnet = -1;
-static int hf_ipx_dnode = -1;
-static int hf_ipx_dsocket = -1;
-static int hf_ipx_snet = -1;
-static int hf_ipx_snode = -1;
-static int hf_ipx_ssocket = -1;
-static int hf_ipx_net = -1;
-static int hf_ipx_node = -1;
-static int hf_ipx_socket = -1;
+static int proto_ipx;
+static int hf_ipx_checksum;
+static int hf_ipx_len;
+static int hf_ipx_src;
+static int hf_ipx_dst;
+static int hf_ipx_addr;
+static int hf_ipx_hops;
+static int hf_ipx_packet_type;
+static int hf_ipx_dnet;
+static int hf_ipx_dnode;
+static int hf_ipx_dsocket;
+static int hf_ipx_snet;
+static int hf_ipx_snode;
+static int hf_ipx_ssocket;
+static int hf_ipx_net;
+static int hf_ipx_node;
+static int hf_ipx_socket;
 
-static gint ett_ipx = -1;
+static gint ett_ipx;
 
 static dissector_table_t ipx_type_dissector_table;
 static dissector_table_t ipx_socket_dissector_table;
@@ -75,62 +75,62 @@ static dissector_handle_t ipxrip_handle;
 static dissector_handle_t serialization_handle;
 static dissector_handle_t ipxmsg_handle;
 
-static int proto_spx = -1;
-static int hf_spx_connection_control = -1;
-static int hf_spx_connection_control_sys = -1;
-static int hf_spx_connection_control_send_ack = -1;
-static int hf_spx_connection_control_attn = -1;
-static int hf_spx_connection_control_eom = -1;
-static int hf_spx_connection_control_v2 = -1;
-static int hf_spx_connection_control_neg_size = -1;
-static int hf_spx_connection_control_reserved = -1;
-static int hf_spx_connection_control_ext_header = -1;
-static int hf_spx_datastream_type = -1;
-static int hf_spx_src_id = -1;
-static int hf_spx_dst_id = -1;
-static int hf_spx_seq_nr = -1;
-static int hf_spx_ack_nr = -1;
-static int hf_spx_all_nr = -1;
-static int hf_spx_neg_size = -1;
-static int hf_spx_rexmt_frame = -1;
-static int hf_spx_rexmt_data = -1;
+static int proto_spx;
+static int hf_spx_connection_control;
+static int hf_spx_connection_control_sys;
+static int hf_spx_connection_control_send_ack;
+static int hf_spx_connection_control_attn;
+static int hf_spx_connection_control_eom;
+static int hf_spx_connection_control_v2;
+static int hf_spx_connection_control_neg_size;
+static int hf_spx_connection_control_reserved;
+static int hf_spx_connection_control_ext_header;
+static int hf_spx_datastream_type;
+static int hf_spx_src_id;
+static int hf_spx_dst_id;
+static int hf_spx_seq_nr;
+static int hf_spx_ack_nr;
+static int hf_spx_all_nr;
+static int hf_spx_neg_size;
+static int hf_spx_rexmt_frame;
+static int hf_spx_rexmt_data;
 
-static gint ett_spx = -1;
-static gint ett_spx_connctrl = -1;
+static gint ett_spx;
+static gint ett_spx_connctrl;
 
-static int proto_ipxrip = -1;
-static int hf_ipxrip_request = -1;
-static int hf_ipxrip_response = -1;
-static int hf_ipxrip_packet_type = -1;
-static int hf_ipxrip_route_vector = -1;
-static int hf_ipxrip_hops = -1;
-static int hf_ipxrip_ticks = -1;
+static int proto_ipxrip;
+static int hf_ipxrip_request;
+static int hf_ipxrip_response;
+static int hf_ipxrip_packet_type;
+static int hf_ipxrip_route_vector;
+static int hf_ipxrip_hops;
+static int hf_ipxrip_ticks;
 
-static gint ett_ipxrip = -1;
+static gint ett_ipxrip;
 
-static int proto_serialization = -1;
-static int hf_serial_number = -1;
-static gint ett_serialization = -1;
+static int proto_serialization;
+static int hf_serial_number;
+static gint ett_serialization;
 
-static int proto_sap = -1;
-static int hf_sap_request = -1;
-static int hf_sap_response = -1;
-static int hf_sap_packet_type = -1;
-static int hf_sap_server = -1;
-static int hf_sap_server_type = -1;
-static int hf_sap_server_name = -1;
-static int hf_sap_server_network = -1;
-static int hf_sap_server_node = -1;
-static int hf_sap_server_socket = -1;
-static int hf_sap_server_intermediate_networks = -1;
+static int proto_sap;
+static int hf_sap_request;
+static int hf_sap_response;
+static int hf_sap_packet_type;
+static int hf_sap_server;
+static int hf_sap_server_type;
+static int hf_sap_server_name;
+static int hf_sap_server_network;
+static int hf_sap_server_node;
+static int hf_sap_server_socket;
+static int hf_sap_server_intermediate_networks;
 
-static gint ett_ipxsap = -1;
-static gint ett_ipxsap_server = -1;
+static gint ett_ipxsap;
+static gint ett_ipxsap_server;
 
-static gint ett_ipxmsg = -1;
-static int proto_ipxmsg = -1;
-static int hf_msg_conn = -1;
-static int hf_msg_sigchar = -1;
+static gint ett_ipxmsg;
+static int proto_ipxmsg;
+static int hf_msg_conn;
+static int hf_msg_sigchar;
 
 #define UDP_PORT_IPX    213		/* RFC 1234 */
 

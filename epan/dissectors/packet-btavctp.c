@@ -28,20 +28,20 @@
 #define PACKET_TYPE_CONTINUE  0x02
 #define PACKET_TYPE_END       0x03
 
-int proto_btavctp = -1;
+int proto_btavctp;
 
-static int hf_btavctp_transaction               = -1;
-static int hf_btavctp_packet_type               = -1;
-static int hf_btavctp_cr                        = -1;
-static int hf_btavctp_ipid                      = -1;
-static int hf_btavctp_rfa                       = -1;
-static int hf_btavctp_pid                       = -1;
-static int hf_btavctp_number_of_packets         = -1;
+static int hf_btavctp_transaction;
+static int hf_btavctp_packet_type;
+static int hf_btavctp_cr;
+static int hf_btavctp_ipid;
+static int hf_btavctp_rfa;
+static int hf_btavctp_pid;
+static int hf_btavctp_number_of_packets;
 
-static gint ett_btavctp             = -1;
+static gint ett_btavctp;
 
-static expert_field ei_btavctp_unexpected_frame = EI_INIT;
-static expert_field ei_btavctp_invalid_profile = EI_INIT;
+static expert_field ei_btavctp_unexpected_frame;
+static expert_field ei_btavctp_invalid_profile;
 
 static dissector_handle_t btavctp_handle;
 

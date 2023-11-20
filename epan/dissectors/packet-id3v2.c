@@ -30,35 +30,35 @@ void proto_register_id3v2(void);
 
 static dissector_table_t media_type_dissector_table;
 
-static int proto_id3v2 = -1;
-static int hf_id3v2 = -1;
-static int hf_id3v2_file_id = -1;
-static int hf_id3v2_version = -1;
-static int hf_id3v2_flags = -1;
-static int hf_id3v2_size = -1;
-static int hf_id3v2_frame = -1;
-static int hf_id3v2_frame_id = -1;
-static int hf_id3v2_frame_size = -1;
-static int hf_id3v2_frame_flags = -1;
-static int hf_id3v2_frame_text_encoding = -1;
-static int hf_id3v2_frame_text_description = -1;
-static int hf_id3v2_frame_text_value = -1;
-static int hf_id3v2_frame_ufi_owner = -1;
-static int hf_id3v2_frame_ufi_id = -1;
-static int hf_id3v2_frame_apic_mime_type = -1;
-static int hf_id3v2_frame_apic_picture_type = -1;
-static int hf_id3v2_frame_apic_description = -1;
-static int hf_id3v2_frame_private = -1;
-static int hf_id3v2_frame_comment_language = -1;
-static int hf_id3v2_frame_comment_description = -1;
-static int hf_id3v2_frame_comment_text = -1;
-static int hf_id3v2_undecoded = -1;
-static int hf_id3v2_padding = -1;
+static int proto_id3v2;
+static int hf_id3v2;
+static int hf_id3v2_file_id;
+static int hf_id3v2_version;
+static int hf_id3v2_flags;
+static int hf_id3v2_size;
+static int hf_id3v2_frame;
+static int hf_id3v2_frame_id;
+static int hf_id3v2_frame_size;
+static int hf_id3v2_frame_flags;
+static int hf_id3v2_frame_text_encoding;
+static int hf_id3v2_frame_text_description;
+static int hf_id3v2_frame_text_value;
+static int hf_id3v2_frame_ufi_owner;
+static int hf_id3v2_frame_ufi_id;
+static int hf_id3v2_frame_apic_mime_type;
+static int hf_id3v2_frame_apic_picture_type;
+static int hf_id3v2_frame_apic_description;
+static int hf_id3v2_frame_private;
+static int hf_id3v2_frame_comment_language;
+static int hf_id3v2_frame_comment_description;
+static int hf_id3v2_frame_comment_text;
+static int hf_id3v2_undecoded;
+static int hf_id3v2_padding;
 
-static gint ett_id3v2 = -1;
-static gint ett_id3v2_frame = -1;
+static gint ett_id3v2;
+static gint ett_id3v2_frame;
 
-static expert_field ei_id3v2_undecoded = EI_INIT;
+static expert_field ei_id3v2_undecoded;
 
 #define ID3V2_MIN_LENGTH 10
 

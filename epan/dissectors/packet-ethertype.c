@@ -28,7 +28,7 @@ void proto_register_ethertype(void);
 
 static dissector_table_t ethertype_dissector_table;
 
-static int proto_ethertype = -1;
+static int proto_ethertype;
 
 const value_string etype_vals[] = {
 	{ ETHERTYPE_IP,                   "IPv4" },

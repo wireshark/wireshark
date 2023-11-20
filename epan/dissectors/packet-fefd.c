@@ -24,22 +24,22 @@ static dissector_handle_t fefd_handle;
 #define TLV_TYPE        0
 #define TLV_LENGTH      2
 
-static int proto_fefd = -1;
-static int hf_fefd_version = -1;
-static int hf_fefd_opcode = -1;
-static int hf_fefd_flags = -1;
-static int hf_fefd_flags_rt = -1;
-static int hf_fefd_flags_rsy = -1;
-static int hf_fefd_checksum = -1;
-static int hf_fefd_tlvtype = -1;
-static int hf_fefd_tlvlength = -1;
-static int hf_fefd_device_id = -1;
-static int hf_fefd_sent_through_interface = -1;
-static int hf_fefd_data = -1;
+static int proto_fefd;
+static int hf_fefd_version;
+static int hf_fefd_opcode;
+static int hf_fefd_flags;
+static int hf_fefd_flags_rt;
+static int hf_fefd_flags_rsy;
+static int hf_fefd_checksum;
+static int hf_fefd_tlvtype;
+static int hf_fefd_tlvlength;
+static int hf_fefd_device_id;
+static int hf_fefd_sent_through_interface;
+static int hf_fefd_data;
 
-static gint ett_fefd = -1;
-static gint ett_fefd_flags = -1;
-static gint ett_fefd_tlv = -1;
+static gint ett_fefd;
+static gint ett_fefd_flags;
+static gint ett_fefd_tlv;
 
 #define TYPE_DEVICE_ID        0x0001
 #define TYPE_PORT_ID          0x0002

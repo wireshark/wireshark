@@ -21,11 +21,11 @@
 void proto_register_rs_attr (void);
 void proto_reg_handoff_rs_attr (void);
 
-static int proto_rs_attr = -1;
-static int hf_rs_attr_opnum = -1;
+static int proto_rs_attr;
+static int hf_rs_attr_opnum;
 
 
-static gint ett_rs_attr = -1;
+static gint ett_rs_attr;
 
 
 static e_guid_t uuid_rs_attr = { 0xa71fc1e8, 0x567f, 0x11cb, { 0x98, 0xa0, 0x08, 0x00, 0x1e, 0x04, 0xde, 0x8c } };

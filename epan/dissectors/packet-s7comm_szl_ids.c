@@ -17,9 +17,9 @@
 #include "packet-s7comm.h"
 #include "packet-s7comm_szl_ids.h"
 
-static gint ett_s7comm_szl = -1;
-static gint hf_s7comm_userdata_szl_partial_list = -1;           /* Partial list in szl response */
-static gint hf_s7comm_userdata_szl_id = -1;                     /* SZL id */
+static gint ett_s7comm_szl;
+static gint hf_s7comm_userdata_szl_partial_list;           /* Partial list in szl response */
+static gint hf_s7comm_userdata_szl_id;                     /* SZL id */
 
 static const value_string szl_module_type_names[] = {
     { 0x0,                                  "CPU" },            /* Binary: 0000 */
@@ -28,12 +28,12 @@ static const value_string szl_module_type_names[] = {
     { 0x8,                                  "FM" },             /* Binary: 1000 */
     { 0,                                    NULL }
 };
-static gint hf_s7comm_userdata_szl_id_type = -1;
-static gint hf_s7comm_userdata_szl_id_partlist_ex = -1;
-static gint hf_s7comm_userdata_szl_id_partlist_num = -1;
-static gint hf_s7comm_userdata_szl_id_partlist_len = -1;
-static gint hf_s7comm_userdata_szl_id_partlist_cnt = -1;
-static gint ett_s7comm_userdata_szl_id = -1;
+static gint hf_s7comm_userdata_szl_id_type;
+static gint hf_s7comm_userdata_szl_id_partlist_ex;
+static gint hf_s7comm_userdata_szl_id_partlist_num;
+static gint hf_s7comm_userdata_szl_id_partlist_len;
+static gint hf_s7comm_userdata_szl_id_partlist_cnt;
+static gint ett_s7comm_userdata_szl_id;
 static int * const s7comm_userdata_szl_id_fields[] = {
     &hf_s7comm_userdata_szl_id_type,
     &hf_s7comm_userdata_szl_id_partlist_ex,
@@ -239,8 +239,8 @@ static const value_string szl_partial_list_names[] = {
 };
 static value_string_ext szl_partial_list_names_ext = VALUE_STRING_EXT_INIT(szl_partial_list_names);
 
-static gint hf_s7comm_userdata_szl_index = -1;                  /* SZL index */
-static gint hf_s7comm_userdata_szl_tree = -1;                   /* SZL item tree */
+static gint hf_s7comm_userdata_szl_index;                  /* SZL index */
+static gint hf_s7comm_userdata_szl_tree;                   /* SZL item tree */
 
 /* Index description for SZL Requests */
 static const value_string szl_0111_index_names[] = {
@@ -432,12 +432,12 @@ static const value_string szl_xy1c_index_names[] = {
 };
 
 /* Header fields of the SZL */
-static gint hf_s7comm_szl_0000_0000_szl_id = -1;
-static gint hf_s7comm_szl_0000_0000_module_type_class = -1;
-static gint hf_s7comm_szl_0000_0000_partlist_extr_nr = -1;
-static gint hf_s7comm_szl_0000_0000_partlist_nr = -1;
+static gint hf_s7comm_szl_0000_0000_szl_id;
+static gint hf_s7comm_szl_0000_0000_module_type_class;
+static gint hf_s7comm_szl_0000_0000_partlist_extr_nr;
+static gint hf_s7comm_szl_0000_0000_partlist_nr;
 
-static gint hf_s7comm_szl_xy12_0x00_charac = -1;
+static gint hf_s7comm_szl_xy12_0x00_charac;
 static const value_string szl_xy12_cpu_characteristic_names[] = {
     { 0x0000,                               "MC7 processing unit group" },
     { 0x0001,                               "MC7 processing generating code" },
@@ -489,62 +489,62 @@ static const value_string szl_xy12_cpu_characteristic_names[] = {
     { 0,                                    NULL }
 };
 
-static gint hf_s7comm_szl_0013_0000_index = -1;
+static gint hf_s7comm_szl_0013_0000_index;
 
-static gint hf_s7comm_szl_0013_0000_code = -1;
+static gint hf_s7comm_szl_0013_0000_code;
 static const value_string szl_memory_type_names[] = {
     { 0x0001,                               "volatile memory (RAM)" },
     { 0x0002,                               "non-volatile memory (FEPROM)" },
     { 0x0003,                               "mixed memory (RAM + FEPROM)" },
     { 0,                                    NULL }
 };
-static gint hf_s7comm_szl_0013_0000_size = -1;
-static gint hf_s7comm_szl_0013_0000_mode = -1;
-static gint hf_s7comm_szl_0013_0000_mode_0 = -1;
-static gint hf_s7comm_szl_0013_0000_mode_1 = -1;
-static gint hf_s7comm_szl_0013_0000_mode_2 = -1;
-static gint hf_s7comm_szl_0013_0000_mode_3 = -1;
-static gint hf_s7comm_szl_0013_0000_mode_4 = -1;
-static gint hf_s7comm_szl_0013_0000_granu = -1;
-static gint hf_s7comm_szl_0013_0000_ber1 = -1;
-static gint hf_s7comm_szl_0013_0000_belegt1 = -1;
-static gint hf_s7comm_szl_0013_0000_block1 = -1;
-static gint hf_s7comm_szl_0013_0000_ber2 = -1;
-static gint hf_s7comm_szl_0013_0000_belegt2 = -1;
-static gint hf_s7comm_szl_0013_0000_block2 = -1;
+static gint hf_s7comm_szl_0013_0000_size;
+static gint hf_s7comm_szl_0013_0000_mode;
+static gint hf_s7comm_szl_0013_0000_mode_0;
+static gint hf_s7comm_szl_0013_0000_mode_1;
+static gint hf_s7comm_szl_0013_0000_mode_2;
+static gint hf_s7comm_szl_0013_0000_mode_3;
+static gint hf_s7comm_szl_0013_0000_mode_4;
+static gint hf_s7comm_szl_0013_0000_granu;
+static gint hf_s7comm_szl_0013_0000_ber1;
+static gint hf_s7comm_szl_0013_0000_belegt1;
+static gint hf_s7comm_szl_0013_0000_block1;
+static gint hf_s7comm_szl_0013_0000_ber2;
+static gint hf_s7comm_szl_0013_0000_belegt2;
+static gint hf_s7comm_szl_0013_0000_block2;
 
-static gint hf_s7comm_szl_xy11_0001_index = -1;
-static gint hf_s7comm_szl_xy11_0001_mlfb = -1;
-static gint hf_s7comm_szl_xy11_0001_bgtyp = -1;
-static gint hf_s7comm_szl_xy11_0001_ausbg = -1;
-static gint hf_s7comm_szl_xy11_0001_ausbe = -1;
+static gint hf_s7comm_szl_xy11_0001_index;
+static gint hf_s7comm_szl_xy11_0001_mlfb;
+static gint hf_s7comm_szl_xy11_0001_bgtyp;
+static gint hf_s7comm_szl_xy11_0001_ausbg;
+static gint hf_s7comm_szl_xy11_0001_ausbe;
 
-static gint hf_s7comm_szl_xy14_000x_index = -1;
-static gint hf_s7comm_szl_xy14_000x_code = -1;
-static gint hf_s7comm_szl_xy14_000x_quantity = -1;
-static gint hf_s7comm_szl_xy14_000x_reman = -1;
+static gint hf_s7comm_szl_xy14_000x_index;
+static gint hf_s7comm_szl_xy14_000x_code;
+static gint hf_s7comm_szl_xy14_000x_quantity;
+static gint hf_s7comm_szl_xy14_000x_reman;
 
-static gint hf_s7comm_szl_xy15_000x_index = -1;
-static gint hf_s7comm_szl_xy15_000x_maxanz = -1;
-static gint hf_s7comm_szl_xy15_000x_maxlng = -1;
-static gint hf_s7comm_szl_xy15_000x_maxabl = -1;
+static gint hf_s7comm_szl_xy15_000x_index;
+static gint hf_s7comm_szl_xy15_000x_maxanz;
+static gint hf_s7comm_szl_xy15_000x_maxlng;
+static gint hf_s7comm_szl_xy15_000x_maxabl;
 
-static gint hf_s7comm_szl_xy22_00xx_info = -1;
-static gint hf_s7comm_szl_xy22_00xx_al1 = -1;
-static gint hf_s7comm_szl_xy22_00xx_al1_0 = -1;
-static gint hf_s7comm_szl_xy22_00xx_al1_1 = -1;
-static gint hf_s7comm_szl_xy22_00xx_al1_2 = -1;
-static gint hf_s7comm_szl_xy22_00xx_al1_4 = -1;
-static gint hf_s7comm_szl_xy22_00xx_al1_5 = -1;
-static gint hf_s7comm_szl_xy22_00xx_al1_6 = -1;
-static gint hf_s7comm_szl_xy22_00xx_al2 = -1;
-static gint hf_s7comm_szl_xy22_00xx_al2_0 = -1;
-static gint hf_s7comm_szl_xy22_00xx_al2_1 = -1;
-static gint hf_s7comm_szl_xy22_00xx_al2_2 = -1;
-static gint hf_s7comm_szl_xy22_00xx_al2_3 = -1;
-static gint hf_s7comm_szl_xy22_00xx_al3 = -1;
+static gint hf_s7comm_szl_xy22_00xx_info;
+static gint hf_s7comm_szl_xy22_00xx_al1;
+static gint hf_s7comm_szl_xy22_00xx_al1_0;
+static gint hf_s7comm_szl_xy22_00xx_al1_1;
+static gint hf_s7comm_szl_xy22_00xx_al1_2;
+static gint hf_s7comm_szl_xy22_00xx_al1_4;
+static gint hf_s7comm_szl_xy22_00xx_al1_5;
+static gint hf_s7comm_szl_xy22_00xx_al1_6;
+static gint hf_s7comm_szl_xy22_00xx_al2;
+static gint hf_s7comm_szl_xy22_00xx_al2_0;
+static gint hf_s7comm_szl_xy22_00xx_al2_1;
+static gint hf_s7comm_szl_xy22_00xx_al2_2;
+static gint hf_s7comm_szl_xy22_00xx_al2_3;
+static gint hf_s7comm_szl_xy22_00xx_al3;
 
-static gint ett_s7comm_szl_xy22_00xx_al1 = -1;
+static gint ett_s7comm_szl_xy22_00xx_al1;
 static int * const s7comm_szl_xy22_00xx_al1_fields[] = {
     &hf_s7comm_szl_xy22_00xx_al1_0,
     &hf_s7comm_szl_xy22_00xx_al1_1,
@@ -554,7 +554,7 @@ static int * const s7comm_szl_xy22_00xx_al1_fields[] = {
     &hf_s7comm_szl_xy22_00xx_al1_6,
     NULL
 };
-static gint ett_s7comm_szl_xy22_00xx_al2 = -1;
+static gint ett_s7comm_szl_xy22_00xx_al2;
 static int * const s7comm_szl_xy22_00xx_al2_fields[] = {
     &hf_s7comm_szl_xy22_00xx_al2_0,
     &hf_s7comm_szl_xy22_00xx_al2_1,
@@ -563,77 +563,77 @@ static int * const s7comm_szl_xy22_00xx_al2_fields[] = {
     NULL
 };
 
-static gint hf_s7comm_szl_0131_0001_index = -1;
-static gint hf_s7comm_szl_0131_0001_pdu = -1;
-static gint hf_s7comm_szl_0131_0001_anz= -1;
-static gint hf_s7comm_szl_0131_0001_mpi_bps = -1;
-static gint hf_s7comm_szl_0131_0001_kbus_bps = -1;
-static gint hf_s7comm_szl_0131_0001_res = -1;
+static gint hf_s7comm_szl_0131_0001_index;
+static gint hf_s7comm_szl_0131_0001_pdu;
+static gint hf_s7comm_szl_0131_0001_anz;
+static gint hf_s7comm_szl_0131_0001_mpi_bps;
+static gint hf_s7comm_szl_0131_0001_kbus_bps;
+static gint hf_s7comm_szl_0131_0001_res;
 
-static gint hf_s7comm_szl_0131_0002_index = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_0 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_0_0 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_0_1 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_0_2 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_0_3 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_0_4 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_0_5 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_0_6 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_0_7 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_1 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_1_0 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_1_1 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_1_2 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_1_3 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_1_4 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_1_5 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_1_6 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_1_7 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_2 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_2_0 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_2_1 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_2_2 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_2_3 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_2_4 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_2_5 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_2_6 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_2_7 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_3 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_4 = -1;
-static gint hf_s7comm_szl_0131_0002_funkt_5 = -1;
-static gint hf_s7comm_szl_0131_0002_aseg = -1;
-static gint hf_s7comm_szl_0131_0002_eseg = -1;
-static gint hf_s7comm_szl_0131_0002_trgereig_0 = -1;
-static gint hf_s7comm_szl_0131_0002_trgereig_0_0 = -1;
-static gint hf_s7comm_szl_0131_0002_trgereig_0_1 = -1;
-static gint hf_s7comm_szl_0131_0002_trgereig_0_2 = -1;
-static gint hf_s7comm_szl_0131_0002_trgereig_0_3 = -1;
-static gint hf_s7comm_szl_0131_0002_trgereig_0_4 = -1;
-static gint hf_s7comm_szl_0131_0002_trgereig_0_5 = -1;
-static gint hf_s7comm_szl_0131_0002_trgereig_0_6 = -1;
-static gint hf_s7comm_szl_0131_0002_trgereig_0_7 = -1;
-static gint hf_s7comm_szl_0131_0002_trgereig_1 = -1;
-static gint hf_s7comm_szl_0131_0002_trgereig_1_0 = -1;
-static gint hf_s7comm_szl_0131_0002_trgereig_1_1 = -1;
-static gint hf_s7comm_szl_0131_0002_trgereig_1_2 = -1;
-static gint hf_s7comm_szl_0131_0002_trgereig_1_3 = -1;
-static gint hf_s7comm_szl_0131_0002_trgereig_1_4 = -1;
-static gint hf_s7comm_szl_0131_0002_trgereig_1_5 = -1;
-static gint hf_s7comm_szl_0131_0002_trgereig_1_6 = -1;
-static gint hf_s7comm_szl_0131_0002_trgereig_1_7 = -1;
-static gint hf_s7comm_szl_0131_0002_trgereig_2 = -1;
-static gint hf_s7comm_szl_0131_0002_trgbed = -1;
-static gint hf_s7comm_szl_0131_0002_pfad = -1;
-static gint hf_s7comm_szl_0131_0002_tiefe = -1;
-static gint hf_s7comm_szl_0131_0002_systrig = -1;
-static gint hf_s7comm_szl_0131_0002_erg_par = -1;
-static gint hf_s7comm_szl_0131_0002_erg_pat_1 = -1;
-static gint hf_s7comm_szl_0131_0002_erg_pat_2 = -1;
-static gint hf_s7comm_szl_0131_0002_force = -1;
-static gint hf_s7comm_szl_0131_0002_time = -1;
-static gint hf_s7comm_szl_0131_0002_res = -1;
+static gint hf_s7comm_szl_0131_0002_index;
+static gint hf_s7comm_szl_0131_0002_funkt_0;
+static gint hf_s7comm_szl_0131_0002_funkt_0_0;
+static gint hf_s7comm_szl_0131_0002_funkt_0_1;
+static gint hf_s7comm_szl_0131_0002_funkt_0_2;
+static gint hf_s7comm_szl_0131_0002_funkt_0_3;
+static gint hf_s7comm_szl_0131_0002_funkt_0_4;
+static gint hf_s7comm_szl_0131_0002_funkt_0_5;
+static gint hf_s7comm_szl_0131_0002_funkt_0_6;
+static gint hf_s7comm_szl_0131_0002_funkt_0_7;
+static gint hf_s7comm_szl_0131_0002_funkt_1;
+static gint hf_s7comm_szl_0131_0002_funkt_1_0;
+static gint hf_s7comm_szl_0131_0002_funkt_1_1;
+static gint hf_s7comm_szl_0131_0002_funkt_1_2;
+static gint hf_s7comm_szl_0131_0002_funkt_1_3;
+static gint hf_s7comm_szl_0131_0002_funkt_1_4;
+static gint hf_s7comm_szl_0131_0002_funkt_1_5;
+static gint hf_s7comm_szl_0131_0002_funkt_1_6;
+static gint hf_s7comm_szl_0131_0002_funkt_1_7;
+static gint hf_s7comm_szl_0131_0002_funkt_2;
+static gint hf_s7comm_szl_0131_0002_funkt_2_0;
+static gint hf_s7comm_szl_0131_0002_funkt_2_1;
+static gint hf_s7comm_szl_0131_0002_funkt_2_2;
+static gint hf_s7comm_szl_0131_0002_funkt_2_3;
+static gint hf_s7comm_szl_0131_0002_funkt_2_4;
+static gint hf_s7comm_szl_0131_0002_funkt_2_5;
+static gint hf_s7comm_szl_0131_0002_funkt_2_6;
+static gint hf_s7comm_szl_0131_0002_funkt_2_7;
+static gint hf_s7comm_szl_0131_0002_funkt_3;
+static gint hf_s7comm_szl_0131_0002_funkt_4;
+static gint hf_s7comm_szl_0131_0002_funkt_5;
+static gint hf_s7comm_szl_0131_0002_aseg;
+static gint hf_s7comm_szl_0131_0002_eseg;
+static gint hf_s7comm_szl_0131_0002_trgereig_0;
+static gint hf_s7comm_szl_0131_0002_trgereig_0_0;
+static gint hf_s7comm_szl_0131_0002_trgereig_0_1;
+static gint hf_s7comm_szl_0131_0002_trgereig_0_2;
+static gint hf_s7comm_szl_0131_0002_trgereig_0_3;
+static gint hf_s7comm_szl_0131_0002_trgereig_0_4;
+static gint hf_s7comm_szl_0131_0002_trgereig_0_5;
+static gint hf_s7comm_szl_0131_0002_trgereig_0_6;
+static gint hf_s7comm_szl_0131_0002_trgereig_0_7;
+static gint hf_s7comm_szl_0131_0002_trgereig_1;
+static gint hf_s7comm_szl_0131_0002_trgereig_1_0;
+static gint hf_s7comm_szl_0131_0002_trgereig_1_1;
+static gint hf_s7comm_szl_0131_0002_trgereig_1_2;
+static gint hf_s7comm_szl_0131_0002_trgereig_1_3;
+static gint hf_s7comm_szl_0131_0002_trgereig_1_4;
+static gint hf_s7comm_szl_0131_0002_trgereig_1_5;
+static gint hf_s7comm_szl_0131_0002_trgereig_1_6;
+static gint hf_s7comm_szl_0131_0002_trgereig_1_7;
+static gint hf_s7comm_szl_0131_0002_trgereig_2;
+static gint hf_s7comm_szl_0131_0002_trgbed;
+static gint hf_s7comm_szl_0131_0002_pfad;
+static gint hf_s7comm_szl_0131_0002_tiefe;
+static gint hf_s7comm_szl_0131_0002_systrig;
+static gint hf_s7comm_szl_0131_0002_erg_par;
+static gint hf_s7comm_szl_0131_0002_erg_pat_1;
+static gint hf_s7comm_szl_0131_0002_erg_pat_2;
+static gint hf_s7comm_szl_0131_0002_force;
+static gint hf_s7comm_szl_0131_0002_time;
+static gint hf_s7comm_szl_0131_0002_res;
 
-static gint ett_s7comm_szl_0131_0002_funkt_0 = -1;
+static gint ett_s7comm_szl_0131_0002_funkt_0;
 static int * const s7comm_szl_0131_0002_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0002_funkt_0_0,
     &hf_s7comm_szl_0131_0002_funkt_0_1,
@@ -645,7 +645,7 @@ static int * const s7comm_szl_0131_0002_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0002_funkt_0_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0002_funkt_1 = -1;
+static gint ett_s7comm_szl_0131_0002_funkt_1;
 static int * const s7comm_szl_0131_0002_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0002_funkt_1_0,
     &hf_s7comm_szl_0131_0002_funkt_1_1,
@@ -657,7 +657,7 @@ static int * const s7comm_szl_0131_0002_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0002_funkt_1_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0002_funkt_2 = -1;
+static gint ett_s7comm_szl_0131_0002_funkt_2;
 static int * const s7comm_szl_0131_0002_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0002_funkt_2_0,
     &hf_s7comm_szl_0131_0002_funkt_2_1,
@@ -669,7 +669,7 @@ static int * const s7comm_szl_0131_0002_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0002_funkt_2_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0002_trgereig_0 = -1;
+static gint ett_s7comm_szl_0131_0002_trgereig_0;
 static int * const s7comm_szl_0131_0002_trgereig_0_fields[] = {
     &hf_s7comm_szl_0131_0002_trgereig_0_0,
     &hf_s7comm_szl_0131_0002_trgereig_0_1,
@@ -681,7 +681,7 @@ static int * const s7comm_szl_0131_0002_trgereig_0_fields[] = {
     &hf_s7comm_szl_0131_0002_trgereig_0_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0002_trgereig_1 = -1;
+static gint ett_s7comm_szl_0131_0002_trgereig_1;
 static int * const s7comm_szl_0131_0002_trgereig_1_fields[] = {
     &hf_s7comm_szl_0131_0002_trgereig_1_0,
     &hf_s7comm_szl_0131_0002_trgereig_1_1,
@@ -694,50 +694,50 @@ static int * const s7comm_szl_0131_0002_trgereig_1_fields[] = {
     NULL
 };
 
-static gint hf_s7comm_szl_0131_0003_index = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_0 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_0_0 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_0_1 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_0_2 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_0_3 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_0_4 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_0_5 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_0_6 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_0_7 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_1 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_1_0 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_1_1 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_1_2 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_1_3 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_1_4 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_1_5 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_1_6 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_1_7 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_2 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_2_0 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_2_1 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_2_2 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_2_3 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_2_4 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_2_5 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_2_6 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_2_7 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_3 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_3_0 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_3_1 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_3_2 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_3_3 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_3_4 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_3_5 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_3_6 = -1;
-static gint hf_s7comm_szl_0131_0003_funkt_3_7 = -1;
-static gint hf_s7comm_szl_0131_0003_data = -1;
-static gint hf_s7comm_szl_0131_0003_anz = -1;
-static gint hf_s7comm_szl_0131_0003_per_min = -1;
-static gint hf_s7comm_szl_0131_0003_per_max = -1;
-static gint hf_s7comm_szl_0131_0003_res = -1;
+static gint hf_s7comm_szl_0131_0003_index;
+static gint hf_s7comm_szl_0131_0003_funkt_0;
+static gint hf_s7comm_szl_0131_0003_funkt_0_0;
+static gint hf_s7comm_szl_0131_0003_funkt_0_1;
+static gint hf_s7comm_szl_0131_0003_funkt_0_2;
+static gint hf_s7comm_szl_0131_0003_funkt_0_3;
+static gint hf_s7comm_szl_0131_0003_funkt_0_4;
+static gint hf_s7comm_szl_0131_0003_funkt_0_5;
+static gint hf_s7comm_szl_0131_0003_funkt_0_6;
+static gint hf_s7comm_szl_0131_0003_funkt_0_7;
+static gint hf_s7comm_szl_0131_0003_funkt_1;
+static gint hf_s7comm_szl_0131_0003_funkt_1_0;
+static gint hf_s7comm_szl_0131_0003_funkt_1_1;
+static gint hf_s7comm_szl_0131_0003_funkt_1_2;
+static gint hf_s7comm_szl_0131_0003_funkt_1_3;
+static gint hf_s7comm_szl_0131_0003_funkt_1_4;
+static gint hf_s7comm_szl_0131_0003_funkt_1_5;
+static gint hf_s7comm_szl_0131_0003_funkt_1_6;
+static gint hf_s7comm_szl_0131_0003_funkt_1_7;
+static gint hf_s7comm_szl_0131_0003_funkt_2;
+static gint hf_s7comm_szl_0131_0003_funkt_2_0;
+static gint hf_s7comm_szl_0131_0003_funkt_2_1;
+static gint hf_s7comm_szl_0131_0003_funkt_2_2;
+static gint hf_s7comm_szl_0131_0003_funkt_2_3;
+static gint hf_s7comm_szl_0131_0003_funkt_2_4;
+static gint hf_s7comm_szl_0131_0003_funkt_2_5;
+static gint hf_s7comm_szl_0131_0003_funkt_2_6;
+static gint hf_s7comm_szl_0131_0003_funkt_2_7;
+static gint hf_s7comm_szl_0131_0003_funkt_3;
+static gint hf_s7comm_szl_0131_0003_funkt_3_0;
+static gint hf_s7comm_szl_0131_0003_funkt_3_1;
+static gint hf_s7comm_szl_0131_0003_funkt_3_2;
+static gint hf_s7comm_szl_0131_0003_funkt_3_3;
+static gint hf_s7comm_szl_0131_0003_funkt_3_4;
+static gint hf_s7comm_szl_0131_0003_funkt_3_5;
+static gint hf_s7comm_szl_0131_0003_funkt_3_6;
+static gint hf_s7comm_szl_0131_0003_funkt_3_7;
+static gint hf_s7comm_szl_0131_0003_data;
+static gint hf_s7comm_szl_0131_0003_anz;
+static gint hf_s7comm_szl_0131_0003_per_min;
+static gint hf_s7comm_szl_0131_0003_per_max;
+static gint hf_s7comm_szl_0131_0003_res;
 
-static gint ett_s7comm_szl_0131_0003_funkt_0 = -1;
+static gint ett_s7comm_szl_0131_0003_funkt_0;
 static int * const s7comm_szl_0131_0003_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0003_funkt_0_0,
     &hf_s7comm_szl_0131_0003_funkt_0_1,
@@ -749,7 +749,7 @@ static int * const s7comm_szl_0131_0003_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0003_funkt_0_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0003_funkt_1 = -1;
+static gint ett_s7comm_szl_0131_0003_funkt_1;
 static int * const s7comm_szl_0131_0003_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0003_funkt_1_0,
     &hf_s7comm_szl_0131_0003_funkt_1_1,
@@ -761,7 +761,7 @@ static int * const s7comm_szl_0131_0003_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0003_funkt_1_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0003_funkt_2 = -1;
+static gint ett_s7comm_szl_0131_0003_funkt_2;
 static int * const s7comm_szl_0131_0003_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0003_funkt_2_0,
     &hf_s7comm_szl_0131_0003_funkt_2_1,
@@ -773,7 +773,7 @@ static int * const s7comm_szl_0131_0003_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0003_funkt_2_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0003_funkt_3 = -1;
+static gint ett_s7comm_szl_0131_0003_funkt_3;
 static int * const s7comm_szl_0131_0003_funkt_3_fields[] = {
     &hf_s7comm_szl_0131_0003_funkt_3_0,
     &hf_s7comm_szl_0131_0003_funkt_3_1,
@@ -786,63 +786,63 @@ static int * const s7comm_szl_0131_0003_funkt_3_fields[] = {
     NULL
 };
 
-static gint hf_s7comm_szl_0131_0004_index = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_0 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_0_0 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_0_1 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_0_2 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_0_3 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_0_4 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_0_5 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_0_6 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_0_7 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_1 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_1_0 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_1_1 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_1_2 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_1_3 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_1_4 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_1_5 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_1_6 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_1_7 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_2 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_2_0 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_2_1 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_2_2 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_2_3 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_2_4 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_2_5 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_2_6 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_2_7 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_3 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_3_0 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_3_1 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_3_2 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_3_3 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_3_4 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_3_5 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_3_6 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_3_7 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_4 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_4_0 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_4_1 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_4_2 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_4_3 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_4_4 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_4_5 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_4_6 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_4_7 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_5 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_6 = -1;
-static gint hf_s7comm_szl_0131_0004_funkt_7 = -1;
-static gint hf_s7comm_szl_0131_0004_kop = -1;
-static gint hf_s7comm_szl_0131_0004_del = -1;
-static gint hf_s7comm_szl_0131_0004_kett = -1;
-static gint hf_s7comm_szl_0131_0004_hoch = -1;
-static gint hf_s7comm_szl_0131_0004_ver = -1;
-static gint hf_s7comm_szl_0131_0004_res = -1;
+static gint hf_s7comm_szl_0131_0004_index;
+static gint hf_s7comm_szl_0131_0004_funkt_0;
+static gint hf_s7comm_szl_0131_0004_funkt_0_0;
+static gint hf_s7comm_szl_0131_0004_funkt_0_1;
+static gint hf_s7comm_szl_0131_0004_funkt_0_2;
+static gint hf_s7comm_szl_0131_0004_funkt_0_3;
+static gint hf_s7comm_szl_0131_0004_funkt_0_4;
+static gint hf_s7comm_szl_0131_0004_funkt_0_5;
+static gint hf_s7comm_szl_0131_0004_funkt_0_6;
+static gint hf_s7comm_szl_0131_0004_funkt_0_7;
+static gint hf_s7comm_szl_0131_0004_funkt_1;
+static gint hf_s7comm_szl_0131_0004_funkt_1_0;
+static gint hf_s7comm_szl_0131_0004_funkt_1_1;
+static gint hf_s7comm_szl_0131_0004_funkt_1_2;
+static gint hf_s7comm_szl_0131_0004_funkt_1_3;
+static gint hf_s7comm_szl_0131_0004_funkt_1_4;
+static gint hf_s7comm_szl_0131_0004_funkt_1_5;
+static gint hf_s7comm_szl_0131_0004_funkt_1_6;
+static gint hf_s7comm_szl_0131_0004_funkt_1_7;
+static gint hf_s7comm_szl_0131_0004_funkt_2;
+static gint hf_s7comm_szl_0131_0004_funkt_2_0;
+static gint hf_s7comm_szl_0131_0004_funkt_2_1;
+static gint hf_s7comm_szl_0131_0004_funkt_2_2;
+static gint hf_s7comm_szl_0131_0004_funkt_2_3;
+static gint hf_s7comm_szl_0131_0004_funkt_2_4;
+static gint hf_s7comm_szl_0131_0004_funkt_2_5;
+static gint hf_s7comm_szl_0131_0004_funkt_2_6;
+static gint hf_s7comm_szl_0131_0004_funkt_2_7;
+static gint hf_s7comm_szl_0131_0004_funkt_3;
+static gint hf_s7comm_szl_0131_0004_funkt_3_0;
+static gint hf_s7comm_szl_0131_0004_funkt_3_1;
+static gint hf_s7comm_szl_0131_0004_funkt_3_2;
+static gint hf_s7comm_szl_0131_0004_funkt_3_3;
+static gint hf_s7comm_szl_0131_0004_funkt_3_4;
+static gint hf_s7comm_szl_0131_0004_funkt_3_5;
+static gint hf_s7comm_szl_0131_0004_funkt_3_6;
+static gint hf_s7comm_szl_0131_0004_funkt_3_7;
+static gint hf_s7comm_szl_0131_0004_funkt_4;
+static gint hf_s7comm_szl_0131_0004_funkt_4_0;
+static gint hf_s7comm_szl_0131_0004_funkt_4_1;
+static gint hf_s7comm_szl_0131_0004_funkt_4_2;
+static gint hf_s7comm_szl_0131_0004_funkt_4_3;
+static gint hf_s7comm_szl_0131_0004_funkt_4_4;
+static gint hf_s7comm_szl_0131_0004_funkt_4_5;
+static gint hf_s7comm_szl_0131_0004_funkt_4_6;
+static gint hf_s7comm_szl_0131_0004_funkt_4_7;
+static gint hf_s7comm_szl_0131_0004_funkt_5;
+static gint hf_s7comm_szl_0131_0004_funkt_6;
+static gint hf_s7comm_szl_0131_0004_funkt_7;
+static gint hf_s7comm_szl_0131_0004_kop;
+static gint hf_s7comm_szl_0131_0004_del;
+static gint hf_s7comm_szl_0131_0004_kett;
+static gint hf_s7comm_szl_0131_0004_hoch;
+static gint hf_s7comm_szl_0131_0004_ver;
+static gint hf_s7comm_szl_0131_0004_res;
 
-static gint ett_s7comm_szl_0131_0004_funkt_0 = -1;
+static gint ett_s7comm_szl_0131_0004_funkt_0;
 static int * const s7comm_szl_0131_0004_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_0_0,
     &hf_s7comm_szl_0131_0004_funkt_0_1,
@@ -854,7 +854,7 @@ static int * const s7comm_szl_0131_0004_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_0_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0004_funkt_1 = -1;
+static gint ett_s7comm_szl_0131_0004_funkt_1;
 static int * const s7comm_szl_0131_0004_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_1_0,
     &hf_s7comm_szl_0131_0004_funkt_1_1,
@@ -866,7 +866,7 @@ static int * const s7comm_szl_0131_0004_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_1_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0004_funkt_2 = -1;
+static gint ett_s7comm_szl_0131_0004_funkt_2;
 static int * const s7comm_szl_0131_0004_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_2_0,
     &hf_s7comm_szl_0131_0004_funkt_2_1,
@@ -878,7 +878,7 @@ static int * const s7comm_szl_0131_0004_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_2_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0004_funkt_3 = -1;
+static gint ett_s7comm_szl_0131_0004_funkt_3;
 static int * const s7comm_szl_0131_0004_funkt_3_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_3_0,
     &hf_s7comm_szl_0131_0004_funkt_3_1,
@@ -890,7 +890,7 @@ static int * const s7comm_szl_0131_0004_funkt_3_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_3_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0004_funkt_4 = -1;
+static gint ett_s7comm_szl_0131_0004_funkt_4;
 static int * const s7comm_szl_0131_0004_funkt_4_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_4_0,
     &hf_s7comm_szl_0131_0004_funkt_4_1,
@@ -903,29 +903,29 @@ static int * const s7comm_szl_0131_0004_funkt_4_fields[] = {
     NULL
 };
 
-static gint hf_s7comm_szl_0131_0005_index = -1;
-static gint hf_s7comm_szl_0131_0005_funkt_0 = -1;
-static gint hf_s7comm_szl_0131_0005_funkt_0_0 = -1;
-static gint hf_s7comm_szl_0131_0005_funkt_0_1 = -1;
-static gint hf_s7comm_szl_0131_0005_funkt_0_2 = -1;
-static gint hf_s7comm_szl_0131_0005_funkt_0_3 = -1;
-static gint hf_s7comm_szl_0131_0005_funkt_0_4 = -1;
-static gint hf_s7comm_szl_0131_0005_funkt_0_5 = -1;
-static gint hf_s7comm_szl_0131_0005_funkt_0_6 = -1;
-static gint hf_s7comm_szl_0131_0005_funkt_0_7 = -1;
-static gint hf_s7comm_szl_0131_0005_funkt_1 = -1;
-static gint hf_s7comm_szl_0131_0005_funkt_2 = -1;
-static gint hf_s7comm_szl_0131_0005_funkt_3 = -1;
-static gint hf_s7comm_szl_0131_0005_funkt_4 = -1;
-static gint hf_s7comm_szl_0131_0005_funkt_5 = -1;
-static gint hf_s7comm_szl_0131_0005_funkt_6 = -1;
-static gint hf_s7comm_szl_0131_0005_funkt_7 = -1;
-static gint hf_s7comm_szl_0131_0005_anz_sen = -1;
-static gint hf_s7comm_szl_0131_0005_anz_ein = -1;
-static gint hf_s7comm_szl_0131_0005_anz_mel = -1;
-static gint hf_s7comm_szl_0131_0005_res = -1;
+static gint hf_s7comm_szl_0131_0005_index;
+static gint hf_s7comm_szl_0131_0005_funkt_0;
+static gint hf_s7comm_szl_0131_0005_funkt_0_0;
+static gint hf_s7comm_szl_0131_0005_funkt_0_1;
+static gint hf_s7comm_szl_0131_0005_funkt_0_2;
+static gint hf_s7comm_szl_0131_0005_funkt_0_3;
+static gint hf_s7comm_szl_0131_0005_funkt_0_4;
+static gint hf_s7comm_szl_0131_0005_funkt_0_5;
+static gint hf_s7comm_szl_0131_0005_funkt_0_6;
+static gint hf_s7comm_szl_0131_0005_funkt_0_7;
+static gint hf_s7comm_szl_0131_0005_funkt_1;
+static gint hf_s7comm_szl_0131_0005_funkt_2;
+static gint hf_s7comm_szl_0131_0005_funkt_3;
+static gint hf_s7comm_szl_0131_0005_funkt_4;
+static gint hf_s7comm_szl_0131_0005_funkt_5;
+static gint hf_s7comm_szl_0131_0005_funkt_6;
+static gint hf_s7comm_szl_0131_0005_funkt_7;
+static gint hf_s7comm_szl_0131_0005_anz_sen;
+static gint hf_s7comm_szl_0131_0005_anz_ein;
+static gint hf_s7comm_szl_0131_0005_anz_mel;
+static gint hf_s7comm_szl_0131_0005_res;
 
-static gint ett_s7comm_szl_0131_0005_funkt_0 = -1;
+static gint ett_s7comm_szl_0131_0005_funkt_0;
 static int * const s7comm_szl_0131_0005_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0005_funkt_0_0,
     &hf_s7comm_szl_0131_0005_funkt_0_1,
@@ -938,130 +938,130 @@ static int * const s7comm_szl_0131_0005_funkt_0_fields[] = {
     NULL
 };
 
-static gint hf_s7comm_szl_0131_0006_index = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_0 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_0_0 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_0_1 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_0_2 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_0_3 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_0_4 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_0_5 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_0_6 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_0_7 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_1 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_1_0 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_1_1 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_1_2 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_1_3 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_1_4 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_1_5 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_1_6 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_1_7 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_2 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_2_0 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_2_1 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_2_2 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_2_3 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_2_4 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_2_5 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_2_6 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_2_7 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_3 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_3_0 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_3_1 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_3_2 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_3_3 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_3_4 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_3_5 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_3_6 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_3_7 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_4 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_5 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_6 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_6_0 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_6_1 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_6_2 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_6_3 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_6_4 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_6_5 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_6_6 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_6_7 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_7 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_7_0 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_7_1 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_7_2 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_7_3 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_7_4 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_7_5 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_7_6 = -1;
-static gint hf_s7comm_szl_0131_0006_funkt_7_7 = -1;
-static gint hf_s7comm_szl_0131_0006_schnell = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_0 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_0_0 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_0_1 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_0_2 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_0_3 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_0_4 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_0_5 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_0_6 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_0_7 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_1 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_1_0 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_1_1 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_1_2 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_1_3 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_1_4 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_1_5 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_1_6 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_1_7 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_2 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_2_0 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_2_1 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_2_2 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_2_3 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_2_4 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_2_5 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_2_6 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_2_7 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_3 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_3_0 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_3_1 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_3_2 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_3_3 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_3_4 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_3_5 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_3_6 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_3_7 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_4 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_5 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_6 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_6_0 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_6_1 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_6_2 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_6_3 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_6_4 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_6_5 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_6_6 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_6_7 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_7 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_7_0 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_7_1 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_7_2 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_7_3 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_7_4 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_7_5 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_7_6 = -1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_7_7 = -1;
-static gint hf_s7comm_szl_0131_0006_res1 = -1;
-static gint hf_s7comm_szl_0131_0006_max_sd_empf = -1;
-static gint hf_s7comm_szl_0131_0006_max_sd_al8p = -1;
-static gint hf_s7comm_szl_0131_0006_max_inst = -1;
-static gint hf_s7comm_szl_0131_0006_res2 = -1;
-static gint hf_s7comm_szl_0131_0006_verb_proj = -1;
-static gint hf_s7comm_szl_0131_0006_verb_prog = -1;
-static gint hf_s7comm_szl_0131_0006_res3 = -1;
+static gint hf_s7comm_szl_0131_0006_index;
+static gint hf_s7comm_szl_0131_0006_funkt_0;
+static gint hf_s7comm_szl_0131_0006_funkt_0_0;
+static gint hf_s7comm_szl_0131_0006_funkt_0_1;
+static gint hf_s7comm_szl_0131_0006_funkt_0_2;
+static gint hf_s7comm_szl_0131_0006_funkt_0_3;
+static gint hf_s7comm_szl_0131_0006_funkt_0_4;
+static gint hf_s7comm_szl_0131_0006_funkt_0_5;
+static gint hf_s7comm_szl_0131_0006_funkt_0_6;
+static gint hf_s7comm_szl_0131_0006_funkt_0_7;
+static gint hf_s7comm_szl_0131_0006_funkt_1;
+static gint hf_s7comm_szl_0131_0006_funkt_1_0;
+static gint hf_s7comm_szl_0131_0006_funkt_1_1;
+static gint hf_s7comm_szl_0131_0006_funkt_1_2;
+static gint hf_s7comm_szl_0131_0006_funkt_1_3;
+static gint hf_s7comm_szl_0131_0006_funkt_1_4;
+static gint hf_s7comm_szl_0131_0006_funkt_1_5;
+static gint hf_s7comm_szl_0131_0006_funkt_1_6;
+static gint hf_s7comm_szl_0131_0006_funkt_1_7;
+static gint hf_s7comm_szl_0131_0006_funkt_2;
+static gint hf_s7comm_szl_0131_0006_funkt_2_0;
+static gint hf_s7comm_szl_0131_0006_funkt_2_1;
+static gint hf_s7comm_szl_0131_0006_funkt_2_2;
+static gint hf_s7comm_szl_0131_0006_funkt_2_3;
+static gint hf_s7comm_szl_0131_0006_funkt_2_4;
+static gint hf_s7comm_szl_0131_0006_funkt_2_5;
+static gint hf_s7comm_szl_0131_0006_funkt_2_6;
+static gint hf_s7comm_szl_0131_0006_funkt_2_7;
+static gint hf_s7comm_szl_0131_0006_funkt_3;
+static gint hf_s7comm_szl_0131_0006_funkt_3_0;
+static gint hf_s7comm_szl_0131_0006_funkt_3_1;
+static gint hf_s7comm_szl_0131_0006_funkt_3_2;
+static gint hf_s7comm_szl_0131_0006_funkt_3_3;
+static gint hf_s7comm_szl_0131_0006_funkt_3_4;
+static gint hf_s7comm_szl_0131_0006_funkt_3_5;
+static gint hf_s7comm_szl_0131_0006_funkt_3_6;
+static gint hf_s7comm_szl_0131_0006_funkt_3_7;
+static gint hf_s7comm_szl_0131_0006_funkt_4;
+static gint hf_s7comm_szl_0131_0006_funkt_5;
+static gint hf_s7comm_szl_0131_0006_funkt_6;
+static gint hf_s7comm_szl_0131_0006_funkt_6_0;
+static gint hf_s7comm_szl_0131_0006_funkt_6_1;
+static gint hf_s7comm_szl_0131_0006_funkt_6_2;
+static gint hf_s7comm_szl_0131_0006_funkt_6_3;
+static gint hf_s7comm_szl_0131_0006_funkt_6_4;
+static gint hf_s7comm_szl_0131_0006_funkt_6_5;
+static gint hf_s7comm_szl_0131_0006_funkt_6_6;
+static gint hf_s7comm_szl_0131_0006_funkt_6_7;
+static gint hf_s7comm_szl_0131_0006_funkt_7;
+static gint hf_s7comm_szl_0131_0006_funkt_7_0;
+static gint hf_s7comm_szl_0131_0006_funkt_7_1;
+static gint hf_s7comm_szl_0131_0006_funkt_7_2;
+static gint hf_s7comm_szl_0131_0006_funkt_7_3;
+static gint hf_s7comm_szl_0131_0006_funkt_7_4;
+static gint hf_s7comm_szl_0131_0006_funkt_7_5;
+static gint hf_s7comm_szl_0131_0006_funkt_7_6;
+static gint hf_s7comm_szl_0131_0006_funkt_7_7;
+static gint hf_s7comm_szl_0131_0006_schnell;
+static gint hf_s7comm_szl_0131_0006_zugtyp_0;
+static gint hf_s7comm_szl_0131_0006_zugtyp_0_0;
+static gint hf_s7comm_szl_0131_0006_zugtyp_0_1;
+static gint hf_s7comm_szl_0131_0006_zugtyp_0_2;
+static gint hf_s7comm_szl_0131_0006_zugtyp_0_3;
+static gint hf_s7comm_szl_0131_0006_zugtyp_0_4;
+static gint hf_s7comm_szl_0131_0006_zugtyp_0_5;
+static gint hf_s7comm_szl_0131_0006_zugtyp_0_6;
+static gint hf_s7comm_szl_0131_0006_zugtyp_0_7;
+static gint hf_s7comm_szl_0131_0006_zugtyp_1;
+static gint hf_s7comm_szl_0131_0006_zugtyp_1_0;
+static gint hf_s7comm_szl_0131_0006_zugtyp_1_1;
+static gint hf_s7comm_szl_0131_0006_zugtyp_1_2;
+static gint hf_s7comm_szl_0131_0006_zugtyp_1_3;
+static gint hf_s7comm_szl_0131_0006_zugtyp_1_4;
+static gint hf_s7comm_szl_0131_0006_zugtyp_1_5;
+static gint hf_s7comm_szl_0131_0006_zugtyp_1_6;
+static gint hf_s7comm_szl_0131_0006_zugtyp_1_7;
+static gint hf_s7comm_szl_0131_0006_zugtyp_2;
+static gint hf_s7comm_szl_0131_0006_zugtyp_2_0;
+static gint hf_s7comm_szl_0131_0006_zugtyp_2_1;
+static gint hf_s7comm_szl_0131_0006_zugtyp_2_2;
+static gint hf_s7comm_szl_0131_0006_zugtyp_2_3;
+static gint hf_s7comm_szl_0131_0006_zugtyp_2_4;
+static gint hf_s7comm_szl_0131_0006_zugtyp_2_5;
+static gint hf_s7comm_szl_0131_0006_zugtyp_2_6;
+static gint hf_s7comm_szl_0131_0006_zugtyp_2_7;
+static gint hf_s7comm_szl_0131_0006_zugtyp_3;
+static gint hf_s7comm_szl_0131_0006_zugtyp_3_0;
+static gint hf_s7comm_szl_0131_0006_zugtyp_3_1;
+static gint hf_s7comm_szl_0131_0006_zugtyp_3_2;
+static gint hf_s7comm_szl_0131_0006_zugtyp_3_3;
+static gint hf_s7comm_szl_0131_0006_zugtyp_3_4;
+static gint hf_s7comm_szl_0131_0006_zugtyp_3_5;
+static gint hf_s7comm_szl_0131_0006_zugtyp_3_6;
+static gint hf_s7comm_szl_0131_0006_zugtyp_3_7;
+static gint hf_s7comm_szl_0131_0006_zugtyp_4;
+static gint hf_s7comm_szl_0131_0006_zugtyp_5;
+static gint hf_s7comm_szl_0131_0006_zugtyp_6;
+static gint hf_s7comm_szl_0131_0006_zugtyp_6_0;
+static gint hf_s7comm_szl_0131_0006_zugtyp_6_1;
+static gint hf_s7comm_szl_0131_0006_zugtyp_6_2;
+static gint hf_s7comm_szl_0131_0006_zugtyp_6_3;
+static gint hf_s7comm_szl_0131_0006_zugtyp_6_4;
+static gint hf_s7comm_szl_0131_0006_zugtyp_6_5;
+static gint hf_s7comm_szl_0131_0006_zugtyp_6_6;
+static gint hf_s7comm_szl_0131_0006_zugtyp_6_7;
+static gint hf_s7comm_szl_0131_0006_zugtyp_7;
+static gint hf_s7comm_szl_0131_0006_zugtyp_7_0;
+static gint hf_s7comm_szl_0131_0006_zugtyp_7_1;
+static gint hf_s7comm_szl_0131_0006_zugtyp_7_2;
+static gint hf_s7comm_szl_0131_0006_zugtyp_7_3;
+static gint hf_s7comm_szl_0131_0006_zugtyp_7_4;
+static gint hf_s7comm_szl_0131_0006_zugtyp_7_5;
+static gint hf_s7comm_szl_0131_0006_zugtyp_7_6;
+static gint hf_s7comm_szl_0131_0006_zugtyp_7_7;
+static gint hf_s7comm_szl_0131_0006_res1;
+static gint hf_s7comm_szl_0131_0006_max_sd_empf;
+static gint hf_s7comm_szl_0131_0006_max_sd_al8p;
+static gint hf_s7comm_szl_0131_0006_max_inst;
+static gint hf_s7comm_szl_0131_0006_res2;
+static gint hf_s7comm_szl_0131_0006_verb_proj;
+static gint hf_s7comm_szl_0131_0006_verb_prog;
+static gint hf_s7comm_szl_0131_0006_res3;
 
-static gint ett_s7comm_szl_0131_0006_funkt_0 = -1;
+static gint ett_s7comm_szl_0131_0006_funkt_0;
 static int * const s7comm_szl_0131_0006_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_0_0,
     &hf_s7comm_szl_0131_0006_funkt_0_1,
@@ -1073,7 +1073,7 @@ static int * const s7comm_szl_0131_0006_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_0_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_funkt_1 = -1;
+static gint ett_s7comm_szl_0131_0006_funkt_1;
 static int * const s7comm_szl_0131_0006_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_1_0,
     &hf_s7comm_szl_0131_0006_funkt_1_1,
@@ -1085,7 +1085,7 @@ static int * const s7comm_szl_0131_0006_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_1_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_funkt_2 = -1;
+static gint ett_s7comm_szl_0131_0006_funkt_2;
 static int * const s7comm_szl_0131_0006_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_2_0,
     &hf_s7comm_szl_0131_0006_funkt_2_1,
@@ -1097,7 +1097,7 @@ static int * const s7comm_szl_0131_0006_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_2_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_funkt_3 = -1;
+static gint ett_s7comm_szl_0131_0006_funkt_3;
 static int * const s7comm_szl_0131_0006_funkt_3_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_3_0,
     &hf_s7comm_szl_0131_0006_funkt_3_1,
@@ -1109,7 +1109,7 @@ static int * const s7comm_szl_0131_0006_funkt_3_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_3_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_funkt_6 = -1;
+static gint ett_s7comm_szl_0131_0006_funkt_6;
 static int * const s7comm_szl_0131_0006_funkt_6_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_6_0,
     &hf_s7comm_szl_0131_0006_funkt_6_1,
@@ -1121,7 +1121,7 @@ static int * const s7comm_szl_0131_0006_funkt_6_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_6_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_funkt_7 = -1;
+static gint ett_s7comm_szl_0131_0006_funkt_7;
 static int * const s7comm_szl_0131_0006_funkt_7_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_7_0,
     &hf_s7comm_szl_0131_0006_funkt_7_1,
@@ -1133,7 +1133,7 @@ static int * const s7comm_szl_0131_0006_funkt_7_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_7_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_zugtyp_0 = -1;
+static gint ett_s7comm_szl_0131_0006_zugtyp_0;
 static int * const s7comm_szl_0131_0006_zugtyp_0_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_0_0,
     &hf_s7comm_szl_0131_0006_zugtyp_0_1,
@@ -1145,7 +1145,7 @@ static int * const s7comm_szl_0131_0006_zugtyp_0_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_0_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_zugtyp_1 = -1;
+static gint ett_s7comm_szl_0131_0006_zugtyp_1;
 static int * const s7comm_szl_0131_0006_zugtyp_1_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_1_0,
     &hf_s7comm_szl_0131_0006_zugtyp_1_1,
@@ -1157,7 +1157,7 @@ static int * const s7comm_szl_0131_0006_zugtyp_1_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_1_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_zugtyp_2 = -1;
+static gint ett_s7comm_szl_0131_0006_zugtyp_2;
 static int * const s7comm_szl_0131_0006_zugtyp_2_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_2_0,
     &hf_s7comm_szl_0131_0006_zugtyp_2_1,
@@ -1169,7 +1169,7 @@ static int * const s7comm_szl_0131_0006_zugtyp_2_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_2_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_zugtyp_3 = -1;
+static gint ett_s7comm_szl_0131_0006_zugtyp_3;
 static int * const s7comm_szl_0131_0006_zugtyp_3_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_3_0,
     &hf_s7comm_szl_0131_0006_zugtyp_3_1,
@@ -1181,7 +1181,7 @@ static int * const s7comm_szl_0131_0006_zugtyp_3_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_3_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_zugtyp_6 = -1;
+static gint ett_s7comm_szl_0131_0006_zugtyp_6;
 static int * const s7comm_szl_0131_0006_zugtyp_6_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_6_0,
     &hf_s7comm_szl_0131_0006_zugtyp_6_1,
@@ -1193,7 +1193,7 @@ static int * const s7comm_szl_0131_0006_zugtyp_6_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_6_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_zugtyp_7 = -1;
+static gint ett_s7comm_szl_0131_0006_zugtyp_7;
 static int * const s7comm_szl_0131_0006_zugtyp_7_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_7_0,
     &hf_s7comm_szl_0131_0006_zugtyp_7_1,
@@ -1206,47 +1206,47 @@ static int * const s7comm_szl_0131_0006_zugtyp_7_fields[] = {
     NULL
 };
 
-static gint hf_s7comm_szl_0131_0007_index = -1;
-static gint hf_s7comm_szl_0131_0007_funkt_0 = -1;
-static gint hf_s7comm_szl_0131_0007_funkt_0_0 = -1;
-static gint hf_s7comm_szl_0131_0007_funkt_0_1 = -1;
-static gint hf_s7comm_szl_0131_0007_funkt_0_2 = -1;
-static gint hf_s7comm_szl_0131_0007_funkt_0_3 = -1;
-static gint hf_s7comm_szl_0131_0007_funkt_0_4 = -1;
-static gint hf_s7comm_szl_0131_0007_funkt_0_5 = -1;
-static gint hf_s7comm_szl_0131_0007_funkt_0_6 = -1;
-static gint hf_s7comm_szl_0131_0007_funkt_0_7 = -1;
-static gint hf_s7comm_szl_0131_0007_funkt_1 = -1;
-static gint hf_s7comm_szl_0131_0007_obj_0 = -1;
-static gint hf_s7comm_szl_0131_0007_obj_0_0 = -1;
-static gint hf_s7comm_szl_0131_0007_obj_0_1 = -1;
-static gint hf_s7comm_szl_0131_0007_obj_0_2 = -1;
-static gint hf_s7comm_szl_0131_0007_obj_0_3 = -1;
-static gint hf_s7comm_szl_0131_0007_obj_0_4 = -1;
-static gint hf_s7comm_szl_0131_0007_obj_0_5 = -1;
-static gint hf_s7comm_szl_0131_0007_obj_0_6 = -1;
-static gint hf_s7comm_szl_0131_0007_obj_0_7 = -1;
-static gint hf_s7comm_szl_0131_0007_obj_1 = -1;
-static gint hf_s7comm_szl_0131_0007_kons = -1;
-static gint hf_s7comm_szl_0131_0007_sen = -1;
-static gint hf_s7comm_szl_0131_0007_rec = -1;
-static gint hf_s7comm_szl_0131_0007_time = -1;
-static gint hf_s7comm_szl_0131_0007_proj = -1;
-static gint hf_s7comm_szl_0131_0007_alarm = -1;
-static gint hf_s7comm_szl_0131_0007_mode = -1;
-static gint hf_s7comm_szl_0131_0007_mode_0 = -1;
-static gint hf_s7comm_szl_0131_0007_mode_1 = -1;
-static gint hf_s7comm_szl_0131_0007_kreis = -1;
-static gint hf_s7comm_szl_0131_0007_sk_1 = -1;
-static gint hf_s7comm_szl_0131_0007_sk_2 = -1;
-static gint hf_s7comm_szl_0131_0007_ek_1 = -1;
-static gint hf_s7comm_szl_0131_0007_ek_2 = -1;
-static gint hf_s7comm_szl_0131_0007_len_1 = -1;
-static gint hf_s7comm_szl_0131_0007_len_2 = -1;
-static gint hf_s7comm_szl_0131_0007_len_3 = -1;
-static gint hf_s7comm_szl_0131_0007_res = -1;
+static gint hf_s7comm_szl_0131_0007_index;
+static gint hf_s7comm_szl_0131_0007_funkt_0;
+static gint hf_s7comm_szl_0131_0007_funkt_0_0;
+static gint hf_s7comm_szl_0131_0007_funkt_0_1;
+static gint hf_s7comm_szl_0131_0007_funkt_0_2;
+static gint hf_s7comm_szl_0131_0007_funkt_0_3;
+static gint hf_s7comm_szl_0131_0007_funkt_0_4;
+static gint hf_s7comm_szl_0131_0007_funkt_0_5;
+static gint hf_s7comm_szl_0131_0007_funkt_0_6;
+static gint hf_s7comm_szl_0131_0007_funkt_0_7;
+static gint hf_s7comm_szl_0131_0007_funkt_1;
+static gint hf_s7comm_szl_0131_0007_obj_0;
+static gint hf_s7comm_szl_0131_0007_obj_0_0;
+static gint hf_s7comm_szl_0131_0007_obj_0_1;
+static gint hf_s7comm_szl_0131_0007_obj_0_2;
+static gint hf_s7comm_szl_0131_0007_obj_0_3;
+static gint hf_s7comm_szl_0131_0007_obj_0_4;
+static gint hf_s7comm_szl_0131_0007_obj_0_5;
+static gint hf_s7comm_szl_0131_0007_obj_0_6;
+static gint hf_s7comm_szl_0131_0007_obj_0_7;
+static gint hf_s7comm_szl_0131_0007_obj_1;
+static gint hf_s7comm_szl_0131_0007_kons;
+static gint hf_s7comm_szl_0131_0007_sen;
+static gint hf_s7comm_szl_0131_0007_rec;
+static gint hf_s7comm_szl_0131_0007_time;
+static gint hf_s7comm_szl_0131_0007_proj;
+static gint hf_s7comm_szl_0131_0007_alarm;
+static gint hf_s7comm_szl_0131_0007_mode;
+static gint hf_s7comm_szl_0131_0007_mode_0;
+static gint hf_s7comm_szl_0131_0007_mode_1;
+static gint hf_s7comm_szl_0131_0007_kreis;
+static gint hf_s7comm_szl_0131_0007_sk_1;
+static gint hf_s7comm_szl_0131_0007_sk_2;
+static gint hf_s7comm_szl_0131_0007_ek_1;
+static gint hf_s7comm_szl_0131_0007_ek_2;
+static gint hf_s7comm_szl_0131_0007_len_1;
+static gint hf_s7comm_szl_0131_0007_len_2;
+static gint hf_s7comm_szl_0131_0007_len_3;
+static gint hf_s7comm_szl_0131_0007_res;
 
-static gint ett_s7comm_szl_0131_0007_funkt_0 = -1;
+static gint ett_s7comm_szl_0131_0007_funkt_0;
 static int * const s7comm_szl_0131_0007_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0007_funkt_0_0,
     &hf_s7comm_szl_0131_0007_funkt_0_1,
@@ -1259,7 +1259,7 @@ static int * const s7comm_szl_0131_0007_funkt_0_fields[] = {
     NULL
 };
 
-static gint ett_s7comm_szl_0131_0007_obj_0 = -1;
+static gint ett_s7comm_szl_0131_0007_obj_0;
 static int * const s7comm_szl_0131_0007_obj_0_fields[] = {
     &hf_s7comm_szl_0131_0007_obj_0_0,
     &hf_s7comm_szl_0131_0007_obj_0_1,
@@ -1272,45 +1272,45 @@ static int * const s7comm_szl_0131_0007_obj_0_fields[] = {
     NULL
 };
 
-static gint ett_s7comm_szl_0131_0007_mode = -1;
+static gint ett_s7comm_szl_0131_0007_mode;
 static int * const s7comm_szl_0131_0007_mode_fields[] = {
     &hf_s7comm_szl_0131_0007_mode_0,
     &hf_s7comm_szl_0131_0007_mode_1,
     NULL
 };
 
-static gint hf_s7comm_szl_0131_0008_index = -1;
-static gint hf_s7comm_szl_0131_0008_last_1 = -1;
-static gint hf_s7comm_szl_0131_0008_last_1_tb = -1;
-static gint hf_s7comm_szl_0131_0008_last_2 = -1;
-static gint hf_s7comm_szl_0131_0008_last_2_tb = -1;
-static gint hf_s7comm_szl_0131_0008_last_3 = -1;
-static gint hf_s7comm_szl_0131_0008_last_3_tb = -1;
-static gint hf_s7comm_szl_0131_0008_merker = -1;
-static gint hf_s7comm_szl_0131_0008_merker_tb = -1;
-static gint hf_s7comm_szl_0131_0008_ea = -1;
-static gint hf_s7comm_szl_0131_0008_ea_tb = -1;
-static gint hf_s7comm_szl_0131_0008_tz = -1;
-static gint hf_s7comm_szl_0131_0008_tz_tb = -1;
-static gint hf_s7comm_szl_0131_0008_db = -1;
-static gint hf_s7comm_szl_0131_0008_db_tb = -1;
-static gint hf_s7comm_szl_0131_0008_ld = -1;
-static gint hf_s7comm_szl_0131_0008_ld_tb = -1;
-static gint hf_s7comm_szl_0131_0008_reg = -1;
-static gint hf_s7comm_szl_0131_0008_reg_tb = -1;
-static gint hf_s7comm_szl_0131_0008_ba_stali1 = -1;
-static gint hf_s7comm_szl_0131_0008_ba_stali1_tb = -1;
-static gint hf_s7comm_szl_0131_0008_ba_stali2 = -1;
-static gint hf_s7comm_szl_0131_0008_ba_stali2_tb = -1;
-static gint hf_s7comm_szl_0131_0008_ba_stali3 = -1;
-static gint hf_s7comm_szl_0131_0008_ba_stali3_tb = -1;
-static gint hf_s7comm_szl_0131_0008_akku = -1;
-static gint hf_s7comm_szl_0131_0008_akku_tb = -1;
-static gint hf_s7comm_szl_0131_0008_address = -1;
-static gint hf_s7comm_szl_0131_0008_address_tb = -1;
-static gint hf_s7comm_szl_0131_0008_dbreg = -1;
-static gint hf_s7comm_szl_0131_0008_dbreg_tb = -1;
-static gint hf_s7comm_szl_0131_0008_res = -1;
+static gint hf_s7comm_szl_0131_0008_index;
+static gint hf_s7comm_szl_0131_0008_last_1;
+static gint hf_s7comm_szl_0131_0008_last_1_tb;
+static gint hf_s7comm_szl_0131_0008_last_2;
+static gint hf_s7comm_szl_0131_0008_last_2_tb;
+static gint hf_s7comm_szl_0131_0008_last_3;
+static gint hf_s7comm_szl_0131_0008_last_3_tb;
+static gint hf_s7comm_szl_0131_0008_merker;
+static gint hf_s7comm_szl_0131_0008_merker_tb;
+static gint hf_s7comm_szl_0131_0008_ea;
+static gint hf_s7comm_szl_0131_0008_ea_tb;
+static gint hf_s7comm_szl_0131_0008_tz;
+static gint hf_s7comm_szl_0131_0008_tz_tb;
+static gint hf_s7comm_szl_0131_0008_db;
+static gint hf_s7comm_szl_0131_0008_db_tb;
+static gint hf_s7comm_szl_0131_0008_ld;
+static gint hf_s7comm_szl_0131_0008_ld_tb;
+static gint hf_s7comm_szl_0131_0008_reg;
+static gint hf_s7comm_szl_0131_0008_reg_tb;
+static gint hf_s7comm_szl_0131_0008_ba_stali1;
+static gint hf_s7comm_szl_0131_0008_ba_stali1_tb;
+static gint hf_s7comm_szl_0131_0008_ba_stali2;
+static gint hf_s7comm_szl_0131_0008_ba_stali2_tb;
+static gint hf_s7comm_szl_0131_0008_ba_stali3;
+static gint hf_s7comm_szl_0131_0008_ba_stali3_tb;
+static gint hf_s7comm_szl_0131_0008_akku;
+static gint hf_s7comm_szl_0131_0008_akku_tb;
+static gint hf_s7comm_szl_0131_0008_address;
+static gint hf_s7comm_szl_0131_0008_address_tb;
+static gint hf_s7comm_szl_0131_0008_dbreg;
+static gint hf_s7comm_szl_0131_0008_dbreg_tb;
+static gint hf_s7comm_szl_0131_0008_res;
 static const value_string s7comm_szl_0131_0008_timebase_names[] = {
     { 0,                                    "100 ps" },
     { 1,                                    "1 ns" },
@@ -1331,26 +1331,26 @@ static const value_string s7comm_szl_0131_0008_timebase_names[] = {
     { 0,                                    NULL }
 };
 
-static gint hf_s7comm_szl_0131_0009_index = -1;
-static gint hf_s7comm_szl_0131_0009_sync_k = -1;
-static gint hf_s7comm_szl_0131_0009_sync_k_0 = -1;
-static gint hf_s7comm_szl_0131_0009_sync_k_1 = -1;
-static gint hf_s7comm_szl_0131_0009_sync_k_2 = -1;
-static gint hf_s7comm_szl_0131_0009_sync_mpi = -1;
-static gint hf_s7comm_szl_0131_0009_sync_mpi_0 = -1;
-static gint hf_s7comm_szl_0131_0009_sync_mpi_1 = -1;
-static gint hf_s7comm_szl_0131_0009_sync_mpi_2 = -1;
-static gint hf_s7comm_szl_0131_0009_sync_mfi = -1;
-static gint hf_s7comm_szl_0131_0009_sync_mfi_0 = -1;
-static gint hf_s7comm_szl_0131_0009_sync_mfi_1 = -1;
-static gint hf_s7comm_szl_0131_0009_sync_mfi_2 = -1;
-static gint hf_s7comm_szl_0131_0009_res1 = -1;
-static gint hf_s7comm_szl_0131_0009_abw_puf = -1;
-static gint hf_s7comm_szl_0131_0009_abw_5v = -1;
-static gint hf_s7comm_szl_0131_0009_anz_bsz = -1;
-static gint hf_s7comm_szl_0131_0009_res2 = -1;
+static gint hf_s7comm_szl_0131_0009_index;
+static gint hf_s7comm_szl_0131_0009_sync_k;
+static gint hf_s7comm_szl_0131_0009_sync_k_0;
+static gint hf_s7comm_szl_0131_0009_sync_k_1;
+static gint hf_s7comm_szl_0131_0009_sync_k_2;
+static gint hf_s7comm_szl_0131_0009_sync_mpi;
+static gint hf_s7comm_szl_0131_0009_sync_mpi_0;
+static gint hf_s7comm_szl_0131_0009_sync_mpi_1;
+static gint hf_s7comm_szl_0131_0009_sync_mpi_2;
+static gint hf_s7comm_szl_0131_0009_sync_mfi;
+static gint hf_s7comm_szl_0131_0009_sync_mfi_0;
+static gint hf_s7comm_szl_0131_0009_sync_mfi_1;
+static gint hf_s7comm_szl_0131_0009_sync_mfi_2;
+static gint hf_s7comm_szl_0131_0009_res1;
+static gint hf_s7comm_szl_0131_0009_abw_puf;
+static gint hf_s7comm_szl_0131_0009_abw_5v;
+static gint hf_s7comm_szl_0131_0009_anz_bsz;
+static gint hf_s7comm_szl_0131_0009_res2;
 
-static gint ett_s7comm_szl_0131_0009_sync_k = -1;
+static gint ett_s7comm_szl_0131_0009_sync_k;
 static int * const s7comm_szl_0131_0009_sync_k_fields[] = {
     &hf_s7comm_szl_0131_0009_sync_k_0,
     &hf_s7comm_szl_0131_0009_sync_k_1,
@@ -1358,7 +1358,7 @@ static int * const s7comm_szl_0131_0009_sync_k_fields[] = {
     NULL
 };
 
-static gint ett_s7comm_szl_0131_0009_sync_mpi = -1;
+static gint ett_s7comm_szl_0131_0009_sync_mpi;
 static int * const s7comm_szl_0131_0009_sync_mpi_fields[] = {
     &hf_s7comm_szl_0131_0009_sync_mpi_0,
     &hf_s7comm_szl_0131_0009_sync_mpi_1,
@@ -1366,7 +1366,7 @@ static int * const s7comm_szl_0131_0009_sync_mpi_fields[] = {
     NULL
 };
 
-static gint ett_s7comm_szl_0131_0009_sync_mfi = -1;
+static gint ett_s7comm_szl_0131_0009_sync_mfi;
 static int * const s7comm_szl_0131_0009_sync_mfi_fields[] = {
     &hf_s7comm_szl_0131_0009_sync_mfi_0,
     &hf_s7comm_szl_0131_0009_sync_mfi_1,
@@ -1374,51 +1374,51 @@ static int * const s7comm_szl_0131_0009_sync_mfi_fields[] = {
     NULL
 };
 
-static gint hf_s7comm_szl_0131_0010_index = -1;
-static gint hf_s7comm_szl_0131_0010_funk_1 = -1;
-static gint hf_s7comm_szl_0131_0010_funk_1_0 = -1;
-static gint hf_s7comm_szl_0131_0010_funk_1_1 = -1;
-static gint hf_s7comm_szl_0131_0010_funk_1_2 = -1;
-static gint hf_s7comm_szl_0131_0010_funk_1_3 = -1;
-static gint hf_s7comm_szl_0131_0010_funk_1_4 = -1;
-static gint hf_s7comm_szl_0131_0010_funk_1_5 = -1;
-static gint hf_s7comm_szl_0131_0010_funk_1_6 = -1;
-static gint hf_s7comm_szl_0131_0010_funk_1_7 = -1;
-static gint hf_s7comm_szl_0131_0010_funk_2 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_meld_1 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_meld_1_0 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_meld_1_1 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_meld_1_2 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_meld_1_3 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_meld_1_4 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_meld_1_5 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_meld_1_6 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_meld_1_7 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_meld_2 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_zus_1 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_zus_1_0 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_zus_1_1 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_zus_1_2 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_zus_1_3 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_zus_1_4 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_zus_1_5 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_zus_1_6 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_zus_1_7 = -1;
-static gint hf_s7comm_szl_0131_0010_ber_zus_2 = -1;
-static gint hf_s7comm_szl_0131_0010_typ_zus_1 = -1;
-static gint hf_s7comm_szl_0131_0010_typ_zus_1_0 = -1;
-static gint hf_s7comm_szl_0131_0010_typ_zus_1_1 = -1;
-static gint hf_s7comm_szl_0131_0010_typ_zus_1_2 = -1;
-static gint hf_s7comm_szl_0131_0010_typ_zus_1_3 = -1;
-static gint hf_s7comm_szl_0131_0010_typ_zus_1_4 = -1;
-static gint hf_s7comm_szl_0131_0010_typ_zus_1_5 = -1;
-static gint hf_s7comm_szl_0131_0010_typ_zus_1_6 = -1;
-static gint hf_s7comm_szl_0131_0010_typ_zus_1_7 = -1;
-static gint hf_s7comm_szl_0131_0010_typ_zus_2 = -1;
-static gint hf_s7comm_szl_0131_0010_maxanz_arch = -1;
-static gint hf_s7comm_szl_0131_0010_res = -1;
+static gint hf_s7comm_szl_0131_0010_index;
+static gint hf_s7comm_szl_0131_0010_funk_1;
+static gint hf_s7comm_szl_0131_0010_funk_1_0;
+static gint hf_s7comm_szl_0131_0010_funk_1_1;
+static gint hf_s7comm_szl_0131_0010_funk_1_2;
+static gint hf_s7comm_szl_0131_0010_funk_1_3;
+static gint hf_s7comm_szl_0131_0010_funk_1_4;
+static gint hf_s7comm_szl_0131_0010_funk_1_5;
+static gint hf_s7comm_szl_0131_0010_funk_1_6;
+static gint hf_s7comm_szl_0131_0010_funk_1_7;
+static gint hf_s7comm_szl_0131_0010_funk_2;
+static gint hf_s7comm_szl_0131_0010_ber_meld_1;
+static gint hf_s7comm_szl_0131_0010_ber_meld_1_0;
+static gint hf_s7comm_szl_0131_0010_ber_meld_1_1;
+static gint hf_s7comm_szl_0131_0010_ber_meld_1_2;
+static gint hf_s7comm_szl_0131_0010_ber_meld_1_3;
+static gint hf_s7comm_szl_0131_0010_ber_meld_1_4;
+static gint hf_s7comm_szl_0131_0010_ber_meld_1_5;
+static gint hf_s7comm_szl_0131_0010_ber_meld_1_6;
+static gint hf_s7comm_szl_0131_0010_ber_meld_1_7;
+static gint hf_s7comm_szl_0131_0010_ber_meld_2;
+static gint hf_s7comm_szl_0131_0010_ber_zus_1;
+static gint hf_s7comm_szl_0131_0010_ber_zus_1_0;
+static gint hf_s7comm_szl_0131_0010_ber_zus_1_1;
+static gint hf_s7comm_szl_0131_0010_ber_zus_1_2;
+static gint hf_s7comm_szl_0131_0010_ber_zus_1_3;
+static gint hf_s7comm_szl_0131_0010_ber_zus_1_4;
+static gint hf_s7comm_szl_0131_0010_ber_zus_1_5;
+static gint hf_s7comm_szl_0131_0010_ber_zus_1_6;
+static gint hf_s7comm_szl_0131_0010_ber_zus_1_7;
+static gint hf_s7comm_szl_0131_0010_ber_zus_2;
+static gint hf_s7comm_szl_0131_0010_typ_zus_1;
+static gint hf_s7comm_szl_0131_0010_typ_zus_1_0;
+static gint hf_s7comm_szl_0131_0010_typ_zus_1_1;
+static gint hf_s7comm_szl_0131_0010_typ_zus_1_2;
+static gint hf_s7comm_szl_0131_0010_typ_zus_1_3;
+static gint hf_s7comm_szl_0131_0010_typ_zus_1_4;
+static gint hf_s7comm_szl_0131_0010_typ_zus_1_5;
+static gint hf_s7comm_szl_0131_0010_typ_zus_1_6;
+static gint hf_s7comm_szl_0131_0010_typ_zus_1_7;
+static gint hf_s7comm_szl_0131_0010_typ_zus_2;
+static gint hf_s7comm_szl_0131_0010_maxanz_arch;
+static gint hf_s7comm_szl_0131_0010_res;
 
-static gint ett_s7comm_szl_0131_0010_funk_1 = -1;
+static gint ett_s7comm_szl_0131_0010_funk_1;
 static int * const s7comm_szl_0131_0010_funk_1_fields[] = {
     &hf_s7comm_szl_0131_0010_funk_1_0,
     &hf_s7comm_szl_0131_0010_funk_1_1,
@@ -1430,7 +1430,7 @@ static int * const s7comm_szl_0131_0010_funk_1_fields[] = {
     &hf_s7comm_szl_0131_0010_funk_1_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0010_ber_meld_1 = -1;
+static gint ett_s7comm_szl_0131_0010_ber_meld_1;
 static int * const s7comm_szl_0131_0010_ber_meld_1_fields[] = {
     &hf_s7comm_szl_0131_0010_ber_meld_1_0,
     &hf_s7comm_szl_0131_0010_ber_meld_1_1,
@@ -1442,7 +1442,7 @@ static int * const s7comm_szl_0131_0010_ber_meld_1_fields[] = {
     &hf_s7comm_szl_0131_0010_ber_meld_1_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0010_ber_zus_1 = -1;
+static gint ett_s7comm_szl_0131_0010_ber_zus_1;
 static int * const s7comm_szl_0131_0010_ber_zus_1_fields[] = {
     &hf_s7comm_szl_0131_0010_ber_zus_1_0,
     &hf_s7comm_szl_0131_0010_ber_zus_1_1,
@@ -1454,7 +1454,7 @@ static int * const s7comm_szl_0131_0010_ber_zus_1_fields[] = {
     &hf_s7comm_szl_0131_0010_ber_zus_1_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0010_typ_zus_1 = -1;
+static gint ett_s7comm_szl_0131_0010_typ_zus_1;
 static int * const s7comm_szl_0131_0010_typ_zus_1_fields[] = {
     &hf_s7comm_szl_0131_0010_typ_zus_1_0,
     &hf_s7comm_szl_0131_0010_typ_zus_1_1,
@@ -1467,27 +1467,27 @@ static int * const s7comm_szl_0131_0010_typ_zus_1_fields[] = {
     NULL
 };
 
-static gint hf_s7comm_szl_0132_0001_index = -1;
-static gint hf_s7comm_szl_0132_0001_res_pg = -1;
-static gint hf_s7comm_szl_0132_0001_res_os = -1;
-static gint hf_s7comm_szl_0132_0001_u_pg = -1;
-static gint hf_s7comm_szl_0132_0001_u_os = -1;
-static gint hf_s7comm_szl_0132_0001_proj = -1;
-static gint hf_s7comm_szl_0132_0001_auf = -1;
-static gint hf_s7comm_szl_0132_0001_free = -1;
-static gint hf_s7comm_szl_0132_0001_used = -1;
-static gint hf_s7comm_szl_0132_0001_last = -1;
-static gint hf_s7comm_szl_0132_0001_res = -1;
+static gint hf_s7comm_szl_0132_0001_index;
+static gint hf_s7comm_szl_0132_0001_res_pg;
+static gint hf_s7comm_szl_0132_0001_res_os;
+static gint hf_s7comm_szl_0132_0001_u_pg;
+static gint hf_s7comm_szl_0132_0001_u_os;
+static gint hf_s7comm_szl_0132_0001_proj;
+static gint hf_s7comm_szl_0132_0001_auf;
+static gint hf_s7comm_szl_0132_0001_free;
+static gint hf_s7comm_szl_0132_0001_used;
+static gint hf_s7comm_szl_0132_0001_last;
+static gint hf_s7comm_szl_0132_0001_res;
 
-static gint hf_s7comm_szl_0132_0002_index = -1;
-static gint hf_s7comm_szl_0132_0002_anz = -1;
-static gint hf_s7comm_szl_0132_0002_res = -1;
+static gint hf_s7comm_szl_0132_0002_index;
+static gint hf_s7comm_szl_0132_0002_anz;
+static gint hf_s7comm_szl_0132_0002_res;
 
-static gint hf_s7comm_szl_0132_0004_index = -1;
-static gint hf_s7comm_szl_0132_0004_key = -1;
-static gint hf_s7comm_szl_0132_0004_param = -1;
-static gint hf_s7comm_szl_0132_0004_real = -1;
-static gint hf_s7comm_szl_0132_0004_bart_sch = -1;
+static gint hf_s7comm_szl_0132_0004_index;
+static gint hf_s7comm_szl_0132_0004_key;
+static gint hf_s7comm_szl_0132_0004_param;
+static gint hf_s7comm_szl_0132_0004_real;
+static gint hf_s7comm_szl_0132_0004_bart_sch;
 
 static const value_string szl_bart_sch_names[] = {
     { 0,                                    "undefined or cannot be ascertained" },
@@ -1497,27 +1497,27 @@ static const value_string szl_bart_sch_names[] = {
     { 4,                                    "MRES" },
     { 0,                                    NULL }
 };
-static gint hf_s7comm_szl_0132_0004_crst_wrst = -1;
+static gint hf_s7comm_szl_0132_0004_crst_wrst;
 static const value_string szl_crst_wrst_names[] = {
     { 0,                                    "undefined, does not exist or cannot be ascertained" },
     { 1,                                    "CRST" },
     { 2,                                    "WRST" },
     { 0,                                    NULL }
 };
-static gint hf_s7comm_szl_0132_0004_ken_f = -1;
-static gint hf_s7comm_szl_0132_0004_ken_rel = -1;
-static gint hf_s7comm_szl_0132_0004_ken_ver1_hw = -1;
-static gint hf_s7comm_szl_0132_0004_ken_ver2_hw = -1;
-static gint hf_s7comm_szl_0132_0004_ken_ver1_awp = -1;
-static gint hf_s7comm_szl_0132_0004_ken_ver2_awp = -1;
-static gint hf_s7comm_szl_0132_0004_res = -1;
+static gint hf_s7comm_szl_0132_0004_ken_f;
+static gint hf_s7comm_szl_0132_0004_ken_rel;
+static gint hf_s7comm_szl_0132_0004_ken_ver1_hw;
+static gint hf_s7comm_szl_0132_0004_ken_ver2_hw;
+static gint hf_s7comm_szl_0132_0004_ken_ver1_awp;
+static gint hf_s7comm_szl_0132_0004_ken_ver2_awp;
+static gint hf_s7comm_szl_0132_0004_res;
 
-static gint hf_s7comm_szl_0132_0005_index = -1;
-static gint hf_s7comm_szl_0132_0005_erw = -1;
-static gint hf_s7comm_szl_0132_0005_send = -1;
-static gint hf_s7comm_szl_0132_0005_moeg = -1;
-static gint hf_s7comm_szl_0132_0005_ltmerz = -1;
-static gint hf_s7comm_szl_0132_0005_res = -1;
+static gint hf_s7comm_szl_0132_0005_index;
+static gint hf_s7comm_szl_0132_0005_erw;
+static gint hf_s7comm_szl_0132_0005_send;
+static gint hf_s7comm_szl_0132_0005_moeg;
+static gint hf_s7comm_szl_0132_0005_ltmerz;
+static gint hf_s7comm_szl_0132_0005_res;
 
 static const value_string szl_0132_0005_func_exist_names[] = {
     { 0x0,                                  "No" },
@@ -1525,104 +1525,104 @@ static const value_string szl_0132_0005_func_exist_names[] = {
     { 0,                                    NULL }
 };
 
-static gint hf_s7comm_szl_0132_0006_index = -1;
-static gint hf_s7comm_szl_0132_0006_used_0 = -1;
-static gint hf_s7comm_szl_0132_0006_used_1 = -1;
-static gint hf_s7comm_szl_0132_0006_used_2 = -1;
-static gint hf_s7comm_szl_0132_0006_used_3 = -1;
-static gint hf_s7comm_szl_0132_0006_used_4 = -1;
-static gint hf_s7comm_szl_0132_0006_used_5 = -1;
-static gint hf_s7comm_szl_0132_0006_used_6 = -1;
-static gint hf_s7comm_szl_0132_0006_used_7 = -1;
-static gint hf_s7comm_szl_0132_0006_anz_schnell = -1;
-static gint hf_s7comm_szl_0132_0006_anz_inst = -1;
-static gint hf_s7comm_szl_0132_0006_anz_multicast = -1;
-static gint hf_s7comm_szl_0132_0006_res = -1;
+static gint hf_s7comm_szl_0132_0006_index;
+static gint hf_s7comm_szl_0132_0006_used_0;
+static gint hf_s7comm_szl_0132_0006_used_1;
+static gint hf_s7comm_szl_0132_0006_used_2;
+static gint hf_s7comm_szl_0132_0006_used_3;
+static gint hf_s7comm_szl_0132_0006_used_4;
+static gint hf_s7comm_szl_0132_0006_used_5;
+static gint hf_s7comm_szl_0132_0006_used_6;
+static gint hf_s7comm_szl_0132_0006_used_7;
+static gint hf_s7comm_szl_0132_0006_anz_schnell;
+static gint hf_s7comm_szl_0132_0006_anz_inst;
+static gint hf_s7comm_szl_0132_0006_anz_multicast;
+static gint hf_s7comm_szl_0132_0006_res;
 
-static gint hf_s7comm_szl_0132_0008_index = -1;
-static gint hf_s7comm_szl_0132_0008_zykl = -1;
-static gint hf_s7comm_szl_0132_0008_korr = -1;
-static gint hf_s7comm_szl_0132_0008_clock0 = -1;
-static gint hf_s7comm_szl_0132_0008_clock1 = -1;
-static gint hf_s7comm_szl_0132_0008_clock2 = -1;
-static gint hf_s7comm_szl_0132_0008_clock3 = -1;
-static gint hf_s7comm_szl_0132_0008_clock4 = -1;
-static gint hf_s7comm_szl_0132_0008_clock5 = -1;
-static gint hf_s7comm_szl_0132_0008_clock6 = -1;
-static gint hf_s7comm_szl_0132_0008_clock7 = -1;
-static gint hf_s7comm_szl_0132_0008_time = -1;
-static gint hf_s7comm_szl_0132_0008_res = -1;
+static gint hf_s7comm_szl_0132_0008_index;
+static gint hf_s7comm_szl_0132_0008_zykl;
+static gint hf_s7comm_szl_0132_0008_korr;
+static gint hf_s7comm_szl_0132_0008_clock0;
+static gint hf_s7comm_szl_0132_0008_clock1;
+static gint hf_s7comm_szl_0132_0008_clock2;
+static gint hf_s7comm_szl_0132_0008_clock3;
+static gint hf_s7comm_szl_0132_0008_clock4;
+static gint hf_s7comm_szl_0132_0008_clock5;
+static gint hf_s7comm_szl_0132_0008_clock6;
+static gint hf_s7comm_szl_0132_0008_clock7;
+static gint hf_s7comm_szl_0132_0008_time;
+static gint hf_s7comm_szl_0132_0008_res;
 
-static gint hf_s7comm_szl_0132_000b_index = -1;
-static gint hf_s7comm_szl_0132_000b_bszl_0 = -1;
-static gint hf_s7comm_szl_0132_000b_bszl_1 = -1;
-static gint hf_s7comm_szl_0132_000b_bszu_0 = -1;
-static gint hf_s7comm_szl_0132_000b_bszu_1 = -1;
-static gint hf_s7comm_szl_0132_000b_clock0 = -1;
-static gint hf_s7comm_szl_0132_000b_clock1 = -1;
-static gint hf_s7comm_szl_0132_000b_clock2 = -1;
-static gint hf_s7comm_szl_0132_000b_clock3 = -1;
-static gint hf_s7comm_szl_0132_000b_clock4 = -1;
-static gint hf_s7comm_szl_0132_000b_clock5 = -1;
-static gint hf_s7comm_szl_0132_000b_clock6 = -1;
-static gint hf_s7comm_szl_0132_000b_clock7 = -1;
-static gint hf_s7comm_szl_0132_000b_res = -1;
+static gint hf_s7comm_szl_0132_000b_index;
+static gint hf_s7comm_szl_0132_000b_bszl_0;
+static gint hf_s7comm_szl_0132_000b_bszl_1;
+static gint hf_s7comm_szl_0132_000b_bszu_0;
+static gint hf_s7comm_szl_0132_000b_bszu_1;
+static gint hf_s7comm_szl_0132_000b_clock0;
+static gint hf_s7comm_szl_0132_000b_clock1;
+static gint hf_s7comm_szl_0132_000b_clock2;
+static gint hf_s7comm_szl_0132_000b_clock3;
+static gint hf_s7comm_szl_0132_000b_clock4;
+static gint hf_s7comm_szl_0132_000b_clock5;
+static gint hf_s7comm_szl_0132_000b_clock6;
+static gint hf_s7comm_szl_0132_000b_clock7;
+static gint hf_s7comm_szl_0132_000b_res;
 
-static gint hf_s7comm_szl_0132_000c_index = -1;
-static gint hf_s7comm_szl_0132_000c_bszl_0 = -1;
-static gint hf_s7comm_szl_0132_000c_bszl_1 = -1;
-static gint hf_s7comm_szl_0132_000c_bszu_0 = -1;
-static gint hf_s7comm_szl_0132_000c_bszu_1 = -1;
-static gint hf_s7comm_szl_0132_000c_clock8 = -1;
-static gint hf_s7comm_szl_0132_000c_clock9 = -1;
-static gint hf_s7comm_szl_0132_000c_clock10 = -1;
-static gint hf_s7comm_szl_0132_000c_clock11 = -1;
-static gint hf_s7comm_szl_0132_000c_clock12 = -1;
-static gint hf_s7comm_szl_0132_000c_clock13 = -1;
-static gint hf_s7comm_szl_0132_000c_clock14 = -1;
-static gint hf_s7comm_szl_0132_000c_clock15 = -1;
-static gint hf_s7comm_szl_0132_000c_res = -1;
+static gint hf_s7comm_szl_0132_000c_index;
+static gint hf_s7comm_szl_0132_000c_bszl_0;
+static gint hf_s7comm_szl_0132_000c_bszl_1;
+static gint hf_s7comm_szl_0132_000c_bszu_0;
+static gint hf_s7comm_szl_0132_000c_bszu_1;
+static gint hf_s7comm_szl_0132_000c_clock8;
+static gint hf_s7comm_szl_0132_000c_clock9;
+static gint hf_s7comm_szl_0132_000c_clock10;
+static gint hf_s7comm_szl_0132_000c_clock11;
+static gint hf_s7comm_szl_0132_000c_clock12;
+static gint hf_s7comm_szl_0132_000c_clock13;
+static gint hf_s7comm_szl_0132_000c_clock14;
+static gint hf_s7comm_szl_0132_000c_clock15;
+static gint hf_s7comm_szl_0132_000c_res;
 
-static gint hf_s7comm_szl_001c_000x_index = -1;
-static gint hf_s7comm_szl_001c_0001_name = -1;
-static gint hf_s7comm_szl_001c_0002_name = -1;
-static gint hf_s7comm_szl_001c_0003_tag = -1;
-static gint hf_s7comm_szl_001c_0004_copyright = -1;
-static gint hf_s7comm_szl_001c_0005_serialn = -1;
-static gint hf_s7comm_szl_001c_0007_cputypname = -1;
-static gint hf_s7comm_szl_001c_0008_snmcmmc = -1;
-static gint hf_s7comm_szl_001c_0009_manufacturer_id = -1;
-static gint hf_s7comm_szl_001c_0009_profile_id = -1;
-static gint hf_s7comm_szl_001c_0009_profile_spec_typ = -1;
-static gint hf_s7comm_szl_001c_000a_oem_copyright_string = -1;
-static gint hf_s7comm_szl_001c_000a_oem_id = -1;
-static gint hf_s7comm_szl_001c_000a_oem_add_id = -1;
-static gint hf_s7comm_szl_001c_000b_loc_id = -1;
-static gint hf_s7comm_szl_001c_000x_res = -1;
+static gint hf_s7comm_szl_001c_000x_index;
+static gint hf_s7comm_szl_001c_0001_name;
+static gint hf_s7comm_szl_001c_0002_name;
+static gint hf_s7comm_szl_001c_0003_tag;
+static gint hf_s7comm_szl_001c_0004_copyright;
+static gint hf_s7comm_szl_001c_0005_serialn;
+static gint hf_s7comm_szl_001c_0007_cputypname;
+static gint hf_s7comm_szl_001c_0008_snmcmmc;
+static gint hf_s7comm_szl_001c_0009_manufacturer_id;
+static gint hf_s7comm_szl_001c_0009_profile_id;
+static gint hf_s7comm_szl_001c_0009_profile_spec_typ;
+static gint hf_s7comm_szl_001c_000a_oem_copyright_string;
+static gint hf_s7comm_szl_001c_000a_oem_id;
+static gint hf_s7comm_szl_001c_000a_oem_add_id;
+static gint hf_s7comm_szl_001c_000b_loc_id;
+static gint hf_s7comm_szl_001c_000x_res;
 
-static gint hf_s7comm_szl_0091_0000_adr1 = -1;
-static gint hf_s7comm_szl_0091_0000_adr2 = -1;
-static gint hf_s7comm_szl_0091_0000_logadr = -1;
-static gint hf_s7comm_szl_0091_0000_solltyp = -1;
-static gint hf_s7comm_szl_0091_0000_isttyp = -1;
-static gint hf_s7comm_szl_0091_0000_res1 = -1;
-static gint hf_s7comm_szl_0091_0000_res1_0c_4c_4d = -1;
-static gint hf_s7comm_szl_0091_0000_res1_0d = -1;
-static gint hf_s7comm_szl_0091_0000_eastat = -1;
-static gint hf_s7comm_szl_0091_0000_eastat_0 = -1;
-static gint hf_s7comm_szl_0091_0000_eastat_1 = -1;
-static gint hf_s7comm_szl_0091_0000_eastat_2 = -1;
-static gint hf_s7comm_szl_0091_0000_eastat_3 = -1;
-static gint hf_s7comm_szl_0091_0000_eastat_4 = -1;
-static gint hf_s7comm_szl_0091_0000_eastat_5 = -1;
-static gint hf_s7comm_szl_0091_0000_eastat_6 = -1;
-static gint hf_s7comm_szl_0091_0000_eastat_7 = -1;
-static gint hf_s7comm_szl_0091_0000_eastat_dataid = -1;
-static gint hf_s7comm_szl_0091_0000_berbgbr = -1;
-static gint hf_s7comm_szl_0091_0000_berbgbr_0_2 = -1;
-static gint hf_s7comm_szl_0091_0000_berbgbr_3 = -1;
-static gint hf_s7comm_szl_0091_0000_berbgbr_areaid = -1;
-static gint hf_s7comm_szl_0091_0000_berbgbr_7 = -1;
+static gint hf_s7comm_szl_0091_0000_adr1;
+static gint hf_s7comm_szl_0091_0000_adr2;
+static gint hf_s7comm_szl_0091_0000_logadr;
+static gint hf_s7comm_szl_0091_0000_solltyp;
+static gint hf_s7comm_szl_0091_0000_isttyp;
+static gint hf_s7comm_szl_0091_0000_res1;
+static gint hf_s7comm_szl_0091_0000_res1_0c_4c_4d;
+static gint hf_s7comm_szl_0091_0000_res1_0d;
+static gint hf_s7comm_szl_0091_0000_eastat;
+static gint hf_s7comm_szl_0091_0000_eastat_0;
+static gint hf_s7comm_szl_0091_0000_eastat_1;
+static gint hf_s7comm_szl_0091_0000_eastat_2;
+static gint hf_s7comm_szl_0091_0000_eastat_3;
+static gint hf_s7comm_szl_0091_0000_eastat_4;
+static gint hf_s7comm_szl_0091_0000_eastat_5;
+static gint hf_s7comm_szl_0091_0000_eastat_6;
+static gint hf_s7comm_szl_0091_0000_eastat_7;
+static gint hf_s7comm_szl_0091_0000_eastat_dataid;
+static gint hf_s7comm_szl_0091_0000_berbgbr;
+static gint hf_s7comm_szl_0091_0000_berbgbr_0_2;
+static gint hf_s7comm_szl_0091_0000_berbgbr_3;
+static gint hf_s7comm_szl_0091_0000_berbgbr_areaid;
+static gint hf_s7comm_szl_0091_0000_berbgbr_7;
 
 static const value_string szl_0091_0000_eastat_dataid_names[] = {
     { 0xb4,                                 "Input" },
@@ -1640,7 +1640,7 @@ static const value_string szl_0091_0000_berbgbr_areaid_names[] = {
     { 6,                                    "IM4 area" },
     { 0,                                    NULL }
 };
-static gint ett_s7comm_szl_0091_0000_eastat = -1;
+static gint ett_s7comm_szl_0091_0000_eastat;
 static int * const s7comm_szl_0091_0000_eastat_fields[] = {
     &hf_s7comm_szl_0091_0000_eastat_0,
     &hf_s7comm_szl_0091_0000_eastat_1,
@@ -1653,7 +1653,7 @@ static int * const s7comm_szl_0091_0000_eastat_fields[] = {
     &hf_s7comm_szl_0091_0000_eastat_dataid,
     NULL
 };
-static gint ett_s7comm_szl_0091_0000_berbgbr = -1;
+static gint ett_s7comm_szl_0091_0000_berbgbr;
 static int * const s7comm_szl_0091_0000_berbgbr_fields[] = {
     &hf_s7comm_szl_0091_0000_berbgbr_0_2,
     &hf_s7comm_szl_0091_0000_berbgbr_3,
@@ -1662,62 +1662,62 @@ static int * const s7comm_szl_0091_0000_berbgbr_fields[] = {
     NULL
 };
 
-static gint ett_s7comm_szl_xx9x_station_info = -1;
-static gint hf_s7comm_szl_xx9x_station_info = -1;
+static gint ett_s7comm_szl_xx9x_station_info;
+static gint hf_s7comm_szl_xx9x_station_info;
 
-static gint hf_s7comm_szl_0092_0xxx_status_0 = -1;
-static gint hf_s7comm_szl_0092_0xxx_status_1 = -1;
-static gint hf_s7comm_szl_0092_0xxx_status_2 = -1;
-static gint hf_s7comm_szl_0092_0xxx_status_3 = -1;
-static gint hf_s7comm_szl_0092_0xxx_status_4 = -1;
-static gint hf_s7comm_szl_0092_0xxx_status_5 = -1;
-static gint hf_s7comm_szl_0092_0xxx_status_6 = -1;
-static gint hf_s7comm_szl_0092_0xxx_status_7 = -1;
-static gint hf_s7comm_szl_0092_0xxx_status_8 = -1;
-static gint hf_s7comm_szl_0092_0xxx_status_9 = -1;
-static gint hf_s7comm_szl_0092_0xxx_status_10 = -1;
-static gint hf_s7comm_szl_0092_0xxx_status_11 = -1;
-static gint hf_s7comm_szl_0092_0xxx_status_12 = -1;
-static gint hf_s7comm_szl_0092_0xxx_status_13 = -1;
-static gint hf_s7comm_szl_0092_0xxx_status_14 = -1;
-static gint hf_s7comm_szl_0092_0xxx_status_15 = -1;
+static gint hf_s7comm_szl_0092_0xxx_status_0;
+static gint hf_s7comm_szl_0092_0xxx_status_1;
+static gint hf_s7comm_szl_0092_0xxx_status_2;
+static gint hf_s7comm_szl_0092_0xxx_status_3;
+static gint hf_s7comm_szl_0092_0xxx_status_4;
+static gint hf_s7comm_szl_0092_0xxx_status_5;
+static gint hf_s7comm_szl_0092_0xxx_status_6;
+static gint hf_s7comm_szl_0092_0xxx_status_7;
+static gint hf_s7comm_szl_0092_0xxx_status_8;
+static gint hf_s7comm_szl_0092_0xxx_status_9;
+static gint hf_s7comm_szl_0092_0xxx_status_10;
+static gint hf_s7comm_szl_0092_0xxx_status_11;
+static gint hf_s7comm_szl_0092_0xxx_status_12;
+static gint hf_s7comm_szl_0092_0xxx_status_13;
+static gint hf_s7comm_szl_0092_0xxx_status_14;
+static gint hf_s7comm_szl_0092_0xxx_status_15;
 
-static gint hf_s7comm_szl_0094_xxxx_index = -1;
-static gint hf_s7comm_szl_0094_xxxx_status_0 = -1;
-static gint hf_s7comm_szl_0094_xxxx_status_1_2047 = -1;
+static gint hf_s7comm_szl_0094_xxxx_index;
+static gint hf_s7comm_szl_0094_xxxx_status_0;
+static gint hf_s7comm_szl_0094_xxxx_status_1_2047;
 
-static gint hf_s7comm_szl_0096_xxxx_logadr_adr = -1;
-static gint hf_s7comm_szl_0096_xxxx_logadr_area = -1;
+static gint hf_s7comm_szl_0096_xxxx_logadr_adr;
+static gint hf_s7comm_szl_0096_xxxx_logadr_area;
 static const true_false_string tfs_szl_0096_xxx_logadr_area = {
     "Input",
     "Output"
 };
 
-static gint hf_s7comm_szl_0096_xxxx_system = -1;
-static gint hf_s7comm_szl_0096_xxxx_api = -1;
-static gint hf_s7comm_szl_0096_xxxx_station = -1;
-static gint hf_s7comm_szl_0096_xxxx_slot = -1;
-static gint hf_s7comm_szl_0096_xxxx_subslot = -1;
-static gint hf_s7comm_szl_0096_xxxx_offset = -1;
-static gint hf_s7comm_szl_0096_xxxx_solltyp1 = -1;
-static gint hf_s7comm_szl_0096_xxxx_solltyp2 = -1;
-static gint hf_s7comm_szl_0096_xxxx_solltyp3 = -1;
-static gint hf_s7comm_szl_0096_xxxx_solltyp4_5 = -1;
-static gint hf_s7comm_szl_0096_xxxx_solltyp6_7 = -1;
-static gint hf_s7comm_szl_0096_xxxx_expactid = -1;
-static gint hf_s7comm_szl_0096_xxxx_reserve1 = -1;
-static gint hf_s7comm_szl_0096_xxxx_eastat = -1;
-static gint hf_s7comm_szl_0096_xxxx_eastat_0 = -1;
-static gint hf_s7comm_szl_0096_xxxx_eastat_1 = -1;
-static gint hf_s7comm_szl_0096_xxxx_eastat_2 = -1;
-static gint hf_s7comm_szl_0096_xxxx_eastat_3 = -1;
-static gint hf_s7comm_szl_0096_xxxx_eastat_4 = -1;
-static gint hf_s7comm_szl_0096_xxxx_eastat_5 = -1;
-static gint hf_s7comm_szl_0096_xxxx_eastat_6 = -1;
-static gint hf_s7comm_szl_0096_xxxx_eastat_7 = -1;
-static gint hf_s7comm_szl_0096_xxxx_eastat_8 = -1;
-static gint hf_s7comm_szl_0096_xxxx_eastat_9 = -1;
-static gint ett_s7comm_szl_0096_xxxx_eastat = -1;
+static gint hf_s7comm_szl_0096_xxxx_system;
+static gint hf_s7comm_szl_0096_xxxx_api;
+static gint hf_s7comm_szl_0096_xxxx_station;
+static gint hf_s7comm_szl_0096_xxxx_slot;
+static gint hf_s7comm_szl_0096_xxxx_subslot;
+static gint hf_s7comm_szl_0096_xxxx_offset;
+static gint hf_s7comm_szl_0096_xxxx_solltyp1;
+static gint hf_s7comm_szl_0096_xxxx_solltyp2;
+static gint hf_s7comm_szl_0096_xxxx_solltyp3;
+static gint hf_s7comm_szl_0096_xxxx_solltyp4_5;
+static gint hf_s7comm_szl_0096_xxxx_solltyp6_7;
+static gint hf_s7comm_szl_0096_xxxx_expactid;
+static gint hf_s7comm_szl_0096_xxxx_reserve1;
+static gint hf_s7comm_szl_0096_xxxx_eastat;
+static gint hf_s7comm_szl_0096_xxxx_eastat_0;
+static gint hf_s7comm_szl_0096_xxxx_eastat_1;
+static gint hf_s7comm_szl_0096_xxxx_eastat_2;
+static gint hf_s7comm_szl_0096_xxxx_eastat_3;
+static gint hf_s7comm_szl_0096_xxxx_eastat_4;
+static gint hf_s7comm_szl_0096_xxxx_eastat_5;
+static gint hf_s7comm_szl_0096_xxxx_eastat_6;
+static gint hf_s7comm_szl_0096_xxxx_eastat_7;
+static gint hf_s7comm_szl_0096_xxxx_eastat_8;
+static gint hf_s7comm_szl_0096_xxxx_eastat_9;
+static gint ett_s7comm_szl_0096_xxxx_eastat;
 static int * const s7comm_szl_0096_xxxx_eastat_fields[] = {
     &hf_s7comm_szl_0096_xxxx_eastat_0,
     &hf_s7comm_szl_0096_xxxx_eastat_1,
@@ -1731,12 +1731,12 @@ static int * const s7comm_szl_0096_xxxx_eastat_fields[] = {
     &hf_s7comm_szl_0096_xxxx_eastat_9,
     NULL
 };
-static gint hf_s7comm_szl_0096_xxxx_berbgbr = -1;
-static gint hf_s7comm_szl_0096_xxxx_berbgbr_0_2 = -1;
-static gint hf_s7comm_szl_0096_xxxx_berbgbr_3 = -1;
-static gint hf_s7comm_szl_0096_xxxx_berbgbr_areaid = -1;
-static gint hf_s7comm_szl_0096_xxxx_berbgbr_7 = -1;
-static gint ett_s7comm_szl_0096_xxxx_berbgbr = -1;
+static gint hf_s7comm_szl_0096_xxxx_berbgbr;
+static gint hf_s7comm_szl_0096_xxxx_berbgbr_0_2;
+static gint hf_s7comm_szl_0096_xxxx_berbgbr_3;
+static gint hf_s7comm_szl_0096_xxxx_berbgbr_areaid;
+static gint hf_s7comm_szl_0096_xxxx_berbgbr_7;
+static gint ett_s7comm_szl_0096_xxxx_berbgbr;
 static int * const s7comm_szl_0096_xxxx_berbgbr_fields[] = {
     &hf_s7comm_szl_0096_xxxx_berbgbr_0_2,
     &hf_s7comm_szl_0096_xxxx_berbgbr_3,
@@ -1744,13 +1744,13 @@ static int * const s7comm_szl_0096_xxxx_berbgbr_fields[] = {
     &hf_s7comm_szl_0096_xxxx_berbgbr_7,
     NULL
 };
-static gint hf_s7comm_szl_0096_xxxx_reserve2 = -1;
+static gint hf_s7comm_szl_0096_xxxx_reserve2;
 
-static gint hf_s7comm_szl_0424_0000_ereig = -1;
-static gint hf_s7comm_szl_0424_0000_ae = -1;
-static gint hf_s7comm_szl_0424_0000_bzu_id = -1;
-static gint hf_s7comm_szl_0424_0000_bzu_id_req = -1;
-static gint hf_s7comm_szl_0424_0000_bzu_id_pre = -1;
+static gint hf_s7comm_szl_0424_0000_ereig;
+static gint hf_s7comm_szl_0424_0000_ae;
+static gint hf_s7comm_szl_0424_0000_bzu_id;
+static gint hf_s7comm_szl_0424_0000_bzu_id_req;
+static gint hf_s7comm_szl_0424_0000_bzu_id_pre;
 static const value_string szl_0424_0000_bzu_id_names[] = {
     { 0x1,                                  "STOP (update)" },
     { 0x2,                                  "STOP (memory reset)" },
@@ -1763,15 +1763,15 @@ static const value_string szl_0424_0000_bzu_id_names[] = {
     { 0xd,                                  "DEFECT" },
     { 0,                                    NULL }
 };
-static gint ett_s7comm_szl_0424_0000_bzu_id = -1;
+static gint ett_s7comm_szl_0424_0000_bzu_id;
 static int * const s7comm_szl_0424_0000_bzu_id_fields[] = {
     &hf_s7comm_szl_0424_0000_bzu_id_req,
     &hf_s7comm_szl_0424_0000_bzu_id_pre,
     NULL
 };
-static gint hf_s7comm_szl_0424_0000_res = -1;
-static gint hf_s7comm_szl_0424_0000_anlinfo1 = -1;
-static gint hf_s7comm_szl_0424_0000_anlinfo2 = -1;
+static gint hf_s7comm_szl_0424_0000_res;
+static gint hf_s7comm_szl_0424_0000_anlinfo1;
+static gint hf_s7comm_szl_0424_0000_anlinfo2;
 static const value_string szl_0424_0000_anlinfo2_names[] = {
     { 0x01,                                 "Complete restart in multicomputing" },
     { 0x03,                                 "Complete restart set at mode selector" },
@@ -1788,8 +1788,8 @@ static const value_string szl_0424_0000_anlinfo2_names[] = {
     { 0xa0,                                 "Automatic restart after battery backed power on according to parameter assignment" },
     { 0,                                    NULL }
 };
-static gint hf_s7comm_szl_0424_0000_anlinfo3 = -1;
-static gint hf_s7comm_szl_0424_0000_anlinfo4 = -1;
+static gint hf_s7comm_szl_0424_0000_anlinfo3;
+static gint hf_s7comm_szl_0424_0000_anlinfo4;
 static const value_string szl_0424_0000_anlinfo4_names[] = {
     { 0x00,                                 "No startup type" },
     { 0x01,                                 "Complete restart in multicomputing" },
@@ -1807,20 +1807,20 @@ static const value_string szl_0424_0000_anlinfo4_names[] = {
     { 0xa0,                                 "Automatic restart after battery backed power on according to parameter assignment" },
     { 0,                                    NULL }
 };
-static gint hf_s7comm_szl_0424_0000_time = -1;
+static gint hf_s7comm_szl_0424_0000_time;
 
-static gint hf_s7comm_szl_xy74_0000_cpu_led_id = -1;
-static gint hf_s7comm_szl_xy74_0000_cpu_led_id_rackno = -1;
-static gint hf_s7comm_szl_xy74_0000_cpu_led_id_cputype = -1;
-static gint hf_s7comm_szl_xy74_0000_cpu_led_id_id = -1;
-static gint hf_s7comm_szl_xy74_0000_led_on = -1;
+static gint hf_s7comm_szl_xy74_0000_cpu_led_id;
+static gint hf_s7comm_szl_xy74_0000_cpu_led_id_rackno;
+static gint hf_s7comm_szl_xy74_0000_cpu_led_id_cputype;
+static gint hf_s7comm_szl_xy74_0000_cpu_led_id_id;
+static gint hf_s7comm_szl_xy74_0000_led_on;
 static const value_string szl_xy74_0000_led_on_names[] = {
     { 0x0,                                  "Off" },
     { 0x1,                                  "On" },
     { 0,                                    NULL }
 };
 
-static gint hf_s7comm_szl_xy74_0000_led_blink = -1;
+static gint hf_s7comm_szl_xy74_0000_led_blink;
 static const value_string szl_xy74_0000_led_blink_names[] = {
     { 0x0,                                  "Not flashing" },
     { 0x1,                                  "Flashing normally (2 Hz)" },

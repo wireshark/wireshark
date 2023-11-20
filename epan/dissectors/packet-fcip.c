@@ -87,36 +87,36 @@ static const guint8 fcip_header_8_bytes[8] = {
     0x01, 0x01, 0xFE, 0xFE
 };
 
-static int proto_fcip          = -1;
+static int proto_fcip;
 
-static int hf_fcip_protocol       = -1;
-static int hf_fcip_protocol_c     = -1;
-static int hf_fcip_version        = -1;
-static int hf_fcip_version_c      = -1;
-static int hf_fcip_encap_word1    = -1;
-static int hf_fcip_flags          = -1;
-static int hf_fcip_flags_c        = -1;
-static int hf_fcip_framelen       = -1;
-static int hf_fcip_framelen_c     = -1;
-static int hf_fcip_tsec           = -1;
-static int hf_fcip_tusec          = -1;
-static int hf_fcip_encap_crc      = -1;
-static int hf_fcip_sof            = -1;
-static int hf_fcip_sof_c          = -1;
-static int hf_fcip_eof            = -1;
-static int hf_fcip_eof_c          = -1;
-static int hf_fcip_pflags_changed = -1;
-static int hf_fcip_pflags_special = -1;
-static int hf_fcip_pflags_c       = -1;
-static int hf_fcip_src_wwn        = -1;
-static int hf_fcip_dst_wwn        = -1;
-static int hf_fcip_conn_code      = -1;
-static int hf_fcip_katov          = -1;
-static int hf_fcip_src_entity_id  = -1;
-static int hf_fcip_conn_nonce     = -1;
-static int hf_fcip_conn_flags     = -1;
+static int hf_fcip_protocol;
+static int hf_fcip_protocol_c;
+static int hf_fcip_version;
+static int hf_fcip_version_c;
+static int hf_fcip_encap_word1;
+static int hf_fcip_flags;
+static int hf_fcip_flags_c;
+static int hf_fcip_framelen;
+static int hf_fcip_framelen_c;
+static int hf_fcip_tsec;
+static int hf_fcip_tusec;
+static int hf_fcip_encap_crc;
+static int hf_fcip_sof;
+static int hf_fcip_sof_c;
+static int hf_fcip_eof;
+static int hf_fcip_eof_c;
+static int hf_fcip_pflags_changed;
+static int hf_fcip_pflags_special;
+static int hf_fcip_pflags_c;
+static int hf_fcip_src_wwn;
+static int hf_fcip_dst_wwn;
+static int hf_fcip_conn_code;
+static int hf_fcip_katov;
+static int hf_fcip_src_entity_id;
+static int hf_fcip_conn_nonce;
+static int hf_fcip_conn_flags;
 
-static int ett_fcip            = -1;
+static int ett_fcip;
 
 static guint fcip_port         = 3225;
 static gboolean fcip_desegment = TRUE;

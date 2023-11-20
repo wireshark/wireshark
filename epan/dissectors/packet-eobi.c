@@ -43,17 +43,17 @@ void proto_register_eobi(void);
 
 static dissector_handle_t eobi_handle;
 
-static int proto_eobi = -1;
-static expert_field ei_eobi_counter_overflow = EI_INIT;
-static expert_field ei_eobi_invalid_template = EI_INIT;
-static expert_field ei_eobi_invalid_length = EI_INIT;
-static expert_field ei_eobi_missing = EI_INIT;
-static expert_field ei_eobi_overused = EI_INIT;
+static int proto_eobi;
+static expert_field ei_eobi_counter_overflow;
+static expert_field ei_eobi_invalid_template;
+static expert_field ei_eobi_invalid_length;
+static expert_field ei_eobi_missing;
+static expert_field ei_eobi_overused;
 
 static int hf_eobi[83];
-static int hf_eobi_dscp_exec_summary = -1;
-static int hf_eobi_dscp_improved = -1;
-static int hf_eobi_dscp_widened = -1;
+static int hf_eobi_dscp_exec_summary;
+static int hf_eobi_dscp_improved;
+static int hf_eobi_dscp_widened;
 enum Field_Handle_Index {
       AGGRESSORSIDE_FH_IDX
     , AGGRESSORTIME_FH_IDX
@@ -997,7 +997,7 @@ struct ETI_Field {
 };
 
 static gint ett_eobi[7];
-static gint ett_eobi_dscp = -1;
+static gint ett_eobi_dscp;
 /* This method dissects fully reassembled messages */
 static int
 dissect_eobi_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)

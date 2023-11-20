@@ -33,14 +33,14 @@ void proto_register_ipos(void);
 static dissector_handle_t ipos_handle;
 static dissector_handle_t redback_handle;
 
-static int proto_ipos = -1;
-static int hf_ipos_protocol = -1;
-static int hf_ipos_priority = -1;
-static int hf_ipos_ppe = -1;
-static int hf_ipos_slot = -1;
-static gint ett_ipos = -1;
+static int proto_ipos;
+static int hf_ipos_protocol;
+static int hf_ipos_priority;
+static int hf_ipos_ppe;
+static int hf_ipos_slot;
+static gint ett_ipos;
 
-/* static expert_field ei_ipos_protocol = EI_INIT; */
+/* static expert_field ei_ipos_protocol; */
 
 #define LINUX_SLL_P_IPOS_NETIPC	 0x0030	/* IPOS IPC frames to/from AF_IPC module */
 #define LINUX_SLL_P_IPOS_RBN     0x0031  /* IPOS IP frames to/from CTX module */

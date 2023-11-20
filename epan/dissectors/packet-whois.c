@@ -23,17 +23,17 @@ void proto_reg_handoff_whois(void);
 
 static dissector_handle_t whois_handle;
 
-static int proto_whois = -1;
-static int hf_whois_query = -1;
-static int hf_whois_answer = -1;
-static int hf_whois_answer_in = -1;
-static int hf_whois_answer_to = -1;
-static int hf_whois_response_time = -1;
+static int proto_whois;
+static int hf_whois_query;
+static int hf_whois_answer;
+static int hf_whois_answer_in;
+static int hf_whois_answer_to;
+static int hf_whois_response_time;
 
-static expert_field ei_whois_nocrlf = EI_INIT;
-static expert_field ei_whois_encoding = EI_INIT;
+static expert_field ei_whois_nocrlf;
+static expert_field ei_whois_encoding;
 
-static gint ett_whois = -1;
+static gint ett_whois;
 
 typedef struct _whois_transaction_t {
     guint32  req_frame;

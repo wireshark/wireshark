@@ -61,25 +61,25 @@ void proto_reg_handoff_applemidi(void);
 #define APPLEMIDI_COMMAND_RECEIVER_FEEDBACK		0x5253		/*   "RS"   */
 #define APPLEMIDI_COMMAND_BITRATE_RECEIVE_LIMIT		0x524c		/*   "RL"   */
 
-static int	hf_applemidi_signature			= -1;
-static int	hf_applemidi_command			= -1;
-static int	hf_applemidi_protocol_version		= -1;
-static int	hf_applemidi_token			= -1;
-static int	hf_applemidi_ssrc			= -1;
-static int	hf_applemidi_name			= -1;
-static int	hf_applemidi_count			= -1;
-static int	hf_applemidi_padding			= -1;
-static int	hf_applemidi_timestamp1			= -1;
-static int	hf_applemidi_timestamp2			= -1;
-static int	hf_applemidi_timestamp3			= -1;
-static int	hf_applemidi_sequence_num		= -1;
-static int	hf_applemidi_rtp_sequence_num		= -1;
-static int	hf_applemidi_rtp_bitrate_limit		= -1;
-static int	hf_applemidi_unknown_data		= -1;
+static int	hf_applemidi_signature;
+static int	hf_applemidi_command;
+static int	hf_applemidi_protocol_version;
+static int	hf_applemidi_token;
+static int	hf_applemidi_ssrc;
+static int	hf_applemidi_name;
+static int	hf_applemidi_count;
+static int	hf_applemidi_padding;
+static int	hf_applemidi_timestamp1;
+static int	hf_applemidi_timestamp2;
+static int	hf_applemidi_timestamp3;
+static int	hf_applemidi_sequence_num;
+static int	hf_applemidi_rtp_sequence_num;
+static int	hf_applemidi_rtp_bitrate_limit;
+static int	hf_applemidi_unknown_data;
 
 
-static gint	ett_applemidi				= -1;
-static gint	ett_applemidi_seq_num			= -1;
+static gint	ett_applemidi;
+static gint	ett_applemidi_seq_num;
 
 
 static const value_string applemidi_commands[] = {
@@ -94,7 +94,7 @@ static const value_string applemidi_commands[] = {
 };
 
 
-static int			proto_applemidi		= -1;
+static int			proto_applemidi;
 
 static dissector_handle_t	applemidi_handle;
 static dissector_handle_t	rtp_handle;

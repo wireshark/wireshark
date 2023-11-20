@@ -26,50 +26,50 @@
 
 void proto_register_udpcp(void);
 
-static int proto_udpcp = -1;
+static int proto_udpcp;
 
-static int hf_udpcp_checksum = -1;
-static int hf_udpcp_msg_type = -1;
-static int hf_udpcp_version = -1;
+static int hf_udpcp_checksum;
+static int hf_udpcp_msg_type;
+static int hf_udpcp_version;
 
-static int hf_udpcp_packet_transfer_options = -1;
-static int hf_udpcp_n = -1;
-static int hf_udpcp_c = -1;
-static int hf_udpcp_s = -1;
-static int hf_udpcp_d = -1;
-static int hf_udpcp_reserved = -1;
+static int hf_udpcp_packet_transfer_options;
+static int hf_udpcp_n;
+static int hf_udpcp_c;
+static int hf_udpcp_s;
+static int hf_udpcp_d;
+static int hf_udpcp_reserved;
 
-static int hf_udpcp_fragment_amount = -1;
-static int hf_udpcp_fragment_number = -1;
+static int hf_udpcp_fragment_amount;
+static int hf_udpcp_fragment_number;
 
-static int hf_udpcp_message_id = -1;
-static int hf_udpcp_message_data_length = -1;
+static int hf_udpcp_message_id;
+static int hf_udpcp_message_data_length;
 
-static int hf_udpcp_payload = -1;
+static int hf_udpcp_payload;
 
-static int hf_udpcp_ack_frame = -1;
-static int hf_udpcp_sn_frame = -1;
+static int hf_udpcp_ack_frame;
+static int hf_udpcp_sn_frame;
 
 
 /* For reassembly */
-static int hf_udpcp_fragments = -1;
-static int hf_udpcp_fragment = -1;
-static int hf_udpcp_fragment_overlap = -1;
-static int hf_udpcp_fragment_overlap_conflict = -1;
-static int hf_udpcp_fragment_multiple_tails = -1;
-static int hf_udpcp_fragment_too_long_fragment = -1;
-static int hf_udpcp_fragment_error = -1;
-static int hf_udpcp_fragment_count = -1;
-static int hf_udpcp_reassembled_in = -1;
-static int hf_udpcp_reassembled_length = -1;
-static int hf_udpcp_reassembled_data = -1;
+static int hf_udpcp_fragments;
+static int hf_udpcp_fragment;
+static int hf_udpcp_fragment_overlap;
+static int hf_udpcp_fragment_overlap_conflict;
+static int hf_udpcp_fragment_multiple_tails;
+static int hf_udpcp_fragment_too_long_fragment;
+static int hf_udpcp_fragment_error;
+static int hf_udpcp_fragment_count;
+static int hf_udpcp_reassembled_in;
+static int hf_udpcp_reassembled_length;
+static int hf_udpcp_reassembled_data;
 
 
 /* Subtrees */
-static gint ett_udpcp = -1;
-static gint ett_udpcp_packet_transfer_options = -1;
-static gint ett_udpcp_fragments = -1;
-static gint ett_udpcp_fragment  = -1;
+static gint ett_udpcp;
+static gint ett_udpcp_packet_transfer_options;
+static gint ett_udpcp_fragments;
+static gint ett_udpcp_fragment;
 
 static const fragment_items udpcp_frag_items = {
   &ett_udpcp_fragment,
@@ -89,14 +89,14 @@ static const fragment_items udpcp_frag_items = {
 };
 
 
-static expert_field ei_udpcp_checksum_should_be_zero = EI_INIT;
-static expert_field ei_udpcp_d_not_zero_for_data = EI_INIT;
-static expert_field ei_udpcp_reserved_not_zero = EI_INIT;
-static expert_field ei_udpcp_n_s_ack = EI_INIT;
-static expert_field ei_udpcp_payload_wrong_size = EI_INIT;
-static expert_field ei_udpcp_wrong_sequence_number = EI_INIT;
-static expert_field ei_udpcp_no_ack = EI_INIT;
-static expert_field ei_udpcp_no_sn_frame = EI_INIT;
+static expert_field ei_udpcp_checksum_should_be_zero;
+static expert_field ei_udpcp_d_not_zero_for_data;
+static expert_field ei_udpcp_reserved_not_zero;
+static expert_field ei_udpcp_n_s_ack;
+static expert_field ei_udpcp_payload_wrong_size;
+static expert_field ei_udpcp_wrong_sequence_number;
+static expert_field ei_udpcp_no_ack;
+static expert_field ei_udpcp_no_sn_frame;
 
 static dissector_handle_t udpcp_handle;
 

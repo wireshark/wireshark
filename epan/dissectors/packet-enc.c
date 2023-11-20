@@ -38,18 +38,18 @@ struct enchdr {
 static dissector_table_t enc_dissector_table;
 
 /* header fields */
-static int proto_enc = -1;
-static int hf_enc_af = -1;
-static int hf_enc_spi = -1;
-static int hf_enc_flags = -1;
-static int hf_enc_flags_payload_enc = -1;
-static int hf_enc_flags_payload_auth = -1;
-static int hf_enc_flags_payload_compress = -1;
-static int hf_enc_flags_header_auth = -1;
-static int hf_enc_flags_reserved = -1;
+static int proto_enc;
+static int hf_enc_af;
+static int hf_enc_spi;
+static int hf_enc_flags;
+static int hf_enc_flags_payload_enc;
+static int hf_enc_flags_payload_auth;
+static int hf_enc_flags_payload_compress;
+static int hf_enc_flags_header_auth;
+static int hf_enc_flags_reserved;
 
-static gint ett_enc = -1;
-static gint ett_enc_flag = -1;
+static gint ett_enc;
+static gint ett_enc_flag;
 
 static gboolean
 capture_enc(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)

@@ -3881,35 +3881,35 @@ static const value_string vals_artnet_poll_reply_node_report_status_code[] = {
 };
 
 /* Define the artnet proto */
-static int proto_artnet = -1;
+static int proto_artnet;
 expert_module_t* expert_artnet;
 
 /* general */
-static int hf_artnet_filler = -1;
-static int hf_artnet_spare = -1;
-static int hf_artnet_data = -1;
-static int hf_artnet_excess_bytes = -1;
+static int hf_artnet_filler;
+static int hf_artnet_spare;
+static int hf_artnet_data;
+static int hf_artnet_excess_bytes;
 
 /* Header */
-static int hf_artnet_header = -1;
-static int hf_artnet_header_id = -1;
-static int hf_artnet_header_opcode = -1;
-static int hf_artnet_header_protver = -1;
+static int hf_artnet_header;
+static int hf_artnet_header_id;
+static int hf_artnet_header_opcode;
+static int hf_artnet_header_protver;
 
 /* ArtPoll */
-static int hf_artnet_poll = -1;
-static int hf_artnet_poll_talktome = -1;
-static int hf_artnet_poll_talktome_reply_change= -1;
-static int hf_artnet_poll_talktome_diag = -1;
-static int hf_artnet_poll_talktome_diag_unicast = -1;
-static int hf_artnet_poll_talktome_vlc = -1;
-static int hf_artnet_poll_talktome_targeted = -1;
+static int hf_artnet_poll;
+static int hf_artnet_poll_talktome;
+static int hf_artnet_poll_talktome_reply_change;
+static int hf_artnet_poll_talktome_diag;
+static int hf_artnet_poll_talktome_diag_unicast;
+static int hf_artnet_poll_talktome_vlc;
+static int hf_artnet_poll_talktome_targeted;
 
-static int hf_artnet_poll_diag_priority = -1;
-static int hf_artnet_poll_target_port_top = -1;
-static int hf_artnet_poll_target_port_bottom = -1;
+static int hf_artnet_poll_diag_priority;
+static int hf_artnet_poll_target_port_top;
+static int hf_artnet_poll_target_port_bottom;
 
-static gint ett_artnet_poll_talktome = -1;
+static gint ett_artnet_poll_talktome;
 
 static int * const artnet_poll_talktome_fields[] = {
   &hf_artnet_poll_talktome_reply_change,
@@ -3937,143 +3937,143 @@ static const value_string artnet_talktome_diag_priority_vals[] = {
 };
 
 /* ArtPollReply */
-static int hf_artnet_poll_reply = -1;
-static int hf_artnet_poll_reply_ip_address = -1;
-static int hf_artnet_poll_reply_port_nr = -1;
-static int hf_artnet_poll_reply_versinfo = -1;
-static int hf_artnet_poll_reply_netswitch = -1;
-static int hf_artnet_poll_reply_subswitch = -1;
-static int hf_artnet_poll_reply_oem = -1;
-static int hf_artnet_poll_reply_ubea_version = -1;
-static int hf_artnet_poll_reply_status = -1;
-static int hf_artnet_poll_reply_status_ubea_present = -1;
-static int hf_artnet_poll_reply_status_rdm_supported = -1;
-static int hf_artnet_poll_reply_status_rom_booted = -1;
-static int hf_artnet_poll_reply_status_port_prog = -1;
-static int hf_artnet_poll_reply_status_indicator = -1;
+static int hf_artnet_poll_reply;
+static int hf_artnet_poll_reply_ip_address;
+static int hf_artnet_poll_reply_port_nr;
+static int hf_artnet_poll_reply_versinfo;
+static int hf_artnet_poll_reply_netswitch;
+static int hf_artnet_poll_reply_subswitch;
+static int hf_artnet_poll_reply_oem;
+static int hf_artnet_poll_reply_ubea_version;
+static int hf_artnet_poll_reply_status;
+static int hf_artnet_poll_reply_status_ubea_present;
+static int hf_artnet_poll_reply_status_rdm_supported;
+static int hf_artnet_poll_reply_status_rom_booted;
+static int hf_artnet_poll_reply_status_port_prog;
+static int hf_artnet_poll_reply_status_indicator;
 
-static int hf_artnet_poll_reply_esta_man = -1;
-static int hf_artnet_poll_reply_short_name = -1;
-static int hf_artnet_poll_reply_long_name = -1;
-static int hf_artnet_poll_reply_node_report = -1;
-static int hf_artnet_poll_reply_port_info = -1;
-static int hf_artnet_poll_reply_num_ports = -1;
-static int hf_artnet_poll_reply_port_types = -1;
-static int hf_artnet_poll_reply_port_types_1 = -1;
-static int hf_artnet_poll_reply_port_types_2 = -1;
-static int hf_artnet_poll_reply_port_types_3 = -1;
-static int hf_artnet_poll_reply_port_types_4 = -1;
-static int hf_artnet_poll_reply_good_input = -1;
-static int hf_artnet_poll_reply_good_input_1 = -1;
-static int hf_artnet_poll_reply_good_input_2 = -1;
-static int hf_artnet_poll_reply_good_input_3 = -1;
-static int hf_artnet_poll_reply_good_input_4 = -1;
-static int hf_artnet_poll_reply_good_output = -1;
-static int hf_artnet_poll_reply_good_output_1 = -1;
-static int hf_artnet_poll_reply_good_output_2 = -1;
-static int hf_artnet_poll_reply_good_output_3 = -1;
-static int hf_artnet_poll_reply_good_output_4 = -1;
-static int hf_artnet_poll_reply_good_output_b = -1;
-static int hf_artnet_poll_reply_good_output_b_1 = -1;
-static int hf_artnet_poll_reply_good_output_b_2 = -1;
-static int hf_artnet_poll_reply_good_output_b_3 = -1;
-static int hf_artnet_poll_reply_good_output_b_4 = -1;
-static int hf_artnet_poll_reply_good_output_tx_proto = -1;
-static int hf_artnet_poll_reply_good_output_merge_ltp = -1;
-static int hf_artnet_poll_reply_good_output_short = -1;
-static int hf_artnet_poll_reply_good_output_merge_artnet = -1;
-static int hf_artnet_poll_reply_good_output_dmx_text = -1;
-static int hf_artnet_poll_reply_good_output_dmx_sip = -1;
-static int hf_artnet_poll_reply_good_output_dmx_test = -1;
-static int hf_artnet_poll_reply_good_output_data = -1;
-static int hf_artnet_poll_reply_good_output_style = -1;
-static int hf_artnet_poll_reply_good_output_rdm = -1;
-static int hf_artnet_poll_reply_swin = -1;
-static int hf_artnet_poll_reply_swin_1 = -1;
-static int hf_artnet_poll_reply_swin_2 = -1;
-static int hf_artnet_poll_reply_swin_3 = -1;
-static int hf_artnet_poll_reply_swin_4 = -1;
-static int hf_artnet_poll_reply_swin_1_universe = -1;
-static int hf_artnet_poll_reply_swin_2_universe = -1;
-static int hf_artnet_poll_reply_swin_3_universe = -1;
-static int hf_artnet_poll_reply_swin_4_universe = -1;
-static int hf_artnet_poll_reply_swout = -1;
-static int hf_artnet_poll_reply_swout_1 = -1;
-static int hf_artnet_poll_reply_swout_2 = -1;
-static int hf_artnet_poll_reply_swout_3 = -1;
-static int hf_artnet_poll_reply_swout_4 = -1;
-static int hf_artnet_poll_reply_swout_1_universe = -1;
-static int hf_artnet_poll_reply_swout_2_universe = -1;
-static int hf_artnet_poll_reply_swout_3_universe = -1;
-static int hf_artnet_poll_reply_swout_4_universe = -1;
-static int hf_artnet_poll_reply_sacnprio = -1;
-static int hf_artnet_poll_reply_swmacro = -1;
-static int hf_artnet_poll_reply_swremote = -1;
-static int hf_artnet_poll_reply_style = -1;
-static int hf_artnet_poll_reply_mac = -1;
-static int hf_artnet_poll_reply_bind_ip_address = -1;
-static int hf_artnet_poll_reply_bind_index = -1;
-static int hf_artnet_poll_reply_status2 = -1;
-static int hf_artnet_poll_reply_status2_web_supported = -1;
-static int hf_artnet_poll_reply_status2_dhcp_used = -1;
-static int hf_artnet_poll_reply_status2_dhcp_supported = -1;
-static int hf_artnet_poll_reply_status2_bigaddr_supported = -1;
-static int hf_artnet_poll_reply_status2_sacn_supported = -1;
-static int hf_artnet_poll_reply_status2_squawking = -1;
-static int hf_artnet_poll_reply_status2_output_switching_supported = -1;
-static int hf_artnet_poll_reply_status2_control_rdm_supported = -1;
-static int hf_artnet_poll_reply_status3 = -1;
-static int hf_artnet_poll_reply_status3_switching_port_supported = -1;
-static int hf_artnet_poll_reply_status3_llrp_supported = -1;
-static int hf_artnet_poll_reply_status3_failover_supported = -1;
-static int hf_artnet_poll_reply_status3_failsafe_state = -1;
-static int hf_artnet_poll_reply_default_responder_uid = -1;
-static int hf_artnet_poll_reply_node_report_status_code = -1;
-static int hf_artnet_poll_reply_node_report_response_counter = -1;
-static int hf_artnet_poll_reply_node_report_status_string = -1;
+static int hf_artnet_poll_reply_esta_man;
+static int hf_artnet_poll_reply_short_name;
+static int hf_artnet_poll_reply_long_name;
+static int hf_artnet_poll_reply_node_report;
+static int hf_artnet_poll_reply_port_info;
+static int hf_artnet_poll_reply_num_ports;
+static int hf_artnet_poll_reply_port_types;
+static int hf_artnet_poll_reply_port_types_1;
+static int hf_artnet_poll_reply_port_types_2;
+static int hf_artnet_poll_reply_port_types_3;
+static int hf_artnet_poll_reply_port_types_4;
+static int hf_artnet_poll_reply_good_input;
+static int hf_artnet_poll_reply_good_input_1;
+static int hf_artnet_poll_reply_good_input_2;
+static int hf_artnet_poll_reply_good_input_3;
+static int hf_artnet_poll_reply_good_input_4;
+static int hf_artnet_poll_reply_good_output;
+static int hf_artnet_poll_reply_good_output_1;
+static int hf_artnet_poll_reply_good_output_2;
+static int hf_artnet_poll_reply_good_output_3;
+static int hf_artnet_poll_reply_good_output_4;
+static int hf_artnet_poll_reply_good_output_b;
+static int hf_artnet_poll_reply_good_output_b_1;
+static int hf_artnet_poll_reply_good_output_b_2;
+static int hf_artnet_poll_reply_good_output_b_3;
+static int hf_artnet_poll_reply_good_output_b_4;
+static int hf_artnet_poll_reply_good_output_tx_proto;
+static int hf_artnet_poll_reply_good_output_merge_ltp;
+static int hf_artnet_poll_reply_good_output_short;
+static int hf_artnet_poll_reply_good_output_merge_artnet;
+static int hf_artnet_poll_reply_good_output_dmx_text;
+static int hf_artnet_poll_reply_good_output_dmx_sip;
+static int hf_artnet_poll_reply_good_output_dmx_test;
+static int hf_artnet_poll_reply_good_output_data;
+static int hf_artnet_poll_reply_good_output_style;
+static int hf_artnet_poll_reply_good_output_rdm;
+static int hf_artnet_poll_reply_swin;
+static int hf_artnet_poll_reply_swin_1;
+static int hf_artnet_poll_reply_swin_2;
+static int hf_artnet_poll_reply_swin_3;
+static int hf_artnet_poll_reply_swin_4;
+static int hf_artnet_poll_reply_swin_1_universe;
+static int hf_artnet_poll_reply_swin_2_universe;
+static int hf_artnet_poll_reply_swin_3_universe;
+static int hf_artnet_poll_reply_swin_4_universe;
+static int hf_artnet_poll_reply_swout;
+static int hf_artnet_poll_reply_swout_1;
+static int hf_artnet_poll_reply_swout_2;
+static int hf_artnet_poll_reply_swout_3;
+static int hf_artnet_poll_reply_swout_4;
+static int hf_artnet_poll_reply_swout_1_universe;
+static int hf_artnet_poll_reply_swout_2_universe;
+static int hf_artnet_poll_reply_swout_3_universe;
+static int hf_artnet_poll_reply_swout_4_universe;
+static int hf_artnet_poll_reply_sacnprio;
+static int hf_artnet_poll_reply_swmacro;
+static int hf_artnet_poll_reply_swremote;
+static int hf_artnet_poll_reply_style;
+static int hf_artnet_poll_reply_mac;
+static int hf_artnet_poll_reply_bind_ip_address;
+static int hf_artnet_poll_reply_bind_index;
+static int hf_artnet_poll_reply_status2;
+static int hf_artnet_poll_reply_status2_web_supported;
+static int hf_artnet_poll_reply_status2_dhcp_used;
+static int hf_artnet_poll_reply_status2_dhcp_supported;
+static int hf_artnet_poll_reply_status2_bigaddr_supported;
+static int hf_artnet_poll_reply_status2_sacn_supported;
+static int hf_artnet_poll_reply_status2_squawking;
+static int hf_artnet_poll_reply_status2_output_switching_supported;
+static int hf_artnet_poll_reply_status2_control_rdm_supported;
+static int hf_artnet_poll_reply_status3;
+static int hf_artnet_poll_reply_status3_switching_port_supported;
+static int hf_artnet_poll_reply_status3_llrp_supported;
+static int hf_artnet_poll_reply_status3_failover_supported;
+static int hf_artnet_poll_reply_status3_failsafe_state;
+static int hf_artnet_poll_reply_default_responder_uid;
+static int hf_artnet_poll_reply_node_report_status_code;
+static int hf_artnet_poll_reply_node_report_response_counter;
+static int hf_artnet_poll_reply_node_report_status_string;
 
-static gint ett_artnet_poll_reply_status = -1;
-static gint ett_artnet_poll_reply_good_input_1 = -1;
-static gint ett_artnet_poll_reply_good_input_2 = -1;
-static gint ett_artnet_poll_reply_good_input_3 = -1;
-static gint ett_artnet_poll_reply_good_input_4 = -1;
-static gint ett_artnet_poll_reply_good_output_1 = -1;
-static gint ett_artnet_poll_reply_good_output_2 = -1;
-static gint ett_artnet_poll_reply_good_output_3 = -1;
-static gint ett_artnet_poll_reply_good_output_4 = -1;
-static gint ett_artnet_poll_reply_good_output_b_1 = -1;
-static gint ett_artnet_poll_reply_good_output_b_2 = -1;
-static gint ett_artnet_poll_reply_good_output_b_3 = -1;
-static gint ett_artnet_poll_reply_good_output_b_4 = -1;
-static gint ett_artnet_poll_reply_swmacro = -1;
-static gint ett_artnet_poll_reply_swremote = -1;
-static gint ett_artnet_poll_reply_status2 = -1;
-static gint ett_artnet_poll_reply_status3 = -1;
+static gint ett_artnet_poll_reply_status;
+static gint ett_artnet_poll_reply_good_input_1;
+static gint ett_artnet_poll_reply_good_input_2;
+static gint ett_artnet_poll_reply_good_input_3;
+static gint ett_artnet_poll_reply_good_input_4;
+static gint ett_artnet_poll_reply_good_output_1;
+static gint ett_artnet_poll_reply_good_output_2;
+static gint ett_artnet_poll_reply_good_output_3;
+static gint ett_artnet_poll_reply_good_output_4;
+static gint ett_artnet_poll_reply_good_output_b_1;
+static gint ett_artnet_poll_reply_good_output_b_2;
+static gint ett_artnet_poll_reply_good_output_b_3;
+static gint ett_artnet_poll_reply_good_output_b_4;
+static gint ett_artnet_poll_reply_swmacro;
+static gint ett_artnet_poll_reply_swremote;
+static gint ett_artnet_poll_reply_status2;
+static gint ett_artnet_poll_reply_status3;
 
-static int hf_artnet_poll_reply_good_input_recv_error = -1;
-static int hf_artnet_poll_reply_good_input_disabled = -1;
-static int hf_artnet_poll_reply_good_input_dmx_text = -1;
-static int hf_artnet_poll_reply_good_input_dmx_sip = -1;
-static int hf_artnet_poll_reply_good_input_dmx_test = -1;
-static int hf_artnet_poll_reply_good_input_data = -1;
+static int hf_artnet_poll_reply_good_input_recv_error;
+static int hf_artnet_poll_reply_good_input_disabled;
+static int hf_artnet_poll_reply_good_input_dmx_text;
+static int hf_artnet_poll_reply_good_input_dmx_sip;
+static int hf_artnet_poll_reply_good_input_dmx_test;
+static int hf_artnet_poll_reply_good_input_data;
 
-static int hf_artnet_poll_reply_swmacro_1 = -1;
-static int hf_artnet_poll_reply_swmacro_2 = -1;
-static int hf_artnet_poll_reply_swmacro_3 = -1;
-static int hf_artnet_poll_reply_swmacro_4 = -1;
-static int hf_artnet_poll_reply_swmacro_5 = -1;
-static int hf_artnet_poll_reply_swmacro_6 = -1;
-static int hf_artnet_poll_reply_swmacro_7 = -1;
-static int hf_artnet_poll_reply_swmacro_8 = -1;
+static int hf_artnet_poll_reply_swmacro_1;
+static int hf_artnet_poll_reply_swmacro_2;
+static int hf_artnet_poll_reply_swmacro_3;
+static int hf_artnet_poll_reply_swmacro_4;
+static int hf_artnet_poll_reply_swmacro_5;
+static int hf_artnet_poll_reply_swmacro_6;
+static int hf_artnet_poll_reply_swmacro_7;
+static int hf_artnet_poll_reply_swmacro_8;
 
-static int hf_artnet_poll_reply_swremote_1 = -1;
-static int hf_artnet_poll_reply_swremote_2 = -1;
-static int hf_artnet_poll_reply_swremote_3 = -1;
-static int hf_artnet_poll_reply_swremote_4 = -1;
-static int hf_artnet_poll_reply_swremote_5 = -1;
-static int hf_artnet_poll_reply_swremote_6 = -1;
-static int hf_artnet_poll_reply_swremote_7 = -1;
-static int hf_artnet_poll_reply_swremote_8 = -1;
+static int hf_artnet_poll_reply_swremote_1;
+static int hf_artnet_poll_reply_swremote_2;
+static int hf_artnet_poll_reply_swremote_3;
+static int hf_artnet_poll_reply_swremote_4;
+static int hf_artnet_poll_reply_swremote_5;
+static int hf_artnet_poll_reply_swremote_6;
+static int hf_artnet_poll_reply_swremote_7;
+static int hf_artnet_poll_reply_swremote_8;
 
 static int * const artnet_poll_reply_status_fields[] = {
   &hf_artnet_poll_reply_status_ubea_present,
@@ -4156,47 +4156,47 @@ static int * const artnet_poll_reply_swremote_fields[] = {
   NULL
 };
 
-static expert_field ei_artnet_poll_reply_bind_ip_without_index = EI_INIT;
-static expert_field ei_artnet_poll_reply_bind_index_without_ip = EI_INIT;
-static expert_field ei_artnet_poll_reply_node_report_invalid_format = EI_INIT;
+static expert_field ei_artnet_poll_reply_bind_ip_without_index;
+static expert_field ei_artnet_poll_reply_bind_index_without_ip;
+static expert_field ei_artnet_poll_reply_node_report_invalid_format;
 
 /* ArtOutput */
-static int hf_artnet_output = -1;
-static int hf_artnet_output_sequence = -1;
-static int hf_artnet_output_physical = -1;
-static int hf_artnet_output_universe = -1;
-static int hf_artnet_output_length = -1;
+static int hf_artnet_output;
+static int hf_artnet_output_sequence;
+static int hf_artnet_output_physical;
+static int hf_artnet_output_universe;
+static int hf_artnet_output_length;
 
 /* ArtSync */
-static int hf_artnet_sync = -1;
-static int hf_artnet_sync_aux = -1;
+static int hf_artnet_sync;
+static int hf_artnet_sync_aux;
 
 /* ArtAddress */
-static int hf_artnet_address = -1;
-static int hf_artnet_address_netswitch_special = -1;
-static int hf_artnet_address_netswitch_net = -1;
-static int hf_artnet_address_netswitch_write = -1;
-static int hf_artnet_address_bind_index = -1;
-static int hf_artnet_address_short_name = -1;
-static int hf_artnet_address_long_name = -1;
-static int hf_artnet_address_swin = -1;
-static int hf_artnet_address_swin_1 = -1;
-static int hf_artnet_address_swin_2 = -1;
-static int hf_artnet_address_swin_3 = -1;
-static int hf_artnet_address_swin_4 = -1;
-static int hf_artnet_address_swout = -1;
-static int hf_artnet_address_swout_1 = -1;
-static int hf_artnet_address_swout_2 = -1;
-static int hf_artnet_address_swout_3 = -1;
-static int hf_artnet_address_swout_4 = -1;
-static int hf_artnet_address_subswitch_special = -1;
-static int hf_artnet_address_subswitch_sub = -1;
-static int hf_artnet_address_subswitch_write = -1;
-static int hf_artnet_address_sacnprio = -1;
-static int hf_artnet_address_command = -1;
+static int hf_artnet_address;
+static int hf_artnet_address_netswitch_special;
+static int hf_artnet_address_netswitch_net;
+static int hf_artnet_address_netswitch_write;
+static int hf_artnet_address_bind_index;
+static int hf_artnet_address_short_name;
+static int hf_artnet_address_long_name;
+static int hf_artnet_address_swin;
+static int hf_artnet_address_swin_1;
+static int hf_artnet_address_swin_2;
+static int hf_artnet_address_swin_3;
+static int hf_artnet_address_swin_4;
+static int hf_artnet_address_swout;
+static int hf_artnet_address_swout_1;
+static int hf_artnet_address_swout_2;
+static int hf_artnet_address_swout_3;
+static int hf_artnet_address_swout_4;
+static int hf_artnet_address_subswitch_special;
+static int hf_artnet_address_subswitch_sub;
+static int hf_artnet_address_subswitch_write;
+static int hf_artnet_address_sacnprio;
+static int hf_artnet_address_command;
 
-static gint ett_artnet_address_netswitch = -1;
-static gint ett_artnet_address_subswitch = -1;
+static gint ett_artnet_address_netswitch;
+static gint ett_artnet_address_subswitch;
 
 static int * const artnet_address_netswitch_fields[] = {
   &hf_artnet_address_netswitch_net,
@@ -4217,20 +4217,20 @@ static const value_string artnet_address_switch_vals[] = {
 };
 
 /* ArtInput */
-static int hf_artnet_input = -1;
-static int hf_artnet_input_bind_index = -1;
-static int hf_artnet_input_num_ports = -1;
-static int hf_artnet_input_input = -1;
-static int hf_artnet_input_input_1 = -1;
-static int hf_artnet_input_input_2 = -1;
-static int hf_artnet_input_input_3 = -1;
-static int hf_artnet_input_input_4 = -1;
-static int hf_artnet_input_input_disabled = -1;
+static int hf_artnet_input;
+static int hf_artnet_input_bind_index;
+static int hf_artnet_input_num_ports;
+static int hf_artnet_input_input;
+static int hf_artnet_input_input_1;
+static int hf_artnet_input_input_2;
+static int hf_artnet_input_input_3;
+static int hf_artnet_input_input_4;
+static int hf_artnet_input_input_disabled;
 
-static gint ett_artnet_input_input_1 = -1;
-static gint ett_artnet_input_input_2 = -1;
-static gint ett_artnet_input_input_3 = -1;
-static gint ett_artnet_input_input_4 = -1;
+static gint ett_artnet_input_input_1;
+static gint ett_artnet_input_input_2;
+static gint ett_artnet_input_input_3;
+static gint ett_artnet_input_input_4;
 
 static int * const artnet_input_input_fields[] = {
   &hf_artnet_input_input_disabled,
@@ -4238,101 +4238,101 @@ static int * const artnet_input_input_fields[] = {
 };
 
 /* ArtFirmwareMaster */
-static int hf_artnet_firmware_master = -1;
-static int hf_artnet_firmware_master_type = -1;
-static int hf_artnet_firmware_master_block_id = -1;
-static int hf_artnet_firmware_master_length = -1;
-static int hf_artnet_firmware_master_data = -1;
+static int hf_artnet_firmware_master;
+static int hf_artnet_firmware_master_type;
+static int hf_artnet_firmware_master_block_id;
+static int hf_artnet_firmware_master_length;
+static int hf_artnet_firmware_master_data;
 
 /* ArtFirmwareReply */
-static int hf_artnet_firmware_reply = -1;
-static int hf_artnet_firmware_reply_type = -1;
+static int hf_artnet_firmware_reply;
+static int hf_artnet_firmware_reply_type;
 
 /* ArtVideoSetup */
-static int hf_artnet_video_setup_control = -1;
-static int hf_artnet_video_setup_font_height = -1;
-static int hf_artnet_video_setup_first_font = -1;
-static int hf_artnet_video_setup_last_font = -1;
-static int hf_artnet_video_setup_win_font_name = -1;
-static int hf_artnet_video_setup_font_data = -1;
+static int hf_artnet_video_setup_control;
+static int hf_artnet_video_setup_font_height;
+static int hf_artnet_video_setup_first_font;
+static int hf_artnet_video_setup_last_font;
+static int hf_artnet_video_setup_win_font_name;
+static int hf_artnet_video_setup_font_data;
 
 /* ArtVideoPalette */
-static int hf_artnet_video_palette_colour_red = -1;
-static int hf_artnet_video_palette_colour_green = -1;
-static int hf_artnet_video_palette_colour_blue = -1;
+static int hf_artnet_video_palette_colour_red;
+static int hf_artnet_video_palette_colour_green;
+static int hf_artnet_video_palette_colour_blue;
 
 /* ArtVideoData */
-static int hf_artnet_video_data_pos_x = -1;
-static int hf_artnet_video_data_pos_y = -1;
-static int hf_artnet_video_data_len_x = -1;
-static int hf_artnet_video_data_len_y = -1;
-static int hf_artnet_video_data_data = -1;
+static int hf_artnet_video_data_pos_x;
+static int hf_artnet_video_data_pos_y;
+static int hf_artnet_video_data_len_x;
+static int hf_artnet_video_data_len_y;
+static int hf_artnet_video_data_data;
 
 /* ArtPollFpReply */
-static int hf_artnet_poll_fp_reply = -1;
+static int hf_artnet_poll_fp_reply;
 
 /* ArtTodRequest */
-static int hf_artnet_tod_request = -1;
-static int hf_artnet_tod_request_net = -1;
-static int hf_artnet_tod_request_command = -1;
-static int hf_artnet_tod_request_ad_count = -1;
-static int hf_artnet_tod_request_address = -1;
+static int hf_artnet_tod_request;
+static int hf_artnet_tod_request_net;
+static int hf_artnet_tod_request_command;
+static int hf_artnet_tod_request_ad_count;
+static int hf_artnet_tod_request_address;
 
 /* ArtTodData */
-static int hf_artnet_tod_data = -1;
-static int hf_artnet_tod_data_rdm_ver = -1;
-static int hf_artnet_tod_data_bind_index = -1;
-static int hf_artnet_tod_data_port = -1;
-static int hf_artnet_tod_data_net = -1;
-static int hf_artnet_tod_data_command_response = -1;
-static int hf_artnet_tod_data_address = -1;
-static int hf_artnet_tod_data_uid_total = -1;
-static int hf_artnet_tod_data_block_count = -1;
-static int hf_artnet_tod_data_uid_count = -1;
-static int hf_artnet_tod_data_tod = -1;
+static int hf_artnet_tod_data;
+static int hf_artnet_tod_data_rdm_ver;
+static int hf_artnet_tod_data_bind_index;
+static int hf_artnet_tod_data_port;
+static int hf_artnet_tod_data_net;
+static int hf_artnet_tod_data_command_response;
+static int hf_artnet_tod_data_address;
+static int hf_artnet_tod_data_uid_total;
+static int hf_artnet_tod_data_block_count;
+static int hf_artnet_tod_data_uid_count;
+static int hf_artnet_tod_data_tod;
 
 /* ArtTodControl */
-static int hf_artnet_tod_control = -1;
-static int hf_artnet_tod_control_net = -1;
-static int hf_artnet_tod_control_command = -1;
-static int hf_artnet_tod_control_address = -1;
-static int hf_artnet_tod_control_universe = -1;
+static int hf_artnet_tod_control;
+static int hf_artnet_tod_control_net;
+static int hf_artnet_tod_control_command;
+static int hf_artnet_tod_control_address;
+static int hf_artnet_tod_control_universe;
 
 /* ArtRdm */
-static int hf_artnet_rdm = -1;
-static int hf_artnet_rdm_command = -1;
-static int hf_artnet_rdm_address = -1;
-static int hf_artnet_rdm_sc = -1;
+static int hf_artnet_rdm;
+static int hf_artnet_rdm_command;
+static int hf_artnet_rdm_address;
+static int hf_artnet_rdm_sc;
 
-static int hf_artnet_rdm_rdmver = -1;
-static int hf_artnet_rdm_net = -1;
+static int hf_artnet_rdm_rdmver;
+static int hf_artnet_rdm_net;
 
 /* ArtRdmSub */
-static int hf_artnet_rdm_sub = -1;
-static int hf_artnet_rdm_sub_uid = -1;
-static int hf_artnet_rdm_sub_command_class = -1;
-static int hf_artnet_rdm_sub_pid = -1;
-static int hf_artnet_rdm_sub_sub_device = -1;
-static int hf_artnet_rdm_sub_sub_count = -1;
-static int hf_artnet_rdm_sub_data = -1;
+static int hf_artnet_rdm_sub;
+static int hf_artnet_rdm_sub_uid;
+static int hf_artnet_rdm_sub_command_class;
+static int hf_artnet_rdm_sub_pid;
+static int hf_artnet_rdm_sub_sub_device;
+static int hf_artnet_rdm_sub_sub_count;
+static int hf_artnet_rdm_sub_data;
 
 /* ArtIpProg */
-static int hf_artnet_ip_prog = -1;
-static int hf_artnet_ip_prog_command = -1;
-static int hf_artnet_ip_prog_command_prog_port = -1;
-static int hf_artnet_ip_prog_command_prog_sm = -1;
-static int hf_artnet_ip_prog_command_prog_ip = -1;
-static int hf_artnet_ip_prog_command_reset = -1;
-static int hf_artnet_ip_prog_command_gw = -1;
-static int hf_artnet_ip_prog_command_unused = -1;
-static int hf_artnet_ip_prog_command_dhcp_enable = -1;
-static int hf_artnet_ip_prog_command_prog_enable = -1;
-static int hf_artnet_ip_prog_ip = -1;
-static int hf_artnet_ip_prog_sm = -1;
-static int hf_artnet_ip_prog_port = -1;
-static int hf_artnet_ip_prog_gw = -1;
+static int hf_artnet_ip_prog;
+static int hf_artnet_ip_prog_command;
+static int hf_artnet_ip_prog_command_prog_port;
+static int hf_artnet_ip_prog_command_prog_sm;
+static int hf_artnet_ip_prog_command_prog_ip;
+static int hf_artnet_ip_prog_command_reset;
+static int hf_artnet_ip_prog_command_gw;
+static int hf_artnet_ip_prog_command_unused;
+static int hf_artnet_ip_prog_command_dhcp_enable;
+static int hf_artnet_ip_prog_command_prog_enable;
+static int hf_artnet_ip_prog_ip;
+static int hf_artnet_ip_prog_sm;
+static int hf_artnet_ip_prog_port;
+static int hf_artnet_ip_prog_gw;
 
-static gint ett_artnet_ip_prog_command = -1;
+static gint ett_artnet_ip_prog_command;
 
 static int * const artnet_ip_prog_command_fields[] = {
   &hf_artnet_ip_prog_command_prog_port,
@@ -4347,16 +4347,16 @@ static int * const artnet_ip_prog_command_fields[] = {
 };
 
 /* ArtIpProgReply */
-static int hf_artnet_ip_prog_reply = -1;
-static int hf_artnet_ip_prog_reply_ip = -1;
-static int hf_artnet_ip_prog_reply_sm = -1;
-static int hf_artnet_ip_prog_reply_port = -1;
-static int hf_artnet_ip_prog_reply_status = -1;
-static int hf_artnet_ip_prog_reply_status_unused = -1;
-static int hf_artnet_ip_prog_reply_status_dhcp_enable = -1;
-static int hf_artnet_ip_prog_reply_gw = -1;
+static int hf_artnet_ip_prog_reply;
+static int hf_artnet_ip_prog_reply_ip;
+static int hf_artnet_ip_prog_reply_sm;
+static int hf_artnet_ip_prog_reply_port;
+static int hf_artnet_ip_prog_reply_status;
+static int hf_artnet_ip_prog_reply_status_unused;
+static int hf_artnet_ip_prog_reply_status_dhcp_enable;
+static int hf_artnet_ip_prog_reply_gw;
 
-static gint ett_artnet_ip_prog_reply_status = -1;
+static gint ett_artnet_ip_prog_reply_status;
 
 static int * const artnet_ip_prog_reply_status_fields[] = {
   &hf_artnet_ip_prog_reply_status_unused,
@@ -4365,37 +4365,37 @@ static int * const artnet_ip_prog_reply_status_fields[] = {
 };
 
 /* ArtDiagData */
-static int hf_artnet_diag_data = -1;
-static int hf_artnet_diag_data_priority = -1;
-static int hf_artnet_diag_data_port = -1;
-static int hf_artnet_diag_data_length = -1;
-static int hf_artnet_diag_data_data = -1;
+static int hf_artnet_diag_data;
+static int hf_artnet_diag_data_priority;
+static int hf_artnet_diag_data_port;
+static int hf_artnet_diag_data_length;
+static int hf_artnet_diag_data_data;
 
 /* ArtCommand */
-static int hf_artnet_command = -1;
-static int hf_artnet_command_esta_man = -1;
-static int hf_artnet_command_length = -1;
-static int hf_artnet_command_data = -1;
+static int hf_artnet_command;
+static int hf_artnet_command_esta_man;
+static int hf_artnet_command_length;
+static int hf_artnet_command_data;
 
 /* ArtMedia */
-static int hf_artnet_media = -1;
+static int hf_artnet_media;
 
 /* ArtMediaPatch */
-static int hf_artnet_media_patch = -1;
+static int hf_artnet_media_patch;
 
 /* ArtMediaControl */
-static int hf_artnet_media_control = -1;
+static int hf_artnet_media_control;
 
 /* ArtMediaControlReply */
-static int hf_artnet_media_control_reply = -1;
+static int hf_artnet_media_control_reply;
 
 /* ArtTimeCode */
-static int hf_artnet_time_code = -1;
-static int hf_artnet_time_code_frames = -1;
-static int hf_artnet_time_code_seconds = -1;
-static int hf_artnet_time_code_minutes = -1;
-static int hf_artnet_time_code_hours = -1;
-static int hf_artnet_time_code_type = -1;
+static int hf_artnet_time_code;
+static int hf_artnet_time_code_frames;
+static int hf_artnet_time_code_seconds;
+static int hf_artnet_time_code_minutes;
+static int hf_artnet_time_code_hours;
+static int hf_artnet_time_code_type;
 
 static const value_string artnet_time_code_vals[] = {
   { 0x00, "Film (24fps)" },
@@ -4406,17 +4406,17 @@ static const value_string artnet_time_code_vals[] = {
 };
 
 /* ArtTimeSync */
-static int hf_artnet_time_sync = -1;
+static int hf_artnet_time_sync;
 
 /* ArtTrigger */
 #define ARTNET_TRIGGER_NOT_OEM_SPECIFIC 0xFFFF
 
-static int hf_artnet_trigger = -1;
-static int hf_artnet_trigger_oemcode = -1;
-static int hf_artnet_trigger_key = -1;
-static int hf_artnet_trigger_key_unspecific = -1;
-static int hf_artnet_trigger_subkey = -1;
-static int hf_artnet_trigger_data = -1;
+static int hf_artnet_trigger;
+static int hf_artnet_trigger_oemcode;
+static int hf_artnet_trigger_key;
+static int hf_artnet_trigger_key_unspecific;
+static int hf_artnet_trigger_subkey;
+static int hf_artnet_trigger_data;
 
 static const value_string artnet_trigger_key_vals[] = {
   { 0x00, "KeyAscii" },
@@ -4427,73 +4427,73 @@ static const value_string artnet_trigger_key_vals[] = {
 };
 
 /* ArtDirectory */
-static int hf_artnet_directory = -1;
-static int hf_artnet_directory_filler = -1;
-static int hf_artnet_directory_cmd = -1;
-static int hf_artnet_directory_file = -1;
+static int hf_artnet_directory;
+static int hf_artnet_directory_filler;
+static int hf_artnet_directory_cmd;
+static int hf_artnet_directory_file;
 
 /* ArtDirectoryReply */
-static int hf_artnet_directory_reply = -1;
-static int hf_artnet_directory_reply_filler = -1;
-static int hf_artnet_directory_reply_flags = -1;
-static int hf_artnet_directory_reply_file = -1;
-static int hf_artnet_directory_reply_name = -1;
-static int hf_artnet_directory_reply_desc = -1;
-static int hf_artnet_directory_reply_length = -1;
-static int hf_artnet_directory_reply_data = -1;
+static int hf_artnet_directory_reply;
+static int hf_artnet_directory_reply_filler;
+static int hf_artnet_directory_reply_flags;
+static int hf_artnet_directory_reply_file;
+static int hf_artnet_directory_reply_name;
+static int hf_artnet_directory_reply_desc;
+static int hf_artnet_directory_reply_length;
+static int hf_artnet_directory_reply_data;
 
 /* ArtMacMaster */
-static int hf_artnet_mac_master = -1;
+static int hf_artnet_mac_master;
 
 /* ArtMacSlave */
-static int hf_artnet_mac_slave = -1;
+static int hf_artnet_mac_slave;
 
 /* ArtFileTnMaster */
-static int hf_artnet_file_tn_master = -1;
-static int hf_artnet_file_tn_master_filler = -1;
-static int hf_artnet_file_tn_master_type = -1;
-static int hf_artnet_file_tn_master_block_id = -1;
-static int hf_artnet_file_tn_master_length = -1;
-static int hf_artnet_file_tn_master_name = -1;
-static int hf_artnet_file_tn_master_checksum = -1;
-static int hf_artnet_file_tn_master_spare = -1;
-static int hf_artnet_file_tn_master_data = -1;
+static int hf_artnet_file_tn_master;
+static int hf_artnet_file_tn_master_filler;
+static int hf_artnet_file_tn_master_type;
+static int hf_artnet_file_tn_master_block_id;
+static int hf_artnet_file_tn_master_length;
+static int hf_artnet_file_tn_master_name;
+static int hf_artnet_file_tn_master_checksum;
+static int hf_artnet_file_tn_master_spare;
+static int hf_artnet_file_tn_master_data;
 
 
 /* ArtFileFnMaster */
-static int hf_artnet_file_fn_master = -1;
+static int hf_artnet_file_fn_master;
 
 /* ArtFileFnReply */
-static int hf_artnet_file_fn_reply = -1;
+static int hf_artnet_file_fn_reply;
 
 /* ArtNzs */
-static int hf_artnet_nzs = -1;
-static int hf_artnet_nzs_sequence = -1;
-static int hf_artnet_nzs_start_code = -1;
-static int hf_artnet_nzs_subuni = -1;
-static int hf_artnet_nzs_net = -1;
-static int hf_artnet_nzs_length = -1;
-static int hf_artnet_nzs_vlc_man_id = -1;
-static int hf_artnet_nzs_vlc_sub_code = -1;
-static int hf_artnet_nzs_vlc_flags = -1;
-static int hf_artnet_nzs_vlc_flags_ieee = -1;
-static int hf_artnet_nzs_vlc_flags_reply = -1;
-static int hf_artnet_nzs_vlc_flags_beacon = -1;
-static int hf_artnet_nzs_vlc_transaction = -1;
-static int hf_artnet_nzs_vlc_slot_addr = -1;
-static int hf_artnet_nzs_vlc_payload_size = -1;
-static int hf_artnet_nzs_vlc_payload_checksum = -1;
-static int hf_artnet_nzs_vlc_mod_depth = -1;
-static int hf_artnet_nzs_vlc_mod_freq = -1;
-static int hf_artnet_nzs_vlc_mod_type = -1;
-static int hf_artnet_nzs_vlc_lang_code = -1;
-static int hf_artnet_nzs_vlc_beacon_repeat = -1;
-static int hf_artnet_nzs_vlc_payload = -1;
-static int hf_artnet_nzs_vlc_payload_beacon_url = -1;
-static int hf_artnet_nzs_vlc_payload_beacon_text = -1;
-static int hf_artnet_nzs_vlc_payload_beacon_location_id = -1;
+static int hf_artnet_nzs;
+static int hf_artnet_nzs_sequence;
+static int hf_artnet_nzs_start_code;
+static int hf_artnet_nzs_subuni;
+static int hf_artnet_nzs_net;
+static int hf_artnet_nzs_length;
+static int hf_artnet_nzs_vlc_man_id;
+static int hf_artnet_nzs_vlc_sub_code;
+static int hf_artnet_nzs_vlc_flags;
+static int hf_artnet_nzs_vlc_flags_ieee;
+static int hf_artnet_nzs_vlc_flags_reply;
+static int hf_artnet_nzs_vlc_flags_beacon;
+static int hf_artnet_nzs_vlc_transaction;
+static int hf_artnet_nzs_vlc_slot_addr;
+static int hf_artnet_nzs_vlc_payload_size;
+static int hf_artnet_nzs_vlc_payload_checksum;
+static int hf_artnet_nzs_vlc_mod_depth;
+static int hf_artnet_nzs_vlc_mod_freq;
+static int hf_artnet_nzs_vlc_mod_type;
+static int hf_artnet_nzs_vlc_lang_code;
+static int hf_artnet_nzs_vlc_beacon_repeat;
+static int hf_artnet_nzs_vlc_payload;
+static int hf_artnet_nzs_vlc_payload_beacon_url;
+static int hf_artnet_nzs_vlc_payload_beacon_text;
+static int hf_artnet_nzs_vlc_payload_beacon_location_id;
 
-static gint ett_artnet_nzs_vlc_flags = -1;
+static gint ett_artnet_nzs_vlc_flags;
 
 static int * const artnet_nzs_vlc_flags_fields[] = {
   &hf_artnet_nzs_vlc_flags_beacon,
@@ -4531,7 +4531,7 @@ static const value_string vals_artnet_nzs_vlc_lang_code[] = {
 
 
 /* Define the tree for artnet */
-static int ett_artnet = -1;
+static int ett_artnet;
 
 /* A static handle for the rdm dissector */
 static dissector_handle_t rdm_handle;

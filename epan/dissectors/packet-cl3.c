@@ -36,15 +36,15 @@ void proto_reg_handoff_cl3(void);
 static dissector_handle_t cl3_handle;
 
 /* persistent handles for this dissector */
-static int               proto_cl3              = -1;
+static int               proto_cl3;
 static dissector_table_t cl3_command_table;
-static gint              ett_cl3                = -1;
-static int               hf_cl3_version         = -1;
-static int               hf_cl3_headerlen       = -1;
-static int               hf_cl3_subproto        = -1;
-static int               hf_cl3_payload         = -1;
-static expert_field      ei_cl3_badheaderlen    = EI_INIT;
-static expert_field      ei_cl3_unsup_ver       = EI_INIT;
+static gint              ett_cl3;
+static int               hf_cl3_version;
+static int               hf_cl3_headerlen;
+static int               hf_cl3_subproto;
+static int               hf_cl3_payload;
+static expert_field      ei_cl3_badheaderlen;
+static expert_field      ei_cl3_unsup_ver;
 
 
 /* Known CL3 (sub-)protocol type strings: */

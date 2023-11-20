@@ -64,21 +64,21 @@ static dissector_handle_t pcli_handle, pcli_handle8, pcli_handle12, pcli_handle2
 
 /* Define the pcli proto */
 
-static int proto_pcli = -1;
-static int proto_pcli8 = -1;
-static int proto_pcli12 = -1;
-static int proto_pcli20 = -1;
+static int proto_pcli;
+static int proto_pcli8;
+static int proto_pcli12;
+static int proto_pcli20;
 
 /* Define headers for pcli */
 
-static int hf_pcli_cccid = -1;
-static int hf_pcli_header = -1;
-static int hf_pcli_timestamp = -1;
-static int hf_pcli_case_id = -1;
+static int hf_pcli_cccid;
+static int hf_pcli_header;
+static int hf_pcli_timestamp;
+static int hf_pcli_case_id;
 
 /* Define the tree for pcli */
 
-static int ett_pcli = -1;
+static int ett_pcli;
 
 /*
  * Here are the global variables associated with the preferences

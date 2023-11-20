@@ -30,49 +30,49 @@ void proto_reg_handoff_tapa(void);
 void proto_register_tapa(void);
 
 /* protocol handles */
-static int proto_tapa = -1;
+static int proto_tapa;
 
 /* ett handles */
-static int ett_tapa_discover = -1;
-static int ett_tapa_discover_req = -1;
-static int ett_tapa_tunnel = -1;
+static int ett_tapa_discover;
+static int ett_tapa_discover_req;
+static int ett_tapa_tunnel;
 
 /* hf elements */
-static int hf_tapa_discover_type = -1;
-static int hf_tapa_discover_flags = -1;
-static int hf_tapa_discover_length = -1;
-static int hf_tapa_discover_unknown = -1;
+static int hf_tapa_discover_type;
+static int hf_tapa_discover_flags;
+static int hf_tapa_discover_length;
+static int hf_tapa_discover_unknown;
 
-static int hf_tapa_discover_req_type = -1;
-static int hf_tapa_discover_req_pad = -1;
-static int hf_tapa_discover_req_length = -1;
-static int hf_tapa_discover_req_value = -1;
+static int hf_tapa_discover_req_type;
+static int hf_tapa_discover_req_pad;
+static int hf_tapa_discover_req_length;
+static int hf_tapa_discover_req_value;
 
-static int hf_tapa_discover_newtlv_type = -1;
-static int hf_tapa_discover_newtlv_pad = -1;
-static int hf_tapa_discover_newtlv_length = -1;
-static int hf_tapa_discover_newtlv_valuetext = -1;
-static int hf_tapa_discover_newtlv_valuehex = -1;
+static int hf_tapa_discover_newtlv_type;
+static int hf_tapa_discover_newtlv_pad;
+static int hf_tapa_discover_newtlv_length;
+static int hf_tapa_discover_newtlv_valuetext;
+static int hf_tapa_discover_newtlv_valuehex;
 
-static int hf_tapa_discover_reply_switchip = -1;
-static int hf_tapa_discover_reply_unused = -1;
-static int hf_tapa_discover_reply_bias = -1;
-static int hf_tapa_discover_reply_pad = -1;
+static int hf_tapa_discover_reply_switchip;
+static int hf_tapa_discover_reply_unused;
+static int hf_tapa_discover_reply_bias;
+static int hf_tapa_discover_reply_pad;
 
-static int hf_tapa_tunnel_version = -1;
-static int hf_tapa_tunnel_five = -1;
-static int hf_tapa_tunnel_type = -1;
-static int hf_tapa_tunnel_zero = -1;
-static int hf_tapa_tunnel_dmac = -1;
-static int hf_tapa_tunnel_smac = -1;
-static int hf_tapa_tunnel_seqno = -1;
-static int hf_tapa_tunnel_length = -1;
-static int hf_tapa_tunnel_0804 = -1;
-static int hf_tapa_tunnel_tagsetc = -1;
+static int hf_tapa_tunnel_version;
+static int hf_tapa_tunnel_five;
+static int hf_tapa_tunnel_type;
+static int hf_tapa_tunnel_zero;
+static int hf_tapa_tunnel_dmac;
+static int hf_tapa_tunnel_smac;
+static int hf_tapa_tunnel_seqno;
+static int hf_tapa_tunnel_length;
+static int hf_tapa_tunnel_0804;
+static int hf_tapa_tunnel_tagsetc;
 
-static int hf_tapa_tunnel_remaining = -1;
+static int hf_tapa_tunnel_remaining;
 
-static expert_field ei_tapa_length_too_short = EI_INIT;
+static expert_field ei_tapa_length_too_short;
 
 static dissector_handle_t tapa_handle;
 

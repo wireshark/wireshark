@@ -34,40 +34,40 @@ void proto_reg_handoff_bt_dht(void);
  * https://www.bittorrent.org/beps/bep_0042.html BEP 42 DHT Security extension
  */
 
-static int proto_bt_dht = -1;
+static int proto_bt_dht;
 static dissector_handle_t bt_dht_handle;
 
 /* fields */
-static int hf_bencoded_int = -1;
-static int hf_bencoded_string = -1;
-static int hf_bencoded_list = -1;
-static int hf_bencoded_dict = -1;
-static int hf_bencoded_dict_entry = -1;
-static int hf_bencoded_list_terminator = -1;
+static int hf_bencoded_int;
+static int hf_bencoded_string;
+static int hf_bencoded_list;
+static int hf_bencoded_dict;
+static int hf_bencoded_dict_entry;
+static int hf_bencoded_list_terminator;
 
-static int hf_bt_dht_error = -1;
-static int hf_bt_dht_peers = -1;
-static int hf_bt_dht_peer = -1;
-static int hf_bt_dht_nodes = -1;
-static int hf_bt_dht_node = -1;
-static int hf_bt_dht_id = -1;
+static int hf_bt_dht_error;
+static int hf_bt_dht_peers;
+static int hf_bt_dht_peer;
+static int hf_bt_dht_nodes;
+static int hf_bt_dht_node;
+static int hf_bt_dht_id;
 
-static int hf_ip = -1;
-static int hf_ip6 = -1;
-static int hf_port = -1;
-static int hf_truncated_data = -1;
+static int hf_ip;
+static int hf_ip6;
+static int hf_port;
+static int hf_truncated_data;
 
-static expert_field ei_int_string = EI_INIT;
-static expert_field ei_invalid_len = EI_INIT;
+static expert_field ei_int_string;
+static expert_field ei_invalid_len;
 
 /* tree types */
-static gint ett_bt_dht = -1;
-static gint ett_bencoded_list = -1;
-static gint ett_bencoded_dict = -1;
-static gint ett_bencoded_dict_entry = -1;
-static gint ett_bt_dht_error = -1;
-static gint ett_bt_dht_peers = -1;
-static gint ett_bt_dht_nodes = -1;
+static gint ett_bt_dht;
+static gint ett_bencoded_list;
+static gint ett_bencoded_dict;
+static gint ett_bencoded_dict_entry;
+static gint ett_bt_dht_error;
+static gint ett_bt_dht_peers;
+static gint ett_bt_dht_nodes;
 
 /* some keys use short name in packet */
 static const value_string short_key_name_value_string[] = {

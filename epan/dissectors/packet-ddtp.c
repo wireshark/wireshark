@@ -43,19 +43,19 @@ void proto_reg_handoff_ddtp (void);
 
 static dissector_handle_t ddtp_handle;
 
-static int proto_ddtp = -1;
-static int hf_ddtp_version = -1;
-static int hf_ddtp_encrypt = -1;
-static int hf_ddtp_hostid = -1;
-static int hf_ddtp_msgtype = -1;
-static int hf_ddtp_opcode = -1;
-static int hf_ddtp_ipaddr = -1;
-static int hf_ddtp_status = -1;
-static int hf_ddtp_alive = -1;
+static int proto_ddtp;
+static int hf_ddtp_version;
+static int hf_ddtp_encrypt;
+static int hf_ddtp_hostid;
+static int hf_ddtp_msgtype;
+static int hf_ddtp_opcode;
+static int hf_ddtp_ipaddr;
+static int hf_ddtp_status;
+static int hf_ddtp_alive;
 
-static int ett_ddtp = -1;
+static int ett_ddtp;
 
-static expert_field ei_ddtp_msgtype = EI_INIT;
+static expert_field ei_ddtp_msgtype;
 
 #define UDP_PORT_DDTP   1052
 

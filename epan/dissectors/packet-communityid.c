@@ -405,13 +405,13 @@ static gboolean communityid_calc(communityid_cfg_t *cfg, guint8 proto,
 
 void proto_register_communityid(void);
 
-static int proto_communityid = -1;
-static int proto_ip = -1;
-static int proto_ipv6 = -1;
-static int proto_icmp = -1;
-static int proto_icmpv6 = -1;
+static int proto_communityid;
+static int proto_ip;
+static int proto_ipv6;
+static int proto_icmp;
+static int proto_icmpv6;
 
-static int hf_communityid_hash = -1;
+static int hf_communityid_hash;
 
 static dissector_handle_t communityid_handle;
 

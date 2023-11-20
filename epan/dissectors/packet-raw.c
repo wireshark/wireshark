@@ -20,8 +20,8 @@
 void proto_register_raw(void);
 void proto_reg_handoff_raw(void);
 
-static int proto_raw = -1;
-static gint ett_raw = -1;
+static int proto_raw;
+static gint ett_raw;
 
 static const unsigned char zeroes[10] = {0,0,0,0,0,0,0,0,0,0};
 

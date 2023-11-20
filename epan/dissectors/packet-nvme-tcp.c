@@ -46,7 +46,7 @@
 #include "packet-tls.h"
 #include "packet-tls-utils.h"
 
-static int proto_nvme_tcp = -1;
+static int proto_nvme_tcp;
 static dissector_handle_t nvmet_tcp_handle;
 static dissector_handle_t nvmet_tls_handle;
 
@@ -137,12 +137,12 @@ void proto_reg_handoff_nvme_tcp(void);
 void proto_register_nvme_tcp(void);
 
 
-static int hf_nvme_tcp_type = -1;
-static int hf_nvme_tcp_flags = -1;
-static int hf_pdu_flags_hdgst = -1;
-static int hf_pdu_flags_ddgst = -1;
-static int hf_pdu_flags_data_last = -1;
-static int hf_pdu_flags_data_success = -1;
+static int hf_nvme_tcp_type;
+static int hf_nvme_tcp_flags;
+static int hf_pdu_flags_hdgst;
+static int hf_pdu_flags_ddgst;
+static int hf_pdu_flags_data_last;
+static int hf_pdu_flags_data_success;
 
 static int * const nvme_tcp_pdu_flags[] = {
     &hf_pdu_flags_hdgst,
@@ -152,66 +152,66 @@ static int * const nvme_tcp_pdu_flags[] = {
     NULL
 };
 
-static int hf_nvme_tcp_hdgst = -1;
-static int hf_nvme_tcp_ddgst = -1;
-static int hf_nvme_tcp_hlen = -1;
-static int hf_nvme_tcp_pdo = -1;
-static int hf_nvme_tcp_plen = -1;
-static int hf_nvme_tcp_hdgst_status = -1;
-static int hf_nvme_tcp_ddgst_status = -1;
+static int hf_nvme_tcp_hdgst;
+static int hf_nvme_tcp_ddgst;
+static int hf_nvme_tcp_hlen;
+static int hf_nvme_tcp_pdo;
+static int hf_nvme_tcp_plen;
+static int hf_nvme_tcp_hdgst_status;
+static int hf_nvme_tcp_ddgst_status;
 
 /* NVMe tcp icreq/icresp fields */
-static int hf_nvme_tcp_icreq = -1;
-static int hf_nvme_tcp_icreq_pfv = -1;
-static int hf_nvme_tcp_icreq_maxr2t = -1;
-static int hf_nvme_tcp_icreq_hpda = -1;
-static int hf_nvme_tcp_icreq_digest = -1;
-static int hf_nvme_tcp_icresp = -1;
-static int hf_nvme_tcp_icresp_pfv = -1;
-static int hf_nvme_tcp_icresp_cpda = -1;
-static int hf_nvme_tcp_icresp_digest = -1;
-static int hf_nvme_tcp_icresp_maxdata = -1;
+static int hf_nvme_tcp_icreq;
+static int hf_nvme_tcp_icreq_pfv;
+static int hf_nvme_tcp_icreq_maxr2t;
+static int hf_nvme_tcp_icreq_hpda;
+static int hf_nvme_tcp_icreq_digest;
+static int hf_nvme_tcp_icresp;
+static int hf_nvme_tcp_icresp_pfv;
+static int hf_nvme_tcp_icresp_cpda;
+static int hf_nvme_tcp_icresp_digest;
+static int hf_nvme_tcp_icresp_maxdata;
 
 /* NVMe tcp c2h/h2c termreq fields */
-static int hf_nvme_tcp_c2htermreq = -1;
-static int hf_nvme_tcp_c2htermreq_fes = -1;
-static int hf_nvme_tcp_c2htermreq_phfo = -1;
-static int hf_nvme_tcp_c2htermreq_phd = -1;
-static int hf_nvme_tcp_c2htermreq_upfo = -1;
-static int hf_nvme_tcp_c2htermreq_reserved = -1;
-static int hf_nvme_tcp_c2htermreq_data = -1;
-static int hf_nvme_tcp_h2ctermreq = -1;
-static int hf_nvme_tcp_h2ctermreq_fes = -1;
-static int hf_nvme_tcp_h2ctermreq_phfo = -1;
-static int hf_nvme_tcp_h2ctermreq_phd = -1;
-static int hf_nvme_tcp_h2ctermreq_upfo = -1;
-static int hf_nvme_tcp_h2ctermreq_reserved = -1;
-static int hf_nvme_tcp_h2ctermreq_data = -1;
+static int hf_nvme_tcp_c2htermreq;
+static int hf_nvme_tcp_c2htermreq_fes;
+static int hf_nvme_tcp_c2htermreq_phfo;
+static int hf_nvme_tcp_c2htermreq_phd;
+static int hf_nvme_tcp_c2htermreq_upfo;
+static int hf_nvme_tcp_c2htermreq_reserved;
+static int hf_nvme_tcp_c2htermreq_data;
+static int hf_nvme_tcp_h2ctermreq;
+static int hf_nvme_tcp_h2ctermreq_fes;
+static int hf_nvme_tcp_h2ctermreq_phfo;
+static int hf_nvme_tcp_h2ctermreq_phd;
+static int hf_nvme_tcp_h2ctermreq_upfo;
+static int hf_nvme_tcp_h2ctermreq_reserved;
+static int hf_nvme_tcp_h2ctermreq_data;
 
 /* NVMe fabrics command */
-static int hf_nvme_fabrics_cmd_cid = -1;
+static int hf_nvme_fabrics_cmd_cid;
 
 /* NVMe fabrics command data*/
-static int hf_nvme_fabrics_cmd_data = -1;
-static int hf_nvme_tcp_unknown_data = -1;
+static int hf_nvme_fabrics_cmd_data;
+static int hf_nvme_tcp_unknown_data;
 
-static int hf_nvme_tcp_r2t_pdu = -1;
-static int hf_nvme_tcp_r2t_offset = -1;
-static int hf_nvme_tcp_r2t_length = -1;
-static int hf_nvme_tcp_r2t_resvd = -1;
+static int hf_nvme_tcp_r2t_pdu;
+static int hf_nvme_tcp_r2t_offset;
+static int hf_nvme_tcp_r2t_length;
+static int hf_nvme_tcp_r2t_resvd;
 
 /* tracking Cmd and its respective CQE */
-static int hf_nvme_tcp_cmd_pkt = -1;
-static int hf_nvme_fabrics_cmd_qid = -1;
+static int hf_nvme_tcp_cmd_pkt;
+static int hf_nvme_fabrics_cmd_qid;
 
 /* Data response fields */
-static int hf_nvme_tcp_data_pdu = -1;
-static int hf_nvme_tcp_pdu_ttag = -1;
-static int hf_nvme_tcp_data_pdu_data_offset = -1;
-static int hf_nvme_tcp_data_pdu_data_length = -1;
-static int hf_nvme_tcp_data_pdu_data_resvd = -1;
+static int hf_nvme_tcp_data_pdu;
+static int hf_nvme_tcp_pdu_ttag;
+static int hf_nvme_tcp_data_pdu_data_offset;
+static int hf_nvme_tcp_data_pdu_data_length;
+static int hf_nvme_tcp_data_pdu_data_resvd;
 
-static gint ett_nvme_tcp = -1;
+static gint ett_nvme_tcp;
 
 static guint
 get_nvme_tcp_pdu_len(packet_info *pinfo _U_,

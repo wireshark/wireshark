@@ -44,29 +44,29 @@ void proto_reg_handoff_mcp(void);
 
 static dissector_handle_t mcp_handle;
 
-static int proto_mcp = -1;
+static int proto_mcp;
 /* TLV header */
-static int hf_mcp_tlv_type = -1;
-static int hf_mcp_strict_tlv_type = -1;
-static int hf_mcp_tlv_length = -1;
+static int hf_mcp_tlv_type;
+static int hf_mcp_strict_tlv_type;
+static int hf_mcp_tlv_length;
 /* Values */
-static int hf_mcp_fabric_id = -1;
-static int hf_mcp_node_id = -1;
-static int hf_mcp_vpc_domain = -1;
-static int hf_mcp_vpc_id = -1;
-static int hf_mcp_vpc_vtep = -1;
-static int hf_mcp_port_id = -1;
-static int hf_mcp_send_time = -1;
-static int hf_mcp_strictmode = -1;
-static int hf_mcp_digest = -1;
-static int hf_mcp_unknown = -1;
+static int hf_mcp_fabric_id;
+static int hf_mcp_node_id;
+static int hf_mcp_vpc_domain;
+static int hf_mcp_vpc_id;
+static int hf_mcp_vpc_vtep;
+static int hf_mcp_port_id;
+static int hf_mcp_send_time;
+static int hf_mcp_strictmode;
+static int hf_mcp_digest;
+static int hf_mcp_unknown;
 
-static expert_field ei_mcp_short_tlv = EI_INIT;
-static expert_field ei_mcp_trailing_bytes = EI_INIT;
-static expert_field ei_mcp_unexpected_tlv_length = EI_INIT;
+static expert_field ei_mcp_short_tlv;
+static expert_field ei_mcp_trailing_bytes;
+static expert_field ei_mcp_unexpected_tlv_length;
 
-static gint ett_mcp = -1;
-static gint ett_mcp_tlv_header = -1;
+static gint ett_mcp;
+static gint ett_mcp_tlv_header;
 
 #define PROTO_SHORT_NAME "MCP"
 #define PROTO_LONG_NAME "Miscabling Protocol"

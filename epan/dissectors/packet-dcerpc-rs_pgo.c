@@ -27,53 +27,53 @@ delete
 dissect_rgy_acct_user_flags_t
 */
 
-static int proto_rs_pgo = -1;
-static int hf_rs_pgo_opnum = -1;
-static int hf_rs_var1 = -1;
-static int hf_rs_pgo_query_result_t = -1;
-static int hf_rs_pgo_query_t = -1;
-static int hf_rs_pgo_query_key_t = -1;
-static int hf_error_status_t = -1;
-static int hf_sec_rgy_pgo_flags_t = -1;
-static int hf_rs_sec_rgy_pgo_item_t_quota = -1;
-static int hf_rs_sec_rgy_pgo_item_t_unix_num = -1;
-static int hf_rs_timeval = -1;
-static int hf_rs_uuid1 = -1;
-static int hf_sec_rgy_domain_t = -1;
-static int hf_sec_rgy_name_t_principalName_string = -1;
-static int hf_sec_rgy_name_t_size = -1;
-static int hf_sec_rgy_pname_t_principalName_string = -1;
-static int hf_sec_rgy_pname_t_size = -1;
-static int hf_rs_pgo_unix_num_key_t = -1;
+static int proto_rs_pgo;
+static int hf_rs_pgo_opnum;
+static int hf_rs_var1;
+static int hf_rs_pgo_query_result_t;
+static int hf_rs_pgo_query_t;
+static int hf_rs_pgo_query_key_t;
+static int hf_error_status_t;
+static int hf_sec_rgy_pgo_flags_t;
+static int hf_rs_sec_rgy_pgo_item_t_quota;
+static int hf_rs_sec_rgy_pgo_item_t_unix_num;
+static int hf_rs_timeval;
+static int hf_rs_uuid1;
+static int hf_sec_rgy_domain_t;
+static int hf_sec_rgy_name_t_principalName_string;
+static int hf_sec_rgy_name_t_size;
+static int hf_sec_rgy_pname_t_principalName_string;
+static int hf_sec_rgy_pname_t_size;
+static int hf_rs_pgo_unix_num_key_t;
 
-static gint ett_rs_cache_data_t = -1;
-static gint ett_sec_rgy_domain_t = -1;
-static gint ett_rgy_acct_user_flags_t = -1;
-static gint ett_sec_attr_component_name_t = -1;
-static gint ett_sec_passwd_type_t = -1;
-static gint ett_sec_rgy_acct_admin_flags_t = -1;
-static gint ett_sec_rgy_acct_admin_t = -1;
-static gint ett_sec_rgy_acct_auth_flags_t = -1;
-static gint ett_sec_rgy_acct_key_t = -1;
-static gint ett_sec_rgy_acct_user_t = -1;
-static gint ett_sec_rgy_cursor_t = -1;
-static gint ett_sec_rgy_foreign_id_t = -1;
-static gint ett_sec_rgy_login_name_t = -1;
-static gint ett_sec_rgy_name_t = -1;
-static gint ett_sec_rgy_pgo_item_t = -1;
-static gint ett_sec_rgy_pname_t = -1;
-static gint ett_sec_rgy_sid_t = -1;
-static gint ett_sec_rgy_unix_passwd_buf_t = -1;
-static gint ett_sec_rgy_unix_sid_t = -1;
-static gint ett_sec_timeval_sec_t = -1;
-static gint ett_sec_rgy_pgo_flags_t = -1;
-static gint ett_error_status_t = -1;
-static gint ett_rs_pgo_query_t = -1;
-static gint ett_rs_pgo_query_key_t = -1;
-static gint ett_rs_pgo_id_key_t = -1;
-static gint ett_rs_pgo_unix_num_key_t = -1;
-static gint ett_rs_pgo_query_result_t = -1;
-static gint ett_rs_pgo_result_t = -1;
+static gint ett_rs_cache_data_t;
+static gint ett_sec_rgy_domain_t;
+static gint ett_rgy_acct_user_flags_t;
+static gint ett_sec_attr_component_name_t;
+static gint ett_sec_passwd_type_t;
+static gint ett_sec_rgy_acct_admin_flags_t;
+static gint ett_sec_rgy_acct_admin_t;
+static gint ett_sec_rgy_acct_auth_flags_t;
+static gint ett_sec_rgy_acct_key_t;
+static gint ett_sec_rgy_acct_user_t;
+static gint ett_sec_rgy_cursor_t;
+static gint ett_sec_rgy_foreign_id_t;
+static gint ett_sec_rgy_login_name_t;
+static gint ett_sec_rgy_name_t;
+static gint ett_sec_rgy_pgo_item_t;
+static gint ett_sec_rgy_pname_t;
+static gint ett_sec_rgy_sid_t;
+static gint ett_sec_rgy_unix_passwd_buf_t;
+static gint ett_sec_rgy_unix_sid_t;
+static gint ett_sec_timeval_sec_t;
+static gint ett_sec_rgy_pgo_flags_t;
+static gint ett_error_status_t;
+static gint ett_rs_pgo_query_t;
+static gint ett_rs_pgo_query_key_t;
+static gint ett_rs_pgo_id_key_t;
+static gint ett_rs_pgo_unix_num_key_t;
+static gint ett_rs_pgo_query_result_t;
+static gint ett_rs_pgo_result_t;
 
 
 #define sec_rgy_acct_admin_valid       0x01
@@ -103,7 +103,7 @@ static gint ett_rs_pgo_result_t = -1;
 #define sec_rgy_acct_user_passwd_valid 0x01
 #define sec_rgy_acct_user_flags_none   0x00
 
-static gint ett_rs_pgo = -1;
+static gint ett_rs_pgo;
 
 static e_guid_t uuid_rs_pgo =
   { 0x4c878280, 0x3000, 0x0000, {0x0d, 0x00, 0x02, 0x87, 0x14, 0x00, 0x00,

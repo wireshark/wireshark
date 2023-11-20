@@ -103,30 +103,30 @@ void proto_reg_handoff_sstp(void);
 #define SSTP_ATTRIB_STATUS_VALUE_NOT_SUPPORTED 0x000004
 
 static dissector_handle_t ppp_hdlc_handle = NULL;
-static gint ett_sstp = -1;
-static gint ett_sstp_attribute = -1;
-static gint ett_sstp_version = -1;
-static gint hf_sstp_attrib_id = -1;
-static gint hf_sstp_attrib_length = -1;
-static gint hf_sstp_attrib_length_reserved = -1;
-static gint hf_sstp_attrib_reserved = -1;
-static gint hf_sstp_attrib_value = -1;
-static gint hf_sstp_cert_hash = -1;
-static gint hf_sstp_compound_mac = -1;
-static gint hf_sstp_control_flag = -1;
-static gint hf_sstp_data_unknown = -1;
-static gint hf_sstp_ecapsulated_protocol = -1;
-static gint hf_sstp_hash_protocol = -1;
-static gint hf_sstp_length = -1;
-static gint hf_sstp_major = -1;
-static gint hf_sstp_messagetype = -1;
-static gint hf_sstp_minor = -1;
-static gint hf_sstp_nonce = -1;
-static gint hf_sstp_numattrib = -1;
-static gint hf_sstp_padding = -1;
-static gint hf_sstp_reserved = -1;
-static gint hf_sstp_status = -1;
-static gint proto_sstp = -1;
+static gint ett_sstp;
+static gint ett_sstp_attribute;
+static gint ett_sstp_version;
+static gint hf_sstp_attrib_id;
+static gint hf_sstp_attrib_length;
+static gint hf_sstp_attrib_length_reserved;
+static gint hf_sstp_attrib_reserved;
+static gint hf_sstp_attrib_value;
+static gint hf_sstp_cert_hash;
+static gint hf_sstp_compound_mac;
+static gint hf_sstp_control_flag;
+static gint hf_sstp_data_unknown;
+static gint hf_sstp_ecapsulated_protocol;
+static gint hf_sstp_hash_protocol;
+static gint hf_sstp_length;
+static gint hf_sstp_major;
+static gint hf_sstp_messagetype;
+static gint hf_sstp_minor;
+static gint hf_sstp_nonce;
+static gint hf_sstp_numattrib;
+static gint hf_sstp_padding;
+static gint hf_sstp_reserved;
+static gint hf_sstp_status;
+static gint proto_sstp;
 
 static const value_string sstp_messagetypes[] = {
   {SSTP_MSG_CALL_CONNECT_REQUEST, "SSTP_MSG_CALL_CONNECT_REQUEST"},

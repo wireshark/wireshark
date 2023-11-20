@@ -21,12 +21,12 @@ void proto_reg_handoff_dvb_tot(void);
 
 static dissector_handle_t dvb_tot_handle;
 
-static int proto_dvb_tot = -1;
-static int hf_dvb_tot_utc_time = -1;
-static int hf_dvb_tot_reserved = -1;
-static int hf_dvb_tot_descriptors_loop_length = -1;
+static int proto_dvb_tot;
+static int hf_dvb_tot_utc_time;
+static int hf_dvb_tot_reserved;
+static int hf_dvb_tot_descriptors_loop_length;
 
-static gint ett_dvb_tot = -1;
+static gint ett_dvb_tot;
 
 #define DVB_TOT_RESERVED_MASK                   0xF000
 #define DVB_TOT_DESCRIPTORS_LOOP_LENGTH_MASK    0x0FFF

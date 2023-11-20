@@ -23,16 +23,16 @@
 void proto_register_smb_sidsnooping(void);
 
 #if 0
-static int hf_lsa = -1;
-static int hf_lsa_opnum = -1;
+static int hf_lsa;
+static int hf_lsa_opnum;
 #endif
-static int hf_lsa_info_level = -1;
-static int hf_lsa_domain = -1;
-static int hf_nt_domain_sid = -1;
-static int hf_samr_hnd = -1;
-static int hf_samr_rid = -1;
-static int hf_samr_acct_name = -1;
-static int hf_samr_level = -1;
+static int hf_lsa_info_level;
+static int hf_lsa_domain;
+static int hf_nt_domain_sid;
+static int hf_samr_hnd;
+static int hf_samr_rid;
+static int hf_samr_acct_name;
+static int hf_samr_level;
 
 
 GHashTable *sid_name_table = NULL;

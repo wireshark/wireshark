@@ -36,115 +36,115 @@ static int imf_eo_tap = -1;
 #define PSNAME "IMF"
 #define PFNAME "imf"
 
-static int proto_imf = -1;
+static int proto_imf;
 
-static int hf_imf_date = -1;
-static int hf_imf_from = -1;
-static int hf_imf_sender = -1;
-static int hf_imf_reply_to = -1;
-static int hf_imf_to = -1;
-static int hf_imf_cc = -1;
-static int hf_imf_bcc = -1;
-static int hf_imf_message_id = -1;
-static int hf_imf_in_reply_to = -1;
-static int hf_imf_references = -1;
-static int hf_imf_subject = -1;
-static int hf_imf_comments = -1;
-static int hf_imf_user_agent = -1;
-static int hf_imf_keywords = -1;
-static int hf_imf_resent_date = -1;
-static int hf_imf_resent_from = -1;
-static int hf_imf_resent_sender = -1;
-static int hf_imf_resent_to = -1;
-static int hf_imf_resent_cc = -1;
-static int hf_imf_resent_bcc = -1;
-static int hf_imf_resent_message_id = -1;
-static int hf_imf_return_path = -1;
-static int hf_imf_received = -1;
-static int hf_imf_content_type = -1;
-static int hf_imf_content_type_type = -1;
-static int hf_imf_content_type_parameters = -1;
-static int hf_imf_content_id = -1;
-static int hf_imf_content_transfer_encoding = -1;
-static int hf_imf_content_description = -1;
-static int hf_imf_mime_version = -1;
-static int hf_imf_thread_index = -1;
-static int hf_imf_lines = -1;
-static int hf_imf_precedence = -1;
-static int hf_imf_ext_mailer = -1;
-static int hf_imf_ext_mimeole = -1;
-static int hf_imf_ext_tnef_correlator = -1;
-static int hf_imf_ext_expiry_date = -1;
-static int hf_imf_ext_uidl = -1;
-static int hf_imf_ext_authentication_warning = -1;
-static int hf_imf_ext_virus_scanned = -1;
-static int hf_imf_ext_original_to = -1;
-static int hf_imf_extension = -1;
-static int hf_imf_extension_type = -1;
-static int hf_imf_extension_value = -1;
+static int hf_imf_date;
+static int hf_imf_from;
+static int hf_imf_sender;
+static int hf_imf_reply_to;
+static int hf_imf_to;
+static int hf_imf_cc;
+static int hf_imf_bcc;
+static int hf_imf_message_id;
+static int hf_imf_in_reply_to;
+static int hf_imf_references;
+static int hf_imf_subject;
+static int hf_imf_comments;
+static int hf_imf_user_agent;
+static int hf_imf_keywords;
+static int hf_imf_resent_date;
+static int hf_imf_resent_from;
+static int hf_imf_resent_sender;
+static int hf_imf_resent_to;
+static int hf_imf_resent_cc;
+static int hf_imf_resent_bcc;
+static int hf_imf_resent_message_id;
+static int hf_imf_return_path;
+static int hf_imf_received;
+static int hf_imf_content_type;
+static int hf_imf_content_type_type;
+static int hf_imf_content_type_parameters;
+static int hf_imf_content_id;
+static int hf_imf_content_transfer_encoding;
+static int hf_imf_content_description;
+static int hf_imf_mime_version;
+static int hf_imf_thread_index;
+static int hf_imf_lines;
+static int hf_imf_precedence;
+static int hf_imf_ext_mailer;
+static int hf_imf_ext_mimeole;
+static int hf_imf_ext_tnef_correlator;
+static int hf_imf_ext_expiry_date;
+static int hf_imf_ext_uidl;
+static int hf_imf_ext_authentication_warning;
+static int hf_imf_ext_virus_scanned;
+static int hf_imf_ext_original_to;
+static int hf_imf_extension;
+static int hf_imf_extension_type;
+static int hf_imf_extension_value;
 
 /* RFC 2156 */
-static int hf_imf_autoforwarded = -1;
-static int hf_imf_autosubmitted = -1;
-static int hf_imf_x400_content_identifier = -1;
-static int hf_imf_content_language = -1;
-static int hf_imf_conversion = -1;
-static int hf_imf_conversion_with_loss = -1;
-static int hf_imf_delivery_date = -1;
-static int hf_imf_discarded_x400_ipms_extensions = -1;
-static int hf_imf_discarded_x400_mts_extensions = -1;
-static int hf_imf_dl_expansion_history = -1;
-static int hf_imf_deferred_delivery = -1;
-static int hf_imf_expires = -1;
-static int hf_imf_importance = -1;
-static int hf_imf_incomplete_copy = -1;
-static int hf_imf_latest_delivery_time = -1;
-static int hf_imf_message_type = -1;
-static int hf_imf_original_encoded_information_types = -1;
-static int hf_imf_originator_return_address = -1;
-static int hf_imf_priority = -1;
-static int hf_imf_reply_by = -1;
-static int hf_imf_sensitivity = -1;
-static int hf_imf_supersedes = -1;
-static int hf_imf_x400_content_type = -1;
-static int hf_imf_x400_mts_identifier = -1;
-static int hf_imf_x400_originator = -1;
-static int hf_imf_x400_received = -1;
-static int hf_imf_x400_recipients = -1;
+static int hf_imf_autoforwarded;
+static int hf_imf_autosubmitted;
+static int hf_imf_x400_content_identifier;
+static int hf_imf_content_language;
+static int hf_imf_conversion;
+static int hf_imf_conversion_with_loss;
+static int hf_imf_delivery_date;
+static int hf_imf_discarded_x400_ipms_extensions;
+static int hf_imf_discarded_x400_mts_extensions;
+static int hf_imf_dl_expansion_history;
+static int hf_imf_deferred_delivery;
+static int hf_imf_expires;
+static int hf_imf_importance;
+static int hf_imf_incomplete_copy;
+static int hf_imf_latest_delivery_time;
+static int hf_imf_message_type;
+static int hf_imf_original_encoded_information_types;
+static int hf_imf_originator_return_address;
+static int hf_imf_priority;
+static int hf_imf_reply_by;
+static int hf_imf_sensitivity;
+static int hf_imf_supersedes;
+static int hf_imf_x400_content_type;
+static int hf_imf_x400_mts_identifier;
+static int hf_imf_x400_originator;
+static int hf_imf_x400_received;
+static int hf_imf_x400_recipients;
 
-static int hf_imf_delivered_to = -1;
+static int hf_imf_delivered_to;
 
-static int hf_imf_message_text = -1;
+static int hf_imf_message_text;
 
-static int hf_imf_display_name = -1;
-static int hf_imf_address = -1;
-/* static int hf_imf_mailbox_list = -1; */
-static int hf_imf_mailbox_list_item = -1;
-/* static int hf_imf_address_list = -1; */
-static int hf_imf_address_list_item = -1;
+static int hf_imf_display_name;
+static int hf_imf_address;
+/* static int hf_imf_mailbox_list; */
+static int hf_imf_mailbox_list_item;
+/* static int hf_imf_address_list; */
+static int hf_imf_address_list_item;
 
 /* draft-zeilenga-email-seclabel-04 */
-static int hf_imf_siolabel = -1;
-static int hf_imf_siolabel_marking = -1;
-static int hf_imf_siolabel_fgcolor = -1;
-static int hf_imf_siolabel_bgcolor = -1;
-static int hf_imf_siolabel_type = -1;
-static int hf_imf_siolabel_label = -1;
-static int hf_imf_siolabel_unknown = -1;
+static int hf_imf_siolabel;
+static int hf_imf_siolabel_marking;
+static int hf_imf_siolabel_fgcolor;
+static int hf_imf_siolabel_bgcolor;
+static int hf_imf_siolabel_type;
+static int hf_imf_siolabel_label;
+static int hf_imf_siolabel_unknown;
 
-static int ett_imf = -1;
-static int ett_imf_content_type = -1;
-static int ett_imf_mailbox = -1;
-static int ett_imf_group = -1;
-static int ett_imf_mailbox_list = -1;
-static int ett_imf_address_list = -1;
-static int ett_imf_siolabel = -1;
-static int ett_imf_extension = -1;
-static int ett_imf_message_text = -1;
+static int ett_imf;
+static int ett_imf_content_type;
+static int ett_imf_mailbox;
+static int ett_imf_group;
+static int ett_imf_mailbox_list;
+static int ett_imf_address_list;
+static int ett_imf_siolabel;
+static int ett_imf_extension;
+static int ett_imf_message_text;
 
 static dissector_handle_t imf_handle;
 
-static expert_field ei_imf_unknown_param = EI_INIT;
+static expert_field ei_imf_unknown_param;
 
 /* Used for IMF Export Object feature */
 typedef struct _imf_eo_t {

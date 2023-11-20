@@ -28,18 +28,18 @@ static capture_dissector_handle_t arcnet_cap_handle;
 static capture_dissector_handle_t arcnet_cap_has_ex_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_arcnet = -1;
-static int hf_arcnet_src = -1;
-static int hf_arcnet_dst = -1;
-static int hf_arcnet_offset = -1;
-static int hf_arcnet_protID = -1;
-static int hf_arcnet_exception_flag = -1;
-static int hf_arcnet_split_flag = -1;
-static int hf_arcnet_sequence = -1;
-static int hf_arcnet_padding = -1;
+static int proto_arcnet;
+static int hf_arcnet_src;
+static int hf_arcnet_dst;
+static int hf_arcnet_offset;
+static int hf_arcnet_protID;
+static int hf_arcnet_exception_flag;
+static int hf_arcnet_split_flag;
+static int hf_arcnet_sequence;
+static int hf_arcnet_padding;
 
 /* Initialize the subtree pointers */
-static gint ett_arcnet = -1;
+static gint ett_arcnet;
 
 static int arcnet_address_type = -1;
 
@@ -49,7 +49,7 @@ static capture_dissector_handle_t ip_cap_handle;
 static capture_dissector_handle_t arp_cap_handle;
 
 /* Cache protocol for packet counting */
-static int proto_ipx = -1;
+static int proto_ipx;
 
 static int arcnet_str_len(const address* addr _U_)
 {

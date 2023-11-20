@@ -43,42 +43,42 @@ static dissector_handle_t nsrp_handle;
 #define NSRP_MIN_LEN    32
 
 /* Initialize the protocol and registered fields */
-static int proto_nsrp       = -1;
+static int proto_nsrp;
 
-static int hf_nsrp_version       = -1;
-static int hf_nsrp_msg_type      = -1;
-static int hf_nsrp_clust_id      = -1;
-static int hf_nsrp_msg_flag      = -1;
-static int hf_nsrp_len           = -1;
-static int hf_nsrp_ha_port       = -1;
-static int hf_nsrp_not_used      = -1;
-static int hf_nsrp_dst_unit      = -1;
-static int hf_nsrp_src_unit      = -1;
-static int hf_nsrp_msgtype       = -1;
-static int hf_nsrp_wst_group     = -1;
-static int hf_nsrp_hst_group     = -1;
-static int hf_nsrp_msgflag     = -1;
-static int hf_nsrp_authflag      = -1;
-static int hf_nsrp_priority      = -1;
-static int hf_nsrp_dummy         = -1;
-static int hf_nsrp_authchecksum  = -1;
-static int hf_nsrp_ifnum         = -1;
+static int hf_nsrp_version;
+static int hf_nsrp_msg_type;
+static int hf_nsrp_clust_id;
+static int hf_nsrp_msg_flag;
+static int hf_nsrp_len;
+static int hf_nsrp_ha_port;
+static int hf_nsrp_not_used;
+static int hf_nsrp_dst_unit;
+static int hf_nsrp_src_unit;
+static int hf_nsrp_msgtype;
+static int hf_nsrp_wst_group;
+static int hf_nsrp_hst_group;
+static int hf_nsrp_msgflag;
+static int hf_nsrp_authflag;
+static int hf_nsrp_priority;
+static int hf_nsrp_dummy;
+static int hf_nsrp_authchecksum;
+static int hf_nsrp_ifnum;
 
 
 /* Dada defined for HA Message */
-static int hf_nsrp_msglen      = -1;
-static int hf_nsrp_encflag      = -1;
-/* static int hf_nsrp_notused = -1; */
+static int hf_nsrp_msglen;
+static int hf_nsrp_encflag;
+/* static int hf_nsrp_notused; */
 
-static int hf_nsrp_total_size = -1;
+static int hf_nsrp_total_size;
 
-static int hf_nsrp_ns = -1;
-static int hf_nsrp_nr = -1;
+static int hf_nsrp_ns;
+static int hf_nsrp_nr;
 
-static int hf_nsrp_no_used = -1;
-static int hf_nsrp_checksum = -1;
+static int hf_nsrp_no_used;
+static int hf_nsrp_checksum;
 
-static int hf_nsrp_data = -1;
+static int hf_nsrp_data;
 
 
 static const value_string nsrp_msg_type_vals[] = {
@@ -132,7 +132,7 @@ static const value_string nsrp_encflag_vals[] = {
 
 
 /* Initialize the subtree pointers */
-static gint ett_nsrp = -1;
+static gint ett_nsrp;
 
 /* Code to actually dissect the packets */
 static int

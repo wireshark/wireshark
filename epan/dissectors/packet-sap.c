@@ -69,39 +69,39 @@ static const value_string mcast_sap_auth_type[] = {
 #define MCAST_SAP_AUTH_BIT_P 0x10 /* Padding required for the authentication header */
 
 
-static int proto_sap = -1;
-static int hf_sap_flags = -1;
-static int hf_sap_flags_v = -1;
-static int hf_sap_flags_a = -1;
-static int hf_sap_flags_r = -1;
-static int hf_sap_flags_t = -1;
-static int hf_sap_flags_e = -1;
-static int hf_sap_flags_c = -1;
-static int hf_auth_data = -1;
-static int hf_auth_flags = -1;
-static int hf_auth_flags_v = -1;
-static int hf_auth_flags_p = -1;
-static int hf_auth_flags_t = -1;
+static int proto_sap;
+static int hf_sap_flags;
+static int hf_sap_flags_v;
+static int hf_sap_flags_a;
+static int hf_sap_flags_r;
+static int hf_sap_flags_t;
+static int hf_sap_flags_e;
+static int hf_sap_flags_c;
+static int hf_auth_data;
+static int hf_auth_flags;
+static int hf_auth_flags_v;
+static int hf_auth_flags_p;
+static int hf_auth_flags_t;
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_sap_auth_len = -1;
-static int hf_sap_originating_source_ipv4 = -1;
-static int hf_sap_auth_data_padding = -1;
-static int hf_sap_auth_subheader = -1;
-static int hf_sap_originating_source_ipv6 = -1;
-static int hf_sap_message_identifier_hash = -1;
-static int hf_sap_auth_data_padding_len = -1;
-static int hf_sap_payload_type = -1;
+static int hf_sap_auth_len;
+static int hf_sap_originating_source_ipv4;
+static int hf_sap_auth_data_padding;
+static int hf_sap_auth_subheader;
+static int hf_sap_originating_source_ipv6;
+static int hf_sap_message_identifier_hash;
+static int hf_sap_auth_data_padding_len;
+static int hf_sap_payload_type;
 
-static gint ett_sap = -1;
-static gint ett_sap_flags = -1;
-static gint ett_sap_auth = -1;
-static gint ett_sap_authf = -1;
+static gint ett_sap;
+static gint ett_sap_flags;
+static gint ett_sap_auth;
+static gint ett_sap_authf;
 
-static expert_field ei_sap_compressed_and_encrypted = EI_INIT;
-static expert_field ei_sap_encrypted = EI_INIT;
-static expert_field ei_sap_compressed = EI_INIT;
+static expert_field ei_sap_compressed_and_encrypted;
+static expert_field ei_sap_encrypted;
+static expert_field ei_sap_compressed;
 /* Generated from convert_proto_tree_add_text.pl */
-static expert_field ei_sap_bogus_authentication_or_pad_length = EI_INIT;
+static expert_field ei_sap_bogus_authentication_or_pad_length;
 
 static dissector_handle_t sdp_handle;
 

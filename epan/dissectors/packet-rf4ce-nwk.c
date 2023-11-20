@@ -29,7 +29,7 @@
 #define RF4CE_PROTOABBREV_NWK       "rf4ce_nwk"
 #define RF4CE_PROTOABBREV_PROFILE   "rf4ce_profile"
 
-static int proto_rf4ce_nwk = -1;
+static int proto_rf4ce_nwk;
 static dissector_handle_t rf4ce_gdp_handle;
 
 /* UAT vars */
@@ -51,61 +51,61 @@ UAT_CSTRING_CB_DEF(uat_security_records, label, uat_security_record_t)
 static uat_security_record_t *uat_security_records = NULL;
 static guint num_uat_security_records = 0;
 
-static gint ett_rf4ce_nwk = -1;
-static gint ett_rf4ce_nwk_payload = -1;
-static gint ett_rf4ce_nwk_vendor_info = -1;
-static gint ett_rf4ce_nwk_usr_str = -1;
-static gint ett_rf4ce_nwk_usr_str_class_descriptor = -1;
-static gint ett_rf4ce_nwk_dev_types_list = -1;
-static gint ett_rf4ce_nwk_profiles_list = -1;
+static gint ett_rf4ce_nwk;
+static gint ett_rf4ce_nwk_payload;
+static gint ett_rf4ce_nwk_vendor_info;
+static gint ett_rf4ce_nwk_usr_str;
+static gint ett_rf4ce_nwk_usr_str_class_descriptor;
+static gint ett_rf4ce_nwk_dev_types_list;
+static gint ett_rf4ce_nwk_profiles_list;
 
 /* RF4CE NWK header */
-static int hf_rf4ce_nwk_fcf = -1;
-static int hf_rf4ce_nwk_fcf_frame_type = -1;
-static int hf_rf4ce_nwk_fcf_security_enabled = -1;
-static int hf_rf4ce_nwk_fcf_protocol_version = -1;
-static int hf_rf4ce_nwk_fcf_reserved = -1;
-static int hf_rf4ce_nwk_fcf_channel_designator = -1;
-static int hf_rf4ce_nwk_seq_num = -1;
-static int hf_rf4ce_nwk_profile_id = -1;
-static int hf_rf4ce_nwk_vendor_id = -1;
+static int hf_rf4ce_nwk_fcf;
+static int hf_rf4ce_nwk_fcf_frame_type;
+static int hf_rf4ce_nwk_fcf_security_enabled;
+static int hf_rf4ce_nwk_fcf_protocol_version;
+static int hf_rf4ce_nwk_fcf_reserved;
+static int hf_rf4ce_nwk_fcf_channel_designator;
+static int hf_rf4ce_nwk_seq_num;
+static int hf_rf4ce_nwk_profile_id;
+static int hf_rf4ce_nwk_vendor_id;
 
 /* RF4CE NWK payload common */
-static int hf_rf4ce_nwk_cmd_id = -1;
+static int hf_rf4ce_nwk_cmd_id;
 
-static int hf_rf4ce_nwk_node_capabilities = -1;
-static int hf_rf4ce_nwk_node_capabilities_node_type = -1;
-static int hf_rf4ce_nwk_node_capabilities_power_source = -1;
-static int hf_rf4ce_nwk_node_capabilities_security = -1;
-static int hf_rf4ce_nwk_node_capabilities_channel_normalization = -1;
-static int hf_rf4ce_nwk_node_capabilities_reserved = -1;
+static int hf_rf4ce_nwk_node_capabilities;
+static int hf_rf4ce_nwk_node_capabilities_node_type;
+static int hf_rf4ce_nwk_node_capabilities_power_source;
+static int hf_rf4ce_nwk_node_capabilities_security;
+static int hf_rf4ce_nwk_node_capabilities_channel_normalization;
+static int hf_rf4ce_nwk_node_capabilities_reserved;
 
-static int hf_rf4ce_nwk_disc_req_vendor_id = -1;
+static int hf_rf4ce_nwk_disc_req_vendor_id;
 
 #define RF4CE_NWK_VENDOR_STRING_MAX_LENGTH 7
-static int hf_rf4ce_nwk_vendor_string = -1;
+static int hf_rf4ce_nwk_vendor_string;
 
-static int hf_rf4ce_nwk_app_capabilities = -1;
-static int hf_rf4ce_nwk_app_capabilities_usr_str = -1;
-static int hf_rf4ce_nwk_app_capabilities_supported_dev_num = -1;
-static int hf_rf4ce_nwk_app_capabilities_reserved1 = -1;
-static int hf_rf4ce_nwk_app_capabilities_supported_profiles_num = -1;
-static int hf_rf4ce_nwk_app_capabilities_reserved2 = -1;
+static int hf_rf4ce_nwk_app_capabilities;
+static int hf_rf4ce_nwk_app_capabilities_usr_str;
+static int hf_rf4ce_nwk_app_capabilities_supported_dev_num;
+static int hf_rf4ce_nwk_app_capabilities_reserved1;
+static int hf_rf4ce_nwk_app_capabilities_supported_profiles_num;
+static int hf_rf4ce_nwk_app_capabilities_reserved2;
 
-static int hf_rf4ce_nwk_usr_str = -1;
-static int hf_rf4ce_nwk_usr_str_disc_rsp_app_usr_str = -1;
-static int hf_rf4ce_nwk_usr_str_disc_rsp_null = -1;
-static int hf_rf4ce_nwk_usr_str_disc_rsp_reserved = -1;
+static int hf_rf4ce_nwk_usr_str;
+static int hf_rf4ce_nwk_usr_str_disc_rsp_app_usr_str;
+static int hf_rf4ce_nwk_usr_str_disc_rsp_null;
+static int hf_rf4ce_nwk_usr_str_disc_rsp_reserved;
 
-static int hf_rf4ce_nwk_usr_str_disc_rsp_class_desc_tertiary = -1;
-static int hf_rf4ce_nwk_usr_str_disc_rsp_class_desc_secondary = -1;
-static int hf_rf4ce_nwk_usr_str_disc_rsp_class_desc_primary = -1;
+static int hf_rf4ce_nwk_usr_str_disc_rsp_class_desc_tertiary;
+static int hf_rf4ce_nwk_usr_str_disc_rsp_class_desc_secondary;
+static int hf_rf4ce_nwk_usr_str_disc_rsp_class_desc_primary;
 
-static int hf_rf4ce_nwk_usr_str_disc_rsp_class_desc_class_num = -1;
-static int hf_rf4ce_nwk_usr_str_disc_rsp_class_desc_duplicate_class_num_handling = -1;
-static int hf_rf4ce_nwk_usr_str_disc_rsp_class_desc_reserved = -1;
+static int hf_rf4ce_nwk_usr_str_disc_rsp_class_desc_class_num;
+static int hf_rf4ce_nwk_usr_str_disc_rsp_class_desc_duplicate_class_num_handling;
+static int hf_rf4ce_nwk_usr_str_disc_rsp_class_desc_reserved;
 
-static int hf_rf4ce_nwk_usr_str_disc_rsp_discovery_lqi_threshold = -1;
+static int hf_rf4ce_nwk_usr_str_disc_rsp_discovery_lqi_threshold;
 
 #define RF4CE_NWK_USR_STR_DISC_RSP_CLASS_DESC_CLASS_NUM_MASK                    0b00001111
 #define RF4CE_NWK_USR_STR_DISC_RSP_CLASS_DESC_DUPLICATE_CLASS_NUM_HANDLING_MASK 0b00110000
@@ -166,41 +166,41 @@ static const value_string rf4ce_nwk_usr_str_disc_rsp_class_desc_duplicate_class_
 #define RF4CE_NWK_USR_STR_PARSING_MASK_NONE      0b00000001
 #define RF4CE_NWK_USR_STR_PARSING_MASK_DISC_RESP 0b00000010
 
-static int hf_rf4ce_nwk_app_cap_dev_type = -1;
-static int hf_rf4ce_nwk_app_cap_profile_id = -1;
+static int hf_rf4ce_nwk_app_cap_dev_type;
+static int hf_rf4ce_nwk_app_cap_profile_id;
 
 /* RF4CE NWK Discovery Request */
-static int hf_rf4ce_nwk_requested_dev_type = -1;
+static int hf_rf4ce_nwk_requested_dev_type;
 
 /* RF4CE NWK Discovery Response */
-static int hf_rf4ce_nwk_disc_resp_status = -1;
-static int hf_rf4ce_nwk_disc_resp_lqi = -1;
+static int hf_rf4ce_nwk_disc_resp_status;
+static int hf_rf4ce_nwk_disc_resp_lqi;
 
 /* RF4CE NWK Pair Request */
-static int hf_rf4ce_nwk_pair_req_nwk_addr = -1;
-static int hf_rf4ce_nwk_pair_req_key_exch_num = -1;
+static int hf_rf4ce_nwk_pair_req_nwk_addr;
+static int hf_rf4ce_nwk_pair_req_key_exch_num;
 
 /* RF4CE NWK Pair Response */
-static int hf_rf4ce_nwk_pair_rsp_status = -1;
-static int hf_rf4ce_nwk_pair_rsp_allocated_nwk_addr = -1;
-static int hf_rf4ce_nwk_pair_rsp_nwk_addr = -1;
+static int hf_rf4ce_nwk_pair_rsp_status;
+static int hf_rf4ce_nwk_pair_rsp_allocated_nwk_addr;
+static int hf_rf4ce_nwk_pair_rsp_nwk_addr;
 
 /* RF4CE NWK Key Seed */
-static int hf_rf4ce_nwk_seed_seq_num = -1;
+static int hf_rf4ce_nwk_seed_seq_num;
 
 #define RF4CE_NWK_KEY_SEED_DATA_LENGTH 80
-static int hf_rf4ce_nwk_seed_data = -1;
+static int hf_rf4ce_nwk_seed_data;
 
 /* RF4CE NWK Ping Request and Response */
-static int hf_rf4ce_nwk_ping_options = -1;
-static int hf_rf4ce_nwk_ping_payload = -1;
+static int hf_rf4ce_nwk_ping_options;
+static int hf_rf4ce_nwk_ping_payload;
 
 #if 0
 /* Should be at the end of a decrypted NWK packet */
-static int hf_rf4ce_nwk_mic = -1;
+static int hf_rf4ce_nwk_mic;
 #endif
 
-static int hf_rf4ce_nwk_unparsed_payload = -1;
+static int hf_rf4ce_nwk_unparsed_payload;
 
 /* Frame Control Field */
 #define RF4CE_NWK_FCF_FRAME_TYPE_MASK         0b00000011

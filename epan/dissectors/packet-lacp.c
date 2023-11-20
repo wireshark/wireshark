@@ -54,70 +54,70 @@ static const value_string lacp_type_vals[] = {
 #define LACPDU_FLAGS_EXPIRED            0x80
 
 /* Initialise the protocol and registered fields */
-static int proto_lacp = -1;
+static int proto_lacp;
 
-static int hf_lacp_vlacp_subtype = -1;
-static int hf_lacp_version = -1;
-static int hf_lacp_tlv_type = -1;
-static int hf_lacp_tlv_length = -1;
+static int hf_lacp_vlacp_subtype;
+static int hf_lacp_version;
+static int hf_lacp_tlv_type;
+static int hf_lacp_tlv_length;
 
-static int hf_lacp_actor_sysid_priority = -1;
-static int hf_lacp_actor_sysid = -1;
-static int hf_lacp_actor_key = -1;
-static int hf_lacp_actor_port_priority = -1;
-static int hf_lacp_actor_port = -1;
-static int hf_lacp_actor_state = -1;
-static int hf_lacp_actor_state_str = -1;
-static int hf_lacp_flags_a_activity = -1;
-static int hf_lacp_flags_a_timeout = -1;
-static int hf_lacp_flags_a_aggregation = -1;
-static int hf_lacp_flags_a_sync = -1;
-static int hf_lacp_flags_a_collecting = -1;
-static int hf_lacp_flags_a_distrib = -1;
-static int hf_lacp_flags_a_defaulted = -1;
-static int hf_lacp_flags_a_expired = -1;
-static int hf_lacp_actor_reserved = -1;
+static int hf_lacp_actor_sysid_priority;
+static int hf_lacp_actor_sysid;
+static int hf_lacp_actor_key;
+static int hf_lacp_actor_port_priority;
+static int hf_lacp_actor_port;
+static int hf_lacp_actor_state;
+static int hf_lacp_actor_state_str;
+static int hf_lacp_flags_a_activity;
+static int hf_lacp_flags_a_timeout;
+static int hf_lacp_flags_a_aggregation;
+static int hf_lacp_flags_a_sync;
+static int hf_lacp_flags_a_collecting;
+static int hf_lacp_flags_a_distrib;
+static int hf_lacp_flags_a_defaulted;
+static int hf_lacp_flags_a_expired;
+static int hf_lacp_actor_reserved;
 
-static int hf_lacp_partner_sysid_priority = -1;
-static int hf_lacp_partner_sysid = -1;
-static int hf_lacp_partner_key = -1;
-static int hf_lacp_partner_port_priority = -1;
-static int hf_lacp_partner_port = -1;
-static int hf_lacp_partner_state = -1;
-static int hf_lacp_partner_state_str = -1;
-static int hf_lacp_flags_p_activity = -1;
-static int hf_lacp_flags_p_timeout = -1;
-static int hf_lacp_flags_p_aggregation = -1;
-static int hf_lacp_flags_p_sync = -1;
-static int hf_lacp_flags_p_collecting = -1;
-static int hf_lacp_flags_p_distrib = -1;
-static int hf_lacp_flags_p_defaulted = -1;
-static int hf_lacp_flags_p_expired = -1;
-static int hf_lacp_partner_reserved = -1;
+static int hf_lacp_partner_sysid_priority;
+static int hf_lacp_partner_sysid;
+static int hf_lacp_partner_key;
+static int hf_lacp_partner_port_priority;
+static int hf_lacp_partner_port;
+static int hf_lacp_partner_state;
+static int hf_lacp_partner_state_str;
+static int hf_lacp_flags_p_activity;
+static int hf_lacp_flags_p_timeout;
+static int hf_lacp_flags_p_aggregation;
+static int hf_lacp_flags_p_sync;
+static int hf_lacp_flags_p_collecting;
+static int hf_lacp_flags_p_distrib;
+static int hf_lacp_flags_p_defaulted;
+static int hf_lacp_flags_p_expired;
+static int hf_lacp_partner_reserved;
 
-static int hf_lacp_coll_max_delay = -1;
-static int hf_lacp_coll_reserved = -1;
+static int hf_lacp_coll_max_delay;
+static int hf_lacp_coll_reserved;
 
-static int hf_lacp_pad = -1;
+static int hf_lacp_pad;
 
-static int hf_lacp_vendor = -1;
+static int hf_lacp_vendor;
 
-static int hf_lacp_vendor_hp_length = -1;
-static int hf_lacp_vendor_hp_irf_domain = -1;
-static int hf_lacp_vendor_hp_irf_mac = -1;
-static int hf_lacp_vendor_hp_irf_switch = -1;
-static int hf_lacp_vendor_hp_irf_port = -1;
-static int hf_lacp_vendor_hp_unknown = -1;
+static int hf_lacp_vendor_hp_length;
+static int hf_lacp_vendor_hp_irf_domain;
+static int hf_lacp_vendor_hp_irf_mac;
+static int hf_lacp_vendor_hp_irf_switch;
+static int hf_lacp_vendor_hp_irf_port;
+static int hf_lacp_vendor_hp_unknown;
 
 
 /* Initialise the subtree pointers */
-static gint ett_lacp = -1;
-static gint ett_lacp_a_flags = -1;
-static gint ett_lacp_p_flags = -1;
+static gint ett_lacp;
+static gint ett_lacp_a_flags;
+static gint ett_lacp_p_flags;
 
 /* Expert Items */
-static expert_field ei_lacp_wrong_tlv_type = EI_INIT;
-static expert_field ei_lacp_wrong_tlv_length = EI_INIT;
+static expert_field ei_lacp_wrong_tlv_type;
+static expert_field ei_lacp_wrong_tlv_length;
 
 static const true_false_string tfs_active_passive = { "Active", "Passive" };
 static const true_false_string tfs_short_long_timeout = { "Short Timeout", "Long Timeout" };

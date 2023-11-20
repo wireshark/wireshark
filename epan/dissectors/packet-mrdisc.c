@@ -34,23 +34,23 @@ void proto_reg_handoff_mrdisc(void);
 
 static dissector_handle_t mrdisc_handle;
 
-static int proto_mrdisc = -1;
-static int hf_checksum = -1;
-static int hf_checksum_status = -1;
-static int hf_type = -1;
-static int hf_advint = -1;
-static int hf_numopts = -1;
-static int hf_options = -1;
-static int hf_option = -1;
-static int hf_option_len = -1;
-static int hf_qi = -1;
-static int hf_rv = -1;
-static int hf_option_bytes = -1;
+static int proto_mrdisc;
+static int hf_checksum;
+static int hf_checksum_status;
+static int hf_type;
+static int hf_advint;
+static int hf_numopts;
+static int hf_options;
+static int hf_option;
+static int hf_option_len;
+static int hf_qi;
+static int hf_rv;
+static int hf_option_bytes;
 
-static int ett_mrdisc = -1;
-static int ett_options = -1;
+static int ett_mrdisc;
+static int ett_options;
 
-static expert_field ei_checksum = EI_INIT;
+static expert_field ei_checksum;
 
 #define MC_ALL_ROUTERS		0xe0000002
 

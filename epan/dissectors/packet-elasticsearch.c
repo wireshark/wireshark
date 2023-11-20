@@ -55,56 +55,56 @@ void proto_reg_handoff_elasticsearch(void);
 static dissector_handle_t elasticsearch_handle_binary;
 static dissector_handle_t elasticsearch_zen_handle;
 
-static int proto_elasticsearch = -1;
+static int proto_elasticsearch;
 
 /* Fields */
-static int hf_elasticsearch_internal_header = -1;
-static int hf_elasticsearch_version = -1;
-static int hf_elasticsearch_ping_request_id = -1;
-static int hf_elasticsearch_cluster_name= -1;
-static int hf_elasticsearch_node_name = -1;
-static int hf_elasticsearch_node_id = -1;
-static int hf_elasticsearch_host_name = -1;
-static int hf_elasticsearch_host_address = -1;
-static int hf_elasticsearch_address_type = -1;
-static int hf_elasticsearch_address_format = -1;
-static int hf_elasticsearch_address_name = -1;
-static int hf_elasticsearch_address_length = -1;
-static int hf_elasticsearch_address_ipv4 = -1;
-static int hf_elasticsearch_address_ipv6 = -1;
-static int hf_elasticsearch_address_ipv6_scope_id = -1;
-static int hf_elasticsearch_attributes_length = -1;
-static int hf_elasticsearch_address_port = -1;
-static int hf_elasticsearch_header_token = -1;
-static int hf_elasticsearch_header_message_length = -1;
-static int hf_elasticsearch_header_request_id = -1;
-static int hf_elasticsearch_header_status_flags = -1;
-static int hf_elasticsearch_header_status_flags_message_type = -1;
-static int hf_elasticsearch_header_status_flags_error = -1;
-static int hf_elasticsearch_header_status_flags_compression = -1;
-static int hf_elasticsearch_header_size = -1;
-static int hf_elasticsearch_header_request = -1;
-static int hf_elasticsearch_header_response = -1;
-static int hf_elasticsearch_header_key = -1;
-static int hf_elasticsearch_header_value = -1;
+static int hf_elasticsearch_internal_header;
+static int hf_elasticsearch_version;
+static int hf_elasticsearch_ping_request_id;
+static int hf_elasticsearch_cluster_name;
+static int hf_elasticsearch_node_name;
+static int hf_elasticsearch_node_id;
+static int hf_elasticsearch_host_name;
+static int hf_elasticsearch_host_address;
+static int hf_elasticsearch_address_type;
+static int hf_elasticsearch_address_format;
+static int hf_elasticsearch_address_name;
+static int hf_elasticsearch_address_length;
+static int hf_elasticsearch_address_ipv4;
+static int hf_elasticsearch_address_ipv6;
+static int hf_elasticsearch_address_ipv6_scope_id;
+static int hf_elasticsearch_attributes_length;
+static int hf_elasticsearch_address_port;
+static int hf_elasticsearch_header_token;
+static int hf_elasticsearch_header_message_length;
+static int hf_elasticsearch_header_request_id;
+static int hf_elasticsearch_header_status_flags;
+static int hf_elasticsearch_header_status_flags_message_type;
+static int hf_elasticsearch_header_status_flags_error;
+static int hf_elasticsearch_header_status_flags_compression;
+static int hf_elasticsearch_header_size;
+static int hf_elasticsearch_header_request;
+static int hf_elasticsearch_header_response;
+static int hf_elasticsearch_header_key;
+static int hf_elasticsearch_header_value;
 
-static int hf_elasticsearch_feature = -1;
-static int hf_elasticsearch_action = -1;
-static int hf_elasticsearch_data = -1;
-static int hf_elasticsearch_data_compressed = -1;
+static int hf_elasticsearch_feature;
+static int hf_elasticsearch_action;
+static int hf_elasticsearch_data;
+static int hf_elasticsearch_data_compressed;
 
 /* Expert info */
-static expert_field ei_elasticsearch_unsupported_version = EI_INIT;
-static expert_field ei_elasticsearch_unsupported_address_format = EI_INIT;
-static expert_field ei_elasticsearch_unsupported_address_type = EI_INIT;
+static expert_field ei_elasticsearch_unsupported_version;
+static expert_field ei_elasticsearch_unsupported_address_format;
+static expert_field ei_elasticsearch_unsupported_address_type;
 
 
 /* Trees */
-static gint ett_elasticsearch = -1;
-static gint ett_elasticsearch_address = -1;
-static gint ett_elasticsearch_discovery_node = -1;
-static gint ett_elasticsearch_status_flags = -1;
-static gint ett_elasticsearch_header = -1;
+static gint ett_elasticsearch;
+static gint ett_elasticsearch_address;
+static gint ett_elasticsearch_discovery_node;
+static gint ett_elasticsearch_status_flags;
+static gint ett_elasticsearch_header;
 
 /* Forward declarations */
 static int dissect_elasticsearch_zen_ping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);

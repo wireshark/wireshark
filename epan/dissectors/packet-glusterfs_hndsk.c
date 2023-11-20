@@ -32,49 +32,49 @@ void proto_register_gluster_cbk(void);
 void proto_reg_handoff_gluster_cbk(void);
 
 /* Initialize the protocol and registered fields */
-static gint proto_gluster_cbk = -1;
-static gint proto_gluster_hndsk = -1;
+static gint proto_gluster_cbk;
+static gint proto_gluster_hndsk;
 
 /* programs and procedures */
-static int hf_gluster_cbk_proc = -1;
-static int hf_gluster_hndsk_proc = -1;
-static int hf_gluster_hndsk_dict = -1;
-static int hf_gluster_hndsk_spec = -1;		/* GETSPEC Reply */
-static int hf_gluster_hndsk_key = -1;		/* GETSPEC Call */
-static int hf_gluster_hndsk_event_op = -1;	/* EVENT NOTIFY call */
-static int hf_gluster_hndsk_uid = -1;		/* LOCK VERSION*/
-static int hf_gluster_hndsk_op_errstr = -1;	/* GETVOLUMEINFO */
-static int hf_gluster_hndsk_lk_ver= -1;
-static int hf_gluster_hndsk_flags = -1;
+static int hf_gluster_cbk_proc;
+static int hf_gluster_hndsk_proc;
+static int hf_gluster_hndsk_dict;
+static int hf_gluster_hndsk_spec;		/* GETSPEC Reply */
+static int hf_gluster_hndsk_key;		/* GETSPEC Call */
+static int hf_gluster_hndsk_event_op;	/* EVENT NOTIFY call */
+static int hf_gluster_hndsk_uid;		/* LOCK VERSION*/
+static int hf_gluster_hndsk_op_errstr;	/* GETVOLUMEINFO */
+static int hf_gluster_hndsk_lk_ver;
+static int hf_gluster_hndsk_flags;
 
 /* Initialize the subtree pointers */
-static gint ett_gluster_cbk = -1;
-static gint ett_gluster_cbk_flags = -1;
-static gint ett_gluster_hndsk = -1;
+static gint ett_gluster_cbk;
+static gint ett_gluster_cbk_flags;
+static gint ett_gluster_hndsk;
 
 /* upcall, used for cache-invalidation etc. */
-static int hf_gluster_cbk_gfid = -1;
-static int hf_gluster_cbk_upcall_event_type = -1;
-static int hf_gluster_cbk_ci_flags = -1;
-static int hf_gluster_cbk_ci_expire_time_attr = -1;
-static int hf_gluster_cbk_ci_stat = -1;
-static int hf_gluster_cbk_ci_parent_stat = -1;
-static int hf_gluster_cbk_ci_oldparent_stat = -1;
-static int hf_gluster_cbk_xdata = -1;
+static int hf_gluster_cbk_gfid;
+static int hf_gluster_cbk_upcall_event_type;
+static int hf_gluster_cbk_ci_flags;
+static int hf_gluster_cbk_ci_expire_time_attr;
+static int hf_gluster_cbk_ci_stat;
+static int hf_gluster_cbk_ci_parent_stat;
+static int hf_gluster_cbk_ci_oldparent_stat;
+static int hf_gluster_cbk_xdata;
 
 /* flags for upcall */
-static int hf_gluster_cbk_upcall_flag_nlink = -1;
-static int hf_gluster_cbk_upcall_flag_mode = -1;
-static int hf_gluster_cbk_upcall_flag_own = -1;
-static int hf_gluster_cbk_upcall_flag_size = -1;
-static int hf_gluster_cbk_upcall_flag_times = -1;
-static int hf_gluster_cbk_upcall_flag_atime = -1;
-static int hf_gluster_cbk_upcall_flag_perm = -1;
-static int hf_gluster_cbk_upcall_flag_rename = -1;
-static int hf_gluster_cbk_upcall_flag_forget = -1;
-static int hf_gluster_cbk_upcall_flag_parent_times = -1;
-static int hf_gluster_cbk_upcall_flag_xattr = -1;
-static int hf_gluster_cbk_upcall_flag_xattr_rm = -1;
+static int hf_gluster_cbk_upcall_flag_nlink;
+static int hf_gluster_cbk_upcall_flag_mode;
+static int hf_gluster_cbk_upcall_flag_own;
+static int hf_gluster_cbk_upcall_flag_size;
+static int hf_gluster_cbk_upcall_flag_times;
+static int hf_gluster_cbk_upcall_flag_atime;
+static int hf_gluster_cbk_upcall_flag_perm;
+static int hf_gluster_cbk_upcall_flag_rename;
+static int hf_gluster_cbk_upcall_flag_forget;
+static int hf_gluster_cbk_upcall_flag_parent_times;
+static int hf_gluster_cbk_upcall_flag_xattr;
+static int hf_gluster_cbk_upcall_flag_xattr_rm;
 
 /* procedures for GLUSTER_HNDSK_PROGRAM */
 static int

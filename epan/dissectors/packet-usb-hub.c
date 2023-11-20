@@ -24,50 +24,50 @@ void proto_reg_handoff_usb_hub(void);
 static dissector_handle_t usb_hub_control_handle;
 
 /* protocols and header fields */
-static int proto_usb_hub = -1;
+static int proto_usb_hub;
 
 /* USB 2.0, Chapter 11.24.2 Class-Specific Requests */
-static int hf_usb_hub_request = -1;
-static int hf_usb_hub_value = -1;
-static int hf_usb_hub_index = -1;
-static int hf_usb_hub_length = -1;
+static int hf_usb_hub_request;
+static int hf_usb_hub_value;
+static int hf_usb_hub_index;
+static int hf_usb_hub_length;
 
-static int hf_usb_hub_hub_feature_selector = -1;
-static int hf_usb_hub_port_feature_selector = -1;
-static int hf_usb_hub_dev_addr = -1;
-static int hf_usb_hub_ep_num = -1;
-static int hf_usb_hub_descriptor_type = -1;
-static int hf_usb_hub_descriptor_index = -1;
-static int hf_usb_hub_zero = -1;
-static int hf_usb_hub_tt_flags = -1;
-static int hf_usb_hub_tt_port = -1;
-static int hf_usb_hub_tt_state_length = -1;
-static int hf_usb_hub_port = -1;
-static int hf_usb_hub_port_selector = -1;
-static int hf_usb_hub_port_status = -1;
-static int hf_usb_hub_port_change = -1;
-static int hf_usb_hub_port_status_connection = -1;
-static int hf_usb_hub_port_status_enable = -1;
-static int hf_usb_hub_port_status_suspend = -1;
-static int hf_usb_hub_port_status_overcurrent = -1;
-static int hf_usb_hub_port_status_reset = -1;
-static int hf_usb_hub_port_status_power = -1;
-static int hf_usb_hub_port_status_low_speed = -1;
-static int hf_usb_hub_port_status_high_speed = -1;
-static int hf_usb_hub_port_status_test = -1;
-static int hf_usb_hub_port_status_indicator = -1;
-static int hf_usb_hub_port_change_connection = -1;
-static int hf_usb_hub_port_change_enable = -1;
-static int hf_usb_hub_port_change_suspend = -1;
-static int hf_usb_hub_port_change_overcurrent = -1;
-static int hf_usb_hub_port_change_reset = -1;
-static int hf_usb_hub_descriptor_length = -1;
+static int hf_usb_hub_hub_feature_selector;
+static int hf_usb_hub_port_feature_selector;
+static int hf_usb_hub_dev_addr;
+static int hf_usb_hub_ep_num;
+static int hf_usb_hub_descriptor_type;
+static int hf_usb_hub_descriptor_index;
+static int hf_usb_hub_zero;
+static int hf_usb_hub_tt_flags;
+static int hf_usb_hub_tt_port;
+static int hf_usb_hub_tt_state_length;
+static int hf_usb_hub_port;
+static int hf_usb_hub_port_selector;
+static int hf_usb_hub_port_status;
+static int hf_usb_hub_port_change;
+static int hf_usb_hub_port_status_connection;
+static int hf_usb_hub_port_status_enable;
+static int hf_usb_hub_port_status_suspend;
+static int hf_usb_hub_port_status_overcurrent;
+static int hf_usb_hub_port_status_reset;
+static int hf_usb_hub_port_status_power;
+static int hf_usb_hub_port_status_low_speed;
+static int hf_usb_hub_port_status_high_speed;
+static int hf_usb_hub_port_status_test;
+static int hf_usb_hub_port_status_indicator;
+static int hf_usb_hub_port_change_connection;
+static int hf_usb_hub_port_change_enable;
+static int hf_usb_hub_port_change_suspend;
+static int hf_usb_hub_port_change_overcurrent;
+static int hf_usb_hub_port_change_reset;
+static int hf_usb_hub_descriptor_length;
 
-static gint ett_usb_hub_wValue = -1;
-static gint ett_usb_hub_wIndex = -1;
-static gint ett_usb_hub_wLength = -1;
-static gint ett_usb_hub_port_status = -1;
-static gint ett_usb_hub_port_change = -1;
+static gint ett_usb_hub_wValue;
+static gint ett_usb_hub_wIndex;
+static gint ett_usb_hub_wLength;
+static gint ett_usb_hub_port_status;
+static gint ett_usb_hub_port_change;
 
 /* Table 11-16. Hub Class Request Codes */
 #define USB_HUB_REQUEST_GET_STATUS            0

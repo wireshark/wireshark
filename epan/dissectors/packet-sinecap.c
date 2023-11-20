@@ -20,28 +20,28 @@
 #define TXP_MIN_TELEGRAM_LENGTH 22
 
 /* Wireshark ID of the AP1 protocol */
-static gint proto_ap = -1;
+static gint proto_ap;
 
-static gint hf_ap_protoid = -1;
-static gint hf_ap_mpxadr = -1;
-static gint hf_ap_comcls = -1;
-static gint hf_ap_comcod = -1;
-static gint hf_ap_modfr1 = -1;
-static gint hf_ap_modfr2 = -1;
-static gint hf_ap_errcls = -1;
-static gint hf_ap_errcod = -1;
-static gint hf_ap_rosctr = -1;
-static gint hf_ap_sgsqnr = -1;
-static gint hf_ap_tactid = -1;
-static gint hf_ap_tasqnr = -1;
-static gint hf_ap_spare = -1;
-static gint hf_ap_pduref = -1;
-static gint hf_ap_pduid = -1;
-static gint hf_ap_pdulg = -1;
-static gint hf_ap_parlg = -1;
-static gint hf_ap_datlg = -1;
+static gint hf_ap_protoid;
+static gint hf_ap_mpxadr;
+static gint hf_ap_comcls;
+static gint hf_ap_comcod;
+static gint hf_ap_modfr1;
+static gint hf_ap_modfr2;
+static gint hf_ap_errcls;
+static gint hf_ap_errcod;
+static gint hf_ap_rosctr;
+static gint hf_ap_sgsqnr;
+static gint hf_ap_tactid;
+static gint hf_ap_tasqnr;
+static gint hf_ap_spare;
+static gint hf_ap_pduref;
+static gint hf_ap_pduid;
+static gint hf_ap_pdulg;
+static gint hf_ap_parlg;
+static gint hf_ap_datlg;
 
-static gint ett_ap = -1;
+static gint ett_ap;
 
 static heur_dissector_list_t ap_heur_subdissector_list;
 

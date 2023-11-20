@@ -30,75 +30,75 @@ static dissector_handle_t dsr_handle;
 static dissector_table_t ip_dissector_table;
 
 /* Initialize the protocol and registered fields */
-static int proto_dsr = -1;
+static int proto_dsr;
 /* DSR global fields */
-static int hf_dsr_nexthdr = -1;
-static int hf_dsr_flowstate = -1;
-static int hf_dsr_reserved = -1;
-static int hf_dsr_length = -1;
-static int hf_dsr_opttype = -1;
-static int hf_dsr_optlen = -1;
-static int hf_dsr_fs_hopcount = -1;
-static int hf_dsr_fs_id = -1;
+static int hf_dsr_nexthdr;
+static int hf_dsr_flowstate;
+static int hf_dsr_reserved;
+static int hf_dsr_length;
+static int hf_dsr_opttype;
+static int hf_dsr_optlen;
+static int hf_dsr_fs_hopcount;
+static int hf_dsr_fs_id;
 /* RREQ option fields */
-static int hf_dsr_opt_rreq_id = -1;
-static int hf_dsr_opt_rreq_targetaddress = -1;
-static int hf_dsr_opt_rreq_address = -1;
+static int hf_dsr_opt_rreq_id;
+static int hf_dsr_opt_rreq_targetaddress;
+static int hf_dsr_opt_rreq_address;
 /* RREP option fields */
-static int hf_dsr_opt_rrep_lasthopex = -1;
-static int hf_dsr_opt_rrep_reserved = -1;
-static int hf_dsr_opt_rrep_address = -1;
+static int hf_dsr_opt_rrep_lasthopex;
+static int hf_dsr_opt_rrep_reserved;
+static int hf_dsr_opt_rrep_address;
 /* RERR option fields */
-static int hf_dsr_opt_err_type = -1;
-static int hf_dsr_opt_err_reserved = -1;
-static int hf_dsr_opt_err_salvage = -1;
-static int hf_dsr_opt_err_src = -1;
-static int hf_dsr_opt_err_dest = -1;
-static int hf_dsr_opt_err_unreach_addr = -1;
-static int hf_dsr_opt_err_unsupportedoption = -1;
-static int hf_dsr_opt_err_unknownflow_dest = -1;
-static int hf_dsr_opt_err_unknownflow_id = -1;
-static int hf_dsr_opt_err_defaultflowunknown_dest = -1;
+static int hf_dsr_opt_err_type;
+static int hf_dsr_opt_err_reserved;
+static int hf_dsr_opt_err_salvage;
+static int hf_dsr_opt_err_src;
+static int hf_dsr_opt_err_dest;
+static int hf_dsr_opt_err_unreach_addr;
+static int hf_dsr_opt_err_unsupportedoption;
+static int hf_dsr_opt_err_unknownflow_dest;
+static int hf_dsr_opt_err_unknownflow_id;
+static int hf_dsr_opt_err_defaultflowunknown_dest;
 /* ACK REQuest option fields */
-static int hf_dsr_opt_ack_req_id = -1;
-static int hf_dsr_opt_ack_req_address = -1;
+static int hf_dsr_opt_ack_req_id;
+static int hf_dsr_opt_ack_req_address;
 /* ACK option fields */
-static int hf_dsr_opt_ack_id = -1;
-static int hf_dsr_opt_ack_src = -1;
-static int hf_dsr_opt_ack_dest = -1;
+static int hf_dsr_opt_ack_id;
+static int hf_dsr_opt_ack_src;
+static int hf_dsr_opt_ack_dest;
 /* SRCRT option fields */
-static int hf_dsr_opt_srcrt_firsthopext = -1;
-static int hf_dsr_opt_srcrt_lasthopext = -1;
-static int hf_dsr_opt_srcrt_reserved = -1;
-static int hf_dsr_opt_srcrt_salvage = -1;
-static int hf_dsr_opt_srcrt_segsleft = -1;
-static int hf_dsr_opt_srcrt_address = -1;
+static int hf_dsr_opt_srcrt_firsthopext;
+static int hf_dsr_opt_srcrt_lasthopext;
+static int hf_dsr_opt_srcrt_reserved;
+static int hf_dsr_opt_srcrt_salvage;
+static int hf_dsr_opt_srcrt_segsleft;
+static int hf_dsr_opt_srcrt_address;
 /* Flow State Extentions */
 /* Timout option fields */
-static int hf_dsr_fs_opt_timeout_timeout = -1;
+static int hf_dsr_fs_opt_timeout_timeout;
 /* Flow ID / destination option fields */
-static int hf_dsr_fs_opt_destflowid_id = -1;
-static int hf_dsr_fs_opt_destflowid_dest = -1;
+static int hf_dsr_fs_opt_destflowid_id;
+static int hf_dsr_fs_opt_destflowid_dest;
 
 /* Initialize the subtree pointers */
-static gint ett_dsr = -1;
+static gint ett_dsr;
 /* DSR options tree */
-static gint ett_dsr_options = -1;
-static gint ett_dsr_rreq_opt = -1;
-static gint ett_dsr_rrep_opt = -1;
-static gint ett_dsr_rerr_opt = -1;
-static gint ett_dsr_ackreq_opt = -1;
-static gint ett_dsr_ack_opt = -1;
-static gint ett_dsr_srcrt_opt = -1;
-static gint ett_dsr_padn_opt = -1;
-static gint ett_dsr_pad1_opt = -1;
-static gint ett_dsr_fs_timeout_opt = -1;
-static gint ett_dsr_fs_destflowid_opt = -1;
+static gint ett_dsr_options;
+static gint ett_dsr_rreq_opt;
+static gint ett_dsr_rrep_opt;
+static gint ett_dsr_rerr_opt;
+static gint ett_dsr_ackreq_opt;
+static gint ett_dsr_ack_opt;
+static gint ett_dsr_srcrt_opt;
+static gint ett_dsr_padn_opt;
+static gint ett_dsr_pad1_opt;
+static gint ett_dsr_fs_timeout_opt;
+static gint ett_dsr_fs_destflowid_opt;
 
 /* hoplist trees */
-static gint ett_dsr_rreq_hoplist = -1;
-static gint ett_dsr_rrep_hoplist = -1;
-static gint ett_dsr_srcrt_hoplist = -1;
+static gint ett_dsr_rreq_hoplist;
+static gint ett_dsr_rrep_hoplist;
+static gint ett_dsr_srcrt_hoplist;
 
 /* A sample #define of the minimum length (in bytes) of the protocol data.
  * If data is received with fewer than this many bytes it is rejected by

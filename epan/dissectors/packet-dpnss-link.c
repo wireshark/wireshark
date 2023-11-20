@@ -24,16 +24,16 @@ void proto_reg_handoff_dpnss_link(void);
 static dissector_handle_t dpnss_handle; /* DPNSS UI frame dissector */
 #define LINK_HEADER_SIZE 3
 
-static int proto_dpnss_link = -1;
+static int proto_dpnss_link;
 
-static int hf_dpnss_link_address_framegroup = -1;
-static int hf_dpnss_link_address_crbit = -1;
-static int hf_dpnss_link_address_extension = -1;
-static int hf_dpnss_link_address2_reserved = -1;
-static int hf_dpnss_link_address2_dlcId = -1;
-static int hf_dpnss_link_address2_dlcIdNr = -1;
-static int hf_dpnss_link_address2_extension = -1;
-static int hf_dpnss_link_control_frameType = -1;
+static int hf_dpnss_link_address_framegroup;
+static int hf_dpnss_link_address_crbit;
+static int hf_dpnss_link_address_extension;
+static int hf_dpnss_link_address2_reserved;
+static int hf_dpnss_link_address2_dlcId;
+static int hf_dpnss_link_address2_dlcIdNr;
+static int hf_dpnss_link_address2_extension;
+static int hf_dpnss_link_control_frameType;
 
 static const value_string dpnss_link_framegroup_vals[] = {
 	{ 0x11, "Information Frame" },
@@ -78,7 +78,7 @@ static const value_string dpnss_link_frameType_vals[] = {
 	{ 0, NULL }
 };
 
-static int ett_dpnss_link = -1;
+static int ett_dpnss_link;
 
 static dissector_handle_t dpnss_link_handle;
 

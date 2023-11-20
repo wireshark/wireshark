@@ -61,7 +61,7 @@ static dissector_handle_t dsmcc_ts_handle, dsmcc_tcp_handle, dsmcc_udp_handle;
  */
 
 
-static int proto_dsmcc = -1;
+static int proto_dsmcc;
 static gboolean dsmcc_sect_check_crc = FALSE;
 
 /* NOTE: Please add values numerically according to 13818-6 so it is easier to
@@ -69,191 +69,191 @@ static gboolean dsmcc_sect_check_crc = FALSE;
  */
 
 /* table 2-1 dsmccMessageHeader - start */
-static int hf_dsmcc_protocol_discriminator = -1;
-static int hf_dsmcc_type = -1;
-static int hf_dsmcc_message_id = -1;
-static int hf_dsmcc_transaction_id = -1;
-static int hf_dsmcc_header_reserved = -1;
-static int hf_dsmcc_adaptation_length = -1;
-static int hf_dsmcc_message_length = -1;
+static int hf_dsmcc_protocol_discriminator;
+static int hf_dsmcc_type;
+static int hf_dsmcc_message_id;
+static int hf_dsmcc_transaction_id;
+static int hf_dsmcc_header_reserved;
+static int hf_dsmcc_adaptation_length;
+static int hf_dsmcc_message_length;
 /* table 2-1 dsmccMessageHeader - end */
 
 /* table 2-3 transactionId - start */
-static int hf_dsmcc_un_sess_flag_transaction_id_originator = -1;
-static int hf_dsmcc_un_sess_flag_transaction_id_number = -1;
+static int hf_dsmcc_un_sess_flag_transaction_id_originator;
+static int hf_dsmcc_un_sess_flag_transaction_id_number;
 /* table 2-3 transactionId - end */
 
 /* table 2-4 dsmccAdaptationHeader - start */
-static int hf_dsmcc_adaptation_type = -1;
+static int hf_dsmcc_adaptation_type;
 /* table 2-4 dsmccAdaptationHeader - end */
 
 /* table 2-6 dsmccConditionalAccess - start */
-static int hf_dsmcc_adaptation_ca_reserved = -1;
-static int hf_dsmcc_adaptation_ca_system_id = -1;
-static int hf_dsmcc_adaptation_ca_length = -1;
+static int hf_dsmcc_adaptation_ca_reserved;
+static int hf_dsmcc_adaptation_ca_system_id;
+static int hf_dsmcc_adaptation_ca_length;
 /* table 2-6 dsmccConditionalAccess - end */
 
 /* table 2-7 dsmccUserId - start */
-static int hf_dsmcc_adaptation_user_id_reserved = -1;
+static int hf_dsmcc_adaptation_user_id_reserved;
 /* table 2-7 dsmccUserId - end */
 
 /* table 4-2, 4-3, 4-4 U-N messageDiscriminator - start */
-/*static int hf_dsmcc_un_sess_message_discriminator = -1;*/
-static int hf_dsmcc_un_sess_flag_message_discriminator = -1;
-static int hf_dsmcc_un_sess_flag_message_scenario = -1;
-static int hf_dsmcc_un_sess_flag_message_type = -1;
+/*static int hf_dsmcc_un_sess_message_discriminator;*/
+static int hf_dsmcc_un_sess_flag_message_discriminator;
+static int hf_dsmcc_un_sess_flag_message_scenario;
+static int hf_dsmcc_un_sess_flag_message_type;
 /* table 4-2, 4-3, 4-4 U-N messageDiscriminator - end */
 
 /* other tables in section 4.2 - start */
-static int hf_dsmcc_un_sess_response = -1;
-static int hf_dsmcc_un_sess_reason = -1;
-static int hf_dsmcc_un_sess_reserved = -1;
+static int hf_dsmcc_un_sess_response;
+static int hf_dsmcc_un_sess_reason;
+static int hf_dsmcc_un_sess_reserved;
 /* other tables in section 4.2 - end */
 
 /* table 4-6 U-N user data format - start */
-static int hf_dsmcc_un_sess_uu_data_len = -1;
-static int hf_dsmcc_un_sess_uu_data = -1;
-static int hf_dsmcc_un_sess_priv_data_len = -1;
-static int hf_dsmcc_un_sess_priv_data = -1;
+static int hf_dsmcc_un_sess_uu_data_len;
+static int hf_dsmcc_un_sess_uu_data;
+static int hf_dsmcc_un_sess_priv_data_len;
+static int hf_dsmcc_un_sess_priv_data;
 /* table 4-6 U-N user data format - end */
 
 /* table 4-7 U-N Resources - start */
-static int hf_dsmcc_un_sess_rsrc_desc_count = -1;
+static int hf_dsmcc_un_sess_rsrc_desc_count;
 /* table 4-7 U-N Resources - end */
 
 /* table 4-10 U-N Server Session Setup Indication - start */
-static int hf_dsmcc_un_sess_forward_count = -1;
+static int hf_dsmcc_un_sess_forward_count;
 /* table 4-10 U-N Server Session Setup Indication - end */
 
 /* 4-26 Server Delete Resource Request - start */
-static int hf_dsmcc_un_sess_resource_count = -1;
-static int hf_dsmcc_un_sess_resource_num = -1;
+static int hf_dsmcc_un_sess_resource_count;
+static int hf_dsmcc_un_sess_resource_num;
 /* 4-26 Server Delete Resource Request - end */
 
 /* table 4-30, 4-31, 4-32, 4-33, 4-34, 4-35, 4-36 - start */
-static int hf_dsmcc_un_sess_status_type = -1;
-static int hf_dsmcc_un_sess_status_count = -1;
-static int hf_dsmcc_un_sess_status_byte = -1;
+static int hf_dsmcc_un_sess_status_type;
+static int hf_dsmcc_un_sess_status_count;
+static int hf_dsmcc_un_sess_status_byte;
 /* table 4-30, 4-31, 4-32, 4-33, 4-34, 4-35, 4-36 - end */
 
 /* table 4-56 Client Session In Progress - start */
-static int hf_dsmcc_un_sess_session_count = -1;
+static int hf_dsmcc_un_sess_session_count;
 /* table 4-56 Client Session In Progress - end */
 
 /* table 4-58 Message Fields data types - start */
-static int hf_dsmcc_un_sess_session_id_device_id = -1;
-static int hf_dsmcc_un_sess_session_id_session_number = -1;
+static int hf_dsmcc_un_sess_session_id_device_id;
+static int hf_dsmcc_un_sess_session_id_session_number;
 /* table 4-58 Message Fields data types - end */
 
 /* table 4-63 U-N common descriptor header - start */
-static int hf_dsmcc_un_sess_rsrc_request_id = -1;
-static int hf_dsmcc_un_sess_rsrc_descriptor_type = -1;
-static int hf_dsmcc_un_sess_rsrc_number = -1;
-static int hf_dsmcc_un_sess_rsrc_association_tag = -1;
-static int hf_dsmcc_un_sess_rsrc_flags = -1;
-static int hf_dsmcc_un_sess_rsrc_status = -1;
-static int hf_dsmcc_un_sess_rsrc_desc_data_fields_length = -1;
-static int hf_dsmcc_un_sess_rsrc_data_field_count = -1;
-static int hf_dsmcc_un_sess_rsrc_type_owner_id = -1;
-static int hf_dsmcc_un_sess_rsrc_type_owner_value = -1;
+static int hf_dsmcc_un_sess_rsrc_request_id;
+static int hf_dsmcc_un_sess_rsrc_descriptor_type;
+static int hf_dsmcc_un_sess_rsrc_number;
+static int hf_dsmcc_un_sess_rsrc_association_tag;
+static int hf_dsmcc_un_sess_rsrc_flags;
+static int hf_dsmcc_un_sess_rsrc_status;
+static int hf_dsmcc_un_sess_rsrc_desc_data_fields_length;
+static int hf_dsmcc_un_sess_rsrc_data_field_count;
+static int hf_dsmcc_un_sess_rsrc_type_owner_id;
+static int hf_dsmcc_un_sess_rsrc_type_owner_value;
 /* table 4-63 U-N common descriptor header - end */
 
 /* table 4-64 U-N resource number assignor - start */
-static int hf_dsmcc_un_sess_rsrc_flag_num_assignor = -1;
-static int hf_dsmcc_un_sess_rsrc_flag_num_value = -1;
+static int hf_dsmcc_un_sess_rsrc_flag_num_assignor;
+static int hf_dsmcc_un_sess_rsrc_flag_num_value;
 /* table 4-64 U-N resource number assignor - end */
 
 /* table 4-65 U-N resource association tag assignor - start */
-static int hf_dsmcc_un_sess_rsrc_flag_association_tag_assignor = -1;
-static int hf_dsmcc_un_sess_rsrc_flag_association_tag_value = -1;
+static int hf_dsmcc_un_sess_rsrc_flag_association_tag_assignor;
+static int hf_dsmcc_un_sess_rsrc_flag_association_tag_value;
 /* table 4-65 U-N resource association tag assignor - end */
 
 /* table 4-66 U-N resource allocator - start */
-static int hf_dsmcc_un_sess_rsrc_flag_allocator = -1;
+static int hf_dsmcc_un_sess_rsrc_flag_allocator;
 /* table 4-66 U-N resource allocator - end */
 
 /* table 4-67 U-N resource attribute - start */
-static int hf_dsmcc_un_sess_rsrc_flag_attribute = -1;
+static int hf_dsmcc_un_sess_rsrc_flag_attribute;
 /* table 4-67 U-N resource attribute - end */
 
 /* table 4-68 U-N resource view - start */
-static int hf_dsmcc_un_sess_rsrc_flag_view = -1;
+static int hf_dsmcc_un_sess_rsrc_flag_view;
 /* table 4-68 U-N resource view - end */
 
 /* table 4-71 U-N dsmccResourceDescriptorValue() format - start */
-static int hf_dsmcc_un_sess_rsrc_value_type = -1;
-static int hf_dsmcc_un_sess_rsrc_value_count = -1;
-static int hf_dsmcc_un_sess_rsrc_value_data = -1;
-static int hf_dsmcc_un_sess_rsrc_most_desired = -1;
-static int hf_dsmcc_un_sess_rsrc_least_desired = -1;
+static int hf_dsmcc_un_sess_rsrc_value_type;
+static int hf_dsmcc_un_sess_rsrc_value_count;
+static int hf_dsmcc_un_sess_rsrc_value_data;
+static int hf_dsmcc_un_sess_rsrc_most_desired;
+static int hf_dsmcc_un_sess_rsrc_least_desired;
 /* table 4-71 U-N dsmccResourceDescriptorValue() format - end */
 
 /* table 4-74 U-N Continuous Feed Session resource descriptor - start */
-static int hf_dsmcc_un_sess_rsrc_cfs_num_count = -1;
-static int hf_dsmcc_un_sess_rsrc_cfs_num = -1;
+static int hf_dsmcc_un_sess_rsrc_cfs_num_count;
+static int hf_dsmcc_un_sess_rsrc_cfs_num;
 /* table 4-74 U-N Continuous Feed Session resource descriptor - end  */
 
 /* table 4-75 U-N ATM Connection resource descriptor - start */
-static int hf_dsmcc_un_sess_rsrc_atm_vpi = -1;
-static int hf_dsmcc_un_sess_rsrc_atm_vci = -1;
+static int hf_dsmcc_un_sess_rsrc_atm_vpi;
+static int hf_dsmcc_un_sess_rsrc_atm_vci;
 /* table 4-75 U-N ATM Connection resource descriptor - end  */
 
 /* table 4-76 MPEG Program - start */
-static int hf_dsmcc_un_sess_rsrc_mpeg_ca_pid = -1;
-static int hf_dsmcc_un_sess_rsrc_mpeg_elem_stream_count = -1;
+static int hf_dsmcc_un_sess_rsrc_mpeg_ca_pid;
+static int hf_dsmcc_un_sess_rsrc_mpeg_elem_stream_count;
 /* table 4-76 MPEG Program - end */
 
 /* table 4-77 Physical Channel - start */
-static int hf_dsmcc_un_sess_rsrc_phys_chan_direction = -1;
+static int hf_dsmcc_un_sess_rsrc_phys_chan_direction;
 /* table 4-77 Physical Channel - end */
 
 /* table 4-84 IP - start */
-static int hf_dsmcc_un_sess_rsrc_src_ip_addr = -1;
-static int hf_dsmcc_un_sess_rsrc_src_ip_port = -1;
-static int hf_dsmcc_un_sess_rsrc_dst_ip_addr = -1;
-static int hf_dsmcc_un_sess_rsrc_dst_ip_port = -1;
-static int hf_dsmcc_un_sess_rsrc_ip_protocol = -1;
+static int hf_dsmcc_un_sess_rsrc_src_ip_addr;
+static int hf_dsmcc_un_sess_rsrc_src_ip_port;
+static int hf_dsmcc_un_sess_rsrc_dst_ip_addr;
+static int hf_dsmcc_un_sess_rsrc_dst_ip_port;
+static int hf_dsmcc_un_sess_rsrc_ip_protocol;
 /* table 4-84 IP - end */
 
 /* table 4-86 PSTN Setup - start */
-static int hf_dsmcc_un_sess_rsrc_pstn_calling_id = -1;
-static int hf_dsmcc_un_sess_rsrc_pstn_called_id = -1;
+static int hf_dsmcc_un_sess_rsrc_pstn_calling_id;
+static int hf_dsmcc_un_sess_rsrc_pstn_called_id;
 /* table 4-86 PSTN Setup - end */
 
 /* Table 4-89 Q.922 Connection - start */
-static int hf_dsmcc_un_sess_rsrc_dlci_count = -1;
-static int hf_dsmcc_un_sess_rsrc_dlci = -1;
-static int hf_dsmcc_un_sess_rsrc_dl_association_tag = -1;
+static int hf_dsmcc_un_sess_rsrc_dlci_count;
+static int hf_dsmcc_un_sess_rsrc_dlci;
+static int hf_dsmcc_un_sess_rsrc_dl_association_tag;
 /* Table 4-89 Q.922 Connection - end */
 
 /* table 4-90 Shared Resource - start */
-static int hf_dsmcc_un_sess_rsrc_shared_resource_num = -1;
+static int hf_dsmcc_un_sess_rsrc_shared_resource_num;
 /* table 4-90 Shared Resource - end */
 
 /* table 4-91 Shared Request ID - start */
-static int hf_dsmcc_un_sess_rsrc_shared_resource_request_id = -1;
+static int hf_dsmcc_un_sess_rsrc_shared_resource_request_id;
 /* table 4-91 Shared Request ID - end */
 
 /* table 4-92 Headend List - start */
-static int hf_dsmcc_un_sess_rsrc_headend_count = -1;
-static int hf_dsmcc_un_sess_rsrc_headend_code = -1;
+static int hf_dsmcc_un_sess_rsrc_headend_count;
+static int hf_dsmcc_un_sess_rsrc_headend_code;
 /* table 4-92 Headend List - end */
 
 /* table 4-94 SDB Continuous Feed - start */
-static int hf_dsmcc_un_sess_rsrc_sdb_id = -1;
-static int hf_dsmcc_un_sess_rsrc_sdb_program_count = -1;
-static int hf_dsmcc_un_sess_rsrc_sdb_association_tag = -1;
-static int hf_dsmcc_un_sess_rsrc_sdb_broadcast_program_id = -1;
+static int hf_dsmcc_un_sess_rsrc_sdb_id;
+static int hf_dsmcc_un_sess_rsrc_sdb_program_count;
+static int hf_dsmcc_un_sess_rsrc_sdb_association_tag;
+static int hf_dsmcc_un_sess_rsrc_sdb_broadcast_program_id;
 /* table 4-94 SDB Continuous Feed - end */
 
 /* table 4-95 SDB Associations - start */
-static int hf_dsmcc_un_sess_rsrc_sdb_control_association_tag = -1;
-static int hf_dsmcc_un_sess_rsrc_sdb_program_association_tag = -1;
+static int hf_dsmcc_un_sess_rsrc_sdb_control_association_tag;
+static int hf_dsmcc_un_sess_rsrc_sdb_program_association_tag;
 /* table 4-95 SDB Associations - end */
 
 /* table 4-96 SDB Entitlement - start */
-static int hf_dsmcc_un_sess_rsrc_sdb_exclude_count = -1;
-static int hf_dsmcc_un_sess_rsrc_sdb_include_count = -1;
+static int hf_dsmcc_un_sess_rsrc_sdb_exclude_count;
+static int hf_dsmcc_un_sess_rsrc_sdb_include_count;
 /* table 4-96 SDB Entitlement - end */
 
 /* user defined 0xf001-0xf007 - start */
@@ -261,112 +261,112 @@ static int hf_dsmcc_un_sess_rsrc_sdb_include_count = -1;
 * Version 2.3, May 19 2003
 * These user defined resource descriptors have been implemented in
 * VOD BackOffice products by Time Warner, Arris and Ericsson. */
-static int hf_dsmcc_un_sess_rsrc_trans_system = -1;
-static int hf_dsmcc_un_sess_rsrc_inner_coding = -1;
-static int hf_dsmcc_un_sess_rsrc_split_bitstream = -1;
-static int hf_dsmcc_un_sess_rsrc_mod_format = -1;
-static int hf_dsmcc_un_sess_rsrc_symbol_rate = -1;
-static int hf_dsmcc_un_sess_rsrc_reserved = -1;
-static int hf_dsmcc_un_sess_rsrc_interleave_depth = -1;
-static int hf_dsmcc_un_sess_rsrc_modulation_mode = -1;
-static int hf_dsmcc_un_sess_rsrc_fec = -1;
-static int hf_dsmcc_un_sess_rsrc_headend_flag = -1;
-static int hf_dsmcc_un_sess_rsrc_headend_tsid = -1;
-static int hf_dsmcc_un_sess_rsrc_server_ca_copyprotect = -1;
-static int hf_dsmcc_un_sess_rsrc_server_ca_usercount = -1;
-static int hf_dsmcc_un_sess_rsrc_client_ca_info_length = -1;
-static int hf_dsmcc_un_sess_rsrc_client_ca_info_data = -1;
-static int hf_dsmcc_un_sess_rsrc_service_group = -1;
+static int hf_dsmcc_un_sess_rsrc_trans_system;
+static int hf_dsmcc_un_sess_rsrc_inner_coding;
+static int hf_dsmcc_un_sess_rsrc_split_bitstream;
+static int hf_dsmcc_un_sess_rsrc_mod_format;
+static int hf_dsmcc_un_sess_rsrc_symbol_rate;
+static int hf_dsmcc_un_sess_rsrc_reserved;
+static int hf_dsmcc_un_sess_rsrc_interleave_depth;
+static int hf_dsmcc_un_sess_rsrc_modulation_mode;
+static int hf_dsmcc_un_sess_rsrc_fec;
+static int hf_dsmcc_un_sess_rsrc_headend_flag;
+static int hf_dsmcc_un_sess_rsrc_headend_tsid;
+static int hf_dsmcc_un_sess_rsrc_server_ca_copyprotect;
+static int hf_dsmcc_un_sess_rsrc_server_ca_usercount;
+static int hf_dsmcc_un_sess_rsrc_client_ca_info_length;
+static int hf_dsmcc_un_sess_rsrc_client_ca_info_data;
+static int hf_dsmcc_un_sess_rsrc_service_group;
 /* user defined 0xf001-0xf007 - end */
 
 /* table 6-1 compatabilityDescriptor - start */
-static int hf_compat_desc_length = -1;
-static int hf_compat_desc_count = -1;
-static int hf_desc_type = -1;
-static int hf_desc_length = -1;
-static int hf_desc_spec_type = -1;
-static int hf_desc_spec_data = -1;
-static int hf_desc_model = -1;
-static int hf_desc_version = -1;
-static int hf_desc_sub_desc_count = -1;
-static int hf_desc_sub_desc_type = -1;
-static int hf_desc_sub_desc_len = -1;
+static int hf_compat_desc_length;
+static int hf_compat_desc_count;
+static int hf_desc_type;
+static int hf_desc_length;
+static int hf_desc_spec_type;
+static int hf_desc_spec_data;
+static int hf_desc_model;
+static int hf_desc_version;
+static int hf_desc_sub_desc_count;
+static int hf_desc_sub_desc_type;
+static int hf_desc_sub_desc_len;
 /* table 6-1 compatabilityDescriptor - end */
 
 /* table 7-3 dsmccDownloadDataHeader - start */
-static int hf_dsmcc_dd_download_id = -1;
-static int hf_dsmcc_dd_message_id = -1;
+static int hf_dsmcc_dd_download_id;
+static int hf_dsmcc_dd_message_id;
 /* table 7-3 dsmccDownloadDataHeader - end */
 
 /* table 7-6 dsmccDownloadInfoIndication/InfoResponse - start */
-static int hf_dsmcc_dii_download_id = -1;
-static int hf_dsmcc_dii_block_size = -1;
-static int hf_dsmcc_dii_window_size = -1;
-static int hf_dsmcc_dii_ack_period = -1;
-static int hf_dsmcc_dii_t_c_download_window = -1;
-static int hf_dsmcc_dii_t_c_download_scenario = -1;
-static int hf_dsmcc_dii_number_of_modules = -1;
-static int hf_dsmcc_dii_module_id = -1;
-static int hf_dsmcc_dii_module_size = -1;
-static int hf_dsmcc_dii_module_version = -1;
-static int hf_dsmcc_dii_module_info_length = -1;
-static int hf_dsmcc_dii_private_data_length = -1;
+static int hf_dsmcc_dii_download_id;
+static int hf_dsmcc_dii_block_size;
+static int hf_dsmcc_dii_window_size;
+static int hf_dsmcc_dii_ack_period;
+static int hf_dsmcc_dii_t_c_download_window;
+static int hf_dsmcc_dii_t_c_download_scenario;
+static int hf_dsmcc_dii_number_of_modules;
+static int hf_dsmcc_dii_module_id;
+static int hf_dsmcc_dii_module_size;
+static int hf_dsmcc_dii_module_version;
+static int hf_dsmcc_dii_module_info_length;
+static int hf_dsmcc_dii_private_data_length;
 /* table 7-6 dsmccDownloadInfoIndication/InfoResponse - end */
 
 /* table 7-7 dsmccDownloadDataBlock - start */
-static int hf_dsmcc_ddb_module_id = -1;
-static int hf_dsmcc_ddb_version = -1;
-static int hf_dsmcc_ddb_reserved = -1;
-static int hf_dsmcc_ddb_block_number = -1;
+static int hf_dsmcc_ddb_module_id;
+static int hf_dsmcc_ddb_version;
+static int hf_dsmcc_ddb_reserved;
+static int hf_dsmcc_ddb_block_number;
 /* table 7-7 dsmccDownloadDataBlock - end */
 
 /* table 9-2 dsmccSection - start */
-static int hf_dsmcc_table_id = -1;
-static int hf_dsmcc_section_syntax_indicator = -1;
-static int hf_dsmcc_private_indicator = -1;
-static int hf_dsmcc_reserved = -1;
-static int hf_dsmcc_section_length = -1;
-static int hf_dsmcc_table_id_extension = -1;
-static int hf_dsmcc_reserved2 = -1;
-static int hf_dsmcc_version_number = -1;
-static int hf_dsmcc_current_next_indicator = -1;
-static int hf_dsmcc_section_number = -1;
-static int hf_dsmcc_last_section_number = -1;
-static int hf_dsmcc_crc = -1;
-static int hf_dsmcc_checksum = -1;
+static int hf_dsmcc_table_id;
+static int hf_dsmcc_section_syntax_indicator;
+static int hf_dsmcc_private_indicator;
+static int hf_dsmcc_reserved;
+static int hf_dsmcc_section_length;
+static int hf_dsmcc_table_id_extension;
+static int hf_dsmcc_reserved2;
+static int hf_dsmcc_version_number;
+static int hf_dsmcc_current_next_indicator;
+static int hf_dsmcc_section_number;
+static int hf_dsmcc_last_section_number;
+static int hf_dsmcc_crc;
+static int hf_dsmcc_checksum;
 /* table 9-2 dsmccSection - end */
 
 /* table J.3 E-164 NSAP - start */
-static int hf_dsmcc_un_sess_nsap_afi = -1;
-static int hf_dsmcc_un_sess_nsap_idi = -1;
-static int hf_dsmcc_un_sess_nsap_ho_dsp = -1;
-static int hf_dsmcc_un_sess_nsap_esi = -1;
-static int hf_dsmcc_un_sess_nsap_sel = -1;
+static int hf_dsmcc_un_sess_nsap_afi;
+static int hf_dsmcc_un_sess_nsap_idi;
+static int hf_dsmcc_un_sess_nsap_ho_dsp;
+static int hf_dsmcc_un_sess_nsap_esi;
+static int hf_dsmcc_un_sess_nsap_sel;
 /* table J.3 E-164 NSAP - end */
 
 /* TODO: this should really live in the ETV dissector, but I'm not sure how
  * to make the functionality work exactly right yet.  Will work on a patch
  * for this next.
  */
-static int hf_etv_module_abs_path = -1;
-static int hf_etv_dii_authority = -1;
+static int hf_etv_module_abs_path;
+static int hf_etv_dii_authority;
 
-static gint ett_dsmcc = -1;
-static gint ett_dsmcc_payload = -1;
-static gint ett_dsmcc_header = -1;
-static gint ett_dsmcc_adaptation_header = -1;
-static gint ett_dsmcc_message_id = -1;
-static gint ett_dsmcc_transaction_id = -1;
-static gint ett_dsmcc_heading = -1;
-static gint ett_dsmcc_rsrc_number = -1;
-static gint ett_dsmcc_rsrc_association_tag = -1;
-static gint ett_dsmcc_rsrc_flags = -1;
-static gint ett_dsmcc_compat = -1;
-static gint ett_dsmcc_compat_sub_desc = -1;
-static gint ett_dsmcc_dii_module = -1;
+static gint ett_dsmcc;
+static gint ett_dsmcc_payload;
+static gint ett_dsmcc_header;
+static gint ett_dsmcc_adaptation_header;
+static gint ett_dsmcc_message_id;
+static gint ett_dsmcc_transaction_id;
+static gint ett_dsmcc_heading;
+static gint ett_dsmcc_rsrc_number;
+static gint ett_dsmcc_rsrc_association_tag;
+static gint ett_dsmcc_rsrc_flags;
+static gint ett_dsmcc_compat;
+static gint ett_dsmcc_compat_sub_desc;
+static gint ett_dsmcc_dii_module;
 
-static expert_field ei_dsmcc_invalid_value = EI_INIT;
-static expert_field ei_dsmcc_crc_invalid = EI_INIT;
+static expert_field ei_dsmcc_invalid_value;
+static expert_field ei_dsmcc_crc_invalid;
 
 #define DSMCC_TCP_PORT          13819
 #define DSMCC_UDP_PORT          13819

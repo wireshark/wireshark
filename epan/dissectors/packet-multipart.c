@@ -62,23 +62,23 @@ void proto_reg_handoff_multipart(void);
 static dissector_table_t multipart_media_subdissector_table;
 
 /* Initialize the protocol and registered fields */
-static int proto_multipart = -1;
+static int proto_multipart;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_multipart_trailer = -1;
-static int hf_multipart_boundary = -1;
-static int hf_multipart_first_boundary = -1;
-static int hf_multipart_last_boundary = -1;
-static int hf_multipart_preamble = -1;
+static int hf_multipart_trailer;
+static int hf_multipart_boundary;
+static int hf_multipart_first_boundary;
+static int hf_multipart_last_boundary;
+static int hf_multipart_preamble;
 
 /* Initialize the subtree pointers */
-static gint ett_multipart = -1;
-static gint ett_multipart_main = -1;
-static gint ett_multipart_body = -1;
+static gint ett_multipart;
+static gint ett_multipart_main;
+static gint ett_multipart_body;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static expert_field ei_multipart_no_required_parameter = EI_INIT;
-static expert_field ei_multipart_decryption_not_possible = EI_INIT;
+static expert_field ei_multipart_no_required_parameter;
+static expert_field ei_multipart_decryption_not_possible;
 
 /* Not sure that compact_name exists for multipart, but choose to keep
  * the structure from SIP dissector, all the content- is also from SIP */
@@ -113,9 +113,9 @@ static const multipart_header_t multipart_headers[] = {
 #define POS_ORIGINALCONTENT             9
 
 /* Initialize the header fields */
-static gint hf_multipart_type = -1;
-static gint hf_multipart_part = -1;
-static gint hf_multipart_sec_token_len = -1;
+static gint hf_multipart_type;
+static gint hf_multipart_part;
+static gint hf_multipart_sec_token_len;
 static gint hf_header_array[array_length(multipart_headers)];
 
 /* Define media_type/Content type table */

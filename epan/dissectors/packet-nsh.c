@@ -48,26 +48,26 @@ static const value_string nsh_next_protocols[] = {
 };
 
 
-static int proto_nsh = -1;
-static int hf_nsh_version = -1;
-static int hf_nsh_oam = -1;
-static int hf_nsh_critical_metadata = -1;
-static int hf_nsh_ttl = -1;
-static int hf_nsh_length = -1;
-static int hf_nsh_md_type = -1;
-static int hf_nsh_next_proto = -1;
-static int hf_nsh_service_pathID = -1;
-static int hf_nsh_service_index = -1;
-static int hf_nsh_context_header = -1;
-static int hf_nsh_metadata_class = -1;
-static int hf_nsh_metadata_type = -1;
-static int hf_nsh_metadata_unassignedbit = -1;
-static int hf_nsh_metadata_length = -1;
-static int hf_nsh_metadata = -1;
+static int proto_nsh;
+static int hf_nsh_version;
+static int hf_nsh_oam;
+static int hf_nsh_critical_metadata;
+static int hf_nsh_ttl;
+static int hf_nsh_length;
+static int hf_nsh_md_type;
+static int hf_nsh_next_proto;
+static int hf_nsh_service_pathID;
+static int hf_nsh_service_index;
+static int hf_nsh_context_header;
+static int hf_nsh_metadata_class;
+static int hf_nsh_metadata_type;
+static int hf_nsh_metadata_unassignedbit;
+static int hf_nsh_metadata_length;
+static int hf_nsh_metadata;
 
-static expert_field ei_nsh_length_invalid = EI_INIT;
+static expert_field ei_nsh_length_invalid;
 
-static gint ett_nsh = -1;
+static gint ett_nsh;
 
 static dissector_table_t subdissector_table;
 

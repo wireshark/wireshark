@@ -72,39 +72,39 @@ void proto_reg_handoff_geneve(void);
 
 static dissector_handle_t geneve_handle;
 
-static int proto_geneve = -1;
+static int proto_geneve;
 
-static int hf_geneve_version = -1;
-static int hf_geneve_flags = -1;
-static int hf_geneve_flag_oam = -1;
-static int hf_geneve_flag_critical = -1;
-static int hf_geneve_flag_reserved = -1;
-static int hf_geneve_proto_type = -1;
-static int hf_geneve_vni = -1;
-static int hf_geneve_reserved = -1;
-static int hf_geneve_options = -1;
-static int hf_geneve_option_class = -1;
-static int hf_geneve_option_type = -1;
-static int hf_geneve_option_type_critical = -1;
-static int hf_geneve_option_flags = -1;
-static int hf_geneve_option_flags_reserved = -1;
-static int hf_geneve_option_length = -1;
-static int hf_geneve_option = -1;
-static int hf_geneve_opt_gcp_vnid = -1;
-static int hf_geneve_opt_gcp_reserved = -1;
-static int hf_geneve_opt_gcp_direction = -1;
-static int hf_geneve_opt_gcp_endpoint = -1;
-static int hf_geneve_opt_gcp_profile = -1;
-static int hf_geneve_opt_unknown_data = -1;
+static int hf_geneve_version;
+static int hf_geneve_flags;
+static int hf_geneve_flag_oam;
+static int hf_geneve_flag_critical;
+static int hf_geneve_flag_reserved;
+static int hf_geneve_proto_type;
+static int hf_geneve_vni;
+static int hf_geneve_reserved;
+static int hf_geneve_options;
+static int hf_geneve_option_class;
+static int hf_geneve_option_type;
+static int hf_geneve_option_type_critical;
+static int hf_geneve_option_flags;
+static int hf_geneve_option_flags_reserved;
+static int hf_geneve_option_length;
+static int hf_geneve_option;
+static int hf_geneve_opt_gcp_vnid;
+static int hf_geneve_opt_gcp_reserved;
+static int hf_geneve_opt_gcp_direction;
+static int hf_geneve_opt_gcp_endpoint;
+static int hf_geneve_opt_gcp_profile;
+static int hf_geneve_opt_unknown_data;
 
-static int ett_geneve = -1;
-static int ett_geneve_flags = -1;
-static int ett_geneve_opt_flags = -1;
-static int ett_geneve_options = -1;
-static int ett_geneve_opt_data = -1;
+static int ett_geneve;
+static int ett_geneve_flags;
+static int ett_geneve_opt_flags;
+static int ett_geneve_options;
+static int ett_geneve_opt_data;
 
-static expert_field ei_geneve_ver_unknown = EI_INIT;
-static expert_field ei_geneve_opt_len_invalid = EI_INIT;
+static expert_field ei_geneve_ver_unknown;
+static expert_field ei_geneve_opt_len_invalid;
 
 static dissector_table_t ethertype_dissector_table;
 

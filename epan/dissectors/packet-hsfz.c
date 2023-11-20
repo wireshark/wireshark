@@ -35,19 +35,19 @@ dissector_handle_t uds_handle;
 void proto_register_hsfz(void);
 void proto_reg_handoff_hsfz(void);
 
-static int proto_hsfz = -1;
+static int proto_hsfz;
 
 /*** header fields ***/
-static int hf_hsfz_length = -1;
-static int hf_hsfz_ctrlword = -1;
-static int hf_hsfz_source_address = -1;
-static int hf_hsfz_target_address = -1;
-static int hf_hsfz_address = -1;
-static int hf_hsfz_ident_string = -1;
-static int hf_hsfz_data = -1;
+static int hf_hsfz_length;
+static int hf_hsfz_ctrlword;
+static int hf_hsfz_source_address;
+static int hf_hsfz_target_address;
+static int hf_hsfz_address;
+static int hf_hsfz_ident_string;
+static int hf_hsfz_data;
 
 /*** protocol tree items ***/
-static gint ett_hsfz = -1;
+static gint ett_hsfz;
 
 /* Control Words */
 #define	HSFZ_CTRLWORD_DIAGNOSTIC_REQ_RES        0x0001

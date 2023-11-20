@@ -71,116 +71,116 @@
 void proto_register_ber(void);
 void proto_reg_handoff_ber(void);
 
-static gint proto_ber = -1;
-static gint hf_ber_id_class = -1;
-static gint hf_ber_id_pc = -1;
-static gint hf_ber_id_uni_tag = -1;
-static gint hf_ber_id_uni_tag_ext = -1;
-static gint hf_ber_id_tag = -1;
-static gint hf_ber_id_tag_ext = -1;
-static gint hf_ber_length = -1;
-static gint hf_ber_length_octets = -1;
-static gint hf_ber_bitstring_padding = -1;
-static gint hf_ber_bitstring_empty = -1;
-static gint hf_ber_unknown_OID = -1;
-static gint hf_ber_unknown_relative_OID = -1;
-static gint hf_ber_unknown_BOOLEAN = -1;
-static gint hf_ber_unknown_OCTETSTRING = -1;
-static gint hf_ber_unknown_BER_OCTETSTRING = -1;
-static gint hf_ber_unknown_BER_primitive = -1;
-static gint hf_ber_unknown_GraphicString = -1;
-static gint hf_ber_unknown_NumericString = -1;
-static gint hf_ber_unknown_PrintableString = -1;
-static gint hf_ber_unknown_TeletexString = -1;
-static gint hf_ber_unknown_VisibleString = -1;
-static gint hf_ber_unknown_GeneralString = -1;
-static gint hf_ber_unknown_UniversalString = -1;
-static gint hf_ber_unknown_BMPString = -1;
-static gint hf_ber_unknown_IA5String = -1;
-static gint hf_ber_unknown_UTCTime = -1;
-static gint hf_ber_unknown_UTF8String = -1;
-static gint hf_ber_unknown_GeneralizedTime = -1;
-static gint hf_ber_unknown_INTEGER = -1;
-static gint hf_ber_unknown_REAL = -1;
-static gint hf_ber_unknown_BITSTRING = -1;
-static gint hf_ber_unknown_ENUMERATED = -1;
-static gint hf_ber_direct_reference = -1;         /* OBJECT_IDENTIFIER */
-static gint hf_ber_indirect_reference = -1;       /* INTEGER */
-static gint hf_ber_data_value_descriptor = -1;    /* ObjectDescriptor */
-static gint hf_ber_encoding = -1;                 /* T_encoding */
-static gint hf_ber_single_ASN1_type = -1;         /* T_single_ASN1_type */
-static gint hf_ber_octet_aligned = -1;            /* OCTET_STRING */
-static gint hf_ber_arbitrary = -1;                /* BIT_STRING */
-static gint hf_ber_extra_data = -1;
-static gint hf_ber_encoding_boiler_plate = -1;
+static gint proto_ber;
+static gint hf_ber_id_class;
+static gint hf_ber_id_pc;
+static gint hf_ber_id_uni_tag;
+static gint hf_ber_id_uni_tag_ext;
+static gint hf_ber_id_tag;
+static gint hf_ber_id_tag_ext;
+static gint hf_ber_length;
+static gint hf_ber_length_octets;
+static gint hf_ber_bitstring_padding;
+static gint hf_ber_bitstring_empty;
+static gint hf_ber_unknown_OID;
+static gint hf_ber_unknown_relative_OID;
+static gint hf_ber_unknown_BOOLEAN;
+static gint hf_ber_unknown_OCTETSTRING;
+static gint hf_ber_unknown_BER_OCTETSTRING;
+static gint hf_ber_unknown_BER_primitive;
+static gint hf_ber_unknown_GraphicString;
+static gint hf_ber_unknown_NumericString;
+static gint hf_ber_unknown_PrintableString;
+static gint hf_ber_unknown_TeletexString;
+static gint hf_ber_unknown_VisibleString;
+static gint hf_ber_unknown_GeneralString;
+static gint hf_ber_unknown_UniversalString;
+static gint hf_ber_unknown_BMPString;
+static gint hf_ber_unknown_IA5String;
+static gint hf_ber_unknown_UTCTime;
+static gint hf_ber_unknown_UTF8String;
+static gint hf_ber_unknown_GeneralizedTime;
+static gint hf_ber_unknown_INTEGER;
+static gint hf_ber_unknown_REAL;
+static gint hf_ber_unknown_BITSTRING;
+static gint hf_ber_unknown_ENUMERATED;
+static gint hf_ber_direct_reference;         /* OBJECT_IDENTIFIER */
+static gint hf_ber_indirect_reference;       /* INTEGER */
+static gint hf_ber_data_value_descriptor;    /* ObjectDescriptor */
+static gint hf_ber_encoding;                 /* T_encoding */
+static gint hf_ber_single_ASN1_type;         /* T_single_ASN1_type */
+static gint hf_ber_octet_aligned;            /* OCTET_STRING */
+static gint hf_ber_arbitrary;                /* BIT_STRING */
+static gint hf_ber_extra_data;
+static gint hf_ber_encoding_boiler_plate;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_ber_seq_of_eoc = -1;
-static int hf_ber_64bit_uint_as_bytes = -1;
-static int hf_ber_choice_eoc = -1;
-static int hf_ber_seq_field_eoc = -1;
-static int hf_ber_seq_eoc = -1;
-static int hf_ber_set_field_eoc = -1;
-static int hf_ber_set_eoc = -1;
-static int hf_ber_null_tag = -1;
-static int hf_ber_unknown_octetstring = -1;
-static int hf_ber_unknown_data = -1;
+static int hf_ber_seq_of_eoc;
+static int hf_ber_64bit_uint_as_bytes;
+static int hf_ber_choice_eoc;
+static int hf_ber_seq_field_eoc;
+static int hf_ber_seq_eoc;
+static int hf_ber_set_field_eoc;
+static int hf_ber_set_eoc;
+static int hf_ber_null_tag;
+static int hf_ber_unknown_octetstring;
+static int hf_ber_unknown_data;
 
-static int hf_ber_fragments = -1;
-static int hf_ber_fragment = -1;
-static int hf_ber_fragment_overlap = -1;
-static int hf_ber_fragment_overlap_conflicts = -1;
-static int hf_ber_fragment_multiple_tails = -1;
-static int hf_ber_fragment_too_long_fragment = -1;
-static int hf_ber_fragment_error = -1;
-static int hf_ber_fragment_count = -1;
-static int hf_ber_reassembled_in = -1;
-static int hf_ber_reassembled_length = -1;
+static int hf_ber_fragments;
+static int hf_ber_fragment;
+static int hf_ber_fragment_overlap;
+static int hf_ber_fragment_overlap_conflicts;
+static int hf_ber_fragment_multiple_tails;
+static int hf_ber_fragment_too_long_fragment;
+static int hf_ber_fragment_error;
+static int hf_ber_fragment_count;
+static int hf_ber_reassembled_in;
+static int hf_ber_reassembled_length;
 
-static gint ett_ber_octet_string = -1;
-static gint ett_ber_reassembled_octet_string = -1;
-static gint ett_ber_primitive = -1;
-static gint ett_ber_unknown = -1;
-static gint ett_ber_SEQUENCE = -1;
-static gint ett_ber_EXTERNAL = -1;
-static gint ett_ber_T_encoding = -1;
-static gint ett_ber_fragment = -1;
-static gint ett_ber_fragments = -1;
+static gint ett_ber_octet_string;
+static gint ett_ber_reassembled_octet_string;
+static gint ett_ber_primitive;
+static gint ett_ber_unknown;
+static gint ett_ber_SEQUENCE;
+static gint ett_ber_EXTERNAL;
+static gint ett_ber_T_encoding;
+static gint ett_ber_fragment;
+static gint ett_ber_fragments;
 
-static expert_field ei_ber_size_constraint_string = EI_INIT;
-static expert_field ei_ber_size_constraint_value = EI_INIT;
-static expert_field ei_ber_size_constraint_items = EI_INIT;
-static expert_field ei_ber_sequence_field_wrong = EI_INIT;
-static expert_field ei_ber_expected_octet_string = EI_INIT;
-static expert_field ei_ber_expected_null = EI_INIT;
-static expert_field ei_ber_expected_null_zero_length = EI_INIT;
-static expert_field ei_ber_expected_sequence = EI_INIT;
-static expert_field ei_ber_expected_set = EI_INIT;
-static expert_field ei_ber_expected_string = EI_INIT;
-static expert_field ei_ber_expected_object_identifier = EI_INIT;
-static expert_field ei_ber_expected_generalized_time = EI_INIT;
-static expert_field ei_ber_expected_utc_time = EI_INIT;
-static expert_field ei_ber_expected_bitstring = EI_INIT;
-static expert_field ei_ber_error_length = EI_INIT;
-static expert_field ei_ber_wrong_tag_in_tagged_type = EI_INIT;
-static expert_field ei_ber_universal_tag_unknown = EI_INIT;
-static expert_field ei_ber_no_oid = EI_INIT;
-static expert_field ei_ber_syntax_not_implemented = EI_INIT;
-static expert_field ei_ber_oid_not_implemented = EI_INIT;
-static expert_field ei_ber_value_too_many_bytes = EI_INIT;
-static expert_field ei_ber_unknown_field_sequence = EI_INIT;
-static expert_field ei_ber_unknown_field_set = EI_INIT;
-static expert_field ei_ber_missing_field_set = EI_INIT;
-static expert_field ei_ber_empty_choice = EI_INIT;
-static expert_field ei_ber_choice_not_found = EI_INIT;
-static expert_field ei_ber_bits_unknown = EI_INIT;
-static expert_field ei_ber_bits_set_padded = EI_INIT;
-static expert_field ei_ber_illegal_padding = EI_INIT;
-static expert_field ei_ber_invalid_format_generalized_time = EI_INIT;
-static expert_field ei_ber_invalid_format_utctime = EI_INIT;
-static expert_field ei_hf_field_not_integer_type = EI_INIT;
-static expert_field ei_ber_constr_bitstr = EI_INIT;
-static expert_field ei_ber_real_not_primitive = EI_INIT;
+static expert_field ei_ber_size_constraint_string;
+static expert_field ei_ber_size_constraint_value;
+static expert_field ei_ber_size_constraint_items;
+static expert_field ei_ber_sequence_field_wrong;
+static expert_field ei_ber_expected_octet_string;
+static expert_field ei_ber_expected_null;
+static expert_field ei_ber_expected_null_zero_length;
+static expert_field ei_ber_expected_sequence;
+static expert_field ei_ber_expected_set;
+static expert_field ei_ber_expected_string;
+static expert_field ei_ber_expected_object_identifier;
+static expert_field ei_ber_expected_generalized_time;
+static expert_field ei_ber_expected_utc_time;
+static expert_field ei_ber_expected_bitstring;
+static expert_field ei_ber_error_length;
+static expert_field ei_ber_wrong_tag_in_tagged_type;
+static expert_field ei_ber_universal_tag_unknown;
+static expert_field ei_ber_no_oid;
+static expert_field ei_ber_syntax_not_implemented;
+static expert_field ei_ber_oid_not_implemented;
+static expert_field ei_ber_value_too_many_bytes;
+static expert_field ei_ber_unknown_field_sequence;
+static expert_field ei_ber_unknown_field_set;
+static expert_field ei_ber_missing_field_set;
+static expert_field ei_ber_empty_choice;
+static expert_field ei_ber_choice_not_found;
+static expert_field ei_ber_bits_unknown;
+static expert_field ei_ber_bits_set_padded;
+static expert_field ei_ber_illegal_padding;
+static expert_field ei_ber_invalid_format_generalized_time;
+static expert_field ei_ber_invalid_format_utctime;
+static expert_field ei_hf_field_not_integer_type;
+static expert_field ei_ber_constr_bitstr;
+static expert_field ei_ber_real_not_primitive;
 
 static dissector_handle_t ber_handle;
 static dissector_handle_t ber_file_handle;

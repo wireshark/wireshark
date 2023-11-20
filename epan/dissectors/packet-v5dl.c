@@ -26,38 +26,38 @@
 
 void proto_register_v5dl(void);
 
-static int proto_v5dl = -1;
-static int hf_v5dl_direction = -1;
-/* static int hf_v5dl_address = -1; */
-static int hf_v5dl_ef = -1;
-static int hf_v5dl_eah = -1;
-static int hf_v5dl_cr = -1;
-static int hf_v5dl_ea1 = -1;
-static int hf_v5dl_eal = -1;
-static int hf_v5dl_ea2 = -1;
-static int hf_v5dl_control = -1;
-static int hf_v5dl_n_r = -1;
-static int hf_v5dl_n_s = -1;
-static int hf_v5dl_p = -1;
-static int hf_v5dl_p_ext = -1;
-static int hf_v5dl_f = -1;
-static int hf_v5dl_f_ext = -1;
-static int hf_v5dl_s_ftype = -1;
-static int hf_v5dl_u_modifier_cmd = -1;
-static int hf_v5dl_u_modifier_resp = -1;
-static int hf_v5dl_ftype_i = -1;
-static int hf_v5dl_ftype_s_u = -1;
-static int hf_v5dl_ftype_s_u_ext = -1;
+static int proto_v5dl;
+static int hf_v5dl_direction;
+/* static int hf_v5dl_address; */
+static int hf_v5dl_ef;
+static int hf_v5dl_eah;
+static int hf_v5dl_cr;
+static int hf_v5dl_ea1;
+static int hf_v5dl_eal;
+static int hf_v5dl_ea2;
+static int hf_v5dl_control;
+static int hf_v5dl_n_r;
+static int hf_v5dl_n_s;
+static int hf_v5dl_p;
+static int hf_v5dl_p_ext;
+static int hf_v5dl_f;
+static int hf_v5dl_f_ext;
+static int hf_v5dl_s_ftype;
+static int hf_v5dl_u_modifier_cmd;
+static int hf_v5dl_u_modifier_resp;
+static int hf_v5dl_ftype_i;
+static int hf_v5dl_ftype_s_u;
+static int hf_v5dl_ftype_s_u_ext;
 #if 0
-static int hf_v5dl_checksum = -1;
-static int hf_v5dl_checksum_status = -1;
+static int hf_v5dl_checksum;
+static int hf_v5dl_checksum_status;
 #endif
-static gint ett_v5dl = -1;
-static gint ett_v5dl_address = -1;
-static gint ett_v5dl_control = -1;
-/* static gint ett_v5dl_checksum = -1; */
+static gint ett_v5dl;
+static gint ett_v5dl_address;
+static gint ett_v5dl_control;
+/* static gint ett_v5dl_checksum; */
 
-static expert_field ei_v5dl_checksum = EI_INIT;
+static expert_field ei_v5dl_checksum;
 
 static dissector_handle_t v52_handle;
 

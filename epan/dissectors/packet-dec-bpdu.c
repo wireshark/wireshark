@@ -46,27 +46,27 @@ void proto_reg_handoff_dec_bpdu(void);
 
 static dissector_handle_t dec_bpdu_handle;
 
-static int proto_dec_bpdu = -1;
-static int hf_dec_bpdu_proto_id = -1;
-static int hf_dec_bpdu_type = -1;
-static int hf_dec_bpdu_version_id = -1;
-static int hf_dec_bpdu_flags = -1;
-static int hf_dec_bpdu_flags_short_timers = -1;
-static int hf_dec_bpdu_flags_tcack = -1;
-static int hf_dec_bpdu_flags_tc = -1;
-static int hf_dec_bpdu_root_pri = -1;
-static int hf_dec_bpdu_root_mac = -1;
-static int hf_dec_bpdu_root_cost = -1;
-static int hf_dec_bpdu_bridge_pri = -1;
-static int hf_dec_bpdu_bridge_mac = -1;
-static int hf_dec_bpdu_port_id = -1;
-static int hf_dec_bpdu_msg_age = -1;
-static int hf_dec_bpdu_hello_time = -1;
-static int hf_dec_bpdu_max_age = -1;
-static int hf_dec_bpdu_forward_delay = -1;
+static int proto_dec_bpdu;
+static int hf_dec_bpdu_proto_id;
+static int hf_dec_bpdu_type;
+static int hf_dec_bpdu_version_id;
+static int hf_dec_bpdu_flags;
+static int hf_dec_bpdu_flags_short_timers;
+static int hf_dec_bpdu_flags_tcack;
+static int hf_dec_bpdu_flags_tc;
+static int hf_dec_bpdu_root_pri;
+static int hf_dec_bpdu_root_mac;
+static int hf_dec_bpdu_root_cost;
+static int hf_dec_bpdu_bridge_pri;
+static int hf_dec_bpdu_bridge_mac;
+static int hf_dec_bpdu_port_id;
+static int hf_dec_bpdu_msg_age;
+static int hf_dec_bpdu_hello_time;
+static int hf_dec_bpdu_max_age;
+static int hf_dec_bpdu_forward_delay;
 
-static gint ett_dec_bpdu = -1;
-static gint ett_dec_bpdu_flags = -1;
+static gint ett_dec_bpdu;
+static gint ett_dec_bpdu_flags;
 
 static const value_string protocol_id_vals[] = {
     { 0xe1, "DEC Spanning Tree Protocol" },

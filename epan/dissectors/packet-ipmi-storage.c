@@ -17,152 +17,152 @@
 
 void proto_register_ipmi_storage(void);
 
-static gint ett_ipmi_stor_10_flags = -1;
-static gint ett_ipmi_stor_20_ops = -1;
-static gint ett_ipmi_stor_25_byte6 = -1;
-static gint ett_ipmi_stor_27_status = -1;
-static gint ett_ipmi_stor_2c_rq_byte1 = -1;
-static gint ett_ipmi_stor_2c_rs_byte1 = -1;
-static gint ett_ipmi_stor_40_ops = -1;
-static gint ett_ipmi_stor_45_byte6 = -1;
-static gint ett_ipmi_stor_47_status = -1;
-static gint ett_ipmi_stor_5a_byte1 = -1;
-static gint ett_ipmi_stor_5b_byte1 = -1;
+static gint ett_ipmi_stor_10_flags;
+static gint ett_ipmi_stor_20_ops;
+static gint ett_ipmi_stor_25_byte6;
+static gint ett_ipmi_stor_27_status;
+static gint ett_ipmi_stor_2c_rq_byte1;
+static gint ett_ipmi_stor_2c_rs_byte1;
+static gint ett_ipmi_stor_40_ops;
+static gint ett_ipmi_stor_45_byte6;
+static gint ett_ipmi_stor_47_status;
+static gint ett_ipmi_stor_5a_byte1;
+static gint ett_ipmi_stor_5b_byte1;
 
-static gint hf_ipmi_stor_10_fruid = -1;
-static gint hf_ipmi_stor_10_size = -1;
-static gint hf_ipmi_stor_10_access = -1;
+static gint hf_ipmi_stor_10_fruid;
+static gint hf_ipmi_stor_10_size;
+static gint hf_ipmi_stor_10_access;
 
-static gint hf_ipmi_stor_11_fruid = -1;
-static gint hf_ipmi_stor_11_offset = -1;
-static gint hf_ipmi_stor_11_count = -1;
-static gint hf_ipmi_stor_11_ret_count = -1;
-static gint hf_ipmi_stor_11_data = -1;
+static gint hf_ipmi_stor_11_fruid;
+static gint hf_ipmi_stor_11_offset;
+static gint hf_ipmi_stor_11_count;
+static gint hf_ipmi_stor_11_ret_count;
+static gint hf_ipmi_stor_11_data;
 
-static gint hf_ipmi_stor_12_fruid = -1;
-static gint hf_ipmi_stor_12_offset = -1;
-static gint hf_ipmi_stor_12_data = -1;
-static gint hf_ipmi_stor_12_ret_count = -1;
+static gint hf_ipmi_stor_12_fruid;
+static gint hf_ipmi_stor_12_offset;
+static gint hf_ipmi_stor_12_data;
+static gint hf_ipmi_stor_12_ret_count;
 
-static gint hf_ipmi_stor_20_sdr_version = -1;
-static gint hf_ipmi_stor_20_rec_count = -1;
-static gint hf_ipmi_stor_20_free_space = -1;
-static gint hf_ipmi_stor_20_ts_add = -1;
-static gint hf_ipmi_stor_20_ts_erase = -1;
-static gint hf_ipmi_stor_20_op_overflow = -1;
-static gint hf_ipmi_stor_20_op_update = -1;
-static gint hf_ipmi_stor_20_op_delete = -1;
-static gint hf_ipmi_stor_20_op_partial_add = -1;
-static gint hf_ipmi_stor_20_op_reserve = -1;
-static gint hf_ipmi_stor_20_op_allocinfo = -1;
+static gint hf_ipmi_stor_20_sdr_version;
+static gint hf_ipmi_stor_20_rec_count;
+static gint hf_ipmi_stor_20_free_space;
+static gint hf_ipmi_stor_20_ts_add;
+static gint hf_ipmi_stor_20_ts_erase;
+static gint hf_ipmi_stor_20_op_overflow;
+static gint hf_ipmi_stor_20_op_update;
+static gint hf_ipmi_stor_20_op_delete;
+static gint hf_ipmi_stor_20_op_partial_add;
+static gint hf_ipmi_stor_20_op_reserve;
+static gint hf_ipmi_stor_20_op_allocinfo;
 
-static gint hf_ipmi_stor_21_units = -1;
-static gint hf_ipmi_stor_21_size = -1;
-static gint hf_ipmi_stor_21_free = -1;
-static gint hf_ipmi_stor_21_largest = -1;
-static gint hf_ipmi_stor_21_maxrec = -1;
+static gint hf_ipmi_stor_21_units;
+static gint hf_ipmi_stor_21_size;
+static gint hf_ipmi_stor_21_free;
+static gint hf_ipmi_stor_21_largest;
+static gint hf_ipmi_stor_21_maxrec;
 
-static gint hf_ipmi_stor_22_rsrv_id = -1;
+static gint hf_ipmi_stor_22_rsrv_id;
 
-static gint hf_ipmi_stor_23_rsrv_id = -1;
-static gint hf_ipmi_stor_23_rec_id = -1;
-static gint hf_ipmi_stor_23_offset = -1;
-static gint hf_ipmi_stor_23_count = -1;
-static gint hf_ipmi_stor_23_next = -1;
-static gint hf_ipmi_stor_23_data = -1;
+static gint hf_ipmi_stor_23_rsrv_id;
+static gint hf_ipmi_stor_23_rec_id;
+static gint hf_ipmi_stor_23_offset;
+static gint hf_ipmi_stor_23_count;
+static gint hf_ipmi_stor_23_next;
+static gint hf_ipmi_stor_23_data;
 
-static gint hf_ipmi_stor_24_data = -1;
-static gint hf_ipmi_stor_24_added_rec_id = -1;
+static gint hf_ipmi_stor_24_data;
+static gint hf_ipmi_stor_24_added_rec_id;
 
-static gint hf_ipmi_stor_25_rsrv_id = -1;
-static gint hf_ipmi_stor_25_rec_id = -1;
-static gint hf_ipmi_stor_25_offset = -1;
-static gint hf_ipmi_stor_25_inprogress = -1;
-static gint hf_ipmi_stor_25_data = -1;
-static gint hf_ipmi_stor_25_added_rec_id = -1;
-
-#if 0
-static gint hf_ipmi_stor_26_rsrv_id = -1;
-static gint hf_ipmi_stor_26_rec_id = -1;
-#endif
-static gint hf_ipmi_stor_26_del_rec_id = -1;
-
-static gint hf_ipmi_stor_27_rsrv_id = -1;
-static gint hf_ipmi_stor_27_clr = -1;
-static gint hf_ipmi_stor_27_action = -1;
-static gint hf_ipmi_stor_27_status = -1;
-
-static gint hf_ipmi_stor_28_time = -1;
-
-static gint hf_ipmi_stor_29_time = -1;
-
-static gint hf_ipmi_stor_2c_init_agent = -1;
-static gint hf_ipmi_stor_2c_init_state = -1;
-
-static gint hf_ipmi_stor_40_sel_version = -1;
-static gint hf_ipmi_stor_40_entries = -1;
-static gint hf_ipmi_stor_40_free_space = -1;
-static gint hf_ipmi_stor_40_ts_add = -1;
-static gint hf_ipmi_stor_40_ts_erase = -1;
-static gint hf_ipmi_stor_40_op_overflow = -1;
-static gint hf_ipmi_stor_40_op_delete = -1;
-static gint hf_ipmi_stor_40_op_partial_add = -1;
-static gint hf_ipmi_stor_40_op_reserve = -1;
-static gint hf_ipmi_stor_40_op_allocinfo = -1;
-
-static gint hf_ipmi_stor_41_units = -1;
-static gint hf_ipmi_stor_41_size = -1;
-static gint hf_ipmi_stor_41_free = -1;
-static gint hf_ipmi_stor_41_largest = -1;
-static gint hf_ipmi_stor_41_maxrec = -1;
-
-static gint hf_ipmi_stor_42_rsrv_id = -1;
-
-static gint hf_ipmi_stor_43_rsrv_id = -1;
-static gint hf_ipmi_stor_43_rec_id = -1;
-static gint hf_ipmi_stor_43_offset = -1;
-static gint hf_ipmi_stor_43_count = -1;
-static gint hf_ipmi_stor_43_next = -1;
-static gint hf_ipmi_stor_43_data = -1;
-
-static gint hf_ipmi_stor_44_data = -1;
-static gint hf_ipmi_stor_44_added_rec_id = -1;
-
-static gint hf_ipmi_stor_45_rsrv_id = -1;
-static gint hf_ipmi_stor_45_rec_id = -1;
-static gint hf_ipmi_stor_45_offset = -1;
-static gint hf_ipmi_stor_45_inprogress = -1;
-static gint hf_ipmi_stor_45_data = -1;
-static gint hf_ipmi_stor_45_added_rec_id = -1;
+static gint hf_ipmi_stor_25_rsrv_id;
+static gint hf_ipmi_stor_25_rec_id;
+static gint hf_ipmi_stor_25_offset;
+static gint hf_ipmi_stor_25_inprogress;
+static gint hf_ipmi_stor_25_data;
+static gint hf_ipmi_stor_25_added_rec_id;
 
 #if 0
-static gint hf_ipmi_stor_46_rsrv_id = -1;
-static gint hf_ipmi_stor_46_rec_id = -1;
+static gint hf_ipmi_stor_26_rsrv_id;
+static gint hf_ipmi_stor_26_rec_id;
 #endif
-static gint hf_ipmi_stor_46_del_rec_id = -1;
+static gint hf_ipmi_stor_26_del_rec_id;
 
-static gint hf_ipmi_stor_47_rsrv_id = -1;
-static gint hf_ipmi_stor_47_clr = -1;
-static gint hf_ipmi_stor_47_action = -1;
-static gint hf_ipmi_stor_47_status = -1;
+static gint hf_ipmi_stor_27_rsrv_id;
+static gint hf_ipmi_stor_27_clr;
+static gint hf_ipmi_stor_27_action;
+static gint hf_ipmi_stor_27_status;
 
-static gint hf_ipmi_stor_48_time = -1;
+static gint hf_ipmi_stor_28_time;
 
-static gint hf_ipmi_stor_49_time = -1;
+static gint hf_ipmi_stor_29_time;
 
-static gint hf_ipmi_stor_5a_log_type = -1;
-static gint hf_ipmi_stor_5a_ts_add = -1;
-static gint hf_ipmi_stor_5a_num_entries = -1;
-static gint hf_ipmi_stor_5a_iana = -1;
-static gint hf_ipmi_stor_5a_bytes = -1;
-static gint hf_ipmi_stor_5a_unknown = -1;
+static gint hf_ipmi_stor_2c_init_agent;
+static gint hf_ipmi_stor_2c_init_state;
 
-static gint hf_ipmi_stor_5b_log_type = -1;
-static gint hf_ipmi_stor_5b_ts_add = -1;
-static gint hf_ipmi_stor_5b_num_entries = -1;
-static gint hf_ipmi_stor_5b_iana = -1;
-static gint hf_ipmi_stor_5b_bytes = -1;
-static gint hf_ipmi_stor_5b_unknown = -1;
+static gint hf_ipmi_stor_40_sel_version;
+static gint hf_ipmi_stor_40_entries;
+static gint hf_ipmi_stor_40_free_space;
+static gint hf_ipmi_stor_40_ts_add;
+static gint hf_ipmi_stor_40_ts_erase;
+static gint hf_ipmi_stor_40_op_overflow;
+static gint hf_ipmi_stor_40_op_delete;
+static gint hf_ipmi_stor_40_op_partial_add;
+static gint hf_ipmi_stor_40_op_reserve;
+static gint hf_ipmi_stor_40_op_allocinfo;
+
+static gint hf_ipmi_stor_41_units;
+static gint hf_ipmi_stor_41_size;
+static gint hf_ipmi_stor_41_free;
+static gint hf_ipmi_stor_41_largest;
+static gint hf_ipmi_stor_41_maxrec;
+
+static gint hf_ipmi_stor_42_rsrv_id;
+
+static gint hf_ipmi_stor_43_rsrv_id;
+static gint hf_ipmi_stor_43_rec_id;
+static gint hf_ipmi_stor_43_offset;
+static gint hf_ipmi_stor_43_count;
+static gint hf_ipmi_stor_43_next;
+static gint hf_ipmi_stor_43_data;
+
+static gint hf_ipmi_stor_44_data;
+static gint hf_ipmi_stor_44_added_rec_id;
+
+static gint hf_ipmi_stor_45_rsrv_id;
+static gint hf_ipmi_stor_45_rec_id;
+static gint hf_ipmi_stor_45_offset;
+static gint hf_ipmi_stor_45_inprogress;
+static gint hf_ipmi_stor_45_data;
+static gint hf_ipmi_stor_45_added_rec_id;
+
+#if 0
+static gint hf_ipmi_stor_46_rsrv_id;
+static gint hf_ipmi_stor_46_rec_id;
+#endif
+static gint hf_ipmi_stor_46_del_rec_id;
+
+static gint hf_ipmi_stor_47_rsrv_id;
+static gint hf_ipmi_stor_47_clr;
+static gint hf_ipmi_stor_47_action;
+static gint hf_ipmi_stor_47_status;
+
+static gint hf_ipmi_stor_48_time;
+
+static gint hf_ipmi_stor_49_time;
+
+static gint hf_ipmi_stor_5a_log_type;
+static gint hf_ipmi_stor_5a_ts_add;
+static gint hf_ipmi_stor_5a_num_entries;
+static gint hf_ipmi_stor_5a_iana;
+static gint hf_ipmi_stor_5a_bytes;
+static gint hf_ipmi_stor_5a_unknown;
+
+static gint hf_ipmi_stor_5b_log_type;
+static gint hf_ipmi_stor_5b_ts_add;
+static gint hf_ipmi_stor_5b_num_entries;
+static gint hf_ipmi_stor_5b_iana;
+static gint hf_ipmi_stor_5b_bytes;
+static gint hf_ipmi_stor_5b_unknown;
 
 static const struct true_false_string tfs_10_access = {
 	"by words", "by bytes"

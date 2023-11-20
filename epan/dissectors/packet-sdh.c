@@ -23,38 +23,38 @@
 void proto_register_sdh(void);
 void proto_reg_handoff_sdh(void);
 
-static int proto_sdh = -1;
+static int proto_sdh;
 
-static gint ett_sdh = -1;
+static gint ett_sdh;
 
-static int hf_sdh_a1 = -1;
-static int hf_sdh_a2 = -1;
-static int hf_sdh_j0 = -1;
-static int hf_sdh_b1 = -1;
-static int hf_sdh_e1 = -1;
-static int hf_sdh_f1 = -1;
-static int hf_sdh_d1 = -1;
-static int hf_sdh_d2 = -1;
-static int hf_sdh_d3 = -1;
-static int hf_sdh_au = -1;
-static int hf_sdh_b2 = -1;
-static int hf_sdh_k1 = -1;
-static int hf_sdh_k2 = -1;
-static int hf_sdh_d4 = -1;
-static int hf_sdh_d5 = -1;
-static int hf_sdh_d6 = -1;
-static int hf_sdh_d7 = -1;
-static int hf_sdh_d8 = -1;
-static int hf_sdh_d9 = -1;
-static int hf_sdh_d10 = -1;
-static int hf_sdh_d11 = -1;
-static int hf_sdh_d12 = -1;
-static int hf_sdh_s1 = -1;
-static int hf_sdh_m1 = -1;
-static int hf_sdh_e2 = -1;
-static int hf_sdh_h1 = -1;
-static int hf_sdh_h2 = -1;
-static int hf_sdh_j1 = -1;
+static int hf_sdh_a1;
+static int hf_sdh_a2;
+static int hf_sdh_j0;
+static int hf_sdh_b1;
+static int hf_sdh_e1;
+static int hf_sdh_f1;
+static int hf_sdh_d1;
+static int hf_sdh_d2;
+static int hf_sdh_d3;
+static int hf_sdh_au;
+static int hf_sdh_b2;
+static int hf_sdh_k1;
+static int hf_sdh_k2;
+static int hf_sdh_d4;
+static int hf_sdh_d5;
+static int hf_sdh_d6;
+static int hf_sdh_d7;
+static int hf_sdh_d8;
+static int hf_sdh_d9;
+static int hf_sdh_d10;
+static int hf_sdh_d11;
+static int hf_sdh_d12;
+static int hf_sdh_s1;
+static int hf_sdh_m1;
+static int hf_sdh_e2;
+static int hf_sdh_h1;
+static int hf_sdh_h2;
+static int hf_sdh_j1;
 
 static dissector_handle_t sdh_handle;
 

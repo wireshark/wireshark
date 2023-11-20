@@ -32,42 +32,42 @@
 
 void proto_register_sftp(void);
 
-static int proto_sftp = -1;
+static int proto_sftp;
 
-static int hf_ssh_sftp_len = -1;
-static int hf_ssh_sftp_type = -1;
-static int hf_ssh_sftp_version = -1;
-static int hf_ssh_sftp_id = -1;
-static int hf_ssh_sftp_path_len = -1;
-static int hf_ssh_sftp_path = -1;
-static int hf_ssh_sftp_pflags = -1;
-static int hf_ssh_sftp_name_count = -1;
-static int hf_ssh_sftp_name_fn_len = -1;
-static int hf_ssh_sftp_name_fn = -1;
-static int hf_ssh_sftp_name_ln_len = -1;
-static int hf_ssh_sftp_name_ln = -1;
-static int hf_ssh_sftp_attrs_flags = -1;
-static int hf_ssh_sftp_attrs_size = -1;
-static int hf_ssh_sftp_attrs_uid = -1;
-static int hf_ssh_sftp_attrs_gid = -1;
-static int hf_ssh_sftp_attrs_permissions = -1;
-static int hf_ssh_sftp_attrs_atime = -1;
-static int hf_ssh_sftp_attrs_mtime = -1;
-static int hf_ssh_sftp_attrs_extended_count = -1;
-static int hf_ssh_sftp_handle_len = -1;
-static int hf_ssh_sftp_handle = -1;
-static int hf_ssh_sftp_status = -1;
-static int hf_ssh_sftp_error_message_len = -1;
-static int hf_ssh_sftp_error_message = -1;
-static int hf_ssh_sftp_offset = -1;
-static int hf_ssh_sftp_length = -1;
-static int hf_ssh_sftp_data_len = -1;
-static int hf_ssh_sftp_data = -1;
-static int hf_ssh_lang_tag_length = -1;
-static int hf_ssh_lang_tag = -1;
+static int hf_ssh_sftp_len;
+static int hf_ssh_sftp_type;
+static int hf_ssh_sftp_version;
+static int hf_ssh_sftp_id;
+static int hf_ssh_sftp_path_len;
+static int hf_ssh_sftp_path;
+static int hf_ssh_sftp_pflags;
+static int hf_ssh_sftp_name_count;
+static int hf_ssh_sftp_name_fn_len;
+static int hf_ssh_sftp_name_fn;
+static int hf_ssh_sftp_name_ln_len;
+static int hf_ssh_sftp_name_ln;
+static int hf_ssh_sftp_attrs_flags;
+static int hf_ssh_sftp_attrs_size;
+static int hf_ssh_sftp_attrs_uid;
+static int hf_ssh_sftp_attrs_gid;
+static int hf_ssh_sftp_attrs_permissions;
+static int hf_ssh_sftp_attrs_atime;
+static int hf_ssh_sftp_attrs_mtime;
+static int hf_ssh_sftp_attrs_extended_count;
+static int hf_ssh_sftp_handle_len;
+static int hf_ssh_sftp_handle;
+static int hf_ssh_sftp_status;
+static int hf_ssh_sftp_error_message_len;
+static int hf_ssh_sftp_error_message;
+static int hf_ssh_sftp_offset;
+static int hf_ssh_sftp_length;
+static int hf_ssh_sftp_data_len;
+static int hf_ssh_sftp_data;
+static int hf_ssh_lang_tag_length;
+static int hf_ssh_lang_tag;
 
-static gint ett_sftp = -1;
-static gint ett_sftp_attrs = -1;
+static gint ett_sftp;
+static gint ett_sftp_attrs;
 
 static dissector_handle_t sftp_handle;
 

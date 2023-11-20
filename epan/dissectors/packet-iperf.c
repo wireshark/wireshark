@@ -23,78 +23,78 @@
 void proto_register_iperf2(void);
 void proto_reg_handoff_iperf2(void);
 
-static int proto_iperf2 = -1;
+static int proto_iperf2;
 
-static int hf_iperf2_sequence = -1;
-static int hf_iperf2_sec = -1;
-static int hf_iperf2_usec = -1;
-static int hf_iperf2_timestamp = -1;
-static int hf_iperf2_sequence_upper = -1;
-static int hf_iperf2_flags = -1;
-static int hf_iperf2_num_threads = -1;
-static int hf_iperf2_mport = -1;
-static int hf_iperf2_bufferlen = -1;
-static int hf_iperf2_mwinband = -1;
-static int hf_iperf2_mamount = -1;
-static int hf_iperf2_type = -1;
-static int hf_iperf2_length = -1;
-static int hf_iperf2_up_flags = -1;
-static int hf_iperf2_low_flags = -1;
-static int hf_iperf2_version_major = -1;
-static int hf_iperf2_version_minor = -1;
-static int hf_iperf2_version = -1;
-static int hf_iperf2_reserved = -1;
-static int hf_iperf2_tos = -1;
-static int hf_iperf2_rate = -1;
-static int hf_iperf2_rate_units = -1;
-static int hf_iperf2_realtime = -1;
-static int hf_iperf2_permit_key_len = -1;
-static int hf_iperf2_permit_key = -1;
-static int hf_iperf2_isoch_burst_period = -1;
-static int hf_iperf2_isoch_start_ts_s = -1;
-static int hf_iperf2_isoch_start_ts_us = -1;
-static int hf_iperf2_isoch_start_ts = -1;
-static int hf_iperf2_isoch_prev_frameid = -1;
-static int hf_iperf2_isoch_frameid = -1;
-static int hf_iperf2_isoch_burstsize = -1;
-static int hf_iperf2_isoch_bytes_remaining = -1;
-static int hf_iperf2_isoch_reserved = -1;
-static int hf_iperf2_reserved2 = -1;
-static int hf_iperf2_start_tv_sec = -1;
-static int hf_iperf2_start_tv_usec = -1;
-static int hf_iperf2_start_tv = -1;
-static int hf_iperf2_fq_ratel = -1;
-static int hf_iperf2_fq_rateu = -1;
-static int hf_iperf2_fpsl = -1;
-static int hf_iperf2_fpsu = -1;
-static int hf_iperf2_meanl = -1;
-static int hf_iperf2_meanu = -1;
-static int hf_iperf2_variancel = -1;
-static int hf_iperf2_varianceu = -1;
-static int hf_iperf2_burstipgl = -1;
-static int hf_iperf2_burstipg = -1;
-static int hf_iperf2_cca_len = -1;
-static int hf_iperf2_cca_value = -1;
-static int hf_iperf2_bb_size = -1;
-static int hf_iperf2_bb_id = -1;
-static int hf_iperf2_bb_flags = -1;
-static int hf_iperf2_bb_tos = -1;
-static int hf_iperf2_bb_run_time = -1;
-static int hf_iperf2_bb_clienttx_ts_sec = -1;
-static int hf_iperf2_bb_clienttx_ts_usec = -1;
-static int hf_iperf2_bb_clienttx_ts = -1;
-static int hf_iperf2_bb_serverrx_ts_sec = -1;
-static int hf_iperf2_bb_serverrx_ts_usec = -1;
-static int hf_iperf2_bb_serverrx_ts = -1;
-static int hf_iperf2_bb_servertx_ts_sec = -1;
-static int hf_iperf2_bb_servertx_ts_usec = -1;
-static int hf_iperf2_bb_servertx_ts = -1;
-static int hf_iperf2_bb_hold = -1;
-static int hf_iperf2_bb_rtt = -1;
-static int hf_iperf2_bb_read_ts_sec = -1;
-static int hf_iperf2_bb_read_ts_usec = -1;
-static int hf_iperf2_bb_read_ts = -1;
-static int hf_iperf2_bb_reply_size = -1;
+static int hf_iperf2_sequence;
+static int hf_iperf2_sec;
+static int hf_iperf2_usec;
+static int hf_iperf2_timestamp;
+static int hf_iperf2_sequence_upper;
+static int hf_iperf2_flags;
+static int hf_iperf2_num_threads;
+static int hf_iperf2_mport;
+static int hf_iperf2_bufferlen;
+static int hf_iperf2_mwinband;
+static int hf_iperf2_mamount;
+static int hf_iperf2_type;
+static int hf_iperf2_length;
+static int hf_iperf2_up_flags;
+static int hf_iperf2_low_flags;
+static int hf_iperf2_version_major;
+static int hf_iperf2_version_minor;
+static int hf_iperf2_version;
+static int hf_iperf2_reserved;
+static int hf_iperf2_tos;
+static int hf_iperf2_rate;
+static int hf_iperf2_rate_units;
+static int hf_iperf2_realtime;
+static int hf_iperf2_permit_key_len;
+static int hf_iperf2_permit_key;
+static int hf_iperf2_isoch_burst_period;
+static int hf_iperf2_isoch_start_ts_s;
+static int hf_iperf2_isoch_start_ts_us;
+static int hf_iperf2_isoch_start_ts;
+static int hf_iperf2_isoch_prev_frameid;
+static int hf_iperf2_isoch_frameid;
+static int hf_iperf2_isoch_burstsize;
+static int hf_iperf2_isoch_bytes_remaining;
+static int hf_iperf2_isoch_reserved;
+static int hf_iperf2_reserved2;
+static int hf_iperf2_start_tv_sec;
+static int hf_iperf2_start_tv_usec;
+static int hf_iperf2_start_tv;
+static int hf_iperf2_fq_ratel;
+static int hf_iperf2_fq_rateu;
+static int hf_iperf2_fpsl;
+static int hf_iperf2_fpsu;
+static int hf_iperf2_meanl;
+static int hf_iperf2_meanu;
+static int hf_iperf2_variancel;
+static int hf_iperf2_varianceu;
+static int hf_iperf2_burstipgl;
+static int hf_iperf2_burstipg;
+static int hf_iperf2_cca_len;
+static int hf_iperf2_cca_value;
+static int hf_iperf2_bb_size;
+static int hf_iperf2_bb_id;
+static int hf_iperf2_bb_flags;
+static int hf_iperf2_bb_tos;
+static int hf_iperf2_bb_run_time;
+static int hf_iperf2_bb_clienttx_ts_sec;
+static int hf_iperf2_bb_clienttx_ts_usec;
+static int hf_iperf2_bb_clienttx_ts;
+static int hf_iperf2_bb_serverrx_ts_sec;
+static int hf_iperf2_bb_serverrx_ts_usec;
+static int hf_iperf2_bb_serverrx_ts;
+static int hf_iperf2_bb_servertx_ts_sec;
+static int hf_iperf2_bb_servertx_ts_usec;
+static int hf_iperf2_bb_servertx_ts;
+static int hf_iperf2_bb_hold;
+static int hf_iperf2_bb_rtt;
+static int hf_iperf2_bb_read_ts_sec;
+static int hf_iperf2_bb_read_ts_usec;
+static int hf_iperf2_bb_read_ts;
+static int hf_iperf2_bb_reply_size;
 
 // Flags definition for hf_iperf2_flags. See include/Listener.hpp in iperf2 source code
 #define HEADER_VERSION1      0x80000000
@@ -139,19 +139,19 @@ static int hf_iperf2_bb_reply_size = -1;
 #define HEADER_CCA          0x8000
 
 // Flags fields declarations for hf_iperf2_flags
-static int hf_iperf2_flag_header_version1 = -1;
-static int hf_iperf2_flag_header_extend = -1;
-static int hf_iperf2_header_udptests = -1;
-static int hf_iperf2_header_seqno64b = -1;
-static int hf_iperf2_header_version2 = -1;
-static int hf_iperf2_header_v2peerdetect = -1;
-static int hf_iperf2_header_udpavoid = -1;
-static int hf_iperf2_header_bounceback = -1;
-static int hf_iperf2_header_len_bit = -1;
-static int hf_iperf2_header_len_mask = -1;
-static int hf_iperf2_run_now = -1;
-static int hf_iperf2_header16_small_triptimes = -1;
-static int hf_iperf2_payload = -1;
+static int hf_iperf2_flag_header_version1;
+static int hf_iperf2_flag_header_extend;
+static int hf_iperf2_header_udptests;
+static int hf_iperf2_header_seqno64b;
+static int hf_iperf2_header_version2;
+static int hf_iperf2_header_v2peerdetect;
+static int hf_iperf2_header_udpavoid;
+static int hf_iperf2_header_bounceback;
+static int hf_iperf2_header_len_bit;
+static int hf_iperf2_header_len_mask;
+static int hf_iperf2_run_now;
+static int hf_iperf2_header16_small_triptimes;
+static int hf_iperf2_payload;
 
 static int * const iperf2_flags[] = {
     &hf_iperf2_flag_header_version1,
@@ -170,22 +170,22 @@ static int * const iperf2_flags[] = {
 };
 
 // Flags fields declarations for iperf2_upper_flags
-static int hf_iperf2_upper_header_isoch = -1;
-static int hf_iperf2_upper_header_l2ethpipv6 = -1;
-static int hf_iperf2_upper_header_l2lencheck = -1;
-static int hf_iperf2_upper_header_noudpfin = -1;
-static int hf_iperf2_upper_header_triptime = -1;
-static int hf_iperf2_upper_header_unused2 = -1;
-static int hf_iperf2_upper_header_isoch_settings = -1;
-static int hf_iperf2_upper_header_units_pps = -1;
-static int hf_iperf2_upper_header_bwset = -1;
-static int hf_iperf2_upper_header_fqrateset = -1;
-static int hf_iperf2_upper_header_reverse = -1;
-static int hf_iperf2_upper_header_fullduplex = -1;
-static int hf_iperf2_upper_header_epoch_start = -1;
-static int hf_iperf2_upper_header_periodicburst = -1;
-static int hf_iperf2_upper_header_writeprefetch = -1;
-static int hf_iperf2_upper_header_tcpquickack = -1;
+static int hf_iperf2_upper_header_isoch;
+static int hf_iperf2_upper_header_l2ethpipv6;
+static int hf_iperf2_upper_header_l2lencheck;
+static int hf_iperf2_upper_header_noudpfin;
+static int hf_iperf2_upper_header_triptime;
+static int hf_iperf2_upper_header_unused2;
+static int hf_iperf2_upper_header_isoch_settings;
+static int hf_iperf2_upper_header_units_pps;
+static int hf_iperf2_upper_header_bwset;
+static int hf_iperf2_upper_header_fqrateset;
+static int hf_iperf2_upper_header_reverse;
+static int hf_iperf2_upper_header_fullduplex;
+static int hf_iperf2_upper_header_epoch_start;
+static int hf_iperf2_upper_header_periodicburst;
+static int hf_iperf2_upper_header_writeprefetch;
+static int hf_iperf2_upper_header_tcpquickack;
 
 static int * const iperf2_upper_flags[] = {
     &hf_iperf2_upper_header_tcpquickack,
@@ -208,7 +208,7 @@ static int * const iperf2_upper_flags[] = {
 };
 
 // Flags fields declarations for iperf2_lower_flags
-static int hf_iperf2_lower_header_cca = -1;
+static int hf_iperf2_lower_header_cca;
 
 static int * const iperf2_lower_flags[] = {
     &hf_iperf2_lower_header_cca,
@@ -216,11 +216,11 @@ static int * const iperf2_lower_flags[] = {
 };
 
 // Flags fields declarations for iperf2_bb_flags
-static int hf_iperf2_header_bbquickack = -1;
-static int hf_iperf2_header_bbclocksynced = -1;
-static int hf_iperf2_header_bbtos = -1;
-static int hf_iperf2_header_bbstop = -1;
-static int hf_iperf2_header_bbreplysize = -1;
+static int hf_iperf2_header_bbquickack;
+static int hf_iperf2_header_bbclocksynced;
+static int hf_iperf2_header_bbtos;
+static int hf_iperf2_header_bbstop;
+static int hf_iperf2_header_bbreplysize;
 
 static int * const iperf2_bb_flags[] = {
     &hf_iperf2_header_bbquickack,
@@ -231,27 +231,27 @@ static int * const iperf2_bb_flags[] = {
     NULL
 };
 
-static gint ett_iperf2_udp = -1;
-static gint ett_iperf2_tcp = -1;
-static gint ett_udphdr = -1;
-static gint ett_clienthdr = -1;
-static gint ett_bbhdr = -1;
-static gint ett_extendedhdr = -1;
-static gint ett_permit_key = -1;
-static gint ett_client_upper_flags = -1;
-static gint ett_client_lower_flags = -1;
-static gint ett_isochhdr = -1;
-static gint ett_fqhdr = -1;
-static gint ett_ext_isochhdr = -1;
-static gint ett_client_hdr = -1;
-static gint ett_client_hdr_flags = -1;
-static gint ett_cca_hdr = -1;
-static gint ett_bb_hdr_flags = -1;
-static gint ett_bbclienttx_ts = -1;
-static gint ett_bbserverrx_ts = -1;
-static gint ett_bbservertx_ts = -1;
-static gint ett_bbread_ts = -1;
-static gint ett_data = -1;
+static gint ett_iperf2_udp;
+static gint ett_iperf2_tcp;
+static gint ett_udphdr;
+static gint ett_clienthdr;
+static gint ett_bbhdr;
+static gint ett_extendedhdr;
+static gint ett_permit_key;
+static gint ett_client_upper_flags;
+static gint ett_client_lower_flags;
+static gint ett_isochhdr;
+static gint ett_fqhdr;
+static gint ett_ext_isochhdr;
+static gint ett_client_hdr;
+static gint ett_client_hdr_flags;
+static gint ett_cca_hdr;
+static gint ett_bb_hdr_flags;
+static gint ett_bbclienttx_ts;
+static gint ett_bbserverrx_ts;
+static gint ett_bbservertx_ts;
+static gint ett_bbread_ts;
+static gint ett_data;
 
 /* parser definitions for iperf2 payload */
 static tvbparse_wanted_t *want;

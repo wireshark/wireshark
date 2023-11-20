@@ -34,38 +34,38 @@ void proto_register_esis(void);
 void proto_reg_handoff_esis(void);
 
 /* esis base header */
-static int  proto_esis        = -1;
+static int  proto_esis;
 
-static int  hf_esis_nlpi      = -1;
-static int  hf_esis_length    = -1;
-static int  hf_esis_version   = -1;
-static int  hf_esis_reserved  = -1;
-static int  hf_esis_type      = -1;
-static int  hf_esis_holdtime  = -1;
-static int  hf_esis_checksum  = -1;
-static int  hf_esis_checksum_status  = -1;
+static int  hf_esis_nlpi;
+static int  hf_esis_length;
+static int  hf_esis_version;
+static int  hf_esis_reserved;
+static int  hf_esis_type;
+static int  hf_esis_holdtime;
+static int  hf_esis_checksum;
+static int  hf_esis_checksum_status;
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_esis_dal = -1;
-static int hf_esis_number_of_source_addresses = -1;
-static int hf_esis_netl = -1;
-static int hf_esis_sal = -1;
-static int hf_esis_sa = -1;
-static int hf_esis_bsnpal = -1;
-static int hf_esis_net = -1;
-static int hf_esis_da = -1;
-static int hf_esis_bsnpa = -1;
+static int hf_esis_dal;
+static int hf_esis_number_of_source_addresses;
+static int hf_esis_netl;
+static int hf_esis_sal;
+static int hf_esis_sa;
+static int hf_esis_bsnpal;
+static int hf_esis_net;
+static int hf_esis_da;
+static int hf_esis_bsnpa;
 
-static gint ett_esis              = -1;
-static gint ett_esis_area_addr    = -1;
-static gint ett_esis_network      = -1;
-static gint ett_esis_dest_addr    = -1;
-static gint ett_esis_subnetwork   = -1;
+static gint ett_esis;
+static gint ett_esis_area_addr;
+static gint ett_esis_network;
+static gint ett_esis_dest_addr;
+static gint ett_esis_subnetwork;
 
 
-static expert_field ei_esis_version = EI_INIT;
-static expert_field ei_esis_length = EI_INIT;
-static expert_field ei_esis_type = EI_INIT;
-static expert_field ei_esis_checksum = EI_INIT;
+static expert_field ei_esis_version;
+static expert_field ei_esis_length;
+static expert_field ei_esis_type;
+static expert_field ei_esis_checksum;
 
 static dissector_handle_t esis_handle;
 

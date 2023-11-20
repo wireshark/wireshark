@@ -64,19 +64,19 @@ static void dissect_zcl_shade_configuration_attr_data      (proto_tree *tree, tv
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_shade_configuration = -1;
+static int proto_zbee_zcl_shade_configuration;
 
-static int hf_zbee_zcl_shade_configuration_attr_id = -1;
-static int hf_zbee_zcl_shade_configuration_status = -1;
-static int hf_zbee_zcl_shade_configuration_status_shade_operational = -1;
-static int hf_zbee_zcl_shade_configuration_status_shade_adjusting = -1;
-static int hf_zbee_zcl_shade_configuration_status_shade_direction = -1;
-static int hf_zbee_zcl_shade_configuration_status_motor_forward_direction = -1;
-static int hf_zbee_zcl_shade_configuration_mode = -1;
+static int hf_zbee_zcl_shade_configuration_attr_id;
+static int hf_zbee_zcl_shade_configuration_status;
+static int hf_zbee_zcl_shade_configuration_status_shade_operational;
+static int hf_zbee_zcl_shade_configuration_status_shade_adjusting;
+static int hf_zbee_zcl_shade_configuration_status_shade_direction;
+static int hf_zbee_zcl_shade_configuration_status_motor_forward_direction;
+static int hf_zbee_zcl_shade_configuration_mode;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_shade_configuration = -1;
-static gint ett_zbee_zcl_shade_configuration_status = -1;
+static gint ett_zbee_zcl_shade_configuration;
+static gint ett_zbee_zcl_shade_configuration_status;
 
 /* Attributes */
 static const value_string zbee_zcl_shade_configuration_attr_names[] = {
@@ -289,19 +289,19 @@ static void dissect_zcl_door_lock_attr_data                        (proto_tree *
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_door_lock = -1;
+static int proto_zbee_zcl_door_lock;
 
-static int hf_zbee_zcl_door_lock_attr_id = -1;
-static int hf_zbee_zcl_door_lock_lock_state = -1;
-static int hf_zbee_zcl_door_lock_lock_type = -1;
-static int hf_zbee_zcl_door_lock_door_state = -1;
-static int hf_zbee_zcl_door_lock_actuator_enabled = -1;
-static int hf_zbee_zcl_door_lock_status = -1;
-static int hf_zbee_zcl_door_lock_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_door_lock_srv_tx_cmd_id = -1;
+static int hf_zbee_zcl_door_lock_attr_id;
+static int hf_zbee_zcl_door_lock_lock_state;
+static int hf_zbee_zcl_door_lock_lock_type;
+static int hf_zbee_zcl_door_lock_door_state;
+static int hf_zbee_zcl_door_lock_actuator_enabled;
+static int hf_zbee_zcl_door_lock_status;
+static int hf_zbee_zcl_door_lock_srv_rx_cmd_id;
+static int hf_zbee_zcl_door_lock_srv_tx_cmd_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_door_lock = -1;
+static gint ett_zbee_zcl_door_lock;
 
 /* Attributes */
 static const value_string zbee_zcl_door_lock_attr_names[] = {

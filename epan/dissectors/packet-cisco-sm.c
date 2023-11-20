@@ -220,31 +220,31 @@ static const value_string sm_pdu_type_value[] = {
 
 
 /* Initialize the protocol and registered fields */
-static int proto_sm = -1;
+static int proto_sm;
 
-static int hf_sm_sm_msg_type = -1;
-static int hf_sm_protocol = -1;
-static int hf_sm_msg_id = -1;
-static int hf_sm_msg_type = -1;
-static int hf_sm_channel = -1;
-static int hf_sm_bearer = -1;
-static int hf_sm_len = -1;
-static int hf_sm_ip_addr = -1;
-static int hf_sm_context = -1;
-static int hf_sm_eisup_msg_id = -1;
-static int hf_sm_tag = -1;
-static int hf_sm_alignment_type = -1;
-static int hf_sm_backhaul_reason_code = -1;
-static int hf_sm_backhaul_event_code = -1;
-static int hf_sm_backhaul_cause_code = -1;
-static int hf_sm_linkdown_cause_code = -1;
-static int hf_sm_retrieval_type = -1;
-static int hf_sm_lsc_state_type = -1;
-static int hf_sm_stat_request_type = -1;
-static int hf_sm_bsn_num = -1;
+static int hf_sm_sm_msg_type;
+static int hf_sm_protocol;
+static int hf_sm_msg_id;
+static int hf_sm_msg_type;
+static int hf_sm_channel;
+static int hf_sm_bearer;
+static int hf_sm_len;
+static int hf_sm_ip_addr;
+static int hf_sm_context;
+static int hf_sm_eisup_msg_id;
+static int hf_sm_tag;
+static int hf_sm_alignment_type;
+static int hf_sm_backhaul_reason_code;
+static int hf_sm_backhaul_event_code;
+static int hf_sm_backhaul_cause_code;
+static int hf_sm_linkdown_cause_code;
+static int hf_sm_retrieval_type;
+static int hf_sm_lsc_state_type;
+static int hf_sm_stat_request_type;
+static int hf_sm_bsn_num;
 
 /* Initialize the subtree pointers */
-static gint ett_sm = -1;
+static gint ett_sm;
 
 static dissector_handle_t sdp_handle;
 static dissector_handle_t mtp3_handle;

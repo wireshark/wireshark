@@ -42,7 +42,7 @@ static const value_string reject_code_val[] = {
 };
 
 /* Initialize the protocol and registered fields */
-static int proto_nasdaq_soup = -1;
+static int proto_nasdaq_soup;
 static dissector_handle_t nasdaq_soup_handle;
 static dissector_handle_t nasdaq_itch_handle;
 
@@ -50,17 +50,17 @@ static dissector_handle_t nasdaq_itch_handle;
 static gboolean nasdaq_soup_desegment = TRUE;
 
 /* Initialize the subtree pointers */
-static gint ett_nasdaq_soup = -1;
+static gint ett_nasdaq_soup;
 
-static int hf_nasdaq_soup_packet_type = -1;
-static int hf_nasdaq_soup_message = -1;
-static int hf_nasdaq_soup_text = -1;
-static int hf_nasdaq_soup_packet_eol = -1;
-static int hf_nasdaq_soup_username = -1;
-static int hf_nasdaq_soup_password = -1;
-static int hf_nasdaq_soup_session = -1;
-static int hf_nasdaq_soup_seq_number = -1;
-static int hf_nasdaq_soup_reject_code = -1;
+static int hf_nasdaq_soup_packet_type;
+static int hf_nasdaq_soup_message;
+static int hf_nasdaq_soup_text;
+static int hf_nasdaq_soup_packet_eol;
+static int hf_nasdaq_soup_username;
+static int hf_nasdaq_soup_password;
+static int hf_nasdaq_soup_session;
+static int hf_nasdaq_soup_seq_number;
+static int hf_nasdaq_soup_reject_code;
 
 static void
 dissect_nasdaq_soup_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, int offset, int linelen)

@@ -29,17 +29,17 @@ void proto_register_exec(void);
 void proto_reg_handoff_exec(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_exec = -1;
+static int proto_exec;
 
-static int hf_exec_stderr_port = -1;
-static int hf_exec_username    = -1;
-static int hf_exec_password    = -1;
-static int hf_exec_command     = -1;
-static int hf_exec_client_server_data = -1;
-static int hf_exec_server_client_data = -1;
+static int hf_exec_stderr_port;
+static int hf_exec_username;
+static int hf_exec_password;
+static int hf_exec_command;
+static int hf_exec_client_server_data;
+static int hf_exec_server_client_data;
 
 /* Initialize the subtree pointers */
-static gint ett_exec = -1;
+static gint ett_exec;
 
 #define EXEC_STDERR_PORT_LEN 5
 #define EXEC_USERNAME_LEN 16

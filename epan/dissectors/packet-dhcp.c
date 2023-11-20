@@ -147,593 +147,593 @@ void proto_register_dhcp(void);
 void proto_reg_handoff_dhcp(void);
 
 static int dhcp_bootp_tap = -1;
-static int proto_dhcp = -1;
-static int hf_dhcp_type = -1;
-static int hf_dhcp_hw_type = -1;
-static int hf_dhcp_hw_len = -1;
-static int hf_dhcp_hops = -1;
-static int hf_dhcp_id = -1;
-static int hf_dhcp_secs = -1;
-static int hf_dhcp_flags = -1;
-static int hf_dhcp_flags_broadcast = -1;
-static int hf_dhcp_flags_reserved = -1;
-static int hf_dhcp_ip_client = -1;
-static int hf_dhcp_ip_your = -1;
-static int hf_dhcp_ip_server = -1;
-static int hf_dhcp_ip_relay = -1;
-static int hf_dhcp_hw_addr = -1;
-static int hf_dhcp_hw_addr_padding = -1;
-static int hf_dhcp_hw_ether_addr = -1;
-static int hf_dhcp_server = -1;
-static int hf_dhcp_file = -1;
-static int hf_dhcp_cookie = -1;
-static int hf_dhcp_vendor_specific_options = -1;
-static int hf_dhcp_bootp = -1;
-static int hf_dhcp_fqdn_flags = -1;
-static int hf_dhcp_fqdn_s = -1;
-static int hf_dhcp_fqdn_o = -1;
-static int hf_dhcp_fqdn_e = -1;
-static int hf_dhcp_fqdn_n = -1;
-static int hf_dhcp_fqdn_mbz = -1;
-static int hf_dhcp_fqdn_rcode1 = -1;
-static int hf_dhcp_fqdn_rcode2 = -1;
-static int hf_dhcp_fqdn_name = -1;
-static int hf_dhcp_fqdn_asciiname = -1;
-static int hf_dhcp_pkt_mta_cap_len = -1;
-static int hf_dhcp_pkt_mta_cap_type = -1;
-static int hf_dhcp_docsis_cm_cap_type = -1;
-static int hf_dhcp_docsis_cm_cap_len = -1;
-static int hf_dhcp_client_identifier_uuid = -1;
-static int hf_dhcp_client_id_iaid = -1;
-static int hf_dhcp_client_id_duid_type = -1;
-static int hf_dhcp_client_hardware_address = -1;
-static int hf_dhcp_client_identifier_duid_llt_hw_type = -1;
-static int hf_dhcp_client_identifier_duid_ll_hw_type = -1;
-static int hf_dhcp_client_identifier_time = -1;
-static int hf_dhcp_client_identifier_link_layer_address = -1;
-static int hf_dhcp_client_identifier_link_layer_address_ether = -1;
-static int hf_dhcp_client_identifier_enterprise_num = -1;
-static int hf_dhcp_client_identifier = -1;
-static int hf_dhcp_client_identifier_type = -1;
-static int hf_dhcp_client_identifier_undef = -1;
-static int hf_dhcp_option_type = -1;
-static int hf_dhcp_option_length = -1;
-static int hf_dhcp_option_value = -1;
-static int hf_dhcp_option_value_8 = -1;
-static int hf_dhcp_option_value_16 = -1;
-static int hf_dhcp_option_value_u32 = -1;
-static int hf_dhcp_option_value_s_secs = -1;
-static int hf_dhcp_option_value_u_secs = -1;
-static int hf_dhcp_option_value_stringz = -1;
-static int hf_dhcp_option_value_ip_address = -1;
-static int hf_dhcp_option_value_boolean = -1;
-static int hf_dhcp_suboption_length = -1;
+static int proto_dhcp;
+static int hf_dhcp_type;
+static int hf_dhcp_hw_type;
+static int hf_dhcp_hw_len;
+static int hf_dhcp_hops;
+static int hf_dhcp_id;
+static int hf_dhcp_secs;
+static int hf_dhcp_flags;
+static int hf_dhcp_flags_broadcast;
+static int hf_dhcp_flags_reserved;
+static int hf_dhcp_ip_client;
+static int hf_dhcp_ip_your;
+static int hf_dhcp_ip_server;
+static int hf_dhcp_ip_relay;
+static int hf_dhcp_hw_addr;
+static int hf_dhcp_hw_addr_padding;
+static int hf_dhcp_hw_ether_addr;
+static int hf_dhcp_server;
+static int hf_dhcp_file;
+static int hf_dhcp_cookie;
+static int hf_dhcp_vendor_specific_options;
+static int hf_dhcp_bootp;
+static int hf_dhcp_fqdn_flags;
+static int hf_dhcp_fqdn_s;
+static int hf_dhcp_fqdn_o;
+static int hf_dhcp_fqdn_e;
+static int hf_dhcp_fqdn_n;
+static int hf_dhcp_fqdn_mbz;
+static int hf_dhcp_fqdn_rcode1;
+static int hf_dhcp_fqdn_rcode2;
+static int hf_dhcp_fqdn_name;
+static int hf_dhcp_fqdn_asciiname;
+static int hf_dhcp_pkt_mta_cap_len;
+static int hf_dhcp_pkt_mta_cap_type;
+static int hf_dhcp_docsis_cm_cap_type;
+static int hf_dhcp_docsis_cm_cap_len;
+static int hf_dhcp_client_identifier_uuid;
+static int hf_dhcp_client_id_iaid;
+static int hf_dhcp_client_id_duid_type;
+static int hf_dhcp_client_hardware_address;
+static int hf_dhcp_client_identifier_duid_llt_hw_type;
+static int hf_dhcp_client_identifier_duid_ll_hw_type;
+static int hf_dhcp_client_identifier_time;
+static int hf_dhcp_client_identifier_link_layer_address;
+static int hf_dhcp_client_identifier_link_layer_address_ether;
+static int hf_dhcp_client_identifier_enterprise_num;
+static int hf_dhcp_client_identifier;
+static int hf_dhcp_client_identifier_type;
+static int hf_dhcp_client_identifier_undef;
+static int hf_dhcp_option_type;
+static int hf_dhcp_option_length;
+static int hf_dhcp_option_value;
+static int hf_dhcp_option_value_8;
+static int hf_dhcp_option_value_16;
+static int hf_dhcp_option_value_u32;
+static int hf_dhcp_option_value_s_secs;
+static int hf_dhcp_option_value_u_secs;
+static int hf_dhcp_option_value_stringz;
+static int hf_dhcp_option_value_ip_address;
+static int hf_dhcp_option_value_boolean;
+static int hf_dhcp_suboption_length;
 
-static int hf_dhcp_option_padding = -1;					/* 0 */
-static int hf_dhcp_option_subnet_mask = -1;				/* 1 */
-static int hf_dhcp_option_time_offset = -1;				/* 2 */
-static int hf_dhcp_option_router = -1;					/* 3 */
-static int hf_dhcp_option_time_server = -1;				/* 4 */
-static int hf_dhcp_option_name_server = -1;				/* 5 */
-static int hf_dhcp_option_domain_name_server = -1;			/* 6 */
-static int hf_dhcp_option_log_server = -1;				/* 7 */
-static int hf_dhcp_option_quotes_server = -1;				/* 8 */
-static int hf_dhcp_option_lpr_server = -1;				/* 9 */
-static int hf_dhcp_option_impress_server = -1;				/* 10 */
-static int hf_dhcp_option_resource_location_server = -1;		/* 11 */
-static int hf_dhcp_option_hostname = -1;				/* 12 */
-static int hf_dhcp_option_boot_file_size = -1;				/* 13 */
-static int hf_dhcp_option_merit_dump_file = -1;				/* 14 */
-static int hf_dhcp_option_domain_name = -1;				/* 15 */
-static int hf_dhcp_option_swap_server = -1;				/* 16 */
-static int hf_dhcp_option_root_path = -1;				/* 17 */
-static int hf_dhcp_option_extension_path = -1;				/* 18 */
-static int hf_dhcp_option_ip_forwarding = -1;				/* 19 */
-static int hf_dhcp_option_non_local_source_routing = -1;		/* 20 */
-static int hf_dhcp_option_policy_filter_ip = -1;			/* 21 - IP address */
-static int hf_dhcp_option_policy_filter_subnet_mask = -1;		/* 21 - Subnet mask */
-static int hf_dhcp_option_max_datagram_reassembly_size = -1;		/* 22 */
-static int hf_dhcp_option_default_ip_ttl = -1;				/* 23 */
-static int hf_dhcp_option_path_mtu_aging_timeout = -1;			/* 24 */
-static int hf_dhcp_option_path_mtu_plateau_table_item = -1;		/* 25 */
-static int hf_dhcp_option_interface_mtu = -1;				/* 26 */
-static int hf_dhcp_option_all_subnets_are_local = -1;			/* 27 */
-static int hf_dhcp_option_broadcast_address = -1;			/* 28 */
-static int hf_dhcp_option_perform_mask_discovery = -1;			/* 29 */
-static int hf_dhcp_option_mask_supplier = -1;				/* 30 */
-static int hf_dhcp_option_perform_router_discover = -1;			/* 31 */
-static int hf_dhcp_option_router_solicitation_address = -1;		/* 32 */
-static int hf_dhcp_option_static_route_ip = -1;				/* 33 - Destination IP */
-static int hf_dhcp_option_static_route_router = -1;			/* 33 - Router */
-static int hf_dhcp_option_trailer_encapsulation = -1;			/* 34 */
-static int hf_dhcp_option_arp_cache_timeout = -1;			/* 35 */
-static int hf_dhcp_option_ethernet_encapsulation = -1;			/* 36 */
-static int hf_dhcp_option_tcp_default_ttl = -1;				/* 37 */
-static int hf_dhcp_option_tcp_keepalive_interval = -1;			/* 38 */
-static int hf_dhcp_option_tcp_keepalive_garbage = -1;			/* 39 */
-static int hf_dhcp_option_nis_domain = -1;				/* 40 */
-static int hf_dhcp_option_nis_server = -1;				/* 41 */
-static int hf_dhcp_option_ntp_server = -1;				/* 42 */
+static int hf_dhcp_option_padding;					/* 0 */
+static int hf_dhcp_option_subnet_mask;				/* 1 */
+static int hf_dhcp_option_time_offset;				/* 2 */
+static int hf_dhcp_option_router;					/* 3 */
+static int hf_dhcp_option_time_server;				/* 4 */
+static int hf_dhcp_option_name_server;				/* 5 */
+static int hf_dhcp_option_domain_name_server;			/* 6 */
+static int hf_dhcp_option_log_server;				/* 7 */
+static int hf_dhcp_option_quotes_server;				/* 8 */
+static int hf_dhcp_option_lpr_server;				/* 9 */
+static int hf_dhcp_option_impress_server;				/* 10 */
+static int hf_dhcp_option_resource_location_server;		/* 11 */
+static int hf_dhcp_option_hostname;				/* 12 */
+static int hf_dhcp_option_boot_file_size;				/* 13 */
+static int hf_dhcp_option_merit_dump_file;				/* 14 */
+static int hf_dhcp_option_domain_name;				/* 15 */
+static int hf_dhcp_option_swap_server;				/* 16 */
+static int hf_dhcp_option_root_path;				/* 17 */
+static int hf_dhcp_option_extension_path;				/* 18 */
+static int hf_dhcp_option_ip_forwarding;				/* 19 */
+static int hf_dhcp_option_non_local_source_routing;		/* 20 */
+static int hf_dhcp_option_policy_filter_ip;			/* 21 - IP address */
+static int hf_dhcp_option_policy_filter_subnet_mask;		/* 21 - Subnet mask */
+static int hf_dhcp_option_max_datagram_reassembly_size;		/* 22 */
+static int hf_dhcp_option_default_ip_ttl;				/* 23 */
+static int hf_dhcp_option_path_mtu_aging_timeout;			/* 24 */
+static int hf_dhcp_option_path_mtu_plateau_table_item;		/* 25 */
+static int hf_dhcp_option_interface_mtu;				/* 26 */
+static int hf_dhcp_option_all_subnets_are_local;			/* 27 */
+static int hf_dhcp_option_broadcast_address;			/* 28 */
+static int hf_dhcp_option_perform_mask_discovery;			/* 29 */
+static int hf_dhcp_option_mask_supplier;				/* 30 */
+static int hf_dhcp_option_perform_router_discover;			/* 31 */
+static int hf_dhcp_option_router_solicitation_address;		/* 32 */
+static int hf_dhcp_option_static_route_ip;				/* 33 - Destination IP */
+static int hf_dhcp_option_static_route_router;			/* 33 - Router */
+static int hf_dhcp_option_trailer_encapsulation;			/* 34 */
+static int hf_dhcp_option_arp_cache_timeout;			/* 35 */
+static int hf_dhcp_option_ethernet_encapsulation;			/* 36 */
+static int hf_dhcp_option_tcp_default_ttl;				/* 37 */
+static int hf_dhcp_option_tcp_keepalive_interval;			/* 38 */
+static int hf_dhcp_option_tcp_keepalive_garbage;			/* 39 */
+static int hf_dhcp_option_nis_domain;				/* 40 */
+static int hf_dhcp_option_nis_server;				/* 41 */
+static int hf_dhcp_option_ntp_server;				/* 42 */
 
-static int hf_dhcp_option43_value = -1;					/* 43 suboption value */
-static int hf_dhcp_option43_value_8 = -1;				/* 43 suboption value */
-static int hf_dhcp_option43_value_32 = -1;				/* 43 suboption value */
-static int hf_dhcp_option43_value_stringz = -1;				/* 43 suboption value */
-static int hf_dhcp_option43_value_ip_address = -1;			/* 43 suboption value */
+static int hf_dhcp_option43_value;					/* 43 suboption value */
+static int hf_dhcp_option43_value_8;				/* 43 suboption value */
+static int hf_dhcp_option43_value_32;				/* 43 suboption value */
+static int hf_dhcp_option43_value_stringz;				/* 43 suboption value */
+static int hf_dhcp_option43_value_ip_address;			/* 43 suboption value */
 
-static int hf_dhcp_option43_pxeclient_suboption = -1;			/* 43 suboption */
-static int hf_dhcp_option43_pxeclient_padding = -1;			/* 43:0 PXE  */
-static int hf_dhcp_option43_pxeclient_mtftp_ip = -1;			/* 43:1 PXE  */
-static int hf_dhcp_option43_pxeclient_mtftp_client_port = -1;		/* 43:2 PXE  */
-static int hf_dhcp_option43_pxeclient_mtftp_server_port = -1;		/* 43:3 PXE  */
-static int hf_dhcp_option43_pxeclient_mtftp_timeout = -1;		/* 43:4 PXE  */
-static int hf_dhcp_option43_pxeclient_mtftp_delay = -1;			/* 43:5 PXE  */
-static int hf_dhcp_option43_pxeclient_discovery_control = -1;		/* 43:6 PXE  */
-static int hf_dhcp_option43_pxeclient_discovery_control_bc = -1;	/* 43:6 PXE  */
-static int hf_dhcp_option43_pxeclient_discovery_control_mc = -1;	/* 43:6 PXE  */
-static int hf_dhcp_option43_pxeclient_discovery_control_serverlist = -1;	/* 43:6 PXE  */
-static int hf_dhcp_option43_pxeclient_discovery_control_bstrap = -1;	/* 43:6 PXE  */
-static int hf_dhcp_option43_pxeclient_multicast_address = -1;		/* 43:7 PXE  */
-static int hf_dhcp_option43_pxeclient_boot_servers = -1;		/* 43:8 PXE  */
-static int hf_dhcp_option43_pxeclient_boot_server_type = -1;		/* 43:8 PXE  */
-static int hf_dhcp_option43_pxeclient_boot_server_count = -1;		/* 43:8 PXE  */
-static int hf_dhcp_option43_pxeclient_boot_server_ip = -1;		/* 43:8 PXE  */
-static int hf_dhcp_option43_pxeclient_boot_menu = -1;			/* 43:9 PXE  */
-static int hf_dhcp_option43_pxeclient_boot_menu_type = -1;		/* 43:9 PXE  */
-static int hf_dhcp_option43_pxeclient_boot_menu_length = -1;		/* 43:9 PXE  */
-static int hf_dhcp_option43_pxeclient_boot_menu_desc = -1;		/* 43:9 PXE  */
-static int hf_dhcp_option43_pxeclient_menu_prompt = -1;			/* 43:10 PXE  */
-static int hf_dhcp_option43_pxeclient_menu_prompt_timeout = -1;		/* 43:10 PXE  */
-static int hf_dhcp_option43_pxeclient_menu_prompt_prompt = -1;		/* 43:10 PXE  */
-static int hf_dhcp_option43_pxeclient_multicast_address_alloc = -1;	/* 43:11 PXE  */
-static int hf_dhcp_option43_pxeclient_credential_types = -1;		/* 43:12 PXE  */
-static int hf_dhcp_option43_pxeclient_boot_item = -1;			/* 43:71 PXE  */
-static int hf_dhcp_option43_pxeclient_boot_item_type = -1;		/* 43:71 PXE  */
-static int hf_dhcp_option43_pxeclient_boot_item_layer = -1;		/* 43:71 PXE  */
-static int hf_dhcp_option43_pxeclient_lcm_server = -1;			/* 43:179 PXE  */
-static int hf_dhcp_option43_pxeclient_lcm_domain = -1;			/* 43:180 PXE  */
-static int hf_dhcp_option43_pxeclient_lcm_nic_option = -1;		/* 43:181 PXE  */
-static int hf_dhcp_option43_pxeclient_lcm_workgroup = -1;		/* 43:190 PXE  */
-static int hf_dhcp_option43_pxeclient_discovery = -1;			/* 43:191 PXE  */
-static int hf_dhcp_option43_pxeclient_configured = -1;			/* 43:192 PXE  */
-static int hf_dhcp_option43_pxeclient_lcm_version = -1;			/* 43:193 PXE  */
-static int hf_dhcp_option43_pxeclient_lcm_serial = -1;			/* 43:194 PXE  */
-static int hf_dhcp_option43_pxeclient_end = -1;				/* 43:255 PXE */
+static int hf_dhcp_option43_pxeclient_suboption;			/* 43 suboption */
+static int hf_dhcp_option43_pxeclient_padding;			/* 43:0 PXE  */
+static int hf_dhcp_option43_pxeclient_mtftp_ip;			/* 43:1 PXE  */
+static int hf_dhcp_option43_pxeclient_mtftp_client_port;		/* 43:2 PXE  */
+static int hf_dhcp_option43_pxeclient_mtftp_server_port;		/* 43:3 PXE  */
+static int hf_dhcp_option43_pxeclient_mtftp_timeout;		/* 43:4 PXE  */
+static int hf_dhcp_option43_pxeclient_mtftp_delay;			/* 43:5 PXE  */
+static int hf_dhcp_option43_pxeclient_discovery_control;		/* 43:6 PXE  */
+static int hf_dhcp_option43_pxeclient_discovery_control_bc;	/* 43:6 PXE  */
+static int hf_dhcp_option43_pxeclient_discovery_control_mc;	/* 43:6 PXE  */
+static int hf_dhcp_option43_pxeclient_discovery_control_serverlist;	/* 43:6 PXE  */
+static int hf_dhcp_option43_pxeclient_discovery_control_bstrap;	/* 43:6 PXE  */
+static int hf_dhcp_option43_pxeclient_multicast_address;		/* 43:7 PXE  */
+static int hf_dhcp_option43_pxeclient_boot_servers;		/* 43:8 PXE  */
+static int hf_dhcp_option43_pxeclient_boot_server_type;		/* 43:8 PXE  */
+static int hf_dhcp_option43_pxeclient_boot_server_count;		/* 43:8 PXE  */
+static int hf_dhcp_option43_pxeclient_boot_server_ip;		/* 43:8 PXE  */
+static int hf_dhcp_option43_pxeclient_boot_menu;			/* 43:9 PXE  */
+static int hf_dhcp_option43_pxeclient_boot_menu_type;		/* 43:9 PXE  */
+static int hf_dhcp_option43_pxeclient_boot_menu_length;		/* 43:9 PXE  */
+static int hf_dhcp_option43_pxeclient_boot_menu_desc;		/* 43:9 PXE  */
+static int hf_dhcp_option43_pxeclient_menu_prompt;			/* 43:10 PXE  */
+static int hf_dhcp_option43_pxeclient_menu_prompt_timeout;		/* 43:10 PXE  */
+static int hf_dhcp_option43_pxeclient_menu_prompt_prompt;		/* 43:10 PXE  */
+static int hf_dhcp_option43_pxeclient_multicast_address_alloc;	/* 43:11 PXE  */
+static int hf_dhcp_option43_pxeclient_credential_types;		/* 43:12 PXE  */
+static int hf_dhcp_option43_pxeclient_boot_item;			/* 43:71 PXE  */
+static int hf_dhcp_option43_pxeclient_boot_item_type;		/* 43:71 PXE  */
+static int hf_dhcp_option43_pxeclient_boot_item_layer;		/* 43:71 PXE  */
+static int hf_dhcp_option43_pxeclient_lcm_server;			/* 43:179 PXE  */
+static int hf_dhcp_option43_pxeclient_lcm_domain;			/* 43:180 PXE  */
+static int hf_dhcp_option43_pxeclient_lcm_nic_option;		/* 43:181 PXE  */
+static int hf_dhcp_option43_pxeclient_lcm_workgroup;		/* 43:190 PXE  */
+static int hf_dhcp_option43_pxeclient_discovery;			/* 43:191 PXE  */
+static int hf_dhcp_option43_pxeclient_configured;			/* 43:192 PXE  */
+static int hf_dhcp_option43_pxeclient_lcm_version;			/* 43:193 PXE  */
+static int hf_dhcp_option43_pxeclient_lcm_serial;			/* 43:194 PXE  */
+static int hf_dhcp_option43_pxeclient_end;				/* 43:255 PXE */
 
-static int hf_dhcp_option43_cl_suboption = -1;				/* 43 suboption */
-static int hf_dhcp_option43_cl_padding = -1;				/* 43:0 CL  */
-static int hf_dhcp_option43_cl_suboption_request_list = -1;		/* 43:1 CL  */
-static int hf_dhcp_option43_cl_device_type = -1;			/* 43:2 CL  */
-static int hf_dhcp_option43_cl_esafe_type = -1;				/* 43:3 CL  */
-static int hf_dhcp_option43_cl_serial_number = -1;			/* 43:4 CL  */
-static int hf_dhcp_option43_cl_hardware_version = -1;			/* 43:5 CL  */
-static int hf_dhcp_option43_cl_software_version = -1;			/* 43:6 CL  */
-static int hf_dhcp_option43_cl_boot_rom_version = -1;			/* 43:7 CL  */
-static int hf_dhcp_option43_cl_oui_bytes = -1;				/* 43:8 CL  */
-static int hf_dhcp_option43_cl_oui_string = -1;				/* 43:8 CL  */
-static int hf_dhcp_option43_cl_model_number = -1;			/* 43:9 CL  */
-static int hf_dhcp_option43_cl_vendor_name10 = -1;			/* 43:10 CL  */
-static int hf_dhcp_option43_cl_address_realm = -1;			/* 43:11 CL  */
-static int hf_dhcp_option43_cl_cm_ps_system_desc = -1;			/* 43:12 CL  */
-static int hf_dhcp_option43_cl_cm_ps_firmware_revision = -1;		/* 43:13 CL  */
-static int hf_dhcp_option43_cl_firewall_policy_file_version = -1;	/* 43:14 CL  */
-static int hf_dhcp_option43_cl_esafe_config_file_devices = -1;		/* 43:15 CL  */
-static int hf_dhcp_option43_cl_video_security_tape = -1;		/* 43:18 CL  */
-static int hf_dhcp_option43_cl_mta_mac_address = -1;			/* 43:31 CL  */
-static int hf_dhcp_option43_cl_correlation_ID = -1;			/* 43:32 CL  */
-static int hf_dhcp_option43_cl_vendor_name51 = -1;			/* 43:51 CL  */
-static int hf_dhcp_option43_cl_cablecard_capability = -1;		/* 43:52 CL  */
-static int hf_dhcp_option43_cl_device_id_ca = -1;			/* 43:53 CL  */
-static int hf_dhcp_option43_cl_device_id_x509 = -1;			/* 43:54 CL  */
-static int hf_dhcp_option43_cl_end = -1;				/* 43:255 CL */
+static int hf_dhcp_option43_cl_suboption;				/* 43 suboption */
+static int hf_dhcp_option43_cl_padding;				/* 43:0 CL  */
+static int hf_dhcp_option43_cl_suboption_request_list;		/* 43:1 CL  */
+static int hf_dhcp_option43_cl_device_type;			/* 43:2 CL  */
+static int hf_dhcp_option43_cl_esafe_type;				/* 43:3 CL  */
+static int hf_dhcp_option43_cl_serial_number;			/* 43:4 CL  */
+static int hf_dhcp_option43_cl_hardware_version;			/* 43:5 CL  */
+static int hf_dhcp_option43_cl_software_version;			/* 43:6 CL  */
+static int hf_dhcp_option43_cl_boot_rom_version;			/* 43:7 CL  */
+static int hf_dhcp_option43_cl_oui_bytes;				/* 43:8 CL  */
+static int hf_dhcp_option43_cl_oui_string;				/* 43:8 CL  */
+static int hf_dhcp_option43_cl_model_number;			/* 43:9 CL  */
+static int hf_dhcp_option43_cl_vendor_name10;			/* 43:10 CL  */
+static int hf_dhcp_option43_cl_address_realm;			/* 43:11 CL  */
+static int hf_dhcp_option43_cl_cm_ps_system_desc;			/* 43:12 CL  */
+static int hf_dhcp_option43_cl_cm_ps_firmware_revision;		/* 43:13 CL  */
+static int hf_dhcp_option43_cl_firewall_policy_file_version;	/* 43:14 CL  */
+static int hf_dhcp_option43_cl_esafe_config_file_devices;		/* 43:15 CL  */
+static int hf_dhcp_option43_cl_video_security_tape;		/* 43:18 CL  */
+static int hf_dhcp_option43_cl_mta_mac_address;			/* 43:31 CL  */
+static int hf_dhcp_option43_cl_correlation_ID;			/* 43:32 CL  */
+static int hf_dhcp_option43_cl_vendor_name51;			/* 43:51 CL  */
+static int hf_dhcp_option43_cl_cablecard_capability;		/* 43:52 CL  */
+static int hf_dhcp_option43_cl_device_id_ca;			/* 43:53 CL  */
+static int hf_dhcp_option43_cl_device_id_x509;			/* 43:54 CL  */
+static int hf_dhcp_option43_cl_end;				/* 43:255 CL */
 
-static int hf_dhcp_option43_aerohive_suboption = -1;			/* 43 suboption */
-static int hf_dhcp_option43_aerohive_unknown = -1;			/* 43:X AEROHIVE */
-static int hf_dhcp_option43_aerohive_xiqhostname = -1;			/* 43:225 AEROHIVE */
-static int hf_dhcp_option43_aerohive_xiqipaddress = -1;			/* 43:226 AEROHIVE */
+static int hf_dhcp_option43_aerohive_suboption;			/* 43 suboption */
+static int hf_dhcp_option43_aerohive_unknown;			/* 43:X AEROHIVE */
+static int hf_dhcp_option43_aerohive_xiqhostname;			/* 43:225 AEROHIVE */
+static int hf_dhcp_option43_aerohive_xiqipaddress;			/* 43:226 AEROHIVE */
 
-static int hf_dhcp_option43_bsdp_suboption = -1;			/* 43 suboption */
-static int hf_dhcp_option43_bsdp_message_type = -1;			/* 43:1 BSDP  */
-static int hf_dhcp_option43_bsdp_version = -1;				/* 43:2 BSDP  */
-static int hf_dhcp_option43_bsdp_server_identifier = -1;		/* 43:3 BSDP  */
-static int hf_dhcp_option43_bsdp_server_priority = -1;			/* 43:4 BSDP  */
-static int hf_dhcp_option43_bsdp_reply_port = -1;			/* 43:5 BSDP  */
-static int hf_dhcp_option43_bsdp_boot_image_list_path = -1;		/* 43:6 BSDP  */
-static int hf_dhcp_option43_bsdp_default_boot_image_id = -1;		/* 43:7 BSDP  */
-static int hf_dhcp_option43_bsdp_selected_boot_image_id = -1;		/* 43:8 BSDP  */
-static int hf_dhcp_option43_bsdp_boot_image_list = -1;			/* 43:9 BSDP  */
-static int hf_dhcp_option43_bsdp_netboot_firmware = -1;			/* 43:10 BSDP  */
-static int hf_dhcp_option43_bsdp_attributes_filter_list = -1;		/* 43:11 BSDP  */
-static int hf_dhcp_option43_bsdp_message_size = -1;			/* 43:12 BSDP  */
-static int hf_dhcp_option43_bsdp_boot_image_index = -1;			/* 43 BSDP  */
-static int hf_dhcp_option43_bsdp_boot_image_attribute = -1;		/* 43 BSDP  */
-static int hf_dhcp_option43_bsdp_boot_image_attribute_install = -1;	/* 43 BSDP  */
-static int hf_dhcp_option43_bsdp_boot_image_attribute_kind = -1;	/* 43 BSDP  */
-static int hf_dhcp_option43_bsdp_boot_image_attribute_reserved = -1;	/* 43 BSDP  */
-static int hf_dhcp_option43_bsdp_image_desc = -1;			/* 43 BSDP  */
-static int hf_dhcp_option43_bsdp_boot_image_name = -1;			/* 43 BSDP  */
-static int hf_dhcp_option43_bsdp_boot_image_name_len = -1;		/* 43 BSDP  */
+static int hf_dhcp_option43_bsdp_suboption;			/* 43 suboption */
+static int hf_dhcp_option43_bsdp_message_type;			/* 43:1 BSDP  */
+static int hf_dhcp_option43_bsdp_version;				/* 43:2 BSDP  */
+static int hf_dhcp_option43_bsdp_server_identifier;		/* 43:3 BSDP  */
+static int hf_dhcp_option43_bsdp_server_priority;			/* 43:4 BSDP  */
+static int hf_dhcp_option43_bsdp_reply_port;			/* 43:5 BSDP  */
+static int hf_dhcp_option43_bsdp_boot_image_list_path;		/* 43:6 BSDP  */
+static int hf_dhcp_option43_bsdp_default_boot_image_id;		/* 43:7 BSDP  */
+static int hf_dhcp_option43_bsdp_selected_boot_image_id;		/* 43:8 BSDP  */
+static int hf_dhcp_option43_bsdp_boot_image_list;			/* 43:9 BSDP  */
+static int hf_dhcp_option43_bsdp_netboot_firmware;			/* 43:10 BSDP  */
+static int hf_dhcp_option43_bsdp_attributes_filter_list;		/* 43:11 BSDP  */
+static int hf_dhcp_option43_bsdp_message_size;			/* 43:12 BSDP  */
+static int hf_dhcp_option43_bsdp_boot_image_index;			/* 43 BSDP  */
+static int hf_dhcp_option43_bsdp_boot_image_attribute;		/* 43 BSDP  */
+static int hf_dhcp_option43_bsdp_boot_image_attribute_install;	/* 43 BSDP  */
+static int hf_dhcp_option43_bsdp_boot_image_attribute_kind;	/* 43 BSDP  */
+static int hf_dhcp_option43_bsdp_boot_image_attribute_reserved;	/* 43 BSDP  */
+static int hf_dhcp_option43_bsdp_image_desc;			/* 43 BSDP  */
+static int hf_dhcp_option43_bsdp_boot_image_name;			/* 43 BSDP  */
+static int hf_dhcp_option43_bsdp_boot_image_name_len;		/* 43 BSDP  */
 
-static int hf_dhcp_option43_cisco_suboption = -1;			/* 43 Cisco */
-static int hf_dhcp_option43_cisco_unknown = -1;				/* 43 Cisco */
-static int hf_dhcp_option43_cisco_unknown1 = -1;			/* 43:1 Cisco */
-static int hf_dhcp_option43_cisco_unknown2 = -1;			/* 43:2 Cisco */
-static int hf_dhcp_option43_cisco_unknown3 = -1;			/* 43:3 Cisco */
-static int hf_dhcp_option43_cisco_nodeid = -1;				/* 43:4 Cisco */
-static int hf_dhcp_option43_cisco_unknown5 = -1;			/* 43:5 Cisco */
-static int hf_dhcp_option43_cisco_unknown6 = -1;			/* 43:6 Cisco */
-static int hf_dhcp_option43_cisco_model = -1;				/* 43:7 Cisco */
-static int hf_dhcp_option43_cisco_apicuuid = -1;			/* 43:8 Cisco */
-static int hf_dhcp_option43_cisco_fabricname = -1;			/* 43:9 Cisco */
-static int hf_dhcp_option43_cisco_unknown10 = -1;			/* 43:10 Cisco */
-static int hf_dhcp_option43_cisco_serialno = -1;			/* 43:11 Cisco */
-static int hf_dhcp_option43_cisco_clientint = -1;			/* 43:12 Cisco */
+static int hf_dhcp_option43_cisco_suboption;			/* 43 Cisco */
+static int hf_dhcp_option43_cisco_unknown;				/* 43 Cisco */
+static int hf_dhcp_option43_cisco_unknown1;			/* 43:1 Cisco */
+static int hf_dhcp_option43_cisco_unknown2;			/* 43:2 Cisco */
+static int hf_dhcp_option43_cisco_unknown3;			/* 43:3 Cisco */
+static int hf_dhcp_option43_cisco_nodeid;				/* 43:4 Cisco */
+static int hf_dhcp_option43_cisco_unknown5;			/* 43:5 Cisco */
+static int hf_dhcp_option43_cisco_unknown6;			/* 43:6 Cisco */
+static int hf_dhcp_option43_cisco_model;				/* 43:7 Cisco */
+static int hf_dhcp_option43_cisco_apicuuid;			/* 43:8 Cisco */
+static int hf_dhcp_option43_cisco_fabricname;			/* 43:9 Cisco */
+static int hf_dhcp_option43_cisco_unknown10;			/* 43:10 Cisco */
+static int hf_dhcp_option43_cisco_serialno;			/* 43:11 Cisco */
+static int hf_dhcp_option43_cisco_clientint;			/* 43:12 Cisco */
 
-static int hf_dhcp_option43_alcatel_suboption = -1;			/* 43 suboption */
-static int hf_dhcp_option43_alcatel_padding = -1;			/* 43:0 Alcatel	 */
-static int hf_dhcp_option43_alcatel_vlan_id = -1;			/* 43:58 Alcatel  */
-static int hf_dhcp_option43_alcatel_tftp1 = -1;				/* 43:64 Alcatel  */
-static int hf_dhcp_option43_alcatel_tftp2 = -1;				/* 43:65 Alcatel  */
-static int hf_dhcp_option43_alcatel_app_type = -1;			/* 43:66 Alcatel  */
-static int hf_dhcp_option43_alcatel_sip_url = -1;			/* 43:67 Alcatel  */
-static int hf_dhcp_option43_alcatel_end = -1;				/* 43:255 Alcatel */
+static int hf_dhcp_option43_alcatel_suboption;			/* 43 suboption */
+static int hf_dhcp_option43_alcatel_padding;			/* 43:0 Alcatel	 */
+static int hf_dhcp_option43_alcatel_vlan_id;			/* 43:58 Alcatel  */
+static int hf_dhcp_option43_alcatel_tftp1;				/* 43:64 Alcatel  */
+static int hf_dhcp_option43_alcatel_tftp2;				/* 43:65 Alcatel  */
+static int hf_dhcp_option43_alcatel_app_type;			/* 43:66 Alcatel  */
+static int hf_dhcp_option43_alcatel_sip_url;			/* 43:67 Alcatel  */
+static int hf_dhcp_option43_alcatel_end;				/* 43:255 Alcatel */
 
-static int hf_dhcp_option43_arubaap_controllerip = -1;			/* 43: ArubaAP*/
-static int hf_dhcp_option43_arubaiap = -1;				/* 43: ArubaIAP*/
-static int hf_dhcp_option43_arubaiap_nameorg = -1;			/* 43: ArubaIAP: Name Organisation*/
-static int hf_dhcp_option43_arubaiap_ampip = -1;			/* 43: ArubaIAP: AMP IP Address*/
-static int hf_dhcp_option43_arubaiap_password = -1;			/* 43 :ArubaIAP: Password*/
+static int hf_dhcp_option43_arubaap_controllerip;			/* 43: ArubaAP*/
+static int hf_dhcp_option43_arubaiap;				/* 43: ArubaIAP*/
+static int hf_dhcp_option43_arubaiap_nameorg;			/* 43: ArubaIAP: Name Organisation*/
+static int hf_dhcp_option43_arubaiap_ampip;			/* 43: ArubaIAP: AMP IP Address*/
+static int hf_dhcp_option43_arubaiap_password;			/* 43 :ArubaIAP: Password*/
 
-static int hf_dhcp_option_netbios_over_tcpip_name_server = -1;		/* 44 */
-static int hf_dhcp_option_netbios_over_tcpip_dd_name_server = -1;	/* 45 */
-static int hf_dhcp_option_netbios_over_tcpip_node_type = -1;		/* 46 */
-static int hf_dhcp_option_netbios_over_tcpip_scope = -1;		/* 47 */
-static int hf_dhcp_option_xwindows_system_font_server = -1;		/* 48 */
-static int hf_dhcp_option_xwindows_system_display_manager = -1;		/* 49 */
-static int hf_dhcp_option_requested_ip_address = -1;			/* 50 */
-static int hf_dhcp_option_ip_address_lease_time = -1;			/* 51 */
-static int hf_dhcp_option_option_overload = -1;				/* 52 */
-static int hf_dhcp_option_dhcp = -1;					/* 53 */
-static int hf_dhcp_option_dhcp_server_id = -1;				/* 54 */
-static int hf_dhcp_option_parameter_request_list_item = -1;		/* 55 */
-static int hf_dhcp_option_message = -1;					/* 56 */
-static int hf_dhcp_option_dhcp_max_message_size = -1;			/* 57 */
-static int hf_dhcp_option_renewal_time_value = -1;			/* 58 */
-static int hf_dhcp_option_rebinding_time_value = -1;			/* 59 */
-static int hf_dhcp_option_vendor_class_id = -1;				/* 60 */
-static int hf_dhcp_option_vendor_class_data = -1;			/* 60 */
+static int hf_dhcp_option_netbios_over_tcpip_name_server;		/* 44 */
+static int hf_dhcp_option_netbios_over_tcpip_dd_name_server;	/* 45 */
+static int hf_dhcp_option_netbios_over_tcpip_node_type;		/* 46 */
+static int hf_dhcp_option_netbios_over_tcpip_scope;		/* 47 */
+static int hf_dhcp_option_xwindows_system_font_server;		/* 48 */
+static int hf_dhcp_option_xwindows_system_display_manager;		/* 49 */
+static int hf_dhcp_option_requested_ip_address;			/* 50 */
+static int hf_dhcp_option_ip_address_lease_time;			/* 51 */
+static int hf_dhcp_option_option_overload;				/* 52 */
+static int hf_dhcp_option_dhcp;					/* 53 */
+static int hf_dhcp_option_dhcp_server_id;				/* 54 */
+static int hf_dhcp_option_parameter_request_list_item;		/* 55 */
+static int hf_dhcp_option_message;					/* 56 */
+static int hf_dhcp_option_dhcp_max_message_size;			/* 57 */
+static int hf_dhcp_option_renewal_time_value;			/* 58 */
+static int hf_dhcp_option_rebinding_time_value;			/* 59 */
+static int hf_dhcp_option_vendor_class_id;				/* 60 */
+static int hf_dhcp_option_vendor_class_data;			/* 60 */
 
-static int hf_dhcp_option_novell_netware_ip_domain = -1;		/* 62 */
+static int hf_dhcp_option_novell_netware_ip_domain;		/* 62 */
 
-static int hf_dhcp_option63_suboption = -1;				/* 63 suboption */
-static int hf_dhcp_option63_value = -1;					/* 63 suboption value */
-static int hf_dhcp_option63_value_8 = -1;				/* 63 suboption value */
-static int hf_dhcp_option63_value_ip_address = -1;			/* 63 suboption value */
-static int hf_dhcp_option63_value_boolean = -1;				/* 63 suboption value */
-static int hf_dhcp_option63_broadcast = -1;				/* 63:5 */
-static int hf_dhcp_option63_preferred_dss_server = -1;			/* 63:6 */
-static int hf_dhcp_option63_nearest_nwip_server = -1;			/* 63:7 */
-static int hf_dhcp_option63_autoretries = -1;				/* 63:8 */
-static int hf_dhcp_option63_autoretry_delay = -1;			/* 63:9 */
-static int hf_dhcp_option63_support_netware_v1_1 = -1;			/* 63:10 */
-static int hf_dhcp_option63_primary_dss = -1;				/* 63:11 */
+static int hf_dhcp_option63_suboption;				/* 63 suboption */
+static int hf_dhcp_option63_value;					/* 63 suboption value */
+static int hf_dhcp_option63_value_8;				/* 63 suboption value */
+static int hf_dhcp_option63_value_ip_address;			/* 63 suboption value */
+static int hf_dhcp_option63_value_boolean;				/* 63 suboption value */
+static int hf_dhcp_option63_broadcast;				/* 63:5 */
+static int hf_dhcp_option63_preferred_dss_server;			/* 63:6 */
+static int hf_dhcp_option63_nearest_nwip_server;			/* 63:7 */
+static int hf_dhcp_option63_autoretries;				/* 63:8 */
+static int hf_dhcp_option63_autoretry_delay;			/* 63:9 */
+static int hf_dhcp_option63_support_netware_v1_1;			/* 63:10 */
+static int hf_dhcp_option63_primary_dss;				/* 63:11 */
 
-static int hf_dhcp_option_nis_plus_domain = -1;				/* 64 */
-static int hf_dhcp_option_nis_plus_server = -1;				/* 65 */
-static int hf_dhcp_option_tftp_server_name = -1;			/* 66 */
-static int hf_dhcp_option_bootfile_name = -1;				/* 67 */
-static int hf_dhcp_option_mobile_ip_home_agent = -1;			/* 68 */
-static int hf_dhcp_option_smtp_server = -1;				/* 69 */
-static int hf_dhcp_option_pop3_server = -1;				/* 70 */
-static int hf_dhcp_option_nntp_server = -1;				/* 71 */
-static int hf_dhcp_option_default_www_server = -1;			/* 72 */
-static int hf_dhcp_option_default_finger_server = -1;			/* 73 */
-static int hf_dhcp_option_default_irc_server = -1;			/* 74 */
-static int hf_dhcp_option_streettalk_server = -1;			/* 75 */
-static int hf_dhcp_option_streettalk_da_server = -1;			/* 76 */
-static int hf_dhcp_option77_user_class = -1;				/* 77 User Class instance */
-static int hf_dhcp_option77_user_class_length = -1;			/* 77 length of User Class instance */
-static int hf_dhcp_option77_user_class_data = -1;			/* 77 data of User Class instance */
-static int hf_dhcp_option77_user_class_text = -1;			/* 77 User class text */
-static int hf_dhcp_option77_user_class_binary_data_length = -1;	/* 77, Microsoft */
-static int hf_dhcp_option77_user_class_binary_data = -1;		/* 77, Microsoft */
-static int hf_dhcp_option77_user_class_padding = -1;			/* 77, Microsoft */
-static int hf_dhcp_option77_user_class_name_length = -1;		/* 77, Microsoft */
-static int hf_dhcp_option77_user_class_name = -1;				/* 77, Microsoft */
-static int hf_dhcp_option77_user_class_description_length = -1;	/* 77, Microsoft */
-static int hf_dhcp_option77_user_class_description = -1;		/* 77, Microsoft */
-static int hf_dhcp_option_slp_directory_agent_value = -1;		/* 78 */
-static int hf_dhcp_option_slp_directory_agent_slpda_address = -1;	/* 78 */
-static int hf_dhcp_option_slp_service_scope_value = -1;			/* 79 */
-static int hf_dhcp_option_slp_service_scope_string = -1;		/* 79 */
+static int hf_dhcp_option_nis_plus_domain;				/* 64 */
+static int hf_dhcp_option_nis_plus_server;				/* 65 */
+static int hf_dhcp_option_tftp_server_name;			/* 66 */
+static int hf_dhcp_option_bootfile_name;				/* 67 */
+static int hf_dhcp_option_mobile_ip_home_agent;			/* 68 */
+static int hf_dhcp_option_smtp_server;				/* 69 */
+static int hf_dhcp_option_pop3_server;				/* 70 */
+static int hf_dhcp_option_nntp_server;				/* 71 */
+static int hf_dhcp_option_default_www_server;			/* 72 */
+static int hf_dhcp_option_default_finger_server;			/* 73 */
+static int hf_dhcp_option_default_irc_server;			/* 74 */
+static int hf_dhcp_option_streettalk_server;			/* 75 */
+static int hf_dhcp_option_streettalk_da_server;			/* 76 */
+static int hf_dhcp_option77_user_class;				/* 77 User Class instance */
+static int hf_dhcp_option77_user_class_length;			/* 77 length of User Class instance */
+static int hf_dhcp_option77_user_class_data;			/* 77 data of User Class instance */
+static int hf_dhcp_option77_user_class_text;			/* 77 User class text */
+static int hf_dhcp_option77_user_class_binary_data_length;	/* 77, Microsoft */
+static int hf_dhcp_option77_user_class_binary_data;		/* 77, Microsoft */
+static int hf_dhcp_option77_user_class_padding;			/* 77, Microsoft */
+static int hf_dhcp_option77_user_class_name_length;		/* 77, Microsoft */
+static int hf_dhcp_option77_user_class_name;				/* 77, Microsoft */
+static int hf_dhcp_option77_user_class_description_length;	/* 77, Microsoft */
+static int hf_dhcp_option77_user_class_description;		/* 77, Microsoft */
+static int hf_dhcp_option_slp_directory_agent_value;		/* 78 */
+static int hf_dhcp_option_slp_directory_agent_slpda_address;	/* 78 */
+static int hf_dhcp_option_slp_service_scope_value;			/* 79 */
+static int hf_dhcp_option_slp_service_scope_string;		/* 79 */
 
-static int hf_dhcp_option82_suboption = -1;				/* 82 suboption */
-static int hf_dhcp_option82_value = -1;					/* 82 suboption value */
-static int hf_dhcp_option82_value_8 = -1;				/* 82 suboption value */
-static int hf_dhcp_option82_value_16 = -1;				/* 82 suboption value */
-static int hf_dhcp_option82_value_32 = -1;				/* 82 suboption value */
-static int hf_dhcp_option82_value_ip_address = -1;			/* 82 suboption value */
-static int hf_dhcp_option82_value_stringz = -1;				/* 82 suboption value */
-static int hf_dhcp_option82_padding = -1;				/* 82:0 */
-static int hf_dhcp_option82_agent_circuit_id = -1;			/* 82:1 */
-static int hf_dhcp_option82_agent_remote_id = -1;			/* 82:2 */
-static int hf_dhcp_option82_reserved = -1;				/* 82:3 */
-static int hf_dhcp_option82_docsis_device_class = -1;			/* 82:4 */
-static int hf_dhcp_option82_link_selection = -1;			/* 82:5 */
-static int hf_dhcp_option82_subscriber_id = -1;				/* 82:6 */
-static int hf_dhcp_option82_radius_attributes = -1;			/* 82:7 */
-static int hf_dhcp_option82_authentication = -1;			/* 82:8 */
-static int hf_dhcp_option82_vi = -1;					/* 82:9 */
+static int hf_dhcp_option82_suboption;				/* 82 suboption */
+static int hf_dhcp_option82_value;					/* 82 suboption value */
+static int hf_dhcp_option82_value_8;				/* 82 suboption value */
+static int hf_dhcp_option82_value_16;				/* 82 suboption value */
+static int hf_dhcp_option82_value_32;				/* 82 suboption value */
+static int hf_dhcp_option82_value_ip_address;			/* 82 suboption value */
+static int hf_dhcp_option82_value_stringz;				/* 82 suboption value */
+static int hf_dhcp_option82_padding;				/* 82:0 */
+static int hf_dhcp_option82_agent_circuit_id;			/* 82:1 */
+static int hf_dhcp_option82_agent_remote_id;			/* 82:2 */
+static int hf_dhcp_option82_reserved;				/* 82:3 */
+static int hf_dhcp_option82_docsis_device_class;			/* 82:4 */
+static int hf_dhcp_option82_link_selection;			/* 82:5 */
+static int hf_dhcp_option82_subscriber_id;				/* 82:6 */
+static int hf_dhcp_option82_radius_attributes;			/* 82:7 */
+static int hf_dhcp_option82_authentication;			/* 82:8 */
+static int hf_dhcp_option82_vi;					/* 82:9 */
 									/* 82:9 suboptions */
-static int hf_dhcp_option82_vi_enterprise = -1;
-static int hf_dhcp_option82_vi_data_length = -1;
-static int hf_dhcp_option82_vi_cl_docsis_version = -1;			/* 82:9:4491:1 */
-static int hf_dhcp_option82_vi_cl_dpoe_system_version = -1;		/* 82:9:4491:2 */
-static int hf_dhcp_option82_vi_cl_dpoe_system_pbb_service = -1;		/* 82:9:4491:4 */
-static int hf_dhcp_option82_vi_cl_service_class_name = -1;		/* 82:9:4491:5 */
-static int hf_dhcp_option82_vi_cl_mso_defined_text = -1;		/* 82:9:4491:6 */
-static int hf_dhcp_option82_vi_cl_secure_file_transfer_uri = -1;	/* 82:9:4491:7 */
+static int hf_dhcp_option82_vi_enterprise;
+static int hf_dhcp_option82_vi_data_length;
+static int hf_dhcp_option82_vi_cl_docsis_version;			/* 82:9:4491:1 */
+static int hf_dhcp_option82_vi_cl_dpoe_system_version;		/* 82:9:4491:2 */
+static int hf_dhcp_option82_vi_cl_dpoe_system_pbb_service;		/* 82:9:4491:4 */
+static int hf_dhcp_option82_vi_cl_service_class_name;		/* 82:9:4491:5 */
+static int hf_dhcp_option82_vi_cl_mso_defined_text;		/* 82:9:4491:6 */
+static int hf_dhcp_option82_vi_cl_secure_file_transfer_uri;	/* 82:9:4491:7 */
 									/* 82:9 suboptions end */
-static int hf_dhcp_option82_flags = -1;					/* 82:10 */
-static int hf_dhcp_option82_server_id_override = -1;			/* 82:11 */
-static int hf_dhcp_option82_relay_agent_id = -1;			/* 82:12 */
-static int hf_dhcp_option82_option_ani_att = -1;			/* 82:13 */
-static int hf_dhcp_option82_option_ani_att_res = -1;
-static int hf_dhcp_option82_option_ani_att_att = -1;
-static int hf_dhcp_option82_option_ani_network_name = -1;		/* 82:14 */
-static int hf_dhcp_option82_option_ani_ap_name = -1;			/* 82:15 */
-static int hf_dhcp_option82_option_ani_ap_bssid = -1;			/* 82:16 */
-static int hf_dhcp_option82_option_ani_operator_id = -1;		/* 82:17 */
-static int hf_dhcp_option82_option_ani_operator_realm = -1;		/* 82:18 */
-static int hf_dhcp_option82_option_source_port = -1;			/* 82:19 */
-static int hf_dhcp_option82_link_selection_cisco = -1;			/* 82:150 */
-static int hf_dhcp_option82_vrf_name_vpn_id = -1;			/* 82:151 */
+static int hf_dhcp_option82_flags;					/* 82:10 */
+static int hf_dhcp_option82_server_id_override;			/* 82:11 */
+static int hf_dhcp_option82_relay_agent_id;			/* 82:12 */
+static int hf_dhcp_option82_option_ani_att;			/* 82:13 */
+static int hf_dhcp_option82_option_ani_att_res;
+static int hf_dhcp_option82_option_ani_att_att;
+static int hf_dhcp_option82_option_ani_network_name;		/* 82:14 */
+static int hf_dhcp_option82_option_ani_ap_name;			/* 82:15 */
+static int hf_dhcp_option82_option_ani_ap_bssid;			/* 82:16 */
+static int hf_dhcp_option82_option_ani_operator_id;		/* 82:17 */
+static int hf_dhcp_option82_option_ani_operator_realm;		/* 82:18 */
+static int hf_dhcp_option82_option_source_port;			/* 82:19 */
+static int hf_dhcp_option82_link_selection_cisco;			/* 82:150 */
+static int hf_dhcp_option82_vrf_name_vpn_id;			/* 82:151 */
 									/* 82:151 suboptions */
-static int hf_dhcp_option82_vrf_name_global = -1;
-static int hf_dhcp_option82_vrf_name = -1;
-static int hf_dhcp_option82_vrf_name_vpn_id_oui = -1;
-static int hf_dhcp_option82_vrf_name_vpn_id_index = -1;
+static int hf_dhcp_option82_vrf_name_global;
+static int hf_dhcp_option82_vrf_name;
+static int hf_dhcp_option82_vrf_name_vpn_id_oui;
+static int hf_dhcp_option82_vrf_name_vpn_id_index;
 									/* 82:151 suboptions end */
-static int hf_dhcp_option82_server_id_override_cisco = -1;		/* 82:152 */
+static int hf_dhcp_option82_server_id_override_cisco;		/* 82:152 */
 
-static int hf_dhcp_option_isns_functions = -1;
-static int hf_dhcp_option_isns_functions_enabled = -1;
-static int hf_dhcp_option_isns_functions_dd_authorization = -1;
-static int hf_dhcp_option_isns_functions_sec_policy_distibution = -1;
-static int hf_dhcp_option_isns_functions_reserved = -1;
+static int hf_dhcp_option_isns_functions;
+static int hf_dhcp_option_isns_functions_enabled;
+static int hf_dhcp_option_isns_functions_dd_authorization;
+static int hf_dhcp_option_isns_functions_sec_policy_distibution;
+static int hf_dhcp_option_isns_functions_reserved;
 
-static int hf_dhcp_option_isns_discovery_domain_access = -1;
-static int hf_dhcp_option_isns_discovery_domain_access_enabled = -1;
-static int hf_dhcp_option_isns_discovery_domain_access_control_node = -1;
-static int hf_dhcp_option_isns_discovery_domain_access_iscsi_target = -1;
-static int hf_dhcp_option_isns_discovery_domain_access_iscsi_inititator = -1;
-static int hf_dhcp_option_isns_discovery_domain_access_ifcp_target_port = -1;
-static int hf_dhcp_option_isns_discovery_domain_access_ifcp_initiator_port = -1;
-static int hf_dhcp_option_isns_discovery_domain_access_reserved = -1;
+static int hf_dhcp_option_isns_discovery_domain_access;
+static int hf_dhcp_option_isns_discovery_domain_access_enabled;
+static int hf_dhcp_option_isns_discovery_domain_access_control_node;
+static int hf_dhcp_option_isns_discovery_domain_access_iscsi_target;
+static int hf_dhcp_option_isns_discovery_domain_access_iscsi_inititator;
+static int hf_dhcp_option_isns_discovery_domain_access_ifcp_target_port;
+static int hf_dhcp_option_isns_discovery_domain_access_ifcp_initiator_port;
+static int hf_dhcp_option_isns_discovery_domain_access_reserved;
 
-static int hf_dhcp_option_isns_administrative_flags = -1;
-static int hf_dhcp_option_isns_administrative_flags_enabled = -1;
-static int hf_dhcp_option_isns_administrative_flags_heartbeat = -1;
-static int hf_dhcp_option_isns_administrative_flags_management_scns = -1;
-static int hf_dhcp_option_isns_administrative_flags_default_dd = -1;
-static int hf_dhcp_option_isns_administrative_flags_reserved = -1;
+static int hf_dhcp_option_isns_administrative_flags;
+static int hf_dhcp_option_isns_administrative_flags_enabled;
+static int hf_dhcp_option_isns_administrative_flags_heartbeat;
+static int hf_dhcp_option_isns_administrative_flags_management_scns;
+static int hf_dhcp_option_isns_administrative_flags_default_dd;
+static int hf_dhcp_option_isns_administrative_flags_reserved;
 
-static int hf_dhcp_option_isns_server_security_bitmap = -1;
-static int hf_dhcp_option_isns_server_security_bitmap_enabled = -1;
-static int hf_dhcp_option_isns_server_security_bitmap_ike_ipsec_enabled = -1;
-static int hf_dhcp_option_isns_server_security_bitmap_main_mode = -1;
-static int hf_dhcp_option_isns_server_security_bitmap_aggressive_mode = -1;
-static int hf_dhcp_option_isns_server_security_bitmap_pfs = -1;
-static int hf_dhcp_option_isns_server_security_bitmap_transport_mode = -1;
-static int hf_dhcp_option_isns_server_security_bitmap_tunnel_mode = -1;
-static int hf_dhcp_option_isns_server_security_bitmap_reserved = -1;
+static int hf_dhcp_option_isns_server_security_bitmap;
+static int hf_dhcp_option_isns_server_security_bitmap_enabled;
+static int hf_dhcp_option_isns_server_security_bitmap_ike_ipsec_enabled;
+static int hf_dhcp_option_isns_server_security_bitmap_main_mode;
+static int hf_dhcp_option_isns_server_security_bitmap_aggressive_mode;
+static int hf_dhcp_option_isns_server_security_bitmap_pfs;
+static int hf_dhcp_option_isns_server_security_bitmap_transport_mode;
+static int hf_dhcp_option_isns_server_security_bitmap_tunnel_mode;
+static int hf_dhcp_option_isns_server_security_bitmap_reserved;
 
-static int hf_dhcp_option_isns_heartbeat_originator_addr = -1;
-static int hf_dhcp_option_isns_primary_server_addr = -1;
-static int hf_dhcp_option_isns_secondary_server_addr_list = -1;
+static int hf_dhcp_option_isns_heartbeat_originator_addr;
+static int hf_dhcp_option_isns_primary_server_addr;
+static int hf_dhcp_option_isns_secondary_server_addr_list;
 
-static int hf_dhcp_option_novell_dss_string = -1;			/* 85 */
-static int hf_dhcp_option_novell_dss_ip = -1;				/* 85 */
-static int hf_dhcp_option_novell_ds_tree_name = -1;			/* 86 */
-static int hf_dhcp_option_novell_ds_context = -1;			/* 87 */
-static int hf_dhcp_option_dhcp_authentication_protocol = -1;		/* 90 */
-static int hf_dhcp_option_dhcp_authentication_alg_delay = -1;		/* 90 */
-static int hf_dhcp_option_dhcp_authentication_algorithm = -1;		/* 90 */
-static int hf_dhcp_option_dhcp_authentication_rdm = -1;			/* 90 */
-static int hf_dhcp_option_dhcp_authentication_rdm_replay_detection = -1;   /* 90 */
-static int hf_dhcp_option_dhcp_authentication_rdm_rdv = -1;		/* 90 */
-static int hf_dhcp_option_dhcp_authentication_secret_id = -1;		/* 90 */
-static int hf_dhcp_option_dhcp_authentication_hmac_md5_hash = -1;	/* 90 */
-static int hf_dhcp_option_dhcp_authentication_information = -1;		/* 90 */
-static int hf_dhcp_option_client_last_transaction_time = -1;		/* 91 */
-static int hf_dhcp_option_associated_ip_option = -1;			/* 92 */
-static int hf_dhcp_option_client_system_architecture = -1;		/* 93 */
-static int hf_dhcp_option_client_network_id_major_ver = -1;		/* 94 */
-static int hf_dhcp_option_client_network_id_minor_ver = -1;		/* 94 */
-static int hf_dhcp_option_civic_location_what = -1;			/* 99 */
-static int hf_dhcp_option_civic_location_country = -1;			/* 99 */
-static int hf_dhcp_option_civic_location_ca_type = -1;			/* 99 */
-static int hf_dhcp_option_civic_location_ca_length = -1;		/* 99 */
-static int hf_dhcp_option_civic_location_ca_value = -1;			/* 99 */
-static int hf_dhcp_option_tz_pcode = -1;				/* 100 */
-static int hf_dhcp_option_tz_tcode = -1;				/* 101 */
-static int hf_dhcp_option_netinfo_parent_server_address = -1;		/* 112 */
-static int hf_dhcp_option_netinfo_parent_server_tag = -1;		/* 113 */
-static int hf_dhcp_option_captive_portal = -1;				/* 114 (ex 160) */
-static int hf_dhcp_option_dhcp_auto_configuration = -1;			/* 116 */
-static int hf_dhcp_option_dhcp_name_service_search_option = -1;		/* 117 */
-static int hf_dhcp_option_dhcp_dns_domain_search_list_rfc_3396_detected = -1;	/* 119 */
-static int hf_dhcp_option_dhcp_dns_domain_search_list_refer_last_option = -1;	/* 119 */
-static int hf_dhcp_option_dhcp_dns_domain_search_list_fqdn = -1;		/* 119 */
-static int hf_dhcp_option_sip_server_rfc_3396_detected = -1;			/* 120 */
-static int hf_dhcp_option_sip_server_refer_last_option = -1;			/* 120 */
-static int hf_dhcp_option_sip_server_enc = -1;				/* 120 */
-static int hf_dhcp_option_sip_server_name = -1;				/* 120 */
-static int hf_dhcp_option_sip_server_address = -1;			/* 120 */
-static int hf_dhcp_option_classless_static_route = -1;			/* 120 */
-static int hf_dhcp_option_rfc3825_error = -1;				/* 123 */
-static int hf_dhcp_option_rfc3825_latitude = -1;			/* 123 */
-static int hf_dhcp_option_rfc3825_longitude = -1;			/* 123 */
-static int hf_dhcp_option_rfc3825_latitude_res = -1;			/* 123 */
-static int hf_dhcp_option_rfc3825_longitude_res = -1;			/* 123 */
-static int hf_dhcp_option_rfc3825_altitude = -1;			/* 123 */
-static int hf_dhcp_option_rfc3825_altitude_res = -1;			/* 123 */
-static int hf_dhcp_option_rfc3825_altitude_type = -1;			/* 123 */
-static int hf_dhcp_option_rfc3825_map_datum = -1;			/* 123 */
-static int hf_dhcp_option_cl_dss_id_option = -1;			/* 123 CL */
-static int hf_dhcp_option_cl_dss_id_len = -1;				/* 123 CL */
-static int hf_dhcp_option_cl_dss_id = -1;				/* 123 CL */
-static int hf_dhcp_option_vi_class_cl_address_mode = -1;		/* 124 */
-static int hf_dhcp_option_vi_class_enterprise = -1;			/* 124 */
-static int hf_dhcp_option_vi_class_data_length = -1;			/* 124 */
-static int hf_dhcp_option_vi_class_data_item_length = -1;		/* 124 */
-static int hf_dhcp_option_vi_class_data_item_data = -1;			/* 124 */
+static int hf_dhcp_option_novell_dss_string;			/* 85 */
+static int hf_dhcp_option_novell_dss_ip;				/* 85 */
+static int hf_dhcp_option_novell_ds_tree_name;			/* 86 */
+static int hf_dhcp_option_novell_ds_context;			/* 87 */
+static int hf_dhcp_option_dhcp_authentication_protocol;		/* 90 */
+static int hf_dhcp_option_dhcp_authentication_alg_delay;		/* 90 */
+static int hf_dhcp_option_dhcp_authentication_algorithm;		/* 90 */
+static int hf_dhcp_option_dhcp_authentication_rdm;			/* 90 */
+static int hf_dhcp_option_dhcp_authentication_rdm_replay_detection;   /* 90 */
+static int hf_dhcp_option_dhcp_authentication_rdm_rdv;		/* 90 */
+static int hf_dhcp_option_dhcp_authentication_secret_id;		/* 90 */
+static int hf_dhcp_option_dhcp_authentication_hmac_md5_hash;	/* 90 */
+static int hf_dhcp_option_dhcp_authentication_information;		/* 90 */
+static int hf_dhcp_option_client_last_transaction_time;		/* 91 */
+static int hf_dhcp_option_associated_ip_option;			/* 92 */
+static int hf_dhcp_option_client_system_architecture;		/* 93 */
+static int hf_dhcp_option_client_network_id_major_ver;		/* 94 */
+static int hf_dhcp_option_client_network_id_minor_ver;		/* 94 */
+static int hf_dhcp_option_civic_location_what;			/* 99 */
+static int hf_dhcp_option_civic_location_country;			/* 99 */
+static int hf_dhcp_option_civic_location_ca_type;			/* 99 */
+static int hf_dhcp_option_civic_location_ca_length;		/* 99 */
+static int hf_dhcp_option_civic_location_ca_value;			/* 99 */
+static int hf_dhcp_option_tz_pcode;				/* 100 */
+static int hf_dhcp_option_tz_tcode;				/* 101 */
+static int hf_dhcp_option_netinfo_parent_server_address;		/* 112 */
+static int hf_dhcp_option_netinfo_parent_server_tag;		/* 113 */
+static int hf_dhcp_option_captive_portal;				/* 114 (ex 160) */
+static int hf_dhcp_option_dhcp_auto_configuration;			/* 116 */
+static int hf_dhcp_option_dhcp_name_service_search_option;		/* 117 */
+static int hf_dhcp_option_dhcp_dns_domain_search_list_rfc_3396_detected;	/* 119 */
+static int hf_dhcp_option_dhcp_dns_domain_search_list_refer_last_option;	/* 119 */
+static int hf_dhcp_option_dhcp_dns_domain_search_list_fqdn;		/* 119 */
+static int hf_dhcp_option_sip_server_rfc_3396_detected;			/* 120 */
+static int hf_dhcp_option_sip_server_refer_last_option;			/* 120 */
+static int hf_dhcp_option_sip_server_enc;				/* 120 */
+static int hf_dhcp_option_sip_server_name;				/* 120 */
+static int hf_dhcp_option_sip_server_address;			/* 120 */
+static int hf_dhcp_option_classless_static_route;			/* 120 */
+static int hf_dhcp_option_rfc3825_error;				/* 123 */
+static int hf_dhcp_option_rfc3825_latitude;			/* 123 */
+static int hf_dhcp_option_rfc3825_longitude;			/* 123 */
+static int hf_dhcp_option_rfc3825_latitude_res;			/* 123 */
+static int hf_dhcp_option_rfc3825_longitude_res;			/* 123 */
+static int hf_dhcp_option_rfc3825_altitude;			/* 123 */
+static int hf_dhcp_option_rfc3825_altitude_res;			/* 123 */
+static int hf_dhcp_option_rfc3825_altitude_type;			/* 123 */
+static int hf_dhcp_option_rfc3825_map_datum;			/* 123 */
+static int hf_dhcp_option_cl_dss_id_option;			/* 123 CL */
+static int hf_dhcp_option_cl_dss_id_len;				/* 123 CL */
+static int hf_dhcp_option_cl_dss_id;				/* 123 CL */
+static int hf_dhcp_option_vi_class_cl_address_mode;		/* 124 */
+static int hf_dhcp_option_vi_class_enterprise;			/* 124 */
+static int hf_dhcp_option_vi_class_data_length;			/* 124 */
+static int hf_dhcp_option_vi_class_data_item_length;		/* 124 */
+static int hf_dhcp_option_vi_class_data_item_data;			/* 124 */
 
-static int hf_dhcp_option125_enterprise = -1;
-static int hf_dhcp_option125_length = -1;
-static int hf_dhcp_option125_value = -1;				/* 125 suboption value */
-static int hf_dhcp_option125_value_8 = -1;				/* 125 suboption value */
-static int hf_dhcp_option125_value_16 = -1;				/* 125 suboption value */
-static int hf_dhcp_option125_value_ip_address = -1;			/* 125 suboption value */
-static int hf_dhcp_option125_value_stringz = -1;			/* 125 suboption value */
-static int hf_dhcp_option125_tr111_suboption = -1;			/* 125 suboption */
-static int hf_dhcp_option125_tr111_device_manufacturer_oui = -1;	/* 125:TR-111 1 */
-static int hf_dhcp_option125_tr111_device_serial_number = -1;		/* 125:TR-111 2 */
-static int hf_dhcp_option125_tr111_device_product_class = -1;		/* 125:TR-111 3 */
-static int hf_dhcp_option125_tr111_gateway_manufacturer_oui = -1;	/* 125:TR-111 4 */
-static int hf_dhcp_option125_tr111_gateway_serial_number = -1;		/* 125:TR-111 5 */
-static int hf_dhcp_option125_tr111_gateway_product_class = -1;		/* 125:TR-111 6 */
-static int hf_dhcp_option125_cl_suboption = -1;				/* 125 suboption */
-static int hf_dhcp_option125_cl_option_request = -1;			/* 125:CL 1 */
-static int hf_dhcp_option125_cl_tftp_server_addresses = -1;		/* 125:CL 2 */
-static int hf_dhcp_option125_cl_erouter_container_option = -1;		/* 125:CL 3 */
-static int hf_dhcp_option125_cl_mib_environment_indicator_option = -1; /* 125:CL 4 */
-static int hf_dhcp_option125_cl_modem_capabilities = -1;		/* 125:CL 5 */
+static int hf_dhcp_option125_enterprise;
+static int hf_dhcp_option125_length;
+static int hf_dhcp_option125_value;				/* 125 suboption value */
+static int hf_dhcp_option125_value_8;				/* 125 suboption value */
+static int hf_dhcp_option125_value_16;				/* 125 suboption value */
+static int hf_dhcp_option125_value_ip_address;			/* 125 suboption value */
+static int hf_dhcp_option125_value_stringz;			/* 125 suboption value */
+static int hf_dhcp_option125_tr111_suboption;			/* 125 suboption */
+static int hf_dhcp_option125_tr111_device_manufacturer_oui;	/* 125:TR-111 1 */
+static int hf_dhcp_option125_tr111_device_serial_number;		/* 125:TR-111 2 */
+static int hf_dhcp_option125_tr111_device_product_class;		/* 125:TR-111 3 */
+static int hf_dhcp_option125_tr111_gateway_manufacturer_oui;	/* 125:TR-111 4 */
+static int hf_dhcp_option125_tr111_gateway_serial_number;		/* 125:TR-111 5 */
+static int hf_dhcp_option125_tr111_gateway_product_class;		/* 125:TR-111 6 */
+static int hf_dhcp_option125_cl_suboption;				/* 125 suboption */
+static int hf_dhcp_option125_cl_option_request;			/* 125:CL 1 */
+static int hf_dhcp_option125_cl_tftp_server_addresses;		/* 125:CL 2 */
+static int hf_dhcp_option125_cl_erouter_container_option;		/* 125:CL 3 */
+static int hf_dhcp_option125_cl_mib_environment_indicator_option; /* 125:CL 4 */
+static int hf_dhcp_option125_cl_modem_capabilities;		/* 125:CL 5 */
 
-static int hf_dhcp_option_subnet_selection_option = -1;			/* 118 */
-static int hf_dhcp_option_pana_agent = -1;				/* 136 */
-static int hf_dhcp_option_lost_server_domain_name = -1;			/* 137 */
-static int hf_dhcp_option_capwap_access_controller = -1;		/* 138 */
-static int hf_dhcp_option_andsf_server = -1;				/* 142 */
-static int hf_dhcp_option_forcerenew_nonce_algo = -1;			/* 145 */
-static int hf_dhcp_option_rdnss_reserved = -1;				/* 146 */
-static int hf_dhcp_option_rdnss_pref = -1;				/* 146 */
-static int hf_dhcp_option_rdnss_prim_dns_server = -1;			/* 146 */
-static int hf_dhcp_option_rdnss_sec_dns_server = -1;			/* 146 */
-static int hf_dhcp_option_rdnss_domain = -1;				/* 146 */
-static int hf_dhcp_option_tftp_server_address = -1;			/* 150 */
-static int hf_dhcp_option_bulk_lease_status_code = -1;			/* 151 */
-static int hf_dhcp_option_bulk_lease_status_message = -1;		/* 151 */
-static int hf_dhcp_option_bulk_lease_base_time = -1;			/* 152 */
-static int hf_dhcp_option_bulk_lease_start_time_of_state = -1;		/* 153 */
-static int hf_dhcp_option_bulk_lease_query_start = -1;			/* 154 */
-static int hf_dhcp_option_bulk_lease_query_end = -1;			/* 155 */
-static int hf_dhcp_option_bulk_lease_dhcp_state = -1;			/* 156 */
-static int hf_dhcp_option_bulk_lease_data_source = -1;			/* 157 */
-static int hf_dhcp_option_pcp_list_length = -1;				/* 158 */
-static int hf_dhcp_option_pcp_server = -1;				/* 158 */
-static int hf_dhcp_option_portparams_offset = -1;			/* 159 */
-static int hf_dhcp_option_portparams_psid_length = -1;			/* 159 */
-static int hf_dhcp_option_portparams_psid = -1;				/* 159 */
-static int hf_dhcp_option_mudurl = -1;					/* 161 */
-static int hf_dhcp_option_pxe_config_file = -1;				/* 209 */
-static int hf_dhcp_option_pxe_path_prefix = -1;				/* 210 */
-static int hf_dhcp_option_6RD_ipv4_mask_len = -1;			/* 212 */
-static int hf_dhcp_option_6RD_prefix_len = -1;				/* 212 */
-static int hf_dhcp_option_6RD_prefix = -1;				/* 212 */
-static int hf_dhcp_option_6RD_border_relay_ip = -1;			/* 212 */
-static int hf_dhcp_option242_avaya = -1;				/* 242 */
-static int hf_dhcp_option242_avaya_tlssrvr = -1;			/* 242 */
-static int hf_dhcp_option242_avaya_httpsrvr = -1;			/* 242 */
-static int hf_dhcp_option242_avaya_httpdir = -1;			/* 242 */
-static int hf_dhcp_option242_avaya_static = -1;				/* 242 */
-static int hf_dhcp_option242_avaya_mcipadd = -1;			/* 242 */
-static int hf_dhcp_option242_avaya_dot1x = -1;				/* 242 */
-static int hf_dhcp_option242_avaya_icmpdu = -1;				/* 242 */
-static int hf_dhcp_option242_avaya_icmpred = -1;			/* 242 */
-static int hf_dhcp_option242_avaya_l2q = -1;				/* 242 */
-static int hf_dhcp_option242_avaya_l2qvlan = -1;			/* 242 */
-static int hf_dhcp_option242_avaya_loglocal = -1;			/* 242 */
-static int hf_dhcp_option242_avaya_phy1stat = -1;			/* 242 */
-static int hf_dhcp_option242_avaya_phy2stat = -1;			/* 242 */
-static int hf_dhcp_option242_avaya_procpswd = -1;			/* 242 */
-static int hf_dhcp_option242_avaya_procstat = -1;			/* 242 */
-static int hf_dhcp_option242_avaya_snmpadd = -1;			/* 242 */
-static int hf_dhcp_option242_avaya_snmpstring = -1;			/* 242 */
-static int hf_dhcp_option242_avaya_vlantest = -1;			/* 242 */
-static int hf_dhcp_option_private_proxy_autodiscovery = -1;		/* 252 */
-static int hf_dhcp_option_end = -1;					/* 255 */
-static int hf_dhcp_option_end_overload = -1;				/* 255 (with overload)*/
-static int hf_dhcp_vendor_unknown_suboption = -1;
-static int hf_dhcp_suboption_data = -1;
-static int hf_dhcp_pc_ietf_ccc_suboption = -1;
-static int hf_dhcp_pc_i05_ccc_suboption = -1;
+static int hf_dhcp_option_subnet_selection_option;			/* 118 */
+static int hf_dhcp_option_pana_agent;				/* 136 */
+static int hf_dhcp_option_lost_server_domain_name;			/* 137 */
+static int hf_dhcp_option_capwap_access_controller;		/* 138 */
+static int hf_dhcp_option_andsf_server;				/* 142 */
+static int hf_dhcp_option_forcerenew_nonce_algo;			/* 145 */
+static int hf_dhcp_option_rdnss_reserved;				/* 146 */
+static int hf_dhcp_option_rdnss_pref;				/* 146 */
+static int hf_dhcp_option_rdnss_prim_dns_server;			/* 146 */
+static int hf_dhcp_option_rdnss_sec_dns_server;			/* 146 */
+static int hf_dhcp_option_rdnss_domain;				/* 146 */
+static int hf_dhcp_option_tftp_server_address;			/* 150 */
+static int hf_dhcp_option_bulk_lease_status_code;			/* 151 */
+static int hf_dhcp_option_bulk_lease_status_message;		/* 151 */
+static int hf_dhcp_option_bulk_lease_base_time;			/* 152 */
+static int hf_dhcp_option_bulk_lease_start_time_of_state;		/* 153 */
+static int hf_dhcp_option_bulk_lease_query_start;			/* 154 */
+static int hf_dhcp_option_bulk_lease_query_end;			/* 155 */
+static int hf_dhcp_option_bulk_lease_dhcp_state;			/* 156 */
+static int hf_dhcp_option_bulk_lease_data_source;			/* 157 */
+static int hf_dhcp_option_pcp_list_length;				/* 158 */
+static int hf_dhcp_option_pcp_server;				/* 158 */
+static int hf_dhcp_option_portparams_offset;			/* 159 */
+static int hf_dhcp_option_portparams_psid_length;			/* 159 */
+static int hf_dhcp_option_portparams_psid;				/* 159 */
+static int hf_dhcp_option_mudurl;					/* 161 */
+static int hf_dhcp_option_pxe_config_file;				/* 209 */
+static int hf_dhcp_option_pxe_path_prefix;				/* 210 */
+static int hf_dhcp_option_6RD_ipv4_mask_len;			/* 212 */
+static int hf_dhcp_option_6RD_prefix_len;				/* 212 */
+static int hf_dhcp_option_6RD_prefix;				/* 212 */
+static int hf_dhcp_option_6RD_border_relay_ip;			/* 212 */
+static int hf_dhcp_option242_avaya;				/* 242 */
+static int hf_dhcp_option242_avaya_tlssrvr;			/* 242 */
+static int hf_dhcp_option242_avaya_httpsrvr;			/* 242 */
+static int hf_dhcp_option242_avaya_httpdir;			/* 242 */
+static int hf_dhcp_option242_avaya_static;				/* 242 */
+static int hf_dhcp_option242_avaya_mcipadd;			/* 242 */
+static int hf_dhcp_option242_avaya_dot1x;				/* 242 */
+static int hf_dhcp_option242_avaya_icmpdu;				/* 242 */
+static int hf_dhcp_option242_avaya_icmpred;			/* 242 */
+static int hf_dhcp_option242_avaya_l2q;				/* 242 */
+static int hf_dhcp_option242_avaya_l2qvlan;			/* 242 */
+static int hf_dhcp_option242_avaya_loglocal;			/* 242 */
+static int hf_dhcp_option242_avaya_phy1stat;			/* 242 */
+static int hf_dhcp_option242_avaya_phy2stat;			/* 242 */
+static int hf_dhcp_option242_avaya_procpswd;			/* 242 */
+static int hf_dhcp_option242_avaya_procstat;			/* 242 */
+static int hf_dhcp_option242_avaya_snmpadd;			/* 242 */
+static int hf_dhcp_option242_avaya_snmpstring;			/* 242 */
+static int hf_dhcp_option242_avaya_vlantest;			/* 242 */
+static int hf_dhcp_option_private_proxy_autodiscovery;		/* 252 */
+static int hf_dhcp_option_end;					/* 255 */
+static int hf_dhcp_option_end_overload;				/* 255 (with overload)*/
+static int hf_dhcp_vendor_unknown_suboption;
+static int hf_dhcp_suboption_data;
+static int hf_dhcp_pc_ietf_ccc_suboption;
+static int hf_dhcp_pc_i05_ccc_suboption;
 
-static int hf_dhcp_cl_ietf_ccc_dev_realm_unc_key_nom_timeout = -1;
-static int hf_dhcp_cl_ietf_ccc_dev_realm_unc_key_max_timeout = -1;
-static int hf_dhcp_cl_ietf_ccc_dev_realm_unc_key_max_retries = -1;
-static int hf_dhcp_cl_ietf_ccc_dev_prov_unc_key_nom_timeout = -1;
-static int hf_dhcp_cl_ietf_ccc_dev_prov_unc_key_max_timeout = -1;
-static int hf_dhcp_cl_ietf_ccc_dev_prov_unc_key_max_retries = -1;
+static int hf_dhcp_cl_ietf_ccc_dev_realm_unc_key_nom_timeout;
+static int hf_dhcp_cl_ietf_ccc_dev_realm_unc_key_max_timeout;
+static int hf_dhcp_cl_ietf_ccc_dev_realm_unc_key_max_retries;
+static int hf_dhcp_cl_ietf_ccc_dev_prov_unc_key_nom_timeout;
+static int hf_dhcp_cl_ietf_ccc_dev_prov_unc_key_max_timeout;
+static int hf_dhcp_cl_ietf_ccc_dev_prov_unc_key_max_retries;
 
-static gint ett_dhcp = -1;
-static gint ett_dhcp_flags = -1;
-static gint ett_dhcp_option = -1;
-static gint ett_dhcp_option43_suboption = -1;
-static gint ett_dhcp_option43_suboption_discovery = -1;
-static gint ett_dhcp_option43_suboption_tree = -1;
-static gint ett_dhcp_option63_suboption = -1;
-static gint ett_dhcp_option77_instance = -1;
-static gint ett_dhcp_option82_suboption = -1;
-static gint ett_dhcp_option82_suboption9 = -1;
-static gint ett_dhcp_option124_vendor_class_data_item = -1;
-static gint ett_dhcp_option125_suboption = -1;
-static gint ett_dhcp_option125_tr111_suboption = -1;
-static gint ett_dhcp_option125_cl_suboption = -1;
-static gint ett_dhcp_option242_suboption = -1;
-static gint ett_dhcp_fqdn = -1;
-static gint ett_dhcp_fqdn_flags = -1;
-static gint ett_dhcp_filename_option = -1;
-static gint ett_dhcp_server_hostname = -1;
-static gint ett_dhcp_isns_functions = -1;
-static gint ett_dhcp_isns_discovery_domain_access = -1;
-static gint ett_dhcp_isns_administrative_flags = -1;
-static gint ett_dhcp_isns_server_security_bitmap = -1;
-static gint ett_dhcp_isns_secondary_server_addr = -1;
-static gint ett_dhcp_o43_bsdp_boot_image = -1;
-static gint ett_dhcp_o43_bsdp_attributes = -1;
-static gint ett_dhcp_o43_bsdp_image_desc_list = -1;
-static gint ett_dhcp_o43_bsdp_image_desc = -1;
-static gint ett_dhcp_o43_bsdp_attributes_flags = -1;
-static gint ett_dhcp_option158_pcp_list = -1;
+static gint ett_dhcp;
+static gint ett_dhcp_flags;
+static gint ett_dhcp_option;
+static gint ett_dhcp_option43_suboption;
+static gint ett_dhcp_option43_suboption_discovery;
+static gint ett_dhcp_option43_suboption_tree;
+static gint ett_dhcp_option63_suboption;
+static gint ett_dhcp_option77_instance;
+static gint ett_dhcp_option82_suboption;
+static gint ett_dhcp_option82_suboption9;
+static gint ett_dhcp_option124_vendor_class_data_item;
+static gint ett_dhcp_option125_suboption;
+static gint ett_dhcp_option125_tr111_suboption;
+static gint ett_dhcp_option125_cl_suboption;
+static gint ett_dhcp_option242_suboption;
+static gint ett_dhcp_fqdn;
+static gint ett_dhcp_fqdn_flags;
+static gint ett_dhcp_filename_option;
+static gint ett_dhcp_server_hostname;
+static gint ett_dhcp_isns_functions;
+static gint ett_dhcp_isns_discovery_domain_access;
+static gint ett_dhcp_isns_administrative_flags;
+static gint ett_dhcp_isns_server_security_bitmap;
+static gint ett_dhcp_isns_secondary_server_addr;
+static gint ett_dhcp_o43_bsdp_boot_image;
+static gint ett_dhcp_o43_bsdp_attributes;
+static gint ett_dhcp_o43_bsdp_image_desc_list;
+static gint ett_dhcp_o43_bsdp_image_desc;
+static gint ett_dhcp_o43_bsdp_attributes_flags;
+static gint ett_dhcp_option158_pcp_list;
 
-static expert_field ei_dhcp_bad_length = EI_INIT;
-static expert_field ei_dhcp_bad_bitfield = EI_INIT;
-static expert_field ei_dhcp_missing_subopt_length = EI_INIT;
-static expert_field ei_dhcp_missing_subopt_value = EI_INIT;
-static expert_field ei_dhcp_mal_duid = EI_INIT;
-static expert_field ei_dhcp_opt_overload_file_end_missing = EI_INIT;
-static expert_field ei_dhcp_opt_overload_sname_end_missing = EI_INIT;
-static expert_field ei_dhcp_subopt_unknown_type = EI_INIT;
-static expert_field ei_dhcp_option_civic_location_bad_cattype = EI_INIT;
-static expert_field ei_dhcp_option_dhcp_name_service_invalid = EI_INIT;
-static expert_field ei_dhcp_option_sip_server_address_encoding = EI_INIT;
-static expert_field ei_dhcp_option_classless_static_route = EI_INIT;
-static expert_field ei_dhcp_option125_enterprise_malformed = EI_INIT;
-static expert_field ei_dhcp_option_6RD_malformed = EI_INIT;
-static expert_field ei_dhcp_option82_vi_cl_tag_unknown = EI_INIT;
-static expert_field ei_dhcp_option_parse_err = EI_INIT;
-static expert_field ei_dhcp_nonstd_option_data = EI_INIT;
-static expert_field ei_dhcp_suboption_invalid = EI_INIT;
-static expert_field ei_dhcp_secs_le = EI_INIT;
-static expert_field ei_dhcp_end_option_missing = EI_INIT;
-static expert_field ei_dhcp_client_address_not_given = EI_INIT;
-static expert_field ei_dhcp_server_name_overloaded_by_dhcp = EI_INIT;
-static expert_field ei_dhcp_boot_filename_overloaded_by_dhcp = EI_INIT;
-static expert_field ei_dhcp_option_isns_ignored_bitfield = EI_INIT;
-static expert_field ei_dhcp_option242_avaya_l2qvlan_invalid = EI_INIT;
-static expert_field ei_dhcp_option242_avaya_vlantest_invalid = EI_INIT;
-static expert_field ei_dhcp_option93_client_arch_ambiguous = EI_INIT;
+static expert_field ei_dhcp_bad_length;
+static expert_field ei_dhcp_bad_bitfield;
+static expert_field ei_dhcp_missing_subopt_length;
+static expert_field ei_dhcp_missing_subopt_value;
+static expert_field ei_dhcp_mal_duid;
+static expert_field ei_dhcp_opt_overload_file_end_missing;
+static expert_field ei_dhcp_opt_overload_sname_end_missing;
+static expert_field ei_dhcp_subopt_unknown_type;
+static expert_field ei_dhcp_option_civic_location_bad_cattype;
+static expert_field ei_dhcp_option_dhcp_name_service_invalid;
+static expert_field ei_dhcp_option_sip_server_address_encoding;
+static expert_field ei_dhcp_option_classless_static_route;
+static expert_field ei_dhcp_option125_enterprise_malformed;
+static expert_field ei_dhcp_option_6RD_malformed;
+static expert_field ei_dhcp_option82_vi_cl_tag_unknown;
+static expert_field ei_dhcp_option_parse_err;
+static expert_field ei_dhcp_nonstd_option_data;
+static expert_field ei_dhcp_suboption_invalid;
+static expert_field ei_dhcp_secs_le;
+static expert_field ei_dhcp_end_option_missing;
+static expert_field ei_dhcp_client_address_not_given;
+static expert_field ei_dhcp_server_name_overloaded_by_dhcp;
+static expert_field ei_dhcp_boot_filename_overloaded_by_dhcp;
+static expert_field ei_dhcp_option_isns_ignored_bitfield;
+static expert_field ei_dhcp_option242_avaya_l2qvlan_invalid;
+static expert_field ei_dhcp_option242_avaya_vlantest_invalid;
+static expert_field ei_dhcp_option93_client_arch_ambiguous;
 
 static dissector_table_t dhcp_option_table;
 static dissector_table_t dhcp_enterprise_class_table;
@@ -5781,33 +5781,33 @@ static const value_string pkt_mdc_mib_orgs[] = {
 	{ 0,		NULL }
 };
 
-static int hf_dhcp_pkt_mdc_supp_flow_secure = -1;
-static int hf_dhcp_pkt_mdc_supp_flow_hybrid = -1;
-static int hf_dhcp_pkt_mdc_supp_flow_basic = -1;
+static int hf_dhcp_pkt_mdc_supp_flow_secure;
+static int hf_dhcp_pkt_mdc_supp_flow_hybrid;
+static int hf_dhcp_pkt_mdc_supp_flow_basic;
 
 #define PKT_MDC_MIB_CL 0x3030
-static int hf_dhcp_pkt_mdc_mib_cl_mta = -1;
-static int hf_dhcp_pkt_mdc_mib_cl_signaling = -1;
-static int hf_dhcp_pkt_mdc_mib_cl_management_event = -1;
-static int hf_dhcp_pkt_mdc_mib_cl_mta_extension = -1;
-static int hf_dhcp_pkt_mdc_mib_cl_mta_signaling_extension = -1;
-static int hf_dhcp_pkt_mdc_mib_cl_mta_mem_extension = -1;
-static int hf_dhcp_pkt_mdc_mib_cl_reserved = -1;
+static int hf_dhcp_pkt_mdc_mib_cl_mta;
+static int hf_dhcp_pkt_mdc_mib_cl_signaling;
+static int hf_dhcp_pkt_mdc_mib_cl_management_event;
+static int hf_dhcp_pkt_mdc_mib_cl_mta_extension;
+static int hf_dhcp_pkt_mdc_mib_cl_mta_signaling_extension;
+static int hf_dhcp_pkt_mdc_mib_cl_mta_mem_extension;
+static int hf_dhcp_pkt_mdc_mib_cl_reserved;
 
 #define PKT_MDC_MIB_IETF 0x3031
-static int hf_dhcp_pkt_mdc_mib_ietf_mta = -1;
-static int hf_dhcp_pkt_mdc_mib_ietf_signaling = -1;
-static int hf_dhcp_pkt_mdc_mib_ietf_management_event = -1;
-static int hf_dhcp_pkt_mdc_mib_ietf_reserved = -1;
+static int hf_dhcp_pkt_mdc_mib_ietf_mta;
+static int hf_dhcp_pkt_mdc_mib_ietf_signaling;
+static int hf_dhcp_pkt_mdc_mib_ietf_management_event;
+static int hf_dhcp_pkt_mdc_mib_ietf_reserved;
 
 #define PKT_MDC_MIB_EURO 0x3032
-static int hf_dhcp_pkt_mdc_mib_euro_mta = -1;
-static int hf_dhcp_pkt_mdc_mib_euro_signaling = -1;
-static int hf_dhcp_pkt_mdc_mib_euro_management_event = -1;
-static int hf_dhcp_pkt_mdc_mib_euro_mta_extension = -1;
-static int hf_dhcp_pkt_mdc_mib_euro_mta_signaling_extension = -1;
-static int hf_dhcp_pkt_mdc_mib_euro_mta_mem_extension = -1;
-static int hf_dhcp_pkt_mdc_mib_euro_reserved = -1;
+static int hf_dhcp_pkt_mdc_mib_euro_mta;
+static int hf_dhcp_pkt_mdc_mib_euro_signaling;
+static int hf_dhcp_pkt_mdc_mib_euro_management_event;
+static int hf_dhcp_pkt_mdc_mib_euro_mta_extension;
+static int hf_dhcp_pkt_mdc_mib_euro_mta_signaling_extension;
+static int hf_dhcp_pkt_mdc_mib_euro_mta_mem_extension;
+static int hf_dhcp_pkt_mdc_mib_euro_reserved;
 
 
 static void
@@ -6184,10 +6184,10 @@ static const value_string docsis_cm_cap_privacy_vals[] = {
 	{ 0,		NULL }
 };
 
-static int hf_dhcp_docsis_cm_cap_ranging_hold_off_cm = -1;
-static int hf_dhcp_docsis_cm_cap_ranging_hold_off_eps = -1;
-static int hf_dhcp_docsis_cm_cap_ranging_hold_off_emta = -1;
-static int hf_dhcp_docsis_cm_cap_ranging_hold_off_dsg = -1;
+static int hf_dhcp_docsis_cm_cap_ranging_hold_off_cm;
+static int hf_dhcp_docsis_cm_cap_ranging_hold_off_eps;
+static int hf_dhcp_docsis_cm_cap_ranging_hold_off_emta;
+static int hf_dhcp_docsis_cm_cap_ranging_hold_off_dsg;
 
 static const value_string docsis_cm_cap_l2vpn_vals[] = {
 	{ 0x00,	"CM not compliant with DOCSIS L2VPN Section 7 (default)" },
@@ -6201,31 +6201,31 @@ static const value_string docsis_cm_cap_filt_vals[] = {
 	{ 0,		NULL }
 };
 
-static int hf_dhcp_docsis_cm_cap_mpls_stpid = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_svid = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_spcp = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_sdei = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_ctpid = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_cvid = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_cpcp = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_ccfi = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_stci = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_ctci = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_itpid = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_isid = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_itci = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_ipcp = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_idei = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_iuca = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_btpid = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_btci = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_bpcp = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_bdei = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_bvid = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_bda = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_bsa = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_tc = -1;
-static int hf_dhcp_docsis_cm_cap_mpls_label = -1;
+static int hf_dhcp_docsis_cm_cap_mpls_stpid;
+static int hf_dhcp_docsis_cm_cap_mpls_svid;
+static int hf_dhcp_docsis_cm_cap_mpls_spcp;
+static int hf_dhcp_docsis_cm_cap_mpls_sdei;
+static int hf_dhcp_docsis_cm_cap_mpls_ctpid;
+static int hf_dhcp_docsis_cm_cap_mpls_cvid;
+static int hf_dhcp_docsis_cm_cap_mpls_cpcp;
+static int hf_dhcp_docsis_cm_cap_mpls_ccfi;
+static int hf_dhcp_docsis_cm_cap_mpls_stci;
+static int hf_dhcp_docsis_cm_cap_mpls_ctci;
+static int hf_dhcp_docsis_cm_cap_mpls_itpid;
+static int hf_dhcp_docsis_cm_cap_mpls_isid;
+static int hf_dhcp_docsis_cm_cap_mpls_itci;
+static int hf_dhcp_docsis_cm_cap_mpls_ipcp;
+static int hf_dhcp_docsis_cm_cap_mpls_idei;
+static int hf_dhcp_docsis_cm_cap_mpls_iuca;
+static int hf_dhcp_docsis_cm_cap_mpls_btpid;
+static int hf_dhcp_docsis_cm_cap_mpls_btci;
+static int hf_dhcp_docsis_cm_cap_mpls_bpcp;
+static int hf_dhcp_docsis_cm_cap_mpls_bdei;
+static int hf_dhcp_docsis_cm_cap_mpls_bvid;
+static int hf_dhcp_docsis_cm_cap_mpls_bda;
+static int hf_dhcp_docsis_cm_cap_mpls_bsa;
+static int hf_dhcp_docsis_cm_cap_mpls_tc;
+static int hf_dhcp_docsis_cm_cap_mpls_label;
 
 static const value_string docsis_cm_cap_enrgmang_vals[] = {
 	{ 0x00,	"Energy Management 1x1 Feature" },
@@ -6272,12 +6272,12 @@ static const value_string docsis_cm_cap_map_l2vpn_esafe_index_support_vals[] = {
 	{ 0,		NULL }
 };
 
-static int hf_dhcp_docsis_cm_cap_ussymrate_160 = -1;
-static int hf_dhcp_docsis_cm_cap_ussymrate_320 = -1;
-static int hf_dhcp_docsis_cm_cap_ussymrate_640 = -1;
-static int hf_dhcp_docsis_cm_cap_ussymrate_1280 = -1;
-static int hf_dhcp_docsis_cm_cap_ussymrate_2560 = -1;
-static int hf_dhcp_docsis_cm_cap_ussymrate_5120 = -1;
+static int hf_dhcp_docsis_cm_cap_ussymrate_160;
+static int hf_dhcp_docsis_cm_cap_ussymrate_320;
+static int hf_dhcp_docsis_cm_cap_ussymrate_640;
+static int hf_dhcp_docsis_cm_cap_ussymrate_1280;
+static int hf_dhcp_docsis_cm_cap_ussymrate_2560;
+static int hf_dhcp_docsis_cm_cap_ussymrate_5120;
 
 static void
 display_uint_with_range_checking(proto_item *ti, guint8 val_byte, guint16 val_uint16, int min_value, int max_value)
@@ -6886,8 +6886,8 @@ dissect_packetcable_i05_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 	return suboptoff;
 }
 
-static int hf_dhcp_ccc_ietf_sec_tkt_pc_provision_server = -1;
-static int hf_dhcp_ccc_ietf_sec_tkt_all_pc_call_management = -1;
+static int hf_dhcp_ccc_ietf_sec_tkt_pc_provision_server;
+static int hf_dhcp_ccc_ietf_sec_tkt_all_pc_call_management;
 
 static int
 dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,

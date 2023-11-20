@@ -67,197 +67,197 @@ static int add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, in
 static gint64
 evaluate_sdnv_64(tvbuff_t *tvb, int offset, int *bytecount);
 
-static int proto_bundle = -1;
+static int proto_bundle;
 static dissector_handle_t bundle_handle = NULL;
 static dissector_handle_t bpv6_handle = NULL;
 static dissector_handle_t bpv7_handle = NULL;
 
-static int hf_bundle_pdu_version = -1;
+static int hf_bundle_pdu_version;
 
 /* Primary Header Processing Flag Variables */
-static int hf_bundle_procflags = -1;
-static int hf_bundle_procflags_fragment = -1;
-static int hf_bundle_procflags_admin = -1;
-static int hf_bundle_procflags_dont_fragment = -1;
-static int hf_bundle_procflags_cust_xfer_req = -1;
-static int hf_bundle_procflags_dest_singleton = -1;
-static int hf_bundle_procflags_application_ack = -1;
+static int hf_bundle_procflags;
+static int hf_bundle_procflags_fragment;
+static int hf_bundle_procflags_admin;
+static int hf_bundle_procflags_dont_fragment;
+static int hf_bundle_procflags_cust_xfer_req;
+static int hf_bundle_procflags_dest_singleton;
+static int hf_bundle_procflags_application_ack;
 
 /* Additions for Version 5 */
-static int hf_bundle_control_flags = -1;
-static int hf_bundle_procflags_general = -1;
-static int hf_bundle_procflags_cos = -1;
-static int hf_bundle_procflags_status = -1;
+static int hf_bundle_control_flags;
+static int hf_bundle_procflags_general;
+static int hf_bundle_procflags_cos;
+static int hf_bundle_procflags_status;
 
 /* Primary Header COS Flag Variables */
-static int hf_bundle_cosflags = -1;
-static int hf_bundle_cosflags_priority = -1;
+static int hf_bundle_cosflags;
+static int hf_bundle_cosflags_priority;
 
 /* Primary Header Status Report Request Flag Variables */
-static int hf_bundle_srrflags = -1;
-static int hf_bundle_srrflags_report_receipt = -1;
-static int hf_bundle_srrflags_report_cust_accept = -1;
-static int hf_bundle_srrflags_report_forward = -1;
-static int hf_bundle_srrflags_report_delivery = -1;
-static int hf_bundle_srrflags_report_deletion = -1;
-static int hf_bundle_srrflags_report_ack = -1;
+static int hf_bundle_srrflags;
+static int hf_bundle_srrflags_report_receipt;
+static int hf_bundle_srrflags_report_cust_accept;
+static int hf_bundle_srrflags_report_forward;
+static int hf_bundle_srrflags_report_delivery;
+static int hf_bundle_srrflags_report_deletion;
+static int hf_bundle_srrflags_report_ack;
 
 /* Primary Header Fields*/
-static int hf_bundle_primary_header_len = -1;
-static int hf_bundle_primary_dictionary_len = -1;
-static int hf_bundle_primary_timestamp = -1;
-static int hf_bundle_primary_fragment_offset = -1;
-static int hf_bundle_primary_total_adu_len = -1;
-static int hf_bundle_primary_timestamp_seq_num64 = -1;
-static int hf_bundle_primary_timestamp_seq_num32 = -1;
+static int hf_bundle_primary_header_len;
+static int hf_bundle_primary_dictionary_len;
+static int hf_bundle_primary_timestamp;
+static int hf_bundle_primary_fragment_offset;
+static int hf_bundle_primary_total_adu_len;
+static int hf_bundle_primary_timestamp_seq_num64;
+static int hf_bundle_primary_timestamp_seq_num32;
 
-static int hf_bundle_dest_scheme_offset_u16 = -1;
-static int hf_bundle_dest_scheme_offset_i32 = -1;
-static int hf_bundle_dest_ssp_offset_u16 = -1;
-static int hf_bundle_dest_ssp_offset_i32 = -1;
-static int hf_bundle_source_scheme_offset_u16 = -1;
-static int hf_bundle_source_scheme_offset_i32 = -1;
-static int hf_bundle_source_ssp_offset_u16 = -1;
-static int hf_bundle_source_ssp_offset_i32 = -1;
-static int hf_bundle_report_scheme_offset_u16 = -1;
-static int hf_bundle_report_scheme_offset_i32 = -1;
-static int hf_bundle_report_ssp_offset_u16 = -1;
-static int hf_bundle_report_ssp_offset_i32 = -1;
-static int hf_bundle_cust_scheme_offset_u16 = -1;
-static int hf_bundle_cust_scheme_offset_i32 = -1;
-static int hf_bundle_cust_ssp_offset_u16 = -1;
-static int hf_bundle_cust_ssp_offset_i32 = -1;
+static int hf_bundle_dest_scheme_offset_u16;
+static int hf_bundle_dest_scheme_offset_i32;
+static int hf_bundle_dest_ssp_offset_u16;
+static int hf_bundle_dest_ssp_offset_i32;
+static int hf_bundle_source_scheme_offset_u16;
+static int hf_bundle_source_scheme_offset_i32;
+static int hf_bundle_source_ssp_offset_u16;
+static int hf_bundle_source_ssp_offset_i32;
+static int hf_bundle_report_scheme_offset_u16;
+static int hf_bundle_report_scheme_offset_i32;
+static int hf_bundle_report_ssp_offset_u16;
+static int hf_bundle_report_ssp_offset_i32;
+static int hf_bundle_cust_scheme_offset_u16;
+static int hf_bundle_cust_scheme_offset_i32;
+static int hf_bundle_cust_ssp_offset_u16;
+static int hf_bundle_cust_ssp_offset_i32;
 
 /* Dictionary EIDs */
-static int hf_bundle_dest_scheme = -1;
-static int hf_bundle_dest_ssp = -1;
-static int hf_bundle_source_scheme = -1;
-static int hf_bundle_source_ssp = -1;
-static int hf_bundle_report_scheme = -1;
-static int hf_bundle_report_ssp = -1;
-static int hf_bundle_custodian_scheme = -1;
-static int hf_bundle_custodian_ssp = -1;
+static int hf_bundle_dest_scheme;
+static int hf_bundle_dest_ssp;
+static int hf_bundle_source_scheme;
+static int hf_bundle_source_ssp;
+static int hf_bundle_report_scheme;
+static int hf_bundle_report_ssp;
+static int hf_bundle_custodian_scheme;
+static int hf_bundle_custodian_ssp;
 
 /* Remaining Primary Header Fields */
-static int hf_bundle_creation_timestamp = -1;
-static int hf_bundle_lifetime = -1;
-static int hf_bundle_lifetime_sdnv = -1;
+static int hf_bundle_creation_timestamp;
+static int hf_bundle_lifetime;
+static int hf_bundle_lifetime_sdnv;
 
 /* Secondary Header Processing Flag Variables */
-static int hf_bundle_payload_length = -1;
-static int hf_bundle_payload_header_type = -1;
-static int hf_bundle_payload_data = -1;
-static int hf_bundle_payload_flags = -1;
-static int hf_bundle_payload_flags_replicate_hdr = -1;
-static int hf_bundle_payload_flags_xmit_report = -1;
-static int hf_bundle_payload_flags_discard_on_fail = -1;
-static int hf_bundle_payload_flags_last_header = -1;
+static int hf_bundle_payload_length;
+static int hf_bundle_payload_header_type;
+static int hf_bundle_payload_data;
+static int hf_bundle_payload_flags;
+static int hf_bundle_payload_flags_replicate_hdr;
+static int hf_bundle_payload_flags_xmit_report;
+static int hf_bundle_payload_flags_discard_on_fail;
+static int hf_bundle_payload_flags_last_header;
 
 /* Block Processing Control Flag Variables (Version 5) */
-static int hf_block_control_flags = -1;
-static int hf_block_control_flags_sdnv = -1;
-static int hf_block_control_replicate = -1;
-static int hf_block_control_transmit_status = -1;
-static int hf_block_control_delete_bundle = -1;
-static int hf_block_control_last_block = -1;
-static int hf_block_control_discard_block = -1;
-static int hf_block_control_not_processed = -1;
-static int hf_block_control_eid_reference = -1;
-static int hf_block_control_block_length = -1;
-static int hf_block_control_block_cteb_custody_id = -1;
-static int hf_block_control_block_cteb_creator_custodian_eid = -1;
+static int hf_block_control_flags;
+static int hf_block_control_flags_sdnv;
+static int hf_block_control_replicate;
+static int hf_block_control_transmit_status;
+static int hf_block_control_delete_bundle;
+static int hf_block_control_last_block;
+static int hf_block_control_discard_block;
+static int hf_block_control_not_processed;
+static int hf_block_control_eid_reference;
+static int hf_block_control_block_length;
+static int hf_block_control_block_cteb_custody_id;
+static int hf_block_control_block_cteb_creator_custodian_eid;
 
 /* Non-Primary Block Type Code Variable */
-static int hf_bundle_block_type_code = -1;
-static int hf_bundle_unprocessed_block_data = -1;
+static int hf_bundle_block_type_code;
+static int hf_bundle_unprocessed_block_data;
 
 /* ECOS Flag Variables */
-static int hf_ecos_flags = -1;
-static int hf_ecos_flags_critical = -1;
-static int hf_ecos_flags_streaming = -1;
-static int hf_ecos_flags_flowlabel = -1;
-static int hf_ecos_flags_reliable = -1;
-static int hf_ecos_flow_label = -1;
+static int hf_ecos_flags;
+static int hf_ecos_flags_critical;
+static int hf_ecos_flags_streaming;
+static int hf_ecos_flags_flowlabel;
+static int hf_ecos_flags_reliable;
+static int hf_ecos_flow_label;
 
-static int hf_ecos_ordinal = -1;
+static int hf_ecos_ordinal;
 
 /* Administrative Record Variables */
-static int hf_bundle_admin_record_type = -1;
-static int hf_bundle_admin_record_fragment = -1;
-static int hf_bundle_admin_statflags = -1;
-static int hf_bundle_admin_rcvd = -1;
-static int hf_bundle_admin_accepted = -1;
-static int hf_bundle_admin_forwarded = -1;
-static int hf_bundle_admin_delivered = -1;
-static int hf_bundle_admin_deleted = -1;
-static int hf_bundle_admin_acked = -1;
-static int hf_bundle_admin_fragment_offset = -1;
-static int hf_bundle_admin_fragment_length = -1;
-static int hf_bundle_admin_timestamp_seq_num64 = -1;
-static int hf_bundle_admin_timestamp_seq_num32 = -1;
-static int hf_bundle_admin_endpoint_length = -1;
-static int hf_bundle_admin_endpoint_id = -1;
+static int hf_bundle_admin_record_type;
+static int hf_bundle_admin_record_fragment;
+static int hf_bundle_admin_statflags;
+static int hf_bundle_admin_rcvd;
+static int hf_bundle_admin_accepted;
+static int hf_bundle_admin_forwarded;
+static int hf_bundle_admin_delivered;
+static int hf_bundle_admin_deleted;
+static int hf_bundle_admin_acked;
+static int hf_bundle_admin_fragment_offset;
+static int hf_bundle_admin_fragment_length;
+static int hf_bundle_admin_timestamp_seq_num64;
+static int hf_bundle_admin_timestamp_seq_num32;
+static int hf_bundle_admin_endpoint_length;
+static int hf_bundle_admin_endpoint_id;
 
-static int hf_bundle_admin_receipt_time = -1;
-static int hf_bundle_admin_accept_time = -1;
-static int hf_bundle_admin_forward_time = -1;
-static int hf_bundle_admin_delivery_time = -1;
-static int hf_bundle_admin_delete_time = -1;
-static int hf_bundle_admin_ack_time = -1;
-static int hf_bundle_admin_timestamp_copy = -1;
-static int hf_bundle_admin_signal_time = -1;
-static int hf_bundle_status_report_reason_code = -1;
-static int hf_bundle_custody_trf_succ_flg = -1;
-static int hf_bundle_custody_signal_reason = -1;
-static int hf_bundle_custody_id_range_start = -1;
-static int hf_bundle_custody_id_range_end = -1;
+static int hf_bundle_admin_receipt_time;
+static int hf_bundle_admin_accept_time;
+static int hf_bundle_admin_forward_time;
+static int hf_bundle_admin_delivery_time;
+static int hf_bundle_admin_delete_time;
+static int hf_bundle_admin_ack_time;
+static int hf_bundle_admin_timestamp_copy;
+static int hf_bundle_admin_signal_time;
+static int hf_bundle_status_report_reason_code;
+static int hf_bundle_custody_trf_succ_flg;
+static int hf_bundle_custody_signal_reason;
+static int hf_bundle_custody_id_range_start;
+static int hf_bundle_custody_id_range_end;
 
-static int hf_bundle_age_extension_block_code = -1;
-static int hf_bundle_block_previous_hop_scheme = -1;
-static int hf_bundle_block_previous_hop_eid = -1;
+static int hf_bundle_age_extension_block_code;
+static int hf_bundle_block_previous_hop_scheme;
+static int hf_bundle_block_previous_hop_eid;
 
 /* Security Block Variables */
-static int hf_bundle_target_block_type = -1;
-static int hf_bundle_target_block_occurrence = -1;
-static int hf_bundle_ciphersuite_type = -1;
-static int hf_bundle_ciphersuite_flags = -1;
-static int hf_block_ciphersuite_params = -1;
-static int hf_block_ciphersuite_params_length = -1;
-static int hf_block_ciphersuite_params_item_length = -1;
-static int hf_block_ciphersuite_param_type = -1;
-static int hf_block_ciphersuite_param_data = -1;
-static int hf_block_ciphersuite_result_length = -1;
-static int hf_block_ciphersuite_result_item_length = -1;
-static int hf_block_ciphersuite_result_type = -1;
-static int hf_block_ciphersuite_result_data = -1;
-static int hf_block_ciphersuite_range_offset = -1;
-static int hf_block_ciphersuite_range_length = -1;
+static int hf_bundle_target_block_type;
+static int hf_bundle_target_block_occurrence;
+static int hf_bundle_ciphersuite_type;
+static int hf_bundle_ciphersuite_flags;
+static int hf_block_ciphersuite_params;
+static int hf_block_ciphersuite_params_length;
+static int hf_block_ciphersuite_params_item_length;
+static int hf_block_ciphersuite_param_type;
+static int hf_block_ciphersuite_param_data;
+static int hf_block_ciphersuite_result_length;
+static int hf_block_ciphersuite_result_item_length;
+static int hf_block_ciphersuite_result_type;
+static int hf_block_ciphersuite_result_data;
+static int hf_block_ciphersuite_range_offset;
+static int hf_block_ciphersuite_range_length;
 
 /* Tree Node Variables */
-static gint ett_bundle = -1;
-static gint ett_bundle_hdr = -1;
-static gint ett_primary_hdr = -1;
-static gint ett_proc_flags = -1;
-static gint ett_gen_flags = -1;
-static gint ett_cos_flags = -1;
-static gint ett_srr_flags = -1;
-static gint ett_dictionary = -1;
-static gint ett_payload_hdr = -1;
-static gint ett_payload_flags = -1;
-static gint ett_block_flags = -1;
-static gint ett_admin_record = -1;
-static gint ett_admin_rec_status = -1;
-static gint ett_metadata_hdr = -1;
-static gint ett_sec_block_param_data = -1;
+static gint ett_bundle;
+static gint ett_bundle_hdr;
+static gint ett_primary_hdr;
+static gint ett_proc_flags;
+static gint ett_gen_flags;
+static gint ett_cos_flags;
+static gint ett_srr_flags;
+static gint ett_dictionary;
+static gint ett_payload_hdr;
+static gint ett_payload_flags;
+static gint ett_block_flags;
+static gint ett_admin_record;
+static gint ett_admin_rec_status;
+static gint ett_metadata_hdr;
+static gint ett_sec_block_param_data;
 
-static expert_field ei_bundle_payload_length = EI_INIT;
-static expert_field ei_bundle_control_flags_length = EI_INIT;
-static expert_field ei_bundle_block_control_flags = EI_INIT;
-static expert_field ei_bundle_sdnv_length = EI_INIT;
-static expert_field ei_bundle_timestamp_seq_num = EI_INIT;
-static expert_field ei_bundle_offset_error = EI_INIT;
-static expert_field ei_block_control_block_cteb_invalid = EI_INIT;
-static expert_field ei_block_control_block_cteb_valid = EI_INIT;
+static expert_field ei_bundle_payload_length;
+static expert_field ei_bundle_control_flags_length;
+static expert_field ei_bundle_block_control_flags;
+static expert_field ei_bundle_sdnv_length;
+static expert_field ei_bundle_timestamp_seq_num;
+static expert_field ei_bundle_offset_error;
+static expert_field ei_block_control_block_cteb_invalid;
+static expert_field ei_block_control_block_cteb_valid;
 
 
 typedef struct dictionary_data {

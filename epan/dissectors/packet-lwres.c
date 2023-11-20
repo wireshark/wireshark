@@ -102,79 +102,79 @@ static const value_string result_values[]  = {
     { 0,                        NULL },
 };
 
-static int hf_length = -1;
-static int hf_version = -1;
-static int hf_flags = -1;
-static int hf_serial = -1;
-static int hf_opcode = -1;
-static int hf_result = -1;
-static int hf_recvlen = -1;
-static int hf_authtype = -1;
-static int hf_authlen = -1;
+static int hf_length;
+static int hf_version;
+static int hf_flags;
+static int hf_serial;
+static int hf_opcode;
+static int hf_result;
+static int hf_recvlen;
+static int hf_authtype;
+static int hf_authlen;
 
-static int hf_rflags = -1;
-static int hf_rdclass = -1;
-static int hf_rdtype = -1;
-static int hf_namelen = -1;
-static int hf_req_name = -1;
+static int hf_rflags;
+static int hf_rdclass;
+static int hf_rdtype;
+static int hf_namelen;
+static int hf_req_name;
 
-static int hf_ttl = -1;
-static int hf_nrdatas = -1;
-static int hf_nsigs = -1;
-static int hf_realnamelen = -1;
-static int hf_realname = -1;
+static int hf_ttl;
+static int hf_nrdatas;
+static int hf_nsigs;
+static int hf_realnamelen;
+static int hf_realname;
 
 
-static int hf_a_record = -1;
-static int hf_a_rec_len = -1;
-static int hf_srv_prio = -1;
-static int hf_srv_weight = -1;
-static int hf_srv_port = -1;
-static int hf_srv_dname = -1;
+static int hf_a_record;
+static int hf_a_rec_len;
+static int hf_srv_prio;
+static int hf_srv_weight;
+static int hf_srv_port;
+static int hf_srv_dname;
 
-static int hf_adn_flags = -1;
-static int hf_adn_addrtype = -1;
-static int hf_adn_namelen = -1;
-static int hf_adn_name = -1;
+static int hf_adn_flags;
+static int hf_adn_addrtype;
+static int hf_adn_namelen;
+static int hf_adn_name;
 
-static int hf_adn_realname = -1;
-static int hf_adn_aliasname = -1;
+static int hf_adn_realname;
+static int hf_adn_aliasname;
 
-static int hf_adn_naddrs = -1;
-static int hf_adn_naliases = -1;
-static int hf_adn_family = -1;
-static int hf_adn_addr_len = -1;
-static int hf_adn_addr_addr = -1;
+static int hf_adn_naddrs;
+static int hf_adn_naliases;
+static int hf_adn_family;
+static int hf_adn_addr_len;
+static int hf_adn_addr_addr;
 
-static int hf_ns_dname = -1;
+static int hf_ns_dname;
 
-static int ett_lwres = -1;
-static int ett_rdata_req = -1;
-static int ett_rdata_resp = -1;
-static int ett_a_rec = -1;
-static int ett_a_rec_addr = -1;
-static int ett_srv_rec = -1;
-static int ett_srv_rec_item = -1;
-static int ett_adn_request = -1;
-static int ett_adn_resp = -1;
-static int ett_adn_alias = -1;
-static int ett_adn_addr = -1;
-static int ett_nba_request = -1;
-static int ett_nba_resp = -1;
-static int ett_noop = -1;
+static int ett_lwres;
+static int ett_rdata_req;
+static int ett_rdata_resp;
+static int ett_a_rec;
+static int ett_a_rec_addr;
+static int ett_srv_rec;
+static int ett_srv_rec_item;
+static int ett_adn_request;
+static int ett_adn_resp;
+static int ett_adn_alias;
+static int ett_adn_addr;
+static int ett_nba_request;
+static int ett_nba_resp;
+static int ett_noop;
 
-static int ett_mx_rec = -1;
-static int ett_mx_rec_item = -1;
+static int ett_mx_rec;
+static int ett_mx_rec_item;
 
-static int ett_ns_rec = -1;
-static int ett_ns_rec_item = -1;
+static int ett_ns_rec;
+static int ett_ns_rec_item;
 
 
 
 #define LWRES_UDP_PORT 921 /* Not IANA registered */
 
 /* Define the lwres proto */
-static int proto_lwres = -1;
+static int proto_lwres;
 
 
 /* Define many many headers for mgcp */

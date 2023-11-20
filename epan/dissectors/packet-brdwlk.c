@@ -64,27 +64,27 @@ static const value_string brdwlk_eof_vals[] = {
     {0, NULL},
 };
 
-static int hf_brdwlk_sof = -1;
-static int hf_brdwlk_eof = -1;
-static int hf_brdwlk_error = -1;
-static int hf_brdwlk_vsan = -1;
-static int hf_brdwlk_pktcnt = -1;
-static int hf_brdwlk_drop = -1;
-static int hf_brdwlk_plen = -1;
-static int hf_brdwlk_error_plp = -1;
-static int hf_brdwlk_error_ef = -1;
-static int hf_brdwlk_error_nd = -1;
-static int hf_brdwlk_error_tr = -1;
-static int hf_brdwlk_error_badcrc = -1;
-static int hf_brdwlk_error_ff = -1;
-static int hf_brdwlk_error_jumbo = -1;
-static int hf_brdwlk_error_ctrl = -1;
+static int hf_brdwlk_sof;
+static int hf_brdwlk_eof;
+static int hf_brdwlk_error;
+static int hf_brdwlk_vsan;
+static int hf_brdwlk_pktcnt;
+static int hf_brdwlk_drop;
+static int hf_brdwlk_plen;
+static int hf_brdwlk_error_plp;
+static int hf_brdwlk_error_ef;
+static int hf_brdwlk_error_nd;
+static int hf_brdwlk_error_tr;
+static int hf_brdwlk_error_badcrc;
+static int hf_brdwlk_error_ff;
+static int hf_brdwlk_error_jumbo;
+static int hf_brdwlk_error_ctrl;
 
 /* Initialize the subtree pointers */
-static gint ett_brdwlk = -1;
-static gint ett_brdwlk_error = -1;
+static gint ett_brdwlk;
+static gint ett_brdwlk_error;
 
-static gint proto_brdwlk = -1;
+static gint proto_brdwlk;
 
 static guint16 packet_count = 0;
 static gboolean first_pkt = TRUE;                /* start of capture */

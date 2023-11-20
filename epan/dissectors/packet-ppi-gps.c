@@ -56,60 +56,60 @@ enum ppi_geotagging_type {
 void proto_register_ppi_gps(void);
 
 /* protocol */
-static int proto_ppi_gps = -1;
+static int proto_ppi_gps;
 
-static int hf_ppi_gps_version = -1;
-static int hf_ppi_gps_pad = -1;
-static int hf_ppi_gps_length = -1;
-static int hf_ppi_gps_present = -1;
-static int hf_ppi_gps_gpsflags_flags = -1;
-static int hf_ppi_gps_lon = -1;
-static int hf_ppi_gps_lat = -1;
-static int hf_ppi_gps_alt = -1;
-static int hf_ppi_gps_alt_gnd = -1;
-static int hf_ppi_gps_gpstime = -1;
-static int hf_ppi_gps_fractime = -1;
-static int hf_ppi_gps_eph = -1;
-static int hf_ppi_gps_epv = -1;
-static int hf_ppi_gps_ept = -1;
-static int hf_ppi_gps_descstr = -1;
-static int hf_ppi_gps_appspecific_num = -1; /* 4-byte tag no */
-static int hf_ppi_gps_appspecific_data = -1; /* 60 byte arbitrary data */
+static int hf_ppi_gps_version;
+static int hf_ppi_gps_pad;
+static int hf_ppi_gps_length;
+static int hf_ppi_gps_present;
+static int hf_ppi_gps_gpsflags_flags;
+static int hf_ppi_gps_lon;
+static int hf_ppi_gps_lat;
+static int hf_ppi_gps_alt;
+static int hf_ppi_gps_alt_gnd;
+static int hf_ppi_gps_gpstime;
+static int hf_ppi_gps_fractime;
+static int hf_ppi_gps_eph;
+static int hf_ppi_gps_epv;
+static int hf_ppi_gps_ept;
+static int hf_ppi_gps_descstr;
+static int hf_ppi_gps_appspecific_num; /* 4-byte tag no */
+static int hf_ppi_gps_appspecific_data; /* 60 byte arbitrary data */
 /* "Present" flags, tese represent decoded-bits in the gui */
-static int hf_ppi_gps_present_gpsflags_flags = -1;
-static int hf_ppi_gps_present_lon = -1;
-static int hf_ppi_gps_present_lat = -1;
-static int hf_ppi_gps_present_alt = -1;
-static int hf_ppi_gps_present_alt_gnd = -1;
-static int hf_ppi_gps_present_gpstime = -1;
-static int hf_ppi_gps_present_fractime = -1;
-static int hf_ppi_gps_present_eph = -1;
-static int hf_ppi_gps_present_epv = -1;
-static int hf_ppi_gps_present_ept = -1;
-static int hf_ppi_gps_present_descr = -1;
-static int hf_ppi_gps_present_appspecific_num = -1;
-static int hf_ppi_gps_present_appspecific_data = -1;
-static int hf_ppi_gps_present_ext = -1;
+static int hf_ppi_gps_present_gpsflags_flags;
+static int hf_ppi_gps_present_lon;
+static int hf_ppi_gps_present_lat;
+static int hf_ppi_gps_present_alt;
+static int hf_ppi_gps_present_alt_gnd;
+static int hf_ppi_gps_present_gpstime;
+static int hf_ppi_gps_present_fractime;
+static int hf_ppi_gps_present_eph;
+static int hf_ppi_gps_present_epv;
+static int hf_ppi_gps_present_ept;
+static int hf_ppi_gps_present_descr;
+static int hf_ppi_gps_present_appspecific_num;
+static int hf_ppi_gps_present_appspecific_data;
+static int hf_ppi_gps_present_ext;
 
 /* Devicetype flags. not to be confused with "present" flags. These are optional */
-static int hf_ppi_gps_gpsflags_flag0_nofix = -1;
-static int hf_ppi_gps_gpsflags_flag1_gpsfix = -1;
-static int hf_ppi_gps_gpsflags_flag2_diffgps = -1;
-static int hf_ppi_gps_gpsflags_flag3_PPS = -1;
-static int hf_ppi_gps_gpsflags_flag4_RTK = -1;
-static int hf_ppi_gps_gpsflags_flag5_floatRTK = -1;
-static int hf_ppi_gps_gpsflags_flag6_dead_reck = -1;
-static int hf_ppi_gps_gpsflags_flag7_manual = -1;
-static int hf_ppi_gps_gpsflags_flag8_sim = -1;
+static int hf_ppi_gps_gpsflags_flag0_nofix;
+static int hf_ppi_gps_gpsflags_flag1_gpsfix;
+static int hf_ppi_gps_gpsflags_flag2_diffgps;
+static int hf_ppi_gps_gpsflags_flag3_PPS;
+static int hf_ppi_gps_gpsflags_flag4_RTK;
+static int hf_ppi_gps_gpsflags_flag5_floatRTK;
+static int hf_ppi_gps_gpsflags_flag6_dead_reck;
+static int hf_ppi_gps_gpsflags_flag7_manual;
+static int hf_ppi_gps_gpsflags_flag8_sim;
 
 /* These represent arrow-dropdownthings in the gui */
-static gint ett_ppi_gps = -1;
-static gint ett_ppi_gps_present = -1;
-static gint ett_ppi_gps_gpsflags_flags= -1;
+static gint ett_ppi_gps;
+static gint ett_ppi_gps_present;
+static gint ett_ppi_gps_gpsflags_flags;
 
-static expert_field ei_ppi_gps_present_bit = EI_INIT;
-static expert_field ei_ppi_gps_version = EI_INIT;
-static expert_field ei_ppi_gps_length = EI_INIT;
+static expert_field ei_ppi_gps_present_bit;
+static expert_field ei_ppi_gps_version;
+static expert_field ei_ppi_gps_length;
 
 static int
 dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {

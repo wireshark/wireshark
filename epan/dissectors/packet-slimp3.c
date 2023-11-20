@@ -23,40 +23,40 @@ void proto_reg_handoff_slimp3(void);
 
 static dissector_handle_t slimp3_handle;
 
-static int proto_slimp3 = -1;
-static int hf_slimp3_opcode = -1;
-static int hf_slimp3_control = -1;
-static int hf_slimp3_uptime = -1;
-static int hf_slimp3_code_id = -1;
-static int hf_slimp3_code_bits = -1;
-static int hf_slimp3_infrared_slimp3 = -1;
-static int hf_slimp3_infrared_jvc = -1;
-static int hf_slimp3_infrared = -1;
-static int hf_slimp3_device_id = -1;
-static int hf_slimp3_fw_rev = -1;
-static int hf_slimp3_data_offset = -1;
-static int hf_slimp3_data_command = -1;
-static int hf_slimp3_data_write_pointer = -1;
-static int hf_slimp3_data_sequence = -1;
-static int hf_slimp3_disc_rsp_server_ip = -1;
-static int hf_slimp3_disc_rsp_server_port = -1;
-static int hf_slimp3_data_ack_write_pointer = -1;
-static int hf_slimp3_data_ack_read_pointer = -1;
-static int hf_slimp3_data_ack_sequence = -1;
-static int hf_slimp3_data_req_offset = -1;
+static int proto_slimp3;
+static int hf_slimp3_opcode;
+static int hf_slimp3_control;
+static int hf_slimp3_uptime;
+static int hf_slimp3_code_id;
+static int hf_slimp3_code_bits;
+static int hf_slimp3_infrared_slimp3;
+static int hf_slimp3_infrared_jvc;
+static int hf_slimp3_infrared;
+static int hf_slimp3_device_id;
+static int hf_slimp3_fw_rev;
+static int hf_slimp3_data_offset;
+static int hf_slimp3_data_command;
+static int hf_slimp3_data_write_pointer;
+static int hf_slimp3_data_sequence;
+static int hf_slimp3_disc_rsp_server_ip;
+static int hf_slimp3_disc_rsp_server_port;
+static int hf_slimp3_data_ack_write_pointer;
+static int hf_slimp3_data_ack_read_pointer;
+static int hf_slimp3_data_ack_sequence;
+static int hf_slimp3_data_req_offset;
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_slimp3_display_delay = -1;
-static int hf_slimp3_display_string = -1;
-static int hf_slimp3_display_command = -1;
-static int hf_slimp3_display_unknown = -1;
-static int hf_slimp3_hello_response_client_server = -1;
-static int hf_slimp3_hello_request_server_client = -1;
-static int hf_slimp3_i2c_response_client_server = -1;
-static int hf_slimp3_i2c_request_server_client = -1;
-static int hf_slimp3_data_length = -1;
-static int hf_slimp3_data_data = -1;
+static int hf_slimp3_display_delay;
+static int hf_slimp3_display_string;
+static int hf_slimp3_display_command;
+static int hf_slimp3_display_unknown;
+static int hf_slimp3_hello_response_client_server;
+static int hf_slimp3_hello_request_server_client;
+static int hf_slimp3_i2c_response_client_server;
+static int hf_slimp3_i2c_request_server_client;
+static int hf_slimp3_data_length;
+static int hf_slimp3_data_data;
 
-static gint ett_slimp3 = -1;
+static gint ett_slimp3;
 
 #define UDP_PORT_SLIMP3_V1    1069 /* Not IANA registered */
 #define UDP_PORT_SLIMP3_V2    3483

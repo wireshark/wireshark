@@ -26,31 +26,31 @@ Protocol information comes from the book
 void proto_register_pcnfsd(void);
 void proto_reg_handoff_pcnfsd(void);
 
-static int proto_pcnfsd = -1;
-static int hf_pcnfsd_procedure_v1 = -1;
-static int hf_pcnfsd_procedure_v2 = -1;
-static int hf_pcnfsd_auth_client = -1;
-static int hf_pcnfsd_auth_ident_obscure = -1;
-static int hf_pcnfsd_auth_ident_clear = -1;
-static int hf_pcnfsd_auth_password = -1;
-static int hf_pcnfsd_auth_password_obscure = -1;
-static int hf_pcnfsd_auth_password_clear = -1;
-static int hf_pcnfsd_comment = -1;
-static int hf_pcnfsd_status = -1;
-static int hf_pcnfsd_uid = -1;
-static int hf_pcnfsd_gid = -1;
-static int hf_pcnfsd_gids_count = -1;
-static int hf_pcnfsd_homedir = -1;
-static int hf_pcnfsd_def_umask = -1;
-static int hf_pcnfsd_mapreq = -1;
-static int hf_pcnfsd_mapreq_status = -1;
-static int hf_pcnfsd_username = -1;
+static int proto_pcnfsd;
+static int hf_pcnfsd_procedure_v1;
+static int hf_pcnfsd_procedure_v2;
+static int hf_pcnfsd_auth_client;
+static int hf_pcnfsd_auth_ident_obscure;
+static int hf_pcnfsd_auth_ident_clear;
+static int hf_pcnfsd_auth_password;
+static int hf_pcnfsd_auth_password_obscure;
+static int hf_pcnfsd_auth_password_clear;
+static int hf_pcnfsd_comment;
+static int hf_pcnfsd_status;
+static int hf_pcnfsd_uid;
+static int hf_pcnfsd_gid;
+static int hf_pcnfsd_gids_count;
+static int hf_pcnfsd_homedir;
+static int hf_pcnfsd_def_umask;
+static int hf_pcnfsd_mapreq;
+static int hf_pcnfsd_mapreq_status;
+static int hf_pcnfsd_username;
 
 
-static gint ett_pcnfsd = -1;
-static gint ett_pcnfsd_auth_ident = -1;
-static gint ett_pcnfsd_auth_password = -1;
-static gint ett_pcnfsd_gids = -1;
+static gint ett_pcnfsd;
+static gint ett_pcnfsd_auth_ident;
+static gint ett_pcnfsd_auth_password;
+static gint ett_pcnfsd_gids;
 
 static int
 dissect_pcnfsd_username(tvbuff_t *tvb, int offset, proto_tree *tree)

@@ -33,12 +33,12 @@
 #define MCPE_UDP_PORT_DEFAULT 19132 /* Not IANA registered */
 static guint mcpe_udp_port_requested = MCPE_UDP_PORT_DEFAULT;
 
-static int proto_mcpe = -1;
-static gint ett_mcpe = -1; /* Should this node be expanded */
-static gint ett_mcpe_batch = -1;
-static gint ett_mcpe_batch_record = -1;
-static gint ett_mcpe_login = -1;
-static gint ett_mcpe_string = -1;
+static int proto_mcpe;
+static gint ett_mcpe; /* Should this node be expanded */
+static gint ett_mcpe_batch;
+static gint ett_mcpe_batch_record;
+static gint ett_mcpe_login;
+static gint ett_mcpe_string;
 
 /*
  * Dissectors
@@ -49,36 +49,36 @@ static dissector_table_t mcpe_packet_dissectors = NULL;
 /*
  * Expert fields
  */
-static expert_field ei_mcpe_unknown_packet_id = EI_INIT;
-static expert_field ei_mcpe_decompression_failed = EI_INIT;
-static expert_field ei_mcpe_encrypted_packet = EI_INIT;
+static expert_field ei_mcpe_unknown_packet_id;
+static expert_field ei_mcpe_decompression_failed;
+static expert_field ei_mcpe_encrypted_packet;
 
 /*
  * Common Header fields
  */
-static int hf_mcpe_message_id = -1;
-static int hf_mcpe_packet_id = -1;
-static int hf_mcpe_string_length = -1;
-static int hf_mcpe_UTF8_string = -1;
-static int hf_mcpe_byte_string = -1;
+static int hf_mcpe_message_id;
+static int hf_mcpe_packet_id;
+static int hf_mcpe_string_length;
+static int hf_mcpe_UTF8_string;
+static int hf_mcpe_byte_string;
 
 /*
  * Fields specific to a packet ID
  */
-static int hf_mcpe_protocol_version = -1;
-static int hf_mcpe_login_data_length = -1;
-static int hf_mcpe_login_data = -1;
-static int hf_mcpe_login = -1;
-static int hf_mcpe_chain_JSON = -1;
-static int hf_mcpe_client_data_JWT = -1;
-static int hf_mcpe_public_key = -1;
-static int hf_mcpe_server_token = -1;
+static int hf_mcpe_protocol_version;
+static int hf_mcpe_login_data_length;
+static int hf_mcpe_login_data;
+static int hf_mcpe_login;
+static int hf_mcpe_chain_JSON;
+static int hf_mcpe_client_data_JWT;
+static int hf_mcpe_public_key;
+static int hf_mcpe_server_token;
 
-static int hf_mcpe_batch_length = -1;
-static int hf_mcpe_batch_body = -1;
-static int hf_mcpe_batch_records = -1;
-static int hf_mcpe_batch_record_length = -1;
-static int hf_mcpe_batch_record = -1;
+static int hf_mcpe_batch_length;
+static int hf_mcpe_batch_body;
+static int hf_mcpe_batch_records;
+static int hf_mcpe_batch_record_length;
+static int hf_mcpe_batch_record;
 
 /*
  * RakNet Message ID

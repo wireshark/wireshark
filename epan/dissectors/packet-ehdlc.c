@@ -24,38 +24,38 @@ void proto_register_ehdlc(void);
 void proto_reg_handoff_ehdlc(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_ehdlc = -1;
+static int proto_ehdlc;
 
-static int hf_ehdlc_data_len = -1;
-static int hf_ehdlc_csapi = -1;
-static int hf_ehdlc_ctei = -1;
+static int hf_ehdlc_data_len;
+static int hf_ehdlc_csapi;
+static int hf_ehdlc_ctei;
 
-static int hf_ehdlc_sapi = -1;
-static int hf_ehdlc_tei = -1;
-static int hf_ehdlc_c_r = -1;
+static int hf_ehdlc_sapi;
+static int hf_ehdlc_tei;
+static int hf_ehdlc_c_r;
 
-static int hf_ehdlc_xid_payload = -1;
-static int hf_ehdlc_xid_win_tx = -1;
-static int hf_ehdlc_xid_win_rx = -1;
-static int hf_ehdlc_xid_ack_tmr_ms = -1;
-static int hf_ehdlc_xid_format_id = -1;
-static int hf_ehdlc_xid_group_id = -1;
-static int hf_ehdlc_xid_len = -1;
-static int hf_ehdlc_control = -1;
+static int hf_ehdlc_xid_payload;
+static int hf_ehdlc_xid_win_tx;
+static int hf_ehdlc_xid_win_rx;
+static int hf_ehdlc_xid_ack_tmr_ms;
+static int hf_ehdlc_xid_format_id;
+static int hf_ehdlc_xid_group_id;
+static int hf_ehdlc_xid_len;
+static int hf_ehdlc_control;
 
-static int hf_ehdlc_p = -1;
-static int hf_ehdlc_f = -1;
-static int hf_ehdlc_u_modifier_cmd = -1;
-static int hf_ehdlc_u_modifier_resp = -1;
-static int hf_ehdlc_ftype_s_u = -1;
+static int hf_ehdlc_p;
+static int hf_ehdlc_f;
+static int hf_ehdlc_u_modifier_cmd;
+static int hf_ehdlc_u_modifier_resp;
+static int hf_ehdlc_ftype_s_u;
 
-static int hf_ehdlc_n_r = -1;
-static int hf_ehdlc_n_s = -1;
-static int hf_ehdlc_p_ext = -1;
-static int hf_ehdlc_f_ext = -1;
-static int hf_ehdlc_s_ftype = -1;
-static int hf_ehdlc_ftype_i = -1;
-static int hf_ehdlc_ftype_s_u_ext = -1;
+static int hf_ehdlc_n_r;
+static int hf_ehdlc_n_s;
+static int hf_ehdlc_p_ext;
+static int hf_ehdlc_f_ext;
+static int hf_ehdlc_s_ftype;
+static int hf_ehdlc_ftype_i;
+static int hf_ehdlc_ftype_s_u_ext;
 
 static dissector_handle_t ehdlc_handle;
 
@@ -86,9 +86,9 @@ static const xdlc_cf_items ehdlc_cf_items_ext = {
 };
 
 /* Initialize the subtree pointers */
-static gint ett_ehdlc = -1;
-static gint ett_ehdlc_xid = -1;
-static gint ett_ehdlc_control = -1;
+static gint ett_ehdlc;
+static gint ett_ehdlc_xid;
+static gint ett_ehdlc_control;
 
 enum {
 	SUB_RSL,

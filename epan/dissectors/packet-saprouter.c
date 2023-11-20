@@ -139,81 +139,81 @@ static const value_string saprouter_admin_command_vals[] = {
 
 static int credentials_tap = -1;
 
-static int proto_saprouter = -1;
+static int proto_saprouter;
 
 /* General fields */
-static int hf_saprouter_type = -1;
-static int hf_saprouter_ni_version = -1;
+static int hf_saprouter_type;
+static int hf_saprouter_ni_version;
 
 /* Niping messages */
-static int hf_saprouter_niping_message = -1;
+static int hf_saprouter_niping_message;
 
 /* Route information */
-static int hf_saprouter_route_version = -1;
-static int hf_saprouter_entries = -1;
-static int hf_saprouter_talk_mode = -1;
-static int hf_saprouter_rest_nodes = -1;
-static int hf_saprouter_route_length = -1;
-static int hf_saprouter_route_offset = -1;
-static int hf_saprouter_route = -1;
-static int hf_saprouter_route_string = -1;
+static int hf_saprouter_route_version;
+static int hf_saprouter_entries;
+static int hf_saprouter_talk_mode;
+static int hf_saprouter_rest_nodes;
+static int hf_saprouter_route_length;
+static int hf_saprouter_route_offset;
+static int hf_saprouter_route;
+static int hf_saprouter_route_string;
 
-static int hf_saprouter_route_requested_in = -1;
-static int hf_saprouter_route_accepted_in = -1;
+static int hf_saprouter_route_requested_in;
+static int hf_saprouter_route_accepted_in;
 
 /* Route strings */
-static int hf_saprouter_route_string_hostname = -1;
-static int hf_saprouter_route_string_service = -1;
-static int hf_saprouter_route_string_password = -1;
+static int hf_saprouter_route_string_hostname;
+static int hf_saprouter_route_string_service;
+static int hf_saprouter_route_string_password;
 
 
 /* Error Information/Control Messages */
-static int hf_saprouter_opcode = -1;
-static int hf_saprouter_return_code = -1;
-static int hf_saprouter_unknown = -1;
+static int hf_saprouter_opcode;
+static int hf_saprouter_return_code;
+static int hf_saprouter_unknown;
 
 /* Error Information Messages */
-static int hf_saprouter_error_length = -1;
-static int hf_saprouter_error_string = -1;
-static int hf_saprouter_error_eyecatcher = -1;
-static int hf_saprouter_error_counter = -1;
-static int hf_saprouter_error_error = -1;
-static int hf_saprouter_error_return_code= -1;
-static int hf_saprouter_error_component = -1;
-static int hf_saprouter_error_release = -1;
-static int hf_saprouter_error_version = -1;
-static int hf_saprouter_error_module = -1;
-static int hf_saprouter_error_line = -1;
-static int hf_saprouter_error_detail= -1;
-static int hf_saprouter_error_time = -1;
-static int hf_saprouter_error_system_call = -1;
-static int hf_saprouter_error_errorno = -1;
-static int hf_saprouter_error_errorno_text = -1;
-static int hf_saprouter_error_error_count = -1;
-static int hf_saprouter_error_location= -1;
-static int hf_saprouter_error_unknown= -1;  /* TODO: Unknown fields */
+static int hf_saprouter_error_length;
+static int hf_saprouter_error_string;
+static int hf_saprouter_error_eyecatcher;
+static int hf_saprouter_error_counter;
+static int hf_saprouter_error_error;
+static int hf_saprouter_error_return_code;
+static int hf_saprouter_error_component;
+static int hf_saprouter_error_release;
+static int hf_saprouter_error_version;
+static int hf_saprouter_error_module;
+static int hf_saprouter_error_line;
+static int hf_saprouter_error_detail;
+static int hf_saprouter_error_time;
+static int hf_saprouter_error_system_call;
+static int hf_saprouter_error_errorno;
+static int hf_saprouter_error_errorno_text;
+static int hf_saprouter_error_error_count;
+static int hf_saprouter_error_location;
+static int hf_saprouter_error_unknown;  /* TODO: Unknown fields */
 
 /* Control Messages */
-static int hf_saprouter_control_length = -1;
-static int hf_saprouter_control_string = -1;
-static int hf_saprouter_control_unknown = -1;
+static int hf_saprouter_control_length;
+static int hf_saprouter_control_string;
+static int hf_saprouter_control_unknown;
 
 /* Admin Messages */
-static int hf_saprouter_admin_command = -1;
-static int hf_saprouter_admin_password = -1;
-static int hf_saprouter_admin_client_count_short = -1;
-static int hf_saprouter_admin_client_count_int = -1;
-static int hf_saprouter_admin_client_ids = -1;
-static int hf_saprouter_admin_client_id = -1;
-static int hf_saprouter_admin_address_mask = -1;
+static int hf_saprouter_admin_command;
+static int hf_saprouter_admin_password;
+static int hf_saprouter_admin_client_count_short;
+static int hf_saprouter_admin_client_count_int;
+static int hf_saprouter_admin_client_ids;
+static int hf_saprouter_admin_client_id;
+static int hf_saprouter_admin_address_mask;
 
-static gint ett_saprouter = -1;
+static gint ett_saprouter;
 
 /* Expert info */
-static expert_field ei_saprouter_route_password_found = EI_INIT;
-static expert_field ei_saprouter_route_invalid_length = EI_INIT;
-static expert_field ei_saprouter_info_password_found = EI_INIT;
-static expert_field ei_saprouter_invalid_client_ids = EI_INIT;
+static expert_field ei_saprouter_route_password_found;
+static expert_field ei_saprouter_route_invalid_length;
+static expert_field ei_saprouter_info_password_found;
+static expert_field ei_saprouter_invalid_client_ids;
 
 /* Global port preference */
 static range_t *global_saprouter_port_range;

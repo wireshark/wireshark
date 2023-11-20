@@ -39,30 +39,30 @@ void proto_reg_handoff_igap(void);
 
 static dissector_handle_t igap_handle;
 
-static int proto_igap      = -1;
-static int hf_type         = -1;
-static int hf_max_resp     = -1;
-static int hf_checksum     = -1;
-static int hf_checksum_status = -1;
-static int hf_maddr        = -1;
-static int hf_version      = -1;
-static int hf_subtype      = -1;
-static int hf_challengeid  = -1;
-static int hf_asize        = -1;
-static int hf_msize        = -1;
-static int hf_account      = -1;
+static int proto_igap;
+static int hf_type;
+static int hf_max_resp;
+static int hf_checksum;
+static int hf_checksum_status;
+static int hf_maddr;
+static int hf_version;
+static int hf_subtype;
+static int hf_challengeid;
+static int hf_asize;
+static int hf_msize;
+static int hf_account;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_igap_challenge = -1;
-static int hf_igap_user_password = -1;
-static int hf_igap_authentication_result = -1;
-static int hf_igap_result_of_md5_calculation = -1;
-static int hf_igap_accounting_status = -1;
-static int hf_igap_unknown_message = -1;
+static int hf_igap_challenge;
+static int hf_igap_user_password;
+static int hf_igap_authentication_result;
+static int hf_igap_result_of_md5_calculation;
+static int hf_igap_accounting_status;
+static int hf_igap_unknown_message;
 
-static int ett_igap = -1;
+static int ett_igap;
 
-static expert_field ei_checksum = EI_INIT;
+static expert_field ei_checksum;
 
 static const value_string igap_types[] = {
     {IGMP_IGAP_JOIN,  "Membership Report (Join)"},

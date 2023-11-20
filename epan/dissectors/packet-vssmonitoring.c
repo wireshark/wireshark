@@ -37,13 +37,13 @@ static const value_string clksrc_vals[] = {
 void proto_register_vssmonitoring(void);
 void proto_reg_handoff_vssmonitoring(void);
 
-static int proto_vssmonitoring = -1;
+static int proto_vssmonitoring;
 
-static int hf_vssmonitoring_time = -1;
-static int hf_vssmonitoring_clksrc = -1;
-static int hf_vssmonitoring_srcport = -1;
+static int hf_vssmonitoring_time;
+static int hf_vssmonitoring_clksrc;
+static int hf_vssmonitoring_srcport;
 
-static gint ett_vssmonitoring = -1;
+static gint ett_vssmonitoring;
 
 static gboolean vss_dissect_portstamping_only = FALSE;
 static gboolean vss_two_byte_portstamps = FALSE;

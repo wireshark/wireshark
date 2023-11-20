@@ -19,36 +19,36 @@
 #include "packet-btrfcomm.h"
 #include "packet-btsdp.h"
 
-static int proto_bthsp = -1;
+static int proto_bthsp;
 
-static int hf_command                                                      = -1;
-static int hf_parameters                                                   = -1;
-static int hf_command_in                                                   = -1;
-static int hf_unsolicited                                                  = -1;
-static int hf_role                                                         = -1;
-static int hf_at_cmd                                                       = -1;
-static int hf_at_cmd_type                                                  = -1;
-static int hf_at_command_line_prefix                                       = -1;
-static int hf_at_ignored                                                   = -1;
-static int hf_parameter                                                    = -1;
-static int hf_unknown_parameter                                            = -1;
-static int hf_data                                                         = -1;
-static int hf_fragment                                                     = -1;
-static int hf_fragmented                                                   = -1;
-static int hf_vgs                                                          = -1;
-static int hf_vgm                                                          = -1;
-static int hf_ckpd                                                         = -1;
+static int hf_command;
+static int hf_parameters;
+static int hf_command_in;
+static int hf_unsolicited;
+static int hf_role;
+static int hf_at_cmd;
+static int hf_at_cmd_type;
+static int hf_at_command_line_prefix;
+static int hf_at_ignored;
+static int hf_parameter;
+static int hf_unknown_parameter;
+static int hf_data;
+static int hf_fragment;
+static int hf_fragmented;
+static int hf_vgs;
+static int hf_vgm;
+static int hf_ckpd;
 
-static expert_field ei_non_mandatory_command                          = EI_INIT;
-static expert_field ei_invalid_usage                                  = EI_INIT;
-static expert_field ei_unknown_parameter                              = EI_INIT;
-static expert_field ei_vgm_gain                                       = EI_INIT;
-static expert_field ei_vgs_gain                                       = EI_INIT;
-static expert_field ei_ckpd                                           = EI_INIT;
+static expert_field ei_non_mandatory_command;
+static expert_field ei_invalid_usage;
+static expert_field ei_unknown_parameter;
+static expert_field ei_vgm_gain;
+static expert_field ei_vgs_gain;
+static expert_field ei_ckpd;
 
-static gint ett_bthsp            = -1;
-static gint ett_bthsp_command    = -1;
-static gint ett_bthsp_parameters = -1;
+static gint ett_bthsp;
+static gint ett_bthsp_command;
+static gint ett_bthsp_parameters;
 
 static dissector_handle_t bthsp_handle;
 

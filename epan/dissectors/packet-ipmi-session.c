@@ -23,24 +23,24 @@ static dissector_handle_t ipmi_session_handle;
 
 #define RMCP_CLASS_IPMI 0x07
 
-static int proto_ipmi_session = -1;
+static int proto_ipmi_session;
 
-static gint ett_ipmi_session = -1;
-static gint ett_ipmi_session_payloadtype = -1;
+static gint ett_ipmi_session;
+static gint ett_ipmi_session_payloadtype;
 
 /* IPMI session header */
-static int hf_ipmi_session_id = -1;
-static int hf_ipmi_session_authtype = -1;
-static int hf_ipmi_session_payloadtype = -1;
-static int hf_ipmi_session_payloadtype_auth = -1;
-static int hf_ipmi_session_payloadtype_enc = -1;
-static int hf_ipmi_session_oem_iana = -1;
-static int hf_ipmi_session_oem_payload_id = -1;
-static int hf_ipmi_session_sequence = -1;
-static int hf_ipmi_session_authcode = -1;
-static int hf_ipmi_session_msg_len_1b = -1;
-static int hf_ipmi_session_msg_len_2b = -1;
-static int hf_ipmi_session_trailer = -1;
+static int hf_ipmi_session_id;
+static int hf_ipmi_session_authtype;
+static int hf_ipmi_session_payloadtype;
+static int hf_ipmi_session_payloadtype_auth;
+static int hf_ipmi_session_payloadtype_enc;
+static int hf_ipmi_session_oem_iana;
+static int hf_ipmi_session_oem_payload_id;
+static int hf_ipmi_session_sequence;
+static int hf_ipmi_session_authcode;
+static int hf_ipmi_session_msg_len_1b;
+static int hf_ipmi_session_msg_len_2b;
+static int hf_ipmi_session_trailer;
 
 static dissector_handle_t ipmi_handle;
 

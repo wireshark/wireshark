@@ -36,78 +36,78 @@ void proto_register_lnet(void);
 static dissector_handle_t lnet_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_lnet = -1;
+static int proto_lnet;
 
-static int hf_lnet_ksm_type = -1;
-static int hf_lnet_ksm_csum = -1;
-static int hf_lnet_ksm_zc_req_cookie = -1;
-static int hf_lnet_ksm_zc_ack_cookie = -1;
+static int hf_lnet_ksm_type;
+static int hf_lnet_ksm_csum;
+static int hf_lnet_ksm_zc_req_cookie;
+static int hf_lnet_ksm_zc_ack_cookie;
 
-static int hf_lnet_ib_magic = -1;
-static int hf_lnet_ib_version = -1;
-static int hf_lnet_ib_type = -1;
-static int hf_lnet_ib_credits = -1;
-static int hf_lnet_ib_nob = -1;
-static int hf_lnet_ib_csum = -1;
-static int hf_lnet_ib_srcstamp = -1;
-static int hf_lnet_ib_dststamp = -1;
+static int hf_lnet_ib_magic;
+static int hf_lnet_ib_version;
+static int hf_lnet_ib_type;
+static int hf_lnet_ib_credits;
+static int hf_lnet_ib_nob;
+static int hf_lnet_ib_csum;
+static int hf_lnet_ib_srcstamp;
+static int hf_lnet_ib_dststamp;
 
-static int hf_lnet_src_nid = -1;
-static int hf_lnet_dest_nid = -1;
+static int hf_lnet_src_nid;
+static int hf_lnet_dest_nid;
 
-static int hf_lnet_nid_addr = -1;
-static int hf_lnet_nid_lnet_type = -1;
-static int hf_lnet_nid_interface = -1;
+static int hf_lnet_nid_addr;
+static int hf_lnet_nid_lnet_type;
+static int hf_lnet_nid_interface;
 
-static int hf_lnet_dest_pid = -1;
-static int hf_lnet_src_pid = -1;
+static int hf_lnet_dest_pid;
+static int hf_lnet_src_pid;
 
-static int hf_lnet_msg_type = -1;
-static int hf_lnet_payload_length = -1;
-static int hf_lnet_payload = -1;
-static int hf_lnet_msg_filler = -1;
+static int hf_lnet_msg_type;
+static int hf_lnet_payload_length;
+static int hf_lnet_payload;
+static int hf_lnet_msg_filler;
 
-static int hf_dst_wmd_interface = -1;
-static int hf_dst_wmd_object = -1;
+static int hf_dst_wmd_interface;
+static int hf_dst_wmd_object;
 
-static int hf_match_bits = -1;
-static int hf_mlength = -1;
+static int hf_match_bits;
+static int hf_mlength;
 
-static int hf_hdr_data = -1;
-static int hf_ptl_index = -1;
-static int hf_offset = -1;
+static int hf_hdr_data;
+static int hf_ptl_index;
+static int hf_offset;
 
-static int hf_src_offset = -1;
-static int hf_sink_length = -1;
+static int hf_src_offset;
+static int hf_sink_length;
 
-static int hf_hello_incarnation = -1;
-static int hf_hello_type = -1;
+static int hf_hello_incarnation;
+static int hf_hello_type;
 
-static int hf_lnet_o2ib_connparam = -1;
-static int hf_lnet_o2ib_connparam_qdepth = -1;
-static int hf_lnet_o2ib_connparam_max_frags = -1;
-static int hf_lnet_o2ib_connparam_max_size = -1;
-static int hf_lnet_o2ib_cookie = -1;
-static int hf_lnet_o2ib_src_cookie = -1;
-static int hf_lnet_o2ib_dest_cookie = -1;
-static int hf_lnet_o2ib_status = -1;
+static int hf_lnet_o2ib_connparam;
+static int hf_lnet_o2ib_connparam_qdepth;
+static int hf_lnet_o2ib_connparam_max_frags;
+static int hf_lnet_o2ib_connparam_max_size;
+static int hf_lnet_o2ib_cookie;
+static int hf_lnet_o2ib_src_cookie;
+static int hf_lnet_o2ib_dest_cookie;
+static int hf_lnet_o2ib_status;
 
-static int hf_lnet_rdma_desc = -1;
-static int hf_lnet_rdma_desc_key = -1;
-static int hf_lnet_rdma_desc_nfrags = -1;
+static int hf_lnet_rdma_desc;
+static int hf_lnet_rdma_desc_key;
+static int hf_lnet_rdma_desc_nfrags;
 
-static int hf_lnet_rdma_frag_size = -1;
-static int hf_lnet_rdma_frag_addr = -1;
+static int hf_lnet_rdma_frag_size;
+static int hf_lnet_rdma_frag_addr;
 
 /* Initialize the subtree pointers */
-static gint ett_lnet = -1;
-static gint ett_lnet_nid = -1;
-static gint ett_lnet_o2ib_connparams = -1;
-static gint ett_lnet_rdma_desc = -1;
-static gint ett_lnet_rdma_frag = -1;
+static gint ett_lnet;
+static gint ett_lnet_nid;
+static gint ett_lnet_o2ib_connparams;
+static gint ett_lnet_rdma_desc;
+static gint ett_lnet_rdma_frag;
 
-static expert_field ei_lnet_buflen = EI_INIT;
-static expert_field ei_lnet_type = EI_INIT;
+static expert_field ei_lnet_buflen;
+static expert_field ei_lnet_type;
 
 #define LNET_TCP_PORT 988   /* Not IANA registered */
 

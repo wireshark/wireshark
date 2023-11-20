@@ -23,22 +23,22 @@
 #include "packet-windows-common.h"
 
 
-int hf_nt_cs_len = -1;
+int hf_nt_cs_len;
 int hf_nt_error;
-int hf_nt_cs_size = -1;
-static int hf_lsa_String_name_len = -1;
-static int hf_lsa_String_name_size = -1;
-static int hf_nt_data_blob_len = -1;
-static int hf_nt_data_blob_data = -1;
-static int hf_nt_midl_blob_len = -1;
-static int hf_nt_midl_fill_bytes = -1;
-static int hf_nt_midl_version = -1;
-static int hf_nt_midl_hdr_len = -1;
+int hf_nt_cs_size;
+static int hf_lsa_String_name_len;
+static int hf_lsa_String_name_size;
+static int hf_nt_data_blob_len;
+static int hf_nt_data_blob_data;
+static int hf_nt_midl_blob_len;
+static int hf_nt_midl_fill_bytes;
+static int hf_nt_midl_version;
+static int hf_nt_midl_hdr_len;
 
-static gint ett_nt_MIDL_BLOB = -1;
-static gint ett_lsa_String = -1;
-static gint ett_nt_data_blob = -1;
-static expert_field ei_dcerpc_nt_badsid = EI_INIT;
+static gint ett_nt_MIDL_BLOB;
+static gint ett_lsa_String;
+static gint ett_nt_data_blob;
+static expert_field ei_dcerpc_nt_badsid;
 
 
 
@@ -161,7 +161,7 @@ dissect_ndr_counted_string_cb(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static gint ett_nt_counted_string = -1;
+static gint ett_nt_counted_string;
 
 static int
 dissect_ndr_counted_string_helper(tvbuff_t *tvb, int offset,
@@ -215,7 +215,7 @@ dissect_ndr_counted_string_ptr(tvbuff_t *tvb, int offset,
 
 /* Dissect a counted byte_array as a callback to dissect_ndr_pointer_cb() */
 
-static gint ett_nt_counted_byte_array = -1;
+static gint ett_nt_counted_byte_array;
 
 /* Dissect a counted byte array in-line. */
 
@@ -322,7 +322,7 @@ dissect_ndr_counted_byte_array(tvbuff_t *tvb, int offset,
 }
 
 /* Dissect a counted ascii string in-line. */
-static gint ett_nt_counted_ascii_string = -1;
+static gint ett_nt_counted_ascii_string;
 
 int
 dissect_ndr_counted_ascii_string_cb(tvbuff_t *tvb, int offset,
@@ -380,7 +380,7 @@ dissect_ndr_counted_ascii_string(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, di, drep, hf_index, cb_str_postprocess, GINT_TO_POINTER(2 + levels));
 }
 
-static int hf_nt_guid = -1;
+static int hf_nt_guid;
 
 int
 dissect_nt_GUID(tvbuff_t *tvb, int offset,
@@ -920,10 +920,10 @@ dissect_hresult(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 /* Dissect a NT policy handle */
 
-static int hf_nt_policy_open_frame = -1;
-static int hf_nt_policy_close_frame = -1;
+static int hf_nt_policy_open_frame;
+static int hf_nt_policy_close_frame;
 
-static gint ett_nt_policy_hnd = -1;
+static gint ett_nt_policy_hnd;
 
 /* this function is used to dissect a "handle".
  * it will keep track of which frame a handle is opened from and in which
@@ -1314,8 +1314,8 @@ int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset,
 
 /* SID dissection routines */
 
-static int hf_nt_count = -1;
-static int hf_nt_domain_sid = -1;
+static int hf_nt_count;
+static int hf_nt_domain_sid;
 
 /* That's a SID that is always 28 bytes long */
 int
@@ -1475,7 +1475,7 @@ dissect_ndr_nt_SID_hf_through_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static gint ett_nt_sid_pointer = -1;
+static gint ett_nt_sid_pointer;
 
 int
 dissect_ndr_nt_PSID(tvbuff_t *tvb, int offset,
@@ -1542,20 +1542,20 @@ static const true_false_string tfs_nt_acb_autolock = {
 	"This account has NOT been auto locked"
 };
 
-static gint ett_nt_acct_ctrl = -1;
+static gint ett_nt_acct_ctrl;
 
-static int hf_nt_acct_ctrl = -1;
-static int hf_nt_acb_disabled = -1;
-static int hf_nt_acb_homedirreq = -1;
-static int hf_nt_acb_pwnotreq = -1;
-static int hf_nt_acb_tempdup = -1;
-static int hf_nt_acb_normal = -1;
-static int hf_nt_acb_mns = -1;
-static int hf_nt_acb_domtrust = -1;
-static int hf_nt_acb_wstrust = -1;
-static int hf_nt_acb_svrtrust = -1;
-static int hf_nt_acb_pwnoexp = -1;
-static int hf_nt_acb_autolock = -1;
+static int hf_nt_acct_ctrl;
+static int hf_nt_acb_disabled;
+static int hf_nt_acb_homedirreq;
+static int hf_nt_acb_pwnotreq;
+static int hf_nt_acb_tempdup;
+static int hf_nt_acb_normal;
+static int hf_nt_acb_mns;
+static int hf_nt_acb_domtrust;
+static int hf_nt_acb_wstrust;
+static int hf_nt_acb_svrtrust;
+static int hf_nt_acb_pwnoexp;
+static int hf_nt_acb_autolock;
 
 int
 dissect_ndr_nt_acct_ctrl(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -1585,7 +1585,7 @@ dissect_ndr_nt_acct_ctrl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int hf_logonhours_unknown_char = -1;
+static int hf_logonhours_unknown_char;
 
 static int
 dissect_LOGON_HOURS_entry(tvbuff_t *tvb, int offset,
@@ -1597,7 +1597,7 @@ dissect_LOGON_HOURS_entry(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static gint ett_nt_logon_hours_hours = -1;
+static gint ett_nt_logon_hours_hours;
 
 static int
 dissect_LOGON_HOURS_hours(tvbuff_t *tvb, int offset,
@@ -1618,8 +1618,8 @@ dissect_LOGON_HOURS_hours(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static gint ett_nt_logon_hours = -1;
-static int hf_logonhours_divisions = -1;
+static gint ett_nt_logon_hours;
+static int hf_logonhours_divisions;
 
 int
 dissect_ndr_nt_LOGON_HOURS(tvbuff_t *tvb, int offset,
@@ -1668,7 +1668,7 @@ dissect_ndr_nt_PSID_ARRAY_sids (tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static gint ett_nt_sid_array = -1;
+static gint ett_nt_sid_array;
 
 int
 dissect_ndr_nt_PSID_ARRAY(tvbuff_t *tvb, int offset,
@@ -1700,8 +1700,8 @@ dissect_ndr_nt_PSID_ARRAY(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static gint ett_nt_sid_and_attributes = -1;
-static int hf_nt_attrib = -1;
+static gint ett_nt_sid_and_attributes;
+static int hf_nt_attrib;
 
 int
 dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
@@ -1722,7 +1722,7 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static gint ett_nt_sid_and_attributes_array = -1;
+static gint ett_nt_sid_and_attributes_array;
 
 int
 dissect_ndr_nt_SID_AND_ATTRIBUTES_ARRAY(tvbuff_t *tvb, int offset,

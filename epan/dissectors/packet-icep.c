@@ -58,57 +58,57 @@ static const guint8 icep_magic[] = { 'I', 'c', 'e', 'P' };
 #define ICEP_MIN_COMMON_REQ_HEADER_SIZE 13
 
 /* Initialize the protocol and registered fields */
-static int proto_icep = -1;
+static int proto_icep;
 
 /* Message Header */
-static int hf_icep_protocol_major = -1;
-static int hf_icep_protocol_minor = -1;
-static int hf_icep_encoding_major = -1;
-static int hf_icep_encoding_minor = -1;
-static int hf_icep_message_type = -1;
-static int hf_icep_compression_status = -1;
-static int hf_icep_message_size = -1;
-static int hf_icep_magic_number = -1;
+static int hf_icep_protocol_major;
+static int hf_icep_protocol_minor;
+static int hf_icep_encoding_major;
+static int hf_icep_encoding_minor;
+static int hf_icep_message_type;
+static int hf_icep_compression_status;
+static int hf_icep_message_size;
+static int hf_icep_magic_number;
 
 /* [Batch] Request Message Body */
-static int hf_icep_request_id = -1;
-static int hf_icep_id_name = -1;
-static int hf_icep_id_category = -1;
-static int hf_icep_facet = -1;
-static int hf_icep_operation = -1;
-static int hf_icep_mode = -1;
-static int hf_icep_context = -1;
-static int hf_icep_params_size = -1;
-static int hf_icep_params_major = -1;
-static int hf_icep_params_minor = -1;
-static int hf_icep_params_encapsulated = -1;
-static int hf_icep_reply_data = -1;
-static int hf_icep_invocation_key = -1;
-static int hf_icep_invocation_value = -1;
+static int hf_icep_request_id;
+static int hf_icep_id_name;
+static int hf_icep_id_category;
+static int hf_icep_facet;
+static int hf_icep_operation;
+static int hf_icep_mode;
+static int hf_icep_context;
+static int hf_icep_params_size;
+static int hf_icep_params_major;
+static int hf_icep_params_minor;
+static int hf_icep_params_encapsulated;
+static int hf_icep_reply_data;
+static int hf_icep_invocation_key;
+static int hf_icep_invocation_value;
 
 /* Reply Message Body */
-static int hf_icep_reply_status = -1;
+static int hf_icep_reply_status;
 
 /* Initialize the subtree pointers */
-static gint ett_icep = -1;
-static gint ett_icep_msg = -1;
-static gint ett_icep_invocation_context = -1;
+static gint ett_icep;
+static gint ett_icep_msg;
+static gint ett_icep_invocation_context;
 
-static expert_field ei_icep_params_size = EI_INIT;
-static expert_field ei_icep_context_missing = EI_INIT;
-static expert_field ei_icep_reply_data = EI_INIT;
-static expert_field ei_icep_length = EI_INIT;
-static expert_field ei_icep_facet_max_one_element = EI_INIT;
-static expert_field ei_icep_string_too_long = EI_INIT;
-static expert_field ei_icep_string_malformed = EI_INIT;
-static expert_field ei_icep_message_type = EI_INIT;
-static expert_field ei_icep_mode_missing = EI_INIT;
-static expert_field ei_icep_params_encapsulated = EI_INIT;
-static expert_field ei_icep_params_missing = EI_INIT;
-static expert_field ei_icep_batch_requests = EI_INIT;
-static expert_field ei_icep_empty_batch = EI_INIT;
-static expert_field ei_icep_facet_missing = EI_INIT;
-static expert_field ei_icep_context_too_long = EI_INIT;
+static expert_field ei_icep_params_size;
+static expert_field ei_icep_context_missing;
+static expert_field ei_icep_reply_data;
+static expert_field ei_icep_length;
+static expert_field ei_icep_facet_max_one_element;
+static expert_field ei_icep_string_too_long;
+static expert_field ei_icep_string_malformed;
+static expert_field ei_icep_message_type;
+static expert_field ei_icep_mode_missing;
+static expert_field ei_icep_params_encapsulated;
+static expert_field ei_icep_params_missing;
+static expert_field ei_icep_batch_requests;
+static expert_field ei_icep_empty_batch;
+static expert_field ei_icep_facet_missing;
+static expert_field ei_icep_context_too_long;
 
 /* Preferences */
 static guint icep_max_batch_requests    = 64;

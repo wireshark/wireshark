@@ -28,24 +28,24 @@ void proto_reg_handoff_rdpmt(void);
 
 static dissector_handle_t rdpmt_handle;
 
-static int proto_rdpmt = -1;
+static int proto_rdpmt;
 
-static int hf_rdpmt_action = -1;
-static int hf_rdpmt_flags = -1;
-static int hf_rdpmt_payload_len = -1;
-static int hf_rdpmt_header_len = -1;
-static int hf_rdpmt_subheader_len = -1;
-static int hf_rdpmt_subheader_type = -1;
-static int hf_rdpmt_createreq_reqId = -1;
-static int hf_rdpmt_createreq_reserved = -1;
-static int hf_rdpmt_createreq_cookie = -1;
-static int hf_rdpmt_createresp_hrResponse = -1;
+static int hf_rdpmt_action;
+static int hf_rdpmt_flags;
+static int hf_rdpmt_payload_len;
+static int hf_rdpmt_header_len;
+static int hf_rdpmt_subheader_len;
+static int hf_rdpmt_subheader_type;
+static int hf_rdpmt_createreq_reqId;
+static int hf_rdpmt_createreq_reserved;
+static int hf_rdpmt_createreq_cookie;
+static int hf_rdpmt_createresp_hrResponse;
 
-static int ett_rdpmt = -1;
-static int ett_rdpudp_subheaders = -1;
-static int ett_rdpmt_create_req = -1;
-static int ett_rdpmt_create_resp = -1;
-static int ett_rdpmt_data = -1;
+static int ett_rdpmt;
+static int ett_rdpudp_subheaders;
+static int ett_rdpmt_create_req;
+static int ett_rdpmt_create_resp;
+static int ett_rdpmt_data;
 
 static dissector_handle_t drdynvcDissector;
 

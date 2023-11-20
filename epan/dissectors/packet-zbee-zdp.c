@@ -39,210 +39,210 @@ static guint16 zdp_convert_2003cluster     (guint8 cluster);
  **************************************
  */
 /* Global field indicies. */
-static int proto_zbee_zdp = -1;
-static int hf_zbee_zdp_seqno = -1;
+static int proto_zbee_zdp;
+static int hf_zbee_zdp_seqno;
 #if 0
-static int hf_zbee_zdp_length = -1; /* Deprecates since ZigBee 2006. */
+static int hf_zbee_zdp_length; /* Deprecates since ZigBee 2006. */
 #endif
 
 /* General indicies. */
-       int hf_zbee_zdp_ext_addr = -1;
-       int hf_zbee_zdp_nwk_addr = -1;
-       int hf_zbee_zdp_req_type = -1;
-       int hf_zbee_zdp_index = -1;
-static int hf_zbee_zdp_status = -1;
-       int hf_zbee_zdp_ep_count = -1;
-       int hf_zbee_zdp_endpoint = -1;
-       int hf_zbee_zdp_profile = -1;
-       int hf_zbee_zdp_cluster = -1;
-       int hf_zbee_zdp_addr_mode = -1;
-       int hf_zbee_zdp_table_size = -1;
-       int hf_zbee_zdp_table_count = -1;
-       int hf_zbee_zdp_in_count = -1;
-       int hf_zbee_zdp_out_count = -1;
-       int hf_zbee_zdp_in_cluster = -1;
-       int hf_zbee_zdp_out_cluster = -1;
-       int hf_zbee_zdp_assoc_device_count = -1;
-       int hf_zbee_zdp_assoc_device = -1;
-       int hf_zbee_zdp_cache_address = -1;
+       int hf_zbee_zdp_ext_addr;
+       int hf_zbee_zdp_nwk_addr;
+       int hf_zbee_zdp_req_type;
+       int hf_zbee_zdp_index;
+static int hf_zbee_zdp_status;
+       int hf_zbee_zdp_ep_count;
+       int hf_zbee_zdp_endpoint;
+       int hf_zbee_zdp_profile;
+       int hf_zbee_zdp_cluster;
+       int hf_zbee_zdp_addr_mode;
+       int hf_zbee_zdp_table_size;
+       int hf_zbee_zdp_table_count;
+       int hf_zbee_zdp_in_count;
+       int hf_zbee_zdp_out_count;
+       int hf_zbee_zdp_in_cluster;
+       int hf_zbee_zdp_out_cluster;
+       int hf_zbee_zdp_assoc_device_count;
+       int hf_zbee_zdp_assoc_device;
+       int hf_zbee_zdp_cache_address;
 
 /* Capability information indicies. */
-static int hf_zbee_zdp_cinfo = -1;
-static int hf_zbee_zdp_cinfo_alloc = -1;
-static int hf_zbee_zdp_cinfo_security = -1;
-static int hf_zbee_zdp_cinfo_idle_rx = -1;
-static int hf_zbee_zdp_cinfo_power = -1;
-static int hf_zbee_zdp_cinfo_ffd = -1;
-static int hf_zbee_zdp_cinfo_alt_coord = -1;
+static int hf_zbee_zdp_cinfo;
+static int hf_zbee_zdp_cinfo_alloc;
+static int hf_zbee_zdp_cinfo_security;
+static int hf_zbee_zdp_cinfo_idle_rx;
+static int hf_zbee_zdp_cinfo_power;
+static int hf_zbee_zdp_cinfo_ffd;
+static int hf_zbee_zdp_cinfo_alt_coord;
 
 /* Server mode flag indicies. */
-static int hf_zbee_zdp_server          = -1;
-static int hf_zbee_zdp_server_pri_trust = -1;
-static int hf_zbee_zdp_server_bak_trust = -1;
-static int hf_zbee_zdp_server_pri_bind = -1;
-static int hf_zbee_zdp_server_bak_bind = -1;
-static int hf_zbee_zdp_server_pri_disc = -1;
-static int hf_zbee_zdp_server_bak_disc = -1;
-static int hf_zbee_zdp_server_network_manager = -1;
-static int hf_zbee_zdp_server_stk_compl_rev = -1;
+static int hf_zbee_zdp_server;
+static int hf_zbee_zdp_server_pri_trust;
+static int hf_zbee_zdp_server_bak_trust;
+static int hf_zbee_zdp_server_pri_bind;
+static int hf_zbee_zdp_server_bak_bind;
+static int hf_zbee_zdp_server_pri_disc;
+static int hf_zbee_zdp_server_bak_disc;
+static int hf_zbee_zdp_server_network_manager;
+static int hf_zbee_zdp_server_stk_compl_rev;
 
 /* Node descriptor indicies. */
-static int hf_zbee_zdp_node_type = -1;
-static int hf_zbee_zdp_node_complex = -1;
-static int hf_zbee_zdp_node_user = -1;
-static int hf_zbee_zdp_node_frag_support = -1;
-static int hf_zbee_zdp_node_freq_868 = -1;
-static int hf_zbee_zdp_node_freq_900 = -1;
-static int hf_zbee_zdp_node_freq_2400 = -1;
-static int hf_zbee_zdp_node_freq_eu_sub_ghz = -1;
-static int hf_zbee_zdp_node_manufacturer = -1;
-static int hf_zbee_zdp_node_max_buffer = -1;
-static int hf_zbee_zdp_node_max_incoming_transfer = -1;
-static int hf_zbee_zdp_node_max_outgoing_transfer = -1;
-static int hf_zbee_zdp_dcf = -1;
-static int hf_zbee_zdp_dcf_eaela = -1;
-static int hf_zbee_zdp_dcf_esdla = -1;
+static int hf_zbee_zdp_node_type;
+static int hf_zbee_zdp_node_complex;
+static int hf_zbee_zdp_node_user;
+static int hf_zbee_zdp_node_frag_support;
+static int hf_zbee_zdp_node_freq_868;
+static int hf_zbee_zdp_node_freq_900;
+static int hf_zbee_zdp_node_freq_2400;
+static int hf_zbee_zdp_node_freq_eu_sub_ghz;
+static int hf_zbee_zdp_node_manufacturer;
+static int hf_zbee_zdp_node_max_buffer;
+static int hf_zbee_zdp_node_max_incoming_transfer;
+static int hf_zbee_zdp_node_max_outgoing_transfer;
+static int hf_zbee_zdp_dcf;
+static int hf_zbee_zdp_dcf_eaela;
+static int hf_zbee_zdp_dcf_esdla;
 
 /* Power descriptor indicies. */
-static int hf_zbee_zdp_power = -1;
-static int hf_zbee_zdp_power_mode = -1;
-static int hf_zbee_zdp_power_avail_ac = -1;
-static int hf_zbee_zdp_power_avail_recharge = -1;
-static int hf_zbee_zdp_power_avail_dispose = -1;
-static int hf_zbee_zdp_power_source_ac = -1;
-static int hf_zbee_zdp_power_source_recharge = -1;
-static int hf_zbee_zdp_power_source_dispose = -1;
-static int hf_zbee_zdp_power_level = -1;
+static int hf_zbee_zdp_power;
+static int hf_zbee_zdp_power_mode;
+static int hf_zbee_zdp_power_avail_ac;
+static int hf_zbee_zdp_power_avail_recharge;
+static int hf_zbee_zdp_power_avail_dispose;
+static int hf_zbee_zdp_power_source_ac;
+static int hf_zbee_zdp_power_source_recharge;
+static int hf_zbee_zdp_power_source_dispose;
+static int hf_zbee_zdp_power_level;
 
 /* Simple descriptor indicies. */
-static int hf_zbee_zdp_simple_app_device = -1;
-static int hf_zbee_zdp_simple_zll_app_device = -1;
-static int hf_zbee_zdp_simple_ha_app_device = -1;
-static int hf_zbee_zdp_simple_app_version = -1;
-       int hf_zbee_zdp_simple_length = -1;
+static int hf_zbee_zdp_simple_app_device;
+static int hf_zbee_zdp_simple_zll_app_device;
+static int hf_zbee_zdp_simple_ha_app_device;
+static int hf_zbee_zdp_simple_app_version;
+       int hf_zbee_zdp_simple_length;
 
 /* Complex descriptor indicies. */
-       int hf_zbee_zdp_complex_length = -1;
-static int hf_zbee_zdp_complex = -1;
+       int hf_zbee_zdp_complex_length;
+static int hf_zbee_zdp_complex;
 
 /* User descriptor indicies. */
-       int hf_zbee_zdp_user = -1;
-       int hf_zbee_zdp_user_length = -1;
+       int hf_zbee_zdp_user;
+       int hf_zbee_zdp_user_length;
 
 /* Discovery indicies. */
-       int hf_zbee_zdp_cache = -1;
-       int hf_zbee_zdp_disc_node_size = -1;
-       int hf_zbee_zdp_disc_power_size = -1;
-       int hf_zbee_zdp_disc_ep_count = -1;
-       int hf_zbee_zdp_disc_simple_count = -1;
-       int hf_zbee_zdp_disc_simple_size = -1;
+       int hf_zbee_zdp_cache;
+       int hf_zbee_zdp_disc_node_size;
+       int hf_zbee_zdp_disc_power_size;
+       int hf_zbee_zdp_disc_ep_count;
+       int hf_zbee_zdp_disc_simple_count;
+       int hf_zbee_zdp_disc_simple_size;
 
 /* Binding indicies. */
-       int hf_zbee_zdp_target = -1;
-       int hf_zbee_zdp_replacement = -1;
-       int hf_zbee_zdp_replacement_ep = -1;
-       int hf_zbee_zdp_bind_src = -1;
-       int hf_zbee_zdp_bind_src64 = -1;
-       int hf_zbee_zdp_bind_src_ep = -1;
-       int hf_zbee_zdp_bind_dst = -1;
-       int hf_zbee_zdp_bind_dst64 = -1;
-       int hf_zbee_zdp_bind_dst_ep = -1;
+       int hf_zbee_zdp_target;
+       int hf_zbee_zdp_replacement;
+       int hf_zbee_zdp_replacement_ep;
+       int hf_zbee_zdp_bind_src;
+       int hf_zbee_zdp_bind_src64;
+       int hf_zbee_zdp_bind_src_ep;
+       int hf_zbee_zdp_bind_dst;
+       int hf_zbee_zdp_bind_dst64;
+       int hf_zbee_zdp_bind_dst_ep;
 
 /* Network Management indicies. */
-       int hf_zbee_zdp_duration = -1;
-       int hf_zbee_zdp_leave_children = -1;
-       int hf_zbee_zdp_leave_rejoin = -1;
-       int hf_zbee_zdp_significance = -1;
-       int hf_zbee_zdp_scan_count = -1;
-       int hf_zbee_zdp_update_id = -1;
-       int hf_zbee_zdp_manager = -1;
-       int hf_zbee_zdp_tx_total = -1;
-       int hf_zbee_zdp_tx_fail = -1;
-       int hf_zbee_zdp_tx_retries = -1;
-       int hf_zbee_zdp_period_time_results = -1;
-       int hf_zbee_zdp_channel_count = -1;
-       int hf_zbee_zdp_channel_mask = -1;
-       int hf_zbee_zdp_channel_page = -1;
-       int hf_zbee_zdp_channel_page_count = -1;
-       int hf_zbee_zdp_channel_energy = -1;
-       int hf_zbee_zdp_pan_eui64 = -1;
-       int hf_zbee_zdp_pan_uint = -1;
-       int hf_zbee_zdp_channel = -1;
-       int hf_zbee_zdp_nwk_desc_profile = -1;
-       int hf_zbee_zdp_profile_version = -1;
-       int hf_zbee_zdp_beacon = -1;
-       int hf_zbee_zdp_superframe = -1;
-       int hf_zbee_zdp_permit_joining = -1;
-       int hf_zbee_zdp_extended_pan = -1;
-       int hf_zbee_zdp_addr = -1;
-       int hf_zbee_zdp_table_entry_type = -1;
-       int hf_zbee_zdp_table_entry_idle_rx_0c = -1;
-       int hf_zbee_zdp_table_entry_relationship_70 = -1;
-       int hf_zbee_zdp_table_entry_idle_rx_04 = -1;
-       int hf_zbee_zdp_table_entry_relationship_18 = -1;
-       int hf_zbee_zdp_depth = -1;
-       int hf_zbee_zdp_permit_joining_03 = -1;
-       int hf_zbee_zdp_lqi = -1;
-static int hf_zbee_zdp_scan_channel = -1;
-       int hf_zbee_zdp_ieee_join_start_index = -1;
-       int hf_zbee_zdp_ieee_join_update_id = -1;
-       int hf_zbee_zdp_ieee_join_policy = -1;
-       int hf_zbee_zdp_ieee_join_list_total = -1;
-       int hf_zbee_zdp_ieee_join_list_start = -1;
-       int hf_zbee_zdp_ieee_join_list_count = -1;
-       int hf_zbee_zdp_ieee_join_list_ieee = -1;
-       int hf_zbee_zdp_number_of_children = -1;
-       int hf_zbee_zdp_beacon_survey_scan_mask = -1;
-       int hf_zbee_zdp_beacon_survey_scan_mask_cnt = -1;
-       int hf_zbee_zdp_beacon_survey_conf_mask = -1;
-       int hf_zbee_zdp_beacon_survey_total = -1;
-       int hf_zbee_zdp_beacon_survey_cur_zbn = -1;
-       int hf_zbee_zdp_beacon_survey_cur_zbn_potent_parents = -1;
-       int hf_zbee_zdp_beacon_survey_other_zbn = -1;
-       int hf_zbee_zdp_beacon_survey_current_parent = -1;
-       int hf_zbee_zdp_beacon_survey_cnt_parents = -1;
-       int hf_zbee_zdp_beacon_survey_parent = -1;
-       int hf_zbee_zdp_tlv_count = -1;
-       int hf_zbee_zdp_tlv_id = -1;
+       int hf_zbee_zdp_duration;
+       int hf_zbee_zdp_leave_children;
+       int hf_zbee_zdp_leave_rejoin;
+       int hf_zbee_zdp_significance;
+       int hf_zbee_zdp_scan_count;
+       int hf_zbee_zdp_update_id;
+       int hf_zbee_zdp_manager;
+       int hf_zbee_zdp_tx_total;
+       int hf_zbee_zdp_tx_fail;
+       int hf_zbee_zdp_tx_retries;
+       int hf_zbee_zdp_period_time_results;
+       int hf_zbee_zdp_channel_count;
+       int hf_zbee_zdp_channel_mask;
+       int hf_zbee_zdp_channel_page;
+       int hf_zbee_zdp_channel_page_count;
+       int hf_zbee_zdp_channel_energy;
+       int hf_zbee_zdp_pan_eui64;
+       int hf_zbee_zdp_pan_uint;
+       int hf_zbee_zdp_channel;
+       int hf_zbee_zdp_nwk_desc_profile;
+       int hf_zbee_zdp_profile_version;
+       int hf_zbee_zdp_beacon;
+       int hf_zbee_zdp_superframe;
+       int hf_zbee_zdp_permit_joining;
+       int hf_zbee_zdp_extended_pan;
+       int hf_zbee_zdp_addr;
+       int hf_zbee_zdp_table_entry_type;
+       int hf_zbee_zdp_table_entry_idle_rx_0c;
+       int hf_zbee_zdp_table_entry_relationship_70;
+       int hf_zbee_zdp_table_entry_idle_rx_04;
+       int hf_zbee_zdp_table_entry_relationship_18;
+       int hf_zbee_zdp_depth;
+       int hf_zbee_zdp_permit_joining_03;
+       int hf_zbee_zdp_lqi;
+static int hf_zbee_zdp_scan_channel;
+       int hf_zbee_zdp_ieee_join_start_index;
+       int hf_zbee_zdp_ieee_join_update_id;
+       int hf_zbee_zdp_ieee_join_policy;
+       int hf_zbee_zdp_ieee_join_list_total;
+       int hf_zbee_zdp_ieee_join_list_start;
+       int hf_zbee_zdp_ieee_join_list_count;
+       int hf_zbee_zdp_ieee_join_list_ieee;
+       int hf_zbee_zdp_number_of_children;
+       int hf_zbee_zdp_beacon_survey_scan_mask;
+       int hf_zbee_zdp_beacon_survey_scan_mask_cnt;
+       int hf_zbee_zdp_beacon_survey_conf_mask;
+       int hf_zbee_zdp_beacon_survey_total;
+       int hf_zbee_zdp_beacon_survey_cur_zbn;
+       int hf_zbee_zdp_beacon_survey_cur_zbn_potent_parents;
+       int hf_zbee_zdp_beacon_survey_other_zbn;
+       int hf_zbee_zdp_beacon_survey_current_parent;
+       int hf_zbee_zdp_beacon_survey_cnt_parents;
+       int hf_zbee_zdp_beacon_survey_parent;
+       int hf_zbee_zdp_tlv_count;
+       int hf_zbee_zdp_tlv_id;
 /* Routing Table */
-       int hf_zbee_zdp_rtg = -1;
-       int hf_zbee_zdp_rtg_entry = -1;
-       int hf_zbee_zdp_rtg_destination = -1;
-       int hf_zbee_zdp_rtg_next_hop = -1;
-       int hf_zbee_zdp_rtg_status = -1;
+       int hf_zbee_zdp_rtg;
+       int hf_zbee_zdp_rtg_entry;
+       int hf_zbee_zdp_rtg_destination;
+       int hf_zbee_zdp_rtg_next_hop;
+       int hf_zbee_zdp_rtg_status;
 
 
 /* Subtree indicies. */
-static gint ett_zbee_zdp = -1;
-       gint ett_zbee_zdp_endpoint = -1;
-       gint ett_zbee_zdp_match_in = -1;
-       gint ett_zbee_zdp_match_out = -1;
-       gint ett_zbee_zdp_node = -1;
-static gint ett_zbee_zdp_node_in = -1;
-static gint ett_zbee_zdp_node_out = -1;
-       gint ett_zbee_zdp_power = -1;
-       gint ett_zbee_zdp_simple = -1;
-       gint ett_zbee_zdp_cinfo = -1;
-       gint ett_zbee_zdp_server = -1;
-       gint ett_zbee_zdp_simple_sizes = -1;
-       gint ett_zbee_zdp_bind = -1;
-       gint ett_zbee_zdp_bind_entry = -1;
-       gint ett_zbee_zdp_bind_end_in = -1;
-       gint ett_zbee_zdp_bind_end_out = -1;
-static gint ett_zbee_zdp_bind_table = -1;
-       gint ett_zbee_zdp_bind_source = -1;
-       gint ett_zbee_zdp_assoc_device = -1;
-       gint ett_zbee_zdp_nwk = -1;
-       gint ett_zbee_zdp_perm_join_fc = -1;
-       gint ett_zbee_zdp_lqi = -1;
-       gint ett_zbee_zdp_rtg = -1;
-       gint ett_zbee_zdp_cache = -1;
-       gint ett_zbee_zdp_nwk_desc = -1;
-       gint ett_zbee_zdp_table_entry = -1;
-static gint ett_zbee_zdp_descriptor_capability_field = -1;
+static gint ett_zbee_zdp;
+       gint ett_zbee_zdp_endpoint;
+       gint ett_zbee_zdp_match_in;
+       gint ett_zbee_zdp_match_out;
+       gint ett_zbee_zdp_node;
+static gint ett_zbee_zdp_node_in;
+static gint ett_zbee_zdp_node_out;
+       gint ett_zbee_zdp_power;
+       gint ett_zbee_zdp_simple;
+       gint ett_zbee_zdp_cinfo;
+       gint ett_zbee_zdp_server;
+       gint ett_zbee_zdp_simple_sizes;
+       gint ett_zbee_zdp_bind;
+       gint ett_zbee_zdp_bind_entry;
+       gint ett_zbee_zdp_bind_end_in;
+       gint ett_zbee_zdp_bind_end_out;
+static gint ett_zbee_zdp_bind_table;
+       gint ett_zbee_zdp_bind_source;
+       gint ett_zbee_zdp_assoc_device;
+       gint ett_zbee_zdp_nwk;
+       gint ett_zbee_zdp_perm_join_fc;
+       gint ett_zbee_zdp_lqi;
+       gint ett_zbee_zdp_rtg;
+       gint ett_zbee_zdp_cache;
+       gint ett_zbee_zdp_nwk_desc;
+       gint ett_zbee_zdp_table_entry;
+static gint ett_zbee_zdp_descriptor_capability_field;
 
 /* Expert Info */
-static expert_field ei_deprecated_command = EI_INIT;
+static expert_field ei_deprecated_command;
 
 /**************************************
  * Value Strings

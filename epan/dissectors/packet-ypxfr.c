@@ -18,10 +18,10 @@
 void proto_register_ypxfr(void);
 void proto_reg_handoff_ypxfr(void);
 
-static int proto_ypxfr = -1;
-static int hf_ypxfr_procedure_v1 = -1;
+static int proto_ypxfr;
+static int hf_ypxfr_procedure_v1;
 
-static gint ett_ypxfr = -1;
+static gint ett_ypxfr;
 
 /* proc number, "proc name", dissect_request, dissect_reply */
 static const vsff ypxfr1_proc[] = {

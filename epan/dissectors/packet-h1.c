@@ -17,17 +17,17 @@
 void proto_register_h1(void);
 void proto_reg_handoff_h1(void);
 
-static int proto_h1 = -1;
-static int hf_h1_header = -1;
-static int hf_h1_len = -1;
-static int hf_h1_block_type = -1;
-static int hf_h1_block_len = -1;
-static int hf_h1_opcode = -1;
-static int hf_h1_dbnr = -1;
-static int hf_h1_dwnr = -1;
-static int hf_h1_dlen = -1;
-static int hf_h1_org = -1;
-static int hf_h1_response_value = -1;
+static int proto_h1;
+static int hf_h1_header;
+static int hf_h1_len;
+static int hf_h1_block_type;
+static int hf_h1_block_len;
+static int hf_h1_opcode;
+static int hf_h1_dbnr;
+static int hf_h1_dwnr;
+static int hf_h1_dlen;
+static int hf_h1_org;
+static int hf_h1_response_value;
 
 
 #define EMPTY_BLOCK     0xFF
@@ -76,8 +76,8 @@ static const value_string returncode_vals[] = {
     {0, NULL}
 };
 
-static gint ett_h1 = -1;
-static gint ett_block = -1;
+static gint ett_h1;
+static gint ett_block;
 
 static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {

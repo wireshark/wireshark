@@ -25,9 +25,9 @@ void proto_reg_handoff_pulse(void);
 
 static dissector_handle_t pulse_handle;
 
-static int  proto_pulse    = -1;
-static int  hf_pulse_magic = -1;
-static gint ett_pulse      = -1;
+static int  proto_pulse;
+static int  hf_pulse_magic;
+static gint ett_pulse;
 
 /* piranha/pulse.c */
 #define PULSE_HEARTBEAT_RUNNING_MAGIC     0xbdaddbda

@@ -298,64 +298,64 @@ static const char *bundle_str = "#bundle";
 static dissector_handle_t osc_udp_handle = NULL;
 static dissector_handle_t osc_tcp_handle = NULL;
 
-static int proto_osc = -1;
+static int proto_osc;
 
-static int hf_osc_bundle_type = -1;
-static int hf_osc_message_type = -1;
-static int hf_osc_message_header_type = -1;
-static int hf_osc_message_blob_type = -1;
-static int hf_osc_message_midi_type = -1;
-static int hf_osc_message_rgba_type = -1;
+static int hf_osc_bundle_type;
+static int hf_osc_message_type;
+static int hf_osc_message_header_type;
+static int hf_osc_message_blob_type;
+static int hf_osc_message_midi_type;
+static int hf_osc_message_rgba_type;
 
-static int hf_osc_bundle_timetag_type = -1;
-static int hf_osc_bundle_element_size_type = -1;
+static int hf_osc_bundle_timetag_type;
+static int hf_osc_bundle_element_size_type;
 
-static int hf_osc_message_path_type = -1;
-static int hf_osc_message_format_type = -1;
+static int hf_osc_message_path_type;
+static int hf_osc_message_format_type;
 
-static int hf_osc_message_int32_type = -1;
-static int hf_osc_message_float_type = -1;
-static int hf_osc_message_string_type = -1;
-static int hf_osc_message_blob_size_type = -1;
-static int hf_osc_message_blob_data_type = -1;
+static int hf_osc_message_int32_type;
+static int hf_osc_message_float_type;
+static int hf_osc_message_string_type;
+static int hf_osc_message_blob_size_type;
+static int hf_osc_message_blob_data_type;
 
-static int hf_osc_message_true_type = -1;
-static int hf_osc_message_false_type = -1;
-static int hf_osc_message_nil_type = -1;
-static int hf_osc_message_bang_type = -1;
+static int hf_osc_message_true_type;
+static int hf_osc_message_false_type;
+static int hf_osc_message_nil_type;
+static int hf_osc_message_bang_type;
 
-static int hf_osc_message_int64_type = -1;
-static int hf_osc_message_double_type = -1;
-static int hf_osc_message_timetag_type = -1;
+static int hf_osc_message_int64_type;
+static int hf_osc_message_double_type;
+static int hf_osc_message_timetag_type;
 
-static int hf_osc_message_symbol_type = -1;
-static int hf_osc_message_char_type = -1;
+static int hf_osc_message_symbol_type;
+static int hf_osc_message_char_type;
 
-static int hf_osc_message_rgba_red_type = -1;
-static int hf_osc_message_rgba_green_type = -1;
-static int hf_osc_message_rgba_blue_type = -1;
-static int hf_osc_message_rgba_alpha_type = -1;
+static int hf_osc_message_rgba_red_type;
+static int hf_osc_message_rgba_green_type;
+static int hf_osc_message_rgba_blue_type;
+static int hf_osc_message_rgba_alpha_type;
 
-static int hf_osc_message_midi_port_type = -1;
-static int hf_osc_message_midi_system_type = -1;
-static int hf_osc_message_midi_channel_type = -1;
-static int hf_osc_message_midi_status_type = -1;
-static int hf_osc_message_midi_data1_type = -1;
-static int hf_osc_message_midi_data2_type = -1;
-static int hf_osc_message_midi_velocity_type = -1;
-static int hf_osc_message_midi_pressure_type = -1;
-static int hf_osc_message_midi_note_type = -1;
-static int hf_osc_message_midi_controller_type = -1;
-static int hf_osc_message_midi_bender_type = -1;
+static int hf_osc_message_midi_port_type;
+static int hf_osc_message_midi_system_type;
+static int hf_osc_message_midi_channel_type;
+static int hf_osc_message_midi_status_type;
+static int hf_osc_message_midi_data1_type;
+static int hf_osc_message_midi_data2_type;
+static int hf_osc_message_midi_velocity_type;
+static int hf_osc_message_midi_pressure_type;
+static int hf_osc_message_midi_note_type;
+static int hf_osc_message_midi_controller_type;
+static int hf_osc_message_midi_bender_type;
 
 /* Initialize the subtree pointers */
-static int ett_osc_packet = -1;
-static int ett_osc_bundle = -1;
-static int ett_osc_message = -1;
-static int ett_osc_message_header = -1;
-static int ett_osc_blob = -1;
-static int ett_osc_rgba = -1;
-static int ett_osc_midi = -1;
+static int ett_osc_packet;
+static int ett_osc_bundle;
+static int ett_osc_message;
+static int ett_osc_message_header;
+static int ett_osc_blob;
+static int ett_osc_rgba;
+static int ett_osc_midi;
 
 /* check for valid path string */
 static gboolean

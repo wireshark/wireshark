@@ -27,32 +27,32 @@ void proto_reg_handoff_mndp(void);
 static dissector_handle_t mndp_handle;
 
 /* protocol handles */
-static int proto_mndp = -1;
+static int proto_mndp;
 
 /* ett handles */
-static int ett_mndp = -1;
-static int ett_mndp_tlv_header = -1;
+static int ett_mndp;
+static int ett_mndp_tlv_header;
 
 /* hf elements */
 /* tlv generic */
-static int hf_mndp_tlv_type = -1;
-static int hf_mndp_tlv_length = -1;
-static int hf_mndp_tlv_data = -1;
+static int hf_mndp_tlv_type;
+static int hf_mndp_tlv_length;
+static int hf_mndp_tlv_data;
 /* tunnel header */
-static int hf_mndp_header_unknown = -1;
-static int hf_mndp_header_seqno = -1;
+static int hf_mndp_header_unknown;
+static int hf_mndp_header_seqno;
 /* tlvs */
-static int hf_mndp_mac = -1;
-static int hf_mndp_softwareid = -1;
-static int hf_mndp_version = -1;
-static int hf_mndp_identity = -1;
-static int hf_mndp_uptime = -1;
-static int hf_mndp_platform = -1;
-static int hf_mndp_board = -1;
-static int hf_mndp_unpack = -1;
-static int hf_mndp_ipv6address = -1;
-static int hf_mndp_interfacename = -1;
-static int hf_mndp_ipv4address = -1;
+static int hf_mndp_mac;
+static int hf_mndp_softwareid;
+static int hf_mndp_version;
+static int hf_mndp_identity;
+static int hf_mndp_uptime;
+static int hf_mndp_platform;
+static int hf_mndp_board;
+static int hf_mndp_unpack;
+static int hf_mndp_ipv6address;
+static int hf_mndp_interfacename;
+static int hf_mndp_ipv4address;
 
 #define PROTO_SHORT_NAME "MNDP"
 #define PROTO_LONG_NAME "Mikrotik Neighbor Discovery Protocol"

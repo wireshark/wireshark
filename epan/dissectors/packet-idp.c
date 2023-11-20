@@ -20,21 +20,21 @@ void proto_reg_handoff_idp(void);
 
 static dissector_handle_t idp_handle;
 
-static int proto_idp = -1;
-static int hf_idp_checksum = -1;
-static int hf_idp_len = -1;
-/* static int hf_idp_src = -1; */
-/* static int hf_idp_dst = -1; */
-static int hf_idp_hops = -1;
-static int hf_idp_packet_type = -1;
-static int hf_idp_dnet = -1;
-static int hf_idp_dnode = -1;
-static int hf_idp_dsocket = -1;
-static int hf_idp_snet = -1;
-static int hf_idp_snode = -1;
-static int hf_idp_ssocket = -1;
+static int proto_idp;
+static int hf_idp_checksum;
+static int hf_idp_len;
+/* static int hf_idp_src; */
+/* static int hf_idp_dst; */
+static int hf_idp_hops;
+static int hf_idp_packet_type;
+static int hf_idp_dnet;
+static int hf_idp_dnode;
+static int hf_idp_dsocket;
+static int hf_idp_snet;
+static int hf_idp_snode;
+static int hf_idp_ssocket;
 
-static gint ett_idp = -1;
+static gint ett_idp;
 
 static dissector_table_t idp_type_dissector_table;
 

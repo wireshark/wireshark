@@ -24,20 +24,20 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
-static int proto_dlt = -1;
+static int proto_dlt;
 
-static int hf_dlt_file_magic = -1;
-static int hf_dlt_file_tstamp_s = -1;
-static int hf_dlt_file_tstamp_us = -1;
-static int hf_dlt_file_ecuid = -1;
+static int hf_dlt_file_magic;
+static int hf_dlt_file_tstamp_s;
+static int hf_dlt_file_tstamp_us;
+static int hf_dlt_file_ecuid;
 
-static int hf_dlt_file_header_type = -1;
-static int hf_dlt_file_message_counter = -1;
-static int hf_dlt_file_length = -1;
-static int hf_dlt_file_data = -1;
+static int hf_dlt_file_header_type;
+static int hf_dlt_file_message_counter;
+static int hf_dlt_file_length;
+static int hf_dlt_file_data;
 
-static gint ett_dlt = -1;
-static gint ett_dlt_item = -1;
+static gint ett_dlt;
+static gint ett_dlt_item;
 
 void proto_register_file_dlt(void);
 void proto_reg_handoff_file_dlt(void);

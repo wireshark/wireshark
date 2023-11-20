@@ -40,8 +40,8 @@ void proto_reg_handoff_tecmp_payload(void);
 
 static dissector_handle_t tecmp_handle;
 
-static int proto_tecmp = -1;
-static int proto_tecmp_payload = -1;
+static int proto_tecmp;
+static int proto_tecmp_payload;
 
 static dissector_handle_t eth_handle;
 static int proto_vlan;
@@ -57,98 +57,98 @@ static dissector_handle_t text_lines_handle;
 
 /* Header fields */
 /* TECMP */
-static int hf_tecmp_device_id = -1;
-static int hf_tecmp_counter = -1;
-static int hf_tecmp_version = -1;
-static int hf_tecmp_msgtype = -1;
-static int hf_tecmp_data_type = -1;
-static int hf_tecmp_res = -1;
+static int hf_tecmp_device_id;
+static int hf_tecmp_counter;
+static int hf_tecmp_version;
+static int hf_tecmp_msgtype;
+static int hf_tecmp_data_type;
+static int hf_tecmp_res;
 
-static int hf_tecmp_flags = -1;
-static int hf_tecmp_flags_eos = -1;
-static int hf_tecmp_flags_sos = -1;
-static int hf_tecmp_flags_spy = -1;
-static int hf_tecmp_flags_multi_frame = -1;
-static int hf_tecmp_flags_dev_overflow = -1;
+static int hf_tecmp_flags;
+static int hf_tecmp_flags_eos;
+static int hf_tecmp_flags_sos;
+static int hf_tecmp_flags_spy;
+static int hf_tecmp_flags_multi_frame;
+static int hf_tecmp_flags_dev_overflow;
 
 /* TECMP Payload */
-static int hf_tecmp_payload_interface_id = -1;
-static int hf_tecmp_payload_interface_name = -1;
-static int hf_tecmp_payload_timestamp = -1;
-static int hf_tecmp_payload_timestamp_ns = -1;
-static int hf_tecmp_payload_timestamp_async = -1;
-static int hf_tecmp_payload_timestamp_res = -1;
-static int hf_tecmp_payload_length = -1;
-static int hf_tecmp_payload_data = -1;
-static int hf_tecmp_payload_data_length = -1;
+static int hf_tecmp_payload_interface_id;
+static int hf_tecmp_payload_interface_name;
+static int hf_tecmp_payload_timestamp;
+static int hf_tecmp_payload_timestamp_ns;
+static int hf_tecmp_payload_timestamp_async;
+static int hf_tecmp_payload_timestamp_res;
+static int hf_tecmp_payload_length;
+static int hf_tecmp_payload_data;
+static int hf_tecmp_payload_data_length;
 
 /* TECMP Payload flags */
 /* Generic */
-static int hf_tecmp_payload_data_flags = -1;
-static int hf_tecmp_payload_data_flags_crc = -1;
-static int hf_tecmp_payload_data_flags_checksum = -1;
-static int hf_tecmp_payload_data_flags_tx = -1;
-static int hf_tecmp_payload_data_flags_overflow = -1;
+static int hf_tecmp_payload_data_flags;
+static int hf_tecmp_payload_data_flags_crc;
+static int hf_tecmp_payload_data_flags_checksum;
+static int hf_tecmp_payload_data_flags_tx;
+static int hf_tecmp_payload_data_flags_overflow;
 
 /* ILaS*/
-static int hf_tecmp_payload_data_flags_crc_enabled = -1;
-static int hf_tecmp_payload_data_flags_direction = -1;
+static int hf_tecmp_payload_data_flags_crc_enabled;
+static int hf_tecmp_payload_data_flags_direction;
 
 /* Ethernet 10BASE-T1S */
-static int hf_tecmp_payload_data_flags_phy_event_error = -1;
+static int hf_tecmp_payload_data_flags_phy_event_error;
 
 /* LIN */
-static int hf_tecmp_payload_data_flags_coll = -1;
-static int hf_tecmp_payload_data_flags_parity = -1;
-static int hf_tecmp_payload_data_flags_no_resp = -1;
-static int hf_tecmp_payload_data_flags_wup = -1;
-static int hf_tecmp_payload_data_flags_short_wup = -1;
-static int hf_tecmp_payload_data_flags_sleep = -1;
+static int hf_tecmp_payload_data_flags_coll;
+static int hf_tecmp_payload_data_flags_parity;
+static int hf_tecmp_payload_data_flags_no_resp;
+static int hf_tecmp_payload_data_flags_wup;
+static int hf_tecmp_payload_data_flags_short_wup;
+static int hf_tecmp_payload_data_flags_sleep;
 
 /* CAN and CAN-FD DATA */
-static int hf_tecmp_payload_data_flags_ack = -1;
-static int hf_tecmp_payload_data_flags_rtr = -1;  /* CAN DATA only */
-static int hf_tecmp_payload_data_flags_esi = -1;  /* CAN-FD DATA only */
-static int hf_tecmp_payload_data_flags_ide = -1;
-static int hf_tecmp_payload_data_flags_err = -1;
-static int hf_tecmp_payload_data_flags_brs = -1;  /* CAN-FD DATA only */
+static int hf_tecmp_payload_data_flags_ack;
+static int hf_tecmp_payload_data_flags_rtr;  /* CAN DATA only */
+static int hf_tecmp_payload_data_flags_esi;  /* CAN-FD DATA only */
+static int hf_tecmp_payload_data_flags_ide;
+static int hf_tecmp_payload_data_flags_err;
+static int hf_tecmp_payload_data_flags_brs;  /* CAN-FD DATA only */
 
-static int hf_tecmp_payload_data_flags_can_bit_stuff_err = -1;
-static int hf_tecmp_payload_data_flags_can_crc_del_err = -1;
-static int hf_tecmp_payload_data_flags_can_ack_del_err = -1;
-static int hf_tecmp_payload_data_flags_can_eof_err = -1;
-static int hf_tecmp_payload_data_flags_canfd_bit_stuff_err = -1;
-static int hf_tecmp_payload_data_flags_canfd_crc_del_err = -1;
-static int hf_tecmp_payload_data_flags_canfd_ack_del_err = -1;
-static int hf_tecmp_payload_data_flags_canfd_eof_err = -1;
+static int hf_tecmp_payload_data_flags_can_bit_stuff_err;
+static int hf_tecmp_payload_data_flags_can_crc_del_err;
+static int hf_tecmp_payload_data_flags_can_ack_del_err;
+static int hf_tecmp_payload_data_flags_can_eof_err;
+static int hf_tecmp_payload_data_flags_canfd_bit_stuff_err;
+static int hf_tecmp_payload_data_flags_canfd_crc_del_err;
+static int hf_tecmp_payload_data_flags_canfd_ack_del_err;
+static int hf_tecmp_payload_data_flags_canfd_eof_err;
 
 /* FlexRay */
-static int hf_tecmp_payload_data_flags_nf = -1;
-static int hf_tecmp_payload_data_flags_sf = -1;
-static int hf_tecmp_payload_data_flags_sync = -1;
-static int hf_tecmp_payload_data_flags_wus = -1;
-static int hf_tecmp_payload_data_flags_ppi = -1;
-static int hf_tecmp_payload_data_flags_cas = -1;
-static int hf_tecmp_payload_data_flags_header_crc_err = -1;
-static int hf_tecmp_payload_data_flags_frame_crc_err = -1;
+static int hf_tecmp_payload_data_flags_nf;
+static int hf_tecmp_payload_data_flags_sf;
+static int hf_tecmp_payload_data_flags_sync;
+static int hf_tecmp_payload_data_flags_wus;
+static int hf_tecmp_payload_data_flags_ppi;
+static int hf_tecmp_payload_data_flags_cas;
+static int hf_tecmp_payload_data_flags_header_crc_err;
+static int hf_tecmp_payload_data_flags_frame_crc_err;
 
 /* UART/RS232 ASCII*/
-static int hf_tecmp_payload_data_flags_dl = -1;
-static int hf_tecmp_payload_data_flags_parity_error = -1;
+static int hf_tecmp_payload_data_flags_dl;
+static int hf_tecmp_payload_data_flags_parity_error;
 
 /* Analog */
-static int hf_tecmp_payload_data_flags_sample_time = -1;
-static int hf_tecmp_payload_data_flags_factor = -1;
-static int hf_tecmp_payload_data_flags_unit = -1;
-static int hf_tecmp_payload_data_flags_threshold_u = -1;
-static int hf_tecmp_payload_data_flags_threshold_o = -1;
+static int hf_tecmp_payload_data_flags_sample_time;
+static int hf_tecmp_payload_data_flags_factor;
+static int hf_tecmp_payload_data_flags_unit;
+static int hf_tecmp_payload_data_flags_threshold_u;
+static int hf_tecmp_payload_data_flags_threshold_o;
 
 /* Special TX Data Flags */
-static int hf_tecmp_payload_data_flags_use_crc_value = -1;
-static int hf_tecmp_payload_data_flags_use_header_crc_value = -1;
-static int hf_tecmp_payload_data_flags_use_checksum_value = -1;
-static int hf_tecmp_payload_data_flags_use_parity_bits = -1;
-static int hf_tecmp_payload_data_flags_tx_mode = -1;
+static int hf_tecmp_payload_data_flags_use_crc_value;
+static int hf_tecmp_payload_data_flags_use_header_crc_value;
+static int hf_tecmp_payload_data_flags_use_checksum_value;
+static int hf_tecmp_payload_data_flags_use_parity_bits;
+static int hf_tecmp_payload_data_flags_tx_mode;
 
 static const unit_name_string tecmp_units_amp_hour = { "Ah", NULL };
 
@@ -159,166 +159,166 @@ static const unit_name_string tecmp_units_amp_hour = { "Ah", NULL };
 
 /* TECMP Payload Fields */
 /* Ethernet 10BASE-T1S */
-static int hf_tecmp_payload_data_beacon_timestamp = -1;
-static int hf_tecmp_payload_data_beacon_timestamp_ns = -1;
-static int hf_tecmp_payload_data_beacon_to_timestamp_ns = -1;
+static int hf_tecmp_payload_data_beacon_timestamp;
+static int hf_tecmp_payload_data_beacon_timestamp_ns;
+static int hf_tecmp_payload_data_beacon_to_timestamp_ns;
 
 /* LIN */
-static int hf_tecmp_payload_data_id_field_8bit = -1;
-static int hf_tecmp_payload_data_id_field_6bit = -1;
-static int hf_tecmp_payload_data_parity_bits = -1;
-static int hf_tecmp_payload_data_checksum_8bit = -1;
+static int hf_tecmp_payload_data_id_field_8bit;
+static int hf_tecmp_payload_data_id_field_6bit;
+static int hf_tecmp_payload_data_parity_bits;
+static int hf_tecmp_payload_data_checksum_8bit;
 
 /* CAN DATA / CAN-FD DATA */
-static int hf_tecmp_payload_data_id_field_32bit = -1;
-static int hf_tecmp_payload_data_id_type = -1;
-static int hf_tecmp_payload_data_id_11 = -1;
-static int hf_tecmp_payload_data_id_29 = -1;
-static int hf_tecmp_payload_data_crc15 = -1;
-static int hf_tecmp_payload_data_crc17 = -1;
-static int hf_tecmp_payload_data_crc21 = -1;
+static int hf_tecmp_payload_data_id_field_32bit;
+static int hf_tecmp_payload_data_id_type;
+static int hf_tecmp_payload_data_id_11;
+static int hf_tecmp_payload_data_id_29;
+static int hf_tecmp_payload_data_crc15;
+static int hf_tecmp_payload_data_crc17;
+static int hf_tecmp_payload_data_crc21;
 
 /* FlexRay DATA */
-static int hf_tecmp_payload_data_cycle = -1;
-static int hf_tecmp_payload_data_frame_id = -1;
-static int hf_tecmp_payload_data_header_crc = -1;
-static int hf_tecmp_payload_data_frame_crc = -1;
+static int hf_tecmp_payload_data_cycle;
+static int hf_tecmp_payload_data_frame_id;
+static int hf_tecmp_payload_data_header_crc;
+static int hf_tecmp_payload_data_frame_crc;
 
 /* Analog */
-static int hf_tecmp_payload_data_analog_value_raw = -1;
-static int hf_tecmp_payload_data_analog_value_raw_signed = -1;
-static int hf_tecmp_payload_data_analog_value_volt = -1;
-static int hf_tecmp_payload_data_analog_value_amp = -1;
-static int hf_tecmp_payload_data_analog_value_watt = -1;
-static int hf_tecmp_payload_data_analog_value_amp_hour = -1;
-static int hf_tecmp_payload_data_analog_value_celsius = -1;
+static int hf_tecmp_payload_data_analog_value_raw;
+static int hf_tecmp_payload_data_analog_value_raw_signed;
+static int hf_tecmp_payload_data_analog_value_volt;
+static int hf_tecmp_payload_data_analog_value_amp;
+static int hf_tecmp_payload_data_analog_value_watt;
+static int hf_tecmp_payload_data_analog_value_amp_hour;
+static int hf_tecmp_payload_data_analog_value_celsius;
 
 /* TECMP Status Messsages */
 /* Status Device */
-static int hf_tecmp_payload_status_vendor_id = -1;
-static int hf_tecmp_payload_status_dev_version = -1;
-static int hf_tecmp_payload_status_dev_type = -1;
-static int hf_tecmp_payload_status_res = -1;
-static int hf_tecmp_payload_status_length_vendor_data = -1;
-static int hf_tecmp_payload_status_device_id = -1;
-static int hf_tecmp_payload_status_sn = -1;
-static int hf_tecmp_payload_status_vendor_data = -1;
+static int hf_tecmp_payload_status_vendor_id;
+static int hf_tecmp_payload_status_dev_version;
+static int hf_tecmp_payload_status_dev_type;
+static int hf_tecmp_payload_status_res;
+static int hf_tecmp_payload_status_length_vendor_data;
+static int hf_tecmp_payload_status_device_id;
+static int hf_tecmp_payload_status_sn;
+static int hf_tecmp_payload_status_vendor_data;
 
 /* Status Bus */
-static int hf_tecmp_payload_status_bus_data = -1;
-static int hf_tecmp_payload_status_bus_data_entry = -1;
-static int hf_tecmp_payload_status_bus_interface_id = -1;
-static int hf_tecmp_payload_status_bus_total = -1;
-static int hf_tecmp_payload_status_bus_errors = -1;
+static int hf_tecmp_payload_status_bus_data;
+static int hf_tecmp_payload_status_bus_data_entry;
+static int hf_tecmp_payload_status_bus_interface_id;
+static int hf_tecmp_payload_status_bus_total;
+static int hf_tecmp_payload_status_bus_errors;
 
 /* Status Device Vendor Data Technica Engineering */
-static int hf_tecmp_payload_status_dev_vendor_technica_res = -1;
-static int hf_tecmp_payload_status_dev_vendor_technica_sw = -1;
-static int hf_tecmp_payload_status_dev_vendor_technica_hw = -1;
-static int hf_tecmp_payload_status_dev_vendor_technica_buffer_fill_level = -1;
-static int hf_tecmp_payload_status_dev_vendor_technica_buffer_overflow = -1;
-static int hf_tecmp_payload_status_dev_vendor_technica_buffer_size = -1;
-static int hf_tecmp_payload_status_dev_vendor_technica_lifecycle = -1;
-static int hf_tecmp_payload_status_dev_vendor_technica_lifecycle_start = -1;
-static int hf_tecmp_payload_status_dev_vendor_technica_voltage = -1;
-static int hf_tecmp_payload_status_dev_vendor_technica_temperature = -1;
-static int hf_tecmp_payload_status_dev_vendor_technica_temperature_chassis = -1;
-static int hf_tecmp_payload_status_dev_vendor_technica_temperature_silicon = -1;
+static int hf_tecmp_payload_status_dev_vendor_technica_res;
+static int hf_tecmp_payload_status_dev_vendor_technica_sw;
+static int hf_tecmp_payload_status_dev_vendor_technica_hw;
+static int hf_tecmp_payload_status_dev_vendor_technica_buffer_fill_level;
+static int hf_tecmp_payload_status_dev_vendor_technica_buffer_overflow;
+static int hf_tecmp_payload_status_dev_vendor_technica_buffer_size;
+static int hf_tecmp_payload_status_dev_vendor_technica_lifecycle;
+static int hf_tecmp_payload_status_dev_vendor_technica_lifecycle_start;
+static int hf_tecmp_payload_status_dev_vendor_technica_voltage;
+static int hf_tecmp_payload_status_dev_vendor_technica_temperature;
+static int hf_tecmp_payload_status_dev_vendor_technica_temperature_chassis;
+static int hf_tecmp_payload_status_dev_vendor_technica_temperature_silicon;
 
 #define VENDOR_TECHNICA_TEMP_MAX 127
 #define VENDOR_TECHNICA_TEMP_NA  -128
 
 /* Status Bus Vendor Data Technica Engineering */
-static int hf_tecmp_payload_status_bus_vendor_technica_link_status = -1;
-static int hf_tecmp_payload_status_bus_vendor_technica_link_quality = -1;
-static int hf_tecmp_payload_status_bus_vendor_technica_linkup_time = -1;
+static int hf_tecmp_payload_status_bus_vendor_technica_link_status;
+static int hf_tecmp_payload_status_bus_vendor_technica_link_quality;
+static int hf_tecmp_payload_status_bus_vendor_technica_linkup_time;
 
-static int hf_tecmp_payload_status_bus_vendor_technica_10m_flags = -1;
-static int hf_tecmp_payload_status_bus_vendor_technica_10m_flags_beacons_received = -1;
-static int hf_tecmp_payload_status_bus_vendor_technica_10m_flags_plca_enabled = -1;
-static int hf_tecmp_payload_status_bus_vendor_technica_res0 = -1;
-static int hf_tecmp_payload_status_bus_vendor_technica_beacon_counter = -1;
-static int hf_tecmp_payload_status_bus_vendor_technica_res1 = -1;
-static int hf_tecmp_payload_status_bus_vendor_technica_res2 = -1;
-static int hf_tecmp_payload_status_bus_vendor_technica_5b_decode_err_cnt = -1;
-static int hf_tecmp_payload_status_bus_vendor_technica_eos_delim_err_cnt = -1;
-static int hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_detected_cnt = -1;
-static int hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_missing_cnt = -1;
-static int hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_empty_cycle_cnt = -1;
+static int hf_tecmp_payload_status_bus_vendor_technica_10m_flags;
+static int hf_tecmp_payload_status_bus_vendor_technica_10m_flags_beacons_received;
+static int hf_tecmp_payload_status_bus_vendor_technica_10m_flags_plca_enabled;
+static int hf_tecmp_payload_status_bus_vendor_technica_res0;
+static int hf_tecmp_payload_status_bus_vendor_technica_beacon_counter;
+static int hf_tecmp_payload_status_bus_vendor_technica_res1;
+static int hf_tecmp_payload_status_bus_vendor_technica_res2;
+static int hf_tecmp_payload_status_bus_vendor_technica_5b_decode_err_cnt;
+static int hf_tecmp_payload_status_bus_vendor_technica_eos_delim_err_cnt;
+static int hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_detected_cnt;
+static int hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_missing_cnt;
+static int hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_empty_cycle_cnt;
 
 
 /* Status Configuration Data Technica Engineering */
-static int hf_tecmp_payload_status_cfg_vendor_technica_version = -1;
-static int hf_tecmp_payload_status_cfg_vendor_technica_reserved = -1;
-static int hf_tecmp_payload_status_cfg_vendor_technica_msg_id = -1;
-static int hf_tecmp_payload_status_cfg_vendor_technica_total_length = -1;
-static int hf_tecmp_payload_status_cfg_vendor_technica_total_num_seg = -1;
-static int hf_tecmp_payload_status_cfg_vendor_technica_segment_num = -1;
-static int hf_tecmp_payload_status_cfg_vendor_technica_segment_length = -1;
-static int hf_tecmp_payload_status_cfg_vendor_technica_segment_data = -1;
+static int hf_tecmp_payload_status_cfg_vendor_technica_version;
+static int hf_tecmp_payload_status_cfg_vendor_technica_reserved;
+static int hf_tecmp_payload_status_cfg_vendor_technica_msg_id;
+static int hf_tecmp_payload_status_cfg_vendor_technica_total_length;
+static int hf_tecmp_payload_status_cfg_vendor_technica_total_num_seg;
+static int hf_tecmp_payload_status_cfg_vendor_technica_segment_num;
+static int hf_tecmp_payload_status_cfg_vendor_technica_segment_length;
+static int hf_tecmp_payload_status_cfg_vendor_technica_segment_data;
 
 /* TECMP Control Message */
-static int hf_tecmp_payload_ctrl_msg_device_id = -1;
-static int hf_tecmp_payload_ctrl_msg_id = -1;
-static int hf_tecmp_payload_ctrl_msg_unparsed_bytes = -1;
-static int hf_tecmp_payload_ctrl_msg_can_replay_fill_level_fill_level = -1;
-static int hf_tecmp_payload_ctrl_msg_can_replay_fill_level_buffer_overflow = -1;
-static int hf_tecmp_payload_ctrl_msg_can_replay_fill_level_queue_size = -1;
-static int hf_tecmp_payload_ctrl_msg_can_replay_fill_level_queue_length = -1;
-static int hf_tecmp_payload_ctrl_msg_flexray_poc_interface_id = -1;
-static int hf_tecmp_payload_ctrl_msg_flexray_poc_state = -1;
-static int hf_tecmp_payload_ctrl_msg_10baset1s_interface_id = -1;
-static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_flags = -1;
-static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_flags_beacons_received = -1;
-static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_flags_plca_enabled = -1;
-static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_reserved = -1;
-static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_events = -1;
-static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_5b_decode_error = -1;
-static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_eos_delim_error = -1;
-static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_plca_symb_detected = -1;
-static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_plca_symb_missing = -1;
-static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_plca_empty_cycle = -1;
+static int hf_tecmp_payload_ctrl_msg_device_id;
+static int hf_tecmp_payload_ctrl_msg_id;
+static int hf_tecmp_payload_ctrl_msg_unparsed_bytes;
+static int hf_tecmp_payload_ctrl_msg_can_replay_fill_level_fill_level;
+static int hf_tecmp_payload_ctrl_msg_can_replay_fill_level_buffer_overflow;
+static int hf_tecmp_payload_ctrl_msg_can_replay_fill_level_queue_size;
+static int hf_tecmp_payload_ctrl_msg_can_replay_fill_level_queue_length;
+static int hf_tecmp_payload_ctrl_msg_flexray_poc_interface_id;
+static int hf_tecmp_payload_ctrl_msg_flexray_poc_state;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_interface_id;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_flags;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_flags_beacons_received;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_flags_plca_enabled;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_reserved;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_events;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_5b_decode_error;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_eos_delim_error;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_plca_symb_detected;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_plca_symb_missing;
+static int hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_plca_empty_cycle;
 
 /* Counter Event */
-static int hf_tecmp_payload_counter_event_device_id = -1;
-static int hf_tecmp_payload_counter_event_interface_id = -1;
-static int hf_tecmp_payload_counter_event_counter_last = -1;
-static int hf_tecmp_payload_counter_event_counter_cur = -1;
+static int hf_tecmp_payload_counter_event_device_id;
+static int hf_tecmp_payload_counter_event_interface_id;
+static int hf_tecmp_payload_counter_event_counter_last;
+static int hf_tecmp_payload_counter_event_counter_cur;
 
 /* TimeSync Event */
-static int hf_tecmp_payload_timesync_event_device_id = -1;
-static int hf_tecmp_payload_timesync_event_interface_id = -1;
-static int hf_tecmp_payload_timesync_event_reserved = -1;
-static int hf_tecmp_payload_timesync_event_async = -1;
-static int hf_tecmp_payload_timesync_event_time_delta = -1;
+static int hf_tecmp_payload_timesync_event_device_id;
+static int hf_tecmp_payload_timesync_event_interface_id;
+static int hf_tecmp_payload_timesync_event_reserved;
+static int hf_tecmp_payload_timesync_event_async;
+static int hf_tecmp_payload_timesync_event_time_delta;
 
 
 /* protocol tree items */
-static gint ett_tecmp = -1;
-static gint ett_tecmp_flags = -1;
+static gint ett_tecmp;
+static gint ett_tecmp_flags;
 
-static gint ett_tecmp_payload = -1;
-static gint ett_tecmp_payload_interface_id = -1;
-static gint ett_tecmp_payload_data = -1;
-static gint ett_tecmp_payload_timestamp = -1;
-static gint ett_tecmp_payload_dataflags = -1;
-static gint ett_tecmp_payload_instruction_address = -1;
-static gint ett_tecmp_payload_data_id = -1;
-static gint ett_tecmp_payload_lin_id = -1;
-static gint ett_tecmp_status_bus_data = -1;
-static gint ett_tecmp_status_bus_data_entry = -1;
-static gint ett_tecmp_status_dev_vendor_data = -1;
-static gint ett_tecmp_status_bus_vendor_data = -1;
-static gint ett_tecmp_status_bus_vendor_data_flags = -1;
-static gint ett_tecmp_ctrl_message_10baset1s_flags = -1;
-static gint ett_tecmp_ctrl_message_10baset1s_events_errors = -1;
+static gint ett_tecmp_payload;
+static gint ett_tecmp_payload_interface_id;
+static gint ett_tecmp_payload_data;
+static gint ett_tecmp_payload_timestamp;
+static gint ett_tecmp_payload_dataflags;
+static gint ett_tecmp_payload_instruction_address;
+static gint ett_tecmp_payload_data_id;
+static gint ett_tecmp_payload_lin_id;
+static gint ett_tecmp_status_bus_data;
+static gint ett_tecmp_status_bus_data_entry;
+static gint ett_tecmp_status_dev_vendor_data;
+static gint ett_tecmp_status_bus_vendor_data;
+static gint ett_tecmp_status_bus_vendor_data_flags;
+static gint ett_tecmp_ctrl_message_10baset1s_flags;
+static gint ett_tecmp_ctrl_message_10baset1s_events_errors;
 
 /* dissector handle to hand off to ASAM CMP (successor protocol) */
 static dissector_handle_t asam_cmp_handle;
 
 /*** expert info items ***/
-static expert_field ei_tecmp_payload_length_mismatch = EI_INIT;
-static expert_field ei_tecmp_payload_header_crc_overflow = EI_INIT;
+static expert_field ei_tecmp_payload_length_mismatch;
+static expert_field ei_tecmp_payload_header_crc_overflow;
 
 /* TECMP Type Names */
 

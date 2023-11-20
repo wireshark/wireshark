@@ -60,30 +60,30 @@ void proto_reg_handoff_avsp(void);
 void proto_register_avsp(void);
 
 static dissector_handle_t avsp_handle;
-static int proto_avsp = -1;
+static int proto_avsp;
 
 /* sub trees */
-static gint ett_avsp = -1;
-static gint ett_avsp_ts_48 = -1;
-static gint ett_avsp_ts_64 = -1;
-static gint ett_avsp_tgen_hdr = -1;
-static gint ett_avsp_tgen_hdr_ctrl = -1;
-static gint ett_avsp_tgen_payload = -1;
+static gint ett_avsp;
+static gint ett_avsp_ts_48;
+static gint ett_avsp_ts_64;
+static gint ett_avsp_tgen_hdr;
+static gint ett_avsp_tgen_hdr_ctrl;
+static gint ett_avsp_tgen_payload;
 
 /* AVSP Timestamp subtype header fields */
-static int hf_avsp_subtype = -1;
-static int hf_avsp_ts_version = -1;
-static int hf_avsp_ts_64_tai = -1;
-static int hf_avsp_ts_64_utc = -1;
-static int hf_avsp_ts_64_sec = -1;
-static int hf_avsp_ts_64_ns = -1;
-static int hf_avsp_ts_48_tai = -1;
-static int hf_avsp_ts_48_utc = -1;
-static int hf_avsp_ts_48_sec = -1;
-static int hf_avsp_ts_48_ns = -1;
+static int hf_avsp_subtype;
+static int hf_avsp_ts_version;
+static int hf_avsp_ts_64_tai;
+static int hf_avsp_ts_64_utc;
+static int hf_avsp_ts_64_sec;
+static int hf_avsp_ts_64_ns;
+static int hf_avsp_ts_48_tai;
+static int hf_avsp_ts_48_utc;
+static int hf_avsp_ts_48_sec;
+static int hf_avsp_ts_48_ns;
 
-static int hf_avsp_etype = -1;
-static int hf_avsp_trailer = -1;
+static int hf_avsp_etype;
+static int hf_avsp_trailer;
 
 /*
   TGen subtype format
@@ -104,15 +104,15 @@ static int hf_avsp_trailer = -1;
 */
 
 /* AVSP TGen subtype header fields */
-static int hf_avsp_tgen_version = -1;
-static int hf_avsp_tgen_hdr = -1;
-static int hf_avsp_tgen_hdr_ctrl = -1;
-static int hf_avsp_tgen_hdr_ctrl_fcs_inverted = -1;
-static int hf_avsp_tgen_hdr_ctrl_reserved = -1;
-static int hf_avsp_tgen_hdr_seq_num = -1;
-static int hf_avsp_tgen_hdr_payload_len = -1;
-static int hf_avsp_tgen_payload = -1;
-static int hf_avsp_tgen_payload_data = -1;
+static int hf_avsp_tgen_version;
+static int hf_avsp_tgen_hdr;
+static int hf_avsp_tgen_hdr_ctrl;
+static int hf_avsp_tgen_hdr_ctrl_fcs_inverted;
+static int hf_avsp_tgen_hdr_ctrl_reserved;
+static int hf_avsp_tgen_hdr_seq_num;
+static int hf_avsp_tgen_hdr_payload_len;
+static int hf_avsp_tgen_payload;
+static int hf_avsp_tgen_payload_data;
 
 static int* const avsp_tgen_ctrl[] = {
     &hf_avsp_tgen_hdr_ctrl_fcs_inverted,
@@ -141,9 +141,9 @@ static const value_string tgen_versions[] = {
     {0, NULL}
 };
 
-static expert_field ei_avsp_unknown_subtype = EI_INIT;
-static expert_field ei_avsp_ts_unknown_version = EI_INIT;
-static expert_field ei_avsp_tgen_unknown_version = EI_INIT;
+static expert_field ei_avsp_unknown_subtype;
+static expert_field ei_avsp_ts_unknown_version;
+static expert_field ei_avsp_tgen_unknown_version;
 
 static int
 dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)

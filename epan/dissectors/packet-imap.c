@@ -25,28 +25,28 @@
 void proto_register_imap(void);
 void proto_reg_handoff_imap(void);
 
-static int proto_imap = -1;
-static int hf_imap_isrequest = -1;
-static int hf_imap_line = -1;
-static int hf_imap_request = -1;
-static int hf_imap_request_tag = -1;
-static int hf_imap_response = -1;
-static int hf_imap_response_tag = -1;
-static int hf_imap_request_command = -1;
-static int hf_imap_response_command = -1;
-static int hf_imap_tag = -1;
-static int hf_imap_command = -1;
-static int hf_imap_response_status = -1;
-static int hf_imap_request_folder = -1;
-static int hf_imap_request_username = -1;
-static int hf_imap_request_password = -1;
-static int hf_imap_request_uid = -1;
-static int hf_imap_response_in = -1;
-static int hf_imap_response_to = -1;
-static int hf_imap_time = -1;
+static int proto_imap;
+static int hf_imap_isrequest;
+static int hf_imap_line;
+static int hf_imap_request;
+static int hf_imap_request_tag;
+static int hf_imap_response;
+static int hf_imap_response_tag;
+static int hf_imap_request_command;
+static int hf_imap_response_command;
+static int hf_imap_tag;
+static int hf_imap_command;
+static int hf_imap_response_status;
+static int hf_imap_request_folder;
+static int hf_imap_request_username;
+static int hf_imap_request_password;
+static int hf_imap_request_uid;
+static int hf_imap_response_in;
+static int hf_imap_response_to;
+static int hf_imap_time;
 
-static gint ett_imap = -1;
-static gint ett_imap_reqresp = -1;
+static gint ett_imap;
+static gint ett_imap_reqresp;
 
 static int credentials_tap = -1;
 

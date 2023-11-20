@@ -458,18 +458,18 @@ static const value_string E164_International_Networks_883_vals[] = {
 	{ 0,	NULL }
 };
 
-static int proto_e164				= -1;
-static int hf_E164_calling_party_number		= -1;
-static int hf_E164_called_party_number		= -1;
-static int hf_E164_msisdn			= -1;
-static int hf_E164_isdn				= -1;
-static int hf_E164_identification_code		= -1;
-static int hf_E164_country_code			= -1;
+static int proto_e164;
+static int hf_E164_calling_party_number;
+static int hf_E164_called_party_number;
+static int hf_E164_msisdn;
+static int hf_E164_isdn;
+static int hf_E164_identification_code;
+static int hf_E164_country_code;
 
-static int ett_e164_msisdn = -1;
+static int ett_e164_msisdn;
 
-static expert_field ei_E164_country_code_non_decimal = EI_INIT;
-static expert_field ei_E164_identification_code_non_decimal = EI_INIT;
+static expert_field ei_E164_country_code_non_decimal;
+static expert_field ei_E164_identification_code_non_decimal;
 
 void
 dissect_e164_number(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e164_info_t e164_info)

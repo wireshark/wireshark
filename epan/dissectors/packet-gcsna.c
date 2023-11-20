@@ -29,39 +29,39 @@ static void gcsna_message_GCSNAL2Ack(proto_item *item, tvbuff_t *tvb, proto_tree
 static void gcsna_message_GCSNAServiceReject(proto_item *item, tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
 /*Initialize all the header parameters that are to be displayed*/
-static int proto_gcsna = -1;
-static int hf_gcsna_msghdr = -1;
-static int hf_gcsna_msgid = -1;
-static int hf_gcsna_rejSequence = -1;
-static int hf_gcsna_cause = -1;
-static int hf_gcsna_ackSequence = -1;
-static int hf_gcsna_recordType = -1;
-static int hf_gcsna_1xProtocolRevision = -1;
-static int hf_gcsna_invalidMessageId = -1;
-static int hf_gcsna_l2ack = -1;
-static int hf_gcsna_servicereject = -1;
-static int hf_gcsna_gcsna_option = -1;
-static int hf_gcsna_gcsnaClass = -1;
-static int hf_gcsna_gcsnaClassRev = -1;
-static int hf_gcsna_altGCSNAOption = -1;
-static int hf_gcsna_altGCSNAOptionIncluded = -1;
-static int hf_gcsna_NumaltGCSNAOption = -1;
-static int hf_gcsna_ackRequired = -1;
-static int hf_gcsna_stopDupDetect = -1;
-static int hf_gcsna_msgSequence = -1;
-static int hf_gcsna_tlacEncapsulated = -1;
-static int hf_gcsna_NumTLACEncapsulated1xL3PDU = -1;
-static int hf_gcsna_tlacReserved = -1;
-static int hf_gcsna_iwsidIncluded = -1;
-static int hf_gcsna_iwsidValue = -1;
-static int hf_gcsna_unsupported_reject_seq = -1;
+static int proto_gcsna;
+static int hf_gcsna_msghdr;
+static int hf_gcsna_msgid;
+static int hf_gcsna_rejSequence;
+static int hf_gcsna_cause;
+static int hf_gcsna_ackSequence;
+static int hf_gcsna_recordType;
+static int hf_gcsna_1xProtocolRevision;
+static int hf_gcsna_invalidMessageId;
+static int hf_gcsna_l2ack;
+static int hf_gcsna_servicereject;
+static int hf_gcsna_gcsna_option;
+static int hf_gcsna_gcsnaClass;
+static int hf_gcsna_gcsnaClassRev;
+static int hf_gcsna_altGCSNAOption;
+static int hf_gcsna_altGCSNAOptionIncluded;
+static int hf_gcsna_NumaltGCSNAOption;
+static int hf_gcsna_ackRequired;
+static int hf_gcsna_stopDupDetect;
+static int hf_gcsna_msgSequence;
+static int hf_gcsna_tlacEncapsulated;
+static int hf_gcsna_NumTLACEncapsulated1xL3PDU;
+static int hf_gcsna_tlacReserved;
+static int hf_gcsna_iwsidIncluded;
+static int hf_gcsna_iwsidValue;
+static int hf_gcsna_unsupported_reject_seq;
 
 /* Toggle sub-tree items */
-static gint ett_gcsna_msghdr = -1;
-static gint ett_gcsna_subtree = -1;
-static gint ett_gcsna_option = -1;
+static gint ett_gcsna_msghdr;
+static gint ett_gcsna_subtree;
+static gint ett_gcsna_option;
 
-static expert_field ei_gcsna_error = EI_INIT;
+static expert_field ei_gcsna_error;
 
 #define GCSNA1XCIRCUITSERVICE 0x01
 #define GCSNAL2ACK       0x02

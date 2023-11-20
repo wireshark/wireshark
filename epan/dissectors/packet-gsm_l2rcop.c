@@ -19,16 +19,16 @@
 
 void proto_register_gsm_l2rcop(void);
 
-static int proto_l2rcop = -1;
+static int proto_l2rcop;
 
-static int hf_l2rcop_sa = -1;
-static int hf_l2rcop_sb = -1;
-static int hf_l2rcop_x = -1;
-static int hf_l2rcop_addr = -1;
-static int hf_l2rcop_break = -1;
-static int hf_l2rcop_break_ack = -1;
+static int hf_l2rcop_sa;
+static int hf_l2rcop_sb;
+static int hf_l2rcop_x;
+static int hf_l2rcop_addr;
+static int hf_l2rcop_break;
+static int hf_l2rcop_break_ack;
 
-static int ett_l2rcop = -1;
+static int ett_l2rcop;
 
 static const value_string addr_vals[] = {
 	{ 31, "last status change, remainder empty" },

@@ -26,7 +26,7 @@
 void proto_register_butc(void);
 void proto_reg_handoff_butc(void);
 
-static int proto_butc = -1;
+static int proto_butc;
 ETH_HF
 
 ETH_ETT

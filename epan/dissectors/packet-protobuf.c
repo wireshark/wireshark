@@ -100,52 +100,52 @@ void proto_reg_handoff_protobuf(void);
 
 static void protobuf_reinit(int target);
 
-static int proto_protobuf = -1;
-static int proto_protobuf_json_mapping = -1;
+static int proto_protobuf;
+static int proto_protobuf_json_mapping;
 
 static gboolean protobuf_dissector_called = FALSE;
 
 /* information get from *.proto files */
-static int hf_protobuf_message_name = -1;
-static int hf_protobuf_field_name = -1;
-static int hf_protobuf_field_type = -1;
+static int hf_protobuf_message_name;
+static int hf_protobuf_field_name;
+static int hf_protobuf_field_type;
 
 /* field tag */
-static int hf_protobuf_field_number = -1;
-static int hf_protobuf_wire_type = -1;
+static int hf_protobuf_field_number;
+static int hf_protobuf_wire_type;
 
 /* field value */
-static int hf_protobuf_value_length = -1; /* only Length-delimited field has */
-static int hf_protobuf_value_data = -1;
-static int hf_protobuf_value_double = -1;
-static int hf_protobuf_value_float = -1;
-static int hf_protobuf_value_int64 = -1;
-static int hf_protobuf_value_uint64 = -1;
-static int hf_protobuf_value_int32 = -1;
-static int hf_protobuf_value_uint32 = -1;
-static int hf_protobuf_value_bool = -1;
-static int hf_protobuf_value_string = -1;
-static int hf_protobuf_value_repeated = -1;
-static int hf_json_mapping_line = -1;
+static int hf_protobuf_value_length; /* only Length-delimited field has */
+static int hf_protobuf_value_data;
+static int hf_protobuf_value_double;
+static int hf_protobuf_value_float;
+static int hf_protobuf_value_int64;
+static int hf_protobuf_value_uint64;
+static int hf_protobuf_value_int32;
+static int hf_protobuf_value_uint32;
+static int hf_protobuf_value_bool;
+static int hf_protobuf_value_string;
+static int hf_protobuf_value_repeated;
+static int hf_json_mapping_line;
 
 /* expert */
-static expert_field ei_protobuf_failed_parse_tag = EI_INIT;
-static expert_field ei_protobuf_failed_parse_length_delimited_field = EI_INIT;
-static expert_field ei_protobuf_failed_parse_field = EI_INIT;
-static expert_field ei_protobuf_wire_type_invalid = EI_INIT;
-static expert_field ei_protobuf_message_type_not_found = EI_INIT;
-static expert_field ei_protobuf_wire_type_not_support_packed_repeated = EI_INIT;
-static expert_field ei_protobuf_failed_parse_packed_repeated_field = EI_INIT;
-static expert_field ei_protobuf_missing_required_field = EI_INIT;
-static expert_field ei_protobuf_default_value_error = EI_INIT;
+static expert_field ei_protobuf_failed_parse_tag;
+static expert_field ei_protobuf_failed_parse_length_delimited_field;
+static expert_field ei_protobuf_failed_parse_field;
+static expert_field ei_protobuf_wire_type_invalid;
+static expert_field ei_protobuf_message_type_not_found;
+static expert_field ei_protobuf_wire_type_not_support_packed_repeated;
+static expert_field ei_protobuf_failed_parse_packed_repeated_field;
+static expert_field ei_protobuf_missing_required_field;
+static expert_field ei_protobuf_default_value_error;
 
 /* trees */
-static int ett_protobuf = -1;
-static int ett_protobuf_message = -1;
-static int ett_protobuf_field = -1;
-static int ett_protobuf_value = -1;
-static int ett_protobuf_packed_repeated = -1;
-static int ett_protobuf_json = -1;
+static int ett_protobuf;
+static int ett_protobuf_message;
+static int ett_protobuf_field;
+static int ett_protobuf_value;
+static int ett_protobuf_packed_repeated;
+static int ett_protobuf_json;
 
 /* preferences */
 static gboolean try_dissect_as_string = FALSE;

@@ -26,34 +26,34 @@ static dissector_handle_t esio_handle;
 #define ESIO_UDP_PORT       6060 /* Not IANA registered */
 
 /* Initialize the protocol and registered fields */
-static int proto_esio = -1;
-static int hf_esio_type = -1;
-static int hf_esio_version = -1;
-static int hf_esio_length = -1;
-static int hf_esio_transaction_id = -1;
-static int hf_esio_tlg_id = -1;
-static int hf_esio_src_stn_id = -1;
-static int hf_esio_data_nbr = -1;
-static int hf_esio_data_flags = -1;
-static int hf_esio_data_transfer_id = -1;
-static int hf_esio_data_dest_id = -1;
-static int hf_esio_data_length = -1;
-static int hf_esio_data = -1;
-static int hf_esio_sts_type = -1;
-static int hf_esio_sts_size = -1;
-static int hf_esio_rio_sts = -1;
-static int hf_esio_rio_tlgs_lost = -1;
-static int hf_esio_rio_diag = -1;
-static int hf_esio_rio_flags = -1;
+static int proto_esio;
+static int hf_esio_type;
+static int hf_esio_version;
+static int hf_esio_length;
+static int hf_esio_transaction_id;
+static int hf_esio_tlg_id;
+static int hf_esio_src_stn_id;
+static int hf_esio_data_nbr;
+static int hf_esio_data_flags;
+static int hf_esio_data_transfer_id;
+static int hf_esio_data_dest_id;
+static int hf_esio_data_length;
+static int hf_esio_data;
+static int hf_esio_sts_type;
+static int hf_esio_sts_size;
+static int hf_esio_rio_sts;
+static int hf_esio_rio_tlgs_lost;
+static int hf_esio_rio_diag;
+static int hf_esio_rio_flags;
 
 /* Initialize the subtree pointers */
-static gint ett_esio = -1;
-static gint ett_esio_header = -1;
-static gint ett_esio_transfer_header = -1;
-static gint ett_esio_transfer_data = -1;
-static gint ett_esio_data = -1;
+static gint ett_esio;
+static gint ett_esio_header;
+static gint ett_esio_transfer_header;
+static gint ett_esio_transfer_data;
+static gint ett_esio_data;
 
-static expert_field ei_esio_telegram_lost = EI_INIT;
+static expert_field ei_esio_telegram_lost;
 
 /* value to string definitions*/
 /* Ether-S-I/O telegram types*/

@@ -20,11 +20,11 @@
 #include <wiretap/wtap.h>
 #include "packet-bluetooth.h"
 
-static int proto_hci_h4 = -1;
-static int hf_hci_h4_type = -1;
-static int hf_hci_h4_direction = -1;
+static int proto_hci_h4;
+static int hf_hci_h4_type;
+static int hf_hci_h4_direction;
 
-static gint ett_hci_h4 = -1;
+static gint ett_hci_h4;
 
 static dissector_handle_t hci_h4_handle;
 

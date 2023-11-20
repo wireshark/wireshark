@@ -24,20 +24,20 @@
 void proto_register_mdp(void);
 void proto_reg_handoff_mdp(void);
 
-static int proto_mdp = -1;
-static int hf_mdp_preamble_data = -1;
-static int hf_mdp_device_info = -1;
-static int hf_mdp_network_info = -1;
-static int hf_mdp_type = -1;
-static int hf_mdp_length = -1;
-static int hf_mdp_longitude = -1;
-static int hf_mdp_latitude = -1;
-static int hf_mdp_type_six = -1;
-static int hf_mdp_type_seven = -1;
-static int hf_mdp_data = -1;
+static int proto_mdp;
+static int hf_mdp_preamble_data;
+static int hf_mdp_device_info;
+static int hf_mdp_network_info;
+static int hf_mdp_type;
+static int hf_mdp_length;
+static int hf_mdp_longitude;
+static int hf_mdp_latitude;
+static int hf_mdp_type_six;
+static int hf_mdp_type_seven;
+static int hf_mdp_data;
 
-static gint ett_mdp = -1;
-static gint ett_mdp_tlv = -1;
+static gint ett_mdp;
+static gint ett_mdp_tlv;
 
 static dissector_handle_t mdp_handle;
 

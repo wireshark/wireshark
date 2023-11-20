@@ -27,20 +27,20 @@ void proto_register_reload_framing(void);
 void proto_reg_handoff_reload_framing(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_reload_framing = -1;
+static int proto_reload_framing;
 
-static int hf_reload_framing_type = -1;
-static int hf_reload_framing_sequence = -1;
-static int hf_reload_framing_ack_sequence = -1;
-static int hf_reload_framing_message = -1;
-static int hf_reload_framing_message_length = -1;
-static int hf_reload_framing_message_data = -1;
-static int hf_reload_framing_received = -1;
-static int hf_reload_framing_parsed_received = -1;
-static int hf_reload_framing_duplicate = -1;
-static int hf_reload_framing_response_in = -1;
-static int hf_reload_framing_response_to = -1;
-static int hf_reload_framing_time = -1;
+static int hf_reload_framing_type;
+static int hf_reload_framing_sequence;
+static int hf_reload_framing_ack_sequence;
+static int hf_reload_framing_message;
+static int hf_reload_framing_message_length;
+static int hf_reload_framing_message_data;
+static int hf_reload_framing_received;
+static int hf_reload_framing_parsed_received;
+static int hf_reload_framing_duplicate;
+static int hf_reload_framing_response_in;
+static int hf_reload_framing_response_to;
+static int hf_reload_framing_time;
 
 static dissector_handle_t reload_handle;
 static dissector_handle_t reload_framing_tcp_handle;
@@ -67,11 +67,11 @@ typedef struct _reload_frame_conv_info_t {
 
 
 /* Initialize the subtree pointers */
-static gint ett_reload_framing = -1;
-static gint ett_reload_framing_message = -1;
-static gint ett_reload_framing_received = -1;
+static gint ett_reload_framing;
+static gint ett_reload_framing_message;
+static gint ett_reload_framing_received;
 
-static expert_field ei_reload_no_dissector = EI_INIT;
+static expert_field ei_reload_no_dissector;
 
 #define UDP_PORT_RELOAD                 6084
 #define TCP_PORT_RELOAD                 6084

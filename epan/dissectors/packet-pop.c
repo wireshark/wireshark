@@ -36,38 +36,38 @@
 void proto_register_pop(void);
 void proto_reg_handoff_pop(void);
 
-static int proto_pop = -1;
+static int proto_pop;
 
 static int credentials_tap = -1;
 
-static int hf_pop_response = -1;
-static int hf_pop_response_indicator = -1;
-static int hf_pop_response_description = -1;
-static int hf_pop_response_data = -1;
+static int hf_pop_response;
+static int hf_pop_response_indicator;
+static int hf_pop_response_description;
+static int hf_pop_response_data;
 
-static int hf_pop_request = -1;
-static int hf_pop_request_command = -1;
-static int hf_pop_request_parameter = -1;
-static int hf_pop_request_data = -1;
+static int hf_pop_request;
+static int hf_pop_request_command;
+static int hf_pop_request_parameter;
+static int hf_pop_request_data;
 
-static int hf_pop_data_fragments = -1;
-static int hf_pop_data_fragment = -1;
-static int hf_pop_data_fragment_overlap = -1;
-static int hf_pop_data_fragment_overlap_conflicts = -1;
-static int hf_pop_data_fragment_multiple_tails = -1;
-static int hf_pop_data_fragment_too_long_fragment = -1;
-static int hf_pop_data_fragment_error = -1;
-static int hf_pop_data_fragment_count = -1;
-static int hf_pop_data_reassembled_in = -1;
-static int hf_pop_data_reassembled_length = -1;
+static int hf_pop_data_fragments;
+static int hf_pop_data_fragment;
+static int hf_pop_data_fragment_overlap;
+static int hf_pop_data_fragment_overlap_conflicts;
+static int hf_pop_data_fragment_multiple_tails;
+static int hf_pop_data_fragment_too_long_fragment;
+static int hf_pop_data_fragment_error;
+static int hf_pop_data_fragment_count;
+static int hf_pop_data_reassembled_in;
+static int hf_pop_data_reassembled_length;
 
-static expert_field ei_pop_resp_tot_len_invalid = EI_INIT;
+static expert_field ei_pop_resp_tot_len_invalid;
 
-static gint ett_pop = -1;
-static gint ett_pop_reqresp = -1;
+static gint ett_pop;
+static gint ett_pop_reqresp;
 
-static gint ett_pop_data_fragment = -1;
-static gint ett_pop_data_fragments = -1;
+static gint ett_pop_data_fragment;
+static gint ett_pop_data_fragments;
 
 static dissector_handle_t pop_handle;
 static dissector_handle_t imf_handle;

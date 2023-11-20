@@ -40,71 +40,71 @@ void proto_register_docsis_vsif(void);
 void proto_reg_handoff_docsis_vsif(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_docsis_vsif = -1;
-static int hf_docsis_vsif_vendorid = -1;
-static int hf_docsis_vsif_vendor_unknown = -1;
-static int hf_docsis_vsif_cisco_numphones = -1;
-/* static int hf_docsis_vsif_cisco_ipprec = -1; */
-static int hf_docsis_vsif_cisco_ipprec_val = -1;
-static int hf_docsis_vsif_cisco_ipprec_bw = -1;
-static int hf_docsis_vsif_cisco_config_file = -1;
+static int proto_docsis_vsif;
+static int hf_docsis_vsif_vendorid;
+static int hf_docsis_vsif_vendor_unknown;
+static int hf_docsis_vsif_cisco_numphones;
+/* static int hf_docsis_vsif_cisco_ipprec; */
+static int hf_docsis_vsif_cisco_ipprec_val;
+static int hf_docsis_vsif_cisco_ipprec_bw;
+static int hf_docsis_vsif_cisco_config_file;
 
-static int hf_docsis_vsif_gex_loadbal_policy_id = -1;
-static int hf_docsis_vsif_gex_loadbal_priority = -1;
-static int hf_docsis_vsif_gex_loadbal_group_id = -1;
-static int hf_docsis_vsif_gex_ranging_class_id_extension = -1;
-static int hf_docsis_vsif_gex_l2vpn_encoding = -1;
-static int hf_docsis_vsif_gex_ecm = -1;
-static int hf_docsis_vsif_gex_sav = -1;
-static int hf_docsis_vsif_gex_cmam = -1;
-static int hf_docsis_vsif_gex_imja = -1;
-static int hf_docsis_vsif_gex_service_type_identifier = -1;
+static int hf_docsis_vsif_gex_loadbal_policy_id;
+static int hf_docsis_vsif_gex_loadbal_priority;
+static int hf_docsis_vsif_gex_loadbal_group_id;
+static int hf_docsis_vsif_gex_ranging_class_id_extension;
+static int hf_docsis_vsif_gex_l2vpn_encoding;
+static int hf_docsis_vsif_gex_ecm;
+static int hf_docsis_vsif_gex_sav;
+static int hf_docsis_vsif_gex_cmam;
+static int hf_docsis_vsif_gex_imja;
+static int hf_docsis_vsif_gex_service_type_identifier;
 
-static int hf_docsis_vsif_gex_ecm_extended_cmts_mic_hmac_type = -1;
-static int hf_docsis_vsif_gex_ecm_extended_cmts_mic_bitmap = -1;
-static int hf_docsis_vsif_gex_ecm_explicit_extended_cmts_mic_digest_subtype = -1;
+static int hf_docsis_vsif_gex_ecm_extended_cmts_mic_hmac_type;
+static int hf_docsis_vsif_gex_ecm_extended_cmts_mic_bitmap;
+static int hf_docsis_vsif_gex_ecm_explicit_extended_cmts_mic_digest_subtype;
 
-static int hf_docsis_vsif_gex_sav_group_name = -1;
-static int hf_docsis_vsif_gex_sav_static_prefix_rule = -1;
+static int hf_docsis_vsif_gex_sav_group_name;
+static int hf_docsis_vsif_gex_sav_static_prefix_rule;
 
-static int hf_docsis_vsif_gex_sav_static_prefix_addressv4 = -1;
-static int hf_docsis_vsif_gex_sav_static_prefix_addressv6 = -1;
-static int hf_docsis_vsif_gex_sav_static_prefix_length = -1;
+static int hf_docsis_vsif_gex_sav_static_prefix_addressv4;
+static int hf_docsis_vsif_gex_sav_static_prefix_addressv6;
+static int hf_docsis_vsif_gex_sav_static_prefix_length;
 
-static int hf_docsis_vsif_gex_cmam_cm_required_downstream_attribute_mask = -1;
-static int hf_docsis_vsif_gex_cmam_cm_forbidden_downstream_attribute_mask = -1;
-static int hf_docsis_vsif_gex_cmam_cm_required_upstream_attribute_mask = -1;
-static int hf_docsis_vsif_gex_cmam_cm_forbidden_upstream_attribute_mask = -1;
+static int hf_docsis_vsif_gex_cmam_cm_required_downstream_attribute_mask;
+static int hf_docsis_vsif_gex_cmam_cm_forbidden_downstream_attribute_mask;
+static int hf_docsis_vsif_gex_cmam_cm_required_upstream_attribute_mask;
+static int hf_docsis_vsif_gex_cmam_cm_forbidden_upstream_attribute_mask;
 
-static int hf_docsis_vsif_gex_imja_ip_multicast_profile_name = -1;
-static int hf_docsis_vsif_gex_imja_ssr = -1;
-static int hf_docsis_vsif_gex_imja_maximum_multicast_sessions = -1;
+static int hf_docsis_vsif_gex_imja_ip_multicast_profile_name;
+static int hf_docsis_vsif_gex_imja_ssr;
+static int hf_docsis_vsif_gex_imja_maximum_multicast_sessions;
 
-static int hf_docsis_vsif_gex_imja_ssr_rule_priority = -1;
-static int hf_docsis_vsif_gex_imja_ssr_authorization_action = -1;
-static int hf_docsis_vsif_gex_imja_ssr_source_prefix_addressv4 = -1;
-static int hf_docsis_vsif_gex_imja_ssr_source_prefix_addressv6 = -1;
-static int hf_docsis_vsif_gex_imja_ssr_source_prefix_length = -1;
-static int hf_docsis_vsif_gex_imja_ssr_group_prefix_addressv4 = -1;
-static int hf_docsis_vsif_gex_imja_ssr_group_prefix_addressv6 = -1;
-static int hf_docsis_vsif_gex_imja_ssr_group_prefix_length = -1;
+static int hf_docsis_vsif_gex_imja_ssr_rule_priority;
+static int hf_docsis_vsif_gex_imja_ssr_authorization_action;
+static int hf_docsis_vsif_gex_imja_ssr_source_prefix_addressv4;
+static int hf_docsis_vsif_gex_imja_ssr_source_prefix_addressv6;
+static int hf_docsis_vsif_gex_imja_ssr_source_prefix_length;
+static int hf_docsis_vsif_gex_imja_ssr_group_prefix_addressv4;
+static int hf_docsis_vsif_gex_imja_ssr_group_prefix_addressv6;
+static int hf_docsis_vsif_gex_imja_ssr_group_prefix_length;
 
-static int hf_docsis_vsif_tlv_unknown = -1;
+static int hf_docsis_vsif_tlv_unknown;
 
 
 /* Initialize the subtree pointers */
-static gint ett_docsis_vsif = -1;
-static gint ett_docsis_vsif_ipprec = -1;
-static gint ett_docsis_vsif_gex_ecm = -1;
-static gint ett_docsis_vsif_gex_sav = -1;
-static gint ett_docsis_vsif_gex_sav_spr = -1;
-static gint ett_docsis_vsif_gex_cmam = -1;
-static gint ett_docsis_vsif_gex_imja = -1;
-static gint ett_docsis_vsif_gex_imja_ssr = -1;
+static gint ett_docsis_vsif;
+static gint ett_docsis_vsif_ipprec;
+static gint ett_docsis_vsif_gex_ecm;
+static gint ett_docsis_vsif_gex_sav;
+static gint ett_docsis_vsif_gex_sav_spr;
+static gint ett_docsis_vsif_gex_cmam;
+static gint ett_docsis_vsif_gex_imja;
+static gint ett_docsis_vsif_gex_imja_ssr;
 
 
-static expert_field ei_docsis_vsif_tlvlen_bad = EI_INIT;
-static expert_field ei_docsis_vsif_tlvtype_unknown = EI_INIT;
+static expert_field ei_docsis_vsif_tlvlen_bad;
+static expert_field ei_docsis_vsif_tlvtype_unknown;
 
 static const value_string vendorid_vals[] = {
   {VENDOR_CISCO, "Cisco Systems, Inc."},

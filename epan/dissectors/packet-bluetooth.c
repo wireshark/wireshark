@@ -35,18 +35,18 @@ static dissector_handle_t bluetooth_bthci_handle;
 static dissector_handle_t bluetooth_btmon_handle;
 static dissector_handle_t bluetooth_usb_handle;
 
-int proto_bluetooth = -1;
+int proto_bluetooth;
 
-static int hf_bluetooth_src = -1;
-static int hf_bluetooth_dst = -1;
-static int hf_bluetooth_addr = -1;
-static int hf_bluetooth_src_str = -1;
-static int hf_bluetooth_dst_str = -1;
-static int hf_bluetooth_addr_str = -1;
+static int hf_bluetooth_src;
+static int hf_bluetooth_dst;
+static int hf_bluetooth_addr;
+static int hf_bluetooth_src_str;
+static int hf_bluetooth_dst_str;
+static int hf_bluetooth_addr_str;
 
-static int hf_llc_bluetooth_pid = -1;
+static int hf_llc_bluetooth_pid;
 
-static gint ett_bluetooth = -1;
+static gint ett_bluetooth;
 
 static dissector_handle_t btle_handle;
 static dissector_handle_t hci_usb_handle;
@@ -5088,13 +5088,13 @@ proto_reg_handoff_bluetooth(void)
 /* TODO: Add UUID128 verion of UUID16; UUID32? UUID16? */
 }
 
-static int proto_btad_apple_ibeacon = -1;
+static int proto_btad_apple_ibeacon;
 
-static int hf_btad_apple_ibeacon_uuid128 = -1;
-static int hf_btad_apple_ibeacon_major = -1;
-static int hf_btad_apple_ibeacon_minor = -1;
+static int hf_btad_apple_ibeacon_uuid128;
+static int hf_btad_apple_ibeacon_major;
+static int hf_btad_apple_ibeacon_minor;
 
-static gint ett_btad_apple_ibeacon = -1;
+static gint ett_btad_apple_ibeacon;
 
 static dissector_handle_t btad_apple_ibeacon;
 
@@ -5163,14 +5163,14 @@ proto_reg_handoff_btad_apple_ibeacon(void)
 }
 
 
-static int proto_btad_alt_beacon = -1;
+static int proto_btad_alt_beacon;
 
-static int hf_btad_alt_beacon_code = -1;
-static int hf_btad_alt_beacon_id = -1;
-static int hf_btad_alt_beacon_reference_rssi = -1;
-static int hf_btad_alt_beacon_manufacturer_data = -1;
+static int hf_btad_alt_beacon_code;
+static int hf_btad_alt_beacon_id;
+static int hf_btad_alt_beacon_reference_rssi;
+static int hf_btad_alt_beacon_manufacturer_data;
 
-static gint ett_btad_alt_beacon = -1;
+static gint ett_btad_alt_beacon;
 
 static dissector_handle_t btad_alt_beacon;
 
@@ -5245,12 +5245,12 @@ proto_reg_handoff_btad_alt_beacon(void)
     dissector_add_for_decode_as("btcommon.eir_ad.manufacturer_company_id", btad_alt_beacon);
 }
 
-static int proto_btad_gaen = -1;
+static int proto_btad_gaen;
 
-static int hf_btad_gaen_rpi128 = -1;
-static int hf_btad_gaen_aemd32 = -1;
+static int hf_btad_gaen_rpi128;
+static int hf_btad_gaen_aemd32;
 
-static gint ett_btad_gaen = -1;
+static gint ett_btad_gaen;
 
 static dissector_handle_t btad_gaen;
 

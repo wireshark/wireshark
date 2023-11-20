@@ -21,11 +21,11 @@
 void proto_register_rs_prop_pgo (void);
 void proto_reg_handoff_rs_prop_pgo (void);
 
-static int proto_rs_prop_pgo = -1;
-static int hf_rs_prop_pgo_opnum = -1;
+static int proto_rs_prop_pgo;
+static int hf_rs_prop_pgo_opnum;
 
 
-static gint ett_rs_prop_pgo = -1;
+static gint ett_rs_prop_pgo;
 static e_guid_t uuid_rs_prop_pgo =
   { 0xc23626e8, 0xde34, 0x11ca, {0x8c, 0xbc, 0x08, 0x00, 0x1e, 0x03, 0x94,
                                  0xc7} };

@@ -17,10 +17,10 @@
 
 void proto_register_q708(void);
 
-static int proto_q708 = -1;
-static int hf_q708_sanc = -1;
-static int hf_q708_ispc_name = -1;
-static int hf_q708_ispc_operator_name = -1;
+static int proto_q708;
+static int hf_q708_sanc;
+static int hf_q708_ispc_name;
+static int hf_q708_ispc_operator_name;
 
 /*
  * List of Signalling Area/Network Codes (SANC)

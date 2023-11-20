@@ -591,17 +591,17 @@ static int dissect_payload(int payload, mikey_t *mikey, tvbuff_t *tvb, packet_in
 
 
 /* Initialize the protocol and registered fields */
-static int proto_mikey = -1;
+static int proto_mikey;
 static int hf_mikey[MAX_POS+1];
 static int hf_mikey_sp_param[SP_MAX+1];
 static int hf_mikey_pl[PL_MAX];
 
 /* Initialize the subtree pointers */
-static gint ett_mikey = -1;
-static gint ett_mikey_payload = -1;
-static gint ett_mikey_sp_param = -1;
-static gint ett_mikey_hdr_id = -1;
-static gint ett_mikey_enc_data = -1;
+static gint ett_mikey;
+static gint ett_mikey_payload;
+static gint ett_mikey_sp_param;
+static gint ett_mikey_hdr_id;
+static gint ett_mikey_enc_data;
 
 static dissector_handle_t mikey_handle;
 

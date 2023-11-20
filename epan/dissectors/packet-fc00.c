@@ -27,21 +27,21 @@ void proto_register_fc00(void);
 static dissector_handle_t fc00_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_fc00 = -1;
-static int hf_fc00_session_state    = -1;
-static int hf_fc00_session_nonce    = -1;
-static int hf_fc00_auth_challenge   = -1;
-static int hf_fc00_auth_type        = -1;
-static int hf_fc00_auth_hash_code   = -1;
-static int hf_fc00_auth_poly        = -1;
-static int hf_fc00_auth_derivations = -1;
-static int hf_fc00_auth_additional  = -1;
-static int hf_fc00_random_nonce     = -1;
-static int hf_fc00_public_key       = -1;
-static int hf_fc00_ip_address       = -1;
-static int hf_fc00_authenticator    = -1;
-static int hf_fc00_temp_publicy_key = -1;
-static int hf_fc00_payload          = -1;
+static int proto_fc00;
+static int hf_fc00_session_state;
+static int hf_fc00_session_nonce;
+static int hf_fc00_auth_challenge;
+static int hf_fc00_auth_type;
+static int hf_fc00_auth_hash_code;
+static int hf_fc00_auth_poly;
+static int hf_fc00_auth_derivations;
+static int hf_fc00_auth_additional;
+static int hf_fc00_random_nonce;
+static int hf_fc00_public_key;
+static int hf_fc00_ip_address;
+static int hf_fc00_authenticator;
+static int hf_fc00_temp_publicy_key;
+static int hf_fc00_payload;
 
 /* Cjdns constants */
 #define SESSION_STATE_OFF 0
@@ -59,9 +59,9 @@ static int hf_fc00_payload          = -1;
 #define CRYPTO_HEADER_LEN 120
 
 /* Initialize the subtree pointers */
-static gint ett_fc00      = -1;
-static gint ett_fc00_auth = -1;
-static gint ett_fc00_key  = -1;
+static gint ett_fc00;
+static gint ett_fc00_auth;
+static gint ett_fc00_key;
 
 static const value_string session_states[] = {
     { G_MAXUINT32, "Connect To Me" },

@@ -34,34 +34,34 @@ static dissector_table_t flexrayid_subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 static heur_dtbl_entry_t *heur_dtbl_entry;
 
-static int proto_flexray = -1;
-static int hf_flexray_measurement_header_field = -1;
-static int hf_flexray_error_flags_field = -1;
-static int hf_flexray_frame_header = -1;
+static int proto_flexray;
+static int hf_flexray_measurement_header_field;
+static int hf_flexray_error_flags_field;
+static int hf_flexray_frame_header;
 
-static int hf_flexray_ti = -1;
-static int hf_flexray_ch = -1;
-static int hf_flexray_fcrc_err = -1;
-static int hf_flexray_hcrc_err = -1;
-static int hf_flexray_fes_err = -1;
-static int hf_flexray_cod_err = -1;
-static int hf_flexray_tss_viol = -1;
-static int hf_flexray_res = -1;
-static int hf_flexray_ppi = -1;
-static int hf_flexray_nfi = -1;
-static int hf_flexray_sfi = -1;
-static int hf_flexray_stfi = -1;
-static int hf_flexray_fid = -1;
-static int hf_flexray_pl = -1;
-static int hf_flexray_hcrc = -1;
-static int hf_flexray_cc = -1;
-static int hf_flexray_sl = -1;
-static int hf_flexray_flexray_id = -1;
+static int hf_flexray_ti;
+static int hf_flexray_ch;
+static int hf_flexray_fcrc_err;
+static int hf_flexray_hcrc_err;
+static int hf_flexray_fes_err;
+static int hf_flexray_cod_err;
+static int hf_flexray_tss_viol;
+static int hf_flexray_res;
+static int hf_flexray_ppi;
+static int hf_flexray_nfi;
+static int hf_flexray_sfi;
+static int hf_flexray_stfi;
+static int hf_flexray_fid;
+static int hf_flexray_pl;
+static int hf_flexray_hcrc;
+static int hf_flexray_cc;
+static int hf_flexray_sl;
+static int hf_flexray_flexray_id;
 
-static gint ett_flexray = -1;
-static gint ett_flexray_measurement_header = -1;
-static gint ett_flexray_error_flags = -1;
-static gint ett_flexray_frame = -1;
+static gint ett_flexray;
+static gint ett_flexray_measurement_header;
+static gint ett_flexray_error_flags;
+static gint ett_flexray_frame;
 
 static int * const error_fields[] = {
     &hf_flexray_fcrc_err,
@@ -72,10 +72,10 @@ static int * const error_fields[] = {
     NULL
 };
 
-static expert_field ei_flexray_frame_payload_truncated = EI_INIT;
-static expert_field ei_flexray_symbol_frame = EI_INIT;
-static expert_field ei_flexray_error_flag = EI_INIT;
-static expert_field ei_flexray_stfi_flag = EI_INIT;
+static expert_field ei_flexray_frame_payload_truncated;
+static expert_field ei_flexray_symbol_frame;
+static expert_field ei_flexray_error_flag;
+static expert_field ei_flexray_stfi_flag;
 
 #define FLEXRAY_FRAME 0x01
 #define FLEXRAY_SYMBOL 0x02

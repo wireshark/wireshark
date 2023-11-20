@@ -19,27 +19,27 @@
 
 void proto_register_bencode(void);
 
-static int proto_bencode = -1;
+static int proto_bencode;
 
-static gint hf_bencode_str_length     = -1;
-static gint hf_bencode_str            = -1;
-static gint hf_bencode_int            = -1;
-static gint hf_bencode_dict           = -1;
-static gint hf_bencode_dict_entry     = -1;
-static gint hf_bencode_list           = -1;
-static gint hf_bencode_truncated_data = -1;
+static gint hf_bencode_str_length;
+static gint hf_bencode_str;
+static gint hf_bencode_int;
+static gint hf_bencode_dict;
+static gint hf_bencode_dict_entry;
+static gint hf_bencode_list;
+static gint hf_bencode_truncated_data;
 
-static gint ett_bencode_dict = -1;
-static gint ett_bencode_dict_entry = -1;
-static gint ett_bencode_list = -1;
+static gint ett_bencode_dict;
+static gint ett_bencode_dict_entry;
+static gint ett_bencode_list;
 
-static expert_field ei_bencode_str        = EI_INIT;
-static expert_field ei_bencode_str_length = EI_INIT;
-static expert_field ei_bencode_int        = EI_INIT;
-static expert_field ei_bencode_nest       = EI_INIT;
-static expert_field ei_bencode_dict_key   = EI_INIT;
-static expert_field ei_bencode_dict_value = EI_INIT;
-static expert_field ei_bencode_invalid    = EI_INIT;
+static expert_field ei_bencode_str;
+static expert_field ei_bencode_str_length;
+static expert_field ei_bencode_int;
+static expert_field ei_bencode_nest;
+static expert_field ei_bencode_dict_key;
+static expert_field ei_bencode_dict_value;
+static expert_field ei_bencode_invalid;
 
 static int dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo,
                                  int offset, int length, proto_tree *tree, proto_item *ti, int treeadd)

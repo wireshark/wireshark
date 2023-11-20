@@ -19,30 +19,30 @@
 #include "packet-bluetooth.h"
 #include "packet-usb.h"
 
-static int proto_hci_usb = -1;
-static int hf_bthci_usb_data = -1;
-static int hf_bthci_usb_packet_fragment = -1;
-static int hf_bthci_usb_packet_complete = -1;
-static int hf_bthci_usb_packet_unknown_fragment = -1;
-static int hf_bthci_usb_setup_request = -1;
-static int hf_bthci_usb_setup_value = -1;
-static int hf_bthci_usb_setup_adapter_id = -1;
-static int hf_bthci_usb_setup_length = -1;
+static int proto_hci_usb;
+static int hf_bthci_usb_data;
+static int hf_bthci_usb_packet_fragment;
+static int hf_bthci_usb_packet_complete;
+static int hf_bthci_usb_packet_unknown_fragment;
+static int hf_bthci_usb_setup_request;
+static int hf_bthci_usb_setup_value;
+static int hf_bthci_usb_setup_adapter_id;
+static int hf_bthci_usb_setup_length;
 
-static gint ett_hci_usb = -1;
-static gint ett_hci_usb_msg_fragment = -1;
-static gint ett_hci_usb_msg_fragments = -1;
+static gint ett_hci_usb;
+static gint ett_hci_usb_msg_fragment;
+static gint ett_hci_usb_msg_fragments;
 
-static int hf_msg_fragments = -1;
-static int hf_msg_fragment = -1;
-static int hf_msg_fragment_overlap = -1;
-static int hf_msg_fragment_overlap_conflicts = -1;
-static int hf_msg_fragment_multiple_tails = -1;
-static int hf_msg_fragment_too_long_fragment = -1;
-static int hf_msg_fragment_error = -1;
-static int hf_msg_fragment_count = -1;
-static int hf_msg_reassembled_in = -1;
-static int hf_msg_reassembled_length = -1;
+static int hf_msg_fragments;
+static int hf_msg_fragment;
+static int hf_msg_fragment_overlap;
+static int hf_msg_fragment_overlap_conflicts;
+static int hf_msg_fragment_multiple_tails;
+static int hf_msg_fragment_too_long_fragment;
+static int hf_msg_fragment_error;
+static int hf_msg_fragment_count;
+static int hf_msg_reassembled_in;
+static int hf_msg_reassembled_length;
 
 static wmem_tree_t *fragment_info_table = NULL;
 

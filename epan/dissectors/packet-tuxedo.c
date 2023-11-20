@@ -18,11 +18,11 @@
 void proto_register_tuxedo(void);
 void proto_reg_handoff_tuxedo(void);
 
-static int proto_tuxedo = -1;
-static int hf_tuxedo_magic = -1;
-static int hf_tuxedo_opcode = -1;
+static int proto_tuxedo;
+static int hf_tuxedo_magic;
+static int hf_tuxedo_opcode;
 
-static gint ett_tuxedo = -1;
+static gint ett_tuxedo;
 
 static dissector_handle_t tuxedo_handle;
 

@@ -32,33 +32,33 @@ static dissector_handle_t lwapp_handle;
 #define LWAPP_FLAGS_F 0x02
 #define LWAPP_FLAGS_FT 0x01
 
-static gint proto_lwapp = -1;
-static gint proto_lwapp_l3 = -1;
-static gint proto_lwapp_control = -1;
-static gint ett_lwapp = -1;
-static gint ett_lwapp_l3 = -1;
-static gint ett_lwapp_flags = -1;
-static gint ett_lwapp_control = -1;
+static gint proto_lwapp;
+static gint proto_lwapp_l3;
+static gint proto_lwapp_control;
+static gint ett_lwapp;
+static gint ett_lwapp_l3;
+static gint ett_lwapp_flags;
+static gint ett_lwapp_control;
 
-static gint hf_lwapp_version = -1;
-static gint hf_lwapp_slotid = -1;
-static gint hf_lwapp_flags = -1;
-static gint hf_lwapp_flags_type = -1;
-static gint hf_lwapp_flags_fragment = -1;
-static gint hf_lwapp_flags_fragment_type = -1;
-static gint hf_lwapp_fragment_id = -1;
-static gint hf_lwapp_length = -1;
-static gint hf_lwapp_rssi = -1;
-static gint hf_lwapp_snr = -1;
-/* static gint hf_lwapp_control = -1; */
-static gint hf_lwapp_control_mac = -1;
-static gint hf_lwapp_control_type = -1;
-static gint hf_lwapp_control_seq_no = -1;
-static gint hf_lwapp_control_length = -1;
+static gint hf_lwapp_version;
+static gint hf_lwapp_slotid;
+static gint hf_lwapp_flags;
+static gint hf_lwapp_flags_type;
+static gint hf_lwapp_flags_fragment;
+static gint hf_lwapp_flags_fragment_type;
+static gint hf_lwapp_fragment_id;
+static gint hf_lwapp_length;
+static gint hf_lwapp_rssi;
+static gint hf_lwapp_snr;
+/* static gint hf_lwapp_control; */
+static gint hf_lwapp_control_mac;
+static gint hf_lwapp_control_type;
+static gint hf_lwapp_control_seq_no;
+static gint hf_lwapp_control_length;
 
 #define LWAPP_MAX_NESTED_ENCAP 10
 
-static expert_field ei_lwapp_too_many_encap = EI_INIT;
+static expert_field ei_lwapp_too_many_encap;
 
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t wlan_handle;

@@ -24,62 +24,62 @@ static dissector_handle_t  forces_handle_tcp, forces_handle;
 static dissector_handle_t ip_handle;
 
 /* Initialize the ForCES protocol and registered fields */
-static int proto_forces = -1;
+static int proto_forces;
 
 /*Main header*/
-static int hf_forces_version = -1;
-static int hf_forces_rsvd = -1;
-static int hf_forces_messagetype = -1;
-static int hf_forces_sid = -1;
-static int hf_forces_did = -1;
-static int hf_forces_correlator = -1;
-static int hf_forces_length = -1;
+static int hf_forces_version;
+static int hf_forces_rsvd;
+static int hf_forces_messagetype;
+static int hf_forces_sid;
+static int hf_forces_did;
+static int hf_forces_correlator;
+static int hf_forces_length;
 /*Flags*/
-static int hf_forces_flags= -1;
-static int hf_forces_flags_ack= -1;
-static int hf_forces_flags_pri= -1;
-static int hf_forces_flags_rsrvd= -1;
-static int hf_forces_flags_em= -1;
-static int hf_forces_flags_at= -1;
-static int hf_forces_flags_tp= -1;
-static int hf_forces_flags_reserved = -1;
+static int hf_forces_flags;
+static int hf_forces_flags_ack;
+static int hf_forces_flags_pri;
+static int hf_forces_flags_rsrvd;
+static int hf_forces_flags_em;
+static int hf_forces_flags_at;
+static int hf_forces_flags_tp;
+static int hf_forces_flags_reserved;
 
-static int hf_forces_tlv_type = -1;
-static int hf_forces_tlv_length = -1;
+static int hf_forces_tlv_type;
+static int hf_forces_tlv_length;
 
 /*Initiation of LFBSelect TLV*/
-static int hf_forces_lfbselect_tlv_type_lfb_classid = -1;
-static int hf_forces_lfbselect_tlv_type_lfb_instanceid = -1;
+static int hf_forces_lfbselect_tlv_type_lfb_classid;
+static int hf_forces_lfbselect_tlv_type_lfb_instanceid;
 
 /*Initiation of Operation TLV*/
-static int hf_forces_lfbselect_tlv_type_operation_type = -1;
-static int hf_forces_lfbselect_tlv_type_operation_length = -1;
-static int hf_forces_lfbselect_tlv_type_operation_path_type = -1;
-static int hf_forces_lfbselect_tlv_type_operation_path_length = -1;
-static int hf_forces_lfbselect_tlv_type_operation_path_flags = -1;
-static int hf_forces_lfbselect_tlv_type_operation_path_flags_selector = -1;
-static int hf_forces_lfbselect_tlv_type_operation_path_flags_reserved = -1;
-static int hf_forces_lfbselect_tlv_type_operation_path_IDcount = -1;
-static int hf_forces_lfbselect_tlv_type_operation_path_IDs = -1;
-static int hf_forces_lfbselect_tlv_type_operation_path_data = -1;
+static int hf_forces_lfbselect_tlv_type_operation_type;
+static int hf_forces_lfbselect_tlv_type_operation_length;
+static int hf_forces_lfbselect_tlv_type_operation_path_type;
+static int hf_forces_lfbselect_tlv_type_operation_path_length;
+static int hf_forces_lfbselect_tlv_type_operation_path_flags;
+static int hf_forces_lfbselect_tlv_type_operation_path_flags_selector;
+static int hf_forces_lfbselect_tlv_type_operation_path_flags_reserved;
+static int hf_forces_lfbselect_tlv_type_operation_path_IDcount;
+static int hf_forces_lfbselect_tlv_type_operation_path_IDs;
+static int hf_forces_lfbselect_tlv_type_operation_path_data;
 
 /*Initiation of Redirect TLV*/
-static int hf_forces_redirect_tlv_meta_data_tlv_type = -1;
-static int hf_forces_redirect_tlv_meta_data_tlv_length = -1;
-static int hf_forces_redirect_tlv_meta_data_tlv_meta_data_ilv = -1;
-static int hf_forces_redirect_tlv_meta_data_tlv_meta_data_ilv_id = -1;
-static int hf_forces_redirect_tlv_meta_data_tlv_meta_data_ilv_length = -1;
-static int hf_forces_redirect_tlv_redirect_data_tlv_type = -1;
-static int hf_forces_redirect_tlv_redirect_data_tlv_length = -1;
+static int hf_forces_redirect_tlv_meta_data_tlv_type;
+static int hf_forces_redirect_tlv_meta_data_tlv_length;
+static int hf_forces_redirect_tlv_meta_data_tlv_meta_data_ilv;
+static int hf_forces_redirect_tlv_meta_data_tlv_meta_data_ilv_id;
+static int hf_forces_redirect_tlv_meta_data_tlv_meta_data_ilv_length;
+static int hf_forces_redirect_tlv_redirect_data_tlv_type;
+static int hf_forces_redirect_tlv_redirect_data_tlv_length;
 
 /*Initiation of ASResult TLV*/
-static int hf_forces_asresult_association_setup_result = -1;
+static int hf_forces_asresult_association_setup_result;
 
 /*Initiation of ASTreason TLV*/
-static int hf_forces_astreason_tlv_teardown_reason = -1;
+static int hf_forces_astreason_tlv_teardown_reason;
 
 /*Main TLV may be unknown*/
-static int hf_forces_unknown_tlv = -1;
+static int hf_forces_unknown_tlv;
 
 /*Message Types */
 #define AssociationSetup            0x01
@@ -140,45 +140,45 @@ static guint forces_alternate_sctp_med_prio_channel_port  = 0;
 static guint forces_alternate_sctp_low_prio_channel_port  = 0;
 
 /*Initialize the subtree pointers*/
-static gint  ett_forces = -1;
-static gint  ett_forces_main_header = -1;
-static gint  ett_forces_flags = -1;
-static gint  ett_forces_tlv = -1;
-static gint  ett_forces_lfbselect_tlv_type = -1;
+static gint  ett_forces;
+static gint  ett_forces_main_header;
+static gint  ett_forces_flags;
+static gint  ett_forces_tlv;
+static gint  ett_forces_lfbselect_tlv_type;
 
 /*Operation TLV subtree*/
-static gint  ett_forces_lfbselect_tlv_type_operation = -1;
-static gint  ett_forces_lfbselect_tlv_type_operation_path = -1;
-static gint  ett_forces_lfbselect_tlv_type_operation_path_data = -1;
-static gint  ett_forces_lfbselect_tlv_type_operation_path_data_path = -1;
-static gint  ett_forces_path_data_tlv = -1;
-static gint  ett_forces_path_data_tlv_flags = -1;
+static gint  ett_forces_lfbselect_tlv_type_operation;
+static gint  ett_forces_lfbselect_tlv_type_operation_path;
+static gint  ett_forces_lfbselect_tlv_type_operation_path_data;
+static gint  ett_forces_lfbselect_tlv_type_operation_path_data_path;
+static gint  ett_forces_path_data_tlv;
+static gint  ett_forces_path_data_tlv_flags;
 
 /*Selector subtree*/
-static gint  ett_forces_lfbselect_tlv_type_operation_path_selector = -1;
+static gint  ett_forces_lfbselect_tlv_type_operation_path_selector;
 
 /*Redirect TLV subtree*/
-static gint  ett_forces_redirect_tlv_type = -1;
-static gint  ett_forces_redirect_tlv_meta_data_tlv = -1;
-static gint  ett_forces_redirect_tlv_meta_data_tlv_meta_data_ilv = -1;
-static gint  ett_forces_redirect_tlv_redirect_data_tlv = -1;
+static gint  ett_forces_redirect_tlv_type;
+static gint  ett_forces_redirect_tlv_meta_data_tlv;
+static gint  ett_forces_redirect_tlv_meta_data_tlv_meta_data_ilv;
+static gint  ett_forces_redirect_tlv_redirect_data_tlv;
 
 /*ASResult TLV subtree*/
-static gint  ett_forces_asresult_tlv = -1;
+static gint  ett_forces_asresult_tlv;
 
 /*ASReason subtree*/
-static gint  ett_forces_astreason_tlv = -1;
+static gint  ett_forces_astreason_tlv;
 
 /*Main_TLV unknown subtree*/
-static gint  ett_forces_unknown_tlv = -1;
+static gint  ett_forces_unknown_tlv;
 
 
-static expert_field ei_forces_length = EI_INIT;
-static expert_field ei_forces_tlv_type = EI_INIT;
-static expert_field ei_forces_tlv_length = EI_INIT;
-static expert_field ei_forces_lfbselect_tlv_type_operation_path_length = EI_INIT;
-static expert_field ei_forces_lfbselect_tlv_type_operation_type = EI_INIT;
-static expert_field ei_forces_redirect_tlv_redirect_data_tlv_length = EI_INIT;
+static expert_field ei_forces_length;
+static expert_field ei_forces_tlv_type;
+static expert_field ei_forces_tlv_length;
+static expert_field ei_forces_lfbselect_tlv_type_operation_path_length;
+static expert_field ei_forces_lfbselect_tlv_type_operation_type;
+static expert_field ei_forces_redirect_tlv_redirect_data_tlv_length;
 
 /*ACK values and the strings to be displayed*/
 static const value_string main_header_flags_ack_vals[] = {

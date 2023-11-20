@@ -31,25 +31,25 @@ void proto_reg_handoff_udld(void);
 
 static dissector_handle_t udld_handle;
 
-static int proto_udld = -1;
-static int hf_udld_version = -1;
-static int hf_udld_opcode = -1;
-static int hf_udld_flags = -1;
-static int hf_udld_flags_rt = -1;
-static int hf_udld_flags_rsy = -1;
-static int hf_udld_checksum = -1;
-static int hf_udld_tlvtype = -1;
-static int hf_udld_tlvlength = -1;
-static int hf_udld_device_id = -1;
-static int hf_udld_sent_through_interface = -1;
-static int hf_udld_data = -1;
+static int proto_udld;
+static int hf_udld_version;
+static int hf_udld_opcode;
+static int hf_udld_flags;
+static int hf_udld_flags_rt;
+static int hf_udld_flags_rsy;
+static int hf_udld_checksum;
+static int hf_udld_tlvtype;
+static int hf_udld_tlvlength;
+static int hf_udld_device_id;
+static int hf_udld_sent_through_interface;
+static int hf_udld_data;
 
 
-static expert_field ei_udld_tlvlength = EI_INIT;
+static expert_field ei_udld_tlvlength;
 
-static gint ett_udld = -1;
-static gint ett_udld_flags = -1;
-static gint ett_udld_tlv = -1;
+static gint ett_udld;
+static gint ett_udld_flags;
+static gint ett_udld_tlv;
 
 #define TYPE_DEVICE_ID        0x0001
 #define TYPE_PORT_ID          0x0002

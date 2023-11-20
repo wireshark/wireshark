@@ -27,7 +27,7 @@
 void proto_register_budb(void);
 void proto_reg_handoff_budb(void);
 
-static int proto_budb = -1;
+static int proto_budb;
 ETH_HF
 
 ETH_ETT

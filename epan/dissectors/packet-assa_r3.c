@@ -1024,726 +1024,726 @@ userType_e;
 /*
  *  Wireshark ID of the R3 protocol
  */
-static gint proto_r3 = -1;
+static gint proto_r3;
 
 /*
  *  Packet variables
  */
-static gint hf_r3_tildex3ds = -1;           /* Got ~~~ds */
+static gint hf_r3_tildex3ds;           /* Got ~~~ds */
 
-static gint hf_r3_header = -1;              /* Packet header */
-static gint hf_r3_payload = -1;             /* Packet payload */
-static gint hf_r3_tail = -1;                /* Packet tail */
+static gint hf_r3_header;              /* Packet header */
+static gint hf_r3_payload;             /* Packet payload */
+static gint hf_r3_tail;                /* Packet tail */
 
-static gint hf_r3_sigil = -1;               /* Packet sigil */
-static gint hf_r3_address = -1;             /* Packet address */
-static gint hf_r3_packetnumber = -1;        /* Packet number */
-static gint hf_r3_packetlength = -1;        /* Packet length */
-static gint hf_r3_encryption = -1;          /* Packet encryption scheme */
-static gint hf_r3_crc = -1;                 /* Packet CRC */
-static gint hf_r3_crc_bad = -1;             /* Packet CRC bad (for filtering) */
-static gint hf_r3_xor = -1;                 /* Packet Xor */
-static gint hf_r3_xor_bad = -1;             /* Packet Xor bad (for filtering) */
+static gint hf_r3_sigil;               /* Packet sigil */
+static gint hf_r3_address;             /* Packet address */
+static gint hf_r3_packetnumber;        /* Packet number */
+static gint hf_r3_packetlength;        /* Packet length */
+static gint hf_r3_encryption;          /* Packet encryption scheme */
+static gint hf_r3_crc;                 /* Packet CRC */
+static gint hf_r3_crc_bad;             /* Packet CRC bad (for filtering) */
+static gint hf_r3_xor;                 /* Packet Xor */
+static gint hf_r3_xor_bad;             /* Packet Xor bad (for filtering) */
 
-static gint hf_r3_commandlength = -1;       /* Command length */
-static gint hf_r3_command = -1;             /* Command (cmdCommand_e) */
-static gint hf_r3_commanddata = -1;         /* Command data (not always present) */
+static gint hf_r3_commandlength;       /* Command length */
+static gint hf_r3_command;             /* Command (cmdCommand_e) */
+static gint hf_r3_commanddata;         /* Command data (not always present) */
 
-static gint hf_r3_commandmfglength = -1;    /* Mfg Command length */
-static gint hf_r3_commandmfg = -1;          /* Mfg Command (cmdCommand_e) */
-/*static gint hf_r3_commandmfgdata = -1;*/    /* Mfg Command data (not always present) */
+static gint hf_r3_commandmfglength;    /* Mfg Command length */
+static gint hf_r3_commandmfg;          /* Mfg Command (cmdCommand_e) */
+/*static gint hf_r3_commandmfgdata;*/    /* Mfg Command data (not always present) */
 
-static gint hf_r3_responselength = -1;      /* Response length */
-static gint hf_r3_responsecommand = -1;     /* Response command */
-static gint hf_r3_responsetype = -1;        /* Response type (responseType_e) */
-static gint hf_r3_responsetocommand = -1;   /* Response to command (cmdCommand_e) */
-/*static gint hf_r3_responsedata = -1;*/       /* Response data (not always present) */
+static gint hf_r3_responselength;      /* Response length */
+static gint hf_r3_responsecommand;     /* Response command */
+static gint hf_r3_responsetype;        /* Response type (responseType_e) */
+static gint hf_r3_responsetocommand;   /* Response to command (cmdCommand_e) */
+/*static gint hf_r3_responsedata;*/       /* Response data (not always present) */
 
-static gint hf_r3_upstreamcommand = -1;
+static gint hf_r3_upstreamcommand;
 
-static gint hf_r3_upstreamfield = -1;       /* Upstream field (length + type + data) */
-static gint hf_r3_upstreamfieldlength = -1; /* Upstream field length */
-static gint hf_r3_upstreamfieldtype = -1;   /* Upstream field type (upstreamField_e) */
-/*static gint hf_r3_upstreamfielddatalen = -1;*/         /* Upstream field data length */
-static gint hf_r3_upstreamfielderror = -1;  /* Upstream field is unknown type */
+static gint hf_r3_upstreamfield;       /* Upstream field (length + type + data) */
+static gint hf_r3_upstreamfieldlength; /* Upstream field length */
+static gint hf_r3_upstreamfieldtype;   /* Upstream field type (upstreamField_e) */
+/*static gint hf_r3_upstreamfielddatalen;*/         /* Upstream field data length */
+static gint hf_r3_upstreamfielderror;  /* Upstream field is unknown type */
 static gint hf_r3_upstreamfieldarray[UPSTREAMFIELD_LAST];
 
-static gint hf_r3_configitems = -1;
-static gint hf_r3_configitem = -1;
-/*static gint hf_r3_configfield = -1;*/
-static gint hf_r3_configitemlength = -1;
-static gint hf_r3_configitemtype = -1;
-static gint hf_r3_configitemdata = -1;
-static gint hf_r3_configitemdata_bool = -1;
-static gint hf_r3_configitemdata_8 = -1;
-static gint hf_r3_configitemdata_16 = -1;
-static gint hf_r3_configitemdata_32 = -1;
-static gint hf_r3_configitemdata_string = -1;
+static gint hf_r3_configitems;
+static gint hf_r3_configitem;
+/*static gint hf_r3_configfield;*/
+static gint hf_r3_configitemlength;
+static gint hf_r3_configitemtype;
+static gint hf_r3_configitemdata;
+static gint hf_r3_configitemdata_bool;
+static gint hf_r3_configitemdata_8;
+static gint hf_r3_configitemdata_16;
+static gint hf_r3_configitemdata_32;
+static gint hf_r3_configitemdata_string;
 
-static gint hf_r3_timezonearray0 = -1;
-static gint hf_r3_timezonearray1 = -1;
-static gint hf_r3_timezonearray2 = -1;
-static gint hf_r3_timezonearray3 = -1;
-static gint hf_r3_timezonearray4 = -1;
-static gint hf_r3_timezonearray5 = -1;
-static gint hf_r3_timezonearray6 = -1;
-static gint hf_r3_timezonearray7 = -1;
-static gint hf_r3_timezonearray8 = -1;
-static gint hf_r3_timezonearray9 = -1;
-static gint hf_r3_timezonearray10 = -1;
-static gint hf_r3_timezonearray11 = -1;
-static gint hf_r3_timezonearray12 = -1;
-static gint hf_r3_timezonearray13 = -1;
-static gint hf_r3_timezonearray14 = -1;
-static gint hf_r3_timezonearray15 = -1;
-static gint hf_r3_timezonearray16 = -1;
-static gint hf_r3_timezonearray17 = -1;
-static gint hf_r3_timezonearray18 = -1;
-static gint hf_r3_timezonearray19 = -1;
-static gint hf_r3_timezonearray20 = -1;
-static gint hf_r3_timezonearray21 = -1;
-static gint hf_r3_timezonearray22 = -1;
-static gint hf_r3_timezonearray23 = -1;
-static gint hf_r3_timezonearray24 = -1;
-static gint hf_r3_timezonearray25 = -1;
-static gint hf_r3_timezonearray26 = -1;
-static gint hf_r3_timezonearray27 = -1;
-static gint hf_r3_timezonearray28 = -1;
-static gint hf_r3_timezonearray29 = -1;
-static gint hf_r3_timezonearray30 = -1;
-static gint hf_r3_timezonearray31 = -1;
+static gint hf_r3_timezonearray0;
+static gint hf_r3_timezonearray1;
+static gint hf_r3_timezonearray2;
+static gint hf_r3_timezonearray3;
+static gint hf_r3_timezonearray4;
+static gint hf_r3_timezonearray5;
+static gint hf_r3_timezonearray6;
+static gint hf_r3_timezonearray7;
+static gint hf_r3_timezonearray8;
+static gint hf_r3_timezonearray9;
+static gint hf_r3_timezonearray10;
+static gint hf_r3_timezonearray11;
+static gint hf_r3_timezonearray12;
+static gint hf_r3_timezonearray13;
+static gint hf_r3_timezonearray14;
+static gint hf_r3_timezonearray15;
+static gint hf_r3_timezonearray16;
+static gint hf_r3_timezonearray17;
+static gint hf_r3_timezonearray18;
+static gint hf_r3_timezonearray19;
+static gint hf_r3_timezonearray20;
+static gint hf_r3_timezonearray21;
+static gint hf_r3_timezonearray22;
+static gint hf_r3_timezonearray23;
+static gint hf_r3_timezonearray24;
+static gint hf_r3_timezonearray25;
+static gint hf_r3_timezonearray26;
+static gint hf_r3_timezonearray27;
+static gint hf_r3_timezonearray28;
+static gint hf_r3_timezonearray29;
+static gint hf_r3_timezonearray30;
+static gint hf_r3_timezonearray31;
 
-static gint hf_r3_expireon_year = -1;
-static gint hf_r3_expireon_month = -1;
-static gint hf_r3_expireon_day = -1;
+static gint hf_r3_expireon_year;
+static gint hf_r3_expireon_month;
+static gint hf_r3_expireon_day;
 
-static gint hf_r3_datetime_year = -1;
-static gint hf_r3_datetime_month = -1;
-static gint hf_r3_datetime_day = -1;
-static gint hf_r3_datetime_dow = -1;
-static gint hf_r3_datetime_hours = -1;
-static gint hf_r3_datetime_minutes = -1;
-static gint hf_r3_datetime_seconds = -1;
-static gint hf_r3_datetime_dst = -1;
+static gint hf_r3_datetime_year;
+static gint hf_r3_datetime_month;
+static gint hf_r3_datetime_day;
+static gint hf_r3_datetime_dow;
+static gint hf_r3_datetime_hours;
+static gint hf_r3_datetime_minutes;
+static gint hf_r3_datetime_seconds;
+static gint hf_r3_datetime_dst;
 
-static gint hf_r3_eventlog_recordnumber = -1;
-static gint hf_r3_eventlog_year = -1;
-static gint hf_r3_eventlog_month = -1;
-static gint hf_r3_eventlog_day = -1;
-static gint hf_r3_eventlog_hour = -1;
-static gint hf_r3_eventlog_minute = -1;
-static gint hf_r3_eventlog_second = -1;
-static gint hf_r3_eventlog_usernumber = -1;
-static gint hf_r3_eventlog_event = -1;
+static gint hf_r3_eventlog_recordnumber;
+static gint hf_r3_eventlog_year;
+static gint hf_r3_eventlog_month;
+static gint hf_r3_eventlog_day;
+static gint hf_r3_eventlog_hour;
+static gint hf_r3_eventlog_minute;
+static gint hf_r3_eventlog_second;
+static gint hf_r3_eventlog_usernumber;
+static gint hf_r3_eventlog_event;
 
-static gint hf_r3_declinedlog_recordnumber = -1;
-static gint hf_r3_declinedlog_year = -1;
-static gint hf_r3_declinedlog_month = -1;
-static gint hf_r3_declinedlog_day = -1;
-static gint hf_r3_declinedlog_hour = -1;
-static gint hf_r3_declinedlog_minute = -1;
-static gint hf_r3_declinedlog_second = -1;
-static gint hf_r3_declinedlog_usernumber = -1;
-static gint hf_r3_declinedlog_cred1type = -1;
-static gint hf_r3_declinedlog_cred2type = -1;
-static gint hf_r3_declinedlog_cred1 = -1;
-static gint hf_r3_declinedlog_cred2 = -1;
+static gint hf_r3_declinedlog_recordnumber;
+static gint hf_r3_declinedlog_year;
+static gint hf_r3_declinedlog_month;
+static gint hf_r3_declinedlog_day;
+static gint hf_r3_declinedlog_hour;
+static gint hf_r3_declinedlog_minute;
+static gint hf_r3_declinedlog_second;
+static gint hf_r3_declinedlog_usernumber;
+static gint hf_r3_declinedlog_cred1type;
+static gint hf_r3_declinedlog_cred2type;
+static gint hf_r3_declinedlog_cred1;
+static gint hf_r3_declinedlog_cred2;
 
-static gint hf_r3_alarmlog_recordnumber = -1;
-static gint hf_r3_alarmlog_year = -1;
-static gint hf_r3_alarmlog_month = -1;
-static gint hf_r3_alarmlog_day = -1;
-static gint hf_r3_alarmlog_hour = -1;
-static gint hf_r3_alarmlog_minute = -1;
-static gint hf_r3_alarmlog_second = -1;
-static gint hf_r3_alarmlog_id = -1;
-static gint hf_r3_alarmlog_usernumber = -1;
+static gint hf_r3_alarmlog_recordnumber;
+static gint hf_r3_alarmlog_year;
+static gint hf_r3_alarmlog_month;
+static gint hf_r3_alarmlog_day;
+static gint hf_r3_alarmlog_hour;
+static gint hf_r3_alarmlog_minute;
+static gint hf_r3_alarmlog_second;
+static gint hf_r3_alarmlog_id;
+static gint hf_r3_alarmlog_usernumber;
 
-static gint hf_r3_debugmsg = -1;
+static gint hf_r3_debugmsg;
 
-static gint hf_r3_setdate_year = -1;
-static gint hf_r3_setdate_month = -1;
-static gint hf_r3_setdate_day = -1;
-static gint hf_r3_setdate_dow = -1;
-static gint hf_r3_setdate_hours = -1;
-static gint hf_r3_setdate_minutes = -1;
-static gint hf_r3_setdate_seconds = -1;
+static gint hf_r3_setdate_year;
+static gint hf_r3_setdate_month;
+static gint hf_r3_setdate_day;
+static gint hf_r3_setdate_dow;
+static gint hf_r3_setdate_hours;
+static gint hf_r3_setdate_minutes;
+static gint hf_r3_setdate_seconds;
 
-static gint hf_r3_deleteusers = -1;
+static gint hf_r3_deleteusers;
 
-static gint hf_r3_defineexception_number = -1;
-static gint hf_r3_defineexception_startdate_month = -1;
-static gint hf_r3_defineexception_startdate_day = -1;
-static gint hf_r3_defineexception_startdate_hours = -1;
-static gint hf_r3_defineexception_startdate_minutes = -1;
-static gint hf_r3_defineexception_enddate_month = -1;
-static gint hf_r3_defineexception_enddate_day = -1;
-static gint hf_r3_defineexception_enddate_hours = -1;
-static gint hf_r3_defineexception_enddate_minutes = -1;
+static gint hf_r3_defineexception_number;
+static gint hf_r3_defineexception_startdate_month;
+static gint hf_r3_defineexception_startdate_day;
+static gint hf_r3_defineexception_startdate_hours;
+static gint hf_r3_defineexception_startdate_minutes;
+static gint hf_r3_defineexception_enddate_month;
+static gint hf_r3_defineexception_enddate_day;
+static gint hf_r3_defineexception_enddate_hours;
+static gint hf_r3_defineexception_enddate_minutes;
 
-static gint hf_r3_defineexceptiongroup_number = -1;
-static gint hf_r3_defineexceptiongroup_bits = -1;
+static gint hf_r3_defineexceptiongroup_number;
+static gint hf_r3_defineexceptiongroup_bits;
 
-static gint hf_r3_definecalendar_number = -1;
-static gint hf_r3_definecalendar_bits = -1;
+static gint hf_r3_definecalendar_number;
+static gint hf_r3_definecalendar_bits;
 
-static gint hf_r3_definetimezone_number = -1;
-static gint hf_r3_definetimezone_starttime_hours = -1;
-static gint hf_r3_definetimezone_starttime_minutes = -1;
-static gint hf_r3_definetimezone_endtime_hours = -1;
-static gint hf_r3_definetimezone_endtime_minutes = -1;
-static gint hf_r3_definetimezone_daymap = -1;
-static gint hf_r3_definetimezone_daymap0 = -1;
-static gint hf_r3_definetimezone_daymap1 = -1;
-static gint hf_r3_definetimezone_daymap2 = -1;
-static gint hf_r3_definetimezone_daymap3 = -1;
-static gint hf_r3_definetimezone_daymap4 = -1;
-static gint hf_r3_definetimezone_daymap5 = -1;
-static gint hf_r3_definetimezone_daymap6 = -1;
-static gint hf_r3_definetimezone_exceptiongroup = -1;
-static gint hf_r3_definetimezone_mode = -1;
-static gint hf_r3_definetimezone_calendar = -1;
+static gint hf_r3_definetimezone_number;
+static gint hf_r3_definetimezone_starttime_hours;
+static gint hf_r3_definetimezone_starttime_minutes;
+static gint hf_r3_definetimezone_endtime_hours;
+static gint hf_r3_definetimezone_endtime_minutes;
+static gint hf_r3_definetimezone_daymap;
+static gint hf_r3_definetimezone_daymap0;
+static gint hf_r3_definetimezone_daymap1;
+static gint hf_r3_definetimezone_daymap2;
+static gint hf_r3_definetimezone_daymap3;
+static gint hf_r3_definetimezone_daymap4;
+static gint hf_r3_definetimezone_daymap5;
+static gint hf_r3_definetimezone_daymap6;
+static gint hf_r3_definetimezone_exceptiongroup;
+static gint hf_r3_definetimezone_mode;
+static gint hf_r3_definetimezone_calendar;
 
-static gint hf_r3_rmtauthretry_sequence = -1;
-static gint hf_r3_rmtauthretry_retry = -1;
+static gint hf_r3_rmtauthretry_sequence;
+static gint hf_r3_rmtauthretry_retry;
 
-static gint hf_r3_eventlogdump_starttime_year = -1;
-static gint hf_r3_eventlogdump_starttime_month = -1;
-static gint hf_r3_eventlogdump_starttime_day = -1;
-static gint hf_r3_eventlogdump_starttime_hours = -1;
-static gint hf_r3_eventlogdump_starttime_minutes = -1;
-static gint hf_r3_eventlogdump_endtime_year = -1;
-static gint hf_r3_eventlogdump_endtime_month = -1;
-static gint hf_r3_eventlogdump_endtime_day = -1;
-static gint hf_r3_eventlogdump_endtime_hours = -1;
-static gint hf_r3_eventlogdump_endtime_minutes = -1;
-static gint hf_r3_eventlogdump_user = -1;
+static gint hf_r3_eventlogdump_starttime_year;
+static gint hf_r3_eventlogdump_starttime_month;
+static gint hf_r3_eventlogdump_starttime_day;
+static gint hf_r3_eventlogdump_starttime_hours;
+static gint hf_r3_eventlogdump_starttime_minutes;
+static gint hf_r3_eventlogdump_endtime_year;
+static gint hf_r3_eventlogdump_endtime_month;
+static gint hf_r3_eventlogdump_endtime_day;
+static gint hf_r3_eventlogdump_endtime_hours;
+static gint hf_r3_eventlogdump_endtime_minutes;
+static gint hf_r3_eventlogdump_user;
 
-static gint hf_r3_declinedlogdump_starttime_year = -1;
-static gint hf_r3_declinedlogdump_starttime_month = -1;
-static gint hf_r3_declinedlogdump_starttime_day = -1;
-static gint hf_r3_declinedlogdump_starttime_hours = -1;
-static gint hf_r3_declinedlogdump_starttime_minutes = -1;
-static gint hf_r3_declinedlogdump_endtime_year = -1;
-static gint hf_r3_declinedlogdump_endtime_month = -1;
-static gint hf_r3_declinedlogdump_endtime_day = -1;
-static gint hf_r3_declinedlogdump_endtime_hours = -1;
-static gint hf_r3_declinedlogdump_endtime_minutes = -1;
+static gint hf_r3_declinedlogdump_starttime_year;
+static gint hf_r3_declinedlogdump_starttime_month;
+static gint hf_r3_declinedlogdump_starttime_day;
+static gint hf_r3_declinedlogdump_starttime_hours;
+static gint hf_r3_declinedlogdump_starttime_minutes;
+static gint hf_r3_declinedlogdump_endtime_year;
+static gint hf_r3_declinedlogdump_endtime_month;
+static gint hf_r3_declinedlogdump_endtime_day;
+static gint hf_r3_declinedlogdump_endtime_hours;
+static gint hf_r3_declinedlogdump_endtime_minutes;
 
-static gint hf_r3_alarmlogdump_starttime_year = -1;
-static gint hf_r3_alarmlogdump_starttime_month = -1;
-static gint hf_r3_alarmlogdump_starttime_day = -1;
-static gint hf_r3_alarmlogdump_starttime_hours = -1;
-static gint hf_r3_alarmlogdump_starttime_minutes = -1;
-static gint hf_r3_alarmlogdump_endtime_year = -1;
-static gint hf_r3_alarmlogdump_endtime_month = -1;
-static gint hf_r3_alarmlogdump_endtime_day = -1;
-static gint hf_r3_alarmlogdump_endtime_hours = -1;
-static gint hf_r3_alarmlogdump_endtime_minutes = -1;
+static gint hf_r3_alarmlogdump_starttime_year;
+static gint hf_r3_alarmlogdump_starttime_month;
+static gint hf_r3_alarmlogdump_starttime_day;
+static gint hf_r3_alarmlogdump_starttime_hours;
+static gint hf_r3_alarmlogdump_starttime_minutes;
+static gint hf_r3_alarmlogdump_endtime_year;
+static gint hf_r3_alarmlogdump_endtime_month;
+static gint hf_r3_alarmlogdump_endtime_day;
+static gint hf_r3_alarmlogdump_endtime_hours;
+static gint hf_r3_alarmlogdump_endtime_minutes;
 
-static gint hf_r3_nvramclearoptions = -1;
-static gint hf_r3_nvramclearoptions0 = -1;
-static gint hf_r3_nvramclearoptions1 = -1;
-static gint hf_r3_nvramclearoptions2 = -1;
-static gint hf_r3_nvramclearoptions3 = -1;
-static gint hf_r3_nvramclearoptions4 = -1;
-static gint hf_r3_nvramclearoptions5 = -1;
-static gint hf_r3_nvramclearoptions6 = -1;
-static gint hf_r3_nvramclearoptions7 = -1;
-static gint hf_r3_nvramclearoptions8 = -1;
-static gint hf_r3_nvramclearoptions9 = -1;
-static gint hf_r3_nvramclearoptions10 = -1;
-static gint hf_r3_nvramclearoptions11 = -1;
-static gint hf_r3_nvramclearoptions12 = -1;
-static gint hf_r3_nvramclearoptions13 = -1;
-static gint hf_r3_nvramclearoptions14 = -1;
-static gint hf_r3_nvramclearoptions15 = -1;
+static gint hf_r3_nvramclearoptions;
+static gint hf_r3_nvramclearoptions0;
+static gint hf_r3_nvramclearoptions1;
+static gint hf_r3_nvramclearoptions2;
+static gint hf_r3_nvramclearoptions3;
+static gint hf_r3_nvramclearoptions4;
+static gint hf_r3_nvramclearoptions5;
+static gint hf_r3_nvramclearoptions6;
+static gint hf_r3_nvramclearoptions7;
+static gint hf_r3_nvramclearoptions8;
+static gint hf_r3_nvramclearoptions9;
+static gint hf_r3_nvramclearoptions10;
+static gint hf_r3_nvramclearoptions11;
+static gint hf_r3_nvramclearoptions12;
+static gint hf_r3_nvramclearoptions13;
+static gint hf_r3_nvramclearoptions14;
+static gint hf_r3_nvramclearoptions15;
 
-static gint hf_r3_writeeventlog_user = -1;
-static gint hf_r3_writeeventlog_event = -1;
+static gint hf_r3_writeeventlog_user;
+static gint hf_r3_writeeventlog_event;
 
-static gint hf_r3_powertableselection = -1;
+static gint hf_r3_powertableselection;
 
-static gint hf_r3_filter_type = -1;
-static gint hf_r3_filter_list = -1;
+static gint hf_r3_filter_type;
+static gint hf_r3_filter_list;
 
-static gint hf_r3_alarm_length = -1;
-static gint hf_r3_alarm_id = -1;
-static gint hf_r3_alarm_state = -1;
+static gint hf_r3_alarm_length;
+static gint hf_r3_alarm_id;
+static gint hf_r3_alarm_state;
 
-static gint hf_r3_dpac_action = -1;
-static gint hf_r3_dpac_waittime = -1;
-static gint hf_r3_dpac_command = -1;
+static gint hf_r3_dpac_action;
+static gint hf_r3_dpac_waittime;
+static gint hf_r3_dpac_command;
 
-static gint hf_r3_dpacreply_stuff = -1;
-static gint hf_r3_dpacreply_length = -1;
-static gint hf_r3_dpacreply_reply = -1;
+static gint hf_r3_dpacreply_stuff;
+static gint hf_r3_dpacreply_length;
+static gint hf_r3_dpacreply_reply;
 
-static gint hf_r3_mfgfield_length = -1;
-static gint hf_r3_mfgfield = -1;
-/*static gint hf_r3_mfgfield_data = -1;*/
+static gint hf_r3_mfgfield_length;
+static gint hf_r3_mfgfield;
+/*static gint hf_r3_mfgfield_data;*/
 
-static gint hf_r3_mfgsetserialnumber = -1;
-static gint hf_r3_mfgsetcryptkey = -1;
-static gint hf_r3_mfgdumpnvram = -1;
-static gint hf_r3_mfgremoteunlock = -1;
-static gint hf_r3_mfgtestpreserve = -1;
+static gint hf_r3_mfgsetserialnumber;
+static gint hf_r3_mfgsetcryptkey;
+static gint hf_r3_mfgdumpnvram;
+static gint hf_r3_mfgremoteunlock;
+static gint hf_r3_mfgtestpreserve;
 
 static gint hf_r3_adc [8];
 
-static gint hf_r3_hardwareid_board = -1;
-static gint hf_r3_hardwareid_cpuid = -1;
-static gint hf_r3_hardwareid_cpurev = -1;
+static gint hf_r3_hardwareid_board;
+static gint hf_r3_hardwareid_cpuid;
+static gint hf_r3_hardwareid_cpurev;
 
-static gint hf_r3_testkeypad = -1;
-static gint hf_r3_testmagcard = -1;
-static gint hf_r3_testproxcard = -1;
+static gint hf_r3_testkeypad;
+static gint hf_r3_testmagcard;
+static gint hf_r3_testproxcard;
 
-static gint hf_r3_nvramdump_record = -1;
-static gint hf_r3_nvramdump_length = -1;
-static gint hf_r3_nvramdump_data = -1;
+static gint hf_r3_nvramdump_record;
+static gint hf_r3_nvramdump_length;
+static gint hf_r3_nvramdump_data;
 
-static gint hf_r3_nvramdumprle_record = -1;
-static gint hf_r3_nvramdumprle_length = -1;
-static gint hf_r3_nvramdumprle_data = -1;
+static gint hf_r3_nvramdumprle_record;
+static gint hf_r3_nvramdumprle_length;
+static gint hf_r3_nvramdumprle_data;
 
-static gint hf_r3_iopins_lat = -1;
-static gint hf_r3_iopins_port = -1;
-static gint hf_r3_iopins_tris = -1;
+static gint hf_r3_iopins_lat;
+static gint hf_r3_iopins_port;
+static gint hf_r3_iopins_tris;
 
-static gint hf_r3_mortisepins_s1 = -1;
-static gint hf_r3_mortisepins_s2 = -1;
-static gint hf_r3_mortisepins_s3 = -1;
-static gint hf_r3_mortisepins_s4 = -1;
+static gint hf_r3_mortisepins_s1;
+static gint hf_r3_mortisepins_s2;
+static gint hf_r3_mortisepins_s3;
+static gint hf_r3_mortisepins_s4;
 
-static gint hf_r3_checksumresults = -1;
-static gint hf_r3_checksumresults_field = -1;
-static gint hf_r3_checksumresults_length = -1;
-static gint hf_r3_checksumresults_state = -1;
+static gint hf_r3_checksumresults;
+static gint hf_r3_checksumresults_field;
+static gint hf_r3_checksumresults_length;
+static gint hf_r3_checksumresults_state;
 
-static gint hf_r3_forceoptions_length = -1;
-static gint hf_r3_forceoptions_item = -1;
-static gint hf_r3_forceoptions_state_8= -1;
-static gint hf_r3_forceoptions_state_16 = -1;
-static gint hf_r3_forceoptions_state_24 = -1;
-static gint hf_r3_forceoptions_state_32 = -1;
+static gint hf_r3_forceoptions_length;
+static gint hf_r3_forceoptions_item;
+static gint hf_r3_forceoptions_state_8;
+static gint hf_r3_forceoptions_state_16;
+static gint hf_r3_forceoptions_state_24;
+static gint hf_r3_forceoptions_state_32;
 
-static gint hf_r3_peekpoke_operation = -1;
-static gint hf_r3_peekpoke_address = -1;
-static gint hf_r3_peekpoke_length = -1;
-static gint hf_r3_peekpoke_poke8 = -1;
-static gint hf_r3_peekpoke_poke16 = -1;
-static gint hf_r3_peekpoke_poke24 = -1;
-static gint hf_r3_peekpoke_poke32 = -1;
-static gint hf_r3_peekpoke_pokestring = -1;
+static gint hf_r3_peekpoke_operation;
+static gint hf_r3_peekpoke_address;
+static gint hf_r3_peekpoke_length;
+static gint hf_r3_peekpoke_poke8;
+static gint hf_r3_peekpoke_poke16;
+static gint hf_r3_peekpoke_poke24;
+static gint hf_r3_peekpoke_poke32;
+static gint hf_r3_peekpoke_pokestring;
 
-static gint hf_r3_firmwaredownload_length = -1;
-static gint hf_r3_firmwaredownload_record = -1;
-static gint hf_r3_firmwaredownload_action = -1;
-static gint hf_r3_firmwaredownload_timeout = -1;
-static gint hf_r3_firmwaredownload_nvram = -1;
-static gint hf_r3_firmwaredownload_address = -1;
-static gint hf_r3_firmwaredownload_bytes = -1;
-static gint hf_r3_firmwaredownload_data = -1;
-static gint hf_r3_firmwaredownload_crc = -1;
-static gint hf_r3_firmwaredownload_crc_bad = -1;
+static gint hf_r3_firmwaredownload_length;
+static gint hf_r3_firmwaredownload_record;
+static gint hf_r3_firmwaredownload_action;
+static gint hf_r3_firmwaredownload_timeout;
+static gint hf_r3_firmwaredownload_nvram;
+static gint hf_r3_firmwaredownload_address;
+static gint hf_r3_firmwaredownload_bytes;
+static gint hf_r3_firmwaredownload_data;
+static gint hf_r3_firmwaredownload_crc;
+static gint hf_r3_firmwaredownload_crc_bad;
 
-static gint hf_r3_nvramchecksumvalue = -1;
-static gint hf_r3_nvramchecksumvalue_fixup = -1;
+static gint hf_r3_nvramchecksumvalue;
+static gint hf_r3_nvramchecksumvalue_fixup;
 
-static gint hf_r3_capabilities = -1;
-static gint hf_r3_capabilities_length = -1;
-static gint hf_r3_capabilities_type = -1;
-static gint hf_r3_capabilities_value = -1;
+static gint hf_r3_capabilities;
+static gint hf_r3_capabilities_length;
+static gint hf_r3_capabilities_type;
+static gint hf_r3_capabilities_value;
 
-static gint hf_r3_lockstate = -1;
-static gint hf_r3_lockstate_passage = -1;
-static gint hf_r3_lockstate_panic = -1;
-static gint hf_r3_lockstate_lockout = -1;
-static gint hf_r3_lockstate_relock = -1;
-static gint hf_r3_lockstate_autoopen = -1;
-static gint hf_r3_lockstate_nextauto = -1;
-static gint hf_r3_lockstate_lockstate = -1;
-static gint hf_r3_lockstate_wantstate = -1;
-static gint hf_r3_lockstate_remote = -1;
-static gint hf_r3_lockstate_update = -1;
-static gint hf_r3_lockstate_exceptionspresent = -1;
-static gint hf_r3_lockstate_exceptionsactive = -1;
-static gint hf_r3_lockstate_timezonespresent = -1;
-static gint hf_r3_lockstate_timezonesactive = -1;
-static gint hf_r3_lockstate_autounlockspresent = -1;
-static gint hf_r3_lockstate_autounlocksactive = -1;
-static gint hf_r3_lockstate_uapmspresent = -1;
-static gint hf_r3_lockstate_uapmsactive = -1;
-static gint hf_r3_lockstate_uapmrelockspresent = -1;
-static gint hf_r3_lockstate_uapmreslocksactive = -1;
-static gint hf_r3_lockstate_nvramprotect = -1;
-static gint hf_r3_lockstate_nvramchecksum = -1;
+static gint hf_r3_lockstate;
+static gint hf_r3_lockstate_passage;
+static gint hf_r3_lockstate_panic;
+static gint hf_r3_lockstate_lockout;
+static gint hf_r3_lockstate_relock;
+static gint hf_r3_lockstate_autoopen;
+static gint hf_r3_lockstate_nextauto;
+static gint hf_r3_lockstate_lockstate;
+static gint hf_r3_lockstate_wantstate;
+static gint hf_r3_lockstate_remote;
+static gint hf_r3_lockstate_update;
+static gint hf_r3_lockstate_exceptionspresent;
+static gint hf_r3_lockstate_exceptionsactive;
+static gint hf_r3_lockstate_timezonespresent;
+static gint hf_r3_lockstate_timezonesactive;
+static gint hf_r3_lockstate_autounlockspresent;
+static gint hf_r3_lockstate_autounlocksactive;
+static gint hf_r3_lockstate_uapmspresent;
+static gint hf_r3_lockstate_uapmsactive;
+static gint hf_r3_lockstate_uapmrelockspresent;
+static gint hf_r3_lockstate_uapmreslocksactive;
+static gint hf_r3_lockstate_nvramprotect;
+static gint hf_r3_lockstate_nvramchecksum;
 
-/*static gint hf_r3_mortisestatelog = -1;*/
-static gint hf_r3_mortisestatelog_pointer = -1;
-static gint hf_r3_mortisestatelog_mortisetype = -1;
-static gint hf_r3_mortisestatelog_waiting = -1;
-static gint hf_r3_mortisestatelog_state = -1;
-static gint hf_r3_mortisestatelog_last = -1;
-static gint hf_r3_mortisestatelog_event = -1;
+/*static gint hf_r3_mortisestatelog;*/
+static gint hf_r3_mortisestatelog_pointer;
+static gint hf_r3_mortisestatelog_mortisetype;
+static gint hf_r3_mortisestatelog_waiting;
+static gint hf_r3_mortisestatelog_state;
+static gint hf_r3_mortisestatelog_last;
+static gint hf_r3_mortisestatelog_event;
 
-static gint hf_r3_timerchain_newtick = -1;
-static gint hf_r3_timerchain_currentboundary = -1;
-static gint hf_r3_timerchain_tasktag = -1;
-static gint hf_r3_timerchain_address = -1;
-static gint hf_r3_timerchain_reload = -1;
-static gint hf_r3_timerchain_boundary = -1;
-static gint hf_r3_timerchain_count = -1;
-static gint hf_r3_timerchain_flags = -1;
+static gint hf_r3_timerchain_newtick;
+static gint hf_r3_timerchain_currentboundary;
+static gint hf_r3_timerchain_tasktag;
+static gint hf_r3_timerchain_address;
+static gint hf_r3_timerchain_reload;
+static gint hf_r3_timerchain_boundary;
+static gint hf_r3_timerchain_count;
+static gint hf_r3_timerchain_flags;
 
-static gint hf_r3_taskflags_taskid = -1;
-static gint hf_r3_taskflags_flags = -1;
+static gint hf_r3_taskflags_taskid;
+static gint hf_r3_taskflags_flags;
 
-static gint hf_r3_checkpointlog_entryptr = -1;
-static gint hf_r3_checkpointlog_rcon = -1;
-static gint hf_r3_checkpointlog_checkpoint = -1;
+static gint hf_r3_checkpointlog_entryptr;
+static gint hf_r3_checkpointlog_rcon;
+static gint hf_r3_checkpointlog_checkpoint;
 
-static gint hf_r3_cpuregisters_intcon = -1;
-static gint hf_r3_cpuregisters_intcon2 = -1;
-static gint hf_r3_cpuregisters_intcon3 = -1;
-static gint hf_r3_cpuregisters_pir1 = -1;
-static gint hf_r3_cpuregisters_pir2 = -1;
-static gint hf_r3_cpuregisters_pir3 = -1;
-static gint hf_r3_cpuregisters_pie1 = -1;
-static gint hf_r3_cpuregisters_pie2 = -1;
-static gint hf_r3_cpuregisters_pie3 = -1;
-static gint hf_r3_cpuregisters_ipr1 = -1;
-static gint hf_r3_cpuregisters_ipr2 = -1;
-static gint hf_r3_cpuregisters_ipr3 = -1;
-static gint hf_r3_cpuregisters_rcon = -1;
-static gint hf_r3_cpuregisters_osccon = -1;
-static gint hf_r3_cpuregisters_rcsta = -1;
-static gint hf_r3_cpuregisters_txsta = -1;
-static gint hf_r3_cpuregisters_rcsta2 = -1;
-static gint hf_r3_cpuregisters_txsta2 = -1;
-static gint hf_r3_cpuregisters_wdtcon = -1;
+static gint hf_r3_cpuregisters_intcon;
+static gint hf_r3_cpuregisters_intcon2;
+static gint hf_r3_cpuregisters_intcon3;
+static gint hf_r3_cpuregisters_pir1;
+static gint hf_r3_cpuregisters_pir2;
+static gint hf_r3_cpuregisters_pir3;
+static gint hf_r3_cpuregisters_pie1;
+static gint hf_r3_cpuregisters_pie2;
+static gint hf_r3_cpuregisters_pie3;
+static gint hf_r3_cpuregisters_ipr1;
+static gint hf_r3_cpuregisters_ipr2;
+static gint hf_r3_cpuregisters_ipr3;
+static gint hf_r3_cpuregisters_rcon;
+static gint hf_r3_cpuregisters_osccon;
+static gint hf_r3_cpuregisters_rcsta;
+static gint hf_r3_cpuregisters_txsta;
+static gint hf_r3_cpuregisters_rcsta2;
+static gint hf_r3_cpuregisters_txsta2;
+static gint hf_r3_cpuregisters_wdtcon;
 
-static gint hf_r3_cpuregisters_intcon_rbif = -1;
-static gint hf_r3_cpuregisters_intcon_int0if = -1;
-static gint hf_r3_cpuregisters_intcon_tmr0if = -1;
-static gint hf_r3_cpuregisters_intcon_rbie = -1;
-static gint hf_r3_cpuregisters_intcon_int0ie = -1;
-static gint hf_r3_cpuregisters_intcon_tmr0ie = -1;
-static gint hf_r3_cpuregisters_intcon_giel = -1;
-static gint hf_r3_cpuregisters_intcon_gieh = -1;
-static gint hf_r3_cpuregisters_intcon2_rbip = -1;
-static gint hf_r3_cpuregisters_intcon2_int3ip = -1;
-static gint hf_r3_cpuregisters_intcon2_tmr0ip = -1;
-static gint hf_r3_cpuregisters_intcon2_intedg3 = -1;
-static gint hf_r3_cpuregisters_intcon2_intedg2 = -1;
-static gint hf_r3_cpuregisters_intcon2_intedg1 = -1;
-static gint hf_r3_cpuregisters_intcon2_intedg0 = -1;
-static gint hf_r3_cpuregisters_intcon2_rbpu = -1;
-static gint hf_r3_cpuregisters_intcon3_int1if = -1;
-static gint hf_r3_cpuregisters_intcon3_int2if = -1;
-static gint hf_r3_cpuregisters_intcon3_int3if = -1;
-static gint hf_r3_cpuregisters_intcon3_int1ie = -1;
-static gint hf_r3_cpuregisters_intcon3_int2ie = -1;
-static gint hf_r3_cpuregisters_intcon3_int3ie = -1;
-static gint hf_r3_cpuregisters_intcon3_int1ip = -1;
-static gint hf_r3_cpuregisters_intcon3_int2ip = -1;
-static gint hf_r3_cpuregisters_pir1_tmr1if = -1;
-static gint hf_r3_cpuregisters_pir1_tmr2if = -1;
-static gint hf_r3_cpuregisters_pir1_ccp1if = -1;
-static gint hf_r3_cpuregisters_pir1_ssp1if = -1;
-static gint hf_r3_cpuregisters_pir1_tx1if = -1;
-static gint hf_r3_cpuregisters_pir1_rc1if = -1;
-static gint hf_r3_cpuregisters_pir1_adif = -1;
-static gint hf_r3_cpuregisters_pir1_pspif = -1;
-static gint hf_r3_cpuregisters_pir2_ccp2if = -1;
-static gint hf_r3_cpuregisters_pir2_tmr3if = -1;
-static gint hf_r3_cpuregisters_pir2_hlvdif = -1;
-static gint hf_r3_cpuregisters_pir2_bcl1if = -1;
-static gint hf_r3_cpuregisters_pir2_eeif = -1;
-static gint hf_r3_cpuregisters_pir2_unused5 = -1;
-static gint hf_r3_cpuregisters_pir2_cmif = -1;
-static gint hf_r3_cpuregisters_pir2_oscfif = -1;
-static gint hf_r3_cpuregisters_pir3_ccp3if = -1;
-static gint hf_r3_cpuregisters_pir3_ccp4if = -1;
-static gint hf_r3_cpuregisters_pir3_ccp5if = -1;
-static gint hf_r3_cpuregisters_pir3_tmr4if = -1;
-static gint hf_r3_cpuregisters_pir3_tx2if = -1;
-static gint hf_r3_cpuregisters_pir3_rc2if = -1;
-static gint hf_r3_cpuregisters_pir3_bcl2if = -1;
-static gint hf_r3_cpuregisters_pir3_ssp2if = -1;
-static gint hf_r3_cpuregisters_pie1_tmr1ie = -1;
-static gint hf_r3_cpuregisters_pie1_tmr2ie = -1;
-static gint hf_r3_cpuregisters_pie1_ccp1ie = -1;
-static gint hf_r3_cpuregisters_pie1_ssp1ie = -1;
-static gint hf_r3_cpuregisters_pie1_tx1ie = -1;
-static gint hf_r3_cpuregisters_pie1_rc1ie = -1;
-static gint hf_r3_cpuregisters_pie1_adie = -1;
-static gint hf_r3_cpuregisters_pie1_pspie = -1;
-static gint hf_r3_cpuregisters_pie2_oscfie = -1;
-static gint hf_r3_cpuregisters_pie2_cmie = -1;
-static gint hf_r3_cpuregisters_pie2_unused2 = -1;
-static gint hf_r3_cpuregisters_pie2_eeie = -1;
-static gint hf_r3_cpuregisters_pie2_bcl1ie = -1;
-static gint hf_r3_cpuregisters_pie2_hlvdie = -1;
-static gint hf_r3_cpuregisters_pie2_tmr3ie = -1;
-static gint hf_r3_cpuregisters_pie2_ccp2ie = -1;
-static gint hf_r3_cpuregisters_pie3_ccp3ie = -1;
-static gint hf_r3_cpuregisters_pie3_ccp4ie = -1;
-static gint hf_r3_cpuregisters_pie3_ccp5ie = -1;
-static gint hf_r3_cpuregisters_pie3_tmr4ie = -1;
-static gint hf_r3_cpuregisters_pie3_tx2ie = -1;
-static gint hf_r3_cpuregisters_pie3_rc2ie = -1;
-static gint hf_r3_cpuregisters_pie3_bcl2ie = -1;
-static gint hf_r3_cpuregisters_pie3_ssp2ie = -1;
-static gint hf_r3_cpuregisters_ipr1_tmr1ip = -1;
-static gint hf_r3_cpuregisters_ipr1_tmr2ip = -1;
-static gint hf_r3_cpuregisters_ipr1_ccp1ip = -1;
-static gint hf_r3_cpuregisters_ipr1_ssp1ip = -1;
-static gint hf_r3_cpuregisters_ipr1_tx1ip = -1;
-static gint hf_r3_cpuregisters_ipr1_rc1ip = -1;
-static gint hf_r3_cpuregisters_ipr1_adip = -1;
-static gint hf_r3_cpuregisters_ipr1_pspip = -1;
-static gint hf_r3_cpuregisters_ipr2_ccp2ip = -1;
-static gint hf_r3_cpuregisters_ipr2_tmr3ip = -1;
-static gint hf_r3_cpuregisters_ipr2_hlvdip = -1;
-static gint hf_r3_cpuregisters_ipr2_bcl1ip = -1;
-static gint hf_r3_cpuregisters_ipr2_eeip = -1;
-static gint hf_r3_cpuregisters_ipr2_unused5 = -1;
-static gint hf_r3_cpuregisters_ipr2_cmip = -1;
-static gint hf_r3_cpuregisters_ipr2_oscfip = -1;
-static gint hf_r3_cpuregisters_ipr3_ccp2ip = -1;
-static gint hf_r3_cpuregisters_ipr3_ccp4ip = -1;
-static gint hf_r3_cpuregisters_ipr3_ccp5ip = -1;
-static gint hf_r3_cpuregisters_ipr3_tmr4ip = -1;
-static gint hf_r3_cpuregisters_ipr3_tx2ip = -1;
-static gint hf_r3_cpuregisters_ipr3_rc2ip = -1;
-static gint hf_r3_cpuregisters_ipr3_bcl2ip = -1;
-static gint hf_r3_cpuregisters_ipr3_ssp2ip = -1;
-static gint hf_r3_cpuregisters_rcon_bor = -1;
-static gint hf_r3_cpuregisters_rcon_por = -1;
-static gint hf_r3_cpuregisters_rcon_pd = -1;
-static gint hf_r3_cpuregisters_rcon_to = -1;
-static gint hf_r3_cpuregisters_rcon_unused4 = -1;
-static gint hf_r3_cpuregisters_rcon_ri = -1;
-static gint hf_r3_cpuregisters_rcon_sboren = -1;
-static gint hf_r3_cpuregisters_rcon_ipen = -1;
-static gint hf_r3_cpuregisters_osccon_scs0 = -1;
-static gint hf_r3_cpuregisters_osccon_scs1 = -1;
-static gint hf_r3_cpuregisters_osccon_iofs = -1;
-static gint hf_r3_cpuregisters_osccon_osts = -1;
-static gint hf_r3_cpuregisters_osccon_ircf0 = -1;
-static gint hf_r3_cpuregisters_osccon_ircf1 = -1;
-static gint hf_r3_cpuregisters_osccon_ircf2 = -1;
-static gint hf_r3_cpuregisters_osccon_idlen = -1;
-static gint hf_r3_cpuregisters_rcsta_rx9d = -1;
-static gint hf_r3_cpuregisters_rcsta_oerr = -1;
-static gint hf_r3_cpuregisters_rcsta_ferr = -1;
-static gint hf_r3_cpuregisters_rcsta_adden = -1;
-static gint hf_r3_cpuregisters_rcsta_cren = -1;
-static gint hf_r3_cpuregisters_rcsta_sren = -1;
-static gint hf_r3_cpuregisters_rcsta_rx9 = -1;
-static gint hf_r3_cpuregisters_rcsta_spen = -1;
-static gint hf_r3_cpuregisters_txsta_tx9d = -1;
-static gint hf_r3_cpuregisters_txsta_trmt = -1;
-static gint hf_r3_cpuregisters_txsta_brgh = -1;
-static gint hf_r3_cpuregisters_txsta_sendb = -1;
-static gint hf_r3_cpuregisters_txsta_sync = -1;
-static gint hf_r3_cpuregisters_txsta_txen = -1;
-static gint hf_r3_cpuregisters_txsta_tx9 = -1;
-static gint hf_r3_cpuregisters_txsta_csrc = -1;
-static gint hf_r3_cpuregisters_rcsta2_rx9d = -1;
-static gint hf_r3_cpuregisters_rcsta2_oerr = -1;
-static gint hf_r3_cpuregisters_rcsta2_ferr = -1;
-static gint hf_r3_cpuregisters_rcsta2_adden = -1;
-static gint hf_r3_cpuregisters_rcsta2_cren = -1;
-static gint hf_r3_cpuregisters_rcsta2_sren = -1;
-static gint hf_r3_cpuregisters_rcsta2_rx9 = -1;
-static gint hf_r3_cpuregisters_rcsta2_spen = -1;
-static gint hf_r3_cpuregisters_txsta2_tx9d = -1;
-static gint hf_r3_cpuregisters_txsta2_trmt = -1;
-static gint hf_r3_cpuregisters_txsta2_brgh = -1;
-static gint hf_r3_cpuregisters_txsta2_sendb = -1;
-static gint hf_r3_cpuregisters_txsta2_sync = -1;
-static gint hf_r3_cpuregisters_txsta2_txen = -1;
-static gint hf_r3_cpuregisters_txsta2_tx9 = -1;
-static gint hf_r3_cpuregisters_txsta2_csrc = -1;
-static gint hf_r3_cpuregisters_wdtcon_swdten = -1;
-static gint hf_r3_cpuregisters_wdtcon_unused1 = -1;
-static gint hf_r3_cpuregisters_wdtcon_unused2 = -1;
-static gint hf_r3_cpuregisters_wdtcon_unused3 = -1;
-static gint hf_r3_cpuregisters_wdtcon_unused4 = -1;
-static gint hf_r3_cpuregisters_wdtcon_unused5 = -1;
-static gint hf_r3_cpuregisters_wdtcon_unused6 = -1;
-static gint hf_r3_cpuregisters_wdtcon_unused7 = -1;
+static gint hf_r3_cpuregisters_intcon_rbif;
+static gint hf_r3_cpuregisters_intcon_int0if;
+static gint hf_r3_cpuregisters_intcon_tmr0if;
+static gint hf_r3_cpuregisters_intcon_rbie;
+static gint hf_r3_cpuregisters_intcon_int0ie;
+static gint hf_r3_cpuregisters_intcon_tmr0ie;
+static gint hf_r3_cpuregisters_intcon_giel;
+static gint hf_r3_cpuregisters_intcon_gieh;
+static gint hf_r3_cpuregisters_intcon2_rbip;
+static gint hf_r3_cpuregisters_intcon2_int3ip;
+static gint hf_r3_cpuregisters_intcon2_tmr0ip;
+static gint hf_r3_cpuregisters_intcon2_intedg3;
+static gint hf_r3_cpuregisters_intcon2_intedg2;
+static gint hf_r3_cpuregisters_intcon2_intedg1;
+static gint hf_r3_cpuregisters_intcon2_intedg0;
+static gint hf_r3_cpuregisters_intcon2_rbpu;
+static gint hf_r3_cpuregisters_intcon3_int1if;
+static gint hf_r3_cpuregisters_intcon3_int2if;
+static gint hf_r3_cpuregisters_intcon3_int3if;
+static gint hf_r3_cpuregisters_intcon3_int1ie;
+static gint hf_r3_cpuregisters_intcon3_int2ie;
+static gint hf_r3_cpuregisters_intcon3_int3ie;
+static gint hf_r3_cpuregisters_intcon3_int1ip;
+static gint hf_r3_cpuregisters_intcon3_int2ip;
+static gint hf_r3_cpuregisters_pir1_tmr1if;
+static gint hf_r3_cpuregisters_pir1_tmr2if;
+static gint hf_r3_cpuregisters_pir1_ccp1if;
+static gint hf_r3_cpuregisters_pir1_ssp1if;
+static gint hf_r3_cpuregisters_pir1_tx1if;
+static gint hf_r3_cpuregisters_pir1_rc1if;
+static gint hf_r3_cpuregisters_pir1_adif;
+static gint hf_r3_cpuregisters_pir1_pspif;
+static gint hf_r3_cpuregisters_pir2_ccp2if;
+static gint hf_r3_cpuregisters_pir2_tmr3if;
+static gint hf_r3_cpuregisters_pir2_hlvdif;
+static gint hf_r3_cpuregisters_pir2_bcl1if;
+static gint hf_r3_cpuregisters_pir2_eeif;
+static gint hf_r3_cpuregisters_pir2_unused5;
+static gint hf_r3_cpuregisters_pir2_cmif;
+static gint hf_r3_cpuregisters_pir2_oscfif;
+static gint hf_r3_cpuregisters_pir3_ccp3if;
+static gint hf_r3_cpuregisters_pir3_ccp4if;
+static gint hf_r3_cpuregisters_pir3_ccp5if;
+static gint hf_r3_cpuregisters_pir3_tmr4if;
+static gint hf_r3_cpuregisters_pir3_tx2if;
+static gint hf_r3_cpuregisters_pir3_rc2if;
+static gint hf_r3_cpuregisters_pir3_bcl2if;
+static gint hf_r3_cpuregisters_pir3_ssp2if;
+static gint hf_r3_cpuregisters_pie1_tmr1ie;
+static gint hf_r3_cpuregisters_pie1_tmr2ie;
+static gint hf_r3_cpuregisters_pie1_ccp1ie;
+static gint hf_r3_cpuregisters_pie1_ssp1ie;
+static gint hf_r3_cpuregisters_pie1_tx1ie;
+static gint hf_r3_cpuregisters_pie1_rc1ie;
+static gint hf_r3_cpuregisters_pie1_adie;
+static gint hf_r3_cpuregisters_pie1_pspie;
+static gint hf_r3_cpuregisters_pie2_oscfie;
+static gint hf_r3_cpuregisters_pie2_cmie;
+static gint hf_r3_cpuregisters_pie2_unused2;
+static gint hf_r3_cpuregisters_pie2_eeie;
+static gint hf_r3_cpuregisters_pie2_bcl1ie;
+static gint hf_r3_cpuregisters_pie2_hlvdie;
+static gint hf_r3_cpuregisters_pie2_tmr3ie;
+static gint hf_r3_cpuregisters_pie2_ccp2ie;
+static gint hf_r3_cpuregisters_pie3_ccp3ie;
+static gint hf_r3_cpuregisters_pie3_ccp4ie;
+static gint hf_r3_cpuregisters_pie3_ccp5ie;
+static gint hf_r3_cpuregisters_pie3_tmr4ie;
+static gint hf_r3_cpuregisters_pie3_tx2ie;
+static gint hf_r3_cpuregisters_pie3_rc2ie;
+static gint hf_r3_cpuregisters_pie3_bcl2ie;
+static gint hf_r3_cpuregisters_pie3_ssp2ie;
+static gint hf_r3_cpuregisters_ipr1_tmr1ip;
+static gint hf_r3_cpuregisters_ipr1_tmr2ip;
+static gint hf_r3_cpuregisters_ipr1_ccp1ip;
+static gint hf_r3_cpuregisters_ipr1_ssp1ip;
+static gint hf_r3_cpuregisters_ipr1_tx1ip;
+static gint hf_r3_cpuregisters_ipr1_rc1ip;
+static gint hf_r3_cpuregisters_ipr1_adip;
+static gint hf_r3_cpuregisters_ipr1_pspip;
+static gint hf_r3_cpuregisters_ipr2_ccp2ip;
+static gint hf_r3_cpuregisters_ipr2_tmr3ip;
+static gint hf_r3_cpuregisters_ipr2_hlvdip;
+static gint hf_r3_cpuregisters_ipr2_bcl1ip;
+static gint hf_r3_cpuregisters_ipr2_eeip;
+static gint hf_r3_cpuregisters_ipr2_unused5;
+static gint hf_r3_cpuregisters_ipr2_cmip;
+static gint hf_r3_cpuregisters_ipr2_oscfip;
+static gint hf_r3_cpuregisters_ipr3_ccp2ip;
+static gint hf_r3_cpuregisters_ipr3_ccp4ip;
+static gint hf_r3_cpuregisters_ipr3_ccp5ip;
+static gint hf_r3_cpuregisters_ipr3_tmr4ip;
+static gint hf_r3_cpuregisters_ipr3_tx2ip;
+static gint hf_r3_cpuregisters_ipr3_rc2ip;
+static gint hf_r3_cpuregisters_ipr3_bcl2ip;
+static gint hf_r3_cpuregisters_ipr3_ssp2ip;
+static gint hf_r3_cpuregisters_rcon_bor;
+static gint hf_r3_cpuregisters_rcon_por;
+static gint hf_r3_cpuregisters_rcon_pd;
+static gint hf_r3_cpuregisters_rcon_to;
+static gint hf_r3_cpuregisters_rcon_unused4;
+static gint hf_r3_cpuregisters_rcon_ri;
+static gint hf_r3_cpuregisters_rcon_sboren;
+static gint hf_r3_cpuregisters_rcon_ipen;
+static gint hf_r3_cpuregisters_osccon_scs0;
+static gint hf_r3_cpuregisters_osccon_scs1;
+static gint hf_r3_cpuregisters_osccon_iofs;
+static gint hf_r3_cpuregisters_osccon_osts;
+static gint hf_r3_cpuregisters_osccon_ircf0;
+static gint hf_r3_cpuregisters_osccon_ircf1;
+static gint hf_r3_cpuregisters_osccon_ircf2;
+static gint hf_r3_cpuregisters_osccon_idlen;
+static gint hf_r3_cpuregisters_rcsta_rx9d;
+static gint hf_r3_cpuregisters_rcsta_oerr;
+static gint hf_r3_cpuregisters_rcsta_ferr;
+static gint hf_r3_cpuregisters_rcsta_adden;
+static gint hf_r3_cpuregisters_rcsta_cren;
+static gint hf_r3_cpuregisters_rcsta_sren;
+static gint hf_r3_cpuregisters_rcsta_rx9;
+static gint hf_r3_cpuregisters_rcsta_spen;
+static gint hf_r3_cpuregisters_txsta_tx9d;
+static gint hf_r3_cpuregisters_txsta_trmt;
+static gint hf_r3_cpuregisters_txsta_brgh;
+static gint hf_r3_cpuregisters_txsta_sendb;
+static gint hf_r3_cpuregisters_txsta_sync;
+static gint hf_r3_cpuregisters_txsta_txen;
+static gint hf_r3_cpuregisters_txsta_tx9;
+static gint hf_r3_cpuregisters_txsta_csrc;
+static gint hf_r3_cpuregisters_rcsta2_rx9d;
+static gint hf_r3_cpuregisters_rcsta2_oerr;
+static gint hf_r3_cpuregisters_rcsta2_ferr;
+static gint hf_r3_cpuregisters_rcsta2_adden;
+static gint hf_r3_cpuregisters_rcsta2_cren;
+static gint hf_r3_cpuregisters_rcsta2_sren;
+static gint hf_r3_cpuregisters_rcsta2_rx9;
+static gint hf_r3_cpuregisters_rcsta2_spen;
+static gint hf_r3_cpuregisters_txsta2_tx9d;
+static gint hf_r3_cpuregisters_txsta2_trmt;
+static gint hf_r3_cpuregisters_txsta2_brgh;
+static gint hf_r3_cpuregisters_txsta2_sendb;
+static gint hf_r3_cpuregisters_txsta2_sync;
+static gint hf_r3_cpuregisters_txsta2_txen;
+static gint hf_r3_cpuregisters_txsta2_tx9;
+static gint hf_r3_cpuregisters_txsta2_csrc;
+static gint hf_r3_cpuregisters_wdtcon_swdten;
+static gint hf_r3_cpuregisters_wdtcon_unused1;
+static gint hf_r3_cpuregisters_wdtcon_unused2;
+static gint hf_r3_cpuregisters_wdtcon_unused3;
+static gint hf_r3_cpuregisters_wdtcon_unused4;
+static gint hf_r3_cpuregisters_wdtcon_unused5;
+static gint hf_r3_cpuregisters_wdtcon_unused6;
+static gint hf_r3_cpuregisters_wdtcon_unused7;
 
-static gint hf_r3_dumpm41t81_reg00 = -1;
-static gint hf_r3_dumpm41t81_reg01 = -1;
-static gint hf_r3_dumpm41t81_reg02 = -1;
-static gint hf_r3_dumpm41t81_reg03 = -1;
-static gint hf_r3_dumpm41t81_reg04 = -1;
-static gint hf_r3_dumpm41t81_reg05 = -1;
-static gint hf_r3_dumpm41t81_reg06 = -1;
-static gint hf_r3_dumpm41t81_reg07 = -1;
-static gint hf_r3_dumpm41t81_reg08 = -1;
-static gint hf_r3_dumpm41t81_reg09 = -1;
-static gint hf_r3_dumpm41t81_reg0a = -1;
-static gint hf_r3_dumpm41t81_reg0b = -1;
-static gint hf_r3_dumpm41t81_reg0c = -1;
-static gint hf_r3_dumpm41t81_reg0d = -1;
-static gint hf_r3_dumpm41t81_reg0e = -1;
-static gint hf_r3_dumpm41t81_reg0f = -1;
-static gint hf_r3_dumpm41t81_reg10 = -1;
-static gint hf_r3_dumpm41t81_reg11 = -1;
-static gint hf_r3_dumpm41t81_reg12 = -1;
-static gint hf_r3_dumpm41t81_reg13 = -1;
+static gint hf_r3_dumpm41t81_reg00;
+static gint hf_r3_dumpm41t81_reg01;
+static gint hf_r3_dumpm41t81_reg02;
+static gint hf_r3_dumpm41t81_reg03;
+static gint hf_r3_dumpm41t81_reg04;
+static gint hf_r3_dumpm41t81_reg05;
+static gint hf_r3_dumpm41t81_reg06;
+static gint hf_r3_dumpm41t81_reg07;
+static gint hf_r3_dumpm41t81_reg08;
+static gint hf_r3_dumpm41t81_reg09;
+static gint hf_r3_dumpm41t81_reg0a;
+static gint hf_r3_dumpm41t81_reg0b;
+static gint hf_r3_dumpm41t81_reg0c;
+static gint hf_r3_dumpm41t81_reg0d;
+static gint hf_r3_dumpm41t81_reg0e;
+static gint hf_r3_dumpm41t81_reg0f;
+static gint hf_r3_dumpm41t81_reg10;
+static gint hf_r3_dumpm41t81_reg11;
+static gint hf_r3_dumpm41t81_reg12;
+static gint hf_r3_dumpm41t81_reg13;
 
-static gint hf_r3_dumpm41t81_reg00_sec1 = -1;
-static gint hf_r3_dumpm41t81_reg00_sec01 = -1;
-static gint hf_r3_dumpm41t81_reg01_st = -1;
-static gint hf_r3_dumpm41t81_reg01_10sec = -1;
-static gint hf_r3_dumpm41t81_reg01_1sec = -1;
-static gint hf_r3_dumpm41t81_reg02_notused = -1;
-static gint hf_r3_dumpm41t81_reg02_10min = -1;
-static gint hf_r3_dumpm41t81_reg02_1min = -1;
-static gint hf_r3_dumpm41t81_reg03_cbe = -1;
-static gint hf_r3_dumpm41t81_reg03_cb = -1;
-static gint hf_r3_dumpm41t81_reg03_10hour = -1;
-static gint hf_r3_dumpm41t81_reg03_1hour = -1;
-static gint hf_r3_dumpm41t81_reg04_notused = -1;
-static gint hf_r3_dumpm41t81_reg04_dow = -1;
-static gint hf_r3_dumpm41t81_reg05_notused = -1;
-static gint hf_r3_dumpm41t81_reg05_10day = -1;
-static gint hf_r3_dumpm41t81_reg05_1day = -1;
-static gint hf_r3_dumpm41t81_reg06_notused = -1;
-static gint hf_r3_dumpm41t81_reg06_10month = -1;
-static gint hf_r3_dumpm41t81_reg06_1month = -1;
-static gint hf_r3_dumpm41t81_reg07_10year = -1;
-static gint hf_r3_dumpm41t81_reg07_1year = -1;
-static gint hf_r3_dumpm41t81_reg08_out = -1;
-static gint hf_r3_dumpm41t81_reg08_ft = -1;
-static gint hf_r3_dumpm41t81_reg08_s = -1;
-static gint hf_r3_dumpm41t81_reg08_cal = -1;
-static gint hf_r3_dumpm41t81_reg09_notused = -1;
-static gint hf_r3_dumpm41t81_reg09_bmb = -1;
-static gint hf_r3_dumpm41t81_reg09_rb = -1;
-static gint hf_r3_dumpm41t81_reg0a_afe = -1;
-static gint hf_r3_dumpm41t81_reg0a_sqwe = -1;
-static gint hf_r3_dumpm41t81_reg0a_abe = -1;
-static gint hf_r3_dumpm41t81_reg0a_10monthalm = -1;
-static gint hf_r3_dumpm41t81_reg0a_1monthalm = -1;
-static gint hf_r3_dumpm41t81_reg0b_rpt5 = -1;
-static gint hf_r3_dumpm41t81_reg0b_rpt4 = -1;
-static gint hf_r3_dumpm41t81_reg0b_10dayalm = -1;
-static gint hf_r3_dumpm41t81_reg0b_1dayalm = -1;
-static gint hf_r3_dumpm41t81_reg0c_rpt3 = -1;
-static gint hf_r3_dumpm41t81_reg0c_ht = -1;
-static gint hf_r3_dumpm41t81_reg0c_10houralm = -1;
-static gint hf_r3_dumpm41t81_reg0c_1houralm = -1;
-static gint hf_r3_dumpm41t81_reg0d_rpt2 = -1;
-static gint hf_r3_dumpm41t81_reg0d_10minalm = -1;
-static gint hf_r3_dumpm41t81_reg0d_1minalm = -1;
-static gint hf_r3_dumpm41t81_reg0e_rpt1 = -1;
-static gint hf_r3_dumpm41t81_reg0e_10secalm = -1;
-static gint hf_r3_dumpm41t81_reg0e_1secalm = -1;
-static gint hf_r3_dumpm41t81_reg0f_wdf = -1;
-static gint hf_r3_dumpm41t81_reg0f_af = -1;
-static gint hf_r3_dumpm41t81_reg0f_notused = -1;
-static gint hf_r3_dumpm41t81_reg10_notused = -1;
-static gint hf_r3_dumpm41t81_reg11_notused = -1;
-static gint hf_r3_dumpm41t81_reg12_notused = -1;
-static gint hf_r3_dumpm41t81_reg13_rs = -1;
-static gint hf_r3_dumpm41t81_reg13_notused = -1;
+static gint hf_r3_dumpm41t81_reg00_sec1;
+static gint hf_r3_dumpm41t81_reg00_sec01;
+static gint hf_r3_dumpm41t81_reg01_st;
+static gint hf_r3_dumpm41t81_reg01_10sec;
+static gint hf_r3_dumpm41t81_reg01_1sec;
+static gint hf_r3_dumpm41t81_reg02_notused;
+static gint hf_r3_dumpm41t81_reg02_10min;
+static gint hf_r3_dumpm41t81_reg02_1min;
+static gint hf_r3_dumpm41t81_reg03_cbe;
+static gint hf_r3_dumpm41t81_reg03_cb;
+static gint hf_r3_dumpm41t81_reg03_10hour;
+static gint hf_r3_dumpm41t81_reg03_1hour;
+static gint hf_r3_dumpm41t81_reg04_notused;
+static gint hf_r3_dumpm41t81_reg04_dow;
+static gint hf_r3_dumpm41t81_reg05_notused;
+static gint hf_r3_dumpm41t81_reg05_10day;
+static gint hf_r3_dumpm41t81_reg05_1day;
+static gint hf_r3_dumpm41t81_reg06_notused;
+static gint hf_r3_dumpm41t81_reg06_10month;
+static gint hf_r3_dumpm41t81_reg06_1month;
+static gint hf_r3_dumpm41t81_reg07_10year;
+static gint hf_r3_dumpm41t81_reg07_1year;
+static gint hf_r3_dumpm41t81_reg08_out;
+static gint hf_r3_dumpm41t81_reg08_ft;
+static gint hf_r3_dumpm41t81_reg08_s;
+static gint hf_r3_dumpm41t81_reg08_cal;
+static gint hf_r3_dumpm41t81_reg09_notused;
+static gint hf_r3_dumpm41t81_reg09_bmb;
+static gint hf_r3_dumpm41t81_reg09_rb;
+static gint hf_r3_dumpm41t81_reg0a_afe;
+static gint hf_r3_dumpm41t81_reg0a_sqwe;
+static gint hf_r3_dumpm41t81_reg0a_abe;
+static gint hf_r3_dumpm41t81_reg0a_10monthalm;
+static gint hf_r3_dumpm41t81_reg0a_1monthalm;
+static gint hf_r3_dumpm41t81_reg0b_rpt5;
+static gint hf_r3_dumpm41t81_reg0b_rpt4;
+static gint hf_r3_dumpm41t81_reg0b_10dayalm;
+static gint hf_r3_dumpm41t81_reg0b_1dayalm;
+static gint hf_r3_dumpm41t81_reg0c_rpt3;
+static gint hf_r3_dumpm41t81_reg0c_ht;
+static gint hf_r3_dumpm41t81_reg0c_10houralm;
+static gint hf_r3_dumpm41t81_reg0c_1houralm;
+static gint hf_r3_dumpm41t81_reg0d_rpt2;
+static gint hf_r3_dumpm41t81_reg0d_10minalm;
+static gint hf_r3_dumpm41t81_reg0d_1minalm;
+static gint hf_r3_dumpm41t81_reg0e_rpt1;
+static gint hf_r3_dumpm41t81_reg0e_10secalm;
+static gint hf_r3_dumpm41t81_reg0e_1secalm;
+static gint hf_r3_dumpm41t81_reg0f_wdf;
+static gint hf_r3_dumpm41t81_reg0f_af;
+static gint hf_r3_dumpm41t81_reg0f_notused;
+static gint hf_r3_dumpm41t81_reg10_notused;
+static gint hf_r3_dumpm41t81_reg11_notused;
+static gint hf_r3_dumpm41t81_reg12_notused;
+static gint hf_r3_dumpm41t81_reg13_rs;
+static gint hf_r3_dumpm41t81_reg13_notused;
 
-static gint hf_r3_sn_manufacturer = -1;
-static gint hf_r3_sn_year = -1;
-static gint hf_r3_sn_week = -1;
-static gint hf_r3_sn_model = -1;
-static gint hf_r3_sn_sequence = -1;
-static gint hf_r3_sn_group = -1;
-static gint hf_r3_sn_nid = -1;
-static gint hf_r3_sn_hid = -1;
-static gint hf_r3_sn_power_supply = -1;
-static gint hf_r3_sn_mortise = -1;
+static gint hf_r3_sn_manufacturer;
+static gint hf_r3_sn_year;
+static gint hf_r3_sn_week;
+static gint hf_r3_sn_model;
+static gint hf_r3_sn_sequence;
+static gint hf_r3_sn_group;
+static gint hf_r3_sn_nid;
+static gint hf_r3_sn_hid;
+static gint hf_r3_sn_power_supply;
+static gint hf_r3_sn_mortise;
 
-static gint hf_r3_debuglog_recordnumber = -1;
-static gint hf_r3_debuglog_flags = -1;
-static gint hf_r3_debuglog_tick = -1;
+static gint hf_r3_debuglog_recordnumber;
+static gint hf_r3_debuglog_flags;
+static gint hf_r3_debuglog_tick;
 
-static gint hf_r3_adduserparamtype = -1;
-static gint hf_r3_adduserparamtypelength = -1;
-static gint hf_r3_adduserparamtypetype = -1;
-/*static gint hf_r3_adduserparamtypedatalen = -1;*/
-/*static gint hf_r3_adduserparamtypeerror = -1;*/
+static gint hf_r3_adduserparamtype;
+static gint hf_r3_adduserparamtypelength;
+static gint hf_r3_adduserparamtypetype;
+/*static gint hf_r3_adduserparamtypedatalen;*/
+/*static gint hf_r3_adduserparamtypeerror;*/
 static gint hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_LAST];
 
-static gint ett_r3 = -1;
-static gint ett_r3header = -1;
-static gint ett_r3tail = -1;
-static gint ett_r3payload = -1;
-static gint ett_r3cmd = -1;
-static gint ett_r3configitem = -1;
-static gint ett_r3upstreamcommand = -1;
-static gint ett_r3upstreamfield = -1;
-static gint ett_r3timezone = -1;
-static gint ett_r3expireon = -1;
-static gint ett_r3datetime = -1;
-static gint ett_r3eventlogrecord = -1;
-static gint ett_r3declinedlogrecord = -1;
-static gint ett_r3alarmlogrecord = -1;
-static gint ett_r3debugmsg = -1;
-static gint ett_r3defineexceptionstartdate = -1;
-static gint ett_r3defineexceptionenddate = -1;
-static gint ett_r3defineexceptiongroupbits = -1;
+static gint ett_r3;
+static gint ett_r3header;
+static gint ett_r3tail;
+static gint ett_r3payload;
+static gint ett_r3cmd;
+static gint ett_r3configitem;
+static gint ett_r3upstreamcommand;
+static gint ett_r3upstreamfield;
+static gint ett_r3timezone;
+static gint ett_r3expireon;
+static gint ett_r3datetime;
+static gint ett_r3eventlogrecord;
+static gint ett_r3declinedlogrecord;
+static gint ett_r3alarmlogrecord;
+static gint ett_r3debugmsg;
+static gint ett_r3defineexceptionstartdate;
+static gint ett_r3defineexceptionenddate;
+static gint ett_r3defineexceptiongroupbits;
 static gint ett_r3definecalendarmonth [13];
-static gint ett_r3definetimezonestarttime = -1;
-static gint ett_r3definetimezoneendtime = -1;
-static gint ett_r3definetimezonedaymap = -1;
-static gint ett_r3eventlogdumpstarttime = -1;
-static gint ett_r3eventlogdumpendtime = -1;
-static gint ett_r3declinedlogdumpstarttime = -1;
-static gint ett_r3declinedlogdumpendtime = -1;
-static gint ett_r3alarmlogdumpstarttime = -1;
-static gint ett_r3alarmlogdumpendtime = -1;
-static gint ett_r3clearnvram = -1;
-static gint ett_r3filters = -1;
-static gint ett_r3alarmlist = -1;
-static gint ett_r3alarmcfg = -1;
-static gint ett_r3commandmfg = -1;
-static gint ett_r3serialnumber = -1;
-static gint ett_r3iopins = -1;
-static gint ett_r3checksumresults = -1;
-static gint ett_r3checksumresultsfield = -1;
-static gint ett_r3forceoptions = -1;
-static gint ett_r3peekpoke = -1;
-static gint ett_r3downloadfirmware = -1;
-static gint ett_r3capabilities = -1;
-static gint ett_r3lockstate = -1;
-static gint ett_r3mortisestatelog = -1;
-static gint ett_r3timerchain = -1;
-static gint ett_r3taskflags = -1;
-static gint ett_r3taskflagsentry = -1;
-static gint ett_r3checkpointlog = -1;
-static gint ett_r3checkpointlogentry = -1;
-static gint ett_r3cpuregisters = -1;
-static gint ett_r3cpuregister = -1;
-static gint ett_r3m41t81registers = -1;
-static gint ett_r3m41t81register = -1;
-static gint ett_r3debuglogrecord = -1;
-static gint ett_r3setdatetime = -1;
-static gint ett_r3manageuser = -1;
+static gint ett_r3definetimezonestarttime;
+static gint ett_r3definetimezoneendtime;
+static gint ett_r3definetimezonedaymap;
+static gint ett_r3eventlogdumpstarttime;
+static gint ett_r3eventlogdumpendtime;
+static gint ett_r3declinedlogdumpstarttime;
+static gint ett_r3declinedlogdumpendtime;
+static gint ett_r3alarmlogdumpstarttime;
+static gint ett_r3alarmlogdumpendtime;
+static gint ett_r3clearnvram;
+static gint ett_r3filters;
+static gint ett_r3alarmlist;
+static gint ett_r3alarmcfg;
+static gint ett_r3commandmfg;
+static gint ett_r3serialnumber;
+static gint ett_r3iopins;
+static gint ett_r3checksumresults;
+static gint ett_r3checksumresultsfield;
+static gint ett_r3forceoptions;
+static gint ett_r3peekpoke;
+static gint ett_r3downloadfirmware;
+static gint ett_r3capabilities;
+static gint ett_r3lockstate;
+static gint ett_r3mortisestatelog;
+static gint ett_r3timerchain;
+static gint ett_r3taskflags;
+static gint ett_r3taskflagsentry;
+static gint ett_r3checkpointlog;
+static gint ett_r3checkpointlogentry;
+static gint ett_r3cpuregisters;
+static gint ett_r3cpuregister;
+static gint ett_r3m41t81registers;
+static gint ett_r3m41t81register;
+static gint ett_r3debuglogrecord;
+static gint ett_r3setdatetime;
+static gint ett_r3manageuser;
 
-static expert_field ei_r3_response_hasdata_octet_2 = EI_INIT;
-static expert_field ei_r3_mfgfield_too_many_adc_values = EI_INIT;
-static expert_field ei_r3_peekpoke_operation = EI_INIT;
-static expert_field ei_r3_response_hasdata_octet_1 = EI_INIT;
-static expert_field ei_r3_reserved_upstream_command_value = EI_INIT;
-static expert_field ei_r3_firmwaredownload_action = EI_INIT;
-static expert_field ei_r3_malformed_length = EI_INIT;
-static expert_field ei_r3_mfgfield = EI_INIT;
-static expert_field ei_r3_unknown_command_value = EI_INIT;
-static expert_field ei_r3_response_hasdata_octet_3 = EI_INIT;
-static expert_field ei_r3_cmd_downloadfirmwaretimeout = EI_INIT;
+static expert_field ei_r3_response_hasdata_octet_2;
+static expert_field ei_r3_mfgfield_too_many_adc_values;
+static expert_field ei_r3_peekpoke_operation;
+static expert_field ei_r3_response_hasdata_octet_1;
+static expert_field ei_r3_reserved_upstream_command_value;
+static expert_field ei_r3_firmwaredownload_action;
+static expert_field ei_r3_malformed_length;
+static expert_field ei_r3_mfgfield;
+static expert_field ei_r3_unknown_command_value;
+static expert_field ei_r3_response_hasdata_octet_3;
+static expert_field ei_r3_cmd_downloadfirmwaretimeout;
 
 static dissector_handle_t r3_handle = NULL;
 

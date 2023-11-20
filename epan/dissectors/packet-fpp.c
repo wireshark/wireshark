@@ -25,43 +25,43 @@
 void proto_register_fpp(void);
 void proto_reg_handoff_fpp(void);
 
-static int proto_fpp = -1;
+static int proto_fpp;
 
 static dissector_handle_t fpp_handle;
 
-static int hf_fpp_preamble = -1;
-static int hf_fpp_preamble_pad = -1;
-static int hf_fpp_preamble_smd = -1;
-static int hf_fpp_preamble_frag_count = -1;
-static int hf_fpp_mdata = -1;
-static int hf_fpp_crc32 = -1;
-static int hf_fpp_crc32_status = -1;
-static int hf_fpp_mcrc32 = -1;
-static int hf_fpp_mcrc32_status = -1;
+static int hf_fpp_preamble;
+static int hf_fpp_preamble_pad;
+static int hf_fpp_preamble_smd;
+static int hf_fpp_preamble_frag_count;
+static int hf_fpp_mdata;
+static int hf_fpp_crc32;
+static int hf_fpp_crc32_status;
+static int hf_fpp_mcrc32;
+static int hf_fpp_mcrc32_status;
 
-static expert_field ei_fpp_crc32 = EI_INIT;
-static expert_field ei_fpp_mcrc32 = EI_INIT;
+static expert_field ei_fpp_crc32;
+static expert_field ei_fpp_mcrc32;
 
-static gint ett_fpp = -1;
-static gint ett_fpp_preamble = -1;
+static gint ett_fpp;
+static gint ett_fpp_preamble;
 
 static reassembly_table fpp_reassembly_table;
 
 static dissector_handle_t ethl2_handle;
 
 /* Reassembly Data */
-static int hf_fpp_fragments = -1;
-static int hf_fpp_fragment = -1;
-static int hf_fpp_fragment_overlap = -1;
-static int hf_fpp_fragment_overlap_conflicts = -1;
-static int hf_fpp_fragment_multiple_tails = -1;
-static int hf_fpp_fragment_too_long_fragment = -1;
-static int hf_fpp_fragment_error = -1;
-static int hf_fpp_fragment_count = -1;
-static int hf_fpp_reassembled_in = -1;
-static int hf_fpp_reassembled_length = -1;
-static gint ett_fpp_fragment = -1;
-static gint ett_fpp_fragments = -1;
+static int hf_fpp_fragments;
+static int hf_fpp_fragment;
+static int hf_fpp_fragment_overlap;
+static int hf_fpp_fragment_overlap_conflicts;
+static int hf_fpp_fragment_multiple_tails;
+static int hf_fpp_fragment_too_long_fragment;
+static int hf_fpp_fragment_error;
+static int hf_fpp_fragment_count;
+static int hf_fpp_reassembled_in;
+static int hf_fpp_reassembled_length;
+static gint ett_fpp_fragment;
+static gint ett_fpp_fragments;
 
 static const fragment_items fpp_frag_items = {
     /* Fragment subtrees */

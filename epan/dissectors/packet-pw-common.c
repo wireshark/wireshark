@@ -71,9 +71,9 @@ void pwc_item_append_text_n_items(proto_item* item, const int n, const char * co
 }
 
 
-static gint proto_pw_padding = -1;
-static gint ett_pw_common = -1;
-static int hf_padding_len = -1;
+static gint proto_pw_padding;
+static gint ett_pw_common;
+static int hf_padding_len;
 
 static
 int dissect_pw_padding(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)

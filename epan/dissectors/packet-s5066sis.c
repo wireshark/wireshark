@@ -67,7 +67,7 @@ static guint dissect_s5066_25(tvbuff_t *tvb, guint offset, proto_tree *tree, gui
 static guint dissect_s5066_26(tvbuff_t *tvb, guint offset, proto_tree *tree, guint *client_app_id);
 static guint dissect_s5066_27(tvbuff_t *tvb, guint offset, proto_tree *tree, guint *client_app_id);
 
-static gint proto_s5066 = -1;
+static gint proto_s5066;
 
 static dissector_table_t s5066sis_dissector_table;
 
@@ -83,14 +83,14 @@ static gint s5066_header_size = 5;
 static gint s5066_size_offset = 3;
 
 /* Sync should be 0x90EB */
-static gint hf_s5066_sync_word = -1;
+static gint hf_s5066_sync_word;
 /* Version should be 0x00 */
-static gint hf_s5066_version = -1;
+static gint hf_s5066_version;
 /* Total size of the PDU, excluding this size and previous fields */
 /* So total size is this + 5 bytes (s5066_header_size) */
-static gint hf_s5066_size = -1;
+static gint hf_s5066_size;
 /* Th type of PDU */
-static gint hf_s5066_type = -1;
+static gint hf_s5066_type;
 static const value_string s5066_pdu_type[] = {
 	{ 1, "S_BIND_REQUEST"},
 	{ 2, "S_UNBIND_REQUEST"},
@@ -124,15 +124,15 @@ static const value_string s5066_pdu_type[] = {
 
 /* STANAG 5066 Address */
 /* Size is defined in nibbles (4 bits) */
-static gint hf_s5066_ad_size = -1;
+static gint hf_s5066_ad_size;
 /* Group flag: 0 = false, 1 = true */
-static gint hf_s5066_ad_group = -1;
+static gint hf_s5066_ad_group;
 /* The remainder of the 4 bytes form the address */
-static gint hf_s5066_ad_address = -1;
+static gint hf_s5066_ad_address;
 
 /* Service type */
 /* Transmission mode: */
-static gint hf_s5066_st_txmode = -1;
+static gint hf_s5066_st_txmode;
 static const value_string s5066_st_txmode[] = {
 	{ 0, "Ignore service type field"},
 	{ 1, "ARQ"},
@@ -153,7 +153,7 @@ static const value_string s5066_st_txmode[] = {
 	{ 0, NULL },
 };
 /* Delivery confirmation: */
-static gint hf_s5066_st_delivery_confirmation = -1;
+static gint hf_s5066_st_delivery_confirmation;
 static const value_string s5066_st_delivery_confirmation[] = {
 	{ 0, "No confirmation"},
 	{ 1, "Node delivery confirmation"},
@@ -162,28 +162,28 @@ static const value_string s5066_st_delivery_confirmation[] = {
 	{ 0, NULL },
 };
 /* Delivery order: */
-static gint hf_s5066_st_delivery_order = -1;
+static gint hf_s5066_st_delivery_order;
 static const value_string s5066_st_delivery_order[] = {
 	{ 0, "In-order delivery"},
 	{ 1, "As-they-arrive"},
 	{ 0, NULL },
 };
 /* Extended field present: (Never in the current version.) */
-static gint hf_s5066_st_extended = -1;
+static gint hf_s5066_st_extended;
 static const value_string s5066_st_extended[] = {
 	{ 0, "No extended field"},
 	{ 1, "Extended field follows"},
 	{ 0, NULL },
 };
 /* Number of retransmissions when in Non-ARQ: */
-static gint hf_s5066_st_retries = -1;
+static gint hf_s5066_st_retries;
 
 /* Client transport layer header */
-static gint hf_s5066_ctl_conn_id = -1;
-static gint hf_s5066_ctl_reserved = -1;
-static gint hf_s5066_ctl_updu_id = -1;
-static gint hf_s5066_ctl_updu_segment = -1;
-static gint hf_s5066_ctl_app_id = -1;
+static gint hf_s5066_ctl_conn_id;
+static gint hf_s5066_ctl_reserved;
+static gint hf_s5066_ctl_updu_id;
+static gint hf_s5066_ctl_updu_segment;
+static gint hf_s5066_ctl_app_id;
 static const value_string s5066_client_application_ids[] = {
 	{ S5066_CLIENT_BFTP,			    "Basic File Transfer Protocol (BFTP) File Transfer Service"},
 	{ S5066_CLIENT_FRAP,			    "File-Receipt/Acknowledgement Protocol"},
@@ -218,20 +218,20 @@ static const value_string s5066_sapid_assignments[] = {
 };
 
 /* Type  1: S_BIND_REQUEST */
-static gint hf_s5066_01_sapid = -1;
-static gint hf_s5066_01_rank = -1;
-static gint hf_s5066_01_unused = -1;
+static gint hf_s5066_01_sapid;
+static gint hf_s5066_01_rank;
+static gint hf_s5066_01_unused;
 
 /* Type  2: S_UNBIND_REQUEST */
 /*   --- no subfields ---   */
 
 /* Type  3: S_BIND_ACCEPTED */
-static gint hf_s5066_03_sapid = -1;
-static gint hf_s5066_03_unused = -1;
-static gint hf_s5066_03_mtu = -1;
+static gint hf_s5066_03_sapid;
+static gint hf_s5066_03_unused;
+static gint hf_s5066_03_mtu;
 
 /* Type  4: S_BIND_REJECTED */
-static gint hf_s5066_04_reason = -1;
+static gint hf_s5066_04_reason;
 static const value_string s5066_04_reason[] = {
 	{ 0, "Unknown reason"},
 	{ 1, "Not enough resources"},
@@ -242,7 +242,7 @@ static const value_string s5066_04_reason[] = {
 };
 
 /* Type  5: S_UNBIND_INDICATION */
-static gint hf_s5066_05_reason = -1;
+static gint hf_s5066_05_reason;
 static const value_string s5066_05_reason[] = {
 	{ 0, "Unknown reason"},
 	{ 1, "Connection pre-empted by higher ranking client"},
@@ -263,26 +263,26 @@ static const value_string s5066_hard_link_type[] = {
 };
 
 /* Type  6: S_HARD_LINK_ESTABLISH */
-static gint hf_s5066_06_link_type = -1;
-static gint hf_s5066_06_link_priority = -1;
-static gint hf_s5066_06_sapid = -1;
+static gint hf_s5066_06_link_type;
+static gint hf_s5066_06_link_priority;
+static gint hf_s5066_06_sapid;
 
 /* Type  7: S_HARD_LINK_TERMINATE */
 /* Only  remote node address */
 
 /* Type  8: S_HARD_LINK_ESTABLISHED */
-static gint hf_s5066_08_remote_status = -1;
+static gint hf_s5066_08_remote_status;
 static const value_string s5066_08_remote_status[] = {
 	{ 0, "ERROR"},
 	{ 1, "OK"},
 	{ 0, NULL },
 };
-static gint hf_s5066_08_link_type = -1;
-static gint hf_s5066_08_link_priority = -1;
-static gint hf_s5066_08_sapid = -1;
+static gint hf_s5066_08_link_type;
+static gint hf_s5066_08_link_priority;
+static gint hf_s5066_08_sapid;
 
 /* Type  9: S_HARD_LINK_REJECTED */
-static gint hf_s5066_09_reason = -1;
+static gint hf_s5066_09_reason;
 static const value_string s5066_09_reason[] = {
 	{ 0, "--- undefined ---"},
 	{ 1, "Remote node busy"},
@@ -292,12 +292,12 @@ static const value_string s5066_09_reason[] = {
 	{ 5, "Requested Type-0 link exists"},
 	{ 0, NULL },
 };
-static gint hf_s5066_09_link_type = -1;
-static gint hf_s5066_09_link_priority = -1;
-static gint hf_s5066_09_sapid = -1;
+static gint hf_s5066_09_link_type;
+static gint hf_s5066_09_link_priority;
+static gint hf_s5066_09_sapid;
 
 /* Type 10: S_HARD_LINK_TERMINATED */
-static gint hf_s5066_10_reason = -1;
+static gint hf_s5066_10_reason;
 static const value_string s5066_10_reason[] = {
 	{ 0, "--- undefined ---"},
 	{ 1, "Link terminated by remote node"},
@@ -307,38 +307,38 @@ static const value_string s5066_10_reason[] = {
 	{ 5, "Physical link broken"},
 	{ 0, NULL },
 };
-static gint hf_s5066_10_link_type = -1;
-static gint hf_s5066_10_link_priority = -1;
-static gint hf_s5066_10_sapid = -1;
+static gint hf_s5066_10_link_type;
+static gint hf_s5066_10_link_priority;
+static gint hf_s5066_10_sapid;
 
 /* Type 11: S_HARD_LINK_INDICATION */
-static gint hf_s5066_11_remote_status = -1;
+static gint hf_s5066_11_remote_status;
 static const value_string s5066_11_remote_status[] = {
 	{ 0, "ERROR"},
 	{ 1, "OK"},
 	{ 0, NULL },
 };
-static gint hf_s5066_11_link_type = -1;
-static gint hf_s5066_11_link_priority = -1;
-static gint hf_s5066_11_sapid = -1;
+static gint hf_s5066_11_link_type;
+static gint hf_s5066_11_link_priority;
+static gint hf_s5066_11_sapid;
 
 /* Type 12: S_HARD_LINK_ACCEPT */
-static gint hf_s5066_12_link_type = -1;
-static gint hf_s5066_12_link_priority = -1;
-static gint hf_s5066_12_sapid = -1;
+static gint hf_s5066_12_link_type;
+static gint hf_s5066_12_link_priority;
+static gint hf_s5066_12_sapid;
 
 /* Type 13: S_HARD_LINK_REJECT */
-static gint hf_s5066_13_reason = -1;
+static gint hf_s5066_13_reason;
 static const value_string s5066_13_reason[] = {
 	{ 0, "--- undefined ---"},
 	{ 0, NULL },
 };
-static gint hf_s5066_13_link_type = -1;
-static gint hf_s5066_13_link_priority = -1;
-static gint hf_s5066_13_sapid = -1;
+static gint hf_s5066_13_link_type;
+static gint hf_s5066_13_link_priority;
+static gint hf_s5066_13_sapid;
 
 /* Type 14: S_SUBNET_AVAILABILITY */
-static gint hf_s5066_14_status= -1;
+static gint hf_s5066_14_status;
 static const value_string s5066_14_status[] = {
 	{ 0, "Off"},
 	{ 1, "On"},
@@ -347,7 +347,7 @@ static const value_string s5066_14_status[] = {
 	{ 4, "Full-duplex"},
 	{ 0, NULL },
 };
-static gint hf_s5066_14_reason= -1;
+static gint hf_s5066_14_reason;
 static const value_string s5066_14_reason[] = {
 	{ 0, "Unknown reason"},
 	{ 1, "Local node in EMCON"},
@@ -365,41 +365,41 @@ static const value_string s5066_14_reason[] = {
 /*   --- no subfields ---   */
 
 /* Type 18: S_MANAGEMENT_MESSAGE_REQUEST */
-static gint hf_s5066_18_type = -1;
-static gint hf_s5066_18_body = -1;
+static gint hf_s5066_18_type;
+static gint hf_s5066_18_body;
 
 /* Type 19: S_MANAGEMENT_MESSAGE_INDICATION */
-static gint hf_s5066_19_type = -1;
-static gint hf_s5066_19_body = -1;
+static gint hf_s5066_19_type;
+static gint hf_s5066_19_body;
 
 /* Type 20: S_UNIDATA_REQUEST */
-static gint hf_s5066_20_priority = -1;
-static gint hf_s5066_20_sapid = -1;
-static gint hf_s5066_20_ttl = -1;
-static gint hf_s5066_20_size = -1;
+static gint hf_s5066_20_priority;
+static gint hf_s5066_20_sapid;
+static gint hf_s5066_20_ttl;
+static gint hf_s5066_20_size;
 
 /* Type 21: S_UNIDATA_INDICATION */
-static gint hf_s5066_21_priority = -1;
-static gint hf_s5066_21_dest_sapid = -1;
-static gint hf_s5066_21_tx_mode = -1;
-static gint hf_s5066_21_src_sapid = -1;
-static gint hf_s5066_21_size = -1;
-static gint hf_s5066_21_err_blocks = -1;
-static gint hf_s5066_21_err_ptr = -1;
-static gint hf_s5066_21_err_size = -1;
-static gint hf_s5066_21_nrx_blocks = -1;
-static gint hf_s5066_21_nrx_ptr = -1;
-static gint hf_s5066_21_nrx_size = -1;
+static gint hf_s5066_21_priority;
+static gint hf_s5066_21_dest_sapid;
+static gint hf_s5066_21_tx_mode;
+static gint hf_s5066_21_src_sapid;
+static gint hf_s5066_21_size;
+static gint hf_s5066_21_err_blocks;
+static gint hf_s5066_21_err_ptr;
+static gint hf_s5066_21_err_size;
+static gint hf_s5066_21_nrx_blocks;
+static gint hf_s5066_21_nrx_ptr;
+static gint hf_s5066_21_nrx_size;
 
 
 /* Type 22: S_UNIDATA_REQUEST_CONFIRM */
-static gint hf_s5066_22_unused = -1;
-static gint hf_s5066_22_sapid = -1;
-static gint hf_s5066_22_size = -1;
-static gint hf_s5066_22_data = -1;
+static gint hf_s5066_22_unused;
+static gint hf_s5066_22_sapid;
+static gint hf_s5066_22_size;
+static gint hf_s5066_22_data;
 
 /* Type 23: S_UNIDATA_REQUEST_REJECTED */
-static gint hf_s5066_23_reason = -1;
+static gint hf_s5066_23_reason;
 static const value_string s5066_23_reason[] = {
 	{ 0, "Unknown reason"},
 	{ 1, "Time-To-Live expired"},
@@ -409,37 +409,37 @@ static const value_string s5066_23_reason[] = {
 	{ 5, "Transmission Mode not specified"},
 	{ 0, NULL },
 };
-static gint hf_s5066_23_sapid = -1;
-static gint hf_s5066_23_size = -1;
-static gint hf_s5066_23_data = -1;
+static gint hf_s5066_23_sapid;
+static gint hf_s5066_23_size;
+static gint hf_s5066_23_data;
 
 /* Type 24: S_EXPEDITED_UNIDATA_REQUEST */
-static gint hf_s5066_24_unused = -1;
-static gint hf_s5066_24_sapid = -1;
-static gint hf_s5066_24_ttl = -1;
-static gint hf_s5066_24_size = -1;
+static gint hf_s5066_24_unused;
+static gint hf_s5066_24_sapid;
+static gint hf_s5066_24_ttl;
+static gint hf_s5066_24_size;
 
 /* Type 25: S_EXPEDITED_UNIDATA_INDICATION */
-static gint hf_s5066_25_unused = -1;
-static gint hf_s5066_25_dest_sapid = -1;
-static gint hf_s5066_25_tx_mode = -1;
-static gint hf_s5066_25_src_sapid = -1;
-static gint hf_s5066_25_size = -1;
-static gint hf_s5066_25_err_blocks = -1;
-static gint hf_s5066_25_err_ptr = -1;
-static gint hf_s5066_25_err_size = -1;
-static gint hf_s5066_25_nrx_blocks = -1;
-static gint hf_s5066_25_nrx_ptr = -1;
-static gint hf_s5066_25_nrx_size = -1;
+static gint hf_s5066_25_unused;
+static gint hf_s5066_25_dest_sapid;
+static gint hf_s5066_25_tx_mode;
+static gint hf_s5066_25_src_sapid;
+static gint hf_s5066_25_size;
+static gint hf_s5066_25_err_blocks;
+static gint hf_s5066_25_err_ptr;
+static gint hf_s5066_25_err_size;
+static gint hf_s5066_25_nrx_blocks;
+static gint hf_s5066_25_nrx_ptr;
+static gint hf_s5066_25_nrx_size;
 
 /* Type 26: S_EXPEDITED_UNIDATA_REQUEST_CONFIRM */
-static gint hf_s5066_26_unused = -1;
-static gint hf_s5066_26_sapid = -1;
-static gint hf_s5066_26_size = -1;
-static gint hf_s5066_26_data = -1;
+static gint hf_s5066_26_unused;
+static gint hf_s5066_26_sapid;
+static gint hf_s5066_26_size;
+static gint hf_s5066_26_data;
 
 /* Type 27: S_EXPEDITED_UNIDATA_REQUEST_REJECTED */
-static gint hf_s5066_27_reason = -1;
+static gint hf_s5066_27_reason;
 static const value_string s5066_27_reason[] = {
 	{ 0, "Unknown reason"},
 	{ 1, "Time-To-Live expired"},
@@ -449,16 +449,16 @@ static const value_string s5066_27_reason[] = {
 	{ 5, "Transmission Mode not specified"},
 	{ 0, NULL },
 };
-static gint hf_s5066_27_sapid = -1;
-static gint hf_s5066_27_size = -1;
-static gint hf_s5066_27_data = -1;
+static gint hf_s5066_27_sapid;
+static gint hf_s5066_27_size;
+static gint hf_s5066_27_data;
 
 
-static gint ett_s5066 = -1;
-static gint ett_s5066_pdu = -1;
-static gint ett_s5066_servicetype = -1;
-static gint ett_s5066_client_transport_header = -1;
-static gint ett_s5066_address = -1;
+static gint ett_s5066;
+static gint ett_s5066_pdu;
+static gint ett_s5066_servicetype;
+static gint ett_s5066_client_transport_header;
+static gint ett_s5066_address;
 
 static guint
 dissect_s5066_address(tvbuff_t *tvb, guint offset, proto_tree *tree, gint source)

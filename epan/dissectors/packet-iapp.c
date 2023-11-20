@@ -20,32 +20,32 @@ void proto_reg_handoff_iapp(void);
 static dissector_handle_t iapp_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_iapp = -1;
-static int hf_iapp_version = -1;
-static int hf_iapp_type = -1;
-static int hf_iapp_cap_forwarding = -1;
-static int hf_iapp_cap_wep = -1;
-static int hf_iapp_auth_status = -1;
-static int hf_iapp_auth_string = -1;
-static int hf_iapp_auth_uint = -1;
-static int hf_iapp_auth_ipaddr = -1;
-static int hf_iapp_auth_trailer = -1;
-static int hf_iapp_pdu_ssid = -1;
-static int hf_iapp_pdu_bytes = -1;
-static int hf_iapp_pdu_uint = -1;
-static int hf_iapp_pdu_phytype = -1;
-static int hf_iapp_pdu_regdomain = -1;
-static int hf_iapp_pdu_oui_ident = -1;
+static int proto_iapp;
+static int hf_iapp_version;
+static int hf_iapp_type;
+static int hf_iapp_cap_forwarding;
+static int hf_iapp_cap_wep;
+static int hf_iapp_auth_status;
+static int hf_iapp_auth_string;
+static int hf_iapp_auth_uint;
+static int hf_iapp_auth_ipaddr;
+static int hf_iapp_auth_trailer;
+static int hf_iapp_pdu_ssid;
+static int hf_iapp_pdu_bytes;
+static int hf_iapp_pdu_uint;
+static int hf_iapp_pdu_phytype;
+static int hf_iapp_pdu_regdomain;
+static int hf_iapp_pdu_oui_ident;
 
 /* Initialize the subtree pointers */
-static gint ett_iapp = -1;
-static gint ett_iapp_pdu = -1;
-static gint ett_iapp_subpdu = -1;
-static gint ett_iapp_cap = -1;
-static gint ett_iapp_auth = -1;
-static gint ett_iapp_authinfo = -1;
+static gint ett_iapp;
+static gint ett_iapp_pdu;
+static gint ett_iapp_subpdu;
+static gint ett_iapp_cap;
+static gint ett_iapp_auth;
+static gint ett_iapp_authinfo;
 
-static expert_field ei_iapp_no_pdus = EI_INIT;
+static expert_field ei_iapp_no_pdus;
 
 #define UDP_PORT_IAPP     2313
 

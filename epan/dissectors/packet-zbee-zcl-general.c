@@ -92,25 +92,25 @@ static void dissect_zcl_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_basic = -1;
+static int proto_zbee_zcl_basic;
 
-static int hf_zbee_zcl_basic_attr_id = -1;
-static int hf_zbee_zcl_basic_pwr_src = -1;
-static int hf_zbee_zcl_basic_dev_en = -1;
-static int hf_zbee_zcl_basic_alarm_mask = -1;
-static int hf_zbee_zcl_basic_alarm_mask_gen_hw_fault = -1;
-static int hf_zbee_zcl_basic_alarm_mask_gen_sw_fault = -1;
-static int hf_zbee_zcl_basic_alarm_mask_reserved = -1;
-static int hf_zbee_zcl_basic_disable_local_cfg = -1;
-static int hf_zbee_zcl_basic_disable_local_cfg_reset = -1;
-static int hf_zbee_zcl_basic_disable_local_cfg_device_cfg = -1;
-static int hf_zbee_zcl_basic_disable_local_cfg_reserved = -1;
-static int hf_zbee_zcl_basic_srv_rx_cmd_id = -1;
+static int hf_zbee_zcl_basic_attr_id;
+static int hf_zbee_zcl_basic_pwr_src;
+static int hf_zbee_zcl_basic_dev_en;
+static int hf_zbee_zcl_basic_alarm_mask;
+static int hf_zbee_zcl_basic_alarm_mask_gen_hw_fault;
+static int hf_zbee_zcl_basic_alarm_mask_gen_sw_fault;
+static int hf_zbee_zcl_basic_alarm_mask_reserved;
+static int hf_zbee_zcl_basic_disable_local_cfg;
+static int hf_zbee_zcl_basic_disable_local_cfg_reset;
+static int hf_zbee_zcl_basic_disable_local_cfg_device_cfg;
+static int hf_zbee_zcl_basic_disable_local_cfg_reserved;
+static int hf_zbee_zcl_basic_srv_rx_cmd_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_basic = -1;
-static gint ett_zbee_zcl_basic_alarm_mask = -1;
-static gint ett_zbee_zcl_basic_dis_local_cfg = -1;
+static gint ett_zbee_zcl_basic;
+static gint ett_zbee_zcl_basic_alarm_mask;
+static gint ett_zbee_zcl_basic_dis_local_cfg;
 
 /* Attributes */
 static const value_string zbee_zcl_basic_attr_names[] = {
@@ -472,30 +472,30 @@ static void dissect_zcl_power_config_attr_data(proto_tree *tree, tvbuff_t *tvb, 
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_power_config = -1;
-static int hf_zbee_zcl_power_config_attr_id = -1;
-static int hf_zbee_zcl_power_config_batt_type = -1;
-static int hf_zbee_zcl_power_config_mains_alarm_mask = -1;
-static int hf_zbee_zcl_power_config_mains_alarm_mask_low = -1;
-static int hf_zbee_zcl_power_config_mains_alarm_mask_high = -1;
-static int hf_zbee_zcl_power_config_mains_alarm_mask_reserved = -1;
-static int hf_zbee_zcl_power_config_batt_alarm_mask = -1;
-static int hf_zbee_zcl_power_config_batt_alarm_mask_low = -1;
-static int hf_zbee_zcl_power_config_batt_alarm_mask_reserved = -1;
-static int hf_zbee_zcl_power_config_mains_voltage = -1;
-static int hf_zbee_zcl_power_config_mains_frequency = -1;
-static int hf_zbee_zcl_power_config_mains_voltage_min_thr = -1;
-static int hf_zbee_zcl_power_config_mains_voltage_max_thr = -1;
-static int hf_zbee_zcl_power_config_mains_voltage_dwell_tp = -1;
-static int hf_zbee_zcl_power_config_batt_voltage = -1;
-static int hf_zbee_zcl_power_config_batt_percentage = -1;
-static int hf_zbee_zcl_power_config_batt_ah_rating = -1;
-static int hf_zbee_zcl_power_config_batt_rated_voltage = -1;
-static int hf_zbee_zcl_power_config_batt_voltage_min_thr = -1;
+static int proto_zbee_zcl_power_config;
+static int hf_zbee_zcl_power_config_attr_id;
+static int hf_zbee_zcl_power_config_batt_type;
+static int hf_zbee_zcl_power_config_mains_alarm_mask;
+static int hf_zbee_zcl_power_config_mains_alarm_mask_low;
+static int hf_zbee_zcl_power_config_mains_alarm_mask_high;
+static int hf_zbee_zcl_power_config_mains_alarm_mask_reserved;
+static int hf_zbee_zcl_power_config_batt_alarm_mask;
+static int hf_zbee_zcl_power_config_batt_alarm_mask_low;
+static int hf_zbee_zcl_power_config_batt_alarm_mask_reserved;
+static int hf_zbee_zcl_power_config_mains_voltage;
+static int hf_zbee_zcl_power_config_mains_frequency;
+static int hf_zbee_zcl_power_config_mains_voltage_min_thr;
+static int hf_zbee_zcl_power_config_mains_voltage_max_thr;
+static int hf_zbee_zcl_power_config_mains_voltage_dwell_tp;
+static int hf_zbee_zcl_power_config_batt_voltage;
+static int hf_zbee_zcl_power_config_batt_percentage;
+static int hf_zbee_zcl_power_config_batt_ah_rating;
+static int hf_zbee_zcl_power_config_batt_rated_voltage;
+static int hf_zbee_zcl_power_config_batt_voltage_min_thr;
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_power_config = -1;
-static gint ett_zbee_zcl_power_config_mains_alarm_mask = -1;
-static gint ett_zbee_zcl_power_config_batt_alarm_mask = -1;
+static gint ett_zbee_zcl_power_config;
+static gint ett_zbee_zcl_power_config_mains_alarm_mask;
+static gint ett_zbee_zcl_power_config_batt_alarm_mask;
 
 /* Attributes */
 static const value_string zbee_zcl_power_config_attr_names[] = {
@@ -924,17 +924,17 @@ static void dissect_zcl_device_temperature_configuration_attr_data      (proto_t
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_device_temperature_configuration = -1;
+static int proto_zbee_zcl_device_temperature_configuration;
 
-static int hf_zbee_zcl_device_temperature_configuration_attr_id = -1;
-static int hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask = -1;
-static int hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask_too_low = -1;
-static int hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask_too_high = -1;
-static int hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask_reserved = -1;
+static int hf_zbee_zcl_device_temperature_configuration_attr_id;
+static int hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask;
+static int hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask_too_low;
+static int hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask_too_high;
+static int hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask_reserved;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_device_temperature_configuration = -1;
-static gint ett_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask = -1;
+static gint ett_zbee_zcl_device_temperature_configuration;
+static gint ett_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask;
 
 /* Attributes */
 static const value_string zbee_zcl_device_temperature_configuration_attr_names[] = {
@@ -1147,18 +1147,18 @@ static void dissect_zcl_identify_attr_data              (proto_tree *tree, tvbuf
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_identify = -1;
+static int proto_zbee_zcl_identify;
 
-static int hf_zbee_zcl_identify_attr_id = -1;
-static int hf_zbee_zcl_identify_identify_time = -1;
-static int hf_zbee_zcl_identify_identify_timeout = -1;
-static int hf_zbee_zcl_identify_effect_id = -1;
-static int hf_zbee_zcl_identify_effect_variant = -1;
-static int hf_zbee_zcl_identify_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_identify_srv_tx_cmd_id = -1;
+static int hf_zbee_zcl_identify_attr_id;
+static int hf_zbee_zcl_identify_identify_time;
+static int hf_zbee_zcl_identify_identify_timeout;
+static int hf_zbee_zcl_identify_effect_id;
+static int hf_zbee_zcl_identify_effect_variant;
+static int hf_zbee_zcl_identify_srv_rx_cmd_id;
+static int hf_zbee_zcl_identify_srv_tx_cmd_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_identify = -1;
+static gint ett_zbee_zcl_identify;
 
 /* Attributes */
 static const value_string zbee_zcl_identify_attr_names[] = {
@@ -1538,23 +1538,23 @@ static void dissect_zcl_groups_attr_data                        (proto_tree *tre
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_groups = -1;
+static int proto_zbee_zcl_groups;
 
-static int hf_zbee_zcl_groups_attr_id = -1;
-static int hf_zbee_zcl_groups_group_name_support = -1;
-static int hf_zbee_zcl_groups_group_id = -1;
-static int hf_zbee_zcl_groups_group_count = -1;
-static int hf_zbee_zcl_groups_group_capacity = -1;
-static int hf_zbee_zcl_groups_status = -1;
-static int hf_zbee_zcl_groups_attr_str_len = -1;
-static int hf_zbee_zcl_groups_attr_str = -1;
-static int hf_zbee_zcl_groups_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_groups_srv_tx_cmd_id = -1;
-static int hf_zbee_zcl_groups_group_list = -1;
+static int hf_zbee_zcl_groups_attr_id;
+static int hf_zbee_zcl_groups_group_name_support;
+static int hf_zbee_zcl_groups_group_id;
+static int hf_zbee_zcl_groups_group_count;
+static int hf_zbee_zcl_groups_group_capacity;
+static int hf_zbee_zcl_groups_status;
+static int hf_zbee_zcl_groups_attr_str_len;
+static int hf_zbee_zcl_groups_attr_str;
+static int hf_zbee_zcl_groups_srv_rx_cmd_id;
+static int hf_zbee_zcl_groups_srv_tx_cmd_id;
+static int hf_zbee_zcl_groups_group_list;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_groups = -1;
-static gint ett_zbee_zcl_groups_grp_ctrl = -1;
+static gint ett_zbee_zcl_groups;
+static gint ett_zbee_zcl_groups_grp_ctrl;
 
 /* Attributes */
 static const value_string zbee_zcl_groups_attr_names[] = {
@@ -2168,50 +2168,50 @@ static void dissect_zcl_scenes_attr_data                                    (pro
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_scenes = -1;
+static int proto_zbee_zcl_scenes;
 
-static int hf_zbee_zcl_scenes_attr_id = -1;
-static int hf_zbee_zcl_scenes_attr_id_scene_valid = -1;
-static int hf_zbee_zcl_scenes_attr_id_name_support = -1;
-static int hf_zbee_zcl_scenes_group_id = -1;
-static int hf_zbee_zcl_scenes_group_id_from = -1;
-static int hf_zbee_zcl_scenes_group_id_to = -1;
-static int hf_zbee_zcl_scenes_scene_id = -1;
-static int hf_zbee_zcl_scenes_scene_id_from = -1;
-static int hf_zbee_zcl_scenes_scene_id_to = -1;
-static int hf_zbee_zcl_scenes_transit_time = -1;
-static int hf_zbee_zcl_scenes_enh_transit_time = -1;
-static int hf_zbee_zcl_scenes_extension_set_cluster = -1;
-static int hf_zbee_zcl_scenes_extension_set_onoff = -1;
-static int hf_zbee_zcl_scenes_extension_set_level = -1;
-static int hf_zbee_zcl_scenes_extension_set_x = -1;
-static int hf_zbee_zcl_scenes_extension_set_y = -1;
-static int hf_zbee_zcl_scenes_extension_set_hue = -1;
-static int hf_zbee_zcl_scenes_extension_set_saturation = -1;
-static int hf_zbee_zcl_scenes_extension_set_color_loop_active = -1;
-static int hf_zbee_zcl_scenes_extension_set_color_loop_direction = -1;
-static int hf_zbee_zcl_scenes_extension_set_color_loop_time = -1;
-static int hf_zbee_zcl_scenes_extension_set_cooling_setpoint = -1;
-static int hf_zbee_zcl_scenes_extension_set_heating_setpoint = -1;
-static int hf_zbee_zcl_scenes_extension_set_system_mode = -1;
-static int hf_zbee_zcl_scenes_extension_set_lock_state = -1;
-static int hf_zbee_zcl_scenes_extension_set_lift_percentage = -1;
-static int hf_zbee_zcl_scenes_extension_set_tilt_percentage = -1;
+static int hf_zbee_zcl_scenes_attr_id;
+static int hf_zbee_zcl_scenes_attr_id_scene_valid;
+static int hf_zbee_zcl_scenes_attr_id_name_support;
+static int hf_zbee_zcl_scenes_group_id;
+static int hf_zbee_zcl_scenes_group_id_from;
+static int hf_zbee_zcl_scenes_group_id_to;
+static int hf_zbee_zcl_scenes_scene_id;
+static int hf_zbee_zcl_scenes_scene_id_from;
+static int hf_zbee_zcl_scenes_scene_id_to;
+static int hf_zbee_zcl_scenes_transit_time;
+static int hf_zbee_zcl_scenes_enh_transit_time;
+static int hf_zbee_zcl_scenes_extension_set_cluster;
+static int hf_zbee_zcl_scenes_extension_set_onoff;
+static int hf_zbee_zcl_scenes_extension_set_level;
+static int hf_zbee_zcl_scenes_extension_set_x;
+static int hf_zbee_zcl_scenes_extension_set_y;
+static int hf_zbee_zcl_scenes_extension_set_hue;
+static int hf_zbee_zcl_scenes_extension_set_saturation;
+static int hf_zbee_zcl_scenes_extension_set_color_loop_active;
+static int hf_zbee_zcl_scenes_extension_set_color_loop_direction;
+static int hf_zbee_zcl_scenes_extension_set_color_loop_time;
+static int hf_zbee_zcl_scenes_extension_set_cooling_setpoint;
+static int hf_zbee_zcl_scenes_extension_set_heating_setpoint;
+static int hf_zbee_zcl_scenes_extension_set_system_mode;
+static int hf_zbee_zcl_scenes_extension_set_lock_state;
+static int hf_zbee_zcl_scenes_extension_set_lift_percentage;
+static int hf_zbee_zcl_scenes_extension_set_tilt_percentage;
 
-static int hf_zbee_zcl_scenes_status = -1;
-static int hf_zbee_zcl_scenes_capacity = -1;
-static int hf_zbee_zcl_scenes_scene_count = -1;
-static int hf_zbee_zcl_scenes_attr_str_len = -1;
-static int hf_zbee_zcl_scenes_attr_str = -1;
-static int hf_zbee_zcl_scenes_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_scenes_srv_tx_cmd_id = -1;
-static int hf_zbee_zcl_scenes_scene_list = -1;
-static int hf_zbee_zcl_scenes_copy_mode = -1;
+static int hf_zbee_zcl_scenes_status;
+static int hf_zbee_zcl_scenes_capacity;
+static int hf_zbee_zcl_scenes_scene_count;
+static int hf_zbee_zcl_scenes_attr_str_len;
+static int hf_zbee_zcl_scenes_attr_str;
+static int hf_zbee_zcl_scenes_srv_rx_cmd_id;
+static int hf_zbee_zcl_scenes_srv_tx_cmd_id;
+static int hf_zbee_zcl_scenes_scene_list;
+static int hf_zbee_zcl_scenes_copy_mode;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_scenes = -1;
-static gint ett_zbee_zcl_scenes_scene_ctrl = -1;
-static gint ett_zbee_zcl_scenes_extension_field_set = -1;
+static gint ett_zbee_zcl_scenes;
+static gint ett_zbee_zcl_scenes_scene_ctrl;
+static gint ett_zbee_zcl_scenes_extension_field_set;
 
 /* Attributes */
 static const value_string zbee_zcl_scenes_attr_names[] = {
@@ -3239,28 +3239,28 @@ static void dissect_zcl_on_off_attr_data(proto_tree *tree, tvbuff_t *tvb, guint 
 /*************************/
 
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_on_off = -1;
+static int proto_zbee_zcl_on_off;
 
-static int hf_zbee_zcl_on_off_attr_id = -1;
-static int hf_zbee_zcl_on_off_attr_onoff = -1;
-static int hf_zbee_zcl_on_off_attr_globalscenecontrol = -1;
-static int hf_zbee_zcl_on_off_attr_ontime = -1;
-static int hf_zbee_zcl_on_off_attr_offwaittime = -1;
-static int hf_zbee_zcl_on_off_attr_startuponoff = -1;
-static int hf_zbee_zcl_on_off_srv_rx_cmd_id = -1;
+static int hf_zbee_zcl_on_off_attr_id;
+static int hf_zbee_zcl_on_off_attr_onoff;
+static int hf_zbee_zcl_on_off_attr_globalscenecontrol;
+static int hf_zbee_zcl_on_off_attr_ontime;
+static int hf_zbee_zcl_on_off_attr_offwaittime;
+static int hf_zbee_zcl_on_off_attr_startuponoff;
+static int hf_zbee_zcl_on_off_srv_rx_cmd_id;
 
-static int hf_zbee_zcl_on_off_effect_identifier = -1;
-static int hf_zbee_zcl_on_off_effect_variant_delayed_all_off = -1;
-static int hf_zbee_zcl_on_off_effect_variant_dying_light = -1;
-static int hf_zbee_zcl_on_off_effect_variant_reserved = -1;
+static int hf_zbee_zcl_on_off_effect_identifier;
+static int hf_zbee_zcl_on_off_effect_variant_delayed_all_off;
+static int hf_zbee_zcl_on_off_effect_variant_dying_light;
+static int hf_zbee_zcl_on_off_effect_variant_reserved;
 
-static int hf_zbee_zcl_on_off_timed_off_control_mask = -1;
-static int hf_zbee_zcl_on_off_timed_off_control_mask_accept_only_when_on = -1;
-static int hf_zbee_zcl_on_off_timed_off_control_mask_reserved = -1;
+static int hf_zbee_zcl_on_off_timed_off_control_mask;
+static int hf_zbee_zcl_on_off_timed_off_control_mask_accept_only_when_on;
+static int hf_zbee_zcl_on_off_timed_off_control_mask_reserved;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_on_off = -1;
-static gint ett_zbee_zcl_on_off_timed_off_control_mask = -1;
+static gint ett_zbee_zcl_on_off;
+static gint ett_zbee_zcl_on_off_timed_off_control_mask;
 
 /* Attributes */
 static const value_string zbee_zcl_on_off_attr_names[] = {
@@ -3608,14 +3608,14 @@ static void dissect_zcl_on_off_switch_configuration_attr_data     (proto_tree *t
 /*************************/
 
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_on_off_switch_configuration = -1;
+static int proto_zbee_zcl_on_off_switch_configuration;
 
-static int hf_zbee_zcl_on_off_switch_configuration_attr_id = -1;
-static int hf_zbee_zcl_on_off_switch_configuration_attr_switch_type = -1;
-static int hf_zbee_zcl_on_off_switch_configuration_attr_switch_actions = -1;
+static int hf_zbee_zcl_on_off_switch_configuration_attr_id;
+static int hf_zbee_zcl_on_off_switch_configuration_attr_switch_type;
+static int hf_zbee_zcl_on_off_switch_configuration_attr_switch_actions;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_on_off_switch_configuration = -1;
+static gint ett_zbee_zcl_on_off_switch_configuration;
 
 /* Attributes */
 static const value_string zbee_zcl_on_off_switch_configuration_attr_names[] = {
@@ -3809,18 +3809,18 @@ void proto_reg_handoff_zbee_zcl_alarms(void);
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_alarms = -1;
+static int proto_zbee_zcl_alarms;
 
-static int hf_zbee_zcl_alarms_attr_id = -1;
-static int hf_zbee_zcl_alarms_alarm_code = -1;
-static int hf_zbee_zcl_alarms_cluster_id = -1;
-static int hf_zbee_zcl_alarms_status = -1;
-static int hf_zbee_zcl_alarms_timestamp = -1;
-static int hf_zbee_zcl_alarms_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_alarms_srv_tx_cmd_id = -1;
+static int hf_zbee_zcl_alarms_attr_id;
+static int hf_zbee_zcl_alarms_alarm_code;
+static int hf_zbee_zcl_alarms_cluster_id;
+static int hf_zbee_zcl_alarms_status;
+static int hf_zbee_zcl_alarms_timestamp;
+static int hf_zbee_zcl_alarms_srv_rx_cmd_id;
+static int hf_zbee_zcl_alarms_srv_tx_cmd_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_alarms = -1;
+static gint ett_zbee_zcl_alarms;
 
 /* Attributes */
 static const value_string zbee_zcl_alarms_attr_names[] = {
@@ -4175,18 +4175,18 @@ void proto_reg_handoff_zbee_zcl_time(void);
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_time = -1;
+static int proto_zbee_zcl_time;
 
-static int hf_zbee_zcl_time_attr_id = -1;
-static int hf_zbee_zcl_time_status = -1;
-static int hf_zbee_zcl_time_status_master = -1;
-static int hf_zbee_zcl_time_status_synchronized = -1;
-static int hf_zbee_zcl_time_status_master_zone_dst = -1;
-static int hf_zbee_zcl_time_status_superseding = -1;
+static int hf_zbee_zcl_time_attr_id;
+static int hf_zbee_zcl_time_status;
+static int hf_zbee_zcl_time_status_master;
+static int hf_zbee_zcl_time_status_synchronized;
+static int hf_zbee_zcl_time_status_master_zone_dst;
+static int hf_zbee_zcl_time_status_superseding;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_time = -1;
-static gint ett_zbee_zcl_time_status_mask = -1;
+static gint ett_zbee_zcl_time;
+static gint ett_zbee_zcl_time_status_mask;
 
 /* Attributes */
 static const value_string zbee_zcl_time_attr_names[] = {
@@ -4406,24 +4406,24 @@ void proto_reg_handoff_zbee_zcl_level_control(void);
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_level_control = -1;
+static int proto_zbee_zcl_level_control;
 
-static int hf_zbee_zcl_level_control_attr_id = -1;
-static int hf_zbee_zcl_level_control_attr_current_level = -1;
-static int hf_zbee_zcl_level_control_attr_remaining_time = -1;
-static int hf_zbee_zcl_level_control_attr_onoff_transmit_time = -1;
-static int hf_zbee_zcl_level_control_attr_on_level = -1;
-static int hf_zbee_zcl_level_control_attr_startup_level = -1;
-static int hf_zbee_zcl_level_control_level = -1;
-static int hf_zbee_zcl_level_control_move_mode = -1;
-static int hf_zbee_zcl_level_control_rate = -1;
-static int hf_zbee_zcl_level_control_step_mode = -1;
-static int hf_zbee_zcl_level_control_step_size = -1;
-static int hf_zbee_zcl_level_control_transit_time = -1;
-static int hf_zbee_zcl_level_control_srv_rx_cmd_id = -1;
+static int hf_zbee_zcl_level_control_attr_id;
+static int hf_zbee_zcl_level_control_attr_current_level;
+static int hf_zbee_zcl_level_control_attr_remaining_time;
+static int hf_zbee_zcl_level_control_attr_onoff_transmit_time;
+static int hf_zbee_zcl_level_control_attr_on_level;
+static int hf_zbee_zcl_level_control_attr_startup_level;
+static int hf_zbee_zcl_level_control_level;
+static int hf_zbee_zcl_level_control_move_mode;
+static int hf_zbee_zcl_level_control_rate;
+static int hf_zbee_zcl_level_control_step_mode;
+static int hf_zbee_zcl_level_control_step_size;
+static int hf_zbee_zcl_level_control_transit_time;
+static int hf_zbee_zcl_level_control_srv_rx_cmd_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_level_control = -1;
+static gint ett_zbee_zcl_level_control;
 
 /* Attributes */
 static const value_string zbee_zcl_level_control_attr_names[] = {
@@ -4884,49 +4884,49 @@ static void dissect_zcl_rssi_location_attr_data                        (proto_tr
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_rssi_location = -1;
+static int proto_zbee_zcl_rssi_location;
 
-static int hf_zbee_zcl_rssi_location_attr_id = -1;
-static int hf_zbee_zcl_rssi_location_location_type = -1;
-static int hf_zbee_zcl_rssi_location_location_type_absolute = -1;
-static int hf_zbee_zcl_rssi_location_location_type_2D = -1;
-static int hf_zbee_zcl_rssi_location_location_type_coordinate_system = -1;
-static int hf_zbee_zcl_rssi_location_location_type_reserved = -1;
-static int hf_zbee_zcl_rssi_location_attr_id_location_method = -1;
-static int hf_zbee_zcl_rssi_location_coordinate1 = -1;
-static int hf_zbee_zcl_rssi_location_coordinate2 = -1;
-static int hf_zbee_zcl_rssi_location_coordinate3 = -1;
-static int hf_zbee_zcl_rssi_location_power = -1;
-static int hf_zbee_zcl_rssi_location_path_loss_expo = -1;
-static int hf_zbee_zcl_rssi_location_calc_period = -1;
-static int hf_zbee_zcl_rssi_location_number_rssi_meas = -1;
-static int hf_zbee_zcl_rssi_location_reporting_period = -1;
-static int hf_zbee_zcl_rssi_location_target_add = -1;
-static int hf_zbee_zcl_rssi_location_header = -1;
-static int hf_zbee_zcl_rssi_location_header_abs_only = -1;
-static int hf_zbee_zcl_rssi_location_header_recalc = -1;
-static int hf_zbee_zcl_rssi_location_header_bcast_ind = -1;
-static int hf_zbee_zcl_rssi_location_header_bcast_res = -1;
-static int hf_zbee_zcl_rssi_location_header_compact_res = -1;
-static int hf_zbee_zcl_rssi_location_header_res = -1;
-static int hf_zbee_zcl_rssi_location_number_responses = -1;
-static int hf_zbee_zcl_rssi_location_replaying_device = -1;
-static int hf_zbee_zcl_rssi_location_rssi = -1;
-static int hf_zbee_zcl_rssi_location_anchor_node_add = -1;
-static int hf_zbee_zcl_rssi_location_status = -1;
-static int hf_zbee_zcl_rssi_location_quality_measure = -1;
-static int hf_zbee_zcl_rssi_location_location_age = -1;
-static int hf_zbee_zcl_rssi_location_reporting_add = -1;
-static int hf_zbee_zcl_rssi_location_no_of_neigh = -1;
-static int hf_zbee_zcl_rssi_location_neighbour_add = -1;
-static int hf_zbee_zcl_rssi_location_request_add = -1;
-static int hf_zbee_zcl_rssi_location_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_rssi_location_srv_tx_cmd_id = -1;
+static int hf_zbee_zcl_rssi_location_attr_id;
+static int hf_zbee_zcl_rssi_location_location_type;
+static int hf_zbee_zcl_rssi_location_location_type_absolute;
+static int hf_zbee_zcl_rssi_location_location_type_2D;
+static int hf_zbee_zcl_rssi_location_location_type_coordinate_system;
+static int hf_zbee_zcl_rssi_location_location_type_reserved;
+static int hf_zbee_zcl_rssi_location_attr_id_location_method;
+static int hf_zbee_zcl_rssi_location_coordinate1;
+static int hf_zbee_zcl_rssi_location_coordinate2;
+static int hf_zbee_zcl_rssi_location_coordinate3;
+static int hf_zbee_zcl_rssi_location_power;
+static int hf_zbee_zcl_rssi_location_path_loss_expo;
+static int hf_zbee_zcl_rssi_location_calc_period;
+static int hf_zbee_zcl_rssi_location_number_rssi_meas;
+static int hf_zbee_zcl_rssi_location_reporting_period;
+static int hf_zbee_zcl_rssi_location_target_add;
+static int hf_zbee_zcl_rssi_location_header;
+static int hf_zbee_zcl_rssi_location_header_abs_only;
+static int hf_zbee_zcl_rssi_location_header_recalc;
+static int hf_zbee_zcl_rssi_location_header_bcast_ind;
+static int hf_zbee_zcl_rssi_location_header_bcast_res;
+static int hf_zbee_zcl_rssi_location_header_compact_res;
+static int hf_zbee_zcl_rssi_location_header_res;
+static int hf_zbee_zcl_rssi_location_number_responses;
+static int hf_zbee_zcl_rssi_location_replaying_device;
+static int hf_zbee_zcl_rssi_location_rssi;
+static int hf_zbee_zcl_rssi_location_anchor_node_add;
+static int hf_zbee_zcl_rssi_location_status;
+static int hf_zbee_zcl_rssi_location_quality_measure;
+static int hf_zbee_zcl_rssi_location_location_age;
+static int hf_zbee_zcl_rssi_location_reporting_add;
+static int hf_zbee_zcl_rssi_location_no_of_neigh;
+static int hf_zbee_zcl_rssi_location_neighbour_add;
+static int hf_zbee_zcl_rssi_location_request_add;
+static int hf_zbee_zcl_rssi_location_srv_rx_cmd_id;
+static int hf_zbee_zcl_rssi_location_srv_tx_cmd_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_rssi_location = -1;
-static gint ett_zbee_zcl_rssi_location_location_type = -1;
-static gint ett_zbee_zcl_rssi_location_header = -1;
+static gint ett_zbee_zcl_rssi_location;
+static gint ett_zbee_zcl_rssi_location_location_type;
+static gint ett_zbee_zcl_rssi_location_header;
 
 /* Attributes */
 static const value_string zbee_zcl_rssi_location_attr_names[] = {
@@ -6080,19 +6080,19 @@ static void dissect_zcl_analog_input_basic_attr_data      (proto_tree *tree, tvb
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_analog_input_basic = -1;
+static int proto_zbee_zcl_analog_input_basic;
 
-static int hf_zbee_zcl_analog_input_basic_attr_id = -1;
-static int hf_zbee_zcl_analog_input_basic_reliability = -1;
-static int hf_zbee_zcl_analog_input_basic_status_flags = -1;
-static int hf_zbee_zcl_analog_input_basic_status_in_alarm = -1;
-static int hf_zbee_zcl_analog_input_basic_status_fault = -1;
-static int hf_zbee_zcl_analog_input_basic_status_overridden = -1;
-static int hf_zbee_zcl_analog_input_basic_status_out_of_service = -1;
+static int hf_zbee_zcl_analog_input_basic_attr_id;
+static int hf_zbee_zcl_analog_input_basic_reliability;
+static int hf_zbee_zcl_analog_input_basic_status_flags;
+static int hf_zbee_zcl_analog_input_basic_status_in_alarm;
+static int hf_zbee_zcl_analog_input_basic_status_fault;
+static int hf_zbee_zcl_analog_input_basic_status_overridden;
+static int hf_zbee_zcl_analog_input_basic_status_out_of_service;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_analog_input_basic = -1;
-static gint ett_zbee_zcl_analog_input_basic_status_flags = -1;
+static gint ett_zbee_zcl_analog_input_basic;
+static gint ett_zbee_zcl_analog_input_basic_status_flags;
 
 /* Attributes */
 static const value_string zbee_zcl_analog_input_basic_attr_names[] = {
@@ -6325,25 +6325,25 @@ static void dissect_zcl_analog_output_basic_attr_data      (proto_tree *tree, tv
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_analog_output_basic = -1;
+static int proto_zbee_zcl_analog_output_basic;
 
-static int hf_zbee_zcl_analog_output_basic_attr_id = -1;
-static int hf_zbee_zcl_analog_output_basic_reliability = -1;
-static int hf_zbee_zcl_analog_output_basic_status_flags = -1;
-static int hf_zbee_zcl_analog_output_basic_status_in_alarm = -1;
-static int hf_zbee_zcl_analog_output_basic_status_fault = -1;
-static int hf_zbee_zcl_analog_output_basic_status_overridden = -1;
-static int hf_zbee_zcl_analog_output_basic_status_out_of_service = -1;
-static int hf_zbee_zcl_analog_output_basic_priority_array_bool = -1;
-static int hf_zbee_zcl_analog_output_basic_priority_array_sing_prec = -1;
-static int hf_zbee_zcl_analog_output_basic_priority_array = -1;
-static int hf_zbee_zcl_analog_output_basic_structure = -1;
+static int hf_zbee_zcl_analog_output_basic_attr_id;
+static int hf_zbee_zcl_analog_output_basic_reliability;
+static int hf_zbee_zcl_analog_output_basic_status_flags;
+static int hf_zbee_zcl_analog_output_basic_status_in_alarm;
+static int hf_zbee_zcl_analog_output_basic_status_fault;
+static int hf_zbee_zcl_analog_output_basic_status_overridden;
+static int hf_zbee_zcl_analog_output_basic_status_out_of_service;
+static int hf_zbee_zcl_analog_output_basic_priority_array_bool;
+static int hf_zbee_zcl_analog_output_basic_priority_array_sing_prec;
+static int hf_zbee_zcl_analog_output_basic_priority_array;
+static int hf_zbee_zcl_analog_output_basic_structure;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_analog_output_basic = -1;
-static gint ett_zbee_zcl_analog_output_basic_status_flags = -1;
-static gint ett_zbee_zcl_analog_output_basic_priority_array = -1;
-static gint ett_zbee_zcl_analog_output_basic_priority_array_structure = -1;
+static gint ett_zbee_zcl_analog_output_basic;
+static gint ett_zbee_zcl_analog_output_basic_status_flags;
+static gint ett_zbee_zcl_analog_output_basic_priority_array;
+static gint ett_zbee_zcl_analog_output_basic_priority_array_structure;
 
 /* Attributes */
 static const value_string zbee_zcl_analog_output_basic_attr_names[] = {
@@ -6614,25 +6614,25 @@ static void dissect_zcl_analog_value_basic_attr_data      (proto_tree *tree, tvb
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_analog_value_basic = -1;
+static int proto_zbee_zcl_analog_value_basic;
 
-static int hf_zbee_zcl_analog_value_basic_attr_id = -1;
-static int hf_zbee_zcl_analog_value_basic_reliability = -1;
-static int hf_zbee_zcl_analog_value_basic_status_flags = -1;
-static int hf_zbee_zcl_analog_value_basic_status_in_alarm = -1;
-static int hf_zbee_zcl_analog_value_basic_status_fault = -1;
-static int hf_zbee_zcl_analog_value_basic_status_overridden = -1;
-static int hf_zbee_zcl_analog_value_basic_status_out_of_service = -1;
-static int hf_zbee_zcl_analog_value_basic_priority_array_bool = -1;
-static int hf_zbee_zcl_analog_value_basic_priority_array_sing_prec = -1;
-static int hf_zbee_zcl_analog_value_basic_priority_array = -1;
-static int hf_zbee_zcl_analog_value_basic_structure = -1;
+static int hf_zbee_zcl_analog_value_basic_attr_id;
+static int hf_zbee_zcl_analog_value_basic_reliability;
+static int hf_zbee_zcl_analog_value_basic_status_flags;
+static int hf_zbee_zcl_analog_value_basic_status_in_alarm;
+static int hf_zbee_zcl_analog_value_basic_status_fault;
+static int hf_zbee_zcl_analog_value_basic_status_overridden;
+static int hf_zbee_zcl_analog_value_basic_status_out_of_service;
+static int hf_zbee_zcl_analog_value_basic_priority_array_bool;
+static int hf_zbee_zcl_analog_value_basic_priority_array_sing_prec;
+static int hf_zbee_zcl_analog_value_basic_priority_array;
+static int hf_zbee_zcl_analog_value_basic_structure;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_analog_value_basic = -1;
-static gint ett_zbee_zcl_analog_value_basic_status_flags = -1;
-static gint ett_zbee_zcl_analog_value_basic_priority_array = -1;
-static gint ett_zbee_zcl_analog_value_basic_priority_array_structure = -1;
+static gint ett_zbee_zcl_analog_value_basic;
+static gint ett_zbee_zcl_analog_value_basic_status_flags;
+static gint ett_zbee_zcl_analog_value_basic_priority_array;
+static gint ett_zbee_zcl_analog_value_basic_priority_array_structure;
 
 /* Attributes */
 static const value_string zbee_zcl_analog_value_basic_attr_names[] = {
@@ -6901,20 +6901,20 @@ static void dissect_zcl_binary_input_basic_attr_data      (proto_tree *tree, tvb
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_binary_input_basic = -1;
+static int proto_zbee_zcl_binary_input_basic;
 
-static int hf_zbee_zcl_binary_input_basic_attr_id = -1;
-static int hf_zbee_zcl_binary_input_basic_status_flags = -1;
-static int hf_zbee_zcl_binary_input_basic_status_in_alarm = -1;
-static int hf_zbee_zcl_binary_input_basic_status_fault = -1;
-static int hf_zbee_zcl_binary_input_basic_status_overridden = -1;
-static int hf_zbee_zcl_binary_input_basic_status_out_of_service = -1;
-static int hf_zbee_zcl_binary_input_basic_polarity = -1;
-static int hf_zbee_zcl_binary_input_basic_reliability= -1;
+static int hf_zbee_zcl_binary_input_basic_attr_id;
+static int hf_zbee_zcl_binary_input_basic_status_flags;
+static int hf_zbee_zcl_binary_input_basic_status_in_alarm;
+static int hf_zbee_zcl_binary_input_basic_status_fault;
+static int hf_zbee_zcl_binary_input_basic_status_overridden;
+static int hf_zbee_zcl_binary_input_basic_status_out_of_service;
+static int hf_zbee_zcl_binary_input_basic_polarity;
+static int hf_zbee_zcl_binary_input_basic_reliability;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_binary_input_basic = -1;
-static gint ett_zbee_zcl_binary_input_basic_status_flags = -1;
+static gint ett_zbee_zcl_binary_input_basic;
+static gint ett_zbee_zcl_binary_input_basic_status_flags;
 
 /* Attributes */
 static const value_string zbee_zcl_binary_input_basic_attr_names[] = {
@@ -7158,26 +7158,26 @@ static void dissect_zcl_binary_output_basic_attr_data      (proto_tree *tree, tv
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_binary_output_basic = -1;
+static int proto_zbee_zcl_binary_output_basic;
 
-static int hf_zbee_zcl_binary_output_basic_attr_id = -1;
-static int hf_zbee_zcl_binary_output_basic_status_flags = -1;
-static int hf_zbee_zcl_binary_output_basic_status_in_alarm = -1;
-static int hf_zbee_zcl_binary_output_basic_status_fault = -1;
-static int hf_zbee_zcl_binary_output_basic_status_overridden = -1;
-static int hf_zbee_zcl_binary_output_basic_status_out_of_service = -1;
-static int hf_zbee_zcl_binary_output_basic_priority_array_bool = -1;
-static int hf_zbee_zcl_binary_output_basic_priority_array_sing_prec = -1;
-static int hf_zbee_zcl_binary_output_basic_polarity = -1;
-static int hf_zbee_zcl_binary_output_basic_reliability = -1;
-static int hf_zbee_zcl_binary_output_basic_priority_array = -1;
-static int hf_zbee_zcl_binary_output_basic_structure = -1;
+static int hf_zbee_zcl_binary_output_basic_attr_id;
+static int hf_zbee_zcl_binary_output_basic_status_flags;
+static int hf_zbee_zcl_binary_output_basic_status_in_alarm;
+static int hf_zbee_zcl_binary_output_basic_status_fault;
+static int hf_zbee_zcl_binary_output_basic_status_overridden;
+static int hf_zbee_zcl_binary_output_basic_status_out_of_service;
+static int hf_zbee_zcl_binary_output_basic_priority_array_bool;
+static int hf_zbee_zcl_binary_output_basic_priority_array_sing_prec;
+static int hf_zbee_zcl_binary_output_basic_polarity;
+static int hf_zbee_zcl_binary_output_basic_reliability;
+static int hf_zbee_zcl_binary_output_basic_priority_array;
+static int hf_zbee_zcl_binary_output_basic_structure;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_binary_output_basic = -1;
-static gint ett_zbee_zcl_binary_output_basic_status_flags = -1;
-static gint ett_zbee_zcl_binary_output_basic_priority_array = -1;
-static gint ett_zbee_zcl_binary_output_basic_priority_array_structure = -1;
+static gint ett_zbee_zcl_binary_output_basic;
+static gint ett_zbee_zcl_binary_output_basic_status_flags;
+static gint ett_zbee_zcl_binary_output_basic_priority_array;
+static gint ett_zbee_zcl_binary_output_basic_priority_array_structure;
 
 /* Attributes */
 static const value_string zbee_zcl_binary_output_basic_attr_names[] = {
@@ -7458,25 +7458,25 @@ static void dissect_zcl_binary_value_basic_attr_data      (proto_tree *tree, tvb
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_binary_value_basic = -1;
+static int proto_zbee_zcl_binary_value_basic;
 
-static int hf_zbee_zcl_binary_value_basic_attr_id = -1;
-static int hf_zbee_zcl_binary_value_basic_status_flags = -1;
-static int hf_zbee_zcl_binary_value_basic_status_in_alarm = -1;
-static int hf_zbee_zcl_binary_value_basic_status_fault = -1;
-static int hf_zbee_zcl_binary_value_basic_status_overridden = -1;
-static int hf_zbee_zcl_binary_value_basic_status_out_of_service = -1;
-static int hf_zbee_zcl_binary_value_basic_priority_array_bool = -1;
-static int hf_zbee_zcl_binary_value_basic_priority_array_sing_prec = -1;
-static int hf_zbee_zcl_binary_value_basic_reliability = -1;
-static int hf_zbee_zcl_binary_value_basic_priority_array = -1;
-static int hf_zbee_zcl_binary_value_basic_structure = -1;
+static int hf_zbee_zcl_binary_value_basic_attr_id;
+static int hf_zbee_zcl_binary_value_basic_status_flags;
+static int hf_zbee_zcl_binary_value_basic_status_in_alarm;
+static int hf_zbee_zcl_binary_value_basic_status_fault;
+static int hf_zbee_zcl_binary_value_basic_status_overridden;
+static int hf_zbee_zcl_binary_value_basic_status_out_of_service;
+static int hf_zbee_zcl_binary_value_basic_priority_array_bool;
+static int hf_zbee_zcl_binary_value_basic_priority_array_sing_prec;
+static int hf_zbee_zcl_binary_value_basic_reliability;
+static int hf_zbee_zcl_binary_value_basic_priority_array;
+static int hf_zbee_zcl_binary_value_basic_structure;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_binary_value_basic = -1;
-static gint ett_zbee_zcl_binary_value_basic_status_flags = -1;
-static gint ett_zbee_zcl_binary_value_basic_priority_array = -1;
-static gint ett_zbee_zcl_binary_value_basic_priority_array_structure = -1;
+static gint ett_zbee_zcl_binary_value_basic;
+static gint ett_zbee_zcl_binary_value_basic_status_flags;
+static gint ett_zbee_zcl_binary_value_basic_priority_array;
+static gint ett_zbee_zcl_binary_value_basic_priority_array_structure;
 
 /* Attributes */
 static const value_string zbee_zcl_binary_value_basic_attr_names[] = {
@@ -7744,19 +7744,19 @@ static void dissect_zcl_multistate_input_basic_attr_data      (proto_tree *tree,
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_multistate_input_basic = -1;
+static int proto_zbee_zcl_multistate_input_basic;
 
-static int hf_zbee_zcl_multistate_input_basic_attr_id = -1;
-static int hf_zbee_zcl_multistate_input_basic_status_flags = -1;
-static int hf_zbee_zcl_multistate_input_basic_status_in_alarm = -1;
-static int hf_zbee_zcl_multistate_input_basic_status_fault = -1;
-static int hf_zbee_zcl_multistate_input_basic_status_overridden = -1;
-static int hf_zbee_zcl_multistate_input_basic_status_out_of_service = -1;
-static int hf_zbee_zcl_multistate_input_basic_reliability = -1;
+static int hf_zbee_zcl_multistate_input_basic_attr_id;
+static int hf_zbee_zcl_multistate_input_basic_status_flags;
+static int hf_zbee_zcl_multistate_input_basic_status_in_alarm;
+static int hf_zbee_zcl_multistate_input_basic_status_fault;
+static int hf_zbee_zcl_multistate_input_basic_status_overridden;
+static int hf_zbee_zcl_multistate_input_basic_status_out_of_service;
+static int hf_zbee_zcl_multistate_input_basic_reliability;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_multistate_input_basic = -1;
-static gint ett_zbee_zcl_multistate_input_basic_status_flags = -1;
+static gint ett_zbee_zcl_multistate_input_basic;
+static gint ett_zbee_zcl_multistate_input_basic_status_flags;
 
 /* Attributes */
 static const value_string zbee_zcl_multistate_input_basic_attr_names[] = {
@@ -7980,25 +7980,25 @@ static void dissect_zcl_multistate_output_basic_attr_data      (proto_tree *tree
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_multistate_output_basic = -1;
+static int proto_zbee_zcl_multistate_output_basic;
 
-static int hf_zbee_zcl_multistate_output_basic_attr_id = -1;
-static int hf_zbee_zcl_multistate_output_basic_status_flags = -1;
-static int hf_zbee_zcl_multistate_output_basic_status_in_alarm = -1;
-static int hf_zbee_zcl_multistate_output_basic_status_fault = -1;
-static int hf_zbee_zcl_multistate_output_basic_status_overridden = -1;
-static int hf_zbee_zcl_multistate_output_basic_status_out_of_service = -1;
-static int hf_zbee_zcl_multistate_output_basic_reliability = -1;
-static int hf_zbee_zcl_multistate_output_basic_priority_array_bool = -1;
-static int hf_zbee_zcl_multistate_output_basic_priority_array_sing_prec = -1;
-static int hf_zbee_zcl_multistate_output_basic_priority_array = -1;
-static int hf_zbee_zcl_multistate_output_basic_structure = -1;
+static int hf_zbee_zcl_multistate_output_basic_attr_id;
+static int hf_zbee_zcl_multistate_output_basic_status_flags;
+static int hf_zbee_zcl_multistate_output_basic_status_in_alarm;
+static int hf_zbee_zcl_multistate_output_basic_status_fault;
+static int hf_zbee_zcl_multistate_output_basic_status_overridden;
+static int hf_zbee_zcl_multistate_output_basic_status_out_of_service;
+static int hf_zbee_zcl_multistate_output_basic_reliability;
+static int hf_zbee_zcl_multistate_output_basic_priority_array_bool;
+static int hf_zbee_zcl_multistate_output_basic_priority_array_sing_prec;
+static int hf_zbee_zcl_multistate_output_basic_priority_array;
+static int hf_zbee_zcl_multistate_output_basic_structure;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_multistate_output_basic = -1;
-static gint ett_zbee_zcl_multistate_output_basic_status_flags = -1;
-static gint ett_zbee_zcl_multistate_output_basic_priority_array = -1;
-static gint ett_zbee_zcl_multistate_output_basic_priority_array_structure = -1;
+static gint ett_zbee_zcl_multistate_output_basic;
+static gint ett_zbee_zcl_multistate_output_basic_status_flags;
+static gint ett_zbee_zcl_multistate_output_basic_priority_array;
+static gint ett_zbee_zcl_multistate_output_basic_priority_array_structure;
 
 /* Attributes */
 static const value_string zbee_zcl_multistate_output_basic_attr_names[] = {
@@ -8269,26 +8269,26 @@ static void dissect_zcl_multistate_value_basic_attr_data      (proto_tree *tree,
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_multistate_value_basic = -1;
+static int proto_zbee_zcl_multistate_value_basic;
 
-static int hf_zbee_zcl_multistate_value_basic_attr_id = -1;
-static int hf_zbee_zcl_multistate_value_basic_status_flags = -1;
-static int hf_zbee_zcl_multistate_value_basic_status_in_alarm = -1;
-static int hf_zbee_zcl_multistate_value_basic_status_fault = -1;
-static int hf_zbee_zcl_multistate_value_basic_status_overridden = -1;
-static int hf_zbee_zcl_multistate_value_basic_status_out_of_service = -1;
-static int hf_zbee_zcl_multistate_value_basic_reliability = -1;
-static int hf_zbee_zcl_multistate_value_basic_priority_array_bool = -1;
-static int hf_zbee_zcl_multistate_value_basic_priority_array_sing_prec = -1;
-static int hf_zbee_zcl_multistate_value_basic_priority_array = -1;
-static int hf_zbee_zcl_multistate_value_basic_structure = -1;
+static int hf_zbee_zcl_multistate_value_basic_attr_id;
+static int hf_zbee_zcl_multistate_value_basic_status_flags;
+static int hf_zbee_zcl_multistate_value_basic_status_in_alarm;
+static int hf_zbee_zcl_multistate_value_basic_status_fault;
+static int hf_zbee_zcl_multistate_value_basic_status_overridden;
+static int hf_zbee_zcl_multistate_value_basic_status_out_of_service;
+static int hf_zbee_zcl_multistate_value_basic_reliability;
+static int hf_zbee_zcl_multistate_value_basic_priority_array_bool;
+static int hf_zbee_zcl_multistate_value_basic_priority_array_sing_prec;
+static int hf_zbee_zcl_multistate_value_basic_priority_array;
+static int hf_zbee_zcl_multistate_value_basic_structure;
 
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_multistate_value_basic = -1;
-static gint ett_zbee_zcl_multistate_value_basic_status_flags = -1;
-static gint ett_zbee_zcl_multistate_value_basic_priority_array = -1;
-static gint ett_zbee_zcl_multistate_value_basic_priority_array_structure = -1;
+static gint ett_zbee_zcl_multistate_value_basic;
+static gint ett_zbee_zcl_multistate_value_basic_status_flags;
+static gint ett_zbee_zcl_multistate_value_basic_priority_array;
+static gint ett_zbee_zcl_multistate_value_basic_priority_array_structure;
 
 /* Attributes */
 static const value_string zbee_zcl_multistate_value_basic_attr_names[] = {
@@ -8597,32 +8597,32 @@ static void dissect_zcl_commissioning_attr_data                             (pro
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_commissioning = -1;
+static int proto_zbee_zcl_commissioning;
 
-static int hf_zbee_zcl_commissioning_attr_id = -1;
-static int hf_zbee_zcl_commissioning_attr_stack_profile = -1;
-static int hf_zbee_zcl_commissioning_attr_startup_control = -1;
-static int hf_zbee_zcl_commissioning_restart_device_options = -1;
-static int hf_zbee_zcl_commissioning_restart_device_options_startup_mode = -1;
-static int hf_zbee_zcl_commissioning_restart_device_options_immediate = -1;
-static int hf_zbee_zcl_commissioning_restart_device_options_reserved = -1;
-static int hf_zbee_zcl_commissioning_delay = -1;
-static int hf_zbee_zcl_commissioning_jitter = -1;
-static int hf_zbee_zcl_commissioning_options = -1;
-static int hf_zbee_zcl_commissioning_index = -1;
-static int hf_zbee_zcl_commissioning_reset_startup_options = -1;
-static int hf_zbee_zcl_commissioning_reset_startup_options_reset_current = -1;
-static int hf_zbee_zcl_commissioning_reset_startup_options_reset_all = -1;
-static int hf_zbee_zcl_commissioning_reset_startup_options_erase_index = -1;
-static int hf_zbee_zcl_commissioning_reset_startup_options_reserved = -1;
-static int hf_zbee_zcl_commissioning_status = -1;
-static int hf_zbee_zcl_commissioning_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_commissioning_srv_tx_cmd_id = -1;
+static int hf_zbee_zcl_commissioning_attr_id;
+static int hf_zbee_zcl_commissioning_attr_stack_profile;
+static int hf_zbee_zcl_commissioning_attr_startup_control;
+static int hf_zbee_zcl_commissioning_restart_device_options;
+static int hf_zbee_zcl_commissioning_restart_device_options_startup_mode;
+static int hf_zbee_zcl_commissioning_restart_device_options_immediate;
+static int hf_zbee_zcl_commissioning_restart_device_options_reserved;
+static int hf_zbee_zcl_commissioning_delay;
+static int hf_zbee_zcl_commissioning_jitter;
+static int hf_zbee_zcl_commissioning_options;
+static int hf_zbee_zcl_commissioning_index;
+static int hf_zbee_zcl_commissioning_reset_startup_options;
+static int hf_zbee_zcl_commissioning_reset_startup_options_reset_current;
+static int hf_zbee_zcl_commissioning_reset_startup_options_reset_all;
+static int hf_zbee_zcl_commissioning_reset_startup_options_erase_index;
+static int hf_zbee_zcl_commissioning_reset_startup_options_reserved;
+static int hf_zbee_zcl_commissioning_status;
+static int hf_zbee_zcl_commissioning_srv_rx_cmd_id;
+static int hf_zbee_zcl_commissioning_srv_tx_cmd_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_commissioning = -1;
-static gint ett_zbee_zcl_commissioning_restart_device_options = -1;
-static gint ett_zbee_zcl_commissioning_reset_startup_options = -1;
+static gint ett_zbee_zcl_commissioning;
+static gint ett_zbee_zcl_commissioning_restart_device_options;
+static gint ett_zbee_zcl_commissioning_reset_startup_options;
 
 /* Attributes */
 static const value_string zbee_zcl_commissioning_attr_names[] = {
@@ -9185,28 +9185,28 @@ static void dissect_zcl_part_rdhandshakeparamrsp    (tvbuff_t *tvb, packet_info 
 /*************************/
 
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_part = -1;
+static int proto_zbee_zcl_part;
 
-static int hf_zbee_zcl_part_attr_id = -1;
-static int hf_zbee_zcl_part_srv_tx_cmd_id = -1;
-static int hf_zbee_zcl_part_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_part_opt = -1;
-static int hf_zbee_zcl_part_opt_first_block = -1;
-static int hf_zbee_zcl_part_opt_indic_len = -1;
-static int hf_zbee_zcl_part_opt_res = -1;
-static int hf_zbee_zcl_part_first_frame_id = -1;
-static int hf_zbee_zcl_part_part_indicator = -1;
-static int hf_zbee_zcl_part_part_frame = -1;
-static int hf_zbee_zcl_part_partitioned_cluster_id = -1;
-static int hf_zbee_zcl_part_ack_opt = -1;
-static int hf_zbee_zcl_part_ack_opt_nack_id_len = -1;
-static int hf_zbee_zcl_part_ack_opt_res = -1;
-static int hf_zbee_zcl_part_nack_id = -1;
+static int hf_zbee_zcl_part_attr_id;
+static int hf_zbee_zcl_part_srv_tx_cmd_id;
+static int hf_zbee_zcl_part_srv_rx_cmd_id;
+static int hf_zbee_zcl_part_opt;
+static int hf_zbee_zcl_part_opt_first_block;
+static int hf_zbee_zcl_part_opt_indic_len;
+static int hf_zbee_zcl_part_opt_res;
+static int hf_zbee_zcl_part_first_frame_id;
+static int hf_zbee_zcl_part_part_indicator;
+static int hf_zbee_zcl_part_part_frame;
+static int hf_zbee_zcl_part_partitioned_cluster_id;
+static int hf_zbee_zcl_part_ack_opt;
+static int hf_zbee_zcl_part_ack_opt_nack_id_len;
+static int hf_zbee_zcl_part_ack_opt_res;
+static int hf_zbee_zcl_part_nack_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_part = -1;
-static gint ett_zbee_zcl_part_fragm_options = -1;
-static gint ett_zbee_zcl_part_ack_opts = -1;
+static gint ett_zbee_zcl_part;
+static gint ett_zbee_zcl_part_fragm_options;
+static gint ett_zbee_zcl_part_ack_opts;
 static gint ett_zbee_zcl_part_nack_id_list[ZBEE_ZCL_PART_NUM_NACK_ID_ETT];
 static gint ett_zbee_zcl_part_attrs_id_list[ZBEE_ZCL_PART_NUM_ATTRS_ID_ETT];
 
@@ -9783,53 +9783,53 @@ void proto_reg_handoff_zbee_zcl_ota(void);
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_ota = -1;
+static int proto_zbee_zcl_ota;
 
-static int hf_zbee_zcl_ota_attr_id = -1;
-static int hf_zbee_zcl_ota_srv_tx_cmd_id = -1;
-static int hf_zbee_zcl_ota_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_ota_image_upgrade_status = -1;
-static int hf_zbee_zcl_ota_zb_stack_ver = -1;
-static int hf_zbee_zcl_ota_file_offset = -1;
-static int hf_zbee_zcl_ota_payload_type = -1;
-static int hf_zbee_zcl_ota_query_jitter = -1;
-static int hf_zbee_zcl_ota_manufacturer_code = -1;
-static int hf_zbee_zcl_ota_image_type = -1;
-static int hf_zbee_zcl_ota_file_version = -1;
-static int hf_zbee_zcl_ota_file_version_appl_release = -1;
-static int hf_zbee_zcl_ota_file_version_appl_build = -1;
-static int hf_zbee_zcl_ota_file_version_stack_release = -1;
-static int hf_zbee_zcl_ota_file_version_stack_build = -1;
-static int hf_zbee_zcl_ota_query_next_image_req_field_ctrl = -1;
-static int hf_zbee_zcl_ota_query_next_image_req_field_ctrl_hw_ver_present = -1;
-static int hf_zbee_zcl_ota_query_next_image_req_field_ctrl_reserved = -1;
-static int hf_zbee_zcl_ota_image_block_req_field_ctrl = -1;
-static int hf_zbee_zcl_ota_image_block_req_field_ctrl_ieee_addr_present = -1;
-static int hf_zbee_zcl_ota_image_block_req_field_ctrl_min_block_period_present = -1;
-static int hf_zbee_zcl_ota_image_block_req_field_ctrl_reserved = -1;
-static int hf_zbee_zcl_ota_image_page_req_field_ctrl = -1;
-static int hf_zbee_zcl_ota_image_page_req_field_ctrl_ieee_addr_present = -1;
-static int hf_zbee_zcl_ota_image_page_req_field_ctrl_reserved = -1;
-static int hf_zbee_zcl_ota_hw_version = -1;
-static int hf_zbee_zcl_ota_status = -1;
-static int hf_zbee_zcl_ota_image_size = -1;
-static int hf_zbee_zcl_ota_max_data_size = -1;
-static int hf_zbee_zcl_ota_min_block_period = -1;
-static int hf_zbee_zcl_ota_req_node_addr = -1;
-static int hf_zbee_zcl_ota_current_time = -1;
-static int hf_zbee_zcl_ota_request_time = -1;
-static int hf_zbee_zcl_ota_upgrade_time = -1;
-static int hf_zbee_zcl_ota_data_size = -1;
-static int hf_zbee_zcl_ota_image_data = -1;
-static int hf_zbee_zcl_ota_page_size = -1;
-static int hf_zbee_zcl_ota_rsp_spacing = -1;
+static int hf_zbee_zcl_ota_attr_id;
+static int hf_zbee_zcl_ota_srv_tx_cmd_id;
+static int hf_zbee_zcl_ota_srv_rx_cmd_id;
+static int hf_zbee_zcl_ota_image_upgrade_status;
+static int hf_zbee_zcl_ota_zb_stack_ver;
+static int hf_zbee_zcl_ota_file_offset;
+static int hf_zbee_zcl_ota_payload_type;
+static int hf_zbee_zcl_ota_query_jitter;
+static int hf_zbee_zcl_ota_manufacturer_code;
+static int hf_zbee_zcl_ota_image_type;
+static int hf_zbee_zcl_ota_file_version;
+static int hf_zbee_zcl_ota_file_version_appl_release;
+static int hf_zbee_zcl_ota_file_version_appl_build;
+static int hf_zbee_zcl_ota_file_version_stack_release;
+static int hf_zbee_zcl_ota_file_version_stack_build;
+static int hf_zbee_zcl_ota_query_next_image_req_field_ctrl;
+static int hf_zbee_zcl_ota_query_next_image_req_field_ctrl_hw_ver_present;
+static int hf_zbee_zcl_ota_query_next_image_req_field_ctrl_reserved;
+static int hf_zbee_zcl_ota_image_block_req_field_ctrl;
+static int hf_zbee_zcl_ota_image_block_req_field_ctrl_ieee_addr_present;
+static int hf_zbee_zcl_ota_image_block_req_field_ctrl_min_block_period_present;
+static int hf_zbee_zcl_ota_image_block_req_field_ctrl_reserved;
+static int hf_zbee_zcl_ota_image_page_req_field_ctrl;
+static int hf_zbee_zcl_ota_image_page_req_field_ctrl_ieee_addr_present;
+static int hf_zbee_zcl_ota_image_page_req_field_ctrl_reserved;
+static int hf_zbee_zcl_ota_hw_version;
+static int hf_zbee_zcl_ota_status;
+static int hf_zbee_zcl_ota_image_size;
+static int hf_zbee_zcl_ota_max_data_size;
+static int hf_zbee_zcl_ota_min_block_period;
+static int hf_zbee_zcl_ota_req_node_addr;
+static int hf_zbee_zcl_ota_current_time;
+static int hf_zbee_zcl_ota_request_time;
+static int hf_zbee_zcl_ota_upgrade_time;
+static int hf_zbee_zcl_ota_data_size;
+static int hf_zbee_zcl_ota_image_data;
+static int hf_zbee_zcl_ota_page_size;
+static int hf_zbee_zcl_ota_rsp_spacing;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_ota = -1;
-static gint ett_zbee_zcl_ota_query_next_image_req_field_ctrl = -1;
-static gint ett_zbee_zcl_ota_image_block_req_field_ctrl = -1;
-static gint ett_zbee_zcl_ota_image_page_req_field_ctrl = -1;
-static gint ett_zbee_zcl_ota_file_version = -1;
+static gint ett_zbee_zcl_ota;
+static gint ett_zbee_zcl_ota_query_next_image_req_field_ctrl;
+static gint ett_zbee_zcl_ota_image_block_req_field_ctrl;
+static gint ett_zbee_zcl_ota_image_page_req_field_ctrl;
+static gint ett_zbee_zcl_ota_file_version;
 
 /* Attributes */
 static const value_string zbee_zcl_ota_attr_names[] = {
@@ -11045,50 +11045,50 @@ static void decode_energy               (gchar *s, guint16 value);
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_pwr_prof = -1;
+static int proto_zbee_zcl_pwr_prof;
 
-static int hf_zbee_zcl_pwr_prof_attr_id = -1;
-static int hf_zbee_zcl_pwr_prof_tot_prof_num = -1;
-static int hf_zbee_zcl_pwr_prof_multiple_sched = -1;
-static int hf_zbee_zcl_pwr_prof_energy_format = -1;
-static int hf_zbee_zcl_pwr_prof_energy_format_rdigit = -1;
-static int hf_zbee_zcl_pwr_prof_energy_format_ldigit = -1;
-static int hf_zbee_zcl_pwr_prof_energy_format_noleadingzero = -1;
-static int hf_zbee_zcl_pwr_prof_energy_remote = -1;
-static int hf_zbee_zcl_pwr_prof_sched_mode = -1;
-static int hf_zbee_zcl_pwr_prof_sched_mode_cheapest = -1;
-static int hf_zbee_zcl_pwr_prof_sched_mode_greenest = -1;
-static int hf_zbee_zcl_pwr_prof_sched_mode_reserved = -1;
-static int hf_zbee_zcl_pwr_prof_srv_tx_cmd_id = -1;
-static int hf_zbee_zcl_pwr_prof_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_pwr_prof_pwr_prof_id = -1;
-static int hf_zbee_zcl_pwr_prof_currency = -1;
-static int hf_zbee_zcl_pwr_prof_price = -1;
-static int hf_zbee_zcl_pwr_prof_price_trailing_digit = -1;
-static int hf_zbee_zcl_pwr_prof_num_of_sched_phases = -1;
-static int hf_zbee_zcl_pwr_prof_scheduled_time = -1;
-static int hf_zbee_zcl_pwr_prof_pwr_prof_count = -1;
-static int hf_zbee_zcl_pwr_prof_num_of_trans_phases = -1;
-static int hf_zbee_zcl_pwr_prof_energy_phase_id = -1;
-static int hf_zbee_zcl_pwr_prof_macro_phase_id = -1;
-static int hf_zbee_zcl_pwr_prof_expect_duration = -1;
-static int hf_zbee_zcl_pwr_prof_peak_power = -1;
-static int hf_zbee_zcl_pwr_prof_energy = -1;
-static int hf_zbee_zcl_pwr_prof_max_active_delay = -1;
-static int hf_zbee_zcl_pwr_prof_pwr_prof_rem_ctrl = -1;
-static int hf_zbee_zcl_pwr_prof_pwr_prof_state = -1;
-static int hf_zbee_zcl_pwr_prof_start_after = -1;
-static int hf_zbee_zcl_pwr_prof_stop_before = -1;
-static int hf_zbee_zcl_pwr_prof_options = -1;
-static int hf_zbee_zcl_pwr_prof_options_01 = -1;
-static int hf_zbee_zcl_pwr_prof_options_res = -1;
-static int hf_zbee_zcl_pwr_prof_pwr_prof_stime = -1;
+static int hf_zbee_zcl_pwr_prof_attr_id;
+static int hf_zbee_zcl_pwr_prof_tot_prof_num;
+static int hf_zbee_zcl_pwr_prof_multiple_sched;
+static int hf_zbee_zcl_pwr_prof_energy_format;
+static int hf_zbee_zcl_pwr_prof_energy_format_rdigit;
+static int hf_zbee_zcl_pwr_prof_energy_format_ldigit;
+static int hf_zbee_zcl_pwr_prof_energy_format_noleadingzero;
+static int hf_zbee_zcl_pwr_prof_energy_remote;
+static int hf_zbee_zcl_pwr_prof_sched_mode;
+static int hf_zbee_zcl_pwr_prof_sched_mode_cheapest;
+static int hf_zbee_zcl_pwr_prof_sched_mode_greenest;
+static int hf_zbee_zcl_pwr_prof_sched_mode_reserved;
+static int hf_zbee_zcl_pwr_prof_srv_tx_cmd_id;
+static int hf_zbee_zcl_pwr_prof_srv_rx_cmd_id;
+static int hf_zbee_zcl_pwr_prof_pwr_prof_id;
+static int hf_zbee_zcl_pwr_prof_currency;
+static int hf_zbee_zcl_pwr_prof_price;
+static int hf_zbee_zcl_pwr_prof_price_trailing_digit;
+static int hf_zbee_zcl_pwr_prof_num_of_sched_phases;
+static int hf_zbee_zcl_pwr_prof_scheduled_time;
+static int hf_zbee_zcl_pwr_prof_pwr_prof_count;
+static int hf_zbee_zcl_pwr_prof_num_of_trans_phases;
+static int hf_zbee_zcl_pwr_prof_energy_phase_id;
+static int hf_zbee_zcl_pwr_prof_macro_phase_id;
+static int hf_zbee_zcl_pwr_prof_expect_duration;
+static int hf_zbee_zcl_pwr_prof_peak_power;
+static int hf_zbee_zcl_pwr_prof_energy;
+static int hf_zbee_zcl_pwr_prof_max_active_delay;
+static int hf_zbee_zcl_pwr_prof_pwr_prof_rem_ctrl;
+static int hf_zbee_zcl_pwr_prof_pwr_prof_state;
+static int hf_zbee_zcl_pwr_prof_start_after;
+static int hf_zbee_zcl_pwr_prof_stop_before;
+static int hf_zbee_zcl_pwr_prof_options;
+static int hf_zbee_zcl_pwr_prof_options_01;
+static int hf_zbee_zcl_pwr_prof_options_res;
+static int hf_zbee_zcl_pwr_prof_pwr_prof_stime;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_pwr_prof = -1;
-static gint ett_zbee_zcl_pwr_prof_options = -1;
-static gint ett_zbee_zcl_pwr_prof_en_format = -1;
-static gint ett_zbee_zcl_pwr_prof_sched_mode = -1;
+static gint ett_zbee_zcl_pwr_prof;
+static gint ett_zbee_zcl_pwr_prof_options;
+static gint ett_zbee_zcl_pwr_prof_en_format;
+static gint ett_zbee_zcl_pwr_prof_sched_mode;
 static gint ett_zbee_zcl_pwr_prof_pwrprofiles[ZBEE_ZCL_PWR_PROF_NUM_PWR_PROF_ETT];
 static gint ett_zbee_zcl_pwr_prof_enphases[ZBEE_ZCL_PWR_PROF_NUM_EN_PHS_ETT];
 
@@ -12194,29 +12194,29 @@ static void dissect_zcl_appl_ctrl_attr_data             (proto_tree *tree, tvbuf
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_appl_ctrl = -1;
+static int proto_zbee_zcl_appl_ctrl;
 
-static int hf_zbee_zcl_appl_ctrl_attr_id = -1;
-static int hf_zbee_zcl_appl_ctrl_time = -1;
-static int hf_zbee_zcl_appl_ctrl_time_mm = -1;
-static int hf_zbee_zcl_appl_ctrl_time_encoding_type = -1;
-static int hf_zbee_zcl_appl_ctrl_time_hh = -1;
-static int hf_zbee_zcl_appl_ctrl_srv_tx_cmd_id = -1;
-static int hf_zbee_zcl_appl_ctrl_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_appl_ctrl_exec_cmd_id = -1;
-static int hf_zbee_zcl_appl_ctrl_attr_func_id = -1;
-static int hf_zbee_zcl_appl_ctrl_attr_func_data_type = -1;
-static int hf_zbee_zcl_appl_ctrl_warning_id = -1;
-static int hf_zbee_zcl_appl_ctrl_appl_status = -1;
-static int hf_zbee_zcl_appl_ctrl_rem_en_flags_raw = -1;
-static int hf_zbee_zcl_appl_ctrl_rem_en_flags = -1;
-static int hf_zbee_zcl_appl_ctrl_status2 = -1;
-static int hf_zbee_zcl_appl_ctrl_status2_array = -1;
+static int hf_zbee_zcl_appl_ctrl_attr_id;
+static int hf_zbee_zcl_appl_ctrl_time;
+static int hf_zbee_zcl_appl_ctrl_time_mm;
+static int hf_zbee_zcl_appl_ctrl_time_encoding_type;
+static int hf_zbee_zcl_appl_ctrl_time_hh;
+static int hf_zbee_zcl_appl_ctrl_srv_tx_cmd_id;
+static int hf_zbee_zcl_appl_ctrl_srv_rx_cmd_id;
+static int hf_zbee_zcl_appl_ctrl_exec_cmd_id;
+static int hf_zbee_zcl_appl_ctrl_attr_func_id;
+static int hf_zbee_zcl_appl_ctrl_attr_func_data_type;
+static int hf_zbee_zcl_appl_ctrl_warning_id;
+static int hf_zbee_zcl_appl_ctrl_appl_status;
+static int hf_zbee_zcl_appl_ctrl_rem_en_flags_raw;
+static int hf_zbee_zcl_appl_ctrl_rem_en_flags;
+static int hf_zbee_zcl_appl_ctrl_status2;
+static int hf_zbee_zcl_appl_ctrl_status2_array;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_appl_ctrl = -1;
-static gint ett_zbee_zcl_appl_ctrl_flags = -1;
-static gint ett_zbee_zcl_appl_ctrl_time = -1;
+static gint ett_zbee_zcl_appl_ctrl;
+static gint ett_zbee_zcl_appl_ctrl_flags;
+static gint ett_zbee_zcl_appl_ctrl_time;
 static gint ett_zbee_zcl_appl_ctrl_func[ZBEE_ZCL_APPL_CTRL_NUM_FUNC_ETT];
 
 /* Attributes */
@@ -12805,17 +12805,17 @@ static const value_string zbee_zcl_poll_ctrl_srv_rx_cmd_names[] = {
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_poll_ctrl = -1;
+static int proto_zbee_zcl_poll_ctrl;
 
-static int hf_zbee_zcl_poll_ctrl_attr_id = -1;
-static int hf_zbee_zcl_poll_ctrl_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_poll_ctrl_srv_tx_cmd_id = -1;
-static int hf_zbee_zcl_poll_ctrl_start_fast_polling = -1;
-static int hf_zbee_zcl_poll_ctrl_fast_poll_timeout = -1;
-static int hf_zbee_zcl_poll_ctrl_new_long_poll_interval = -1;
-static int hf_zbee_zcl_poll_ctrl_new_short_poll_interval = -1;
+static int hf_zbee_zcl_poll_ctrl_attr_id;
+static int hf_zbee_zcl_poll_ctrl_srv_rx_cmd_id;
+static int hf_zbee_zcl_poll_ctrl_srv_tx_cmd_id;
+static int hf_zbee_zcl_poll_ctrl_start_fast_polling;
+static int hf_zbee_zcl_poll_ctrl_fast_poll_timeout;
+static int hf_zbee_zcl_poll_ctrl_new_long_poll_interval;
+static int hf_zbee_zcl_poll_ctrl_new_short_poll_interval;
 
-static gint ett_zbee_zcl_poll_ctrl = -1;
+static gint ett_zbee_zcl_poll_ctrl;
 
 /*************************/
 /* Function Declarations */
@@ -13381,298 +13381,298 @@ static const value_string zbee_zcl_gp_proxy_sink_tbl_req_type[] = {
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_gp = -1;
+static int proto_zbee_zcl_gp;
 
-static int hf_zbee_zcl_gp_attr_id = -1;
-static int hf_zbee_zcl_gp_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_gp_srv_tx_cmd_id = -1;
+static int hf_zbee_zcl_gp_attr_id;
+static int hf_zbee_zcl_gp_srv_rx_cmd_id;
+static int hf_zbee_zcl_gp_srv_tx_cmd_id;
 
-static gint ett_zbee_zcl_gp = -1;
+static gint ett_zbee_zcl_gp;
 
 /* GP_PROXY_COMMISSIONING_MODE */
-static gint ett_zbee_gp_cmd_proxy_commissioning_mode_options = -1;
-static gint ett_zbee_gp_cmd_proxy_commissioning_mode_exit_mode = -1;
-static gint hf_zbee_gp_cmd_proxy_commissioning_mode_options = -1;
-static gint hf_zbee_gp_cmd_pcm_opt_action = -1;
-static gint hf_zbee_gp_cmd_pcm_opt_exit_mode = -1;
-static gint hf_zbee_gp_cmd_pcm_opt_channel_present = -1;
-static gint hf_zbee_gp_cmd_pcm_opt_unicast_comm = -1;
-static gint hf_zbee_gp_cmd_proxy_commissioning_mode_exit_mode = -1;
-static gint hf_zbee_gp_cmd_pcm_exit_mode_on_comm_window_expire = -1;
-static gint hf_zbee_gp_cmd_pcm_exit_mode_on_pairing_success = -1;
-static gint hf_zbee_gp_cmd_pcm_exit_mode_on_gp_proxy_comm_mode = -1;
-static gint hf_zbee_zcl_gp_commissioning_window = -1;
-static gint hf_zbee_zcl_gp_channel = -1;
+static gint ett_zbee_gp_cmd_proxy_commissioning_mode_options;
+static gint ett_zbee_gp_cmd_proxy_commissioning_mode_exit_mode;
+static gint hf_zbee_gp_cmd_proxy_commissioning_mode_options;
+static gint hf_zbee_gp_cmd_pcm_opt_action;
+static gint hf_zbee_gp_cmd_pcm_opt_exit_mode;
+static gint hf_zbee_gp_cmd_pcm_opt_channel_present;
+static gint hf_zbee_gp_cmd_pcm_opt_unicast_comm;
+static gint hf_zbee_gp_cmd_proxy_commissioning_mode_exit_mode;
+static gint hf_zbee_gp_cmd_pcm_exit_mode_on_comm_window_expire;
+static gint hf_zbee_gp_cmd_pcm_exit_mode_on_pairing_success;
+static gint hf_zbee_gp_cmd_pcm_exit_mode_on_gp_proxy_comm_mode;
+static gint hf_zbee_zcl_gp_commissioning_window;
+static gint hf_zbee_zcl_gp_channel;
 
 /* GP_COMMISSIONING_NOTIFICATION */
-static gint hf_zbee_gp_cmd_comm_notif_opt_app_id = -1;
-static gint hf_zbee_gp_cmd_comm_notif_opt_rx_after_tx = -1;
-static gint hf_zbee_gp_cmd_comm_notif_opt_secur_level = -1;
-static gint hf_zbee_gp_cmd_comm_notif_opt_secur_key_type = -1;
-static gint hf_zbee_gp_cmd_comm_notif_opt_secur_fail = -1;
-static gint hf_zbee_gp_cmd_comm_notif_opt_bidir_cap = -1;
-static gint hf_zbee_gp_cmd_comm_notif_opt_proxy_info_present = -1;
-static gint hf_zbee_gp_cmd_commissioning_notification_options = -1;
-static gint ett_zbee_gp_cmd_commissioning_notification_options = -1;
-static gint hf_zbee_gp_src_id = -1;
-static gint hf_zbee_gp_ieee = -1;
-static gint hf_zbee_gp_endpoint = -1;
-static gint hf_zbee_gp_secur_frame_counter = -1;
-static gint hf_zbee_gp_gpd_command_id = -1;
-static gint hf_zbee_gp_short_addr = -1;
-static gint hf_zbee_gp_gpp_gpd_link = -1;
-static gint hf_zbee_gp_mic = -1;
-static gint ett_zbee_gp_gpp_gpd_link = -1;
-static gint hf_zbee_gpp_gpd_link_rssi = -1;
-static gint hf_zbee_gpp_gpd_link_lqi = -1;
-static gint hf_zbee_gp_gpd_payload_size = -1;
+static gint hf_zbee_gp_cmd_comm_notif_opt_app_id;
+static gint hf_zbee_gp_cmd_comm_notif_opt_rx_after_tx;
+static gint hf_zbee_gp_cmd_comm_notif_opt_secur_level;
+static gint hf_zbee_gp_cmd_comm_notif_opt_secur_key_type;
+static gint hf_zbee_gp_cmd_comm_notif_opt_secur_fail;
+static gint hf_zbee_gp_cmd_comm_notif_opt_bidir_cap;
+static gint hf_zbee_gp_cmd_comm_notif_opt_proxy_info_present;
+static gint hf_zbee_gp_cmd_commissioning_notification_options;
+static gint ett_zbee_gp_cmd_commissioning_notification_options;
+static gint hf_zbee_gp_src_id;
+static gint hf_zbee_gp_ieee;
+static gint hf_zbee_gp_endpoint;
+static gint hf_zbee_gp_secur_frame_counter;
+static gint hf_zbee_gp_gpd_command_id;
+static gint hf_zbee_gp_short_addr;
+static gint hf_zbee_gp_gpp_gpd_link;
+static gint hf_zbee_gp_mic;
+static gint ett_zbee_gp_gpp_gpd_link;
+static gint hf_zbee_gpp_gpd_link_rssi;
+static gint hf_zbee_gpp_gpd_link_lqi;
+static gint hf_zbee_gp_gpd_payload_size;
 
 
 /* GP_NOTIFICATION */
-static gint hf_zbee_gp_cmd_notification_options = -1;
-static gint ett_zbee_gp_cmd_notification_options = -1;
-static gint hf_zbee_gp_cmd_notif_opt_app_id = -1;
-static gint hf_zbee_gp_cmd_notif_opt_also_unicast = -1;
-static gint hf_zbee_gp_cmd_notif_opt_also_derived_group = -1;
-static gint hf_zbee_gp_cmd_notif_opt_also_comm_group = -1;
-static gint hf_zbee_gp_cmd_notif_opt_secur_level = -1;
-static gint hf_zbee_gp_cmd_notif_opt_secur_key_type = -1;
-static gint hf_zbee_gp_cmd_notif_opt_rx_after_tx = -1;
-static gint hf_zbee_gp_cmd_notif_opt_tx_q_full = -1;
-static gint hf_zbee_gp_cmd_notif_opt_bidir_cap = -1;
-static gint hf_zbee_gp_cmd_notif_opt_proxy_info_present = -1;
+static gint hf_zbee_gp_cmd_notification_options;
+static gint ett_zbee_gp_cmd_notification_options;
+static gint hf_zbee_gp_cmd_notif_opt_app_id;
+static gint hf_zbee_gp_cmd_notif_opt_also_unicast;
+static gint hf_zbee_gp_cmd_notif_opt_also_derived_group;
+static gint hf_zbee_gp_cmd_notif_opt_also_comm_group;
+static gint hf_zbee_gp_cmd_notif_opt_secur_level;
+static gint hf_zbee_gp_cmd_notif_opt_secur_key_type;
+static gint hf_zbee_gp_cmd_notif_opt_rx_after_tx;
+static gint hf_zbee_gp_cmd_notif_opt_tx_q_full;
+static gint hf_zbee_gp_cmd_notif_opt_bidir_cap;
+static gint hf_zbee_gp_cmd_notif_opt_proxy_info_present;
 
 /* GP_PAIRING */
-static gint hf_zbee_gp_cmd_pairing_opt_app_id = -1;
-static gint hf_zbee_gp_cmd_pairing_opt_add_sink = -1;
-static gint hf_zbee_gp_cmd_pairing_opt_remove_gpd = -1;
-static gint hf_zbee_gp_cmd_pairing_opt_communication_mode = -1;
-static gint hf_zbee_gp_cmd_pairing_opt_gpd_fixed = -1;
-static gint hf_zbee_gp_cmd_pairing_opt_gpd_mac_seq_num_cap = -1;
-static gint hf_zbee_gp_cmd_pairing_opt_secur_level = -1;
-static gint hf_zbee_gp_cmd_pairing_opt_secur_key_type = -1;
-static gint hf_zbee_gp_cmd_pairing_opt_gpd_frame_cnt_present = -1;
-static gint hf_zbee_gp_cmd_pairing_opt_gpd_secur_key_present = -1;
-static gint hf_zbee_gp_cmd_pairing_opt_assigned_alias_present = -1;
-static gint hf_zbee_gp_cmd_pairing_opt_fwd_radius_present = -1;
-static gint hf_zbee_gp_cmd_pairing_options = -1;
-static gint ett_zbee_gp_cmd_pairing_options = -1;
-static gint hf_zbee_gp_sink_ieee = -1;
-static gint hf_zbee_gp_sink_nwk = -1;
-static gint hf_zbee_gp_sink_group_id = -1;
-static gint hf_zbee_gp_device_id = -1;
-static gint hf_zbee_gp_assigned_alias = -1;
-static gint hf_zbee_gp_forwarding_radius = -1;
-static gint hf_zbee_gp_gpd_key = -1;
-static gint hf_zbee_gp_groupcast_radius = -1;
+static gint hf_zbee_gp_cmd_pairing_opt_app_id;
+static gint hf_zbee_gp_cmd_pairing_opt_add_sink;
+static gint hf_zbee_gp_cmd_pairing_opt_remove_gpd;
+static gint hf_zbee_gp_cmd_pairing_opt_communication_mode;
+static gint hf_zbee_gp_cmd_pairing_opt_gpd_fixed;
+static gint hf_zbee_gp_cmd_pairing_opt_gpd_mac_seq_num_cap;
+static gint hf_zbee_gp_cmd_pairing_opt_secur_level;
+static gint hf_zbee_gp_cmd_pairing_opt_secur_key_type;
+static gint hf_zbee_gp_cmd_pairing_opt_gpd_frame_cnt_present;
+static gint hf_zbee_gp_cmd_pairing_opt_gpd_secur_key_present;
+static gint hf_zbee_gp_cmd_pairing_opt_assigned_alias_present;
+static gint hf_zbee_gp_cmd_pairing_opt_fwd_radius_present;
+static gint hf_zbee_gp_cmd_pairing_options;
+static gint ett_zbee_gp_cmd_pairing_options;
+static gint hf_zbee_gp_sink_ieee;
+static gint hf_zbee_gp_sink_nwk;
+static gint hf_zbee_gp_sink_group_id;
+static gint hf_zbee_gp_device_id;
+static gint hf_zbee_gp_assigned_alias;
+static gint hf_zbee_gp_forwarding_radius;
+static gint hf_zbee_gp_gpd_key;
+static gint hf_zbee_gp_groupcast_radius;
 
 /* GP Response */
-static gint hf_zbee_gp_cmd_response_options = -1;
-static gint ett_zbee_gp_cmd_response_options = -1;
-static gint hf_zbee_gp_cmd_response_tx_channel = -1;
-static gint ett_zbee_gp_cmd_response_tx_channel = -1;
-static gint hf_zbee_gp_cmd_resp_opt_app_id = -1;
-static gint hf_zbee_gp_cmd_resp_opt_tx_on_ep_match = -1;
-static gint hf_zbee_gp_tmp_master_short_addr = -1;
-static gint hf_zbee_gp_cmd_resp_tx_channel = -1;
+static gint hf_zbee_gp_cmd_response_options;
+static gint ett_zbee_gp_cmd_response_options;
+static gint hf_zbee_gp_cmd_response_tx_channel;
+static gint ett_zbee_gp_cmd_response_tx_channel;
+static gint hf_zbee_gp_cmd_resp_opt_app_id;
+static gint hf_zbee_gp_cmd_resp_opt_tx_on_ep_match;
+static gint hf_zbee_gp_tmp_master_short_addr;
+static gint hf_zbee_gp_cmd_resp_tx_channel;
 
 /* GP_PAIRING_CONFIGURATION */
-static int hf_zbee_gp_cmd_pc_actions_action = -1;
-static int hf_zbee_gp_cmd_pc_actions_send_gp_pairing = -1;
-static int hf_zbee_gp_cmd_pc_opt_app_id = -1;
-static int hf_zbee_gp_cmd_pc_opt_communication_mode = -1;
-static int hf_zbee_gp_cmd_pc_opt_seq_number_cap = -1;
-static int hf_zbee_gp_cmd_px_opt_rx_on_cap = -1;
-static int hf_zbee_gp_cmd_pc_opt_fixed_location = -1;
-static int hf_zbee_gp_cmd_pc_opt_assigned_alias = -1;
-static int hf_zbee_gp_cmd_pc_opt_security_use = -1;
-static int hf_zbee_gp_cmd_pc_opt_app_info_present = -1;
-static int hf_zbee_gp_cmd_pc_secur_level = -1;
-static int hf_zbee_gp_cmd_pc_secur_key_type = -1;
-static int hf_zbee_gp_cmd_pc_app_info_manuf_id_present = -1;
-static int hf_zbee_gp_cmd_pc_app_info_model_id_present = -1;
-static int hf_zbee_gp_cmd_pc_app_info_gpd_commands_present = -1;
-static int hf_zbee_gp_cmd_pc_app_info_cluster_list_present = -1;
-static int hf_zbee_gp_cmd_pc_actions = -1;
-static gint ett_zbee_gp_cmd_pc_actions = -1;
-static int hf_zbee_gp_cmd_pc_options = -1;
-static gint ett_zbee_gp_cmd_pc_options = -1;
-static gint ett_zbee_zcl_gp_group_list = -1;
-static int hf_zbee_gp_group_list_len = -1;
-static int hf_zbee_gp_group_list_group_id = -1;
-static int hf_zbee_gp_group_list_alias = -1;
-static int hf_zbee_gp_cmd_pc_secur_options = -1;
-static gint ett_zbee_gp_cmd_pc_secur_options = -1;
-static int hf_zbee_gp_n_paired_endpoints = -1;
-static int hf_zbee_gp_paired_endpoint = -1;
-static int hf_zbee_gp_cmd_pc_app_info = -1;
-static gint ett_zbee_gp_cmd_pc_app_info = -1;
-static int hf_zbee_zcl_gp_manufacturer_id = -1;
-static int hf_zbee_zcl_gp_model_id = -1;
-static int hf_zbee_gp_n_gpd_commands = -1;
-static int hf_zbee_gp_gpd_command = -1;
-static int hf_zbee_gp_n_srv_clusters = -1;
-static int hf_zbee_gp_n_cli_clusters = -1;
-static int hf_zbee_gp_gpd_cluster_id = -1;
-static gint ett_zbee_zcl_gp_ep = -1;
-static gint ett_zbee_zcl_gp_cmds = -1;
-static gint ett_zbee_zcl_gp_clusters = -1;
-static gint ett_zbee_zcl_gp_srv_clusters = -1;
-static gint ett_zbee_zcl_gp_cli_clusters = -1;
+static int hf_zbee_gp_cmd_pc_actions_action;
+static int hf_zbee_gp_cmd_pc_actions_send_gp_pairing;
+static int hf_zbee_gp_cmd_pc_opt_app_id;
+static int hf_zbee_gp_cmd_pc_opt_communication_mode;
+static int hf_zbee_gp_cmd_pc_opt_seq_number_cap;
+static int hf_zbee_gp_cmd_px_opt_rx_on_cap;
+static int hf_zbee_gp_cmd_pc_opt_fixed_location;
+static int hf_zbee_gp_cmd_pc_opt_assigned_alias;
+static int hf_zbee_gp_cmd_pc_opt_security_use;
+static int hf_zbee_gp_cmd_pc_opt_app_info_present;
+static int hf_zbee_gp_cmd_pc_secur_level;
+static int hf_zbee_gp_cmd_pc_secur_key_type;
+static int hf_zbee_gp_cmd_pc_app_info_manuf_id_present;
+static int hf_zbee_gp_cmd_pc_app_info_model_id_present;
+static int hf_zbee_gp_cmd_pc_app_info_gpd_commands_present;
+static int hf_zbee_gp_cmd_pc_app_info_cluster_list_present;
+static int hf_zbee_gp_cmd_pc_actions;
+static gint ett_zbee_gp_cmd_pc_actions;
+static int hf_zbee_gp_cmd_pc_options;
+static gint ett_zbee_gp_cmd_pc_options;
+static gint ett_zbee_zcl_gp_group_list;
+static int hf_zbee_gp_group_list_len;
+static int hf_zbee_gp_group_list_group_id;
+static int hf_zbee_gp_group_list_alias;
+static int hf_zbee_gp_cmd_pc_secur_options;
+static gint ett_zbee_gp_cmd_pc_secur_options;
+static int hf_zbee_gp_n_paired_endpoints;
+static int hf_zbee_gp_paired_endpoint;
+static int hf_zbee_gp_cmd_pc_app_info;
+static gint ett_zbee_gp_cmd_pc_app_info;
+static int hf_zbee_zcl_gp_manufacturer_id;
+static int hf_zbee_zcl_gp_model_id;
+static int hf_zbee_gp_n_gpd_commands;
+static int hf_zbee_gp_gpd_command;
+static int hf_zbee_gp_n_srv_clusters;
+static int hf_zbee_gp_n_cli_clusters;
+static int hf_zbee_gp_gpd_cluster_id;
+static gint ett_zbee_zcl_gp_ep;
+static gint ett_zbee_zcl_gp_cmds;
+static gint ett_zbee_zcl_gp_clusters;
+static gint ett_zbee_zcl_gp_srv_clusters;
+static gint ett_zbee_zcl_gp_cli_clusters;
 
 /* GP_SINK_TABLE_REQUEST and GP_PROXY_TABLE_REQUEST */
-static gint ett_zbee_zcl_proxy_sink_tbl_req_options = -1;
-static int hf_zbee_zcl_proxy_sink_tbl_req_options = -1;
-static int hf_zbee_zcl_proxy_sink_tbl_req_fld_app_id = -1;
-static int hf_zbee_zcl_proxy_sink_tbl_req_fld_req_type = -1;
-static int hf_zbee_zcl_proxy_sink_tbl_req_index = -1;
+static gint ett_zbee_zcl_proxy_sink_tbl_req_options;
+static int hf_zbee_zcl_proxy_sink_tbl_req_options;
+static int hf_zbee_zcl_proxy_sink_tbl_req_fld_app_id;
+static int hf_zbee_zcl_proxy_sink_tbl_req_fld_req_type;
+static int hf_zbee_zcl_proxy_sink_tbl_req_index;
 
 /* GP_SINK_TABLE_RESPONSE and GP_PROXY_TABLE_RESPONSE */
-static int hf_zbee_zcl_proxy_sink_tbl_resp_status = -1;
-static int hf_zbee_zcl_proxy_sink_tbl_resp_entries_total = -1;
-static int hf_zbee_zcl_proxy_sink_tbl_resp_start_index = -1;
-static int hf_zbee_zcl_proxy_sink_tbl_resp_entries_count = -1;
+static int hf_zbee_zcl_proxy_sink_tbl_resp_status;
+static int hf_zbee_zcl_proxy_sink_tbl_resp_entries_total;
+static int hf_zbee_zcl_proxy_sink_tbl_resp_start_index;
+static int hf_zbee_zcl_proxy_sink_tbl_resp_entries_count;
 
 /* GP SINK_COMMISSIONING_MODE */
-static gint ett_zbee_zcl_gp_cmd_sink_comm_mode_options = -1;
-static gint hf_zbee_zcl_gp_cmd_sink_comm_mode_options = -1;
+static gint ett_zbee_zcl_gp_cmd_sink_comm_mode_options;
+static gint hf_zbee_zcl_gp_cmd_sink_comm_mode_options;
 
-static gint hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_action = -1;
-static gint hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_inv_gpm_in_secur = -1;
-static gint hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_inv_gpm_in_pairing = -1;
-static gint hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_inv_proxies = -1;
+static gint hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_action;
+static gint hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_inv_gpm_in_secur;
+static gint hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_inv_gpm_in_pairing;
+static gint hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_inv_proxies;
 
-static gint hf_zbee_gp_zcl_cmd_sink_comm_mode_gpm_addr_for_secur = -1;
-static gint hf_zbee_gp_zcl_cmd_sink_comm_mode_gpm_addr_for_pairing = -1;
-static gint hf_zbee_gp_zcl_cmd_sink_comm_mode_sink_ep = -1;
+static gint hf_zbee_gp_zcl_cmd_sink_comm_mode_gpm_addr_for_secur;
+static gint hf_zbee_gp_zcl_cmd_sink_comm_mode_gpm_addr_for_pairing;
+static gint hf_zbee_gp_zcl_cmd_sink_comm_mode_sink_ep;
 
 /* GP Sink Table Attribute */
-static gint ett_zbee_gp_sink_tbl = -1;
-static gint ett_zbee_gp_sink_tbl_entry = -1;
-static gint ett_zbee_gp_sink_tbl_entry_options = -1;
+static gint ett_zbee_gp_sink_tbl;
+static gint ett_zbee_gp_sink_tbl_entry;
+static gint ett_zbee_gp_sink_tbl_entry_options;
 
-static gint hf_zbee_gp_sink_tbl_length = -1;
-static gint hf_zbee_gp_sink_tbl_entry_options = -1;
+static gint hf_zbee_gp_sink_tbl_length;
+static gint hf_zbee_gp_sink_tbl_entry_options;
 
-static gint hf_zbee_gp_sink_tbl_entry_options_app_id = -1;
-static gint hf_zbee_gp_sink_tbl_entry_options_comm_mode = -1;
-static gint hf_zbee_gp_sink_tbl_entry_options_seq_num_cap = -1;
-static gint hf_zbee_gp_sink_tbl_entry_options_rx_on_cap = -1;
-static gint hf_zbee_gp_sink_tbl_entry_options_fixed_loc = -1;
-static gint hf_zbee_gp_sink_tbl_entry_options_assigned_alias = -1;
-static gint hf_zbee_gp_sink_tbl_entry_options_sec_use = -1;
+static gint hf_zbee_gp_sink_tbl_entry_options_app_id;
+static gint hf_zbee_gp_sink_tbl_entry_options_comm_mode;
+static gint hf_zbee_gp_sink_tbl_entry_options_seq_num_cap;
+static gint hf_zbee_gp_sink_tbl_entry_options_rx_on_cap;
+static gint hf_zbee_gp_sink_tbl_entry_options_fixed_loc;
+static gint hf_zbee_gp_sink_tbl_entry_options_assigned_alias;
+static gint hf_zbee_gp_sink_tbl_entry_options_sec_use;
 
-static gint ett_zbee_gp_sec_options = -1;
-static gint hf_zbee_gp_sec_options = -1;
-static gint hf_zbee_gp_sec_options_sec_level = -1;
-static gint hf_zbee_gp_sec_options_sec_key_type = -1;
+static gint ett_zbee_gp_sec_options;
+static gint hf_zbee_gp_sec_options;
+static gint hf_zbee_gp_sec_options_sec_level;
+static gint hf_zbee_gp_sec_options_sec_key_type;
 
 /* GP Proxy Table Attribute */
-static gint ett_zbee_gp_proxy_tbl = -1;
-static gint ett_zbee_gp_proxy_tbl_entry = -1;
-static gint ett_zbee_gp_proxy_tbl_entry_options = -1;
-static gint ett_zbee_gp_proxy_tbl_entry_ext_options = -1;
+static gint ett_zbee_gp_proxy_tbl;
+static gint ett_zbee_gp_proxy_tbl_entry;
+static gint ett_zbee_gp_proxy_tbl_entry_options;
+static gint ett_zbee_gp_proxy_tbl_entry_ext_options;
 
-static gint hf_zbee_gp_proxy_tbl_length = -1;
-static gint hf_zbee_gp_proxy_tbl_entry_options = -1;
-static gint hf_zbee_gp_proxy_tbl_entry_ext_options = -1;
+static gint hf_zbee_gp_proxy_tbl_length;
+static gint hf_zbee_gp_proxy_tbl_entry_options;
+static gint hf_zbee_gp_proxy_tbl_entry_ext_options;
 
-static gint hf_zbee_gp_proxy_tbl_entry_options_app_id = -1;
-static gint hf_zbee_gp_proxy_tbl_entry_options_entry_active = -1;
-static gint hf_zbee_gp_proxy_tbl_entry_options_entry_valid = -1;
-static gint hf_zbee_gp_proxy_tbl_entry_options_seq_num_cap = -1;
-static gint hf_zbee_gp_proxy_tbl_entry_options_lw_ucast_gps = -1;
-static gint hf_zbee_gp_proxy_tbl_entry_options_derived_group_gps = -1;
-static gint hf_zbee_gp_proxy_tbl_entry_options_comm_group_gps = -1;
-static gint hf_zbee_gp_proxy_tbl_entry_options_first_to_forward = -1;
-static gint hf_zbee_gp_proxy_tbl_entry_options_in_range = -1;
-static gint hf_zbee_gp_proxy_tbl_entry_options_gpd_fixed = -1;
-static gint hf_zbee_gp_proxy_tbl_entry_options_has_all_ucast_routes = -1;
-static gint hf_zbee_gp_proxy_tbl_entry_options_assigned_alias = -1;
-static gint hf_zbee_gp_proxy_tbl_entry_options_sec_use = -1;
-static gint hf_zbee_gp_proxy_tbl_entry_options_opt_ext = -1;
+static gint hf_zbee_gp_proxy_tbl_entry_options_app_id;
+static gint hf_zbee_gp_proxy_tbl_entry_options_entry_active;
+static gint hf_zbee_gp_proxy_tbl_entry_options_entry_valid;
+static gint hf_zbee_gp_proxy_tbl_entry_options_seq_num_cap;
+static gint hf_zbee_gp_proxy_tbl_entry_options_lw_ucast_gps;
+static gint hf_zbee_gp_proxy_tbl_entry_options_derived_group_gps;
+static gint hf_zbee_gp_proxy_tbl_entry_options_comm_group_gps;
+static gint hf_zbee_gp_proxy_tbl_entry_options_first_to_forward;
+static gint hf_zbee_gp_proxy_tbl_entry_options_in_range;
+static gint hf_zbee_gp_proxy_tbl_entry_options_gpd_fixed;
+static gint hf_zbee_gp_proxy_tbl_entry_options_has_all_ucast_routes;
+static gint hf_zbee_gp_proxy_tbl_entry_options_assigned_alias;
+static gint hf_zbee_gp_proxy_tbl_entry_options_sec_use;
+static gint hf_zbee_gp_proxy_tbl_entry_options_opt_ext;
 
-static gint hf_zbee_gp_proxy_tbl_entry_search_counter = -1;
+static gint hf_zbee_gp_proxy_tbl_entry_search_counter;
 
-static gint hf_zbee_gp_proxy_tbl_entry_ext_options_full_ucast_gps = -1;
+static gint hf_zbee_gp_proxy_tbl_entry_ext_options_full_ucast_gps;
 
-static gint ett_zbee_gp_sink_address_list = -1;
-static gint hf_zbee_gp_sink_address_list_length = -1;
+static gint ett_zbee_gp_sink_address_list;
+static gint hf_zbee_gp_sink_address_list_length;
 
 /* GP gppFunctionality Attribute */
-static gint ett_zbee_zcl_gp_attr_gpp_func = -1;
-static gint hf_zbee_zcl_gp_attr_gpp_func = -1;
+static gint ett_zbee_zcl_gp_attr_gpp_func;
+static gint hf_zbee_zcl_gp_attr_gpp_func;
 
-static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gp_feature = -1;
-static gint hf_zbee_zcl_gp_attr_gpp_func_fld_direct_comm = -1;
-static gint hf_zbee_zcl_gp_attr_gpp_func_fld_derived_gcast_comm = -1;
-static gint hf_zbee_zcl_gp_attr_gpp_func_fld_pre_commissioned_gcast_comm = -1;
-static gint hf_zbee_zcl_gp_attr_gpp_func_fld_full_ucast_comm = -1;
-static gint hf_zbee_zcl_gp_attr_gpp_func_fld_lw_ucast_comm = -1;
-static gint hf_zbee_zcl_gp_attr_gpp_func_fld_bidir_op = -1;
-static gint hf_zbee_zcl_gp_attr_gpp_func_fld_proxy_tbl_maintenance = -1;
-static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gp_commissioning = -1;
-static gint hf_zbee_zcl_gp_attr_gpp_func_fld_ct_based_commissioning = -1;
-static gint hf_zbee_zcl_gp_attr_gpp_func_fld_maintenance_of_gpd = -1;
-static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_00 = -1;
-static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_01 = -1;
-static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_10 = -1;
-static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_11 = -1;
-static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_ieee_address = -1;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gp_feature;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_direct_comm;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_derived_gcast_comm;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_pre_commissioned_gcast_comm;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_full_ucast_comm;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_lw_ucast_comm;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_bidir_op;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_proxy_tbl_maintenance;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gp_commissioning;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_ct_based_commissioning;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_maintenance_of_gpd;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_00;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_01;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_10;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_secur_lvl_11;
+static gint hf_zbee_zcl_gp_attr_gpp_func_fld_gpd_ieee_address;
 
 /* GP gppActiveFunctionality Attribute */
-static gint ett_zbee_zcl_gp_attr_gpp_active_func = -1;
-static gint hf_zbee_zcl_gp_attr_gpp_active_func = -1;
-static gint hf_zbee_zcl_gp_attr_gpp_active_func_fld_gp_functionality = -1;
+static gint ett_zbee_zcl_gp_attr_gpp_active_func;
+static gint hf_zbee_zcl_gp_attr_gpp_active_func;
+static gint hf_zbee_zcl_gp_attr_gpp_active_func_fld_gp_functionality;
 
 /* GP gpsFunctionality Attribute */
-static gint ett_zbee_zcl_gp_attr_gps_func = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func = -1;
+static gint ett_zbee_zcl_gp_attr_gps_func;
+static gint hf_zbee_zcl_gp_attr_gps_func;
 
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_gp_feature = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_direct_comm = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_derived_gcast_comm = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_pre_commissioned_gcast_comm = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_full_ucast_comm = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_lw_ucast_comm = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_proximity_bidir_op = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_multi_hop_bidir_op = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_proxy_tbl_maintenance = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_proximity_commissioning = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_multi_hop_commissioning = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_ct_based_commissioning = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_maintenance_of_gpd = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_00 = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_01 = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_10 = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_11 = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_sink_tbl_based_gcast_forwarding = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_translation_table = -1;
-static gint hf_zbee_zcl_gp_attr_gps_func_fld_gpd_ieee_address = -1;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_gp_feature;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_direct_comm;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_derived_gcast_comm;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_pre_commissioned_gcast_comm;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_full_ucast_comm;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_lw_ucast_comm;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_proximity_bidir_op;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_multi_hop_bidir_op;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_proxy_tbl_maintenance;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_proximity_commissioning;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_multi_hop_commissioning;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_ct_based_commissioning;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_maintenance_of_gpd;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_00;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_01;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_10;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_gpd_secur_lvl_11;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_sink_tbl_based_gcast_forwarding;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_translation_table;
+static gint hf_zbee_zcl_gp_attr_gps_func_fld_gpd_ieee_address;
 
 /* GP gppActiveFunctionality Attribute */
-static gint ett_zbee_zcl_gp_attr_gps_active_func = -1;
-static gint hf_zbee_zcl_gp_attr_gps_active_func = -1;
-static gint hf_zbee_zcl_gp_attr_gps_active_func_fld_gp_functionality = -1;
+static gint ett_zbee_zcl_gp_attr_gps_active_func;
+static gint hf_zbee_zcl_gp_attr_gps_active_func;
+static gint hf_zbee_zcl_gp_attr_gps_active_func_fld_gp_functionality;
 
 /* GP gpsCommissioningExitMode Attribute */
-static gint ett_zbee_zcl_gp_attr_gps_comm_exit_mode = -1;
-static gint hf_zbee_zcl_gp_attr_gps_comm_exit_mode = -1;
-static gint hf_zbee_zcl_gp_attr_gps_comm_exit_mode_fld_on_comm_window_expire = -1;
-static gint hf_zbee_zcl_gp_attr_gps_comm_exit_mode_fld_on_pairing_success = -1;
-static gint hf_zbee_zcl_gp_attr_gps_comm_exit_mode_fld_on_gp_proxy_comm_mode = -1;
+static gint ett_zbee_zcl_gp_attr_gps_comm_exit_mode;
+static gint hf_zbee_zcl_gp_attr_gps_comm_exit_mode;
+static gint hf_zbee_zcl_gp_attr_gps_comm_exit_mode_fld_on_comm_window_expire;
+static gint hf_zbee_zcl_gp_attr_gps_comm_exit_mode_fld_on_pairing_success;
+static gint hf_zbee_zcl_gp_attr_gps_comm_exit_mode_fld_on_gp_proxy_comm_mode;
 
 /* GP gpsCommunicationMode Attribute */
-static gint ett_zbee_zcl_gp_attr_gps_communication_mode = -1;
-static gint hf_zbee_zcl_gp_attr_gps_communication_mode = -1;
-static gint hf_zbee_zcl_gp_attr_gps_communication_mode_fld_mode = -1;
+static gint ett_zbee_zcl_gp_attr_gps_communication_mode;
+static gint hf_zbee_zcl_gp_attr_gps_communication_mode;
+static gint hf_zbee_zcl_gp_attr_gps_communication_mode_fld_mode;
 
 /* GP gpsSecurityLevel Attribute */
-static gint ett_zbee_zcl_gp_attr_gps_secur_lvl = -1;
-static gint hf_zbee_zcl_gp_attr_gps_secur_lvl = -1;
-static gint hf_zbee_zcl_gp_attr_gps_secur_lvl_fld_min_gpd_secur_lvl = -1;
-static gint hf_zbee_zcl_gp_attr_gps_secur_lvl_fld_protection_with_gp_link_key = -1;
-static gint hf_zbee_zcl_gp_attr_gps_secur_lvl_fld_involve_tc = -1;
+static gint ett_zbee_zcl_gp_attr_gps_secur_lvl;
+static gint hf_zbee_zcl_gp_attr_gps_secur_lvl;
+static gint hf_zbee_zcl_gp_attr_gps_secur_lvl_fld_min_gpd_secur_lvl;
+static gint hf_zbee_zcl_gp_attr_gps_secur_lvl_fld_protection_with_gp_link_key;
+static gint hf_zbee_zcl_gp_attr_gps_secur_lvl_fld_involve_tc;
 
 /* reuse ZGPD command names */
 extern value_string_ext zbee_nwk_gp_cmd_names_ext;
@@ -15828,62 +15828,62 @@ void proto_reg_handoff_zbee_zcl_touchlink(void);
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_touchlink = -1;
+static int proto_zbee_zcl_touchlink;
 
-static int hf_zbee_zcl_touchlink_rx_cmd_id = -1;
-static int hf_zbee_zcl_touchlink_tx_cmd_id = -1;
-static int hf_zbee_zcl_touchlink_transaction_id = -1;
-static int hf_zbee_zcl_touchlink_zbee = -1;
-static int hf_zbee_zcl_touchlink_zbee_type = -1;
-static int hf_zbee_zcl_touchlink_zbee_rxidle = -1;
-static int hf_zbee_zcl_touchlink_info = -1;
-static int hf_zbee_zcl_touchlink_info_factory = -1;
-static int hf_zbee_zcl_touchlink_info_assignment = -1;
-static int hf_zbee_zcl_touchlink_info_initiator = -1;
-static int hf_zbee_zcl_touchlink_info_undefined = -1;
-static int hf_zbee_zcl_touchlink_info_profile_introp = -1;
-static int hf_zbee_zcl_touchlink_start_index = -1;
-static int hf_zbee_zcl_touchlink_ident_duration = -1;
+static int hf_zbee_zcl_touchlink_rx_cmd_id;
+static int hf_zbee_zcl_touchlink_tx_cmd_id;
+static int hf_zbee_zcl_touchlink_transaction_id;
+static int hf_zbee_zcl_touchlink_zbee;
+static int hf_zbee_zcl_touchlink_zbee_type;
+static int hf_zbee_zcl_touchlink_zbee_rxidle;
+static int hf_zbee_zcl_touchlink_info;
+static int hf_zbee_zcl_touchlink_info_factory;
+static int hf_zbee_zcl_touchlink_info_assignment;
+static int hf_zbee_zcl_touchlink_info_initiator;
+static int hf_zbee_zcl_touchlink_info_undefined;
+static int hf_zbee_zcl_touchlink_info_profile_introp;
+static int hf_zbee_zcl_touchlink_start_index;
+static int hf_zbee_zcl_touchlink_ident_duration;
 
-static int hf_zbee_zcl_touchlink_rssi_correction = -1;
-static int hf_zbee_zcl_touchlink_response_id = -1;
-static int hf_zbee_zcl_touchlink_ext_panid = -1;
-static int hf_zbee_zcl_touchlink_nwk_update_id = -1;
-static int hf_zbee_zcl_touchlink_channel = -1;
-static int hf_zbee_zcl_touchlink_nwk_addr = -1;
-static int hf_zbee_zcl_touchlink_ext_addr = -1;
-static int hf_zbee_zcl_touchlink_panid = -1;
-static int hf_zbee_zcl_touchlink_sub_devices = -1;
-static int hf_zbee_zcl_touchlink_total_groups = -1;
-static int hf_zbee_zcl_touchlink_endpoint = -1;
-static int hf_zbee_zcl_touchlink_profile_id = -1;
-static int hf_zbee_zcl_touchlink_device_id = -1;
-static int hf_zbee_zcl_touchlink_version = -1;
-static int hf_zbee_zcl_touchlink_group_count = -1;
-static int hf_zbee_zcl_touchlink_group_begin = -1;
-static int hf_zbee_zcl_touchlink_group_end = -1;
-static int hf_zbee_zcl_touchlink_group_type = -1;
-static int hf_zbee_zcl_touchlink_group_id = -1;
-static int hf_zbee_zcl_touchlink_addr_range_begin = -1;
-static int hf_zbee_zcl_touchlink_addr_range_end = -1;
-static int hf_zbee_zcl_touchlink_group_range_begin = -1;
-static int hf_zbee_zcl_touchlink_group_range_end = -1;
-static int hf_zbee_zcl_touchlink_key_bitmask = -1;
-static int hf_zbee_zcl_touchlink_key_bit_dev = -1;
-static int hf_zbee_zcl_touchlink_key_bit_master = -1;
-static int hf_zbee_zcl_touchlink_key_bit_cert = -1;
-static int hf_zbee_zcl_touchlink_key_index = -1;
-static int hf_zbee_zcl_touchlink_key = -1;
-static int hf_zbee_zcl_touchlink_init_addr = -1;
-static int hf_zbee_zcl_touchlink_init_eui64 = -1;
-static int hf_zbee_zcl_touchlink_status = -1;
+static int hf_zbee_zcl_touchlink_rssi_correction;
+static int hf_zbee_zcl_touchlink_response_id;
+static int hf_zbee_zcl_touchlink_ext_panid;
+static int hf_zbee_zcl_touchlink_nwk_update_id;
+static int hf_zbee_zcl_touchlink_channel;
+static int hf_zbee_zcl_touchlink_nwk_addr;
+static int hf_zbee_zcl_touchlink_ext_addr;
+static int hf_zbee_zcl_touchlink_panid;
+static int hf_zbee_zcl_touchlink_sub_devices;
+static int hf_zbee_zcl_touchlink_total_groups;
+static int hf_zbee_zcl_touchlink_endpoint;
+static int hf_zbee_zcl_touchlink_profile_id;
+static int hf_zbee_zcl_touchlink_device_id;
+static int hf_zbee_zcl_touchlink_version;
+static int hf_zbee_zcl_touchlink_group_count;
+static int hf_zbee_zcl_touchlink_group_begin;
+static int hf_zbee_zcl_touchlink_group_end;
+static int hf_zbee_zcl_touchlink_group_type;
+static int hf_zbee_zcl_touchlink_group_id;
+static int hf_zbee_zcl_touchlink_addr_range_begin;
+static int hf_zbee_zcl_touchlink_addr_range_end;
+static int hf_zbee_zcl_touchlink_group_range_begin;
+static int hf_zbee_zcl_touchlink_group_range_end;
+static int hf_zbee_zcl_touchlink_key_bitmask;
+static int hf_zbee_zcl_touchlink_key_bit_dev;
+static int hf_zbee_zcl_touchlink_key_bit_master;
+static int hf_zbee_zcl_touchlink_key_bit_cert;
+static int hf_zbee_zcl_touchlink_key_index;
+static int hf_zbee_zcl_touchlink_key;
+static int hf_zbee_zcl_touchlink_init_addr;
+static int hf_zbee_zcl_touchlink_init_eui64;
+static int hf_zbee_zcl_touchlink_status;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_touchlink = -1;
-static gint ett_zbee_zcl_touchlink_zbee = -1;
-static gint ett_zbee_zcl_touchlink_info = -1;
-static gint ett_zbee_zcl_touchlink_keybits = -1;
-static gint ett_zbee_zcl_touchlink_groups = -1;
+static gint ett_zbee_zcl_touchlink;
+static gint ett_zbee_zcl_touchlink_zbee;
+static gint ett_zbee_zcl_touchlink_info;
+static gint ett_zbee_zcl_touchlink_keybits;
+static gint ett_zbee_zcl_touchlink_groups;
 
 /* Command names */
 static const value_string zbee_zcl_touchlink_rx_cmd_names[] = {

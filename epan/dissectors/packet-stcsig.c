@@ -40,24 +40,24 @@ void proto_reg_handoff_stcsig(void);
 #define PROTO_SHORT_NAME "STCSIG"
 #define PROTO_LONG_NAME "Spirent Test Center Signature"
 
-static int proto_stcsig = -1;
+static int proto_stcsig;
 
-static int hf_stcsig_csp = -1;
-static int hf_stcsig_iv = -1;
-static int hf_stcsig_prbseq = -1;
-static int hf_stcsig_rawdata = -1;
-static int hf_stcsig_seqnum_complement = -1;
-static int hf_stcsig_seqnum_edm = -1;
-static int hf_stcsig_seqnum_sm = -1;
-static int hf_stcsig_streamid = -1;
-static int hf_stcsig_streamindex = -1;
-static int hf_stcsig_streamtype = -1;
-static int hf_stcsig_timestamp = -1;
-static int hf_stcsig_tslr = -1;
-static int hf_stcsig_unknown = -1;
+static int hf_stcsig_csp;
+static int hf_stcsig_iv;
+static int hf_stcsig_prbseq;
+static int hf_stcsig_rawdata;
+static int hf_stcsig_seqnum_complement;
+static int hf_stcsig_seqnum_edm;
+static int hf_stcsig_seqnum_sm;
+static int hf_stcsig_streamid;
+static int hf_stcsig_streamindex;
+static int hf_stcsig_streamtype;
+static int hf_stcsig_timestamp;
+static int hf_stcsig_tslr;
+static int hf_stcsig_unknown;
 
-static gint ett_stcsig = -1;
-static gint ett_stcsig_streamid = -1;
+static gint ett_stcsig;
+static gint ett_stcsig_streamid;
 
 static const true_false_string tfs_end_start = { "EndOfFrame", "StartOfFrame" };
 

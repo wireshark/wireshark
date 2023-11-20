@@ -89,47 +89,47 @@ struct vis_data_v23 {
 /* End content from packet-bat.h */
 
 /* trees */
-static gint ett_bat_batman = -1;
-static gint ett_bat_batman_flags = -1;
-static gint ett_bat_batman_gwflags = -1;
-static gint ett_bat_batman_hna = -1;
-static gint ett_bat_gw = -1;
-static gint ett_bat_vis = -1;
-static gint ett_bat_vis_entry = -1;
+static gint ett_bat_batman;
+static gint ett_bat_batman_flags;
+static gint ett_bat_batman_gwflags;
+static gint ett_bat_batman_hna;
+static gint ett_bat_gw;
+static gint ett_bat_vis;
+static gint ett_bat_vis_entry;
 
 /* hfs */
-static int hf_bat_batman_version = -1;
-static int hf_bat_batman_flags = -1;
-static int hf_bat_batman_ttl = -1;
-static int hf_bat_batman_gwflags = -1;
-static int hf_bat_batman_gwflags_dl_speed = -1;
-static int hf_bat_batman_gwflags_ul_speed = -1;
-static int hf_bat_batman_seqno = -1;
-static int hf_bat_batman_gwport = -1;
-static int hf_bat_batman_orig = -1;
-static int hf_bat_batman_old_orig = -1;
-static int hf_bat_batman_tq = -1;
-static int hf_bat_batman_hna_len = -1;
-static int hf_bat_batman_hna_network = -1;
-static int hf_bat_batman_hna_netmask = -1;
+static int hf_bat_batman_version;
+static int hf_bat_batman_flags;
+static int hf_bat_batman_ttl;
+static int hf_bat_batman_gwflags;
+static int hf_bat_batman_gwflags_dl_speed;
+static int hf_bat_batman_gwflags_ul_speed;
+static int hf_bat_batman_seqno;
+static int hf_bat_batman_gwport;
+static int hf_bat_batman_orig;
+static int hf_bat_batman_old_orig;
+static int hf_bat_batman_tq;
+static int hf_bat_batman_hna_len;
+static int hf_bat_batman_hna_network;
+static int hf_bat_batman_hna_netmask;
 
-static int hf_bat_gw_type = -1;
-static int hf_bat_gw_ip = -1;
+static int hf_bat_gw_type;
+static int hf_bat_gw_ip;
 
-static int hf_bat_vis_vis_orig = -1;
-static int hf_bat_vis_version = -1;
-static int hf_bat_vis_gwflags = -1;
-static int hf_bat_max_tq_v22 = -1;
-static int hf_bat_max_tq_v23 = -1;
-static int hf_bat_vis_data_type = -1;
-static int hf_bat_vis_netmask = -1;
-static int hf_bat_vis_tq_v22 = -1;
-static int hf_bat_vis_tq_v23 = -1;
-static int hf_bat_vis_data_ip = -1;
+static int hf_bat_vis_vis_orig;
+static int hf_bat_vis_version;
+static int hf_bat_vis_gwflags;
+static int hf_bat_max_tq_v22;
+static int hf_bat_max_tq_v23;
+static int hf_bat_vis_data_type;
+static int hf_bat_vis_netmask;
+static int hf_bat_vis_tq_v22;
+static int hf_bat_vis_tq_v23;
+static int hf_bat_vis_data_ip;
 
 /* flags */
-static int hf_bat_batman_flags_unidirectional = -1;
-static int hf_bat_batman_flags_directlink = -1;
+static int hf_bat_batman_flags_unidirectional;
+static int hf_bat_batman_flags_directlink;
 
 static const value_string gw_packettypenames[] = {
 	{ TUNNEL_DATA,		    "DATA" },
@@ -161,9 +161,9 @@ static void dissect_bat_hna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* other dissectors */
 static dissector_handle_t ip_handle;
 
-static int proto_bat_plugin = -1;
-static int proto_bat_gw = -1;
-static int proto_bat_vis = -1;
+static int proto_bat_plugin;
+static int proto_bat_gw;
+static int proto_bat_vis;
 
 /* tap */
 static int bat_tap = -1;

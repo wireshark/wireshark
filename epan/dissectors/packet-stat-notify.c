@@ -17,13 +17,13 @@
 void proto_register_statnotify(void);
 void proto_reg_handoff_statnotify(void);
 
-static int proto_statnotify = -1;
-static int hf_statnotify_procedure_v1 = -1;
-static int hf_statnotify_name = -1;
-static int hf_statnotify_state = -1;
-static int hf_statnotify_priv = -1;
+static int proto_statnotify;
+static int hf_statnotify_procedure_v1;
+static int hf_statnotify_name;
+static int hf_statnotify_state;
+static int hf_statnotify_priv;
 
-static gint ett_statnotify = -1;
+static gint ett_statnotify;
 
 
 static int

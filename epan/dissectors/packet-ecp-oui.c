@@ -43,27 +43,27 @@ void proto_reg_handoff_ecp(void);
 #define TLV_INFO_LEN_MASK	0x01FF
 #define TLV_INFO_LEN(value)	((value) & TLV_INFO_LEN_MASK)
 
-static gint proto_ecp = -1;
-static gint hf_ecp_pid = -1;
-static gint hf_ecp_tlv_type = -1;
-static gint hf_ecp_tlv_len = -1;
-static gint hf_ecp_subtype = -1;
-static gint hf_ecp_mode = -1;
-static gint hf_ecp_sequence = -1;
-/* static gint hf_ecp_vdp_oui = -1; */
-static gint hf_ecp_vdp_mode = -1;
-static gint hf_ecp_vdp_response = -1;
-static gint hf_ecp_vdp_mgrid = -1;
-static gint hf_ecp_vdp_vsitypeid = -1;
-static gint hf_ecp_vdp_vsitypeidversion = -1;
-static gint hf_ecp_vdp_instanceid = -1;
-static gint hf_ecp_vdp_format = -1;
-static gint hf_ecp_vdp_mac = -1;
-static gint hf_ecp_vdp_vlan = -1;
+static gint proto_ecp;
+static gint hf_ecp_pid;
+static gint hf_ecp_tlv_type;
+static gint hf_ecp_tlv_len;
+static gint hf_ecp_subtype;
+static gint hf_ecp_mode;
+static gint hf_ecp_sequence;
+/* static gint hf_ecp_vdp_oui; */
+static gint hf_ecp_vdp_mode;
+static gint hf_ecp_vdp_response;
+static gint hf_ecp_vdp_mgrid;
+static gint hf_ecp_vdp_vsitypeid;
+static gint hf_ecp_vdp_vsitypeidversion;
+static gint hf_ecp_vdp_instanceid;
+static gint hf_ecp_vdp_format;
+static gint hf_ecp_vdp_mac;
+static gint hf_ecp_vdp_vlan;
 
-static gint ett_ecp = -1;
-static gint ett_end_of_vdpdu = -1;
-static gint ett_802_1qbg_capabilities_flags = -1;
+static gint ett_ecp;
+static gint ett_end_of_vdpdu;
+static gint ett_802_1qbg_capabilities_flags;
 
 static dissector_handle_t ecp_handle;
 

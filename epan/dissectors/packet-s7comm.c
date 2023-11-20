@@ -30,7 +30,7 @@
 #define S7COMM_PROT_ID                      0x32
 
 /* Wireshark ID of the S7COMM protocol */
-static int proto_s7comm = -1;
+static int proto_s7comm;
 
 /* Forward declarations */
 void proto_reg_handoff_s7comm(void);
@@ -1101,152 +1101,152 @@ static const value_string nck_module_names[] = {
 };
 static value_string_ext nck_module_names_ext = VALUE_STRING_EXT_INIT(nck_module_names);
 
-static gint hf_s7comm_tia1200_item_reserved1 = -1;          /* 1 Byte Reserved (always 0xff?) */
-static gint hf_s7comm_tia1200_item_area1 = -1;              /* 2 Byte2 Root area (DB or IQMCT) */
-static gint hf_s7comm_tia1200_item_area2 = -1;              /* 2 Bytes detail area (I/Q/M/C/T) */
-static gint hf_s7comm_tia1200_item_area2unknown = -1;       /* 2 Bytes detail area for possible unknown or not seen areas */
-static gint hf_s7comm_tia1200_item_dbnumber = -1;           /* 2 Bytes DB number */
-static gint hf_s7comm_tia1200_item_crc = -1;                /* 4 Bytes CRC */
+static gint hf_s7comm_tia1200_item_reserved1;          /* 1 Byte Reserved (always 0xff?) */
+static gint hf_s7comm_tia1200_item_area1;              /* 2 Byte2 Root area (DB or IQMCT) */
+static gint hf_s7comm_tia1200_item_area2;              /* 2 Bytes detail area (I/Q/M/C/T) */
+static gint hf_s7comm_tia1200_item_area2unknown;       /* 2 Bytes detail area for possible unknown or not seen areas */
+static gint hf_s7comm_tia1200_item_dbnumber;           /* 2 Bytes DB number */
+static gint hf_s7comm_tia1200_item_crc;                /* 4 Bytes CRC */
 
-static gint hf_s7comm_tia1200_substructure_item = -1;       /* Substructure */
-static gint hf_s7comm_tia1200_var_lid_flags = -1;           /* LID Flags */
-static gint hf_s7comm_tia1200_item_value = -1;
+static gint hf_s7comm_tia1200_substructure_item;       /* Substructure */
+static gint hf_s7comm_tia1200_var_lid_flags;           /* LID Flags */
+static gint hf_s7comm_tia1200_item_value;
 
 /**************************************************************************
  **************************************************************************/
 
 /* Header Block */
-static gint hf_s7comm_header = -1;
-static gint hf_s7comm_header_protid = -1;                   /* Header Byte  0 */
-static gint hf_s7comm_header_rosctr = -1;                   /* Header Bytes 1 */
-static gint hf_s7comm_header_redid = -1;                    /* Header Bytes 2, 3 */
-static gint hf_s7comm_header_pduref = -1;                   /* Header Bytes 4, 5 */
-static gint hf_s7comm_header_parlg = -1;                    /* Header Bytes 6, 7 */
-static gint hf_s7comm_header_datlg = -1;                    /* Header Bytes 8, 9 */
-static gint hf_s7comm_header_errcls = -1;                   /* Header Byte 10, only available at type 2 or 3 */
-static gint hf_s7comm_header_errcod = -1;                   /* Header Byte 11, only available at type 2 or 3 */
+static gint hf_s7comm_header;
+static gint hf_s7comm_header_protid;                   /* Header Byte  0 */
+static gint hf_s7comm_header_rosctr;                   /* Header Bytes 1 */
+static gint hf_s7comm_header_redid;                    /* Header Bytes 2, 3 */
+static gint hf_s7comm_header_pduref;                   /* Header Bytes 4, 5 */
+static gint hf_s7comm_header_parlg;                    /* Header Bytes 6, 7 */
+static gint hf_s7comm_header_datlg;                    /* Header Bytes 8, 9 */
+static gint hf_s7comm_header_errcls;                   /* Header Byte 10, only available at type 2 or 3 */
+static gint hf_s7comm_header_errcod;                   /* Header Byte 11, only available at type 2 or 3 */
 /* Parameter Block */
-static gint hf_s7comm_param = -1;
-static gint hf_s7comm_param_errcod = -1;                    /* Parameter part: Error code */
-static gint hf_s7comm_param_service = -1;                   /* Parameter part: service */
-static gint hf_s7comm_param_itemcount = -1;                 /* Parameter part: item count */
-static gint hf_s7comm_param_data = -1;                      /* Parameter part: data */
-static gint hf_s7comm_param_neg_pdu_length = -1;            /* Parameter part: Negotiate PDU length */
-static gint hf_s7comm_param_setup_reserved1 = -1;           /* Parameter part: Reserved byte in communication setup pdu*/
+static gint hf_s7comm_param;
+static gint hf_s7comm_param_errcod;                    /* Parameter part: Error code */
+static gint hf_s7comm_param_service;                   /* Parameter part: service */
+static gint hf_s7comm_param_itemcount;                 /* Parameter part: item count */
+static gint hf_s7comm_param_data;                      /* Parameter part: data */
+static gint hf_s7comm_param_neg_pdu_length;            /* Parameter part: Negotiate PDU length */
+static gint hf_s7comm_param_setup_reserved1;           /* Parameter part: Reserved byte in communication setup pdu*/
 
-static gint hf_s7comm_param_maxamq_calling = -1;            /* Parameter part: Max AmQ calling */
-static gint hf_s7comm_param_maxamq_called = -1;             /* Parameter part: Max AmQ called */
+static gint hf_s7comm_param_maxamq_calling;            /* Parameter part: Max AmQ calling */
+static gint hf_s7comm_param_maxamq_called;             /* Parameter part: Max AmQ called */
 
 /* Item data */
-static gint hf_s7comm_param_item = -1;
-static gint hf_s7comm_param_subitem = -1;                   /* Substructure */
-static gint hf_s7comm_item_varspec = -1;                    /* Variable specification */
-static gint hf_s7comm_item_varspec_length = -1;             /* Length of following address specification */
-static gint hf_s7comm_item_syntax_id = -1;                  /* Syntax Id */
-static gint hf_s7comm_item_transport_size = -1;             /* Transport size, 1 Byte*/
-static gint hf_s7comm_item_length = -1;                     /* length, 2 Bytes*/
-static gint hf_s7comm_item_db = -1;                         /* DB/M/E/A, 2 Bytes */
-static gint hf_s7comm_item_area = -1;                       /* Area code, 1 byte */
-static gint hf_s7comm_item_address = -1;                    /* Bit address, 3 Bytes */
-static gint hf_s7comm_item_address_byte = -1;               /* address: Byte address */
-static gint hf_s7comm_item_address_bit = -1;                /* address: Bit address */
-static gint hf_s7comm_item_address_nr = -1;                 /* address: Timer/Counter/block number */
+static gint hf_s7comm_param_item;
+static gint hf_s7comm_param_subitem;                   /* Substructure */
+static gint hf_s7comm_item_varspec;                    /* Variable specification */
+static gint hf_s7comm_item_varspec_length;             /* Length of following address specification */
+static gint hf_s7comm_item_syntax_id;                  /* Syntax Id */
+static gint hf_s7comm_item_transport_size;             /* Transport size, 1 Byte*/
+static gint hf_s7comm_item_length;                     /* length, 2 Bytes*/
+static gint hf_s7comm_item_db;                         /* DB/M/E/A, 2 Bytes */
+static gint hf_s7comm_item_area;                       /* Area code, 1 byte */
+static gint hf_s7comm_item_address;                    /* Bit address, 3 Bytes */
+static gint hf_s7comm_item_address_byte;               /* address: Byte address */
+static gint hf_s7comm_item_address_bit;                /* address: Bit address */
+static gint hf_s7comm_item_address_nr;                 /* address: Timer/Counter/block number */
 /* Special variable read with Syntax-Id 0xb0 (DBREAD) */
-static gint hf_s7comm_item_dbread_numareas = -1;            /* Number of areas following, 1 Byte*/
-static gint hf_s7comm_item_dbread_length = -1;              /* length, 1 Byte*/
-static gint hf_s7comm_item_dbread_db = -1;                  /* DB number, 2 Bytes*/
-static gint hf_s7comm_item_dbread_startadr = -1;            /* Start address, 2 Bytes*/
+static gint hf_s7comm_item_dbread_numareas;            /* Number of areas following, 1 Byte*/
+static gint hf_s7comm_item_dbread_length;              /* length, 1 Byte*/
+static gint hf_s7comm_item_dbread_db;                  /* DB number, 2 Bytes*/
+static gint hf_s7comm_item_dbread_startadr;            /* Start address, 2 Bytes*/
 /* Reading frequency inverter parameters via routing */
-static gint hf_s7comm_item_driveesany_unknown1 = -1;        /* Unknown value 1, 1 Byte */
-static gint hf_s7comm_item_driveesany_unknown2 = -1;        /* Unknown value 2, 2 Bytes */
-static gint hf_s7comm_item_driveesany_unknown3 = -1;        /* Unknown value 3, 2 Bytes */
-static gint hf_s7comm_item_driveesany_parameter_nr = -1;    /* Parameter number, 2 Bytes */
-static gint hf_s7comm_item_driveesany_parameter_idx = -1;   /* Parameter index, 2 Bytes */
+static gint hf_s7comm_item_driveesany_unknown1;        /* Unknown value 1, 1 Byte */
+static gint hf_s7comm_item_driveesany_unknown2;        /* Unknown value 2, 2 Bytes */
+static gint hf_s7comm_item_driveesany_unknown3;        /* Unknown value 3, 2 Bytes */
+static gint hf_s7comm_item_driveesany_parameter_nr;    /* Parameter number, 2 Bytes */
+static gint hf_s7comm_item_driveesany_parameter_idx;   /* Parameter index, 2 Bytes */
 /* NCK access with Syntax-Id 0x82 */
-static gint hf_s7comm_item_nck_areaunit = -1;               /* Bitmask: aaauuuuu: a=area, u=unit */
-static gint hf_s7comm_item_nck_area = -1;
-static gint hf_s7comm_item_nck_unit = -1;
-static gint hf_s7comm_item_nck_column = -1;
-static gint hf_s7comm_item_nck_line = -1;
-static gint hf_s7comm_item_nck_module = -1;
-static gint hf_s7comm_item_nck_linecount = -1;
+static gint hf_s7comm_item_nck_areaunit;               /* Bitmask: aaauuuuu: a=area, u=unit */
+static gint hf_s7comm_item_nck_area;
+static gint hf_s7comm_item_nck_unit;
+static gint hf_s7comm_item_nck_column;
+static gint hf_s7comm_item_nck_line;
+static gint hf_s7comm_item_nck_module;
+static gint hf_s7comm_item_nck_linecount;
 
-static gint hf_s7comm_data = -1;
-static gint hf_s7comm_data_returncode = -1;                 /* return code, 1 byte */
-static gint hf_s7comm_data_transport_size = -1;             /* transport size 1 byte */
-static gint hf_s7comm_data_length = -1;                     /* Length of data, 2 Bytes */
+static gint hf_s7comm_data;
+static gint hf_s7comm_data_returncode;                 /* return code, 1 byte */
+static gint hf_s7comm_data_transport_size;             /* transport size 1 byte */
+static gint hf_s7comm_data_length;                     /* Length of data, 2 Bytes */
 
-static gint hf_s7comm_data_item = -1;
+static gint hf_s7comm_data_item;
 
-static gint hf_s7comm_readresponse_data = -1;
-static gint hf_s7comm_data_fillbyte = -1;
+static gint hf_s7comm_readresponse_data;
+static gint hf_s7comm_data_fillbyte;
 
 /* timefunction: s7 timestamp */
-static gint hf_s7comm_data_ts = -1;
-static gint hf_s7comm_data_ts_reserved = -1;
-static gint hf_s7comm_data_ts_year1 = -1;                   /* first byte of BCD coded year, should be ignored */
-static gint hf_s7comm_data_ts_year2 = -1;                   /* second byte of BCD coded year, if 00...89 then it's 2000...2089, else 1990...1999*/
-static gint hf_s7comm_data_ts_month = -1;
-static gint hf_s7comm_data_ts_day = -1;
-static gint hf_s7comm_data_ts_hour = -1;
-static gint hf_s7comm_data_ts_minute = -1;
-static gint hf_s7comm_data_ts_second = -1;
-static gint hf_s7comm_data_ts_millisecond = -1;
-static gint hf_s7comm_data_ts_weekday = -1;
+static gint hf_s7comm_data_ts;
+static gint hf_s7comm_data_ts_reserved;
+static gint hf_s7comm_data_ts_year1;                   /* first byte of BCD coded year, should be ignored */
+static gint hf_s7comm_data_ts_year2;                   /* second byte of BCD coded year, if 00...89 then it's 2000...2089, else 1990...1999*/
+static gint hf_s7comm_data_ts_month;
+static gint hf_s7comm_data_ts_day;
+static gint hf_s7comm_data_ts_hour;
+static gint hf_s7comm_data_ts_minute;
+static gint hf_s7comm_data_ts_second;
+static gint hf_s7comm_data_ts_millisecond;
+static gint hf_s7comm_data_ts_weekday;
 
 /* userdata, block services */
-static gint hf_s7comm_userdata_data = -1;
+static gint hf_s7comm_userdata_data;
 
-static gint hf_s7comm_userdata_param_type = -1;
-static gint hf_s7comm_userdata_param_funcgroup = -1;
-static gint hf_s7comm_userdata_param_subfunc_prog = -1;
-static gint hf_s7comm_userdata_param_subfunc_cyclic = -1;
-static gint hf_s7comm_userdata_param_subfunc_block = -1;
-static gint hf_s7comm_userdata_param_subfunc_cpu = -1;
-static gint hf_s7comm_userdata_param_subfunc_sec = -1;
-static gint hf_s7comm_userdata_param_subfunc_time = -1;
-static gint hf_s7comm_userdata_param_subfunc_ncprg = -1;
-static gint hf_s7comm_userdata_param_subfunc_drr = -1;
-static gint hf_s7comm_userdata_param_subfunc = -1;          /* for all other subfunctions */
-static gint hf_s7comm_userdata_param_seq_num = -1;
-static gint hf_s7comm_userdata_param_dataunitref = -1;
-static gint hf_s7comm_userdata_param_dataunit = -1;
+static gint hf_s7comm_userdata_param_type;
+static gint hf_s7comm_userdata_param_funcgroup;
+static gint hf_s7comm_userdata_param_subfunc_prog;
+static gint hf_s7comm_userdata_param_subfunc_cyclic;
+static gint hf_s7comm_userdata_param_subfunc_block;
+static gint hf_s7comm_userdata_param_subfunc_cpu;
+static gint hf_s7comm_userdata_param_subfunc_sec;
+static gint hf_s7comm_userdata_param_subfunc_time;
+static gint hf_s7comm_userdata_param_subfunc_ncprg;
+static gint hf_s7comm_userdata_param_subfunc_drr;
+static gint hf_s7comm_userdata_param_subfunc;          /* for all other subfunctions */
+static gint hf_s7comm_userdata_param_seq_num;
+static gint hf_s7comm_userdata_param_dataunitref;
+static gint hf_s7comm_userdata_param_dataunit;
 
 /* block functions, list blocks of type */
-static gint hf_s7comm_ud_blockinfo_block_type = -1;         /* Block type, 2 bytes */
-static gint hf_s7comm_ud_blockinfo_block_num = -1;          /* Block number, 2 bytes as int */
-static gint hf_s7comm_ud_blockinfo_block_cnt = -1;          /* Count, 2 bytes as int */
-static gint hf_s7comm_ud_blockinfo_block_flags = -1;        /* Block flags (unknown), 1 byte */
-static gint hf_s7comm_ud_blockinfo_block_lang = -1;         /* Block language, 1 byte, stringlist blocklanguage_names */
+static gint hf_s7comm_ud_blockinfo_block_type;         /* Block type, 2 bytes */
+static gint hf_s7comm_ud_blockinfo_block_num;          /* Block number, 2 bytes as int */
+static gint hf_s7comm_ud_blockinfo_block_cnt;          /* Count, 2 bytes as int */
+static gint hf_s7comm_ud_blockinfo_block_flags;        /* Block flags (unknown), 1 byte */
+static gint hf_s7comm_ud_blockinfo_block_lang;         /* Block language, 1 byte, stringlist blocklanguage_names */
 /* block functions, get block infos */
-static gint hf_s7comm_ud_blockinfo_block_num_ascii = -1;    /* Block number, 5 bytes, ASCII*/
-static gint hf_s7comm_ud_blockinfo_filesys = -1;            /* Filesystem, 1 byte, ASCII*/
-static gint hf_s7comm_ud_blockinfo_res_infolength = -1;     /* Length of Info, 2 bytes as int */
-static gint hf_s7comm_ud_blockinfo_res_unknown2 = -1;       /* Unknown blockinfo 2, 2 bytes, HEX*/
-static gint hf_s7comm_ud_blockinfo_res_const3 = -1;         /* Constant 3, 2 bytes, ASCII */
-static gint hf_s7comm_ud_blockinfo_res_unknown = -1;        /* Unknown byte(s) */
-static gint hf_s7comm_ud_blockinfo_subblk_type = -1;        /* Subblk type, 1 byte, stringlist subblktype_names */
-static gint hf_s7comm_ud_blockinfo_load_mem_len = -1;       /* Length load memory, 4 bytes, int */
-static gint hf_s7comm_ud_blockinfo_blocksecurity = -1;      /* Block Security, 4 bytes, stringlist blocksecurity_names*/
-static gint hf_s7comm_ud_blockinfo_interface_timestamp = -1;/* Interface Timestamp, string */
-static gint hf_s7comm_ud_blockinfo_code_timestamp = -1;     /* Code Timestamp, string */
-static gint hf_s7comm_ud_blockinfo_ssb_len = -1;            /* SSB length, 2 bytes, int */
-static gint hf_s7comm_ud_blockinfo_add_len = -1;            /* ADD length, 2 bytes, int */
-static gint hf_s7comm_ud_blockinfo_localdata_len = -1;      /* Length localdata, 2 bytes, int */
-static gint hf_s7comm_ud_blockinfo_mc7_len = -1;            /* Length MC7 code, 2 bytes, int */
-static gint hf_s7comm_ud_blockinfo_author = -1;             /* Author, 8 bytes, ASCII */
-static gint hf_s7comm_ud_blockinfo_family = -1;             /* Family, 8 bytes, ASCII */
-static gint hf_s7comm_ud_blockinfo_headername = -1;         /* Name (Header), 8 bytes, ASCII */
-static gint hf_s7comm_ud_blockinfo_headerversion = -1;      /* Version (Header), 8 bytes, ASCII */
-static gint hf_s7comm_ud_blockinfo_checksum = -1;           /* Block checksum, 2 bytes, HEX */
-static gint hf_s7comm_ud_blockinfo_reserved1 = -1;          /* Reserved 1, 4 bytes, HEX */
-static gint hf_s7comm_ud_blockinfo_reserved2 = -1;          /* Reserved 2, 4 bytes, HEX */
+static gint hf_s7comm_ud_blockinfo_block_num_ascii;    /* Block number, 5 bytes, ASCII*/
+static gint hf_s7comm_ud_blockinfo_filesys;            /* Filesystem, 1 byte, ASCII*/
+static gint hf_s7comm_ud_blockinfo_res_infolength;     /* Length of Info, 2 bytes as int */
+static gint hf_s7comm_ud_blockinfo_res_unknown2;       /* Unknown blockinfo 2, 2 bytes, HEX*/
+static gint hf_s7comm_ud_blockinfo_res_const3;         /* Constant 3, 2 bytes, ASCII */
+static gint hf_s7comm_ud_blockinfo_res_unknown;        /* Unknown byte(s) */
+static gint hf_s7comm_ud_blockinfo_subblk_type;        /* Subblk type, 1 byte, stringlist subblktype_names */
+static gint hf_s7comm_ud_blockinfo_load_mem_len;       /* Length load memory, 4 bytes, int */
+static gint hf_s7comm_ud_blockinfo_blocksecurity;      /* Block Security, 4 bytes, stringlist blocksecurity_names*/
+static gint hf_s7comm_ud_blockinfo_interface_timestamp;/* Interface Timestamp, string */
+static gint hf_s7comm_ud_blockinfo_code_timestamp;     /* Code Timestamp, string */
+static gint hf_s7comm_ud_blockinfo_ssb_len;            /* SSB length, 2 bytes, int */
+static gint hf_s7comm_ud_blockinfo_add_len;            /* ADD length, 2 bytes, int */
+static gint hf_s7comm_ud_blockinfo_localdata_len;      /* Length localdata, 2 bytes, int */
+static gint hf_s7comm_ud_blockinfo_mc7_len;            /* Length MC7 code, 2 bytes, int */
+static gint hf_s7comm_ud_blockinfo_author;             /* Author, 8 bytes, ASCII */
+static gint hf_s7comm_ud_blockinfo_family;             /* Family, 8 bytes, ASCII */
+static gint hf_s7comm_ud_blockinfo_headername;         /* Name (Header), 8 bytes, ASCII */
+static gint hf_s7comm_ud_blockinfo_headerversion;      /* Version (Header), 8 bytes, ASCII */
+static gint hf_s7comm_ud_blockinfo_checksum;           /* Block checksum, 2 bytes, HEX */
+static gint hf_s7comm_ud_blockinfo_reserved1;          /* Reserved 1, 4 bytes, HEX */
+static gint hf_s7comm_ud_blockinfo_reserved2;          /* Reserved 2, 4 bytes, HEX */
 
-static gint hf_s7comm_userdata_blockinfo_flags = -1;        /* Some flags in Block info response */
-static gint hf_s7comm_userdata_blockinfo_linked = -1;       /* Some flags in Block info response */
-static gint hf_s7comm_userdata_blockinfo_standard_block = -1;
-static gint hf_s7comm_userdata_blockinfo_nonretain = -1;    /* Some flags in Block info response */
-static gint ett_s7comm_userdata_blockinfo_flags = -1;
+static gint hf_s7comm_userdata_blockinfo_flags;        /* Some flags in Block info response */
+static gint hf_s7comm_userdata_blockinfo_linked;       /* Some flags in Block info response */
+static gint hf_s7comm_userdata_blockinfo_standard_block;
+static gint hf_s7comm_userdata_blockinfo_nonretain;    /* Some flags in Block info response */
+static gint ett_s7comm_userdata_blockinfo_flags;
 static int * const s7comm_userdata_blockinfo_flags_fields[] = {
     &hf_s7comm_userdata_blockinfo_linked,
     &hf_s7comm_userdata_blockinfo_standard_block,
@@ -1255,12 +1255,12 @@ static int * const s7comm_userdata_blockinfo_flags_fields[] = {
 };
 
 /* Programmer commands / Test and installation (TIS) functions */
-static gint hf_s7comm_tis_parameter = -1;
-static gint hf_s7comm_tis_data = -1;
-static gint hf_s7comm_tis_parametersize = -1;
-static gint hf_s7comm_tis_datasize = -1;
-static gint hf_s7comm_tis_param1 = -1;
-static gint hf_s7comm_tis_param2 = -1;
+static gint hf_s7comm_tis_parameter;
+static gint hf_s7comm_tis_data;
+static gint hf_s7comm_tis_parametersize;
+static gint hf_s7comm_tis_datasize;
+static gint hf_s7comm_tis_param1;
+static gint hf_s7comm_tis_param2;
 static const value_string tis_param2_names[] = {    /* Values and their meaning are not always clearly defined in every function */
     { 0,                                    "Update Monitor Variables / Activate Modify Values"},
     { 1,                                    "Monitor Variable / Modify Variable" },
@@ -1268,48 +1268,48 @@ static const value_string tis_param2_names[] = {    /* Values and their meaning 
     { 256,                                  "Force immediately" },
     { 0,                                    NULL }
 };
-static gint hf_s7comm_tis_param3 = -1;
+static gint hf_s7comm_tis_param3;
 static const value_string tis_param3_names[] = {
     { 0,                                    "Every cycle (permanent)" },
     { 1,                                    "Once" },
     { 2,                                    "Always (force)" },
     { 0,                                    NULL }
 };
-static gint hf_s7comm_tis_answersize = -1;
-static gint hf_s7comm_tis_param5 = -1;
-static gint hf_s7comm_tis_param6 = -1;
-static gint hf_s7comm_tis_param7 = -1;
-static gint hf_s7comm_tis_param8 = -1;
-static gint hf_s7comm_tis_param9 = -1;
-static gint hf_s7comm_tis_trgevent = -1;
-static gint hf_s7comm_tis_res_param1 = -1;
-static gint hf_s7comm_tis_res_param2 = -1;
-static gint hf_s7comm_tis_job_function = -1;
-static gint hf_s7comm_tis_job_seqnr = -1;
-static gint hf_s7comm_tis_job_reserved = -1;
+static gint hf_s7comm_tis_answersize;
+static gint hf_s7comm_tis_param5;
+static gint hf_s7comm_tis_param6;
+static gint hf_s7comm_tis_param7;
+static gint hf_s7comm_tis_param8;
+static gint hf_s7comm_tis_param9;
+static gint hf_s7comm_tis_trgevent;
+static gint hf_s7comm_tis_res_param1;
+static gint hf_s7comm_tis_res_param2;
+static gint hf_s7comm_tis_job_function;
+static gint hf_s7comm_tis_job_seqnr;
+static gint hf_s7comm_tis_job_reserved;
 
 
 
 /* B/I/L Stack */
-static gint hf_s7comm_tis_interrupted_blocktype = -1;
-static gint hf_s7comm_tis_interrupted_blocknr = -1;
-static gint hf_s7comm_tis_interrupted_address = -1;
-static gint hf_s7comm_tis_interrupted_prioclass = -1;
-static gint hf_s7comm_tis_continued_blocktype = -1;
-static gint hf_s7comm_tis_continued_blocknr = -1;
-static gint hf_s7comm_tis_continued_address = -1;
-static gint hf_s7comm_tis_breakpoint_blocktype = -1;
-static gint hf_s7comm_tis_breakpoint_blocknr = -1;
-static gint hf_s7comm_tis_breakpoint_address = -1;
-static gint hf_s7comm_tis_breakpoint_reserved = -1;
+static gint hf_s7comm_tis_interrupted_blocktype;
+static gint hf_s7comm_tis_interrupted_blocknr;
+static gint hf_s7comm_tis_interrupted_address;
+static gint hf_s7comm_tis_interrupted_prioclass;
+static gint hf_s7comm_tis_continued_blocktype;
+static gint hf_s7comm_tis_continued_blocknr;
+static gint hf_s7comm_tis_continued_address;
+static gint hf_s7comm_tis_breakpoint_blocktype;
+static gint hf_s7comm_tis_breakpoint_blocknr;
+static gint hf_s7comm_tis_breakpoint_address;
+static gint hf_s7comm_tis_breakpoint_reserved;
 
-static gint hf_s7comm_tis_p_callenv = -1;
+static gint hf_s7comm_tis_p_callenv;
 static const value_string tis_p_callenv_names[] = {
     { 0,                                   "Specified call environment"},
     { 2,                                   "Specified global and/or instance data block"},
     { 0,                                    NULL }
 };
-static gint hf_s7comm_tis_p_callcond = -1;
+static gint hf_s7comm_tis_p_callcond;
 static const value_string tis_p_callcond_names[] = {
     { 0x0000,                               "Not set" },
     { 0x0001,                               "On block number" },
@@ -1319,105 +1319,105 @@ static const value_string tis_p_callcond_names[] = {
     { 0x0a0a,                               "On DB1 (DB) and DB2 (DI) content" },
     { 0,                                    NULL }
 };
-static gint hf_s7comm_tis_p_callcond_blocktype = -1;
-static gint hf_s7comm_tis_p_callcond_blocknr = -1;
-static gint hf_s7comm_tis_p_callcond_address = -1;
+static gint hf_s7comm_tis_p_callcond_blocktype;
+static gint hf_s7comm_tis_p_callcond_blocknr;
+static gint hf_s7comm_tis_p_callcond_address;
 
 
-static gint hf_s7comm_tis_register_db1_type = -1;
-static gint hf_s7comm_tis_register_db2_type = -1;
-static gint hf_s7comm_tis_register_db1_nr = -1;
-static gint hf_s7comm_tis_register_db2_nr = -1;
-static gint hf_s7comm_tis_register_accu1 = -1;
-static gint hf_s7comm_tis_register_accu2 = -1;
-static gint hf_s7comm_tis_register_accu3 = -1;
-static gint hf_s7comm_tis_register_accu4 = -1;
-static gint hf_s7comm_tis_register_ar1 = -1;
-static gint hf_s7comm_tis_register_ar2 = -1;
-static gint hf_s7comm_tis_register_stw = -1;
-static gint hf_s7comm_tis_exithold_until = -1;
+static gint hf_s7comm_tis_register_db1_type;
+static gint hf_s7comm_tis_register_db2_type;
+static gint hf_s7comm_tis_register_db1_nr;
+static gint hf_s7comm_tis_register_db2_nr;
+static gint hf_s7comm_tis_register_accu1;
+static gint hf_s7comm_tis_register_accu2;
+static gint hf_s7comm_tis_register_accu3;
+static gint hf_s7comm_tis_register_accu4;
+static gint hf_s7comm_tis_register_ar1;
+static gint hf_s7comm_tis_register_ar2;
+static gint hf_s7comm_tis_register_stw;
+static gint hf_s7comm_tis_exithold_until;
 static const value_string tis_exithold_until_names[] = {
     { 0,                                    "Next breakpoint" },
     { 1,                                    "Next statement" },
     { 0,                                    NULL }
 };
-static gint hf_s7comm_tis_exithold_res1 = -1;
-static gint hf_s7comm_tis_bstack_nest_depth = -1;
-static gint hf_s7comm_tis_bstack_reserved = -1;
-static gint hf_s7comm_tis_istack_reserved = -1;
-static gint hf_s7comm_tis_lstack_reserved = -1;
-static gint hf_s7comm_tis_lstack_size = -1;
-static gint hf_s7comm_tis_lstack_data = -1;
-static gint hf_s7comm_tis_blockstat_flagsunknown = -1;
-static gint hf_s7comm_tis_blockstat_number_of_lines = -1;
-static gint hf_s7comm_tis_blockstat_line_address = -1;
-static gint hf_s7comm_tis_blockstat_data = -1;
-static gint hf_s7comm_tis_blockstat_reserved = -1;
+static gint hf_s7comm_tis_exithold_res1;
+static gint hf_s7comm_tis_bstack_nest_depth;
+static gint hf_s7comm_tis_bstack_reserved;
+static gint hf_s7comm_tis_istack_reserved;
+static gint hf_s7comm_tis_lstack_reserved;
+static gint hf_s7comm_tis_lstack_size;
+static gint hf_s7comm_tis_lstack_data;
+static gint hf_s7comm_tis_blockstat_flagsunknown;
+static gint hf_s7comm_tis_blockstat_number_of_lines;
+static gint hf_s7comm_tis_blockstat_line_address;
+static gint hf_s7comm_tis_blockstat_data;
+static gint hf_s7comm_tis_blockstat_reserved;
 
 /* Organization block local data */
-static gint hf_s7comm_ob_ev_class = -1;
-static gint hf_s7comm_ob_scan_1 = -1;
-static gint hf_s7comm_ob_strt_inf = -1;
-static gint hf_s7comm_ob_flt_id = -1;
-static gint hf_s7comm_ob_priority = -1;
-static gint hf_s7comm_ob_number = -1;
-static gint hf_s7comm_ob_reserved_1 = -1;
-static gint hf_s7comm_ob_reserved_2 = -1;
-static gint hf_s7comm_ob_reserved_3 = -1;
-static gint hf_s7comm_ob_reserved_4 = -1;
-static gint hf_s7comm_ob_reserved_4_dw = -1;
-static gint hf_s7comm_ob_prev_cycle = -1;
-static gint hf_s7comm_ob_min_cycle = -1;
-static gint hf_s7comm_ob_max_cycle = -1;
-static gint hf_s7comm_ob_period_exe = -1;
-static gint hf_s7comm_ob_sign = -1;
-static gint hf_s7comm_ob_dtime = -1;
-static gint hf_s7comm_ob_phase_offset = -1;
-static gint hf_s7comm_ob_exec_freq = -1;
-static gint hf_s7comm_ob_io_flag = -1;
-static gint hf_s7comm_ob_mdl_addr = -1;
-static gint hf_s7comm_ob_point_addr = -1;
-static gint hf_s7comm_ob_inf_len = -1;
-static gint hf_s7comm_ob_alarm_type = -1;
-static gint hf_s7comm_ob_alarm_slot = -1;
-static gint hf_s7comm_ob_alarm_spec = -1;
-static gint hf_s7comm_ob_error_info = -1;
-static gint hf_s7comm_ob_err_ev_class = -1;
-static gint hf_s7comm_ob_err_ev_num = -1;
-static gint hf_s7comm_ob_err_ob_priority = -1;
-static gint hf_s7comm_ob_err_ob_num = -1;
-static gint hf_s7comm_ob_rack_cpu = -1;
-static gint hf_s7comm_ob_8x_fault_flags = -1;
-static gint hf_s7comm_ob_mdl_type_b = -1;
-static gint hf_s7comm_ob_mdl_type_w = -1;
-static gint hf_s7comm_ob_rack_num = -1;
-static gint hf_s7comm_ob_racks_flt = -1;
-static gint hf_s7comm_ob_strtup = -1;
-static gint hf_s7comm_ob_stop = -1;
-static gint hf_s7comm_ob_strt_info = -1;
-static gint hf_s7comm_ob_sw_flt = -1;
-static gint hf_s7comm_ob_blk_type = -1;
-static gint hf_s7comm_ob_flt_reg = -1;
-static gint hf_s7comm_ob_flt_blk_num = -1;
-static gint hf_s7comm_ob_prg_addr = -1;
-static gint hf_s7comm_ob_mem_area = -1;
-static gint hf_s7comm_ob_mem_addr = -1;
+static gint hf_s7comm_ob_ev_class;
+static gint hf_s7comm_ob_scan_1;
+static gint hf_s7comm_ob_strt_inf;
+static gint hf_s7comm_ob_flt_id;
+static gint hf_s7comm_ob_priority;
+static gint hf_s7comm_ob_number;
+static gint hf_s7comm_ob_reserved_1;
+static gint hf_s7comm_ob_reserved_2;
+static gint hf_s7comm_ob_reserved_3;
+static gint hf_s7comm_ob_reserved_4;
+static gint hf_s7comm_ob_reserved_4_dw;
+static gint hf_s7comm_ob_prev_cycle;
+static gint hf_s7comm_ob_min_cycle;
+static gint hf_s7comm_ob_max_cycle;
+static gint hf_s7comm_ob_period_exe;
+static gint hf_s7comm_ob_sign;
+static gint hf_s7comm_ob_dtime;
+static gint hf_s7comm_ob_phase_offset;
+static gint hf_s7comm_ob_exec_freq;
+static gint hf_s7comm_ob_io_flag;
+static gint hf_s7comm_ob_mdl_addr;
+static gint hf_s7comm_ob_point_addr;
+static gint hf_s7comm_ob_inf_len;
+static gint hf_s7comm_ob_alarm_type;
+static gint hf_s7comm_ob_alarm_slot;
+static gint hf_s7comm_ob_alarm_spec;
+static gint hf_s7comm_ob_error_info;
+static gint hf_s7comm_ob_err_ev_class;
+static gint hf_s7comm_ob_err_ev_num;
+static gint hf_s7comm_ob_err_ob_priority;
+static gint hf_s7comm_ob_err_ob_num;
+static gint hf_s7comm_ob_rack_cpu;
+static gint hf_s7comm_ob_8x_fault_flags;
+static gint hf_s7comm_ob_mdl_type_b;
+static gint hf_s7comm_ob_mdl_type_w;
+static gint hf_s7comm_ob_rack_num;
+static gint hf_s7comm_ob_racks_flt;
+static gint hf_s7comm_ob_strtup;
+static gint hf_s7comm_ob_stop;
+static gint hf_s7comm_ob_strt_info;
+static gint hf_s7comm_ob_sw_flt;
+static gint hf_s7comm_ob_blk_type;
+static gint hf_s7comm_ob_flt_reg;
+static gint hf_s7comm_ob_flt_blk_num;
+static gint hf_s7comm_ob_prg_addr;
+static gint hf_s7comm_ob_mem_area;
+static gint hf_s7comm_ob_mem_addr;
 
-static gint hf_s7comm_diagdata_req_block_type = -1;
-static gint hf_s7comm_diagdata_req_block_num = -1;
-static gint hf_s7comm_diagdata_req_startaddr_awl = -1;
-static gint hf_s7comm_diagdata_req_saz = -1;
+static gint hf_s7comm_diagdata_req_block_type;
+static gint hf_s7comm_diagdata_req_block_num;
+static gint hf_s7comm_diagdata_req_startaddr_awl;
+static gint hf_s7comm_diagdata_req_saz;
 
 /* Flags for requested registers in diagnostic data telegrams */
-static gint hf_s7comm_diagdata_registerflag = -1;           /* Registerflags */
-static gint hf_s7comm_diagdata_registerflag_stw = -1;       /* STW = Status word */
-static gint hf_s7comm_diagdata_registerflag_accu1 = -1;     /* Accumulator 1 */
-static gint hf_s7comm_diagdata_registerflag_accu2 = -1;     /* Accumulator 2 */
-static gint hf_s7comm_diagdata_registerflag_ar1 = -1;       /* Addressregister 1 */
-static gint hf_s7comm_diagdata_registerflag_ar2 = -1;       /* Addressregister 2 */
-static gint hf_s7comm_diagdata_registerflag_db1 = -1;       /* Datablock register 1 */
-static gint hf_s7comm_diagdata_registerflag_db2 = -1;       /* Datablock register 2 */
-static gint ett_s7comm_diagdata_registerflag = -1;
+static gint hf_s7comm_diagdata_registerflag;           /* Registerflags */
+static gint hf_s7comm_diagdata_registerflag_stw;       /* STW = Status word */
+static gint hf_s7comm_diagdata_registerflag_accu1;     /* Accumulator 1 */
+static gint hf_s7comm_diagdata_registerflag_accu2;     /* Accumulator 2 */
+static gint hf_s7comm_diagdata_registerflag_ar1;       /* Addressregister 1 */
+static gint hf_s7comm_diagdata_registerflag_ar2;       /* Addressregister 2 */
+static gint hf_s7comm_diagdata_registerflag_db1;       /* Datablock register 1 */
+static gint hf_s7comm_diagdata_registerflag_db2;       /* Datablock register 2 */
+static gint ett_s7comm_diagdata_registerflag;
 static int * const s7comm_diagdata_registerflag_fields[] = {
     &hf_s7comm_diagdata_registerflag_stw,
     &hf_s7comm_diagdata_registerflag_accu1,
@@ -1431,8 +1431,8 @@ static int * const s7comm_diagdata_registerflag_fields[] = {
 
 static heur_dissector_list_t s7comm_heur_subdissector_list;
 
-static expert_field ei_s7comm_data_blockcontrol_block_num_invalid = EI_INIT;
-static expert_field ei_s7comm_ud_blockinfo_block_num_ascii_invalid = EI_INIT;
+static expert_field ei_s7comm_data_blockcontrol_block_num_invalid;
+static expert_field ei_s7comm_ud_blockinfo_block_num_ascii_invalid;
 
 /* PI service name IDs. Index represents the index in pi_service_names */
 typedef enum
@@ -1581,192 +1581,192 @@ static const string_string pi_service_names[] = {
 };
 
 /* Function 0x28 (PI Start) */
-static gint hf_s7comm_piservice_unknown1 = -1;   /* Unknown bytes */
-static gint hf_s7comm_piservice_parameterblock = -1;
-static gint hf_s7comm_piservice_parameterblock_len = -1;
-static gint hf_s7comm_piservice_servicename = -1;
+static gint hf_s7comm_piservice_unknown1;   /* Unknown bytes */
+static gint hf_s7comm_piservice_parameterblock;
+static gint hf_s7comm_piservice_parameterblock_len;
+static gint hf_s7comm_piservice_servicename;
 
-static gint ett_s7comm_piservice_parameterblock = -1;
+static gint ett_s7comm_piservice_parameterblock;
 
-static gint hf_s7comm_piservice_string_len = -1;
-static gint hf_s7comm_pi_n_x_addressident = -1;
-static gint hf_s7comm_pi_n_x_password = -1;
-static gint hf_s7comm_pi_n_x_filename = -1;
-static gint hf_s7comm_pi_n_x_editwindowname = -1;
-static gint hf_s7comm_pi_n_x_seekpointer = -1;
-static gint hf_s7comm_pi_n_x_windowsize = -1;
-static gint hf_s7comm_pi_n_x_comparestring = -1;
-static gint hf_s7comm_pi_n_x_skipcount = -1;
-static gint hf_s7comm_pi_n_x_interruptnr = -1;
-static gint hf_s7comm_pi_n_x_priority = -1;
-static gint hf_s7comm_pi_n_x_liftfast = -1;
-static gint hf_s7comm_pi_n_x_blsync = -1;
-static gint hf_s7comm_pi_n_x_magnr = -1;
-static gint hf_s7comm_pi_n_x_dnr = -1;
-static gint hf_s7comm_pi_n_x_spindlenumber = -1;
-static gint hf_s7comm_pi_n_x_wznr = -1;
-static gint hf_s7comm_pi_n_x_class = -1;
-static gint hf_s7comm_pi_n_x_tnr = -1;
-static gint hf_s7comm_pi_n_x_toolnumber = -1;
-static gint hf_s7comm_pi_n_x_cenumber = -1;
-static gint hf_s7comm_pi_n_x_datablocknumber = -1;
-static gint hf_s7comm_pi_n_x_firstcolumnnumber = -1;
-static gint hf_s7comm_pi_n_x_lastcolumnnumber = -1;
-static gint hf_s7comm_pi_n_x_firstrownumber = -1;
-static gint hf_s7comm_pi_n_x_lastrownumber = -1;
-static gint hf_s7comm_pi_n_x_direction = -1;
-static gint hf_s7comm_pi_n_x_sourcefilename = -1;
-static gint hf_s7comm_pi_n_x_destinationfilename = -1;
-static gint hf_s7comm_pi_n_x_channelnumber = -1;
-static gint hf_s7comm_pi_n_x_protection = -1;
-static gint hf_s7comm_pi_n_x_oldfilename = -1;
-static gint hf_s7comm_pi_n_x_newfilename = -1;
-static gint hf_s7comm_pi_n_x_findmode = -1;
-static gint hf_s7comm_pi_n_x_switch = -1;
-static gint hf_s7comm_pi_n_x_functionnumber = -1;
-static gint hf_s7comm_pi_n_x_semaphorevalue = -1;
-static gint hf_s7comm_pi_n_x_onoff = -1;
-static gint hf_s7comm_pi_n_x_mode = -1;
-static gint hf_s7comm_pi_n_x_factor = -1;
-static gint hf_s7comm_pi_n_x_passwordlevel = -1;
-static gint hf_s7comm_pi_n_x_linenumber = -1;
-static gint hf_s7comm_pi_n_x_weargroup = -1;
-static gint hf_s7comm_pi_n_x_toolstatus = -1;
-static gint hf_s7comm_pi_n_x_wearsearchstrat = -1;
-static gint hf_s7comm_pi_n_x_toolid = -1;
-static gint hf_s7comm_pi_n_x_duplonumber = -1;
-static gint hf_s7comm_pi_n_x_edgenumber = -1;
-static gint hf_s7comm_pi_n_x_placenr = -1;
-static gint hf_s7comm_pi_n_x_placerefnr = -1;
-static gint hf_s7comm_pi_n_x_magrefnr = -1;
-static gint hf_s7comm_pi_n_x_magnrfrom = -1;
-static gint hf_s7comm_pi_n_x_placenrfrom = -1;
-static gint hf_s7comm_pi_n_x_magnrto = -1;
-static gint hf_s7comm_pi_n_x_placenrto = -1;
-static gint hf_s7comm_pi_n_x_halfplacesleft = -1;
-static gint hf_s7comm_pi_n_x_halfplacesright = -1;
-static gint hf_s7comm_pi_n_x_halfplacesup = -1;
-static gint hf_s7comm_pi_n_x_halfplacesdown = -1;
-static gint hf_s7comm_pi_n_x_placetype = -1;
-static gint hf_s7comm_pi_n_x_searchdirection = -1;
-static gint hf_s7comm_pi_n_x_toolname = -1;
-static gint hf_s7comm_pi_n_x_placenrsource = -1;
-static gint hf_s7comm_pi_n_x_magnrsource = -1;
-static gint hf_s7comm_pi_n_x_placenrdestination = -1;
-static gint hf_s7comm_pi_n_x_magnrdestination = -1;
-static gint hf_s7comm_pi_n_x_incrementnumber = -1;
-static gint hf_s7comm_pi_n_x_monitoringmode = -1;
-static gint hf_s7comm_pi_n_x_kindofsearch = -1;
+static gint hf_s7comm_piservice_string_len;
+static gint hf_s7comm_pi_n_x_addressident;
+static gint hf_s7comm_pi_n_x_password;
+static gint hf_s7comm_pi_n_x_filename;
+static gint hf_s7comm_pi_n_x_editwindowname;
+static gint hf_s7comm_pi_n_x_seekpointer;
+static gint hf_s7comm_pi_n_x_windowsize;
+static gint hf_s7comm_pi_n_x_comparestring;
+static gint hf_s7comm_pi_n_x_skipcount;
+static gint hf_s7comm_pi_n_x_interruptnr;
+static gint hf_s7comm_pi_n_x_priority;
+static gint hf_s7comm_pi_n_x_liftfast;
+static gint hf_s7comm_pi_n_x_blsync;
+static gint hf_s7comm_pi_n_x_magnr;
+static gint hf_s7comm_pi_n_x_dnr;
+static gint hf_s7comm_pi_n_x_spindlenumber;
+static gint hf_s7comm_pi_n_x_wznr;
+static gint hf_s7comm_pi_n_x_class;
+static gint hf_s7comm_pi_n_x_tnr;
+static gint hf_s7comm_pi_n_x_toolnumber;
+static gint hf_s7comm_pi_n_x_cenumber;
+static gint hf_s7comm_pi_n_x_datablocknumber;
+static gint hf_s7comm_pi_n_x_firstcolumnnumber;
+static gint hf_s7comm_pi_n_x_lastcolumnnumber;
+static gint hf_s7comm_pi_n_x_firstrownumber;
+static gint hf_s7comm_pi_n_x_lastrownumber;
+static gint hf_s7comm_pi_n_x_direction;
+static gint hf_s7comm_pi_n_x_sourcefilename;
+static gint hf_s7comm_pi_n_x_destinationfilename;
+static gint hf_s7comm_pi_n_x_channelnumber;
+static gint hf_s7comm_pi_n_x_protection;
+static gint hf_s7comm_pi_n_x_oldfilename;
+static gint hf_s7comm_pi_n_x_newfilename;
+static gint hf_s7comm_pi_n_x_findmode;
+static gint hf_s7comm_pi_n_x_switch;
+static gint hf_s7comm_pi_n_x_functionnumber;
+static gint hf_s7comm_pi_n_x_semaphorevalue;
+static gint hf_s7comm_pi_n_x_onoff;
+static gint hf_s7comm_pi_n_x_mode;
+static gint hf_s7comm_pi_n_x_factor;
+static gint hf_s7comm_pi_n_x_passwordlevel;
+static gint hf_s7comm_pi_n_x_linenumber;
+static gint hf_s7comm_pi_n_x_weargroup;
+static gint hf_s7comm_pi_n_x_toolstatus;
+static gint hf_s7comm_pi_n_x_wearsearchstrat;
+static gint hf_s7comm_pi_n_x_toolid;
+static gint hf_s7comm_pi_n_x_duplonumber;
+static gint hf_s7comm_pi_n_x_edgenumber;
+static gint hf_s7comm_pi_n_x_placenr;
+static gint hf_s7comm_pi_n_x_placerefnr;
+static gint hf_s7comm_pi_n_x_magrefnr;
+static gint hf_s7comm_pi_n_x_magnrfrom;
+static gint hf_s7comm_pi_n_x_placenrfrom;
+static gint hf_s7comm_pi_n_x_magnrto;
+static gint hf_s7comm_pi_n_x_placenrto;
+static gint hf_s7comm_pi_n_x_halfplacesleft;
+static gint hf_s7comm_pi_n_x_halfplacesright;
+static gint hf_s7comm_pi_n_x_halfplacesup;
+static gint hf_s7comm_pi_n_x_halfplacesdown;
+static gint hf_s7comm_pi_n_x_placetype;
+static gint hf_s7comm_pi_n_x_searchdirection;
+static gint hf_s7comm_pi_n_x_toolname;
+static gint hf_s7comm_pi_n_x_placenrsource;
+static gint hf_s7comm_pi_n_x_magnrsource;
+static gint hf_s7comm_pi_n_x_placenrdestination;
+static gint hf_s7comm_pi_n_x_magnrdestination;
+static gint hf_s7comm_pi_n_x_incrementnumber;
+static gint hf_s7comm_pi_n_x_monitoringmode;
+static gint hf_s7comm_pi_n_x_kindofsearch;
 
-static gint hf_s7comm_data_plccontrol_argument = -1;        /* Argument, 2 Bytes as char */
-static gint hf_s7comm_data_plccontrol_block_cnt = -1;       /* Number of blocks, 1 Byte as int */
-static gint hf_s7comm_data_pi_inse_unknown = -1;
-static gint hf_s7comm_data_plccontrol_part2_len = -1;       /* Length part 2 in bytes, 1 Byte as Int */
+static gint hf_s7comm_data_plccontrol_argument;        /* Argument, 2 Bytes as char */
+static gint hf_s7comm_data_plccontrol_block_cnt;       /* Number of blocks, 1 Byte as int */
+static gint hf_s7comm_data_pi_inse_unknown;
+static gint hf_s7comm_data_plccontrol_part2_len;       /* Length part 2 in bytes, 1 Byte as Int */
 
 /* block control functions */
-static gint hf_s7comm_data_blockcontrol_unknown1 = -1;      /* for all unknown bytes in blockcontrol */
-static gint hf_s7comm_data_blockcontrol_errorcode = -1;     /* Error code 2 bytes as int, 0 is no error */
-static gint hf_s7comm_data_blockcontrol_uploadid = -1;
-static gint hf_s7comm_data_blockcontrol_file_ident = -1;    /* File identifier, as ASCII */
-static gint hf_s7comm_data_blockcontrol_block_type = -1;    /* Block type, 2 Byte */
-static gint hf_s7comm_data_blockcontrol_block_num = -1;     /* Block number, 5 Bytes, ASCII */
-static gint hf_s7comm_data_blockcontrol_dest_filesys = -1;  /* Destination filesystem, 1 Byte, ASCII */
-static gint hf_s7comm_data_blockcontrol_part2_len = -1;     /* Length part 2 in bytes, 1 Byte Int */
-static gint hf_s7comm_data_blockcontrol_part2_unknown = -1; /* Unknown char, ASCII */
-static gint hf_s7comm_data_blockcontrol_loadmem_len = -1;   /* Length load memory in bytes, ASCII */
-static gint hf_s7comm_data_blockcontrol_mc7code_len = -1;   /* Length of MC7 code in bytes, ASCII */
-static gint hf_s7comm_data_blockcontrol_filename_len = -1;
-static gint hf_s7comm_data_blockcontrol_filename = -1;
-static gint hf_s7comm_data_blockcontrol_upl_lenstring_len = -1;
-static gint hf_s7comm_data_blockcontrol_upl_lenstring = -1;
+static gint hf_s7comm_data_blockcontrol_unknown1;      /* for all unknown bytes in blockcontrol */
+static gint hf_s7comm_data_blockcontrol_errorcode;     /* Error code 2 bytes as int, 0 is no error */
+static gint hf_s7comm_data_blockcontrol_uploadid;
+static gint hf_s7comm_data_blockcontrol_file_ident;    /* File identifier, as ASCII */
+static gint hf_s7comm_data_blockcontrol_block_type;    /* Block type, 2 Byte */
+static gint hf_s7comm_data_blockcontrol_block_num;     /* Block number, 5 Bytes, ASCII */
+static gint hf_s7comm_data_blockcontrol_dest_filesys;  /* Destination filesystem, 1 Byte, ASCII */
+static gint hf_s7comm_data_blockcontrol_part2_len;     /* Length part 2 in bytes, 1 Byte Int */
+static gint hf_s7comm_data_blockcontrol_part2_unknown; /* Unknown char, ASCII */
+static gint hf_s7comm_data_blockcontrol_loadmem_len;   /* Length load memory in bytes, ASCII */
+static gint hf_s7comm_data_blockcontrol_mc7code_len;   /* Length of MC7 code in bytes, ASCII */
+static gint hf_s7comm_data_blockcontrol_filename_len;
+static gint hf_s7comm_data_blockcontrol_filename;
+static gint hf_s7comm_data_blockcontrol_upl_lenstring_len;
+static gint hf_s7comm_data_blockcontrol_upl_lenstring;
 
-static gint hf_s7comm_data_blockcontrol_functionstatus = -1;
-static gint hf_s7comm_data_blockcontrol_functionstatus_more = -1;
-static gint hf_s7comm_data_blockcontrol_functionstatus_error = -1;
-static gint ett_s7comm_data_blockcontrol_status = -1;
+static gint hf_s7comm_data_blockcontrol_functionstatus;
+static gint hf_s7comm_data_blockcontrol_functionstatus_more;
+static gint hf_s7comm_data_blockcontrol_functionstatus_error;
+static gint ett_s7comm_data_blockcontrol_status;
 static int * const s7comm_data_blockcontrol_status_fields[] = {
     &hf_s7comm_data_blockcontrol_functionstatus_more,
     &hf_s7comm_data_blockcontrol_functionstatus_error,
     NULL
 };
 
-static gint ett_s7comm_plcfilename = -1;
-static gint hf_s7comm_data_ncprg_unackcount = -1;
-static gint hf_s7comm_data_ncprg_filelength = -1;
-static gint hf_s7comm_data_ncprg_filetime = -1;
-static gint hf_s7comm_data_ncprg_filepath = -1;
-static gint hf_s7comm_data_ncprg_filedata = -1;
+static gint ett_s7comm_plcfilename;
+static gint hf_s7comm_data_ncprg_unackcount;
+static gint hf_s7comm_data_ncprg_filelength;
+static gint hf_s7comm_data_ncprg_filetime;
+static gint hf_s7comm_data_ncprg_filepath;
+static gint hf_s7comm_data_ncprg_filedata;
 
 /* Data record routing to Profibus */
-static gint hf_s7comm_data_drr_data = -1;
+static gint hf_s7comm_data_drr_data;
 
 /* Variable status */
-static gint hf_s7comm_varstat_unknown = -1;                  /* Unknown byte(s), hex */
-static gint hf_s7comm_varstat_item_count = -1;               /* Item count, 2 bytes, int */
-static gint hf_s7comm_varstat_req_memory_area = -1;          /* Memory area, 1 byte, stringlist userdata_tis_varstat_area_names  */
-static gint hf_s7comm_varstat_req_repetition_factor = -1;    /* Repetition factor, 1 byte as int */
-static gint hf_s7comm_varstat_req_db_number = -1;            /* DB number, 2 bytes as int */
-static gint hf_s7comm_varstat_req_startaddress = -1;         /* Startaddress, 2 bytes as int */
-static gint hf_s7comm_varstat_req_bitpos = -1;
+static gint hf_s7comm_varstat_unknown;                  /* Unknown byte(s), hex */
+static gint hf_s7comm_varstat_item_count;               /* Item count, 2 bytes, int */
+static gint hf_s7comm_varstat_req_memory_area;          /* Memory area, 1 byte, stringlist userdata_tis_varstat_area_names  */
+static gint hf_s7comm_varstat_req_repetition_factor;    /* Repetition factor, 1 byte as int */
+static gint hf_s7comm_varstat_req_db_number;            /* DB number, 2 bytes as int */
+static gint hf_s7comm_varstat_req_startaddress;         /* Startaddress, 2 bytes as int */
+static gint hf_s7comm_varstat_req_bitpos;
 
 /* cyclic services */
-static gint hf_s7comm_cycl_interval_timebase = -1;          /* Interval timebase, 1 byte, int */
-static gint hf_s7comm_cycl_interval_time = -1;              /* Interval time, 1 byte, int */
-static gint hf_s7comm_cycl_function = -1;
-static gint hf_s7comm_cycl_jobid = -1;
+static gint hf_s7comm_cycl_interval_timebase;          /* Interval timebase, 1 byte, int */
+static gint hf_s7comm_cycl_interval_time;              /* Interval time, 1 byte, int */
+static gint hf_s7comm_cycl_function;
+static gint hf_s7comm_cycl_jobid;
 
 /* Read record */
-static gint hf_s7comm_rdrec_mlen = -1;                      /* Max. length in bytes of the data record data to be read */
-static gint hf_s7comm_rdrec_index = -1;                     /* Data record number */
-static gint hf_s7comm_rdrec_id = -1;                        /* Diagnostic address */
-static gint hf_s7comm_rdrec_statuslen = -1;                 /* Length of optional status data */
-static gint hf_s7comm_rdrec_statusdata = -1;                /* Optional status data */
-static gint hf_s7comm_rdrec_recordlen = -1;                 /* Length of data record data read */
-static gint hf_s7comm_rdrec_data = -1;                      /* The read data record */
-static gint hf_s7comm_rdrec_reserved1 = -1;
+static gint hf_s7comm_rdrec_mlen;                      /* Max. length in bytes of the data record data to be read */
+static gint hf_s7comm_rdrec_index;                     /* Data record number */
+static gint hf_s7comm_rdrec_id;                        /* Diagnostic address */
+static gint hf_s7comm_rdrec_statuslen;                 /* Length of optional status data */
+static gint hf_s7comm_rdrec_statusdata;                /* Optional status data */
+static gint hf_s7comm_rdrec_recordlen;                 /* Length of data record data read */
+static gint hf_s7comm_rdrec_data;                      /* The read data record */
+static gint hf_s7comm_rdrec_reserved1;
 
 /* PBC, Programmable Block Functions */
-static gint hf_s7comm_pbc_unknown = -1;                     /* unknown, 1 byte */
-static gint hf_s7comm_pbc_bsend_r_id = -1;                  /* Request ID R_ID, 4 bytes as hex */
-static gint hf_s7comm_pbc_bsend_len = -1;
-static gint hf_s7comm_pbc_usend_unknown1 = -1;
-static gint hf_s7comm_pbc_usend_r_id = -1;
-static gint hf_s7comm_pbc_usend_unknown2 = -1;
-static gint hf_s7comm_pbc_arsend_ar_id = -1;
-static gint hf_s7comm_pbc_arsend_ret = -1;
-static gint hf_s7comm_pbc_arsend_unknown = -1;
-static gint hf_s7comm_pbc_arsend_len = -1;
+static gint hf_s7comm_pbc_unknown;                     /* unknown, 1 byte */
+static gint hf_s7comm_pbc_bsend_r_id;                  /* Request ID R_ID, 4 bytes as hex */
+static gint hf_s7comm_pbc_bsend_len;
+static gint hf_s7comm_pbc_usend_unknown1;
+static gint hf_s7comm_pbc_usend_r_id;
+static gint hf_s7comm_pbc_usend_unknown2;
+static gint hf_s7comm_pbc_arsend_ar_id;
+static gint hf_s7comm_pbc_arsend_ret;
+static gint hf_s7comm_pbc_arsend_unknown;
+static gint hf_s7comm_pbc_arsend_len;
 
 /* Alarm messages */
-static gint hf_s7comm_cpu_alarm_message_item = -1;
-static gint hf_s7comm_cpu_alarm_message_obj_item = -1;
-static gint hf_s7comm_cpu_alarm_message_function = -1;
-static gint hf_s7comm_cpu_alarm_message_nr_objects = -1;
-static gint hf_s7comm_cpu_alarm_message_nr_add_values = -1;
-static gint hf_s7comm_cpu_alarm_message_eventid = -1;
-static gint hf_s7comm_cpu_alarm_message_timestamp_coming = -1;
-static gint hf_s7comm_cpu_alarm_message_timestamp_going = -1;
-static gint hf_s7comm_cpu_alarm_message_associated_value = -1;
-static gint hf_s7comm_cpu_alarm_message_eventstate = -1;
-static gint hf_s7comm_cpu_alarm_message_state = -1;
-static gint hf_s7comm_cpu_alarm_message_ackstate_coming = -1;
-static gint hf_s7comm_cpu_alarm_message_ackstate_going = -1;
-static gint hf_s7comm_cpu_alarm_message_event_coming = -1;
-static gint hf_s7comm_cpu_alarm_message_event_going = -1;
-static gint hf_s7comm_cpu_alarm_message_event_lastchanged = -1;
-static gint hf_s7comm_cpu_alarm_message_event_reserved = -1;
-static gint hf_s7comm_cpu_alarm_message_scan_unknown1 = -1;
-static gint hf_s7comm_cpu_alarm_message_scan_unknown2 = -1;
+static gint hf_s7comm_cpu_alarm_message_item;
+static gint hf_s7comm_cpu_alarm_message_obj_item;
+static gint hf_s7comm_cpu_alarm_message_function;
+static gint hf_s7comm_cpu_alarm_message_nr_objects;
+static gint hf_s7comm_cpu_alarm_message_nr_add_values;
+static gint hf_s7comm_cpu_alarm_message_eventid;
+static gint hf_s7comm_cpu_alarm_message_timestamp_coming;
+static gint hf_s7comm_cpu_alarm_message_timestamp_going;
+static gint hf_s7comm_cpu_alarm_message_associated_value;
+static gint hf_s7comm_cpu_alarm_message_eventstate;
+static gint hf_s7comm_cpu_alarm_message_state;
+static gint hf_s7comm_cpu_alarm_message_ackstate_coming;
+static gint hf_s7comm_cpu_alarm_message_ackstate_going;
+static gint hf_s7comm_cpu_alarm_message_event_coming;
+static gint hf_s7comm_cpu_alarm_message_event_going;
+static gint hf_s7comm_cpu_alarm_message_event_lastchanged;
+static gint hf_s7comm_cpu_alarm_message_event_reserved;
+static gint hf_s7comm_cpu_alarm_message_scan_unknown1;
+static gint hf_s7comm_cpu_alarm_message_scan_unknown2;
 
-static gint hf_s7comm_cpu_alarm_message_signal_sig1 = -1;
-static gint hf_s7comm_cpu_alarm_message_signal_sig2 = -1;
-static gint hf_s7comm_cpu_alarm_message_signal_sig3 = -1;
-static gint hf_s7comm_cpu_alarm_message_signal_sig4 = -1;
-static gint hf_s7comm_cpu_alarm_message_signal_sig5 = -1;
-static gint hf_s7comm_cpu_alarm_message_signal_sig6 = -1;
-static gint hf_s7comm_cpu_alarm_message_signal_sig7 = -1;
-static gint hf_s7comm_cpu_alarm_message_signal_sig8 = -1;
-static gint ett_s7comm_cpu_alarm_message_signal = -1;
+static gint hf_s7comm_cpu_alarm_message_signal_sig1;
+static gint hf_s7comm_cpu_alarm_message_signal_sig2;
+static gint hf_s7comm_cpu_alarm_message_signal_sig3;
+static gint hf_s7comm_cpu_alarm_message_signal_sig4;
+static gint hf_s7comm_cpu_alarm_message_signal_sig5;
+static gint hf_s7comm_cpu_alarm_message_signal_sig6;
+static gint hf_s7comm_cpu_alarm_message_signal_sig7;
+static gint hf_s7comm_cpu_alarm_message_signal_sig8;
+static gint ett_s7comm_cpu_alarm_message_signal;
 static int * const s7comm_cpu_alarm_message_signal_fields[] = {
     &hf_s7comm_cpu_alarm_message_signal_sig1,
     &hf_s7comm_cpu_alarm_message_signal_sig2,
@@ -1779,30 +1779,30 @@ static int * const s7comm_cpu_alarm_message_signal_fields[] = {
     NULL
 };
 
-static gint hf_s7comm_cpu_alarm_query_unknown1 = -1;
-static gint hf_s7comm_cpu_alarm_query_querytype = -1;
-static gint hf_s7comm_cpu_alarm_query_unknown2 = -1;
-static gint hf_s7comm_cpu_alarm_query_alarmtype = -1;
-static gint hf_s7comm_cpu_alarm_query_completelen = -1;
-static gint hf_s7comm_cpu_alarm_query_datasetlen = -1;
-static gint hf_s7comm_cpu_alarm_query_resunknown1 = -1;
+static gint hf_s7comm_cpu_alarm_query_unknown1;
+static gint hf_s7comm_cpu_alarm_query_querytype;
+static gint hf_s7comm_cpu_alarm_query_unknown2;
+static gint hf_s7comm_cpu_alarm_query_alarmtype;
+static gint hf_s7comm_cpu_alarm_query_completelen;
+static gint hf_s7comm_cpu_alarm_query_datasetlen;
+static gint hf_s7comm_cpu_alarm_query_resunknown1;
 
 /* CPU diagnostic messages */
-static gint hf_s7comm_cpu_diag_msg_item = -1;
-static gint hf_s7comm_cpu_diag_msg_eventid = -1;
-static gint hf_s7comm_cpu_diag_msg_eventid_class = -1;
-static gint hf_s7comm_cpu_diag_msg_eventid_ident_entleave = -1;
-static gint hf_s7comm_cpu_diag_msg_eventid_ident_diagbuf = -1;
-static gint hf_s7comm_cpu_diag_msg_eventid_ident_interr = -1;
-static gint hf_s7comm_cpu_diag_msg_eventid_ident_exterr = -1;
-static gint hf_s7comm_cpu_diag_msg_eventid_nr = -1;
-static gint hf_s7comm_cpu_diag_msg_prioclass = -1;
-static gint hf_s7comm_cpu_diag_msg_obnumber = -1;
-static gint hf_s7comm_cpu_diag_msg_datid = -1;
-static gint hf_s7comm_cpu_diag_msg_info1 = -1;
-static gint hf_s7comm_cpu_diag_msg_info2 = -1;
+static gint hf_s7comm_cpu_diag_msg_item;
+static gint hf_s7comm_cpu_diag_msg_eventid;
+static gint hf_s7comm_cpu_diag_msg_eventid_class;
+static gint hf_s7comm_cpu_diag_msg_eventid_ident_entleave;
+static gint hf_s7comm_cpu_diag_msg_eventid_ident_diagbuf;
+static gint hf_s7comm_cpu_diag_msg_eventid_ident_interr;
+static gint hf_s7comm_cpu_diag_msg_eventid_ident_exterr;
+static gint hf_s7comm_cpu_diag_msg_eventid_nr;
+static gint hf_s7comm_cpu_diag_msg_prioclass;
+static gint hf_s7comm_cpu_diag_msg_obnumber;
+static gint hf_s7comm_cpu_diag_msg_datid;
+static gint hf_s7comm_cpu_diag_msg_info1;
+static gint hf_s7comm_cpu_diag_msg_info2;
 
-static gint ett_s7comm_cpu_diag_msg_eventid = -1;
+static gint ett_s7comm_cpu_diag_msg_eventid;
 static int * const s7comm_cpu_diag_msg_eventid_fields[] = {
     &hf_s7comm_cpu_diag_msg_eventid_class,
     &hf_s7comm_cpu_diag_msg_eventid_ident_entleave,
@@ -2419,12 +2419,12 @@ static const value_string alarm_message_query_alarmtype_names[] = {
 };
 
 /* CPU message service */
-static gint hf_s7comm_cpu_msgservice_subscribe_events = -1;
-static gint hf_s7comm_cpu_msgservice_subscribe_events_modetrans = -1;
-static gint hf_s7comm_cpu_msgservice_subscribe_events_system = -1;
-static gint hf_s7comm_cpu_msgservice_subscribe_events_userdefined = -1;
-static gint hf_s7comm_cpu_msgservice_subscribe_events_alarms = -1;
-static gint ett_s7comm_cpu_msgservice_subscribe_events = -1;
+static gint hf_s7comm_cpu_msgservice_subscribe_events;
+static gint hf_s7comm_cpu_msgservice_subscribe_events_modetrans;
+static gint hf_s7comm_cpu_msgservice_subscribe_events_system;
+static gint hf_s7comm_cpu_msgservice_subscribe_events_userdefined;
+static gint hf_s7comm_cpu_msgservice_subscribe_events_alarms;
+static gint ett_s7comm_cpu_msgservice_subscribe_events;
 static int * const s7comm_cpu_msgservice_subscribe_events_fields[] = {
     &hf_s7comm_cpu_msgservice_subscribe_events_modetrans,
     &hf_s7comm_cpu_msgservice_subscribe_events_system,
@@ -2432,14 +2432,14 @@ static int * const s7comm_cpu_msgservice_subscribe_events_fields[] = {
     &hf_s7comm_cpu_msgservice_subscribe_events_alarms,
     NULL
 };
-static gint hf_s7comm_cpu_msgservice_req_reserved1 = -1;
-static gint hf_s7comm_cpu_msgservice_username = -1;
-static gint hf_s7comm_cpu_msgservice_almtype = -1;
-static gint hf_s7comm_cpu_msgservice_req_reserved2 = -1;
-static gint hf_s7comm_cpu_msgservice_res_result = -1;
-static gint hf_s7comm_cpu_msgservice_res_reserved1 = -1;
-static gint hf_s7comm_cpu_msgservice_res_reserved2 = -1;
-static gint hf_s7comm_cpu_msgservice_res_reserved3 = -1;
+static gint hf_s7comm_cpu_msgservice_req_reserved1;
+static gint hf_s7comm_cpu_msgservice_username;
+static gint hf_s7comm_cpu_msgservice_almtype;
+static gint hf_s7comm_cpu_msgservice_req_reserved2;
+static gint hf_s7comm_cpu_msgservice_res_result;
+static gint hf_s7comm_cpu_msgservice_res_reserved1;
+static gint hf_s7comm_cpu_msgservice_res_reserved2;
+static gint hf_s7comm_cpu_msgservice_res_reserved3;
 
 #define S7COMM_CPU_MSG_ALMTYPE_SCAN_ABORT               0
 #define S7COMM_CPU_MSG_ALMTYPE_SCAN_INITIATE            1
@@ -2462,8 +2462,8 @@ static const value_string cpu_msgservice_almtype_names[] = {
     { 0,                                                NULL }
 };
 
-static gint hf_s7comm_modetrans_param_unknown1 = -1;
-static gint hf_s7comm_modetrans_param_mode = -1;
+static gint hf_s7comm_modetrans_param_unknown1;
+static gint hf_s7comm_modetrans_param_mode;
 static const value_string modetrans_param_mode_names[] = {
     { 0,                                    "STOP" },
     { 1,                                    "Warm Restart" },
@@ -2476,21 +2476,21 @@ static const value_string modetrans_param_mode_names[] = {
     { 12,                                   "UPDATE" },
     { 0,                                    NULL }
 };
-static gint hf_s7comm_modetrans_param_unknown2 = -1;
+static gint hf_s7comm_modetrans_param_unknown2;
 
 /* These fields used when reassembling S7COMM fragments */
-static gint hf_s7comm_fragments = -1;
-static gint hf_s7comm_fragment = -1;
-static gint hf_s7comm_fragment_overlap = -1;
-static gint hf_s7comm_fragment_overlap_conflict = -1;
-static gint hf_s7comm_fragment_multiple_tails = -1;
-static gint hf_s7comm_fragment_too_long_fragment = -1;
-static gint hf_s7comm_fragment_error = -1;
-static gint hf_s7comm_fragment_count = -1;
-static gint hf_s7comm_reassembled_in = -1;
-static gint hf_s7comm_reassembled_length = -1;
-static gint ett_s7comm_fragment = -1;
-static gint ett_s7comm_fragments = -1;
+static gint hf_s7comm_fragments;
+static gint hf_s7comm_fragment;
+static gint hf_s7comm_fragment_overlap;
+static gint hf_s7comm_fragment_overlap_conflict;
+static gint hf_s7comm_fragment_multiple_tails;
+static gint hf_s7comm_fragment_too_long_fragment;
+static gint hf_s7comm_fragment_error;
+static gint hf_s7comm_fragment_count;
+static gint hf_s7comm_reassembled_in;
+static gint hf_s7comm_reassembled_length;
+static gint ett_s7comm_fragment;
+static gint ett_s7comm_fragments;
 
 static const fragment_items s7comm_frag_items = {
     /* Fragment subtrees */
@@ -2518,21 +2518,21 @@ static const fragment_items s7comm_frag_items = {
 static reassembly_table s7comm_reassembly_table;
 
 /* These are the ids of the subtrees that we are creating */
-static gint ett_s7comm = -1;                                        /* S7 communication tree, parent of all other subtree */
-static gint ett_s7comm_header = -1;                                 /* Subtree for header block */
-static gint ett_s7comm_param = -1;                                  /* Subtree for parameter block */
-static gint ett_s7comm_param_item = -1;                             /* Subtree for items in parameter block */
-static gint ett_s7comm_param_subitem = -1;                          /* Subtree for subitems under items in parameter block */
-static gint ett_s7comm_data = -1;                                   /* Subtree for data block */
-static gint ett_s7comm_data_item = -1;                              /* Subtree for an item in data block */
-static gint ett_s7comm_item_address = -1;                           /* Subtree for an address (byte/bit) */
-static gint ett_s7comm_cpu_alarm_message = -1;                      /* Subtree for an alarm message */
-static gint ett_s7comm_cpu_alarm_message_object = -1;               /* Subtree for an alarm message block*/
-static gint ett_s7comm_cpu_alarm_message_timestamp = -1;            /* Subtree for an alarm message timestamp */
-static gint ett_s7comm_cpu_alarm_message_associated_value = -1;     /* Subtree for an alarm message associated value */
-static gint ett_s7comm_cpu_diag_msg = -1;                           /* Subtree for a CPU diagnostic message */
-static gint ett_s7comm_prog_parameter = -1;
-static gint ett_s7comm_prog_data = -1;
+static gint ett_s7comm;                                        /* S7 communication tree, parent of all other subtree */
+static gint ett_s7comm_header;                                 /* Subtree for header block */
+static gint ett_s7comm_param;                                  /* Subtree for parameter block */
+static gint ett_s7comm_param_item;                             /* Subtree for items in parameter block */
+static gint ett_s7comm_param_subitem;                          /* Subtree for subitems under items in parameter block */
+static gint ett_s7comm_data;                                   /* Subtree for data block */
+static gint ett_s7comm_data_item;                              /* Subtree for an item in data block */
+static gint ett_s7comm_item_address;                           /* Subtree for an address (byte/bit) */
+static gint ett_s7comm_cpu_alarm_message;                      /* Subtree for an alarm message */
+static gint ett_s7comm_cpu_alarm_message_object;               /* Subtree for an alarm message block*/
+static gint ett_s7comm_cpu_alarm_message_timestamp;            /* Subtree for an alarm message timestamp */
+static gint ett_s7comm_cpu_alarm_message_associated_value;     /* Subtree for an alarm message associated value */
+static gint ett_s7comm_cpu_diag_msg;                           /* Subtree for a CPU diagnostic message */
+static gint ett_s7comm_prog_parameter;
+static gint ett_s7comm_prog_data;
 
 static const char mon_names[][4] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 

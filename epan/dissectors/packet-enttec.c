@@ -62,35 +62,35 @@ void proto_reg_handoff_enttec(void);
 static dissector_handle_t enttec_udp_handle, enttec_tcp_handle;
 
 /* Define the enttec proto */
-static int proto_enttec = -1;
+static int proto_enttec;
 
 /* general */
-static int hf_enttec_head = -1;
+static int hf_enttec_head;
 
 /* poll */
-static int hf_enttec_poll_type = -1;
+static int hf_enttec_poll_type;
 
 /* poll reply */
-static int hf_enttec_poll_reply_mac = -1;
-static int hf_enttec_poll_reply_node_type = -1;
-static int hf_enttec_poll_reply_version = -1;
-static int hf_enttec_poll_reply_switch = -1;
-static int hf_enttec_poll_reply_name = -1;
-static int hf_enttec_poll_reply_option = -1;
-static int hf_enttec_poll_reply_tos = -1;
-static int hf_enttec_poll_reply_ttl = -1;
+static int hf_enttec_poll_reply_mac;
+static int hf_enttec_poll_reply_node_type;
+static int hf_enttec_poll_reply_version;
+static int hf_enttec_poll_reply_switch;
+static int hf_enttec_poll_reply_name;
+static int hf_enttec_poll_reply_option;
+static int hf_enttec_poll_reply_tos;
+static int hf_enttec_poll_reply_ttl;
 
 /* dmx data */
-static int hf_enttec_dmx_data_universe = -1;
-static int hf_enttec_dmx_data_start_code = -1;
-static int hf_enttec_dmx_data_type = -1;
-static int hf_enttec_dmx_data_size = -1;
-static int hf_enttec_dmx_data_data = -1;
-static int hf_enttec_dmx_data_data_filter = -1;
-static int hf_enttec_dmx_data_dmx_data = -1;
+static int hf_enttec_dmx_data_universe;
+static int hf_enttec_dmx_data_start_code;
+static int hf_enttec_dmx_data_type;
+static int hf_enttec_dmx_data_size;
+static int hf_enttec_dmx_data_data;
+static int hf_enttec_dmx_data_data_filter;
+static int hf_enttec_dmx_data_dmx_data;
 
 /* Define the tree for enttec */
-static int ett_enttec = -1;
+static int ett_enttec;
 
 /*
  * Here are the global variables associated with the preferences

@@ -72,27 +72,27 @@ static guint8 amr_ft_bytes[AMR_FT_MAX] = {12, 13, 15, 17, 19, 20, 26, 31, 5};
 
 /* Initialize the protocol and registered fields */
 static dissector_handle_t osmux_handle;
-static int proto_osmux = -1;
+static int proto_osmux;
 static int osmux_tap = -1;
 
-static int hf_osmux_stream_id = -1;
-static int hf_osmux_ft_ctr = -1;
-static int hf_osmux_rtp_m = -1;
-static int hf_osmux_ft = -1;
-static int hf_osmux_ctr = -1;
-static int hf_osmux_amr_f = -1;
-static int hf_osmux_amr_q = -1;
-static int hf_osmux_seq = -1;
-static int hf_osmux_circuit_id = -1;
-static int hf_osmux_amr_ft_cmr = -1;
-static int hf_osmux_amr_ft = -1;
-static int hf_osmux_amr_cmr = -1;
-static int hf_osmux_amr_data = -1;
+static int hf_osmux_stream_id;
+static int hf_osmux_ft_ctr;
+static int hf_osmux_rtp_m;
+static int hf_osmux_ft;
+static int hf_osmux_ctr;
+static int hf_osmux_amr_f;
+static int hf_osmux_amr_q;
+static int hf_osmux_seq;
+static int hf_osmux_circuit_id;
+static int hf_osmux_amr_ft_cmr;
+static int hf_osmux_amr_ft;
+static int hf_osmux_amr_cmr;
+static int hf_osmux_amr_data;
 
 /* Initialize the subtree pointers */
-static gint ett_osmux = -1;
-static gint ett_osmux_ft_ctr = -1;
-static gint ett_osmux_amr_ft_cmr = -1;
+static gint ett_osmux;
+static gint ett_osmux_ft_ctr;
+static gint ett_osmux_amr_ft_cmr;
 
 /* Stream handling */
 static wmem_map_t *osmux_stream_hash;

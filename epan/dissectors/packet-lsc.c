@@ -100,21 +100,21 @@ static const value_string mode_vals[] = {
 };
 
 /* Initialize the protocol and registered fields */
-static int proto_lsc = -1;
-static int hf_lsc_version = -1;
-static int hf_lsc_trans_id = -1;
-static int hf_lsc_op_code = -1;
-static int hf_lsc_status_code = -1;
-static int hf_lsc_stream_handle = -1;
-static int hf_lsc_start_npt = -1;
-static int hf_lsc_stop_npt = -1;
-static int hf_lsc_current_npt = -1;
-static int hf_lsc_scale_num = -1;
-static int hf_lsc_scale_denom = -1;
-static int hf_lsc_mode = -1;
+static int proto_lsc;
+static int hf_lsc_version;
+static int hf_lsc_trans_id;
+static int hf_lsc_op_code;
+static int hf_lsc_status_code;
+static int hf_lsc_stream_handle;
+static int hf_lsc_start_npt;
+static int hf_lsc_stop_npt;
+static int hf_lsc_current_npt;
+static int hf_lsc_scale_num;
+static int hf_lsc_scale_denom;
+static int hf_lsc_mode;
 
 /* Initialize the subtree pointers */
-static gint ett_lsc = -1;
+static gint ett_lsc;
 
 static dissector_handle_t lsc_udp_handle;
 static dissector_handle_t lsc_tcp_handle;

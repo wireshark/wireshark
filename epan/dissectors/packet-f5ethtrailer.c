@@ -207,12 +207,12 @@ Notes:
 #include <wsutil/wslog.h>
 
 /* Wireshark ID of the F5ETHTRAILER protocol */
-static int proto_f5ethtrailer = -1;
+static int proto_f5ethtrailer;
 static int tap_f5ethtrailer   = -1;
-static int proto_f5fileinfo   = -1;
+static int proto_f5fileinfo;
 static int tap_f5fileinfo     = -1;
 /** Helper dissector for DPT format noise */
-static int proto_f5ethtrailer_dpt_noise = -1;
+static int proto_f5ethtrailer_dpt_noise;
 
 void proto_reg_handoff_f5ethtrailer(void);
 void proto_register_f5ethtrailer(void);
@@ -225,105 +225,105 @@ static dissector_handle_t f5dpt_tls_handle;
 
 
 /* Common Fields */
-static gint hf_provider    = -1;
-static gint hf_type        = -1;
-static gint hf_length      = -1;
-static gint hf_version     = -1;
-static gint hf_data        = -1;
-static gint hf_data_str    = -1;
-static gint hf_dpt_unknown = -1;
-static gint hf_trailer_hdr = -1;
-static gint hf_orig_fcs    = -1;
+static gint hf_provider;
+static gint hf_type;
+static gint hf_length;
+static gint hf_version;
+static gint hf_data;
+static gint hf_data_str;
+static gint hf_dpt_unknown;
+static gint hf_trailer_hdr;
+static gint hf_orig_fcs;
 /* Low */
-static gint hf_low_id         = -1;
-static gint hf_flags          = -1;
-static gint hf_flags_ingress  = -1;
-static gint hf_flags_hwaction = -1;
-static gint hf_ingress        = -1;
-static gint hf_slot0          = -1;
-static gint hf_slot1          = -1;
-static gint hf_tmm            = -1;
-static gint hf_obj_name_type  = -1;
-static gint hf_obj_data_len   = -1;
-static gint hf_vipnamelen     = -1;
-static gint hf_vip            = -1;
-static gint hf_portnamelen    = -1;
-static gint hf_phys_port      = -1;
-static gint hf_trunknamelen   = -1;
-static gint hf_trunk          = -1;
+static gint hf_low_id;
+static gint hf_flags;
+static gint hf_flags_ingress;
+static gint hf_flags_hwaction;
+static gint hf_ingress;
+static gint hf_slot0;
+static gint hf_slot1;
+static gint hf_tmm;
+static gint hf_obj_name_type;
+static gint hf_obj_data_len;
+static gint hf_vipnamelen;
+static gint hf_vip;
+static gint hf_portnamelen;
+static gint hf_phys_port;
+static gint hf_trunknamelen;
+static gint hf_trunk;
 /* Med */
-static gint hf_med_id        = -1;
-static gint hf_flow_id       = -1;
-static gint hf_peer_id       = -1;
-static gint hf_any_flow      = -1;
-static gint hf_cf_flags      = -1;
-static gint hf_cf_flags2     = -1;
-static gint hf_flow_type     = -1;
-static gint hf_ha_unit       = -1;
-static gint hf_reserved      = -1;
-static gint hf_priority      = -1;
-static gint hf_rstcause      = -1;
-static gint hf_rstcause_len  = -1;
-static gint hf_rstcause_ver  = -1;
-static gint hf_rstcause_peer = -1;
-static gint hf_rstcause_val  = -1;
-static gint hf_rstcause_line = -1;
-static gint hf_rstcause_txt  = -1;
+static gint hf_med_id;
+static gint hf_flow_id;
+static gint hf_peer_id;
+static gint hf_any_flow;
+static gint hf_cf_flags;
+static gint hf_cf_flags2;
+static gint hf_flow_type;
+static gint hf_ha_unit;
+static gint hf_reserved;
+static gint hf_priority;
+static gint hf_rstcause;
+static gint hf_rstcause_len;
+static gint hf_rstcause_ver;
+static gint hf_rstcause_peer;
+static gint hf_rstcause_val;
+static gint hf_rstcause_line;
+static gint hf_rstcause_txt;
 /* High */
-static gint hf_high_id             = -1;
-static gint hf_peer_ipproto        = -1;
-static gint hf_peer_vlan           = -1;
-static gint hf_peer_remote_addr    = -1;
-static gint hf_peer_remote_ip6addr = -1;
-static gint hf_peer_remote_rtdom   = -1;
-static gint hf_peer_local_addr     = -1;
-static gint hf_peer_local_ip6addr  = -1;
-static gint hf_peer_local_rtdom    = -1;
-static gint hf_peer_ipaddr         = -1;
-static gint hf_peer_ip6addr        = -1;
-static gint hf_peer_rtdom          = -1;
-static gint hf_peer_remote_port    = -1;
-static gint hf_peer_local_port     = -1;
-static gint hf_peer_port           = -1;
-static gint hf_peer_nopeer         = -1;
+static gint hf_high_id;
+static gint hf_peer_ipproto;
+static gint hf_peer_vlan;
+static gint hf_peer_remote_addr;
+static gint hf_peer_remote_ip6addr;
+static gint hf_peer_remote_rtdom;
+static gint hf_peer_local_addr;
+static gint hf_peer_local_ip6addr;
+static gint hf_peer_local_rtdom;
+static gint hf_peer_ipaddr;
+static gint hf_peer_ip6addr;
+static gint hf_peer_rtdom;
+static gint hf_peer_remote_port;
+static gint hf_peer_local_port;
+static gint hf_peer_port;
+static gint hf_peer_nopeer;
 /* Analysis */
-static gint hf_analysis = -1;
+static gint hf_analysis;
 
 /* These fields will be used if pref_pop_other_fields is enabled.
    They will be populated with data from the "high" trailer so that filtering on ip.addr, tcp.port, etc...
    can find peer side flows of the specific flow you're searching for. */
-static gint hf_ip_ipaddr   = -1;
-static gint hf_ip6_ip6addr = -1;
-static gint hf_tcp_tcpport = -1;
-static gint hf_udp_udpport = -1;
+static gint hf_ip_ipaddr;
+static gint hf_ip6_ip6addr;
+static gint hf_tcp_tcpport;
+static gint hf_udp_udpport;
 
-static gint hf_dpt_magic = -1;
-static gint hf_dpt_ver   = -1;
-static gint hf_dpt_len   = -1;
+static gint hf_dpt_magic;
+static gint hf_dpt_ver;
+static gint hf_dpt_len;
 
-static expert_field ei_f5eth_flowlost  = EI_INIT;
-static expert_field ei_f5eth_flowreuse = EI_INIT;
-static expert_field ei_f5eth_badlen    = EI_INIT;
-static expert_field ei_f5eth_undecoded = EI_INIT;
+static expert_field ei_f5eth_flowlost;
+static expert_field ei_f5eth_flowreuse;
+static expert_field ei_f5eth_badlen;
+static expert_field ei_f5eth_undecoded;
 
 /* These are the ids of the subtrees that we may be creating */
-static gint ett_f5ethtrailer             = -1;
-static gint ett_f5ethtrailer_unknown     = -1;
-static gint ett_f5ethtrailer_low         = -1;
-static gint ett_f5ethtrailer_low_flags   = -1;
-static gint ett_f5ethtrailer_med         = -1;
-static gint ett_f5ethtrailer_high        = -1;
-static gint ett_f5ethtrailer_rstcause    = -1;
-static gint ett_f5ethtrailer_trailer_hdr = -1;
-static gint ett_f5ethtrailer_obj_names   = -1;
+static gint ett_f5ethtrailer;
+static gint ett_f5ethtrailer_unknown;
+static gint ett_f5ethtrailer_low;
+static gint ett_f5ethtrailer_low_flags;
+static gint ett_f5ethtrailer_med;
+static gint ett_f5ethtrailer_high;
+static gint ett_f5ethtrailer_rstcause;
+static gint ett_f5ethtrailer_trailer_hdr;
+static gint ett_f5ethtrailer_obj_names;
 
 /* For fileinformation */
-static gint hf_fi_command      = -1;
-static gint hf_fi_version      = -1;
-static gint hf_fi_hostname     = -1;
-static gint hf_fi_platform     = -1;
-static gint hf_fi_platformname = -1;
-static gint hf_fi_product      = -1;
+static gint hf_fi_command;
+static gint hf_fi_version;
+static gint hf_fi_hostname;
+static gint hf_fi_platform;
+static gint hf_fi_platformname;
+static gint hf_fi_product;
 
 /* Wireshark preference to show RST cause in info column */
 static gboolean rstcause_in_info = TRUE;
@@ -3087,27 +3087,27 @@ typedef struct _F5TLS_DATA {
     f5tls_packet_data_t *pkt;
 } f5tls_data_t;
 
-static int proto_f5ethtrailer_dpt_tls = -1;
+static int proto_f5ethtrailer_dpt_tls;
 
-static gint hf_f5tls_tls = -1;
+static gint hf_f5tls_tls;
 
 /* TLS 1.x fields */
-static gint hf_f5tls_secret_len = -1;
-static gint hf_f5tls_mstr_sec   = -1;
-static gint hf_f5tls_clnt_rand  = -1;
-static gint hf_f5tls_srvr_rand  = -1;
+static gint hf_f5tls_secret_len;
+static gint hf_f5tls_mstr_sec;
+static gint hf_f5tls_clnt_rand;
+static gint hf_f5tls_srvr_rand;
 
 /* TLS 1.3 fields */
-static gint hf_f5tls_early_traffic_sec  = -1;
-static gint hf_f5tls_clnt_hs_sec  = -1;
-static gint hf_f5tls_srvr_hs_sec  = -1;
-static gint hf_f5tls_clnt_app_sec = -1;
-static gint hf_f5tls_srvr_app_sec = -1;
-static gint hf_f5tls_keylog       = -1;
+static gint hf_f5tls_early_traffic_sec;
+static gint hf_f5tls_clnt_hs_sec;
+static gint hf_f5tls_srvr_hs_sec;
+static gint hf_f5tls_clnt_app_sec;
+static gint hf_f5tls_srvr_app_sec;
+static gint hf_f5tls_keylog;
 
-static gint ett_f5tls     = -1;
-static gint ett_f5tls_std = -1;
-static gint ett_f5tls_ext = -1;
+static gint ett_f5tls;
+static gint ett_f5tls_std;
+static gint ett_f5tls_ext;
 
 static dissector_table_t tls_subdissector_table;
 

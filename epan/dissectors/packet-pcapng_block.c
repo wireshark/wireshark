@@ -19,7 +19,7 @@ void proto_reg_handoff_pcapng_block(void);
 
 static dissector_handle_t pcapng_block_handle;
 
-static int proto_pcapng_block = -1;
+static int proto_pcapng_block;
 
 static dissector_table_t pcapng_block_type_dissector_table;
 

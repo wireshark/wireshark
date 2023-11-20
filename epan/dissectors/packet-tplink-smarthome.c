@@ -51,11 +51,11 @@ static dissector_handle_t tplink_smarthome_message_handle;
 
 		/* Initialize the protocol and registered fields */
 
-static int	proto_tplink_smarthome	= -1;
-static gint	ett_tplink_smarthome	= -1;		/* Initialize the subtree pointers */
+static int	proto_tplink_smarthome;
+static gint	ett_tplink_smarthome;		/* Initialize the subtree pointers */
 
-static int	hf_tplink_smarthome_Len	= -1;
-static int	hf_tplink_smarthome_Msg	= -1;
+static int	hf_tplink_smarthome_Len;
+static int	hf_tplink_smarthome_Msg;
 
 static gboolean
 test_tplink_smarthome(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)

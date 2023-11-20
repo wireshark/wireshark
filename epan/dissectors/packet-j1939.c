@@ -24,23 +24,23 @@ void proto_reg_handoff_j1939(void);
 
 static dissector_handle_t j1939_handle;
 
-static int proto_j1939 = -1;
+static int proto_j1939;
 
-static int hf_j1939_can_id = -1;
-static int hf_j1939_priority = -1;
-static int hf_j1939_pgn = -1;
-static int hf_j1939_data_page = -1;
-static int hf_j1939_extended_data_page = -1;
-static int hf_j1939_pdu_format = -1;
-static int hf_j1939_pdu_specific = -1;
-static int hf_j1939_src_addr = -1;
-static int hf_j1939_dst_addr = -1;
-static int hf_j1939_group_extension = -1;
-static int hf_j1939_data = -1;
+static int hf_j1939_can_id;
+static int hf_j1939_priority;
+static int hf_j1939_pgn;
+static int hf_j1939_data_page;
+static int hf_j1939_extended_data_page;
+static int hf_j1939_pdu_format;
+static int hf_j1939_pdu_specific;
+static int hf_j1939_src_addr;
+static int hf_j1939_dst_addr;
+static int hf_j1939_group_extension;
+static int hf_j1939_data;
 
-static gint ett_j1939 = -1;
-static gint ett_j1939_can = -1;
-static gint ett_j1939_message = -1;
+static gint ett_j1939;
+static gint ett_j1939_can;
+static gint ett_j1939_message;
 
 static int j1939_address_type = -1;
 static dissector_table_t   subdissector_pgn_table;

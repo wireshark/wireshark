@@ -17,40 +17,40 @@
 #include <epan/expert.h>
 #include "packet-usb.h"
 
-static int proto_usb_dfu = -1;
+static int proto_usb_dfu;
 
-static gint hf_setup_command = -1;
-static gint hf_setup_unused = -1;
-static gint hf_setup_interface = -1;
-static gint hf_setup_length = -1;
-static gint hf_setup_timeout = -1;
-static gint hf_setup_block_number = -1;
-static gint hf_response = -1;
-static gint hf_command_in_frame = -1;
-static gint hf_state = -1;
-static gint hf_status = -1;
-static gint hf_poll_timeout = -1;
-static gint hf_iString = -1;
-static gint hf_data = -1;
-static gint hf_usb_dfu_descriptor = -1;
-static gint hf_usb_dfu_descriptor_bmAttributes_reserved = -1;
-static gint hf_usb_dfu_descriptor_bmAttributes_WillDetach = -1;
-static gint hf_usb_dfu_descriptor_bmAttributes_ManifestationTolerant = -1;
-static gint hf_usb_dfu_descriptor_bmAttributes_CanUpload = -1;
-static gint hf_usb_dfu_descriptor_bmAttributes_CanDownload = -1;
-static gint hf_usb_dfu_descriptor_wDetachTimeOut = -1;
-static gint hf_usb_dfu_descriptor_wTransferSize = -1;
-static gint hf_usb_dfu_descriptor_bcdDFUVersion = -1;
+static gint hf_setup_command;
+static gint hf_setup_unused;
+static gint hf_setup_interface;
+static gint hf_setup_length;
+static gint hf_setup_timeout;
+static gint hf_setup_block_number;
+static gint hf_response;
+static gint hf_command_in_frame;
+static gint hf_state;
+static gint hf_status;
+static gint hf_poll_timeout;
+static gint hf_iString;
+static gint hf_data;
+static gint hf_usb_dfu_descriptor;
+static gint hf_usb_dfu_descriptor_bmAttributes_reserved;
+static gint hf_usb_dfu_descriptor_bmAttributes_WillDetach;
+static gint hf_usb_dfu_descriptor_bmAttributes_ManifestationTolerant;
+static gint hf_usb_dfu_descriptor_bmAttributes_CanUpload;
+static gint hf_usb_dfu_descriptor_bmAttributes_CanDownload;
+static gint hf_usb_dfu_descriptor_wDetachTimeOut;
+static gint hf_usb_dfu_descriptor_wTransferSize;
+static gint hf_usb_dfu_descriptor_bcdDFUVersion;
 
-static gint ett_usb_dfu = -1;
-static gint ett_usb_dfu_descriptor = -1;
-static gint ett_command = -1;
+static gint ett_usb_dfu;
+static gint ett_usb_dfu_descriptor;
+static gint ett_command;
 
-static expert_field ei_unexpected_response = EI_INIT;
-static expert_field ei_unknown_data = EI_INIT;
-static expert_field ei_unexpected_data = EI_INIT;
-static expert_field ei_descriptor_invalid_length = EI_INIT;
-static expert_field ei_invalid_command_for_request_type = EI_INIT;
+static expert_field ei_unexpected_response;
+static expert_field ei_unknown_data;
+static expert_field ei_unexpected_data;
+static expert_field ei_descriptor_invalid_length;
+static expert_field ei_invalid_command_for_request_type;
 
 static dissector_handle_t usb_dfu_handle;
 static dissector_handle_t usf_dfu_descriptor_handle;

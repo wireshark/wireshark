@@ -31,40 +31,40 @@ void proto_reg_handoff_lwm2mtlv(void);
 
 static dissector_handle_t lwm2mtlv_handle;
 
-static int proto_lwm2mtlv = -1;
+static int proto_lwm2mtlv;
 
-static int hf_lwm2mtlv_object_name               = -1;
-static int hf_lwm2mtlv_resource_name             = -1;
-static int hf_lwm2mtlv_header                    = -1;
-static int hf_lwm2mtlv_type_type                 = -1;
-static int hf_lwm2mtlv_type_length_of_identifier = -1;
-static int hf_lwm2mtlv_type_length_of_length     = -1;
-static int hf_lwm2mtlv_type_length               = -1;
-static int hf_lwm2mtlv_type_ignored              = -1;
+static int hf_lwm2mtlv_object_name;
+static int hf_lwm2mtlv_resource_name;
+static int hf_lwm2mtlv_header;
+static int hf_lwm2mtlv_type_type;
+static int hf_lwm2mtlv_type_length_of_identifier;
+static int hf_lwm2mtlv_type_length_of_length;
+static int hf_lwm2mtlv_type_length;
+static int hf_lwm2mtlv_type_ignored;
 
-static int hf_lwm2mtlv_identifier                = -1;
-static int hf_lwm2mtlv_length                    = -1;
-static int hf_lwm2mtlv_value                     = -1;
-static int hf_lwm2mtlv_value_string              = -1;
-static int hf_lwm2mtlv_value_integer             = -1;
-static int hf_lwm2mtlv_value_unsigned_integer    = -1;
-static int hf_lwm2mtlv_value_float               = -1;
-static int hf_lwm2mtlv_value_double              = -1;
-static int hf_lwm2mtlv_value_boolean             = -1;
-static int hf_lwm2mtlv_value_timestamp           = -1;
+static int hf_lwm2mtlv_identifier;
+static int hf_lwm2mtlv_length;
+static int hf_lwm2mtlv_value;
+static int hf_lwm2mtlv_value_string;
+static int hf_lwm2mtlv_value_integer;
+static int hf_lwm2mtlv_value_unsigned_integer;
+static int hf_lwm2mtlv_value_float;
+static int hf_lwm2mtlv_value_double;
+static int hf_lwm2mtlv_value_boolean;
+static int hf_lwm2mtlv_value_timestamp;
 
-static int hf_lwm2mtlv_object_instance           = -1;
-static int hf_lwm2mtlv_resource_instance         = -1;
-static int hf_lwm2mtlv_resource_array            = -1;
-static int hf_lwm2mtlv_resource                  = -1;
+static int hf_lwm2mtlv_object_instance;
+static int hf_lwm2mtlv_resource_instance;
+static int hf_lwm2mtlv_resource_array;
+static int hf_lwm2mtlv_resource;
 
-static gint ett_lwm2mtlv                         = -1;
-static gint ett_lwm2mtlv_header                  = -1;
-static gint ett_lwm2mtlv_resource                = -1;
-static gint ett_lwm2mtlv_resource_instance       = -1;
-static gint ett_lwm2mtlv_resource_array          = -1;
-static gint ett_lwm2mtlv_object_instance         = -1;
-static gint ett_lwm2mtlv_location_velocity       = -1;
+static gint ett_lwm2mtlv;
+static gint ett_lwm2mtlv_header;
+static gint ett_lwm2mtlv_resource;
+static gint ett_lwm2mtlv_resource_instance;
+static gint ett_lwm2mtlv_resource_array;
+static gint ett_lwm2mtlv_object_instance;
+static gint ett_lwm2mtlv_location_velocity;
 
 typedef enum {
 	OBJECT_INSTANCE   = 0,

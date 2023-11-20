@@ -91,15 +91,15 @@ static gboolean grpc_embedded_under_http2 = FALSE;
 void proto_register_grpc(void);
 void proto_reg_handoff_grpc(void);
 
-static int proto_grpc = -1;
-static int proto_http = -1;
+static int proto_grpc;
+static int proto_http;
 
 /* message header */
-static int hf_grpc_frame_type = -1;
-static int hf_grpc_compressed_flag = -1;
-static int hf_grpc_message_length = -1;
+static int hf_grpc_frame_type;
+static int hf_grpc_compressed_flag;
+static int hf_grpc_message_length;
 /* message body */
-static int hf_grpc_message_data = -1;
+static int hf_grpc_message_data;
 
 /* grpc protocol type */
 #define grpc_protocol_type_vals_VALUE_STRING_LIST(XXX)    \
@@ -127,13 +127,13 @@ VALUE_STRING_ENUM(grpc_compressed_flag_vals);
 VALUE_STRING_ARRAY(grpc_compressed_flag_vals);
 
 /* expert */
-static expert_field ei_grpc_body_decompression_failed = EI_INIT;
-static expert_field ei_grpc_body_malformed = EI_INIT;
+static expert_field ei_grpc_body_decompression_failed;
+static expert_field ei_grpc_body_malformed;
 
 /* trees */
-static int ett_grpc = -1;
-static int ett_grpc_message = -1;
-static int ett_grpc_encoded_entity = -1;
+static int ett_grpc;
+static int ett_grpc_message;
+static int ett_grpc_encoded_entity;
 
 static dissector_handle_t grpc_handle;
 static dissector_handle_t data_text_lines_handle;

@@ -18,16 +18,16 @@ void proto_register_mwmtp(void);
 void proto_reg_handoff_nwmtp(void);
 
 static dissector_handle_t mtp_handle;
-static gint proto_nwmtp = -1;
+static gint proto_nwmtp;
 
-static int hf_nwmtp_transp_type = -1;
-static int hf_nwmtp_user_context = -1;
-static int hf_nwmtp_data_type = -1;
-static int hf_nwmtp_data_index = -1;
-static int hf_nwmtp_data_length = -1;
+static int hf_nwmtp_transp_type;
+static int hf_nwmtp_user_context;
+static int hf_nwmtp_data_type;
+static int hf_nwmtp_data_index;
+static int hf_nwmtp_data_length;
 
 /* subtree pointer */
-static gint ett_mwmtp = -1;
+static gint ett_mwmtp;
 
 static dissector_handle_t nwmtp_handle;
 

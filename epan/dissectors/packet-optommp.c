@@ -26,26 +26,26 @@
 #define OPTOMMP_READ_BLOCK_RESPONSE 7
 
 /* Initialize the protocol and registered fields */
-static gint proto_optommp = -1;
+static gint proto_optommp;
 static dissector_handle_t optommp_tcp_handle;
 static dissector_handle_t optommp_udp_handle;
-static gint hf_optommp_nodest_id = -1;
-static gint hf_optommp_dest_id = -1;
-static gint hf_optommp_boot_id = -1;
-static gint hf_optommp_tl = -1;
-static gint hf_optommp_tcode = -1;
-static gint hf_optommp_source_ID = -1;
-static gint hf_optommp_rcode = -1;
-static gint hf_optommp_quadlet_data = -1;
-static gint hf_optommp_data_length = -1;
-static gint hf_optommp_dest_offset  = -1;
-static gint hf_optommp_data_block_byte  = -1;
-static gint hf_optommp_data_block_quadlet  = -1;
+static gint hf_optommp_nodest_id;
+static gint hf_optommp_dest_id;
+static gint hf_optommp_boot_id;
+static gint hf_optommp_tl;
+static gint hf_optommp_tcode;
+static gint hf_optommp_source_ID;
+static gint hf_optommp_rcode;
+static gint hf_optommp_quadlet_data;
+static gint hf_optommp_data_length;
+static gint hf_optommp_dest_offset;
+static gint hf_optommp_data_block_byte;
+static gint hf_optommp_data_block_quadlet;
 /* Initialize the subtree pointers */
-static gint ett_optommp = -1;
-static gint ett_dest_id = -1;
-static gint ett_data_block_q = -1;
-static gint ett_data_block_b = -1;
+static gint ett_optommp;
+static gint ett_dest_id;
+static gint ett_data_block_q;
+static gint ett_data_block_b;
 
 static const value_string optommp_tcode_names[] = {
     { 0, "Write Quadlet Request" },

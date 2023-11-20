@@ -19,9 +19,9 @@
 #include <wsutil/str_util.h>
 void proto_register_ipars(void);
 
-static int      proto_ipars     = -1;
+static int      proto_ipars;
 static guint8   ipars_eomtype   = G_MAXUINT8;
-static gint     ett_ipars       = -1;
+static gint     ett_ipars;
 
 #define S1      (0x00)
 #define S2      (0x20)

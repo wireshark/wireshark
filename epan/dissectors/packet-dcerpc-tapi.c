@@ -23,15 +23,15 @@
 void proto_register_dcerpc_tapi(void);
 void proto_reg_handoff_dcerpc_tapi(void);
 
-static int proto_dcerpc_tapi = -1;
-static int hf_tapi_opnum = -1;
-static int hf_tapi_rc = -1;
-static int hf_tapi_hnd = -1;
-static int hf_tapi_unknown_long = -1;
-static int hf_tapi_unknown_string = -1;
-static int hf_tapi_unknown_bytes = -1;
+static int proto_dcerpc_tapi;
+static int hf_tapi_opnum;
+static int hf_tapi_rc;
+static int hf_tapi_hnd;
+static int hf_tapi_unknown_long;
+static int hf_tapi_unknown_string;
+static int hf_tapi_unknown_bytes;
 
-static gint ett_dcerpc_tapi = -1;
+static gint ett_dcerpc_tapi;
 
 /*
   IDL [ uuid(2f5f6520-ca46-1067-b319-00dd010662da),

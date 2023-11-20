@@ -478,171 +478,171 @@ static const value_string sapms_server_lst_status_vals[] = {
 #define SAPMS_MSG_TYPE_ATP	0x40
 #define SAPMS_MSG_TYPE_ICM	0x80
 
-static int proto_sapms = -1;
+static int proto_sapms;
 
-static int hf_sapms_eyecatcher = -1;
-static int hf_sapms_version = -1;
-static int hf_sapms_errorno = -1;
-static int hf_sapms_toname = -1;
-static int hf_sapms_msgtypes = -1;
-static int hf_sapms_msgtypes_dia = -1;
-static int hf_sapms_msgtypes_upd = -1;
-static int hf_sapms_msgtypes_enq = -1;
-static int hf_sapms_msgtypes_btc = -1;
-static int hf_sapms_msgtypes_spo = -1;
-static int hf_sapms_msgtypes_up2 = -1;
-static int hf_sapms_msgtypes_atp = -1;
-static int hf_sapms_msgtypes_icm = -1;
-static int hf_sapms_domain = -1;
-static int hf_sapms_reserved = -1;
-static int hf_sapms_key = -1;
-static int hf_sapms_flag = -1;
-static int hf_sapms_iflag = -1;
-static int hf_sapms_fromname = -1;
-static int hf_sapms_diagport = -1;
+static int hf_sapms_eyecatcher;
+static int hf_sapms_version;
+static int hf_sapms_errorno;
+static int hf_sapms_toname;
+static int hf_sapms_msgtypes;
+static int hf_sapms_msgtypes_dia;
+static int hf_sapms_msgtypes_upd;
+static int hf_sapms_msgtypes_enq;
+static int hf_sapms_msgtypes_btc;
+static int hf_sapms_msgtypes_spo;
+static int hf_sapms_msgtypes_up2;
+static int hf_sapms_msgtypes_atp;
+static int hf_sapms_msgtypes_icm;
+static int hf_sapms_domain;
+static int hf_sapms_reserved;
+static int hf_sapms_key;
+static int hf_sapms_flag;
+static int hf_sapms_iflag;
+static int hf_sapms_fromname;
+static int hf_sapms_diagport;
 
-static int hf_sapms_dp_adm_dp_version = -1;
+static int hf_sapms_dp_adm_dp_version;
 
-static int hf_sapms_adm_eyecatcher = -1;
-static int hf_sapms_adm_version = -1;
-static int hf_sapms_adm_msgtype = -1;
-static int hf_sapms_adm_recsize = -1;
-static int hf_sapms_adm_recno = -1;
+static int hf_sapms_adm_eyecatcher;
+static int hf_sapms_adm_version;
+static int hf_sapms_adm_msgtype;
+static int hf_sapms_adm_recsize;
+static int hf_sapms_adm_recno;
 
-static int hf_sapms_adm_record = -1;
-static int hf_sapms_adm_record_opcode = -1;
-static int hf_sapms_adm_record_serial_number = -1;
-static int hf_sapms_adm_record_executed = -1;
-static int hf_sapms_adm_record_errorno = -1;
-static int hf_sapms_adm_record_value = -1;
+static int hf_sapms_adm_record;
+static int hf_sapms_adm_record_opcode;
+static int hf_sapms_adm_record_serial_number;
+static int hf_sapms_adm_record_executed;
+static int hf_sapms_adm_record_errorno;
+static int hf_sapms_adm_record_value;
 
-static int hf_sapms_adm_parameter = -1;
+static int hf_sapms_adm_parameter;
 
-static int hf_sapms_adm_rzl_strg_type = -1;
-static int hf_sapms_adm_rzl_strg_name = -1;
-static int hf_sapms_adm_rzl_strg_value = -1;
-static int hf_sapms_adm_rzl_strg_value_integer = -1;
-static int hf_sapms_adm_rzl_strg_uptime = -1;
-static int hf_sapms_adm_rzl_strg_delay = -1;
-static int hf_sapms_adm_rzl_strg_users  = -1;
-static int hf_sapms_adm_rzl_strg_quality = -1;
+static int hf_sapms_adm_rzl_strg_type;
+static int hf_sapms_adm_rzl_strg_name;
+static int hf_sapms_adm_rzl_strg_value;
+static int hf_sapms_adm_rzl_strg_value_integer;
+static int hf_sapms_adm_rzl_strg_uptime;
+static int hf_sapms_adm_rzl_strg_delay;
+static int hf_sapms_adm_rzl_strg_users;
+static int hf_sapms_adm_rzl_strg_quality;
 
-static int hf_sapms_opcode = -1;
-static int hf_sapms_opcode_error = -1;
-static int hf_sapms_opcode_version = -1;
-static int hf_sapms_opcode_charset = -1;
-static int hf_sapms_opcode_value = -1;
+static int hf_sapms_opcode;
+static int hf_sapms_opcode_error;
+static int hf_sapms_opcode_version;
+static int hf_sapms_opcode_charset;
+static int hf_sapms_opcode_value;
 
-static int hf_sapms_property_client = -1;
-static int hf_sapms_property_id = -1;
-static int hf_sapms_property_value = -1;
+static int hf_sapms_property_client;
+static int hf_sapms_property_id;
+static int hf_sapms_property_value;
 
-static int hf_sapms_property_vhost_logon = -1;
-static int hf_sapms_property_vhost_length = -1;
-static int hf_sapms_property_vhost_value = -1;
+static int hf_sapms_property_vhost_logon;
+static int hf_sapms_property_vhost_length;
+static int hf_sapms_property_vhost_value;
 
-static int hf_sapms_property_ip_address = -1;
-static int hf_sapms_property_ip_address6 = -1;
+static int hf_sapms_property_ip_address;
+static int hf_sapms_property_ip_address6;
 
-static int hf_sapms_property_param_name_length = -1;
-static int hf_sapms_property_param_name_value = -1;
-static int hf_sapms_property_param_value_length = -1;
-static int hf_sapms_property_param_value_value = -1;
+static int hf_sapms_property_param_name_length;
+static int hf_sapms_property_param_name_value;
+static int hf_sapms_property_param_value_length;
+static int hf_sapms_property_param_value_value;
 
-static int hf_sapms_property_service_number = -1;
-static int hf_sapms_property_service_value = -1;
+static int hf_sapms_property_service_number;
+static int hf_sapms_property_service_value;
 
-static int hf_sapms_property_release = -1;
-static int hf_sapms_property_release_patchno = -1;
-static int hf_sapms_property_release_supplvl = -1;
-static int hf_sapms_property_release_platform = -1;
+static int hf_sapms_property_release;
+static int hf_sapms_property_release_patchno;
+static int hf_sapms_property_release_supplvl;
+static int hf_sapms_property_release_platform;
 
 
-static int hf_sapms_text_name = -1;
-static int hf_sapms_text_length = -1;
-static int hf_sapms_text_value = -1;
+static int hf_sapms_text_name;
+static int hf_sapms_text_length;
+static int hf_sapms_text_value;
 
-static int hf_sapms_counter_uuid = -1;
-static int hf_sapms_counter_count = -1;
-static int hf_sapms_counter_no = -1;
+static int hf_sapms_counter_uuid;
+static int hf_sapms_counter_count;
+static int hf_sapms_counter_no;
 
-static int hf_sapms_change_ip_address = -1;
-static int hf_sapms_change_ip_address6 = -1;
+static int hf_sapms_change_ip_address;
+static int hf_sapms_change_ip_address6;
 
-static int hf_sapms_security_name = -1;
-static int hf_sapms_security_key = -1;
-static int hf_sapms_security_port = -1;
-static int hf_sapms_security_address = -1;
-static int hf_sapms_security_address6 = -1;
+static int hf_sapms_security_name;
+static int hf_sapms_security_key;
+static int hf_sapms_security_port;
+static int hf_sapms_security_address;
+static int hf_sapms_security_address6;
 
-static int hf_sapms_file_reload = -1;
-static int hf_sapms_file_filler = -1;
+static int hf_sapms_file_reload;
+static int hf_sapms_file_filler;
 
-static int hf_sapms_logon_type = -1;
-static int hf_sapms_logon_port = -1;
-static int hf_sapms_logon_address = -1;
-static int hf_sapms_logon_name_length = -1;
-static int hf_sapms_logon_name = -1;
-static int hf_sapms_logon_prot_length = -1;
-static int hf_sapms_logon_prot = -1;
-static int hf_sapms_logon_host_length = -1;
-static int hf_sapms_logon_host = -1;
-static int hf_sapms_logon_misc_length = -1;
-static int hf_sapms_logon_misc = -1;
-static int hf_sapms_logon_address6_length = -1;
-static int hf_sapms_logon_address6 = -1;
-static int hf_sapms_logon_end = -1;
+static int hf_sapms_logon_type;
+static int hf_sapms_logon_port;
+static int hf_sapms_logon_address;
+static int hf_sapms_logon_name_length;
+static int hf_sapms_logon_name;
+static int hf_sapms_logon_prot_length;
+static int hf_sapms_logon_prot;
+static int hf_sapms_logon_host_length;
+static int hf_sapms_logon_host;
+static int hf_sapms_logon_misc_length;
+static int hf_sapms_logon_misc;
+static int hf_sapms_logon_address6_length;
+static int hf_sapms_logon_address6;
+static int hf_sapms_logon_end;
 
-static int hf_sapms_shutdown_reason_length = -1;
-static int hf_sapms_shutdown_reason = -1;
+static int hf_sapms_shutdown_reason_length;
+static int hf_sapms_shutdown_reason;
 
-static int hf_sapms_ip_to_name_address4 = -1;
-static int hf_sapms_ip_to_name_address6 = -1;
-static int hf_sapms_ip_to_name_port = -1;
-static int hf_sapms_ip_to_name_length = -1;
-static int hf_sapms_ip_to_name = -1;
+static int hf_sapms_ip_to_name_address4;
+static int hf_sapms_ip_to_name_address6;
+static int hf_sapms_ip_to_name_port;
+static int hf_sapms_ip_to_name_length;
+static int hf_sapms_ip_to_name;
 
-static int hf_sapms_check_acl_error_code = -1;
-static int hf_sapms_check_acl_acl = -1;
+static int hf_sapms_check_acl_error_code;
+static int hf_sapms_check_acl_acl;
 
-static int hf_sapms_codepage = -1;
+static int hf_sapms_codepage;
 
-static int hf_sapms_dump_dest = -1;
-static int hf_sapms_dump_filler = -1;
-static int hf_sapms_dump_index = -1;
-static int hf_sapms_dump_command = -1;
-static int hf_sapms_dump_name = -1;
+static int hf_sapms_dump_dest;
+static int hf_sapms_dump_filler;
+static int hf_sapms_dump_index;
+static int hf_sapms_dump_command;
+static int hf_sapms_dump_name;
 
-static int hf_sapms_server_lst_client = -1;
-static int hf_sapms_server_lst_name = -1;
-static int hf_sapms_server_lst_host = -1;
-static int hf_sapms_server_lst_service = -1;
-static int hf_sapms_server_lst_msgtypes = -1;
-static int hf_sapms_server_lst_msgtypes_dia = -1;
-static int hf_sapms_server_lst_msgtypes_upd = -1;
-static int hf_sapms_server_lst_msgtypes_enq = -1;
-static int hf_sapms_server_lst_msgtypes_btc = -1;
-static int hf_sapms_server_lst_msgtypes_spo = -1;
-static int hf_sapms_server_lst_msgtypes_up2 = -1;
-static int hf_sapms_server_lst_msgtypes_atp = -1;
-static int hf_sapms_server_lst_msgtypes_icm = -1;
-static int hf_sapms_server_lst_hostaddr = -1;
-static int hf_sapms_server_lst_hostaddrv4 = -1;
-static int hf_sapms_server_lst_servno = -1;
-static int hf_sapms_server_lst_status = -1;
-static int hf_sapms_server_lst_nitrc = -1;
-static int hf_sapms_server_lst_sys_service = -1;
+static int hf_sapms_server_lst_client;
+static int hf_sapms_server_lst_name;
+static int hf_sapms_server_lst_host;
+static int hf_sapms_server_lst_service;
+static int hf_sapms_server_lst_msgtypes;
+static int hf_sapms_server_lst_msgtypes_dia;
+static int hf_sapms_server_lst_msgtypes_upd;
+static int hf_sapms_server_lst_msgtypes_enq;
+static int hf_sapms_server_lst_msgtypes_btc;
+static int hf_sapms_server_lst_msgtypes_spo;
+static int hf_sapms_server_lst_msgtypes_up2;
+static int hf_sapms_server_lst_msgtypes_atp;
+static int hf_sapms_server_lst_msgtypes_icm;
+static int hf_sapms_server_lst_hostaddr;
+static int hf_sapms_server_lst_hostaddrv4;
+static int hf_sapms_server_lst_servno;
+static int hf_sapms_server_lst_status;
+static int hf_sapms_server_lst_nitrc;
+static int hf_sapms_server_lst_sys_service;
 
-static gint ett_sapms = -1;
+static gint ett_sapms;
 
 /* Expert info */
-static expert_field ei_sapms_adm_opcode_partial = EI_INIT;
-static expert_field ei_sapms_opcode_partial = EI_INIT;
-static expert_field ei_sapms_unknown_version = EI_INIT;
-static expert_field ei_sapms_client_invalid_offset = EI_INIT;
-static expert_field ei_sapms_client_invalid_length = EI_INIT;
-static expert_field ei_sapms_text_invalid_length = EI_INIT;
-static expert_field ei_sapms_ip_invalid_length = EI_INIT;
+static expert_field ei_sapms_adm_opcode_partial;
+static expert_field ei_sapms_opcode_partial;
+static expert_field ei_sapms_unknown_version;
+static expert_field ei_sapms_client_invalid_offset;
+static expert_field ei_sapms_client_invalid_length;
+static expert_field ei_sapms_text_invalid_length;
+static expert_field ei_sapms_ip_invalid_length;
 
 /* Global port preference */
 static range_t *global_sapms_port_range;

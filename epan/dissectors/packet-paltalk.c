@@ -27,14 +27,14 @@ void proto_reg_handoff_paltalk(void);
 
 #define PALTALK_HEADER_LENGTH 6
 
-static int proto_paltalk = -1;
+static int proto_paltalk;
 
-static int hf_paltalk_pdu_type = -1;
-static int hf_paltalk_version = -1;
-static int hf_paltalk_length = -1;
-static int hf_paltalk_content = -1;
+static int hf_paltalk_pdu_type;
+static int hf_paltalk_version;
+static int hf_paltalk_length;
+static int hf_paltalk_content;
 
-static gint ett_paltalk = -1;
+static gint ett_paltalk;
 
 static guint
 dissect_paltalk_get_len(packet_info *pinfo _U_, tvbuff_t *tvb,

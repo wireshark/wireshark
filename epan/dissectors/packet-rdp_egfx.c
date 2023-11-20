@@ -29,61 +29,61 @@
 void proto_register_rdp_egfx(void);
 void proto_reg_handoff_rdp_egfx(void);
 
-static int proto_rdp_egfx = -1;
+static int proto_rdp_egfx;
 
-static int hf_egfx_cmdId = -1;
-static int hf_egfx_flags = -1;
-static int hf_egfx_pduLength = -1;
+static int hf_egfx_cmdId;
+static int hf_egfx_flags;
+static int hf_egfx_pduLength;
 
-static int hf_egfx_caps_capsSetCount = -1;
-static int hf_egfx_cap_version = -1;
-static int hf_egfx_cap_length = -1;
+static int hf_egfx_caps_capsSetCount;
+static int hf_egfx_cap_version;
+static int hf_egfx_cap_length;
 
-static int hf_egfx_reset_width = -1;
-static int hf_egfx_reset_height = -1;
-static int hf_egfx_reset_monitorCount = -1;
-static int hf_egfx_reset_monitorDefLeft = -1;
-static int hf_egfx_reset_monitorDefTop = -1;
-static int hf_egfx_reset_monitorDefRight = -1;
-static int hf_egfx_reset_monitorDefBottom = -1;
-static int hf_egfx_reset_monitorDefFlags = -1;
-
-
-static int hf_egfx_ack_queue_depth = -1;
-static int hf_egfx_ack_frame_id = -1;
-static int hf_egfx_ack_total_decoded = -1;
-static int hf_egfx_ack_frame_start = -1;
-static int hf_egfx_ack_frame_end = -1;
-
-static int hf_egfx_ackqoe_frame_id = -1;
-static int hf_egfx_ackqoe_timestamp = -1;
-static int hf_egfx_ackqoe_timediffse = -1;
-static int hf_egfx_ackqoe_timediffedr = -1;
-static int hf_egfx_ackqoe_frame_start = -1;
-static int hf_egfx_ackqoe_frame_end = -1;
-
-static int hf_egfx_start_timestamp = -1;
-static int hf_egfx_start_frameid = -1;
-static int hf_egfx_start_acked_in = -1;
-
-static int hf_egfx_end_frameid = -1;
-static int hf_egfx_end_acked_in = -1;
+static int hf_egfx_reset_width;
+static int hf_egfx_reset_height;
+static int hf_egfx_reset_monitorCount;
+static int hf_egfx_reset_monitorDefLeft;
+static int hf_egfx_reset_monitorDefTop;
+static int hf_egfx_reset_monitorDefRight;
+static int hf_egfx_reset_monitorDefBottom;
+static int hf_egfx_reset_monitorDefFlags;
 
 
-static int ett_rdp_egfx = -1;
-static int ett_egfx_caps = -1;
-static int ett_egfx_capsconfirm = -1;
-static int ett_egfx_cap = -1;
-static int ett_egfx_cap_version = -1;
-static int ett_egfx_ack = -1;
-static int ett_egfx_ackqoe = -1;
-static int ett_egfx_reset = -1;
-static int ett_egfx_monitors = -1;
-static int ett_egfx_monitordef = -1;
+static int hf_egfx_ack_queue_depth;
+static int hf_egfx_ack_frame_id;
+static int hf_egfx_ack_total_decoded;
+static int hf_egfx_ack_frame_start;
+static int hf_egfx_ack_frame_end;
+
+static int hf_egfx_ackqoe_frame_id;
+static int hf_egfx_ackqoe_timestamp;
+static int hf_egfx_ackqoe_timediffse;
+static int hf_egfx_ackqoe_timediffedr;
+static int hf_egfx_ackqoe_frame_start;
+static int hf_egfx_ackqoe_frame_end;
+
+static int hf_egfx_start_timestamp;
+static int hf_egfx_start_frameid;
+static int hf_egfx_start_acked_in;
+
+static int hf_egfx_end_frameid;
+static int hf_egfx_end_acked_in;
 
 
-static expert_field ei_egfx_pdulen_invalid = EI_INIT;
-static expert_field ei_egfx_invalid_compression = EI_INIT;
+static int ett_rdp_egfx;
+static int ett_egfx_caps;
+static int ett_egfx_capsconfirm;
+static int ett_egfx_cap;
+static int ett_egfx_cap_version;
+static int ett_egfx_ack;
+static int ett_egfx_ackqoe;
+static int ett_egfx_reset;
+static int ett_egfx_monitors;
+static int ett_egfx_monitordef;
+
+
+static expert_field ei_egfx_pdulen_invalid;
+static expert_field ei_egfx_invalid_compression;
 
 
 #define PNAME  "RDP Graphic pipeline channel Protocol"

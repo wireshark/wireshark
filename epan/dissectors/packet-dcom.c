@@ -67,137 +67,137 @@
 void proto_register_dcom (void);
 void proto_reg_handoff_dcom (void);
 
-static int proto_dcom = -1;
+static int proto_dcom;
 
 gboolean dcom_prefs_display_unmarshalling_details = FALSE;
 
 
-static gint ett_dcom_this = -1;
-/* static int hf_dcom_this_version_major = -1; */
-/* static int hf_dcom_this_version_minor = -1; */
-static int hf_dcom_this_flags = -1;
-static int hf_dcom_this_res = -1;
-static int hf_dcom_this_cid = -1;
+static gint ett_dcom_this;
+/* static int hf_dcom_this_version_major; */
+/* static int hf_dcom_this_version_minor; */
+static int hf_dcom_this_flags;
+static int hf_dcom_this_res;
+static int hf_dcom_this_cid;
 
-static gint ett_dcom_that = -1;
-static int hf_dcom_that_flags = -1;
+static gint ett_dcom_that;
+static int hf_dcom_that_flags;
 
-static gint ett_dcom_extent = -1;
-static int hf_dcom_extent = -1;
-static int hf_dcom_extent_array_count = -1;
-static int hf_dcom_extent_array_res = -1;
-static int hf_dcom_extent_size = -1;
-static int hf_dcom_extent_id = -1;
+static gint ett_dcom_extent;
+static int hf_dcom_extent;
+static int hf_dcom_extent_array_count;
+static int hf_dcom_extent_array_res;
+static int hf_dcom_extent_size;
+static int hf_dcom_extent_id;
 
-static int hf_dcom_hresult = -1;
-static int hf_dcom_tobedone = -1;
-static int hf_dcom_nospec = -1;
-static int hf_dcom_array_size = -1;
-static int hf_dcom_pointer_val = -1;
+static int hf_dcom_hresult;
+static int hf_dcom_tobedone;
+static int hf_dcom_nospec;
+static int hf_dcom_array_size;
+static int hf_dcom_pointer_val;
 
 /* COMVERSION */
-static int hf_dcom_version_major = -1;
-static int hf_dcom_version_minor = -1;
+static int hf_dcom_version_major;
+static int hf_dcom_version_minor;
 
-static gint ett_dcom_lpwstr = -1;
-static int hf_dcom_max_count = -1;
-static int hf_dcom_offset = -1;
-static int hf_dcom_byte_length = -1;
-/* static int hf_dcom_actual_count = -1; */
+static gint ett_dcom_lpwstr;
+static int hf_dcom_max_count;
+static int hf_dcom_offset;
+static int hf_dcom_byte_length;
+/* static int hf_dcom_actual_count; */
 
-static gint ett_dcom_objref = -1;
-static int hf_dcom_objref = -1;
-static int hf_dcom_objref_signature = -1;
-static int hf_dcom_objref_flags = -1;
-int hf_dcom_iid = -1;
-int hf_dcom_clsid = -1;
-static int hf_dcom_objref_resolver_address = -1;
-static int hf_dcom_objref_cbextension = -1;
-static int hf_dcom_objref_size = -1;
+static gint ett_dcom_objref;
+static int hf_dcom_objref;
+static int hf_dcom_objref_signature;
+static int hf_dcom_objref_flags;
+int hf_dcom_iid;
+int hf_dcom_clsid;
+static int hf_dcom_objref_resolver_address;
+static int hf_dcom_objref_cbextension;
+static int hf_dcom_objref_size;
 
-static gint ett_dcom_stdobjref = -1;
-static int hf_dcom_stdobjref = -1;
-static int hf_dcom_stdobjref_flags = -1;
-static int hf_dcom_stdobjref_public_refs = -1;
-int hf_dcom_oxid = -1;
-int hf_dcom_oid = -1;
-int hf_dcom_ipid = -1;
+static gint ett_dcom_stdobjref;
+static int hf_dcom_stdobjref;
+static int hf_dcom_stdobjref_flags;
+static int hf_dcom_stdobjref_public_refs;
+int hf_dcom_oxid;
+int hf_dcom_oid;
+int hf_dcom_ipid;
 
 
-static gint ett_dcom_custobjref = -1;
-static int hf_dcom_custobjref = -1;
+static gint ett_dcom_custobjref;
+static int hf_dcom_custobjref;
 
-static gint ett_dcom_dualstringarray = -1;
-static gint ett_dcom_dualstringarray_binding = -1;
-static int hf_dcom_dualstringarray_num_entries = -1;
-static int hf_dcom_dualstringarray_security_offset = -1;
-static int hf_dcom_dualstringarray_string = -1;
-static int hf_dcom_dualstringarray_string_network_addr = -1;
-static int hf_dcom_dualstringarray_string_tower_id = -1;
-static int hf_dcom_dualstringarray_security = -1;
-static int hf_dcom_dualstringarray_security_authn_svc = -1;
-static int hf_dcom_dualstringarray_security_authz_svc = -1;
-static int hf_dcom_dualstringarray_security_princ_name = -1;
+static gint ett_dcom_dualstringarray;
+static gint ett_dcom_dualstringarray_binding;
+static int hf_dcom_dualstringarray_num_entries;
+static int hf_dcom_dualstringarray_security_offset;
+static int hf_dcom_dualstringarray_string;
+static int hf_dcom_dualstringarray_string_network_addr;
+static int hf_dcom_dualstringarray_string_tower_id;
+static int hf_dcom_dualstringarray_security;
+static int hf_dcom_dualstringarray_security_authn_svc;
+static int hf_dcom_dualstringarray_security_authz_svc;
+static int hf_dcom_dualstringarray_security_princ_name;
 
-static gint ett_dcom_interface_pointer = -1;
-static int hf_dcom_interface_pointer = -1;
-static int hf_dcom_ip_cnt_data = -1;
+static gint ett_dcom_interface_pointer;
+static int hf_dcom_interface_pointer;
+static int hf_dcom_ip_cnt_data;
 
-static gint ett_dcom_safearray = -1;
-static int hf_dcom_safearray = -1;
-static int hf_dcom_sa_dims32 = -1;
-static int hf_dcom_sa_dims16 = -1;
-static int hf_dcom_sa_features = -1;
-static int hf_dcom_sa_element_size = -1;
-static int hf_dcom_sa_locks = -1;
-static int hf_dcom_sa_vartype32 = -1;
-static int hf_dcom_sa_vartype16 = -1;
-static int hf_dcom_sa_elements = -1;
-static int hf_dcom_sa_bound_elements = -1;
-static int hf_dcom_sa_low_bound = -1;
+static gint ett_dcom_safearray;
+static int hf_dcom_safearray;
+static int hf_dcom_sa_dims32;
+static int hf_dcom_sa_dims16;
+static int hf_dcom_sa_features;
+static int hf_dcom_sa_element_size;
+static int hf_dcom_sa_locks;
+static int hf_dcom_sa_vartype32;
+static int hf_dcom_sa_vartype16;
+static int hf_dcom_sa_elements;
+static int hf_dcom_sa_bound_elements;
+static int hf_dcom_sa_low_bound;
 
-static gint ett_dcom_sa_features = -1;
-static int hf_dcom_sa_features_auto = -1;
-static int hf_dcom_sa_features_static = -1;
-static int hf_dcom_sa_features_embedded = -1;
-static int hf_dcom_sa_features_fixedsize = -1;
-static int hf_dcom_sa_features_record = -1;
-static int hf_dcom_sa_features_have_iid = -1;
-static int hf_dcom_sa_features_have_vartype = -1;
-static int hf_dcom_sa_features_bstr = -1;
-static int hf_dcom_sa_features_unknown = -1;
-static int hf_dcom_sa_features_dispatch = -1;
-static int hf_dcom_sa_features_variant = -1;
+static gint ett_dcom_sa_features;
+static int hf_dcom_sa_features_auto;
+static int hf_dcom_sa_features_static;
+static int hf_dcom_sa_features_embedded;
+static int hf_dcom_sa_features_fixedsize;
+static int hf_dcom_sa_features_record;
+static int hf_dcom_sa_features_have_iid;
+static int hf_dcom_sa_features_have_vartype;
+static int hf_dcom_sa_features_bstr;
+static int hf_dcom_sa_features_unknown;
+static int hf_dcom_sa_features_dispatch;
+static int hf_dcom_sa_features_variant;
 
-static gint ett_dcom_variant = -1;
-/* static int hf_dcom_variant = -1; */
-static int hf_dcom_variant_type = -1;
-static int hf_dcom_variant_size = -1;
-static int hf_dcom_variant_rpc_res = -1;
-static int hf_dcom_variant_wres = -1;
-static int hf_dcom_variant_type32 = -1;
+static gint ett_dcom_variant;
+/* static int hf_dcom_variant; */
+static int hf_dcom_variant_type;
+static int hf_dcom_variant_size;
+static int hf_dcom_variant_rpc_res;
+static int hf_dcom_variant_wres;
+static int hf_dcom_variant_type32;
 
-static int hf_dcom_vt_bool = -1;
-static int hf_dcom_vt_i1 = -1;
-static int hf_dcom_vt_i2 = -1;
-static int hf_dcom_vt_i4 = -1;
-static int hf_dcom_vt_i8 = -1;	/* only inside a SAFEARRAY, not in VARIANTs */
-static int hf_dcom_vt_cy = -1;
-static int hf_dcom_vt_ui1 = -1;
-static int hf_dcom_vt_ui2 = -1;
-static int hf_dcom_vt_ui4 = -1;
-static int hf_dcom_vt_ui8 = -1;
-static int hf_dcom_vt_r4 = -1;
-static int hf_dcom_vt_r8 = -1;
-static int hf_dcom_vt_date = -1;
-static int hf_dcom_vt_bstr = -1;
-static int hf_dcom_vt_byref = -1;
-static int hf_dcom_vt_dispatch = -1;
+static int hf_dcom_vt_bool;
+static int hf_dcom_vt_i1;
+static int hf_dcom_vt_i2;
+static int hf_dcom_vt_i4;
+static int hf_dcom_vt_i8;	/* only inside a SAFEARRAY, not in VARIANTs */
+static int hf_dcom_vt_cy;
+static int hf_dcom_vt_ui1;
+static int hf_dcom_vt_ui2;
+static int hf_dcom_vt_ui4;
+static int hf_dcom_vt_ui8;
+static int hf_dcom_vt_r4;
+static int hf_dcom_vt_r8;
+static int hf_dcom_vt_date;
+static int hf_dcom_vt_bstr;
+static int hf_dcom_vt_byref;
+static int hf_dcom_vt_dispatch;
 
-static expert_field ei_dcom_dissection_incomplete = EI_INIT;
-static expert_field ei_dcom_no_spec = EI_INIT;
-static expert_field ei_dcom_hresult_expert = EI_INIT;
-static expert_field ei_dcom_dualstringarray_mult_ip = EI_INIT;
+static expert_field ei_dcom_dissection_incomplete;
+static expert_field ei_dcom_no_spec;
+static expert_field ei_dcom_hresult_expert;
+static expert_field ei_dcom_dualstringarray_mult_ip;
 
 /* this/that extension UUIDs */
 static e_guid_t uuid_debug_ext =    { 0xf1f19680, 0x4d2a, 0x11ce, { 0xa6, 0x6a, 0x00, 0x20, 0xaf, 0x6e, 0x72, 0xf4} };

@@ -181,190 +181,190 @@ void proto_reg_handoff_afp(void);
 #define SPOTLIGHT_TIME_DELTA G_GUINT64_CONSTANT(280878921600)
 
 /* ----------------------------- */
-static int proto_afp			    = -1;
-static int hf_afp_reserved		    = -1;
-static int hf_afp_unknown		    = -1;
+static int proto_afp;
+static int hf_afp_reserved;
+static int hf_afp_unknown;
 
-static int hf_afp_command		    = -1;		/* CommandCode */
-static int hf_afp_Version		    = -1;
-static int hf_afp_UAM			    = -1;
-static int hf_afp_user			    = -1;
-static int hf_afp_passwd		    = -1;
-static int hf_afp_random		    = -1;
+static int hf_afp_command;		/* CommandCode */
+static int hf_afp_Version;
+static int hf_afp_UAM;
+static int hf_afp_user;
+static int hf_afp_passwd;
+static int hf_afp_random;
 
-static int hf_afp_response_to		    = -1;
-static int hf_afp_time			    = -1;
-static int hf_afp_response_in		    = -1;
+static int hf_afp_response_to;
+static int hf_afp_time;
+static int hf_afp_response_in;
 
-static int hf_afp_login_flags		    = -1;
-static int hf_afp_pad			    = -1;
+static int hf_afp_login_flags;
+static int hf_afp_pad;
 
-static int hf_afp_user_type		    = -1;
-static int hf_afp_user_len		    = -1;
-static int hf_afp_user_name		    = -1;
+static int hf_afp_user_type;
+static int hf_afp_user_len;
+static int hf_afp_user_name;
 
-static int hf_afp_vol_flag		    = -1;
-static int hf_afp_vol_flag_passwd	    = -1;
-static int hf_afp_vol_flag_has_config	    = -1;
-static int hf_afp_server_time		    = -1;
+static int hf_afp_vol_flag;
+static int hf_afp_vol_flag_passwd;
+static int hf_afp_vol_flag_has_config;
+static int hf_afp_server_time;
 
-static int hf_afp_vol_bitmap		    = -1;
-static int hf_afp_vol_name_offset	    = -1;
-static int hf_afp_vol_id		    = -1;
-static int hf_afp_vol_attribute		    = -1;
-static int hf_afp_vol_name		    = -1;
-static int hf_afp_vol_signature		    = -1;
-static int hf_afp_vol_creation_date	    = -1;
-static int hf_afp_vol_modification_date	    = -1;
-static int hf_afp_vol_backup_date	    = -1;
-static int hf_afp_vol_bytes_free	    = -1;
-static int hf_afp_vol_bytes_total	    = -1;
-static int hf_afp_vol_ex_bytes_free	    = -1;
-static int hf_afp_vol_ex_bytes_total	    = -1;
-static int hf_afp_vol_block_size	    = -1;
+static int hf_afp_vol_bitmap;
+static int hf_afp_vol_name_offset;
+static int hf_afp_vol_id;
+static int hf_afp_vol_attribute;
+static int hf_afp_vol_name;
+static int hf_afp_vol_signature;
+static int hf_afp_vol_creation_date;
+static int hf_afp_vol_modification_date;
+static int hf_afp_vol_backup_date;
+static int hf_afp_vol_bytes_free;
+static int hf_afp_vol_bytes_total;
+static int hf_afp_vol_ex_bytes_free;
+static int hf_afp_vol_ex_bytes_total;
+static int hf_afp_vol_block_size;
 
 /* desktop stuff */
-static int hf_afp_comment		    = -1;
-static int hf_afp_file_creator		    = -1;
-static int hf_afp_file_type		    = -1;
-static int hf_afp_icon_type		    = -1;
-static int hf_afp_icon_length		    = -1;
-static int hf_afp_icon_tag		    = -1;
-static int hf_afp_icon_index		    = -1;
-static int hf_afp_appl_index		    = -1;
-static int hf_afp_appl_tag		    = -1;
+static int hf_afp_comment;
+static int hf_afp_file_creator;
+static int hf_afp_file_type;
+static int hf_afp_icon_type;
+static int hf_afp_icon_length;
+static int hf_afp_icon_tag;
+static int hf_afp_icon_index;
+static int hf_afp_appl_index;
+static int hf_afp_appl_tag;
 
-static int hf_afp_did			    = -1;
-static int hf_afp_file_id		    = -1;
-static int hf_afp_file_DataForkLen	    = -1;
-static int hf_afp_file_RsrcForkLen	    = -1;
-static int hf_afp_file_ExtDataForkLen	    = -1;
-static int hf_afp_file_ExtRsrcForkLen	    = -1;
+static int hf_afp_did;
+static int hf_afp_file_id;
+static int hf_afp_file_DataForkLen;
+static int hf_afp_file_RsrcForkLen;
+static int hf_afp_file_ExtDataForkLen;
+static int hf_afp_file_ExtRsrcForkLen;
 
-static int hf_afp_dir_bitmap		    = -1;
-static int hf_afp_dir_offspring		    = -1;
-static int hf_afp_dir_OwnerID		    = -1;
-static int hf_afp_dir_GroupID		    = -1;
+static int hf_afp_dir_bitmap;
+static int hf_afp_dir_offspring;
+static int hf_afp_dir_OwnerID;
+static int hf_afp_dir_GroupID;
 
-static int hf_afp_req_count		    = -1;
-static int hf_afp_start_index		    = -1;
-static int hf_afp_start_index32		    = -1;
-static int hf_afp_max_reply_size	    = -1;
-static int hf_afp_max_reply_size32	    = -1;
-static int hf_afp_file_flag		    = -1;
-static int hf_afp_create_flag		    = -1;
-static int hf_afp_struct_size		    = -1;
-static int hf_afp_struct_size16		    = -1;
+static int hf_afp_req_count;
+static int hf_afp_start_index;
+static int hf_afp_start_index32;
+static int hf_afp_max_reply_size;
+static int hf_afp_max_reply_size32;
+static int hf_afp_file_flag;
+static int hf_afp_create_flag;
+static int hf_afp_struct_size;
+static int hf_afp_struct_size16;
 
-static int hf_afp_cat_count		    = -1;
-static int hf_afp_cat_req_matches	    = -1;
-static int hf_afp_cat_position		    = -1;
+static int hf_afp_cat_count;
+static int hf_afp_cat_req_matches;
+static int hf_afp_cat_position;
 
-static int hf_afp_creation_date		    = -1;
-static int hf_afp_modification_date	    = -1;
-static int hf_afp_backup_date		    = -1;
-static int hf_afp_finder_info		    = -1;
-static int hf_afp_long_name_offset	    = -1;
-static int hf_afp_short_name_offset	    = -1;
-static int hf_afp_unicode_name_offset	    = -1;
-static int hf_afp_unix_privs_uid	    = -1;
-static int hf_afp_unix_privs_gid	    = -1;
-static int hf_afp_unix_privs_permissions    = -1;
-static int hf_afp_unix_privs_ua_permissions = -1;
+static int hf_afp_creation_date;
+static int hf_afp_modification_date;
+static int hf_afp_backup_date;
+static int hf_afp_finder_info;
+static int hf_afp_long_name_offset;
+static int hf_afp_short_name_offset;
+static int hf_afp_unicode_name_offset;
+static int hf_afp_unix_privs_uid;
+static int hf_afp_unix_privs_gid;
+static int hf_afp_unix_privs_permissions;
+static int hf_afp_unix_privs_ua_permissions;
 
-static int hf_afp_path_type		    = -1;
-static int hf_afp_path_len		    = -1;
-static int hf_afp_path_name		    = -1;
-static int hf_afp_path_unicode_hint	    = -1;
-static int hf_afp_path_unicode_len	    = -1;
+static int hf_afp_path_type;
+static int hf_afp_path_len;
+static int hf_afp_path_name;
+static int hf_afp_path_unicode_hint;
+static int hf_afp_path_unicode_len;
 
-static int hf_afp_flag			    = -1;
-static int hf_afp_dt_ref		    = -1;
-static int hf_afp_ofork			    = -1;
-static int hf_afp_ofork_len		    = -1;
-static int hf_afp_offset		    = -1;
-static int hf_afp_rw_count		    = -1;
-static int hf_afp_newline_mask		    = -1;
-static int hf_afp_newline_char		    = -1;
-static int hf_afp_last_written		    = -1;
+static int hf_afp_flag;
+static int hf_afp_dt_ref;
+static int hf_afp_ofork;
+static int hf_afp_ofork_len;
+static int hf_afp_offset;
+static int hf_afp_rw_count;
+static int hf_afp_newline_mask;
+static int hf_afp_newline_char;
+static int hf_afp_last_written;
 
-static int hf_afp_fork_type		    = -1;
-static int hf_afp_access_mode		    = -1;
-static int hf_afp_access_read		    = -1;
-static int hf_afp_access_write		    = -1;
-static int hf_afp_access_deny_read	    = -1;
-static int hf_afp_access_deny_write	    = -1;
+static int hf_afp_fork_type;
+static int hf_afp_access_mode;
+static int hf_afp_access_read;
+static int hf_afp_access_write;
+static int hf_afp_access_deny_read;
+static int hf_afp_access_deny_write;
 
-static gint hf_afp_lock_op		    = -1;
-static gint hf_afp_lock_from		    = -1;
-static gint hf_afp_lock_offset		    = -1;
-static gint hf_afp_lock_len		    = -1;
-static gint hf_afp_lock_range_start	    = -1;
+static gint hf_afp_lock_op;
+static gint hf_afp_lock_from;
+static gint hf_afp_lock_offset;
+static gint hf_afp_lock_len;
+static gint hf_afp_lock_range_start;
 
-static gint ett_afp			    = -1;
+static gint ett_afp;
 
-static gint ett_afp_vol_attribute	    = -1;
-static gint ett_afp_enumerate		    = -1;
-static gint ett_afp_enumerate_line	    = -1;
-static gint ett_afp_access_mode		    = -1;
+static gint ett_afp_vol_attribute;
+static gint ett_afp_enumerate;
+static gint ett_afp_enumerate_line;
+static gint ett_afp_access_mode;
 
-static gint ett_afp_vol_bitmap		    = -1;
-static gint ett_afp_dir_bitmap		    = -1;
-static gint ett_afp_dir_attribute	    = -1;
-static gint ett_afp_file_attribute	    = -1;
-static gint ett_afp_file_bitmap		    = -1;
-static gint ett_afp_unix_privs		    = -1;
-static gint ett_afp_path_name		    = -1;
-static gint ett_afp_lock_flags		    = -1;
-static gint ett_afp_dir_ar		    = -1;
+static gint ett_afp_vol_bitmap;
+static gint ett_afp_dir_bitmap;
+static gint ett_afp_dir_attribute;
+static gint ett_afp_file_attribute;
+static gint ett_afp_file_bitmap;
+static gint ett_afp_unix_privs;
+static gint ett_afp_path_name;
+static gint ett_afp_lock_flags;
+static gint ett_afp_dir_ar;
 
-static gint ett_afp_server_vol		    = -1;
-static gint ett_afp_vol_list		    = -1;
-static gint ett_afp_vol_flag		    = -1;
-static gint ett_afp_cat_search		    = -1;
-static gint ett_afp_cat_r_bitmap	    = -1;
-static gint ett_afp_cat_spec		    = -1;
-static gint ett_afp_vol_did		    = -1;
+static gint ett_afp_server_vol;
+static gint ett_afp_vol_list;
+static gint ett_afp_vol_flag;
+static gint ett_afp_cat_search;
+static gint ett_afp_cat_r_bitmap;
+static gint ett_afp_cat_spec;
+static gint ett_afp_vol_did;
 
 /* AFP 3.0 parameters */
-static gint hf_afp_lock_offset64	    = -1;
-static gint hf_afp_lock_len64		    = -1;
-static gint hf_afp_lock_range_start64	    = -1;
+static gint hf_afp_lock_offset64;
+static gint hf_afp_lock_len64;
+static gint hf_afp_lock_range_start64;
 
-static int hf_afp_offset64		    = -1;
-static int hf_afp_rw_count64		    = -1;
-static int hf_afp_reqcount64		    = -1;
+static int hf_afp_offset64;
+static int hf_afp_rw_count64;
+static int hf_afp_reqcount64;
 
-static int hf_afp_last_written64	    = -1;
+static int hf_afp_last_written64;
 
-static int hf_afp_ofork_len64		    = -1;
-static int hf_afp_session_token_type	    = -1;
-static int hf_afp_session_token_len	    = -1;
-static int hf_afp_session_token		    = -1;
-static int hf_afp_session_token_timestamp   = -1;
+static int hf_afp_ofork_len64;
+static int hf_afp_session_token_type;
+static int hf_afp_session_token_len;
+static int hf_afp_session_token;
+static int hf_afp_session_token_timestamp;
 
 /* AFP 3.2 */
 
-static int hf_afp_extattr_bitmap	    = -1;
-static int hf_afp_extattr_bitmap_NoFollow   = -1;
-static int hf_afp_extattr_bitmap_Create	    = -1;
-static int hf_afp_extattr_bitmap_Replace    = -1;
-static int ett_afp_extattr_bitmap	    = -1;
-static int hf_afp_extattr_namelen	    = -1;
-static int hf_afp_extattr_name		    = -1;
-static int hf_afp_extattr_len		    = -1;
-static int hf_afp_extattr_data		    = -1;
-static int hf_afp_extattr_req_count	    = -1;
-static int hf_afp_extattr_start_index	    = -1;
-static int hf_afp_extattr_reply_size	    = -1;
-static int ett_afp_extattr_names	    = -1;
+static int hf_afp_extattr_bitmap;
+static int hf_afp_extattr_bitmap_NoFollow;
+static int hf_afp_extattr_bitmap_Create;
+static int hf_afp_extattr_bitmap_Replace;
+static int ett_afp_extattr_bitmap;
+static int hf_afp_extattr_namelen;
+static int hf_afp_extattr_name;
+static int hf_afp_extattr_len;
+static int hf_afp_extattr_data;
+static int hf_afp_extattr_req_count;
+static int hf_afp_extattr_start_index;
+static int hf_afp_extattr_reply_size;
+static int ett_afp_extattr_names;
 
-static expert_field ei_afp_subquery_count_over_safety_limit = EI_INIT;
-static expert_field ei_afp_subquery_count_over_query_count = EI_INIT;
-static expert_field ei_afp_abnormal_num_subqueries = EI_INIT;
-static expert_field ei_afp_too_many_acl_entries = EI_INIT;
-static expert_field ei_afp_ip_port_reused = EI_INIT;
-static expert_field ei_afp_toc_offset = EI_INIT;
+static expert_field ei_afp_subquery_count_over_safety_limit;
+static expert_field ei_afp_subquery_count_over_query_count;
+static expert_field ei_afp_abnormal_num_subqueries;
+static expert_field ei_afp_too_many_acl_entries;
+static expert_field ei_afp_ip_port_reused;
+static expert_field ei_afp_toc_offset;
 
 
 static int afp_tap			    = -1;
@@ -578,143 +578,143 @@ static value_string_ext unicode_hint_vals_ext = VALUE_STRING_EXT_INIT(unicode_hi
 #define kFPVolExtBytesTotalBit		(1U << 10)
 #define kFPVolBlockSizeBit 	  	(1U << 11)
 
-static int hf_afp_vol_bitmap_Attributes 	= -1;
-static int hf_afp_vol_bitmap_Signature 		= -1;
-static int hf_afp_vol_bitmap_CreateDate 	= -1;
-static int hf_afp_vol_bitmap_ModDate 		= -1;
-static int hf_afp_vol_bitmap_BackupDate 	= -1;
-static int hf_afp_vol_bitmap_ID 		= -1;
-static int hf_afp_vol_bitmap_BytesFree 		= -1;
-static int hf_afp_vol_bitmap_BytesTotal 	= -1;
-static int hf_afp_vol_bitmap_Name 		= -1;
-static int hf_afp_vol_bitmap_ExtBytesFree 	= -1;
-static int hf_afp_vol_bitmap_ExtBytesTotal 	= -1;
-static int hf_afp_vol_bitmap_BlockSize 		= -1;
+static int hf_afp_vol_bitmap_Attributes;
+static int hf_afp_vol_bitmap_Signature;
+static int hf_afp_vol_bitmap_CreateDate;
+static int hf_afp_vol_bitmap_ModDate;
+static int hf_afp_vol_bitmap_BackupDate;
+static int hf_afp_vol_bitmap_ID;
+static int hf_afp_vol_bitmap_BytesFree;
+static int hf_afp_vol_bitmap_BytesTotal;
+static int hf_afp_vol_bitmap_Name;
+static int hf_afp_vol_bitmap_ExtBytesFree;
+static int hf_afp_vol_bitmap_ExtBytesTotal;
+static int hf_afp_vol_bitmap_BlockSize;
 
-static int hf_afp_vol_attribute_ReadOnly		    = -1;
-static int hf_afp_vol_attribute_HasVolumePassword	    = -1;
-static int hf_afp_vol_attribute_SupportsFileIDs		    = -1;
-static int hf_afp_vol_attribute_SupportsCatSearch	    = -1;
-static int hf_afp_vol_attribute_SupportsBlankAccessPrivs    = -1;
-static int hf_afp_vol_attribute_SupportsUnixPrivs	    = -1;
-static int hf_afp_vol_attribute_SupportsUTF8Names	    = -1;
-static int hf_afp_vol_attribute_NoNetworkUserID		    = -1;
-static int hf_afp_vol_attribute_DefaultPrivsFromParent	    = -1;
-static int hf_afp_vol_attribute_NoExchangeFiles		    = -1;
-static int hf_afp_vol_attribute_SupportsExtAttrs	    = -1;
-static int hf_afp_vol_attribute_SupportsACLs		    = -1;
-static int hf_afp_vol_attribute_CaseSensitive		    = -1;
-static int hf_afp_vol_attribute_SupportsTMLockSteal	    = -1;
+static int hf_afp_vol_attribute_ReadOnly;
+static int hf_afp_vol_attribute_HasVolumePassword;
+static int hf_afp_vol_attribute_SupportsFileIDs;
+static int hf_afp_vol_attribute_SupportsCatSearch;
+static int hf_afp_vol_attribute_SupportsBlankAccessPrivs;
+static int hf_afp_vol_attribute_SupportsUnixPrivs;
+static int hf_afp_vol_attribute_SupportsUTF8Names;
+static int hf_afp_vol_attribute_NoNetworkUserID;
+static int hf_afp_vol_attribute_DefaultPrivsFromParent;
+static int hf_afp_vol_attribute_NoExchangeFiles;
+static int hf_afp_vol_attribute_SupportsExtAttrs;
+static int hf_afp_vol_attribute_SupportsACLs;
+static int hf_afp_vol_attribute_CaseSensitive;
+static int hf_afp_vol_attribute_SupportsTMLockSteal;
 
-static int hf_afp_dir_bitmap_Attributes			     = -1;
-static int hf_afp_dir_bitmap_ParentDirID		     = -1;
-static int hf_afp_dir_bitmap_CreateDate			     = -1;
-static int hf_afp_dir_bitmap_ModDate			     = -1;
-static int hf_afp_dir_bitmap_BackupDate			     = -1;
-static int hf_afp_dir_bitmap_FinderInfo			     = -1;
-static int hf_afp_dir_bitmap_LongName			     = -1;
-static int hf_afp_dir_bitmap_ShortName			     = -1;
-static int hf_afp_dir_bitmap_NodeID			     = -1;
-static int hf_afp_dir_bitmap_OffspringCount		     = -1;
-static int hf_afp_dir_bitmap_OwnerID			     = -1;
-static int hf_afp_dir_bitmap_GroupID			     = -1;
-static int hf_afp_dir_bitmap_AccessRights		     = -1;
-static int hf_afp_dir_bitmap_UTF8Name			     = -1;
-static int hf_afp_dir_bitmap_UnixPrivs			     = -1;
+static int hf_afp_dir_bitmap_Attributes;
+static int hf_afp_dir_bitmap_ParentDirID;
+static int hf_afp_dir_bitmap_CreateDate;
+static int hf_afp_dir_bitmap_ModDate;
+static int hf_afp_dir_bitmap_BackupDate;
+static int hf_afp_dir_bitmap_FinderInfo;
+static int hf_afp_dir_bitmap_LongName;
+static int hf_afp_dir_bitmap_ShortName;
+static int hf_afp_dir_bitmap_NodeID;
+static int hf_afp_dir_bitmap_OffspringCount;
+static int hf_afp_dir_bitmap_OwnerID;
+static int hf_afp_dir_bitmap_GroupID;
+static int hf_afp_dir_bitmap_AccessRights;
+static int hf_afp_dir_bitmap_UTF8Name;
+static int hf_afp_dir_bitmap_UnixPrivs;
 
-static int hf_afp_dir_attribute				     = -1;
-static int hf_afp_dir_attribute_Invisible		     = -1;
-static int hf_afp_dir_attribute_IsExpFolder		     = -1;
-static int hf_afp_dir_attribute_System			     = -1;
-static int hf_afp_dir_attribute_Mounted			     = -1;
-static int hf_afp_dir_attribute_InExpFolder		     = -1;
-static int hf_afp_dir_attribute_BackUpNeeded		     = -1;
-static int hf_afp_dir_attribute_RenameInhibit		     = -1;
-static int hf_afp_dir_attribute_DeleteInhibit		     = -1;
+static int hf_afp_dir_attribute;
+static int hf_afp_dir_attribute_Invisible;
+static int hf_afp_dir_attribute_IsExpFolder;
+static int hf_afp_dir_attribute_System;
+static int hf_afp_dir_attribute_Mounted;
+static int hf_afp_dir_attribute_InExpFolder;
+static int hf_afp_dir_attribute_BackUpNeeded;
+static int hf_afp_dir_attribute_RenameInhibit;
+static int hf_afp_dir_attribute_DeleteInhibit;
 
-static int hf_afp_file_bitmap				     = -1;
-static int hf_afp_file_bitmap_Attributes		     = -1;
-static int hf_afp_file_bitmap_ParentDirID		     = -1;
-static int hf_afp_file_bitmap_CreateDate		     = -1;
-static int hf_afp_file_bitmap_ModDate			     = -1;
-static int hf_afp_file_bitmap_BackupDate		     = -1;
-static int hf_afp_file_bitmap_FinderInfo		     = -1;
-static int hf_afp_file_bitmap_LongName			     = -1;
-static int hf_afp_file_bitmap_ShortName			     = -1;
-static int hf_afp_file_bitmap_NodeID			     = -1;
-static int hf_afp_file_bitmap_DataForkLen		     = -1;
-static int hf_afp_file_bitmap_RsrcForkLen		     = -1;
-static int hf_afp_file_bitmap_ExtDataForkLen		     = -1;
-static int hf_afp_file_bitmap_LaunchLimit	 	     = -1;
+static int hf_afp_file_bitmap;
+static int hf_afp_file_bitmap_Attributes;
+static int hf_afp_file_bitmap_ParentDirID;
+static int hf_afp_file_bitmap_CreateDate;
+static int hf_afp_file_bitmap_ModDate;
+static int hf_afp_file_bitmap_BackupDate;
+static int hf_afp_file_bitmap_FinderInfo;
+static int hf_afp_file_bitmap_LongName;
+static int hf_afp_file_bitmap_ShortName;
+static int hf_afp_file_bitmap_NodeID;
+static int hf_afp_file_bitmap_DataForkLen;
+static int hf_afp_file_bitmap_RsrcForkLen;
+static int hf_afp_file_bitmap_ExtDataForkLen;
+static int hf_afp_file_bitmap_LaunchLimit;
 
-static int hf_afp_file_bitmap_UTF8Name			     = -1;
-static int hf_afp_file_bitmap_ExtRsrcForkLen	 	     = -1;
-static int hf_afp_file_bitmap_UnixPrivs			     = -1;
+static int hf_afp_file_bitmap_UTF8Name;
+static int hf_afp_file_bitmap_ExtRsrcForkLen;
+static int hf_afp_file_bitmap_UnixPrivs;
 
-static int hf_afp_file_attribute			     = -1;
-static int hf_afp_file_attribute_Invisible		     = -1;
-static int hf_afp_file_attribute_MultiUser		     = -1;
-static int hf_afp_file_attribute_System			     = -1;
-static int hf_afp_file_attribute_DAlreadyOpen		     = -1;
-static int hf_afp_file_attribute_RAlreadyOpen		     = -1;
-static int hf_afp_file_attribute_WriteInhibit		     = -1;
-static int hf_afp_file_attribute_BackUpNeeded		     = -1;
-static int hf_afp_file_attribute_RenameInhibit		     = -1;
-static int hf_afp_file_attribute_DeleteInhibit		     = -1;
-static int hf_afp_file_attribute_CopyProtect		     = -1;
-static int hf_afp_file_attribute_SetClear		     = -1;
+static int hf_afp_file_attribute;
+static int hf_afp_file_attribute_Invisible;
+static int hf_afp_file_attribute_MultiUser;
+static int hf_afp_file_attribute_System;
+static int hf_afp_file_attribute_DAlreadyOpen;
+static int hf_afp_file_attribute_RAlreadyOpen;
+static int hf_afp_file_attribute_WriteInhibit;
+static int hf_afp_file_attribute_BackUpNeeded;
+static int hf_afp_file_attribute_RenameInhibit;
+static int hf_afp_file_attribute_DeleteInhibit;
+static int hf_afp_file_attribute_CopyProtect;
+static int hf_afp_file_attribute_SetClear;
 
-static int hf_afp_map_name_type				     = -1;
-static int hf_afp_map_name				     = -1;
-static int hf_afp_map_id				     = -1;
-static int hf_afp_map_id_type				     = -1;
-static int hf_afp_map_id_reply_type			     = -1;
+static int hf_afp_map_name_type;
+static int hf_afp_map_name;
+static int hf_afp_map_id;
+static int hf_afp_map_id_type;
+static int hf_afp_map_id_reply_type;
 
 /* catsearch stuff */
-static int hf_afp_request_bitmap			     = -1;
-static int hf_afp_request_bitmap_Attributes		     = -1;
-static int hf_afp_request_bitmap_ParentDirID		     = -1;
-static int hf_afp_request_bitmap_CreateDate		     = -1;
-static int hf_afp_request_bitmap_ModDate		     = -1;
-static int hf_afp_request_bitmap_BackupDate		     = -1;
-static int hf_afp_request_bitmap_FinderInfo		     = -1;
-static int hf_afp_request_bitmap_LongName		     = -1;
-static int hf_afp_request_bitmap_DataForkLen		     = -1;
-static int hf_afp_request_bitmap_OffspringCount		     = -1;
-static int hf_afp_request_bitmap_RsrcForkLen		     = -1;
-static int hf_afp_request_bitmap_ExtDataForkLen		     = -1;
-static int hf_afp_request_bitmap_UTF8Name		     = -1;
-static int hf_afp_request_bitmap_ExtRsrcForkLen		     = -1;
-static int hf_afp_request_bitmap_PartialNames		     = -1;
+static int hf_afp_request_bitmap;
+static int hf_afp_request_bitmap_Attributes;
+static int hf_afp_request_bitmap_ParentDirID;
+static int hf_afp_request_bitmap_CreateDate;
+static int hf_afp_request_bitmap_ModDate;
+static int hf_afp_request_bitmap_BackupDate;
+static int hf_afp_request_bitmap_FinderInfo;
+static int hf_afp_request_bitmap_LongName;
+static int hf_afp_request_bitmap_DataForkLen;
+static int hf_afp_request_bitmap_OffspringCount;
+static int hf_afp_request_bitmap_RsrcForkLen;
+static int hf_afp_request_bitmap_ExtDataForkLen;
+static int hf_afp_request_bitmap_UTF8Name;
+static int hf_afp_request_bitmap_ExtRsrcForkLen;
+static int hf_afp_request_bitmap_PartialNames;
 
 /* Spotlight stuff */
-static int ett_afp_spotlight_queries			     = -1;
-static int ett_afp_spotlight_query_line			     = -1;
-static int ett_afp_spotlight_query			     = -1;
-static int ett_afp_spotlight_data			     = -1;
-static int ett_afp_spotlight_toc			     = -1;
+static int ett_afp_spotlight_queries;
+static int ett_afp_spotlight_query_line;
+static int ett_afp_spotlight_query;
+static int ett_afp_spotlight_data;
+static int ett_afp_spotlight_toc;
 
-static int hf_afp_spotlight_request_flags		     = -1;
-static int hf_afp_spotlight_request_command		     = -1;
-static int hf_afp_spotlight_request_reserved		     = -1;
-static int hf_afp_spotlight_reply_reserved		     = -1;
-static int hf_afp_spotlight_volpath_server		     = -1;
-static int hf_afp_spotlight_volpath_client		     = -1;
-static int hf_afp_spotlight_returncode			     = -1;
-static int hf_afp_spotlight_volflags			     = -1;
-static int hf_afp_spotlight_reqlen			     = -1;
-static int hf_afp_spotlight_uuid			     = -1;
-static int hf_afp_spotlight_date			     = -1;
+static int hf_afp_spotlight_request_flags;
+static int hf_afp_spotlight_request_command;
+static int hf_afp_spotlight_request_reserved;
+static int hf_afp_spotlight_reply_reserved;
+static int hf_afp_spotlight_volpath_server;
+static int hf_afp_spotlight_volpath_client;
+static int hf_afp_spotlight_returncode;
+static int hf_afp_spotlight_volflags;
+static int hf_afp_spotlight_reqlen;
+static int hf_afp_spotlight_uuid;
+static int hf_afp_spotlight_date;
 
 /* Status stuff from ASP or DSI */
-static int ett_afp_status				     = -1;
-static int ett_afp_uams					     = -1;
-static int ett_afp_vers					     = -1;
-static int ett_afp_server_addr				     = -1;
-static int ett_afp_server_addr_line			     = -1;
-static int ett_afp_directory				     = -1;
-static int ett_afp_utf8_name				     = -1;
-static int ett_afp_status_server_flag			     = -1;
+static int ett_afp_status;
+static int ett_afp_uams;
+static int ett_afp_vers;
+static int ett_afp_server_addr;
+static int ett_afp_server_addr_line;
+static int ett_afp_directory;
+static int ett_afp_utf8_name;
+static int ett_afp_status_server_flag;
 
 static const value_string flag_vals[] = {
 	{0,	"Start" },
@@ -822,47 +822,47 @@ static const value_string map_id_reply_type_vals[] = {
 #define AR_BLANK        (1U << 28)  /* Blank Access Privileges (use parent dir privileges) */
 #define AR_U_OWN        (1U << 31)  /* user is the owner */
 
-static int hf_afp_dir_ar           = -1;
-static int hf_afp_dir_ar_o_search  = -1;
-static int hf_afp_dir_ar_o_read    = -1;
-static int hf_afp_dir_ar_o_write   = -1;
-static int hf_afp_dir_ar_g_search  = -1;
-static int hf_afp_dir_ar_g_read    = -1;
-static int hf_afp_dir_ar_g_write   = -1;
-static int hf_afp_dir_ar_e_search  = -1;
-static int hf_afp_dir_ar_e_read    = -1;
-static int hf_afp_dir_ar_e_write   = -1;
-static int hf_afp_dir_ar_u_search  = -1;
-static int hf_afp_dir_ar_u_read    = -1;
-static int hf_afp_dir_ar_u_write   = -1;
-static int hf_afp_dir_ar_blank     = -1;
-static int hf_afp_dir_ar_u_own     = -1;
+static int hf_afp_dir_ar;
+static int hf_afp_dir_ar_o_search;
+static int hf_afp_dir_ar_o_read;
+static int hf_afp_dir_ar_o_write;
+static int hf_afp_dir_ar_g_search;
+static int hf_afp_dir_ar_g_read;
+static int hf_afp_dir_ar_g_write;
+static int hf_afp_dir_ar_e_search;
+static int hf_afp_dir_ar_e_read;
+static int hf_afp_dir_ar_e_write;
+static int hf_afp_dir_ar_u_search;
+static int hf_afp_dir_ar_u_read;
+static int hf_afp_dir_ar_u_write;
+static int hf_afp_dir_ar_blank;
+static int hf_afp_dir_ar_u_own;
 
-static int hf_afp_user_flag        = -1;
-static int hf_afp_user_ID          = -1;
-static int hf_afp_group_ID         = -1;
-static int hf_afp_UUID      	   = -1;
-static int hf_afp_GRPUUID          = -1;
-static int hf_afp_user_bitmap      = -1;
-static int hf_afp_user_bitmap_UID  = -1;
-static int hf_afp_user_bitmap_GID  = -1;
-static int hf_afp_user_bitmap_UUID = -1;
+static int hf_afp_user_flag;
+static int hf_afp_user_ID;
+static int hf_afp_group_ID;
+static int hf_afp_UUID;
+static int hf_afp_GRPUUID;
+static int hf_afp_user_bitmap;
+static int hf_afp_user_bitmap_UID;
+static int hf_afp_user_bitmap_GID;
+static int hf_afp_user_bitmap_UUID;
 
-static gint ett_afp_user_bitmap    = -1;
+static gint ett_afp_user_bitmap;
 
 static const value_string user_flag_vals[] = {
 	{0,	"Use user ID" },
 	{1,	"Default user" },
 	{0,	NULL } };
 
-static int hf_afp_message            = -1;
-static int hf_afp_message_type       = -1;
-static int hf_afp_message_bitmap     = -1;
-static int hf_afp_message_bitmap_REQ = -1;
-static int hf_afp_message_bitmap_UTF = -1;
-static int hf_afp_message_len	     = -1;
+static int hf_afp_message;
+static int hf_afp_message_type;
+static int hf_afp_message_bitmap;
+static int hf_afp_message_bitmap_REQ;
+static int hf_afp_message_bitmap_UTF;
+static int hf_afp_message_len;
 
-static gint ett_afp_message_bitmap   = -1;
+static gint ett_afp_message_bitmap;
 
 static const value_string server_message_type[] = {
 	{0,   "Login message" },
@@ -948,29 +948,29 @@ static value_string_ext token_type_vals_ext = VALUE_STRING_EXT_INIT(token_type_v
 #define kFileSec_REMOVEACL	(1U << 3)
 #define kFileSec_Inherit	(1U << 4)
 
-static int hf_afp_acl_list_bitmap		= -1;
-static int hf_afp_acl_list_bitmap_UUID		= -1;
-static int hf_afp_acl_list_bitmap_GRPUUID	= -1;
-static int hf_afp_acl_list_bitmap_ACL		= -1;
-static int hf_afp_acl_list_bitmap_REMOVEACL	= -1;
-static int hf_afp_acl_list_bitmap_Inherit	= -1;
-static int ett_afp_acl_list_bitmap		= -1;
+static int hf_afp_acl_list_bitmap;
+static int hf_afp_acl_list_bitmap_UUID;
+static int hf_afp_acl_list_bitmap_GRPUUID;
+static int hf_afp_acl_list_bitmap_ACL;
+static int hf_afp_acl_list_bitmap_REMOVEACL;
+static int hf_afp_acl_list_bitmap_Inherit;
+static int ett_afp_acl_list_bitmap;
 
-static int hf_afp_access_bitmap			= -1;
+static int hf_afp_access_bitmap;
 
-static int hf_afp_acl_entrycount	 = -1;
-static int hf_afp_acl_flags		 = -1;
+static int hf_afp_acl_entrycount;
+static int hf_afp_acl_flags;
 
-static int hf_afp_ace_flags		 = -1;
+static int hf_afp_ace_flags;
 
-static int ett_afp_ace_flags		 = -1;
-static int hf_afp_ace_flags_allow	 = -1;
-static int hf_afp_ace_flags_deny	 = -1;
-static int hf_afp_ace_flags_inherited	 = -1;
-static int hf_afp_ace_flags_fileinherit	 = -1;
-static int hf_afp_ace_flags_dirinherit	 = -1;
-static int hf_afp_ace_flags_limitinherit = -1;
-static int hf_afp_ace_flags_onlyinherit  = -1;
+static int ett_afp_ace_flags;
+static int hf_afp_ace_flags_allow;
+static int hf_afp_ace_flags_deny;
+static int hf_afp_ace_flags_inherited;
+static int hf_afp_ace_flags_fileinherit;
+static int hf_afp_ace_flags_dirinherit;
+static int hf_afp_ace_flags_limitinherit;
+static int hf_afp_ace_flags_onlyinherit;
 
 /* AFP 3.2 ACE flags */
 #define ACE_ALLOW	  (1U << 0)
@@ -981,8 +981,8 @@ static int hf_afp_ace_flags_onlyinherit  = -1;
 #define ACE_LIMIT_INHERIT (1U << 7)
 #define ACE_ONLY_INHERIT  (1U << 8)
 
-static int ett_afp_ace_entries		 = -1;
-static int ett_afp_ace_entry		 = -1;
+static int ett_afp_ace_entries;
+static int ett_afp_ace_entry;
 
 /* AFP 3.2 ACL access right cf page 248*/
 #define KAUTH_VNODE_READ_DATA		(1U << 1)
@@ -1009,81 +1009,81 @@ static int ett_afp_ace_entry		 = -1;
 #define KAUTH_VNODE_GENERIC_READ	(1U << 24)
 
 
-static int hf_afp_acl_access_bitmap		    = -1;
-static int ett_afp_acl_access_bitmap		    = -1;
-static int hf_afp_acl_access_bitmap_read_data	    = -1;
-static int hf_afp_acl_access_bitmap_write_data	    = -1;
-static int hf_afp_acl_access_bitmap_execute	    = -1;
-static int hf_afp_acl_access_bitmap_delete	    = -1;
-static int hf_afp_acl_access_bitmap_append_data	    = -1;
-static int hf_afp_acl_access_bitmap_delete_child    = -1;
-static int hf_afp_acl_access_bitmap_read_attrs	    = -1;
-static int hf_afp_acl_access_bitmap_write_attrs	    = -1;
-static int hf_afp_acl_access_bitmap_read_extattrs   = -1;
-static int hf_afp_acl_access_bitmap_write_extattrs  = -1;
-static int hf_afp_acl_access_bitmap_read_security   = -1;
-static int hf_afp_acl_access_bitmap_write_security  = -1;
-static int hf_afp_acl_access_bitmap_change_owner    = -1;
-static int hf_afp_acl_access_bitmap_synchronize	    = -1;
-static int hf_afp_acl_access_bitmap_generic_all	    = -1;
-static int hf_afp_acl_access_bitmap_generic_execute = -1;
-static int hf_afp_acl_access_bitmap_generic_write   = -1;
-static int hf_afp_acl_access_bitmap_generic_read    = -1;
+static int hf_afp_acl_access_bitmap;
+static int ett_afp_acl_access_bitmap;
+static int hf_afp_acl_access_bitmap_read_data;
+static int hf_afp_acl_access_bitmap_write_data;
+static int hf_afp_acl_access_bitmap_execute;
+static int hf_afp_acl_access_bitmap_delete;
+static int hf_afp_acl_access_bitmap_append_data;
+static int hf_afp_acl_access_bitmap_delete_child;
+static int hf_afp_acl_access_bitmap_read_attrs;
+static int hf_afp_acl_access_bitmap_write_attrs;
+static int hf_afp_acl_access_bitmap_read_extattrs;
+static int hf_afp_acl_access_bitmap_write_extattrs;
+static int hf_afp_acl_access_bitmap_read_security;
+static int hf_afp_acl_access_bitmap_write_security;
+static int hf_afp_acl_access_bitmap_change_owner;
+static int hf_afp_acl_access_bitmap_synchronize;
+static int hf_afp_acl_access_bitmap_generic_all;
+static int hf_afp_acl_access_bitmap_generic_execute;
+static int hf_afp_acl_access_bitmap_generic_write;
+static int hf_afp_acl_access_bitmap_generic_read;
 
 /* Status stuff from ASP or DSI */
-static int hf_afp_server_name = -1;
-static int hf_afp_utf8_server_name_len = -1;
-static int hf_afp_utf8_server_name = -1;
-static int hf_afp_server_type = -1;
-static int hf_afp_server_vers = -1;
-static int hf_afp_server_uams = -1;
-static int hf_afp_server_icon = -1;
-static int hf_afp_server_directory = -1;
+static int hf_afp_server_name;
+static int hf_afp_utf8_server_name_len;
+static int hf_afp_utf8_server_name;
+static int hf_afp_server_type;
+static int hf_afp_server_vers;
+static int hf_afp_server_uams;
+static int hf_afp_server_icon;
+static int hf_afp_server_directory;
 
-static int hf_afp_server_flag = -1;
-static int hf_afp_server_flag_copyfile = -1;
-static int hf_afp_server_flag_passwd   = -1;
-static int hf_afp_server_flag_no_save_passwd = -1;
-static int hf_afp_server_flag_srv_msg   = -1;
-static int hf_afp_server_flag_srv_sig   = -1;
-static int hf_afp_server_flag_tcpip     = -1;
-static int hf_afp_server_flag_notify    = -1;
-static int hf_afp_server_flag_reconnect = -1;
-static int hf_afp_server_flag_directory = -1;
-static int hf_afp_server_flag_utf8_name = -1;
-static int hf_afp_server_flag_uuid      = -1;
-static int hf_afp_server_flag_ext_sleep = -1;
-static int hf_afp_server_flag_fast_copy = -1;
-static int hf_afp_server_signature      = -1;
+static int hf_afp_server_flag;
+static int hf_afp_server_flag_copyfile;
+static int hf_afp_server_flag_passwd;
+static int hf_afp_server_flag_no_save_passwd;
+static int hf_afp_server_flag_srv_msg;
+static int hf_afp_server_flag_srv_sig;
+static int hf_afp_server_flag_tcpip;
+static int hf_afp_server_flag_notify;
+static int hf_afp_server_flag_reconnect;
+static int hf_afp_server_flag_directory;
+static int hf_afp_server_flag_utf8_name;
+static int hf_afp_server_flag_uuid;
+static int hf_afp_server_flag_ext_sleep;
+static int hf_afp_server_flag_fast_copy;
+static int hf_afp_server_signature;
 
-static int hf_afp_server_addr_len       = -1;
-static int hf_afp_server_addr_type      = -1;
-static int hf_afp_server_addr_value     = -1;
+static int hf_afp_server_addr_len;
+static int hf_afp_server_addr_type;
+static int hf_afp_server_addr_value;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_afp_int64 = -1;
-static int hf_afp_float = -1;
-static int hf_afp_unknown16 = -1;
-static int hf_afp_unknown32 = -1;
-static int hf_afp_cnid = -1;
-static int hf_afp_null = -1;
-static int hf_afp_string = -1;
-static int hf_afp_utf_16_string = -1;
-static int hf_afp_bool = -1;
-static int hf_afp_query_type = -1;
-static int hf_afp_toc_offset = -1;
-static int hf_afp_toc_entry = -1;
-static int hf_afp_endianness = -1;
-static int hf_afp_query_len = -1;
-static int hf_afp_num_toc_entries = -1;
-static int hf_afp_machine_offset = -1;
-static int hf_afp_version_offset = -1;
-static int hf_afp_uams_offset = -1;
-static int hf_afp_icon_offset = -1;
-static int hf_afp_signature_offset = -1;
-static int hf_afp_network_address_offset = -1;
-static int hf_afp_directory_services_offset = -1;
-static int hf_afp_utf8_server_name_offset = -1;
+static int hf_afp_int64;
+static int hf_afp_float;
+static int hf_afp_unknown16;
+static int hf_afp_unknown32;
+static int hf_afp_cnid;
+static int hf_afp_null;
+static int hf_afp_string;
+static int hf_afp_utf_16_string;
+static int hf_afp_bool;
+static int hf_afp_query_type;
+static int hf_afp_toc_offset;
+static int hf_afp_toc_entry;
+static int hf_afp_endianness;
+static int hf_afp_query_len;
+static int hf_afp_num_toc_entries;
+static int hf_afp_machine_offset;
+static int hf_afp_version_offset;
+static int hf_afp_uams_offset;
+static int hf_afp_icon_offset;
+static int hf_afp_signature_offset;
+static int hf_afp_network_address_offset;
+static int hf_afp_directory_services_offset;
+static int hf_afp_utf8_server_name_offset;
 
 static const value_string afp_server_addr_type_vals[] = {
 	{1,   "IP address" },

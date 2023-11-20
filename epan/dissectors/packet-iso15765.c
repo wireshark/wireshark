@@ -146,26 +146,26 @@ static const enum_val_t enum_ipdum_addressing[] = {
         {NULL, NULL, 0}
 };
 
-static int hf_iso15765_address = -1;
-static int hf_iso15765_target_address = -1;
-static int hf_iso15765_source_address = -1;
-static int hf_iso15765_message_type = -1;
-static int hf_iso15765_data_length = -1;
-static int hf_iso15765_frame_length = -1;
-static int hf_iso15765_sequence_number = -1;
-static int hf_iso15765_flow_status = -1;
+static int hf_iso15765_address;
+static int hf_iso15765_target_address;
+static int hf_iso15765_source_address;
+static int hf_iso15765_message_type;
+static int hf_iso15765_data_length;
+static int hf_iso15765_frame_length;
+static int hf_iso15765_sequence_number;
+static int hf_iso15765_flow_status;
 
-static int hf_iso15765_fc_bs = -1;
-static int hf_iso15765_fc_stmin = -1;
-static int hf_iso15765_fc_stmin_in_us = -1;
+static int hf_iso15765_fc_bs;
+static int hf_iso15765_fc_stmin;
+static int hf_iso15765_fc_stmin_in_us;
 
-static int hf_iso15765_autosar_ack = -1;
+static int hf_iso15765_autosar_ack;
 
-static gint ett_iso15765 = -1;
+static gint ett_iso15765;
 
-static expert_field ei_iso15765_message_type_bad = EI_INIT;
+static expert_field ei_iso15765_message_type_bad;
 
-static int proto_iso15765 = -1;
+static int proto_iso15765;
 static dissector_handle_t iso15765_handle_can = NULL;
 static dissector_handle_t iso15765_handle_lin = NULL;
 static dissector_handle_t iso15765_handle_flexray = NULL;
@@ -177,19 +177,19 @@ static dissector_table_t subdissector_table;
 static reassembly_table iso15765_reassembly_table;
 static wmem_map_t *iso15765_frame_table = NULL;
 
-static int hf_iso15765_fragments = -1;
-static int hf_iso15765_fragment = -1;
-static int hf_iso15765_fragment_overlap = -1;
-static int hf_iso15765_fragment_overlap_conflicts = -1;
-static int hf_iso15765_fragment_multiple_tails = -1;
-static int hf_iso15765_fragment_too_long_fragment = -1;
-static int hf_iso15765_fragment_error = -1;
-static int hf_iso15765_fragment_count = -1;
-static int hf_iso15765_reassembled_in = -1;
-static int hf_iso15765_reassembled_length = -1;
+static int hf_iso15765_fragments;
+static int hf_iso15765_fragment;
+static int hf_iso15765_fragment_overlap;
+static int hf_iso15765_fragment_overlap_conflicts;
+static int hf_iso15765_fragment_multiple_tails;
+static int hf_iso15765_fragment_too_long_fragment;
+static int hf_iso15765_fragment_error;
+static int hf_iso15765_fragment_count;
+static int hf_iso15765_reassembled_in;
+static int hf_iso15765_reassembled_length;
 
-static gint ett_iso15765_fragment = -1;
-static gint ett_iso15765_fragments = -1;
+static gint ett_iso15765_fragment;
+static gint ett_iso15765_fragments;
 
 static const fragment_items iso15765_frag_items = {
         /* Fragment subtrees */

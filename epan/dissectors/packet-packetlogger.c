@@ -24,21 +24,21 @@ void proto_reg_handoff_packetlogger(void);
 #define PSNAME "PKTLOG"
 #define PFNAME "packetlogger"
 
-static int proto_packetlogger = -1;
+static int proto_packetlogger;
 
-static int hf_type = -1;
-static int hf_info = -1;
-static int hf_syslog = -1;
-static int hf_syslog_process_id = -1;
-static int hf_syslog_message_type = -1;
-static int hf_syslog_process = -1;
-static int hf_syslog_sender = -1;
-static int hf_syslog_subsystem = -1;
-static int hf_syslog_category = -1;
-static int hf_syslog_message = -1;
+static int hf_type;
+static int hf_info;
+static int hf_syslog;
+static int hf_syslog_process_id;
+static int hf_syslog_message_type;
+static int hf_syslog_process;
+static int hf_syslog_sender;
+static int hf_syslog_subsystem;
+static int hf_syslog_category;
+static int hf_syslog_message;
 
-static gint ett_packetlogger = -1;
-static gint ett_syslog = -1;
+static gint ett_packetlogger;
+static gint ett_syslog;
 
 static dissector_handle_t packetlogger_handle;
 static dissector_table_t hci_h1_table;

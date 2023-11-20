@@ -24,28 +24,28 @@ void proto_register_amt(void);
 
 static dissector_handle_t amt_handle;
 
-static int proto_amt = -1;
-static int hf_amt_version = -1;
-static int hf_amt_type = -1;
-static int hf_amt_reserved = -1;
-static int hf_amt_discovery_nonce = -1;
-static int hf_amt_relay_address_ipv4 = -1;
-static int hf_amt_relay_address_ipv6 = -1;
-static int hf_amt_request_nonce = -1;
-static int hf_amt_request_reserved = -1;
-static int hf_amt_request_p = -1;
-static int hf_amt_membership_query_reserved = -1;
-static int hf_amt_membership_query_l = -1;
-static int hf_amt_membership_query_g = -1;
-static int hf_amt_response_mac = -1;
-static int hf_amt_gateway_port_number = -1;
-static int hf_amt_gateway_ip_address = -1;
-static int hf_amt_multicast_data = -1;
+static int proto_amt;
+static int hf_amt_version;
+static int hf_amt_type;
+static int hf_amt_reserved;
+static int hf_amt_discovery_nonce;
+static int hf_amt_relay_address_ipv4;
+static int hf_amt_relay_address_ipv6;
+static int hf_amt_request_nonce;
+static int hf_amt_request_reserved;
+static int hf_amt_request_p;
+static int hf_amt_membership_query_reserved;
+static int hf_amt_membership_query_l;
+static int hf_amt_membership_query_g;
+static int hf_amt_response_mac;
+static int hf_amt_gateway_port_number;
+static int hf_amt_gateway_ip_address;
+static int hf_amt_multicast_data;
 
-static expert_field ei_amt_relay_address_unknown = EI_INIT;
-static expert_field ei_amt_unknown = EI_INIT;
+static expert_field ei_amt_relay_address_unknown;
+static expert_field ei_amt_unknown;
 
-static gint ett_amt = -1;
+static gint ett_amt;
 
 #define RELAY_DISCOVERY         1
 #define RELAY_ADVERTISEMENT     2

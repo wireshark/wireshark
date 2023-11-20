@@ -334,19 +334,19 @@ void proto_register_iso8583(void);
 
 static dissector_handle_t iso8583_handle;
 
-static int proto_iso8583 = -1;
+static int proto_iso8583;
 
-static int hf_iso8583_len = -1;
-static int hf_iso8583_mti = -1;
-static int hf_iso8583_bitmap1 = -1;
-static int hf_iso8583_bitmap2 = -1;
+static int hf_iso8583_len;
+static int hf_iso8583_mti;
+static int hf_iso8583_bitmap1;
+static int hf_iso8583_bitmap2;
 
 /* TODO: This array should be renamed to hf_iso8583_data_bit[] when checkhf.pl allow. */
 static int iso8583_data_bit[128];
 
-static gint ett_iso8583 = -1;
+static gint ett_iso8583;
 
-static expert_field ei_iso8583_MALFORMED = EI_INIT;
+static expert_field ei_iso8583_MALFORMED;
 
 static struct iso_type *data_array = NULL;
 

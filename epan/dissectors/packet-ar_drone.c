@@ -25,55 +25,55 @@ void proto_reg_handoff_ar_drone(void);
 /* ************************************************ */
 
 /* ar_drone Protocol */
-static int proto_ar_drone = -1;
+static int proto_ar_drone;
 
 /* ar_drone Dissector handle */
 static dissector_handle_t ar_drone_handle;
 
 /* Headers */
-static int hf_command = -1;
-static int hf_PCMD_id = -1;
-static int hf_PCMD_flag = -1;
-static int hf_PCMD_roll = -1;
-static int hf_PCMD_pitch = -1;
-static int hf_PCMD_gaz = -1;
-static int hf_PCMD_yaw = -1;
-static int hf_REF_id = -1;
-static int hf_REF_ctrl = -1;
-static int hf_FTRIM_seq = -1;
-static int hf_CONFIG_seq = -1;
-static int hf_CONFIG_name = -1;
-static int hf_CONFIG_val = -1;
-static int hf_CONFIG_ID_seq = -1;
-static int hf_CONFIG_ID_session = -1;
-static int hf_CONFIG_ID_user = -1;
-static int hf_CONFIG_ID_app = -1;
-static int hf_COMWDG = -1;
-static int hf_LED_seq = -1;
-static int hf_LED_anim = -1;
-static int hf_LED_freq = -1;
-static int hf_LED_sec = -1;
-static int hf_ANIM_seq = -1;
-static int hf_ANIM_anim = -1;
-static int hf_ANIM_sec = -1;
-static int hf_CTRL_seq = -1;
-static int hf_CTRL_mode = -1;
-static int hf_CTRL_fsize = -1;
+static int hf_command;
+static int hf_PCMD_id;
+static int hf_PCMD_flag;
+static int hf_PCMD_roll;
+static int hf_PCMD_pitch;
+static int hf_PCMD_gaz;
+static int hf_PCMD_yaw;
+static int hf_REF_id;
+static int hf_REF_ctrl;
+static int hf_FTRIM_seq;
+static int hf_CONFIG_seq;
+static int hf_CONFIG_name;
+static int hf_CONFIG_val;
+static int hf_CONFIG_ID_seq;
+static int hf_CONFIG_ID_session;
+static int hf_CONFIG_ID_user;
+static int hf_CONFIG_ID_app;
+static int hf_COMWDG;
+static int hf_LED_seq;
+static int hf_LED_anim;
+static int hf_LED_freq;
+static int hf_LED_sec;
+static int hf_ANIM_seq;
+static int hf_ANIM_anim;
+static int hf_ANIM_sec;
+static int hf_CTRL_seq;
+static int hf_CTRL_mode;
+static int hf_CTRL_fsize;
 
 /**Subtrees */
-static gint ett_FTRIM = -1;
-static gint ett_ar_drone = -1;
-static gint ett_PCMD = -1;
-static gint ett_REF = -1;
-static gint ett_CONFIG = -1;
-static gint ett_CONFIG_ID = -1;
-static gint ett_COMWDG = -1;
-static gint ett_LED = -1;
-static gint ett_ANIM = -1;
-static gint ett_CTRL = -1;
+static gint ett_FTRIM;
+static gint ett_ar_drone;
+static gint ett_PCMD;
+static gint ett_REF;
+static gint ett_CONFIG;
+static gint ett_CONFIG_ID;
+static gint ett_COMWDG;
+static gint ett_LED;
+static gint ett_ANIM;
+static gint ett_CTRL;
 
-static expert_field ei_NO_COMMA = EI_INIT;
-static expert_field ei_NO_CR = EI_INIT;
+static expert_field ei_NO_COMMA;
+static expert_field ei_NO_CR;
 
 /* Value String */
 #if 0 /* TODO: Delete these?  Or make use of them? */

@@ -39,22 +39,22 @@ static const value_string type_vals[] = {
 /* Initialize the protocol and registered fields          */
 /**********************************************************/
 
-static int proto_hsr_prp_supervision = -1;
+static int proto_hsr_prp_supervision;
 
 /* Initialize supervision frame fields */
-static int hf_hsr_prp_supervision_path = -1;
-static int hf_hsr_prp_supervision_version = -1;
-static int hf_hsr_prp_supervision_seqno = -1;
-static int hf_hsr_prp_supervision_tlv_type = -1;
-static int hf_hsr_prp_supervision_tlv_length = -1;
-static int hf_hsr_prp_supervision_source_mac_address_A = -1;
-static int hf_hsr_prp_supervision_source_mac_address_B = -1;
-static int hf_hsr_prp_supervision_source_mac_address = -1;
-static int hf_hsr_prp_supervision_red_box_mac_address = -1;
-static int hf_hsr_prp_supervision_vdan_mac_address = -1;
+static int hf_hsr_prp_supervision_path;
+static int hf_hsr_prp_supervision_version;
+static int hf_hsr_prp_supervision_seqno;
+static int hf_hsr_prp_supervision_tlv_type;
+static int hf_hsr_prp_supervision_tlv_length;
+static int hf_hsr_prp_supervision_source_mac_address_A;
+static int hf_hsr_prp_supervision_source_mac_address_B;
+static int hf_hsr_prp_supervision_source_mac_address;
+static int hf_hsr_prp_supervision_red_box_mac_address;
+static int hf_hsr_prp_supervision_vdan_mac_address;
 
 /* Initialize the subtree pointers */
-static gint ett_hsr_prp_supervision = -1;
+static gint ett_hsr_prp_supervision;
 
 /* Code to actually dissect the packets */
 static int

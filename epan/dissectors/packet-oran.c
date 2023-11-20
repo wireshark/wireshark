@@ -42,226 +42,226 @@ void proto_reg_handoff_oran(void);
 void proto_register_oran(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_oran = -1;
+static int proto_oran;
 
-static int hf_oran_du_port_id = -1;
-static int hf_oran_bandsector_id = -1;
-static int hf_oran_cc_id = -1;
-static int hf_oran_ru_port_id = -1;
-static int hf_oran_sequence_id = -1;
-static int hf_oran_e_bit = -1;
-static int hf_oran_subsequence_id = -1;
+static int hf_oran_du_port_id;
+static int hf_oran_bandsector_id;
+static int hf_oran_cc_id;
+static int hf_oran_ru_port_id;
+static int hf_oran_sequence_id;
+static int hf_oran_e_bit;
+static int hf_oran_subsequence_id;
 
-static int hf_oran_data_direction = -1;
-static int hf_oran_payload_version = -1;
-static int hf_oran_filter_index = -1;
-static int hf_oran_frame_id = -1;
-static int hf_oran_subframe_id = -1;
-static int hf_oran_slot_id = -1;
-static int hf_oran_slot_within_frame = -1;
-static int hf_oran_start_symbol_id = -1;
-static int hf_oran_numberOfSections = -1;
-static int hf_oran_sectionType = -1;
+static int hf_oran_data_direction;
+static int hf_oran_payload_version;
+static int hf_oran_filter_index;
+static int hf_oran_frame_id;
+static int hf_oran_subframe_id;
+static int hf_oran_slot_id;
+static int hf_oran_slot_within_frame;
+static int hf_oran_start_symbol_id;
+static int hf_oran_numberOfSections;
+static int hf_oran_sectionType;
 
-static int hf_oran_udCompHdr = -1;
-static int hf_oran_udCompHdrIqWidth = -1;
-static int hf_oran_udCompHdrIqWidth_pref = -1;
-static int hf_oran_udCompHdrMeth = -1;
-static int hf_oran_udCompHdrMeth_pref = -1;
-static int hf_oran_numberOfUEs = -1;
-static int hf_oran_timeOffset = -1;
-static int hf_oran_frameStructure_fft = -1;
-static int hf_oran_frameStructure_subcarrier_spacing = -1;
-static int hf_oran_cpLength = -1;
-static int hf_oran_section_id = -1;
-static int hf_oran_rb = -1;
-static int hf_oran_symInc = -1;
-static int hf_oran_startPrbc = -1;
-static int hf_oran_reMask = -1;
-static int hf_oran_numPrbc = -1;
-static int hf_oran_numSymbol = -1;
-static int hf_oran_ef = -1;
-static int hf_oran_beamId = -1;
+static int hf_oran_udCompHdr;
+static int hf_oran_udCompHdrIqWidth;
+static int hf_oran_udCompHdrIqWidth_pref;
+static int hf_oran_udCompHdrMeth;
+static int hf_oran_udCompHdrMeth_pref;
+static int hf_oran_numberOfUEs;
+static int hf_oran_timeOffset;
+static int hf_oran_frameStructure_fft;
+static int hf_oran_frameStructure_subcarrier_spacing;
+static int hf_oran_cpLength;
+static int hf_oran_section_id;
+static int hf_oran_rb;
+static int hf_oran_symInc;
+static int hf_oran_startPrbc;
+static int hf_oran_reMask;
+static int hf_oran_numPrbc;
+static int hf_oran_numSymbol;
+static int hf_oran_ef;
+static int hf_oran_beamId;
 
-static int hf_oran_extension = -1;
-static int hf_oran_exttype = -1;
-static int hf_oran_extlen = -1;
+static int hf_oran_extension;
+static int hf_oran_exttype;
+static int hf_oran_extlen;
 
-static int hf_oran_bfw_bundle = -1;
-static int hf_oran_bfw_bundle_id = -1;
-static int hf_oran_bfw = -1;
-static int hf_oran_bfw_i = -1;
-static int hf_oran_bfw_q = -1;
+static int hf_oran_bfw_bundle;
+static int hf_oran_bfw_bundle_id;
+static int hf_oran_bfw;
+static int hf_oran_bfw_i;
+static int hf_oran_bfw_q;
 
-static int hf_oran_ueId = -1;
-static int hf_oran_freqOffset = -1;
-static int hf_oran_regularizationFactor = -1;
-static int hf_oran_laaMsgType = -1;
-static int hf_oran_laaMsgLen = -1;
-static int hf_oran_lbtHandle = -1;
-static int hf_oran_lbtDeferFactor = -1;
-static int hf_oran_lbtBackoffCounter = -1;
-static int hf_oran_lbtOffset = -1;
-static int hf_oran_MCOT = -1;
-static int hf_oran_lbtMode = -1;
-static int hf_oran_sfnSfEnd = -1;
-static int hf_oran_lbtPdschRes = -1;
-static int hf_oran_sfStatus = -1;
-static int hf_oran_initialPartialSF = -1;
-static int hf_oran_lbtDrsRes = -1;
-static int hf_oran_lbtBufErr = -1;
-static int hf_oran_lbtTrafficClass = -1;
-static int hf_oran_lbtCWConfig_H = -1;
-static int hf_oran_lbtCWConfig_T = -1;
-static int hf_oran_lbtCWR_Rst = -1;
+static int hf_oran_ueId;
+static int hf_oran_freqOffset;
+static int hf_oran_regularizationFactor;
+static int hf_oran_laaMsgType;
+static int hf_oran_laaMsgLen;
+static int hf_oran_lbtHandle;
+static int hf_oran_lbtDeferFactor;
+static int hf_oran_lbtBackoffCounter;
+static int hf_oran_lbtOffset;
+static int hf_oran_MCOT;
+static int hf_oran_lbtMode;
+static int hf_oran_sfnSfEnd;
+static int hf_oran_lbtPdschRes;
+static int hf_oran_sfStatus;
+static int hf_oran_initialPartialSF;
+static int hf_oran_lbtDrsRes;
+static int hf_oran_lbtBufErr;
+static int hf_oran_lbtTrafficClass;
+static int hf_oran_lbtCWConfig_H;
+static int hf_oran_lbtCWConfig_T;
+static int hf_oran_lbtCWR_Rst;
 
-static int hf_oran_reserved = -1;
-static int hf_oran_reserved_1bit = -1;
-static int hf_oran_reserved_2bits = -1;
-static int hf_oran_reserved_4bits = -1;
-static int hf_oran_reserved_6bits = -1;
+static int hf_oran_reserved;
+static int hf_oran_reserved_1bit;
+static int hf_oran_reserved_2bits;
+static int hf_oran_reserved_4bits;
+static int hf_oran_reserved_6bits;
 
-static int hf_oran_ext11_reserved = -1;
+static int hf_oran_ext11_reserved;
 
-static int hf_oran_bfwCompHdr = -1;
-static int hf_oran_bfwCompHdr_iqWidth = -1;
-static int hf_oran_bfwCompHdr_compMeth = -1;
-static int hf_oran_symbolId = -1;
-static int hf_oran_startPrbu = -1;
-static int hf_oran_numPrbu = -1;
-/* static int hf_oran_udCompParam = -1; */
+static int hf_oran_bfwCompHdr;
+static int hf_oran_bfwCompHdr_iqWidth;
+static int hf_oran_bfwCompHdr_compMeth;
+static int hf_oran_symbolId;
+static int hf_oran_startPrbu;
+static int hf_oran_numPrbu;
+/* static int hf_oran_udCompParam; */
 
-static int hf_oran_bfwCompParam = -1;
+static int hf_oran_bfwCompParam;
 
-static int hf_oran_iSample = -1;
-static int hf_oran_qSample = -1;
+static int hf_oran_iSample;
+static int hf_oran_qSample;
 
-static int hf_oran_blockScaler = -1;
-static int hf_oran_compBitWidth = -1;
-static int hf_oran_compShift = -1;
+static int hf_oran_blockScaler;
+static int hf_oran_compBitWidth;
+static int hf_oran_compShift;
 
-static int hf_oran_repetition = -1;
-static int hf_oran_rbgSize = -1;
-static int hf_oran_rbgMask = -1;
-static int hf_oran_noncontig_priority = -1;
-static int hf_oran_symbolMask = -1;
+static int hf_oran_repetition;
+static int hf_oran_rbgSize;
+static int hf_oran_rbgMask;
+static int hf_oran_noncontig_priority;
+static int hf_oran_symbolMask;
 
-static int hf_oran_rsvd8 = -1;
-static int hf_oran_rsvd16 = -1;
-static int hf_oran_exponent = -1;
-static int hf_oran_iq_user_data = -1;
+static int hf_oran_rsvd8;
+static int hf_oran_rsvd16;
+static int hf_oran_exponent;
+static int hf_oran_iq_user_data;
 
-static int hf_oran_disable_bfws = -1;
-static int hf_oran_rad = -1;
-static int hf_oran_num_bund_prbs = -1;
-static int hf_oran_beam_id = -1;
-static int hf_oran_num_weights_per_bundle = -1;
+static int hf_oran_disable_bfws;
+static int hf_oran_rad;
+static int hf_oran_num_bund_prbs;
+static int hf_oran_beam_id;
+static int hf_oran_num_weights_per_bundle;
 
-static int hf_oran_ack_nack_req_id = -1;
+static int hf_oran_ack_nack_req_id;
 
-static int hf_oran_off_start_prb_num_prb_pair = -1;
-static int hf_oran_off_start_prb = -1;
-static int hf_oran_num_prb = -1;
+static int hf_oran_off_start_prb_num_prb_pair;
+static int hf_oran_off_start_prb;
+static int hf_oran_num_prb;
 
-static int hf_oran_samples_prb = -1;
-static int hf_oran_ciSample = -1;
-static int hf_oran_ciIsample = -1;
-static int hf_oran_ciQsample = -1;
+static int hf_oran_samples_prb;
+static int hf_oran_ciSample;
+static int hf_oran_ciIsample;
+static int hf_oran_ciQsample;
 
-static int hf_oran_beamGroupType = -1;
-static int hf_oran_numPortc = -1;
+static int hf_oran_beamGroupType;
+static int hf_oran_numPortc;
 
-static int hf_oran_csf = -1;
-static int hf_oran_modcompscaler = -1;
+static int hf_oran_csf;
+static int hf_oran_modcompscaler;
 
-static int hf_oran_modcomp_param_set = -1;
-static int hf_oran_mc_scale_re_mask = -1;
-static int hf_oran_mc_scale_offset = -1;
+static int hf_oran_modcomp_param_set;
+static int hf_oran_mc_scale_re_mask;
+static int hf_oran_mc_scale_offset;
 
-static int hf_oran_eAxC_mask = -1;
-static int hf_oran_technology = -1;
-static int hf_oran_nullLayerInd = -1;
+static int hf_oran_eAxC_mask;
+static int hf_oran_technology;
+static int hf_oran_nullLayerInd;
 
-static int hf_oran_portReMask = -1;
-static int hf_oran_portSymbolMask = -1;
+static int hf_oran_portReMask;
+static int hf_oran_portSymbolMask;
 
-static int hf_oran_ext19_port = -1;
+static int hf_oran_ext19_port;
 
-static int hf_oran_prb_allocation = -1;
-static int hf_oran_nextSymbolId = -1;
-static int hf_oran_nextStartPrbc = -1;
+static int hf_oran_prb_allocation;
+static int hf_oran_nextSymbolId;
+static int hf_oran_nextStartPrbc;
 
-static int hf_oran_puncPattern = -1;
-static int hf_oran_numPuncPatterns = -1;
-static int hf_oran_symbolMask_ext20 = -1;
-static int hf_oran_startPuncPrb = -1;
-static int hf_oran_numPuncPrb = -1;
-static int hf_oran_puncReMask = -1;
-static int hf_oran_RbgIncl = -1;
+static int hf_oran_puncPattern;
+static int hf_oran_numPuncPatterns;
+static int hf_oran_symbolMask_ext20;
+static int hf_oran_startPuncPrb;
+static int hf_oran_numPuncPrb;
+static int hf_oran_puncReMask;
+static int hf_oran_RbgIncl;
 
-static int hf_oran_ci_prb_group_size = -1;
+static int hf_oran_ci_prb_group_size;
 
-static int hf_oran_num_ueid = -1;
+static int hf_oran_num_ueid;
 
-static int hf_oran_antMask = -1;
+static int hf_oran_antMask;
 
-static int hf_oran_transmissionWindowOffset = -1;
-static int hf_oran_transmissionWindowSize = -1;
-static int hf_oran_toT = -1;
+static int hf_oran_transmissionWindowOffset;
+static int hf_oran_transmissionWindowSize;
+static int hf_oran_toT;
 
-static int hf_oran_bfaCompHdr = -1;
-static int hf_oran_bfAzPtWidth = -1;
-static int hf_oran_bfZePtWidth = -1;
-static int hf_oran_bfAz3ddWidth = -1;
-static int hf_oran_bfZe3ddWidth = -1;
-static int hf_oran_bfAzPt = -1;
-static int hf_oran_bfZePt = -1;
-static int hf_oran_bfAz3dd = -1;
-static int hf_oran_bfZe3dd = -1;
-static int hf_oran_bfAzSl = -1;
-static int hf_oran_bfZeSl = -1;
+static int hf_oran_bfaCompHdr;
+static int hf_oran_bfAzPtWidth;
+static int hf_oran_bfZePtWidth;
+static int hf_oran_bfAz3ddWidth;
+static int hf_oran_bfZe3ddWidth;
+static int hf_oran_bfAzPt;
+static int hf_oran_bfZePt;
+static int hf_oran_bfAz3dd;
+static int hf_oran_bfZe3dd;
+static int hf_oran_bfAzSl;
+static int hf_oran_bfZeSl;
 
 
 /* Computed fields */
-static int hf_oran_c_eAxC_ID = -1;
-static int hf_oran_refa = -1;
+static int hf_oran_c_eAxC_ID;
+static int hf_oran_refa;
 
 /* Initialize the subtree pointers */
-static gint ett_oran = -1;
-static gint ett_oran_ecpri_rtcid = -1;
-static gint ett_oran_ecpri_pcid = -1;
-static gint ett_oran_ecpri_seqid = -1;
-static gint ett_oran_section = -1;
-static gint ett_oran_section_type = -1;
-static gint ett_oran_u_timing = -1;
-static gint ett_oran_u_section = -1;
-static gint ett_oran_u_prb = -1;
-static gint ett_oran_iq = -1;
-static gint ett_oran_c_section_extension = -1;
-static gint ett_oran_bfw_bundle = -1;
-static gint ett_oran_bfw = -1;
-static gint ett_oran_offset_start_prb_num_prb = -1;
-static gint ett_oran_prb_cisamples = -1;
-static gint ett_oran_cisample = -1;
-static gint ett_oran_udcomphdr = -1;
-static gint ett_oran_bfwcomphdr = -1;
-static gint ett_oran_bfwcompparam = -1;
-static gint ett_oran_ext19_port = -1;
-static gint ett_oran_prb_allocation = -1;
-static gint ett_oran_punc_pattern = -1;
-static gint ett_oran_bfacomphdr = -1;
-static gint ett_oran_modcomp_param_set = -1;
+static gint ett_oran;
+static gint ett_oran_ecpri_rtcid;
+static gint ett_oran_ecpri_pcid;
+static gint ett_oran_ecpri_seqid;
+static gint ett_oran_section;
+static gint ett_oran_section_type;
+static gint ett_oran_u_timing;
+static gint ett_oran_u_section;
+static gint ett_oran_u_prb;
+static gint ett_oran_iq;
+static gint ett_oran_c_section_extension;
+static gint ett_oran_bfw_bundle;
+static gint ett_oran_bfw;
+static gint ett_oran_offset_start_prb_num_prb;
+static gint ett_oran_prb_cisamples;
+static gint ett_oran_cisample;
+static gint ett_oran_udcomphdr;
+static gint ett_oran_bfwcomphdr;
+static gint ett_oran_bfwcompparam;
+static gint ett_oran_ext19_port;
+static gint ett_oran_prb_allocation;
+static gint ett_oran_punc_pattern;
+static gint ett_oran_bfacomphdr;
+static gint ett_oran_modcomp_param_set;
 
 
 /* Expert info */
-static expert_field ei_oran_unsupported_bfw_compression_method = EI_INIT;
-static expert_field ei_oran_invalid_sample_bit_width = EI_INIT;
-static expert_field ei_oran_reserved_numBundPrb = EI_INIT;
-static expert_field ei_oran_extlen_wrong = EI_INIT;
-static expert_field ei_oran_invalid_eaxc_bit_width = EI_INIT;
-static expert_field ei_oran_extlen_zero = EI_INIT;
-static expert_field ei_oran_rbg_size_reserved = EI_INIT;
-static expert_field ei_oran_frame_length = EI_INIT;
+static expert_field ei_oran_unsupported_bfw_compression_method;
+static expert_field ei_oran_invalid_sample_bit_width;
+static expert_field ei_oran_reserved_numBundPrb;
+static expert_field ei_oran_extlen_wrong;
+static expert_field ei_oran_invalid_eaxc_bit_width;
+static expert_field ei_oran_extlen_zero;
+static expert_field ei_oran_rbg_size_reserved;
+static expert_field ei_oran_frame_length;
 
 
 /* These are the message types handled by this dissector */

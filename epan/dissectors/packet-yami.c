@@ -57,30 +57,30 @@ static const value_string yami_param_type_vals[] = {
 	{ 0, NULL }
 };
 
-static int proto_yami = -1;
+static int proto_yami;
 
-static int hf_yami_frame_number = -1;
-static int hf_yami_frame_payload_size = -1;
-static int hf_yami_items_count = -1;
-static int hf_yami_message_data = -1;
-static int hf_yami_message_hdr = -1;
-static int hf_yami_message_header_size = -1;
-static int hf_yami_message_id = -1;
-static int hf_yami_param = -1;
-static int hf_yami_param_name = -1;
-static int hf_yami_param_type = -1;
-static int hf_yami_param_value_bin = -1;
-static int hf_yami_param_value_bool = -1;
-static int hf_yami_param_value_double = -1;
-static int hf_yami_param_value_int = -1;
-static int hf_yami_param_value_long = -1;
-static int hf_yami_param_value_str = -1;
-static int hf_yami_params_count = -1;
+static int hf_yami_frame_number;
+static int hf_yami_frame_payload_size;
+static int hf_yami_items_count;
+static int hf_yami_message_data;
+static int hf_yami_message_hdr;
+static int hf_yami_message_header_size;
+static int hf_yami_message_id;
+static int hf_yami_param;
+static int hf_yami_param_name;
+static int hf_yami_param_type;
+static int hf_yami_param_value_bin;
+static int hf_yami_param_value_bool;
+static int hf_yami_param_value_double;
+static int hf_yami_param_value_int;
+static int hf_yami_param_value_long;
+static int hf_yami_param_value_str;
+static int hf_yami_params_count;
 
-static int ett_yami = -1;
-static int ett_yami_msg_hdr = -1;
-static int ett_yami_msg_data = -1;
-static int ett_yami_param = -1;
+static int ett_yami;
+static int ett_yami_msg_hdr;
+static int ett_yami_msg_data;
+static int ett_yami_param;
 
 static int
 dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_item *par_ti)

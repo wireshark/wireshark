@@ -16,17 +16,17 @@ void proto_register_armagetronad(void);
 void proto_reg_handoff_armagetronad(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_armagetronad = -1;
-static int hf_armagetronad_descriptor_id = -1;
-static int hf_armagetronad_message_id = -1;
-static int hf_armagetronad_data_len = -1;
-static int hf_armagetronad_data = -1;
-static int hf_armagetronad_sender_id = -1;
-static int hf_armagetronad_msg_subtree = -1;
+static int proto_armagetronad;
+static int hf_armagetronad_descriptor_id;
+static int hf_armagetronad_message_id;
+static int hf_armagetronad_data_len;
+static int hf_armagetronad_data;
+static int hf_armagetronad_sender_id;
+static int hf_armagetronad_msg_subtree;
 
 /* Initialize the subtree pointers */
-static gint ett_armagetronad = -1;
-static gint ett_message = -1;
+static gint ett_armagetronad;
+static gint ett_message;
 
 static dissector_handle_t armagetronad_handle = NULL;
 

@@ -39,17 +39,17 @@ void proto_reg_handoff_turnchannel(void);
 static heur_dissector_list_t heur_subdissector_list;
 
 /* Initialize the protocol and registered fields */
-static int proto_turnchannel = -1;
+static int proto_turnchannel;
 
-static int hf_turnchannel_id = -1;
-static int hf_turnchannel_len = -1;
+static int hf_turnchannel_id;
+static int hf_turnchannel_len;
 
 #define TURNCHANNEL_HDR_LEN	((guint)4)
 
 #define MS_MULTIPLEX_TURN 0xFF10
 
 /* Initialize the subtree pointers */
-static gint ett_turnchannel = -1;
+static gint ett_turnchannel;
 
 static dissector_handle_t turnchannel_tcp_handle;
 static dissector_handle_t turnchannel_udp_handle;

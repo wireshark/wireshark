@@ -27,12 +27,12 @@ void proto_reg_handoff_cert(void);
 static dissector_handle_t cert_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_cert = -1;
+static int proto_cert;
 
-static gint hf_cert = -1;
+static gint hf_cert;
 
 /* Initialize the subtree pointers */
-static gint ett_cert = -1;
+static gint ett_cert;
 
 
 static int

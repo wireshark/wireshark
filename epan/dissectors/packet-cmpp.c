@@ -26,77 +26,77 @@ void proto_reg_handoff_cmpp(void);
 static dissector_handle_t cmpp_handle;
 
 /* Initialize the protocol and registered fields */
-static gint proto_cmpp = -1;
+static gint proto_cmpp;
 
 /* These are the fix header field */
-static gint hf_cmpp_Total_Length = -1;
-static gint hf_cmpp_Command_Id = -1;
-static gint hf_cmpp_Sequence_Id = -1;
+static gint hf_cmpp_Total_Length;
+static gint hf_cmpp_Command_Id;
+static gint hf_cmpp_Sequence_Id;
 
 /* CMPP_CONNECT */
-static gint hf_cmpp_connect_Source_Addr = -1;
-static gint hf_cmpp_connect_AuthenticatorSource = -1;
-static gint hf_cmpp_Version = -1;
-static gint hf_cmpp_connect_Timestamp = -1;
+static gint hf_cmpp_connect_Source_Addr;
+static gint hf_cmpp_connect_AuthenticatorSource;
+static gint hf_cmpp_Version;
+static gint hf_cmpp_connect_Timestamp;
 
 /* CMPP_CONNECT_RESP */
-static gint hf_cmpp_connect_resp_status = -1;
-static gint hf_cmpp_connect_resp_AuthenticatorISMG = -1;
+static gint hf_cmpp_connect_resp_status;
+static gint hf_cmpp_connect_resp_AuthenticatorISMG;
 
 /* CMPP_SUBMIT */
-static gint hf_cmpp_submit_pk_total = -1;
-static gint hf_cmpp_submit_pk_number = -1;
-static gint hf_cmpp_submit_Msg_level = -1;
-static gint hf_cmpp_submit_Fee_UserType = -1;
-static gint hf_cmpp_submit_Fee_terminal_Id = -1;
-static gint hf_cmpp_submit_Fee_terminal_type = -1;
-static gint hf_cmpp_submit_Msg_src = -1;
-static gint hf_cmpp_submit_FeeType = -1;
-static gint hf_cmpp_submit_FeeCode = -1;
-static gint hf_cmpp_submit_Valld_Time = -1;
-static gint hf_cmpp_submit_At_Time = -1;
-static gint hf_cmpp_submit_Src_Id = -1;
-static gint hf_cmpp_submit_DestUsr_tl = -1;
-static gint hf_cmpp_submit_Dest_terminal_type = -1;
-static gint hf_cmpp_submit_Registered_Delivery = -1;
+static gint hf_cmpp_submit_pk_total;
+static gint hf_cmpp_submit_pk_number;
+static gint hf_cmpp_submit_Msg_level;
+static gint hf_cmpp_submit_Fee_UserType;
+static gint hf_cmpp_submit_Fee_terminal_Id;
+static gint hf_cmpp_submit_Fee_terminal_type;
+static gint hf_cmpp_submit_Msg_src;
+static gint hf_cmpp_submit_FeeType;
+static gint hf_cmpp_submit_FeeCode;
+static gint hf_cmpp_submit_Valld_Time;
+static gint hf_cmpp_submit_At_Time;
+static gint hf_cmpp_submit_Src_Id;
+static gint hf_cmpp_submit_DestUsr_tl;
+static gint hf_cmpp_submit_Dest_terminal_type;
+static gint hf_cmpp_submit_Registered_Delivery;
 
 /* Field common in CMPP_SUBMIT and CMPP_DELIVER */
-static gint hf_cmpp_Dest_terminal_Id = -1;
-static gint hf_cmpp_Service_Id = -1;
-static gint hf_cmpp_TP_pId = -1;
-static gint hf_cmpp_TP_udhi = -1;
-static gint hf_cmpp_Msg_Fmt = -1;
-static gint hf_cmpp_Msg_Length = -1;
-static gint hf_cmpp_Msg_Content = -1;
-static gint hf_cmpp_LinkID = -1;
+static gint hf_cmpp_Dest_terminal_Id;
+static gint hf_cmpp_Service_Id;
+static gint hf_cmpp_TP_pId;
+static gint hf_cmpp_TP_udhi;
+static gint hf_cmpp_Msg_Fmt;
+static gint hf_cmpp_Msg_Length;
+static gint hf_cmpp_Msg_Content;
+static gint hf_cmpp_LinkID;
 
 /* CMPP_SUBMIT_RESP */
-static gint hf_cmpp_submit_resp_Result = -1;
+static gint hf_cmpp_submit_resp_Result;
 
 /* CMPP_QUERY */
 /* CMPP_QUERY_RESP */
 /* TODO implement CMPP_QUERY and CMPP_QUERY_RESP */
 
 /* CMPP_DELIVER */
-static gint hf_cmpp_deliver_Dest_Id = -1;
-static gint hf_cmpp_deliver_Src_terminal_Id = -1;
-static gint hf_cmpp_deliver_Src_terminal_type = -1;
-static gint hf_cmpp_deliver_Registered_Delivery = -1;
+static gint hf_cmpp_deliver_Dest_Id;
+static gint hf_cmpp_deliver_Src_terminal_Id;
+static gint hf_cmpp_deliver_Src_terminal_type;
+static gint hf_cmpp_deliver_Registered_Delivery;
 
-static gint hf_cmpp_deliver_resp_Result = -1;
+static gint hf_cmpp_deliver_resp_Result;
 
 /* CMPP Deliver Report */
-static gint hf_cmpp_deliver_Report = -1;
-static gint hf_cmpp_deliver_Report_Stat = -1;
-static gint hf_cmpp_deliver_Report_Submit_time = -1;
-static gint hf_cmpp_deliver_Report_Done_time = -1;
-static gint hf_cmpp_deliver_Report_SMSC_sequence = -1;
+static gint hf_cmpp_deliver_Report;
+static gint hf_cmpp_deliver_Report_Stat;
+static gint hf_cmpp_deliver_Report_Submit_time;
+static gint hf_cmpp_deliver_Report_Done_time;
+static gint hf_cmpp_deliver_Report_SMSC_sequence;
 
 /* Msg_Id field */
-static gint hf_cmpp_msg_id = -1;
-static gint hf_msg_id_timestamp = -1;
-static gint hf_msg_id_ismg_code = -1;
-static gint hf_msg_id_sequence_id = -1;
+static gint hf_cmpp_msg_id;
+static gint hf_msg_id_timestamp;
+static gint hf_msg_id_ismg_code;
+static gint hf_msg_id_sequence_id;
 
 static gboolean cmpp_desegment = TRUE;
 
@@ -232,9 +232,9 @@ static const value_string vals_Deliver_Resp_Result[] = {
 };
 
 /* Initialize the subtree pointers */
-static gint ett_cmpp = -1;
-static gint ett_msg_id = -1;
-static gint ett_deliver_report = -1;
+static gint ett_cmpp;
+static gint ett_msg_id;
+static gint ett_deliver_report;
 
 /* Helper functions */
 

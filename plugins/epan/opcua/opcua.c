@@ -48,7 +48,7 @@ void proto_reg_handoff_opcua(void);
 /* declare parse function pointer */
 typedef int (*FctParse)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, struct ua_metadata *data);
 
-int proto_opcua = -1;
+int proto_opcua;
 static dissector_handle_t opcua_handle;
 static module_t *opcua_module;
 
@@ -71,8 +71,8 @@ static module_t *opcua_module;
 #define AES_BLOCK_SIZE 16
 
 /** subtree types used in opcua_transport_layer.c */
-gint ett_opcua_extensionobject = -1;
-gint ett_opcua_nodeid = -1;
+gint ett_opcua_extensionobject;
+gint ett_opcua_nodeid;
 
 /** subtree types used locally */
 static gint ett_opcua_transport;

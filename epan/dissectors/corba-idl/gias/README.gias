@@ -17,7 +17,7 @@ Errors
 ======
 
 Define the heading field:
-static int hf_UCO_InvalidInputParameter_badInputParameters = -1;
+static int hf_UCO_InvalidInputParameter_badInputParameters;
 
 Register the headings fields:
 {&hf_UCO_CompressedImage_data_loop, {"Seq length of CompressedImage_data","giop-gias.CompressedImage.data.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,

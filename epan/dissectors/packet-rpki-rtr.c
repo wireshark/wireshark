@@ -25,49 +25,49 @@
 void proto_register_rpkirtr(void);
 void proto_reg_handoff_rpkirtr(void);
 
-static int proto_rpkirtr = -1;
-static int hf_rpkirtr_version = -1;
-static int hf_rpkirtr_pdu_type = -1;
-static int hf_rpkirtr_reserved = -1;
-static int hf_rpkirtr_session_id = -1;
-static int hf_rpkirtr_length = -1;
-static int hf_rpkirtr_serial_number = -1;
-static int hf_rpkirtr_flags = -1;
-static int hf_rpkirtr_flags_aw = -1;
-static int hf_rpkirtr_flags_rk = -1;
-static int hf_rpkirtr_flags_ar = -1;
-static int hf_rpkirtr_flags_arafi = -1;
-static int hf_rpkirtr_prefix_length = -1;
-static int hf_rpkirtr_max_length = -1;
-static int hf_rpkirtr_ipv4_prefix = -1;
-static int hf_rpkirtr_ipv6_prefix = -1;
-static int hf_rpkirtr_as_number = -1;
-static int hf_rpkirtr_error_code = -1;
-static int hf_rpkirtr_length_pdu = -1;
-static int hf_rpkirtr_error_pdu = -1;
-static int hf_rpkirtr_length_text = -1;
-static int hf_rpkirtr_error_text = -1;
-static int hf_rpkirtr_refresh_interval = -1;
-static int hf_rpkirtr_retry_interval = -1;
-static int hf_rpkirtr_expire_interval = -1;
-static int hf_rpkirtr_subject_key_identifier = -1;
-static int hf_rpkirtr_subject_public_key_info = -1;
-static int hf_rpkirtr_aspa_provider_as_count = -1;
-static int hf_rpkirtr_aspa_customer_asn = -1;
-static int hf_rpkirtr_aspa_provider_asn = -1;
+static int proto_rpkirtr;
+static int hf_rpkirtr_version;
+static int hf_rpkirtr_pdu_type;
+static int hf_rpkirtr_reserved;
+static int hf_rpkirtr_session_id;
+static int hf_rpkirtr_length;
+static int hf_rpkirtr_serial_number;
+static int hf_rpkirtr_flags;
+static int hf_rpkirtr_flags_aw;
+static int hf_rpkirtr_flags_rk;
+static int hf_rpkirtr_flags_ar;
+static int hf_rpkirtr_flags_arafi;
+static int hf_rpkirtr_prefix_length;
+static int hf_rpkirtr_max_length;
+static int hf_rpkirtr_ipv4_prefix;
+static int hf_rpkirtr_ipv6_prefix;
+static int hf_rpkirtr_as_number;
+static int hf_rpkirtr_error_code;
+static int hf_rpkirtr_length_pdu;
+static int hf_rpkirtr_error_pdu;
+static int hf_rpkirtr_length_text;
+static int hf_rpkirtr_error_text;
+static int hf_rpkirtr_refresh_interval;
+static int hf_rpkirtr_retry_interval;
+static int hf_rpkirtr_expire_interval;
+static int hf_rpkirtr_subject_key_identifier;
+static int hf_rpkirtr_subject_public_key_info;
+static int hf_rpkirtr_aspa_provider_as_count;
+static int hf_rpkirtr_aspa_customer_asn;
+static int hf_rpkirtr_aspa_provider_asn;
 
 #define RPKI_RTR_TCP_PORT 323
 #define RPKI_RTR_TLS_PORT 324
 static guint g_port_rpkirtr_tls = RPKI_RTR_TLS_PORT;
 
-static gint ett_rpkirtr = -1;
-static gint ett_flags   = -1;
-static gint ett_flags_nd = -1;
-static gint ett_providers = -1;
+static gint ett_rpkirtr;
+static gint ett_flags;
+static gint ett_flags_nd;
+static gint ett_providers;
 
-static expert_field ei_rpkirtr_wrong_version_aspa = EI_INIT;
-static expert_field ei_rpkirtr_wrong_version_router_key = EI_INIT;
-static expert_field ei_rpkirtr_bad_length = EI_INIT;
+static expert_field ei_rpkirtr_wrong_version_aspa;
+static expert_field ei_rpkirtr_wrong_version_router_key;
+static expert_field ei_rpkirtr_bad_length;
 
 static dissector_handle_t rpkirtr_handle;
 

@@ -25,37 +25,37 @@ enum {
     FORCE_CLIENT_NO       = 2
 };
 
-static int proto_bthcrp = -1;
+static int proto_bthcrp;
 
-static int hf_bthcrp_notification_pdu_id                                   = -1;
-static int hf_bthcrp_control_pdu_id                                        = -1;
-static int hf_bthcrp_control_transaction_id                                = -1;
-static int hf_bthcrp_control_parameter_length                              = -1;
-static int hf_bthcrp_control_status                                        = -1;
-static int hf_bthcrp_callback_context_id                                   = -1;
-static int hf_bthcrp_control_callback_timeout                              = -1;
-static int hf_bthcrp_control_timeout                                       = -1;
-static int hf_bthcrp_control_1284_id                                       = -1;
-static int hf_bthcrp_control_register                                      = -1;
-static int hf_bthcrp_control_start_byte                                    = -1;
-static int hf_bthcrp_control_number_of_bytes                               = -1;
-static int hf_bthcrp_control_client_credit_granted                         = -1;
-static int hf_bthcrp_control_server_credit_granted                         = -1;
-static int hf_bthcrp_control_client_credit_return                          = -1;
-static int hf_bthcrp_control_server_credit_return                          = -1;
-static int hf_bthcrp_control_client_credit_query                           = -1;
-static int hf_bthcrp_control_server_credit_query                           = -1;
-static int hf_bthcrp_control_status_reserved_76                            = -1;
-static int hf_bthcrp_control_status_paper_empty                            = -1;
-static int hf_bthcrp_control_status_select                                 = -1;
-static int hf_bthcrp_control_status_not_error                              = -1;
-static int hf_bthcrp_control_status_reserved_20                            = -1;
-static int hf_bthcrp_data                                                  = -1;
+static int hf_bthcrp_notification_pdu_id;
+static int hf_bthcrp_control_pdu_id;
+static int hf_bthcrp_control_transaction_id;
+static int hf_bthcrp_control_parameter_length;
+static int hf_bthcrp_control_status;
+static int hf_bthcrp_callback_context_id;
+static int hf_bthcrp_control_callback_timeout;
+static int hf_bthcrp_control_timeout;
+static int hf_bthcrp_control_1284_id;
+static int hf_bthcrp_control_register;
+static int hf_bthcrp_control_start_byte;
+static int hf_bthcrp_control_number_of_bytes;
+static int hf_bthcrp_control_client_credit_granted;
+static int hf_bthcrp_control_server_credit_granted;
+static int hf_bthcrp_control_client_credit_return;
+static int hf_bthcrp_control_server_credit_return;
+static int hf_bthcrp_control_client_credit_query;
+static int hf_bthcrp_control_server_credit_query;
+static int hf_bthcrp_control_status_reserved_76;
+static int hf_bthcrp_control_status_paper_empty;
+static int hf_bthcrp_control_status_select;
+static int hf_bthcrp_control_status_not_error;
+static int hf_bthcrp_control_status_reserved_20;
+static int hf_bthcrp_data;
 
-static gint ett_bthcrp                                                     = -1;
+static gint ett_bthcrp;
 
-static expert_field ei_bthcrp_control_parameter_length = EI_INIT;
-static expert_field ei_bthcrp_unexpected_data = EI_INIT;
+static expert_field ei_bthcrp_control_parameter_length;
+static expert_field ei_bthcrp_unexpected_data;
 
 static dissector_handle_t bthcrp_handle;
 

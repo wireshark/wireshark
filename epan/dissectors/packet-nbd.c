@@ -19,19 +19,19 @@
 void proto_register_nbd(void);
 void proto_reg_handoff_nbd(void);
 
-static gint proto_nbd = -1;
-static int hf_nbd_magic = -1;
-static int hf_nbd_type = -1;
-static int hf_nbd_error = -1;
-static int hf_nbd_handle = -1;
-static int hf_nbd_from = -1;
-static int hf_nbd_len = -1;
-static int hf_nbd_response_in = -1;
-static int hf_nbd_response_to = -1;
-static int hf_nbd_time = -1;
-static int hf_nbd_data = -1;
+static gint proto_nbd;
+static int hf_nbd_magic;
+static int hf_nbd_type;
+static int hf_nbd_error;
+static int hf_nbd_handle;
+static int hf_nbd_from;
+static int hf_nbd_len;
+static int hf_nbd_response_in;
+static int hf_nbd_response_to;
+static int hf_nbd_time;
+static int hf_nbd_data;
 
-static gint ett_nbd = -1;
+static gint ett_nbd;
 
 
 static gboolean nbd_desegment = TRUE;

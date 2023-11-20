@@ -37,26 +37,26 @@ void proto_register_caneth(void);
 
 static dissector_handle_t caneth_handle;
 
-static int proto_caneth = -1;
-static int hf_caneth_magic = -1;
-static int hf_caneth_version = -1;
-static int hf_caneth_frames = -1;
-static int hf_caneth_options = -1;
+static int proto_caneth;
+static int hf_caneth_magic;
+static int hf_caneth_version;
+static int hf_caneth_frames;
+static int hf_caneth_options;
 
-static int hf_caneth_can_ident_ext = -1;
-static int hf_caneth_can_ident_std = -1;
-static int hf_caneth_can_extflag = -1;
-static int hf_caneth_can_rtrflag = -1;
-static int hf_caneth_can_len = -1;
-static int hf_caneth_can_padding = -1;
+static int hf_caneth_can_ident_ext;
+static int hf_caneth_can_ident_std;
+static int hf_caneth_can_extflag;
+static int hf_caneth_can_rtrflag;
+static int hf_caneth_can_len;
+static int hf_caneth_can_padding;
 
 #define CANETH_UDP_PORT 11898
 
-static gint ett_caneth = -1;
-static gint ett_caneth_frames = -1;
-static gint ett_caneth_can = -1;
+static gint ett_caneth;
+static gint ett_caneth_frames;
+static gint ett_caneth_can;
 
-static int proto_can = -1;      // use CAN protocol for consistent filtering
+static int proto_can;      // use CAN protocol for consistent filtering
 
 /* A sample #define of the minimum length (in bytes) of the protocol data.
  * If data is received with fewer than this many bytes it is rejected by

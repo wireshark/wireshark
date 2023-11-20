@@ -27,30 +27,30 @@ void proto_reg_handoff_uaudp(void);
 
 static dissector_handle_t uaudp_handle;
 
-static int proto_uaudp              = -1;
+static int proto_uaudp;
 
-static int hf_uaudp_opcode          = -1;
-static int hf_uaudp_version         = -1;
-static int hf_uaudp_window_size     = -1;
-static int hf_uaudp_mtu             = -1;
-static int hf_uaudp_udp_lost        = -1;
-static int hf_uaudp_udp_lost_reinit = -1;
-static int hf_uaudp_keepalive       = -1;
-static int hf_uaudp_qos_ip_tos      = -1;
-static int hf_uaudp_qos_8021_vlid   = -1;
-static int hf_uaudp_qos_8021_pri    = -1;
-static int hf_uaudp_superfast_connect = -1;
-static int hf_uaudp_expseq          = -1;
-static int hf_uaudp_sntseq          = -1;
-static int hf_uaudp_type            = -1;
-static int hf_uaudp_length          = -1;
-static int hf_uaudp_startsig_reserved = -1;
-static int hf_uaudp_startsig_filename = -1;
+static int hf_uaudp_opcode;
+static int hf_uaudp_version;
+static int hf_uaudp_window_size;
+static int hf_uaudp_mtu;
+static int hf_uaudp_udp_lost;
+static int hf_uaudp_udp_lost_reinit;
+static int hf_uaudp_keepalive;
+static int hf_uaudp_qos_ip_tos;
+static int hf_uaudp_qos_8021_vlid;
+static int hf_uaudp_qos_8021_pri;
+static int hf_uaudp_superfast_connect;
+static int hf_uaudp_expseq;
+static int hf_uaudp_sntseq;
+static int hf_uaudp_type;
+static int hf_uaudp_length;
+static int hf_uaudp_startsig_reserved;
+static int hf_uaudp_startsig_filename;
 
-static gint ett_uaudp               = -1;
-static gint ett_uaudp_tlv           = -1;
+static gint ett_uaudp;
+static gint ett_uaudp_tlv;
 
-static expert_field ei_uaudp_tlv_length = EI_INIT;
+static expert_field ei_uaudp_tlv_length;
 
 /* pref */
 #define UAUDP_PORT_RANGE "32000,32512" /* Not IANA registered */

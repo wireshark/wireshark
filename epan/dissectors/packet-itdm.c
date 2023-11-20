@@ -20,37 +20,37 @@ void proto_register_itdm(void);
 void proto_reg_handoff_itdm(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_itdm        = -1;
-static int hf_itdm_timestamp = -1;
-static int hf_itdm_seqnum    = -1;
-static int hf_itdm_sop_eop   = -1;
-static int hf_itdm_last_pack = -1;
-static int hf_itdm_pktlen    = -1;
-static int hf_itdm_chksum    = -1;
-static int hf_itdm_uid       = -1;
-static int hf_itdm_ack       = -1;
-static int hf_itdm_act       = -1;
-static int hf_itdm_chcmd     = -1;
-static int hf_itdm_chid      = -1;
-static int hf_itdm_chloc1    = -1;
-static int hf_itdm_chloc2    = -1;
-static int hf_itdm_pktrate   = -1;
-static int hf_itdm_cxnsize   = -1;
+static int proto_itdm;
+static int hf_itdm_timestamp;
+static int hf_itdm_seqnum;
+static int hf_itdm_sop_eop;
+static int hf_itdm_last_pack;
+static int hf_itdm_pktlen;
+static int hf_itdm_chksum;
+static int hf_itdm_uid;
+static int hf_itdm_ack;
+static int hf_itdm_act;
+static int hf_itdm_chcmd;
+static int hf_itdm_chid;
+static int hf_itdm_chloc1;
+static int hf_itdm_chloc2;
+static int hf_itdm_pktrate;
+static int hf_itdm_cxnsize;
 
 /* I-TDM control protocol fields */
-static int hf_itdm_ctl_transid   = -1;
-static int hf_itdm_ctl_command   = -1;
-static int hf_itdm_ctl_flowid    = -1;
-static int hf_itdm_ctl_dm        = -1;
-static int hf_itdm_ctl_emts      = -1;
-static int hf_itdm_ctl_pktrate   = -1;
-static int hf_itdm_ctl_ptid      = -1;
-static int hf_itdm_ctl_cksum     = -1;
+static int hf_itdm_ctl_transid;
+static int hf_itdm_ctl_command;
+static int hf_itdm_ctl_flowid;
+static int hf_itdm_ctl_dm;
+static int hf_itdm_ctl_emts;
+static int hf_itdm_ctl_pktrate;
+static int hf_itdm_ctl_ptid;
+static int hf_itdm_ctl_cksum;
 
 
 /* Initialize the subtree pointers */
-static gint ett_itdm       = -1;
-static gint ett_itdm_ctl   = -1;
+static gint ett_itdm;
+static gint ett_itdm_ctl;
 
 static dissector_handle_t itdm_handle;
 

@@ -198,98 +198,98 @@ static guint nxteakeys = 0;
 
 #define TIBIA_DEFAULT_TCP_PORT_RANGE "7171,7172"
 
-static gint proto_tibia = -1;
+static gint proto_tibia;
 
-static gint hf_tibia_len                     = -1;
-static gint hf_tibia_nonce                   = -1;
-static gint hf_tibia_adler32                 = -1;
-static gint hf_tibia_adler32_status          = -1;
-static gint hf_tibia_os                      = -1;
-static gint hf_tibia_proto_version           = -1;
-static gint hf_tibia_client_version          = -1;
-static gint hf_tibia_file_versions           = -1;
-static gint hf_tibia_file_version_spr        = -1;
-static gint hf_tibia_file_version_dat        = -1;
-static gint hf_tibia_file_version_pic        = -1;
-static gint hf_tibia_game_preview_state      = -1;
-static gint hf_tibia_content_revision        = -1;
-static gint hf_tibia_undecoded_rsa_data      = -1;
-static gint hf_tibia_undecoded_xtea_data     = -1;
-static gint hf_tibia_unknown                 = -1;
-static gint hf_tibia_xtea_key                = -1;
-static gint hf_tibia_loginflags_gm           = -1;
-static gint hf_tibia_acc_name                = -1;
-static gint hf_tibia_acc_number              = -1;
-static gint hf_tibia_session_key             = -1;
-static gint hf_tibia_char_name               = -1;
-static gint hf_tibia_acc_pass                = -1;
-static gint hf_tibia_char_name_convo         = -1;
-static gint hf_tibia_acc_name_convo          = -1;
-static gint hf_tibia_acc_pass_convo          = -1;
-static gint hf_tibia_session_key_convo       = -1;
+static gint hf_tibia_len;
+static gint hf_tibia_nonce;
+static gint hf_tibia_adler32;
+static gint hf_tibia_adler32_status;
+static gint hf_tibia_os;
+static gint hf_tibia_proto_version;
+static gint hf_tibia_client_version;
+static gint hf_tibia_file_versions;
+static gint hf_tibia_file_version_spr;
+static gint hf_tibia_file_version_dat;
+static gint hf_tibia_file_version_pic;
+static gint hf_tibia_game_preview_state;
+static gint hf_tibia_content_revision;
+static gint hf_tibia_undecoded_rsa_data;
+static gint hf_tibia_undecoded_xtea_data;
+static gint hf_tibia_unknown;
+static gint hf_tibia_xtea_key;
+static gint hf_tibia_loginflags_gm;
+static gint hf_tibia_acc_name;
+static gint hf_tibia_acc_number;
+static gint hf_tibia_session_key;
+static gint hf_tibia_char_name;
+static gint hf_tibia_acc_pass;
+static gint hf_tibia_char_name_convo;
+static gint hf_tibia_acc_name_convo;
+static gint hf_tibia_acc_pass_convo;
+static gint hf_tibia_session_key_convo;
 
-static gint hf_tibia_client_info             = -1;
-static gint hf_tibia_client_locale           = -1;
-static gint hf_tibia_client_locale_id        = -1;
-static gint hf_tibia_client_locale_name      = -1;
-static gint hf_tibia_client_ram              = -1;
-static gint hf_tibia_client_cpu              = -1;
-static gint hf_tibia_client_cpu_name         = -1;
-static gint hf_tibia_client_clock            = -1;
-static gint hf_tibia_client_clock2           = -1;
-static gint hf_tibia_client_gpu              = -1;
-static gint hf_tibia_client_vram             = -1;
-static gint hf_tibia_client_resolution       = -1;
-static gint hf_tibia_client_resolution_x     = -1;
-static gint hf_tibia_client_resolution_y     = -1;
-static gint hf_tibia_client_resolution_hz    = -1;
+static gint hf_tibia_client_info;
+static gint hf_tibia_client_locale;
+static gint hf_tibia_client_locale_id;
+static gint hf_tibia_client_locale_name;
+static gint hf_tibia_client_ram;
+static gint hf_tibia_client_cpu;
+static gint hf_tibia_client_cpu_name;
+static gint hf_tibia_client_clock;
+static gint hf_tibia_client_clock2;
+static gint hf_tibia_client_gpu;
+static gint hf_tibia_client_vram;
+static gint hf_tibia_client_resolution;
+static gint hf_tibia_client_resolution_x;
+static gint hf_tibia_client_resolution_y;
+static gint hf_tibia_client_resolution_hz;
 
-static gint hf_tibia_payload_len             = -1;
-static gint hf_tibia_loginserv_command       = -1;
-static gint hf_tibia_gameserv_command        = -1;
-static gint hf_tibia_client_command          = -1;
+static gint hf_tibia_payload_len;
+static gint hf_tibia_loginserv_command;
+static gint hf_tibia_gameserv_command;
+static gint hf_tibia_client_command;
 
-static gint hf_tibia_motd                    = -1;
-static gint hf_tibia_dlg_error               = -1;
-static gint hf_tibia_dlg_info                = -1;
+static gint hf_tibia_motd;
+static gint hf_tibia_dlg_error;
+static gint hf_tibia_dlg_info;
 
-static gint hf_tibia_charlist                = -1;
-static gint hf_tibia_charlist_length         = -1;
-static gint hf_tibia_charlist_entry_name     = -1;
-static gint hf_tibia_charlist_entry_world    = -1;
-static gint hf_tibia_charlist_entry_ip       = -1;
-static gint hf_tibia_charlist_entry_port     = -1;
+static gint hf_tibia_charlist;
+static gint hf_tibia_charlist_length;
+static gint hf_tibia_charlist_entry_name;
+static gint hf_tibia_charlist_entry_world;
+static gint hf_tibia_charlist_entry_ip;
+static gint hf_tibia_charlist_entry_port;
 
-static gint hf_tibia_worldlist               = -1;
-static gint hf_tibia_worldlist_length        = -1;
-static gint hf_tibia_worldlist_entry_name    = -1;
-static gint hf_tibia_worldlist_entry_ip      = -1;
-static gint hf_tibia_worldlist_entry_port    = -1;
-static gint hf_tibia_worldlist_entry_preview = -1;
-static gint hf_tibia_worldlist_entry_id      = -1;
-static gint hf_tibia_pacc_days               = -1;
+static gint hf_tibia_worldlist;
+static gint hf_tibia_worldlist_length;
+static gint hf_tibia_worldlist_entry_name;
+static gint hf_tibia_worldlist_entry_ip;
+static gint hf_tibia_worldlist_entry_port;
+static gint hf_tibia_worldlist_entry_preview;
+static gint hf_tibia_worldlist_entry_id;
+static gint hf_tibia_pacc_days;
 
-static gint hf_tibia_channel_id              = -1;
-static gint hf_tibia_channel_name            = -1;
+static gint hf_tibia_channel_id;
+static gint hf_tibia_channel_name;
 
-static gint hf_tibia_char_cond               = -1;
-static gint hf_tibia_char_cond_poisoned      = -1;
-static gint hf_tibia_char_cond_burning       = -1;
-static gint hf_tibia_char_cond_electrocuted  = -1;
-static gint hf_tibia_char_cond_drunk         = -1;
-static gint hf_tibia_char_cond_manashield    = -1;
-static gint hf_tibia_char_cond_paralyzed     = -1;
-static gint hf_tibia_char_cond_haste         = -1;
-static gint hf_tibia_char_cond_battle        = -1;
-static gint hf_tibia_char_cond_drowning      = -1;
-static gint hf_tibia_char_cond_freezing      = -1;
-static gint hf_tibia_char_cond_dazzled       = -1;
-static gint hf_tibia_char_cond_cursed        = -1;
-static gint hf_tibia_char_cond_buff          = -1;
-static gint hf_tibia_char_cond_pzblock       = -1;
-static gint hf_tibia_char_cond_pz            = -1;
-static gint hf_tibia_char_cond_bleeding      = -1;
-static gint hf_tibia_char_cond_hungry        = -1;
+static gint hf_tibia_char_cond;
+static gint hf_tibia_char_cond_poisoned;
+static gint hf_tibia_char_cond_burning;
+static gint hf_tibia_char_cond_electrocuted;
+static gint hf_tibia_char_cond_drunk;
+static gint hf_tibia_char_cond_manashield;
+static gint hf_tibia_char_cond_paralyzed;
+static gint hf_tibia_char_cond_haste;
+static gint hf_tibia_char_cond_battle;
+static gint hf_tibia_char_cond_drowning;
+static gint hf_tibia_char_cond_freezing;
+static gint hf_tibia_char_cond_dazzled;
+static gint hf_tibia_char_cond_cursed;
+static gint hf_tibia_char_cond_buff;
+static gint hf_tibia_char_cond_pzblock;
+static gint hf_tibia_char_cond_pz;
+static gint hf_tibia_char_cond_bleeding;
+static gint hf_tibia_char_cond_hungry;
 
 static int * const char_conds[] = {
     &hf_tibia_char_cond_poisoned,
@@ -312,65 +312,65 @@ static int * const char_conds[] = {
     NULL
 };
 
-static gint hf_tibia_chat_msg            = -1;
-static gint hf_tibia_speech_type         = -1;
+static gint hf_tibia_chat_msg;
+static gint hf_tibia_speech_type;
 
-static gint hf_tibia_coords_x            = -1;
-static gint hf_tibia_coords_y            = -1;
-static gint hf_tibia_coords_z            = -1;
-static gint hf_tibia_coords              = -1;
-static gint hf_tibia_stackpos            = -1;
+static gint hf_tibia_coords_x;
+static gint hf_tibia_coords_y;
+static gint hf_tibia_coords_z;
+static gint hf_tibia_coords;
+static gint hf_tibia_stackpos;
 
 #if 0
-static gint hf_tibia_item                = -1;
+static gint hf_tibia_item;
 #endif
-static gint hf_tibia_container           = -1;
-static gint hf_tibia_container_icon      = -1;
-static gint hf_tibia_container_slot      = -1;
-static gint hf_tibia_container_slots     = -1;
-static gint hf_tibia_inventory           = -1;
-static gint hf_tibia_vip                 = -1;
-static gint hf_tibia_vip_online          = -1;
-static gint hf_tibia_player              = -1;
-static gint hf_tibia_creature            = -1;
-static gint hf_tibia_creature_health     = -1;
-static gint hf_tibia_window              = -1;
-static gint hf_tibia_window_icon         = -1;
-static gint hf_tibia_window_textlen      = -1;
-static gint hf_tibia_window_text         = -1;
+static gint hf_tibia_container;
+static gint hf_tibia_container_icon;
+static gint hf_tibia_container_slot;
+static gint hf_tibia_container_slots;
+static gint hf_tibia_inventory;
+static gint hf_tibia_vip;
+static gint hf_tibia_vip_online;
+static gint hf_tibia_player;
+static gint hf_tibia_creature;
+static gint hf_tibia_creature_health;
+static gint hf_tibia_window;
+static gint hf_tibia_window_icon;
+static gint hf_tibia_window_textlen;
+static gint hf_tibia_window_text;
 
-static gint hf_tibia_light_level         = -1;
-static gint hf_tibia_light_color         = -1;
-static gint hf_tibia_magic_effect_id     = -1;
-static gint hf_tibia_animated_text_color = -1;
-static gint hf_tibia_animated_text       = -1;
-static gint hf_tibia_projectile          = -1;
-static gint hf_tibia_squarecolor         = -1;
-static gint hf_tibia_textmsg_class       = -1;
-static gint hf_tibia_textmsg             = -1;
-static gint hf_tibia_walk_dir            = -1;
-
-
-static gint ett_tibia               = -1;
-static gint ett_command             = -1;
-static gint ett_file_versions       = -1;
-static gint ett_client_info         = -1;
-static gint ett_locale              = -1;
-static gint ett_cpu                 = -1;
-static gint ett_resolution          = -1;
-static gint ett_charlist            = -1;
-static gint ett_worldlist           = -1;
-static gint ett_char                = -1;
-static gint ett_world               = -1;
-static gint ett_coords              = -1;
-static gint ett_char_cond           = -1;
+static gint hf_tibia_light_level;
+static gint hf_tibia_light_color;
+static gint hf_tibia_magic_effect_id;
+static gint hf_tibia_animated_text_color;
+static gint hf_tibia_animated_text;
+static gint hf_tibia_projectile;
+static gint hf_tibia_squarecolor;
+static gint hf_tibia_textmsg_class;
+static gint hf_tibia_textmsg;
+static gint hf_tibia_walk_dir;
 
 
-static expert_field ei_xtea_len_toobig               = EI_INIT;
-static expert_field ei_adler32_checksum_bad          = EI_INIT;
-static expert_field ei_rsa_plaintext_no_leading_zero = EI_INIT;
-static expert_field ei_rsa_ciphertext_too_short      = EI_INIT;
-static expert_field ei_rsa_decrypt_failed            = EI_INIT;
+static gint ett_tibia;
+static gint ett_command;
+static gint ett_file_versions;
+static gint ett_client_info;
+static gint ett_locale;
+static gint ett_cpu;
+static gint ett_resolution;
+static gint ett_charlist;
+static gint ett_worldlist;
+static gint ett_char;
+static gint ett_world;
+static gint ett_coords;
+static gint ett_char_cond;
+
+
+static expert_field ei_xtea_len_toobig;
+static expert_field ei_adler32_checksum_bad;
+static expert_field ei_rsa_plaintext_no_leading_zero;
+static expert_field ei_rsa_ciphertext_too_short;
+static expert_field ei_rsa_decrypt_failed;
 
 
 struct proto_traits {

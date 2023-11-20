@@ -31,38 +31,38 @@ void proto_reg_handoff_ieee80211_wlancap(void);
 
 static dissector_handle_t ieee80211_radio_handle;
 
-static int proto_wlancap = -1;
+static int proto_wlancap;
 
 /* AVS WLANCAP radio header */
-static int hf_wlancap_magic = -1;
-static int hf_wlancap_version = -1;
-static int hf_wlancap_length = -1;
-static int hf_wlancap_mactime = -1;
-static int hf_wlancap_hosttime = -1;
-static int hf_wlancap_phytype = -1;
-static int hf_wlancap_hop_set = -1;
-static int hf_wlancap_hop_pattern = -1;
-static int hf_wlancap_hop_index = -1;
-static int hf_wlancap_channel = -1;
-static int hf_wlancap_channel_frequency = -1;
-static int hf_wlancap_data_rate = -1;
-static int hf_wlancap_antenna = -1;
-static int hf_wlancap_priority = -1;
-static int hf_wlancap_ssi_type = -1;
-static int hf_wlancap_normrssi_antsignal = -1;
-static int hf_wlancap_dbm_antsignal = -1;
-static int hf_wlancap_rawrssi_antsignal = -1;
-static int hf_wlancap_normrssi_antnoise = -1;
-static int hf_wlancap_dbm_antnoise = -1;
-static int hf_wlancap_rawrssi_antnoise = -1;
-static int hf_wlancap_preamble = -1;
-static int hf_wlancap_encoding = -1;
-static int hf_wlancap_sequence = -1;
-static int hf_wlancap_drops = -1;
-static int hf_wlancap_receiver_addr = -1;
-static int hf_wlancap_padding = -1;
+static int hf_wlancap_magic;
+static int hf_wlancap_version;
+static int hf_wlancap_length;
+static int hf_wlancap_mactime;
+static int hf_wlancap_hosttime;
+static int hf_wlancap_phytype;
+static int hf_wlancap_hop_set;
+static int hf_wlancap_hop_pattern;
+static int hf_wlancap_hop_index;
+static int hf_wlancap_channel;
+static int hf_wlancap_channel_frequency;
+static int hf_wlancap_data_rate;
+static int hf_wlancap_antenna;
+static int hf_wlancap_priority;
+static int hf_wlancap_ssi_type;
+static int hf_wlancap_normrssi_antsignal;
+static int hf_wlancap_dbm_antsignal;
+static int hf_wlancap_rawrssi_antsignal;
+static int hf_wlancap_normrssi_antnoise;
+static int hf_wlancap_dbm_antnoise;
+static int hf_wlancap_rawrssi_antnoise;
+static int hf_wlancap_preamble;
+static int hf_wlancap_encoding;
+static int hf_wlancap_sequence;
+static int hf_wlancap_drops;
+static int hf_wlancap_receiver_addr;
+static int hf_wlancap_padding;
 
-static gint ett_wlancap = -1;
+static gint ett_wlancap;
 
 static dissector_handle_t wlancap_handle;
 static capture_dissector_handle_t wlancap_cap_handle;

@@ -37,1216 +37,1216 @@ static dissector_handle_t pfcp_handle;
 
 #define UDP_PORT_PFCP  8805 /* IANA-registered */
 
-static int proto_pfcp = -1;
-
-static int hf_pfcp_msg_type = -1;
-static int hf_pfcp_msg_length = -1;
-static int hf_pfcp_hdr_flags = -1;
-static int hf_pfcp_version = -1;
-static int hf_pfcp_fo_flag = -1;
-static int hf_pfcp_mp_flag = -1;
-static int hf_pfcp_s_flag = -1;
-static int hf_pfcp_seid = -1;
-static int hf_pfcp_seqno = -1;
-static int hf_pfcp_mp = -1;
-
-static int hf_pfcp2_ie = -1;
-static int hf_pfcp2_ie_len = -1;
-static int hf_pfcp2_enterprise_ie = -1;
-static int hf_pfcp_enterprise_id = -1;
-static int hf_pfcp_enterprise_data = -1;
-
-static int hf_pfcp_response_in = -1;
-static int hf_pfcp_response_to = -1;
-static int hf_pfcp_response_time = -1;
-
-static int hf_pfcp_session = -1;
-
-static int hf_pfcp_spare_b0 = -1;
-static int hf_pfcp_spare_b1 = -1;
-static int hf_pfcp_spare_b2 = -1;
-static int hf_pfcp_spare_b3 = -1;
-static int hf_pfcp_spare_b4 = -1;
-static int hf_pfcp_spare_b5 = -1;
-static int hf_pfcp_spare_b6 = -1;
-static int hf_pfcp_spare_b7 = -1;
-static int hf_pfcp_spare_b7_b6 = -1;
-static int hf_pfcp_spare_b7_b5 = -1;
-static int hf_pfcp_spare_b7_b4 = -1;
-static int hf_pfcp_spare_b7_b3 = -1;
-static int hf_pfcp_spare_b7_b2 = -1;
-static int hf_pfcp_spare_b7_b1 = -1;
-static int hf_pfcp_spare_h0 = -1;
-static int hf_pfcp_spare_h1 = -1;
-static int hf_pfcp_spare_oct = -1;
-static int hf_pfcp_spare = -1;
-
-static int hf_pfcp2_cause = -1;
-static int hf_pfcp_node_id_type = -1;
-static int hf_pfcp_node_id_ipv4 = -1;
-static int hf_pfcp_node_id_ipv6 = -1;
-static int hf_pfcp_node_id_fqdn = -1;
-static int hf_pfcp_recovery_time_stamp = -1;
-static int hf_pfcp_b0_v6 = -1;
-static int hf_pfcp_b1_v4 = -1;
-static int hf_pfcp_f_seid_ipv4 = -1;
-static int hf_pfcp_f_seid_ipv6 = -1;
-static int hf_pfcp_pdr_id = -1;
-static int hf_pfcp_precedence = -1;
-static int hf_pfcp_source_interface = -1;
-static int hf_pfcp_fteid_flg_spare = -1;
-static int hf_pfcp_fteid_flg_b3_ch_id = -1;
-static int hf_pfcp_fteid_flg_b2_ch = -1;
-static int hf_pfcp_fteid_flg_b1_v6 = -1;
-static int hf_pfcp_fteid_flg_b0_v4 = -1;
-static int hf_pfcp_f_teid_ch_id = -1;
-static int hf_pfcp_f_teid_teid = -1;
-static int hf_pfcp_f_teid_ipv4 = -1;
-static int hf_pfcp_f_teid_ipv6 = -1;
-static int hf_pfcp_network_instance = -1;
-static int hf_pfcp_pdn_type = -1;
-static int hf_pfcp_failed_rule_id_type = -1;
-static int hf_pfcp_time_quota_mechanism_bti_type = -1;
-static int hf_pfcp_time_quota_mechanism_bti = -1;
-static int hf_pfcp_multiplier_value_digits = -1;
-static int hf_pfcp_multiplier_exponent = -1;
-
-static int hf_pfcp_ue_ip_address_flag_b0_v6 = -1;
-static int hf_pfcp_ue_ip_address_flag_b1_v4 = -1;
-static int hf_pfcp_ue_ip_address_flag_b2_sd = -1;
-static int hf_pfcp_ue_ip_address_flag_b3_v6d = -1;
-static int hf_pfcp_ue_ip_address_flag_b4_chv4 = -1;
-static int hf_pfcp_ue_ip_address_flag_b5_chv6 = -1;
-static int hf_pfcp_ue_ip_address_flag_b6_v6pl = -1;
-static int hf_pfcp_ue_ip_addr_ipv4 = -1;
-static int hf_pfcp_ue_ip_add_ipv6 = -1;
-static int hf_pfcp_ue_ip_add_ipv6_prefix_delegation_bits = -1;
-static int hf_pfcp_ue_ip_add_ipv6_prefix_length = -1;
-static int hf_pfcp_application_id = -1;
-static int hf_pfcp_application_id_str = -1;
-
-static int hf_pfcp_sdf_filter_flags_b0_fd = -1;
-static int hf_pfcp_sdf_filter_flags_b1_ttc = -1;
-static int hf_pfcp_sdf_filter_flags_b2_spi = -1;
-static int hf_pfcp_sdf_filter_flags_b3_fl = -1;
-static int hf_pfcp_sdf_filter_flags_b4_bid = -1;
-
-static int hf_pfcp_flow_desc_len = -1;
-static int hf_pfcp_flow_desc = -1;
-static int hf_pfcp_traffic_class = -1;
-static int hf_pfcp_traffic_mask = -1;
-static int hf_pfcp_traffic_dscp = -1;
-static int hf_pfcp_spi = -1;
-static int hf_pfcp_flow_label_spare_bit = -1;
-static int hf_pfcp_flow_label = -1;
-static int hf_pfcp_sdf_filter_id = -1;
-
-static int hf_pfcp_out_hdr_desc = -1;
-static int hf_pfcp_gtpu_ext_hdr_del_b0_pdu_sess_cont = -1;
-static int hf_pfcp_far_id_flg = -1;
-static int hf_pfcp_far_id = -1;
-static int hf_pfcp_urr_id_flg = -1;
-static int hf_pfcp_urr_id = -1;
-static int hf_pfcp_qer_id_flg = -1;
-static int hf_pfcp_qer_id = -1;
-static int hf_pfcp_predef_rules_name = -1;
-
-
-
-static int hf_pfcp_apply_action_flags_o6_b4_mbsu = -1;
-static int hf_pfcp_apply_action_flags_o6_b3_fssm = -1;
-static int hf_pfcp_apply_action_flags_o6_b2_ddpn = -1;
-static int hf_pfcp_apply_action_flags_o6_b1_bdpn = -1;
-static int hf_pfcp_apply_action_flags_o6_b0_edrt = -1;
-static int hf_pfcp_apply_action_flags_o5_b7_dfrt = -1;
-static int hf_pfcp_apply_action_flags_o5_b6_ipmd = -1;
-static int hf_pfcp_apply_action_flags_o5_b5_ipma = -1;
-static int hf_pfcp_apply_action_flags_o5_b4_dupl = -1;
-static int hf_pfcp_apply_action_flags_o5_b3_nocp = -1;
-static int hf_pfcp_apply_action_flags_o5_b2_buff = -1;
-static int hf_pfcp_apply_action_flags_o5_b1_forw = -1;
-static int hf_pfcp_apply_action_flags_o5_b0_drop = -1;
-
-static int hf_pfcp_bar_id = -1;
-static int hf_pfcp_fq_csid_node_id_type = -1;
-static int hf_pfcp_num_csid = -1;
-static int hf_pfcp_fq_csid_node_id_ipv4 = -1;
-static int hf_pfcp_fq_csid_node_id_ipv6 = -1;
-static int hf_pfcp_fq_csid_node_id_mcc_mnc = -1;
-static int hf_pfcp_fq_csid_node_id_int = -1;
-static int hf_pfcp_fq_csid = -1;
-static int hf_pfcp_fq_csid_node_type = -1;
-static int hf_pfcp_measurement_period = -1;
-static int hf_pfcp_duration_measurement = -1;
-static int hf_pfcp_time_of_first_packet = -1;
-static int hf_pfcp_time_of_last_packet = -1;
-static int hf_pfcp_dst_interface = -1;
-static int hf_pfcp_redirect_address_type = -1;
-static int hf_pfcp_redirect_server_addr_len = -1;
-static int hf_pfcp_redirect_server_address = -1;
-static int hf_pfcp_other_redirect_server_addr_len = -1;
-static int hf_pfcp_other_redirect_server_address = -1;
-static int hf_pfcp_redirect_port = -1;
-static int hf_pfcp_outer_hdr_desc_o5_b0_gtp_udp_ipv4 = -1;
-static int hf_pfcp_outer_hdr_desc_o5_b1_gtp_udp_ipv6 = -1;
-static int hf_pfcp_outer_hdr_desc_o5_b2_udp_ipv4 = -1;
-static int hf_pfcp_outer_hdr_desc_o5_b3_udp_ipv6 = -1;
-static int hf_pfcp_outer_hdr_desc_o5_b4_ipv4 = -1;
-static int hf_pfcp_outer_hdr_desc_o5_b5_ipv6 = -1;
-static int hf_pfcp_outer_hdr_desc_o5_b6_ctag = -1;
-static int hf_pfcp_outer_hdr_desc_o5_b7_stag = -1;
-static int hf_pfcp_outer_hdr_desc_o6_b0_n19 = -1;
-static int hf_pfcp_outer_hdr_desc_o6_b1_n6 = -1;
-static int hf_pfcp_outer_hdr_desc_o6_b2_ssm_cteid = -1;
-static int hf_pfcp_outer_hdr_desc_o6_spare = -1;
-static int hf_pfcp_outer_hdr_creation_teid = -1;
-static int hf_pfcp_outer_hdr_creation_ipv4 = -1;
-static int hf_pfcp_outer_hdr_creation_ipv6 = -1;
-static int hf_pfcp_outer_hdr_creation_port = -1;
-static int hf_pfcp_time_threshold = -1;
-static int hf_pfcp_forwarding_policy_id_len = -1;
-static int hf_pfcp_forwarding_policy_id = -1;
-
-static int hf_pfcp_measurement_method_flags_b0_durat = -1;
-static int hf_pfcp_measurement_method_flags_b1_volume = -1;
-static int hf_pfcp_measurement_method_flags_b2_event = -1;
-
-static int hf_pfcp_subsequent_time_threshold = -1;
-static int hf_pfcp_inactivity_detection_time = -1;
-static int hf_pfcp_monitoring_time = -1;
-
-static int hf_pfcp_reporting_triggers_o5_b7_liusa = -1;
-static int hf_pfcp_reporting_triggers_o5_b6_droth = -1;
-static int hf_pfcp_reporting_triggers_o5_b5_stopt = -1;
-static int hf_pfcp_reporting_triggers_o5_b4_start = -1;
-static int hf_pfcp_reporting_triggers_o5_b3_quhti = -1;
-static int hf_pfcp_reporting_triggers_o5_b2_timth = -1;
-static int hf_pfcp_reporting_triggers_o5_b1_volth = -1;
-static int hf_pfcp_reporting_triggers_o5_b0_perio = -1;
-static int hf_pfcp_reporting_triggers_o6_b7_quvti = -1;
-static int hf_pfcp_reporting_triggers_o6_b6_ipmjl = -1;
-static int hf_pfcp_reporting_triggers_o6_b5_evequ = -1;
-static int hf_pfcp_reporting_triggers_o6_b4_eveth = -1;
-static int hf_pfcp_reporting_triggers_o6_b3_macar = -1;
-static int hf_pfcp_reporting_triggers_o6_b2_envcl = -1;
-static int hf_pfcp_reporting_triggers_o6_b1_timqu = -1;
-static int hf_pfcp_reporting_triggers_o6_b0_volqu = -1;
-static int hf_pfcp_reporting_triggers_o7_b1_upint = -1;
-static int hf_pfcp_reporting_triggers_o7_b0_reemr = -1;
-
-static int hf_pfcp_volume_threshold_b2_dlvol = -1;
-static int hf_pfcp_volume_threshold_b1_ulvol = -1;
-static int hf_pfcp_volume_threshold_b0_tovol = -1;
-static int hf_pfcp_volume_threshold_tovol = -1;
-static int hf_pfcp_volume_threshold_ulvol = -1;
-static int hf_pfcp_volume_threshold_dlvol = -1;
-
-static int hf_pfcp_volume_quota_b2_dlvol = -1;
-static int hf_pfcp_volume_quota_b1_ulvol = -1;
-static int hf_pfcp_volume_quota_b0_tovol = -1;
-static int hf_pfcp_volume_quota_tovol = -1;
-static int hf_pfcp_volume_quota_ulvol = -1;
-static int hf_pfcp_volume_quota_dlvol = -1;
-
-static int hf_pfcp_subseq_volume_threshold_b2_dlvol = -1;
-static int hf_pfcp_subseq_volume_threshold_b1_ulvol = -1;
-static int hf_pfcp_subseq_volume_threshold_b0_tovol = -1;
-static int hf_pfcp_subseq_volume_threshold_tovol = -1;
-static int hf_pfcp_subseq_volume_threshold_ulvol = -1;
-static int hf_pfcp_subseq_volume_threshold_dlvol = -1;
-
-static int hf_pfcp_time_quota = -1;
-static int hf_pfcp_start_time = -1;
-static int hf_pfcp_end_time = -1;
-static int hf_pfcp_quota_holding_time = -1;
-static int hf_pfcp_dropped_dl_traffic_threshold_b1_dlby = -1;
-static int hf_pfcp_dropped_dl_traffic_threshold_b0_dlpa = -1;
-static int hf_pfcp_downlink_packets = -1;
-static int hf_pfcp_bytes_downlink_data = -1;
-static int hf_pfcp_qer_correlation_id = -1;
-static int hf_pfcp_gate_status_b0b1_dlgate = -1;
-static int hf_pfcp_gate_status_b3b2_ulgate = -1;
-static int hf_pfcp_ul_mbr = -1;
-static int hf_pfcp_dl_mbr = -1;
-static int hf_pfcp_ul_gbr = -1;
-static int hf_pfcp_dl_gbr = -1;
-
-static int hf_pfcp_report_type_b6_uisr = -1;
-static int hf_pfcp_report_type_b5_sesr = -1;
-static int hf_pfcp_report_type_b4_tmir = -1;
-static int hf_pfcp_report_type_b3_upir = -1;
-static int hf_pfcp_report_type_b2_erir = -1;
-static int hf_pfcp_report_type_b1_usar = -1;
-static int hf_pfcp_report_type_b0_dldr = -1;
-
-static int hf_pfcp_offending_ie = -1;
-static int hf_pfcp_offending_ie_value = -1;
-
-static int hf_pfcp_up_function_features_o13_b2_qmdrm = -1;
-static int hf_pfcp_up_function_features_o13_b1_cntl = -1;
-static int hf_pfcp_up_function_features_o13_b0_pdusm = -1;
-static int hf_pfcp_up_function_features_o12_b7_eml4s = -1;
-static int hf_pfcp_up_function_features_o12_b6_detnet = -1;
-static int hf_pfcp_up_function_features_o12_b5_qmcon = -1;
-static int hf_pfcp_up_function_features_o12_b4_n6jedb = -1;
-static int hf_pfcp_up_function_features_o12_b3_drtsc = -1;
-static int hf_pfcp_up_function_features_o12_b2_tscts = -1;
-static int hf_pfcp_up_function_features_o12_b1_dbdm = -1;
-static int hf_pfcp_up_function_features_o12_b0_redsm = -1;
-static int hf_pfcp_up_function_features_o11_b7_mpquic = -1;
-static int hf_pfcp_up_function_features_o11_b6_afsfc = -1;
-static int hf_pfcp_up_function_features_o11_b5_upidp = -1;
-static int hf_pfcp_up_function_features_o11_b4_ratp = -1;
-static int hf_pfcp_up_function_features_o11_b3_eppi = -1;
-static int hf_pfcp_up_function_features_o11_b2_psuprm = -1;
-static int hf_pfcp_up_function_features_o11_b1_mbsn4 = -1;
-static int hf_pfcp_up_function_features_o11_b0_drqos = -1;
-static int hf_pfcp_up_function_features_o10_b7_dnsts = -1;
-static int hf_pfcp_up_function_features_o10_b6_iprep = -1;
-static int hf_pfcp_up_function_features_o10_b5_resps = -1;
-static int hf_pfcp_up_function_features_o10_b4_upber = -1;
-static int hf_pfcp_up_function_features_o10_b3_l2tp = -1;
-static int hf_pfcp_up_function_features_o10_b2_nspoc = -1;
-static int hf_pfcp_up_function_features_o10_b1_quasf = -1;
-static int hf_pfcp_up_function_features_o10_b0_rttwp = -1;
-static int hf_pfcp_up_function_features_o9_b7_rds = -1;
-static int hf_pfcp_up_function_features_o9_b6_ddds = -1;
-static int hf_pfcp_up_function_features_o9_b5_ethar = -1;
-static int hf_pfcp_up_function_features_o9_b4_ciot = -1;
-static int hf_pfcp_up_function_features_o9_b3_mt_edt = -1;
-static int hf_pfcp_up_function_features_o9_b2_gpqm = -1;
-static int hf_pfcp_up_function_features_o9_b1_qfqm = -1;
-static int hf_pfcp_up_function_features_o9_b0_atsss_ll = -1;
-static int hf_pfcp_up_function_features_o8_b7_mptcp = -1;
-static int hf_pfcp_up_function_features_o8_b6_tsn = -1;
-static int hf_pfcp_up_function_features_o8_b5_ip6pl = -1;
-static int hf_pfcp_up_function_features_o8_b4_iptv = -1;
-static int hf_pfcp_up_function_features_o8_b3_norp = -1;
-static int hf_pfcp_up_function_features_o8_b2_vtime = -1;
-static int hf_pfcp_up_function_features_o8_b1_rttl = -1;
-static int hf_pfcp_up_function_features_o8_b0_mpas = -1;
-static int hf_pfcp_up_function_features_o7_b7_gcom = -1;
-static int hf_pfcp_up_function_features_o7_b6_bundl = -1;
-static int hf_pfcp_up_function_features_o7_b5_mte_n4 = -1;
-static int hf_pfcp_up_function_features_o7_b4_mnop = -1;
-static int hf_pfcp_up_function_features_o7_b3_sset = -1;
-static int hf_pfcp_up_function_features_o7_b2_ueip = -1;
-static int hf_pfcp_up_function_features_o7_b1_adpdp = -1;
-static int hf_pfcp_up_function_features_o7_b0_dpdra = -1;
-static int hf_pfcp_up_function_features_o6_b7_epfar = -1;
-static int hf_pfcp_up_function_features_o6_b6_pfde = -1;
-static int hf_pfcp_up_function_features_o6_b5_frrt = -1;
-static int hf_pfcp_up_function_features_o6_b4_trace = -1;
-static int hf_pfcp_up_function_features_o6_b3_quoac = -1;
-static int hf_pfcp_up_function_features_o6_b2_udbc = -1;
-static int hf_pfcp_up_function_features_o6_b1_pdiu = -1;
-static int hf_pfcp_up_function_features_o6_b0_empu = -1;
-static int hf_pfcp_up_function_features_o5_b7_treu = -1;
-static int hf_pfcp_up_function_features_o5_b6_heeu = -1;
-static int hf_pfcp_up_function_features_o5_b5_pfdm = -1;
-static int hf_pfcp_up_function_features_o5_b4_ftup = -1;
-static int hf_pfcp_up_function_features_o5_b3_trst = -1;
-static int hf_pfcp_up_function_features_o5_b2_dlbd = -1;
-static int hf_pfcp_up_function_features_o5_b1_ddnd = -1;
-static int hf_pfcp_up_function_features_o5_b0_bucp = -1;
-
-static int hf_pfcp_sequence_number = -1;
-static int hf_pfcp_metric = -1;
-static int hf_pfcp_timer_unit = -1;
-static int hf_pfcp_timer_value = -1;
-
-static int hf_pfcp_usage_report_trigger_o5_b7_immer = -1;
-static int hf_pfcp_usage_report_trigger_o5_b6_droth = -1;
-static int hf_pfcp_usage_report_trigger_o5_b5_stopt = -1;
-static int hf_pfcp_usage_report_trigger_o5_b4_start = -1;
-static int hf_pfcp_usage_report_trigger_o5_b3_quhti = -1;
-static int hf_pfcp_usage_report_trigger_o5_b2_timth = -1;
-static int hf_pfcp_usage_report_trigger_o5_b1_volth = -1;
-static int hf_pfcp_usage_report_trigger_o5_b0_perio = -1;
-static int hf_pfcp_usage_report_trigger_o6_b7_eveth = -1;
-static int hf_pfcp_usage_report_trigger_o6_b6_macar = -1;
-static int hf_pfcp_usage_report_trigger_o6_b5_envcl = -1;
-static int hf_pfcp_usage_report_trigger_o6_b4_monit = -1;
-static int hf_pfcp_usage_report_trigger_o6_b3_termr = -1;
-static int hf_pfcp_usage_report_trigger_o6_b2_liusa = -1;
-static int hf_pfcp_usage_report_trigger_o6_b1_timqu = -1;
-static int hf_pfcp_usage_report_trigger_o6_b0_volqu = -1;
-static int hf_pfcp_usage_report_trigger_o7_b5_upint = -1;
-static int hf_pfcp_usage_report_trigger_o7_b4_emrre = -1;
-static int hf_pfcp_usage_report_trigger_o7_b3_quvti = -1;
-static int hf_pfcp_usage_report_trigger_o7_b2_ipmjl = -1;
-static int hf_pfcp_usage_report_trigger_o7_b1_tebur = -1;
-static int hf_pfcp_usage_report_trigger_o7_b0_evequ = -1;
-
-static int hf_pfcp_volume_measurement_b5_dlnop = -1;
-static int hf_pfcp_volume_measurement_b4_ulnop = -1;
-static int hf_pfcp_volume_measurement_b3_tonop = -1;
-static int hf_pfcp_volume_measurement_b2_dlvol = -1;
-static int hf_pfcp_volume_measurement_b1_ulvol = -1;
-static int hf_pfcp_volume_measurement_b0_tovol = -1;
-static int hf_pfcp_vol_meas_tovol = -1;
-static int hf_pfcp_vol_meas_ulvol = -1;
-static int hf_pfcp_vol_meas_dlvol = -1;
-static int hf_pfcp_vol_meas_tonop = -1;
-static int hf_pfcp_vol_meas_ulnop = -1;
-static int hf_pfcp_vol_meas_dlnop = -1;
-
-static int hf_pfcp_cp_function_features_o6_b1_rpgur = -1;
-static int hf_pfcp_cp_function_features_o6_b0_psucc = -1;
-static int hf_pfcp_cp_function_features_o5_b7_uiaur = -1;
-static int hf_pfcp_cp_function_features_o5_b6_ardr = -1;
-static int hf_pfcp_cp_function_features_o5_b5_mpas = -1;
-static int hf_pfcp_cp_function_features_o5_b4_bundl = -1;
-static int hf_pfcp_cp_function_features_o5_b3_sset = -1;
-static int hf_pfcp_cp_function_features_o5_b2_epfar = -1;
-static int hf_pfcp_cp_function_features_o5_b1_ovrl = -1;
-static int hf_pfcp_cp_function_features_o5_b0_load = -1;
-
-static int hf_pfcp_usage_information_b3_ube = -1;
-static int hf_pfcp_usage_information_b2_uae = -1;
-static int hf_pfcp_usage_information_b1_aft = -1;
-static int hf_pfcp_usage_information_b0_bef = -1;
-
-static int hf_pfcp_application_instance_id = -1;
-static int hf_pfcp_application_instance_id_str = -1;
-static int hf_pfcp_flow_dir = -1;
-static int hf_pfcp_packet_rate_b0_ulpr = -1;
-static int hf_pfcp_packet_rate_b1_dlpr = -1;
-static int hf_pfcp_packet_rate_b2_aprc = -1;
-static int hf_pfcp_ul_time_unit = -1;
-static int hf_pfcp_max_ul_pr = -1;
-static int hf_pfcp_dl_time_unit = -1;
-static int hf_pfcp_max_dl_pr = -1;
-static int hf_pfcp_a_ul_time_unit = -1;
-static int hf_pfcp_a_max_ul_pr = -1;
-static int hf_pfcp_a_dl_time_unit = -1;
-static int hf_pfcp_a_max_dl_pr = -1;
-
-static int hf_pfcp_dl_flow_level_marking_b0_ttc = -1;
-static int hf_pfcp_dl_flow_level_marking_b1_sci = -1;
-
-static int hf_pfcp_sci = -1;
-static int hf_pfcp_dl_data_notification_delay = -1;
-static int hf_pfcp_packet_count = -1;
-static int hf_pfcp_dl_data_service_inf_b0_ppi = -1;
-static int hf_pfcp_dl_data_service_inf_b1_qfii = -1;
-static int hf_pfcp_ppi = -1;
-
-static int hf_pfcp_pfcpsmreq_flags_b0_drobu = -1;
-static int hf_pfcp_pfcpsmreq_flags_b1_sndem = -1;
-static int hf_pfcp_pfcpsmreq_flags_b2_qaurr = -1;
-static int hf_pfcp_pfcpsmreq_flags_b3_sumpc = -1;
-static int hf_pfcp_pfcpsmreq_flags_b4_rumuc = -1;
-static int hf_pfcp_pfcpsmreq_flags_b5_deteid = -1;
-
-static int hf_pfcp_pfcpsrrsp_flags_b0_drobu = -1;
-
-static int hf_pfcp_pfd_contents_flags_b7_adnp = -1;
-static int hf_pfcp_pfd_contents_flags_b6_aurl = -1;
-static int hf_pfcp_pfd_contents_flags_b5_afd = -1;
-static int hf_pfcp_pfd_contents_flags_b4_dnp = -1;
-static int hf_pfcp_pfd_contents_flags_b3_cp = -1;
-static int hf_pfcp_pfd_contents_flags_b2_dn = -1;
-static int hf_pfcp_pfd_contents_flags_b1_url = -1;
-static int hf_pfcp_pfd_contents_flags_b0_fd = -1;
-
-static int hf_pfcp_url_len = -1;
-static int hf_pfcp_url = -1;
-static int hf_pfcp_dn_len = -1;
-static int hf_pfcp_dn = -1;
-static int hf_pfcp_cp_len = -1;
-static int hf_pfcp_cp = -1;
-static int hf_pfcp_dnp_len = -1;
-static int hf_pfcp_dnp = -1;
-static int hf_pfcp_afd_len = -1;
-static int hf_pfcp_aurl_len = -1;
-static int hf_pfcp_adnp_len = -1;
-static int hf_pfcp_header_type = -1;
-static int hf_pfcp_hf_len = -1;
-static int hf_pfcp_hf_name = -1;
-static int hf_pfcp_hf_val_len = -1;
-static int hf_pfcp_hf_val = -1;
-
-static int hf_pfcp_measurement_info_b0_mbqe = -1;
-static int hf_pfcp_measurement_info_b1_inam = -1;
-static int hf_pfcp_measurement_info_b2_radi = -1;
-static int hf_pfcp_measurement_info_b3_istm = -1;
-static int hf_pfcp_measurement_info_b4_mnop = -1;
-static int hf_pfcp_measurement_info_b5_sspoc = -1;
-static int hf_pfcp_measurement_info_b6_aspoc = -1;
-static int hf_pfcp_measurement_info_b7_ciam = -1;
-
-static int hf_pfcp_node_report_type_b0_upfr = -1;
-static int hf_pfcp_node_report_type_b1_uprr = -1;
-static int hf_pfcp_node_report_type_b2_ckdr = -1;
-static int hf_pfcp_node_report_type_b3_gpqr = -1;
-static int hf_pfcp_node_report_type_b4_purr = -1;
-static int hf_pfcp_node_report_type_b5_vsr = -1;
-
-static int hf_pfcp_remote_gtp_u_peer_flags_b0_v6 = -1;
-static int hf_pfcp_remote_gtp_u_peer_flags_b1_v4 = -1;
-static int hf_pfcp_remote_gtp_u_peer_flags_b2_di = -1;
-static int hf_pfcp_remote_gtp_u_peer_flags_b3_ni = -1;
-static int hf_pfcp_remote_gtp_u_peer_ipv4 = -1;
-static int hf_pfcp_remote_gtp_u_peer_ipv6 = -1;
-static int hf_pfcp_remote_gtp_u_peer_length_di = -1;
-static int hf_pfcp_remote_gtp_u_peer_length_ni = -1;
-static int hf_pfcp_ur_seqn = -1;
-
-static int hf_pfcp_oci_flags_b0_aoci = -1;
-
-static int hf_pfcp_pfcp_assoc_rel_req_b0_sarr = -1;
-static int hf_pfcp_pfcp_assoc_rel_req_b1_urss = -1;
-
-static int hf_pfcp_upiri_flags_b0_v4 = -1;
-static int hf_pfcp_upiri_flags_b1_v6 = -1;
-static int hf_pfcp_upiri_flg_b6_assosi = -1;
-static int hf_pfcp_upiri_flg_b5_assoni = -1;
-static int hf_pfcp_upiri_flg_b2b4_teidri = -1;
-static int hf_pfcp_upiri_teidri = -1;
-static int hf_pfcp_upiri_teid_range = -1;
-static int hf_pfcp_upiri_ipv4 = -1;
-static int hf_pfcp_upiri_ipv6 = -1;
-
-static int hf_pfcp_user_plane_inactivity_timer = -1;
-
-static int hf_pfcp_subsequent_volume_quota_b2_dlvol = -1;
-static int hf_pfcp_subsequent_volume_quota_b1_ulvol = -1;
-static int hf_pfcp_subsequent_volume_quota_b0_tovol = -1;
-static int hf_pfcp_subsequent_volume_quota_tovol = -1;
-static int hf_pfcp_subsequent_volume_quota_ulvol = -1;
-static int hf_pfcp_subsequent_volume_quota_dlvol = -1;
-
-static int hf_pfcp_subsequent_time_quota = -1;
-
-static int hf_pfcp_rqi_flag = -1;
-static int hf_pfcp_qfi = -1;
-static int hf_pfcp_query_urr_reference = -1;
-static int hf_pfcp_additional_usage_reports_information_b14_b0_number_value = -1;
-static int hf_pfcp_additional_usage_reports_information_b15_auri = -1;
-static int hf_pfcp_traffic_endpoint_id = -1;
-
-static int hf_pfcp_mac_address_flags_b3_udes = -1;
-static int hf_pfcp_mac_address_flags_b2_usou = -1;
-static int hf_pfcp_mac_address_flags_b1_dest = -1;
-static int hf_pfcp_mac_address_flags_b0_sour = -1;
-static int hf_pfcp_mac_address_upper_dest_mac_address = -1;
-static int hf_pfcp_mac_address_upper_source_mac_address = -1;
-static int hf_pfcp_mac_address_dest_mac_address = -1;
-static int hf_pfcp_mac_address_source_mac_address = -1;
-
-static int hf_pfcp_c_tag_flags_b2_vid = -1;
-static int hf_pfcp_c_tag_flags_b1_dei = -1;
-static int hf_pfcp_c_tag_flags_b0_pcp = -1;
-static int hf_pfcp_c_tag_cvid = -1;
-static int hf_pfcp_c_tag_dei_flag = -1;
-static int hf_pfcp_c_tag_pcp_value = -1;
-
-static int hf_pfcp_s_tag_flags_b2_vid = -1;
-static int hf_pfcp_s_tag_flags_b1_dei = -1;
-static int hf_pfcp_s_tag_flags_b0_pcp = -1;
-static int hf_pfcp_s_tag_svid = -1;
-static int hf_pfcp_s_tag_dei_flag = -1;
-static int hf_pfcp_s_tag_pcp_value = -1;
-
-static int hf_pfcp_ethertype = -1;
-
-static int hf_pfcp_proxying_flags_b1_ins = -1;
-static int hf_pfcp_proxying_flags_b0_arp = -1;
-
-static int hf_pfcp_ethertype_filter_id = -1;
-
-static int hf_pfcp_ethertype_filter_properties_flags_b0_bide = -1;
-
-static int hf_pfcp_suggested_buffering_packets_count_packet_count = -1;
-
-static int hf_pfcp_user_id_flags_b6_peif = -1;
-static int hf_pfcp_user_id_flags_b5_gpsif = -1;
-static int hf_pfcp_user_id_flags_b4_supif = -1;
-static int hf_pfcp_user_id_flags_b3_naif = -1;
-static int hf_pfcp_user_id_flags_b2_msisdnf = -1;
-static int hf_pfcp_user_id_flags_b1_imeif = -1;
-static int hf_pfcp_user_id_flags_b0_imsif = -1;
-static int hf_pfcp_user_id_length_of_imsi = -1;
-static int hf_pfcp_user_id_length_of_imei = -1;
-static int hf_pfcp_user_id_imei = -1;
-static int hf_pfcp_user_id_length_of_msisdn = -1;
-static int hf_pfcp_user_id_length_of_nai = -1;
-static int hf_pfcp_user_id_nai = -1;
-static int hf_pfcp_user_id_length_of_supi = -1;
-static int hf_pfcp_user_id_supi = -1;
-static int hf_pfcp_user_id_length_of_gpsi = -1;
-static int hf_pfcp_user_id_gpsi = -1;
-static int hf_pfcp_user_id_length_of_pei = -1;
-static int hf_pfcp_user_id_pei = -1;
-
-static int hf_pfcp_ethernet_pdu_session_information_flags_b0_ethi = -1;
-
-static int hf_pfcp_mac_addresses_detected_number_of_mac_addresses = -1;
-static int hf_pfcp_mac_addresses_detected_mac_address = -1;
-static int hf_pfcp_mac_addresses_detected_length_of_ctag = -1;
-static int hf_pfcp_mac_addresses_detected_length_of_stag = -1;
-
-static int hf_pfcp_mac_addresses_removed_number_of_mac_addresses = -1;
-static int hf_pfcp_mac_addresses_removed_mac_address = -1;
-static int hf_pfcp_mac_addresses_removed_length_of_ctag = -1;
-static int hf_pfcp_mac_addresses_removed_length_of_stag = -1;
-
-static int hf_pfcp_ethernet_inactivity_timer = -1;
-
-static int hf_pfcp_subsequent_event_quota = -1;
-
-static int hf_pfcp_subsequent_event_threshold = -1;
-
-static int hf_pfcp_trace_information_trace_id = -1;
-static int hf_pfcp_trace_information_length_trigger_events = -1;
-static int hf_pfcp_trace_information_trigger_events = -1;
-static int hf_pfcp_trace_information_session_trace_depth = -1;
-static int hf_pfcp_trace_information_length_list_interfaces = -1;
-static int hf_pfcp_trace_information_list_interfaces = -1;
-static int hf_pfcp_trace_information_length_ipaddress = -1;
-static int hf_pfcp_trace_information_ipv4 = -1;
-static int hf_pfcp_trace_information_ipv6 = -1;
-
-static int hf_pfcp_framed_route = -1;
-static int hf_pfcp_framed_routing = -1;
-static int hf_pfcp_framed_ipv6_route = -1;
-
-static int hf_pfcp_event_quota = -1;
-
-static int hf_pfcp_event_threshold = -1;
-
-static int hf_pfcp_time_stamp = -1;
-
-static int hf_pfcp_averaging_window = -1;
-
-static int hf_pfcp_paging_policy_indicator = -1;
-
-static int hf_pfcp_apn_dnn = -1;
-
-static int hf_pfcp_tgpp_interface_type = -1;
-
-static int hf_pfcp_pfcpsrreq_flags_b0_psdbu = -1;
-
-static int hf_pfcp_pfcpaureq_flags_b0_parps = -1;
-
-static int hf_pfcp_activation_time = -1;
-static int hf_pfcp_deactivation_time = -1;
-
-static int hf_pfcp_mar_id = -1;
-
-static int hf_pfcp_steering_functionality = -1;
-static int hf_pfcp_steering_mode = -1;
-
-static int hf_pfcp_weight = -1;
-static int hf_pfcp_priority = -1;
-
-static int hf_pfcp_ue_ip_address_pool_length = -1;
-static int hf_pfcp_ue_ip_address_pool_identity = -1;
-
-static int hf_pfcp_alternative_smf_ip_address_flags_ppe = -1;
-static int hf_pfcp_alternative_smf_ip_address_ipv4 = -1;
-static int hf_pfcp_alternative_smf_ip_address_ipv6 = -1;
-
-static int hf_pfcp_packet_replication_and_detection_carry_on_information_flags_b3_dcaroni = -1;
-static int hf_pfcp_packet_replication_and_detection_carry_on_information_flags_b2_prin6i = -1;
-static int hf_pfcp_packet_replication_and_detection_carry_on_information_flags_b1_prin19i = -1;
-static int hf_pfcp_packet_replication_and_detection_carry_on_information_flags_b0_priueai = -1;
-
-static int hf_pfcp_validity_time_value = -1;
-static int hf_pfcp_validity_time_str = -1;
-
-static int hf_pfcp_number_of_reports = -1;
-
-static int hf_pfcp_pfcpasrsp_flags_flags_b1_uupsi = -1;
-static int hf_pfcp_pfcpasrsp_flags_flags_b0_psrei = -1;
-
-static int hf_pfcp_cp_pfcp_entity_ip_address_ipv4 = -1;
-static int hf_pfcp_cp_pfcp_entity_ip_address_ipv6 = -1;
-
-static int hf_pfcp_pfcpsereq_flags_flags_b1_sumpc = -1;
-static int hf_pfcp_pfcpsereq_flags_flags_b0_resti = -1;
-
-static int hf_pfcp_ip_multicast_address_flags_b3_any = -1;
-static int hf_pfcp_ip_multicast_address_flags_b2_range = -1;
-static int hf_pfcp_ip_multicast_address_start_ipv4 = -1;
-static int hf_pfcp_ip_multicast_address_start_ipv6 = -1;
-static int hf_pfcp_ip_multicast_address_end_ipv4 = -1;
-static int hf_pfcp_ip_multicast_address_end_ipv6 = -1;
-
-static int hf_pfcp_source_ip_address_flags_b2_mpl = -1;
-static int hf_pfcp_source_ip_address_ipv4 = -1;
-static int hf_pfcp_source_ip_address_ipv6 = -1;
-static int hf_pfcp_source_ip_address_mask_prefix_lengt = -1;
-
-static int hf_pfcp_packet_rate_status_flags_b2_apr = -1;
-static int hf_pfcp_packet_rate_status_flags_b1_dl = -1;
-static int hf_pfcp_packet_rate_status_flags_b0_ul = -1;
-static int hf_pfcp_packet_rate_status_ul = -1;
-static int hf_pfcp_packet_rate_status_dl = -1;
-static int hf_pfcp_packet_rate_status_apr_ul = -1;
-static int hf_pfcp_packet_rate_status_apr_dl = -1;
-static int hf_pfcp_packet_rate_status_validity_time = -1;
-
-static int hf_pfcp_create_bridge_router_info_flags_b1_rii = -1;
-static int hf_pfcp_create_bridge_router_info_flags_b0_bii = -1;
-
-static int hf_pfcp_port_number = -1;
-
-static int hf_pfcp_nw_tt_port_number = -1;
-
-static int hf_pfcp_5gs_user_plane_node_id_flags_b0_bid = -1;
-static int hf_pfcp_5gs_user_plane_node_id_value = -1;
-
-static int hf_pfcp_port_management_information = -1;
-
-static int hf_pfcp_requested_clock_drift_control_information_flags_b1_rrcr = -1;
-static int hf_pfcp_requested_clock_drift_control_information_flags_b0_rrto = -1;
-
-static int hf_pfcp_time_domain_number_value = -1;
-
-static int hf_pfcp_time_offset_threshold = -1;
-
-static int hf_pfcp_cumulative_rate_ratio_threshold = -1;
-
-static int hf_pfcp_time_offset_measurement = -1;
-
-static int hf_pfcp_cumulative_rate_ratio_measurement = -1;
-
-static int hf_pfcp_srr_id = -1;
-
-static int hf_pfcp_requested_access_availability_control_information_flags_b0_rrca = -1;
-
-static int hf_pfcp_availability_status = -1;
-static int hf_pfcp_availability_type = -1;
-
-static int hf_pfcp_mptcp_control_information_flags_b0_tci = -1;
-
-static int hf_pfcp_atsss_ll_control_information_flags_b0_lli = -1;
-
-static int hf_pfcp_pmf_control_information_flags_b2_pqpm = -1;
-static int hf_pfcp_pmf_control_information_flags_b1_drtti = -1;
-static int hf_pfcp_pmf_control_information_flags_b0_pmfi = -1;
-static int hf_pfcp_pmf_control_information_number_of_qfi = -1;
-
-static int hf_pfcp_mptcp_address_information_flags_b1_v6 = -1;
-static int hf_pfcp_mptcp_address_information_flags_b0_v4 = -1;
-static int hf_pfcp_mptcp_proxy_type = -1;
-static int hf_pfcp_mptcp_proxy_port = -1;
-static int hf_pfcp_mptcp_proxy_ip_address_ipv4 = -1;
-static int hf_pfcp_mptcp_proxy_ip_address_ipv6 = -1;
-
-static int hf_pfcp_link_specific_multipath_ip_address_flags_b3_nv6 = -1;
-static int hf_pfcp_link_specific_multipath_ip_address_flags_b2_nv4 = -1;
-static int hf_pfcp_link_specific_multipath_ip_address_flags_b1_v6 = -1;
-static int hf_pfcp_link_specific_multipath_ip_address_flags_b0_v4 = -1;
-static int hf_pfcp_link_specific_multipath_ip_address_3gpp_ipv4 = -1;
-static int hf_pfcp_link_specific_multipath_ip_address_3gpp_ipv6 = -1;
-static int hf_pfcp_link_specific_multipath_ip_address_non3gpp_ipv4 = -1;
-static int hf_pfcp_link_specific_multipath_ip_address_non3gpp_ipv6 = -1;
-
-static int hf_pfcp_pmf_address_information_flags_b2_mac = -1;
-static int hf_pfcp_pmf_address_information_flags_b1_v6 = -1;
-static int hf_pfcp_pmf_address_information_flags_b0_v4 = -1;
-static int hf_pfcp_pmf_address_ipv4 = -1;
-static int hf_pfcp_pmf_address_ipv6 = -1;
-static int hf_pfcp_pmf_port_3gpp = -1;
-static int hf_pfcp_pmf_port_non3gpp = -1;
-static int hf_pfcp_pmf_mac_address_3gpp = -1;
-static int hf_pfcp_pmf_mac_address_non3gpp = -1;
-
-static int hf_pfcp_atsss_ll_information_flags_b0_lli = -1;
-
-static int hf_pfcp_data_network_access_identifier = -1;
-
-static int hf_pfcp_packet_delay_milliseconds = -1;
-
-static int hf_pfcp_qos_report_trigger_flags_b2_ire = -1;
-static int hf_pfcp_qos_report_trigger_flags_b1_thr = -1;
-static int hf_pfcp_qos_report_trigger_flags_b0_per = -1;
-
-static int hf_pfcp_gtp_u_path_interface_type_flags_b1_n3 = -1;
-static int hf_pfcp_gtp_u_path_interface_type_flags_b0_n9 = -1;
-
-static int hf_pfcp_requested_qos_monitoring_flags_b7_ulpr = -1;
-static int hf_pfcp_requested_qos_monitoring_flags_b6_dlpr = -1;
-static int hf_pfcp_requested_qos_monitoring_flags_b5_ulci = -1;
-static int hf_pfcp_requested_qos_monitoring_flags_b4_dlci = -1;
-static int hf_pfcp_requested_qos_monitoring_flags_b3_gtpupm = -1;
-static int hf_pfcp_requested_qos_monitoring_flags_b2_rppd = -1;
-static int hf_pfcp_requested_qos_monitoring_flags_b1_ulpd = -1;
-static int hf_pfcp_requested_qos_monitoring_flags_b0_dlpd = -1;
-
-static int hf_pfcp_reporting_frequency_flags_b2_sesrl = -1;
-static int hf_pfcp_reporting_frequency_flags_b1_perio = -1;
-static int hf_pfcp_reporting_frequency_flags_b0_evett = -1;
-
-static int hf_pfcp_packet_delay_thresholds_flags_b2_rp = -1;
-static int hf_pfcp_packet_delay_thresholds_flags_b1_ul = -1;
-static int hf_pfcp_packet_delay_thresholds_flags_b0_dl = -1;
-static int hf_pfcp_packet_delay_thresholds_downlink = -1;
-static int hf_pfcp_packet_delay_thresholds_uplink = -1;
-static int hf_pfcp_packet_delay_thresholds_roundtrip = -1;
-
-static int hf_pfcp_minimum_wait_time_seconds = -1;
-
-static int hf_pfcp_qos_monitoring_measurement_flags_b5_ulci = -1;
-static int hf_pfcp_qos_monitoring_measurement_flags_b4_dlci = -1;
-static int hf_pfcp_qos_monitoring_measurement_flags_b3_plmf = -1;
-static int hf_pfcp_qos_monitoring_measurement_flags_b2_rppd = -1;
-static int hf_pfcp_qos_monitoring_measurement_flags_b1_ulpd = -1;
-static int hf_pfcp_qos_monitoring_measurement_flags_b0_dlpd = -1;
-static int hf_pfcp_qos_monitoring_measurement_downlink_packet_delay = -1;
-static int hf_pfcp_qos_monitoring_measurement_uplink_packet_delay = -1;
-static int hf_pfcp_qos_monitoring_measurement_roundtrip = -1;
-static int hf_pfcp_qos_monitoring_measurement_downlink_congestion_information = -1;
-static int hf_pfcp_qos_monitoring_measurement_uplink_congestion_information = -1;
-static int hf_pfcp_qos_monitoring_measurement_downlink_packet_rate = -1;
-static int hf_pfcp_qos_monitoring_measurement_uplink_packet_rate = -1;
-
-static int hf_pfcp_mt_edt_control_information_flags_b0_rdsi = -1;
-
-static int hf_pfcp_dl_data_packets_size = -1;
-
-static int hf_pfcp_qer_control_indications_o5_b0_rcsr = -1;
-
-static int hf_pfcp_nf_instance_id = -1;
-
-static int hf_pfcp_s_nssai_sst = -1;
-static int hf_pfcp_s_nssai_sd = -1;
-
-static int hf_pfcp_ip_version_flags_b1_v6 = -1;
-static int hf_pfcp_ip_version_flags_b0_v4 = -1;
-
-static int hf_pfcp_pfcpasreq_flags_flags_b0_uupsi = -1;
-
-static int hf_pfcp_data_status_flags_b1_buff = -1;
-static int hf_pfcp_data_status_flags_b0_drop = -1;
-
-static int hf_pfcp_rds_configuration_information_flags_b0_rds = -1;
-
-static int hf_pfcp_multipath_application_indication_flags_b1_mqai = -1;
-static int hf_pfcp_multipath_application_indication_flags_b0_mtai = -1;
-
-static int hf_pfcp_user_plane_node_management_information_container = -1;
-
-static int hf_pfcp_number_of_ue_ip_addresses_b1_ipv6 = -1;
-static int hf_pfcp_number_of_ue_ip_addresses_b0_ipv4 = -1;
-static int hf_pfcp_number_of_ue_ip_addresses_ipv6 = -1;
-static int hf_pfcp_number_of_ue_ip_addresses_ipv4 = -1;
-
-static int hf_pfcp_validity_timer = -1;
-
-static int hf_pfcp_rattype = -1;
-
-static int hf_pfcp_l2tp_user_authentication_proxy_authen_type_value = -1;
-static int hf_pfcp_l2tp_user_authentication_b3_pai = -1;
-static int hf_pfcp_l2tp_user_authentication_b2_par = -1;
-static int hf_pfcp_l2tp_user_authentication_b1_pac = -1;
-static int hf_pfcp_l2tp_user_authentication_b0_pan = -1;
-static int hf_pfcp_l2tp_user_authentication_proxy_authen_name_len = -1;
-static int hf_pfcp_l2tp_user_authentication_proxy_authen_name = -1;
-static int hf_pfcp_l2tp_user_authentication_proxy_authen_challenge_len = -1;
-static int hf_pfcp_l2tp_user_authentication_proxy_authen_challenge = -1;
-static int hf_pfcp_l2tp_user_authentication_proxy_authen_response_len = -1;
-static int hf_pfcp_l2tp_user_authentication_proxy_authen_response = -1;
-static int hf_pfcp_l2tp_user_authentication_proxy_authen_id = -1;
-
-static int hf_pfcp_lns_address_ipv4 = -1;
-static int hf_pfcp_lns_address_ipv6 = -1;
-
-static int hf_pfcp_tunnel_preference_value = -1;
-
-static int hf_pfcp_calling_number_value = -1;
-static int hf_pfcp_called_number_value = -1;
-
-static int hf_pfcp_l2tp_session_indications_o5_b2_rensa = -1;
-static int hf_pfcp_l2tp_session_indications_o5_b1_redsa = -1;
-static int hf_pfcp_l2tp_session_indications_o5_b0_reuia = -1;
-
-static int hf_pfcp_maximum_receive_unit = -1;
-
-static int hf_pfcp_thresholds_flags_b1_plr = -1;
-static int hf_pfcp_thresholds_flags_b0_rtt = -1;
-static int hf_pfcp_thresholds_rtt = -1;
-static int hf_pfcp_thresholds_plr = -1;
-
-static int hf_pfcp_l2tp_steering_mode_indications_o5_b1_ueai = -1;
-static int hf_pfcp_l2tp_steering_mode_indications_o5_b0_albi = -1;
-
-static int hf_pfcp_group_id = -1;
-
-static int hf_pfcp_cp_ip_address_ipv4 = -1;
-static int hf_pfcp_cp_ip_address_ipv6 = -1;
-
-static int hf_pfcp_ip_address_and_port_number_replacement_flag_b0_v4 = -1;
-static int hf_pfcp_ip_address_and_port_number_replacement_flag_b1_v6 = -1;
-static int hf_pfcp_ip_address_and_port_number_replacement_flag_b2_dpn = -1;
-static int hf_pfcp_ip_address_and_port_number_replacement_flag_b3_sipv4 = -1;
-static int hf_pfcp_ip_address_and_port_number_replacement_flag_b4_sipv6 = -1;
-static int hf_pfcp_ip_address_and_port_number_replacement_flag_b5_spn = -1;
-static int hf_pfcp_ip_address_and_port_number_replacement_destination_ipv4 = -1;
-static int hf_pfcp_ip_address_and_port_number_replacement_destination_ipv6 = -1;
-static int hf_pfcp_ip_address_and_port_number_replacement_destination_port = -1;
-static int hf_pfcp_ip_address_and_port_number_replacement_source_ipv4 = -1;
-static int hf_pfcp_ip_address_and_port_number_replacement_source_ipv6 = -1;
-static int hf_pfcp_ip_address_and_port_number_replacement_source_port = -1;
-
-static int hf_pfcp_dns_query_filter_pattern_len = -1;
-static int hf_pfcp_dns_query_filter_pattern = -1;
-
-static int hf_pfcp_event_notification_uri = -1;
-
-static int hf_pfcp_notification_correlation_id = -1;
-
-static int hf_pfcp_reporting_flags_o5_b0_dupl = -1;
-
-static int hf_pfcp_mbs_session_identifier_flag_b0_tmgi = -1;
-static int hf_pfcp_mbs_session_identifier_flag_b1_ssmi = -1;
-static int hf_pfcp_mbs_session_identifier_flag_b2_nidi = -1;
-static int hf_pfcp_mbs_session_identifier_tmgi = -1;
-static int hf_pfcp_mbs_session_identifier_nidi = -1;
-static int hf_pfcp_mbs_session_identifier_source_address_type = -1;
-static int hf_pfcp_mbs_session_identifier_source_address_length = -1;
-static int hf_pfcp_mbs_session_identifier_source_address_ipv4 = -1;
-static int hf_pfcp_mbs_session_identifier_source_address_ipv6 = -1;
-
-static int hf_pfcp_multicast_transport_information_endpoint_identifier = -1;
-static int hf_pfcp_multicast_transport_information_distribution_address_type = -1;
-static int hf_pfcp_multicast_transport_information_distribution_address_length = -1;
-static int hf_pfcp_multicast_transport_information_distribution_address_ipv4 = -1;
-static int hf_pfcp_multicast_transport_information_distribution_address_ipv6 = -1;
-static int hf_pfcp_multicast_transport_information_source_address_type = -1;
-static int hf_pfcp_multicast_transport_information_source_address_length = -1;
-static int hf_pfcp_multicast_transport_information_source_address_ipv4 = -1;
-static int hf_pfcp_multicast_transport_information_source_address_ipv6 = -1;
-
-static int hf_pfcp_mbsn4mbreq_flags_o5_b2_mbs_resti = -1;
-static int hf_pfcp_mbsn4mbreq_flags_o5_b1_jmbssm = -1;
-static int hf_pfcp_mbsn4mbreq_flags_o5_b0_pllssm = -1;
-
-static int hf_pfcp_local_ingress_tunnel_flags_b2_ch = -1;
-static int hf_pfcp_local_ingress_tunnel_flags_b1_v6 = -1;
-static int hf_pfcp_local_ingress_tunnel_flags_b0_v4 = -1;
-static int hf_pfcp_local_ingress_tunnel_udp_port = -1;
-static int hf_pfcp_local_ingress_tunnel_ipv4 = -1;
-static int hf_pfcp_local_ingress_tunnel_ipv6 = -1;
-
-static int hf_pfcp_mbs_unicast_parameters_id = -1;
-
-static int hf_pfcp_mbsn4resp_flags_o5_b2_n19dtr = -1;
-static int hf_pfcp_mbsn4resp_flags_o5_b1_jmti = -1;
-static int hf_pfcp_mbsn4resp_flags_o5_b0_nn19dt = -1;
-
-static int hf_pfcp_tunnel_password_value = -1;
-
-static int hf_pfcp_area_session_id_value = -1;
-
-static int hf_pfcp_dscp_to_ppi_mapping_info_ppi_value = -1;
-static int hf_pfcp_dscp_to_ppi_mapping_info_dscp_value = -1;
-
-static int hf_pfcp_pfcpsdrsp_flags_b0_puru = -1;
-
-static int hf_pfcp_qer_indications_flags_b3_pdusm = -1;
-static int hf_pfcp_qer_indications_flags_b2_eml4s = -1;
-static int hf_pfcp_qer_indications_flags_b1_edbmi = -1;
-static int hf_pfcp_qer_indications_flags_b0_iqfis = -1;
-
-static int hf_pfcp_configured_time_domain_flags_b0_ctdi = -1;
-
-static int hf_pfcp_metadata = -1;
-static int hf_pfcp_metadata_binary_metadata = -1;
-
-static int hf_pfcp_traffic_parameter_threshold_flags_b0_dl = -1;
-static int hf_pfcp_traffic_parameter_threshold_downlink_n6_jitter_threshold = -1;
-
-static int hf_pfcp_dl_periodicity_value = -1;
-
-static int hf_pfcp_n6_jitter_measurement_flags_b0_dl = -1;
-static int hf_pfcp_n6_jitter_measurement_dl_periodicity = -1;
-static int hf_pfcp_n6_jitter_measurement_lower_dl_jitter_measurement = -1;
-static int hf_pfcp_n6_jitter_measurement_higher_dl_jitter_measurement = -1;
-
-
-static int hf_pfcp_traffic_parameter_measurement_indication_flags_b2_n6jmi = -1;
-static int hf_pfcp_traffic_parameter_measurement_indication_flags_b1_dlpmi = -1;
-static int hf_pfcp_traffic_parameter_measurement_indication_flags_b0_ulpmi = -1;
-
-static int hf_pfcp_ul_periodicity_value = -1;
-
-static int hf_pfcp_mpquic_control_information_flags_b0_cupd = -1;
-
-static int hf_pfcp_mpquic_address_information_flags_b1_v6 = -1;
-static int hf_pfcp_mpquic_address_information_flags_b0_v4 = -1;
-static int hf_pfcp_mpquic_address_information_type = -1;
-static int hf_pfcp_mpquic_address_information_port = -1;
-static int hf_pfcp_mpquic_address_information_address_ipv4 = -1;
-static int hf_pfcp_mpquic_address_information_address_ipv6 = -1;
-
-static int hf_pfcp_transport_mode_value = -1;
-
-static int hf_pfcp_protocol_description_flags_b2_srtp = -1;
-static int hf_pfcp_protocol_description_flags_b1_rtp = -1;
-static int hf_pfcp_protocol_description_flags_b0_h264 = -1;
-
-static int hf_pfcp_reporting_suggestion_info_flags_b0_rurg = -1;
-
-static int hf_pfcp_tl_container = -1;
+static int proto_pfcp;
+
+static int hf_pfcp_msg_type;
+static int hf_pfcp_msg_length;
+static int hf_pfcp_hdr_flags;
+static int hf_pfcp_version;
+static int hf_pfcp_fo_flag;
+static int hf_pfcp_mp_flag;
+static int hf_pfcp_s_flag;
+static int hf_pfcp_seid;
+static int hf_pfcp_seqno;
+static int hf_pfcp_mp;
+
+static int hf_pfcp2_ie;
+static int hf_pfcp2_ie_len;
+static int hf_pfcp2_enterprise_ie;
+static int hf_pfcp_enterprise_id;
+static int hf_pfcp_enterprise_data;
+
+static int hf_pfcp_response_in;
+static int hf_pfcp_response_to;
+static int hf_pfcp_response_time;
+
+static int hf_pfcp_session;
+
+static int hf_pfcp_spare_b0;
+static int hf_pfcp_spare_b1;
+static int hf_pfcp_spare_b2;
+static int hf_pfcp_spare_b3;
+static int hf_pfcp_spare_b4;
+static int hf_pfcp_spare_b5;
+static int hf_pfcp_spare_b6;
+static int hf_pfcp_spare_b7;
+static int hf_pfcp_spare_b7_b6;
+static int hf_pfcp_spare_b7_b5;
+static int hf_pfcp_spare_b7_b4;
+static int hf_pfcp_spare_b7_b3;
+static int hf_pfcp_spare_b7_b2;
+static int hf_pfcp_spare_b7_b1;
+static int hf_pfcp_spare_h0;
+static int hf_pfcp_spare_h1;
+static int hf_pfcp_spare_oct;
+static int hf_pfcp_spare;
+
+static int hf_pfcp2_cause;
+static int hf_pfcp_node_id_type;
+static int hf_pfcp_node_id_ipv4;
+static int hf_pfcp_node_id_ipv6;
+static int hf_pfcp_node_id_fqdn;
+static int hf_pfcp_recovery_time_stamp;
+static int hf_pfcp_b0_v6;
+static int hf_pfcp_b1_v4;
+static int hf_pfcp_f_seid_ipv4;
+static int hf_pfcp_f_seid_ipv6;
+static int hf_pfcp_pdr_id;
+static int hf_pfcp_precedence;
+static int hf_pfcp_source_interface;
+static int hf_pfcp_fteid_flg_spare;
+static int hf_pfcp_fteid_flg_b3_ch_id;
+static int hf_pfcp_fteid_flg_b2_ch;
+static int hf_pfcp_fteid_flg_b1_v6;
+static int hf_pfcp_fteid_flg_b0_v4;
+static int hf_pfcp_f_teid_ch_id;
+static int hf_pfcp_f_teid_teid;
+static int hf_pfcp_f_teid_ipv4;
+static int hf_pfcp_f_teid_ipv6;
+static int hf_pfcp_network_instance;
+static int hf_pfcp_pdn_type;
+static int hf_pfcp_failed_rule_id_type;
+static int hf_pfcp_time_quota_mechanism_bti_type;
+static int hf_pfcp_time_quota_mechanism_bti;
+static int hf_pfcp_multiplier_value_digits;
+static int hf_pfcp_multiplier_exponent;
+
+static int hf_pfcp_ue_ip_address_flag_b0_v6;
+static int hf_pfcp_ue_ip_address_flag_b1_v4;
+static int hf_pfcp_ue_ip_address_flag_b2_sd;
+static int hf_pfcp_ue_ip_address_flag_b3_v6d;
+static int hf_pfcp_ue_ip_address_flag_b4_chv4;
+static int hf_pfcp_ue_ip_address_flag_b5_chv6;
+static int hf_pfcp_ue_ip_address_flag_b6_v6pl;
+static int hf_pfcp_ue_ip_addr_ipv4;
+static int hf_pfcp_ue_ip_add_ipv6;
+static int hf_pfcp_ue_ip_add_ipv6_prefix_delegation_bits;
+static int hf_pfcp_ue_ip_add_ipv6_prefix_length;
+static int hf_pfcp_application_id;
+static int hf_pfcp_application_id_str;
+
+static int hf_pfcp_sdf_filter_flags_b0_fd;
+static int hf_pfcp_sdf_filter_flags_b1_ttc;
+static int hf_pfcp_sdf_filter_flags_b2_spi;
+static int hf_pfcp_sdf_filter_flags_b3_fl;
+static int hf_pfcp_sdf_filter_flags_b4_bid;
+
+static int hf_pfcp_flow_desc_len;
+static int hf_pfcp_flow_desc;
+static int hf_pfcp_traffic_class;
+static int hf_pfcp_traffic_mask;
+static int hf_pfcp_traffic_dscp;
+static int hf_pfcp_spi;
+static int hf_pfcp_flow_label_spare_bit;
+static int hf_pfcp_flow_label;
+static int hf_pfcp_sdf_filter_id;
+
+static int hf_pfcp_out_hdr_desc;
+static int hf_pfcp_gtpu_ext_hdr_del_b0_pdu_sess_cont;
+static int hf_pfcp_far_id_flg;
+static int hf_pfcp_far_id;
+static int hf_pfcp_urr_id_flg;
+static int hf_pfcp_urr_id;
+static int hf_pfcp_qer_id_flg;
+static int hf_pfcp_qer_id;
+static int hf_pfcp_predef_rules_name;
+
+
+
+static int hf_pfcp_apply_action_flags_o6_b4_mbsu;
+static int hf_pfcp_apply_action_flags_o6_b3_fssm;
+static int hf_pfcp_apply_action_flags_o6_b2_ddpn;
+static int hf_pfcp_apply_action_flags_o6_b1_bdpn;
+static int hf_pfcp_apply_action_flags_o6_b0_edrt;
+static int hf_pfcp_apply_action_flags_o5_b7_dfrt;
+static int hf_pfcp_apply_action_flags_o5_b6_ipmd;
+static int hf_pfcp_apply_action_flags_o5_b5_ipma;
+static int hf_pfcp_apply_action_flags_o5_b4_dupl;
+static int hf_pfcp_apply_action_flags_o5_b3_nocp;
+static int hf_pfcp_apply_action_flags_o5_b2_buff;
+static int hf_pfcp_apply_action_flags_o5_b1_forw;
+static int hf_pfcp_apply_action_flags_o5_b0_drop;
+
+static int hf_pfcp_bar_id;
+static int hf_pfcp_fq_csid_node_id_type;
+static int hf_pfcp_num_csid;
+static int hf_pfcp_fq_csid_node_id_ipv4;
+static int hf_pfcp_fq_csid_node_id_ipv6;
+static int hf_pfcp_fq_csid_node_id_mcc_mnc;
+static int hf_pfcp_fq_csid_node_id_int;
+static int hf_pfcp_fq_csid;
+static int hf_pfcp_fq_csid_node_type;
+static int hf_pfcp_measurement_period;
+static int hf_pfcp_duration_measurement;
+static int hf_pfcp_time_of_first_packet;
+static int hf_pfcp_time_of_last_packet;
+static int hf_pfcp_dst_interface;
+static int hf_pfcp_redirect_address_type;
+static int hf_pfcp_redirect_server_addr_len;
+static int hf_pfcp_redirect_server_address;
+static int hf_pfcp_other_redirect_server_addr_len;
+static int hf_pfcp_other_redirect_server_address;
+static int hf_pfcp_redirect_port;
+static int hf_pfcp_outer_hdr_desc_o5_b0_gtp_udp_ipv4;
+static int hf_pfcp_outer_hdr_desc_o5_b1_gtp_udp_ipv6;
+static int hf_pfcp_outer_hdr_desc_o5_b2_udp_ipv4;
+static int hf_pfcp_outer_hdr_desc_o5_b3_udp_ipv6;
+static int hf_pfcp_outer_hdr_desc_o5_b4_ipv4;
+static int hf_pfcp_outer_hdr_desc_o5_b5_ipv6;
+static int hf_pfcp_outer_hdr_desc_o5_b6_ctag;
+static int hf_pfcp_outer_hdr_desc_o5_b7_stag;
+static int hf_pfcp_outer_hdr_desc_o6_b0_n19;
+static int hf_pfcp_outer_hdr_desc_o6_b1_n6;
+static int hf_pfcp_outer_hdr_desc_o6_b2_ssm_cteid;
+static int hf_pfcp_outer_hdr_desc_o6_spare;
+static int hf_pfcp_outer_hdr_creation_teid;
+static int hf_pfcp_outer_hdr_creation_ipv4;
+static int hf_pfcp_outer_hdr_creation_ipv6;
+static int hf_pfcp_outer_hdr_creation_port;
+static int hf_pfcp_time_threshold;
+static int hf_pfcp_forwarding_policy_id_len;
+static int hf_pfcp_forwarding_policy_id;
+
+static int hf_pfcp_measurement_method_flags_b0_durat;
+static int hf_pfcp_measurement_method_flags_b1_volume;
+static int hf_pfcp_measurement_method_flags_b2_event;
+
+static int hf_pfcp_subsequent_time_threshold;
+static int hf_pfcp_inactivity_detection_time;
+static int hf_pfcp_monitoring_time;
+
+static int hf_pfcp_reporting_triggers_o5_b7_liusa;
+static int hf_pfcp_reporting_triggers_o5_b6_droth;
+static int hf_pfcp_reporting_triggers_o5_b5_stopt;
+static int hf_pfcp_reporting_triggers_o5_b4_start;
+static int hf_pfcp_reporting_triggers_o5_b3_quhti;
+static int hf_pfcp_reporting_triggers_o5_b2_timth;
+static int hf_pfcp_reporting_triggers_o5_b1_volth;
+static int hf_pfcp_reporting_triggers_o5_b0_perio;
+static int hf_pfcp_reporting_triggers_o6_b7_quvti;
+static int hf_pfcp_reporting_triggers_o6_b6_ipmjl;
+static int hf_pfcp_reporting_triggers_o6_b5_evequ;
+static int hf_pfcp_reporting_triggers_o6_b4_eveth;
+static int hf_pfcp_reporting_triggers_o6_b3_macar;
+static int hf_pfcp_reporting_triggers_o6_b2_envcl;
+static int hf_pfcp_reporting_triggers_o6_b1_timqu;
+static int hf_pfcp_reporting_triggers_o6_b0_volqu;
+static int hf_pfcp_reporting_triggers_o7_b1_upint;
+static int hf_pfcp_reporting_triggers_o7_b0_reemr;
+
+static int hf_pfcp_volume_threshold_b2_dlvol;
+static int hf_pfcp_volume_threshold_b1_ulvol;
+static int hf_pfcp_volume_threshold_b0_tovol;
+static int hf_pfcp_volume_threshold_tovol;
+static int hf_pfcp_volume_threshold_ulvol;
+static int hf_pfcp_volume_threshold_dlvol;
+
+static int hf_pfcp_volume_quota_b2_dlvol;
+static int hf_pfcp_volume_quota_b1_ulvol;
+static int hf_pfcp_volume_quota_b0_tovol;
+static int hf_pfcp_volume_quota_tovol;
+static int hf_pfcp_volume_quota_ulvol;
+static int hf_pfcp_volume_quota_dlvol;
+
+static int hf_pfcp_subseq_volume_threshold_b2_dlvol;
+static int hf_pfcp_subseq_volume_threshold_b1_ulvol;
+static int hf_pfcp_subseq_volume_threshold_b0_tovol;
+static int hf_pfcp_subseq_volume_threshold_tovol;
+static int hf_pfcp_subseq_volume_threshold_ulvol;
+static int hf_pfcp_subseq_volume_threshold_dlvol;
+
+static int hf_pfcp_time_quota;
+static int hf_pfcp_start_time;
+static int hf_pfcp_end_time;
+static int hf_pfcp_quota_holding_time;
+static int hf_pfcp_dropped_dl_traffic_threshold_b1_dlby;
+static int hf_pfcp_dropped_dl_traffic_threshold_b0_dlpa;
+static int hf_pfcp_downlink_packets;
+static int hf_pfcp_bytes_downlink_data;
+static int hf_pfcp_qer_correlation_id;
+static int hf_pfcp_gate_status_b0b1_dlgate;
+static int hf_pfcp_gate_status_b3b2_ulgate;
+static int hf_pfcp_ul_mbr;
+static int hf_pfcp_dl_mbr;
+static int hf_pfcp_ul_gbr;
+static int hf_pfcp_dl_gbr;
+
+static int hf_pfcp_report_type_b6_uisr;
+static int hf_pfcp_report_type_b5_sesr;
+static int hf_pfcp_report_type_b4_tmir;
+static int hf_pfcp_report_type_b3_upir;
+static int hf_pfcp_report_type_b2_erir;
+static int hf_pfcp_report_type_b1_usar;
+static int hf_pfcp_report_type_b0_dldr;
+
+static int hf_pfcp_offending_ie;
+static int hf_pfcp_offending_ie_value;
+
+static int hf_pfcp_up_function_features_o13_b2_qmdrm;
+static int hf_pfcp_up_function_features_o13_b1_cntl;
+static int hf_pfcp_up_function_features_o13_b0_pdusm;
+static int hf_pfcp_up_function_features_o12_b7_eml4s;
+static int hf_pfcp_up_function_features_o12_b6_detnet;
+static int hf_pfcp_up_function_features_o12_b5_qmcon;
+static int hf_pfcp_up_function_features_o12_b4_n6jedb;
+static int hf_pfcp_up_function_features_o12_b3_drtsc;
+static int hf_pfcp_up_function_features_o12_b2_tscts;
+static int hf_pfcp_up_function_features_o12_b1_dbdm;
+static int hf_pfcp_up_function_features_o12_b0_redsm;
+static int hf_pfcp_up_function_features_o11_b7_mpquic;
+static int hf_pfcp_up_function_features_o11_b6_afsfc;
+static int hf_pfcp_up_function_features_o11_b5_upidp;
+static int hf_pfcp_up_function_features_o11_b4_ratp;
+static int hf_pfcp_up_function_features_o11_b3_eppi;
+static int hf_pfcp_up_function_features_o11_b2_psuprm;
+static int hf_pfcp_up_function_features_o11_b1_mbsn4;
+static int hf_pfcp_up_function_features_o11_b0_drqos;
+static int hf_pfcp_up_function_features_o10_b7_dnsts;
+static int hf_pfcp_up_function_features_o10_b6_iprep;
+static int hf_pfcp_up_function_features_o10_b5_resps;
+static int hf_pfcp_up_function_features_o10_b4_upber;
+static int hf_pfcp_up_function_features_o10_b3_l2tp;
+static int hf_pfcp_up_function_features_o10_b2_nspoc;
+static int hf_pfcp_up_function_features_o10_b1_quasf;
+static int hf_pfcp_up_function_features_o10_b0_rttwp;
+static int hf_pfcp_up_function_features_o9_b7_rds;
+static int hf_pfcp_up_function_features_o9_b6_ddds;
+static int hf_pfcp_up_function_features_o9_b5_ethar;
+static int hf_pfcp_up_function_features_o9_b4_ciot;
+static int hf_pfcp_up_function_features_o9_b3_mt_edt;
+static int hf_pfcp_up_function_features_o9_b2_gpqm;
+static int hf_pfcp_up_function_features_o9_b1_qfqm;
+static int hf_pfcp_up_function_features_o9_b0_atsss_ll;
+static int hf_pfcp_up_function_features_o8_b7_mptcp;
+static int hf_pfcp_up_function_features_o8_b6_tsn;
+static int hf_pfcp_up_function_features_o8_b5_ip6pl;
+static int hf_pfcp_up_function_features_o8_b4_iptv;
+static int hf_pfcp_up_function_features_o8_b3_norp;
+static int hf_pfcp_up_function_features_o8_b2_vtime;
+static int hf_pfcp_up_function_features_o8_b1_rttl;
+static int hf_pfcp_up_function_features_o8_b0_mpas;
+static int hf_pfcp_up_function_features_o7_b7_gcom;
+static int hf_pfcp_up_function_features_o7_b6_bundl;
+static int hf_pfcp_up_function_features_o7_b5_mte_n4;
+static int hf_pfcp_up_function_features_o7_b4_mnop;
+static int hf_pfcp_up_function_features_o7_b3_sset;
+static int hf_pfcp_up_function_features_o7_b2_ueip;
+static int hf_pfcp_up_function_features_o7_b1_adpdp;
+static int hf_pfcp_up_function_features_o7_b0_dpdra;
+static int hf_pfcp_up_function_features_o6_b7_epfar;
+static int hf_pfcp_up_function_features_o6_b6_pfde;
+static int hf_pfcp_up_function_features_o6_b5_frrt;
+static int hf_pfcp_up_function_features_o6_b4_trace;
+static int hf_pfcp_up_function_features_o6_b3_quoac;
+static int hf_pfcp_up_function_features_o6_b2_udbc;
+static int hf_pfcp_up_function_features_o6_b1_pdiu;
+static int hf_pfcp_up_function_features_o6_b0_empu;
+static int hf_pfcp_up_function_features_o5_b7_treu;
+static int hf_pfcp_up_function_features_o5_b6_heeu;
+static int hf_pfcp_up_function_features_o5_b5_pfdm;
+static int hf_pfcp_up_function_features_o5_b4_ftup;
+static int hf_pfcp_up_function_features_o5_b3_trst;
+static int hf_pfcp_up_function_features_o5_b2_dlbd;
+static int hf_pfcp_up_function_features_o5_b1_ddnd;
+static int hf_pfcp_up_function_features_o5_b0_bucp;
+
+static int hf_pfcp_sequence_number;
+static int hf_pfcp_metric;
+static int hf_pfcp_timer_unit;
+static int hf_pfcp_timer_value;
+
+static int hf_pfcp_usage_report_trigger_o5_b7_immer;
+static int hf_pfcp_usage_report_trigger_o5_b6_droth;
+static int hf_pfcp_usage_report_trigger_o5_b5_stopt;
+static int hf_pfcp_usage_report_trigger_o5_b4_start;
+static int hf_pfcp_usage_report_trigger_o5_b3_quhti;
+static int hf_pfcp_usage_report_trigger_o5_b2_timth;
+static int hf_pfcp_usage_report_trigger_o5_b1_volth;
+static int hf_pfcp_usage_report_trigger_o5_b0_perio;
+static int hf_pfcp_usage_report_trigger_o6_b7_eveth;
+static int hf_pfcp_usage_report_trigger_o6_b6_macar;
+static int hf_pfcp_usage_report_trigger_o6_b5_envcl;
+static int hf_pfcp_usage_report_trigger_o6_b4_monit;
+static int hf_pfcp_usage_report_trigger_o6_b3_termr;
+static int hf_pfcp_usage_report_trigger_o6_b2_liusa;
+static int hf_pfcp_usage_report_trigger_o6_b1_timqu;
+static int hf_pfcp_usage_report_trigger_o6_b0_volqu;
+static int hf_pfcp_usage_report_trigger_o7_b5_upint;
+static int hf_pfcp_usage_report_trigger_o7_b4_emrre;
+static int hf_pfcp_usage_report_trigger_o7_b3_quvti;
+static int hf_pfcp_usage_report_trigger_o7_b2_ipmjl;
+static int hf_pfcp_usage_report_trigger_o7_b1_tebur;
+static int hf_pfcp_usage_report_trigger_o7_b0_evequ;
+
+static int hf_pfcp_volume_measurement_b5_dlnop;
+static int hf_pfcp_volume_measurement_b4_ulnop;
+static int hf_pfcp_volume_measurement_b3_tonop;
+static int hf_pfcp_volume_measurement_b2_dlvol;
+static int hf_pfcp_volume_measurement_b1_ulvol;
+static int hf_pfcp_volume_measurement_b0_tovol;
+static int hf_pfcp_vol_meas_tovol;
+static int hf_pfcp_vol_meas_ulvol;
+static int hf_pfcp_vol_meas_dlvol;
+static int hf_pfcp_vol_meas_tonop;
+static int hf_pfcp_vol_meas_ulnop;
+static int hf_pfcp_vol_meas_dlnop;
+
+static int hf_pfcp_cp_function_features_o6_b1_rpgur;
+static int hf_pfcp_cp_function_features_o6_b0_psucc;
+static int hf_pfcp_cp_function_features_o5_b7_uiaur;
+static int hf_pfcp_cp_function_features_o5_b6_ardr;
+static int hf_pfcp_cp_function_features_o5_b5_mpas;
+static int hf_pfcp_cp_function_features_o5_b4_bundl;
+static int hf_pfcp_cp_function_features_o5_b3_sset;
+static int hf_pfcp_cp_function_features_o5_b2_epfar;
+static int hf_pfcp_cp_function_features_o5_b1_ovrl;
+static int hf_pfcp_cp_function_features_o5_b0_load;
+
+static int hf_pfcp_usage_information_b3_ube;
+static int hf_pfcp_usage_information_b2_uae;
+static int hf_pfcp_usage_information_b1_aft;
+static int hf_pfcp_usage_information_b0_bef;
+
+static int hf_pfcp_application_instance_id;
+static int hf_pfcp_application_instance_id_str;
+static int hf_pfcp_flow_dir;
+static int hf_pfcp_packet_rate_b0_ulpr;
+static int hf_pfcp_packet_rate_b1_dlpr;
+static int hf_pfcp_packet_rate_b2_aprc;
+static int hf_pfcp_ul_time_unit;
+static int hf_pfcp_max_ul_pr;
+static int hf_pfcp_dl_time_unit;
+static int hf_pfcp_max_dl_pr;
+static int hf_pfcp_a_ul_time_unit;
+static int hf_pfcp_a_max_ul_pr;
+static int hf_pfcp_a_dl_time_unit;
+static int hf_pfcp_a_max_dl_pr;
+
+static int hf_pfcp_dl_flow_level_marking_b0_ttc;
+static int hf_pfcp_dl_flow_level_marking_b1_sci;
+
+static int hf_pfcp_sci;
+static int hf_pfcp_dl_data_notification_delay;
+static int hf_pfcp_packet_count;
+static int hf_pfcp_dl_data_service_inf_b0_ppi;
+static int hf_pfcp_dl_data_service_inf_b1_qfii;
+static int hf_pfcp_ppi;
+
+static int hf_pfcp_pfcpsmreq_flags_b0_drobu;
+static int hf_pfcp_pfcpsmreq_flags_b1_sndem;
+static int hf_pfcp_pfcpsmreq_flags_b2_qaurr;
+static int hf_pfcp_pfcpsmreq_flags_b3_sumpc;
+static int hf_pfcp_pfcpsmreq_flags_b4_rumuc;
+static int hf_pfcp_pfcpsmreq_flags_b5_deteid;
+
+static int hf_pfcp_pfcpsrrsp_flags_b0_drobu;
+
+static int hf_pfcp_pfd_contents_flags_b7_adnp;
+static int hf_pfcp_pfd_contents_flags_b6_aurl;
+static int hf_pfcp_pfd_contents_flags_b5_afd;
+static int hf_pfcp_pfd_contents_flags_b4_dnp;
+static int hf_pfcp_pfd_contents_flags_b3_cp;
+static int hf_pfcp_pfd_contents_flags_b2_dn;
+static int hf_pfcp_pfd_contents_flags_b1_url;
+static int hf_pfcp_pfd_contents_flags_b0_fd;
+
+static int hf_pfcp_url_len;
+static int hf_pfcp_url;
+static int hf_pfcp_dn_len;
+static int hf_pfcp_dn;
+static int hf_pfcp_cp_len;
+static int hf_pfcp_cp;
+static int hf_pfcp_dnp_len;
+static int hf_pfcp_dnp;
+static int hf_pfcp_afd_len;
+static int hf_pfcp_aurl_len;
+static int hf_pfcp_adnp_len;
+static int hf_pfcp_header_type;
+static int hf_pfcp_hf_len;
+static int hf_pfcp_hf_name;
+static int hf_pfcp_hf_val_len;
+static int hf_pfcp_hf_val;
+
+static int hf_pfcp_measurement_info_b0_mbqe;
+static int hf_pfcp_measurement_info_b1_inam;
+static int hf_pfcp_measurement_info_b2_radi;
+static int hf_pfcp_measurement_info_b3_istm;
+static int hf_pfcp_measurement_info_b4_mnop;
+static int hf_pfcp_measurement_info_b5_sspoc;
+static int hf_pfcp_measurement_info_b6_aspoc;
+static int hf_pfcp_measurement_info_b7_ciam;
+
+static int hf_pfcp_node_report_type_b0_upfr;
+static int hf_pfcp_node_report_type_b1_uprr;
+static int hf_pfcp_node_report_type_b2_ckdr;
+static int hf_pfcp_node_report_type_b3_gpqr;
+static int hf_pfcp_node_report_type_b4_purr;
+static int hf_pfcp_node_report_type_b5_vsr;
+
+static int hf_pfcp_remote_gtp_u_peer_flags_b0_v6;
+static int hf_pfcp_remote_gtp_u_peer_flags_b1_v4;
+static int hf_pfcp_remote_gtp_u_peer_flags_b2_di;
+static int hf_pfcp_remote_gtp_u_peer_flags_b3_ni;
+static int hf_pfcp_remote_gtp_u_peer_ipv4;
+static int hf_pfcp_remote_gtp_u_peer_ipv6;
+static int hf_pfcp_remote_gtp_u_peer_length_di;
+static int hf_pfcp_remote_gtp_u_peer_length_ni;
+static int hf_pfcp_ur_seqn;
+
+static int hf_pfcp_oci_flags_b0_aoci;
+
+static int hf_pfcp_pfcp_assoc_rel_req_b0_sarr;
+static int hf_pfcp_pfcp_assoc_rel_req_b1_urss;
+
+static int hf_pfcp_upiri_flags_b0_v4;
+static int hf_pfcp_upiri_flags_b1_v6;
+static int hf_pfcp_upiri_flg_b6_assosi;
+static int hf_pfcp_upiri_flg_b5_assoni;
+static int hf_pfcp_upiri_flg_b2b4_teidri;
+static int hf_pfcp_upiri_teidri;
+static int hf_pfcp_upiri_teid_range;
+static int hf_pfcp_upiri_ipv4;
+static int hf_pfcp_upiri_ipv6;
+
+static int hf_pfcp_user_plane_inactivity_timer;
+
+static int hf_pfcp_subsequent_volume_quota_b2_dlvol;
+static int hf_pfcp_subsequent_volume_quota_b1_ulvol;
+static int hf_pfcp_subsequent_volume_quota_b0_tovol;
+static int hf_pfcp_subsequent_volume_quota_tovol;
+static int hf_pfcp_subsequent_volume_quota_ulvol;
+static int hf_pfcp_subsequent_volume_quota_dlvol;
+
+static int hf_pfcp_subsequent_time_quota;
+
+static int hf_pfcp_rqi_flag;
+static int hf_pfcp_qfi;
+static int hf_pfcp_query_urr_reference;
+static int hf_pfcp_additional_usage_reports_information_b14_b0_number_value;
+static int hf_pfcp_additional_usage_reports_information_b15_auri;
+static int hf_pfcp_traffic_endpoint_id;
+
+static int hf_pfcp_mac_address_flags_b3_udes;
+static int hf_pfcp_mac_address_flags_b2_usou;
+static int hf_pfcp_mac_address_flags_b1_dest;
+static int hf_pfcp_mac_address_flags_b0_sour;
+static int hf_pfcp_mac_address_upper_dest_mac_address;
+static int hf_pfcp_mac_address_upper_source_mac_address;
+static int hf_pfcp_mac_address_dest_mac_address;
+static int hf_pfcp_mac_address_source_mac_address;
+
+static int hf_pfcp_c_tag_flags_b2_vid;
+static int hf_pfcp_c_tag_flags_b1_dei;
+static int hf_pfcp_c_tag_flags_b0_pcp;
+static int hf_pfcp_c_tag_cvid;
+static int hf_pfcp_c_tag_dei_flag;
+static int hf_pfcp_c_tag_pcp_value;
+
+static int hf_pfcp_s_tag_flags_b2_vid;
+static int hf_pfcp_s_tag_flags_b1_dei;
+static int hf_pfcp_s_tag_flags_b0_pcp;
+static int hf_pfcp_s_tag_svid;
+static int hf_pfcp_s_tag_dei_flag;
+static int hf_pfcp_s_tag_pcp_value;
+
+static int hf_pfcp_ethertype;
+
+static int hf_pfcp_proxying_flags_b1_ins;
+static int hf_pfcp_proxying_flags_b0_arp;
+
+static int hf_pfcp_ethertype_filter_id;
+
+static int hf_pfcp_ethertype_filter_properties_flags_b0_bide;
+
+static int hf_pfcp_suggested_buffering_packets_count_packet_count;
+
+static int hf_pfcp_user_id_flags_b6_peif;
+static int hf_pfcp_user_id_flags_b5_gpsif;
+static int hf_pfcp_user_id_flags_b4_supif;
+static int hf_pfcp_user_id_flags_b3_naif;
+static int hf_pfcp_user_id_flags_b2_msisdnf;
+static int hf_pfcp_user_id_flags_b1_imeif;
+static int hf_pfcp_user_id_flags_b0_imsif;
+static int hf_pfcp_user_id_length_of_imsi;
+static int hf_pfcp_user_id_length_of_imei;
+static int hf_pfcp_user_id_imei;
+static int hf_pfcp_user_id_length_of_msisdn;
+static int hf_pfcp_user_id_length_of_nai;
+static int hf_pfcp_user_id_nai;
+static int hf_pfcp_user_id_length_of_supi;
+static int hf_pfcp_user_id_supi;
+static int hf_pfcp_user_id_length_of_gpsi;
+static int hf_pfcp_user_id_gpsi;
+static int hf_pfcp_user_id_length_of_pei;
+static int hf_pfcp_user_id_pei;
+
+static int hf_pfcp_ethernet_pdu_session_information_flags_b0_ethi;
+
+static int hf_pfcp_mac_addresses_detected_number_of_mac_addresses;
+static int hf_pfcp_mac_addresses_detected_mac_address;
+static int hf_pfcp_mac_addresses_detected_length_of_ctag;
+static int hf_pfcp_mac_addresses_detected_length_of_stag;
+
+static int hf_pfcp_mac_addresses_removed_number_of_mac_addresses;
+static int hf_pfcp_mac_addresses_removed_mac_address;
+static int hf_pfcp_mac_addresses_removed_length_of_ctag;
+static int hf_pfcp_mac_addresses_removed_length_of_stag;
+
+static int hf_pfcp_ethernet_inactivity_timer;
+
+static int hf_pfcp_subsequent_event_quota;
+
+static int hf_pfcp_subsequent_event_threshold;
+
+static int hf_pfcp_trace_information_trace_id;
+static int hf_pfcp_trace_information_length_trigger_events;
+static int hf_pfcp_trace_information_trigger_events;
+static int hf_pfcp_trace_information_session_trace_depth;
+static int hf_pfcp_trace_information_length_list_interfaces;
+static int hf_pfcp_trace_information_list_interfaces;
+static int hf_pfcp_trace_information_length_ipaddress;
+static int hf_pfcp_trace_information_ipv4;
+static int hf_pfcp_trace_information_ipv6;
+
+static int hf_pfcp_framed_route;
+static int hf_pfcp_framed_routing;
+static int hf_pfcp_framed_ipv6_route;
+
+static int hf_pfcp_event_quota;
+
+static int hf_pfcp_event_threshold;
+
+static int hf_pfcp_time_stamp;
+
+static int hf_pfcp_averaging_window;
+
+static int hf_pfcp_paging_policy_indicator;
+
+static int hf_pfcp_apn_dnn;
+
+static int hf_pfcp_tgpp_interface_type;
+
+static int hf_pfcp_pfcpsrreq_flags_b0_psdbu;
+
+static int hf_pfcp_pfcpaureq_flags_b0_parps;
+
+static int hf_pfcp_activation_time;
+static int hf_pfcp_deactivation_time;
+
+static int hf_pfcp_mar_id;
+
+static int hf_pfcp_steering_functionality;
+static int hf_pfcp_steering_mode;
+
+static int hf_pfcp_weight;
+static int hf_pfcp_priority;
+
+static int hf_pfcp_ue_ip_address_pool_length;
+static int hf_pfcp_ue_ip_address_pool_identity;
+
+static int hf_pfcp_alternative_smf_ip_address_flags_ppe;
+static int hf_pfcp_alternative_smf_ip_address_ipv4;
+static int hf_pfcp_alternative_smf_ip_address_ipv6;
+
+static int hf_pfcp_packet_replication_and_detection_carry_on_information_flags_b3_dcaroni;
+static int hf_pfcp_packet_replication_and_detection_carry_on_information_flags_b2_prin6i;
+static int hf_pfcp_packet_replication_and_detection_carry_on_information_flags_b1_prin19i;
+static int hf_pfcp_packet_replication_and_detection_carry_on_information_flags_b0_priueai;
+
+static int hf_pfcp_validity_time_value;
+static int hf_pfcp_validity_time_str;
+
+static int hf_pfcp_number_of_reports;
+
+static int hf_pfcp_pfcpasrsp_flags_flags_b1_uupsi;
+static int hf_pfcp_pfcpasrsp_flags_flags_b0_psrei;
+
+static int hf_pfcp_cp_pfcp_entity_ip_address_ipv4;
+static int hf_pfcp_cp_pfcp_entity_ip_address_ipv6;
+
+static int hf_pfcp_pfcpsereq_flags_flags_b1_sumpc;
+static int hf_pfcp_pfcpsereq_flags_flags_b0_resti;
+
+static int hf_pfcp_ip_multicast_address_flags_b3_any;
+static int hf_pfcp_ip_multicast_address_flags_b2_range;
+static int hf_pfcp_ip_multicast_address_start_ipv4;
+static int hf_pfcp_ip_multicast_address_start_ipv6;
+static int hf_pfcp_ip_multicast_address_end_ipv4;
+static int hf_pfcp_ip_multicast_address_end_ipv6;
+
+static int hf_pfcp_source_ip_address_flags_b2_mpl;
+static int hf_pfcp_source_ip_address_ipv4;
+static int hf_pfcp_source_ip_address_ipv6;
+static int hf_pfcp_source_ip_address_mask_prefix_lengt;
+
+static int hf_pfcp_packet_rate_status_flags_b2_apr;
+static int hf_pfcp_packet_rate_status_flags_b1_dl;
+static int hf_pfcp_packet_rate_status_flags_b0_ul;
+static int hf_pfcp_packet_rate_status_ul;
+static int hf_pfcp_packet_rate_status_dl;
+static int hf_pfcp_packet_rate_status_apr_ul;
+static int hf_pfcp_packet_rate_status_apr_dl;
+static int hf_pfcp_packet_rate_status_validity_time;
+
+static int hf_pfcp_create_bridge_router_info_flags_b1_rii;
+static int hf_pfcp_create_bridge_router_info_flags_b0_bii;
+
+static int hf_pfcp_port_number;
+
+static int hf_pfcp_nw_tt_port_number;
+
+static int hf_pfcp_5gs_user_plane_node_id_flags_b0_bid;
+static int hf_pfcp_5gs_user_plane_node_id_value;
+
+static int hf_pfcp_port_management_information;
+
+static int hf_pfcp_requested_clock_drift_control_information_flags_b1_rrcr;
+static int hf_pfcp_requested_clock_drift_control_information_flags_b0_rrto;
+
+static int hf_pfcp_time_domain_number_value;
+
+static int hf_pfcp_time_offset_threshold;
+
+static int hf_pfcp_cumulative_rate_ratio_threshold;
+
+static int hf_pfcp_time_offset_measurement;
+
+static int hf_pfcp_cumulative_rate_ratio_measurement;
+
+static int hf_pfcp_srr_id;
+
+static int hf_pfcp_requested_access_availability_control_information_flags_b0_rrca;
+
+static int hf_pfcp_availability_status;
+static int hf_pfcp_availability_type;
+
+static int hf_pfcp_mptcp_control_information_flags_b0_tci;
+
+static int hf_pfcp_atsss_ll_control_information_flags_b0_lli;
+
+static int hf_pfcp_pmf_control_information_flags_b2_pqpm;
+static int hf_pfcp_pmf_control_information_flags_b1_drtti;
+static int hf_pfcp_pmf_control_information_flags_b0_pmfi;
+static int hf_pfcp_pmf_control_information_number_of_qfi;
+
+static int hf_pfcp_mptcp_address_information_flags_b1_v6;
+static int hf_pfcp_mptcp_address_information_flags_b0_v4;
+static int hf_pfcp_mptcp_proxy_type;
+static int hf_pfcp_mptcp_proxy_port;
+static int hf_pfcp_mptcp_proxy_ip_address_ipv4;
+static int hf_pfcp_mptcp_proxy_ip_address_ipv6;
+
+static int hf_pfcp_link_specific_multipath_ip_address_flags_b3_nv6;
+static int hf_pfcp_link_specific_multipath_ip_address_flags_b2_nv4;
+static int hf_pfcp_link_specific_multipath_ip_address_flags_b1_v6;
+static int hf_pfcp_link_specific_multipath_ip_address_flags_b0_v4;
+static int hf_pfcp_link_specific_multipath_ip_address_3gpp_ipv4;
+static int hf_pfcp_link_specific_multipath_ip_address_3gpp_ipv6;
+static int hf_pfcp_link_specific_multipath_ip_address_non3gpp_ipv4;
+static int hf_pfcp_link_specific_multipath_ip_address_non3gpp_ipv6;
+
+static int hf_pfcp_pmf_address_information_flags_b2_mac;
+static int hf_pfcp_pmf_address_information_flags_b1_v6;
+static int hf_pfcp_pmf_address_information_flags_b0_v4;
+static int hf_pfcp_pmf_address_ipv4;
+static int hf_pfcp_pmf_address_ipv6;
+static int hf_pfcp_pmf_port_3gpp;
+static int hf_pfcp_pmf_port_non3gpp;
+static int hf_pfcp_pmf_mac_address_3gpp;
+static int hf_pfcp_pmf_mac_address_non3gpp;
+
+static int hf_pfcp_atsss_ll_information_flags_b0_lli;
+
+static int hf_pfcp_data_network_access_identifier;
+
+static int hf_pfcp_packet_delay_milliseconds;
+
+static int hf_pfcp_qos_report_trigger_flags_b2_ire;
+static int hf_pfcp_qos_report_trigger_flags_b1_thr;
+static int hf_pfcp_qos_report_trigger_flags_b0_per;
+
+static int hf_pfcp_gtp_u_path_interface_type_flags_b1_n3;
+static int hf_pfcp_gtp_u_path_interface_type_flags_b0_n9;
+
+static int hf_pfcp_requested_qos_monitoring_flags_b7_ulpr;
+static int hf_pfcp_requested_qos_monitoring_flags_b6_dlpr;
+static int hf_pfcp_requested_qos_monitoring_flags_b5_ulci;
+static int hf_pfcp_requested_qos_monitoring_flags_b4_dlci;
+static int hf_pfcp_requested_qos_monitoring_flags_b3_gtpupm;
+static int hf_pfcp_requested_qos_monitoring_flags_b2_rppd;
+static int hf_pfcp_requested_qos_monitoring_flags_b1_ulpd;
+static int hf_pfcp_requested_qos_monitoring_flags_b0_dlpd;
+
+static int hf_pfcp_reporting_frequency_flags_b2_sesrl;
+static int hf_pfcp_reporting_frequency_flags_b1_perio;
+static int hf_pfcp_reporting_frequency_flags_b0_evett;
+
+static int hf_pfcp_packet_delay_thresholds_flags_b2_rp;
+static int hf_pfcp_packet_delay_thresholds_flags_b1_ul;
+static int hf_pfcp_packet_delay_thresholds_flags_b0_dl;
+static int hf_pfcp_packet_delay_thresholds_downlink;
+static int hf_pfcp_packet_delay_thresholds_uplink;
+static int hf_pfcp_packet_delay_thresholds_roundtrip;
+
+static int hf_pfcp_minimum_wait_time_seconds;
+
+static int hf_pfcp_qos_monitoring_measurement_flags_b5_ulci;
+static int hf_pfcp_qos_monitoring_measurement_flags_b4_dlci;
+static int hf_pfcp_qos_monitoring_measurement_flags_b3_plmf;
+static int hf_pfcp_qos_monitoring_measurement_flags_b2_rppd;
+static int hf_pfcp_qos_monitoring_measurement_flags_b1_ulpd;
+static int hf_pfcp_qos_monitoring_measurement_flags_b0_dlpd;
+static int hf_pfcp_qos_monitoring_measurement_downlink_packet_delay;
+static int hf_pfcp_qos_monitoring_measurement_uplink_packet_delay;
+static int hf_pfcp_qos_monitoring_measurement_roundtrip;
+static int hf_pfcp_qos_monitoring_measurement_downlink_congestion_information;
+static int hf_pfcp_qos_monitoring_measurement_uplink_congestion_information;
+static int hf_pfcp_qos_monitoring_measurement_downlink_packet_rate;
+static int hf_pfcp_qos_monitoring_measurement_uplink_packet_rate;
+
+static int hf_pfcp_mt_edt_control_information_flags_b0_rdsi;
+
+static int hf_pfcp_dl_data_packets_size;
+
+static int hf_pfcp_qer_control_indications_o5_b0_rcsr;
+
+static int hf_pfcp_nf_instance_id;
+
+static int hf_pfcp_s_nssai_sst;
+static int hf_pfcp_s_nssai_sd;
+
+static int hf_pfcp_ip_version_flags_b1_v6;
+static int hf_pfcp_ip_version_flags_b0_v4;
+
+static int hf_pfcp_pfcpasreq_flags_flags_b0_uupsi;
+
+static int hf_pfcp_data_status_flags_b1_buff;
+static int hf_pfcp_data_status_flags_b0_drop;
+
+static int hf_pfcp_rds_configuration_information_flags_b0_rds;
+
+static int hf_pfcp_multipath_application_indication_flags_b1_mqai;
+static int hf_pfcp_multipath_application_indication_flags_b0_mtai;
+
+static int hf_pfcp_user_plane_node_management_information_container;
+
+static int hf_pfcp_number_of_ue_ip_addresses_b1_ipv6;
+static int hf_pfcp_number_of_ue_ip_addresses_b0_ipv4;
+static int hf_pfcp_number_of_ue_ip_addresses_ipv6;
+static int hf_pfcp_number_of_ue_ip_addresses_ipv4;
+
+static int hf_pfcp_validity_timer;
+
+static int hf_pfcp_rattype;
+
+static int hf_pfcp_l2tp_user_authentication_proxy_authen_type_value;
+static int hf_pfcp_l2tp_user_authentication_b3_pai;
+static int hf_pfcp_l2tp_user_authentication_b2_par;
+static int hf_pfcp_l2tp_user_authentication_b1_pac;
+static int hf_pfcp_l2tp_user_authentication_b0_pan;
+static int hf_pfcp_l2tp_user_authentication_proxy_authen_name_len;
+static int hf_pfcp_l2tp_user_authentication_proxy_authen_name;
+static int hf_pfcp_l2tp_user_authentication_proxy_authen_challenge_len;
+static int hf_pfcp_l2tp_user_authentication_proxy_authen_challenge;
+static int hf_pfcp_l2tp_user_authentication_proxy_authen_response_len;
+static int hf_pfcp_l2tp_user_authentication_proxy_authen_response;
+static int hf_pfcp_l2tp_user_authentication_proxy_authen_id;
+
+static int hf_pfcp_lns_address_ipv4;
+static int hf_pfcp_lns_address_ipv6;
+
+static int hf_pfcp_tunnel_preference_value;
+
+static int hf_pfcp_calling_number_value;
+static int hf_pfcp_called_number_value;
+
+static int hf_pfcp_l2tp_session_indications_o5_b2_rensa;
+static int hf_pfcp_l2tp_session_indications_o5_b1_redsa;
+static int hf_pfcp_l2tp_session_indications_o5_b0_reuia;
+
+static int hf_pfcp_maximum_receive_unit;
+
+static int hf_pfcp_thresholds_flags_b1_plr;
+static int hf_pfcp_thresholds_flags_b0_rtt;
+static int hf_pfcp_thresholds_rtt;
+static int hf_pfcp_thresholds_plr;
+
+static int hf_pfcp_l2tp_steering_mode_indications_o5_b1_ueai;
+static int hf_pfcp_l2tp_steering_mode_indications_o5_b0_albi;
+
+static int hf_pfcp_group_id;
+
+static int hf_pfcp_cp_ip_address_ipv4;
+static int hf_pfcp_cp_ip_address_ipv6;
+
+static int hf_pfcp_ip_address_and_port_number_replacement_flag_b0_v4;
+static int hf_pfcp_ip_address_and_port_number_replacement_flag_b1_v6;
+static int hf_pfcp_ip_address_and_port_number_replacement_flag_b2_dpn;
+static int hf_pfcp_ip_address_and_port_number_replacement_flag_b3_sipv4;
+static int hf_pfcp_ip_address_and_port_number_replacement_flag_b4_sipv6;
+static int hf_pfcp_ip_address_and_port_number_replacement_flag_b5_spn;
+static int hf_pfcp_ip_address_and_port_number_replacement_destination_ipv4;
+static int hf_pfcp_ip_address_and_port_number_replacement_destination_ipv6;
+static int hf_pfcp_ip_address_and_port_number_replacement_destination_port;
+static int hf_pfcp_ip_address_and_port_number_replacement_source_ipv4;
+static int hf_pfcp_ip_address_and_port_number_replacement_source_ipv6;
+static int hf_pfcp_ip_address_and_port_number_replacement_source_port;
+
+static int hf_pfcp_dns_query_filter_pattern_len;
+static int hf_pfcp_dns_query_filter_pattern;
+
+static int hf_pfcp_event_notification_uri;
+
+static int hf_pfcp_notification_correlation_id;
+
+static int hf_pfcp_reporting_flags_o5_b0_dupl;
+
+static int hf_pfcp_mbs_session_identifier_flag_b0_tmgi;
+static int hf_pfcp_mbs_session_identifier_flag_b1_ssmi;
+static int hf_pfcp_mbs_session_identifier_flag_b2_nidi;
+static int hf_pfcp_mbs_session_identifier_tmgi;
+static int hf_pfcp_mbs_session_identifier_nidi;
+static int hf_pfcp_mbs_session_identifier_source_address_type;
+static int hf_pfcp_mbs_session_identifier_source_address_length;
+static int hf_pfcp_mbs_session_identifier_source_address_ipv4;
+static int hf_pfcp_mbs_session_identifier_source_address_ipv6;
+
+static int hf_pfcp_multicast_transport_information_endpoint_identifier;
+static int hf_pfcp_multicast_transport_information_distribution_address_type;
+static int hf_pfcp_multicast_transport_information_distribution_address_length;
+static int hf_pfcp_multicast_transport_information_distribution_address_ipv4;
+static int hf_pfcp_multicast_transport_information_distribution_address_ipv6;
+static int hf_pfcp_multicast_transport_information_source_address_type;
+static int hf_pfcp_multicast_transport_information_source_address_length;
+static int hf_pfcp_multicast_transport_information_source_address_ipv4;
+static int hf_pfcp_multicast_transport_information_source_address_ipv6;
+
+static int hf_pfcp_mbsn4mbreq_flags_o5_b2_mbs_resti;
+static int hf_pfcp_mbsn4mbreq_flags_o5_b1_jmbssm;
+static int hf_pfcp_mbsn4mbreq_flags_o5_b0_pllssm;
+
+static int hf_pfcp_local_ingress_tunnel_flags_b2_ch;
+static int hf_pfcp_local_ingress_tunnel_flags_b1_v6;
+static int hf_pfcp_local_ingress_tunnel_flags_b0_v4;
+static int hf_pfcp_local_ingress_tunnel_udp_port;
+static int hf_pfcp_local_ingress_tunnel_ipv4;
+static int hf_pfcp_local_ingress_tunnel_ipv6;
+
+static int hf_pfcp_mbs_unicast_parameters_id;
+
+static int hf_pfcp_mbsn4resp_flags_o5_b2_n19dtr;
+static int hf_pfcp_mbsn4resp_flags_o5_b1_jmti;
+static int hf_pfcp_mbsn4resp_flags_o5_b0_nn19dt;
+
+static int hf_pfcp_tunnel_password_value;
+
+static int hf_pfcp_area_session_id_value;
+
+static int hf_pfcp_dscp_to_ppi_mapping_info_ppi_value;
+static int hf_pfcp_dscp_to_ppi_mapping_info_dscp_value;
+
+static int hf_pfcp_pfcpsdrsp_flags_b0_puru;
+
+static int hf_pfcp_qer_indications_flags_b3_pdusm;
+static int hf_pfcp_qer_indications_flags_b2_eml4s;
+static int hf_pfcp_qer_indications_flags_b1_edbmi;
+static int hf_pfcp_qer_indications_flags_b0_iqfis;
+
+static int hf_pfcp_configured_time_domain_flags_b0_ctdi;
+
+static int hf_pfcp_metadata;
+static int hf_pfcp_metadata_binary_metadata;
+
+static int hf_pfcp_traffic_parameter_threshold_flags_b0_dl;
+static int hf_pfcp_traffic_parameter_threshold_downlink_n6_jitter_threshold;
+
+static int hf_pfcp_dl_periodicity_value;
+
+static int hf_pfcp_n6_jitter_measurement_flags_b0_dl;
+static int hf_pfcp_n6_jitter_measurement_dl_periodicity;
+static int hf_pfcp_n6_jitter_measurement_lower_dl_jitter_measurement;
+static int hf_pfcp_n6_jitter_measurement_higher_dl_jitter_measurement;
+
+
+static int hf_pfcp_traffic_parameter_measurement_indication_flags_b2_n6jmi;
+static int hf_pfcp_traffic_parameter_measurement_indication_flags_b1_dlpmi;
+static int hf_pfcp_traffic_parameter_measurement_indication_flags_b0_ulpmi;
+
+static int hf_pfcp_ul_periodicity_value;
+
+static int hf_pfcp_mpquic_control_information_flags_b0_cupd;
+
+static int hf_pfcp_mpquic_address_information_flags_b1_v6;
+static int hf_pfcp_mpquic_address_information_flags_b0_v4;
+static int hf_pfcp_mpquic_address_information_type;
+static int hf_pfcp_mpquic_address_information_port;
+static int hf_pfcp_mpquic_address_information_address_ipv4;
+static int hf_pfcp_mpquic_address_information_address_ipv6;
+
+static int hf_pfcp_transport_mode_value;
+
+static int hf_pfcp_protocol_description_flags_b2_srtp;
+static int hf_pfcp_protocol_description_flags_b1_rtp;
+static int hf_pfcp_protocol_description_flags_b0_h264;
+
+static int hf_pfcp_reporting_suggestion_info_flags_b0_rurg;
+
+static int hf_pfcp_tl_container;
 
 /* Enterprise IEs */
 /* BBF */
-static int hf_pfcp_bbf_up_function_features_o7_b7_nat_up = -1;
-static int hf_pfcp_bbf_up_function_features_o7_b6_nat_cp = -1;
-static int hf_pfcp_bbf_up_function_features_o7_b5_iptv = -1;
-static int hf_pfcp_bbf_up_function_features_o7_b4_lcp_keepalive_offload = -1;
-static int hf_pfcp_bbf_up_function_features_o7_b3_lns = -1;
-static int hf_pfcp_bbf_up_function_features_o7_b2_lac = -1;
-static int hf_pfcp_bbf_up_function_features_o7_b1_ipoe = -1;
-static int hf_pfcp_bbf_up_function_features_o7_b0_pppoe = -1;
+static int hf_pfcp_bbf_up_function_features_o7_b7_nat_up;
+static int hf_pfcp_bbf_up_function_features_o7_b6_nat_cp;
+static int hf_pfcp_bbf_up_function_features_o7_b5_iptv;
+static int hf_pfcp_bbf_up_function_features_o7_b4_lcp_keepalive_offload;
+static int hf_pfcp_bbf_up_function_features_o7_b3_lns;
+static int hf_pfcp_bbf_up_function_features_o7_b2_lac;
+static int hf_pfcp_bbf_up_function_features_o7_b1_ipoe;
+static int hf_pfcp_bbf_up_function_features_o7_b0_pppoe;
 
-static int hf_pfcp_bbf_logical_port_id = -1;
-static int hf_pfcp_bbf_logical_port_id_str = -1;
+static int hf_pfcp_bbf_logical_port_id;
+static int hf_pfcp_bbf_logical_port_id_str;
 
-static int hf_pfcp_bbf_outer_hdr_desc = -1;
-static int hf_pfcp_bbf_outer_hdr_creation_tunnel_id = -1;
-static int hf_pfcp_bbf_outer_hdr_creation_session_id = -1;
+static int hf_pfcp_bbf_outer_hdr_desc;
+static int hf_pfcp_bbf_outer_hdr_creation_tunnel_id;
+static int hf_pfcp_bbf_outer_hdr_creation_session_id;
 
-static int hf_pfcp_bbf_out_hdr_desc = -1;
+static int hf_pfcp_bbf_out_hdr_desc;
 
-static int hf_pfcp_bbf_pppoe_session_id = -1;
+static int hf_pfcp_bbf_pppoe_session_id;
 
-static int hf_pfcp_bbf_ppp_protocol_flags = -1;
-static int hf_pfcp_bbf_ppp_protocol_b2_control = -1;
-static int hf_pfcp_bbf_ppp_protocol_b1_data = -1;
-static int hf_pfcp_bbf_ppp_protocol_b0_specific = -1;
-static int hf_pfcp_bbf_ppp_protocol = -1;
+static int hf_pfcp_bbf_ppp_protocol_flags;
+static int hf_pfcp_bbf_ppp_protocol_b2_control;
+static int hf_pfcp_bbf_ppp_protocol_b1_data;
+static int hf_pfcp_bbf_ppp_protocol_b0_specific;
+static int hf_pfcp_bbf_ppp_protocol;
 
-static int hf_pfcp_bbf_verification_timer_interval = -1;
-static int hf_pfcp_bbf_verification_timer_count = -1;
+static int hf_pfcp_bbf_verification_timer_interval;
+static int hf_pfcp_bbf_verification_timer_count;
 
-static int hf_pfcp_bbf_ppp_lcp_magic_number_tx = -1;
-static int hf_pfcp_bbf_ppp_lcp_magic_number_rx = -1;
+static int hf_pfcp_bbf_ppp_lcp_magic_number_tx;
+static int hf_pfcp_bbf_ppp_lcp_magic_number_rx;
 
-static int hf_pfcp_bbf_mtu = -1;
+static int hf_pfcp_bbf_mtu;
 
-static int hf_pfcp_bbf_l2tp_endp_flags = -1;
-static int hf_pfcp_bbf_l2tp_endp_flags_b2_ch = -1;
-static int hf_pfcp_bbf_l2tp_endp_flags_b1_v6 = -1;
-static int hf_pfcp_bbf_l2tp_endp_flags_b0_v4 = -1;
-static int hf_pfcp_bbf_l2tp_endp_id_tunnel_id = -1;
-static int hf_pfcp_bbf_l2tp_endp_id_ipv4 = -1;
-static int hf_pfcp_bbf_l2tp_endp_id_ipv6 = -1;
+static int hf_pfcp_bbf_l2tp_endp_flags;
+static int hf_pfcp_bbf_l2tp_endp_flags_b2_ch;
+static int hf_pfcp_bbf_l2tp_endp_flags_b1_v6;
+static int hf_pfcp_bbf_l2tp_endp_flags_b0_v4;
+static int hf_pfcp_bbf_l2tp_endp_id_tunnel_id;
+static int hf_pfcp_bbf_l2tp_endp_id_ipv4;
+static int hf_pfcp_bbf_l2tp_endp_id_ipv6;
 
-static int hf_pfcp_bbf_l2tp_session_id = -1;
+static int hf_pfcp_bbf_l2tp_session_id;
 
-static int hf_pfcp_bbf_l2tp_type_flags = -1;
-static int hf_pfcp_bbf_l2tp_type_flags_b0_t = -1;
+static int hf_pfcp_bbf_l2tp_type_flags;
+static int hf_pfcp_bbf_l2tp_type_flags_b0_t;
 
-static int hf_pfcp_bbf_multicast_flags_o7_b1_routeralertoff = -1;
-static int hf_pfcp_bbf_multicast_flags_o7_b0_fastleave = -1;
+static int hf_pfcp_bbf_multicast_flags_o7_b1_routeralertoff;
+static int hf_pfcp_bbf_multicast_flags_o7_b0_fastleave;
 
-static int hf_pfcp_bbf_multicast_query_param_robustness = -1;
-static int hf_pfcp_bbf_multicast_query_param_query_interval = -1;
-static int hf_pfcp_bbf_multicast_query_param_query_response_interval = -1;
-static int hf_pfcp_bbf_multicast_query_param_group_query_interval = -1;
+static int hf_pfcp_bbf_multicast_query_param_robustness;
+static int hf_pfcp_bbf_multicast_query_param_query_interval;
+static int hf_pfcp_bbf_multicast_query_param_query_response_interval;
+static int hf_pfcp_bbf_multicast_query_param_group_query_interval;
 
-static int hf_pfcp_bbf_multicast_group_limit_max_joins = -1;
+static int hf_pfcp_bbf_multicast_group_limit_max_joins;
 
-static int hf_pfcp_bbf_apply_action_flags_b0_nat = -1;
+static int hf_pfcp_bbf_apply_action_flags_b0_nat;
 
-static int hf_pfcp_bbf_nat_external_port_range_start = -1;
-static int hf_pfcp_bbf_nat_external_port_range_end = -1;
+static int hf_pfcp_bbf_nat_external_port_range_start;
+static int hf_pfcp_bbf_nat_external_port_range_end;
 
-static int hf_pfcp_bbf_nat_port_forward = -1;
-static int hf_pfcp_bbf_nat_port_forward_inside_ip = -1;
-static int hf_pfcp_bbf_nat_port_forward_inside_port = -1;
-static int hf_pfcp_bbf_nat_port_forward_outside_port = -1;
-static int hf_pfcp_bbf_nat_port_forward_protocol = -1;
+static int hf_pfcp_bbf_nat_port_forward;
+static int hf_pfcp_bbf_nat_port_forward_inside_ip;
+static int hf_pfcp_bbf_nat_port_forward_inside_port;
+static int hf_pfcp_bbf_nat_port_forward_outside_port;
+static int hf_pfcp_bbf_nat_port_forward_protocol;
 
-static int hf_pfcp_bbf_reporting_trigger = -1;
+static int hf_pfcp_bbf_reporting_trigger;
 
-static int hf_pfcp_bbf_dynamic_nat_block_port_range_start_port = -1;
-static int hf_pfcp_bbf_dynamic_nat_block_port_range_end_port = -1;
+static int hf_pfcp_bbf_dynamic_nat_block_port_range_start_port;
+static int hf_pfcp_bbf_dynamic_nat_block_port_range_end_port;
 
-static int hf_pfcp_bbf_event_time_stamp = -1;
+static int hf_pfcp_bbf_event_time_stamp;
 
 /* Travelping */
-static int hf_pfcp_enterprise_travelping_packet_measurement = -1;
-static int hf_pfcp_enterprise_travelping_packet_measurement_b2_dlnop = -1;
-static int hf_pfcp_enterprise_travelping_packet_measurement_b1_ulnop = -1;
-static int hf_pfcp_enterprise_travelping_packet_measurement_b0_tonop = -1;
-static int hf_pfcp_travelping_pkt_meas_tonop = -1;
-static int hf_pfcp_travelping_pkt_meas_ulnop = -1;
-static int hf_pfcp_travelping_pkt_meas_dlnop = -1;
+static int hf_pfcp_enterprise_travelping_packet_measurement;
+static int hf_pfcp_enterprise_travelping_packet_measurement_b2_dlnop;
+static int hf_pfcp_enterprise_travelping_packet_measurement_b1_ulnop;
+static int hf_pfcp_enterprise_travelping_packet_measurement_b0_tonop;
+static int hf_pfcp_travelping_pkt_meas_tonop;
+static int hf_pfcp_travelping_pkt_meas_ulnop;
+static int hf_pfcp_travelping_pkt_meas_dlnop;
 
-static int hf_pfcp_travelping_build_id = -1;
-static int hf_pfcp_travelping_build_id_str = -1;
-static int hf_pfcp_travelping_now = -1;
-static int hf_pfcp_travelping_error_message = -1;
-static int hf_pfcp_travelping_error_message_str = -1;
-static int hf_pfcp_travelping_file_name = -1;
-static int hf_pfcp_travelping_file_name_str = -1;
-static int hf_pfcp_travelping_line_number = -1;
-static int hf_pfcp_travelping_ipfix_policy = -1;
-static int hf_pfcp_travelping_ipfix_policy_str = -1;
-static int hf_pfcp_travelping_trace_parent = -1;
-static int hf_pfcp_travelping_trace_parent_str = -1;
-static int hf_pfcp_travelping_trace_state = -1;
-static int hf_pfcp_travelping_trace_state_str = -1;
+static int hf_pfcp_travelping_build_id;
+static int hf_pfcp_travelping_build_id_str;
+static int hf_pfcp_travelping_now;
+static int hf_pfcp_travelping_error_message;
+static int hf_pfcp_travelping_error_message_str;
+static int hf_pfcp_travelping_file_name;
+static int hf_pfcp_travelping_file_name_str;
+static int hf_pfcp_travelping_line_number;
+static int hf_pfcp_travelping_ipfix_policy;
+static int hf_pfcp_travelping_ipfix_policy_str;
+static int hf_pfcp_travelping_trace_parent;
+static int hf_pfcp_travelping_trace_parent_str;
+static int hf_pfcp_travelping_trace_state;
+static int hf_pfcp_travelping_trace_state_str;
 
 /* Nokia */
 
-static int hf_pfcp_nokia_sap_template = -1;
-static int hf_pfcp_nokia_group_iface_template = -1;
-static int hf_pfcp_nokia_session_state_id = -1;
-static int hf_pfcp_nokia_detailed_stats_key = -1;
-static int hf_pfcp_nokia_detailed_stats_key_direction = -1;
-static int hf_pfcp_nokia_detailed_stats_key_object_id = -1;
-static int hf_pfcp_nokia_detailed_stats_key_stat_mode = -1;
-static int hf_pfcp_nokia_detailed_stats_key_type = -1;
-static int hf_pfcp_nokia_detailed_stats_bitmap_item = -1;
-static int hf_pfcp_nokia_detailed_stats_octets = -1;
-static int hf_pfcp_nokia_detailed_error = -1;
-static int hf_pfcp_nokia_qos_override = -1;
-static int hf_pfcp_nokia_measurement_info = -1;
-static int hf_pfcp_nokia_measurement_info_b0_det = -1;
-static int hf_pfcp_nokia_pfcpsmreq_flags = -1;
-static int hf_pfcp_nokia_pfcpsmreq_flags_b0_abs = -1;
-static int hf_pfcp_nokia_pfcpsmreq_flags_b1_audit = -1;
-static int hf_pfcp_nokia_up_function_features_bulk_audit = -1;
-static int hf_pfcp_nokia_up_function_features_sssg = -1;
-static int hf_pfcp_nokia_filter_override_type = -1;
-static int hf_pfcp_nokia_filter_override_name = -1;
-static int hf_pfcp_nokia_intermediate_destination = -1;
-static int hf_pfcp_nokia_nat_isa_members = -1;
-static int hf_pfcp_nokia_pfcphb_flags = -1;
-static int hf_pfcp_nokia_pfcphb_flags_b0_aud_r = -1;
-static int hf_pfcp_nokia_pfcphb_flags_b1_aud_s = -1;
-static int hf_pfcp_nokia_pfcphb_flags_b2_aud_e = -1;
-static int hf_pfcp_nokia_l2tp_lcp_request = -1;
-static int hf_pfcp_nokia_l2tp_auth_type = -1;
-static int hf_pfcp_nokia_l2tp_auth_name = -1;
-static int hf_pfcp_nokia_l2tp_auth_id = -1;
-static int hf_pfcp_nokia_l2tp_auth_challenge = -1;
-static int hf_pfcp_nokia_l2tp_auth_response = -1;
-static int hf_pfcp_nokia_l2tp_tunnel_endpoint_ipv4_address = -1;
-static int hf_pfcp_nokia_l2tp_tunnel_endpoint_ipv6_address = -1;
-static int hf_pfcp_nokia_l2tp_client_auth_id = -1;
-static int hf_pfcp_nokia_l2tp_server_auth_id = -1;
-static int hf_pfcp_nokia_l2tp_password = -1;
-static int hf_pfcp_nokia_l2tp_assignment_id = -1;
-static int hf_pfcp_nokia_l2tp_private_group_id = -1;
-static int hf_pfcp_nokia_l2tp_tunnel_params_flags = -1;
-static int hf_pfcp_nokia_l2tp_params_flags_b31_hello_interval = -1;
-static int hf_pfcp_nokia_l2tp_params_flags_b30_idle_timeout = -1;
-static int hf_pfcp_nokia_l2tp_params_flags_b29_session_limit = -1;
-static int hf_pfcp_nokia_l2tp_params_flags_b28_preference = -1;
-static int hf_pfcp_nokia_l2tp_params_flags_b27_df_bit = -1;
-static int hf_pfcp_nokia_l2tp_params_flags_b26_challenge = -1;
-static int hf_pfcp_nokia_l2tp_params_flags_b25_avp_hiding = -1;
-static int hf_pfcp_nokia_l2tp_params_flags_b24_algorithm = -1;
-static int hf_pfcp_nokia_l2tp_params_flags_b19_rx_window_size = -1;
-static int hf_pfcp_nokia_l2tp_params_flags_b18_max_retries_not_estab = -1;
-static int hf_pfcp_nokia_l2tp_params_flags_b17_max_retries_estab = -1;
-static int hf_pfcp_nokia_l2tp_params_flags_b16_destruct_timeout = -1;
-static int hf_pfcp_nokia_l2tp_params_hello_interval = -1;
-static int hf_pfcp_nokia_l2tp_params_idle_timeout = -1;
-static int hf_pfcp_nokia_l2tp_params_session_limit = -1;
-static int hf_pfcp_nokia_l2tp_params_preference = -1;
-static int hf_pfcp_nokia_l2tp_params_df_bit = -1;
-static int hf_pfcp_nokia_l2tp_params_challenge = -1;
-static int hf_pfcp_nokia_l2tp_params_avp_hiding = -1;
-static int hf_pfcp_nokia_l2tp_params_algorithm = -1;
-static int hf_pfcp_nokia_l2tp_params_rx_window_size = -1;
-static int hf_pfcp_nokia_l2tp_params_max_retries_not_estab = -1;
-static int hf_pfcp_nokia_l2tp_params_max_retries_estab = -1;
-static int hf_pfcp_nokia_l2tp_params_destruct_timeout = -1;
-static int hf_pfcp_nokia_l2tp_local_tunnel_id = -1;
-static int hf_pfcp_nokia_l2tp_remote_tunnel_id = -1;
-static int hf_pfcp_nokia_l2tp_local_session_id = -1;
-static int hf_pfcp_nokia_l2tp_remote_session_id = -1;
-static int hf_pfcp_nokia_l2tp_call_serial_num = -1;
-static int hf_pfcp_nokia_snat_inside_ipv4_address = -1;
-static int hf_pfcp_nokia_access_line_circuit_id = -1;
-static int hf_pfcp_nokia_access_line_remote_id = -1;
-static int hf_pfcp_nokia_access_line_params_flags = -1;
-static int hf_pfcp_nokia_access_line_params_flags_b24_act_up = -1;
-static int hf_pfcp_nokia_access_line_params_flags_b25_act_down = -1;
-static int hf_pfcp_nokia_access_line_params_flags_b26_min_up = -1;
-static int hf_pfcp_nokia_access_line_params_flags_b27_min_down = -1;
-static int hf_pfcp_nokia_access_line_params_flags_b28_att_up = -1;
-static int hf_pfcp_nokia_access_line_params_flags_b29_att_down = -1;
-static int hf_pfcp_nokia_access_line_params_flags_b30_max_up = -1;
-static int hf_pfcp_nokia_access_line_params_flags_b31_max_down = -1;
-static int hf_pfcp_nokia_access_line_params_flags_b16_min_up_lp = -1;
-static int hf_pfcp_nokia_access_line_params_flags_b17_min_down_lp = -1;
-static int hf_pfcp_nokia_access_line_params_flags_b18_max_inter_delay_up = -1;
-static int hf_pfcp_nokia_access_line_params_flags_b19_act_inter_delay_up = -1;
-static int hf_pfcp_nokia_access_line_params_flags_b20_max_inter_delay_down = -1;
-static int hf_pfcp_nokia_access_line_params_flags_b21_act_inter_delay_down = -1;
-static int hf_pfcp_nokia_access_line_params_flags_b22_access_loop_encap = -1;
-static int hf_pfcp_nokia_access_line_params_flags_b23_iw_session = -1;
-static int hf_pfcp_nokia_access_line_params_act_up = -1;
-static int hf_pfcp_nokia_access_line_params_act_down = -1;
-static int hf_pfcp_nokia_access_line_params_min_up = -1;
-static int hf_pfcp_nokia_access_line_params_min_down = -1;
-static int hf_pfcp_nokia_access_line_params_att_up = -1;
-static int hf_pfcp_nokia_access_line_params_att_down = -1;
-static int hf_pfcp_nokia_access_line_params_max_up = -1;
-static int hf_pfcp_nokia_access_line_params_max_down = -1;
-static int hf_pfcp_nokia_access_line_params_min_up_lp = -1;
-static int hf_pfcp_nokia_access_line_params_min_down_lp = -1;
-static int hf_pfcp_nokia_access_line_params_max_inter_delay_up = -1;
-static int hf_pfcp_nokia_access_line_params_act_inter_delay_up = -1;
-static int hf_pfcp_nokia_access_line_params_max_inter_delay_down = -1;
-static int hf_pfcp_nokia_access_line_params_act_inter_delay_down = -1;
-static int hf_pfcp_nokia_access_line_params_access_loop_encap = -1;
-static int hf_pfcp_nokia_acct_session_id = -1;
-static int hf_pfcp_nokia_fsg_template_name = -1;
+static int hf_pfcp_nokia_sap_template;
+static int hf_pfcp_nokia_group_iface_template;
+static int hf_pfcp_nokia_session_state_id;
+static int hf_pfcp_nokia_detailed_stats_key;
+static int hf_pfcp_nokia_detailed_stats_key_direction;
+static int hf_pfcp_nokia_detailed_stats_key_object_id;
+static int hf_pfcp_nokia_detailed_stats_key_stat_mode;
+static int hf_pfcp_nokia_detailed_stats_key_type;
+static int hf_pfcp_nokia_detailed_stats_bitmap_item;
+static int hf_pfcp_nokia_detailed_stats_octets;
+static int hf_pfcp_nokia_detailed_error;
+static int hf_pfcp_nokia_qos_override;
+static int hf_pfcp_nokia_measurement_info;
+static int hf_pfcp_nokia_measurement_info_b0_det;
+static int hf_pfcp_nokia_pfcpsmreq_flags;
+static int hf_pfcp_nokia_pfcpsmreq_flags_b0_abs;
+static int hf_pfcp_nokia_pfcpsmreq_flags_b1_audit;
+static int hf_pfcp_nokia_up_function_features_bulk_audit;
+static int hf_pfcp_nokia_up_function_features_sssg;
+static int hf_pfcp_nokia_filter_override_type;
+static int hf_pfcp_nokia_filter_override_name;
+static int hf_pfcp_nokia_intermediate_destination;
+static int hf_pfcp_nokia_nat_isa_members;
+static int hf_pfcp_nokia_pfcphb_flags;
+static int hf_pfcp_nokia_pfcphb_flags_b0_aud_r;
+static int hf_pfcp_nokia_pfcphb_flags_b1_aud_s;
+static int hf_pfcp_nokia_pfcphb_flags_b2_aud_e;
+static int hf_pfcp_nokia_l2tp_lcp_request;
+static int hf_pfcp_nokia_l2tp_auth_type;
+static int hf_pfcp_nokia_l2tp_auth_name;
+static int hf_pfcp_nokia_l2tp_auth_id;
+static int hf_pfcp_nokia_l2tp_auth_challenge;
+static int hf_pfcp_nokia_l2tp_auth_response;
+static int hf_pfcp_nokia_l2tp_tunnel_endpoint_ipv4_address;
+static int hf_pfcp_nokia_l2tp_tunnel_endpoint_ipv6_address;
+static int hf_pfcp_nokia_l2tp_client_auth_id;
+static int hf_pfcp_nokia_l2tp_server_auth_id;
+static int hf_pfcp_nokia_l2tp_password;
+static int hf_pfcp_nokia_l2tp_assignment_id;
+static int hf_pfcp_nokia_l2tp_private_group_id;
+static int hf_pfcp_nokia_l2tp_tunnel_params_flags;
+static int hf_pfcp_nokia_l2tp_params_flags_b31_hello_interval;
+static int hf_pfcp_nokia_l2tp_params_flags_b30_idle_timeout;
+static int hf_pfcp_nokia_l2tp_params_flags_b29_session_limit;
+static int hf_pfcp_nokia_l2tp_params_flags_b28_preference;
+static int hf_pfcp_nokia_l2tp_params_flags_b27_df_bit;
+static int hf_pfcp_nokia_l2tp_params_flags_b26_challenge;
+static int hf_pfcp_nokia_l2tp_params_flags_b25_avp_hiding;
+static int hf_pfcp_nokia_l2tp_params_flags_b24_algorithm;
+static int hf_pfcp_nokia_l2tp_params_flags_b19_rx_window_size;
+static int hf_pfcp_nokia_l2tp_params_flags_b18_max_retries_not_estab;
+static int hf_pfcp_nokia_l2tp_params_flags_b17_max_retries_estab;
+static int hf_pfcp_nokia_l2tp_params_flags_b16_destruct_timeout;
+static int hf_pfcp_nokia_l2tp_params_hello_interval;
+static int hf_pfcp_nokia_l2tp_params_idle_timeout;
+static int hf_pfcp_nokia_l2tp_params_session_limit;
+static int hf_pfcp_nokia_l2tp_params_preference;
+static int hf_pfcp_nokia_l2tp_params_df_bit;
+static int hf_pfcp_nokia_l2tp_params_challenge;
+static int hf_pfcp_nokia_l2tp_params_avp_hiding;
+static int hf_pfcp_nokia_l2tp_params_algorithm;
+static int hf_pfcp_nokia_l2tp_params_rx_window_size;
+static int hf_pfcp_nokia_l2tp_params_max_retries_not_estab;
+static int hf_pfcp_nokia_l2tp_params_max_retries_estab;
+static int hf_pfcp_nokia_l2tp_params_destruct_timeout;
+static int hf_pfcp_nokia_l2tp_local_tunnel_id;
+static int hf_pfcp_nokia_l2tp_remote_tunnel_id;
+static int hf_pfcp_nokia_l2tp_local_session_id;
+static int hf_pfcp_nokia_l2tp_remote_session_id;
+static int hf_pfcp_nokia_l2tp_call_serial_num;
+static int hf_pfcp_nokia_snat_inside_ipv4_address;
+static int hf_pfcp_nokia_access_line_circuit_id;
+static int hf_pfcp_nokia_access_line_remote_id;
+static int hf_pfcp_nokia_access_line_params_flags;
+static int hf_pfcp_nokia_access_line_params_flags_b24_act_up;
+static int hf_pfcp_nokia_access_line_params_flags_b25_act_down;
+static int hf_pfcp_nokia_access_line_params_flags_b26_min_up;
+static int hf_pfcp_nokia_access_line_params_flags_b27_min_down;
+static int hf_pfcp_nokia_access_line_params_flags_b28_att_up;
+static int hf_pfcp_nokia_access_line_params_flags_b29_att_down;
+static int hf_pfcp_nokia_access_line_params_flags_b30_max_up;
+static int hf_pfcp_nokia_access_line_params_flags_b31_max_down;
+static int hf_pfcp_nokia_access_line_params_flags_b16_min_up_lp;
+static int hf_pfcp_nokia_access_line_params_flags_b17_min_down_lp;
+static int hf_pfcp_nokia_access_line_params_flags_b18_max_inter_delay_up;
+static int hf_pfcp_nokia_access_line_params_flags_b19_act_inter_delay_up;
+static int hf_pfcp_nokia_access_line_params_flags_b20_max_inter_delay_down;
+static int hf_pfcp_nokia_access_line_params_flags_b21_act_inter_delay_down;
+static int hf_pfcp_nokia_access_line_params_flags_b22_access_loop_encap;
+static int hf_pfcp_nokia_access_line_params_flags_b23_iw_session;
+static int hf_pfcp_nokia_access_line_params_act_up;
+static int hf_pfcp_nokia_access_line_params_act_down;
+static int hf_pfcp_nokia_access_line_params_min_up;
+static int hf_pfcp_nokia_access_line_params_min_down;
+static int hf_pfcp_nokia_access_line_params_att_up;
+static int hf_pfcp_nokia_access_line_params_att_down;
+static int hf_pfcp_nokia_access_line_params_max_up;
+static int hf_pfcp_nokia_access_line_params_max_down;
+static int hf_pfcp_nokia_access_line_params_min_up_lp;
+static int hf_pfcp_nokia_access_line_params_min_down_lp;
+static int hf_pfcp_nokia_access_line_params_max_inter_delay_up;
+static int hf_pfcp_nokia_access_line_params_act_inter_delay_up;
+static int hf_pfcp_nokia_access_line_params_max_inter_delay_down;
+static int hf_pfcp_nokia_access_line_params_act_inter_delay_down;
+static int hf_pfcp_nokia_access_line_params_access_loop_encap;
+static int hf_pfcp_nokia_acct_session_id;
+static int hf_pfcp_nokia_fsg_template_name;
 
 
-static int ett_pfcp = -1;
-static int ett_pfcp_flags = -1;
-static int ett_pfcp_ie = -1;
-static int ett_pfcp_unknown_enterprise_ie = -1;
-static int ett_pfcp_grouped_ie = -1;
-static int ett_pfcp_reporting_triggers = -1;
-static int ett_pfcp_up_function_features = -1;
-static int ett_pfcp_report_trigger = -1;
-static int ett_pfcp_flow_desc = -1;
-static int ett_pfcp_tos = -1;
-static int ett_pfcp_spi = -1;
-static int ett_pfcp_flow_label = -1;
-static int ett_pfcp_sdf_filter_id = -1;
-static int ett_pfcp_adf = -1;
-static int ett_pfcp_aurl = -1;
-static int ett_pfcp_adnp = -1;
+static int ett_pfcp;
+static int ett_pfcp_flags;
+static int ett_pfcp_ie;
+static int ett_pfcp_unknown_enterprise_ie;
+static int ett_pfcp_grouped_ie;
+static int ett_pfcp_reporting_triggers;
+static int ett_pfcp_up_function_features;
+static int ett_pfcp_report_trigger;
+static int ett_pfcp_flow_desc;
+static int ett_pfcp_tos;
+static int ett_pfcp_spi;
+static int ett_pfcp_flow_label;
+static int ett_pfcp_sdf_filter_id;
+static int ett_pfcp_adf;
+static int ett_pfcp_aurl;
+static int ett_pfcp_adnp;
 
-static int ett_pfcp_enterprise_travelping_packet_measurement = -1;
-static int ett_pfcp_enterprise_travelping_error_report = -1;
-static int ett_pfcp_enterprise_travelping_created_nat_binding = -1;
-static int ett_pfcp_enterprise_travelping_trace_info = -1;
+static int ett_pfcp_enterprise_travelping_packet_measurement;
+static int ett_pfcp_enterprise_travelping_error_report;
+static int ett_pfcp_enterprise_travelping_created_nat_binding;
+static int ett_pfcp_enterprise_travelping_trace_info;
 
-static int ett_pfcp_bbf_ppp_protocol_flags = -1;
-static int ett_pfcp_bbf_l2tp_endp_flags = -1;
-static int ett_pfcp_bbf_l2tp_type_flags = -1;
-static int ett_pfcp_bbf_ppp_lcp_connectivity = -1;
-static int ett_pfcp_bbf_l2tp_tunnel = -1;
-static int ett_pfcp_bbf_nat_port_forward_list = -1;
+static int ett_pfcp_bbf_ppp_protocol_flags;
+static int ett_pfcp_bbf_l2tp_endp_flags;
+static int ett_pfcp_bbf_l2tp_type_flags;
+static int ett_pfcp_bbf_ppp_lcp_connectivity;
+static int ett_pfcp_bbf_l2tp_tunnel;
+static int ett_pfcp_bbf_nat_port_forward_list;
 
-static int ett_pfcp_nokia_detailed_stats_key = -1;
-static int ett_pfcp_nokia_detailed_stats_bitmap = -1;
-static int ett_pfcp_nokia_measurement_info = -1;
-static int ett_pfcp_nokia_pfcpsmreq_flags = -1;
-static int ett_pfcp_nokia_pfcphb_flags = -1;
-static int ett_pfcp_nokia_l2tp_tunnel_params_flags = -1;
-static int ett_pfcp_nokia_access_line_params_flags = -1;
+static int ett_pfcp_nokia_detailed_stats_key;
+static int ett_pfcp_nokia_detailed_stats_bitmap;
+static int ett_pfcp_nokia_measurement_info;
+static int ett_pfcp_nokia_pfcpsmreq_flags;
+static int ett_pfcp_nokia_pfcphb_flags;
+static int ett_pfcp_nokia_l2tp_tunnel_params_flags;
+static int ett_pfcp_nokia_access_line_params_flags;
 
-static expert_field ei_pfcp_ie_reserved = EI_INIT;
-static expert_field ei_pfcp_ie_data_not_decoded = EI_INIT;
-static expert_field ei_pfcp_ie_not_decoded_null = EI_INIT;
-static expert_field ei_pfcp_ie_not_decoded_too_large = EI_INIT;
-static expert_field ei_pfcp_ie_encoding_error = EI_INIT;
+static expert_field ei_pfcp_ie_reserved;
+static expert_field ei_pfcp_ie_data_not_decoded;
+static expert_field ei_pfcp_ie_not_decoded_null;
+static expert_field ei_pfcp_ie_not_decoded_too_large;
+static expert_field ei_pfcp_ie_encoding_error;
 
 
 static gboolean g_pfcp_session = FALSE;

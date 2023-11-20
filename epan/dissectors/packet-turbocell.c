@@ -40,30 +40,30 @@
 void proto_register_turbocell(void);
 void proto_reg_handoff_turbocell(void);
 
-static int proto_turbocell = -1;
-static int proto_aggregate = -1;
+static int proto_turbocell;
+static int proto_aggregate;
 
-static int hf_turbocell_type = -1;
-static int hf_turbocell_dst = -1;
-static int hf_turbocell_counter = -1;
-static int hf_turbocell_name = -1;
-static int hf_turbocell_nwid = -1;
-static int hf_turbocell_satmode = -1;
-static int hf_turbocell_unknown = -1;
-static int hf_turbocell_timestamp = -1;
-static int hf_turbocell_station = -1;
-static int hf_turbocell_ip = -1;
+static int hf_turbocell_type;
+static int hf_turbocell_dst;
+static int hf_turbocell_counter;
+static int hf_turbocell_name;
+static int hf_turbocell_nwid;
+static int hf_turbocell_satmode;
+static int hf_turbocell_unknown;
+static int hf_turbocell_timestamp;
+static int hf_turbocell_station;
+static int hf_turbocell_ip;
 
-static int hf_turbocell_aggregate_msdu_header_text = -1;
-static int hf_turbocell_aggregate_msdu_len = -1;
-static int hf_turbocell_aggregate_unknown1 = -1;
-static int hf_turbocell_aggregate_unknown2 = -1;
-static int hf_turbocell_aggregate_len = -1;
+static int hf_turbocell_aggregate_msdu_header_text;
+static int hf_turbocell_aggregate_msdu_len;
+static int hf_turbocell_aggregate_unknown1;
+static int hf_turbocell_aggregate_unknown2;
+static int hf_turbocell_aggregate_len;
 
-static gint ett_turbocell = -1;
-static gint ett_network = -1;
-static gint ett_msdu_aggregation_parent_tree = -1;
-static gint ett_msdu_aggregation_subframe_tree = -1;
+static gint ett_turbocell;
+static gint ett_network;
+static gint ett_msdu_aggregation_parent_tree;
+static gint ett_msdu_aggregation_subframe_tree;
 
 /* The ethernet dissector we hand off to */
 static dissector_handle_t eth_handle;

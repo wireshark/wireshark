@@ -43,22 +43,22 @@
 void proto_reg_handoff_smp(void);
 void proto_register_smp(void);
 
-static int proto_smp = -1;
+static int proto_smp;
 
-static int hf_smp_smid = -1;
-static int hf_smp_flags = -1;
-static int hf_smp_flags_syn = -1;
-static int hf_smp_flags_ack = -1;
-static int hf_smp_flags_fin = -1;
-static int hf_smp_flags_data = -1;
-static int hf_smp_sid = -1;
-static int hf_smp_length = -1;
-static int hf_smp_seqnum = -1;
-static int hf_smp_wndw = -1;
-static int hf_smp_data = -1;
+static int hf_smp_smid;
+static int hf_smp_flags;
+static int hf_smp_flags_syn;
+static int hf_smp_flags_ack;
+static int hf_smp_flags_fin;
+static int hf_smp_flags_data;
+static int hf_smp_sid;
+static int hf_smp_length;
+static int hf_smp_seqnum;
+static int hf_smp_wndw;
+static int hf_smp_data;
 
-static gint ett_smp = -1;
-static gint ett_smp_flags = -1;
+static gint ett_smp;
+static gint ett_smp_flags;
 
 #define SMP_FLAGS_SYN  0x01
 #define SMP_FLAGS_ACK  0x02

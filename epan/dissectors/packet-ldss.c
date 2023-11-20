@@ -155,37 +155,37 @@ void proto_register_ldss(void);
 void proto_reg_handoff_ldss(void);
 
 /* Define the ldss proto */
-static int	proto_ldss		= -1;
+static int	proto_ldss;
 
 /* Define headers for ldss */
-static int	hf_ldss_message_id	= -1;
-static int	hf_ldss_message_detail	= -1;
-static int	hf_ldss_digest_type	= -1;
-static int	hf_ldss_compression	= -1;
-static int	hf_ldss_cookie		= -1;
-static int	hf_ldss_digest		= -1;
-static int	hf_ldss_size		= -1;
-static int	hf_ldss_offset		= -1;
-static int	hf_ldss_target_time	= -1;
-static int	hf_ldss_reserved_1	= -1;
-static int	hf_ldss_port		= -1;
-static int	hf_ldss_rate		= -1;
-static int	hf_ldss_priority	= -1;
-static int	hf_ldss_property_count	= -1;
-static int	hf_ldss_properties	= -1;
-static int	hf_ldss_file_data	= -1;
-static int	hf_ldss_response_in	= -1;
-static int	hf_ldss_response_to	= -1;
-static int	hf_ldss_initiated_by	= -1;
-static int	hf_ldss_transfer_response_time	= -1;
-static int	hf_ldss_transfer_completed_in	= -1;
+static int	hf_ldss_message_id;
+static int	hf_ldss_message_detail;
+static int	hf_ldss_digest_type;
+static int	hf_ldss_compression;
+static int	hf_ldss_cookie;
+static int	hf_ldss_digest;
+static int	hf_ldss_size;
+static int	hf_ldss_offset;
+static int	hf_ldss_target_time;
+static int	hf_ldss_reserved_1;
+static int	hf_ldss_port;
+static int	hf_ldss_rate;
+static int	hf_ldss_priority;
+static int	hf_ldss_property_count;
+static int	hf_ldss_properties;
+static int	hf_ldss_file_data;
+static int	hf_ldss_response_in;
+static int	hf_ldss_response_to;
+static int	hf_ldss_initiated_by;
+static int	hf_ldss_transfer_response_time;
+static int	hf_ldss_transfer_completed_in;
 
 /* Define the tree for ldss */
-static int ett_ldss_broadcast	 = -1;
-static int ett_ldss_transfer     = -1;
-static int ett_ldss_transfer_req = -1;
+static int ett_ldss_broadcast;
+static int ett_ldss_transfer;
+static int ett_ldss_transfer_req;
 
-static expert_field ei_ldss_unrecognized_line = EI_INIT;
+static expert_field ei_ldss_unrecognized_line;
 
 
 static dissector_handle_t	ldss_udp_handle;

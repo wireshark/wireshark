@@ -129,60 +129,60 @@ static const value_string vals_tpi_opt[] = {
 };
 
 /* File scoped variables for the protocol and registered fields */
-static int proto_wtp = -1;
+static int proto_wtp;
 
 /* These fields used by fixed part of header */
-static int hf_wtp_header_sub_pdu_size      = -1;
-static int hf_wtp_header_flag_continue     = -1;
-static int hf_wtp_header_pdu_type          = -1;
-static int hf_wtp_header_flag_Trailer      = -1;
-static int hf_wtp_header_flag_RID          = -1;
-static int hf_wtp_header_flag_TID          = -1;
-static int hf_wtp_header_flag_TID_response = -1;
+static int hf_wtp_header_sub_pdu_size;
+static int hf_wtp_header_flag_continue;
+static int hf_wtp_header_pdu_type;
+static int hf_wtp_header_flag_Trailer;
+static int hf_wtp_header_flag_RID;
+static int hf_wtp_header_flag_TID;
+static int hf_wtp_header_flag_TID_response;
 
 /* These fields used by Invoke packets */
-static int hf_wtp_header_Inv_version          = -1;
-static int hf_wtp_header_Inv_flag_TIDNew      = -1;
-static int hf_wtp_header_Inv_flag_UP          = -1;
-static int hf_wtp_header_Inv_Reserved         = -1;
-static int hf_wtp_header_Inv_TransactionClass = -1;
+static int hf_wtp_header_Inv_version;
+static int hf_wtp_header_Inv_flag_TIDNew;
+static int hf_wtp_header_Inv_flag_UP;
+static int hf_wtp_header_Inv_Reserved;
+static int hf_wtp_header_Inv_TransactionClass;
 
-/* static int hf_wtp_header_variable_part = -1; */
-/* static int hf_wtp_data                 = -1; */
+/* static int hf_wtp_header_variable_part; */
+/* static int hf_wtp_data; */
 
-static int hf_wtp_tpi_type   = -1;
-static int hf_wtp_tpi_psn    = -1;
-static int hf_wtp_tpi_opt    = -1;
-static int hf_wtp_tpi_optval = -1;
-static int hf_wtp_tpi_info   = -1;
+static int hf_wtp_tpi_type;
+static int hf_wtp_tpi_psn;
+static int hf_wtp_tpi_opt;
+static int hf_wtp_tpi_optval;
+static int hf_wtp_tpi_info;
 
-static int hf_wtp_header_Ack_flag_TVETOK       = -1;
-static int hf_wtp_header_Abort_type            = -1;
-static int hf_wtp_header_Abort_reason_provider = -1;
-static int hf_wtp_header_Abort_reason_user     = -1;
-static int hf_wtp_header_sequence_number       = -1;
-static int hf_wtp_header_missing_packets       = -1;
-static int hf_wtp_payload                      = -1;
+static int hf_wtp_header_Ack_flag_TVETOK;
+static int hf_wtp_header_Abort_type;
+static int hf_wtp_header_Abort_reason_provider;
+static int hf_wtp_header_Abort_reason_user;
+static int hf_wtp_header_sequence_number;
+static int hf_wtp_header_missing_packets;
+static int hf_wtp_payload;
 
 /* These fields used when reassembling WTP fragments */
-static int hf_wtp_fragments                  = -1;
-static int hf_wtp_fragment                   = -1;
-static int hf_wtp_fragment_overlap           = -1;
-static int hf_wtp_fragment_overlap_conflict  = -1;
-static int hf_wtp_fragment_multiple_tails    = -1;
-static int hf_wtp_fragment_too_long_fragment = -1;
-static int hf_wtp_fragment_error             = -1;
-static int hf_wtp_fragment_count             = -1;
-static int hf_wtp_reassembled_in             = -1;
-static int hf_wtp_reassembled_length         = -1;
+static int hf_wtp_fragments;
+static int hf_wtp_fragment;
+static int hf_wtp_fragment_overlap;
+static int hf_wtp_fragment_overlap_conflict;
+static int hf_wtp_fragment_multiple_tails;
+static int hf_wtp_fragment_too_long_fragment;
+static int hf_wtp_fragment_error;
+static int hf_wtp_fragment_count;
+static int hf_wtp_reassembled_in;
+static int hf_wtp_reassembled_length;
 
 /* Initialize the subtree pointers */
-static gint ett_wtp              = -1;
-static gint ett_wtp_sub_pdu_tree = -1;
-static gint ett_header           = -1;
-static gint ett_tpilist          = -1;
-static gint ett_wsp_fragments    = -1;
-static gint ett_wtp_fragment     = -1;
+static gint ett_wtp;
+static gint ett_wtp_sub_pdu_tree;
+static gint ett_header;
+static gint ett_tpilist;
+static gint ett_wsp_fragments;
+static gint ett_wtp_fragment;
 
 static const fragment_items wtp_frag_items = {
     &ett_wtp_fragment,

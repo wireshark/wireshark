@@ -31,57 +31,57 @@ void proto_reg_handoff_ccsds(void);
 
 
 /* Initialize the protocol and registered fields */
-static int proto_ccsds = -1;
+static int proto_ccsds;
 
 /* primary ccsds header */
-static int hf_ccsds_header_flags = -1;
-static int hf_ccsds_apid = -1;
-static int hf_ccsds_version = -1;
-static int hf_ccsds_secheader = -1;
-static int hf_ccsds_type = -1;
-static int hf_ccsds_seqnum = -1;
-static int hf_ccsds_seqflag = -1;
-static int hf_ccsds_length = -1;
+static int hf_ccsds_header_flags;
+static int hf_ccsds_apid;
+static int hf_ccsds_version;
+static int hf_ccsds_secheader;
+static int hf_ccsds_type;
+static int hf_ccsds_seqnum;
+static int hf_ccsds_seqflag;
+static int hf_ccsds_length;
 
 /* common ccsds secondary header */
-static int hf_ccsds_coarse_time = -1;
-static int hf_ccsds_fine_time = -1;
-static int hf_ccsds_timeid = -1;
-static int hf_ccsds_checkword_flag = -1;
+static int hf_ccsds_coarse_time;
+static int hf_ccsds_fine_time;
+static int hf_ccsds_timeid;
+static int hf_ccsds_checkword_flag;
 
 /* payload specific ccsds secondary header */
-static int hf_ccsds_zoe = -1;
-static int hf_ccsds_packet_type_unused = -1;
-static int hf_ccsds_vid = -1;
-static int hf_ccsds_dcc = -1;
+static int hf_ccsds_zoe;
+static int hf_ccsds_packet_type_unused;
+static int hf_ccsds_vid;
+static int hf_ccsds_dcc;
 
 /* core specific ccsds secondary header */
-/* static int hf_ccsds_spare1 = -1; */
-static int hf_ccsds_packet_type = -1;
-/* static int hf_ccsds_spare2 = -1; */
-static int hf_ccsds_element_id = -1;
-static int hf_ccsds_cmd_data_packet = -1;
-static int hf_ccsds_format_version_id = -1;
-static int hf_ccsds_extended_format_id = -1;
-/* static int hf_ccsds_spare3 = -1; */
-static int hf_ccsds_frame_id = -1;
-static int hf_ccsds_embedded_time = -1;
-static int hf_ccsds_user_data = -1;
+/* static int hf_ccsds_spare1; */
+static int hf_ccsds_packet_type;
+/* static int hf_ccsds_spare2; */
+static int hf_ccsds_element_id;
+static int hf_ccsds_cmd_data_packet;
+static int hf_ccsds_format_version_id;
+static int hf_ccsds_extended_format_id;
+/* static int hf_ccsds_spare3; */
+static int hf_ccsds_frame_id;
+static int hf_ccsds_embedded_time;
+static int hf_ccsds_user_data;
 
 /* ccsds checkword (checksum) */
-static int hf_ccsds_checkword = -1;
-static int hf_ccsds_checkword_good = -1;
-static int hf_ccsds_checkword_bad = -1;
+static int hf_ccsds_checkword;
+static int hf_ccsds_checkword_good;
+static int hf_ccsds_checkword_bad;
 
 /* Initialize the subtree pointers */
-static gint ett_ccsds_primary_header_flags = -1;
-static gint ett_ccsds = -1;
-static gint ett_ccsds_primary_header = -1;
-static gint ett_ccsds_secondary_header = -1;
-static gint ett_ccsds_checkword = -1;
+static gint ett_ccsds_primary_header_flags;
+static gint ett_ccsds;
+static gint ett_ccsds_primary_header;
+static gint ett_ccsds_secondary_header;
+static gint ett_ccsds_checkword;
 
-static expert_field ei_ccsds_length_error = EI_INIT;
-static expert_field ei_ccsds_checkword = EI_INIT;
+static expert_field ei_ccsds_length_error;
+static expert_field ei_ccsds_checkword;
 
 static dissector_handle_t ccsds_handle;
 /* Dissector table */

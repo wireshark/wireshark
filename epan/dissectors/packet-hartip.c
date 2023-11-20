@@ -27,217 +27,217 @@ static dissector_handle_t hartip_udp_handle;
 
 static gboolean hartip_desegment  = TRUE;
 
-static int proto_hartip = -1;
-static int hf_hartip_hdr_version = -1;
-static int hf_hartip_hdr_message_id = -1;
-static int hf_hartip_hdr_message_type = -1;
-static int hf_hartip_hdr_status = -1;
-static int hf_hartip_hdr_transaction_id = -1;
-static int hf_hartip_hdr_msg_length = -1;
+static int proto_hartip;
+static int hf_hartip_hdr_version;
+static int hf_hartip_hdr_message_id;
+static int hf_hartip_hdr_message_type;
+static int hf_hartip_hdr_status;
+static int hf_hartip_hdr_transaction_id;
+static int hf_hartip_hdr_msg_length;
 
-static int hf_hartip_data = -1;
-static int hf_hartip_master_type = -1;
-static int hf_hartip_inactivity_close_timer = -1;
-static int hf_hartip_error_code = -1;
+static int hf_hartip_data;
+static int hf_hartip_master_type;
+static int hf_hartip_inactivity_close_timer;
+static int hf_hartip_error_code;
 
-static int hf_hartip_pt_preambles = -1;
-static int hf_hartip_pt_delimiter = -1;
-static int hf_hartip_pt_delimiter_frame_type = -1;
-static int hf_hartip_pt_delimiter_physical_layer_type = -1;
-static int hf_hartip_pt_delimiter_number_of_expansion_bytes = -1;
-static int hf_hartip_pt_delimiter_address_type = -1;
-static int hf_hartip_pt_short_addr = -1;
-static int hf_hartip_pt_long_addr = -1;
-static int hf_hartip_pt_expansion_bytes = -1;
-static int hf_hartip_pt_command = -1;
-static int hf_hartip_pt_length = -1;
-static int hf_hartip_pt_response_code = -1;
-static int hf_hartip_pt_device_status = -1;
-static int hf_hartip_pt_payload = -1;
-static int hf_hartip_pt_checksum = -1;
+static int hf_hartip_pt_preambles;
+static int hf_hartip_pt_delimiter;
+static int hf_hartip_pt_delimiter_frame_type;
+static int hf_hartip_pt_delimiter_physical_layer_type;
+static int hf_hartip_pt_delimiter_number_of_expansion_bytes;
+static int hf_hartip_pt_delimiter_address_type;
+static int hf_hartip_pt_short_addr;
+static int hf_hartip_pt_long_addr;
+static int hf_hartip_pt_expansion_bytes;
+static int hf_hartip_pt_command;
+static int hf_hartip_pt_length;
+static int hf_hartip_pt_response_code;
+static int hf_hartip_pt_device_status;
+static int hf_hartip_pt_payload;
+static int hf_hartip_pt_checksum;
 
-static gint ett_hartip = -1;
-static gint ett_hartip_hdr = -1;
-static gint ett_hartip_body = -1;
-static gint ett_hartip_pt_delimiter = -1;
+static gint ett_hartip;
+static gint ett_hartip_hdr;
+static gint ett_hartip_body;
+static gint ett_hartip_pt_delimiter;
 
-static expert_field ei_hartip_data_none = EI_INIT;
-static expert_field ei_hartip_data_unexpected = EI_INIT;
+static expert_field ei_hartip_data_none;
+static expert_field ei_hartip_data_unexpected;
 
 /* Command 0 response */
-static int hf_hartip_pt_rsp_expansion_code = -1;
-static int hf_hartip_pt_rsp_expanded_device_type = -1;
-static int hf_hartip_pt_rsp_req_min_preambles = -1;
-static int hf_hartip_pt_rsp_hart_protocol_major_rev = -1;
-static int hf_hartip_pt_rsp_device_rev = -1;
-static int hf_hartip_pt_rsp_software_rev = -1;
-static int hf_hartip_pt_rsp_hardware_rev_physical_signal = -1;
-static int hf_hartip_pt_rsp_flage = -1;
-static int hf_hartip_pt_rsp_device_id = -1;
-static int hf_hartip_pt_rsp_rsp_min_preambles = -1;
-static int hf_hartip_pt_rsp_max_device_variables = -1;
-static int hf_hartip_pt_rsp_configuration_change_counter = -1;
-static int hf_hartip_pt_rsp_extended_device_status = -1;
-static int hf_hartip_pt_rsp_manufacturer_Identification_code = -1;
-static int hf_hartip_pt_rsp_private_label = -1;
-static int hf_hartip_pt_rsp_device_profile = -1;
+static int hf_hartip_pt_rsp_expansion_code;
+static int hf_hartip_pt_rsp_expanded_device_type;
+static int hf_hartip_pt_rsp_req_min_preambles;
+static int hf_hartip_pt_rsp_hart_protocol_major_rev;
+static int hf_hartip_pt_rsp_device_rev;
+static int hf_hartip_pt_rsp_software_rev;
+static int hf_hartip_pt_rsp_hardware_rev_physical_signal;
+static int hf_hartip_pt_rsp_flage;
+static int hf_hartip_pt_rsp_device_id;
+static int hf_hartip_pt_rsp_rsp_min_preambles;
+static int hf_hartip_pt_rsp_max_device_variables;
+static int hf_hartip_pt_rsp_configuration_change_counter;
+static int hf_hartip_pt_rsp_extended_device_status;
+static int hf_hartip_pt_rsp_manufacturer_Identification_code;
+static int hf_hartip_pt_rsp_private_label;
+static int hf_hartip_pt_rsp_device_profile;
 
 /* Command 2 response */
-static int hf_hartip_pt_rsp_pv_percent_range = -1;
+static int hf_hartip_pt_rsp_pv_percent_range;
 
 /* Command 3 response */
-static int hf_hartip_pt_rsp_pv_loop_current = -1;
-static int hf_hartip_pt_rsp_pv_units = -1;
-static int hf_hartip_pt_rsp_pv = -1;
-static int hf_hartip_pt_rsp_sv_units = -1;
-static int hf_hartip_pt_rsp_sv = -1;
-static int hf_hartip_pt_rsp_tv_units = -1;
-static int hf_hartip_pt_rsp_tv = -1;
-static int hf_hartip_pt_rsp_qv_units = -1;
-static int hf_hartip_pt_rsp_qv = -1;
+static int hf_hartip_pt_rsp_pv_loop_current;
+static int hf_hartip_pt_rsp_pv_units;
+static int hf_hartip_pt_rsp_pv;
+static int hf_hartip_pt_rsp_sv_units;
+static int hf_hartip_pt_rsp_sv;
+static int hf_hartip_pt_rsp_tv_units;
+static int hf_hartip_pt_rsp_tv;
+static int hf_hartip_pt_rsp_qv_units;
+static int hf_hartip_pt_rsp_qv;
 
 /* Command 7 response*/
-static int hf_hartip_pt_rsp_loop_current_mode = -1;
+static int hf_hartip_pt_rsp_loop_current_mode;
 
 /* Command 8 response*/
-static int hf_hartip_pt_rsp_primary_var_classify = -1;
-static int hf_hartip_pt_rsp_secondary_var_classify = -1;
-static int hf_hartip_pt_rsp_tertiary_var_classify = -1;
-static int hf_hartip_pt_rsp_quaternary_var_classify = -1;
+static int hf_hartip_pt_rsp_primary_var_classify;
+static int hf_hartip_pt_rsp_secondary_var_classify;
+static int hf_hartip_pt_rsp_tertiary_var_classify;
+static int hf_hartip_pt_rsp_quaternary_var_classify;
 
 /* Command 9 response */
-static int hf_hartip_pt_rsp_slot0_device_var = -1;
-static int hf_hartip_pt_rsp_slot0_device_var_classify = -1;
-static int hf_hartip_pt_rsp_slot0_units = -1;
-static int hf_hartip_pt_rsp_slot0_device_var_value = -1;
-static int hf_hartip_pt_rsp_slot0_device_var_status = -1;
+static int hf_hartip_pt_rsp_slot0_device_var;
+static int hf_hartip_pt_rsp_slot0_device_var_classify;
+static int hf_hartip_pt_rsp_slot0_units;
+static int hf_hartip_pt_rsp_slot0_device_var_value;
+static int hf_hartip_pt_rsp_slot0_device_var_status;
 
-static int hf_hartip_pt_rsp_slot1_device_var = -1;
-static int hf_hartip_pt_rsp_slot1_device_var_classify = -1;
-static int hf_hartip_pt_rsp_slot1_units = -1;
-static int hf_hartip_pt_rsp_slot1_device_var_value = -1;
-static int hf_hartip_pt_rsp_slot1_device_var_status = -1;
+static int hf_hartip_pt_rsp_slot1_device_var;
+static int hf_hartip_pt_rsp_slot1_device_var_classify;
+static int hf_hartip_pt_rsp_slot1_units;
+static int hf_hartip_pt_rsp_slot1_device_var_value;
+static int hf_hartip_pt_rsp_slot1_device_var_status;
 
-static int hf_hartip_pt_rsp_slot2_device_var = -1;
-static int hf_hartip_pt_rsp_slot2_device_var_classify = -1;
-static int hf_hartip_pt_rsp_slot2_units = -1;
-static int hf_hartip_pt_rsp_slot2_device_var_value = -1;
-static int hf_hartip_pt_rsp_slot2_device_var_status = -1;
+static int hf_hartip_pt_rsp_slot2_device_var;
+static int hf_hartip_pt_rsp_slot2_device_var_classify;
+static int hf_hartip_pt_rsp_slot2_units;
+static int hf_hartip_pt_rsp_slot2_device_var_value;
+static int hf_hartip_pt_rsp_slot2_device_var_status;
 
-static int hf_hartip_pt_rsp_slot3_device_var = -1;
-static int hf_hartip_pt_rsp_slot3_device_var_classify = -1;
-static int hf_hartip_pt_rsp_slot3_units = -1;
-static int hf_hartip_pt_rsp_slot3_device_var_value = -1;
-static int hf_hartip_pt_rsp_slot3_device_var_status = -1;
+static int hf_hartip_pt_rsp_slot3_device_var;
+static int hf_hartip_pt_rsp_slot3_device_var_classify;
+static int hf_hartip_pt_rsp_slot3_units;
+static int hf_hartip_pt_rsp_slot3_device_var_value;
+static int hf_hartip_pt_rsp_slot3_device_var_status;
 
-static int hf_hartip_pt_rsp_slot4_device_var = -1;
-static int hf_hartip_pt_rsp_slot4_device_var_classify = -1;
-static int hf_hartip_pt_rsp_slot4_units = -1;
-static int hf_hartip_pt_rsp_slot4_device_var_value = -1;
-static int hf_hartip_pt_rsp_slot4_device_var_status = -1;
+static int hf_hartip_pt_rsp_slot4_device_var;
+static int hf_hartip_pt_rsp_slot4_device_var_classify;
+static int hf_hartip_pt_rsp_slot4_units;
+static int hf_hartip_pt_rsp_slot4_device_var_value;
+static int hf_hartip_pt_rsp_slot4_device_var_status;
 
-static int hf_hartip_pt_rsp_slot5_device_var = -1;
-static int hf_hartip_pt_rsp_slot5_device_var_classify = -1;
-static int hf_hartip_pt_rsp_slot5_units = -1;
-static int hf_hartip_pt_rsp_slot5_device_var_value = -1;
-static int hf_hartip_pt_rsp_slot5_device_var_status = -1;
+static int hf_hartip_pt_rsp_slot5_device_var;
+static int hf_hartip_pt_rsp_slot5_device_var_classify;
+static int hf_hartip_pt_rsp_slot5_units;
+static int hf_hartip_pt_rsp_slot5_device_var_value;
+static int hf_hartip_pt_rsp_slot5_device_var_status;
 
-static int hf_hartip_pt_rsp_slot6_device_var = -1;
-static int hf_hartip_pt_rsp_slot6_device_var_classify = -1;
-static int hf_hartip_pt_rsp_slot6_units = -1;
-static int hf_hartip_pt_rsp_slot6_device_var_value = -1;
-static int hf_hartip_pt_rsp_slot6_device_var_status = -1;
+static int hf_hartip_pt_rsp_slot6_device_var;
+static int hf_hartip_pt_rsp_slot6_device_var_classify;
+static int hf_hartip_pt_rsp_slot6_units;
+static int hf_hartip_pt_rsp_slot6_device_var_value;
+static int hf_hartip_pt_rsp_slot6_device_var_status;
 
-static int hf_hartip_pt_rsp_slot7_device_var = -1;
-static int hf_hartip_pt_rsp_slot7_device_var_classify = -1;
-static int hf_hartip_pt_rsp_slot7_units = -1;
-static int hf_hartip_pt_rsp_slot7_device_var_value = -1;
-static int hf_hartip_pt_rsp_slot7_device_var_status = -1;
+static int hf_hartip_pt_rsp_slot7_device_var;
+static int hf_hartip_pt_rsp_slot7_device_var_classify;
+static int hf_hartip_pt_rsp_slot7_units;
+static int hf_hartip_pt_rsp_slot7_device_var_value;
+static int hf_hartip_pt_rsp_slot7_device_var_status;
 
-static int hf_hartip_pt_rsp_slot0_timestamp = -1;
+static int hf_hartip_pt_rsp_slot0_timestamp;
 
 /* Command 13 response */
-static int hf_hartip_pt_rsp_packed_descriptor = -1;
-static int hf_hartip_pt_rsp_day = -1;
-static int hf_hartip_pt_rsp_month = -1;
-static int hf_hartip_pt_rsp_year = -1;
+static int hf_hartip_pt_rsp_packed_descriptor;
+static int hf_hartip_pt_rsp_day;
+static int hf_hartip_pt_rsp_month;
+static int hf_hartip_pt_rsp_year;
 
 /* Command 14 response */
-static int hf_hartip_pt_rsp_transducer_serial_number = -1;
-static int hf_hartip_pt_rsp_transducer_limit_min_span_units = -1;
-static int hf_hartip_pt_rsp_upper_transducer_limit = -1;
-static int hf_hartip_pt_rsp_lower_transducer_limit = -1;
-static int hf_hartip_pt_rsp_minimum_span = -1;
+static int hf_hartip_pt_rsp_transducer_serial_number;
+static int hf_hartip_pt_rsp_transducer_limit_min_span_units;
+static int hf_hartip_pt_rsp_upper_transducer_limit;
+static int hf_hartip_pt_rsp_lower_transducer_limit;
+static int hf_hartip_pt_rsp_minimum_span;
 
 /* Command 15 response */
-static int hf_hartip_pt_rsp_pv_alarm_selection_code = -1;
-static int hf_hartip_pt_rsp_pv_transfer_function_code = -1;
-static int hf_hartip_pt_rsp_pv_upper_and_lower_range_values_units = -1;
-static int hf_hartip_pt_rsp_pv_upper_range_value = -1;
-static int hf_hartip_pt_rsp_pv_lower_range_value = -1;
-static int hf_hartip_pt_rsp_pv_damping_value = -1;
-static int hf_hartip_pt_rsp_write_protect_code = -1;
-static int hf_hartip_pt_rsp_reserved = -1;
-static int hf_hartip_pt_rsp_pv_analog_channel_flags = -1;
+static int hf_hartip_pt_rsp_pv_alarm_selection_code;
+static int hf_hartip_pt_rsp_pv_transfer_function_code;
+static int hf_hartip_pt_rsp_pv_upper_and_lower_range_values_units;
+static int hf_hartip_pt_rsp_pv_upper_range_value;
+static int hf_hartip_pt_rsp_pv_lower_range_value;
+static int hf_hartip_pt_rsp_pv_damping_value;
+static int hf_hartip_pt_rsp_write_protect_code;
+static int hf_hartip_pt_rsp_reserved;
+static int hf_hartip_pt_rsp_pv_analog_channel_flags;
 
 /* Command 16 and 19 response */
-static int hf_hartip_pt_rsp_final_assembly_number = -1;
+static int hf_hartip_pt_rsp_final_assembly_number;
 
 /* response Tag */
-static int hf_hartip_pt_rsp_tag = -1;
+static int hf_hartip_pt_rsp_tag;
 
 /* response Message */
-static int hf_hartip_pt_rsp_message = -1;
+static int hf_hartip_pt_rsp_message;
 
 /* Command 48 response */
-static int hf_hartip_pt_rsp_device_sp_status = -1;
-static int hf_hartip_pt_rsp_device_op_mode = -1;
-static int hf_hartip_pt_rsp_standardized_status_0 = -1;
-static int hf_hartip_pt_rsp_standardized_status_1 = -1;
-static int hf_hartip_pt_rsp_analog_channel_saturated = -1;
-static int hf_hartip_pt_rsp_standardized_status_2 = -1;
-static int hf_hartip_pt_rsp_standardized_status_3 = -1;
-static int hf_hartip_pt_rsp_analog_channel_fixed = -1;
+static int hf_hartip_pt_rsp_device_sp_status;
+static int hf_hartip_pt_rsp_device_op_mode;
+static int hf_hartip_pt_rsp_standardized_status_0;
+static int hf_hartip_pt_rsp_standardized_status_1;
+static int hf_hartip_pt_rsp_analog_channel_saturated;
+static int hf_hartip_pt_rsp_standardized_status_2;
+static int hf_hartip_pt_rsp_standardized_status_3;
+static int hf_hartip_pt_rsp_analog_channel_fixed;
 
 /* Command 77 response */
-static int hf_hartip_pt_rsp_io_card = -1;
-static int hf_hartip_pt_rsp_channel = -1;
-static int hf_hartip_pt_req_tx_preamble_count = -1;
-static int hf_hartip_pt_rsp_embedded_cmd_delimiter = -1;
-static int hf_hartip_pt_rsp_poll_address = -1;
-static int hf_hartip_pt_rsp_unique_id = -1;
-static int hf_hartip_pt_rsp_embedded_cmd = -1;
+static int hf_hartip_pt_rsp_io_card;
+static int hf_hartip_pt_rsp_channel;
+static int hf_hartip_pt_req_tx_preamble_count;
+static int hf_hartip_pt_rsp_embedded_cmd_delimiter;
+static int hf_hartip_pt_rsp_poll_address;
+static int hf_hartip_pt_rsp_unique_id;
+static int hf_hartip_pt_rsp_embedded_cmd;
 
 /* Command 31 and 178 response */
-static int hf_hartip_pt_rsp_number_of_commands = -1;
-static int hf_hartip_pt_rsp_command_number = -1;
-static int hf_hartip_pt_rsp_command_byte_count = -1;
+static int hf_hartip_pt_rsp_number_of_commands;
+static int hf_hartip_pt_rsp_command_number;
+static int hf_hartip_pt_rsp_command_byte_count;
 
 /* Command 31, 77 and 178 response */
-static int hf_hartip_pt_rsp_data = -1;
+static int hf_hartip_pt_rsp_data;
 
 /*Command 203 response*/
-static int hf_hartip_pt_rsp_index_of_first_discrete_var = -1;
-static int hf_hartip_pt_rsp_number_of_discrete_vars = -1;
-static int hf_hartip_pt_rsp_timestamp_for_most_recent_discrete_change = -1;
+static int hf_hartip_pt_rsp_index_of_first_discrete_var;
+static int hf_hartip_pt_rsp_number_of_discrete_vars;
+static int hf_hartip_pt_rsp_timestamp_for_most_recent_discrete_change;
 
-static int hf_hartip_pt_rsp_slot0_discrete_var_state = -1;
-static int hf_hartip_pt_rsp_slot0_discrete_var_status = -1;
+static int hf_hartip_pt_rsp_slot0_discrete_var_state;
+static int hf_hartip_pt_rsp_slot0_discrete_var_status;
 
-static int hf_hartip_pt_rsp_slot1_discrete_var_state = -1;
-static int hf_hartip_pt_rsp_slot1_discrete_var_status = -1;
+static int hf_hartip_pt_rsp_slot1_discrete_var_state;
+static int hf_hartip_pt_rsp_slot1_discrete_var_status;
 
-static int hf_hartip_pt_rsp_slot2_discrete_var_state = -1;
-static int hf_hartip_pt_rsp_slot2_discrete_var_status = -1;
+static int hf_hartip_pt_rsp_slot2_discrete_var_state;
+static int hf_hartip_pt_rsp_slot2_discrete_var_status;
 
-static int hf_hartip_pt_rsp_slot3_discrete_var_state = -1;
-static int hf_hartip_pt_rsp_slot3_discrete_var_status = -1;
+static int hf_hartip_pt_rsp_slot3_discrete_var_state;
+static int hf_hartip_pt_rsp_slot3_discrete_var_status;
 
-static int hf_hartip_pt_rsp_slot4_discrete_var_state = -1;
-static int hf_hartip_pt_rsp_slot4_discrete_var_status = -1;
+static int hf_hartip_pt_rsp_slot4_discrete_var_state;
+static int hf_hartip_pt_rsp_slot4_discrete_var_status;
 
-static int hf_hartip_pt_rsp_slot5_discrete_var_state = -1;
-static int hf_hartip_pt_rsp_slot5_discrete_var_status = -1;
+static int hf_hartip_pt_rsp_slot5_discrete_var_state;
+static int hf_hartip_pt_rsp_slot5_discrete_var_status;
 
 #define HARTIP_HEADER_LENGTH     8
 #define HARTIP_PORT           5094

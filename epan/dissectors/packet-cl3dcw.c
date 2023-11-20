@@ -24,19 +24,19 @@ static dissector_handle_t cl3dcw_handle;
 #define SSID_MAX_LENGTH 32
 
 /* persistent handles for this dissector */
-static int           proto_cl3dcw               = -1;
-static gint          ett_cl3dcw                 = -1;
-static int           hf_cl3dcw_type             = -1;
-static int           hf_cl3dcw_dccount          = -1;
-static int           hf_cl3dcw_datamacaddrcount = -1;
-static int           hf_cl3dcw_datassidcount    = -1;
-static int           hf_cl3dcw_dcmacaddr        = -1;
-static int           hf_cl3dcw_dcssid           = -1;
-static int           hf_cl3dcw_dcbond           = -1;
-static gint          ett_cl3dcw_dcbond          = -1;
-static expert_field  ei_cl3dcw_unknown_type     = EI_INIT;
-static expert_field  ei_cl3dcw_nodc             = EI_INIT;
-static expert_field  ei_cl3dcw_ssid_too_big     = EI_INIT;
+static int           proto_cl3dcw;
+static gint          ett_cl3dcw;
+static int           hf_cl3dcw_type;
+static int           hf_cl3dcw_dccount;
+static int           hf_cl3dcw_datamacaddrcount;
+static int           hf_cl3dcw_datassidcount;
+static int           hf_cl3dcw_dcmacaddr;
+static int           hf_cl3dcw_dcssid;
+static int           hf_cl3dcw_dcbond;
+static gint          ett_cl3dcw_dcbond;
+static expert_field  ei_cl3dcw_unknown_type;
+static expert_field  ei_cl3dcw_nodc;
+static expert_field  ei_cl3dcw_ssid_too_big;
 
 
 /* message id types */

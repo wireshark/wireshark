@@ -25,48 +25,48 @@ static dissector_handle_t gnutella_handle;
  *	http://rfc-gnutella.sourceforge.net/developer/index.html
  */
 
-static int proto_gnutella = -1;
+static int proto_gnutella;
 
-static int hf_gnutella_stream = -1;
+static int hf_gnutella_stream;
 
-static int hf_gnutella_header = -1;
-static int hf_gnutella_header_id = -1;
-static int hf_gnutella_header_payload = -1;
-static int hf_gnutella_header_ttl = -1;
-static int hf_gnutella_header_hops = -1;
-static int hf_gnutella_header_size = -1;
+static int hf_gnutella_header;
+static int hf_gnutella_header_id;
+static int hf_gnutella_header_payload;
+static int hf_gnutella_header_ttl;
+static int hf_gnutella_header_hops;
+static int hf_gnutella_header_size;
 
-static int hf_gnutella_pong_payload = -1;
-static int hf_gnutella_pong_port = -1;
-static int hf_gnutella_pong_ip = -1;
-static int hf_gnutella_pong_files = -1;
-static int hf_gnutella_pong_kbytes = -1;
+static int hf_gnutella_pong_payload;
+static int hf_gnutella_pong_port;
+static int hf_gnutella_pong_ip;
+static int hf_gnutella_pong_files;
+static int hf_gnutella_pong_kbytes;
 
-static int hf_gnutella_query_payload = -1;
-static int hf_gnutella_query_min_speed = -1;
-static int hf_gnutella_query_search = -1;
+static int hf_gnutella_query_payload;
+static int hf_gnutella_query_min_speed;
+static int hf_gnutella_query_search;
 
-static int hf_gnutella_queryhit_payload = -1;
-static int hf_gnutella_queryhit_count = -1;
-static int hf_gnutella_queryhit_port = -1;
-static int hf_gnutella_queryhit_ip = -1;
-static int hf_gnutella_queryhit_speed = -1;
-static int hf_gnutella_queryhit_extra = -1;
-static int hf_gnutella_queryhit_servent_id = -1;
+static int hf_gnutella_queryhit_payload;
+static int hf_gnutella_queryhit_count;
+static int hf_gnutella_queryhit_port;
+static int hf_gnutella_queryhit_ip;
+static int hf_gnutella_queryhit_speed;
+static int hf_gnutella_queryhit_extra;
+static int hf_gnutella_queryhit_servent_id;
 
-static int hf_gnutella_queryhit_hit = -1;
-static int hf_gnutella_queryhit_hit_index = -1;
-static int hf_gnutella_queryhit_hit_size = -1;
-static int hf_gnutella_queryhit_hit_name = -1;
-static int hf_gnutella_queryhit_hit_extra = -1;
+static int hf_gnutella_queryhit_hit;
+static int hf_gnutella_queryhit_hit_index;
+static int hf_gnutella_queryhit_hit_size;
+static int hf_gnutella_queryhit_hit_name;
+static int hf_gnutella_queryhit_hit_extra;
 
-static int hf_gnutella_push_payload = -1;
-static int hf_gnutella_push_servent_id = -1;
-static int hf_gnutella_push_index = -1;
-static int hf_gnutella_push_ip = -1;
-static int hf_gnutella_push_port = -1;
+static int hf_gnutella_push_payload;
+static int hf_gnutella_push_servent_id;
+static int hf_gnutella_push_index;
+static int hf_gnutella_push_ip;
+static int hf_gnutella_push_port;
 
-static gint ett_gnutella = -1;
+static gint ett_gnutella;
 
 #define GNUTELLA_TCP_PORT	6346
 

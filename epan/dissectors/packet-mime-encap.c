@@ -16,7 +16,7 @@
 void proto_register_mime_encap(void);
 void proto_reg_handoff_mime_encap(void);
 
-static int proto_mime_encap = -1;
+static int proto_mime_encap;
 
 static dissector_handle_t mime_encap_handle;
 

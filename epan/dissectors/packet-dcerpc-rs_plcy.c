@@ -22,9 +22,9 @@ void proto_reg_handoff_dcerpc_rs_plcy(void);
 
 /* Global hf index fields */
 
-static int proto_dcerpc_rs_plcy = -1;
-static int hf_rs_plcy_opnum = -1;
-static gint ett_dcerpc_rs_plcy = -1;
+static int proto_dcerpc_rs_plcy;
+static int hf_rs_plcy_opnum;
+static gint ett_dcerpc_rs_plcy;
 
 static e_guid_t uuid_dcerpc_rs_plcy = {
 	0x4c878280, 0x4000, 0x0000,

@@ -110,39 +110,39 @@ extern int hf_clnp_atntt; /* as defined in packet-clnp.c */
 extern int hf_clnp_atnsc; /* as defined in packet-clnp.c */
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_osi_options_address_mask = -1;
-static int hf_osi_options_transit_delay_vs_cost = -1;
-static int hf_osi_options_rtd_general = -1;
-static int hf_osi_options_residual_error_prob_vs_transit_delay = -1;
-static int hf_osi_options_qos_sequencing_vs_transit_delay = -1;
-static int hf_osi_options_rtd_address = -1;
-static int hf_osi_options_congestion_experienced = -1;
-static int hf_osi_options_esct = -1;
-static int hf_osi_options_rtd_reassembly = -1;
-static int hf_osi_options_qos_maintenance = -1;
-static int hf_osi_options_security_type = -1;
-static int hf_osi_options_route_recording = -1;
-static int hf_osi_options_last_hop = -1;
-static int hf_osi_options_route = -1;
-static int hf_osi_options_rtd_lifetime = -1;
-static int hf_osi_options_rtd_source_routing = -1;
-static int hf_osi_options_padding = -1;
-static int hf_osi_options_rfd_error_class = -1;
-static int hf_osi_options_snpa_mask = -1;
-static int hf_osi_options_source_routing = -1;
-static int hf_osi_options_priority = -1;
-static int hf_osi_options_qos_reserved = -1;
-static int hf_osi_options_residual_error_prob_vs_cost = -1;
-static int hf_osi_options_rtd_pdu_discarded = -1;
-static int hf_osi_options_rfd_field = -1;
+static int hf_osi_options_address_mask;
+static int hf_osi_options_transit_delay_vs_cost;
+static int hf_osi_options_rtd_general;
+static int hf_osi_options_residual_error_prob_vs_transit_delay;
+static int hf_osi_options_qos_sequencing_vs_transit_delay;
+static int hf_osi_options_rtd_address;
+static int hf_osi_options_congestion_experienced;
+static int hf_osi_options_esct;
+static int hf_osi_options_rtd_reassembly;
+static int hf_osi_options_qos_maintenance;
+static int hf_osi_options_security_type;
+static int hf_osi_options_route_recording;
+static int hf_osi_options_last_hop;
+static int hf_osi_options_route;
+static int hf_osi_options_rtd_lifetime;
+static int hf_osi_options_rtd_source_routing;
+static int hf_osi_options_padding;
+static int hf_osi_options_rfd_error_class;
+static int hf_osi_options_snpa_mask;
+static int hf_osi_options_source_routing;
+static int hf_osi_options_priority;
+static int hf_osi_options_qos_reserved;
+static int hf_osi_options_residual_error_prob_vs_cost;
+static int hf_osi_options_rtd_pdu_discarded;
+static int hf_osi_options_rfd_field;
 
-static gint ett_osi_options       = -1;
-static gint ett_osi_qos           = -1;
-static gint ett_osi_route         = -1;
-static gint ett_osi_redirect      = -1;
+static gint ett_osi_options;
+static gint ett_osi_qos;
+static gint ett_osi_route;
+static gint ett_osi_redirect;
 
-static expert_field ei_osi_options_none = EI_INIT;
-static expert_field ei_osi_options_rfd_error_class = EI_INIT;
+static expert_field ei_osi_options_none;
+static expert_field ei_osi_options_rfd_error_class;
 
 static const guchar atn_security_registration_val[] = {
   0x06, 0x04, 0x2b, 0x1b, 0x00, 0x00

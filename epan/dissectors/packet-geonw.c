@@ -154,9 +154,9 @@ void proto_register_geonw(void);
  */
 static wmem_map_t *geonw_hashtable = NULL;
 
-static int proto_geonw = -1;
-static int proto_btpa = -1;
-static int proto_btpb = -1;
+static int proto_geonw;
+static int proto_btpa;
+static int proto_btpb;
 
 static int geonw_tap = -1;
 static int btpa_tap = -1;
@@ -164,125 +164,125 @@ static int btpa_follow_tap = -1;
 static int btpb_tap = -1;
 static int btpb_follow_tap = -1;
 
-static int hf_geonw_bh = -1;
-static int hf_geonw_bh_version = -1;
-static int hf_geonw_bh_next_header = -1;
-static int hf_geonw_bh_reserved = -1;
-static int hf_geonw_bh_life_time = -1;
-static int hf_geonw_bh_lt_mult = -1;
-static int hf_geonw_bh_lt_base = -1;
-static int hf_geonw_bh_remain_hop_limit = -1;
+static int hf_geonw_bh;
+static int hf_geonw_bh_version;
+static int hf_geonw_bh_next_header;
+static int hf_geonw_bh_reserved;
+static int hf_geonw_bh_life_time;
+static int hf_geonw_bh_lt_mult;
+static int hf_geonw_bh_lt_base;
+static int hf_geonw_bh_remain_hop_limit;
 
-static int hf_geonw_ch = -1;
-static int hf_geonw_ch_next_header = -1;
-static int hf_geonw_ch_reserved1 = -1;
-static int hf_geonw_ch_header_type = -1;
-//static int hf_geonw_ch_header_subtype = -1;
-static int hf_geonw_ch_traffic_class = -1;
-static int hf_geonw_ch_tc_scf = -1;
-static int hf_geonw_ch_tc_offload = -1;
-static int hf_geonw_ch_tc_id = -1;
-static int hf_geonw_ch_flags = -1;
-static int hf_geonw_ch_flags_mob = -1;
-static int hf_geonw_ch_flags_reserved = -1;
-static int hf_geonw_ch_payload_length = -1;
-static int hf_geonw_ch_max_hop_limit = -1;
-static int hf_geonw_ch_reserved2 = -1;
+static int hf_geonw_ch;
+static int hf_geonw_ch_next_header;
+static int hf_geonw_ch_reserved1;
+static int hf_geonw_ch_header_type;
+//static int hf_geonw_ch_header_subtype;
+static int hf_geonw_ch_traffic_class;
+static int hf_geonw_ch_tc_scf;
+static int hf_geonw_ch_tc_offload;
+static int hf_geonw_ch_tc_id;
+static int hf_geonw_ch_flags;
+static int hf_geonw_ch_flags_mob;
+static int hf_geonw_ch_flags_reserved;
+static int hf_geonw_ch_payload_length;
+static int hf_geonw_ch_max_hop_limit;
+static int hf_geonw_ch_reserved2;
 
-static int hf_geonw_seq_num = -1;
-static int hf_geonw_reserved = -1;
-static int hf_geonw_so_pv = -1;
-static int hf_geonw_so_pv_addr = -1;
-static int hf_geonw_so_pv_addr_manual = -1;
-static int hf_geonw_so_pv_addr_type = -1;
-static int hf_geonw_so_pv_addr_country = -1;
-static int hf_geonw_so_pv_addr_mid = -1;
-static int hf_geonw_so_pv_time = -1;
-static int hf_geonw_so_pv_lat = -1;
-static int hf_geonw_so_pv_lon = -1;
-static int hf_geonw_so_pv_pai = -1;
-static int hf_geonw_so_pv_speed = -1;
-static int hf_geonw_so_pv_heading = -1;
-static int hf_geonw_de_pv = -1;
-static int hf_geonw_de_pv_addr = -1;
-static int hf_geonw_de_pv_addr_manual = -1;
-static int hf_geonw_de_pv_addr_type = -1;
-static int hf_geonw_de_pv_addr_country = -1;
-static int hf_geonw_de_pv_addr_mid = -1;
-static int hf_geonw_de_pv_time = -1;
-static int hf_geonw_de_pv_lat = -1;
-static int hf_geonw_de_pv_lon = -1;
+static int hf_geonw_seq_num;
+static int hf_geonw_reserved;
+static int hf_geonw_so_pv;
+static int hf_geonw_so_pv_addr;
+static int hf_geonw_so_pv_addr_manual;
+static int hf_geonw_so_pv_addr_type;
+static int hf_geonw_so_pv_addr_country;
+static int hf_geonw_so_pv_addr_mid;
+static int hf_geonw_so_pv_time;
+static int hf_geonw_so_pv_lat;
+static int hf_geonw_so_pv_lon;
+static int hf_geonw_so_pv_pai;
+static int hf_geonw_so_pv_speed;
+static int hf_geonw_so_pv_heading;
+static int hf_geonw_de_pv;
+static int hf_geonw_de_pv_addr;
+static int hf_geonw_de_pv_addr_manual;
+static int hf_geonw_de_pv_addr_type;
+static int hf_geonw_de_pv_addr_country;
+static int hf_geonw_de_pv_addr_mid;
+static int hf_geonw_de_pv_time;
+static int hf_geonw_de_pv_lat;
+static int hf_geonw_de_pv_lon;
 
-static int hf_geonw_gxc_latitude = -1;
-static int hf_geonw_gxc_longitude = -1;
-static int hf_geonw_gxc_radius = -1;
-static int hf_geonw_gxc_distancea = -1;
-static int hf_geonw_gxc_distanceb = -1;
-static int hf_geonw_gxc_angle = -1;
-static int hf_geonw_gxc_reserved = -1;
+static int hf_geonw_gxc_latitude;
+static int hf_geonw_gxc_longitude;
+static int hf_geonw_gxc_radius;
+static int hf_geonw_gxc_distancea;
+static int hf_geonw_gxc_distanceb;
+static int hf_geonw_gxc_angle;
+static int hf_geonw_gxc_reserved;
 
-static int hf_geonw_shb_reserved = -1;
+static int hf_geonw_shb_reserved;
 
-static int hf_geonw_lsrq_addr = -1;
-static int hf_geonw_lsrq_addr_manual = -1;
-static int hf_geonw_lsrq_addr_type = -1;
-static int hf_geonw_lsrq_addr_country = -1;
-static int hf_geonw_lsrq_addr_mid = -1;
+static int hf_geonw_lsrq_addr;
+static int hf_geonw_lsrq_addr_manual;
+static int hf_geonw_lsrq_addr_type;
+static int hf_geonw_lsrq_addr_country;
+static int hf_geonw_lsrq_addr_mid;
 
-static int hf_geonw_beacon = -1;
-static int hf_geonw_guc = -1;
-static int hf_geonw_gac = -1;
-static int hf_geonw_gbc = -1;
-static int hf_geonw_tsb = -1;
-static int hf_geonw_ls = -1;
-static int hf_geonw_analysis_flags = -1;
+static int hf_geonw_beacon;
+static int hf_geonw_guc;
+static int hf_geonw_gac;
+static int hf_geonw_gbc;
+static int hf_geonw_tsb;
+static int hf_geonw_ls;
+static int hf_geonw_analysis_flags;
 
-static int hf_btpa_dstport = -1;
-static int hf_btpa_srcport = -1;
-static int hf_btpa_port = -1;
-static int hf_btpb_dstport = -1;
-static int hf_btpb_dstport_info = -1;
+static int hf_btpa_dstport;
+static int hf_btpa_srcport;
+static int hf_btpa_port;
+static int hf_btpb_dstport;
+static int hf_btpb_dstport_info;
 
-static int hf_geonw_resp_in = -1;
-static int hf_geonw_resp_to = -1;
-static int hf_geonw_no_resp = -1;
-static int hf_geonw_resptime = -1;
+static int hf_geonw_resp_in;
+static int hf_geonw_resp_to;
+static int hf_geonw_no_resp;
+static int hf_geonw_resptime;
 
-static int hf_geonw_dccmco = -1;
-static int hf_geonw_dccmco_cbr_l_0_hop = -1;
-static int hf_geonw_dccmco_cbr_l_1_hop = -1;
-static int hf_geonw_dccmco_output_power = -1;
-static int hf_geonw_dccmco_reserved = -1;
+static int hf_geonw_dccmco;
+static int hf_geonw_dccmco_cbr_l_0_hop;
+static int hf_geonw_dccmco_cbr_l_1_hop;
+static int hf_geonw_dccmco_output_power;
+static int hf_geonw_dccmco_reserved;
 
-static gint ett_geonw = -1;
-static gint ett_geonw_bh = -1;
-static gint ett_geonw_bh_lt = -1;
-static gint ett_geonw_ch = -1;
-static gint ett_geonw_ch_tc = -1;
-static gint ett_geonw_sh = -1;
-static gint ett_geonw_so = -1;
-static gint ett_geonw_so_add = -1;
-static gint ett_geonw_de = -1;
-static gint ett_geonw_de_add = -1;
-static gint ett_geonw_lsrq_add = -1;
-static gint ett_geonw_analysis = -1;
-static gint ett_geonw_dccmco = -1;
-static gint ett_btpa = -1;
-static gint ett_btpb = -1;
+static gint ett_geonw;
+static gint ett_geonw_bh;
+static gint ett_geonw_bh_lt;
+static gint ett_geonw_ch;
+static gint ett_geonw_ch_tc;
+static gint ett_geonw_sh;
+static gint ett_geonw_so;
+static gint ett_geonw_so_add;
+static gint ett_geonw_de;
+static gint ett_geonw_de_add;
+static gint ett_geonw_lsrq_add;
+static gint ett_geonw_analysis;
+static gint ett_geonw_dccmco;
+static gint ett_btpa;
+static gint ett_btpb;
 
 static int geonw_address_type = -1;
 
-static expert_field ei_geonw_nz_reserved        = EI_INIT;
-static expert_field ei_geonw_version_err        = EI_INIT;
-static expert_field ei_geonw_rhl_lncb           = EI_INIT;
-static expert_field ei_geonw_rhl_too_low        = EI_INIT;
-static expert_field ei_geonw_mhl_lt_rhl         = EI_INIT;
-static expert_field ei_geonw_scc_too_big        = EI_INIT;
-static expert_field ei_geonw_analysis_duplicate = EI_INIT;
-static expert_field ei_geonw_resp_not_found     = EI_INIT;
-static expert_field ei_geonw_out_of_range       = EI_INIT;
-static expert_field ei_geonw_payload_len        = EI_INIT;
-static expert_field ei_geonw_intx_too_big       = EI_INIT;
+static expert_field ei_geonw_nz_reserved;
+static expert_field ei_geonw_version_err;
+static expert_field ei_geonw_rhl_lncb;
+static expert_field ei_geonw_rhl_too_low;
+static expert_field ei_geonw_mhl_lt_rhl;
+static expert_field ei_geonw_scc_too_big;
+static expert_field ei_geonw_analysis_duplicate;
+static expert_field ei_geonw_resp_not_found;
+static expert_field ei_geonw_out_of_range;
+static expert_field ei_geonw_payload_len;
+static expert_field ei_geonw_intx_too_big;
 
 static dissector_table_t geonw_subdissector_table;
 static dissector_table_t ssp_subdissector_table;
@@ -846,66 +846,66 @@ struct geonw_analysis {
  * Secured geonetworking
  */
 
-static int hf_geonw_sec = -1;
-static int hf_sgeonw_version = -1;
-static int hf_sgeonw_profile = -1;
-static int hf_sgeonw_hdr = -1;
-static int hf_sgeonw_pl = -1;
-static int hf_sgeonw_trl = -1;
-static int hf_sgeonw_var_len = -1;
-static int hf_sgeonw_var_len_det = -1;
-static int hf_sgeonw_var_len_val = -1;
-static int hf_sgeonw_header_field = -1;
-static int hf_sgeonw_header_field_type_v1 = -1;
-static int hf_sgeonw_header_field_type_v2 = -1;
-static int hf_sgeonw_opaque = -1;
+static int hf_geonw_sec;
+static int hf_sgeonw_version;
+static int hf_sgeonw_profile;
+static int hf_sgeonw_hdr;
+static int hf_sgeonw_pl;
+static int hf_sgeonw_trl;
+static int hf_sgeonw_var_len;
+static int hf_sgeonw_var_len_det;
+static int hf_sgeonw_var_len_val;
+static int hf_sgeonw_header_field;
+static int hf_sgeonw_header_field_type_v1;
+static int hf_sgeonw_header_field_type_v2;
+static int hf_sgeonw_opaque;
 
-static int hf_sgeonw_payload_field = -1;
-static int hf_sgeonw_payload_field_type = -1;
+static int hf_sgeonw_payload_field;
+static int hf_sgeonw_payload_field_type;
 
-static int hf_sgeonw_trailer_field = -1;
-static int hf_sgeonw_trailer_field_type = -1;
+static int hf_sgeonw_trailer_field;
+static int hf_sgeonw_trailer_field_type;
 
-static int hf_sgeonw_certificate = -1;
-static int hf_sgeonw_encryption_parameter = -1;
-static int hf_sgeonw_signature = -1;
-static int hf_sgeonw_subject_info = -1;
-static int hf_sgeonw_subject_attribute = -1;
+static int hf_sgeonw_certificate;
+static int hf_sgeonw_encryption_parameter;
+static int hf_sgeonw_signature;
+static int hf_sgeonw_subject_info;
+static int hf_sgeonw_subject_attribute;
 
-static int hf_sgeonw_intx = -1;
-static int hf_sgeonw_time64 = -1;
-static int hf_sgeonw_conf = -1;
-static int hf_sgeonw_time32 = -1;
-static int hf_sgeonw_lat = -1;
-static int hf_sgeonw_lon = -1;
-static int hf_sgeonw_elev = -1;
-static int hf_sgeonw_hashedid3 = -1;
-static int hf_sgeonw_hashedid8 = -1;
-static int hf_sgeonw_duration = -1;
-static int hf_sgeonw_duration_unit = -1;
-static int hf_sgeonw_duration_value = -1;
-static int hf_sgeonw_encryption_parameter_nonce = -1;
+static int hf_sgeonw_intx;
+static int hf_sgeonw_time64;
+static int hf_sgeonw_conf;
+static int hf_sgeonw_time32;
+static int hf_sgeonw_lat;
+static int hf_sgeonw_lon;
+static int hf_sgeonw_elev;
+static int hf_sgeonw_hashedid3;
+static int hf_sgeonw_hashedid8;
+static int hf_sgeonw_duration;
+static int hf_sgeonw_duration_unit;
+static int hf_sgeonw_duration_value;
+static int hf_sgeonw_encryption_parameter_nonce;
 
-static int hf_sgeonw_msg_id = -1;
-static int hf_sgeonw_app_id = -1;
+static int hf_sgeonw_msg_id;
+static int hf_sgeonw_app_id;
 
-static int ett_geonw_sec = -1;
-static int ett_sgeonw_hdr = -1;
-static int ett_sgeonw_field = -1;
-static int ett_sgeonw_var_len = -1;
-static int ett_sgeonw_intx = -1;
-static int ett_sgeonw_duration = -1;
-static int ett_sgeonw_encryption_parameter = -1;
-static int ett_sgeonw_signature = -1;
-static int ett_sgeonw_subject_info = -1;
-static int ett_sgeonw_subject_attribute = -1;
-static int ett_sgeonw_ssp = -1;
+static int ett_geonw_sec;
+static int ett_sgeonw_hdr;
+static int ett_sgeonw_field;
+static int ett_sgeonw_var_len;
+static int ett_sgeonw_intx;
+static int ett_sgeonw_duration;
+static int ett_sgeonw_encryption_parameter;
+static int ett_sgeonw_signature;
+static int ett_sgeonw_subject_info;
+static int ett_sgeonw_subject_attribute;
+static int ett_sgeonw_ssp;
 
-static expert_field ei_sgeonw_len_unsupported     = EI_INIT;
-static expert_field ei_sgeonw_len_too_long        = EI_INIT;
-static expert_field ei_sgeonw_subj_info_too_long  = EI_INIT;
-static expert_field ei_sgeonw_ssp_too_long        = EI_INIT;
-static expert_field ei_sgeonw_bogus               = EI_INIT;
+static expert_field ei_sgeonw_len_unsupported;
+static expert_field ei_sgeonw_len_too_long;
+static expert_field ei_sgeonw_subj_info_too_long;
+static expert_field ei_sgeonw_ssp_too_long;
+static expert_field ei_sgeonw_bogus;
 
 typedef enum {
     generation_time = 0,
@@ -977,8 +977,8 @@ static const value_string trailer_field_type_names[] = {
     { 0, NULL },
 };
 
-static int hf_sgeonw_signer_info = -1;
-static int hf_sgeonw_signer_info_type = -1;
+static int hf_sgeonw_signer_info;
+static int hf_sgeonw_signer_info_type;
 
 typedef enum {
     self = 0,
@@ -1001,10 +1001,10 @@ static const value_string signer_info_type_names[] = {
     { 0, NULL },
 };
 
-static int hf_sgeonw_public_key = -1;
-static int ett_sgeonw_public_key = -1;
-static int hf_sgeonw_public_key_algorithm = -1;
-static int hf_sgeonw_ecdsasignature_s = -1;
+static int hf_sgeonw_public_key;
+static int ett_sgeonw_public_key;
+static int hf_sgeonw_public_key_algorithm;
+static int hf_sgeonw_ecdsasignature_s;
 
 typedef enum {
     ecdsa_nistp256_with_sha256 = 0,
@@ -1026,7 +1026,7 @@ static const int etsits103097_table_2[] = {
     32 // ecies_nistp256(1)
 };
 
-static int hf_sgeonw_symmetric_algorithm = -1;
+static int hf_sgeonw_symmetric_algorithm;
 
 typedef enum {
     aes_128_ccm = 0,
@@ -1043,8 +1043,8 @@ static const int etsits103097_table_4[] = {
     16 // aes_128_ccm(0)
 };
 
-static int hf_sgeonw_region_type = -1;
-static int hf_sgeonw_radius = -1;
+static int hf_sgeonw_region_type;
+static int hf_sgeonw_radius;
 
 typedef enum {
     none = 0,
@@ -1067,9 +1067,9 @@ static const value_string region_type_names[] = {
     { 0, NULL },
 };
 
-static int hf_sgeonw_region_dictionary = -1;
-static int hf_sgeonw_region_identifier = -1;
-static int hf_sgeonw_local_region = -1;
+static int hf_sgeonw_region_dictionary;
+static int hf_sgeonw_region_identifier;
+static int hf_sgeonw_local_region;
 
 typedef enum {
     iso_3166_1 = 0,
@@ -1084,7 +1084,7 @@ static const value_string region_dictionary_names[] = {
     { 0, NULL },
 };
 
-static int hf_sgeonw_subject_type = -1;
+static int hf_sgeonw_subject_type;
 
 typedef enum {
     enrollment_credential = 0,
@@ -1108,8 +1108,8 @@ static const value_string subject_type_names[] = {
     { 0, NULL },
 };
 
-static int hf_sgeonw_subject_attribute_type_v1 = -1;
-static int hf_sgeonw_subject_attribute_type_v2 = -1;
+static int hf_sgeonw_subject_attribute_type_v1;
+static int hf_sgeonw_subject_attribute_type_v2;
 
 typedef enum {
     verification_key = 0,
@@ -1146,7 +1146,7 @@ static const value_string subject_attribute_type_v2_names[] = {
     { 0, NULL },
 };
 
-static int hf_sgeonw_validity_restriction_type = -1;
+static int hf_sgeonw_validity_restriction_type;
 
 typedef enum {
     time_end = 0,
@@ -1166,11 +1166,11 @@ static const value_string validity_restriction_type_names[] = {
     { 0, NULL },
 };
 
-static int hf_sgeonw_eccpoint = -1;
-static int ett_sgeonw_eccpoint = -1;
-static int hf_sgeonw_eccpoint_type = -1;
-static int hf_sgeonw_eccpoint_x = -1;
-static int hf_sgeonw_eccpoint_y = -1;
+static int hf_sgeonw_eccpoint;
+static int ett_sgeonw_eccpoint;
+static int hf_sgeonw_eccpoint_type;
+static int hf_sgeonw_eccpoint_x;
+static int hf_sgeonw_eccpoint_y;
 
 typedef enum {
     x_coordinate_only = 0,
@@ -1470,7 +1470,7 @@ dissect_sec_itsaidssp(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tre
     return (*offset) - start;
 }
 
-static int hf_sgeonw_priority = -1;
+static int hf_sgeonw_priority;
 
 static int
 dissect_sec_itsaidpriority(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
@@ -1504,11 +1504,11 @@ dissect_sec_itsaidpriorityssp(tvbuff_t *tvb, gint *offset, packet_info *pinfo, p
     return (*offset) - start;
 }
 
-static int hf_sgeonw_subject_assurance = -1;
-static int ett_sgeonw_subject_assurance = -1;
-static int hf_sgeonw_subject_assurance_assurance = -1;
-static int hf_sgeonw_subject_assurance_reserved = -1;
-static int hf_sgeonw_subject_assurance_confidence = -1;
+static int hf_sgeonw_subject_assurance;
+static int ett_sgeonw_subject_assurance;
+static int hf_sgeonw_subject_assurance_assurance;
+static int hf_sgeonw_subject_assurance_reserved;
+static int hf_sgeonw_subject_assurance_confidence;
 
 static int
 dissect_sec_subject_attributes(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, guint8 version)
@@ -1739,7 +1739,7 @@ dissect_sec_validity_restrictions(tvbuff_t *tvb, gint *offset, packet_info *pinf
 
 static int dissect_sec_signer_info(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, guint8 version);
 
-static int hf_sgeonw_certification_version = -1;
+static int hf_sgeonw_certification_version;
 
 static int
 dissect_sec_certificate(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, guint8 version)
@@ -1840,8 +1840,8 @@ dissect_sec_signer_info(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_t
 }
 
 
-static int hf_sgeonw_encrypted_key = -1;
-static int hf_sgeonw_auth_tag = -1;
+static int hf_sgeonw_encrypted_key;
+static int hf_sgeonw_auth_tag;
 
 // This structure defines how to transmit an EciesNistP256-encrypted symmetric key as defined in IEEE
 // Std 1363a-2004.

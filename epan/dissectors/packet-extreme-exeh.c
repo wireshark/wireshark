@@ -54,34 +54,34 @@ static dissector_handle_t exeh_handle;
 
 static dissector_handle_t ethnofcs_handle;
 
-static int proto_exeh = -1;
+static int proto_exeh;
 /* EXEH data */
-static int hf_exeh_unknown_00_01 = -1;
-static int hf_exeh_module1 = -1;
-static int hf_exeh_port1 = -1;
-static int hf_exeh_module2 = -1; /* m2 + p2 always zero for outgoing(?) */
-static int hf_exeh_port2 = -1;
-static int hf_exeh_unknown_10_16 = -1;
-static int hf_exeh_unknown_17_0xfd = -1;
-static int hf_exeh_unknown_17_0x02 = -1;
-static int hf_exeh_unknown_18_21 = -1;
-static int hf_exeh_unknown_22_23 = -1;
-static int hf_exeh_incoming_framesource = -1;
-static int hf_exeh_outgoing_framesource = -1;
-static int hf_exeh_vlan = -1;
-static int hf_exeh_unknown_28_29 = -1;
-static int hf_exeh_dir = -1;
-static int hf_exeh_unknown_32_33 = -1;
-static int hf_exeh_etype = -1;
-static int hf_exeh_etypelen = -1;
-static int hf_exeh_etypedata = -1;
+static int hf_exeh_unknown_00_01;
+static int hf_exeh_module1;
+static int hf_exeh_port1;
+static int hf_exeh_module2; /* m2 + p2 always zero for outgoing(?) */
+static int hf_exeh_port2;
+static int hf_exeh_unknown_10_16;
+static int hf_exeh_unknown_17_0xfd;
+static int hf_exeh_unknown_17_0x02;
+static int hf_exeh_unknown_18_21;
+static int hf_exeh_unknown_22_23;
+static int hf_exeh_incoming_framesource;
+static int hf_exeh_outgoing_framesource;
+static int hf_exeh_vlan;
+static int hf_exeh_unknown_28_29;
+static int hf_exeh_dir;
+static int hf_exeh_unknown_32_33;
+static int hf_exeh_etype;
+static int hf_exeh_etypelen;
+static int hf_exeh_etypedata;
 
-static expert_field ei_exeh_unexpected_value = EI_INIT;
-static expert_field ei_exeh_unequal_ports = EI_INIT;
-static expert_field ei_exeh_incoming_framesource = EI_INIT;
-static expert_field ei_exeh_outgoing_framesource = EI_INIT;
+static expert_field ei_exeh_unexpected_value;
+static expert_field ei_exeh_unequal_ports;
+static expert_field ei_exeh_incoming_framesource;
+static expert_field ei_exeh_outgoing_framesource;
 
-static gint ett_exeh = -1;
+static gint ett_exeh;
 
 #define PROTO_SHORT_NAME "EXEH"
 #define PROTO_LONG_NAME "EXtreme extra Eth Header"

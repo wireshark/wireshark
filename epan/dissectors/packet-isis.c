@@ -26,26 +26,26 @@ void proto_reg_handoff_isis(void);
 static dissector_table_t isis_dissector_table;
 
 /* isis base header */
-static int proto_isis               = -1;
+static int proto_isis;
 
-static int hf_isis_irpd             = -1;
-static int hf_isis_header_length    = -1;
-static int hf_isis_version          = -1;
-static int hf_isis_system_id_length = -1;
-static int hf_isis_type             = -1;
-static int hf_isis_type_reserved    = -1;
-static int hf_isis_version2         = -1;
-static int hf_isis_reserved         = -1;
-static int hf_isis_max_area_adr     = -1;
-int hf_isis_clv_key_id              = -1;
+static int hf_isis_irpd;
+static int hf_isis_header_length;
+static int hf_isis_version;
+static int hf_isis_system_id_length;
+static int hf_isis_type;
+static int hf_isis_type_reserved;
+static int hf_isis_version2;
+static int hf_isis_reserved;
+static int hf_isis_max_area_adr;
+int hf_isis_clv_key_id;
 
-static gint ett_isis                = -1;
+static gint ett_isis;
 
-static expert_field ei_isis_length_indicator_too_small = EI_INIT;
-static expert_field ei_isis_version = EI_INIT;
-static expert_field ei_isis_version2 = EI_INIT;
-static expert_field ei_isis_reserved = EI_INIT;
-static expert_field ei_isis_type = EI_INIT;
+static expert_field ei_isis_length_indicator_too_small;
+static expert_field ei_isis_version;
+static expert_field ei_isis_version2;
+static expert_field ei_isis_reserved;
+static expert_field ei_isis_type;
 
 static dissector_handle_t isis_handle;
 

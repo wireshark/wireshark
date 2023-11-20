@@ -84,43 +84,43 @@ static const value_string bt_tracker_extension_type_vals[] = {
   { 0, NULL }
 };
 
-static int proto_bt_tracker = -1;
+static int proto_bt_tracker;
 static dissector_handle_t bt_tracker_handle;
 
-static int hf_bt_tracker_msg_type = -1;
-static int hf_bt_tracker_protocol_id = -1;
-static int hf_bt_tracker_action = -1;
-static int hf_bt_tracker_transaction_id = -1;
-static int hf_bt_tracker_connection_id = -1;
-static int hf_bt_tracker_info_hash = -1;
-static int hf_bt_tracker_peer_id = -1;
-static int hf_bt_tracker_downloaded = -1;
-static int hf_bt_tracker_left = -1;
-static int hf_bt_tracker_uploaded = -1;
-static int hf_bt_tracker_event = -1;
-static int hf_bt_tracker_ip_address = -1;
-static int hf_bt_tracker_key = -1;
-static int hf_bt_tracker_num_want = -1;
-static int hf_bt_tracker_port = -1;
-static int hf_bt_tracker_interval = -1;
-static int hf_bt_tracker_leechers = -1;
-static int hf_bt_tracker_seeders = -1;
-static int hf_bt_tracker_trackers = -1;
-static int hf_bt_tracker_tracker = -1;
-static int hf_bt_tracker_tr_ip = -1;
-static int hf_bt_tracker_tr_ip6 = -1;
-static int hf_bt_tracker_tr_port = -1;
-static int hf_bt_tracker_completed = -1;
-static int hf_bt_tracker_error_msg = -1;
-static int hf_bt_tracker_extension = -1;
-static int hf_bt_tracker_extension_type = -1;
-static int hf_bt_tracker_extension_len = -1;
-static int hf_bt_tracker_extension_unknown = -1;
-static int hf_bt_tracker_extension_urldata = -1;
+static int hf_bt_tracker_msg_type;
+static int hf_bt_tracker_protocol_id;
+static int hf_bt_tracker_action;
+static int hf_bt_tracker_transaction_id;
+static int hf_bt_tracker_connection_id;
+static int hf_bt_tracker_info_hash;
+static int hf_bt_tracker_peer_id;
+static int hf_bt_tracker_downloaded;
+static int hf_bt_tracker_left;
+static int hf_bt_tracker_uploaded;
+static int hf_bt_tracker_event;
+static int hf_bt_tracker_ip_address;
+static int hf_bt_tracker_key;
+static int hf_bt_tracker_num_want;
+static int hf_bt_tracker_port;
+static int hf_bt_tracker_interval;
+static int hf_bt_tracker_leechers;
+static int hf_bt_tracker_seeders;
+static int hf_bt_tracker_trackers;
+static int hf_bt_tracker_tracker;
+static int hf_bt_tracker_tr_ip;
+static int hf_bt_tracker_tr_ip6;
+static int hf_bt_tracker_tr_port;
+static int hf_bt_tracker_completed;
+static int hf_bt_tracker_error_msg;
+static int hf_bt_tracker_extension;
+static int hf_bt_tracker_extension_type;
+static int hf_bt_tracker_extension_len;
+static int hf_bt_tracker_extension_unknown;
+static int hf_bt_tracker_extension_urldata;
 
-static gint ett_bt_tracker = -1;
-static gint ett_bt_tracker_trackers = -1;
-static gint ett_bt_tracker_extension = -1;
+static gint ett_bt_tracker;
+static gint ett_bt_tracker_trackers;
+static gint ett_bt_tracker_extension;
 
 #define MAGIC_CONSTANT 0x41727101980
 

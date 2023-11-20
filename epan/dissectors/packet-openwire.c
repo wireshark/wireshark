@@ -36,234 +36,234 @@
 void proto_register_openwire(void);
 void proto_reg_handoff_openwire(void);
 
-static int proto_openwire = -1;
-static int hf_openwire_none = -1;
-static int hf_openwire_length = -1;
-static int hf_openwire_command = -1;
+static int proto_openwire;
+static int hf_openwire_none;
+static int hf_openwire_length;
+static int hf_openwire_command;
 
-static int hf_openwire_command_id = -1;
-static int hf_openwire_command_response_required = -1;
+static int hf_openwire_command_id;
+static int hf_openwire_command_response_required;
 
-static int hf_openwire_response_correlationid = -1;
+static int hf_openwire_response_correlationid;
 
-static int hf_openwire_dataresponse_data = -1;
+static int hf_openwire_dataresponse_data;
 
-static int hf_openwire_exceptionresponse_exception = -1;
+static int hf_openwire_exceptionresponse_exception;
 
-static int hf_openwire_connectionerror_exception = -1;
-static int hf_openwire_connectionerror_connectionid = -1;
+static int hf_openwire_connectionerror_exception;
+static int hf_openwire_connectionerror_connectionid;
 
-static int hf_openwire_controlcommand_command = -1;
+static int hf_openwire_controlcommand_command;
 
-static int hf_openwire_wireformatinfo_magic = -1;
-static int hf_openwire_wireformatinfo_version = -1;
-static int hf_openwire_wireformatinfo_data = -1;
-static int hf_openwire_wireformatinfo_length = -1;
+static int hf_openwire_wireformatinfo_magic;
+static int hf_openwire_wireformatinfo_version;
+static int hf_openwire_wireformatinfo_data;
+static int hf_openwire_wireformatinfo_length;
 
-static int hf_openwire_sessioninfo_sessionid = -1;
+static int hf_openwire_sessioninfo_sessionid;
 
-static int hf_openwire_connectioninfo_connectionid = -1;
-static int hf_openwire_connectioninfo_clientid = -1;
-static int hf_openwire_connectioninfo_password = -1;
-static int hf_openwire_connectioninfo_username = -1;
-static int hf_openwire_connectioninfo_brokerpath = -1;
-static int hf_openwire_connectioninfo_brokermasterconnector = -1;
-static int hf_openwire_connectioninfo_manageable = -1;
-static int hf_openwire_connectioninfo_clientmaster = -1;
-static int hf_openwire_connectioninfo_faulttolerant = -1;
-static int hf_openwire_connectioninfo_failoverreconnect = -1;
+static int hf_openwire_connectioninfo_connectionid;
+static int hf_openwire_connectioninfo_clientid;
+static int hf_openwire_connectioninfo_password;
+static int hf_openwire_connectioninfo_username;
+static int hf_openwire_connectioninfo_brokerpath;
+static int hf_openwire_connectioninfo_brokermasterconnector;
+static int hf_openwire_connectioninfo_manageable;
+static int hf_openwire_connectioninfo_clientmaster;
+static int hf_openwire_connectioninfo_faulttolerant;
+static int hf_openwire_connectioninfo_failoverreconnect;
 
-static int hf_openwire_destinationinfo_connectionid = -1;
-static int hf_openwire_destinationinfo_destination = -1;
-static int hf_openwire_destinationinfo_operationtype = -1;
-static int hf_openwire_destinationinfo_timeout = -1;
-static int hf_openwire_destinationinfo_brokerpath = -1;
+static int hf_openwire_destinationinfo_connectionid;
+static int hf_openwire_destinationinfo_destination;
+static int hf_openwire_destinationinfo_operationtype;
+static int hf_openwire_destinationinfo_timeout;
+static int hf_openwire_destinationinfo_brokerpath;
 
-static int hf_openwire_brokerinfo_brokerid = -1;
-static int hf_openwire_brokerinfo_brokerurl = -1;
-static int hf_openwire_brokerinfo_peerbrokerinfos = -1;
-static int hf_openwire_brokerinfo_brokername = -1;
-static int hf_openwire_brokerinfo_slavebroker = -1;
-static int hf_openwire_brokerinfo_masterbroker = -1;
-static int hf_openwire_brokerinfo_faulttolerantconfiguration = -1;
-static int hf_openwire_brokerinfo_duplexconnection = -1;
-static int hf_openwire_brokerinfo_networkconnection = -1;
-static int hf_openwire_brokerinfo_connectionid = -1;
-static int hf_openwire_brokerinfo_brokeruploadurl = -1;
-static int hf_openwire_brokerinfo_networkproperties = -1;
+static int hf_openwire_brokerinfo_brokerid;
+static int hf_openwire_brokerinfo_brokerurl;
+static int hf_openwire_brokerinfo_peerbrokerinfos;
+static int hf_openwire_brokerinfo_brokername;
+static int hf_openwire_brokerinfo_slavebroker;
+static int hf_openwire_brokerinfo_masterbroker;
+static int hf_openwire_brokerinfo_faulttolerantconfiguration;
+static int hf_openwire_brokerinfo_duplexconnection;
+static int hf_openwire_brokerinfo_networkconnection;
+static int hf_openwire_brokerinfo_connectionid;
+static int hf_openwire_brokerinfo_brokeruploadurl;
+static int hf_openwire_brokerinfo_networkproperties;
 
-static int hf_openwire_connectioncontrol_close = -1;
-static int hf_openwire_connectioncontrol_exit = -1;
-static int hf_openwire_connectioncontrol_faulttolerant = -1;
-static int hf_openwire_connectioncontrol_resume = -1;
-static int hf_openwire_connectioncontrol_suspend = -1;
-static int hf_openwire_connectioncontrol_connectedbrokers = -1;
-static int hf_openwire_connectioncontrol_reconnectto = -1;
-static int hf_openwire_connectioncontrol_rebalanceconnection = -1;
+static int hf_openwire_connectioncontrol_close;
+static int hf_openwire_connectioncontrol_exit;
+static int hf_openwire_connectioncontrol_faulttolerant;
+static int hf_openwire_connectioncontrol_resume;
+static int hf_openwire_connectioncontrol_suspend;
+static int hf_openwire_connectioncontrol_connectedbrokers;
+static int hf_openwire_connectioncontrol_reconnectto;
+static int hf_openwire_connectioncontrol_rebalanceconnection;
 
-static int hf_openwire_consumercontrol_destination = -1;
-static int hf_openwire_consumercontrol_close = -1;
-static int hf_openwire_consumercontrol_consumerid = -1;
-static int hf_openwire_consumercontrol_prefetch = -1;
-static int hf_openwire_consumercontrol_flush = -1;
-static int hf_openwire_consumercontrol_start = -1;
-static int hf_openwire_consumercontrol_stop = -1;
+static int hf_openwire_consumercontrol_destination;
+static int hf_openwire_consumercontrol_close;
+static int hf_openwire_consumercontrol_consumerid;
+static int hf_openwire_consumercontrol_prefetch;
+static int hf_openwire_consumercontrol_flush;
+static int hf_openwire_consumercontrol_start;
+static int hf_openwire_consumercontrol_stop;
 
-static int hf_openwire_consumerinfo_consumerid = -1;
-static int hf_openwire_consumerinfo_browser = -1;
-static int hf_openwire_consumerinfo_destination = -1;
-static int hf_openwire_consumerinfo_prefetchsize = -1;
-static int hf_openwire_consumerinfo_maximumpendingmessagelimit = -1;
-static int hf_openwire_consumerinfo_dispatchasync = -1;
-static int hf_openwire_consumerinfo_selector = -1;
-static int hf_openwire_consumerinfo_subscriptionname = -1;
-static int hf_openwire_consumerinfo_nolocal = -1;
-static int hf_openwire_consumerinfo_exclusive = -1;
-static int hf_openwire_consumerinfo_retroactive = -1;
-static int hf_openwire_consumerinfo_priority = -1;
-static int hf_openwire_consumerinfo_brokerpath = -1;
-static int hf_openwire_consumerinfo_additionalpredicate = -1;
-static int hf_openwire_consumerinfo_networksubscription = -1;
-static int hf_openwire_consumerinfo_optimizedacknowledge = -1;
-static int hf_openwire_consumerinfo_norangeacks = -1;
-static int hf_openwire_consumerinfo_networkconsumerpath = -1;
+static int hf_openwire_consumerinfo_consumerid;
+static int hf_openwire_consumerinfo_browser;
+static int hf_openwire_consumerinfo_destination;
+static int hf_openwire_consumerinfo_prefetchsize;
+static int hf_openwire_consumerinfo_maximumpendingmessagelimit;
+static int hf_openwire_consumerinfo_dispatchasync;
+static int hf_openwire_consumerinfo_selector;
+static int hf_openwire_consumerinfo_subscriptionname;
+static int hf_openwire_consumerinfo_nolocal;
+static int hf_openwire_consumerinfo_exclusive;
+static int hf_openwire_consumerinfo_retroactive;
+static int hf_openwire_consumerinfo_priority;
+static int hf_openwire_consumerinfo_brokerpath;
+static int hf_openwire_consumerinfo_additionalpredicate;
+static int hf_openwire_consumerinfo_networksubscription;
+static int hf_openwire_consumerinfo_optimizedacknowledge;
+static int hf_openwire_consumerinfo_norangeacks;
+static int hf_openwire_consumerinfo_networkconsumerpath;
 
-static int hf_openwire_producerinfo_producerid = -1;
-static int hf_openwire_producerinfo_destination = -1;
-static int hf_openwire_producerinfo_brokerpath = -1;
-static int hf_openwire_producerinfo_dispatchasync = -1;
-static int hf_openwire_producerinfo_windowsize = -1;
+static int hf_openwire_producerinfo_producerid;
+static int hf_openwire_producerinfo_destination;
+static int hf_openwire_producerinfo_brokerpath;
+static int hf_openwire_producerinfo_dispatchasync;
+static int hf_openwire_producerinfo_windowsize;
 
-static int hf_openwire_removeinfo_objectid = -1;
-static int hf_openwire_removeinfo_lastdeliveredsequenceid = -1;
+static int hf_openwire_removeinfo_objectid;
+static int hf_openwire_removeinfo_lastdeliveredsequenceid;
 
-static int hf_openwire_removesubscriptioninfo_connectionid = -1;
-static int hf_openwire_removesubscriptioninfo_subscriptionname = -1;
-static int hf_openwire_removesubscriptioninfo_clientid = -1;
+static int hf_openwire_removesubscriptioninfo_connectionid;
+static int hf_openwire_removesubscriptioninfo_subscriptionname;
+static int hf_openwire_removesubscriptioninfo_clientid;
 
-static int hf_openwire_transactioninfo_connectionid = -1;
-static int hf_openwire_transactioninfo_transactionid = -1;
-static int hf_openwire_transactioninfo_type = -1;
+static int hf_openwire_transactioninfo_connectionid;
+static int hf_openwire_transactioninfo_transactionid;
+static int hf_openwire_transactioninfo_type;
 
-static int hf_openwire_producerack_producerid = -1;
-static int hf_openwire_producerack_size = -1;
+static int hf_openwire_producerack_producerid;
+static int hf_openwire_producerack_size;
 
 
-static int hf_openwire_messagedispatch_consumerid = -1;
-static int hf_openwire_messagedispatch_destination = -1;
-static int hf_openwire_messagedispatch_message = -1;
-static int hf_openwire_messagedispatch_redeliverycounter = -1;
+static int hf_openwire_messagedispatch_consumerid;
+static int hf_openwire_messagedispatch_destination;
+static int hf_openwire_messagedispatch_message;
+static int hf_openwire_messagedispatch_redeliverycounter;
 
-static int hf_openwire_messageack_destination = -1;
-static int hf_openwire_messageack_transactionid = -1;
-static int hf_openwire_messageack_consumerid = -1;
-static int hf_openwire_messageack_acktype = -1;
-static int hf_openwire_messageack_firstmessageid = -1;
-static int hf_openwire_messageack_lastmessageid = -1;
-static int hf_openwire_messageack_messagecount = -1;
+static int hf_openwire_messageack_destination;
+static int hf_openwire_messageack_transactionid;
+static int hf_openwire_messageack_consumerid;
+static int hf_openwire_messageack_acktype;
+static int hf_openwire_messageack_firstmessageid;
+static int hf_openwire_messageack_lastmessageid;
+static int hf_openwire_messageack_messagecount;
 
-static int hf_openwire_messagepull_consumerid = -1;
-static int hf_openwire_messagepull_destinationid = -1;
-static int hf_openwire_messagepull_timeout = -1;
-static int hf_openwire_messagepull_correlationid = -1;
-static int hf_openwire_messagepull_messageid = -1;
+static int hf_openwire_messagepull_consumerid;
+static int hf_openwire_messagepull_destinationid;
+static int hf_openwire_messagepull_timeout;
+static int hf_openwire_messagepull_correlationid;
+static int hf_openwire_messagepull_messageid;
 
-static int hf_openwire_message_producerid = -1;
-static int hf_openwire_message_destination = -1;
-static int hf_openwire_message_transactionid = -1;
-static int hf_openwire_message_originaldestination = -1;
-static int hf_openwire_message_messageid = -1;
-static int hf_openwire_message_originaldestinationid = -1;
-static int hf_openwire_message_groupid = -1;
-static int hf_openwire_message_groupsequence = -1;
-static int hf_openwire_message_correlationid = -1;
-static int hf_openwire_message_persistent = -1;
-static int hf_openwire_message_expiration = -1;
-static int hf_openwire_message_priority = -1;
-static int hf_openwire_message_replyto = -1;
-static int hf_openwire_message_timestamp = -1;
-static int hf_openwire_message_type = -1;
-static int hf_openwire_message_body = -1;
-static int hf_openwire_message_properties = -1;
-static int hf_openwire_message_datastructure = -1;
-static int hf_openwire_message_targetconsumerid = -1;
-static int hf_openwire_message_compressed = -1;
-static int hf_openwire_message_redeliverycount = -1;
-static int hf_openwire_message_brokerpath = -1;
-static int hf_openwire_message_arrival = -1;
-static int hf_openwire_message_userid = -1;
-static int hf_openwire_message_receivedbydfbridge = -1;
-static int hf_openwire_message_droppable = -1;
-static int hf_openwire_message_cluster = -1;
-static int hf_openwire_message_brokerintime = -1;
-static int hf_openwire_message_brokerouttime = -1;
+static int hf_openwire_message_producerid;
+static int hf_openwire_message_destination;
+static int hf_openwire_message_transactionid;
+static int hf_openwire_message_originaldestination;
+static int hf_openwire_message_messageid;
+static int hf_openwire_message_originaldestinationid;
+static int hf_openwire_message_groupid;
+static int hf_openwire_message_groupsequence;
+static int hf_openwire_message_correlationid;
+static int hf_openwire_message_persistent;
+static int hf_openwire_message_expiration;
+static int hf_openwire_message_priority;
+static int hf_openwire_message_replyto;
+static int hf_openwire_message_timestamp;
+static int hf_openwire_message_type;
+static int hf_openwire_message_body;
+static int hf_openwire_message_properties;
+static int hf_openwire_message_datastructure;
+static int hf_openwire_message_targetconsumerid;
+static int hf_openwire_message_compressed;
+static int hf_openwire_message_redeliverycount;
+static int hf_openwire_message_brokerpath;
+static int hf_openwire_message_arrival;
+static int hf_openwire_message_userid;
+static int hf_openwire_message_receivedbydfbridge;
+static int hf_openwire_message_droppable;
+static int hf_openwire_message_cluster;
+static int hf_openwire_message_brokerintime;
+static int hf_openwire_message_brokerouttime;
 
-static int hf_openwire_producerid_connectionid = -1;
-static int hf_openwire_producerid_value = -1;
-static int hf_openwire_producerid_sessionid = -1;
+static int hf_openwire_producerid_connectionid;
+static int hf_openwire_producerid_value;
+static int hf_openwire_producerid_sessionid;
 
-static int hf_openwire_consumerid_connectionid = -1;
-static int hf_openwire_consumerid_value = -1;
-static int hf_openwire_consumerid_sessionid = -1;
+static int hf_openwire_consumerid_connectionid;
+static int hf_openwire_consumerid_value;
+static int hf_openwire_consumerid_sessionid;
 
-static int hf_openwire_destination_name = -1;
+static int hf_openwire_destination_name;
 
-static int hf_openwire_messageid_producerid = -1;
-static int hf_openwire_messageid_producersequenceid = -1;
-static int hf_openwire_messageid_brokersequenceid = -1;
+static int hf_openwire_messageid_producerid;
+static int hf_openwire_messageid_producersequenceid;
+static int hf_openwire_messageid_brokersequenceid;
 
-static int hf_openwire_connectionid_value = -1;
+static int hf_openwire_connectionid_value;
 
-static int hf_openwire_sessionid_connectionid = -1;
-static int hf_openwire_sessionid_value = -1;
+static int hf_openwire_sessionid_connectionid;
+static int hf_openwire_sessionid_value;
 
-static int hf_openwire_brokerid_value = -1;
+static int hf_openwire_brokerid_value;
 
-static int hf_openwire_localtransactionid_value = -1;
-static int hf_openwire_localtransactionid_connectionid = -1;
+static int hf_openwire_localtransactionid_value;
+static int hf_openwire_localtransactionid_connectionid;
 
-static int hf_openwire_xatransactionid_formatid = -1;
-static int hf_openwire_xatransactionid_globaltransactionid = -1;
-static int hf_openwire_xatransactionid_branchqualifier = -1;
+static int hf_openwire_xatransactionid_formatid;
+static int hf_openwire_xatransactionid_globaltransactionid;
+static int hf_openwire_xatransactionid_branchqualifier;
 
-static int hf_openwire_map_length = -1;
-static int hf_openwire_map_key = -1;
-static int hf_openwire_map_entry = -1;
+static int hf_openwire_map_length;
+static int hf_openwire_map_key;
+static int hf_openwire_map_entry;
 
-static int hf_openwire_throwable_class = -1;
-static int hf_openwire_throwable_message = -1;
-static int hf_openwire_throwable_element = -1;
-static int hf_openwire_throwable_classname = -1;
-static int hf_openwire_throwable_methodname = -1;
-static int hf_openwire_throwable_filename = -1;
-static int hf_openwire_throwable_linenumber = -1;
+static int hf_openwire_throwable_class;
+static int hf_openwire_throwable_message;
+static int hf_openwire_throwable_element;
+static int hf_openwire_throwable_classname;
+static int hf_openwire_throwable_methodname;
+static int hf_openwire_throwable_filename;
+static int hf_openwire_throwable_linenumber;
 
-static int hf_openwire_type_integer = -1;
-static int hf_openwire_type_short = -1;
-static int hf_openwire_type_string = -1;
-static int hf_openwire_type_bytes = -1;
-static int hf_openwire_type_boolean = -1;
-static int hf_openwire_type_byte = -1;
-static int hf_openwire_type_char = -1;
-static int hf_openwire_type_notnull = -1;
-static int hf_openwire_type_long = -1;
-static int hf_openwire_type_float = -1;
-static int hf_openwire_type_double = -1;
-static int hf_openwire_type_object = -1;
-static int hf_openwire_type = -1;
+static int hf_openwire_type_integer;
+static int hf_openwire_type_short;
+static int hf_openwire_type_string;
+static int hf_openwire_type_bytes;
+static int hf_openwire_type_boolean;
+static int hf_openwire_type_byte;
+static int hf_openwire_type_char;
+static int hf_openwire_type_notnull;
+static int hf_openwire_type_long;
+static int hf_openwire_type_float;
+static int hf_openwire_type_double;
+static int hf_openwire_type_object;
+static int hf_openwire_type;
 
-static int hf_openwire_cached_inlined = -1;
-static int hf_openwire_cached_id = -1;
-static int hf_openwire_cached_enabled = -1;
+static int hf_openwire_cached_inlined;
+static int hf_openwire_cached_id;
+static int hf_openwire_cached_enabled;
 
-static gint ett_openwire = -1;
-static gint ett_openwire_type = -1;
+static gint ett_openwire;
+static gint ett_openwire_type;
 
-static expert_field ei_openwire_tight_encoding_not_supported = EI_INIT;
-static expert_field ei_openwire_encoding_not_supported = EI_INIT;
-static expert_field ei_openwire_type_not_supported = EI_INIT;
-static expert_field ei_openwire_command_not_supported = EI_INIT;
-static expert_field ei_openwire_body_type_not_supported = EI_INIT;
+static expert_field ei_openwire_tight_encoding_not_supported;
+static expert_field ei_openwire_encoding_not_supported;
+static expert_field ei_openwire_type_not_supported;
+static expert_field ei_openwire_command_not_supported;
+static expert_field ei_openwire_body_type_not_supported;
 
 static dissector_handle_t openwire_tcp_handle;
 

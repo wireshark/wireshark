@@ -23,16 +23,16 @@
 void proto_register_cosine(void);
 void proto_reg_handoff_cosine(void);
 
-static int proto_cosine = -1;
-static int hf_pro = -1;
-static int hf_off = -1;
-static int hf_pri = -1;
-static int hf_rm = -1;
-static int hf_err = -1;
-static int hf_sar = -1;
-static int hf_channel_id = -1;
+static int proto_cosine;
+static int hf_pro;
+static int hf_off;
+static int hf_pri;
+static int hf_rm;
+static int hf_err;
+static int hf_sar;
+static int hf_channel_id;
 
-static gint ett_raw = -1;
+static gint ett_raw;
 
 static dissector_handle_t cosine_handle;
 static dissector_handle_t eth_withoutfcs_handle;

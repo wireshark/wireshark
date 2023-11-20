@@ -26,16 +26,16 @@
 void proto_register_dcerpc_browser(void);
 void proto_reg_handoff_dcerpc_browser(void);
 
-static int proto_dcerpc_browser = -1;
-static int hf_browser_opnum = -1;
-static int hf_browser_rc = -1;
-static int hf_browser_unknown_long = -1;
-static int hf_browser_unknown_hyper = -1;
-static int hf_browser_unknown_bytes = -1;
-static int hf_browser_unknown_string = -1;
+static int proto_dcerpc_browser;
+static int hf_browser_opnum;
+static int hf_browser_rc;
+static int hf_browser_unknown_long;
+static int hf_browser_unknown_hyper;
+static int hf_browser_unknown_bytes;
+static int hf_browser_unknown_string;
 
 
-static gint ett_dcerpc_browser = -1;
+static gint ett_dcerpc_browser;
 
 
 static int

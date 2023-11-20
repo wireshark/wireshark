@@ -18,26 +18,26 @@
 void proto_register_dvb_nit(void);
 void proto_reg_handoff_dvb_nit(void);
 
-static int proto_dvb_nit = -1;
-static int hf_dvb_nit_network_id = -1;
-static int hf_dvb_nit_reserved1 = -1;
-static int hf_dvb_nit_version_number = -1;
-static int hf_dvb_nit_current_next_indicator = -1;
-static int hf_dvb_nit_section_number = -1;
-static int hf_dvb_nit_last_section_number = -1;
-static int hf_dvb_nit_reserved2 = -1;
+static int proto_dvb_nit;
+static int hf_dvb_nit_network_id;
+static int hf_dvb_nit_reserved1;
+static int hf_dvb_nit_version_number;
+static int hf_dvb_nit_current_next_indicator;
+static int hf_dvb_nit_section_number;
+static int hf_dvb_nit_last_section_number;
+static int hf_dvb_nit_reserved2;
 
-static int hf_dvb_nit_network_descriptors_length = -1;
-static int hf_dvb_nit_reserved3 = -1;
-static int hf_dvb_nit_transport_stream_loop_length = -1;
+static int hf_dvb_nit_network_descriptors_length;
+static int hf_dvb_nit_reserved3;
+static int hf_dvb_nit_transport_stream_loop_length;
 
-static int hf_dvb_nit_transport_stream_id = -1;
-static int hf_dvb_nit_original_network_id = -1;
-static int hf_dvb_nit_reserved4 = -1;
-static int hf_dvb_nit_transport_descriptors_length = -1;
+static int hf_dvb_nit_transport_stream_id;
+static int hf_dvb_nit_original_network_id;
+static int hf_dvb_nit_reserved4;
+static int hf_dvb_nit_transport_descriptors_length;
 
-static gint ett_dvb_nit = -1;
-static gint ett_dvb_nit_ts = -1;
+static gint ett_dvb_nit;
+static gint ett_dvb_nit_ts;
 
 static dissector_handle_t dvb_nit_handle;
 

@@ -29,23 +29,23 @@
 void proto_register_epmd(void);
 void proto_reg_handoff_epmd(void);
 
-static int proto_epmd = -1;
-static int hf_epmd_len = -1;
-static int hf_epmd_type = -1;
-static int hf_epmd_port_no = -1;
-static int hf_epmd_node_type = -1;
-static int hf_epmd_protocol = -1;
-static int hf_epmd_dist_high = -1;
-static int hf_epmd_dist_low = -1;
-static int hf_epmd_name_len = -1;
-static int hf_epmd_name = -1;
-static int hf_epmd_elen = -1;
-static int hf_epmd_edata = -1;
-static int hf_epmd_names = -1;
-static int hf_epmd_result = -1;
-static int hf_epmd_creation = -1;
+static int proto_epmd;
+static int hf_epmd_len;
+static int hf_epmd_type;
+static int hf_epmd_port_no;
+static int hf_epmd_node_type;
+static int hf_epmd_protocol;
+static int hf_epmd_dist_high;
+static int hf_epmd_dist_low;
+static int hf_epmd_name_len;
+static int hf_epmd_name;
+static int hf_epmd_elen;
+static int hf_epmd_edata;
+static int hf_epmd_names;
+static int hf_epmd_result;
+static int hf_epmd_creation;
 
-static gint ett_epmd = -1;
+static gint ett_epmd;
 
 static dissector_handle_t epmd_handle = NULL;
 

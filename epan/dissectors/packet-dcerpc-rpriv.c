@@ -21,17 +21,17 @@
 void proto_register_rpriv (void);
 void proto_reg_handoff_rpriv (void);
 
-static int proto_rpriv = -1;
-static int hf_rpriv_opnum = -1;
-static int hf_rpriv_get_eptgt_rqst_authn_svc = -1;
-static int hf_rpriv_get_eptgt_rqst_authz_svc = -1;
-static int hf_rpriv_get_eptgt_rqst_var1 = -1;
-/* static int hf_rpriv_get_eptgt_rqst_key_size = -1; */
-static int hf_rpriv_get_eptgt_rqst_key_size2 = -1;
-static int hf_rpriv_get_eptgt_rqst_key_t = -1;
-static int hf_rpriv_get_eptgt_rqst_key_t2 = -1;
+static int proto_rpriv;
+static int hf_rpriv_opnum;
+static int hf_rpriv_get_eptgt_rqst_authn_svc;
+static int hf_rpriv_get_eptgt_rqst_authz_svc;
+static int hf_rpriv_get_eptgt_rqst_var1;
+/* static int hf_rpriv_get_eptgt_rqst_key_size; */
+static int hf_rpriv_get_eptgt_rqst_key_size2;
+static int hf_rpriv_get_eptgt_rqst_key_t;
+static int hf_rpriv_get_eptgt_rqst_key_t2;
 
-static gint ett_rpriv = -1;
+static gint ett_rpriv;
 
 
 static e_guid_t uuid_rpriv = { 0xb1e338f8, 0x9533, 0x11c9, { 0xa3, 0x4a, 0x08, 0x00, 0x1e, 0x01, 0x9c, 0x1e } };

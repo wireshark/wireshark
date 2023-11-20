@@ -39,24 +39,24 @@ void proto_register_ziop(void);
  * ------------------------------------------------------------------------------------------+
  */
 
-static int proto_ziop = -1;
+static int proto_ziop;
 
 /*
  * (sub)Tree declares
  */
 
-static gint hf_ziop_magic = -1;
-static gint hf_ziop_giop_version_major = -1;
-static gint hf_ziop_giop_version_minor = -1;
-static gint hf_ziop_flags = -1;
-static gint hf_ziop_message_type = -1;
-static gint hf_ziop_message_size = -1;
-static gint hf_ziop_compressor_id = -1;
-static gint hf_ziop_original_length = -1;
+static gint hf_ziop_magic;
+static gint hf_ziop_giop_version_major;
+static gint hf_ziop_giop_version_minor;
+static gint hf_ziop_flags;
+static gint hf_ziop_message_type;
+static gint hf_ziop_message_size;
+static gint hf_ziop_compressor_id;
+static gint hf_ziop_original_length;
 
-static gint ett_ziop = -1;
+static gint ett_ziop;
 
-static expert_field ei_ziop_version = EI_INIT;
+static expert_field ei_ziop_version;
 
 static dissector_handle_t ziop_tcp_handle;
 

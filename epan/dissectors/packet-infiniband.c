@@ -38,65 +38,65 @@ void proto_reg_handoff_infiniband(void);
 #define RDMA_IP_CM_SID_PREFIX 0x0000000001000000
 
 /* Wireshark ID */
-static int proto_infiniband = -1;
-static int proto_infiniband_link = -1;
+static int proto_infiniband;
+static int proto_infiniband_link;
 
 /* Variables to hold expansion values between packets */
-/* static gint ett_infiniband = -1;                */
-static gint ett_all_headers = -1;
-static gint ett_lrh = -1;
-static gint ett_grh = -1;
-static gint ett_bth = -1;
-static gint ett_rwh = -1;
-static gint ett_rdeth = -1;
-static gint ett_deth = -1;
-static gint ett_reth = -1;
-static gint ett_atomiceth = -1;
-static gint ett_aeth = -1;
-static gint ett_aeth_syndrome = -1;
-static gint ett_atomicacketh = -1;
-static gint ett_immdt = -1;
-static gint ett_ieth = -1;
-static gint ett_payload = -1;
-static gint ett_vendor = -1;
-static gint ett_subn_lid_routed = -1;
-static gint ett_subn_directed_route = -1;
-static gint ett_subnadmin = -1;
-static gint ett_mad = -1;
-static gint ett_cm = -1;
-static gint ett_cm_sid = -1;
-static gint ett_cm_ipcm = -1;
-static gint ett_rmpp = -1;
-static gint ett_subm_attribute = -1;
-static gint ett_suba_attribute = -1;
-static gint ett_datadetails = -1;
-static gint ett_noticestraps = -1;
-/* static gint ett_nodedesc = -1;                  */
-/* static gint ett_nodeinfo = -1;                  */
-/* static gint ett_switchinfo = -1;                */
-/* static gint ett_guidinfo = -1;                  */
-/* static gint ett_portinfo = -1;                  */
-static gint ett_portinfo_capmask = -1;
-static gint ett_pkeytable = -1;
-static gint ett_sltovlmapping = -1;
-static gint ett_vlarbitrationtable = -1;
-static gint ett_linearforwardingtable = -1;
-static gint ett_randomforwardingtable = -1;
-static gint ett_multicastforwardingtable = -1;
-static gint ett_sminfo = -1;
-static gint ett_vendordiag = -1;
-static gint ett_ledinfo = -1;
-static gint ett_linkspeedwidthpairs = -1;
-static gint ett_informinfo = -1;
-static gint ett_linkrecord = -1;
-static gint ett_servicerecord = -1;
-static gint ett_pathrecord = -1;
-static gint ett_mcmemberrecord = -1;
-static gint ett_tracerecord = -1;
-static gint ett_multipathrecord = -1;
-static gint ett_serviceassocrecord = -1;
-static gint ett_perfclass = -1;
-static gint ett_link = -1;
+/* static gint ett_infiniband;                */
+static gint ett_all_headers;
+static gint ett_lrh;
+static gint ett_grh;
+static gint ett_bth;
+static gint ett_rwh;
+static gint ett_rdeth;
+static gint ett_deth;
+static gint ett_reth;
+static gint ett_atomiceth;
+static gint ett_aeth;
+static gint ett_aeth_syndrome;
+static gint ett_atomicacketh;
+static gint ett_immdt;
+static gint ett_ieth;
+static gint ett_payload;
+static gint ett_vendor;
+static gint ett_subn_lid_routed;
+static gint ett_subn_directed_route;
+static gint ett_subnadmin;
+static gint ett_mad;
+static gint ett_cm;
+static gint ett_cm_sid;
+static gint ett_cm_ipcm;
+static gint ett_rmpp;
+static gint ett_subm_attribute;
+static gint ett_suba_attribute;
+static gint ett_datadetails;
+static gint ett_noticestraps;
+/* static gint ett_nodedesc;                  */
+/* static gint ett_nodeinfo;                  */
+/* static gint ett_switchinfo;                */
+/* static gint ett_guidinfo;                  */
+/* static gint ett_portinfo;                  */
+static gint ett_portinfo_capmask;
+static gint ett_pkeytable;
+static gint ett_sltovlmapping;
+static gint ett_vlarbitrationtable;
+static gint ett_linearforwardingtable;
+static gint ett_randomforwardingtable;
+static gint ett_multicastforwardingtable;
+static gint ett_sminfo;
+static gint ett_vendordiag;
+static gint ett_ledinfo;
+static gint ett_linkspeedwidthpairs;
+static gint ett_informinfo;
+static gint ett_linkrecord;
+static gint ett_servicerecord;
+static gint ett_pathrecord;
+static gint ett_mcmemberrecord;
+static gint ett_tracerecord;
+static gint ett_multipathrecord;
+static gint ett_serviceassocrecord;
+static gint ett_perfclass;
+static gint ett_link;
 
 /* Dissector Declaration */
 static dissector_handle_t ib_handle;
@@ -480,262 +480,262 @@ static const value_string OperationalVLs[]= {
 };
 
 /* For reserved fields in various packets */
-static int hf_infiniband_reserved = -1;
+static int hf_infiniband_reserved;
 /* Local Route Header (LRH) */
-static int hf_infiniband_LRH = -1;
-static int hf_infiniband_virtual_lane = -1;
-static int hf_infiniband_link_version = -1;
-static int hf_infiniband_service_level = -1;
-static int hf_infiniband_reserved2 = -1;
-static int hf_infiniband_link_next_header = -1;
-static int hf_infiniband_destination_local_id = -1;
-static int hf_infiniband_reserved5 = -1;
-static int hf_infiniband_packet_length = -1;
-static int hf_infiniband_source_local_id = -1;
+static int hf_infiniband_LRH;
+static int hf_infiniband_virtual_lane;
+static int hf_infiniband_link_version;
+static int hf_infiniband_service_level;
+static int hf_infiniband_reserved2;
+static int hf_infiniband_link_next_header;
+static int hf_infiniband_destination_local_id;
+static int hf_infiniband_reserved5;
+static int hf_infiniband_packet_length;
+static int hf_infiniband_source_local_id;
 /* Global Route Header (GRH) */
-static int hf_infiniband_GRH = -1;
-static int hf_infiniband_ip_version = -1;
-static int hf_infiniband_traffic_class = -1;
-static int hf_infiniband_flow_label = -1;
-static int hf_infiniband_payload_length = -1;
-static int hf_infiniband_next_header = -1;
-static int hf_infiniband_hop_limit = -1;
-static int hf_infiniband_source_gid = -1;
-static int hf_infiniband_destination_gid = -1;
+static int hf_infiniband_GRH;
+static int hf_infiniband_ip_version;
+static int hf_infiniband_traffic_class;
+static int hf_infiniband_flow_label;
+static int hf_infiniband_payload_length;
+static int hf_infiniband_next_header;
+static int hf_infiniband_hop_limit;
+static int hf_infiniband_source_gid;
+static int hf_infiniband_destination_gid;
 /* Base Transport Header (BTH) */
-static int hf_infiniband_BTH = -1;
-static int hf_infiniband_opcode = -1;
-static int hf_infiniband_solicited_event = -1;
-static int hf_infiniband_migreq = -1;
-static int hf_infiniband_pad_count = -1;
-static int hf_infiniband_transport_header_version = -1;
-static int hf_infiniband_partition_key = -1;
-static int hf_infiniband_destination_qp = -1;
-static int hf_infiniband_acknowledge_request = -1;
-static int hf_infiniband_reserved7 = -1;
-static int hf_infiniband_packet_sequence_number = -1;
+static int hf_infiniband_BTH;
+static int hf_infiniband_opcode;
+static int hf_infiniband_solicited_event;
+static int hf_infiniband_migreq;
+static int hf_infiniband_pad_count;
+static int hf_infiniband_transport_header_version;
+static int hf_infiniband_partition_key;
+static int hf_infiniband_destination_qp;
+static int hf_infiniband_acknowledge_request;
+static int hf_infiniband_reserved7;
+static int hf_infiniband_packet_sequence_number;
 /* Raw Header (RWH) */
-static int hf_infiniband_RWH = -1;
-static int hf_infiniband_etype = -1;
+static int hf_infiniband_RWH;
+static int hf_infiniband_etype;
 /* Reliable Datagram Extended Transport Header (RDETH) */
-static int hf_infiniband_RDETH = -1;
-static int hf_infiniband_ee_context = -1;
+static int hf_infiniband_RDETH;
+static int hf_infiniband_ee_context;
 /* Datagram Extended Transport Header (DETH) */
-static int hf_infiniband_DETH = -1;
-static int hf_infiniband_queue_key = -1;
-static int hf_infiniband_source_qp = -1;
+static int hf_infiniband_DETH;
+static int hf_infiniband_queue_key;
+static int hf_infiniband_source_qp;
 /* RDMA Extended Transport Header (RETH) */
-static int hf_infiniband_RETH = -1;
-static int hf_infiniband_virtual_address = -1;
-static int hf_infiniband_remote_key = -1;
-static int hf_infiniband_dma_length = -1;
+static int hf_infiniband_RETH;
+static int hf_infiniband_virtual_address;
+static int hf_infiniband_remote_key;
+static int hf_infiniband_dma_length;
 /* Atomic Extended Transport Header (AtomicETH) */
-static int hf_infiniband_AtomicETH = -1;
-/* static int hf_infiniband_virtual_address_AtomicETH = -1;                  */
-/* static int hf_infiniband_remote_key_AtomicETH = -1;                       */
-static int hf_infiniband_swap_or_add_data = -1;
-static int hf_infiniband_compare_data = -1;
+static int hf_infiniband_AtomicETH;
+/* static int hf_infiniband_virtual_address_AtomicETH;                  */
+/* static int hf_infiniband_remote_key_AtomicETH;                       */
+static int hf_infiniband_swap_or_add_data;
+static int hf_infiniband_compare_data;
 /* ACK Extended Transport Header (AETH) */
-static int hf_infiniband_AETH = -1;
-static int hf_infiniband_syndrome = -1;
-static int hf_infiniband_syndrome_reserved = -1;
-static int hf_infiniband_syndrome_opcode = -1;
-static int hf_infiniband_syndrome_credit_count = -1;
-static int hf_infiniband_syndrome_timer = -1;
-static int hf_infiniband_syndrome_reserved_value = -1;
-static int hf_infiniband_syndrome_error_code = -1;
-static int hf_infiniband_message_sequence_number = -1;
+static int hf_infiniband_AETH;
+static int hf_infiniband_syndrome;
+static int hf_infiniband_syndrome_reserved;
+static int hf_infiniband_syndrome_opcode;
+static int hf_infiniband_syndrome_credit_count;
+static int hf_infiniband_syndrome_timer;
+static int hf_infiniband_syndrome_reserved_value;
+static int hf_infiniband_syndrome_error_code;
+static int hf_infiniband_message_sequence_number;
 /* Atomic ACK Extended Transport Header (AtomicAckETH) */
-static int hf_infiniband_AtomicAckETH = -1;
-static int hf_infiniband_original_remote_data = -1;
+static int hf_infiniband_AtomicAckETH;
+static int hf_infiniband_original_remote_data;
 /* Immediate Extended Transport Header (ImmDt) */
-static int hf_infiniband_IMMDT = -1;
+static int hf_infiniband_IMMDT;
 /* Invalidate Extended Transport Header (IETH) */
-static int hf_infiniband_IETH = -1;
+static int hf_infiniband_IETH;
 /* FLUSH Extended Transport Header (FETH) */
-static int hf_infiniband_FETH = -1;
-static int hf_infiniband_reserved27 = -1;
-static int hf_infiniband_selectivity_level = -1;
-static int hf_infiniband_placement_type = -1;
+static int hf_infiniband_FETH;
+static int hf_infiniband_reserved27;
+static int hf_infiniband_selectivity_level;
+static int hf_infiniband_placement_type;
 
 /* Payload */
-static int hf_infiniband_payload = -1;
-static int hf_infiniband_invariant_crc = -1;
-static int hf_infiniband_variant_crc = -1;
+static int hf_infiniband_payload;
+static int hf_infiniband_invariant_crc;
+static int hf_infiniband_variant_crc;
 /* Unknown or Vendor Specific */
-static int hf_infiniband_raw_data = -1;
-static int hf_infiniband_vendor = -1;
+static int hf_infiniband_raw_data;
+static int hf_infiniband_vendor;
 /* CM REQ Header */
-static int hf_cm_req_local_comm_id = -1;
-static int hf_cm_req_service_id = -1;
-static int hf_cm_req_service_id_prefix = -1;
-static int hf_cm_req_service_id_protocol = -1;
-static int hf_cm_req_service_id_dport = -1;
-static int hf_cm_req_local_ca_guid = -1;
-static int hf_cm_req_local_qkey = -1;
-static int hf_cm_req_local_qpn = -1;
-static int hf_cm_req_respo_res = -1;
-static int hf_cm_req_local_eecn = -1;
-static int hf_cm_req_init_depth = -1;
-static int hf_cm_req_remote_eecn = -1;
-static int hf_cm_req_remote_cm_resp_to = -1;
-static int hf_cm_req_transp_serv_type = -1;
-static int hf_cm_req_e2e_flow_ctrl = -1;
-static int hf_cm_req_start_psn = -1;
-static int hf_cm_req_local_cm_resp_to = -1;
-static int hf_cm_req_retry_count = -1;
-static int hf_cm_req_pkey = -1;
-static int hf_cm_req_path_pp_mtu = -1;
-static int hf_cm_req_rdc_exists = -1;
-static int hf_cm_req_rnr_retry_count = -1;
-static int hf_cm_req_max_cm_retries = -1;
-static int hf_cm_req_srq = -1;
-static int hf_cm_req_extended_transport = -1;
-static int hf_cm_req_primary_local_lid = -1;
-static int hf_cm_req_primary_remote_lid = -1;
-static int hf_cm_req_primary_local_gid = -1;
-static int hf_cm_req_primary_remote_gid = -1;
-static int hf_cm_req_primary_local_gid_ipv4 = -1;
-static int hf_cm_req_primary_remote_gid_ipv4 = -1;
-static int hf_cm_req_primary_flow_label = -1;
-static int hf_cm_req_primary_reserved0 = -1;
-static int hf_cm_req_primary_packet_rate = -1;
-static int hf_cm_req_primary_traffic_class = -1;
-static int hf_cm_req_primary_hop_limit = -1;
-static int hf_cm_req_primary_sl = -1;
-static int hf_cm_req_primary_subnet_local = -1;
-static int hf_cm_req_primary_reserved1 = -1;
-static int hf_cm_req_primary_local_ack_to = -1;
-static int hf_cm_req_primary_reserved2 = -1;
-static int hf_cm_req_alt_local_lid = -1;
-static int hf_cm_req_alt_remote_lid = -1;
-static int hf_cm_req_alt_local_gid = -1;
-static int hf_cm_req_alt_remote_gid = -1;
-static int hf_cm_req_flow_label = -1;
-static int hf_cm_req_alt_reserved0 = -1;
-static int hf_cm_req_packet_rate = -1;
-static int hf_cm_req_alt_traffic_class = -1;
-static int hf_cm_req_alt_hop_limit = -1;
-static int hf_cm_req_SL = -1;
-static int hf_cm_req_subnet_local = -1;
-static int hf_cm_req_alt_reserved1 = -1;
-static int hf_cm_req_local_ACK_timeout = -1;
-static int hf_cm_req_alt_reserved2 = -1;
-static int hf_cm_req_private_data = -1;
-static int hf_cm_req_ip_cm_req_msg = -1;
-static int hf_cm_req_ip_cm_majv = -1;
-static int hf_cm_req_ip_cm_minv = -1;
-static int hf_cm_req_ip_cm_ipv = -1;
-static int hf_cm_req_ip_cm_res = -1;
-static int hf_cm_req_ip_cm_sport = -1;
-static int hf_cm_req_ip_cm_sip6 = -1;
-static int hf_cm_req_ip_cm_dip6 = -1;
-static int hf_cm_req_ip_cm_sip4 = -1;
-static int hf_cm_req_ip_cm_dip4 = -1;
-static int hf_ip_cm_req_consumer_private_data = -1;
+static int hf_cm_req_local_comm_id;
+static int hf_cm_req_service_id;
+static int hf_cm_req_service_id_prefix;
+static int hf_cm_req_service_id_protocol;
+static int hf_cm_req_service_id_dport;
+static int hf_cm_req_local_ca_guid;
+static int hf_cm_req_local_qkey;
+static int hf_cm_req_local_qpn;
+static int hf_cm_req_respo_res;
+static int hf_cm_req_local_eecn;
+static int hf_cm_req_init_depth;
+static int hf_cm_req_remote_eecn;
+static int hf_cm_req_remote_cm_resp_to;
+static int hf_cm_req_transp_serv_type;
+static int hf_cm_req_e2e_flow_ctrl;
+static int hf_cm_req_start_psn;
+static int hf_cm_req_local_cm_resp_to;
+static int hf_cm_req_retry_count;
+static int hf_cm_req_pkey;
+static int hf_cm_req_path_pp_mtu;
+static int hf_cm_req_rdc_exists;
+static int hf_cm_req_rnr_retry_count;
+static int hf_cm_req_max_cm_retries;
+static int hf_cm_req_srq;
+static int hf_cm_req_extended_transport;
+static int hf_cm_req_primary_local_lid;
+static int hf_cm_req_primary_remote_lid;
+static int hf_cm_req_primary_local_gid;
+static int hf_cm_req_primary_remote_gid;
+static int hf_cm_req_primary_local_gid_ipv4;
+static int hf_cm_req_primary_remote_gid_ipv4;
+static int hf_cm_req_primary_flow_label;
+static int hf_cm_req_primary_reserved0;
+static int hf_cm_req_primary_packet_rate;
+static int hf_cm_req_primary_traffic_class;
+static int hf_cm_req_primary_hop_limit;
+static int hf_cm_req_primary_sl;
+static int hf_cm_req_primary_subnet_local;
+static int hf_cm_req_primary_reserved1;
+static int hf_cm_req_primary_local_ack_to;
+static int hf_cm_req_primary_reserved2;
+static int hf_cm_req_alt_local_lid;
+static int hf_cm_req_alt_remote_lid;
+static int hf_cm_req_alt_local_gid;
+static int hf_cm_req_alt_remote_gid;
+static int hf_cm_req_flow_label;
+static int hf_cm_req_alt_reserved0;
+static int hf_cm_req_packet_rate;
+static int hf_cm_req_alt_traffic_class;
+static int hf_cm_req_alt_hop_limit;
+static int hf_cm_req_SL;
+static int hf_cm_req_subnet_local;
+static int hf_cm_req_alt_reserved1;
+static int hf_cm_req_local_ACK_timeout;
+static int hf_cm_req_alt_reserved2;
+static int hf_cm_req_private_data;
+static int hf_cm_req_ip_cm_req_msg;
+static int hf_cm_req_ip_cm_majv;
+static int hf_cm_req_ip_cm_minv;
+static int hf_cm_req_ip_cm_ipv;
+static int hf_cm_req_ip_cm_res;
+static int hf_cm_req_ip_cm_sport;
+static int hf_cm_req_ip_cm_sip6;
+static int hf_cm_req_ip_cm_dip6;
+static int hf_cm_req_ip_cm_sip4;
+static int hf_cm_req_ip_cm_dip4;
+static int hf_ip_cm_req_consumer_private_data;
 
 /* CM REP Header */
-static int hf_cm_rep_localcommid = -1;
-static int hf_cm_rep_remotecommid = -1;
-static int hf_cm_rep_localqkey = -1;
-static int hf_cm_rep_localqpn = -1;
-static int hf_cm_rep_localeecontnum = -1;
-static int hf_cm_rep_startingpsn = -1;
-static int hf_cm_rep_responderres = -1;
-static int hf_cm_rep_initiatordepth = -1;
-static int hf_cm_rep_tgtackdelay = -1;
-static int hf_cm_rep_failoveracc = -1;
-static int hf_cm_rep_e2eflowctl = -1;
-static int hf_cm_rep_rnrretrycount = -1;
-static int hf_cm_rep_srq = -1;
-static int hf_cm_rep_reserved = -1;
-static int hf_cm_rep_localcaguid = -1;
-static int hf_cm_rep_privatedata = -1;
+static int hf_cm_rep_localcommid;
+static int hf_cm_rep_remotecommid;
+static int hf_cm_rep_localqkey;
+static int hf_cm_rep_localqpn;
+static int hf_cm_rep_localeecontnum;
+static int hf_cm_rep_startingpsn;
+static int hf_cm_rep_responderres;
+static int hf_cm_rep_initiatordepth;
+static int hf_cm_rep_tgtackdelay;
+static int hf_cm_rep_failoveracc;
+static int hf_cm_rep_e2eflowctl;
+static int hf_cm_rep_rnrretrycount;
+static int hf_cm_rep_srq;
+static int hf_cm_rep_reserved;
+static int hf_cm_rep_localcaguid;
+static int hf_cm_rep_privatedata;
 /* CM RTU Header */
-static int hf_cm_rtu_localcommid = -1;
-static int hf_cm_rtu_remotecommid = -1;
-static int hf_cm_rtu_privatedata = -1;
+static int hf_cm_rtu_localcommid;
+static int hf_cm_rtu_remotecommid;
+static int hf_cm_rtu_privatedata;
 /* CM REJ Header */
-static int hf_cm_rej_local_commid = -1;
-static int hf_cm_rej_remote_commid = -1;
-static int hf_cm_rej_msg_rej = -1;
-static int hf_cm_rej_msg_reserved0 = -1;
-static int hf_cm_rej_rej_info_len = -1;
-static int hf_cm_rej_msg_reserved1 = -1;
-static int hf_cm_rej_reason = -1;
-static int hf_cm_rej_add_rej_info = -1;
-static int hf_cm_rej_private_data = -1;
+static int hf_cm_rej_local_commid;
+static int hf_cm_rej_remote_commid;
+static int hf_cm_rej_msg_rej;
+static int hf_cm_rej_msg_reserved0;
+static int hf_cm_rej_rej_info_len;
+static int hf_cm_rej_msg_reserved1;
+static int hf_cm_rej_reason;
+static int hf_cm_rej_add_rej_info;
+static int hf_cm_rej_private_data;
 /* CM DREQ Header */
-static int hf_cm_dreq_localcommid = -1;
-static int hf_cm_dreq_remotecommid = -1;
-static int hf_cm_dreq_remote_qpn = -1;
-static int hf_cm_dreq_privatedata = -1;
+static int hf_cm_dreq_localcommid;
+static int hf_cm_dreq_remotecommid;
+static int hf_cm_dreq_remote_qpn;
+static int hf_cm_dreq_privatedata;
 /* CM DRSP Header */
-static int hf_cm_drsp_localcommid = -1;
-static int hf_cm_drsp_remotecommid = -1;
-static int hf_cm_drsp_privatedata = -1;
+static int hf_cm_drsp_localcommid;
+static int hf_cm_drsp_remotecommid;
+static int hf_cm_drsp_privatedata;
 /* MAD Base Header */
-static int hf_infiniband_MAD = -1;
-static int hf_infiniband_base_version = -1;
-static int hf_infiniband_mgmt_class = -1;
-static int hf_infiniband_class_version = -1;
-static int hf_infiniband_method = -1;
-static int hf_infiniband_status = -1;
-static int hf_infiniband_class_specific = -1;
-static int hf_infiniband_transaction_id = -1;
-static int hf_infiniband_attribute_id = -1;
-static int hf_infiniband_attribute_modifier = -1;
-static int hf_infiniband_data = -1;
+static int hf_infiniband_MAD;
+static int hf_infiniband_base_version;
+static int hf_infiniband_mgmt_class;
+static int hf_infiniband_class_version;
+static int hf_infiniband_method;
+static int hf_infiniband_status;
+static int hf_infiniband_class_specific;
+static int hf_infiniband_transaction_id;
+static int hf_infiniband_attribute_id;
+static int hf_infiniband_attribute_modifier;
+static int hf_infiniband_data;
 /* RMPP Header */
-static int hf_infiniband_RMPP = -1;
-static int hf_infiniband_rmpp_version = -1;
-static int hf_infiniband_rmpp_type = -1;
-static int hf_infiniband_r_resp_time = -1;
-static int hf_infiniband_rmpp_flags = -1;
-static int hf_infiniband_rmpp_status = -1;
-static int hf_infiniband_rmpp_data1 = -1;
-static int hf_infiniband_rmpp_data2 = -1;
+static int hf_infiniband_RMPP;
+static int hf_infiniband_rmpp_version;
+static int hf_infiniband_rmpp_type;
+static int hf_infiniband_r_resp_time;
+static int hf_infiniband_rmpp_flags;
+static int hf_infiniband_rmpp_status;
+static int hf_infiniband_rmpp_data1;
+static int hf_infiniband_rmpp_data2;
 /* RMPP Data */
-/* static int hf_infiniband_RMPP_DATA = -1; */
-static int hf_infiniband_segment_number = -1;
-static int hf_infiniband_payload_length32 = -1;
-static int hf_infiniband_transferred_data = -1;
+/* static int hf_infiniband_RMPP_DATA; */
+static int hf_infiniband_segment_number;
+static int hf_infiniband_payload_length32;
+static int hf_infiniband_transferred_data;
 /* RMPP ACK */
-static int hf_infiniband_new_window_last = -1;
+static int hf_infiniband_new_window_last;
 /* RMPP ABORT and STOP */
-static int hf_infiniband_optional_extended_error_data = -1;
+static int hf_infiniband_optional_extended_error_data;
 /* SMP Data LID Routed */
-static int hf_infiniband_SMP_LID = -1;
-static int hf_infiniband_m_key = -1;
-static int hf_infiniband_smp_data = -1;
+static int hf_infiniband_SMP_LID;
+static int hf_infiniband_m_key;
+static int hf_infiniband_smp_data;
 /* SMP Data Directed Route */
-static int hf_infiniband_SMP_DIRECTED = -1;
-static int hf_infiniband_smp_status = -1;
-static int hf_infiniband_hop_pointer = -1;
-static int hf_infiniband_hop_count = -1;
-static int hf_infiniband_dr_slid = -1;
-static int hf_infiniband_dr_dlid = -1;
-static int hf_infiniband_d = -1;
-static int hf_infiniband_initial_path = -1;
-static int hf_infiniband_return_path = -1;
+static int hf_infiniband_SMP_DIRECTED;
+static int hf_infiniband_smp_status;
+static int hf_infiniband_hop_pointer;
+static int hf_infiniband_hop_count;
+static int hf_infiniband_dr_slid;
+static int hf_infiniband_dr_dlid;
+static int hf_infiniband_d;
+static int hf_infiniband_initial_path;
+static int hf_infiniband_return_path;
 /* SA MAD Header */
-static int hf_infiniband_SA = -1;
-static int hf_infiniband_sm_key = -1;
-static int hf_infiniband_attribute_offset = -1;
-static int hf_infiniband_component_mask = -1;
-static int hf_infiniband_subnet_admin_data = -1;
+static int hf_infiniband_SA;
+static int hf_infiniband_sm_key;
+static int hf_infiniband_attribute_offset;
+static int hf_infiniband_component_mask;
+static int hf_infiniband_subnet_admin_data;
 
 /* Mellanox EoIB encapsulation header */
-static int proto_mellanox_eoib = -1;
-static int hf_infiniband_ver = -1;
-static int hf_infiniband_tcp_chk = -1;
-static int hf_infiniband_ip_chk = -1;
-static int hf_infiniband_fcs = -1;
-static int hf_infiniband_ms = -1;
-static int hf_infiniband_seg_off = -1;
-static int hf_infiniband_seg_id = -1;
+static int proto_mellanox_eoib;
+static int hf_infiniband_ver;
+static int hf_infiniband_tcp_chk;
+static int hf_infiniband_ip_chk;
+static int hf_infiniband_fcs;
+static int hf_infiniband_ms;
+static int hf_infiniband_seg_off;
+static int hf_infiniband_seg_id;
 
-static gint ett_eoib = -1;
+static gint ett_eoib;
 
 #define MELLANOX_VERSION_FLAG           0x3000
 #define MELLANOX_TCP_CHECKSUM_FLAG      0x0C00
@@ -752,167 +752,167 @@ static gint ett_eoib = -1;
 * did not provide adequate readability for the granularity of attribute/attribute fields. */
 
 /* NodeDescription */
-static int hf_infiniband_NodeDescription_NodeString = -1;
+static int hf_infiniband_NodeDescription_NodeString;
 /* NodeInfo */
-static int hf_infiniband_NodeInfo_BaseVersion = -1;
-static int hf_infiniband_NodeInfo_ClassVersion = -1;
-static int hf_infiniband_NodeInfo_NodeType = -1;
-static int hf_infiniband_NodeInfo_NumPorts = -1;
-static int hf_infiniband_NodeInfo_SystemImageGUID = -1;
-static int hf_infiniband_NodeInfo_NodeGUID = -1;
-static int hf_infiniband_NodeInfo_PortGUID = -1;
-static int hf_infiniband_NodeInfo_PartitionCap = -1;
-static int hf_infiniband_NodeInfo_DeviceID = -1;
-static int hf_infiniband_NodeInfo_Revision = -1;
-static int hf_infiniband_NodeInfo_LocalPortNum = -1;
-static int hf_infiniband_NodeInfo_VendorID = -1;
+static int hf_infiniband_NodeInfo_BaseVersion;
+static int hf_infiniband_NodeInfo_ClassVersion;
+static int hf_infiniband_NodeInfo_NodeType;
+static int hf_infiniband_NodeInfo_NumPorts;
+static int hf_infiniband_NodeInfo_SystemImageGUID;
+static int hf_infiniband_NodeInfo_NodeGUID;
+static int hf_infiniband_NodeInfo_PortGUID;
+static int hf_infiniband_NodeInfo_PartitionCap;
+static int hf_infiniband_NodeInfo_DeviceID;
+static int hf_infiniband_NodeInfo_Revision;
+static int hf_infiniband_NodeInfo_LocalPortNum;
+static int hf_infiniband_NodeInfo_VendorID;
 /* SwitchInfo */
-static int hf_infiniband_SwitchInfo_LinearFDBCap = -1;
-static int hf_infiniband_SwitchInfo_RandomFDBCap = -1;
-static int hf_infiniband_SwitchInfo_MulticastFDBCap = -1;
-static int hf_infiniband_SwitchInfo_LinearFDBTop = -1;
-static int hf_infiniband_SwitchInfo_DefaultPort = -1;
-static int hf_infiniband_SwitchInfo_DefaultMulticastPrimaryPort = -1;
-static int hf_infiniband_SwitchInfo_DefaultMulticastNotPrimaryPort = -1;
-static int hf_infiniband_SwitchInfo_LifeTimeValue = -1;
-static int hf_infiniband_SwitchInfo_PortStateChange = -1;
-static int hf_infiniband_SwitchInfo_OptimizedSLtoVLMappingProgramming = -1;
-static int hf_infiniband_SwitchInfo_LIDsPerPort = -1;
-static int hf_infiniband_SwitchInfo_PartitionEnforcementCap = -1;
-static int hf_infiniband_SwitchInfo_InboundEnforcementCap = -1;
-static int hf_infiniband_SwitchInfo_OutboundEnforcementCap = -1;
-static int hf_infiniband_SwitchInfo_FilterRawInboundCap = -1;
-static int hf_infiniband_SwitchInfo_FilterRawOutboundCap = -1;
-static int hf_infiniband_SwitchInfo_EnhancedPortZero = -1;
+static int hf_infiniband_SwitchInfo_LinearFDBCap;
+static int hf_infiniband_SwitchInfo_RandomFDBCap;
+static int hf_infiniband_SwitchInfo_MulticastFDBCap;
+static int hf_infiniband_SwitchInfo_LinearFDBTop;
+static int hf_infiniband_SwitchInfo_DefaultPort;
+static int hf_infiniband_SwitchInfo_DefaultMulticastPrimaryPort;
+static int hf_infiniband_SwitchInfo_DefaultMulticastNotPrimaryPort;
+static int hf_infiniband_SwitchInfo_LifeTimeValue;
+static int hf_infiniband_SwitchInfo_PortStateChange;
+static int hf_infiniband_SwitchInfo_OptimizedSLtoVLMappingProgramming;
+static int hf_infiniband_SwitchInfo_LIDsPerPort;
+static int hf_infiniband_SwitchInfo_PartitionEnforcementCap;
+static int hf_infiniband_SwitchInfo_InboundEnforcementCap;
+static int hf_infiniband_SwitchInfo_OutboundEnforcementCap;
+static int hf_infiniband_SwitchInfo_FilterRawInboundCap;
+static int hf_infiniband_SwitchInfo_FilterRawOutboundCap;
+static int hf_infiniband_SwitchInfo_EnhancedPortZero;
 /* GUIDInfo */
-/* static int hf_infiniband_GUIDInfo_GUIDBlock = -1;                         */
-static int hf_infiniband_GUIDInfo_GUID = -1;
+/* static int hf_infiniband_GUIDInfo_GUIDBlock;                         */
+static int hf_infiniband_GUIDInfo_GUID;
 /* PortInfo */
-static int hf_infiniband_PortInfo_GidPrefix = -1;
-static int hf_infiniband_PortInfo_LID = -1;
-static int hf_infiniband_PortInfo_MasterSMLID = -1;
-static int hf_infiniband_PortInfo_CapabilityMask = -1;
+static int hf_infiniband_PortInfo_GidPrefix;
+static int hf_infiniband_PortInfo_LID;
+static int hf_infiniband_PortInfo_MasterSMLID;
+static int hf_infiniband_PortInfo_CapabilityMask;
 
 /* Capability Mask Flags */
-static int hf_infiniband_PortInfo_CapabilityMask_SM = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_NoticeSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_TrapSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_OptionalIPDSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_AutomaticMigrationSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_SLMappingSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_MKeyNVRAM = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_PKeyNVRAM = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_LEDInfoSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_SMdisabled = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_SystemImageGUIDSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_PKeySwitchExternalPortTrapSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_CommunicationManagementSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_SNMPTunnelingSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_ReinitSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_DeviceManagementSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_VendorClassSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_DRNoticeSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_CapabilityMaskNoticeSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_BootManagementSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_LinkRoundTripLatencySupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_ClientRegistrationSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_OtherLocalChangesNoticeSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_LinkSpeedWIdthPairsTableSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_SM;
+static int hf_infiniband_PortInfo_CapabilityMask_NoticeSupported;
+static int hf_infiniband_PortInfo_CapabilityMask_TrapSupported;
+static int hf_infiniband_PortInfo_CapabilityMask_OptionalIPDSupported;
+static int hf_infiniband_PortInfo_CapabilityMask_AutomaticMigrationSupported;
+static int hf_infiniband_PortInfo_CapabilityMask_SLMappingSupported;
+static int hf_infiniband_PortInfo_CapabilityMask_MKeyNVRAM;
+static int hf_infiniband_PortInfo_CapabilityMask_PKeyNVRAM;
+static int hf_infiniband_PortInfo_CapabilityMask_LEDInfoSupported;
+static int hf_infiniband_PortInfo_CapabilityMask_SMdisabled;
+static int hf_infiniband_PortInfo_CapabilityMask_SystemImageGUIDSupported;
+static int hf_infiniband_PortInfo_CapabilityMask_PKeySwitchExternalPortTrapSupported;
+static int hf_infiniband_PortInfo_CapabilityMask_CommunicationManagementSupported;
+static int hf_infiniband_PortInfo_CapabilityMask_SNMPTunnelingSupported;
+static int hf_infiniband_PortInfo_CapabilityMask_ReinitSupported;
+static int hf_infiniband_PortInfo_CapabilityMask_DeviceManagementSupported;
+static int hf_infiniband_PortInfo_CapabilityMask_VendorClassSupported;
+static int hf_infiniband_PortInfo_CapabilityMask_DRNoticeSupported;
+static int hf_infiniband_PortInfo_CapabilityMask_CapabilityMaskNoticeSupported;
+static int hf_infiniband_PortInfo_CapabilityMask_BootManagementSupported;
+static int hf_infiniband_PortInfo_CapabilityMask_LinkRoundTripLatencySupported;
+static int hf_infiniband_PortInfo_CapabilityMask_ClientRegistrationSupported;
+static int hf_infiniband_PortInfo_CapabilityMask_OtherLocalChangesNoticeSupported;
+static int hf_infiniband_PortInfo_CapabilityMask_LinkSpeedWIdthPairsTableSupported;
 /* End Capability Mask Flags */
 
 
-static int hf_infiniband_PortInfo_DiagCode = -1;
-static int hf_infiniband_PortInfo_M_KeyLeasePeriod = -1;
-static int hf_infiniband_PortInfo_LocalPortNum = -1;
-static int hf_infiniband_PortInfo_LinkWidthEnabled = -1;
-static int hf_infiniband_PortInfo_LinkWidthSupported = -1;
-static int hf_infiniband_PortInfo_LinkWidthActive = -1;
-static int hf_infiniband_PortInfo_LinkSpeedSupported = -1;
-static int hf_infiniband_PortInfo_PortState = -1;
-static int hf_infiniband_PortInfo_PortPhysicalState = -1;
-static int hf_infiniband_PortInfo_LinkDownDefaultState = -1;
-static int hf_infiniband_PortInfo_M_KeyProtectBits = -1;
-static int hf_infiniband_PortInfo_LMC = -1;
-static int hf_infiniband_PortInfo_LinkSpeedActive = -1;
-static int hf_infiniband_PortInfo_LinkSpeedEnabled = -1;
-static int hf_infiniband_PortInfo_NeighborMTU = -1;
-static int hf_infiniband_PortInfo_MasterSMSL = -1;
-static int hf_infiniband_PortInfo_VLCap = -1;
-static int hf_infiniband_PortInfo_M_Key = -1;
-static int hf_infiniband_PortInfo_InitType = -1;
-static int hf_infiniband_PortInfo_VLHighLimit = -1;
-static int hf_infiniband_PortInfo_VLArbitrationHighCap = -1;
-static int hf_infiniband_PortInfo_VLArbitrationLowCap = -1;
-static int hf_infiniband_PortInfo_InitTypeReply = -1;
-static int hf_infiniband_PortInfo_MTUCap = -1;
-static int hf_infiniband_PortInfo_VLStallCount = -1;
-static int hf_infiniband_PortInfo_HOQLife = -1;
-static int hf_infiniband_PortInfo_OperationalVLs = -1;
-static int hf_infiniband_PortInfo_PartitionEnforcementInbound = -1;
-static int hf_infiniband_PortInfo_PartitionEnforcementOutbound = -1;
-static int hf_infiniband_PortInfo_FilterRawInbound = -1;
-static int hf_infiniband_PortInfo_FilterRawOutbound = -1;
-static int hf_infiniband_PortInfo_M_KeyViolations = -1;
-static int hf_infiniband_PortInfo_P_KeyViolations = -1;
-static int hf_infiniband_PortInfo_Q_KeyViolations = -1;
-static int hf_infiniband_PortInfo_GUIDCap = -1;
-static int hf_infiniband_PortInfo_ClientReregister = -1;
-static int hf_infiniband_PortInfo_SubnetTimeOut = -1;
-static int hf_infiniband_PortInfo_RespTimeValue = -1;
-static int hf_infiniband_PortInfo_LocalPhyErrors = -1;
-static int hf_infiniband_PortInfo_OverrunErrors = -1;
-static int hf_infiniband_PortInfo_MaxCreditHint = -1;
-static int hf_infiniband_PortInfo_LinkRoundTripLatency = -1;
+static int hf_infiniband_PortInfo_DiagCode;
+static int hf_infiniband_PortInfo_M_KeyLeasePeriod;
+static int hf_infiniband_PortInfo_LocalPortNum;
+static int hf_infiniband_PortInfo_LinkWidthEnabled;
+static int hf_infiniband_PortInfo_LinkWidthSupported;
+static int hf_infiniband_PortInfo_LinkWidthActive;
+static int hf_infiniband_PortInfo_LinkSpeedSupported;
+static int hf_infiniband_PortInfo_PortState;
+static int hf_infiniband_PortInfo_PortPhysicalState;
+static int hf_infiniband_PortInfo_LinkDownDefaultState;
+static int hf_infiniband_PortInfo_M_KeyProtectBits;
+static int hf_infiniband_PortInfo_LMC;
+static int hf_infiniband_PortInfo_LinkSpeedActive;
+static int hf_infiniband_PortInfo_LinkSpeedEnabled;
+static int hf_infiniband_PortInfo_NeighborMTU;
+static int hf_infiniband_PortInfo_MasterSMSL;
+static int hf_infiniband_PortInfo_VLCap;
+static int hf_infiniband_PortInfo_M_Key;
+static int hf_infiniband_PortInfo_InitType;
+static int hf_infiniband_PortInfo_VLHighLimit;
+static int hf_infiniband_PortInfo_VLArbitrationHighCap;
+static int hf_infiniband_PortInfo_VLArbitrationLowCap;
+static int hf_infiniband_PortInfo_InitTypeReply;
+static int hf_infiniband_PortInfo_MTUCap;
+static int hf_infiniband_PortInfo_VLStallCount;
+static int hf_infiniband_PortInfo_HOQLife;
+static int hf_infiniband_PortInfo_OperationalVLs;
+static int hf_infiniband_PortInfo_PartitionEnforcementInbound;
+static int hf_infiniband_PortInfo_PartitionEnforcementOutbound;
+static int hf_infiniband_PortInfo_FilterRawInbound;
+static int hf_infiniband_PortInfo_FilterRawOutbound;
+static int hf_infiniband_PortInfo_M_KeyViolations;
+static int hf_infiniband_PortInfo_P_KeyViolations;
+static int hf_infiniband_PortInfo_Q_KeyViolations;
+static int hf_infiniband_PortInfo_GUIDCap;
+static int hf_infiniband_PortInfo_ClientReregister;
+static int hf_infiniband_PortInfo_SubnetTimeOut;
+static int hf_infiniband_PortInfo_RespTimeValue;
+static int hf_infiniband_PortInfo_LocalPhyErrors;
+static int hf_infiniband_PortInfo_OverrunErrors;
+static int hf_infiniband_PortInfo_MaxCreditHint;
+static int hf_infiniband_PortInfo_LinkRoundTripLatency;
 
 /* P_KeyTable */
-static int hf_infiniband_P_KeyTable_P_KeyTableBlock = -1;
-static int hf_infiniband_P_KeyTable_MembershipType = -1;
-static int hf_infiniband_P_KeyTable_P_KeyBase = -1;
+static int hf_infiniband_P_KeyTable_P_KeyTableBlock;
+static int hf_infiniband_P_KeyTable_MembershipType;
+static int hf_infiniband_P_KeyTable_P_KeyBase;
 
 /* SLtoVLMappingTable */
-static int hf_infiniband_SLtoVLMappingTable_SLtoVL_HighBits = -1;
-static int hf_infiniband_SLtoVLMappingTable_SLtoVL_LowBits = -1;
+static int hf_infiniband_SLtoVLMappingTable_SLtoVL_HighBits;
+static int hf_infiniband_SLtoVLMappingTable_SLtoVL_LowBits;
 
 /* VLArbitrationTable */
-/* static int hf_infiniband_VLArbitrationTable_VLWeightPairs = -1;           */
-static int hf_infiniband_VLArbitrationTable_VL = -1;
-static int hf_infiniband_VLArbitrationTable_Weight = -1;
+/* static int hf_infiniband_VLArbitrationTable_VLWeightPairs;           */
+static int hf_infiniband_VLArbitrationTable_VL;
+static int hf_infiniband_VLArbitrationTable_Weight;
 
 /* LinearForwardingTable */
-/* static int hf_infiniband_LinearForwardingTable_LinearForwardingTableBlock = -1;  */
-static int hf_infiniband_LinearForwardingTable_Port = -1;
+/* static int hf_infiniband_LinearForwardingTable_LinearForwardingTableBlock;  */
+static int hf_infiniband_LinearForwardingTable_Port;
 
 /* RandomForwardingTable */
-/* static int hf_infiniband_RandomForwardingTable_RandomForwardingTableBlock = -1;  */
-static int hf_infiniband_RandomForwardingTable_LID = -1;
-static int hf_infiniband_RandomForwardingTable_Valid = -1;
-static int hf_infiniband_RandomForwardingTable_LMC = -1;
-static int hf_infiniband_RandomForwardingTable_Port = -1;
+/* static int hf_infiniband_RandomForwardingTable_RandomForwardingTableBlock;  */
+static int hf_infiniband_RandomForwardingTable_LID;
+static int hf_infiniband_RandomForwardingTable_Valid;
+static int hf_infiniband_RandomForwardingTable_LMC;
+static int hf_infiniband_RandomForwardingTable_Port;
 
 /* MulticastForwardingTable */
-/* static int hf_infiniband_MulticastForwardingTable_MulticastForwardingTableBlock = -1;    */
-static int hf_infiniband_MulticastForwardingTable_PortMask = -1;
+/* static int hf_infiniband_MulticastForwardingTable_MulticastForwardingTableBlock;    */
+static int hf_infiniband_MulticastForwardingTable_PortMask;
 
 /* SMInfo */
-static int hf_infiniband_SMInfo_GUID = -1;
-static int hf_infiniband_SMInfo_SM_Key = -1;
-static int hf_infiniband_SMInfo_ActCount = -1;
-static int hf_infiniband_SMInfo_Priority = -1;
-static int hf_infiniband_SMInfo_SMState = -1;
+static int hf_infiniband_SMInfo_GUID;
+static int hf_infiniband_SMInfo_SM_Key;
+static int hf_infiniband_SMInfo_ActCount;
+static int hf_infiniband_SMInfo_Priority;
+static int hf_infiniband_SMInfo_SMState;
 
 /* VendorDiag */
-static int hf_infiniband_VendorDiag_NextIndex = -1;
-static int hf_infiniband_VendorDiag_DiagData = -1;
+static int hf_infiniband_VendorDiag_NextIndex;
+static int hf_infiniband_VendorDiag_DiagData;
 
 /* LedInfo */
-static int hf_infiniband_LedInfo_LedMask = -1;
+static int hf_infiniband_LedInfo_LedMask;
 
 /* LinkSpeedWidthPairsTable */
-static int hf_infiniband_LinkSpeedWidthPairsTable_NumTables = -1;
-static int hf_infiniband_LinkSpeedWidthPairsTable_PortMask = -1;
-static int hf_infiniband_LinkSpeedWidthPairsTable_SpeedTwoFive = -1;
-static int hf_infiniband_LinkSpeedWidthPairsTable_SpeedFive = -1;
-static int hf_infiniband_LinkSpeedWidthPairsTable_SpeedTen = -1;
+static int hf_infiniband_LinkSpeedWidthPairsTable_NumTables;
+static int hf_infiniband_LinkSpeedWidthPairsTable_PortMask;
+static int hf_infiniband_LinkSpeedWidthPairsTable_SpeedTwoFive;
+static int hf_infiniband_LinkSpeedWidthPairsTable_SpeedFive;
+static int hf_infiniband_LinkSpeedWidthPairsTable_SpeedTen;
 
 /* Attributes for Subnet Administration.
 * Mostly we have "Records" here which are just structures of SM attributes.
@@ -927,197 +927,197 @@ static int hf_infiniband_LinkSpeedWidthPairsTable_SpeedTen = -1;
 /* MulticastForwardingTableRecord */
 /* VLArbitrationTableRecord */
 
-static int hf_infiniband_SA_LID = -1;
-static int hf_infiniband_SA_EndportLID = -1;
-static int hf_infiniband_SA_PortNum = -1;
-static int hf_infiniband_SA_InputPortNum = -1;
-static int hf_infiniband_SA_OutputPortNum = -1;
-static int hf_infiniband_SA_BlockNum_EightBit = -1;
-static int hf_infiniband_SA_BlockNum_NineBit = -1;
-static int hf_infiniband_SA_BlockNum_SixteenBit = -1;
-static int hf_infiniband_SA_Position = -1;
-/* static int hf_infiniband_SA_Index = -1;                                   */
+static int hf_infiniband_SA_LID;
+static int hf_infiniband_SA_EndportLID;
+static int hf_infiniband_SA_PortNum;
+static int hf_infiniband_SA_InputPortNum;
+static int hf_infiniband_SA_OutputPortNum;
+static int hf_infiniband_SA_BlockNum_EightBit;
+static int hf_infiniband_SA_BlockNum_NineBit;
+static int hf_infiniband_SA_BlockNum_SixteenBit;
+static int hf_infiniband_SA_Position;
+/* static int hf_infiniband_SA_Index;                                   */
 
 /* InformInfoRecord */
-static int hf_infiniband_InformInfoRecord_SubscriberGID = -1;
-static int hf_infiniband_InformInfoRecord_Enum = -1;
+static int hf_infiniband_InformInfoRecord_SubscriberGID;
+static int hf_infiniband_InformInfoRecord_Enum;
 
 /* InformInfo */
-static int hf_infiniband_InformInfo_GID = -1;
-static int hf_infiniband_InformInfo_LIDRangeBegin = -1;
-static int hf_infiniband_InformInfo_LIDRangeEnd = -1;
-static int hf_infiniband_InformInfo_IsGeneric = -1;
-static int hf_infiniband_InformInfo_Subscribe = -1;
-static int hf_infiniband_InformInfo_Type = -1;
-static int hf_infiniband_InformInfo_TrapNumberDeviceID = -1;
-static int hf_infiniband_InformInfo_QPN = -1;
-static int hf_infiniband_InformInfo_RespTimeValue = -1;
-static int hf_infiniband_InformInfo_ProducerTypeVendorID = -1;
+static int hf_infiniband_InformInfo_GID;
+static int hf_infiniband_InformInfo_LIDRangeBegin;
+static int hf_infiniband_InformInfo_LIDRangeEnd;
+static int hf_infiniband_InformInfo_IsGeneric;
+static int hf_infiniband_InformInfo_Subscribe;
+static int hf_infiniband_InformInfo_Type;
+static int hf_infiniband_InformInfo_TrapNumberDeviceID;
+static int hf_infiniband_InformInfo_QPN;
+static int hf_infiniband_InformInfo_RespTimeValue;
+static int hf_infiniband_InformInfo_ProducerTypeVendorID;
 
 /* LinkRecord */
-static int hf_infiniband_LinkRecord_FromLID = -1;
-static int hf_infiniband_LinkRecord_FromPort = -1;
-static int hf_infiniband_LinkRecord_ToPort = -1;
-static int hf_infiniband_LinkRecord_ToLID = -1;
+static int hf_infiniband_LinkRecord_FromLID;
+static int hf_infiniband_LinkRecord_FromPort;
+static int hf_infiniband_LinkRecord_ToPort;
+static int hf_infiniband_LinkRecord_ToLID;
 
 /* ServiceRecord */
-static int hf_infiniband_ServiceRecord_ServiceID = -1;
-static int hf_infiniband_ServiceRecord_ServiceGID = -1;
-static int hf_infiniband_ServiceRecord_ServiceP_Key = -1;
-static int hf_infiniband_ServiceRecord_ServiceLease = -1;
-static int hf_infiniband_ServiceRecord_ServiceKey = -1;
-static int hf_infiniband_ServiceRecord_ServiceName = -1;
-static int hf_infiniband_ServiceRecord_ServiceData = -1;
+static int hf_infiniband_ServiceRecord_ServiceID;
+static int hf_infiniband_ServiceRecord_ServiceGID;
+static int hf_infiniband_ServiceRecord_ServiceP_Key;
+static int hf_infiniband_ServiceRecord_ServiceLease;
+static int hf_infiniband_ServiceRecord_ServiceKey;
+static int hf_infiniband_ServiceRecord_ServiceName;
+static int hf_infiniband_ServiceRecord_ServiceData;
 
 /* ServiceAssociationRecord */
-static int hf_infiniband_ServiceAssociationRecord_ServiceKey = -1;
-static int hf_infiniband_ServiceAssociationRecord_ServiceName = -1;
+static int hf_infiniband_ServiceAssociationRecord_ServiceKey;
+static int hf_infiniband_ServiceAssociationRecord_ServiceName;
 
 /* PathRecord */
-static int hf_infiniband_PathRecord_DGID = -1;
-static int hf_infiniband_PathRecord_SGID = -1;
-static int hf_infiniband_PathRecord_DLID = -1;
-static int hf_infiniband_PathRecord_SLID = -1;
-static int hf_infiniband_PathRecord_RawTraffic = -1;
-static int hf_infiniband_PathRecord_FlowLabel = -1;
-static int hf_infiniband_PathRecord_HopLimit = -1;
-static int hf_infiniband_PathRecord_TClass = -1;
-static int hf_infiniband_PathRecord_Reversible = -1;
-static int hf_infiniband_PathRecord_NumbPath = -1;
-static int hf_infiniband_PathRecord_P_Key = -1;
-static int hf_infiniband_PathRecord_SL = -1;
-static int hf_infiniband_PathRecord_MTUSelector = -1;
-static int hf_infiniband_PathRecord_MTU = -1;
-static int hf_infiniband_PathRecord_RateSelector = -1;
-static int hf_infiniband_PathRecord_Rate = -1;
-static int hf_infiniband_PathRecord_PacketLifeTimeSelector = -1;
-static int hf_infiniband_PathRecord_PacketLifeTime = -1;
-static int hf_infiniband_PathRecord_Preference = -1;
+static int hf_infiniband_PathRecord_DGID;
+static int hf_infiniband_PathRecord_SGID;
+static int hf_infiniband_PathRecord_DLID;
+static int hf_infiniband_PathRecord_SLID;
+static int hf_infiniband_PathRecord_RawTraffic;
+static int hf_infiniband_PathRecord_FlowLabel;
+static int hf_infiniband_PathRecord_HopLimit;
+static int hf_infiniband_PathRecord_TClass;
+static int hf_infiniband_PathRecord_Reversible;
+static int hf_infiniband_PathRecord_NumbPath;
+static int hf_infiniband_PathRecord_P_Key;
+static int hf_infiniband_PathRecord_SL;
+static int hf_infiniband_PathRecord_MTUSelector;
+static int hf_infiniband_PathRecord_MTU;
+static int hf_infiniband_PathRecord_RateSelector;
+static int hf_infiniband_PathRecord_Rate;
+static int hf_infiniband_PathRecord_PacketLifeTimeSelector;
+static int hf_infiniband_PathRecord_PacketLifeTime;
+static int hf_infiniband_PathRecord_Preference;
 
 /* MCMemberRecord */
-static int hf_infiniband_MCMemberRecord_MGID = -1;
-static int hf_infiniband_MCMemberRecord_PortGID = -1;
-static int hf_infiniband_MCMemberRecord_Q_Key = -1;
-static int hf_infiniband_MCMemberRecord_MLID = -1;
-static int hf_infiniband_MCMemberRecord_MTUSelector = -1;
-static int hf_infiniband_MCMemberRecord_MTU = -1;
-static int hf_infiniband_MCMemberRecord_TClass = -1;
-static int hf_infiniband_MCMemberRecord_P_Key = -1;
-static int hf_infiniband_MCMemberRecord_RateSelector = -1;
-static int hf_infiniband_MCMemberRecord_Rate = -1;
-static int hf_infiniband_MCMemberRecord_PacketLifeTimeSelector = -1;
-static int hf_infiniband_MCMemberRecord_PacketLifeTime = -1;
-static int hf_infiniband_MCMemberRecord_SL = -1;
-static int hf_infiniband_MCMemberRecord_FlowLabel = -1;
-static int hf_infiniband_MCMemberRecord_HopLimit = -1;
-static int hf_infiniband_MCMemberRecord_Scope = -1;
-static int hf_infiniband_MCMemberRecord_JoinState = -1;
-static int hf_infiniband_MCMemberRecord_ProxyJoin = -1;
+static int hf_infiniband_MCMemberRecord_MGID;
+static int hf_infiniband_MCMemberRecord_PortGID;
+static int hf_infiniband_MCMemberRecord_Q_Key;
+static int hf_infiniband_MCMemberRecord_MLID;
+static int hf_infiniband_MCMemberRecord_MTUSelector;
+static int hf_infiniband_MCMemberRecord_MTU;
+static int hf_infiniband_MCMemberRecord_TClass;
+static int hf_infiniband_MCMemberRecord_P_Key;
+static int hf_infiniband_MCMemberRecord_RateSelector;
+static int hf_infiniband_MCMemberRecord_Rate;
+static int hf_infiniband_MCMemberRecord_PacketLifeTimeSelector;
+static int hf_infiniband_MCMemberRecord_PacketLifeTime;
+static int hf_infiniband_MCMemberRecord_SL;
+static int hf_infiniband_MCMemberRecord_FlowLabel;
+static int hf_infiniband_MCMemberRecord_HopLimit;
+static int hf_infiniband_MCMemberRecord_Scope;
+static int hf_infiniband_MCMemberRecord_JoinState;
+static int hf_infiniband_MCMemberRecord_ProxyJoin;
 
 /* TraceRecord */
-static int hf_infiniband_TraceRecord_GIDPrefix = -1;
-static int hf_infiniband_TraceRecord_IDGeneration = -1;
-static int hf_infiniband_TraceRecord_NodeType = -1;
-static int hf_infiniband_TraceRecord_NodeID = -1;
-static int hf_infiniband_TraceRecord_ChassisID = -1;
-static int hf_infiniband_TraceRecord_EntryPortID = -1;
-static int hf_infiniband_TraceRecord_ExitPortID = -1;
-static int hf_infiniband_TraceRecord_EntryPort = -1;
-static int hf_infiniband_TraceRecord_ExitPort = -1;
+static int hf_infiniband_TraceRecord_GIDPrefix;
+static int hf_infiniband_TraceRecord_IDGeneration;
+static int hf_infiniband_TraceRecord_NodeType;
+static int hf_infiniband_TraceRecord_NodeID;
+static int hf_infiniband_TraceRecord_ChassisID;
+static int hf_infiniband_TraceRecord_EntryPortID;
+static int hf_infiniband_TraceRecord_ExitPortID;
+static int hf_infiniband_TraceRecord_EntryPort;
+static int hf_infiniband_TraceRecord_ExitPort;
 
 /* MultiPathRecord */
-static int hf_infiniband_MultiPathRecord_RawTraffic = -1;
-static int hf_infiniband_MultiPathRecord_FlowLabel = -1;
-static int hf_infiniband_MultiPathRecord_HopLimit = -1;
-static int hf_infiniband_MultiPathRecord_TClass = -1;
-static int hf_infiniband_MultiPathRecord_Reversible = -1;
-static int hf_infiniband_MultiPathRecord_NumbPath = -1;
-static int hf_infiniband_MultiPathRecord_P_Key = -1;
-static int hf_infiniband_MultiPathRecord_SL = -1;
-static int hf_infiniband_MultiPathRecord_MTUSelector = -1;
-static int hf_infiniband_MultiPathRecord_MTU = -1;
-static int hf_infiniband_MultiPathRecord_RateSelector = -1;
-static int hf_infiniband_MultiPathRecord_Rate = -1;
-static int hf_infiniband_MultiPathRecord_PacketLifeTimeSelector = -1;
-static int hf_infiniband_MultiPathRecord_PacketLifeTime = -1;
-static int hf_infiniband_MultiPathRecord_IndependenceSelector = -1;
-static int hf_infiniband_MultiPathRecord_GIDScope = -1;
-static int hf_infiniband_MultiPathRecord_SGIDCount = -1;
-static int hf_infiniband_MultiPathRecord_DGIDCount = -1;
-static int hf_infiniband_MultiPathRecord_SDGID = -1;
+static int hf_infiniband_MultiPathRecord_RawTraffic;
+static int hf_infiniband_MultiPathRecord_FlowLabel;
+static int hf_infiniband_MultiPathRecord_HopLimit;
+static int hf_infiniband_MultiPathRecord_TClass;
+static int hf_infiniband_MultiPathRecord_Reversible;
+static int hf_infiniband_MultiPathRecord_NumbPath;
+static int hf_infiniband_MultiPathRecord_P_Key;
+static int hf_infiniband_MultiPathRecord_SL;
+static int hf_infiniband_MultiPathRecord_MTUSelector;
+static int hf_infiniband_MultiPathRecord_MTU;
+static int hf_infiniband_MultiPathRecord_RateSelector;
+static int hf_infiniband_MultiPathRecord_Rate;
+static int hf_infiniband_MultiPathRecord_PacketLifeTimeSelector;
+static int hf_infiniband_MultiPathRecord_PacketLifeTime;
+static int hf_infiniband_MultiPathRecord_IndependenceSelector;
+static int hf_infiniband_MultiPathRecord_GIDScope;
+static int hf_infiniband_MultiPathRecord_SGIDCount;
+static int hf_infiniband_MultiPathRecord_DGIDCount;
+static int hf_infiniband_MultiPathRecord_SDGID;
 
 /* ClassPortInfo */
-static int hf_infiniband_ClassPortInfo_BaseVersion = -1;
-static int hf_infiniband_ClassPortInfo_ClassVersion = -1;
-static int hf_infiniband_ClassPortInfo_CapabilityMask = -1;
-static int hf_infiniband_ClassPortInfo_CapabilityMask2 = -1;
-static int hf_infiniband_ClassPortInfo_RespTimeValue = -1;
-static int hf_infiniband_ClassPortInfo_RedirectGID = -1;
-static int hf_infiniband_ClassPortInfo_RedirectTC = -1;
-static int hf_infiniband_ClassPortInfo_RedirectSL = -1;
-static int hf_infiniband_ClassPortInfo_RedirectFL = -1;
-static int hf_infiniband_ClassPortInfo_RedirectLID = -1;
-static int hf_infiniband_ClassPortInfo_RedirectP_Key = -1;
-static int hf_infiniband_ClassPortInfo_Reserved = -1;
-static int hf_infiniband_ClassPortInfo_RedirectQP = -1;
-static int hf_infiniband_ClassPortInfo_RedirectQ_Key = -1;
-static int hf_infiniband_ClassPortInfo_TrapGID = -1;
-static int hf_infiniband_ClassPortInfo_TrapTC = -1;
-static int hf_infiniband_ClassPortInfo_TrapSL = -1;
-static int hf_infiniband_ClassPortInfo_TrapFL = -1;
-static int hf_infiniband_ClassPortInfo_TrapLID = -1;
-static int hf_infiniband_ClassPortInfo_TrapP_Key = -1;
-static int hf_infiniband_ClassPortInfo_TrapQP = -1;
-static int hf_infiniband_ClassPortInfo_TrapQ_Key = -1;
+static int hf_infiniband_ClassPortInfo_BaseVersion;
+static int hf_infiniband_ClassPortInfo_ClassVersion;
+static int hf_infiniband_ClassPortInfo_CapabilityMask;
+static int hf_infiniband_ClassPortInfo_CapabilityMask2;
+static int hf_infiniband_ClassPortInfo_RespTimeValue;
+static int hf_infiniband_ClassPortInfo_RedirectGID;
+static int hf_infiniband_ClassPortInfo_RedirectTC;
+static int hf_infiniband_ClassPortInfo_RedirectSL;
+static int hf_infiniband_ClassPortInfo_RedirectFL;
+static int hf_infiniband_ClassPortInfo_RedirectLID;
+static int hf_infiniband_ClassPortInfo_RedirectP_Key;
+static int hf_infiniband_ClassPortInfo_Reserved;
+static int hf_infiniband_ClassPortInfo_RedirectQP;
+static int hf_infiniband_ClassPortInfo_RedirectQ_Key;
+static int hf_infiniband_ClassPortInfo_TrapGID;
+static int hf_infiniband_ClassPortInfo_TrapTC;
+static int hf_infiniband_ClassPortInfo_TrapSL;
+static int hf_infiniband_ClassPortInfo_TrapFL;
+static int hf_infiniband_ClassPortInfo_TrapLID;
+static int hf_infiniband_ClassPortInfo_TrapP_Key;
+static int hf_infiniband_ClassPortInfo_TrapQP;
+static int hf_infiniband_ClassPortInfo_TrapQ_Key;
 
 /* Notice */
-static int hf_infiniband_Notice_IsGeneric = -1;
-static int hf_infiniband_Notice_Type = -1;
-static int hf_infiniband_Notice_ProducerTypeVendorID = -1;
-static int hf_infiniband_Notice_TrapNumberDeviceID = -1;
-static int hf_infiniband_Notice_IssuerLID = -1;
-static int hf_infiniband_Notice_NoticeToggle = -1;
-static int hf_infiniband_Notice_NoticeCount = -1;
-static int hf_infiniband_Notice_DataDetails = -1;
-/* static int hf_infiniband_Notice_IssuerGID = -1;             */
-/* static int hf_infiniband_Notice_ClassTrapSpecificData = -1; */
+static int hf_infiniband_Notice_IsGeneric;
+static int hf_infiniband_Notice_Type;
+static int hf_infiniband_Notice_ProducerTypeVendorID;
+static int hf_infiniband_Notice_TrapNumberDeviceID;
+static int hf_infiniband_Notice_IssuerLID;
+static int hf_infiniband_Notice_NoticeToggle;
+static int hf_infiniband_Notice_NoticeCount;
+static int hf_infiniband_Notice_DataDetails;
+/* static int hf_infiniband_Notice_IssuerGID;             */
+/* static int hf_infiniband_Notice_ClassTrapSpecificData; */
 
 /* ClassPortInfo attribute in Performance class */
-static int hf_infiniband_PerfMgt_ClassPortInfo = -1;
+static int hf_infiniband_PerfMgt_ClassPortInfo;
 
 /* PortCounters attribute in Performance class */
-static int hf_infiniband_PortCounters = -1;
-static int hf_infiniband_PortCounters_PortSelect = -1;
-static int hf_infiniband_PortCounters_CounterSelect = -1;
-static int hf_infiniband_PortCounters_SymbolErrorCounter = -1;
-static int hf_infiniband_PortCounters_LinkErrorRecoveryCounter = -1;
-static int hf_infiniband_PortCounters_LinkDownedCounter = -1;
-static int hf_infiniband_PortCounters_PortRcvErrors = -1;
-static int hf_infiniband_PortCounters_PortRcvRemotePhysicalErrors = -1;
-static int hf_infiniband_PortCounters_PortRcvSwitchRelayErrors = -1;
-static int hf_infiniband_PortCounters_PortXmitDiscards = -1;
-static int hf_infiniband_PortCounters_PortXmitConstraintErrors = -1;
-static int hf_infiniband_PortCounters_PortRcvConstraintErrors = -1;
-static int hf_infiniband_PortCounters_LocalLinkIntegrityErrors = -1;
-static int hf_infiniband_PortCounters_ExcessiveBufferOverrunErrors = -1;
-static int hf_infiniband_PortCounters_VL15Dropped = -1;
-static int hf_infiniband_PortCounters_PortXmitData = -1;
-static int hf_infiniband_PortCounters_PortRcvData = -1;
-static int hf_infiniband_PortCounters_PortXmitPkts = -1;
-static int hf_infiniband_PortCounters_PortRcvPkts = -1;
+static int hf_infiniband_PortCounters;
+static int hf_infiniband_PortCounters_PortSelect;
+static int hf_infiniband_PortCounters_CounterSelect;
+static int hf_infiniband_PortCounters_SymbolErrorCounter;
+static int hf_infiniband_PortCounters_LinkErrorRecoveryCounter;
+static int hf_infiniband_PortCounters_LinkDownedCounter;
+static int hf_infiniband_PortCounters_PortRcvErrors;
+static int hf_infiniband_PortCounters_PortRcvRemotePhysicalErrors;
+static int hf_infiniband_PortCounters_PortRcvSwitchRelayErrors;
+static int hf_infiniband_PortCounters_PortXmitDiscards;
+static int hf_infiniband_PortCounters_PortXmitConstraintErrors;
+static int hf_infiniband_PortCounters_PortRcvConstraintErrors;
+static int hf_infiniband_PortCounters_LocalLinkIntegrityErrors;
+static int hf_infiniband_PortCounters_ExcessiveBufferOverrunErrors;
+static int hf_infiniband_PortCounters_VL15Dropped;
+static int hf_infiniband_PortCounters_PortXmitData;
+static int hf_infiniband_PortCounters_PortRcvData;
+static int hf_infiniband_PortCounters_PortXmitPkts;
+static int hf_infiniband_PortCounters_PortRcvPkts;
 
 /* Extended PortCounters attribute in Performance class */
-static int hf_infiniband_PortCountersExt = -1;
-static int hf_infiniband_PortCountersExt_PortSelect = -1;
-static int hf_infiniband_PortCountersExt_CounterSelect = -1;
-static int hf_infiniband_PortCountersExt_PortXmitData = -1;
-static int hf_infiniband_PortCountersExt_PortRcvData = -1;
-static int hf_infiniband_PortCountersExt_PortXmitPkts = -1;
-static int hf_infiniband_PortCountersExt_PortRcvPkts = -1;
-static int hf_infiniband_PortCountersExt_PortUnicastXmitPkts = -1;
-static int hf_infiniband_PortCountersExt_PortUnicastRcvPkts = -1;
-static int hf_infiniband_PortCountersExt_PortMulticastXmitPkts = -1;
-static int hf_infiniband_PortCountersExt_PortMulticastRcvPkts = -1;
+static int hf_infiniband_PortCountersExt;
+static int hf_infiniband_PortCountersExt_PortSelect;
+static int hf_infiniband_PortCountersExt_CounterSelect;
+static int hf_infiniband_PortCountersExt_PortXmitData;
+static int hf_infiniband_PortCountersExt_PortRcvData;
+static int hf_infiniband_PortCountersExt_PortXmitPkts;
+static int hf_infiniband_PortCountersExt_PortRcvPkts;
+static int hf_infiniband_PortCountersExt_PortUnicastXmitPkts;
+static int hf_infiniband_PortCountersExt_PortUnicastRcvPkts;
+static int hf_infiniband_PortCountersExt_PortMulticastXmitPkts;
+static int hf_infiniband_PortCountersExt_PortMulticastRcvPkts;
 
 /* Notice DataDetails and ClassTrapSpecific Data for certain traps
 * Note that traps reuse many fields, so they are only declared once under the first trap that they appear.
@@ -1127,63 +1127,63 @@ static int hf_infiniband_PortCountersExt_PortMulticastRcvPkts = -1;
 static gint parse_NoticeDataDetails(proto_tree*, tvbuff_t*, gint *offset, guint16 trapNumber);
 
 /* Traps 64,65,66,67 */
-static int hf_infiniband_Trap_GIDADDR = -1;
+static int hf_infiniband_Trap_GIDADDR;
 
 /* Traps 68,69 */
 /* DataDetails */
-static int hf_infiniband_Trap_COMP_MASK = -1;
-static int hf_infiniband_Trap_WAIT_FOR_REPATH = -1;
+static int hf_infiniband_Trap_COMP_MASK;
+static int hf_infiniband_Trap_WAIT_FOR_REPATH;
 /* ClassTrapSpecificData */
-/* static int hf_infiniband_Trap_PATH_REC = -1;                              */
+/* static int hf_infiniband_Trap_PATH_REC;                              */
 
 /* Trap 128 */
-static int hf_infiniband_Trap_LIDADDR = -1;
+static int hf_infiniband_Trap_LIDADDR;
 
 /* Trap 129, 130, 131 */
-static int hf_infiniband_Trap_PORTNO = -1;
+static int hf_infiniband_Trap_PORTNO;
 
 /* Trap 144 */
-static int hf_infiniband_Trap_OtherLocalChanges = -1;
-static int hf_infiniband_Trap_CAPABILITYMASK = -1;
-static int hf_infiniband_Trap_LinkSpeecEnabledChange = -1;
-static int hf_infiniband_Trap_LinkWidthEnabledChange = -1;
-static int hf_infiniband_Trap_NodeDescriptionChange = -1;
+static int hf_infiniband_Trap_OtherLocalChanges;
+static int hf_infiniband_Trap_CAPABILITYMASK;
+static int hf_infiniband_Trap_LinkSpeecEnabledChange;
+static int hf_infiniband_Trap_LinkWidthEnabledChange;
+static int hf_infiniband_Trap_NodeDescriptionChange;
 
 /* Trap 145 */
-static int hf_infiniband_Trap_SYSTEMIMAGEGUID = -1;
+static int hf_infiniband_Trap_SYSTEMIMAGEGUID;
 
 /* Trap 256 */
-static int hf_infiniband_Trap_DRSLID = -1;
-static int hf_infiniband_Trap_METHOD = -1;
-static int hf_infiniband_Trap_ATTRIBUTEID = -1;
-static int hf_infiniband_Trap_ATTRIBUTEMODIFIER = -1;
-static int hf_infiniband_Trap_MKEY = -1;
-static int hf_infiniband_Trap_DRNotice = -1;
-static int hf_infiniband_Trap_DRPathTruncated = -1;
-static int hf_infiniband_Trap_DRHopCount = -1;
-static int hf_infiniband_Trap_DRNoticeReturnPath = -1;
+static int hf_infiniband_Trap_DRSLID;
+static int hf_infiniband_Trap_METHOD;
+static int hf_infiniband_Trap_ATTRIBUTEID;
+static int hf_infiniband_Trap_ATTRIBUTEMODIFIER;
+static int hf_infiniband_Trap_MKEY;
+static int hf_infiniband_Trap_DRNotice;
+static int hf_infiniband_Trap_DRPathTruncated;
+static int hf_infiniband_Trap_DRHopCount;
+static int hf_infiniband_Trap_DRNoticeReturnPath;
 
 /* Trap 257, 258 */
-static int hf_infiniband_Trap_LIDADDR1 = -1;
-static int hf_infiniband_Trap_LIDADDR2 = -1;
-static int hf_infiniband_Trap_KEY = -1;
-static int hf_infiniband_Trap_SL = -1;
-static int hf_infiniband_Trap_QP1 = -1;
-static int hf_infiniband_Trap_QP2 = -1;
-static int hf_infiniband_Trap_GIDADDR1 = -1;
-static int hf_infiniband_Trap_GIDADDR2 = -1;
+static int hf_infiniband_Trap_LIDADDR1;
+static int hf_infiniband_Trap_LIDADDR2;
+static int hf_infiniband_Trap_KEY;
+static int hf_infiniband_Trap_SL;
+static int hf_infiniband_Trap_QP1;
+static int hf_infiniband_Trap_QP2;
+static int hf_infiniband_Trap_GIDADDR1;
+static int hf_infiniband_Trap_GIDADDR2;
 
 /* Trap 259 */
-static int hf_infiniband_Trap_DataValid = -1;
-static int hf_infiniband_Trap_PKEY = -1;
-static int hf_infiniband_Trap_SWLIDADDR = -1;
+static int hf_infiniband_Trap_DataValid;
+static int hf_infiniband_Trap_PKEY;
+static int hf_infiniband_Trap_SWLIDADDR;
 
 /* Infiniband Link */
-static int hf_infiniband_link_op = -1;
-static int hf_infiniband_link_fctbs = -1;
-static int hf_infiniband_link_vl = -1;
-static int hf_infiniband_link_fccl = -1;
-static int hf_infiniband_link_lpcrc = -1;
+static int hf_infiniband_link_op;
+static int hf_infiniband_link_fctbs;
+static int hf_infiniband_link_vl;
+static int hf_infiniband_link_fccl;
+static int hf_infiniband_link_lpcrc;
 
 /* Trap Type/Descriptions for dissection */
 static const value_string Operand_Description[]= {

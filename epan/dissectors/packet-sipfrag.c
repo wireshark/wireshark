@@ -21,11 +21,11 @@
 void proto_register_sipfrag(void);
 
 /* Initialize the protocol and registered fields. */
-static int proto_sipfrag = -1;
-static int hf_sipfrag_line = -1;
+static int proto_sipfrag;
+static int hf_sipfrag_line;
 
 /* Protocol subtree. */
-static int ett_sipfrag = -1;
+static int ett_sipfrag;
 
 void proto_reg_handoff_sipfrag(void);
 

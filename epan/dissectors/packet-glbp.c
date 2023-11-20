@@ -36,59 +36,59 @@ static dissector_handle_t glbp_handle;
 
 #define GLBP_UDP_PORT 3222
 
-static int proto_glbp = -1;
+static int proto_glbp;
 /* glbp header? */
-static gint hf_glbp_version = -1;
-static gint hf_glbp_unknown1 = -1;
-static gint hf_glbp_group = -1;
-static gint hf_glbp_unknown2 = -1;
-static gint hf_glbp_ownerid = -1;
-static gint hf_glbp_tlv = -1;
-static gint hf_glbp_type = -1;
-static gint hf_glbp_length = -1;
+static gint hf_glbp_version;
+static gint hf_glbp_unknown1;
+static gint hf_glbp_group;
+static gint hf_glbp_unknown2;
+static gint hf_glbp_ownerid;
+static gint hf_glbp_tlv;
+static gint hf_glbp_type;
+static gint hf_glbp_length;
 /* glbp type = 1 - hello */
-static gint hf_glbp_hello_unknown10 = -1;
-static gint hf_glbp_hello_vgstate = -1;
-static gint hf_glbp_hello_unknown11 = -1;
-static gint hf_glbp_hello_priority = -1;
-static gint hf_glbp_hello_unknown12 = -1;
-static gint hf_glbp_hello_helloint = -1;
-static gint hf_glbp_hello_holdint = -1;
-static gint hf_glbp_hello_redirect = -1;
-static gint hf_glbp_hello_timeout = -1;
-static gint hf_glbp_hello_unknown13 = -1;
-static gint hf_glbp_hello_addrtype = -1;
-static gint hf_glbp_hello_addrlen = -1;
-static gint hf_glbp_hello_virtualipv4 = -1;
-static gint hf_glbp_hello_virtualipv6 = -1;
-static gint hf_glbp_hello_virtualunk = -1;
+static gint hf_glbp_hello_unknown10;
+static gint hf_glbp_hello_vgstate;
+static gint hf_glbp_hello_unknown11;
+static gint hf_glbp_hello_priority;
+static gint hf_glbp_hello_unknown12;
+static gint hf_glbp_hello_helloint;
+static gint hf_glbp_hello_holdint;
+static gint hf_glbp_hello_redirect;
+static gint hf_glbp_hello_timeout;
+static gint hf_glbp_hello_unknown13;
+static gint hf_glbp_hello_addrtype;
+static gint hf_glbp_hello_addrlen;
+static gint hf_glbp_hello_virtualipv4;
+static gint hf_glbp_hello_virtualipv6;
+static gint hf_glbp_hello_virtualunk;
 /* glbp type = 2 - Request/Response??? */
-static gint hf_glbp_reqresp_forwarder = -1;
-static gint hf_glbp_reqresp_vfstate = -1;
-static gint hf_glbp_reqresp_unknown21 = -1;
-static gint hf_glbp_reqresp_priority = -1;
-static gint hf_glbp_reqresp_weight = -1;
-static gint hf_glbp_reqresp_unknown22 = -1;
-static gint hf_glbp_reqresp_virtualmac = -1;
+static gint hf_glbp_reqresp_forwarder;
+static gint hf_glbp_reqresp_vfstate;
+static gint hf_glbp_reqresp_unknown21;
+static gint hf_glbp_reqresp_priority;
+static gint hf_glbp_reqresp_weight;
+static gint hf_glbp_reqresp_unknown22;
+static gint hf_glbp_reqresp_virtualmac;
 /* glbp type = 3 - Auth */
-static gint hf_glbp_auth_authtype = -1;
-static gint hf_glbp_auth_authlength = -1;
-static gint hf_glbp_auth_plainpass = -1;
-static gint hf_glbp_auth_md5hash = -1;
-static gint hf_glbp_auth_md5chainindex = -1;
-static gint hf_glbp_auth_md5chainhash = -1;
-static gint hf_glbp_auth_authunknown = -1;
+static gint hf_glbp_auth_authtype;
+static gint hf_glbp_auth_authlength;
+static gint hf_glbp_auth_plainpass;
+static gint hf_glbp_auth_md5hash;
+static gint hf_glbp_auth_md5chainindex;
+static gint hf_glbp_auth_md5chainhash;
+static gint hf_glbp_auth_authunknown;
 /* unknown type */
-static gint hf_glbp_unknown_data = -1;
+static gint hf_glbp_unknown_data;
 
-static gint ett_glbp = -1;
-static gint ett_glbp_tlv = -1;
+static gint ett_glbp;
+static gint ett_glbp_tlv;
 
 /* filterable expert infos */
-static expert_field ei_glbp_ipv4_wrong_length = EI_INIT;
-static expert_field ei_glbp_ipv6_wrong_length = EI_INIT;
-static expert_field ei_glbp_tlv_length_too_small = EI_INIT;
-static expert_field ei_glbp_tlv_invalid_bytes_used = EI_INIT;
+static expert_field ei_glbp_ipv4_wrong_length;
+static expert_field ei_glbp_ipv6_wrong_length;
+static expert_field ei_glbp_tlv_length_too_small;
+static expert_field ei_glbp_tlv_invalid_bytes_used;
 
 static const value_string glbp_type_vals[] = {
   { 1,  "Hello" },

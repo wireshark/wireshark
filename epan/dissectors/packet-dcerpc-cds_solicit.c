@@ -20,11 +20,11 @@
 void proto_register_cds_solicit (void);
 void proto_reg_handoff_cds_solicit (void);
 
-static int proto_cds_solicit = -1;
-static int hf_cds_solicit_opnum = -1;
+static int proto_cds_solicit;
+static int hf_cds_solicit_opnum;
 
 
-static gint ett_cds_solicit = -1;
+static gint ett_cds_solicit;
 
 
 static e_guid_t uuid_cds_solicit = { 0xd5579459, 0x8bca, 0x11ca, { 0xb7, 0x71, 0x08, 0x00, 0x2b, 0x1c, 0x8f, 0x1f } };

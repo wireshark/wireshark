@@ -35,23 +35,23 @@ typedef struct _k12_hdls_t {
 	dissector_handle_t* handles;
 } k12_handles_t;
 
-static int proto_k12 = -1;
+static int proto_k12;
 
-static int hf_k12_port_id = -1;
-static int hf_k12_port_name = -1;
-static int hf_k12_stack_file = -1;
-static int hf_k12_port_type = -1;
-static int hf_k12_atm_vp = -1;
-static int hf_k12_atm_vc = -1;
-static int hf_k12_atm_cid = -1;
+static int hf_k12_port_id;
+static int hf_k12_port_name;
+static int hf_k12_stack_file;
+static int hf_k12_port_type;
+static int hf_k12_atm_vp;
+static int hf_k12_atm_vc;
+static int hf_k12_atm_cid;
 
-static int hf_k12_ts = -1;
+static int hf_k12_ts;
 
-static gint ett_k12 = -1;
-static gint ett_port = -1;
+static gint ett_k12;
+static gint ett_port;
 
-static expert_field ei_k12_unmatched_stk_file = EI_INIT;
-static expert_field ei_k12_unmatched_info = EI_INIT;
+static expert_field ei_k12_unmatched_stk_file;
+static expert_field ei_k12_unmatched_info;
 
 static dissector_handle_t k12_handle;
 static dissector_handle_t data_handle;

@@ -21,58 +21,58 @@
 void proto_register_dcom_dispatch(void);
 void proto_reg_handoff_dcom_dispatch(void);
 
-static int hf_dispatch_opnum = -1;
+static int hf_dispatch_opnum;
 
-static int hf_dispatch_riid = -1;
-static int hf_dispatch_name = -1;
-static int hf_dispatch_names = -1;
-static int hf_dispatch_lcid = -1;
-static int hf_dispatch_id = -1;
+static int hf_dispatch_riid;
+static int hf_dispatch_name;
+static int hf_dispatch_names;
+static int hf_dispatch_lcid;
+static int hf_dispatch_id;
 
-static int hf_dispatch_arg = -1;
-static int hf_dispatch_args = -1;
-static int hf_dispatch_named_args = -1;
-static int hf_dispatch_varref = -1;
-static int hf_dispatch_varrefidx = -1;
-static int hf_dispatch_varrefarg = -1;
+static int hf_dispatch_arg;
+static int hf_dispatch_args;
+static int hf_dispatch_named_args;
+static int hf_dispatch_varref;
+static int hf_dispatch_varrefidx;
+static int hf_dispatch_varrefarg;
 
-static int hf_dispatch_varresult = -1;
-static int hf_dispatch_code = -1;
-static int hf_dispatch_reserved16 = -1;
-static int hf_dispatch_source = -1;
-static int hf_dispatch_description = -1;
-static int hf_dispatch_help_file = -1;
-static int hf_dispatch_help_context = -1;
-static int hf_dispatch_reserved32 = -1;
-static int hf_dispatch_deferred_fill_in = -1;
-static int hf_dispatch_arg_err = -1;
+static int hf_dispatch_varresult;
+static int hf_dispatch_code;
+static int hf_dispatch_reserved16;
+static int hf_dispatch_source;
+static int hf_dispatch_description;
+static int hf_dispatch_help_file;
+static int hf_dispatch_help_context;
+static int hf_dispatch_reserved32;
+static int hf_dispatch_deferred_fill_in;
+static int hf_dispatch_arg_err;
 
-static int hf_dispatch_tinfo = -1;
-static int hf_dispatch_itinfo = -1;
-static int hf_dispatch_dispparams = -1;
-static int hf_dispatch_excepinfo = -1;
-static int hf_dispatch_scode = -1;
+static int hf_dispatch_tinfo;
+static int hf_dispatch_itinfo;
+static int hf_dispatch_dispparams;
+static int hf_dispatch_excepinfo;
+static int hf_dispatch_scode;
 
 
-static int hf_dispatch_flags = -1;
-static int hf_dispatch_flags_method = -1;
-static int hf_dispatch_flags_propget = -1;
-static int hf_dispatch_flags_propput = -1;
-static int hf_dispatch_flags_propputref = -1;
+static int hf_dispatch_flags;
+static int hf_dispatch_flags_method;
+static int hf_dispatch_flags_propget;
+static int hf_dispatch_flags_propput;
+static int hf_dispatch_flags_propputref;
 
 #define DISPATCH_FLAGS_METHOD           1
 #define DISPATCH_FLAGS_PROPGET          2
 #define DISPATCH_FLAGS_PROPPUT          4
 #define DISPATCH_FLAGS_PROPPUTREF       8
 
-static gint ett_dispatch_flags = -1;
-static gint ett_dispatch_params = -1;
-static gint ett_dispatch_excepinfo = -1;
+static gint ett_dispatch_flags;
+static gint ett_dispatch_params;
+static gint ett_dispatch_excepinfo;
 
 static e_guid_t uuid_dispatch = { 0x00020400, 0x0000, 0x0000, { 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
 static guint16  ver_dispatch = 0;
-static gint ett_dispatch = -1;
-static int proto_dispatch = -1;
+static gint ett_dispatch;
+static int proto_dispatch;
 
 
 /*

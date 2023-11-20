@@ -40,19 +40,19 @@
 #include <epan/expert.h>
 #include <epan/show_exception.h>
 
-static int proto_cwids = -1;
-static int hf_cwids_version = -1;
-static int hf_cwids_timestamp = -1;
-static int hf_cwids_unknown1 = -1;
-static int hf_cwids_channel = -1;
-static int hf_cwids_unknown2 = -1;
-static int hf_cwids_reallength = -1;
-static int hf_cwids_capturelen = -1;
-static int hf_cwids_unknown3 = -1;
+static int proto_cwids;
+static int hf_cwids_version;
+static int hf_cwids_timestamp;
+static int hf_cwids_unknown1;
+static int hf_cwids_channel;
+static int hf_cwids_unknown2;
+static int hf_cwids_reallength;
+static int hf_cwids_capturelen;
+static int hf_cwids_unknown3;
 
-static gint ett_cwids = -1;
+static gint ett_cwids;
 
-static expert_field ei_ieee80211_subpacket = EI_INIT;
+static expert_field ei_ieee80211_subpacket;
 
 static dissector_handle_t cwids_handle;
 

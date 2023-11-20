@@ -25,19 +25,19 @@ void proto_reg_handoff_ripng(void);
 
 static dissector_handle_t ripng_handle;
 
-static int proto_ripng = -1;
-static int hf_ripng_cmd = -1;
-static int hf_ripng_version = -1;
-static int hf_ripng_reserved = -1;
+static int proto_ripng;
+static int hf_ripng_cmd;
+static int hf_ripng_version;
+static int hf_ripng_reserved;
 
-static int hf_ripng_rte = -1;
-static int hf_ripng_rte_ipv6_prefix = -1;
-static int hf_ripng_rte_route_tag = -1;
-static int hf_ripng_rte_prefix_length = -1;
-static int hf_ripng_rte_metric = -1;
+static int hf_ripng_rte;
+static int hf_ripng_rte_ipv6_prefix;
+static int hf_ripng_rte_route_tag;
+static int hf_ripng_rte_prefix_length;
+static int hf_ripng_rte_metric;
 
-static gint ett_ripng = -1;
-static gint ett_ripng_rte = -1;
+static gint ett_ripng;
+static gint ett_ripng_rte;
 
 #define UDP_PORT_RIPNG  521
 

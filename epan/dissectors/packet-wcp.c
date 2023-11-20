@@ -122,45 +122,45 @@ typedef struct {
 } wcp_pdata_t;
 
 
-static int proto_wcp = -1;
-static int hf_wcp_cmd = -1;
-static int hf_wcp_ext_cmd = -1;
-static int hf_wcp_seq = -1;
-static int hf_wcp_chksum = -1;
-static int hf_wcp_tid = -1;
-static int hf_wcp_rev = -1;
-static int hf_wcp_init = -1;
-static int hf_wcp_seq_size = -1;
-static int hf_wcp_alg = -1;
-static int hf_wcp_alg_cnt = -1;
-static int hf_wcp_alg_a = -1;
-static int hf_wcp_alg_b = -1;
-static int hf_wcp_alg_c = -1;
-static int hf_wcp_alg_d = -1;
-/* static int hf_wcp_rexmit = -1; */
+static int proto_wcp;
+static int hf_wcp_cmd;
+static int hf_wcp_ext_cmd;
+static int hf_wcp_seq;
+static int hf_wcp_chksum;
+static int hf_wcp_tid;
+static int hf_wcp_rev;
+static int hf_wcp_init;
+static int hf_wcp_seq_size;
+static int hf_wcp_alg;
+static int hf_wcp_alg_cnt;
+static int hf_wcp_alg_a;
+static int hf_wcp_alg_b;
+static int hf_wcp_alg_c;
+static int hf_wcp_alg_d;
+/* static int hf_wcp_rexmit; */
 
-static int hf_wcp_hist_size = -1;
-static int hf_wcp_ppc = -1;
-static int hf_wcp_pib = -1;
+static int hf_wcp_hist_size;
+static int hf_wcp_ppc;
+static int hf_wcp_pib;
 
-static int hf_wcp_compressed_data = -1;
-static int hf_wcp_comp_bits = -1;
-/* static int hf_wcp_comp_marker = -1; */
-static int hf_wcp_short_len = -1;
-static int hf_wcp_long_len = -1;
-static int hf_wcp_short_run = -1;
-static int hf_wcp_long_run = -1;
-static int hf_wcp_offset = -1;
+static int hf_wcp_compressed_data;
+static int hf_wcp_comp_bits;
+/* static int hf_wcp_comp_marker; */
+static int hf_wcp_short_len;
+static int hf_wcp_long_len;
+static int hf_wcp_short_run;
+static int hf_wcp_long_run;
+static int hf_wcp_offset;
 
-static gint ett_wcp = -1;
-static gint ett_wcp_comp_data = -1;
-static gint ett_wcp_field = -1;
+static gint ett_wcp;
+static gint ett_wcp_comp_data;
+static gint ett_wcp_field;
 
-static expert_field ei_wcp_compressed_data_exceeds = EI_INIT;
-static expert_field ei_wcp_uncompressed_data_exceeds = EI_INIT;
-static expert_field ei_wcp_invalid_window_offset = EI_INIT;
-static expert_field ei_wcp_buffer_too_long = EI_INIT;
-/* static expert_field ei_wcp_invalid_match_length = EI_INIT; */
+static expert_field ei_wcp_compressed_data_exceeds;
+static expert_field ei_wcp_uncompressed_data_exceeds;
+static expert_field ei_wcp_invalid_window_offset;
+static expert_field ei_wcp_buffer_too_long;
+/* static expert_field ei_wcp_invalid_match_length; */
 
 static dissector_handle_t wcp_handle;
 static dissector_handle_t fr_uncompressed_handle;

@@ -41,16 +41,16 @@ void proto_reg_handoff_ans(void);
 static dissector_handle_t ans_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_ans        = -1;
+static int proto_ans;
 
-static int hf_ans_app_id    = -1;
-static int hf_ans_rev_id    = -1;
-static int hf_ans_seq_num   = -1;
-static int hf_ans_sender_id = -1;
-static int hf_ans_team_id   = -1;
+static int hf_ans_app_id;
+static int hf_ans_rev_id;
+static int hf_ans_seq_num;
+static int hf_ans_sender_id;
+static int hf_ans_team_id;
 
 /* Initialize the subtree pointers */
-static gint ett_ans = -1;
+static gint ett_ans;
 
 /* Code to actually dissect the packets */
 static int

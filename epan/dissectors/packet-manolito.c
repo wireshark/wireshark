@@ -23,20 +23,20 @@ static dissector_handle_t manolito_handle;
 
 #define MANOLITO_PORT   41170 /* Not IANA registered */
 
-static int proto_manolito = -1;
+static int proto_manolito;
 
-static int hf_manolito_checksum = -1;
-static int hf_manolito_seqno = -1;
-static int hf_manolito_src = -1;
-static int hf_manolito_dest = -1;
-static int hf_manolito_options_short = -1;
-static int hf_manolito_options = -1;
-static int hf_manolito_string = -1;
-static int hf_manolito_integer = -1;
+static int hf_manolito_checksum;
+static int hf_manolito_seqno;
+static int hf_manolito_src;
+static int hf_manolito_dest;
+static int hf_manolito_options_short;
+static int hf_manolito_options;
+static int hf_manolito_string;
+static int hf_manolito_integer;
 
-static gint ett_manolito = -1;
+static gint ett_manolito;
 
-static expert_field ei_manolito_type = EI_INIT;
+static expert_field ei_manolito_type;
 
 #define MANOLITO_STRING  1
 #define MANOLITO_INTEGER 0

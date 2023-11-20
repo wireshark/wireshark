@@ -41,16 +41,16 @@ void proto_register_rlm(void);
 void proto_reg_handoff_rlm(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_rlm = -1;
+static int proto_rlm;
 
-static int hf_rlm_version = -1;
-static int hf_rlm_type = -1;
-static int hf_rlm_unknown = -1;
-static int hf_rlm_tid = -1;
-static int hf_rlm_unknown2 = -1;
+static int hf_rlm_version;
+static int hf_rlm_type;
+static int hf_rlm_unknown;
+static int hf_rlm_tid;
+static int hf_rlm_unknown2;
 
 /* Initialize the subtree pointers */
-static gint ett_rlm = -1;
+static gint ett_rlm;
 
 
 /* RLM definitions - missing some! */

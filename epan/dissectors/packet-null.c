@@ -28,11 +28,11 @@ static dissector_table_t null_dissector_table;
 static dissector_table_t ethertype_dissector_table;
 
 /* protocols and header fields */
-static int proto_null = -1;
-static int hf_null_etype = -1;
-static int hf_null_family = -1;
+static int proto_null;
+static int hf_null_etype;
+static int hf_null_family;
 
-static gint ett_null = -1;
+static gint ett_null;
 
 /* Null/loopback structs and definitions */
 

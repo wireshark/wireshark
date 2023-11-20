@@ -28,20 +28,20 @@ void proto_reg_handoff_git(void);
 
 static dissector_handle_t git_handle;
 
-static int proto_git = -1;
-static expert_field ei_git_bad_pkt_len = EI_INIT;
-static expert_field ei_git_malformed = EI_INIT;
+static int proto_git;
+static expert_field ei_git_bad_pkt_len;
+static expert_field ei_git_malformed;
 
-static gint ett_git = -1;
+static gint ett_git;
 
-static gint hf_git_protocol_version = -1;
-static gint hf_git_packet_type = -1;
-static gint hf_git_packet_len = -1;
-static gint hf_git_packet_data = -1;
-static gint hf_git_sideband_control_code = -1;
-static gint hf_git_upload_pack_adv = -1;
-static gint hf_git_upload_pack_req = -1;
-static gint hf_git_upload_pack_res = -1;
+static gint hf_git_protocol_version;
+static gint hf_git_packet_type;
+static gint hf_git_packet_len;
+static gint hf_git_packet_data;
+static gint hf_git_sideband_control_code;
+static gint hf_git_upload_pack_adv;
+static gint hf_git_upload_pack_req;
+static gint hf_git_upload_pack_res;
 
 #define PNAME  "Git Smart Protocol"
 #define PSNAME "Git"

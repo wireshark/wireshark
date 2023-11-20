@@ -82,17 +82,17 @@ static void decode_illum_meas_tolerance          (gchar *s, guint16 value);
 /*************************/
 
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_illum_meas = -1;
+static int proto_zbee_zcl_illum_meas;
 
-static int hf_zbee_zcl_illum_meas_attr_id = -1;
-static int hf_zbee_zcl_illum_meas_measured_value = -1;
-static int hf_zbee_zcl_illum_meas_min_measured_value = -1;
-static int hf_zbee_zcl_illum_meas_max_measured_value = -1;
-static int hf_zbee_zcl_illum_meas_tolerance = -1;
-static int hf_zbee_zcl_illum_meas_sensor_type = -1;
+static int hf_zbee_zcl_illum_meas_attr_id;
+static int hf_zbee_zcl_illum_meas_measured_value;
+static int hf_zbee_zcl_illum_meas_min_measured_value;
+static int hf_zbee_zcl_illum_meas_max_measured_value;
+static int hf_zbee_zcl_illum_meas_tolerance;
+static int hf_zbee_zcl_illum_meas_sensor_type;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_illum_meas = -1;
+static gint ett_zbee_zcl_illum_meas;
 
 /* Attributes */
 static const value_string zbee_zcl_illum_meas_attr_names[] = {
@@ -365,15 +365,15 @@ static void decode_illum_level_sen_target_level                 (gchar *s, guint
 /*************************/
 
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_illum_level_sen = -1;
+static int proto_zbee_zcl_illum_level_sen;
 
-static int hf_zbee_zcl_illum_level_sen_attr_id = -1;
-static int hf_zbee_zcl_illum_level_sen_level_status = -1;
-static int hf_zbee_zcl_illum_level_sen_light_sensor_type = -1;
-static int hf_zbee_zcl_illum_level_sen_illum_target_level = -1;
+static int hf_zbee_zcl_illum_level_sen_attr_id;
+static int hf_zbee_zcl_illum_level_sen_level_status;
+static int hf_zbee_zcl_illum_level_sen_light_sensor_type;
+static int hf_zbee_zcl_illum_level_sen_illum_target_level;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_illum_level_sen = -1;
+static gint ett_zbee_zcl_illum_level_sen;
 
 /* Attributes */
 static const value_string zbee_zcl_illum_level_sen_attr_names[] = {
@@ -586,16 +586,16 @@ static void decode_temp_meas_tolerance          (gchar *s, guint16 value);
 /*************************/
 
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_temp_meas = -1;
+static int proto_zbee_zcl_temp_meas;
 
-static int hf_zbee_zcl_temp_meas_attr_id = -1;
-static int hf_zbee_zcl_temp_meas_measured_value = -1;
-static int hf_zbee_zcl_temp_meas_min_measured_value = -1;
-static int hf_zbee_zcl_temp_meas_max_measured_value = -1;
-static int hf_zbee_zcl_temp_meas_tolerance = -1;
+static int hf_zbee_zcl_temp_meas_attr_id;
+static int hf_zbee_zcl_temp_meas_measured_value;
+static int hf_zbee_zcl_temp_meas_min_measured_value;
+static int hf_zbee_zcl_temp_meas_max_measured_value;
+static int hf_zbee_zcl_temp_meas_tolerance;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_temp_meas = -1;
+static gint ett_zbee_zcl_temp_meas;
 
 /* Attributes */
 static const value_string zbee_zcl_temp_meas_attr_names[] = {
@@ -861,21 +861,21 @@ static void decode_press_meas_tolerance          (gchar *s, guint16 value);
 /*************************/
 
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_press_meas = -1;
+static int proto_zbee_zcl_press_meas;
 
-static int hf_zbee_zcl_press_meas_attr_id = -1;
-static int hf_zbee_zcl_press_meas_measured_value = -1;
-static int hf_zbee_zcl_press_meas_min_measured_value = -1;
-static int hf_zbee_zcl_press_meas_max_measured_value = -1;
-static int hf_zbee_zcl_press_meas_tolerance = -1;
-static int hf_zbee_zcl_press_meas_scaled_value = -1;
-static int hf_zbee_zcl_press_meas_min_scaled_value = -1;
-static int hf_zbee_zcl_press_meas_max_scaled_value = -1;
-static int hf_zbee_zcl_press_meas_scaled_tolerance = -1;
-static int hf_zbee_zcl_press_meas_scale = -1;
+static int hf_zbee_zcl_press_meas_attr_id;
+static int hf_zbee_zcl_press_meas_measured_value;
+static int hf_zbee_zcl_press_meas_min_measured_value;
+static int hf_zbee_zcl_press_meas_max_measured_value;
+static int hf_zbee_zcl_press_meas_tolerance;
+static int hf_zbee_zcl_press_meas_scaled_value;
+static int hf_zbee_zcl_press_meas_min_scaled_value;
+static int hf_zbee_zcl_press_meas_max_scaled_value;
+static int hf_zbee_zcl_press_meas_scaled_tolerance;
+static int hf_zbee_zcl_press_meas_scale;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_press_meas = -1;
+static gint ett_zbee_zcl_press_meas;
 
 /* Attributes */
 static const value_string zbee_zcl_press_meas_attr_names[] = {
@@ -1183,16 +1183,16 @@ static void decode_flow_meas_tolerance          (gchar *s, guint16 value);
 /*************************/
 
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_flow_meas = -1;
+static int proto_zbee_zcl_flow_meas;
 
-static int hf_zbee_zcl_flow_meas_attr_id = -1;
-static int hf_zbee_zcl_flow_meas_measured_value = -1;
-static int hf_zbee_zcl_flow_meas_min_measured_value = -1;
-static int hf_zbee_zcl_flow_meas_max_measured_value = -1;
-static int hf_zbee_zcl_flow_meas_tolerance = -1;
+static int hf_zbee_zcl_flow_meas_attr_id;
+static int hf_zbee_zcl_flow_meas_measured_value;
+static int hf_zbee_zcl_flow_meas_min_measured_value;
+static int hf_zbee_zcl_flow_meas_max_measured_value;
+static int hf_zbee_zcl_flow_meas_tolerance;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_flow_meas = -1;
+static gint ett_zbee_zcl_flow_meas;
 
 /* Attributes */
 static const value_string zbee_zcl_flow_meas_attr_names[] = {
@@ -1454,16 +1454,16 @@ static void decode_relhum_meas_tolerance          (gchar *s, guint16 value);
 /*************************/
 
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_relhum_meas = -1;
+static int proto_zbee_zcl_relhum_meas;
 
-static int hf_zbee_zcl_relhum_meas_attr_id = -1;
-static int hf_zbee_zcl_relhum_meas_measured_value = -1;
-static int hf_zbee_zcl_relhum_meas_min_measured_value = -1;
-static int hf_zbee_zcl_relhum_meas_max_measured_value = -1;
-static int hf_zbee_zcl_relhum_meas_tolerance = -1;
+static int hf_zbee_zcl_relhum_meas_attr_id;
+static int hf_zbee_zcl_relhum_meas_measured_value;
+static int hf_zbee_zcl_relhum_meas_min_measured_value;
+static int hf_zbee_zcl_relhum_meas_max_measured_value;
+static int hf_zbee_zcl_relhum_meas_tolerance;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_relhum_meas = -1;
+static gint ett_zbee_zcl_relhum_meas;
 
 /* Attributes */
 static const value_string zbee_zcl_relhum_meas_attr_names[] = {
@@ -1714,16 +1714,16 @@ static void dissect_zcl_occ_sen_attr_data               (proto_tree *tree, tvbuf
 /*************************/
 
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_occ_sen = -1;
+static int proto_zbee_zcl_occ_sen;
 
-static int hf_zbee_zcl_occ_sen_attr_id = -1;
-static int hf_zbee_zcl_occ_sen_occupancy = -1;
-static int hf_zbee_zcl_occ_sen_occupancy_occupied = -1;
-static int hf_zbee_zcl_occ_sen_occ_sensor_type = -1;
+static int hf_zbee_zcl_occ_sen_attr_id;
+static int hf_zbee_zcl_occ_sen_occupancy;
+static int hf_zbee_zcl_occ_sen_occupancy_occupied;
+static int hf_zbee_zcl_occ_sen_occ_sensor_type;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_occ_sen = -1;
-static gint ett_zbee_zcl_occ_sen_occupancy = -1;
+static gint ett_zbee_zcl_occ_sen;
+static gint ett_zbee_zcl_occ_sen_occupancy;
 
 /* Attributes */
 static const value_string zbee_zcl_occ_sen_attr_names[] = {
@@ -2049,22 +2049,22 @@ static void dissect_zcl_elec_mes_get_measurement_profile_info_response  (tvbuff_
 /*************************/
 
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_elec_mes = -1;
+static int proto_zbee_zcl_elec_mes;
 
-static int hf_zbee_zcl_elec_mes_srv_tx_cmd_id = -1;
-static int hf_zbee_zcl_elec_mes_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_elec_mes_attr_id = -1;
-static int hf_zbee_zcl_elec_mes_start_time = -1;
-static int hf_zbee_zcl_elec_mes_number_of_intervals = -1;
-static int hf_zbee_zcl_elec_mes_profile_count = -1;
-static int hf_zbee_zcl_elec_mes_profile_interval_period = -1;
-static int hf_zbee_zcl_elec_mes_max_number_of_intervals = -1;
-static int hf_zbee_zcl_elec_mes_status = -1;
-static int hf_zbee_zcl_elec_mes_number_of_intervals_delivered = -1;
-static int hf_zbee_zcl_elec_mes_intervals = -1;
+static int hf_zbee_zcl_elec_mes_srv_tx_cmd_id;
+static int hf_zbee_zcl_elec_mes_srv_rx_cmd_id;
+static int hf_zbee_zcl_elec_mes_attr_id;
+static int hf_zbee_zcl_elec_mes_start_time;
+static int hf_zbee_zcl_elec_mes_number_of_intervals;
+static int hf_zbee_zcl_elec_mes_profile_count;
+static int hf_zbee_zcl_elec_mes_profile_interval_period;
+static int hf_zbee_zcl_elec_mes_max_number_of_intervals;
+static int hf_zbee_zcl_elec_mes_status;
+static int hf_zbee_zcl_elec_mes_number_of_intervals_delivered;
+static int hf_zbee_zcl_elec_mes_intervals;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_elec_mes = -1;
+static gint ett_zbee_zcl_elec_mes;
 
 /* Attributes */
 static const value_string zbee_zcl_elec_mes_attr_names[] = {

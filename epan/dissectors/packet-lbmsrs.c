@@ -27,7 +27,7 @@
 
 
 
-static gint proto_lbmsrs = -1;
+static gint proto_lbmsrs;
 
 void proto_register_lbmsrs(void);
 void proto_reg_handoff_lbmsrs(void);
@@ -368,186 +368,186 @@ static const value_string lbmsrsApplicationType[] =
 };
 
 /* Dissector field handles */
-static gint hf_lbmsrs_message_id = -1;
+static gint hf_lbmsrs_message_id;
 
 /*handles for registration request*/
-static gint hf_lbmsrs_app_type = -1;
-static gint hf_lbmsrs_client_addr = -1;
-static gint hf_lbmsrs_client_port = -1;
-static gint hf_lbmsrs_session_id = -1;
-static gint hf_lbmsrs_host_id = -1;
-static gint hf_lbmsrs_protocol_version = -1;
-static gint hf_lbmsrs_interest_mode = -1;
-static gint hf_lbmsrs_req_local_domain_id = -1;
+static gint hf_lbmsrs_app_type;
+static gint hf_lbmsrs_client_addr;
+static gint hf_lbmsrs_client_port;
+static gint hf_lbmsrs_session_id;
+static gint hf_lbmsrs_host_id;
+static gint hf_lbmsrs_protocol_version;
+static gint hf_lbmsrs_interest_mode;
+static gint hf_lbmsrs_req_local_domain_id;
 
 /*handles for registration respose*/
-static gint hf_lbmsrs_client_id = -1;
-static gint hf_lbmsrs_resp_local_domain_id = -1;
-static gint hf_lbmsrs_reg_resp_protocol_version = -1;
+static gint hf_lbmsrs_client_id;
+static gint hf_lbmsrs_resp_local_domain_id;
+static gint hf_lbmsrs_reg_resp_protocol_version;
 
 /*handles for stream request*/
-static gint hf_lbmsrs_stream_req_unused = -1;
+static gint hf_lbmsrs_stream_req_unused;
 
 /*handles for source info*/
-static gint hf_lbmsrs_sir = -1;
-static gint hf_lbmsrs_sir_otid = -1;
-static gint hf_lbmsrs_sir_topic_len = -1;
-static gint hf_lbmsrs_sir_topic = -1;
-static gint hf_lbmsrs_sir_source_len = -1;
-static gint hf_lbmsrs_sir_source = -1;
-static gint hf_lbmsrs_sir_host_id = -1;
-static gint hf_lbmsrs_sir_topic_idx = -1;
-static gint hf_lbmsrs_sir_functionality_flags = -1;
-static gint hf_lbmsrs_sir_request_ip = -1;
-static gint hf_lbmsrs_sir_request_port = -1;
-static gint hf_lbmsrs_sir_domain_id = -1;
-static gint hf_lbmsrs_sir_encryption = -1;
-static gint hf_lbmsrs_sir_compression = -1;
-static gint hf_lbmsrs_sir_ulb_src_id = -1;
-static gint hf_lbmsrs_sir_ulb_queue_id = -1;
-static gint hf_lbmsrs_sir_ulb_reg_id = -1;
-static gint hf_lbmsrs_sir_context_instance = -1;
-static gint hf_lbmsrs_sir_context_type = -1;
-static gint hf_lbmsrs_sir_version = -1;
-static gint hf_lbmsrs_sir_version_flags = -1;
-static gint hf_lbmsrs_sir_ttl = -1;
-static gint hf_lbmsrs_sir_cost = -1;
+static gint hf_lbmsrs_sir;
+static gint hf_lbmsrs_sir_otid;
+static gint hf_lbmsrs_sir_topic_len;
+static gint hf_lbmsrs_sir_topic;
+static gint hf_lbmsrs_sir_source_len;
+static gint hf_lbmsrs_sir_source;
+static gint hf_lbmsrs_sir_host_id;
+static gint hf_lbmsrs_sir_topic_idx;
+static gint hf_lbmsrs_sir_functionality_flags;
+static gint hf_lbmsrs_sir_request_ip;
+static gint hf_lbmsrs_sir_request_port;
+static gint hf_lbmsrs_sir_domain_id;
+static gint hf_lbmsrs_sir_encryption;
+static gint hf_lbmsrs_sir_compression;
+static gint hf_lbmsrs_sir_ulb_src_id;
+static gint hf_lbmsrs_sir_ulb_queue_id;
+static gint hf_lbmsrs_sir_ulb_reg_id;
+static gint hf_lbmsrs_sir_context_instance;
+static gint hf_lbmsrs_sir_context_type;
+static gint hf_lbmsrs_sir_version;
+static gint hf_lbmsrs_sir_version_flags;
+static gint hf_lbmsrs_sir_ttl;
+static gint hf_lbmsrs_sir_cost;
 
 /*handles for source delete*/
-static gint hf_lbmsrs_sdr = -1;
-static gint hf_lbmsrs_sdr_otid = -1;
-static gint hf_lbmsrs_sdr_topic_len = -1;
-static gint hf_lbmsrs_sdr_topic = -1;
+static gint hf_lbmsrs_sdr;
+static gint hf_lbmsrs_sdr_otid;
+static gint hf_lbmsrs_sdr_topic_len;
+static gint hf_lbmsrs_sdr_topic;
 
 /*handles for receiver info*/
-static gint hf_lbmsrs_rir = -1;
-static gint hf_lbmsrs_rir_topic_len = -1;
-static gint hf_lbmsrs_rir_topic = -1;
-static gint hf_lbmsrs_rir_domain_id = -1;
-static gint hf_lbmsrs_rir_context_instance = -1;
-static gint hf_lbmsrs_rir_context_type = -1;
-static gint hf_lbmsrs_rir_version = -1;
-static gint hf_lbmsrs_rir_version_flags = -1;
-static gint hf_lbmsrs_rir_reserved = -1;
+static gint hf_lbmsrs_rir;
+static gint hf_lbmsrs_rir_topic_len;
+static gint hf_lbmsrs_rir_topic;
+static gint hf_lbmsrs_rir_domain_id;
+static gint hf_lbmsrs_rir_context_instance;
+static gint hf_lbmsrs_rir_context_type;
+static gint hf_lbmsrs_rir_version;
+static gint hf_lbmsrs_rir_version_flags;
+static gint hf_lbmsrs_rir_reserved;
 
 /*handles for receiver delete*/
-static gint hf_lbmsrs_rdr = -1;
-static gint hf_lbmsrs_rdr_topic_len = -1;
-static gint hf_lbmsrs_rdr_topic = -1;
-static gint hf_lbmsrs_rdr_domain_id = -1;
-static gint hf_lbmsrs_rdr_context_instance = -1;
-static gint hf_lbmsrs_rdr_context_type = -1;
-static gint hf_lbmsrs_rdr_version = -1;
-static gint hf_lbmsrs_rdr_version_flags = -1;
-static gint hf_lbmsrs_rdr_reserved = -1;
+static gint hf_lbmsrs_rdr;
+static gint hf_lbmsrs_rdr_topic_len;
+static gint hf_lbmsrs_rdr_topic;
+static gint hf_lbmsrs_rdr_domain_id;
+static gint hf_lbmsrs_rdr_context_instance;
+static gint hf_lbmsrs_rdr_context_type;
+static gint hf_lbmsrs_rdr_version;
+static gint hf_lbmsrs_rdr_version_flags;
+static gint hf_lbmsrs_rdr_reserved;
 
 /*handles for receiver end*/
-static gint hf_lbmsrs_rer = -1;
-static gint hf_lbmsrs_rer_topic_len = -1;
-static gint hf_lbmsrs_rer_topic = -1;
-static gint hf_lbmsrs_rer_domain_id = -1;
-static gint hf_lbmsrs_rer_context_instance = -1;
-static gint hf_lbmsrs_rer_context_type = -1;
-static gint hf_lbmsrs_rer_version = -1;
-static gint hf_lbmsrs_rer_version_flags = -1;
-static gint hf_lbmsrs_rer_reserved = -1;
+static gint hf_lbmsrs_rer;
+static gint hf_lbmsrs_rer_topic_len;
+static gint hf_lbmsrs_rer_topic;
+static gint hf_lbmsrs_rer_domain_id;
+static gint hf_lbmsrs_rer_context_instance;
+static gint hf_lbmsrs_rer_context_type;
+static gint hf_lbmsrs_rer_version;
+static gint hf_lbmsrs_rer_version_flags;
+static gint hf_lbmsrs_rer_reserved;
 
 /*handles for wildcard receiver info*/
-static gint hf_lbmsrs_wir = -1;
-static gint hf_lbmsrs_wir_pattern_len = -1;
-static gint hf_lbmsrs_wir_pattern = -1;
-static gint hf_lbmsrs_wir_domain_id = -1;
-static gint hf_lbmsrs_wir_context_instance = -1;
-static gint hf_lbmsrs_wir_context_type = -1;
-static gint hf_lbmsrs_wir_version = -1;
-static gint hf_lbmsrs_wir_version_flags = -1;
-static gint hf_lbmsrs_wir_reserved = -1;
+static gint hf_lbmsrs_wir;
+static gint hf_lbmsrs_wir_pattern_len;
+static gint hf_lbmsrs_wir_pattern;
+static gint hf_lbmsrs_wir_domain_id;
+static gint hf_lbmsrs_wir_context_instance;
+static gint hf_lbmsrs_wir_context_type;
+static gint hf_lbmsrs_wir_version;
+static gint hf_lbmsrs_wir_version_flags;
+static gint hf_lbmsrs_wir_reserved;
 
 /*handles for wildcard receiver delete*/
-static gint hf_lbmsrs_wdr = -1;
-static gint hf_lbmsrs_wdr_pattern_len = -1;
-static gint hf_lbmsrs_wdr_pattern = -1;
-static gint hf_lbmsrs_wdr_domain_id = -1;
-static gint hf_lbmsrs_wdr_context_instance = -1;
-static gint hf_lbmsrs_wdr_context_type = -1;
-static gint hf_lbmsrs_wdr_version = -1;
-static gint hf_lbmsrs_wdr_version_flags = -1;
-static gint hf_lbmsrs_wdr_reserved = -1;
+static gint hf_lbmsrs_wdr;
+static gint hf_lbmsrs_wdr_pattern_len;
+static gint hf_lbmsrs_wdr_pattern;
+static gint hf_lbmsrs_wdr_domain_id;
+static gint hf_lbmsrs_wdr_context_instance;
+static gint hf_lbmsrs_wdr_context_type;
+static gint hf_lbmsrs_wdr_version;
+static gint hf_lbmsrs_wdr_version_flags;
+static gint hf_lbmsrs_wdr_reserved;
 
 /*handles for wildcard receiver end*/
-static gint hf_lbmsrs_wer = -1;
-static gint hf_lbmsrs_wer_pattern_len = -1;
-static gint hf_lbmsrs_wer_pattern = -1;
-static gint hf_lbmsrs_wer_domain_id = -1;
-static gint hf_lbmsrs_wer_context_instance = -1;
-static gint hf_lbmsrs_wer_context_type = -1;
-static gint hf_lbmsrs_wer_version = -1;
-static gint hf_lbmsrs_wer_version_flags = -1;
-static gint hf_lbmsrs_wer_reserved = -1;
+static gint hf_lbmsrs_wer;
+static gint hf_lbmsrs_wer_pattern_len;
+static gint hf_lbmsrs_wer_pattern;
+static gint hf_lbmsrs_wer_domain_id;
+static gint hf_lbmsrs_wer_context_instance;
+static gint hf_lbmsrs_wer_context_type;
+static gint hf_lbmsrs_wer_version;
+static gint hf_lbmsrs_wer_version_flags;
+static gint hf_lbmsrs_wer_reserved;
 
 /*handles for src leave info*/
-static gint hf_lbmsrs_sli = -1;
-static gint hf_lbmsrs_sli_otid = -1;
-static gint hf_lbmsrs_sli_topic_len = -1;
-static gint hf_lbmsrs_sli_topic = -1;
-static gint hf_lbmsrs_sli_source_len = -1;
-static gint hf_lbmsrs_sli_source = -1;
-static gint hf_lbmsrs_sli_context_instance = -1;
-static gint hf_lbmsrs_sli_context_type = -1;
-static gint hf_lbmsrs_sli_version = -1;
-static gint hf_lbmsrs_sli_version_flags = -1;
-static gint hf_lbmsrs_sli_reserved = -1;
+static gint hf_lbmsrs_sli;
+static gint hf_lbmsrs_sli_otid;
+static gint hf_lbmsrs_sli_topic_len;
+static gint hf_lbmsrs_sli_topic;
+static gint hf_lbmsrs_sli_source_len;
+static gint hf_lbmsrs_sli_source;
+static gint hf_lbmsrs_sli_context_instance;
+static gint hf_lbmsrs_sli_context_type;
+static gint hf_lbmsrs_sli_version;
+static gint hf_lbmsrs_sli_version_flags;
+static gint hf_lbmsrs_sli_reserved;
 
 
 /*rsocket dissector field handles*/
-static gint hf_lbmsrs_rsocket_frame_len = -1;
-static gint hf_lbmsrs_rsocket_stream_id = -1;
-static gint hf_lbmsrs_rsocket_frame_type = -1;
-static gint hf_lbmsrs_rsocket_mdata_len = -1;
-static gint hf_lbmsrs_rsocket_mdata = -1;
-static gint hf_lbmsrs_rsocket_major_version = -1;
-static gint hf_lbmsrs_rsocket_minor_version = -1;
-static gint hf_lbmsrs_rsocket_keepalive_interval = -1;
-static gint hf_lbmsrs_rsocket_max_lifetime = -1;
-static gint hf_lbmsrs_rsocket_mdata_mime_length = -1;
-static gint hf_lbmsrs_rsocket_mdata_mime_type = -1;
-static gint hf_lbmsrs_rsocket_data_mime_length = -1;
-static gint hf_lbmsrs_rsocket_data_mime_type = -1;
-static gint hf_lbmsrs_rsocket_req_n = -1;
-static gint hf_lbmsrs_rsocket_error_code = -1;
-static gint hf_lbmsrs_rsocket_keepalive_last_rcvd_pos = -1;
-static gint hf_lbmsrs_rsocket_resume_token_len = -1;
-static gint hf_lbmsrs_rsocket_resume_token = -1;
+static gint hf_lbmsrs_rsocket_frame_len;
+static gint hf_lbmsrs_rsocket_stream_id;
+static gint hf_lbmsrs_rsocket_frame_type;
+static gint hf_lbmsrs_rsocket_mdata_len;
+static gint hf_lbmsrs_rsocket_mdata;
+static gint hf_lbmsrs_rsocket_major_version;
+static gint hf_lbmsrs_rsocket_minor_version;
+static gint hf_lbmsrs_rsocket_keepalive_interval;
+static gint hf_lbmsrs_rsocket_max_lifetime;
+static gint hf_lbmsrs_rsocket_mdata_mime_length;
+static gint hf_lbmsrs_rsocket_mdata_mime_type;
+static gint hf_lbmsrs_rsocket_data_mime_length;
+static gint hf_lbmsrs_rsocket_data_mime_type;
+static gint hf_lbmsrs_rsocket_req_n;
+static gint hf_lbmsrs_rsocket_error_code;
+static gint hf_lbmsrs_rsocket_keepalive_last_rcvd_pos;
+static gint hf_lbmsrs_rsocket_resume_token_len;
+static gint hf_lbmsrs_rsocket_resume_token;
 
 // other flags
-static gint hf_lbmsrs_rsocket_ignore_flag = -1;
-static gint hf_lbmsrs_rsocket_metadata_flag = -1;
-static gint hf_lbmsrs_rsocket_resume_flag = -1;
-static gint hf_lbmsrs_rsocket_lease_flag = -1;
-static gint hf_lbmsrs_rsocket_follows_flag = -1;
-static gint hf_lbmsrs_rsocket_complete_flag = -1;
-static gint hf_lbmsrs_rsocket_next_flag = -1;
-static gint hf_lbmsrs_rsocket_respond_flag = -1;
+static gint hf_lbmsrs_rsocket_ignore_flag;
+static gint hf_lbmsrs_rsocket_metadata_flag;
+static gint hf_lbmsrs_rsocket_resume_flag;
+static gint hf_lbmsrs_rsocket_lease_flag;
+static gint hf_lbmsrs_rsocket_follows_flag;
+static gint hf_lbmsrs_rsocket_complete_flag;
+static gint hf_lbmsrs_rsocket_next_flag;
+static gint hf_lbmsrs_rsocket_respond_flag;
 
 /*dissector tree handles*/
-static gint ett_lbmsrs = -1;
-static gint ett_lbmsrs_data = -1;
-static gint ett_lbmsrs_details = -1;
-static gint ett_lbmsrs_sir = -1;
-static gint ett_lbmsrs_sdr = -1;
-static gint ett_lbmsrs_ser = -1;
-static gint ett_lbmsrs_rir = -1;
-static gint ett_lbmsrs_rdr = -1;
-static gint ett_lbmsrs_rer = -1;
-static gint ett_lbmsrs_wir = -1;
-static gint ett_lbmsrs_wdr = -1;
-static gint ett_lbmsrs_wer = -1;
-static gint ett_lbmsrs_sli = -1;
+static gint ett_lbmsrs;
+static gint ett_lbmsrs_data;
+static gint ett_lbmsrs_details;
+static gint ett_lbmsrs_sir;
+static gint ett_lbmsrs_sdr;
+static gint ett_lbmsrs_ser;
+static gint ett_lbmsrs_rir;
+static gint ett_lbmsrs_rdr;
+static gint ett_lbmsrs_rer;
+static gint ett_lbmsrs_wir;
+static gint ett_lbmsrs_wdr;
+static gint ett_lbmsrs_wer;
+static gint ett_lbmsrs_sli;
 
-static gint ett_lbmsrs_rsocket_frame = -1;
+static gint ett_lbmsrs_rsocket_frame;
 
 /*Expert analysis fields*/
-static expert_field ei_lbmsrs_analysis_invalid_msg_id = EI_INIT;
+static expert_field ei_lbmsrs_analysis_invalid_msg_id;
 
 /* Dissector handle */
 static dissector_handle_t lbmsrs_dissector_handle;

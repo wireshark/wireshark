@@ -21,7 +21,7 @@ void proto_register_netmon_802_11(void);
 void proto_reg_handoff_netmon_802_11(void);
 
 /* protocol */
-static int proto_netmon_802_11 = -1;
+static int proto_netmon_802_11;
 
 /* Dissector */
 static dissector_handle_t netmon_802_11_handle;
@@ -50,23 +50,23 @@ static dissector_handle_t netmon_802_11_handle;
 #define PHY_TYPE_HT          7 /* 802.11n */
 #define PHY_TYPE_VHT         8 /* 802.11ac */
 
-static int hf_netmon_802_11_version = -1;
-static int hf_netmon_802_11_length = -1;
-static int hf_netmon_802_11_op_mode = -1;
-static int hf_netmon_802_11_op_mode_sta = -1;
-static int hf_netmon_802_11_op_mode_ap = -1;
-static int hf_netmon_802_11_op_mode_sta_ext = -1;
-static int hf_netmon_802_11_op_mode_mon = -1;
-/* static int hf_netmon_802_11_flags = -1; */
-static int hf_netmon_802_11_phy_type = -1;
-static int hf_netmon_802_11_channel = -1;
-static int hf_netmon_802_11_frequency = -1;
-static int hf_netmon_802_11_rssi = -1;
-static int hf_netmon_802_11_datarate = -1;
-static int hf_netmon_802_11_timestamp = -1;
+static int hf_netmon_802_11_version;
+static int hf_netmon_802_11_length;
+static int hf_netmon_802_11_op_mode;
+static int hf_netmon_802_11_op_mode_sta;
+static int hf_netmon_802_11_op_mode_ap;
+static int hf_netmon_802_11_op_mode_sta_ext;
+static int hf_netmon_802_11_op_mode_mon;
+/* static int hf_netmon_802_11_flags; */
+static int hf_netmon_802_11_phy_type;
+static int hf_netmon_802_11_channel;
+static int hf_netmon_802_11_frequency;
+static int hf_netmon_802_11_rssi;
+static int hf_netmon_802_11_datarate;
+static int hf_netmon_802_11_timestamp;
 
-static gint ett_netmon_802_11 = -1;
-static gint ett_netmon_802_11_op_mode = -1;
+static gint ett_netmon_802_11;
+static gint ett_netmon_802_11_op_mode;
 
 static dissector_handle_t ieee80211_radio_handle;
 

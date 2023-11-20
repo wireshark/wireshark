@@ -70,31 +70,31 @@ static gboolean pref_display_routing_domain = FALSE;
 
 static dissector_handle_t rip_handle;
 
-static int proto_rip = -1;
+static int proto_rip;
 
-static int hf_rip_auth = -1;
-static int hf_rip_auth_data_len = -1;
-static int hf_rip_auth_passwd = -1;
-static int hf_rip_auth_seq_num = -1;
-static int hf_rip_authentication_data = -1;
-static int hf_rip_command = -1;
-static int hf_rip_digest_offset = -1;
-static int hf_rip_family = -1;
-static int hf_rip_ip = -1;
-static int hf_rip_key_id = -1;
-static int hf_rip_metric = -1;
-static int hf_rip_netmask = -1;
-static int hf_rip_next_hop = -1;
-static int hf_rip_route_tag = -1;
-static int hf_rip_routing_domain = -1;
-static int hf_rip_version = -1;
-static int hf_rip_zero_padding = -1;
+static int hf_rip_auth;
+static int hf_rip_auth_data_len;
+static int hf_rip_auth_passwd;
+static int hf_rip_auth_seq_num;
+static int hf_rip_authentication_data;
+static int hf_rip_command;
+static int hf_rip_digest_offset;
+static int hf_rip_family;
+static int hf_rip_ip;
+static int hf_rip_key_id;
+static int hf_rip_metric;
+static int hf_rip_netmask;
+static int hf_rip_next_hop;
+static int hf_rip_route_tag;
+static int hf_rip_routing_domain;
+static int hf_rip_version;
+static int hf_rip_zero_padding;
 
-static gint ett_rip = -1;
-static gint ett_rip_vec = -1;
-static gint ett_auth_vec = -1;
+static gint ett_rip;
+static gint ett_rip_vec;
+static gint ett_auth_vec;
 
-static expert_field ei_rip_unknown_address_family = EI_INIT;
+static expert_field ei_rip_unknown_address_family;
 
 static void dissect_unspec_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
     proto_tree *tree);

@@ -58,7 +58,7 @@
 
 void proto_register_s5066dts(void);
 
-static gint proto_s5066dts = -1;
+static gint proto_s5066dts;
 
 static dissector_handle_t s5066dts_handle;
 static dissector_handle_t s5066dts_over_tcp_handle;
@@ -67,143 +67,143 @@ static dissector_handle_t s5066dts_over_tcp_handle;
 static gboolean config_proto_desegment = TRUE;
 
 /* Initialize expert fields */
-static expert_field ei_s5066dts_eow_hdr_drc_request_invalid = EI_INIT;
-static expert_field ei_s5066dts_eow_hftrp_invalid = EI_INIT;
+static expert_field ei_s5066dts_eow_hdr_drc_request_invalid;
+static expert_field ei_s5066dts_eow_hftrp_invalid;
 
 /* TCP port that will be listened by the application that peer
  * dts layers will be connected through
  */
 static range_t *config_s5066dts_ports = NULL;
 
-static gint hf_s5066dts_sync_word = -1;
-static gint hf_s5066dts_dpdu_type = -1;
-static gint hf_s5066dts_eow_type = -1;
-static gint hf_s5066dts_eow_data = -1;
-static gint hf_s5066dts_eot = -1;
-static gint hf_s5066dts_address_size = -1;
-static gint hf_s5066dts_header_size = -1;
-static gint hf_s5066dts_header_crc = -1;
-static gint hf_s5066dts_cpdu_crc = -1;
-static gint hf_s5066dts_segmented_cpdu = -1;
-static gint hf_s5066dts_dest_addr = -1;
-static gint hf_s5066dts_src_addr = -1;
+static gint hf_s5066dts_sync_word;
+static gint hf_s5066dts_dpdu_type;
+static gint hf_s5066dts_eow_type;
+static gint hf_s5066dts_eow_data;
+static gint hf_s5066dts_eot;
+static gint hf_s5066dts_address_size;
+static gint hf_s5066dts_header_size;
+static gint hf_s5066dts_header_crc;
+static gint hf_s5066dts_cpdu_crc;
+static gint hf_s5066dts_segmented_cpdu;
+static gint hf_s5066dts_dest_addr;
+static gint hf_s5066dts_src_addr;
 
 /* EOW TYPES */
 /* { 1, "DRC_REQUEST"}, */
-static gint hf_s5066dts_eow_drc_request_data_rate = -1;
-static gint hf_s5066dts_eow_drc_request_interleaving = -1;
-static gint hf_s5066dts_eow_drc_request_others = -1;
+static gint hf_s5066dts_eow_drc_request_data_rate;
+static gint hf_s5066dts_eow_drc_request_interleaving;
+static gint hf_s5066dts_eow_drc_request_others;
 /* { 2, "DRC_RESPONSE"}, */
-static gint hf_s5066dts_eow_drc_response_response = -1;
-static gint hf_s5066dts_eow_drc_response_reason = -1;
+static gint hf_s5066dts_eow_drc_response_response;
+static gint hf_s5066dts_eow_drc_response_reason;
 /* { 3, "UNRECOGNIZED_TYPE"}, */
-static gint hf_s5066dts_eow_unrec_type_response = -1;
-static gint hf_s5066dts_eow_unrec_type_reason = -1;
+static gint hf_s5066dts_eow_unrec_type_response;
+static gint hf_s5066dts_eow_unrec_type_reason;
 /* { 4, "CAPABILITY"}, */
-static gint hf_s5066dts_eow_capability_adaptive = -1;
-static gint hf_s5066dts_eow_capability_stanag_4529 = -1;
-static gint hf_s5066dts_eow_capability_mil_std_188_110a = -1;
-static gint hf_s5066dts_eow_capability_extended = -1;
-static gint hf_s5066dts_eow_capability_full_duplex = -1;
-static gint hf_s5066dts_eow_capability_split_frequency = -1;
-static gint hf_s5066dts_eow_capability_non_arcs_ale = -1;
-static gint hf_s5066dts_eow_capability_arcs = -1;
+static gint hf_s5066dts_eow_capability_adaptive;
+static gint hf_s5066dts_eow_capability_stanag_4529;
+static gint hf_s5066dts_eow_capability_mil_std_188_110a;
+static gint hf_s5066dts_eow_capability_extended;
+static gint hf_s5066dts_eow_capability_full_duplex;
+static gint hf_s5066dts_eow_capability_split_frequency;
+static gint hf_s5066dts_eow_capability_non_arcs_ale;
+static gint hf_s5066dts_eow_capability_arcs;
 /* { 5, "ALM_REQUEST"}, */
-static gint hf_s5066dts_eow_alm_request_data_rate = -1;
-static gint hf_s5066dts_eow_alm_request_interleaving = -1;
-static gint hf_s5066dts_eow_alm_request_others = -1;
+static gint hf_s5066dts_eow_alm_request_data_rate;
+static gint hf_s5066dts_eow_alm_request_interleaving;
+static gint hf_s5066dts_eow_alm_request_others;
 /* { 6, "ALM_RESPONSE"}, */
-static gint hf_s5066dts_eow_alm_response_response = -1;
-static gint hf_s5066dts_eow_alm_response_reason = -1;
+static gint hf_s5066dts_eow_alm_response_response;
+static gint hf_s5066dts_eow_alm_response_reason;
 /* { 7, "HDR_DRC_REQUEST"}, */
-static gint hf_s5066dts_eow_hdr_drc_request_waveform = -1;
-static gint hf_s5066dts_eow_hdr_drc_request_num_channels = -1;
-static gint hf_s5066dts_eow_hdr_drc_request_data_rate = -1;
-static gint hf_s5066dts_eow_hdr_drc_request_interleaver_length = -1;
+static gint hf_s5066dts_eow_hdr_drc_request_waveform;
+static gint hf_s5066dts_eow_hdr_drc_request_num_channels;
+static gint hf_s5066dts_eow_hdr_drc_request_data_rate;
+static gint hf_s5066dts_eow_hdr_drc_request_interleaver_length;
 /* {15, "HFTRP FRAME CONTROL"}, */
-static gint hf_s5066dts_eow_hftrp_hftrp_token = -1;
+static gint hf_s5066dts_eow_hftrp_hftrp_token;
 
 /* DPDU TYPES */
 /* { 0, "DATA_ONLY"}, */
-static gint hf_s5066dts_data_only_cpdu_start = -1;
-static gint hf_s5066dts_data_only_cpdu_end = -1;
-static gint hf_s5066dts_data_only_deliver_in_order = -1;
-static gint hf_s5066dts_data_only_drop_cpdu = -1;
-static gint hf_s5066dts_data_only_tx_win_uwe = -1;
-static gint hf_s5066dts_data_only_tx_win_lwe = -1;
-static gint hf_s5066dts_data_only_segmented_cpdu_size = -1;
-static gint hf_s5066dts_data_only_transmit_sequence_number = -1;
+static gint hf_s5066dts_data_only_cpdu_start;
+static gint hf_s5066dts_data_only_cpdu_end;
+static gint hf_s5066dts_data_only_deliver_in_order;
+static gint hf_s5066dts_data_only_drop_cpdu;
+static gint hf_s5066dts_data_only_tx_win_uwe;
+static gint hf_s5066dts_data_only_tx_win_lwe;
+static gint hf_s5066dts_data_only_segmented_cpdu_size;
+static gint hf_s5066dts_data_only_transmit_sequence_number;
 /* { 1, "ACK_ONLY"}, */
-static gint hf_s5066dts_ack_only_rx_lwe = -1;
-static gint hf_s5066dts_ack_only_acks = -1;
+static gint hf_s5066dts_ack_only_rx_lwe;
+static gint hf_s5066dts_ack_only_acks;
 /* { 2, "DATA_ACK"}, */
-static gint hf_s5066dts_data_ack_cpdu_start = -1;
-static gint hf_s5066dts_data_ack_cpdu_end = -1;
-static gint hf_s5066dts_data_ack_deliver_in_order = -1;
-static gint hf_s5066dts_data_ack_drop_cpdu = -1;
-static gint hf_s5066dts_data_ack_tx_win_uwe = -1;
-static gint hf_s5066dts_data_ack_tx_win_lwe = -1;
-static gint hf_s5066dts_data_ack_segmented_cpdu_size = -1;
-static gint hf_s5066dts_data_ack_transmit_sequence_number = -1;
-static gint hf_s5066dts_data_ack_rx_lwe = -1;
-static gint hf_s5066dts_data_ack_acks = -1;
+static gint hf_s5066dts_data_ack_cpdu_start;
+static gint hf_s5066dts_data_ack_cpdu_end;
+static gint hf_s5066dts_data_ack_deliver_in_order;
+static gint hf_s5066dts_data_ack_drop_cpdu;
+static gint hf_s5066dts_data_ack_tx_win_uwe;
+static gint hf_s5066dts_data_ack_tx_win_lwe;
+static gint hf_s5066dts_data_ack_segmented_cpdu_size;
+static gint hf_s5066dts_data_ack_transmit_sequence_number;
+static gint hf_s5066dts_data_ack_rx_lwe;
+static gint hf_s5066dts_data_ack_acks;
 /* { 3, "RESET_WIN_RESYNC"}, */
-static gint hf_s5066dts_reset_win_resync_unused = -1;
-static gint hf_s5066dts_reset_win_resync_full_reset_command = -1;
-static gint hf_s5066dts_reset_win_resync_reset_tx_win_rqst = -1;
-static gint hf_s5066dts_reset_win_resync_reset_rx_win_cmnd = -1;
-static gint hf_s5066dts_reset_win_resync_reset_ack = -1;
-static gint hf_s5066dts_reset_win_resync_new_rx_lwe = -1;
-static gint hf_s5066dts_reset_win_resync_reset_frame_id_number = -1;
+static gint hf_s5066dts_reset_win_resync_unused;
+static gint hf_s5066dts_reset_win_resync_full_reset_command;
+static gint hf_s5066dts_reset_win_resync_reset_tx_win_rqst;
+static gint hf_s5066dts_reset_win_resync_reset_rx_win_cmnd;
+static gint hf_s5066dts_reset_win_resync_reset_ack;
+static gint hf_s5066dts_reset_win_resync_new_rx_lwe;
+static gint hf_s5066dts_reset_win_resync_reset_frame_id_number;
 /* { 4, "EXP_DATA_ONLY"}, */
-static gint hf_s5066dts_exp_data_only_cpdu_start = -1;
-static gint hf_s5066dts_exp_data_only_cpdu_end = -1;
-static gint hf_s5066dts_exp_data_only_cpdu_id = -1;
-static gint hf_s5066dts_exp_data_only_segmented_cpdu_size = -1;
-static gint hf_s5066dts_exp_data_only_transmit_sequence_number = -1;
+static gint hf_s5066dts_exp_data_only_cpdu_start;
+static gint hf_s5066dts_exp_data_only_cpdu_end;
+static gint hf_s5066dts_exp_data_only_cpdu_id;
+static gint hf_s5066dts_exp_data_only_segmented_cpdu_size;
+static gint hf_s5066dts_exp_data_only_transmit_sequence_number;
 /* { 5, "EXP_ACK_ONLY"}, */
-static gint hf_s5066dts_exp_ack_only_rx_lwe = -1;
-static gint hf_s5066dts_exp_ack_only_acks = -1;
+static gint hf_s5066dts_exp_ack_only_rx_lwe;
+static gint hf_s5066dts_exp_ack_only_acks;
 /* { 6, "MANAGEMENT"}, */
-static gint hf_s5066dts_management_unused = -1;
-static gint hf_s5066dts_management_extended_message_flag = -1;
-static gint hf_s5066dts_management_message = -1;
-static gint hf_s5066dts_management_ack = -1;
-static gint hf_s5066dts_management_management_frame_id = -1;
-static gint hf_s5066dts_management_extended_message = -1;
-static gint hf_s5066dts_management_extended_message_hftrp_payload_size = -1;
-static gint hf_s5066dts_management_extended_message_hftrp_ra = -1;
-static gint hf_s5066dts_management_extended_message_hftrp_seq_id = -1;
-static gint hf_s5066dts_management_extended_message_hftrp_gen_seq_id = -1;
-static gint hf_s5066dts_management_extended_message_hftrp_new_successor_id = -1;
-static gint hf_s5066dts_management_extended_message_hftrp_number_of_nodes = -1;
+static gint hf_s5066dts_management_unused;
+static gint hf_s5066dts_management_extended_message_flag;
+static gint hf_s5066dts_management_message;
+static gint hf_s5066dts_management_ack;
+static gint hf_s5066dts_management_management_frame_id;
+static gint hf_s5066dts_management_extended_message;
+static gint hf_s5066dts_management_extended_message_hftrp_payload_size;
+static gint hf_s5066dts_management_extended_message_hftrp_ra;
+static gint hf_s5066dts_management_extended_message_hftrp_seq_id;
+static gint hf_s5066dts_management_extended_message_hftrp_gen_seq_id;
+static gint hf_s5066dts_management_extended_message_hftrp_new_successor_id;
+static gint hf_s5066dts_management_extended_message_hftrp_number_of_nodes;
 /* { 7, "NON_ARQ_DATA"}, */
-static gint hf_s5066dts_non_arq_data_cpdu_id_1 = -1;
-static gint hf_s5066dts_non_arq_data_deliver_in_order = -1;
-static gint hf_s5066dts_non_arq_data_group_address = -1;
-static gint hf_s5066dts_non_arq_data_cpdu_id_2 = -1;
-static gint hf_s5066dts_non_arq_data_cpdu_size = -1;
-static gint hf_s5066dts_non_arq_data_cpdu_segment_offset = -1;
-static gint hf_s5066dts_non_arq_data_cpdu_reception_window = -1;
-static gint hf_s5066dts_non_arq_data_segmented_cpdu_size = -1;
+static gint hf_s5066dts_non_arq_data_cpdu_id_1;
+static gint hf_s5066dts_non_arq_data_deliver_in_order;
+static gint hf_s5066dts_non_arq_data_group_address;
+static gint hf_s5066dts_non_arq_data_cpdu_id_2;
+static gint hf_s5066dts_non_arq_data_cpdu_size;
+static gint hf_s5066dts_non_arq_data_cpdu_segment_offset;
+static gint hf_s5066dts_non_arq_data_cpdu_reception_window;
+static gint hf_s5066dts_non_arq_data_segmented_cpdu_size;
 /* { 8, "EXP_NON_ARQ_DATA"}, */
-static gint hf_s5066dts_exp_non_arq_data_cpdu_id_1 = -1;
-static gint hf_s5066dts_exp_non_arq_data_deliver_in_order = -1;
-static gint hf_s5066dts_exp_non_arq_data_group_address = -1;
-static gint hf_s5066dts_exp_non_arq_data_cpdu_id_2 = -1;
-static gint hf_s5066dts_exp_non_arq_data_cpdu_size = -1;
-static gint hf_s5066dts_exp_non_arq_data_cpdu_segment_offset = -1;
-static gint hf_s5066dts_exp_non_arq_data_cpdu_reception_window = -1;
-static gint hf_s5066dts_exp_non_arq_data_segmented_cpdu_size = -1;
+static gint hf_s5066dts_exp_non_arq_data_cpdu_id_1;
+static gint hf_s5066dts_exp_non_arq_data_deliver_in_order;
+static gint hf_s5066dts_exp_non_arq_data_group_address;
+static gint hf_s5066dts_exp_non_arq_data_cpdu_id_2;
+static gint hf_s5066dts_exp_non_arq_data_cpdu_size;
+static gint hf_s5066dts_exp_non_arq_data_cpdu_segment_offset;
+static gint hf_s5066dts_exp_non_arq_data_cpdu_reception_window;
+static gint hf_s5066dts_exp_non_arq_data_segmented_cpdu_size;
 /* {15, "WARNING"}, */
-static gint hf_s5066dts_warning_frame_type = -1;
-static gint hf_s5066dts_warning_reason = -1;
+static gint hf_s5066dts_warning_frame_type;
+static gint hf_s5066dts_warning_reason;
 
-static gint ett_s5066dts = -1;
-static gint ett_s5066dts_eow = -1;
-static gint ett_s5066dts_address = -1;
-static gint ett_s5066dts_pdu = -1;
-static gint ett_s5066dts_hftrp_token = -1;
+static gint ett_s5066dts;
+static gint ett_s5066dts_eow;
+static gint ett_s5066dts_address;
+static gint ett_s5066dts_pdu;
+static gint ett_s5066dts_hftrp_token;
 
 static const value_string s5066dts_dpdu_type[] = {
     { 0, "DATA_ONLY"},

@@ -16,21 +16,21 @@
 void proto_register_yppasswd(void);
 void proto_reg_handoff_yppasswd(void);
 
-static int proto_yppasswd = -1;
-static int hf_yppasswd_procedure_v1 = -1;
-static int hf_yppasswd_status = -1;
-static int hf_yppasswd_oldpass = -1;
-static int hf_yppasswd_newpw = -1;
-static int hf_yppasswd_newpw_name = -1;
-static int hf_yppasswd_newpw_passwd = -1;
-static int hf_yppasswd_newpw_uid = -1;
-static int hf_yppasswd_newpw_gid = -1;
-static int hf_yppasswd_newpw_gecos = -1;
-static int hf_yppasswd_newpw_dir = -1;
-static int hf_yppasswd_newpw_shell = -1;
+static int proto_yppasswd;
+static int hf_yppasswd_procedure_v1;
+static int hf_yppasswd_status;
+static int hf_yppasswd_oldpass;
+static int hf_yppasswd_newpw;
+static int hf_yppasswd_newpw_name;
+static int hf_yppasswd_newpw_passwd;
+static int hf_yppasswd_newpw_uid;
+static int hf_yppasswd_newpw_gid;
+static int hf_yppasswd_newpw_gecos;
+static int hf_yppasswd_newpw_dir;
+static int hf_yppasswd_newpw_shell;
 
-static gint ett_yppasswd = -1;
-static gint ett_yppasswd_newpw = -1;
+static gint ett_yppasswd;
+static gint ett_yppasswd_newpw;
 
 static int
 dissect_yppasswd_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)

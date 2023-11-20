@@ -35,16 +35,16 @@ static capture_dissector_handle_t llc_cap_handle;
 
 /* GLOBALS ************************************************************/
 
-static int proto_ieee8021cb = -1;
+static int proto_ieee8021cb;
 
 /* dot1cb R-tag fields */
-static int hf_ieee8021cb_res = -1;
-static int hf_ieee8021cb_seq = -1;
+static int hf_ieee8021cb_res;
+static int hf_ieee8021cb_seq;
 
 /* Encapsulated protocol */
-static int hf_ieee8021cb_etype = -1;
+static int hf_ieee8021cb_etype;
 
-static gint ett_ieee8021cb = -1;
+static gint ett_ieee8021cb;
 
 #define IEEE8021CB_LEN 6
 

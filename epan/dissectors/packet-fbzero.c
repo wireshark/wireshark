@@ -31,49 +31,49 @@
 void proto_register_fb_zero(void);
 void proto_reg_handoff_fb_zero(void);
 
-static int proto_fb_zero = -1;
+static int proto_fb_zero;
 
 static dissector_handle_t fb_zero_handle;
 
-static int hf_fb_zero_puflags = -1;
-static int hf_fb_zero_puflags_vrsn = -1;
-static int hf_fb_zero_puflags_unknown = -1;
-static int hf_fb_zero_version = -1;
-static int hf_fb_zero_length = -1;
-static int hf_fb_zero_tag = -1;
-static int hf_fb_zero_tags = -1;
-static int hf_fb_zero_tag_number = -1;
-static int hf_fb_zero_tag_value = -1;
-static int hf_fb_zero_tag_type = -1;
-static int hf_fb_zero_tag_offset_end = -1;
-static int hf_fb_zero_tag_length = -1;
-static int hf_fb_zero_tag_sni = -1;
-static int hf_fb_zero_tag_vers = -1;
-static int hf_fb_zero_tag_sno = -1;
-static int hf_fb_zero_tag_aead = -1;
-static int hf_fb_zero_tag_scid = -1;
-static int hf_fb_zero_tag_time = -1;
-static int hf_fb_zero_tag_alpn = -1;
-static int hf_fb_zero_tag_pubs = -1;
-static int hf_fb_zero_tag_kexs = -1;
-static int hf_fb_zero_tag_nonc = -1;
+static int hf_fb_zero_puflags;
+static int hf_fb_zero_puflags_vrsn;
+static int hf_fb_zero_puflags_unknown;
+static int hf_fb_zero_version;
+static int hf_fb_zero_length;
+static int hf_fb_zero_tag;
+static int hf_fb_zero_tags;
+static int hf_fb_zero_tag_number;
+static int hf_fb_zero_tag_value;
+static int hf_fb_zero_tag_type;
+static int hf_fb_zero_tag_offset_end;
+static int hf_fb_zero_tag_length;
+static int hf_fb_zero_tag_sni;
+static int hf_fb_zero_tag_vers;
+static int hf_fb_zero_tag_sno;
+static int hf_fb_zero_tag_aead;
+static int hf_fb_zero_tag_scid;
+static int hf_fb_zero_tag_time;
+static int hf_fb_zero_tag_alpn;
+static int hf_fb_zero_tag_pubs;
+static int hf_fb_zero_tag_kexs;
+static int hf_fb_zero_tag_nonc;
 
-static int hf_fb_zero_tag_unknown = -1;
+static int hf_fb_zero_tag_unknown;
 
-static int hf_fb_zero_padding = -1;
-static int hf_fb_zero_payload = -1;
-static int hf_fb_zero_unknown = -1;
+static int hf_fb_zero_padding;
+static int hf_fb_zero_payload;
+static int hf_fb_zero_unknown;
 
-static gint ett_fb_zero = -1;
-static gint ett_fb_zero_puflags = -1;
-static gint ett_fb_zero_prflags = -1;
-static gint ett_fb_zero_ft = -1;
-static gint ett_fb_zero_ftflags = -1;
-static gint ett_fb_zero_tag_value = -1;
+static gint ett_fb_zero;
+static gint ett_fb_zero_puflags;
+static gint ett_fb_zero_prflags;
+static gint ett_fb_zero_ft;
+static gint ett_fb_zero_ftflags;
+static gint ett_fb_zero_tag_value;
 
-static expert_field ei_fb_zero_tag_undecoded = EI_INIT;
-static expert_field ei_fb_zero_tag_offset_end_invalid = EI_INIT;
-static expert_field ei_fb_zero_length_invalid = EI_INIT;
+static expert_field ei_fb_zero_tag_undecoded;
+static expert_field ei_fb_zero_tag_offset_end_invalid;
+static expert_field ei_fb_zero_length_invalid;
 
 #define FBZERO_MIN_LENGTH 3
 

@@ -29,9 +29,9 @@
 void proto_reg_handoff_osi(void);
 void proto_register_osi(void);
 
-int  proto_osi         = -1;
+int  proto_osi;
 
-static int hf_osi_nlpid = -1;
+static int hf_osi_nlpid;
 
 static dissector_handle_t osi_handle;
 static dissector_handle_t osi_tpkt_handle;

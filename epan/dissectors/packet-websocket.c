@@ -86,48 +86,48 @@ typedef struct {
 static int websocket_follow_tap = -1;
 
 /* Initialize the protocol and registered fields */
-static int proto_websocket = -1;
-static int proto_http = -1;
+static int proto_websocket;
+static int proto_http;
 
-static int hf_ws_fin = -1;
-static int hf_ws_reserved = -1;
-static int hf_ws_pmc = -1;
-static int hf_ws_opcode = -1;
-static int hf_ws_mask = -1;
-static int hf_ws_payload_length = -1;
-static int hf_ws_payload_length_ext_16 = -1;
-static int hf_ws_payload_length_ext_64 = -1;
-static int hf_ws_masking_key = -1;
-static int hf_ws_payload = -1;
-static int hf_ws_masked_payload = -1;
-static int hf_ws_payload_continue = -1;
-static int hf_ws_payload_text = -1;
-static int hf_ws_payload_close = -1;
-static int hf_ws_payload_close_status_code = -1;
-static int hf_ws_payload_close_reason = -1;
-static int hf_ws_payload_ping = -1;
-static int hf_ws_payload_pong = -1;
-static int hf_ws_payload_unknown = -1;
-static int hf_ws_fragments = -1;
-static int hf_ws_fragment = -1;
-static int hf_ws_fragment_overlap = -1;
-static int hf_ws_fragment_overlap_conflict = -1;
-static int hf_ws_fragment_multiple_tails = -1;
-static int hf_ws_fragment_too_long_fragment = -1;
-static int hf_ws_fragment_error = -1;
-static int hf_ws_fragment_count = -1;
-static int hf_ws_reassembled_length = -1;
+static int hf_ws_fin;
+static int hf_ws_reserved;
+static int hf_ws_pmc;
+static int hf_ws_opcode;
+static int hf_ws_mask;
+static int hf_ws_payload_length;
+static int hf_ws_payload_length_ext_16;
+static int hf_ws_payload_length_ext_64;
+static int hf_ws_masking_key;
+static int hf_ws_payload;
+static int hf_ws_masked_payload;
+static int hf_ws_payload_continue;
+static int hf_ws_payload_text;
+static int hf_ws_payload_close;
+static int hf_ws_payload_close_status_code;
+static int hf_ws_payload_close_reason;
+static int hf_ws_payload_ping;
+static int hf_ws_payload_pong;
+static int hf_ws_payload_unknown;
+static int hf_ws_fragments;
+static int hf_ws_fragment;
+static int hf_ws_fragment_overlap;
+static int hf_ws_fragment_overlap_conflict;
+static int hf_ws_fragment_multiple_tails;
+static int hf_ws_fragment_too_long_fragment;
+static int hf_ws_fragment_error;
+static int hf_ws_fragment_count;
+static int hf_ws_reassembled_length;
 
-static gint ett_ws = -1;
-static gint ett_ws_pl = -1;
-static gint ett_ws_mask = -1;
-static gint ett_ws_control_close = -1;
-static gint ett_ws_fragments = -1;
-static gint ett_ws_fragment = -1;
+static gint ett_ws;
+static gint ett_ws_pl;
+static gint ett_ws_mask;
+static gint ett_ws_control_close;
+static gint ett_ws_fragments;
+static gint ett_ws_fragment;
 
-static expert_field ei_ws_payload_unknown = EI_INIT;
-static expert_field ei_ws_decompression_failed = EI_INIT;
-static expert_field ei_ws_not_fully_unmasked = EI_INIT;
+static expert_field ei_ws_payload_unknown;
+static expert_field ei_ws_decompression_failed;
+static expert_field ei_ws_not_fully_unmasked;
 
 #define WS_CONTINUE 0x0
 #define WS_TEXT     0x1

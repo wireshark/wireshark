@@ -82,41 +82,41 @@ void proto_reg_handoff_socks(void);
 
 /*********** Header field identifiers *************/
 
-static int proto_socks = -1;
+static int proto_socks;
 
-static int ett_socks = -1;
-static int ett_socks_auth = -1;
-static int ett_socks_name = -1;
+static int ett_socks;
+static int ett_socks_auth;
+static int ett_socks_name;
 
-static int hf_socks_ver = -1;
-static int hf_socks_ip_dst = -1;
-static int hf_socks_ip6_dst = -1;
-static int hf_gssapi_payload = -1;
-static int hf_gssapi_command = -1;
-static int hf_gssapi_length = -1;
-static int hf_v4a_dns_name = -1;
-static int hf_socks_dstport = -1;
-static int hf_socks_cmd = -1;
-static int hf_socks_results_4 = -1;
-static int hf_socks_results_5 = -1;
-static int hf_client_auth_method_count = -1;
-static int hf_client_auth_method = -1;
-static int hf_socks_reserved = -1;
-static int hf_socks_reserved2 = -1;
-static int hf_client_port = -1;
-static int hf_server_accepted_auth_method = -1;
-static int hf_server_auth_status = -1;
-static int hf_server_remote_host_port = -1;
-static int hf_socks_subnegotiation_version = -1;
-static int hf_socks_username = -1;
-static int hf_socks_password = -1;
-static int hf_socks_remote_name = -1;
-static int hf_socks_address_type = -1;
-static int hf_socks_fragment_number = -1;
-static int hf_socks_ping_end_command = -1;
-static int hf_socks_ping_results = -1;
-static int hf_socks_traceroute_end_command = -1;
-static int hf_socks_traceroute_results = -1;
+static int hf_socks_ver;
+static int hf_socks_ip_dst;
+static int hf_socks_ip6_dst;
+static int hf_gssapi_payload;
+static int hf_gssapi_command;
+static int hf_gssapi_length;
+static int hf_v4a_dns_name;
+static int hf_socks_dstport;
+static int hf_socks_cmd;
+static int hf_socks_results_4;
+static int hf_socks_results_5;
+static int hf_client_auth_method_count;
+static int hf_client_auth_method;
+static int hf_socks_reserved;
+static int hf_socks_reserved2;
+static int hf_client_port;
+static int hf_server_accepted_auth_method;
+static int hf_server_auth_status;
+static int hf_server_remote_host_port;
+static int hf_socks_subnegotiation_version;
+static int hf_socks_username;
+static int hf_socks_password;
+static int hf_socks_remote_name;
+static int hf_socks_address_type;
+static int hf_socks_fragment_number;
+static int hf_socks_ping_end_command;
+static int hf_socks_ping_results;
+static int hf_socks_traceroute_end_command;
+static int hf_socks_traceroute_results;
 
 /************* Dissector handles ***********/
 

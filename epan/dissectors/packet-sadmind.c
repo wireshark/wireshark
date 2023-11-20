@@ -17,12 +17,12 @@
 void proto_register_sadmind(void);
 void proto_reg_handoff_sadmind(void);
 
-static int proto_sadmind = -1;
-static int hf_sadmind_procedure_v1 = -1;
-static int hf_sadmind_procedure_v2 = -1;
-static int hf_sadmind_procedure_v3 = -1;
+static int proto_sadmind;
+static int hf_sadmind_procedure_v1;
+static int hf_sadmind_procedure_v2;
+static int hf_sadmind_procedure_v3;
 
-static gint ett_sadmind = -1;
+static gint ett_sadmind;
 
 #define SADMIND_PROGRAM	100232
 

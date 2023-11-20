@@ -62,18 +62,18 @@ typedef enum
 void proto_register_iperf3(void);
 void proto_reg_handoff_iperf3(void);
 
-static int proto_iperf3 = -1;
+static int proto_iperf3;
 
-static int hf_iperf3_sequence = -1;
-static int hf_iperf3_sec = -1;
-static int hf_iperf3_usec = -1;
-static int hf_iperf3_udp_init_msg = -1;
-static int hf_iperf3_state = -1;
-static int hf_iperf3_prejson = -1;
-static int hf_iperf3_cookie = -1;
+static int hf_iperf3_sequence;
+static int hf_iperf3_sec;
+static int hf_iperf3_usec;
+static int hf_iperf3_udp_init_msg;
+static int hf_iperf3_state;
+static int hf_iperf3_prejson;
+static int hf_iperf3_cookie;
 
-static int ett_iperf3 = -1;
-static int ett_time = -1;
+static int ett_iperf3;
+static int ett_time;
 
 static dissector_handle_t iperf3_handle_tcp = NULL;
 static dissector_handle_t iperf3_handle_udp = NULL;
@@ -130,7 +130,7 @@ static udp_conversation_data *udp_set_conversation_data(packet_info *);
 static gboolean iperf3_pref_64bit_seq_no = FALSE;
 static gboolean iperf3_pref_detect_udp_order = TRUE;
 /* expert info */
-static expert_field ei_udp_out_of_order = EI_INIT;
+static expert_field ei_udp_out_of_order;
 
 #define IPERF3_UDP_HDR_SIZE 12
 #define COOKIE_SIZE 37

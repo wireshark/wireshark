@@ -22,17 +22,17 @@ void proto_reg_handoff_oipf(void);
 
 static dissector_handle_t oipf_ciplus_handle;
 
-static int proto_oipf_ciplus = -1;
+static int proto_oipf_ciplus;
 
-static gint ett_oipf_ciplus = -1;
+static gint ett_oipf_ciplus;
 
-static int hf_oipf_ciplus_cmd_id = -1;
-static int hf_oipf_ciplus_ca_sys_id = -1;
-static int hf_oipf_ciplus_trx_id = -1;
-static int hf_oipf_ciplus_send_datatype_nbr = -1;
-static int hf_oipf_ciplus_dat_id = -1;
-static int hf_oipf_ciplus_dat_len = -1;
-static int hf_oipf_ciplus_data = -1;
+static int hf_oipf_ciplus_cmd_id;
+static int hf_oipf_ciplus_ca_sys_id;
+static int hf_oipf_ciplus_trx_id;
+static int hf_oipf_ciplus_send_datatype_nbr;
+static int hf_oipf_ciplus_dat_id;
+static int hf_oipf_ciplus_dat_len;
+static int hf_oipf_ciplus_data;
 
 /* the application id for this protocol in the CI+ SAS resource
    this is actually a 64bit hex number, we can't use a 64bit number as a key

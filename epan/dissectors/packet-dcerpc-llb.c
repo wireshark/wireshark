@@ -21,10 +21,10 @@
 void proto_register_llb (void);
 void proto_reg_handoff_llb (void);
 
-static int proto_llb = -1;
-static int hf_llb_opnum = -1;
+static int proto_llb;
+static int hf_llb_opnum;
 
-static gint ett_llb = -1;
+static gint ett_llb;
 
 
 static e_guid_t uuid_llb =

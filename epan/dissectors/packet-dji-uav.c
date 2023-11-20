@@ -48,33 +48,33 @@ typedef struct _djiuav_transaction_t {
 /* Finally: Protocol specific stuff */
 
 /* protocol handles */
-static int proto_djiuav = -1;
+static int proto_djiuav;
 
 /* ett handles */
-static int ett_djiuav = -1;
+static int ett_djiuav;
 
 /* hf elements */
-static int hf_djiuav_magic = -1;
-static int hf_djiuav_length = -1;
-static int hf_djiuav_flags = -1;
-static int hf_djiuav_seqno = -1;
-static int hf_djiuav_cmd = -1;
-static int hf_djiuav_checksum = -1;
+static int hf_djiuav_magic;
+static int hf_djiuav_length;
+static int hf_djiuav_flags;
+static int hf_djiuav_seqno;
+static int hf_djiuav_cmd;
+static int hf_djiuav_checksum;
 #if 0
-static int hf_djiuav_cmd04_unknown = -1;
-static int hf_djiuav_resp04_unknown = -1;
+static int hf_djiuav_cmd04_unknown;
+static int hf_djiuav_resp04_unknown;
 #endif
-static int hf_djiuav_cmd20_unknown = -1;
+static int hf_djiuav_cmd20_unknown;
 #if 0
-static int hf_djiuav_resp20_unknown = -1;
+static int hf_djiuav_resp20_unknown;
 #endif
-static int hf_djiuav_cmdunk = -1;
-static int hf_djiuav_respunk = -1;
-static int hf_djiuav_extradata = -1;
+static int hf_djiuav_cmdunk;
+static int hf_djiuav_respunk;
+static int hf_djiuav_extradata;
 /* hf request/response tracking */
-static int hf_djiuav_response_in = -1;
-static int hf_djiuav_response_to = -1;
-static int hf_djiuav_response_time = -1;
+static int hf_djiuav_response_in;
+static int hf_djiuav_response_to;
+static int hf_djiuav_response_time;
 
 #define PROTO_SHORT_NAME "DJIUAV"
 #define PROTO_LONG_NAME "DJI UAV Drone Control Protocol"

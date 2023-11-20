@@ -31,92 +31,92 @@
 #include <epan/strutil.h>
 
 static dissector_handle_t msmms_handle;
-static gint               proto_msmms                      = -1;
+static gint               proto_msmms;
 
 
 /* Command fields */
-static gint   hf_msmms_command                             = -1;
-static gint   hf_msmms_command_common_header               = -1;
-/* static gint   hf_msmms_command_version                     = -1; */
-static gint   hf_msmms_command_signature                   = -1;
-static gint   hf_msmms_command_length                      = -1;
-static gint   hf_msmms_command_protocol_type               = -1;
-static gint   hf_msmms_command_length_remaining            = -1;
-static gint   hf_msmms_command_sequence_number             = -1;
-static gint   hf_msmms_command_timestamp                   = -1;
-static gint   hf_msmms_command_length_remaining2           = -1;
-static gint   hf_msmms_command_to_client_id                = -1;
-static gint   hf_msmms_command_to_server_id                = -1;
-static gint   hf_msmms_command_direction                   = -1;
+static gint   hf_msmms_command;
+static gint   hf_msmms_command_common_header;
+/* static gint   hf_msmms_command_version; */
+static gint   hf_msmms_command_signature;
+static gint   hf_msmms_command_length;
+static gint   hf_msmms_command_protocol_type;
+static gint   hf_msmms_command_length_remaining;
+static gint   hf_msmms_command_sequence_number;
+static gint   hf_msmms_command_timestamp;
+static gint   hf_msmms_command_length_remaining2;
+static gint   hf_msmms_command_to_client_id;
+static gint   hf_msmms_command_to_server_id;
+static gint   hf_msmms_command_direction;
 
-static gint   hf_msmms_command_prefix1                     = -1;
-static gint   hf_msmms_command_prefix1_error               = -1;
-static gint   hf_msmms_command_prefix1_command_level       = -1;
-static gint   hf_msmms_command_prefix2                     = -1;
+static gint   hf_msmms_command_prefix1;
+static gint   hf_msmms_command_prefix1_error;
+static gint   hf_msmms_command_prefix1_command_level;
+static gint   hf_msmms_command_prefix2;
 
-static gint   hf_msmms_command_client_transport_info       = -1;
-static gint   hf_msmms_command_client_player_info          = -1;
+static gint   hf_msmms_command_client_transport_info;
+static gint   hf_msmms_command_client_player_info;
 
-static gint   hf_msmms_command_server_version              = -1;
-static gint   hf_msmms_command_tool_version                = -1;
-static gint   hf_msmms_command_update_url                  = -1;
-static gint   hf_msmms_command_password_type               = -1;
+static gint   hf_msmms_command_server_version;
+static gint   hf_msmms_command_tool_version;
+static gint   hf_msmms_command_update_url;
+static gint   hf_msmms_command_password_type;
 
-static gint   hf_msmms_command_server_version_length       = -1;
-static gint   hf_msmms_command_tool_version_length         = -1;
-static gint   hf_msmms_command_update_url_length           = -1;
-static gint   hf_msmms_command_password_type_length        = -1;
+static gint   hf_msmms_command_server_version_length;
+static gint   hf_msmms_command_tool_version_length;
+static gint   hf_msmms_command_update_url_length;
+static gint   hf_msmms_command_password_type_length;
 
-static gint   hf_msmms_command_number_of_words             = -1;
-static gint   hf_msmms_command_client_id                   = -1;
-static gint   hf_msmms_command_server_file                 = -1;
+static gint   hf_msmms_command_number_of_words;
+static gint   hf_msmms_command_client_id;
+static gint   hf_msmms_command_server_file;
 
-static gint   hf_msmms_command_result_flags                = -1;
+static gint   hf_msmms_command_result_flags;
 
-static gint   hf_msmms_command_broadcast_indexing          = -1;
-static gint   hf_msmms_command_broadcast_liveness          = -1;
+static gint   hf_msmms_command_broadcast_indexing;
+static gint   hf_msmms_command_broadcast_liveness;
 
-static gint   hf_msmms_command_recorded_media_length       = -1;
-static gint   hf_msmms_command_media_packet_length         = -1;
+static gint   hf_msmms_command_recorded_media_length;
+static gint   hf_msmms_command_media_packet_length;
 
-static gint   hf_msmms_command_strange_string              = -1;
+static gint   hf_msmms_command_strange_string;
 
-static gint   hf_msmms_command_stream_structure_count      = -1;
-static gint   hf_msmms_stream_selection_flags              = -1;
-static gint   hf_msmms_stream_selection_stream_id          = -1;
-static gint   hf_msmms_stream_selection_action             = -1;
+static gint   hf_msmms_command_stream_structure_count;
+static gint   hf_msmms_stream_selection_flags;
+static gint   hf_msmms_stream_selection_stream_id;
+static gint   hf_msmms_stream_selection_action;
 
-static gint   hf_msmms_command_header_packet_id_type       = -1;
+static gint   hf_msmms_command_header_packet_id_type;
 
 
 /* Data fields */
-static gint   hf_msmms_data                                = -1;
-static gint   hf_msmms_data_sequence_number                = -1;
-static gint   hf_msmms_data_packet_id_type                 = -1;
-static gint   hf_msmms_data_udp_sequence                   = -1;
-static gint   hf_msmms_data_tcp_flags                      = -1;
-static gint   hf_msmms_data_packet_length                  = -1;
+static gint   hf_msmms_data;
+static gint   hf_msmms_data_sequence_number;
+static gint   hf_msmms_data_packet_id_type;
+static gint   hf_msmms_data_udp_sequence;
+static gint   hf_msmms_data_tcp_flags;
+static gint   hf_msmms_data_packet_length;
 
-static gint   hf_msmms_data_header_id                      = -1;
-static gint   hf_msmms_data_client_id                      = -1;
-static gint   hf_msmms_data_command_id                     = -1;
-static gint   hf_msmms_data_packet_to_resend               = -1;
+static gint   hf_msmms_data_header_id;
+static gint   hf_msmms_data_client_id;
+static gint   hf_msmms_data_command_id;
+static gint   hf_msmms_data_packet_to_resend;
 
-static gint   hf_msmms_data_timing_pair                    = -1;
-static gint   hf_msmms_data_timing_pair_seqno              = -1;
-static gint   hf_msmms_data_timing_pair_flags              = -1;
-static gint   hf_msmms_data_timing_pair_id                 = -1;
-static gint   hf_msmms_data_timing_pair_flag               = -1;
-static gint   hf_msmms_data_timing_pair_packet_length      = -1;
+static gint   hf_msmms_data_timing_pair;
+static gint   hf_msmms_data_timing_pair_seqno;
+static gint   hf_msmms_data_timing_pair_flags;
+static gint   hf_msmms_data_timing_pair_id;
+static gint   hf_msmms_data_timing_pair_flag;
+static gint   hf_msmms_data_timing_pair_packet_length;
 
-static gint   hf_msmms_data_unparsed                       = -1;
+static gint   hf_msmms_data_unparsed;
 
 
 /* Subtrees */
-static gint   ett_msmms_command                            = -1;
-static gint   ett_msmms_command_common_header              = -1;
-static gint   ett_msmms_data                               = -1;
-static gint   ett_msmms_data_timing_packet_pair            = -1;
+static gint   ett_msmms_command;
+static gint   ett_msmms_command_common_header;
+static gint   ett_msmms_data;
+static gint   ett_msmms_data_timing_packet_pair;
 
 #define MSMMS_PORT 1755
 

@@ -29,37 +29,37 @@ void proto_reg_handoff_hazelcast(void);
 
 static dissector_handle_t hazelcast_handle;
 
-static int proto_hazelcast = -1;
+static int proto_hazelcast;
 static int hazelcast_tap = -1;
 
-static int hf_hazelcast_headerLength = -1;
-static int hf_hazelcast_headerKeyLength = -1;
-static int hf_hazelcast_headerValueLength = -1;
-static int hf_hazelcast_headerVersion = -1;
+static int hf_hazelcast_headerLength;
+static int hf_hazelcast_headerKeyLength;
+static int hf_hazelcast_headerValueLength;
+static int hf_hazelcast_headerVersion;
 
-static int hf_hazelcast_operation = -1;
-static int hf_hazelcast_blockID = -1;
-static int hf_hazelcast_threadID = -1;
-static int hf_hazelcast_timeout = -1;
-static int hf_hazelcast_ttl = -1;
-static int hf_hazelcast_txnID = -1;
-static int hf_hazelcast_longValue = -1;
-static int hf_hazelcast_version = -1;
-static int hf_hazelcast_lockCount = -1;
-static int hf_hazelcast_lockAddrIP = -1;
-static int hf_hazelcast_lockAddrPort = -1;
-static int hf_hazelcast_callID = -1;
-static int hf_hazelcast_responseType = -1;
-static int hf_hazelcast_nameLength = -1;
-static int hf_hazelcast_name = -1;
-static int hf_hazelcast_indexCount = -1;
-static int hf_hazelcast_keyPartitionHash = -1;
-static int hf_hazelcast_valuePartitionHash = -1;
-static int hf_hazelcast_keys = -1;
-static int hf_hazelcast_values = -1;
+static int hf_hazelcast_operation;
+static int hf_hazelcast_blockID;
+static int hf_hazelcast_threadID;
+static int hf_hazelcast_timeout;
+static int hf_hazelcast_ttl;
+static int hf_hazelcast_txnID;
+static int hf_hazelcast_longValue;
+static int hf_hazelcast_version;
+static int hf_hazelcast_lockCount;
+static int hf_hazelcast_lockAddrIP;
+static int hf_hazelcast_lockAddrPort;
+static int hf_hazelcast_callID;
+static int hf_hazelcast_responseType;
+static int hf_hazelcast_nameLength;
+static int hf_hazelcast_name;
+static int hf_hazelcast_indexCount;
+static int hf_hazelcast_keyPartitionHash;
+static int hf_hazelcast_valuePartitionHash;
+static int hf_hazelcast_keys;
+static int hf_hazelcast_values;
 
 /* flags */
-static int hf_hazelcast_flags = -1;
+static int hf_hazelcast_flags;
 
 #define HAZELCAST_LOCKCOUNT_FLAG        (1 << 0)
 #define HAZELCAST_TIMEOUT_FLAG          (1 << 1)
@@ -70,18 +70,18 @@ static int hf_hazelcast_flags = -1;
 #define HAZELCAST_CLIENT_FLAG           (1 << 6)
 #define HAZELCAST_LOCKADDRNULL_FLAG     (1 << 7)
 
-static int hf_hazelcast_flags_lockCount = -1;
-static int hf_hazelcast_flags_timeout = -1;
-static int hf_hazelcast_flags_ttl = -1;
-static int hf_hazelcast_flags_txn = -1;
-static int hf_hazelcast_flags_longValue = -1;
-static int hf_hazelcast_flags_version = -1;
-static int hf_hazelcast_flags_client = -1;
-static int hf_hazelcast_flags_lockAddrNull = -1;
+static int hf_hazelcast_flags_lockCount;
+static int hf_hazelcast_flags_timeout;
+static int hf_hazelcast_flags_ttl;
+static int hf_hazelcast_flags_txn;
+static int hf_hazelcast_flags_longValue;
+static int hf_hazelcast_flags_version;
+static int hf_hazelcast_flags_client;
+static int hf_hazelcast_flags_lockAddrNull;
 
 
-static gint ett_hazelcast = -1;
-static gint ett_hazelcast_flags = -1;
+static gint ett_hazelcast;
+static gint ett_hazelcast_flags;
 
 /* prefs */
 static gboolean hazelcast_desegment = TRUE;

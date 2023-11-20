@@ -242,182 +242,182 @@ static const value_string p2p_oob_group_owner_negotiation_channel_role_indicatio
   { 0, NULL }
 };
 
-static int proto_p2p = -1;
+static int proto_p2p;
 
-static gint ett_p2p_tlv = -1;
-static gint ett_p2p_service_tlv = -1;
-static gint ett_p2p_advertised_service = -1;
-static gint ett_p2p_client_descr = -1;
+static gint ett_p2p_tlv;
+static gint ett_p2p_service_tlv;
+static gint ett_p2p_advertised_service;
+static gint ett_p2p_client_descr;
 
-static int hf_p2p_attr_type = -1;
-static int hf_p2p_attr_len = -1;
+static int hf_p2p_attr_type;
+static int hf_p2p_attr_len;
 
-/* static int hf_p2p_attr_capab = -1; */
-static int hf_p2p_attr_capab_device = -1;
-static int hf_p2p_attr_capab_device_service_discovery = -1;
-static int hf_p2p_attr_capab_device_client_discoverability = -1;
-static int hf_p2p_attr_capab_device_concurrent_operation = -1;
-static int hf_p2p_attr_capab_device_infrastructure_managed = -1;
-static int hf_p2p_attr_capab_device_limit = -1;
-static int hf_p2p_attr_capab_invitation_procedure = -1;
-static int hf_p2p_attr_capab_group = -1;
-static int hf_p2p_attr_capab_group_owner = -1;
-static int hf_p2p_attr_capab_group_persistent = -1;
-static int hf_p2p_attr_capab_group_limit = -1;
-static int hf_p2p_attr_capab_group_intra_bss_distribution = -1;
-static int hf_p2p_attr_capab_group_cross_connection = -1;
-static int hf_p2p_attr_capab_group_persistent_reconnect = -1;
-static int hf_p2p_attr_capab_group_group_formation = -1;
-static int hf_p2p_attr_capab_group_ip_address_allocation = -1;
+/* static int hf_p2p_attr_capab; */
+static int hf_p2p_attr_capab_device;
+static int hf_p2p_attr_capab_device_service_discovery;
+static int hf_p2p_attr_capab_device_client_discoverability;
+static int hf_p2p_attr_capab_device_concurrent_operation;
+static int hf_p2p_attr_capab_device_infrastructure_managed;
+static int hf_p2p_attr_capab_device_limit;
+static int hf_p2p_attr_capab_invitation_procedure;
+static int hf_p2p_attr_capab_group;
+static int hf_p2p_attr_capab_group_owner;
+static int hf_p2p_attr_capab_group_persistent;
+static int hf_p2p_attr_capab_group_limit;
+static int hf_p2p_attr_capab_group_intra_bss_distribution;
+static int hf_p2p_attr_capab_group_cross_connection;
+static int hf_p2p_attr_capab_group_persistent_reconnect;
+static int hf_p2p_attr_capab_group_group_formation;
+static int hf_p2p_attr_capab_group_ip_address_allocation;
 
-static int hf_p2p_attr_device_id = -1;
+static int hf_p2p_attr_device_id;
 
-static int hf_p2p_attr_status = -1;
+static int hf_p2p_attr_status;
 
-static int hf_p2p_attr_go_intent = -1;
-static int hf_p2p_attr_go_intent_tie_breaker = -1;
+static int hf_p2p_attr_go_intent;
+static int hf_p2p_attr_go_intent_tie_breaker;
 
-/* static int hf_p2p_attr_listen_channel = -1; */
-static int hf_p2p_attr_listen_channel_country = -1;
-static int hf_p2p_attr_listen_channel_oper_class = -1;
-static int hf_p2p_attr_listen_channel_number = -1;
+/* static int hf_p2p_attr_listen_channel; */
+static int hf_p2p_attr_listen_channel_country;
+static int hf_p2p_attr_listen_channel_oper_class;
+static int hf_p2p_attr_listen_channel_number;
 
-/* static int hf_p2p_attr_operating_channel = -1; */
-static int hf_p2p_attr_operating_channel_country = -1;
-static int hf_p2p_attr_operating_channel_oper_class = -1;
-static int hf_p2p_attr_operating_channel_number = -1;
+/* static int hf_p2p_attr_operating_channel; */
+static int hf_p2p_attr_operating_channel_country;
+static int hf_p2p_attr_operating_channel_oper_class;
+static int hf_p2p_attr_operating_channel_number;
 
-/* static int hf_p2p_attr_channel_list = -1; */
-static int hf_p2p_attr_channel_list_country = -1;
-static int hf_p2p_attr_channel_list_oper_class = -1;
-static int hf_p2p_attr_channel_list_num_chan = -1;
-static int hf_p2p_attr_channel_list_chan = -1;
+/* static int hf_p2p_attr_channel_list; */
+static int hf_p2p_attr_channel_list_country;
+static int hf_p2p_attr_channel_list_oper_class;
+static int hf_p2p_attr_channel_list_num_chan;
+static int hf_p2p_attr_channel_list_chan;
 
-/* static int hf_p2p_attr_dev_info = -1; */
-static int hf_p2p_attr_dev_info_p2p_dev_addr = -1;
-static int hf_p2p_attr_dev_info_pri_dev_type = -1;
-static int hf_p2p_attr_dev_info_pri_dev_type_category = -1;
-static int hf_p2p_attr_dev_info_pri_dev_type_oui = -1;
-static int hf_p2p_attr_dev_info_pri_dev_type_subcategory = -1;
-static int hf_p2p_attr_dev_info_num_sec = -1;
-static int hf_p2p_attr_dev_info_sec_dev_type = -1;
-static int hf_p2p_attr_dev_info_dev_name_type = -1;
-static int hf_p2p_attr_dev_info_dev_name_len = -1;
-static int hf_p2p_attr_dev_info_dev_name = -1;
-static int hf_p2p_attr_dev_info_config_methods = -1;
-static int hf_p2p_attr_dev_info_config_methods_usba = -1;
-static int hf_p2p_attr_dev_info_config_methods_ethernet = -1;
-static int hf_p2p_attr_dev_info_config_methods_label = -1;
-static int hf_p2p_attr_dev_info_config_methods_display = -1;
-static int hf_p2p_attr_dev_info_config_methods_ext_nfc_token = -1;
-static int hf_p2p_attr_dev_info_config_methods_int_nfc_token = -1;
-static int hf_p2p_attr_dev_info_config_methods_nfc_interface = -1;
-static int hf_p2p_attr_dev_info_config_methods_pushbutton = -1;
-static int hf_p2p_attr_dev_info_config_methods_keypad = -1;
-static int hf_p2p_attr_config_timeout_go = -1;
-static int hf_p2p_attr_config_timeout_client = -1;
-static int hf_p2p_attr_intended_interface_addr = -1;
-static int hf_p2p_attr_extended_listen_timing_period = -1;
-static int hf_p2p_attr_extended_listen_timing_interval = -1;
-static int hf_p2p_attr_p2p_group_id_dev_addr = -1;
-static int hf_p2p_attr_p2p_group_id_ssid = -1;
-static int hf_p2p_attr_p2p_group_bssid = -1;
+/* static int hf_p2p_attr_dev_info; */
+static int hf_p2p_attr_dev_info_p2p_dev_addr;
+static int hf_p2p_attr_dev_info_pri_dev_type;
+static int hf_p2p_attr_dev_info_pri_dev_type_category;
+static int hf_p2p_attr_dev_info_pri_dev_type_oui;
+static int hf_p2p_attr_dev_info_pri_dev_type_subcategory;
+static int hf_p2p_attr_dev_info_num_sec;
+static int hf_p2p_attr_dev_info_sec_dev_type;
+static int hf_p2p_attr_dev_info_dev_name_type;
+static int hf_p2p_attr_dev_info_dev_name_len;
+static int hf_p2p_attr_dev_info_dev_name;
+static int hf_p2p_attr_dev_info_config_methods;
+static int hf_p2p_attr_dev_info_config_methods_usba;
+static int hf_p2p_attr_dev_info_config_methods_ethernet;
+static int hf_p2p_attr_dev_info_config_methods_label;
+static int hf_p2p_attr_dev_info_config_methods_display;
+static int hf_p2p_attr_dev_info_config_methods_ext_nfc_token;
+static int hf_p2p_attr_dev_info_config_methods_int_nfc_token;
+static int hf_p2p_attr_dev_info_config_methods_nfc_interface;
+static int hf_p2p_attr_dev_info_config_methods_pushbutton;
+static int hf_p2p_attr_dev_info_config_methods_keypad;
+static int hf_p2p_attr_config_timeout_go;
+static int hf_p2p_attr_config_timeout_client;
+static int hf_p2p_attr_intended_interface_addr;
+static int hf_p2p_attr_extended_listen_timing_period;
+static int hf_p2p_attr_extended_listen_timing_interval;
+static int hf_p2p_attr_p2p_group_id_dev_addr;
+static int hf_p2p_attr_p2p_group_id_ssid;
+static int hf_p2p_attr_p2p_group_bssid;
 
-static int hf_p2p_attr_noa_index = -1;
-static int hf_p2p_attr_noa_params = -1;
-static int hf_p2p_attr_noa_params_opp_ps = -1;
-static int hf_p2p_attr_noa_params_ctwindow = -1;
-static int hf_p2p_attr_noa_count_type = -1;
-static int hf_p2p_attr_noa_duration = -1;
-static int hf_p2p_attr_noa_interval = -1;
-static int hf_p2p_attr_noa_start_time = -1;
+static int hf_p2p_attr_noa_index;
+static int hf_p2p_attr_noa_params;
+static int hf_p2p_attr_noa_params_opp_ps;
+static int hf_p2p_attr_noa_params_ctwindow;
+static int hf_p2p_attr_noa_count_type;
+static int hf_p2p_attr_noa_duration;
+static int hf_p2p_attr_noa_interval;
+static int hf_p2p_attr_noa_start_time;
 
-/* static int hf_p2p_attr_gi = -1; */
-static int hf_p2p_attr_gi_length = -1;
-static int hf_p2p_attr_gi_p2p_dev_addr = -1;
-static int hf_p2p_attr_gi_p2p_iface_addr = -1;
-static int hf_p2p_attr_gi_dev_capab = -1;
-static int hf_p2p_attr_gi_dev_capab_service_discovery = -1;
-static int hf_p2p_attr_gi_dev_capab_client_discoverability = -1;
-static int hf_p2p_attr_gi_dev_capab_concurrent_operation = -1;
-static int hf_p2p_attr_gi_dev_capab_infrastructure_managed = -1;
-static int hf_p2p_attr_gi_dev_capab_limit = -1;
-/* static int hf_p2p_attr_gi_dev_capab_invitation_procedure = -1; */
-static int hf_p2p_attr_gi_config_methods = -1;
-/* static int hf_p2p_attr_gi_config_methods_usba = -1; */
-/* static int hf_p2p_attr_gi_config_methods_ethernet = -1; */
-/* static int hf_p2p_attr_gi_config_methods_label = -1; */
-/* static int hf_p2p_attr_gi_config_methods_display = -1; */
-/* static int hf_p2p_attr_gi_config_methods_ext_nfc_token = -1; */
-/* static int hf_p2p_attr_gi_config_methods_int_nfc_token = -1; */
-/* static int hf_p2p_attr_gi_config_methods_nfc_interface = -1; */
-/* static int hf_p2p_attr_gi_config_methods_pushbutton = -1; */
-/* static int hf_p2p_attr_gi_config_methods_keypad = -1; */
-static int hf_p2p_attr_gi_pri_dev_type = -1;
-static int hf_p2p_attr_gi_pri_dev_type_category = -1;
-static int hf_p2p_attr_gi_pri_dev_type_oui = -1;
-static int hf_p2p_attr_gi_pri_dev_type_subcategory = -1;
-static int hf_p2p_attr_gi_num_sec_dev_types = -1;
-static int hf_p2p_attr_gi_sec_dev_type = -1;
-static int hf_p2p_attr_gi_dev_name_type = -1;
-static int hf_p2p_attr_gi_dev_name_len = -1;
-static int hf_p2p_attr_gi_dev_name = -1;
+/* static int hf_p2p_attr_gi; */
+static int hf_p2p_attr_gi_length;
+static int hf_p2p_attr_gi_p2p_dev_addr;
+static int hf_p2p_attr_gi_p2p_iface_addr;
+static int hf_p2p_attr_gi_dev_capab;
+static int hf_p2p_attr_gi_dev_capab_service_discovery;
+static int hf_p2p_attr_gi_dev_capab_client_discoverability;
+static int hf_p2p_attr_gi_dev_capab_concurrent_operation;
+static int hf_p2p_attr_gi_dev_capab_infrastructure_managed;
+static int hf_p2p_attr_gi_dev_capab_limit;
+/* static int hf_p2p_attr_gi_dev_capab_invitation_procedure; */
+static int hf_p2p_attr_gi_config_methods;
+/* static int hf_p2p_attr_gi_config_methods_usba; */
+/* static int hf_p2p_attr_gi_config_methods_ethernet; */
+/* static int hf_p2p_attr_gi_config_methods_label; */
+/* static int hf_p2p_attr_gi_config_methods_display; */
+/* static int hf_p2p_attr_gi_config_methods_ext_nfc_token; */
+/* static int hf_p2p_attr_gi_config_methods_int_nfc_token; */
+/* static int hf_p2p_attr_gi_config_methods_nfc_interface; */
+/* static int hf_p2p_attr_gi_config_methods_pushbutton; */
+/* static int hf_p2p_attr_gi_config_methods_keypad; */
+static int hf_p2p_attr_gi_pri_dev_type;
+static int hf_p2p_attr_gi_pri_dev_type_category;
+static int hf_p2p_attr_gi_pri_dev_type_oui;
+static int hf_p2p_attr_gi_pri_dev_type_subcategory;
+static int hf_p2p_attr_gi_num_sec_dev_types;
+static int hf_p2p_attr_gi_sec_dev_type;
+static int hf_p2p_attr_gi_dev_name_type;
+static int hf_p2p_attr_gi_dev_name_len;
+static int hf_p2p_attr_gi_dev_name;
 
-static int hf_p2p_attr_invitation_flags = -1;
-static int hf_p2p_attr_invitation_flags_type = -1;
+static int hf_p2p_attr_invitation_flags;
+static int hf_p2p_attr_invitation_flags_type;
 
-static int hf_p2p_attr_manageability_bitmap = -1;
-static int hf_p2p_attr_manageability_bitmap_mgmt = -1;
-static int hf_p2p_attr_manageability_bitmap_cross_connect = -1;
-static int hf_p2p_attr_manageability_bitmap_coex_opt = -1;
+static int hf_p2p_attr_manageability_bitmap;
+static int hf_p2p_attr_manageability_bitmap_mgmt;
+static int hf_p2p_attr_manageability_bitmap_cross_connect;
+static int hf_p2p_attr_manageability_bitmap_coex_opt;
 
-static int hf_p2p_attr_minor_reason_code = -1;
+static int hf_p2p_attr_minor_reason_code;
 
-static int hf_p2p_attr_oob_group_owner_negotiation_channel_country = -1;
-static int hf_p2p_attr_oob_group_owner_negotiation_channel_oper_class = -1;
-static int hf_p2p_attr_oob_group_owner_negotiation_channel_number = -1;
-static int hf_p2p_attr_oob_group_owner_negotiation_channel_role_indication = -1;
+static int hf_p2p_attr_oob_group_owner_negotiation_channel_country;
+static int hf_p2p_attr_oob_group_owner_negotiation_channel_oper_class;
+static int hf_p2p_attr_oob_group_owner_negotiation_channel_number;
+static int hf_p2p_attr_oob_group_owner_negotiation_channel_role_indication;
 
-static int hf_p2p_attr_service_hash = -1;
+static int hf_p2p_attr_service_hash;
 
-static int hf_p2p_attr_session_information = -1;
+static int hf_p2p_attr_session_information;
 
-static int hf_p2p_attr_connection_capability = -1;
+static int hf_p2p_attr_connection_capability;
 
-static int hf_p2p_attr_advertisement_id = -1;
-static int hf_p2p_attr_advertisement_id_service_mac_address = -1;
+static int hf_p2p_attr_advertisement_id;
+static int hf_p2p_attr_advertisement_id_service_mac_address;
 
-static int hf_p2p_attr_advertised_service_advertisement_id = -1;
-static int hf_p2p_attr_advertised_service_config_methods = -1;
-static int hf_p2p_attr_advertised_service_service_name_length = -1;
-static int hf_p2p_attr_advertised_service_service_name = -1;
+static int hf_p2p_attr_advertised_service_advertisement_id;
+static int hf_p2p_attr_advertised_service_config_methods;
+static int hf_p2p_attr_advertised_service_service_name_length;
+static int hf_p2p_attr_advertised_service_service_name;
 
-static int hf_p2p_attr_session_id = -1;
-static int hf_p2p_attr_session_id_session_mac_address = -1;
+static int hf_p2p_attr_session_id;
+static int hf_p2p_attr_session_id_session_mac_address;
 
-static int hf_p2p_attr_feature_capability = -1;
+static int hf_p2p_attr_feature_capability;
 
-static int hf_p2p_attr_persistent_group_p2p_device_address = -1;
-static int hf_p2p_attr_persistent_group_ssid = -1;
+static int hf_p2p_attr_persistent_group_p2p_device_address;
+static int hf_p2p_attr_persistent_group_ssid;
 
 
-static int hf_p2p_anqp_service_update_indicator = -1;
-static int hf_p2p_anqp_length = -1;
-static int hf_p2p_anqp_service_protocol_type = -1;
-static int hf_p2p_anqp_service_transaction_id = -1;
-static int hf_p2p_anqp_query_data = -1;
-static int hf_p2p_anqp_status_code = -1;
-static int hf_p2p_anqp_response_data = -1;
+static int hf_p2p_anqp_service_update_indicator;
+static int hf_p2p_anqp_length;
+static int hf_p2p_anqp_service_protocol_type;
+static int hf_p2p_anqp_service_transaction_id;
+static int hf_p2p_anqp_query_data;
+static int hf_p2p_anqp_status_code;
+static int hf_p2p_anqp_response_data;
 
-static int hf_p2p_action_subtype = -1;
-static int hf_p2p_action_dialog_token = -1;
-static int hf_p2p_public_action_subtype = -1;
-static int hf_p2p_public_action_dialog_token = -1;
+static int hf_p2p_action_subtype;
+static int hf_p2p_action_dialog_token;
+static int hf_p2p_public_action_subtype;
+static int hf_p2p_public_action_dialog_token;
 
-static expert_field ei_wifi_p2p_attr_dev_info_dev_name_type = EI_INIT;
-static expert_field ei_wifi_p2p_attr_len = EI_INIT;
-static expert_field ei_wifi_p2p_anqp_length = EI_INIT;
-static expert_field ei_wifi_p2p_anqp_unexpected_padding = EI_INIT;
+static expert_field ei_wifi_p2p_attr_dev_info_dev_name_type;
+static expert_field ei_wifi_p2p_attr_len;
+static expert_field ei_wifi_p2p_anqp_length;
+static expert_field ei_wifi_p2p_anqp_unexpected_padding;
 
 static dissector_handle_t wifi_p2p_act_handle;
 static dissector_handle_t wifi_p2p_anqp_handle;

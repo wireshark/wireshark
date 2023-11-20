@@ -33,15 +33,15 @@
 void proto_reg_handoff_nxp_802154_sniffer(void);
 void proto_register_nxp_802154_sniffer(void);
 
-static int proto_nxp_802154_sniffer = -1;
+static int proto_nxp_802154_sniffer;
 
-static int hf_nxp_802154_sniffer_timestamp = -1;
-static int hf_nxp_802154_sniffer_id = -1;
-static int hf_nxp_802154_sniffer_channel = -1;
-static int hf_nxp_802154_sniffer_lqi = -1;
-static int hf_nxp_802154_sniffer_length = -1;
+static int hf_nxp_802154_sniffer_timestamp;
+static int hf_nxp_802154_sniffer_id;
+static int hf_nxp_802154_sniffer_channel;
+static int hf_nxp_802154_sniffer_lqi;
+static int hf_nxp_802154_sniffer_length;
 
-static gint ett_nxp_802154_sniffer = -1;
+static gint ett_nxp_802154_sniffer;
 
 static dissector_handle_t nxp_802154_sniffer_handle;
 static dissector_handle_t ieee802154_handle;

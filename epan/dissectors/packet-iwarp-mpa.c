@@ -64,43 +64,43 @@ void proto_reg_handoff_mpa(void);
 /* GLOBALS */
 
 /* initialize the protocol and registered fields */
-static gint proto_iwarp_mpa = -1;
+static gint proto_iwarp_mpa;
 
-static gint hf_mpa_req = -1;
-static gint hf_mpa_rep = -1;
-static gint hf_mpa_fpdu = -1;
-static gint hf_mpa_marker = -1;
+static gint hf_mpa_req;
+static gint hf_mpa_rep;
+static gint hf_mpa_fpdu;
+static gint hf_mpa_marker;
 
-static gint hf_mpa_key_req = -1;
-static gint hf_mpa_key_rep = -1;
-static gint hf_mpa_flag_m = -1;
-static gint hf_mpa_flag_c = -1;
-static gint hf_mpa_flag_r = -1;
-static gint hf_mpa_flag_res = -1;
-static gint hf_mpa_rev = -1;
-static gint hf_mpa_pd_length = -1;
-static gint hf_mpa_private_data = -1;
+static gint hf_mpa_key_req;
+static gint hf_mpa_key_rep;
+static gint hf_mpa_flag_m;
+static gint hf_mpa_flag_c;
+static gint hf_mpa_flag_r;
+static gint hf_mpa_flag_res;
+static gint hf_mpa_rev;
+static gint hf_mpa_pd_length;
+static gint hf_mpa_private_data;
 
-static gint hf_mpa_ulpdu_length = -1;
-static gint hf_mpa_pad = -1;
-static gint hf_mpa_crc = -1;
-static gint hf_mpa_crc_check = -1;
+static gint hf_mpa_ulpdu_length;
+static gint hf_mpa_pad;
+static gint hf_mpa_crc;
+static gint hf_mpa_crc_check;
 
-static gint hf_mpa_marker_res = -1;
-static gint hf_mpa_marker_fpduptr = -1;
+static gint hf_mpa_marker_res;
+static gint hf_mpa_marker_fpduptr;
 
 /* initialize the subtree pointers */
-static gint ett_mpa = -1;
+static gint ett_mpa;
 
-static gint ett_mpa_req = -1;
-static gint ett_mpa_rep = -1;
-static gint ett_mpa_fpdu = -1;
-static gint ett_mpa_marker = -1;
+static gint ett_mpa_req;
+static gint ett_mpa_rep;
+static gint ett_mpa_fpdu;
+static gint ett_mpa_marker;
 
-static expert_field ei_mpa_res_field_not_set0 = EI_INIT;
-static expert_field ei_mpa_rev_field_not_set1 = EI_INIT;
-static expert_field ei_mpa_reject_bit_responder = EI_INIT;
-static expert_field ei_mpa_bad_length = EI_INIT;
+static expert_field ei_mpa_res_field_not_set0;
+static expert_field ei_mpa_rev_field_not_set1;
+static expert_field ei_mpa_reject_bit_responder;
+static expert_field ei_mpa_bad_length;
 
 /* handles of our subdissectors */
 static dissector_handle_t ddp_rdmap_handle = NULL;

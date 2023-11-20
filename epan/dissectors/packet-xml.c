@@ -41,19 +41,19 @@ struct _attr_reg_data {
 };
 
 
-static gint ett_dtd = -1;
-static gint ett_xmpli = -1;
+static gint ett_dtd;
+static gint ett_xmpli;
 
-static int hf_unknowwn_attrib = -1;
-static int hf_comment = -1;
-static int hf_xmlpi = -1;
-static int hf_dtd_tag = -1;
-static int hf_doctype = -1;
-static int hf_cdatasection = -1;
+static int hf_unknowwn_attrib;
+static int hf_comment;
+static int hf_xmlpi;
+static int hf_dtd_tag;
+static int hf_doctype;
+static int hf_cdatasection;
 
-static expert_field ei_xml_closing_unopened_tag = EI_INIT;
-static expert_field ei_xml_closing_unopened_xmpli_tag = EI_INIT;
-static expert_field ei_xml_unrecognized_text = EI_INIT;
+static expert_field ei_xml_closing_unopened_tag;
+static expert_field ei_xml_closing_unopened_xmpli_tag;
+static expert_field ei_xml_unrecognized_text;
 
 /* dissector handles */
 static dissector_handle_t xml_handle;

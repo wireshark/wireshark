@@ -24,7 +24,7 @@ void proto_reg_handoff_ams(void);
 #define AMS_TCP_PORT 48898 /* Not IANA registered */
 
 /* Define the ams proto */
-int proto_ams = -1;
+int proto_ams;
 
 static dissector_handle_t amstcp_handle;
 

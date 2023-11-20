@@ -45,61 +45,61 @@
 void proto_reg_handoff_rpcordma(void);
 void proto_register_rpcordma(void);
 
-static int proto_rpcordma = -1;
+static int proto_rpcordma;
 static dissector_handle_t rpcordma_handle;
 static dissector_handle_t rpc_handler;
 
 /* RPCoRDMA Header */
-static int hf_rpcordma_xid = -1;
-static int hf_rpcordma_vers = -1;
-static int hf_rpcordma_flow_control = -1;
-static int hf_rpcordma_message_type = -1;
+static int hf_rpcordma_xid;
+static int hf_rpcordma_vers;
+static int hf_rpcordma_flow_control;
+static int hf_rpcordma_message_type;
 
 /* chunks */
-static int hf_rpcordma_reads_count = -1;
-static int hf_rpcordma_writes_count = -1;
-static int hf_rpcordma_reply_count = -1;
+static int hf_rpcordma_reads_count;
+static int hf_rpcordma_writes_count;
+static int hf_rpcordma_reply_count;
 
-static int hf_rpcordma_position = -1;
-static int hf_rpcordma_segment_count = -1;
+static int hf_rpcordma_position;
+static int hf_rpcordma_segment_count;
 
 /* rdma_segment */
-static int hf_rpcordma_rdma_handle = -1;
-static int hf_rpcordma_rdma_length = -1;
-static int hf_rpcordma_rdma_offset = -1;
+static int hf_rpcordma_rdma_handle;
+static int hf_rpcordma_rdma_length;
+static int hf_rpcordma_rdma_offset;
 
-static int hf_rpcordma_rdma_align = -1;
-static int hf_rpcordma_rdma_thresh = -1;
+static int hf_rpcordma_rdma_align;
+static int hf_rpcordma_rdma_thresh;
 
-static int hf_rpcordma_errcode = -1;
-static int hf_rpcordma_vers_high = -1;
-static int hf_rpcordma_vers_low = -1;
+static int hf_rpcordma_errcode;
+static int hf_rpcordma_vers_high;
+static int hf_rpcordma_vers_low;
 
 /* Initialize the subtree pointers */
-static gint ett_rpcordma = -1;
-static gint ett_rpcordma_chunk = -1;
-static gint ett_rpcordma_read_list = -1;
-static gint ett_rpcordma_read_chunk = -1;
-static gint ett_rpcordma_write_list = -1;
-static gint ett_rpcordma_write_chunk = -1;
-static gint ett_rpcordma_reply_chunk = -1;
-static gint ett_rpcordma_segment = -1;
+static gint ett_rpcordma;
+static gint ett_rpcordma_chunk;
+static gint ett_rpcordma_read_list;
+static gint ett_rpcordma_read_chunk;
+static gint ett_rpcordma_write_list;
+static gint ett_rpcordma_write_chunk;
+static gint ett_rpcordma_reply_chunk;
+static gint ett_rpcordma_segment;
 
 /* Fragmentation */
-static int hf_rpcordma_fragments = -1;
-static int hf_rpcordma_fragment = -1;
-static int hf_rpcordma_fragment_overlap = -1;
-static int hf_rpcordma_fragment_overlap_conflicts = -1;
-static int hf_rpcordma_fragment_multiple_tails = -1;
-static int hf_rpcordma_fragment_too_long_fragment = -1;
-static int hf_rpcordma_fragment_error = -1;
-static int hf_rpcordma_fragment_count = -1;
-static int hf_rpcordma_reassembled_in = -1;
-static int hf_rpcordma_reassembled_length = -1;
-static int hf_rpcordma_reassembled_data = -1;
+static int hf_rpcordma_fragments;
+static int hf_rpcordma_fragment;
+static int hf_rpcordma_fragment_overlap;
+static int hf_rpcordma_fragment_overlap_conflicts;
+static int hf_rpcordma_fragment_multiple_tails;
+static int hf_rpcordma_fragment_too_long_fragment;
+static int hf_rpcordma_fragment_error;
+static int hf_rpcordma_fragment_count;
+static int hf_rpcordma_reassembled_in;
+static int hf_rpcordma_reassembled_length;
+static int hf_rpcordma_reassembled_data;
 
-static gint ett_rpcordma_fragment = -1;
-static gint ett_rpcordma_fragments = -1;
+static gint ett_rpcordma_fragment;
+static gint ett_rpcordma_fragments;
 
 static const fragment_items rpcordma_frag_items = {
     /* Fragment subtrees */

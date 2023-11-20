@@ -30,72 +30,72 @@ static dissector_handle_t otrxd_handle;
 static dissector_handle_t otrxc_handle;
 
 /* Which kind of message it is */
-static int proto_otrxd = -1;
-static int proto_otrxc = -1;
+static int proto_otrxd;
+static int proto_otrxc;
 
 /* Generated fields */
-static int hf_otrxd_burst_dir = -1;
-static int hf_otrxc_msg_dir = -1;
+static int hf_otrxd_burst_dir;
+static int hf_otrxc_msg_dir;
 
 /* TRXD PDU version */
-static int hf_otrxd_pdu_ver = -1;
+static int hf_otrxd_pdu_ver;
 
 /* TRXD common fields */
-static int hf_otrxd_chdr_reserved = -1;
-static int hf_otrxd_shadow_ind = -1;
-static int hf_otrxd_batch_ind = -1;
-static int hf_otrxd_trx_num = -1;
-static int hf_otrxd_tdma_tn = -1;
-static int hf_otrxd_tdma_fn = -1;
+static int hf_otrxd_chdr_reserved;
+static int hf_otrxd_shadow_ind;
+static int hf_otrxd_batch_ind;
+static int hf_otrxd_trx_num;
+static int hf_otrxd_tdma_tn;
+static int hf_otrxd_tdma_fn;
 
 /* MTS (Modulation and Training Sequence) fields */
-static int hf_otrxd_nope_ind = -1;
-static int hf_otrxd_nope_ind_pad = -1;
-static int hf_otrxd_mod_2b = -1; /* 2 bit field */
-static int hf_otrxd_mod_3b = -1; /* 3 bit field */
-static int hf_otrxd_mod_4b = -1; /* 4 bit field */
-static int hf_otrxd_tsc_set_x4 = -1;
-static int hf_otrxd_tsc_set_x2 = -1;
-static int hf_otrxd_tsc = -1;
+static int hf_otrxd_nope_ind;
+static int hf_otrxd_nope_ind_pad;
+static int hf_otrxd_mod_2b; /* 2 bit field */
+static int hf_otrxd_mod_3b; /* 3 bit field */
+static int hf_otrxd_mod_4b; /* 4 bit field */
+static int hf_otrxd_tsc_set_x4;
+static int hf_otrxd_tsc_set_x2;
+static int hf_otrxd_tsc;
 
 /* TRXD Rx header fields */
-static int hf_otrxd_rssi = -1;
-static int hf_otrxd_toa256 = -1;
-static int hf_otrxd_ci = -1;
+static int hf_otrxd_rssi;
+static int hf_otrxd_toa256;
+static int hf_otrxd_ci;
 
 /* TRXD Tx header fields */
-static int hf_otrxd_tx_att = -1;
-static int hf_otrxd_tx_scpir = -1;
-static int hf_otrxd_tx_rfu = -1;
+static int hf_otrxd_tx_att;
+static int hf_otrxd_tx_scpir;
+static int hf_otrxd_tx_rfu;
 
 /* Burst soft (255 .. 0) / hard (1 or 0) bits */
-static int hf_otrxd_soft_symbols = -1;
-static int hf_otrxd_hard_symbols = -1;
-static int hf_otrxd_burst_pad = -1;
+static int hf_otrxd_soft_symbols;
+static int hf_otrxd_hard_symbols;
+static int hf_otrxd_burst_pad;
 
 /* TRXC - Control and Clock protocol */
-static int hf_otrxc_type = -1;
-static int hf_otrxc_delimiter = -1;
-static int hf_otrxc_verb = -1;
-static int hf_otrxc_params = -1;
-static int hf_otrxc_status = -1;
+static int hf_otrxc_type;
+static int hf_otrxc_delimiter;
+static int hf_otrxc_verb;
+static int hf_otrxc_params;
+static int hf_otrxc_status;
 
-static gint ett_otrxd = -1;
-static gint ett_otrxc = -1;
+static gint ett_otrxd;
+static gint ett_otrxc;
 
-static gint ett_otrxd_rx_pdu = -1;
-static gint ett_otrxd_tx_pdu = -1;
+static gint ett_otrxd_rx_pdu;
+static gint ett_otrxd_tx_pdu;
 
-static expert_field ei_otrxd_unknown_pdu_ver = EI_INIT;
-static expert_field ei_otrxd_injected_msg = EI_INIT;
-static expert_field ei_otrxd_unknown_dir = EI_INIT;
-static expert_field ei_otrxd_tail_octets = EI_INIT;
+static expert_field ei_otrxd_unknown_pdu_ver;
+static expert_field ei_otrxd_injected_msg;
+static expert_field ei_otrxd_unknown_dir;
+static expert_field ei_otrxd_tail_octets;
 
-static expert_field ei_otrxc_unknown_msg_type = EI_INIT;
-static expert_field ei_otrxc_bad_delimiter = EI_INIT;
-static expert_field ei_otrxc_rsp_no_code = EI_INIT;
-static expert_field ei_otrxc_injected_msg = EI_INIT;
-static expert_field ei_otrxc_unknown_dir = EI_INIT;
+static expert_field ei_otrxc_unknown_msg_type;
+static expert_field ei_otrxc_bad_delimiter;
+static expert_field ei_otrxc_rsp_no_code;
+static expert_field ei_otrxc_injected_msg;
+static expert_field ei_otrxc_unknown_dir;
 
 /* Custom units */
 static const unit_name_string otrx_units_toa256 = { " (1/256 of a symbol)", NULL };

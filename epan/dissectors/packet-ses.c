@@ -32,98 +32,98 @@ void proto_register_clses(void);
 void proto_reg_handoff_clses(void);
 
 /* ses header fields             */
-static int proto_ses          = -1;
-static int hf_ses_type        = -1;
-static int hf_ses_type_0      = -1;
-static int hf_ses_length      = -1;
-/* static int hf_ses_version     = -1; */
-/* static int hf_ses_reserved    = -1; */
+static int proto_ses;
+static int hf_ses_type;
+static int hf_ses_type_0;
+static int hf_ses_length;
+/* static int hf_ses_version; */
+/* static int hf_ses_reserved; */
 
-static int hf_ses_segment_data = -1;
-static int hf_ses_segments = -1;
-static int hf_ses_segment = -1;
-static int hf_ses_segment_overlap = -1;
-static int hf_ses_segment_overlap_conflicts = -1;
-static int hf_ses_segment_multiple_tails = -1;
-static int hf_ses_segment_too_long_segment = -1;
-static int hf_ses_segment_error = -1;
-static int hf_ses_segment_count = -1;
-static int hf_ses_reassembled_in = -1;
-static int hf_ses_reassembled_length = -1;
+static int hf_ses_segment_data;
+static int hf_ses_segments;
+static int hf_ses_segment;
+static int hf_ses_segment_overlap;
+static int hf_ses_segment_overlap_conflicts;
+static int hf_ses_segment_multiple_tails;
+static int hf_ses_segment_too_long_segment;
+static int hf_ses_segment_error;
+static int hf_ses_segment_count;
+static int hf_ses_reassembled_in;
+static int hf_ses_reassembled_length;
 
 /* ses fields defining a sub tree */
-static gint ett_ses           = -1;
-static gint ett_ses_param     = -1;
+static gint ett_ses;
+static gint ett_ses_param;
 
-static gint ett_ses_segment = -1;
-static gint ett_ses_segments = -1;
+static gint ett_ses_segment;
+static gint ett_ses_segments;
 
 
 /* flags */
-static int hf_connect_protocol_options_flags = -1;
-static int hf_version_number_options_flags = -1;
-static int hf_enclosure_item_options_flags = -1;
-static int hf_token_item_options_flags = -1;
+static int hf_connect_protocol_options_flags;
+static int hf_version_number_options_flags;
+static int hf_enclosure_item_options_flags;
+static int hf_token_item_options_flags;
 
-static gint ett_connect_protocol_options_flags = -1;
-static gint ett_transport_options_flags = -1;
-static gint ett_protocol_version_flags = -1;
-static gint ett_enclosure_item_flags = -1;
-static gint ett_token_item_flags = -1;
-static gint ett_ses_req_options_flags = -1;
+static gint ett_connect_protocol_options_flags;
+static gint ett_transport_options_flags;
+static gint ett_protocol_version_flags;
+static gint ett_enclosure_item_flags;
+static gint ett_token_item_flags;
+static gint ett_ses_req_options_flags;
 
 /* called SS user reference */
-static int hf_called_ss_user_reference = -1;
+static int hf_called_ss_user_reference;
 
 /* calling SS user reference */
-static int hf_calling_ss_user_reference = -1;
+static int hf_calling_ss_user_reference;
 
 /* common reference */
-static int hf_common_reference = -1;
+static int hf_common_reference;
 
 /* additional reference information */
-static int hf_additional_reference_information = -1;
+static int hf_additional_reference_information;
 
 /* token item */
-static int hf_release_token = -1;
-static int hf_major_activity_token = -1;
-static int hf_synchronize_minor_token = -1;
-static int hf_data_token = -1;
+static int hf_release_token;
+static int hf_major_activity_token;
+static int hf_synchronize_minor_token;
+static int hf_data_token;
 
 /* protocol options */
-static int hf_able_to_receive_extended_concatenated_SPDU = -1;
+static int hf_able_to_receive_extended_concatenated_SPDU;
 
 /* session requirement */
-static int hf_session_user_req_flags = -1;
-static int hf_session_exception_report= -1;
-static int hf_data_separation_function_unit= -1;
-static int hf_symmetric_synchronize_function_unit= -1;
-static int hf_typed_data_function_unit= -1;
-static int hf_exception_function_unit= -1;
-static int hf_capability_function_unit=-1;
-static int hf_negotiated_release_function_unit= -1;
-static int hf_activity_management_function_unit= -1;
-static int hf_resynchronize_function_unit= -1;
-static int hf_major_resynchronize_function_unit= -1;
-static int hf_minor_resynchronize_function_unit= -1;
-static int hf_expedited_data_resynchronize_function_unit= -1;
-static int hf_duplex_function_unit= -1;
-static int hf_half_duplex_function_unit = -1;
+static int hf_session_user_req_flags;
+static int hf_session_exception_report;
+static int hf_data_separation_function_unit;
+static int hf_symmetric_synchronize_function_unit;
+static int hf_typed_data_function_unit;
+static int hf_exception_function_unit;
+static int hf_capability_function_unit;
+static int hf_negotiated_release_function_unit;
+static int hf_activity_management_function_unit;
+static int hf_resynchronize_function_unit;
+static int hf_major_resynchronize_function_unit;
+static int hf_minor_resynchronize_function_unit;
+static int hf_expedited_data_resynchronize_function_unit;
+static int hf_duplex_function_unit;
+static int hf_half_duplex_function_unit;
 
 /* TSDU maximum size */
-static int hf_proposed_tsdu_maximum_size_i2r = -1;
-static int hf_proposed_tsdu_maximum_size_r2i = -1;
+static int hf_proposed_tsdu_maximum_size_i2r;
+static int hf_proposed_tsdu_maximum_size_r2i;
 
 /* protocol version */
-static int hf_protocol_version_1 = -1;
-static int hf_protocol_version_2 = -1;
+static int hf_protocol_version_1;
+static int hf_protocol_version_2;
 
 /* initial serial number */
-static int hf_initial_serial_number = -1;
+static int hf_initial_serial_number;
 
 /* enclosure item */
-static int hf_beginning_of_SSDU = -1;
-static int hf_end_of_SSDU = -1;
+static int hf_beginning_of_SSDU;
+static int hf_end_of_SSDU;
 
 /* token setting item */
 
@@ -137,53 +137,53 @@ static const value_string token_setting_vals[] = {
 
 static const true_false_string tfs_released_kept = { "Released", "Kept" };
 
-static int hf_release_token_setting = -1;
-static int hf_major_activity_token_setting = -1;
-static int hf_synchronize_minor_token_setting = -1;
-static int hf_data_token_setting = -1;
+static int hf_release_token_setting;
+static int hf_major_activity_token_setting;
+static int hf_synchronize_minor_token_setting;
+static int hf_data_token_setting;
 
 /* calling session selector */
-static int hf_calling_session_selector = -1;
+static int hf_calling_session_selector;
 
 /* called session selector */
-static int hf_called_session_selector = -1;
+static int hf_called_session_selector;
 
 /* activity id */
-static int hf_activity_identifier = -1;
+static int hf_activity_identifier;
 
 /* serial number */
-static int hf_serial_number = -1;
+static int hf_serial_number;
 
 /* second serial number */
-static int hf_second_serial_number = -1;
+static int hf_second_serial_number;
 
 /* second initial serial number */
-static int hf_second_initial_serial_number = -1;
+static int hf_second_initial_serial_number;
 
 /* large initial serial number */
-static int hf_large_initial_serial_number = -1;
+static int hf_large_initial_serial_number;
 
 /* large second initial serial number */
-static int hf_large_second_initial_serial_number = -1;
+static int hf_large_second_initial_serial_number;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_ses_reason_code = -1;
-static int hf_ses_transport_implementation_restriction = -1;
-static int hf_ses_transport_no_reason = -1;
-static int hf_ses_parameter_group_inside_parameter_group = -1;
-static int hf_ses_user_data = -1;
-static int hf_ses_parameter_type = -1;
-static int hf_ses_transport_protocol_error = -1;
-static int hf_ses_transport_user_abort = -1;
-static int hf_ses_parameter_length = -1;
-static int hf_ses_transport_connection = -1;
-static int hf_ses_transport_option_flags = -1;
+static int hf_ses_reason_code;
+static int hf_ses_transport_implementation_restriction;
+static int hf_ses_transport_no_reason;
+static int hf_ses_parameter_group_inside_parameter_group;
+static int hf_ses_user_data;
+static int hf_ses_parameter_type;
+static int hf_ses_transport_protocol_error;
+static int hf_ses_transport_user_abort;
+static int hf_ses_parameter_length;
+static int hf_ses_transport_connection;
+static int hf_ses_transport_option_flags;
 
 /* clses header fields             */
-static int proto_clses          = -1;
+static int proto_clses;
 
-static expert_field ei_ses_bad_length = EI_INIT;
-static expert_field ei_ses_bad_parameter_length = EI_INIT;
+static expert_field ei_ses_bad_length;
+static expert_field ei_ses_bad_parameter_length;
 
 #define PROTO_STRING_CLSES "ISO 9548-1 OSI Connectionless Session Protocol"
 

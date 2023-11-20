@@ -21,16 +21,16 @@ void proto_register_lge_monitor(void);
 static dissector_handle_t lge_monitor_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_lge_monitor		= -1;
+static int proto_lge_monitor;
 
-static int hf_lge_monitor_dir = -1;
-static int hf_lge_monitor_prot = -1;
-static int hf_lge_monitor_length = -1;
-static int hf_lge_monitor_data = -1;
+static int hf_lge_monitor_dir;
+static int hf_lge_monitor_prot;
+static int hf_lge_monitor_length;
+static int hf_lge_monitor_data;
 
 /* Initialize the subtree pointers */
-static int ett_lge_monitor = -1;
-static int ett_lge_header = -1;
+static int ett_lge_monitor;
+static int ett_lge_header;
 
 static dissector_handle_t mtp3_handle, m3ua_handle, sccp_handle, sctp_handle;
 

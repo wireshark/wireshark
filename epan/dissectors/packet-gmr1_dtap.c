@@ -25,14 +25,14 @@ void proto_register_gmr1_dtap(void);
 void proto_reg_handoff_gmr1_dtap(void);
 
 /* GMR-1 DTAP proto */
-static int proto_gmr1_dtap = -1;
+static int proto_gmr1_dtap;
 
-static int hf_gmr1_dtap_protocol_discriminator = -1;
-static int hf_gmr1_dtap_message_elements = -1;
+static int hf_gmr1_dtap_protocol_discriminator;
+static int hf_gmr1_dtap_message_elements;
 
 /* GMR-1 DTAP sub tree */
-static gint ett_gmr1_dtap = -1;
-static gint ett_gmr1_pd = -1;
+static gint ett_gmr1_dtap;
+static gint ett_gmr1_pd;
 
 /* Handoffs */
 static dissector_handle_t gsm_dtap_handle;

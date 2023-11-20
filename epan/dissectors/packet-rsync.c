@@ -60,18 +60,18 @@ struct rsync_frame_data {
     rsync_state_t state;
 };
 
-static int proto_rsync = -1;
+static int proto_rsync;
 
-static int hf_rsync_command_string = -1;
-static int hf_rsync_data = -1;
-static int hf_rsync_hdr_magic = -1;
-static int hf_rsync_hdr_version = -1;
-static int hf_rsync_module_list_string = -1;
-static int hf_rsync_motd_string = -1;
-static int hf_rsync_query_string = -1;
-static int hf_rsync_rsyncdok_string = -1;
+static int hf_rsync_command_string;
+static int hf_rsync_data;
+static int hf_rsync_hdr_magic;
+static int hf_rsync_hdr_version;
+static int hf_rsync_module_list_string;
+static int hf_rsync_motd_string;
+static int hf_rsync_query_string;
+static int hf_rsync_rsyncdok_string;
 
-static gint ett_rsync = -1;
+static gint ett_rsync;
 
 static dissector_handle_t rsync_handle;
 

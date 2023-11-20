@@ -25,16 +25,16 @@
 void proto_register_v5ef(void);
 void proto_reg_handoff_v5ef(void);
 
-static int proto_v5ef = -1;
-static int hf_v5ef_direction = -1;
-static int hf_v5ef_address = -1;
-static int hf_v5ef_eah = -1;
-static int hf_v5ef_ea1 = -1;
-static int hf_v5ef_eal = -1;
-static int hf_v5ef_ea2 = -1;
+static int proto_v5ef;
+static int hf_v5ef_direction;
+static int hf_v5ef_address;
+static int hf_v5ef_eah;
+static int hf_v5ef_ea1;
+static int hf_v5ef_eal;
+static int hf_v5ef_ea2;
 
-static gint ett_v5ef = -1;
-static gint ett_v5ef_address = -1;
+static gint ett_v5ef;
+static gint ett_v5ef_address;
 
 static dissector_handle_t v5dl_handle, lapd_phdr_handle, v5ef_handle;
 

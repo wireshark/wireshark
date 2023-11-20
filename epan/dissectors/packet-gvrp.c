@@ -17,20 +17,20 @@
 void proto_register_gvrp(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_gvrp = -1;
-static int hf_gvrp_proto_id = -1;
-static int hf_gvrp_attribute_type = -1;
-static int hf_gvrp_attribute_length = -1;
-static int hf_gvrp_attribute_event = -1;
-static int hf_gvrp_attribute_value = -1;
-static int hf_gvrp_end_of_mark = -1;
+static int proto_gvrp;
+static int hf_gvrp_proto_id;
+static int hf_gvrp_attribute_type;
+static int hf_gvrp_attribute_length;
+static int hf_gvrp_attribute_event;
+static int hf_gvrp_attribute_value;
+static int hf_gvrp_end_of_mark;
 
 /* Initialize the subtree pointers */
-static gint ett_gvrp = -1;
-static gint ett_gvrp_message = -1;
-static gint ett_gvrp_attribute = -1;
+static gint ett_gvrp;
+static gint ett_gvrp_message;
+static gint ett_gvrp_attribute;
 
-static expert_field ei_gvrp_proto_id = EI_INIT;
+static expert_field ei_gvrp_proto_id;
 
 /* Constant definitions */
 #define GARP_DEFAULT_PROTOCOL_ID        0x0001

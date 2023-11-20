@@ -30,17 +30,17 @@ void proto_reg_handoff_tpkt(void);
 static heur_dissector_list_t tpkt_heur_subdissector_list;
 
 /* TPKT header fields             */
-static int proto_tpkt                = -1;
-static int proto_tpkt_heur           = -1;
+static int proto_tpkt;
+static int proto_tpkt_heur;
 static protocol_t *proto_tpkt_ptr;
-static int hf_tpkt_version           = -1;
-static int hf_tpkt_reserved          = -1;
-static int hf_tpkt_length            = -1;
-static int hf_tpkt_continuation_data = -1;
+static int hf_tpkt_version;
+static int hf_tpkt_reserved;
+static int hf_tpkt_length;
+static int hf_tpkt_continuation_data;
 
 
 /* TPKT fields defining a sub tree */
-static gint ett_tpkt           = -1;
+static gint ett_tpkt;
 
 /* desegmentation of OSI over TPKT over TCP */
 static gboolean tpkt_desegment = TRUE;

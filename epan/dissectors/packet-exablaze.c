@@ -18,17 +18,17 @@
 void proto_register_exablaze(void);
 void proto_reg_handoff_exablaze(void);
 
-static int proto_exablaze = -1;
+static int proto_exablaze;
 
-static int hf_exablaze_original_fcs = -1;
-static int hf_exablaze_device = -1;
-static int hf_exablaze_port = -1;
-static int hf_exablaze_timestamp = -1;
-static int hf_exablaze_timestamp_integer = -1;
-static int hf_exablaze_timestamp_fractional = -1;
+static int hf_exablaze_original_fcs;
+static int hf_exablaze_device;
+static int hf_exablaze_port;
+static int hf_exablaze_timestamp;
+static int hf_exablaze_timestamp_integer;
+static int hf_exablaze_timestamp_fractional;
 
-static gint ett_exablaze = -1;
-static gint ett_exablaze_timestamp = -1;
+static gint ett_exablaze;
+static gint ett_exablaze_timestamp;
 
 static int
 dissect_exablaze(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,

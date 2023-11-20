@@ -67,56 +67,56 @@ static const value_string aol_wmem_mode[] = {
 };
 
 /* Protocol */
-static int proto_aol            = -1;
+static int proto_aol;
 
 /* Special fields */
-static int hf_aol_udata         = -1;
-static int hf_aol_init          = -1;
+static int hf_aol_udata;
+static int hf_aol_init;
 
 /* Header fields */
-static int hf_aol_start         = -1;
-static int hf_aol_crc           = -1;
-static int hf_aol_len           = -1;
-static int hf_aol_tx_seq        = -1;
-static int hf_aol_rx_seq        = -1;
-static int hf_aol_type          = -1;
-static int hf_aol_token         = -1;
-static int hf_aol_data          = -1;
-static int hf_aol_end           = -1;
+static int hf_aol_start;
+static int hf_aol_crc;
+static int hf_aol_len;
+static int hf_aol_tx_seq;
+static int hf_aol_rx_seq;
+static int hf_aol_type;
+static int hf_aol_token;
+static int hf_aol_data;
+static int hf_aol_end;
 
 /* 'INIT' PDU Fields */
-static int hf_aol_platform      = -1;
-static int hf_aol_version       = -1;
-static int hf_aol_subversion    = -1;
-static int hf_aol_unused        = -1;
-static int hf_aol_machine_mem   = -1;
-static int hf_aol_app_mem       = -1;
-static int hf_aol_pc_type       = -1;
-static int hf_aol_rel_month     = -1;
-static int hf_aol_rel_day       = -1;
-static int hf_aol_cust_class    = -1;
-static int hf_aol_udo_timestamp = -1;
-static int hf_aol_dos_ver       = -1;
-static int hf_aol_sess_flags    = -1;
-static int hf_aol_video_type    = -1;
-static int hf_aol_cpu_type      = -1;
-static int hf_aol_media_type    = -1;
-static int hf_aol_win_ver       = -1;
-static int hf_aol_wmem_mode     = -1;
-static int hf_aol_horiz_res     = -1;
-static int hf_aol_vert_res      = -1;
-static int hf_aol_num_colors    = -1;
-static int hf_aol_filler        = -1;
-static int hf_aol_region        = -1;
-static int hf_aol_lang          = -1;
-static int hf_aol_conn_spd      = -1;
+static int hf_aol_platform;
+static int hf_aol_version;
+static int hf_aol_subversion;
+static int hf_aol_unused;
+static int hf_aol_machine_mem;
+static int hf_aol_app_mem;
+static int hf_aol_pc_type;
+static int hf_aol_rel_month;
+static int hf_aol_rel_day;
+static int hf_aol_cust_class;
+static int hf_aol_udo_timestamp;
+static int hf_aol_dos_ver;
+static int hf_aol_sess_flags;
+static int hf_aol_video_type;
+static int hf_aol_cpu_type;
+static int hf_aol_media_type;
+static int hf_aol_win_ver;
+static int hf_aol_wmem_mode;
+static int hf_aol_horiz_res;
+static int hf_aol_vert_res;
+static int hf_aol_num_colors;
+static int hf_aol_filler;
+static int hf_aol_region;
+static int hf_aol_lang;
+static int hf_aol_conn_spd;
 
 /* Subtrees */
-static int ett_aol              = -1;
-static int ett_aol_data         = -1;
+static int ett_aol;
+static int ett_aol_data;
 
-static expert_field ei_aol_pdu_length_bad = EI_INIT;
-static expert_field ei_aol_end_missing = EI_INIT;
+static expert_field ei_aol_pdu_length_bad;
+static expert_field ei_aol_end_missing;
 
 /* Prefs */
 static gboolean aol_desegment  = TRUE;

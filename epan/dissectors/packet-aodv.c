@@ -89,44 +89,44 @@ typedef struct v6_ext {
 } aodv_ext_t;
 
 /* Initialize the protocol and registered fields */
-static int proto_aodv = -1;
-static int hf_aodv_type = -1;
-static int hf_aodv_flags = -1;
-static int hf_aodv_prefix_sz = -1;
-static int hf_aodv_hopcount = -1;
-static int hf_aodv_rreq_id = -1;
-static int hf_aodv_dest_ip = -1;
-static int hf_aodv_dest_ipv6 = -1;
-static int hf_aodv_dest_seqno = -1;
-static int hf_aodv_orig_ip = -1;
-static int hf_aodv_orig_ipv6 = -1;
-static int hf_aodv_orig_seqno = -1;
-static int hf_aodv_lifetime = -1;
-static int hf_aodv_destcount = -1;
-static int hf_aodv_unreach_dest_ip = -1;
-static int hf_aodv_unreach_dest_ipv6 = -1;
-/* static int hf_aodv_unreach_dest_seqno = -1; */
-static int hf_aodv_flags_rreq_join = -1;
-static int hf_aodv_flags_rreq_repair = -1;
-static int hf_aodv_flags_rreq_gratuitous = -1;
-static int hf_aodv_flags_rreq_destinationonly = -1;
-static int hf_aodv_flags_rreq_unknown = -1;
-static int hf_aodv_flags_rrep_repair = -1;
-static int hf_aodv_flags_rrep_ack = -1;
-static int hf_aodv_flags_rerr_nodelete = -1;
-static int hf_aodv_ext_type = -1;
-static int hf_aodv_ext_length = -1;
-static int hf_aodv_ext_interval = -1;
-static int hf_aodv_ext_timestamp = -1;
+static int proto_aodv;
+static int hf_aodv_type;
+static int hf_aodv_flags;
+static int hf_aodv_prefix_sz;
+static int hf_aodv_hopcount;
+static int hf_aodv_rreq_id;
+static int hf_aodv_dest_ip;
+static int hf_aodv_dest_ipv6;
+static int hf_aodv_dest_seqno;
+static int hf_aodv_orig_ip;
+static int hf_aodv_orig_ipv6;
+static int hf_aodv_orig_seqno;
+static int hf_aodv_lifetime;
+static int hf_aodv_destcount;
+static int hf_aodv_unreach_dest_ip;
+static int hf_aodv_unreach_dest_ipv6;
+/* static int hf_aodv_unreach_dest_seqno; */
+static int hf_aodv_flags_rreq_join;
+static int hf_aodv_flags_rreq_repair;
+static int hf_aodv_flags_rreq_gratuitous;
+static int hf_aodv_flags_rreq_destinationonly;
+static int hf_aodv_flags_rreq_unknown;
+static int hf_aodv_flags_rrep_repair;
+static int hf_aodv_flags_rrep_ack;
+static int hf_aodv_flags_rerr_nodelete;
+static int hf_aodv_ext_type;
+static int hf_aodv_ext_length;
+static int hf_aodv_ext_interval;
+static int hf_aodv_ext_timestamp;
 
 /* Initialize the subtree pointers */
-static gint ett_aodv = -1;
-static gint ett_aodv_flags = -1;
-static gint ett_aodv_unreach_dest = -1;
-static gint ett_aodv_extensions = -1;
+static gint ett_aodv;
+static gint ett_aodv_flags;
+static gint ett_aodv_unreach_dest;
+static gint ett_aodv_extensions;
 
-static expert_field ei_aodv_ext_length = EI_INIT;
-static expert_field ei_aodv_type = EI_INIT;
+static expert_field ei_aodv_ext_length;
+static expert_field ei_aodv_type;
 
 /* Code to actually dissect the packets */
 

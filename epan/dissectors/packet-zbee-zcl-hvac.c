@@ -102,43 +102,43 @@ static void dissect_zcl_pump_config_control_attr_data      (proto_tree *tree, tv
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_pump_config_control = -1;
+static int proto_zbee_zcl_pump_config_control;
 
-static int hf_zbee_zcl_pump_config_control_attr_id = -1;
-static int hf_zbee_zcl_pump_config_control_attr_eff_opr_mode = -1;
-static int hf_zbee_zcl_pump_config_control_attr_opr_mode = -1;
-static int hf_zbee_zcl_pump_config_control_attr_eff_ctrl_mode = -1;
-static int hf_zbee_zcl_pump_config_control_attr_ctrl_mode = -1;
-static int hf_zbee_zcl_pump_config_control_status = -1;
-static int hf_zbee_zcl_pump_config_control_status_device_fault = -1;
-static int hf_zbee_zcl_pump_config_control_status_supply_fault = -1;
-static int hf_zbee_zcl_pump_config_control_status_speed_low = -1;
-static int hf_zbee_zcl_pump_config_control_status_speed_high = -1;
-static int hf_zbee_zcl_pump_config_control_status_local_override = -1;
-static int hf_zbee_zcl_pump_config_control_status_running = -1;
-static int hf_zbee_zcl_pump_config_control_status_rem_pressure = -1;
-static int hf_zbee_zcl_pump_config_control_status_rem_flow = -1;
-static int hf_zbee_zcl_pump_config_control_status_rem_temp = -1;
-static int hf_zbee_zcl_pump_config_control_alarm = -1;
-static int hf_zbee_zcl_pump_config_control_alarm_volt_too_low = -1;
-static int hf_zbee_zcl_pump_config_control_alarm_volt_too_high = -1;
-static int hf_zbee_zcl_pump_config_control_alarm_pwr_missing_phase = -1;
-static int hf_zbee_zcl_pump_config_control_alarm_press_too_low = -1;
-static int hf_zbee_zcl_pump_config_control_alarm_press_too_high = -1;
-static int hf_zbee_zcl_pump_config_control_alarm_dry_running = -1;
-static int hf_zbee_zcl_pump_config_control_alarm_mtr_temp_too_high = -1;
-static int hf_zbee_zcl_pump_config_control_alarm_pump_mtr_fatal_fail = -1;
-static int hf_zbee_zcl_pump_config_control_alarm_elec_temp_too_high = -1;
-static int hf_zbee_zcl_pump_config_control_alarm_pump_block = -1;
-static int hf_zbee_zcl_pump_config_control_alarm_sensor_fail = -1;
-static int hf_zbee_zcl_pump_config_control_alarm_elec_non_fatal_fail = -1;
-static int hf_zbee_zcl_pump_config_control_alarm_fatal_fail = -1;
-static int hf_zbee_zcl_pump_config_control_alarm_gen_fault = -1;
+static int hf_zbee_zcl_pump_config_control_attr_id;
+static int hf_zbee_zcl_pump_config_control_attr_eff_opr_mode;
+static int hf_zbee_zcl_pump_config_control_attr_opr_mode;
+static int hf_zbee_zcl_pump_config_control_attr_eff_ctrl_mode;
+static int hf_zbee_zcl_pump_config_control_attr_ctrl_mode;
+static int hf_zbee_zcl_pump_config_control_status;
+static int hf_zbee_zcl_pump_config_control_status_device_fault;
+static int hf_zbee_zcl_pump_config_control_status_supply_fault;
+static int hf_zbee_zcl_pump_config_control_status_speed_low;
+static int hf_zbee_zcl_pump_config_control_status_speed_high;
+static int hf_zbee_zcl_pump_config_control_status_local_override;
+static int hf_zbee_zcl_pump_config_control_status_running;
+static int hf_zbee_zcl_pump_config_control_status_rem_pressure;
+static int hf_zbee_zcl_pump_config_control_status_rem_flow;
+static int hf_zbee_zcl_pump_config_control_status_rem_temp;
+static int hf_zbee_zcl_pump_config_control_alarm;
+static int hf_zbee_zcl_pump_config_control_alarm_volt_too_low;
+static int hf_zbee_zcl_pump_config_control_alarm_volt_too_high;
+static int hf_zbee_zcl_pump_config_control_alarm_pwr_missing_phase;
+static int hf_zbee_zcl_pump_config_control_alarm_press_too_low;
+static int hf_zbee_zcl_pump_config_control_alarm_press_too_high;
+static int hf_zbee_zcl_pump_config_control_alarm_dry_running;
+static int hf_zbee_zcl_pump_config_control_alarm_mtr_temp_too_high;
+static int hf_zbee_zcl_pump_config_control_alarm_pump_mtr_fatal_fail;
+static int hf_zbee_zcl_pump_config_control_alarm_elec_temp_too_high;
+static int hf_zbee_zcl_pump_config_control_alarm_pump_block;
+static int hf_zbee_zcl_pump_config_control_alarm_sensor_fail;
+static int hf_zbee_zcl_pump_config_control_alarm_elec_non_fatal_fail;
+static int hf_zbee_zcl_pump_config_control_alarm_fatal_fail;
+static int hf_zbee_zcl_pump_config_control_alarm_gen_fault;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_pump_config_control = -1;
-static gint ett_zbee_zcl_pump_config_control_status = -1;
-static gint ett_zbee_zcl_pump_config_control_alarm = -1;
+static gint ett_zbee_zcl_pump_config_control;
+static gint ett_zbee_zcl_pump_config_control_status;
+static gint ett_zbee_zcl_pump_config_control_alarm;
 
 /* Attributes */
 static const value_string zbee_zcl_pump_config_control_attr_names[] = {
@@ -518,14 +518,14 @@ static void dissect_zcl_fan_control_attr_data      (proto_tree *tree, tvbuff_t *
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_fan_control = -1;
+static int proto_zbee_zcl_fan_control;
 
-static int hf_zbee_zcl_fan_control_attr_id = -1;
-static int hf_zbee_zcl_fan_control_attr_fan_mode = -1;
-static int hf_zbee_zcl_fan_control_attr_fan_mode_seq = -1;
+static int hf_zbee_zcl_fan_control_attr_id;
+static int hf_zbee_zcl_fan_control_attr_fan_mode;
+static int hf_zbee_zcl_fan_control_attr_fan_mode_seq;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_fan_control = -1;
+static gint ett_zbee_zcl_fan_control;
 
 /* Attributes */
 static const value_string zbee_zcl_fan_control_attr_names[] = {
@@ -706,15 +706,15 @@ static void dissect_zcl_dehumidification_control_attr_data      (proto_tree *tre
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_dehumidification_control = -1;
+static int proto_zbee_zcl_dehumidification_control;
 
-static int hf_zbee_zcl_dehumidification_control_attr_id = -1;
-static int hf_zbee_zcl_dehumidification_control_attr_rel_hum_mode = -1;
-static int hf_zbee_zcl_dehumidification_control_attr_dehum_lockout = -1;
-static int hf_zbee_zcl_dehumidification_control_attr_rel_hum_display = -1;
+static int hf_zbee_zcl_dehumidification_control_attr_id;
+static int hf_zbee_zcl_dehumidification_control_attr_rel_hum_mode;
+static int hf_zbee_zcl_dehumidification_control_attr_dehum_lockout;
+static int hf_zbee_zcl_dehumidification_control_attr_rel_hum_display;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_dehumidification_control = -1;
+static gint ett_zbee_zcl_dehumidification_control;
 
 /* Attributes */
 static const value_string zbee_zcl_dehumidification_control_attr_names[] = {
@@ -908,14 +908,14 @@ static void dissect_zcl_thermostat_ui_config_attr_data      (proto_tree *tree, t
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_thermostat_ui_config = -1;
+static int proto_zbee_zcl_thermostat_ui_config;
 
-static int hf_zbee_zcl_thermostat_ui_config_attr_id = -1;
-static int hf_zbee_zcl_thermostat_ui_config_attr_temp_disp_mode = -1;
-static int hf_zbee_zcl_thermostat_ui_config_attr_keypad_lockout = -1;
+static int hf_zbee_zcl_thermostat_ui_config_attr_id;
+static int hf_zbee_zcl_thermostat_ui_config_attr_temp_disp_mode;
+static int hf_zbee_zcl_thermostat_ui_config_attr_keypad_lockout;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_thermostat_ui_config = -1;
+static gint ett_zbee_zcl_thermostat_ui_config;
 
 /* Attributes */
 static const value_string zbee_zcl_thermostat_ui_config_attr_names[] = {

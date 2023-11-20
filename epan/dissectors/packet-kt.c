@@ -24,7 +24,7 @@
 void proto_register_kt(void);
 void proto_reg_handoff_kt(void);
 
-static int proto_kt = -1;
+static int proto_kt;
 
 /*
  * A few notes before we get into the thick of things...
@@ -68,31 +68,31 @@ static int proto_kt = -1;
 static dissector_handle_t kt_handle;
 
 /* Sub-trees */
-static gint ett_kt = -1;
-static gint ett_kt_rec = -1;
+static gint ett_kt;
+static gint ett_kt_rec;
 
 /* Header fields */
-static gint hf_kt_magic = -1;
-static gint hf_kt_type = -1;
-static gint hf_kt_ts = -1;
-static gint hf_kt_flags = -1;
-static gint hf_kt_rnum = -1;
-static gint hf_kt_dbidx = -1;
-static gint hf_kt_sid= -1;
-static gint hf_kt_xt = -1;
-static gint hf_kt_xt_resp = -1;
-static gint hf_kt_ksiz = -1;
-static gint hf_kt_vsiz = -1;
-static gint hf_kt_key = -1;
-static gint hf_kt_val = -1;
-static gint hf_kt_key_str = -1;
-static gint hf_kt_val_str = -1;
-static gint hf_kt_hits = -1;
-static gint hf_kt_nsiz = -1;
-static gint hf_kt_name = -1;
-static gint hf_kt_size = -1;
-static gint hf_kt_log = -1;
-static gint hf_kt_rec = -1;
+static gint hf_kt_magic;
+static gint hf_kt_type;
+static gint hf_kt_ts;
+static gint hf_kt_flags;
+static gint hf_kt_rnum;
+static gint hf_kt_dbidx;
+static gint hf_kt_sid;
+static gint hf_kt_xt;
+static gint hf_kt_xt_resp;
+static gint hf_kt_ksiz;
+static gint hf_kt_vsiz;
+static gint hf_kt_key;
+static gint hf_kt_val;
+static gint hf_kt_key_str;
+static gint hf_kt_val_str;
+static gint hf_kt_hits;
+static gint hf_kt_nsiz;
+static gint hf_kt_name;
+static gint hf_kt_size;
+static gint hf_kt_log;
+static gint hf_kt_rec;
 
 /* Magic Values */
 #define KT_MAGIC_REPL_WAIT      0xB0

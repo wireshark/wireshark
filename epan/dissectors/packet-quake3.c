@@ -31,31 +31,31 @@
 
 void proto_register_quake3(void);
 static dissector_handle_t quake3_handle;
-static int proto_quake3 = -1;
+static int proto_quake3;
 
-static int hf_quake3_direction = -1;
-static int hf_quake3_connectionless = -1;
-static int hf_quake3_game = -1;
-static int hf_quake3_connectionless_marker = -1;
-static int hf_quake3_connectionless_text = -1;
-static int hf_quake3_connectionless_command = -1;
-static int hf_quake3_server_addr = -1;
-static int hf_quake3_server_port = -1;
-static int hf_quake3_game_seq1 = -1;
-static int hf_quake3_game_rel1 = -1;
-static int hf_quake3_game_seq2 = -1;
-static int hf_quake3_game_rel2 = -1;
-static int hf_quake3_game_qport = -1;
+static int hf_quake3_direction;
+static int hf_quake3_connectionless;
+static int hf_quake3_game;
+static int hf_quake3_connectionless_marker;
+static int hf_quake3_connectionless_text;
+static int hf_quake3_connectionless_command;
+static int hf_quake3_server_addr;
+static int hf_quake3_server_port;
+static int hf_quake3_game_seq1;
+static int hf_quake3_game_rel1;
+static int hf_quake3_game_seq2;
+static int hf_quake3_game_rel2;
+static int hf_quake3_game_qport;
 
-static gint ett_quake3 = -1;
-static gint ett_quake3_connectionless = -1;
-static gint ett_quake3_connectionless_text = -1;
-static gint ett_quake3_server = -1;
-static gint ett_quake3_game = -1;
-static gint ett_quake3_game_seq1 = -1;
-static gint ett_quake3_game_seq2 = -1;
-static gint ett_quake3_game_clc = -1;
-static gint ett_quake3_game_svc = -1;
+static gint ett_quake3;
+static gint ett_quake3_connectionless;
+static gint ett_quake3_connectionless_text;
+static gint ett_quake3_server;
+static gint ett_quake3_game;
+static gint ett_quake3_game_seq1;
+static gint ett_quake3_game_seq2;
+static gint ett_quake3_game_clc;
+static gint ett_quake3_game_svc;
 
 #define QUAKE3_SERVER_PORT 27960
 #define QUAKE3_MASTER_PORT 27950

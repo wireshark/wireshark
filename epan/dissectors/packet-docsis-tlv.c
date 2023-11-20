@@ -35,565 +35,565 @@ static dissector_handle_t docsis_vsif_handle;
 static dissector_handle_t docsis_ucd_handle;
 static dissector_handle_t docsis_rba_handle;
 
-static int proto_docsis_tlv = -1;
-static int hf_docsis_tlv_down_freq = -1;
-static int hf_docsis_tlv_upstream_chid = -1;
-static int hf_docsis_tlv_net_access = -1;
-/* static int hf_docsis_tlv_cos = -1; */
-/* static int hf_docsis_tlv_mcap = -1; */
-static int hf_docsis_tlv_privacy_enable = -1;
-static int hf_docsis_tlv_max_cpe = -1;
-static int hf_docsis_tlv_max_classifiers = -1;
-static int hf_docsis_tlv_snmp_access = -1;
-static int hf_docsis_tlv_snmp_obj = -1;
-static int hf_docsis_tlv_svc_unavail = -1;
-static int hf_docsis_tlv_svc_unavail_classid = -1;
-static int hf_docsis_tlv_svc_unavail_type = -1;
-static int hf_docsis_tlv_svc_unavail_code = -1;
-static int hf_docsis_tlv_bpi = -1;
-/* static int hf_docsis_tlv_phs = -1; */
-static int hf_docsis_tlv_hmac_digest = -1;
-static int hf_docsis_tlv_tftp_server_timestamp = -1;
-static int hf_docsis_tlv_tftp_prov_modem_address = -1;
-/* static int hf_docsis_tlv_upclsfr = -1; */
-/* static int hf_docsis_tlv_downclsfr = -1; */
-/* static int hf_docsis_tlv_upsflow = -1; */
-/* static int hf_docsis_tlv_downsflow = -1; */
-/* static int hf_docsis_tlv_vendor_spec = -1; */
-static int hf_docsis_tlv_cm_mic = -1;
-static int hf_docsis_tlv_cmts_mic = -1;
-static int hf_docsis_tlv_auth_block = -1;
-static int hf_docsis_tlv_key_seq_num = -1;
-static int hf_docsis_tlv_snmpv3_kick = -1;
-static int hf_docsis_tlv_snmpv3_kick_name = -1;
-static int hf_docsis_tlv_snmpv3_kick_publicnum = -1;
-static int hf_docsis_tlv_mfgr_cvc = -1;
-static int hf_docsis_tlv_cosign_cvc = -1;
-static int hf_docsis_tlv_vendor_id = -1;
-static int hf_docsis_tlv_sw_file = -1;
-static int hf_docsis_tlv_sw_upg_srvr = -1;
-static int hf_docsis_tlv_cpe_ethernet = -1;
-static int hf_docsis_tlv_modem_addr = -1;
-static int hf_docsis_tlv_rng_tech = -1;
-static int hf_docsis_tlv_subs_mgmt_ctrl = -1;
-static int hf_docsis_tlv_subs_mgmt_ip_table = -1;
-static int hf_docsis_tlv_subs_mgmt_ip_entry = -1;
-static int hf_docsis_tlv_subs_mgmt_filter_grps = -1;
-static int hf_docsis_tlv_snmpv3_ntfy_rcvr = -1;
-static int hf_docsis_tlv_enable_20_mode = -1;
-static int hf_docsis_tlv_enable_test_modes = -1;
-/* static int hf_docsis_tlv_ds_ch_list = -1; */
-static int hf_docsis_tlv_mc_mac_address = -1;
-/* static int hf_docsis_tlv_dut_filter = -1; */
-/* static int hf_docsis_tlv_tcc = -1; */
-/* static int hf_docsis_tlv_sid_cl = -1; */
-/* static int hf_docsis_tlv_rcp = -1; */
-/* static int hf_docsis_tlv_rcc = -1; */
-/* static int hf_docsis_tlv_dsid = -1; */
-/* static int hf_docsis_tlv_sec_assoc = -1; */
-static int hf_docsis_tlv_init_ch_timeout = -1;
-/* static int hf_docsis_tlv_ch_asgn = -1; */
-static int hf_docsis_tlv_cm_init_reason = -1;
-static int hf_docsis_tlv_sw_upg_srvr_ipv6 = -1;
-static int hf_docsis_tlv_tftp_prov_cm_ipv6_addr = -1;
-static int hf_docsis_tlv_us_drop_clfy = -1;
-static int hf_docsis_tlv_subs_mgmt_ipv6_lst = -1;
-static int hf_docsis_tlv_us_drop_clfy_group_id = -1;
-static int hf_docsis_tlv_subs_mgmt_ctrl_max_cpe_ipv6 = -1;
-/* static int hf_docsis_tlv_cmts_mc_sess_enc = -1; */
+static int proto_docsis_tlv;
+static int hf_docsis_tlv_down_freq;
+static int hf_docsis_tlv_upstream_chid;
+static int hf_docsis_tlv_net_access;
+/* static int hf_docsis_tlv_cos; */
+/* static int hf_docsis_tlv_mcap; */
+static int hf_docsis_tlv_privacy_enable;
+static int hf_docsis_tlv_max_cpe;
+static int hf_docsis_tlv_max_classifiers;
+static int hf_docsis_tlv_snmp_access;
+static int hf_docsis_tlv_snmp_obj;
+static int hf_docsis_tlv_svc_unavail;
+static int hf_docsis_tlv_svc_unavail_classid;
+static int hf_docsis_tlv_svc_unavail_type;
+static int hf_docsis_tlv_svc_unavail_code;
+static int hf_docsis_tlv_bpi;
+/* static int hf_docsis_tlv_phs; */
+static int hf_docsis_tlv_hmac_digest;
+static int hf_docsis_tlv_tftp_server_timestamp;
+static int hf_docsis_tlv_tftp_prov_modem_address;
+/* static int hf_docsis_tlv_upclsfr; */
+/* static int hf_docsis_tlv_downclsfr; */
+/* static int hf_docsis_tlv_upsflow; */
+/* static int hf_docsis_tlv_downsflow; */
+/* static int hf_docsis_tlv_vendor_spec; */
+static int hf_docsis_tlv_cm_mic;
+static int hf_docsis_tlv_cmts_mic;
+static int hf_docsis_tlv_auth_block;
+static int hf_docsis_tlv_key_seq_num;
+static int hf_docsis_tlv_snmpv3_kick;
+static int hf_docsis_tlv_snmpv3_kick_name;
+static int hf_docsis_tlv_snmpv3_kick_publicnum;
+static int hf_docsis_tlv_mfgr_cvc;
+static int hf_docsis_tlv_cosign_cvc;
+static int hf_docsis_tlv_vendor_id;
+static int hf_docsis_tlv_sw_file;
+static int hf_docsis_tlv_sw_upg_srvr;
+static int hf_docsis_tlv_cpe_ethernet;
+static int hf_docsis_tlv_modem_addr;
+static int hf_docsis_tlv_rng_tech;
+static int hf_docsis_tlv_subs_mgmt_ctrl;
+static int hf_docsis_tlv_subs_mgmt_ip_table;
+static int hf_docsis_tlv_subs_mgmt_ip_entry;
+static int hf_docsis_tlv_subs_mgmt_filter_grps;
+static int hf_docsis_tlv_snmpv3_ntfy_rcvr;
+static int hf_docsis_tlv_enable_20_mode;
+static int hf_docsis_tlv_enable_test_modes;
+/* static int hf_docsis_tlv_ds_ch_list; */
+static int hf_docsis_tlv_mc_mac_address;
+/* static int hf_docsis_tlv_dut_filter; */
+/* static int hf_docsis_tlv_tcc; */
+/* static int hf_docsis_tlv_sid_cl; */
+/* static int hf_docsis_tlv_rcp; */
+/* static int hf_docsis_tlv_rcc; */
+/* static int hf_docsis_tlv_dsid; */
+/* static int hf_docsis_tlv_sec_assoc; */
+static int hf_docsis_tlv_init_ch_timeout;
+/* static int hf_docsis_tlv_ch_asgn; */
+static int hf_docsis_tlv_cm_init_reason;
+static int hf_docsis_tlv_sw_upg_srvr_ipv6;
+static int hf_docsis_tlv_tftp_prov_cm_ipv6_addr;
+static int hf_docsis_tlv_us_drop_clfy;
+static int hf_docsis_tlv_subs_mgmt_ipv6_lst;
+static int hf_docsis_tlv_us_drop_clfy_group_id;
+static int hf_docsis_tlv_subs_mgmt_ctrl_max_cpe_ipv6;
+/* static int hf_docsis_tlv_cmts_mc_sess_enc; */
 
-static int hf_docsis_tlv_cos_id = -1;
-static int hf_docsis_tlv_cos_sid = -1;
-static int hf_docsis_tlv_cos_max_down = -1;
-static int hf_docsis_tlv_cos_max_up = -1;
-static int hf_docsis_tlv_cos_up_chnl_pri = -1;
-static int hf_docsis_tlv_cos_min_grntd_up = -1;
-static int hf_docsis_tlv_cos_max_up_burst = -1;
-static int hf_docsis_tlv_cos_privacy_enable = -1;
+static int hf_docsis_tlv_cos_id;
+static int hf_docsis_tlv_cos_sid;
+static int hf_docsis_tlv_cos_max_down;
+static int hf_docsis_tlv_cos_max_up;
+static int hf_docsis_tlv_cos_up_chnl_pri;
+static int hf_docsis_tlv_cos_min_grntd_up;
+static int hf_docsis_tlv_cos_max_up_burst;
+static int hf_docsis_tlv_cos_privacy_enable;
 
-static int hf_docsis_tlv_mcap_concat = -1;
-static int hf_docsis_tlv_mcap_docs_ver = -1;
-static int hf_docsis_tlv_mcap_frag = -1;
-static int hf_docsis_tlv_mcap_phs = -1;
-static int hf_docsis_tlv_mcap_igmp = -1;
-static int hf_docsis_tlv_mcap_down_said = -1;
-static int hf_docsis_tlv_mcap_up_sid = -1;
-static int hf_docsis_tlv_mcap_privacy = -1;
-static int hf_docsis_tlv_mcap_8021P_filter = -1;
-static int hf_docsis_tlv_mcap_8021Q_filter = -1;
-static int hf_docsis_tlv_mcap_xmit_eq_taps_per_sym = -1;
-static int hf_docsis_tlv_mcap_xmit_eq_taps = -1;
-static int hf_docsis_tlv_mcap_dcc = -1;
-static int hf_docsis_tlv_mcap_ip_filters = -1;
-static int hf_docsis_tlv_mcap_llc_filters = -1;
-static int hf_docsis_tlv_mcap_exp_unicast_sid = -1;
-static int hf_docsis_tlv_mcap_rnghoff_cm = -1;
-static int hf_docsis_tlv_mcap_rnghoff_erouter = -1;
-static int hf_docsis_tlv_mcap_rnghoff_emta = -1;
-static int hf_docsis_tlv_mcap_rnghoff_estb = -1;
-static int hf_docsis_tlv_mcap_l2vpn = -1;
-static int hf_docsis_tlv_mcap_l2vpn_esafe = -1;
-static int hf_docsis_tlv_mcap_dut_filtering = -1;
-static int hf_docsis_tlv_mcap_us_freq_range = -1;
-static int hf_docsis_tlv_mcap_us_srate_160 = -1;
-static int hf_docsis_tlv_mcap_us_srate_320 = -1;
-static int hf_docsis_tlv_mcap_us_srate_640 = -1;
-static int hf_docsis_tlv_mcap_us_srate_1280 = -1;
-static int hf_docsis_tlv_mcap_us_srate_2560 = -1;
-static int hf_docsis_tlv_mcap_us_srate_5120 = -1;
-static int hf_docsis_tlv_mcap_sac = -1;
-static int hf_docsis_tlv_mcap_code_hop_mode2 = -1;
-static int hf_docsis_tlv_mcap_mtc = -1;
-static int hf_docsis_tlv_mcap_512_msps_utc = -1;
-static int hf_docsis_tlv_mcap_256_msps_utc = -1;
-static int hf_docsis_tlv_mcap_total_sid_cluster = -1;
-static int hf_docsis_tlv_mcap_sid_per_sf = -1;
-static int hf_docsis_tlv_mcap_mrc = -1;
-static int hf_docsis_tlv_mcap_total_dsid = -1;
-static int hf_docsis_tlv_mcap_reseq_dsid = -1;
-static int hf_docsis_tlv_mcap_mc_dsid = -1;
-static int hf_docsis_tlv_mcap_mc_dsid_fwd = -1;
-static int hf_docsis_tlv_mcap_fctype_fwd = -1;
-static int hf_docsis_tlv_mcap_dpv_path = -1;
-static int hf_docsis_tlv_mcap_dpv_packet = -1;
-static int hf_docsis_tlv_mcap_ugs = -1;
-static int hf_docsis_tlv_mcap_map_ucd = -1;
-static int hf_docsis_tlv_mcap_udc = -1;
-static int hf_docsis_tlv_mcap_ipv6 = -1;
-static int hf_docsis_tlv_mcap_ext_us_trans_power = -1;
-static int hf_docsis_tlv_mcap_em = -1;
-static int hf_docsis_tlv_mcap_em_1x1 = -1;
-static int hf_docsis_tlv_mcap_em_light_sleep = -1;
-static int hf_docsis_tlv_mcap_cm_status_ack = -1;
-static int hf_docsis_tlv_mcap_em_pref = -1;
-static int hf_docsis_tlv_mcap_em_pref_1x1 = -1;
-static int hf_docsis_tlv_mcap_em_pref_dls = -1;
-static int hf_docsis_tlv_mcap_ext_pkt_len_sup_cap = -1;
-static int hf_docsis_tlv_mcap_ofdm_mult_recv_chan_sup = -1;
-static int hf_docsis_tlv_mcap_ofdma_mult_trans_chan_sup = -1;
-static int hf_docsis_tlv_mcap_down_ofdm_prof_sup = -1;
-static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup = -1;
-static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_reserved = -1;
-static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_qpsk = -1;
-static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_16qam = -1;
-static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_64qam = -1;
-static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_128qam = -1;
-static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_256qam = -1;
-static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_512qam = -1;
-static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_1024qam = -1;
-static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_2048qam = -1;
-static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_4096qam = -1;
-static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_8192qam = -1;
-static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_16384qam = -1;
-static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup = -1;
-static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_reserved = -1;
-static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_qpsk = -1;
-static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_8qam = -1;
-static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_16qam = -1;
-static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_32qam = -1;
-static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_64qam = -1;
-static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_128qam = -1;
-static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_256qam = -1;
-static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_512qam = -1;
-static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_1024qam = -1;
-static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_2048qam = -1;
-static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_4096qam = -1;
-static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_8192qam = -1;
-static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_16384qam = -1;
-static int hf_docsis_tlv_mcap_down_lower_band_edge_conf = -1;
-static int hf_docsis_tlv_mcap_down_lower_band_edge_conf_108 = -1;
-static int hf_docsis_tlv_mcap_down_lower_band_edge_conf_258 = -1;
-static int hf_docsis_tlv_mcap_down_upper_band_edge_conf = -1;
-static int hf_docsis_tlv_mcap_down_upper_band_edge_conf_1218 = -1;
-static int hf_docsis_tlv_mcap_down_upper_band_edge_conf_1794 = -1;
-static int hf_docsis_tlv_mcap_down_upper_band_edge_conf_1002 = -1;
-static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_conf = -1;
-static int hf_docsis_tlv_mcap_docsis_time_prot_mode = -1;
-static int hf_docsis_tlv_mcap_docsis_time_prot_perf_sup = -1;
-static int hf_docsis_tlv_mcap_pmax = -1;
-static int hf_docsis_tlv_mcap_dipl_down_lower_band_edge = -1;
-static int hf_docsis_tlv_mcap_dipl_down_lower_band_edge_108 = -1;
-static int hf_docsis_tlv_mcap_dipl_down_lower_band_edge_258 = -1;
-static int hf_docsis_tlv_mcap_dipl_down_upper_band_edge = -1;
-static int hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1218 = -1;
-static int hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1794 = -1;
-static int hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1002 = -1;
-static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge = -1;
-static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_42 = -1;
-static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_65 = -1;
-static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_85 = -1;
-static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_117 = -1;
-static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_204 = -1;
-static int hf_docsis_tlv_mcap_advanced_band_plan = -1;
-static int hf_docsis_tlv_mcap_advanced_band_plan_fdx_l = -1;
-static int hf_docsis_tlv_mcap_advanced_band_plan_fdx = -1;
-static int hf_docsis_tlv_mcap_advanced_band_plan_fdd = -1;
-static int hf_docsis_tlv_mcap_advanced_band_plan_reserved = -1;
-static int hf_docsis_tlv_mcap_ext_sf_cluster_assign_sup = -1;
-static int hf_docsis_tlv_mcap_low_latency_sup = -1;
-static int hf_docsis_tlv_mcap_adv_down_lower_band_edge_conf = -1;
-static int hf_docsis_tlv_mcap_adv_down_upper_band_edge_conf = -1;
-static int hf_docsis_tlv_mcap_adv_up_upper_band_edge_conf = -1;
-static int hf_docsis_tlv_mcap_adv_down_lower_band_edge_option = -1;
-static int hf_docsis_tlv_mcap_adv_down_upper_band_edge_option = -1;
-static int hf_docsis_tlv_mcap_adv_up_upper_band_edge_option = -1;
-static int hf_docsis_tlv_mcap_extended_power_options = -1;
+static int hf_docsis_tlv_mcap_concat;
+static int hf_docsis_tlv_mcap_docs_ver;
+static int hf_docsis_tlv_mcap_frag;
+static int hf_docsis_tlv_mcap_phs;
+static int hf_docsis_tlv_mcap_igmp;
+static int hf_docsis_tlv_mcap_down_said;
+static int hf_docsis_tlv_mcap_up_sid;
+static int hf_docsis_tlv_mcap_privacy;
+static int hf_docsis_tlv_mcap_8021P_filter;
+static int hf_docsis_tlv_mcap_8021Q_filter;
+static int hf_docsis_tlv_mcap_xmit_eq_taps_per_sym;
+static int hf_docsis_tlv_mcap_xmit_eq_taps;
+static int hf_docsis_tlv_mcap_dcc;
+static int hf_docsis_tlv_mcap_ip_filters;
+static int hf_docsis_tlv_mcap_llc_filters;
+static int hf_docsis_tlv_mcap_exp_unicast_sid;
+static int hf_docsis_tlv_mcap_rnghoff_cm;
+static int hf_docsis_tlv_mcap_rnghoff_erouter;
+static int hf_docsis_tlv_mcap_rnghoff_emta;
+static int hf_docsis_tlv_mcap_rnghoff_estb;
+static int hf_docsis_tlv_mcap_l2vpn;
+static int hf_docsis_tlv_mcap_l2vpn_esafe;
+static int hf_docsis_tlv_mcap_dut_filtering;
+static int hf_docsis_tlv_mcap_us_freq_range;
+static int hf_docsis_tlv_mcap_us_srate_160;
+static int hf_docsis_tlv_mcap_us_srate_320;
+static int hf_docsis_tlv_mcap_us_srate_640;
+static int hf_docsis_tlv_mcap_us_srate_1280;
+static int hf_docsis_tlv_mcap_us_srate_2560;
+static int hf_docsis_tlv_mcap_us_srate_5120;
+static int hf_docsis_tlv_mcap_sac;
+static int hf_docsis_tlv_mcap_code_hop_mode2;
+static int hf_docsis_tlv_mcap_mtc;
+static int hf_docsis_tlv_mcap_512_msps_utc;
+static int hf_docsis_tlv_mcap_256_msps_utc;
+static int hf_docsis_tlv_mcap_total_sid_cluster;
+static int hf_docsis_tlv_mcap_sid_per_sf;
+static int hf_docsis_tlv_mcap_mrc;
+static int hf_docsis_tlv_mcap_total_dsid;
+static int hf_docsis_tlv_mcap_reseq_dsid;
+static int hf_docsis_tlv_mcap_mc_dsid;
+static int hf_docsis_tlv_mcap_mc_dsid_fwd;
+static int hf_docsis_tlv_mcap_fctype_fwd;
+static int hf_docsis_tlv_mcap_dpv_path;
+static int hf_docsis_tlv_mcap_dpv_packet;
+static int hf_docsis_tlv_mcap_ugs;
+static int hf_docsis_tlv_mcap_map_ucd;
+static int hf_docsis_tlv_mcap_udc;
+static int hf_docsis_tlv_mcap_ipv6;
+static int hf_docsis_tlv_mcap_ext_us_trans_power;
+static int hf_docsis_tlv_mcap_em;
+static int hf_docsis_tlv_mcap_em_1x1;
+static int hf_docsis_tlv_mcap_em_light_sleep;
+static int hf_docsis_tlv_mcap_cm_status_ack;
+static int hf_docsis_tlv_mcap_em_pref;
+static int hf_docsis_tlv_mcap_em_pref_1x1;
+static int hf_docsis_tlv_mcap_em_pref_dls;
+static int hf_docsis_tlv_mcap_ext_pkt_len_sup_cap;
+static int hf_docsis_tlv_mcap_ofdm_mult_recv_chan_sup;
+static int hf_docsis_tlv_mcap_ofdma_mult_trans_chan_sup;
+static int hf_docsis_tlv_mcap_down_ofdm_prof_sup;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_reserved;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_qpsk;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_16qam;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_64qam;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_128qam;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_256qam;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_512qam;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_1024qam;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_2048qam;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_4096qam;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_8192qam;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_16384qam;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_reserved;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_qpsk;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_8qam;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_16qam;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_32qam;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_64qam;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_128qam;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_256qam;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_512qam;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_1024qam;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_2048qam;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_4096qam;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_8192qam;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_16384qam;
+static int hf_docsis_tlv_mcap_down_lower_band_edge_conf;
+static int hf_docsis_tlv_mcap_down_lower_band_edge_conf_108;
+static int hf_docsis_tlv_mcap_down_lower_band_edge_conf_258;
+static int hf_docsis_tlv_mcap_down_upper_band_edge_conf;
+static int hf_docsis_tlv_mcap_down_upper_band_edge_conf_1218;
+static int hf_docsis_tlv_mcap_down_upper_band_edge_conf_1794;
+static int hf_docsis_tlv_mcap_down_upper_band_edge_conf_1002;
+static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_conf;
+static int hf_docsis_tlv_mcap_docsis_time_prot_mode;
+static int hf_docsis_tlv_mcap_docsis_time_prot_perf_sup;
+static int hf_docsis_tlv_mcap_pmax;
+static int hf_docsis_tlv_mcap_dipl_down_lower_band_edge;
+static int hf_docsis_tlv_mcap_dipl_down_lower_band_edge_108;
+static int hf_docsis_tlv_mcap_dipl_down_lower_band_edge_258;
+static int hf_docsis_tlv_mcap_dipl_down_upper_band_edge;
+static int hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1218;
+static int hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1794;
+static int hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1002;
+static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge;
+static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_42;
+static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_65;
+static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_85;
+static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_117;
+static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_204;
+static int hf_docsis_tlv_mcap_advanced_band_plan;
+static int hf_docsis_tlv_mcap_advanced_band_plan_fdx_l;
+static int hf_docsis_tlv_mcap_advanced_band_plan_fdx;
+static int hf_docsis_tlv_mcap_advanced_band_plan_fdd;
+static int hf_docsis_tlv_mcap_advanced_band_plan_reserved;
+static int hf_docsis_tlv_mcap_ext_sf_cluster_assign_sup;
+static int hf_docsis_tlv_mcap_low_latency_sup;
+static int hf_docsis_tlv_mcap_adv_down_lower_band_edge_conf;
+static int hf_docsis_tlv_mcap_adv_down_upper_band_edge_conf;
+static int hf_docsis_tlv_mcap_adv_up_upper_band_edge_conf;
+static int hf_docsis_tlv_mcap_adv_down_lower_band_edge_option;
+static int hf_docsis_tlv_mcap_adv_down_upper_band_edge_option;
+static int hf_docsis_tlv_mcap_adv_up_upper_band_edge_option;
+static int hf_docsis_tlv_mcap_extended_power_options;
 
-static int hf_docsis_tlv_clsfr_ref = -1;
-static int hf_docsis_tlv_clsfr_id = -1;
-static int hf_docsis_tlv_clsfr_sflow_ref = -1;
-static int hf_docsis_tlv_clsfr_sflow_id = -1;
-static int hf_docsis_tlv_clsfr_rule_pri = -1;
-static int hf_docsis_tlv_clsfr_act_state = -1;
-static int hf_docsis_tlv_clsfr_dsc_act = -1;
-/* static int hf_docsis_tlv_clsfr_err = -1; */
-/* static int hf_docsis_tlv_ipclsfr = -1; */
-/* static int hf_docsis_tlv_ethclsfr = -1; */
-/* static int hf_docsis_tlv_dot1qclsfr = -1; */
+static int hf_docsis_tlv_clsfr_ref;
+static int hf_docsis_tlv_clsfr_id;
+static int hf_docsis_tlv_clsfr_sflow_ref;
+static int hf_docsis_tlv_clsfr_sflow_id;
+static int hf_docsis_tlv_clsfr_rule_pri;
+static int hf_docsis_tlv_clsfr_act_state;
+static int hf_docsis_tlv_clsfr_dsc_act;
+/* static int hf_docsis_tlv_clsfr_err; */
+/* static int hf_docsis_tlv_ipclsfr; */
+/* static int hf_docsis_tlv_ethclsfr; */
+/* static int hf_docsis_tlv_dot1qclsfr; */
 
-static int hf_docsis_tlv_clsfr_vendor_spc = -1;
+static int hf_docsis_tlv_clsfr_vendor_spc;
 
-static int hf_docsis_tlv_clsfr_err_param = -1;
-static int hf_docsis_tlv_clsfr_err_code = -1;
-static int hf_docsis_tlv_clsfr_err_msg = -1;
+static int hf_docsis_tlv_clsfr_err_param;
+static int hf_docsis_tlv_clsfr_err_code;
+static int hf_docsis_tlv_clsfr_err_msg;
 
-static int hf_docsis_tlv_ipclsfr_tosmask = -1;
-static int hf_docsis_tlv_ipclsfr_ipproto = -1;
-static int hf_docsis_tlv_ipclsfr_src = -1;
-static int hf_docsis_tlv_ipclsfr_dst = -1;
-static int hf_docsis_tlv_ipclsfr_srcmask = -1;
-static int hf_docsis_tlv_ipclsfr_dstmask = -1;
-static int hf_docsis_tlv_ipclsfr_sport_start = -1;
-static int hf_docsis_tlv_ipclsfr_sport_end = -1;
-static int hf_docsis_tlv_ipclsfr_dport_start = -1;
-static int hf_docsis_tlv_ipclsfr_dport_end = -1;
+static int hf_docsis_tlv_ipclsfr_tosmask;
+static int hf_docsis_tlv_ipclsfr_ipproto;
+static int hf_docsis_tlv_ipclsfr_src;
+static int hf_docsis_tlv_ipclsfr_dst;
+static int hf_docsis_tlv_ipclsfr_srcmask;
+static int hf_docsis_tlv_ipclsfr_dstmask;
+static int hf_docsis_tlv_ipclsfr_sport_start;
+static int hf_docsis_tlv_ipclsfr_sport_end;
+static int hf_docsis_tlv_ipclsfr_dport_start;
+static int hf_docsis_tlv_ipclsfr_dport_end;
 
-static int hf_docsis_tlv_ip6clsfr_tc_low = -1;
-static int hf_docsis_tlv_ip6clsfr_tc_high = -1;
-static int hf_docsis_tlv_ip6clsfr_tc_mask = -1;
-static int hf_docsis_tlv_ip6clsfr_flow_label = -1;
-static int hf_docsis_tlv_ip6clsfr_next_header = -1;
-static int hf_docsis_tlv_ip6clsfr_src = -1;
-static int hf_docsis_tlv_ip6clsfr_src_prefix_length = -1;
-static int hf_docsis_tlv_ip6clsfr_dst = -1;
-static int hf_docsis_tlv_ip6clsfr_dst_prefix_length = -1;
+static int hf_docsis_tlv_ip6clsfr_tc_low;
+static int hf_docsis_tlv_ip6clsfr_tc_high;
+static int hf_docsis_tlv_ip6clsfr_tc_mask;
+static int hf_docsis_tlv_ip6clsfr_flow_label;
+static int hf_docsis_tlv_ip6clsfr_next_header;
+static int hf_docsis_tlv_ip6clsfr_src;
+static int hf_docsis_tlv_ip6clsfr_src_prefix_length;
+static int hf_docsis_tlv_ip6clsfr_dst;
+static int hf_docsis_tlv_ip6clsfr_dst_prefix_length;
 
-static int hf_docsis_tlv_ethclsfr_dmac = -1;
-static int hf_docsis_tlv_ethclsfr_smac = -1;
-static int hf_docsis_tlv_ethclsfr_ethertype = -1;
+static int hf_docsis_tlv_ethclsfr_dmac;
+static int hf_docsis_tlv_ethclsfr_smac;
+static int hf_docsis_tlv_ethclsfr_ethertype;
 
-static int hf_docsis_tlv_dot1qclsfr_user_pri = -1;
-static int hf_docsis_tlv_dot1qclsfr_vlanid = -1;
-static int hf_docsis_tlv_dot1qclsfr_vendorspec = -1;
+static int hf_docsis_tlv_dot1qclsfr_user_pri;
+static int hf_docsis_tlv_dot1qclsfr_vlanid;
+static int hf_docsis_tlv_dot1qclsfr_vendorspec;
 
-static int hf_docsis_tlv_sflow_ref = -1;
-static int hf_docsis_tlv_sflow_id = -1;
-static int hf_docsis_tlv_sflow_sid = -1;
-static int hf_docsis_tlv_sflow_classname = -1;
-static int hf_docsis_tlv_sflow_qos_param = -1;
-/* static int hf_docsis_tlv_sflow_err = -1; */
-static int hf_docsis_tlv_sflow_traf_pri = -1;
-static int hf_docsis_tlv_sflow_max_sus = -1;
-static int hf_docsis_tlv_sflow_max_burst = -1;
-static int hf_docsis_tlv_sflow_min_traf = -1;
-static int hf_docsis_tlv_sflow_ass_min_pkt_size = -1;
-static int hf_docsis_tlv_sflow_timeout_active = -1;
-static int hf_docsis_tlv_sflow_timeout_admitted = -1;
-static int hf_docsis_tlv_sflow_peak_traffic_rate = -1;
-static int hf_docsis_tlv_sflow_req_attr_mask = -1;
-static int hf_docsis_tlv_sflow_forb_attr_mask = -1;
-static int hf_docsis_tlv_sflow_attr_aggr_rule_mask = -1;
-static int hf_docsis_tlv_sflow_vendor_spec = -1;
-static int hf_docsis_tlv_sflow_max_concat_burst = -1;
-static int hf_docsis_tlv_sflow_sched_type = -1;
-static int hf_docsis_tlv_sflow_reqxmit_pol = -1;
-static int hf_docsis_tlv_sflow_reqxmit_all_cm_broadcast = -1;
-static int hf_docsis_tlv_sflow_reqxmit_priority_multicast = -1;
-static int hf_docsis_tlv_sflow_reqxmit_req_data_requests = -1;
-static int hf_docsis_tlv_sflow_reqxmit_req_data_data = -1;
-static int hf_docsis_tlv_sflow_reqxmit_piggy_back = -1;
-static int hf_docsis_tlv_sflow_reqxmit_concatenate_data = -1;
-static int hf_docsis_tlv_sflow_reqxmit_fragment = -1;
-static int hf_docsis_tlv_sflow_reqxmit_suppress_payload = -1;
-static int hf_docsis_tlv_sflow_reqxmit_drop_packets = -1;
-static int hf_docsis_tlv_sflow_nominal_polling = -1;
-static int hf_docsis_tlv_sflow_tolerated_jitter = -1;
-static int hf_docsis_tlv_sflow_ugs_size = -1;
-static int hf_docsis_tlv_sflow_nom_grant_intvl = -1;
-static int hf_docsis_tlv_sflow_tol_grant_jitter = -1;
-static int hf_docsis_tlv_sflow_grants_per_intvl = -1;
-static int hf_docsis_tlv_sflow_ip_tos_overwrite = -1;
-static int hf_docsis_tlv_sflow_ugs_timeref = -1;
-static int hf_docsis_tlv_sflow_cont_req_backoff_window_mult = -1;
-static int hf_docsis_tlv_sflow_num_of_bytes_requested_mult = -1;
-static int hf_docsis_tlv_sflow_max_down_latency = -1;
-static int hf_docsis_tlv_sflow_down_reseq = -1;
+static int hf_docsis_tlv_sflow_ref;
+static int hf_docsis_tlv_sflow_id;
+static int hf_docsis_tlv_sflow_sid;
+static int hf_docsis_tlv_sflow_classname;
+static int hf_docsis_tlv_sflow_qos_param;
+/* static int hf_docsis_tlv_sflow_err; */
+static int hf_docsis_tlv_sflow_traf_pri;
+static int hf_docsis_tlv_sflow_max_sus;
+static int hf_docsis_tlv_sflow_max_burst;
+static int hf_docsis_tlv_sflow_min_traf;
+static int hf_docsis_tlv_sflow_ass_min_pkt_size;
+static int hf_docsis_tlv_sflow_timeout_active;
+static int hf_docsis_tlv_sflow_timeout_admitted;
+static int hf_docsis_tlv_sflow_peak_traffic_rate;
+static int hf_docsis_tlv_sflow_req_attr_mask;
+static int hf_docsis_tlv_sflow_forb_attr_mask;
+static int hf_docsis_tlv_sflow_attr_aggr_rule_mask;
+static int hf_docsis_tlv_sflow_vendor_spec;
+static int hf_docsis_tlv_sflow_max_concat_burst;
+static int hf_docsis_tlv_sflow_sched_type;
+static int hf_docsis_tlv_sflow_reqxmit_pol;
+static int hf_docsis_tlv_sflow_reqxmit_all_cm_broadcast;
+static int hf_docsis_tlv_sflow_reqxmit_priority_multicast;
+static int hf_docsis_tlv_sflow_reqxmit_req_data_requests;
+static int hf_docsis_tlv_sflow_reqxmit_req_data_data;
+static int hf_docsis_tlv_sflow_reqxmit_piggy_back;
+static int hf_docsis_tlv_sflow_reqxmit_concatenate_data;
+static int hf_docsis_tlv_sflow_reqxmit_fragment;
+static int hf_docsis_tlv_sflow_reqxmit_suppress_payload;
+static int hf_docsis_tlv_sflow_reqxmit_drop_packets;
+static int hf_docsis_tlv_sflow_nominal_polling;
+static int hf_docsis_tlv_sflow_tolerated_jitter;
+static int hf_docsis_tlv_sflow_ugs_size;
+static int hf_docsis_tlv_sflow_nom_grant_intvl;
+static int hf_docsis_tlv_sflow_tol_grant_jitter;
+static int hf_docsis_tlv_sflow_grants_per_intvl;
+static int hf_docsis_tlv_sflow_ip_tos_overwrite;
+static int hf_docsis_tlv_sflow_ugs_timeref;
+static int hf_docsis_tlv_sflow_cont_req_backoff_window_mult;
+static int hf_docsis_tlv_sflow_num_of_bytes_requested_mult;
+static int hf_docsis_tlv_sflow_max_down_latency;
+static int hf_docsis_tlv_sflow_down_reseq;
 
-static int hf_docsis_tlv_sflow_err_param = -1;
-static int hf_docsis_tlv_sflow_err_code = -1;
-static int hf_docsis_tlv_sflow_err_msg = -1;
+static int hf_docsis_tlv_sflow_err_param;
+static int hf_docsis_tlv_sflow_err_code;
+static int hf_docsis_tlv_sflow_err_msg;
 
-static int hf_docsis_tlv_phs_class_ref = -1;
-static int hf_docsis_tlv_phs_class_id = -1;
-static int hf_docsis_tlv_phs_sflow_ref = -1;
-static int hf_docsis_tlv_phs_sflow_id = -1;
-static int hf_docsis_tlv_phs_dsc_action = -1;
-/* static int hf_docsis_tlv_phs_err = -1; */
-static int hf_docsis_tlv_phs_phsf = -1;
-static int hf_docsis_tlv_phs_phsm = -1;
-/* static int hf_docsis_tlv_phs_phsv = -1; */
-static int hf_docsis_tlv_phs_phsi = -1;
-static int hf_docsis_tlv_phs_phss = -1;
-static int hf_docsis_tlv_phs_dbc_action = -1;
-static int hf_docsis_tlv_phs_vendorspec = -1;
+static int hf_docsis_tlv_phs_class_ref;
+static int hf_docsis_tlv_phs_class_id;
+static int hf_docsis_tlv_phs_sflow_ref;
+static int hf_docsis_tlv_phs_sflow_id;
+static int hf_docsis_tlv_phs_dsc_action;
+/* static int hf_docsis_tlv_phs_err; */
+static int hf_docsis_tlv_phs_phsf;
+static int hf_docsis_tlv_phs_phsm;
+/* static int hf_docsis_tlv_phs_phsv; */
+static int hf_docsis_tlv_phs_phsi;
+static int hf_docsis_tlv_phs_phss;
+static int hf_docsis_tlv_phs_dbc_action;
+static int hf_docsis_tlv_phs_vendorspec;
 
-static int hf_docsis_tlv_phs_err_param = -1;
-static int hf_docsis_tlv_phs_err_code = -1;
-static int hf_docsis_tlv_phs_err_msg = -1;
+static int hf_docsis_tlv_phs_err_param;
+static int hf_docsis_tlv_phs_err_code;
+static int hf_docsis_tlv_phs_err_msg;
 
-/* static int hf_docsis_tlv_ds_ch_list_single = -1; */
-/* static int hf_docsis_tlv_ds_ch_list_range = -1; */
-static int hf_docsis_tlv_ds_ch_list_default_timeout = -1;
+/* static int hf_docsis_tlv_ds_ch_list_single; */
+/* static int hf_docsis_tlv_ds_ch_list_range; */
+static int hf_docsis_tlv_ds_ch_list_default_timeout;
 
-static int hf_docsis_tlv_single_ch_timeout = -1;
-static int hf_docsis_tlv_single_ch_freq = -1;
+static int hf_docsis_tlv_single_ch_timeout;
+static int hf_docsis_tlv_single_ch_freq;
 
-static int hf_docsis_tlv_freq_rng_timeout = -1;
-static int hf_docsis_tlv_freq_rng_start = -1;
-static int hf_docsis_tlv_freq_rng_end = -1;
-static int hf_docsis_tlv_freq_rng_step = -1;
+static int hf_docsis_tlv_freq_rng_timeout;
+static int hf_docsis_tlv_freq_rng_start;
+static int hf_docsis_tlv_freq_rng_end;
+static int hf_docsis_tlv_freq_rng_step;
 
-static int hf_docsis_tlv_dut_filter_control = -1;
-static int hf_docsis_tlv_dut_filter_cmim = -1;
+static int hf_docsis_tlv_dut_filter_control;
+static int hf_docsis_tlv_dut_filter_cmim;
 
-static int hf_docsis_tlv_tcc_refid = -1;
-static int hf_docsis_tlv_tcc_us_ch_action= -1;
-static int hf_docsis_tlv_tcc_us_ch_id= -1;
-static int hf_docsis_tlv_tcc_new_us_ch_id= -1;
-static int hf_docsis_tlv_tcc_ucd = -1;
-static int hf_docsis_tlv_tcc_rng_sid= -1;
-static int hf_docsis_tlv_tcc_init_tech= -1;
-/* static int hf_docsis_tlv_tcc_rng_parms= -1; */
-static int hf_docsis_tlv_tcc_dyn_rng_win= -1;
-static int hf_docsis_tlv_tcc_p_16hi = -1;
-static int hf_docsis_tlv_tcc_oudp_iuc = -1;
-static int hf_docsis_tlv_tcc_extended_drw = -1;
-static int hf_docsis_tlv_tcc_extended_us_rng_pwr = -1;
-static int hf_docsis_tlv_tcc_oudp_sounding_sid = -1;
-/* static int hf_docsis_tlv_tcc_err = -1; */
+static int hf_docsis_tlv_tcc_refid;
+static int hf_docsis_tlv_tcc_us_ch_action;
+static int hf_docsis_tlv_tcc_us_ch_id;
+static int hf_docsis_tlv_tcc_new_us_ch_id;
+static int hf_docsis_tlv_tcc_ucd;
+static int hf_docsis_tlv_tcc_rng_sid;
+static int hf_docsis_tlv_tcc_init_tech;
+/* static int hf_docsis_tlv_tcc_rng_parms; */
+static int hf_docsis_tlv_tcc_dyn_rng_win;
+static int hf_docsis_tlv_tcc_p_16hi;
+static int hf_docsis_tlv_tcc_oudp_iuc;
+static int hf_docsis_tlv_tcc_extended_drw;
+static int hf_docsis_tlv_tcc_extended_us_rng_pwr;
+static int hf_docsis_tlv_tcc_oudp_sounding_sid;
+/* static int hf_docsis_tlv_tcc_err; */
 
-static int hf_docsis_rng_parms_us_ch_id = -1;
-static int hf_docsis_rng_parms_time_off_int = -1;
-static int hf_docsis_rng_parms_time_off_frac = -1;
-static int hf_docsis_rng_parms_power_off = -1;
-static int hf_docsis_rng_parms_freq_off = -1;
+static int hf_docsis_rng_parms_us_ch_id;
+static int hf_docsis_rng_parms_time_off_int;
+static int hf_docsis_rng_parms_time_off_frac;
+static int hf_docsis_rng_parms_power_off;
+static int hf_docsis_rng_parms_freq_off;
 
-static int hf_docsis_tcc_err_subtype = -1;
-static int hf_docsis_tcc_err_code = -1;
-static int hf_docsis_tcc_err_msg = -1;
+static int hf_docsis_tcc_err_subtype;
+static int hf_docsis_tcc_err_code;
+static int hf_docsis_tcc_err_msg;
 
-static int hf_docsis_sid_cl_sf_id = -1;
-/* static int hf_docsis_sid_cl_enc = -1; */
-/* static int hf_docsis_sid_cl_so_crit = -1; */
+static int hf_docsis_sid_cl_sf_id;
+/* static int hf_docsis_sid_cl_enc; */
+/* static int hf_docsis_sid_cl_so_crit; */
 
-static int hf_docsis_sid_cl_enc_id = -1;
-/* static int hf_docsis_sid_cl_enc_map = -1; */
+static int hf_docsis_sid_cl_enc_id;
+/* static int hf_docsis_sid_cl_enc_map; */
 
-static int hf_docsis_sid_cl_map_us_ch_id = -1;
-static int hf_docsis_sid_cl_map_sid = -1;
-static int hf_docsis_sid_cl_map_action = -1;
+static int hf_docsis_sid_cl_map_us_ch_id;
+static int hf_docsis_sid_cl_map_sid;
+static int hf_docsis_sid_cl_map_action;
 
-static int hf_docsis_sid_cl_so_max_req = -1;
-static int hf_docsis_sid_cl_so_max_out_bytes = -1;
-static int hf_docsis_sid_cl_so_max_req_bytes = -1;
-static int hf_docsis_sid_cl_so_max_time = -1;
+static int hf_docsis_sid_cl_so_max_req;
+static int hf_docsis_sid_cl_so_max_out_bytes;
+static int hf_docsis_sid_cl_so_max_req_bytes;
+static int hf_docsis_sid_cl_so_max_time;
 
-static int hf_docsis_tlv_rcp_id = -1;
-static int hf_docsis_tlv_rcp_name = -1;
-static int hf_docsis_tlv_rcp_freq_spc = -1;
-/* static int hf_docsis_tlv_rcp_rcv_mod_enc = -1; */
-/* static int hf_docsis_tlv_rcp_rcv_ch = -1; */
-/* static int hf_docsis_tlv_rcp_ven_spec = -1; */
+static int hf_docsis_tlv_rcp_id;
+static int hf_docsis_tlv_rcp_name;
+static int hf_docsis_tlv_rcp_freq_spc;
+/* static int hf_docsis_tlv_rcp_rcv_mod_enc; */
+/* static int hf_docsis_tlv_rcp_rcv_ch; */
+/* static int hf_docsis_tlv_rcp_ven_spec; */
 
-static int hf_docsis_rcv_mod_enc_idx = -1;
-static int hf_docsis_rcv_mod_enc_adj_ch = -1;
-/* static int hf_docsis_rcv_mod_enc_ch_bl_rng = -1; */
-static int hf_docsis_rcv_mod_enc_ctr_freq_asgn = -1;
-static int hf_docsis_rcv_mod_enc_rsq_ch_subs_cap = -1;
-static int hf_docsis_rcv_mod_enc_conn = -1;
-static int hf_docsis_rcv_mod_enc_phy_layr_parms = -1;
+static int hf_docsis_rcv_mod_enc_idx;
+static int hf_docsis_rcv_mod_enc_adj_ch;
+/* static int hf_docsis_rcv_mod_enc_ch_bl_rng; */
+static int hf_docsis_rcv_mod_enc_ctr_freq_asgn;
+static int hf_docsis_rcv_mod_enc_rsq_ch_subs_cap;
+static int hf_docsis_rcv_mod_enc_conn;
+static int hf_docsis_rcv_mod_enc_phy_layr_parms;
 
-static int hf_docsis_rcc_rcv_mod_enc_idx = -1;
-static int hf_docsis_rcc_rcv_mod_enc_ctr_freq_asgn = -1;
-static int hf_docsis_rcc_rcv_mod_enc_conn = -1;
+static int hf_docsis_rcc_rcv_mod_enc_idx;
+static int hf_docsis_rcc_rcv_mod_enc_ctr_freq_asgn;
+static int hf_docsis_rcc_rcv_mod_enc_conn;
 
-static int hf_docsis_ch_bl_rng_min_ctr_freq = -1;
-static int hf_docsis_ch_bl_rng_max_ctr_freq = -1;
+static int hf_docsis_ch_bl_rng_min_ctr_freq;
+static int hf_docsis_ch_bl_rng_max_ctr_freq;
 
-static int hf_docsis_rcv_ch_idx = -1;
-static int hf_docsis_rcv_ch_conn = -1;
-static int hf_docsis_rcv_ch_conn_off = -1;
-static int hf_docsis_rcv_ch_prim_ds_ch_ind = -1;
+static int hf_docsis_rcv_ch_idx;
+static int hf_docsis_rcv_ch_conn;
+static int hf_docsis_rcv_ch_conn_off;
+static int hf_docsis_rcv_ch_prim_ds_ch_ind;
 
-static int hf_docsis_rcc_rcv_ch_idx = -1;
-static int hf_docsis_rcc_rcv_ch_conn = -1;
-static int hf_docsis_rcc_rcv_ch_ctr_freq_asgn = -1;
-static int hf_docsis_rcc_rcv_ch_prim_ds_ch_ind = -1;
+static int hf_docsis_rcc_rcv_ch_idx;
+static int hf_docsis_rcc_rcv_ch_conn;
+static int hf_docsis_rcc_rcv_ch_ctr_freq_asgn;
+static int hf_docsis_rcc_rcv_ch_prim_ds_ch_ind;
 
-static int hf_docsis_tlv_rcc_id = -1;
-static int hf_docsis_tlv_rcc_partial_serv_down_chan_id = -1;
-static int hf_docsis_tlv_rcc_srcc_prim_ds_chan_assign_ds_ch_id = -1;
-static int hf_docsis_tlv_rcc_srcc_ds_chan_assign_ds_ch_id = -1;
-static int hf_docsis_tlv_rcc_srcc_ds_prof_assign_dcid = -1;
-static int hf_docsis_tlv_rcc_srcc_ds_prof_asssign_prof_list_prof_id = -1;
-static int hf_docsis_tlv_rcc_prim_down_chan = -1;
-/* static int hf_docsis_tlv_rcc_rcv_mod_enc = -1; */
-/* static int hf_docsis_tlv_rcc_rcv_ch = -1; */
-/* static int hf_docsis_tlv_rcc_part_serv_ds_ch = -1; */
-/* static int hf_docsis_tlv_rcc_ven_spec = -1; */
-/* static int hf_docsis_tlv_rcc_err = -1; */
+static int hf_docsis_tlv_rcc_id;
+static int hf_docsis_tlv_rcc_partial_serv_down_chan_id;
+static int hf_docsis_tlv_rcc_srcc_prim_ds_chan_assign_ds_ch_id;
+static int hf_docsis_tlv_rcc_srcc_ds_chan_assign_ds_ch_id;
+static int hf_docsis_tlv_rcc_srcc_ds_prof_assign_dcid;
+static int hf_docsis_tlv_rcc_srcc_ds_prof_asssign_prof_list_prof_id;
+static int hf_docsis_tlv_rcc_prim_down_chan;
+/* static int hf_docsis_tlv_rcc_rcv_mod_enc; */
+/* static int hf_docsis_tlv_rcc_rcv_ch; */
+/* static int hf_docsis_tlv_rcc_part_serv_ds_ch; */
+/* static int hf_docsis_tlv_rcc_ven_spec; */
+/* static int hf_docsis_tlv_rcc_err; */
 
-static int hf_docsis_tlv_rcc_err_mod_or_ch = -1;
-static int hf_docsis_tlv_rcc_err_idx = -1;
-static int hf_docsis_tlv_rcc_err_param = -1;
-static int hf_docsis_tlv_rcc_err_code = -1;
-static int hf_docsis_tlv_rcc_err_msg = -1;
+static int hf_docsis_tlv_rcc_err_mod_or_ch;
+static int hf_docsis_tlv_rcc_err_idx;
+static int hf_docsis_tlv_rcc_err_param;
+static int hf_docsis_tlv_rcc_err_code;
+static int hf_docsis_tlv_rcc_err_msg;
 
-static int hf_docsis_tlv_dsid_id = -1;
-static int hf_docsis_tlv_dsid_action = -1;
-/* static int hf_docsis_tlv_dsid_ds_reseq = -1; */
-/* static int hf_docsis_tlv_dsid_mc = -1; */
+static int hf_docsis_tlv_dsid_id;
+static int hf_docsis_tlv_dsid_action;
+/* static int hf_docsis_tlv_dsid_ds_reseq; */
+/* static int hf_docsis_tlv_dsid_mc; */
 
-static int hf_docsis_ds_reseq_dsid = -1;
-static int hf_docsis_ds_reseq_ch_lst = -1;
-static int hf_docsis_ds_reseq_wait_time = -1;
-static int hf_docsis_ds_reseq_warn_thresh = -1;
-static int hf_docsis_ds_reseq_ho_timer = -1;
+static int hf_docsis_ds_reseq_dsid;
+static int hf_docsis_ds_reseq_ch_lst;
+static int hf_docsis_ds_reseq_wait_time;
+static int hf_docsis_ds_reseq_warn_thresh;
+static int hf_docsis_ds_reseq_ho_timer;
 
-/* static int hf_docsis_tlv_dsid_mc_addr = -1; */
-static int hf_docsis_tlv_dsid_mc_cmim = -1;
-static int hf_docsis_tlv_dsid_mc_group = -1;
-/* static int hf_docsis_tlv_dsid_mc_phs = -1; */
+/* static int hf_docsis_tlv_dsid_mc_addr; */
+static int hf_docsis_tlv_dsid_mc_cmim;
+static int hf_docsis_tlv_dsid_mc_group;
+/* static int hf_docsis_tlv_dsid_mc_phs; */
 
-static int hf_docsis_mc_addr_action = -1;
-static int hf_docsis_mc_addr_addr = -1;
+static int hf_docsis_mc_addr_action;
+static int hf_docsis_mc_addr_addr;
 
-static int hf_docsis_tlv_sec_assoc_action = -1;
-static int hf_docsis_tlv_sec_assoc_desc = -1;
+static int hf_docsis_tlv_sec_assoc_action;
+static int hf_docsis_tlv_sec_assoc_desc;
 
-static int hf_docsis_ch_asgn_us_ch_id = -1;
-static int hf_docsis_ch_asgn_rx_freq = -1;
+static int hf_docsis_ch_asgn_us_ch_id;
+static int hf_docsis_ch_asgn_rx_freq;
 
-static int hf_docsis_cmts_mc_sess_enc_grp = -1;
-static int hf_docsis_cmts_mc_sess_enc_src = -1;
-static int hf_docsis_cmts_mc_sess_enc_cmim = -1;
+static int hf_docsis_cmts_mc_sess_enc_grp;
+static int hf_docsis_cmts_mc_sess_enc_src;
+static int hf_docsis_cmts_mc_sess_enc_cmim;
 
-static int hf_docsis_tlv_em_mode_ind = -1;
+static int hf_docsis_tlv_em_mode_ind;
 
-static int hf_docsis_tlv_em_id_list_for_cm_em_id = -1;
+static int hf_docsis_tlv_em_id_list_for_cm_em_id;
 
-static int hf_docsis_tlv_fdx_reset = -1;
+static int hf_docsis_tlv_fdx_reset;
 
-static int hf_docsis_tlv_fdx_tg_assignment_tg_id = -1;
-static int hf_docsis_tlv_fdx_tg_assignment_rba_type = -1;
+static int hf_docsis_tlv_fdx_tg_assignment_tg_id;
+static int hf_docsis_tlv_fdx_tg_assignment_rba_type;
 
-static int hf_docsis_tlv_unknown = -1;
-static int hf_docsis_tlv_unknown_type = -1;
-static int hf_docsis_tlv_unknown_length = -1;
-static int hf_docsis_tlv_unknown_value = -1;
+static int hf_docsis_tlv_unknown;
+static int hf_docsis_tlv_unknown_type;
+static int hf_docsis_tlv_unknown_length;
+static int hf_docsis_tlv_unknown_value;
 
 
-static int hf_docsis_ucd_fragments = -1;
-static int hf_docsis_ucd_fragment = -1;
-static int hf_docsis_ucd_fragment_overlap = -1;
-static int hf_docsis_ucd_fragment_overlap_conflict = -1;
-static int hf_docsis_ucd_fragment_multiple_tails = -1;
-static int hf_docsis_ucd_fragment_too_long_fragment = -1;
-static int hf_docsis_ucd_fragment_error = -1;
-static int hf_docsis_ucd_fragment_count = -1;
-static int hf_docsis_ucd_reassembled_in = -1;
-static int hf_docsis_ucd_reassembled_length = -1;
-static int hf_docsis_ucd_reassembled_data = -1;
+static int hf_docsis_ucd_fragments;
+static int hf_docsis_ucd_fragment;
+static int hf_docsis_ucd_fragment_overlap;
+static int hf_docsis_ucd_fragment_overlap_conflict;
+static int hf_docsis_ucd_fragment_multiple_tails;
+static int hf_docsis_ucd_fragment_too_long_fragment;
+static int hf_docsis_ucd_fragment_error;
+static int hf_docsis_ucd_fragment_count;
+static int hf_docsis_ucd_reassembled_in;
+static int hf_docsis_ucd_reassembled_length;
+static int hf_docsis_ucd_reassembled_data;
 
-static int hf_docsis_ucd_reassembled = -1;
+static int hf_docsis_ucd_reassembled;
 
 
 /* Initialize the subtree pointers */
-static gint ett_docsis_tlv = -1;
-static gint ett_docsis_tlv_cos = -1;
-static gint ett_docsis_tlv_mcap = -1;
-static gint ett_docsis_tlv_mcap_em = -1;
-static gint ett_docsis_tlv_mcap_em_pref = -1;
-static gint ett_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup = -1;
-static gint ett_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup = -1;
-static gint ett_docsis_tlv_mcap_down_lower_band_edge_conf = -1;
-static gint ett_docsis_tlv_mcap_down_upper_band_edge_conf = -1;
-static gint ett_docsis_tlv_mcap_dipl_down_lower_band_edge = -1;
-static gint ett_docsis_tlv_mcap_dipl_down_upper_band_edge = -1;
-static gint ett_docsis_tlv_mcap_dipl_up_upper_band_edge = -1;
-static gint ett_docsis_tlv_mcap_advanced_band_plan = -1;
-static gint ett_docsis_tlv_mcap_dipl_down_lower_band_edge_options_list = -1;
-static gint ett_docsis_tlv_mcap_dipl_down_upper_band_edge_options_list = -1;
-static gint ett_docsis_tlv_mcap_dipl_up_upper_band_edge_options_list = -1;
-static gint ett_docsis_tlv_clsfr = -1;
-static gint ett_docsis_tlv_clsfr_ip = -1;
-static gint ett_docsis_tlv_clsfr_ip6 = -1;
-static gint ett_docsis_tlv_clsfr_ip6_tc = -1;
-static gint ett_docsis_tlv_clsfr_eth = -1;
-static gint ett_docsis_tlv_clsfr_err = -1;
-static gint ett_docsis_tlv_phs = -1;
-static gint ett_docsis_tlv_phs_err = -1;
-static gint ett_docsis_tlv_clsfr_dot1q = -1;
-static gint ett_docsis_tlv_reqxmitpol = -1;
-static gint ett_docsis_tlv_sflow_err = -1;
-static gint ett_docsis_tlv_svc_unavail = -1;
-static gint ett_docsis_tlv_snmpv3_kick = -1;
-static gint ett_docsis_tlv_ds_ch_list = -1;
-static gint ett_docsis_tlv_ds_ch_list_single = -1;
-static gint ett_docsis_tlv_ds_ch_list_range = -1;
-static gint ett_docsis_tlv_ext_field = -1;
-static gint ett_docsis_tlv_vendor_specific_cap = -1;
-static gint ett_docsis_tlv_dut_filter = -1;
-static gint ett_docsis_tlv_tcc = -1;
-static gint ett_docsis_tlv_tcc_ucd = -1;
-static gint ett_docsis_tlv_tcc_rng_parms = -1;
-static gint ett_docsis_tlv_tcc_oudp = -1;
-static gint ett_docsis_tlv_tcc_err = -1;
-static gint ett_docsis_tlv_sid_cl = -1;
-static gint ett_docsis_tlv_sid_cl_enc = -1;
-static gint ett_docsis_tlv_sid_cl_enc_map = -1;
-static gint ett_docsis_tlv_sid_cl_so = -1;
-static gint ett_docsis_tlv_rcp = -1;
-static gint ett_docsis_tlv_rcp_rcv_mod_enc = -1;
-static gint ett_docsis_tlv_rcp_ch_bl_rng = -1;
-static gint ett_docsis_tlv_rcp_rcv_ch = -1;
-static gint ett_docsis_tlv_rcc = -1;
-static gint ett_docsis_tlv_rcc_rcv_mod_enc = -1;
-static gint ett_docsis_tlv_rcc_rcv_ch = -1;
-static gint ett_docsis_tlv_rcc_partial_serv_down_chan = -1;
-static gint ett_docsis_tlv_rcc_srcc = -1;
-static gint ett_docsis_tlv_rcc_srcc_prim_ds_assign = -1;
-static gint ett_docsis_tlv_rcc_srcc_ds_assign = -1;
-static gint ett_docsis_tlv_rcc_srcc_ds_prof_assign = -1;
-static gint ett_docsis_tlv_rcc_srcc_ds_prof_assign_prof_list = -1;
-static gint ett_docsis_tlv_rcc_err = -1;
-static gint ett_docsis_tlv_dsid = -1;
-static gint ett_docsis_tlv_dsid_ds_reseq = -1;
-static gint ett_docsis_tlv_dsid_mc = -1;
-static gint ett_docsis_tlv_dsid_mc_addr = -1;
-static gint ett_docsis_tlv_sec_assoc = -1;
-static gint ett_docsis_tlv_ch_asgn = -1;
-static gint ett_docsis_cmts_mc_sess_enc = -1;
-static gint ett_docsis_em_id_list_for_cm = -1;
-static gint ett_docsis_tlv_tg_assignment = -1;
-static gint ett_docsis_tlv_unknown = -1;
-static gint ett_docsis_ucd_fragments = -1;
-static gint ett_docsis_ucd_fragment = -1;
-static gint ett_docsis_ucd_reassembled = -1;
+static gint ett_docsis_tlv;
+static gint ett_docsis_tlv_cos;
+static gint ett_docsis_tlv_mcap;
+static gint ett_docsis_tlv_mcap_em;
+static gint ett_docsis_tlv_mcap_em_pref;
+static gint ett_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup;
+static gint ett_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup;
+static gint ett_docsis_tlv_mcap_down_lower_band_edge_conf;
+static gint ett_docsis_tlv_mcap_down_upper_band_edge_conf;
+static gint ett_docsis_tlv_mcap_dipl_down_lower_band_edge;
+static gint ett_docsis_tlv_mcap_dipl_down_upper_band_edge;
+static gint ett_docsis_tlv_mcap_dipl_up_upper_band_edge;
+static gint ett_docsis_tlv_mcap_advanced_band_plan;
+static gint ett_docsis_tlv_mcap_dipl_down_lower_band_edge_options_list;
+static gint ett_docsis_tlv_mcap_dipl_down_upper_band_edge_options_list;
+static gint ett_docsis_tlv_mcap_dipl_up_upper_band_edge_options_list;
+static gint ett_docsis_tlv_clsfr;
+static gint ett_docsis_tlv_clsfr_ip;
+static gint ett_docsis_tlv_clsfr_ip6;
+static gint ett_docsis_tlv_clsfr_ip6_tc;
+static gint ett_docsis_tlv_clsfr_eth;
+static gint ett_docsis_tlv_clsfr_err;
+static gint ett_docsis_tlv_phs;
+static gint ett_docsis_tlv_phs_err;
+static gint ett_docsis_tlv_clsfr_dot1q;
+static gint ett_docsis_tlv_reqxmitpol;
+static gint ett_docsis_tlv_sflow_err;
+static gint ett_docsis_tlv_svc_unavail;
+static gint ett_docsis_tlv_snmpv3_kick;
+static gint ett_docsis_tlv_ds_ch_list;
+static gint ett_docsis_tlv_ds_ch_list_single;
+static gint ett_docsis_tlv_ds_ch_list_range;
+static gint ett_docsis_tlv_ext_field;
+static gint ett_docsis_tlv_vendor_specific_cap;
+static gint ett_docsis_tlv_dut_filter;
+static gint ett_docsis_tlv_tcc;
+static gint ett_docsis_tlv_tcc_ucd;
+static gint ett_docsis_tlv_tcc_rng_parms;
+static gint ett_docsis_tlv_tcc_oudp;
+static gint ett_docsis_tlv_tcc_err;
+static gint ett_docsis_tlv_sid_cl;
+static gint ett_docsis_tlv_sid_cl_enc;
+static gint ett_docsis_tlv_sid_cl_enc_map;
+static gint ett_docsis_tlv_sid_cl_so;
+static gint ett_docsis_tlv_rcp;
+static gint ett_docsis_tlv_rcp_rcv_mod_enc;
+static gint ett_docsis_tlv_rcp_ch_bl_rng;
+static gint ett_docsis_tlv_rcp_rcv_ch;
+static gint ett_docsis_tlv_rcc;
+static gint ett_docsis_tlv_rcc_rcv_mod_enc;
+static gint ett_docsis_tlv_rcc_rcv_ch;
+static gint ett_docsis_tlv_rcc_partial_serv_down_chan;
+static gint ett_docsis_tlv_rcc_srcc;
+static gint ett_docsis_tlv_rcc_srcc_prim_ds_assign;
+static gint ett_docsis_tlv_rcc_srcc_ds_assign;
+static gint ett_docsis_tlv_rcc_srcc_ds_prof_assign;
+static gint ett_docsis_tlv_rcc_srcc_ds_prof_assign_prof_list;
+static gint ett_docsis_tlv_rcc_err;
+static gint ett_docsis_tlv_dsid;
+static gint ett_docsis_tlv_dsid_ds_reseq;
+static gint ett_docsis_tlv_dsid_mc;
+static gint ett_docsis_tlv_dsid_mc_addr;
+static gint ett_docsis_tlv_sec_assoc;
+static gint ett_docsis_tlv_ch_asgn;
+static gint ett_docsis_cmts_mc_sess_enc;
+static gint ett_docsis_em_id_list_for_cm;
+static gint ett_docsis_tlv_tg_assignment;
+static gint ett_docsis_tlv_unknown;
+static gint ett_docsis_ucd_fragments;
+static gint ett_docsis_ucd_fragment;
+static gint ett_docsis_ucd_reassembled;
 
 
-static expert_field ei_docsis_tlv_tlvlen_bad = EI_INIT;
-static expert_field ei_docsis_tlv_tlvval_bad = EI_INIT;
+static expert_field ei_docsis_tlv_tlvlen_bad;
+static expert_field ei_docsis_tlv_tlvval_bad;
 
 
 static const true_false_string ena_dis_tfs = {

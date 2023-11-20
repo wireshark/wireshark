@@ -27,24 +27,24 @@ static dissector_handle_t ssprotocol_handle;
 
 
 /* Initialize the protocol and registered fields */
-static int proto_ssprotocol     = -1;
+static int proto_ssprotocol;
 static int tap_ssprotocol       = -1;
-static int hf_message_type      = -1;
-static int hf_message_flags     = -1;
-static int hf_message_length    = -1;
-static int hf_message_status    = -1;
-static int hf_message_data      = -1;
-static int hf_message_reason    = -1;
-static int hf_message_info      = -1;
-static int hf_message_hash      = -1;
-static int hf_environment_u_bit = -1;
+static int hf_message_type;
+static int hf_message_flags;
+static int hf_message_length;
+static int hf_message_status;
+static int hf_message_data;
+static int hf_message_reason;
+static int hf_message_info;
+static int hf_message_hash;
+static int hf_environment_u_bit;
 
 static guint64 ssprotocol_total_msgs  = 0;
 static guint64 ssprotocol_total_bytes = 0;
 
 /* Initialize the subtree pointers */
-static gint ett_ssprotocol        = -1;
-static gint ett_environment_flags = -1;
+static gint ett_ssprotocol;
+static gint ett_environment_flags;
 
 /* Dissectors for messages. This is specific to ScriptingServiceProtocol */
 #define MESSAGE_TYPE_LENGTH          1

@@ -29,28 +29,28 @@
 void proto_register_gssapi(void);
 void proto_reg_handoff_gssapi(void);
 
-static int proto_gssapi = -1;
+static int proto_gssapi;
 
-static int hf_gssapi_token_object = -1;
-static int hf_gssapi_auth_verifier = -1;
-static int hf_gssapi_auth_credentials = -1;
-static int hf_gssapi_oid = -1;
-static int hf_gssapi_segments = -1;
-static int hf_gssapi_segment = -1;
-static int hf_gssapi_segment_overlap = -1;
-static int hf_gssapi_segment_overlap_conflict = -1;
-static int hf_gssapi_segment_multiple_tails = -1;
-static int hf_gssapi_segment_too_long_fragment = -1;
-static int hf_gssapi_segment_error = -1;
-static int hf_gssapi_segment_count = -1;
-static int hf_gssapi_reassembled_in = -1;
-static int hf_gssapi_reassembled_length = -1;
+static int hf_gssapi_token_object;
+static int hf_gssapi_auth_verifier;
+static int hf_gssapi_auth_credentials;
+static int hf_gssapi_oid;
+static int hf_gssapi_segments;
+static int hf_gssapi_segment;
+static int hf_gssapi_segment_overlap;
+static int hf_gssapi_segment_overlap_conflict;
+static int hf_gssapi_segment_multiple_tails;
+static int hf_gssapi_segment_too_long_fragment;
+static int hf_gssapi_segment_error;
+static int hf_gssapi_segment_count;
+static int hf_gssapi_reassembled_in;
+static int hf_gssapi_reassembled_length;
 
-static gint ett_gssapi = -1;
-static gint ett_gssapi_segment = -1;
-static gint ett_gssapi_segments = -1;
+static gint ett_gssapi;
+static gint ett_gssapi_segment;
+static gint ett_gssapi_segments;
 
-static expert_field ei_gssapi_unknown_header = EI_INIT;
+static expert_field ei_gssapi_unknown_header;
 
 static gboolean gssapi_reassembly = TRUE;
 

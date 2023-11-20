@@ -31,13 +31,13 @@ void proto_register_rdp_snd(void);
 void proto_reg_handoff_rdp_snd(void);
 
 
-static int proto_rdp_snd = -1;
+static int proto_rdp_snd;
 
-static int hf_snd_msgType = -1;
-static int hf_snd_bPad = -1;
-static int hf_snd_bodySize = -1;
+static int hf_snd_msgType;
+static int hf_snd_bPad;
+static int hf_snd_bodySize;
 
-static int ett_rdp_snd = -1;
+static int ett_rdp_snd;
 
 
 enum {

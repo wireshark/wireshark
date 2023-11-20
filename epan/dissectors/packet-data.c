@@ -23,21 +23,21 @@ void proto_register_data(void);
 void proto_reg_handoff_data(void);
 
 
-static int proto_data = -1;
+static int proto_data;
 
-static int hf_data_data = -1;
-static int hf_data_len = -1;
-static int hf_data_md5_hash = -1;
-static int hf_data_text = -1;
-static int hf_data_uncompressed_data = -1;
-static int hf_data_uncompressed_len = -1;
+static int hf_data_data;
+static int hf_data_len;
+static int hf_data_md5_hash;
+static int hf_data_text;
+static int hf_data_uncompressed_data;
+static int hf_data_uncompressed_len;
 
 static gboolean new_pane = FALSE;
 static gboolean uncompress_data = FALSE;
 static gboolean show_as_text = FALSE;
 static gboolean generate_md5_hash = FALSE;
 
-static gint ett_data = -1;
+static gint ett_data;
 
 static dissector_handle_t data_handle;
 

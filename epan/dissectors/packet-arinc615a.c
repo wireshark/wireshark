@@ -53,44 +53,44 @@ static const value_string a615a_operation_status_codes[] = {
     {0x1007, "Load of this header file has failed, details in status description"},
     {0, NULL}};
 
-static int proto_a615a = -1;
+static int proto_a615a;
 
-static gint ett_a615a = -1;
+static gint ett_a615a;
 
-static int hf_a615a_file_length = -1;
-static int hf_a615a_protocol_version = -1;
-static int hf_a615a_counter = -1;
-static int hf_a615a_operation_status = -1;
-static int hf_a615a_exception_timer = -1;
-static int hf_a615a_estimated_time = -1;
-static int hf_a615a_status_description = -1;
-static int hf_a615a_load_ratio = -1;
-static int hf_a615a_file_count = -1;
-static int hf_a615a_file_name = -1;
-static int hf_a615a_file_description = -1;
-static int hf_a615a_part_number = -1;
-static int hf_a615a_number_target_hardware = -1;
-static int hf_a615a_literal_name = -1;
-static int hf_a615a_serial_number = -1;
-static int hf_a615a_part_number_count = -1;
-static int hf_a615a_amendment = -1;
-static int hf_a615a_designation = -1;
-static int hf_a615a_user_data = -1;
-static int hf_a615a_file_type = -1;
+static int hf_a615a_file_length;
+static int hf_a615a_protocol_version;
+static int hf_a615a_counter;
+static int hf_a615a_operation_status;
+static int hf_a615a_exception_timer;
+static int hf_a615a_estimated_time;
+static int hf_a615a_status_description;
+static int hf_a615a_load_ratio;
+static int hf_a615a_file_count;
+static int hf_a615a_file_name;
+static int hf_a615a_file_description;
+static int hf_a615a_part_number;
+static int hf_a615a_number_target_hardware;
+static int hf_a615a_literal_name;
+static int hf_a615a_serial_number;
+static int hf_a615a_part_number_count;
+static int hf_a615a_amendment;
+static int hf_a615a_designation;
+static int hf_a615a_user_data;
+static int hf_a615a_file_type;
 
 #define FIND_PORT 1001
 
-static int proto_find = -1;
+static int proto_find;
 
-static gint ett_find = -1;
+static gint ett_find;
 
-static int hf_find_opcode = -1;
-static int hf_find_target_hardware_identifier = -1;
-static int hf_find_target_type_name = -1;
-static int hf_find_target_position = -1;
-static int hf_find_literal_name = -1;
-static int hf_find_manufacturer_code = -1;
-static int hf_find_packet_terminator = -1;
+static int hf_find_opcode;
+static int hf_find_target_hardware_identifier;
+static int hf_find_target_type_name;
+static int hf_find_target_position;
+static int hf_find_literal_name;
+static int hf_find_manufacturer_code;
+static int hf_find_packet_terminator;
 
 static dissector_handle_t find_handle;
 

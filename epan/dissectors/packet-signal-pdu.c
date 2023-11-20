@@ -70,7 +70,7 @@
 #define DATAFILE_SPDU_ISOBUS_MAPPING                        "Signal_PDU_Binding_ISOBUS"
 
 /* ID wireshark identifies the dissector by */
-static int proto_signal_pdu                                 = -1;
+static int proto_signal_pdu;
 
 static dissector_handle_t signal_pdu_handle_someip          = NULL;
 static dissector_handle_t signal_pdu_handle_can             = NULL;
@@ -80,19 +80,19 @@ static dissector_handle_t signal_pdu_handle_pdu_transport   = NULL;
 static dissector_handle_t signal_pdu_handle_ipdum           = NULL;
 static dissector_handle_t signal_pdu_handle_isobus          = NULL;
 
-static int hf_pdu_name                                      = -1;
-static int hf_payload_unparsed                              = -1;
+static int hf_pdu_name;
+static int hf_payload_unparsed;
 
-static gint ett_spdu_payload                                = -1;
-static gint ett_spdu_signal                                 = -1;
+static gint ett_spdu_payload;
+static gint ett_spdu_signal;
 static gboolean spdu_deserializer_activated                 = TRUE;
 static gboolean spdu_deserializer_show_hidden               = FALSE;
 static gboolean spdu_deserializer_hide_raw_values           = TRUE;
 
 /*** expert info items ***/
-static expert_field ei_spdu_payload_truncated               = EI_INIT;
-static expert_field ei_spdu_config_error                    = EI_INIT;
-static expert_field ei_spdu_unaligned_data                  = EI_INIT;
+static expert_field ei_spdu_payload_truncated;
+static expert_field ei_spdu_config_error;
+static expert_field ei_spdu_unaligned_data;
 
 /*** Data Structure for UAT based config ***/
 static GHashTable *data_spdu_messages                       = NULL;

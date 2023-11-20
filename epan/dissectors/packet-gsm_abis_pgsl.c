@@ -36,49 +36,49 @@ static dissector_handle_t pgsl_handle;
 static dissector_handle_t sub_handles[SUB_MAX];
 
 /* initialize the protocol and registered fields */
-static int proto_abis_pgsl = -1;
+static int proto_abis_pgsl;
 
 /* P-GSL header */
-static int hf_pgsl_version = -1;
-static int hf_pgsl_msg_disc = -1;
-static int hf_pgsl_tn_bitmap = -1;
-static int hf_pgsl_trx_seqno = -1;
-static int hf_pgsl_afnd = -1;
-static int hf_pgsl_afnu = -1;
-static int hf_pgsl_ccu_ta = -1;
-static int hf_pgsl_ack_req = -1;
-static int hf_pgsl_tn_resource = -1;
-static int hf_pgsl_tn_seqno = -1;
-static int hf_pgsl_data_len = -1;
-static int hf_pgsl_cause = -1;
-static int hf_pgsl_addl_info = -1;
-static int hf_pgsl_ack_ind = -1;
-static int hf_pgsl_data_ind = -1;
-static int hf_pgsl_ucm = -1;
-static int hf_pgsl_cs = -1;
-static int hf_pgsl_timing_offset = -1;
-static int hf_pgsl_power_control = -1;
-static int hf_pgsl_ir_tfi = -1;
-static int hf_pgsl_ir_sign_type = -1;
-static int hf_pgsl_codec_delay = -1;
-static int hf_pgsl_codec_cs = -1;
-static int hf_pgsl_codec_rxlev = -1;
-static int hf_pgsl_codec_parity = -1;
-static int hf_pgsl_codec_bqm = -1;
-static int hf_pgsl_codec_mean_bep = -1;
-static int hf_pgsl_codec_cv_bep = -1;
-static int hf_pgsl_codec_q = -1;
-static int hf_pgsl_codec_q1 = -1;
-static int hf_pgsl_codec_q2 = -1;
-static int hf_pgsl_pacch = -1;
-static int hf_pgsl_ab_rxlev = -1;
-static int hf_pgsl_ab_acc_delay = -1;
-static int hf_pgsl_ab_abi = -1;
-static int hf_pgsl_ab_ab_type = -1;
+static int hf_pgsl_version;
+static int hf_pgsl_msg_disc;
+static int hf_pgsl_tn_bitmap;
+static int hf_pgsl_trx_seqno;
+static int hf_pgsl_afnd;
+static int hf_pgsl_afnu;
+static int hf_pgsl_ccu_ta;
+static int hf_pgsl_ack_req;
+static int hf_pgsl_tn_resource;
+static int hf_pgsl_tn_seqno;
+static int hf_pgsl_data_len;
+static int hf_pgsl_cause;
+static int hf_pgsl_addl_info;
+static int hf_pgsl_ack_ind;
+static int hf_pgsl_data_ind;
+static int hf_pgsl_ucm;
+static int hf_pgsl_cs;
+static int hf_pgsl_timing_offset;
+static int hf_pgsl_power_control;
+static int hf_pgsl_ir_tfi;
+static int hf_pgsl_ir_sign_type;
+static int hf_pgsl_codec_delay;
+static int hf_pgsl_codec_cs;
+static int hf_pgsl_codec_rxlev;
+static int hf_pgsl_codec_parity;
+static int hf_pgsl_codec_bqm;
+static int hf_pgsl_codec_mean_bep;
+static int hf_pgsl_codec_cv_bep;
+static int hf_pgsl_codec_q;
+static int hf_pgsl_codec_q1;
+static int hf_pgsl_codec_q2;
+static int hf_pgsl_pacch;
+static int hf_pgsl_ab_rxlev;
+static int hf_pgsl_ab_acc_delay;
+static int hf_pgsl_ab_abi;
+static int hf_pgsl_ab_ab_type;
 
 /* initialize the subtree pointers */
-static int ett_pgsl = -1;
-static int ett_pacch = -1;
+static int ett_pgsl;
+static int ett_pacch;
 
 static gboolean abis_pgsl_ir = FALSE;
 

@@ -30,18 +30,18 @@ void proto_register_log3gpp(void);
 void proto_reg_handoff_log3gpp(void);
 
 /* Protocol and registered fields. */
-static int proto_log3gpp = -1;
+static int proto_log3gpp;
 
 
-static int hf_log3gpp_timestamp = -1;
-static int hf_log3gpp_protocol = -1;
-static int hf_log3gpp_direction = -1;
-static int hf_log3gpp_dissector_option = -1;
-static int hf_log3gpp_unparsed_data = -1;
-static int hf_log3gpp_dissected_length = -1;
+static int hf_log3gpp_timestamp;
+static int hf_log3gpp_protocol;
+static int hf_log3gpp_direction;
+static int hf_log3gpp_dissector_option;
+static int hf_log3gpp_unparsed_data;
+static int hf_log3gpp_dissected_length;
 
 /* Protocol subtree. */
-static int ett_log3gpp = -1;
+static int ett_log3gpp;
 
 /* Variables used to select a version for RRC and NAS */
 static int lte_rrc_prot_version = REL8;

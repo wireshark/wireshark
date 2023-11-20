@@ -18,22 +18,22 @@ void proto_register_spp(void);
 void proto_reg_handoff_spp(void);
 static dissector_handle_t spp_handle;
 
-static int proto_spp = -1;
-static int hf_spp_connection_control = -1;
-static int hf_spp_connection_control_sys = -1;
-static int hf_spp_connection_control_send_ack = -1;
-static int hf_spp_connection_control_attn = -1;
-static int hf_spp_connection_control_eom = -1;
-static int hf_spp_datastream_type = -1;
-static int hf_spp_src_id = -1;
-static int hf_spp_dst_id = -1;
-static int hf_spp_seq_nr = -1;
-static int hf_spp_ack_nr = -1;
-static int hf_spp_all_nr = -1;
-/* static int hf_spp_rexmt_frame = -1; */
+static int proto_spp;
+static int hf_spp_connection_control;
+static int hf_spp_connection_control_sys;
+static int hf_spp_connection_control_send_ack;
+static int hf_spp_connection_control_attn;
+static int hf_spp_connection_control_eom;
+static int hf_spp_datastream_type;
+static int hf_spp_src_id;
+static int hf_spp_dst_id;
+static int hf_spp_seq_nr;
+static int hf_spp_ack_nr;
+static int hf_spp_all_nr;
+/* static int hf_spp_rexmt_frame; */
 
-static gint ett_spp = -1;
-static gint ett_spp_connctrl = -1;
+static gint ett_spp;
+static gint ett_spp_connctrl;
 
 static dissector_table_t spp_socket_dissector_table;
 

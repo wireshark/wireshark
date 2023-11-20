@@ -19,46 +19,46 @@
 void proto_register_epm (void);
 void proto_reg_handoff_epm (void);
 
-static int proto_epm3 = -1;
-static int proto_epm4 = -1;
+static int proto_epm3;
+static int proto_epm4;
 
-static int hf_epm_opnum = -1;
-static int hf_epm_inquiry_type = -1;
-static int hf_epm_object = -1;
-static int hf_epm_if_id = -1;
-static int hf_epm_ver_maj = -1;
-static int hf_epm_ver_min = -1;
-static int hf_epm_ver_opt = -1;
-static int hf_epm_hnd = -1;
-static int hf_epm_max_ents = -1;
-static int hf_epm_num_ents = -1;
-static int hf_epm_uuid = -1;
-static int hf_epm_uuid_version = -1;
-static int hf_epm_tower_length = -1;
-/* static int hf_epm_tower_data = -1; */
-static int hf_epm_max_towers = -1;
-static int hf_epm_num_towers = -1;
-static int hf_epm_rc = -1;
-static int hf_epm_replace = -1;
-static int hf_epm_tower_num_floors = -1;
-static int hf_epm_tower_rhs_len = -1;
-static int hf_epm_tower_lhs_len = -1;
-static int hf_epm_tower_proto_id = -1;
-static int hf_epm_annotation = -1;
-static int hf_epm_ann_offset = -1;
-static int hf_epm_ann_len = -1;
-static int hf_epm_proto_named_pipes = -1;
-static int hf_epm_proto_netbios_name = -1;
-static int hf_epm_proto_ip = -1;
-static int hf_epm_proto_udp_port = -1;
-static int hf_epm_proto_tcp_port = -1;
-static int hf_epm_proto_http_port = -1;
+static int hf_epm_opnum;
+static int hf_epm_inquiry_type;
+static int hf_epm_object;
+static int hf_epm_if_id;
+static int hf_epm_ver_maj;
+static int hf_epm_ver_min;
+static int hf_epm_ver_opt;
+static int hf_epm_hnd;
+static int hf_epm_max_ents;
+static int hf_epm_num_ents;
+static int hf_epm_uuid;
+static int hf_epm_uuid_version;
+static int hf_epm_tower_length;
+/* static int hf_epm_tower_data; */
+static int hf_epm_max_towers;
+static int hf_epm_num_towers;
+static int hf_epm_rc;
+static int hf_epm_replace;
+static int hf_epm_tower_num_floors;
+static int hf_epm_tower_rhs_len;
+static int hf_epm_tower_lhs_len;
+static int hf_epm_tower_proto_id;
+static int hf_epm_annotation;
+static int hf_epm_ann_offset;
+static int hf_epm_ann_len;
+static int hf_epm_proto_named_pipes;
+static int hf_epm_proto_netbios_name;
+static int hf_epm_proto_ip;
+static int hf_epm_proto_udp_port;
+static int hf_epm_proto_tcp_port;
+static int hf_epm_proto_http_port;
 
-static gint ett_epm = -1;
-static gint ett_epm_tower_floor = -1;
-static gint ett_epm_entry = -1;
+static gint ett_epm;
+static gint ett_epm_tower_floor;
+static gint ett_epm_entry;
 
-static expert_field ei_epm_proto_undecoded = EI_INIT;
+static expert_field ei_epm_proto_undecoded;
 
 
 /* the UUID is identical for interface versions 3 and 4 */

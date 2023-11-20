@@ -27,106 +27,106 @@ void proto_reg_handoff_ubt(void);
 static dissector_handle_t ubt_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_ubt = -1;
-static int hf_ubt_packet_len = -1;
-static int hf_ubt_msg_type = -1;
-static int hf_ubt_tlv_header = -1;
-static int hf_ubt_tlv = -1;
-static int hf_ubt_type = -1;
-static int hf_ubt_length = -1;
-static int hf_ubt_switch_seqno = -1;
-static int hf_ubt_switch_macaddr = -1;
+static int proto_ubt;
+static int hf_ubt_packet_len;
+static int hf_ubt_msg_type;
+static int hf_ubt_tlv_header;
+static int hf_ubt_tlv;
+static int hf_ubt_type;
+static int hf_ubt_length;
+static int hf_ubt_switch_seqno;
+static int hf_ubt_switch_macaddr;
 
 /* for data attributes */
-static int hf_ubt_dt_unknown = -1;
-static int hf_ubt_dt_grekey = -1;
-static int hf_ubt_dt_firmwareversion = -1;
-static int hf_ubt_dt_userkey = -1;
-static int hf_ubt_dt_sacmode = -1;
-static int hf_ubt_dt_sacipv4 = -1;
-static int hf_ubt_dt_sacipv6 = -1;
-static int hf_ubt_dt_heartbeattimeout = -1;
-static int hf_ubt_dt_usermac = -1;
-static int hf_ubt_dt_uservlan = -1;
-static int hf_ubt_dt_flags = -1;
+static int hf_ubt_dt_unknown;
+static int hf_ubt_dt_grekey;
+static int hf_ubt_dt_firmwareversion;
+static int hf_ubt_dt_userkey;
+static int hf_ubt_dt_sacmode;
+static int hf_ubt_dt_sacipv4;
+static int hf_ubt_dt_sacipv6;
+static int hf_ubt_dt_heartbeattimeout;
+static int hf_ubt_dt_usermac;
+static int hf_ubt_dt_uservlan;
+static int hf_ubt_dt_flags;
 
 /* for ip attributes */
-static int hf_ubt_ip_type = -1;
-static int hf_ubt_ip_padding = -1;
-static int hf_ubt_ip_unassigned = -1;
+static int hf_ubt_ip_type;
+static int hf_ubt_ip_padding;
+static int hf_ubt_ip_unassigned;
 
 /* for switch & user flags */
-static int hf_ubt_switch_flags_bcmctoucast = -1;
-static int hf_ubt_user_flags_tag = -1;
-static int hf_ubt_user_flags_auth = -1;
-static int hf_ubt_user_flags_bcmctoucast = -1;
-static int hf_ubt_user_flags_dormant = -1;
-static int hf_ubt_user_flags_uback = -1;
+static int hf_ubt_switch_flags_bcmctoucast;
+static int hf_ubt_user_flags_tag;
+static int hf_ubt_user_flags_auth;
+static int hf_ubt_user_flags_bcmctoucast;
+static int hf_ubt_user_flags_dormant;
+static int hf_ubt_user_flags_uback;
 
-static int hf_ubt_dt_tunnelmtu = -1;
-static int hf_ubt_dt_userrole = -1;
-static int hf_ubt_dt_reasoncode = -1;
-static int hf_ubt_dt_nodelist = -1;
-static int hf_ubt_dt_clustername = -1;
-static int hf_ubt_dt_clusterenabled = -1;
-static int hf_ubt_dt_ssacindex = -1;
-static int hf_ubt_dt_reserved = -1;
-static int hf_ubt_dt_uaccount = -1;
-static int hf_ubt_dt_uaciplist = -1;
-static int hf_ubt_dt_uacipv4 = -1;
-static int hf_ubt_dt_uacipv6 = -1;
-static int hf_ubt_dt_bucketmap = -1;
-static int hf_ubt_dt_timestamp = -1;
-static int hf_ubt_dt_identifier = -1;
+static int hf_ubt_dt_tunnelmtu;
+static int hf_ubt_dt_userrole;
+static int hf_ubt_dt_reasoncode;
+static int hf_ubt_dt_nodelist;
+static int hf_ubt_dt_clustername;
+static int hf_ubt_dt_clusterenabled;
+static int hf_ubt_dt_ssacindex;
+static int hf_ubt_dt_reserved;
+static int hf_ubt_dt_uaccount;
+static int hf_ubt_dt_uaciplist;
+static int hf_ubt_dt_uacipv4;
+static int hf_ubt_dt_uacipv6;
+static int hf_ubt_dt_bucketmap;
+static int hf_ubt_dt_timestamp;
+static int hf_ubt_dt_identifier;
 
 /* for active map arrays */
-static int hf_ubt_dt_activemap1 = -1;
-static int hf_ubt_dt_activemap2 = -1;
-static int hf_ubt_dt_activemap3 = -1;
-static int hf_ubt_dt_activemap4 = -1;
-static int hf_ubt_dt_activemap5 = -1;
-static int hf_ubt_dt_activemap6 = -1;
-static int hf_ubt_dt_activemap7 = -1;
-static int hf_ubt_dt_activemap8 = -1;
+static int hf_ubt_dt_activemap1;
+static int hf_ubt_dt_activemap2;
+static int hf_ubt_dt_activemap3;
+static int hf_ubt_dt_activemap4;
+static int hf_ubt_dt_activemap5;
+static int hf_ubt_dt_activemap6;
+static int hf_ubt_dt_activemap7;
+static int hf_ubt_dt_activemap8;
 
 /* for standby map arrays */
-static int hf_ubt_dt_standbymap1 = -1;
-static int hf_ubt_dt_standbymap2 = -1;
-static int hf_ubt_dt_standbymap3 = -1;
-static int hf_ubt_dt_standbymap4 = -1;
-static int hf_ubt_dt_standbymap5 = -1;
-static int hf_ubt_dt_standbymap6 = -1;
-static int hf_ubt_dt_standbymap7 = -1;
-static int hf_ubt_dt_standbymap8 = -1;
+static int hf_ubt_dt_standbymap1;
+static int hf_ubt_dt_standbymap2;
+static int hf_ubt_dt_standbymap3;
+static int hf_ubt_dt_standbymap4;
+static int hf_ubt_dt_standbymap5;
+static int hf_ubt_dt_standbymap6;
+static int hf_ubt_dt_standbymap7;
+static int hf_ubt_dt_standbymap8;
 
 /* for l2conn arrays */
-static int hf_ubt_dt_l2conn1 = -1;
-static int hf_ubt_dt_l2conn2 = -1;
-static int hf_ubt_dt_l2conn3 = -1;
-static int hf_ubt_dt_l2conn4 = -1;
-static int hf_ubt_dt_l2conn5 = -1;
-static int hf_ubt_dt_l2conn6 = -1;
-static int hf_ubt_dt_l2conn7 = -1;
-static int hf_ubt_dt_l2conn8 = -1;
+static int hf_ubt_dt_l2conn1;
+static int hf_ubt_dt_l2conn2;
+static int hf_ubt_dt_l2conn3;
+static int hf_ubt_dt_l2conn4;
+static int hf_ubt_dt_l2conn5;
+static int hf_ubt_dt_l2conn6;
+static int hf_ubt_dt_l2conn7;
+static int hf_ubt_dt_l2conn8;
 
-static int hf_ubt_dt_status = -1;
-static int hf_ubt_dt_mcastkey = -1;
-static int hf_ubt_dt_serveripv4 = -1;
-static int hf_ubt_dt_serveripv6 = -1;
-static int hf_ubt_dt_userauthmethod = -1;
-static int hf_ubt_dt_username = -1;
-static int hf_ubt_dt_userportname = -1;
-static int hf_ubt_dt_switchname = -1;
-static int hf_ubt_dt_silentclientvlans = -1;
-static int hf_ubt_dt_silentclientvlan = -1;
-static int hf_ubt_dt_maxmsgs = -1;
+static int hf_ubt_dt_status;
+static int hf_ubt_dt_mcastkey;
+static int hf_ubt_dt_serveripv4;
+static int hf_ubt_dt_serveripv6;
+static int hf_ubt_dt_userauthmethod;
+static int hf_ubt_dt_username;
+static int hf_ubt_dt_userportname;
+static int hf_ubt_dt_switchname;
+static int hf_ubt_dt_silentclientvlans;
+static int hf_ubt_dt_silentclientvlan;
+static int hf_ubt_dt_maxmsgs;
 
-static expert_field ei_ubt_unknown = EI_INIT;
+static expert_field ei_ubt_unknown;
 
 /* Initialize the subtree pointers */
-static gint ett_ubt = -1;
-static gint ett_ubt_tlv = -1;
-static gint ett_ubt_flags = -1;
+static gint ett_ubt;
+static gint ett_ubt_tlv;
+static gint ett_ubt_flags;
 
 /* Definition of different sizes and counts used throughout the program */
 #define PAPI_PACKET_SIZE 76

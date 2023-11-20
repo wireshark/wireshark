@@ -21,35 +21,35 @@ static dissector_handle_t kdp_handle;
 
 #define KDP_PORT 19948 /* Not IANA registered */
 #define BUFFER_SIZE 80
-static int proto_kdp = -1;
-static gint ett_kdp = -1;
-static gint ett_kdp_flags = -1;
+static int proto_kdp;
+static gint ett_kdp;
+static gint ett_kdp_flags;
 
-static int hf_kdp_version = -1;
-static int hf_kdp_headerlen = -1;
-static int hf_kdp_flags = -1;
-static int hf_kdp_errors = -1;
-static int hf_kdp_destflowid = -1;
-static int hf_kdp_srcflowid = -1;
-static int hf_kdp_sequence = -1;
-static int hf_kdp_ack = -1;
-static int hf_kdp_maxsegmentsize = -1;
-static int hf_kdp_optionnumber = -1;
-static int hf_kdp_optionlen = -1;
-static int hf_kdp_option1 = -1;
-static int hf_kdp_option2 = -1;
-static int hf_kdp_option3 = -1;
-static int hf_kdp_option4 = -1;
-static int hf_kdp_option5 = -1;
-static int hf_kdp_option6 = -1;
-static int hf_kdp_option7 = -1;
-static int hf_kdp_option8 = -1;
-static int hf_kdp_option9 = -1;
-static int hf_kdp_option_unknown = -1;
-static int hf_kdp_fragment = -1;
-static int hf_kdp_fragtotal = -1;
-static int hf_kdp_body = -1;
-static int hf_kdp_xml_body = -1;
+static int hf_kdp_version;
+static int hf_kdp_headerlen;
+static int hf_kdp_flags;
+static int hf_kdp_errors;
+static int hf_kdp_destflowid;
+static int hf_kdp_srcflowid;
+static int hf_kdp_sequence;
+static int hf_kdp_ack;
+static int hf_kdp_maxsegmentsize;
+static int hf_kdp_optionnumber;
+static int hf_kdp_optionlen;
+static int hf_kdp_option1;
+static int hf_kdp_option2;
+static int hf_kdp_option3;
+static int hf_kdp_option4;
+static int hf_kdp_option5;
+static int hf_kdp_option6;
+static int hf_kdp_option7;
+static int hf_kdp_option8;
+static int hf_kdp_option9;
+static int hf_kdp_option_unknown;
+static int hf_kdp_fragment;
+static int hf_kdp_fragtotal;
+static int hf_kdp_body;
+static int hf_kdp_xml_body;
 
 #define KDP_DROP_FLAG (1 << 0)
 #define KDP_SYN_FLAG  (1 << 1)
@@ -58,12 +58,12 @@ static int hf_kdp_xml_body = -1;
 #define KDP_BCST_FLAG (1 << 4)
 #define KDP_DUP_FLAG  (1 << 5)
 
-static int hf_kdp_drop_flag = -1;
-static int hf_kdp_syn_flag = -1;
-static int hf_kdp_ack_flag = -1;
-static int hf_kdp_rst_flag = -1;
-static int hf_kdp_bcst_flag = -1;
-static int hf_kdp_dup_flag = -1;
+static int hf_kdp_drop_flag;
+static int hf_kdp_syn_flag;
+static int hf_kdp_ack_flag;
+static int hf_kdp_rst_flag;
+static int hf_kdp_bcst_flag;
+static int hf_kdp_dup_flag;
 
 static int dissect_kdp(tvbuff_t *tvb,
                         packet_info *pinfo,

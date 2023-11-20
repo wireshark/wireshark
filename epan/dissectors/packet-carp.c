@@ -22,24 +22,24 @@ void proto_reg_handoff_carp(void);
 
 static dissector_handle_t carp_handle;
 
-static gint proto_carp = -1;
-static gint ett_carp = -1;
-static gint ett_carp_ver_type = -1;
+static gint proto_carp;
+static gint ett_carp;
+static gint ett_carp_ver_type;
 
-static gint hf_carp_ver_type = -1;
-static gint hf_carp_version = -1;
-static gint hf_carp_type = -1;
-static gint hf_carp_vhid = -1;
-static gint hf_carp_advskew = -1;
-static gint hf_carp_authlen = -1;
-static gint hf_carp_demotion = -1;
-static gint hf_carp_advbase = -1;
-static gint hf_carp_counter = -1;
-static gint hf_carp_hmac = -1;
-static gint hf_carp_checksum = -1;
-static gint hf_carp_checksum_status = -1;
+static gint hf_carp_ver_type;
+static gint hf_carp_version;
+static gint hf_carp_type;
+static gint hf_carp_vhid;
+static gint hf_carp_advskew;
+static gint hf_carp_authlen;
+static gint hf_carp_demotion;
+static gint hf_carp_advbase;
+static gint hf_carp_counter;
+static gint hf_carp_hmac;
+static gint hf_carp_checksum;
+static gint hf_carp_checksum_status;
 
-static expert_field ei_carp_checksum = EI_INIT;
+static expert_field ei_carp_checksum;
 
 #define CARP_VERSION_MASK 0xf0
 #define CARP_TYPE_MASK 0x0f

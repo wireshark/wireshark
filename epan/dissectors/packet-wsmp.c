@@ -42,36 +42,36 @@ static const value_string wsmp_elemenid_names[] = {
 
 
 /* Initialize the protocol and registered fields */
-static int proto_wsmp = -1;
-static int hf_wsmp_version = -1;
-static int hf_wsmp_var_len_det = -1;
-static int hf_wsmp_psid = -1;
-static int hf_wsmp_rate = -1;
-static int hf_wsmp_channel = -1;
-static int hf_wsmp_txpower = -1;
-static int hf_wsmp_WAVEid = -1;
-static int hf_wsmp_wsmlength = -1;
-static int hf_wsmp_WSMP_S_data = -1;
+static int proto_wsmp;
+static int hf_wsmp_version;
+static int hf_wsmp_var_len_det;
+static int hf_wsmp_psid;
+static int hf_wsmp_rate;
+static int hf_wsmp_channel;
+static int hf_wsmp_txpower;
+static int hf_wsmp_WAVEid;
+static int hf_wsmp_wsmlength;
+static int hf_wsmp_WSMP_S_data;
 
-static int hf_wsmp_subtype = -1;
-static int hf_wsmp_N_header_opt_ind = -1;
-static int hf_wsmp_version_v3 = -1;
-static int hf_wsmp_no_elements = -1;
-static int hf_wsmp_wave_ie = -1;
-static int hf_wsmp_wave_ie_len = -1;
-static int hf_wsmp_wave_ie_data = -1;
-static int hf_wsmp_tpid = -1;
+static int hf_wsmp_subtype;
+static int hf_wsmp_N_header_opt_ind;
+static int hf_wsmp_version_v3;
+static int hf_wsmp_no_elements;
+static int hf_wsmp_wave_ie;
+static int hf_wsmp_wave_ie_len;
+static int hf_wsmp_wave_ie_data;
+static int hf_wsmp_tpid;
 
 /* Initialize the subtree pointers */
-static int ett_wsmp = -1;
-static int ett_wsmdata = -1;
-static int ett_wsmp_n_hdr = -1;
-static int ett_wsmp_t_hdr = -1;
-static int ett_wsmp_ie_ext = -1;
-static int ett_wsmp_ie = -1;
+static int ett_wsmp;
+static int ett_wsmdata;
+static int ett_wsmp_n_hdr;
+static int ett_wsmp_t_hdr;
+static int ett_wsmp_ie_ext;
+static int ett_wsmp_ie;
 
-static expert_field ei_wsmp_length_field_err = EI_INIT;
-static expert_field ei_wsmp_psid_invalid = EI_INIT;
+static expert_field ei_wsmp_length_field_err;
+static expert_field ei_wsmp_psid_invalid;
 
 dissector_handle_t IEEE1609dot2_handle;
 

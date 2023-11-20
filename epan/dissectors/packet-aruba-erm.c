@@ -126,27 +126,27 @@ void proto_reg_handoff_aruba_erm_radio(void);
 static gint  aruba_erm_type         = 0;
 #endif
 
-static int  proto_aruba_erm       = -1;
-static int  proto_aruba_erm_type0 = -1;
-static int  proto_aruba_erm_type1 = -1;
-static int  proto_aruba_erm_type2 = -1;
-static int  proto_aruba_erm_type3 = -1;
-static int  proto_aruba_erm_type4 = -1;
-static int  proto_aruba_erm_type5 = -1;
-static int  proto_aruba_erm_type6 = -1;
+static int  proto_aruba_erm;
+static int  proto_aruba_erm_type0;
+static int  proto_aruba_erm_type1;
+static int  proto_aruba_erm_type2;
+static int  proto_aruba_erm_type3;
+static int  proto_aruba_erm_type4;
+static int  proto_aruba_erm_type5;
+static int  proto_aruba_erm_type6;
 
-static int  hf_aruba_erm_time             = -1;
-static int  hf_aruba_erm_incl_len         = -1;
-static int  hf_aruba_erm_orig_len         = -1;
-static int  hf_aruba_erm_data_rate        = -1;
-static int  hf_aruba_erm_data_rate_gen    = -1;
-static int  hf_aruba_erm_channel          = -1;
-static int  hf_aruba_erm_signal_strength  = -1;
+static int  hf_aruba_erm_time;
+static int  hf_aruba_erm_incl_len;
+static int  hf_aruba_erm_orig_len;
+static int  hf_aruba_erm_data_rate;
+static int  hf_aruba_erm_data_rate_gen;
+static int  hf_aruba_erm_channel;
+static int  hf_aruba_erm_signal_strength;
 
-static gint ett_aruba_erm = -1;
+static gint ett_aruba_erm;
 
-static expert_field ei_aruba_erm_airmagnet = EI_INIT;
-static expert_field ei_aruba_erm_decode = EI_INIT;
+static expert_field ei_aruba_erm_airmagnet;
+static expert_field ei_aruba_erm_decode;
 
 static dissector_handle_t aruba_erm_handle;
 static dissector_handle_t aruba_erm_handle_type0;

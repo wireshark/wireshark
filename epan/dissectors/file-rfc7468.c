@@ -16,16 +16,16 @@
 void proto_register_rfc7468(void);
 void proto_reg_handoff_rfc7468(void);
 
-static int proto_rfc7468 = -1;
+static int proto_rfc7468;
 
-static gint ett_rfc7468 = -1;
-static gint ett_rfc7468_preeb = -1;
-static gint ett_rfc7468_data = -1;
-static gint ett_rfc7468_posteb = -1;
+static gint ett_rfc7468;
+static gint ett_rfc7468_preeb;
+static gint ett_rfc7468_data;
+static gint ett_rfc7468_posteb;
 
-static int hf_rfc7468_preeb_label = -1;
-static int hf_rfc7468_ber_data = -1;
-static int hf_rfc7468_posteb_label = -1;
+static int hf_rfc7468_preeb_label;
+static int hf_rfc7468_ber_data;
+static int hf_rfc7468_posteb_label;
 
 static dissector_handle_t rfc7468_handle = NULL;
 static dissector_handle_t ber_handle = NULL;

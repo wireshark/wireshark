@@ -26,7 +26,7 @@ void proto_reg_handoff_brp(void);
 #define PROTO_TAG_BRP   "BRP"
 
 /* Wireshark ID of the BRP protocol */
-static int proto_brp = -1;
+static int proto_brp;
 
 static dissector_handle_t brp_handle;
 
@@ -80,37 +80,37 @@ static const value_string brp_stat_vals[] = {
 * our data fields; they are filled out when we call
 * proto_register_field_array() in proto_register_brp()
 */
-static gint hf_brp_type = -1;
-static gint hf_brp_trans = -1;
-static gint hf_brp_ver = -1;
-static gint hf_brp_stat = -1;
-static gint hf_brp_srcip = -1;
-static gint hf_brp_dstip = -1;
-static gint hf_brp_dstuport = -1;
-static gint hf_brp_mbz = -1;
-static gint hf_brp_bw = -1;
-static gint hf_brp_life = -1;
-static gint hf_brp_flid = -1;
-static gint hf_brp_rmttl = -1;
-static gint hf_brp_fltype = -1;
+static gint hf_brp_type;
+static gint hf_brp_trans;
+static gint hf_brp_ver;
+static gint hf_brp_stat;
+static gint hf_brp_srcip;
+static gint hf_brp_dstip;
+static gint hf_brp_dstuport;
+static gint hf_brp_mbz;
+static gint hf_brp_bw;
+static gint hf_brp_life;
+static gint hf_brp_flid;
+static gint hf_brp_rmttl;
+static gint hf_brp_fltype;
 
 /* These are the ids of the subtrees that we may be creating */
-static gint ett_brp = -1;
-static gint ett_brp_type = -1;
-static gint ett_brp_trans = -1;
-static gint ett_brp_ver = -1;
-static gint ett_brp_stat = -1;
-static gint ett_brp_srcip = -1;
-static gint ett_brp_dstip = -1;
-static gint ett_brp_dstuport = -1;
-static gint ett_brp_mbz = -1;
-static gint ett_brp_bw = -1;
-static gint ett_brp_life = -1;
-static gint ett_brp_flid = -1;
-static gint ett_brp_rmttl = -1;
-static gint ett_brp_fltype = -1;
+static gint ett_brp;
+static gint ett_brp_type;
+static gint ett_brp_trans;
+static gint ett_brp_ver;
+static gint ett_brp_stat;
+static gint ett_brp_srcip;
+static gint ett_brp_dstip;
+static gint ett_brp_dstuport;
+static gint ett_brp_mbz;
+static gint ett_brp_bw;
+static gint ett_brp_life;
+static gint ett_brp_flid;
+static gint ett_brp_rmttl;
+static gint ett_brp_fltype;
 
-static expert_field ei_brp_type_unknown = EI_INIT;
+static expert_field ei_brp_type_unknown;
 
 static int
 dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)

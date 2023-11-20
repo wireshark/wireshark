@@ -33,31 +33,31 @@
 void proto_register_mpls_y1711(void);
 void proto_reg_handoff_mpls_y1711(void);
 
-static gint proto_mpls_y1711 = -1;
+static gint proto_mpls_y1711;
 
-static int hf_mpls_y1711_function_type = -1;
-/* static int hf_mpls_y1711_ttsi = -1; */
-static int hf_mpls_y1711_frequency = -1;
-static int hf_mpls_y1711_defect_type = -1;
-static int hf_mpls_y1711_defect_location = -1;
-static int hf_mpls_y1711_bip16 = -1;
+static int hf_mpls_y1711_function_type;
+/* static int hf_mpls_y1711_ttsi; */
+static int hf_mpls_y1711_frequency;
+static int hf_mpls_y1711_defect_type;
+static int hf_mpls_y1711_defect_location;
+static int hf_mpls_y1711_bip16;
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_mpls_y1711_lsr_id = -1;
-static int hf_mpls_y1711_lsp_id = -1;
+static int hf_mpls_y1711_lsr_id;
+static int hf_mpls_y1711_lsp_id;
 
-static gint ett_mpls_y1711 = -1;
+static gint ett_mpls_y1711;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static expert_field ei_mpls_y1711_padding_not_ff = EI_INIT;
-static expert_field ei_mpls_y1711_reserved_not_zero = EI_INIT;
-static expert_field ei_mpls_y1711_ttsi_not_preset = EI_INIT;
-static expert_field ei_mpls_y1711_minimum_payload = EI_INIT;
-static expert_field ei_mpls_y1711_s_bit_not_one = EI_INIT;
-static expert_field ei_mpls_y1711_no_OAM_alert_label = EI_INIT;
-static expert_field ei_mpls_y1711_exp_bits_not_zero = EI_INIT;
-static expert_field ei_mpls_y1711_ttl_not_one = EI_INIT;
-static expert_field ei_mpls_y1711_padding_not_zero = EI_INIT;
-static expert_field ei_mpls_y1711_unknown_pdu = EI_INIT;
+static expert_field ei_mpls_y1711_padding_not_ff;
+static expert_field ei_mpls_y1711_reserved_not_zero;
+static expert_field ei_mpls_y1711_ttsi_not_preset;
+static expert_field ei_mpls_y1711_minimum_payload;
+static expert_field ei_mpls_y1711_s_bit_not_one;
+static expert_field ei_mpls_y1711_no_OAM_alert_label;
+static expert_field ei_mpls_y1711_exp_bits_not_zero;
+static expert_field ei_mpls_y1711_ttl_not_one;
+static expert_field ei_mpls_y1711_padding_not_zero;
+static expert_field ei_mpls_y1711_unknown_pdu;
 
 static dissector_handle_t mpls_y1711_handle;
 

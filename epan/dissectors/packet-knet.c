@@ -50,7 +50,7 @@ void proto_reg_handoff_knet(void);
  * Protocol variables.
  */
 /**@{*/
-static int proto_knet        = -1;
+static int proto_knet;
 /**@}*/
 
 /**
@@ -60,31 +60,31 @@ static int proto_knet        = -1;
 /* *@{*/
 
 /* Fields used by the TCP/SCTP dissector */
-static int hf_knet_message_tree =   -1; /*!< Message tree */
-static int hf_knet_content_length_vle = -1; /*!< Content Length */
+static int hf_knet_message_tree; /*!< Message tree */
+static int hf_knet_content_length_vle; /*!< Content Length */
 
 /* Fields used by the UDP dissector */
-static int hf_knet_content_length =              -1; /*!< Content Length */
-static int hf_knet_datagram_tree =               -1; /*!< Datagram subtree */
-static int hf_knet_flags =                       -1; /*!< UDP Flags subtree */
-static int hf_knet_inorder =                     -1; /*!< Inorder Flag */
-static int hf_knet_reliable =                    -1; /*!< Reliable Flag */
-static int hf_knet_packetid =                    -1; /*!< PacketID */
-static int hf_knet_rmib =                        -1; /*!< Reliable Message Index Base */
-static int hf_knet_msg_flags =                   -1; /*!< Message Block Flags subtree */
-static int hf_knet_msg_fs =                      -1; /*!< Fragment Start */
-static int hf_knet_msg_ff =                      -1; /*!< Fragment Flag */
-static int hf_knet_msg_inorder =                 -1; /*!< Inorder Flag */
-static int hf_knet_msg_reliable =                -1; /*!< Reliable Flag */
-static int hf_knet_msg_reliable_message_number = -1; /*!< Reliable Message Number */
+static int hf_knet_content_length; /*!< Content Length */
+static int hf_knet_datagram_tree; /*!< Datagram subtree */
+static int hf_knet_flags; /*!< UDP Flags subtree */
+static int hf_knet_inorder; /*!< Inorder Flag */
+static int hf_knet_reliable; /*!< Reliable Flag */
+static int hf_knet_packetid; /*!< PacketID */
+static int hf_knet_rmib; /*!< Reliable Message Index Base */
+static int hf_knet_msg_flags; /*!< Message Block Flags subtree */
+static int hf_knet_msg_fs; /*!< Fragment Start */
+static int hf_knet_msg_ff; /*!< Fragment Flag */
+static int hf_knet_msg_inorder; /*!< Inorder Flag */
+static int hf_knet_msg_reliable; /*!< Reliable Flag */
+static int hf_knet_msg_reliable_message_number; /*!< Reliable Message Number */
 
-static int hf_knet_payload_tree =    -1; /*!< Payload subtree */
-static int hf_knet_payload =         -1; /*!< Payload subtree */
-static int hf_knet_messageid =       -1; /*!< MessageID of the packet */
-static int hf_knet_pingid =          -1;
-static int hf_knet_flowctrlreq =     -1;
-static int hf_knet_packetack =       -1;
-static int hf_knet_seqnumber =       -1;
+static int hf_knet_payload_tree; /*!< Payload subtree */
+static int hf_knet_payload; /*!< Payload subtree */
+static int hf_knet_messageid; /*!< MessageID of the packet */
+static int hf_knet_pingid;
+static int hf_knet_flowctrlreq;
+static int hf_knet_packetack;
+static int hf_knet_seqnumber;
 /**@}*/
 
 /**
@@ -93,12 +93,12 @@ static int hf_knet_seqnumber =       -1;
 /* *@{*/
 
 /*Knet Subtrees */
-static gint ett_knet_main =          -1; /*!< Main kNet tree */
-static gint ett_knet_message =       -1; /*!< Message tree */
-static gint ett_knet_payload =       -1; /*!< Payload tree */
-static gint ett_knet_message_flags = -1; /*!< Message flags tree */
-static gint ett_knet_datagram =      -1;
-static gint ett_knet_flags =         -1;
+static gint ett_knet_main; /*!< Main kNet tree */
+static gint ett_knet_message; /*!< Message tree */
+static gint ett_knet_payload; /*!< Payload tree */
+static gint ett_knet_message_flags; /*!< Message flags tree */
+static gint ett_knet_datagram;
+static gint ett_knet_flags;
 /**@}*/
 
 static dissector_handle_t knet_handle_sctp;

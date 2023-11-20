@@ -19,7 +19,7 @@
 void proto_register_hpteam(void);
 void proto_reg_handoff_hpteam(void);
 
-static int proto_hpteam = -1;
+static int proto_hpteam;
 
 /* Known HP NIC teaming PID values */
 static const value_string hpteam_pid_vals[] = {
@@ -27,11 +27,11 @@ static const value_string hpteam_pid_vals[] = {
 	{ 0,		NULL }
 };
 
-static gint hf_hpteam = -1;
-static gint hf_llc_hpteam_pid = -1;
+static gint hf_hpteam;
+static gint hf_llc_hpteam_pid;
 
 /* These are the ids of the subtrees that we may be creating */
-static gint ett_hpteam = -1;
+static gint ett_hpteam;
 
 static dissector_handle_t hpteam_handle;
 

@@ -66,15 +66,15 @@ static void dissect_scop_bridge    (tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static guint get_scop_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data);
 
 /*  Initialize protocol and registered fields */
-static int proto_scop = -1;
-static int hf_scop_transport = -1;
-static int hf_scop_version = -1;
-static int hf_scop_length = -1;
-static int hf_scop_service = -1;
-static int hf_scop_type = -1;
-static int hf_scop_status = -1;
+static int proto_scop;
+static int hf_scop_transport;
+static int hf_scop_version;
+static int hf_scop_length;
+static int hf_scop_service;
+static int hf_scop_type;
+static int hf_scop_status;
 
-static gint ett_scop = -1;
+static gint ett_scop;
 
 static const value_string scop_transports [] = {
     { SCOP_TRANSPORT_UDP,       "UDP Mode 1" },

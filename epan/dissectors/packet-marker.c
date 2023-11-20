@@ -38,24 +38,24 @@ static const value_string marker_vals[] = {
 };
 
 /* Initialise the protocol and registered fields */
-static int proto_marker = -1;
+static int proto_marker;
 
-static int hf_marker_version_number = -1;
-static int hf_marker_tlv_type = -1;
-static int hf_marker_tlv_length = -1;
-static int hf_marker_req_port = -1;
-static int hf_marker_req_system = -1;
-static int hf_marker_req_trans_id = -1;
-static int hf_marker_req_pad = -1;
-static int hf_marker_reserved = -1;
+static int hf_marker_version_number;
+static int hf_marker_tlv_type;
+static int hf_marker_tlv_length;
+static int hf_marker_req_port;
+static int hf_marker_req_system;
+static int hf_marker_req_trans_id;
+static int hf_marker_req_pad;
+static int hf_marker_reserved;
 
 /* Expert Items */
-static expert_field ei_marker_wrong_tlv_type = EI_INIT;
-static expert_field ei_marker_wrong_tlv_length = EI_INIT;
-static expert_field ei_marker_wrong_pad_value = EI_INIT;
+static expert_field ei_marker_wrong_tlv_type;
+static expert_field ei_marker_wrong_tlv_length;
+static expert_field ei_marker_wrong_pad_value;
 
 /* Initialise the subtree pointers */
-static gint ett_marker = -1;
+static gint ett_marker;
 
 static int
 dissect_marker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

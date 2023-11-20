@@ -43,17 +43,17 @@
 void proto_reg_handoff_tali(void);
 void proto_register_tali(void);
 
-static int proto_tali = -1;
+static int proto_tali;
 
-static int hf_tali_length_indicator = -1;
-static int hf_tali_opcode_indicator = -1;
-static int hf_tali_sync_indicator = -1;
+static int hf_tali_length_indicator;
+static int hf_tali_opcode_indicator;
+static int hf_tali_sync_indicator;
 
 /* Initialize the subtree pointers */
-static gint ett_tali = -1;
-static gint ett_tali_sync = -1;
-static gint ett_tali_opcode = -1;
-static gint ett_tali_msu_length = -1;
+static gint ett_tali;
+static gint ett_tali_sync;
+static gint ett_tali_opcode;
+static gint ett_tali_msu_length;
 
 static dissector_table_t tali_dissector_table;
 

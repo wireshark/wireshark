@@ -27,61 +27,61 @@ static dissector_table_t subdissector_table_pdu_format;
 static dissector_table_t subdissector_table_pgn;
 
 /* Initialize the protocol and registered fields */
-static int proto_isobus = -1;
-static int hf_isobus_can_id = -1;
-static int hf_isobus_priority = -1;
-static int hf_isobus_ext_data_page = -1;
-static int hf_isobus_data_page = -1;
-static int hf_isobus_pdu_format_dp0 = -1;
-static int hf_isobus_pdu_format_dp1 = -1;
-static int hf_isobus_group_extension = -1;
-static int hf_isobus_src_addr = -1;
-static int hf_isobus_dst_addr = -1;
-static int hf_isobus_pgn = -1;
-static int hf_isobus_payload = -1;
+static int proto_isobus;
+static int hf_isobus_can_id;
+static int hf_isobus_priority;
+static int hf_isobus_ext_data_page;
+static int hf_isobus_data_page;
+static int hf_isobus_pdu_format_dp0;
+static int hf_isobus_pdu_format_dp1;
+static int hf_isobus_group_extension;
+static int hf_isobus_src_addr;
+static int hf_isobus_dst_addr;
+static int hf_isobus_pgn;
+static int hf_isobus_payload;
 
-static int hf_isobus_req_requested_pgn = -1;
-static int hf_isobus_ac_name = -1;
-static int hf_isobus_ac_name_id_number = -1;
-static int hf_isobus_ac_name_manufacturer = -1;
-static int hf_isobus_ac_name_ecu_instance = -1;
-static int hf_isobus_ac_name_function_instance = -1;
-static int hf_isobus_ac_name_function = -1;
-static int hf_isobus_ac_name_reserved = -1;
-static int hf_isobus_ac_name_vehicle_system = -1;
-static int hf_isobus_ac_name_vehicle_system_instance = -1;
-static int hf_isobus_ac_name_industry_group = -1;
-static int hf_isobus_ac_name_arbitrary_address_capable = -1;
+static int hf_isobus_req_requested_pgn;
+static int hf_isobus_ac_name;
+static int hf_isobus_ac_name_id_number;
+static int hf_isobus_ac_name_manufacturer;
+static int hf_isobus_ac_name_ecu_instance;
+static int hf_isobus_ac_name_function_instance;
+static int hf_isobus_ac_name_function;
+static int hf_isobus_ac_name_reserved;
+static int hf_isobus_ac_name_vehicle_system;
+static int hf_isobus_ac_name_vehicle_system_instance;
+static int hf_isobus_ac_name_industry_group;
+static int hf_isobus_ac_name_arbitrary_address_capable;
 
-static int hf_isobus_transportprotocol_controlbyte = -1;
-static int hf_isobus_transportprotocol_requesttosend_totalsize = -1;
-static int hf_isobus_transportprotocol_requesttosend_numberofpackets = -1;
-static int hf_isobus_transportprotocol_requesttosend_maximumpackets = -1;
-static int hf_isobus_transportprotocol_requesttosend_pgn = -1;
-static int hf_isobus_transportprotocol_cleartosend_numberofpacketscanbesent = -1;
-static int hf_isobus_transportprotocol_cleartosend_nextpacketnumber = -1;
-static int hf_isobus_transportprotocol_cleartosend_pgn = -1;
-static int hf_isobus_transportprotocol_endofmsgack_totalsize = -1;
-static int hf_isobus_transportprotocol_endofmsgack_numberofpackets = -1;
-static int hf_isobus_transportprotocol_endofmsgack_pgn = -1;
-static int hf_isobus_transportprotocol_connabort_abortreason = -1;
-static int hf_isobus_transportprotocol_connabort_pgn = -1;
-static int hf_isobus_transportprotocol_broadcastannouncemessage_totalsize = -1;
-static int hf_isobus_transportprotocol_broadcastannouncemessage_numberofpackets = -1;
-static int hf_isobus_transportprotocol_broadcastannouncemessage_pgn = -1;
-static int hf_isobus_transportprotocol_reserved = -1;
+static int hf_isobus_transportprotocol_controlbyte;
+static int hf_isobus_transportprotocol_requesttosend_totalsize;
+static int hf_isobus_transportprotocol_requesttosend_numberofpackets;
+static int hf_isobus_transportprotocol_requesttosend_maximumpackets;
+static int hf_isobus_transportprotocol_requesttosend_pgn;
+static int hf_isobus_transportprotocol_cleartosend_numberofpacketscanbesent;
+static int hf_isobus_transportprotocol_cleartosend_nextpacketnumber;
+static int hf_isobus_transportprotocol_cleartosend_pgn;
+static int hf_isobus_transportprotocol_endofmsgack_totalsize;
+static int hf_isobus_transportprotocol_endofmsgack_numberofpackets;
+static int hf_isobus_transportprotocol_endofmsgack_pgn;
+static int hf_isobus_transportprotocol_connabort_abortreason;
+static int hf_isobus_transportprotocol_connabort_pgn;
+static int hf_isobus_transportprotocol_broadcastannouncemessage_totalsize;
+static int hf_isobus_transportprotocol_broadcastannouncemessage_numberofpackets;
+static int hf_isobus_transportprotocol_broadcastannouncemessage_pgn;
+static int hf_isobus_transportprotocol_reserved;
 
-static int hf_msg_fragments = -1;
-static int hf_msg_fragment = -1;
-static int hf_msg_fragment_overlap = -1;
-static int hf_msg_fragment_overlap_conflicts = -1;
-static int hf_msg_fragment_multiple_tails = -1;
-static int hf_msg_fragment_too_long_fragment = -1;
-static int hf_msg_fragment_error = -1;
-static int hf_msg_fragment_count = -1;
-static int hf_msg_reassembled_in = -1;
-static int hf_msg_reassembled_length = -1;
-static int hf_msg_reassembled_data = -1;
+static int hf_msg_fragments;
+static int hf_msg_fragment;
+static int hf_msg_fragment_overlap;
+static int hf_msg_fragment_overlap_conflicts;
+static int hf_msg_fragment_multiple_tails;
+static int hf_msg_fragment_too_long_fragment;
+static int hf_msg_fragment_error;
+static int hf_msg_fragment_count;
+static int hf_msg_reassembled_in;
+static int hf_msg_reassembled_length;
+static int hf_msg_reassembled_data;
 
 /* Desegmentation of isobus transport protocol streams */
 static reassembly_table isobus_reassembly_table;
@@ -196,11 +196,11 @@ static const value_string transport_protocol_control_byte[] = {
 };
 
 
-static gint ett_isobus = -1;
-static gint ett_isobus_can_id = -1;
-static gint ett_isobus_name = -1;
-static gint ett_isobus_fragment = -1;
-static gint ett_isobus_fragments = -1;
+static gint ett_isobus;
+static gint ett_isobus_can_id;
+static gint ett_isobus_name;
+static gint ett_isobus_fragment;
+static gint ett_isobus_fragments;
 
 static const fragment_items isobus_frag_items = {
     &ett_isobus_fragment,

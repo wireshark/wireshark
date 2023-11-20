@@ -27,44 +27,44 @@ void proto_reg_handoff_quakeworld(void);
 
 static dissector_handle_t quakeworld_handle;
 
-static int proto_quakeworld = -1;
+static int proto_quakeworld;
 
-static int hf_quakeworld_s2c = -1;
-static int hf_quakeworld_c2s = -1;
-static int hf_quakeworld_connectionless = -1;
-static int hf_quakeworld_game = -1;
-static int hf_quakeworld_connectionless_marker = -1;
-static int hf_quakeworld_connectionless_text = -1;
-static int hf_quakeworld_connectionless_command = -1;
-static int hf_quakeworld_connectionless_arguments = -1;
-static int hf_quakeworld_connectionless_connect_version = -1;
-static int hf_quakeworld_connectionless_connect_qport = -1;
-static int hf_quakeworld_connectionless_connect_challenge = -1;
-static int hf_quakeworld_connectionless_connect_infostring = -1;
-static int hf_quakeworld_connectionless_connect_infostring_key_value = -1;
-static int hf_quakeworld_connectionless_connect_infostring_key = -1;
-static int hf_quakeworld_connectionless_connect_infostring_value = -1;
-static int hf_quakeworld_connectionless_rcon_password = -1;
-static int hf_quakeworld_connectionless_rcon_command = -1;
-static int hf_quakeworld_game_seq1 = -1;
-static int hf_quakeworld_game_rel1 = -1;
-static int hf_quakeworld_game_seq2 = -1;
-static int hf_quakeworld_game_rel2 = -1;
-static int hf_quakeworld_game_qport = -1;
+static int hf_quakeworld_s2c;
+static int hf_quakeworld_c2s;
+static int hf_quakeworld_connectionless;
+static int hf_quakeworld_game;
+static int hf_quakeworld_connectionless_marker;
+static int hf_quakeworld_connectionless_text;
+static int hf_quakeworld_connectionless_command;
+static int hf_quakeworld_connectionless_arguments;
+static int hf_quakeworld_connectionless_connect_version;
+static int hf_quakeworld_connectionless_connect_qport;
+static int hf_quakeworld_connectionless_connect_challenge;
+static int hf_quakeworld_connectionless_connect_infostring;
+static int hf_quakeworld_connectionless_connect_infostring_key_value;
+static int hf_quakeworld_connectionless_connect_infostring_key;
+static int hf_quakeworld_connectionless_connect_infostring_value;
+static int hf_quakeworld_connectionless_rcon_password;
+static int hf_quakeworld_connectionless_rcon_command;
+static int hf_quakeworld_game_seq1;
+static int hf_quakeworld_game_rel1;
+static int hf_quakeworld_game_seq2;
+static int hf_quakeworld_game_rel2;
+static int hf_quakeworld_game_qport;
 
-static gint ett_quakeworld = -1;
-static gint ett_quakeworld_connectionless = -1;
-static gint ett_quakeworld_connectionless_text = -1;
-static gint ett_quakeworld_connectionless_arguments = -1;
-static gint ett_quakeworld_connectionless_connect_infostring = -1;
-static gint ett_quakeworld_connectionless_connect_infostring_key_value = -1;
-static gint ett_quakeworld_game = -1;
-static gint ett_quakeworld_game_seq1 = -1;
-static gint ett_quakeworld_game_seq2 = -1;
-static gint ett_quakeworld_game_clc = -1;
-static gint ett_quakeworld_game_svc = -1;
+static gint ett_quakeworld;
+static gint ett_quakeworld_connectionless;
+static gint ett_quakeworld_connectionless_text;
+static gint ett_quakeworld_connectionless_arguments;
+static gint ett_quakeworld_connectionless_connect_infostring;
+static gint ett_quakeworld_connectionless_connect_infostring_key_value;
+static gint ett_quakeworld_game;
+static gint ett_quakeworld_game_seq1;
+static gint ett_quakeworld_game_seq2;
+static gint ett_quakeworld_game_clc;
+static gint ett_quakeworld_game_svc;
 
-static expert_field ei_quakeworld_connectionless_command_invalid = EI_INIT;
+static expert_field ei_quakeworld_connectionless_command_invalid;
 
 /*
 	helper functions, they may ave to go somewhere else

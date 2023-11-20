@@ -19,20 +19,20 @@
 #include "packet-btl2cap.h"
 #include "packet-btsdp.h"
 
-static int proto_bt3ds = -1;
+static int proto_bt3ds;
 
-static int hf_message_opcode                                               = -1;
-static int hf_association_notification                                     = -1;
-static int hf_user_request_for_battery_level_display                       = -1;
-static int hf_reserved                                                     = -1;
-static int hf_battery_level                                                = -1;
+static int hf_message_opcode;
+static int hf_association_notification;
+static int hf_user_request_for_battery_level_display;
+static int hf_reserved;
+static int hf_battery_level;
 
-static expert_field ei_message_opcode_reserved                        = EI_INIT;
-static expert_field ei_reserved                                       = EI_INIT;
-static expert_field ei_battery_level_reserved                         = EI_INIT;
-static expert_field ei_unexpected_data                                = EI_INIT;
+static expert_field ei_message_opcode_reserved;
+static expert_field ei_reserved;
+static expert_field ei_battery_level_reserved;
+static expert_field ei_unexpected_data;
 
-static gint ett_bt3ds                                                      = -1;
+static gint ett_bt3ds;
 
 static dissector_handle_t b3ds_handle;
 

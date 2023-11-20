@@ -22,26 +22,26 @@ void proto_register_h248_7(void);
 #define PSNAME "H248AN"
 #define PFNAME "h248.an"
 
-static int proto_h248_an = -1;
+static int proto_h248_an;
 
-static int hf_h248_an_apf = -1;
-static int hf_h248_an_apf_an = -1;
-static int hf_h248_an_apf_noc = -1;
-static int hf_h248_an_apf_av = -1;
-static int hf_h248_an_apf_di = -1;
+static int hf_h248_an_apf;
+static int hf_h248_an_apf_an;
+static int hf_h248_an_apf_noc;
+static int hf_h248_an_apf_av;
+static int hf_h248_an_apf_di;
 
-static int hf_h248_an_apv = -1;
-static int hf_h248_an_apv_an = -1;
-static int hf_h248_an_apv_noc = -1;
-static int hf_h248_an_apv_av = -1;
-static int hf_h248_an_apv_num = -1;
-static int hf_h248_an_apv_spi = -1;
-static int hf_h248_an_apv_sp = -1;
-static int hf_h248_an_apv_di = -1;
+static int hf_h248_an_apv;
+static int hf_h248_an_apv_an;
+static int hf_h248_an_apv_noc;
+static int hf_h248_an_apv_av;
+static int hf_h248_an_apv_num;
+static int hf_h248_an_apv_spi;
+static int hf_h248_an_apv_sp;
+static int hf_h248_an_apv_di;
 
-static gint ett_h248_an = -1;
-static gint ett_h248_an_apf = -1;
-static gint ett_h248_an_apv = -1;
+static gint ett_h248_an;
+static gint ett_h248_an_apf;
+static gint ett_h248_an_apv;
 
 static const value_string h248_an_prop_vals[] = {
 	{ 0, "Generic Announcement Package (an) (H.248.7)" },

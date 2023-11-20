@@ -37,17 +37,17 @@
 void proto_register_bjnp(void);
 void proto_reg_handoff_bjnp(void);
 
-static int proto_bjnp = -1;
+static int proto_bjnp;
 
-static int hf_bjnp_id = -1;
-static int hf_dev_type = -1;
-static int hf_cmd_code = -1;
-static int hf_seq_no = -1;
-static int hf_session_id = -1;
-static int hf_payload_len = -1;
-static int hf_payload = -1;
+static int hf_bjnp_id;
+static int hf_dev_type;
+static int hf_cmd_code;
+static int hf_seq_no;
+static int hf_session_id;
+static int hf_payload_len;
+static int hf_payload;
 
-static gint ett_bjnp = -1;
+static gint ett_bjnp;
 
 static dissector_handle_t bjnp_handle;
 

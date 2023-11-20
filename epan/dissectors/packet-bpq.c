@@ -39,10 +39,10 @@ static dissector_handle_t ax25_handle;
 
 static capture_dissector_handle_t ax25_cap_handle;
 
-static int proto_bpq            = -1;
-static int hf_bpq_len		= -1;
+static int proto_bpq;
+static int hf_bpq_len;
 
-static gint ett_bpq = -1;
+static gint ett_bpq;
 
 static int
 dissect_bpq( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_ )

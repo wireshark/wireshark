@@ -15,15 +15,15 @@
 void proto_register_ascend(void);
 void proto_reg_handoff_ascend(void);
 
-static int proto_ascend  = -1;
-static int hf_link_type  = -1;
-static int hf_session_id = -1;
-static int hf_called_number = -1;
-static int hf_chunk      = -1;
-static int hf_task       = -1;
-static int hf_user_name  = -1;
+static int proto_ascend;
+static int hf_link_type;
+static int hf_session_id;
+static int hf_called_number;
+static int hf_chunk;
+static int hf_task;
+static int hf_user_name;
 
-static gint ett_raw = -1;
+static gint ett_raw;
 
 static const value_string encaps_vals[] = {
   {ASCEND_PFX_WDS_X,  "PPP Transmit"               },

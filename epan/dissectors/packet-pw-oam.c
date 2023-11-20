@@ -22,19 +22,19 @@ void proto_reg_handoff_pw_oam(void);
 static dissector_handle_t pw_oam_handle;
 
 /* MPLS-TP FM protocol specific variables */
-static gint proto_pw_oam             = -1;
-static gint ett_pw_oam               = -1;
-static gint ett_pw_oam_flags         = -1;
-static gint ett_pw_oam_tlv_tree      = -1;
+static gint proto_pw_oam;
+static gint ett_pw_oam;
+static gint ett_pw_oam_flags;
+static gint ett_pw_oam_tlv_tree;
 
-static int hf_pw_oam_tlv_reserved    = -1;
-static int hf_pw_oam_tlv_type        = -1;
-static int hf_pw_oam_total_tlv_len   = -1;
-static int hf_pw_oam_code            = -1;
-static int hf_pw_oam_flags           = -1;
-static int hf_pw_oam_flags_a         = -1;
-static int hf_pw_oam_refresh_timer   = -1;
-static int hf_pw_oam_tlv_len         = -1;
+static int hf_pw_oam_tlv_reserved;
+static int hf_pw_oam_tlv_type;
+static int hf_pw_oam_total_tlv_len;
+static int hf_pw_oam_code;
+static int hf_pw_oam_flags;
+static int hf_pw_oam_flags_a;
+static int hf_pw_oam_refresh_timer;
+static int hf_pw_oam_tlv_len;
 
 static const value_string pw_oam_code[] = {
   {0x00000002, "Local Attachment Circuit(ingress) Receive Fault"},

@@ -67,23 +67,23 @@ static gboolean global_ipa_in_root = FALSE;
 static gboolean global_ipa_in_info = FALSE;
 
 /* Initialize the protocol and registered fields */
-static int proto_ipa = -1;
-static int proto_ipaccess = -1;
+static int proto_ipa;
+static int proto_ipaccess;
 
-static int hf_ipa_data_len = -1;
-static int hf_ipa_protocol = -1;
-static int hf_ipa_hsl_debug = -1;
-static int hf_ipa_osmo_proto = -1;
-static int hf_ipa_osmo_ctrl_data = -1;
+static int hf_ipa_data_len;
+static int hf_ipa_protocol;
+static int hf_ipa_hsl_debug;
+static int hf_ipa_osmo_proto;
+static int hf_ipa_osmo_ctrl_data;
 
-static int hf_ipaccess_msgtype = -1;
-static int hf_ipaccess_attr_tag = -1;
-static int hf_ipaccess_attr_string = -1;
-static int hf_ipaccess_attribute_unk = -1;
+static int hf_ipaccess_msgtype;
+static int hf_ipaccess_attr_tag;
+static int hf_ipaccess_attr_string;
+static int hf_ipaccess_attribute_unk;
 
 /* Initialize the subtree pointers */
-static gint ett_ipa = -1;
-static gint ett_ipaccess = -1;
+static gint ett_ipa;
+static gint ett_ipaccess;
 
 enum {
 	SUB_OML,

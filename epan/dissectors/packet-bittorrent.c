@@ -138,39 +138,39 @@ static const struct amp_message amp_messages[] = {
 
 static dissector_handle_t dissector_handle;
 static dissector_handle_t bencode_handle;
-static int proto_bittorrent = -1;
+static int proto_bittorrent;
 
-/* static gint hf_bittorrent_field_length  = -1; */
-static gint hf_bittorrent_prot_name_len = -1;
-static gint hf_bittorrent_prot_name     = -1;
-static gint hf_bittorrent_reserved      = -1;
-static gint hf_bittorrent_sha1_hash     = -1;
-static gint hf_bittorrent_peer_id       = -1;
-static gint hf_bittorrent_msg           = -1;
-static gint hf_bittorrent_msg_len       = -1;
-static gint hf_bittorrent_msg_type      = -1;
-static gint hf_azureus_msg              = -1;
-static gint hf_azureus_msg_type_len     = -1;
-static gint hf_azureus_msg_type         = -1;
-static gint hf_azureus_msg_prio         = -1;
-static gint hf_bittorrent_bitfield_data = -1;
-static gint hf_bittorrent_piece_index   = -1;
-static gint hf_bittorrent_piece_begin   = -1;
-static gint hf_bittorrent_piece_length  = -1;
-static gint hf_bittorrent_piece_data    = -1;
-static gint hf_azureus_jpc_addrlen      = -1;
-static gint hf_azureus_jpc_addr         = -1;
-static gint hf_azureus_jpc_port         = -1;
-static gint hf_azureus_jpc_session      = -1;
-static gint hf_bittorrent_port          = -1;
-static gint hf_bittorrent_extended_id   = -1;
-static gint hf_bittorrent_extended      = -1;
-static gint hf_bittorrent_continuous_data = -1;
-static gint hf_bittorrent_version       = -1;
+/* static gint hf_bittorrent_field_length; */
+static gint hf_bittorrent_prot_name_len;
+static gint hf_bittorrent_prot_name;
+static gint hf_bittorrent_reserved;
+static gint hf_bittorrent_sha1_hash;
+static gint hf_bittorrent_peer_id;
+static gint hf_bittorrent_msg;
+static gint hf_bittorrent_msg_len;
+static gint hf_bittorrent_msg_type;
+static gint hf_azureus_msg;
+static gint hf_azureus_msg_type_len;
+static gint hf_azureus_msg_type;
+static gint hf_azureus_msg_prio;
+static gint hf_bittorrent_bitfield_data;
+static gint hf_bittorrent_piece_index;
+static gint hf_bittorrent_piece_begin;
+static gint hf_bittorrent_piece_length;
+static gint hf_bittorrent_piece_data;
+static gint hf_azureus_jpc_addrlen;
+static gint hf_azureus_jpc_addr;
+static gint hf_azureus_jpc_port;
+static gint hf_azureus_jpc_session;
+static gint hf_bittorrent_port;
+static gint hf_bittorrent_extended_id;
+static gint hf_bittorrent_extended;
+static gint hf_bittorrent_continuous_data;
+static gint hf_bittorrent_version;
 
-static gint ett_bittorrent              = -1;
-static gint ett_bittorrent_msg          = -1;
-static gint ett_peer_id                 = -1;
+static gint ett_bittorrent;
+static gint ett_bittorrent_msg;
+static gint ett_peer_id;
 
 static gboolean bittorrent_desegment      = TRUE;
 static gboolean decode_client_information = FALSE;

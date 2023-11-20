@@ -41,112 +41,112 @@ void proto_reg_handoff_linx_tcp(void);
 
 static dissector_handle_t linx_handle;
 
-static int proto_linx     = -1;
-static int proto_linx_tcp = -1;
+static int proto_linx;
+static int proto_linx_tcp;
 
 /* ALL */
-static int hf_linx_nexthdr         = -1;
+static int hf_linx_nexthdr;
 
 /* MULTICORE */
-static int hf_linx_multicore_scoreid   = -1;
-static int hf_linx_multicore_dcoreid   = -1;
-static int hf_linx_multicore_reserved  = -1;
-static int hf_linx_multicore_reserved1 = -1;
+static int hf_linx_multicore_scoreid;
+static int hf_linx_multicore_dcoreid;
+static int hf_linx_multicore_reserved;
+static int hf_linx_multicore_reserved1;
 
 
 /* MAIN */
-static int hf_linx_main_version    = -1;
-static int hf_linx_main_reserved   = -1;
-static int hf_linx_main_connection = -1;
-static int hf_linx_main_bundle     = -1;
-static int hf_linx_main_pkgsize    = -1;
+static int hf_linx_main_version;
+static int hf_linx_main_reserved;
+static int hf_linx_main_connection;
+static int hf_linx_main_bundle;
+static int hf_linx_main_pkgsize;
 
 /* UDATA */
-static int hf_linx_udata_reserved  = -1;
-static int hf_linx_udata_morefrags = -1;
-static int hf_linx_udata_fragno    = -1;
-static int hf_linx_udata_signo     = -1;
-static int hf_linx_udata_dstaddr16 = -1;
-static int hf_linx_udata_dstaddr32 = -1;
-static int hf_linx_udata_srcaddr16 = -1;
-static int hf_linx_udata_srcaddr32 = -1;
-static int hf_linx_udata_payload   = -1;
+static int hf_linx_udata_reserved;
+static int hf_linx_udata_morefrags;
+static int hf_linx_udata_fragno;
+static int hf_linx_udata_signo;
+static int hf_linx_udata_dstaddr16;
+static int hf_linx_udata_dstaddr32;
+static int hf_linx_udata_srcaddr16;
+static int hf_linx_udata_srcaddr32;
+static int hf_linx_udata_payload;
 
 /* ACK */
-static int hf_linx_ack_reserved    = -1;
-static int hf_linx_ack_request     = -1;
-static int hf_linx_ack_ackno       = -1;
-static int hf_linx_ack_seqno       = -1;
+static int hf_linx_ack_reserved;
+static int hf_linx_ack_request;
+static int hf_linx_ack_ackno;
+static int hf_linx_ack_seqno;
 
 /* CONN */
-static int hf_linx_conn_cmd          = -1;
-static int hf_linx_conn_size         = -1;
-static int hf_linx_conn_reserved     = -1;
-static int hf_linx_conn_srcmac       = -1;
-static int hf_linx_conn_dstmac       = -1;
-static int hf_linx_conn_winsize      = -1;
-static int hf_linx_conn_publcid      = -1;
-static int hf_linx_conn_feat_neg_str = -1;
+static int hf_linx_conn_cmd;
+static int hf_linx_conn_size;
+static int hf_linx_conn_reserved;
+static int hf_linx_conn_srcmac;
+static int hf_linx_conn_dstmac;
+static int hf_linx_conn_winsize;
+static int hf_linx_conn_publcid;
+static int hf_linx_conn_feat_neg_str;
 /* FRAG */
-static int hf_linx_frag_reserved   = -1;
-static int hf_linx_frag_morefrags  = -1;
-static int hf_linx_frag_fragno     = -1;
+static int hf_linx_frag_reserved;
+static int hf_linx_frag_morefrags;
+static int hf_linx_frag_fragno;
 
 /* NACK */
-static int hf_linx_nack_reserv1    = -1;
-static int hf_linx_nack_reserv2    = -1;
-static int hf_linx_nack_count      = -1;
-static int hf_linx_nack_seqno      = -1;
+static int hf_linx_nack_reserv1;
+static int hf_linx_nack_reserv2;
+static int hf_linx_nack_count;
+static int hf_linx_nack_seqno;
 
 /* RLNH */
-static int hf_linx_rlnh_msg_type32    = -1;
-static int hf_linx_rlnh_msg_type8     = -1;
-/* static int hf_linx_rlnh_linkaddr      = -1; */
-static int hf_linx_rlnh_src_linkaddr  = -1;
-static int hf_linx_rlnh_version       = -1;
-static int hf_linx_rlnh_status        = -1;
-static int hf_linx_rlnh_name          = -1;
-static int hf_linx_rlnh_peer_linkaddr = -1;
-static int hf_linx_rlnh_feat_neg_str  = -1;
-static int hf_linx_rlnh_msg_reserved  = -1;
+static int hf_linx_rlnh_msg_type32;
+static int hf_linx_rlnh_msg_type8;
+/* static int hf_linx_rlnh_linkaddr; */
+static int hf_linx_rlnh_src_linkaddr;
+static int hf_linx_rlnh_version;
+static int hf_linx_rlnh_status;
+static int hf_linx_rlnh_name;
+static int hf_linx_rlnh_peer_linkaddr;
+static int hf_linx_rlnh_feat_neg_str;
+static int hf_linx_rlnh_msg_reserved;
 
 /* TCP CM */
-/* static int hf_linx_tcp_reserved           = -1; */
-static int hf_linx_tcp_oob                = -1;
-static int hf_linx_tcp_version            = -1;
-static int hf_linx_tcp_type               = -1;
-static int hf_linx_tcp_src                = -1;
-static int hf_linx_tcp_dst                = -1;
-static int hf_linx_tcp_size               = -1;
-static int hf_linx_tcp_rlnh_msg_type32    = -1;
-static int hf_linx_tcp_rlnh_msg_type8     = -1;
-/* static int hf_linx_tcp_rlnh_linkaddr      = -1; */
-static int hf_linx_tcp_rlnh_src_linkaddr  = -1;
-static int hf_linx_tcp_rlnh_version       = -1;
-static int hf_linx_tcp_rlnh_status        = -1;
-static int hf_linx_tcp_rlnh_name          = -1;
-static int hf_linx_tcp_rlnh_peer_linkaddr = -1;
-static int hf_linx_tcp_rlnh_feat_neg_str  = -1;
-static int hf_linx_tcp_rlnh_msg_reserved  = -1;
-static int hf_linx_tcp_payload            = -1;
+/* static int hf_linx_tcp_reserved; */
+static int hf_linx_tcp_oob;
+static int hf_linx_tcp_version;
+static int hf_linx_tcp_type;
+static int hf_linx_tcp_src;
+static int hf_linx_tcp_dst;
+static int hf_linx_tcp_size;
+static int hf_linx_tcp_rlnh_msg_type32;
+static int hf_linx_tcp_rlnh_msg_type8;
+/* static int hf_linx_tcp_rlnh_linkaddr; */
+static int hf_linx_tcp_rlnh_src_linkaddr;
+static int hf_linx_tcp_rlnh_version;
+static int hf_linx_tcp_rlnh_status;
+static int hf_linx_tcp_rlnh_name;
+static int hf_linx_tcp_rlnh_peer_linkaddr;
+static int hf_linx_tcp_rlnh_feat_neg_str;
+static int hf_linx_tcp_rlnh_msg_reserved;
+static int hf_linx_tcp_payload;
 
 
 static int rlnh_version = 0;
 
-static gint ett_linx           = -1;
-static gint ett_linx_multicore = -1;
-static gint ett_linx_main      = -1;
-static gint ett_linx_error     = -1;
-static gint ett_linx_udata     = -1;
-static gint ett_linx_ack       = -1;
-static gint ett_linx_tcp       = -1;
+static gint ett_linx;
+static gint ett_linx_multicore;
+static gint ett_linx_main;
+static gint ett_linx_error;
+static gint ett_linx_udata;
+static gint ett_linx_ack;
+static gint ett_linx_tcp;
 
-static expert_field ei_linx_version = EI_INIT;
-static expert_field ei_linx_rlnh_msg = EI_INIT;
-static expert_field ei_linx_header = EI_INIT;
+static expert_field ei_linx_version;
+static expert_field ei_linx_rlnh_msg;
+static expert_field ei_linx_header;
 
-static expert_field ei_linx_tcp_version = EI_INIT;
-static expert_field ei_linx_tcp_rlnh_msg = EI_INIT;
+static expert_field ei_linx_tcp_version;
+static expert_field ei_linx_tcp_rlnh_msg;
 
 
 

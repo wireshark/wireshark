@@ -18,21 +18,21 @@
 void proto_register_lapb(void);
 void proto_reg_handoff_lapb(void);
 
-static int proto_lapb = -1;
-static int hf_lapb_address = -1;
-static int hf_lapb_control = -1;
-static int hf_lapb_n_r = -1;
-static int hf_lapb_n_s = -1;
-static int hf_lapb_p = -1;
-static int hf_lapb_f = -1;
-static int hf_lapb_s_ftype = -1;
-static int hf_lapb_u_modifier_cmd = -1;
-static int hf_lapb_u_modifier_resp = -1;
-static int hf_lapb_ftype_i = -1;
-static int hf_lapb_ftype_s_u = -1;
+static int proto_lapb;
+static int hf_lapb_address;
+static int hf_lapb_control;
+static int hf_lapb_n_r;
+static int hf_lapb_n_s;
+static int hf_lapb_p;
+static int hf_lapb_f;
+static int hf_lapb_s_ftype;
+static int hf_lapb_u_modifier_cmd;
+static int hf_lapb_u_modifier_resp;
+static int hf_lapb_ftype_i;
+static int hf_lapb_ftype_s_u;
 
-static gint ett_lapb = -1;
-static gint ett_lapb_control = -1;
+static gint ett_lapb;
+static gint ett_lapb_control;
 
 static dissector_handle_t x25_dir_handle;
 static dissector_handle_t x25_handle;

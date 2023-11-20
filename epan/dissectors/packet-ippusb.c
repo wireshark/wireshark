@@ -51,28 +51,28 @@ static gint is_http_header(guint first_linelen, const guchar *first_line);
 
 static dissector_handle_t ippusb_handle;
 
-static gint proto_ippusb = -1;
-static gint ett_ippusb = -1;
-static gint ett_ippusb_as = -1;
-static gint ett_ippusb_attr = -1;
-static gint ett_ippusb_member = -1;
-static gint ett_ippusb_fragment= -1;
-static gint ett_ippusb_fragments = -1;
+static gint proto_ippusb;
+static gint ett_ippusb;
+static gint ett_ippusb_as;
+static gint ett_ippusb_attr;
+static gint ett_ippusb_member;
+static gint ett_ippusb_fragment;
+static gint ett_ippusb_fragments;
 
 /* For reassembly */
 static gint32 ippusb_last_pdu = -1;
 
-static int hf_ippusb_fragments = -1;
-static int hf_ippusb_fragment = -1;
-static int hf_ippusb_fragment_overlap = -1;
-static int hf_ippusb_fragment_overlap_conflict = -1;
-static int hf_ippusb_fragment_multiple_tails = -1;
-static int hf_ippusb_fragment_too_long_fragment = -1;
-static int hf_ippusb_fragment_error = -1;
-static int hf_ippusb_fragment_count = -1;
-static int hf_ippusb_reassembled_in = -1;
-static int hf_ippusb_reassembled_length = -1;
-static int hf_ippusb_reassembled_data = -1;
+static int hf_ippusb_fragments;
+static int hf_ippusb_fragment;
+static int hf_ippusb_fragment_overlap;
+static int hf_ippusb_fragment_overlap_conflict;
+static int hf_ippusb_fragment_multiple_tails;
+static int hf_ippusb_fragment_too_long_fragment;
+static int hf_ippusb_fragment_error;
+static int hf_ippusb_fragment_count;
+static int hf_ippusb_reassembled_in;
+static int hf_ippusb_reassembled_length;
+static int hf_ippusb_reassembled_data;
 
 /* Reassemble by default */
 static gboolean global_ippusb_reassemble = TRUE;

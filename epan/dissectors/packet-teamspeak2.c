@@ -96,21 +96,21 @@ void proto_register_ts2(void);
 
 static dissector_handle_t ts2_handle;
 
-static int hf_msg_fragments = -1;
-static int hf_msg_fragment = -1;
-static int hf_msg_fragment_overlap = -1;
-static int hf_msg_fragment_overlap_conflicts = -1;
-static int hf_msg_fragment_multiple_tails = -1;
-static int hf_msg_fragment_too_long_fragment = -1;
-static int hf_msg_fragment_error = -1;
-static int hf_msg_fragment_count = -1;
-static int hf_msg_reassembled_in = -1;
-static int hf_msg_reassembled_length = -1;
+static int hf_msg_fragments;
+static int hf_msg_fragment;
+static int hf_msg_fragment_overlap;
+static int hf_msg_fragment_overlap_conflicts;
+static int hf_msg_fragment_multiple_tails;
+static int hf_msg_fragment_too_long_fragment;
+static int hf_msg_fragment_error;
+static int hf_msg_fragment_count;
+static int hf_msg_reassembled_in;
+static int hf_msg_reassembled_length;
 
-static gint ett_msg_fragment = -1;
-static gint ett_msg_fragments = -1;
+static gint ett_msg_fragment;
+static gint ett_msg_fragments;
 
-static expert_field ei_ts2_crc32 = EI_INIT;
+static expert_field ei_ts2_crc32;
 
 static const fragment_items msg_frag_items = {
     /* Fragment subtrees */
@@ -216,59 +216,59 @@ static const value_string codecnames[] =
 
 #define TS2_PORT 8767 /* Not IANA registered */
 
-static int proto_ts2 = -1;
+static int proto_ts2;
 
-static int hf_ts2_type = -1;
-static int hf_ts2_class = -1;
-static int hf_ts2_clientid = -1;
-static int hf_ts2_sessionkey = -1;
-static int hf_ts2_crc32 = -1;
-static int hf_ts2_crc32_status = -1;
-static int hf_ts2_ackto = -1;
-static int hf_ts2_seqnum = -1;
-static int hf_ts2_protocol_string = -1;
-/* static int hf_ts2_string = -1; */
-static int hf_ts2_registeredlogin = -1;
-static int hf_ts2_name = -1;
-static int hf_ts2_password = -1;
-static int hf_ts2_nick = -1;
-static int hf_ts2_badlogin = -1;
-static int hf_ts2_unknown = -1;
-static int hf_ts2_channel = -1;
-static int hf_ts2_subchannel = -1;
-static int hf_ts2_channelpassword = -1;
-static int hf_ts2_emptyspace = -1;
-static int hf_ts2_fragmentnumber = -1;
-static int hf_ts2_platform_string = -1;
-static int hf_ts2_server_name = -1;
-static int hf_ts2_server_welcome_message = -1;
-static int hf_ts2_parent_channel_id = -1;
-static int hf_ts2_codec = -1;
-static int hf_ts2_channel_flags = -1;
-static int hf_ts2_channel_id = -1;
-static int hf_ts2_channel_name = -1;
-static int hf_ts2_channel_topic = -1;
-static int hf_ts2_channel_description = -1;
-static int hf_ts2_player_id = -1;
-static int hf_ts2_player_status_flags = -1;
-static int hf_ts2_number_of_players = -1;
-static int hf_ts2_number_of_channels = -1;
-static int hf_ts2_resend_count = -1;
-static int hf_ts2_status_channelcommander = -1;
-static int hf_ts2_status_blockwhispers = -1;
-static int hf_ts2_status_away = -1;
-static int hf_ts2_status_mutemicrophone = -1;
-static int hf_ts2_status_mute = -1;
-static int hf_ts2_channel_unregistered = -1;
-static int hf_ts2_channel_moderated = -1;
-static int hf_ts2_channel_password = -1;
-static int hf_ts2_channel_subchannels = -1;
-static int hf_ts2_channel_default = -1;
-static int hf_ts2_channel_order = -1;
-static int hf_ts2_max_users = -1;
+static int hf_ts2_type;
+static int hf_ts2_class;
+static int hf_ts2_clientid;
+static int hf_ts2_sessionkey;
+static int hf_ts2_crc32;
+static int hf_ts2_crc32_status;
+static int hf_ts2_ackto;
+static int hf_ts2_seqnum;
+static int hf_ts2_protocol_string;
+/* static int hf_ts2_string; */
+static int hf_ts2_registeredlogin;
+static int hf_ts2_name;
+static int hf_ts2_password;
+static int hf_ts2_nick;
+static int hf_ts2_badlogin;
+static int hf_ts2_unknown;
+static int hf_ts2_channel;
+static int hf_ts2_subchannel;
+static int hf_ts2_channelpassword;
+static int hf_ts2_emptyspace;
+static int hf_ts2_fragmentnumber;
+static int hf_ts2_platform_string;
+static int hf_ts2_server_name;
+static int hf_ts2_server_welcome_message;
+static int hf_ts2_parent_channel_id;
+static int hf_ts2_codec;
+static int hf_ts2_channel_flags;
+static int hf_ts2_channel_id;
+static int hf_ts2_channel_name;
+static int hf_ts2_channel_topic;
+static int hf_ts2_channel_description;
+static int hf_ts2_player_id;
+static int hf_ts2_player_status_flags;
+static int hf_ts2_number_of_players;
+static int hf_ts2_number_of_channels;
+static int hf_ts2_resend_count;
+static int hf_ts2_status_channelcommander;
+static int hf_ts2_status_blockwhispers;
+static int hf_ts2_status_away;
+static int hf_ts2_status_mutemicrophone;
+static int hf_ts2_status_mute;
+static int hf_ts2_channel_unregistered;
+static int hf_ts2_channel_moderated;
+static int hf_ts2_channel_password;
+static int hf_ts2_channel_subchannels;
+static int hf_ts2_channel_default;
+static int hf_ts2_channel_order;
+static int hf_ts2_max_users;
 
-static gint ett_ts2 = -1;
-static gint ett_ts2_channel_flags = -1;
+static gint ett_ts2;
+static gint ett_ts2_channel_flags;
 
 /* Conversation Variables */
 typedef struct

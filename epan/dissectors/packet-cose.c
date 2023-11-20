@@ -34,8 +34,8 @@ static const char *const proto_name_cose = "COSE";
 /// Protocol preferences and defaults
 
 /// Protocol handles
-static int proto_cose = -1;
-static int proto_cose_params = -1;
+static int proto_cose;
+static int proto_cose_params;
 
 /// Dissect opaque CBOR data
 static dissector_handle_t handle_cbor = NULL;
@@ -164,54 +164,54 @@ static const val64_string crv_vals[] = {
     {0, NULL},
 };
 
-static int hf_msg_tag = -1;
-static int hf_hdr_prot_bstr = -1;
-static int hf_hdr_unprot = -1;
-static int hf_payload_null = -1;
-static int hf_payload_bstr = -1;
-static int hf_cose_signature_list = -1;
-static int hf_cose_signature = -1;
-static int hf_signature = -1;
-static int hf_ciphertext_null = -1;
-static int hf_ciphertext_bstr = -1;
-static int hf_cose_recipient_list = -1;
-static int hf_cose_recipient = -1;
-static int hf_tag = -1;
+static int hf_msg_tag;
+static int hf_hdr_prot_bstr;
+static int hf_hdr_unprot;
+static int hf_payload_null;
+static int hf_payload_bstr;
+static int hf_cose_signature_list;
+static int hf_cose_signature;
+static int hf_signature;
+static int hf_ciphertext_null;
+static int hf_ciphertext_bstr;
+static int hf_cose_recipient_list;
+static int hf_cose_recipient;
+static int hf_tag;
 
-static int hf_hdr_label_int = -1;
-static int hf_hdr_label_tstr = -1;
+static int hf_hdr_label_int;
+static int hf_hdr_label_tstr;
 
-static int hf_hdr_salt = -1;
-static int hf_hdr_static_key = -1;
-static int hf_hdr_ephem_key = -1;
-static int hf_hdr_alg_int = -1;
-static int hf_hdr_alg_tstr = -1;
-static int hf_hdr_crit_list = -1;
-static int hf_hdr_ctype_uint = -1;
-static int hf_hdr_ctype_tstr = -1;
-static int hf_hdr_kid = -1;
-static int hf_hdr_iv = -1;
-static int hf_hdr_piv = -1;
-static int hf_hdr_x5bag = -1;
-static int hf_hdr_x5chain = -1;
-static int hf_hdr_x5t = -1;
-static int hf_hdr_x5t_hash = -1;
-static int hf_hdr_x5u = -1;
+static int hf_hdr_salt;
+static int hf_hdr_static_key;
+static int hf_hdr_ephem_key;
+static int hf_hdr_alg_int;
+static int hf_hdr_alg_tstr;
+static int hf_hdr_crit_list;
+static int hf_hdr_ctype_uint;
+static int hf_hdr_ctype_tstr;
+static int hf_hdr_kid;
+static int hf_hdr_iv;
+static int hf_hdr_piv;
+static int hf_hdr_x5bag;
+static int hf_hdr_x5chain;
+static int hf_hdr_x5t;
+static int hf_hdr_x5t_hash;
+static int hf_hdr_x5u;
 
-static int hf_key = -1;
+static int hf_key;
 
-static int hf_keyparam_kty_int = -1;
-static int hf_keyparam_kty_tstr = -1;
-static int hf_keyparam_keyops_list = -1;
-static int hf_keyparam_keyops_int = -1;
-static int hf_keyparam_keyops_tstr = -1;
-static int hf_keyparam_baseiv = -1;
-static int hf_keyparam_crv_int = -1;
-static int hf_keyparam_crv_tstr = -1;
-static int hf_keyparam_xcoord = -1;
-static int hf_keyparam_ycoord = -1;
-static int hf_keyparam_dcoord = -1;
-static int hf_keyparam_k = -1;
+static int hf_keyparam_kty_int;
+static int hf_keyparam_kty_tstr;
+static int hf_keyparam_keyops_list;
+static int hf_keyparam_keyops_int;
+static int hf_keyparam_keyops_tstr;
+static int hf_keyparam_baseiv;
+static int hf_keyparam_crv_int;
+static int hf_keyparam_crv_tstr;
+static int hf_keyparam_xcoord;
+static int hf_keyparam_ycoord;
+static int hf_keyparam_dcoord;
+static int hf_keyparam_k;
 
 /// Field definitions
 static hf_register_info fields[] = {
@@ -267,23 +267,23 @@ static hf_register_info fields[] = {
     {&hf_keyparam_k, {"Key", "cose.key.k", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 };
 
-static int ett_msg = -1;
-static int ett_sig_list = -1;
-static int ett_sig = -1;
-static int ett_recip_list = -1;
-static int ett_recip = -1;
-static int ett_prot_bstr = -1;
-static int ett_unprot = -1;
-static int ett_hdr_map = -1;
-static int ett_hdr_label = -1;
-static int ett_hdr_static_key = -1;
-static int ett_hdr_ephem_key = -1;
-static int ett_hdr_crit_list = -1;
-static int ett_hdr_x5cert_list = -1;
-static int ett_hdr_x5t_list = -1;
-static int ett_key = -1;
-static int ett_key_set = -1;
-static int ett_keyops_list = -1;
+static int ett_msg;
+static int ett_sig_list;
+static int ett_sig;
+static int ett_recip_list;
+static int ett_recip;
+static int ett_prot_bstr;
+static int ett_unprot;
+static int ett_hdr_map;
+static int ett_hdr_label;
+static int ett_hdr_static_key;
+static int ett_hdr_ephem_key;
+static int ett_hdr_crit_list;
+static int ett_hdr_x5cert_list;
+static int ett_hdr_x5t_list;
+static int ett_key;
+static int ett_key_set;
+static int ett_keyops_list;
 /// Tree structures
 static int *ett[] = {
     &ett_msg,
@@ -305,8 +305,8 @@ static int *ett[] = {
     &ett_keyops_list,
 };
 
-static expert_field ei_invalid_tag = EI_INIT;
-static expert_field ei_value_partial_decode = EI_INIT;
+static expert_field ei_invalid_tag;
+static expert_field ei_value_partial_decode;
 static ei_register_info expertitems[] = {
     {&ei_invalid_tag, { "cose.invalid_tag", PI_UNDECODED, PI_WARN, "COSE dissector did not match any known tag", EXPFILL}},
     {&ei_value_partial_decode, { "cose.partial_decode", PI_MALFORMED, PI_WARN, "Value is only partially decoded", EXPFILL}},

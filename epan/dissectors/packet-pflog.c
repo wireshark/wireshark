@@ -61,44 +61,44 @@ static dissector_handle_t pflog_handle;
 static dissector_handle_t  ip_handle, ipv6_handle;
 
 /* header fields */
-static int proto_pflog = -1;
-static int hf_pflog_length = -1;
-static int hf_pflog_af = -1;
-static int hf_pflog_action = -1;
-static int hf_pflog_reason = -1;
-static int hf_pflog_ifname = -1;
-static int hf_pflog_ruleset = -1;
-static int hf_pflog_rulenr = -1;
-static int hf_pflog_subrulenr = -1;
-static int hf_pflog_uid = -1;
-static int hf_pflog_pid = -1;
-static int hf_pflog_rule_uid = -1;
-static int hf_pflog_rule_pid = -1;
-static int hf_pflog_dir = -1;
-static int hf_pflog_rewritten = -1;
-static int hf_pflog_pad = -1;
-static int hf_pflog_saddr_ipv4 = -1;
-static int hf_pflog_daddr_ipv4 = -1;
-static int hf_pflog_saddr_ipv6 = -1;
-static int hf_pflog_daddr_ipv6 = -1;
-static int hf_pflog_saddr = -1;
-static int hf_pflog_daddr = -1;
-static int hf_pflog_sport = -1;
-static int hf_pflog_dport = -1;
-static gint ett_pflog = -1;
+static int proto_pflog;
+static int hf_pflog_length;
+static int hf_pflog_af;
+static int hf_pflog_action;
+static int hf_pflog_reason;
+static int hf_pflog_ifname;
+static int hf_pflog_ruleset;
+static int hf_pflog_rulenr;
+static int hf_pflog_subrulenr;
+static int hf_pflog_uid;
+static int hf_pflog_pid;
+static int hf_pflog_rule_uid;
+static int hf_pflog_rule_pid;
+static int hf_pflog_dir;
+static int hf_pflog_rewritten;
+static int hf_pflog_pad;
+static int hf_pflog_saddr_ipv4;
+static int hf_pflog_daddr_ipv4;
+static int hf_pflog_saddr_ipv6;
+static int hf_pflog_daddr_ipv6;
+static int hf_pflog_saddr;
+static int hf_pflog_daddr;
+static int hf_pflog_sport;
+static int hf_pflog_dport;
+static gint ett_pflog;
 
-static expert_field ei_pflog_invalid_header_length = EI_INIT;
+static expert_field ei_pflog_invalid_header_length;
 
 /* old header */
-static int proto_old_pflog = -1;
-static int hf_old_pflog_af = -1;
-static int hf_old_pflog_ifname = -1;
-static int hf_old_pflog_rnr = -1;
-static int hf_old_pflog_reason = -1;
-static int hf_old_pflog_action = -1;
-static int hf_old_pflog_dir = -1;
+static int proto_old_pflog;
+static int hf_old_pflog_af;
+static int hf_old_pflog_ifname;
+static int hf_old_pflog_rnr;
+static int hf_old_pflog_reason;
+static int hf_old_pflog_action;
+static int hf_old_pflog_dir;
 
-static gint ett_old_pflog = -1;
+static gint ett_old_pflog;
 
 /*
  * Because ENC_HOST_ENDIAN is either equal to ENC_BIG_ENDIAN or

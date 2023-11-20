@@ -26,41 +26,41 @@ void proto_reg_handoff_sndcp(void);
 
 /* Initialize the protocol and registered fields
 */
-static int proto_sndcp       = -1;
-static int hf_sndcp_x        = -1;
-static int hf_sndcp_f        = -1;
-static int hf_sndcp_t        = -1;
-static int hf_sndcp_m        = -1;
-static int hf_sndcp_nsapi    = -1;
-static int hf_sndcp_nsapib   = -1;
-static int hf_sndcp_dcomp    = -1;
-static int hf_sndcp_pcomp    = -1;
-static int hf_sndcp_segment  = -1;
-static int hf_sndcp_npdu1    = -1;
-static int hf_sndcp_npdu2    = -1;
-static int hf_sndcp_payload  = -1;
+static int proto_sndcp;
+static int hf_sndcp_x;
+static int hf_sndcp_f;
+static int hf_sndcp_t;
+static int hf_sndcp_m;
+static int hf_sndcp_nsapi;
+static int hf_sndcp_nsapib;
+static int hf_sndcp_dcomp;
+static int hf_sndcp_pcomp;
+static int hf_sndcp_segment;
+static int hf_sndcp_npdu1;
+static int hf_sndcp_npdu2;
+static int hf_sndcp_payload;
 
 /* These fields are used when reassembling N-PDU fragments
 */
-static int hf_npdu_fragments                    = -1;
-static int hf_npdu_fragment                     = -1;
-static int hf_npdu_fragment_overlap             = -1;
-static int hf_npdu_fragment_overlap_conflict    = -1;
-static int hf_npdu_fragment_multiple_tails      = -1;
-static int hf_npdu_fragment_too_long_fragment   = -1;
-static int hf_npdu_fragment_error               = -1;
-static int hf_npdu_fragment_count               = -1;
-static int hf_npdu_reassembled_in               = -1;
-static int hf_npdu_reassembled_length           = -1;
+static int hf_npdu_fragments;
+static int hf_npdu_fragment;
+static int hf_npdu_fragment_overlap;
+static int hf_npdu_fragment_overlap_conflict;
+static int hf_npdu_fragment_multiple_tails;
+static int hf_npdu_fragment_too_long_fragment;
+static int hf_npdu_fragment_error;
+static int hf_npdu_fragment_count;
+static int hf_npdu_reassembled_in;
+static int hf_npdu_reassembled_length;
 
 /* Initialize the subtree pointers
 */
-static gint ett_sndcp                   = -1;
-static gint ett_sndcp_address_field     = -1;
-static gint ett_sndcp_compression_field = -1;
-static gint ett_sndcp_npdu_field        = -1;
-static gint ett_npdu_fragment           = -1;
-static gint ett_npdu_fragments          = -1;
+static gint ett_sndcp;
+static gint ett_sndcp_address_field;
+static gint ett_sndcp_compression_field;
+static gint ett_sndcp_npdu_field;
+static gint ett_npdu_fragment;
+static gint ett_npdu_fragments;
 
 /* Structure needed for the fragmentation routines in reassemble.c
 */

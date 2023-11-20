@@ -25,37 +25,37 @@ void proto_register_tcpros(void);
 void proto_reg_handoff_tcpros(void);
 
 
-static int proto_tcpros = -1;
+static int proto_tcpros;
 static dissector_handle_t tcpros_handle;
 
 /** desegmentation of TCPROS over TCP */
 static gboolean tcpros_desegment = TRUE;
 
 
-static int hf_tcpros_connection_header = -1;
-static int hf_tcpros_connection_header_length = -1;
-static int hf_tcpros_connection_header_content = -1;
-static int hf_tcpros_connection_header_field = -1;
-static int hf_tcpros_connection_header_field_length = -1;
-static int hf_tcpros_connection_header_field_data = -1;
-static int hf_tcpros_connection_header_field_name = -1;
-static int hf_tcpros_connection_header_field_value = -1;
-static int hf_tcpros_clock = -1;
-static int hf_tcpros_clock_length = -1;
-static int hf_tcpros_message = -1;
-static int hf_tcpros_message_length = -1;
-static int hf_tcpros_message_body = -1;
-static int hf_tcpros_message_header = -1;
-static int hf_tcpros_message_header_seq = -1;
-static int hf_tcpros_message_header_stamp = -1;
-static int hf_tcpros_message_header_stamp_sec = -1;
-static int hf_tcpros_message_header_stamp_nsec = -1;
-static int hf_tcpros_message_header_frame = -1;
-static int hf_tcpros_message_header_frame_length = -1;
-static int hf_tcpros_message_header_frame_value = -1;
-static int hf_tcpros_message_payload = -1;
+static int hf_tcpros_connection_header;
+static int hf_tcpros_connection_header_length;
+static int hf_tcpros_connection_header_content;
+static int hf_tcpros_connection_header_field;
+static int hf_tcpros_connection_header_field_length;
+static int hf_tcpros_connection_header_field_data;
+static int hf_tcpros_connection_header_field_name;
+static int hf_tcpros_connection_header_field_value;
+static int hf_tcpros_clock;
+static int hf_tcpros_clock_length;
+static int hf_tcpros_message;
+static int hf_tcpros_message_length;
+static int hf_tcpros_message_body;
+static int hf_tcpros_message_header;
+static int hf_tcpros_message_header_seq;
+static int hf_tcpros_message_header_stamp;
+static int hf_tcpros_message_header_stamp_sec;
+static int hf_tcpros_message_header_stamp_nsec;
+static int hf_tcpros_message_header_frame;
+static int hf_tcpros_message_header_frame_length;
+static int hf_tcpros_message_header_frame_value;
+static int hf_tcpros_message_payload;
 
-static gint ett_tcpros = -1;
+static gint ett_tcpros;
 
 /**
  * This is the ROS connection header dissector. The general packet format is described

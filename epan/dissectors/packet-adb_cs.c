@@ -19,20 +19,20 @@
 
 #include "packet-adb_service.h"
 
-static int proto_adb_cs                                                    = -1;
+static int proto_adb_cs;
 
-static int hf_role                                                         = -1;
-static int hf_hex_ascii_length                                             = -1;
-static int hf_length                                                       = -1;
-static int hf_service                                                      = -1;
-static int hf_status                                                       = -1;
-static int hf_data                                                         = -1;
-static int hf_fail_reason                                                  = -1;
+static int hf_role;
+static int hf_hex_ascii_length;
+static int hf_length;
+static int hf_service;
+static int hf_status;
+static int hf_data;
+static int hf_fail_reason;
 
-static gint ett_adb_cs                                                     = -1;
-static gint ett_length                                                     = -1;
+static gint ett_adb_cs;
+static gint ett_length;
 
-static expert_field ei_incomplete_message                             = EI_INIT;
+static expert_field ei_incomplete_message;
 
 static dissector_handle_t  adb_cs_handle;
 static dissector_handle_t  adb_service_handle;

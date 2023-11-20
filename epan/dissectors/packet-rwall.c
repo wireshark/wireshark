@@ -23,12 +23,12 @@ static const value_string rwall1_proc_vals[] = {
 	{ 0,	NULL }
 };
 
-static int proto_rwall = -1;
+static int proto_rwall;
 
-static int hf_rwall_message = -1;
-static int hf_rwall_procedure_v1 = -1;
+static int hf_rwall_message;
+static int hf_rwall_procedure_v1;
 
-static gint ett_rwall = -1;
+static gint ett_rwall;
 
 static int
 dissect_rwall_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)

@@ -21,20 +21,20 @@
 void proto_register_bzr(void);
 void proto_reg_handoff_bzr(void);
 
-static int proto_bzr = -1;
+static int proto_bzr;
 
-static gint ett_bzr = -1;
-static gint ett_prefixed_bencode = -1;
-static gint ett_prefixed_bytes = -1;
+static gint ett_bzr;
+static gint ett_prefixed_bencode;
+static gint ett_prefixed_bytes;
 
-static gint hf_bzr_prefixed_bencode = -1;
-static gint hf_bzr_prefixed_bencode_len = -1;
-static gint hf_bzr_bytes = -1;
-static gint hf_bzr_bytes_data = -1;
-static gint hf_bzr_bytes_length = -1;
-static gint hf_bzr_result = -1;
-static gint hf_bzr_packet_protocol_version = -1;
-static gint hf_bzr_packet_kind = -1;
+static gint hf_bzr_prefixed_bencode;
+static gint hf_bzr_prefixed_bencode_len;
+static gint hf_bzr_bytes;
+static gint hf_bzr_bytes_data;
+static gint hf_bzr_bytes_length;
+static gint hf_bzr_result;
+static gint hf_bzr_packet_protocol_version;
+static gint hf_bzr_packet_kind;
 
 static dissector_handle_t bencode_handle;
 static dissector_handle_t bzr_handle = NULL;

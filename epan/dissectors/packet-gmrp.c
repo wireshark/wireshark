@@ -21,22 +21,22 @@
 void proto_register_gmrp(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_gmrp = -1;
-static int hf_gmrp_proto_id = -1;
-static int hf_gmrp_attribute_type = -1;
-static int hf_gmrp_attribute_length = -1;
-static int hf_gmrp_attribute_event = -1;
-static int hf_gmrp_attribute_value_group_membership = -1;
-static int hf_gmrp_attribute_value_service_requirement = -1;
-static int hf_gmrp_end_of_mark = -1;
+static int proto_gmrp;
+static int hf_gmrp_proto_id;
+static int hf_gmrp_attribute_type;
+static int hf_gmrp_attribute_length;
+static int hf_gmrp_attribute_event;
+static int hf_gmrp_attribute_value_group_membership;
+static int hf_gmrp_attribute_value_service_requirement;
+static int hf_gmrp_end_of_mark;
 
 /* Initialize the subtree pointers */
-static gint ett_gmrp = -1;
-static gint ett_gmrp_message = -1;
-static gint ett_gmrp_attribute_list = -1;
-/*static gint ett_gmrp_attribute = -1;*/
+static gint ett_gmrp;
+static gint ett_gmrp_message;
+static gint ett_gmrp_attribute_list;
+/*static gint ett_gmrp_attribute;*/
 
-static expert_field ei_gmrp_proto_id = EI_INIT;
+static expert_field ei_gmrp_proto_id;
 
 
 /* Constant definitions */

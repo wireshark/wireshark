@@ -27,44 +27,44 @@ void proto_reg_handoff_macctrl(void);
 
 static dissector_handle_t macctrl_handle;
 
-static int proto_macctrl = -1;
+static int proto_macctrl;
 
-static int hf_macctrl_opcode       = -1;
-static int hf_macctrl_timestamp    = -1;
-static int hf_macctrl_pause_time   = -1;
-static int hf_macctrl_cbfc_enbv    = -1;
-static int hf_macctrl_cbfc_enbv_c0 = -1;
-static int hf_macctrl_cbfc_enbv_c1 = -1;
-static int hf_macctrl_cbfc_enbv_c2 = -1;
-static int hf_macctrl_cbfc_enbv_c3 = -1;
-static int hf_macctrl_cbfc_enbv_c4 = -1;
-static int hf_macctrl_cbfc_enbv_c5 = -1;
-static int hf_macctrl_cbfc_enbv_c6 = -1;
-static int hf_macctrl_cbfc_enbv_c7 = -1;
-static int hf_macctrl_cbfc_pause_time_c0 = -1;
-static int hf_macctrl_cbfc_pause_time_c1 = -1;
-static int hf_macctrl_cbfc_pause_time_c2 = -1;
-static int hf_macctrl_cbfc_pause_time_c3 = -1;
-static int hf_macctrl_cbfc_pause_time_c4 = -1;
-static int hf_macctrl_cbfc_pause_time_c5 = -1;
-static int hf_macctrl_cbfc_pause_time_c6 = -1;
-static int hf_macctrl_cbfc_pause_time_c7 = -1;
+static int hf_macctrl_opcode;
+static int hf_macctrl_timestamp;
+static int hf_macctrl_pause_time;
+static int hf_macctrl_cbfc_enbv;
+static int hf_macctrl_cbfc_enbv_c0;
+static int hf_macctrl_cbfc_enbv_c1;
+static int hf_macctrl_cbfc_enbv_c2;
+static int hf_macctrl_cbfc_enbv_c3;
+static int hf_macctrl_cbfc_enbv_c4;
+static int hf_macctrl_cbfc_enbv_c5;
+static int hf_macctrl_cbfc_enbv_c6;
+static int hf_macctrl_cbfc_enbv_c7;
+static int hf_macctrl_cbfc_pause_time_c0;
+static int hf_macctrl_cbfc_pause_time_c1;
+static int hf_macctrl_cbfc_pause_time_c2;
+static int hf_macctrl_cbfc_pause_time_c3;
+static int hf_macctrl_cbfc_pause_time_c4;
+static int hf_macctrl_cbfc_pause_time_c5;
+static int hf_macctrl_cbfc_pause_time_c6;
+static int hf_macctrl_cbfc_pause_time_c7;
 
-static int hf_reg_flags      = -1;
-static int hf_reg_req_grants = -1;
-static int hf_reg_grants     = -1;
-static int hf_reg_port       = -1;
-static int hf_reg_ack_port   = -1;
-static int hf_reg_time       = -1;
-static int hf_reg_ack_time   = -1;
+static int hf_reg_flags;
+static int hf_reg_req_grants;
+static int hf_reg_grants;
+static int hf_reg_port;
+static int hf_reg_ack_port;
+static int hf_reg_time;
+static int hf_reg_ack_time;
 
-static gint ett_macctrl            = -1;
-static gint ett_macctrl_cbfc_enbv  = -1;
-static gint ett_macctrl_cbfc_pause_times = -1;
+static gint ett_macctrl;
+static gint ett_macctrl_cbfc_enbv;
+static gint ett_macctrl_cbfc_pause_times;
 
-static expert_field ei_macctrl_opcode = EI_INIT;
-static expert_field ei_macctrl_cbfc_enbv = EI_INIT;
-static expert_field ei_macctrl_dst_address = EI_INIT;
+static expert_field ei_macctrl_opcode;
+static expert_field ei_macctrl_cbfc_enbv;
+static expert_field ei_macctrl_dst_address;
 
 static int * const macctrl_cbfc_enbv_list[] = {
   &hf_macctrl_cbfc_enbv_c0,

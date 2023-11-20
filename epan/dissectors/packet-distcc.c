@@ -24,20 +24,20 @@
 
 #include <wsutil/strtoi.h>
 
-static int proto_distcc = -1;
-static int hf_distcc_version = -1;
-static int hf_distcc_argc = -1;
-static int hf_distcc_argv = -1;
-static int hf_distcc_doti_source = -1;
-static int hf_distcc_stat = -1;
-static int hf_distcc_serr = -1;
-static int hf_distcc_sout = -1;
-static int hf_distcc_doto_object = -1;
+static int proto_distcc;
+static int hf_distcc_version;
+static int hf_distcc_argc;
+static int hf_distcc_argv;
+static int hf_distcc_doti_source;
+static int hf_distcc_stat;
+static int hf_distcc_serr;
+static int hf_distcc_sout;
+static int hf_distcc_doto_object;
 
 
-static gint ett_distcc = -1;
+static gint ett_distcc;
 
-static expert_field ei_distcc_short_pdu = EI_INIT;
+static expert_field ei_distcc_short_pdu;
 
 
 static gboolean distcc_desegment = TRUE;

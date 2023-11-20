@@ -39,14 +39,14 @@ void proto_reg_handoff_rtp_events(void);
 
 /* RTP Event Fields */
 
-static int proto_rtp_events = -1;
+static int proto_rtp_events;
 static int rtp_event_tap = -1;
 
-static int hf_rtp_events_event = -1;	/* one byte */
-static int hf_rtp_events_end = -1;	/* one bit */
-static int hf_rtp_events_reserved = -1; /* one bit */
-static int hf_rtp_events_volume = -1;	/* six bits */
-static int hf_rtp_events_duration = -1; /* sixteen bits */
+static int hf_rtp_events_event;	/* one byte */
+static int hf_rtp_events_end;	/* one bit */
+static int hf_rtp_events_reserved; /* one bit */
+static int hf_rtp_events_volume;	/* six bits */
+static int hf_rtp_events_duration; /* sixteen bits */
 
 
 #define RTP_DTMF_0	0
@@ -387,7 +387,7 @@ value_string_ext rtp_event_type_values_ext = VALUE_STRING_EXT_INIT(rtp_event_typ
 
 /* RTP Events fields defining a subtree */
 
-static gint ett_rtp_events           = -1;
+static gint ett_rtp_events;
 
 static dissector_handle_t rtp_events_handle;
 

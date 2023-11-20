@@ -47,21 +47,21 @@ void proto_reg_handoff_ax25_nol3(void);
 static dissector_handle_t aprs_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_ax25_nol3		= -1;
-static int proto_dx			= -1;
+static int proto_ax25_nol3;
+static int proto_dx;
 
-static int hf_dx_report			= -1;
+static int hf_dx_report;
 
-/* static int hf_text			= -1; */
+/* static int hf_text; */
 
 /* Global preferences */
 static gboolean gPREF_APRS     = FALSE;
 static gboolean gPREF_DX       = FALSE;
 
 /* Initialize the subtree pointers */
-static gint ett_ax25_nol3 = -1;
+static gint ett_ax25_nol3;
 
-static gint ett_dx		= -1;
+static gint ett_dx;
 
 
 /* Code to actually dissect the packets */

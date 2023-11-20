@@ -107,47 +107,47 @@ struct nvme_rdma_cmd_ctx {
 void proto_reg_handoff_nvme_rdma(void);
 void proto_register_nvme_rdma(void);
 
-static int proto_nvme_rdma = -1;
+static int proto_nvme_rdma;
 static dissector_handle_t ib_handler;
-static int proto_ib = -1;
+static int proto_ib;
 
 /* NVMe Fabrics RDMA CM Private data */
-static int hf_nvmeof_rdma_cm_req_recfmt = -1;
-static int hf_nvmeof_rdma_cm_req_qid = -1;
-static int hf_nvmeof_rdma_cm_req_hrqsize = -1;
-static int hf_nvmeof_rdma_cm_req_hsqsize = -1;
-static int hf_nvmeof_rdma_cm_req_cntlid = -1;
-static int hf_nvmeof_rdma_cm_req_reserved = -1;
+static int hf_nvmeof_rdma_cm_req_recfmt;
+static int hf_nvmeof_rdma_cm_req_qid;
+static int hf_nvmeof_rdma_cm_req_hrqsize;
+static int hf_nvmeof_rdma_cm_req_hsqsize;
+static int hf_nvmeof_rdma_cm_req_cntlid;
+static int hf_nvmeof_rdma_cm_req_reserved;
 
-static int hf_nvmeof_rdma_cm_rsp_recfmt = -1;
-static int hf_nvmeof_rdma_cm_rsp_crqsize = -1;
-static int hf_nvmeof_rdma_cm_rsp_reserved = -1;
+static int hf_nvmeof_rdma_cm_rsp_recfmt;
+static int hf_nvmeof_rdma_cm_rsp_crqsize;
+static int hf_nvmeof_rdma_cm_rsp_reserved;
 
-static int hf_nvmeof_rdma_cm_rej_recfmt = -1;
-static int hf_nvmeof_rdma_cm_rej_status = -1;
+static int hf_nvmeof_rdma_cm_rej_recfmt;
+static int hf_nvmeof_rdma_cm_rej_status;
 
 /* Data Transfers */
-static int hf_nvmeof_from_host_unknown_data = -1;
-static int hf_nvmeof_read_to_host_req = -1;
-static int hf_nvmeof_read_to_host_unmatched = -1;
-static int hf_nvmeof_read_from_host_resp = -1;
-static int hf_nvmeof_read_from_host_prev = -1;
-static int hf_nvmeof_read_from_host_next = -1;
-static int hf_nvmeof_read_from_host_unmatched = -1;
-static int hf_nvmeof_write_to_host_req = -1;
-static int hf_nvmeof_write_to_host_prev = -1;
-static int hf_nvmeof_write_to_host_next = -1;
-static int hf_nvmeof_write_to_host_unmatched = -1;
-static int hf_nvmeof_to_host_unknown_data = -1;
+static int hf_nvmeof_from_host_unknown_data;
+static int hf_nvmeof_read_to_host_req;
+static int hf_nvmeof_read_to_host_unmatched;
+static int hf_nvmeof_read_from_host_resp;
+static int hf_nvmeof_read_from_host_prev;
+static int hf_nvmeof_read_from_host_next;
+static int hf_nvmeof_read_from_host_unmatched;
+static int hf_nvmeof_write_to_host_req;
+static int hf_nvmeof_write_to_host_prev;
+static int hf_nvmeof_write_to_host_next;
+static int hf_nvmeof_write_to_host_unmatched;
+static int hf_nvmeof_to_host_unknown_data;
 
 /* Tracking commands, transfers and CQEs */
-static int hf_nvmeof_data_resp = -1;
-static int hf_nvmeof_cmd_qid = -1;
+static int hf_nvmeof_data_resp;
+static int hf_nvmeof_cmd_qid;
 
 
 /* Initialize the subtree pointers */
-static gint ett_cm = -1;
-static gint ett_data = -1;
+static gint ett_cm;
+static gint ett_data;
 
 static range_t *gPORT_RANGE;
 

@@ -21,30 +21,30 @@
 #include "packet-bthci_iso.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_bthci_iso = -1;
-static int hf_bthci_iso_chandle = -1;
-static int hf_bthci_iso_pb_flag = -1;
-static int hf_bthci_iso_ts_flag = -1;
-static int hf_bthci_iso_reserved = -1;
-static int hf_bthci_iso_data_length = -1;
-static int hf_bthci_iso_data = -1;
-static int hf_bthci_iso_continuation_to = -1;
-static int hf_bthci_iso_reassembled_in = -1;
-static int hf_bthci_iso_connect_in = -1;
-static int hf_bthci_iso_disconnect_in = -1;
+static int proto_bthci_iso;
+static int hf_bthci_iso_chandle;
+static int hf_bthci_iso_pb_flag;
+static int hf_bthci_iso_ts_flag;
+static int hf_bthci_iso_reserved;
+static int hf_bthci_iso_data_length;
+static int hf_bthci_iso_data;
+static int hf_bthci_iso_continuation_to;
+static int hf_bthci_iso_reassembled_in;
+static int hf_bthci_iso_connect_in;
+static int hf_bthci_iso_disconnect_in;
 
-static int proto_bthci_iso_data = -1;
-static int hf_bthci_iso_data_timestamp = -1;
-static int hf_bthci_iso_data_packet_seq_num = -1;
-static int hf_bthci_iso_data_sdu_length = -1;
-static int hf_bthci_iso_data_status_flag = -1;
-static int hf_bthci_iso_data_sdu = -1;
+static int proto_bthci_iso_data;
+static int hf_bthci_iso_data_timestamp;
+static int hf_bthci_iso_data_packet_seq_num;
+static int hf_bthci_iso_data_sdu_length;
+static int hf_bthci_iso_data_status_flag;
+static int hf_bthci_iso_data_sdu;
 
 /* Initialize the subtree pointers */
-static gint ett_bthci_iso = -1;
-static gint ett_bthci_iso_data = -1;
+static gint ett_bthci_iso;
+static gint ett_bthci_iso_data;
 
-static expert_field ei_length_bad = EI_INIT;
+static expert_field ei_length_bad;
 
 static dissector_handle_t bthci_iso_handle;
 static dissector_handle_t bthci_iso_data_handle;

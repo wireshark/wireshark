@@ -110,8 +110,8 @@ static int proto_pn_io_controller;
 static int proto_pn_io_supervisor;
 static int proto_pn_io_parameterserver;
 static int proto_pn_io_implicitar;
-int proto_pn_io_apdu_status = -1;
-int proto_pn_io_time_aware_status = -1;
+int proto_pn_io_apdu_status;
+int proto_pn_io_time_aware_status;
 
 static int hf_pn_io_opnum;
 static int hf_pn_io_reserved16;

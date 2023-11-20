@@ -25,51 +25,51 @@ void proto_reg_handoff_pcomtcp(void);
 void proto_register_pcomtcp(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_pcomtcp = -1;
-static int proto_pcomascii = -1;
-static int proto_pcombinary = -1;
+static int proto_pcomtcp;
+static int proto_pcomascii;
+static int proto_pcombinary;
 
-static int hf_pcomtcp_transid = -1;
-static int hf_pcomtcp_protocol = -1;
-static int hf_pcomtcp_reserved = -1;
-static int hf_pcomtcp_length = -1;
+static int hf_pcomtcp_transid;
+static int hf_pcomtcp_protocol;
+static int hf_pcomtcp_reserved;
+static int hf_pcomtcp_length;
 
-static int hf_pcomascii_stx = -1;
-static int hf_pcomascii_unitid = -1;
-static int hf_pcomascii_command_code = -1;
-static int hf_pcomascii_address = -1;
-static int hf_pcomascii_length = -1;
-static int hf_pcomascii_address_value = -1;
-static int hf_pcomascii_command = -1;
-static int hf_pcomascii_checksum = -1;
-static int hf_pcomascii_etx = -1;
+static int hf_pcomascii_stx;
+static int hf_pcomascii_unitid;
+static int hf_pcomascii_command_code;
+static int hf_pcomascii_address;
+static int hf_pcomascii_length;
+static int hf_pcomascii_address_value;
+static int hf_pcomascii_command;
+static int hf_pcomascii_checksum;
+static int hf_pcomascii_etx;
 
-static int hf_pcombinary_stx = -1;
-static int hf_pcombinary_id = -1;
-static int hf_pcombinary_reserved1 = -1;
-static int hf_pcombinary_reserved2 = -1;
-static int hf_pcombinary_reserved3 = -1;
-static int hf_pcombinary_command = -1;
-static int hf_pcombinary_reserved4 = -1;
-static int hf_pcombinary_command_specific = -1;
-static int hf_pcombinary_data_length = -1;
-static int hf_pcombinary_header_checksum = -1;
-static int hf_pcombinary_data = -1;
-static int hf_pcombinary_footer_checksum = -1;
-static int hf_pcombinary_etx = -1;
+static int hf_pcombinary_stx;
+static int hf_pcombinary_id;
+static int hf_pcombinary_reserved1;
+static int hf_pcombinary_reserved2;
+static int hf_pcombinary_reserved3;
+static int hf_pcombinary_command;
+static int hf_pcombinary_reserved4;
+static int hf_pcombinary_command_specific;
+static int hf_pcombinary_data_length;
+static int hf_pcombinary_header_checksum;
+static int hf_pcombinary_data;
+static int hf_pcombinary_footer_checksum;
+static int hf_pcombinary_etx;
 
-static expert_field ei_pcomtcp_reserved_bad_value = EI_INIT;
-static expert_field ei_pcomascii_command_unsupported = EI_INIT;
-static expert_field ei_pcombinary_reserved1_bad_value = EI_INIT;
-static expert_field ei_pcombinary_reserved2_bad_value = EI_INIT;
-static expert_field ei_pcombinary_reserved3_bad_value = EI_INIT;
-static expert_field ei_pcombinary_reserved4_bad_value = EI_INIT;
-static expert_field ei_pcombinary_command_unsupported = EI_INIT;
+static expert_field ei_pcomtcp_reserved_bad_value;
+static expert_field ei_pcomascii_command_unsupported;
+static expert_field ei_pcombinary_reserved1_bad_value;
+static expert_field ei_pcombinary_reserved2_bad_value;
+static expert_field ei_pcombinary_reserved3_bad_value;
+static expert_field ei_pcombinary_reserved4_bad_value;
+static expert_field ei_pcombinary_command_unsupported;
 
 /* Initialize the subtree pointers */
-static gint ett_pcomtcp = -1;
-static gint ett_pcomascii = -1;
-static gint ett_pcombinary = -1;
+static gint ett_pcomtcp;
+static gint ett_pcomascii;
+static gint ett_pcombinary;
 
 static dissector_handle_t pcomtcp_handle;
 static dissector_handle_t pcomascii_handle;

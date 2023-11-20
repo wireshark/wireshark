@@ -20,11 +20,11 @@ void proto_reg_handoff_cvspserver(void);
 
 static dissector_handle_t cvspserver_handle;
 
-static int proto_cvspserver = -1;
+static int proto_cvspserver;
 
-static int hf_cvspserver_data = -1;
+static int hf_cvspserver_data;
 
-static gint ett_cvspserver = -1;
+static gint ett_cvspserver;
 
 static int
 dissect_cvspserver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissector_data _U_)

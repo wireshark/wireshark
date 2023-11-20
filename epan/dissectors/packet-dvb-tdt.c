@@ -19,10 +19,10 @@ void proto_reg_handoff_dvb_tdt(void);
 
 static dissector_handle_t dvb_tdt_handle;
 
-static int proto_dvb_tdt = -1;
-static int hf_dvb_tdt_utc_time = -1;
+static int proto_dvb_tdt;
+static int hf_dvb_tdt_utc_time;
 
-static gint ett_dvb_tdt = -1;
+static gint ett_dvb_tdt;
 
 static int
 dissect_dvb_tdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

@@ -21,12 +21,12 @@ void proto_reg_handoff_ncs(void);
 
 static dissector_handle_t ncs_handle;
 
-static gint ett_ncs = -1;
+static gint ett_ncs;
 
-static int proto_ncs = -1;
+static int proto_ncs;
 
-static int hf_panning_id = -1;
-static int hf_incarnation = -1;
+static int hf_panning_id;
+static int hf_incarnation;
 
 static int
 dissect_ncs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

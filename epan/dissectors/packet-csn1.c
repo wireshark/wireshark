@@ -19,16 +19,16 @@
 
 void proto_register_csn1(void);
 
-static int hf_null_data = -1;
+static int hf_null_data;
 
-static expert_field ei_csn1_more_bits_to_unpack = EI_INIT;
-static expert_field ei_csn1_general = EI_INIT;
-static expert_field ei_csn1_not_implemented = EI_INIT;
-static expert_field ei_csn1_union_index = EI_INIT;
-static expert_field ei_csn1_script_error = EI_INIT;
-static expert_field ei_csn1_more32bits = EI_INIT;
-static expert_field ei_csn1_fixed_not_matched = EI_INIT;
-static expert_field ei_csn1_stream_not_supported = EI_INIT;
+static expert_field ei_csn1_more_bits_to_unpack;
+static expert_field ei_csn1_general;
+static expert_field ei_csn1_not_implemented;
+static expert_field ei_csn1_union_index;
+static expert_field ei_csn1_script_error;
+static expert_field ei_csn1_more32bits;
+static expert_field ei_csn1_fixed_not_matched;
+static expert_field ei_csn1_stream_not_supported;
 
 #define pvDATA(_pv, _offset) ((void*) ((unsigned char*)_pv + _offset))
 #define pui8DATA(_pv, _offset) ((guint8*) pvDATA(_pv, _offset))
@@ -41,7 +41,7 @@ static expert_field ei_csn1_stream_not_supported = EI_INIT;
 
 static const unsigned char ixBitsTab[] = {0, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5};
 
-static gint proto_csn1 = -1;
+static gint proto_csn1;
 
 /* Returns no_of_bits (up to 8) masked with 0x2B */
 static guint8

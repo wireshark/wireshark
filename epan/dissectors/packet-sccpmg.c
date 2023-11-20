@@ -94,24 +94,24 @@ static const value_string sccpmg_message_type_acro_values[] = {
 #define SCCPMG_SSN_LENGTH    1
 
 /* Initialize the protocol and registered fields */
-static int proto_sccpmg = -1;
-static int hf_sccpmg_message_type = -1;
-static int hf_sccpmg_affected_ssn = -1;
-static int hf_sccpmg_affected_itu_pc = -1;
-static int hf_sccpmg_affected_japan_pc = -1;
-static int hf_sccpmg_affected_ansi_pc = -1;
-static int hf_sccpmg_affected_chinese_pc = -1;
-static int hf_sccpmg_affected_pc_member = -1;
-static int hf_sccpmg_affected_pc_cluster = -1;
-static int hf_sccpmg_affected_pc_network = -1;
-static int hf_sccpmg_smi = -1;
-static int hf_sccpmg_congestion_level = -1;
+static int proto_sccpmg;
+static int hf_sccpmg_message_type;
+static int hf_sccpmg_affected_ssn;
+static int hf_sccpmg_affected_itu_pc;
+static int hf_sccpmg_affected_japan_pc;
+static int hf_sccpmg_affected_ansi_pc;
+static int hf_sccpmg_affected_chinese_pc;
+static int hf_sccpmg_affected_pc_member;
+static int hf_sccpmg_affected_pc_cluster;
+static int hf_sccpmg_affected_pc_network;
+static int hf_sccpmg_smi;
+static int hf_sccpmg_congestion_level;
 
 /* Initialize the subtree pointers */
-static gint ett_sccpmg = -1;
-static gint ett_sccpmg_affected_pc = -1;
+static gint ett_sccpmg;
+static gint ett_sccpmg_affected_pc;
 
-static expert_field ei_sccpmg_unknown_msg = EI_INIT;
+static expert_field ei_sccpmg_unknown_msg;
 
 static void
 dissect_sccpmg_affected_ssn(tvbuff_t *tvb, proto_tree *sccpmg_tree)

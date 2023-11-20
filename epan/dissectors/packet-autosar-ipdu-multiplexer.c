@@ -32,7 +32,7 @@ void proto_reg_handoff_autosar_ipdu_multiplexer(void);
  */
 
 /* this protocol */
-static int proto_ipdu_multiplexer = -1;
+static int proto_ipdu_multiplexer;
 #define IPDUM_NAME "AUTOSAR I-PduM"
 
 /* dissector handles - incoming messages */
@@ -45,14 +45,14 @@ static dissector_handle_t ipdum_handle_pdu_transport    = NULL;
 static dissector_table_t subdissector_table;
 
 /* header field */
-static int hf_pdu                       = -1;
-static int hf_pdu_id                    = -1;
-static int hf_pdu_name                  = -1;
-static int hf_payload_unparsed          = -1;
+static int hf_pdu;
+static int hf_pdu_id;
+static int hf_pdu_name;
+static int hf_payload_unparsed;
 
 /* etts */
-static gint ett_ipdum                   = -1;
-static gint ett_ipdum_pdu               = -1;
+static gint ett_ipdum;
+static gint ett_ipdum_pdu;
 
 /**************************************
  ********      UAT configs     ********

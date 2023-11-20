@@ -38,76 +38,76 @@ void proto_reg_handoff_gsm_r_uus1(void);
 
 
 /* Initialize the protocol and registered fields */
-static int proto_gsm_r_uus1 = -1;
+static int proto_gsm_r_uus1;
 
-static int hf_gsm_r_uus1_elem_tag                    = -1;
-static int hf_gsm_r_uus1_elem_len                    = -1;
-static int hf_gsm_r_uus1_pfn                         = -1;
-static int hf_gsm_r_uus1_pfn_digits                  = -1;
+static int hf_gsm_r_uus1_elem_tag;
+static int hf_gsm_r_uus1_elem_len;
+static int hf_gsm_r_uus1_pfn;
+static int hf_gsm_r_uus1_pfn_digits;
 
 /* 5.2 and 5.3 */
-static int hf_gsm_r_uus1_chpc                        = -1;
-static int hf_gsm_r_uus1_chpc_t_dur                  = -1;
-static int hf_gsm_r_uus1_chpc_t_rel                  = -1;
-static int hf_gsm_r_uus1_chpc_pl_call                = -1;
-static int hf_gsm_r_uus1_chpc_cause                  = -1;
-static int hf_gsm_r_uus1_chpc_cause_power            = -1;
-static int hf_gsm_r_uus1_chpc_cause_radio            = -1;
-static int hf_gsm_r_uus1_chpc_cause_reserved3        = -1;
-static int hf_gsm_r_uus1_chpc_cause_reserved4        = -1;
-static int hf_gsm_r_uus1_chpc_cause_user_command     = -1;
-static int hf_gsm_r_uus1_chpc_cause_reserved6        = -1;
-static int hf_gsm_r_uus1_chpc_cause_reserved7        = -1;
-static int hf_gsm_r_uus1_chpc_cause_reserved8        = -1;
-static int hf_gsm_r_uus1_chpc_gref                   = -1;
-static int hf_gsm_r_uus1_chpc_ack_cause              = -1;
+static int hf_gsm_r_uus1_chpc;
+static int hf_gsm_r_uus1_chpc_t_dur;
+static int hf_gsm_r_uus1_chpc_t_rel;
+static int hf_gsm_r_uus1_chpc_pl_call;
+static int hf_gsm_r_uus1_chpc_cause;
+static int hf_gsm_r_uus1_chpc_cause_power;
+static int hf_gsm_r_uus1_chpc_cause_radio;
+static int hf_gsm_r_uus1_chpc_cause_reserved3;
+static int hf_gsm_r_uus1_chpc_cause_reserved4;
+static int hf_gsm_r_uus1_chpc_cause_user_command;
+static int hf_gsm_r_uus1_chpc_cause_reserved6;
+static int hf_gsm_r_uus1_chpc_cause_reserved7;
+static int hf_gsm_r_uus1_chpc_cause_reserved8;
+static int hf_gsm_r_uus1_chpc_gref;
+static int hf_gsm_r_uus1_chpc_ack_cause;
 
 /* 5.4 */
-static int hf_gsm_r_uus1_epfn                        = -1;
+static int hf_gsm_r_uus1_epfn;
 
 /* 5.5 */
-static int hf_gsm_r_uus1_present_text_str            = -1;
+static int hf_gsm_r_uus1_present_text_str;
 
 /* 5.6 */
-static int hf_gsm_r_uus1_elda          = -1;
-static int hf_gsm_r_uus1_elda_lat      = -1;
-static int hf_gsm_r_uus1_elda_lat_deg  = -1;
-static int hf_gsm_r_uus1_elda_lat_min  = -1;
-static int hf_gsm_r_uus1_elda_lat_sec  = -1;
-static int hf_gsm_r_uus1_elda_lat_hem  = -1;
-static int hf_gsm_r_uus1_elda_long     = -1;
-static int hf_gsm_r_uus1_elda_long_deg = -1;
-static int hf_gsm_r_uus1_elda_long_min = -1;
-static int hf_gsm_r_uus1_elda_long_sec = -1;
-static int hf_gsm_r_uus1_elda_long_hem = -1;
-static int hf_gsm_r_uus1_elda_height   = -1;
-static int hf_gsm_r_uus1_elda_speed    = -1;
-static int hf_gsm_r_uus1_elda_heading  = -1;
-static int hf_gsm_r_uus1_elda_e_time   = -1;
-static int hf_gsm_r_uus1_elda_distance = -1;
-static int hf_gsm_r_uus1_elda_scale    = -1;
-static int hf_gsm_r_uus1_elda_spare    = -1;
+static int hf_gsm_r_uus1_elda;
+static int hf_gsm_r_uus1_elda_lat;
+static int hf_gsm_r_uus1_elda_lat_deg;
+static int hf_gsm_r_uus1_elda_lat_min;
+static int hf_gsm_r_uus1_elda_lat_sec;
+static int hf_gsm_r_uus1_elda_lat_hem;
+static int hf_gsm_r_uus1_elda_long;
+static int hf_gsm_r_uus1_elda_long_deg;
+static int hf_gsm_r_uus1_elda_long_min;
+static int hf_gsm_r_uus1_elda_long_sec;
+static int hf_gsm_r_uus1_elda_long_hem;
+static int hf_gsm_r_uus1_elda_height;
+static int hf_gsm_r_uus1_elda_speed;
+static int hf_gsm_r_uus1_elda_heading;
+static int hf_gsm_r_uus1_elda_e_time;
+static int hf_gsm_r_uus1_elda_distance;
+static int hf_gsm_r_uus1_elda_scale;
+static int hf_gsm_r_uus1_elda_spare;
 
 /* 5.7 */
-static int hf_gsm_r_uus1_present_dsd_alarm               = -1;
-static int hf_gsm_r_uus1_present_dsd_alarm_loco_number   = -1;
+static int hf_gsm_r_uus1_present_dsd_alarm;
+static int hf_gsm_r_uus1_present_dsd_alarm_loco_number;
 
 /* 5.8 */
-static int hf_gsm_r_uus1_alert_controller        = -1;
-static int hf_gsm_r_uus1_alert_controller_gref   = -1;
+static int hf_gsm_r_uus1_alert_controller;
+static int hf_gsm_r_uus1_alert_controller_gref;
 
 /* Initialize the subtree pointers */
-static gint ett_gsm_r_uus1                   = -1;
-static gint ett_gsm_r_uus1_pfn               = -1;
-static gint ett_gsm_r_uus1_chpc              = -1;
-static gint ett_gsm_r_uus1_chpc_cause        = -1;
-static gint ett_gsm_r_uus1_epfn              = -1;
-static gint ett_gsm_r_uus1_present_text_str  = -1;
-static gint ett_gsm_r_uus1_elda              = -1;
-static gint ett_gsm_r_uus1_elda_lat          = -1;
-static gint ett_gsm_r_uus1_elda_long         = -1;
-static gint ett_gsm_r_uus1_present_dsd_alarm = -1;
-static gint ett_gsm_r_uus1_alert_controller  = -1;
+static gint ett_gsm_r_uus1;
+static gint ett_gsm_r_uus1_pfn;
+static gint ett_gsm_r_uus1_chpc;
+static gint ett_gsm_r_uus1_chpc_cause;
+static gint ett_gsm_r_uus1_epfn;
+static gint ett_gsm_r_uus1_present_text_str;
+static gint ett_gsm_r_uus1_elda;
+static gint ett_gsm_r_uus1_elda_lat;
+static gint ett_gsm_r_uus1_elda_long;
+static gint ett_gsm_r_uus1_present_dsd_alarm;
+static gint ett_gsm_r_uus1_alert_controller;
 
 
 /* Preferences */
@@ -115,7 +115,7 @@ static gboolean q931_u2u  = FALSE;
 static gboolean gsm_a_u2u = TRUE;
 
 
-static expert_field ei_gsm_r_uus1_not_implemented_yet = EI_INIT;
+static expert_field ei_gsm_r_uus1_not_implemented_yet;
 
 static const value_string gsm_r_uus1_tags[] = {
     { 2,  "Acknowledgement by Receiver of a HPC and response from device accepting the acknowledgement" },

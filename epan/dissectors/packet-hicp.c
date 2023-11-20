@@ -21,32 +21,32 @@ void proto_register_hicp(void);
 static dissector_handle_t hicp_handle;
 
 /* Protocols and header fields. */
-static int proto_hicp = -1;
-static int hf_hicp_cmd = -1;
-static int hf_hicp_proto_version = -1;
-static int hf_hicp_fb_type = -1;
-static int hf_hicp_module_version = -1;
-static int hf_hicp_mac = -1;
-static int hf_hicp_ip = -1;
-static int hf_hicp_sn = -1;
-static int hf_hicp_gw = -1;
-static int hf_hicp_dhcp = -1;
-static int hf_hicp_pswd_required = -1;
-static int hf_hicp_hn = -1;
-static int hf_hicp_dns1 = -1;
-static int hf_hicp_dns2 = -1;
-static int hf_hicp_ext = -1;
-static int hf_hicp_pswd = -1;
-static int hf_hicp_new_pswd = -1;
-static int hf_hicp_new_mac = -1;
-static int hf_hicp_status = -1;
-static int hf_hicp_error = -1;
-static int hf_hicp_target = -1;
-static int hf_hicp_src = -1;
+static int proto_hicp;
+static int hf_hicp_cmd;
+static int hf_hicp_proto_version;
+static int hf_hicp_fb_type;
+static int hf_hicp_module_version;
+static int hf_hicp_mac;
+static int hf_hicp_ip;
+static int hf_hicp_sn;
+static int hf_hicp_gw;
+static int hf_hicp_dhcp;
+static int hf_hicp_pswd_required;
+static int hf_hicp_hn;
+static int hf_hicp_dns1;
+static int hf_hicp_dns2;
+static int hf_hicp_ext;
+static int hf_hicp_pswd;
+static int hf_hicp_new_pswd;
+static int hf_hicp_new_mac;
+static int hf_hicp_status;
+static int hf_hicp_error;
+static int hf_hicp_target;
+static int hf_hicp_src;
 
-static expert_field ei_hicp_error = EI_INIT;
+static expert_field ei_hicp_error;
 
-static gint ett_hicp = -1;
+static gint ett_hicp;
 
 #define HICP_PORT 3250
 #define HICP_MIN_LENGTH 2

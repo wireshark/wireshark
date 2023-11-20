@@ -38,57 +38,57 @@ static dissector_handle_t usbip_handle;
 
 /* Initialize the protocol and registered fields
  */
-static int proto_usbip = -1;
+static int proto_usbip;
 
-static int hf_usbip_version = -1;
-static int hf_usbip_operation = -1;
-static int hf_usbip_command = -1;
-static int hf_usbip_status = -1;
-static int hf_usbip_number_devices = -1;
-static int hf_usbip_path = -1;
-static int hf_usbip_devid = -1;
-static int hf_usbip_busid = -1;
-static int hf_usbip_busnum = -1;
-static int hf_usbip_devnum = -1;
-static int hf_usbip_speed = -1;
-static int hf_usbip_idVendor = -1;
-static int hf_usbip_idProduct = -1;
-static int hf_usbip_bcdDevice = -1;
-static int hf_usbip_bDeviceClass = -1;
-static int hf_usbip_bDeviceSubClass = -1;
-static int hf_usbip_bDeviceProtocol = -1;
-static int hf_usbip_bConfigurationValue = -1;
-static int hf_usbip_bNumConfigurations = -1;
-static int hf_usbip_bNumInterfaces = -1;
-static int hf_usbip_bInterfaceClass = -1;
-static int hf_usbip_bInterfaceSubClass = -1;
-static int hf_usbip_bInterfaceProtocol = -1;
-static int hf_usbip_padding = -1;
+static int hf_usbip_version;
+static int hf_usbip_operation;
+static int hf_usbip_command;
+static int hf_usbip_status;
+static int hf_usbip_number_devices;
+static int hf_usbip_path;
+static int hf_usbip_devid;
+static int hf_usbip_busid;
+static int hf_usbip_busnum;
+static int hf_usbip_devnum;
+static int hf_usbip_speed;
+static int hf_usbip_idVendor;
+static int hf_usbip_idProduct;
+static int hf_usbip_bcdDevice;
+static int hf_usbip_bDeviceClass;
+static int hf_usbip_bDeviceSubClass;
+static int hf_usbip_bDeviceProtocol;
+static int hf_usbip_bConfigurationValue;
+static int hf_usbip_bNumConfigurations;
+static int hf_usbip_bNumInterfaces;
+static int hf_usbip_bInterfaceClass;
+static int hf_usbip_bInterfaceSubClass;
+static int hf_usbip_bInterfaceProtocol;
+static int hf_usbip_padding;
 
-static int hf_usbip_device = -1;
-static int hf_usbip_interface = -1;
-static int hf_usbip_interval = -1;
+static int hf_usbip_device;
+static int hf_usbip_interface;
+static int hf_usbip_interval;
 
-static int hf_usbip_actual_length = -1;
-static int hf_usbip_error_count = -1;
+static int hf_usbip_actual_length;
+static int hf_usbip_error_count;
 
-static int hf_usbip_seqnum = -1;
-static int hf_usbip_cmd_frame = -1;
-static int hf_usbip_ret_frame = -1;
-static int hf_usbip_vic_frame = -1;
-static int hf_usbip_direction = -1;
-static int hf_usbip_ep = -1;
-static int hf_usbip_transfer_flags = -1;
-static int hf_usbip_transfer_buffer_length = -1;
-static int hf_usbip_start_frame = -1;
-static int hf_usbip_number_of_packets = -1;
-static int hf_usbip_setup = -1;
-static int hf_usbip_urb_data = -1;
+static int hf_usbip_seqnum;
+static int hf_usbip_cmd_frame;
+static int hf_usbip_ret_frame;
+static int hf_usbip_vic_frame;
+static int hf_usbip_direction;
+static int hf_usbip_ep;
+static int hf_usbip_transfer_flags;
+static int hf_usbip_transfer_buffer_length;
+static int hf_usbip_start_frame;
+static int hf_usbip_number_of_packets;
+static int hf_usbip_setup;
+static int hf_usbip_urb_data;
 
 /* Initialize the subtree pointers */
-static gint ett_usbip = -1;
-static gint ett_usbip_dev = -1;
-static gint ett_usbip_intf = -1;
+static gint ett_usbip;
+static gint ett_usbip_dev;
+static gint ett_usbip_intf;
 
 enum usb_device_speed {
         USBIP_SPEED_UNKNOWN = 0,                  /* enumerating */
@@ -162,7 +162,7 @@ static const value_string usb_endpoint_direction_vals[] = {
     {0,             NULL                         }
 };
 
-static expert_field ei_usbip = EI_INIT;
+static expert_field ei_usbip;
 
 typedef struct _usbip_transaction_t
 {

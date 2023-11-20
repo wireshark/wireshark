@@ -26,30 +26,30 @@ void proto_reg_handoff_vrrp(void);
 
 static dissector_handle_t vrrp_handle;
 
-static gint proto_vrrp = -1;
-static gint ett_vrrp = -1;
-static gint ett_vrrp_ver_type = -1;
+static gint proto_vrrp;
+static gint ett_vrrp;
+static gint ett_vrrp_ver_type;
 
-static gint hf_vrrp_ver_type = -1;
-static gint hf_vrrp_version = -1;
-static gint hf_vrrp_type = -1;
-static gint hf_vrrp_virt_rtr_id = -1;
-static gint hf_vrrp_prio = -1;
-static gint hf_vrrp_addr_count = -1;
-static gint hf_vrrp_checksum = -1;
-static gint hf_vrrp_checksum_status = -1;
-static gint hf_vrrp_auth_type = -1;
-static gint hf_vrrp_adver_int = -1;
-static gint hf_vrrp_reserved_mbz = -1;
-static gint hf_vrrp_short_adver_int = -1;
-static gint hf_vrrp_ip = -1;
-static gint hf_vrrp_ip6 = -1;
-static gint hf_vrrp_auth_string = -1;
-static gint hf_vrrp_md5_auth_data = -1;
+static gint hf_vrrp_ver_type;
+static gint hf_vrrp_version;
+static gint hf_vrrp_type;
+static gint hf_vrrp_virt_rtr_id;
+static gint hf_vrrp_prio;
+static gint hf_vrrp_addr_count;
+static gint hf_vrrp_checksum;
+static gint hf_vrrp_checksum_status;
+static gint hf_vrrp_auth_type;
+static gint hf_vrrp_adver_int;
+static gint hf_vrrp_reserved_mbz;
+static gint hf_vrrp_short_adver_int;
+static gint hf_vrrp_ip;
+static gint hf_vrrp_ip6;
+static gint hf_vrrp_auth_string;
+static gint hf_vrrp_md5_auth_data;
 
 static gboolean g_vrrp_v3_checksum_as_in_v2 = FALSE;
 
-static expert_field ei_vrrp_checksum = EI_INIT;
+static expert_field ei_vrrp_checksum;
 
 #define VRRP_VERSION_MASK  0xf0
 #define VRRP_TYPE_MASK     0x0f

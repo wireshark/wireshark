@@ -28,32 +28,32 @@ void proto_register_mp4ves(void);
 void proto_reg_handoff_mp4ves(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_mp4ves	= -1;
+static int proto_mp4ves;
 
-static int hf_mp4ves_config = -1;
-static int hf_mp4ves_start_code_prefix = -1;
-static int hf_mp4ves_start_code = -1;
-static int hf_mp4ves_vop_coding_type = -1;
-static int hf_mp4ves_profile_and_level_indication = -1;
-static int hf_mp4ves_is_visual_object_identifier = -1;
-static int hf_mp4ves_visual_object_type = -1;
-static int hf_mp4ves_video_signal_type = -1;
-static int hf_mp4ves_stuffing = -1;
-static int hf_mp4ves_video_object_type_indication = -1;
-static int hf_mp4ves_random_accessible_vol = -1;
-static int hf_mp4ves_is_object_layer_identifier = -1;
-static int hf_mp4ves_aspect_ratio_info = -1;
-static int hf_mp4ves_vol_control_parameters = -1;
-static int hf_mp4ves_video_object_layer_shape = -1;
-static int hf_mp4ves_user_data = -1;
-static int hf_mp4ves_data = -1;
+static int hf_mp4ves_config;
+static int hf_mp4ves_start_code_prefix;
+static int hf_mp4ves_start_code;
+static int hf_mp4ves_vop_coding_type;
+static int hf_mp4ves_profile_and_level_indication;
+static int hf_mp4ves_is_visual_object_identifier;
+static int hf_mp4ves_visual_object_type;
+static int hf_mp4ves_video_signal_type;
+static int hf_mp4ves_stuffing;
+static int hf_mp4ves_video_object_type_indication;
+static int hf_mp4ves_random_accessible_vol;
+static int hf_mp4ves_is_object_layer_identifier;
+static int hf_mp4ves_aspect_ratio_info;
+static int hf_mp4ves_vol_control_parameters;
+static int hf_mp4ves_video_object_layer_shape;
+static int hf_mp4ves_user_data;
+static int hf_mp4ves_data;
 
 /* Initialize the subtree pointers */
-static int ett_mp4ves = -1;
-static int ett_mp4ves_config = -1;
+static int ett_mp4ves;
+static int ett_mp4ves_config;
 
-static expert_field ei_mp4ves_config_too_short = EI_INIT;
-static expert_field ei_mp4ves_not_dissected_bits = EI_INIT;
+static expert_field ei_mp4ves_config_too_short;
+static expert_field ei_mp4ves_not_dissected_bits;
 
 static dissector_handle_t mp4ves_name_handle;
 

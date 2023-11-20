@@ -35,72 +35,72 @@ void proto_reg_handoff_srt(void);
 void proto_register_srt(void);
 
 /* Initialize the protocol */
-static int proto_srt = -1;
-static int hf_srt_iscontrol = -1;
-static int hf_srt_type = -1;
-static int hf_srt_exttype = -1;
-static int hf_srt_exttype_none = -1;
-static int hf_srt_seqno = -1;
-static int hf_srt_ack_seqno = -1;
-static int hf_srt_ackno = -1;
-static int hf_srt_msgno = -1;
-static int hf_srt_msgno_pb = -1;
-static int hf_srt_msgno_inorder = -1;
-static int hf_srt_msgno_enctypes = -1;
-static int hf_srt_msgno_rexmit = -1;
-static int hf_srt_timestamp = -1;
-static int hf_srt_id = -1;
-static int hf_srt_addinfo = -1;
-static int hf_srt_rtt = -1;
-static int hf_srt_rttvar = -1;
-static int hf_srt_bufavail = -1;
-static int hf_srt_rate = -1;
-static int hf_srt_bandwidth = -1;
-static int hf_srt_rcvrate = -1;
+static int proto_srt;
+static int hf_srt_iscontrol;
+static int hf_srt_type;
+static int hf_srt_exttype;
+static int hf_srt_exttype_none;
+static int hf_srt_seqno;
+static int hf_srt_ack_seqno;
+static int hf_srt_ackno;
+static int hf_srt_msgno;
+static int hf_srt_msgno_pb;
+static int hf_srt_msgno_inorder;
+static int hf_srt_msgno_enctypes;
+static int hf_srt_msgno_rexmit;
+static int hf_srt_timestamp;
+static int hf_srt_id;
+static int hf_srt_addinfo;
+static int hf_srt_rtt;
+static int hf_srt_rttvar;
+static int hf_srt_bufavail;
+static int hf_srt_rate;
+static int hf_srt_bandwidth;
+static int hf_srt_rcvrate;
 
 /* SRT Handshake */
-static int hf_srt_handshake_version = -1;
-static int hf_srt_handshake_type_v4 = -1;
-static int hf_srt_handshake_enc_field_v5 = -1;
-static int hf_srt_handshake_ext_field_v5 = -1;
-static int hf_srt_handshake_ext_field_v5_flag_hsreq = -1;
-static int hf_srt_handshake_ext_field_v5_flag_kmreq = -1;
-static int hf_srt_handshake_ext_field_v5_flag_config = -1;
-static int hf_srt_handshake_isn = -1;
-static int hf_srt_handshake_mtu = -1;
-static int hf_srt_handshake_flow_window = -1;
-static int hf_srt_handshake_reqtype = -1;
-static int hf_srt_handshake_failure_type = -1;
-static int hf_srt_handshake_id = -1;
-static int hf_srt_handshake_cookie = -1;
-static int hf_srt_handshake_peerip = -1;
+static int hf_srt_handshake_version;
+static int hf_srt_handshake_type_v4;
+static int hf_srt_handshake_enc_field_v5;
+static int hf_srt_handshake_ext_field_v5;
+static int hf_srt_handshake_ext_field_v5_flag_hsreq;
+static int hf_srt_handshake_ext_field_v5_flag_kmreq;
+static int hf_srt_handshake_ext_field_v5_flag_config;
+static int hf_srt_handshake_isn;
+static int hf_srt_handshake_mtu;
+static int hf_srt_handshake_flow_window;
+static int hf_srt_handshake_reqtype;
+static int hf_srt_handshake_failure_type;
+static int hf_srt_handshake_id;
+static int hf_srt_handshake_cookie;
+static int hf_srt_handshake_peerip;
 /* SRT Handshake Extension */
-static int hf_srt_handshake_ext_version = -1;
-static int hf_srt_handshake_ext_flags = -1;
-static int hf_srt_handshake_ext_flag_tsbpd_snd = -1;
-static int hf_srt_handshake_ext_flag_tsbpd_rcv = -1;
-static int hf_srt_handshake_ext_flag_haicrypt = -1;
-static int hf_srt_handshake_ext_flag_tlpkt_drop = -1;
-static int hf_srt_handshake_ext_flag_nak_report = -1;
-static int hf_srt_handshake_ext_flag_rexmit = -1;
-static int hf_srt_handshake_ext_flag_stream = -1;
+static int hf_srt_handshake_ext_version;
+static int hf_srt_handshake_ext_flags;
+static int hf_srt_handshake_ext_flag_tsbpd_snd;
+static int hf_srt_handshake_ext_flag_tsbpd_rcv;
+static int hf_srt_handshake_ext_flag_haicrypt;
+static int hf_srt_handshake_ext_flag_tlpkt_drop;
+static int hf_srt_handshake_ext_flag_nak_report;
+static int hf_srt_handshake_ext_flag_rexmit;
+static int hf_srt_handshake_ext_flag_stream;
 
-static int hf_srt_srths_blocktype = -1;
-static int hf_srt_srths_blocklen = -1;
-static int hf_srt_srths_agent_latency = -1; // TSBPD delay
-static int hf_srt_srths_peer_latency = -1; // TSBPD delay
-static int hf_srt_srtkm_msg = -1;
-static int hf_srt_srtkm_error = -1;
-static int hf_srt_srths_sid = -1;
-static int hf_srt_srths_congestcontrol = -1;
+static int hf_srt_srths_blocktype;
+static int hf_srt_srths_blocklen;
+static int hf_srt_srths_agent_latency; // TSBPD delay
+static int hf_srt_srths_peer_latency; // TSBPD delay
+static int hf_srt_srtkm_msg;
+static int hf_srt_srtkm_error;
+static int hf_srt_srths_sid;
+static int hf_srt_srths_congestcontrol;
 
-static gint ett_srt = -1;
-static gint ett_srt_handshake_ext_flags = -1;
-static gint ett_srt_handshake_ext_field_flags = -1;
+static gint ett_srt;
+static gint ett_srt_handshake_ext_flags;
+static gint ett_srt_handshake_ext_field_flags;
 
-static expert_field ei_srt_nak_seqno = EI_INIT;
-static expert_field ei_srt_hs_ext_hsreq_len = EI_INIT;
-static expert_field ei_srt_hs_ext_type = EI_INIT;
+static expert_field ei_srt_nak_seqno;
+static expert_field ei_srt_hs_ext_hsreq_len;
+static expert_field ei_srt_hs_ext_type;
 
 static dissector_handle_t srt_udp_handle;
 

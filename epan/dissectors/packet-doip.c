@@ -353,90 +353,90 @@ static gboolean doip_hide_address_names = TRUE;
  */
 
 /* DoIP header */
-static int hf_doip_version = -1;
-static int hf_doip_inv_version = -1;
-static int hf_doip_type = -1;
-static int hf_doip_length = -1;
+static int hf_doip_version;
+static int hf_doip_inv_version;
+static int hf_doip_type;
+static int hf_doip_length;
 
 
 /* Generic NACK */
-static int hf_generic_nack_code = -1;
+static int hf_generic_nack_code;
 
 
 /* Common */
-static int hf_reserved_iso = -1;
-static int hf_reserved_oem = -1;
+static int hf_reserved_iso;
+static int hf_reserved_oem;
 
 
 /* Routing activation request */
-static int hf_activation_type_v1 = -1;
-static int hf_activation_type_v2 = -1;
+static int hf_activation_type_v1;
+static int hf_activation_type_v2;
 
 
 /* Routing activation response */
-static int hf_tester_logical_address = -1;
-static int hf_tester_logical_address_name = -1;
-static int hf_response_code = -1;
+static int hf_tester_logical_address;
+static int hf_tester_logical_address_name;
+static int hf_response_code;
 
 
 /* Vehicle announcement message */
-static int hf_logical_address = -1;
-static int hf_logical_address_name = -1;
-static int hf_gid = -1;
-static int hf_futher_action = -1;
-static int hf_sync_status = -1;
+static int hf_logical_address;
+static int hf_logical_address_name;
+static int hf_gid;
+static int hf_futher_action;
+static int hf_sync_status;
 
 
 /* Diagnostic power mode information response */
-static int hf_power_mode = -1;
+static int hf_power_mode;
 
 
 /* Entity status response */
-static int hf_node_type = -1;
-static int hf_max_sockets = -1;
-static int hf_current_sockets = -1;
-static int hf_max_data_size = -1;
+static int hf_node_type;
+static int hf_max_sockets;
+static int hf_current_sockets;
+static int hf_max_data_size;
 
 
 /* Common */
-static int hf_vin = -1;
-static int hf_eid = -1;
-static int hf_source_address = -1;
-static int hf_source_address_name = -1;
-static int hf_target_address = -1;
-static int hf_target_address_name = -1;
-static int hf_previous = -1;
+static int hf_vin;
+static int hf_eid;
+static int hf_source_address;
+static int hf_source_address_name;
+static int hf_target_address;
+static int hf_target_address_name;
+static int hf_previous;
 
 
 /* Diagnostic message */
-static int hf_data = -1;
+static int hf_data;
 
 
 /* Diagnostic message ACK */
-static int hf_ack_code = -1;
+static int hf_ack_code;
 
 
 /* Diagnostic message NACK */
-static int hf_nack_code = -1;
+static int hf_nack_code;
 
 
 
 /*
  * Trees
  */
-static gint ett_doip = -1;
-static gint ett_header = -1;
-static gint ett_address = -1;
+static gint ett_doip;
+static gint ett_header;
+static gint ett_address;
 
 
 /* Misc */
 static dissector_handle_t doip_handle;
 static dissector_handle_t uds_handle;
-static gint proto_doip    = -1;
+static gint proto_doip;
 
 
 /* expert info items */
-static expert_field ei_doip_illegal_length_field = EI_INIT;
+static expert_field ei_doip_illegal_length_field;
 
 
 /*

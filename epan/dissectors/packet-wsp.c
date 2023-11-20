@@ -52,322 +52,322 @@ static int wsp_tap = -1;
 
 
 /* File scoped variables for the protocol and registered fields */
-static int proto_wsp                                    = -1;
-static int proto_sir                                    = -1;
+static int proto_wsp;
+static int proto_sir;
 
 /*
  * Initialize the header field pointers
  */
 
 /* WSP header fields and their subfields if available */
-static int hf_hdr_name_value                            = -1;
-static int hf_hdr_name_string                           = -1;
-static int hf_hdr_accept                                = -1;
-static int hf_hdr_accept_charset                        = -1;
-static int hf_hdr_accept_encoding                       = -1;
-static int hf_hdr_accept_language                       = -1;
-static int hf_hdr_accept_ranges                         = -1;
-static int hf_hdr_age                                   = -1;
-static int hf_hdr_allow                                 = -1;
-static int hf_hdr_authorization                         = -1;
-static int hf_hdr_authorization_scheme                  = -1; /* Subfield */
-static int hf_hdr_authorization_user_id                 = -1; /* Subfield */
-static int hf_hdr_authorization_password                = -1; /* Subfield */
-static int hf_hdr_cache_control                         = -1;
-static int hf_hdr_connection                            = -1;
-static int hf_hdr_content_base                          = -1;
-static int hf_hdr_content_encoding                      = -1;
-static int hf_hdr_content_language                      = -1;
-static int hf_hdr_content_length                        = -1;
-static int hf_hdr_content_location                      = -1;
-static int hf_hdr_content_md5                           = -1;
-static int hf_hdr_content_range                         = -1;
-static int hf_hdr_content_range_first_byte_pos          = -1; /* Subfield */
-static int hf_hdr_content_range_entity_length           = -1; /* Subfield */
-static int hf_hdr_content_type                          = -1;
-static int hf_hdr_date                                  = -1;
-static int hf_hdr_etag                                  = -1;
-static int hf_hdr_expires                               = -1;
-static int hf_hdr_from                                  = -1;
-static int hf_hdr_host                                  = -1;
-static int hf_hdr_if_modified_since                     = -1;
-static int hf_hdr_if_match                              = -1;
-static int hf_hdr_if_none_match                         = -1;
-static int hf_hdr_if_range                              = -1;
-static int hf_hdr_if_unmodified_since                   = -1;
-static int hf_hdr_last_modified                         = -1;
-static int hf_hdr_location                              = -1;
-static int hf_hdr_max_forwards                          = -1;
-static int hf_hdr_pragma                                = -1;
-static int hf_hdr_proxy_authenticate                    = -1;
-static int hf_hdr_proxy_authenticate_scheme             = -1; /* Subfield */
-static int hf_hdr_proxy_authenticate_realm              = -1; /* Subfield */
-static int hf_hdr_proxy_authorization                   = -1;
-static int hf_hdr_proxy_authorization_scheme            = -1; /* Subfield */
-static int hf_hdr_proxy_authorization_user_id           = -1; /* Subfield */
-static int hf_hdr_proxy_authorization_password          = -1; /* Subfield */
-static int hf_hdr_public                                = -1;
-static int hf_hdr_range                                 = -1;
-static int hf_hdr_range_first_byte_pos                  = -1; /* Subfield */
-static int hf_hdr_range_last_byte_pos                   = -1; /* Subfield */
-static int hf_hdr_range_suffix_length                   = -1; /* Subfield */
-static int hf_hdr_referer                               = -1;
-static int hf_hdr_retry_after                           = -1;
-static int hf_hdr_server                                = -1;
-static int hf_hdr_transfer_encoding                     = -1;
-static int hf_hdr_upgrade                               = -1;
-static int hf_hdr_user_agent                            = -1;
-static int hf_hdr_vary                                  = -1;
-static int hf_hdr_via                                   = -1;
-static int hf_hdr_warning                               = -1;
-static int hf_hdr_warning_code                          = -1; /* Subfield */
-static int hf_hdr_warning_agent                         = -1; /* Subfield */
-static int hf_hdr_warning_text                          = -1; /* Subfield */
-static int hf_hdr_www_authenticate                      = -1;
-static int hf_hdr_www_authenticate_scheme               = -1; /* Subfield */
-static int hf_hdr_www_authenticate_realm                = -1; /* Subfield */
-static int hf_hdr_content_disposition                   = -1;
-static int hf_hdr_application_id                        = -1;
-static int hf_hdr_content_uri                           = -1;
-static int hf_hdr_initiator_uri                         = -1;
-static int hf_hdr_bearer_indication                     = -1;
-static int hf_hdr_push_flag                             = -1;
-static int hf_hdr_push_flag_auth                        = -1; /* Subfield */
-static int hf_hdr_push_flag_trust                       = -1; /* Subfield */
-static int hf_hdr_push_flag_last                        = -1; /* Subfield */
-static int hf_hdr_profile                               = -1;
-static int hf_hdr_profile_diff                          = -1;
-static int hf_hdr_profile_warning                       = -1;
-static int hf_hdr_expect                                = -1;
-static int hf_hdr_te                                    = -1;
-static int hf_hdr_trailer                               = -1;
-static int hf_hdr_x_wap_tod                             = -1;
-static int hf_hdr_content_id                            = -1;
-static int hf_hdr_set_cookie                            = -1;
-static int hf_hdr_cookie                                = -1;
-static int hf_hdr_encoding_version                      = -1;
-static int hf_hdr_x_wap_security                        = -1;
-static int hf_hdr_x_wap_application_id                  = -1;
-static int hf_hdr_accept_application                    = -1;
+static int hf_hdr_name_value;
+static int hf_hdr_name_string;
+static int hf_hdr_accept;
+static int hf_hdr_accept_charset;
+static int hf_hdr_accept_encoding;
+static int hf_hdr_accept_language;
+static int hf_hdr_accept_ranges;
+static int hf_hdr_age;
+static int hf_hdr_allow;
+static int hf_hdr_authorization;
+static int hf_hdr_authorization_scheme; /* Subfield */
+static int hf_hdr_authorization_user_id; /* Subfield */
+static int hf_hdr_authorization_password; /* Subfield */
+static int hf_hdr_cache_control;
+static int hf_hdr_connection;
+static int hf_hdr_content_base;
+static int hf_hdr_content_encoding;
+static int hf_hdr_content_language;
+static int hf_hdr_content_length;
+static int hf_hdr_content_location;
+static int hf_hdr_content_md5;
+static int hf_hdr_content_range;
+static int hf_hdr_content_range_first_byte_pos; /* Subfield */
+static int hf_hdr_content_range_entity_length; /* Subfield */
+static int hf_hdr_content_type;
+static int hf_hdr_date;
+static int hf_hdr_etag;
+static int hf_hdr_expires;
+static int hf_hdr_from;
+static int hf_hdr_host;
+static int hf_hdr_if_modified_since;
+static int hf_hdr_if_match;
+static int hf_hdr_if_none_match;
+static int hf_hdr_if_range;
+static int hf_hdr_if_unmodified_since;
+static int hf_hdr_last_modified;
+static int hf_hdr_location;
+static int hf_hdr_max_forwards;
+static int hf_hdr_pragma;
+static int hf_hdr_proxy_authenticate;
+static int hf_hdr_proxy_authenticate_scheme; /* Subfield */
+static int hf_hdr_proxy_authenticate_realm; /* Subfield */
+static int hf_hdr_proxy_authorization;
+static int hf_hdr_proxy_authorization_scheme; /* Subfield */
+static int hf_hdr_proxy_authorization_user_id; /* Subfield */
+static int hf_hdr_proxy_authorization_password; /* Subfield */
+static int hf_hdr_public;
+static int hf_hdr_range;
+static int hf_hdr_range_first_byte_pos; /* Subfield */
+static int hf_hdr_range_last_byte_pos; /* Subfield */
+static int hf_hdr_range_suffix_length; /* Subfield */
+static int hf_hdr_referer;
+static int hf_hdr_retry_after;
+static int hf_hdr_server;
+static int hf_hdr_transfer_encoding;
+static int hf_hdr_upgrade;
+static int hf_hdr_user_agent;
+static int hf_hdr_vary;
+static int hf_hdr_via;
+static int hf_hdr_warning;
+static int hf_hdr_warning_code; /* Subfield */
+static int hf_hdr_warning_agent; /* Subfield */
+static int hf_hdr_warning_text; /* Subfield */
+static int hf_hdr_www_authenticate;
+static int hf_hdr_www_authenticate_scheme; /* Subfield */
+static int hf_hdr_www_authenticate_realm; /* Subfield */
+static int hf_hdr_content_disposition;
+static int hf_hdr_application_id;
+static int hf_hdr_content_uri;
+static int hf_hdr_initiator_uri;
+static int hf_hdr_bearer_indication;
+static int hf_hdr_push_flag;
+static int hf_hdr_push_flag_auth; /* Subfield */
+static int hf_hdr_push_flag_trust; /* Subfield */
+static int hf_hdr_push_flag_last; /* Subfield */
+static int hf_hdr_profile;
+static int hf_hdr_profile_diff;
+static int hf_hdr_profile_warning;
+static int hf_hdr_expect;
+static int hf_hdr_te;
+static int hf_hdr_trailer;
+static int hf_hdr_x_wap_tod;
+static int hf_hdr_content_id;
+static int hf_hdr_set_cookie;
+static int hf_hdr_cookie;
+static int hf_hdr_encoding_version;
+static int hf_hdr_x_wap_security;
+static int hf_hdr_x_wap_application_id;
+static int hf_hdr_accept_application;
 
 
 /* Openwave headers */
-static int hf_hdr_openwave_default_int                  = -1;
-static int hf_hdr_openwave_default_string               = -1;
-static int hf_hdr_openwave_default_val_len              = -1;
-static int hf_hdr_openwave_name_value                   = -1;
-static int hf_hdr_openwave_x_up_proxy_operator_domain   = -1;
-static int hf_hdr_openwave_x_up_proxy_home_page         = -1;
-static int hf_hdr_openwave_x_up_proxy_uplink_version    = -1;
-static int hf_hdr_openwave_x_up_proxy_ba_realm          = -1;
-static int hf_hdr_openwave_x_up_proxy_request_uri       = -1;
+static int hf_hdr_openwave_default_int;
+static int hf_hdr_openwave_default_string;
+static int hf_hdr_openwave_default_val_len;
+static int hf_hdr_openwave_name_value;
+static int hf_hdr_openwave_x_up_proxy_operator_domain;
+static int hf_hdr_openwave_x_up_proxy_home_page;
+static int hf_hdr_openwave_x_up_proxy_uplink_version;
+static int hf_hdr_openwave_x_up_proxy_ba_realm;
+static int hf_hdr_openwave_x_up_proxy_request_uri;
 #if 0
-static int hf_hdr_openwave_x_up_proxy_client_id         = -1;
+static int hf_hdr_openwave_x_up_proxy_client_id;
 #endif
-static int hf_hdr_openwave_x_up_proxy_bookmark          = -1;
-static int hf_hdr_openwave_x_up_proxy_push_seq          = -1;
-static int hf_hdr_openwave_x_up_proxy_notify            = -1;
-static int hf_hdr_openwave_x_up_proxy_net_ask           = -1;
-static int hf_hdr_openwave_x_up_proxy_tod               = -1;
-static int hf_hdr_openwave_x_up_proxy_ba_enable         = -1;
-static int hf_hdr_openwave_x_up_proxy_redirect_enable   = -1;
-static int hf_hdr_openwave_x_up_proxy_redirect_status   = -1;
-static int hf_hdr_openwave_x_up_proxy_linger            = -1;
-static int hf_hdr_openwave_x_up_proxy_enable_trust      = -1;
-static int hf_hdr_openwave_x_up_proxy_trust             = -1;
-static int hf_hdr_openwave_x_up_devcap_has_color        = -1;
-static int hf_hdr_openwave_x_up_devcap_num_softkeys     = -1;
-static int hf_hdr_openwave_x_up_devcap_softkey_size     = -1;
-static int hf_hdr_openwave_x_up_devcap_screen_chars     = -1;
-static int hf_hdr_openwave_x_up_devcap_screen_pixels    = -1;
-static int hf_hdr_openwave_x_up_devcap_em_size          = -1;
-static int hf_hdr_openwave_x_up_devcap_screen_depth     = -1;
-static int hf_hdr_openwave_x_up_devcap_immed_alert      = -1;
-static int hf_hdr_openwave_x_up_devcap_gui              = -1;
-static int hf_hdr_openwave_x_up_proxy_trans_charset     = -1;
-static int hf_hdr_openwave_x_up_proxy_push_accept       = -1;
+static int hf_hdr_openwave_x_up_proxy_bookmark;
+static int hf_hdr_openwave_x_up_proxy_push_seq;
+static int hf_hdr_openwave_x_up_proxy_notify;
+static int hf_hdr_openwave_x_up_proxy_net_ask;
+static int hf_hdr_openwave_x_up_proxy_tod;
+static int hf_hdr_openwave_x_up_proxy_ba_enable;
+static int hf_hdr_openwave_x_up_proxy_redirect_enable;
+static int hf_hdr_openwave_x_up_proxy_redirect_status;
+static int hf_hdr_openwave_x_up_proxy_linger;
+static int hf_hdr_openwave_x_up_proxy_enable_trust;
+static int hf_hdr_openwave_x_up_proxy_trust;
+static int hf_hdr_openwave_x_up_devcap_has_color;
+static int hf_hdr_openwave_x_up_devcap_num_softkeys;
+static int hf_hdr_openwave_x_up_devcap_softkey_size;
+static int hf_hdr_openwave_x_up_devcap_screen_chars;
+static int hf_hdr_openwave_x_up_devcap_screen_pixels;
+static int hf_hdr_openwave_x_up_devcap_em_size;
+static int hf_hdr_openwave_x_up_devcap_screen_depth;
+static int hf_hdr_openwave_x_up_devcap_immed_alert;
+static int hf_hdr_openwave_x_up_devcap_gui;
+static int hf_hdr_openwave_x_up_proxy_trans_charset;
+static int hf_hdr_openwave_x_up_proxy_push_accept;
 
 
 /* WSP parameter fields */
-static int hf_parameter_q                               = -1;
-static int hf_parameter_charset                         = -1;
+static int hf_parameter_q;
+static int hf_parameter_charset;
 
 /* Old header fields */
 
-static int hf_wsp_header_tid                            = -1;
-static int hf_wsp_header_pdu_type                       = -1;
-static int hf_wsp_version_major                         = -1;
-static int hf_wsp_version_minor                         = -1;
+static int hf_wsp_header_tid;
+static int hf_wsp_header_pdu_type;
+static int hf_wsp_version_major;
+static int hf_wsp_version_minor;
 /* Session capabilities (CO-WSP) */
-static int hf_capabilities_length                       = -1;
-static int hf_capabilities_section                      = -1;
-static int hf_capa_client_sdu_size                      = -1;
-static int hf_capa_server_sdu_size                      = -1;
-static int hf_capa_protocol_options                     = -1;
-static int hf_capa_protocol_option_confirmed_push       = -1; /* Subfield */
-static int hf_capa_protocol_option_push                 = -1; /* Subfield */
-static int hf_capa_protocol_option_session_resume       = -1; /* Subfield */
-static int hf_capa_protocol_option_ack_headers          = -1; /* Subfield */
-static int hf_capa_protocol_option_large_data_transfer  = -1; /* Subfield */
-static int hf_capa_method_mor                           = -1;
-static int hf_capa_push_mor                             = -1;
-static int hf_capa_extended_method                      = -1;
-static int hf_capa_header_code_page                     = -1;
-static int hf_capa_aliases                              = -1;
-static int hf_capa_client_message_size                  = -1;
-static int hf_capa_server_message_size                  = -1;
+static int hf_capabilities_length;
+static int hf_capabilities_section;
+static int hf_capa_client_sdu_size;
+static int hf_capa_server_sdu_size;
+static int hf_capa_protocol_options;
+static int hf_capa_protocol_option_confirmed_push; /* Subfield */
+static int hf_capa_protocol_option_push; /* Subfield */
+static int hf_capa_protocol_option_session_resume; /* Subfield */
+static int hf_capa_protocol_option_ack_headers; /* Subfield */
+static int hf_capa_protocol_option_large_data_transfer; /* Subfield */
+static int hf_capa_method_mor;
+static int hf_capa_push_mor;
+static int hf_capa_extended_method;
+static int hf_capa_header_code_page;
+static int hf_capa_aliases;
+static int hf_capa_client_message_size;
+static int hf_capa_server_message_size;
 
-static int hf_wsp_header_uri_len                        = -1;
-static int hf_wsp_header_uri                            = -1;
-static int hf_wsp_server_session_id                     = -1;
-static int hf_wsp_header_status                         = -1;
-static int hf_wsp_header_length                         = -1;
-static int hf_wsp_headers_section                       = -1;
-static int hf_wsp_parameter_untype_quote_text           = -1;
-static int hf_wsp_parameter_untype_text                 = -1;
-static int hf_wsp_parameter_untype_int                  = -1;
-static int hf_wsp_parameter_type                        = -1;
-static int hf_wsp_parameter_int_type                    = -1;
-static int hf_wsp_parameter_name                        = -1;
-static int hf_wsp_parameter_filename                    = -1;
-static int hf_wsp_parameter_start                       = -1;
-static int hf_wsp_parameter_start_info                  = -1;
-static int hf_wsp_parameter_comment                     = -1;
-static int hf_wsp_parameter_domain                      = -1;
-static int hf_wsp_parameter_path                        = -1;
-static int hf_wsp_parameter_sec                         = -1;
-static int hf_wsp_parameter_mac                         = -1;
-static int hf_wsp_parameter_upart_type                  = -1;
-static int hf_wsp_parameter_level                       = -1;
-static int hf_wsp_parameter_size                        = -1;
+static int hf_wsp_header_uri_len;
+static int hf_wsp_header_uri;
+static int hf_wsp_server_session_id;
+static int hf_wsp_header_status;
+static int hf_wsp_header_length;
+static int hf_wsp_headers_section;
+static int hf_wsp_parameter_untype_quote_text;
+static int hf_wsp_parameter_untype_text;
+static int hf_wsp_parameter_untype_int;
+static int hf_wsp_parameter_type;
+static int hf_wsp_parameter_int_type;
+static int hf_wsp_parameter_name;
+static int hf_wsp_parameter_filename;
+static int hf_wsp_parameter_start;
+static int hf_wsp_parameter_start_info;
+static int hf_wsp_parameter_comment;
+static int hf_wsp_parameter_domain;
+static int hf_wsp_parameter_path;
+static int hf_wsp_parameter_sec;
+static int hf_wsp_parameter_mac;
+static int hf_wsp_parameter_upart_type;
+static int hf_wsp_parameter_level;
+static int hf_wsp_parameter_size;
 #if 0
-static int hf_wsp_reply_data                            = -1;
+static int hf_wsp_reply_data;
 #endif
-static int hf_wsp_post_data                             = -1;
+static int hf_wsp_post_data;
 #if 0
-static int hf_wsp_push_data                             = -1;
-static int hf_wsp_multipart_data                        = -1;
+static int hf_wsp_push_data;
+static int hf_wsp_multipart_data;
 #endif
-static int hf_wsp_mpart                                 = -1;
-static int hf_wsp_header_text_value                     = -1;
-static int hf_wsp_variable_value                        = -1;
-static int hf_wsp_default_int                           = -1;
-static int hf_wsp_default_string                        = -1;
-static int hf_wsp_default_val_len                       = -1;
+static int hf_wsp_mpart;
+static int hf_wsp_header_text_value;
+static int hf_wsp_variable_value;
+static int hf_wsp_default_int;
+static int hf_wsp_default_string;
+static int hf_wsp_default_val_len;
 
 /* Header code page shift sequence */
-static int hf_wsp_header_shift_code                     = -1;
+static int hf_wsp_header_shift_code;
 
 /* WSP Redirect fields */
-static int hf_wsp_redirect_flags                        = -1;
-static int hf_wsp_redirect_permanent                    = -1;
-static int hf_wsp_redirect_reuse_security_session       = -1;
-static int hf_redirect_addresses                        = -1;
+static int hf_wsp_redirect_flags;
+static int hf_wsp_redirect_permanent;
+static int hf_wsp_redirect_reuse_security_session;
+static int hf_redirect_addresses;
 
 /* Address fields */
-static int hf_address_entry                             = -1;
-static int hf_address_flags_length                      = -1;
-static int hf_address_flags_length_bearer_type_included = -1; /* Subfield */
-static int hf_address_flags_length_port_number_included = -1; /* Subfield */
-static int hf_address_flags_length_address_len          = -1; /* Subfield */
-static int hf_address_bearer_type                       = -1;
-static int hf_address_port_num                          = -1;
-static int hf_address_ipv4_addr                         = -1;
-static int hf_address_ipv6_addr                         = -1;
-static int hf_address_addr                              = -1;
+static int hf_address_entry;
+static int hf_address_flags_length;
+static int hf_address_flags_length_bearer_type_included; /* Subfield */
+static int hf_address_flags_length_port_number_included; /* Subfield */
+static int hf_address_flags_length_address_len; /* Subfield */
+static int hf_address_bearer_type;
+static int hf_address_port_num;
+static int hf_address_ipv4_addr;
+static int hf_address_ipv6_addr;
+static int hf_address_addr;
 
 /* Session Initiation Request fields */
-static int hf_sir_section                               = -1;
-static int hf_sir_version                               = -1;
-static int hf_sir_app_id_list_len                       = -1;
-static int hf_sir_app_id_list                           = -1;
-static int hf_sir_wsp_contact_points_len                = -1;
-static int hf_sir_wsp_contact_points                    = -1;
-static int hf_sir_contact_points_len                    = -1;
-static int hf_sir_contact_points                        = -1;
-static int hf_sir_protocol_options_len                  = -1;
-static int hf_sir_protocol_options                      = -1;
-static int hf_sir_prov_url_len                          = -1;
-static int hf_sir_prov_url                              = -1;
-static int hf_sir_cpi_tag_len                           = -1;
-static int hf_sir_cpi_tag                               = -1;
+static int hf_sir_section;
+static int hf_sir_version;
+static int hf_sir_app_id_list_len;
+static int hf_sir_app_id_list;
+static int hf_sir_wsp_contact_points_len;
+static int hf_sir_wsp_contact_points;
+static int hf_sir_contact_points_len;
+static int hf_sir_contact_points;
+static int hf_sir_protocol_options_len;
+static int hf_sir_protocol_options;
+static int hf_sir_prov_url_len;
+static int hf_sir_prov_url;
+static int hf_sir_cpi_tag_len;
+static int hf_sir_cpi_tag;
 
 /*
  * Initialize the subtree pointers
  */
 
 /* WSP tree */
-static int ett_wsp                      = -1;
+static int ett_wsp;
 /* WSP headers tree */
-static int ett_header                   = -1;
+static int ett_header;
 /* WSP header subtree */
-static int ett_headers                  = -1;
-static int ett_wsp_parameter_type       = -1;
-static int ett_content_type_header      = -1;
+static int ett_headers;
+static int ett_wsp_parameter_type;
+static int ett_content_type_header;
 /* CO-WSP session capabilities */
-static int ett_capabilities             = -1;
-static int ett_capabilities_entry       = -1;
-static int ett_proto_option_capability  = -1;
-static int ett_capabilities_header_code_pages = -1;
-static int ett_capabilities_extended_methods = -1;
-static int ett_post                     = -1;
-static int ett_redirect_flags           = -1;
-static int ett_address_flags            = -1;
-static int ett_multiparts               = -1;
-static int ett_mpartlist                = -1;
+static int ett_capabilities;
+static int ett_capabilities_entry;
+static int ett_proto_option_capability;
+static int ett_capabilities_header_code_pages;
+static int ett_capabilities_extended_methods;
+static int ett_post;
+static int ett_redirect_flags;
+static int ett_address_flags;
+static int ett_multiparts;
+static int ett_mpartlist;
 /* Session Initiation Request tree */
-static int ett_sir                      = -1;
-static int ett_addresses                = -1;
-static int ett_address                  = -1;
+static int ett_sir;
+static int ett_addresses;
+static int ett_address;
 
-static int ett_default                  = -1;
-static int ett_add_content_type         = -1;
-static int ett_accept_x_q_header        = -1;
-static int ett_push_flag                = -1;
-static int ett_profile_diff_wbxml       = -1;
-static int ett_allow                    = -1;
-static int ett_public                   = -1;
-static int ett_vary                     = -1;
-static int ett_x_wap_security           = -1;
-static int ett_connection               = -1;
-static int ett_transfer_encoding        = -1;
-static int ett_accept_ranges            = -1;
-static int ett_content_encoding         = -1;
-static int ett_accept_encoding          = -1;
-static int ett_content_disposition      = -1;
-static int ett_text_header              = -1;
-static int ett_content_id               = -1;
-static int ett_text_or_date_value       = -1;
-static int ett_date_value               = -1;
-static int ett_tod_value                = -1;
-static int ett_age                      = -1;
-static int ett_integer_lookup           = -1;
-static int ett_challenge                = -1;
-static int ett_credentials_value        = -1;
-static int ett_content_md5              = -1;
-static int ett_pragma                   = -1;
-static int ett_integer_value            = -1;
-static int ett_integer_lookup_value     = -1;
-static int ett_cache_control            = -1;
-static int ett_warning                  = -1;
-static int ett_profile_warning          = -1;
-static int ett_encoding_version         = -1;
-static int ett_content_range            = -1;
-static int ett_range                    = -1;
-static int ett_te_value                 = -1;
-static int ett_openwave_default         = -1;
+static int ett_default;
+static int ett_add_content_type;
+static int ett_accept_x_q_header;
+static int ett_push_flag;
+static int ett_profile_diff_wbxml;
+static int ett_allow;
+static int ett_public;
+static int ett_vary;
+static int ett_x_wap_security;
+static int ett_connection;
+static int ett_transfer_encoding;
+static int ett_accept_ranges;
+static int ett_content_encoding;
+static int ett_accept_encoding;
+static int ett_content_disposition;
+static int ett_text_header;
+static int ett_content_id;
+static int ett_text_or_date_value;
+static int ett_date_value;
+static int ett_tod_value;
+static int ett_age;
+static int ett_integer_lookup;
+static int ett_challenge;
+static int ett_credentials_value;
+static int ett_content_md5;
+static int ett_pragma;
+static int ett_integer_value;
+static int ett_integer_lookup_value;
+static int ett_cache_control;
+static int ett_warning;
+static int ett_profile_warning;
+static int ett_encoding_version;
+static int ett_content_range;
+static int ett_range;
+static int ett_te_value;
+static int ett_openwave_default;
 
-static expert_field ei_wsp_capability_invalid = EI_INIT;
-static expert_field ei_wsp_capability_length_invalid = EI_INIT;
-static expert_field ei_wsp_capability_encoding_invalid = EI_INIT;
-static expert_field ei_wsp_text_field_invalid = EI_INIT;
-static expert_field ei_wsp_header_invalid_value    = EI_INIT;
-static expert_field ei_wsp_invalid_parameter_value = EI_INIT;
-static expert_field ei_wsp_undecoded_parameter = EI_INIT;
-static expert_field ei_hdr_x_wap_tod = EI_INIT;
-static expert_field ei_wsp_trailing_quote = EI_INIT;
-static expert_field ei_wsp_header_invalid = EI_INIT;
-static expert_field ei_wsp_oversized_uintvar = EI_INIT;
+static expert_field ei_wsp_capability_invalid;
+static expert_field ei_wsp_capability_length_invalid;
+static expert_field ei_wsp_capability_encoding_invalid;
+static expert_field ei_wsp_text_field_invalid;
+static expert_field ei_wsp_header_invalid_value;
+static expert_field ei_wsp_invalid_parameter_value;
+static expert_field ei_wsp_undecoded_parameter;
+static expert_field ei_hdr_x_wap_tod;
+static expert_field ei_wsp_trailing_quote;
+static expert_field ei_wsp_header_invalid;
+static expert_field ei_wsp_oversized_uintvar;
 
 
 /* Handle for WSP-over-UDP dissector */

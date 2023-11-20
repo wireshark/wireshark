@@ -26,42 +26,42 @@
 
 void proto_register_btmesh_beacon(void);
 
-static int proto_btmesh_beacon = -1;
+static int proto_btmesh_beacon;
 
-static int hf_btmesh_beacon_type = -1;
-static int hf_btmesh_beacon_uuid = -1;
-static int hf_btmesh_beacon_oob = -1;
-static int hf_btmesh_beacon_oob_other = -1;
-static int hf_btmesh_beacon_oob_electronic = -1;
-static int hf_btmesh_beacon_oob_2d_code = -1;
-static int hf_btmesh_beacon_oob_bar_code = -1;
-static int hf_btmesh_beacon_oob_nfc= -1;
-static int hf_btmesh_beacon_oob_number = -1;
-static int hf_btmesh_beacon_oob_string = -1;
-static int hf_btmesh_beacon_oob_rfu = -1;
-static int hf_btmesh_beacon_oob_on_box = -1;
-static int hf_btmesh_beacon_oob_inside_box = -1;
-static int hf_btmesh_beacon_oob_on_paper = -1;
-static int hf_btmesh_beacon_oob_inside_manual = -1;
-static int hf_btmesh_beacon_oob_on_device = -1;
-static int hf_btmesh_beacon_uri_hash = -1;
-static int hf_btmesh_beacon_flags = -1;
-static int hf_btmesh_beacon_flags_key_refresh = -1;
-static int hf_btmesh_beacon_flags_iv_update = -1;
-static int hf_btmesh_beacon_flags_rfu = -1;
-static int hf_btmesh_beacon_network_id = -1;
-static int hf_btmesh_beacon_ivindex = -1;
+static int hf_btmesh_beacon_type;
+static int hf_btmesh_beacon_uuid;
+static int hf_btmesh_beacon_oob;
+static int hf_btmesh_beacon_oob_other;
+static int hf_btmesh_beacon_oob_electronic;
+static int hf_btmesh_beacon_oob_2d_code;
+static int hf_btmesh_beacon_oob_bar_code;
+static int hf_btmesh_beacon_oob_nfc;
+static int hf_btmesh_beacon_oob_number;
+static int hf_btmesh_beacon_oob_string;
+static int hf_btmesh_beacon_oob_rfu;
+static int hf_btmesh_beacon_oob_on_box;
+static int hf_btmesh_beacon_oob_inside_box;
+static int hf_btmesh_beacon_oob_on_paper;
+static int hf_btmesh_beacon_oob_inside_manual;
+static int hf_btmesh_beacon_oob_on_device;
+static int hf_btmesh_beacon_uri_hash;
+static int hf_btmesh_beacon_flags;
+static int hf_btmesh_beacon_flags_key_refresh;
+static int hf_btmesh_beacon_flags_iv_update;
+static int hf_btmesh_beacon_flags_rfu;
+static int hf_btmesh_beacon_network_id;
+static int hf_btmesh_beacon_ivindex;
 //TODO: check authentication value
-static int hf_btmesh_beacon_authentication_value = -1;
-static int hf_btmesh_beacon_unknown_data = -1;
+static int hf_btmesh_beacon_authentication_value;
+static int hf_btmesh_beacon_unknown_data;
 
-static int ett_btmesh_beacon = -1;
-static int ett_btmesh_beacon_oob = -1;
-static int ett_btmesh_beacon_flags = -1;
+static int ett_btmesh_beacon;
+static int ett_btmesh_beacon_oob;
+static int ett_btmesh_beacon_flags;
 
-static expert_field ei_btmesh_beacon_unknown_beacon_type = EI_INIT;
-static expert_field ei_btmesh_beacon_unknown_payload = EI_INIT;
-static expert_field ei_btmesh_beacon_rfu_not_zero = EI_INIT;
+static expert_field ei_btmesh_beacon_unknown_beacon_type;
+static expert_field ei_btmesh_beacon_unknown_payload;
+static expert_field ei_btmesh_beacon_rfu_not_zero;
 
 static const value_string btmesh_beacon_type[] = {
     { 0, "Unprovisioned Device Beacon" },

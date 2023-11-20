@@ -43,7 +43,7 @@
 void proto_register_lmp(void);
 void proto_reg_handoff_lmp(void);
 
-static int proto_lmp = -1;
+static int proto_lmp;
 
 #define UDP_PORT_LMP_DEFAULT 701
 
@@ -488,41 +488,41 @@ static int hf_lmp_filter[LMPF_MAX];
 static int hf_lmp_data;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_lmp_maximum_reservable_bandwidth = -1;
-static int hf_lmp_verify_transport_mechanism = -1;
-static int hf_lmp_interface_id_ipv6 = -1;
-static int hf_lmp_minimum_reservable_bandwidth = -1;
-static int hf_lmp_object_length = -1;
-static int hf_lmp_interface_id_unnumbered = -1;
-static int hf_lmp_signal_types_sdh = -1;
-static int hf_lmp_link_type = -1;
-static int hf_lmp_number_of_data_links = -1;
-static int hf_lmp_version = -1;
-static int hf_lmp_interface_id_ipv4 = -1;
-static int hf_lmp_header_length = -1;
-static int hf_lmp_uni_version = -1;
-static int hf_lmp_subobject_type = -1;
-static int hf_lmp_object_class = -1;
-static int hf_lmp_negotiable = -1;
-static int hf_lmp_signal_types_sonet = -1;
-static int hf_lmp_header_flags = -1;
-static int hf_lmp_verify_interval = -1;
-static int hf_lmp_wavelength = -1;
-static int hf_lmp_channel_status = -1;
-static int hf_lmp_verifydeadinterval = -1;
-static int hf_lmp_data_link_remote_id_ipv6 = -1;
-static int hf_lmp_link = -1;
-static int hf_lmp_subobject_length = -1;
-static int hf_lmp_transmission_rate = -1;
-static int hf_lmp_verify_transport_response = -1;
-static int hf_lmp_data_link_local_id_ipv6 = -1;
-static int hf_lmp_free_timeslots = -1;
+static int hf_lmp_maximum_reservable_bandwidth;
+static int hf_lmp_verify_transport_mechanism;
+static int hf_lmp_interface_id_ipv6;
+static int hf_lmp_minimum_reservable_bandwidth;
+static int hf_lmp_object_length;
+static int hf_lmp_interface_id_unnumbered;
+static int hf_lmp_signal_types_sdh;
+static int hf_lmp_link_type;
+static int hf_lmp_number_of_data_links;
+static int hf_lmp_version;
+static int hf_lmp_interface_id_ipv4;
+static int hf_lmp_header_length;
+static int hf_lmp_uni_version;
+static int hf_lmp_subobject_type;
+static int hf_lmp_object_class;
+static int hf_lmp_negotiable;
+static int hf_lmp_signal_types_sonet;
+static int hf_lmp_header_flags;
+static int hf_lmp_verify_interval;
+static int hf_lmp_wavelength;
+static int hf_lmp_channel_status;
+static int hf_lmp_verifydeadinterval;
+static int hf_lmp_data_link_remote_id_ipv6;
+static int hf_lmp_link;
+static int hf_lmp_subobject_length;
+static int hf_lmp_transmission_rate;
+static int hf_lmp_verify_transport_response;
+static int hf_lmp_data_link_local_id_ipv6;
+static int hf_lmp_free_timeslots;
 
-static expert_field ei_lmp_checksum_incorrect = EI_INIT;
-static expert_field ei_lmp_invalid_msg_type = EI_INIT;
-static expert_field ei_lmp_invalid_class = EI_INIT;
-static expert_field ei_lmp_trace_len = EI_INIT;
-static expert_field ei_lmp_obj_len = EI_INIT;
+static expert_field ei_lmp_checksum_incorrect;
+static expert_field ei_lmp_invalid_msg_type;
+static expert_field ei_lmp_invalid_class;
+static expert_field ei_lmp_trace_len;
+static expert_field ei_lmp_obj_len;
 
 static int
 lmp_valid_class(int lmp_class)

@@ -81,46 +81,46 @@ typedef struct _tftp_conv_info_t {
 } tftp_conv_info_t;
 
 
-static int proto_tftp = -1;
-static int hf_tftp_opcode = -1;
-static int hf_tftp_source_file = -1;
-static int hf_tftp_destination_file = -1;
-static int hf_tftp_request_frame = -1;
-static int hf_tftp_transfer_type = -1;
-static int hf_tftp_blocknum = -1;
-static int hf_tftp_full_blocknum = -1;
-static int hf_tftp_nextwindowsize = -1;
-static int hf_tftp_error_code = -1;
-static int hf_tftp_error_string = -1;
-static int hf_tftp_option_name = -1;
-static int hf_tftp_option_value = -1;
-static int hf_tftp_data = -1;
+static int proto_tftp;
+static int hf_tftp_opcode;
+static int hf_tftp_source_file;
+static int hf_tftp_destination_file;
+static int hf_tftp_request_frame;
+static int hf_tftp_transfer_type;
+static int hf_tftp_blocknum;
+static int hf_tftp_full_blocknum;
+static int hf_tftp_nextwindowsize;
+static int hf_tftp_error_code;
+static int hf_tftp_error_string;
+static int hf_tftp_option_name;
+static int hf_tftp_option_value;
+static int hf_tftp_data;
 
-static int hf_tftp_fragments = -1;
-static int hf_tftp_fragment = -1;
-static int hf_tftp_fragment_overlap = -1;
-static int hf_tftp_fragment_overlap_conflicts = -1;
-static int hf_tftp_fragment_multiple_tails = -1;
-static int hf_tftp_fragment_too_long_fragment = -1;
-static int hf_tftp_fragment_error = -1;
-static int hf_tftp_fragment_count = -1;
-static int hf_tftp_reassembled_in = -1;
-static int hf_tftp_reassembled_length = -1;
-static int hf_tftp_reassembled_data = -1;
+static int hf_tftp_fragments;
+static int hf_tftp_fragment;
+static int hf_tftp_fragment_overlap;
+static int hf_tftp_fragment_overlap_conflicts;
+static int hf_tftp_fragment_multiple_tails;
+static int hf_tftp_fragment_too_long_fragment;
+static int hf_tftp_fragment_error;
+static int hf_tftp_fragment_count;
+static int hf_tftp_reassembled_in;
+static int hf_tftp_reassembled_length;
+static int hf_tftp_reassembled_data;
 
-static gint ett_tftp = -1;
-static gint ett_tftp_option = -1;
+static gint ett_tftp;
+static gint ett_tftp_option;
 
-static gint ett_tftp_fragment = -1;
-static gint ett_tftp_fragments = -1;
+static gint ett_tftp_fragment;
+static gint ett_tftp_fragments;
 
-static expert_field ei_tftp_error = EI_INIT;
-static expert_field ei_tftp_likely_tsize_probe = EI_INIT;
-static expert_field ei_tftp_blocksize_range = EI_INIT;
-static expert_field ei_tftp_blocknum_will_wrap = EI_INIT;
-static expert_field ei_tftp_windowsize_range = EI_INIT;
-static expert_field ei_tftp_msftwindow_unrecognized = EI_INIT;
-static expert_field ei_tftp_windowsize_change = EI_INIT;
+static expert_field ei_tftp_error;
+static expert_field ei_tftp_likely_tsize_probe;
+static expert_field ei_tftp_blocksize_range;
+static expert_field ei_tftp_blocknum_will_wrap;
+static expert_field ei_tftp_windowsize_range;
+static expert_field ei_tftp_msftwindow_unrecognized;
+static expert_field ei_tftp_windowsize_change;
 
 #define LIKELY_TSIZE_PROBE_KEY 0
 #define FULL_BLOCKNUM_KEY 1

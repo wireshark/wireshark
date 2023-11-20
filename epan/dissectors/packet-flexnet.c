@@ -36,13 +36,13 @@ static dissector_handle_t flexnet_handle;
 #define FLEXNET_CTLLEN  15
 #define FLEXNET_HDRLEN  (FLEXNET_ADRLEN + FLEXNET_ADRLEN + FLEXNET_CTLLEN)
 
-static int proto_flexnet	= -1;
-static int hf_flexnet_dst	= -1;
-static int hf_flexnet_src	= -1;
-static int hf_flexnet_ctl	= -1;
+static int proto_flexnet;
+static int hf_flexnet_dst;
+static int hf_flexnet_src;
+static int hf_flexnet_ctl;
 
-static gint ett_flexnet = -1;
-static gint ett_flexnet_ctl = -1;
+static gint ett_flexnet;
+static gint ett_flexnet_ctl;
 
 static int
 dissect_flexnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)

@@ -48,49 +48,49 @@ void proto_register_vp8(void);
 static dissector_handle_t vp8_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_vp8 = -1;
-static int hf_vp8_pld_x_bit = -1;
-static int hf_vp8_pld_r_bit = -1;
-static int hf_vp8_pld_n_bit = -1;
-static int hf_vp8_pld_s_bit = -1;
-static int hf_vp8_pld_part_id = -1;
-static int hf_vp8_pld_i_bit = -1;
-static int hf_vp8_pld_l_bit = -1;
-static int hf_vp8_pld_t_bit = -1;
-static int hf_vp8_pld_k_bit = -1;
-static int hf_vp8_pld_rsv_a = -1;
-static int hf_vp8_pld_picture_id = -1;
-static int hf_vp8_pld_extended_picture_id = -1;
-static int hf_vp8_pld_tl0picidx = -1;
-static int hf_vp8_pld_tid = -1;
-static int hf_vp8_pld_y_bit = -1;
-static int hf_vp8_pld_keyidx = -1;
+static int proto_vp8;
+static int hf_vp8_pld_x_bit;
+static int hf_vp8_pld_r_bit;
+static int hf_vp8_pld_n_bit;
+static int hf_vp8_pld_s_bit;
+static int hf_vp8_pld_part_id;
+static int hf_vp8_pld_i_bit;
+static int hf_vp8_pld_l_bit;
+static int hf_vp8_pld_t_bit;
+static int hf_vp8_pld_k_bit;
+static int hf_vp8_pld_rsv_a;
+static int hf_vp8_pld_picture_id;
+static int hf_vp8_pld_extended_picture_id;
+static int hf_vp8_pld_tl0picidx;
+static int hf_vp8_pld_tid;
+static int hf_vp8_pld_y_bit;
+static int hf_vp8_pld_keyidx;
 
 /* payload header fields */
-static int hf_vp8_hdr_frametype = -1;
-static int hf_vp8_hdr_version = -1;
-static int hf_vp8_hdr_show_bit = -1;
-static int hf_vp8_hdr_first_partition_size = -1;
+static int hf_vp8_hdr_frametype;
+static int hf_vp8_hdr_version;
+static int hf_vp8_hdr_show_bit;
+static int hf_vp8_hdr_first_partition_size;
 
 /* keyframe fields */
-static int hf_vp8_keyframe_start_code = -1;
-static int hf_vp8_keyframe_width = -1;
-static int hf_vp8_keyframe_horizontal_scale = -1;
-static int hf_vp8_keyframe_height = -1;
-static int hf_vp8_keyframe_vertical_scale = -1;
+static int hf_vp8_keyframe_start_code;
+static int hf_vp8_keyframe_width;
+static int hf_vp8_keyframe_horizontal_scale;
+static int hf_vp8_keyframe_height;
+static int hf_vp8_keyframe_vertical_scale;
 
 /* Initialize the subtree pointers */
-static int ett_vp8 = -1;
-static int ett_vp8_payload_descriptor = -1;
-static int ett_vp8_payload_header = -1;
-static int ett_vp8_payload = -1;
-static int ett_vp8_keyframe = -1;
+static int ett_vp8;
+static int ett_vp8_payload_descriptor;
+static int ett_vp8_payload_header;
+static int ett_vp8_payload;
+static int ett_vp8_keyframe;
 
-static expert_field ei_vp8_startcode = EI_INIT;
-static expert_field ei_vp8_undecoded = EI_INIT;
-static expert_field ei_vp8_continuation = EI_INIT;
-static expert_field ei_vp8_first_partition_split = EI_INIT;
-static expert_field ei_vp8_first_partition_plus = EI_INIT;
+static expert_field ei_vp8_startcode;
+static expert_field ei_vp8_undecoded;
+static expert_field ei_vp8_continuation;
+static expert_field ei_vp8_first_partition_split;
+static expert_field ei_vp8_first_partition_plus;
 
 static void
 dissect_vp8_payload_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, gint *offset, gboolean *hasHeader);

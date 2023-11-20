@@ -40,68 +40,68 @@ static dissector_handle_t olsr_handle;
 #define NRLOLSR_TC_EXTRA     241
 
 /* Initialize the protocol and registered fields */
-static int proto_olsr = -1;
+static int proto_olsr;
 
-static int hf_olsr_packet_len = -1;
-static int hf_olsr_packet_seq_num = -1;
+static int hf_olsr_packet_len;
+static int hf_olsr_packet_seq_num;
 
-static int hf_olsr_message = -1;
-static int hf_olsr_message_type = -1;
-static int hf_olsr_vtime = -1;
-static int hf_olsr_message_size = -1;
-static int hf_olsr_ttl = -1;
-static int hf_olsr_hop_count = -1;
-static int hf_olsr_message_seq_num = -1;
+static int hf_olsr_message;
+static int hf_olsr_message_type;
+static int hf_olsr_vtime;
+static int hf_olsr_message_size;
+static int hf_olsr_ttl;
+static int hf_olsr_hop_count;
+static int hf_olsr_message_seq_num;
 
-static int hf_olsr_htime = -1;
-static int hf_olsr_willingness = -1;
+static int hf_olsr_htime;
+static int hf_olsr_willingness;
 
-static int hf_olsr_link_type = -1;
-static int hf_olsr_link_message_size = -1;
-static int hf_olsr_ansn = -1;
+static int hf_olsr_link_type;
+static int hf_olsr_link_message_size;
+static int hf_olsr_ansn;
 
-static int hf_olsr_neighbor = -1;
-static int hf_olsr_origin_addr = -1;
-static int hf_olsr_neighbor_addr = -1;
-static int hf_olsr_interface_addr = -1;
-static int hf_olsr_netmask = -1;
-static int hf_olsr_network_addr = -1;
+static int hf_olsr_neighbor;
+static int hf_olsr_origin_addr;
+static int hf_olsr_neighbor_addr;
+static int hf_olsr_interface_addr;
+static int hf_olsr_netmask;
+static int hf_olsr_network_addr;
 
-/* static int hf_olsr_neighbor6 = -1; */
-static int hf_olsr_origin6_addr = -1;
-static int hf_olsr_neighbor6_addr = -1;
-static int hf_olsr_interface6_addr = -1;
-static int hf_olsr_netmask6 = -1;
-static int hf_olsr_network6_addr = -1;
+/* static int hf_olsr_neighbor6; */
+static int hf_olsr_origin6_addr;
+static int hf_olsr_neighbor6_addr;
+static int hf_olsr_interface6_addr;
+static int hf_olsr_netmask6;
+static int hf_olsr_network6_addr;
 
-static int hf_olsrorg_lq = -1;
-static int hf_olsrorg_nlq = -1;
-static int hf_nrlolsr_f1 = -1;
-static int hf_nrlolsr_f2 = -1;
+static int hf_olsrorg_lq;
+static int hf_olsrorg_nlq;
+static int hf_nrlolsr_f1;
+static int hf_nrlolsr_f2;
 
-static int hf_olsrorg_ns_version = -1;
-static int hf_olsrorg_ns_count = -1;
+static int hf_olsrorg_ns_version;
+static int hf_olsrorg_ns_count;
 
-static int hf_olsrorg_ns = -1;
-static int hf_olsrorg_ns_type = -1;
-static int hf_olsrorg_ns_length = -1;
-static int hf_olsrorg_ns_ip = -1;
-static int hf_olsrorg_ns_ip6 = -1;
-static int hf_olsrorg_ns_content = -1;
+static int hf_olsrorg_ns;
+static int hf_olsrorg_ns_type;
+static int hf_olsrorg_ns_length;
+static int hf_olsrorg_ns_ip;
+static int hf_olsrorg_ns_ip6;
+static int hf_olsrorg_ns_content;
 
-static int hf_olsr_data = -1;
+static int hf_olsr_data;
 
 /* Initialize the subtree pointers*/
-static gint ett_olsr = -1;
+static gint ett_olsr;
 static gint ett_olsr_message[G_MAXUINT8 + 1];
-static gint ett_olsr_message_linktype = -1;
-static gint ett_olsr_message_neigh = -1;
-static gint ett_olsr_message_neigh6 = -1;
-static gint ett_olsr_message_ns = -1;
+static gint ett_olsr_message_linktype;
+static gint ett_olsr_message_neigh;
+static gint ett_olsr_message_neigh6;
+static gint ett_olsr_message_ns;
 
-static expert_field ei_olsr_not_enough_bytes = EI_INIT;
-static expert_field ei_olsrorg_ns_version = EI_INIT;
-static expert_field ei_olsr_data_misaligned = EI_INIT;
+static expert_field ei_olsr_not_enough_bytes;
+static expert_field ei_olsrorg_ns_version;
+static expert_field ei_olsr_data_misaligned;
 
 static const value_string message_type_vals[] = {
     { HELLO,                "HELLO" },

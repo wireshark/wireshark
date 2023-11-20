@@ -373,7 +373,7 @@ static int proto_register_field_init(header_field_info *hfinfo, const int parent
 /* special-case header field used within proto.c */
 static header_field_info hfi_text_only =
 	{ "Text item",	"text", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
-int hf_text_only = -1;
+int hf_text_only;
 
 /* Structure for information about a protocol */
 struct _protocol {

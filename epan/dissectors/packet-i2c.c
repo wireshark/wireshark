@@ -24,17 +24,17 @@ static dissector_handle_t i2c_linux_handle;
 static capture_dissector_handle_t i2c_linux_cap_handle;
 static dissector_handle_t i2c_kontron_handle;
 
-static int proto_i2c = -1;
-static int proto_i2c_event = -1;
-static int proto_i2c_data = -1;
+static int proto_i2c;
+static int proto_i2c_event;
+static int proto_i2c_data;
 
 
-static int hf_i2c_bus = -1;
-static int hf_i2c_event = -1;
-static int hf_i2c_flags = -1;
-static int hf_i2c_addr = -1;
+static int hf_i2c_bus;
+static int hf_i2c_event;
+static int hf_i2c_flags;
+static int hf_i2c_addr;
 
-static gint ett_i2c = -1;
+static gint ett_i2c;
 
 static dissector_table_t subdissector_table;
 

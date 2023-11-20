@@ -30,199 +30,199 @@ void proto_register_glusterfs(void);
 void proto_reg_handoff_glusterfs(void);
 
 /* Initialize the protocol and registered fields */
-static gint proto_glusterfs = -1;
+static gint proto_glusterfs;
 
 /* programs and procedures */
-static gint hf_glusterfs_proc = -1;
+static gint hf_glusterfs_proc;
 
 /* fields used by multiple programs/procedures */
-static gint hf_gluster_op_ret = -1;
-static gint hf_gluster_op_errno = -1;
+static gint hf_gluster_op_ret;
+static gint hf_gluster_op_errno;
 
 /* GlusterFS specific */
-static gint hf_glusterfs_gfid = -1;
-static gint hf_glusterfs_pargfid = -1;
-static gint hf_glusterfs_oldgfid = -1;
-static gint hf_glusterfs_newgfid = -1;
-static gint hf_glusterfs_path = -1;
-static gint hf_glusterfs_bname = -1;
-static gint hf_glusterfs_dict = -1;
-static gint hf_glusterfs_fd = -1;
-static gint hf_glusterfs_offset = -1;
-static gint hf_glusterfs_size = -1;
-static gint hf_glusterfs_size64 = -1;
-static gint hf_glusterfs_volume = -1;
-static gint hf_glusterfs_cmd = -1;
-static gint hf_glusterfs_type = -1;
-static gint hf_glusterfs_entries = -1;
-static gint hf_glusterfs_xflags = -1;
-static gint hf_glusterfs_linkname = -1;
-static gint hf_glusterfs_umask = -1;
-static gint hf_glusterfs_mask = -1;
-static gint hf_glusterfs_name = -1;
-static gint hf_glusterfs_namelen = -1;
-static gint hf_glusterfs_whence = -1;
+static gint hf_glusterfs_gfid;
+static gint hf_glusterfs_pargfid;
+static gint hf_glusterfs_oldgfid;
+static gint hf_glusterfs_newgfid;
+static gint hf_glusterfs_path;
+static gint hf_glusterfs_bname;
+static gint hf_glusterfs_dict;
+static gint hf_glusterfs_fd;
+static gint hf_glusterfs_offset;
+static gint hf_glusterfs_size;
+static gint hf_glusterfs_size64;
+static gint hf_glusterfs_volume;
+static gint hf_glusterfs_cmd;
+static gint hf_glusterfs_type;
+static gint hf_glusterfs_entries;
+static gint hf_glusterfs_xflags;
+static gint hf_glusterfs_linkname;
+static gint hf_glusterfs_umask;
+static gint hf_glusterfs_mask;
+static gint hf_glusterfs_name;
+static gint hf_glusterfs_namelen;
+static gint hf_glusterfs_whence;
 
 /* flags passed on to OPEN, CREATE etc.*/
-static gint hf_glusterfs_flags = -1;
-static gint hf_glusterfs_flags_rdonly = -1;
-static gint hf_glusterfs_flags_wronly = -1;
-static gint hf_glusterfs_flags_rdwr = -1;
-static gint hf_glusterfs_flags_accmode = -1;
-static gint hf_glusterfs_flags_append = -1;
-static gint hf_glusterfs_flags_async = -1;
-static gint hf_glusterfs_flags_cloexec = -1;
-static gint hf_glusterfs_flags_creat = -1;
-static gint hf_glusterfs_flags_direct = -1;
-static gint hf_glusterfs_flags_directory = -1;
-static gint hf_glusterfs_flags_excl = -1;
-static gint hf_glusterfs_flags_largefile = -1;
-static gint hf_glusterfs_flags_noatime = -1;
-static gint hf_glusterfs_flags_noctty = -1;
-static gint hf_glusterfs_flags_nofollow = -1;
-static gint hf_glusterfs_flags_nonblock = -1;
-static gint hf_glusterfs_flags_ndelay = -1;
-static gint hf_glusterfs_flags_sync = -1;
-static gint hf_glusterfs_flags_trunc = -1;
-static gint hf_glusterfs_flags_reserved = -1;
+static gint hf_glusterfs_flags;
+static gint hf_glusterfs_flags_rdonly;
+static gint hf_glusterfs_flags_wronly;
+static gint hf_glusterfs_flags_rdwr;
+static gint hf_glusterfs_flags_accmode;
+static gint hf_glusterfs_flags_append;
+static gint hf_glusterfs_flags_async;
+static gint hf_glusterfs_flags_cloexec;
+static gint hf_glusterfs_flags_creat;
+static gint hf_glusterfs_flags_direct;
+static gint hf_glusterfs_flags_directory;
+static gint hf_glusterfs_flags_excl;
+static gint hf_glusterfs_flags_largefile;
+static gint hf_glusterfs_flags_noatime;
+static gint hf_glusterfs_flags_noctty;
+static gint hf_glusterfs_flags_nofollow;
+static gint hf_glusterfs_flags_nonblock;
+static gint hf_glusterfs_flags_ndelay;
+static gint hf_glusterfs_flags_sync;
+static gint hf_glusterfs_flags_trunc;
+static gint hf_glusterfs_flags_reserved;
 
 /* access modes  */
-static gint hf_glusterfs_mode = -1;
-static gint hf_glusterfs_mode_suid = -1;
-static gint hf_glusterfs_mode_sgid = -1;
-static gint hf_glusterfs_mode_svtx = -1;
-static gint hf_glusterfs_mode_rusr = -1;
-static gint hf_glusterfs_mode_wusr = -1;
-static gint hf_glusterfs_mode_xusr = -1;
-static gint hf_glusterfs_mode_rgrp = -1;
-static gint hf_glusterfs_mode_wgrp = -1;
-static gint hf_glusterfs_mode_xgrp = -1;
-static gint hf_glusterfs_mode_roth = -1;
-static gint hf_glusterfs_mode_woth = -1;
-static gint hf_glusterfs_mode_xoth = -1;
-static gint hf_glusterfs_mode_reserved = -1;
+static gint hf_glusterfs_mode;
+static gint hf_glusterfs_mode_suid;
+static gint hf_glusterfs_mode_sgid;
+static gint hf_glusterfs_mode_svtx;
+static gint hf_glusterfs_mode_rusr;
+static gint hf_glusterfs_mode_wusr;
+static gint hf_glusterfs_mode_xusr;
+static gint hf_glusterfs_mode_rgrp;
+static gint hf_glusterfs_mode_wgrp;
+static gint hf_glusterfs_mode_xgrp;
+static gint hf_glusterfs_mode_roth;
+static gint hf_glusterfs_mode_woth;
+static gint hf_glusterfs_mode_xoth;
+static gint hf_glusterfs_mode_reserved;
 
 /* dir-entry */
-static gint hf_glusterfs_entry_ino = -1;
-static gint hf_glusterfs_entry_off = -1;
-static gint hf_glusterfs_entry_len = -1;
-static gint hf_glusterfs_entry_type = -1;
-static gint hf_glusterfs_entry_path = -1;
+static gint hf_glusterfs_entry_ino;
+static gint hf_glusterfs_entry_off;
+static gint hf_glusterfs_entry_len;
+static gint hf_glusterfs_entry_type;
+static gint hf_glusterfs_entry_path;
 
 /* gf_iatt */
-static gint hf_glusterfs_iatt = -1;
-static gint hf_glusterfs_preparent_iatt = -1;
-static gint hf_glusterfs_postparent_iatt = -1;
-static gint hf_glusterfs_preop_iatt = -1;
-static gint hf_glusterfs_postop_iatt = -1;
-static gint hf_glusterfs_ia_ino = -1;
-static gint hf_glusterfs_ia_dev = -1;
-static gint hf_glusterfs_ia_mode = -1;
-static gint hf_glusterfs_ia_nlink = -1;
-static gint hf_glusterfs_ia_uid = -1;
-static gint hf_glusterfs_ia_gid = -1;
-static gint hf_glusterfs_ia_rdev = -1;
-static gint hf_glusterfs_ia_size = -1;
-static gint hf_glusterfs_ia_blksize = -1;
-static gint hf_glusterfs_ia_blocks = -1;
-static gint hf_glusterfs_ia_atime = -1;
-static gint hf_glusterfs_ia_mtime = -1;
-static gint hf_glusterfs_ia_ctime = -1;
+static gint hf_glusterfs_iatt;
+static gint hf_glusterfs_preparent_iatt;
+static gint hf_glusterfs_postparent_iatt;
+static gint hf_glusterfs_preop_iatt;
+static gint hf_glusterfs_postop_iatt;
+static gint hf_glusterfs_ia_ino;
+static gint hf_glusterfs_ia_dev;
+static gint hf_glusterfs_ia_mode;
+static gint hf_glusterfs_ia_nlink;
+static gint hf_glusterfs_ia_uid;
+static gint hf_glusterfs_ia_gid;
+static gint hf_glusterfs_ia_rdev;
+static gint hf_glusterfs_ia_size;
+static gint hf_glusterfs_ia_blksize;
+static gint hf_glusterfs_ia_blocks;
+static gint hf_glusterfs_ia_atime;
+static gint hf_glusterfs_ia_mtime;
+static gint hf_glusterfs_ia_ctime;
 
-static gint hf_glusterfs_iattx = -1;
-static gint hf_glusterfs_preparent_iattx = -1;
-static gint hf_glusterfs_postparent_iattx = -1;
-static gint hf_glusterfs_preop_iattx = -1;
-static gint hf_glusterfs_postop_iattx = -1;
-static gint hf_glusterfs_iax_flags = -1;
-static gint hf_glusterfs_iax_attributes = -1;
-static gint hf_glusterfs_iax_attributes_mask = -1;
-static gint hf_glusterfs_iax_atime = -1;
-static gint hf_glusterfs_iax_mtime = -1;
-static gint hf_glusterfs_iax_ctime = -1;
-static gint hf_glusterfs_iax_btime = -1;
-static gint hf_glusterfs_iax_atime_nsec = -1;
-static gint hf_glusterfs_iax_mtime_nsec = -1;
-static gint hf_glusterfs_iax_ctime_nsec = -1;
-static gint hf_glusterfs_iax_btime_nsec = -1;
+static gint hf_glusterfs_iattx;
+static gint hf_glusterfs_preparent_iattx;
+static gint hf_glusterfs_postparent_iattx;
+static gint hf_glusterfs_preop_iattx;
+static gint hf_glusterfs_postop_iattx;
+static gint hf_glusterfs_iax_flags;
+static gint hf_glusterfs_iax_attributes;
+static gint hf_glusterfs_iax_attributes_mask;
+static gint hf_glusterfs_iax_atime;
+static gint hf_glusterfs_iax_mtime;
+static gint hf_glusterfs_iax_ctime;
+static gint hf_glusterfs_iax_btime;
+static gint hf_glusterfs_iax_atime_nsec;
+static gint hf_glusterfs_iax_mtime_nsec;
+static gint hf_glusterfs_iax_ctime_nsec;
+static gint hf_glusterfs_iax_btime_nsec;
 
 
 /* gf_flock */
-static gint hf_glusterfs_flock_type = -1;
-static gint hf_glusterfs_flock_whence = -1;
-static gint hf_glusterfs_flock_start = -1;
-static gint hf_glusterfs_flock_len = -1;
-static gint hf_glusterfs_flock_pid = -1;
-static gint hf_glusterfs_flock_owner = -1;
+static gint hf_glusterfs_flock_type;
+static gint hf_glusterfs_flock_whence;
+static gint hf_glusterfs_flock_start;
+static gint hf_glusterfs_flock_len;
+static gint hf_glusterfs_flock_pid;
+static gint hf_glusterfs_flock_owner;
 
 /* statfs */
-static gint hf_glusterfs_bsize = -1;
-static gint hf_glusterfs_frsize = -1;
-static gint hf_glusterfs_blocks = -1;
-static gint hf_glusterfs_bfree = -1;
-static gint hf_glusterfs_bavail = -1;
-static gint hf_glusterfs_files = -1;
-static gint hf_glusterfs_ffree = -1;
-static gint hf_glusterfs_favail = -1;
-static gint hf_glusterfs_id = -1;
-static gint hf_glusterfs_mnt_flags = -1;
-static gint hf_glusterfs_mnt_flag_rdonly = -1;
-static gint hf_glusterfs_mnt_flag_nosuid = -1;
-static gint hf_glusterfs_mnt_flag_nodev = -1;
-static gint hf_glusterfs_mnt_flag_noexec = -1;
-static gint hf_glusterfs_mnt_flag_synchronous = -1;
-static gint hf_glusterfs_mnt_flag_mandlock = -1;
-static gint hf_glusterfs_mnt_flag_write = -1;
-static gint hf_glusterfs_mnt_flag_append = -1;
-static gint hf_glusterfs_mnt_flag_immutable = -1;
-static gint hf_glusterfs_mnt_flag_noatime = -1;
-static gint hf_glusterfs_mnt_flag_nodiratime = -1;
-static gint hf_glusterfs_mnt_flag_relatime = -1;
-static gint hf_glusterfs_namemax = -1;
+static gint hf_glusterfs_bsize;
+static gint hf_glusterfs_frsize;
+static gint hf_glusterfs_blocks;
+static gint hf_glusterfs_bfree;
+static gint hf_glusterfs_bavail;
+static gint hf_glusterfs_files;
+static gint hf_glusterfs_ffree;
+static gint hf_glusterfs_favail;
+static gint hf_glusterfs_id;
+static gint hf_glusterfs_mnt_flags;
+static gint hf_glusterfs_mnt_flag_rdonly;
+static gint hf_glusterfs_mnt_flag_nosuid;
+static gint hf_glusterfs_mnt_flag_nodev;
+static gint hf_glusterfs_mnt_flag_noexec;
+static gint hf_glusterfs_mnt_flag_synchronous;
+static gint hf_glusterfs_mnt_flag_mandlock;
+static gint hf_glusterfs_mnt_flag_write;
+static gint hf_glusterfs_mnt_flag_append;
+static gint hf_glusterfs_mnt_flag_immutable;
+static gint hf_glusterfs_mnt_flag_noatime;
+static gint hf_glusterfs_mnt_flag_nodiratime;
+static gint hf_glusterfs_mnt_flag_relatime;
+static gint hf_glusterfs_namemax;
 
-static gint hf_glusterfs_setattr_valid = -1;
+static gint hf_glusterfs_setattr_valid;
 /* flags for setattr.valid */
-static gint hf_glusterfs_setattr_set_mode = -1;
-static gint hf_glusterfs_setattr_set_uid = -1;
-static gint hf_glusterfs_setattr_set_gid = -1;
-static gint hf_glusterfs_setattr_set_size = -1;
-static gint hf_glusterfs_setattr_set_atime = -1;
-static gint hf_glusterfs_setattr_set_mtime = -1;
-static gint hf_glusterfs_setattr_set_reserved = -1;
+static gint hf_glusterfs_setattr_set_mode;
+static gint hf_glusterfs_setattr_set_uid;
+static gint hf_glusterfs_setattr_set_gid;
+static gint hf_glusterfs_setattr_set_size;
+static gint hf_glusterfs_setattr_set_atime;
+static gint hf_glusterfs_setattr_set_mtime;
+static gint hf_glusterfs_setattr_set_reserved;
 
 /* Rename */
-static gint hf_glusterfs_oldbname = -1;
-static gint hf_glusterfs_newbname = -1;
+static gint hf_glusterfs_oldbname;
+static gint hf_glusterfs_newbname;
 
 /* for FSYNC/FSYNCDIR */
-static gint hf_glusterfs_fsync_flags = -1;
-static gint hf_glusterfs_fsync_flag_datasync = -1;
-static gint hf_glusterfs_fsync_flag_unknown = -1;
+static gint hf_glusterfs_fsync_flags;
+static gint hf_glusterfs_fsync_flag_datasync;
+static gint hf_glusterfs_fsync_flag_unknown;
 
 /* for entrylk */
-static gint hf_glusterfs_entrylk_namelen = -1;
+static gint hf_glusterfs_entrylk_namelen;
 
-static gint hf_gluster_dict_xdr_size = -1;
-static gint hf_gluster_dict_size = -1;
-static gint hf_gluster_num_dict_items = -1;
-static gint hf_gluster_rpc_roundup_bytes = -1;
-static gint hf_gluster_trusted_afr_key = -1;
-static gint hf_gluster_dict_value = -1;
+static gint hf_gluster_dict_xdr_size;
+static gint hf_gluster_dict_size;
+static gint hf_gluster_num_dict_items;
+static gint hf_gluster_rpc_roundup_bytes;
+static gint hf_gluster_trusted_afr_key;
+static gint hf_gluster_dict_value;
 
 
 /* Initialize the subtree pointers */
-static gint ett_glusterfs = -1;
-static gint ett_glusterfs_flags = -1;
-static gint ett_glusterfs_mnt_flags = -1;
-static gint ett_glusterfs_mode = -1;
-static gint ett_glusterfs_setattr_valid = -1;
-static gint ett_glusterfs_parent_iatt = -1;
-static gint ett_glusterfs_iatt = -1;
-static gint ett_glusterfs_entry = -1;
-static gint ett_glusterfs_flock = -1;
-static gint ett_glusterfs_fsync_flags = -1;
-static gint ett_gluster_dict = -1;
-static gint ett_gluster_dict_items = -1;
+static gint ett_glusterfs;
+static gint ett_glusterfs_flags;
+static gint ett_glusterfs_mnt_flags;
+static gint ett_glusterfs_mode;
+static gint ett_glusterfs_setattr_valid;
+static gint ett_glusterfs_parent_iatt;
+static gint ett_glusterfs_iatt;
+static gint ett_glusterfs_entry;
+static gint ett_glusterfs_flock;
+static gint ett_glusterfs_fsync_flags;
+static gint ett_gluster_dict;
+static gint ett_gluster_dict_items;
 
 static int
 glusterfs_rpc_dissect_gfid(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offset)

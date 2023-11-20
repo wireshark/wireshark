@@ -81,62 +81,62 @@ struct ip6_shim {
 #define SHIM6_REAP_EXPLORING    0x01    /* 0 000 0001 */
 #define SHIM6_REAP_INBOUNDOK    0x02    /* 0 000 0010 */
 
-static int proto_shim6                     = -1;
+static int proto_shim6;
 
-static int hf_shim6_nxt            = -1;
-static int hf_shim6_len            = -1;
-static int hf_shim6_len_oct        = -1;
-static int hf_shim6_p              = -1;
+static int hf_shim6_nxt;
+static int hf_shim6_len;
+static int hf_shim6_len_oct;
+static int hf_shim6_p;
 /* context tag is 49 bits, cannot be used for filter yet */
-static int hf_shim6_ct             = -1;
-static int hf_shim6_type           = -1;
-static int hf_shim6_proto          = -1;
-static int hf_shim6_checksum       = -1;
-static int hf_shim6_checksum_status= -1;
-static int hf_shim6_inonce         = -1; /* also for request nonce */
-static int hf_shim6_rnonce         = -1;
-static int hf_shim6_reserved       = -1;
-static int hf_shim6_reserved2      = -1;
-static int hf_shim6_precvd         = -1;
-static int hf_shim6_psent          = -1;
-static int hf_shim6_psrc           = -1;
-static int hf_shim6_pdst           = -1;
-static int hf_shim6_pnonce         = -1;
-static int hf_shim6_pdata          = -1;
-static int hf_shim6_sulid          = -1;
-static int hf_shim6_rulid          = -1;
-static int hf_shim6_reap           = -1;
-static int hf_shim6_opt_type       = -1;
-static int hf_shim6_opt_len        = -1;
-static int hf_shim6_opt_total_len  = -1;
-static int hf_shim6_opt_loc_verif_methods = -1;
-static int hf_shim6_opt_critical   = -1;
-static int hf_shim6_opt_loclist    = -1;
-static int hf_shim6_locator        = -1;
-static int hf_shim6_loc_flag       = -1;
-static int hf_shim6_loc_prio       = -1;
-static int hf_shim6_loc_weight     = -1;
-static int hf_shim6_opt_locnum     = -1;
-static int hf_shim6_opt_elemlen    = -1;
-static int hf_shim6_opt_fii        = -1;
-static int hf_shim6_validator      = -1;
-static int hf_shim6_cga_parameter_data_structure = -1;
-static int hf_shim6_cga_signature  = -1;
-static int hf_shim6_padding        = -1;
+static int hf_shim6_ct;
+static int hf_shim6_type;
+static int hf_shim6_proto;
+static int hf_shim6_checksum;
+static int hf_shim6_checksum_status;
+static int hf_shim6_inonce; /* also for request nonce */
+static int hf_shim6_rnonce;
+static int hf_shim6_reserved;
+static int hf_shim6_reserved2;
+static int hf_shim6_precvd;
+static int hf_shim6_psent;
+static int hf_shim6_psrc;
+static int hf_shim6_pdst;
+static int hf_shim6_pnonce;
+static int hf_shim6_pdata;
+static int hf_shim6_sulid;
+static int hf_shim6_rulid;
+static int hf_shim6_reap;
+static int hf_shim6_opt_type;
+static int hf_shim6_opt_len;
+static int hf_shim6_opt_total_len;
+static int hf_shim6_opt_loc_verif_methods;
+static int hf_shim6_opt_critical;
+static int hf_shim6_opt_loclist;
+static int hf_shim6_locator;
+static int hf_shim6_loc_flag;
+static int hf_shim6_loc_prio;
+static int hf_shim6_loc_weight;
+static int hf_shim6_opt_locnum;
+static int hf_shim6_opt_elemlen;
+static int hf_shim6_opt_fii;
+static int hf_shim6_validator;
+static int hf_shim6_cga_parameter_data_structure;
+static int hf_shim6_cga_signature;
+static int hf_shim6_padding;
 
-static gint ett_shim6_proto        = -1;
-static gint ett_shim6_option       = -1;
-static gint ett_shim6_locators     = -1;
-static gint ett_shim6_verif_methods = -1;
-static gint ett_shim6_loc_pref     = -1;
-static gint ett_shim6_probes_sent  = -1;
-static gint ett_shim6_probe_sent   = -1;
-static gint ett_shim6_probes_rcvd  = -1;
-static gint ett_shim6_probe_rcvd   = -1;
-static gint ett_shim6_cksum        = -1;
+static gint ett_shim6_proto;
+static gint ett_shim6_option;
+static gint ett_shim6_locators;
+static gint ett_shim6_verif_methods;
+static gint ett_shim6_loc_pref;
+static gint ett_shim6_probes_sent;
+static gint ett_shim6_probe_sent;
+static gint ett_shim6_probes_rcvd;
+static gint ett_shim6_probe_rcvd;
+static gint ett_shim6_cksum;
 
-static expert_field ei_shim6_opt_elemlen_invalid = EI_INIT;
-static expert_field ei_shim6_checksum_bad = EI_INIT;
+static expert_field ei_shim6_opt_elemlen_invalid;
+static expert_field ei_shim6_checksum_bad;
 
 static const value_string shimoptvals[] = {
     { SHIM6_OPT_RESPVAL,  "Responder Validator Option" },

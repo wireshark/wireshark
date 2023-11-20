@@ -64,30 +64,30 @@ void proto_reg_handoff_roofnet(void);
 static dissector_handle_t roofnet_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t eth_withoutfcs_handle;
-static int proto_roofnet = -1;
+static int proto_roofnet;
 
 /* hf fields for the header of roofnet */
-static int hf_roofnet_version = -1;
-static int hf_roofnet_type = -1;
-static int hf_roofnet_nlinks = -1;
-static int hf_roofnet_next = -1;
-static int hf_roofnet_ttl = -1;
-static int hf_roofnet_cksum = -1;
-static int hf_roofnet_flags = -1;
-static int hf_roofnet_flags_error = -1;
-static int hf_roofnet_flags_update = -1;
-static int hf_roofnet_flags_layer2 = -1;
-static int hf_roofnet_flags_reserved = -1;
-static int hf_roofnet_data_length = -1;
-static int hf_roofnet_query_dst = -1;
-static int hf_roofnet_seq = -1;
-/* static int hf_roofnet_links = -1; */
-static int hf_roofnet_link_src = -1;
-static int hf_roofnet_link_forward = -1;
-static int hf_roofnet_link_rev = -1;
-static int hf_roofnet_link_seq = -1;
-static int hf_roofnet_link_age = -1;
-static int hf_roofnet_link_dst = -1;
+static int hf_roofnet_version;
+static int hf_roofnet_type;
+static int hf_roofnet_nlinks;
+static int hf_roofnet_next;
+static int hf_roofnet_ttl;
+static int hf_roofnet_cksum;
+static int hf_roofnet_flags;
+static int hf_roofnet_flags_error;
+static int hf_roofnet_flags_update;
+static int hf_roofnet_flags_layer2;
+static int hf_roofnet_flags_reserved;
+static int hf_roofnet_data_length;
+static int hf_roofnet_query_dst;
+static int hf_roofnet_seq;
+/* static int hf_roofnet_links; */
+static int hf_roofnet_link_src;
+static int hf_roofnet_link_forward;
+static int hf_roofnet_link_rev;
+static int hf_roofnet_link_seq;
+static int hf_roofnet_link_age;
+static int hf_roofnet_link_dst;
 
 static int * const flag_list[] = {
     &hf_roofnet_flags_error,
@@ -98,12 +98,12 @@ static int * const flag_list[] = {
 };
 
 
-static gint ett_roofnet = -1;
-static gint ett_roofnet_flags = -1;
-static gint ett_roofnet_link = -1;
+static gint ett_roofnet;
+static gint ett_roofnet_flags;
+static gint ett_roofnet_link;
 
-static expert_field ei_roofnet_too_many_links = EI_INIT;
-static expert_field ei_roofnet_too_much_data = EI_INIT;
+static expert_field ei_roofnet_too_many_links;
+static expert_field ei_roofnet_too_much_data;
 
 /*
  * dissect the header of roofnet

@@ -153,39 +153,39 @@ evrc_variant_t;
 
 
 /* Initialize the protocol and registered fields */
-static int proto_evrc = -1;
-static int proto_evrcb = -1;
-static int proto_evrcwb = -1;
-static int proto_evrcnw = -1;
-static int proto_evrcnw2k = -1;
-static int proto_evrc_legacy = -1;
+static int proto_evrc;
+static int proto_evrcb;
+static int proto_evrcwb;
+static int proto_evrcnw;
+static int proto_evrcnw2k;
+static int proto_evrc_legacy;
 
-static int hf_evrc_reserved = -1;
-static int hf_evrc_reserved_2k = -1;
-static int hf_evrc_enc_capability_2k = -1;
-static int hf_evrc_interleave_length = -1;
-static int hf_evrc_interleave_index = -1;
-static int hf_evrc_mode_request = -1;
-static int hf_evrc_b_mode_request = -1;
-static int hf_evrc_wb_mode_request = -1;
-static int hf_evrc_nw_mode_request = -1;
-static int hf_evrc_nw2k_mode_request = -1;
-static int hf_evrc_frame_count = -1;
-static int hf_evrc_toc_frame_type_high = -1;
-static int hf_evrc_toc_frame_type_low = -1;
-static int hf_evrc_b_toc_frame_type_high = -1;
-static int hf_evrc_b_toc_frame_type_low = -1;
-static int hf_evrc_padding = -1;
-static int hf_evrc_speech_data = -1;
-static int hf_evrc_legacy_toc_fe_ind = -1;
-static int hf_evrc_legacy_toc_reduc_rate = -1;
-static int hf_evrc_legacy_toc_frame_type = -1;
+static int hf_evrc_reserved;
+static int hf_evrc_reserved_2k;
+static int hf_evrc_enc_capability_2k;
+static int hf_evrc_interleave_length;
+static int hf_evrc_interleave_index;
+static int hf_evrc_mode_request;
+static int hf_evrc_b_mode_request;
+static int hf_evrc_wb_mode_request;
+static int hf_evrc_nw_mode_request;
+static int hf_evrc_nw2k_mode_request;
+static int hf_evrc_frame_count;
+static int hf_evrc_toc_frame_type_high;
+static int hf_evrc_toc_frame_type_low;
+static int hf_evrc_b_toc_frame_type_high;
+static int hf_evrc_b_toc_frame_type_low;
+static int hf_evrc_padding;
+static int hf_evrc_speech_data;
+static int hf_evrc_legacy_toc_fe_ind;
+static int hf_evrc_legacy_toc_reduc_rate;
+static int hf_evrc_legacy_toc_frame_type;
 
 /* Initialize the subtree pointers */
-static gint ett_evrc = -1;
-static gint ett_toc = -1;
+static gint ett_evrc;
+static gint ett_toc;
 
-static expert_field ei_evrc_unknown_variant = EI_INIT;
+static expert_field ei_evrc_unknown_variant;
 
 /*
  * Variables to allow for proper deletion of dissector registration when

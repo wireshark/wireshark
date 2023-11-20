@@ -21,23 +21,23 @@
 void proto_register_fortinet_sso(void);
 void proto_reg_handoff_fortinet_sso(void);
 
-static int proto_fortinet_sso = -1;
-static gint ett_fortinet_sso  = -1;
+static int proto_fortinet_sso;
+static gint ett_fortinet_sso;
 
-static int hf_fsso_length = -1;
-static int hf_fsso_timestamp = -1;
-static int hf_fsso_client_ip = -1;
-static int hf_fsso_payload_length = -1;
-static int hf_fsso_string = -1;
-static int hf_fsso_domain = -1;
-static int hf_fsso_user = -1;
-static int hf_fsso_host = -1;
-static int hf_fsso_version = -1;
-static int hf_fsso_tsagent_number_port_range = -1;
-static int hf_fsso_tsagent_port_range_min = -1;
-static int hf_fsso_tsagent_port_range_max = -1;
-static int hf_fsso_unknown = -1;
-static int hf_fsso_unknown_ipv4 = -1;
+static int hf_fsso_length;
+static int hf_fsso_timestamp;
+static int hf_fsso_client_ip;
+static int hf_fsso_payload_length;
+static int hf_fsso_string;
+static int hf_fsso_domain;
+static int hf_fsso_user;
+static int hf_fsso_host;
+static int hf_fsso_version;
+static int hf_fsso_tsagent_number_port_range;
+static int hf_fsso_tsagent_port_range_min;
+static int hf_fsso_tsagent_port_range_max;
+static int hf_fsso_unknown;
+static int hf_fsso_unknown_ipv4;
 
 static dissector_handle_t fortinet_sso_handle;
 

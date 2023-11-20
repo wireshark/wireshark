@@ -119,59 +119,59 @@ static const value_string sapenqueue_conn_admin_param_vals[] = {
 	{  0, NULL }
 };
 
-static int proto_sapenqueue = -1;
+static int proto_sapenqueue;
 
-static int hf_sapenqueue_magic = -1;
-static int hf_sapenqueue_id = -1;
-static int hf_sapenqueue_length = -1;
-static int hf_sapenqueue_length_frag = -1;
-static int hf_sapenqueue_dest = -1;
-static int hf_sapenqueue_conn_admin_opcode = -1;
-static int hf_sapenqueue_more_frags = -1;
-static int hf_sapenqueue_type = -1;
+static int hf_sapenqueue_magic;
+static int hf_sapenqueue_id;
+static int hf_sapenqueue_length;
+static int hf_sapenqueue_length_frag;
+static int hf_sapenqueue_dest;
+static int hf_sapenqueue_conn_admin_opcode;
+static int hf_sapenqueue_more_frags;
+static int hf_sapenqueue_type;
 
-static int hf_sapenqueue_server_admin = -1;
-static int hf_sapenqueue_server_admin_eyecatcher = -1;
-static int hf_sapenqueue_server_admin_version = -1;
-static int hf_sapenqueue_server_admin_flag = -1;
-static int hf_sapenqueue_server_admin_length = -1;
-static int hf_sapenqueue_server_admin_opcode = -1;
-static int hf_sapenqueue_server_admin_flags = -1;
-static int hf_sapenqueue_server_admin_rc = -1;
-static int hf_sapenqueue_server_admin_value = -1;
+static int hf_sapenqueue_server_admin;
+static int hf_sapenqueue_server_admin_eyecatcher;
+static int hf_sapenqueue_server_admin_version;
+static int hf_sapenqueue_server_admin_flag;
+static int hf_sapenqueue_server_admin_length;
+static int hf_sapenqueue_server_admin_opcode;
+static int hf_sapenqueue_server_admin_flags;
+static int hf_sapenqueue_server_admin_rc;
+static int hf_sapenqueue_server_admin_value;
 
-static int hf_sapenqueue_server_admin_trace_request = -1;
-static int hf_sapenqueue_server_admin_trace_protocol_version = -1;
-static int hf_sapenqueue_server_admin_trace_action = -1;
-static int hf_sapenqueue_server_admin_trace_limit = -1;
-static int hf_sapenqueue_server_admin_trace_thread = -1;
-static int hf_sapenqueue_server_admin_trace_level = -1;
-static int hf_sapenqueue_server_admin_trace_logging = -1;
-static int hf_sapenqueue_server_admin_trace_max_file_size = -1;
-static int hf_sapenqueue_server_admin_trace_nopatterns = -1;
-static int hf_sapenqueue_server_admin_trace_eyecatcher = -1;
-static int hf_sapenqueue_server_admin_trace_patterns = -1;
-static int hf_sapenqueue_server_admin_trace_unknown = -1;
+static int hf_sapenqueue_server_admin_trace_request;
+static int hf_sapenqueue_server_admin_trace_protocol_version;
+static int hf_sapenqueue_server_admin_trace_action;
+static int hf_sapenqueue_server_admin_trace_limit;
+static int hf_sapenqueue_server_admin_trace_thread;
+static int hf_sapenqueue_server_admin_trace_level;
+static int hf_sapenqueue_server_admin_trace_logging;
+static int hf_sapenqueue_server_admin_trace_max_file_size;
+static int hf_sapenqueue_server_admin_trace_nopatterns;
+static int hf_sapenqueue_server_admin_trace_eyecatcher;
+static int hf_sapenqueue_server_admin_trace_patterns;
+static int hf_sapenqueue_server_admin_trace_unknown;
 
-static int hf_sapenqueue_server_admin_trace_pattern = -1;
-static int hf_sapenqueue_server_admin_trace_pattern_len = -1;
-static int hf_sapenqueue_server_admin_trace_pattern_value = -1;
+static int hf_sapenqueue_server_admin_trace_pattern;
+static int hf_sapenqueue_server_admin_trace_pattern_len;
+static int hf_sapenqueue_server_admin_trace_pattern_value;
 
-static int hf_sapenqueue_conn_admin = -1;
-static int hf_sapenqueue_conn_admin_params_count = -1;
-static int hf_sapenqueue_conn_admin_params = -1;
-static int hf_sapenqueue_conn_admin_param = -1;
-static int hf_sapenqueue_conn_admin_param_id = -1;
-static int hf_sapenqueue_conn_admin_param_len = -1;
-static int hf_sapenqueue_conn_admin_param_value = -1;
-static int hf_sapenqueue_conn_admin_param_name = -1;
+static int hf_sapenqueue_conn_admin;
+static int hf_sapenqueue_conn_admin_params_count;
+static int hf_sapenqueue_conn_admin_params;
+static int hf_sapenqueue_conn_admin_param;
+static int hf_sapenqueue_conn_admin_param_id;
+static int hf_sapenqueue_conn_admin_param_len;
+static int hf_sapenqueue_conn_admin_param_value;
+static int hf_sapenqueue_conn_admin_param_name;
 
-static gint ett_sapenqueue = -1;
+static gint ett_sapenqueue;
 
 /* Expert info */
-static expert_field ei_sapenqueue_pattern_invalid_length= EI_INIT;
-static expert_field ei_sapenqueue_support_invalid_offset = EI_INIT;
-static expert_field ei_sapenqueue_support_invalid_length = EI_INIT;
+static expert_field ei_sapenqueue_pattern_invalid_length;
+static expert_field ei_sapenqueue_support_invalid_offset;
+static expert_field ei_sapenqueue_support_invalid_length;
 
 /* Protocol handle */
 static dissector_handle_t sapenqueue_handle;

@@ -28,62 +28,62 @@ void proto_register_nano(void);
 
 static dissector_handle_t nano_handle, nano_tcp_handle;
 
-static int proto_nano = -1;
+static int proto_nano;
 
-static int hf_nano_magic_number = -1;
-static int hf_nano_version_max = -1;
-static int hf_nano_version_using = -1;
-static int hf_nano_version_min = -1;
-static int hf_nano_packet_type = -1;
-static int hf_nano_extensions = -1;
-static int hf_nano_extensions_block_type = -1;
-static int hf_nano_keepalive_peer_ip = -1;
-static int hf_nano_keepalive_peer_port = -1;
+static int hf_nano_magic_number;
+static int hf_nano_version_max;
+static int hf_nano_version_using;
+static int hf_nano_version_min;
+static int hf_nano_packet_type;
+static int hf_nano_extensions;
+static int hf_nano_extensions_block_type;
+static int hf_nano_keepalive_peer_ip;
+static int hf_nano_keepalive_peer_port;
 
-static int hf_nano_block_hash_previous = -1;
-static int hf_nano_block_hash_source = -1;
-static int hf_nano_block_signature = -1;
-static int hf_nano_block_work = -1;
-static int hf_nano_block_destination_account = -1;
-static int hf_nano_block_balance = -1;
-static int hf_nano_block_account = -1;
-static int hf_nano_block_representative_account = -1;
-static int hf_nano_block_link = -1;
+static int hf_nano_block_hash_previous;
+static int hf_nano_block_hash_source;
+static int hf_nano_block_signature;
+static int hf_nano_block_work;
+static int hf_nano_block_destination_account;
+static int hf_nano_block_balance;
+static int hf_nano_block_account;
+static int hf_nano_block_representative_account;
+static int hf_nano_block_link;
 
-static int hf_nano_vote_account = -1;
-static int hf_nano_vote_signature = -1;
-static int hf_nano_vote_sequence = -1;
+static int hf_nano_vote_account;
+static int hf_nano_vote_signature;
+static int hf_nano_vote_sequence;
 
-static int hf_nano_bulk_pull_account = -1;
-static int hf_nano_bulk_pull_block_hash_end = -1;
+static int hf_nano_bulk_pull_account;
+static int hf_nano_bulk_pull_block_hash_end;
 
-static int hf_nano_frontier_req_account = -1;
-static int hf_nano_frontier_req_age = -1;
-static int hf_nano_frontier_req_count = -1;
+static int hf_nano_frontier_req_account;
+static int hf_nano_frontier_req_age;
+static int hf_nano_frontier_req_count;
 
-static int hf_nano_bulk_pull_blocks_min_hash = -1;
-static int hf_nano_bulk_pull_blocks_max_hash = -1;
-static int hf_nano_bulk_pull_blocks_mode = -1;
-static int hf_nano_bulk_pull_blocks_max_count = -1;
+static int hf_nano_bulk_pull_blocks_min_hash;
+static int hf_nano_bulk_pull_blocks_max_hash;
+static int hf_nano_bulk_pull_blocks_mode;
+static int hf_nano_bulk_pull_blocks_max_count;
 
-static int hf_nano_bulk_push_block_type = -1;
+static int hf_nano_bulk_push_block_type;
 
-static int hf_nano_bulk_pull_block_type = -1;
+static int hf_nano_bulk_pull_block_type;
 
-static int hf_nano_frontier_account = -1;
-static int hf_nano_frontier_head_hash = -1;
+static int hf_nano_frontier_account;
+static int hf_nano_frontier_head_hash;
 
-static gint ett_nano = -1;
-static gint ett_nano_header = -1;
-static gint ett_nano_extensions = -1;
-static gint ett_nano_peers = -1;
+static gint ett_nano;
+static gint ett_nano_header;
+static gint ett_nano_extensions;
+static gint ett_nano_peers;
 static gint ett_nano_peer_details[8];
-static gint ett_nano_block = -1;
-static gint ett_nano_vote = -1;
-static gint ett_nano_bulk_pull = -1;
-static gint ett_nano_frontier_req = -1;
-static gint ett_nano_bulk_pull_blocks = -1;
-static gint ett_nano_frontier = -1;
+static gint ett_nano_block;
+static gint ett_nano_vote;
+static gint ett_nano_bulk_pull;
+static gint ett_nano_frontier_req;
+static gint ett_nano_bulk_pull_blocks;
+static gint ett_nano_frontier;
 
 #define NANO_PACKET_TYPE_INVALID 0
 #define NANO_PACKET_TYPE_NOT_A_TYPE 1

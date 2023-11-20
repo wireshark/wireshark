@@ -13,14 +13,14 @@
 void proto_register_etherip(void);
 void proto_reg_handoff_etherip(void);
 
-static int proto_etherip = -1;
-static int hf_etherip_ver = -1;
-static int hf_etherip_reserved = -1;
+static int proto_etherip;
+static int hf_etherip_ver;
+static int hf_etherip_reserved;
 
-static gint ett_etherip = -1;
+static gint ett_etherip;
 
-static expert_field ei_etherip_ver_3 = EI_INIT;
-static expert_field ei_etherip_reserved_0 = EI_INIT;
+static expert_field ei_etherip_ver_3;
+static expert_field ei_etherip_reserved_0;
 
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t etherip_handle;

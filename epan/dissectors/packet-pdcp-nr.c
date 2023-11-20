@@ -48,89 +48,89 @@ void proto_reg_handoff_pdcp_nr(void);
 
 
 /* Initialize the protocol and registered fields. */
-int proto_pdcp_nr = -1;
+int proto_pdcp_nr;
 
 extern int proto_rlc_nr;
 
 /* Configuration (info known outside of PDU) */
-static int hf_pdcp_nr_configuration = -1;
-static int hf_pdcp_nr_direction = -1;
-static int hf_pdcp_nr_ueid = -1;
-static int hf_pdcp_nr_bearer_type = -1;
-static int hf_pdcp_nr_bearer_id = -1;
-static int hf_pdcp_nr_plane = -1;
-static int hf_pdcp_nr_seqnum_length = -1;
-static int hf_pdcp_nr_maci_present = -1;
-static int hf_pdcp_nr_sdap = -1;
-static int hf_pdcp_nr_ciphering_disabled = -1;
+static int hf_pdcp_nr_configuration;
+static int hf_pdcp_nr_direction;
+static int hf_pdcp_nr_ueid;
+static int hf_pdcp_nr_bearer_type;
+static int hf_pdcp_nr_bearer_id;
+static int hf_pdcp_nr_plane;
+static int hf_pdcp_nr_seqnum_length;
+static int hf_pdcp_nr_maci_present;
+static int hf_pdcp_nr_sdap;
+static int hf_pdcp_nr_ciphering_disabled;
 
-static int hf_pdcp_nr_rohc_compression = -1;
-static int hf_pdcp_nr_rohc_mode = -1;
-static int hf_pdcp_nr_rohc_rnd = -1;
-static int hf_pdcp_nr_rohc_udp_checksum_present = -1;
-static int hf_pdcp_nr_rohc_profile = -1;
-static int hf_pdcp_nr_cid_inclusion_info = -1;
-static int hf_pdcp_nr_large_cid_present = -1;
+static int hf_pdcp_nr_rohc_compression;
+static int hf_pdcp_nr_rohc_mode;
+static int hf_pdcp_nr_rohc_rnd;
+static int hf_pdcp_nr_rohc_udp_checksum_present;
+static int hf_pdcp_nr_rohc_profile;
+static int hf_pdcp_nr_cid_inclusion_info;
+static int hf_pdcp_nr_large_cid_present;
 
 /* PDCP header fields */
-static int hf_pdcp_nr_control_plane_reserved = -1;
-static int hf_pdcp_nr_reserved3 = -1;
-static int hf_pdcp_nr_seq_num_12 = -1;
-static int hf_pdcp_nr_reserved5 = -1;
-static int hf_pdcp_nr_seq_num_18 = -1;
-static int hf_pdcp_nr_signalling_data = -1;
-static int hf_pdcp_nr_mac = -1;
-static int hf_pdcp_nr_data_control = -1;
-static int hf_pdcp_nr_user_plane_data = -1;
-static int hf_pdcp_nr_control_pdu_type = -1;
-static int hf_pdcp_nr_fmc = -1;
-static int hf_pdcp_nr_reserved4 = -1;
-static int hf_pdcp_nr_bitmap = -1;
-static int hf_pdcp_nr_bitmap_byte = -1;
+static int hf_pdcp_nr_control_plane_reserved;
+static int hf_pdcp_nr_reserved3;
+static int hf_pdcp_nr_seq_num_12;
+static int hf_pdcp_nr_reserved5;
+static int hf_pdcp_nr_seq_num_18;
+static int hf_pdcp_nr_signalling_data;
+static int hf_pdcp_nr_mac;
+static int hf_pdcp_nr_data_control;
+static int hf_pdcp_nr_user_plane_data;
+static int hf_pdcp_nr_control_pdu_type;
+static int hf_pdcp_nr_fmc;
+static int hf_pdcp_nr_reserved4;
+static int hf_pdcp_nr_bitmap;
+static int hf_pdcp_nr_bitmap_byte;
 
 /* Sequence Analysis */
-static int hf_pdcp_nr_sequence_analysis = -1;
-static int hf_pdcp_nr_sequence_analysis_ok = -1;
-static int hf_pdcp_nr_sequence_analysis_previous_frame = -1;
-static int hf_pdcp_nr_sequence_analysis_next_frame = -1;
-static int hf_pdcp_nr_sequence_analysis_expected_sn = -1;
-static int hf_pdcp_nr_sequence_analysis_repeated = -1;
-static int hf_pdcp_nr_sequence_analysis_skipped = -1;
+static int hf_pdcp_nr_sequence_analysis;
+static int hf_pdcp_nr_sequence_analysis_ok;
+static int hf_pdcp_nr_sequence_analysis_previous_frame;
+static int hf_pdcp_nr_sequence_analysis_next_frame;
+static int hf_pdcp_nr_sequence_analysis_expected_sn;
+static int hf_pdcp_nr_sequence_analysis_repeated;
+static int hf_pdcp_nr_sequence_analysis_skipped;
 
 /* Security Settings */
-static int hf_pdcp_nr_security = -1;
-static int hf_pdcp_nr_security_setup_frame = -1;
-static int hf_pdcp_nr_security_integrity_algorithm = -1;
-static int hf_pdcp_nr_security_ciphering_algorithm = -1;
+static int hf_pdcp_nr_security;
+static int hf_pdcp_nr_security_setup_frame;
+static int hf_pdcp_nr_security_integrity_algorithm;
+static int hf_pdcp_nr_security_ciphering_algorithm;
 
-static int hf_pdcp_nr_security_bearer = -1;
-static int hf_pdcp_nr_security_direction = -1;
-static int hf_pdcp_nr_security_count = -1;
-static int hf_pdcp_nr_security_cipher_key = -1;
-static int hf_pdcp_nr_security_integrity_key = -1;
-static int hf_pdcp_nr_security_cipher_key_setup_frame = -1;
-static int hf_pdcp_nr_security_integrity_key_setup_frame = -1;
-static int hf_pdcp_nr_security_deciphered_data = -1;
+static int hf_pdcp_nr_security_bearer;
+static int hf_pdcp_nr_security_direction;
+static int hf_pdcp_nr_security_count;
+static int hf_pdcp_nr_security_cipher_key;
+static int hf_pdcp_nr_security_integrity_key;
+static int hf_pdcp_nr_security_cipher_key_setup_frame;
+static int hf_pdcp_nr_security_integrity_key_setup_frame;
+static int hf_pdcp_nr_security_deciphered_data;
 
 
 /* Protocol subtree. */
-static int ett_pdcp = -1;
-static int ett_pdcp_configuration = -1;
-static int ett_pdcp_packet = -1;
-static int ett_pdcp_nr_sequence_analysis = -1;
-static int ett_pdcp_report_bitmap = -1;
-static int ett_pdcp_security = -1;
+static int ett_pdcp;
+static int ett_pdcp_configuration;
+static int ett_pdcp_packet;
+static int ett_pdcp_nr_sequence_analysis;
+static int ett_pdcp_report_bitmap;
+static int ett_pdcp_security;
 
-static expert_field ei_pdcp_nr_sequence_analysis_wrong_sequence_number_ul = EI_INIT;
-static expert_field ei_pdcp_nr_sequence_analysis_wrong_sequence_number_dl = EI_INIT;
-static expert_field ei_pdcp_nr_reserved_bits_not_zero = EI_INIT;
-static expert_field ei_pdcp_nr_sequence_analysis_sn_repeated_ul = EI_INIT;
-static expert_field ei_pdcp_nr_sequence_analysis_sn_repeated_dl = EI_INIT;
-static expert_field ei_pdcp_nr_sequence_analysis_sn_missing_ul = EI_INIT;
-static expert_field ei_pdcp_nr_sequence_analysis_sn_missing_dl = EI_INIT;
-static expert_field ei_pdcp_nr_digest_wrong = EI_INIT;
-static expert_field ei_pdcp_nr_unknown_udp_framing_tag = EI_INIT;
-static expert_field ei_pdcp_nr_missing_udp_framing_tag = EI_INIT;
+static expert_field ei_pdcp_nr_sequence_analysis_wrong_sequence_number_ul;
+static expert_field ei_pdcp_nr_sequence_analysis_wrong_sequence_number_dl;
+static expert_field ei_pdcp_nr_reserved_bits_not_zero;
+static expert_field ei_pdcp_nr_sequence_analysis_sn_repeated_ul;
+static expert_field ei_pdcp_nr_sequence_analysis_sn_repeated_dl;
+static expert_field ei_pdcp_nr_sequence_analysis_sn_missing_ul;
+static expert_field ei_pdcp_nr_sequence_analysis_sn_missing_dl;
+static expert_field ei_pdcp_nr_digest_wrong;
+static expert_field ei_pdcp_nr_unknown_udp_framing_tag;
+static expert_field ei_pdcp_nr_missing_udp_framing_tag;
 
 /*-------------------------------------
  * UAT for UE Keys
@@ -521,13 +521,13 @@ static const value_string ciphering_algorithm_vals[] = {
 
 
 /* SDAP header fields and tree */
-static int proto_sdap = -1;
-static int hf_sdap_rdi = -1;
-static int hf_sdap_rqi = -1;
-static int hf_sdap_qfi = -1;
-static int hf_sdap_data_control = -1;
-static int hf_sdap_reserved = -1;
-static gint ett_sdap = -1;
+static int proto_sdap;
+static int hf_sdap_rdi;
+static int hf_sdap_rqi;
+static int hf_sdap_qfi;
+static int hf_sdap_data_control;
+static int hf_sdap_reserved;
+static gint ett_sdap;
 
 static const true_false_string sdap_rdi = {
     "To store QoS flow to DRB mapping rule",

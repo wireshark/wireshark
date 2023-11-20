@@ -24,17 +24,17 @@
 void proto_register_xcsl(void);
 void proto_reg_handoff_xcsl(void);
 
-static int proto_xcsl = -1;
+static int proto_xcsl;
 
-static int hf_xcsl_command = -1;
-static int hf_xcsl_information = -1;
-static int hf_xcsl_parameter = -1;
-static int hf_xcsl_protocol_version = -1;
-static int hf_xcsl_result = -1;
-static int hf_xcsl_transaction_id = -1;
+static int hf_xcsl_command;
+static int hf_xcsl_information;
+static int hf_xcsl_parameter;
+static int hf_xcsl_protocol_version;
+static int hf_xcsl_result;
+static int hf_xcsl_transaction_id;
 
 /* Initialize the subtree pointers */
-static gint ett_xcsl = -1;
+static gint ett_xcsl;
 
 /* Xcsl result codes */
 #define XCSL_SUCCESS      0

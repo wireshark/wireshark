@@ -30,10 +30,10 @@ static dissector_handle_t jmirror_handle;
  */
 
 /* Jmirror protocol variables */
-static int proto_jmirror = -1;
-static int hf_jmirror_mid = -1;
-static int hf_jmirror_sid = -1;
-static gint ett_jmirror = -1;
+static int proto_jmirror;
+static int hf_jmirror_mid;
+static int hf_jmirror_sid;
+static gint ett_jmirror;
 
 /* Handles which point to the packet dissectors */
 static dissector_handle_t ipv4_handle;

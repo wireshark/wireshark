@@ -22,24 +22,24 @@
 void proto_register_hdmi(void);
 void proto_reg_handoff_hdmi(void);
 
-static int proto_hdmi  = -1;
+static int proto_hdmi;
 
 static dissector_handle_t hdmi_handle;
 static dissector_handle_t hdcp_handle;
 
-static gint ett_hdmi = -1;
-static gint ett_hdmi_edid = -1;
+static gint ett_hdmi;
+static gint ett_hdmi_edid;
 
-static int hf_hdmi_addr = -1;
-static int hf_hdmi_edid_offset = -1;
-static int hf_hdmi_edid_hdr = -1;
-static int hf_hdmi_edid_manf_id = -1;
-static int hf_hdmi_edid_manf_prod_code = -1;
-static int hf_hdmi_edid_manf_serial = -1;
-static int hf_hdmi_edid_manf_week = -1;
-static int hf_hdmi_edid_mod_year = -1;
-static int hf_hdmi_edid_manf_year = -1;
-static int hf_hdmi_edid_version = -1;
+static int hf_hdmi_addr;
+static int hf_hdmi_edid_offset;
+static int hf_hdmi_edid_hdr;
+static int hf_hdmi_edid_manf_id;
+static int hf_hdmi_edid_manf_prod_code;
+static int hf_hdmi_edid_manf_serial;
+static int hf_hdmi_edid_manf_week;
+static int hf_hdmi_edid_mod_year;
+static int hf_hdmi_edid_manf_year;
+static int hf_hdmi_edid_version;
 
 
 /* also called Source and Sink in the HDMI spec */

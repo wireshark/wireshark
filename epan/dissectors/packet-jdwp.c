@@ -65,38 +65,38 @@ static dissector_handle_t jdwp_handle;
 #define COMMAND_SET_MODULEREFERENCE 18
 #define COMMAND_SET_EVENT 64
 
-static int proto_jdwp = -1;
+static int proto_jdwp;
 
-static int hf_jdwp_type = -1;
-static int hf_jdwp_length = -1;
-static int hf_jdwp_id = -1;
-static int hf_jdwp_flags = -1;
-static int hf_jdwp_commandset = -1;
-static int hf_jdwp_commandset_virtualmachine = -1;
-static int hf_jdwp_commandset_referencetype = -1;
-static int hf_jdwp_commandset_classtype = -1;
-static int hf_jdwp_commandset_arraytype = -1;
-static int hf_jdwp_commandset_interfacetype = -1;
-static int hf_jdwp_commandset_method = -1;
-static int hf_jdwp_commandset_field = -1;
-static int hf_jdwp_commandset_objectreference = -1;
-static int hf_jdwp_commandset_stringreference = -1;
-static int hf_jdwp_commandset_threadreference = -1;
-static int hf_jdwp_commandset_threadgroupreference = -1;
-static int hf_jdwp_commandset_arrayreference = -1;
-static int hf_jdwp_commandset_classloaderreference = -1;
-static int hf_jdwp_commandset_eventrequest = -1;
-static int hf_jdwp_commandset_stackframe = -1;
-static int hf_jdwp_commandset_classobjectreference = -1;
-static int hf_jdwp_commandset_modulereference = -1;
-static int hf_jdwp_commandset_event = -1;
-static int hf_jdwp_errorcode = -1;
-static int hf_jdwp_data = -1;
+static int hf_jdwp_type;
+static int hf_jdwp_length;
+static int hf_jdwp_id;
+static int hf_jdwp_flags;
+static int hf_jdwp_commandset;
+static int hf_jdwp_commandset_virtualmachine;
+static int hf_jdwp_commandset_referencetype;
+static int hf_jdwp_commandset_classtype;
+static int hf_jdwp_commandset_arraytype;
+static int hf_jdwp_commandset_interfacetype;
+static int hf_jdwp_commandset_method;
+static int hf_jdwp_commandset_field;
+static int hf_jdwp_commandset_objectreference;
+static int hf_jdwp_commandset_stringreference;
+static int hf_jdwp_commandset_threadreference;
+static int hf_jdwp_commandset_threadgroupreference;
+static int hf_jdwp_commandset_arrayreference;
+static int hf_jdwp_commandset_classloaderreference;
+static int hf_jdwp_commandset_eventrequest;
+static int hf_jdwp_commandset_stackframe;
+static int hf_jdwp_commandset_classobjectreference;
+static int hf_jdwp_commandset_modulereference;
+static int hf_jdwp_commandset_event;
+static int hf_jdwp_errorcode;
+static int hf_jdwp_data;
 
-static gint ett_jdwp = -1;
+static gint ett_jdwp;
 
-static expert_field ei_jdwp_hlen_invalid  = EI_INIT;
-static expert_field ei_jdwp_flags_invalid  = EI_INIT;
+static expert_field ei_jdwp_hlen_invalid;
+static expert_field ei_jdwp_flags_invalid;
 
 // contains the command set names
 static const value_string commandsetnames[] = {

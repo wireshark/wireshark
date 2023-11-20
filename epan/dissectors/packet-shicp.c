@@ -20,43 +20,43 @@ void proto_reg_handoff_shicp(void);
 void proto_register_shicp(void);
 
 /* Protocols and header fields */
-static int proto_shicp = -1;
-static int hf_shicp_header = -1;
-static int hf_shicp_protocol_version = -1;
-static int hf_shicp_dst = -1;
-static int hf_shicp_src = -1;
-static int hf_shicp_flags = -1;
-static int hf_shicp_msgclass_flag = -1;
-static int hf_shicp_error_flag = -1;
-static int hf_shicp_reserved_flag = -1;
-static int hf_shicp_msgtype = -1;
-static int hf_shicp_error = -1;
-static int hf_shicp_error_string = -1;
-static int hf_shicp_auth_req = -1;
-static int hf_shicp_module_version = -1;
-static int hf_shicp_module_desc = -1;
-static int hf_shicp_supported_msg = -1;
-static int hf_shicp_ip = -1;
-static int hf_shicp_sn = -1;
-static int hf_shicp_gw = -1;
-static int hf_shicp_dns1 = -1;
-static int hf_shicp_dns2 = -1;
-static int hf_shicp_dhcp = -1;
-static int hf_shicp_hn = -1;
-static int hf_shicp_hn_max_len = -1;
-static int hf_shicp_pswd_max_len = -1;
-static int hf_shicp_challenge = -1;
-static int hf_shicp_validity_period = -1;
-static int hf_shicp_token = -1;
-static int hf_shicp_pswd = -1;
-static int hf_shicp_wink_type = -1;
-static int hf_shicp_restart_mode = -1;
+static int proto_shicp;
+static int hf_shicp_header;
+static int hf_shicp_protocol_version;
+static int hf_shicp_dst;
+static int hf_shicp_src;
+static int hf_shicp_flags;
+static int hf_shicp_msgclass_flag;
+static int hf_shicp_error_flag;
+static int hf_shicp_reserved_flag;
+static int hf_shicp_msgtype;
+static int hf_shicp_error;
+static int hf_shicp_error_string;
+static int hf_shicp_auth_req;
+static int hf_shicp_module_version;
+static int hf_shicp_module_desc;
+static int hf_shicp_supported_msg;
+static int hf_shicp_ip;
+static int hf_shicp_sn;
+static int hf_shicp_gw;
+static int hf_shicp_dns1;
+static int hf_shicp_dns2;
+static int hf_shicp_dhcp;
+static int hf_shicp_hn;
+static int hf_shicp_hn_max_len;
+static int hf_shicp_pswd_max_len;
+static int hf_shicp_challenge;
+static int hf_shicp_validity_period;
+static int hf_shicp_token;
+static int hf_shicp_pswd;
+static int hf_shicp_wink_type;
+static int hf_shicp_restart_mode;
 
-static gint ett_shicp = -1;
-static gint ett_shicp_flags = -1;
+static gint ett_shicp;
+static gint ett_shicp_flags;
 
-static expert_field ei_shicp_error = EI_INIT;
-static expert_field ei_shicp_malformed = EI_INIT;
+static expert_field ei_shicp_error;
+static expert_field ei_shicp_malformed;
 
 #define SHICP_UDP_PORT 3250
 

@@ -69,21 +69,21 @@ void proto_reg_handoff_mdshdr(void);
 #define MDSHDR_EOF_UNKNOWN               0xb
 
 /* Initialize the protocol and registered fields */
-static int proto_mdshdr = -1;
-static int hf_mdshdr_sof = -1;
-static int hf_mdshdr_pkt_len = -1;
-static int hf_mdshdr_dstidx = -1;
-static int hf_mdshdr_srcidx = -1;
-static int hf_mdshdr_vsan = -1;
-static int hf_mdshdr_eof = -1;
-static int hf_mdshdr_no_trailer = -1;
-static int hf_mdshdr_span = -1;
-static int hf_mdshdr_fccrc = -1;
+static int proto_mdshdr;
+static int hf_mdshdr_sof;
+static int hf_mdshdr_pkt_len;
+static int hf_mdshdr_dstidx;
+static int hf_mdshdr_srcidx;
+static int hf_mdshdr_vsan;
+static int hf_mdshdr_eof;
+static int hf_mdshdr_no_trailer;
+static int hf_mdshdr_span;
+static int hf_mdshdr_fccrc;
 
 /* Initialize the subtree pointers */
-static gint ett_mdshdr = -1;
-static gint ett_mdshdr_hdr = -1;
-static gint ett_mdshdr_trlr = -1;
+static gint ett_mdshdr;
+static gint ett_mdshdr_hdr;
+static gint ett_mdshdr_trlr;
 
 static dissector_handle_t mdshdr_handle;
 static dissector_handle_t fc_dissector_handle;

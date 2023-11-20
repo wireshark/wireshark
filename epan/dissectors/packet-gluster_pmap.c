@@ -32,26 +32,26 @@ void proto_register_gluster_dump(void);
 void proto_reg_handoff_gluster_dump(void);
 
 /* Initialize the protocol and registered fields */
-static gint proto_gluster_pmap = -1;
-static gint proto_gluster_dump = -1;
+static gint proto_gluster_pmap;
+static gint proto_gluster_dump;
 
 /* programs and procedures */
-static gint hf_gluster_pmap_proc = -1;
-static gint hf_gluster_dump_proc = -1;
+static gint hf_gluster_pmap_proc;
+static gint hf_gluster_dump_proc;
 
 /* fields used by multiple programs/procedures */
-static gint hf_gluster_brick = -1;
-static gint hf_gluster_brick_status = -1;
-static gint hf_gluster_brick_port = -1;
-static gint hf_gluster_gfsid = -1;
-static gint hf_gluster_progname = -1;
-static gint hf_gluster_prognum = -1;
-static gint hf_gluster_progver = -1;
+static gint hf_gluster_brick;
+static gint hf_gluster_brick_status;
+static gint hf_gluster_brick_port;
+static gint hf_gluster_gfsid;
+static gint hf_gluster_progname;
+static gint hf_gluster_prognum;
+static gint hf_gluster_progver;
 
 /* Initialize the subtree pointers */
-static gint ett_gluster_pmap = -1;
-static gint ett_gluster_dump = -1;
-static gint ett_gluster_dump_detail = -1;
+static gint ett_gluster_pmap;
+static gint ett_gluster_dump;
+static gint ett_gluster_dump_detail;
 
 /* PMAP PORTBYBRICK */
 static int

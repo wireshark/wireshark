@@ -133,48 +133,48 @@ static const value_string eoc_net_command_vals[] = {
 
 
 /* Initialize the protocol and registered fields */
-static int proto_epl_v1                           = -1;
-static int hf_epl_v1_service                      = -1;
-static int hf_epl_v1_dest                         = -1;
-static int hf_epl_v1_src                          = -1;
+static int proto_epl_v1;
+static int hf_epl_v1_service;
+static int hf_epl_v1_dest;
+static int hf_epl_v1_src;
 
-static int hf_epl_v1_soc_ms                       = -1;
-static int hf_epl_v1_soc_ps                       = -1;
-static int hf_epl_v1_soc_net_command              = -1;
-static int hf_epl_v1_soc_net_time                 = -1;
-static int hf_epl_v1_soc_powerlink_cycle_time     = -1;
-static int hf_epl_v1_soc_net_command_parameter    = -1;
+static int hf_epl_v1_soc_ms;
+static int hf_epl_v1_soc_ps;
+static int hf_epl_v1_soc_net_command;
+static int hf_epl_v1_soc_net_time;
+static int hf_epl_v1_soc_powerlink_cycle_time;
+static int hf_epl_v1_soc_net_command_parameter;
 
-static int hf_epl_v1_preq_ms                      = -1;
-static int hf_epl_v1_preq_rd                      = -1;
-static int hf_epl_v1_preq_poll_size_out           = -1;
-static int hf_epl_v1_preq_out_data                = -1;
+static int hf_epl_v1_preq_ms;
+static int hf_epl_v1_preq_rd;
+static int hf_epl_v1_preq_poll_size_out;
+static int hf_epl_v1_preq_out_data;
 
-static int hf_epl_v1_pres_ms                      = -1;
-static int hf_epl_v1_pres_ex                      = -1;
-static int hf_epl_v1_pres_rs                      = -1;
-static int hf_epl_v1_pres_wa                      = -1;
-static int hf_epl_v1_pres_er                      = -1;
-static int hf_epl_v1_pres_rd                      = -1;
-static int hf_epl_v1_pres_poll_size_in            = -1;
-static int hf_epl_v1_pres_in_data                 = -1;
+static int hf_epl_v1_pres_ms;
+static int hf_epl_v1_pres_ex;
+static int hf_epl_v1_pres_rs;
+static int hf_epl_v1_pres_wa;
+static int hf_epl_v1_pres_er;
+static int hf_epl_v1_pres_rd;
+static int hf_epl_v1_pres_poll_size_in;
+static int hf_epl_v1_pres_in_data;
 
-static int hf_epl_v1_eoc_net_command              = -1;
-static int hf_epl_v1_eoc_net_command_parameter    = -1;
+static int hf_epl_v1_eoc_net_command;
+static int hf_epl_v1_eoc_net_command_parameter;
 
-static int hf_epl_v1_ainv_channel                 = -1;
+static int hf_epl_v1_ainv_channel;
 
-static int hf_epl_v1_asnd_channel                 = -1;
-static int hf_epl_v1_asnd_size                    = -1;
-static int hf_epl_v1_asnd_data                    = -1;
-static int hf_epl_v1_asnd_node_id                 = -1;
-static int hf_epl_v1_asnd_hardware_revision       = -1;
-static int hf_epl_v1_asnd_firmware_version        = -1;
-static int hf_epl_v1_asnd_device_variant          = -1;
-static int hf_epl_v1_asnd_poll_in_size            = -1;
-static int hf_epl_v1_asnd_poll_out_size           = -1;
+static int hf_epl_v1_asnd_channel;
+static int hf_epl_v1_asnd_size;
+static int hf_epl_v1_asnd_data;
+static int hf_epl_v1_asnd_node_id;
+static int hf_epl_v1_asnd_hardware_revision;
+static int hf_epl_v1_asnd_firmware_version;
+static int hf_epl_v1_asnd_device_variant;
+static int hf_epl_v1_asnd_poll_in_size;
+static int hf_epl_v1_asnd_poll_out_size;
 
-static gint ett_epl_v1 = -1;
+static gint ett_epl_v1;
 
 
 static gint

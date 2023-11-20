@@ -53,27 +53,27 @@ static dissector_table_t ax25_dissector_table;
 static capture_dissector_handle_t ax25_cap_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_ax25		= -1;
-static int hf_ax25_dst		= -1;
-static int hf_ax25_src		= -1;
+static int proto_ax25;
+static int hf_ax25_dst;
+static int hf_ax25_src;
 static int hf_ax25_via[ AX25_MAX_DIGIS ];
 
-static int hf_ax25_ctl		= -1;
+static int hf_ax25_ctl;
 
-static int hf_ax25_n_r		= -1;
-static int hf_ax25_n_s		= -1;
+static int hf_ax25_n_r;
+static int hf_ax25_n_s;
 
-static int hf_ax25_p		= -1;
-static int hf_ax25_f		= -1;
+static int hf_ax25_p;
+static int hf_ax25_f;
 
-static int hf_ax25_ftype_s	= -1;
-static int hf_ax25_ftype_i	= -1;
-static int hf_ax25_ftype_su	= -1;
+static int hf_ax25_ftype_s;
+static int hf_ax25_ftype_i;
+static int hf_ax25_ftype_su;
 
-static int hf_ax25_u_cmd	= -1;
-static int hf_ax25_u_resp	= -1;
+static int hf_ax25_u_cmd;
+static int hf_ax25_u_resp;
 
-static int hf_ax25_pid		= -1;
+static int hf_ax25_pid;
 
 static const xdlc_cf_items ax25_cf_items = {
 	&hf_ax25_n_r,
@@ -105,8 +105,8 @@ static const value_string pid_vals[] = {
 	{ 0, NULL }
 };
 
-static gint ett_ax25 = -1;
-static gint ett_ax25_ctl = -1;
+static gint ett_ax25;
+static gint ett_ax25_ctl;
 
 static dissector_handle_t ax25_handle;
 

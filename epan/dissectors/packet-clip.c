@@ -22,11 +22,11 @@
 void proto_register_clip(void);
 void proto_reg_handoff_clip(void);
 
-static int proto_clip = -1;
+static int proto_clip;
 
-static gint ett_clip = -1;
+static gint ett_clip;
 
-static expert_field ei_no_link_info = EI_INIT;
+static expert_field ei_no_link_info;
 
 static dissector_handle_t clip_handle;
 static dissector_handle_t ip_handle;

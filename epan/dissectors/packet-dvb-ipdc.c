@@ -17,12 +17,12 @@ void proto_register_dvb_ipdc(void);
 void proto_reg_handoff_dvb_ipdc(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_ipdc = -1;
+static int proto_ipdc;
 
-/* static int hf_ipdc_esg_bootstrap_xml = -1; */
+/* static int hf_ipdc_esg_bootstrap_xml; */
 
 /* Initialize the subtree pointers */
-static gint ett_ipdc = -1;
+static gint ett_ipdc;
 
 
 enum {

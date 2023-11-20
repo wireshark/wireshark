@@ -18,23 +18,23 @@ void proto_reg_handoff_x29(void);
 
 static dissector_handle_t x29_handle;
 
-static int proto_x29 = -1;
-static int hf_msg_code = -1;
-static int hf_error_type = -1;
-static int hf_inv_msg_code = -1;
+static int proto_x29;
+static int hf_msg_code;
+static int hf_error_type;
+static int hf_inv_msg_code;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_x29_pad_message_data = -1;
-static int hf_x29_type_reference_value = -1;
-static int hf_x29_type_reference = -1;
-static int hf_x29_data = -1;
-static int hf_x29_type_of_aspect = -1;
-static int hf_x29_reselection_message_data = -1;
-static int hf_x29_break_value = -1;
-static int hf_x29_parameter = -1;
-static int hf_x29_value = -1;
+static int hf_x29_pad_message_data;
+static int hf_x29_type_reference_value;
+static int hf_x29_type_reference;
+static int hf_x29_data;
+static int hf_x29_type_of_aspect;
+static int hf_x29_reselection_message_data;
+static int hf_x29_break_value;
+static int hf_x29_parameter;
+static int hf_x29_value;
 
-static gint ett_x29 = -1;
+static gint ett_x29;
 
 /*
  * PAD messages.

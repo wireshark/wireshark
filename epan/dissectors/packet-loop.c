@@ -30,14 +30,14 @@ void proto_reg_handoff_loop(void);
 
 static dissector_handle_t loop_handle;
 
-static int proto_loop = -1;
-static int hf_loop_skipcount = -1;
-static int hf_loop_function = -1;
-static int hf_loop_relevant_function = -1;
-static int hf_loop_receipt_number = -1;
-static int hf_loop_forwarding_address = -1;
+static int proto_loop;
+static int hf_loop_skipcount;
+static int hf_loop_function;
+static int hf_loop_relevant_function;
+static int hf_loop_receipt_number;
+static int hf_loop_forwarding_address;
 
-static gint ett_loop = -1;
+static gint ett_loop;
 
 #define FUNC_REPLY              1
 #define FUNC_FORWARD_DATA       2

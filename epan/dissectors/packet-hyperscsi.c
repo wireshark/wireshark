@@ -18,16 +18,16 @@ void proto_reg_handoff_hyperscsi(void);
 
 static int proto_hyperscsi;
 
-static int hf_hs_cmd = -1;
-static int hf_hs_ver = -1;
-static int hf_hs_res = -1;
-static int hf_hs_tagno = -1;
-static int hf_hs_lastfrag = -1;
-static int hf_hs_fragno = -1;
+static int hf_hs_cmd;
+static int hf_hs_ver;
+static int hf_hs_res;
+static int hf_hs_tagno;
+static int hf_hs_lastfrag;
+static int hf_hs_fragno;
 
-static gint ett_hyperscsi = -1;
-static gint ett_hs_hdr = -1;
-static gint ett_hs_pdu = -1;
+static gint ett_hyperscsi;
+static gint ett_hs_hdr;
+static gint ett_hs_pdu;
 
 static dissector_handle_t hs_handle;
 

@@ -26,17 +26,17 @@ void proto_reg_handoff_pktgen(void);
 #define PKTGEN_MAGIC 0xbe9be955
 
 /* Initialize the protocol and registered fields */
-static int proto_pktgen = -1;
+static int proto_pktgen;
 
 /* pktgen header */
-static int hf_pktgen_magic = -1;
-static int hf_pktgen_seqnum = -1;
-static int hf_pktgen_tvsec = -1;
-static int hf_pktgen_tvusec = -1;
-static int hf_pktgen_timestamp = -1;
+static int hf_pktgen_magic;
+static int hf_pktgen_seqnum;
+static int hf_pktgen_tvsec;
+static int hf_pktgen_tvusec;
+static int hf_pktgen_timestamp;
 
 /* Initialize the subtree pointer */
-static gint ett_pktgen = -1;
+static gint ett_pktgen;
 
 /* entry point */
 static gboolean dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)

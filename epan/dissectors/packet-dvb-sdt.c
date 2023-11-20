@@ -20,27 +20,27 @@ void proto_reg_handoff_dvb_sdt(void);
 
 static dissector_handle_t dvb_sdt_handle;
 
-static int proto_dvb_sdt = -1;
-static int hf_dvb_sdt_transport_stream_id = -1;
-static int hf_dvb_sdt_reserved1 = -1;
-static int hf_dvb_sdt_version_number = -1;
-static int hf_dvb_sdt_current_next_indicator = -1;
-static int hf_dvb_sdt_section_number = -1;
-static int hf_dvb_sdt_last_section_number = -1;
+static int proto_dvb_sdt;
+static int hf_dvb_sdt_transport_stream_id;
+static int hf_dvb_sdt_reserved1;
+static int hf_dvb_sdt_version_number;
+static int hf_dvb_sdt_current_next_indicator;
+static int hf_dvb_sdt_section_number;
+static int hf_dvb_sdt_last_section_number;
 
-static int hf_dvb_sdt_original_network_id = -1;
-static int hf_dvb_sdt_reserved2 = -1;
+static int hf_dvb_sdt_original_network_id;
+static int hf_dvb_sdt_reserved2;
 
-static int hf_dvb_sdt_service_id = -1;
-static int hf_dvb_sdt_reserved3 = -1;
-static int hf_dvb_sdt_eit_schedule_flag = -1;
-static int hf_dvb_sdt_eit_present_following_flag = -1;
-static int hf_dvb_sdt_running_status = -1;
-static int hf_dvb_sdt_free_ca_mode = -1;
-static int hf_dvb_sdt_descriptors_loop_length = -1;
+static int hf_dvb_sdt_service_id;
+static int hf_dvb_sdt_reserved3;
+static int hf_dvb_sdt_eit_schedule_flag;
+static int hf_dvb_sdt_eit_present_following_flag;
+static int hf_dvb_sdt_running_status;
+static int hf_dvb_sdt_free_ca_mode;
+static int hf_dvb_sdt_descriptors_loop_length;
 
-static gint ett_dvb_sdt = -1;
-static gint ett_dvb_sdt_service = -1;
+static gint ett_dvb_sdt;
+static gint ett_dvb_sdt_service;
 
 #define DVB_SDT_RESERVED1_MASK                  0xC0
 #define DVB_SDT_VERSION_NUMBER_MASK             0x3E

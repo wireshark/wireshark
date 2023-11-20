@@ -24,17 +24,17 @@ void proto_reg_handoff_mpls_psc(void);
 
 static dissector_handle_t mpls_psc_handle;
 
-static gint proto_mpls_psc = -1;
+static gint proto_mpls_psc;
 
-static gint ett_mpls_psc = -1;
+static gint ett_mpls_psc;
 
-static int hf_mpls_psc_ver = -1;
-static int hf_mpls_psc_req = -1;
-static int hf_mpls_psc_pt = -1;
-static int hf_mpls_psc_rev = -1;
-static int hf_mpls_psc_fpath = -1;
-static int hf_mpls_psc_dpath = -1;
-static int hf_mpls_psc_tlvlen = -1;
+static int hf_mpls_psc_ver;
+static int hf_mpls_psc_req;
+static int hf_mpls_psc_pt;
+static int hf_mpls_psc_rev;
+static int hf_mpls_psc_fpath;
+static int hf_mpls_psc_dpath;
+static int hf_mpls_psc_tlvlen;
 
 /*
  * FF: please keep this list in sync with

@@ -18,28 +18,28 @@
 void proto_reg_handoff_teklink(void);
 void proto_register_teklink(void);
 
-static int proto_teklink = -1;
-static int hf_teklink_procedure = -1;
-static int hf_teklink_unknown_long = -1;
-static int hf_teklink_unknown_string = -1;
-static int hf_teklink_cmd = -1;
-static int hf_teklink_user = -1;
-static int hf_teklink_host = -1;
-static int hf_teklink_location = -1;
-static int hf_teklink_tla_type = -1;
-static int hf_teklink_locked = -1;
-static int hf_teklink_vtc_srcnames = -1;
-static int hf_teklink_vtc_dstnames = -1;
-static int hf_teklink_vtc_sigpol = -1;
-static int hf_teklink_vtc_sigen = -1;
-static int hf_teklink_vtc_clksource = -1;
-static int hf_teklink_vtc_clkmode = -1;
-static int hf_teklink_vtc_clkedge = -1;
-static int hf_teklink_vtc_mode = -1;
-static int hf_teklink_vtc_edge = -1;
-static int hf_teklink_vtc_sigfeedback = -1;
+static int proto_teklink;
+static int hf_teklink_procedure;
+static int hf_teklink_unknown_long;
+static int hf_teklink_unknown_string;
+static int hf_teklink_cmd;
+static int hf_teklink_user;
+static int hf_teklink_host;
+static int hf_teklink_location;
+static int hf_teklink_tla_type;
+static int hf_teklink_locked;
+static int hf_teklink_vtc_srcnames;
+static int hf_teklink_vtc_dstnames;
+static int hf_teklink_vtc_sigpol;
+static int hf_teklink_vtc_sigen;
+static int hf_teklink_vtc_clksource;
+static int hf_teklink_vtc_clkmode;
+static int hf_teklink_vtc_clkedge;
+static int hf_teklink_vtc_mode;
+static int hf_teklink_vtc_edge;
+static int hf_teklink_vtc_sigfeedback;
 
-static gint ett_teklink = -1;
+static gint ett_teklink;
 
 static const value_string teklink_vtc_srcnames[] = {
 	{ 0, "VTC_SRC_APPSIG0" },

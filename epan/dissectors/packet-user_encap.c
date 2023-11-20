@@ -60,9 +60,9 @@ static const value_string user_dlts[] = {
     { WTAP_ENCAP_USER15, "User 15 (DLT=162)"},
     { 0, NULL }
 };
-static int proto_user_encap = -1;
+static int proto_user_encap;
 
-static expert_field ei_user_encap_not_handled = EI_INIT;
+static expert_field ei_user_encap_not_handled;
 
 static user_encap_t* encaps = NULL;
 static guint num_encaps = 0;

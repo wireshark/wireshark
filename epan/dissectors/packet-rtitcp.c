@@ -124,32 +124,32 @@ void proto_reg_handoff_rtitcp(void);
 void proto_register_rtitcp(void);
 
 /* Initialize the protocol and registered fields */
-static gint proto_rtitcp                                         = -1;
-static gint hf_rtitcp_header_control_byte                        = -1;
-static gint hf_rtitcp_header_magic_number                        = -1;
-static gint hf_rtitcp_header_message_length                      = -1;
-static gint hf_rtitcp_control_transaction_id                     = -1;
-static gint hf_rtitcp_control_kind                               = -1;
-static gint hf_rtitcp_control_attribute_type                     = -1;
-static gint hf_rtitcp_control_attribute_length                   = -1;
-static gint hf_rtitcp_control_attribute_port                     = -1;
-static gint hf_rtitcp_attributes_list_length                     = -1;
-static gint hf_rtitcp_control_magic_cookie                       = -1;
-static gint hf_rtitcp_control_attribute_connection_cookie        = -1;
-static gint hf_rtitcp_control_attribute_connection_type          = -1;
-static gint hf_rtitcp_control_attribute_session_id               = -1;
-static gint hf_rtitcp_control_attribute_error_code_value         = -1;
-static gint hf_rtitcp_control_attribute_error_code_description   = -1;
-static gint hf_rtitcp_locator_ipv4                               = -1;
-static gint hf_rtitcp_locator_port                               = -1;
-static gint hf_rtitcp_locator_ipv6                               = -1;
-static gint hf_rtitcp_locator_kind                               = -1;
-static gint hf_rtitcp_crc_magic_cookie                           = -1;
-static gint hf_rtitcp_control_crc_value                          = -1;
+static gint proto_rtitcp;
+static gint hf_rtitcp_header_control_byte;
+static gint hf_rtitcp_header_magic_number;
+static gint hf_rtitcp_header_message_length;
+static gint hf_rtitcp_control_transaction_id;
+static gint hf_rtitcp_control_kind;
+static gint hf_rtitcp_control_attribute_type;
+static gint hf_rtitcp_control_attribute_length;
+static gint hf_rtitcp_control_attribute_port;
+static gint hf_rtitcp_attributes_list_length;
+static gint hf_rtitcp_control_magic_cookie;
+static gint hf_rtitcp_control_attribute_connection_cookie;
+static gint hf_rtitcp_control_attribute_connection_type;
+static gint hf_rtitcp_control_attribute_session_id;
+static gint hf_rtitcp_control_attribute_error_code_value;
+static gint hf_rtitcp_control_attribute_error_code_description;
+static gint hf_rtitcp_locator_ipv4;
+static gint hf_rtitcp_locator_port;
+static gint hf_rtitcp_locator_ipv6;
+static gint hf_rtitcp_locator_kind;
+static gint hf_rtitcp_crc_magic_cookie;
+static gint hf_rtitcp_control_crc_value;
 
-static gint hf_rtitcp_response_in                                = -1;
-static gint hf_rtitcp_response_to                                = -1;
-static gint hf_rtitcp_response_time                              = -1;
+static gint hf_rtitcp_response_in;
+static gint hf_rtitcp_response_to;
+static gint hf_rtitcp_response_time;
 
 #define RTITCP_FLAG_NOT_REQUEST 0x0100
 
@@ -164,11 +164,11 @@ typedef struct _rtitcp_conv_info_t {
 } rtitcp_conv_info_t;
 
 /* Subtree pointers */
-static gint ett_rtitcp                              = -1;
-static gint ett_rtitcp_signalling_protocol          = -1;
-static gint ett_rtitcp_message                      = -1;
-static gint ett_rtitcp_attributes_list              = -1;
-static gint ett_rtitcp_attribute                    = -1;
+static gint ett_rtitcp;
+static gint ett_rtitcp_signalling_protocol;
+static gint ett_rtitcp_message;
+static gint ett_rtitcp_attributes_list;
+static gint ett_rtitcp_attribute;
 
 static header_field_info *hfi_rtitcp                = NULL;
 static heur_dissector_list_t heur_subdissector_list;

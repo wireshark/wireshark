@@ -33,23 +33,23 @@ void proto_reg_handoff_msnip(void);
 
 static dissector_handle_t msnip_handle;
 
-static int proto_msnip = -1;
-static int hf_checksum = -1;
-static int hf_checksum_status = -1;
-static int hf_type = -1;
-static int hf_count = -1;
-static int hf_holdtime = -1;
-static int hf_groups = -1;
-static int hf_maddr = -1;
-static int hf_mask = -1;
-static int hf_holdtime16 = -1;
-static int hf_genid = -1;
-static int hf_rec_type = -1;
+static int proto_msnip;
+static int hf_checksum;
+static int hf_checksum_status;
+static int hf_type;
+static int hf_count;
+static int hf_holdtime;
+static int hf_groups;
+static int hf_maddr;
+static int hf_mask;
+static int hf_holdtime16;
+static int hf_genid;
+static int hf_rec_type;
 
-static int ett_msnip = -1;
-static int ett_groups = -1;
+static int ett_msnip;
+static int ett_groups;
 
-static expert_field ei_checksum = EI_INIT;
+static expert_field ei_checksum;
 
 #define MC_ALL_IGMPV3_ROUTERS	0xe0000016
 

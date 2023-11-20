@@ -78,66 +78,66 @@ void proto_reg_handoff_ecpri(void);
 /**************************************************************************************************/
 /* Initialize the subtree pointers                                                                */
 /**************************************************************************************************/
-static gint ett_ecpri                = -1;
-static gint ett_ecpri_header         = -1;
-static gint ett_ecpri_payload        = -1;
-static gint ett_ecpri_timestamp      = -1;
-static gint ett_ecpri_element        = -1;
+static gint ett_ecpri;
+static gint ett_ecpri_header;
+static gint ett_ecpri_payload;
+static gint ett_ecpri_timestamp;
+static gint ett_ecpri_element;
 
 /**************************************************************************************************/
 /* Initialize the protocol and registered fields                                                  */
 /**************************************************************************************************/
-static int proto_ecpri               = -1;
+static int proto_ecpri;
 /* Fields for Common Header */
-static int hf_header                 = -1;
-static int hf_proto_rev              = -1;
-static int hf_reserved               = -1;
-static int hf_c_bit                  = -1;
-static int hf_msg_type               = -1;
-static int hf_payload_size           = -1;
+static int hf_header;
+static int hf_proto_rev;
+static int hf_reserved;
+static int hf_c_bit;
+static int hf_msg_type;
+static int hf_payload_size;
 /* Fields for Payload */
-static int hf_payload                = -1;
+static int hf_payload;
 /* Fields for Payload of Message Type 0 and 1 */
-static int hf_pc_id                  = -1;
+static int hf_pc_id;
 /* Fields for Payload of Message Type 0, 1 and 2 */
-static int hf_seq_id                 = -1;
+static int hf_seq_id;
 /* Fields for Payload of Message Type 2 */
-static int hf_rtc_id                 = -1;
+static int hf_rtc_id;
 /* Fields for Payload of Message Type 3 */
-static int hf_pc_id2                 = -1;
-static int hf_seq_id2                = -1;
+static int hf_pc_id2;
+static int hf_seq_id2;
 /* Fields for Payload of Message Type 4 */
-static int hf_rma_id                 = -1;
-static int hf_read_write             = -1;
-static int hf_request_response       = -1;
-static int hf_element_id             = -1;
-static int hf_address                = -1;
-static int hf_data_length            = -1;
+static int hf_rma_id;
+static int hf_read_write;
+static int hf_request_response;
+static int hf_element_id;
+static int hf_address;
+static int hf_data_length;
 /* Fields for Payload of Message Type 5 */
-static int hf_measurement_id         = -1;
-static int hf_action_type            = -1;
-static int hf_timestamp              = -1;
-static int hf_timestamp_sec          = -1;
-static int hf_timestamp_nanosec      = -1;
-static int hf_compensation_value     = -1;
+static int hf_measurement_id;
+static int hf_action_type;
+static int hf_timestamp;
+static int hf_timestamp_sec;
+static int hf_timestamp_nanosec;
+static int hf_compensation_value;
 /* Fields for Payload of Message Type 6 */
-static int hf_reset_id               = -1;
-static int hf_reset_code             = -1;
+static int hf_reset_id;
+static int hf_reset_code;
 /* Fields for Payload of Message Type 7 */
-static int hf_event_id               = -1;
-static int hf_event_type             = -1;
-static int hf_sequence_num           = -1;
-static int hf_number_faults_notif    = -1;
-static int hf_element                = -1;
-static int hf_element_id2            = -1;
-static int hf_raise_cease            = -1;
-static int hf_fault_notif            = -1;
-static int hf_add_info               = -1;
+static int hf_event_id;
+static int hf_event_type;
+static int hf_sequence_num;
+static int hf_number_faults_notif;
+static int hf_element;
+static int hf_element_id2;
+static int hf_raise_cease;
+static int hf_fault_notif;
+static int hf_add_info;
 /* Fields for Payload - rest of data */
-static int hf_data                   = -1;
+static int hf_data;
 
 /* Overall length of eCPRI frame */
-static int hf_ecpri_length           = -1;
+static int hf_ecpri_length;
 
 /**************************************************************************************************/
 /* Preference to use the eCPRI Specification 1.2 encoding                                         */
@@ -152,15 +152,15 @@ static dissector_handle_t ecpri_handle;
 /**************************************************************************************************/
 /* Initialize expert info fields                                                                  */
 /**************************************************************************************************/
-static expert_field ei_ecpri_frame_length   = EI_INIT;
-static expert_field ei_payload_size         = EI_INIT;
-static expert_field ei_comp_val             = EI_INIT;
-static expert_field ei_time_stamp           = EI_INIT;
-static expert_field ei_data_length          = EI_INIT;
-static expert_field ei_c_bit                = EI_INIT;
-static expert_field ei_fault_notif          = EI_INIT;
-static expert_field ei_number_faults        = EI_INIT;
-static expert_field ei_ecpri_not_dis_yet    = EI_INIT;
+static expert_field ei_ecpri_frame_length;
+static expert_field ei_payload_size;
+static expert_field ei_comp_val;
+static expert_field ei_time_stamp;
+static expert_field ei_data_length;
+static expert_field ei_c_bit;
+static expert_field ei_fault_notif;
+static expert_field ei_number_faults;
+static expert_field ei_ecpri_not_dis_yet;
 
 /**************************************************************************************************/
 /* Field Encoding of Message Types                                                                */

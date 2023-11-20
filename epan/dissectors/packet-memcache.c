@@ -90,59 +90,59 @@ void proto_reg_handoff_memcache(void);
 /* Data Types */
 #define DT_RAW_BYTES          0x00
 
-static int proto_memcache = -1;
+static int proto_memcache;
 
 static dissector_handle_t memcache_tcp_handle;
 static dissector_handle_t memcache_udp_handle;
 
-static int hf_magic = -1;
-static int hf_opcode = -1;
-static int hf_extras_length = -1;
-static int hf_key_length = -1;
-static int hf_value_length = -1;
-static int hf_data_type = -1;
-static int hf_reserved = -1;
-static int hf_status = -1;
-static int hf_total_body_length = -1;
-static int hf_opaque = -1;
-static int hf_cas = -1;
-static int hf_extras = -1;
-static int hf_extras_flags = -1;
-static int hf_extras_expiration = -1;
-static int hf_extras_delta = -1;
-static int hf_extras_initial = -1;
-static int hf_extras_unknown = -1;
-static int hf_key = -1;
-static int hf_value = -1;
-static int hf_uint64_response = -1;
+static int hf_magic;
+static int hf_opcode;
+static int hf_extras_length;
+static int hf_key_length;
+static int hf_value_length;
+static int hf_data_type;
+static int hf_reserved;
+static int hf_status;
+static int hf_total_body_length;
+static int hf_opaque;
+static int hf_cas;
+static int hf_extras;
+static int hf_extras_flags;
+static int hf_extras_expiration;
+static int hf_extras_delta;
+static int hf_extras_initial;
+static int hf_extras_unknown;
+static int hf_key;
+static int hf_value;
+static int hf_uint64_response;
 
-static int hf_command = -1;
-static int hf_subcommand = -1;
-static int hf_flags = -1;
-static int hf_expiration = -1;
-static int hf_noreply = -1;
+static int hf_command;
+static int hf_subcommand;
+static int hf_flags;
+static int hf_expiration;
+static int hf_noreply;
 
-static int hf_response = -1;
+static int hf_response;
 
-static int hf_version = -1;
-static int hf_slabclass = -1;
-static int hf_name = -1;
-static int hf_name_value = -1;
+static int hf_version;
+static int hf_slabclass;
+static int hf_name;
+static int hf_name_value;
 
-static gint ett_memcache = -1;
-static gint ett_extras = -1;
+static gint ett_memcache;
+static gint ett_extras;
 
-static expert_field ei_value_missing   = EI_INIT;
-static expert_field ei_extras_missing  = EI_INIT;
-static expert_field ei_value_length    = EI_INIT;
-static expert_field ei_key_missing     = EI_INIT;
-static expert_field ei_key_unknown     = EI_INIT;
-static expert_field ei_extras_unknown  = EI_INIT;
-static expert_field ei_value_unknown   = EI_INIT;
-static expert_field ei_status_response = EI_INIT;
-static expert_field ei_opcode_unknown  = EI_INIT;
-static expert_field ei_reserved_value  = EI_INIT;
-static expert_field ei_magic_unknown   = EI_INIT;
+static expert_field ei_value_missing;
+static expert_field ei_extras_missing;
+static expert_field ei_value_length;
+static expert_field ei_key_missing;
+static expert_field ei_key_unknown;
+static expert_field ei_extras_unknown;
+static expert_field ei_value_unknown;
+static expert_field ei_status_response;
+static expert_field ei_opcode_unknown;
+static expert_field ei_reserved_value;
+static expert_field ei_magic_unknown;
 
 static const value_string magic_vals[] = {
   { MAGIC_REQUEST,         "Request"            },

@@ -48,26 +48,26 @@ void proto_reg_handoff_miop(void);
  */
 
 
-static int proto_miop = -1;
+static int proto_miop;
 
 /*
  * (sub)Tree declares
  */
 
 
-static gint hf_miop_magic = -1;
-static gint hf_miop_hdr_version = -1;
-static gint hf_miop_flags = -1;
-static gint hf_miop_packet_length = -1;
-static gint hf_miop_packet_number = -1;
-static gint hf_miop_number_of_packets = -1;
-static gint hf_miop_unique_id_len = -1;
-static gint hf_miop_unique_id = -1;
+static gint hf_miop_magic;
+static gint hf_miop_hdr_version;
+static gint hf_miop_flags;
+static gint hf_miop_packet_length;
+static gint hf_miop_packet_number;
+static gint hf_miop_number_of_packets;
+static gint hf_miop_unique_id_len;
+static gint hf_miop_unique_id;
 
-static gint ett_miop = -1;
+static gint ett_miop;
 
-static expert_field ei_miop_version_not_supported = EI_INIT;
-static expert_field ei_miop_unique_id_len_exceed_max_value = EI_INIT;
+static expert_field ei_miop_version_not_supported;
+static expert_field ei_miop_unique_id_len_exceed_max_value;
 
 static dissector_handle_t miop_handle;
 

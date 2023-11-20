@@ -24,34 +24,34 @@
 
 void proto_register_dect_dlc(void);
 
-static int proto_dect_dlc = -1;
+static int proto_dect_dlc;
 
-static gint hf_dect_dlc_address = -1;
-static gint hf_dect_dlc_nlf = -1;
-static gint hf_dect_dlc_lln = -1;
-static gint hf_dect_dlc_sapi = -1;
-static gint hf_dect_dlc_cr = -1;
+static gint hf_dect_dlc_address;
+static gint hf_dect_dlc_nlf;
+static gint hf_dect_dlc_lln;
+static gint hf_dect_dlc_sapi;
+static gint hf_dect_dlc_cr;
 
-static int hf_dect_dlc_control = -1;
-static int hf_dect_dlc_n_r = -1;
-static int hf_dect_dlc_n_s = -1;
-static int hf_dect_dlc_p = -1;
-static int hf_dect_dlc_f = -1;
-static int hf_dect_dlc_s_ftype = -1;
-static int hf_dect_dlc_u_modifier_cmd = -1;
-static int hf_dect_dlc_u_modifier_resp = -1;
-static int hf_dect_dlc_ftype_i = -1;
-static int hf_dect_dlc_ftype_s_u = -1;
+static int hf_dect_dlc_control;
+static int hf_dect_dlc_n_r;
+static int hf_dect_dlc_n_s;
+static int hf_dect_dlc_p;
+static int hf_dect_dlc_f;
+static int hf_dect_dlc_s_ftype;
+static int hf_dect_dlc_u_modifier_cmd;
+static int hf_dect_dlc_u_modifier_resp;
+static int hf_dect_dlc_ftype_i;
+static int hf_dect_dlc_ftype_s_u;
 
-static int hf_dect_dlc_length = -1;
-static int hf_dect_dlc_el = -1;
-static int hf_dect_dlc_m = -1;
-static int hf_dect_dlc_len = -1;
+static int hf_dect_dlc_length;
+static int hf_dect_dlc_el;
+static int hf_dect_dlc_m;
+static int hf_dect_dlc_len;
 
-static gint ett_dect_dlc = -1;
-static gint ett_dect_dlc_address = -1;
-static gint ett_dect_dlc_control = -1;
-static gint ett_dect_dlc_length = -1;
+static gint ett_dect_dlc;
+static gint ett_dect_dlc_address;
+static gint ett_dect_dlc_control;
+static gint ett_dect_dlc_length;
 
 static dissector_handle_t data_handle;
 
@@ -59,20 +59,20 @@ static dissector_table_t dlc_sapi_dissector_table;
 
 static reassembly_table dect_dlc_reassembly_table;
 
-static int hf_dect_dlc_fragment_data = -1;
-static int hf_dect_dlc_fragment = -1;
-static int hf_dect_dlc_fragments = -1;
-static int hf_dect_dlc_fragment_overlap = -1;
-static int hf_dect_dlc_fragment_overlap_conflicts = -1;
-static int hf_dect_dlc_fragment_multiple_tails = -1;
-static int hf_dect_dlc_fragment_too_long_fragment = -1;
-static int hf_dect_dlc_fragment_error = -1;
-static int hf_dect_dlc_fragment_count = -1;
-static int hf_dect_dlc_reassembled_in = -1;
-static int hf_dect_dlc_reassembled_length = -1;
+static int hf_dect_dlc_fragment_data;
+static int hf_dect_dlc_fragment;
+static int hf_dect_dlc_fragments;
+static int hf_dect_dlc_fragment_overlap;
+static int hf_dect_dlc_fragment_overlap_conflicts;
+static int hf_dect_dlc_fragment_multiple_tails;
+static int hf_dect_dlc_fragment_too_long_fragment;
+static int hf_dect_dlc_fragment_error;
+static int hf_dect_dlc_fragment_count;
+static int hf_dect_dlc_reassembled_in;
+static int hf_dect_dlc_reassembled_length;
 
-static gint ett_dect_dlc_fragment = -1;
-static gint ett_dect_dlc_fragments = -1;
+static gint ett_dect_dlc_fragment;
+static gint ett_dect_dlc_fragments;
 
 static const fragment_items dect_dlc_frag_items = {
     /* Fragment subtrees */

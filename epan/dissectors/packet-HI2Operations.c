@@ -34,7 +34,7 @@ void proto_register_HI2Operations(void);
 void proto_reg_handoff_HI2Operations(void);
 
 /* Initialize the protocol and registered fields */
-int proto_HI2Operations = -1;
+int proto_HI2Operations;
 static int hf_HI2Operations_IRIsContent_PDU;      /* IRIsContent */
 static int hf_HI2Operations_UUS1_Content_PDU;     /* UUS1_Content */
 static int hf_HI2Operations_communication_Identity_Number;  /* OCTET_STRING_SIZE_1_8 */

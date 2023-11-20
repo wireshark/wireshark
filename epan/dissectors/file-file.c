@@ -33,19 +33,19 @@
 
 void proto_register_file(void);
 
-static int proto_file = -1;
-static int hf_file_record_number = -1;
-static int hf_file_record_len = -1;
-static int hf_file_ftap_encap = -1;
-static int hf_file_marked = -1;
-static int hf_file_ignored = -1;
-static int hf_file_protocols = -1;
-static int hf_file_num_p_prot_data = -1;
-static int hf_file_proto_name_and_key = -1;
-static int hf_file_color_filter_name = -1;
-static int hf_file_color_filter_text = -1;
+static int proto_file;
+static int hf_file_record_number;
+static int hf_file_record_len;
+static int hf_file_ftap_encap;
+static int hf_file_marked;
+static int hf_file_ignored;
+static int hf_file_protocols;
+static int hf_file_num_p_prot_data;
+static int hf_file_proto_name_and_key;
+static int hf_file_color_filter_name;
+static int hf_file_color_filter_text;
 
-static gint ett_file = -1;
+static gint ett_file;
 
 static int file_tap = -1;
 

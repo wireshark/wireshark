@@ -33,39 +33,39 @@ static dissector_handle_t ieee80211_radio_handle;
 static capture_dissector_handle_t ieee80211_cap_handle;
 static capture_dissector_handle_t wlancap_cap_handle;
 
-static int proto_prism = -1;
+static int proto_prism;
 
 /* Prism radio header */
 
-static int hf_ieee80211_prism_msgcode = -1;
-static int hf_ieee80211_prism_msglen = -1;
-static int hf_ieee80211_prism_devname = -1;
-static int hf_ieee80211_prism_did = -1;
-static int hf_ieee80211_prism_did_type = -1;
-static int hf_ieee80211_prism_did_status = -1;
-static int hf_ieee80211_prism_did_length = -1;
-static int hf_ieee80211_prism_did_hosttime = -1;
-static int hf_ieee80211_prism_did_mactime = -1;
-static int hf_ieee80211_prism_did_channel = -1;
-static int hf_ieee80211_prism_did_rssi = -1;
-static int hf_ieee80211_prism_did_sq = -1;
-static int hf_ieee80211_prism_did_signal = -1;
-static int hf_ieee80211_prism_did_noise = -1;
-static int hf_ieee80211_prism_did_rate = -1;
-static int hf_ieee80211_prism_did_istx = -1;
-static int hf_ieee80211_prism_did_frmlen = -1;
-static int hf_ieee80211_prism_did_unknown = -1;
+static int hf_ieee80211_prism_msgcode;
+static int hf_ieee80211_prism_msglen;
+static int hf_ieee80211_prism_devname;
+static int hf_ieee80211_prism_did;
+static int hf_ieee80211_prism_did_type;
+static int hf_ieee80211_prism_did_status;
+static int hf_ieee80211_prism_did_length;
+static int hf_ieee80211_prism_did_hosttime;
+static int hf_ieee80211_prism_did_mactime;
+static int hf_ieee80211_prism_did_channel;
+static int hf_ieee80211_prism_did_rssi;
+static int hf_ieee80211_prism_did_sq;
+static int hf_ieee80211_prism_did_signal;
+static int hf_ieee80211_prism_did_noise;
+static int hf_ieee80211_prism_did_rate;
+static int hf_ieee80211_prism_did_istx;
+static int hf_ieee80211_prism_did_frmlen;
+static int hf_ieee80211_prism_did_unknown;
 
 /* Qualcomm Extensions */
-static int hf_ieee80211_prism_did_sig_a1 = -1;
-static int hf_ieee80211_prism_did_sig_a2 = -1;
-static int hf_ieee80211_prism_did_sig_b = -1;
-static int hf_ieee80211_prism_did_sig_rate_field = -1;
+static int hf_ieee80211_prism_did_sig_a1;
+static int hf_ieee80211_prism_did_sig_a2;
+static int hf_ieee80211_prism_did_sig_b;
+static int hf_ieee80211_prism_did_sig_rate_field;
 
 
-static gint ett_prism = -1;
-static gint ett_prism_did = -1;
-static gint ett_sig_ab = -1;
+static gint ett_prism;
+static gint ett_prism_did;
+static gint ett_sig_ab;
 
 static dissector_handle_t prism_handle;
 

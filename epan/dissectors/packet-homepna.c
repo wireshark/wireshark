@@ -20,16 +20,16 @@ void proto_reg_handoff_homepna(void);
 
 static dissector_handle_t homepna_handle;
 
-static int proto_homepna = -1;
+static int proto_homepna;
 
-static int hf_homepna_type   = -1;
-static int hf_homepna_length = -1;
-static int hf_homepna_version = -1;
-static int hf_homepna_data = -1;
-static int hf_homepna_etype = -1;
-static int hf_homepna_trailer = -1;
+static int hf_homepna_type;
+static int hf_homepna_length;
+static int hf_homepna_version;
+static int hf_homepna_data;
+static int hf_homepna_etype;
+static int hf_homepna_trailer;
 
-static gint ett_homepna  = -1;
+static gint ett_homepna;
 
 static dissector_handle_t ethertype_handle;
 

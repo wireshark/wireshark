@@ -17,14 +17,14 @@
 #include <epan/ptvcursor.h>
 
 /* registration object IDs */
-static int proto_vicp = -1;
-static int hf_vicp_operation = -1;
-static int hf_vicp_version = -1;
-static int hf_vicp_sequence = -1;
-static int hf_vicp_unused = -1;
-static int hf_vicp_length = -1;
-static int hf_vicp_data = -1;
-static gint ett_vicp = -1;
+static int proto_vicp;
+static int hf_vicp_operation;
+static int hf_vicp_version;
+static int hf_vicp_sequence;
+static int hf_vicp_unused;
+static int hf_vicp_length;
+static int hf_vicp_data;
+static gint ett_vicp;
 
 #define VICP_PORT 1861
 

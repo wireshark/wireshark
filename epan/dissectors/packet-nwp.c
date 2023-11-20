@@ -21,32 +21,32 @@
 void proto_register_nwp(void);
 void proto_reg_handoff_nwp(void);
 
-static gint proto_nwp		= -1;
+static gint proto_nwp;
 
 /* Header fields for all NWP headers. */
-static gint hf_nwp_version	= -1;
-static gint hf_nwp_type		= -1;
-static gint hf_nwp_hid_count	= -1;
-static gint hf_nwp_haddr_len	= -1;
+static gint hf_nwp_version;
+static gint hf_nwp_type;
+static gint hf_nwp_hid_count;
+static gint hf_nwp_haddr_len;
 
 /* Header fields for NWP Announcement packets. */
-static gint hf_nwp_ann_haddr	= -1;
-static gint hf_nwp_ann_hids	= -1;
-static gint hf_nwp_ann_hid	= -1;
+static gint hf_nwp_ann_haddr;
+static gint hf_nwp_ann_hids;
+static gint hf_nwp_ann_hid;
 
 /* Header fields for NWP Neighbor List packets. */
-static gint hf_nwp_neigh_list	= -1;
-static gint hf_nwp_neigh	= -1;
-static gint hf_nwp_neigh_hid	= -1;
-static gint hf_nwp_neigh_num	= -1;
-static gint hf_nwp_neigh_haddr	= -1;
+static gint hf_nwp_neigh_list;
+static gint hf_nwp_neigh;
+static gint hf_nwp_neigh_hid;
+static gint hf_nwp_neigh_num;
+static gint hf_nwp_neigh_haddr;
 
-static gint ett_nwp_tree		= -1;
-static gint ett_nwp_ann_hid_tree	= -1;
-static gint ett_nwp_neigh_list_tree	= -1;
-static gint ett_nwp_neigh_tree		= -1;
+static gint ett_nwp_tree;
+static gint ett_nwp_ann_hid_tree;
+static gint ett_nwp_neigh_list_tree;
+static gint ett_nwp_neigh_tree;
 
-static expert_field ei_nwp_bad_type = EI_INIT;
+static expert_field ei_nwp_bad_type;
 
 static dissector_handle_t nwp_handle;
 

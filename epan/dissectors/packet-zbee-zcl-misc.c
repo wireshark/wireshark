@@ -194,34 +194,34 @@ static const value_string zbee_zcl_thermostat_setpoint_mode_names[] = {
 /*************************/
 /* Global Variables      */
 /*************************/
-static int proto_zbee_zcl_thermostat = -1;
+static int proto_zbee_zcl_thermostat;
 
-static int hf_zbee_zcl_thermostat_attr_id = -1;
-static int hf_zbee_zcl_thermostat_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_thermostat_srv_tx_cmd_id = -1;
-static int hf_zbee_zcl_thermostat_setpoint_mode = -1;
-static int hf_zbee_zcl_thermostat_setpoint_amount = -1;
+static int hf_zbee_zcl_thermostat_attr_id;
+static int hf_zbee_zcl_thermostat_srv_rx_cmd_id;
+static int hf_zbee_zcl_thermostat_srv_tx_cmd_id;
+static int hf_zbee_zcl_thermostat_setpoint_mode;
+static int hf_zbee_zcl_thermostat_setpoint_amount;
 
-static int hf_zbee_zcl_thermostat_schedule_num_trans = -1;
-static int hf_zbee_zcl_thermostat_schedule_day_sequence = -1;
-static int hf_zbee_zcl_thermostat_schedule_day_sunday = -1;
-static int hf_zbee_zcl_thermostat_schedule_day_monday = -1;
-static int hf_zbee_zcl_thermostat_schedule_day_tuesday = -1;
-static int hf_zbee_zcl_thermostat_schedule_day_wednesday = -1;
-static int hf_zbee_zcl_thermostat_schedule_day_thursday = -1;
-static int hf_zbee_zcl_thermostat_schedule_day_friday = -1;
-static int hf_zbee_zcl_thermostat_schedule_day_saturday = -1;
-static int hf_zbee_zcl_thermostat_schedule_day_vacation = -1;
-static int hf_zbee_zcl_thermostat_schedule_mode_sequence = -1;
-static int hf_zbee_zcl_thermostat_schedule_mode_heat = -1;
-static int hf_zbee_zcl_thermostat_schedule_mode_cool = -1;
-static int hf_zbee_zcl_thermostat_schedule_time = -1;
-static int hf_zbee_zcl_thermostat_schedule_heat = -1;
-static int hf_zbee_zcl_thermostat_schedule_cool = -1;
+static int hf_zbee_zcl_thermostat_schedule_num_trans;
+static int hf_zbee_zcl_thermostat_schedule_day_sequence;
+static int hf_zbee_zcl_thermostat_schedule_day_sunday;
+static int hf_zbee_zcl_thermostat_schedule_day_monday;
+static int hf_zbee_zcl_thermostat_schedule_day_tuesday;
+static int hf_zbee_zcl_thermostat_schedule_day_wednesday;
+static int hf_zbee_zcl_thermostat_schedule_day_thursday;
+static int hf_zbee_zcl_thermostat_schedule_day_friday;
+static int hf_zbee_zcl_thermostat_schedule_day_saturday;
+static int hf_zbee_zcl_thermostat_schedule_day_vacation;
+static int hf_zbee_zcl_thermostat_schedule_mode_sequence;
+static int hf_zbee_zcl_thermostat_schedule_mode_heat;
+static int hf_zbee_zcl_thermostat_schedule_mode_cool;
+static int hf_zbee_zcl_thermostat_schedule_time;
+static int hf_zbee_zcl_thermostat_schedule_heat;
+static int hf_zbee_zcl_thermostat_schedule_cool;
 
-static gint ett_zbee_zcl_thermostat = -1;
-static gint ett_zbee_zcl_thermostat_schedule_days = -1;
-static gint ett_zbee_zcl_thermostat_schedule_mode = -1;
+static gint ett_zbee_zcl_thermostat;
+static gint ett_zbee_zcl_thermostat_schedule_days;
+static gint ett_zbee_zcl_thermostat_schedule_mode;
 
 /*************************/
 /* Function Declarations */
@@ -678,27 +678,27 @@ static const value_string zbee_zcl_ias_zone_enroll_code_names[] = {
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_ias_zone = -1;
+static int proto_zbee_zcl_ias_zone;
 
-static int hf_zbee_zcl_ias_zone_attr_id = -1;
-static int hf_zbee_zcl_ias_zone_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_ias_zone_srv_tx_cmd_id = -1;
-static int hf_zbee_zcl_ias_zone_enroll_code = -1;
-static int hf_zbee_zcl_ias_zone_zone_id = -1;
-static int hf_zbee_zcl_ias_zone_state = -1;
-static int hf_zbee_zcl_ias_zone_type = -1;
-static int hf_zbee_zcl_ias_zone_status = -1;
-static int hf_zbee_zcl_ias_zone_delay = -1;
-static int hf_zbee_zcl_ias_zone_ext_status = -1;
-static int hf_zbee_zcl_ias_zone_manufacturer_code = -1;
-static int hf_zbee_zcl_ias_zone_status_ac_mains = -1;
-static int hf_zbee_zcl_ias_zone_status_alarm1 = -1;
-static int hf_zbee_zcl_ias_zone_status_alarm2 = -1;
-static int hf_zbee_zcl_ias_zone_status_battery = -1;
-static int hf_zbee_zcl_ias_zone_status_restore_reports = -1;
-static int hf_zbee_zcl_ias_zone_status_supervision_reports = -1;
-static int hf_zbee_zcl_ias_zone_status_tamper = -1;
-static int hf_zbee_zcl_ias_zone_status_trouble = -1;
+static int hf_zbee_zcl_ias_zone_attr_id;
+static int hf_zbee_zcl_ias_zone_srv_rx_cmd_id;
+static int hf_zbee_zcl_ias_zone_srv_tx_cmd_id;
+static int hf_zbee_zcl_ias_zone_enroll_code;
+static int hf_zbee_zcl_ias_zone_zone_id;
+static int hf_zbee_zcl_ias_zone_state;
+static int hf_zbee_zcl_ias_zone_type;
+static int hf_zbee_zcl_ias_zone_status;
+static int hf_zbee_zcl_ias_zone_delay;
+static int hf_zbee_zcl_ias_zone_ext_status;
+static int hf_zbee_zcl_ias_zone_manufacturer_code;
+static int hf_zbee_zcl_ias_zone_status_ac_mains;
+static int hf_zbee_zcl_ias_zone_status_alarm1;
+static int hf_zbee_zcl_ias_zone_status_alarm2;
+static int hf_zbee_zcl_ias_zone_status_battery;
+static int hf_zbee_zcl_ias_zone_status_restore_reports;
+static int hf_zbee_zcl_ias_zone_status_supervision_reports;
+static int hf_zbee_zcl_ias_zone_status_tamper;
+static int hf_zbee_zcl_ias_zone_status_trouble;
 
 static const true_false_string tfs_ac_mains = {
     "AC/Mains fault",
@@ -735,8 +735,8 @@ static const true_false_string tfs_trouble_failure = {
     "OK"
 };
 
-static gint ett_zbee_zcl_ias_zone = -1;
-static gint ett_zbee_zcl_ias_zone_status = -1;
+static gint ett_zbee_zcl_ias_zone;
+static gint ett_zbee_zcl_ias_zone_status;
 
 /*************************/
 /* Function Declarations */

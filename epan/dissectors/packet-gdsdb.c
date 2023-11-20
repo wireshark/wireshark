@@ -23,168 +23,168 @@ void proto_reg_handoff_gdsdb(void);
 static dissector_handle_t gdsdb_handle;
 #define TCP_PORT	3050
 
-static int proto_gdsdb = -1;
-static gint ett_gdsdb = -1;
-static int hf_gdsdb_opcode = -1;
-/* static gint ett_gdsdb_opcode = -1; */
+static int proto_gdsdb;
+static gint ett_gdsdb;
+static int hf_gdsdb_opcode;
+/* static gint ett_gdsdb_opcode; */
 
 /* gdsdb_dummy */
 /* gdsdb_connect */
-static int hf_gdsdb_connect_operation = -1;
-static int hf_gdsdb_connect_version = -1;
-static int hf_gdsdb_connect_client = -1;
-static int hf_gdsdb_connect_filename = -1;
-static int hf_gdsdb_connect_count = -1;
-static int hf_gdsdb_connect_userid = -1;
-static int hf_gdsdb_connect_pref = -1;
-static gint ett_gdsdb_connect_pref = -1;
-static int hf_gdsdb_connect_pref_version = -1;
-static int hf_gdsdb_connect_pref_architecture = -1;
-static int hf_gdsdb_connect_pref_mintype = -1;
-static int hf_gdsdb_connect_pref_maxtype = -1;
-static int hf_gdsdb_connect_pref_weight = -1;
+static int hf_gdsdb_connect_operation;
+static int hf_gdsdb_connect_version;
+static int hf_gdsdb_connect_client;
+static int hf_gdsdb_connect_filename;
+static int hf_gdsdb_connect_count;
+static int hf_gdsdb_connect_userid;
+static int hf_gdsdb_connect_pref;
+static gint ett_gdsdb_connect_pref;
+static int hf_gdsdb_connect_pref_version;
+static int hf_gdsdb_connect_pref_architecture;
+static int hf_gdsdb_connect_pref_mintype;
+static int hf_gdsdb_connect_pref_maxtype;
+static int hf_gdsdb_connect_pref_weight;
 /* gdsdb_accept */
-static int hf_gdsdb_accept_version = -1;
-static int hf_gdsdb_accept_architecture = -1;
-static int hf_gdsdb_accept_proto_min_type = -1;
+static int hf_gdsdb_accept_version;
+static int hf_gdsdb_accept_architecture;
+static int hf_gdsdb_accept_proto_min_type;
 /* gdsdb_request */
-static int hf_gdsdb_request_type = -1;
-static int hf_gdsdb_request_object = -1;
-static int hf_gdsdb_request_partner = -1;
+static int hf_gdsdb_request_type;
+static int hf_gdsdb_request_object;
+static int hf_gdsdb_request_partner;
 /* gdsdb_attach */
-static int hf_gdsdb_attach_database_object_id = -1;
-static int hf_gdsdb_attach_database_path = -1;
-static int hf_gdsdb_attach_database_param_buf = -1;
+static int hf_gdsdb_attach_database_object_id;
+static int hf_gdsdb_attach_database_path;
+static int hf_gdsdb_attach_database_param_buf;
 /* gdsdb_compile */
-static int hf_gdsdb_compile_database = -1;
-static int hf_gdsdb_compile_blr = -1;
+static int hf_gdsdb_compile_database;
+static int hf_gdsdb_compile_blr;
 /* gdsdb_receive */
-static int hf_gdsdb_receive_request = -1;
-static int hf_gdsdb_receive_incarnation = -1;
-static int hf_gdsdb_receive_transaction = -1;
-static int hf_gdsdb_receive_msgnr = -1;
-static int hf_gdsdb_receive_messages = -1;
-static int hf_gdsdb_receive_direction = -1;
-static int hf_gdsdb_receive_offset = -1;
+static int hf_gdsdb_receive_request;
+static int hf_gdsdb_receive_incarnation;
+static int hf_gdsdb_receive_transaction;
+static int hf_gdsdb_receive_msgnr;
+static int hf_gdsdb_receive_messages;
+static int hf_gdsdb_receive_direction;
+static int hf_gdsdb_receive_offset;
 /* gdsdb_send */
-static int hf_gdsdb_send_request = -1;
-static int hf_gdsdb_send_incarnation = -1;
-static int hf_gdsdb_send_transaction = -1;
-static int hf_gdsdb_send_msgnr = -1;
-static int hf_gdsdb_send_messages = -1;
+static int hf_gdsdb_send_request;
+static int hf_gdsdb_send_incarnation;
+static int hf_gdsdb_send_transaction;
+static int hf_gdsdb_send_msgnr;
+static int hf_gdsdb_send_messages;
 /* gdsdb_response */
-static int hf_gdsdb_response_object = -1;
-static int hf_gdsdb_response_blobid = -1;
-static int hf_gdsdb_response_datasize = -1;
-static int hf_gdsdb_response_data = -1;
+static int hf_gdsdb_response_object;
+static int hf_gdsdb_response_blobid;
+static int hf_gdsdb_response_datasize;
+static int hf_gdsdb_response_data;
 /* gdsdb_status_vector */
-static int hf_gdsdb_status_vector_arg = -1;
-static int hf_gdsdb_status_vector_error_code = -1;
-static int hf_gdsdb_status_vector_number = -1;
-static int hf_gdsdb_status_vector_string = -1;
-static int hf_gdsdb_status_vector_sql_state = -1;
+static int hf_gdsdb_status_vector_arg;
+static int hf_gdsdb_status_vector_error_code;
+static int hf_gdsdb_status_vector_number;
+static int hf_gdsdb_status_vector_string;
+static int hf_gdsdb_status_vector_sql_state;
 /* gdsdb_transact */
-static int hf_gdsdb_transact_database = -1;
-static int hf_gdsdb_transact_transaction = -1;
+static int hf_gdsdb_transact_database;
+static int hf_gdsdb_transact_transaction;
 #if 0
-static int hf_gdsdb_transact_messages = -1;
+static int hf_gdsdb_transact_messages;
 #endif
 /* gdsdb_transact_response */
-static int hf_gdsdb_transactresponse_messages = -1;
+static int hf_gdsdb_transactresponse_messages;
 /* gdsdb_open_blob2 */
-static int hf_gdsdb_openblob2_bpb = -1;
+static int hf_gdsdb_openblob2_bpb;
 /* gdsdb_open_blob */
-static int hf_gdsdb_openblob_transaction = -1;
-static int hf_gdsdb_openblob_id = -1;
+static int hf_gdsdb_openblob_transaction;
+static int hf_gdsdb_openblob_id;
 #if 0
 /* gdsdb_segment */
-static int hf_gdsdb_segment_blob = -1;
-static int hf_gdsdb_segment_length = -1;
-static int hf_gdsdb_segment_segment = -1;
+static int hf_gdsdb_segment_blob;
+static int hf_gdsdb_segment_length;
+static int hf_gdsdb_segment_segment;
 /* gdsdb_seek_blob */
-static int hf_gdsdb_seekblob_blob = -1;
-static int hf_gdsdb_seekblob_mode = -1;
+static int hf_gdsdb_seekblob_blob;
+static int hf_gdsdb_seekblob_mode;
 #endif
 /* gdsdb_reconnect */
-static int hf_gdsdb_reconnect_handle = -1;
-static int hf_gdsdb_reconnect_database_size = -1;
-static int hf_gdsdb_reconnect_database = -1;
+static int hf_gdsdb_reconnect_handle;
+static int hf_gdsdb_reconnect_database_size;
+static int hf_gdsdb_reconnect_database;
 /* gdsdb_info & gdsdb_service_start */
-static int hf_gdsdb_info_object = -1;
-static int hf_gdsdb_info_incarnation = -1;
-static int hf_gdsdb_info_items = -1;
-static int hf_gdsdb_info_recv_items = -1;
-static int hf_gdsdb_info_buffer_length = -1;
+static int hf_gdsdb_info_object;
+static int hf_gdsdb_info_incarnation;
+static int hf_gdsdb_info_items;
+static int hf_gdsdb_info_recv_items;
+static int hf_gdsdb_info_buffer_length;
 /* gdsdb_release */
-static int hf_gdsdb_release_object = -1;
+static int hf_gdsdb_release_object;
 #if 0
 /* gdsdb_prepare2 */
-static int hf_gdsdb_prepare2_transaction = -1;
+static int hf_gdsdb_prepare2_transaction;
 /* gdsdb_event & gdsdb_cancel_events */
-static int hf_gdsdb_event_database = -1;
-static int hf_gdsdb_event_items = -1;
-static int hf_gdsdb_event_ast = -1;
-static int hf_gdsdb_event_arg = -1;
-static int hf_gdsdb_event_rid = -1;
+static int hf_gdsdb_event_database;
+static int hf_gdsdb_event_items;
+static int hf_gdsdb_event_ast;
+static int hf_gdsdb_event_arg;
+static int hf_gdsdb_event_rid;
 /* gdsdb_ddl */
-static int hf_gdsdb_ddl_database = -1;
-static int hf_gdsdb_ddl_transaction = -1;
-static int hf_gdsdb_ddl_blr = -1;
+static int hf_gdsdb_ddl_database;
+static int hf_gdsdb_ddl_transaction;
+static int hf_gdsdb_ddl_blr;
 /* gdsdb_slice */
-static int hf_gdsdb_slice_transaction = -1;
-static int hf_gdsdb_slice_id = -1;
-static int hf_gdsdb_slice_sdl = -1;
-static int hf_gdsdb_slice_parameters = -1;
+static int hf_gdsdb_slice_transaction;
+static int hf_gdsdb_slice_id;
+static int hf_gdsdb_slice_sdl;
+static int hf_gdsdb_slice_parameters;
 /* gdsdb_slice_response */
-static int hf_gdsdb_sliceresponse_length = -1;
+static int hf_gdsdb_sliceresponse_length;
 #endif
 /* gdsdb_execute */
-static int hf_gdsdb_execute_statement = -1;
-static int hf_gdsdb_execute_transaction = -1;
-static int hf_gdsdb_execute_message_number = -1;
-static int hf_gdsdb_execute_messages = -1;
+static int hf_gdsdb_execute_statement;
+static int hf_gdsdb_execute_transaction;
+static int hf_gdsdb_execute_message_number;
+static int hf_gdsdb_execute_messages;
 #if 0
 /* gdsdb_execute2 */
-static int hf_gdsdb_execute_outblr = -1;
-static int hf_gdsdb_execute_outmsgnr = -1;
+static int hf_gdsdb_execute_outblr;
+static int hf_gdsdb_execute_outmsgnr;
 /* gdsdb_exec_immediate2 */
-static int hf_gdsdb_prepare2_blr = -1;
-static int hf_gdsdb_prepare2_number = -1;
-static int hf_gdsdb_prepare2_messages = -1;
-static int hf_gdsdb_prepare2_outblr = -1;
-static int hf_gdsdb_prepare2_outmsgnr = -1;
+static int hf_gdsdb_prepare2_blr;
+static int hf_gdsdb_prepare2_number;
+static int hf_gdsdb_prepare2_messages;
+static int hf_gdsdb_prepare2_outblr;
+static int hf_gdsdb_prepare2_outmsgnr;
 #endif
 /* gdsdb_prepare */
-static int hf_gdsdb_prepare_transaction = -1;
-static int hf_gdsdb_prepare_statement = -1;
-static int hf_gdsdb_prepare_dialect = -1;
-static int hf_gdsdb_prepare_querystr = -1;
-static int hf_gdsdb_prepare_bufferlength = -1;
+static int hf_gdsdb_prepare_transaction;
+static int hf_gdsdb_prepare_statement;
+static int hf_gdsdb_prepare_dialect;
+static int hf_gdsdb_prepare_querystr;
+static int hf_gdsdb_prepare_bufferlength;
 #if 0
 /* gdsdb_fetch */
-static int hf_gdsdb_fetch_statement = -1;
-static int hf_gdsdb_fetch_message_number = -1;
-static int hf_gdsdb_fetch_messages = -1;
+static int hf_gdsdb_fetch_statement;
+static int hf_gdsdb_fetch_message_number;
+static int hf_gdsdb_fetch_messages;
 /* gdsdb_fetch_response */
-static int hf_gdsdb_fetchresponse_status = -1;
-static int hf_gdsdb_fetchresponse_messages = -1;
+static int hf_gdsdb_fetchresponse_status;
+static int hf_gdsdb_fetchresponse_messages;
 #endif
 /* gdsdb_free_statement */
-static int hf_gdsdb_free_statement = -1;
-static int hf_gdsdb_free_option = -1;
+static int hf_gdsdb_free_statement;
+static int hf_gdsdb_free_option;
 #if 0
 /* gdsdb_insert */
-static int hf_gdsdb_insert_statement = -1;
-static int hf_gdsdb_insert_message_number = -1;
-static int hf_gdsdb_insert_messages = -1;
+static int hf_gdsdb_insert_statement;
+static int hf_gdsdb_insert_message_number;
+static int hf_gdsdb_insert_messages;
 /* gdsdb_cursor */
-static int hf_gdsdb_cursor_statement = -1;
-static int hf_gdsdb_cursor_type = -1;
+static int hf_gdsdb_cursor_statement;
+static int hf_gdsdb_cursor_type;
 /* gdsdb_sql_response */
-static int hf_gdsdb_sqlresponse_messages = -1;
+static int hf_gdsdb_sqlresponse_messages;
 #endif
 
-static expert_field ei_gdsdb_invalid_length = EI_INIT;
+static expert_field ei_gdsdb_invalid_length;
 
 enum
 {

@@ -25,19 +25,19 @@ void proto_register_tte_pcf(void);
 void proto_reg_handoff_tte_pcf(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_tte_pcf = -1;
+static int proto_tte_pcf;
 
-static int hf_tte_pcf_ic = -1;
-static int hf_tte_pcf_mn = -1;
-/* static int hf_tte_pcf_res0 = -1; */
-static int hf_tte_pcf_sp = -1;
-static int hf_tte_pcf_sd = -1;
-static int hf_tte_pcf_type = -1;
-/* static int hf_tte_pcf_res1 = -1; */
-static int hf_tte_pcf_tc = -1;
+static int hf_tte_pcf_ic;
+static int hf_tte_pcf_mn;
+/* static int hf_tte_pcf_res0; */
+static int hf_tte_pcf_sp;
+static int hf_tte_pcf_sd;
+static int hf_tte_pcf_type;
+/* static int hf_tte_pcf_res1; */
+static int hf_tte_pcf_tc;
 
 /* Initialize the subtree pointers */
-static gint ett_tte_pcf = -1;
+static gint ett_tte_pcf;
 
 static dissector_handle_t tte_pcf_handle;
 

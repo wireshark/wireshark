@@ -127,290 +127,290 @@ void proto_reg_handoff_lisp(void);
 #define ELP_FLAG_S          0x0001
 
 /* Initialize the protocol and registered fields */
-static int proto_lisp = -1;
-static int hf_lisp_type = -1;
-static int hf_lisp_irc = -1;
-static int hf_lisp_records = -1;
-static int hf_lisp_nonce = -1;
-static int hf_lisp_keyid = -1;
-static int hf_lisp_authlen = -1;
-static int hf_lisp_auth = -1;
-static int hf_lisp_msrtr_keyid = -1;
-static int hf_lisp_msrtr_authlen = -1;
-static int hf_lisp_msrtr_auth = -1;
-static int hf_lisp_xtrid = -1;
-static int hf_lisp_siteid = -1;
+static int proto_lisp;
+static int hf_lisp_type;
+static int hf_lisp_irc;
+static int hf_lisp_records;
+static int hf_lisp_nonce;
+static int hf_lisp_keyid;
+static int hf_lisp_authlen;
+static int hf_lisp_auth;
+static int hf_lisp_msrtr_keyid;
+static int hf_lisp_msrtr_authlen;
+static int hf_lisp_msrtr_auth;
+static int hf_lisp_xtrid;
+static int hf_lisp_siteid;
 
 /* Map-Request fields */
-static int hf_lisp_mreq_flags = -1;
-static int hf_lisp_mreq_flags_auth = -1;
-static int hf_lisp_mreq_flags_mrp = -1;
-static int hf_lisp_mreq_flags_probe = -1;
-static int hf_lisp_mreq_flags_smr = -1;
-static int hf_lisp_mreq_flags_pitr = -1;
-static int hf_lisp_mreq_flags_smri = -1;
-static int hf_lisp_mreq_res = -1;
-static int hf_lisp_mreq_srceid_afi = -1;
-static int hf_lisp_mreq_srceid_string = -1;
-static int hf_lisp_mreq_srceid_ipv4 = -1;
-static int hf_lisp_mreq_srceid_ipv6 = -1;
-static int hf_lisp_mreq_srceid_mac = -1;
-static int hf_lisp_mreq_itr_rloc = -1;
-static int hf_lisp_mreq_itr_rloc_afi = -1;
-static int hf_lisp_mreq_itr_rloc_ipv4 = -1;
-static int hf_lisp_mreq_itr_rloc_ipv6 = -1;
-static int hf_lisp_mreq_record = -1;
-static int hf_lisp_mreq_record_res = -1;
-static int hf_lisp_mreq_record_prefix_length = -1;
-static int hf_lisp_mreq_record_prefix_afi = -1;
-static int hf_lisp_mreq_record_prefix_ipv4 = -1;
-static int hf_lisp_mreq_record_prefix_ipv6 = -1;
-static int hf_lisp_mreq_record_prefix_mac = -1;
-static int hf_lisp_mreq_record_prefix_dn = -1;
+static int hf_lisp_mreq_flags;
+static int hf_lisp_mreq_flags_auth;
+static int hf_lisp_mreq_flags_mrp;
+static int hf_lisp_mreq_flags_probe;
+static int hf_lisp_mreq_flags_smr;
+static int hf_lisp_mreq_flags_pitr;
+static int hf_lisp_mreq_flags_smri;
+static int hf_lisp_mreq_res;
+static int hf_lisp_mreq_srceid_afi;
+static int hf_lisp_mreq_srceid_string;
+static int hf_lisp_mreq_srceid_ipv4;
+static int hf_lisp_mreq_srceid_ipv6;
+static int hf_lisp_mreq_srceid_mac;
+static int hf_lisp_mreq_itr_rloc;
+static int hf_lisp_mreq_itr_rloc_afi;
+static int hf_lisp_mreq_itr_rloc_ipv4;
+static int hf_lisp_mreq_itr_rloc_ipv6;
+static int hf_lisp_mreq_record;
+static int hf_lisp_mreq_record_res;
+static int hf_lisp_mreq_record_prefix_length;
+static int hf_lisp_mreq_record_prefix_afi;
+static int hf_lisp_mreq_record_prefix_ipv4;
+static int hf_lisp_mreq_record_prefix_ipv6;
+static int hf_lisp_mreq_record_prefix_mac;
+static int hf_lisp_mreq_record_prefix_dn;
 
 /* Map-Reply fields */
-static int hf_lisp_mrep_record = -1;
-static int hf_lisp_mrep_flags_probe = -1;
-static int hf_lisp_mrep_flags_enlr = -1;
-static int hf_lisp_mrep_flags_sec = -1;
-static int hf_lisp_mrep_res = -1;
+static int hf_lisp_mrep_record;
+static int hf_lisp_mrep_flags_probe;
+static int hf_lisp_mrep_flags_enlr;
+static int hf_lisp_mrep_flags_sec;
+static int hf_lisp_mrep_res;
 
 /* Map-Register fields */
-static int hf_lisp_mreg_flags_pmr = -1;
-static int hf_lisp_mreg_flags_sec = -1;
-static int hf_lisp_mreg_flags_xtrid = -1;
-static int hf_lisp_mreg_flags_rtr = -1;
-static int hf_lisp_mreg_flags_wmn = -1;
-static int hf_lisp_mreg_res = -1;
+static int hf_lisp_mreg_flags_pmr;
+static int hf_lisp_mreg_flags_sec;
+static int hf_lisp_mreg_flags_xtrid;
+static int hf_lisp_mreg_flags_rtr;
+static int hf_lisp_mreg_flags_wmn;
+static int hf_lisp_mreg_res;
 
 /* Map-Notify fields */
-static int hf_lisp_mnot_flags_xtrid = -1;
-static int hf_lisp_mnot_flags_rtr = -1;
-static int hf_lisp_mnot_res = -1;
+static int hf_lisp_mnot_flags_xtrid;
+static int hf_lisp_mnot_flags_rtr;
+static int hf_lisp_mnot_res;
 
 /* Map-Referral fields */
-static int hf_lisp_mref_res = -1;
-static int hf_lisp_referral_sigcnt = -1;
-static int hf_lisp_referral_incomplete = -1;
+static int hf_lisp_mref_res;
+static int hf_lisp_referral_sigcnt;
+static int hf_lisp_referral_incomplete;
 
 /* Info fields */
-static int hf_lisp_info_r = -1;
-static int hf_lisp_info_res1 = -1;
-static int hf_lisp_info_ttl = -1;
-static int hf_lisp_info_res2 = -1;
-static int hf_lisp_info_prefix_masklen = -1;
-static int hf_lisp_info_prefix_afi = -1;
-static int hf_lisp_info_prefix_ipv4 = -1;
-static int hf_lisp_info_prefix_ipv6 = -1;
-static int hf_lisp_info_afi = -1;
+static int hf_lisp_info_r;
+static int hf_lisp_info_res1;
+static int hf_lisp_info_ttl;
+static int hf_lisp_info_res2;
+static int hf_lisp_info_prefix_masklen;
+static int hf_lisp_info_prefix_afi;
+static int hf_lisp_info_prefix_ipv4;
+static int hf_lisp_info_prefix_ipv6;
+static int hf_lisp_info_afi;
 
 /* Mapping record fields */
-static int hf_lisp_mapping = -1;
-static int hf_lisp_mapping_ttl = -1;
-static int hf_lisp_mapping_loccnt = -1;
-static int hf_lisp_mapping_eid_masklen = -1;
-static int hf_lisp_mapping_act = -1;
-static int hf_lisp_mapping_auth = -1;
-static int hf_lisp_mapping_res1 = -1;
-static int hf_lisp_mapping_res2 = -1;
-static int hf_lisp_mapping_ver = -1;
-static int hf_lisp_mapping_eid_afi = -1;
-static int hf_lisp_mapping_eid_ipv4 = -1;
-static int hf_lisp_mapping_eid_ipv6 = -1;
-static int hf_lisp_mapping_eid_mac = -1;
-static int hf_lisp_mapping_eid_dn = -1;
+static int hf_lisp_mapping;
+static int hf_lisp_mapping_ttl;
+static int hf_lisp_mapping_loccnt;
+static int hf_lisp_mapping_eid_masklen;
+static int hf_lisp_mapping_act;
+static int hf_lisp_mapping_auth;
+static int hf_lisp_mapping_res1;
+static int hf_lisp_mapping_res2;
+static int hf_lisp_mapping_ver;
+static int hf_lisp_mapping_eid_afi;
+static int hf_lisp_mapping_eid_ipv4;
+static int hf_lisp_mapping_eid_ipv6;
+static int hf_lisp_mapping_eid_mac;
+static int hf_lisp_mapping_eid_dn;
 
 /* Locator fields */
-static int hf_lisp_loc = -1;
-static int hf_lisp_loc_priority = -1;
-static int hf_lisp_loc_weight = -1;
-static int hf_lisp_loc_mpriority = -1;
-static int hf_lisp_loc_mweight = -1;
-static int hf_lisp_loc_flags = -1;
-static int hf_lisp_loc_flags_local = -1;
-static int hf_lisp_loc_flags_probe = -1;
-static int hf_lisp_loc_flags_reach = -1;
-static int hf_lisp_loc_flags_res = -1;
-static int hf_lisp_loc_afi = -1;
-static int hf_lisp_loc_locator = -1;
+static int hf_lisp_loc;
+static int hf_lisp_loc_priority;
+static int hf_lisp_loc_weight;
+static int hf_lisp_loc_mpriority;
+static int hf_lisp_loc_mweight;
+static int hf_lisp_loc_flags;
+static int hf_lisp_loc_flags_local;
+static int hf_lisp_loc_flags_probe;
+static int hf_lisp_loc_flags_reach;
+static int hf_lisp_loc_flags_res;
+static int hf_lisp_loc_afi;
+static int hf_lisp_loc_locator;
 
 /* LCAF fields */
-static int hf_lisp_lcaf = -1;
-static int hf_lisp_lcaf_header = -1;
-static int hf_lisp_lcaf_res1 = -1;
-static int hf_lisp_lcaf_flags = -1;
-static int hf_lisp_lcaf_type = -1;
-static int hf_lisp_lcaf_res2 = -1;
-static int hf_lisp_lcaf_length = -1;
+static int hf_lisp_lcaf;
+static int hf_lisp_lcaf_header;
+static int hf_lisp_lcaf_res1;
+static int hf_lisp_lcaf_flags;
+static int hf_lisp_lcaf_type;
+static int hf_lisp_lcaf_res2;
+static int hf_lisp_lcaf_length;
 
 /* LCAF AFI List fields */
-static int hf_lisp_lcaf_afi_list_item = -1;
-static int hf_lisp_lcaf_afi_list_afi = -1;
-static int hf_lisp_lcaf_afi_list_ipv4 = -1;
-static int hf_lisp_lcaf_afi_list_ipv6 = -1;
-static int hf_lisp_lcaf_afi_list_mac = -1;
-static int hf_lisp_lcaf_afi_list_dn = -1;
+static int hf_lisp_lcaf_afi_list_item;
+static int hf_lisp_lcaf_afi_list_afi;
+static int hf_lisp_lcaf_afi_list_ipv4;
+static int hf_lisp_lcaf_afi_list_ipv6;
+static int hf_lisp_lcaf_afi_list_mac;
+static int hf_lisp_lcaf_afi_list_dn;
 
 /* LCAF IID fields */
-static int hf_lisp_lcaf_iid = -1;
-static int hf_lisp_lcaf_iid_afi = -1;
-static int hf_lisp_lcaf_iid_ipv4 = -1;
-static int hf_lisp_lcaf_iid_ipv6 = -1;
-static int hf_lisp_lcaf_iid_mac = -1;
-static int hf_lisp_lcaf_iid_dn = -1;
+static int hf_lisp_lcaf_iid;
+static int hf_lisp_lcaf_iid_afi;
+static int hf_lisp_lcaf_iid_ipv4;
+static int hf_lisp_lcaf_iid_ipv6;
+static int hf_lisp_lcaf_iid_mac;
+static int hf_lisp_lcaf_iid_dn;
 
 /* LCAF ASN fields */
-static int hf_lisp_lcaf_asn = -1;
-static int hf_lisp_lcaf_asn_afi = -1;
-static int hf_lisp_lcaf_asn_ipv4 = -1;
-static int hf_lisp_lcaf_asn_ipv6 = -1;
-static int hf_lisp_lcaf_asn_mac = -1;
-static int hf_lisp_lcaf_asn_dn = -1;
+static int hf_lisp_lcaf_asn;
+static int hf_lisp_lcaf_asn_afi;
+static int hf_lisp_lcaf_asn_ipv4;
+static int hf_lisp_lcaf_asn_ipv6;
+static int hf_lisp_lcaf_asn_mac;
+static int hf_lisp_lcaf_asn_dn;
 
 /* LCAF Geo Coordinates fields */
-static int hf_lisp_lcaf_geo_lat = -1;
-static int hf_lisp_lcaf_geo_lat_hemisphere = -1;
-static int hf_lisp_lcaf_geo_lat_deg = -1;
-static int hf_lisp_lcaf_geo_lat_min = -1;
-static int hf_lisp_lcaf_geo_lat_sec = -1;
-static int hf_lisp_lcaf_geo_lon = -1;
-static int hf_lisp_lcaf_geo_lon_hemisphere = -1;
-static int hf_lisp_lcaf_geo_lon_deg = -1;
-static int hf_lisp_lcaf_geo_lon_min = -1;
-static int hf_lisp_lcaf_geo_lon_sec = -1;
-static int hf_lisp_lcaf_geo_alt = -1;
-static int hf_lisp_lcaf_geo_afi = -1;
-static int hf_lisp_lcaf_geo_ipv4 = -1;
-static int hf_lisp_lcaf_geo_ipv6 = -1;
-static int hf_lisp_lcaf_geo_mac = -1;
-static int hf_lisp_lcaf_geo_dn = -1;
+static int hf_lisp_lcaf_geo_lat;
+static int hf_lisp_lcaf_geo_lat_hemisphere;
+static int hf_lisp_lcaf_geo_lat_deg;
+static int hf_lisp_lcaf_geo_lat_min;
+static int hf_lisp_lcaf_geo_lat_sec;
+static int hf_lisp_lcaf_geo_lon;
+static int hf_lisp_lcaf_geo_lon_hemisphere;
+static int hf_lisp_lcaf_geo_lon_deg;
+static int hf_lisp_lcaf_geo_lon_min;
+static int hf_lisp_lcaf_geo_lon_sec;
+static int hf_lisp_lcaf_geo_alt;
+static int hf_lisp_lcaf_geo_afi;
+static int hf_lisp_lcaf_geo_ipv4;
+static int hf_lisp_lcaf_geo_ipv6;
+static int hf_lisp_lcaf_geo_mac;
+static int hf_lisp_lcaf_geo_dn;
 
 /* LCAF NATT fields */
-static int hf_lisp_lcaf_natt_msport = -1;
-static int hf_lisp_lcaf_natt_etrport = -1;
-static int hf_lisp_lcaf_natt_rloc = -1;
-static int hf_lisp_lcaf_natt_rloc_afi = -1;
-static int hf_lisp_lcaf_natt_rloc_ipv4 = -1;
-static int hf_lisp_lcaf_natt_rloc_ipv6 = -1;
+static int hf_lisp_lcaf_natt_msport;
+static int hf_lisp_lcaf_natt_etrport;
+static int hf_lisp_lcaf_natt_rloc;
+static int hf_lisp_lcaf_natt_rloc_afi;
+static int hf_lisp_lcaf_natt_rloc_ipv4;
+static int hf_lisp_lcaf_natt_rloc_ipv6;
 
 /* LCAF Nonce Locator fields */
-static int hf_lisp_lcaf_nonce_loc_res = -1;
-static int hf_lisp_lcaf_nonce_loc = -1;
-static int hf_lisp_lcaf_nonce_loc_afi = -1;
-static int hf_lisp_lcaf_nonce_loc_ipv4 = -1;
-static int hf_lisp_lcaf_nonce_loc_ipv6 = -1;
-static int hf_lisp_lcaf_nonce_loc_mac = -1;
-static int hf_lisp_lcaf_nonce_loc_dn = -1;
+static int hf_lisp_lcaf_nonce_loc_res;
+static int hf_lisp_lcaf_nonce_loc;
+static int hf_lisp_lcaf_nonce_loc_afi;
+static int hf_lisp_lcaf_nonce_loc_ipv4;
+static int hf_lisp_lcaf_nonce_loc_ipv6;
+static int hf_lisp_lcaf_nonce_loc_mac;
+static int hf_lisp_lcaf_nonce_loc_dn;
 
 /* LCAF Multicast Group Membership Information fields */
-static int hf_lisp_lcaf_mcinfo_flags = -1;
-static int hf_lisp_lcaf_mcinfo_flags_res = -1;
-static int hf_lisp_lcaf_mcinfo_flags_rp = -1;
-static int hf_lisp_lcaf_mcinfo_flags_leave = -1;
-static int hf_lisp_lcaf_mcinfo_flags_join = -1;
-static int hf_lisp_lcaf_mcinfo_iid = -1;
-static int hf_lisp_lcaf_mcinfo_res = -1;
-static int hf_lisp_lcaf_mcinfo_src_masklen = -1;
-static int hf_lisp_lcaf_mcinfo_grp_masklen = -1;
-static int hf_lisp_lcaf_mcinfo_src = -1;
-static int hf_lisp_lcaf_mcinfo_src_afi = -1;
-static int hf_lisp_lcaf_mcinfo_src_ipv4 = -1;
-static int hf_lisp_lcaf_mcinfo_src_ipv6 = -1;
-static int hf_lisp_lcaf_mcinfo_grp = -1;
-static int hf_lisp_lcaf_mcinfo_grp_afi = -1;
-static int hf_lisp_lcaf_mcinfo_grp_ipv4 = -1;
-static int hf_lisp_lcaf_mcinfo_grp_ipv6 = -1;
+static int hf_lisp_lcaf_mcinfo_flags;
+static int hf_lisp_lcaf_mcinfo_flags_res;
+static int hf_lisp_lcaf_mcinfo_flags_rp;
+static int hf_lisp_lcaf_mcinfo_flags_leave;
+static int hf_lisp_lcaf_mcinfo_flags_join;
+static int hf_lisp_lcaf_mcinfo_iid;
+static int hf_lisp_lcaf_mcinfo_res;
+static int hf_lisp_lcaf_mcinfo_src_masklen;
+static int hf_lisp_lcaf_mcinfo_grp_masklen;
+static int hf_lisp_lcaf_mcinfo_src;
+static int hf_lisp_lcaf_mcinfo_src_afi;
+static int hf_lisp_lcaf_mcinfo_src_ipv4;
+static int hf_lisp_lcaf_mcinfo_src_ipv6;
+static int hf_lisp_lcaf_mcinfo_grp;
+static int hf_lisp_lcaf_mcinfo_grp_afi;
+static int hf_lisp_lcaf_mcinfo_grp_ipv4;
+static int hf_lisp_lcaf_mcinfo_grp_ipv6;
 
 /* LCAF ELP fields */
-static int hf_lisp_lcaf_elp_hop = -1;
-static int hf_lisp_lcaf_elp_hop_flags = -1;
-static int hf_lisp_lcaf_elp_hop_flags_res = -1;
-static int hf_lisp_lcaf_elp_hop_flags_lookup = -1;
-static int hf_lisp_lcaf_elp_hop_flags_probe = -1;
-static int hf_lisp_lcaf_elp_hop_flags_strict = -1;
-static int hf_lisp_lcaf_elp_hop_afi = -1;
-static int hf_lisp_lcaf_elp_hop_ipv4 = -1;
-static int hf_lisp_lcaf_elp_hop_ipv6 = -1;
+static int hf_lisp_lcaf_elp_hop;
+static int hf_lisp_lcaf_elp_hop_flags;
+static int hf_lisp_lcaf_elp_hop_flags_res;
+static int hf_lisp_lcaf_elp_hop_flags_lookup;
+static int hf_lisp_lcaf_elp_hop_flags_probe;
+static int hf_lisp_lcaf_elp_hop_flags_strict;
+static int hf_lisp_lcaf_elp_hop_afi;
+static int hf_lisp_lcaf_elp_hop_ipv4;
+static int hf_lisp_lcaf_elp_hop_ipv6;
 
 /* LCAF Source/Destination 2-Tuple Lookups fields */
-static int hf_lisp_lcaf_srcdst_res = -1;
-static int hf_lisp_lcaf_srcdst_src_masklen = -1;
-static int hf_lisp_lcaf_srcdst_dst_masklen = -1;
-static int hf_lisp_lcaf_srcdst_src = -1;
-static int hf_lisp_lcaf_srcdst_src_afi = -1;
-static int hf_lisp_lcaf_srcdst_src_ipv4 = -1;
-static int hf_lisp_lcaf_srcdst_src_ipv6 = -1;
-static int hf_lisp_lcaf_srcdst_src_mac = -1;
-static int hf_lisp_lcaf_srcdst_dst = -1;
-static int hf_lisp_lcaf_srcdst_dst_afi = -1;
-static int hf_lisp_lcaf_srcdst_dst_ipv4 = -1;
-static int hf_lisp_lcaf_srcdst_dst_ipv6 = -1;
-static int hf_lisp_lcaf_srcdst_dst_mac = -1;
+static int hf_lisp_lcaf_srcdst_res;
+static int hf_lisp_lcaf_srcdst_src_masklen;
+static int hf_lisp_lcaf_srcdst_dst_masklen;
+static int hf_lisp_lcaf_srcdst_src;
+static int hf_lisp_lcaf_srcdst_src_afi;
+static int hf_lisp_lcaf_srcdst_src_ipv4;
+static int hf_lisp_lcaf_srcdst_src_ipv6;
+static int hf_lisp_lcaf_srcdst_src_mac;
+static int hf_lisp_lcaf_srcdst_dst;
+static int hf_lisp_lcaf_srcdst_dst_afi;
+static int hf_lisp_lcaf_srcdst_dst_ipv4;
+static int hf_lisp_lcaf_srcdst_dst_ipv6;
+static int hf_lisp_lcaf_srcdst_dst_mac;
 
 /* LCAF RLE fields */
-static int hf_lisp_lcaf_rle_entry = -1;
-static int hf_lisp_lcaf_rle_entry_res = -1;
-static int hf_lisp_lcaf_rle_entry_level = -1;
-static int hf_lisp_lcaf_rle_entry_afi = -1;
-static int hf_lisp_lcaf_rle_entry_ipv4 = -1;
-static int hf_lisp_lcaf_rle_entry_ipv6 = -1;
+static int hf_lisp_lcaf_rle_entry;
+static int hf_lisp_lcaf_rle_entry_res;
+static int hf_lisp_lcaf_rle_entry_level;
+static int hf_lisp_lcaf_rle_entry_afi;
+static int hf_lisp_lcaf_rle_entry_ipv4;
+static int hf_lisp_lcaf_rle_entry_ipv6;
 
 /* LCAF Key/Value Pair fields */
-static int hf_lisp_lcaf_kv_key = -1;
-static int hf_lisp_lcaf_kv_key_afi = -1;
-static int hf_lisp_lcaf_kv_key_ipv4 = -1;
-static int hf_lisp_lcaf_kv_key_ipv6 = -1;
-static int hf_lisp_lcaf_kv_key_mac = -1;
-static int hf_lisp_lcaf_kv_key_dn = -1;
-static int hf_lisp_lcaf_kv_value = -1;
-static int hf_lisp_lcaf_kv_value_afi = -1;
-static int hf_lisp_lcaf_kv_value_ipv4 = -1;
-static int hf_lisp_lcaf_kv_value_ipv6 = -1;
-static int hf_lisp_lcaf_kv_value_mac = -1;
-static int hf_lisp_lcaf_kv_value_dn = -1;
+static int hf_lisp_lcaf_kv_key;
+static int hf_lisp_lcaf_kv_key_afi;
+static int hf_lisp_lcaf_kv_key_ipv4;
+static int hf_lisp_lcaf_kv_key_ipv6;
+static int hf_lisp_lcaf_kv_key_mac;
+static int hf_lisp_lcaf_kv_key_dn;
+static int hf_lisp_lcaf_kv_value;
+static int hf_lisp_lcaf_kv_value_afi;
+static int hf_lisp_lcaf_kv_value_ipv4;
+static int hf_lisp_lcaf_kv_value_ipv6;
+static int hf_lisp_lcaf_kv_value_mac;
+static int hf_lisp_lcaf_kv_value_dn;
 
 /* Vendor Specific LCAF fields */
-static int hf_lisp_lcaf_vendor_res = -1;
-static int hf_lisp_lcaf_vendor_oui = -1;
-static int hf_lisp_lcaf_vendor_data = -1;
+static int hf_lisp_lcaf_vendor_res;
+static int hf_lisp_lcaf_vendor_oui;
+static int hf_lisp_lcaf_vendor_data;
 
 /* Encapsulated Control Message fields */
-static int hf_lisp_ecm_flags_sec = -1;
-static int hf_lisp_ecm_flags_ddt = -1;
-static int hf_lisp_ecm_res = -1;
+static int hf_lisp_ecm_flags_sec;
+static int hf_lisp_ecm_flags_ddt;
+static int hf_lisp_ecm_res;
 
 /* Initialize the subtree pointers */
-static gint ett_lisp = -1;
-static gint ett_lisp_mr = -1;
-static gint ett_lisp_mreq_flags = -1;
-static gint ett_lisp_mapping = -1;
-static gint ett_lisp_itr = -1;
-static gint ett_lisp_record = -1;
-static gint ett_lisp_lcaf = -1;
-static gint ett_lisp_lcaf_header = -1;
-static gint ett_lisp_lcaf_geo_lat = -1;
-static gint ett_lisp_lcaf_geo_lon = -1;
-static gint ett_lisp_lcaf_natt_rloc = -1;
-static gint ett_lisp_lcaf_mcinfo_flags = -1;
-static gint ett_lisp_lcaf_mcinfo_src = -1;
-static gint ett_lisp_lcaf_mcinfo_grp = -1;
-static gint ett_lisp_lcaf_elp_hop = -1;
-static gint ett_lisp_lcaf_elp_hop_flags = -1;
-static gint ett_lisp_lcaf_srcdst_src = -1;
-static gint ett_lisp_lcaf_srcdst_dst = -1;
-static gint ett_lisp_lcaf_rle_entry = -1;
-static gint ett_lisp_lcaf_kv_key = -1;
-static gint ett_lisp_lcaf_kv_value = -1;
-static gint ett_lisp_lcaf_vendor = -1;
-static gint ett_lisp_loc = -1;
-static gint ett_lisp_loc_flags = -1;
-static gint ett_lisp_info_prefix = -1;
-static gint ett_lisp_afi_list = -1;
+static gint ett_lisp;
+static gint ett_lisp_mr;
+static gint ett_lisp_mreq_flags;
+static gint ett_lisp_mapping;
+static gint ett_lisp_itr;
+static gint ett_lisp_record;
+static gint ett_lisp_lcaf;
+static gint ett_lisp_lcaf_header;
+static gint ett_lisp_lcaf_geo_lat;
+static gint ett_lisp_lcaf_geo_lon;
+static gint ett_lisp_lcaf_natt_rloc;
+static gint ett_lisp_lcaf_mcinfo_flags;
+static gint ett_lisp_lcaf_mcinfo_src;
+static gint ett_lisp_lcaf_mcinfo_grp;
+static gint ett_lisp_lcaf_elp_hop;
+static gint ett_lisp_lcaf_elp_hop_flags;
+static gint ett_lisp_lcaf_srcdst_src;
+static gint ett_lisp_lcaf_srcdst_dst;
+static gint ett_lisp_lcaf_rle_entry;
+static gint ett_lisp_lcaf_kv_key;
+static gint ett_lisp_lcaf_kv_value;
+static gint ett_lisp_lcaf_vendor;
+static gint ett_lisp_loc;
+static gint ett_lisp_loc_flags;
+static gint ett_lisp_info_prefix;
+static gint ett_lisp_afi_list;
 
-static expert_field ei_lisp_undecoded = EI_INIT;
-static expert_field ei_lisp_expected_field = EI_INIT;
-static expert_field ei_lisp_invalid_field = EI_INIT;
-static expert_field ei_lisp_unexpected_field = EI_INIT;
+static expert_field ei_lisp_undecoded;
+static expert_field ei_lisp_expected_field;
+static expert_field ei_lisp_invalid_field;
+static expert_field ei_lisp_unexpected_field;
 
 static dissector_handle_t lisp_handle;
 

@@ -46,34 +46,34 @@ static dissector_handle_t pdc_tcp_handle;
 /* global handle for calling asterix decoder if required */
 static dissector_handle_t asterix_handle;
 
-static int		  proto_pdc	     = -1;
+static int		  proto_pdc;
 
 /*HF Declarations*/
-static gint hf_pdc_len = -1;
-static gint hf_pdc_mpdu_code = -1;
-static gint hf_pdc_credit = -1;
-static gint hf_pdc_simpdu_state = -1;
-static gint hf_pdc_yr_admu_nr =-1;
-static gint hf_pdc_akmpdu_mns = -1;
-static gint hf_pdc_akmpdu_cdt = -1;
-static gint hf_pdc_simpdu_var = -1;
-static gint hf_pdc_simpdu_var_len = -1;
-static gint hf_pdc_simpdu_param = -1;
-static gint hf_pdc_simpdu_var_version = -1;
-static gint hf_pdc_simpdu_var_REFSRC = -1;
-static gint hf_pdc_simpdu_var_REFDEST = -1;
-static gint hf_pdc_simpdu_var_TSEL = -1;
-static gint hf_pdc_drmpdu_abort = -1;
-static gint hf_pdc_drmpdu_reason = -1;
-static gint hf_pdc_drmpdu_mode = -1;
-static gint hf_pdc_drmpdu_init = -1;
-static gint hf_pdc_dtmpdu_user_size =-1;
-static gint hf_pdc_admpdu_admpdunr = -1;
-static gint hf_pdc_admpdu_size = -1;
+static gint hf_pdc_len;
+static gint hf_pdc_mpdu_code;
+static gint hf_pdc_credit;
+static gint hf_pdc_simpdu_state;
+static gint hf_pdc_yr_admu_nr;
+static gint hf_pdc_akmpdu_mns;
+static gint hf_pdc_akmpdu_cdt;
+static gint hf_pdc_simpdu_var;
+static gint hf_pdc_simpdu_var_len;
+static gint hf_pdc_simpdu_param;
+static gint hf_pdc_simpdu_var_version;
+static gint hf_pdc_simpdu_var_REFSRC;
+static gint hf_pdc_simpdu_var_REFDEST;
+static gint hf_pdc_simpdu_var_TSEL;
+static gint hf_pdc_drmpdu_abort;
+static gint hf_pdc_drmpdu_reason;
+static gint hf_pdc_drmpdu_mode;
+static gint hf_pdc_drmpdu_init;
+static gint hf_pdc_dtmpdu_user_size;
+static gint hf_pdc_admpdu_admpdunr;
+static gint hf_pdc_admpdu_size;
 
 /*Tree Declarations*/
-static gint ett_pdc = -1;
-static gint ett_pdc_simpdu_var = -1;
+static gint ett_pdc;
+static gint ett_pdc_simpdu_var;
 
 
 /*Value String Declarations*/

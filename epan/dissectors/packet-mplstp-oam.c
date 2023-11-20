@@ -28,26 +28,26 @@ static dissector_handle_t mplstp_lock_handle;
 static dissector_handle_t mplstp_fm_handle;
 
 /* MPLS-TP FM protocol specific variables */
-static gint proto_mplstp_fm     = -1;
-static gint ett_mplstp_fm       = -1;
-static gint ett_mplstp_fm_flags = -1;
-static gint ett_mplstp_fm_tlv_tree     = -1;
+static gint proto_mplstp_fm;
+static gint ett_mplstp_fm;
+static gint ett_mplstp_fm_flags;
+static gint ett_mplstp_fm_tlv_tree;
 
-static int hf_mplstp_fm_version         = -1;
+static int hf_mplstp_fm_version;
 
-static int hf_mplstp_fm_reserved        = -1;
-static int hf_mplstp_fm_msg_type        = -1;
-static int hf_mplstp_fm_flags           = -1;
-static int hf_mplstp_fm_flags_l         = -1;
-static int hf_mplstp_fm_flags_r         = -1;
-static int hf_mplstp_fm_refresh_timer   = -1;
-static int hf_mplstp_fm_total_tlv_len   = -1;
-static int hf_mplstp_fm_if_tlv_type     = -1;
-static int hf_mplstp_fm_global_tlv_type = -1;
-static int hf_mplstp_fm_tlv_len         = -1;
-static int hf_mplstp_fm_node_id         = -1;
-static int hf_mplstp_fm_if_num          = -1;
-static int hf_mplstp_fm_global_id       = -1;
+static int hf_mplstp_fm_reserved;
+static int hf_mplstp_fm_msg_type;
+static int hf_mplstp_fm_flags;
+static int hf_mplstp_fm_flags_l;
+static int hf_mplstp_fm_flags_r;
+static int hf_mplstp_fm_refresh_timer;
+static int hf_mplstp_fm_total_tlv_len;
+static int hf_mplstp_fm_if_tlv_type;
+static int hf_mplstp_fm_global_tlv_type;
+static int hf_mplstp_fm_tlv_len;
+static int hf_mplstp_fm_node_id;
+static int hf_mplstp_fm_if_num;
+static int hf_mplstp_fm_global_id;
 
 static const value_string fm_msg_type[] = {
   {0, "No Return Code"},
@@ -57,12 +57,12 @@ static const value_string fm_msg_type[] = {
 };
 
 /* MPLS-TP Lock protocol specific variables */
-static gint proto_mplstp_lock = -1;
-static gint ett_mplstp_lock   = -1;
+static gint proto_mplstp_lock;
+static gint ett_mplstp_lock;
 
-static int hf_mplstp_lock_version       = -1;
-static int hf_mplstp_lock_reserved      = -1;
-static int hf_mplstp_lock_refresh_timer = -1;
+static int hf_mplstp_lock_version;
+static int hf_mplstp_lock_reserved;
+static int hf_mplstp_lock_refresh_timer;
 
 static void
 dissect_mplstp_fm_tlv (tvbuff_t *tvb, proto_tree *tree)

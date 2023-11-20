@@ -20,113 +20,113 @@
 #include "packet-rf4ce-secur.h"
 
 /* TLV Node-elements */
-static int proto_rf4ce_profile = -1;
+static int proto_rf4ce_profile;
 
-static gint ett_rf4ce_profile = -1;
-static gint ett_rf4ce_profile_cmd_frame = -1;
-static gint ett_rf4ce_profile_attrs = -1;
-static gint ett_rf4ce_profile_attrs_sub = -1;
-static gint ett_rf4ce_profile_zrc20_ident_cap = -1;
-static gint ett_rf4ce_profile_zrc20_mappable_actions_entry = -1;
-static gint ett_rf4ce_profile_zrc20_action_control = -1;
-static gint ett_rf4ce_profile_zrc20_action_mappings_flags = -1;
-static gint ett_rf4ce_profile_zrc20_action_mappings_rf_descr = -1;
-static gint ett_rf4ce_profile_zrc20_action_mappings_rf_descr_rf_conf = -1;
-static gint ett_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts = -1;
-static gint ett_rf4ce_profile_zrc20_action_mappings_ir_descr = -1;
-static gint ett_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_conf = -1;
-static gint ett_rf4ce_profile_gdp_poll_constraints_polling_rec = -1;
-static gint ett_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap = -1;
-static gint ett_rf4ce_profile_gdp_poll_configuration_polling_trig_conf = -1;
-static gint ett_rf4ce_profile_action_records = -1;
-static gint ett_rf4ce_profile_action_records_sub = -1;
-static gint ett_rf4ce_profile_zrc10_supported_commands = -1;
-static gint ett_rf4ce_profile_zrc10_supported_commands_sub = -1;
+static gint ett_rf4ce_profile;
+static gint ett_rf4ce_profile_cmd_frame;
+static gint ett_rf4ce_profile_attrs;
+static gint ett_rf4ce_profile_attrs_sub;
+static gint ett_rf4ce_profile_zrc20_ident_cap;
+static gint ett_rf4ce_profile_zrc20_mappable_actions_entry;
+static gint ett_rf4ce_profile_zrc20_action_control;
+static gint ett_rf4ce_profile_zrc20_action_mappings_flags;
+static gint ett_rf4ce_profile_zrc20_action_mappings_rf_descr;
+static gint ett_rf4ce_profile_zrc20_action_mappings_rf_descr_rf_conf;
+static gint ett_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts;
+static gint ett_rf4ce_profile_zrc20_action_mappings_ir_descr;
+static gint ett_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_conf;
+static gint ett_rf4ce_profile_gdp_poll_constraints_polling_rec;
+static gint ett_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap;
+static gint ett_rf4ce_profile_gdp_poll_configuration_polling_trig_conf;
+static gint ett_rf4ce_profile_action_records;
+static gint ett_rf4ce_profile_action_records_sub;
+static gint ett_rf4ce_profile_zrc10_supported_commands;
+static gint ett_rf4ce_profile_zrc10_supported_commands_sub;
 
 static dissector_table_t rf4ce_profile_dissector_table;
 
 static dissector_handle_t rf4ce_profile_handle;
 
 /* RF4CE Profile header */
-static int hf_rf4ce_profile_fcf = -1;
-static int hf_rf4ce_profile_fcf_cmd_id = -1;
-static int hf_rf4ce_zrc20_fcf_cmd_id = -1;
-static int hf_rf4ce_profile_fcf_reserved = -1;
-static int hf_rf4ce_profile_fcf_cmd_frame = -1;
-static int hf_rf4ce_profile_fcf_data_pending = -1;
+static int hf_rf4ce_profile_fcf;
+static int hf_rf4ce_profile_fcf_cmd_id;
+static int hf_rf4ce_zrc20_fcf_cmd_id;
+static int hf_rf4ce_profile_fcf_reserved;
+static int hf_rf4ce_profile_fcf_cmd_frame;
+static int hf_rf4ce_profile_fcf_data_pending;
 
 /* RF4CE Profile command - Generic Response */
-static int hf_rf4ce_profile_cmd_generic_resp_status = -1;
+static int hf_rf4ce_profile_cmd_generic_resp_status;
 
 /* RF4CE Profile command - Configuration Complete */
-static int hf_rf4ce_profile_cmd_configuration_complete_status = -1;
+static int hf_rf4ce_profile_cmd_configuration_complete_status;
 
 /* RF4CE Profile command - Heartbeat */
-static int hf_rf4ce_profile_cmd_heartbeat_trigger = -1;
+static int hf_rf4ce_profile_cmd_heartbeat_trigger;
 
 /* RF4CE Profile Attributes - general */
-static int hf_rf4ce_profile_gdp_attr_id = -1;
-static int hf_rf4ce_profile_zrc20_attr_id = -1;
-static int hf_rf4ce_profile_attr_entry_id = -1;
-static int hf_rf4ce_profile_attr_status = -1;
-static int hf_rf4ce_profile_attr_length = -1;
-static int hf_rf4ce_profile_attr_value = -1;
+static int hf_rf4ce_profile_gdp_attr_id;
+static int hf_rf4ce_profile_zrc20_attr_id;
+static int hf_rf4ce_profile_attr_entry_id;
+static int hf_rf4ce_profile_attr_status;
+static int hf_rf4ce_profile_attr_length;
+static int hf_rf4ce_profile_attr_value;
 
 /* RF4CE Profile command - Check Validation */
-static int hf_rf4ce_profile_cmd_check_validation_sub_type = -1;
-static int hf_rf4ce_profile_cmd_check_validation_control = -1;
-static int hf_rf4ce_profile_cmd_check_validation_status = -1;
+static int hf_rf4ce_profile_cmd_check_validation_sub_type;
+static int hf_rf4ce_profile_cmd_check_validation_control;
+static int hf_rf4ce_profile_cmd_check_validation_status;
 
 /* RF4CE Profile command - Client Notification */
-static int hf_rf4ce_profile_cmd_client_notification_sub_type = -1;
+static int hf_rf4ce_profile_cmd_client_notification_sub_type;
 
-static int hf_rf4ce_profile_cmd_client_notification_identify_flags = -1;
-static int hf_rf4ce_profile_cmd_client_notification_identify_flags_stop_on_action = -1;
-static int hf_rf4ce_profile_cmd_client_notification_identify_flags_flash_light = -1;
-static int hf_rf4ce_profile_cmd_client_notification_identify_flags_make_sound = -1;
-static int hf_rf4ce_profile_cmd_client_notification_identify_flags_vibrate = -1;
-static int hf_rf4ce_profile_cmd_client_notification_identify_flags_reserved = -1;
+static int hf_rf4ce_profile_cmd_client_notification_identify_flags;
+static int hf_rf4ce_profile_cmd_client_notification_identify_flags_stop_on_action;
+static int hf_rf4ce_profile_cmd_client_notification_identify_flags_flash_light;
+static int hf_rf4ce_profile_cmd_client_notification_identify_flags_make_sound;
+static int hf_rf4ce_profile_cmd_client_notification_identify_flags_vibrate;
+static int hf_rf4ce_profile_cmd_client_notification_identify_flags_reserved;
 
-static int hf_rf4ce_profile_cmd_client_notification_identify_time = -1;
+static int hf_rf4ce_profile_cmd_client_notification_identify_time;
 
 /* RF4CE Profile command - Key Exchange */
-static int hf_rf4ce_profile_cmd_key_exchange_sub_type = -1;
+static int hf_rf4ce_profile_cmd_key_exchange_sub_type;
 
-static int hf_rf4ce_profile_cmd_key_exchange_flags = -1;
-static int hf_rf4ce_profile_cmd_key_exchange_flags_default_secret = -1;
-static int hf_rf4ce_profile_cmd_key_exchange_flags_initiator_vendor_specific_secret = -1;
-static int hf_rf4ce_profile_cmd_key_exchange_flags_responder_vendor_specific_secret = -1;
-static int hf_rf4ce_profile_cmd_key_exchange_flags_reserved = -1;
-static int hf_rf4ce_profile_cmd_key_exchange_flags_vendor_specific_parameter = -1;
+static int hf_rf4ce_profile_cmd_key_exchange_flags;
+static int hf_rf4ce_profile_cmd_key_exchange_flags_default_secret;
+static int hf_rf4ce_profile_cmd_key_exchange_flags_initiator_vendor_specific_secret;
+static int hf_rf4ce_profile_cmd_key_exchange_flags_responder_vendor_specific_secret;
+static int hf_rf4ce_profile_cmd_key_exchange_flags_reserved;
+static int hf_rf4ce_profile_cmd_key_exchange_flags_vendor_specific_parameter;
 
-static int hf_rf4ce_profile_cmd_key_exchange_rand_a = -1;
-static int hf_rf4ce_profile_cmd_key_exchange_rand_b = -1;
-static int hf_rf4ce_profile_cmd_key_exchange_tag_b = -1;
-static int hf_rf4ce_profile_cmd_key_exchange_tag_a = -1;
+static int hf_rf4ce_profile_cmd_key_exchange_rand_a;
+static int hf_rf4ce_profile_cmd_key_exchange_rand_b;
+static int hf_rf4ce_profile_cmd_key_exchange_tag_b;
+static int hf_rf4ce_profile_cmd_key_exchange_tag_a;
 
 #if 0
 /* RF4CE ZRC 2.0 Profile command - Actions */
-static int hf_rf4ce_zrc20_cmd_actions = -1;
+static int hf_rf4ce_zrc20_cmd_actions;
 #endif
 
-static int hf_rf4ce_zrc20_cmd_actions_action_control = -1;
-static int hf_rf4ce_zrc20_cmd_actions_action_control_action_type = -1;
-static int hf_rf4ce_zrc20_cmd_actions_action_control_reserved = -1;
-static int hf_rf4ce_zrc20_cmd_actions_action_control_modifier_bits_gui = -1;
-static int hf_rf4ce_zrc20_cmd_actions_action_control_modifier_bits_alt = -1;
-static int hf_rf4ce_zrc20_cmd_actions_action_control_modifier_bits_shift = -1;
-static int hf_rf4ce_zrc20_cmd_actions_action_control_modifier_bits_ctrl = -1;
+static int hf_rf4ce_zrc20_cmd_actions_action_control;
+static int hf_rf4ce_zrc20_cmd_actions_action_control_action_type;
+static int hf_rf4ce_zrc20_cmd_actions_action_control_reserved;
+static int hf_rf4ce_zrc20_cmd_actions_action_control_modifier_bits_gui;
+static int hf_rf4ce_zrc20_cmd_actions_action_control_modifier_bits_alt;
+static int hf_rf4ce_zrc20_cmd_actions_action_control_modifier_bits_shift;
+static int hf_rf4ce_zrc20_cmd_actions_action_control_modifier_bits_ctrl;
 
-static int hf_rf4ce_zrc20_cmd_actions_action_data_payload_length = -1;
-static int hf_rf4ce_zrc20_cmd_actions_action_data_action_bank = -1;
-static int hf_rf4ce_zrc20_cmd_actions_action_data_action_code = -1;
-static int hf_rf4ce_zrc20_cmd_actions_action_data_action_vendor = -1;
-static int hf_rf4ce_zrc20_cmd_actions_action_data_action_payload = -1;
+static int hf_rf4ce_zrc20_cmd_actions_action_data_payload_length;
+static int hf_rf4ce_zrc20_cmd_actions_action_data_action_bank;
+static int hf_rf4ce_zrc20_cmd_actions_action_data_action_code;
+static int hf_rf4ce_zrc20_cmd_actions_action_data_action_vendor;
+static int hf_rf4ce_zrc20_cmd_actions_action_data_action_payload;
 
 /* RF4CE ZRC 1.0 profile header */
-static int hf_rf4ce_zrc10_fcf = -1;
-static int hf_rf4ce_zrc10_fcf_cmd_id = -1;
-static int hf_rf4ce_zrc10_fcf_reserved = -1;
+static int hf_rf4ce_zrc10_fcf;
+static int hf_rf4ce_zrc10_fcf_cmd_id;
+static int hf_rf4ce_zrc10_fcf_reserved;
 
 #define RF4CE_ZRC10_FCF_CMD_ID_RESERVED                       0b00000000
 #define RF4CE_ZRC10_FCF_CMD_ID_USER_CONTROL_PRESSED           0b00000001
@@ -148,12 +148,12 @@ static const value_string rf4ce_zrc10_fcf_cmd_id_vals[] = {
     { 0, NULL }
 };
 
-static int hf_rf4ce_zrc10_cmd_common_rc_command_code = -1;
-static int hf_rf4ce_zrc10_cmd_common_rc_command_payload = -1;
-static int hf_rf4ce_zrc10_cmd_disc_reserved = -1;
-static int hf_rf4ce_zrc10_cmd_disc_rsp_supported_commands = -1;
+static int hf_rf4ce_zrc10_cmd_common_rc_command_code;
+static int hf_rf4ce_zrc10_cmd_common_rc_command_payload;
+static int hf_rf4ce_zrc10_cmd_disc_reserved;
+static int hf_rf4ce_zrc10_cmd_disc_rsp_supported_commands;
 
-static int hf_rf4ce_profile_unparsed_payload = -1;
+static int hf_rf4ce_profile_unparsed_payload;
 
 #define RF4CE_ZRC20_CMD_ACTIONS_ACTION_CONTROL_ACTION_TYPE_RESERVED 0b00000000
 #define RF4CE_ZRC20_CMD_ACTIONS_ACTION_CONTROL_ACTION_TYPE_START    0b00000001
@@ -328,12 +328,12 @@ static const value_string hf_rf4ce_profile_cmd_heartbeat_trigger_vals[] = {
 /* RF4CE GDP Attributes */
 
 /* GDP Attribute - Identification Capabilities */
-static int hf_rf4ce_profile_gdp_ident_cap = -1;
-static int hf_rf4ce_profile_gdp_ident_cap_reserved = -1;
-static int hf_rf4ce_profile_gdp_ident_cap_support_flash_light = -1;
-static int hf_rf4ce_profile_gdp_ident_cap_support_make_short_sound = -1;
-static int hf_rf4ce_profile_gdp_ident_cap_support_vibrate = -1;
-static int hf_rf4ce_profile_gdp_ident_cap_reserved2 = -1;
+static int hf_rf4ce_profile_gdp_ident_cap;
+static int hf_rf4ce_profile_gdp_ident_cap_reserved;
+static int hf_rf4ce_profile_gdp_ident_cap_support_flash_light;
+static int hf_rf4ce_profile_gdp_ident_cap_support_make_short_sound;
+static int hf_rf4ce_profile_gdp_ident_cap_support_vibrate;
+static int hf_rf4ce_profile_gdp_ident_cap_reserved2;
 
 #define RF4CE_PROFILE_GDP_IDENT_CAP_RESERVED_MASK                 0b00000001
 #define RF4CE_PROFILE_GDP_IDENT_CAP_SUPPORT_FLASH_LIGHT_MASK      0b00000010
@@ -348,10 +348,10 @@ static int hf_rf4ce_profile_gdp_ident_cap_reserved2 = -1;
      | RF4CE_PROFILE_GDP_IDENT_CAP_RESERVED2_MASK)
 
 /* GDP Attribute - Poll Constraints */
-static int hf_rf4ce_profile_gdp_poll_constraints_methods_num = -1;
+static int hf_rf4ce_profile_gdp_poll_constraints_methods_num;
 
 /* Polling constraint record - Polling method ID */
-static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_method_id = -1;
+static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_method_id;
 
 #define RF4CE_PROFILE_GDP_POLL_CONSTRAINTS_POLLING_REC_METHOD_ID_DIS           0x00
 #define RF4CE_PROFILE_GDP_POLL_CONSTRAINTS_POLLING_REC_METHOD_ID_GDP_HEARTBEAT 0x01
@@ -363,14 +363,14 @@ static const value_string rf4ce_profile_gdp_poll_constraints_polling_rec_method_
 };
 
 /* Polling constraint record - Polling trigger capabilities */
-static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap = -1;
-static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap_tbased = -1;
-static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap_on_k_press = -1;
-static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap_on_pick_up = -1;
-static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap_on_reset = -1;
-static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap_on_micro_act = -1;
-static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap_on_user_act = -1;
-static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap_reserved = -1;
+static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap;
+static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap_tbased;
+static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap_on_k_press;
+static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap_on_pick_up;
+static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap_on_reset;
+static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap_on_micro_act;
+static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap_on_user_act;
+static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap_reserved;
 
 #define RF4CE_PROFILE_GDP_POLL_CONSTRAINTS_POLLING_REC_POLLING_TRIG_CAP_TBASED_MASK       (0b0000000000000001)
 #define RF4CE_PROFILE_GDP_POLL_CONSTRAINTS_POLLING_REC_POLLING_TRIG_CAP_ON_K_PRESS_MASK   (0b0000000000000010)
@@ -390,24 +390,24 @@ static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap_re
      | RF4CE_PROFILE_GDP_POLL_CONSTRAINTS_POLLING_REC_POLLING_TRIG_CAP_RESERVED_MASK)
 
 /* Polling constraint record - other fields */
-static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_min_polling_key_press_cnt = -1;
-static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_max_polling_key_press_cnt = -1;
+static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_min_polling_key_press_cnt;
+static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_max_polling_key_press_cnt;
 
-static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_min_polling_time_interval = -1;
-static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_max_polling_time_interval = -1;
+static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_min_polling_time_interval;
+static int hf_rf4ce_profile_gdp_poll_constraints_polling_rec_max_polling_time_interval;
 
 /* GDP Attribute - Poll Configuration */
-static int hf_rf4ce_profile_gdp_poll_configuration_method_id = -1;
+static int hf_rf4ce_profile_gdp_poll_configuration_method_id;
 
 /* GDP Attribute - Poll Configuration - Polling Trigger Configuration */
-static int hf_rf4ce_profile_gdp_poll_configuration_polling_trig_conf = -1;
-static int hf_rf4ce_profile_gdp_poll_configuration_polling_trig_conf_tbased = -1;
-static int hf_rf4ce_profile_gdp_poll_configuration_polling_trig_conf_on_k_press = -1;
-static int hf_rf4ce_profile_gdp_poll_configuration_polling_trig_conf_on_pick_up = -1;
-static int hf_rf4ce_profile_gdp_poll_configuration_polling_trig_conf_on_reset = -1;
-static int hf_rf4ce_profile_gdp_poll_configuration_polling_trig_conf_on_micro_act = -1;
-static int hf_rf4ce_profile_gdp_poll_configuration_polling_trig_conf_on_user_act = -1;
-static int hf_rf4ce_profile_gdp_poll_configuration_polling_trig_conf_reserved = -1;
+static int hf_rf4ce_profile_gdp_poll_configuration_polling_trig_conf;
+static int hf_rf4ce_profile_gdp_poll_configuration_polling_trig_conf_tbased;
+static int hf_rf4ce_profile_gdp_poll_configuration_polling_trig_conf_on_k_press;
+static int hf_rf4ce_profile_gdp_poll_configuration_polling_trig_conf_on_pick_up;
+static int hf_rf4ce_profile_gdp_poll_configuration_polling_trig_conf_on_reset;
+static int hf_rf4ce_profile_gdp_poll_configuration_polling_trig_conf_on_micro_act;
+static int hf_rf4ce_profile_gdp_poll_configuration_polling_trig_conf_on_user_act;
+static int hf_rf4ce_profile_gdp_poll_configuration_polling_trig_conf_reserved;
 
 #define RF4CE_PROFILE_GDP_POLL_CONFIGURATION_POLLING_TRIG_CONF_TBASED_MASK       (0b0000000000000001)
 #define RF4CE_PROFILE_GDP_POLL_CONFIGURATION_POLLING_TRIG_CONF_ON_K_PRESS_MASK   (0b0000000000000010)
@@ -426,9 +426,9 @@ static int hf_rf4ce_profile_gdp_poll_configuration_polling_trig_conf_reserved = 
      | RF4CE_PROFILE_GDP_POLL_CONFIGURATION_POLLING_TRIG_CONF_ON_USER_ACT_MASK  \
      | RF4CE_PROFILE_GDP_POLL_CONFIGURATION_POLLING_TRIG_CONF_RESERVED_MASK)
 
-static int hf_rf4ce_profile_gdp_poll_configuration_polling_key_press_cnt = -1;
-static int hf_rf4ce_profile_gdp_poll_configuration_polling_time_interval = -1;
-static int hf_rf4ce_profile_gdp_poll_configuration_polling_timeout = -1;
+static int hf_rf4ce_profile_gdp_poll_configuration_polling_key_press_cnt;
+static int hf_rf4ce_profile_gdp_poll_configuration_polling_time_interval;
+static int hf_rf4ce_profile_gdp_poll_configuration_polling_timeout;
 
                                                              /* 0x00 - 0x7f - Reserved */
 #define RF4CE_GDP_ATTR_GDP_PROFILE_VERSION                      0x80
@@ -542,9 +542,9 @@ static const value_string hf_rf4ce_profile_attr_status_vals[] = {
 };
 
 /* RF4CE ZRC 2.0 Profile - Mappable Actions attribute */
-static int hf_rf4ce_profile_zrc20_mappable_actions_action_dev_type = -1;
-static int hf_rf4ce_profile_zrc20_mappable_actions_action_bank = -1;
-static int hf_rf4ce_profile_zrc20_mappable_actions_action_code = -1;
+static int hf_rf4ce_profile_zrc20_mappable_actions_action_dev_type;
+static int hf_rf4ce_profile_zrc20_mappable_actions_action_bank;
+static int hf_rf4ce_profile_zrc20_mappable_actions_action_code;
 
 #define RF4CE_PROFILE_DEV_TYPE_RESERVED                         0x00
 #define RF4CE_PROFILE_DEV_TYPE_REMOTE_CONTROL                   0x01
@@ -595,13 +595,13 @@ static const value_string rf4ce_profile_device_type_vals[] = {
 };
 
 /* RF4CE ZRC 2.0 Profile - Action Mappings attribute - Mapping Flags */
-static int hf_rf4ce_profile_zrc20_action_mappings_mapping_flags = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_mapping_flags_rf_specified = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_mapping_flags_ir_specified = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_mapping_flags_rf_descr_first = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_mapping_flags_reserved = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_mapping_flags_use_default = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_mapping_flags_permanent = -1;
+static int hf_rf4ce_profile_zrc20_action_mappings_mapping_flags;
+static int hf_rf4ce_profile_zrc20_action_mappings_mapping_flags_rf_specified;
+static int hf_rf4ce_profile_zrc20_action_mappings_mapping_flags_ir_specified;
+static int hf_rf4ce_profile_zrc20_action_mappings_mapping_flags_rf_descr_first;
+static int hf_rf4ce_profile_zrc20_action_mappings_mapping_flags_reserved;
+static int hf_rf4ce_profile_zrc20_action_mappings_mapping_flags_use_default;
+static int hf_rf4ce_profile_zrc20_action_mappings_mapping_flags_permanent;
 
 #define RF4CE_PROFILE_ZRC20_ACTION_MAPPINGS_MAPPING_FLAGS_RF_SPECIFIED_MASK   0b00000001
 #define RF4CE_PROFILE_ZRC20_ACTION_MAPPINGS_MAPPING_FLAGS_IR_SPECIFIED_MASK   0b00000010
@@ -619,12 +619,12 @@ static int hf_rf4ce_profile_zrc20_action_mappings_mapping_flags_permanent = -1;
      | RF4CE_PROFILE_ZRC20_ACTION_MAPPINGS_MAPPING_FLAGS_PERMANENT_MASK)
 
 /* RF4CE ZRC 2.0 Profile - Action Mappings attribute - RF Descriptor - RF Config */
-static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_rf_conf = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_rf_conf_min_num_of_trans = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_rf_conf_keep_trans_until_key_release = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_rf_conf_short_rf_retry = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_rf_conf_atomic_action = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_rf_conf_reserved = -1;
+static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_rf_conf;
+static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_rf_conf_min_num_of_trans;
+static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_rf_conf_keep_trans_until_key_release;
+static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_rf_conf_short_rf_retry;
+static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_rf_conf_atomic_action;
+static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_rf_conf_reserved;
 
 #define RF4CE_PROFILE_ZRC20_ACTION_MAPPINGS_RF_DESCR_RF_CONF_MIN_NUM_OF_TRANS_MASK             0b00001111
 #define RF4CE_PROFILE_ZRC20_ACTION_MAPPINGS_RF_DESCR_RF_CONF_KEEP_TRANS_UNTIL_KEY_RELEASE_MASK 0b00010000
@@ -640,15 +640,15 @@ static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_rf_conf_reserved = -1
      | RF4CE_PROFILE_ZRC20_ACTION_MAPPINGS_RF_DESCR_RF_CONF_RESERVED_MASK)
 
 /* RF4CE ZRC 2.0 Profile - Action Mappings attribute - RF Descriptor - RF4CE TX Options */
-static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts_trans_mode = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts_dst_addr_mode = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts_ack_mode = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts_sec_mode = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts_ch_ag_mode = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts_ch_norm_mode = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts_payload_mode = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts_reserved = -1;
+static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts;
+static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts_trans_mode;
+static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts_dst_addr_mode;
+static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts_ack_mode;
+static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts_sec_mode;
+static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts_ch_ag_mode;
+static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts_ch_norm_mode;
+static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts_payload_mode;
+static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts_reserved;
 
 #define RF4CE_PROFILE_ZRC20_ACTION_MAPPINGS_RF_DESCR_TX_OPTS_TRANS_MODE_MASK    0b00000001
 #define RF4CE_PROFILE_ZRC20_ACTION_MAPPINGS_RF_DESCR_TX_OPTS_DST_ADDR_MODE_MASK 0b00000010
@@ -705,12 +705,12 @@ static const true_false_string rf4ce_profile_zrc20_action_mappings_rf_descr_tx_o
 };
 
 /* RF4CE ZRC 2.0 Profile - Action Mappings attribute - RF Descriptor - Action Data Length */
-static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_action_data_len = -1;
+static int hf_rf4ce_profile_zrc20_action_mappings_rf_descr_action_data_len;
 
 /* RF4CE ZRC 2.0 Profile - Action Mappings attribute - IR Descriptor - IR Config */
-static int hf_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_conf = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_conf_vendor_specific = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_conf_reserved = -1;
+static int hf_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_conf;
+static int hf_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_conf_vendor_specific;
+static int hf_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_conf_reserved;
 
 #define RF4CE_PROFILE_ZRC20_ACTION_MAPPINGS_IR_DESCR_IR_CONF_VENDOR_SPECIFIC_MASK 0b00000001
 #define RF4CE_PROFILE_ZRC20_ACTION_MAPPINGS_IR_DESCR_IR_CONF_RESERVED_MASK        0b11111110
@@ -720,12 +720,12 @@ static int hf_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_conf_reserved = -1
      | RF4CE_PROFILE_ZRC20_ACTION_MAPPINGS_IR_DESCR_IR_CONF_RESERVED_MASK)
 
 /* RF4CE ZRC 2.0 Profile - Action Mappings attribute - IR Descriptor */
-static int hf_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_vendor_id = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_code_len = -1;
-static int hf_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_code = -1;
+static int hf_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_vendor_id;
+static int hf_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_code_len;
+static int hf_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_code;
 
 /* RF4CE ZRC 2.0 Profile - IRDB Vendor Support attribute - Vendor ID */
-static int hf_rf4ce_profile_zrc20_irdb_vendor_support_vendor_id = -1;
+static int hf_rf4ce_profile_zrc20_irdb_vendor_support_vendor_id;
 
 /* RF4CE Profile command - Check Validation */
 #define RF4CE_PROFILE_CMD_CHECK_VALIDATION_SUB_TYPE_REQ 0x00

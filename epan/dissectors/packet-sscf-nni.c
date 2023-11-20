@@ -18,9 +18,9 @@
 void proto_register_sscf(void);
 void proto_reg_handoff_sscf(void);
 
-static int proto_sscf = -1;
+static int proto_sscf;
 
-static gint ett_sscf = -1;
+static gint ett_sscf;
 
 static dissector_handle_t mtp3_handle;
 
@@ -30,8 +30,8 @@ static dissector_handle_t mtp3_handle;
 #define SSCF_SPARE_OFFSET 0
 #define SSCF_SPARE_LENGTH 3
 
-static int hf_status = -1;
-static int hf_spare = -1;
+static int hf_status;
+static int hf_spare;
 
 #define SSCF_STATUS_OOS 0x01
 #define SSCF_STATUS_PO  0x02

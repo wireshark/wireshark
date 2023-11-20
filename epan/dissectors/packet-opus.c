@@ -28,29 +28,29 @@ void proto_register_opus(void);
 static dissector_handle_t opus_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_opus = -1;
-static int hf_opus_toc_config = -1;
-static int hf_opus_toc_s = -1;
-static int hf_opus_toc_c = -1;
-static int hf_opus_frame = -1;
-static int hf_opus_frame_size = -1;
-static int hf_opus_frame_count_v = -1;
-static int hf_opus_frame_count_p = -1;
-static int hf_opus_frame_count_m = -1;
-static int hf_opus_padding = -1;
-static int hf_opus_padding_size = -1;
+static int proto_opus;
+static int hf_opus_toc_config;
+static int hf_opus_toc_s;
+static int hf_opus_toc_c;
+static int hf_opus_frame;
+static int hf_opus_frame_size;
+static int hf_opus_frame_count_v;
+static int hf_opus_frame_count_p;
+static int hf_opus_frame_count_m;
+static int hf_opus_padding;
+static int hf_opus_padding_size;
 
 /* Initialize the subtree pointers */
-static gint ett_opus = -1;
+static gint ett_opus;
 
-static expert_field ei_opus_err_r1 = EI_INIT;
-static expert_field ei_opus_err_r2 = EI_INIT;
-static expert_field ei_opus_err_r3 = EI_INIT;
-static expert_field ei_opus_err_r4 = EI_INIT;
-static expert_field ei_opus_err_r5 = EI_INIT;
-static expert_field ei_opus_err_r6 = EI_INIT;
-static expert_field ei_opus_err_r7 = EI_INIT;
-static expert_field ei_opus_padding_nonzero = EI_INIT;
+static expert_field ei_opus_err_r1;
+static expert_field ei_opus_err_r2;
+static expert_field ei_opus_err_r3;
+static expert_field ei_opus_err_r4;
+static expert_field ei_opus_err_r5;
+static expert_field ei_opus_err_r6;
+static expert_field ei_opus_err_r7;
+static expert_field ei_opus_padding_nonzero;
 
 /* From RFC6716 chapter 3.1
  * The top five bits of the TOC byte, labeled "config", encode one of 32

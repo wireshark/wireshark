@@ -18,19 +18,19 @@
 void proto_register_yhoo(void);
 void proto_reg_handoff_yhoo(void);
 
-static int proto_yhoo = -1;
-static int hf_yhoo_version = -1;
-static int hf_yhoo_len = -1;
-static int hf_yhoo_service = -1;
-static int hf_yhoo_connection_id = -1;
-static int hf_yhoo_magic_id = -1;
-static int hf_yhoo_unknown1 = -1;
-static int hf_yhoo_msgtype = -1;
-static int hf_yhoo_nick1 = -1;
-static int hf_yhoo_nick2 = -1;
-static int hf_yhoo_content = -1;
+static int proto_yhoo;
+static int hf_yhoo_version;
+static int hf_yhoo_len;
+static int hf_yhoo_service;
+static int hf_yhoo_connection_id;
+static int hf_yhoo_magic_id;
+static int hf_yhoo_unknown1;
+static int hf_yhoo_msgtype;
+static int hf_yhoo_nick1;
+static int hf_yhoo_nick2;
+static int hf_yhoo_content;
 
-static gint ett_yhoo = -1;
+static gint ett_yhoo;
 
 #define TCP_PORT_YHOO	5050
 

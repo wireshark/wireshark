@@ -29,37 +29,37 @@
 
 void proto_register_sbc(void);
 
-static int proto_sbc = -1;
+static int proto_sbc;
 
-static int hf_sbc_fragmented                                               = -1;
-static int hf_sbc_starting_packet                                          = -1;
-static int hf_sbc_last_packet                                              = -1;
-static int hf_sbc_rfa                                                      = -1;
-static int hf_sbc_number_of_frames                                         = -1;
+static int hf_sbc_fragmented;
+static int hf_sbc_starting_packet;
+static int hf_sbc_last_packet;
+static int hf_sbc_rfa;
+static int hf_sbc_number_of_frames;
 
-static int hf_sbc_syncword                                                 = -1;
-static int hf_sbc_sampling_frequency                                       = -1;
-static int hf_sbc_blocks                                                   = -1;
-static int hf_sbc_channel_mode                                             = -1;
-static int hf_sbc_allocation_method                                        = -1;
-static int hf_sbc_subbands                                                 = -1;
-static int hf_sbc_bitpool                                                  = -1;
-static int hf_sbc_crc_check                                                = -1;
-static int hf_sbc_expected_data_speed                                      = -1;
-static int hf_sbc_frame_duration                                           = -1;
-static int hf_sbc_cumulative_frame_duration                               = -1;
-static int hf_sbc_delta_time                                               = -1;
-static int hf_sbc_delta_time_from_the_beginning                            = -1;
-static int hf_sbc_cumulative_duration                                     = -1;
-static int hf_sbc_avrcp_song_position                                      = -1;
-static int hf_sbc_diff                                                     = -1;
+static int hf_sbc_syncword;
+static int hf_sbc_sampling_frequency;
+static int hf_sbc_blocks;
+static int hf_sbc_channel_mode;
+static int hf_sbc_allocation_method;
+static int hf_sbc_subbands;
+static int hf_sbc_bitpool;
+static int hf_sbc_crc_check;
+static int hf_sbc_expected_data_speed;
+static int hf_sbc_frame_duration;
+static int hf_sbc_cumulative_frame_duration;
+static int hf_sbc_delta_time;
+static int hf_sbc_delta_time_from_the_beginning;
+static int hf_sbc_cumulative_duration;
+static int hf_sbc_avrcp_song_position;
+static int hf_sbc_diff;
 
-static int hf_sbc_data                                                     = -1;
+static int hf_sbc_data;
 
-static gint ett_sbc             = -1;
-static gint ett_sbc_list        = -1;
+static gint ett_sbc;
+static gint ett_sbc_list;
 
-static expert_field ei_sbc_syncword = EI_INIT;
+static expert_field ei_sbc_syncword;
 
 extern value_string_ext media_codec_audio_type_vals_ext;
 

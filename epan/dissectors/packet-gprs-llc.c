@@ -36,54 +36,54 @@ void proto_reg_handoff_llcgprs(void);
 #define UI_HDR_LENGTH  3U
 
 /* Initialize the protocol and registered fields */
-static int proto_llcgprs       	  = -1;
-static int hf_llcgprs_pd       	  = -1;
-static int hf_llcgprs_fcs         = -1;
-static int hf_llcgprs_cr       	  = -1;
-static int hf_llcgprs_sapi     	  = -1;
-static int hf_llcgprs_sapib    	  = -1;
-static int hf_llcgprs_U_fmt    	  = -1; /* 3 upper bits in controlfield (UI format) */
-static int hf_llcgprs_sp_bits  	  = -1; /* Spare bits in control field */
-static int hf_llcgprs_NU       	  = -1; /* Transmited unconfirmed sequence number */
-static int hf_llcgprs_E_bit    	  = -1; /* Encryption mode bit */
-static int hf_llcgprs_PM_bit   	  = -1;
-static int hf_llcgprs_Un       	  = -1;
-static int hf_llcgprs_As      	  = -1;
-static int hf_llcgprs_ucom     	  = -1;
-static int hf_llcgprs_PF          = -1;
-static int hf_llcgprs_S_fmt       = -1;
-static int hf_llcgprs_NR          = -1;
-static int hf_llcgprs_sjsd        = -1;
-static int hf_llcgprs_k 	  = -1;
-static int hf_llcgprs_isack_ns 	  = -1;
-static int hf_llcgprs_isack_nr 	  = -1;
-static int hf_llcgprs_isack_sfb   = -1;
-static int hf_llcgprs_rbyte 	  = -1;
-static int hf_llcgprs_kmask 	  = -1;
-static int hf_llcgprs_ifmt 	  = -1;
-static int hf_llcgprs_Ai 	  = -1;
-static int hf_llcgprs_izerobit 	  = -1;
-static int hf_llcgprs_sspare 	  = -1;
-static int hf_llcgprs_xid_xl 	  = -1;
-static int hf_llcgprs_xid_type 	  = -1;
-static int hf_llcgprs_xid_len1 	  = -1;
-static int hf_llcgprs_xid_len2 	  = -1;
-static int hf_llcgprs_xid_spare   = -1;
-static int hf_llcgprs_xid_byte 	  = -1;
-static int hf_llcgprs_frmr_cf 	  = -1;
-static int hf_llcgprs_frmr_spare  = -1;
-static int hf_llcgprs_frmr_vs 	  = -1;
-static int hf_llcgprs_frmr_vr 	  = -1;
-static int hf_llcgprs_frmr_cr 	  = -1;
-static int hf_llcgprs_frmr_w4 	  = -1;
-static int hf_llcgprs_frmr_w3 	  = -1;
-static int hf_llcgprs_frmr_w2 	  = -1;
-static int hf_llcgprs_frmr_w1 	  = -1;
-static int hf_llcgprs_tom_rl 	  = -1;
-static int hf_llcgprs_tom_pd 	  = -1;
-static int hf_llcgprs_tom_header  = -1;
-static int hf_llcgprs_tom_data 	  = -1;
-static int hf_llcgprs_dummy_ui 	  = -1;
+static int proto_llcgprs;
+static int hf_llcgprs_pd;
+static int hf_llcgprs_fcs;
+static int hf_llcgprs_cr;
+static int hf_llcgprs_sapi;
+static int hf_llcgprs_sapib;
+static int hf_llcgprs_U_fmt; /* 3 upper bits in controlfield (UI format) */
+static int hf_llcgprs_sp_bits; /* Spare bits in control field */
+static int hf_llcgprs_NU; /* Transmited unconfirmed sequence number */
+static int hf_llcgprs_E_bit; /* Encryption mode bit */
+static int hf_llcgprs_PM_bit;
+static int hf_llcgprs_Un;
+static int hf_llcgprs_As;
+static int hf_llcgprs_ucom;
+static int hf_llcgprs_PF;
+static int hf_llcgprs_S_fmt;
+static int hf_llcgprs_NR;
+static int hf_llcgprs_sjsd;
+static int hf_llcgprs_k;
+static int hf_llcgprs_isack_ns;
+static int hf_llcgprs_isack_nr;
+static int hf_llcgprs_isack_sfb;
+static int hf_llcgprs_rbyte;
+static int hf_llcgprs_kmask;
+static int hf_llcgprs_ifmt;
+static int hf_llcgprs_Ai;
+static int hf_llcgprs_izerobit;
+static int hf_llcgprs_sspare;
+static int hf_llcgprs_xid_xl;
+static int hf_llcgprs_xid_type;
+static int hf_llcgprs_xid_len1;
+static int hf_llcgprs_xid_len2;
+static int hf_llcgprs_xid_spare;
+static int hf_llcgprs_xid_byte;
+static int hf_llcgprs_frmr_cf;
+static int hf_llcgprs_frmr_spare;
+static int hf_llcgprs_frmr_vs;
+static int hf_llcgprs_frmr_vr;
+static int hf_llcgprs_frmr_cr;
+static int hf_llcgprs_frmr_w4;
+static int hf_llcgprs_frmr_w3;
+static int hf_llcgprs_frmr_w2;
+static int hf_llcgprs_frmr_w1;
+static int hf_llcgprs_tom_rl;
+static int hf_llcgprs_tom_pd;
+static int hf_llcgprs_tom_header;
+static int hf_llcgprs_tom_data;
+static int hf_llcgprs_dummy_ui;
 
 /* Unnumbered Commands and Responses (U Frames) */
 #define U_DM	0x01
@@ -105,13 +105,13 @@ static int hf_llcgprs_dummy_ui 	  = -1;
 #define SAPI_LL11	0x0B
 
 /* Initialize the subtree pointers */
-static gint ett_llcgprs = -1;
-static gint ett_llcgprs_adf = -1;
-static gint ett_llcgprs_ctrlf = -1;
-static gint ett_llcgprs_ui = -1;
-static gint ett_llcgprs_sframe = -1;
+static gint ett_llcgprs;
+static gint ett_llcgprs_adf;
+static gint ett_llcgprs_ctrlf;
+static gint ett_llcgprs_ui;
+static gint ett_llcgprs_sframe;
 
-static expert_field ei_llcgprs_no_info_field = EI_INIT;
+static expert_field ei_llcgprs_no_info_field;
 
 static dissector_handle_t sndcp_xid_handle;
 static dissector_handle_t gprs_llc_handle;

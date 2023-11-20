@@ -22,21 +22,21 @@
 void proto_register_sscop(void);
 void proto_reg_handoff_sscop(void);
 
-int proto_sscop = -1;
+int proto_sscop;
 
-static int hf_sscop_type = -1;
-static int hf_sscop_sq = -1;
-static int hf_sscop_mr = -1;
-static int hf_sscop_s = -1;
-static int hf_sscop_ps = -1;
-static int hf_sscop_r = -1;
-static int hf_sscop_stat_s = -1;
-static int hf_sscop_pad_length = -1;
-static int hf_sscop_source = -1;
-/* static int hf_sscop_stat_count = -1; */
+static int hf_sscop_type;
+static int hf_sscop_sq;
+static int hf_sscop_mr;
+static int hf_sscop_s;
+static int hf_sscop_ps;
+static int hf_sscop_r;
+static int hf_sscop_stat_s;
+static int hf_sscop_pad_length;
+static int hf_sscop_source;
+/* static int hf_sscop_stat_count; */
 
-static gint ett_sscop = -1;
-static gint ett_stat = -1;
+static gint ett_sscop;
+static gint ett_stat;
 
 static dissector_handle_t q2931_handle;
 static dissector_handle_t data_handle;

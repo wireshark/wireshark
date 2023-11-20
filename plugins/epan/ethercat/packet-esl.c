@@ -84,7 +84,7 @@ static dissector_handle_t eth_withoutfcs_handle;
 void proto_reg_handoff_esl(void);
 
 /* Define the esl proto */
-int proto_esl  = -1;
+int proto_esl;
 
 static int ett_esl;
 

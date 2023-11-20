@@ -41,60 +41,60 @@ void proto_reg_handoff_hclnfsd(void);
 #define HCLNFSDPROC_CANCEL_PRJOB      32
 #define HCLNFSDPROC_ZAP_LOCKS	     105
 
-static int proto_hclnfsd = -1;
-static int hf_hclnfsd_procedure_v1 = -1;
-static int hf_hclnfsd_request_type = -1;
-static int hf_hclnfsd_device = -1;
-/* static int hf_hclnfsd_login = -1; */
-static int hf_hclnfsd_lockname = -1;
-static int hf_hclnfsd_unknown_data = -1;
-static int hf_hclnfsd_lockowner = -1;
-static int hf_hclnfsd_printername = -1;
-static int hf_hclnfsd_filename = -1;
-static int hf_hclnfsd_fileext = -1;
-static int hf_hclnfsd_grpname = -1;
-static int hf_hclnfsd_hostname = -1;
-static int hf_hclnfsd_username = -1;
-static int hf_hclnfsd_queuename = -1;
-static int hf_hclnfsd_queuecomment = -1;
-static int hf_hclnfsd_queuestatus = -1;
-static int hf_hclnfsd_numphysicalprinters = -1;
-static int hf_hclnfsd_printqueuenumber = -1;
-static int hf_hclnfsd_printparams = -1;
-static int hf_hclnfsd_status = -1;
-static int hf_hclnfsd_sequence = -1;
-static int hf_hclnfsd_server_ip = -1;
-static int hf_hclnfsd_host_ip = -1;
-static int hf_hclnfsd_gid = -1;
-static int hf_hclnfsd_uid = -1;
-static int hf_hclnfsd_cookie = -1;
-static int hf_hclnfsd_mode = -1;
-static int hf_hclnfsd_access = -1;
-static int hf_hclnfsd_exclusive = -1;
-static int hf_hclnfsd_offset = -1;
-static int hf_hclnfsd_length = -1;
-static int hf_hclnfsd_jobstatus = -1;
-static int hf_hclnfsd_timesubmitted = -1;
-static int hf_hclnfsd_size = -1;
-static int hf_hclnfsd_copies = -1;
-static int hf_hclnfsd_auth_ident_obscure = -1;
+static int proto_hclnfsd;
+static int hf_hclnfsd_procedure_v1;
+static int hf_hclnfsd_request_type;
+static int hf_hclnfsd_device;
+/* static int hf_hclnfsd_login; */
+static int hf_hclnfsd_lockname;
+static int hf_hclnfsd_unknown_data;
+static int hf_hclnfsd_lockowner;
+static int hf_hclnfsd_printername;
+static int hf_hclnfsd_filename;
+static int hf_hclnfsd_fileext;
+static int hf_hclnfsd_grpname;
+static int hf_hclnfsd_hostname;
+static int hf_hclnfsd_username;
+static int hf_hclnfsd_queuename;
+static int hf_hclnfsd_queuecomment;
+static int hf_hclnfsd_queuestatus;
+static int hf_hclnfsd_numphysicalprinters;
+static int hf_hclnfsd_printqueuenumber;
+static int hf_hclnfsd_printparams;
+static int hf_hclnfsd_status;
+static int hf_hclnfsd_sequence;
+static int hf_hclnfsd_server_ip;
+static int hf_hclnfsd_host_ip;
+static int hf_hclnfsd_gid;
+static int hf_hclnfsd_uid;
+static int hf_hclnfsd_cookie;
+static int hf_hclnfsd_mode;
+static int hf_hclnfsd_access;
+static int hf_hclnfsd_exclusive;
+static int hf_hclnfsd_offset;
+static int hf_hclnfsd_length;
+static int hf_hclnfsd_jobstatus;
+static int hf_hclnfsd_timesubmitted;
+static int hf_hclnfsd_size;
+static int hf_hclnfsd_copies;
+static int hf_hclnfsd_auth_ident_obscure;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_hclnfsd_job_id = -1;
-static int hf_hclnfsd_print_queues = -1;
-static int hf_hclnfsd_print_jobs = -1;
-static int hf_hclnfsd_gids = -1;
-static int hf_hclnfsd_uids = -1;
-static int hf_hclnfsd_password = -1;
+static int hf_hclnfsd_job_id;
+static int hf_hclnfsd_print_queues;
+static int hf_hclnfsd_print_jobs;
+static int hf_hclnfsd_gids;
+static int hf_hclnfsd_uids;
+static int hf_hclnfsd_password;
 
-static gint ett_hclnfsd = -1;
-static gint ett_hclnfsd_gids = -1;
-static gint ett_hclnfsd_groups = -1;
-static gint ett_hclnfsd_uids = -1;
-static gint ett_hclnfsd_usernames = -1;
-static gint ett_hclnfsd_printqueues = -1;
-static gint ett_hclnfsd_printjob = -1;
-static gint ett_hclnfsd_auth_ident = -1;
+static gint ett_hclnfsd;
+static gint ett_hclnfsd_gids;
+static gint ett_hclnfsd_groups;
+static gint ett_hclnfsd_uids;
+static gint ett_hclnfsd_usernames;
+static gint ett_hclnfsd_printqueues;
+static gint ett_hclnfsd_printjob;
+static gint ett_hclnfsd_auth_ident;
 
 static int
 dissect_hclnfsd_gids(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)

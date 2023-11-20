@@ -28,34 +28,34 @@ static rmi_type
 get_rmi_type(tvbuff_t *tvb, gint offset, int datalen);
 
 /* Initialize the protocol and registered fields */
-static int proto_rmi             = -1;
-static int proto_ser             = -1;
-static int hf_rmi_magic          = -1;
-static int hf_rmi_version        = -1;
-static int hf_rmi_protocol       = -1;
-static int hf_rmi_inputmessage   = -1;
-static int hf_rmi_outputmessage  = -1;
-static int hf_rmi_epid_length    = -1;
-static int hf_rmi_epid_hostname  = -1;
-static int hf_rmi_epid_port      = -1;
-static int hf_rmi_serialization_data = -1;
-static int hf_rmi_unique_identifier = -1;
+static int proto_rmi;
+static int proto_ser;
+static int hf_rmi_magic;
+static int hf_rmi_version;
+static int hf_rmi_protocol;
+static int hf_rmi_inputmessage;
+static int hf_rmi_outputmessage;
+static int hf_rmi_epid_length;
+static int hf_rmi_epid_hostname;
+static int hf_rmi_epid_port;
+static int hf_rmi_serialization_data;
+static int hf_rmi_unique_identifier;
 
-static int hf_ser_magic          = -1;
-static int hf_ser_version        = -1;
+static int hf_ser_magic;
+static int hf_ser_version;
 
 /* Initialize the subtree pointers */
-static gint ett_rmi               = -1;
-static gint ett_rmi_magic         = -1;
-static gint ett_rmi_version       = -1;
-static gint ett_rmi_inputmessage  = -1;
-static gint ett_rmi_outputmessage = -1;
-static gint ett_rmi_epid_length   = -1;
-static gint ett_rmi_epid_hostname = -1;
-static gint ett_rmi_epid_port     = -1;
-static gint ett_rmi_endpoint_identifier = -1;
+static gint ett_rmi;
+static gint ett_rmi_magic;
+static gint ett_rmi_version;
+static gint ett_rmi_inputmessage;
+static gint ett_rmi_outputmessage;
+static gint ett_rmi_epid_length;
+static gint ett_rmi_epid_hostname;
+static gint ett_rmi_epid_port;
+static gint ett_rmi_endpoint_identifier;
 
-static gint ett_ser               = -1;
+static gint ett_ser;
 
 /*
  * See

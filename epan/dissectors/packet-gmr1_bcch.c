@@ -24,121 +24,121 @@
 void proto_register_gmr1_bcch(void);
 
 /* GMR-1 BCCH proto */
-static int proto_gmr1_bcch = -1;
+static int proto_gmr1_bcch;
 
 /* GMR-1 BCCH sub tree */
-static gint ett_gmr1_bcch = -1;
+static gint ett_gmr1_bcch;
 
-static expert_field ei_unknown_segment = EI_INIT;
+static expert_field ei_unknown_segment;
 
 /* ------------------------------------------------------------------------ */
 /* CSN1 fields                                                              */
 /* ------------------------------------------------------------------------ */
 
 /* Segment 1A fields - [3] 11.5.2.66 */
-static int hf_seg1a_class_2_version = -1;
-static int hf_seg1a_class_3_version = -1;
+static int hf_seg1a_class_2_version;
+static int hf_seg1a_class_3_version;
 
-static int hf_seg1a_syncinfo_sb_frame_ts_offset = -1;
-static int hf_seg1a_syncinfo_sb_symbol_offset = -1;
-static int hf_seg1a_syncinfo_sa_freq_offset = -1;
+static int hf_seg1a_syncinfo_sb_frame_ts_offset;
+static int hf_seg1a_syncinfo_sb_symbol_offset;
+static int hf_seg1a_syncinfo_sa_freq_offset;
 
-static int hf_seg1a_rachctrl_max_retrans = -1;
+static int hf_seg1a_rachctrl_max_retrans;
 static int hf_seg1a_rachctrl_acc[16];
-static int hf_seg1a_rachctrl_cell_bar_access = -1;
+static int hf_seg1a_rachctrl_cell_bar_access;
 
-static int hf_seg1a_miscinfo_sb_reselection_hysteresis = -1;
-static int hf_seg1a_miscinfo_spare = -1;
-static int hf_seg1a_miscinfo_priority_access_ind = -1;
+static int hf_seg1a_miscinfo_sb_reselection_hysteresis;
+static int hf_seg1a_miscinfo_spare;
+static int hf_seg1a_miscinfo_priority_access_ind;
 
-static int hf_seg1a_gbch_present = -1;
-static int hf_seg1a_test_gs = -1;
-static int hf_seg1a_test_gs2 = -1;
-static int hf_seg1a_spare1 = -1;
-static int hf_seg1a_cell_bar_access_extension2 = -1;
-static int hf_seg1a_spare2 = -1;
-static int hf_seg1a_cell_bar_access_extension = -1;
+static int hf_seg1a_gbch_present;
+static int hf_seg1a_test_gs;
+static int hf_seg1a_test_gs2;
+static int hf_seg1a_spare1;
+static int hf_seg1a_cell_bar_access_extension2;
+static int hf_seg1a_spare2;
+static int hf_seg1a_cell_bar_access_extension;
 
 /* Segment 2A & 2Abis fields - [3] 11.5.2.67 / 11.5.2.68 */
-static int hf_seg2a_class_4_version = -1;
+static int hf_seg2a_class_4_version;
 
-static int hf_seg2a_syncinfo_sa_sirfn_delay = -1;
-static int hf_seg2a_syncinfo_sa_bcch_stn = -1;
-static int hf_seg2a_syncinfo_superframe_num = -1;
-static int hf_seg2a_syncinfo_multiframe_num = -1;
-static int hf_seg2a_syncinfo_mffn_high_bit = -1;
+static int hf_seg2a_syncinfo_sa_sirfn_delay;
+static int hf_seg2a_syncinfo_sa_bcch_stn;
+static int hf_seg2a_syncinfo_superframe_num;
+static int hf_seg2a_syncinfo_multiframe_num;
+static int hf_seg2a_syncinfo_mffn_high_bit;
 
-static int hf_seg2a_selcrit_rxlev_select_min = -1;
+static int hf_seg2a_selcrit_rxlev_select_min;
 
-static int hf_seg2a_miscinfo_sb_selection_power = -1;
+static int hf_seg2a_miscinfo_sb_selection_power;
 
-static int hf_seg2a_lainfo_sa_pch_config = -1;
-static int hf_seg2a_lainfo_sa_bach_config = -1;
-static int hf_seg2a_lainfo_rach_ts_offset = -1;
-static int hf_seg2a_lainfo_n_page_occurrences = -1;
-static int hf_seg2a_lainfo_imsi_attach_detach_ind = -1;
-static int hf_seg2a_lainfo_ecsc_indication = -1;
-static int hf_seg2a_lainfo_si_update_ind = -1;
+static int hf_seg2a_lainfo_sa_pch_config;
+static int hf_seg2a_lainfo_sa_bach_config;
+static int hf_seg2a_lainfo_rach_ts_offset;
+static int hf_seg2a_lainfo_n_page_occurrences;
+static int hf_seg2a_lainfo_imsi_attach_detach_ind;
+static int hf_seg2a_lainfo_ecsc_indication;
+static int hf_seg2a_lainfo_si_update_ind;
 
-static int hf_seg2a_class_type = -1;
-static int hf_seg2a_segment_type_a = -1;
-static int hf_seg2a_segment_type_abis = -1;
+static int hf_seg2a_class_type;
+static int hf_seg2a_segment_type_a;
+static int hf_seg2a_segment_type_abis;
 
 /* Segment 2B fields */
-static int hf_seg2b_segment_type_b = -1;
+static int hf_seg2b_segment_type_b;
 /* Segment 2Bbis fields */
-static int hf_seg2b_segment_type_bbis = -1;
+static int hf_seg2b_segment_type_bbis;
 
 /* Segment 3A fields - [1] 11.5.2.71 */
-static int hf_seg3a_class_type = -1;
-static int hf_seg3a_segment_type_a = -1;
-static int hf_seg3a_lai_dissector = -1;
-static int hf_seg3a_lai_mcc = -1;
-static int hf_seg3a_lai_mnc = -1;
-static int hf_seg3a_lai_lac = -1;
-static int hf_seg3a_lai_msc_id = -1;
-static int hf_seg3a_lai_spot_beam_id = -1;
+static int hf_seg3a_class_type;
+static int hf_seg3a_segment_type_a;
+static int hf_seg3a_lai_dissector;
+static int hf_seg3a_lai_mcc;
+static int hf_seg3a_lai_mnc;
+static int hf_seg3a_lai_lac;
+static int hf_seg3a_lai_msc_id;
+static int hf_seg3a_lai_spot_beam_id;
 
-static int hf_seg3a_system_sat_id = -1;
-static int hf_seg3a_system_sys_id = -1;
+static int hf_seg3a_system_sat_id;
+static int hf_seg3a_system_sys_id;
 
-static int hf_seg3a_satpos_latitude = -1;
-static int hf_seg3a_satpos_longitude = -1;
-static int hf_seg3a_satpos_radius = -1;
+static int hf_seg3a_satpos_latitude;
+static int hf_seg3a_satpos_longitude;
+static int hf_seg3a_satpos_radius;
 
-static int hf_seg3a_beam_latitude = -1;
-static int hf_seg3a_beam_longitude = -1;
+static int hf_seg3a_beam_latitude;
+static int hf_seg3a_beam_longitude;
 
-static int hf_seg3a_miscinfo_sb_reselection_timer = -1;
+static int hf_seg3a_miscinfo_sb_reselection_timer;
 
-static int hf_seg3a_spare = -1;
+static int hf_seg3a_spare;
 
-static int hf_seg3b_segment_type_b = -1;
-static int hf_seg3b_segment_type_bbis = -1;
-static int hf_seg3c_segment_type_c = -1;
-static int hf_seg3d_segment_type_d = -1;
-static int hf_seg3e_segment_type_e = -1;
-static int hf_seg3e_segment_type_ebis = -1;
-static int hf_seg3f_segment_type_f = -1;
-static int hf_seg3g_segment_type_g = -1;
-static int hf_seg3g_segment_type_gbis = -1;
-static int hf_seg3h_segment_type_h = -1;
-static int hf_seg3i_segment_type_i = -1;
-static int hf_seg3j_segment_type_j = -1;
-static int hf_seg3j_segment_type_jbis = -1;
-static int hf_seg3k_segment_type_kbis = -1;
-static int hf_seg4a_class_type = -1;
-static int hf_seg4a_segment_type_a = -1;
-static int hf_seg4b_segment_type_b = -1;
-static int hf_seg4c_segment_type_c = -1;
-static int hf_seg4d_segment_type_d = -1;
-static int hf_seg4e_segment_type_e = -1;
-static int hf_seg4f_segment_type_f = -1;
-static int hf_seg4g_segment_type_g = -1;
-static int hf_seg4h_segment_type_h = -1;
-static int hf_seg4i_segment_type_i = -1;
-static int hf_seg4j_segment_type_j = -1;
-static int hf_seg4k_segment_type_k = -1;
+static int hf_seg3b_segment_type_b;
+static int hf_seg3b_segment_type_bbis;
+static int hf_seg3c_segment_type_c;
+static int hf_seg3d_segment_type_d;
+static int hf_seg3e_segment_type_e;
+static int hf_seg3e_segment_type_ebis;
+static int hf_seg3f_segment_type_f;
+static int hf_seg3g_segment_type_g;
+static int hf_seg3g_segment_type_gbis;
+static int hf_seg3h_segment_type_h;
+static int hf_seg3i_segment_type_i;
+static int hf_seg3j_segment_type_j;
+static int hf_seg3j_segment_type_jbis;
+static int hf_seg3k_segment_type_kbis;
+static int hf_seg4a_class_type;
+static int hf_seg4a_segment_type_a;
+static int hf_seg4b_segment_type_b;
+static int hf_seg4c_segment_type_c;
+static int hf_seg4d_segment_type_d;
+static int hf_seg4e_segment_type_e;
+static int hf_seg4f_segment_type_f;
+static int hf_seg4g_segment_type_g;
+static int hf_seg4h_segment_type_h;
+static int hf_seg4i_segment_type_i;
+static int hf_seg4j_segment_type_j;
+static int hf_seg4k_segment_type_k;
 
 /* Segment 3B fields */
 /* Segment 3Bbis fields */
@@ -169,12 +169,12 @@ static int hf_seg4k_segment_type_k = -1;
 /* Segment 4K fields */
 
 /* System Information fields [1] 10.1.31 & 10.1.32 */
-static int hf_si1_segment_choice = -1;
-static int hf_si_protocol_version = -1;
-static int hf_si_block_type = -1;
-static int hf_si_spare = -1;
+static int hf_si1_segment_choice;
+static int hf_si_protocol_version;
+static int hf_si_block_type;
+static int hf_si_spare;
 
-static int hf_si1_randomization_period = -1;
+static int hf_si1_randomization_period;
 
 
 /* ------------------------------------------------------------------------ */

@@ -43,29 +43,29 @@ void proto_register_icall(void);
 
 static dissector_handle_t icall_handle;
 
-static expert_field ei_icall_unexpected_header = EI_INIT;
-static expert_field ei_icall_unexpected_record = EI_INIT;
-static expert_field ei_icall_unexpected_end = EI_INIT;
+static expert_field ei_icall_unexpected_header;
+static expert_field ei_icall_unexpected_record;
+static expert_field ei_icall_unexpected_end;
 
-static int proto_icall = -1;
-static int hf_icall_header_type = -1;
+static int proto_icall;
+static int hf_icall_header_type;
 
-static int hf_icall_call_room_type = -1;
-static int hf_icall_call_type_type = -1;
-static int hf_icall_call_addition_type = -1;
-static int hf_icall_call_id_type = -1;
-static int hf_icall_call_task_type = -1;
-static int hf_icall_call_location_type = -1;
-static int hf_icall_call_name1_type = -1;
-static int hf_icall_call_name2_type = -1;
-static int hf_icall_call_numerical_type = -1;
-static int hf_icall_call_nurse_type = -1;
+static int hf_icall_call_room_type;
+static int hf_icall_call_type_type;
+static int hf_icall_call_addition_type;
+static int hf_icall_call_id_type;
+static int hf_icall_call_task_type;
+static int hf_icall_call_location_type;
+static int hf_icall_call_name1_type;
+static int hf_icall_call_name2_type;
+static int hf_icall_call_numerical_type;
+static int hf_icall_call_nurse_type;
 
-static int hf_icall_padding_type = -1;
+static int hf_icall_padding_type;
 
-static gint ett_icall = -1;
-static gint ett_icall_call = -1;
-static gint ett_icall_unknown = -1;
+static gint ett_icall;
+static gint ett_icall_call;
+static gint ett_icall_unknown;
 
 static const value_string icall_headertypenames[] = {
 	{ INDIGOCARE_ICALL_CALL,		"Call Info" },

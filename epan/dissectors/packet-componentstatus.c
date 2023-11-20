@@ -28,29 +28,29 @@ void proto_reg_handoff_componentstatusprotocol(void);
 static dissector_handle_t componentstatusprotocol_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_componentstatusprotocol = -1;
+static int proto_componentstatusprotocol;
 static int tap_componentstatusprotocol   = -1;
 
 /* Initialize the subtree pointers */
-static gint ett_componentstatusprotocol           = -1;
-static gint ett_message_flags                     = -1;
-static gint ett_message_sender_id                 = -1;
-static gint ett_cspreport_association_receiver_id = -1;
-static gint ett_association                       = -1;
+static gint ett_componentstatusprotocol;
+static gint ett_message_flags;
+static gint ett_message_sender_id;
+static gint ett_cspreport_association_receiver_id;
+static gint ett_association;
 
 
 #define COMPONENTSTATUSPROTOCOL_PORT    2960   /* Not IANA registered */
 #define COMPONENTSTATUSPROTOCOL_VERSION 0x0200
 
-static int hf_message_type             = -1;
-static int hf_message_flags            = -1;
-static int hf_message_flags_final_bit  = -1;
-static int hf_message_length           = -1;
-static int hf_message_version          = -1;
-static int hf_message_sender_id        = -1;
-static int hf_message_sender_id_group  = -1;
-static int hf_message_sender_id_object = -1;
-static int hf_message_sender_timestamp = -1;
+static int hf_message_type;
+static int hf_message_flags;
+static int hf_message_flags_final_bit;
+static int hf_message_length;
+static int hf_message_version;
+static int hf_message_sender_id;
+static int hf_message_sender_id_group;
+static int hf_message_sender_id_object;
+static int hf_message_sender_timestamp;
 
 static guint64 componentstatusprotocol_total_msgs     = 0;
 static guint64 componentstatusprotocol_total_bytes    = 0;
@@ -64,11 +64,11 @@ static const value_string message_type_values[] = {
 };
 
 
-static int hf_cspreport_report_interval = -1;
-static int hf_cspreport_location        = -1;
-static int hf_cspreport_status          = -1;
-static int hf_cspreport_workload        = -1;
-static int hf_cspreport_associations    = -1;
+static int hf_cspreport_report_interval;
+static int hf_cspreport_location;
+static int hf_cspreport_status;
+static int hf_cspreport_workload;
+static int hf_cspreport_associations;
 
 #define CSPF_FINAL (1 << 0)
 static const true_false_string message_flags_final_bit = {
@@ -92,13 +92,13 @@ static const value_string group_values[] = {
 
 #define CSR_GET_WORKLOAD(w) ((w == 0xffff) ? -1.0 : (float)(w / (float)0xfffe))
 
-static int hf_cspreport_association_receiver_id        = -1;
-static int hf_cspreport_association_receiver_id_group  = -1;
-static int hf_cspreport_association_receiver_id_object = -1;
-static int hf_cspreport_association_duration           = -1;
-static int hf_cspreport_association_flags              = -1;
-static int hf_cspreport_association_protocolid         = -1;
-static int hf_cspreport_association_ppid               = -1;
+static int hf_cspreport_association_receiver_id;
+static int hf_cspreport_association_receiver_id_group;
+static int hf_cspreport_association_receiver_id_object;
+static int hf_cspreport_association_duration;
+static int hf_cspreport_association_flags;
+static int hf_cspreport_association_protocolid;
+static int hf_cspreport_association_ppid;
 
 
 /* Setup list of header fields */

@@ -26,28 +26,28 @@
 void proto_reg_handoff_h263P(void);
 void proto_register_h263P(void);
 
-static int proto_h263P = -1;
+static int proto_h263P;
 
 /* H.263 RFC 4629 fields */
-static int hf_h263P_payload = -1;
-static int hf_h263P_rr = -1;
-static int hf_h263P_pbit = -1;
-static int hf_h263P_vbit = -1;
-static int hf_h263P_plen = -1;
-static int hf_h263P_pebit = -1;
-static int hf_h263P_tid = -1;
-static int hf_h263P_trun = -1;
-static int hf_h263P_s = -1;
-static int hf_h263P_extra_hdr = -1;
-/* static int hf_h263P_PSC = -1; */
-/* static int hf_h263P_TR = -1; */
+static int hf_h263P_payload;
+static int hf_h263P_rr;
+static int hf_h263P_pbit;
+static int hf_h263P_vbit;
+static int hf_h263P_plen;
+static int hf_h263P_pebit;
+static int hf_h263P_tid;
+static int hf_h263P_trun;
+static int hf_h263P_s;
+static int hf_h263P_extra_hdr;
+/* static int hf_h263P_PSC; */
+/* static int hf_h263P_TR; */
 
 
 /* H.263-1998 fields defining a sub tree */
-static gint ett_h263P = -1;
-static gint ett_h263P_extra_hdr = -1;
-static gint ett_h263P_payload   = -1;
-static gint ett_h263P_data = -1;
+static gint ett_h263P;
+static gint ett_h263P_extra_hdr;
+static gint ett_h263P_payload;
+static gint ett_h263P_data;
 
 static dissector_handle_t h263P_handle;
 

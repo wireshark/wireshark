@@ -62,27 +62,27 @@ static const value_string xot_pvc_status_vals[] = {
    { 0,   NULL}
 };
 
-static gint proto_xot = -1;
-static gint ett_xot = -1;
-static gint hf_xot_version = -1;
-static gint hf_xot_length = -1;
+static gint proto_xot;
+static gint ett_xot;
+static gint hf_xot_version;
+static gint hf_xot_length;
 
-static gint hf_x25_gfi = -1;
-static gint hf_x25_lcn = -1;
-static gint hf_x25_type = -1;
+static gint hf_x25_gfi;
+static gint hf_x25_lcn;
+static gint hf_x25_type;
 
-static gint hf_xot_pvc_version = -1;
-static gint hf_xot_pvc_status = -1;
-static gint hf_xot_pvc_init_itf_name_len = -1;
-static gint hf_xot_pvc_init_lcn = -1;
-static gint hf_xot_pvc_resp_itf_name_len = -1;
-static gint hf_xot_pvc_resp_lcn = -1;
-static gint hf_xot_pvc_send_inc_window = -1;
-static gint hf_xot_pvc_send_out_window = -1;
-static gint hf_xot_pvc_send_inc_pkt_size = -1;
-static gint hf_xot_pvc_send_out_pkt_size = -1;
-static gint hf_xot_pvc_init_itf_name = -1;
-static gint hf_xot_pvc_resp_itf_name = -1;
+static gint hf_xot_pvc_version;
+static gint hf_xot_pvc_status;
+static gint hf_xot_pvc_init_itf_name_len;
+static gint hf_xot_pvc_init_lcn;
+static gint hf_xot_pvc_resp_itf_name_len;
+static gint hf_xot_pvc_resp_lcn;
+static gint hf_xot_pvc_send_inc_window;
+static gint hf_xot_pvc_send_out_window;
+static gint hf_xot_pvc_send_inc_pkt_size;
+static gint hf_xot_pvc_send_out_pkt_size;
+static gint hf_xot_pvc_init_itf_name;
+static gint hf_xot_pvc_resp_itf_name;
 
 static dissector_handle_t xot_handle;
 static dissector_handle_t xot_tcp_handle;

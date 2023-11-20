@@ -27,68 +27,68 @@
 void proto_register_gmr1_rach(void);
 
 /* GMR-1 RACH proto */
-static int proto_gmr1_rach = -1;
+static int proto_gmr1_rach;
 
 /* GMR-1 RACH subtrees */
-static gint ett_rach_msg = -1;
-static gint ett_rach_kls1 = -1;
-static gint ett_rach_kls2 = -1;
-static gint ett_rach_gmprs_type1_kls2 = -1;
-static gint ett_rach_gmprs_type2_kls2 = -1;
-static gint ett_rach_est_cause = -1;
-static gint ett_rach_dialed_num = -1;
-static gint ett_rach_gps_pos = -1;
-static gint ett_rach_gmprs_req_type = -1;
+static gint ett_rach_msg;
+static gint ett_rach_kls1;
+static gint ett_rach_kls2;
+static gint ett_rach_gmprs_type1_kls2;
+static gint ett_rach_gmprs_type2_kls2;
+static gint ett_rach_est_cause;
+static gint ett_rach_dialed_num;
+static gint ett_rach_gps_pos;
+static gint ett_rach_gmprs_req_type;
 
 /* Fields */
-static int hf_rach_prio = -1;
-static int hf_rach_est_cause = -1;
-static int hf_rach_est_cause_moc = -1;
-static int hf_rach_est_cause_pag_resp = -1;
-static int hf_rach_num_plan = -1;
-static int hf_rach_chan_needed = -1;
-static int hf_rach_retry_cnt = -1;
-static int hf_rach_precorr = -1;
-static int hf_rach_rand_ref = -1;
+static int hf_rach_prio;
+static int hf_rach_est_cause;
+static int hf_rach_est_cause_moc;
+static int hf_rach_est_cause_pag_resp;
+static int hf_rach_num_plan;
+static int hf_rach_chan_needed;
+static int hf_rach_retry_cnt;
+static int hf_rach_precorr;
+static int hf_rach_rand_ref;
 
-static int hf_rach_gps_pos_cpi = -1;
-static int hf_rach_gps_pos_lat = -1;
-static int hf_rach_gps_pos_long = -1;
+static int hf_rach_gps_pos_cpi;
+static int hf_rach_gps_pos_lat;
+static int hf_rach_gps_pos_long;
 
-static int hf_rach_mes_pwr_class = -1;
-static int hf_rach_sp_hplmn_id = -1;
-static int hf_rach_pd = -1;
-static int hf_rach_number = -1;
-static int hf_rach_number_grp1 = -1;
-static int hf_rach_number_grp2 = -1;
-static int hf_rach_number_grp3 = -1;
-static int hf_rach_number_grp4 = -1;
-static int hf_rach_number_grp5 = -1;
-static int hf_rach_msc_id = -1;
-static int hf_rach_gps_timestamp = -1;
-static int hf_rach_software_version = -1;
-static int hf_rach_spare = -1;
-static int hf_rach_gci = -1;
-static int hf_rach_r = -1;
-static int hf_rach_o = -1;
-static int hf_rach_number_type = -1;
+static int hf_rach_mes_pwr_class;
+static int hf_rach_sp_hplmn_id;
+static int hf_rach_pd;
+static int hf_rach_number;
+static int hf_rach_number_grp1;
+static int hf_rach_number_grp2;
+static int hf_rach_number_grp3;
+static int hf_rach_number_grp4;
+static int hf_rach_number_grp5;
+static int hf_rach_msc_id;
+static int hf_rach_gps_timestamp;
+static int hf_rach_software_version;
+static int hf_rach_spare;
+static int hf_rach_gci;
+static int hf_rach_r;
+static int hf_rach_o;
+static int hf_rach_number_type;
 
-static int hf_rach_gmprs_term_type = -1;
-static int hf_rach_gmprs_radio_prio = -1;
-static int hf_rach_gmprs_tlli = -1;
-static int hf_rach_gmprs_num_rlc_blks = -1;
-static int hf_rach_gmprs_peak_tput = -1;
-static int hf_rach_gmprs_dl_peak_tput = -1;
-static int hf_rach_gmprs_ul_peak_tput = -1;
-static int hf_rach_gmprs_rlc_mode = -1;
-static int hf_rach_gmprs_llc_mode = -1;
-static int hf_rach_gmprs_spare1 = -1;
-static int hf_rach_gmprs_spare2 = -1;
-static int hf_rach_gmprs_spare3 = -1;
-static int hf_rach_gmprs_reserved1 = -1;
-static int hf_rach_gmprs_req_type = -1;
-static int hf_rach_gmprs_req_type_pag_resp = -1;
-static int hf_rach_gmprs_chan_needed = -1;
+static int hf_rach_gmprs_term_type;
+static int hf_rach_gmprs_radio_prio;
+static int hf_rach_gmprs_tlli;
+static int hf_rach_gmprs_num_rlc_blks;
+static int hf_rach_gmprs_peak_tput;
+static int hf_rach_gmprs_dl_peak_tput;
+static int hf_rach_gmprs_ul_peak_tput;
+static int hf_rach_gmprs_rlc_mode;
+static int hf_rach_gmprs_llc_mode;
+static int hf_rach_gmprs_spare1;
+static int hf_rach_gmprs_spare2;
+static int hf_rach_gmprs_spare3;
+static int hf_rach_gmprs_reserved1;
+static int hf_rach_gmprs_req_type;
+static int hf_rach_gmprs_req_type_pag_resp;
+static int hf_rach_gmprs_chan_needed;
 
 
 static const true_false_string rach_prio_tfs = {

@@ -27,97 +27,97 @@ void proto_reg_handoff_pppoes(void);
 static dissector_handle_t pppoed_handle;
 static dissector_handle_t pppoes_handle;
 
-static int proto_pppoed = -1;
+static int proto_pppoed;
 
 /* Common to session and discovery protocols */
-static gint hf_pppoe_version = -1;
-static gint hf_pppoe_type = -1;
-static gint hf_pppoe_code = -1;
-static gint hf_pppoe_session_id = -1;
-static gint hf_pppoe_payload_length = -1;
+static gint hf_pppoe_version;
+static gint hf_pppoe_type;
+static gint hf_pppoe_code;
+static gint hf_pppoe_session_id;
+static gint hf_pppoe_payload_length;
 
 /* Discovery protocol fields */
-static gint hf_pppoed_tags = -1;
-static gint hf_pppoed_tag = -1;
-static gint hf_pppoed_tag_length = -1;
-static gint hf_pppoed_tag_length_8 = -1;
-static gint hf_pppoed_tag_unknown_data = -1;
-static gint hf_pppoed_tag_service_name = -1;
-static gint hf_pppoed_tag_ac_name = -1;
-static gint hf_pppoed_tag_host_uniq = -1;
-static gint hf_pppoed_tag_ac_cookie = -1;
-static gint hf_pppoed_tag_vendor_id = -1;
-static gint hf_pppoed_tag_vendor_unspecified = -1;
-static gint hf_pppoed_tag_vspec_tags = -1;
-static gint hf_pppoed_tag_vspec_tag = -1;
-static gint hf_pppoed_tag_vspec_circuit_id = -1;
-static gint hf_pppoed_tag_vspec_remote_id = -1;
-static gint hf_pppoed_tag_vspec_act_data_rate_up = -1;
-static gint hf_pppoed_tag_vspec_act_data_rate_down = -1;
-static gint hf_pppoed_tag_vspec_min_data_rate_up = -1;
-static gint hf_pppoed_tag_vspec_min_data_rate_down = -1;
-static gint hf_pppoed_tag_vspec_attainable_data_rate_up = -1;
-static gint hf_pppoed_tag_vspec_attainable_data_rate_down = -1;
-static gint hf_pppoed_tag_vspec_max_data_rate_up = -1;
-static gint hf_pppoed_tag_vspec_max_data_rate_down = -1;
-static gint hf_pppoed_tag_vspec_min_data_rate_up_lp = -1;
-static gint hf_pppoed_tag_vspec_min_data_rate_down_lp = -1;
-static gint hf_pppoed_tag_vspec_max_int_delay_up = -1;
-static gint hf_pppoed_tag_vspec_act_int_delay_up = -1;
-static gint hf_pppoed_tag_vspec_max_int_delay_down = -1;
-static gint hf_pppoed_tag_vspec_act_int_delay_down = -1;
-static gint hf_pppoed_tag_vspec_access_loop_encapsulation = -1;
-static gint hf_pppoed_tag_vspec_access_loop_encap_data_link = -1;
-static gint hf_pppoed_tag_vspec_access_loop_encap_encap_1 = -1;
-static gint hf_pppoed_tag_vspec_access_loop_encap_encap_2 = -1;
-static gint hf_pppoed_tag_credits = -1;
-static gint hf_pppoed_tag_credits_fcn = -1;
-static gint hf_pppoed_tag_credits_bcn = -1;
-static gint hf_pppoed_tag_metrics = -1;
-static gint hf_pppoed_tag_metrics_r = -1;
-static gint hf_pppoed_tag_metrics_rlq = -1;
-static gint hf_pppoed_tag_metrics_resource = -1;
-static gint hf_pppoed_tag_metrics_latency = -1;
-static gint hf_pppoed_tag_metrics_curr_drate = -1;
-static gint hf_pppoed_tag_metrics_max_drate = -1;
-static gint hf_pppoed_tag_mdr_units = -1;
-static gint hf_pppoed_tag_cdr_units = -1;
-static gint hf_pppoed_tag_seq_num = -1;
-static gint hf_pppoed_tag_cred_scale = -1;
-static gint hf_pppoed_tag_relay_session_id = -1;
-static gint hf_pppoed_tag_hurl = -1;
-static gint hf_pppoed_tag_motm = -1;
-static gint hf_pppoed_tag_max_payload = -1;
-static gint hf_pppoed_tag_ip_route_add = -1;
-static gint hf_pppoed_tag_service_name_error = -1;
-static gint hf_pppoed_tag_ac_system_error = -1;
-static gint hf_pppoed_tag_generic_error = -1;
+static gint hf_pppoed_tags;
+static gint hf_pppoed_tag;
+static gint hf_pppoed_tag_length;
+static gint hf_pppoed_tag_length_8;
+static gint hf_pppoed_tag_unknown_data;
+static gint hf_pppoed_tag_service_name;
+static gint hf_pppoed_tag_ac_name;
+static gint hf_pppoed_tag_host_uniq;
+static gint hf_pppoed_tag_ac_cookie;
+static gint hf_pppoed_tag_vendor_id;
+static gint hf_pppoed_tag_vendor_unspecified;
+static gint hf_pppoed_tag_vspec_tags;
+static gint hf_pppoed_tag_vspec_tag;
+static gint hf_pppoed_tag_vspec_circuit_id;
+static gint hf_pppoed_tag_vspec_remote_id;
+static gint hf_pppoed_tag_vspec_act_data_rate_up;
+static gint hf_pppoed_tag_vspec_act_data_rate_down;
+static gint hf_pppoed_tag_vspec_min_data_rate_up;
+static gint hf_pppoed_tag_vspec_min_data_rate_down;
+static gint hf_pppoed_tag_vspec_attainable_data_rate_up;
+static gint hf_pppoed_tag_vspec_attainable_data_rate_down;
+static gint hf_pppoed_tag_vspec_max_data_rate_up;
+static gint hf_pppoed_tag_vspec_max_data_rate_down;
+static gint hf_pppoed_tag_vspec_min_data_rate_up_lp;
+static gint hf_pppoed_tag_vspec_min_data_rate_down_lp;
+static gint hf_pppoed_tag_vspec_max_int_delay_up;
+static gint hf_pppoed_tag_vspec_act_int_delay_up;
+static gint hf_pppoed_tag_vspec_max_int_delay_down;
+static gint hf_pppoed_tag_vspec_act_int_delay_down;
+static gint hf_pppoed_tag_vspec_access_loop_encapsulation;
+static gint hf_pppoed_tag_vspec_access_loop_encap_data_link;
+static gint hf_pppoed_tag_vspec_access_loop_encap_encap_1;
+static gint hf_pppoed_tag_vspec_access_loop_encap_encap_2;
+static gint hf_pppoed_tag_credits;
+static gint hf_pppoed_tag_credits_fcn;
+static gint hf_pppoed_tag_credits_bcn;
+static gint hf_pppoed_tag_metrics;
+static gint hf_pppoed_tag_metrics_r;
+static gint hf_pppoed_tag_metrics_rlq;
+static gint hf_pppoed_tag_metrics_resource;
+static gint hf_pppoed_tag_metrics_latency;
+static gint hf_pppoed_tag_metrics_curr_drate;
+static gint hf_pppoed_tag_metrics_max_drate;
+static gint hf_pppoed_tag_mdr_units;
+static gint hf_pppoed_tag_cdr_units;
+static gint hf_pppoed_tag_seq_num;
+static gint hf_pppoed_tag_cred_scale;
+static gint hf_pppoed_tag_relay_session_id;
+static gint hf_pppoed_tag_hurl;
+static gint hf_pppoed_tag_motm;
+static gint hf_pppoed_tag_max_payload;
+static gint hf_pppoed_tag_ip_route_add;
+static gint hf_pppoed_tag_service_name_error;
+static gint hf_pppoed_tag_ac_system_error;
+static gint hf_pppoed_tag_generic_error;
 
 /* Session protocol fields */
-static gint hf_pppoes_tags = -1;
-/* static gint hf_pppoes_tag = -1; */
-/* static gint hf_pppoes_tag_credits = -1; */
-static gint hf_pppoes_tag_credits_fcn = -1;
-static gint hf_pppoes_tag_credits_bcn = -1;
+static gint hf_pppoes_tags;
+/* static gint hf_pppoes_tag; */
+/* static gint hf_pppoes_tag_credits; */
+static gint hf_pppoes_tag_credits_fcn;
+static gint hf_pppoes_tag_credits_bcn;
 
 /* Session protocol fields */
 
-static gint ett_pppoed = -1;
-static gint ett_pppoed_tags = -1;
-static gint ett_pppoed_tag_vspec_dslf_access_loop_encaps = -1;
+static gint ett_pppoed;
+static gint ett_pppoed_tags;
+static gint ett_pppoed_tag_vspec_dslf_access_loop_encaps;
 
-static int proto_pppoes = -1;
+static int proto_pppoes;
 
-static gint ett_pppoes = -1;
-static gint ett_pppoes_tags = -1;
+static gint ett_pppoes;
+static gint ett_pppoes_tags;
 
-static expert_field ei_pppoe_payload_length = EI_INIT;
-static expert_field ei_pppoe_tag_length = EI_INIT;
+static expert_field ei_pppoe_payload_length;
+static expert_field ei_pppoe_tag_length;
 
 /* PPPoE parent fields */
 
-static int proto_pppoe = -1;
-static gint ett_pppoe = -1;
+static int proto_pppoe;
+static gint ett_pppoe;
 
 
 /* Handle for calling for ppp dissector to handle session data */

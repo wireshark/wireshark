@@ -36,35 +36,35 @@ void proto_reg_handoff_msrp(void);
 #define MSRP_HDR_LEN (strlen (MSRP_HDR))
 
 /* Initialize the protocol and registered fields */
-static int proto_msrp       = -1;
+static int proto_msrp;
 
 /* Initialize the subtree pointers */
-static int ett_msrp                 = -1;
-static int ett_raw_text             = -1;
-static int ett_msrp_reqresp         = -1;
-static int ett_msrp_hdr             = -1;
-static int ett_msrp_data            = -1;
-static int ett_msrp_end_line        = -1;
-static int ett_msrp_setup           = -1;
+static int ett_msrp;
+static int ett_raw_text;
+static int ett_msrp_reqresp;
+static int ett_msrp_hdr;
+static int ett_msrp_data;
+static int ett_msrp_end_line;
+static int ett_msrp_setup;
 
-static int hf_msrp_response_line    = -1;
-static int hf_msrp_request_line     = -1;
-static int hf_msrp_transactionID    = -1;
-static int hf_msrp_method           = -1;
-static int hf_msrp_status_code      = -1;
-static int hf_msrp_hdr              = -1;
-static int hf_msrp_msg_hdr          = -1;
-static int hf_msrp_end_line         = -1;
-static int hf_msrp_cnt_flg          = -1;
+static int hf_msrp_response_line;
+static int hf_msrp_request_line;
+static int hf_msrp_transactionID;
+static int hf_msrp_method;
+static int hf_msrp_status_code;
+static int hf_msrp_hdr;
+static int hf_msrp_msg_hdr;
+static int hf_msrp_end_line;
+static int hf_msrp_cnt_flg;
 
-static int hf_msrp_data             = -1;
+static int hf_msrp_data;
 
-static expert_field ei_msrp_status_code_invalid = EI_INIT;
+static expert_field ei_msrp_status_code_invalid;
 
 /* MSRP setup fields */
-static int hf_msrp_setup        = -1;
-static int hf_msrp_setup_frame  = -1;
-static int hf_msrp_setup_method = -1;
+static int hf_msrp_setup;
+static int hf_msrp_setup_frame;
+static int hf_msrp_setup_method;
 
 typedef struct {
         const char *name;

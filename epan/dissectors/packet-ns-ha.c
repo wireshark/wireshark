@@ -18,28 +18,28 @@ void proto_reg_handoff_ns_ha(void);
 
 static dissector_handle_t nsha_handle;
 
-static int proto_ns_ha = -1;
-static gint ett_nsha = -1;
-static gint ett_nsha_flags = -1;
+static int proto_ns_ha;
+static gint ett_nsha;
+static gint ett_nsha_flags;
 
-static int hf_nsha_signature = -1;
-static int hf_nsha_version = -1;
-static int hf_nsha_app = -1;
-static int hf_nsha_type = -1;
-static int hf_nsha_state = -1;
-static int hf_nsha_startime = -1;
-static int hf_nsha_masterstate = -1;
-static int hf_nsha_release = -1;
-static int hf_nsha_inc = -1;
-static int hf_nsha_syncstate = -1;
-static int hf_nsha_drinc = -1;
-static int hf_nsha_flags = -1;
-static int hf_nsha_flags_vm = -1;
-static int hf_nsha_flags_sp = -1;
-static int hf_nsha_flags_propdis = -1;
-static int hf_nsha_flags_inc = -1;
-static int hf_nsha_flags_sslfail = -1;
-static int hf_nsha_flags_nossl = -1;
+static int hf_nsha_signature;
+static int hf_nsha_version;
+static int hf_nsha_app;
+static int hf_nsha_type;
+static int hf_nsha_state;
+static int hf_nsha_startime;
+static int hf_nsha_masterstate;
+static int hf_nsha_release;
+static int hf_nsha_inc;
+static int hf_nsha_syncstate;
+static int hf_nsha_drinc;
+static int hf_nsha_flags;
+static int hf_nsha_flags_vm;
+static int hf_nsha_flags_sp;
+static int hf_nsha_flags_propdis;
+static int hf_nsha_flags_inc;
+static int hf_nsha_flags_sslfail;
+static int hf_nsha_flags_nossl;
 
 static const value_string ns_ha_app_vals[] = {
 	{ 0x00, "BASE" },

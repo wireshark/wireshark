@@ -133,7 +133,7 @@ static int hf_gsm_map_ericsson_locationInformation_sac;
 static int hf_gsm_map_ussd_string;
 static int hf_gsm_map_spare_bits;
 static int hf_gsm_map_qos_signalling_ind;
-static int hf_gsm_map_qos_source_stat_desc = - 1;
+static int hf_gsm_map_qos_source_stat_desc;
 static int hf_gsm_map_qos_max_bitrate_upl_ext;
 static int hf_gsm_map_qos_max_bitrate_downl_ext;
 static int hf_gsm_map_qos_guar_bitrate_upl_ext;

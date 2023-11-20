@@ -893,7 +893,7 @@ Replace all PROTOCOL/protocol references with the name of your protocol.
 #define PFNAME "protocol"
 
 /* Initialize the protocol and registered fields */
-int proto_protocol = -1;
+int proto_protocol;
 #include "packet-protocol-hf.c"
 
 /* Initialize the subtree pointers */

@@ -18,41 +18,41 @@ void proto_reg_handoff_babel(void);
 
 static dissector_handle_t babel_handle;
 
-static int proto_babel = -1;
+static int proto_babel;
 
-static gint ett_babel = -1;
-static int hf_babel_magic = -1;
-static int hf_babel_version = -1;
-static int hf_babel_bodylen = -1;
+static gint ett_babel;
+static int hf_babel_magic;
+static int hf_babel_version;
+static int hf_babel_bodylen;
 
-static int hf_babel_message = -1;
-static gint ett_message = -1;
-static int hf_babel_message_type = -1;
-static int hf_babel_message_length = -1;
-static int hf_babel_message_nonce = -1;
-static int hf_babel_message_interval = -1;
-static int hf_babel_message_seqno = -1;
-static int hf_babel_message_ae = -1;
-static int hf_babel_message_prefix = -1;
-static int hf_babel_message_rxcost = -1;
-static int hf_babel_message_routerid = -1;
-static int hf_babel_message_flags = -1;
-static int hf_babel_message_plen = -1;
-static int hf_babel_message_omitted = -1;
-static int hf_babel_message_metric = -1;
-static int hf_babel_message_hopcount = -1;
-static int hf_babel_message_index = -1;
-static int hf_babel_subtlv = -1;
-static int hf_babel_subtlv_type = -1;
-static int hf_babel_subtlv_len = -1;
-static int hf_babel_subtlv_diversity = -1;
+static int hf_babel_message;
+static gint ett_message;
+static int hf_babel_message_type;
+static int hf_babel_message_length;
+static int hf_babel_message_nonce;
+static int hf_babel_message_interval;
+static int hf_babel_message_seqno;
+static int hf_babel_message_ae;
+static int hf_babel_message_prefix;
+static int hf_babel_message_rxcost;
+static int hf_babel_message_routerid;
+static int hf_babel_message_flags;
+static int hf_babel_message_plen;
+static int hf_babel_message_omitted;
+static int hf_babel_message_metric;
+static int hf_babel_message_hopcount;
+static int hf_babel_message_index;
+static int hf_babel_subtlv;
+static int hf_babel_subtlv_type;
+static int hf_babel_subtlv_len;
+static int hf_babel_subtlv_diversity;
 
-static gint ett_subtree = -1;
-static gint ett_packet_trailer = -1;
-static gint ett_unicast = -1;
-static gint ett_subtlv = -1;
-static gint ett_timestamp = -1;
-static gint ett_mandatory = -1;
+static gint ett_subtree;
+static gint ett_packet_trailer;
+static gint ett_unicast;
+static gint ett_subtlv;
+static gint ett_timestamp;
+static gint ett_mandatory;
 
 #define UDP_PORT_RANGE_BABEL "6696"
 

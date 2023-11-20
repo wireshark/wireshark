@@ -27,53 +27,53 @@
 
 void proto_register_lapsat(void);
 
-static int proto_lapsat = -1;
+static int proto_lapsat;
 
 static reassembly_table lapsat_reassembly_table;
 
 static dissector_table_t lapsat_sapi_dissector_table;
 
-static gint ett_lapsat = -1;
-static gint ett_lapsat_address = -1;
-static gint ett_lapsat_control = -1;
-static gint ett_lapsat_fragment = -1;
-static gint ett_lapsat_fragments = -1;
+static gint ett_lapsat;
+static gint ett_lapsat_address;
+static gint ett_lapsat_control;
+static gint ett_lapsat_fragment;
+static gint ett_lapsat_fragments;
 
-static int hf_lapsat_addr = -1;
-static int hf_lapsat_addr_sst = -1;
-static int hf_lapsat_addr_cr = -1;
-static int hf_lapsat_addr_sapi = -1;
-static int hf_lapsat_addr_si = -1;
-static int hf_lapsat_addr_lpd = -1;
-static int hf_lapsat_addr_lfi = -1;
+static int hf_lapsat_addr;
+static int hf_lapsat_addr_sst;
+static int hf_lapsat_addr_cr;
+static int hf_lapsat_addr_sapi;
+static int hf_lapsat_addr_si;
+static int hf_lapsat_addr_lpd;
+static int hf_lapsat_addr_lfi;
 
-static int hf_lapsat_ctl = -1;
-static int hf_lapsat_ctl_ftype_i = -1;
-static int hf_lapsat_ctl_ftype_s_u = -1;
-static int hf_lapsat_ctl_s_ftype = -1;
-static int hf_lapsat_ctl_u_modifier_cmd = -1;
-static int hf_lapsat_ctl_u_modifier_resp = -1;
-static int hf_lapsat_ctl_n_r = -1;
-static int hf_lapsat_ctl_n_s = -1;
-static int hf_lapsat_ctl_p = -1;
-static int hf_lapsat_ctl_f = -1;
-static int hf_lapsat_ctl_mii = -1;
+static int hf_lapsat_ctl;
+static int hf_lapsat_ctl_ftype_i;
+static int hf_lapsat_ctl_ftype_s_u;
+static int hf_lapsat_ctl_s_ftype;
+static int hf_lapsat_ctl_u_modifier_cmd;
+static int hf_lapsat_ctl_u_modifier_resp;
+static int hf_lapsat_ctl_n_r;
+static int hf_lapsat_ctl_n_s;
+static int hf_lapsat_ctl_p;
+static int hf_lapsat_ctl_f;
+static int hf_lapsat_ctl_mii;
 
-static int hf_lapsat_payload_last_nibble = -1;
+static int hf_lapsat_payload_last_nibble;
 
-static int hf_lapsat_len = -1;
+static int hf_lapsat_len;
 
-static int hf_lapsat_fragment_data = -1;
-static int hf_lapsat_fragments = -1;
-static int hf_lapsat_fragment = -1;
-static int hf_lapsat_fragment_overlap = -1;
-static int hf_lapsat_fragment_overlap_conflicts = -1;
-static int hf_lapsat_fragment_multiple_tails = -1;
-static int hf_lapsat_fragment_too_long_fragment = -1;
-static int hf_lapsat_fragment_error = -1;
-static int hf_lapsat_fragment_count = -1;
-static int hf_lapsat_reassembled_in = -1;
-static int hf_lapsat_reassembled_length = -1;
+static int hf_lapsat_fragment_data;
+static int hf_lapsat_fragments;
+static int hf_lapsat_fragment;
+static int hf_lapsat_fragment_overlap;
+static int hf_lapsat_fragment_overlap_conflicts;
+static int hf_lapsat_fragment_multiple_tails;
+static int hf_lapsat_fragment_too_long_fragment;
+static int hf_lapsat_fragment_error;
+static int hf_lapsat_fragment_count;
+static int hf_lapsat_reassembled_in;
+static int hf_lapsat_reassembled_length;
 
 
 #define LAPSAT_HEADER_LEN		3

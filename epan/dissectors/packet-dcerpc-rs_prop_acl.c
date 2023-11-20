@@ -21,11 +21,11 @@
 void proto_register_rs_prop_acl (void);
 void proto_reg_handoff_rs_prop_acl (void);
 
-static int proto_rs_prop_acl = -1;
-static int hf_rs_prop_acl_opnum = -1;
+static int proto_rs_prop_acl;
+static int hf_rs_prop_acl_opnum;
 
 
-static gint ett_rs_prop_acl = -1;
+static gint ett_rs_prop_acl;
 static e_guid_t uuid_rs_prop_acl =
   { 0x591d87d0, 0xde64, 0x11ca, {0xa1, 0x1c, 0x08, 0x00, 0x1e, 0x03, 0x94,
                                  0xc7} };

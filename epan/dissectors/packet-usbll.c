@@ -33,53 +33,53 @@ static dissector_handle_t low_speed_handle;
 static dissector_handle_t full_speed_handle;
 static dissector_handle_t high_speed_handle;
 
-static int proto_usbll = -1;
+static int proto_usbll;
 
 /* Fields defined by USB 2.0 standard */
-static int hf_usbll_pid = -1;
-static int hf_usbll_device_addr = -1;
-static int hf_usbll_endp = -1;
-static int hf_usbll_crc5 = -1;
-static int hf_usbll_crc5_status = -1;
-static int hf_usbll_data = -1;
-static int hf_usbll_data_crc = -1;
-static int hf_usbll_data_crc_status = -1;
-static int hf_usbll_sof_framenum = -1;
-static int hf_usbll_split_hub_addr = -1;
-static int hf_usbll_split_sc = -1;
-static int hf_usbll_split_port = -1;
-static int hf_usbll_split_s = -1;
-static int hf_usbll_split_e = -1;
-static int hf_usbll_split_u = -1;
-static int hf_usbll_split_iso_se = -1;
-static int hf_usbll_split_et = -1;
-static int hf_usbll_split_crc5 = -1;
-static int hf_usbll_split_crc5_status = -1;
-static int hf_usbll_src = -1;
-static int hf_usbll_dst = -1;
-static int hf_usbll_addr = -1;
-static int hf_usbll_transfer_fragments = -1;
-static int hf_usbll_transfer_fragment = -1;
-static int hf_usbll_transfer_fragment_overlap = -1;
-static int hf_usbll_transfer_fragment_overlap_conflicts = -1;
-static int hf_usbll_transfer_fragment_multiple_tails = -1;
-static int hf_usbll_transfer_fragment_too_long_fragment = -1;
-static int hf_usbll_transfer_fragment_error = -1;
-static int hf_usbll_transfer_fragment_count = -1;
-static int hf_usbll_transfer_reassembled_in = -1;
-static int hf_usbll_transfer_reassembled_length = -1;
+static int hf_usbll_pid;
+static int hf_usbll_device_addr;
+static int hf_usbll_endp;
+static int hf_usbll_crc5;
+static int hf_usbll_crc5_status;
+static int hf_usbll_data;
+static int hf_usbll_data_crc;
+static int hf_usbll_data_crc_status;
+static int hf_usbll_sof_framenum;
+static int hf_usbll_split_hub_addr;
+static int hf_usbll_split_sc;
+static int hf_usbll_split_port;
+static int hf_usbll_split_s;
+static int hf_usbll_split_e;
+static int hf_usbll_split_u;
+static int hf_usbll_split_iso_se;
+static int hf_usbll_split_et;
+static int hf_usbll_split_crc5;
+static int hf_usbll_split_crc5_status;
+static int hf_usbll_src;
+static int hf_usbll_dst;
+static int hf_usbll_addr;
+static int hf_usbll_transfer_fragments;
+static int hf_usbll_transfer_fragment;
+static int hf_usbll_transfer_fragment_overlap;
+static int hf_usbll_transfer_fragment_overlap_conflicts;
+static int hf_usbll_transfer_fragment_multiple_tails;
+static int hf_usbll_transfer_fragment_too_long_fragment;
+static int hf_usbll_transfer_fragment_error;
+static int hf_usbll_transfer_fragment_count;
+static int hf_usbll_transfer_reassembled_in;
+static int hf_usbll_transfer_reassembled_length;
 /* Fields defined by USB 2.0 ECN: Link Power Management (LPM) and
  * USB 2.0 ECN Errata for Link Power Management 9/28/2011
  */
-static int hf_usbll_subpid = -1;
-static int hf_usbll_lpm_link_state = -1;
-static int hf_usbll_lpm_besl = -1;
-static int hf_usbll_lpm_remote_wake = -1;
-static int hf_usbll_lpm_reserved = -1;
+static int hf_usbll_subpid;
+static int hf_usbll_lpm_link_state;
+static int hf_usbll_lpm_besl;
+static int hf_usbll_lpm_remote_wake;
+static int hf_usbll_lpm_reserved;
 
-static int ett_usbll = -1;
-static int ett_usbll_transfer_fragment = -1;
-static int ett_usbll_transfer_fragments = -1;
+static int ett_usbll;
+static int ett_usbll_transfer_fragment;
+static int ett_usbll_transfer_fragments;
 
 static const fragment_items usbll_frag_items = {
     /* Fragment subtrees */
@@ -104,17 +104,17 @@ static const fragment_items usbll_frag_items = {
     "USB transfer fragments"
 };
 
-static expert_field ei_invalid_pid = EI_INIT;
-static expert_field ei_invalid_subpid = EI_INIT;
-static expert_field ei_conflicting_subpid = EI_INIT;
-static expert_field ei_undecoded = EI_INIT;
-static expert_field ei_wrong_crc5 = EI_INIT;
-static expert_field ei_wrong_split_crc5 = EI_INIT;
-static expert_field ei_wrong_crc16 = EI_INIT;
-static expert_field ei_invalid_s = EI_INIT;
-static expert_field ei_invalid_e_u = EI_INIT;
-static expert_field ei_invalid_pid_sequence = EI_INIT;
-static expert_field ei_invalid_setup_data = EI_INIT;
+static expert_field ei_invalid_pid;
+static expert_field ei_invalid_subpid;
+static expert_field ei_conflicting_subpid;
+static expert_field ei_undecoded;
+static expert_field ei_wrong_crc5;
+static expert_field ei_wrong_split_crc5;
+static expert_field ei_wrong_crc16;
+static expert_field ei_invalid_s;
+static expert_field ei_invalid_e_u;
+static expert_field ei_invalid_pid_sequence;
+static expert_field ei_invalid_setup_data;
 
 static int usbll_address_type = -1;
 

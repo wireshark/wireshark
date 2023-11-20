@@ -43,48 +43,48 @@ void proto_reg_handoff_mqpcf(void);
 static guint mq_pcf_maxprm = PCF_MAX_PARM;
 static guint mq_pcf_maxlst = PCF_MAX_LIST;
 
-static int proto_mqpcf = -1;
+static int proto_mqpcf;
 
-static int hf_mqpcf_cfh_type = -1;
-static int hf_mqpcf_cfh_length = -1;
-static int hf_mqpcf_cfh_version = -1;
-static int hf_mqpcf_cfh_command = -1;
-static int hf_mqpcf_cfh_MsgSeqNbr = -1;
-static int hf_mqpcf_cfh_control = -1;
-static int hf_mqpcf_cfh_compcode = -1;
-static int hf_mqpcf_cfh_reason = -1;
-static int hf_mqpcf_cfh_ParmCount = -1;
+static int hf_mqpcf_cfh_type;
+static int hf_mqpcf_cfh_length;
+static int hf_mqpcf_cfh_version;
+static int hf_mqpcf_cfh_command;
+static int hf_mqpcf_cfh_MsgSeqNbr;
+static int hf_mqpcf_cfh_control;
+static int hf_mqpcf_cfh_compcode;
+static int hf_mqpcf_cfh_reason;
+static int hf_mqpcf_cfh_ParmCount;
 
-static int hf_mq_pcf_prmtyp = -1;
-static int hf_mq_pcf_prmlen = -1;
-static int hf_mq_pcf_prmid = -1;
-static int hf_mq_pcf_prmidnovals = -1;
-static int hf_mq_pcf_filterop = -1;
-static int hf_mq_pcf_prmccsid = -1;
-static int hf_mq_pcf_prmstrlen = -1;
-static int hf_mq_pcf_prmcount = -1;
-static int hf_mq_pcf_prmunused = -1;
+static int hf_mq_pcf_prmtyp;
+static int hf_mq_pcf_prmlen;
+static int hf_mq_pcf_prmid;
+static int hf_mq_pcf_prmidnovals;
+static int hf_mq_pcf_filterop;
+static int hf_mq_pcf_prmccsid;
+static int hf_mq_pcf_prmstrlen;
+static int hf_mq_pcf_prmcount;
+static int hf_mq_pcf_prmunused;
 
-static int hf_mq_pcf_string = -1;
-static int hf_mq_pcf_stringlist = -1;
-static int hf_mq_pcf_int = -1;
-static int hf_mq_pcf_intlist = -1;
-static int hf_mq_pcf_bytestring = -1;
-static int hf_mq_pcf_int64 = -1;
-static int hf_mq_pcf_int64list = -1;
+static int hf_mq_pcf_string;
+static int hf_mq_pcf_stringlist;
+static int hf_mq_pcf_int;
+static int hf_mq_pcf_intlist;
+static int hf_mq_pcf_bytestring;
+static int hf_mq_pcf_int64;
+static int hf_mq_pcf_int64list;
 
-static expert_field ei_mq_pcf_hdrlne = EI_INIT;
-static expert_field ei_mq_pcf_prmln0 = EI_INIT;
-static expert_field ei_mq_pcf_MaxInt = EI_INIT;
-static expert_field ei_mq_pcf_MaxStr = EI_INIT;
-static expert_field ei_mq_pcf_MaxI64 = EI_INIT;
-static expert_field ei_mq_pcf_MaxPrm = EI_INIT;
-static expert_field ei_mq_pcf_PrmCnt = EI_INIT;
+static expert_field ei_mq_pcf_hdrlne;
+static expert_field ei_mq_pcf_prmln0;
+static expert_field ei_mq_pcf_MaxInt;
+static expert_field ei_mq_pcf_MaxStr;
+static expert_field ei_mq_pcf_MaxI64;
+static expert_field ei_mq_pcf_MaxPrm;
+static expert_field ei_mq_pcf_PrmCnt;
 
-static gint ett_mqpcf_prm = -1;
-static gint ett_mqpcf_grp = -1;
-static gint ett_mqpcf = -1;
-static gint ett_mqpcf_cfh = -1;
+static gint ett_mqpcf_prm;
+static gint ett_mqpcf_grp;
+static gint ett_mqpcf;
+static gint ett_mqpcf_cfh;
 
 #define MQ_TEXT_CFH   "MQ Command Format Header"
 

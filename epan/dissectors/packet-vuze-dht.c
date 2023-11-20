@@ -183,114 +183,114 @@ static const value_string vuze_dht_network_coordinate_type_vals[] = {
   { 0, NULL }
 };
 
-static int proto_vuze_dht = -1;
+static int proto_vuze_dht;
 
 /* --- fields ---*/
 
 /* address appears in contacts, request header, reply error */
-static int hf_vuze_dht_address = -1;
-static int hf_vuze_dht_address_len = -1;
-static int hf_vuze_dht_address_v4 = -1;
-static int hf_vuze_dht_address_v6 = -1;
-static int hf_vuze_dht_address_port = -1;
+static int hf_vuze_dht_address;
+static int hf_vuze_dht_address_len;
+static int hf_vuze_dht_address_v4;
+static int hf_vuze_dht_address_v6;
+static int hf_vuze_dht_address_port;
 
 /* contact appears in values, reply find_node, reply find_value */
-static int hf_vuze_dht_contact = -1;
-static int hf_vuze_dht_contact_type = -1;
-static int hf_vuze_dht_proto_ver = -1;
+static int hf_vuze_dht_contact;
+static int hf_vuze_dht_contact_type;
+static int hf_vuze_dht_proto_ver;
 
 /* value appears in reply find_value */
-static int hf_vuze_dht_value = -1;
-static int hf_vuze_dht_value_ver = -1;
-static int hf_vuze_dht_value_created = -1;
-static int hf_vuze_dht_value_bytes_count = -1;
-static int hf_vuze_dht_value_bytes = -1;
-static int hf_vuze_dht_value_flags = -1;
-static int hf_vuze_dht_value_life_hours = -1;
-static int hf_vuze_dht_value_replication_factor = -1;
+static int hf_vuze_dht_value;
+static int hf_vuze_dht_value_ver;
+static int hf_vuze_dht_value_created;
+static int hf_vuze_dht_value_bytes_count;
+static int hf_vuze_dht_value_bytes;
+static int hf_vuze_dht_value_flags;
+static int hf_vuze_dht_value_life_hours;
+static int hf_vuze_dht_value_replication_factor;
 
 /* firstly appear in request header */
-static int hf_vuze_dht_connection_id = -1;
-static int hf_vuze_dht_action = -1;
-static int hf_vuze_dht_transaction_id = -1;
-static int hf_vuze_dht_vendor_id = -1;
-static int hf_vuze_dht_network_id = -1;
-static int hf_vuze_dht_local_proto_ver = -1;
-static int hf_vuze_dht_instance_id = -1;
-static int hf_vuze_dht_time = -1;
-static int hf_vuze_dht_generic_flags = -1;
-static int hf_vuze_dht_generic_flags2 = -1;
+static int hf_vuze_dht_connection_id;
+static int hf_vuze_dht_action;
+static int hf_vuze_dht_transaction_id;
+static int hf_vuze_dht_vendor_id;
+static int hf_vuze_dht_network_id;
+static int hf_vuze_dht_local_proto_ver;
+static int hf_vuze_dht_instance_id;
+static int hf_vuze_dht_time;
+static int hf_vuze_dht_generic_flags;
+static int hf_vuze_dht_generic_flags2;
 
 /* firstly appear in reply ping */
-static int hf_vuze_dht_network_coordinates_count = -1;
-static int hf_vuze_dht_network_coordinates = -1;
-static int hf_vuze_dht_network_coordinate = -1;
-static int hf_vuze_dht_network_coordinate_type = -1;
-static int hf_vuze_dht_network_coordinate_size = -1;
-static int hf_vuze_dht_network_coordinate_data = -1;
-static int hf_vuze_dht_network_coordinate_x = -1;
-static int hf_vuze_dht_network_coordinate_y = -1;
-static int hf_vuze_dht_network_coordinate_height = -1;
-static int hf_vuze_dht_network_coordinate_error = -1;
+static int hf_vuze_dht_network_coordinates_count;
+static int hf_vuze_dht_network_coordinates;
+static int hf_vuze_dht_network_coordinate;
+static int hf_vuze_dht_network_coordinate_type;
+static int hf_vuze_dht_network_coordinate_size;
+static int hf_vuze_dht_network_coordinate_data;
+static int hf_vuze_dht_network_coordinate_x;
+static int hf_vuze_dht_network_coordinate_y;
+static int hf_vuze_dht_network_coordinate_height;
+static int hf_vuze_dht_network_coordinate_error;
 
 /* firstly appear in request store */
-static int hf_vuze_dht_spoof_id = -1;
-static int hf_vuze_dht_keys_count = -1;
-static int hf_vuze_dht_keys = -1;
-static int hf_vuze_dht_key = -1;
-static int hf_vuze_dht_key_len = -1;
-static int hf_vuze_dht_key_data = -1;
-static int hf_vuze_dht_value_group = -1;
-static int hf_vuze_dht_value_groups = -1;
-static int hf_vuze_dht_value_groups_count = -1;
-static int hf_vuze_dht_values_count = -1;
+static int hf_vuze_dht_spoof_id;
+static int hf_vuze_dht_keys_count;
+static int hf_vuze_dht_keys;
+static int hf_vuze_dht_key;
+static int hf_vuze_dht_key_len;
+static int hf_vuze_dht_key_data;
+static int hf_vuze_dht_value_group;
+static int hf_vuze_dht_value_groups;
+static int hf_vuze_dht_value_groups_count;
+static int hf_vuze_dht_values_count;
 
 /* firstly appear in reply store */
-static int hf_vuze_dht_diversifications_len = -1;
-static int hf_vuze_dht_diversifications = -1;
+static int hf_vuze_dht_diversifications_len;
+static int hf_vuze_dht_diversifications;
 
 /* firstly appear in request find_node */
-static int hf_vuze_dht_id_len = -1;
-static int hf_vuze_dht_id = -1;
-static int hf_vuze_dht_node_status = -1;
-static int hf_vuze_dht_size = -1;
+static int hf_vuze_dht_id_len;
+static int hf_vuze_dht_id;
+static int hf_vuze_dht_node_status;
+static int hf_vuze_dht_size;
 
 /* firstly appear in reply find_node */
-static int hf_vuze_dht_node_type = -1;
-static int hf_vuze_dht_contacts_count = -1;
-static int hf_vuze_dht_contacts = -1;
+static int hf_vuze_dht_node_type;
+static int hf_vuze_dht_contacts_count;
+static int hf_vuze_dht_contacts;
 
 /* firstly appear in request find_value */
-static int hf_vuze_dht_flags = -1;
-static int hf_vuze_dht_values_num = -1;
-static int hf_vuze_dht_values_total = -1;
-static int hf_vuze_dht_reads_per_min = -1;
-static int hf_vuze_dht_diversification_type = -1;
-static int hf_vuze_dht_max_values = -1;
+static int hf_vuze_dht_flags;
+static int hf_vuze_dht_values_num;
+static int hf_vuze_dht_values_total;
+static int hf_vuze_dht_reads_per_min;
+static int hf_vuze_dht_diversification_type;
+static int hf_vuze_dht_max_values;
 
 /* firstly appear in reply find_value */
-static int hf_vuze_dht_has_continuation = -1;
-static int hf_vuze_dht_has_values = -1;
+static int hf_vuze_dht_has_continuation;
+static int hf_vuze_dht_has_values;
 
 /* firstly appear in reply error */
-static int hf_vuze_dht_error_type = -1;
-static int hf_vuze_dht_key_block_request_len = -1;
-static int hf_vuze_dht_key_block_request = -1;
-static int hf_vuze_dht_signature_len = -1;
-static int hf_vuze_dht_signature = -1;
+static int hf_vuze_dht_error_type;
+static int hf_vuze_dht_key_block_request_len;
+static int hf_vuze_dht_key_block_request;
+static int hf_vuze_dht_signature_len;
+static int hf_vuze_dht_signature;
 
 /* trees */
-static gint ett_vuze_dht = -1;
-static gint ett_vuze_dht_address = -1;
-static gint ett_vuze_dht_contacts = -1;
-static gint ett_vuze_dht_contact = -1;
-static gint ett_vuze_dht_keys = -1;
-static gint ett_vuze_dht_key = -1;
-static gint ett_vuze_dht_value_groups = -1;
-static gint ett_vuze_dht_value_group = -1;
-static gint ett_vuze_dht_value = -1;
-static gint ett_vuze_dht_network_coordinates = -1;
-static gint ett_vuze_dht_network_coordinate = -1;
+static gint ett_vuze_dht;
+static gint ett_vuze_dht_address;
+static gint ett_vuze_dht_contacts;
+static gint ett_vuze_dht_contact;
+static gint ett_vuze_dht_keys;
+static gint ett_vuze_dht_key;
+static gint ett_vuze_dht_value_groups;
+static gint ett_vuze_dht_value_group;
+static gint ett_vuze_dht_value;
+static gint ett_vuze_dht_network_coordinates;
+static gint ett_vuze_dht_network_coordinate;
 
 static dissector_handle_t vuze_dht_handle;
 

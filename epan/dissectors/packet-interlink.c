@@ -21,23 +21,23 @@ void proto_reg_handoff_interlink(void);
  * No public information available.
  */
 
-static int proto_interlink = -1;
+static int proto_interlink;
 
-static int hf_interlink_id = -1;
-static int hf_interlink_version = -1;
-static int hf_interlink_cmd = -1;
-static int hf_interlink_seq = -1;
-static int hf_interlink_flags = -1;
-static int hf_interlink_flags_req_ack = -1;
-static int hf_interlink_flags_inc_ack_port = -1;
-static int hf_interlink_block_type = -1;
-static int hf_interlink_block_version = -1;
-static int hf_interlink_block_length = -1;
+static int hf_interlink_id;
+static int hf_interlink_version;
+static int hf_interlink_cmd;
+static int hf_interlink_seq;
+static int hf_interlink_flags;
+static int hf_interlink_flags_req_ack;
+static int hf_interlink_flags_inc_ack_port;
+static int hf_interlink_block_type;
+static int hf_interlink_block_version;
+static int hf_interlink_block_length;
 
-static gint ett_interlink = -1;
-static gint ett_interlink_header = -1;
-static gint ett_interlink_flags = -1;
-static gint ett_interlink_block = -1;
+static gint ett_interlink;
+static gint ett_interlink_header;
+static gint ett_interlink_flags;
+static gint ett_interlink_block;
 
 static dissector_handle_t data_handle;
 static dissector_table_t subdissector_table;

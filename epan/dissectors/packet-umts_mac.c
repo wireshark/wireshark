@@ -24,65 +24,65 @@
 void proto_register_umts_mac(void);
 void proto_reg_handoff_umts_mac(void);
 
-int proto_umts_mac = -1;
+int proto_umts_mac;
 extern int proto_fp;
 extern int proto_umts_rlc;
 
 /* dissector fields */
-static int hf_mac_fach_fdd_tctf = -1;
-static int hf_mac_rach_fdd_tctf = -1;
-static int hf_mac_ct = -1;
-static int hf_mac_ueid_type = -1;
-static int hf_mac_crnti = -1;
-static int hf_mac_urnti = -1;
-static int hf_mac_resolved_urnti = -1;
-static int hf_mac_crnti_urnti_match_frame = -1;
-static int hf_mac_channel = -1;
-/* static int hf_mac_channel_str = -1; */
+static int hf_mac_fach_fdd_tctf;
+static int hf_mac_rach_fdd_tctf;
+static int hf_mac_ct;
+static int hf_mac_ueid_type;
+static int hf_mac_crnti;
+static int hf_mac_urnti;
+static int hf_mac_resolved_urnti;
+static int hf_mac_crnti_urnti_match_frame;
+static int hf_mac_channel;
+/* static int hf_mac_channel_str; */
 
-static int hf_mac_lch_id = -1;
-static int hf_mac_macdflowd_id = -1;
-/* static int hf_mac_channel_hsdsch = -1; */
-static int hf_mac_trch_id = -1;
+static int hf_mac_lch_id;
+static int hf_mac_macdflowd_id;
+/* static int hf_mac_channel_hsdsch; */
+static int hf_mac_trch_id;
 
-/* static int hf_mac_edch_type2_subframe_header = -1; */
-/* static int hf_mac_edch_type2_descriptors = -1; */
-/* static int hf_mac_edch_type2_lchid = -1; */
-/* static int hf_mac_edch_type2_length = -1; */
-/* static int hf_mac_edch_type2_flag = -1; */
-static int hf_mac_edch_type2_tsn = -1;
-static int hf_mac_edch_type2_ss = -1;
-static int hf_mac_edch_type2_ss_interpretation = -1;
-static int hf_mac_edch_type2_sdu = -1;
-static int hf_mac_edch_type2_sdu_data = -1;
-static int hf_mac_is_fraglink = -1;
-static int hf_mac_is_reasmin = -1;
+/* static int hf_mac_edch_type2_subframe_header; */
+/* static int hf_mac_edch_type2_descriptors; */
+/* static int hf_mac_edch_type2_lchid; */
+/* static int hf_mac_edch_type2_length; */
+/* static int hf_mac_edch_type2_flag; */
+static int hf_mac_edch_type2_tsn;
+static int hf_mac_edch_type2_ss;
+static int hf_mac_edch_type2_ss_interpretation;
+static int hf_mac_edch_type2_sdu;
+static int hf_mac_edch_type2_sdu_data;
+static int hf_mac_is_fraglink;
+static int hf_mac_is_reasmin;
 
 /* subtrees */
-static int ett_mac = -1;
-static int ett_mac_fach = -1;
-static int ett_mac_rach = -1;
-static int ett_mac_dch = -1;
-static int ett_mac_pch = -1;
-static int ett_mac_edch = -1;
-static int ett_mac_hsdsch = -1;
-static int ett_mac_edch_type2 = -1;
-static int ett_mac_edch_type2_sdu = -1;
-static int ett_mac_resolved_urnti = -1;
+static int ett_mac;
+static int ett_mac_fach;
+static int ett_mac_rach;
+static int ett_mac_dch;
+static int ett_mac_pch;
+static int ett_mac_edch;
+static int ett_mac_hsdsch;
+static int ett_mac_edch_type2;
+static int ett_mac_edch_type2_sdu;
+static int ett_mac_resolved_urnti;
 
-static expert_field ei_mac_cs_dtch_not_implemented = EI_INIT;
-static expert_field ei_mac_rach_tctf_unknown = EI_INIT;
-static expert_field ei_mac_unknown_content = EI_INIT;
-static expert_field ei_mac_per_frame_info_missing = EI_INIT;
-static expert_field ei_mac_fach_content_type_unknown = EI_INIT;
-static expert_field ei_mac_no_logical_channel = EI_INIT;
-static expert_field ei_mac_faked_logical_channel_id = EI_INIT;
-static expert_field ei_mac_macis_sdu_reassembled = EI_INIT;
-static expert_field ei_mac_macis_sdu_first = EI_INIT;
-static expert_field ei_mac_macis_sdu_middle = EI_INIT;
-static expert_field ei_mac_macis_sdu_last = EI_INIT;
-static expert_field ei_mac_macis_sdu_complete = EI_INIT;
-static expert_field ei_mac_reserved_c_t = EI_INIT;
+static expert_field ei_mac_cs_dtch_not_implemented;
+static expert_field ei_mac_rach_tctf_unknown;
+static expert_field ei_mac_unknown_content;
+static expert_field ei_mac_per_frame_info_missing;
+static expert_field ei_mac_fach_content_type_unknown;
+static expert_field ei_mac_no_logical_channel;
+static expert_field ei_mac_faked_logical_channel_id;
+static expert_field ei_mac_macis_sdu_reassembled;
+static expert_field ei_mac_macis_sdu_first;
+static expert_field ei_mac_macis_sdu_middle;
+static expert_field ei_mac_macis_sdu_last;
+static expert_field ei_mac_macis_sdu_complete;
+static expert_field ei_mac_reserved_c_t;
 
 static dissector_handle_t rlc_pcch_handle;
 static dissector_handle_t rlc_ccch_handle;

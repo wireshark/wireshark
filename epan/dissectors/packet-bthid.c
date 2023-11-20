@@ -19,27 +19,27 @@
 #include "packet-btl2cap.h"
 #include "packet-btsdp.h"
 
-static int proto_bthid                                                     = -1;
-static int hf_bthid_transaction_type                                       = -1;
-static int hf_bthid_parameter_reserved                                     = -1;
-static int hf_bthid_parameter_reserved_31                                  = -1;
-static int hf_bthid_parameter_reserved_32                                  = -1;
-static int hf_bthid_parameter_reserved_2                                   = -1;
-static int hf_bthid_parameter_result_code                                  = -1;
-static int hf_bthid_parameter_control_operation                            = -1;
-static int hf_bthid_parameter_size                                         = -1;
-static int hf_bthid_protocol                                               = -1;
-static int hf_bthid_idle_rate                                              = -1;
-static int hf_bthid_parameter_report_type                                  = -1;
-static int hf_bthid_report_id                                              = -1;
-static int hf_bthid_buffer_size                                            = -1;
-static int hf_bthid_protocol_code                                          = -1;
-static int hf_bthid_data                                                   = -1;
+static int proto_bthid;
+static int hf_bthid_transaction_type;
+static int hf_bthid_parameter_reserved;
+static int hf_bthid_parameter_reserved_31;
+static int hf_bthid_parameter_reserved_32;
+static int hf_bthid_parameter_reserved_2;
+static int hf_bthid_parameter_result_code;
+static int hf_bthid_parameter_control_operation;
+static int hf_bthid_parameter_size;
+static int hf_bthid_protocol;
+static int hf_bthid_idle_rate;
+static int hf_bthid_parameter_report_type;
+static int hf_bthid_report_id;
+static int hf_bthid_buffer_size;
+static int hf_bthid_protocol_code;
+static int hf_bthid_data;
 
-static gint ett_bthid             = -1;
+static gint ett_bthid;
 
-static expert_field ei_bthid_parameter_control_operation_deprecated = EI_INIT;
-static expert_field ei_bthid_transaction_type_deprecated = EI_INIT;
+static expert_field ei_bthid_parameter_control_operation_deprecated;
+static expert_field ei_bthid_transaction_type_deprecated;
 
 static dissector_handle_t bthid_handle;
 static dissector_handle_t usb_hid_boot_keyboard_input_report_handle;

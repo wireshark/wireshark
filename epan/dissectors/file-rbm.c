@@ -25,27 +25,27 @@
 #include <file-rbm.h>
 #include <wiretap/ruby_marshal.h>
 
-static int proto_rbm = -1;
+static int proto_rbm;
 
-static int hf_rbm_version = -1;
-static int hf_rbm_type = -1;
-static int hf_rbm_integer = -1;
-static int hf_rbm_length = -1;
-static int hf_rbm_string = -1;
-static int hf_rbm_link = -1;
-static int hf_rbm_double = -1;
-static int hf_rbm_struct = -1;
-static int hf_rbm_regex_param = -1;
+static int hf_rbm_version;
+static int hf_rbm_type;
+static int hf_rbm_integer;
+static int hf_rbm_length;
+static int hf_rbm_string;
+static int hf_rbm_link;
+static int hf_rbm_double;
+static int hf_rbm_struct;
+static int hf_rbm_regex_param;
 
-static gint ett_rbm = -1;
-static gint ett_array = -1;
-static gint ett_array_obj = -1;
-static gint ett_hash = -1;
-static gint ett_hash_obj = -1;
-static gint ett_variable = -1;
+static gint ett_rbm;
+static gint ett_array;
+static gint ett_array_obj;
+static gint ett_hash;
+static gint ett_hash_obj;
+static gint ett_variable;
 
-static expert_field ei_rbm_invalid = EI_INIT;
-static expert_field ei_rbm_version_unsupported = EI_INIT;
+static expert_field ei_rbm_invalid;
+static expert_field ei_rbm_version_unsupported;
 
 /* Marshal types */
 static const value_string rbm_types[] = {

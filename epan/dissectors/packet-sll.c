@@ -87,20 +87,20 @@ static dissector_handle_t netlink_handle;
 static int proto_sll;
 static int sll_tap = -1;
 
-static int hf_sll_etype = -1;
-static int hf_sll_gretype = -1;
-static int hf_sll_halen = -1;
-static int hf_sll_hatype = -1;
-static int hf_sll_ifindex = -1;
-static int hf_sll_ltype = -1;
-static int hf_sll_pkttype = -1;
-static int hf_sll_src_eth = -1;
-static int hf_sll_src_ipv4 = -1;
-static int hf_sll_src_other = -1;
-static int hf_sll_trailer = -1;
-static int hf_sll_unused = -1;
+static int hf_sll_etype;
+static int hf_sll_gretype;
+static int hf_sll_halen;
+static int hf_sll_hatype;
+static int hf_sll_ifindex;
+static int hf_sll_ltype;
+static int hf_sll_pkttype;
+static int hf_sll_src_eth;
+static int hf_sll_src_ipv4;
+static int hf_sll_src_other;
+static int hf_sll_trailer;
+static int hf_sll_unused;
 
-static gint ett_sll = -1;
+static gint ett_sll;
 
 static dissector_table_t sll_hatype_dissector_table;
 static dissector_table_t sll_ltype_dissector_table;

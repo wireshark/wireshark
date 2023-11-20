@@ -2033,241 +2033,241 @@ static const true_false_string tfs_manually_auto_derived = { "manually derived",
 /* Maximal size of an IP address string */
 #define MAX_SIZE_OF_IP_ADDR_STRING      16
 
-static int proto_bgp = -1;
+static int proto_bgp;
 
 /* BGP header field initialisation */
 
 /* global BGP header filed */
 
-static int hf_bgp_marker = -1;
-static int hf_bgp_length = -1;
-static int hf_bgp_prefix_length = -1;
-static int hf_bgp_rd = -1;
-static int hf_bgp_continuation = -1;
-static int hf_bgp_originating_as = -1;
-static int hf_bgp_community_prefix = -1;
-static int hf_bgp_endpoint_address = -1;
-static int hf_bgp_endpoint_address_ipv6 = -1;
-static int hf_bgp_label_stack = -1;
-static int hf_bgp_large_communities = -1;
-static int hf_bgp_large_communities_ga = -1;
-static int hf_bgp_large_communities_ldp1 = -1;
-static int hf_bgp_large_communities_ldp2 = -1;
-static int hf_bgp_vplsad_length = -1;
-static int hf_bgp_vplsad_rd = -1;
-static int hf_bgp_bgpad_pe_addr = -1;
-static int hf_bgp_vplsbgp_ce_id = -1;
-static int hf_bgp_vplsbgp_labelblock_offset = -1;
-static int hf_bgp_vplsbgp_labelblock_size = -1;
-static int hf_bgp_vplsbgp_labelblock_base = -1;
-static int hf_bgp_wildcard_route_target = -1;
-static int hf_bgp_type = -1;
+static int hf_bgp_marker;
+static int hf_bgp_length;
+static int hf_bgp_prefix_length;
+static int hf_bgp_rd;
+static int hf_bgp_continuation;
+static int hf_bgp_originating_as;
+static int hf_bgp_community_prefix;
+static int hf_bgp_endpoint_address;
+static int hf_bgp_endpoint_address_ipv6;
+static int hf_bgp_label_stack;
+static int hf_bgp_large_communities;
+static int hf_bgp_large_communities_ga;
+static int hf_bgp_large_communities_ldp1;
+static int hf_bgp_large_communities_ldp2;
+static int hf_bgp_vplsad_length;
+static int hf_bgp_vplsad_rd;
+static int hf_bgp_bgpad_pe_addr;
+static int hf_bgp_vplsbgp_ce_id;
+static int hf_bgp_vplsbgp_labelblock_offset;
+static int hf_bgp_vplsbgp_labelblock_size;
+static int hf_bgp_vplsbgp_labelblock_base;
+static int hf_bgp_wildcard_route_target;
+static int hf_bgp_type;
 
 /* BGP open message header filed */
 
-static int hf_bgp_open_version = -1;
-static int hf_bgp_open_myas = -1;
-static int hf_bgp_open_holdtime = -1;
-static int hf_bgp_open_identifier = -1;
-static int hf_bgp_open_opt_len = -1;
-static int hf_bgp_open_opt_extension = -1;
-static int hf_bgp_open_opt_extension_mark = -1;
-static int hf_bgp_open_opt_extension_len = -1;
-static int hf_bgp_open_opt_params = -1;
-static int hf_bgp_open_opt_param = -1;
-static int hf_bgp_open_opt_param_type = -1;
-static int hf_bgp_open_opt_param_len = -1;
-static int hf_bgp_open_opt_param_auth = -1;
-static int hf_bgp_open_opt_param_unknown = -1;
+static int hf_bgp_open_version;
+static int hf_bgp_open_myas;
+static int hf_bgp_open_holdtime;
+static int hf_bgp_open_identifier;
+static int hf_bgp_open_opt_len;
+static int hf_bgp_open_opt_extension;
+static int hf_bgp_open_opt_extension_mark;
+static int hf_bgp_open_opt_extension_len;
+static int hf_bgp_open_opt_params;
+static int hf_bgp_open_opt_param;
+static int hf_bgp_open_opt_param_type;
+static int hf_bgp_open_opt_param_len;
+static int hf_bgp_open_opt_param_auth;
+static int hf_bgp_open_opt_param_unknown;
 
 /* BGP notify header field */
 
-static int hf_bgp_notify_major_error = -1;
-static int hf_bgp_notify_minor_msg_hdr = -1;
-static int hf_bgp_notify_minor_open_msg = -1;
-static int hf_bgp_notify_minor_update_msg = -1;
-static int hf_bgp_notify_minor_ht_expired = -1;
-static int hf_bgp_notify_minor_state_machine = -1;
-static int hf_bgp_notify_minor_cease = -1;
-static int hf_bgp_notify_minor_rr_msg = -1;
-static int hf_bgp_notify_minor_unknown = -1;
-static int hf_bgp_notify_data = -1;
-static int hf_bgp_notify_error_open_bad_peer_as = -1;
-static int hf_bgp_notify_communication_length = -1;
-static int hf_bgp_notify_communication = -1;
+static int hf_bgp_notify_major_error;
+static int hf_bgp_notify_minor_msg_hdr;
+static int hf_bgp_notify_minor_open_msg;
+static int hf_bgp_notify_minor_update_msg;
+static int hf_bgp_notify_minor_ht_expired;
+static int hf_bgp_notify_minor_state_machine;
+static int hf_bgp_notify_minor_cease;
+static int hf_bgp_notify_minor_rr_msg;
+static int hf_bgp_notify_minor_unknown;
+static int hf_bgp_notify_data;
+static int hf_bgp_notify_error_open_bad_peer_as;
+static int hf_bgp_notify_communication_length;
+static int hf_bgp_notify_communication;
 
 /* BGP route refresh header field */
 
-static int hf_bgp_route_refresh_afi = -1;
-static int hf_bgp_route_refresh_subtype = -1;
-static int hf_bgp_route_refresh_safi = -1;
-static int hf_bgp_route_refresh_orf = -1;
-static int hf_bgp_route_refresh_orf_flag = -1;
-static int hf_bgp_route_refresh_orf_type = -1;
-static int hf_bgp_route_refresh_orf_length = -1;
-static int hf_bgp_route_refresh_orf_entry_prefixlist = -1;
-static int hf_bgp_route_refresh_orf_entry_action = -1;
-static int hf_bgp_route_refresh_orf_entry_match = -1;
-static int hf_bgp_route_refresh_orf_entry_sequence = -1;
-static int hf_bgp_route_refresh_orf_entry_prefixmask_lower = -1;
-static int hf_bgp_route_refresh_orf_entry_prefixmask_upper = -1;
-static int hf_bgp_route_refresh_orf_entry_ip = -1;
+static int hf_bgp_route_refresh_afi;
+static int hf_bgp_route_refresh_subtype;
+static int hf_bgp_route_refresh_safi;
+static int hf_bgp_route_refresh_orf;
+static int hf_bgp_route_refresh_orf_flag;
+static int hf_bgp_route_refresh_orf_type;
+static int hf_bgp_route_refresh_orf_length;
+static int hf_bgp_route_refresh_orf_entry_prefixlist;
+static int hf_bgp_route_refresh_orf_entry_action;
+static int hf_bgp_route_refresh_orf_entry_match;
+static int hf_bgp_route_refresh_orf_entry_sequence;
+static int hf_bgp_route_refresh_orf_entry_prefixmask_lower;
+static int hf_bgp_route_refresh_orf_entry_prefixmask_upper;
+static int hf_bgp_route_refresh_orf_entry_ip;
 
 /* BGP capabilities header field */
 
-static int hf_bgp_cap = -1;
-static int hf_bgp_cap_type = -1;
-static int hf_bgp_cap_length = -1;
-static int hf_bgp_cap_action = -1;
-static int hf_bgp_cap_unknown = -1;
-static int hf_bgp_cap_reserved = -1;
-static int hf_bgp_cap_mp_afi = -1;
-static int hf_bgp_cap_mp_safi = -1;
-static int hf_bgp_cap_enh_afi = -1;
-static int hf_bgp_cap_enh_safi = -1;
-static int hf_bgp_cap_enh_nhafi = -1;
-static int hf_bgp_cap_role = -1;
-static int hf_bgp_cap_gr_timers = -1;
-static int hf_bgp_cap_gr_timers_restart_flag = -1;
-static int hf_bgp_cap_gr_timers_notification_flag = -1;
-static int hf_bgp_cap_gr_timers_restart_time = -1;
-static int hf_bgp_cap_gr_afi = -1;
-static int hf_bgp_cap_gr_safi = -1;
-static int hf_bgp_cap_gr_flag = -1;
-static int hf_bgp_cap_gr_flag_pfs = -1;
-static int hf_bgp_cap_4as = -1;
-static int hf_bgp_cap_dc = -1;
-static int hf_bgp_cap_ap_afi = -1;
-static int hf_bgp_cap_ap_safi = -1;
-static int hf_bgp_cap_ap_sendreceive = -1;
-static int hf_bgp_cap_orf_afi = -1;
-static int hf_bgp_cap_orf_safi = -1;
-static int hf_bgp_cap_orf_number = -1;
-static int hf_bgp_cap_orf_type = -1;
-static int hf_bgp_cap_orf_sendreceive = -1;
-static int hf_bgp_cap_fqdn_hostname_len = -1;
-static int hf_bgp_cap_fqdn_hostname = -1;
-static int hf_bgp_cap_fqdn_domain_name_len = -1;
-static int hf_bgp_cap_fqdn_domain_name = -1;
-static int hf_bgp_cap_multisession_flags = -1;
-static int hf_bgp_cap_bgpsec_flags = -1;
-static int hf_bgp_cap_bgpsec_version = -1;
-static int hf_bgp_cap_bgpsec_sendreceive = -1;
-static int hf_bgp_cap_bgpsec_reserved = -1;
-static int hf_bgp_cap_bgpsec_afi = -1;
-static int hf_bgp_cap_soft_version = -1;
-static int hf_bgp_cap_soft_version_len = -1;
+static int hf_bgp_cap;
+static int hf_bgp_cap_type;
+static int hf_bgp_cap_length;
+static int hf_bgp_cap_action;
+static int hf_bgp_cap_unknown;
+static int hf_bgp_cap_reserved;
+static int hf_bgp_cap_mp_afi;
+static int hf_bgp_cap_mp_safi;
+static int hf_bgp_cap_enh_afi;
+static int hf_bgp_cap_enh_safi;
+static int hf_bgp_cap_enh_nhafi;
+static int hf_bgp_cap_role;
+static int hf_bgp_cap_gr_timers;
+static int hf_bgp_cap_gr_timers_restart_flag;
+static int hf_bgp_cap_gr_timers_notification_flag;
+static int hf_bgp_cap_gr_timers_restart_time;
+static int hf_bgp_cap_gr_afi;
+static int hf_bgp_cap_gr_safi;
+static int hf_bgp_cap_gr_flag;
+static int hf_bgp_cap_gr_flag_pfs;
+static int hf_bgp_cap_4as;
+static int hf_bgp_cap_dc;
+static int hf_bgp_cap_ap_afi;
+static int hf_bgp_cap_ap_safi;
+static int hf_bgp_cap_ap_sendreceive;
+static int hf_bgp_cap_orf_afi;
+static int hf_bgp_cap_orf_safi;
+static int hf_bgp_cap_orf_number;
+static int hf_bgp_cap_orf_type;
+static int hf_bgp_cap_orf_sendreceive;
+static int hf_bgp_cap_fqdn_hostname_len;
+static int hf_bgp_cap_fqdn_hostname;
+static int hf_bgp_cap_fqdn_domain_name_len;
+static int hf_bgp_cap_fqdn_domain_name;
+static int hf_bgp_cap_multisession_flags;
+static int hf_bgp_cap_bgpsec_flags;
+static int hf_bgp_cap_bgpsec_version;
+static int hf_bgp_cap_bgpsec_sendreceive;
+static int hf_bgp_cap_bgpsec_reserved;
+static int hf_bgp_cap_bgpsec_afi;
+static int hf_bgp_cap_soft_version;
+static int hf_bgp_cap_soft_version_len;
 
 /* BGP update global header field */
-static int hf_bgp_update_withdrawn_routes_length = -1;
-static int hf_bgp_update_withdrawn_routes = -1;
+static int hf_bgp_update_withdrawn_routes_length;
+static int hf_bgp_update_withdrawn_routes;
 
 
 /* BGP update path attribute header field */
-static int hf_bgp_update_total_path_attribute_length = -1;
-static int hf_bgp_update_path_attributes = -1;
-static int hf_bgp_update_path_attributes_unknown = -1;
-static int hf_bgp_update_path_attribute_communities = -1;
-static int hf_bgp_update_path_attribute_community_well_known = -1;
-static int hf_bgp_update_path_attribute_community = -1;
-static int hf_bgp_update_path_attribute_community_as = -1;
-static int hf_bgp_update_path_attribute_community_value = -1;
-static int hf_bgp_update_path_attribute = -1;
-static int hf_bgp_update_path_attribute_flags = -1;
-static int hf_bgp_update_path_attribute_flags_optional = -1;
-static int hf_bgp_update_path_attribute_flags_transitive = -1;
-static int hf_bgp_update_path_attribute_flags_partial = -1;
-static int hf_bgp_update_path_attribute_flags_extended_length = -1;
-static int hf_bgp_update_path_attribute_flags_unused = -1;
-static int hf_bgp_update_path_attribute_type_code = -1;
-static int hf_bgp_update_path_attribute_length = -1;
-static int hf_bgp_update_path_attribute_next_hop = -1;
-static int hf_bgp_update_path_attribute_as_path_segment = -1;
-static int hf_bgp_update_path_attribute_as_path_segment_type = -1;
-static int hf_bgp_update_path_attribute_as_path_segment_length = -1;
-static int hf_bgp_update_path_attribute_as_path_segment_as2 = -1;
-static int hf_bgp_update_path_attribute_as_path_segment_as4 = -1;
-static int hf_bgp_update_path_attribute_origin = -1;
-static int hf_bgp_update_path_attribute_cluster_list = -1;
-static int hf_bgp_update_path_attribute_cluster_id = -1;
-static int hf_bgp_update_path_attribute_originator_id = -1;
-static int hf_bgp_update_path_attribute_local_pref = -1;
-static int hf_bgp_update_path_attribute_attrset_origin_as = -1;
-static int hf_bgp_update_path_attribute_multi_exit_disc = -1;
-static int hf_bgp_update_path_attribute_aggregator_as = -1;
-static int hf_bgp_update_path_attribute_aggregator_origin = -1;
-static int hf_bgp_update_path_attribute_link_state = -1;
-static int hf_bgp_update_path_attribute_mp_reach_nlri_address_family = -1;
-static int hf_bgp_update_path_attribute_mp_reach_nlri_safi = -1;
-static int hf_bgp_update_path_attribute_mp_reach_nlri_next_hop = -1;
-static int hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_rd = -1;
-static int hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv4 = -1;
-static int hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6 = -1;
-static int hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6_link_local = -1;
-static int hf_bgp_update_path_attribute_mp_reach_nlri_nbr_snpa = -1;
-static int hf_bgp_update_path_attribute_mp_reach_nlri_snpa_length = -1;
-static int hf_bgp_update_path_attribute_mp_reach_nlri_snpa = -1;
-static int hf_bgp_update_path_attribute_mp_reach_nlri = -1;
-static int hf_bgp_update_path_attribute_mp_unreach_nlri_address_family = -1;
-static int hf_bgp_update_path_attribute_mp_unreach_nlri_safi = -1;
-static int hf_bgp_update_path_attribute_mp_unreach_nlri = -1;
-static int hf_bgp_update_path_attribute_aigp = -1;
-static int hf_bgp_update_path_attribute_bgpsec_sb_len = -1;
-static int hf_bgp_update_path_attribute_bgpsec_algo_id = -1;
-static int hf_bgp_update_path_attribute_bgpsec_sps_pcount = -1;
-static int hf_bgp_update_path_attribute_bgpsec_sps_flags = -1;
-static int hf_bgp_update_path_attribute_bgpsec_sps_as = -1;
-static int hf_bgp_update_path_attribute_bgpsec_sp_len = -1;
-static int hf_bgp_update_path_attribute_bgpsec_ski = -1;
-static int hf_bgp_update_path_attribute_bgpsec_sig_len = -1;
-static int hf_bgp_update_path_attribute_bgpsec_sig = -1;
-static int hf_bgp_update_path_attribute_otc = -1;
-static int hf_bgp_update_path_attribute_d_path = -1;
-static int hf_bgp_d_path_ga = -1;
-static int hf_bgp_d_path_la = -1;
-static int hf_bgp_d_path_length = -1;
-static int hf_bgp_d_path_isf_safi = -1;
-static int hf_bgp_evpn_nlri = -1;
-static int hf_bgp_evpn_nlri_rt = -1;
-static int hf_bgp_evpn_nlri_len = -1;
-static int hf_bgp_evpn_nlri_rd = -1;
-static int hf_bgp_evpn_nlri_esi = -1;
-static int hf_bgp_evpn_nlri_esi_type = -1;
-static int hf_bgp_evpn_nlri_esi_lacp_mac = -1;
-static int hf_bgp_evpn_nlri_esi_portk = -1;
-static int hf_bgp_evpn_nlri_esi_remain = -1;
-static int hf_bgp_evpn_nlri_esi_value = -1;
-static int hf_bgp_evpn_nlri_esi_value_type0 = -1;
-static int hf_bgp_evpn_nlri_esi_rb_mac = -1;
-static int hf_bgp_evpn_nlri_esi_rbprio = -1;
-static int hf_bgp_evpn_nlri_esi_sys_mac = -1;
-static int hf_bgp_evpn_nlri_esi_mac_discr = -1;
-static int hf_bgp_evpn_nlri_esi_router_id = -1;
-static int hf_bgp_evpn_nlri_esi_router_discr = -1;
-static int hf_bgp_evpn_nlri_esi_asn = -1;
-static int hf_bgp_evpn_nlri_esi_asn_discr = -1;
-static int hf_bgp_evpn_nlri_esi_reserved = -1;
-static int hf_bgp_evpn_nlri_etag = -1;
-static int hf_bgp_evpn_nlri_mpls_ls1 = -1;
-static int hf_bgp_evpn_nlri_mpls_ls2 = -1;
-static int hf_bgp_evpn_nlri_vni = -1;
-static int hf_bgp_evpn_nlri_maclen = -1;
-static int hf_bgp_evpn_nlri_mac_addr = -1;
-static int hf_bgp_evpn_nlri_iplen = -1;
-static int hf_bgp_evpn_nlri_prefix_len = -1;
-static int hf_bgp_evpn_nlri_ip_addr = -1;
-static int hf_bgp_evpn_nlri_ipv6_addr = -1;
-static int hf_bgp_evpn_nlri_ipv4_gtw = -1;
-static int hf_bgp_evpn_nlri_ipv6_gtw = -1;
-static int hf_bgp_evpn_nlri_igmp_mc_or_length = -1;
-static int hf_bgp_evpn_nlri_igmp_mc_or_addr_ipv4 = -1;
-static int hf_bgp_evpn_nlri_igmp_mc_or_addr_ipv6 = -1;
-static int hf_bgp_evpn_nlri_igmp_mc_flags = -1;
-static int hf_bgp_evpn_nlri_igmp_mc_flags_v1 = -1;
-static int hf_bgp_evpn_nlri_igmp_mc_flags_v2 = -1;
-static int hf_bgp_evpn_nlri_igmp_mc_flags_v3 = -1;
-static int hf_bgp_evpn_nlri_igmp_mc_flags_ie = -1;
-static int hf_bgp_evpn_nlri_igmp_mc_flags_reserved = -1;
+static int hf_bgp_update_total_path_attribute_length;
+static int hf_bgp_update_path_attributes;
+static int hf_bgp_update_path_attributes_unknown;
+static int hf_bgp_update_path_attribute_communities;
+static int hf_bgp_update_path_attribute_community_well_known;
+static int hf_bgp_update_path_attribute_community;
+static int hf_bgp_update_path_attribute_community_as;
+static int hf_bgp_update_path_attribute_community_value;
+static int hf_bgp_update_path_attribute;
+static int hf_bgp_update_path_attribute_flags;
+static int hf_bgp_update_path_attribute_flags_optional;
+static int hf_bgp_update_path_attribute_flags_transitive;
+static int hf_bgp_update_path_attribute_flags_partial;
+static int hf_bgp_update_path_attribute_flags_extended_length;
+static int hf_bgp_update_path_attribute_flags_unused;
+static int hf_bgp_update_path_attribute_type_code;
+static int hf_bgp_update_path_attribute_length;
+static int hf_bgp_update_path_attribute_next_hop;
+static int hf_bgp_update_path_attribute_as_path_segment;
+static int hf_bgp_update_path_attribute_as_path_segment_type;
+static int hf_bgp_update_path_attribute_as_path_segment_length;
+static int hf_bgp_update_path_attribute_as_path_segment_as2;
+static int hf_bgp_update_path_attribute_as_path_segment_as4;
+static int hf_bgp_update_path_attribute_origin;
+static int hf_bgp_update_path_attribute_cluster_list;
+static int hf_bgp_update_path_attribute_cluster_id;
+static int hf_bgp_update_path_attribute_originator_id;
+static int hf_bgp_update_path_attribute_local_pref;
+static int hf_bgp_update_path_attribute_attrset_origin_as;
+static int hf_bgp_update_path_attribute_multi_exit_disc;
+static int hf_bgp_update_path_attribute_aggregator_as;
+static int hf_bgp_update_path_attribute_aggregator_origin;
+static int hf_bgp_update_path_attribute_link_state;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_address_family;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_safi;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_next_hop;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_rd;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv4;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6_link_local;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_nbr_snpa;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_snpa_length;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_snpa;
+static int hf_bgp_update_path_attribute_mp_reach_nlri;
+static int hf_bgp_update_path_attribute_mp_unreach_nlri_address_family;
+static int hf_bgp_update_path_attribute_mp_unreach_nlri_safi;
+static int hf_bgp_update_path_attribute_mp_unreach_nlri;
+static int hf_bgp_update_path_attribute_aigp;
+static int hf_bgp_update_path_attribute_bgpsec_sb_len;
+static int hf_bgp_update_path_attribute_bgpsec_algo_id;
+static int hf_bgp_update_path_attribute_bgpsec_sps_pcount;
+static int hf_bgp_update_path_attribute_bgpsec_sps_flags;
+static int hf_bgp_update_path_attribute_bgpsec_sps_as;
+static int hf_bgp_update_path_attribute_bgpsec_sp_len;
+static int hf_bgp_update_path_attribute_bgpsec_ski;
+static int hf_bgp_update_path_attribute_bgpsec_sig_len;
+static int hf_bgp_update_path_attribute_bgpsec_sig;
+static int hf_bgp_update_path_attribute_otc;
+static int hf_bgp_update_path_attribute_d_path;
+static int hf_bgp_d_path_ga;
+static int hf_bgp_d_path_la;
+static int hf_bgp_d_path_length;
+static int hf_bgp_d_path_isf_safi;
+static int hf_bgp_evpn_nlri;
+static int hf_bgp_evpn_nlri_rt;
+static int hf_bgp_evpn_nlri_len;
+static int hf_bgp_evpn_nlri_rd;
+static int hf_bgp_evpn_nlri_esi;
+static int hf_bgp_evpn_nlri_esi_type;
+static int hf_bgp_evpn_nlri_esi_lacp_mac;
+static int hf_bgp_evpn_nlri_esi_portk;
+static int hf_bgp_evpn_nlri_esi_remain;
+static int hf_bgp_evpn_nlri_esi_value;
+static int hf_bgp_evpn_nlri_esi_value_type0;
+static int hf_bgp_evpn_nlri_esi_rb_mac;
+static int hf_bgp_evpn_nlri_esi_rbprio;
+static int hf_bgp_evpn_nlri_esi_sys_mac;
+static int hf_bgp_evpn_nlri_esi_mac_discr;
+static int hf_bgp_evpn_nlri_esi_router_id;
+static int hf_bgp_evpn_nlri_esi_router_discr;
+static int hf_bgp_evpn_nlri_esi_asn;
+static int hf_bgp_evpn_nlri_esi_asn_discr;
+static int hf_bgp_evpn_nlri_esi_reserved;
+static int hf_bgp_evpn_nlri_etag;
+static int hf_bgp_evpn_nlri_mpls_ls1;
+static int hf_bgp_evpn_nlri_mpls_ls2;
+static int hf_bgp_evpn_nlri_vni;
+static int hf_bgp_evpn_nlri_maclen;
+static int hf_bgp_evpn_nlri_mac_addr;
+static int hf_bgp_evpn_nlri_iplen;
+static int hf_bgp_evpn_nlri_prefix_len;
+static int hf_bgp_evpn_nlri_ip_addr;
+static int hf_bgp_evpn_nlri_ipv6_addr;
+static int hf_bgp_evpn_nlri_ipv4_gtw;
+static int hf_bgp_evpn_nlri_ipv6_gtw;
+static int hf_bgp_evpn_nlri_igmp_mc_or_length;
+static int hf_bgp_evpn_nlri_igmp_mc_or_addr_ipv4;
+static int hf_bgp_evpn_nlri_igmp_mc_or_addr_ipv6;
+static int hf_bgp_evpn_nlri_igmp_mc_flags;
+static int hf_bgp_evpn_nlri_igmp_mc_flags_v1;
+static int hf_bgp_evpn_nlri_igmp_mc_flags_v2;
+static int hf_bgp_evpn_nlri_igmp_mc_flags_v3;
+static int hf_bgp_evpn_nlri_igmp_mc_flags_ie;
+static int hf_bgp_evpn_nlri_igmp_mc_flags_reserved;
 
 static int * const evpn_nlri_igmp_mc_flags[] = {
        &hf_bgp_evpn_nlri_igmp_mc_flags_v1,
@@ -2280,308 +2280,308 @@ static int * const evpn_nlri_igmp_mc_flags[] = {
 
 /* BGP update tunnel encaps attribute RFC 5512 */
 
-static int hf_bgp_update_encaps_tunnel_tlv_len = -1;
-static int hf_bgp_update_encaps_tunnel_tlv_type = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_len = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_type = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_session_id = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_cookie = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_gre_key = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_color_value = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_lb_block_length = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_value = -1;
+static int hf_bgp_update_encaps_tunnel_tlv_len;
+static int hf_bgp_update_encaps_tunnel_tlv_type;
+static int hf_bgp_update_encaps_tunnel_subtlv_len;
+static int hf_bgp_update_encaps_tunnel_subtlv_type;
+static int hf_bgp_update_encaps_tunnel_subtlv_session_id;
+static int hf_bgp_update_encaps_tunnel_subtlv_cookie;
+static int hf_bgp_update_encaps_tunnel_subtlv_gre_key;
+static int hf_bgp_update_encaps_tunnel_subtlv_color_value;
+static int hf_bgp_update_encaps_tunnel_subtlv_lb_block_length;
+static int hf_bgp_update_encaps_tunnel_subtlv_value;
 
 /* draft-ietf-idr-tunnel-encaps */
-static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags_valid_vnid = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags_valid_mac = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags_reserved = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_vnid = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_mac = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_reserved = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags_version = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags_valid_vnid = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags_reserved = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_vnid = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_reserved = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags_valid_vnid = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags_valid_mac = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags_reserved = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_vnid = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_mac = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_reserved = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags_valid_vnid;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags_valid_mac;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_flags_reserved;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_vnid;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_mac;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_reserved;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags_version;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags_valid_vnid;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_flags_reserved;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_vnid;
+static int hf_bgp_update_encaps_tunnel_subtlv_vxlan_gpe_reserved;
+static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags;
+static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags_valid_vnid;
+static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags_valid_mac;
+static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_flags_reserved;
+static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_vnid;
+static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_mac;
+static int hf_bgp_update_encaps_tunnel_subtlv_nvgre_reserved;
 
 /* draft-ietf-idr-segment-routing-te-policy */
-static int hf_bgp_update_encaps_tunnel_subtlv_pref_flags = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_pref_reserved = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_pref_preference = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags_specified = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags_invalid = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags_reserved = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_binding_sid_reserved = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_binding_sid_sid= -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_enlp_flags = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_enlp_reserved = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_enlp_enlp = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_priority_priority = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_priority_reserved = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_reserved = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_type = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_length = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_data = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags_verification = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags_algorithm = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags_reserved = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_reserved = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_mpls_label = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_traffic_class = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_bottom_stack = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_ttl = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_policy_name_reserved = -1;
-static int hf_bgp_update_encaps_tunnel_subtlv_policy_name_name = -1;
+static int hf_bgp_update_encaps_tunnel_subtlv_pref_flags;
+static int hf_bgp_update_encaps_tunnel_subtlv_pref_reserved;
+static int hf_bgp_update_encaps_tunnel_subtlv_pref_preference;
+static int hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags;
+static int hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags_specified;
+static int hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags_invalid;
+static int hf_bgp_update_encaps_tunnel_subtlv_binding_sid_flags_reserved;
+static int hf_bgp_update_encaps_tunnel_subtlv_binding_sid_reserved;
+static int hf_bgp_update_encaps_tunnel_subtlv_binding_sid_sid;
+static int hf_bgp_update_encaps_tunnel_subtlv_enlp_flags;
+static int hf_bgp_update_encaps_tunnel_subtlv_enlp_reserved;
+static int hf_bgp_update_encaps_tunnel_subtlv_enlp_enlp;
+static int hf_bgp_update_encaps_tunnel_subtlv_priority_priority;
+static int hf_bgp_update_encaps_tunnel_subtlv_priority_reserved;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_reserved;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_type;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_length;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_data;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags_verification;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags_algorithm;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_flags_reserved;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_reserved;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_mpls_label;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_traffic_class;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_bottom_stack;
+static int hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_ttl;
+static int hf_bgp_update_encaps_tunnel_subtlv_policy_name_reserved;
+static int hf_bgp_update_encaps_tunnel_subtlv_policy_name_name;
 
 /* RFC 6514 PMSI Tunnel Attribute */
-static int hf_bgp_pmsi_tunnel_flags = -1;
-static int hf_bgp_pmsi_tunnel_type = -1;
-static int hf_bgp_pmsi_tunnel_id = -1;
-static int hf_bgp_pmsi_tunnel_not_present = -1;
-static int hf_bgp_pmsi_tunnel_rsvp_p2mp_id = -1; /* RFC4875 section 19 */
-static int hf_bgp_pmsi_tunnel_rsvp_p2mp_tunnel_id = -1;
-static int hf_bgp_pmsi_tunnel_rsvp_p2mp_ext_tunnel_idv4 = -1;
-static int hf_bgp_pmsi_tunnel_mldp_fec_el_type = -1; /* RFC 6388 section 2.3 */
-static int hf_bgp_pmsi_tunnel_mldp_fec_el_afi = -1;
-static int hf_bgp_pmsi_tunnel_mldp_fec_el_adr_len = -1;
-static int hf_bgp_pmsi_tunnel_mldp_fec_el_root_nodev4 = -1;
-static int hf_bgp_pmsi_tunnel_mldp_fec_el_root_nodev6 = -1;
-static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_len = -1;
-static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_type = -1;
-static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_len = -1;
-static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_value_rn = -1;
-static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_value_str = -1;
-static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_ext_type = -1;
-static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_ext_len = -1;
-static int hf_bgp_pmsi_tunnel_pimsm_sender = -1;
-static int hf_bgp_pmsi_tunnel_pimsm_pmc_group = -1;
-static int hf_bgp_pmsi_tunnel_pimssm_root_node = -1;
-static int hf_bgp_pmsi_tunnel_pimssm_pmc_group = -1;
-static int hf_bgp_pmsi_tunnel_pimbidir_sender = -1;
-static int hf_bgp_pmsi_tunnel_pimbidir_pmc_group = -1;
-static int hf_bgp_pmsi_tunnel_ingress_rep_addr = -1;
-static int hf_bgp_pmsi_tunnel_ingress_rep_addr6 = -1;
+static int hf_bgp_pmsi_tunnel_flags;
+static int hf_bgp_pmsi_tunnel_type;
+static int hf_bgp_pmsi_tunnel_id;
+static int hf_bgp_pmsi_tunnel_not_present;
+static int hf_bgp_pmsi_tunnel_rsvp_p2mp_id; /* RFC4875 section 19 */
+static int hf_bgp_pmsi_tunnel_rsvp_p2mp_tunnel_id;
+static int hf_bgp_pmsi_tunnel_rsvp_p2mp_ext_tunnel_idv4;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_type; /* RFC 6388 section 2.3 */
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_afi;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_adr_len;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_root_nodev4;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_root_nodev6;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_len;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_type;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_len;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_value_rn;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_value_str;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_ext_type;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_ext_len;
+static int hf_bgp_pmsi_tunnel_pimsm_sender;
+static int hf_bgp_pmsi_tunnel_pimsm_pmc_group;
+static int hf_bgp_pmsi_tunnel_pimssm_root_node;
+static int hf_bgp_pmsi_tunnel_pimssm_pmc_group;
+static int hf_bgp_pmsi_tunnel_pimbidir_sender;
+static int hf_bgp_pmsi_tunnel_pimbidir_pmc_group;
+static int hf_bgp_pmsi_tunnel_ingress_rep_addr;
+static int hf_bgp_pmsi_tunnel_ingress_rep_addr6;
 
 /* RFC 7311 attribute */
-static int hf_bgp_aigp_type = -1;
-static int hf_bgp_aigp_tlv_length = -1;
-static int hf_bgp_aigp_accu_igp_metric = -1;
+static int hf_bgp_aigp_type;
+static int hf_bgp_aigp_tlv_length;
+static int hf_bgp_aigp_accu_igp_metric;
 
 
 /* MPLS labels decoding */
-static int hf_bgp_update_mpls_label = -1;
-static int hf_bgp_update_mpls_label_value = -1;
-static int hf_bgp_update_mpls_label_value_20bits = -1;
-static int hf_bgp_update_mpls_traffic_class = -1;
-static int hf_bgp_update_mpls_bottom_stack = -1;
+static int hf_bgp_update_mpls_label;
+static int hf_bgp_update_mpls_label_value;
+static int hf_bgp_update_mpls_label_value_20bits;
+static int hf_bgp_update_mpls_traffic_class;
+static int hf_bgp_update_mpls_bottom_stack;
 
 /* BGP update path attribute SSA SAFI Specific attribute (deprecated should we keep it ?) */
 
-static int hf_bgp_ssa_t = -1;
-static int hf_bgp_ssa_type = -1;
-static int hf_bgp_ssa_len = -1;
-static int hf_bgp_ssa_value = -1;
-static int hf_bgp_ssa_l2tpv3_pref = -1;
-static int hf_bgp_ssa_l2tpv3_s = -1;
-static int hf_bgp_ssa_l2tpv3_unused = -1;
-static int hf_bgp_ssa_l2tpv3_cookie_len = -1;
-static int hf_bgp_ssa_l2tpv3_session_id = -1;
-static int hf_bgp_ssa_l2tpv3_cookie = -1;
+static int hf_bgp_ssa_t;
+static int hf_bgp_ssa_type;
+static int hf_bgp_ssa_len;
+static int hf_bgp_ssa_value;
+static int hf_bgp_ssa_l2tpv3_pref;
+static int hf_bgp_ssa_l2tpv3_s;
+static int hf_bgp_ssa_l2tpv3_unused;
+static int hf_bgp_ssa_l2tpv3_cookie_len;
+static int hf_bgp_ssa_l2tpv3_session_id;
+static int hf_bgp_ssa_l2tpv3_cookie;
 
 /* BGP NLRI head field */
-static int hf_bgp_update_nlri = -1;
+static int hf_bgp_update_nlri;
 
-static int hf_bgp_mp_reach_nlri_ipv4_prefix = -1;
-static int hf_bgp_mp_unreach_nlri_ipv4_prefix = -1;
-static int hf_bgp_mp_reach_nlri_ipv6_prefix = -1;
-static int hf_bgp_mp_unreach_nlri_ipv6_prefix = -1;
-static int hf_bgp_mp_nlri_tnl_id = -1;
-static int hf_bgp_withdrawn_prefix = -1;
-static int hf_bgp_nlri_prefix = -1;
-static int hf_bgp_nlri_path_id = -1;
+static int hf_bgp_mp_reach_nlri_ipv4_prefix;
+static int hf_bgp_mp_unreach_nlri_ipv4_prefix;
+static int hf_bgp_mp_reach_nlri_ipv6_prefix;
+static int hf_bgp_mp_unreach_nlri_ipv6_prefix;
+static int hf_bgp_mp_nlri_tnl_id;
+static int hf_bgp_withdrawn_prefix;
+static int hf_bgp_nlri_prefix;
+static int hf_bgp_nlri_path_id;
 
 /* BGP mcast IP VPN nlri header field */
 
-static int hf_bgp_mcast_vpn_nlri_t = -1;
-static int hf_bgp_mcast_vpn_nlri_route_type = -1;
-static int hf_bgp_mcast_vpn_nlri_length = -1;
-static int hf_bgp_mcast_vpn_nlri_rd = -1;
-static int hf_bgp_mcast_vpn_nlri_origin_router_ipv4 = -1;
-static int hf_bgp_mcast_vpn_nlri_origin_router_ipv6 = -1;
-static int hf_bgp_mcast_vpn_nlri_source_as = -1;
-static int hf_bgp_mcast_vpn_nlri_source_length = -1;
-static int hf_bgp_mcast_vpn_nlri_group_length = -1;
-static int hf_bgp_mcast_vpn_nlri_source_addr_ipv4 = -1;
-static int hf_bgp_mcast_vpn_nlri_source_addr_ipv6 = -1;
-static int hf_bgp_mcast_vpn_nlri_group_addr_ipv4 = -1;
-static int hf_bgp_mcast_vpn_nlri_group_addr_ipv6 = -1;
-static int hf_bgp_mcast_vpn_nlri_route_key = -1;
+static int hf_bgp_mcast_vpn_nlri_t;
+static int hf_bgp_mcast_vpn_nlri_route_type;
+static int hf_bgp_mcast_vpn_nlri_length;
+static int hf_bgp_mcast_vpn_nlri_rd;
+static int hf_bgp_mcast_vpn_nlri_origin_router_ipv4;
+static int hf_bgp_mcast_vpn_nlri_origin_router_ipv6;
+static int hf_bgp_mcast_vpn_nlri_source_as;
+static int hf_bgp_mcast_vpn_nlri_source_length;
+static int hf_bgp_mcast_vpn_nlri_group_length;
+static int hf_bgp_mcast_vpn_nlri_source_addr_ipv4;
+static int hf_bgp_mcast_vpn_nlri_source_addr_ipv6;
+static int hf_bgp_mcast_vpn_nlri_group_addr_ipv4;
+static int hf_bgp_mcast_vpn_nlri_group_addr_ipv6;
+static int hf_bgp_mcast_vpn_nlri_route_key;
 
 /* BGP SR policy nlri field */
-static int hf_bgp_sr_policy_nlri_length = - 1;
-static int hf_bgp_sr_policy_nlri_distinguisher = - 1;
-static int hf_bgp_sr_policy_nlri_policy_color = - 1;
-static int hf_bgp_sr_policy_nlri_endpoint_v4 = - 1;
-static int hf_bgp_sr_policy_nlri_endpoint_v6 = - 1;
+static int hf_bgp_sr_policy_nlri_length;
+static int hf_bgp_sr_policy_nlri_distinguisher;
+static int hf_bgp_sr_policy_nlri_policy_color;
+static int hf_bgp_sr_policy_nlri_endpoint_v4;
+static int hf_bgp_sr_policy_nlri_endpoint_v6;
 
 /* BGP-LS */
 
-static int hf_bgp_ls_type = -1;
-static int hf_bgp_ls_length = -1;
+static int hf_bgp_ls_type;
+static int hf_bgp_ls_length;
 
-static int hf_bgp_ls_nlri = -1;
-static int hf_bgp_ls_safi128_nlri = -1;
-static int hf_bgp_ls_safi128_nlri_route_distinguisher = -1;
-static int hf_bgp_ls_safi128_nlri_route_distinguisher_type = -1;
-static int hf_bgp_ls_safi128_nlri_route_dist_admin_asnum_2 = -1;
-static int hf_bgp_ls_safi128_nlri_route_dist_admin_ipv4 = -1;
-static int hf_bgp_ls_safi128_nlri_route_dist_admin_asnum_4 = -1;
-static int hf_bgp_ls_safi128_nlri_route_dist_asnum_2 = -1;
-static int hf_bgp_ls_safi128_nlri_route_dist_asnum_4 = -1;
-static int hf_bgp_ls_nlri_type = -1;
-static int hf_bgp_ls_nlri_length = -1;
-static int hf_bgp_ls_nlri_link_nlri_type = -1;
-static int hf_bgp_ls_nlri_link_descriptors_tlv = -1;
-static int hf_bgp_ls_nlri_prefix_descriptors_tlv = -1;
-static int hf_bgp_ls_nlri_srv6_sid_descriptors_tlv = -1;
-static int hf_bgp_ls_nlri_link_local_identifier = -1;
-static int hf_bgp_ls_nlri_link_remote_identifier = -1;
-static int hf_bgp_ls_nlri_ipv4_interface_address = -1;
-static int hf_bgp_ls_nlri_ipv4_neighbor_address = -1;
-static int hf_bgp_ls_nlri_ipv6_interface_address = -1;
-static int hf_bgp_ls_nlri_ipv6_neighbor_address = -1;
-static int hf_bgp_ls_nlri_multi_topology_id = -1;
-static int hf_bgp_ls_nlri_ospf_route_type = -1;
-static int hf_bgp_ls_nlri_ip_reachability_prefix_ip = -1;
-static int hf_bgp_ls_nlri_ip_reachability_prefix_ip6 = -1;
-static int hf_bgp_ls_nlri_node_nlri_type = -1;
-static int hf_bgp_ls_nlri_node_protocol_id = -1;
-static int hf_bgp_ls_nlri_node_identifier = -1;
-static int hf_bgp_ls_ipv4_topology_prefix_nlri_type = -1;
-static int hf_bgp_ls_ipv6_topology_prefix_nlri_type = -1;
-static int hf_bgp_ls_nlri_srv6_sid_nlri_type = -1;
+static int hf_bgp_ls_nlri;
+static int hf_bgp_ls_safi128_nlri;
+static int hf_bgp_ls_safi128_nlri_route_distinguisher;
+static int hf_bgp_ls_safi128_nlri_route_distinguisher_type;
+static int hf_bgp_ls_safi128_nlri_route_dist_admin_asnum_2;
+static int hf_bgp_ls_safi128_nlri_route_dist_admin_ipv4;
+static int hf_bgp_ls_safi128_nlri_route_dist_admin_asnum_4;
+static int hf_bgp_ls_safi128_nlri_route_dist_asnum_2;
+static int hf_bgp_ls_safi128_nlri_route_dist_asnum_4;
+static int hf_bgp_ls_nlri_type;
+static int hf_bgp_ls_nlri_length;
+static int hf_bgp_ls_nlri_link_nlri_type;
+static int hf_bgp_ls_nlri_link_descriptors_tlv;
+static int hf_bgp_ls_nlri_prefix_descriptors_tlv;
+static int hf_bgp_ls_nlri_srv6_sid_descriptors_tlv;
+static int hf_bgp_ls_nlri_link_local_identifier;
+static int hf_bgp_ls_nlri_link_remote_identifier;
+static int hf_bgp_ls_nlri_ipv4_interface_address;
+static int hf_bgp_ls_nlri_ipv4_neighbor_address;
+static int hf_bgp_ls_nlri_ipv6_interface_address;
+static int hf_bgp_ls_nlri_ipv6_neighbor_address;
+static int hf_bgp_ls_nlri_multi_topology_id;
+static int hf_bgp_ls_nlri_ospf_route_type;
+static int hf_bgp_ls_nlri_ip_reachability_prefix_ip;
+static int hf_bgp_ls_nlri_ip_reachability_prefix_ip6;
+static int hf_bgp_ls_nlri_node_nlri_type;
+static int hf_bgp_ls_nlri_node_protocol_id;
+static int hf_bgp_ls_nlri_node_identifier;
+static int hf_bgp_ls_ipv4_topology_prefix_nlri_type;
+static int hf_bgp_ls_ipv6_topology_prefix_nlri_type;
+static int hf_bgp_ls_nlri_srv6_sid_nlri_type;
 
 /* BGP-LS + SR */
-static int hf_bgp_ls_sr_tlv_capabilities = -1;
-static int hf_bgp_ls_sr_tlv_capabilities_range_size = -1;
-static int hf_bgp_ls_sr_tlv_capabilities_flags = -1;
-static int hf_bgp_ls_sr_tlv_capabilities_flags_i = -1;
-static int hf_bgp_ls_sr_tlv_capabilities_flags_v = -1;
-static int hf_bgp_ls_sr_tlv_capabilities_flags_h = -1;
-static int hf_bgp_ls_sr_tlv_capabilities_flags_reserved = -1;
-static int hf_bgp_ls_sr_tlv_capabilities_sid_label = -1;
-static int hf_bgp_ls_sr_tlv_capabilities_sid_index = -1;
-static int hf_bgp_ls_sr_tlv_algorithm = -1;
-static int hf_bgp_ls_sr_tlv_algorithm_value = -1;
-static int hf_bgp_ls_sr_tlv_local_block = -1;                      /* 1036 */
-static int hf_bgp_ls_sr_tlv_local_block_flags = -1;
-static int hf_bgp_ls_sr_tlv_local_block_range_size = -1;
-static int hf_bgp_ls_sr_tlv_local_block_sid_label = -1;
-static int hf_bgp_ls_sr_tlv_local_block_sid_index = -1;
-static int hf_bgp_ls_sr_tlv_srv6_cap = -1;                         /* 1037 */
-static int hf_bgp_ls_sr_tlv_srv6_cap_flags = -1;
-static int hf_bgp_ls_sr_tlv_srv6_cap_flags_o = -1;
-static int hf_bgp_ls_sr_tlv_srv6_cap_flags_reserved = -1;
-static int hf_bgp_ls_sr_tlv_srv6_cap_reserved = -1;
-static int hf_bgp_ls_sr_tlv_flex_algo_def = -1;                    /* 1039 */
-static int hf_bgp_ls_sr_tlv_flex_algo_algorithm = -1;
-static int hf_bgp_ls_sr_tlv_flex_algo_metric_type = -1;
-static int hf_bgp_ls_sr_tlv_flex_algo_calc_type = -1;
-static int hf_bgp_ls_sr_tlv_flex_algo_priority = -1;
-static int hf_bgp_ls_sr_tlv_flex_algo_exc_any_affinity = -1;       /* 1040 */
-static int hf_bgp_ls_sr_tlv_flex_algo_inc_any_affinity = -1;       /* 1041 */
-static int hf_bgp_ls_sr_tlv_flex_algo_inc_all_affinity = -1;       /* 1042 */
-static int hf_bgp_ls_sr_tlv_prefix_sid = -1;
-static int hf_bgp_ls_sr_tlv_prefix_sid_flags = -1;
-static int hf_bgp_ls_sr_tlv_prefix_sid_flags_r = -1;
-static int hf_bgp_ls_sr_tlv_prefix_sid_flags_n = -1;
-static int hf_bgp_ls_sr_tlv_prefix_sid_flags_np = -1;
-static int hf_bgp_ls_sr_tlv_prefix_sid_flags_p = -1;
-static int hf_bgp_ls_sr_tlv_prefix_sid_flags_m = -1;
-static int hf_bgp_ls_sr_tlv_prefix_sid_flags_e = -1;
-static int hf_bgp_ls_sr_tlv_prefix_sid_flags_v = -1;
-static int hf_bgp_ls_sr_tlv_prefix_sid_flags_l = -1;
-static int hf_bgp_ls_sr_tlv_prefix_sid_algo = -1;
-static int hf_bgp_ls_sr_tlv_prefix_sid_label = -1;
-static int hf_bgp_ls_sr_tlv_prefix_sid_index = -1;
-static int hf_bgp_ls_sr_tlv_adjacency_sid = -1;
-static int hf_bgp_ls_sr_tlv_adjacency_sid_flags = -1;
-static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_fi = -1;
-static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_bi = -1;
-static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_bo = -1;
-static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_vi = -1;
-static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_vo = -1;
-static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_li = -1;
-static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_lo = -1;
-static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_si = -1;
-static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_so = -1;
-static int hf_bgp_ls_sr_tlv_adjacency_sid_weight = -1;
-static int hf_bgp_ls_sr_tlv_adjacency_sid_label = -1;
-static int hf_bgp_ls_sr_tlv_adjacency_sid_index = -1;
-static int hf_bgp_ls_sr_tlv_peer_node_sid = -1;                    /* 1101 */
-static int hf_bgp_ls_sr_tlv_peer_adj_sid = -1;                     /* 1102 */
-static int hf_bgp_ls_sr_tlv_peer_set_sid = -1;                     /* 1103 */
-static int hf_bgp_ls_sr_tlv_peer_sid_flags = -1;
-static int hf_bgp_ls_sr_tlv_peer_sid_flags_v = -1;
-static int hf_bgp_ls_sr_tlv_peer_sid_flags_l = -1;
-static int hf_bgp_ls_sr_tlv_peer_sid_flags_b = -1;
-static int hf_bgp_ls_sr_tlv_peer_sid_flags_p = -1;
-static int hf_bgp_ls_sr_tlv_peer_sid_weight = -1;
-static int hf_bgp_ls_sr_tlv_peer_sid_label = -1;
-static int hf_bgp_ls_sr_tlv_peer_sid_index = -1;
-static int hf_bgp_ls_sr_tlv_srv6_endx_sid = -1;                   /* 1106 */
-static int hf_bgp_ls_sr_tlv_srv6_lan_endx_sid = -1;               /* 1107 */
-static int hf_bgp_ls_sr_tlv_srv6_endx_sid_endpoint_behavior = -1;
-static int hf_bgp_ls_sr_tlv_srv6_endx_sid_flags = -1;
-static int hf_bgp_ls_sr_tlv_srv6_endx_sid_flags_b = -1;
-static int hf_bgp_ls_sr_tlv_srv6_endx_sid_flags_s = -1;
-static int hf_bgp_ls_sr_tlv_srv6_endx_sid_flags_p = -1;
-static int hf_bgp_ls_sr_tlv_srv6_endx_sid_flags_reserved = -1;
-static int hf_bgp_ls_sr_tlv_srv6_endx_sid_algo = -1;
-static int hf_bgp_ls_sr_tlv_srv6_endx_sid_weight = -1;
-static int hf_bgp_ls_sr_tlv_srv6_endx_sid_reserved = -1;
-static int hf_bgp_ls_sr_tlv_srv6_endx_sid_neighbor_isis = -1;
-static int hf_bgp_ls_sr_tlv_srv6_endx_sid_neighbor_ospf = -1;
-static int hf_bgp_ls_sr_tlv_srv6_endx_sid_sid = -1;
-static int hf_bgp_ls_sr_tlv_srv6_locator = -1;                     /* 1162 */
-static int hf_bgp_ls_sr_tlv_srv6_locator_flags = -1;
-static int hf_bgp_ls_sr_tlv_srv6_locator_flags_d = -1;
-static int hf_bgp_ls_sr_tlv_srv6_locator_flags_reserved = -1;
-static int hf_bgp_ls_sr_tlv_srv6_locator_algo = -1;
-static int hf_bgp_ls_sr_tlv_srv6_locator_reserved = -1;
-static int hf_bgp_ls_sr_tlv_srv6_locator_metric = -1;
-static int hf_bgp_ls_sr_tlv_prefix_attr_flags = -1;                /* 1170 */
-static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags = -1;
-static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_unknown= -1;
-static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_ao = -1;
-static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_no = -1;
-static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_eo = -1;
-static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_xi = -1;
-static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_ri = -1;
-static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_ni = -1;
-static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_ei = -1;
-static int hf_bgp_ls_sr_tlv_source_router_id = -1;                 /* 1171 */
-static int hf_bgp_ls_sr_tlv_srv6_endpoint_behavior = -1;           /* 1250 */
-static int hf_bgp_ls_sr_tlv_srv6_endpoint_behavior_endpoint_behavior = -1;
-static int hf_bgp_ls_sr_tlv_srv6_endpoint_behavior_flags = -1;
-static int hf_bgp_ls_sr_tlv_srv6_endpoint_behavior_algo = -1;
-static int hf_bgp_ls_sr_tlv_srv6_sid_struct = -1;                  /* 1252 */
-static int hf_bgp_ls_sr_tlv_srv6_sid_struct_lb_len = -1;
-static int hf_bgp_ls_sr_tlv_srv6_sid_struct_ln_len = -1;
-static int hf_bgp_ls_sr_tlv_srv6_sid_struct_fun_len = -1;
-static int hf_bgp_ls_sr_tlv_srv6_sid_struct_arg_len = -1;
+static int hf_bgp_ls_sr_tlv_capabilities;
+static int hf_bgp_ls_sr_tlv_capabilities_range_size;
+static int hf_bgp_ls_sr_tlv_capabilities_flags;
+static int hf_bgp_ls_sr_tlv_capabilities_flags_i;
+static int hf_bgp_ls_sr_tlv_capabilities_flags_v;
+static int hf_bgp_ls_sr_tlv_capabilities_flags_h;
+static int hf_bgp_ls_sr_tlv_capabilities_flags_reserved;
+static int hf_bgp_ls_sr_tlv_capabilities_sid_label;
+static int hf_bgp_ls_sr_tlv_capabilities_sid_index;
+static int hf_bgp_ls_sr_tlv_algorithm;
+static int hf_bgp_ls_sr_tlv_algorithm_value;
+static int hf_bgp_ls_sr_tlv_local_block;                      /* 1036 */
+static int hf_bgp_ls_sr_tlv_local_block_flags;
+static int hf_bgp_ls_sr_tlv_local_block_range_size;
+static int hf_bgp_ls_sr_tlv_local_block_sid_label;
+static int hf_bgp_ls_sr_tlv_local_block_sid_index;
+static int hf_bgp_ls_sr_tlv_srv6_cap;                         /* 1037 */
+static int hf_bgp_ls_sr_tlv_srv6_cap_flags;
+static int hf_bgp_ls_sr_tlv_srv6_cap_flags_o;
+static int hf_bgp_ls_sr_tlv_srv6_cap_flags_reserved;
+static int hf_bgp_ls_sr_tlv_srv6_cap_reserved;
+static int hf_bgp_ls_sr_tlv_flex_algo_def;                    /* 1039 */
+static int hf_bgp_ls_sr_tlv_flex_algo_algorithm;
+static int hf_bgp_ls_sr_tlv_flex_algo_metric_type;
+static int hf_bgp_ls_sr_tlv_flex_algo_calc_type;
+static int hf_bgp_ls_sr_tlv_flex_algo_priority;
+static int hf_bgp_ls_sr_tlv_flex_algo_exc_any_affinity;       /* 1040 */
+static int hf_bgp_ls_sr_tlv_flex_algo_inc_any_affinity;       /* 1041 */
+static int hf_bgp_ls_sr_tlv_flex_algo_inc_all_affinity;       /* 1042 */
+static int hf_bgp_ls_sr_tlv_prefix_sid;
+static int hf_bgp_ls_sr_tlv_prefix_sid_flags;
+static int hf_bgp_ls_sr_tlv_prefix_sid_flags_r;
+static int hf_bgp_ls_sr_tlv_prefix_sid_flags_n;
+static int hf_bgp_ls_sr_tlv_prefix_sid_flags_np;
+static int hf_bgp_ls_sr_tlv_prefix_sid_flags_p;
+static int hf_bgp_ls_sr_tlv_prefix_sid_flags_m;
+static int hf_bgp_ls_sr_tlv_prefix_sid_flags_e;
+static int hf_bgp_ls_sr_tlv_prefix_sid_flags_v;
+static int hf_bgp_ls_sr_tlv_prefix_sid_flags_l;
+static int hf_bgp_ls_sr_tlv_prefix_sid_algo;
+static int hf_bgp_ls_sr_tlv_prefix_sid_label;
+static int hf_bgp_ls_sr_tlv_prefix_sid_index;
+static int hf_bgp_ls_sr_tlv_adjacency_sid;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_fi;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_bi;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_bo;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_vi;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_vo;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_li;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_lo;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_si;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_so;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_weight;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_label;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_index;
+static int hf_bgp_ls_sr_tlv_peer_node_sid;                    /* 1101 */
+static int hf_bgp_ls_sr_tlv_peer_adj_sid;                     /* 1102 */
+static int hf_bgp_ls_sr_tlv_peer_set_sid;                     /* 1103 */
+static int hf_bgp_ls_sr_tlv_peer_sid_flags;
+static int hf_bgp_ls_sr_tlv_peer_sid_flags_v;
+static int hf_bgp_ls_sr_tlv_peer_sid_flags_l;
+static int hf_bgp_ls_sr_tlv_peer_sid_flags_b;
+static int hf_bgp_ls_sr_tlv_peer_sid_flags_p;
+static int hf_bgp_ls_sr_tlv_peer_sid_weight;
+static int hf_bgp_ls_sr_tlv_peer_sid_label;
+static int hf_bgp_ls_sr_tlv_peer_sid_index;
+static int hf_bgp_ls_sr_tlv_srv6_endx_sid;                   /* 1106 */
+static int hf_bgp_ls_sr_tlv_srv6_lan_endx_sid;               /* 1107 */
+static int hf_bgp_ls_sr_tlv_srv6_endx_sid_endpoint_behavior;
+static int hf_bgp_ls_sr_tlv_srv6_endx_sid_flags;
+static int hf_bgp_ls_sr_tlv_srv6_endx_sid_flags_b;
+static int hf_bgp_ls_sr_tlv_srv6_endx_sid_flags_s;
+static int hf_bgp_ls_sr_tlv_srv6_endx_sid_flags_p;
+static int hf_bgp_ls_sr_tlv_srv6_endx_sid_flags_reserved;
+static int hf_bgp_ls_sr_tlv_srv6_endx_sid_algo;
+static int hf_bgp_ls_sr_tlv_srv6_endx_sid_weight;
+static int hf_bgp_ls_sr_tlv_srv6_endx_sid_reserved;
+static int hf_bgp_ls_sr_tlv_srv6_endx_sid_neighbor_isis;
+static int hf_bgp_ls_sr_tlv_srv6_endx_sid_neighbor_ospf;
+static int hf_bgp_ls_sr_tlv_srv6_endx_sid_sid;
+static int hf_bgp_ls_sr_tlv_srv6_locator;                     /* 1162 */
+static int hf_bgp_ls_sr_tlv_srv6_locator_flags;
+static int hf_bgp_ls_sr_tlv_srv6_locator_flags_d;
+static int hf_bgp_ls_sr_tlv_srv6_locator_flags_reserved;
+static int hf_bgp_ls_sr_tlv_srv6_locator_algo;
+static int hf_bgp_ls_sr_tlv_srv6_locator_reserved;
+static int hf_bgp_ls_sr_tlv_srv6_locator_metric;
+static int hf_bgp_ls_sr_tlv_prefix_attr_flags;                /* 1170 */
+static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags;
+static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_unknown;
+static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_ao;
+static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_no;
+static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_eo;
+static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_xi;
+static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_ri;
+static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_ni;
+static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_ei;
+static int hf_bgp_ls_sr_tlv_source_router_id;                 /* 1171 */
+static int hf_bgp_ls_sr_tlv_srv6_endpoint_behavior;           /* 1250 */
+static int hf_bgp_ls_sr_tlv_srv6_endpoint_behavior_endpoint_behavior;
+static int hf_bgp_ls_sr_tlv_srv6_endpoint_behavior_flags;
+static int hf_bgp_ls_sr_tlv_srv6_endpoint_behavior_algo;
+static int hf_bgp_ls_sr_tlv_srv6_sid_struct;                  /* 1252 */
+static int hf_bgp_ls_sr_tlv_srv6_sid_struct_lb_len;
+static int hf_bgp_ls_sr_tlv_srv6_sid_struct_ln_len;
+static int hf_bgp_ls_sr_tlv_srv6_sid_struct_fun_len;
+static int hf_bgp_ls_sr_tlv_srv6_sid_struct_arg_len;
 
 static int * const srv6_endx_sid_flags[] = {
     &hf_bgp_ls_sr_tlv_srv6_endx_sid_flags_b,
@@ -2592,424 +2592,424 @@ static int * const srv6_endx_sid_flags[] = {
 };
 
 /* RFC7752 TLVs */
-static int hf_bgp_ls_tlv_local_node_descriptors = -1;              /* 256 */
-static int hf_bgp_ls_tlv_remote_node_descriptors = -1;             /* 257 */
-static int hf_bgp_ls_tlv_link_local_remote_identifiers = -1;       /* 258 */
-static int hf_bgp_ls_tlv_ipv4_interface_address = -1;              /* 259 */
-static int hf_bgp_ls_tlv_ipv4_neighbor_address = -1;               /* 260 */
-static int hf_bgp_ls_tlv_ipv6_interface_address = -1;              /* 261 */
-static int hf_bgp_ls_tlv_ipv6_neighbor_address = -1;               /* 262 */
-static int hf_bgp_ls_tlv_multi_topology_id = -1;                   /* 263 */
-static int hf_bgp_ls_tlv_ospf_route_type = -1;                     /* 264 */
-static int hf_bgp_ls_tlv_ip_reachability_information = -1;         /* 265 */
-static int hf_bgp_ls_tlv_node_msd = -1;                            /* 266 */
-static int hf_bgp_ls_tlv_link_msd = -1;                            /* 267 */
-static int hf_bgp_ls_tlv_igp_msd_type = -1;
-static int hf_bgp_ls_tlv_igp_msd_value = -1;
+static int hf_bgp_ls_tlv_local_node_descriptors;              /* 256 */
+static int hf_bgp_ls_tlv_remote_node_descriptors;             /* 257 */
+static int hf_bgp_ls_tlv_link_local_remote_identifiers;       /* 258 */
+static int hf_bgp_ls_tlv_ipv4_interface_address;              /* 259 */
+static int hf_bgp_ls_tlv_ipv4_neighbor_address;               /* 260 */
+static int hf_bgp_ls_tlv_ipv6_interface_address;              /* 261 */
+static int hf_bgp_ls_tlv_ipv6_neighbor_address;               /* 262 */
+static int hf_bgp_ls_tlv_multi_topology_id;                   /* 263 */
+static int hf_bgp_ls_tlv_ospf_route_type;                     /* 264 */
+static int hf_bgp_ls_tlv_ip_reachability_information;         /* 265 */
+static int hf_bgp_ls_tlv_node_msd;                            /* 266 */
+static int hf_bgp_ls_tlv_link_msd;                            /* 267 */
+static int hf_bgp_ls_tlv_igp_msd_type;
+static int hf_bgp_ls_tlv_igp_msd_value;
 
-static int hf_bgp_ls_tlv_autonomous_system = -1;                   /* 512 */
-static int hf_bgp_ls_tlv_autonomous_system_id = -1;
-static int hf_bgp_ls_tlv_bgp_ls_identifier = -1;                   /* 513 */
-static int hf_bgp_ls_tlv_bgp_ls_identifier_id = -1;
-static int hf_bgp_ls_tlv_area_id = -1;                             /* 514 */
-static int hf_bgp_ls_tlv_area_id_id = -1;
-static int hf_bgp_ls_tlv_igp_router = -1;                          /* 515 */
-static int hf_bgp_ls_tlv_igp_router_id = -1;
-static int hf_bgp_ls_tlv_bgp_router_id = -1;                       /* 516 */
-static int hf_bgp_ls_tlv_bgp_router_id_id = -1;
-static int hf_bgp_ls_tlv_srv6_sid_info = -1;                       /* 518 */
-static int hf_bgp_ls_tlv_srv6_sid_info_sid = -1;
+static int hf_bgp_ls_tlv_autonomous_system;                   /* 512 */
+static int hf_bgp_ls_tlv_autonomous_system_id;
+static int hf_bgp_ls_tlv_bgp_ls_identifier;                   /* 513 */
+static int hf_bgp_ls_tlv_bgp_ls_identifier_id;
+static int hf_bgp_ls_tlv_area_id;                             /* 514 */
+static int hf_bgp_ls_tlv_area_id_id;
+static int hf_bgp_ls_tlv_igp_router;                          /* 515 */
+static int hf_bgp_ls_tlv_igp_router_id;
+static int hf_bgp_ls_tlv_bgp_router_id;                       /* 516 */
+static int hf_bgp_ls_tlv_bgp_router_id_id;
+static int hf_bgp_ls_tlv_srv6_sid_info;                       /* 518 */
+static int hf_bgp_ls_tlv_srv6_sid_info_sid;
 
-static int hf_bgp_ls_tlv_node_flags_bits = -1;                     /* 1024 */
-static int hf_bgp_ls_tlv_opaque_node_properties = -1;              /* 1025 */
-static int hf_bgp_ls_tlv_opaque_node_properties_value = -1;
-static int hf_bgp_ls_tlv_node_name = -1;                           /* 1026 */
-static int hf_bgp_ls_tlv_node_name_value = -1;
-static int hf_bgp_ls_tlv_is_is_area_identifier = -1;               /* 1027 */
-static int hf_bgp_ls_tlv_is_is_area_identifier_value = -1;
-static int hf_bgp_ls_tlv_ipv4_router_id_of_local_node = -1;        /* 1028 */
-static int hf_bgp_ls_tlv_ipv4_router_id_value = -1;
-static int hf_bgp_ls_tlv_ipv6_router_id_value = -1;
-static int hf_bgp_ls_tlv_ipv6_router_id_of_local_node = -1;        /* 1029 */
-static int hf_bgp_ls_tlv_ipv4_router_id_of_remote_node = -1;       /* 1030 */
-static int hf_bgp_ls_tlv_ipv6_router_id_of_remote_node = -1;       /* 1031 */
+static int hf_bgp_ls_tlv_node_flags_bits;                     /* 1024 */
+static int hf_bgp_ls_tlv_opaque_node_properties;              /* 1025 */
+static int hf_bgp_ls_tlv_opaque_node_properties_value;
+static int hf_bgp_ls_tlv_node_name;                           /* 1026 */
+static int hf_bgp_ls_tlv_node_name_value;
+static int hf_bgp_ls_tlv_is_is_area_identifier;               /* 1027 */
+static int hf_bgp_ls_tlv_is_is_area_identifier_value;
+static int hf_bgp_ls_tlv_ipv4_router_id_of_local_node;        /* 1028 */
+static int hf_bgp_ls_tlv_ipv4_router_id_value;
+static int hf_bgp_ls_tlv_ipv6_router_id_value;
+static int hf_bgp_ls_tlv_ipv6_router_id_of_local_node;        /* 1029 */
+static int hf_bgp_ls_tlv_ipv4_router_id_of_remote_node;       /* 1030 */
+static int hf_bgp_ls_tlv_ipv6_router_id_of_remote_node;       /* 1031 */
 
-static int hf_bgp_ls_tlv_administrative_group_color = -1;          /* 1088 */
-static int hf_bgp_ls_tlv_administrative_group_color_value = -1;
-static int hf_bgp_ls_tlv_administrative_group = -1;
-static int hf_bgp_ls_tlv_max_link_bandwidth = -1;                  /* 1089 */
-static int hf_bgp_ls_tlv_max_reservable_link_bandwidth = -1;       /* 1090 */
-static int hf_bgp_ls_tlv_unreserved_bandwidth = -1;                /* 1091 */
-static int hf_bgp_ls_bandwidth_value = -1;
-static int hf_bgp_ls_tlv_te_default_metric = -1;                   /* 1092 */
-static int hf_bgp_ls_tlv_te_default_metric_value_old = -1;
-static int hf_bgp_ls_tlv_te_default_metric_value = -1;
-static int hf_bgp_ls_tlv_link_protection_type = -1;                /* 1093 */
-static int hf_bgp_ls_tlv_link_protection_type_value = -1;
-static int hf_bgp_ls_tlv_mpls_protocol_mask = -1;                  /* 1094 */
-static int hf_bgp_ls_tlv_metric = -1;                              /* 1095 */
-static int hf_bgp_ls_tlv_metric_value1 = -1;
-static int hf_bgp_ls_tlv_metric_value2 = -1;
-static int hf_bgp_ls_tlv_metric_value3 = -1;
-static int hf_bgp_ls_tlv_shared_risk_link_group = -1;              /* 1096 */
-static int hf_bgp_ls_tlv_shared_risk_link_group_value = -1;
-static int hf_bgp_ls_tlv_opaque_link_attribute = -1;               /* 1097 */
-static int hf_bgp_ls_tlv_opaque_link_attribute_value = -1;
-static int hf_bgp_ls_tlv_link_name_attribute = -1;                 /* 1098 */
-static int hf_bgp_ls_tlv_link_name_attribute_value = -1;
-static int hf_bgp_ls_tlv_app_spec_link_attrs = -1;                 /* 1122 */
-static int hf_bgp_ls_tlv_app_spec_link_attrs_sabm_len = -1;
-static int hf_bgp_ls_tlv_app_spec_link_attrs_udabm_len = -1;
-static int hf_bgp_ls_tlv_app_spec_link_attrs_reserved = -1;
-static int hf_bgp_ls_tlv_app_spec_link_attrs_sabm = -1;
-static int hf_bgp_ls_tlv_app_spec_link_attrs_sabm_r = -1;
-static int hf_bgp_ls_tlv_app_spec_link_attrs_sabm_s = -1;
-static int hf_bgp_ls_tlv_app_spec_link_attrs_sabm_f = -1;
-static int hf_bgp_ls_tlv_app_spec_link_attrs_sabm_x = -1;
-static int hf_bgp_ls_tlv_app_spec_link_attrs_udabm = -1;
+static int hf_bgp_ls_tlv_administrative_group_color;          /* 1088 */
+static int hf_bgp_ls_tlv_administrative_group_color_value;
+static int hf_bgp_ls_tlv_administrative_group;
+static int hf_bgp_ls_tlv_max_link_bandwidth;                  /* 1089 */
+static int hf_bgp_ls_tlv_max_reservable_link_bandwidth;       /* 1090 */
+static int hf_bgp_ls_tlv_unreserved_bandwidth;                /* 1091 */
+static int hf_bgp_ls_bandwidth_value;
+static int hf_bgp_ls_tlv_te_default_metric;                   /* 1092 */
+static int hf_bgp_ls_tlv_te_default_metric_value_old;
+static int hf_bgp_ls_tlv_te_default_metric_value;
+static int hf_bgp_ls_tlv_link_protection_type;                /* 1093 */
+static int hf_bgp_ls_tlv_link_protection_type_value;
+static int hf_bgp_ls_tlv_mpls_protocol_mask;                  /* 1094 */
+static int hf_bgp_ls_tlv_metric;                              /* 1095 */
+static int hf_bgp_ls_tlv_metric_value1;
+static int hf_bgp_ls_tlv_metric_value2;
+static int hf_bgp_ls_tlv_metric_value3;
+static int hf_bgp_ls_tlv_shared_risk_link_group;              /* 1096 */
+static int hf_bgp_ls_tlv_shared_risk_link_group_value;
+static int hf_bgp_ls_tlv_opaque_link_attribute;               /* 1097 */
+static int hf_bgp_ls_tlv_opaque_link_attribute_value;
+static int hf_bgp_ls_tlv_link_name_attribute;                 /* 1098 */
+static int hf_bgp_ls_tlv_link_name_attribute_value;
+static int hf_bgp_ls_tlv_app_spec_link_attrs;                 /* 1122 */
+static int hf_bgp_ls_tlv_app_spec_link_attrs_sabm_len;
+static int hf_bgp_ls_tlv_app_spec_link_attrs_udabm_len;
+static int hf_bgp_ls_tlv_app_spec_link_attrs_reserved;
+static int hf_bgp_ls_tlv_app_spec_link_attrs_sabm;
+static int hf_bgp_ls_tlv_app_spec_link_attrs_sabm_r;
+static int hf_bgp_ls_tlv_app_spec_link_attrs_sabm_s;
+static int hf_bgp_ls_tlv_app_spec_link_attrs_sabm_f;
+static int hf_bgp_ls_tlv_app_spec_link_attrs_sabm_x;
+static int hf_bgp_ls_tlv_app_spec_link_attrs_udabm;
 
-static int hf_bgp_ls_tlv_igp_flags = -1;                           /* 1152 */
-static int hf_bgp_ls_tlv_route_tag = -1;                           /* 1153 */
-static int hf_bgp_ls_tlv_route_tag_value = -1;
-static int hf_bgp_ls_tlv_route_extended_tag = -1;                  /* 1154 */
-static int hf_bgp_ls_tlv_route_extended_tag_value = -1;
-static int hf_bgp_ls_tlv_prefix_metric = -1;                       /* 1155 */
-static int hf_bgp_ls_tlv_prefix_metric_value = -1;
-static int hf_bgp_ls_ospf_forwarding_address = -1;                 /* 1156 */
-static int hf_bgp_ls_ospf_forwarding_address_ipv4_address = -1;
-static int hf_bgp_ls_ospf_forwarding_address_ipv6_address = -1;
-static int hf_bgp_ls_opaque_prefix_attribute = -1;                 /* 1157 */
-static int hf_bgp_ls_opaque_prefix_attribute_value = -1;
-static int hf_bgp_ls_extended_administrative_group = -1;           /* 1173 */
-static int hf_bgp_ls_extended_administrative_group_value = -1;
+static int hf_bgp_ls_tlv_igp_flags;                           /* 1152 */
+static int hf_bgp_ls_tlv_route_tag;                           /* 1153 */
+static int hf_bgp_ls_tlv_route_tag_value;
+static int hf_bgp_ls_tlv_route_extended_tag;                  /* 1154 */
+static int hf_bgp_ls_tlv_route_extended_tag_value;
+static int hf_bgp_ls_tlv_prefix_metric;                       /* 1155 */
+static int hf_bgp_ls_tlv_prefix_metric_value;
+static int hf_bgp_ls_ospf_forwarding_address;                 /* 1156 */
+static int hf_bgp_ls_ospf_forwarding_address_ipv4_address;
+static int hf_bgp_ls_ospf_forwarding_address_ipv6_address;
+static int hf_bgp_ls_opaque_prefix_attribute;                 /* 1157 */
+static int hf_bgp_ls_opaque_prefix_attribute_value;
+static int hf_bgp_ls_extended_administrative_group;           /* 1173 */
+static int hf_bgp_ls_extended_administrative_group_value;
 
 
 /* Link Protection Types */
-static int hf_bgp_ls_link_protection_type_extra_traffic = -1;
-static int hf_bgp_ls_link_protection_type_unprotected = -1;
-static int hf_bgp_ls_link_protection_type_shared = -1;
-static int hf_bgp_ls_link_protection_type_dedicated_1to1 = -1;
-static int hf_bgp_ls_link_protection_type_dedicated_1plus1 = -1;
-static int hf_bgp_ls_link_protection_type_enhanced = -1;
+static int hf_bgp_ls_link_protection_type_extra_traffic;
+static int hf_bgp_ls_link_protection_type_unprotected;
+static int hf_bgp_ls_link_protection_type_shared;
+static int hf_bgp_ls_link_protection_type_dedicated_1to1;
+static int hf_bgp_ls_link_protection_type_dedicated_1plus1;
+static int hf_bgp_ls_link_protection_type_enhanced;
 /* MPLS Protocol Mask flags */
-static int hf_bgp_ls_mpls_protocol_mask_flag_l = -1;
-static int hf_bgp_ls_mpls_protocol_mask_flag_r = -1;
+static int hf_bgp_ls_mpls_protocol_mask_flag_l;
+static int hf_bgp_ls_mpls_protocol_mask_flag_r;
 /* BGP-LS IGP Flags */
-static int hf_bgp_ls_igp_flags_flag_d = -1;
+static int hf_bgp_ls_igp_flags_flag_d;
 /* Node Flag Bits TLV's flags */
-static int hf_bgp_ls_node_flag_bits_overload = -1;
-static int hf_bgp_ls_node_flag_bits_attached = -1;
-static int hf_bgp_ls_node_flag_bits_external = -1;
-static int hf_bgp_ls_node_flag_bits_abr = -1;
+static int hf_bgp_ls_node_flag_bits_overload;
+static int hf_bgp_ls_node_flag_bits_attached;
+static int hf_bgp_ls_node_flag_bits_external;
+static int hf_bgp_ls_node_flag_bits_abr;
 
 /* RFC8669 BGP Prefix-SID header field */
-static int hf_bgp_prefix_sid_unknown = -1;
-static int hf_bgp_prefix_sid_label_index = -1;
-static int hf_bgp_prefix_sid_label_index_value = -1;
-static int hf_bgp_prefix_sid_label_index_flags = -1;
-static int hf_bgp_prefix_sid_originator_srgb = -1;
-static int hf_bgp_prefix_sid_originator_srgb_blocks = -1;
-static int hf_bgp_prefix_sid_originator_srgb_block = -1;
-static int hf_bgp_prefix_sid_originator_srgb_flags = -1;
-static int hf_bgp_prefix_sid_originator_srgb_base = -1;
-static int hf_bgp_prefix_sid_originator_srgb_range = -1;
-static int hf_bgp_prefix_sid_type = -1;
-static int hf_bgp_prefix_sid_length = -1;
-static int hf_bgp_prefix_sid_value = -1;
-static int hf_bgp_prefix_sid_reserved = -1;
+static int hf_bgp_prefix_sid_unknown;
+static int hf_bgp_prefix_sid_label_index;
+static int hf_bgp_prefix_sid_label_index_value;
+static int hf_bgp_prefix_sid_label_index_flags;
+static int hf_bgp_prefix_sid_originator_srgb;
+static int hf_bgp_prefix_sid_originator_srgb_blocks;
+static int hf_bgp_prefix_sid_originator_srgb_block;
+static int hf_bgp_prefix_sid_originator_srgb_flags;
+static int hf_bgp_prefix_sid_originator_srgb_base;
+static int hf_bgp_prefix_sid_originator_srgb_range;
+static int hf_bgp_prefix_sid_type;
+static int hf_bgp_prefix_sid_length;
+static int hf_bgp_prefix_sid_value;
+static int hf_bgp_prefix_sid_reserved;
 
 /* draft-ietf-bess-srv6-services-05 header field */
-static int hf_bgp_prefix_sid_srv6_l3vpn = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_sub_tlvs = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_sub_tlv = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_sub_tlv_type = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_sub_tlv_length = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_sub_tlv_value = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_sub_tlv_reserved = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_sid_value = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_sid_flags = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_srv6_endpoint_behavior = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_reserved = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_sub_sub_tlvs = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_sub_sub_tlv = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_sub_sub_tlv_type = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_sub_sub_tlv_length = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_sub_sub_tlv_value = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_sid_locator_block_len = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_sid_locator_node_len = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_sid_func_len = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_sid_arg_len = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_sid_trans_len = -1;
-static int hf_bgp_prefix_sid_srv6_l3vpn_sid_trans_offset = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_sub_tlvs = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_sub_tlv = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_sub_tlv_type = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_sub_tlv_length = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_sub_tlv_value = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_sub_tlv_reserved = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_sid_value = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_sid_flags = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_srv6_endpoint_behavior = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_reserved = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_sub_sub_tlvs = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_sub_sub_tlv = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_sub_sub_tlv_type = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_sub_sub_tlv_length = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_sub_sub_tlv_value = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_sid_locator_block_len = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_sid_locator_node_len = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_sid_func_len = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_sid_arg_len = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_sid_trans_len = -1;
-static int hf_bgp_prefix_sid_srv6_l2vpn_sid_trans_offset = -1;
+static int hf_bgp_prefix_sid_srv6_l3vpn;
+static int hf_bgp_prefix_sid_srv6_l3vpn_sub_tlvs;
+static int hf_bgp_prefix_sid_srv6_l3vpn_sub_tlv;
+static int hf_bgp_prefix_sid_srv6_l3vpn_sub_tlv_type;
+static int hf_bgp_prefix_sid_srv6_l3vpn_sub_tlv_length;
+static int hf_bgp_prefix_sid_srv6_l3vpn_sub_tlv_value;
+static int hf_bgp_prefix_sid_srv6_l3vpn_sub_tlv_reserved;
+static int hf_bgp_prefix_sid_srv6_l3vpn_sid_value;
+static int hf_bgp_prefix_sid_srv6_l3vpn_sid_flags;
+static int hf_bgp_prefix_sid_srv6_l3vpn_srv6_endpoint_behavior;
+static int hf_bgp_prefix_sid_srv6_l3vpn_reserved;
+static int hf_bgp_prefix_sid_srv6_l3vpn_sub_sub_tlvs;
+static int hf_bgp_prefix_sid_srv6_l3vpn_sub_sub_tlv;
+static int hf_bgp_prefix_sid_srv6_l3vpn_sub_sub_tlv_type;
+static int hf_bgp_prefix_sid_srv6_l3vpn_sub_sub_tlv_length;
+static int hf_bgp_prefix_sid_srv6_l3vpn_sub_sub_tlv_value;
+static int hf_bgp_prefix_sid_srv6_l3vpn_sid_locator_block_len;
+static int hf_bgp_prefix_sid_srv6_l3vpn_sid_locator_node_len;
+static int hf_bgp_prefix_sid_srv6_l3vpn_sid_func_len;
+static int hf_bgp_prefix_sid_srv6_l3vpn_sid_arg_len;
+static int hf_bgp_prefix_sid_srv6_l3vpn_sid_trans_len;
+static int hf_bgp_prefix_sid_srv6_l3vpn_sid_trans_offset;
+static int hf_bgp_prefix_sid_srv6_l2vpn;
+static int hf_bgp_prefix_sid_srv6_l2vpn_sub_tlvs;
+static int hf_bgp_prefix_sid_srv6_l2vpn_sub_tlv;
+static int hf_bgp_prefix_sid_srv6_l2vpn_sub_tlv_type;
+static int hf_bgp_prefix_sid_srv6_l2vpn_sub_tlv_length;
+static int hf_bgp_prefix_sid_srv6_l2vpn_sub_tlv_value;
+static int hf_bgp_prefix_sid_srv6_l2vpn_sub_tlv_reserved;
+static int hf_bgp_prefix_sid_srv6_l2vpn_sid_value;
+static int hf_bgp_prefix_sid_srv6_l2vpn_sid_flags;
+static int hf_bgp_prefix_sid_srv6_l2vpn_srv6_endpoint_behavior;
+static int hf_bgp_prefix_sid_srv6_l2vpn_reserved;
+static int hf_bgp_prefix_sid_srv6_l2vpn_sub_sub_tlvs;
+static int hf_bgp_prefix_sid_srv6_l2vpn_sub_sub_tlv;
+static int hf_bgp_prefix_sid_srv6_l2vpn_sub_sub_tlv_type;
+static int hf_bgp_prefix_sid_srv6_l2vpn_sub_sub_tlv_length;
+static int hf_bgp_prefix_sid_srv6_l2vpn_sub_sub_tlv_value;
+static int hf_bgp_prefix_sid_srv6_l2vpn_sid_locator_block_len;
+static int hf_bgp_prefix_sid_srv6_l2vpn_sid_locator_node_len;
+static int hf_bgp_prefix_sid_srv6_l2vpn_sid_func_len;
+static int hf_bgp_prefix_sid_srv6_l2vpn_sid_arg_len;
+static int hf_bgp_prefix_sid_srv6_l2vpn_sid_trans_len;
+static int hf_bgp_prefix_sid_srv6_l2vpn_sid_trans_offset;
 
 /* BGP flow spec nlri header field */
 
-static int hf_bgp_flowspec_nlri_t = -1;
-static int hf_bgp_flowspec_nlri_route_distinguisher = -1;
-static int hf_bgp_flowspec_nlri_route_distinguisher_type = -1;
-static int hf_bgp_flowspec_nlri_route_dist_admin_asnum_2 = -1;
-static int hf_bgp_flowspec_nlri_route_dist_admin_ipv4 = -1;
-static int hf_bgp_flowspec_nlri_route_dist_admin_asnum_4 = -1;
-static int hf_bgp_flowspec_nlri_route_dist_asnum_2 = -1;
-static int hf_bgp_flowspec_nlri_route_dist_asnum_4 = -1;
-static int hf_bgp_flowspec_nlri_filter = -1;
-static int hf_bgp_flowspec_nlri_filter_type = -1;
-static int hf_bgp_flowspec_nlri_length = -1;
-static int hf_bgp_flowspec_nlri_dst_pref_ipv4 = -1;
-static int hf_bgp_flowspec_nlri_src_pref_ipv4 = -1;
-static int hf_bgp_flowspec_nlri_op_flags = -1;
-static int hf_bgp_flowspec_nlri_op_eol = -1;
-static int hf_bgp_flowspec_nlri_op_and = -1;
-static int hf_bgp_flowspec_nlri_op_val_len = -1;
-static int hf_bgp_flowspec_nlri_op_un_bit4 = -1;
-static int hf_bgp_flowspec_nlri_op_un_bit5 = -1;
-static int hf_bgp_flowspec_nlri_op_lt = -1;
-static int hf_bgp_flowspec_nlri_op_gt = -1;
-static int hf_bgp_flowspec_nlri_op_eq = -1;
-static int hf_bgp_flowspec_nlri_dec_val_8 = -1;
-static int hf_bgp_flowspec_nlri_dec_val_16 = -1;
-static int hf_bgp_flowspec_nlri_dec_val_32 = -1;
-static int hf_bgp_flowspec_nlri_dec_val_64 = -1;
-static int hf_bgp_flowspec_nlri_op_flg_not = -1;
-static int hf_bgp_flowspec_nlri_op_flg_match = -1;
-static int hf_bgp_flowspec_nlri_tcp_flags = -1;
-static int hf_bgp_flowspec_nlri_tcp_flags_cwr = -1;
-static int hf_bgp_flowspec_nlri_tcp_flags_ecn = -1;
-static int hf_bgp_flowspec_nlri_tcp_flags_urg = -1;
-static int hf_bgp_flowspec_nlri_tcp_flags_ack = -1;
-static int hf_bgp_flowspec_nlri_tcp_flags_push = -1;
-static int hf_bgp_flowspec_nlri_tcp_flags_reset = -1;
-static int hf_bgp_flowspec_nlri_tcp_flags_syn = -1;
-static int hf_bgp_flowspec_nlri_tcp_flags_fin = -1;
-static int hf_bgp_flowspec_nlri_fflag = -1;
-static int hf_bgp_flowspec_nlri_fflag_lf = -1;
-static int hf_bgp_flowspec_nlri_fflag_ff = -1;
-static int hf_bgp_flowspec_nlri_fflag_isf = -1;
-static int hf_bgp_flowspec_nlri_fflag_df = -1;
-static int hf_bgp_flowspec_nlri_dscp = -1;
-static int hf_bgp_flowspec_nlri_src_ipv6_pref = -1;
-static int hf_bgp_flowspec_nlri_dst_ipv6_pref = -1;
-static int hf_bgp_flowspec_nlri_ipv6_pref_len = -1;
-static int hf_bgp_flowspec_nlri_ipv6_pref_offset = -1;
+static int hf_bgp_flowspec_nlri_t;
+static int hf_bgp_flowspec_nlri_route_distinguisher;
+static int hf_bgp_flowspec_nlri_route_distinguisher_type;
+static int hf_bgp_flowspec_nlri_route_dist_admin_asnum_2;
+static int hf_bgp_flowspec_nlri_route_dist_admin_ipv4;
+static int hf_bgp_flowspec_nlri_route_dist_admin_asnum_4;
+static int hf_bgp_flowspec_nlri_route_dist_asnum_2;
+static int hf_bgp_flowspec_nlri_route_dist_asnum_4;
+static int hf_bgp_flowspec_nlri_filter;
+static int hf_bgp_flowspec_nlri_filter_type;
+static int hf_bgp_flowspec_nlri_length;
+static int hf_bgp_flowspec_nlri_dst_pref_ipv4;
+static int hf_bgp_flowspec_nlri_src_pref_ipv4;
+static int hf_bgp_flowspec_nlri_op_flags;
+static int hf_bgp_flowspec_nlri_op_eol;
+static int hf_bgp_flowspec_nlri_op_and;
+static int hf_bgp_flowspec_nlri_op_val_len;
+static int hf_bgp_flowspec_nlri_op_un_bit4;
+static int hf_bgp_flowspec_nlri_op_un_bit5;
+static int hf_bgp_flowspec_nlri_op_lt;
+static int hf_bgp_flowspec_nlri_op_gt;
+static int hf_bgp_flowspec_nlri_op_eq;
+static int hf_bgp_flowspec_nlri_dec_val_8;
+static int hf_bgp_flowspec_nlri_dec_val_16;
+static int hf_bgp_flowspec_nlri_dec_val_32;
+static int hf_bgp_flowspec_nlri_dec_val_64;
+static int hf_bgp_flowspec_nlri_op_flg_not;
+static int hf_bgp_flowspec_nlri_op_flg_match;
+static int hf_bgp_flowspec_nlri_tcp_flags;
+static int hf_bgp_flowspec_nlri_tcp_flags_cwr;
+static int hf_bgp_flowspec_nlri_tcp_flags_ecn;
+static int hf_bgp_flowspec_nlri_tcp_flags_urg;
+static int hf_bgp_flowspec_nlri_tcp_flags_ack;
+static int hf_bgp_flowspec_nlri_tcp_flags_push;
+static int hf_bgp_flowspec_nlri_tcp_flags_reset;
+static int hf_bgp_flowspec_nlri_tcp_flags_syn;
+static int hf_bgp_flowspec_nlri_tcp_flags_fin;
+static int hf_bgp_flowspec_nlri_fflag;
+static int hf_bgp_flowspec_nlri_fflag_lf;
+static int hf_bgp_flowspec_nlri_fflag_ff;
+static int hf_bgp_flowspec_nlri_fflag_isf;
+static int hf_bgp_flowspec_nlri_fflag_df;
+static int hf_bgp_flowspec_nlri_dscp;
+static int hf_bgp_flowspec_nlri_src_ipv6_pref;
+static int hf_bgp_flowspec_nlri_dst_ipv6_pref;
+static int hf_bgp_flowspec_nlri_ipv6_pref_len;
+static int hf_bgp_flowspec_nlri_ipv6_pref_offset;
 
 /* BGP update safi ndt nlri  draft-nalawade-idr-mdt-safi-03 */
 
-static int hf_bgp_mdt_nlri_safi_rd = -1;
-static int hf_bgp_mdt_nlri_safi_ipv4_addr = -1;
-static int hf_bgp_mdt_nlri_safi_group_addr = -1;
+static int hf_bgp_mdt_nlri_safi_rd;
+static int hf_bgp_mdt_nlri_safi_ipv4_addr;
+static int hf_bgp_mdt_nlri_safi_group_addr;
 
 /* BGP update extended community header field */
 
-static int hf_bgp_ext_communities = -1;
-static int hf_bgp_ext_community = -1;
-static int hf_bgp_ext_com_type_auth = -1;
-static int hf_bgp_ext_com_type_tran = -1;
+static int hf_bgp_ext_communities;
+static int hf_bgp_ext_community;
+static int hf_bgp_ext_com_type_auth;
+static int hf_bgp_ext_com_type_tran;
 
-static int hf_bgp_ext_com_type_high = -1;
-static int hf_bgp_ext_com_stype_low_unknown = -1;
-static int hf_bgp_ext_com_stype_tr_evpn = -1;
-static int hf_bgp_ext_com_stype_tr_as2 = -1;
-static int hf_bgp_ext_com_stype_ntr_as2 = -1;
-static int hf_bgp_ext_com_stype_tr_as4 = -1;
-static int hf_bgp_ext_com_stype_ntr_as4 = -1;
-static int hf_bgp_ext_com_stype_tr_IP4 = -1;
-static int hf_bgp_ext_com_stype_ntr_IP4 = -1;
-static int hf_bgp_ext_com_stype_tr_opaque = -1;
-static int hf_bgp_ext_com_stype_ntr_opaque = -1;
-static int hf_bgp_ext_com_tunnel_type = -1;
-static int hf_bgp_ext_com_stype_tr_mup = -1;
-static int hf_bgp_ext_com_stype_tr_exp = -1;
-static int hf_bgp_ext_com_stype_tr_exp_2 = -1;
-static int hf_bgp_ext_com_stype_tr_exp_3 = -1;
+static int hf_bgp_ext_com_type_high;
+static int hf_bgp_ext_com_stype_low_unknown;
+static int hf_bgp_ext_com_stype_tr_evpn;
+static int hf_bgp_ext_com_stype_tr_as2;
+static int hf_bgp_ext_com_stype_ntr_as2;
+static int hf_bgp_ext_com_stype_tr_as4;
+static int hf_bgp_ext_com_stype_ntr_as4;
+static int hf_bgp_ext_com_stype_tr_IP4;
+static int hf_bgp_ext_com_stype_ntr_IP4;
+static int hf_bgp_ext_com_stype_tr_opaque;
+static int hf_bgp_ext_com_stype_ntr_opaque;
+static int hf_bgp_ext_com_tunnel_type;
+static int hf_bgp_ext_com_stype_tr_mup;
+static int hf_bgp_ext_com_stype_tr_exp;
+static int hf_bgp_ext_com_stype_tr_exp_2;
+static int hf_bgp_ext_com_stype_tr_exp_3;
 
-static int hf_bgp_ext_com_value_as2 = -1;
-static int hf_bgp_ext_com_value_as4 = -1;
-static int hf_bgp_ext_com_value_IP4 = -1;
-static int hf_bgp_ext_com_value_an2 = -1;
-static int hf_bgp_ext_com_value_an4 = -1;
-static int hf_bgp_ext_com_value_raw = -1;
-static int hf_bgp_ext_com_value_link_bw = -1;
-static int hf_bgp_ext_com_value_ospf_rt_area = -1;
-static int hf_bgp_ext_com_value_ospf_rt_type = -1;
-static int hf_bgp_ext_com_value_ospf_rt_options = -1;
-static int hf_bgp_ext_com_value_ospf_rt_options_mt = -1;
-static int hf_bgp_ext_com_value_ospf_rid = -1;
-static int hf_bgp_ext_com_value_fs_remark = -1;
-static int hf_bgp_ext_com_local_admin_flags = -1;
-static int hf_bgp_ext_com_local_admin_auto_derived_flag = -1;
-static int hf_bgp_ext_com_local_admin_type = -1;
-static int hf_bgp_ext_com_local_admin_domain_id = -1;
-static int hf_bgp_ext_com_local_admin_service_id = -1;
+static int hf_bgp_ext_com_value_as2;
+static int hf_bgp_ext_com_value_as4;
+static int hf_bgp_ext_com_value_IP4;
+static int hf_bgp_ext_com_value_an2;
+static int hf_bgp_ext_com_value_an4;
+static int hf_bgp_ext_com_value_raw;
+static int hf_bgp_ext_com_value_link_bw;
+static int hf_bgp_ext_com_value_ospf_rt_area;
+static int hf_bgp_ext_com_value_ospf_rt_type;
+static int hf_bgp_ext_com_value_ospf_rt_options;
+static int hf_bgp_ext_com_value_ospf_rt_options_mt;
+static int hf_bgp_ext_com_value_ospf_rid;
+static int hf_bgp_ext_com_value_fs_remark;
+static int hf_bgp_ext_com_local_admin_flags;
+static int hf_bgp_ext_com_local_admin_auto_derived_flag;
+static int hf_bgp_ext_com_local_admin_type;
+static int hf_bgp_ext_com_local_admin_domain_id;
+static int hf_bgp_ext_com_local_admin_service_id;
 
 /* BGP QoS propagation draft-knoll-idr-qos-attribute */
 
-static int hf_bgp_ext_com_qos_flags = -1;
-static int hf_bgp_ext_com_qos_flags_remarking = -1;
-static int hf_bgp_ext_com_qos_flags_ignore_remarking = -1;
-static int hf_bgp_ext_com_qos_flags_agg_marking = -1;
-static int hf_bgp_ext_com_cos_flags = -1;
-static int hf_bgp_ext_com_cos_flags_be = -1;
-static int hf_bgp_ext_com_cos_flags_ef = -1;
-static int hf_bgp_ext_com_cos_flags_af = -1;
-static int hf_bgp_ext_com_cos_flags_le = -1;
-static int hf_bgp_ext_com_qos_set_number = -1;
-static int hf_bgp_ext_com_qos_tech_type = -1;
-static int hf_bgp_ext_com_qos_marking_o = -1;
-static int hf_bgp_ext_com_qos_marking_a = -1;
-static int hf_bgp_ext_com_qos_default_to_zero = -1;
+static int hf_bgp_ext_com_qos_flags;
+static int hf_bgp_ext_com_qos_flags_remarking;
+static int hf_bgp_ext_com_qos_flags_ignore_remarking;
+static int hf_bgp_ext_com_qos_flags_agg_marking;
+static int hf_bgp_ext_com_cos_flags;
+static int hf_bgp_ext_com_cos_flags_be;
+static int hf_bgp_ext_com_cos_flags_ef;
+static int hf_bgp_ext_com_cos_flags_af;
+static int hf_bgp_ext_com_cos_flags_le;
+static int hf_bgp_ext_com_qos_set_number;
+static int hf_bgp_ext_com_qos_tech_type;
+static int hf_bgp_ext_com_qos_marking_o;
+static int hf_bgp_ext_com_qos_marking_a;
+static int hf_bgp_ext_com_qos_default_to_zero;
 
 /* BGP Flow spec extended community RFC 5575 */
 
-static int hf_bgp_ext_com_flow_rate_float = -1;
-static int hf_bgp_ext_com_flow_act_allset = -1;
-static int hf_bgp_ext_com_flow_act_term_act = -1;
-static int hf_bgp_ext_com_flow_act_samp_act = -1;
+static int hf_bgp_ext_com_flow_rate_float;
+static int hf_bgp_ext_com_flow_act_allset;
+static int hf_bgp_ext_com_flow_act_term_act;
+static int hf_bgp_ext_com_flow_act_samp_act;
 
 /* BGP L2 extended community RFC 4761, RFC 6624 */
 /* draft-ietf-l2vpn-vpls-multihoming */
 
-static int hf_bgp_ext_com_l2_encaps = -1;
-static int hf_bgp_ext_com_l2_c_flags = -1;
-static int hf_bgp_ext_com_l2_mtu = -1;
-static int hf_bgp_ext_com_l2_flag_d = -1;
-static int hf_bgp_ext_com_l2_flag_z1 = -1;
-static int hf_bgp_ext_com_l2_flag_f = -1;
-static int hf_bgp_ext_com_l2_flag_z345 = -1;
-static int hf_bgp_ext_com_l2_flag_c = -1;
-static int hf_bgp_ext_com_l2_flag_s = -1;
-static int hf_bgp_ext_com_l2_esi_label_flag = -1;
-static int hf_bgp_ext_com_evpn_mmac_flag = -1;
-static int hf_bgp_ext_com_evpn_mmac_seq = -1;
-static int hf_bgp_ext_com_evpn_esirt = -1;
-static int hf_bgp_ext_com_evpn_routermac = -1;
-static int hf_bgp_ext_com_evpn_mmac_flag_sticky = -1;
+static int hf_bgp_ext_com_l2_encaps;
+static int hf_bgp_ext_com_l2_c_flags;
+static int hf_bgp_ext_com_l2_mtu;
+static int hf_bgp_ext_com_l2_flag_d;
+static int hf_bgp_ext_com_l2_flag_z1;
+static int hf_bgp_ext_com_l2_flag_f;
+static int hf_bgp_ext_com_l2_flag_z345;
+static int hf_bgp_ext_com_l2_flag_c;
+static int hf_bgp_ext_com_l2_flag_s;
+static int hf_bgp_ext_com_l2_esi_label_flag;
+static int hf_bgp_ext_com_evpn_mmac_flag;
+static int hf_bgp_ext_com_evpn_mmac_seq;
+static int hf_bgp_ext_com_evpn_esirt;
+static int hf_bgp_ext_com_evpn_routermac;
+static int hf_bgp_ext_com_evpn_mmac_flag_sticky;
 
 /* BGP E-Tree Info extended community RFC 7796 */
 
-static int hf_bgp_ext_com_etree_flags = -1;
-static int hf_bgp_ext_com_etree_root_vlan = -1;
-static int hf_bgp_ext_com_etree_leaf_vlan = -1;
-static int hf_bgp_ext_com_etree_flag_reserved = -1;
-static int hf_bgp_ext_com_etree_flag_p = -1;
-static int hf_bgp_ext_com_etree_flag_v = -1;
+static int hf_bgp_ext_com_etree_flags;
+static int hf_bgp_ext_com_etree_root_vlan;
+static int hf_bgp_ext_com_etree_leaf_vlan;
+static int hf_bgp_ext_com_etree_flag_reserved;
+static int hf_bgp_ext_com_etree_flag_p;
+static int hf_bgp_ext_com_etree_flag_v;
 
 /* VPWS Support in EVPN  RFC 8214 */
 /* draft-yu-bess-evpn-l2-attributes-04 */
 
-static int hf_bgp_ext_com_evpn_l2attr_flags = -1;
-static int hf_bgp_ext_com_evpn_l2attr_flag_reserved = -1;
-static int hf_bgp_ext_com_evpn_l2attr_flag_ci = -1;
-static int hf_bgp_ext_com_evpn_l2attr_flag_f = -1;
-static int hf_bgp_ext_com_evpn_l2attr_flag_c = -1;
-static int hf_bgp_ext_com_evpn_l2attr_flag_p = -1;
-static int hf_bgp_ext_com_evpn_l2attr_flag_b = -1;
-static int hf_bgp_ext_com_evpn_l2attr_l2_mtu = -1;
-static int hf_bgp_ext_com_evpn_l2attr_reserved = -1;
+static int hf_bgp_ext_com_evpn_l2attr_flags;
+static int hf_bgp_ext_com_evpn_l2attr_flag_reserved;
+static int hf_bgp_ext_com_evpn_l2attr_flag_ci;
+static int hf_bgp_ext_com_evpn_l2attr_flag_f;
+static int hf_bgp_ext_com_evpn_l2attr_flag_c;
+static int hf_bgp_ext_com_evpn_l2attr_flag_p;
+static int hf_bgp_ext_com_evpn_l2attr_flag_b;
+static int hf_bgp_ext_com_evpn_l2attr_l2_mtu;
+static int hf_bgp_ext_com_evpn_l2attr_reserved;
 
 /* E-Tree RFC8317 */
 
-static int hf_bgp_ext_com_evpn_etree_flags = -1;
-static int hf_bgp_ext_com_evpn_etree_flag_reserved = -1;
-static int hf_bgp_ext_com_evpn_etree_flag_l = -1;
-static int hf_bgp_ext_com_evpn_etree_reserved = -1;
+static int hf_bgp_ext_com_evpn_etree_flags;
+static int hf_bgp_ext_com_evpn_etree_flag_reserved;
+static int hf_bgp_ext_com_evpn_etree_flag_l;
+static int hf_bgp_ext_com_evpn_etree_reserved;
 
 /* BGP Cost Community */
 
-static int hf_bgp_ext_com_cost_poi = -1;
-static int hf_bgp_ext_com_cost_cid = -1;
-static int hf_bgp_ext_com_cost_cost = -1;
-static int hf_bgp_ext_com_cost_cid_rep = -1;
+static int hf_bgp_ext_com_cost_poi;
+static int hf_bgp_ext_com_cost_cid;
+static int hf_bgp_ext_com_cost_cost;
+static int hf_bgp_ext_com_cost_cid_rep;
 
 /* EIGRP route attributes extended communities */
 
-static int hf_bgp_ext_com_stype_tr_exp_eigrp = -1;
-static int hf_bgp_ext_com_eigrp_flags = -1;
-static int hf_bgp_ext_com_eigrp_flags_rt = -1;
-static int hf_bgp_ext_com_eigrp_rtag = -1;
-static int hf_bgp_ext_com_eigrp_asn = -1;
-static int hf_bgp_ext_com_eigrp_delay = -1;
-static int hf_bgp_ext_com_eigrp_rly = -1;
-static int hf_bgp_ext_com_eigrp_hops = -1;
-static int hf_bgp_ext_com_eigrp_bw = -1;
-static int hf_bgp_ext_com_eigrp_load = -1;
-static int hf_bgp_ext_com_eigrp_mtu = -1;
-static int hf_bgp_ext_com_eigrp_rid = -1;
-static int hf_bgp_ext_com_eigrp_e_asn = -1;
-static int hf_bgp_ext_com_eigrp_e_rid = -1;
-static int hf_bgp_ext_com_eigrp_e_pid = -1;
-static int hf_bgp_ext_com_eigrp_e_m = -1;
+static int hf_bgp_ext_com_stype_tr_exp_eigrp;
+static int hf_bgp_ext_com_eigrp_flags;
+static int hf_bgp_ext_com_eigrp_flags_rt;
+static int hf_bgp_ext_com_eigrp_rtag;
+static int hf_bgp_ext_com_eigrp_asn;
+static int hf_bgp_ext_com_eigrp_delay;
+static int hf_bgp_ext_com_eigrp_rly;
+static int hf_bgp_ext_com_eigrp_hops;
+static int hf_bgp_ext_com_eigrp_bw;
+static int hf_bgp_ext_com_eigrp_load;
+static int hf_bgp_ext_com_eigrp_mtu;
+static int hf_bgp_ext_com_eigrp_rid;
+static int hf_bgp_ext_com_eigrp_e_asn;
+static int hf_bgp_ext_com_eigrp_e_rid;
+static int hf_bgp_ext_com_eigrp_e_pid;
+static int hf_bgp_ext_com_eigrp_e_m;
 
 /* MUP extended community */
 
-static int hf_bgp_ext_com_mup_segment_id2 = -1;
-static int hf_bgp_ext_com_mup_segment_id4 = -1;
+static int hf_bgp_ext_com_mup_segment_id2;
+static int hf_bgp_ext_com_mup_segment_id4;
 
 /* RFC8571 BGP-LS Advertisement of IGP TE Metric Extensions */
-static int hf_bgp_ls_igp_te_metric_flags = -1;
-static int hf_bgp_ls_igp_te_metric_flags_a = -1;
-static int hf_bgp_ls_igp_te_metric_flags_reserved = -1;
-static int hf_bgp_ls_igp_te_metric_delay = -1;
-static int hf_bgp_ls_igp_te_metric_delay_value = -1;
-static int hf_bgp_ls_igp_te_metric_delay_min_max = -1;
-static int hf_bgp_ls_igp_te_metric_delay_min = -1;
-static int hf_bgp_ls_igp_te_metric_delay_max = -1;
-static int hf_bgp_ls_igp_te_metric_delay_variation = -1;
-static int hf_bgp_ls_igp_te_metric_delay_variation_value = -1;
-static int hf_bgp_ls_igp_te_metric_link_loss = -1;
-static int hf_bgp_ls_igp_te_metric_link_loss_value = -1;
-static int hf_bgp_ls_igp_te_metric_bandwidth_residual = -1;
-static int hf_bgp_ls_igp_te_metric_bandwidth_residual_value = -1;
-static int hf_bgp_ls_igp_te_metric_bandwidth_available = -1;
-static int hf_bgp_ls_igp_te_metric_bandwidth_available_value = -1;
-static int hf_bgp_ls_igp_te_metric_bandwidth_utilized = -1;
-static int hf_bgp_ls_igp_te_metric_bandwidth_utilized_value = -1;
-static int hf_bgp_ls_igp_te_metric_reserved = -1;
+static int hf_bgp_ls_igp_te_metric_flags;
+static int hf_bgp_ls_igp_te_metric_flags_a;
+static int hf_bgp_ls_igp_te_metric_flags_reserved;
+static int hf_bgp_ls_igp_te_metric_delay;
+static int hf_bgp_ls_igp_te_metric_delay_value;
+static int hf_bgp_ls_igp_te_metric_delay_min_max;
+static int hf_bgp_ls_igp_te_metric_delay_min;
+static int hf_bgp_ls_igp_te_metric_delay_max;
+static int hf_bgp_ls_igp_te_metric_delay_variation;
+static int hf_bgp_ls_igp_te_metric_delay_variation_value;
+static int hf_bgp_ls_igp_te_metric_link_loss;
+static int hf_bgp_ls_igp_te_metric_link_loss_value;
+static int hf_bgp_ls_igp_te_metric_bandwidth_residual;
+static int hf_bgp_ls_igp_te_metric_bandwidth_residual_value;
+static int hf_bgp_ls_igp_te_metric_bandwidth_available;
+static int hf_bgp_ls_igp_te_metric_bandwidth_available_value;
+static int hf_bgp_ls_igp_te_metric_bandwidth_utilized;
+static int hf_bgp_ls_igp_te_metric_bandwidth_utilized_value;
+static int hf_bgp_ls_igp_te_metric_reserved;
 
 /* draft-mpmz-bess-mup-safi-00 */
-static int hf_bgp_mup_nlri = -1;
-static int hf_bgp_mup_nlri_at = -1;
-static int hf_bgp_mup_nlri_rt = -1;
-static int hf_bgp_mup_nlri_len = -1;
-static int hf_bgp_mup_nlri_rd = -1;
-static int hf_bgp_mup_nlri_prefixlen = -1;
-static int hf_bgp_mup_nlri_ip_prefix = -1;
-static int hf_bgp_mup_nlri_ipv6_prefix = -1;
-static int hf_bgp_mup_nlri_ip_addr = -1;
-static int hf_bgp_mup_nlri_ipv6_addr = -1;
-static int hf_bgp_mup_nlri_3gpp_5g_type1_st_route = -1;
-static int hf_bgp_mup_nlri_3gpp_5g_teid = -1;
-static int hf_bgp_mup_nlri_3gpp_5g_qfi = -1;
-static int hf_bgp_mup_nlri_3gpp_5g_ep_addr_len = -1;
-static int hf_bgp_mup_nlri_3gpp_5g_ep_ip_addr = -1;
-static int hf_bgp_mup_nlri_3gpp_5g_ep_ipv6_addr = -1;
-static int hf_bgp_mup_nlri_3gpp_5g_type2_st_route = -1;
-static int hf_bgp_mup_nlri_ep_len = -1;
-static int hf_bgp_mup_nlri_ep_ip_addr = -1;
-static int hf_bgp_mup_nlri_ep_ipv6_addr = -1;
-static int hf_bgp_mup_nlri_3gpp_5g_ep_teid = -1;
-static int hf_bgp_mup_nlri_unknown_data = -1;
+static int hf_bgp_mup_nlri;
+static int hf_bgp_mup_nlri_at;
+static int hf_bgp_mup_nlri_rt;
+static int hf_bgp_mup_nlri_len;
+static int hf_bgp_mup_nlri_rd;
+static int hf_bgp_mup_nlri_prefixlen;
+static int hf_bgp_mup_nlri_ip_prefix;
+static int hf_bgp_mup_nlri_ipv6_prefix;
+static int hf_bgp_mup_nlri_ip_addr;
+static int hf_bgp_mup_nlri_ipv6_addr;
+static int hf_bgp_mup_nlri_3gpp_5g_type1_st_route;
+static int hf_bgp_mup_nlri_3gpp_5g_teid;
+static int hf_bgp_mup_nlri_3gpp_5g_qfi;
+static int hf_bgp_mup_nlri_3gpp_5g_ep_addr_len;
+static int hf_bgp_mup_nlri_3gpp_5g_ep_ip_addr;
+static int hf_bgp_mup_nlri_3gpp_5g_ep_ipv6_addr;
+static int hf_bgp_mup_nlri_3gpp_5g_type2_st_route;
+static int hf_bgp_mup_nlri_ep_len;
+static int hf_bgp_mup_nlri_ep_ip_addr;
+static int hf_bgp_mup_nlri_ep_ipv6_addr;
+static int hf_bgp_mup_nlri_3gpp_5g_ep_teid;
+static int hf_bgp_mup_nlri_unknown_data;
 
 static int * const ls_igp_te_metric_flags[] = {
        &hf_bgp_ls_igp_te_metric_flags_a,
@@ -3017,128 +3017,128 @@ static int * const ls_igp_te_metric_flags[] = {
        NULL
        };
 
-static gint ett_bgp = -1;
-static gint ett_bgp_prefix = -1;
-static gint ett_bgp_unfeas = -1;
-static gint ett_bgp_attrs = -1;
-static gint ett_bgp_attr = -1;
-static gint ett_bgp_attr_flags = -1;
-static gint ett_bgp_mp_nhna = -1;
-static gint ett_bgp_mp_reach_nlri = -1;
-static gint ett_bgp_mp_unreach_nlri = -1;
-static gint ett_bgp_mp_snpa = -1;
-static gint ett_bgp_nlri = -1;
-static gint ett_bgp_open = -1;
-static gint ett_bgp_update = -1;
-static gint ett_bgp_notification = -1;
-static gint ett_bgp_route_refresh = -1; /* ROUTE-REFRESH message tree */
-static gint ett_bgp_capability = -1;
-static gint ett_bgp_as_path_segment = -1;
-static gint ett_bgp_as_path_segment_asn = -1;
-static gint ett_bgp_communities = -1;
-static gint ett_bgp_community = -1;
-static gint ett_bgp_cluster_list = -1;  /* cluster list tree          */
-static gint ett_bgp_options = -1;       /* optional parameters tree   */
-static gint ett_bgp_option = -1;        /* an optional parameter tree */
-static gint ett_bgp_options_ext = -1;
-static gint ett_bgp_cap = -1;           /* an cap parameter tree */
-static gint ett_bgp_extended_communities = -1; /* extended communities list tree */
-static gint ett_bgp_extended_community = -1; /* extended community tree for each community of BGP update */
-static gint ett_bgp_ext_com_type = -1;  /* Extended Community Type High tree (IANA, Transitive bits) */
-static gint ett_bgp_extended_com_fspec_redir = -1; /* extended communities BGP flow act redirect */
-static gint ett_bgp_ext_com_flags = -1; /* extended communities flags tree */
-static gint ett_bgp_ext_com_l2_flags = -1; /* extended commuties tree for l2 services flags */
-static gint ett_bgp_ext_com_etree_flags = -1;
-static gint ett_bgp_ext_com_evpn_mmac_flags = -1;
-static gint ett_bgp_ext_com_evpn_l2attr_flags = -1;
-static gint ett_bgp_ext_com_evpn_etree_flags = -1;
-static gint ett_bgp_ext_com_cost_cid = -1; /* Cost community CommunityID tree (replace/evaluate after bit) */
-static gint ett_bgp_ext_com_ospf_rt_opt = -1; /* Tree for Options bitfield of OSPF Route Type extended community */
-static gint ett_bgp_ext_com_eigrp_flags = -1; /* Tree for EIGRP route flags */
-static gint ett_bgp_ssa = -1;           /* safi specific attribute */
-static gint ett_bgp_ssa_subtree = -1;   /* safi specific attribute Subtrees */
-static gint ett_bgp_orf = -1;           /* orf (outbound route filter) tree */
-static gint ett_bgp_orf_entry = -1;     /* orf entry tree */
-static gint ett_bgp_mcast_vpn_nlri = -1;
-static gint ett_bgp_flow_spec_nlri = -1;
-static gint ett_bgp_flow_spec_nlri_filter = -1; /* tree decoding multiple op and value pairs */
-static gint ett_bgp_flow_spec_nlri_op_flags = -1; /* tree decoding each op and val pair within the op and value set */
-static gint ett_bgp_flow_spec_nlri_tcp = -1;
-static gint ett_bgp_flow_spec_nlri_ff = -1;
-static gint ett_bgp_tunnel_tlv = -1;
-static gint ett_bgp_tunnel_tlv_subtree = -1;
-static gint ett_bgp_tunnel_subtlv = -1;
-static gint ett_bgp_tunnel_subtlv_subtree = -1;
-static gint ett_bgp_link_state = -1;
-static gint ett_bgp_evpn_nlri = -1;
-static gint ett_bgp_evpn_nlri_esi = -1;
-static gint ett_bgp_evpn_nlri_mc = -1;
-static gint ett_bgp_mpls_labels = -1;
-static gint ett_bgp_pmsi_tunnel_id = -1;
-static gint ett_bgp_aigp_attr = -1;
-static gint ett_bgp_large_communities = -1;
-static gint ett_bgp_dpath = -1;
-static gint ett_bgp_prefix_sid_originator_srgb = -1;
-static gint ett_bgp_prefix_sid_originator_srgb_block = -1;
-static gint ett_bgp_prefix_sid_originator_srgb_blocks = -1;
-static gint ett_bgp_prefix_sid_label_index = -1;
-static gint ett_bgp_prefix_sid_ipv6 = -1;
-static gint ett_bgp_bgpsec_secure_path = -1;
-static gint ett_bgp_bgpsec_secure_path_segment = -1;
-static gint ett_bgp_bgpsec_signature_block = -1;
-static gint ett_bgp_bgpsec_signature_segment = -1;
-static gint ett_bgp_vxlan = -1;
-static gint ett_bgp_binding_sid = -1;
-static gint ett_bgp_segment_list = -1;
-static gint ett_bgp_prefix_sid_unknown = -1;
-static gint ett_bgp_prefix_sid_srv6_l3vpn = -1;
-static gint ett_bgp_prefix_sid_srv6_l3vpn_sub_tlvs = -1;
-static gint ett_bgp_prefix_sid_srv6_l3vpn_sid_information = -1;
-static gint ett_bgp_prefix_sid_srv6_l3vpn_sub_sub_tlvs = -1;
-static gint ett_bgp_prefix_sid_srv6_l3vpn_sid_structure = -1;
-static gint ett_bgp_prefix_sid_srv6_l3vpn_sid_unknown = -1;
-static gint ett_bgp_prefix_sid_srv6_l3vpn_unknown = -1;
-static gint ett_bgp_prefix_sid_srv6_l2vpn = -1;
-static gint ett_bgp_prefix_sid_srv6_l2vpn_sub_tlvs = -1;
-static gint ett_bgp_prefix_sid_srv6_l2vpn_sid_information = -1;
-static gint ett_bgp_prefix_sid_srv6_l2vpn_sub_sub_tlvs = -1;
-static gint ett_bgp_prefix_sid_srv6_l2vpn_sid_structure = -1;
-static gint ett_bgp_prefix_sid_srv6_l2vpn_sid_unknown = -1;
-static gint ett_bgp_prefix_sid_srv6_l2vpn_unknown = -1;
-static gint ett_bgp_mup_nlri = -1;
-static gint ett_bgp_mup_nlri_3gpp_5g_type1_st_route = -1;
-static gint ett_bgp_mup_nlri_3gpp_5g_type2_st_route = -1;
+static gint ett_bgp;
+static gint ett_bgp_prefix;
+static gint ett_bgp_unfeas;
+static gint ett_bgp_attrs;
+static gint ett_bgp_attr;
+static gint ett_bgp_attr_flags;
+static gint ett_bgp_mp_nhna;
+static gint ett_bgp_mp_reach_nlri;
+static gint ett_bgp_mp_unreach_nlri;
+static gint ett_bgp_mp_snpa;
+static gint ett_bgp_nlri;
+static gint ett_bgp_open;
+static gint ett_bgp_update;
+static gint ett_bgp_notification;
+static gint ett_bgp_route_refresh; /* ROUTE-REFRESH message tree */
+static gint ett_bgp_capability;
+static gint ett_bgp_as_path_segment;
+static gint ett_bgp_as_path_segment_asn;
+static gint ett_bgp_communities;
+static gint ett_bgp_community;
+static gint ett_bgp_cluster_list;  /* cluster list tree          */
+static gint ett_bgp_options;       /* optional parameters tree   */
+static gint ett_bgp_option;        /* an optional parameter tree */
+static gint ett_bgp_options_ext;
+static gint ett_bgp_cap;           /* an cap parameter tree */
+static gint ett_bgp_extended_communities; /* extended communities list tree */
+static gint ett_bgp_extended_community; /* extended community tree for each community of BGP update */
+static gint ett_bgp_ext_com_type;  /* Extended Community Type High tree (IANA, Transitive bits) */
+static gint ett_bgp_extended_com_fspec_redir; /* extended communities BGP flow act redirect */
+static gint ett_bgp_ext_com_flags; /* extended communities flags tree */
+static gint ett_bgp_ext_com_l2_flags; /* extended commuties tree for l2 services flags */
+static gint ett_bgp_ext_com_etree_flags;
+static gint ett_bgp_ext_com_evpn_mmac_flags;
+static gint ett_bgp_ext_com_evpn_l2attr_flags;
+static gint ett_bgp_ext_com_evpn_etree_flags;
+static gint ett_bgp_ext_com_cost_cid; /* Cost community CommunityID tree (replace/evaluate after bit) */
+static gint ett_bgp_ext_com_ospf_rt_opt; /* Tree for Options bitfield of OSPF Route Type extended community */
+static gint ett_bgp_ext_com_eigrp_flags; /* Tree for EIGRP route flags */
+static gint ett_bgp_ssa;           /* safi specific attribute */
+static gint ett_bgp_ssa_subtree;   /* safi specific attribute Subtrees */
+static gint ett_bgp_orf;           /* orf (outbound route filter) tree */
+static gint ett_bgp_orf_entry;     /* orf entry tree */
+static gint ett_bgp_mcast_vpn_nlri;
+static gint ett_bgp_flow_spec_nlri;
+static gint ett_bgp_flow_spec_nlri_filter; /* tree decoding multiple op and value pairs */
+static gint ett_bgp_flow_spec_nlri_op_flags; /* tree decoding each op and val pair within the op and value set */
+static gint ett_bgp_flow_spec_nlri_tcp;
+static gint ett_bgp_flow_spec_nlri_ff;
+static gint ett_bgp_tunnel_tlv;
+static gint ett_bgp_tunnel_tlv_subtree;
+static gint ett_bgp_tunnel_subtlv;
+static gint ett_bgp_tunnel_subtlv_subtree;
+static gint ett_bgp_link_state;
+static gint ett_bgp_evpn_nlri;
+static gint ett_bgp_evpn_nlri_esi;
+static gint ett_bgp_evpn_nlri_mc;
+static gint ett_bgp_mpls_labels;
+static gint ett_bgp_pmsi_tunnel_id;
+static gint ett_bgp_aigp_attr;
+static gint ett_bgp_large_communities;
+static gint ett_bgp_dpath;
+static gint ett_bgp_prefix_sid_originator_srgb;
+static gint ett_bgp_prefix_sid_originator_srgb_block;
+static gint ett_bgp_prefix_sid_originator_srgb_blocks;
+static gint ett_bgp_prefix_sid_label_index;
+static gint ett_bgp_prefix_sid_ipv6;
+static gint ett_bgp_bgpsec_secure_path;
+static gint ett_bgp_bgpsec_secure_path_segment;
+static gint ett_bgp_bgpsec_signature_block;
+static gint ett_bgp_bgpsec_signature_segment;
+static gint ett_bgp_vxlan;
+static gint ett_bgp_binding_sid;
+static gint ett_bgp_segment_list;
+static gint ett_bgp_prefix_sid_unknown;
+static gint ett_bgp_prefix_sid_srv6_l3vpn;
+static gint ett_bgp_prefix_sid_srv6_l3vpn_sub_tlvs;
+static gint ett_bgp_prefix_sid_srv6_l3vpn_sid_information;
+static gint ett_bgp_prefix_sid_srv6_l3vpn_sub_sub_tlvs;
+static gint ett_bgp_prefix_sid_srv6_l3vpn_sid_structure;
+static gint ett_bgp_prefix_sid_srv6_l3vpn_sid_unknown;
+static gint ett_bgp_prefix_sid_srv6_l3vpn_unknown;
+static gint ett_bgp_prefix_sid_srv6_l2vpn;
+static gint ett_bgp_prefix_sid_srv6_l2vpn_sub_tlvs;
+static gint ett_bgp_prefix_sid_srv6_l2vpn_sid_information;
+static gint ett_bgp_prefix_sid_srv6_l2vpn_sub_sub_tlvs;
+static gint ett_bgp_prefix_sid_srv6_l2vpn_sid_structure;
+static gint ett_bgp_prefix_sid_srv6_l2vpn_sid_unknown;
+static gint ett_bgp_prefix_sid_srv6_l2vpn_unknown;
+static gint ett_bgp_mup_nlri;
+static gint ett_bgp_mup_nlri_3gpp_5g_type1_st_route;
+static gint ett_bgp_mup_nlri_3gpp_5g_type2_st_route;
 
-static expert_field ei_bgp_marker_invalid = EI_INIT;
-static expert_field ei_bgp_cap_len_bad = EI_INIT;
-static expert_field ei_bgp_cap_gr_helper_mode_only = EI_INIT;
-static expert_field ei_bgp_notify_minor_unknown = EI_INIT;
-static expert_field ei_bgp_route_refresh_orf_type_unknown = EI_INIT;
-static expert_field ei_bgp_length_invalid = EI_INIT;
-static expert_field ei_bgp_prefix_length_invalid = EI_INIT;
-static expert_field ei_bgp_afi_type_not_supported = EI_INIT;
-static expert_field ei_bgp_unknown_afi = EI_INIT;
-static expert_field ei_bgp_unknown_safi = EI_INIT;
-static expert_field ei_bgp_unknown_label_vpn = EI_INIT;
-static expert_field ei_bgp_ls_error = EI_INIT;
-static expert_field ei_bgp_ls_warn = EI_INIT;
-static expert_field ei_bgp_ext_com_len_bad = EI_INIT;
-static expert_field ei_bgp_attr_pmsi_opaque_type = EI_INIT;
-static expert_field ei_bgp_attr_pmsi_tunnel_type = EI_INIT;
-static expert_field ei_bgp_prefix_length_err = EI_INIT;
-static expert_field ei_bgp_attr_aigp_type = EI_INIT;
-static expert_field ei_bgp_attr_as_path_as_len_err = EI_INIT;
-static expert_field ei_bgp_next_hop_ipv6_scope = EI_INIT;
-static expert_field ei_bgp_next_hop_rd_nonzero = EI_INIT;
+static expert_field ei_bgp_marker_invalid;
+static expert_field ei_bgp_cap_len_bad;
+static expert_field ei_bgp_cap_gr_helper_mode_only;
+static expert_field ei_bgp_notify_minor_unknown;
+static expert_field ei_bgp_route_refresh_orf_type_unknown;
+static expert_field ei_bgp_length_invalid;
+static expert_field ei_bgp_prefix_length_invalid;
+static expert_field ei_bgp_afi_type_not_supported;
+static expert_field ei_bgp_unknown_afi;
+static expert_field ei_bgp_unknown_safi;
+static expert_field ei_bgp_unknown_label_vpn;
+static expert_field ei_bgp_ls_error;
+static expert_field ei_bgp_ls_warn;
+static expert_field ei_bgp_ext_com_len_bad;
+static expert_field ei_bgp_attr_pmsi_opaque_type;
+static expert_field ei_bgp_attr_pmsi_tunnel_type;
+static expert_field ei_bgp_prefix_length_err;
+static expert_field ei_bgp_attr_aigp_type;
+static expert_field ei_bgp_attr_as_path_as_len_err;
+static expert_field ei_bgp_next_hop_ipv6_scope;
+static expert_field ei_bgp_next_hop_rd_nonzero;
 
-static expert_field ei_bgp_evpn_nlri_rt_type_err = EI_INIT;
-static expert_field ei_bgp_evpn_nlri_rt_len_err = EI_INIT;
-static expert_field ei_bgp_evpn_nlri_esi_type_err = EI_INIT;
-static expert_field ei_bgp_evpn_nlri_rt4_no_ip = EI_INIT;
+static expert_field ei_bgp_evpn_nlri_rt_type_err;
+static expert_field ei_bgp_evpn_nlri_rt_len_err;
+static expert_field ei_bgp_evpn_nlri_esi_type_err;
+static expert_field ei_bgp_evpn_nlri_rt4_no_ip;
 
-static expert_field ei_bgp_mup_unknown_at = EI_INIT;
-static expert_field ei_bgp_mup_unknown_rt = EI_INIT;
-static expert_field ei_bgp_mup_nlri_addr_len_err = EI_INIT;
+static expert_field ei_bgp_mup_unknown_at;
+static expert_field ei_bgp_mup_unknown_rt;
+static expert_field ei_bgp_mup_nlri_addr_len_err;
 
 /* desegmentation */
 static gboolean bgp_desegment = TRUE;

@@ -38,32 +38,32 @@ static void dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
 /* ethertype for 802.1ah tag - encapsulating an Ethernet packet */
 static unsigned int ieee8021ah_ethertype = ETHERTYPE_IEEE_802_1AH;
 
-static int proto_ieee8021ah = -1;
-static int proto_ieee8021ad = -1;
+static int proto_ieee8021ah;
+static int proto_ieee8021ad;
 
 /* dot1ad B-tag fields */
-static int hf_ieee8021ad_priority = -1;
-static int hf_ieee8021ad_cfi = -1;
-static int hf_ieee8021ad_id = -1;
-static int hf_ieee8021ad_svid = -1;
-static int hf_ieee8021ad_cvid = -1;
+static int hf_ieee8021ad_priority;
+static int hf_ieee8021ad_cfi;
+static int hf_ieee8021ad_id;
+static int hf_ieee8021ad_svid;
+static int hf_ieee8021ad_cvid;
 
 /* dot1ah C-tag fields */
-static int hf_ieee8021ah_priority = -1;
-static int hf_ieee8021ah_drop = -1;    /* drop eligibility */
-static int hf_ieee8021ah_nca = -1;     /* no customer addresses (c_daddr & c_saddr are 0) */
-static int hf_ieee8021ah_res1 = -1;    /* 2 bits reserved; ignored on receive */
-static int hf_ieee8021ah_res2 = -1;    /* 2 bits reserved; delete frame if non-zero */
-static int hf_ieee8021ah_isid = -1;    /* I-SID */
-static int hf_ieee8021ah_c_daddr = -1; /* encapsulated customer dest addr */
-static int hf_ieee8021ah_c_saddr = -1; /* encapsulated customer src addr */
+static int hf_ieee8021ah_priority;
+static int hf_ieee8021ah_drop;    /* drop eligibility */
+static int hf_ieee8021ah_nca;     /* no customer addresses (c_daddr & c_saddr are 0) */
+static int hf_ieee8021ah_res1;    /* 2 bits reserved; ignored on receive */
+static int hf_ieee8021ah_res2;    /* 2 bits reserved; delete frame if non-zero */
+static int hf_ieee8021ah_isid;    /* I-SID */
+static int hf_ieee8021ah_c_daddr; /* encapsulated customer dest addr */
+static int hf_ieee8021ah_c_saddr; /* encapsulated customer src addr */
 
-static int hf_ieee8021ah_etype = -1;
-/* static int hf_ieee8021ah_len = -1; */
-static int hf_ieee8021ah_trailer = -1;
+static int hf_ieee8021ah_etype;
+/* static int hf_ieee8021ah_len; */
+static int hf_ieee8021ah_trailer;
 
-static gint ett_ieee8021ah = -1;
-static gint ett_ieee8021ad = -1;
+static gint ett_ieee8021ah;
+static gint ett_ieee8021ad;
 
 #define IEEE8021AD_LEN 4
 #define IEEE8021AH_LEN 18

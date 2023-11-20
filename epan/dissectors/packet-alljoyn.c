@@ -34,57 +34,57 @@ static dissector_handle_t alljoyn_handle_ardp;
    registered in proto_register_AllJoyn() with a call to
    proto_register_protocol().
 */
-static int proto_AllJoyn_mess = -1; /* The top level. Entire AllJoyn message protocol. */
+static int proto_AllJoyn_mess; /* The top level. Entire AllJoyn message protocol. */
 
 /* These are Wireshark header fields. You can search/filter on these values. */
 /* The initial byte sent when first connecting. */
-static int hf_alljoyn_connect_byte_value = -1;
+static int hf_alljoyn_connect_byte_value;
 
 /* SASL fields. */
-static int hf_alljoyn_sasl_command = -1;
-static int hf_alljoyn_sasl_parameter = -1;
+static int hf_alljoyn_sasl_command;
+static int hf_alljoyn_sasl_parameter;
 /* Message header fields.
 See http://dbus.freedesktop.org/doc/dbus-specification.html#message-protocol-messages
 for details. */
-static int hf_alljoyn_mess_header = -1;              /* The complete header. */
-static int hf_alljoyn_mess_header_endian = -1;       /* 1st byte. */
-static int hf_alljoyn_mess_header_type = -1;         /* 2nd byte. */
-static int hf_alljoyn_mess_header_flags = -1;        /* 3rd byte. */
-static int hf_alljoyn_mess_header_majorversion = -1; /* 4th byte. */
-static int hf_alljoyn_mess_header_body_length = -1;  /* 1st uint32. */
-static int hf_alljoyn_mess_header_serial = -1;       /* 2nd uint32. */
-static int hf_alljoyn_mess_header_header_length = -1;/* 3rd uint32. AllJoyn extension. */
+static int hf_alljoyn_mess_header;              /* The complete header. */
+static int hf_alljoyn_mess_header_endian;       /* 1st byte. */
+static int hf_alljoyn_mess_header_type;         /* 2nd byte. */
+static int hf_alljoyn_mess_header_flags;        /* 3rd byte. */
+static int hf_alljoyn_mess_header_majorversion; /* 4th byte. */
+static int hf_alljoyn_mess_header_body_length;  /* 1st uint32. */
+static int hf_alljoyn_mess_header_serial;       /* 2nd uint32. */
+static int hf_alljoyn_mess_header_header_length;/* 3rd uint32. AllJoyn extension. */
 
-static int hf_alljoyn_mess_header_flags_no_reply = -1;          /* Part of 3rd byte. */
-static int hf_alljoyn_mess_header_flags_no_auto_start = -1;     /* Part of 3rd byte. */
-static int hf_alljoyn_mess_header_flags_allow_remote_msg = -1;  /* Part of 3rd byte. */
-static int hf_alljoyn_mess_header_flags_sessionless = -1;       /* Part of 3rd byte. */
-static int hf_alljoyn_mess_header_flags_global_broadcast = -1;  /* Part of 3rd byte. */
-static int hf_alljoyn_mess_header_flags_compressed = -1;        /* Part of 3rd byte. */
-static int hf_alljoyn_mess_header_flags_encrypted = -1;         /* Part of 3rd byte. */
-static int hf_alljoyn_mess_header_field = -1;
-static int hf_alljoyn_mess_header_fields = -1;
-static int hf_alljoyn_mess_body_header_fieldcode = -1;
-static int hf_alljoyn_mess_body_header_typeid = -1;
-static int hf_alljoyn_mess_body_array = -1;
-static int hf_alljoyn_mess_body_structure = -1;
-static int hf_alljoyn_mess_body_dictionary_entry = -1;
-static int hf_alljoyn_mess_body_parameters = -1;
-static int hf_alljoyn_mess_body_variant = -1;
-static int hf_alljoyn_mess_body_signature = -1;
-static int hf_alljoyn_mess_body_signature_length = -1;
+static int hf_alljoyn_mess_header_flags_no_reply;          /* Part of 3rd byte. */
+static int hf_alljoyn_mess_header_flags_no_auto_start;     /* Part of 3rd byte. */
+static int hf_alljoyn_mess_header_flags_allow_remote_msg;  /* Part of 3rd byte. */
+static int hf_alljoyn_mess_header_flags_sessionless;       /* Part of 3rd byte. */
+static int hf_alljoyn_mess_header_flags_global_broadcast;  /* Part of 3rd byte. */
+static int hf_alljoyn_mess_header_flags_compressed;        /* Part of 3rd byte. */
+static int hf_alljoyn_mess_header_flags_encrypted;         /* Part of 3rd byte. */
+static int hf_alljoyn_mess_header_field;
+static int hf_alljoyn_mess_header_fields;
+static int hf_alljoyn_mess_body_header_fieldcode;
+static int hf_alljoyn_mess_body_header_typeid;
+static int hf_alljoyn_mess_body_array;
+static int hf_alljoyn_mess_body_structure;
+static int hf_alljoyn_mess_body_dictionary_entry;
+static int hf_alljoyn_mess_body_parameters;
+static int hf_alljoyn_mess_body_variant;
+static int hf_alljoyn_mess_body_signature;
+static int hf_alljoyn_mess_body_signature_length;
 
-static int hf_alljoyn_boolean = -1;
-static int hf_alljoyn_uint8 = -1;
-static int hf_alljoyn_int16 = -1;
-static int hf_alljoyn_uint16 = -1;
-static int hf_alljoyn_int32 = -1;
-static int hf_alljoyn_handle = -1;
-static int hf_alljoyn_uint32 = -1;
-static int hf_alljoyn_int64 = -1;
-static int hf_alljoyn_uint64 = -1;
-static int hf_alljoyn_double = -1;
-static int hf_padding = -1;         /* Some fields are padded to an even number of 2, 4, or 8 bytes. */
+static int hf_alljoyn_boolean;
+static int hf_alljoyn_uint8;
+static int hf_alljoyn_int16;
+static int hf_alljoyn_uint16;
+static int hf_alljoyn_int32;
+static int hf_alljoyn_handle;
+static int hf_alljoyn_uint32;
+static int hf_alljoyn_int64;
+static int hf_alljoyn_uint64;
+static int hf_alljoyn_double;
+static int hf_padding;         /* Some fields are padded to an even number of 2, 4, or 8 bytes. */
 
 #define MESSAGE_HEADER_FLAG_NO_REPLY_EXPECTED 0x01
 #define MESSAGE_HEADER_FLAG_NO_AUTO_START     0x02
@@ -95,18 +95,18 @@ static int hf_padding = -1;         /* Some fields are padded to an even number 
 #define MESSAGE_HEADER_FLAG_ENCRYPTED         0x80
 
 /* Protocol identifiers. */
-static int proto_AllJoyn_ns = -1;  /* The top level. Entire AllJoyn Name Service protocol. */
+static int proto_AllJoyn_ns;  /* The top level. Entire AllJoyn Name Service protocol. */
 
-static int hf_alljoyn_answer = -1;
-static int hf_alljoyn_isat_entry = -1;
-static int hf_alljoyn_isat_guid_string = -1;
+static int hf_alljoyn_answer;
+static int hf_alljoyn_isat_entry;
+static int hf_alljoyn_isat_guid_string;
 
-static int hf_alljoyn_ns_header = -1;
-static int hf_alljoyn_ns_sender_version = -1;
-static int hf_alljoyn_ns_message_version = -1;
-static int hf_alljoyn_ns_questions = -1;
-static int hf_alljoyn_ns_answers = -1;
-static int hf_alljoyn_ns_timer = -1;
+static int hf_alljoyn_ns_header;
+static int hf_alljoyn_ns_sender_version;
+static int hf_alljoyn_ns_message_version;
+static int hf_alljoyn_ns_questions;
+static int hf_alljoyn_ns_answers;
+static int hf_alljoyn_ns_timer;
 
 /* These are bit masks for version 0 "who has" records. */
 /* These bits are deprecated and do not exist for version 1. */
@@ -115,14 +115,14 @@ static int hf_alljoyn_ns_timer = -1;
 #define WHOHAS_S 0x02
 #define WHOHAS_F 0x01
 
-static int hf_alljoyn_ns_whohas = -1;
-static int hf_alljoyn_ns_whohas_t_flag = -1;   /* 0x8 -- TCP  */
-static int hf_alljoyn_ns_whohas_u_flag = -1;   /* 0x4 -- UDP  */
-static int hf_alljoyn_ns_whohas_s_flag = -1;   /* 0x2 -- IPV6 */
-static int hf_alljoyn_ns_whohas_f_flag = -1;   /* 0x1 -- IPV4 */
+static int hf_alljoyn_ns_whohas;
+static int hf_alljoyn_ns_whohas_t_flag;   /* 0x8 -- TCP  */
+static int hf_alljoyn_ns_whohas_u_flag;   /* 0x4 -- UDP  */
+static int hf_alljoyn_ns_whohas_s_flag;   /* 0x2 -- IPV6 */
+static int hf_alljoyn_ns_whohas_f_flag;   /* 0x1 -- IPV4 */
 /* End of version 0 bit masks. */
 
-static int hf_alljoyn_ns_whohas_count = -1;    /* octet count of bus names */
+static int hf_alljoyn_ns_whohas_count;    /* octet count of bus names */
 
 /* Bitmasks common to v0 and v1 IS-AT messages. */
 #define ISAT_C 0x10
@@ -150,43 +150,43 @@ static int hf_alljoyn_ns_whohas_count = -1;    /* octet count of bus names */
 #define TRANSPORT_WFD       0x0080  /* Transport using Wi-Fi Direct transport. */
 
 /* Tree indexes common to v0 and v1 IS-AT messages. */
-static int hf_alljoyn_ns_isat_g_flag = -1;     /* 0x20 -- GUID present */
-static int hf_alljoyn_ns_isat_c_flag = -1;     /* 0x10 -- Complete */
+static int hf_alljoyn_ns_isat_g_flag;     /* 0x20 -- GUID present */
+static int hf_alljoyn_ns_isat_c_flag;     /* 0x10 -- Complete */
 
 /* Tree indexes for v0 IS-AT messages. */
-static int hf_alljoyn_ns_isat_t_flag = -1;     /* 0x8 -- TCP */
-static int hf_alljoyn_ns_isat_u_flag = -1;     /* 0x4 -- UDP */
-static int hf_alljoyn_ns_isat_s_flag = -1;     /* 0x2 -- IPV6 */
-static int hf_alljoyn_ns_isat_f_flag = -1;     /* 0x1 -- IPV4 */
-static int hf_alljoyn_ns_isat_count = -1;      /* octet count of bus names */
-static int hf_alljoyn_ns_isat_port = -1;       /* two octets of port number */
-static int hf_alljoyn_ns_isat_ipv4 = -1;       /* four octets of IPv4 address */
-static int hf_alljoyn_ns_isat_ipv6 = -1;       /* sixteen octets of IPv6 address */
+static int hf_alljoyn_ns_isat_t_flag;     /* 0x8 -- TCP */
+static int hf_alljoyn_ns_isat_u_flag;     /* 0x4 -- UDP */
+static int hf_alljoyn_ns_isat_s_flag;     /* 0x2 -- IPV6 */
+static int hf_alljoyn_ns_isat_f_flag;     /* 0x1 -- IPV4 */
+static int hf_alljoyn_ns_isat_count;      /* octet count of bus names */
+static int hf_alljoyn_ns_isat_port;       /* two octets of port number */
+static int hf_alljoyn_ns_isat_ipv4;       /* four octets of IPv4 address */
+static int hf_alljoyn_ns_isat_ipv6;       /* sixteen octets of IPv6 address */
 
 /* Tree indexes for v1 IS-AT messages. */
-static int hf_alljoyn_ns_isat_u6_flag = -1;    /* 0x8 -- UDP IPV6 */
-static int hf_alljoyn_ns_isat_r6_flag = -1;    /* 0x4 -- TCP IPV6 */
-static int hf_alljoyn_ns_isat_u4_flag = -1;    /* 0x2 -- UDP IPV4 */
-static int hf_alljoyn_ns_isat_r4_flag = -1;    /* 0x1 -- TCP IPV4 */
+static int hf_alljoyn_ns_isat_u6_flag;    /* 0x8 -- UDP IPV6 */
+static int hf_alljoyn_ns_isat_r6_flag;    /* 0x4 -- TCP IPV6 */
+static int hf_alljoyn_ns_isat_u4_flag;    /* 0x2 -- UDP IPV4 */
+static int hf_alljoyn_ns_isat_r4_flag;    /* 0x1 -- TCP IPV4 */
 
-static int hf_alljoyn_ns_isat_transport_mask = -1; /* All bits of the transport mask. */
+static int hf_alljoyn_ns_isat_transport_mask; /* All bits of the transport mask. */
 
 /* Individual bits of the mask. */
-static int hf_alljoyn_ns_isat_transport_mask_local = -1;    /* Local (same device) transport */
-static int hf_alljoyn_ns_isat_transport_mask_bluetooth = -1;/* Bluetooth transport */
-static int hf_alljoyn_ns_isat_transport_mask_tcp = -1;      /* Transport using TCP (same as TRANSPORT_WLAN) */
-static int hf_alljoyn_ns_isat_transport_mask_wwan = -1;     /* Wireless wide-area network transport */
-static int hf_alljoyn_ns_isat_transport_mask_lan = -1;      /* Wired local-area network transport */
-static int hf_alljoyn_ns_isat_transport_mask_ice = -1;      /* Transport using ICE protocol */
-static int hf_alljoyn_ns_isat_transport_mask_wfd = -1;      /* Transport using Wi-Fi Direct transport */
+static int hf_alljoyn_ns_isat_transport_mask_local;    /* Local (same device) transport */
+static int hf_alljoyn_ns_isat_transport_mask_bluetooth;/* Bluetooth transport */
+static int hf_alljoyn_ns_isat_transport_mask_tcp;      /* Transport using TCP (same as TRANSPORT_WLAN) */
+static int hf_alljoyn_ns_isat_transport_mask_wwan;     /* Wireless wide-area network transport */
+static int hf_alljoyn_ns_isat_transport_mask_lan;      /* Wired local-area network transport */
+static int hf_alljoyn_ns_isat_transport_mask_ice;      /* Transport using ICE protocol */
+static int hf_alljoyn_ns_isat_transport_mask_wfd;      /* Transport using Wi-Fi Direct transport */
 
-static int hf_alljoyn_string = -1;
-static int hf_alljoyn_string_size_8bit = -1;    /* 8-bit size of string */
-static int hf_alljoyn_string_size_32bit = -1;   /* 32-bit size of string */
-static int hf_alljoyn_string_data = -1;         /* string characters */
+static int hf_alljoyn_string;
+static int hf_alljoyn_string_size_8bit;    /* 8-bit size of string */
+static int hf_alljoyn_string_size_32bit;   /* 32-bit size of string */
+static int hf_alljoyn_string_data;         /* string characters */
 
 /* Protocol identifiers. */
-static int proto_AllJoyn_ardp = -1;  /* The top level. Entire AllJoyn Reliable Datagram Protocol. */
+static int proto_AllJoyn_ardp;  /* The top level. Entire AllJoyn Reliable Datagram Protocol. */
 
 #define ARDP_SYN_FIXED_HDR_LEN  28 /* Size of the fixed part for the ARDP connection packet header. */
 #define ARDP_FIXED_HDR_LEN      34 /* Size of the fixed part for the ARDP header. */
@@ -205,50 +205,50 @@ static int proto_AllJoyn_ardp = -1;  /* The top level. Entire AllJoyn Reliable D
 #define ARDP_VER1 0x80
 #define ARDP_VER (ARDP_VER0 | ARDP_VER1)
 
-static int hf_ardp_syn_flag = -1;       /* 0x01 -- SYN */
-static int hf_ardp_ack_flag = -1;       /* 0x02 -- ACK */
-static int hf_ardp_eak_flag = -1;       /* 0x04 -- EAK */
-static int hf_ardp_rst_flag = -1;       /* 0x08 -- RST */
-static int hf_ardp_nul_flag = -1;       /* 0x10 -- NUL */
-static int hf_ardp_unused_flag = -1;    /* 0x20 -- UNUSED */
-static int hf_ardp_version_field = -1;  /* 0xc0 */
+static int hf_ardp_syn_flag;       /* 0x01 -- SYN */
+static int hf_ardp_ack_flag;       /* 0x02 -- ACK */
+static int hf_ardp_eak_flag;       /* 0x04 -- EAK */
+static int hf_ardp_rst_flag;       /* 0x08 -- RST */
+static int hf_ardp_nul_flag;       /* 0x10 -- NUL */
+static int hf_ardp_unused_flag;    /* 0x20 -- UNUSED */
+static int hf_ardp_version_field;  /* 0xc0 */
 
-static int hf_ardp_hlen = -1;   /* header length */
-static int hf_ardp_src = -1;    /* source port */
-static int hf_ardp_dst = -1;    /* destination port */
-static int hf_ardp_dlen = -1;   /* data length */
-static int hf_ardp_seq = -1;    /* sequence number */
-static int hf_ardp_ack = -1;    /* acknowledge number */
-static int hf_ardp_ttl = -1;    /* time to live (ms) */
-static int hf_ardp_lcs = -1;    /* last consumed sequence number */
-static int hf_ardp_nsa = -1;    /* next sequence to ack */
-static int hf_ardp_fss = -1;    /* fragment starting sequence number */
-static int hf_ardp_fcnt = -1;   /* fragment count */
-static int hf_ardp_bmp = -1;    /* EACK bitmap */
-static int hf_ardp_segmax = -1; /* The maximum number of outstanding segments the other side can send without acknowledgment. */
-static int hf_ardp_segbmax = -1;/* The maximum segment size we are willing to receive. */
-static int hf_ardp_dackt = -1;  /* Receiver's delayed ACK timeout. Used in TTL estimate prior to sending a message. */
-static int hf_ardp_options = -1;/* Options for the connection. Always Sequenced Delivery Mode (SDM). */
+static int hf_ardp_hlen;   /* header length */
+static int hf_ardp_src;    /* source port */
+static int hf_ardp_dst;    /* destination port */
+static int hf_ardp_dlen;   /* data length */
+static int hf_ardp_seq;    /* sequence number */
+static int hf_ardp_ack;    /* acknowledge number */
+static int hf_ardp_ttl;    /* time to live (ms) */
+static int hf_ardp_lcs;    /* last consumed sequence number */
+static int hf_ardp_nsa;    /* next sequence to ack */
+static int hf_ardp_fss;    /* fragment starting sequence number */
+static int hf_ardp_fcnt;   /* fragment count */
+static int hf_ardp_bmp;    /* EACK bitmap */
+static int hf_ardp_segmax; /* The maximum number of outstanding segments the other side can send without acknowledgment. */
+static int hf_ardp_segbmax;/* The maximum segment size we are willing to receive. */
+static int hf_ardp_dackt;  /* Receiver's delayed ACK timeout. Used in TTL estimate prior to sending a message. */
+static int hf_ardp_options;/* Options for the connection. Always Sequenced Delivery Mode (SDM). */
 
-static expert_field ei_alljoyn_empty_arg = EI_INIT;
+static expert_field ei_alljoyn_empty_arg;
 
 /* These are the ids of the subtrees we will be creating */
-static gint ett_alljoyn_ns = -1;    /* This is the top NS tree. */
-static gint ett_alljoyn_ns_header = -1;
-static gint ett_alljoyn_ns_answers = -1;
-static gint ett_alljoyn_ns_guid_string = -1;
-static gint ett_alljoyn_ns_isat_entry = -1;
-static gint ett_alljoyn_ns_string = -1;
-static gint ett_alljoyn_whohas = -1;
-static gint ett_alljoyn_string = -1;
-static gint ett_alljoyn_isat_entry = -1;
-static gint ett_alljoyn_mess = -1;  /* This is the top message tree. */
-static gint ett_alljoyn_header = -1;
-static gint ett_alljoyn_header_flags = -1;
-static gint ett_alljoyn_mess_header_field = -1;
-static gint ett_alljoyn_mess_header = -1;
-static gint ett_alljoyn_mess_body_parameters = -1;
-static gint ett_alljoyn_ardp = -1;  /* This is the top ARDP tree. */
+static gint ett_alljoyn_ns;    /* This is the top NS tree. */
+static gint ett_alljoyn_ns_header;
+static gint ett_alljoyn_ns_answers;
+static gint ett_alljoyn_ns_guid_string;
+static gint ett_alljoyn_ns_isat_entry;
+static gint ett_alljoyn_ns_string;
+static gint ett_alljoyn_whohas;
+static gint ett_alljoyn_string;
+static gint ett_alljoyn_isat_entry;
+static gint ett_alljoyn_mess;  /* This is the top message tree. */
+static gint ett_alljoyn_header;
+static gint ett_alljoyn_header_flags;
+static gint ett_alljoyn_mess_header_field;
+static gint ett_alljoyn_mess_header;
+static gint ett_alljoyn_mess_body_parameters;
+static gint ett_alljoyn_ardp;  /* This is the top ARDP tree. */
 
 #define ROUND_TO_2BYTE(len) WS_ROUNDUP_2(len)
 #define ROUND_TO_4BYTE(len) WS_ROUNDUP_4(len)

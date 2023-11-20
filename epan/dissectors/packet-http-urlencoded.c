@@ -21,13 +21,13 @@ void proto_reg_handoff_http_urlencoded(void);
 
 static dissector_handle_t form_urlencoded_handle;
 
-static int proto_urlencoded = -1;
+static int proto_urlencoded;
 
-static int hf_form_key = -1;
-static int hf_form_value = -1;
+static int hf_form_key;
+static int hf_form_value;
 
-static gint ett_form_urlencoded = -1;
-static gint ett_form_keyvalue = -1;
+static gint ett_form_urlencoded;
+static gint ett_form_keyvalue;
 
 static ws_mempbrk_pattern pbrk_key;
 static ws_mempbrk_pattern pbrk_value;

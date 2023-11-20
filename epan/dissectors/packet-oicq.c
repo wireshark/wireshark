@@ -40,17 +40,17 @@ static dissector_handle_t oicq_handle;
 /* By default, but can be completely different */
 #define UDP_PORT_OICQ	8000 /* Not IANA regisrered */
 
-static int proto_oicq = -1;
+static int proto_oicq;
 
-static int hf_oicq_flag = -1;
-static int hf_oicq_version = -1;
-static int hf_oicq_command = -1;
-static int hf_oicq_seq = -1;
-static int hf_oicq_qqid = -1;
-static int hf_oicq_data = -1;
+static int hf_oicq_flag;
+static int hf_oicq_version;
+static int hf_oicq_command;
+static int hf_oicq_seq;
+static int hf_oicq_qqid;
+static int hf_oicq_data;
 
 
-static gint ett_oicq = -1;
+static gint ett_oicq;
 
 static const value_string oicq_flag_vals[] = {
 	{ 0x02,	"Oicq packet" },

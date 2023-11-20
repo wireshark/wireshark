@@ -24,91 +24,91 @@
 
 void proto_register_v52(void);
 
-static int proto_v52                           = -1;
-static int hf_v52_discriminator                = -1;
+static int proto_v52;
+static int hf_v52_discriminator;
 
-static gint ett_v52                            = -1;
-static gint ett_v52_info                       = -1;
+static gint ett_v52;
+static gint ett_v52_info;
 
-/* static int hf_v52_address                      = -1; */
-/* static int hf_v52_low_address                  = -1; */
+/* static int hf_v52_address; */
+/* static int hf_v52_low_address; */
 
-static int hf_v52_msg_type                     = -1;
-static int hf_v52_info_element                 = -1;
+static int hf_v52_msg_type;
+static int hf_v52_info_element;
 
-static int hf_v52_isdn_address                 = -1;
-static int hf_v52_isdn_low_address             = -1;
-static int hf_v52_pstn_address                 = -1;
-static int hf_v52_pstn_low_address             = -1;
-static int hf_v52_link_address                 = -1;
-static int hf_v52_link_low_address             = -1;
-static int hf_v52_bcc_address                  = -1;
-static int hf_v52_bcc_low_address              = -1;
-static int hf_v52_prot_address                 = -1;
-static int hf_v52_prot_low_address             = -1;
-/* static int hf_v52_ctrl_address                 = -1; */
-/* static int hf_v52_ctrl_low_address             = -1; */
-static int hf_v52_cadenced_ring                = -1;
-static int hf_v52_pulse_notification           = -1;
-static int hf_v52_info_length                  = -1;
+static int hf_v52_isdn_address;
+static int hf_v52_isdn_low_address;
+static int hf_v52_pstn_address;
+static int hf_v52_pstn_low_address;
+static int hf_v52_link_address;
+static int hf_v52_link_low_address;
+static int hf_v52_bcc_address;
+static int hf_v52_bcc_low_address;
+static int hf_v52_prot_address;
+static int hf_v52_prot_low_address;
+/* static int hf_v52_ctrl_address; */
+/* static int hf_v52_ctrl_low_address; */
+static int hf_v52_cadenced_ring;
+static int hf_v52_pulse_notification;
+static int hf_v52_info_length;
 
 /*PSTN Message*/
-static int hf_v52_line_info                    = -1;
-static int hf_v52_pulse_type                   = -1;
-static int hf_v52_suppression_indicator        = -1;
-static int hf_v52_pulse_duration               = -1;
-static int hf_v52_ack_request_indicator        = -1;
-static int hf_v52_number_of_pulses             = -1;
-static int hf_v52_steady_signal                = -1;
-static int hf_v52_auto_signalling_sequence     = -1;
-static int hf_v52_sequence_response            = -1;
-static int hf_v52_digit_ack                    = -1;
-static int hf_v52_digit_spare                  = -1;
-static int hf_v52_digit_info                   = -1;
-static int hf_v52_res_unavailable              = -1;
-static int hf_v52_state                        = -1;
-static int hf_v52_cause_type                   = -1;
-static int hf_v52_pstn_sequence_number         = -1;
-static int hf_v52_duration_type                = -1;
+static int hf_v52_line_info;
+static int hf_v52_pulse_type;
+static int hf_v52_suppression_indicator;
+static int hf_v52_pulse_duration;
+static int hf_v52_ack_request_indicator;
+static int hf_v52_number_of_pulses;
+static int hf_v52_steady_signal;
+static int hf_v52_auto_signalling_sequence;
+static int hf_v52_sequence_response;
+static int hf_v52_digit_ack;
+static int hf_v52_digit_spare;
+static int hf_v52_digit_info;
+static int hf_v52_res_unavailable;
+static int hf_v52_state;
+static int hf_v52_cause_type;
+static int hf_v52_pstn_sequence_number;
+static int hf_v52_duration_type;
 /*Link control*/
-static int hf_v52_link_control_function        = -1;
+static int hf_v52_link_control_function;
 /*Protection protocol*/
-static int hf_v52_rejection_cause              = -1;
-static int hf_v52_error_cause                  = -1;
-static int hf_v52_diagnostic_msg               = -1;
-static int hf_v52_diagnostic_element           = -1;
+static int hf_v52_rejection_cause;
+static int hf_v52_error_cause;
+static int hf_v52_diagnostic_msg;
+static int hf_v52_diagnostic_element;
 /*BCC protocol*/
-static int hf_v52_pstn_user_port_id            = -1;
-static int hf_v52_pstn_user_port_id_lower      = -1;
+static int hf_v52_pstn_user_port_id;
+static int hf_v52_pstn_user_port_id_lower;
 
-static int hf_v52_isdn_user_port_id            = -1;
-static int hf_v52_isdn_user_port_id_lower      = -1;
+static int hf_v52_isdn_user_port_id;
+static int hf_v52_isdn_user_port_id_lower;
 
-static int hf_v52_isdn_user_port_ts_num        = -1;
-static int hf_v52_override                     = -1;
-static int hf_v52_reject_cause_type            = -1;
-static int hf_v52_bcc_protocol_error_cause     = -1;
-static int hf_v52_connection_incomplete_reason = -1;
+static int hf_v52_isdn_user_port_ts_num;
+static int hf_v52_override;
+static int hf_v52_reject_cause_type;
+static int hf_v52_bcc_protocol_error_cause;
+static int hf_v52_connection_incomplete_reason;
 
-static int hf_v52_diagnostic_message           = -1;
-static int hf_v52_diagnostic_information       = -1;
+static int hf_v52_diagnostic_message;
+static int hf_v52_diagnostic_information;
 
 /*Control protocol*/
-static int hf_v52_control_function_element     = -1;
-static int hf_v52_control_function_id          = -1;
-static int hf_v52_variant                      = -1;
-static int hf_v52_if_up_id                     = -1;
-static int hf_v52_if_id                        = -1;
-static int hf_v52_if_low_id                    = -1;
-static int hf_v52_if_all_id                    = -1;
-static int hf_v52_performance_grading          = -1;
-static int hf_v52_cp_rejection_cause           = -1;
+static int hf_v52_control_function_element;
+static int hf_v52_control_function_id;
+static int hf_v52_variant;
+static int hf_v52_if_up_id;
+static int hf_v52_if_id;
+static int hf_v52_if_low_id;
+static int hf_v52_if_all_id;
+static int hf_v52_performance_grading;
+static int hf_v52_cp_rejection_cause;
 
-static int hf_v52_v5_link_id                   = -1;
-static int hf_v52_v5_time_slot                 = -1;
-static int hf_v52_sequence_number              = -1;
+static int hf_v52_v5_link_id;
+static int hf_v52_v5_time_slot;
+static int hf_v52_sequence_number;
 
-static int hf_v52_v5_multi_slot_elements       = -1;
+static int hf_v52_v5_multi_slot_elements;
 
 static int message_type_tmp                    = -1;
 

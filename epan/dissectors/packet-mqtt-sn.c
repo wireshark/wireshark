@@ -148,40 +148,40 @@ static const value_string mqttsn_return_vals[] = {
 static dissector_handle_t mqttsn_handle;
 
 /* Initialize the protocol and registered fields. */
-static int proto_mqttsn = -1;
+static int proto_mqttsn;
 
-static int hf_mqttsn_msg = -1;
-static int hf_mqttsn_msg_len = -1;
-static int hf_mqttsn_msg_type = -1;
-static int hf_mqttsn_dup = -1;
-static int hf_mqttsn_qos = -1;
-static int hf_mqttsn_retain = -1;
-static int hf_mqttsn_will = -1;
-static int hf_mqttsn_clean_session = -1;
-static int hf_mqttsn_topic_id_type = -1;
-static int hf_mqttsn_return_code = -1;
-static int hf_mqttsn_gw_id = -1;
-static int hf_mqttsn_gw_addr = -1;
-static int hf_mqttsn_adv_interv = -1;
-static int hf_mqttsn_radius = -1;
-static int hf_mqttsn_protocol_id = -1;
-static int hf_mqttsn_topic_id = -1;
-static int hf_mqttsn_msg_id = -1;
-static int hf_mqttsn_topic = -1;
-static int hf_mqttsn_topic_name_or_id = -1;
-static int hf_mqttsn_sleep_timer = -1;
-static int hf_mqttsn_will_topic = -1;
-static int hf_mqttsn_will_msg = -1;
-static int hf_mqttsn_pub_msg = -1;
-static int hf_mqttsn_client_id = -1;
-static int hf_mqttsn_keep_alive = -1;
-static int hf_mqttsn_control_info = -1;
-static int hf_mqttsn_wireless_node_id = -1;
+static int hf_mqttsn_msg;
+static int hf_mqttsn_msg_len;
+static int hf_mqttsn_msg_type;
+static int hf_mqttsn_dup;
+static int hf_mqttsn_qos;
+static int hf_mqttsn_retain;
+static int hf_mqttsn_will;
+static int hf_mqttsn_clean_session;
+static int hf_mqttsn_topic_id_type;
+static int hf_mqttsn_return_code;
+static int hf_mqttsn_gw_id;
+static int hf_mqttsn_gw_addr;
+static int hf_mqttsn_adv_interv;
+static int hf_mqttsn_radius;
+static int hf_mqttsn_protocol_id;
+static int hf_mqttsn_topic_id;
+static int hf_mqttsn_msg_id;
+static int hf_mqttsn_topic;
+static int hf_mqttsn_topic_name_or_id;
+static int hf_mqttsn_sleep_timer;
+static int hf_mqttsn_will_topic;
+static int hf_mqttsn_will_msg;
+static int hf_mqttsn_pub_msg;
+static int hf_mqttsn_client_id;
+static int hf_mqttsn_keep_alive;
+static int hf_mqttsn_control_info;
+static int hf_mqttsn_wireless_node_id;
 
 /* Initialize subtree pointers. */
-static gint ett_mqttsn_hdr = -1;
-static gint ett_mqttsn_msg = -1;
-static gint ett_mqttsn_flags = -1;
+static gint ett_mqttsn_hdr;
+static gint ett_mqttsn_msg;
+static gint ett_mqttsn_flags;
 
 /* Dissect a single MQTT-SN packet. */
 static void dissect_mqttsn_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)

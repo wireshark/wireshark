@@ -48,41 +48,41 @@ void proto_reg_handoff_njack(void);
 static dissector_handle_t njack_handle;
 
 /* protocol handles */
-static int proto_njack = -1;
+static int proto_njack;
 
 /* ett handles */
-static int ett_njack = -1;
-static int ett_njack_tlv_header = -1;
+static int ett_njack;
+static int ett_njack_tlv_header;
 
 /* hf elements */
-static int hf_njack_magic = -1;
-static int hf_njack_type = -1;
+static int hf_njack_magic;
+static int hf_njack_type;
 /* type set/get response */
-static int hf_njack_tlv_length = -1;
-static int hf_njack_tlv_data = -1;
-static int hf_njack_tlv_version = -1;
-static int hf_njack_tlv_type = -1;
-static int hf_njack_tlv_typeip = -1;
-static int hf_njack_tlv_devicemac = -1;
-static int hf_njack_tlv_snmpwrite = -1;
-static int hf_njack_tlv_dhcpcontrol = -1;
-static int hf_njack_tlv_typestring = -1;
+static int hf_njack_tlv_length;
+static int hf_njack_tlv_data;
+static int hf_njack_tlv_version;
+static int hf_njack_tlv_type;
+static int hf_njack_tlv_typeip;
+static int hf_njack_tlv_devicemac;
+static int hf_njack_tlv_snmpwrite;
+static int hf_njack_tlv_dhcpcontrol;
+static int hf_njack_tlv_typestring;
 /* 1st TAB */
-static int hf_njack_tlv_countermode = -1;
-static int hf_njack_tlv_scheduling = -1;
-static int hf_njack_tlv_addtagscheme = -1;
-static int hf_njack_tlv_portingressmode = -1;
-static int hf_njack_tlv_maxframesize = -1;
-static int hf_njack_tlv_powerforwarding = -1;
+static int hf_njack_tlv_countermode;
+static int hf_njack_tlv_scheduling;
+static int hf_njack_tlv_addtagscheme;
+static int hf_njack_tlv_portingressmode;
+static int hf_njack_tlv_maxframesize;
+static int hf_njack_tlv_powerforwarding;
 /* type 07: set */
-static int hf_njack_set_length = -1;
-static int hf_njack_set_salt = -1;
-static int hf_njack_set_authdata = -1;
+static int hf_njack_set_length;
+static int hf_njack_set_salt;
+static int hf_njack_set_authdata;
 /* type 08: set result */
-static int hf_njack_setresult = -1;
+static int hf_njack_setresult;
 /* type 0b: get */
 /* type 0c: get response */
-static int hf_njack_getresp_unknown1 = -1;
+static int hf_njack_getresp_unknown1;
 
 #define PROTO_SHORT_NAME "NJACK"
 #define PROTO_LONG_NAME "3com Network Jack"

@@ -19,19 +19,19 @@
 void proto_register_gsm_um(void);
 void proto_reg_handoff_gsm_um(void);
 
-static int proto_gsm_um = -1;
-static int hf_gsm_um_direction = -1;
-static int hf_gsm_um_channel = -1;
-static int hf_gsm_um_bsic = -1;
-static int hf_gsm_um_arfcn = -1;
-static int hf_gsm_um_band = -1;
-static int hf_gsm_um_frequency = -1;
-static int hf_gsm_um_frame = -1;
-static int hf_gsm_um_error = -1;
-static int hf_gsm_um_timeshift = -1;
-static int hf_gsm_um_l2_pseudo_len = -1;
+static int proto_gsm_um;
+static int hf_gsm_um_direction;
+static int hf_gsm_um_channel;
+static int hf_gsm_um_bsic;
+static int hf_gsm_um_arfcn;
+static int hf_gsm_um_band;
+static int hf_gsm_um_frequency;
+static int hf_gsm_um_frame;
+static int hf_gsm_um_error;
+static int hf_gsm_um_timeshift;
+static int hf_gsm_um_l2_pseudo_len;
 
-static gint ett_gsm_um = -1;
+static gint ett_gsm_um;
 
 static dissector_handle_t gsm_um_handle;
 

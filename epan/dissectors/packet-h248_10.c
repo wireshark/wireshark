@@ -25,13 +25,13 @@ void proto_register_h248_dot10(void);
 #define PSNAME "H248CHP"
 #define PFNAME "h248.chp"
 
-static int proto_h248_CHP = -1;
+static int proto_h248_CHP;
 
-static int hf_h248_CHP_mgcon = -1;
-static int hf_h248_CHP_mgcon_reduction = -1;
+static int hf_h248_CHP_mgcon;
+static int hf_h248_CHP_mgcon_reduction;
 
-static gint ett_h248_CHP = -1;
-static gint ett_h248_CHP_mgcon = -1;
+static gint ett_h248_CHP;
+static gint ett_h248_CHP_mgcon;
 
 static const value_string h248_CHP_prop_vals[] = {
 	{ 0, "chp (MG Congestion Handling)" },

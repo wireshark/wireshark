@@ -214,46 +214,46 @@ void proto_register_nordic_ble(void);
 static dissector_handle_t nordic_ble_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_nordic_ble = -1;
+static int proto_nordic_ble;
 
 /* Initialize the subtree pointers */
-static gint ett_nordic_ble = -1;
-static gint ett_packet_header = -1;
-static gint ett_flags = -1;
+static gint ett_nordic_ble;
+static gint ett_packet_header;
+static gint ett_flags;
 
-static int hf_nordic_ble_board_id = -1;
-static int hf_nordic_ble_legacy_marker = -1;
-static int hf_nordic_ble_header = -1;
-static int hf_nordic_ble_header_length = -1;
-static int hf_nordic_ble_payload_length = -1;
-static int hf_nordic_ble_protover = -1;
-static int hf_nordic_ble_packet_counter = -1;
-static int hf_nordic_ble_packet_id = -1;
-static int hf_nordic_ble_packet_length = -1;
-static int hf_nordic_ble_flags = -1;
-static int hf_nordic_ble_crcok = -1;
-static int hf_nordic_ble_encrypted = -1;
-static int hf_nordic_ble_micok = -1;
-static int hf_nordic_ble_mic_not_relevant = -1;
-static int hf_nordic_ble_aux_type = -1;
-static int hf_nordic_ble_flag_reserved1 = -1;
-static int hf_nordic_ble_flag_reserved2 = -1;
-static int hf_nordic_ble_address_resolved = -1;
-static int hf_nordic_ble_flag_reserved7 = -1;
-static int hf_nordic_ble_le_phy = -1;
-static int hf_nordic_ble_direction = -1;
-static int hf_nordic_ble_channel = -1;
-static int hf_nordic_ble_rssi = -1;
-static int hf_nordic_ble_event_counter = -1;
-static int hf_nordic_ble_time = -1;
-static int hf_nordic_ble_delta_time = -1;
-static int hf_nordic_ble_delta_time_ss = -1;
-static int hf_nordic_ble_packet_time = -1;
+static int hf_nordic_ble_board_id;
+static int hf_nordic_ble_legacy_marker;
+static int hf_nordic_ble_header;
+static int hf_nordic_ble_header_length;
+static int hf_nordic_ble_payload_length;
+static int hf_nordic_ble_protover;
+static int hf_nordic_ble_packet_counter;
+static int hf_nordic_ble_packet_id;
+static int hf_nordic_ble_packet_length;
+static int hf_nordic_ble_flags;
+static int hf_nordic_ble_crcok;
+static int hf_nordic_ble_encrypted;
+static int hf_nordic_ble_micok;
+static int hf_nordic_ble_mic_not_relevant;
+static int hf_nordic_ble_aux_type;
+static int hf_nordic_ble_flag_reserved1;
+static int hf_nordic_ble_flag_reserved2;
+static int hf_nordic_ble_address_resolved;
+static int hf_nordic_ble_flag_reserved7;
+static int hf_nordic_ble_le_phy;
+static int hf_nordic_ble_direction;
+static int hf_nordic_ble_channel;
+static int hf_nordic_ble_rssi;
+static int hf_nordic_ble_event_counter;
+static int hf_nordic_ble_time;
+static int hf_nordic_ble_delta_time;
+static int hf_nordic_ble_delta_time_ss;
+static int hf_nordic_ble_packet_time;
 
-static expert_field ei_nordic_ble_bad_crc = EI_INIT;
-static expert_field ei_nordic_ble_bad_mic = EI_INIT;
-static expert_field ei_nordic_ble_bad_length = EI_INIT;
-static expert_field ei_nordic_ble_unknown_version = EI_INIT;
+static expert_field ei_nordic_ble_bad_crc;
+static expert_field ei_nordic_ble_bad_mic;
+static expert_field ei_nordic_ble_bad_length;
+static expert_field ei_nordic_ble_unknown_version;
 
 static const true_false_string direction_tfs =
 {

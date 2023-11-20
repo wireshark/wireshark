@@ -20,27 +20,27 @@ void proto_reg_handoff_dvb_bat(void);
 
 static dissector_handle_t dvb_bat_handle;
 
-static int proto_dvb_bat = -1;
-static int hf_dvb_bat_bouquet_id = -1;
-static int hf_dvb_bat_reserved1 = -1;
-static int hf_dvb_bat_version_number = -1;
-static int hf_dvb_bat_current_next_indicator = -1;
-static int hf_dvb_bat_section_number = -1;
-static int hf_dvb_bat_last_section_number = -1;
+static int proto_dvb_bat;
+static int hf_dvb_bat_bouquet_id;
+static int hf_dvb_bat_reserved1;
+static int hf_dvb_bat_version_number;
+static int hf_dvb_bat_current_next_indicator;
+static int hf_dvb_bat_section_number;
+static int hf_dvb_bat_last_section_number;
 
-static int hf_dvb_bat_reserved2 = -1;
-static int hf_dvb_bat_bouquet_descriptors_length = -1;
+static int hf_dvb_bat_reserved2;
+static int hf_dvb_bat_bouquet_descriptors_length;
 
-static int hf_dvb_bat_reserved3 = -1;
-static int hf_dvb_bat_transport_stream_loop_length = -1;
+static int hf_dvb_bat_reserved3;
+static int hf_dvb_bat_transport_stream_loop_length;
 
-static int hf_dvb_bat_transport_stream_id = -1;
-static int hf_dvb_bat_original_network_id = -1;
-static int hf_dvb_bat_reserved4 = -1;
-static int hf_dvb_bat_transport_descriptors_length = -1;
+static int hf_dvb_bat_transport_stream_id;
+static int hf_dvb_bat_original_network_id;
+static int hf_dvb_bat_reserved4;
+static int hf_dvb_bat_transport_descriptors_length;
 
-static gint ett_dvb_bat = -1;
-static gint ett_dvb_bat_transport_stream = -1;
+static gint ett_dvb_bat;
+static gint ett_dvb_bat_transport_stream;
 
 
 #define DVB_BAT_RESERVED1_MASK                      0xC0

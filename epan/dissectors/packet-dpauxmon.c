@@ -34,15 +34,15 @@ static dissector_handle_t dpaux_handle;
 static dissector_handle_t dpauxmon_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_dpauxmon = -1;
+static int proto_dpauxmon;
 
-static int hf_packet_type = -1;
-static int hf_origin = -1;
-static int hf_inputs = -1;
-static int hf_hpd = -1;
-static int hf_in0 = -1;
-static int hf_in1 = -1;
-static int hf_in2 = -1;
+static int hf_packet_type;
+static int hf_origin;
+static int hf_inputs;
+static int hf_hpd;
+static int hf_in0;
+static int hf_in1;
+static int hf_in2;
 
 static int * const input_fields[] = {
     &hf_hpd,
@@ -53,7 +53,7 @@ static int * const input_fields[] = {
 };
 
 /* Initialize the subtree pointers */
-static gint ett_dpauxmon = -1;
+static gint ett_dpauxmon;
 
 static const value_string packet_type_vals[] = {
     { DPAUXMON_DATA, "Data" },

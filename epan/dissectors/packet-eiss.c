@@ -21,68 +21,68 @@ void proto_reg_handoff_eiss(void);
 
 static dissector_handle_t eiss_handle;
 
-static int proto_eiss = -1;
+static int proto_eiss;
 
-static int hf_eiss_reserved2 = -1;
-static int hf_eiss_section_number = -1;
-static int hf_eiss_last_section_number = -1;
-static int hf_eiss_protocol_version_major = -1;
-static int hf_eiss_protocol_version_minor = -1;
-static int hf_eiss_application_type = -1;
+static int hf_eiss_reserved2;
+static int hf_eiss_section_number;
+static int hf_eiss_last_section_number;
+static int hf_eiss_protocol_version_major;
+static int hf_eiss_protocol_version_minor;
+static int hf_eiss_application_type;
 
 /* application_identifier() */
-static int hf_eiss_organisation_id = -1;
-static int hf_eiss_application_id = -1;
+static int hf_eiss_organisation_id;
+static int hf_eiss_application_id;
 
-static int hf_eiss_platform_id_length = -1;
+static int hf_eiss_platform_id_length;
 
 /* platform id information */
-static int hf_pdtHWManufacturer = -1;
-static int hf_pdtHWModel = -1;
-static int hf_pdtHWVersionMajor = -1;
-static int hf_pdtHWVersionMinor = -1;
-static int hf_pdtSWManufacturer = -1;
-static int hf_pdtSWModel = -1;
-static int hf_pdtSWVersionMajor = -1;
-static int hf_pdtSWVersionMinor = -1;
-static int hf_pdtProfile = -1;
+static int hf_pdtHWManufacturer;
+static int hf_pdtHWModel;
+static int hf_pdtHWVersionMajor;
+static int hf_pdtHWVersionMinor;
+static int hf_pdtSWManufacturer;
+static int hf_pdtSWModel;
+static int hf_pdtSWVersionMajor;
+static int hf_pdtSWVersionMinor;
+static int hf_pdtProfile;
 
 /* common to all eiss descriptors */
-static int hf_eiss_descriptor_tag = -1;
-static int hf_eiss_descriptor_length = -1;
+static int hf_eiss_descriptor_tag;
+static int hf_eiss_descriptor_length;
 
 /* application info descriptor */
-static int hf_eiss_aid_app_control_code = -1;
-static int hf_eiss_aid_app_version_major = -1;
-static int hf_eiss_aid_app_version_minor = -1;
-static int hf_eiss_aid_max_proto_version_major = -1;
-static int hf_eiss_aid_max_proto_version_minor = -1;
-static int hf_eiss_aid_test_flag = -1;
-static int hf_eiss_aid_reserved = -1;
-static int hf_eiss_aid_priority = -1;
-static int hf_eiss_irl_type = -1;
-static int hf_eiss_irl_length = -1;
-static int hf_eiss_irl_string = -1;
+static int hf_eiss_aid_app_control_code;
+static int hf_eiss_aid_app_version_major;
+static int hf_eiss_aid_app_version_minor;
+static int hf_eiss_aid_max_proto_version_major;
+static int hf_eiss_aid_max_proto_version_minor;
+static int hf_eiss_aid_test_flag;
+static int hf_eiss_aid_reserved;
+static int hf_eiss_aid_priority;
+static int hf_eiss_irl_type;
+static int hf_eiss_irl_length;
+static int hf_eiss_irl_string;
 
 /* media time descriptor */
-static int hf_eiss_mtd_time_value = -1;
+static int hf_eiss_mtd_time_value;
 
 /* stream event descriptor */
-static int hf_eiss_sed_time_value = -1;
-static int hf_eiss_sed_reserved = -1;
-static int hf_eiss_sed_descriptor_length = -1;
+static int hf_eiss_sed_time_value;
+static int hf_eiss_sed_reserved;
+static int hf_eiss_sed_descriptor_length;
 
-static gint ett_eiss = -1;
-static gint ett_eiss_platform_id = -1;
-static gint ett_eiss_desc = -1;
+static gint ett_eiss;
+static gint ett_eiss_platform_id;
+static gint ett_eiss_desc;
 
-static expert_field ei_eiss_platform_id_length = EI_INIT;
-static expert_field ei_eiss_invalid_section_length = EI_INIT;
-static expert_field ei_eiss_invalid_section_syntax_indicator = EI_INIT;
-static expert_field ei_eiss_unknown_descriptor = EI_INIT;
-static expert_field ei_eiss_section_number = EI_INIT;
-static expert_field ei_eiss_application_type = EI_INIT;
-static expert_field ei_eiss_invalid_reserved_bits = EI_INIT;
+static expert_field ei_eiss_platform_id_length;
+static expert_field ei_eiss_invalid_section_length;
+static expert_field ei_eiss_invalid_section_syntax_indicator;
+static expert_field ei_eiss_unknown_descriptor;
+static expert_field ei_eiss_section_number;
+static expert_field ei_eiss_application_type;
+static expert_field ei_eiss_invalid_reserved_bits;
 
 #define MPEG_SECT_SYNTAX_INDICATOR_MASK	0x8000
 #define MPEG_SECT_RESERVED_MASK		0x7000

@@ -23,14 +23,14 @@ void proto_reg_handoff_moldudp(void);
 static dissector_handle_t moldudp_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_moldudp       = -1;
-static int hf_moldudp_session  = -1;
-static int hf_moldudp_sequence = -1;
-static int hf_moldudp_count    = -1;
-static int hf_moldudp_msgblk   = -1;
-static int hf_moldudp_msgseq   = -1;
-static int hf_moldudp_msglen   = -1;
-static int hf_moldudp_msgdata  = -1;
+static int proto_moldudp;
+static int hf_moldudp_session;
+static int hf_moldudp_sequence;
+static int hf_moldudp_count;
+static int hf_moldudp_msgblk;
+static int hf_moldudp_msgseq;
+static int hf_moldudp_msglen;
+static int hf_moldudp_msgdata;
 
 #define MOLDUDP_SESSION_LEN  10
 #define MOLDUDP_SEQUENCE_LEN  4
@@ -40,11 +40,11 @@ static int hf_moldudp_msgdata  = -1;
 #define MOLDUDP_HEARTBEAT 0x0000
 
 /* Initialize the subtree pointers */
-static gint ett_moldudp        = -1;
-static gint ett_moldudp_msgblk = -1;
+static gint ett_moldudp;
+static gint ett_moldudp_msgblk;
 
-static expert_field ei_moldudp_msglen_invalid = EI_INIT;
-static expert_field ei_moldudp_count_invalid = EI_INIT;
+static expert_field ei_moldudp_msglen_invalid;
+static expert_field ei_moldudp_count_invalid;
 
 static dissector_table_t moldudp_payload_table;
 

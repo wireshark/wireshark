@@ -19,24 +19,24 @@ void proto_reg_handoff_usbms_bot(void);
 #define IF_PROTOCOL_BULK_ONLY 0x50
 
 /* protocols and header fields */
-static int proto_usbms_bot = -1;
-static int hf_usbms_bot_dCBWSignature = -1;
-static int hf_usbms_bot_dCBWTag = -1;
-static int hf_usbms_bot_dCBWDataTransferLength = -1;
-static int hf_usbms_bot_dCBWFlags = -1;
-static int hf_usbms_bot_dCBWTarget = -1;
-static int hf_usbms_bot_dCBWLUN = -1;
-static int hf_usbms_bot_dCBWCBLength = -1;
-static int hf_usbms_bot_dCSWSignature = -1;
-static int hf_usbms_bot_dCSWDataResidue = -1;
-static int hf_usbms_bot_dCSWStatus = -1;
-static int hf_usbms_bot_request = -1;
-static int hf_usbms_bot_value = -1;
-static int hf_usbms_bot_index = -1;
-static int hf_usbms_bot_length = -1;
-static int hf_usbms_bot_maxlun = -1;
+static int proto_usbms_bot;
+static int hf_usbms_bot_dCBWSignature;
+static int hf_usbms_bot_dCBWTag;
+static int hf_usbms_bot_dCBWDataTransferLength;
+static int hf_usbms_bot_dCBWFlags;
+static int hf_usbms_bot_dCBWTarget;
+static int hf_usbms_bot_dCBWLUN;
+static int hf_usbms_bot_dCBWCBLength;
+static int hf_usbms_bot_dCSWSignature;
+static int hf_usbms_bot_dCSWDataResidue;
+static int hf_usbms_bot_dCSWStatus;
+static int hf_usbms_bot_request;
+static int hf_usbms_bot_value;
+static int hf_usbms_bot_index;
+static int hf_usbms_bot_length;
+static int hf_usbms_bot_maxlun;
 
-static gint ett_usbms_bot = -1;
+static gint ett_usbms_bot;
 
 static dissector_handle_t usbms_bot_bulk_handle;
 static dissector_handle_t usbms_bot_control_handle;

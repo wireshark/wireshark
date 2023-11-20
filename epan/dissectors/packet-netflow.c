@@ -2405,575 +2405,575 @@ static const value_string classification_engine_types[] = {
  * wireshark tree identifiers
  */
 
-static int      proto_netflow           = -1;
+static int      proto_netflow;
 
-static int      ett_netflow             = -1;
-static int      ett_unixtime            = -1;
-static int      ett_flow                = -1;
-static int      ett_flowtime            = -1;
-static int      ett_str_len             = -1;
-static int      ett_template            = -1;
-static int      ett_field               = -1;
-static int      ett_dataflowset         = -1;
-static int      ett_fwdstat             = -1;
-static int      ett_mpls_label          = -1;
-static int      ett_tcpflags            = -1;
-static int      ett_subtemplate_list    = -1;
-static int      ett_resiliency          = -1;
-static int      ett_data_link_frame_sec = -1;
-static int      ett_srhflagsipv6        = -1;
+static int      ett_netflow;
+static int      ett_unixtime;
+static int      ett_flow;
+static int      ett_flowtime;
+static int      ett_str_len;
+static int      ett_template;
+static int      ett_field;
+static int      ett_dataflowset;
+static int      ett_fwdstat;
+static int      ett_mpls_label;
+static int      ett_tcpflags;
+static int      ett_subtemplate_list;
+static int      ett_resiliency;
+static int      ett_data_link_frame_sec;
+static int      ett_srhflagsipv6;
 
 /*
  * cflow header
  */
 
-static int      hf_cflow_version        = -1;
-static int      hf_cflow_count          = -1;
-static int      hf_cflow_len            = -1;
-static int      hf_cflow_sysuptime      = -1;
-static int      hf_cflow_exporttime     = -1;
-static int      hf_cflow_unix_secs      = -1;
-static int      hf_cflow_unix_nsecs     = -1;
-static int      hf_cflow_timestamp      = -1;
-static int      hf_cflow_samplingmode   = -1;
-static int      hf_cflow_samplerate     = -1;
+static int      hf_cflow_version;
+static int      hf_cflow_count;
+static int      hf_cflow_len;
+static int      hf_cflow_sysuptime;
+static int      hf_cflow_exporttime;
+static int      hf_cflow_unix_secs;
+static int      hf_cflow_unix_nsecs;
+static int      hf_cflow_timestamp;
+static int      hf_cflow_samplingmode;
+static int      hf_cflow_samplerate;
 
-static int      hf_cflow_unknown_field_type        = -1;
-static int      hf_cflow_padding        = -1;
-static int      hf_cflow_reserved       = -1;
-static int      hf_cflow_extra_packets  = -1;
+static int      hf_cflow_unknown_field_type;
+static int      hf_cflow_padding;
+static int      hf_cflow_reserved;
+static int      hf_cflow_extra_packets;
 
 /*
  * cflow version specific info
  */
-static int      hf_cflow_sequence       = -1;
-static int      hf_cflow_engine_type    = -1;
-static int      hf_cflow_engine_id      = -1;
-static int      hf_cflow_source_id      = -1;
+static int      hf_cflow_sequence;
+static int      hf_cflow_engine_type;
+static int      hf_cflow_engine_id;
+static int      hf_cflow_source_id;
 
-static int      hf_cflow_aggmethod      = -1;
-static int      hf_cflow_aggversion     = -1;
+static int      hf_cflow_aggmethod;
+static int      hf_cflow_aggversion;
 
 /* Version 9 */
 
-static int      hf_cflow_flowset_id                = -1;
-static int      hf_cflow_flowset_length            = -1;
-static int      hf_cflow_template_id               = -1;
-static int      hf_cflow_template_field_count      = -1;
-static int      hf_cflow_template_field_type       = -1;
-static int      hf_cflow_template_field_length     = -1;
-static int      hf_cflow_option_scope_length       = -1;
-static int      hf_cflow_option_length             = -1;
-static int      hf_cflow_template_scope_field_type = -1;
+static int      hf_cflow_flowset_id;
+static int      hf_cflow_flowset_length;
+static int      hf_cflow_template_id;
+static int      hf_cflow_template_field_count;
+static int      hf_cflow_template_field_type;
+static int      hf_cflow_template_field_length;
+static int      hf_cflow_option_scope_length;
+static int      hf_cflow_option_length;
+static int      hf_cflow_template_scope_field_type;
 
-static int      hf_cflow_scope_system              = -1;
-static int      hf_cflow_scope_interface           = -1;
-static int      hf_cflow_scope_linecard            = -1;
-static int      hf_cflow_scope_cache               = -1;
-static int      hf_cflow_scope_template            = -1;
+static int      hf_cflow_scope_system;
+static int      hf_cflow_scope_interface;
+static int      hf_cflow_scope_linecard;
+static int      hf_cflow_scope_cache;
+static int      hf_cflow_scope_template;
 
 /* IPFIX */
-static int      hf_cflow_template_ipfix_total_field_count           = -1;
-static int      hf_cflow_template_ipfix_scope_field_count           = -1;
-static int      hf_cflow_template_ipfix_pen_provided                = -1;
-static int      hf_cflow_template_ipfix_field_type                  = -1;
-static int      hf_cflow_template_ipfix_field_type_enterprise       = -1;
-static int      hf_cflow_template_ipfix_field_pen                   = -1;
-static int      hf_cflow_subtemplate_id                             = -1;
-static int      hf_cflow_subtemplate_semantic                       = -1;
+static int      hf_cflow_template_ipfix_total_field_count;
+static int      hf_cflow_template_ipfix_scope_field_count;
+static int      hf_cflow_template_ipfix_pen_provided;
+static int      hf_cflow_template_ipfix_field_type;
+static int      hf_cflow_template_ipfix_field_type_enterprise;
+static int      hf_cflow_template_ipfix_field_pen;
+static int      hf_cflow_subtemplate_id;
+static int      hf_cflow_subtemplate_semantic;
 
 /* IPFIX / vendor */
-static int      hf_cflow_template_plixer_field_type                 = -1;
-static int      hf_cflow_template_ntop_field_type                   = -1;
-static int      hf_cflow_template_ixia_field_type                   = -1;
-static int      hf_cflow_template_netscaler_field_type              = -1;
-static int      hf_cflow_template_barracuda_field_type              = -1;
-static int      hf_cflow_template_gigamon_field_type                = -1;
-static int      hf_cflow_template_cisco_field_type                  = -1;
-static int      hf_cflow_template_niagara_networks_field_type       = -1;
-static int      hf_cflow_template_fastip_field_type                 = -1;
-static int      hf_cflow_template_juniper_field_type                = -1;
+static int      hf_cflow_template_plixer_field_type;
+static int      hf_cflow_template_ntop_field_type;
+static int      hf_cflow_template_ixia_field_type;
+static int      hf_cflow_template_netscaler_field_type;
+static int      hf_cflow_template_barracuda_field_type;
+static int      hf_cflow_template_gigamon_field_type;
+static int      hf_cflow_template_cisco_field_type;
+static int      hf_cflow_template_niagara_networks_field_type;
+static int      hf_cflow_template_fastip_field_type;
+static int      hf_cflow_template_juniper_field_type;
 
 
 /*
  * pdu storage
  */
-static int      hf_cflow_srcaddr                                    = -1;
-static int      hf_cflow_srcaddr_v6                                 = -1;
-static int      hf_cflow_srcnet                                     = -1;
-static int      hf_cflow_dstaddr                                    = -1;
-static int      hf_cflow_dstaddr_v6                                 = -1;
-static int      hf_cflow_dstnet                                     = -1;
-static int      hf_cflow_nexthop                                    = -1;
-static int      hf_cflow_nexthop_v6                                 = -1;
-static int      hf_cflow_bgpnexthop                                 = -1;
-static int      hf_cflow_bgpnexthop_v6                              = -1;
-static int      hf_cflow_inputint                                   = -1;
-static int      hf_cflow_outputint                                  = -1;
-static int      hf_cflow_flows                                      = -1;
-static int      hf_cflow_packets                                    = -1;
-static int      hf_cflow_octets                                     = -1;
-static int      hf_cflow_length_min                                 = -1;
-static int      hf_cflow_length_max                                 = -1;
-static int      hf_cflow_timedelta                                  = -1;
-static int      hf_cflow_sys_init_time                              = -1;
-static int      hf_cflow_timestart                                  = -1;
-static int      hf_cflow_timeend                                    = -1;
-static int      hf_cflow_srcport                                    = -1;
-static int      hf_cflow_dstport                                    = -1;
-static int      hf_cflow_prot                                       = -1;
-static int      hf_cflow_tos                                        = -1;
-static int      hf_cflow_marked_tos                                 = -1;
-static int      hf_cflow_flags                                      = -1;
-static int      hf_cflow_tcpflags                                   = -1;
-static int      hf_cflow_tcpflags16                                 = -1;
-static int      hf_cflow_tcpflags_fin                               = -1;
-static int      hf_cflow_tcpflags_syn                               = -1;
-static int      hf_cflow_tcpflags_rst                               = -1;
-static int      hf_cflow_tcpflags_psh                               = -1;
-static int      hf_cflow_tcpflags_ack                               = -1;
-static int      hf_cflow_tcpflags_urg                               = -1;
-static int      hf_cflow_tcpflags_ece                               = -1;
-static int      hf_cflow_tcpflags_cwr                               = -1;
-static int      hf_cflow_tcpflags16_fin                             = -1;
-static int      hf_cflow_tcpflags16_syn                             = -1;
-static int      hf_cflow_tcpflags16_rst                             = -1;
-static int      hf_cflow_tcpflags16_psh                             = -1;
-static int      hf_cflow_tcpflags16_ack                             = -1;
-static int      hf_cflow_tcpflags16_urg                             = -1;
-static int      hf_cflow_tcpflags16_ece                             = -1;
-static int      hf_cflow_tcpflags16_cwr                             = -1;
-static int      hf_cflow_tcpflags16_ns                              = -1;
-static int      hf_cflow_tcpflags_reserved                          = -1;
-static int      hf_cflow_tcpflags16_reserved                        = -1;
-static int      hf_cflow_tcpflags16_zero                            = -1;
-static int      hf_cflow_dstas                                      = -1;
-static int      hf_cflow_srcas                                      = -1;
-static int      hf_cflow_dstmask                                    = -1;
-static int      hf_cflow_dstmask_v6                                 = -1;
-static int      hf_cflow_srcmask                                    = -1;
-static int      hf_cflow_srcmask_v6                                 = -1;
-static int      hf_cflow_routersc                                   = -1;
-static int      hf_cflow_mulpackets                                 = -1;
-static int      hf_cflow_muloctets                                  = -1;
-static int      hf_cflow_octets_exp                                 = -1;
-static int      hf_cflow_packets_exp                                = -1;
-static int      hf_cflow_flows_exp                                  = -1;
-static int      hf_cflow_ipv4_router_sc                             = -1;
-static int      hf_cflow_srcprefix                                  = -1;
-static int      hf_cflow_dstprefix                                  = -1;
-static int      hf_cflow_flow_class                                 = -1;
-static int      hf_cflow_ttl_minimum                                = -1;
-static int      hf_cflow_ttl_maximum                                = -1;
-static int      hf_cflow_frag_id                                    = -1;
-static int      hf_cflow_ip_version                                 = -1;
-static int      hf_cflow_icmp_type_code_ipv4                        = -1;
-static int      hf_cflow_igmp_type                                  = -1;
-static int      hf_cflow_sampling_interval                          = -1;
-static int      hf_cflow_sampling_algorithm                         = -1;
-static int      hf_cflow_flow_active_timeout                        = -1;
-static int      hf_cflow_flow_inactive_timeout                      = -1;
-static int      hf_cflow_mpls_top_label_type                        = -1;
-static int      hf_cflow_mpls_pe_addr                               = -1;
-static int      hf_cflow_sampler_id                                 = -1;
-static int      hf_cflow_sampler_mode                               = -1;
-static int      hf_cflow_sampler_random_interval                    = -1;
-static int      hf_cflow_direction                                  = -1;
-static int      hf_cflow_if_name                                    = -1;
-static int      hf_cflow_if_descr                                   = -1;
-static int      hf_cflow_sampler_name                               = -1;
-static int      hf_cflow_forwarding_status                          = -1;
-static int      hf_cflow_forwarding_status_unknown_code             = -1;
-static int      hf_cflow_forwarding_status_forward_code             = -1;
-static int      hf_cflow_forwarding_status_consume_code             = -1;
-static int      hf_cflow_forwarding_status_drop_code                = -1;
-static int      hf_cflow_nbar_appl_desc                             = -1;
-static int      hf_cflow_nbar_appl_id_class_eng_id                  = -1;
-static int      hf_cflow_nbar_appl_id_selector_id                   = -1;
-static int      hf_cflow_nbar_appl_name                             = -1;
-static int      hf_cflow_peer_srcas                                 = -1;
-static int      hf_cflow_peer_dstas                                 = -1;
-static int      hf_cflow_flow_exporter                              = -1;
-static int      hf_cflow_icmp_ipv4_type                             = -1;
-static int      hf_cflow_icmp_ipv4_code                             = -1;
-static int      hf_cflow_icmp_ipv6_type                             = -1;
-static int      hf_cflow_icmp_ipv6_code                             = -1;
-static int      hf_cflow_tcp_window_size                            = -1;
-static int      hf_cflow_ipv4_total_length                          = -1;
-static int      hf_cflow_ip_ttl                                     = -1;
-static int      hf_cflow_mpls_payload_length                        = -1;
-static int      hf_cflow_ip_dscp                                    = -1;
-static int      hf_cflow_delta_octets_squared                       = -1;
-static int      hf_cflow_total_octets_squared                       = -1;
-static int      hf_cflow_udp_length                                 = -1;
-static int      hf_cflow_is_multicast                               = -1;
-static int      hf_cflow_ip_header_words                            = -1;
-static int      hf_cflow_option_map                                 = -1;
-static int      hf_cflow_section_header                             = -1;
-static int      hf_cflow_section_payload                            = -1;
+static int      hf_cflow_srcaddr;
+static int      hf_cflow_srcaddr_v6;
+static int      hf_cflow_srcnet;
+static int      hf_cflow_dstaddr;
+static int      hf_cflow_dstaddr_v6;
+static int      hf_cflow_dstnet;
+static int      hf_cflow_nexthop;
+static int      hf_cflow_nexthop_v6;
+static int      hf_cflow_bgpnexthop;
+static int      hf_cflow_bgpnexthop_v6;
+static int      hf_cflow_inputint;
+static int      hf_cflow_outputint;
+static int      hf_cflow_flows;
+static int      hf_cflow_packets;
+static int      hf_cflow_octets;
+static int      hf_cflow_length_min;
+static int      hf_cflow_length_max;
+static int      hf_cflow_timedelta;
+static int      hf_cflow_sys_init_time;
+static int      hf_cflow_timestart;
+static int      hf_cflow_timeend;
+static int      hf_cflow_srcport;
+static int      hf_cflow_dstport;
+static int      hf_cflow_prot;
+static int      hf_cflow_tos;
+static int      hf_cflow_marked_tos;
+static int      hf_cflow_flags;
+static int      hf_cflow_tcpflags;
+static int      hf_cflow_tcpflags16;
+static int      hf_cflow_tcpflags_fin;
+static int      hf_cflow_tcpflags_syn;
+static int      hf_cflow_tcpflags_rst;
+static int      hf_cflow_tcpflags_psh;
+static int      hf_cflow_tcpflags_ack;
+static int      hf_cflow_tcpflags_urg;
+static int      hf_cflow_tcpflags_ece;
+static int      hf_cflow_tcpflags_cwr;
+static int      hf_cflow_tcpflags16_fin;
+static int      hf_cflow_tcpflags16_syn;
+static int      hf_cflow_tcpflags16_rst;
+static int      hf_cflow_tcpflags16_psh;
+static int      hf_cflow_tcpflags16_ack;
+static int      hf_cflow_tcpflags16_urg;
+static int      hf_cflow_tcpflags16_ece;
+static int      hf_cflow_tcpflags16_cwr;
+static int      hf_cflow_tcpflags16_ns;
+static int      hf_cflow_tcpflags_reserved;
+static int      hf_cflow_tcpflags16_reserved;
+static int      hf_cflow_tcpflags16_zero;
+static int      hf_cflow_dstas;
+static int      hf_cflow_srcas;
+static int      hf_cflow_dstmask;
+static int      hf_cflow_dstmask_v6;
+static int      hf_cflow_srcmask;
+static int      hf_cflow_srcmask_v6;
+static int      hf_cflow_routersc;
+static int      hf_cflow_mulpackets;
+static int      hf_cflow_muloctets;
+static int      hf_cflow_octets_exp;
+static int      hf_cflow_packets_exp;
+static int      hf_cflow_flows_exp;
+static int      hf_cflow_ipv4_router_sc;
+static int      hf_cflow_srcprefix;
+static int      hf_cflow_dstprefix;
+static int      hf_cflow_flow_class;
+static int      hf_cflow_ttl_minimum;
+static int      hf_cflow_ttl_maximum;
+static int      hf_cflow_frag_id;
+static int      hf_cflow_ip_version;
+static int      hf_cflow_icmp_type_code_ipv4;
+static int      hf_cflow_igmp_type;
+static int      hf_cflow_sampling_interval;
+static int      hf_cflow_sampling_algorithm;
+static int      hf_cflow_flow_active_timeout;
+static int      hf_cflow_flow_inactive_timeout;
+static int      hf_cflow_mpls_top_label_type;
+static int      hf_cflow_mpls_pe_addr;
+static int      hf_cflow_sampler_id;
+static int      hf_cflow_sampler_mode;
+static int      hf_cflow_sampler_random_interval;
+static int      hf_cflow_direction;
+static int      hf_cflow_if_name;
+static int      hf_cflow_if_descr;
+static int      hf_cflow_sampler_name;
+static int      hf_cflow_forwarding_status;
+static int      hf_cflow_forwarding_status_unknown_code;
+static int      hf_cflow_forwarding_status_forward_code;
+static int      hf_cflow_forwarding_status_consume_code;
+static int      hf_cflow_forwarding_status_drop_code;
+static int      hf_cflow_nbar_appl_desc;
+static int      hf_cflow_nbar_appl_id_class_eng_id;
+static int      hf_cflow_nbar_appl_id_selector_id;
+static int      hf_cflow_nbar_appl_name;
+static int      hf_cflow_peer_srcas;
+static int      hf_cflow_peer_dstas;
+static int      hf_cflow_flow_exporter;
+static int      hf_cflow_icmp_ipv4_type;
+static int      hf_cflow_icmp_ipv4_code;
+static int      hf_cflow_icmp_ipv6_type;
+static int      hf_cflow_icmp_ipv6_code;
+static int      hf_cflow_tcp_window_size;
+static int      hf_cflow_ipv4_total_length;
+static int      hf_cflow_ip_ttl;
+static int      hf_cflow_mpls_payload_length;
+static int      hf_cflow_ip_dscp;
+static int      hf_cflow_delta_octets_squared;
+static int      hf_cflow_total_octets_squared;
+static int      hf_cflow_udp_length;
+static int      hf_cflow_is_multicast;
+static int      hf_cflow_ip_header_words;
+static int      hf_cflow_option_map;
+static int      hf_cflow_section_header;
+static int      hf_cflow_section_payload;
 /* IPFIX (version 10) Information Elements */
-static int      hf_cflow_post_octets                                = -1;
-static int      hf_cflow_post_packets                               = -1;
-static int      hf_cflow_ipv6_flowlabel                             = -1;
-static int      hf_cflow_post_tos                                   = -1;
-static int      hf_cflow_srcmac                                     = -1;
-static int      hf_cflow_post_dstmac                                = -1;
-static int      hf_cflow_vlanid                                     = -1;
-static int      hf_cflow_post_vlanid                                = -1;
-static int      hf_cflow_ipv6_exthdr                                = -1;
-static int      hf_cflow_dstmac                                     = -1;
-static int      hf_cflow_post_srcmac                                = -1;
-static int      hf_cflow_permanent_packets                          = -1;
-static int      hf_cflow_permanent_octets                           = -1;
-static int      hf_cflow_fragment_offset                            = -1;
-static int      hf_cflow_mpls_vpn_rd                                = -1;
-static int      hf_cflow_mpls_top_label_prefix_length               = -1; /* ID:  91 */
-static int      hf_cflow_src_traffic_index                          = -1; /* ID:  92 */
-static int      hf_cflow_dst_traffic_index                          = -1; /* ID:  93 */
-static int      hf_cflow_post_ip_diff_serv_code_point               = -1; /* ID:  98 */
-static int      hf_cflow_multicast_replication_factor               = -1; /* ID:  99 */
-static int      hf_cflow_classification_engine_id                   = -1; /* ID: 101 */
-static int      hf_cflow_exporter_addr                              = -1;
-static int      hf_cflow_exporter_addr_v6                           = -1;
-static int      hf_cflow_drop_octets                                = -1;
-static int      hf_cflow_drop_packets                               = -1;
-static int      hf_cflow_drop_total_octets                          = -1;
-static int      hf_cflow_drop_total_packets                         = -1;
-static int      hf_cflow_flow_end_reason                            = -1;
-static int      hf_cflow_common_properties_id                       = -1;
-static int      hf_cflow_observation_point_id                       = -1;
-static int      hf_cflow_mpls_pe_addr_v6                            = -1;
-static int      hf_cflow_port_id                                    = -1;
-static int      hf_cflow_mp_id                                      = -1;
-static int      hf_cflow_wlan_channel_id                            = -1;
-static int      hf_cflow_wlan_ssid                                  = -1;
-static int      hf_cflow_flow_id                                    = -1;
-static int      hf_cflow_od_id                                      = -1;
-static int      hf_cflow_abstimestart                               = -1;
-static int      hf_cflow_abstimeend                                 = -1;
-static int      hf_cflow_dstnet_v6                                  = -1;
-static int      hf_cflow_srcnet_v6                                  = -1;
-static int      hf_cflow_ignore_packets                             = -1;
-static int      hf_cflow_ignore_octets                              = -1;
-static int      hf_cflow_notsent_flows                              = -1;
-static int      hf_cflow_notsent_packets                            = -1;
-static int      hf_cflow_notsent_octets                             = -1;
-static int      hf_cflow_post_total_octets                          = -1;
-static int      hf_cflow_post_total_packets                         = -1;
-static int      hf_cflow_key                                        = -1;
-static int      hf_cflow_post_total_mulpackets                      = -1;
-static int      hf_cflow_post_total_muloctets                       = -1;
-static int      hf_cflow_tcp_seq_num                                = -1;
-static int      hf_cflow_tcp_ack_num                                = -1;
-static int      hf_cflow_tcp_urg_ptr                                = -1;
-static int      hf_cflow_tcp_header_length                          = -1;
-static int      hf_cflow_ip_header_length                           = -1;
-static int      hf_cflow_ipv6_payload_length                        = -1;
-static int      hf_cflow_ipv6_next_hdr                              = -1;
-static int      hf_cflow_ip_precedence                              = -1;
-static int      hf_cflow_ip_fragment_flags                          = -1;
-static int      hf_cflow_mpls_top_label_ttl                         = -1;
-static int      hf_cflow_mpls_label_length                          = -1;
-static int      hf_cflow_mpls_label_depth                           = -1;
-static int      hf_cflow_mpls_top_label_exp                         = -1;
-static int      hf_cflow_ip_payload_length                          = -1;
-static int      hf_cflow_tcp_option_map                             = -1;
-static int      hf_cflow_collector_addr                             = -1;
-static int      hf_cflow_collector_addr_v6                          = -1;
-static int      hf_cflow_export_interface                           = -1;
-static int      hf_cflow_export_protocol_version                    = -1;
-static int      hf_cflow_export_prot                                = -1;
-static int      hf_cflow_collector_port                             = -1;
-static int      hf_cflow_exporter_port                              = -1;
-static int      hf_cflow_total_tcp_syn                              = -1;
-static int      hf_cflow_total_tcp_fin                              = -1;
-static int      hf_cflow_total_tcp_rst                              = -1;
-static int      hf_cflow_total_tcp_psh                              = -1;
-static int      hf_cflow_total_tcp_ack                              = -1;
-static int      hf_cflow_total_tcp_urg                              = -1;
-static int      hf_cflow_ip_total_length                            = -1;
-static int      hf_cflow_post_natsource_ipv4_address                = -1;      /* ID: 225 */
-static int      hf_cflow_post_natdestination_ipv4_address           = -1;      /* ID: 226 */
-static int      hf_cflow_post_naptsource_transport_port             = -1;      /* ID: 227 */
-static int      hf_cflow_post_naptdestination_transport_port        = -1;      /* ID: 228 */
-static int      hf_cflow_nat_originating_address_realm              = -1;      /* ID: 229 */
-static int      hf_cflow_nat_event                                  = -1;      /* ID: 230 */
-static int      hf_cflow_initiator_octets                           = -1;      /* ID: 231 */
-static int      hf_cflow_responder_octets                           = -1;      /* ID: 232 */
-static int      hf_cflow_firewall_event                             = -1;      /* ID: 233 */
-static int      hf_cflow_ingress_vrfid                              = -1;      /* ID: 234 */
-static int      hf_cflow_egress_vrfid                               = -1;      /* ID: 235 */
-static int      hf_cflow_vrfname                                    = -1;      /* ID: 236 */
-static int      hf_cflow_post_mpls_top_label_exp                    = -1;      /* ID: 237 */
-static int      hf_cflow_tcp_window_scale                           = -1;      /* ID: 238 */
-static int      hf_cflow_biflow_direction                           = -1;
-static int      hf_cflow_ethernet_header_length                     = -1;      /* ID: 240 */
-static int      hf_cflow_ethernet_payload_length                    = -1;      /* ID: 241 */
-static int      hf_cflow_ethernet_total_length                      = -1;      /* ID: 242 */
-static int      hf_cflow_dot1q_vlan_id                              = -1;      /* ID: 243 */
-static int      hf_cflow_dot1q_priority                             = -1;      /* ID: 244 */
-static int      hf_cflow_dot1q_customer_vlan_id                     = -1;      /* ID: 245 */
-static int      hf_cflow_dot1q_customer_priority                    = -1;      /* ID: 246 */
-static int      hf_cflow_metro_evc_id                               = -1;      /* ID: 247 */
-static int      hf_cflow_metro_evc_type                             = -1;      /* ID: 248 */
-static int      hf_cflow_pseudo_wire_id                             = -1;      /* ID: 249 */
-static int      hf_cflow_pseudo_wire_type                           = -1;      /* ID: 250 */
-static int      hf_cflow_pseudo_wire_control_word                   = -1;      /* ID: 251 */
-static int      hf_cflow_ingress_physical_interface                 = -1;      /* ID: 252 */
-static int      hf_cflow_egress_physical_interface                  = -1;      /* ID: 253 */
-static int      hf_cflow_post_dot1q_vlan_id                         = -1;      /* ID: 254 */
-static int      hf_cflow_post_dot1q_customer_vlan_id                = -1;      /* ID: 255 */
-static int      hf_cflow_ethernet_type                              = -1;      /* ID: 256 */
-static int      hf_cflow_post_ip_precedence                         = -1;      /* ID: 257 */
-static int      hf_cflow_collection_time_milliseconds               = -1;      /* ID: 258 */
-static int      hf_cflow_export_sctp_stream_id                      = -1;      /* ID: 259 */
-static int      hf_cflow_max_export_seconds                         = -1;      /* ID: 260 */
-static int      hf_cflow_max_flow_end_seconds                       = -1;      /* ID: 261 */
-static int      hf_cflow_message_md5_checksum                       = -1;      /* ID: 262 */
-static int      hf_cflow_message_scope                              = -1;      /* ID: 263 */
-static int      hf_cflow_min_export_seconds                         = -1;      /* ID: 264 */
-static int      hf_cflow_min_flow_start_seconds                     = -1;      /* ID: 265 */
-static int      hf_cflow_opaque_octets                              = -1;      /* ID: 266 */
-static int      hf_cflow_session_scope                              = -1;      /* ID: 267 */
-static int      hf_cflow_max_flow_end_microseconds                  = -1;      /* ID: 268 */
-static int      hf_cflow_max_flow_end_milliseconds                  = -1;      /* ID: 269 */
-static int      hf_cflow_max_flow_end_nanoseconds                   = -1;      /* ID: 270 */
-static int      hf_cflow_min_flow_start_microseconds                = -1;      /* ID: 271 */
-static int      hf_cflow_min_flow_start_milliseconds                = -1;      /* ID: 272 */
-static int      hf_cflow_min_flow_start_nanoseconds                 = -1;      /* ID: 273 */
-static int      hf_cflow_collector_certificate                      = -1;      /* ID: 274 */
-static int      hf_cflow_exporter_certificate                       = -1;      /* ID: 275 */
-static int      hf_cflow_data_records_reliability                   = -1;      /* ID: 276 */
-static int      hf_cflow_observation_point_type                     = -1;      /* ID: 277 */
-static int      hf_cflow_new_connection_delta_count                 = -1;      /* ID: 278 */
-static int      hf_cflow_connection_sum_duration_seconds            = -1;      /* ID: 279 */
-static int      hf_cflow_connection_transaction_id                  = -1;      /* ID: 280 */
-static int      hf_cflow_post_nat_source_ipv6_address               = -1;      /* ID: 281 */
-static int      hf_cflow_post_nat_destination_ipv6_address          = -1;      /* ID: 282 */
-static int      hf_cflow_nat_pool_id                                = -1;      /* ID: 283 */
-static int      hf_cflow_nat_pool_name                              = -1;      /* ID: 284 */
-static int      hf_cflow_anonymization_flags                        = -1;      /* ID: 285 */
-static int      hf_cflow_anonymization_technique                    = -1;      /* ID: 286 */
-static int      hf_cflow_information_element_index                  = -1;      /* ID: 287 */
-static int      hf_cflow_p2p_technology                             = -1;      /* ID: 288 */
-static int      hf_cflow_tunnel_technology                          = -1;      /* ID: 289 */
-static int      hf_cflow_encrypted_technology                       = -1;      /* ID: 290 */
-static int      hf_cflow_subtemplate_list                           = -1;      /* ID: 292 */
-static int      hf_cflow_bgp_validity_state                         = -1;      /* ID: 294 */
-static int      hf_cflow_ipsec_spi                                  = -1;      /* ID: 295 */
-static int      hf_cflow_gre_key                                    = -1;      /* ID: 296 */
-static int      hf_cflow_nat_type                                   = -1;      /* ID: 297 */
-static int      hf_cflow_initiator_packets                          = -1;      /* ID: 298 */
-static int      hf_cflow_responder_packets                          = -1;      /* ID: 299 */
-static int      hf_cflow_observation_domain_name                    = -1;      /* ID: 300 */
-static int      hf_cflow_selection_sequence_id                      = -1;      /* ID: 301 */
-static int      hf_cflow_selector_id                                = -1;      /* ID: 302 */
-static int      hf_cflow_information_element_id                     = -1;      /* ID: 303 */
-static int      hf_cflow_selector_algorithm                         = -1;      /* ID: 304 */
-static int      hf_cflow_sampling_packet_interval                   = -1;      /* ID: 305 */
-static int      hf_cflow_sampling_packet_space                      = -1;      /* ID: 306 */
-static int      hf_cflow_sampling_time_interval                     = -1;      /* ID: 307 */
-static int      hf_cflow_sampling_time_space                        = -1;      /* ID: 308 */
-static int      hf_cflow_sampling_size                              = -1;      /* ID: 309 */
-static int      hf_cflow_sampling_population                        = -1;      /* ID: 310 */
-static int      hf_cflow_sampling_probability_float64               = -1;      /* ID: 311 */
-static int      hf_cflow_sampling_probability_float32               = -1;      /* ID: 311 */
-static int      hf_cflow_data_link_frame_size                       = -1;      /* ID: 312 */
-static int      hf_cflow_data_link_frame_section                    = -1;      /* ID: 315 */
-static int      hf_cflow_mpls_label_stack_section                   = -1;      /* ID: 316 */
-static int      hf_cflow_mpls_payload_packet_section                = -1;      /* ID: 317 */
-static int      hf_cflow_selector_id_total_pkts_observed            = -1;      /* ID: 318 */
-static int      hf_cflow_selector_id_total_pkts_selected            = -1;      /* ID: 319 */
-static int      hf_cflow_absolute_error_float32                     = -1;      /* ID: 320 */
-static int      hf_cflow_absolute_error_float64                     = -1;      /* ID: 320 */
-static int      hf_cflow_relative_error_float32                     = -1;      /* ID: 321 */
-static int      hf_cflow_relative_error_float64                     = -1;      /* ID: 321 */
-static int      hf_cflow_observation_time_seconds                   = -1;      /* ID: 322 */
-static int      hf_cflow_observation_time_milliseconds              = -1;      /* ID: 323 */
-static int      hf_cflow_observation_time_microseconds              = -1;      /* ID: 324 */
-static int      hf_cflow_observation_time_nanoseconds               = -1;      /* ID: 325 */
-static int      hf_cflow_digest_hash_value                          = -1;      /* ID: 326 */
-static int      hf_cflow_hash_ippayload_offset                      = -1;      /* ID: 327 */
-static int      hf_cflow_hash_ippayload_size                        = -1;      /* ID: 328 */
-static int      hf_cflow_hash_output_range_min                      = -1;      /* ID: 329 */
-static int      hf_cflow_hash_output_range_max                      = -1;      /* ID: 330 */
-static int      hf_cflow_hash_selected_range_min                    = -1;      /* ID: 331 */
-static int      hf_cflow_hash_selected_range_max                    = -1;      /* ID: 332 */
-static int      hf_cflow_hash_digest_output                         = -1;      /* ID: 333 */
-static int      hf_cflow_hash_initialiser_value                     = -1;      /* ID: 334 */
-static int      hf_cflow_selector_name                              = -1;      /* ID: 335 */
-static int      hf_cflow_upper_cilimit_float32                      = -1;      /* ID: 336 */
-static int      hf_cflow_upper_cilimit_float64                      = -1;      /* ID: 336 */
-static int      hf_cflow_lower_cilimit_float32                      = -1;      /* ID: 337 */
-static int      hf_cflow_lower_cilimit_float64                      = -1;      /* ID: 337 */
-static int      hf_cflow_confidence_level_float32                   = -1;      /* ID: 338 */
-static int      hf_cflow_confidence_level_float64                   = -1;      /* ID: 338 */
-static int      hf_cflow_information_element_data_type              = -1;      /* ID: 339 */
-static int      hf_cflow_information_element_description            = -1;      /* ID: 340 */
-static int      hf_cflow_information_element_name                   = -1;      /* ID: 341 */
-static int      hf_cflow_information_element_range_begin            = -1;      /* ID: 342 */
-static int      hf_cflow_information_element_range_end              = -1;      /* ID: 343 */
-static int      hf_cflow_information_element_semantics              = -1;      /* ID: 344 */
-static int      hf_cflow_information_element_units                  = -1;      /* ID: 345 */
-static int      hf_cflow_private_enterprise_number                  = -1;      /* ID: 346 */
+static int      hf_cflow_post_octets;
+static int      hf_cflow_post_packets;
+static int      hf_cflow_ipv6_flowlabel;
+static int      hf_cflow_post_tos;
+static int      hf_cflow_srcmac;
+static int      hf_cflow_post_dstmac;
+static int      hf_cflow_vlanid;
+static int      hf_cflow_post_vlanid;
+static int      hf_cflow_ipv6_exthdr;
+static int      hf_cflow_dstmac;
+static int      hf_cflow_post_srcmac;
+static int      hf_cflow_permanent_packets;
+static int      hf_cflow_permanent_octets;
+static int      hf_cflow_fragment_offset;
+static int      hf_cflow_mpls_vpn_rd;
+static int      hf_cflow_mpls_top_label_prefix_length; /* ID:  91 */
+static int      hf_cflow_src_traffic_index; /* ID:  92 */
+static int      hf_cflow_dst_traffic_index; /* ID:  93 */
+static int      hf_cflow_post_ip_diff_serv_code_point; /* ID:  98 */
+static int      hf_cflow_multicast_replication_factor; /* ID:  99 */
+static int      hf_cflow_classification_engine_id; /* ID: 101 */
+static int      hf_cflow_exporter_addr;
+static int      hf_cflow_exporter_addr_v6;
+static int      hf_cflow_drop_octets;
+static int      hf_cflow_drop_packets;
+static int      hf_cflow_drop_total_octets;
+static int      hf_cflow_drop_total_packets;
+static int      hf_cflow_flow_end_reason;
+static int      hf_cflow_common_properties_id;
+static int      hf_cflow_observation_point_id;
+static int      hf_cflow_mpls_pe_addr_v6;
+static int      hf_cflow_port_id;
+static int      hf_cflow_mp_id;
+static int      hf_cflow_wlan_channel_id;
+static int      hf_cflow_wlan_ssid;
+static int      hf_cflow_flow_id;
+static int      hf_cflow_od_id;
+static int      hf_cflow_abstimestart;
+static int      hf_cflow_abstimeend;
+static int      hf_cflow_dstnet_v6;
+static int      hf_cflow_srcnet_v6;
+static int      hf_cflow_ignore_packets;
+static int      hf_cflow_ignore_octets;
+static int      hf_cflow_notsent_flows;
+static int      hf_cflow_notsent_packets;
+static int      hf_cflow_notsent_octets;
+static int      hf_cflow_post_total_octets;
+static int      hf_cflow_post_total_packets;
+static int      hf_cflow_key;
+static int      hf_cflow_post_total_mulpackets;
+static int      hf_cflow_post_total_muloctets;
+static int      hf_cflow_tcp_seq_num;
+static int      hf_cflow_tcp_ack_num;
+static int      hf_cflow_tcp_urg_ptr;
+static int      hf_cflow_tcp_header_length;
+static int      hf_cflow_ip_header_length;
+static int      hf_cflow_ipv6_payload_length;
+static int      hf_cflow_ipv6_next_hdr;
+static int      hf_cflow_ip_precedence;
+static int      hf_cflow_ip_fragment_flags;
+static int      hf_cflow_mpls_top_label_ttl;
+static int      hf_cflow_mpls_label_length;
+static int      hf_cflow_mpls_label_depth;
+static int      hf_cflow_mpls_top_label_exp;
+static int      hf_cflow_ip_payload_length;
+static int      hf_cflow_tcp_option_map;
+static int      hf_cflow_collector_addr;
+static int      hf_cflow_collector_addr_v6;
+static int      hf_cflow_export_interface;
+static int      hf_cflow_export_protocol_version;
+static int      hf_cflow_export_prot;
+static int      hf_cflow_collector_port;
+static int      hf_cflow_exporter_port;
+static int      hf_cflow_total_tcp_syn;
+static int      hf_cflow_total_tcp_fin;
+static int      hf_cflow_total_tcp_rst;
+static int      hf_cflow_total_tcp_psh;
+static int      hf_cflow_total_tcp_ack;
+static int      hf_cflow_total_tcp_urg;
+static int      hf_cflow_ip_total_length;
+static int      hf_cflow_post_natsource_ipv4_address;      /* ID: 225 */
+static int      hf_cflow_post_natdestination_ipv4_address;      /* ID: 226 */
+static int      hf_cflow_post_naptsource_transport_port;      /* ID: 227 */
+static int      hf_cflow_post_naptdestination_transport_port;      /* ID: 228 */
+static int      hf_cflow_nat_originating_address_realm;      /* ID: 229 */
+static int      hf_cflow_nat_event;      /* ID: 230 */
+static int      hf_cflow_initiator_octets;      /* ID: 231 */
+static int      hf_cflow_responder_octets;      /* ID: 232 */
+static int      hf_cflow_firewall_event;      /* ID: 233 */
+static int      hf_cflow_ingress_vrfid;      /* ID: 234 */
+static int      hf_cflow_egress_vrfid;      /* ID: 235 */
+static int      hf_cflow_vrfname;      /* ID: 236 */
+static int      hf_cflow_post_mpls_top_label_exp;      /* ID: 237 */
+static int      hf_cflow_tcp_window_scale;      /* ID: 238 */
+static int      hf_cflow_biflow_direction;
+static int      hf_cflow_ethernet_header_length;      /* ID: 240 */
+static int      hf_cflow_ethernet_payload_length;      /* ID: 241 */
+static int      hf_cflow_ethernet_total_length;      /* ID: 242 */
+static int      hf_cflow_dot1q_vlan_id;      /* ID: 243 */
+static int      hf_cflow_dot1q_priority;      /* ID: 244 */
+static int      hf_cflow_dot1q_customer_vlan_id;      /* ID: 245 */
+static int      hf_cflow_dot1q_customer_priority;      /* ID: 246 */
+static int      hf_cflow_metro_evc_id;      /* ID: 247 */
+static int      hf_cflow_metro_evc_type;      /* ID: 248 */
+static int      hf_cflow_pseudo_wire_id;      /* ID: 249 */
+static int      hf_cflow_pseudo_wire_type;      /* ID: 250 */
+static int      hf_cflow_pseudo_wire_control_word;      /* ID: 251 */
+static int      hf_cflow_ingress_physical_interface;      /* ID: 252 */
+static int      hf_cflow_egress_physical_interface;      /* ID: 253 */
+static int      hf_cflow_post_dot1q_vlan_id;      /* ID: 254 */
+static int      hf_cflow_post_dot1q_customer_vlan_id;      /* ID: 255 */
+static int      hf_cflow_ethernet_type;      /* ID: 256 */
+static int      hf_cflow_post_ip_precedence;      /* ID: 257 */
+static int      hf_cflow_collection_time_milliseconds;      /* ID: 258 */
+static int      hf_cflow_export_sctp_stream_id;      /* ID: 259 */
+static int      hf_cflow_max_export_seconds;      /* ID: 260 */
+static int      hf_cflow_max_flow_end_seconds;      /* ID: 261 */
+static int      hf_cflow_message_md5_checksum;      /* ID: 262 */
+static int      hf_cflow_message_scope;      /* ID: 263 */
+static int      hf_cflow_min_export_seconds;      /* ID: 264 */
+static int      hf_cflow_min_flow_start_seconds;      /* ID: 265 */
+static int      hf_cflow_opaque_octets;      /* ID: 266 */
+static int      hf_cflow_session_scope;      /* ID: 267 */
+static int      hf_cflow_max_flow_end_microseconds;      /* ID: 268 */
+static int      hf_cflow_max_flow_end_milliseconds;      /* ID: 269 */
+static int      hf_cflow_max_flow_end_nanoseconds;      /* ID: 270 */
+static int      hf_cflow_min_flow_start_microseconds;      /* ID: 271 */
+static int      hf_cflow_min_flow_start_milliseconds;      /* ID: 272 */
+static int      hf_cflow_min_flow_start_nanoseconds;      /* ID: 273 */
+static int      hf_cflow_collector_certificate;      /* ID: 274 */
+static int      hf_cflow_exporter_certificate;      /* ID: 275 */
+static int      hf_cflow_data_records_reliability;      /* ID: 276 */
+static int      hf_cflow_observation_point_type;      /* ID: 277 */
+static int      hf_cflow_new_connection_delta_count;      /* ID: 278 */
+static int      hf_cflow_connection_sum_duration_seconds;      /* ID: 279 */
+static int      hf_cflow_connection_transaction_id;      /* ID: 280 */
+static int      hf_cflow_post_nat_source_ipv6_address;      /* ID: 281 */
+static int      hf_cflow_post_nat_destination_ipv6_address;      /* ID: 282 */
+static int      hf_cflow_nat_pool_id;      /* ID: 283 */
+static int      hf_cflow_nat_pool_name;      /* ID: 284 */
+static int      hf_cflow_anonymization_flags;      /* ID: 285 */
+static int      hf_cflow_anonymization_technique;      /* ID: 286 */
+static int      hf_cflow_information_element_index;      /* ID: 287 */
+static int      hf_cflow_p2p_technology;      /* ID: 288 */
+static int      hf_cflow_tunnel_technology;      /* ID: 289 */
+static int      hf_cflow_encrypted_technology;      /* ID: 290 */
+static int      hf_cflow_subtemplate_list;      /* ID: 292 */
+static int      hf_cflow_bgp_validity_state;      /* ID: 294 */
+static int      hf_cflow_ipsec_spi;      /* ID: 295 */
+static int      hf_cflow_gre_key;      /* ID: 296 */
+static int      hf_cflow_nat_type;      /* ID: 297 */
+static int      hf_cflow_initiator_packets;      /* ID: 298 */
+static int      hf_cflow_responder_packets;      /* ID: 299 */
+static int      hf_cflow_observation_domain_name;      /* ID: 300 */
+static int      hf_cflow_selection_sequence_id;      /* ID: 301 */
+static int      hf_cflow_selector_id;      /* ID: 302 */
+static int      hf_cflow_information_element_id;      /* ID: 303 */
+static int      hf_cflow_selector_algorithm;      /* ID: 304 */
+static int      hf_cflow_sampling_packet_interval;      /* ID: 305 */
+static int      hf_cflow_sampling_packet_space;      /* ID: 306 */
+static int      hf_cflow_sampling_time_interval;      /* ID: 307 */
+static int      hf_cflow_sampling_time_space;      /* ID: 308 */
+static int      hf_cflow_sampling_size;      /* ID: 309 */
+static int      hf_cflow_sampling_population;      /* ID: 310 */
+static int      hf_cflow_sampling_probability_float64;      /* ID: 311 */
+static int      hf_cflow_sampling_probability_float32;      /* ID: 311 */
+static int      hf_cflow_data_link_frame_size;      /* ID: 312 */
+static int      hf_cflow_data_link_frame_section;      /* ID: 315 */
+static int      hf_cflow_mpls_label_stack_section;      /* ID: 316 */
+static int      hf_cflow_mpls_payload_packet_section;      /* ID: 317 */
+static int      hf_cflow_selector_id_total_pkts_observed;      /* ID: 318 */
+static int      hf_cflow_selector_id_total_pkts_selected;      /* ID: 319 */
+static int      hf_cflow_absolute_error_float32;      /* ID: 320 */
+static int      hf_cflow_absolute_error_float64;      /* ID: 320 */
+static int      hf_cflow_relative_error_float32;      /* ID: 321 */
+static int      hf_cflow_relative_error_float64;      /* ID: 321 */
+static int      hf_cflow_observation_time_seconds;      /* ID: 322 */
+static int      hf_cflow_observation_time_milliseconds;      /* ID: 323 */
+static int      hf_cflow_observation_time_microseconds;      /* ID: 324 */
+static int      hf_cflow_observation_time_nanoseconds;      /* ID: 325 */
+static int      hf_cflow_digest_hash_value;      /* ID: 326 */
+static int      hf_cflow_hash_ippayload_offset;      /* ID: 327 */
+static int      hf_cflow_hash_ippayload_size;      /* ID: 328 */
+static int      hf_cflow_hash_output_range_min;      /* ID: 329 */
+static int      hf_cflow_hash_output_range_max;      /* ID: 330 */
+static int      hf_cflow_hash_selected_range_min;      /* ID: 331 */
+static int      hf_cflow_hash_selected_range_max;      /* ID: 332 */
+static int      hf_cflow_hash_digest_output;      /* ID: 333 */
+static int      hf_cflow_hash_initialiser_value;      /* ID: 334 */
+static int      hf_cflow_selector_name;      /* ID: 335 */
+static int      hf_cflow_upper_cilimit_float32;      /* ID: 336 */
+static int      hf_cflow_upper_cilimit_float64;      /* ID: 336 */
+static int      hf_cflow_lower_cilimit_float32;      /* ID: 337 */
+static int      hf_cflow_lower_cilimit_float64;      /* ID: 337 */
+static int      hf_cflow_confidence_level_float32;      /* ID: 338 */
+static int      hf_cflow_confidence_level_float64;      /* ID: 338 */
+static int      hf_cflow_information_element_data_type;      /* ID: 339 */
+static int      hf_cflow_information_element_description;      /* ID: 340 */
+static int      hf_cflow_information_element_name;      /* ID: 341 */
+static int      hf_cflow_information_element_range_begin;      /* ID: 342 */
+static int      hf_cflow_information_element_range_end;      /* ID: 343 */
+static int      hf_cflow_information_element_semantics;      /* ID: 344 */
+static int      hf_cflow_information_element_units;      /* ID: 345 */
+static int      hf_cflow_private_enterprise_number;      /* ID: 346 */
 
-static int      hf_cflow_virtual_station_interface_id               = -1;      /* ID: 347 */
-static int      hf_cflow_virtual_station_interface_name             = -1;      /* ID: 348 */
-static int      hf_cflow_virtual_station_uuid                       = -1;      /* ID: 349 */
-static int      hf_cflow_virtual_station_name                       = -1;      /* ID: 350 */
-static int      hf_cflow_layer2_segment_id                          = -1;      /* ID: 351 */
-static int      hf_cflow_layer2_octet_delta_count                   = -1;      /* ID: 352 */
-static int      hf_cflow_layer2_octet_total_count                   = -1;      /* ID: 353 */
-static int      hf_cflow_ingress_unicast_packet_total_count         = -1;      /* ID: 354 */
-static int      hf_cflow_ingress_multicast_packet_total_count       = -1;      /* ID: 355 */
-static int      hf_cflow_ingress_broadcast_packet_total_count       = -1;      /* ID: 356 */
-static int      hf_cflow_egress_unicast_packet_total_count          = -1;      /* ID: 357 */
-static int      hf_cflow_egress_broadcast_packet_total_count        = -1;      /* ID: 358 */
-static int      hf_cflow_monitoring_interval_start_milliseconds     = -1;      /* ID: 359 */
-static int      hf_cflow_monitoring_interval_end_milliseconds       = -1;      /* ID: 360 */
-static int      hf_cflow_port_range_start                           = -1;      /* ID: 361 */
-static int      hf_cflow_port_range_end                             = -1;      /* ID: 362 */
-static int      hf_cflow_port_range_step_size                       = -1;      /* ID: 363 */
-static int      hf_cflow_port_range_num_ports                       = -1;      /* ID: 364 */
-static int      hf_cflow_sta_mac_address                            = -1;      /* ID: 365 */
-static int      hf_cflow_sta_ipv4_address                           = -1;      /* ID: 366 */
-static int      hf_cflow_wtp_mac_address                            = -1;      /* ID: 367 */
-static int      hf_cflow_ingress_interface_type                     = -1;      /* ID: 368 */
-static int      hf_cflow_egress_interface_type                      = -1;      /* ID: 369 */
-static int      hf_cflow_rtp_sequence_number                        = -1;      /* ID: 370 */
-static int      hf_cflow_user_name                                  = -1;      /* ID: 371 */
-static int      hf_cflow_application_category_name                  = -1;      /* ID: 372 */
-static int      hf_cflow_application_sub_category_name              = -1;      /* ID: 373 */
-static int      hf_cflow_application_group_name                     = -1;      /* ID: 374 */
-static int      hf_cflow_original_flows_present                     = -1;      /* ID: 375 */
-static int      hf_cflow_original_flows_initiated                   = -1;      /* ID: 376 */
-static int      hf_cflow_original_flows_completed                   = -1;      /* ID: 377 */
-static int      hf_cflow_distinct_count_of_source_ip_address        = -1;      /* ID: 378 */
-static int      hf_cflow_distinct_count_of_destinationip_address    = -1;      /* ID: 379 */
-static int      hf_cflow_distinct_count_of_source_ipv4_address      = -1;      /* ID: 380 */
-static int      hf_cflow_distinct_count_of_destination_ipv4_address = -1;      /* ID: 381 */
-static int      hf_cflow_distinct_count_of_source_ipv6_address      = -1;      /* ID: 382 */
-static int      hf_cflow_distinct_count_of_destination_ipv6_address = -1;      /* ID: 383 */
-static int      hf_cflow_value_distribution_method                  = -1;      /* ID: 384 */
-static int      hf_cflow_rfc3550_jitter_milliseconds                = -1;      /* ID: 385 */
-static int      hf_cflow_rfc3550_jitter_microseconds                = -1;      /* ID: 386 */
-static int      hf_cflow_rfc3550_jitter_nanoseconds                 = -1;      /* ID: 387 */
-static int      hf_cflow_dot1q_dei                                  = -1;      /* ID: 388 */
-static int      hf_cflow_dot1q_customer_dei                         = -1;      /* ID: 389 */
-static int      hf_cflow_flow_selector_algorithm                    = -1;      /* ID: 390 */
-static int      hf_cflow_flow_selected_octet_delta_count            = -1;      /* ID: 391 */
-static int      hf_cflow_flow_selected_packet_delta_count           = -1;      /* ID: 392 */
-static int      hf_cflow_flow_selected_flow_delta_count             = -1;      /* ID: 393 */
-static int      hf_cflow_selectorid_total_flows_observed            = -1;      /* ID: 394 */
-static int      hf_cflow_selectorid_total_flows_selected            = -1;      /* ID: 395 */
-static int      hf_cflow_sampling_flow_interval                     = -1;      /* ID: 396 */
-static int      hf_cflow_sampling_flow_spacing                      = -1;      /* ID: 397 */
-static int      hf_cflow_flow_sampling_time_interval                = -1;      /* ID: 398 */
-static int      hf_cflow_flow_sampling_time_spacing                 = -1;      /* ID: 399 */
-static int      hf_cflow_hash_flow_domain                           = -1;      /* ID: 400 */
-static int      hf_cflow_transport_octet_delta_count                = -1;      /* ID: 401 */
-static int      hf_cflow_transport_packet_delta_count               = -1;      /* ID: 402 */
-static int      hf_cflow_original_exporter_ipv4_address             = -1;      /* ID: 403 */
-static int      hf_cflow_original_exporter_ipv6_address             = -1;      /* ID: 404 */
-static int      hf_cflow_original_observation_domain_id             = -1;      /* ID: 405 */
-static int      hf_cflow_intermediate_process_id                    = -1;      /* ID: 406 */
-static int      hf_cflow_ignored_data_record_total_count            = -1;      /* ID: 407 */
-static int      hf_cflow_data_link_frame_type                       = -1;      /* ID: 408 */
-static int      hf_cflow_section_offset                             = -1;      /* ID: 409 */
-static int      hf_cflow_section_exported_octets                    = -1;      /* ID: 410 */
-static int      hf_cflow_dot1q_service_instance_tag                 = -1;      /* ID: 411 */
-static int      hf_cflow_dot1q_service_instance_id                  = -1;      /* ID: 412 */
-static int      hf_cflow_dot1q_service_instance_priority            = -1;      /* ID: 413 */
-static int      hf_cflow_dot1q_customer_source_mac_address          = -1;      /* ID: 414 */
-static int      hf_cflow_dot1q_customer_destination_mac_address     = -1;      /* ID: 415 */
-static int      hf_cflow_post_layer2_octet_delta_count              = -1;      /* ID: 417 */
-static int      hf_cflow_postm_cast_layer2_octet_delta_count        = -1;      /* ID: 418 */
-static int      hf_cflow_post_layer2_octet_total_count              = -1;      /* ID: 420 */
-static int      hf_cflow_postm_cast_layer2_octet_total_count        = -1;      /* ID: 421 */
-static int      hf_cflow_minimum_layer2_total_length                = -1;      /* ID: 422 */
-static int      hf_cflow_maximum_layer2_total_length                = -1;      /* ID: 423 */
-static int      hf_cflow_dropped_layer2_octet_delta_count           = -1;      /* ID: 424 */
-static int      hf_cflow_dropped_layer2_octet_total_count           = -1;      /* ID: 425 */
-static int      hf_cflow_ignored_layer2_octet_total_count           = -1;      /* ID: 426 */
-static int      hf_cflow_not_sent_layer2_octet_total_count          = -1;      /* ID: 427 */
-static int      hf_cflow_layer2_octet_delta_sum_of_squares          = -1;      /* ID: 428 */
-static int      hf_cflow_layer2_octet_total_sum_of_squares          = -1;      /* ID: 429 */
-static int      hf_cflow_layer2_frame_delta_count                   = -1;      /* ID: 430 */
-static int      hf_cflow_layer2_frame_total_count                   = -1;      /* ID: 431 */
-static int      hf_cflow_pseudo_wire_destination_ipv4_address       = -1;      /* ID: 432 */
-static int      hf_cflow_ignored_layer2_frame_total_count           = -1;      /* ID: 433 */
-static int      hf_cflow_mib_object_value_integer                   = -1;      /* ID: 434 */
-static int      hf_cflow_mib_object_value_octetstring               = -1;      /* ID: 435 */
-static int      hf_cflow_mib_object_value_oid                       = -1;      /* ID: 436 */
-static int      hf_cflow_mib_object_value_bits                      = -1;      /* ID: 437 */
-static int      hf_cflow_mib_object_value_ipaddress                 = -1;      /* ID: 438 */
-static int      hf_cflow_mib_object_value_counter                   = -1;      /* ID: 439 */
-static int      hf_cflow_mib_object_value_gauge                     = -1;      /* ID: 440 */
-static int      hf_cflow_mib_object_value_timeticks                 = -1;      /* ID: 441 */
-static int      hf_cflow_mib_object_value_unsigned                  = -1;      /* ID: 442 */
-static int      hf_cflow_mib_object_value_table                     = -1;      /* ID: 443 */
-static int      hf_cflow_mib_object_value_row                       = -1;      /* ID: 444 */
-static int      hf_cflow_mib_object_identifier                      = -1;      /* ID: 445 */
-static int      hf_cflow_mib_subidentifier                          = -1;      /* ID: 446 */
-static int      hf_cflow_mib_index_indicator                        = -1;      /* ID: 447 */
-static int      hf_cflow_mib_capture_time_semantics                 = -1;      /* ID: 448 */
-static int      hf_cflow_mib_context_engineid                       = -1;      /* ID: 449 */
-static int      hf_cflow_mib_context_name                           = -1;      /* ID: 450 */
-static int      hf_cflow_mib_object_name                            = -1;      /* ID: 451 */
-static int      hf_cflow_mib_object_description                     = -1;      /* ID: 452 */
-static int      hf_cflow_mib_object_syntax                          = -1;      /* ID: 453 */
-static int      hf_cflow_mib_module_name                            = -1;      /* ID: 454 */
-static int      hf_cflow_mobile_imsi                                = -1;      /* ID: 455 */
-static int      hf_cflow_mobile_msisdn                              = -1;      /* ID: 456 */
-static int      hf_cflow_http_statuscode                            = -1;      /* ID: 457 */
-static int      hf_cflow_source_transport_ports_limit               = -1;      /* ID: 458 */
-static int      hf_cflow_http_request_method                        = -1;      /* ID: 459 */
-static int      hf_cflow_http_request_host                          = -1;      /* ID: 460 */
-static int      hf_cflow_http_request_target                        = -1;      /* ID: 461 */
-static int      hf_cflow_http_message_version                       = -1;      /* ID: 462 */
-static int      hf_cflow_nat_instanceid                             = -1;      /* ID: 463 */
-static int      hf_cflow_internal_address_realm                     = -1;      /* ID: 464 */
-static int      hf_cflow_external_address_realm                     = -1;      /* ID: 465 */
-static int      hf_cflow_nat_quota_exceeded_event                   = -1;      /* ID: 466 */
-static int      hf_cflow_nat_threshold_event                        = -1;      /* ID: 467 */
-static int      hf_cflow_http_user_agent                            = -1;      /* ID: 468 */
-static int      hf_cflow_http_content_type                          = -1;      /* ID: 469 */
-static int      hf_cflow_http_reason_phrase                         = -1;      /* ID: 470 */
-static int      hf_cflow_max_session_entries                        = -1;      /* ID: 471 */
-static int      hf_cflow_max_bib_entries                            = -1;      /* ID: 472 */
-static int      hf_cflow_max_entries_per_user                       = -1;      /* ID: 473 */
-static int      hf_cflow_max_subscribers                            = -1;      /* ID: 474 */
-static int      hf_cflow_max_fragments_pending_reassembly           = -1;      /* ID: 475 */
-static int      hf_cflow_addresspool_highthreshold                  = -1;      /* ID: 476 */
-static int      hf_cflow_addresspool_lowthreshold                   = -1;      /* ID: 477 */
-static int      hf_cflow_addressport_mapping_highthreshold          = -1;      /* ID: 478 */
-static int      hf_cflow_addressport_mapping_lowthreshold           = -1;      /* ID: 479 */
-static int      hf_cflow_addressport_mapping_per_user_highthreshold = -1;      /* ID: 480 */
-static int      hf_cflow_global_addressmapping_highthreshold        = -1;      /* ID: 481 */
-static int      hf_cflow_vpn_identifier                             = -1;      /* ID: 482 */
-static int      hf_cflow_bgp_community                              = -1;      /* ID: 483 */
-static int      hf_cflow_bgp_source_community_list                  = -1;      /* ID: 484 */
-static int      hf_cflow_bgp_destination_community_list             = -1;      /* ID: 485 */
-static int      hf_cflow_bgp_extended_community                     = -1;      /* ID: 486 */
-static int      hf_cflow_bgp_source_extended_community_list         = -1;      /* ID: 487 */
-static int      hf_cflow_bgp_destination_extended_community_list    = -1;      /* ID: 488 */
-static int      hf_cflow_bgp_large_community                        = -1;      /* ID: 489 */
-static int      hf_cflow_bgp_source_large_community_list            = -1;      /* ID: 490 */
-static int      hf_cflow_bgp_destination_large_community_list       = -1;      /* ID: 491 */
+static int      hf_cflow_virtual_station_interface_id;      /* ID: 347 */
+static int      hf_cflow_virtual_station_interface_name;      /* ID: 348 */
+static int      hf_cflow_virtual_station_uuid;      /* ID: 349 */
+static int      hf_cflow_virtual_station_name;      /* ID: 350 */
+static int      hf_cflow_layer2_segment_id;      /* ID: 351 */
+static int      hf_cflow_layer2_octet_delta_count;      /* ID: 352 */
+static int      hf_cflow_layer2_octet_total_count;      /* ID: 353 */
+static int      hf_cflow_ingress_unicast_packet_total_count;      /* ID: 354 */
+static int      hf_cflow_ingress_multicast_packet_total_count;      /* ID: 355 */
+static int      hf_cflow_ingress_broadcast_packet_total_count;      /* ID: 356 */
+static int      hf_cflow_egress_unicast_packet_total_count;      /* ID: 357 */
+static int      hf_cflow_egress_broadcast_packet_total_count;      /* ID: 358 */
+static int      hf_cflow_monitoring_interval_start_milliseconds;      /* ID: 359 */
+static int      hf_cflow_monitoring_interval_end_milliseconds;      /* ID: 360 */
+static int      hf_cflow_port_range_start;      /* ID: 361 */
+static int      hf_cflow_port_range_end;      /* ID: 362 */
+static int      hf_cflow_port_range_step_size;      /* ID: 363 */
+static int      hf_cflow_port_range_num_ports;      /* ID: 364 */
+static int      hf_cflow_sta_mac_address;      /* ID: 365 */
+static int      hf_cflow_sta_ipv4_address;      /* ID: 366 */
+static int      hf_cflow_wtp_mac_address;      /* ID: 367 */
+static int      hf_cflow_ingress_interface_type;      /* ID: 368 */
+static int      hf_cflow_egress_interface_type;      /* ID: 369 */
+static int      hf_cflow_rtp_sequence_number;      /* ID: 370 */
+static int      hf_cflow_user_name;      /* ID: 371 */
+static int      hf_cflow_application_category_name;      /* ID: 372 */
+static int      hf_cflow_application_sub_category_name;      /* ID: 373 */
+static int      hf_cflow_application_group_name;      /* ID: 374 */
+static int      hf_cflow_original_flows_present;      /* ID: 375 */
+static int      hf_cflow_original_flows_initiated;      /* ID: 376 */
+static int      hf_cflow_original_flows_completed;      /* ID: 377 */
+static int      hf_cflow_distinct_count_of_source_ip_address;      /* ID: 378 */
+static int      hf_cflow_distinct_count_of_destinationip_address;      /* ID: 379 */
+static int      hf_cflow_distinct_count_of_source_ipv4_address;      /* ID: 380 */
+static int      hf_cflow_distinct_count_of_destination_ipv4_address;      /* ID: 381 */
+static int      hf_cflow_distinct_count_of_source_ipv6_address;      /* ID: 382 */
+static int      hf_cflow_distinct_count_of_destination_ipv6_address;      /* ID: 383 */
+static int      hf_cflow_value_distribution_method;      /* ID: 384 */
+static int      hf_cflow_rfc3550_jitter_milliseconds;      /* ID: 385 */
+static int      hf_cflow_rfc3550_jitter_microseconds;      /* ID: 386 */
+static int      hf_cflow_rfc3550_jitter_nanoseconds;      /* ID: 387 */
+static int      hf_cflow_dot1q_dei;      /* ID: 388 */
+static int      hf_cflow_dot1q_customer_dei;      /* ID: 389 */
+static int      hf_cflow_flow_selector_algorithm;      /* ID: 390 */
+static int      hf_cflow_flow_selected_octet_delta_count;      /* ID: 391 */
+static int      hf_cflow_flow_selected_packet_delta_count;      /* ID: 392 */
+static int      hf_cflow_flow_selected_flow_delta_count;      /* ID: 393 */
+static int      hf_cflow_selectorid_total_flows_observed;      /* ID: 394 */
+static int      hf_cflow_selectorid_total_flows_selected;      /* ID: 395 */
+static int      hf_cflow_sampling_flow_interval;      /* ID: 396 */
+static int      hf_cflow_sampling_flow_spacing;      /* ID: 397 */
+static int      hf_cflow_flow_sampling_time_interval;      /* ID: 398 */
+static int      hf_cflow_flow_sampling_time_spacing;      /* ID: 399 */
+static int      hf_cflow_hash_flow_domain;      /* ID: 400 */
+static int      hf_cflow_transport_octet_delta_count;      /* ID: 401 */
+static int      hf_cflow_transport_packet_delta_count;      /* ID: 402 */
+static int      hf_cflow_original_exporter_ipv4_address;      /* ID: 403 */
+static int      hf_cflow_original_exporter_ipv6_address;      /* ID: 404 */
+static int      hf_cflow_original_observation_domain_id;      /* ID: 405 */
+static int      hf_cflow_intermediate_process_id;      /* ID: 406 */
+static int      hf_cflow_ignored_data_record_total_count;      /* ID: 407 */
+static int      hf_cflow_data_link_frame_type;      /* ID: 408 */
+static int      hf_cflow_section_offset;      /* ID: 409 */
+static int      hf_cflow_section_exported_octets;      /* ID: 410 */
+static int      hf_cflow_dot1q_service_instance_tag;      /* ID: 411 */
+static int      hf_cflow_dot1q_service_instance_id;      /* ID: 412 */
+static int      hf_cflow_dot1q_service_instance_priority;      /* ID: 413 */
+static int      hf_cflow_dot1q_customer_source_mac_address;      /* ID: 414 */
+static int      hf_cflow_dot1q_customer_destination_mac_address;      /* ID: 415 */
+static int      hf_cflow_post_layer2_octet_delta_count;      /* ID: 417 */
+static int      hf_cflow_postm_cast_layer2_octet_delta_count;      /* ID: 418 */
+static int      hf_cflow_post_layer2_octet_total_count;      /* ID: 420 */
+static int      hf_cflow_postm_cast_layer2_octet_total_count;      /* ID: 421 */
+static int      hf_cflow_minimum_layer2_total_length;      /* ID: 422 */
+static int      hf_cflow_maximum_layer2_total_length;      /* ID: 423 */
+static int      hf_cflow_dropped_layer2_octet_delta_count;      /* ID: 424 */
+static int      hf_cflow_dropped_layer2_octet_total_count;      /* ID: 425 */
+static int      hf_cflow_ignored_layer2_octet_total_count;      /* ID: 426 */
+static int      hf_cflow_not_sent_layer2_octet_total_count;      /* ID: 427 */
+static int      hf_cflow_layer2_octet_delta_sum_of_squares;      /* ID: 428 */
+static int      hf_cflow_layer2_octet_total_sum_of_squares;      /* ID: 429 */
+static int      hf_cflow_layer2_frame_delta_count;      /* ID: 430 */
+static int      hf_cflow_layer2_frame_total_count;      /* ID: 431 */
+static int      hf_cflow_pseudo_wire_destination_ipv4_address;      /* ID: 432 */
+static int      hf_cflow_ignored_layer2_frame_total_count;      /* ID: 433 */
+static int      hf_cflow_mib_object_value_integer;      /* ID: 434 */
+static int      hf_cflow_mib_object_value_octetstring;      /* ID: 435 */
+static int      hf_cflow_mib_object_value_oid;      /* ID: 436 */
+static int      hf_cflow_mib_object_value_bits;      /* ID: 437 */
+static int      hf_cflow_mib_object_value_ipaddress;      /* ID: 438 */
+static int      hf_cflow_mib_object_value_counter;      /* ID: 439 */
+static int      hf_cflow_mib_object_value_gauge;      /* ID: 440 */
+static int      hf_cflow_mib_object_value_timeticks;      /* ID: 441 */
+static int      hf_cflow_mib_object_value_unsigned;      /* ID: 442 */
+static int      hf_cflow_mib_object_value_table;      /* ID: 443 */
+static int      hf_cflow_mib_object_value_row;      /* ID: 444 */
+static int      hf_cflow_mib_object_identifier;      /* ID: 445 */
+static int      hf_cflow_mib_subidentifier;      /* ID: 446 */
+static int      hf_cflow_mib_index_indicator;      /* ID: 447 */
+static int      hf_cflow_mib_capture_time_semantics;      /* ID: 448 */
+static int      hf_cflow_mib_context_engineid;      /* ID: 449 */
+static int      hf_cflow_mib_context_name;      /* ID: 450 */
+static int      hf_cflow_mib_object_name;      /* ID: 451 */
+static int      hf_cflow_mib_object_description;      /* ID: 452 */
+static int      hf_cflow_mib_object_syntax;      /* ID: 453 */
+static int      hf_cflow_mib_module_name;      /* ID: 454 */
+static int      hf_cflow_mobile_imsi;      /* ID: 455 */
+static int      hf_cflow_mobile_msisdn;      /* ID: 456 */
+static int      hf_cflow_http_statuscode;      /* ID: 457 */
+static int      hf_cflow_source_transport_ports_limit;      /* ID: 458 */
+static int      hf_cflow_http_request_method;      /* ID: 459 */
+static int      hf_cflow_http_request_host;      /* ID: 460 */
+static int      hf_cflow_http_request_target;      /* ID: 461 */
+static int      hf_cflow_http_message_version;      /* ID: 462 */
+static int      hf_cflow_nat_instanceid;      /* ID: 463 */
+static int      hf_cflow_internal_address_realm;      /* ID: 464 */
+static int      hf_cflow_external_address_realm;      /* ID: 465 */
+static int      hf_cflow_nat_quota_exceeded_event;      /* ID: 466 */
+static int      hf_cflow_nat_threshold_event;      /* ID: 467 */
+static int      hf_cflow_http_user_agent;      /* ID: 468 */
+static int      hf_cflow_http_content_type;      /* ID: 469 */
+static int      hf_cflow_http_reason_phrase;      /* ID: 470 */
+static int      hf_cflow_max_session_entries;      /* ID: 471 */
+static int      hf_cflow_max_bib_entries;      /* ID: 472 */
+static int      hf_cflow_max_entries_per_user;      /* ID: 473 */
+static int      hf_cflow_max_subscribers;      /* ID: 474 */
+static int      hf_cflow_max_fragments_pending_reassembly;      /* ID: 475 */
+static int      hf_cflow_addresspool_highthreshold;      /* ID: 476 */
+static int      hf_cflow_addresspool_lowthreshold;      /* ID: 477 */
+static int      hf_cflow_addressport_mapping_highthreshold;      /* ID: 478 */
+static int      hf_cflow_addressport_mapping_lowthreshold;      /* ID: 479 */
+static int      hf_cflow_addressport_mapping_per_user_highthreshold;      /* ID: 480 */
+static int      hf_cflow_global_addressmapping_highthreshold;      /* ID: 481 */
+static int      hf_cflow_vpn_identifier;      /* ID: 482 */
+static int      hf_cflow_bgp_community;      /* ID: 483 */
+static int      hf_cflow_bgp_source_community_list;      /* ID: 484 */
+static int      hf_cflow_bgp_destination_community_list;      /* ID: 485 */
+static int      hf_cflow_bgp_extended_community;      /* ID: 486 */
+static int      hf_cflow_bgp_source_extended_community_list;      /* ID: 487 */
+static int      hf_cflow_bgp_destination_extended_community_list;      /* ID: 488 */
+static int      hf_cflow_bgp_large_community;      /* ID: 489 */
+static int      hf_cflow_bgp_source_large_community_list;      /* ID: 490 */
+static int      hf_cflow_bgp_destination_large_community_list;      /* ID: 491 */
 
-static int      hf_cflow_srh_flags_ipv6                             = -1;      /* ID: 492 */
-static int      hf_cflow_srh_flags_ipv6_reserved                    = -1;      /* Reserved / Unassigned RFC8754 */
-static int      hf_cflow_srh_flags_ipv6_oflag                       = -1;      /* O-Flag RFC9259 */
-static int      hf_cflow_srh_tag_ipv6                               = -1;      /* ID: 493 */
-static int      hf_cflow_srh_segment_ipv6                           = -1;      /* ID: 494 */
-static int      hf_cflow_srh_active_segment_ipv6                    = -1;      /* ID: 495 */
-static int      hf_cflow_srh_segment_ipv6_basic_list                = -1;      /* ID: 496 */
-static int      hf_cflow_srh_segment_ipv6_list_section              = -1;      /* ID: 497 */
-static int      hf_cflow_srh_segments_ipv6_left                     = -1;      /* ID: 498 */
-static int      hf_cflow_srh_ipv6_section                           = -1;      /* ID: 499 */
-static int      hf_cflow_srh_ipv6_active_segment_type               = -1;      /* ID: 500 */
-static int      hf_cflow_srh_segment_ipv6_locator_length            = -1;      /* ID: 501 */
-static int      hf_cflow_srh_segment_ipv6_endpoint_behaviour        = -1;      /* ID: 502 */
+static int      hf_cflow_srh_flags_ipv6;      /* ID: 492 */
+static int      hf_cflow_srh_flags_ipv6_reserved;      /* Reserved / Unassigned RFC8754 */
+static int      hf_cflow_srh_flags_ipv6_oflag;      /* O-Flag RFC9259 */
+static int      hf_cflow_srh_tag_ipv6;      /* ID: 493 */
+static int      hf_cflow_srh_segment_ipv6;      /* ID: 494 */
+static int      hf_cflow_srh_active_segment_ipv6;      /* ID: 495 */
+static int      hf_cflow_srh_segment_ipv6_basic_list;      /* ID: 496 */
+static int      hf_cflow_srh_segment_ipv6_list_section;      /* ID: 497 */
+static int      hf_cflow_srh_segments_ipv6_left;      /* ID: 498 */
+static int      hf_cflow_srh_ipv6_section;      /* ID: 499 */
+static int      hf_cflow_srh_ipv6_active_segment_type;      /* ID: 500 */
+static int      hf_cflow_srh_segment_ipv6_locator_length;      /* ID: 501 */
+static int      hf_cflow_srh_segment_ipv6_endpoint_behaviour;      /* ID: 502 */
 
 static int * const srh_flags_ipv6[] = {
         &hf_cflow_srh_flags_ipv6_reserved,
@@ -2981,1001 +2981,1001 @@ static int * const srh_flags_ipv6[] = {
         NULL
 };
 
-static int      hf_cflow_mpls_label                                 = -1;
-static int      hf_cflow_mpls_exp                                   = -1;
-static int      hf_cflow_mpls_bos                                   = -1;
+static int      hf_cflow_mpls_label;
+static int      hf_cflow_mpls_exp;
+static int      hf_cflow_mpls_bos;
 
 #if 0
-static int      hf_cflow_nic_id                                     = -1;      /* ID: 33625 */
+static int      hf_cflow_nic_id;      /* ID: 33625 */
 #endif
-static int      hf_cflow_cts_sgt_source_tag                         = -1;      /* ID: 34000 */
-static int      hf_cflow_cts_sgt_destination_tag                    = -1;      /* ID: 34001 */
-static int      hf_cflow_cts_sgt_source_name                        = -1;      /* ID: 34002 */
-static int      hf_cflow_cts_sgt_destination_name                   = -1;      /* ID: 34003 */
-static int      hf_cflow_packets_dropped                            = -1;      /* ID: 37000 */
-static int      hf_cflow_byte_rate                                  = -1;      /* ID: 37003 */
-static int      hf_cflow_application_media_bytes                    = -1;      /* ID: 37004 */
-static int      hf_cflow_application_media_byte_rate                = -1;      /* ID: 37006 */
-static int      hf_cflow_application_media_packets                  = -1;      /* ID: 37007 */
-static int      hf_cflow_application_media_packet_rate              = -1;      /* ID: 37009 */
-static int      hf_cflow_application_media_event                    = -1;      /* ID: 37011 */
-static int      hf_cflow_monitor_event                              = -1;      /* ID: 37012 */
-static int      hf_cflow_timestamp_interval                         = -1;      /* ID: 37013 */
-static int      hf_cflow_transport_packets_expected                 = -1;      /* ID: 37014 */
-static int      hf_cflow_transport_round_trip_time                  = -1;      /* ID: 37016 */
-static int      hf_cflow_transport_round_trip_time_string           = -1;      /* ID: 37016 */
-static int      hf_cflow_transport_event_packet_loss                = -1;      /* ID: 37017 */
-static int      hf_cflow_transport_packets_lost                     = -1;      /* ID: 37019 */
-static int      hf_cflow_transport_packets_lost_string              = -1;      /* ID: 37019 */
-static int      hf_cflow_transport_packets_lost_rate                = -1;      /* ID: 37021 */
-static int      hf_cflow_transport_packets_lost_rate_string         = -1;      /* ID: 37021 */
-static int      hf_cflow_transport_rtp_ssrc                         = -1;      /* ID: 37022 */
-static int      hf_cflow_transport_rtp_jitter_mean                  = -1;      /* ID: 37023 */
-static int      hf_cflow_transport_rtp_jitter_mean_string           = -1;      /* ID: 37023 */
-static int      hf_cflow_transport_rtp_jitter_min                   = -1;      /* ID: 37024 */
-static int      hf_cflow_transport_rtp_jitter_min_string            = -1;      /* ID: 37024 */
-static int      hf_cflow_transport_rtp_jitter_max                   = -1;      /* ID: 37025 */
-static int      hf_cflow_transport_rtp_jitter_max_string            = -1;      /* ID: 37025 */
+static int      hf_cflow_cts_sgt_source_tag;      /* ID: 34000 */
+static int      hf_cflow_cts_sgt_destination_tag;      /* ID: 34001 */
+static int      hf_cflow_cts_sgt_source_name;      /* ID: 34002 */
+static int      hf_cflow_cts_sgt_destination_name;      /* ID: 34003 */
+static int      hf_cflow_packets_dropped;      /* ID: 37000 */
+static int      hf_cflow_byte_rate;      /* ID: 37003 */
+static int      hf_cflow_application_media_bytes;      /* ID: 37004 */
+static int      hf_cflow_application_media_byte_rate;      /* ID: 37006 */
+static int      hf_cflow_application_media_packets;      /* ID: 37007 */
+static int      hf_cflow_application_media_packet_rate;      /* ID: 37009 */
+static int      hf_cflow_application_media_event;      /* ID: 37011 */
+static int      hf_cflow_monitor_event;      /* ID: 37012 */
+static int      hf_cflow_timestamp_interval;      /* ID: 37013 */
+static int      hf_cflow_transport_packets_expected;      /* ID: 37014 */
+static int      hf_cflow_transport_round_trip_time;      /* ID: 37016 */
+static int      hf_cflow_transport_round_trip_time_string;      /* ID: 37016 */
+static int      hf_cflow_transport_event_packet_loss;      /* ID: 37017 */
+static int      hf_cflow_transport_packets_lost;      /* ID: 37019 */
+static int      hf_cflow_transport_packets_lost_string;      /* ID: 37019 */
+static int      hf_cflow_transport_packets_lost_rate;      /* ID: 37021 */
+static int      hf_cflow_transport_packets_lost_rate_string;      /* ID: 37021 */
+static int      hf_cflow_transport_rtp_ssrc;      /* ID: 37022 */
+static int      hf_cflow_transport_rtp_jitter_mean;      /* ID: 37023 */
+static int      hf_cflow_transport_rtp_jitter_mean_string;      /* ID: 37023 */
+static int      hf_cflow_transport_rtp_jitter_min;      /* ID: 37024 */
+static int      hf_cflow_transport_rtp_jitter_min_string;      /* ID: 37024 */
+static int      hf_cflow_transport_rtp_jitter_max;      /* ID: 37025 */
+static int      hf_cflow_transport_rtp_jitter_max_string;      /* ID: 37025 */
 
-static int      hf_cflow_transport_rtp_payload_type                 = -1;      /* ID: 37041 */
-static int      hf_cflow_transport_rtp_payload_type_string          = -1;      /* ID: 37041 */
-static int      hf_cflow_transport_bytes_out_of_order               = -1;      /* ID: 37071 */
-/* static int      hf_cflow_transport_packets_out_of_order          = -1; */      /* ID: 37074 */
-static int      hf_cflow_transport_packets_out_of_order_string      = -1;      /* ID: 37074 */
-static int      hf_cflow_transport_tcp_window_size_min              = -1;      /* ID: 37083 */
-static int      hf_cflow_transport_tcp_window_size_min_string       = -1;      /* ID: 37083 */
-static int      hf_cflow_transport_tcp_window_size_max              = -1;      /* ID: 37084  */
-static int      hf_cflow_transport_tcp_window_size_max_string       = -1;      /* ID: 37084 */
-static int      hf_cflow_transport_tcp_window_size_mean             = -1;      /* ID: 37085  */
-static int      hf_cflow_transport_tcp_window_size_mean_string      = -1;      /* ID: 37085  */
-static int      hf_cflow_transport_tcp_maximum_segment_size         = -1;      /* ID: 37086  */
-static int      hf_cflow_transport_tcp_maximum_segment_size_string  = -1;      /* ID: 37086 */
+static int      hf_cflow_transport_rtp_payload_type;      /* ID: 37041 */
+static int      hf_cflow_transport_rtp_payload_type_string;      /* ID: 37041 */
+static int      hf_cflow_transport_bytes_out_of_order;      /* ID: 37071 */
+/* static int      hf_cflow_transport_packets_out_of_order; */      /* ID: 37074 */
+static int      hf_cflow_transport_packets_out_of_order_string;      /* ID: 37074 */
+static int      hf_cflow_transport_tcp_window_size_min;      /* ID: 37083 */
+static int      hf_cflow_transport_tcp_window_size_min_string;      /* ID: 37083 */
+static int      hf_cflow_transport_tcp_window_size_max;      /* ID: 37084  */
+static int      hf_cflow_transport_tcp_window_size_max_string;      /* ID: 37084 */
+static int      hf_cflow_transport_tcp_window_size_mean;      /* ID: 37085  */
+static int      hf_cflow_transport_tcp_window_size_mean_string;      /* ID: 37085  */
+static int      hf_cflow_transport_tcp_maximum_segment_size;      /* ID: 37086  */
+static int      hf_cflow_transport_tcp_maximum_segment_size_string;      /* ID: 37086 */
 
 /* Sequence analysis fields */
-static int      hf_cflow_sequence_analysis_expected_sn            = -1;
-static int      hf_cflow_sequence_analysis_previous_frame         = -1;
+static int      hf_cflow_sequence_analysis_expected_sn;
+static int      hf_cflow_sequence_analysis_previous_frame;
 
 /* Ericsson SE NAT Logging */
-static int      hf_cflow_nat_context_id         = -1;   /* ID: 24628 */
-static int      hf_cflow_nat_context_name       = -1;   /* ID: 24629 */
-static int      hf_cflow_nat_assign_time        = -1;   /* ID: 24630 */
-static int      hf_cflow_nat_unassign_time      = -1;   /* ID: 24631 */
-static int      hf_cflow_nat_int_addr           = -1;   /* ID: 24632 */
-static int      hf_cflow_nat_ext_addr           = -1;   /* ID: 24633 */
-static int      hf_cflow_nat_ext_port_first     = -1;   /* ID: 24634 */
-static int      hf_cflow_nat_ext_port_last      = -1;   /* ID: 24635 */
+static int      hf_cflow_nat_context_id;   /* ID: 24628 */
+static int      hf_cflow_nat_context_name;   /* ID: 24629 */
+static int      hf_cflow_nat_assign_time;   /* ID: 24630 */
+static int      hf_cflow_nat_unassign_time;   /* ID: 24631 */
+static int      hf_cflow_nat_int_addr;   /* ID: 24632 */
+static int      hf_cflow_nat_ext_addr;   /* ID: 24633 */
+static int      hf_cflow_nat_ext_port_first;   /* ID: 24634 */
+static int      hf_cflow_nat_ext_port_last;   /* ID: 24635 */
 
 
 /* Cisco ASA 5500 Series */
-static int      hf_cflow_ingress_acl_id = -1; /* NF_F_INGRESS_ACL_ID (33000) */
-static int      hf_cflow_egress_acl_id  = -1; /* NF_F_EGRESS_ACL_ID  (33001) */
-static int      hf_cflow_fw_ext_event   = -1; /* NF_F_FW_EXT_EVENT   (33002) */
-static int      hf_cflow_aaa_username   = -1; /* NF_F_USERNAME[_MAX] (40000) */
+static int      hf_cflow_ingress_acl_id; /* NF_F_INGRESS_ACL_ID (33000) */
+static int      hf_cflow_egress_acl_id; /* NF_F_EGRESS_ACL_ID  (33001) */
+static int      hf_cflow_fw_ext_event; /* NF_F_FW_EXT_EVENT   (33002) */
+static int      hf_cflow_aaa_username; /* NF_F_USERNAME[_MAX] (40000) */
 
-static int      hf_ipfix_enterprise_private_entry = -1;
+static int      hf_ipfix_enterprise_private_entry;
 
 /* pie = private information element */
 
-static int      hf_pie_cace                       = -1;
-static int      hf_pie_cace_local_ipv4_address   = -1;
-static int      hf_pie_cace_remote_ipv4_address  = -1;
-static int      hf_pie_cace_local_ipv6_address   = -1;
-static int      hf_pie_cace_remote_ipv6_address  = -1;
-static int      hf_pie_cace_local_port           = -1;
-static int      hf_pie_cace_remote_port          = -1;
-static int      hf_pie_cace_local_ipv4_id        = -1;
-static int      hf_pie_cace_local_icmp_id        = -1;
-static int      hf_pie_cace_local_uid            = -1;
-static int      hf_pie_cace_local_pid            = -1;
-static int      hf_pie_cace_local_username_len   = -1;
-static int      hf_pie_cace_local_username       = -1;
-static int      hf_pie_cace_local_cmd_len        = -1;
-static int      hf_pie_cace_local_cmd            = -1;
+static int      hf_pie_cace;
+static int      hf_pie_cace_local_ipv4_address;
+static int      hf_pie_cace_remote_ipv4_address;
+static int      hf_pie_cace_local_ipv6_address;
+static int      hf_pie_cace_remote_ipv6_address;
+static int      hf_pie_cace_local_port;
+static int      hf_pie_cace_remote_port;
+static int      hf_pie_cace_local_ipv4_id;
+static int      hf_pie_cace_local_icmp_id;
+static int      hf_pie_cace_local_uid;
+static int      hf_pie_cace_local_pid;
+static int      hf_pie_cace_local_username_len;
+static int      hf_pie_cace_local_username;
+static int      hf_pie_cace_local_cmd_len;
+static int      hf_pie_cace_local_cmd;
 
-static int      hf_pie_ntop                             = -1;
-static int      hf_pie_ntop_src_fragments               = -1;
-static int      hf_pie_ntop_dst_fragments               = -1;
-static int      hf_pie_ntop_src_to_dst_max_throughput   = -1;
-static int      hf_pie_ntop_src_to_dst_min_throughput   = -1;
-static int      hf_pie_ntop_src_to_dst_avg_throughput   = -1;
-static int      hf_pie_ntop_dst_to_src_max_throughput   = -1;
-static int      hf_pie_ntop_dst_to_src_min_throughput   = -1;
-static int      hf_pie_ntop_dst_to_src_avg_throughput   = -1;
-static int      hf_pie_ntop_num_pkts_up_to_128_bytes    = -1;
-static int      hf_pie_ntop_num_pkts_128_to_256_bytes   = -1;
-static int      hf_pie_ntop_num_pkts_256_to_512_bytes   = -1;
-static int      hf_pie_ntop_num_pkts_512_to_1024_bytes  = -1;
-static int      hf_pie_ntop_num_pkts_1024_to_1514_bytes = -1;
-static int      hf_pie_ntop_num_pkts_over_1514_bytes    = -1;
-static int      hf_pie_ntop_cumulative_icmp_type        = -1;
-static int      hf_pie_ntop_src_ip_country              = -1;
-static int      hf_pie_ntop_src_ip_city                 = -1;
-static int      hf_pie_ntop_dst_ip_country              = -1;
-static int      hf_pie_ntop_dst_ip_city                 = -1;
-static int      hf_pie_ntop_flow_proto_port             = -1;
+static int      hf_pie_ntop;
+static int      hf_pie_ntop_src_fragments;
+static int      hf_pie_ntop_dst_fragments;
+static int      hf_pie_ntop_src_to_dst_max_throughput;
+static int      hf_pie_ntop_src_to_dst_min_throughput;
+static int      hf_pie_ntop_src_to_dst_avg_throughput;
+static int      hf_pie_ntop_dst_to_src_max_throughput;
+static int      hf_pie_ntop_dst_to_src_min_throughput;
+static int      hf_pie_ntop_dst_to_src_avg_throughput;
+static int      hf_pie_ntop_num_pkts_up_to_128_bytes;
+static int      hf_pie_ntop_num_pkts_128_to_256_bytes;
+static int      hf_pie_ntop_num_pkts_256_to_512_bytes;
+static int      hf_pie_ntop_num_pkts_512_to_1024_bytes;
+static int      hf_pie_ntop_num_pkts_1024_to_1514_bytes;
+static int      hf_pie_ntop_num_pkts_over_1514_bytes;
+static int      hf_pie_ntop_cumulative_icmp_type;
+static int      hf_pie_ntop_src_ip_country;
+static int      hf_pie_ntop_src_ip_city;
+static int      hf_pie_ntop_dst_ip_country;
+static int      hf_pie_ntop_dst_ip_city;
+static int      hf_pie_ntop_flow_proto_port;
 
-static int      hf_pie_ntop_upstream_tunnel_id       = -1;
-static int      hf_pie_ntop_longest_flow_pkt         = -1;
-static int      hf_pie_ntop_shortest_flow_pkt        = -1;
-static int      hf_pie_ntop_retransmitted_in_pkts    = -1;
-static int      hf_pie_ntop_retransmitted_out_pkts   = -1;
-static int      hf_pie_ntop_ooorder_in_pkts          = -1;
-static int      hf_pie_ntop_ooorder_out_pkts         = -1;
-static int      hf_pie_ntop_untunneled_protocol      = -1;
-static int      hf_pie_ntop_untunneled_ipv4_src_addr = -1;
-static int      hf_pie_ntop_untunneled_l4_src_port   = -1;
-static int      hf_pie_ntop_untunneled_ipv4_dst_addr = -1;
-static int      hf_pie_ntop_untunneled_l4_dst_port   = -1;
+static int      hf_pie_ntop_upstream_tunnel_id;
+static int      hf_pie_ntop_longest_flow_pkt;
+static int      hf_pie_ntop_shortest_flow_pkt;
+static int      hf_pie_ntop_retransmitted_in_pkts;
+static int      hf_pie_ntop_retransmitted_out_pkts;
+static int      hf_pie_ntop_ooorder_in_pkts;
+static int      hf_pie_ntop_ooorder_out_pkts;
+static int      hf_pie_ntop_untunneled_protocol;
+static int      hf_pie_ntop_untunneled_ipv4_src_addr;
+static int      hf_pie_ntop_untunneled_l4_src_port;
+static int      hf_pie_ntop_untunneled_ipv4_dst_addr;
+static int      hf_pie_ntop_untunneled_l4_dst_port;
 
-static int      hf_pie_ntop_l7_proto                 = -1;
-static int      hf_pie_ntop_l7_proto_name            = -1;
-static int      hf_pie_ntop_downstram_tunnel_id      = -1;
-static int      hf_pie_ntop_flow_user_name           = -1;
-static int      hf_pie_ntop_flow_server_name         = -1;
-static int      hf_pie_ntop_client_nw_latency_ms     = -1;
-static int      hf_pie_ntop_server_nw_latency_ms     = -1;
-static int      hf_pie_ntop_appl_latency_ms          = -1;
-static int      hf_pie_ntop_plugin_name              = -1;
-static int      hf_pie_ntop_retransmitted_in_bytes   = -1;
-static int      hf_pie_ntop_retransmitted_out_bytes  = -1;
-static int      hf_pie_ntop_sip_call_id              = -1;
-static int      hf_pie_ntop_sip_calling_party        = -1;
-static int      hf_pie_ntop_sip_called_party         = -1;
-static int      hf_pie_ntop_sip_rtp_codecs           = -1;
-static int      hf_pie_ntop_sip_invite_time          = -1;
-static int      hf_pie_ntop_sip_trying_time          = -1;
-static int      hf_pie_ntop_sip_ringing_time         = -1;
+static int      hf_pie_ntop_l7_proto;
+static int      hf_pie_ntop_l7_proto_name;
+static int      hf_pie_ntop_downstram_tunnel_id;
+static int      hf_pie_ntop_flow_user_name;
+static int      hf_pie_ntop_flow_server_name;
+static int      hf_pie_ntop_client_nw_latency_ms;
+static int      hf_pie_ntop_server_nw_latency_ms;
+static int      hf_pie_ntop_appl_latency_ms;
+static int      hf_pie_ntop_plugin_name;
+static int      hf_pie_ntop_retransmitted_in_bytes;
+static int      hf_pie_ntop_retransmitted_out_bytes;
+static int      hf_pie_ntop_sip_call_id;
+static int      hf_pie_ntop_sip_calling_party;
+static int      hf_pie_ntop_sip_called_party;
+static int      hf_pie_ntop_sip_rtp_codecs;
+static int      hf_pie_ntop_sip_invite_time;
+static int      hf_pie_ntop_sip_trying_time;
+static int      hf_pie_ntop_sip_ringing_time;
 
-static int      hf_pie_ntop_sip_invite_ok_time       = -1;
-static int      hf_pie_ntop_sip_invite_failure_time  = -1;
-static int      hf_pie_ntop_sip_bye_time             = -1;
-static int      hf_pie_ntop_sip_bye_ok_time          = -1;
-static int      hf_pie_ntop_sip_cancel_time          = -1;
-static int      hf_pie_ntop_sip_cancel_ok_time       = -1;
-static int      hf_pie_ntop_sip_rtp_ipv4_src_addr    = -1;
-static int      hf_pie_ntop_sip_rtp_l4_src_port      = -1;
-static int      hf_pie_ntop_sip_rtp_ipv4_dst_addr    = -1;
-static int      hf_pie_ntop_sip_rtp_l4_dst_port      = -1;
-static int      hf_pie_ntop_sip_response_code        = -1;
-static int      hf_pie_ntop_sip_reason_cause         = -1;
-static int      hf_pie_ntop_rtp_first_seq            = -1;
-static int      hf_pie_ntop_rtp_first_ts             = -1;
-static int      hf_pie_ntop_rtp_last_seq             = -1;
-static int      hf_pie_ntop_rtp_last_ts              = -1;
-static int      hf_pie_ntop_rtp_in_jitter            = -1;
-static int      hf_pie_ntop_rtp_out_jitter           = -1;
-static int      hf_pie_ntop_rtp_in_pkt_lost          = -1;
-static int      hf_pie_ntop_rtp_out_pkt_lost         = -1;
-static int      hf_pie_ntop_rtp_out_payload_type     = -1;
-static int      hf_pie_ntop_rtp_in_max_delta         = -1;
-static int      hf_pie_ntop_rtp_out_max_delta        = -1;
-static int      hf_pie_ntop_rtp_in_payload_type      = -1;
-static int      hf_pie_ntop_src_proc_id              = -1;
-static int      hf_pie_ntop_src_proc_name            = -1;
-static int      hf_pie_ntop_http_url                 = -1;
-static int      hf_pie_ntop_http_ret_code            = -1;
-static int      hf_pie_ntop_http_referer             = -1;
-static int      hf_pie_ntop_http_ua                  = -1;
-static int      hf_pie_ntop_http_mime                = -1;
-static int      hf_pie_ntop_smtp_mail_from           = -1;
-static int      hf_pie_ntop_smtp_rcpt_to             = -1;
-static int      hf_pie_ntop_http_host                = -1;
-static int      hf_pie_ntop_ssl_server_name          = -1;
-static int      hf_pie_ntop_bittorrent_hash          = -1;
+static int      hf_pie_ntop_sip_invite_ok_time;
+static int      hf_pie_ntop_sip_invite_failure_time;
+static int      hf_pie_ntop_sip_bye_time;
+static int      hf_pie_ntop_sip_bye_ok_time;
+static int      hf_pie_ntop_sip_cancel_time;
+static int      hf_pie_ntop_sip_cancel_ok_time;
+static int      hf_pie_ntop_sip_rtp_ipv4_src_addr;
+static int      hf_pie_ntop_sip_rtp_l4_src_port;
+static int      hf_pie_ntop_sip_rtp_ipv4_dst_addr;
+static int      hf_pie_ntop_sip_rtp_l4_dst_port;
+static int      hf_pie_ntop_sip_response_code;
+static int      hf_pie_ntop_sip_reason_cause;
+static int      hf_pie_ntop_rtp_first_seq;
+static int      hf_pie_ntop_rtp_first_ts;
+static int      hf_pie_ntop_rtp_last_seq;
+static int      hf_pie_ntop_rtp_last_ts;
+static int      hf_pie_ntop_rtp_in_jitter;
+static int      hf_pie_ntop_rtp_out_jitter;
+static int      hf_pie_ntop_rtp_in_pkt_lost;
+static int      hf_pie_ntop_rtp_out_pkt_lost;
+static int      hf_pie_ntop_rtp_out_payload_type;
+static int      hf_pie_ntop_rtp_in_max_delta;
+static int      hf_pie_ntop_rtp_out_max_delta;
+static int      hf_pie_ntop_rtp_in_payload_type;
+static int      hf_pie_ntop_src_proc_id;
+static int      hf_pie_ntop_src_proc_name;
+static int      hf_pie_ntop_http_url;
+static int      hf_pie_ntop_http_ret_code;
+static int      hf_pie_ntop_http_referer;
+static int      hf_pie_ntop_http_ua;
+static int      hf_pie_ntop_http_mime;
+static int      hf_pie_ntop_smtp_mail_from;
+static int      hf_pie_ntop_smtp_rcpt_to;
+static int      hf_pie_ntop_http_host;
+static int      hf_pie_ntop_ssl_server_name;
+static int      hf_pie_ntop_bittorrent_hash;
 
-static int      hf_pie_ntop_mysql_srv_version        = -1;
-static int      hf_pie_ntop_mysql_username           = -1;
-static int      hf_pie_ntop_mysql_db                 = -1;
-static int      hf_pie_ntop_mysql_query              = -1;
-static int      hf_pie_ntop_mysql_response           = -1;
+static int      hf_pie_ntop_mysql_srv_version;
+static int      hf_pie_ntop_mysql_username;
+static int      hf_pie_ntop_mysql_db;
+static int      hf_pie_ntop_mysql_query;
+static int      hf_pie_ntop_mysql_response;
 
-static int      hf_pie_ntop_oracle_username          = -1;
-static int      hf_pie_ntop_oracle_query             = -1;
-static int      hf_pie_ntop_oracle_resp_code         = -1;
-static int      hf_pie_ntop_oracle_resp_string       = -1;
-static int      hf_pie_ntop_oracle_query_duration    = -1;
-static int      hf_pie_ntop_dns_query                = -1;
-static int      hf_pie_ntop_dns_query_id             = -1;
-static int      hf_pie_ntop_dns_query_type           = -1;
-static int      hf_pie_ntop_dns_ret_code             = -1;
-static int      hf_pie_ntop_dns_num_answers          = -1;
-static int      hf_pie_ntop_pop_user                 = -1;
+static int      hf_pie_ntop_oracle_username;
+static int      hf_pie_ntop_oracle_query;
+static int      hf_pie_ntop_oracle_resp_code;
+static int      hf_pie_ntop_oracle_resp_string;
+static int      hf_pie_ntop_oracle_query_duration;
+static int      hf_pie_ntop_dns_query;
+static int      hf_pie_ntop_dns_query_id;
+static int      hf_pie_ntop_dns_query_type;
+static int      hf_pie_ntop_dns_ret_code;
+static int      hf_pie_ntop_dns_num_answers;
+static int      hf_pie_ntop_pop_user;
 
-static int      hf_pie_ntop_gtpv1_req_msg_type       = -1;
-static int      hf_pie_ntop_gtpv1_rsp_msg_type       = -1;
-static int      hf_pie_ntop_gtpv1_c2s_teid_data      = -1;
-static int      hf_pie_ntop_gtpv1_c2s_teid_ctrl      = -1;
-static int      hf_pie_ntop_gtpv1_s2c_teid_data      = -1;
-static int      hf_pie_ntop_gtpv1_s2c_teid_ctrl      = -1;
-static int      hf_pie_ntop_gtpv1_end_user_ip        = -1;
-static int      hf_pie_ntop_gtpv1_end_user_imsi      = -1;
-static int      hf_pie_ntop_gtpv1_end_user_msisdn    = -1;
-static int      hf_pie_ntop_gtpv1_end_user_imei      = -1;
-static int      hf_pie_ntop_gtpv1_apn_name           = -1;
-static int      hf_pie_ntop_gtpv1_rai_mcc            = -1;
-static int      hf_pie_ntop_gtpv1_rai_mnc            = -1;
+static int      hf_pie_ntop_gtpv1_req_msg_type;
+static int      hf_pie_ntop_gtpv1_rsp_msg_type;
+static int      hf_pie_ntop_gtpv1_c2s_teid_data;
+static int      hf_pie_ntop_gtpv1_c2s_teid_ctrl;
+static int      hf_pie_ntop_gtpv1_s2c_teid_data;
+static int      hf_pie_ntop_gtpv1_s2c_teid_ctrl;
+static int      hf_pie_ntop_gtpv1_end_user_ip;
+static int      hf_pie_ntop_gtpv1_end_user_imsi;
+static int      hf_pie_ntop_gtpv1_end_user_msisdn;
+static int      hf_pie_ntop_gtpv1_end_user_imei;
+static int      hf_pie_ntop_gtpv1_apn_name;
+static int      hf_pie_ntop_gtpv1_rai_mcc;
+static int      hf_pie_ntop_gtpv1_rai_mnc;
 
-static int      hf_pie_ntop_gtpv1_uli_cell_lac       = -1;
-static int      hf_pie_ntop_gtpv1_uli_cell_ci        = -1;
-static int      hf_pie_ntop_gtpv1_uli_sac            = -1;
-static int      hf_pie_ntop_gtpv1_rai_type           = -1;
-static int      hf_pie_ntop_radius_req_msg_type         = -1;
-static int      hf_pie_ntop_radius_rsp_msg_type         = -1;
-static int      hf_pie_ntop_radius_user_name            = -1;
-static int      hf_pie_ntop_radius_calling_station_id   = -1;
-static int      hf_pie_ntop_radius_called_station_id    = -1;
-static int      hf_pie_ntop_radius_nas_ip_addr          = -1;
-static int      hf_pie_ntop_radius_nas_identifier       = -1;
-static int      hf_pie_ntop_radius_user_imsi            = -1;
-static int      hf_pie_ntop_radius_user_imei            = -1;
-static int      hf_pie_ntop_radius_framed_ip_addr       = -1;
-static int      hf_pie_ntop_radius_acct_session_id      = -1;
-static int      hf_pie_ntop_radius_acct_status_type     = -1;
-static int      hf_pie_ntop_radius_acct_in_octects      = -1;
-static int      hf_pie_ntop_radius_acct_out_octects     = -1;
-static int      hf_pie_ntop_radius_acct_in_pkts         = -1;
-static int      hf_pie_ntop_radius_acct_out_pkts        = -1;
-static int      hf_pie_ntop_imap_login                  = -1;
+static int      hf_pie_ntop_gtpv1_uli_cell_lac;
+static int      hf_pie_ntop_gtpv1_uli_cell_ci;
+static int      hf_pie_ntop_gtpv1_uli_sac;
+static int      hf_pie_ntop_gtpv1_rai_type;
+static int      hf_pie_ntop_radius_req_msg_type;
+static int      hf_pie_ntop_radius_rsp_msg_type;
+static int      hf_pie_ntop_radius_user_name;
+static int      hf_pie_ntop_radius_calling_station_id;
+static int      hf_pie_ntop_radius_called_station_id;
+static int      hf_pie_ntop_radius_nas_ip_addr;
+static int      hf_pie_ntop_radius_nas_identifier;
+static int      hf_pie_ntop_radius_user_imsi;
+static int      hf_pie_ntop_radius_user_imei;
+static int      hf_pie_ntop_radius_framed_ip_addr;
+static int      hf_pie_ntop_radius_acct_session_id;
+static int      hf_pie_ntop_radius_acct_status_type;
+static int      hf_pie_ntop_radius_acct_in_octects;
+static int      hf_pie_ntop_radius_acct_out_octects;
+static int      hf_pie_ntop_radius_acct_in_pkts;
+static int      hf_pie_ntop_radius_acct_out_pkts;
+static int      hf_pie_ntop_imap_login;
 
-static int      hf_pie_ntop_gtpv2_req_msg_type          = -1;
-static int      hf_pie_ntop_gtpv2_rsp_msg_type          = -1;
-static int      hf_pie_ntop_gtpv2_c2s_s1u_gtpu_teid     = -1;
-static int      hf_pie_ntop_gtpv2_c2s_s1u_gtpu_ip       = -1;
-static int      hf_pie_ntop_gtpv2_s2c_s1u_gtpu_teid     = -1;
-static int      hf_pie_ntop_gtpv2_s2c_s1u_gtpu_ip       = -1;
-static int      hf_pie_ntop_gtpv2_end_user_imsi         = -1;
-static int      hf_pie_ntop_gtpv2_and_user_msisdn       = -1;
-static int      hf_pie_ntop_gtpv2_apn_name              = -1;
-static int      hf_pie_ntop_gtpv2_uli_mcc               = -1;
-static int      hf_pie_ntop_gtpv2_uli_mnc               = -1;
-static int      hf_pie_ntop_gtpv2_uli_cell_tac          = -1;
-static int      hf_pie_ntop_gtpv2_uli_cell_id           = -1;
-static int      hf_pie_ntop_gtpv2_rat_type              = -1;
-static int      hf_pie_ntop_gtpv2_pdn_ip                = -1;
-static int      hf_pie_ntop_gtpv2_end_user_imei         = -1;
+static int      hf_pie_ntop_gtpv2_req_msg_type;
+static int      hf_pie_ntop_gtpv2_rsp_msg_type;
+static int      hf_pie_ntop_gtpv2_c2s_s1u_gtpu_teid;
+static int      hf_pie_ntop_gtpv2_c2s_s1u_gtpu_ip;
+static int      hf_pie_ntop_gtpv2_s2c_s1u_gtpu_teid;
+static int      hf_pie_ntop_gtpv2_s2c_s1u_gtpu_ip;
+static int      hf_pie_ntop_gtpv2_end_user_imsi;
+static int      hf_pie_ntop_gtpv2_and_user_msisdn;
+static int      hf_pie_ntop_gtpv2_apn_name;
+static int      hf_pie_ntop_gtpv2_uli_mcc;
+static int      hf_pie_ntop_gtpv2_uli_mnc;
+static int      hf_pie_ntop_gtpv2_uli_cell_tac;
+static int      hf_pie_ntop_gtpv2_uli_cell_id;
+static int      hf_pie_ntop_gtpv2_rat_type;
+static int      hf_pie_ntop_gtpv2_pdn_ip;
+static int      hf_pie_ntop_gtpv2_end_user_imei;
 
-static int      hf_pie_ntop_src_as_path_1          = -1;
-static int      hf_pie_ntop_src_as_path_2          = -1;
-static int      hf_pie_ntop_src_as_path_3          = -1;
-static int      hf_pie_ntop_src_as_path_4          = -1;
-static int      hf_pie_ntop_src_as_path_5          = -1;
-static int      hf_pie_ntop_src_as_path_6          = -1;
-static int      hf_pie_ntop_src_as_path_7          = -1;
-static int      hf_pie_ntop_src_as_path_8          = -1;
-static int      hf_pie_ntop_src_as_path_9          = -1;
-static int      hf_pie_ntop_src_as_path_10         = -1;
-static int      hf_pie_ntop_dst_as_path_1          = -1;
-static int      hf_pie_ntop_dst_as_path_2          = -1;
-static int      hf_pie_ntop_dst_as_path_3          = -1;
-static int      hf_pie_ntop_dst_as_path_4          = -1;
-static int      hf_pie_ntop_dst_as_path_5          = -1;
-static int      hf_pie_ntop_dst_as_path_6          = -1;
-static int      hf_pie_ntop_dst_as_path_7          = -1;
-static int      hf_pie_ntop_dst_as_path_8          = -1;
-static int      hf_pie_ntop_dst_as_path_9          = -1;
-static int      hf_pie_ntop_dst_as_path_10         = -1;
+static int      hf_pie_ntop_src_as_path_1;
+static int      hf_pie_ntop_src_as_path_2;
+static int      hf_pie_ntop_src_as_path_3;
+static int      hf_pie_ntop_src_as_path_4;
+static int      hf_pie_ntop_src_as_path_5;
+static int      hf_pie_ntop_src_as_path_6;
+static int      hf_pie_ntop_src_as_path_7;
+static int      hf_pie_ntop_src_as_path_8;
+static int      hf_pie_ntop_src_as_path_9;
+static int      hf_pie_ntop_src_as_path_10;
+static int      hf_pie_ntop_dst_as_path_1;
+static int      hf_pie_ntop_dst_as_path_2;
+static int      hf_pie_ntop_dst_as_path_3;
+static int      hf_pie_ntop_dst_as_path_4;
+static int      hf_pie_ntop_dst_as_path_5;
+static int      hf_pie_ntop_dst_as_path_6;
+static int      hf_pie_ntop_dst_as_path_7;
+static int      hf_pie_ntop_dst_as_path_8;
+static int      hf_pie_ntop_dst_as_path_9;
+static int      hf_pie_ntop_dst_as_path_10;
 
-static int      hf_pie_ntop_mysql_appl_latency_usec    = -1;
-static int      hf_pie_ntop_gtpv0_req_msg_type         = -1;
-static int      hf_pie_ntop_gtpv0_rsp_msg_type         = -1;
-static int      hf_pie_ntop_gtpv0_tid                  = -1;
-static int      hf_pie_ntop_gtpv0_end_user_ip          = -1;
-static int      hf_pie_ntop_gtpv0_end_user_msisdn      = -1;
-static int      hf_pie_ntop_gtpv0_apn_name             = -1;
-static int      hf_pie_ntop_gtpv0_rai_mcc              = -1;
-static int      hf_pie_ntop_gtpv0_rai_mnc              = -1;
-static int      hf_pie_ntop_gtpv0_rai_cell_lac         = -1;
-static int      hf_pie_ntop_gtpv0_rai_cell_rac         = -1;
-static int      hf_pie_ntop_gtpv0_response_cause       = -1;
-static int      hf_pie_ntop_gtpv1_response_cause       = -1;
-static int      hf_pie_ntop_gtpv2_response_cause       = -1;
-static int      hf_pie_ntop_num_pkts_ttl_5_32          = -1;
-static int      hf_pie_ntop_num_pkts_ttl_32_64         = -1;
-static int      hf_pie_ntop_num_pkts_ttl_64_96         = -1;
-static int      hf_pie_ntop_num_pkts_ttl_96_128        = -1;
-static int      hf_pie_ntop_num_pkts_ttl_128_160       = -1;
-static int      hf_pie_ntop_num_pkts_ttl_160_192       = -1;
-static int      hf_pie_ntop_num_pkts_ttl_192_224       = -1;
-static int      hf_pie_ntop_num_pkts_ttl_224_255       = -1;
-static int      hf_pie_ntop_gtpv1_rai_lac              = -1;
-static int      hf_pie_ntop_gtpv1_rai_rac              = -1;
-static int      hf_pie_ntop_gtpv1_uli_mcc              = -1;
-static int      hf_pie_ntop_gtpv1_uli_mnc              = -1;
-static int      hf_pie_ntop_num_pkts_ttl_2_5           = -1;
-static int      hf_pie_ntop_num_pkts_ttl_eq_1          = -1;
-static int      hf_pie_ntop_rtp_sip_call_id            = -1;
-static int      hf_pie_ntop_in_src_osi_sap             = -1;
-static int      hf_pie_ntop_out_dst_osi_sap            = -1;
+static int      hf_pie_ntop_mysql_appl_latency_usec;
+static int      hf_pie_ntop_gtpv0_req_msg_type;
+static int      hf_pie_ntop_gtpv0_rsp_msg_type;
+static int      hf_pie_ntop_gtpv0_tid;
+static int      hf_pie_ntop_gtpv0_end_user_ip;
+static int      hf_pie_ntop_gtpv0_end_user_msisdn;
+static int      hf_pie_ntop_gtpv0_apn_name;
+static int      hf_pie_ntop_gtpv0_rai_mcc;
+static int      hf_pie_ntop_gtpv0_rai_mnc;
+static int      hf_pie_ntop_gtpv0_rai_cell_lac;
+static int      hf_pie_ntop_gtpv0_rai_cell_rac;
+static int      hf_pie_ntop_gtpv0_response_cause;
+static int      hf_pie_ntop_gtpv1_response_cause;
+static int      hf_pie_ntop_gtpv2_response_cause;
+static int      hf_pie_ntop_num_pkts_ttl_5_32;
+static int      hf_pie_ntop_num_pkts_ttl_32_64;
+static int      hf_pie_ntop_num_pkts_ttl_64_96;
+static int      hf_pie_ntop_num_pkts_ttl_96_128;
+static int      hf_pie_ntop_num_pkts_ttl_128_160;
+static int      hf_pie_ntop_num_pkts_ttl_160_192;
+static int      hf_pie_ntop_num_pkts_ttl_192_224;
+static int      hf_pie_ntop_num_pkts_ttl_224_255;
+static int      hf_pie_ntop_gtpv1_rai_lac;
+static int      hf_pie_ntop_gtpv1_rai_rac;
+static int      hf_pie_ntop_gtpv1_uli_mcc;
+static int      hf_pie_ntop_gtpv1_uli_mnc;
+static int      hf_pie_ntop_num_pkts_ttl_2_5;
+static int      hf_pie_ntop_num_pkts_ttl_eq_1;
+static int      hf_pie_ntop_rtp_sip_call_id;
+static int      hf_pie_ntop_in_src_osi_sap;
+static int      hf_pie_ntop_out_dst_osi_sap;
 
-static int      hf_pie_ntop_whois_das_domain           = -1;
-static int      hf_pie_ntop_dns_ttl_answer             = -1;
-static int      hf_pie_ntop_dhcp_client_mac            = -1;
-static int      hf_pie_ntop_dhcp_client_ip             = -1;
-static int      hf_pie_ntop_dhcp_client_name           = -1;
-static int      hf_pie_ntop_ftp_login                  = -1;
-static int      hf_pie_ntop_ftp_password               = -1;
-static int      hf_pie_ntop_ftp_command                = -1;
-static int      hf_pie_ntop_ftp_command_ret_code       = -1;
-static int      hf_pie_ntop_http_method                = -1;
-static int      hf_pie_ntop_http_site                  = -1;
-static int      hf_pie_ntop_sip_c_ip                   = -1;
-static int      hf_pie_ntop_sip_call_state             = -1;
-static int      hf_pie_ntop_rtp_in_mos                 = -1;
-static int      hf_pie_ntop_rtp_in_r_factor            = -1;
-static int      hf_pie_ntop_src_proc_user_name         = -1;
-static int      hf_pie_ntop_src_father_proc_pid        = -1;
-static int      hf_pie_ntop_src_father_proc_name       = -1;
-static int      hf_pie_ntop_dst_proc_pid               = -1;
-static int      hf_pie_ntop_dst_proc_name              = -1;
-static int      hf_pie_ntop_dst_proc_user_name         = -1;
-static int      hf_pie_ntop_dst_father_proc_pid        = -1;
-static int      hf_pie_ntop_dst_father_proc_name       = -1;
-static int      hf_pie_ntop_rtp_rtt                    = -1;
-static int      hf_pie_ntop_rtp_in_transit             = -1;
-static int      hf_pie_ntop_rtp_out_transit            = -1;
-static int      hf_pie_ntop_src_proc_actual_memory     = -1;
-static int      hf_pie_ntop_src_proc_peak_memory       = -1;
-static int      hf_pie_ntop_src_proc_average_cpu_load  = -1;
-static int      hf_pie_ntop_src_proc_num_page_faults   = -1;
-static int      hf_pie_ntop_dst_proc_actual_memory     = -1;
-static int      hf_pie_ntop_dst_proc_peak_memory       = -1;
-static int      hf_pie_ntop_dst_proc_average_cpu_load  = -1;
-static int      hf_pie_ntop_dst_proc_num_page_faults   = -1;
-static int      hf_pie_ntop_duration_in                = -1;
-static int      hf_pie_ntop_duration_out               = -1;
-static int      hf_pie_ntop_src_proc_pctg_iowait       = -1;
-static int      hf_pie_ntop_dst_proc_pctg_iowait       = -1;
-static int      hf_pie_ntop_rtp_dtmf_tones             = -1;
-static int      hf_pie_ntop_untunneled_ipv6_src_addr   = -1;
-static int      hf_pie_ntop_untunneled_ipv6_dst_addr   = -1;
-static int      hf_pie_ntop_dns_response               = -1;
+static int      hf_pie_ntop_whois_das_domain;
+static int      hf_pie_ntop_dns_ttl_answer;
+static int      hf_pie_ntop_dhcp_client_mac;
+static int      hf_pie_ntop_dhcp_client_ip;
+static int      hf_pie_ntop_dhcp_client_name;
+static int      hf_pie_ntop_ftp_login;
+static int      hf_pie_ntop_ftp_password;
+static int      hf_pie_ntop_ftp_command;
+static int      hf_pie_ntop_ftp_command_ret_code;
+static int      hf_pie_ntop_http_method;
+static int      hf_pie_ntop_http_site;
+static int      hf_pie_ntop_sip_c_ip;
+static int      hf_pie_ntop_sip_call_state;
+static int      hf_pie_ntop_rtp_in_mos;
+static int      hf_pie_ntop_rtp_in_r_factor;
+static int      hf_pie_ntop_src_proc_user_name;
+static int      hf_pie_ntop_src_father_proc_pid;
+static int      hf_pie_ntop_src_father_proc_name;
+static int      hf_pie_ntop_dst_proc_pid;
+static int      hf_pie_ntop_dst_proc_name;
+static int      hf_pie_ntop_dst_proc_user_name;
+static int      hf_pie_ntop_dst_father_proc_pid;
+static int      hf_pie_ntop_dst_father_proc_name;
+static int      hf_pie_ntop_rtp_rtt;
+static int      hf_pie_ntop_rtp_in_transit;
+static int      hf_pie_ntop_rtp_out_transit;
+static int      hf_pie_ntop_src_proc_actual_memory;
+static int      hf_pie_ntop_src_proc_peak_memory;
+static int      hf_pie_ntop_src_proc_average_cpu_load;
+static int      hf_pie_ntop_src_proc_num_page_faults;
+static int      hf_pie_ntop_dst_proc_actual_memory;
+static int      hf_pie_ntop_dst_proc_peak_memory;
+static int      hf_pie_ntop_dst_proc_average_cpu_load;
+static int      hf_pie_ntop_dst_proc_num_page_faults;
+static int      hf_pie_ntop_duration_in;
+static int      hf_pie_ntop_duration_out;
+static int      hf_pie_ntop_src_proc_pctg_iowait;
+static int      hf_pie_ntop_dst_proc_pctg_iowait;
+static int      hf_pie_ntop_rtp_dtmf_tones;
+static int      hf_pie_ntop_untunneled_ipv6_src_addr;
+static int      hf_pie_ntop_untunneled_ipv6_dst_addr;
+static int      hf_pie_ntop_dns_response;
 
-static int      hf_pie_ntop_diameter_req_msg_type         = -1;
-static int      hf_pie_ntop_diameter_rsp_msg_type         = -1;
-static int      hf_pie_ntop_diameter_req_origin_host      = -1;
-static int      hf_pie_ntop_diameter_rsp_origin_host      = -1;
-static int      hf_pie_ntop_diameter_req_user_name        = -1;
-static int      hf_pie_ntop_diameter_rsp_result_code      = -1;
-static int      hf_pie_ntop_diameter_exp_res_vendor_id    = -1;
-static int      hf_pie_ntop_diameter_exp_res_result_code  = -1;
+static int      hf_pie_ntop_diameter_req_msg_type;
+static int      hf_pie_ntop_diameter_rsp_msg_type;
+static int      hf_pie_ntop_diameter_req_origin_host;
+static int      hf_pie_ntop_diameter_rsp_origin_host;
+static int      hf_pie_ntop_diameter_req_user_name;
+static int      hf_pie_ntop_diameter_rsp_result_code;
+static int      hf_pie_ntop_diameter_exp_res_vendor_id;
+static int      hf_pie_ntop_diameter_exp_res_result_code;
 
-static int      hf_pie_ntop_s1ap_enb_ue_s1ap_id             = -1;
-static int      hf_pie_ntop_s1ap_mme_ue_s1ap_id             = -1;
-static int      hf_pie_ntop_s1ap_msg_emm_type_mme_to_enb    = -1;
-static int      hf_pie_ntop_s1ap_msg_esm_type_mme_to_enb    = -1;
-static int      hf_pie_ntop_s1ap_msg_emm_type_enb_to_mme    = -1;
-static int      hf_pie_ntop_s1ap_msg_esm_type_enb_to_mme    = -1;
-static int      hf_pie_ntop_s1ap_cause_enb_to_mme           = -1;
-static int      hf_pie_ntop_s1ap_detailed_cause_enb_to_mme  = -1;
+static int      hf_pie_ntop_s1ap_enb_ue_s1ap_id;
+static int      hf_pie_ntop_s1ap_mme_ue_s1ap_id;
+static int      hf_pie_ntop_s1ap_msg_emm_type_mme_to_enb;
+static int      hf_pie_ntop_s1ap_msg_esm_type_mme_to_enb;
+static int      hf_pie_ntop_s1ap_msg_emm_type_enb_to_mme;
+static int      hf_pie_ntop_s1ap_msg_esm_type_enb_to_mme;
+static int      hf_pie_ntop_s1ap_cause_enb_to_mme;
+static int      hf_pie_ntop_s1ap_detailed_cause_enb_to_mme;
 
-static int      hf_pie_ntop_tcp_win_min_in             = -1;
-static int      hf_pie_ntop_tcp_win_max_in             = -1;
-static int      hf_pie_ntop_tcp_win_mss_in             = -1;
-static int      hf_pie_ntop_tcp_win_scale_in           = -1;
-static int      hf_pie_ntop_tcp_win_min_out            = -1;
-static int      hf_pie_ntop_tcp_win_max_out            = -1;
-static int      hf_pie_ntop_tcp_win_mss_out            = -1;
-static int      hf_pie_ntop_tcp_win_scale_out          = -1;
-static int      hf_pie_ntop_dhcp_remote_id             = -1;
-static int      hf_pie_ntop_dhcp_subscriber_id         = -1;
-static int      hf_pie_ntop_src_proc_uid               = -1;
-static int      hf_pie_ntop_dst_proc_uid               = -1;
-static int      hf_pie_ntop_application_name           = -1;
-static int      hf_pie_ntop_user_name                  = -1;
-static int      hf_pie_ntop_dhcp_message_type          = -1;
-static int      hf_pie_ntop_rtp_in_pkt_drop            = -1;
-static int      hf_pie_ntop_rtp_out_pkt_drop           = -1;
-static int      hf_pie_ntop_rtp_out_mos                = -1;
-static int      hf_pie_ntop_rtp_out_r_factor           = -1;
-static int      hf_pie_ntop_rtp_mos                    = -1;
-static int      hf_pie_ntop_gptv2_s5_s8_gtpc_teid      = -1;
-static int      hf_pie_ntop_rtp_r_factor               = -1;
-static int      hf_pie_ntop_rtp_ssrc                   = -1;
-static int      hf_pie_ntop_payload_hash               = -1;
-static int      hf_pie_ntop_gtpv2_c2s_s5_s8_gtpu_teid  = -1;
-static int      hf_pie_ntop_gtpv2_s2c_s5_s8_gtpu_teid  = -1;
-static int      hf_pie_ntop_gtpv2_c2s_s5_s8_gtpu_ip    = -1;
-static int      hf_pie_ntop_gtpv2_s2c_s5_s8_gtpu_ip    = -1;
-static int      hf_pie_ntop_src_as_map                 = -1;
-static int      hf_pie_ntop_dst_as_map                 = -1;
-static int      hf_pie_ntop_diameter_hop_by_hop_id     = -1;
-static int      hf_pie_ntop_upstream_session_id        = -1;
-static int      hf_pie_ntop_downstream_session_id      = -1;
-static int      hf_pie_ntop_src_ip_long                = -1;
-static int      hf_pie_ntop_src_ip_lat                 = -1;
-static int      hf_pie_ntop_dst_ip_long                = -1;
-static int      hf_pie_ntop_dst_ip_lat                 = -1;
+static int      hf_pie_ntop_tcp_win_min_in;
+static int      hf_pie_ntop_tcp_win_max_in;
+static int      hf_pie_ntop_tcp_win_mss_in;
+static int      hf_pie_ntop_tcp_win_scale_in;
+static int      hf_pie_ntop_tcp_win_min_out;
+static int      hf_pie_ntop_tcp_win_max_out;
+static int      hf_pie_ntop_tcp_win_mss_out;
+static int      hf_pie_ntop_tcp_win_scale_out;
+static int      hf_pie_ntop_dhcp_remote_id;
+static int      hf_pie_ntop_dhcp_subscriber_id;
+static int      hf_pie_ntop_src_proc_uid;
+static int      hf_pie_ntop_dst_proc_uid;
+static int      hf_pie_ntop_application_name;
+static int      hf_pie_ntop_user_name;
+static int      hf_pie_ntop_dhcp_message_type;
+static int      hf_pie_ntop_rtp_in_pkt_drop;
+static int      hf_pie_ntop_rtp_out_pkt_drop;
+static int      hf_pie_ntop_rtp_out_mos;
+static int      hf_pie_ntop_rtp_out_r_factor;
+static int      hf_pie_ntop_rtp_mos;
+static int      hf_pie_ntop_gptv2_s5_s8_gtpc_teid;
+static int      hf_pie_ntop_rtp_r_factor;
+static int      hf_pie_ntop_rtp_ssrc;
+static int      hf_pie_ntop_payload_hash;
+static int      hf_pie_ntop_gtpv2_c2s_s5_s8_gtpu_teid;
+static int      hf_pie_ntop_gtpv2_s2c_s5_s8_gtpu_teid;
+static int      hf_pie_ntop_gtpv2_c2s_s5_s8_gtpu_ip;
+static int      hf_pie_ntop_gtpv2_s2c_s5_s8_gtpu_ip;
+static int      hf_pie_ntop_src_as_map;
+static int      hf_pie_ntop_dst_as_map;
+static int      hf_pie_ntop_diameter_hop_by_hop_id;
+static int      hf_pie_ntop_upstream_session_id;
+static int      hf_pie_ntop_downstream_session_id;
+static int      hf_pie_ntop_src_ip_long;
+static int      hf_pie_ntop_src_ip_lat;
+static int      hf_pie_ntop_dst_ip_long;
+static int      hf_pie_ntop_dst_ip_lat;
 
-static int      hf_pie_ntop_diameter_clr_cancel_type        = -1;
-static int      hf_pie_ntop_diameter_clr_flags              = -1;
-static int      hf_pie_ntop_gtpv2_c2s_s5_s8_gtpc_ip         = -1;
-static int      hf_pie_ntop_gtpv2_s2c_s5_s8_gtpc_ip         = -1;
-static int      hf_pie_ntop_gtpv2_c2s_s5_s8_sgw_gtpu_teid   = -1;
-static int      hf_pie_ntop_gtpv2_s2c_s5_s8_sgw_gtpu_teid   = -1;
-static int      hf_pie_ntop_gtpv2_c2s_s5_s8_sgw_gtpu_ip     = -1;
-static int      hf_pie_ntop_gtpv2_s2c_s5_s8_sgw_gtpu_ip     = -1;
+static int      hf_pie_ntop_diameter_clr_cancel_type;
+static int      hf_pie_ntop_diameter_clr_flags;
+static int      hf_pie_ntop_gtpv2_c2s_s5_s8_gtpc_ip;
+static int      hf_pie_ntop_gtpv2_s2c_s5_s8_gtpc_ip;
+static int      hf_pie_ntop_gtpv2_c2s_s5_s8_sgw_gtpu_teid;
+static int      hf_pie_ntop_gtpv2_s2c_s5_s8_sgw_gtpu_teid;
+static int      hf_pie_ntop_gtpv2_c2s_s5_s8_sgw_gtpu_ip;
+static int      hf_pie_ntop_gtpv2_s2c_s5_s8_sgw_gtpu_ip;
 
-static int      hf_pie_ntop_http_x_forwarded_for       = -1;
-static int      hf_pie_ntop_http_via                   = -1;
-static int      hf_pie_ntop_ssdp_host                  = -1;
-static int      hf_pie_ntop_ssdp_usn                   = -1;
-static int      hf_pie_ntop_netbios_query_name         = -1;
-static int      hf_pie_ntop_netbios_query_type         = -1;
-static int      hf_pie_ntop_netbios_response           = -1;
-static int      hf_pie_ntop_netbios_query_os           = -1;
-static int      hf_pie_ntop_ssdp_server                = -1;
-static int      hf_pie_ntop_ssdp_type                  = -1;
-static int      hf_pie_ntop_ssdp_method                = -1;
-static int      hf_pie_ntop_nprobe_ipv4_address        = -1;
+static int      hf_pie_ntop_http_x_forwarded_for;
+static int      hf_pie_ntop_http_via;
+static int      hf_pie_ntop_ssdp_host;
+static int      hf_pie_ntop_ssdp_usn;
+static int      hf_pie_ntop_netbios_query_name;
+static int      hf_pie_ntop_netbios_query_type;
+static int      hf_pie_ntop_netbios_response;
+static int      hf_pie_ntop_netbios_query_os;
+static int      hf_pie_ntop_ssdp_server;
+static int      hf_pie_ntop_ssdp_type;
+static int      hf_pie_ntop_ssdp_method;
+static int      hf_pie_ntop_nprobe_ipv4_address;
 
-static int      hf_pie_plixer                         = -1;
-static int      hf_pie_plixer_client_ip_v4            = -1;
-static int      hf_pie_plixer_client_hostname         = -1;     /* string */
-static int      hf_pie_plixer_partner_name            = -1;     /* string */
-static int      hf_pie_plixer_server_hostname         = -1;     /* string */
-static int      hf_pie_plixer_server_ip_v4            = -1;
-static int      hf_pie_plixer_recipient_address       = -1;     /* string */
-static int      hf_pie_plixer_event_id                = -1;
-static int      hf_pie_plixer_msgid                   = -1;     /* string */
+static int      hf_pie_plixer;
+static int      hf_pie_plixer_client_ip_v4;
+static int      hf_pie_plixer_client_hostname;     /* string */
+static int      hf_pie_plixer_partner_name;     /* string */
+static int      hf_pie_plixer_server_hostname;     /* string */
+static int      hf_pie_plixer_server_ip_v4;
+static int      hf_pie_plixer_recipient_address;     /* string */
+static int      hf_pie_plixer_event_id;
+static int      hf_pie_plixer_msgid;     /* string */
 
-static int      hf_pie_plixer_priority                = -1;
-static int      hf_pie_plixer_recipient_report_status = -1;
-static int      hf_pie_plixer_number_recipients       = -1;
-static int      hf_pie_plixer_origination_time        = -1;
-static int      hf_pie_plixer_encryption              = -1;     /* string */
-static int      hf_pie_plixer_service_version         = -1;     /* string */
-static int      hf_pie_plixer_linked_msgid            = -1;     /* string */
-static int      hf_pie_plixer_message_subject         = -1;     /* string */
-static int      hf_pie_plixer_sender_address          = -1;     /* string */
-static int      hf_pie_plixer_date_time               = -1;
+static int      hf_pie_plixer_priority;
+static int      hf_pie_plixer_recipient_report_status;
+static int      hf_pie_plixer_number_recipients;
+static int      hf_pie_plixer_origination_time;
+static int      hf_pie_plixer_encryption;     /* string */
+static int      hf_pie_plixer_service_version;     /* string */
+static int      hf_pie_plixer_linked_msgid;     /* string */
+static int      hf_pie_plixer_message_subject;     /* string */
+static int      hf_pie_plixer_sender_address;     /* string */
+static int      hf_pie_plixer_date_time;
 
-static int      hf_pie_ixia                             = -1;
-static int      hf_pie_ixia_l7_application_id           = -1;
-static int      hf_pie_ixia_l7_application_name         = -1;
-static int      hf_pie_ixia_source_ip_country_code      = -1;
-static int      hf_pie_ixia_source_ip_country_name      = -1;
-static int      hf_pie_ixia_source_ip_region_code       = -1;
-static int      hf_pie_ixia_source_ip_region_name       = -1;
-static int      hf_pie_ixia_source_ip_city_name         = -1;
-static int      hf_pie_ixia_source_ip_latitude          = -1;
-static int      hf_pie_ixia_source_ip_longitude         = -1;
-static int      hf_pie_ixia_destination_ip_country_code = -1;
-static int      hf_pie_ixia_destination_ip_country_name = -1;
-static int      hf_pie_ixia_destination_ip_region_code  = -1;
-static int      hf_pie_ixia_destination_ip_region_name  = -1;
-static int      hf_pie_ixia_destination_ip_city_name    = -1;
-static int      hf_pie_ixia_destination_ip_latitude     = -1;
-static int      hf_pie_ixia_destination_ip_longitude    = -1;
-static int      hf_pie_ixia_os_device_id                = -1;
-static int      hf_pie_ixia_os_device_name              = -1;
-static int      hf_pie_ixia_browser_id                  = -1;
-static int      hf_pie_ixia_browser_name                = -1;
-static int      hf_pie_ixia_reverse_octet_delta_count   = -1;
-static int      hf_pie_ixia_reverse_packet_delta_count  = -1;
-static int      hf_pie_ixia_conn_encryption_type        = -1;
-static int      hf_pie_ixia_encryption_cipher           = -1;
-static int      hf_pie_ixia_encryption_keylen           = -1;
-static int      hf_pie_ixia_imsi                        = -1;
-static int      hf_pie_ixia_user_agent                  = -1;
-static int      hf_pie_ixia_host_name                   = -1;
-static int      hf_pie_ixia_uri                         = -1;
-static int      hf_pie_ixia_dns_txt                     = -1;
-static int      hf_pie_ixia_source_as_name              = -1;
-static int      hf_pie_ixia_dest_as_name                = -1;
-static int      hf_pie_ixia_transaction_latency         = -1;
-static int      hf_pie_ixia_dns_query_names             = -1;
-static int      hf_pie_ixia_dns_answer_names            = -1;
-static int      hf_pie_ixia_dns_classes                 = -1;
-static int      hf_pie_ixia_threat_type                 = -1;
-static int      hf_pie_ixia_threat_ipv4                 = -1;
-static int      hf_pie_ixia_threat_ipv6                 = -1;
-static int      hf_pie_ixia_http_session                = -1;
-static int      hf_pie_ixia_request_time                = -1;
-static int      hf_pie_ixia_http_connection             = -1;
-static int      hf_pie_ixia_http_accept                 = -1;
-static int      hf_pie_ixia_http_accept_language        = -1;
-static int      hf_pie_ixia_http_accept_encoding        = -1;
-static int      hf_pie_ixia_http_reason                 = -1;
-static int      hf_pie_ixia_http_server                 = -1;
-static int      hf_pie_ixia_http_content_length         = -1;
-static int      hf_pie_ixia_http_referer                = -1;
-static int      hf_pie_ixia_http_useragent_cpu          = -1;
-static int      hf_pie_ixia_dns_records                 = -1;
-static int      hf_pie_ixia_dns_name                    = -1;
-static int      hf_pie_ixia_dns_ipv4                    = -1;
-static int      hf_pie_ixia_dns_ipv6                    = -1;
-static int      hf_pie_ixia_dns_packets                 = -1;
-static int      hf_pie_ixia_dns_transaction_id          = -1;
-static int      hf_pie_ixia_dns_opcode                  = -1;
-static int      hf_pie_ixia_dns_request_type            = -1;
-static int      hf_pie_ixia_dns_response_code           = -1;
-static int      hf_pie_ixia_dns_record_ttl              = -1;
-static int      hf_pie_ixia_dns_raw_rdata               = -1;
-static int      hf_pie_ixia_dns_response_type           = -1;
-static int      hf_pie_ixia_dns_qdcount                 = -1;
-static int      hf_pie_ixia_dns_ancount                 = -1;
-static int      hf_pie_ixia_dns_nscount                 = -1;
-static int      hf_pie_ixia_dns_arcount                 = -1;
-static int      hf_pie_ixia_dns_auth_answer             = -1;
-static int      hf_pie_ixia_dns_trucation               = -1;
-static int      hf_pie_ixia_dns_recursion_desired       = -1;
-static int      hf_pie_ixia_dns_recursion_avail         = -1;
-static int      hf_pie_ixia_dns_rdata_len               = -1;
-static int      hf_pie_ixia_dns_questions               = -1;
-static int      hf_pie_ixia_dns_query_type              = -1;
-static int      hf_pie_ixia_dns_query_name              = -1;
-static int      hf_pie_ixia_dns_section_type            = -1;
-static int      hf_pie_ixia_dns_qr_flag                 = -1;
-static int      hf_pie_ixia_dns_canonical_name          = -1;
-static int      hf_pie_ixia_dns_mx_domain               = -1;
-static int      hf_pie_ixia_tls_sni                     = -1;
-static int      hf_pie_ixia_tls_srvr_cert               = -1;
-static int      hf_pie_ixia_tls_srvr_cert_issuer        = -1;
-static int      hf_pie_ixia_tls_srvr_cert_issuer_attr   = -1;
-static int      hf_pie_ixia_tls_srvr_cert_issuer_val    = -1;
-static int      hf_pie_ixia_tls_srvr_cert_subject       = -1;
-static int      hf_pie_ixia_tls_srvr_cert_subject_attr  = -1;
-static int      hf_pie_ixia_tls_srvr_cert_subject_val   = -1;
-static int      hf_pie_ixia_tls_srvr_cert_vld_nt_bfr    = -1;
-static int      hf_pie_ixia_tls_srvr_cert_vld_nt_aftr   = -1;
-static int      hf_pie_ixia_tls_srvr_cert_srl_num       = -1;
-static int      hf_pie_ixia_tls_srvr_cert_sign_algo     = -1;
-static int      hf_pie_ixia_tls_srvr_cert_subj_pki_algo = -1;
-static int      hf_pie_ixia_tls_srvr_cert_altnames      = -1;
-static int      hf_pie_ixia_tls_srvr_cert_altnames_attr = -1;
-static int      hf_pie_ixia_tls_srvr_cert_altnames_val  = -1;
-static int      hf_pie_ixia_dhcp_client_id              = -1;
-static int      hf_pie_ixia_dhcp_client_mac             = -1;
-static int      hf_pie_ixia_dhcp_messages               = -1;
-static int      hf_pie_ixia_dhcp_message_timestamp      = -1;
-static int      hf_pie_ixia_dhcp_message_type           = -1;
-static int      hf_pie_ixia_dhcp_lease_duration         = -1;
-static int      hf_pie_ixia_dhcp_servername             = -1;
-static int      hf_pie_ixia_dhcp_agent_circuit_id       = -1;
-static int      hf_pie_ixia_radius_events               = -1;
-static int      hf_pie_ixia_radius_timestamp            = -1;
-static int      hf_pie_ixia_radius_event_timestamp      = -1;
-static int      hf_pie_ixia_radius_username             = -1;
-static int      hf_pie_ixia_radius_nas_ipv4             = -1;
-static int      hf_pie_ixia_radius_service_type         = -1;
-static int      hf_pie_ixia_radius_framed_protocol      = -1;
-static int      hf_pie_ixia_radius_framed_ip            = -1;
-static int      hf_pie_ixia_radius_filter_id            = -1;
-static int      hf_pie_ixia_radius_reply_message        = -1;
-static int      hf_pie_ixia_radius_called_station_id    = -1;
-static int      hf_pie_ixia_radius_calling_station_id   = -1;
-static int      hf_pie_ixia_email_messages              = -1;
-static int      hf_pie_ixia_email_msg_id                = -1;
-static int      hf_pie_ixia_email_msg_date              = -1;
-static int      hf_pie_ixia_email_msg_subject           = -1;
-static int      hf_pie_ixia_email_msg_to                = -1;
-static int      hf_pie_ixia_email_msg_from              = -1;
-static int      hf_pie_ixia_email_msg_cc                = -1;
-static int      hf_pie_ixia_email_msg_bcc               = -1;
-static int      hf_pie_ixia_email_msg_attachments       = -1;
-static int      hf_pie_ixia_ja3_fingerprint_string      = -1;
-static int      hf_pie_ixia_tcp_conn_setup_time         = -1;
-static int      hf_pie_ixia_tcp_app_response_time       = -1;
-static int      hf_pie_ixia_tcp_retrans_pkt_count       = -1;
-static int      hf_pie_ixia_conn_avg_rtt                = -1;
-static int      hf_pie_ixia_udpAppResponseTime          = -1;
-static int      hf_pie_ixia_quicConnSetupTime           = -1;
-static int      hf_pie_ixia_quicConnRTT                 = -1;
-static int      hf_pie_ixia_quicAppResponseTime         = -1;
-static int      hf_pie_ixia_matchedFilterName           = -1;
-static int      hf_pie_ixia_gtp_IMSI                    = -1;
-static int      hf_pie_ixia_gtp_ULI_SAI_SAC             = -1;
-static int      hf_pie_ixia_gtp_ULI_RAI_RAC             = -1;
-static int      hf_pie_ixia_gtp_ULI_TAC                 = -1;
-static int      hf_pie_ixia_gtp_ULI_ECGI_E_NODEB_ID     = -1;
-static int      hf_pie_ixia_gtp_ULI_CELL_ID             = -1;
-static int      hf_pie_ixia_gtp_ULI_LAC                 = -1;
-static int      hf_pie_ixia_gtp_ULI_MCC                 = -1;
-static int      hf_pie_ixia_gtp_ULI_MNC                 = -1;
-static int      hf_pie_ixia_gtp_MSISDN                  = -1;
-static int      hf_pie_ixia_gtp_IMEI                    = -1;
-static int      hf_pie_ixia_gtp_RAT_type                = -1;
-static int      hf_pie_ixia_gtp_ep_gen                  = -1;
-static int      hf_pie_ixia_gtp_up_TEID                 = -1;
-static int      hf_pie_ixia_gtp_down_TEID               = -1;
-static int      hf_pie_ixia_gtp_up_ipv4_addr            = -1;
-static int      hf_pie_ixia_gtp_down_ipv4_addr          = -1;
-static int      hf_pie_ixia_gtp_up_ipv6_addr            = -1;
-static int      hf_pie_ixia_gtp_down_ipv6_addr          = -1;
-static int      hf_pie_ixia_gtp_up_QCI_QFI              = -1;
-static int      hf_pie_ixia_gtp_down_QCI_QFI            = -1;
-static int      hf_pie_ixia_gtp_up_APN_DNN              = -1;
-static int      hf_pie_ixia_gtp_down_APN_DNN            = -1;
-static int      hf_pie_ixia_gtp_NSSAI_SD                = -1;
-static int      hf_pie_ixia_gtp_NSSAI_SST               = -1;
-static int      hf_pie_ixia_gtp_5QI_up                  = -1;
-static int      hf_pie_ixia_gtp_5QI_down                = -1;
-static int      hf_pie_ixia_stun_response               = -1;
-static int      hf_pie_ixia_stun_reflexive_ta_ipv4      = -1;
-static int      hf_pie_ixia_stun_reflexive_ta_ipv6      = -1;
-static int      hf_pie_ixia_stun_reflexive_ta_port      = -1;
-static int      hf_pie_ixia_http_alt_svc                = -1;
-static int      hf_pie_ixia_unidirectional              = -1;
-static int      hf_pie_ixia_http_tls_server_rand        = -1;
-static int      hf_pie_ixia_http_tls_session_id         = -1;
-static int      hf_pie_ixia_sip_to                      = -1;
-static int      hf_pie_ixia_sip_from                    = -1;
-static int      hf_pie_ixia_sip_call_id                 = -1;
-static int      hf_pie_ixia_sip_content_type            = -1;
-static int      hf_pie_ixia_sip_route                   = -1;
-static int      hf_pie_ixia_sip_geolocation             = -1;
+static int      hf_pie_ixia;
+static int      hf_pie_ixia_l7_application_id;
+static int      hf_pie_ixia_l7_application_name;
+static int      hf_pie_ixia_source_ip_country_code;
+static int      hf_pie_ixia_source_ip_country_name;
+static int      hf_pie_ixia_source_ip_region_code;
+static int      hf_pie_ixia_source_ip_region_name;
+static int      hf_pie_ixia_source_ip_city_name;
+static int      hf_pie_ixia_source_ip_latitude;
+static int      hf_pie_ixia_source_ip_longitude;
+static int      hf_pie_ixia_destination_ip_country_code;
+static int      hf_pie_ixia_destination_ip_country_name;
+static int      hf_pie_ixia_destination_ip_region_code;
+static int      hf_pie_ixia_destination_ip_region_name;
+static int      hf_pie_ixia_destination_ip_city_name;
+static int      hf_pie_ixia_destination_ip_latitude;
+static int      hf_pie_ixia_destination_ip_longitude;
+static int      hf_pie_ixia_os_device_id;
+static int      hf_pie_ixia_os_device_name;
+static int      hf_pie_ixia_browser_id;
+static int      hf_pie_ixia_browser_name;
+static int      hf_pie_ixia_reverse_octet_delta_count;
+static int      hf_pie_ixia_reverse_packet_delta_count;
+static int      hf_pie_ixia_conn_encryption_type;
+static int      hf_pie_ixia_encryption_cipher;
+static int      hf_pie_ixia_encryption_keylen;
+static int      hf_pie_ixia_imsi;
+static int      hf_pie_ixia_user_agent;
+static int      hf_pie_ixia_host_name;
+static int      hf_pie_ixia_uri;
+static int      hf_pie_ixia_dns_txt;
+static int      hf_pie_ixia_source_as_name;
+static int      hf_pie_ixia_dest_as_name;
+static int      hf_pie_ixia_transaction_latency;
+static int      hf_pie_ixia_dns_query_names;
+static int      hf_pie_ixia_dns_answer_names;
+static int      hf_pie_ixia_dns_classes;
+static int      hf_pie_ixia_threat_type;
+static int      hf_pie_ixia_threat_ipv4;
+static int      hf_pie_ixia_threat_ipv6;
+static int      hf_pie_ixia_http_session;
+static int      hf_pie_ixia_request_time;
+static int      hf_pie_ixia_http_connection;
+static int      hf_pie_ixia_http_accept;
+static int      hf_pie_ixia_http_accept_language;
+static int      hf_pie_ixia_http_accept_encoding;
+static int      hf_pie_ixia_http_reason;
+static int      hf_pie_ixia_http_server;
+static int      hf_pie_ixia_http_content_length;
+static int      hf_pie_ixia_http_referer;
+static int      hf_pie_ixia_http_useragent_cpu;
+static int      hf_pie_ixia_dns_records;
+static int      hf_pie_ixia_dns_name;
+static int      hf_pie_ixia_dns_ipv4;
+static int      hf_pie_ixia_dns_ipv6;
+static int      hf_pie_ixia_dns_packets;
+static int      hf_pie_ixia_dns_transaction_id;
+static int      hf_pie_ixia_dns_opcode;
+static int      hf_pie_ixia_dns_request_type;
+static int      hf_pie_ixia_dns_response_code;
+static int      hf_pie_ixia_dns_record_ttl;
+static int      hf_pie_ixia_dns_raw_rdata;
+static int      hf_pie_ixia_dns_response_type;
+static int      hf_pie_ixia_dns_qdcount;
+static int      hf_pie_ixia_dns_ancount;
+static int      hf_pie_ixia_dns_nscount;
+static int      hf_pie_ixia_dns_arcount;
+static int      hf_pie_ixia_dns_auth_answer;
+static int      hf_pie_ixia_dns_trucation;
+static int      hf_pie_ixia_dns_recursion_desired;
+static int      hf_pie_ixia_dns_recursion_avail;
+static int      hf_pie_ixia_dns_rdata_len;
+static int      hf_pie_ixia_dns_questions;
+static int      hf_pie_ixia_dns_query_type;
+static int      hf_pie_ixia_dns_query_name;
+static int      hf_pie_ixia_dns_section_type;
+static int      hf_pie_ixia_dns_qr_flag;
+static int      hf_pie_ixia_dns_canonical_name;
+static int      hf_pie_ixia_dns_mx_domain;
+static int      hf_pie_ixia_tls_sni;
+static int      hf_pie_ixia_tls_srvr_cert;
+static int      hf_pie_ixia_tls_srvr_cert_issuer;
+static int      hf_pie_ixia_tls_srvr_cert_issuer_attr;
+static int      hf_pie_ixia_tls_srvr_cert_issuer_val;
+static int      hf_pie_ixia_tls_srvr_cert_subject;
+static int      hf_pie_ixia_tls_srvr_cert_subject_attr;
+static int      hf_pie_ixia_tls_srvr_cert_subject_val;
+static int      hf_pie_ixia_tls_srvr_cert_vld_nt_bfr;
+static int      hf_pie_ixia_tls_srvr_cert_vld_nt_aftr;
+static int      hf_pie_ixia_tls_srvr_cert_srl_num;
+static int      hf_pie_ixia_tls_srvr_cert_sign_algo;
+static int      hf_pie_ixia_tls_srvr_cert_subj_pki_algo;
+static int      hf_pie_ixia_tls_srvr_cert_altnames;
+static int      hf_pie_ixia_tls_srvr_cert_altnames_attr;
+static int      hf_pie_ixia_tls_srvr_cert_altnames_val;
+static int      hf_pie_ixia_dhcp_client_id;
+static int      hf_pie_ixia_dhcp_client_mac;
+static int      hf_pie_ixia_dhcp_messages;
+static int      hf_pie_ixia_dhcp_message_timestamp;
+static int      hf_pie_ixia_dhcp_message_type;
+static int      hf_pie_ixia_dhcp_lease_duration;
+static int      hf_pie_ixia_dhcp_servername;
+static int      hf_pie_ixia_dhcp_agent_circuit_id;
+static int      hf_pie_ixia_radius_events;
+static int      hf_pie_ixia_radius_timestamp;
+static int      hf_pie_ixia_radius_event_timestamp;
+static int      hf_pie_ixia_radius_username;
+static int      hf_pie_ixia_radius_nas_ipv4;
+static int      hf_pie_ixia_radius_service_type;
+static int      hf_pie_ixia_radius_framed_protocol;
+static int      hf_pie_ixia_radius_framed_ip;
+static int      hf_pie_ixia_radius_filter_id;
+static int      hf_pie_ixia_radius_reply_message;
+static int      hf_pie_ixia_radius_called_station_id;
+static int      hf_pie_ixia_radius_calling_station_id;
+static int      hf_pie_ixia_email_messages;
+static int      hf_pie_ixia_email_msg_id;
+static int      hf_pie_ixia_email_msg_date;
+static int      hf_pie_ixia_email_msg_subject;
+static int      hf_pie_ixia_email_msg_to;
+static int      hf_pie_ixia_email_msg_from;
+static int      hf_pie_ixia_email_msg_cc;
+static int      hf_pie_ixia_email_msg_bcc;
+static int      hf_pie_ixia_email_msg_attachments;
+static int      hf_pie_ixia_ja3_fingerprint_string;
+static int      hf_pie_ixia_tcp_conn_setup_time;
+static int      hf_pie_ixia_tcp_app_response_time;
+static int      hf_pie_ixia_tcp_retrans_pkt_count;
+static int      hf_pie_ixia_conn_avg_rtt;
+static int      hf_pie_ixia_udpAppResponseTime;
+static int      hf_pie_ixia_quicConnSetupTime;
+static int      hf_pie_ixia_quicConnRTT;
+static int      hf_pie_ixia_quicAppResponseTime;
+static int      hf_pie_ixia_matchedFilterName;
+static int      hf_pie_ixia_gtp_IMSI;
+static int      hf_pie_ixia_gtp_ULI_SAI_SAC;
+static int      hf_pie_ixia_gtp_ULI_RAI_RAC;
+static int      hf_pie_ixia_gtp_ULI_TAC;
+static int      hf_pie_ixia_gtp_ULI_ECGI_E_NODEB_ID;
+static int      hf_pie_ixia_gtp_ULI_CELL_ID;
+static int      hf_pie_ixia_gtp_ULI_LAC;
+static int      hf_pie_ixia_gtp_ULI_MCC;
+static int      hf_pie_ixia_gtp_ULI_MNC;
+static int      hf_pie_ixia_gtp_MSISDN;
+static int      hf_pie_ixia_gtp_IMEI;
+static int      hf_pie_ixia_gtp_RAT_type;
+static int      hf_pie_ixia_gtp_ep_gen;
+static int      hf_pie_ixia_gtp_up_TEID;
+static int      hf_pie_ixia_gtp_down_TEID;
+static int      hf_pie_ixia_gtp_up_ipv4_addr;
+static int      hf_pie_ixia_gtp_down_ipv4_addr;
+static int      hf_pie_ixia_gtp_up_ipv6_addr;
+static int      hf_pie_ixia_gtp_down_ipv6_addr;
+static int      hf_pie_ixia_gtp_up_QCI_QFI;
+static int      hf_pie_ixia_gtp_down_QCI_QFI;
+static int      hf_pie_ixia_gtp_up_APN_DNN;
+static int      hf_pie_ixia_gtp_down_APN_DNN;
+static int      hf_pie_ixia_gtp_NSSAI_SD;
+static int      hf_pie_ixia_gtp_NSSAI_SST;
+static int      hf_pie_ixia_gtp_5QI_up;
+static int      hf_pie_ixia_gtp_5QI_down;
+static int      hf_pie_ixia_stun_response;
+static int      hf_pie_ixia_stun_reflexive_ta_ipv4;
+static int      hf_pie_ixia_stun_reflexive_ta_ipv6;
+static int      hf_pie_ixia_stun_reflexive_ta_port;
+static int      hf_pie_ixia_http_alt_svc;
+static int      hf_pie_ixia_unidirectional;
+static int      hf_pie_ixia_http_tls_server_rand;
+static int      hf_pie_ixia_http_tls_session_id;
+static int      hf_pie_ixia_sip_to;
+static int      hf_pie_ixia_sip_from;
+static int      hf_pie_ixia_sip_call_id;
+static int      hf_pie_ixia_sip_content_type;
+static int      hf_pie_ixia_sip_route;
+static int      hf_pie_ixia_sip_geolocation;
 
-static int      hf_pie_netscaler                                         = -1;
-static int      hf_pie_netscaler_roundtriptime                           = -1;
-static int      hf_pie_netscaler_transactionid                           = -1;
-static int      hf_pie_netscaler_httprequrl                              = -1;
-static int      hf_pie_netscaler_httpreqcookie                           = -1;
-static int      hf_pie_netscaler_flowflags                               = -1;
-static int      hf_pie_netscaler_connectionid                            = -1;
-static int      hf_pie_netscaler_syslogpriority                          = -1;
-static int      hf_pie_netscaler_syslogmessage                           = -1;
-static int      hf_pie_netscaler_syslogtimestamp                         = -1;
-static int      hf_pie_netscaler_httpreqreferer                          = -1;
-static int      hf_pie_netscaler_httpreqmethod                           = -1;
-static int      hf_pie_netscaler_httpreqhost                             = -1;
-static int      hf_pie_netscaler_httprequseragent                        = -1;
-static int      hf_pie_netscaler_httprspstatus                           = -1;
-static int      hf_pie_netscaler_httprsplen                              = -1;
-static int      hf_pie_netscaler_serverttfb                              = -1;
-static int      hf_pie_netscaler_serverttlb                              = -1;
-static int      hf_pie_netscaler_appnameincarnationnumber                = -1;
-static int      hf_pie_netscaler_appnameappid                            = -1;
-static int      hf_pie_netscaler_appname                                 = -1;
-static int      hf_pie_netscaler_httpreqrcvfb                            = -1;
-static int      hf_pie_netscaler_httpreqforwfb                           = -1;
-static int      hf_pie_netscaler_httpresrcvfb                            = -1;
-static int      hf_pie_netscaler_httpresforwfb                           = -1;
-static int      hf_pie_netscaler_httpreqrcvlb                            = -1;
-static int      hf_pie_netscaler_httpreqforwlb                           = -1;
-static int      hf_pie_netscaler_mainpageid                              = -1;
-static int      hf_pie_netscaler_mainpagecoreid                          = -1;
-static int      hf_pie_netscaler_httpclientinteractionstarttime          = -1;
-static int      hf_pie_netscaler_httpclientrenderendtime                 = -1;
-static int      hf_pie_netscaler_httpclientrenderstarttime               = -1;
-static int      hf_pie_netscaler_apptemplatename                         = -1;
-static int      hf_pie_netscaler_httpclientinteractionendtime            = -1;
-static int      hf_pie_netscaler_httpresrcvlb                            = -1;
-static int      hf_pie_netscaler_httpresforwlb                           = -1;
-static int      hf_pie_netscaler_appunitnameappid                        = -1;
-static int      hf_pie_netscaler_dbloginflags                            = -1;
-static int      hf_pie_netscaler_dbreqtype                               = -1;
-static int      hf_pie_netscaler_dbprotocolname                          = -1;
-static int      hf_pie_netscaler_dbusername                              = -1;
-static int      hf_pie_netscaler_dbdatabasename                          = -1;
-static int      hf_pie_netscaler_dbclthostname                           = -1;
-static int      hf_pie_netscaler_dbreqstring                             = -1;
-static int      hf_pie_netscaler_dbrespstatusstring                      = -1;
-static int      hf_pie_netscaler_dbrespstatus                            = -1;
-static int      hf_pie_netscaler_dbresplength                            = -1;
-static int      hf_pie_netscaler_clientrtt                               = -1;
-static int      hf_pie_netscaler_httpcontenttype                         = -1;
-static int      hf_pie_netscaler_httpreqauthorization                    = -1;
-static int      hf_pie_netscaler_httpreqvia                              = -1;
-static int      hf_pie_netscaler_httpreslocation                         = -1;
-static int      hf_pie_netscaler_httpressetcookie                        = -1;
-static int      hf_pie_netscaler_httpressetcookie2                       = -1;
-static int      hf_pie_netscaler_httpreqxforwardedfor                    = -1;
-static int      hf_pie_netscaler_connectionchainid                       = -1;
-static int      hf_pie_netscaler_connectionchainhopcount                 = -1;
-static int      hf_pie_netscaler_icasessionguid                          = -1;
-static int      hf_pie_netscaler_icaclientversion                        = -1;
-static int      hf_pie_netscaler_icaclienttype                           = -1;
-static int      hf_pie_netscaler_icaclientip                             = -1;
-static int      hf_pie_netscaler_icaclienthostname                       = -1;
-static int      hf_pie_netscaler_aaausername                             = -1;
-static int      hf_pie_netscaler_icadomainname                           = -1;
-static int      hf_pie_netscaler_icaclientlauncher                       = -1;
-static int      hf_pie_netscaler_icasessionsetuptime                     = -1;
-static int      hf_pie_netscaler_icaservername                           = -1;
-static int      hf_pie_netscaler_icasessionreconnects                    = -1;
-static int      hf_pie_netscaler_icartt                                  = -1;
-static int      hf_pie_netscaler_icaclientsiderxbytes                    = -1;
-static int      hf_pie_netscaler_icaclientsidetxbytes                    = -1;
-static int      hf_pie_netscaler_icaclientsidepacketsretransmit          = -1;
-static int      hf_pie_netscaler_icaserversidepacketsretransmit          = -1;
-static int      hf_pie_netscaler_icaclientsidertt                        = -1;
-static int      hf_pie_netscaler_icaserversidertt                        = -1;
-static int      hf_pie_netscaler_icasessionupdatebeginsec                = -1;
-static int      hf_pie_netscaler_icasessionupdateendsec                  = -1;
-static int      hf_pie_netscaler_icachannelid1                           = -1;
-static int      hf_pie_netscaler_icachannelid1bytes                      = -1;
-static int      hf_pie_netscaler_icachannelid2                           = -1;
-static int      hf_pie_netscaler_icachannelid2bytes                      = -1;
-static int      hf_pie_netscaler_icachannelid3                           = -1;
-static int      hf_pie_netscaler_icachannelid3bytes                      = -1;
-static int      hf_pie_netscaler_icachannelid4                           = -1;
-static int      hf_pie_netscaler_icachannelid4bytes                      = -1;
-static int      hf_pie_netscaler_icachannelid5                           = -1;
-static int      hf_pie_netscaler_icachannelid5bytes                      = -1;
-static int      hf_pie_netscaler_icaconnectionpriority                   = -1;
-static int      hf_pie_netscaler_applicationstartupduration              = -1;
-static int      hf_pie_netscaler_icalaunchmechanism                      = -1;
-static int      hf_pie_netscaler_icaapplicationname                      = -1;
-static int      hf_pie_netscaler_applicationstartuptime                  = -1;
-static int      hf_pie_netscaler_icaapplicationterminationtype           = -1;
-static int      hf_pie_netscaler_icaapplicationterminationtime           = -1;
-static int      hf_pie_netscaler_icasessionendtime                       = -1;
-static int      hf_pie_netscaler_icaclientsidejitter                     = -1;
-static int      hf_pie_netscaler_icaserversidejitter                     = -1;
-static int      hf_pie_netscaler_icaappprocessid                         = -1;
-static int      hf_pie_netscaler_icaappmodulepath                        = -1;
-static int      hf_pie_netscaler_icadeviceserialno                       = -1;
-static int      hf_pie_netscaler_msiclientcookie                         = -1;
-static int      hf_pie_netscaler_icaflags                                = -1;
-static int      hf_pie_netscaler_icausername                             = -1;
-static int      hf_pie_netscaler_licensetype                             = -1;
-static int      hf_pie_netscaler_maxlicensecount                         = -1;
-static int      hf_pie_netscaler_currentlicenseconsumed                  = -1;
-static int      hf_pie_netscaler_icanetworkupdatestarttime               = -1;
-static int      hf_pie_netscaler_icanetworkupdateendtime                 = -1;
-static int      hf_pie_netscaler_icaclientsidesrtt                       = -1;
-static int      hf_pie_netscaler_icaserversidesrtt                       = -1;
-static int      hf_pie_netscaler_icaclientsidedelay                      = -1;
-static int      hf_pie_netscaler_icaserversidedelay                      = -1;
-static int      hf_pie_netscaler_icahostdelay                            = -1;
-static int      hf_pie_netscaler_icaclientsidewindowsize                 = -1;
-static int      hf_pie_netscaler_icaserversidewindowsize                 = -1;
-static int      hf_pie_netscaler_icaclientsidertocount                   = -1;
-static int      hf_pie_netscaler_icaserversidertocount                   = -1;
-static int      hf_pie_netscaler_ical7clientlatency                      = -1;
-static int      hf_pie_netscaler_ical7serverlatency                      = -1;
-static int      hf_pie_netscaler_httpdomainname                          = -1;
-static int      hf_pie_netscaler_cacheredirclientconnectioncoreid        = -1;
-static int      hf_pie_netscaler_cacheredirclientconnectiontransactionid = -1;
+static int      hf_pie_netscaler;
+static int      hf_pie_netscaler_roundtriptime;
+static int      hf_pie_netscaler_transactionid;
+static int      hf_pie_netscaler_httprequrl;
+static int      hf_pie_netscaler_httpreqcookie;
+static int      hf_pie_netscaler_flowflags;
+static int      hf_pie_netscaler_connectionid;
+static int      hf_pie_netscaler_syslogpriority;
+static int      hf_pie_netscaler_syslogmessage;
+static int      hf_pie_netscaler_syslogtimestamp;
+static int      hf_pie_netscaler_httpreqreferer;
+static int      hf_pie_netscaler_httpreqmethod;
+static int      hf_pie_netscaler_httpreqhost;
+static int      hf_pie_netscaler_httprequseragent;
+static int      hf_pie_netscaler_httprspstatus;
+static int      hf_pie_netscaler_httprsplen;
+static int      hf_pie_netscaler_serverttfb;
+static int      hf_pie_netscaler_serverttlb;
+static int      hf_pie_netscaler_appnameincarnationnumber;
+static int      hf_pie_netscaler_appnameappid;
+static int      hf_pie_netscaler_appname;
+static int      hf_pie_netscaler_httpreqrcvfb;
+static int      hf_pie_netscaler_httpreqforwfb;
+static int      hf_pie_netscaler_httpresrcvfb;
+static int      hf_pie_netscaler_httpresforwfb;
+static int      hf_pie_netscaler_httpreqrcvlb;
+static int      hf_pie_netscaler_httpreqforwlb;
+static int      hf_pie_netscaler_mainpageid;
+static int      hf_pie_netscaler_mainpagecoreid;
+static int      hf_pie_netscaler_httpclientinteractionstarttime;
+static int      hf_pie_netscaler_httpclientrenderendtime;
+static int      hf_pie_netscaler_httpclientrenderstarttime;
+static int      hf_pie_netscaler_apptemplatename;
+static int      hf_pie_netscaler_httpclientinteractionendtime;
+static int      hf_pie_netscaler_httpresrcvlb;
+static int      hf_pie_netscaler_httpresforwlb;
+static int      hf_pie_netscaler_appunitnameappid;
+static int      hf_pie_netscaler_dbloginflags;
+static int      hf_pie_netscaler_dbreqtype;
+static int      hf_pie_netscaler_dbprotocolname;
+static int      hf_pie_netscaler_dbusername;
+static int      hf_pie_netscaler_dbdatabasename;
+static int      hf_pie_netscaler_dbclthostname;
+static int      hf_pie_netscaler_dbreqstring;
+static int      hf_pie_netscaler_dbrespstatusstring;
+static int      hf_pie_netscaler_dbrespstatus;
+static int      hf_pie_netscaler_dbresplength;
+static int      hf_pie_netscaler_clientrtt;
+static int      hf_pie_netscaler_httpcontenttype;
+static int      hf_pie_netscaler_httpreqauthorization;
+static int      hf_pie_netscaler_httpreqvia;
+static int      hf_pie_netscaler_httpreslocation;
+static int      hf_pie_netscaler_httpressetcookie;
+static int      hf_pie_netscaler_httpressetcookie2;
+static int      hf_pie_netscaler_httpreqxforwardedfor;
+static int      hf_pie_netscaler_connectionchainid;
+static int      hf_pie_netscaler_connectionchainhopcount;
+static int      hf_pie_netscaler_icasessionguid;
+static int      hf_pie_netscaler_icaclientversion;
+static int      hf_pie_netscaler_icaclienttype;
+static int      hf_pie_netscaler_icaclientip;
+static int      hf_pie_netscaler_icaclienthostname;
+static int      hf_pie_netscaler_aaausername;
+static int      hf_pie_netscaler_icadomainname;
+static int      hf_pie_netscaler_icaclientlauncher;
+static int      hf_pie_netscaler_icasessionsetuptime;
+static int      hf_pie_netscaler_icaservername;
+static int      hf_pie_netscaler_icasessionreconnects;
+static int      hf_pie_netscaler_icartt;
+static int      hf_pie_netscaler_icaclientsiderxbytes;
+static int      hf_pie_netscaler_icaclientsidetxbytes;
+static int      hf_pie_netscaler_icaclientsidepacketsretransmit;
+static int      hf_pie_netscaler_icaserversidepacketsretransmit;
+static int      hf_pie_netscaler_icaclientsidertt;
+static int      hf_pie_netscaler_icaserversidertt;
+static int      hf_pie_netscaler_icasessionupdatebeginsec;
+static int      hf_pie_netscaler_icasessionupdateendsec;
+static int      hf_pie_netscaler_icachannelid1;
+static int      hf_pie_netscaler_icachannelid1bytes;
+static int      hf_pie_netscaler_icachannelid2;
+static int      hf_pie_netscaler_icachannelid2bytes;
+static int      hf_pie_netscaler_icachannelid3;
+static int      hf_pie_netscaler_icachannelid3bytes;
+static int      hf_pie_netscaler_icachannelid4;
+static int      hf_pie_netscaler_icachannelid4bytes;
+static int      hf_pie_netscaler_icachannelid5;
+static int      hf_pie_netscaler_icachannelid5bytes;
+static int      hf_pie_netscaler_icaconnectionpriority;
+static int      hf_pie_netscaler_applicationstartupduration;
+static int      hf_pie_netscaler_icalaunchmechanism;
+static int      hf_pie_netscaler_icaapplicationname;
+static int      hf_pie_netscaler_applicationstartuptime;
+static int      hf_pie_netscaler_icaapplicationterminationtype;
+static int      hf_pie_netscaler_icaapplicationterminationtime;
+static int      hf_pie_netscaler_icasessionendtime;
+static int      hf_pie_netscaler_icaclientsidejitter;
+static int      hf_pie_netscaler_icaserversidejitter;
+static int      hf_pie_netscaler_icaappprocessid;
+static int      hf_pie_netscaler_icaappmodulepath;
+static int      hf_pie_netscaler_icadeviceserialno;
+static int      hf_pie_netscaler_msiclientcookie;
+static int      hf_pie_netscaler_icaflags;
+static int      hf_pie_netscaler_icausername;
+static int      hf_pie_netscaler_licensetype;
+static int      hf_pie_netscaler_maxlicensecount;
+static int      hf_pie_netscaler_currentlicenseconsumed;
+static int      hf_pie_netscaler_icanetworkupdatestarttime;
+static int      hf_pie_netscaler_icanetworkupdateendtime;
+static int      hf_pie_netscaler_icaclientsidesrtt;
+static int      hf_pie_netscaler_icaserversidesrtt;
+static int      hf_pie_netscaler_icaclientsidedelay;
+static int      hf_pie_netscaler_icaserversidedelay;
+static int      hf_pie_netscaler_icahostdelay;
+static int      hf_pie_netscaler_icaclientsidewindowsize;
+static int      hf_pie_netscaler_icaserversidewindowsize;
+static int      hf_pie_netscaler_icaclientsidertocount;
+static int      hf_pie_netscaler_icaserversidertocount;
+static int      hf_pie_netscaler_ical7clientlatency;
+static int      hf_pie_netscaler_ical7serverlatency;
+static int      hf_pie_netscaler_httpdomainname;
+static int      hf_pie_netscaler_cacheredirclientconnectioncoreid;
+static int      hf_pie_netscaler_cacheredirclientconnectiontransactionid;
 
 
-static int      hf_pie_barracuda                                         = -1;
-static int      hf_pie_barracuda_timestamp                               = -1;
-static int      hf_pie_barracuda_logop                                   = -1;
-static int      hf_pie_barracuda_traffictype                             = -1;
-static int      hf_pie_barracuda_fwrule                                  = -1;
-static int      hf_pie_barracuda_servicename                             = -1;
-static int      hf_pie_barracuda_reason                                  = -1;
-static int      hf_pie_barracuda_reasontext                              = -1;
-static int      hf_pie_barracuda_bindipv4address                         = -1;
-static int      hf_pie_barracuda_bindtransportport                       = -1;
-static int      hf_pie_barracuda_connipv4address                         = -1;
-static int      hf_pie_barracuda_conntransportport                       = -1;
-static int      hf_pie_barracuda_auditcounter                            = -1;
+static int      hf_pie_barracuda;
+static int      hf_pie_barracuda_timestamp;
+static int      hf_pie_barracuda_logop;
+static int      hf_pie_barracuda_traffictype;
+static int      hf_pie_barracuda_fwrule;
+static int      hf_pie_barracuda_servicename;
+static int      hf_pie_barracuda_reason;
+static int      hf_pie_barracuda_reasontext;
+static int      hf_pie_barracuda_bindipv4address;
+static int      hf_pie_barracuda_bindtransportport;
+static int      hf_pie_barracuda_connipv4address;
+static int      hf_pie_barracuda_conntransportport;
+static int      hf_pie_barracuda_auditcounter;
 
-static int      hf_pie_gigamon                                   = -1;
-static int      hf_pie_gigamon_httprequrl                        = -1;
-static int      hf_pie_gigamon_httprspstatus                     = -1;
-static int      hf_pie_gigamon_sslcertificateissuercommonname    = -1;
-static int      hf_pie_gigamon_sslcertificatesubjectcommonname   = -1;
-static int      hf_pie_gigamon_sslcertificateissuer              = -1;
-static int      hf_pie_gigamon_sslcertificatesubject             = -1;
-static int      hf_pie_gigamon_sslcertificatevalidnotbefore      = -1;
-static int      hf_pie_gigamon_sslcertificatevalidnotafter       = -1;
-static int      hf_pie_gigamon_sslcertificateserialnumber         = -1;
-static int      hf_pie_gigamon_sslcertificatesignaturealgorithm  = -1;
-static int      hf_pie_gigamon_sslcertificatesubjectpubalgorithm = -1;
-static int      hf_pie_gigamon_sslcertificatesubjectpubkeysize   = -1;
-static int      hf_pie_gigamon_sslcertificatesubjectaltname      = -1;
-static int      hf_pie_gigamon_sslservernameindication           = -1;
-static int      hf_pie_gigamon_sslserverversion                  = -1;
-static int      hf_pie_gigamon_sslservercipher                   = -1;
-static int      hf_pie_gigamon_sslservercompressionmethod        = -1;
-static int      hf_pie_gigamon_sslserversessionid                = -1;
-static int      hf_pie_gigamon_dnsidentifier                     = -1;
-static int      hf_pie_gigamon_dnsopcode                         = -1;
-static int      hf_pie_gigamon_dnsresponsecode                   = -1;
-static int      hf_pie_gigamon_dnsqueryname                      = -1;
-static int      hf_pie_gigamon_dnsresponsename                   = -1;
-static int      hf_pie_gigamon_dnsresponsettl                    = -1;
-static int      hf_pie_gigamon_dnsresponseipv4address            = -1;
-static int      hf_pie_gigamon_dnsresponseipv6address            = -1;
-static int      hf_pie_gigamon_dnsbits                           = -1;
-static int      hf_pie_gigamon_dnsqdcount                        = -1;
-static int      hf_pie_gigamon_dnsancount                        = -1;
-static int      hf_pie_gigamon_dnsnscount                        = -1;
-static int      hf_pie_gigamon_dnsarcount                        = -1;
-static int      hf_pie_gigamon_dnsquerytype                      = -1;
-static int      hf_pie_gigamon_dnsqueryclass                     = -1;
-static int      hf_pie_gigamon_dnsresponsetype                   = -1;
-static int      hf_pie_gigamon_dnsresponseclass                  = -1;
-static int      hf_pie_gigamon_dnsresponserdlength               = -1;
-static int      hf_pie_gigamon_dnsresponserdata                  = -1;
-static int      hf_pie_gigamon_dnsauthorityname                  = -1;
-static int      hf_pie_gigamon_dnsauthoritytype                  = -1;
-static int      hf_pie_gigamon_dnsauthorityclass                 = -1;
-static int      hf_pie_gigamon_dnsauthorityttl                   = -1;
-static int      hf_pie_gigamon_dnsauthorityrdlength              = -1;
-static int      hf_pie_gigamon_dnsauthorityrdata                 = -1;
-static int      hf_pie_gigamon_dnsadditionalname                 = -1;
-static int      hf_pie_gigamon_dnsadditionaltype                 = -1;
-static int      hf_pie_gigamon_dnsadditionalclass                = -1;
-static int      hf_pie_gigamon_dnsadditionalttl                  = -1;
-static int      hf_pie_gigamon_dnsadditionalrdlength             = -1;
-static int      hf_pie_gigamon_dnsadditionalrdata                = -1;
+static int      hf_pie_gigamon;
+static int      hf_pie_gigamon_httprequrl;
+static int      hf_pie_gigamon_httprspstatus;
+static int      hf_pie_gigamon_sslcertificateissuercommonname;
+static int      hf_pie_gigamon_sslcertificatesubjectcommonname;
+static int      hf_pie_gigamon_sslcertificateissuer;
+static int      hf_pie_gigamon_sslcertificatesubject;
+static int      hf_pie_gigamon_sslcertificatevalidnotbefore;
+static int      hf_pie_gigamon_sslcertificatevalidnotafter;
+static int      hf_pie_gigamon_sslcertificateserialnumber;
+static int      hf_pie_gigamon_sslcertificatesignaturealgorithm;
+static int      hf_pie_gigamon_sslcertificatesubjectpubalgorithm;
+static int      hf_pie_gigamon_sslcertificatesubjectpubkeysize;
+static int      hf_pie_gigamon_sslcertificatesubjectaltname;
+static int      hf_pie_gigamon_sslservernameindication;
+static int      hf_pie_gigamon_sslserverversion;
+static int      hf_pie_gigamon_sslservercipher;
+static int      hf_pie_gigamon_sslservercompressionmethod;
+static int      hf_pie_gigamon_sslserversessionid;
+static int      hf_pie_gigamon_dnsidentifier;
+static int      hf_pie_gigamon_dnsopcode;
+static int      hf_pie_gigamon_dnsresponsecode;
+static int      hf_pie_gigamon_dnsqueryname;
+static int      hf_pie_gigamon_dnsresponsename;
+static int      hf_pie_gigamon_dnsresponsettl;
+static int      hf_pie_gigamon_dnsresponseipv4address;
+static int      hf_pie_gigamon_dnsresponseipv6address;
+static int      hf_pie_gigamon_dnsbits;
+static int      hf_pie_gigamon_dnsqdcount;
+static int      hf_pie_gigamon_dnsancount;
+static int      hf_pie_gigamon_dnsnscount;
+static int      hf_pie_gigamon_dnsarcount;
+static int      hf_pie_gigamon_dnsquerytype;
+static int      hf_pie_gigamon_dnsqueryclass;
+static int      hf_pie_gigamon_dnsresponsetype;
+static int      hf_pie_gigamon_dnsresponseclass;
+static int      hf_pie_gigamon_dnsresponserdlength;
+static int      hf_pie_gigamon_dnsresponserdata;
+static int      hf_pie_gigamon_dnsauthorityname;
+static int      hf_pie_gigamon_dnsauthoritytype;
+static int      hf_pie_gigamon_dnsauthorityclass;
+static int      hf_pie_gigamon_dnsauthorityttl;
+static int      hf_pie_gigamon_dnsauthorityrdlength;
+static int      hf_pie_gigamon_dnsauthorityrdata;
+static int      hf_pie_gigamon_dnsadditionalname;
+static int      hf_pie_gigamon_dnsadditionaltype;
+static int      hf_pie_gigamon_dnsadditionalclass;
+static int      hf_pie_gigamon_dnsadditionalttl;
+static int      hf_pie_gigamon_dnsadditionalrdlength;
+static int      hf_pie_gigamon_dnsadditionalrdata;
 
-static int      hf_pie_cisco                                                     = -1;
-static int      hf_pie_cisco_transport_packets_lost_counter                      = -1;
-static int      hf_pie_cisco_transport_rtp_ssrc                                  = -1;
-static int      hf_pie_cisco_transport_rtp_jitter_maximum                        = -1;
-static int      hf_pie_cisco_transport_rtp_payload_type                          = -1;
-static int      hf_pie_cisco_transport_rtp_jitter_mean_sum                       = -1;
-static int      hf_pie_cisco_c3pl_class_cce_id                                   = -1;
-static int      hf_pie_cisco_c3pl_class_name                                     = -1;
-static int      hf_pie_cisco_c3pl_class_type                                     = -1;
-static int      hf_pie_cisco_c3pl_policy_cce_id                                  = -1;
-static int      hf_pie_cisco_c3pl_policy_name                                    = -1;
-static int      hf_pie_cisco_c3pl_policy_type                                    = -1;
-static int      hf_pie_cisco_connection_server_counter_responses                 = -1;
-static int      hf_pie_cisco_connection_client_counter_packets_retransmitted     = -1;
-static int      hf_pie_cisco_connection_transaction_counter_complete             = -1;
-static int      hf_pie_cisco_connection_transaction_duration_sum                 = -1;
-static int      hf_pie_cisco_connection_delay_response_to_server_histogram_late  = -1;
-static int      hf_pie_cisco_connection_delay_response_to_server_sum             = -1;
-static int      hf_pie_cisco_connection_delay_application_sum                    = -1;
-static int      hf_pie_cisco_connection_delay_application_max                    = -1;
-static int      hf_pie_cisco_connection_delay_response_client_to_server_sum      = -1;
-static int      hf_pie_cisco_connection_delay_network_client_to_server_sum       = -1;
-static int      hf_pie_cisco_connection_delay_network_to_client_sum              = -1;
-static int      hf_pie_cisco_connection_delay_network_to_server_sum              = -1;
-static int      hf_pie_cisco_services_waas_segment                               = -1;
-static int      hf_pie_cisco_services_waas_passthrough_reason                    = -1;
-static int      hf_pie_cisco_application_http_uri_statistics                     = -1;
-static int      hf_pie_cisco_application_http_uri_statistics_count               = -1;
-static int      hf_pie_cisco_application_category_name                           = -1;
-static int      hf_pie_cisco_application_sub_category_name                       = -1;
-static int      hf_pie_cisco_application_group_name                              = -1;
-static int      hf_pie_cisco_application_http_host                               = -1;
-static int      hf_pie_cisco_application_http_host_app_id                        = -1;
-static int      hf_pie_cisco_application_http_host_sub_app_id                    = -1;
-static int      hf_pie_cisco_connection_client_ipv4_address                      = -1;
-static int      hf_pie_cisco_connection_server_ipv4_address                      = -1;
-static int      hf_pie_cisco_connection_client_transport_port                    = -1;
-static int      hf_pie_cisco_connection_server_transport_port                    = -1;
-static int      hf_pie_cisco_connection_id                                       = -1;
-static int      hf_pie_cisco_application_traffic_class                           = -1;
-static int      hf_pie_cisco_application_business_relevance                      = -1;
+static int      hf_pie_cisco;
+static int      hf_pie_cisco_transport_packets_lost_counter;
+static int      hf_pie_cisco_transport_rtp_ssrc;
+static int      hf_pie_cisco_transport_rtp_jitter_maximum;
+static int      hf_pie_cisco_transport_rtp_payload_type;
+static int      hf_pie_cisco_transport_rtp_jitter_mean_sum;
+static int      hf_pie_cisco_c3pl_class_cce_id;
+static int      hf_pie_cisco_c3pl_class_name;
+static int      hf_pie_cisco_c3pl_class_type;
+static int      hf_pie_cisco_c3pl_policy_cce_id;
+static int      hf_pie_cisco_c3pl_policy_name;
+static int      hf_pie_cisco_c3pl_policy_type;
+static int      hf_pie_cisco_connection_server_counter_responses;
+static int      hf_pie_cisco_connection_client_counter_packets_retransmitted;
+static int      hf_pie_cisco_connection_transaction_counter_complete;
+static int      hf_pie_cisco_connection_transaction_duration_sum;
+static int      hf_pie_cisco_connection_delay_response_to_server_histogram_late;
+static int      hf_pie_cisco_connection_delay_response_to_server_sum;
+static int      hf_pie_cisco_connection_delay_application_sum;
+static int      hf_pie_cisco_connection_delay_application_max;
+static int      hf_pie_cisco_connection_delay_response_client_to_server_sum;
+static int      hf_pie_cisco_connection_delay_network_client_to_server_sum;
+static int      hf_pie_cisco_connection_delay_network_to_client_sum;
+static int      hf_pie_cisco_connection_delay_network_to_server_sum;
+static int      hf_pie_cisco_services_waas_segment;
+static int      hf_pie_cisco_services_waas_passthrough_reason;
+static int      hf_pie_cisco_application_http_uri_statistics;
+static int      hf_pie_cisco_application_http_uri_statistics_count;
+static int      hf_pie_cisco_application_category_name;
+static int      hf_pie_cisco_application_sub_category_name;
+static int      hf_pie_cisco_application_group_name;
+static int      hf_pie_cisco_application_http_host;
+static int      hf_pie_cisco_application_http_host_app_id;
+static int      hf_pie_cisco_application_http_host_sub_app_id;
+static int      hf_pie_cisco_connection_client_ipv4_address;
+static int      hf_pie_cisco_connection_server_ipv4_address;
+static int      hf_pie_cisco_connection_client_transport_port;
+static int      hf_pie_cisco_connection_server_transport_port;
+static int      hf_pie_cisco_connection_id;
+static int      hf_pie_cisco_application_traffic_class;
+static int      hf_pie_cisco_application_business_relevance;
 
-static int      hf_pie_niagara_networks                                             = -1;
-static int      hf_pie_niagara_networks_sslservernameindication                     = -1;
-static int      hf_pie_niagara_networks_sslserverversion                            = -1;
-static int      hf_pie_niagara_networks_sslserverversiontext                        = -1;
-static int      hf_pie_niagara_networks_sslservercipher                             = -1;
-static int      hf_pie_niagara_networks_sslserverciphertext                         = -1;
-static int      hf_pie_niagara_networks_sslconnectionencryptiontype                 = -1;
-static int      hf_pie_niagara_networks_sslservercompressionmethod                  = -1;
-static int      hf_pie_niagara_networks_sslserversessionid                          = -1;
-static int      hf_pie_niagara_networks_sslcertificateissuer                        = -1;
-static int      hf_pie_niagara_networks_sslcertificateissuername                    = -1;
-static int      hf_pie_niagara_networks_sslcertificatesubject                       = -1;
-static int      hf_pie_niagara_networks_sslcertificatesubjectname                   = -1;
-static int      hf_pie_niagara_networks_sslcertificatevalidnotbefore                = -1;
-static int      hf_pie_niagara_networks_sslcertificatevalidnotafter                 = -1;
-static int      hf_pie_niagara_networks_sslcertificateserialnumber                  = -1;
-static int      hf_pie_niagara_networks_sslcertificatesignaturealgorithm            = -1;
-static int      hf_pie_niagara_networks_sslcertificatesignaturealgorithmtext        = -1;
-static int      hf_pie_niagara_networks_sslcertificatesubjectpublickeysize          = -1;
-static int      hf_pie_niagara_networks_sslcertificatesubjectpublicalgorithm        = -1;
-static int      hf_pie_niagara_networks_sslcertificatesubjectpublicalgorithmtext    = -1;
-static int      hf_pie_niagara_networks_sslcertificatesubjectalgorithmtext          = -1;
-static int      hf_pie_niagara_networks_sslcertificatesubjectalternativename        = -1;
-static int      hf_pie_niagara_networks_sslcertificatesha1                          = -1;
-static int      hf_pie_niagara_networks_dnsidentifier                               = -1;
-static int      hf_pie_niagara_networks_dnsopcode                                   = -1;
-static int      hf_pie_niagara_networks_dnsresponsecode                             = -1;
-static int      hf_pie_niagara_networks_dnsqueryname                                = -1;
-static int      hf_pie_niagara_networks_dnsresponsename                             = -1;
-static int      hf_pie_niagara_networks_dnsresponsettl                              = -1;
-static int      hf_pie_niagara_networks_dnsresponseipv4addr                         = -1;
-static int      hf_pie_niagara_networks_dnsresponseipv4addrtext                     = -1;
-static int      hf_pie_niagara_networks_dnsresponseipv6addr                         = -1;
-static int      hf_pie_niagara_networks_dnsresponseipv6addrtext                     = -1;
-static int      hf_pie_niagara_networks_dnsbits                                     = -1;
-static int      hf_pie_niagara_networks_dnsqdcount                                  = -1;
-static int      hf_pie_niagara_networks_dnsancount                                  = -1;
-static int      hf_pie_niagara_networks_dnsnscount                                  = -1;
-static int      hf_pie_niagara_networks_dnsarcount                                  = -1;
-static int      hf_pie_niagara_networks_dnsquerytype                                = -1;
-static int      hf_pie_niagara_networks_dnsquerytypetext                            = -1;
-static int      hf_pie_niagara_networks_dnsqueryclass                               = -1;
-static int      hf_pie_niagara_networks_dnsqueryclasstext                           = -1;
-static int      hf_pie_niagara_networks_dnsresponsetype                             = -1;
-static int      hf_pie_niagara_networks_dnsresponsetypetext                         = -1;
-static int      hf_pie_niagara_networks_dnsresponseclass                            = -1;
-static int      hf_pie_niagara_networks_dnsresponseclasstext                        = -1;
-static int      hf_pie_niagara_networks_dnsresponserdlength                         = -1;
-static int      hf_pie_niagara_networks_dnsresponserdata                            = -1;
-static int      hf_pie_niagara_networks_dnsauthorityname                            = -1;
-static int      hf_pie_niagara_networks_dnsauthoritytype                            = -1;
-static int      hf_pie_niagara_networks_dnsauthoritytypetext                        = -1;
-static int      hf_pie_niagara_networks_dnsauthorityclass                           = -1;
-static int      hf_pie_niagara_networks_dnsauthorityclasstext                       = -1;
-static int      hf_pie_niagara_networks_dnsauthorityttl                             = -1;
-static int      hf_pie_niagara_networks_dnsauthorityrdlength                        = -1;
-static int      hf_pie_niagara_networks_dnsauthorityrdata                           = -1;
-static int      hf_pie_niagara_networks_dnsadditionalname                           = -1;
-static int      hf_pie_niagara_networks_dnsadditionaltype                           = -1;
-static int      hf_pie_niagara_networks_dnsadditionaltypetext                       = -1;
-static int      hf_pie_niagara_networks_dnsadditionalclass                          = -1;
-static int      hf_pie_niagara_networks_dnsadditionalclasstext                      = -1;
-static int      hf_pie_niagara_networks_dnsadditionalttl                            = -1;
-static int      hf_pie_niagara_networks_dnsadditionalrdlength                       = -1;
-static int      hf_pie_niagara_networks_dnsadditionalrdata                          = -1;
-static int      hf_pie_niagara_networks_radiuspackettypecode                        = -1;
-static int      hf_pie_niagara_networks_radiuspackettypecodetext                    = -1;
-static int      hf_pie_niagara_networks_radiuspacketidentifier                      = -1;
-static int      hf_pie_niagara_networks_radiusauthenticator                         = -1;
-static int      hf_pie_niagara_networks_radiususername                              = -1;
-static int      hf_pie_niagara_networks_radiuscallingstationid                      = -1;
-static int      hf_pie_niagara_networks_radiuscalledstationid                       = -1;
-static int      hf_pie_niagara_networks_radiusnasipaddress                          = -1;
-static int      hf_pie_niagara_networks_radiusnasipv6address                        = -1;
-static int      hf_pie_niagara_networks_radiusnasidentifier                         = -1;
-static int      hf_pie_niagara_networks_radiusframedipaddress                       = -1;
-static int      hf_pie_niagara_networks_radiusframedipv6address                     = -1;
-static int      hf_pie_niagara_networks_radiusacctsessionid                         = -1;
-static int      hf_pie_niagara_networks_radiusacctstatustype                        = -1;
-static int      hf_pie_niagara_networks_radiusacctinoctets                          = -1;
-static int      hf_pie_niagara_networks_radiusacctoutoctets                         = -1;
-static int      hf_pie_niagara_networks_radiusacctinpackets                         = -1;
-static int      hf_pie_niagara_networks_radiusacctoutpackets                        = -1;
-static int      hf_pie_niagara_networks_radiusvsavendorid                           = -1;
-static int      hf_pie_niagara_networks_radiusvsaname                               = -1;
-static int      hf_pie_niagara_networks_radiusvsaid                                 = -1;
-static int      hf_pie_niagara_networks_radiusvsavalue                              = -1;
+static int      hf_pie_niagara_networks;
+static int      hf_pie_niagara_networks_sslservernameindication;
+static int      hf_pie_niagara_networks_sslserverversion;
+static int      hf_pie_niagara_networks_sslserverversiontext;
+static int      hf_pie_niagara_networks_sslservercipher;
+static int      hf_pie_niagara_networks_sslserverciphertext;
+static int      hf_pie_niagara_networks_sslconnectionencryptiontype;
+static int      hf_pie_niagara_networks_sslservercompressionmethod;
+static int      hf_pie_niagara_networks_sslserversessionid;
+static int      hf_pie_niagara_networks_sslcertificateissuer;
+static int      hf_pie_niagara_networks_sslcertificateissuername;
+static int      hf_pie_niagara_networks_sslcertificatesubject;
+static int      hf_pie_niagara_networks_sslcertificatesubjectname;
+static int      hf_pie_niagara_networks_sslcertificatevalidnotbefore;
+static int      hf_pie_niagara_networks_sslcertificatevalidnotafter;
+static int      hf_pie_niagara_networks_sslcertificateserialnumber;
+static int      hf_pie_niagara_networks_sslcertificatesignaturealgorithm;
+static int      hf_pie_niagara_networks_sslcertificatesignaturealgorithmtext;
+static int      hf_pie_niagara_networks_sslcertificatesubjectpublickeysize;
+static int      hf_pie_niagara_networks_sslcertificatesubjectpublicalgorithm;
+static int      hf_pie_niagara_networks_sslcertificatesubjectpublicalgorithmtext;
+static int      hf_pie_niagara_networks_sslcertificatesubjectalgorithmtext;
+static int      hf_pie_niagara_networks_sslcertificatesubjectalternativename;
+static int      hf_pie_niagara_networks_sslcertificatesha1;
+static int      hf_pie_niagara_networks_dnsidentifier;
+static int      hf_pie_niagara_networks_dnsopcode;
+static int      hf_pie_niagara_networks_dnsresponsecode;
+static int      hf_pie_niagara_networks_dnsqueryname;
+static int      hf_pie_niagara_networks_dnsresponsename;
+static int      hf_pie_niagara_networks_dnsresponsettl;
+static int      hf_pie_niagara_networks_dnsresponseipv4addr;
+static int      hf_pie_niagara_networks_dnsresponseipv4addrtext;
+static int      hf_pie_niagara_networks_dnsresponseipv6addr;
+static int      hf_pie_niagara_networks_dnsresponseipv6addrtext;
+static int      hf_pie_niagara_networks_dnsbits;
+static int      hf_pie_niagara_networks_dnsqdcount;
+static int      hf_pie_niagara_networks_dnsancount;
+static int      hf_pie_niagara_networks_dnsnscount;
+static int      hf_pie_niagara_networks_dnsarcount;
+static int      hf_pie_niagara_networks_dnsquerytype;
+static int      hf_pie_niagara_networks_dnsquerytypetext;
+static int      hf_pie_niagara_networks_dnsqueryclass;
+static int      hf_pie_niagara_networks_dnsqueryclasstext;
+static int      hf_pie_niagara_networks_dnsresponsetype;
+static int      hf_pie_niagara_networks_dnsresponsetypetext;
+static int      hf_pie_niagara_networks_dnsresponseclass;
+static int      hf_pie_niagara_networks_dnsresponseclasstext;
+static int      hf_pie_niagara_networks_dnsresponserdlength;
+static int      hf_pie_niagara_networks_dnsresponserdata;
+static int      hf_pie_niagara_networks_dnsauthorityname;
+static int      hf_pie_niagara_networks_dnsauthoritytype;
+static int      hf_pie_niagara_networks_dnsauthoritytypetext;
+static int      hf_pie_niagara_networks_dnsauthorityclass;
+static int      hf_pie_niagara_networks_dnsauthorityclasstext;
+static int      hf_pie_niagara_networks_dnsauthorityttl;
+static int      hf_pie_niagara_networks_dnsauthorityrdlength;
+static int      hf_pie_niagara_networks_dnsauthorityrdata;
+static int      hf_pie_niagara_networks_dnsadditionalname;
+static int      hf_pie_niagara_networks_dnsadditionaltype;
+static int      hf_pie_niagara_networks_dnsadditionaltypetext;
+static int      hf_pie_niagara_networks_dnsadditionalclass;
+static int      hf_pie_niagara_networks_dnsadditionalclasstext;
+static int      hf_pie_niagara_networks_dnsadditionalttl;
+static int      hf_pie_niagara_networks_dnsadditionalrdlength;
+static int      hf_pie_niagara_networks_dnsadditionalrdata;
+static int      hf_pie_niagara_networks_radiuspackettypecode;
+static int      hf_pie_niagara_networks_radiuspackettypecodetext;
+static int      hf_pie_niagara_networks_radiuspacketidentifier;
+static int      hf_pie_niagara_networks_radiusauthenticator;
+static int      hf_pie_niagara_networks_radiususername;
+static int      hf_pie_niagara_networks_radiuscallingstationid;
+static int      hf_pie_niagara_networks_radiuscalledstationid;
+static int      hf_pie_niagara_networks_radiusnasipaddress;
+static int      hf_pie_niagara_networks_radiusnasipv6address;
+static int      hf_pie_niagara_networks_radiusnasidentifier;
+static int      hf_pie_niagara_networks_radiusframedipaddress;
+static int      hf_pie_niagara_networks_radiusframedipv6address;
+static int      hf_pie_niagara_networks_radiusacctsessionid;
+static int      hf_pie_niagara_networks_radiusacctstatustype;
+static int      hf_pie_niagara_networks_radiusacctinoctets;
+static int      hf_pie_niagara_networks_radiusacctoutoctets;
+static int      hf_pie_niagara_networks_radiusacctinpackets;
+static int      hf_pie_niagara_networks_radiusacctoutpackets;
+static int      hf_pie_niagara_networks_radiusvsavendorid;
+static int      hf_pie_niagara_networks_radiusvsaname;
+static int      hf_pie_niagara_networks_radiusvsaid;
+static int      hf_pie_niagara_networks_radiusvsavalue;
 
-static int      hf_pie_fastip_meter_version                      = -1;
-static int      hf_pie_fastip_meter_os_sysname                   = -1;
-static int      hf_pie_fastip_meter_os_nodename                  = -1;
-static int      hf_pie_fastip_meter_os_release                   = -1;
-static int      hf_pie_fastip_meter_os_version                   = -1;
-static int      hf_pie_fastip_meter_os_machine                   = -1;
-static int      hf_pie_fastip_epoch_second                       = -1;
-static int      hf_pie_fastip_nic_name                           = -1;
-static int      hf_pie_fastip_nic_id                             = -1;
-static int      hf_pie_fastip_nic_mac                            = -1;
-static int      hf_pie_fastip_nic_ip                             = -1;
+static int      hf_pie_fastip_meter_version;
+static int      hf_pie_fastip_meter_os_sysname;
+static int      hf_pie_fastip_meter_os_nodename;
+static int      hf_pie_fastip_meter_os_release;
+static int      hf_pie_fastip_meter_os_version;
+static int      hf_pie_fastip_meter_os_machine;
+static int      hf_pie_fastip_epoch_second;
+static int      hf_pie_fastip_nic_name;
+static int      hf_pie_fastip_nic_id;
+static int      hf_pie_fastip_nic_mac;
+static int      hf_pie_fastip_nic_ip;
 /*
-static int      hf_pie_fastip_collisions                         = -1;
-static int      hf_pie_fastip_errors                             = -1;
+static int      hf_pie_fastip_collisions;
+static int      hf_pie_fastip_errors;
 */
-static int      hf_pie_fastip_nic_driver_name                    = -1;
-static int      hf_pie_fastip_nic_driver_version                 = -1;
-static int      hf_pie_fastip_nic_firmware_version               = -1;
-static int      hf_pie_fastip_meter_os_distribution              = -1;
+static int      hf_pie_fastip_nic_driver_name;
+static int      hf_pie_fastip_nic_driver_version;
+static int      hf_pie_fastip_nic_firmware_version;
+static int      hf_pie_fastip_meter_os_distribution;
 /*
-static int      hf_pie_fastip_bond_interface_mode                = -1;
-static int      hf_pie_fastip_bond_interface_physical_nic_count  = -1;
-static int      hf_pie_fastip_bond_interface_id                  = -1;
+static int      hf_pie_fastip_bond_interface_mode;
+static int      hf_pie_fastip_bond_interface_physical_nic_count;
+static int      hf_pie_fastip_bond_interface_id;
 */
-static int      hf_pie_fastip_tcp_flags                          = -1;
-static int      hf_pie_fastip_tcp_handshake_rtt_usec             = -1;
-static int      hf_pie_fastip_app_rtt_usec                       = -1;
+static int      hf_pie_fastip_tcp_flags;
+static int      hf_pie_fastip_tcp_handshake_rtt_usec;
+static int      hf_pie_fastip_app_rtt_usec;
 
-static int      hf_pie_juniper                                   = -1;
-static int      hf_pie_juniper_cpid_16bit                        = -1;
-static int      hf_pie_juniper_cpid_32bit                        = -1;
-static int      hf_pie_juniper_cpdesc_16bit                      = -1;
-static int      hf_pie_juniper_cpdesc_32bit                      = -1;
+static int      hf_pie_juniper;
+static int      hf_pie_juniper_cpid_16bit;
+static int      hf_pie_juniper_cpid_32bit;
+static int      hf_pie_juniper_cpdesc_16bit;
+static int      hf_pie_juniper_cpdesc_32bit;
 
-static int      hf_string_len_short = -1;
-static int      hf_string_len_long  = -1;
+static int      hf_string_len_short;
+static int      hf_string_len_long;
 
-static int      hf_template_frame = -1;
+static int      hf_template_frame;
 
-static expert_field ei_cflow_entries                                   = EI_INIT;
-static expert_field ei_cflow_options                                   = EI_INIT;
-static expert_field ei_cflow_flowset_length                            = EI_INIT;
-static expert_field ei_cflow_scopes                                    = EI_INIT;
-static expert_field ei_cflow_template_ipfix_scope_field_count_too_many = EI_INIT;
-static expert_field ei_cflow_template_ipfix_scope_field_count          = EI_INIT;
-static expert_field ei_cflow_no_flow_information                       = EI_INIT;
-static expert_field ei_cflow_mpls_label_bad_length                     = EI_INIT;
-static expert_field ei_cflow_flowsets_impossible                       = EI_INIT;
-static expert_field ei_cflow_no_template_found                         = EI_INIT;
-static expert_field ei_transport_bytes_out_of_order                    = EI_INIT;
-static expert_field ei_unexpected_sequence_number                      = EI_INIT;
-static expert_field ei_cflow_subtemplate_bad_length                    = EI_INIT;
+static expert_field ei_cflow_entries;
+static expert_field ei_cflow_options;
+static expert_field ei_cflow_flowset_length;
+static expert_field ei_cflow_scopes;
+static expert_field ei_cflow_template_ipfix_scope_field_count_too_many;
+static expert_field ei_cflow_template_ipfix_scope_field_count;
+static expert_field ei_cflow_no_flow_information;
+static expert_field ei_cflow_mpls_label_bad_length;
+static expert_field ei_cflow_flowsets_impossible;
+static expert_field ei_cflow_no_template_found;
+static expert_field ei_transport_bytes_out_of_order;
+static expert_field ei_unexpected_sequence_number;
+static expert_field ei_cflow_subtemplate_bad_length;
 
 static const value_string special_mpls_top_label_type[] = {
     {0, "Unknown"},

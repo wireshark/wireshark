@@ -28,56 +28,56 @@ static dissector_handle_t fcs_handle;
  */
 
 /* Initialize the protocol and registered fields */
-static int proto_fcfcs          = -1;
-static int hf_fcs_opcode        = -1;
-static int hf_fcs_iename        = -1;
-static int hf_fcs_ietype        = -1;
-static int hf_fcs_iedomainid    = -1;
-static int hf_fcs_mgmtid        = -1;
-static int hf_fcs_fabricname    = -1;
-static int hf_fcs_mgmtaddr      = -1;
-static int hf_fcs_lname         = -1;
-static int hf_fcs_vendorname    = -1;
-static int hf_fcs_modelname     = -1;
-static int hf_fcs_portname      = -1;
-static int hf_fcs_portmodtype   = -1;
-static int hf_fcs_porttxtype    = -1;
-static int hf_fcs_porttype      = -1;
-static int hf_fcs_physportnum   = -1;
-static int hf_fcs_portflags     = -1;
-static int hf_fcs_portstate     = -1;
-static int hf_fcs_platformname_len  = -1;
-static int hf_fcs_platformname  = -1;
-static int hf_fcs_platformnname = -1;
-static int hf_fcs_platformtype  = -1;
-static int hf_fcs_platformaddr  = -1;
-static int hf_fcs_reason        = -1;
-static int hf_fcs_rjtdetail     = -1;
-static int hf_fcs_vendor        = -1;
-static int hf_fcs_numcap        = -1;
-static int hf_fcs_mgmt_subtype  = -1;
-static int hf_fcs_unsmask       = -1;
-static int hf_fcs_vnd_capmask   = -1;
-static int hf_fcs_fcsmask       = -1;
-static int hf_fcs_maxres_size   = -1;
-static int hf_fcs_releasecode   = -1;
+static int proto_fcfcs;
+static int hf_fcs_opcode;
+static int hf_fcs_iename;
+static int hf_fcs_ietype;
+static int hf_fcs_iedomainid;
+static int hf_fcs_mgmtid;
+static int hf_fcs_fabricname;
+static int hf_fcs_mgmtaddr;
+static int hf_fcs_lname;
+static int hf_fcs_vendorname;
+static int hf_fcs_modelname;
+static int hf_fcs_portname;
+static int hf_fcs_portmodtype;
+static int hf_fcs_porttxtype;
+static int hf_fcs_porttype;
+static int hf_fcs_physportnum;
+static int hf_fcs_portflags;
+static int hf_fcs_portstate;
+static int hf_fcs_platformname_len;
+static int hf_fcs_platformname;
+static int hf_fcs_platformnname;
+static int hf_fcs_platformtype;
+static int hf_fcs_platformaddr;
+static int hf_fcs_reason;
+static int hf_fcs_rjtdetail;
+static int hf_fcs_vendor;
+static int hf_fcs_numcap;
+static int hf_fcs_mgmt_subtype;
+static int hf_fcs_unsmask;
+static int hf_fcs_vnd_capmask;
+static int hf_fcs_fcsmask;
+static int hf_fcs_maxres_size;
+static int hf_fcs_releasecode;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_fcfcs_num_ie_entries = -1;
-static int hf_fcfcs_num_mgmt_addresses = -1;
-static int hf_fcfcs_list_length = -1;
-static int hf_fcfcs_vendor_specific_information = -1;
-static int hf_fcfcs_num_port_entries = -1;
-static int hf_fcfcs_num_attached_port_entries = -1;
-static int hf_fcfcs_num_platform_node_name_entries = -1;
-static int hf_fcfcs_num_mgmt_address_entries = -1;
-static int hf_fcfcs_num_platform_name_entries = -1;
+static int hf_fcfcs_num_ie_entries;
+static int hf_fcfcs_num_mgmt_addresses;
+static int hf_fcfcs_list_length;
+static int hf_fcfcs_vendor_specific_information;
+static int hf_fcfcs_num_port_entries;
+static int hf_fcfcs_num_attached_port_entries;
+static int hf_fcfcs_num_platform_node_name_entries;
+static int hf_fcfcs_num_mgmt_address_entries;
+static int hf_fcfcs_num_platform_name_entries;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static expert_field ei_fcfcs_no_record_of_exchange = EI_INIT;
+static expert_field ei_fcfcs_no_record_of_exchange;
 
 /* Initialize the subtree pointers */
-static gint ett_fcfcs = -1;
+static gint ett_fcfcs;
 
 typedef struct _fcfcs_conv_key {
     guint32 conv_idx;

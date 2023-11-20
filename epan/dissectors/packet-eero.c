@@ -22,13 +22,13 @@
 void proto_register_eero(void);
 void proto_reg_handoff_eero(void);
 
-static int proto_eero = -1;
+static int proto_eero;
 
-static int hf_eero_type = -1;
-static int hf_eero_src_mac = -1;
-static int hf_eero_data = -1;
+static int hf_eero_type;
+static int hf_eero_src_mac;
+static int hf_eero_data;
 
-static gint ett_eero = -1;
+static gint ett_eero;
 
 static dissector_handle_t eero_handle;
 

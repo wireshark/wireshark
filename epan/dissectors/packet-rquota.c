@@ -18,28 +18,28 @@
 void proto_register_rquota(void);
 void proto_reg_handoff_rquota(void);
 
-static int proto_rquota = -1;
-static int hf_rquota_procedure_v1 = -1;
-static int hf_rquota_procedure_v2 = -1;
-static int hf_rquota_pathp = -1;
-static int hf_rquota_uid = -1;
-static int hf_rquota_type = -1;
-static int hf_rquota_id = -1;
-static int hf_rquota_status = -1;
-static int hf_rquota_rquota = -1;
-static int hf_rquota_bsize = -1;
-static int hf_rquota_active = -1;
-static int hf_rquota_bhardlimit = -1;
-static int hf_rquota_bsoftlimit = -1;
-static int hf_rquota_curblocks = -1;
-static int hf_rquota_fhardlimit = -1;
-static int hf_rquota_fsoftlimit = -1;
-static int hf_rquota_curfiles = -1;
-static int hf_rquota_btimeleft = -1;
-static int hf_rquota_ftimeleft = -1;
+static int proto_rquota;
+static int hf_rquota_procedure_v1;
+static int hf_rquota_procedure_v2;
+static int hf_rquota_pathp;
+static int hf_rquota_uid;
+static int hf_rquota_type;
+static int hf_rquota_id;
+static int hf_rquota_status;
+static int hf_rquota_rquota;
+static int hf_rquota_bsize;
+static int hf_rquota_active;
+static int hf_rquota_bhardlimit;
+static int hf_rquota_bsoftlimit;
+static int hf_rquota_curblocks;
+static int hf_rquota_fhardlimit;
+static int hf_rquota_fsoftlimit;
+static int hf_rquota_curfiles;
+static int hf_rquota_btimeleft;
+static int hf_rquota_ftimeleft;
 
-static gint ett_rquota = -1;
-static gint ett_rquota_rquota = -1;
+static gint ett_rquota;
+static gint ett_rquota_rquota;
 
 #define RQUOTAPROC_NULL 		0
 #define RQUOTAPROC_GETQUOTA		1

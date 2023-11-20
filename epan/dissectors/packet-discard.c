@@ -26,17 +26,17 @@
 void proto_register_discard(void);
 void proto_reg_handoff_discard(void);
 
-static int proto_discard = -1;
+static int proto_discard;
 
-static int hf_discard_data = -1;
-static int hf_discard_text = -1;
-static int hf_discard_md5_hash = -1;
-static int hf_discard_len = -1;
+static int hf_discard_data;
+static int hf_discard_text;
+static int hf_discard_md5_hash;
+static int hf_discard_len;
 
 static gboolean show_as_text = FALSE;
 static gboolean generate_md5_hash = FALSE;
 
-static gint ett_discard = -1;
+static gint ett_discard;
 
 /* dissect_discard - dissects discard packet data
  * tvb - tvbuff for packet data (IN)

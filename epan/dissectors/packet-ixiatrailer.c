@@ -48,14 +48,14 @@ static const value_string ixiatrailer_ftype_timestamp[] = {
 /* Preference settings */
 static gboolean ixiatrailer_summary_in_tree = TRUE;
 
-static int proto_ixiatrailer = -1;
-static gint ett_ixiatrailer = -1;
+static int proto_ixiatrailer;
+static gint ett_ixiatrailer;
 
-static int hf_ixiatrailer_packetlen = -1;
-static int hf_ixiatrailer_timestamp = -1;
-static int hf_ixiatrailer_generic = -1;
+static int hf_ixiatrailer_packetlen;
+static int hf_ixiatrailer_timestamp;
+static int hf_ixiatrailer_generic;
 
-static expert_field ei_ixiatrailer_field_length_invalid = EI_INIT;
+static expert_field ei_ixiatrailer_field_length_invalid;
 
 /* The trailer begins with a sequence of TLVs, each of which has a
    1-byte type, a 1-byte value length (not TLV length, so the TLV

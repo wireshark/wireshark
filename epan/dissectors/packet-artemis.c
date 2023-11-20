@@ -21,17 +21,17 @@
 
 #define ARTEMIS_PORT 5445 /* Not IANA registered */
 
-static int proto_artemis = -1;
+static int proto_artemis;
 
 /* handles */
-static int hf_artemis_len = -1;
-static int hf_artemis_type = -1;
-static int hf_artemis_channel = -1;
-static int hf_artemis_buffer = -1;
+static int hf_artemis_len;
+static int hf_artemis_type;
+static int hf_artemis_channel;
+static int hf_artemis_buffer;
 
-static gint ett_artemis = -1;
+static gint ett_artemis;
 
-static expert_field ei_artemis_len_short = EI_INIT;
+static expert_field ei_artemis_len_short;
 
 
 static dissector_handle_t artemis_tcp_handle = NULL;

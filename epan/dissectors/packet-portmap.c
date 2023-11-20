@@ -26,31 +26,31 @@
 void proto_register_portmap(void);
 void proto_reg_handoff_portmap(void);
 
-static int proto_portmap = -1;
-static int hf_portmap_procedure_v1 = -1;
-static int hf_portmap_procedure_v2 = -1;
-static int hf_portmap_procedure_v3 = -1;
-static int hf_portmap_procedure_v4 = -1;
-static int hf_portmap_proto = -1;
-static int hf_portmap_prog = -1;
-static int hf_portmap_proc = -1;
-static int hf_portmap_version = -1;
-static int hf_portmap_port = -1;
-static int hf_portmap_answer = -1;
-static int hf_portmap_args = -1;
-static int hf_portmap_result = -1;
-static int hf_portmap_rpcb = -1;
-static int hf_portmap_rpcb_prog = -1;
-static int hf_portmap_rpcb_version = -1;
-static int hf_portmap_rpcb_netid = -1;
-static int hf_portmap_rpcb_addr = -1;
-static int hf_portmap_rpcb_owner = -1;
-static int hf_portmap_uaddr = -1;
+static int proto_portmap;
+static int hf_portmap_procedure_v1;
+static int hf_portmap_procedure_v2;
+static int hf_portmap_procedure_v3;
+static int hf_portmap_procedure_v4;
+static int hf_portmap_proto;
+static int hf_portmap_prog;
+static int hf_portmap_proc;
+static int hf_portmap_version;
+static int hf_portmap_port;
+static int hf_portmap_answer;
+static int hf_portmap_args;
+static int hf_portmap_result;
+static int hf_portmap_rpcb;
+static int hf_portmap_rpcb_prog;
+static int hf_portmap_rpcb_version;
+static int hf_portmap_rpcb_netid;
+static int hf_portmap_rpcb_addr;
+static int hf_portmap_rpcb_owner;
+static int hf_portmap_uaddr;
 
 
-static gint ett_portmap = -1;
-static gint ett_portmap_rpcb = -1;
-static gint ett_portmap_entry = -1;
+static gint ett_portmap;
+static gint ett_portmap_rpcb;
+static gint ett_portmap_entry;
 
 static dissector_handle_t rpc_handle;
 

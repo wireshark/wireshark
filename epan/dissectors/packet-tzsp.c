@@ -30,10 +30,10 @@
 void proto_register_tzsp(void);
 void proto_reg_handoff_tzsp(void);
 
-static int proto_tzsp = -1;
-static int hf_tzsp_version = -1;
-static int hf_tzsp_type = -1;
-static int hf_tzsp_encap = -1;
+static int proto_tzsp;
+static int hf_tzsp_version;
+static int hf_tzsp_type;
+static int hf_tzsp_encap;
 
 static dissector_handle_t tzsp_handle;
 
@@ -88,8 +88,8 @@ static const value_string tzsp_encapsulation[] = {
     {0, NULL}
 };
 
-static gint ett_tzsp = -1;
-static gint ett_tag = -1;
+static gint ett_tzsp;
+static gint ett_tag;
 
 static dissector_handle_t eth_maybefcs_handle;
 static dissector_handle_t tr_handle;
@@ -105,30 +105,30 @@ static dissector_handle_t ieee_802_11_radiotap_handle;
 /*                WLAN radio header fields                                    */
 /* ************************************************************************* */
 
-static int hf_option_tag = -1;
-static int hf_option_length = -1;
-/* static int hf_status_field = -1; */
-static int hf_status_msg_type = -1;
-static int hf_status_pcf = -1;
-/* static int hf_status_mac_port = -1; */
-static int hf_status_undecrypted = -1;
-static int hf_status_fcs_error = -1;
+static int hf_option_tag;
+static int hf_option_length;
+/* static int hf_status_field; */
+static int hf_status_msg_type;
+static int hf_status_pcf;
+/* static int hf_status_mac_port; */
+static int hf_status_undecrypted;
+static int hf_status_fcs_error;
 
-static int hf_time = -1;
-static int hf_silence = -1;
-static int hf_signal = -1;
-static int hf_rate = -1;
-static int hf_channel = -1;
-static int hf_unknown = -1;
-static int hf_original_length = -1;
-static int hf_sensormac = -1;
+static int hf_time;
+static int hf_silence;
+static int hf_signal;
+static int hf_rate;
+static int hf_channel;
+static int hf_unknown;
+static int hf_original_length;
+static int hf_sensormac;
 
-static int hf_device_name = -1;
-static int hf_capture_location = -1;
-static int hf_capture_info = -1;
-static int hf_capture_id = -1;
-static int hf_time_stamp = -1;
-static int hf_packet_id = -1;
+static int hf_device_name;
+static int hf_capture_location;
+static int hf_capture_info;
+static int hf_capture_id;
+static int hf_time_stamp;
+static int hf_packet_id;
 
 
 

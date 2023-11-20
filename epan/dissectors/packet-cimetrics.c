@@ -28,12 +28,12 @@ static const value_string cimetrics_pid_vals[] = {
 	{ 0,		NULL }
 };
 
-static int proto_cimetrics_mstp = -1;
-static int hf_llc_cimetrics_pid = -1;
-static gint ett_cimetrics_mstp = -1;
+static int proto_cimetrics_mstp;
+static int hf_llc_cimetrics_pid;
+static gint ett_cimetrics_mstp;
 
-static int hf_cimetrics_mstp_timer = -1;
-static int hf_cimetrics_mstp_value = -1;
+static int hf_cimetrics_mstp_timer;
+static int hf_cimetrics_mstp_value;
 
 static dissector_handle_t cimetric_handle;
 

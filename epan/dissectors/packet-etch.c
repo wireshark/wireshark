@@ -90,32 +90,32 @@ static const value_string tc_lookup_table[] = {
 /*
  * Wireshark internal fields
  */
-static int proto_etch = -1;
-static gint ett_etch = -1;
-static gint ett_etch_struct = -1;
-static gint ett_etch_keyvalue = -1;
-static gint ett_etch_key = -1;
-static gint ett_etch_value = -1;
-static int hf_etch_sig = -1;
-static int hf_etch_length = -1;
-static int hf_etch_version = -1;
-static int hf_etch_typecode = -1;
-static int hf_etch_value = -1;
-static int hf_etch_bytes = -1;
-static int hf_etch_byte = -1;
-static int hf_etch_short = -1;
-static int hf_etch_int = -1;
-static int hf_etch_long = -1;
-static int hf_etch_float = -1;
-static int hf_etch_double = -1;
-/* static int hf_etch_key = -1; */
-static int hf_etch_valuename = -1;
-static int hf_etch_keyname = -1;
-static int hf_etch_string = -1;
-static int hf_etch_keyvalue = -1;
-static int hf_etch_struct = -1;
-static int hf_etch_dim = -1;
-static int hf_etch_symbol = -1;
+static int proto_etch;
+static gint ett_etch;
+static gint ett_etch_struct;
+static gint ett_etch_keyvalue;
+static gint ett_etch_key;
+static gint ett_etch_value;
+static int hf_etch_sig;
+static int hf_etch_length;
+static int hf_etch_version;
+static int hf_etch_typecode;
+static int hf_etch_value;
+static int hf_etch_bytes;
+static int hf_etch_byte;
+static int hf_etch_short;
+static int hf_etch_int;
+static int hf_etch_long;
+static int hf_etch_float;
+static int hf_etch_double;
+/* static int hf_etch_key; */
+static int hf_etch_valuename;
+static int hf_etch_keyname;
+static int hf_etch_string;
+static int hf_etch_keyvalue;
+static int hf_etch_struct;
+static int hf_etch_dim;
+static int hf_etch_symbol;
 
 static dissector_handle_t etch_handle;
 

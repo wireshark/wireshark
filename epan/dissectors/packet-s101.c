@@ -46,22 +46,22 @@
 #define S101_VALID_CRC 0xF0B8
 #define APP_BYTES_LEN 2
 
-static int hf_S101_frame_format = -1;
-static int hf_S101_length_size = -1;
-static int hf_S101_message_length = -1;
-static int hf_S101_slot = -1;
-static int hf_S101_message_type = -1;
-static int hf_S101_cmd_type = -1;
-static int hf_S101_version = -1;
-static int hf_S101_flags = -1;
-static int hf_S101_dtd_type = -1;
-static int hf_S101_app_bytes_len = -1;
-static int hf_S101_dtd_minor_ver = -1;
-static int hf_S101_dtd_major_ver = -1;
-static int hf_S101_crc = -1;
-static int hf_S101_crc_status = -1;
-static int hf_S101_eof = -1;
-static int hf_S101_error = -1;
+static int hf_S101_frame_format;
+static int hf_S101_length_size;
+static int hf_S101_message_length;
+static int hf_S101_slot;
+static int hf_S101_message_type;
+static int hf_S101_cmd_type;
+static int hf_S101_version;
+static int hf_S101_flags;
+static int hf_S101_dtd_type;
+static int hf_S101_app_bytes_len;
+static int hf_S101_dtd_minor_ver;
+static int hf_S101_dtd_major_ver;
+static int hf_S101_crc;
+static int hf_S101_crc_status;
+static int hf_S101_eof;
+static int hf_S101_error;
 
 static dissector_handle_t S101_handle;
 static dissector_handle_t glow_handle = NULL;
@@ -82,35 +82,35 @@ static s101_fragment_t* new_fragment_info(packet_info *pinfo);
 static void display_expert_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int len);
 
 /* Initialize the protocol and registered fields */
-static int proto_S101 = -1;
+static int proto_S101;
 
 /* Real port preferences should generally default to 0 unless there is an
  * IANA-registered (or equivalent) port for your protocol. */
 #define S101_TCP_PORT 9000 /* Not IANA-registered */
 
 /* Initialize the subtree pointers */
-static gint ett_S101 = -1;
-static gint ett_decoding_error = -1;
+static gint ett_S101;
+static gint ett_decoding_error;
 
 #define S101_MIN_LENGTH 5
 
-static int hf_msg_fragments = -1;
-static int hf_msg_fragment = -1;
-static int hf_msg_fragment_overlap = -1;
-static int hf_msg_fragment_overlap_conflicts = -1;
-static int hf_msg_fragment_multiple_tails = -1;
-static int hf_msg_fragment_too_long_fragment = -1;
-static int hf_msg_fragment_error = -1;
-static int hf_msg_fragment_count = -1;
-static int hf_msg_reassembled_in = -1;
-static int hf_msg_reassembled_length = -1;
-static int hf_msg_reassembled_data = -1;
+static int hf_msg_fragments;
+static int hf_msg_fragment;
+static int hf_msg_fragment_overlap;
+static int hf_msg_fragment_overlap_conflicts;
+static int hf_msg_fragment_multiple_tails;
+static int hf_msg_fragment_too_long_fragment;
+static int hf_msg_fragment_error;
+static int hf_msg_fragment_count;
+static int hf_msg_reassembled_in;
+static int hf_msg_reassembled_length;
+static int hf_msg_reassembled_data;
 
 
-static expert_field ei_s101_failed_reassembly = EI_INIT;
+static expert_field ei_s101_failed_reassembly;
 
-static gint ett_msg_fragment = -1;
-static gint ett_msg_fragments = -1;
+static gint ett_msg_fragment;
+static gint ett_msg_fragments;
 
 static const fragment_items msg_frag_items = {
     /* Fragment subtrees */

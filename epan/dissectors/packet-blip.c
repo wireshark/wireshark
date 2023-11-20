@@ -69,18 +69,18 @@ typedef struct
 
 // File level variables
 static dissector_handle_t blip_handle;
-static int proto_blip = -1;
-static int hf_blip_message_number = -1;
-static int hf_blip_frame_flags = -1;
-static int hf_blip_properties_length = -1;
-static int hf_blip_properties = -1;
-static int hf_blip_message_body = -1;
-static int hf_blip_ack_size = -1;
-static int hf_blip_checksum = -1;
+static int proto_blip;
+static int hf_blip_message_number;
+static int hf_blip_frame_flags;
+static int hf_blip_properties_length;
+static int hf_blip_properties;
+static int hf_blip_message_body;
+static int hf_blip_ack_size;
+static int hf_blip_checksum;
 
-static gint ett_blip = -1;
+static gint ett_blip;
 
-static expert_field ei_blip_decompress_buffer_error = EI_INIT;
+static expert_field ei_blip_decompress_buffer_error;
 
 // Compressed = 0x08
 // Urgent	  = 0x10

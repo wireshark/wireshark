@@ -119,112 +119,112 @@ static dissector_table_t ethertype_table;
 static dissector_handle_t data_handle;
 
 /* Define the rtnet proto */
-static int proto_rtmac = -1;
-static int proto_tdma = -1;
-static int proto_rtcfg = -1;
+static int proto_rtmac;
+static int proto_tdma;
+static int proto_rtcfg;
 
 /* RTmac Header */
-static int hf_rtmac_header_type = -1;
-static int hf_rtmac_header_ver = -1;
-static int hf_rtmac_header_flags = -1;
-static int hf_rtmac_header_flags_tunnel = -1;
-static int hf_rtmac_header_flags_res = -1;
-static int hf_rtmac_header_res_v1 = -1;
+static int hf_rtmac_header_type;
+static int hf_rtmac_header_ver;
+static int hf_rtmac_header_flags;
+static int hf_rtmac_header_flags_tunnel;
+static int hf_rtmac_header_flags_res;
+static int hf_rtmac_header_res_v1;
 
 
 /* RTcfg */
-static int hf_rtcfg_vers_id = -1;
-static int hf_rtcfg_vers = -1;
-static int hf_rtcfg_id = -1;
-static int hf_rtcfg_address_type = -1;
-static int hf_rtcfg_client_ip_address = -1;
-static int hf_rtcfg_server_ip_address = -1;
-static int hf_rtcfg_burst_rate = -1;
-static int hf_rtcfg_padding = -1;
-static int hf_rtcfg_s1_config_length = -1;
-static int hf_rtcfg_config_data = -1;
-static int hf_rtcfg_client_flags = -1;
-static int hf_rtcfg_client_flags_available = -1;
-static int hf_rtcfg_client_flags_ready = -1;
-static int hf_rtcfg_client_flags_res = -1;
-static int hf_rtcfg_server_flags = -1;
-static int hf_rtcfg_server_flags_res0 = -1;
-static int hf_rtcfg_server_flags_ready = -1;
-static int hf_rtcfg_server_flags_res2 = -1;
-static int hf_rtcfg_active_stations = -1;
-static int hf_rtcfg_heartbeat_period = -1;
-static int hf_rtcfg_s2_config_length = -1;
-static int hf_rtcfg_config_offset = -1;
-static int hf_rtcfg_ack_length = -1;
-static int hf_rtcfg_client_hw_address = -1;
+static int hf_rtcfg_vers_id;
+static int hf_rtcfg_vers;
+static int hf_rtcfg_id;
+static int hf_rtcfg_address_type;
+static int hf_rtcfg_client_ip_address;
+static int hf_rtcfg_server_ip_address;
+static int hf_rtcfg_burst_rate;
+static int hf_rtcfg_padding;
+static int hf_rtcfg_s1_config_length;
+static int hf_rtcfg_config_data;
+static int hf_rtcfg_client_flags;
+static int hf_rtcfg_client_flags_available;
+static int hf_rtcfg_client_flags_ready;
+static int hf_rtcfg_client_flags_res;
+static int hf_rtcfg_server_flags;
+static int hf_rtcfg_server_flags_res0;
+static int hf_rtcfg_server_flags_ready;
+static int hf_rtcfg_server_flags_res2;
+static int hf_rtcfg_active_stations;
+static int hf_rtcfg_heartbeat_period;
+static int hf_rtcfg_s2_config_length;
+static int hf_rtcfg_config_offset;
+static int hf_rtcfg_ack_length;
+static int hf_rtcfg_client_hw_address;
 
 
 /* TDMA-V1 */
-static int hf_tdma_v1_msg = -1;
+static int hf_tdma_v1_msg;
 
 /* TDMA REQUEST_CONF */
-static int hf_tdma_v1_msg_request_conf_station = -1;
-static int hf_tdma_v1_msg_request_conf_padding = -1;
-static int hf_tdma_v1_msg_request_conf_mtu = -1;
-static int hf_tdma_v1_msg_request_conf_cycle = -1;
+static int hf_tdma_v1_msg_request_conf_station;
+static int hf_tdma_v1_msg_request_conf_padding;
+static int hf_tdma_v1_msg_request_conf_mtu;
+static int hf_tdma_v1_msg_request_conf_cycle;
 
 /* TDMA ACK_CONF */
-static int hf_tdma_v1_msg_ack_conf_station = -1;
-static int hf_tdma_v1_msg_ack_conf_padding = -1;
-static int hf_tdma_v1_msg_ack_conf_mtu = -1;
-static int hf_tdma_v1_msg_ack_conf_cycle = -1;
+static int hf_tdma_v1_msg_ack_conf_station;
+static int hf_tdma_v1_msg_ack_conf_padding;
+static int hf_tdma_v1_msg_ack_conf_mtu;
+static int hf_tdma_v1_msg_ack_conf_cycle;
 
 /* TDMA ACK_ACK_CONF */
-static int hf_tdma_v1_msg_ack_ack_conf_station = -1;
-static int hf_tdma_v1_msg_ack_ack_conf_padding = -1;
+static int hf_tdma_v1_msg_ack_ack_conf_station;
+static int hf_tdma_v1_msg_ack_ack_conf_padding;
 
 /* TDMA REQUEST_TEST */
-static int hf_tdma_v1_msg_request_test_counter = -1;
-static int hf_tdma_v1_msg_request_test_tx = -1;
+static int hf_tdma_v1_msg_request_test_counter;
+static int hf_tdma_v1_msg_request_test_tx;
 
 /* TDMA ACK_TEST */
-static int hf_tdma_v1_msg_ack_test_counter = -1;
-static int hf_tdma_v1_msg_ack_test_tx = -1;
+static int hf_tdma_v1_msg_ack_test_counter;
+static int hf_tdma_v1_msg_ack_test_tx;
 
 /* TDMA STATION_LIST */
-static int hf_tdma_v1_msg_station_list_nr_stations = -1;
-static int hf_tdma_v1_msg_station_list_padding = -1;
+static int hf_tdma_v1_msg_station_list_nr_stations;
+static int hf_tdma_v1_msg_station_list_padding;
 
-static int hf_tdma_v1_msg_station_list_ip = -1;
-static int hf_tdma_v1_msg_station_list_nr = -1;
+static int hf_tdma_v1_msg_station_list_ip;
+static int hf_tdma_v1_msg_station_list_nr;
 
 /* TDMA CHANGE_OFFSET */
-static int hf_tdma_v1_msg_request_change_offset_offset = -1;
+static int hf_tdma_v1_msg_request_change_offset_offset;
 
 /* TDMA START_OF_FRAME */
-static int hf_tdma_v1_msg_start_of_frame_timestamp = -1;
+static int hf_tdma_v1_msg_start_of_frame_timestamp;
 
 
 /* TDMA since version 2 */
-static int hf_tdma_ver = -1;
-static int hf_tdma_id = -1;
+static int hf_tdma_ver;
+static int hf_tdma_id;
 
 /* TDMA Sync */
-static int hf_tdma_sync_cycle = -1;
-static int hf_tdma_sync_xmit_stamp = -1;
-static int hf_tdma_sync_sched_xmit = -1;
+static int hf_tdma_sync_cycle;
+static int hf_tdma_sync_xmit_stamp;
+static int hf_tdma_sync_sched_xmit;
 
 /* TDMA Request Calibration */
-static int hf_tdma_req_cal_xmit_stamp = -1;
-static int hf_tdma_req_cal_rpl_cycle = -1;
-static int hf_tdma_req_cal_rpl_slot = -1;
+static int hf_tdma_req_cal_xmit_stamp;
+static int hf_tdma_req_cal_rpl_cycle;
+static int hf_tdma_req_cal_rpl_slot;
 
 /* TDMA Reply Calibration */
-static int hf_tdma_rpl_cal_req_stamp = -1;
-static int hf_tdma_rpl_cal_rcv_stamp = -1;
-static int hf_tdma_rpl_cal_xmit_stamp = -1;
+static int hf_tdma_rpl_cal_req_stamp;
+static int hf_tdma_rpl_cal_rcv_stamp;
+static int hf_tdma_rpl_cal_xmit_stamp;
 
 
 /* Define the tree for rtnet */
-static int ett_rtmac = -1;
-static int ett_rtmac_flags = -1;
-static int ett_tdma = -1;
-static int ett_rtcfg = -1;
+static int ett_rtmac;
+static int ett_rtmac_flags;
+static int ett_tdma;
+static int ett_rtcfg;
 
 static guint
 dissect_rtnet_tdma_notify_master(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)

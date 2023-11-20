@@ -33,19 +33,19 @@ static dissector_handle_t fr_handle;
 static dissector_handle_t pw_hdlc_nocw_fr_handle;
 static dissector_handle_t pw_ppp_handle;
 
-static gint proto_pw_hdlc_nocw_fr = -1;
-static gint proto_pw_hdlc_nocw_hdlc_ppp = -1;
+static gint proto_pw_hdlc_nocw_fr;
+static gint proto_pw_hdlc_nocw_hdlc_ppp;
 
-static gint ett_pw_hdlc = -1;
+static gint ett_pw_hdlc;
 
-/* static int hf_pw_hdlc = -1; */
-static int hf_pw_hdlc_address_field = -1;
-static int hf_pw_hdlc_address = -1;
-static int hf_pw_hdlc_cr_bit = -1;
-static int hf_pw_hdlc_control_field = -1;
-static int hf_pw_hdlc_pf_bit = -1;
-static int hf_pw_hdlc_modifier = -1;
-static int hf_pw_hdlc_frame = -1;
+/* static int hf_pw_hdlc; */
+static int hf_pw_hdlc_address_field;
+static int hf_pw_hdlc_address;
+static int hf_pw_hdlc_cr_bit;
+static int hf_pw_hdlc_control_field;
+static int hf_pw_hdlc_pf_bit;
+static int hf_pw_hdlc_modifier;
+static int hf_pw_hdlc_frame;
 
 static const value_string pw_hdlc_modifier_vals[] = {
 	{0x00, "UI - Unnumbered information" },

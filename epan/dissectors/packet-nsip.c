@@ -28,47 +28,47 @@ void proto_reg_handoff_nsip(void);
 #define DEFAULT_NSIP_PORT_RANGE "2157,19999" /* Not IANA registered */
 
 /* Initialize the protocol and registered fields */
-static int proto_nsip = -1;
+static int proto_nsip;
 
-static int hf_nsip_cause = -1;
-static int hf_nsip_ns_vci = -1;
-static int hf_nsip_pdu_type = -1;
-static int hf_nsip_bvci = -1;
-static int hf_nsip_nsei = -1;
-/* static int hf_nsip_ip4_elements = -1; */
-/* static int hf_nsip_ip6_elements = -1; */
-static int hf_nsip_max_num_ns_vc = -1;
-static int hf_nsip_num_ip4_endpoints = -1;
-static int hf_nsip_num_ip6_endpoints = -1;
-static int hf_nsip_reset_flag = -1;
-static int hf_nsip_reset_flag_bit = -1;
-static int hf_nsip_reset_flag_spare = -1;
-static int hf_nsip_ip_address_type = -1;
-static int hf_nsip_ip_address_ipv4 = -1;
-static int hf_nsip_ip_address_ipv6 = -1;
-static int hf_nsip_end_flag = -1;
-static int hf_nsip_end_flag_bit = -1;
-static int hf_nsip_end_flag_spare = -1;
-static int hf_nsip_control_bits = -1;
-static int hf_nsip_control_bits_r = -1;
-static int hf_nsip_control_bits_c = -1;
-static int hf_nsip_control_bits_spare = -1;
-static int hf_nsip_transaction_id = -1;
-/* static int hf_nsip_ip_element_ip_address_ipv4 = -1; */
-/* static int hf_nsip_ip_element_ip_address_ipv6 = -1; */
-static int hf_nsip_ip_element_udp_port = -1;
-static int hf_nsip_ip_element_signalling_weight = -1;
-static int hf_nsip_ip_element_data_weight = -1;
-static int hf_nsip_ns_pdu = -1;
-static int hf_nsip_ns_sdu = -1;
+static int hf_nsip_cause;
+static int hf_nsip_ns_vci;
+static int hf_nsip_pdu_type;
+static int hf_nsip_bvci;
+static int hf_nsip_nsei;
+/* static int hf_nsip_ip4_elements; */
+/* static int hf_nsip_ip6_elements; */
+static int hf_nsip_max_num_ns_vc;
+static int hf_nsip_num_ip4_endpoints;
+static int hf_nsip_num_ip6_endpoints;
+static int hf_nsip_reset_flag;
+static int hf_nsip_reset_flag_bit;
+static int hf_nsip_reset_flag_spare;
+static int hf_nsip_ip_address_type;
+static int hf_nsip_ip_address_ipv4;
+static int hf_nsip_ip_address_ipv6;
+static int hf_nsip_end_flag;
+static int hf_nsip_end_flag_bit;
+static int hf_nsip_end_flag_spare;
+static int hf_nsip_control_bits;
+static int hf_nsip_control_bits_r;
+static int hf_nsip_control_bits_c;
+static int hf_nsip_control_bits_spare;
+static int hf_nsip_transaction_id;
+/* static int hf_nsip_ip_element_ip_address_ipv4; */
+/* static int hf_nsip_ip_element_ip_address_ipv6; */
+static int hf_nsip_ip_element_udp_port;
+static int hf_nsip_ip_element_signalling_weight;
+static int hf_nsip_ip_element_data_weight;
+static int hf_nsip_ns_pdu;
+static int hf_nsip_ns_sdu;
 
 /* Initialize the subtree pointers */
-static gint ett_nsip = -1;
-static gint ett_nsip_control_bits = -1;
-static gint ett_nsip_reset_flag = -1;
-static gint ett_nsip_end_flag = -1;
-static gint ett_nsip_ip_element = -1;
-static gint ett_nsip_ip_element_list = -1;
+static gint ett_nsip;
+static gint ett_nsip_control_bits;
+static gint ett_nsip_reset_flag;
+static gint ett_nsip_end_flag;
+static gint ett_nsip_ip_element;
+static gint ett_nsip_ip_element_list;
 
 /* PDU type coding, v5.3.0, table 10.3.7.1, p 51 */
 #define NSIP_PDU_NS_UNITDATA        0x00

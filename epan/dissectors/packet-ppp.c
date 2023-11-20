@@ -85,180 +85,180 @@ void proto_reg_handoff_ipv6cp(void);
 void proto_register_iphc_crtp(void);
 void proto_reg_handoff_iphc_crtp(void);
 
-static int proto_ppp = -1;
-static int hf_ppp_direction = -1;
-static int hf_ppp_address = -1;
-static int hf_ppp_control = -1;
-static int hf_ppp_protocol = -1;
-static int hf_ppp_code = -1;
-static int hf_ppp_identifier = -1;
-static int hf_ppp_length = -1;
-static int hf_ppp_magic_number = -1;
-static int hf_ppp_oui = -1;
-static int hf_ppp_kind = -1;
-static int hf_ppp_data = -1;
-static int hf_ppp_fcs_16 = -1;
-static int hf_ppp_fcs_32 = -1;
-static int hf_ppp_fcs_status = -1;
+static int proto_ppp;
+static int hf_ppp_direction;
+static int hf_ppp_address;
+static int hf_ppp_control;
+static int hf_ppp_protocol;
+static int hf_ppp_code;
+static int hf_ppp_identifier;
+static int hf_ppp_length;
+static int hf_ppp_magic_number;
+static int hf_ppp_oui;
+static int hf_ppp_kind;
+static int hf_ppp_data;
+static int hf_ppp_fcs_16;
+static int hf_ppp_fcs_32;
+static int hf_ppp_fcs_status;
 
-static gint ett_ppp = -1;
-static gint ett_ppp_opt_type = -1;
-static gint ett_ppp_unknown_opt = -1;
+static gint ett_ppp;
+static gint ett_ppp_opt_type;
+static gint ett_ppp_unknown_opt;
 
-static expert_field ei_ppp_opt_len_invalid = EI_INIT;
-static expert_field ei_ppp_fcs = EI_INIT;
+static expert_field ei_ppp_opt_len_invalid;
+static expert_field ei_ppp_fcs;
 
-static int proto_ppp_hdlc = -1;
+static int proto_ppp_hdlc;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_ppp_hdlc_data = -1;
-static int hf_ppp_hdlc_fragment = -1;
+static int hf_ppp_hdlc_data;
+static int hf_ppp_hdlc_fragment;
 
-static gint ett_ppp_hdlc_data = -1;
+static gint ett_ppp_hdlc_data;
 
-static int proto_lcp = -1;
-static int proto_lcp_option_vendor = -1;
-static int proto_lcp_option_mru = -1;
-static int proto_lcp_option_async_map = -1;
-static int proto_lcp_option_authprot = -1;
-static int proto_lcp_option_qualprot = -1;
-static int proto_lcp_option_magicnumber = -1;
-static int proto_lcp_option_linkqualmon = -1;
-static int proto_lcp_option_field_compress = -1;
-static int proto_lcp_option_addr_field_compress = -1;
-static int proto_lcp_option_fcs_alternatives = -1;
-static int proto_lcp_option_self_desc_pad = -1;
-static int proto_lcp_option_numbered_mode = -1;
-static int proto_lcp_option_callback = -1;
-static int proto_lcp_option_compound_frames = -1;
-static int proto_lcp_option_nomdataencap = -1;
-static int proto_lcp_option_multilink_mrru = -1;
-static int proto_lcp_option_multilink_ssnh = -1;
-static int proto_lcp_option_multilink_ep_disc = -1;
-static int proto_lcp_option_dce_identifier = -1;
-static int proto_lcp_option_multilink_pp = -1;
-static int proto_lcp_option_link_discrim = -1;
-static int proto_lcp_option_auth = -1;
-static int proto_lcp_option_cobs = -1;
-static int proto_lcp_option_prefix_elision = -1;
-static int proto_lcp_option_multilink_hdr_fmt = -1;
-static int proto_lcp_option_internationalization = -1;
-static int proto_lcp_option_sonet_sdh = -1;
+static int proto_lcp;
+static int proto_lcp_option_vendor;
+static int proto_lcp_option_mru;
+static int proto_lcp_option_async_map;
+static int proto_lcp_option_authprot;
+static int proto_lcp_option_qualprot;
+static int proto_lcp_option_magicnumber;
+static int proto_lcp_option_linkqualmon;
+static int proto_lcp_option_field_compress;
+static int proto_lcp_option_addr_field_compress;
+static int proto_lcp_option_fcs_alternatives;
+static int proto_lcp_option_self_desc_pad;
+static int proto_lcp_option_numbered_mode;
+static int proto_lcp_option_callback;
+static int proto_lcp_option_compound_frames;
+static int proto_lcp_option_nomdataencap;
+static int proto_lcp_option_multilink_mrru;
+static int proto_lcp_option_multilink_ssnh;
+static int proto_lcp_option_multilink_ep_disc;
+static int proto_lcp_option_dce_identifier;
+static int proto_lcp_option_multilink_pp;
+static int proto_lcp_option_link_discrim;
+static int proto_lcp_option_auth;
+static int proto_lcp_option_cobs;
+static int proto_lcp_option_prefix_elision;
+static int proto_lcp_option_multilink_hdr_fmt;
+static int proto_lcp_option_internationalization;
+static int proto_lcp_option_sonet_sdh;
 
-static gint ett_lcp = -1;
-static gint ett_lcp_options = -1;
-static gint ett_lcp_vendor_opt = -1;
-static gint ett_lcp_mru_opt = -1;
-static gint ett_lcp_asyncmap_opt = -1;
-static gint ett_lcp_authprot_opt = -1;
-static gint ett_lcp_qualprot_opt = -1;
-static gint ett_lcp_magicnumber_opt = -1;
-static gint ett_lcp_linkqualmon_opt = -1;
-static gint ett_lcp_pcomp_opt = -1;
-static gint ett_lcp_acccomp_opt = -1;
-static gint ett_lcp_fcs_alternatives_opt = -1;
-static gint ett_lcp_self_desc_pad_opt = -1;
-static gint ett_lcp_numbered_mode_opt = -1;
-static gint ett_lcp_callback_opt = -1;
-static gint ett_lcp_compound_frames_opt = -1;
-static gint ett_lcp_nomdataencap_opt = -1;
-static gint ett_lcp_multilink_mrru_opt = -1;
-static gint ett_lcp_multilink_ssnh_opt = -1;
-static gint ett_lcp_multilink_ep_disc_opt = -1;
-static gint ett_lcp_magic_block = -1;
-static gint ett_lcp_dce_identifier_opt = -1;
-static gint ett_lcp_multilink_pp_opt = -1;
-static gint ett_lcp_bacp_link_discrim_opt = -1;
-static gint ett_lcp_auth_opt = -1;
-static gint ett_lcp_cobs_opt = -1;
-static gint ett_lcp_prefix_elision_opt = -1;
-static gint ett_multilink_hdr_fmt_opt = -1;
-static gint ett_lcp_internationalization_opt = -1;
-static gint ett_lcp_sonet_sdh_opt = -1;
+static gint ett_lcp;
+static gint ett_lcp_options;
+static gint ett_lcp_vendor_opt;
+static gint ett_lcp_mru_opt;
+static gint ett_lcp_asyncmap_opt;
+static gint ett_lcp_authprot_opt;
+static gint ett_lcp_qualprot_opt;
+static gint ett_lcp_magicnumber_opt;
+static gint ett_lcp_linkqualmon_opt;
+static gint ett_lcp_pcomp_opt;
+static gint ett_lcp_acccomp_opt;
+static gint ett_lcp_fcs_alternatives_opt;
+static gint ett_lcp_self_desc_pad_opt;
+static gint ett_lcp_numbered_mode_opt;
+static gint ett_lcp_callback_opt;
+static gint ett_lcp_compound_frames_opt;
+static gint ett_lcp_nomdataencap_opt;
+static gint ett_lcp_multilink_mrru_opt;
+static gint ett_lcp_multilink_ssnh_opt;
+static gint ett_lcp_multilink_ep_disc_opt;
+static gint ett_lcp_magic_block;
+static gint ett_lcp_dce_identifier_opt;
+static gint ett_lcp_multilink_pp_opt;
+static gint ett_lcp_bacp_link_discrim_opt;
+static gint ett_lcp_auth_opt;
+static gint ett_lcp_cobs_opt;
+static gint ett_lcp_prefix_elision_opt;
+static gint ett_multilink_hdr_fmt_opt;
+static gint ett_lcp_internationalization_opt;
+static gint ett_lcp_sonet_sdh_opt;
 
 static dissector_table_t lcp_option_table;
 
-static int proto_ipcp = -1;
-static int proto_ipcp_option_addrs = -1;
-static int proto_ipcp_option_compress = -1;
-static int proto_ipcp_option_addr = -1;
-static int proto_ipcp_option_mobileipv4 = -1;
-static int proto_ipcp_option_pri_dns = -1;
-static int proto_ipcp_option_pri_nbns = -1;
-static int proto_ipcp_option_sec_dns = -1;
-static int proto_ipcp_option_sec_nbns = -1;
-static int proto_ipcp_rohc_option_profiles = -1;
-static int proto_ipcp_iphc_option_rtp_compress = -1;
-static int proto_ipcp_iphc_option_enhanced_rtp_compress = -1;
-static int proto_ipcp_iphc_option_neghdrcomp = -1;
+static int proto_ipcp;
+static int proto_ipcp_option_addrs;
+static int proto_ipcp_option_compress;
+static int proto_ipcp_option_addr;
+static int proto_ipcp_option_mobileipv4;
+static int proto_ipcp_option_pri_dns;
+static int proto_ipcp_option_pri_nbns;
+static int proto_ipcp_option_sec_dns;
+static int proto_ipcp_option_sec_nbns;
+static int proto_ipcp_rohc_option_profiles;
+static int proto_ipcp_iphc_option_rtp_compress;
+static int proto_ipcp_iphc_option_enhanced_rtp_compress;
+static int proto_ipcp_iphc_option_neghdrcomp;
 
-static gint ett_ipcp = -1;
-static gint ett_ipcp_options = -1;
-static gint ett_ipcp_ipaddrs_opt = -1;
-static gint ett_ipcp_compress_opt = -1;
-static gint ett_ipcp_ipaddr_opt = -1;
-static gint ett_ipcp_mobileipv4_opt = -1;
-static gint ett_ipcp_pridns_opt = -1;
-static gint ett_ipcp_secdns_opt = -1;
-static gint ett_ipcp_prinbns_opt = -1;
-static gint ett_ipcp_secnbns_opt = -1;
+static gint ett_ipcp;
+static gint ett_ipcp_options;
+static gint ett_ipcp_ipaddrs_opt;
+static gint ett_ipcp_compress_opt;
+static gint ett_ipcp_ipaddr_opt;
+static gint ett_ipcp_mobileipv4_opt;
+static gint ett_ipcp_pridns_opt;
+static gint ett_ipcp_secdns_opt;
+static gint ett_ipcp_prinbns_opt;
+static gint ett_ipcp_secnbns_opt;
 
-static gint ett_ipcp_iphc_rtp_compress_opt = -1;
-static gint ett_ipcp_iphc_enhanced_rtp_compress_opt = -1;
-static gint ett_ipcp_iphc_neghdrcomp_opt = -1;
-static gint ett_ipcp_rohc_profiles_opt = -1;
+static gint ett_ipcp_iphc_rtp_compress_opt;
+static gint ett_ipcp_iphc_enhanced_rtp_compress_opt;
+static gint ett_ipcp_iphc_neghdrcomp_opt;
+static gint ett_ipcp_rohc_profiles_opt;
 
 static dissector_table_t ipcp_option_table;
 static dissector_table_t ipcp_rohc_suboption_table;
 static dissector_table_t ipcp_iphc_suboption_table;
 
-static int proto_vsncp = -1;
-static int proto_vsncp_option_pdnid = -1;
-static int proto_vsncp_option_apname = -1;
-static int proto_vsncp_option_pdntype = -1;
-static int proto_vsncp_option_pdnaddress = -1;
-static int proto_vsncp_option_pco = -1;
-static int proto_vsncp_option_errorcode = -1;
-static int proto_vsncp_option_attachtype = -1;
-static int proto_vsncp_option_ipv4address = -1;
-static int proto_vsncp_option_addressalloc = -1;
-static int proto_vsncp_option_apn_ambr = -1;
-static int proto_vsncp_option_ipv6_hsgw_lla_iid = -1;
+static int proto_vsncp;
+static int proto_vsncp_option_pdnid;
+static int proto_vsncp_option_apname;
+static int proto_vsncp_option_pdntype;
+static int proto_vsncp_option_pdnaddress;
+static int proto_vsncp_option_pco;
+static int proto_vsncp_option_errorcode;
+static int proto_vsncp_option_attachtype;
+static int proto_vsncp_option_ipv4address;
+static int proto_vsncp_option_addressalloc;
+static int proto_vsncp_option_apn_ambr;
+static int proto_vsncp_option_ipv6_hsgw_lla_iid;
 
-static int hf_vsncp_opt_type = -1;
-static int hf_vsncp_opt_length = -1;
+static int hf_vsncp_opt_type;
+static int hf_vsncp_opt_length;
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_vsncp_protocol_configuration_length = -1;
-static int hf_vsncp_error_code = -1;
-static int hf_vsncp_identifier = -1;
-static int hf_vsncp_attach_type = -1;
-static int hf_vsncp_protocol_configuration_data = -1;
-static int hf_vsncp_default_router_address = -1;
-static int hf_vsncp_pdn_identifier = -1;
-static int hf_vsncp_address_allocation_cause = -1;
-static int hf_vsncp_length = -1;
-static int hf_vsncp_code = -1;
-static int hf_vsncp_protocol = -1;
-static int hf_vsncp_pdn_type = -1;
-static int hf_vsncp_ipv6_interface_identifier = -1;
-static int hf_vsncp_pdn_ipv4 = -1;
-static int hf_vsncp_access_point_name = -1;
-static int hf_vsncp_ambr_data = -1;
-static int hf_vsncp_pdn_ipv6 = -1;
+static int hf_vsncp_protocol_configuration_length;
+static int hf_vsncp_error_code;
+static int hf_vsncp_identifier;
+static int hf_vsncp_attach_type;
+static int hf_vsncp_protocol_configuration_data;
+static int hf_vsncp_default_router_address;
+static int hf_vsncp_pdn_identifier;
+static int hf_vsncp_address_allocation_cause;
+static int hf_vsncp_length;
+static int hf_vsncp_code;
+static int hf_vsncp_protocol;
+static int hf_vsncp_pdn_type;
+static int hf_vsncp_ipv6_interface_identifier;
+static int hf_vsncp_pdn_ipv4;
+static int hf_vsncp_access_point_name;
+static int hf_vsncp_ambr_data;
+static int hf_vsncp_pdn_ipv6;
 
-static gint ett_vsncp = -1;
-static gint ett_vsncp_options = -1;
-static gint ett_vsncp_pdnid_opt = -1;
-static gint ett_vsncp_apname_opt = -1;
-static gint ett_vsncp_pdntype_opt = -1;
-static gint ett_vsncp_pdnaddress_opt = -1;
-static gint ett_vsncp_pco_opt = -1;
-static gint ett_vsncp_errorcode_opt = -1;
-static gint ett_vsncp_attachtype_opt = -1;
-static gint ett_vsncp_ipv4address_opt = -1;
-static gint ett_vsncp_addressalloc_opt = -1;
-static gint ett_vsncp_apn_ambr_opt = -1;
-static gint ett_vsncp_ipv6_hsgw_lla_iid_opt = -1;
+static gint ett_vsncp;
+static gint ett_vsncp_options;
+static gint ett_vsncp_pdnid_opt;
+static gint ett_vsncp_apname_opt;
+static gint ett_vsncp_pdntype_opt;
+static gint ett_vsncp_pdnaddress_opt;
+static gint ett_vsncp_pco_opt;
+static gint ett_vsncp_errorcode_opt;
+static gint ett_vsncp_attachtype_opt;
+static gint ett_vsncp_ipv4address_opt;
+static gint ett_vsncp_addressalloc_opt;
+static gint ett_vsncp_apn_ambr_opt;
+static gint ett_vsncp_ipv6_hsgw_lla_iid_opt;
 
 static dissector_table_t vsncp_option_table;
 
@@ -271,195 +271,195 @@ static dissector_table_t vsncp_option_table;
 #define OUI_3GPP 0xCF0002   /* 3GPP X.S0057-0 */
 
 static guint32 vsnp_oui = -1;
-static int proto_vsnp = -1;
+static int proto_vsnp;
 
 /* 3GPP Variables */
-static gint hf_vsnp_3gpp_pdnid = -1;
+static gint hf_vsnp_3gpp_pdnid;
 
 /* BBF Variables */
 /* TO DO */
 
-static gint ett_vsnp =-1;
+static gint ett_vsnp;
 
-static int proto_osinlcp = -1;
-static int proto_osinlcp_option_align_npdu = -1;
+static int proto_osinlcp;
+static int proto_osinlcp_option_align_npdu;
 
-static gint ett_osinlcp = -1;
-static gint ett_osinlcp_options = -1;
-static gint ett_osinlcp_align_npdu_opt = -1;
+static gint ett_osinlcp;
+static gint ett_osinlcp_options;
+static gint ett_osinlcp_align_npdu_opt;
 
 static dissector_table_t osinlcp_option_table;
 
-static int proto_bcp_bpdu = -1;
-static int hf_bcp_bpdu_flags = -1;
-static int hf_bcp_bpdu_fcs_present = -1;
-static int hf_bcp_bpdu_zeropad = -1;
-static int hf_bcp_bpdu_bcontrol = -1;
-static int hf_bcp_bpdu_pads = -1;
-static int hf_bcp_bpdu_mac_type = -1;
-static int hf_bcp_bpdu_pad = -1;
+static int proto_bcp_bpdu;
+static int hf_bcp_bpdu_flags;
+static int hf_bcp_bpdu_fcs_present;
+static int hf_bcp_bpdu_zeropad;
+static int hf_bcp_bpdu_bcontrol;
+static int hf_bcp_bpdu_pads;
+static int hf_bcp_bpdu_mac_type;
+static int hf_bcp_bpdu_pad;
 
-static gint ett_bcp_bpdu = -1;
-static gint ett_bcp_bpdu_flags = -1;
+static gint ett_bcp_bpdu;
+static gint ett_bcp_bpdu_flags;
 
-static int proto_bcp_ncp = -1;
-static int proto_bcp_ncp_option_bridge_id = -1;
-static int proto_bcp_ncp_option_line_id = -1;
-static int proto_bcp_ncp_option_mac_sup = -1;
-static int proto_bcp_ncp_option_tinygram_comp = -1;
-static int proto_bcp_ncp_option_lan_id = -1;
-static int proto_bcp_ncp_option_mac_addr = -1;
-static int proto_bcp_ncp_option_stp = -1;
-static int proto_bcp_ncp_option_ieee_802_tagged_frame = -1;
-static int proto_bcp_ncp_option_management_inline = -1;
-static int proto_bcp_ncp_option_bcp_ind = -1;
+static int proto_bcp_ncp;
+static int proto_bcp_ncp_option_bridge_id;
+static int proto_bcp_ncp_option_line_id;
+static int proto_bcp_ncp_option_mac_sup;
+static int proto_bcp_ncp_option_tinygram_comp;
+static int proto_bcp_ncp_option_lan_id;
+static int proto_bcp_ncp_option_mac_addr;
+static int proto_bcp_ncp_option_stp;
+static int proto_bcp_ncp_option_ieee_802_tagged_frame;
+static int proto_bcp_ncp_option_management_inline;
+static int proto_bcp_ncp_option_bcp_ind;
 
-static int hf_bcp_ncp_opt_type = -1;
-static int hf_bcp_ncp_opt_length = -1;
-static int hf_bcp_ncp_lan_seg_no = -1;
-static int hf_bcp_ncp_bridge_no = -1;
-static int hf_bcp_ncp_tinygram_comp = -1;
-static int hf_bcp_ncp_mac = -1;
-static int hf_bcp_ncp_mac_l = -1;
-static int hf_bcp_ncp_mac_m = -1;
-static int hf_bcp_ncp_stp_prot = -1;
-static int hf_bcp_ncp_ieee_802_tagged_frame = -1;
+static int hf_bcp_ncp_opt_type;
+static int hf_bcp_ncp_opt_length;
+static int hf_bcp_ncp_lan_seg_no;
+static int hf_bcp_ncp_bridge_no;
+static int hf_bcp_ncp_tinygram_comp;
+static int hf_bcp_ncp_mac;
+static int hf_bcp_ncp_mac_l;
+static int hf_bcp_ncp_mac_m;
+static int hf_bcp_ncp_stp_prot;
+static int hf_bcp_ncp_ieee_802_tagged_frame;
 
-static gint ett_bcp_ncp = -1;
-static gint ett_bcp_ncp_options = -1;
-static gint ett_bcp_ncp_ieee_802_tagged_frame_opt = -1;
-static gint ett_bcp_ncp_management_inline_opt = -1;
-static gint ett_bcp_ncp_bcp_ind_opt = -1;
-static gint ett_bcp_ncp_bridge_id_opt = -1;
-static gint ett_bcp_ncp_line_id_opt = -1;
-static gint ett_bcp_ncp_mac_sup_opt = -1;
-static gint ett_bcp_ncp_tinygram_comp_opt = -1;
-static gint ett_bcp_ncp_lan_id_opt = -1;
-static gint ett_bcp_ncp_mac_addr_opt = -1;
-static gint ett_bcp_ncp_stp_opt = -1;
+static gint ett_bcp_ncp;
+static gint ett_bcp_ncp_options;
+static gint ett_bcp_ncp_ieee_802_tagged_frame_opt;
+static gint ett_bcp_ncp_management_inline_opt;
+static gint ett_bcp_ncp_bcp_ind_opt;
+static gint ett_bcp_ncp_bridge_id_opt;
+static gint ett_bcp_ncp_line_id_opt;
+static gint ett_bcp_ncp_mac_sup_opt;
+static gint ett_bcp_ncp_tinygram_comp_opt;
+static gint ett_bcp_ncp_lan_id_opt;
+static gint ett_bcp_ncp_mac_addr_opt;
+static gint ett_bcp_ncp_stp_opt;
 
 static dissector_table_t bcp_ncp_option_table;
 
-static int proto_ccp = -1;
-static int proto_ccp_option_oui = -1;
-static int proto_ccp_option_predict1 = -1;
-static int proto_ccp_option_predict2 = -1;
-static int proto_ccp_option_puddle = -1;
-static int proto_ccp_option_hpppc = -1;
-static int proto_ccp_option_stac = -1;
-static int proto_ccp_option_stac_ascend = -1;
-static int proto_ccp_option_mppe = -1;
-static int proto_ccp_option_gfza = -1;
-static int proto_ccp_option_v42bis = -1;
-static int proto_ccp_option_bsdcomp = -1;
-static int proto_ccp_option_lzsdcp = -1;
-static int proto_ccp_option_mvrca = -1;
-static int proto_ccp_option_dce = -1;
-static int proto_ccp_option_deflate = -1;
-static int proto_ccp_option_v44lzjh = -1;
+static int proto_ccp;
+static int proto_ccp_option_oui;
+static int proto_ccp_option_predict1;
+static int proto_ccp_option_predict2;
+static int proto_ccp_option_puddle;
+static int proto_ccp_option_hpppc;
+static int proto_ccp_option_stac;
+static int proto_ccp_option_stac_ascend;
+static int proto_ccp_option_mppe;
+static int proto_ccp_option_gfza;
+static int proto_ccp_option_v42bis;
+static int proto_ccp_option_bsdcomp;
+static int proto_ccp_option_lzsdcp;
+static int proto_ccp_option_mvrca;
+static int proto_ccp_option_dce;
+static int proto_ccp_option_deflate;
+static int proto_ccp_option_v44lzjh;
 
-static gint ett_ccp = -1;
-static gint ett_ccp_options = -1;
-static gint ett_ccp_oui_opt = -1;
-static gint ett_ccp_predict1_opt = -1;
-static gint ett_ccp_predict2_opt = -1;
-static gint ett_ccp_puddle_opt = -1;
-static gint ett_ccp_hpppc_opt = -1;
-static gint ett_ccp_stac_opt = -1;
-static gint ett_ccp_stac_opt_check_mode = -1;
-static gint ett_ccp_mppe_opt = -1;
-static gint ett_ccp_mppe_opt_supp_bits = -1;
-static gint ett_ccp_gfza_opt = -1;
-static gint ett_ccp_v42bis_opt = -1;
-static gint ett_ccp_bsdcomp_opt = -1;
-static gint ett_ccp_lzsdcp_opt = -1;
-static gint ett_ccp_mvrca_opt = -1;
-static gint ett_ccp_dce_opt = -1;
-static gint ett_ccp_deflate_opt = -1;
-static gint ett_ccp_v44lzjh_opt = -1;
+static gint ett_ccp;
+static gint ett_ccp_options;
+static gint ett_ccp_oui_opt;
+static gint ett_ccp_predict1_opt;
+static gint ett_ccp_predict2_opt;
+static gint ett_ccp_puddle_opt;
+static gint ett_ccp_hpppc_opt;
+static gint ett_ccp_stac_opt;
+static gint ett_ccp_stac_opt_check_mode;
+static gint ett_ccp_mppe_opt;
+static gint ett_ccp_mppe_opt_supp_bits;
+static gint ett_ccp_gfza_opt;
+static gint ett_ccp_v42bis_opt;
+static gint ett_ccp_bsdcomp_opt;
+static gint ett_ccp_lzsdcp_opt;
+static gint ett_ccp_mvrca_opt;
+static gint ett_ccp_dce_opt;
+static gint ett_ccp_deflate_opt;
+static gint ett_ccp_v44lzjh_opt;
 
 static dissector_table_t ccp_option_table;
 
-static int proto_cbcp = -1;
-static int proto_cbcp_option_no_callback = -1;
-static int proto_cbcp_option_callback_user = -1;
-static int proto_cbcp_option_callback_admin = -1;
-static int proto_cbcp_option_callback_list = -1;
+static int proto_cbcp;
+static int proto_cbcp_option_no_callback;
+static int proto_cbcp_option_callback_user;
+static int proto_cbcp_option_callback_admin;
+static int proto_cbcp_option_callback_list;
 
-static int hf_cbcp_opt_type = -1;
-static int hf_cbcp_opt_length = -1;
+static int hf_cbcp_opt_type;
+static int hf_cbcp_opt_length;
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_cbcp_address_type = -1;
-static int hf_cbcp_address = -1;
-static int hf_cbcp_callback_delay = -1;
-static int hf_cbcp_no_callback = -1;
+static int hf_cbcp_address_type;
+static int hf_cbcp_address;
+static int hf_cbcp_callback_delay;
+static int hf_cbcp_no_callback;
 
-static gint ett_cbcp = -1;
-static gint ett_cbcp_options = -1;
-static gint ett_cbcp_callback_opt = -1;
-static gint ett_cbcp_callback_opt_addr = -1;
-static gint ett_cbcp_no_callback = -1;
-static gint ett_cbcp_callback_user = -1;
-static gint ett_cbcp_callback_admin = -1;
-static gint ett_cbcp_callback_list = -1;
+static gint ett_cbcp;
+static gint ett_cbcp_options;
+static gint ett_cbcp_callback_opt;
+static gint ett_cbcp_callback_opt_addr;
+static gint ett_cbcp_no_callback;
+static gint ett_cbcp_callback_user;
+static gint ett_cbcp_callback_admin;
+static gint ett_cbcp_callback_list;
 
-static expert_field ei_cbcp_address = EI_INIT;
+static expert_field ei_cbcp_address;
 
 static dissector_table_t cbcp_option_table;
 
-static int proto_bacp = -1;
-static int proto_bacp_option_favored_peer = -1;
+static int proto_bacp;
+static int proto_bacp_option_favored_peer;
 
-static int hf_bacp_opt_type = -1;
-static int hf_bacp_opt_length = -1;
+static int hf_bacp_opt_type;
+static int hf_bacp_opt_length;
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_bacp_link_speed = -1;
-static int hf_bacp_magic_number = -1;
-static int hf_bacp_link_type = -1;
+static int hf_bacp_link_speed;
+static int hf_bacp_magic_number;
+static int hf_bacp_link_type;
 
-static gint ett_bacp = -1;
-static gint ett_bacp_options = -1;
-static gint ett_bacp_favored_peer_opt = -1;
+static gint ett_bacp;
+static gint ett_bacp_options;
+static gint ett_bacp_favored_peer_opt;
 
 static dissector_table_t bacp_option_table;
 
-static int proto_bap = -1;
-static int proto_bap_option_link_type = -1;
-static int proto_bap_option_phone_delta = -1;
-static int proto_bap_option_no_phone = -1;
-static int proto_bap_option_reason = -1;
-static int proto_bap_option_link_disc = -1;
-static int proto_bap_option_call_status = -1;
+static int proto_bap;
+static int proto_bap_option_link_type;
+static int proto_bap_option_phone_delta;
+static int proto_bap_option_no_phone;
+static int proto_bap_option_reason;
+static int proto_bap_option_link_disc;
+static int proto_bap_option_call_status;
 
-static int hf_bap_opt_type = -1;
-static int hf_bap_opt_length = -1;
+static int hf_bap_opt_type;
+static int hf_bap_opt_length;
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_bap_sub_option_length = -1;
-static int hf_bap_call_status = -1;
-static int hf_bap_unknown_option_data = -1;
-static int hf_bap_sub_option_type = -1;
-static int hf_bap_reason = -1;
-static int hf_bap_link_discriminator = -1;
-static int hf_bap_unique_digit = -1;
-static int hf_bap_type = -1;
-static int hf_bap_identifier = -1;
-static int hf_bap_subscriber_number = -1;
-static int hf_bap_phone_number_sub_address = -1;
-static int hf_bap_response_code = -1;
-static int hf_bap_call_action = -1;
-static int hf_bap_length = -1;
+static int hf_bap_sub_option_length;
+static int hf_bap_call_status;
+static int hf_bap_unknown_option_data;
+static int hf_bap_sub_option_type;
+static int hf_bap_reason;
+static int hf_bap_link_discriminator;
+static int hf_bap_unique_digit;
+static int hf_bap_type;
+static int hf_bap_identifier;
+static int hf_bap_subscriber_number;
+static int hf_bap_phone_number_sub_address;
+static int hf_bap_response_code;
+static int hf_bap_call_action;
+static int hf_bap_length;
 
-static gint ett_bap = -1;
-static gint ett_bap_options = -1;
-static gint ett_bap_link_type_opt = -1;
-static gint ett_bap_phone_delta_opt = -1;
-static gint ett_bap_phone_delta_subopt = -1;
-static gint ett_bap_call_status_opt = -1;
-static gint ett_bap_no_phone_opt = -1;
-static gint ett_bap_reason_opt = -1;
-static gint ett_bap_link_disc_opt = -1;
+static gint ett_bap;
+static gint ett_bap_options;
+static gint ett_bap_link_type_opt;
+static gint ett_bap_phone_delta_opt;
+static gint ett_bap_phone_delta_subopt;
+static gint ett_bap_call_status_opt;
+static gint ett_bap_no_phone_opt;
+static gint ett_bap_reason_opt;
+static gint ett_bap_link_disc_opt;
 
-static expert_field ei_bap_sub_option_length = EI_INIT;
+static expert_field ei_bap_sub_option_length;
 
 static dissector_table_t bap_option_table;
 
@@ -492,66 +492,66 @@ static dissector_handle_t cs_handle;
 static dissector_handle_t cntcp_handle;
 
 
-static int proto_comp_data = -1;
+static int proto_comp_data;
 
 #if 0  /* see dissect_comp_data() */
-static gint ett_comp_data = -1;
+static gint ett_comp_data;
 #endif
-static int proto_pppmuxcp = -1;
-static int proto_pppmuxcp_option_def_pid = -1;
+static int proto_pppmuxcp;
+static int proto_pppmuxcp_option_def_pid;
 
-static int hf_pppmux_flags_pid = -1;
-static int hf_pppmux_flags_field_length = -1;
-static int hf_pppmuxcp_opt_type = -1;
-static int hf_pppmuxcp_opt_length = -1;
+static int hf_pppmux_flags_pid;
+static int hf_pppmux_flags_field_length;
+static int hf_pppmuxcp_opt_type;
+static int hf_pppmuxcp_opt_length;
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_pppmux_sub_frame_length = -1;
-static int hf_pppmux_flags = -1;
-static int hf_pppmux_def_prot_id = -1;
+static int hf_pppmux_sub_frame_length;
+static int hf_pppmux_flags;
+static int hf_pppmux_def_prot_id;
 
-static gint ett_pppmuxcp = -1;
-static gint ett_pppmuxcp_options = -1;
-static gint ett_pppmuxcp_def_pid_opt = -1;
+static gint ett_pppmuxcp;
+static gint ett_pppmuxcp_options;
+static gint ett_pppmuxcp_def_pid_opt;
 
 static dissector_table_t pppmuxcp_option_table;
 
-static int proto_pppmux = -1;
-static int hf_pppmux_protocol = -1;
+static int proto_pppmux;
+static int hf_pppmux_protocol;
 
-static gint ett_pppmux = -1;
-static gint ett_pppmux_subframe = -1;
-static gint ett_pppmux_subframe_hdr = -1;
-static gint ett_pppmux_subframe_flags = -1;
-static gint ett_pppmux_subframe_info = -1;
+static gint ett_pppmux;
+static gint ett_pppmux_subframe;
+static gint ett_pppmux_subframe_hdr;
+static gint ett_pppmux_subframe_flags;
+static gint ett_pppmux_subframe_info;
 
 static reassembly_table mp_reassembly_table;
 
-static int proto_mp = -1;
-static int hf_mp_frag = -1;
-static int hf_mp_frag_short = -1;
-static int hf_mp_frag_first = -1;
-static int hf_mp_frag_last = -1;
-static int hf_mp_sequence_num = -1;
-static int hf_mp_sequence_num_cls = -1;
-static int hf_mp_sequence_num_reserved = -1;
-static int hf_mp_short_sequence_num = -1;
-static int hf_mp_short_sequence_num_cls = -1;
-static int hf_mp_payload = -1;
-static gint hf_mp_fragments = -1;
-static gint hf_mp_fragment = -1;
-static gint hf_mp_fragment_overlap = -1;
-static gint hf_mp_fragment_overlap_conflicts = -1;
-static gint hf_mp_fragment_multiple_tails = -1;
-static gint hf_mp_fragment_too_long_fragment = -1;
-static gint hf_mp_fragment_error = -1;
-static gint hf_mp_fragment_count = -1;
-static gint hf_mp_reassembled_in = -1;
-static gint hf_mp_reassembled_length = -1;
+static int proto_mp;
+static int hf_mp_frag;
+static int hf_mp_frag_short;
+static int hf_mp_frag_first;
+static int hf_mp_frag_last;
+static int hf_mp_sequence_num;
+static int hf_mp_sequence_num_cls;
+static int hf_mp_sequence_num_reserved;
+static int hf_mp_short_sequence_num;
+static int hf_mp_short_sequence_num_cls;
+static int hf_mp_payload;
+static gint hf_mp_fragments;
+static gint hf_mp_fragment;
+static gint hf_mp_fragment_overlap;
+static gint hf_mp_fragment_overlap_conflicts;
+static gint hf_mp_fragment_multiple_tails;
+static gint hf_mp_fragment_too_long_fragment;
+static gint hf_mp_fragment_error;
+static gint hf_mp_fragment_count;
+static gint hf_mp_reassembled_in;
+static gint hf_mp_reassembled_length;
 
-static int ett_mp = -1;
-static int ett_mp_flags = -1;
-static gint ett_mp_fragment = -1;
-static gint ett_mp_fragments = -1;
+static int ett_mp;
+static int ett_mp_flags;
+static gint ett_mp_fragment;
+static gint ett_mp_fragments;
 
 static const fragment_items mp_frag_items = {
     /* Fragment subtrees */
@@ -576,88 +576,88 @@ static const fragment_items mp_frag_items = {
     "Message fragments"
 };
 
-static int proto_mplscp = -1;
-static gint ett_mplscp = -1;
-static gint ett_mplscp_options  = -1;
+static int proto_mplscp;
+static gint ett_mplscp;
+static gint ett_mplscp_options;
 
-static int proto_cdpcp = -1;
-static gint ett_cdpcp = -1;
-static gint ett_cdpcp_options   = -1;
+static int proto_cdpcp;
+static gint ett_cdpcp;
+static gint ett_cdpcp_options;
 
-static int proto_pap = -1;           /* PAP vars */
-static gint ett_pap = -1;
-static gint ett_pap_data = -1;
+static int proto_pap;           /* PAP vars */
+static gint ett_pap;
+static gint ett_pap_data;
 
-static gint hf_pap_code = -1;
-static gint hf_pap_identifier = -1;
-static gint hf_pap_length = -1;
-static gint hf_pap_data = -1;
-static gint hf_pap_peer_id = -1;
-static gint hf_pap_peer_id_length = -1;
-static gint hf_pap_password = -1;
-static gint hf_pap_password_length = -1;
-static gint hf_pap_message = -1;
-static gint hf_pap_message_length = -1;
-static gint hf_pap_stuff = -1;
+static gint hf_pap_code;
+static gint hf_pap_identifier;
+static gint hf_pap_length;
+static gint hf_pap_data;
+static gint hf_pap_peer_id;
+static gint hf_pap_peer_id_length;
+static gint hf_pap_password;
+static gint hf_pap_password_length;
+static gint hf_pap_message;
+static gint hf_pap_message_length;
+static gint hf_pap_stuff;
 
-static int proto_chap = -1;           /* CHAP vars */
-static gint ett_chap = -1;
-static gint ett_chap_data = -1;
+static int proto_chap;           /* CHAP vars */
+static gint ett_chap;
+static gint ett_chap_data;
 
 
-static gint hf_chap_code = -1;
-static gint hf_chap_identifier = -1;
-static gint hf_chap_length = -1;
-static gint hf_chap_data = -1;
-static gint hf_chap_value_size = -1;
-static gint hf_chap_value = -1;
-static gint hf_chap_name = -1;
-static gint hf_chap_message = -1;
-static int hf_chap_stuff = -1;
+static gint hf_chap_code;
+static gint hf_chap_identifier;
+static gint hf_chap_length;
+static gint hf_chap_data;
+static gint hf_chap_value_size;
+static gint hf_chap_value;
+static gint hf_chap_name;
+static gint hf_chap_message;
+static int hf_chap_stuff;
 
-static int proto_ipv6cp = -1;  /* IPv6CP vars */
-static int proto_ipv6cp_option_if_id = -1;
-static int proto_ipv6cp_option_compress = -1;
+static int proto_ipv6cp;  /* IPv6CP vars */
+static int proto_ipv6cp_option_if_id;
+static int proto_ipv6cp_option_compress;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_ipv6cp_opt_type = -1;
-static int hf_ipv6cp_opt_length = -1;
-static int hf_ipv6cp_interface_identifier = -1;
+static int hf_ipv6cp_opt_type;
+static int hf_ipv6cp_opt_length;
+static int hf_ipv6cp_interface_identifier;
 
-static gint ett_ipv6cp = -1;
-static gint ett_ipv6cp_options = -1;
-static gint ett_ipv6cp_if_id_opt = -1;
-static gint ett_ipv6cp_compress_opt = -1;
+static gint ett_ipv6cp;
+static gint ett_ipv6cp_options;
+static gint ett_ipv6cp_if_id_opt;
+static gint ett_ipv6cp_compress_opt;
 
 static dissector_table_t ipv6cp_option_table;
 
-static int proto_iphc_crtp = -1;            /* CRTP vars */
-static int proto_iphc_crtp_cudp16 = -1;
-static int proto_iphc_crtp_cudp8 = -1;
-static int proto_iphc_crtp_cs = -1;
-static int proto_iphc_crtp_cntcp = -1;
+static int proto_iphc_crtp;            /* CRTP vars */
+static int proto_iphc_crtp_cudp16;
+static int proto_iphc_crtp_cudp8;
+static int proto_iphc_crtp_cs;
+static int proto_iphc_crtp_cntcp;
 
-static int hf_iphc_crtp_cid8 = -1;
-static int hf_iphc_crtp_cid16 = -1;
-static int hf_iphc_crtp_gen = -1;
-static int hf_iphc_crtp_seq = -1;
-static int hf_iphc_crtp_fh_flags = -1;
-static int hf_iphc_crtp_fh_cidlenflag = -1;
-static int hf_iphc_crtp_fh_dataflag = -1;
-static int hf_iphc_crtp_cs_flags = -1;
-static int hf_iphc_crtp_cs_cnt = -1;
-static int hf_iphc_crtp_cs_invalid = -1;
-static int hf_iphc_crtp_ip_id = -1;
-static int hf_iphc_crtp_data = -1;
+static int hf_iphc_crtp_cid8;
+static int hf_iphc_crtp_cid16;
+static int hf_iphc_crtp_gen;
+static int hf_iphc_crtp_seq;
+static int hf_iphc_crtp_fh_flags;
+static int hf_iphc_crtp_fh_cidlenflag;
+static int hf_iphc_crtp_fh_dataflag;
+static int hf_iphc_crtp_cs_flags;
+static int hf_iphc_crtp_cs_cnt;
+static int hf_iphc_crtp_cs_invalid;
+static int hf_iphc_crtp_ip_id;
+static int hf_iphc_crtp_data;
 
-static gint ett_iphc_crtp = -1;
-static gint ett_iphc_crtp_hdr = -1;
-static gint ett_iphc_crtp_info = -1;
-static gint ett_iphc_crtp_fh_flags = -1;
+static gint ett_iphc_crtp;
+static gint ett_iphc_crtp_hdr;
+static gint ett_iphc_crtp_info;
+static gint ett_iphc_crtp_fh_flags;
 
-static expert_field ei_iphc_crtp_ip_version = EI_INIT;
-static expert_field ei_iphc_crtp_next_protocol = EI_INIT;
-static expert_field ei_iphc_crtp_seq_nonzero = EI_INIT;
+static expert_field ei_iphc_crtp_ip_version;
+static expert_field ei_iphc_crtp_next_protocol;
+static expert_field ei_iphc_crtp_seq_nonzero;
 
 static dissector_table_t ppp_subdissector_table;
 static dissector_handle_t chdlc_handle;
@@ -1184,84 +1184,84 @@ static const value_string dce_mode_vals[] = {
                                        why do they bother specifically
                                        mentioning this one, I wonder? */
 
-static int hf_lcp_magic_number = -1;
-static int hf_lcp_data = -1;
-static int hf_lcp_message = -1;
-static int hf_lcp_secs_remaining = -1;
-static int hf_lcp_rej_proto = -1;
-static int hf_lcp_opt_type = -1;
-static int hf_lcp_opt_length = -1;
-static int hf_lcp_opt_oui = -1;
-static int hf_lcp_opt_kind = -1;
-static int hf_lcp_opt_data = -1;
-static int hf_lcp_opt_mru = -1;
-static int hf_lcp_opt_asyncmap = -1;
-static int hf_lcp_opt_asyncmap_nul = -1;
-static int hf_lcp_opt_asyncmap_soh = -1;
-static int hf_lcp_opt_asyncmap_stx = -1;
-static int hf_lcp_opt_asyncmap_etx = -1;
-static int hf_lcp_opt_asyncmap_eot = -1;
-static int hf_lcp_opt_asyncmap_enq = -1;
-static int hf_lcp_opt_asyncmap_ack = -1;
-static int hf_lcp_opt_asyncmap_bel = -1;
-static int hf_lcp_opt_asyncmap_bs = -1;
-static int hf_lcp_opt_asyncmap_ht = -1;
-static int hf_lcp_opt_asyncmap_lf = -1;
-static int hf_lcp_opt_asyncmap_vt = -1;
-static int hf_lcp_opt_asyncmap_ff = -1;
-static int hf_lcp_opt_asyncmap_cr = -1;
-static int hf_lcp_opt_asyncmap_so = -1;
-static int hf_lcp_opt_asyncmap_si = -1;
-static int hf_lcp_opt_asyncmap_dle = -1;
-static int hf_lcp_opt_asyncmap_dc1 = -1;
-static int hf_lcp_opt_asyncmap_dc2 = -1;
-static int hf_lcp_opt_asyncmap_dc3 = -1;
-static int hf_lcp_opt_asyncmap_dc4 = -1;
-static int hf_lcp_opt_asyncmap_nak = -1;
-static int hf_lcp_opt_asyncmap_syn = -1;
-static int hf_lcp_opt_asyncmap_etb = -1;
-static int hf_lcp_opt_asyncmap_can = -1;
-static int hf_lcp_opt_asyncmap_em = -1;
-static int hf_lcp_opt_asyncmap_sub = -1;
-static int hf_lcp_opt_asyncmap_esc = -1;
-static int hf_lcp_opt_asyncmap_fs = -1;
-static int hf_lcp_opt_asyncmap_gs = -1;
-static int hf_lcp_opt_asyncmap_rs = -1;
-static int hf_lcp_opt_asyncmap_us = -1;
-static int hf_lcp_opt_auth_protocol = -1;
-static int hf_lcp_opt_algorithm = -1;
-static int hf_lcp_opt_quality_protocol = -1;
-static int hf_lcp_opt_magic_number = -1;
-static int hf_lcp_opt_reportingperiod = -1;
-static int hf_lcp_opt_fcs_alternatives = -1;
-static int hf_lcp_opt_fcs_alternatives_null = -1;
-static int hf_lcp_opt_fcs_alternatives_ccitt16 = -1;
-static int hf_lcp_opt_fcs_alternatives_ccitt32 = -1;
-static int hf_lcp_opt_maximum = -1;
-static int hf_lcp_opt_window = -1;
-static int hf_lcp_opt_hdlc_address = -1;
-static int hf_lcp_opt_operation = -1;
-static int hf_lcp_opt_message = -1;
-static int hf_lcp_opt_mrru = -1;
-static int hf_lcp_opt_ep_disc_class = -1;
-static int hf_lcp_opt_ip_address = -1;
-static int hf_lcp_opt_802_1_address = -1;
-static int hf_lcp_opt_magic_block = -1;
-static int hf_lcp_opt_psndn = -1;
-static int hf_lcp_opt_mode = -1;
-static int hf_lcp_opt_unused = -1;
-static int hf_lcp_opt_link_discrim = -1;
-static int hf_lcp_opt_id = -1;
-static int hf_lcp_opt_cobs_flags = -1;
-static int hf_lcp_opt_cobs_flags_res = -1;
-static int hf_lcp_opt_cobs_flags_pre = -1;
-static int hf_lcp_opt_cobs_flags_zxe = -1;
-static int hf_lcp_opt_class = -1;
-static int hf_lcp_opt_prefix = -1;
-static int hf_lcp_opt_code = -1;
-static int hf_lcp_opt_max_susp_classes = -1;
-static int hf_lcp_opt_MIBenum = -1;
-static int hf_lcp_opt_language_tag = -1;
+static int hf_lcp_magic_number;
+static int hf_lcp_data;
+static int hf_lcp_message;
+static int hf_lcp_secs_remaining;
+static int hf_lcp_rej_proto;
+static int hf_lcp_opt_type;
+static int hf_lcp_opt_length;
+static int hf_lcp_opt_oui;
+static int hf_lcp_opt_kind;
+static int hf_lcp_opt_data;
+static int hf_lcp_opt_mru;
+static int hf_lcp_opt_asyncmap;
+static int hf_lcp_opt_asyncmap_nul;
+static int hf_lcp_opt_asyncmap_soh;
+static int hf_lcp_opt_asyncmap_stx;
+static int hf_lcp_opt_asyncmap_etx;
+static int hf_lcp_opt_asyncmap_eot;
+static int hf_lcp_opt_asyncmap_enq;
+static int hf_lcp_opt_asyncmap_ack;
+static int hf_lcp_opt_asyncmap_bel;
+static int hf_lcp_opt_asyncmap_bs;
+static int hf_lcp_opt_asyncmap_ht;
+static int hf_lcp_opt_asyncmap_lf;
+static int hf_lcp_opt_asyncmap_vt;
+static int hf_lcp_opt_asyncmap_ff;
+static int hf_lcp_opt_asyncmap_cr;
+static int hf_lcp_opt_asyncmap_so;
+static int hf_lcp_opt_asyncmap_si;
+static int hf_lcp_opt_asyncmap_dle;
+static int hf_lcp_opt_asyncmap_dc1;
+static int hf_lcp_opt_asyncmap_dc2;
+static int hf_lcp_opt_asyncmap_dc3;
+static int hf_lcp_opt_asyncmap_dc4;
+static int hf_lcp_opt_asyncmap_nak;
+static int hf_lcp_opt_asyncmap_syn;
+static int hf_lcp_opt_asyncmap_etb;
+static int hf_lcp_opt_asyncmap_can;
+static int hf_lcp_opt_asyncmap_em;
+static int hf_lcp_opt_asyncmap_sub;
+static int hf_lcp_opt_asyncmap_esc;
+static int hf_lcp_opt_asyncmap_fs;
+static int hf_lcp_opt_asyncmap_gs;
+static int hf_lcp_opt_asyncmap_rs;
+static int hf_lcp_opt_asyncmap_us;
+static int hf_lcp_opt_auth_protocol;
+static int hf_lcp_opt_algorithm;
+static int hf_lcp_opt_quality_protocol;
+static int hf_lcp_opt_magic_number;
+static int hf_lcp_opt_reportingperiod;
+static int hf_lcp_opt_fcs_alternatives;
+static int hf_lcp_opt_fcs_alternatives_null;
+static int hf_lcp_opt_fcs_alternatives_ccitt16;
+static int hf_lcp_opt_fcs_alternatives_ccitt32;
+static int hf_lcp_opt_maximum;
+static int hf_lcp_opt_window;
+static int hf_lcp_opt_hdlc_address;
+static int hf_lcp_opt_operation;
+static int hf_lcp_opt_message;
+static int hf_lcp_opt_mrru;
+static int hf_lcp_opt_ep_disc_class;
+static int hf_lcp_opt_ip_address;
+static int hf_lcp_opt_802_1_address;
+static int hf_lcp_opt_magic_block;
+static int hf_lcp_opt_psndn;
+static int hf_lcp_opt_mode;
+static int hf_lcp_opt_unused;
+static int hf_lcp_opt_link_discrim;
+static int hf_lcp_opt_id;
+static int hf_lcp_opt_cobs_flags;
+static int hf_lcp_opt_cobs_flags_res;
+static int hf_lcp_opt_cobs_flags_pre;
+static int hf_lcp_opt_cobs_flags_zxe;
+static int hf_lcp_opt_class;
+static int hf_lcp_opt_prefix;
+static int hf_lcp_opt_code;
+static int hf_lcp_opt_max_susp_classes;
+static int hf_lcp_opt_MIBenum;
+static int hf_lcp_opt_language_tag;
 
 static gboolean
 ppp_option_len_check(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, int proto, guint len, guint optlen)
@@ -1467,34 +1467,34 @@ static const range_string chap_alg_rvals[] = {
 #define CI_SEC_DNS          131     /* Secondary DNS value (RFC 1877) */
 #define CI_SEC_NBNS         132     /* Secondary NBNS value (RFC 1877) */
 
-static int hf_ipcp_opt_type = -1;
-static int hf_ipcp_opt_length = -1;
-static int hf_ipcp_opt_src_address = -1;
-static int hf_ipcp_opt_dst_address = -1;
-static int hf_ipcp_opt_compress_proto = -1;
-static int hf_ipcp_opt_max_cid = -1;
-static int hf_ipcp_opt_mrru = -1;
-static int hf_ipcp_opt_max_slot_id = -1;
-static int hf_ipcp_opt_comp_slot_id = -1;
-static int hf_ipcp_opt_tcp_space = -1;
-static int hf_ipcp_opt_non_tcp_space = -1;
-static int hf_ipcp_opt_f_max_period = -1;
-static int hf_ipcp_opt_f_max_time = -1;
-static int hf_ipcp_opt_max_header = -1;
-static int hf_ipcp_data = -1;
-static int hf_ipcp_opt_ip_address = -1;
-static int hf_ipcp_opt_mobilenodehomeaddr = -1;
-static int hf_ipcp_opt_pri_dns_address = -1;
-static int hf_ipcp_opt_pri_nbns_address = -1;
-static int hf_ipcp_opt_sec_dns_address = -1;
-static int hf_ipcp_opt_sec_nbns_address = -1;
+static int hf_ipcp_opt_type;
+static int hf_ipcp_opt_length;
+static int hf_ipcp_opt_src_address;
+static int hf_ipcp_opt_dst_address;
+static int hf_ipcp_opt_compress_proto;
+static int hf_ipcp_opt_max_cid;
+static int hf_ipcp_opt_mrru;
+static int hf_ipcp_opt_max_slot_id;
+static int hf_ipcp_opt_comp_slot_id;
+static int hf_ipcp_opt_tcp_space;
+static int hf_ipcp_opt_non_tcp_space;
+static int hf_ipcp_opt_f_max_period;
+static int hf_ipcp_opt_f_max_time;
+static int hf_ipcp_opt_max_header;
+static int hf_ipcp_data;
+static int hf_ipcp_opt_ip_address;
+static int hf_ipcp_opt_mobilenodehomeaddr;
+static int hf_ipcp_opt_pri_dns_address;
+static int hf_ipcp_opt_pri_nbns_address;
+static int hf_ipcp_opt_sec_dns_address;
+static int hf_ipcp_opt_sec_nbns_address;
 
-static int hf_ipcp_opt_rohc_type = -1;
-static int hf_ipcp_opt_rohc_length = -1;
-static int hf_ipcp_opt_rohc_profile = -1;
-static int hf_ipcp_opt_iphc_type = -1;
-static int hf_ipcp_opt_iphc_length = -1;
-static int hf_ipcp_opt_iphc_param = -1;
+static int hf_ipcp_opt_rohc_type;
+static int hf_ipcp_opt_rohc_length;
+static int hf_ipcp_opt_rohc_profile;
+static int hf_ipcp_opt_iphc_type;
+static int hf_ipcp_opt_iphc_length;
+static int hf_ipcp_opt_iphc_param;
 
 /*
  * IP Compression options
@@ -1565,9 +1565,9 @@ static const value_string ipcp_rohc_profile_vals[] = {
  */
 #define CI_OSINLCP_ALIGN_NPDU    1  /* Alignment of the OSI NPDU (RFC 1377) */
 
-static int hf_osinlcp_opt_type = -1;
-static int hf_osinlcp_opt_length = -1;
-static int hf_osinlcp_opt_alignment = -1;
+static int hf_osinlcp_opt_type;
+static int hf_osinlcp_opt_length;
+static int hf_osinlcp_opt_alignment;
 
 /*
  * Options.  (CCP)
@@ -1589,41 +1589,41 @@ static int hf_osinlcp_opt_alignment = -1;
 #define CI_CCP_V44LZJH  27      /* V.44/LZJH (https://tools.ietf.org/html/draft-heath-ppp-v44-01) */
 #define CI_CCP_RESERVED 255     /* Reserved (RFC1962) */
 
-static int hf_ccp_opt_type = -1;
-static int hf_ccp_opt_length = -1;
-static int hf_ccp_opt_oui = -1;
-static int hf_ccp_opt_subtype = -1;
-static int hf_ccp_opt_data = -1;
-static int hf_ccp_opt_history_count = -1;
-static int hf_ccp_opt_cm = -1;
-static int hf_ccp_opt_cm_reserved = -1;
-static int hf_ccp_opt_cm_check_mode = -1;
-static int hf_ccp_opt_supported_bits = -1;
-static int hf_ccp_opt_supported_bits_h = -1;
-static int hf_ccp_opt_supported_bits_m = -1;
-static int hf_ccp_opt_supported_bits_s = -1;
-static int hf_ccp_opt_supported_bits_l = -1;
-static int hf_ccp_opt_supported_bits_d = -1;
-static int hf_ccp_opt_supported_bits_c = -1;
-static int hf_ccp_opt_history = -1;
-static int hf_ccp_opt_version = -1;
-static int hf_ccp_opt_vd = -1;
-static int hf_ccp_opt_vd_vers = -1;
-static int hf_ccp_opt_vd_dict = -1;
-static int hf_ccp_opt_check_mode = -1;
-static int hf_ccp_opt_process_mode = -1;
-static int hf_ccp_opt_fe = -1;
-static int hf_ccp_opt_p = -1;
-static int hf_ccp_opt_History = -1; /* Different than hf_ccp_opt_history */
-static int hf_ccp_opt_contexts = -1;
-static int hf_ccp_opt_mode = -1;
-static int hf_ccp_opt_window = -1;
-static int hf_ccp_opt_method = -1;
-static int hf_ccp_opt_mbz = -1;
-static int hf_ccp_opt_chk = -1;
-static int hf_ccp_opt_mode_dictcount = -1;
-static int hf_ccp_opt_dict_size = -1;
-static int hf_ccp_opt_history_length = -1;
+static int hf_ccp_opt_type;
+static int hf_ccp_opt_length;
+static int hf_ccp_opt_oui;
+static int hf_ccp_opt_subtype;
+static int hf_ccp_opt_data;
+static int hf_ccp_opt_history_count;
+static int hf_ccp_opt_cm;
+static int hf_ccp_opt_cm_reserved;
+static int hf_ccp_opt_cm_check_mode;
+static int hf_ccp_opt_supported_bits;
+static int hf_ccp_opt_supported_bits_h;
+static int hf_ccp_opt_supported_bits_m;
+static int hf_ccp_opt_supported_bits_s;
+static int hf_ccp_opt_supported_bits_l;
+static int hf_ccp_opt_supported_bits_d;
+static int hf_ccp_opt_supported_bits_c;
+static int hf_ccp_opt_history;
+static int hf_ccp_opt_version;
+static int hf_ccp_opt_vd;
+static int hf_ccp_opt_vd_vers;
+static int hf_ccp_opt_vd_dict;
+static int hf_ccp_opt_check_mode;
+static int hf_ccp_opt_process_mode;
+static int hf_ccp_opt_fe;
+static int hf_ccp_opt_p;
+static int hf_ccp_opt_History; /* Different than hf_ccp_opt_history */
+static int hf_ccp_opt_contexts;
+static int hf_ccp_opt_mode;
+static int hf_ccp_opt_window;
+static int hf_ccp_opt_method;
+static int hf_ccp_opt_mbz;
+static int hf_ccp_opt_chk;
+static int hf_ccp_opt_mode_dictcount;
+static int hf_ccp_opt_dict_size;
+static int hf_ccp_opt_history_length;
 
 /*
  * Options.  (CBCP)

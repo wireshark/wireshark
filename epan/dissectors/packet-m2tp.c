@@ -209,28 +209,28 @@ static const value_string m2tp_reason_code_values[] = {
 
 
 /* Initialize the protocol and registered fields */
-static int proto_m2tp = -1;
-static int hf_m2tp_version = -1;
-static int hf_m2tp_reserved = -1;
-static int hf_m2tp_message_class = -1;
-static int hf_m2tp_message_type = -1;
-static int hf_m2tp_message_length = -1;
-static int hf_m2tp_parameter_tag = -1;
-static int hf_m2tp_parameter_length = -1;
-static int hf_m2tp_parameter_value = -1;
-static int hf_m2tp_parameter_padding = -1;
-static int hf_m2tp_interface_identifier = -1;
-static int hf_m2tp_user = -1;
-static int hf_m2tp_master_slave = -1;
-static int hf_m2tp_info_string = -1;
-static int hf_m2tp_heartbeat_data = -1;
-static int hf_m2tp_diagnostic_info = -1;
-static int hf_m2tp_error_code = -1;
-static int hf_m2tp_reason = -1;
+static int proto_m2tp;
+static int hf_m2tp_version;
+static int hf_m2tp_reserved;
+static int hf_m2tp_message_class;
+static int hf_m2tp_message_type;
+static int hf_m2tp_message_length;
+static int hf_m2tp_parameter_tag;
+static int hf_m2tp_parameter_length;
+static int hf_m2tp_parameter_value;
+static int hf_m2tp_parameter_padding;
+static int hf_m2tp_interface_identifier;
+static int hf_m2tp_user;
+static int hf_m2tp_master_slave;
+static int hf_m2tp_info_string;
+static int hf_m2tp_heartbeat_data;
+static int hf_m2tp_diagnostic_info;
+static int hf_m2tp_error_code;
+static int hf_m2tp_reason;
 
 /* Initialize the subtree pointers */
-static gint ett_m2tp = -1;
-static gint ett_m2tp_parameter = -1;
+static gint ett_m2tp;
+static gint ett_m2tp_parameter;
 
 static dissector_handle_t mtp2_handle;
 

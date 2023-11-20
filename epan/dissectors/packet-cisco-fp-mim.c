@@ -28,35 +28,35 @@ void proto_reg_handoff_fabricpath(void);
 
 static gboolean fp_check_fcs = FALSE;
 
-static int proto_fp = -1;
-static gint ett_mim = -1;
-static gint ett_hmac = -1;
+static int proto_fp;
+static gint ett_mim;
+static gint ett_hmac;
 
 /* Main protocol items */
-static int hf_s_hmac = -1;
-static int hf_d_hmac = -1;
-static int hf_d_hmac_mc = -1;
-static int hf_ftag = -1;
-static int hf_ttl = -1;
+static int hf_s_hmac;
+static int hf_d_hmac;
+static int hf_d_hmac_mc;
+static int hf_ftag;
+static int hf_ttl;
 
-static int hf_fp_etype = -1;
-static int hf_fp_1ad_etype = -1;
-static int hf_fp_1ad_priority = -1;
-static int hf_fp_1ad_cfi = -1;
-static int hf_fp_1ad_svid = -1;
-static int hf_fp_fcs = -1;
-static int hf_fp_fcs_status = -1;
+static int hf_fp_etype;
+static int hf_fp_1ad_etype;
+static int hf_fp_1ad_priority;
+static int hf_fp_1ad_cfi;
+static int hf_fp_1ad_svid;
+static int hf_fp_fcs;
+static int hf_fp_fcs_status;
 
 /* HMAC subtrees */
-static int hf_swid = -1;
-static int hf_sswid = -1;
-static int hf_eid = -1;
-static int hf_lid = -1;
-static int hf_ul = -1;
-static int hf_ig = -1;
-static int hf_ooodl = -1;
+static int hf_swid;
+static int hf_sswid;
+static int hf_eid;
+static int hf_lid;
+static int hf_ul;
+static int hf_ig;
+static int hf_ooodl;
 
-static expert_field ei_fp_fcs_bad = EI_INIT;
+static expert_field ei_fp_fcs_bad;
 
 static const true_false_string ig_tfs = {
   "Group address (multicast/broadcast)",

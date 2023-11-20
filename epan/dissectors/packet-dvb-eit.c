@@ -20,28 +20,28 @@ void proto_reg_handoff_dvb_eit(void);
 
 static dissector_handle_t dvb_eit_handle;
 
-static int proto_dvb_eit = -1;
-static int hf_dvb_eit_service_id = -1;
-static int hf_dvb_eit_reserved = -1;
-static int hf_dvb_eit_version_number = -1;
-static int hf_dvb_eit_current_next_indicator = -1;
-static int hf_dvb_eit_section_number = -1;
-static int hf_dvb_eit_last_section_number = -1;
+static int proto_dvb_eit;
+static int hf_dvb_eit_service_id;
+static int hf_dvb_eit_reserved;
+static int hf_dvb_eit_version_number;
+static int hf_dvb_eit_current_next_indicator;
+static int hf_dvb_eit_section_number;
+static int hf_dvb_eit_last_section_number;
 
-static int hf_dvb_eit_transport_stream_id = -1;
-static int hf_dvb_eit_original_network_id = -1;
-static int hf_dvb_eit_segment_last_section_number = -1;
-static int hf_dvb_eit_last_table_id = -1;
+static int hf_dvb_eit_transport_stream_id;
+static int hf_dvb_eit_original_network_id;
+static int hf_dvb_eit_segment_last_section_number;
+static int hf_dvb_eit_last_table_id;
 
-static int hf_dvb_eit_event_id = -1;
-static int hf_dvb_eit_start_time = -1;
-static int hf_dvb_eit_duration = -1;
-static int hf_dvb_eit_running_status = -1;
-static int hf_dvb_eit_free_ca_mode = -1;
-static int hf_dvb_eit_descriptors_loop_length = -1;
+static int hf_dvb_eit_event_id;
+static int hf_dvb_eit_start_time;
+static int hf_dvb_eit_duration;
+static int hf_dvb_eit_running_status;
+static int hf_dvb_eit_free_ca_mode;
+static int hf_dvb_eit_descriptors_loop_length;
 
-static gint ett_dvb_eit = -1;
-static gint ett_dvb_eit_event = -1;
+static gint ett_dvb_eit;
+static gint ett_dvb_eit_event;
 
 
 #define DVB_EIT_RESERVED_MASK                     0xC0

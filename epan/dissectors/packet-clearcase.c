@@ -19,10 +19,10 @@
 void proto_register_clearcase(void);
 void proto_reg_handoff_clearcase(void);
 
-static int proto_clearcase = -1;
-static int hf_clearcase_procedure_v3 = -1;
+static int proto_clearcase;
+static int hf_clearcase_procedure_v3;
 
-static gint ett_clearcase = -1;
+static gint ett_clearcase;
 
 #define CLEARCASEPROC_NULL 0
 

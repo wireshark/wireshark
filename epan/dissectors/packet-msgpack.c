@@ -26,33 +26,33 @@ void proto_reg_handoff_msgpack(void);
 
 dissector_handle_t msgpack_handle;
 
-static int proto_msgpack = -1;
+static int proto_msgpack;
 
-static int hf_msgpack_string = -1;
-static int hf_msgpack_type = -1;
-static int hf_msgpack_string_len = -1;
-static int hf_msgpack_uint_8 = -1;
-static int hf_msgpack_uint_16 = -1;
-static int hf_msgpack_uint_32 = -1;
-static int hf_msgpack_uint_64 = -1;
-static int hf_msgpack_int_8 = -1;
-static int hf_msgpack_int_16 = -1;
-static int hf_msgpack_int_32 = -1;
-static int hf_msgpack_int_64 = -1;
-static int hf_msgpack_bool = -1;
-static int hf_msgpack_float = -1;
-static int hf_msgpack_ext_fixext = -1;
-static int hf_msgpack_ext_type = -1;
-static int hf_msgpack_ext_bytes = -1;
+static int hf_msgpack_string;
+static int hf_msgpack_type;
+static int hf_msgpack_string_len;
+static int hf_msgpack_uint_8;
+static int hf_msgpack_uint_16;
+static int hf_msgpack_uint_32;
+static int hf_msgpack_uint_64;
+static int hf_msgpack_int_8;
+static int hf_msgpack_int_16;
+static int hf_msgpack_int_32;
+static int hf_msgpack_int_64;
+static int hf_msgpack_bool;
+static int hf_msgpack_float;
+static int hf_msgpack_ext_fixext;
+static int hf_msgpack_ext_type;
+static int hf_msgpack_ext_bytes;
 
-static gint ett_msgpack = -1;
-static gint ett_msgpack_string = -1;
-static gint ett_msgpack_array = -1;
-static gint ett_msgpack_map = -1;
-static gint ett_msgpack_map_elem = -1;
-static gint ett_msgpack_ext = -1;
+static gint ett_msgpack;
+static gint ett_msgpack_string;
+static gint ett_msgpack_array;
+static gint ett_msgpack_map;
+static gint ett_msgpack_map_elem;
+static gint ett_msgpack_ext;
 
-static expert_field ei_msgpack_unsupported = EI_INIT;
+static expert_field ei_msgpack_unsupported;
 
 static const value_string msgpack_ext_fixtexts[] = {
 	{ 0xd4, "fixext 1" },

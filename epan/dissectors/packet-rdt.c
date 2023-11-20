@@ -29,127 +29,127 @@
 
 static dissector_handle_t rdt_handle;
 
-static gint    proto_rdt                        = -1;
+static gint    proto_rdt;
 
 /* Packet fields */
-static gint    hf_rdt_packet                    = -1;
+static gint    hf_rdt_packet;
 
 /* flags1: shared */
-static gint    hf_rdt_len_included              = -1;
+static gint    hf_rdt_len_included;
 
 /* flags1: data packet */
-static gint    hf_rdt_data_flags1               = -1;
-static gint    hf_rdt_data_need_reliable        = -1;
-static gint    hf_rdt_data_stream_id            = -1;
-static gint    hf_rdt_data_is_reliable          = -1;
+static gint    hf_rdt_data_flags1;
+static gint    hf_rdt_data_need_reliable;
+static gint    hf_rdt_data_stream_id;
+static gint    hf_rdt_data_is_reliable;
 
 /* flags2: data packet */
-static gint    hf_rdt_data_flags2               = -1;
-static gint    hf_rdt_data_backtoback           = -1;
-static gint    hf_rdt_data_slowdata             = -1;
-static gint    hf_rdt_data_asmrule              = -1;
+static gint    hf_rdt_data_flags2;
+static gint    hf_rdt_data_backtoback;
+static gint    hf_rdt_data_slowdata;
+static gint    hf_rdt_data_asmrule;
 
 /* flags1: asm action packet */
-static gint    hf_rdt_aact_flags                = -1;
-static gint    hf_rdt_aact_stream_id            = -1;
+static gint    hf_rdt_aact_flags;
+static gint    hf_rdt_aact_stream_id;
 
 /* flags1: ack packet */
-static gint    hf_rdt_ack_flags                 = -1;
-static gint    hf_rdt_ack_lost_high             = -1;
+static gint    hf_rdt_ack_flags;
+static gint    hf_rdt_ack_lost_high;
 
 /* flags1: latency report packet */
-static gint    hf_rdt_latency_report_flags      = -1;
+static gint    hf_rdt_latency_report_flags;
 
 /* flags1: bandwidth report packet */
-static gint    hf_rdt_bandwidth_report_flags    = -1;
+static gint    hf_rdt_bandwidth_report_flags;
 
 /* flags1: stream end packet */
-static gint    hf_rdt_stre_flags                = -1;
-static gint    hf_rdt_stre_need_reliable        = -1;
-static gint    hf_rdt_stre_stream_id            = -1;
-static gint    hf_rdt_stre_packet_sent          = -1;
-static gint    hf_rdt_stre_ext_flag             = -1;
+static gint    hf_rdt_stre_flags;
+static gint    hf_rdt_stre_need_reliable;
+static gint    hf_rdt_stre_stream_id;
+static gint    hf_rdt_stre_packet_sent;
+static gint    hf_rdt_stre_ext_flag;
 
-/* static gint    hf_rdt_rtt_request_flags         = -1; */
-/* static gint    hf_rdt_rtt_response_flags        = -1; */
-/* static gint    hf_rdt_congestion_flags          = -1; */
-static gint    hf_rdt_report_flags              = -1;
-/* static gint    hf_rdt_tirq_flags                = -1; */
-static gint    hf_rdt_tirp_flags                = -1;
-static gint    hf_rdt_bw_probing_flags          = -1;
+/* static gint    hf_rdt_rtt_request_flags; */
+/* static gint    hf_rdt_rtt_response_flags; */
+/* static gint    hf_rdt_congestion_flags; */
+static gint    hf_rdt_report_flags;
+/* static gint    hf_rdt_tirq_flags; */
+static gint    hf_rdt_tirp_flags;
+static gint    hf_rdt_bw_probing_flags;
 
 /* Octets 1-2: sequence number or packet type */
-static gint    hf_rdt_sequence_number           = -1;
-static gint    hf_rdt_packet_type               = -1;
+static gint    hf_rdt_sequence_number;
+static gint    hf_rdt_packet_type;
 
 /* Only present if length_included */
-static gint    hf_rdt_packet_length             = -1;
+static gint    hf_rdt_packet_length;
 
 /* General shared fields */
-static gint    hf_rdt_timestamp                 = -1;
-static gint    hf_rdt_stream_id_ex              = -1;
-static gint    hf_rdt_asmrule_ex                = -1;
-static gint    hf_rdt_total_reliable            = -1;
-static gint    hf_rdt_data                      = -1;
+static gint    hf_rdt_timestamp;
+static gint    hf_rdt_stream_id_ex;
+static gint    hf_rdt_asmrule_ex;
+static gint    hf_rdt_total_reliable;
+static gint    hf_rdt_data;
 
 /* Special use fields */
-static gint    hf_rdt_aact_reliable_seqno       = -1;
-static gint    hf_rdt_brpt_interval             = -1;
-static gint    hf_rdt_brpt_bandwidth            = -1;
-static gint    hf_rdt_brpt_sequence             = -1;
-static gint    hf_rdt_rtrp_ts_sec               = -1;
-static gint    hf_rdt_rtrp_ts_usec              = -1;
-static gint    hf_rdt_cong_xmit_mult            = -1;
-static gint    hf_rdt_cong_recv_mult            = -1;
-static gint    hf_rdt_stre_seqno                = -1;
-static gint    hf_rdt_stre_dummy_flags1         = -1;
-static gint    hf_rdt_stre_dummy_type           = -1;
-static gint    hf_rdt_stre_reason_code          = -1;
-static gint    hf_rdt_lrpt_server_out_time      = -1;
-static gint    hf_rdt_tirq_request_rtt_info     = -1;
-static gint    hf_rdt_tirq_request_buffer_info  = -1;
-static gint    hf_rdt_tirq_request_time_msec    = -1;
-static gint    hf_rdt_tirp_has_rtt_info         = -1;
-static gint    hf_rdt_tirp_is_delayed           = -1;
-static gint    hf_rdt_tirp_has_buffer_info      = -1;
-static gint    hf_rdt_tirp_request_time_msec    = -1;
-static gint    hf_rdt_tirp_response_time_msec   = -1;
-static gint    hf_rdt_tirp_buffer_info          = -1;
-static gint    hf_rdt_tirp_buffer_info_count    = -1;
-static gint    hf_rdt_tirp_buffer_info_stream_id         = -1;
-static gint    hf_rdt_tirp_buffer_info_lowest_timestamp  = -1;
-static gint    hf_rdt_tirp_buffer_info_highest_timestamp = -1;
-static gint    hf_rdt_tirp_buffer_info_bytes_buffered    = -1;
-static gint    hf_rdt_bwpp_seqno                = -1;
-static gint    hf_rdt_unk_flags1                = -1;
+static gint    hf_rdt_aact_reliable_seqno;
+static gint    hf_rdt_brpt_interval;
+static gint    hf_rdt_brpt_bandwidth;
+static gint    hf_rdt_brpt_sequence;
+static gint    hf_rdt_rtrp_ts_sec;
+static gint    hf_rdt_rtrp_ts_usec;
+static gint    hf_rdt_cong_xmit_mult;
+static gint    hf_rdt_cong_recv_mult;
+static gint    hf_rdt_stre_seqno;
+static gint    hf_rdt_stre_dummy_flags1;
+static gint    hf_rdt_stre_dummy_type;
+static gint    hf_rdt_stre_reason_code;
+static gint    hf_rdt_lrpt_server_out_time;
+static gint    hf_rdt_tirq_request_rtt_info;
+static gint    hf_rdt_tirq_request_buffer_info;
+static gint    hf_rdt_tirq_request_time_msec;
+static gint    hf_rdt_tirp_has_rtt_info;
+static gint    hf_rdt_tirp_is_delayed;
+static gint    hf_rdt_tirp_has_buffer_info;
+static gint    hf_rdt_tirp_request_time_msec;
+static gint    hf_rdt_tirp_response_time_msec;
+static gint    hf_rdt_tirp_buffer_info;
+static gint    hf_rdt_tirp_buffer_info_count;
+static gint    hf_rdt_tirp_buffer_info_stream_id;
+static gint    hf_rdt_tirp_buffer_info_lowest_timestamp;
+static gint    hf_rdt_tirp_buffer_info_highest_timestamp;
+static gint    hf_rdt_tirp_buffer_info_bytes_buffered;
+static gint    hf_rdt_bwpp_seqno;
+static gint    hf_rdt_unk_flags1;
 
 /* RDT setup fields */
-static gint    hf_rdt_setup                     = -1;
-static gint    hf_rdt_setup_frame               = -1;
-static gint    hf_rdt_setup_method              = -1;
-static gint    hf_rdt_feature_level             = -1;
+static gint    hf_rdt_setup;
+static gint    hf_rdt_setup_frame;
+static gint    hf_rdt_setup_method;
+static gint    hf_rdt_feature_level;
 
 /* RDT fields defining a sub tree */
-static gint    ett_rdt                          = -1;
-static gint    ett_rdt_packet                   = -1;
-static gint    ett_rdt_setup                    = -1;
-static gint    ett_rdt_data_flags1              = -1;
-static gint    ett_rdt_data_flags2              = -1;
-static gint    ett_rdt_aact_flags               = -1;
-static gint    ett_rdt_ack_flags                = -1;
-static gint    ett_rdt_latency_report_flags     = -1;
-static gint    ett_rdt_bandwidth_report_flags   = -1;
-static gint    ett_rdt_stre_flags               = -1;
-static gint    ett_rdt_rtt_request_flags        = -1;
-static gint    ett_rdt_rtt_response_flags       = -1;
-static gint    ett_rdt_congestion_flags         = -1;
-static gint    ett_rdt_report_flags             = -1;
-static gint    ett_rdt_tirq_flags               = -1;
-static gint    ett_rdt_tirp_flags               = -1;
-static gint    ett_rdt_tirp_buffer_info         = -1;
-static gint    ett_rdt_bw_probing_flags         = -1;
+static gint    ett_rdt;
+static gint    ett_rdt_packet;
+static gint    ett_rdt_setup;
+static gint    ett_rdt_data_flags1;
+static gint    ett_rdt_data_flags2;
+static gint    ett_rdt_aact_flags;
+static gint    ett_rdt_ack_flags;
+static gint    ett_rdt_latency_report_flags;
+static gint    ett_rdt_bandwidth_report_flags;
+static gint    ett_rdt_stre_flags;
+static gint    ett_rdt_rtt_request_flags;
+static gint    ett_rdt_rtt_response_flags;
+static gint    ett_rdt_congestion_flags;
+static gint    ett_rdt_report_flags;
+static gint    ett_rdt_tirq_flags;
+static gint    ett_rdt_tirp_flags;
+static gint    ett_rdt_tirp_buffer_info;
+static gint    ett_rdt_bw_probing_flags;
 
-static expert_field ei_rdt_packet_length = EI_INIT;
+static expert_field ei_rdt_packet_length;
 
 #define RDT_UDP_PORT        6970
 

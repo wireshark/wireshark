@@ -31,20 +31,20 @@
 void proto_reg_handoff_lls(void);
 void proto_register_lls(void);
 
-static int proto_lls = -1;
-static gint ett_lls = -1;
-static gint ett_lls_smt_entry = -1;
-static gint ett_lls_smt_signature = -1;
-static gint ett_lls_table_payload = -1;
-static gint ett_lls_table_payload_xml = -1;
+static int proto_lls;
+static gint ett_lls;
+static gint ett_lls_smt_entry;
+static gint ett_lls_smt_signature;
+static gint ett_lls_table_payload;
+static gint ett_lls_table_payload_xml;
 
 static dissector_handle_t lls_handle;
 static dissector_handle_t xml_handle;
 static dissector_handle_t cms_handle;
 
-static expert_field ei_lls_table_decompression_failed = EI_INIT;
+static expert_field ei_lls_table_decompression_failed;
 
-static int hf_lls_table_id = -1;
+static int hf_lls_table_id;
 #define LLS_TABLE_TYPE_SIGNED_MULTI_TABLE 0xFE
 #define LLS_TABLE_TYPE_SLT                0x01
 static const value_string hf_lls_table_type_vals[] = {
@@ -78,17 +78,17 @@ static const value_string hf_lls_table_type_short_vals[] = {
     { 0x00, NULL }
 };
 
-static int hf_lls_group_id = -1;
-static int hf_lls_group_count = -1;
-static int hf_lls_table_version = -1;
-static int hf_lls_table_payload = -1;
-static int hf_lls_table_payload_uncompressed = -1;
+static int hf_lls_group_id;
+static int hf_lls_group_count;
+static int hf_lls_table_version;
+static int hf_lls_table_payload;
+static int hf_lls_table_payload_uncompressed;
 
-static int hf_lls_smt_payload_count = -1;
-static int hf_lls_smt_entry = -1;
-static int hf_lls_smt_entry_payload_length = -1;
-static int hf_lls_smt_signature_length = -1;
-static int hf_lls_smt_signature = -1;
+static int hf_lls_smt_payload_count;
+static int hf_lls_smt_entry;
+static int hf_lls_smt_entry_payload_length;
+static int hf_lls_smt_signature_length;
+static int hf_lls_smt_signature;
 
 
 static void

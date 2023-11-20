@@ -29,18 +29,18 @@
 void proto_register_fddi(void);
 void proto_reg_handoff_fddi(void);
 
-static int proto_fddi = -1;
-static int hf_fddi_fc = -1;
-static int hf_fddi_fc_clf = -1;
-static int hf_fddi_fc_prio = -1;
-static int hf_fddi_fc_smt_subtype = -1;
-static int hf_fddi_fc_mac_subtype = -1;
-static int hf_fddi_dst = -1;
-static int hf_fddi_src = -1;
-static int hf_fddi_addr = -1;
+static int proto_fddi;
+static int hf_fddi_fc;
+static int hf_fddi_fc_clf;
+static int hf_fddi_fc_prio;
+static int hf_fddi_fc_smt_subtype;
+static int hf_fddi_fc_mac_subtype;
+static int hf_fddi_dst;
+static int hf_fddi_src;
+static int hf_fddi_addr;
 
-static gint ett_fddi = -1;
-static gint ett_fddi_fc = -1;
+static gint ett_fddi;
+static gint ett_fddi_fc;
 
 static int fddi_tap = -1;
 

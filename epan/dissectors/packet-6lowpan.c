@@ -240,140 +240,140 @@ void proto_reg_handoff_6lowpan(void);
 /* 6LoWPAN interface identifier length. */
 #define LOWPAN_IFC_ID_LEN               8
 /* Protocol fields handles. */
-static int proto_6lowpan = -1;
-static int hf_6lowpan_pattern = -1;
-static int hf_6lowpan_nhc_pattern = -1;
-static int hf_6lowpan_padding = -1;
+static int proto_6lowpan;
+static int hf_6lowpan_pattern;
+static int hf_6lowpan_nhc_pattern;
+static int hf_6lowpan_padding;
 
 /* Header compression fields. */
-static int hf_6lowpan_hc1_encoding = -1;
-static int hf_6lowpan_hc1_source_prefix = -1;
-static int hf_6lowpan_hc1_source_ifc = -1;
-static int hf_6lowpan_hc1_dest_prefix = -1;
-static int hf_6lowpan_hc1_dest_ifc = -1;
-static int hf_6lowpan_hc1_class = -1;
-static int hf_6lowpan_hc1_next = -1;
-static int hf_6lowpan_hc1_more = -1;
-static int hf_6lowpan_hc2_udp_encoding = -1;
-static int hf_6lowpan_hc2_udp_src = -1;
-static int hf_6lowpan_hc2_udp_dst = -1;
-static int hf_6lowpan_hc2_udp_len = -1;
+static int hf_6lowpan_hc1_encoding;
+static int hf_6lowpan_hc1_source_prefix;
+static int hf_6lowpan_hc1_source_ifc;
+static int hf_6lowpan_hc1_dest_prefix;
+static int hf_6lowpan_hc1_dest_ifc;
+static int hf_6lowpan_hc1_class;
+static int hf_6lowpan_hc1_next;
+static int hf_6lowpan_hc1_more;
+static int hf_6lowpan_hc2_udp_encoding;
+static int hf_6lowpan_hc2_udp_src;
+static int hf_6lowpan_hc2_udp_dst;
+static int hf_6lowpan_hc2_udp_len;
 
 /* 6loRH */
-static int hf_6lowpan_pagenb = -1;
-static int hf_6lowpan_routing_header = -1;
-static int hf_6lowpan_6lorhe_length = -1;
-static int hf_6lowpan_6lorhe_size   = -1;
-static int hf_6lowpan_6lorhc_size = -1;
-static int hf_6lowpan_6lorhe_type = -1;
-static int hf_6lowpan_6lorhe_hoplimit = -1;
-static int hf_6lowpan_6lorhe_bitmap = -1;
-static int hf_6lowpan_5_bit_o = -1;
-static int hf_6lowpan_5_bit_r = -1;
-static int hf_6lowpan_5_bit_f = -1;
-static int hf_6lowpan_5_bit_i = -1;
-static int hf_6lowpan_5_bit_k = -1;
-static int hf_6lowpan_sender_rank1 = -1;
-static int hf_6lowpan_sender_rank2 = -1;
-static int hf_6lowpan_rpl_instance = -1;
-static int hf_6lowpan_6lorhc_address_hop0 = -1;
-static int hf_6lowpan_6lorhc_address_hop2 = -1;
-static int hf_6lowpan_6lorhc_address_hop3 = -1;
-static int hf_6lowpan_6lorhc_address_hop4 = -1;
-static int hf_6lowpan_6lorhc_address_hop1 = -1;
-static int hf_6lowpan_6lorhc_address_src = -1;
+static int hf_6lowpan_pagenb;
+static int hf_6lowpan_routing_header;
+static int hf_6lowpan_6lorhe_length;
+static int hf_6lowpan_6lorhe_size;
+static int hf_6lowpan_6lorhc_size;
+static int hf_6lowpan_6lorhe_type;
+static int hf_6lowpan_6lorhe_hoplimit;
+static int hf_6lowpan_6lorhe_bitmap;
+static int hf_6lowpan_5_bit_o;
+static int hf_6lowpan_5_bit_r;
+static int hf_6lowpan_5_bit_f;
+static int hf_6lowpan_5_bit_i;
+static int hf_6lowpan_5_bit_k;
+static int hf_6lowpan_sender_rank1;
+static int hf_6lowpan_sender_rank2;
+static int hf_6lowpan_rpl_instance;
+static int hf_6lowpan_6lorhc_address_hop0;
+static int hf_6lowpan_6lorhc_address_hop2;
+static int hf_6lowpan_6lorhc_address_hop3;
+static int hf_6lowpan_6lorhc_address_hop4;
+static int hf_6lowpan_6lorhc_address_hop1;
+static int hf_6lowpan_6lorhc_address_src;
 
 /* IPHC header field. */
-static int hf_6lowpan_iphc_flag_tf = -1;
-static int hf_6lowpan_iphc_flag_nhdr = -1;
-static int hf_6lowpan_iphc_flag_hlim = -1;
-static int hf_6lowpan_iphc_flag_cid = -1;
-static int hf_6lowpan_iphc_flag_sac = -1;
-static int hf_6lowpan_iphc_flag_sam = -1;
-static int hf_6lowpan_iphc_flag_mcast = -1;
-static int hf_6lowpan_iphc_flag_dac = -1;
-static int hf_6lowpan_iphc_flag_dam = -1;
-static int hf_6lowpan_iphc_sci = -1;
-static int hf_6lowpan_iphc_dci = -1;
+static int hf_6lowpan_iphc_flag_tf;
+static int hf_6lowpan_iphc_flag_nhdr;
+static int hf_6lowpan_iphc_flag_hlim;
+static int hf_6lowpan_iphc_flag_cid;
+static int hf_6lowpan_iphc_flag_sac;
+static int hf_6lowpan_iphc_flag_sam;
+static int hf_6lowpan_iphc_flag_mcast;
+static int hf_6lowpan_iphc_flag_dac;
+static int hf_6lowpan_iphc_flag_dam;
+static int hf_6lowpan_iphc_sci;
+static int hf_6lowpan_iphc_dci;
 
-static int hf_6lowpan_iphc_sctx_prefix = -1;
-static int hf_6lowpan_iphc_sctx_origin = -1;
-static int hf_6lowpan_iphc_dctx_prefix = -1;
-static int hf_6lowpan_iphc_dctx_origin = -1;
+static int hf_6lowpan_iphc_sctx_prefix;
+static int hf_6lowpan_iphc_sctx_origin;
+static int hf_6lowpan_iphc_dctx_prefix;
+static int hf_6lowpan_iphc_dctx_origin;
 
 /* NHC IPv6 extension header fields. */
-static int hf_6lowpan_nhc_ext_eid = -1;
-static int hf_6lowpan_nhc_ext_nh = -1;
-static int hf_6lowpan_nhc_ext_next = -1;
-static int hf_6lowpan_nhc_ext_length = -1;
-static int hf_6lowpan_nhc_ext_reserved = -1;
+static int hf_6lowpan_nhc_ext_eid;
+static int hf_6lowpan_nhc_ext_nh;
+static int hf_6lowpan_nhc_ext_next;
+static int hf_6lowpan_nhc_ext_length;
+static int hf_6lowpan_nhc_ext_reserved;
 
 /* NHC UDP compression header fields. */
-static int hf_6lowpan_nhc_udp_checksum = -1;
-static int hf_6lowpan_nhc_udp_ports = -1;
+static int hf_6lowpan_nhc_udp_checksum;
+static int hf_6lowpan_nhc_udp_ports;
 
 /* Inline IPv6 header fields. */
-static int hf_6lowpan_traffic_class = -1;
-static int hf_6lowpan_flow_label = -1;
-static int hf_6lowpan_ecn = -1;
-static int hf_6lowpan_dscp = -1;
-static int hf_6lowpan_next_header = -1;
-static int hf_6lowpan_hop_limit = -1;
-static int hf_6lowpan_source = -1;
-static int hf_6lowpan_dest = -1;
+static int hf_6lowpan_traffic_class;
+static int hf_6lowpan_flow_label;
+static int hf_6lowpan_ecn;
+static int hf_6lowpan_dscp;
+static int hf_6lowpan_next_header;
+static int hf_6lowpan_hop_limit;
+static int hf_6lowpan_source;
+static int hf_6lowpan_dest;
 
 /* Inline UDP header fields. */
-static int hf_6lowpan_udp_src = -1;
-static int hf_6lowpan_udp_dst = -1;
-static int hf_6lowpan_udp_len = -1;
-static int hf_6lowpan_udp_checksum = -1;
+static int hf_6lowpan_udp_src;
+static int hf_6lowpan_udp_dst;
+static int hf_6lowpan_udp_len;
+static int hf_6lowpan_udp_checksum;
 
 /* Broadcast header fields. */
-static int hf_6lowpan_bcast_seqnum = -1;
+static int hf_6lowpan_bcast_seqnum;
 
 /* Mesh header fields. */
-static int hf_6lowpan_mesh_v = -1;
-static int hf_6lowpan_mesh_f = -1;
-static int hf_6lowpan_mesh_hops = -1;
-static int hf_6lowpan_mesh_hops8 = -1;
-static int hf_6lowpan_mesh_orig16 = -1;
-static int hf_6lowpan_mesh_orig64 = -1;
-static int hf_6lowpan_mesh_dest16 = -1;
-static int hf_6lowpan_mesh_dest64 = -1;
+static int hf_6lowpan_mesh_v;
+static int hf_6lowpan_mesh_f;
+static int hf_6lowpan_mesh_hops;
+static int hf_6lowpan_mesh_hops8;
+static int hf_6lowpan_mesh_orig16;
+static int hf_6lowpan_mesh_orig64;
+static int hf_6lowpan_mesh_dest16;
+static int hf_6lowpan_mesh_dest64;
 
 /* Fragmentation header fields. */
-static int hf_6lowpan_frag_dgram_size = -1;
-static int hf_6lowpan_frag_dgram_tag = -1;
-static int hf_6lowpan_frag_dgram_offset = -1;
+static int hf_6lowpan_frag_dgram_size;
+static int hf_6lowpan_frag_dgram_tag;
+static int hf_6lowpan_frag_dgram_offset;
 
 /* Recoverable Fragmentation header fields. */
-static int hf_6lowpan_rfrag_congestion = -1;
-static int hf_6lowpan_rfrag_ack_requested = -1;
-static int hf_6lowpan_rfrag_dgram_tag = -1;
-static int hf_6lowpan_rfrag_sequence = -1;
-static int hf_6lowpan_rfrag_size = -1;
-static int hf_6lowpan_rfrag_dgram_size = -1;
-static int hf_6lowpan_rfrag_offset = -1;
-static int hf_6lowpan_rfrag_ack_bitmap = -1;
+static int hf_6lowpan_rfrag_congestion;
+static int hf_6lowpan_rfrag_ack_requested;
+static int hf_6lowpan_rfrag_dgram_tag;
+static int hf_6lowpan_rfrag_sequence;
+static int hf_6lowpan_rfrag_size;
+static int hf_6lowpan_rfrag_dgram_size;
+static int hf_6lowpan_rfrag_offset;
+static int hf_6lowpan_rfrag_ack_bitmap;
 
 /* Protocol tree handles.  */
-static gint ett_6lowpan = -1;
-static gint ett_6lowpan_hc1 = -1;
-static gint ett_6lowpan_hc1_encoding = -1;
-static gint ett_6lowpan_hc2_udp = -1;
-static gint ett_6lowpan_iphc = -1;
-static gint ett_lowpan_routing_header_dispatch = -1;
-static gint ett_6lowpan_nhc_ext = -1;
-static gint ett_6lowpan_nhc_udp = -1;
-static gint ett_6lowpan_bcast = -1;
-static gint ett_6lowpan_mesh = -1;
-static gint ett_6lowpan_mesh_flags = -1;
-static gint ett_6lowpan_frag = -1;
+static gint ett_6lowpan;
+static gint ett_6lowpan_hc1;
+static gint ett_6lowpan_hc1_encoding;
+static gint ett_6lowpan_hc2_udp;
+static gint ett_6lowpan_iphc;
+static gint ett_lowpan_routing_header_dispatch;
+static gint ett_6lowpan_nhc_ext;
+static gint ett_6lowpan_nhc_udp;
+static gint ett_6lowpan_bcast;
+static gint ett_6lowpan_mesh;
+static gint ett_6lowpan_mesh_flags;
+static gint ett_6lowpan_frag;
 
-static expert_field ei_6lowpan_hc1_more_bits = EI_INIT;
-static expert_field ei_6lowpan_illegal_dest_addr_mode = EI_INIT;
-static expert_field ei_6lowpan_bad_ipv6_header_length = EI_INIT;
-static expert_field ei_6lowpan_bad_ext_header_length = EI_INIT;
+static expert_field ei_6lowpan_hc1_more_bits;
+static expert_field ei_6lowpan_illegal_dest_addr_mode;
+static expert_field ei_6lowpan_bad_ipv6_header_length;
+static expert_field ei_6lowpan_bad_ext_header_length;
 
 /* Subdissector handles. */
 static dissector_handle_t       handle_6lowpan;
@@ -506,18 +506,18 @@ static const true_false_string bit_K_RPL = {
 };
 
 /* Reassembly Data */
-static int hf_6lowpan_fragments = -1;
-static int hf_6lowpan_fragment = -1;
-static int hf_6lowpan_fragment_overlap = -1;
-static int hf_6lowpan_fragment_overlap_conflicts = -1;
-static int hf_6lowpan_fragment_multiple_tails = -1;
-static int hf_6lowpan_fragment_too_long_fragment = -1;
-static int hf_6lowpan_fragment_error = -1;
-static int hf_6lowpan_fragment_count = -1;
-static int hf_6lowpan_reassembled_in = -1;
-static int hf_6lowpan_reassembled_length = -1;
-static gint ett_6lowpan_fragment = -1;
-static gint ett_6lowpan_fragments = -1;
+static int hf_6lowpan_fragments;
+static int hf_6lowpan_fragment;
+static int hf_6lowpan_fragment_overlap;
+static int hf_6lowpan_fragment_overlap_conflicts;
+static int hf_6lowpan_fragment_multiple_tails;
+static int hf_6lowpan_fragment_too_long_fragment;
+static int hf_6lowpan_fragment_error;
+static int hf_6lowpan_fragment_count;
+static int hf_6lowpan_reassembled_in;
+static int hf_6lowpan_reassembled_length;
+static gint ett_6lowpan_fragment;
+static gint ett_6lowpan_fragments;
 
 static const fragment_items lowpan_frag_items = {
     /* Fragment subtrees */

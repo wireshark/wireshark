@@ -24,16 +24,16 @@
 void proto_register_rgmp(void);
 void proto_reg_handoff_rgmp(void);
 
-static int proto_rgmp      = -1;
-static int hf_type         = -1;
-static int hf_reserved     = -1;
-static int hf_checksum     = -1;
-static int hf_checksum_status = -1;
-static int hf_maddr        = -1;
+static int proto_rgmp;
+static int hf_type;
+static int hf_reserved;
+static int hf_checksum;
+static int hf_checksum_status;
+static int hf_maddr;
 
-static int ett_rgmp = -1;
+static int ett_rgmp;
 
-static expert_field ei_checksum = EI_INIT;
+static expert_field ei_checksum;
 
 static dissector_handle_t rgmp_handle;
 

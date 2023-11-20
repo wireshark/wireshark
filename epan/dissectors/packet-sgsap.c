@@ -40,32 +40,32 @@ static dissector_handle_t gsm_a_dtap_handle;
 #define SGSAP_SCTP_PORT_RANGE "29118"
 
 /* Initialize the protocol and registered fields */
-static int proto_sgsap = -1;
+static int proto_sgsap;
 
-static int hf_sgsap_msg_type = -1;
-int hf_sgsap_elem_id = -1;
-static int hf_sgsap_eps_location_update_type = -1;
-static int hf_sgsap_service_indicator_value = -1;
-static int hf_sgsap_sgs_cause = -1;
-static int hf_sgsap_ue_emm_mode = -1;
-static int hf_sgsap_eci = -1;
-static int hf_sgsap_cn_id = -1;
-static int hf_sgsap_imsi_det_eps = -1;
-static int hf_sgsap_imsi_det_non_eps = -1;
-static int hf_sgsap_lcs_indic = -1;
-static int hf_sgsap_mme_name = -1;
-static int hf_sgsap_vlr_name = -1;
-static int hf_sgsap_imeisv = -1;
-static int hf_sgsap_unknown_msg = -1;
-static int hf_sgsap_message_elements = -1;
-static int hf_sgsap_csri = -1;
-static int hf_sgsap_sel_cs_dmn_op = -1;
+static int hf_sgsap_msg_type;
+int hf_sgsap_elem_id;
+static int hf_sgsap_eps_location_update_type;
+static int hf_sgsap_service_indicator_value;
+static int hf_sgsap_sgs_cause;
+static int hf_sgsap_ue_emm_mode;
+static int hf_sgsap_eci;
+static int hf_sgsap_cn_id;
+static int hf_sgsap_imsi_det_eps;
+static int hf_sgsap_imsi_det_non_eps;
+static int hf_sgsap_lcs_indic;
+static int hf_sgsap_mme_name;
+static int hf_sgsap_vlr_name;
+static int hf_sgsap_imeisv;
+static int hf_sgsap_unknown_msg;
+static int hf_sgsap_message_elements;
+static int hf_sgsap_csri;
+static int hf_sgsap_sel_cs_dmn_op;
 
-static int ett_sgsap = -1;
-static int ett_sgsap_sel_cs_dmn_op = -1;
+static int ett_sgsap;
+static int ett_sgsap_sel_cs_dmn_op;
 
-static expert_field ei_sgsap_extraneous_data = EI_INIT;
-static expert_field ei_sgsap_missing_mandatory_element = EI_INIT;
+static expert_field ei_sgsap_extraneous_data;
+static expert_field ei_sgsap_missing_mandatory_element;
 
 static dissector_handle_t sgsap_handle;
 

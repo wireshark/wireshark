@@ -30,26 +30,26 @@ void proto_reg_handoff_sparkplug(void);
 void proto_register_sparkplug(void);
 
 /* Initialize the protocol field */
-static int proto_sparkplugb = -1;
+static int proto_sparkplugb;
 
 /* Initialize the subtree pointers */
-static gint ett_sparkplugb = -1;
-static gint ett_sparkplugb_namespace = -1;
+static gint ett_sparkplugb;
+static gint ett_sparkplugb_namespace;
 
 /* The handle to the protobuf dissector */
 dissector_handle_t protobuf_handle = NULL;
 
 /* The hf items */
-static int hf_sparkplugb_namespace = -1;
-static int hf_sparkplugb_groupid = -1;
-static int hf_sparkplugb_messagetype = -1;
-static int hf_sparkplugb_edgenodeid = -1;
-static int hf_sparkplugb_deviceid = -1;
+static int hf_sparkplugb_namespace;
+static int hf_sparkplugb_groupid;
+static int hf_sparkplugb_messagetype;
+static int hf_sparkplugb_edgenodeid;
+static int hf_sparkplugb_deviceid;
 
 /* The expert info items */
-static expert_field ei_sparkplugb_missing_groupid = EI_INIT;
-static expert_field ei_sparkplugb_missing_messagetype = EI_INIT;
-static expert_field ei_sparkplugb_missing_edgenodeid = EI_INIT;
+static expert_field ei_sparkplugb_missing_groupid;
+static expert_field ei_sparkplugb_missing_messagetype;
+static expert_field ei_sparkplugb_missing_edgenodeid;
 
 static gboolean
 dissect_sparkplugb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)

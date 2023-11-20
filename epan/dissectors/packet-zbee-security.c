@@ -42,26 +42,26 @@ static gboolean    zbee_sec_decrypt_payload(zbee_security_packet *, const gchar 
 static gboolean    zbee_security_parse_key(const gchar *, guint8 *, gboolean);
 
 /* Field pointers. */
-static int hf_zbee_sec_field = -1;
-static int hf_zbee_sec_level = -1;
-static int hf_zbee_sec_key_id = -1;
-static int hf_zbee_sec_nonce = -1;
-static int hf_zbee_sec_verified_fc = -1;
-static int hf_zbee_sec_counter = -1;
-static int hf_zbee_sec_src64 = -1;
-static int hf_zbee_sec_key_seqno = -1;
-static int hf_zbee_sec_mic = -1;
-static int hf_zbee_sec_key = -1;
-static int hf_zbee_sec_key_origin = -1;
-static int hf_zbee_sec_decryption_key = -1;
+static int hf_zbee_sec_field;
+static int hf_zbee_sec_level;
+static int hf_zbee_sec_key_id;
+static int hf_zbee_sec_nonce;
+static int hf_zbee_sec_verified_fc;
+static int hf_zbee_sec_counter;
+static int hf_zbee_sec_src64;
+static int hf_zbee_sec_key_seqno;
+static int hf_zbee_sec_mic;
+static int hf_zbee_sec_key;
+static int hf_zbee_sec_key_origin;
+static int hf_zbee_sec_decryption_key;
 
 /* Subtree pointers. */
-static gint ett_zbee_sec = -1;
-static gint ett_zbee_sec_control = -1;
+static gint ett_zbee_sec;
+static gint ett_zbee_sec_control;
 
-static expert_field ei_zbee_sec_encrypted_payload = EI_INIT;
-static expert_field ei_zbee_sec_encrypted_payload_sliced = EI_INIT;
-static expert_field ei_zbee_sec_extended_source_unknown = EI_INIT;
+static expert_field ei_zbee_sec_encrypted_payload;
+static expert_field ei_zbee_sec_encrypted_payload_sliced;
+static expert_field ei_zbee_sec_extended_source_unknown;
 
 static const value_string zbee_sec_key_names[] = {
     { ZBEE_SEC_KEY_LINK,        "Link Key" },

@@ -44,25 +44,25 @@ void proto_register_ssyncp(void);
 
 static dissector_handle_t ssyncp_handle;
 
-static int proto_ssyncp = -1;
-static int hf_ssyncp_direction = -1;
-static int hf_ssyncp_seq = -1;
-static int hf_ssyncp_encrypted = -1;
-static int hf_ssyncp_seq_delta = -1;
-static int hf_ssyncp_timestamp = -1;
-static int hf_ssyncp_timestamp_reply = -1;
-static int hf_ssyncp_frag_seq = -1;
-static int hf_ssyncp_frag_final = -1;
-static int hf_ssyncp_frag_idx = -1;
-static int hf_ssyncp_rtt_to_server = -1;
-static int hf_ssyncp_rtt_to_client = -1;
+static int proto_ssyncp;
+static int hf_ssyncp_direction;
+static int hf_ssyncp_seq;
+static int hf_ssyncp_encrypted;
+static int hf_ssyncp_seq_delta;
+static int hf_ssyncp_timestamp;
+static int hf_ssyncp_timestamp_reply;
+static int hf_ssyncp_frag_seq;
+static int hf_ssyncp_frag_final;
+static int hf_ssyncp_frag_idx;
+static int hf_ssyncp_rtt_to_server;
+static int hf_ssyncp_rtt_to_client;
 
 /* Initialize the subtree pointers */
-static gint ett_ssyncp = -1;
-static gint ett_ssyncp_decrypted = -1;
+static gint ett_ssyncp;
+static gint ett_ssyncp_decrypted;
 
-static expert_field ei_ssyncp_fragmented = EI_INIT;
-static expert_field ei_ssyncp_bad_key = EI_INIT;
+static expert_field ei_ssyncp_fragmented;
+static expert_field ei_ssyncp_bad_key;
 
 static const char *pref_ssyncp_key;
 static char ssyncp_raw_aes_key[16];

@@ -114,93 +114,93 @@ void proto_reg_handoff_cemi(void);
 /* Initialize the protocol identifier that is needed for the
  protocol hook and to register the fields in the protocol tree
 */
-static gint proto_cemi = -1;
+static gint proto_cemi;
 
 /* Initialize the registered fields identifiers. These fields
  will be registered with the protocol during initialization.
  Protocol fields are like type definitions. The protocol dissector
  later on adds items of these types to the protocol tree.
 */
-static gint hf_bytes = -1;
-static gint hf_folder = -1;
-static gint hf_cemi_mc = -1;
-static gint hf_cemi_error = -1;
-static gint hf_cemi_ai_length = -1;
-static gint hf_cemi_aie_type = -1;
-static gint hf_cemi_aie_length = -1;
-static gint hf_cemi_ot = -1;
-static gint hf_cemi_oi = -1;
-static gint hf_cemi_ox = -1;
-static gint hf_cemi_px = -1;
-static gint hf_cemi_pid = -1;
-static gint hf_cemi_ne = -1;
-static gint hf_cemi_sx = -1;
-static gint hf_cemi_ft = -1;
-static gint hf_cemi_rep = -1;
-static gint hf_cemi_bt = -1;
-static gint hf_cemi_prio = -1;
-static gint hf_cemi_ack = -1;
-static gint hf_cemi_ce = -1;
-static gint hf_cemi_at = -1;
-static gint hf_cemi_hc = -1;
-static gint hf_cemi_eff = -1;
-static gint hf_cemi_sa = -1;
-static gint hf_cemi_da = -1;
-static gint hf_cemi_len = -1;
-static gint hf_cemi_tpt = -1;
-static gint hf_cemi_tst = -1;
-static gint hf_cemi_num = -1;
-static gint hf_cemi_tc = -1;
-static gint hf_cemi_ac = -1;
-static gint hf_cemi_ad = -1;
-static gint hf_cemi_ad_memory_length = -1;
-static gint hf_cemi_ad_channel = -1;
-static gint hf_cemi_ad_type = -1;
-static gint hf_cemi_ax = -1;
-static gint hf_cemi_pw = -1;
-static gint hf_cemi_pdt = -1;
-static gint hf_cemi_me = -1;
-static gint hf_cemi_ra = -1;
-static gint hf_cemi_wa = -1;
-static gint hf_cemi_ext_oi = -1;
-static gint hf_cemi_ext_pid = -1;
-static gint hf_cemi_ext_ne = -1;
-static gint hf_cemi_ext_sx = -1;
-static gint hf_cemi_ext_dt = -1;
-static gint hf_cemi_ext_px = -1;
-static gint hf_cemi_ext_memory_length = -1;
-static gint hf_cemi_ext_memory_address = -1;
-static gint hf_cemi_memory_length = -1;
-static gint hf_cemi_memory_address = -1;
-static gint hf_cemi_memory_address_ext = -1;
-static gint hf_cemi_level = -1;
-static gint hf_cemi_snp_pid = -1;
-static gint hf_cemi_snp_reserved = -1;
-static gint hf_cemi_dpt_major = -1;
-static gint hf_cemi_dpt_minor = -1;
-static gint hf_cemi_scf = -1;
-static gint hf_cemi_scf_t = -1;
-static gint hf_cemi_scf_sai = -1;
-static gint hf_cemi_scf_sbc = -1;
-static gint hf_cemi_scf_svc = -1;
-static gint hf_cemi_adc_count = -1;
+static gint hf_bytes;
+static gint hf_folder;
+static gint hf_cemi_mc;
+static gint hf_cemi_error;
+static gint hf_cemi_ai_length;
+static gint hf_cemi_aie_type;
+static gint hf_cemi_aie_length;
+static gint hf_cemi_ot;
+static gint hf_cemi_oi;
+static gint hf_cemi_ox;
+static gint hf_cemi_px;
+static gint hf_cemi_pid;
+static gint hf_cemi_ne;
+static gint hf_cemi_sx;
+static gint hf_cemi_ft;
+static gint hf_cemi_rep;
+static gint hf_cemi_bt;
+static gint hf_cemi_prio;
+static gint hf_cemi_ack;
+static gint hf_cemi_ce;
+static gint hf_cemi_at;
+static gint hf_cemi_hc;
+static gint hf_cemi_eff;
+static gint hf_cemi_sa;
+static gint hf_cemi_da;
+static gint hf_cemi_len;
+static gint hf_cemi_tpt;
+static gint hf_cemi_tst;
+static gint hf_cemi_num;
+static gint hf_cemi_tc;
+static gint hf_cemi_ac;
+static gint hf_cemi_ad;
+static gint hf_cemi_ad_memory_length;
+static gint hf_cemi_ad_channel;
+static gint hf_cemi_ad_type;
+static gint hf_cemi_ax;
+static gint hf_cemi_pw;
+static gint hf_cemi_pdt;
+static gint hf_cemi_me;
+static gint hf_cemi_ra;
+static gint hf_cemi_wa;
+static gint hf_cemi_ext_oi;
+static gint hf_cemi_ext_pid;
+static gint hf_cemi_ext_ne;
+static gint hf_cemi_ext_sx;
+static gint hf_cemi_ext_dt;
+static gint hf_cemi_ext_px;
+static gint hf_cemi_ext_memory_length;
+static gint hf_cemi_ext_memory_address;
+static gint hf_cemi_memory_length;
+static gint hf_cemi_memory_address;
+static gint hf_cemi_memory_address_ext;
+static gint hf_cemi_level;
+static gint hf_cemi_snp_pid;
+static gint hf_cemi_snp_reserved;
+static gint hf_cemi_dpt_major;
+static gint hf_cemi_dpt_minor;
+static gint hf_cemi_scf;
+static gint hf_cemi_scf_t;
+static gint hf_cemi_scf_sai;
+static gint hf_cemi_scf_sbc;
+static gint hf_cemi_scf_svc;
+static gint hf_cemi_adc_count;
 
 /* Initialize the subtree pointers. These pointers are needed to
  display the protocol in a structured tree. Subtrees hook on
  already defined fields or (the topmost) on the protocol itself
 */
-static gint ett_cemi = -1;
-static gint ett_cemi_ai = -1;
-static gint ett_cemi_aie = -1;
-static gint ett_cemi_ctrl1 = -1;
-static gint ett_cemi_ctrl2 = -1;
-static gint ett_cemi_tpci = -1;
-static gint ett_cemi_apci = -1;
-static gint ett_cemi_range = -1;
-static gint ett_cemi_pd = -1;
-static gint ett_cemi_dpt = -1;
-static gint ett_cemi_scf = -1;
-static gint ett_cemi_decrypted = -1;
+static gint ett_cemi;
+static gint ett_cemi_ai;
+static gint ett_cemi_aie;
+static gint ett_cemi_ctrl1;
+static gint ett_cemi_ctrl2;
+static gint ett_cemi_tpci;
+static gint ett_cemi_apci;
+static gint ett_cemi_range;
+static gint ett_cemi_pd;
+static gint ett_cemi_dpt;
+static gint ett_cemi_scf;
+static gint ett_cemi_decrypted;
 
 /* - - - - - - - - - - -  V A L U E   T A B L E S  - - - - - - - - - - - -
 */

@@ -23,13 +23,13 @@ void proto_register_echo(void);
 void proto_reg_handoff_echo(void);
 
 static dissector_handle_t echo_handle;
-static int proto_echo = -1;
+static int proto_echo;
 
-static int hf_echo_data = -1;
-static int hf_echo_request = -1;
-static int hf_echo_response = -1;
+static int hf_echo_data;
+static int hf_echo_request;
+static int hf_echo_response;
 
-static gint ett_echo = -1;
+static gint ett_echo;
 
 static int dissect_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {

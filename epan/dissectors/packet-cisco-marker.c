@@ -24,24 +24,24 @@ void proto_reg_handoff_erspan_marker(void);
 
 static dissector_handle_t marker_handle;
 
-static int proto_marker = -1;
+static int proto_marker;
 
-static int hf_cisco_erspan_granularity = -1;
-static int hf_cisco_erspan_info = -1;
-static int hf_cisco_erspan_prop_header = -1;
-static int hf_cisco_erspan_reserved = -1;
-static int hf_cisco_erspan_sequence_number = -1;
-static int hf_cisco_erspan_ssid = -1;
-static int hf_cisco_erspan_tail = -1;
-static int hf_cisco_erspan_timestamp = -1;
-static int hf_cisco_erspan_type = -1;
-static int hf_cisco_erspan_utc_sec = -1;
-static int hf_cisco_erspan_utc_usec = -1;
-static int hf_cisco_erspan_utcoffset = -1;
-static int hf_cisco_erspan_version = -1;
+static int hf_cisco_erspan_granularity;
+static int hf_cisco_erspan_info;
+static int hf_cisco_erspan_prop_header;
+static int hf_cisco_erspan_reserved;
+static int hf_cisco_erspan_sequence_number;
+static int hf_cisco_erspan_ssid;
+static int hf_cisco_erspan_tail;
+static int hf_cisco_erspan_timestamp;
+static int hf_cisco_erspan_type;
+static int hf_cisco_erspan_utc_sec;
+static int hf_cisco_erspan_utc_usec;
+static int hf_cisco_erspan_utcoffset;
+static int hf_cisco_erspan_version;
 
 
-static gint ett_marker = -1;
+static gint ett_marker;
 
 
 static int

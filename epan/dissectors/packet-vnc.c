@@ -581,291 +581,291 @@ static guint vnc_h264_encoding(tvbuff_t *tvb, gint *offset, proto_tree *tree);
 		return (a);
 
 /* Initialize the protocol and registered fields */
-static int proto_vnc = -1; /* Protocol subtree */
-static int hf_vnc_padding = -1;
-static int hf_vnc_server_proto_ver = -1;
-static int hf_vnc_client_proto_ver = -1;
-static int hf_vnc_num_security_types = -1;
-static int hf_vnc_security_type = -1;
-static int hf_vnc_server_security_type = -1;
-static int hf_vnc_client_security_type = -1;
-static int hf_vnc_auth_challenge = -1;
-static int hf_vnc_auth_response = -1;
-static int hf_vnc_auth_result = -1;
-static int hf_vnc_auth_error = -1;
-static int hf_vnc_auth_error_length = -1;
+static int proto_vnc; /* Protocol subtree */
+static int hf_vnc_padding;
+static int hf_vnc_server_proto_ver;
+static int hf_vnc_client_proto_ver;
+static int hf_vnc_num_security_types;
+static int hf_vnc_security_type;
+static int hf_vnc_server_security_type;
+static int hf_vnc_client_security_type;
+static int hf_vnc_auth_challenge;
+static int hf_vnc_auth_response;
+static int hf_vnc_auth_result;
+static int hf_vnc_auth_error;
+static int hf_vnc_auth_error_length;
 
-static int hf_vnc_ard_auth_generator = -1;
-static int hf_vnc_ard_auth_key_len = -1;
-static int hf_vnc_ard_auth_modulus = -1;
-static int hf_vnc_ard_auth_server_key = -1;
-static int hf_vnc_ard_auth_credentials = -1;
-static int hf_vnc_ard_auth_client_key = -1;
+static int hf_vnc_ard_auth_generator;
+static int hf_vnc_ard_auth_key_len;
+static int hf_vnc_ard_auth_modulus;
+static int hf_vnc_ard_auth_server_key;
+static int hf_vnc_ard_auth_credentials;
+static int hf_vnc_ard_auth_client_key;
 
-static int hf_vnc_share_desktop_flag = -1;
-static int hf_vnc_width = -1;
-static int hf_vnc_height = -1;
-static int hf_vnc_server_bits_per_pixel = -1;
-static int hf_vnc_server_depth = -1;
-static int hf_vnc_server_big_endian_flag = -1;
-static int hf_vnc_server_true_color_flag = -1;
-static int hf_vnc_server_red_max = -1;
-static int hf_vnc_server_green_max = -1;
-static int hf_vnc_server_blue_max = -1;
-static int hf_vnc_server_red_shift = -1;
-static int hf_vnc_server_green_shift = -1;
-static int hf_vnc_server_blue_shift = -1;
-static int hf_vnc_desktop_name = -1;
-static int hf_vnc_desktop_name_len = -1;
-static int hf_vnc_desktop_screen_num = -1;
-static int hf_vnc_desktop_screen_id = -1;
-static int hf_vnc_desktop_screen_x = -1;
-static int hf_vnc_desktop_screen_y = -1;
-static int hf_vnc_desktop_screen_width = -1;
-static int hf_vnc_desktop_screen_height = -1;
-static int hf_vnc_desktop_screen_flags = -1;
-static int hf_vnc_num_server_message_types = -1;
-static int hf_vnc_num_client_message_types = -1;
-static int hf_vnc_num_encoding_types = -1;
+static int hf_vnc_share_desktop_flag;
+static int hf_vnc_width;
+static int hf_vnc_height;
+static int hf_vnc_server_bits_per_pixel;
+static int hf_vnc_server_depth;
+static int hf_vnc_server_big_endian_flag;
+static int hf_vnc_server_true_color_flag;
+static int hf_vnc_server_red_max;
+static int hf_vnc_server_green_max;
+static int hf_vnc_server_blue_max;
+static int hf_vnc_server_red_shift;
+static int hf_vnc_server_green_shift;
+static int hf_vnc_server_blue_shift;
+static int hf_vnc_desktop_name;
+static int hf_vnc_desktop_name_len;
+static int hf_vnc_desktop_screen_num;
+static int hf_vnc_desktop_screen_id;
+static int hf_vnc_desktop_screen_x;
+static int hf_vnc_desktop_screen_y;
+static int hf_vnc_desktop_screen_width;
+static int hf_vnc_desktop_screen_height;
+static int hf_vnc_desktop_screen_flags;
+static int hf_vnc_num_server_message_types;
+static int hf_vnc_num_client_message_types;
+static int hf_vnc_num_encoding_types;
 
 /********** Client Message Types **********/
 
-static int hf_vnc_client_message_type = -1; /* A subtree under VNC */
-static int hf_vnc_client_bits_per_pixel = -1;
-static int hf_vnc_client_depth = -1;
-static int hf_vnc_client_big_endian_flag = -1;
-static int hf_vnc_client_true_color_flag = -1;
-static int hf_vnc_client_red_max = -1;
-static int hf_vnc_client_green_max = -1;
-static int hf_vnc_client_blue_max = -1;
-static int hf_vnc_client_red_shift = -1;
-static int hf_vnc_client_green_shift = -1;
-static int hf_vnc_client_blue_shift = -1;
+static int hf_vnc_client_message_type; /* A subtree under VNC */
+static int hf_vnc_client_bits_per_pixel;
+static int hf_vnc_client_depth;
+static int hf_vnc_client_big_endian_flag;
+static int hf_vnc_client_true_color_flag;
+static int hf_vnc_client_red_max;
+static int hf_vnc_client_green_max;
+static int hf_vnc_client_blue_max;
+static int hf_vnc_client_red_shift;
+static int hf_vnc_client_green_shift;
+static int hf_vnc_client_blue_shift;
 
 /* Client Key Event */
-static int hf_vnc_key_down = -1;
-static int hf_vnc_key = -1;
+static int hf_vnc_key_down;
+static int hf_vnc_key;
 
 /* Client Pointer Event */
-static int hf_vnc_button_1_pos = -1;
-static int hf_vnc_button_2_pos = -1;
-static int hf_vnc_button_3_pos = -1;
-static int hf_vnc_button_4_pos = -1;
-static int hf_vnc_button_5_pos = -1;
-static int hf_vnc_button_6_pos = -1;
-static int hf_vnc_button_7_pos = -1;
-static int hf_vnc_button_8_pos = -1;
-static int hf_vnc_pointer_x_pos = -1;
-static int hf_vnc_pointer_y_pos = -1;
+static int hf_vnc_button_1_pos;
+static int hf_vnc_button_2_pos;
+static int hf_vnc_button_3_pos;
+static int hf_vnc_button_4_pos;
+static int hf_vnc_button_5_pos;
+static int hf_vnc_button_6_pos;
+static int hf_vnc_button_7_pos;
+static int hf_vnc_button_8_pos;
+static int hf_vnc_pointer_x_pos;
+static int hf_vnc_pointer_y_pos;
 
 /* Client Framebuffer Update Request */
-static int hf_vnc_update_req_incremental = -1;
-static int hf_vnc_update_req_x_pos = -1;
-static int hf_vnc_update_req_y_pos = -1;
-static int hf_vnc_update_req_width = -1;
-static int hf_vnc_update_req_height = -1;
+static int hf_vnc_update_req_incremental;
+static int hf_vnc_update_req_x_pos;
+static int hf_vnc_update_req_y_pos;
+static int hf_vnc_update_req_width;
+static int hf_vnc_update_req_height;
 
 /* Client Set Encodings */
-static int hf_vnc_encoding_num = -1;
-static int hf_vnc_client_set_encodings_encoding_type = -1;
+static int hf_vnc_encoding_num;
+static int hf_vnc_client_set_encodings_encoding_type;
 
 /* Client Cut Text */
-static int hf_vnc_client_cut_text_len = -1;
-static int hf_vnc_client_cut_text = -1;
+static int hf_vnc_client_cut_text_len;
+static int hf_vnc_client_cut_text;
 
 /********** Server Message Types **********/
 
-static int hf_vnc_server_message_type = -1; /* Subtree */
+static int hf_vnc_server_message_type; /* Subtree */
 
 /* Tunneling capabilities (TightVNC extension) */
-static int hf_vnc_tight_num_tunnel_types = -1;
-static int hf_vnc_tight_tunnel_type_code = -1;
-static int hf_vnc_tight_tunnel_type_vendor = -1;
-static int hf_vnc_tight_tunnel_type_signature = -1;
+static int hf_vnc_tight_num_tunnel_types;
+static int hf_vnc_tight_tunnel_type_code;
+static int hf_vnc_tight_tunnel_type_vendor;
+static int hf_vnc_tight_tunnel_type_signature;
 
 /* Authentication capabilities (TightVNC extension) */
-static int hf_vnc_tight_num_auth_types = -1;
-static int hf_vnc_tight_auth_code = -1;
+static int hf_vnc_tight_num_auth_types;
+static int hf_vnc_tight_auth_code;
 /* TightVNC capabilities */
-static int hf_vnc_tight_server_message_type = -1;
-static int hf_vnc_tight_server_vendor = -1;
-static int hf_vnc_tight_signature = -1;
-static int hf_vnc_tight_server_name = -1;
+static int hf_vnc_tight_server_message_type;
+static int hf_vnc_tight_server_vendor;
+static int hf_vnc_tight_signature;
+static int hf_vnc_tight_server_name;
 
-static int hf_vnc_tight_client_message_type = -1;
-static int hf_vnc_tight_client_vendor = -1;
-static int hf_vnc_tight_client_name = -1;
+static int hf_vnc_tight_client_message_type;
+static int hf_vnc_tight_client_vendor;
+static int hf_vnc_tight_client_name;
 
-static int hf_vnc_tight_encoding_type = -1;
-static int hf_vnc_tight_encoding_vendor = -1;
-static int hf_vnc_tight_encoding_name = -1;
+static int hf_vnc_tight_encoding_type;
+static int hf_vnc_tight_encoding_vendor;
+static int hf_vnc_tight_encoding_name;
 
 /* VeNCrypt capabilities */
-static int hf_vnc_vencrypt_server_major_ver = -1;
-static int hf_vnc_vencrypt_server_minor_ver = -1;
-static int hf_vnc_vencrypt_client_major_ver = -1;
-static int hf_vnc_vencrypt_client_minor_ver = -1;
-static int hf_vnc_vencrypt_version_ack = -1;
-static int hf_vnc_vencrypt_num_auth_types = -1;
-static int hf_vnc_vencrypt_auth_type = -1;
-static int hf_vnc_vencrypt_auth_type_ack = -1;
+static int hf_vnc_vencrypt_server_major_ver;
+static int hf_vnc_vencrypt_server_minor_ver;
+static int hf_vnc_vencrypt_client_major_ver;
+static int hf_vnc_vencrypt_client_minor_ver;
+static int hf_vnc_vencrypt_version_ack;
+static int hf_vnc_vencrypt_num_auth_types;
+static int hf_vnc_vencrypt_auth_type;
+static int hf_vnc_vencrypt_auth_type_ack;
 
 /* Tight compression parameters */
-static int hf_vnc_tight_reset_stream0 = -1;
-static int hf_vnc_tight_reset_stream1 = -1;
-static int hf_vnc_tight_reset_stream2 = -1;
-static int hf_vnc_tight_reset_stream3 = -1;
+static int hf_vnc_tight_reset_stream0;
+static int hf_vnc_tight_reset_stream1;
+static int hf_vnc_tight_reset_stream2;
+static int hf_vnc_tight_reset_stream3;
 
-static int hf_vnc_tight_rect_type = -1;
+static int hf_vnc_tight_rect_type;
 
-static int hf_vnc_tight_image_len = -1;
-static int hf_vnc_tight_image_data = -1;
+static int hf_vnc_tight_image_len;
+static int hf_vnc_tight_image_data;
 
-static int hf_vnc_tight_fill_color = -1;
+static int hf_vnc_tight_fill_color;
 
-static int hf_vnc_tight_filter_flag = -1;
-static int hf_vnc_tight_filter_id = -1;
+static int hf_vnc_tight_filter_flag;
+static int hf_vnc_tight_filter_id;
 
-static int hf_vnc_tight_palette_num_colors = -1;
-static int hf_vnc_tight_palette_data = -1;
+static int hf_vnc_tight_palette_num_colors;
+static int hf_vnc_tight_palette_data;
 
 /* Server Framebuffer Update */
-static int hf_vnc_rectangle_num = -1;
-static int hf_vnc_fb_update_x_pos = -1;
-static int hf_vnc_fb_update_y_pos = -1;
-static int hf_vnc_fb_update_width = -1;
-static int hf_vnc_fb_update_height = -1;
-static int hf_vnc_fb_update_encoding_type = -1;
+static int hf_vnc_rectangle_num;
+static int hf_vnc_fb_update_x_pos;
+static int hf_vnc_fb_update_y_pos;
+static int hf_vnc_fb_update_width;
+static int hf_vnc_fb_update_height;
+static int hf_vnc_fb_update_encoding_type;
 
 /* Raw Encoding */
-static int hf_vnc_raw_pixel_data = -1;
+static int hf_vnc_raw_pixel_data;
 
 /* CopyRect Encoding */
-static int hf_vnc_copyrect_src_x_pos = -1;
-static int hf_vnc_copyrect_src_y_pos = -1;
+static int hf_vnc_copyrect_src_x_pos;
+static int hf_vnc_copyrect_src_y_pos;
 
 /* RRE Encoding */
-static int hf_vnc_rre_num_subrects = -1;
-static int hf_vnc_rre_bg_pixel = -1;
+static int hf_vnc_rre_num_subrects;
+static int hf_vnc_rre_bg_pixel;
 
-static int hf_vnc_rre_subrect_pixel = -1;
-static int hf_vnc_rre_subrect_x_pos = -1;
-static int hf_vnc_rre_subrect_y_pos = -1;
-static int hf_vnc_rre_subrect_width = -1;
-static int hf_vnc_rre_subrect_height = -1;
+static int hf_vnc_rre_subrect_pixel;
+static int hf_vnc_rre_subrect_x_pos;
+static int hf_vnc_rre_subrect_y_pos;
+static int hf_vnc_rre_subrect_width;
+static int hf_vnc_rre_subrect_height;
 
 /* Hextile Encoding */
-static int hf_vnc_hextile_subencoding_mask = -1;
-static int hf_vnc_hextile_raw = -1;
-static int hf_vnc_hextile_raw_value = -1;
-static int hf_vnc_hextile_bg = -1;
-static int hf_vnc_hextile_bg_value = -1;
-static int hf_vnc_hextile_fg = -1;
-static int hf_vnc_hextile_fg_value = -1;
-static int hf_vnc_hextile_anysubrects = -1;
-static int hf_vnc_hextile_num_subrects = -1;
-static int hf_vnc_hextile_subrectscolored = -1;
-static int hf_vnc_hextile_subrect_pixel_value = -1;
-static int hf_vnc_hextile_subrect_x_pos = -1;
-static int hf_vnc_hextile_subrect_y_pos = -1;
-static int hf_vnc_hextile_subrect_width = -1;
-static int hf_vnc_hextile_subrect_height = -1;
+static int hf_vnc_hextile_subencoding_mask;
+static int hf_vnc_hextile_raw;
+static int hf_vnc_hextile_raw_value;
+static int hf_vnc_hextile_bg;
+static int hf_vnc_hextile_bg_value;
+static int hf_vnc_hextile_fg;
+static int hf_vnc_hextile_fg_value;
+static int hf_vnc_hextile_anysubrects;
+static int hf_vnc_hextile_num_subrects;
+static int hf_vnc_hextile_subrectscolored;
+static int hf_vnc_hextile_subrect_pixel_value;
+static int hf_vnc_hextile_subrect_x_pos;
+static int hf_vnc_hextile_subrect_y_pos;
+static int hf_vnc_hextile_subrect_width;
+static int hf_vnc_hextile_subrect_height;
 
 /* ZRLE Encoding */
-static int hf_vnc_zrle_len = -1;
-static int hf_vnc_zrle_subencoding = -1;
-static int hf_vnc_zrle_rle = -1;
-static int hf_vnc_zrle_palette_size = -1;
-static int hf_vnc_zrle_data = -1;
-static int hf_vnc_zrle_raw = -1;
-static int hf_vnc_zrle_palette = -1;
+static int hf_vnc_zrle_len;
+static int hf_vnc_zrle_subencoding;
+static int hf_vnc_zrle_rle;
+static int hf_vnc_zrle_palette_size;
+static int hf_vnc_zrle_data;
+static int hf_vnc_zrle_raw;
+static int hf_vnc_zrle_palette;
 
 /* Cursor Encoding */
-static int hf_vnc_cursor_x_fore_back = -1;
-static int hf_vnc_cursor_encoding_pixels = -1;
-static int hf_vnc_cursor_encoding_bitmask = -1;
+static int hf_vnc_cursor_x_fore_back;
+static int hf_vnc_cursor_encoding_pixels;
+static int hf_vnc_cursor_encoding_bitmask;
 
 /* Server Set Colormap Entries */
-static int hf_vnc_color_groups = -1;
-static int hf_vnc_colormap_first_color = -1;
-static int hf_vnc_colormap_num_colors = -1;
-static int hf_vnc_colormap_red = -1;
-static int hf_vnc_colormap_green = -1;
-static int hf_vnc_colormap_blue = -1;
+static int hf_vnc_color_groups;
+static int hf_vnc_colormap_first_color;
+static int hf_vnc_colormap_num_colors;
+static int hf_vnc_colormap_red;
+static int hf_vnc_colormap_green;
+static int hf_vnc_colormap_blue;
 
 /* Server Cut Text */
-static int hf_vnc_server_cut_text_len = -1;
-static int hf_vnc_server_cut_text = -1;
+static int hf_vnc_server_cut_text_len;
+static int hf_vnc_server_cut_text;
 
 /* LibVNCServer additions */
-static int hf_vnc_supported_messages_client2server = -1;
-static int hf_vnc_supported_messages_server2client = -1;
-static int hf_vnc_num_supported_encodings = -1;
-static int hf_vnc_supported_encodings = -1;
-static int hf_vnc_server_identity = -1;
+static int hf_vnc_supported_messages_client2server;
+static int hf_vnc_supported_messages_server2client;
+static int hf_vnc_num_supported_encodings;
+static int hf_vnc_supported_encodings;
+static int hf_vnc_server_identity;
 
 /* MirrorLink */
-static int hf_vnc_mirrorlink_type = -1;
-static int hf_vnc_mirrorlink_length = -1;
-static int hf_vnc_mirrorlink_version_major = -1;
-static int hf_vnc_mirrorlink_version_minor = -1;
-static int hf_vnc_mirrorlink_framebuffer_configuration = -1;
-static int hf_vnc_mirrorlink_pixel_width = -1;
-static int hf_vnc_mirrorlink_pixel_height = -1;
-static int hf_vnc_mirrorlink_pixel_format = -1;
-static int hf_vnc_mirrorlink_display_width = -1;
-static int hf_vnc_mirrorlink_display_height = -1;
-static int hf_vnc_mirrorlink_display_distance = -1;
-static int hf_vnc_mirrorlink_keyboard_language = -1;
-static int hf_vnc_mirrorlink_keyboard_country = -1;
-static int hf_vnc_mirrorlink_ui_language = -1;
-static int hf_vnc_mirrorlink_ui_country = -1;
-static int hf_vnc_mirrorlink_knob_keys = -1;
-static int hf_vnc_mirrorlink_device_keys = -1;
-static int hf_vnc_mirrorlink_multimedia_keys = -1;
-static int hf_vnc_mirrorlink_key_related = -1;
-static int hf_vnc_mirrorlink_pointer_related = -1;
-static int hf_vnc_mirrorlink_key_symbol_value_client = -1;
-static int hf_vnc_mirrorlink_key_symbol_value_server = -1;
-static int hf_vnc_mirrorlink_key_configuration = -1;
-static int hf_vnc_mirrorlink_key_num_events = -1;
-static int hf_vnc_mirrorlink_key_event_counter = -1;
-static int hf_vnc_mirrorlink_key_symbol_value = -1;
-static int hf_vnc_mirrorlink_key_request_configuration = -1;
-static int hf_vnc_mirrorlink_keyboard_configuration = -1;
-static int hf_vnc_mirrorlink_cursor_x = -1;
-static int hf_vnc_mirrorlink_cursor_y = -1;
-static int hf_vnc_mirrorlink_text_x = -1;
-static int hf_vnc_mirrorlink_text_y = -1;
-static int hf_vnc_mirrorlink_text_width = -1;
-static int hf_vnc_mirrorlink_text_height = -1;
-static int hf_vnc_mirrorlink_keyboard_request_configuration = -1;
-static int hf_vnc_mirrorlink_device_status = -1;
-static int hf_vnc_mirrorlink_app_id = -1;
-static int hf_vnc_mirrorlink_fb_block_x = -1;
-static int hf_vnc_mirrorlink_fb_block_y = -1;
-static int hf_vnc_mirrorlink_fb_block_width = -1;
-static int hf_vnc_mirrorlink_fb_block_height = -1;
-static int hf_vnc_mirrorlink_fb_block_reason = -1;
-static int hf_vnc_mirrorlink_audio_block_reason = -1;
-static int hf_vnc_mirrorlink_touch_num_events = -1;
-static int hf_vnc_mirrorlink_touch_x = -1;
-static int hf_vnc_mirrorlink_touch_y = -1;
-static int hf_vnc_mirrorlink_touch_id = -1;
-static int hf_vnc_mirrorlink_touch_pressure = -1;
-static int hf_vnc_mirrorlink_text = -1;
-static int hf_vnc_mirrorlink_text_length = -1;
-static int hf_vnc_mirrorlink_text_max_length = -1;
-static int hf_vnc_mirrorlink_unknown = -1;
+static int hf_vnc_mirrorlink_type;
+static int hf_vnc_mirrorlink_length;
+static int hf_vnc_mirrorlink_version_major;
+static int hf_vnc_mirrorlink_version_minor;
+static int hf_vnc_mirrorlink_framebuffer_configuration;
+static int hf_vnc_mirrorlink_pixel_width;
+static int hf_vnc_mirrorlink_pixel_height;
+static int hf_vnc_mirrorlink_pixel_format;
+static int hf_vnc_mirrorlink_display_width;
+static int hf_vnc_mirrorlink_display_height;
+static int hf_vnc_mirrorlink_display_distance;
+static int hf_vnc_mirrorlink_keyboard_language;
+static int hf_vnc_mirrorlink_keyboard_country;
+static int hf_vnc_mirrorlink_ui_language;
+static int hf_vnc_mirrorlink_ui_country;
+static int hf_vnc_mirrorlink_knob_keys;
+static int hf_vnc_mirrorlink_device_keys;
+static int hf_vnc_mirrorlink_multimedia_keys;
+static int hf_vnc_mirrorlink_key_related;
+static int hf_vnc_mirrorlink_pointer_related;
+static int hf_vnc_mirrorlink_key_symbol_value_client;
+static int hf_vnc_mirrorlink_key_symbol_value_server;
+static int hf_vnc_mirrorlink_key_configuration;
+static int hf_vnc_mirrorlink_key_num_events;
+static int hf_vnc_mirrorlink_key_event_counter;
+static int hf_vnc_mirrorlink_key_symbol_value;
+static int hf_vnc_mirrorlink_key_request_configuration;
+static int hf_vnc_mirrorlink_keyboard_configuration;
+static int hf_vnc_mirrorlink_cursor_x;
+static int hf_vnc_mirrorlink_cursor_y;
+static int hf_vnc_mirrorlink_text_x;
+static int hf_vnc_mirrorlink_text_y;
+static int hf_vnc_mirrorlink_text_width;
+static int hf_vnc_mirrorlink_text_height;
+static int hf_vnc_mirrorlink_keyboard_request_configuration;
+static int hf_vnc_mirrorlink_device_status;
+static int hf_vnc_mirrorlink_app_id;
+static int hf_vnc_mirrorlink_fb_block_x;
+static int hf_vnc_mirrorlink_fb_block_y;
+static int hf_vnc_mirrorlink_fb_block_width;
+static int hf_vnc_mirrorlink_fb_block_height;
+static int hf_vnc_mirrorlink_fb_block_reason;
+static int hf_vnc_mirrorlink_audio_block_reason;
+static int hf_vnc_mirrorlink_touch_num_events;
+static int hf_vnc_mirrorlink_touch_x;
+static int hf_vnc_mirrorlink_touch_y;
+static int hf_vnc_mirrorlink_touch_id;
+static int hf_vnc_mirrorlink_touch_pressure;
+static int hf_vnc_mirrorlink_text;
+static int hf_vnc_mirrorlink_text_length;
+static int hf_vnc_mirrorlink_text_max_length;
+static int hf_vnc_mirrorlink_unknown;
 
 /* Fence */
-static int hf_vnc_fence_flags = -1;
-static int hf_vnc_fence_request = -1;
-static int hf_vnc_fence_sync_next = -1;
-static int hf_vnc_fence_block_after = -1;
-static int hf_vnc_fence_block_before = -1;
-static int hf_vnc_fence_payload_length = -1;
-static int hf_vnc_fence_payload = -1;
+static int hf_vnc_fence_flags;
+static int hf_vnc_fence_request;
+static int hf_vnc_fence_sync_next;
+static int hf_vnc_fence_block_after;
+static int hf_vnc_fence_block_before;
+static int hf_vnc_fence_payload_length;
+static int hf_vnc_fence_payload;
 
 static int * const vnc_fence_flags[] = {
 	&hf_vnc_fence_request,
@@ -876,59 +876,59 @@ static int * const vnc_fence_flags[] = {
 };
 
 /* Context Information */
-static int hf_vnc_context_information_app_id = -1;
-static int hf_vnc_context_information_app_category = -1;
-static int hf_vnc_context_information_app_trust_level = -1;
-static int hf_vnc_context_information_content_category = -1;
-static int hf_vnc_context_information_content_rules = -1;
-static int hf_vnc_context_information_content_trust_level = -1;
+static int hf_vnc_context_information_app_id;
+static int hf_vnc_context_information_app_category;
+static int hf_vnc_context_information_app_trust_level;
+static int hf_vnc_context_information_content_category;
+static int hf_vnc_context_information_content_rules;
+static int hf_vnc_context_information_content_trust_level;
 
 /* Scan Line based Run-Length Encoding */
-static int hf_vnc_slrle_run_num = -1;
-static int hf_vnc_slrle_run_data = -1;
+static int hf_vnc_slrle_run_num;
+static int hf_vnc_slrle_run_data;
 
 /* H.264 Encoding */
-static int hf_vnc_h264_slice_type = -1;
-static int hf_vnc_h264_nbytes = -1;
-static int hf_vnc_h264_width = -1;
-static int hf_vnc_h264_height = -1;
-static int hf_vnc_h264_data = -1;
+static int hf_vnc_h264_slice_type;
+static int hf_vnc_h264_nbytes;
+static int hf_vnc_h264_width;
+static int hf_vnc_h264_height;
+static int hf_vnc_h264_data;
 
 /********** End of Server Message Types **********/
 
 static gboolean vnc_preference_desegment = TRUE;
 
 /* Initialize the subtree pointers */
-static gint ett_vnc = -1;
-static gint ett_vnc_client_message_type = -1;
-static gint ett_vnc_server_message_type = -1;
-static gint ett_vnc_rect = -1;
-static gint ett_vnc_encoding_type = -1;
-static gint ett_vnc_rre_subrect = -1;
-static gint ett_vnc_hextile_subencoding_mask = -1;
-static gint ett_vnc_hextile_num_subrects = -1;
-static gint ett_vnc_hextile_subrect = -1;
-static gint ett_vnc_hextile_tile = -1;
-static gint ett_vnc_zrle_subencoding = -1;
-static gint ett_vnc_colormap_num_groups = -1;
-static gint ett_vnc_colormap_color_group = -1;
-static gint ett_vnc_desktop_screen = -1;
-static gint ett_vnc_key_events = -1;
-static gint ett_vnc_touch_events = -1;
-static gint ett_vnc_slrle_subline = -1;
-static gint ett_vnc_fence_flags = -1;
+static gint ett_vnc;
+static gint ett_vnc_client_message_type;
+static gint ett_vnc_server_message_type;
+static gint ett_vnc_rect;
+static gint ett_vnc_encoding_type;
+static gint ett_vnc_rre_subrect;
+static gint ett_vnc_hextile_subencoding_mask;
+static gint ett_vnc_hextile_num_subrects;
+static gint ett_vnc_hextile_subrect;
+static gint ett_vnc_hextile_tile;
+static gint ett_vnc_zrle_subencoding;
+static gint ett_vnc_colormap_num_groups;
+static gint ett_vnc_colormap_color_group;
+static gint ett_vnc_desktop_screen;
+static gint ett_vnc_key_events;
+static gint ett_vnc_touch_events;
+static gint ett_vnc_slrle_subline;
+static gint ett_vnc_fence_flags;
 
-static expert_field ei_vnc_possible_gtk_vnc_bug = EI_INIT;
-static expert_field ei_vnc_auth_code_mismatch = EI_INIT;
-static expert_field ei_vnc_unknown_tight_vnc_auth = EI_INIT;
-static expert_field ei_vnc_too_many_rectangles = EI_INIT;
-static expert_field ei_vnc_too_many_sub_rectangles = EI_INIT;
-static expert_field ei_vnc_invalid_encoding = EI_INIT;
-static expert_field ei_vnc_too_many_colors = EI_INIT;
-static expert_field ei_vnc_too_many_cut_text = EI_INIT;
-static expert_field ei_vnc_zrle_failed = EI_INIT;
-static expert_field ei_vnc_unknown_tight = EI_INIT;
-static expert_field ei_vnc_reassemble = EI_INIT;
+static expert_field ei_vnc_possible_gtk_vnc_bug;
+static expert_field ei_vnc_auth_code_mismatch;
+static expert_field ei_vnc_unknown_tight_vnc_auth;
+static expert_field ei_vnc_too_many_rectangles;
+static expert_field ei_vnc_too_many_sub_rectangles;
+static expert_field ei_vnc_invalid_encoding;
+static expert_field ei_vnc_too_many_colors;
+static expert_field ei_vnc_too_many_cut_text;
+static expert_field ei_vnc_zrle_failed;
+static expert_field ei_vnc_unknown_tight;
+static expert_field ei_vnc_reassemble;
 
 #define VNC_PORT_RANGE "5500-5501,5900-5901"
 /* Port 5900 is IANA registered (under the service name "Remote Framebuffer"),

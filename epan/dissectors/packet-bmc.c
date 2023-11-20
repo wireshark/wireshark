@@ -24,22 +24,22 @@ static int dissect_bmc_cbs_message     (tvbuff_t *tvb, packet_info *pinfo, proto
 static int dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_bmc_cbs41_message   (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-static int proto_bmc = -1;
-static int hf_bmc_message_type = -1;
-static int hf_bmc_message_id = -1;
-static int hf_bmc_serial_number = -1;
-/* static int hf_bmc_data_coding_scheme = -1; */
-/* static int hf_bmc_cb_data = -1; */
-static int hf_bmc_offset_to_begin_ctch_bs_index = -1;
-static int hf_bmc_length_of_cbs_schedule_period = -1;
-static int hf_bmc_new_message_bitmap = -1;
-static int hf_bmc_message_description_type = -1;
-static int hf_bmc_offset_to_ctch_bs_index_of_first_transmission = -1;
-static int hf_bmc_broadcast_address = -1;
-static int hf_bmc_cb_data41 = -1;
-static int hf_bmc_future_extension_bitmap = -1;
-static int hf_bmc_length_of_serial_number_list = -1;
-static int hf_bmc_ctch_bs_index = -1;
+static int proto_bmc;
+static int hf_bmc_message_type;
+static int hf_bmc_message_id;
+static int hf_bmc_serial_number;
+/* static int hf_bmc_data_coding_scheme; */
+/* static int hf_bmc_cb_data; */
+static int hf_bmc_offset_to_begin_ctch_bs_index;
+static int hf_bmc_length_of_cbs_schedule_period;
+static int hf_bmc_new_message_bitmap;
+static int hf_bmc_message_description_type;
+static int hf_bmc_offset_to_ctch_bs_index_of_first_transmission;
+static int hf_bmc_broadcast_address;
+static int hf_bmc_cb_data41;
+static int hf_bmc_future_extension_bitmap;
+static int hf_bmc_length_of_serial_number_list;
+static int hf_bmc_ctch_bs_index;
 
 #define MESSAGE_TYPE_CBS_MESSAGE        1
 #define MESSAGE_TYPE_SCHEDULE_MESSAGE   2
@@ -65,8 +65,8 @@ static const value_string message_description_type_vals[] = {
     {0, NULL}
 };
 
-static gint ett_bmc = -1;
-static gint ett_bmc_message_description = -1;
+static gint ett_bmc;
+static gint ett_bmc_message_description;
 
 static int
 dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)

@@ -453,91 +453,91 @@ static const option_part_definition saphdb_part_lob_flags_vals[] = {
 };
 
 
-static int proto_saphdb = -1;
+static int proto_saphdb;
 
 /* SAP HDB Initialization items */
-static int hf_saphdb_initialization_request = -1;
-static int hf_saphdb_initialization_reply = -1;
-static int hf_saphdb_initialization_reply_product_version_major = -1;
-static int hf_saphdb_initialization_reply_product_version_minor = -1;
-static int hf_saphdb_initialization_reply_protocol_version_major = -1;
-static int hf_saphdb_initialization_reply_protocol_version_minor = -1;
+static int hf_saphdb_initialization_request;
+static int hf_saphdb_initialization_reply;
+static int hf_saphdb_initialization_reply_product_version_major;
+static int hf_saphdb_initialization_reply_product_version_minor;
+static int hf_saphdb_initialization_reply_protocol_version_major;
+static int hf_saphdb_initialization_reply_protocol_version_minor;
 
 /* SAP HDB Message Header items */
-static int hf_saphdb_message_header = -1;
-static int hf_saphdb_message_header_sessionid = -1;
-static int hf_saphdb_message_header_packetcount = -1;
-static int hf_saphdb_message_header_varpartlength = -1;
-static int hf_saphdb_message_header_varpartsize = -1;
-static int hf_saphdb_message_header_noofsegm = -1;
-static int hf_saphdb_message_header_packetoptions = -1;
-static int hf_saphdb_message_header_compressionvarpartlength = -1;
-static int hf_saphdb_message_header_reserved = -1;
+static int hf_saphdb_message_header;
+static int hf_saphdb_message_header_sessionid;
+static int hf_saphdb_message_header_packetcount;
+static int hf_saphdb_message_header_varpartlength;
+static int hf_saphdb_message_header_varpartsize;
+static int hf_saphdb_message_header_noofsegm;
+static int hf_saphdb_message_header_packetoptions;
+static int hf_saphdb_message_header_compressionvarpartlength;
+static int hf_saphdb_message_header_reserved;
 /* SAP HDB Message Buffer items */
-static int hf_saphdb_message_buffer = -1;
-static int hf_saphdb_compressed_buffer = -1;
+static int hf_saphdb_message_buffer;
+static int hf_saphdb_compressed_buffer;
 
 /* SAP HDB Segment items */
-static int hf_saphdb_segment = -1;
-static int hf_saphdb_segment_segmentlength = -1;
-static int hf_saphdb_segment_segmentofs = -1;
-static int hf_saphdb_segment_noofparts = -1;
-static int hf_saphdb_segment_segmentno = -1;
-static int hf_saphdb_segment_segmentkind = -1;
-static int hf_saphdb_segment_messagetype = -1;
-static int hf_saphdb_segment_commit = -1;
-static int hf_saphdb_segment_commandoptions = -1;
-static int hf_saphdb_segment_functioncode = -1;
-static int hf_saphdb_segment_reserved = -1;
+static int hf_saphdb_segment;
+static int hf_saphdb_segment_segmentlength;
+static int hf_saphdb_segment_segmentofs;
+static int hf_saphdb_segment_noofparts;
+static int hf_saphdb_segment_segmentno;
+static int hf_saphdb_segment_segmentkind;
+static int hf_saphdb_segment_messagetype;
+static int hf_saphdb_segment_commit;
+static int hf_saphdb_segment_commandoptions;
+static int hf_saphdb_segment_functioncode;
+static int hf_saphdb_segment_reserved;
 /* SAP HDB Segment Buffer items */
-static int hf_saphdb_segment_buffer = -1;
+static int hf_saphdb_segment_buffer;
 
 /* SAP HDB Part items */
-static int hf_saphdb_part = -1;
-static int hf_saphdb_part_partkind = -1;
-static int hf_saphdb_part_partattributes = -1;
-static int hf_saphdb_part_argumentcount = -1;
-static int hf_saphdb_part_bigargumentcount = -1;
-static int hf_saphdb_part_bufferlength = -1;
-static int hf_saphdb_part_buffersize = -1;
+static int hf_saphdb_part;
+static int hf_saphdb_part_partkind;
+static int hf_saphdb_part_partattributes;
+static int hf_saphdb_part_argumentcount;
+static int hf_saphdb_part_bigargumentcount;
+static int hf_saphdb_part_bufferlength;
+static int hf_saphdb_part_buffersize;
 /* SAP HDB Part Buffer items */
-static int hf_saphdb_part_buffer = -1;
+static int hf_saphdb_part_buffer;
 
 /* SAP HDB Part Buffer Option Part Data items */
-static int hf_saphdb_part_option_argcount = -1;
-static int hf_saphdb_part_option_name = -1;
-static int hf_saphdb_part_option_type = -1;
-static int hf_saphdb_part_option_length = -1;
-static int hf_saphdb_part_option_value = -1;
-static int hf_saphdb_part_option_value_bool = -1;
-static int hf_saphdb_part_option_value_byte = -1;
-static int hf_saphdb_part_option_value_short = -1;
-static int hf_saphdb_part_option_value_int = -1;
-static int hf_saphdb_part_option_value_bigint = -1;
-static int hf_saphdb_part_option_value_string = -1;
-static int hf_saphdb_part_option_value_double = -1;
+static int hf_saphdb_part_option_argcount;
+static int hf_saphdb_part_option_name;
+static int hf_saphdb_part_option_type;
+static int hf_saphdb_part_option_length;
+static int hf_saphdb_part_option_value;
+static int hf_saphdb_part_option_value_bool;
+static int hf_saphdb_part_option_value_byte;
+static int hf_saphdb_part_option_value_short;
+static int hf_saphdb_part_option_value_int;
+static int hf_saphdb_part_option_value_bigint;
+static int hf_saphdb_part_option_value_string;
+static int hf_saphdb_part_option_value_double;
 
 /* SAP HDB Part Buffer COMMAND items */
-static int hf_saphdb_part_command = -1;
+static int hf_saphdb_part_command;
 
 /* SAP HDB Part Buffer ERROR items */
-static int hf_saphdb_part_error_code = -1;
-static int hf_saphdb_part_error_position = -1;
-static int hf_saphdb_part_error_text_length = -1;
-static int hf_saphdb_part_error_level = -1;
-static int hf_saphdb_part_error_sqlstate = -1;
-static int hf_saphdb_part_error_text = -1;
+static int hf_saphdb_part_error_code;
+static int hf_saphdb_part_error_position;
+static int hf_saphdb_part_error_text_length;
+static int hf_saphdb_part_error_level;
+static int hf_saphdb_part_error_sqlstate;
+static int hf_saphdb_part_error_text;
 
 /* SAP HDB Part Buffer AUTHENTICATE items */
-static int hf_saphdb_part_authentication_field_count = -1;
-static int hf_saphdb_part_authentication_field_length = -1;
-static int hf_saphdb_part_authentication_field_value = -1;
+static int hf_saphdb_part_authentication_field_count;
+static int hf_saphdb_part_authentication_field_length;
+static int hf_saphdb_part_authentication_field_value;
 
 /* SAP HDB Part Buffer CLIENTID items */
-static int hf_saphdb_part_clientid = -1;
+static int hf_saphdb_part_clientid;
 
 
-static gint ett_saphdb = -1;
+static gint ett_saphdb;
 
 
 /* Global port preference */
@@ -545,14 +545,14 @@ static range_t *global_saphdb_port_range;
 
 
 /* Expert info */
-static expert_field ei_saphdb_compressed_unknown = EI_INIT;
-static expert_field ei_saphdb_option_part_unknown = EI_INIT;
-static expert_field ei_saphdb_segments_incorrect_order = EI_INIT;
-static expert_field ei_saphdb_segments_number_incorrect = EI_INIT;
-static expert_field ei_saphdb_segment_length = EI_INIT;
-static expert_field ei_saphdb_buffer_length = EI_INIT;
-static expert_field ei_saphdb_parts_number_incorrect = EI_INIT;
-static expert_field ei_saphdb_varpartlenght_incorrect = EI_INIT;
+static expert_field ei_saphdb_compressed_unknown;
+static expert_field ei_saphdb_option_part_unknown;
+static expert_field ei_saphdb_segments_incorrect_order;
+static expert_field ei_saphdb_segments_number_incorrect;
+static expert_field ei_saphdb_segment_length;
+static expert_field ei_saphdb_buffer_length;
+static expert_field ei_saphdb_parts_number_incorrect;
+static expert_field ei_saphdb_varpartlenght_incorrect;
 
 
 /* Global highlight preference */

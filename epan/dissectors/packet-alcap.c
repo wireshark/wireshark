@@ -190,216 +190,216 @@ static const value_string all_cids_vals[] = {
 };
 
 /* Initialize the subtree pointers */
-static gint ett_alcap = -1;
-static gint ett_leg = -1;
-static gint ett_compat = -1;
-static gint ett_cau_diag = -1;
+static gint ett_alcap;
+static gint ett_leg;
+static gint ett_compat;
+static gint ett_cau_diag;
 
 /* Initialize the protocol and registered fields */
-static int proto_alcap = -1;
+static int proto_alcap;
 
-static int hf_alcap_dsaid = -1;
-static int hf_alcap_msg_id = -1;
-static int hf_alcap_compat = -1;
-static int hf_alcap_compat_pass_on_sni = -1;
-static int hf_alcap_compat_pass_on_ii = -1;
-static int hf_alcap_compat_general_sni = -1;
-static int hf_alcap_compat_general_ii = -1;
+static int hf_alcap_dsaid;
+static int hf_alcap_msg_id;
+static int hf_alcap_compat;
+static int hf_alcap_compat_pass_on_sni;
+static int hf_alcap_compat_pass_on_ii;
+static int hf_alcap_compat_general_sni;
+static int hf_alcap_compat_general_ii;
 
-static int hf_alcap_param_id = -1;
-static int hf_alcap_param_len = -1;
+static int hf_alcap_param_id;
+static int hf_alcap_param_len;
 
-static int hf_alcap_unknown = -1;
+static int hf_alcap_unknown;
 
-static int hf_alcap_cau_coding = -1;
-static int hf_alcap_cau_value_itu = -1;
-static int hf_alcap_cau_value_non_itu = -1;
-static int hf_alcap_cau_diag = -1;
-static int hf_alcap_cau_diag_len = -1;
-static int hf_alcap_cau_diag_msg = -1;
-static int hf_alcap_cau_diag_param_id = -1;
-static int hf_alcap_cau_diag_field_num = -1;
+static int hf_alcap_cau_coding;
+static int hf_alcap_cau_value_itu;
+static int hf_alcap_cau_value_non_itu;
+static int hf_alcap_cau_diag;
+static int hf_alcap_cau_diag_len;
+static int hf_alcap_cau_diag_msg;
+static int hf_alcap_cau_diag_param_id;
+static int hf_alcap_cau_diag_field_num;
 
-static int hf_alcap_ceid_pathid = -1;
-static int hf_alcap_ceid_cid = -1;
+static int hf_alcap_ceid_pathid;
+static int hf_alcap_ceid_cid;
 
-static int hf_alcap_dnsea = -1;
+static int hf_alcap_dnsea;
 
-static int hf_alcap_alc_max_br_fw = -1;
-static int hf_alcap_alc_max_br_bw = -1;
-static int hf_alcap_alc_avg_br_fw = -1;
-static int hf_alcap_alc_avg_br_bw = -1;
-static int hf_alcap_alc_max_sdu_fw = -1;
-static int hf_alcap_alc_max_sdu_bw = -1;
-static int hf_alcap_alc_avg_sdu_fw = -1;
-static int hf_alcap_alc_avg_sdu_bw = -1;
+static int hf_alcap_alc_max_br_fw;
+static int hf_alcap_alc_max_br_bw;
+static int hf_alcap_alc_avg_br_fw;
+static int hf_alcap_alc_avg_br_bw;
+static int hf_alcap_alc_max_sdu_fw;
+static int hf_alcap_alc_max_sdu_bw;
+static int hf_alcap_alc_avg_sdu_fw;
+static int hf_alcap_alc_avg_sdu_bw;
 
-static int hf_alcap_osaid = -1;
+static int hf_alcap_osaid;
 
-static int hf_alcap_sugr = -1;
+static int hf_alcap_sugr;
 
-static int hf_alcap_sut_len = -1;
-static int hf_alcap_sut = -1;
+static int hf_alcap_sut_len;
+static int hf_alcap_sut;
 
-static int hf_alcap_ssia_pr_type = -1;
-static int hf_alcap_ssia_pr_id = -1;
-static int hf_alcap_ssia_frm = -1;
-static int hf_alcap_ssia_cmd = -1;
-static int hf_alcap_ssia_mfr2 = -1;
-static int hf_alcap_ssia_mfr1 = -1;
-static int hf_alcap_ssia_dtmf = -1;
-static int hf_alcap_ssia_cas = -1;
-static int hf_alcap_ssia_fax = -1;
-static int hf_alcap_ssia_pcm = -1;
-static int hf_alcap_ssia_max_len = -1;
-static int hf_alcap_ssia_oui = -1;
+static int hf_alcap_ssia_pr_type;
+static int hf_alcap_ssia_pr_id;
+static int hf_alcap_ssia_frm;
+static int hf_alcap_ssia_cmd;
+static int hf_alcap_ssia_mfr2;
+static int hf_alcap_ssia_mfr1;
+static int hf_alcap_ssia_dtmf;
+static int hf_alcap_ssia_cas;
+static int hf_alcap_ssia_fax;
+static int hf_alcap_ssia_pcm;
+static int hf_alcap_ssia_max_len;
+static int hf_alcap_ssia_oui;
 
-static int hf_alcap_ssim_frm = -1;
-static int hf_alcap_ssim_mult = -1;
-static int hf_alcap_ssim_max = -1;
+static int hf_alcap_ssim_frm;
+static int hf_alcap_ssim_mult;
+static int hf_alcap_ssim_max;
 
-static int hf_alcap_ssisa_max_sssar_fw = -1;
-static int hf_alcap_ssisa_max_sssar_bw = -1;
-static int hf_alcap_ssisa_max_sscop_sdu_fw = -1;
-static int hf_alcap_ssisa_max_sscop_sdu_bw = -1;
-static int hf_alcap_ssisa_max_sscop_uu_fw = -1;
-static int hf_alcap_ssisa_max_sscop_uu_bw = -1;
+static int hf_alcap_ssisa_max_sssar_fw;
+static int hf_alcap_ssisa_max_sssar_bw;
+static int hf_alcap_ssisa_max_sscop_sdu_fw;
+static int hf_alcap_ssisa_max_sscop_sdu_bw;
+static int hf_alcap_ssisa_max_sscop_uu_fw;
+static int hf_alcap_ssisa_max_sscop_uu_bw;
 
-static int hf_alcap_ssisu_max_sssar_fw = -1;
-static int hf_alcap_ssisu_max_sssar_bw = -1;
-static int hf_alcap_ssisu_ted = -1;
+static int hf_alcap_ssisu_max_sssar_fw;
+static int hf_alcap_ssisu_max_sssar_bw;
+static int hf_alcap_ssisu_ted;
 
-static int hf_alcap_pt = -1;
+static int hf_alcap_pt;
 
-static int hf_alcap_plc_max_br_fw = -1;
-static int hf_alcap_plc_max_br_bw = -1;
-static int hf_alcap_plc_avg_br_fw = -1;
-static int hf_alcap_plc_avg_br_bw = -1;
-static int hf_alcap_plc_max_sdu_fw = -1;
-static int hf_alcap_plc_max_sdu_bw = -1;
-static int hf_alcap_plc_avg_sdu_fw = -1;
-static int hf_alcap_plc_avg_sdu_bw = -1;
+static int hf_alcap_plc_max_br_fw;
+static int hf_alcap_plc_max_br_bw;
+static int hf_alcap_plc_avg_br_fw;
+static int hf_alcap_plc_avg_br_bw;
+static int hf_alcap_plc_max_sdu_fw;
+static int hf_alcap_plc_max_sdu_bw;
+static int hf_alcap_plc_avg_sdu_fw;
+static int hf_alcap_plc_avg_sdu_bw;
 
-static int hf_alcap_pssiae_pr_type = -1;
-static int hf_alcap_pssiae_pr_id = -1;
-static int hf_alcap_pssiae_lb = -1;
-static int hf_alcap_pssiae_rc = -1;
-static int hf_alcap_pssiae_syn = -1;
-static int hf_alcap_pssiae_frm = -1;
-static int hf_alcap_pssiae_cmd = -1;
-static int hf_alcap_pssiae_mfr2 = -1;
-static int hf_alcap_pssiae_mfr1 = -1;
-static int hf_alcap_pssiae_dtmf = -1;
-static int hf_alcap_pssiae_cas = -1;
-static int hf_alcap_pssiae_fax = -1;
-static int hf_alcap_pssiae_pcm = -1;
-static int hf_alcap_pssiae_max_len = -1;
-static int hf_alcap_pssiae_oui = -1;
+static int hf_alcap_pssiae_pr_type;
+static int hf_alcap_pssiae_pr_id;
+static int hf_alcap_pssiae_lb;
+static int hf_alcap_pssiae_rc;
+static int hf_alcap_pssiae_syn;
+static int hf_alcap_pssiae_frm;
+static int hf_alcap_pssiae_cmd;
+static int hf_alcap_pssiae_mfr2;
+static int hf_alcap_pssiae_mfr1;
+static int hf_alcap_pssiae_dtmf;
+static int hf_alcap_pssiae_cas;
+static int hf_alcap_pssiae_fax;
+static int hf_alcap_pssiae_pcm;
+static int hf_alcap_pssiae_max_len;
+static int hf_alcap_pssiae_oui;
 
-static int hf_alcap_pssime_frm = -1;
-static int hf_alcap_pssime_lb = -1;
-static int hf_alcap_pssime_mult = -1;
-static int hf_alcap_pssime_max = -1;
+static int hf_alcap_pssime_frm;
+static int hf_alcap_pssime_lb;
+static int hf_alcap_pssime_mult;
+static int hf_alcap_pssime_max;
 
-static int hf_alcap_suci = -1;
+static int hf_alcap_suci;
 
-static int hf_alcap_onsea = -1;
+static int hf_alcap_onsea;
 
-static int hf_alcap_ssiae_pr_type = -1;
-static int hf_alcap_ssiae_pr_id = -1;
-static int hf_alcap_ssiae_lb = -1;
-static int hf_alcap_ssiae_rc = -1;
-static int hf_alcap_ssiae_syn = -1;
-static int hf_alcap_ssiae_frm = -1;
-static int hf_alcap_ssiae_cmd = -1;
-static int hf_alcap_ssiae_mfr2 = -1;
-static int hf_alcap_ssiae_mfr1 = -1;
-static int hf_alcap_ssiae_dtmf = -1;
-static int hf_alcap_ssiae_cas = -1;
-static int hf_alcap_ssiae_fax = -1;
-static int hf_alcap_ssiae_pcm = -1;
-static int hf_alcap_ssiae_max_len = -1;
-static int hf_alcap_ssiae_oui = -1;
+static int hf_alcap_ssiae_pr_type;
+static int hf_alcap_ssiae_pr_id;
+static int hf_alcap_ssiae_lb;
+static int hf_alcap_ssiae_rc;
+static int hf_alcap_ssiae_syn;
+static int hf_alcap_ssiae_frm;
+static int hf_alcap_ssiae_cmd;
+static int hf_alcap_ssiae_mfr2;
+static int hf_alcap_ssiae_mfr1;
+static int hf_alcap_ssiae_dtmf;
+static int hf_alcap_ssiae_cas;
+static int hf_alcap_ssiae_fax;
+static int hf_alcap_ssiae_pcm;
+static int hf_alcap_ssiae_max_len;
+static int hf_alcap_ssiae_oui;
 
-static int hf_alcap_ssime_frm = -1;
-static int hf_alcap_ssime_lb = -1;
-static int hf_alcap_ssime_mult = -1;
-static int hf_alcap_ssime_max = -1;
+static int hf_alcap_ssime_frm;
+static int hf_alcap_ssime_lb;
+static int hf_alcap_ssime_mult;
+static int hf_alcap_ssime_max;
 
-static int hf_alcap_acc_level = -1;
+static int hf_alcap_acc_level;
 
-static int hf_alcap_cp = -1;
+static int hf_alcap_cp;
 
-static int hf_alcap_hc = -1;
+static int hf_alcap_hc;
 
-static int hf_alcap_pfbw_br_fw = -1;
-static int hf_alcap_pfbw_br_bw = -1;
-static int hf_alcap_pfbw_bucket_fw = -1;
-static int hf_alcap_pfbw_bucket_bw = -1;
-static int hf_alcap_pfbw_size_fw = -1;
-static int hf_alcap_pfbw_size_bw = -1;
+static int hf_alcap_pfbw_br_fw;
+static int hf_alcap_pfbw_br_bw;
+static int hf_alcap_pfbw_bucket_fw;
+static int hf_alcap_pfbw_bucket_bw;
+static int hf_alcap_pfbw_size_fw;
+static int hf_alcap_pfbw_size_bw;
 
-static int hf_alcap_pvbws_br_fw = -1;
-static int hf_alcap_pvbws_br_bw = -1;
-static int hf_alcap_pvbws_bucket_fw = -1;
-static int hf_alcap_pvbws_bucket_bw = -1;
-static int hf_alcap_pvbws_size_fw = -1;
-static int hf_alcap_pvbws_size_bw = -1;
-static int hf_alcap_pvbws_stt = -1;
+static int hf_alcap_pvbws_br_fw;
+static int hf_alcap_pvbws_br_bw;
+static int hf_alcap_pvbws_bucket_fw;
+static int hf_alcap_pvbws_bucket_bw;
+static int hf_alcap_pvbws_size_fw;
+static int hf_alcap_pvbws_size_bw;
+static int hf_alcap_pvbws_stt;
 
-static int hf_alcap_pvbwt_peak_br_fw = -1;
-static int hf_alcap_pvbwt_peak_br_bw = -1;
-static int hf_alcap_pvbwt_peak_bucket_fw = -1;
-static int hf_alcap_pvbwt_peak_bucket_bw = -1;
-static int hf_alcap_pvbwt_sust_br_fw = -1;
-static int hf_alcap_pvbwt_sust_br_bw = -1;
-static int hf_alcap_pvbwt_sust_bucket_fw = -1;
-static int hf_alcap_pvbwt_sust_bucket_bw = -1;
-static int hf_alcap_pvbwt_size_fw = -1;
-static int hf_alcap_pvbwt_size_bw = -1;
+static int hf_alcap_pvbwt_peak_br_fw;
+static int hf_alcap_pvbwt_peak_br_bw;
+static int hf_alcap_pvbwt_peak_bucket_fw;
+static int hf_alcap_pvbwt_peak_bucket_bw;
+static int hf_alcap_pvbwt_sust_br_fw;
+static int hf_alcap_pvbwt_sust_br_bw;
+static int hf_alcap_pvbwt_sust_bucket_fw;
+static int hf_alcap_pvbwt_sust_bucket_bw;
+static int hf_alcap_pvbwt_size_fw;
+static int hf_alcap_pvbwt_size_bw;
 
-static int hf_alcap_fbw_br_fw = -1;
-static int hf_alcap_fbw_br_bw = -1;
-static int hf_alcap_fbw_bucket_fw = -1;
-static int hf_alcap_fbw_bucket_bw = -1;
-static int hf_alcap_fbw_size_fw = -1;
-static int hf_alcap_fbw_size_bw = -1;
+static int hf_alcap_fbw_br_fw;
+static int hf_alcap_fbw_br_bw;
+static int hf_alcap_fbw_bucket_fw;
+static int hf_alcap_fbw_bucket_bw;
+static int hf_alcap_fbw_size_fw;
+static int hf_alcap_fbw_size_bw;
 
-static int hf_alcap_vbws_br_fw = -1;
-static int hf_alcap_vbws_br_bw = -1;
-static int hf_alcap_vbws_bucket_fw = -1;
-static int hf_alcap_vbws_bucket_bw = -1;
-static int hf_alcap_vbws_size_fw = -1;
-static int hf_alcap_vbws_size_bw = -1;
-static int hf_alcap_vbws_stt = -1;
+static int hf_alcap_vbws_br_fw;
+static int hf_alcap_vbws_br_bw;
+static int hf_alcap_vbws_bucket_fw;
+static int hf_alcap_vbws_bucket_bw;
+static int hf_alcap_vbws_size_fw;
+static int hf_alcap_vbws_size_bw;
+static int hf_alcap_vbws_stt;
 
-static int hf_alcap_vbwt_peak_br_fw = -1;
-static int hf_alcap_vbwt_peak_br_bw = -1;
-static int hf_alcap_vbwt_peak_bucket_fw = -1;
-static int hf_alcap_vbwt_peak_bucket_bw = -1;
-static int hf_alcap_vbwt_sust_br_fw = -1;
-static int hf_alcap_vbwt_sust_br_bw = -1;
-static int hf_alcap_vbwt_sust_bucket_fw = -1;
-static int hf_alcap_vbwt_sust_bucket_bw = -1;
-static int hf_alcap_vbwt_size_fw = -1;
-static int hf_alcap_vbwt_size_bw = -1;
+static int hf_alcap_vbwt_peak_br_fw;
+static int hf_alcap_vbwt_peak_br_bw;
+static int hf_alcap_vbwt_peak_bucket_fw;
+static int hf_alcap_vbwt_peak_bucket_bw;
+static int hf_alcap_vbwt_sust_br_fw;
+static int hf_alcap_vbwt_sust_br_bw;
+static int hf_alcap_vbwt_sust_bucket_fw;
+static int hf_alcap_vbwt_sust_bucket_bw;
+static int hf_alcap_vbwt_size_fw;
+static int hf_alcap_vbwt_size_bw;
 
 
-static int hf_alcap_leg_osaid = -1;
-static int hf_alcap_leg_dsaid = -1;
-static int hf_alcap_leg_pathid = -1;
-static int hf_alcap_leg_cid = -1;
-static int hf_alcap_leg_sugr = -1;
-static int hf_alcap_leg_dnsea = -1;
-static int hf_alcap_leg_onsea = -1;
-static int hf_alcap_leg_frame = -1;
-static int hf_alcap_leg_release_cause = -1;
+static int hf_alcap_leg_osaid;
+static int hf_alcap_leg_dsaid;
+static int hf_alcap_leg_pathid;
+static int hf_alcap_leg_cid;
+static int hf_alcap_leg_sugr;
+static int hf_alcap_leg_dnsea;
+static int hf_alcap_leg_onsea;
+static int hf_alcap_leg_frame;
+static int hf_alcap_leg_release_cause;
 
-static expert_field ei_alcap_parameter_field_bad_length = EI_INIT;
-static expert_field ei_alcap_undecoded = EI_INIT;
-static expert_field ei_alcap_release_cause_not31 = EI_INIT;
-static expert_field ei_alcap_abnormal_release = EI_INIT;
-static expert_field ei_alcap_response = EI_INIT;
+static expert_field ei_alcap_parameter_field_bad_length;
+static expert_field ei_alcap_undecoded;
+static expert_field ei_alcap_release_cause_not31;
+static expert_field ei_alcap_abnormal_release;
+static expert_field ei_alcap_response;
 
 static dissector_handle_t alcap_handle = NULL;
 

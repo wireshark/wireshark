@@ -26,34 +26,34 @@ void proto_reg_handoff_rlogin(void);
 
 static dissector_handle_t rlogin_handle;
 
-static int proto_rlogin = -1;
+static int proto_rlogin;
 
-static int ett_rlogin = -1;
-static int ett_rlogin_window = -1;
-static int ett_rlogin_user_info = -1;
-static int ett_rlogin_window_rows = -1;
-static int ett_rlogin_window_cols = -1;
-static int ett_rlogin_window_x_pixels = -1;
-static int ett_rlogin_window_y_pixels = -1;
+static int ett_rlogin;
+static int ett_rlogin_window;
+static int ett_rlogin_user_info;
+static int ett_rlogin_window_rows;
+static int ett_rlogin_window_cols;
+static int ett_rlogin_window_x_pixels;
+static int ett_rlogin_window_y_pixels;
 
-static int hf_user_info = -1;
-static int hf_client_startup_flag = -1;
-static int hf_startup_info_received_flag = -1;
-static int hf_user_info_client_user_name = -1;
-static int hf_user_info_server_user_name = -1;
-static int hf_user_info_terminal_type = -1;
-static int hf_user_info_terminal_speed = -1;
-static int hf_control_message = -1;
-static int hf_magic_cookie = -1;
-static int hf_window_info = -1;
-static int hf_window_info_ss = -1;
-static int hf_window_info_rows = -1;
-static int hf_window_info_cols = -1;
-static int hf_window_info_x_pixels = -1;
-static int hf_window_info_y_pixels = -1;
-static int hf_data = -1;
+static int hf_user_info;
+static int hf_client_startup_flag;
+static int hf_startup_info_received_flag;
+static int hf_user_info_client_user_name;
+static int hf_user_info_server_user_name;
+static int hf_user_info_terminal_type;
+static int hf_user_info_terminal_speed;
+static int hf_control_message;
+static int hf_magic_cookie;
+static int hf_window_info;
+static int hf_window_info_ss;
+static int hf_window_info_rows;
+static int hf_window_info_cols;
+static int hf_window_info_x_pixels;
+static int hf_window_info_y_pixels;
+static int hf_data;
 
-static expert_field ei_rlogin_termlen_invalid = EI_INIT;
+static expert_field ei_rlogin_termlen_invalid;
 
 static const value_string control_message_vals[] =
 {

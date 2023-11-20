@@ -31,20 +31,20 @@ void proto_reg_handoff_h261(void);
 static dissector_handle_t h261_handle;
 
 /* H.261 header fields             */
-static int proto_h261          = -1;
-static int hf_h261_sbit        = -1;
-static int hf_h261_ebit        = -1;
-static int hf_h261_ibit        = -1;
-static int hf_h261_vbit        = -1;
-static int hf_h261_gobn        = -1;
-static int hf_h261_mbap        = -1;
-static int hf_h261_quant       = -1;
-static int hf_h261_hmvd        = -1; /* Mislabeled in a figure in section C.3.1 as HMDV */
-static int hf_h261_vmvd        = -1;
-static int hf_h261_data        = -1;
+static int proto_h261;
+static int hf_h261_sbit;
+static int hf_h261_ebit;
+static int hf_h261_ibit;
+static int hf_h261_vbit;
+static int hf_h261_gobn;
+static int hf_h261_mbap;
+static int hf_h261_quant;
+static int hf_h261_hmvd; /* Mislabeled in a figure in section C.3.1 as HMDV */
+static int hf_h261_vmvd;
+static int hf_h261_data;
 
 /* H.261 fields defining a sub tree */
-static gint ett_h261           = -1;
+static gint ett_h261;
 
 static int
 dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )

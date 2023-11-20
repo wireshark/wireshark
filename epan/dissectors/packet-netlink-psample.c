@@ -58,29 +58,29 @@ struct netlink_psample_info {
 	guint16 protocol; /* protocol for packet payload */
 };
 
-static int proto_netlink_psample = -1;
+static int proto_netlink_psample;
 
 static dissector_handle_t netlink_psample_handle;
 static dissector_table_t sll_ltype_table;
 
-static int hf_psample_attrs = -1;
-static int hf_psample_commands = -1;
-static int hf_psample_group_refcount = -1;
-static int hf_psample_group_seq = -1;
-static int hf_psample_iifindex = -1;
-static int hf_psample_latency = -1;
-static int hf_psample_oifindex = -1;
-static int hf_psample_origsize = -1;
-static int hf_psample_out_tc = -1;
-static int hf_psample_out_tc_occ = -1;
-static int hf_psample_proto = -1;
-static int hf_psample_sample_group = -1;
-static int hf_psample_sample_rate = -1;
-static int hf_psample_timestamp = -1;
-static int hf_psample_tunnel = -1;
+static int hf_psample_attrs;
+static int hf_psample_commands;
+static int hf_psample_group_refcount;
+static int hf_psample_group_seq;
+static int hf_psample_iifindex;
+static int hf_psample_latency;
+static int hf_psample_oifindex;
+static int hf_psample_origsize;
+static int hf_psample_out_tc;
+static int hf_psample_out_tc_occ;
+static int hf_psample_proto;
+static int hf_psample_sample_group;
+static int hf_psample_sample_rate;
+static int hf_psample_timestamp;
+static int hf_psample_tunnel;
 
-static gint ett_psample = -1;
-static gint ett_psample_attrs = -1;
+static gint ett_psample;
+static gint ett_psample_attrs;
 
 static const value_string ws_psample_commands_vals[] = {
 	{ WS_PSAMPLE_CMD_SAMPLE,		"Sample" },

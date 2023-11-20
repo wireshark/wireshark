@@ -19,34 +19,34 @@
 
 #include "packet-bluetooth.h"
 
-static int proto_hci_mon = -1;
+static int proto_hci_mon;
 
-static int hf_adapter_id = -1;
-static int hf_opcode = -1;
-static int hf_type = -1;
-static int hf_bus = -1;
-static int hf_bd_addr = -1;
-static int hf_name = -1;
-static int hf_manufacturer = -1;
-static int hf_system_note = -1;
-static int hf_priority = -1;
-static int hf_ident_length = -1;
-static int hf_ident = -1;
-static int hf_message = -1;
-static int hf_cookie = -1;
-static int hf_format = -1;
-static int hf_version = -1;
-static int hf_revision = -1;
-static int hf_flags = -1;
-static int hf_flags_trusted_socket = -1;
-static int hf_command_length = -1;
-static int hf_command = -1;
-static int hf_event = -1;
+static int hf_adapter_id;
+static int hf_opcode;
+static int hf_type;
+static int hf_bus;
+static int hf_bd_addr;
+static int hf_name;
+static int hf_manufacturer;
+static int hf_system_note;
+static int hf_priority;
+static int hf_ident_length;
+static int hf_ident;
+static int hf_message;
+static int hf_cookie;
+static int hf_format;
+static int hf_version;
+static int hf_revision;
+static int hf_flags;
+static int hf_flags_trusted_socket;
+static int hf_command_length;
+static int hf_command;
+static int hf_event;
 
-static gint ett_hci_mon = -1;
-static gint ett_flags = -1;
+static gint ett_hci_mon;
+static gint ett_flags;
 
-static expert_field ei_unknown_data = EI_INIT;
+static expert_field ei_unknown_data;
 
 static wmem_tree_t *adapter_to_disconnect_in_frame = NULL;
 

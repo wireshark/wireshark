@@ -25,15 +25,15 @@ void proto_reg_handoff_npm(void);
 
 static dissector_handle_t npm_handle;
 
-static int proto_npm              = -1;
+static int proto_npm;
 static int tap_npm                = -1;
-static int ett_npm                = -1;
-static int ett_addflow_flags      = -1;
-static int ett_identifyflow_flags = -1;
-static int ett_start_flags        = -1;
-static int ett_data_flags         = -1;
-static int ett_results_flags      = -1;
-static int ett_onoffarray         = -1;
+static int ett_npm;
+static int ett_addflow_flags;
+static int ett_identifyflow_flags;
+static int ett_start_flags;
+static int ett_data_flags;
+static int ett_results_flags;
+static int ett_onoffarray;
 
 static guint64 npm_total_msgs     = 0;
 static guint64 npm_total_bytes    = 0;
@@ -66,83 +66,83 @@ static const value_string message_type_values[] = {
   { 0, NULL }
 };
 
-static int hf_message_type               = -1;
-static int hf_message_flags              = -1;
-static int hf_message_length             = -1;
+static int hf_message_type;
+static int hf_message_flags;
+static int hf_message_length;
 
-static int hf_acknowledge_flowid         = -1;
-static int hf_acknowledge_measurementid  = -1;
-static int hf_acknowledge_streamid       = -1;
-// static int hf_acknowledge_padding     = -1;
-static int hf_acknowledge_status         = -1;
+static int hf_acknowledge_flowid;
+static int hf_acknowledge_measurementid;
+static int hf_acknowledge_streamid;
+// static int hf_acknowledge_padding;
+static int hf_acknowledge_status;
 
-static int hf_addflow_flag_debug         = -1;
-static int hf_addflow_flag_nodelay       = -1;
-static int hf_addflow_flag_repeatonoff   = -1;
-static int hf_addflow_flowid             = -1;
-static int hf_addflow_measurementid      = -1;
-static int hf_addflow_streamid           = -1;
-static int hf_addflow_protocol           = -1;
-static int hf_addflow_flags              = -1;
-static int hf_addflow_description        = -1;
-static int hf_addflow_ordered            = -1;
-static int hf_addflow_reliable           = -1;
-static int hf_addflow_retranstrials      = -1;
-static int hf_addflow_framerate1         = -1;
-static int hf_addflow_framerate2         = -1;
-static int hf_addflow_framerate3         = -1;
-static int hf_addflow_framerate4         = -1;
-static int hf_addflow_framesize1         = -1;
-static int hf_addflow_framesize2         = -1;
-static int hf_addflow_framesize3         = -1;
-static int hf_addflow_framesize4         = -1;
-static int hf_addflow_frameraterng       = -1;
-static int hf_addflow_framesizerng       = -1;
-static int hf_addflow_rcvbuffersize      = -1;
-static int hf_addflow_sndbuffersize      = -1;
-static int hf_addflow_maxmsgsize         = -1;
-static int hf_addflow_cmt                = -1;
-static int hf_addflow_ccid               = -1;
-static int hf_addflow_onoffevents        = -1;
-static int hf_addflow_onoffeventarray    = -1;
+static int hf_addflow_flag_debug;
+static int hf_addflow_flag_nodelay;
+static int hf_addflow_flag_repeatonoff;
+static int hf_addflow_flowid;
+static int hf_addflow_measurementid;
+static int hf_addflow_streamid;
+static int hf_addflow_protocol;
+static int hf_addflow_flags;
+static int hf_addflow_description;
+static int hf_addflow_ordered;
+static int hf_addflow_reliable;
+static int hf_addflow_retranstrials;
+static int hf_addflow_framerate1;
+static int hf_addflow_framerate2;
+static int hf_addflow_framerate3;
+static int hf_addflow_framerate4;
+static int hf_addflow_framesize1;
+static int hf_addflow_framesize2;
+static int hf_addflow_framesize3;
+static int hf_addflow_framesize4;
+static int hf_addflow_frameraterng;
+static int hf_addflow_framesizerng;
+static int hf_addflow_rcvbuffersize;
+static int hf_addflow_sndbuffersize;
+static int hf_addflow_maxmsgsize;
+static int hf_addflow_cmt;
+static int hf_addflow_ccid;
+static int hf_addflow_onoffevents;
+static int hf_addflow_onoffeventarray;
 
-static int hf_removeflow_flowid          = -1;
-static int hf_removeflow_measurementid   = -1;
-static int hf_removeflow_streamid        = -1;
+static int hf_removeflow_flowid;
+static int hf_removeflow_measurementid;
+static int hf_removeflow_streamid;
 
-static int hf_identifyflow_flag_compress_vectors = -1;
-static int hf_identifyflow_flag_no_vectors       = -1;
-static int hf_identifyflow_flowid        = -1;
-static int hf_identifyflow_magicnumber   = -1;
-static int hf_identifyflow_measurementid = -1;
-static int hf_identifyflow_streamid      = -1;
+static int hf_identifyflow_flag_compress_vectors;
+static int hf_identifyflow_flag_no_vectors;
+static int hf_identifyflow_flowid;
+static int hf_identifyflow_magicnumber;
+static int hf_identifyflow_measurementid;
+static int hf_identifyflow_streamid;
 
 #define NETPERFMETER_IDENTIFY_FLOW_MAGIC_NUMBER 0x4bcdf3aa303c6774ULL
 
-static int hf_data_flag_frame_begin       = -1;
-static int hf_data_flag_frame_end         = -1;
-static int hf_data_flowid                 = -1;
-static int hf_data_measurementid          = -1;
-static int hf_data_streamid               = -1;
-static int hf_data_padding                = -1;
-static int hf_data_frameid                = -1;
-static int hf_data_packetseqnumber        = -1;
-static int hf_data_byteseqnumber          = -1;
-static int hf_data_timestamp              = -1;
-static int hf_data_payload                = -1;
+static int hf_data_flag_frame_begin;
+static int hf_data_flag_frame_end;
+static int hf_data_flowid;
+static int hf_data_measurementid;
+static int hf_data_streamid;
+static int hf_data_padding;
+static int hf_data_frameid;
+static int hf_data_packetseqnumber;
+static int hf_data_byteseqnumber;
+static int hf_data_timestamp;
+static int hf_data_payload;
 
-static int hf_start_flag_compress_vectors = -1;
-static int hf_start_flag_compress_scalars = -1;
-static int hf_start_flag_no_vectors       = -1;
-static int hf_start_flag_no_scalars       = -1;
-// static int hf_start_padding            = -1;
-static int hf_start_measurementid         = -1;
+static int hf_start_flag_compress_vectors;
+static int hf_start_flag_compress_scalars;
+static int hf_start_flag_no_vectors;
+static int hf_start_flag_no_scalars;
+// static int hf_start_padding;
+static int hf_start_measurementid;
 
-// static int hf_stop_padding             = -1;
-static int hf_stop_measurementid          = -1;
+// static int hf_stop_padding;
+static int hf_stop_measurementid;
 
-static int hf_results_flag_eof            = -1;
-static int hf_results_data                = -1;
+static int hf_results_flag_eof;
+static int hf_results_data;
 
 
 /* Setup list of Transport Layer protocol types */

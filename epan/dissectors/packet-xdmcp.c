@@ -66,44 +66,44 @@ static const value_string family_vals[] = {
   { 0, NULL }
 };
 
-static gint proto_xdmcp = -1;
-static gint hf_xdmcp_version = -1;
-static gint hf_xdmcp_opcode = -1;
-static gint hf_xdmcp_length = -1;
-static gint hf_xdmcp_authentication_name = -1;
-static gint hf_xdmcp_authorization_name = -1;
-static gint hf_xdmcp_hostname = -1;
-static gint hf_xdmcp_status = -1;
-static gint hf_xdmcp_session_id = -1;
-static gint hf_xdmcp_display_number = -1;
-static gint hf_xdmcp_manufacturer_display_id = -1;
-static gint hf_xdmcp_manufacturer_display_id_len = -1;
-static gint hf_xdmcp_display_class = -1;
-static gint hf_xdmcp_display_class_len = -1;
-static gint hf_xdmcp_client_address_ipv4 = -1;
-static gint hf_xdmcp_client_address_ipv6 = -1;
-static gint hf_xdmcp_client_address_bytes = -1;
-static gint hf_xdmcp_client_address_bytes_len = -1;
-static gint hf_xdmcp_client_port_u16 = -1;
-static gint hf_xdmcp_client_port_bytes = -1;
-static gint hf_xdmcp_client_port_len = -1;
-static gint hf_xdmcp_authentication_data = -1;
-static gint hf_xdmcp_authentication_data_len = -1;
-static gint hf_xdmcp_authorization_data = -1;
-static gint hf_xdmcp_authorization_data_len = -1;
-static gint hf_xdmcp_connection_type = -1;
-static gint hf_xdmcp_connection_address_ipv4 = -1;
-static gint hf_xdmcp_connection_address_ipv6 = -1;
-static gint hf_xdmcp_connection_address_bytes = -1;
-static gint hf_xdmcp_session_running = -1;
+static gint proto_xdmcp;
+static gint hf_xdmcp_version;
+static gint hf_xdmcp_opcode;
+static gint hf_xdmcp_length;
+static gint hf_xdmcp_authentication_name;
+static gint hf_xdmcp_authorization_name;
+static gint hf_xdmcp_hostname;
+static gint hf_xdmcp_status;
+static gint hf_xdmcp_session_id;
+static gint hf_xdmcp_display_number;
+static gint hf_xdmcp_manufacturer_display_id;
+static gint hf_xdmcp_manufacturer_display_id_len;
+static gint hf_xdmcp_display_class;
+static gint hf_xdmcp_display_class_len;
+static gint hf_xdmcp_client_address_ipv4;
+static gint hf_xdmcp_client_address_ipv6;
+static gint hf_xdmcp_client_address_bytes;
+static gint hf_xdmcp_client_address_bytes_len;
+static gint hf_xdmcp_client_port_u16;
+static gint hf_xdmcp_client_port_bytes;
+static gint hf_xdmcp_client_port_len;
+static gint hf_xdmcp_authentication_data;
+static gint hf_xdmcp_authentication_data_len;
+static gint hf_xdmcp_authorization_data;
+static gint hf_xdmcp_authorization_data_len;
+static gint hf_xdmcp_connection_type;
+static gint hf_xdmcp_connection_address_ipv4;
+static gint hf_xdmcp_connection_address_ipv6;
+static gint hf_xdmcp_connection_address_bytes;
+static gint hf_xdmcp_session_running;
 
-static gint ett_xdmcp = -1;
-static gint ett_xdmcp_authentication_names = -1;
-static gint ett_xdmcp_authorization_names = -1;
-static gint ett_xdmcp_connections = -1;
-static gint ett_xdmcp_connection = -1;
+static gint ett_xdmcp;
+static gint ett_xdmcp_authentication_names;
+static gint ett_xdmcp_authorization_names;
+static gint ett_xdmcp_connections;
+static gint ett_xdmcp_connection;
 
-static expert_field ei_xdmcp_conn_address_mismatch = EI_INIT;
+static expert_field ei_xdmcp_conn_address_mismatch;
 
 static gint xdmcp_add_string(proto_tree *tree, gint hf,
                              tvbuff_t *tvb, gint offset)

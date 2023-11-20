@@ -17,12 +17,12 @@
 void proto_register_mesh(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_mesh = -1;
-static int hf_mesh_ttl = -1;
-static int hf_mesh_e2eseq = -1;
+static int proto_mesh;
+static int hf_mesh_ttl;
+static int hf_mesh_e2eseq;
 
 /* Initialize the subtree pointers */
-static gint ett_mesh = -1;
+static gint ett_mesh;
 
 /* Code to actually dissect the packets */
 static int

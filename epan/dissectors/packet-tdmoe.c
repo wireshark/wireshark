@@ -25,19 +25,19 @@ void proto_register_tdmoe(void);
 static dissector_handle_t tdmoe_handle;
 
 /* protocols and header fields */
-static int proto_tdmoe = -1;
+static int proto_tdmoe;
 
-static int hf_tdmoe_subaddress = -1;
-static int hf_tdmoe_samples = -1;
-static int hf_tdmoe_flags = -1;
-static int hf_tdmoe_yellow_alarm = -1;
-static int hf_tdmoe_sig_bits_present = -1;
-static int hf_tdmoe_packet_counter = -1;
-static int hf_tdmoe_channels = -1;
-static int hf_tdmoe_sig_bits = -1;
+static int hf_tdmoe_subaddress;
+static int hf_tdmoe_samples;
+static int hf_tdmoe_flags;
+static int hf_tdmoe_yellow_alarm;
+static int hf_tdmoe_sig_bits_present;
+static int hf_tdmoe_packet_counter;
+static int hf_tdmoe_channels;
+static int hf_tdmoe_sig_bits;
 
-static gint ett_tdmoe = -1;
-static gint ett_tdmoe_flags = -1;
+static gint ett_tdmoe;
+static gint ett_tdmoe_flags;
 
 static dissector_handle_t lapd_handle;
 

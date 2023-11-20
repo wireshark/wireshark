@@ -30,42 +30,42 @@ void proto_register_greb(void);
 
 static dissector_handle_t greb_handle;
 
-static int proto_greb = -1;
+static int proto_greb;
 
-static int hf_greb_message_type = -1;
-static int hf_greb_tunnel_type = -1;
+static int hf_greb_message_type;
+static int hf_greb_tunnel_type;
 
-static int hf_greb_attr = -1;
-static int hf_greb_attr_type = -1;
-static int hf_greb_attr_length = -1;
-static int hf_greb_attr_val_uint64 = -1;
-static int hf_greb_attr_val_none = -1;
-static int hf_greb_attr_val_ipv6 = -1;
-static int hf_greb_attr_val_ipv4 = -1;
-static int hf_greb_attr_val_time = -1;
-static int hf_greb_attr_val_string = -1;
-static int hf_greb_attr_DSL_prot = -1;
-static int hf_greb_attr_dt_bras_name = -1;
+static int hf_greb_attr;
+static int hf_greb_attr_type;
+static int hf_greb_attr_length;
+static int hf_greb_attr_val_uint64;
+static int hf_greb_attr_val_none;
+static int hf_greb_attr_val_ipv6;
+static int hf_greb_attr_val_ipv4;
+static int hf_greb_attr_val_time;
+static int hf_greb_attr_val_string;
+static int hf_greb_attr_DSL_prot;
+static int hf_greb_attr_dt_bras_name;
 
-static int hf_greb_attr_filter_commit = -1;
-static int hf_greb_attr_filter_ack = -1;
-static int hf_greb_attr_filter_packetsum = -1;
-static int hf_greb_attr_filter_packetid = -1;
-static int hf_greb_attr_filter_item_type = -1;
-static int hf_greb_attr_filter_item_length = -1;
-static int hf_greb_attr_filter_item_enabled = -1;
-static int hf_greb_attr_filter_item_desc_length = -1;
-static int hf_greb_attr_filter_item_desc_val = -1;
-static int hf_greb_attr_filter_item_val = -1;
+static int hf_greb_attr_filter_commit;
+static int hf_greb_attr_filter_ack;
+static int hf_greb_attr_filter_packetsum;
+static int hf_greb_attr_filter_packetid;
+static int hf_greb_attr_filter_item_type;
+static int hf_greb_attr_filter_item_length;
+static int hf_greb_attr_filter_item_enabled;
+static int hf_greb_attr_filter_item_desc_length;
+static int hf_greb_attr_filter_item_desc_val;
+static int hf_greb_attr_filter_item_val;
 
-static int hf_greb_attr_error = -1;
+static int hf_greb_attr_error;
 
 /* Initialize the subtree pointers */
-static gint ett_grebonding = -1;
-static gint ett_grebonding_attrb = -1;
-static gint ett_grebonding_filter_list = -1;
-static gint ett_grebonding_filter_item = -1;
-static gint ett_grebonding_ipv6_prefix = -1;
+static gint ett_grebonding;
+static gint ett_grebonding_attrb;
+static gint ett_grebonding_filter_list;
+static gint ett_grebonding_filter_item;
+static gint ett_grebonding_ipv6_prefix;
 
 static gint *ett[] = {
     &ett_grebonding,

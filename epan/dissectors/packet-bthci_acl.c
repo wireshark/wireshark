@@ -25,31 +25,31 @@
 #include "packet-bthci_acl.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_bthci_acl = -1;
-static int hf_bthci_acl_chandle = -1;
-static int hf_bthci_acl_pb_flag = -1;
-static int hf_bthci_acl_bc_flag = -1;
-static int hf_bthci_acl_length = -1;
-static int hf_bthci_acl_data = -1;
-static int hf_bthci_acl_continuation_to = -1;
-static int hf_bthci_acl_reassembled_in = -1;
-static int hf_bthci_acl_connect_in = -1;
-static int hf_bthci_acl_disconnect_in = -1;
-static int hf_bthci_acl_src_bd_addr = -1;
-static int hf_bthci_acl_src_name = -1;
-static int hf_bthci_acl_src_role = -1;
-static int hf_bthci_acl_dst_bd_addr = -1;
-static int hf_bthci_acl_dst_name = -1;
-static int hf_bthci_acl_dst_role = -1;
-static int hf_bthci_acl_role_last_change_in_frame = -1;
-static int hf_bthci_acl_mode = -1;
-static int hf_bthci_acl_mode_last_change_in_frame = -1;
+static int proto_bthci_acl;
+static int hf_bthci_acl_chandle;
+static int hf_bthci_acl_pb_flag;
+static int hf_bthci_acl_bc_flag;
+static int hf_bthci_acl_length;
+static int hf_bthci_acl_data;
+static int hf_bthci_acl_continuation_to;
+static int hf_bthci_acl_reassembled_in;
+static int hf_bthci_acl_connect_in;
+static int hf_bthci_acl_disconnect_in;
+static int hf_bthci_acl_src_bd_addr;
+static int hf_bthci_acl_src_name;
+static int hf_bthci_acl_src_role;
+static int hf_bthci_acl_dst_bd_addr;
+static int hf_bthci_acl_dst_name;
+static int hf_bthci_acl_dst_role;
+static int hf_bthci_acl_role_last_change_in_frame;
+static int hf_bthci_acl_mode;
+static int hf_bthci_acl_mode_last_change_in_frame;
 
 /* Initialize the subtree pointers */
-static gint ett_bthci_acl = -1;
+static gint ett_bthci_acl;
 
-static expert_field ei_invalid_session = EI_INIT;
-static expert_field ei_length_bad = EI_INIT;
+static expert_field ei_invalid_session;
+static expert_field ei_length_bad;
 
 static dissector_handle_t bthci_acl_handle;
 static dissector_handle_t btl2cap_handle = NULL;

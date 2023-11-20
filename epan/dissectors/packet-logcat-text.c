@@ -22,19 +22,19 @@
 
 extern const value_string priority_vals[];
 
-static int proto_logcat_text = -1;
+static int proto_logcat_text;
 
-static int hf_logcat_text_pid = -1;
-static int hf_logcat_text_tid = -1;
-static int hf_logcat_text_timestamp = -1;
-static int hf_logcat_text_priority = -1;
-static int hf_logcat_text_tag = -1;
-static int hf_logcat_text_log = -1;
+static int hf_logcat_text_pid;
+static int hf_logcat_text_tid;
+static int hf_logcat_text_timestamp;
+static int hf_logcat_text_priority;
+static int hf_logcat_text_tag;
+static int hf_logcat_text_log;
 
-static gint ett_logcat = -1;
+static gint ett_logcat;
 
-static expert_field ei_malformed_time = EI_INIT;
-static expert_field ei_malformed_token = EI_INIT;
+static expert_field ei_malformed_time;
+static expert_field ei_malformed_token;
 
 static dissector_handle_t logcat_text_brief_handle;
 static dissector_handle_t logcat_text_tag_handle;

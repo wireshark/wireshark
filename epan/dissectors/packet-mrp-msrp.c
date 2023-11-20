@@ -205,37 +205,37 @@ static const value_string four_packed_vals[] = {
 /**********************************************************/
 /* Initialize the protocol and registered fields          */
 /**********************************************************/
-static int proto_msrp = -1;
-static int hf_msrp_proto_id = -1;
-static int hf_msrp_message = -1; /* Message is a group of fields */
-static int hf_msrp_attribute_type = -1;
-static int hf_msrp_attribute_length = -1;
-static int hf_msrp_attribute_list_length = -1;
-static int hf_msrp_attribute_list = -1; /* AttributeList is a group of fields */
-static int hf_msrp_vector_attribute = -1; /* VectorAttribute is a group of fields */
+static int proto_msrp;
+static int hf_msrp_proto_id;
+static int hf_msrp_message; /* Message is a group of fields */
+static int hf_msrp_attribute_type;
+static int hf_msrp_attribute_length;
+static int hf_msrp_attribute_list_length;
+static int hf_msrp_attribute_list; /* AttributeList is a group of fields */
+static int hf_msrp_vector_attribute; /* VectorAttribute is a group of fields */
 
 /* The following VectorHeader contains the LeaveAllEvent and NumberOfValues */
-static int hf_msrp_vector_header = -1;
-static int hf_msrp_leave_all_event = -1;
-static int hf_msrp_number_of_values = -1;
-static gint ett_vector_header = -1;
+static int hf_msrp_vector_header;
+static int hf_msrp_leave_all_event;
+static int hf_msrp_number_of_values;
+static gint ett_vector_header;
 static int * const vector_header_fields[] = {
     &hf_msrp_leave_all_event,
     &hf_msrp_number_of_values,
     NULL
 };
 
-static int hf_msrp_first_value = -1; /* FirstValue is a group of fields */
-static int hf_msrp_stream_id = -1;
-static int hf_msrp_stream_da = -1;
-static int hf_msrp_vlan_id = -1;
-static int hf_msrp_tspec_max_frame_size = -1;
-static int hf_msrp_tspec_max_interval_frames = -1;
-static int hf_msrp_priority_and_rank = -1;
-static int hf_msrp_priority = -1;
-static int hf_msrp_rank = -1;
-static int hf_msrp_reserved = -1;
-static gint ett_priority_and_rank = -1;
+static int hf_msrp_first_value; /* FirstValue is a group of fields */
+static int hf_msrp_stream_id;
+static int hf_msrp_stream_da;
+static int hf_msrp_vlan_id;
+static int hf_msrp_tspec_max_frame_size;
+static int hf_msrp_tspec_max_interval_frames;
+static int hf_msrp_priority_and_rank;
+static int hf_msrp_priority;
+static int hf_msrp_rank;
+static int hf_msrp_reserved;
+static gint ett_priority_and_rank;
 static int * const priority_and_rank_fields[] = {
     &hf_msrp_priority,
     &hf_msrp_rank,
@@ -243,27 +243,27 @@ static int * const priority_and_rank_fields[] = {
     NULL
 };
 
-static int hf_msrp_sr_class_id = -1;
-static int hf_msrp_sr_class_priority = -1;
-static int hf_msrp_sr_class_vid = -1;
+static int hf_msrp_sr_class_id;
+static int hf_msrp_sr_class_priority;
+static int hf_msrp_sr_class_vid;
 
-static int hf_msrp_accumulated_latency = -1;
-static int hf_msrp_failure_bridge_id = -1;
-static int hf_msrp_failure_code = -1;
+static int hf_msrp_accumulated_latency;
+static int hf_msrp_failure_bridge_id;
+static int hf_msrp_failure_code;
 
-static int hf_msrp_three_packed_event = -1;
-static int hf_msrp_four_packed_event = -1;
+static int hf_msrp_three_packed_event;
+static int hf_msrp_four_packed_event;
 
-static int hf_msrp_end_mark = -1;
+static int hf_msrp_end_mark;
 
 /* Initialize the subtree pointers */
-static gint ett_msrp = -1;
-static gint ett_msg = -1;
-static gint ett_attr_list = -1;
-static gint ett_vect_attr = -1;
-static gint ett_first_value = -1;
+static gint ett_msrp;
+static gint ett_msg;
+static gint ett_attr_list;
+static gint ett_vect_attr;
+static gint ett_first_value;
 
-static expert_field ei_msrp_attribute_type = EI_INIT;
+static expert_field ei_msrp_attribute_type;
 
 /**********************************************************/
 /* Dissector starts here                                  */

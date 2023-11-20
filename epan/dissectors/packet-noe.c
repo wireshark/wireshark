@@ -682,43 +682,43 @@ static guint bool_properties[] = {
 /*-----------------------------------------------------------------------------
   globals
   ---------------------------------------------------------------------------*/
-static int  proto_noe           = -1;
-static gint ett_noe             = -1;
-static gint ett_body            = -1;
-static gint ett_property        = -1;
-static gint ett_value           = -1;
+static int  proto_noe;
+static gint ett_noe;
+static gint ett_body;
+static gint ett_property;
+static gint ett_value;
 
-static int  hf_noe_length               = -1;
-static int  hf_noe_server               = -1;
-static int  hf_noe_method_ack           = -1;
-static int  hf_noe_method               = -1;
-static int  hf_noe_class                = -1;
-static int  hf_noe_event                = -1;
-static int  hf_noe_objectid             = -1;
-static int  hf_noe_method_index         = -1;
-static int  hf_noe_pcode                = -1;
-static int  hf_noe_psize                = -1;
-static int  hf_noe_aindx                = -1;
-static int  hf_noe_errcode              = -1;
-static int  hf_noe_value                = -1;
-static int  hf_noe_message              = -1;
-static int  hf_noe_key_name             = -1;
-static int  hf_noe_bonded               = -1;
-static int  hf_noe_property_item_bool   = -1;
-static int  hf_noe_property_item_u8     = -1;
-static int  hf_noe_property_item_u16    = -1;
-static int  hf_noe_property_item_u24    = -1;
-static int  hf_noe_property_item_u32    = -1;
-static int  hf_noe_property_item_bytes  = -1;
-static int  hf_noe_property_item_utf8   = -1;
-static int  hf_event_bt_key             = -1;
-static int  hf_event_context_switch     = -1;
-static int  hf_evt_locappl_enable       = -1;
-static int  hf_evt_locappl_interruptible= -1;
-static int  hf_evt_locappl_identifier   = -1;
-static int  hf_evt_dev_presence_value   = -1;
-static int  hf_evt_dev_presence_state   = -1;
-static int  hf_event_widget_gc          = -1;
+static int  hf_noe_length;
+static int  hf_noe_server;
+static int  hf_noe_method_ack;
+static int  hf_noe_method;
+static int  hf_noe_class;
+static int  hf_noe_event;
+static int  hf_noe_objectid;
+static int  hf_noe_method_index;
+static int  hf_noe_pcode;
+static int  hf_noe_psize;
+static int  hf_noe_aindx;
+static int  hf_noe_errcode;
+static int  hf_noe_value;
+static int  hf_noe_message;
+static int  hf_noe_key_name;
+static int  hf_noe_bonded;
+static int  hf_noe_property_item_bool;
+static int  hf_noe_property_item_u8;
+static int  hf_noe_property_item_u16;
+static int  hf_noe_property_item_u24;
+static int  hf_noe_property_item_u32;
+static int  hf_noe_property_item_bytes;
+static int  hf_noe_property_item_utf8;
+static int  hf_event_bt_key;
+static int  hf_event_context_switch;
+static int  hf_evt_locappl_enable;
+static int  hf_evt_locappl_interruptible;
+static int  hf_evt_locappl_identifier;
+static int  hf_evt_dev_presence_value;
+static int  hf_evt_dev_presence_state;
+static int  hf_event_widget_gc;
 
 static const value_string servers_vals[] = {
     {0x15,  "Call Server"},

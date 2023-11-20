@@ -109,87 +109,87 @@ typedef struct _radius_info_t
 
 static radius_dictionary_t *dict = NULL;
 
-static int proto_radius = -1;
+static int proto_radius;
 
-static int hf_radius_req = -1;
-static int hf_radius_rsp = -1;
-static int hf_radius_req_frame = -1;
-static int hf_radius_rsp_frame = -1;
-static int hf_radius_time = -1;
+static int hf_radius_req;
+static int hf_radius_rsp;
+static int hf_radius_req_frame;
+static int hf_radius_rsp_frame;
+static int hf_radius_time;
 
-static int hf_radius_dup = -1;
-static int hf_radius_req_dup = -1;
-static int hf_radius_rsp_dup = -1;
+static int hf_radius_dup;
+static int hf_radius_req_dup;
+static int hf_radius_rsp_dup;
 
-static int hf_radius_id = -1;
-static int hf_radius_code = -1;
-static int hf_radius_length = -1;
-static int hf_radius_authenticator = -1;
-static int hf_radius_authenticator_valid = -1;
-static int hf_radius_authenticator_invalid = -1;
-static int hf_radius_message_authenticator_valid = -1;
-static int hf_radius_message_authenticator_invalid = -1;
+static int hf_radius_id;
+static int hf_radius_code;
+static int hf_radius_length;
+static int hf_radius_authenticator;
+static int hf_radius_authenticator_valid;
+static int hf_radius_authenticator_invalid;
+static int hf_radius_message_authenticator_valid;
+static int hf_radius_message_authenticator_invalid;
 
-static int hf_radius_chap_password = -1;
-static int hf_radius_chap_ident = -1;
-static int hf_radius_chap_string = -1;
-static int hf_radius_framed_ip_address = -1;
+static int hf_radius_chap_password;
+static int hf_radius_chap_ident;
+static int hf_radius_chap_string;
+static int hf_radius_framed_ip_address;
 
-static int hf_radius_login_ip_host = -1;
-static int hf_radius_framed_ipx_network = -1;
+static int hf_radius_login_ip_host;
+static int hf_radius_framed_ipx_network;
 
-static int hf_radius_cosine_vpi = -1;
-static int hf_radius_cosine_vci = -1;
+static int hf_radius_cosine_vpi;
+static int hf_radius_cosine_vci;
 
-static int hf_radius_ascend_data_filter = -1;
-static int hf_radius_ascend_data_filter_type = -1;
-static int hf_radius_ascend_data_filter_filteror = -1;
-static int hf_radius_ascend_data_filter_inout = -1;
-static int hf_radius_ascend_data_filter_spare = -1;
-static int hf_radius_ascend_data_filter_src_ipv4 = -1;
-static int hf_radius_ascend_data_filter_dst_ipv4 = -1;
-static int hf_radius_ascend_data_filter_src_ipv6 = -1;
-static int hf_radius_ascend_data_filter_dst_ipv6 = -1;
-static int hf_radius_ascend_data_filter_src_ip_prefix = -1;
-static int hf_radius_ascend_data_filter_dst_ip_prefix = -1;
-static int hf_radius_ascend_data_filter_protocol = -1;
-static int hf_radius_ascend_data_filter_established = -1;
-static int hf_radius_ascend_data_filter_src_port = -1;
-static int hf_radius_ascend_data_filter_dst_port = -1;
-static int hf_radius_ascend_data_filter_src_port_qualifier = -1;
-static int hf_radius_ascend_data_filter_dst_port_qualifier = -1;
-static int hf_radius_ascend_data_filter_reserved = -1;
+static int hf_radius_ascend_data_filter;
+static int hf_radius_ascend_data_filter_type;
+static int hf_radius_ascend_data_filter_filteror;
+static int hf_radius_ascend_data_filter_inout;
+static int hf_radius_ascend_data_filter_spare;
+static int hf_radius_ascend_data_filter_src_ipv4;
+static int hf_radius_ascend_data_filter_dst_ipv4;
+static int hf_radius_ascend_data_filter_src_ipv6;
+static int hf_radius_ascend_data_filter_dst_ipv6;
+static int hf_radius_ascend_data_filter_src_ip_prefix;
+static int hf_radius_ascend_data_filter_dst_ip_prefix;
+static int hf_radius_ascend_data_filter_protocol;
+static int hf_radius_ascend_data_filter_established;
+static int hf_radius_ascend_data_filter_src_port;
+static int hf_radius_ascend_data_filter_dst_port;
+static int hf_radius_ascend_data_filter_src_port_qualifier;
+static int hf_radius_ascend_data_filter_dst_port_qualifier;
+static int hf_radius_ascend_data_filter_reserved;
 
-static int hf_radius_vsa_fragment = -1;
-static int hf_radius_eap_fragment = -1;
-static int hf_radius_avp = -1;
-static int hf_radius_avp_length = -1;
-static int hf_radius_avp_type = -1;
-static int hf_radius_avp_vendor_id = -1;
-static int hf_radius_avp_vendor_type = -1;
-static int hf_radius_avp_vendor_len = -1;
-static int hf_radius_avp_extended_type = -1;
-static int hf_radius_avp_extended_more = -1;
-static int hf_radius_3gpp_ms_tmime_zone = -1;
+static int hf_radius_vsa_fragment;
+static int hf_radius_eap_fragment;
+static int hf_radius_avp;
+static int hf_radius_avp_length;
+static int hf_radius_avp_type;
+static int hf_radius_avp_vendor_id;
+static int hf_radius_avp_vendor_type;
+static int hf_radius_avp_vendor_len;
+static int hf_radius_avp_extended_type;
+static int hf_radius_avp_extended_more;
+static int hf_radius_3gpp_ms_tmime_zone;
 
-static int hf_radius_egress_vlanid_tag = -1;
-static int hf_radius_egress_vlanid_pad = -1;
-static int hf_radius_egress_vlanid = -1;
+static int hf_radius_egress_vlanid_tag;
+static int hf_radius_egress_vlanid_pad;
+static int hf_radius_egress_vlanid;
 
-static int hf_radius_egress_vlan_name_tag = -1;
-static int hf_radius_egress_vlan_name = -1;
+static int hf_radius_egress_vlan_name_tag;
+static int hf_radius_egress_vlan_name;
 
 
-static gint ett_radius = -1;
-static gint ett_radius_avp = -1;
+static gint ett_radius;
+static gint ett_radius_avp;
 
-static gint ett_radius_authenticator = -1;
-static gint ett_radius_ascend = -1;
+static gint ett_radius_authenticator;
+static gint ett_radius_ascend;
 
-static gint ett_eap = -1;
-static gint ett_chap = -1;
+static gint ett_eap;
+static gint ett_chap;
 
-static expert_field ei_radius_invalid_length = EI_INIT;
+static expert_field ei_radius_invalid_length;
 
 /*
  * Define the tap for radius

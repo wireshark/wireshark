@@ -43,18 +43,18 @@ void proto_register_eti(void);
 
 static dissector_handle_t eti_handle;
 
-static int proto_eti = -1;
-static expert_field ei_eti_counter_overflow = EI_INIT;
-static expert_field ei_eti_invalid_template = EI_INIT;
-static expert_field ei_eti_invalid_length = EI_INIT;
-static expert_field ei_eti_unaligned = EI_INIT;
-static expert_field ei_eti_missing = EI_INIT;
-static expert_field ei_eti_overused = EI_INIT;
+static int proto_eti;
+static expert_field ei_eti_counter_overflow;
+static expert_field ei_eti_invalid_template;
+static expert_field ei_eti_invalid_length;
+static expert_field ei_eti_unaligned;
+static expert_field ei_eti_missing;
+static expert_field ei_eti_overused;
 
 static int hf_eti[444];
-static int hf_eti_dscp_exec_summary = -1;
-static int hf_eti_dscp_improved = -1;
-static int hf_eti_dscp_widened = -1;
+static int hf_eti_dscp_exec_summary;
+static int hf_eti_dscp_improved;
+static int hf_eti_dscp_widened;
 enum Field_Handle_Index {
       ACCOUNT_FH_IDX
     , AFFECTEDORDERREQUESTID_FH_IDX
@@ -2202,7 +2202,7 @@ struct ETI_Field {
 };
 
 static gint ett_eti[53];
-static gint ett_eti_dscp = -1;
+static gint ett_eti_dscp;
 /* This method dissects fully reassembled messages */
 static int
 dissect_eti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)

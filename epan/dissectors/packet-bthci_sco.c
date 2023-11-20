@@ -21,19 +21,19 @@
 #include "packet-bthci_sco.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_bthci_sco = -1;
-static int hf_bthci_sco_reserved = -1;
-static int hf_bthci_sco_packet_status = -1;
-static int hf_bthci_sco_chandle = -1;
-static int hf_bthci_sco_length = -1;
-static int hf_bthci_sco_data = -1;
+static int proto_bthci_sco;
+static int hf_bthci_sco_reserved;
+static int hf_bthci_sco_packet_status;
+static int hf_bthci_sco_chandle;
+static int hf_bthci_sco_length;
+static int hf_bthci_sco_data;
 
-static int hf_bthci_sco_connect_in = -1;
-static int hf_bthci_sco_disconnect_in = -1;
-static int hf_bthci_sco_stream_number = -1;
+static int hf_bthci_sco_connect_in;
+static int hf_bthci_sco_disconnect_in;
+static int hf_bthci_sco_stream_number;
 
 /* Initialize the subtree pointers */
-static gint ett_bthci_sco = -1;
+static gint ett_bthci_sco;
 
 wmem_tree_t *bthci_sco_stream_numbers = NULL;
 

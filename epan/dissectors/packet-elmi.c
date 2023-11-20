@@ -21,58 +21,58 @@
 #include <epan/etypes.h>
 
 
-static int proto_elmi = -1;
+static int proto_elmi;
 
 void proto_register_elmi(void);
 void proto_reg_handoff_elmi(void);
 
 static dissector_handle_t elmi_handle;
 
-static gint ett_elmi = -1;
-static gint ett_elmi_info_elem = -1;
-static gint ett_elmi_sub_info_elem = -1;
+static gint ett_elmi;
+static gint ett_elmi_info_elem;
+static gint ett_elmi_sub_info_elem;
 
-static int hf_elmi_ver = -1;
-static int hf_elmi_msg_type = -1;
-static int hf_elmi_info_elem = -1;
-static int hf_elmi_info_elem_len = -1;
-static int hf_elmi_report_type = -1;
-static int hf_elmi_snd_seq_num = -1;
-static int hf_elmi_rcv_seq_num = -1;
-static int hf_elmi_dat_inst = -1;
-static int hf_elmi_reserved = -1;
-static int hf_elmi_uni_status = -1;
-static int hf_elmi_evc_refid = -1;
-static int hf_elmi_evc_status = -1;
-static int hf_last_ie = -1;
-static int hf_map_seq = -1;
-static int hf_priority = -1;
-static int hf_default_evc = -1;
-static int hf_elmi_sub_info_elem = -1;
-static int hf_elmi_sub_info_elem_len = -1;
-static int hf_elmi_uni_id = -1;
-static int hf_elmi_evc_type = -1;
-static int hf_elmi_evc_id = -1;
-static int hf_elmi_ce_vlan_id = -1;
-static int hf_elmi_sub_info_color_mode_flag = -1;
-static int hf_elmi_sub_info_coupling_flag = -1;
-static int hf_elmi_sub_info_per_cos_bit = -1;
-static int hf_elmi_sub_cir_magnitude = -1;
-static int hf_elmi_sub_cir_multiplier = -1;
-static int hf_elmi_sub_cbs_magnitude = -1;
-static int hf_elmi_sub_cbs_multiplier = -1;
-static int hf_elmi_sub_eir_magnitude = -1;
-static int hf_elmi_sub_eir_multiplier = -1;
-static int hf_elmi_sub_ebs_magnitude = -1;
-static int hf_elmi_sub_ebs_multiplier = -1;
-static int hf_elmi_sub_user_prio_0 = -1;
-static int hf_elmi_sub_user_prio_1 = -1;
-static int hf_elmi_sub_user_prio_2 = -1;
-static int hf_elmi_sub_user_prio_3 = -1;
-static int hf_elmi_sub_user_prio_4 = -1;
-static int hf_elmi_sub_user_prio_5 = -1;
-static int hf_elmi_sub_user_prio_6 = -1;
-static int hf_elmi_sub_user_prio_7 = -1;
+static int hf_elmi_ver;
+static int hf_elmi_msg_type;
+static int hf_elmi_info_elem;
+static int hf_elmi_info_elem_len;
+static int hf_elmi_report_type;
+static int hf_elmi_snd_seq_num;
+static int hf_elmi_rcv_seq_num;
+static int hf_elmi_dat_inst;
+static int hf_elmi_reserved;
+static int hf_elmi_uni_status;
+static int hf_elmi_evc_refid;
+static int hf_elmi_evc_status;
+static int hf_last_ie;
+static int hf_map_seq;
+static int hf_priority;
+static int hf_default_evc;
+static int hf_elmi_sub_info_elem;
+static int hf_elmi_sub_info_elem_len;
+static int hf_elmi_uni_id;
+static int hf_elmi_evc_type;
+static int hf_elmi_evc_id;
+static int hf_elmi_ce_vlan_id;
+static int hf_elmi_sub_info_color_mode_flag;
+static int hf_elmi_sub_info_coupling_flag;
+static int hf_elmi_sub_info_per_cos_bit;
+static int hf_elmi_sub_cir_magnitude;
+static int hf_elmi_sub_cir_multiplier;
+static int hf_elmi_sub_cbs_magnitude;
+static int hf_elmi_sub_cbs_multiplier;
+static int hf_elmi_sub_eir_magnitude;
+static int hf_elmi_sub_eir_multiplier;
+static int hf_elmi_sub_ebs_magnitude;
+static int hf_elmi_sub_ebs_multiplier;
+static int hf_elmi_sub_user_prio_0;
+static int hf_elmi_sub_user_prio_1;
+static int hf_elmi_sub_user_prio_2;
+static int hf_elmi_sub_user_prio_3;
+static int hf_elmi_sub_user_prio_4;
+static int hf_elmi_sub_user_prio_5;
+static int hf_elmi_sub_user_prio_6;
+static int hf_elmi_sub_user_prio_7;
 
 static const value_string elmi_msg_type[] = {
     { 0x75, "Status enquiry" },

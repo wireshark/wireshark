@@ -39,29 +39,29 @@ void proto_reg_handoff_lisp_data(void);
 #define LISP_DATA_FLAG_RES      0x07    /* Reserved */
 
 /* Initialize the protocol and registered fields */
-static int proto_lisp_data = -1;
-static int hf_lisp_data_flags = -1;
-static int hf_lisp_data_flags_nonce = -1;
-static int hf_lisp_data_flags_lsb = -1;
-static int hf_lisp_data_flags_enr = -1;
-static int hf_lisp_data_flags_mv = -1;
-static int hf_lisp_data_flags_iid = -1;
-static int hf_lisp_data_flags_res = -1;
-static int hf_lisp_data_nonce = -1;
-static int hf_lisp_data_mapver = -1;
-static int hf_lisp_data_srcmapver = -1;
-static int hf_lisp_data_dstmapver = -1;
-static int hf_lisp_data_iid = -1;
-static int hf_lisp_data_lsb = -1;
-static int hf_lisp_data_lsb8 = -1;
+static int proto_lisp_data;
+static int hf_lisp_data_flags;
+static int hf_lisp_data_flags_nonce;
+static int hf_lisp_data_flags_lsb;
+static int hf_lisp_data_flags_enr;
+static int hf_lisp_data_flags_mv;
+static int hf_lisp_data_flags_iid;
+static int hf_lisp_data_flags_res;
+static int hf_lisp_data_nonce;
+static int hf_lisp_data_mapver;
+static int hf_lisp_data_srcmapver;
+static int hf_lisp_data_dstmapver;
+static int hf_lisp_data_iid;
+static int hf_lisp_data_lsb;
+static int hf_lisp_data_lsb8;
 
 /* Initialize the subtree pointers */
-static gint ett_lisp_data = -1;
-static gint ett_lisp_data_flags = -1;
-static gint ett_lisp_data_mapver = -1;
+static gint ett_lisp_data;
+static gint ett_lisp_data_flags;
+static gint ett_lisp_data_mapver;
 
-static expert_field ei_lisp_data_flags_en_invalid = EI_INIT;
-static expert_field ei_lisp_data_flags_nv_invalid = EI_INIT;
+static expert_field ei_lisp_data_flags_en_invalid;
+static expert_field ei_lisp_data_flags_nv_invalid;
 
 static dissector_handle_t ipv4_handle;
 static dissector_handle_t ipv6_handle;

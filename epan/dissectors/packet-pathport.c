@@ -34,39 +34,39 @@ void proto_register_pathport(void);
 static dissector_handle_t pathport_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_pathport = -1;
+static int proto_pathport;
 
 /* Initialize the subtree pointers */
-static gint ett_pathport = -1;
-static gint ett_pp_pdu = -1;
-static gint ett_pp_tlv = -1;
-static gint ett_pp_data = -1;
+static gint ett_pathport;
+static gint ett_pp_pdu;
+static gint ett_pp_tlv;
+static gint ett_pp_data;
 
-static int hf_pp_prot = -1;
-static int hf_pp_reserved = -1;
-static int hf_pp_version = -1;
-static int hf_pp_seq = -1;
-static int hf_pp_src = -1;
-static int hf_pp_dst = -1;
-static int hf_pp_data_encoding = -1;
-static int hf_pp_data_len = -1;
-static int hf_pp_data_start_code = -1;
-static int hf_pp_data_dst = -1;
-static int hf_pp_data_levels = -1;
-static int hf_pp_arp_id = -1;
-static int hf_pp_arp_manuf = -1;
-static int hf_pp_arp_class = -1;
-static int hf_pp_arp_type = -1;
-static int hf_pp_arp_numdmx = -1;
-static int hf_pp_arp_ip = -1;
-static int hf_pp_get_type = -1;
-static int hf_pp_pdu_type = -1;
-static int hf_pp_pdu_len = -1;
-static int hf_pp_pdu_payload = -1;
-static int hf_pp_pid_type = -1;
-static int hf_pp_pid_len = -1;
-static int hf_pp_pid_value = -1;
-static int hf_pp_pid_pad_bytes = -1;
+static int hf_pp_prot;
+static int hf_pp_reserved;
+static int hf_pp_version;
+static int hf_pp_seq;
+static int hf_pp_src;
+static int hf_pp_dst;
+static int hf_pp_data_encoding;
+static int hf_pp_data_len;
+static int hf_pp_data_start_code;
+static int hf_pp_data_dst;
+static int hf_pp_data_levels;
+static int hf_pp_arp_id;
+static int hf_pp_arp_manuf;
+static int hf_pp_arp_class;
+static int hf_pp_arp_type;
+static int hf_pp_arp_numdmx;
+static int hf_pp_arp_ip;
+static int hf_pp_get_type;
+static int hf_pp_pdu_type;
+static int hf_pp_pdu_len;
+static int hf_pp_pdu_payload;
+static int hf_pp_pid_type;
+static int hf_pp_pid_len;
+static int hf_pp_pid_value;
+static int hf_pp_pid_pad_bytes;
 
 /* Begin field and constant declarations */
 #define PP_ID_BCAST        0xffffffff

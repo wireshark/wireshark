@@ -18,20 +18,20 @@
 void proto_register_redbackli(void);
 void proto_reg_handoff_redbackli(void);
 
-static int proto_redbackli = -1;
+static int proto_redbackli;
 
-static int hf_redbackli_avptype = -1;
-static int hf_redbackli_avplen = -1;
-static int hf_redbackli_seqno = -1;		/* Sequence No */
-static int hf_redbackli_liid = -1;		/* LI Id */
-static int hf_redbackli_sessid = -1;		/* Session Id */
-static int hf_redbackli_label = -1;		/* Label */
-static int hf_redbackli_acctid = -1;		/* Accounting Session Id */
-static int hf_redbackli_dir = -1;		/* Direction */
-static int hf_redbackli_eohpad = -1;		/* End Of Header Padding */
-static int hf_redbackli_unknownavp = -1;	/* Unknown AVP */
+static int hf_redbackli_avptype;
+static int hf_redbackli_avplen;
+static int hf_redbackli_seqno;		/* Sequence No */
+static int hf_redbackli_liid;		/* LI Id */
+static int hf_redbackli_sessid;		/* Session Id */
+static int hf_redbackli_label;		/* Label */
+static int hf_redbackli_acctid;		/* Accounting Session Id */
+static int hf_redbackli_dir;		/* Direction */
+static int hf_redbackli_eohpad;		/* End Of Header Padding */
+static int hf_redbackli_unknownavp;	/* Unknown AVP */
 
-static int ett_redbackli = -1;
+static int ett_redbackli;
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t redbackli_handle;

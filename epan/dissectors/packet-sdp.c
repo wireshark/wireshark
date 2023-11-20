@@ -62,8 +62,8 @@ static dissector_handle_t mp4ves_config_handle;
 
 static int sdp_tap = -1;
 
-static int proto_sdp = -1;
-static int proto_sprt = -1;
+static int proto_sdp;
+static int proto_sprt;
 
 static const char* UNKNOWN_ENCODING = "Unknown";
 static wmem_tree_t *sdp_transport_reqs = NULL;
@@ -73,144 +73,144 @@ static wmem_tree_t *sdp_transport_rsps = NULL;
 static gboolean global_sdp_establish_conversation = TRUE;
 
 /* Top level fields */
-static int hf_protocol_version = -1;
-static int hf_owner = -1;
-static int hf_session_name = -1;
-static int hf_session_info = -1;
-static int hf_uri = -1;
-static int hf_email = -1;
-static int hf_phone = -1;
-static int hf_connection_info = -1;
-static int hf_bandwidth = -1;
-static int hf_timezone = -1;
-static int hf_encryption_key = -1;
-static int hf_session_attribute = -1;
-static int hf_media_attribute = -1;
-static int hf_time = -1;
-static int hf_repeat_time = -1;
-static int hf_media = -1;
-static int hf_media_title = -1;
-static int hf_unknown = -1;
-static int hf_invalid = -1;
-static int hf_ipbcp_version = -1;
-static int hf_ipbcp_type = -1;
+static int hf_protocol_version;
+static int hf_owner;
+static int hf_session_name;
+static int hf_session_info;
+static int hf_uri;
+static int hf_email;
+static int hf_phone;
+static int hf_connection_info;
+static int hf_bandwidth;
+static int hf_timezone;
+static int hf_encryption_key;
+static int hf_session_attribute;
+static int hf_media_attribute;
+static int hf_time;
+static int hf_repeat_time;
+static int hf_media;
+static int hf_media_title;
+static int hf_unknown;
+static int hf_invalid;
+static int hf_ipbcp_version;
+static int hf_ipbcp_type;
 
 /* hf_owner subfields*/
-static int hf_owner_username = -1;
-static int hf_owner_sessionid = -1;
-static int hf_owner_version = -1;
-static int hf_owner_network_type = -1;
-static int hf_owner_address_type = -1;
-static int hf_owner_address = -1;
+static int hf_owner_username;
+static int hf_owner_sessionid;
+static int hf_owner_version;
+static int hf_owner_network_type;
+static int hf_owner_address_type;
+static int hf_owner_address;
 
 /* hf_connection_info subfields */
-static int hf_connection_info_network_type = -1;
-static int hf_connection_info_address_type = -1;
-static int hf_connection_info_connection_address = -1;
-static int hf_connection_info_ttl = -1;
-static int hf_connection_info_num_addr = -1;
+static int hf_connection_info_network_type;
+static int hf_connection_info_address_type;
+static int hf_connection_info_connection_address;
+static int hf_connection_info_ttl;
+static int hf_connection_info_num_addr;
 
 /* hf_bandwidth subfields */
-static int hf_bandwidth_modifier = -1;
-static int hf_bandwidth_value = -1;
+static int hf_bandwidth_modifier;
+static int hf_bandwidth_value;
 
 /* hf_time subfields */
-static int hf_time_start = -1;
-static int hf_time_stop = -1;
+static int hf_time_start;
+static int hf_time_stop;
 
 /* hf_repeat_time subfield */
-static int hf_repeat_time_interval = -1;
-static int hf_repeat_time_duration = -1;
-static int hf_repeat_time_offset = -1;
+static int hf_repeat_time_interval;
+static int hf_repeat_time_duration;
+static int hf_repeat_time_offset;
 
 /* hf_timezone subfields */
-static int hf_timezone_time = -1;
-static int hf_timezone_offset = -1;
+static int hf_timezone_time;
+static int hf_timezone_offset;
 
 /* hf_encryption_key subfields */
-static int hf_encryption_key_type = -1;
-static int hf_encryption_key_data = -1;
+static int hf_encryption_key_type;
+static int hf_encryption_key_data;
 
 /* hf_session_attribute subfields */
-static int hf_session_attribute_field = -1;
-static int hf_session_attribute_value = -1;
+static int hf_session_attribute_field;
+static int hf_session_attribute_value;
 
 /* hf_media subfields */
-static int hf_media_media = -1;
-static int hf_media_port = -1;
-static int hf_media_port_string = -1;
-static int hf_media_portcount = -1;
-static int hf_media_proto = -1;
-static int hf_media_format = -1;
+static int hf_media_media;
+static int hf_media_port;
+static int hf_media_port_string;
+static int hf_media_portcount;
+static int hf_media_proto;
+static int hf_media_format;
 
 /* hf_session_attribute subfields */
-static int hf_media_attribute_field = -1;
-static int hf_media_attribute_value = -1;
-static int hf_media_encoding_name = -1;
-static int hf_media_sample_rate = -1;
-static int hf_media_channels = -1;
-static int hf_media_format_specific_parameter = -1;
-static int hf_sdp_fmtp_mpeg4_profile_level_id = -1;
-static int hf_sdp_fmtp_h263_profile = -1;
-static int hf_sdp_fmtp_h263_level = -1;
-static int hf_sdp_h264_packetization_mode = -1;
-static int hf_SDPh223LogicalChannelParameters = -1;
+static int hf_media_attribute_field;
+static int hf_media_attribute_value;
+static int hf_media_encoding_name;
+static int hf_media_sample_rate;
+static int hf_media_channels;
+static int hf_media_format_specific_parameter;
+static int hf_sdp_fmtp_mpeg4_profile_level_id;
+static int hf_sdp_fmtp_h263_profile;
+static int hf_sdp_fmtp_h263_level;
+static int hf_sdp_h264_packetization_mode;
+static int hf_SDPh223LogicalChannelParameters;
 
 /* hf_session_attribute hf_media_attribute subfields */
-static int hf_key_mgmt_att_value = -1;
-static int hf_key_mgmt_prtcl_id = -1;
-static int hf_key_mgmt_data = -1;
+static int hf_key_mgmt_att_value;
+static int hf_key_mgmt_prtcl_id;
+static int hf_key_mgmt_data;
 
-static int hf_sdp_crypto_tag = -1;
-static int hf_sdp_crypto_crypto_suite = -1;
-static int hf_sdp_crypto_master_key = -1;
-static int hf_sdp_crypto_master_salt = -1;
-static int hf_sdp_crypto_lifetime = -1;
-static int hf_sdp_crypto_mki = -1;
-static int hf_sdp_crypto_mki_length = -1;
+static int hf_sdp_crypto_tag;
+static int hf_sdp_crypto_crypto_suite;
+static int hf_sdp_crypto_master_key;
+static int hf_sdp_crypto_master_salt;
+static int hf_sdp_crypto_lifetime;
+static int hf_sdp_crypto_mki;
+static int hf_sdp_crypto_mki_length;
 
 /* a=candidate subfields */
-static int hf_ice_candidate_foundation = -1;
-static int hf_ice_candidate_componentid = -1;
-static int hf_ice_candidate_transport = -1;
-static int hf_ice_candidate_priority = -1;
-static int hf_ice_candidate_address = -1;
-static int hf_ice_candidate_port = -1;
-static int hf_ice_candidate_type = -1;
+static int hf_ice_candidate_foundation;
+static int hf_ice_candidate_componentid;
+static int hf_ice_candidate_transport;
+static int hf_ice_candidate_priority;
+static int hf_ice_candidate_address;
+static int hf_ice_candidate_port;
+static int hf_ice_candidate_type;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_sdp_nal_unit_2_string = -1;
-static int hf_sdp_key_and_salt = -1;
-static int hf_sdp_nal_unit_1_string = -1;
-static int hf_sdp_data = -1;
+static int hf_sdp_nal_unit_2_string;
+static int hf_sdp_key_and_salt;
+static int hf_sdp_nal_unit_1_string;
+static int hf_sdp_data;
 
 /* trees */
-static int ett_sdp = -1;
-static int ett_sdp_owner = -1;
-static int ett_sdp_connection_info = -1;
-static int ett_sdp_bandwidth = -1;
-static int ett_sdp_time = -1;
-static int ett_sdp_repeat_time = -1;
-static int ett_sdp_timezone = -1;
-static int ett_sdp_encryption_key = -1;
-static int ett_sdp_session_attribute = -1;
-static int ett_sdp_media = -1;
-static int ett_sdp_media_attribute = -1;
-static int ett_sdp_fmtp = -1;
-static int ett_sdp_key_mgmt = -1;
-static int ett_sdp_crypto_key_parameters = -1;
+static int ett_sdp;
+static int ett_sdp_owner;
+static int ett_sdp_connection_info;
+static int ett_sdp_bandwidth;
+static int ett_sdp_time;
+static int ett_sdp_repeat_time;
+static int ett_sdp_timezone;
+static int ett_sdp_encryption_key;
+static int ett_sdp_session_attribute;
+static int ett_sdp_media;
+static int ett_sdp_media_attribute;
+static int ett_sdp_fmtp;
+static int ett_sdp_key_mgmt;
+static int ett_sdp_crypto_key_parameters;
 
-static expert_field ei_sdp_invalid_key_param   = EI_INIT;
-static expert_field ei_sdp_invalid_line_equal  = EI_INIT;
-static expert_field ei_sdp_invalid_line_fields = EI_INIT;
-static expert_field ei_sdp_invalid_line_space  = EI_INIT;
-static expert_field ei_sdp_invalid_conversion = EI_INIT;
-static expert_field ei_sdp_invalid_media_port = EI_INIT;
-static expert_field ei_sdp_invalid_sample_rate = EI_INIT;
-static expert_field ei_sdp_invalid_channels = EI_INIT;
-static expert_field ei_sdp_invalid_media_format = EI_INIT;
-static expert_field ei_sdp_invalid_crypto_tag = EI_INIT;
-static expert_field ei_sdp_invalid_crypto_mki_length = EI_INIT;
+static expert_field ei_sdp_invalid_key_param;
+static expert_field ei_sdp_invalid_line_equal;
+static expert_field ei_sdp_invalid_line_fields;
+static expert_field ei_sdp_invalid_line_space;
+static expert_field ei_sdp_invalid_conversion;
+static expert_field ei_sdp_invalid_media_port;
+static expert_field ei_sdp_invalid_sample_rate;
+static expert_field ei_sdp_invalid_channels;
+static expert_field ei_sdp_invalid_media_format;
+static expert_field ei_sdp_invalid_crypto_tag;
+static expert_field ei_sdp_invalid_crypto_mki_length;
 
 /* patterns used for tvb_ws_mempbrk_pattern_guint8 */
 static ws_mempbrk_pattern pbrk_digits;

@@ -26,23 +26,23 @@ void proto_register_sync(void);
 void proto_reg_handoff_sync(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_sync = -1;
-static int hf_sync_type = -1;
-static int hf_sync_spare4 = -1;
-static int hf_sync_timestamp = -1;
-static int hf_sync_packet_nr = -1;
-static int hf_sync_elapsed_octet_ctr = -1;
-static int hf_sync_total_nr_of_packet = -1;
-static int hf_sync_total_nr_of_octet = -1;
-static int hf_sync_header_crc = -1;
-static int hf_sync_payload_crc = -1;
-static int hf_sync_length_of_packet = -1;
+static int proto_sync;
+static int hf_sync_type;
+static int hf_sync_spare4;
+static int hf_sync_timestamp;
+static int hf_sync_packet_nr;
+static int hf_sync_elapsed_octet_ctr;
+static int hf_sync_total_nr_of_packet;
+static int hf_sync_total_nr_of_octet;
+static int hf_sync_header_crc;
+static int hf_sync_payload_crc;
+static int hf_sync_length_of_packet;
 
 /* Initialize the subtree pointers */
-static gint ett_sync = -1;
+static gint ett_sync;
 
-static expert_field ei_sync_pdu_type2 = EI_INIT;
-static expert_field ei_sync_type = EI_INIT;
+static expert_field ei_sync_pdu_type2;
+static expert_field ei_sync_type;
 
 static dissector_handle_t sync_handle;
 static dissector_handle_t ip_handle;

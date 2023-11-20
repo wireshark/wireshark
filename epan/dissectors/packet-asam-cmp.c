@@ -28,7 +28,7 @@
 void proto_register_asam_cmp(void);
 void proto_reg_handoff_asam_cmp(void);
 
-static int proto_asam_cmp = -1;
+static int proto_asam_cmp;
 
 static dissector_handle_t eth_handle;
 
@@ -38,48 +38,48 @@ static gboolean old_11bit_canid_encoding = FALSE;
 static dissector_table_t lin_subdissector_table;
 
 /* Header fields */
-static int hf_cmp_header = -1;
-static int hf_cmp_version = -1;
-static int hf_cmp_header_res = -1;
-static int hf_cmp_device_id = -1;
-static int hf_cmp_msg_type = -1;
-static int hf_cmp_stream_id = -1;
-static int hf_cmp_stream_seq_ctr = -1;
+static int hf_cmp_header;
+static int hf_cmp_version;
+static int hf_cmp_header_res;
+static int hf_cmp_device_id;
+static int hf_cmp_msg_type;
+static int hf_cmp_stream_id;
+static int hf_cmp_stream_seq_ctr;
 
 /* Message Fields */
 /* Message Header Fields */
-static int hf_cmp_msg_header = -1;
+static int hf_cmp_msg_header;
 
-static int hf_cmp_common_flag_recal = -1;
-static int hf_cmp_common_flag_insync = -1;
-static int hf_cmp_common_flag_seg = -1;
-static int hf_cmp_common_flag_dir_on_if = -1;
-static int hf_cmp_common_flag_overflow = -1;
-static int hf_cmp_common_flag_err_in_payload = -1;
-static int hf_cmp_common_flag_reserved = -1;
-static int hf_cmp_common_flag_reserved_ctrl = -1;
+static int hf_cmp_common_flag_recal;
+static int hf_cmp_common_flag_insync;
+static int hf_cmp_common_flag_seg;
+static int hf_cmp_common_flag_dir_on_if;
+static int hf_cmp_common_flag_overflow;
+static int hf_cmp_common_flag_err_in_payload;
+static int hf_cmp_common_flag_reserved;
+static int hf_cmp_common_flag_reserved_ctrl;
 
-static int hf_cmp_msg_timestamp = -1;
-static int hf_cmp_msg_timestamp_ns = -1;
-static int hf_cmp_msg_reserved = -1;
-static int hf_cmp_msg_common_flags = -1;
-static int hf_cmp_msg_vendor_id = -1;
-static int hf_cmp_msg_payload_length = -1;
-static int hf_cmp_msg_payload = -1;
+static int hf_cmp_msg_timestamp;
+static int hf_cmp_msg_timestamp_ns;
+static int hf_cmp_msg_reserved;
+static int hf_cmp_msg_common_flags;
+static int hf_cmp_msg_vendor_id;
+static int hf_cmp_msg_payload_length;
+static int hf_cmp_msg_payload;
 
 /* Additional Data Message Header Fields */
-static int hf_cmp_interface_id = -1;
-static int hf_cmp_payload_type = -1;
+static int hf_cmp_interface_id;
+static int hf_cmp_payload_type;
 
 /* Additional Control Message Header Fields */
-static int hf_cmp_ctrl_msg_reserved = -1;
-static int hf_cmp_ctrl_msg_payload_type = -1;
+static int hf_cmp_ctrl_msg_reserved;
+static int hf_cmp_ctrl_msg_payload_type;
 
 /* Additional Status Message Header Fields */
-static int hf_cmp_status_msg_payload_type = -1;
+static int hf_cmp_status_msg_payload_type;
 
 /* Additional Status Message Header Fields */
-static int hf_cmp_vendor_msg_payload_type = -1;
+static int hf_cmp_vendor_msg_payload_type;
 
 /* Data Message Payload Fields */
 /* CAN */
@@ -96,37 +96,37 @@ static int hf_cmp_vendor_msg_payload_type = -1;
 #define CMP_CAN_CRC_RES             0x7fff8000
 #define CMP_CAN_CRC_CRC_SUPP        0x80000000
 
-static int hf_cmp_can_flags = -1;
+static int hf_cmp_can_flags;
 
-static int hf_cmp_can_flag_crc_err = -1;
-static int hf_cmp_can_flag_ack_err = -1;
-static int hf_cmp_can_flag_passive_ack_err = -1;
-static int hf_cmp_can_flag_active_ack_err = -1;
-static int hf_cmp_can_flag_ack_del_err = -1;
-static int hf_cmp_can_flag_form_err = -1;
-static int hf_cmp_can_flag_stuff_err = -1;
-static int hf_cmp_can_flag_crc_del_err = -1;
-static int hf_cmp_can_flag_eof_err = -1;
-static int hf_cmp_can_flag_bit_err = -1;
-static int hf_cmp_can_flag_r0 = -1;
-static int hf_cmp_can_flag_srr_dom = -1;
-static int hf_cmp_can_flag_reserved = -1;
+static int hf_cmp_can_flag_crc_err;
+static int hf_cmp_can_flag_ack_err;
+static int hf_cmp_can_flag_passive_ack_err;
+static int hf_cmp_can_flag_active_ack_err;
+static int hf_cmp_can_flag_ack_del_err;
+static int hf_cmp_can_flag_form_err;
+static int hf_cmp_can_flag_stuff_err;
+static int hf_cmp_can_flag_crc_del_err;
+static int hf_cmp_can_flag_eof_err;
+static int hf_cmp_can_flag_bit_err;
+static int hf_cmp_can_flag_r0;
+static int hf_cmp_can_flag_srr_dom;
+static int hf_cmp_can_flag_reserved;
 
-static int hf_cmp_can_reserved = -1;
-static int hf_cmp_can_id = -1;
-static int hf_cmp_can_id_11bit = -1;
-static int hf_cmp_can_id_11bit_old = -1;
-static int hf_cmp_can_id_29bit = -1;
-static int hf_cmp_can_id_res = -1;
-static int hf_cmp_can_id_rtr = -1;
-static int hf_cmp_can_id_ide = -1;
-static int hf_cmp_can_crc = -1;
-static int hf_cmp_can_crc_crc = -1;
-static int hf_cmp_can_crc_res = -1;
-static int hf_cmp_can_crc_crc_support = -1;
-static int hf_cmp_can_err_pos = -1;
-static int hf_cmp_can_dlc = -1;
-static int hf_cmp_can_data_len = -1;
+static int hf_cmp_can_reserved;
+static int hf_cmp_can_id;
+static int hf_cmp_can_id_11bit;
+static int hf_cmp_can_id_11bit_old;
+static int hf_cmp_can_id_29bit;
+static int hf_cmp_can_id_res;
+static int hf_cmp_can_id_rtr;
+static int hf_cmp_can_id_ide;
+static int hf_cmp_can_crc;
+static int hf_cmp_can_crc_crc;
+static int hf_cmp_can_crc_res;
+static int hf_cmp_can_crc_crc_support;
+static int hf_cmp_can_err_pos;
+static int hf_cmp_can_dlc;
+static int hf_cmp_can_data_len;
 
 /* CAN FD */
 #define CMP_CANFD_FLAGS_ERRORS      0x03ff
@@ -142,269 +142,269 @@ static int hf_cmp_can_data_len = -1;
 #define CMP_CANFD_CRC_SBC_SUPP      0x40000000
 #define CMP_CANFD_CRC_CRC_SUPP      0x80000000
 
-static int hf_cmp_canfd_flags = -1;
+static int hf_cmp_canfd_flags;
 
-static int hf_cmp_canfd_flag_crc_err = -1;
-static int hf_cmp_canfd_flag_ack_err = -1;
-static int hf_cmp_canfd_flag_passive_ack_err = -1;
-static int hf_cmp_canfd_flag_active_ack_err = -1;
-static int hf_cmp_canfd_flag_ack_del_err = -1;
-static int hf_cmp_canfd_flag_form_err = -1;
-static int hf_cmp_canfd_flag_stuff_err = -1;
-static int hf_cmp_canfd_flag_crc_del_err = -1;
-static int hf_cmp_canfd_flag_eof_err = -1;
-static int hf_cmp_canfd_flag_bit_err = -1;
-static int hf_cmp_canfd_flag_res = -1;
-static int hf_cmp_canfd_flag_srr_dom = -1;
-static int hf_cmp_canfd_flag_brs = -1;
-static int hf_cmp_canfd_flag_esi = -1;
-static int hf_cmp_canfd_flag_reserved = -1;
+static int hf_cmp_canfd_flag_crc_err;
+static int hf_cmp_canfd_flag_ack_err;
+static int hf_cmp_canfd_flag_passive_ack_err;
+static int hf_cmp_canfd_flag_active_ack_err;
+static int hf_cmp_canfd_flag_ack_del_err;
+static int hf_cmp_canfd_flag_form_err;
+static int hf_cmp_canfd_flag_stuff_err;
+static int hf_cmp_canfd_flag_crc_del_err;
+static int hf_cmp_canfd_flag_eof_err;
+static int hf_cmp_canfd_flag_bit_err;
+static int hf_cmp_canfd_flag_res;
+static int hf_cmp_canfd_flag_srr_dom;
+static int hf_cmp_canfd_flag_brs;
+static int hf_cmp_canfd_flag_esi;
+static int hf_cmp_canfd_flag_reserved;
 
-static int hf_cmp_canfd_reserved = -1;
-static int hf_cmp_canfd_id = -1;
-static int hf_cmp_canfd_id_11bit = -1;
-static int hf_cmp_canfd_id_11bit_old = -1;
-static int hf_cmp_canfd_id_29bit = -1;
-static int hf_cmp_canfd_id_res = -1;
-static int hf_cmp_canfd_id_rrs = -1;
-static int hf_cmp_canfd_id_ide = -1;
-static int hf_cmp_canfd_crc = -1;
-static int hf_cmp_canfd_crc_crc17 = -1;
-static int hf_cmp_canfd_crc_crc21 = -1;
-static int hf_cmp_canfd_crc_sbc = -1;
-static int hf_cmp_canfd_crc_sbc_parity = -1;
-static int hf_cmp_canfd_crc_res = -1;
-static int hf_cmp_canfd_crc_sbc_support = -1;
-static int hf_cmp_canfd_crc_crc_support = -1;
-static int hf_cmp_canfd_err_pos = -1;
-static int hf_cmp_canfd_dlc = -1;
-static int hf_cmp_canfd_data_len = -1;
+static int hf_cmp_canfd_reserved;
+static int hf_cmp_canfd_id;
+static int hf_cmp_canfd_id_11bit;
+static int hf_cmp_canfd_id_11bit_old;
+static int hf_cmp_canfd_id_29bit;
+static int hf_cmp_canfd_id_res;
+static int hf_cmp_canfd_id_rrs;
+static int hf_cmp_canfd_id_ide;
+static int hf_cmp_canfd_crc;
+static int hf_cmp_canfd_crc_crc17;
+static int hf_cmp_canfd_crc_crc21;
+static int hf_cmp_canfd_crc_sbc;
+static int hf_cmp_canfd_crc_sbc_parity;
+static int hf_cmp_canfd_crc_res;
+static int hf_cmp_canfd_crc_sbc_support;
+static int hf_cmp_canfd_crc_crc_support;
+static int hf_cmp_canfd_err_pos;
+static int hf_cmp_canfd_dlc;
+static int hf_cmp_canfd_data_len;
 
 /* LIN */
 #define CMP_CANFD_PID_PARITY_MASK   0xc0
 #define CMP_CANFD_PID_ID_MASK       0x3f
 
-static int hf_cmp_lin_flags = -1;
-static int hf_cmp_lin_flag_checksum_err = -1;
-static int hf_cmp_lin_flag_col_err = -1;
-static int hf_cmp_lin_flag_parity_err = -1;
-static int hf_cmp_lin_flag_no_slave_res_err = -1;
-static int hf_cmp_lin_flag_sync_err = -1;
-static int hf_cmp_lin_flag_framing_err = -1;
-static int hf_cmp_lin_flag_short_dom_err = -1;
-static int hf_cmp_lin_flag_long_dom_err = -1;
-static int hf_cmp_lin_flag_wup = -1;
-static int hf_cmp_lin_flag_reserved = -1;
+static int hf_cmp_lin_flags;
+static int hf_cmp_lin_flag_checksum_err;
+static int hf_cmp_lin_flag_col_err;
+static int hf_cmp_lin_flag_parity_err;
+static int hf_cmp_lin_flag_no_slave_res_err;
+static int hf_cmp_lin_flag_sync_err;
+static int hf_cmp_lin_flag_framing_err;
+static int hf_cmp_lin_flag_short_dom_err;
+static int hf_cmp_lin_flag_long_dom_err;
+static int hf_cmp_lin_flag_wup;
+static int hf_cmp_lin_flag_reserved;
 
-static int hf_cmp_lin_reserved = -1;
-static int hf_cmp_lin_pid = -1;
-static int hf_cmp_lin_pid_parity = -1;
-static int hf_cmp_lin_pid_id = -1;
-static int hf_cmp_lin_reserved_2 = -1;
-static int hf_cmp_lin_checksum = -1;
-static int hf_cmp_lin_data_len = -1;
+static int hf_cmp_lin_reserved;
+static int hf_cmp_lin_pid;
+static int hf_cmp_lin_pid_parity;
+static int hf_cmp_lin_pid_id;
+static int hf_cmp_lin_reserved_2;
+static int hf_cmp_lin_checksum;
+static int hf_cmp_lin_data_len;
 
 /* FlexRay */
 #define CMP_FLEXRAY_FLAGS_NF 0x0004
 
-static int hf_cmp_flexray_flags = -1;
+static int hf_cmp_flexray_flags;
 
-static int hf_cmp_flexray_flag_crc_frame_err = -1;
-static int hf_cmp_flexray_flag_crc_header_err = -1;
-static int hf_cmp_flexray_flag_nf = -1;
-static int hf_cmp_flexray_flag_sf = -1;
-static int hf_cmp_flexray_flag_sync = -1;
-static int hf_cmp_flexray_flag_wus = -1;
-static int hf_cmp_flexray_flag_ppi = -1;
-static int hf_cmp_flexray_flag_cas = -1;
-static int hf_cmp_flexray_flag_reserved = -1;
+static int hf_cmp_flexray_flag_crc_frame_err;
+static int hf_cmp_flexray_flag_crc_header_err;
+static int hf_cmp_flexray_flag_nf;
+static int hf_cmp_flexray_flag_sf;
+static int hf_cmp_flexray_flag_sync;
+static int hf_cmp_flexray_flag_wus;
+static int hf_cmp_flexray_flag_ppi;
+static int hf_cmp_flexray_flag_cas;
+static int hf_cmp_flexray_flag_reserved;
 
-static int hf_cmp_flexray_reserved = -1;
-static int hf_cmp_flexray_header_crc = -1;
-static int hf_cmp_flexray_frame_id = -1;
-static int hf_cmp_flexray_cycle = -1;
-static int hf_cmp_flexray_frame_crc = -1;
-static int hf_cmp_flexray_reserved_2 = -1;
-static int hf_cmp_flexray_data_len = -1;
+static int hf_cmp_flexray_reserved;
+static int hf_cmp_flexray_header_crc;
+static int hf_cmp_flexray_frame_id;
+static int hf_cmp_flexray_cycle;
+static int hf_cmp_flexray_frame_crc;
+static int hf_cmp_flexray_reserved_2;
+static int hf_cmp_flexray_data_len;
 
 /* UART/RS-232 */
 #define CMP_UART_DATA_DATA_MASK     0x01FF
 
-static int hf_cmp_uart_flags = -1;
+static int hf_cmp_uart_flags;
 
-static int hf_cmp_uart_flag_cl = -1;
-static int hf_cmp_uart_flag_reserved = -1;
+static int hf_cmp_uart_flag_cl;
+static int hf_cmp_uart_flag_reserved;
 
-static int hf_cmp_uart_reserved = -1;
-static int hf_cmp_uart_data_len = -1;
-static int hf_cmp_uart_data = -1;
+static int hf_cmp_uart_reserved;
+static int hf_cmp_uart_data_len;
+static int hf_cmp_uart_data;
 
-static int hf_cmp_uart_data_data = -1;
-static int hf_cmp_uart_data_reserved = -1;
-static int hf_cmp_uart_data_framing_err = -1;
-static int hf_cmp_uart_data_break_condition = -1;
-static int hf_cmp_uart_data_parity_err = -1;
+static int hf_cmp_uart_data_data;
+static int hf_cmp_uart_data_reserved;
+static int hf_cmp_uart_data_framing_err;
+static int hf_cmp_uart_data_break_condition;
+static int hf_cmp_uart_data_parity_err;
 
 /* Analog */
-static int hf_cmp_analog_flags = -1;
+static int hf_cmp_analog_flags;
 
-static int hf_cmp_analog_flag_sample_dt = -1;
-static int hf_cmp_analog_flag_reserved = -1;
+static int hf_cmp_analog_flag_sample_dt;
+static int hf_cmp_analog_flag_reserved;
 
-static int hf_cmp_analog_reserved = -1;
-static int hf_cmp_analog_unit = -1;
-static int hf_cmp_analog_sample_interval = -1;
-static int hf_cmp_analog_sample_scalar = -1;
-static int hf_cmp_analog_sample_offset = -1;
-static int hf_cmp_analog_sample = -1;
+static int hf_cmp_analog_reserved;
+static int hf_cmp_analog_unit;
+static int hf_cmp_analog_sample_interval;
+static int hf_cmp_analog_sample_scalar;
+static int hf_cmp_analog_sample_offset;
+static int hf_cmp_analog_sample;
 
 /* Ethernet */
-static int hf_cmp_eth_flags = -1;
+static int hf_cmp_eth_flags;
 
-static int hf_cmp_eth_flag_fcs_err = -1;
-static int hf_cmp_eth_flag_short_err = -1;
-static int hf_cmp_eth_flag_tx_down = -1;
-static int hf_cmp_eth_flag_collision = -1;
-static int hf_cmp_eth_flag_long_err = -1;
-static int hf_cmp_eth_flag_phy_err = -1;
-static int hf_cmp_eth_flag_truncated = -1;
-static int hf_cmp_eth_flag_fcs_supported = -1;
-static int hf_cmp_eth_flag_reserved = -1;
+static int hf_cmp_eth_flag_fcs_err;
+static int hf_cmp_eth_flag_short_err;
+static int hf_cmp_eth_flag_tx_down;
+static int hf_cmp_eth_flag_collision;
+static int hf_cmp_eth_flag_long_err;
+static int hf_cmp_eth_flag_phy_err;
+static int hf_cmp_eth_flag_truncated;
+static int hf_cmp_eth_flag_fcs_supported;
+static int hf_cmp_eth_flag_reserved;
 
-static int hf_cmp_eth_reserved = -1;
-static int hf_cmp_eth_payload_length = -1;
+static int hf_cmp_eth_reserved;
+static int hf_cmp_eth_payload_length;
 
 /* Control Message Payload Fields */
 /* Data Sink Ready */
-static int hf_cmp_ctrl_msg_device_id = -1;
+static int hf_cmp_ctrl_msg_device_id;
 
 /* User Event */
-static int hf_cmp_ctrl_msg_event_id = -1;
+static int hf_cmp_ctrl_msg_event_id;
 
 /* Vendor specific */
-static int hf_cmp_ctrl_msg_vendor_id = -1;
-static int hf_cmp_ctrl_msg_vendor_payload_type = -1;
+static int hf_cmp_ctrl_msg_vendor_id;
+static int hf_cmp_ctrl_msg_vendor_payload_type;
 
 /* Status Message Payload Fields */
 /* Capture Module Status Message */
-static int hf_cmp_status_msg_cm_uptime_ns = -1;
-static int hf_cmp_status_msg_cm_uptime_s = -1;
-static int hf_cmp_status_msg_gm_identity = -1;
-static int hf_cmp_status_msg_gm_clock_quality = -1;
-static int hf_cmp_status_msg_current_utc_offset = -1;
-static int hf_cmp_status_msg_time_source = -1;
-static int hf_cmp_status_msg_domain_num = -1;
-static int hf_cmp_status_msg_res = -1;
-static int hf_cmp_gptp_flags = -1;
+static int hf_cmp_status_msg_cm_uptime_ns;
+static int hf_cmp_status_msg_cm_uptime_s;
+static int hf_cmp_status_msg_gm_identity;
+static int hf_cmp_status_msg_gm_clock_quality;
+static int hf_cmp_status_msg_current_utc_offset;
+static int hf_cmp_status_msg_time_source;
+static int hf_cmp_status_msg_domain_num;
+static int hf_cmp_status_msg_res;
+static int hf_cmp_gptp_flags;
 
-static int hf_cmp_gptp_flags_leap61 = -1;
-static int hf_cmp_gptp_flags_leap59 = -1;
-static int hf_cmp_gptp_flags_cur_utco_valid = -1;
-static int hf_cmp_gptp_flags_ptp_timescale = -1;
-static int hf_cmp_gptp_flags_time_traceable = -1;
-static int hf_cmp_gptp_flags_freq_traceable = -1;
-static int hf_cmp_gptp_flags_reserved = -1;
+static int hf_cmp_gptp_flags_leap61;
+static int hf_cmp_gptp_flags_leap59;
+static int hf_cmp_gptp_flags_cur_utco_valid;
+static int hf_cmp_gptp_flags_ptp_timescale;
+static int hf_cmp_gptp_flags_time_traceable;
+static int hf_cmp_gptp_flags_freq_traceable;
+static int hf_cmp_gptp_flags_reserved;
 
-static int hf_cmp_status_dev_desc_length = -1;
-static int hf_cmp_status_dev_desc = -1;
-static int hf_cmp_status_sn_length = -1;
-static int hf_cmp_status_sn = -1;
-static int hf_cmp_status_hw_ver_length = -1;
-static int hf_cmp_status_hw_ver = -1;
-static int hf_cmp_status_sw_ver_length = -1;
-static int hf_cmp_status_sw_ver = -1;
-static int hf_cmp_status_vendor_data_length = -1;
-static int hf_cmp_status_vendor_data = -1;
+static int hf_cmp_status_dev_desc_length;
+static int hf_cmp_status_dev_desc;
+static int hf_cmp_status_sn_length;
+static int hf_cmp_status_sn;
+static int hf_cmp_status_hw_ver_length;
+static int hf_cmp_status_hw_ver;
+static int hf_cmp_status_sw_ver_length;
+static int hf_cmp_status_sw_ver;
+static int hf_cmp_status_vendor_data_length;
+static int hf_cmp_status_vendor_data;
 
 /* Interface Status Message */
-static int hf_cmp_iface_interface = -1;
-static int hf_cmp_iface_iface_id = -1;
-static int hf_cmp_iface_msg_total_rx = -1;
-static int hf_cmp_iface_msg_total_tx = -1;
-static int hf_cmp_iface_msg_dropped_rx = -1;
-static int hf_cmp_iface_msg_dropped_tx = -1;
-static int hf_cmp_iface_errs_total_rx = -1;
-static int hf_cmp_iface_errs_total_tx = -1;
-static int hf_cmp_iface_iface_type = -1;
-static int hf_cmp_iface_iface_status = -1;
-static int hf_cmp_iface_stream_id_cnt = -1;
-static int hf_cmp_iface_reserved = -1;
+static int hf_cmp_iface_interface;
+static int hf_cmp_iface_iface_id;
+static int hf_cmp_iface_msg_total_rx;
+static int hf_cmp_iface_msg_total_tx;
+static int hf_cmp_iface_msg_dropped_rx;
+static int hf_cmp_iface_msg_dropped_tx;
+static int hf_cmp_iface_errs_total_rx;
+static int hf_cmp_iface_errs_total_tx;
+static int hf_cmp_iface_iface_type;
+static int hf_cmp_iface_iface_status;
+static int hf_cmp_iface_stream_id_cnt;
+static int hf_cmp_iface_reserved;
 
-static int hf_cmp_iface_feat = -1;
-static int hf_cmp_iface_feat_can_pas_ack = -1;
-static int hf_cmp_iface_feat_can_act_ack = -1;
-static int hf_cmp_iface_feat_can_ack_del_err = -1;
-static int hf_cmp_iface_feat_can_crc_del_err = -1;
-static int hf_cmp_iface_feat_can_eof_err = -1;
-static int hf_cmp_iface_feat_can_r0 = -1;
-static int hf_cmp_iface_feat_can_srr_dom = -1;
+static int hf_cmp_iface_feat;
+static int hf_cmp_iface_feat_can_pas_ack;
+static int hf_cmp_iface_feat_can_act_ack;
+static int hf_cmp_iface_feat_can_ack_del_err;
+static int hf_cmp_iface_feat_can_crc_del_err;
+static int hf_cmp_iface_feat_can_eof_err;
+static int hf_cmp_iface_feat_can_r0;
+static int hf_cmp_iface_feat_can_srr_dom;
 
-static int hf_cmp_iface_feat_canfd_pas_ack = -1;
-static int hf_cmp_iface_feat_canfd_act_ack = -1;
-static int hf_cmp_iface_feat_canfd_ack_del_err = -1;
-static int hf_cmp_iface_feat_canfd_crc_del_err = -1;
-static int hf_cmp_iface_feat_canfd_eof_err = -1;
-static int hf_cmp_iface_feat_canfd_rsvd = -1;
-static int hf_cmp_iface_feat_canfd_srr_dom = -1;
-static int hf_cmp_iface_feat_canfd_brs_dom = -1;
-static int hf_cmp_iface_feat_canfd_esi_dom = -1;
+static int hf_cmp_iface_feat_canfd_pas_ack;
+static int hf_cmp_iface_feat_canfd_act_ack;
+static int hf_cmp_iface_feat_canfd_ack_del_err;
+static int hf_cmp_iface_feat_canfd_crc_del_err;
+static int hf_cmp_iface_feat_canfd_eof_err;
+static int hf_cmp_iface_feat_canfd_rsvd;
+static int hf_cmp_iface_feat_canfd_srr_dom;
+static int hf_cmp_iface_feat_canfd_brs_dom;
+static int hf_cmp_iface_feat_canfd_esi_dom;
 
-static int hf_cmp_iface_feat_lin_sync_err = -1;
-static int hf_cmp_iface_feat_lin_framing_err = -1;
-static int hf_cmp_iface_feat_lin_short_dom_err = -1;
-static int hf_cmp_iface_feat_lin_long_dom_err = -1;
-static int hf_cmp_iface_feat_lin_wup = -1;
+static int hf_cmp_iface_feat_lin_sync_err;
+static int hf_cmp_iface_feat_lin_framing_err;
+static int hf_cmp_iface_feat_lin_short_dom_err;
+static int hf_cmp_iface_feat_lin_long_dom_err;
+static int hf_cmp_iface_feat_lin_wup;
 
-static int hf_cmp_iface_feat_eth_too_long = -1;
-static int hf_cmp_iface_feat_eth_phy_err = -1;
-static int hf_cmp_iface_feat_eth_trunc = -1;
+static int hf_cmp_iface_feat_eth_too_long;
+static int hf_cmp_iface_feat_eth_phy_err;
+static int hf_cmp_iface_feat_eth_trunc;
 
-static int hf_cmp_iface_stream_ids = -1;
-static int hf_cmp_iface_stream_id = -1;
-static int hf_cmp_iface_vendor_data_len = -1;
-static int hf_cmp_iface_vendor_data = -1;
+static int hf_cmp_iface_stream_ids;
+static int hf_cmp_iface_stream_id;
+static int hf_cmp_iface_vendor_data_len;
+static int hf_cmp_iface_vendor_data;
 
 /* Configuration Status Message */
-static int hf_cmp_status_msg_config = -1;
+static int hf_cmp_status_msg_config;
 
 /* Data Lost Event Status Message */
-static int hf_cmp_dataloss_data_sink_port = -1;
-static int hf_cmp_dataloss_device_id = -1;
-static int hf_cmp_dataloss_reserved = -1;
-static int hf_cmp_dataloss_stream_id = -1;
-static int hf_cmp_dataloss_last_ssq_value = -1;
-static int hf_cmp_dataloss_current_ssq_value = -1;
+static int hf_cmp_dataloss_data_sink_port;
+static int hf_cmp_dataloss_device_id;
+static int hf_cmp_dataloss_reserved;
+static int hf_cmp_dataloss_stream_id;
+static int hf_cmp_dataloss_last_ssq_value;
+static int hf_cmp_dataloss_current_ssq_value;
 
 /* Time Sync Lost Event Status Message */
-static int hf_cmp_timeloss_port_nr = -1;
-static int hf_cmp_timeloss_device_id = -1;
-static int hf_cmp_timeloss_error_flags = -1;
+static int hf_cmp_timeloss_port_nr;
+static int hf_cmp_timeloss_device_id;
+static int hf_cmp_timeloss_error_flags;
 
-static int hf_cmp_timeloss_error_flags_ts = -1;
-static int hf_cmp_timeloss_error_flags_insync = -1;
-static int hf_cmp_timeloss_error_flags_delta = -1;
-static int hf_cmp_timeloss_error_flags_reserved = -1;
+static int hf_cmp_timeloss_error_flags_ts;
+static int hf_cmp_timeloss_error_flags_insync;
+static int hf_cmp_timeloss_error_flags_delta;
+static int hf_cmp_timeloss_error_flags_reserved;
 
 /* Vendor Specific */
-static int hf_cmp_status_msg_vendor_specific = -1;
+static int hf_cmp_status_msg_vendor_specific;
 
 /* Protocol trees */
-static gint ett_asam_cmp = -1;
-static gint ett_asam_cmp_header = -1;
-static gint ett_asam_cmp_timestamp = -1;
-static gint ett_asam_cmp_common_flags = -1;
-static gint ett_asam_cmp_payload = -1;
-static gint ett_asam_cmp_payload_flags = -1;
-static gint ett_asam_cmp_lin_pid = -1;
-static gint ett_asam_cmp_can_id = -1;
-static gint ett_asam_cmp_can_crc = -1;
-static gint ett_asam_cmp_uart_data = -1;
-static gint ett_asam_cmp_status_cm_flags = -1;
-static gint ett_asam_cmp_status_cm_uptime = -1;
-static gint ett_asam_cmp_status_timeloss_flags = -1;
-static gint ett_asam_cmp_status_interface = -1;
-static gint ett_asam_cmp_status_feature_support = -1;
-static gint ett_asam_cmp_status_stream_ids = -1;
+static gint ett_asam_cmp;
+static gint ett_asam_cmp_header;
+static gint ett_asam_cmp_timestamp;
+static gint ett_asam_cmp_common_flags;
+static gint ett_asam_cmp_payload;
+static gint ett_asam_cmp_payload_flags;
+static gint ett_asam_cmp_lin_pid;
+static gint ett_asam_cmp_can_id;
+static gint ett_asam_cmp_can_crc;
+static gint ett_asam_cmp_uart_data;
+static gint ett_asam_cmp_status_cm_flags;
+static gint ett_asam_cmp_status_cm_uptime;
+static gint ett_asam_cmp_status_timeloss_flags;
+static gint ett_asam_cmp_status_interface;
+static gint ett_asam_cmp_status_feature_support;
+static gint ett_asam_cmp_status_stream_ids;
 
 /* General */
 #define CMP_HEADER_LEN                         8
@@ -742,8 +742,8 @@ UAT_CSTRING_CB_DEF(asam_cmp_interfaces, name, interface_config_t)
 UAT_HEX_CB_DEF(asam_cmp_interfaces, bus_id, interface_config_t)
 
 /*** expert info items ***/
-static expert_field ei_asam_cmp_length_mismatch = EI_INIT;
-static expert_field ei_asam_cmp_unsupported_crc_not_zero = EI_INIT;
+static expert_field ei_asam_cmp_length_mismatch;
+static expert_field ei_asam_cmp_unsupported_crc_not_zero;
 
 /* generic UAT */
 static void

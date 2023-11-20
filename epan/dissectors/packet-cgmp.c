@@ -25,15 +25,15 @@ void proto_reg_handoff_cgmp(void);
 
 static dissector_handle_t cgmp_handle;
 
-static int proto_cgmp = -1;
-static int hf_cgmp_version = -1;
-static int hf_cgmp_type = -1;
-static int hf_cgmp_reserved = -1;
-static int hf_cgmp_count = -1;
-static int hf_cgmp_gda = -1;
-static int hf_cgmp_usa = -1;
+static int proto_cgmp;
+static int hf_cgmp_version;
+static int hf_cgmp_type;
+static int hf_cgmp_reserved;
+static int hf_cgmp_count;
+static int hf_cgmp_gda;
+static int hf_cgmp_usa;
 
-static gint ett_cgmp = -1;
+static gint ett_cgmp;
 
 static const value_string type_vals[] = {
 	{ 0, "Join" },

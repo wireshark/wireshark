@@ -17,7 +17,7 @@
 
 void proto_register_cisco_pid(void);
 
-static int hf_llc_cisco_pid = -1;
+static int hf_llc_cisco_pid;
 
 /*
  * See various Cisco documents, including

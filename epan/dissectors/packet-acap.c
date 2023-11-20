@@ -23,17 +23,17 @@ void proto_reg_handoff_acap(void);
 
 static dissector_handle_t acap_handle;
 
-static int proto_acap = -1;
+static int proto_acap;
 
-static int hf_acap_request = -1;
-static int hf_acap_request_data = -1;
-static int hf_acap_request_tag = -1;
-static int hf_acap_response = -1;
-static int hf_acap_response_data = -1;
-static int hf_acap_response_tag = -1;
+static int hf_acap_request;
+static int hf_acap_request_data;
+static int hf_acap_request_tag;
+static int hf_acap_response;
+static int hf_acap_response_data;
+static int hf_acap_response_tag;
 
-static gint ett_acap = -1;
-static gint ett_acap_reqresp = -1;
+static gint ett_acap;
+static gint ett_acap_reqresp;
 
 #define TCP_PORT_ACAP           674
 

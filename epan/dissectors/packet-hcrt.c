@@ -18,35 +18,35 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
-static int proto_hcrt = -1;
+static int proto_hcrt;
 
 #define HCRT_UDP_PORTS_DEFAULT "47000"
 
 static guint ethertype_pref = 0xf052;
 
-static int hf_hcrt_header = -1;
-static int hf_hcrt_message_tag = -1;
-static int hf_hcrt_message_type = -1;
-static int hf_hcrt_am = -1;
-static int hf_hcrt_do = -1;
-static int hf_hcrt_1st_dword_enable = -1;
-static int hf_hcrt_last_dword_enable = -1;
-static int hf_hcrt_resp_code = -1;
-static int hf_hcrt_adl = -1;
-static int hf_hcrt_last = -1;
-static int hf_hcrt_body = -1;
-static int hf_hcrt_addr_32 = -1;
-static int hf_hcrt_addr_64 = -1;
-static int hf_hcrt_data_32 = -1;
-static int hf_hcrt_data_64 = -1;
-static int hf_hcrt_command_nop = -1;
+static int hf_hcrt_header;
+static int hf_hcrt_message_tag;
+static int hf_hcrt_message_type;
+static int hf_hcrt_am;
+static int hf_hcrt_do;
+static int hf_hcrt_1st_dword_enable;
+static int hf_hcrt_last_dword_enable;
+static int hf_hcrt_resp_code;
+static int hf_hcrt_adl;
+static int hf_hcrt_last;
+static int hf_hcrt_body;
+static int hf_hcrt_addr_32;
+static int hf_hcrt_addr_64;
+static int hf_hcrt_data_32;
+static int hf_hcrt_data_64;
+static int hf_hcrt_command_nop;
 
-static gint ett_hcrt = -1;
-static gint ett_hcrt_msg = -1;
-static gint ett_hcrt_hdr = -1;
-static gint ett_hcrt_body = -1;
+static gint ett_hcrt;
+static gint ett_hcrt_msg;
+static gint ett_hcrt_hdr;
+static gint ett_hcrt_body;
 
-static expert_field ei_hcrt_error = EI_INIT;
+static expert_field ei_hcrt_error;
 
 void proto_reg_handoff_hcrt(void);
 void proto_register_hcrt(void);

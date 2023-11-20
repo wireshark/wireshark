@@ -313,25 +313,25 @@ void proto_reg_handoff_eigrp(void);
 void proto_register_eigrp(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_eigrp = -1;
+static int proto_eigrp;
 
 /* header */
-static gint hf_eigrp_version = -1;
-static gint hf_eigrp_opcode = -1;
-static gint hf_eigrp_flags = -1;
-static gint hf_eigrp_sequence = -1;
-static gint hf_eigrp_acknowledge = -1;
-static gint hf_eigrp_vrid = -1;
-static gint hf_eigrp_as = -1;
-static gint ett_eigrp = -1;
+static gint hf_eigrp_version;
+static gint hf_eigrp_opcode;
+static gint hf_eigrp_flags;
+static gint hf_eigrp_sequence;
+static gint hf_eigrp_acknowledge;
+static gint hf_eigrp_vrid;
+static gint hf_eigrp_as;
+static gint ett_eigrp;
 
 /* packet header flags */
-static gint hf_eigrp_flags_init = -1;
-static gint hf_eigrp_flags_restart = -1;
-static gint hf_eigrp_flags_eot = -1;
-static gint hf_eigrp_flags_condrecv = -1;
+static gint hf_eigrp_flags_init;
+static gint hf_eigrp_flags_restart;
+static gint hf_eigrp_flags_eot;
+static gint hf_eigrp_flags_condrecv;
 
-static gint ett_eigrp_flags = -1;
+static gint ett_eigrp_flags;
 static int * const eigrp_flag_fields[] = {
     &hf_eigrp_flags_init,
     &hf_eigrp_flags_condrecv,
@@ -341,51 +341,51 @@ static int * const eigrp_flag_fields[] = {
 };
 
 /* tlv */
-static gint hf_eigrp_tlv_type = -1;
-static gint hf_eigrp_tlv_len = -1;
-static gint hf_eigrp_tid = -1;
-static gint hf_eigrp_afi = -1;
-static gint hf_eigrp_nullpad = -1;
+static gint hf_eigrp_tlv_type;
+static gint hf_eigrp_tlv_len;
+static gint hf_eigrp_tid;
+static gint hf_eigrp_afi;
+static gint hf_eigrp_nullpad;
 
-static gint ett_eigrp_tlv = -1;
-static gint ett_eigrp_tlv_metric = -1;
-static gint ett_eigrp_tlv_attr = -1;
-static gint ett_eigrp_tlv_extdata = -1;
+static gint ett_eigrp_tlv;
+static gint ett_eigrp_tlv_metric;
+static gint ett_eigrp_tlv_attr;
+static gint ett_eigrp_tlv_extdata;
 
 /* param */
-static gint hf_eigrp_par_k1 = -1;
-static gint hf_eigrp_par_k2 = -1;
-static gint hf_eigrp_par_k3 = -1;
-static gint hf_eigrp_par_k4 = -1;
-static gint hf_eigrp_par_k5 = -1;
-static gint hf_eigrp_par_k6 = -1;
-static gint hf_eigrp_par_holdtime = -1;
+static gint hf_eigrp_par_k1;
+static gint hf_eigrp_par_k2;
+static gint hf_eigrp_par_k3;
+static gint hf_eigrp_par_k4;
+static gint hf_eigrp_par_k5;
+static gint hf_eigrp_par_k6;
+static gint hf_eigrp_par_holdtime;
 
 /* auth */
-static gint hf_eigrp_auth_type = -1;
-static gint hf_eigrp_auth_len = -1;
-static gint hf_eigrp_auth_keyid = -1;
-static gint hf_eigrp_auth_keyseq = -1;
-static gint hf_eigrp_auth_digest = -1;
+static gint hf_eigrp_auth_type;
+static gint hf_eigrp_auth_len;
+static gint hf_eigrp_auth_keyid;
+static gint hf_eigrp_auth_keyseq;
+static gint hf_eigrp_auth_digest;
 
 /* seq */
-static gint hf_eigrp_seq_addrlen = -1;
-static gint hf_eigrp_seq_ipv4addr = -1;
-static gint hf_eigrp_seq_ipv6addr = -1;
+static gint hf_eigrp_seq_addrlen;
+static gint hf_eigrp_seq_ipv4addr;
+static gint hf_eigrp_seq_ipv6addr;
 
 /* multicast seq */
-static gint hf_eigrp_next_mcast_seq = -1;
+static gint hf_eigrp_next_mcast_seq;
 
 /* stub flags */
-static gint hf_eigrp_stub_flags = -1;
-static gint hf_eigrp_stub_flags_connected = -1;
-static gint hf_eigrp_stub_flags_static = -1;
-static gint hf_eigrp_stub_flags_summary = -1;
-static gint hf_eigrp_stub_flags_recvonly = -1;
-static gint hf_eigrp_stub_flags_redist = -1;
-static gint hf_eigrp_stub_flags_leakmap = -1;
+static gint hf_eigrp_stub_flags;
+static gint hf_eigrp_stub_flags_connected;
+static gint hf_eigrp_stub_flags_static;
+static gint hf_eigrp_stub_flags_summary;
+static gint hf_eigrp_stub_flags_recvonly;
+static gint hf_eigrp_stub_flags_redist;
+static gint hf_eigrp_stub_flags_leakmap;
 
-static gint ett_eigrp_stub_flags = -1;
+static gint ett_eigrp_stub_flags;
 static int * const eigrp_stub_flag_fields[] = {
     &hf_eigrp_stub_flags_connected,
     &hf_eigrp_stub_flags_static,
@@ -397,144 +397,144 @@ static int * const eigrp_stub_flag_fields[] = {
 };
 
 /* tid */
-static gint hf_eigrp_tidlist_tid = -1;
-static gint hf_eigrp_tidlist_flags = -1;
-static gint hf_eigrp_tidlist_len = -1;
-static gint ett_eigrp_tidlist = -1;
+static gint hf_eigrp_tidlist_tid;
+static gint hf_eigrp_tidlist_flags;
+static gint hf_eigrp_tidlist_len;
+static gint ett_eigrp_tidlist;
 
 /* 1.2 and 3.0 metric */
-static gint hf_eigrp_legacy_metric_delay = -1;
-static gint hf_eigrp_legacy_metric_bw = -1;
-static gint hf_eigrp_legacy_metric_mtu = -1;
-static gint hf_eigrp_legacy_metric_hopcount = -1;
-static gint hf_eigrp_legacy_metric_rel = -1;
-static gint hf_eigrp_legacy_metric_load = -1;
-static gint hf_eigrp_legacy_metric_intag = -1;
+static gint hf_eigrp_legacy_metric_delay;
+static gint hf_eigrp_legacy_metric_bw;
+static gint hf_eigrp_legacy_metric_mtu;
+static gint hf_eigrp_legacy_metric_hopcount;
+static gint hf_eigrp_legacy_metric_rel;
+static gint hf_eigrp_legacy_metric_load;
+static gint hf_eigrp_legacy_metric_intag;
 
 /* 3.0 metric */
-static gint hf_eigrp_legacy_metric_tag = -1;
+static gint hf_eigrp_legacy_metric_tag;
 
 /* 2.0 metric */
-static gint hf_eigrp_metric_offset = -1;
-static gint hf_eigrp_metric_priority = -1;
-static gint hf_eigrp_metric_rel = -1;
-static gint hf_eigrp_metric_load = -1;
-static gint hf_eigrp_metric_mtu = -1;
-static gint hf_eigrp_metric_hopcount = -1;
-static gint hf_eigrp_metric_reserved = -1;
+static gint hf_eigrp_metric_offset;
+static gint hf_eigrp_metric_priority;
+static gint hf_eigrp_metric_rel;
+static gint hf_eigrp_metric_load;
+static gint hf_eigrp_metric_mtu;
+static gint hf_eigrp_metric_hopcount;
+static gint hf_eigrp_metric_reserved;
 
 /* router id*/
-static gint hf_eigrp_routerid = -1;
+static gint hf_eigrp_routerid;
 
 /* protocol dependent module route flags */
-static gint hf_eigrp_metric_flags_srcwd = -1;
-static gint hf_eigrp_metric_flags_cd = -1;
-static gint hf_eigrp_metric_flags_active = -1;
-static gint hf_eigrp_metric_flags_repl = -1;
-static gint ett_eigrp_metric_flags = -1;
+static gint hf_eigrp_metric_flags_srcwd;
+static gint hf_eigrp_metric_flags_cd;
+static gint hf_eigrp_metric_flags_active;
+static gint hf_eigrp_metric_flags_repl;
+static gint ett_eigrp_metric_flags;
 
 /* extended metrics */
-static gint hf_eigrp_attr_opcode = -1;
-static gint hf_eigrp_attr_offset = -1;
-static gint hf_eigrp_attr_scaled = -1;
-static gint hf_eigrp_attr_tag = -1;
-static gint hf_eigrp_attr_jitter = -1;
-static gint hf_eigrp_attr_qenergy = -1;
-static gint hf_eigrp_attr_energy = -1;
+static gint hf_eigrp_attr_opcode;
+static gint hf_eigrp_attr_offset;
+static gint hf_eigrp_attr_scaled;
+static gint hf_eigrp_attr_tag;
+static gint hf_eigrp_attr_jitter;
+static gint hf_eigrp_attr_qenergy;
+static gint hf_eigrp_attr_energy;
 
 /* route external data */
-static gint hf_eigrp_extdata_origrid = -1;
-static gint hf_eigrp_extdata_as = -1;
-static gint hf_eigrp_extdata_tag = -1;
-static gint hf_eigrp_extdata_metric = -1;
-static gint hf_eigrp_extdata_reserved = -1;
-static gint hf_eigrp_extdata_proto = -1;
+static gint hf_eigrp_extdata_origrid;
+static gint hf_eigrp_extdata_as;
+static gint hf_eigrp_extdata_tag;
+static gint hf_eigrp_extdata_metric;
+static gint hf_eigrp_extdata_reserved;
+static gint hf_eigrp_extdata_proto;
 
-static gint hf_eigrp_extdata_flag_ext = -1;
-static gint hf_eigrp_extdata_flag_cd = -1;
-static gint ett_eigrp_extdata_flags = -1;
+static gint hf_eigrp_extdata_flag_ext;
+static gint hf_eigrp_extdata_flag_cd;
+static gint ett_eigrp_extdata_flags;
 
 /* ipv4 address */
-static gint hf_eigrp_ipv4_nexthop = -1;
-static gint hf_eigrp_ipv4_prefixlen = -1;
+static gint hf_eigrp_ipv4_nexthop;
+static gint hf_eigrp_ipv4_prefixlen;
 
 /* ipv6 address */
-static gint hf_eigrp_ipv6_nexthop = -1;
-static gint hf_eigrp_ipv6_prefixlen = -1;
+static gint hf_eigrp_ipv6_nexthop;
+static gint hf_eigrp_ipv6_prefixlen;
 
 /* ipx address */
-static gint hf_eigrp_ipx_nexthop_net = -1;
-static gint hf_eigrp_ipx_nexthop_host = -1;
-static gint hf_eigrp_ipx_extdata_routerid = -1;
-static gint hf_eigrp_ipx_extdata_delay = -1;
-static gint hf_eigrp_ipx_extdata_metric = -1;
-static gint hf_eigrp_ipx_dest = -1;
+static gint hf_eigrp_ipx_nexthop_net;
+static gint hf_eigrp_ipx_nexthop_host;
+static gint hf_eigrp_ipx_extdata_routerid;
+static gint hf_eigrp_ipx_extdata_delay;
+static gint hf_eigrp_ipx_extdata_metric;
+static gint hf_eigrp_ipx_dest;
 
 /* appletalk address */
-static gint hf_eigrp_atalk_routerid = -1;
+static gint hf_eigrp_atalk_routerid;
 
 /* SAF services */
-static gint hf_eigrp_saf_service = -1;
-static gint hf_eigrp_saf_subservice = -1;
-static gint hf_eigrp_saf_guid = -1;
+static gint hf_eigrp_saf_service;
+static gint hf_eigrp_saf_subservice;
+static gint hf_eigrp_saf_guid;
 
-static gint hf_eigrp_saf_reachability_afi = -1;
-static gint hf_eigrp_saf_reachability_port = -1;
-static gint hf_eigrp_saf_reachability_protocol = -1;
-static gint hf_eigrp_saf_reachability_addr_ipv4 = -1;
-static gint hf_eigrp_saf_reachability_addr_ipv6 = -1;
-static gint hf_eigrp_saf_reachability_addr_hex = -1;
-static gint ett_eigrp_saf_reachability = -1;
+static gint hf_eigrp_saf_reachability_afi;
+static gint hf_eigrp_saf_reachability_port;
+static gint hf_eigrp_saf_reachability_protocol;
+static gint hf_eigrp_saf_reachability_addr_ipv4;
+static gint hf_eigrp_saf_reachability_addr_ipv6;
+static gint hf_eigrp_saf_reachability_addr_hex;
+static gint ett_eigrp_saf_reachability;
 
-static gint hf_eigrp_saf_data_length = -1;
-static gint hf_eigrp_saf_data_sequence = -1;
-static gint hf_eigrp_saf_data_type = -1;
+static gint hf_eigrp_saf_data_length;
+static gint hf_eigrp_saf_data_sequence;
+static gint hf_eigrp_saf_data_type;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_eigrp_ipx_address = -1;
-static int hf_eigrp_release = -1;
-static int hf_eigrp_tlv_version = -1;
-static int hf_eigrp_ipv4_destination = -1;
-static int hf_eigrp_ipv6_destination = -1;
-static int hf_eigrp_appletalk_cable_range = -1;
-static int hf_eigrp_nexthop_address = -1;
-static int hf_eigrp_cable_range = -1;
-static int hf_eigrp_metric_delay = -1;
-static int hf_eigrp_metric_bandwidth = -1;
-static int hf_eigrp_checksum = -1;
-static int hf_eigrp_checksum_status = -1;
-static int hf_eigrp_metric_comm_type = -1;
-static int ett_metric_comm_type = -1;
-static int hf_eigrp_extcomm_eigrp_flag = -1;
-static int hf_eigrp_extcomm_eigrp_tag = -1;
-static int hf_eigrp_extcomm_eigrp_res = -1;
-static int hf_eigrp_extcomm_eigrp_rid = -1;
-static int hf_eigrp_extcomm_eigrp_as = -1;
-static int hf_eigrp_extcomm_eigrp_sdly = -1;
-static int hf_eigrp_extcomm_eigrp_rel = -1;
-static int hf_eigrp_extcomm_eigrp_hop = -1;
-static int hf_eigrp_extcomm_eigrp_sbw = -1;
-static int hf_eigrp_extcomm_eigrp_load = -1;
-static int hf_eigrp_extcomm_eigrp_mtu = -1;
-static int hf_eigrp_extcomm_eigrp_xas = -1;
-static int hf_eigrp_extcomm_eigrp_xrid = -1;
-static int hf_eigrp_extcomm_eigrp_xproto = -1;
-static int hf_eigrp_extcomm_eigrp_xmetric = -1;
+static int hf_eigrp_ipx_address;
+static int hf_eigrp_release;
+static int hf_eigrp_tlv_version;
+static int hf_eigrp_ipv4_destination;
+static int hf_eigrp_ipv6_destination;
+static int hf_eigrp_appletalk_cable_range;
+static int hf_eigrp_nexthop_address;
+static int hf_eigrp_cable_range;
+static int hf_eigrp_metric_delay;
+static int hf_eigrp_metric_bandwidth;
+static int hf_eigrp_checksum;
+static int hf_eigrp_checksum_status;
+static int hf_eigrp_metric_comm_type;
+static int ett_metric_comm_type;
+static int hf_eigrp_extcomm_eigrp_flag;
+static int hf_eigrp_extcomm_eigrp_tag;
+static int hf_eigrp_extcomm_eigrp_res;
+static int hf_eigrp_extcomm_eigrp_rid;
+static int hf_eigrp_extcomm_eigrp_as;
+static int hf_eigrp_extcomm_eigrp_sdly;
+static int hf_eigrp_extcomm_eigrp_rel;
+static int hf_eigrp_extcomm_eigrp_hop;
+static int hf_eigrp_extcomm_eigrp_sbw;
+static int hf_eigrp_extcomm_eigrp_load;
+static int hf_eigrp_extcomm_eigrp_mtu;
+static int hf_eigrp_extcomm_eigrp_xas;
+static int hf_eigrp_extcomm_eigrp_xrid;
+static int hf_eigrp_extcomm_eigrp_xproto;
+static int hf_eigrp_extcomm_eigrp_xmetric;
 
 
 
-static expert_field ei_eigrp_checksum_bad = EI_INIT;
-static expert_field ei_eigrp_unreachable = EI_INIT;
-static expert_field ei_eigrp_seq_addrlen = EI_INIT;
-static expert_field ei_eigrp_peer_termination = EI_INIT;
-static expert_field ei_eigrp_tlv_type = EI_INIT;
-static expert_field ei_eigrp_auth_type = EI_INIT;
-static expert_field ei_eigrp_peer_termination_graceful = EI_INIT;
-static expert_field ei_eigrp_auth_len = EI_INIT;
-static expert_field ei_eigrp_tlv_len = EI_INIT;
-static expert_field ei_eigrp_afi = EI_INIT;
-static expert_field ei_eigrp_prefixlen = EI_INIT;
-static expert_field ei_eigrp_tlv_trunc = EI_INIT;
+static expert_field ei_eigrp_checksum_bad;
+static expert_field ei_eigrp_unreachable;
+static expert_field ei_eigrp_seq_addrlen;
+static expert_field ei_eigrp_peer_termination;
+static expert_field ei_eigrp_tlv_type;
+static expert_field ei_eigrp_auth_type;
+static expert_field ei_eigrp_peer_termination_graceful;
+static expert_field ei_eigrp_auth_len;
+static expert_field ei_eigrp_tlv_len;
+static expert_field ei_eigrp_afi;
+static expert_field ei_eigrp_prefixlen;
+static expert_field ei_eigrp_tlv_trunc;
 
 /* some extra handle that might be needed */
 static dissector_handle_t ipxsap_handle = NULL;

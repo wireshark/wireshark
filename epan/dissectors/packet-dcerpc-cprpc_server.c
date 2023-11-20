@@ -20,11 +20,11 @@
 void proto_register_cprpc_server (void);
 void proto_reg_handoff_cprpc_server (void);
 
-static int proto_cprpc_server = -1;
-static int hf_cprpc_server_opnum = -1;
+static int proto_cprpc_server;
+static int hf_cprpc_server_opnum;
 
 
-static gint ett_cprpc_server = -1;
+static gint ett_cprpc_server;
 
 
 static e_guid_t uuid_cprpc_server = { 0x4885772c, 0xc6d3, 0x11ca, { 0x84, 0xc6, 0x08, 0x00, 0x2b, 0x1c, 0x8f, 0x1f } };

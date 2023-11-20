@@ -24,13 +24,13 @@ void proto_reg_handoff_nettl(void);
 
 /* Initialize the protocol and registered fields */
 
-static int proto_nettl = -1;
+static int proto_nettl;
 
-static int hf_nettl_subsys = -1;
-static int hf_nettl_devid = -1;
-static int hf_nettl_kind = -1;
-static int hf_nettl_pid = -1;
-static int hf_nettl_uid = -1;
+static int hf_nettl_subsys;
+static int hf_nettl_devid;
+static int hf_nettl_kind;
+static int hf_nettl_pid;
+static int hf_nettl_uid;
 
 static dissector_handle_t nettl_handle;
 static dissector_handle_t eth_withoutfcs_handle;
@@ -47,7 +47,7 @@ static dissector_table_t tcp_subdissector_table;
 
 /* Initialize the subtree pointers */
 
-static gint ett_nettl = -1;
+static gint ett_nettl;
 
 /* General declarations and macros */
 

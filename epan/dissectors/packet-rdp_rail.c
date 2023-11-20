@@ -31,65 +31,65 @@ void proto_register_rdp_rail(void);
 void proto_reg_handoff_rdp_rail(void);
 
 
-static int proto_rdp_rail = -1;
+static int proto_rdp_rail;
 
-static int hf_rail_orderType = -1;
-static int hf_rail_pduLength = -1;
+static int hf_rail_orderType;
+static int hf_rail_pduLength;
 
-static int hf_rail_caps_handshake_buildNumber = -1;
+static int hf_rail_caps_handshake_buildNumber;
 
-static int hf_rail_windowId = -1;
-static int hf_rail_windowmove_left = -1;
-static int hf_rail_windowmove_top = -1;
-static int hf_rail_windowmove_right = -1;
-static int hf_rail_windowmove_bottom = -1;
+static int hf_rail_windowId;
+static int hf_rail_windowmove_left;
+static int hf_rail_windowmove_top;
+static int hf_rail_windowmove_right;
+static int hf_rail_windowmove_bottom;
 
-static int hf_rail_notify_iconId = -1;
-static int hf_rail_notify_message = -1;
+static int hf_rail_notify_iconId;
+static int hf_rail_notify_message;
 
-static int hf_rail_localmovesize_isMoveSizeStart = -1;
-static int hf_rail_localmovesize_moveSizeType = -1;
-static int hf_rail_localmovesize_posX = -1;
-static int hf_rail_localmovesize_posY = -1;
+static int hf_rail_localmovesize_isMoveSizeStart;
+static int hf_rail_localmovesize_moveSizeType;
+static int hf_rail_localmovesize_posX;
+static int hf_rail_localmovesize_posY;
 
-static int hf_rail_minmaxinfo_maxwidth = -1;
-static int hf_rail_minmaxinfo_maxheight = -1;
-static int hf_rail_minmaxinfo_maxPosX = -1;
-static int hf_rail_minmaxinfo_maxPosY = -1;
-static int hf_rail_minmaxinfo_minTrackWidth = -1;
-static int hf_rail_minmaxinfo_minTrackHeight = -1;
-static int hf_rail_minmaxinfo_maxTrackWidth = -1;
-static int hf_rail_minmaxinfo_maxTrackHeight = -1;
+static int hf_rail_minmaxinfo_maxwidth;
+static int hf_rail_minmaxinfo_maxheight;
+static int hf_rail_minmaxinfo_maxPosX;
+static int hf_rail_minmaxinfo_maxPosY;
+static int hf_rail_minmaxinfo_minTrackWidth;
+static int hf_rail_minmaxinfo_minTrackHeight;
+static int hf_rail_minmaxinfo_maxTrackWidth;
+static int hf_rail_minmaxinfo_maxTrackHeight;
 
-static int hf_rail_cloak_cloaked = -1;
+static int hf_rail_cloak_cloaked;
 
-static int hf_rail_handshake_flags = -1;
-static int hf_rail_handshake_flags_hidef = -1;
-static int hf_rail_handshake_flags_ex_spi = -1;
-static int hf_rail_handshake_flags_snap = -1;
-static int hf_rail_handshake_flags_textscale = -1;
-static int hf_rail_handshake_flags_caretblink = -1;
-static int hf_rail_handshake_flags_ex_spi2 = -1;
+static int hf_rail_handshake_flags;
+static int hf_rail_handshake_flags_hidef;
+static int hf_rail_handshake_flags_ex_spi;
+static int hf_rail_handshake_flags_snap;
+static int hf_rail_handshake_flags_textscale;
+static int hf_rail_handshake_flags_caretblink;
+static int hf_rail_handshake_flags_ex_spi2;
 
-static int hf_rail_cstatus_flags = -1;
-static int hf_rail_cstatus_flags_allowlocalmove = -1;
-static int hf_rail_cstatus_autoreconnect = -1;
-static int hf_rail_cstatus_zorder_sync = -1;
-static int hf_rail_cstatus_resize_margin = -1;
-static int hf_rail_cstatus_hidpi_icons = -1;
-static int hf_rail_cstatus_appbar_remoting = -1;
-static int hf_rail_cstatus_powerdisplay = -1;
-static int hf_rail_cstatus_bidir_cloak = -1;
-static int hf_rail_cstatus_suppress_icon_border = -1;
+static int hf_rail_cstatus_flags;
+static int hf_rail_cstatus_flags_allowlocalmove;
+static int hf_rail_cstatus_autoreconnect;
+static int hf_rail_cstatus_zorder_sync;
+static int hf_rail_cstatus_resize_margin;
+static int hf_rail_cstatus_hidpi_icons;
+static int hf_rail_cstatus_appbar_remoting;
+static int hf_rail_cstatus_powerdisplay;
+static int hf_rail_cstatus_bidir_cloak;
+static int hf_rail_cstatus_suppress_icon_border;
 
-static int hf_rail_activate_enabled = -1;
+static int hf_rail_activate_enabled;
 
-static int hf_rail_sysparam_server_params = -1;
-static int hf_rail_sysparam_client_params = -1;
+static int hf_rail_sysparam_server_params;
+static int hf_rail_sysparam_client_params;
 
-static int ett_rdp_rail = -1;
-static int ett_rdp_rail_handshake_flags = -1;
-static int ett_rdp_rail_clientstatus_flags = -1;
+static int ett_rdp_rail;
+static int ett_rdp_rail_handshake_flags;
+static int ett_rdp_rail_clientstatus_flags;
 
 enum {
 	TS_RAIL_ORDER_EXEC = 0x01,

@@ -25,19 +25,19 @@ void proto_register_gopher(void);
 void proto_reg_handoff_gopher(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_gopher = -1;
-static int hf_gopher_request = -1;
-static int hf_gopher_dir_item = -1;
-static int hf_gopher_di_type = -1;
-static int hf_gopher_di_name = -1;
-static int hf_gopher_di_selector = -1;
-static int hf_gopher_di_host = -1;
-static int hf_gopher_di_port = -1;
-static int hf_gopher_unknown = -1;
+static int proto_gopher;
+static int hf_gopher_request;
+static int hf_gopher_dir_item;
+static int hf_gopher_di_type;
+static int hf_gopher_di_name;
+static int hf_gopher_di_selector;
+static int hf_gopher_di_host;
+static int hf_gopher_di_port;
+static int hf_gopher_unknown;
 
 /* Initialize the subtree pointers */
-static gint ett_gopher = -1;
-static gint ett_dir_item = -1;
+static gint ett_gopher;
+static gint ett_dir_item;
 
 static dissector_handle_t gopher_handle;
 

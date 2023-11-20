@@ -28,62 +28,62 @@
 void proto_register_socketcan(void);
 void proto_reg_handoff_socketcan(void);
 
-static int hf_can_len = -1;
-static int hf_can_infoent_ext = -1;
-static int hf_can_infoent_std = -1;
-static int hf_can_extflag = -1;
-static int hf_can_rtrflag = -1;
-static int hf_can_errflag = -1;
-static int hf_can_reserved = -1;
-static int hf_can_padding = -1;
+static int hf_can_len;
+static int hf_can_infoent_ext;
+static int hf_can_infoent_std;
+static int hf_can_extflag;
+static int hf_can_rtrflag;
+static int hf_can_errflag;
+static int hf_can_reserved;
+static int hf_can_padding;
 
-static int hf_can_err_tx_timeout = -1;
-static int hf_can_err_lostarb = -1;
-static int hf_can_err_ctrl = -1;
-static int hf_can_err_prot = -1;
-static int hf_can_err_trx = -1;
-static int hf_can_err_ack = -1;
-static int hf_can_err_busoff = -1;
-static int hf_can_err_buserror = -1;
-static int hf_can_err_restarted = -1;
-static int hf_can_err_reserved = -1;
+static int hf_can_err_tx_timeout;
+static int hf_can_err_lostarb;
+static int hf_can_err_ctrl;
+static int hf_can_err_prot;
+static int hf_can_err_trx;
+static int hf_can_err_ack;
+static int hf_can_err_busoff;
+static int hf_can_err_buserror;
+static int hf_can_err_restarted;
+static int hf_can_err_reserved;
 
-static int hf_can_err_lostarb_bit_number = -1;
+static int hf_can_err_lostarb_bit_number;
 
-static int hf_can_err_ctrl_rx_overflow = -1;
-static int hf_can_err_ctrl_tx_overflow = -1;
-static int hf_can_err_ctrl_rx_warning = -1;
-static int hf_can_err_ctrl_tx_warning = -1;
-static int hf_can_err_ctrl_rx_passive = -1;
-static int hf_can_err_ctrl_tx_passive = -1;
-static int hf_can_err_ctrl_active = -1;
+static int hf_can_err_ctrl_rx_overflow;
+static int hf_can_err_ctrl_tx_overflow;
+static int hf_can_err_ctrl_rx_warning;
+static int hf_can_err_ctrl_tx_warning;
+static int hf_can_err_ctrl_rx_passive;
+static int hf_can_err_ctrl_tx_passive;
+static int hf_can_err_ctrl_active;
 
-static int hf_can_err_prot_error_type_bit = -1;
-static int hf_can_err_prot_error_type_form = -1;
-static int hf_can_err_prot_error_type_stuff = -1;
-static int hf_can_err_prot_error_type_bit0 = -1;
-static int hf_can_err_prot_error_type_bit1 = -1;
-static int hf_can_err_prot_error_type_overload = -1;
-static int hf_can_err_prot_error_type_active = -1;
-static int hf_can_err_prot_error_type_tx = -1;
+static int hf_can_err_prot_error_type_bit;
+static int hf_can_err_prot_error_type_form;
+static int hf_can_err_prot_error_type_stuff;
+static int hf_can_err_prot_error_type_bit0;
+static int hf_can_err_prot_error_type_bit1;
+static int hf_can_err_prot_error_type_overload;
+static int hf_can_err_prot_error_type_active;
+static int hf_can_err_prot_error_type_tx;
 
-static int hf_can_err_prot_error_location = -1;
+static int hf_can_err_prot_error_location;
 
-static int hf_can_err_trx_canh = -1;
-static int hf_can_err_trx_canl = -1;
+static int hf_can_err_trx_canh;
+static int hf_can_err_trx_canl;
 
-static int hf_can_err_ctrl_specific = -1;
+static int hf_can_err_ctrl_specific;
 
-static expert_field ei_can_err_dlc_mismatch = EI_INIT;
+static expert_field ei_can_err_dlc_mismatch;
 
-static int hf_canfd_brsflag = -1;
-static int hf_canfd_esiflag = -1;
+static int hf_canfd_brsflag;
+static int hf_canfd_esiflag;
 
-static gint ett_can = -1;
-static gint ett_can_fd = -1;
+static gint ett_can;
+static gint ett_can_fd;
 
-static int proto_can = -1;
-static int proto_canfd = -1;
+static int proto_can;
+static int proto_canfd;
 
 static gboolean byte_swap = FALSE;
 static gboolean heuristic_first = FALSE;

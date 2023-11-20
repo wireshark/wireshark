@@ -76,17 +76,17 @@ static const value_string fcoib_sof_vals[] = {
     {0, NULL}
 };
 
-static int proto_fcoib          = -1;
-static int hf_fcoib_ver         = -1;
-static int hf_fcoib_sig         = -1;
-static int hf_fcoib_sof         = -1;
-static int hf_fcoib_eof         = -1;
-static int hf_fcoib_crc         = -1;
-static int hf_fcoib_crc_status  = -1;
+static int proto_fcoib;
+static int hf_fcoib_ver;
+static int hf_fcoib_sig;
+static int hf_fcoib_sof;
+static int hf_fcoib_eof;
+static int hf_fcoib_crc;
+static int hf_fcoib_crc_status;
 
-static int ett_fcoib            = -1;
+static int ett_fcoib;
 
-static expert_field ei_fcoib_crc = EI_INIT;
+static expert_field ei_fcoib_crc;
 
 static dissector_handle_t fc_handle;
 

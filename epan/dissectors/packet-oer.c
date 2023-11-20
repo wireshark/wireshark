@@ -31,23 +31,23 @@ void proto_register_oer(void);
 void proto_reg_handoff_oer(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_oer = -1;
+static int proto_oer;
 
-static int hf_oer_optional_field_bit = -1;
-static int hf_oer_class = -1;
-static int hf_oer_tag = -1;
-static int hf_oer_length_determinant = -1;
+static int hf_oer_optional_field_bit;
+static int hf_oer_class;
+static int hf_oer_tag;
+static int hf_oer_length_determinant;
 static int hf_oer_extension_present_bit;
-static int hf_oer_open_type_length = -1;
+static int hf_oer_open_type_length;
 
 /* Initialize the subtree pointers */
-static int ett_oer = -1;
-static int ett_oer_sequence_of_item = -1;
-static int ett_oer_open_type = -1;
+static int ett_oer;
+static int ett_oer_sequence_of_item;
+static int ett_oer_open_type;
 
-static expert_field ei_oer_not_decoded_yet = EI_INIT;
-static expert_field ei_oer_undecoded = EI_INIT;
-static expert_field ei_oer_open_type = EI_INIT;
+static expert_field ei_oer_not_decoded_yet;
+static expert_field ei_oer_undecoded;
+static expert_field ei_oer_open_type;
 
 /* whether the OER helpers should put the internal OER fields into the tree or not. */
 static gboolean display_internal_oer_fields = FALSE;

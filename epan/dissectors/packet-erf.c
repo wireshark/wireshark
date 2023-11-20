@@ -47,226 +47,226 @@ static dissector_handle_t erf_handle;
 static dissector_table_t erf_dissector_table;
 
 /* Initialize the protocol and registered fields */
-static int proto_erf = -1;
+static int proto_erf;
 
-static int hf_erf_ts          = -1;
-static int hf_erf_rectype     = -1;
-static int hf_erf_type        = -1;
-static int hf_erf_ehdr        = -1;
-static int hf_erf_ehdr_t      = -1;
-static int hf_erf_flags       = -1;
-static int hf_erf_flags_cap   = -1;
-static int hf_erf_flags_vlen  = -1;
-static int hf_erf_flags_trunc = -1;
-static int hf_erf_flags_rxe   = -1;
-static int hf_erf_flags_dse   = -1;
-static int hf_erf_flags_res   = -1;
+static int hf_erf_ts;
+static int hf_erf_rectype;
+static int hf_erf_type;
+static int hf_erf_ehdr;
+static int hf_erf_ehdr_t;
+static int hf_erf_flags;
+static int hf_erf_flags_cap;
+static int hf_erf_flags_vlen;
+static int hf_erf_flags_trunc;
+static int hf_erf_flags_rxe;
+static int hf_erf_flags_dse;
+static int hf_erf_flags_res;
 
-static int hf_erf_rlen = -1;
-static int hf_erf_lctr = -1;
-static int hf_erf_color = -1;
-static int hf_erf_wlen = -1;
+static int hf_erf_rlen;
+static int hf_erf_lctr;
+static int hf_erf_color;
+static int hf_erf_wlen;
 
 /* Classification extension header */
 
 /* InterceptID extension header */
-static int hf_erf_ehdr_int_res1 = -1;
-static int hf_erf_ehdr_int_id   = -1;
-static int hf_erf_ehdr_int_res2 = -1;
+static int hf_erf_ehdr_int_res1;
+static int hf_erf_ehdr_int_id;
+static int hf_erf_ehdr_int_res2;
 
 /* Raw Link extension header */
-static int hf_erf_ehdr_raw_link_res    = -1;
-static int hf_erf_ehdr_raw_link_seqnum = -1;
-static int hf_erf_ehdr_raw_link_rate   = -1;
-static int hf_erf_ehdr_raw_link_type   = -1;
+static int hf_erf_ehdr_raw_link_res;
+static int hf_erf_ehdr_raw_link_seqnum;
+static int hf_erf_ehdr_raw_link_rate;
+static int hf_erf_ehdr_raw_link_type;
 
 /* Classification extension header */
-static int hf_erf_ehdr_class_flags      = -1;
-static int hf_erf_ehdr_class_flags_sh   = -1;
-static int hf_erf_ehdr_class_flags_shm  = -1;
-static int hf_erf_ehdr_class_flags_res1 = -1;
-static int hf_erf_ehdr_class_flags_user = -1;
-static int hf_erf_ehdr_class_flags_res2 = -1;
-static int hf_erf_ehdr_class_flags_drop = -1;
-static int hf_erf_ehdr_class_flags_str  = -1;
-static int hf_erf_ehdr_class_seqnum     = -1;
+static int hf_erf_ehdr_class_flags;
+static int hf_erf_ehdr_class_flags_sh;
+static int hf_erf_ehdr_class_flags_shm;
+static int hf_erf_ehdr_class_flags_res1;
+static int hf_erf_ehdr_class_flags_user;
+static int hf_erf_ehdr_class_flags_res2;
+static int hf_erf_ehdr_class_flags_drop;
+static int hf_erf_ehdr_class_flags_str;
+static int hf_erf_ehdr_class_seqnum;
 
 /* BFS extension header */
-static int hf_erf_ehdr_bfs_hash     = -1;
-static int hf_erf_ehdr_bfs_color    = -1;
-static int hf_erf_ehdr_bfs_raw_hash = -1;
+static int hf_erf_ehdr_bfs_hash;
+static int hf_erf_ehdr_bfs_color;
+static int hf_erf_ehdr_bfs_raw_hash;
 
 /* Channelised extension header */
-static int hf_erf_ehdr_chan_morebits                  = -1;
-static int hf_erf_ehdr_chan_morefrag                  = -1;
-static int hf_erf_ehdr_chan_seqnum                    = -1;
-static int hf_erf_ehdr_chan_res                       = -1;
-static int hf_erf_ehdr_chan_virt_container_id         = -1;
-static int hf_erf_ehdr_chan_assoc_virt_container_size = -1;
-static int hf_erf_ehdr_chan_rate                      = -1;
-static int hf_erf_ehdr_chan_type                      = -1;
+static int hf_erf_ehdr_chan_morebits;
+static int hf_erf_ehdr_chan_morefrag;
+static int hf_erf_ehdr_chan_seqnum;
+static int hf_erf_ehdr_chan_res;
+static int hf_erf_ehdr_chan_virt_container_id;
+static int hf_erf_ehdr_chan_assoc_virt_container_size;
+static int hf_erf_ehdr_chan_rate;
+static int hf_erf_ehdr_chan_type;
 
 /* Filter Hash extension header */
-static int hf_erf_ehdr_signature_payload_hash = -1;
-static int hf_erf_ehdr_signature_color = -1;
-static int hf_erf_ehdr_signature_flow_hash = -1;
+static int hf_erf_ehdr_signature_payload_hash;
+static int hf_erf_ehdr_signature_color;
+static int hf_erf_ehdr_signature_flow_hash;
 
 /* Flow ID extension header */
-static int hf_erf_ehdr_flow_id_source_id = -1;
-static int hf_erf_ehdr_flow_id_hash_type = -1;
-static int hf_erf_ehdr_flow_id_hash_type_type = -1;
-static int hf_erf_ehdr_flow_id_hash_type_inner = -1;
-static int hf_erf_ehdr_flow_id_stack_type = -1;
-static int hf_erf_ehdr_flow_id_flow_hash = -1;
+static int hf_erf_ehdr_flow_id_source_id;
+static int hf_erf_ehdr_flow_id_hash_type;
+static int hf_erf_ehdr_flow_id_hash_type_type;
+static int hf_erf_ehdr_flow_id_hash_type_inner;
+static int hf_erf_ehdr_flow_id_stack_type;
+static int hf_erf_ehdr_flow_id_flow_hash;
 
 /* Host ID extension header */
-static int hf_erf_ehdr_host_id_sourceid          = -1;
-static int hf_erf_ehdr_host_id_hostid            = -1;
+static int hf_erf_ehdr_host_id_sourceid;
+static int hf_erf_ehdr_host_id_hostid;
 
 /* Anchor ID extension header */
-static int hf_erf_ehdr_anchor_id_definition    = -1;
-static int hf_erf_ehdr_anchor_id_reserved    = -1;
-static int hf_erf_ehdr_anchor_id_anchorid   = -1;
-static int hf_erf_ehdr_anchor_id_flags   = -1;
+static int hf_erf_ehdr_anchor_id_definition;
+static int hf_erf_ehdr_anchor_id_reserved;
+static int hf_erf_ehdr_anchor_id_anchorid;
+static int hf_erf_ehdr_anchor_id_flags;
 
-static int hf_erf_anchor_linked            = -1;
-static int hf_erf_anchor_anchorid          = -1;
-static int hf_erf_anchor_hostid            = -1;
+static int hf_erf_anchor_linked;
+static int hf_erf_anchor_anchorid;
+static int hf_erf_anchor_hostid;
 
 /* Generated Host ID/Source ID */
-static int hf_erf_sourceid       = -1;
-static int hf_erf_hostid         = -1;
-static int hf_erf_source_current = -1;
-static int hf_erf_source_next    = -1;
-static int hf_erf_source_prev    = -1;
+static int hf_erf_sourceid;
+static int hf_erf_hostid;
+static int hf_erf_source_current;
+static int hf_erf_source_next;
+static int hf_erf_source_prev;
 
 /* Entropy extension header */
-static int hf_erf_ehdr_entropy_entropy = -1;
-static int hf_erf_ehdr_entropy_entropy_raw = -1;
-static int hf_erf_ehdr_entropy_reserved = -1;
+static int hf_erf_ehdr_entropy_entropy;
+static int hf_erf_ehdr_entropy_entropy_raw;
+static int hf_erf_ehdr_entropy_reserved;
 
 /* Unknown extension header */
-static int hf_erf_ehdr_unk = -1;
+static int hf_erf_ehdr_unk;
 
 /* MC HDLC Header */
-static int hf_erf_mc_hdlc        = -1;
-static int hf_erf_mc_hdlc_cn     = -1;
-static int hf_erf_mc_hdlc_res1   = -1;
-static int hf_erf_mc_hdlc_res2   = -1;
-static int hf_erf_mc_hdlc_fcse   = -1;
-static int hf_erf_mc_hdlc_sre    = -1;
-static int hf_erf_mc_hdlc_lre    = -1;
-static int hf_erf_mc_hdlc_afe    = -1;
-static int hf_erf_mc_hdlc_oe     = -1;
-static int hf_erf_mc_hdlc_lbe    = -1;
-static int hf_erf_mc_hdlc_first  = -1;
-static int hf_erf_mc_hdlc_res3   = -1;
+static int hf_erf_mc_hdlc;
+static int hf_erf_mc_hdlc_cn;
+static int hf_erf_mc_hdlc_res1;
+static int hf_erf_mc_hdlc_res2;
+static int hf_erf_mc_hdlc_fcse;
+static int hf_erf_mc_hdlc_sre;
+static int hf_erf_mc_hdlc_lre;
+static int hf_erf_mc_hdlc_afe;
+static int hf_erf_mc_hdlc_oe;
+static int hf_erf_mc_hdlc_lbe;
+static int hf_erf_mc_hdlc_first;
+static int hf_erf_mc_hdlc_res3;
 
 /* MC RAW Header */
-static int hf_erf_mc_raw       = -1;
-static int hf_erf_mc_raw_int   = -1;
-static int hf_erf_mc_raw_res1  = -1;
-static int hf_erf_mc_raw_sre   = -1;
-static int hf_erf_mc_raw_lre   = -1;
-static int hf_erf_mc_raw_res2  = -1;
-static int hf_erf_mc_raw_lbe   = -1;
-static int hf_erf_mc_raw_first = -1;
-static int hf_erf_mc_raw_res3  = -1;
+static int hf_erf_mc_raw;
+static int hf_erf_mc_raw_int;
+static int hf_erf_mc_raw_res1;
+static int hf_erf_mc_raw_sre;
+static int hf_erf_mc_raw_lre;
+static int hf_erf_mc_raw_res2;
+static int hf_erf_mc_raw_lbe;
+static int hf_erf_mc_raw_first;
+static int hf_erf_mc_raw_res3;
 
 /* MC ATM Header */
-static int hf_erf_mc_atm         = -1;
-static int hf_erf_mc_atm_cn      = -1;
-static int hf_erf_mc_atm_res1    = -1;
-static int hf_erf_mc_atm_mul     = -1;
-static int hf_erf_mc_atm_port    = -1;
-static int hf_erf_mc_atm_res2    = -1;
-static int hf_erf_mc_atm_lbe     = -1;
-static int hf_erf_mc_atm_hec     = -1;
-static int hf_erf_mc_atm_crc10   = -1;
-static int hf_erf_mc_atm_oamcell = -1;
-static int hf_erf_mc_atm_first   = -1;
-static int hf_erf_mc_atm_res3    = -1;
+static int hf_erf_mc_atm;
+static int hf_erf_mc_atm_cn;
+static int hf_erf_mc_atm_res1;
+static int hf_erf_mc_atm_mul;
+static int hf_erf_mc_atm_port;
+static int hf_erf_mc_atm_res2;
+static int hf_erf_mc_atm_lbe;
+static int hf_erf_mc_atm_hec;
+static int hf_erf_mc_atm_crc10;
+static int hf_erf_mc_atm_oamcell;
+static int hf_erf_mc_atm_first;
+static int hf_erf_mc_atm_res3;
 
 /* MC Raw link Header */
-static int hf_erf_mc_rawl       = -1;
-static int hf_erf_mc_rawl_cn    = -1;
-static int hf_erf_mc_rawl_res1  = -1;
-static int hf_erf_mc_rawl_lbe   = -1;
-static int hf_erf_mc_rawl_first = -1;
-static int hf_erf_mc_rawl_res2  = -1;
+static int hf_erf_mc_rawl;
+static int hf_erf_mc_rawl_cn;
+static int hf_erf_mc_rawl_res1;
+static int hf_erf_mc_rawl_lbe;
+static int hf_erf_mc_rawl_first;
+static int hf_erf_mc_rawl_res2;
 
 /* MC AAL5 Header */
-static int hf_erf_mc_aal5       = -1;
-static int hf_erf_mc_aal5_cn    = -1;
-static int hf_erf_mc_aal5_res1  = -1;
-static int hf_erf_mc_aal5_port  = -1;
-static int hf_erf_mc_aal5_crcck = -1;
-static int hf_erf_mc_aal5_crce  = -1;
-static int hf_erf_mc_aal5_lenck = -1;
-static int hf_erf_mc_aal5_lene  = -1;
-static int hf_erf_mc_aal5_res2  = -1;
-static int hf_erf_mc_aal5_first = -1;
-static int hf_erf_mc_aal5_res3  = -1;
+static int hf_erf_mc_aal5;
+static int hf_erf_mc_aal5_cn;
+static int hf_erf_mc_aal5_res1;
+static int hf_erf_mc_aal5_port;
+static int hf_erf_mc_aal5_crcck;
+static int hf_erf_mc_aal5_crce;
+static int hf_erf_mc_aal5_lenck;
+static int hf_erf_mc_aal5_lene;
+static int hf_erf_mc_aal5_res2;
+static int hf_erf_mc_aal5_first;
+static int hf_erf_mc_aal5_res3;
 
 /* MC AAL2 Header */
-static int hf_erf_mc_aal2       = -1;
-static int hf_erf_mc_aal2_cn    = -1;
-static int hf_erf_mc_aal2_res1  = -1;
-static int hf_erf_mc_aal2_res2  = -1;
-static int hf_erf_mc_aal2_port  = -1;
-static int hf_erf_mc_aal2_res3  = -1;
-static int hf_erf_mc_aal2_first = -1;
-static int hf_erf_mc_aal2_maale = -1;
-static int hf_erf_mc_aal2_lene  = -1;
-static int hf_erf_mc_aal2_cid   = -1;
+static int hf_erf_mc_aal2;
+static int hf_erf_mc_aal2_cn;
+static int hf_erf_mc_aal2_res1;
+static int hf_erf_mc_aal2_res2;
+static int hf_erf_mc_aal2_port;
+static int hf_erf_mc_aal2_res3;
+static int hf_erf_mc_aal2_first;
+static int hf_erf_mc_aal2_maale;
+static int hf_erf_mc_aal2_lene;
+static int hf_erf_mc_aal2_cid;
 
 /* AAL2 Header */
-static int hf_erf_aal2        = -1;
-static int hf_erf_aal2_cid    = -1;
-static int hf_erf_aal2_maale  = -1;
-static int hf_erf_aal2_maalei = -1;
-static int hf_erf_aal2_first  = -1;
-static int hf_erf_aal2_res1   = -1;
+static int hf_erf_aal2;
+static int hf_erf_aal2_cid;
+static int hf_erf_aal2_maale;
+static int hf_erf_aal2_maalei;
+static int hf_erf_aal2_first;
+static int hf_erf_aal2_res1;
 
 /* ERF Ethernet header/pad */
-static int hf_erf_eth      = -1;
-static int hf_erf_eth_off  = -1;
-static int hf_erf_eth_pad  = -1;
+static int hf_erf_eth;
+static int hf_erf_eth_off;
+static int hf_erf_eth_pad;
 
 /* ERF Meta record tag */
-static int hf_erf_meta_tag_type   = -1;
-static int hf_erf_meta_tag_len  = -1;
-static int hf_erf_meta_tag_unknown  = -1;
+static int hf_erf_meta_tag_type;
+static int hf_erf_meta_tag_len;
+static int hf_erf_meta_tag_unknown;
 
 /* Initialize the subtree pointers */
-static gint ett_erf            = -1;
-static gint ett_erf_pseudo_hdr = -1;
-static gint ett_erf_rectype    = -1;
-static gint ett_erf_hash_type  = -1;
-static gint ett_erf_flags      = -1;
-static gint ett_erf_mc_hdlc    = -1;
-static gint ett_erf_mc_raw     = -1;
-static gint ett_erf_mc_atm     = -1;
-static gint ett_erf_mc_rawlink = -1;
-static gint ett_erf_mc_aal5    = -1;
-static gint ett_erf_mc_aal2    = -1;
-static gint ett_erf_aal2       = -1;
-static gint ett_erf_eth        = -1;
-static gint ett_erf_meta       = -1;
-static gint ett_erf_meta_tag   = -1;
-static gint ett_erf_source     = -1;
-static gint ett_erf_anchor     = -1;
-static gint ett_erf_anchor_flags = -1;
-static gint ett_erf_entropy_value = -1;
+static gint ett_erf;
+static gint ett_erf_pseudo_hdr;
+static gint ett_erf_rectype;
+static gint ett_erf_hash_type;
+static gint ett_erf_flags;
+static gint ett_erf_mc_hdlc;
+static gint ett_erf_mc_raw;
+static gint ett_erf_mc_atm;
+static gint ett_erf_mc_rawlink;
+static gint ett_erf_mc_aal5;
+static gint ett_erf_mc_aal2;
+static gint ett_erf_aal2;
+static gint ett_erf_eth;
+static gint ett_erf_meta;
+static gint ett_erf_meta_tag;
+static gint ett_erf_source;
+static gint ett_erf_anchor;
+static gint ett_erf_anchor_flags;
+static gint ett_erf_entropy_value;
 
-static expert_field ei_erf_extension_headers_not_shown = EI_INIT;
-static expert_field ei_erf_packet_loss = EI_INIT;
-static expert_field ei_erf_checksum_error = EI_INIT;
-static expert_field ei_erf_meta_section_len_error = EI_INIT;
-static expert_field ei_erf_meta_truncated_record = EI_INIT;
-static expert_field ei_erf_meta_truncated_tag = EI_INIT;
-static expert_field ei_erf_meta_zero_len_tag = EI_INIT;
-static expert_field ei_erf_meta_reset = EI_INIT;
+static expert_field ei_erf_extension_headers_not_shown;
+static expert_field ei_erf_packet_loss;
+static expert_field ei_erf_checksum_error;
+static expert_field ei_erf_meta_section_len_error;
+static expert_field ei_erf_meta_truncated_record;
+static expert_field ei_erf_meta_truncated_tag;
+static expert_field ei_erf_meta_zero_len_tag;
+static expert_field ei_erf_meta_reset;
 
 typedef enum {
   ERF_HDLC_CHDLC  = 0,

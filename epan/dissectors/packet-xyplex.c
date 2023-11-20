@@ -20,16 +20,16 @@
 void proto_register_xyplex(void);
 void proto_reg_handoff_xyplex(void);
 
-static int proto_xyplex = -1;
-static int hf_xyplex_type = -1;
-static int hf_xyplex_pad = -1;
-static int hf_xyplex_server_port = -1;
-static int hf_xyplex_return_port = -1;
-static int hf_xyplex_reserved = -1;
-static int hf_xyplex_reply = -1;
-static int hf_xyplex_data = -1;
+static int proto_xyplex;
+static int hf_xyplex_type;
+static int hf_xyplex_pad;
+static int hf_xyplex_server_port;
+static int hf_xyplex_return_port;
+static int hf_xyplex_reserved;
+static int hf_xyplex_reply;
+static int hf_xyplex_data;
 
-static gint ett_xyplex = -1;
+static gint ett_xyplex;
 
 static dissector_handle_t xyplex_handle;
 

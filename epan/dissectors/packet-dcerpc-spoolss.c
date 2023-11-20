@@ -30,42 +30,42 @@ void proto_reg_handoff_dcerpc_spoolss(void);
 
 /* GetPrinterDriver2 */
 
-static int hf_clientmajorversion = -1;
-static int hf_clientminorversion = -1;
-static int hf_servermajorversion = -1;
-static int hf_serverminorversion = -1;
-static int hf_driverpath = -1;
-static int hf_datafile = -1;
-static int hf_configfile = -1;
-static int hf_helpfile = -1;
-static int hf_monitorname = -1;
-static int hf_defaultdatatype = -1;
-static int hf_driverinfo_cversion = -1;
-static int hf_dependentfiles = -1;
-static int hf_previousdrivernames = -1;
-static int hf_color_profiles = -1;
-static int hf_core_driver_dependencies = -1;
-static int hf_driverdate = -1;
-static int hf_min_inbox_driverdate = -1;
-static int hf_padding = -1;
-static int hf_driver_version_low = -1;
-static int hf_driver_version_high = -1;
-static int hf_min_inbox_driver_version_low = -1;
-static int hf_min_inbox_driver_version_high = -1;
-static int hf_mfgname = -1;
-static int hf_oemurl = -1;
-static int hf_hardwareid= -1;
-static int hf_provider = -1;
+static int hf_clientmajorversion;
+static int hf_clientminorversion;
+static int hf_servermajorversion;
+static int hf_serverminorversion;
+static int hf_driverpath;
+static int hf_datafile;
+static int hf_configfile;
+static int hf_helpfile;
+static int hf_monitorname;
+static int hf_defaultdatatype;
+static int hf_driverinfo_cversion;
+static int hf_dependentfiles;
+static int hf_previousdrivernames;
+static int hf_color_profiles;
+static int hf_core_driver_dependencies;
+static int hf_driverdate;
+static int hf_min_inbox_driverdate;
+static int hf_padding;
+static int hf_driver_version_low;
+static int hf_driver_version_high;
+static int hf_min_inbox_driver_version_low;
+static int hf_min_inbox_driver_version_high;
+static int hf_mfgname;
+static int hf_oemurl;
+static int hf_hardwareid;
+static int hf_provider;
 
 /* GetPrinter */
 
 /* Times */
 
-static int hf_start_time = -1;
-static int hf_end_time = -1;
-static int hf_elapsed_time = -1;
-static int hf_device_not_selected_timeout = -1;
-static int hf_transmission_retry_timeout = -1;
+static int hf_start_time;
+static int hf_end_time;
+static int hf_elapsed_time;
+static int hf_device_not_selected_timeout;
+static int hf_transmission_retry_timeout;
 
 /****************************************************************************/
 
@@ -73,265 +73,265 @@ static int hf_transmission_retry_timeout = -1;
  * New hf index values - I'm in the process of doing a bit of a cleanup -tpot
  */
 
-static int hf_opnum = -1;
-static int hf_hnd = -1;
-static int hf_rc = -1;
-static int hf_hresult = -1;
-static int hf_offered = -1;
-static int hf_needed = -1;
-static int hf_returned = -1;
-static int hf_buffer_size = -1;
-static int hf_buffer_data = -1;
-static int hf_string_parm_size = -1;
-static int hf_string_parm_data= -1;
-static int hf_offset = -1;
-static int hf_level = -1;
-static int hf_access_required = -1;
+static int hf_opnum;
+static int hf_hnd;
+static int hf_rc;
+static int hf_hresult;
+static int hf_offered;
+static int hf_needed;
+static int hf_returned;
+static int hf_buffer_size;
+static int hf_buffer_data;
+static int hf_string_parm_size;
+static int hf_string_parm_data;
+static int hf_offset;
+static int hf_level;
+static int hf_access_required;
 
-static int hf_printername = -1;
-static int hf_machinename = -1;
-static int hf_notifyname = -1;
-static int hf_printerdesc = -1;
-static int hf_printercomment = -1;
-static int hf_servername = -1;
-static int hf_sharename = -1;
-static int hf_portname = -1;
-static int hf_printerlocation = -1;
-static int hf_drivername = -1;
-static int hf_environment = -1;
-static int hf_username = -1;
-static int hf_documentname = -1;
-static int hf_outputfile = -1;
-static int hf_datatype = -1;
-static int hf_textstatus = -1;
-static int hf_sepfile = -1;
-static int hf_printprocessor = -1;
-static int hf_vendor_setup = -1;
-static int hf_inf_path = -1;
-static int hf_parameters = -1;
-static int hf_core_printer_driver_ids = -1;
-static int hf_core_driver_guid = -1;
-static int hf_core_driver_size = -1;
-static int hf_driver_version = -1;
-static int hf_core_printer_driver_count = -1;
-static int hf_package_id = -1;
-static int hf_language = -1;
-static int hf_driver_package_cab_size = -1;
+static int hf_printername;
+static int hf_machinename;
+static int hf_notifyname;
+static int hf_printerdesc;
+static int hf_printercomment;
+static int hf_servername;
+static int hf_sharename;
+static int hf_portname;
+static int hf_printerlocation;
+static int hf_drivername;
+static int hf_environment;
+static int hf_username;
+static int hf_documentname;
+static int hf_outputfile;
+static int hf_datatype;
+static int hf_textstatus;
+static int hf_sepfile;
+static int hf_printprocessor;
+static int hf_vendor_setup;
+static int hf_inf_path;
+static int hf_parameters;
+static int hf_core_printer_driver_ids;
+static int hf_core_driver_guid;
+static int hf_core_driver_size;
+static int hf_driver_version;
+static int hf_core_printer_driver_count;
+static int hf_package_id;
+static int hf_language;
+static int hf_driver_package_cab_size;
 
 /* Printer information */
 
-static int hf_printer_cjobs = -1;
-static int hf_printer_total_jobs = -1;
-static int hf_printer_total_bytes = -1;
-static int hf_printer_global_counter = -1;
-static int hf_printer_total_pages = -1;
-static int hf_printer_major_version = -1;
-static int hf_printer_build_version = -1;
-static int hf_printer_unk7 = -1;
-static int hf_printer_unk8 = -1;
-static int hf_printer_unk9 = -1;
-static int hf_printer_session_ctr = -1;
-static int hf_printer_unk11 = -1;
-static int hf_printer_printer_errors = -1;
-static int hf_printer_unk13 = -1;
-static int hf_printer_unk14 = -1;
-static int hf_printer_unk15 = -1;
-static int hf_printer_unk16 = -1;
-static int hf_printer_changeid = -1;
-static int hf_printer_unk18 = -1;
-static int hf_printer_unk20 = -1;
-static int hf_printer_c_setprinter = -1;
-static int hf_printer_unk22 = -1;
-static int hf_printer_unk23 = -1;
-static int hf_printer_unk24 = -1;
-static int hf_printer_unk25 = -1;
-static int hf_printer_unk26 = -1;
-static int hf_printer_unk27 = -1;
-static int hf_printer_unk28 = -1;
-static int hf_printer_unk29 = -1;
-static int hf_printer_flags = -1;
-static int hf_printer_priority = -1;
-static int hf_printer_default_priority = -1;
-static int hf_printer_jobs = -1;
-static int hf_printer_averageppm = -1;
-static int hf_printer_guid = -1;
-static int hf_printer_action = -1;
+static int hf_printer_cjobs;
+static int hf_printer_total_jobs;
+static int hf_printer_total_bytes;
+static int hf_printer_global_counter;
+static int hf_printer_total_pages;
+static int hf_printer_major_version;
+static int hf_printer_build_version;
+static int hf_printer_unk7;
+static int hf_printer_unk8;
+static int hf_printer_unk9;
+static int hf_printer_session_ctr;
+static int hf_printer_unk11;
+static int hf_printer_printer_errors;
+static int hf_printer_unk13;
+static int hf_printer_unk14;
+static int hf_printer_unk15;
+static int hf_printer_unk16;
+static int hf_printer_changeid;
+static int hf_printer_unk18;
+static int hf_printer_unk20;
+static int hf_printer_c_setprinter;
+static int hf_printer_unk22;
+static int hf_printer_unk23;
+static int hf_printer_unk24;
+static int hf_printer_unk25;
+static int hf_printer_unk26;
+static int hf_printer_unk27;
+static int hf_printer_unk28;
+static int hf_printer_unk29;
+static int hf_printer_flags;
+static int hf_printer_priority;
+static int hf_printer_default_priority;
+static int hf_printer_jobs;
+static int hf_printer_averageppm;
+static int hf_printer_guid;
+static int hf_printer_action;
 
 /* Printer data */
 
-static int hf_printerdata = -1;
-static int hf_printerdata_key = -1;
-static int hf_printerdata_value = -1;
-static int hf_printerdata_type = -1;
-static int hf_printerdata_size = -1; /* Length of printer data */
-static int hf_printerdata_data = -1;
-static int hf_printerdata_data_sz = -1;
-static int hf_printerdata_data_dword = -1;
+static int hf_printerdata;
+static int hf_printerdata_key;
+static int hf_printerdata_value;
+static int hf_printerdata_type;
+static int hf_printerdata_size; /* Length of printer data */
+static int hf_printerdata_data;
+static int hf_printerdata_data_sz;
+static int hf_printerdata_data_dword;
 
 /* Devicemode */
 
-static int hf_devmodectr_size = -1;
+static int hf_devmodectr_size;
 
-static int hf_devmode = -1;
-static int hf_devmode_size = -1;
-static int hf_devmode_spec_version = -1;
-static int hf_devmode_driver_version = -1;
-static int hf_devmode_size2 = -1;
-static int hf_devmode_driver_extra_len = -1;
-static int hf_devmode_fields = -1;
-static int hf_devmode_orientation = -1;
-static int hf_devmode_paper_size = -1;
-static int hf_devmode_paper_width = -1;
-static int hf_devmode_paper_length = -1;
-static int hf_devmode_scale = -1;
-static int hf_devmode_copies = -1;
-static int hf_devmode_default_source = -1;
-static int hf_devmode_print_quality = -1;
-static int hf_devmode_color = -1;
-static int hf_devmode_duplex = -1;
-static int hf_devmode_y_resolution = -1;
-static int hf_devmode_tt_option = -1;
-static int hf_devmode_collate = -1;
-static int hf_devmode_log_pixels = -1;
-static int hf_devmode_bits_per_pel = -1;
-static int hf_devmode_pels_width = -1;
-static int hf_devmode_pels_height = -1;
-static int hf_devmode_display_flags = -1;
-static int hf_devmode_display_freq = -1;
-static int hf_devmode_icm_method = -1;
-static int hf_devmode_icm_intent = -1;
-static int hf_devmode_media_type = -1;
-static int hf_devmode_dither_type = -1;
-static int hf_devmode_reserved1 = -1;
-static int hf_devmode_reserved2 = -1;
-static int hf_devmode_panning_width = -1;
-static int hf_devmode_panning_height = -1;
-static int hf_devmode_driver_extra = -1;
+static int hf_devmode;
+static int hf_devmode_size;
+static int hf_devmode_spec_version;
+static int hf_devmode_driver_version;
+static int hf_devmode_size2;
+static int hf_devmode_driver_extra_len;
+static int hf_devmode_fields;
+static int hf_devmode_orientation;
+static int hf_devmode_paper_size;
+static int hf_devmode_paper_width;
+static int hf_devmode_paper_length;
+static int hf_devmode_scale;
+static int hf_devmode_copies;
+static int hf_devmode_default_source;
+static int hf_devmode_print_quality;
+static int hf_devmode_color;
+static int hf_devmode_duplex;
+static int hf_devmode_y_resolution;
+static int hf_devmode_tt_option;
+static int hf_devmode_collate;
+static int hf_devmode_log_pixels;
+static int hf_devmode_bits_per_pel;
+static int hf_devmode_pels_width;
+static int hf_devmode_pels_height;
+static int hf_devmode_display_flags;
+static int hf_devmode_display_freq;
+static int hf_devmode_icm_method;
+static int hf_devmode_icm_intent;
+static int hf_devmode_media_type;
+static int hf_devmode_dither_type;
+static int hf_devmode_reserved1;
+static int hf_devmode_reserved2;
+static int hf_devmode_panning_width;
+static int hf_devmode_panning_height;
+static int hf_devmode_driver_extra;
 
-static int hf_devmode_fields_orientation = -1;
-static int hf_devmode_fields_papersize = -1;
-static int hf_devmode_fields_paperlength = -1;
-static int hf_devmode_fields_paperwidth = -1;
-static int hf_devmode_fields_scale = -1;
-static int hf_devmode_fields_position = -1;
-static int hf_devmode_fields_nup = -1;
-static int hf_devmode_fields_copies = -1;
-static int hf_devmode_fields_defaultsource = -1;
-static int hf_devmode_fields_printquality = -1;
-static int hf_devmode_fields_color = -1;
-static int hf_devmode_fields_duplex = -1;
-static int hf_devmode_fields_yresolution = -1;
-static int hf_devmode_fields_ttoption = -1;
-static int hf_devmode_fields_collate = -1;
-static int hf_devmode_fields_formname = -1;
-static int hf_devmode_fields_logpixels = -1;
-static int hf_devmode_fields_bitsperpel = -1;
-static int hf_devmode_fields_pelswidth = -1;
-static int hf_devmode_fields_pelsheight = -1;
-static int hf_devmode_fields_displayflags = -1;
-static int hf_devmode_fields_displayfrequency = -1;
-static int hf_devmode_fields_icmmethod = -1;
-static int hf_devmode_fields_icmintent = -1;
-static int hf_devmode_fields_mediatype = -1;
-static int hf_devmode_fields_dithertype = -1;
-static int hf_devmode_fields_panningwidth = -1;
-static int hf_devmode_fields_panningheight = -1;
+static int hf_devmode_fields_orientation;
+static int hf_devmode_fields_papersize;
+static int hf_devmode_fields_paperlength;
+static int hf_devmode_fields_paperwidth;
+static int hf_devmode_fields_scale;
+static int hf_devmode_fields_position;
+static int hf_devmode_fields_nup;
+static int hf_devmode_fields_copies;
+static int hf_devmode_fields_defaultsource;
+static int hf_devmode_fields_printquality;
+static int hf_devmode_fields_color;
+static int hf_devmode_fields_duplex;
+static int hf_devmode_fields_yresolution;
+static int hf_devmode_fields_ttoption;
+static int hf_devmode_fields_collate;
+static int hf_devmode_fields_formname;
+static int hf_devmode_fields_logpixels;
+static int hf_devmode_fields_bitsperpel;
+static int hf_devmode_fields_pelswidth;
+static int hf_devmode_fields_pelsheight;
+static int hf_devmode_fields_displayflags;
+static int hf_devmode_fields_displayfrequency;
+static int hf_devmode_fields_icmmethod;
+static int hf_devmode_fields_icmintent;
+static int hf_devmode_fields_mediatype;
+static int hf_devmode_fields_dithertype;
+static int hf_devmode_fields_panningwidth;
+static int hf_devmode_fields_panningheight;
 
 /* Print job */
 
-static int hf_job_id = -1;
-static int hf_job_priority = -1;
-static int hf_job_position = -1;
-static int hf_job_totalpages = -1;
-static int hf_job_totalbytes = -1;
-static int hf_job_pagesprinted = -1;
-static int hf_job_bytesprinted = -1;
-static int hf_job_size = -1;
+static int hf_job_id;
+static int hf_job_priority;
+static int hf_job_position;
+static int hf_job_totalpages;
+static int hf_job_totalbytes;
+static int hf_job_pagesprinted;
+static int hf_job_bytesprinted;
+static int hf_job_size;
 
-static int hf_job_status = -1;
-static int hf_job_status_paused = -1;
-static int hf_job_status_error = -1;
-static int hf_job_status_deleting = -1;
-static int hf_job_status_spooling = -1;
-static int hf_job_status_printing = -1;
-static int hf_job_status_offline = -1;
-static int hf_job_status_paperout = -1;
-static int hf_job_status_printed = -1;
-static int hf_job_status_deleted = -1;
-static int hf_job_status_blocked = -1;
-static int hf_job_status_user_intervention = -1;
+static int hf_job_status;
+static int hf_job_status_paused;
+static int hf_job_status_error;
+static int hf_job_status_deleting;
+static int hf_job_status_spooling;
+static int hf_job_status_printing;
+static int hf_job_status_offline;
+static int hf_job_status_paperout;
+static int hf_job_status_printed;
+static int hf_job_status_deleted;
+static int hf_job_status_blocked;
+static int hf_job_status_user_intervention;
 
 /* Forms */
 
-static int hf_form = -1;
-static int hf_form_level = -1;
-static int hf_form_name = -1;
-static int hf_form_flags = -1;
-static int hf_form_unknown = -1;
-static int hf_form_width = -1;
-static int hf_form_height = -1;
-static int hf_form_left_margin = -1;
-static int hf_form_top_margin = -1;
-static int hf_form_horiz_len = -1;
-static int hf_form_vert_len = -1;
+static int hf_form;
+static int hf_form_level;
+static int hf_form_name;
+static int hf_form_flags;
+static int hf_form_unknown;
+static int hf_form_width;
+static int hf_form_height;
+static int hf_form_left_margin;
+static int hf_form_top_margin;
+static int hf_form_horiz_len;
+static int hf_form_vert_len;
 
-static int hf_enumforms_num = -1;
+static int hf_enumforms_num;
 
 /* Print notify */
 
-static int hf_notify_options_version = -1;
-static int hf_notify_options_flags = -1;
-static int hf_notify_options_flags_refresh = -1;
-static int hf_notify_options_count = -1;
-static int hf_notify_option_type = -1;
-static int hf_notify_option_reserved1 = -1;
-static int hf_notify_option_reserved2 = -1;
-static int hf_notify_option_reserved3 = -1;
-static int hf_notify_option_count = -1;
-static int hf_notify_option_data_count = -1;
-static int hf_notify_info_count = -1;
-static int hf_notify_info_version = -1;
-static int hf_notify_info_flags = -1;
-static int hf_notify_info_data_type = -1;
-static int hf_notify_info_data_count = -1;
-static int hf_notify_info_data_id = -1;
-static int hf_notify_info_data_value1 = -1;
-static int hf_notify_info_data_value2 = -1;
-static int hf_notify_info_data_bufsize = -1;
-static int hf_notify_info_data_buffer = -1;
-static int hf_notify_info_data_buffer_len = -1;
-static int hf_notify_info_data_buffer_data = -1;
+static int hf_notify_options_version;
+static int hf_notify_options_flags;
+static int hf_notify_options_flags_refresh;
+static int hf_notify_options_count;
+static int hf_notify_option_type;
+static int hf_notify_option_reserved1;
+static int hf_notify_option_reserved2;
+static int hf_notify_option_reserved3;
+static int hf_notify_option_count;
+static int hf_notify_option_data_count;
+static int hf_notify_info_count;
+static int hf_notify_info_version;
+static int hf_notify_info_flags;
+static int hf_notify_info_data_type;
+static int hf_notify_info_data_count;
+static int hf_notify_info_data_id;
+static int hf_notify_info_data_value1;
+static int hf_notify_info_data_value2;
+static int hf_notify_info_data_bufsize;
+static int hf_notify_info_data_buffer;
+static int hf_notify_info_data_buffer_len;
+static int hf_notify_info_data_buffer_data;
 
-static int hf_notify_field = -1;
+static int hf_notify_field;
 
-static int hf_printerlocal = -1;
+static int hf_printerlocal;
 
-static int hf_rrpcn_changelow = -1;
-static int hf_rrpcn_changehigh = -1;
-static int hf_rrpcn_unk0 = -1;
-static int hf_rrpcn_unk1 = -1;
+static int hf_rrpcn_changelow;
+static int hf_rrpcn_changehigh;
+static int hf_rrpcn_unk0;
+static int hf_rrpcn_unk1;
 
-static int hf_replyopenprinter_unk0 = -1;
-static int hf_replyopenprinter_unk1 = -1;
+static int hf_replyopenprinter_unk0;
+static int hf_replyopenprinter_unk1;
 
-static int hf_devmode_devicename = -1;
-static int hf_devmode_form_name = -1;
-static int hf_relative_string = -1;
-static int hf_value_name = -1;
-static int hf_keybuffer = -1;
-static int hf_value_string = -1;
+static int hf_devmode_devicename;
+static int hf_devmode_form_name;
+static int hf_relative_string;
+static int hf_value_name;
+static int hf_keybuffer;
+static int hf_value_string;
 
-static expert_field ei_unimplemented_dissector = EI_INIT;
-static expert_field ei_unknown_data = EI_INIT;
-static expert_field ei_spool_printer_info_level = EI_INIT;
-static expert_field ei_printer_info_level = EI_INIT;
-static expert_field ei_form_level = EI_INIT;
-static expert_field ei_job_info_level = EI_INIT;
-static expert_field ei_driver_info_level = EI_INIT;
-static expert_field ei_level = EI_INIT;
-static expert_field ei_notify_info_data_type = EI_INIT;
-static expert_field ei_enumprinterdataex_value = EI_INIT;
-static expert_field ei_buffer_size_too_long = EI_INIT;
+static expert_field ei_unimplemented_dissector;
+static expert_field ei_unknown_data;
+static expert_field ei_spool_printer_info_level;
+static expert_field ei_printer_info_level;
+static expert_field ei_form_level;
+static expert_field ei_job_info_level;
+static expert_field ei_driver_info_level;
+static expert_field ei_level;
+static expert_field ei_notify_info_data_type;
+static expert_field ei_enumprinterdataex_value;
+static expert_field ei_buffer_size_too_long;
 
 /* Registry data types */
 
@@ -372,11 +372,11 @@ static value_string_ext reg_datatypes_ext = VALUE_STRING_EXT_INIT(reg_datatypes)
  * Dissect SPOOLSS specific access rights
  */
 
-static int hf_server_access_admin = -1;
-static int hf_server_access_enum = -1;
-static int hf_printer_access_admin = -1;
-static int hf_printer_access_use = -1;
-static int hf_job_access_admin = -1;
+static int hf_server_access_admin;
+static int hf_server_access_enum;
+static int hf_printer_access_admin;
+static int hf_printer_access_use;
+static int hf_job_access_admin;
 
 static void
 spoolss_printer_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
@@ -439,7 +439,7 @@ typedef struct {
 	proto_item *item;
 } BUFFER;
 
-static gint ett_BUFFER = -1;
+static gint ett_BUFFER;
 
 static int
 dissect_spoolss_buffer_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -568,16 +568,16 @@ dissect_spoolss_string_parm(tvbuff_t *tvb, gint offset, packet_info *pinfo,
  * SYSTEM_TIME
  */
 
-static gint ett_SYSTEM_TIME = -1;
+static gint ett_SYSTEM_TIME;
 
-static int hf_time_year = -1;
-static int hf_time_month = -1;
-static int hf_time_dow = -1;
-static int hf_time_day = -1;
-static int hf_time_hour = -1;
-static int hf_time_minute = -1;
-static int hf_time_second = -1;
-static int hf_time_msec = -1;
+static int hf_time_year;
+static int hf_time_month;
+static int hf_time_dow;
+static int hf_time_day;
+static int hf_time_hour;
+static int hf_time_minute;
+static int hf_time_second;
+static int hf_time_msec;
 
 static int
 dissect_SYSTEM_TIME(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -697,8 +697,8 @@ SpoolssClosePrinter_r(tvbuff_t *tvb, int offset,
    this but that would result in one item for each byte in the printer
    data. */
 
-static gint ett_printerdata_data = -1;
-static gint ett_printerdata_value = -1;
+static gint ett_printerdata_data;
+static gint ett_printerdata_value;
 
 static int
 dissect_printerdata_data(tvbuff_t *tvb, int offset,
@@ -1013,9 +1013,9 @@ SpoolssSetPrinterData_r(tvbuff_t *tvb, int offset,
  * SpoolssSetPrinterDataEx
  */
 
-static int hf_setprinterdataex_max_len = -1;
-static int hf_setprinterdataex_real_len = -1;
-static int hf_setprinterdataex_data = -1;
+static int hf_setprinterdataex_max_len;
+static int hf_setprinterdataex_real_len;
+static int hf_setprinterdataex_data;
 
 static int
 SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
@@ -1396,7 +1396,7 @@ static const value_string devmode_dithertype_vals[] =
 	{ 0, NULL }
 };
 
-static gint ett_DEVMODE_fields = -1;
+static gint ett_DEVMODE_fields;
 
 static int
 dissect_DEVMODE_fields(tvbuff_t *tvb, gint offset, packet_info *pinfo,
@@ -1452,7 +1452,7 @@ dissect_DEVMODE_fields(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	return offset;
 }
 
-static gint ett_DEVMODE = -1;
+static gint ett_DEVMODE;
 
 static int
 dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -1635,7 +1635,7 @@ dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * DEVMODE_CTR
  */
 
-static gint ett_DEVMODE_CTR = -1;
+static gint ett_DEVMODE_CTR;
 
 int
 dissect_DEVMODE_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -1663,7 +1663,7 @@ dissect_DEVMODE_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * the point where the offset is parsed from.
  */
 
-static gint ett_RELSTR = -1;
+static gint ett_RELSTR;
 
 static int
 dissect_spoolss_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -1713,7 +1713,7 @@ dissect_spoolss_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
    dissect_spoolss_relstr() function as I can't find an example driver that
    has more than one dependent file. */
 
-static gint ett_RELSTR_ARRAY = -1;
+static gint ett_RELSTR_ARRAY;
 
 static int
 dissect_spoolss_relstrarray(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -1758,7 +1758,7 @@ dissect_spoolss_relstrarray(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * PRINTER_INFO_0
  */
 
-static int hf_printer_status = -1;
+static int hf_printer_status;
 
 static const value_string printer_status_vals[] =
 {
@@ -1792,7 +1792,7 @@ static const value_string printer_status_vals[] =
 };
 static value_string_ext printer_status_vals_ext = VALUE_STRING_EXT_INIT(printer_status_vals);
 
-static gint ett_PRINTER_INFO_0 = -1;
+static gint ett_PRINTER_INFO_0;
 
 static int
 dissect_PRINTER_INFO_0(tvbuff_t *tvb, int offset,
@@ -1915,7 +1915,7 @@ dissect_PRINTER_INFO_0(tvbuff_t *tvb, int offset,
  * PRINTER_INFO_1
  */
 
-static gint ett_PRINTER_INFO_1 = -1;
+static gint ett_PRINTER_INFO_1;
 
 static int
 dissect_PRINTER_INFO_1(tvbuff_t *tvb, int offset,
@@ -1998,7 +1998,7 @@ static const true_false_string tfs_job_status_user_intervention = {
 	"User intervention not required"
 };
 
-static gint ett_job_status = -1;
+static gint ett_job_status;
 
 static int
 dissect_job_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -2030,23 +2030,23 @@ dissect_job_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* Printer attributes */
 
-static gint ett_printer_attributes = -1;
+static gint ett_printer_attributes;
 
-static int hf_printer_attributes = -1;
-static int hf_printer_attributes_queued = -1;
-static int hf_printer_attributes_direct = -1;
-static int hf_printer_attributes_default = -1;
-static int hf_printer_attributes_shared = -1;
-static int hf_printer_attributes_network = -1;
-static int hf_printer_attributes_hidden = -1;
-static int hf_printer_attributes_local = -1;
-static int hf_printer_attributes_enable_devq = -1;
-static int hf_printer_attributes_keep_printed_jobs = -1;
-static int hf_printer_attributes_do_complete_first = -1;
-static int hf_printer_attributes_work_offline = -1;
-static int hf_printer_attributes_enable_bidi = -1;
-static int hf_printer_attributes_raw_only = -1;
-static int hf_printer_attributes_published = -1;
+static int hf_printer_attributes;
+static int hf_printer_attributes_queued;
+static int hf_printer_attributes_direct;
+static int hf_printer_attributes_default;
+static int hf_printer_attributes_shared;
+static int hf_printer_attributes_network;
+static int hf_printer_attributes_hidden;
+static int hf_printer_attributes_local;
+static int hf_printer_attributes_enable_devq;
+static int hf_printer_attributes_keep_printed_jobs;
+static int hf_printer_attributes_do_complete_first;
+static int hf_printer_attributes_work_offline;
+static int hf_printer_attributes_enable_bidi;
+static int hf_printer_attributes_raw_only;
+static int hf_printer_attributes_published;
 
 static const true_false_string tfs_printer_attributes_queued = {
 	"The printer starts printing after last page spooled",
@@ -2151,21 +2151,21 @@ dissect_printer_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* Printer Driver attributes */
 
-static gint ett_printer_driver_attributes = -1;
+static gint ett_printer_driver_attributes;
 
-static int hf_printer_driver_attributes = -1;
-static int hf_printer_driver_attributes_package_aware = -1;
-static int hf_printer_driver_attributes_xps = -1;
-static int hf_printer_driver_attributes_sandbox_enabled = -1;
-static int hf_printer_driver_attributes_class = -1;
-static int hf_printer_driver_attributes_derived = -1;
-static int hf_printer_driver_attributes_not_shareable = -1;
-static int hf_printer_driver_attributes_category_fax = -1;
-static int hf_printer_driver_attributes_category_file = -1;
-static int hf_printer_driver_attributes_category_virtual = -1;
-static int hf_printer_driver_attributes_category_service = -1;
-static int hf_printer_driver_attributes_soft_reset_required = -1;
-static int hf_printer_driver_attributes_category_3d = -1;
+static int hf_printer_driver_attributes;
+static int hf_printer_driver_attributes_package_aware;
+static int hf_printer_driver_attributes_xps;
+static int hf_printer_driver_attributes_sandbox_enabled;
+static int hf_printer_driver_attributes_class;
+static int hf_printer_driver_attributes_derived;
+static int hf_printer_driver_attributes_not_shareable;
+static int hf_printer_driver_attributes_category_fax;
+static int hf_printer_driver_attributes_category_file;
+static int hf_printer_driver_attributes_category_virtual;
+static int hf_printer_driver_attributes_category_service;
+static int hf_printer_driver_attributes_soft_reset_required;
+static int hf_printer_driver_attributes_category_3d;
 
 static const true_false_string tfs_printer_driver_attributes_package_aware = {
 	"Printer Driver is package aware",
@@ -2261,7 +2261,7 @@ dissect_printer_driver_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * PRINTER_INFO_2
  */
 
-static gint ett_PRINTER_INFO_2 = -1;
+static gint ett_PRINTER_INFO_2;
 
 static int
 dissect_PRINTER_INFO_2(tvbuff_t *tvb, int offset,
@@ -2372,7 +2372,7 @@ dissect_PRINTER_INFO_2(tvbuff_t *tvb, int offset,
  * PRINTER_INFO_3
  */
 
-static gint ett_PRINTER_INFO_3 = -1;
+static gint ett_PRINTER_INFO_3;
 
 static int
 dissect_PRINTER_INFO_3(tvbuff_t *tvb, int offset,
@@ -2395,7 +2395,7 @@ dissect_PRINTER_INFO_3(tvbuff_t *tvb, int offset,
  * PRINTER_INFO_5
  */
 
-static gint ett_PRINTER_INFO_5 = -1;
+static gint ett_PRINTER_INFO_5;
 
 static int
 dissect_PRINTER_INFO_5(tvbuff_t *tvb, int offset,
@@ -2428,7 +2428,7 @@ dissect_PRINTER_INFO_5(tvbuff_t *tvb, int offset,
  * PRINTER_INFO_7
  */
 
-static gint ett_PRINTER_INFO_7 = -1;
+static gint ett_PRINTER_INFO_7;
 
 static const value_string getprinter_action_vals[] = {
 	{ DS_PUBLISH, "Publish" },
@@ -2459,7 +2459,7 @@ dissect_PRINTER_INFO_7(tvbuff_t *tvb, int offset,
  * PRINTER_DATATYPE structure
  */
 
-static gint ett_PRINTER_DATATYPE = -1;
+static gint ett_PRINTER_DATATYPE;
 
 static int
 dissect_PRINTER_DATATYPE(tvbuff_t *tvb, int offset,
@@ -2480,15 +2480,15 @@ dissect_PRINTER_DATATYPE(tvbuff_t *tvb, int offset,
  * USER_LEVEL_1 structure
  */
 
-static gint ett_USER_LEVEL_1 = -1;
+static gint ett_USER_LEVEL_1;
 
-static int hf_userlevel_size = -1;
-static int hf_userlevel_client = -1;
-static int hf_userlevel_user = -1;
-static int hf_userlevel_build = -1;
-static int hf_userlevel_major = -1;
-static int hf_userlevel_minor = -1;
-static int hf_userlevel_processor = -1;
+static int hf_userlevel_size;
+static int hf_userlevel_client;
+static int hf_userlevel_user;
+static int hf_userlevel_build;
+static int hf_userlevel_major;
+static int hf_userlevel_minor;
+static int hf_userlevel_processor;
 
 static int
 dissect_USER_LEVEL_1(tvbuff_t *tvb, int offset,
@@ -2535,7 +2535,7 @@ dissect_USER_LEVEL_1(tvbuff_t *tvb, int offset,
  * USER_LEVEL_CTR structure
  */
 
-static gint ett_USER_LEVEL_CTR = -1;
+static gint ett_USER_LEVEL_CTR;
 
 int
 dissect_USER_LEVEL_CTR(tvbuff_t *tvb, int offset,
@@ -2811,7 +2811,7 @@ char *notify_plural(int count)
 	return "notifies";
 }
 
-static gint ett_NOTIFY_OPTION = -1;
+static gint ett_NOTIFY_OPTION;
 
 static int
 dissect_NOTIFY_OPTION(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -2870,7 +2870,7 @@ dissect_NOTIFY_OPTIONS_ARRAY(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static gint ett_notify_options_flags = -1;
+static gint ett_notify_options_flags;
 
 static const true_false_string tfs_notify_options_flags_refresh = {
 	"Data for all monitored fields is present",
@@ -2923,15 +2923,15 @@ dissect_NOTIFY_OPTIONS_ARRAY_CTR(tvbuff_t *tvb, int offset,
  * SpoolssRFFPCNEX
  */
 
-static gint ett_rffpcnex_flags = -1;
+static gint ett_rffpcnex_flags;
 
-static int hf_rffpcnex_flags = -1;
-static int hf_rffpcnex_options = -1;
+static int hf_rffpcnex_flags;
+static int hf_rffpcnex_options;
 
-static int hf_rffpcnex_flags_add_printer = -1;
-static int hf_rffpcnex_flags_set_printer = -1;
-static int hf_rffpcnex_flags_delete_printer = -1;
-static int hf_rffpcnex_flags_failed_printer_connection = -1;
+static int hf_rffpcnex_flags_add_printer;
+static int hf_rffpcnex_flags_set_printer;
+static int hf_rffpcnex_flags_delete_printer;
+static int hf_rffpcnex_flags_failed_printer_connection;
 
 static const true_false_string tfs_rffpcnex_flags_add_printer = {
 	"Notify on add printer",
@@ -2953,10 +2953,10 @@ static const true_false_string tfs_rffpcnex_flags_failed_connection_printer = {
 	"Don't notify on failed printer connection"
 };
 
-static int hf_rffpcnex_flags_add_job = -1;
-static int hf_rffpcnex_flags_set_job = -1;
-static int hf_rffpcnex_flags_delete_job = -1;
-static int hf_rffpcnex_flags_write_job = -1;
+static int hf_rffpcnex_flags_add_job;
+static int hf_rffpcnex_flags_set_job;
+static int hf_rffpcnex_flags_delete_job;
+static int hf_rffpcnex_flags_write_job;
 
 static const true_false_string tfs_rffpcnex_flags_add_job = {
 	"Notify on add job",
@@ -2978,9 +2978,9 @@ static const true_false_string tfs_rffpcnex_flags_write_job = {
 	"Don't notify on write job"
 };
 
-static int hf_rffpcnex_flags_add_form = -1;
-static int hf_rffpcnex_flags_set_form = -1;
-static int hf_rffpcnex_flags_delete_form = -1;
+static int hf_rffpcnex_flags_add_form;
+static int hf_rffpcnex_flags_set_form;
+static int hf_rffpcnex_flags_delete_form;
 
 static const true_false_string tfs_rffpcnex_flags_add_form = {
 	"Notify on add form",
@@ -2997,9 +2997,9 @@ static const true_false_string tfs_rffpcnex_flags_delete_form = {
 	"Don't notify on delete form"
 };
 
-static int hf_rffpcnex_flags_add_port = -1;
-static int hf_rffpcnex_flags_configure_port = -1;
-static int hf_rffpcnex_flags_delete_port = -1;
+static int hf_rffpcnex_flags_add_port;
+static int hf_rffpcnex_flags_configure_port;
+static int hf_rffpcnex_flags_delete_port;
 
 static const true_false_string tfs_rffpcnex_flags_add_port = {
 	"Notify on add port",
@@ -3016,8 +3016,8 @@ static const true_false_string tfs_rffpcnex_flags_delete_port = {
 	"Don't notify on delete port"
 };
 
-static int hf_rffpcnex_flags_add_print_processor = -1;
-static int hf_rffpcnex_flags_delete_print_processor = -1;
+static int hf_rffpcnex_flags_add_print_processor;
+static int hf_rffpcnex_flags_delete_print_processor;
 
 static const true_false_string tfs_rffpcnex_flags_add_print_processor = {
 	"Notify on add driver",
@@ -3029,9 +3029,9 @@ static const true_false_string tfs_rffpcnex_flags_delete_print_processor = {
 	"Don't notify on add driver"
 };
 
-static int hf_rffpcnex_flags_add_driver = -1;
-static int hf_rffpcnex_flags_set_driver = -1;
-static int hf_rffpcnex_flags_delete_driver = -1;
+static int hf_rffpcnex_flags_add_driver;
+static int hf_rffpcnex_flags_set_driver;
+static int hf_rffpcnex_flags_delete_driver;
 
 static const true_false_string tfs_rffpcnex_flags_add_driver = {
 	"Notify on add driver",
@@ -3048,7 +3048,7 @@ static const true_false_string tfs_rffpcnex_flags_delete_driver = {
 	"Don't notify on delete driver"
 };
 
-static int hf_rffpcnex_flags_timeout = -1;
+static int hf_rffpcnex_flags_timeout;
 
 static const true_false_string tfs_rffpcnex_flags_timeout = {
 	"Notify on timeout",
@@ -3252,7 +3252,7 @@ SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static gint ett_PRINTER_INFO = -1;
+static gint ett_PRINTER_INFO;
 
 static int
 SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -3318,11 +3318,11 @@ SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * SEC_DESC_BUF
  */
 
-static gint ett_SEC_DESC_BUF = -1;
+static gint ett_SEC_DESC_BUF;
 
-static int hf_secdescbuf_maxlen = -1;
-static int hf_secdescbuf_undoc = -1;
-static int hf_secdescbuf_len = -1;
+static int hf_secdescbuf_maxlen;
+static int hf_secdescbuf_undoc;
+static int hf_secdescbuf_len;
 
 static int
 dissect_SEC_DESC_BUF(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -3365,12 +3365,12 @@ dissect_SEC_DESC_BUF(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * SPOOL_PRINTER_INFO_LEVEL
  */
 
-static gint ett_SPOOL_PRINTER_INFO_LEVEL = -1;
+static gint ett_SPOOL_PRINTER_INFO_LEVEL;
 
 /* spool printer info */
 
-static int hf_spool_printer_info_devmode_ptr = -1;
-static int hf_spool_printer_info_secdesc_ptr = -1;
+static int hf_spool_printer_info_devmode_ptr;
+static int hf_spool_printer_info_secdesc_ptr;
 
 int
 dissect_SPOOL_PRINTER_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -3427,7 +3427,7 @@ dissect_SPOOL_PRINTER_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * SpoolssSetPrinter
  */
 
-static int hf_setprinter_cmd = -1;
+static int hf_setprinter_cmd;
 
 static const value_string setprinter_cmd_vals[] = {
 	{ SPOOLSS_PRINTER_CONTROL_UNPAUSE, "Unpause" },
@@ -3489,7 +3489,7 @@ static const value_string form_type_vals[] =
 	{ 0, NULL }
 };
 
-static gint ett_FORM_REL = -1;
+static gint ett_FORM_REL;
 
 static int
 dissect_FORM_REL(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -3709,12 +3709,12 @@ SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * SpoolssEnumPrinterData
  */
 
-static int hf_enumprinterdata_enumindex = -1;
-static int hf_enumprinterdata_value_offered = -1;
-static int hf_enumprinterdata_data_offered = -1;
-static int hf_enumprinterdata_value_len = -1;
-static int hf_enumprinterdata_value_needed = -1;
-static int hf_enumprinterdata_data_needed = -1;
+static int hf_enumprinterdata_enumindex;
+static int hf_enumprinterdata_value_offered;
+static int hf_enumprinterdata_data_offered;
+static int hf_enumprinterdata_value_len;
+static int hf_enumprinterdata_value_needed;
+static int hf_enumprinterdata_data_needed;
 
 static int
 SpoolssEnumPrinterData_q(tvbuff_t *tvb, int offset,
@@ -3816,16 +3816,16 @@ SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
  * SpoolssEnumPrinters
  */
 
-static gint ett_enumprinters_flags = -1;
+static gint ett_enumprinters_flags;
 
-static int hf_enumprinters_flags = -1;
-static int hf_enumprinters_flags_local = -1;
-static int hf_enumprinters_flags_name = -1;
-static int hf_enumprinters_flags_shared = -1;
-static int hf_enumprinters_flags_default = -1;
-static int hf_enumprinters_flags_connections = -1;
-static int hf_enumprinters_flags_network = -1;
-static int hf_enumprinters_flags_remote = -1;
+static int hf_enumprinters_flags;
+static int hf_enumprinters_flags_local;
+static int hf_enumprinters_flags_name;
+static int hf_enumprinters_flags_shared;
+static int hf_enumprinters_flags_default;
+static int hf_enumprinters_flags_connections;
+static int hf_enumprinters_flags_network;
+static int hf_enumprinters_flags_remote;
 
 static int
 SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -3959,7 +3959,7 @@ SpoolssAddPrinterDriver_r(tvbuff_t *tvb, int offset,
  * FORM_1
  */
 
-static gint ett_FORM_1 = -1;
+static gint ett_FORM_1;
 
 static int
 dissect_FORM_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -4019,7 +4019,7 @@ dissect_FORM_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * FORM_CTR
  */
 
-static gint ett_FORM_CTR = -1;
+static gint ett_FORM_CTR;
 
 int
 dissect_FORM_CTR(tvbuff_t *tvb, int offset,
@@ -4328,7 +4328,7 @@ SpoolssGeneric_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * JOB_INFO_1
  */
 
-static gint ett_JOB_INFO_1 = -1;
+static gint ett_JOB_INFO_1;
 
 static int
 dissect_spoolss_JOB_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -4397,7 +4397,7 @@ dissect_spoolss_JOB_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * JOB_INFO_2
  */
 
-static gint ett_JOB_INFO_2 = -1;
+static gint ett_JOB_INFO_2;
 
 static int
 dissect_spoolss_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -4511,8 +4511,8 @@ dissect_spoolss_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * EnumJobs
  */
 
-static int hf_enumjobs_firstjob = -1;
-static int hf_enumjobs_numjobs = -1;
+static int hf_enumjobs_firstjob;
+static int hf_enumjobs_numjobs;
 
 static int
 SpoolssEnumJobs_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -4613,7 +4613,7 @@ static const value_string setjob_commands[] = {
 	{ 0, NULL }
 };
 
-static int hf_setjob_cmd = -1;
+static int hf_setjob_cmd;
 
 static int
 SpoolssSetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -4819,7 +4819,7 @@ SpoolssEndPagePrinter_r(tvbuff_t *tvb, int offset,
  * DOC_INFO_1
  */
 
-static gint ett_DOC_INFO_1 = -1;
+static gint ett_DOC_INFO_1;
 
 static int
 dissect_spoolss_doc_info_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -4859,7 +4859,7 @@ dissect_spoolss_doc_info_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * DOC_INFO
  */
 
-static gint ett_DOC_INFO = -1;
+static gint ett_DOC_INFO;
 
 static int
 dissect_spoolss_doc_info(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -4886,7 +4886,7 @@ dissect_spoolss_doc_info(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * DOC_INFO_CTR
  */
 
-static gint ett_DOC_INFO_CTR = -1;
+static gint ett_DOC_INFO_CTR;
 
 int
 dissect_spoolss_doc_info_ctr(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -4998,9 +4998,9 @@ SpoolssEndDocPrinter_r(tvbuff_t *tvb, int offset,
  * WritePrinter
  */
 
-static gint ett_writeprinter_buffer = -1;
+static gint ett_writeprinter_buffer;
 
-static int hf_writeprinter_numwritten = -1;
+static int hf_writeprinter_numwritten;
 
 static int
 SpoolssWritePrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -5118,7 +5118,7 @@ SpoolssDeletePrinterData_r(tvbuff_t *tvb, int offset,
  * DRIVER_INFO_1
  */
 
-static gint ett_DRIVER_INFO_1 = -1;
+static gint ett_DRIVER_INFO_1;
 
 static int
 dissect_DRIVER_INFO_1(tvbuff_t *tvb, int offset,
@@ -5150,7 +5150,7 @@ static const value_string driverinfo_cversion_vals[] =
 	{ 0, NULL }
 };
 
-static gint ett_DRIVER_INFO_2 = -1;
+static gint ett_DRIVER_INFO_2;
 
 static int
 dissect_DRIVER_INFO_2(tvbuff_t *tvb, int offset,
@@ -5193,7 +5193,7 @@ dissect_DRIVER_INFO_2(tvbuff_t *tvb, int offset,
  * DRIVER_INFO_3
  */
 
-static gint ett_DRIVER_INFO_3 = -1;
+static gint ett_DRIVER_INFO_3;
 
 static int
 dissect_DRIVER_INFO_3(tvbuff_t *tvb, int offset,
@@ -5253,7 +5253,7 @@ dissect_DRIVER_INFO_3(tvbuff_t *tvb, int offset,
 	DRIVER_INFO_6
 */
 
-static gint ett_DRIVER_INFO_6 = -1;
+static gint ett_DRIVER_INFO_6;
 
 static int
 dissect_DRIVER_INFO_6(tvbuff_t *tvb, int offset,
@@ -5348,7 +5348,7 @@ dissect_DRIVER_INFO_6(tvbuff_t *tvb, int offset,
 	DRIVER_INFO_8
 */
 
-static gint ett_DRIVER_INFO_8 = -1;
+static gint ett_DRIVER_INFO_8;
 
 static int
 dissect_DRIVER_INFO_8(tvbuff_t *tvb, int offset,
@@ -5473,7 +5473,7 @@ dissect_DRIVER_INFO_8(tvbuff_t *tvb, int offset,
 }
 
 
-static gint ett_DRIVER_INFO_101 = -1;
+static gint ett_DRIVER_INFO_101;
 
 static int
 dissect_DRIVER_INFO_101(tvbuff_t *tvb, int offset,
@@ -5506,7 +5506,7 @@ dissect_DRIVER_INFO_101(tvbuff_t *tvb, int offset,
 	CORE_PRINTER_DRIVER
 */
 
-static gint ett_CORE_PRINTER_DRIVER = -1;
+static gint ett_CORE_PRINTER_DRIVER;
 
 static int
 dissect_CORE_PRINTER_DRIVER(tvbuff_t *tvb, int offset,
@@ -6180,7 +6180,7 @@ dissect_NOTIFY_INFO_DATA_job(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static gint ett_NOTIFY_INFO_DATA = -1;
+static gint ett_NOTIFY_INFO_DATA;
 
 static int
 dissect_NOTIFY_INFO_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -6450,9 +6450,9 @@ SpoolssFCPN_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * RouterReplyPrinter
  */
 
-static int hf_routerreplyprinter_condition = -1;
-static int hf_routerreplyprinter_unknown1 = -1;
-static int hf_routerreplyprinter_changeid = -1;
+static int hf_routerreplyprinter_condition;
+static int hf_routerreplyprinter_unknown1;
+static int hf_routerreplyprinter_changeid;
 
 static int
 SpoolssRouterReplyPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -6491,7 +6491,7 @@ SpoolssRouterReplyPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int hf_keybuffer_size = -1;
+static int hf_keybuffer_size;
 
 static int
 dissect_spoolss_keybuffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -6573,17 +6573,17 @@ SpoolssEnumPrinterKey_r(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int hf_enumprinterdataex_name_offset = -1;
-static int hf_enumprinterdataex_name_len = -1;
-static int hf_enumprinterdataex_name = -1;
-static int hf_enumprinterdataex_val_offset = -1;
-static int hf_enumprinterdataex_val_len = -1;
-static int hf_enumprinterdataex_val_dword_low = -1;
-static int hf_enumprinterdataex_val_dword_high = -1;
-static int hf_enumprinterdataex_value_null = -1;
-static int hf_enumprinterdataex_value_uint = -1;
-static int hf_enumprinterdataex_value_binary = -1;
-static int hf_enumprinterdataex_value_multi_sz = -1;
+static int hf_enumprinterdataex_name_offset;
+static int hf_enumprinterdataex_name_len;
+static int hf_enumprinterdataex_name;
+static int hf_enumprinterdataex_val_offset;
+static int hf_enumprinterdataex_val_len;
+static int hf_enumprinterdataex_val_dword_low;
+static int hf_enumprinterdataex_val_dword_high;
+static int hf_enumprinterdataex_value_null;
+static int hf_enumprinterdataex_value_uint;
+static int hf_enumprinterdataex_value_binary;
+static int hf_enumprinterdataex_value_multi_sz;
 
 static int
 SpoolssEnumPrinterDataEx_q(tvbuff_t *tvb, int offset,
@@ -6615,7 +6615,7 @@ SpoolssEnumPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static gint ett_printer_enumdataex_value = -1;
+static gint ett_printer_enumdataex_value;
 
 static int
 dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
@@ -6724,7 +6724,7 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static gint ett_PRINTER_DATA_CTR = -1;
+static gint ett_PRINTER_DATA_CTR;
 
 static int
 SpoolssEnumPrinterDataEx_r(tvbuff_t *tvb, int offset,
@@ -7123,8 +7123,8 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 
 /* Protocol registration */
 
-static int proto_dcerpc_spoolss = -1;
-static gint ett_dcerpc_spoolss = -1;
+static int proto_dcerpc_spoolss;
+static gint ett_dcerpc_spoolss;
 
 void
 proto_register_dcerpc_spoolss(void)

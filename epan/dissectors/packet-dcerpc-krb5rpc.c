@@ -23,9 +23,9 @@
 void proto_register_krb5rpc (void);
 void proto_reg_handoff_krb5rpc (void);
 
-static int proto_krb5rpc = -1;
+static int proto_krb5rpc;
 
-static gint ett_krb5rpc = -1;
+static gint ett_krb5rpc;
 
 
 static e_guid_t uuid_krb5rpc =
@@ -33,16 +33,16 @@ static e_guid_t uuid_krb5rpc =
                                  0x31}
 };
 static guint16 ver_krb5rpc = 1;
-static int hf_krb5rpc_opnum = -1;
-static int hf_krb5rpc_sendto_kdc_rqst_keysize = -1;
-static int hf_krb5rpc_sendto_kdc_rqst_spare1 = -1;
-static int hf_krb5rpc_sendto_kdc_resp_len = -1;
-static int hf_krb5rpc_sendto_kdc_resp_max = -1;
-static int hf_krb5rpc_sendto_kdc_resp_spare1 = -1;
-static int hf_krb5rpc_sendto_kdc_resp_keysize = -1;
-/* static int hf_krb5rpc_sendto_kdc_resp_st = -1; */
-static int hf_krb5rpc_krb5 = -1;
-static gint ett_krb5rpc_krb5 = -1;
+static int hf_krb5rpc_opnum;
+static int hf_krb5rpc_sendto_kdc_rqst_keysize;
+static int hf_krb5rpc_sendto_kdc_rqst_spare1;
+static int hf_krb5rpc_sendto_kdc_resp_len;
+static int hf_krb5rpc_sendto_kdc_resp_max;
+static int hf_krb5rpc_sendto_kdc_resp_spare1;
+static int hf_krb5rpc_sendto_kdc_resp_keysize;
+/* static int hf_krb5rpc_sendto_kdc_resp_st; */
+static int hf_krb5rpc_krb5;
+static gint ett_krb5rpc_krb5;
 
 static int
 krb5rpc_dissect_sendto_kdc_rqst (tvbuff_t * tvb, int offset,

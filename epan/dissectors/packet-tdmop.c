@@ -26,25 +26,25 @@ void proto_reg_handoff_tdmop(void);
 
 static dissector_handle_t tdmop_handle;
 
-static int proto_tdmop    = -1;
-static gint ett_tdmop     = -1;
-static gint ett_tdmop_channel    = -1;
+static int proto_tdmop;
+static gint ett_tdmop;
+static gint ett_tdmop_channel;
 
-static int hf_tdmop_TransferID   = -1;
-static int hf_tdmop_DstCh        = -1;
-static int hf_tdmop_SrcCh        = -1;
-static int hf_tdmop_Flags        = -1;
-static int hf_tdmop_Flags_no_data        = -1;
-static int hf_tdmop_Flags_lost_request   = -1;
-static int hf_tdmop_Flags_remote_no_data = -1;
-static int hf_tdmop_Flags_compressed     = -1;
-static int hf_tdmop_SrcDst        = -1;
-static int hf_tdmop_SeqNum        = -1;
-static int hf_tdmop_LastRecv      = -1;
-static int hf_tdmop_Delay         = -1;
-static int hf_tdmop_Reserved      = -1;
-static int hf_tdmop_payload       = -1;
-static int hf_tdmop_Compression_mask    = -1;
+static int hf_tdmop_TransferID;
+static int hf_tdmop_DstCh;
+static int hf_tdmop_SrcCh;
+static int hf_tdmop_Flags;
+static int hf_tdmop_Flags_no_data;
+static int hf_tdmop_Flags_lost_request;
+static int hf_tdmop_Flags_remote_no_data;
+static int hf_tdmop_Flags_compressed;
+static int hf_tdmop_SrcDst;
+static int hf_tdmop_SeqNum;
+static int hf_tdmop_LastRecv;
+static int hf_tdmop_Delay;
+static int hf_tdmop_Reserved;
+static int hf_tdmop_payload;
+static int hf_tdmop_Compression_mask;
 
 static dissector_handle_t lapd_handle    = NULL;
 

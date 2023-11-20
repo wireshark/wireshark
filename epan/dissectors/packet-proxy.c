@@ -35,55 +35,55 @@
 void proto_reg_handoff_proxy(void);
 void proto_register_proxy(void);
 
-static int proto_proxy = -1;
+static int proto_proxy;
 
-static int hf_proxy_version = -1;
+static int hf_proxy_version;
 
-static int hf_proxy_src_ipv4 = -1;
-static int hf_proxy_dst_ipv4 = -1;
-static int hf_proxy_src_ipv6 = -1;
-static int hf_proxy_dst_ipv6 = -1;
-static int hf_proxy_srcport = -1;
-static int hf_proxy_dstport = -1;
+static int hf_proxy_src_ipv4;
+static int hf_proxy_dst_ipv4;
+static int hf_proxy_src_ipv6;
+static int hf_proxy_dst_ipv6;
+static int hf_proxy_srcport;
+static int hf_proxy_dstport;
 
 /* V1 */
-static int hf_proxy1_magic = -1;
-static int hf_proxy1_proto = -1;
-static int hf_proxy1_unknown = -1;
+static int hf_proxy1_magic;
+static int hf_proxy1_proto;
+static int hf_proxy1_unknown;
 
 /* V2 */
-static int hf_proxy2_magic = -1;
-static int hf_proxy2_ver = -1;
-static int hf_proxy2_cmd = -1;
-static int hf_proxy2_addr_family = -1;
-static int hf_proxy2_protocol = -1;
-static int hf_proxy2_addr_family_protocol = -1;
-static int hf_proxy2_len = -1;
-static int hf_proxy2_src_unix = -1;
-static int hf_proxy2_dst_unix = -1;
+static int hf_proxy2_magic;
+static int hf_proxy2_ver;
+static int hf_proxy2_cmd;
+static int hf_proxy2_addr_family;
+static int hf_proxy2_protocol;
+static int hf_proxy2_addr_family_protocol;
+static int hf_proxy2_len;
+static int hf_proxy2_src_unix;
+static int hf_proxy2_dst_unix;
 
-static int hf_proxy2_unknown = -1;
+static int hf_proxy2_unknown;
 
-static int hf_proxy2_tlv = -1;
-static int hf_proxy2_tlv_type = -1;
-static int hf_proxy2_tlv_length = -1;
-static int hf_proxy2_tlv_value = -1;
-static int hf_proxy2_tlv_ssl_client = -1;
-static int hf_proxy2_tlv_ssl_verify = -1;
-static int hf_proxy2_tlv_ssl_version = -1;
-static int hf_proxy2_tlv_ssl_cn = -1;
-static int hf_proxy2_tlv_ssl_cipher = -1;
-static int hf_proxy2_tlv_ssl_sig_alg = -1;
-static int hf_proxy2_tlv_ssl_key_alg = -1;
+static int hf_proxy2_tlv;
+static int hf_proxy2_tlv_type;
+static int hf_proxy2_tlv_length;
+static int hf_proxy2_tlv_value;
+static int hf_proxy2_tlv_ssl_client;
+static int hf_proxy2_tlv_ssl_verify;
+static int hf_proxy2_tlv_ssl_version;
+static int hf_proxy2_tlv_ssl_cn;
+static int hf_proxy2_tlv_ssl_cipher;
+static int hf_proxy2_tlv_ssl_sig_alg;
+static int hf_proxy2_tlv_ssl_key_alg;
 
-static expert_field ei_proxy_header_length_too_small = EI_INIT;
-static expert_field ei_proxy_bad_format = EI_INIT;
+static expert_field ei_proxy_header_length_too_small;
+static expert_field ei_proxy_bad_format;
 
 
-static gint ett_proxy1 = -1;
-static gint ett_proxy2 = -1;
-static gint ett_proxy2_fampro = -1;
-static gint ett_proxy2_tlv = -1;
+static gint ett_proxy1;
+static gint ett_proxy2;
+static gint ett_proxy2_fampro;
+static gint ett_proxy2_tlv;
 
 static dissector_handle_t proxy_v1_handle;
 static dissector_handle_t proxy_v2_handle;

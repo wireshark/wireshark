@@ -53,27 +53,27 @@ void proto_register_iser(void);
 
 static dissector_handle_t iser_handle;
 
-static int proto_iser = -1;
+static int proto_iser;
 static dissector_handle_t iscsi_handler;
 
-static int proto_ib = -1;
+static int proto_ib;
 
 /* iSER Header */
-static int hf_iser_flags = -1;
-static int hf_iser_opcode_f = -1;
-static int hf_iser_RSV_f = -1;
-static int hf_iser_WSV_f = -1;
-static int hf_iser_REJ_f = -1;
-static int hf_iser_write_stag = -1;
-static int hf_iser_write_va = -1;
-static int hf_iser_read_stag = -1;
-static int hf_iser_read_va = -1;
-static int hf_iser_ird = -1;
-static int hf_iser_ord = -1;
+static int hf_iser_flags;
+static int hf_iser_opcode_f;
+static int hf_iser_RSV_f;
+static int hf_iser_WSV_f;
+static int hf_iser_REJ_f;
+static int hf_iser_write_stag;
+static int hf_iser_write_va;
+static int hf_iser_read_stag;
+static int hf_iser_read_va;
+static int hf_iser_ird;
+static int hf_iser_ord;
 
 /* Initialize the subtree pointers */
-static gint ett_iser = -1;
-static gint ett_iser_flags = -1;
+static gint ett_iser;
+static gint ett_iser_flags;
 
 /* global preferences */
 static range_t *gPORT_RANGE;

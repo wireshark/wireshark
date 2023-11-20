@@ -59,34 +59,34 @@ void proto_reg_handoff_dsi(void);
 
 static dissector_handle_t dsi_handle;
 
-static int proto_dsi = -1;
-static int hf_dsi_flags = -1;
-static int hf_dsi_command = -1;
-static int hf_dsi_requestid = -1;
-static int hf_dsi_offset = -1;
-static int hf_dsi_error = -1;
-static int hf_dsi_length = -1;
-static int hf_dsi_reserved = -1;
+static int proto_dsi;
+static int hf_dsi_flags;
+static int hf_dsi_command;
+static int hf_dsi_requestid;
+static int hf_dsi_offset;
+static int hf_dsi_error;
+static int hf_dsi_length;
+static int hf_dsi_reserved;
 
-static gint ett_dsi = -1;
+static gint ett_dsi;
 
-static int hf_dsi_open_type     = -1;
-static int hf_dsi_open_len      = -1;
-static int hf_dsi_open_quantum  = -1;
-static int hf_dsi_replay_cache_size = -1;
-static int hf_dsi_open_option   = -1;
+static int hf_dsi_open_type;
+static int hf_dsi_open_len;
+static int hf_dsi_open_quantum;
+static int hf_dsi_replay_cache_size;
+static int hf_dsi_open_option;
 
-static int hf_dsi_attn_flag             = -1;
-static int hf_dsi_attn_flag_shutdown    = -1;
-static int hf_dsi_attn_flag_crash       = -1;
-static int hf_dsi_attn_flag_msg         = -1;
-static int hf_dsi_attn_flag_reconnect   = -1;
-static int hf_dsi_attn_flag_time        = -1;
-static int hf_dsi_attn_flag_bitmap      = -1;
+static int hf_dsi_attn_flag;
+static int hf_dsi_attn_flag_shutdown;
+static int hf_dsi_attn_flag_crash;
+static int hf_dsi_attn_flag_msg;
+static int hf_dsi_attn_flag_reconnect;
+static int hf_dsi_attn_flag_time;
+static int hf_dsi_attn_flag_bitmap;
 
-static gint ett_dsi_open        = -1;
-static gint ett_dsi_attn        = -1;
-static gint ett_dsi_attn_flag   = -1;
+static gint ett_dsi_open;
+static gint ett_dsi_attn;
+static gint ett_dsi_attn_flag;
 
 static const value_string dsi_attn_flag_vals[] = {
 	{0x0, "Reserved" },                                           /* 0000 */

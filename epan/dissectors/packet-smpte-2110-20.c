@@ -29,24 +29,24 @@ void proto_register_st2110_20(void);
 static dissector_handle_t st2110_20_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_st2110_20 = -1;
-static int proto_rtp = -1;
+static int proto_st2110_20;
+static int proto_rtp;
 
-static int hf_st2110_ext_seqno = -1;
-static int hf_st2110_seqno = -1;
-static int hf_st2110_rtp_time = -1;
-static int hf_st2110_srd_index = -1;
-static int hf_st2110_srd_length = -1;
-static int hf_st2110_field_ident = -1;
-static int hf_st2110_row_num = -1;
-static int hf_st2110_continuation = -1;
-static int hf_st2110_srd_offset = -1;
-static int hf_st2110_srd_data = -1;
-static int hf_st2110_srd_rows = -1;
+static int hf_st2110_ext_seqno;
+static int hf_st2110_seqno;
+static int hf_st2110_rtp_time;
+static int hf_st2110_srd_index;
+static int hf_st2110_srd_length;
+static int hf_st2110_field_ident;
+static int hf_st2110_row_num;
+static int hf_st2110_continuation;
+static int hf_st2110_srd_offset;
+static int hf_st2110_srd_data;
+static int hf_st2110_srd_rows;
 
 /* Initialize the subtree pointers */
-static gint ett_st2110_20 = -1;
-static gint ett_st2110_20_srd_row = -1;
+static gint ett_st2110_20;
+static gint ett_st2110_20_srd_row;
 
 
 static int

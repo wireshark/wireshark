@@ -38,112 +38,112 @@
 void proto_register_mle(void);
 void proto_reg_handoff_mle(void);
 
-static int proto_mle = -1;
-static int proto_ieee802154 = -1; /* cache 802.15.4 protocol ID */
+static int proto_mle;
+static int proto_ieee802154; /* cache 802.15.4 protocol ID */
 
 /*  Registered fields for Auxiliary Security Header */
-static int hf_mle_security_suite = -1;
-static int hf_mle_mic = -1;
+static int hf_mle_security_suite;
+static int hf_mle_mic;
 
-static int hf_mle_command = -1;
-static int hf_mle_tlv = -1;
-static int hf_mle_tlv_type = -1;
-static int hf_mle_tlv_length = -1;
-static int hf_mle_tlv_source_addr = -1;
-static int hf_mle_tlv_mode_device_type = -1;
-static int hf_mle_tlv_mode_idle_rx = -1;
-static int hf_mle_tlv_mode_sec_data_req = -1;
-static int hf_mle_tlv_mode_nwk_data = -1;
-static int hf_mle_tlv_timeout = -1;
-static int hf_mle_tlv_challenge = -1;
-static int hf_mle_tlv_response = -1;
-static int hf_mle_tlv_ll_frm_cntr = -1;
-static int hf_mle_tlv_lqi_c = -1;
-static int hf_mle_tlv_lqi_size = -1;
-static int hf_mle_tlv_neighbor = -1;
-static int hf_mle_tlv_neighbor_flagI = -1;
-static int hf_mle_tlv_neighbor_flagO = -1;
-static int hf_mle_tlv_neighbor_flagP = -1;
-static int hf_mle_tlv_neighbor_idr = -1;
-static int hf_mle_tlv_neighbor_addr = -1;
-static int hf_mle_tlv_network_param_id = -1;
-static int hf_mle_tlv_network_delay = -1;
-static int hf_mle_tlv_network_channel = -1;
-static int hf_mle_tlv_network_pan_id = -1;
-static int hf_mle_tlv_network_pmt_join = -1;
-static int hf_mle_tlv_network_bcn_payload = -1;
-static int hf_mle_tlv_network_unknown = -1;
-static int hf_mle_tlv_mle_frm_cntr = -1;
-static int hf_mle_tlv_unknown = -1;
-static int hf_mle_tlv_route64_id_seq = -1;
-static int hf_mle_tlv_route64_id_mask = -1;
-static int hf_mle_tlv_route64_entry = -1;
-static int hf_mle_tlv_route64_nbr_out = -1;
-static int hf_mle_tlv_route64_nbr_in = -1;
-static int hf_mle_tlv_route64_cost = -1;
+static int hf_mle_command;
+static int hf_mle_tlv;
+static int hf_mle_tlv_type;
+static int hf_mle_tlv_length;
+static int hf_mle_tlv_source_addr;
+static int hf_mle_tlv_mode_device_type;
+static int hf_mle_tlv_mode_idle_rx;
+static int hf_mle_tlv_mode_sec_data_req;
+static int hf_mle_tlv_mode_nwk_data;
+static int hf_mle_tlv_timeout;
+static int hf_mle_tlv_challenge;
+static int hf_mle_tlv_response;
+static int hf_mle_tlv_ll_frm_cntr;
+static int hf_mle_tlv_lqi_c;
+static int hf_mle_tlv_lqi_size;
+static int hf_mle_tlv_neighbor;
+static int hf_mle_tlv_neighbor_flagI;
+static int hf_mle_tlv_neighbor_flagO;
+static int hf_mle_tlv_neighbor_flagP;
+static int hf_mle_tlv_neighbor_idr;
+static int hf_mle_tlv_neighbor_addr;
+static int hf_mle_tlv_network_param_id;
+static int hf_mle_tlv_network_delay;
+static int hf_mle_tlv_network_channel;
+static int hf_mle_tlv_network_pan_id;
+static int hf_mle_tlv_network_pmt_join;
+static int hf_mle_tlv_network_bcn_payload;
+static int hf_mle_tlv_network_unknown;
+static int hf_mle_tlv_mle_frm_cntr;
+static int hf_mle_tlv_unknown;
+static int hf_mle_tlv_route64_id_seq;
+static int hf_mle_tlv_route64_id_mask;
+static int hf_mle_tlv_route64_entry;
+static int hf_mle_tlv_route64_nbr_out;
+static int hf_mle_tlv_route64_nbr_in;
+static int hf_mle_tlv_route64_cost;
 #if 0
-static int hf_mle_tlv_route64_unknown = -1;
+static int hf_mle_tlv_route64_unknown;
 #endif
-static int hf_mle_tlv_addr16 = -1;
-static int hf_mle_tlv_leader_data_partition_id = -1;
-static int hf_mle_tlv_leader_data_weighting = -1;
-static int hf_mle_tlv_leader_data_version = -1;
-static int hf_mle_tlv_leader_data_stable_version = -1;
-static int hf_mle_tlv_leader_data_router_id = -1;
+static int hf_mle_tlv_addr16;
+static int hf_mle_tlv_leader_data_partition_id;
+static int hf_mle_tlv_leader_data_weighting;
+static int hf_mle_tlv_leader_data_version;
+static int hf_mle_tlv_leader_data_stable_version;
+static int hf_mle_tlv_leader_data_router_id;
 #if 0
-static int hf_mle_tlv_network_data = -1;
+static int hf_mle_tlv_network_data;
 #endif
-static int hf_mle_tlv_scan_mask_r = -1;
-static int hf_mle_tlv_scan_mask_e = -1;
-static int hf_mle_tlv_conn_flags = -1;
-static int hf_mle_tlv_conn_flags_pp = -1;
-static int hf_mle_tlv_conn_lq3 = -1;
-static int hf_mle_tlv_conn_lq2 = -1;
-static int hf_mle_tlv_conn_lq1 = -1;
-static int hf_mle_tlv_conn_leader_cost = -1;
-static int hf_mle_tlv_conn_id_seq = -1;
-static int hf_mle_tlv_conn_active_rtrs = -1;
-static int hf_mle_tlv_conn_sed_buf_size = -1;
-static int hf_mle_tlv_conn_sed_dgram_cnt = -1;
-static int hf_mle_tlv_link_margin = -1;
-static int hf_mle_tlv_status = -1;
-static int hf_mle_tlv_version = -1;
-static int hf_mle_tlv_addr_reg_entry = -1;
-static int hf_mle_tlv_addr_reg_iid_type = -1;
-static int hf_mle_tlv_addr_reg_cid = -1;
-static int hf_mle_tlv_addr_reg_iid = -1;
-static int hf_mle_tlv_addr_reg_ipv6 = -1;
+static int hf_mle_tlv_scan_mask_r;
+static int hf_mle_tlv_scan_mask_e;
+static int hf_mle_tlv_conn_flags;
+static int hf_mle_tlv_conn_flags_pp;
+static int hf_mle_tlv_conn_lq3;
+static int hf_mle_tlv_conn_lq2;
+static int hf_mle_tlv_conn_lq1;
+static int hf_mle_tlv_conn_leader_cost;
+static int hf_mle_tlv_conn_id_seq;
+static int hf_mle_tlv_conn_active_rtrs;
+static int hf_mle_tlv_conn_sed_buf_size;
+static int hf_mle_tlv_conn_sed_dgram_cnt;
+static int hf_mle_tlv_link_margin;
+static int hf_mle_tlv_status;
+static int hf_mle_tlv_version;
+static int hf_mle_tlv_addr_reg_entry;
+static int hf_mle_tlv_addr_reg_iid_type;
+static int hf_mle_tlv_addr_reg_cid;
+static int hf_mle_tlv_addr_reg_iid;
+static int hf_mle_tlv_addr_reg_ipv6;
 #if 0
-static int hf_mle_tlv_hold_time = -1;
+static int hf_mle_tlv_hold_time;
 #endif
-static int hf_mle_tlv_channel_page = -1; /* v1.1-draft-2 */
-static int hf_mle_tlv_channel = -1; /* v1.1-draft-2 */
-static int hf_mle_tlv_pan_id = -1; /* v1.1-draft-2 */
-static int hf_mle_tlv_active_tstamp = -1; /* SPEC-472 */
-static int hf_mle_tlv_pending_tstamp = -1; /* SPEC-472 */
+static int hf_mle_tlv_channel_page; /* v1.1-draft-2 */
+static int hf_mle_tlv_channel; /* v1.1-draft-2 */
+static int hf_mle_tlv_pan_id; /* v1.1-draft-2 */
+static int hf_mle_tlv_active_tstamp; /* SPEC-472 */
+static int hf_mle_tlv_pending_tstamp; /* SPEC-472 */
 #if 0
-static int hf_mle_tlv_active_op_dataset = -1; /* SPEC-472 */
-static int hf_mle_tlv_pending_op_dataset = -1; /* SPEC-472 */
+static int hf_mle_tlv_active_op_dataset; /* SPEC-472 */
+static int hf_mle_tlv_pending_op_dataset; /* SPEC-472 */
 #endif
 
-static gint ett_mle = -1;
-static gint ett_mle_tlv = -1;
-static gint ett_mle_neighbor = -1;
-static gint ett_mle_router = -1;
-static gint ett_mle_addr_reg = -1;
-static gint ett_mle_conn_flg = -1;
-static gint ett_mle_thread_nwd = -1;
-static gint ett_mle_auxiliary_security = -1;
-static gint ett_mle_aux_sec_control = -1;
-static gint ett_mle_aux_sec_key_id = -1;
+static gint ett_mle;
+static gint ett_mle_tlv;
+static gint ett_mle_neighbor;
+static gint ett_mle_router;
+static gint ett_mle_addr_reg;
+static gint ett_mle_conn_flg;
+static gint ett_mle_thread_nwd;
+static gint ett_mle_auxiliary_security;
+static gint ett_mle_aux_sec_control;
+static gint ett_mle_aux_sec_key_id;
 
-static expert_field ei_mle_cbc_mac_failed = EI_INIT;
-static expert_field ei_mle_packet_too_small = EI_INIT;
-static expert_field ei_mle_no_key = EI_INIT;
-static expert_field ei_mle_decrypt_failed = EI_INIT;
-static expert_field ei_mle_mic_check_failed = EI_INIT;
-static expert_field ei_mle_tlv_length_failed = EI_INIT;
-static expert_field ei_mle_len_size_mismatch = EI_INIT;
+static expert_field ei_mle_cbc_mac_failed;
+static expert_field ei_mle_packet_too_small;
+static expert_field ei_mle_no_key;
+static expert_field ei_mle_decrypt_failed;
+static expert_field ei_mle_mic_check_failed;
+static expert_field ei_mle_tlv_length_failed;
+static expert_field ei_mle_len_size_mismatch;
 
 static dissector_handle_t mle_handle;
 static dissector_handle_t thread_nwd_handle;

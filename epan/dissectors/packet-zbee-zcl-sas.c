@@ -67,24 +67,24 @@ static void dissect_zcl_ias_ace_get_zone_info_res       (tvbuff_t *tvb, proto_tr
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_ias_ace = -1;
+static int proto_zbee_zcl_ias_ace;
 
-static int hf_zbee_zcl_ias_ace_arm_mode = -1;
-static int hf_zbee_zcl_ias_ace_no_of_zones = -1;
-static int hf_zbee_zcl_ias_ace_zone_id = -1;
-static int hf_zbee_zcl_ias_ace_zone_id_list = -1;
-static int hf_zbee_zcl_ias_ace_arm_notif = -1;
-static int hf_zbee_zcl_ias_ace_zone_id_map_section = -1;
-static int hf_zbee_zcl_ias_ace_zone_type = -1;
-static int hf_zbee_zcl_ias_ace_ieee_add = -1;
-static int hf_zbee_zcl_ias_ace_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_ias_ace_srv_tx_cmd_id = -1;
+static int hf_zbee_zcl_ias_ace_arm_mode;
+static int hf_zbee_zcl_ias_ace_no_of_zones;
+static int hf_zbee_zcl_ias_ace_zone_id;
+static int hf_zbee_zcl_ias_ace_zone_id_list;
+static int hf_zbee_zcl_ias_ace_arm_notif;
+static int hf_zbee_zcl_ias_ace_zone_id_map_section;
+static int hf_zbee_zcl_ias_ace_zone_type;
+static int hf_zbee_zcl_ias_ace_ieee_add;
+static int hf_zbee_zcl_ias_ace_srv_rx_cmd_id;
+static int hf_zbee_zcl_ias_ace_srv_tx_cmd_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_ias_ace = -1;
-static gint ett_zbee_zcl_ias_ace_zone_id = -1;
-static gint ett_zbee_zcl_ias_ace_zone_id_map_sec = -1;
-static gint ett_zbee_zcl_ias_ace_zone_id_map_sec_elem = -1;
+static gint ett_zbee_zcl_ias_ace;
+static gint ett_zbee_zcl_ias_ace_zone_id;
+static gint ett_zbee_zcl_ias_ace_zone_id_map_sec;
+static gint ett_zbee_zcl_ias_ace_zone_id_map_sec_elem;
 
 /* Server Commands Received */
 static const value_string zbee_zcl_ias_ace_srv_rx_cmd_names[] = {
@@ -479,19 +479,19 @@ static void dissect_zcl_ias_wd_squawk                   (tvbuff_t *tvb, proto_tr
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_ias_wd = -1;
+static int proto_zbee_zcl_ias_wd;
 
-static int hf_zbee_zcl_ias_wd_attr_id = -1;
-static int hf_zbee_zcl_ias_wd_warning_mode = -1;
-static int hf_zbee_zcl_ias_wd_strobe_2bit = -1;
-static int hf_zbee_zcl_ias_wd_squawk_mode = -1;
-static int hf_zbee_zcl_ias_wd_strobe_1bit = -1;
-static int hf_zbee_zcl_ias_wd_warning_duration = -1;
-static int hf_zbee_zcl_ias_wd_squawk_level = -1;
-static int hf_zbee_zcl_ias_wd_srv_rx_cmd_id = -1;
+static int hf_zbee_zcl_ias_wd_attr_id;
+static int hf_zbee_zcl_ias_wd_warning_mode;
+static int hf_zbee_zcl_ias_wd_strobe_2bit;
+static int hf_zbee_zcl_ias_wd_squawk_mode;
+static int hf_zbee_zcl_ias_wd_strobe_1bit;
+static int hf_zbee_zcl_ias_wd_warning_duration;
+static int hf_zbee_zcl_ias_wd_squawk_level;
+static int hf_zbee_zcl_ias_wd_srv_rx_cmd_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_ias_wd = -1;
+static gint ett_zbee_zcl_ias_wd;
 
 /* Attributes */
 static const value_string zbee_zcl_ias_wd_attr_names[] = {

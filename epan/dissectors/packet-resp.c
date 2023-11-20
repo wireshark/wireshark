@@ -30,26 +30,26 @@
 static dissector_handle_t resp_handle;
 static gboolean resp_desegment = TRUE;
 
-static int proto_resp = -1;
+static int proto_resp;
 
-static gint ett_resp = -1;
-static gint ett_resp_bulk_string = -1;
-static gint ett_resp_array = -1;
+static gint ett_resp;
+static gint ett_resp_bulk_string;
+static gint ett_resp_array;
 
-static expert_field ei_resp_partial = EI_INIT;
-static expert_field ei_resp_malformed_length = EI_INIT;
-static expert_field ei_resp_array_recursion_too_deep = EI_INIT;
-static expert_field ei_resp_reassembled_in_next_frame = EI_INIT;
+static expert_field ei_resp_partial;
+static expert_field ei_resp_malformed_length;
+static expert_field ei_resp_array_recursion_too_deep;
+static expert_field ei_resp_reassembled_in_next_frame;
 
-static int hf_resp_string = -1;
-static int hf_resp_error = -1;
-static int hf_resp_bulk_string = -1;
-static int hf_resp_bulk_string_length = -1;
-static int hf_resp_bulk_string_value = -1;
-static int hf_resp_integer = -1;
-static int hf_resp_array = -1;
-static int hf_resp_array_length = -1;
-static int hf_resp_fragment = -1;
+static int hf_resp_string;
+static int hf_resp_error;
+static int hf_resp_bulk_string;
+static int hf_resp_bulk_string_length;
+static int hf_resp_bulk_string_value;
+static int hf_resp_integer;
+static int hf_resp_array;
+static int hf_resp_array_length;
+static int hf_resp_fragment;
 
 static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint array_depth, gint64 expected_elements);
 static void resp_bulk_string_enhance_colinfo_ascii(packet_info *pinfo, gint array_depth, gint bulk_string_length, const guint8 *bulk_string_as_str);

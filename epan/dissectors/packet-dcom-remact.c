@@ -21,23 +21,23 @@
 void proto_register_remact(void);
 void proto_reg_handoff_remact(void);
 
-static int hf_remact_opnum = -1;
+static int hf_remact_opnum;
 
-static int hf_remact_requested_protseqs = -1;
-static int hf_remact_protseqs = -1;
-static int hf_remact_interfaces = -1;
-static int hf_remact_mode = -1;
-static int hf_remact_client_impl_level = -1;
-static int hf_remact_object_name = -1;
-static int hf_remact_object_storage = -1;
-static int hf_remact_interface_data = -1;
+static int hf_remact_requested_protseqs;
+static int hf_remact_protseqs;
+static int hf_remact_interfaces;
+static int hf_remact_mode;
+static int hf_remact_client_impl_level;
+static int hf_remact_object_name;
+static int hf_remact_object_storage;
+static int hf_remact_interface_data;
 
-static int hf_remact_oxid_bindings = -1;
-static int hf_remact_authn_hint = -1;
+static int hf_remact_oxid_bindings;
+static int hf_remact_authn_hint;
 
 
-static int proto_remact = -1;
-static gint ett_remact = -1;
+static int proto_remact;
+static gint ett_remact;
 static e_guid_t uuid_remact = { 0x4d9f4ab8, 0x7d1c, 0x11cf, { 0x86, 0x1e, 0x00, 0x20, 0xaf, 0x6e, 0x7c, 0x57 } };
 static guint16  ver_remact = 0;
 

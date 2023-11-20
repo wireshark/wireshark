@@ -48,95 +48,95 @@ void proto_register_corosync_totemsrp(void);
 void proto_reg_handoff_corosync_totemsrp(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_corosync_totemsrp = -1;
+static int proto_corosync_totemsrp;
 
 static heur_dissector_list_t heur_subdissector_list;
 
 /* fields for struct message_header */
-static int hf_corosync_totemsrp_message_header_type            = -1;
-static int hf_corosync_totemsrp_message_header_encapsulated    = -1;
-static int hf_corosync_totemsrp_message_header_endian_detector = -1;
-static int hf_corosync_totemsrp_message_header_nodeid          = -1;
+static int hf_corosync_totemsrp_message_header_type;
+static int hf_corosync_totemsrp_message_header_encapsulated;
+static int hf_corosync_totemsrp_message_header_endian_detector;
+static int hf_corosync_totemsrp_message_header_nodeid;
 
 /* fields for struct orf_token */
-static int hf_corosync_totemsrp_orf_token                      = -1;
-static int hf_corosync_totemsrp_orf_token_seq                  = -1;
-static int hf_corosync_totemsrp_orf_token_token_seq            = -1;
-static int hf_corosync_totemsrp_orf_token_aru                  = -1;
-static int hf_corosync_totemsrp_orf_token_aru_addr             = -1;
-static int hf_corosync_totemsrp_orf_token_backlog              = -1;
-static int hf_corosync_totemsrp_orf_token_fcc                  = -1;
-static int hf_corosync_totemsrp_orf_token_retrnas_flg          = -1;
-static int hf_corosync_totemsrp_orf_token_rtr_list_entries     = -1;
+static int hf_corosync_totemsrp_orf_token;
+static int hf_corosync_totemsrp_orf_token_seq;
+static int hf_corosync_totemsrp_orf_token_token_seq;
+static int hf_corosync_totemsrp_orf_token_aru;
+static int hf_corosync_totemsrp_orf_token_aru_addr;
+static int hf_corosync_totemsrp_orf_token_backlog;
+static int hf_corosync_totemsrp_orf_token_fcc;
+static int hf_corosync_totemsrp_orf_token_retrnas_flg;
+static int hf_corosync_totemsrp_orf_token_rtr_list_entries;
 
 /* field for struct memb_ring_id */
-static int hf_corosync_totemsrp_memb_ring_id                   = -1;
-static int hf_corosync_totemsrp_memb_ring_id_seq               = -1;
+static int hf_corosync_totemsrp_memb_ring_id;
+static int hf_corosync_totemsrp_memb_ring_id_seq;
 
 /* field for struct totem_ip_address */
-static int hf_corosync_totemsrp_ip_address                     = -1;
-static int hf_corosync_totemsrp_ip_address_nodeid              = -1;
-static int hf_corosync_totemsrp_ip_address_family              = -1;
-static int hf_corosync_totemsrp_ip_address_addr                = -1;
-static int hf_corosync_totemsrp_ip_address_addr4               = -1;
-static int hf_corosync_totemsrp_ip_address_addr4_padding       = -1;
-static int hf_corosync_totemsrp_ip_address_addr6               = -1;
+static int hf_corosync_totemsrp_ip_address;
+static int hf_corosync_totemsrp_ip_address_nodeid;
+static int hf_corosync_totemsrp_ip_address_family;
+static int hf_corosync_totemsrp_ip_address_addr;
+static int hf_corosync_totemsrp_ip_address_addr4;
+static int hf_corosync_totemsrp_ip_address_addr4_padding;
+static int hf_corosync_totemsrp_ip_address_addr6;
 
 /* field of struct mcast */
-static int hf_corosync_totemsrp_mcast                          = -1;
-static int hf_corosync_totemsrp_mcast_seq                      = -1;
-static int hf_corosync_totemsrp_mcast_this_seqno               = -1;
-static int hf_corosync_totemsrp_mcast_node_id                  = -1;
-static int hf_corosync_totemsrp_mcast_system_from              = -1;
-static int hf_corosync_totemsrp_mcast_guarantee                = -1;
+static int hf_corosync_totemsrp_mcast;
+static int hf_corosync_totemsrp_mcast_seq;
+static int hf_corosync_totemsrp_mcast_this_seqno;
+static int hf_corosync_totemsrp_mcast_node_id;
+static int hf_corosync_totemsrp_mcast_system_from;
+static int hf_corosync_totemsrp_mcast_guarantee;
 
 /* field of struct memb_merge_detect */
-static int hf_corosync_totemsrp_memb_merge_detect              = -1;
+static int hf_corosync_totemsrp_memb_merge_detect;
 
 /* field of struct struct srp_addr */
-static int hf_corosync_totemsrp_srp_addr                       = -1;
+static int hf_corosync_totemsrp_srp_addr;
 
 /* field of struct rtr_item */
-static int hf_corosync_totemsrp_rtr_item                       = -1;
-static int hf_corosync_totemsrp_rtr_item_seq                   = -1;
+static int hf_corosync_totemsrp_rtr_item;
+static int hf_corosync_totemsrp_rtr_item_seq;
 
 /* field of struct memb_join */
-static int hf_corosync_totemsrp_memb_join                      = -1;
-static int hf_corosync_totemsrp_memb_join_proc_list_entries    = -1;
-static int hf_corosync_totemsrp_memb_join_failed_list_entries  = -1;
-static int hf_corosync_totemsrp_memb_join_ring_seq             = -1;
+static int hf_corosync_totemsrp_memb_join;
+static int hf_corosync_totemsrp_memb_join_proc_list_entries;
+static int hf_corosync_totemsrp_memb_join_failed_list_entries;
+static int hf_corosync_totemsrp_memb_join_ring_seq;
 
 /* field of struct memb_commit_token  */
-static int hf_corosync_totemsrp_memb_commit_token              = -1;
-static int hf_corosync_totemsrp_memb_commit_token_token_seq    = -1;
-static int hf_corosync_totemsrp_memb_commit_token_retrans_flg  = -1;
-static int hf_corosync_totemsrp_memb_commit_token_memb_index   = -1;
-static int hf_corosync_totemsrp_memb_commit_token_addr_entries = -1;
+static int hf_corosync_totemsrp_memb_commit_token;
+static int hf_corosync_totemsrp_memb_commit_token_token_seq;
+static int hf_corosync_totemsrp_memb_commit_token_retrans_flg;
+static int hf_corosync_totemsrp_memb_commit_token_memb_index;
+static int hf_corosync_totemsrp_memb_commit_token_addr_entries;
 
 /* field of struct memb_commit_token_memb_entry  */
-static int hf_corosync_totemsrp_memb_commit_token_memb_entry                = -1;
-static int hf_corosync_totemsrp_memb_commit_token_memb_entry_aru            = -1;
-static int hf_corosync_totemsrp_memb_commit_token_memb_entry_high_delivered = -1;
-static int hf_corosync_totemsrp_memb_commit_token_memb_entry_received_flg   = -1;
+static int hf_corosync_totemsrp_memb_commit_token_memb_entry;
+static int hf_corosync_totemsrp_memb_commit_token_memb_entry_aru;
+static int hf_corosync_totemsrp_memb_commit_token_memb_entry_high_delivered;
+static int hf_corosync_totemsrp_memb_commit_token_memb_entry_received_flg;
 
 /* field of struct token_hold_cancel */
-static int hf_corosync_totemsrp_token_hold_cancel              = -1;
+static int hf_corosync_totemsrp_token_hold_cancel;
 
 /* Initialize the subtree pointers */
-static gint ett_corosync_totemsrp                              = -1;
-static gint ett_corosync_totemsrp_orf_token                    = -1;
-static gint ett_corosync_totemsrp_memb_ring_id                 = -1;
-static gint ett_corosync_totemsrp_ip_address                   = -1;
-static gint ett_corosync_totemsrp_mcast                        = -1;
-static gint ett_corosync_totemsrp_memb_merge_detect            = -1;
-static gint ett_corosync_totemsrp_srp_addr                     = -1;
-static gint ett_corosync_totemsrp_rtr_item                     = -1;
-static gint ett_corosync_totemsrp_memb_join                    = -1;
-static gint ett_corosync_totemsrp_memb_commit_token            = -1;
-static gint ett_corosync_totemsrp_memb_commit_token_memb_entry = -1;
-static gint ett_corosync_totemsrp_token_hold_cancel            = -1;
-static gint ett_corosync_totemsrp_memb_join_proc_list          = -1;
-static gint ett_corosync_totemsrp_memb_join_failed_list        = -1;
+static gint ett_corosync_totemsrp;
+static gint ett_corosync_totemsrp_orf_token;
+static gint ett_corosync_totemsrp_memb_ring_id;
+static gint ett_corosync_totemsrp_ip_address;
+static gint ett_corosync_totemsrp_mcast;
+static gint ett_corosync_totemsrp_memb_merge_detect;
+static gint ett_corosync_totemsrp_srp_addr;
+static gint ett_corosync_totemsrp_rtr_item;
+static gint ett_corosync_totemsrp_memb_join;
+static gint ett_corosync_totemsrp_memb_commit_token;
+static gint ett_corosync_totemsrp_memb_commit_token_memb_entry;
+static gint ett_corosync_totemsrp_token_hold_cancel;
+static gint ett_corosync_totemsrp_memb_join_proc_list;
+static gint ett_corosync_totemsrp_memb_join_failed_list;
 
 
 /*

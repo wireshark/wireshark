@@ -28,19 +28,19 @@ static dissector_handle_t kpasswd_handle_tcp;
 /* Desegment Kerberos over TCP messages */
 static gboolean kpasswd_desegment = TRUE;
 
-static int proto_kpasswd = -1;
-static int hf_kpasswd_message_len = -1;
-static int hf_kpasswd_version = -1;
-static int hf_kpasswd_result = -1;
-static int hf_kpasswd_result_string = -1;
-static int hf_kpasswd_ap_req_len = -1;
-static int hf_kpasswd_ap_req_data = -1;
-static int hf_kpasswd_krb_priv_message = -1;
-static int hf_kpasswd_ChangePasswdData = -1;
+static int proto_kpasswd;
+static int hf_kpasswd_message_len;
+static int hf_kpasswd_version;
+static int hf_kpasswd_result;
+static int hf_kpasswd_result_string;
+static int hf_kpasswd_ap_req_len;
+static int hf_kpasswd_ap_req_data;
+static int hf_kpasswd_krb_priv_message;
+static int hf_kpasswd_ChangePasswdData;
 
-static gint ett_kpasswd = -1;
-static gint ett_ap_req_data = -1;
-static gint ett_krb_priv_message = -1;
+static gint ett_kpasswd;
+static gint ett_ap_req_data;
+static gint ett_krb_priv_message;
 
 
 #define UDP_PORT_KPASSWD        464

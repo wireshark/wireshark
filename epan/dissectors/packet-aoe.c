@@ -22,29 +22,29 @@ void proto_reg_handoff_aoe(void);
 static dissector_handle_t aoe_handle;
 
 static int proto_aoe;
-static int hf_aoe_version=-1;
-static int hf_aoe_flags_response=-1;
-static int hf_aoe_flags_error=-1;
-static int hf_aoe_error=-1;
-static int hf_aoe_major=-1;
-static int hf_aoe_minor=-1;
-static int hf_aoe_cmd=-1;
-static int hf_aoe_tag=-1;
-static int hf_aoe_aflags_e=-1;
-static int hf_aoe_aflags_d=-1;
-static int hf_aoe_aflags_a=-1;
-static int hf_aoe_aflags_w=-1;
-static int hf_aoe_err_feature=-1;
-static int hf_aoe_sector_count=-1;
-static int hf_aoe_acmd=-1;
-static int hf_aoe_astatus=-1;
-static int hf_aoe_lba=-1;
-static int hf_aoe_response_in=-1;
-static int hf_aoe_response_to=-1;
-static int hf_aoe_time=-1;
+static int hf_aoe_version;
+static int hf_aoe_flags_response;
+static int hf_aoe_flags_error;
+static int hf_aoe_error;
+static int hf_aoe_major;
+static int hf_aoe_minor;
+static int hf_aoe_cmd;
+static int hf_aoe_tag;
+static int hf_aoe_aflags_e;
+static int hf_aoe_aflags_d;
+static int hf_aoe_aflags_a;
+static int hf_aoe_aflags_w;
+static int hf_aoe_err_feature;
+static int hf_aoe_sector_count;
+static int hf_aoe_acmd;
+static int hf_aoe_astatus;
+static int hf_aoe_lba;
+static int hf_aoe_response_in;
+static int hf_aoe_response_to;
+static int hf_aoe_time;
 
-static gint ett_aoe = -1;
-static gint ett_aoe_flags = -1;
+static gint ett_aoe;
+static gint ett_aoe_flags;
 
 #define AOE_FLAGS_RESPONSE 0x08
 #define AOE_FLAGS_ERROR    0x04

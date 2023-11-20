@@ -96,46 +96,46 @@ static int  dissect_lwm_cmd_frame_route_req   (tvbuff_t *, packet_info *, proto_
 static int  dissect_lwm_cmd_frame_route_reply (tvbuff_t *, packet_info *, proto_tree *);
 
 /*  Initialize protocol and registered fields. */
-static int proto_lwm = -1;
+static int proto_lwm;
 
-static int hf_lwm_fcf = -1;
-static int hf_lwm_fcf_ack_req = -1;
-static int hf_lwm_fcf_security = -1;
-static int hf_lwm_fcf_linklocal = -1;
-static int hf_lwm_fcf_multicast = -1;
-static int hf_lwm_fcf_reserved = -1;
-static int hf_lwm_seq = -1;
-static int hf_lwm_src_addr = -1;
-static int hf_lwm_dst_addr = -1;
-static int hf_lwm_src_endp = -1;
-static int hf_lwm_dst_endp = -1;
-static int hf_lwm_multi_nmrad = -1;
-static int hf_lwm_multi_mnmrad = -1;
-static int hf_lwm_multi_mrad = -1;
-static int hf_lwm_multi_mmrad = -1;
-static int hf_lwm_mic = -1;
-static int hf_lwm_cmd = -1;
-static int hf_lwm_cmd_seq = -1;
-static int hf_lwm_cmd_cm = -1;
-static int hf_lwm_cmd_route_src  = -1;
-static int hf_lwm_cmd_route_dst  = -1;
-static int hf_lwm_cmd_route_multi  = -1;
-static int hf_lwm_cmd_linkquality  = -1;
-static int hf_lwm_cmd_forwlinkquality  = -1;
-static int hf_lwm_cmd_revlinkquality  = -1;
+static int hf_lwm_fcf;
+static int hf_lwm_fcf_ack_req;
+static int hf_lwm_fcf_security;
+static int hf_lwm_fcf_linklocal;
+static int hf_lwm_fcf_multicast;
+static int hf_lwm_fcf_reserved;
+static int hf_lwm_seq;
+static int hf_lwm_src_addr;
+static int hf_lwm_dst_addr;
+static int hf_lwm_src_endp;
+static int hf_lwm_dst_endp;
+static int hf_lwm_multi_nmrad;
+static int hf_lwm_multi_mnmrad;
+static int hf_lwm_multi_mrad;
+static int hf_lwm_multi_mmrad;
+static int hf_lwm_mic;
+static int hf_lwm_cmd;
+static int hf_lwm_cmd_seq;
+static int hf_lwm_cmd_cm;
+static int hf_lwm_cmd_route_src;
+static int hf_lwm_cmd_route_dst;
+static int hf_lwm_cmd_route_multi;
+static int hf_lwm_cmd_linkquality;
+static int hf_lwm_cmd_forwlinkquality;
+static int hf_lwm_cmd_revlinkquality;
 
 /* Initialize protocol subtrees. */
-static gint ett_lwm = -1;
-static gint ett_lwm_fcf = -1;
-static gint ett_lwm_cmd_tree = -1;
-static gint ett_lwm_multi_tree = -1;
+static gint ett_lwm;
+static gint ett_lwm_fcf;
+static gint ett_lwm_cmd_tree;
+static gint ett_lwm_multi_tree;
 
-static expert_field ei_lwm_mal_error = EI_INIT;
-static expert_field ei_lwm_n_src_broad = EI_INIT;
-static expert_field ei_lwm_mismatch_endp = EI_INIT;
-static expert_field ei_lwm_empty_payload = EI_INIT;
-static expert_field ei_lwm_no_decryption_key = EI_INIT;
-static expert_field ei_lwm_decryption_failed = EI_INIT;
+static expert_field ei_lwm_mal_error;
+static expert_field ei_lwm_n_src_broad;
+static expert_field ei_lwm_mismatch_endp;
+static expert_field ei_lwm_empty_payload;
+static expert_field ei_lwm_no_decryption_key;
+static expert_field ei_lwm_decryption_failed;
 
 static dissector_handle_t lwm_handle;
 

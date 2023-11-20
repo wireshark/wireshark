@@ -31,13 +31,13 @@ void proto_register_rdp_cliprdr(void);
 void proto_reg_handoff_rdp_cliprdr(void);
 
 
-static int proto_rdp_cliprdr = -1;
+static int proto_rdp_cliprdr;
 
-static int hf_cliprdr_msgType = -1;
-static int hf_cliprdr_msgFlags = -1;
-static int hf_cliprdr_dataLen = -1;
+static int hf_cliprdr_msgType;
+static int hf_cliprdr_msgFlags;
+static int hf_cliprdr_dataLen;
 
-static int ett_rdp_cliprdr = -1;
+static int ett_rdp_cliprdr;
 
 
 enum {

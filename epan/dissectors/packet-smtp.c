@@ -43,43 +43,43 @@
 void proto_register_smtp(void);
 void proto_reg_handoff_smtp(void);
 
-static int proto_smtp = -1;
+static int proto_smtp;
 
 static int credentials_tap = -1;
 
-static int hf_smtp_req = -1;
-static int hf_smtp_rsp = -1;
-static int hf_smtp_message = -1;
-static int hf_smtp_command_line = -1;
-static int hf_smtp_req_command = -1;
-static int hf_smtp_req_parameter = -1;
-static int hf_smtp_response = -1;
-static int hf_smtp_rsp_code = -1;
-static int hf_smtp_rsp_parameter = -1;
-static int hf_smtp_username = -1;
-static int hf_smtp_password = -1;
-static int hf_smtp_username_password = -1;
-static int hf_smtp_eom = -1;
+static int hf_smtp_req;
+static int hf_smtp_rsp;
+static int hf_smtp_message;
+static int hf_smtp_command_line;
+static int hf_smtp_req_command;
+static int hf_smtp_req_parameter;
+static int hf_smtp_response;
+static int hf_smtp_rsp_code;
+static int hf_smtp_rsp_parameter;
+static int hf_smtp_username;
+static int hf_smtp_password;
+static int hf_smtp_username_password;
+static int hf_smtp_eom;
 
-static int hf_smtp_data_fragments = -1;
-static int hf_smtp_data_fragment = -1;
-static int hf_smtp_data_fragment_overlap = -1;
-static int hf_smtp_data_fragment_overlap_conflicts = -1;
-static int hf_smtp_data_fragment_multiple_tails = -1;
-static int hf_smtp_data_fragment_too_long_fragment = -1;
-static int hf_smtp_data_fragment_error = -1;
-static int hf_smtp_data_fragment_count = -1;
-static int hf_smtp_data_reassembled_in = -1;
-static int hf_smtp_data_reassembled_length = -1;
+static int hf_smtp_data_fragments;
+static int hf_smtp_data_fragment;
+static int hf_smtp_data_fragment_overlap;
+static int hf_smtp_data_fragment_overlap_conflicts;
+static int hf_smtp_data_fragment_multiple_tails;
+static int hf_smtp_data_fragment_too_long_fragment;
+static int hf_smtp_data_fragment_error;
+static int hf_smtp_data_fragment_count;
+static int hf_smtp_data_reassembled_in;
+static int hf_smtp_data_reassembled_length;
 
-static int ett_smtp = -1;
-static int ett_smtp_cmdresp = -1;
+static int ett_smtp;
+static int ett_smtp_cmdresp;
 
-static gint ett_smtp_data_fragment = -1;
-static gint ett_smtp_data_fragments = -1;
+static gint ett_smtp_data_fragment;
+static gint ett_smtp_data_fragments;
 
-static expert_field ei_smtp_base64_decode = EI_INIT;
-static expert_field ei_smtp_rsp_code = EI_INIT;
+static expert_field ei_smtp_base64_decode;
+static expert_field ei_smtp_rsp_code;
 
 static gboolean    smtp_auth_parameter_decoding_enabled     = FALSE;
 /* desegmentation of SMTP command and response lines */

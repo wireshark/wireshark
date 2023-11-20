@@ -21,11 +21,11 @@
 void proto_register_snaeth(void);
 void proto_reg_handoff_snaeth(void);
 
-static int proto_snaeth = -1;
-static int hf_snaeth_len = -1;
-static int hf_snaeth_padding = -1;
+static int proto_snaeth;
+static int hf_snaeth_len;
+static int hf_snaeth_padding;
 
-static gint ett_snaeth = -1;
+static gint ett_snaeth;
 
 static dissector_handle_t llc_handle;
 static dissector_handle_t snaeth_handle;

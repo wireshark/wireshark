@@ -22,34 +22,34 @@
 
 #include "opcua_enumparser.h"
 
-gint ett_opcua_array_NodeIdType = -1;
-gint ett_opcua_array_NamingRuleType = -1;
-gint ett_opcua_array_OpenFileMode = -1;
-gint ett_opcua_array_TrustListMasks = -1;
-gint ett_opcua_array_IdType = -1;
-gint ett_opcua_array_NodeClass = -1;
-gint ett_opcua_array_ApplicationType = -1;
-gint ett_opcua_array_MessageSecurityMode = -1;
-gint ett_opcua_array_UserTokenType = -1;
-gint ett_opcua_array_SecurityTokenRequestType = -1;
-gint ett_opcua_array_NodeAttributesMask = -1;
-gint ett_opcua_array_AttributeWriteMask = -1;
-gint ett_opcua_array_BrowseDirection = -1;
-gint ett_opcua_array_BrowseResultMask = -1;
-gint ett_opcua_array_ComplianceLevel = -1;
-gint ett_opcua_array_FilterOperator = -1;
-gint ett_opcua_array_TimestampsToReturn = -1;
-gint ett_opcua_array_HistoryUpdateType = -1;
-gint ett_opcua_array_PerformUpdateType = -1;
-gint ett_opcua_array_MonitoringMode = -1;
-gint ett_opcua_array_DataChangeTrigger = -1;
-gint ett_opcua_array_DeadbandType = -1;
-gint ett_opcua_array_EnumeratedTestType = -1;
-gint ett_opcua_array_RedundancySupport = -1;
-gint ett_opcua_array_ServerState = -1;
-gint ett_opcua_array_ModelChangeStructureVerbMask = -1;
-gint ett_opcua_array_AxisScaleEnumeration = -1;
-gint ett_opcua_array_ExceptionDeviationFormat = -1;
+gint ett_opcua_array_NodeIdType;
+gint ett_opcua_array_NamingRuleType;
+gint ett_opcua_array_OpenFileMode;
+gint ett_opcua_array_TrustListMasks;
+gint ett_opcua_array_IdType;
+gint ett_opcua_array_NodeClass;
+gint ett_opcua_array_ApplicationType;
+gint ett_opcua_array_MessageSecurityMode;
+gint ett_opcua_array_UserTokenType;
+gint ett_opcua_array_SecurityTokenRequestType;
+gint ett_opcua_array_NodeAttributesMask;
+gint ett_opcua_array_AttributeWriteMask;
+gint ett_opcua_array_BrowseDirection;
+gint ett_opcua_array_BrowseResultMask;
+gint ett_opcua_array_ComplianceLevel;
+gint ett_opcua_array_FilterOperator;
+gint ett_opcua_array_TimestampsToReturn;
+gint ett_opcua_array_HistoryUpdateType;
+gint ett_opcua_array_PerformUpdateType;
+gint ett_opcua_array_MonitoringMode;
+gint ett_opcua_array_DataChangeTrigger;
+gint ett_opcua_array_DeadbandType;
+gint ett_opcua_array_EnumeratedTestType;
+gint ett_opcua_array_RedundancySupport;
+gint ett_opcua_array_ServerState;
+gint ett_opcua_array_ModelChangeStructureVerbMask;
+gint ett_opcua_array_AxisScaleEnumeration;
+gint ett_opcua_array_ExceptionDeviationFormat;
 
 /** NodeIdType enum table */
 static const value_string g_NodeIdTypeTable[] = {

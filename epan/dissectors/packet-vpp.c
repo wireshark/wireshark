@@ -25,32 +25,32 @@
 void proto_register_vpp(void);
 void proto_reg_handoff_vpp(void);
 
-static int proto_vpp = -1;
-static int proto_vpp_metadata = -1;
-static int proto_vpp_opaque = -1;
-static int proto_vpp_opaque2 = -1;
-static int proto_vpp_trace = -1;
-static int hf_vpp_nodename = -1;
-static int hf_vpp_metadata = -1;
-static int hf_vpp_buffer_index = -1;
-static int hf_vpp_buffer_opaque = -1;
-static int hf_vpp_buffer_opaque2 = -1;
-static int hf_vpp_buffer_trace = -1;
-static int hf_vpp_major_version = -1;
-static int hf_vpp_minor_version = -1;
-static int hf_vpp_protocol_hint = -1;
+static int proto_vpp;
+static int proto_vpp_metadata;
+static int proto_vpp_opaque;
+static int proto_vpp_opaque2;
+static int proto_vpp_trace;
+static int hf_vpp_nodename;
+static int hf_vpp_metadata;
+static int hf_vpp_buffer_index;
+static int hf_vpp_buffer_opaque;
+static int hf_vpp_buffer_opaque2;
+static int hf_vpp_buffer_trace;
+static int hf_vpp_major_version;
+static int hf_vpp_minor_version;
+static int hf_vpp_protocol_hint;
 
 static expert_module_t* expert_vpp;
 
-static expert_field ei_vpp_major_version_error = EI_INIT;
-static expert_field ei_vpp_minor_version_error = EI_INIT;
-static expert_field ei_vpp_protocol_hint_error = EI_INIT;
+static expert_field ei_vpp_major_version_error;
+static expert_field ei_vpp_minor_version_error;
+static expert_field ei_vpp_protocol_hint_error;
 
-static gint ett_vpp = -1;
-static gint ett_vpp_opaque = -1;
-static gint ett_vpp_opaque2 = -1;
-static gint ett_vpp_metadata = -1;
-static gint ett_vpp_trace = -1;
+static gint ett_vpp;
+static gint ett_vpp_opaque;
+static gint ett_vpp_opaque2;
+static gint ett_vpp_metadata;
+static gint ett_vpp_trace;
 
 static dissector_handle_t vpp_dissector_handle;
 static dissector_handle_t vpp_opaque_dissector_handle;

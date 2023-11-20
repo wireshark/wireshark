@@ -181,46 +181,46 @@ static const value_string *esmc_quality_level_vals_short[] = {
 };
 
 /* Initialise the protocol and registered fields */
-static int proto_ossp = -1;
+static int proto_ossp;
 
-static int hf_ossp_oui = -1;
-static int hf_itu_subtype = -1;
-static int hf_esmc_version = -1;
-static int hf_esmc_event_flag = -1;
-static int hf_esmc_reserved_bits = -1;
-static int hf_esmc_reserved_octets = -1;
-static int hf_esmc_tlv = -1;
-static int hf_esmc_tlv_type = -1;
-static int hf_esmc_tlv_length = -1;
-static int hf_esmc_tlv_ql_unused = -1;
-static int hf_esmc_tlv_ql_ssm = -1;
-static int hf_esmc_tlv_ext_ql_essm = -1;
-static int hf_esmc_tlv_ext_ql_clockid = -1;
-static int hf_esmc_tlv_ext_ql_flag_reserved = -1;
-static int hf_esmc_tlv_ext_ql_flag_chain = -1;
-static int hf_esmc_tlv_ext_ql_flag_mixed = -1;
-static int hf_esmc_tlv_ext_ql_eeec = -1;
-static int hf_esmc_tlv_ext_ql_eec = -1;
-static int hf_esmc_tlv_ext_ql_reserved = -1;
-static int hf_esmc_quality_level = -1;
-static int hf_esmc_padding = -1;
+static int hf_ossp_oui;
+static int hf_itu_subtype;
+static int hf_esmc_version;
+static int hf_esmc_event_flag;
+static int hf_esmc_reserved_bits;
+static int hf_esmc_reserved_octets;
+static int hf_esmc_tlv;
+static int hf_esmc_tlv_type;
+static int hf_esmc_tlv_length;
+static int hf_esmc_tlv_ql_unused;
+static int hf_esmc_tlv_ql_ssm;
+static int hf_esmc_tlv_ext_ql_essm;
+static int hf_esmc_tlv_ext_ql_clockid;
+static int hf_esmc_tlv_ext_ql_flag_reserved;
+static int hf_esmc_tlv_ext_ql_flag_chain;
+static int hf_esmc_tlv_ext_ql_flag_mixed;
+static int hf_esmc_tlv_ext_ql_eeec;
+static int hf_esmc_tlv_ext_ql_eec;
+static int hf_esmc_tlv_ext_ql_reserved;
+static int hf_esmc_quality_level;
+static int hf_esmc_padding;
 
 /* Initialise the subtree pointers */
 
-static gint ett_ossppdu = -1;
-static gint ett_itu_ossp = -1;
+static gint ett_ossppdu;
+static gint ett_itu_ossp;
 
-static gint ett_esmc = -1;
+static gint ett_esmc;
 
-static expert_field ei_esmc_tlv_type_ql_type_not_first = EI_INIT;
-static expert_field ei_esmc_tlv_type_not_ext_ql = EI_INIT;
-static expert_field ei_esmc_quality_level_invalid = EI_INIT;
-static expert_field ei_esmc_tlv_ql_unused_not_zero = EI_INIT;
-static expert_field ei_esmc_tlv_type_decoded_as_ext_ql = EI_INIT;
-static expert_field ei_esmc_tlv_type_decoded_as_ql_type = EI_INIT;
-static expert_field ei_esmc_version_compliance = EI_INIT;
-static expert_field ei_esmc_tlv_length_bad = EI_INIT;
-static expert_field ei_esmc_reserved_not_zero = EI_INIT;
+static expert_field ei_esmc_tlv_type_ql_type_not_first;
+static expert_field ei_esmc_tlv_type_not_ext_ql;
+static expert_field ei_esmc_quality_level_invalid;
+static expert_field ei_esmc_tlv_ql_unused_not_zero;
+static expert_field ei_esmc_tlv_type_decoded_as_ext_ql;
+static expert_field ei_esmc_tlv_type_decoded_as_ql_type;
+static expert_field ei_esmc_version_compliance;
+static expert_field ei_esmc_tlv_length_bad;
+static expert_field ei_esmc_reserved_not_zero;
 
 static gint pref_option_network = 1;
 static const enum_val_t pref_option_network_vals[] =

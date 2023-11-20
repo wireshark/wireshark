@@ -81,15 +81,15 @@ static void get_new_colinfo_w_submessages(
 
 /* Subtree pointers */
 static gint rtpsproc_tree = -1;
-static gint ett_rtpsproc = -1;
-static gint ett_rtpsproc_security = -1;
-static gint ett_rtpsproc_advanced_frame0 = -1;
-static gint ett_rtpsproc_advanced_frame1 = -1;
+static gint ett_rtpsproc;
+static gint ett_rtpsproc_security;
+static gint ett_rtpsproc_advanced_frame0;
+static gint ett_rtpsproc_advanced_frame1;
 
 /* Initialize the protocol and registered fields */
 static header_field_info *rtpsproc_hf = NULL;
-static int hf_rtpsproc_param_id = -1;
-static int hf_rtpsproc_param_length = -1;
+static int hf_rtpsproc_param_id;
+static int hf_rtpsproc_param_length;
 
 /* Used for caching a handle to the RTPS dissector */
 static dissector_handle_t rtps_handle = NULL;

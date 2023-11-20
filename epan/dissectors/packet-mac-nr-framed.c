@@ -21,7 +21,7 @@
 void proto_register_mac_nr_framed(void);
 
 /* Initialize the protocol and registered fields. */
-static int proto_mac_nr_framed = -1;
+static int proto_mac_nr_framed;
 
 extern int proto_mac_nr;
 

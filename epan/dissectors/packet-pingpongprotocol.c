@@ -29,17 +29,17 @@ void proto_reg_handoff_pingpongprotocol(void);
 static dissector_handle_t pingpongprotocol_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_pingpongprotocol         = -1;
+static int proto_pingpongprotocol;
 static int tap_pingpongprotocol           = -1;
-static int ett_pingpongprotocol           = -1;
-static int hf_message_type                = -1;
-static int hf_message_flags               = -1;
-static int hf_message_length              = -1;
-static int hf_ping_messageno              = -1;
-static int hf_ping_data                   = -1;
-static int hf_pong_messageno              = -1;
-static int hf_pong_replyno                = -1;
-static int hf_pong_data                   = -1;
+static int ett_pingpongprotocol;
+static int hf_message_type;
+static int hf_message_flags;
+static int hf_message_length;
+static int hf_ping_messageno;
+static int hf_ping_data;
+static int hf_pong_messageno;
+static int hf_pong_replyno;
+static int hf_pong_data;
 
 static guint64 pingpongprotocol_total_msgs  = 0;
 static guint64 pingpongprotocol_total_bytes = 0;

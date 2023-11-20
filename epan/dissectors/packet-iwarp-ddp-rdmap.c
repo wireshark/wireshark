@@ -87,125 +87,125 @@ void proto_register_iwarp_ddp_rdmap(void);
 #define IWARP_ETYPE_DDP_UNTAGGED 0x02
 
 /* GLOBALS */
-static gint proto_iwarp_ddp_rdmap = -1;
-static gint ett_iwarp_ddp_rdmap = -1;
+static gint proto_iwarp_ddp_rdmap;
+static gint ett_iwarp_ddp_rdmap;
 
 /*
  * DDP: initialize the protocol and registered fields
  */
-static gint hf_iwarp_ddp = -1;
+static gint hf_iwarp_ddp;
 
 /* DDP Control Field */
-static gint hf_iwarp_ddp_control_field = -1;
-static gint hf_iwarp_ddp_t_flag = -1;
-static gint hf_iwarp_ddp_l_flag = -1;
-static gint hf_iwarp_ddp_rsvd = -1;
-static gint hf_iwarp_ddp_dv = -1;
+static gint hf_iwarp_ddp_control_field;
+static gint hf_iwarp_ddp_t_flag;
+static gint hf_iwarp_ddp_l_flag;
+static gint hf_iwarp_ddp_rsvd;
+static gint hf_iwarp_ddp_dv;
 
 /* DDP rsvdULP[8:39] field */
-static gint hf_iwarp_ddp_rsvdulp = -1;
+static gint hf_iwarp_ddp_rsvdulp;
 
 /* Tagged Buffer Model Header */
-static gint hf_iwarp_ddp_tagged_header = -1;
-static gint hf_iwarp_ddp_stag = -1;
-static gint hf_iwarp_ddp_to = -1;
+static gint hf_iwarp_ddp_tagged_header;
+static gint hf_iwarp_ddp_stag;
+static gint hf_iwarp_ddp_to;
 
 /* Untagged Buffer Model Header */
-static gint hf_iwarp_ddp_untagged_header = -1;
-static gint hf_iwarp_ddp_qn= -1;
-static gint hf_iwarp_ddp_msn = -1;
-static gint hf_iwarp_ddp_mo = -1;
+static gint hf_iwarp_ddp_untagged_header;
+static gint hf_iwarp_ddp_qn;
+static gint hf_iwarp_ddp_msn;
+static gint hf_iwarp_ddp_mo;
 
 /* initialize the subtree pointers */
-static gint ett_iwarp_ddp = -1;
+static gint ett_iwarp_ddp;
 
-static gint ett_iwarp_ddp_control_field = -1;
-static gint ett_iwarp_ddp_tagged_header = -1;
-static gint ett_iwarp_ddp_untagged_header = -1;
+static gint ett_iwarp_ddp_control_field;
+static gint ett_iwarp_ddp_tagged_header;
+static gint ett_iwarp_ddp_untagged_header;
 
 /*
  * RDMAP: initialize the protocol and registered fields
  */
-static gint hf_iwarp_rdma = -1;
+static gint hf_iwarp_rdma;
 
 /* Control Field */
-static gint hf_iwarp_rdma_control_field = -1;
-static gint hf_iwarp_rdma_version = -1;
-static gint hf_iwarp_rdma_rsvd = -1;
-static gint hf_iwarp_rdma_opcode = -1;
+static gint hf_iwarp_rdma_control_field;
+static gint hf_iwarp_rdma_version;
+static gint hf_iwarp_rdma_rsvd;
+static gint hf_iwarp_rdma_opcode;
 
 /* DDP rsvdULP[8:39] RDMA interpretations */
-static gint hf_iwarp_rdma_reserved = -1;
-static gint hf_iwarp_rdma_inval_stag = -1;
+static gint hf_iwarp_rdma_reserved;
+static gint hf_iwarp_rdma_inval_stag;
 
 /* Read Request Header */
-static gint hf_iwarp_rdma_rr_header = -1;
-static gint hf_iwarp_rdma_sinkstag = -1;
-static gint hf_iwarp_rdma_sinkto = -1;
-static gint hf_iwarp_rdma_rdmardsz = -1;
-static gint hf_iwarp_rdma_srcstag = -1;
-static gint hf_iwarp_rdma_srcto = -1;
+static gint hf_iwarp_rdma_rr_header;
+static gint hf_iwarp_rdma_sinkstag;
+static gint hf_iwarp_rdma_sinkto;
+static gint hf_iwarp_rdma_rdmardsz;
+static gint hf_iwarp_rdma_srcstag;
+static gint hf_iwarp_rdma_srcto;
 
 /* Terminate Header */
-static gint hf_iwarp_rdma_terminate_header = -1;
-static gint hf_iwarp_rdma_term_ctrl = -1;
-static gint hf_iwarp_rdma_term_layer = -1;
-static gint hf_iwarp_rdma_term_etype = -1;
-static gint hf_iwarp_rdma_term_etype_rdma = -1;
-static gint hf_iwarp_rdma_term_etype_ddp = -1;
-static gint hf_iwarp_rdma_term_etype_llp = -1;
-static gint hf_iwarp_rdma_term_errcode = -1;
-static gint hf_iwarp_rdma_term_errcode_rdma = -1;
-static gint hf_iwarp_rdma_term_errcode_ddp_untagged = -1;
-static gint hf_iwarp_rdma_term_errcode_ddp_tagged = -1;
-static gint hf_iwarp_rdma_term_errcode_llp = -1;
-static gint hf_iwarp_rdma_term_hdrct = -1;
-static gint hf_iwarp_rdma_term_hdrct_m = -1;
-static gint hf_iwarp_rdma_term_hdrct_d = -1;
-static gint hf_iwarp_rdma_term_hdrct_r = -1;
-static gint hf_iwarp_rdma_term_rsvd = -1;
-static gint hf_iwarp_rdma_term_ddp_seg_len = -1;
-static gint hf_iwarp_rdma_term_ddp_h = -1;
-static gint hf_iwarp_rdma_term_rdma_h = -1;
+static gint hf_iwarp_rdma_terminate_header;
+static gint hf_iwarp_rdma_term_ctrl;
+static gint hf_iwarp_rdma_term_layer;
+static gint hf_iwarp_rdma_term_etype;
+static gint hf_iwarp_rdma_term_etype_rdma;
+static gint hf_iwarp_rdma_term_etype_ddp;
+static gint hf_iwarp_rdma_term_etype_llp;
+static gint hf_iwarp_rdma_term_errcode;
+static gint hf_iwarp_rdma_term_errcode_rdma;
+static gint hf_iwarp_rdma_term_errcode_ddp_untagged;
+static gint hf_iwarp_rdma_term_errcode_ddp_tagged;
+static gint hf_iwarp_rdma_term_errcode_llp;
+static gint hf_iwarp_rdma_term_hdrct;
+static gint hf_iwarp_rdma_term_hdrct_m;
+static gint hf_iwarp_rdma_term_hdrct_d;
+static gint hf_iwarp_rdma_term_hdrct_r;
+static gint hf_iwarp_rdma_term_rsvd;
+static gint hf_iwarp_rdma_term_ddp_seg_len;
+static gint hf_iwarp_rdma_term_ddp_h;
+static gint hf_iwarp_rdma_term_rdma_h;
 
 /* Atomic */
-static gint hf_iwarp_rdma_atomic_reserved = -1;
-static gint hf_iwarp_rdma_atomic_opcode = -1;
-static gint hf_iwarp_rdma_atomic_request_identifier = -1;
-static gint hf_iwarp_rdma_atomic_remote_stag = -1;
-static gint hf_iwarp_rdma_atomic_remote_tagged_offset = -1;
-static gint hf_iwarp_rdma_atomic_add_data = -1;
-static gint hf_iwarp_rdma_atomic_add_mask = -1;
-static gint hf_iwarp_rdma_atomic_swap_data = -1;
-static gint hf_iwarp_rdma_atomic_swap_mask = -1;
-static gint hf_iwarp_rdma_atomic_compare_data = -1;
-static gint hf_iwarp_rdma_atomic_compare_mask = -1;
-static gint hf_iwarp_rdma_atomic_original_request_identifier = -1;
-static gint hf_iwarp_rdma_atomic_original_remote_data_value = -1;
+static gint hf_iwarp_rdma_atomic_reserved;
+static gint hf_iwarp_rdma_atomic_opcode;
+static gint hf_iwarp_rdma_atomic_request_identifier;
+static gint hf_iwarp_rdma_atomic_remote_stag;
+static gint hf_iwarp_rdma_atomic_remote_tagged_offset;
+static gint hf_iwarp_rdma_atomic_add_data;
+static gint hf_iwarp_rdma_atomic_add_mask;
+static gint hf_iwarp_rdma_atomic_swap_data;
+static gint hf_iwarp_rdma_atomic_swap_mask;
+static gint hf_iwarp_rdma_atomic_compare_data;
+static gint hf_iwarp_rdma_atomic_compare_mask;
+static gint hf_iwarp_rdma_atomic_original_request_identifier;
+static gint hf_iwarp_rdma_atomic_original_remote_data_value;
 
-static gint hf_iwarp_rdma_send_fragments = -1;
-static gint hf_iwarp_rdma_send_fragment = -1;
-static gint hf_iwarp_rdma_send_fragment_overlap = -1;
-static gint hf_iwarp_rdma_send_fragment_overlap_conflict = -1;
-static gint hf_iwarp_rdma_send_fragment_multiple_tails = -1;
-static gint hf_iwarp_rdma_send_fragment_too_long_fragment = -1;
-static gint hf_iwarp_rdma_send_fragment_error = -1;
-static gint hf_iwarp_rdma_send_fragment_count = -1;
-static gint hf_iwarp_rdma_send_reassembled_in = -1;
-static gint hf_iwarp_rdma_send_reassembled_length = -1;
-static gint hf_iwarp_rdma_send_reassembled_data = -1;
+static gint hf_iwarp_rdma_send_fragments;
+static gint hf_iwarp_rdma_send_fragment;
+static gint hf_iwarp_rdma_send_fragment_overlap;
+static gint hf_iwarp_rdma_send_fragment_overlap_conflict;
+static gint hf_iwarp_rdma_send_fragment_multiple_tails;
+static gint hf_iwarp_rdma_send_fragment_too_long_fragment;
+static gint hf_iwarp_rdma_send_fragment_error;
+static gint hf_iwarp_rdma_send_fragment_count;
+static gint hf_iwarp_rdma_send_reassembled_in;
+static gint hf_iwarp_rdma_send_reassembled_length;
+static gint hf_iwarp_rdma_send_reassembled_data;
 
 /* initialize the subtree pointers */
-static gint ett_iwarp_rdma = -1;
+static gint ett_iwarp_rdma;
 
-static gint ett_iwarp_rdma_control_field = -1;
-static gint ett_iwarp_rdma_rr_header = -1;
-static gint ett_iwarp_rdma_terminate_header = -1;
-static gint ett_iwarp_rdma_term_ctrl = -1;
-static gint ett_iwarp_rdma_term_hdrct = -1;
+static gint ett_iwarp_rdma_control_field;
+static gint ett_iwarp_rdma_rr_header;
+static gint ett_iwarp_rdma_terminate_header;
+static gint ett_iwarp_rdma_term_ctrl;
+static gint ett_iwarp_rdma_term_hdrct;
 
-static gint ett_iwarp_rdma_send_fragment = -1;
-static gint ett_iwarp_rdma_send_fragments = -1;
+static gint ett_iwarp_rdma_send_fragment;
+static gint ett_iwarp_rdma_send_fragments;
 
 static const fragment_items iwarp_rdma_send_frag_items = {
 	&ett_iwarp_rdma_send_fragment,

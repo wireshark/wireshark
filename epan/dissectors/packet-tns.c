@@ -74,153 +74,153 @@ static gboolean tns_desegment = TRUE;
 
 static dissector_handle_t tns_handle;
 
-static int proto_tns = -1;
-static int hf_tns_request = -1;
-static int hf_tns_response = -1;
-static int hf_tns_length = -1;
-static int hf_tns_packet_checksum = -1;
-static int hf_tns_header_checksum = -1;
-static int hf_tns_packet_type = -1;
-static int hf_tns_reserved_byte = -1;
-static int hf_tns_version = -1;
-static int hf_tns_compat_version = -1;
+static int proto_tns;
+static int hf_tns_request;
+static int hf_tns_response;
+static int hf_tns_length;
+static int hf_tns_packet_checksum;
+static int hf_tns_header_checksum;
+static int hf_tns_packet_type;
+static int hf_tns_reserved_byte;
+static int hf_tns_version;
+static int hf_tns_compat_version;
 
-static int hf_tns_service_options = -1;
-static int hf_tns_sopt_flag_bconn = -1;
-static int hf_tns_sopt_flag_pc = -1;
-static int hf_tns_sopt_flag_hc = -1;
-static int hf_tns_sopt_flag_fd = -1;
-static int hf_tns_sopt_flag_hd = -1;
-static int hf_tns_sopt_flag_dc1 = -1;
-static int hf_tns_sopt_flag_dc2 = -1;
-static int hf_tns_sopt_flag_dio = -1;
-static int hf_tns_sopt_flag_ap = -1;
-static int hf_tns_sopt_flag_ra = -1;
-static int hf_tns_sopt_flag_sa = -1;
+static int hf_tns_service_options;
+static int hf_tns_sopt_flag_bconn;
+static int hf_tns_sopt_flag_pc;
+static int hf_tns_sopt_flag_hc;
+static int hf_tns_sopt_flag_fd;
+static int hf_tns_sopt_flag_hd;
+static int hf_tns_sopt_flag_dc1;
+static int hf_tns_sopt_flag_dc2;
+static int hf_tns_sopt_flag_dio;
+static int hf_tns_sopt_flag_ap;
+static int hf_tns_sopt_flag_ra;
+static int hf_tns_sopt_flag_sa;
 
-static int hf_tns_sdu_size = -1;
-static int hf_tns_max_tdu_size = -1;
+static int hf_tns_sdu_size;
+static int hf_tns_max_tdu_size;
 
-static int hf_tns_nt_proto_characteristics = -1;
-static int hf_tns_ntp_flag_hangon = -1;
-static int hf_tns_ntp_flag_crel = -1;
-static int hf_tns_ntp_flag_tduio = -1;
-static int hf_tns_ntp_flag_srun = -1;
-static int hf_tns_ntp_flag_dtest = -1;
-static int hf_tns_ntp_flag_cbio = -1;
-static int hf_tns_ntp_flag_asio = -1;
-static int hf_tns_ntp_flag_pio = -1;
-static int hf_tns_ntp_flag_grant = -1;
-static int hf_tns_ntp_flag_handoff = -1;
-static int hf_tns_ntp_flag_sigio = -1;
-static int hf_tns_ntp_flag_sigpipe = -1;
-static int hf_tns_ntp_flag_sigurg = -1;
-static int hf_tns_ntp_flag_urgentio = -1;
-static int hf_tns_ntp_flag_fdio = -1;
-static int hf_tns_ntp_flag_testop = -1;
+static int hf_tns_nt_proto_characteristics;
+static int hf_tns_ntp_flag_hangon;
+static int hf_tns_ntp_flag_crel;
+static int hf_tns_ntp_flag_tduio;
+static int hf_tns_ntp_flag_srun;
+static int hf_tns_ntp_flag_dtest;
+static int hf_tns_ntp_flag_cbio;
+static int hf_tns_ntp_flag_asio;
+static int hf_tns_ntp_flag_pio;
+static int hf_tns_ntp_flag_grant;
+static int hf_tns_ntp_flag_handoff;
+static int hf_tns_ntp_flag_sigio;
+static int hf_tns_ntp_flag_sigpipe;
+static int hf_tns_ntp_flag_sigurg;
+static int hf_tns_ntp_flag_urgentio;
+static int hf_tns_ntp_flag_fdio;
+static int hf_tns_ntp_flag_testop;
 
-static int hf_tns_line_turnaround = -1;
-static int hf_tns_value_of_one = -1;
-static int hf_tns_connect_data_length = -1;
-static int hf_tns_connect_data_offset = -1;
-static int hf_tns_connect_data_max = -1;
+static int hf_tns_line_turnaround;
+static int hf_tns_value_of_one;
+static int hf_tns_connect_data_length;
+static int hf_tns_connect_data_offset;
+static int hf_tns_connect_data_max;
 
-static int hf_tns_connect_flags0 = -1;
-static int hf_tns_connect_flags1 = -1;
-static int hf_tns_conn_flag_nareq = -1;
-static int hf_tns_conn_flag_nalink = -1;
-static int hf_tns_conn_flag_enablena = -1;
-static int hf_tns_conn_flag_ichg = -1;
-static int hf_tns_conn_flag_wantna = -1;
+static int hf_tns_connect_flags0;
+static int hf_tns_connect_flags1;
+static int hf_tns_conn_flag_nareq;
+static int hf_tns_conn_flag_nalink;
+static int hf_tns_conn_flag_enablena;
+static int hf_tns_conn_flag_ichg;
+static int hf_tns_conn_flag_wantna;
 
-static int hf_tns_connect_data = -1;
-static int hf_tns_trace_cf1 = -1;
-static int hf_tns_trace_cf2 = -1;
-static int hf_tns_trace_cid = -1;
+static int hf_tns_connect_data;
+static int hf_tns_trace_cf1;
+static int hf_tns_trace_cf2;
+static int hf_tns_trace_cid;
 
-static int hf_tns_accept_data_length = -1;
-static int hf_tns_accept_data_offset = -1;
-static int hf_tns_accept_data = -1;
+static int hf_tns_accept_data_length;
+static int hf_tns_accept_data_offset;
+static int hf_tns_accept_data;
 
-static int hf_tns_refuse_reason_user = -1;
-static int hf_tns_refuse_reason_system = -1;
-static int hf_tns_refuse_data_length = -1;
-static int hf_tns_refuse_data = -1;
+static int hf_tns_refuse_reason_user;
+static int hf_tns_refuse_reason_system;
+static int hf_tns_refuse_data_length;
+static int hf_tns_refuse_data;
 
-static int hf_tns_abort_reason_user = -1;
-static int hf_tns_abort_reason_system = -1;
-static int hf_tns_abort_data = -1;
+static int hf_tns_abort_reason_user;
+static int hf_tns_abort_reason_system;
+static int hf_tns_abort_data;
 
-static int hf_tns_marker_type = -1;
-static int hf_tns_marker_data_byte = -1;
-/* static int hf_tns_marker_data = -1; */
+static int hf_tns_marker_type;
+static int hf_tns_marker_data_byte;
+/* static int hf_tns_marker_data; */
 
-static int hf_tns_redirect_data_length = -1;
-static int hf_tns_redirect_data = -1;
+static int hf_tns_redirect_data_length;
+static int hf_tns_redirect_data;
 
-static int hf_tns_control_cmd = -1;
-static int hf_tns_control_data = -1;
+static int hf_tns_control_cmd;
+static int hf_tns_control_data;
 
-static int hf_tns_data_flag = -1;
-static int hf_tns_data_flag_send = -1;
-static int hf_tns_data_flag_rc = -1;
-static int hf_tns_data_flag_c = -1;
-static int hf_tns_data_flag_reserved = -1;
-static int hf_tns_data_flag_more = -1;
-static int hf_tns_data_flag_eof = -1;
-static int hf_tns_data_flag_dic = -1;
-static int hf_tns_data_flag_rts = -1;
-static int hf_tns_data_flag_sntt = -1;
+static int hf_tns_data_flag;
+static int hf_tns_data_flag_send;
+static int hf_tns_data_flag_rc;
+static int hf_tns_data_flag_c;
+static int hf_tns_data_flag_reserved;
+static int hf_tns_data_flag_more;
+static int hf_tns_data_flag_eof;
+static int hf_tns_data_flag_dic;
+static int hf_tns_data_flag_rts;
+static int hf_tns_data_flag_sntt;
 
-static int hf_tns_data_id = -1;
-static int hf_tns_data_length = -1;
-static int hf_tns_data_oci_id = -1;
-static int hf_tns_data_piggyback_id = -1;
-static int hf_tns_data_unused = -1;
+static int hf_tns_data_id;
+static int hf_tns_data_length;
+static int hf_tns_data_oci_id;
+static int hf_tns_data_piggyback_id;
+static int hf_tns_data_unused;
 
-static int hf_tns_data_opi_version2_banner_len = -1;
-static int hf_tns_data_opi_version2_banner = -1;
-static int hf_tns_data_opi_version2_vsnum = -1;
+static int hf_tns_data_opi_version2_banner_len;
+static int hf_tns_data_opi_version2_banner;
+static int hf_tns_data_opi_version2_vsnum;
 
-static int hf_tns_data_opi_num_of_params = -1;
-static int hf_tns_data_opi_param_length = -1;
-static int hf_tns_data_opi_param_name = -1;
-static int hf_tns_data_opi_param_value = -1;
+static int hf_tns_data_opi_num_of_params;
+static int hf_tns_data_opi_param_length;
+static int hf_tns_data_opi_param_name;
+static int hf_tns_data_opi_param_value;
 
-static int hf_tns_data_setp_acc_version = -1;
-static int hf_tns_data_setp_cli_plat = -1;
-static int hf_tns_data_setp_version = -1;
-static int hf_tns_data_setp_banner = -1;
+static int hf_tns_data_setp_acc_version;
+static int hf_tns_data_setp_cli_plat;
+static int hf_tns_data_setp_version;
+static int hf_tns_data_setp_banner;
 
-static int hf_tns_data_sns_cli_vers = -1;
-static int hf_tns_data_sns_srv_vers = -1;
-static int hf_tns_data_sns_srvcnt = -1;
+static int hf_tns_data_sns_cli_vers;
+static int hf_tns_data_sns_srv_vers;
+static int hf_tns_data_sns_srvcnt;
 
-static int hf_tns_data_descriptor_row_count = -1;
-static int hf_tns_data_descriptor_row_size = -1;
+static int hf_tns_data_descriptor_row_count;
+static int hf_tns_data_descriptor_row_size;
 
-static gint ett_tns = -1;
-static gint ett_tns_connect = -1;
-static gint ett_tns_accept = -1;
-static gint ett_tns_refuse = -1;
-static gint ett_tns_abort = -1;
-static gint ett_tns_redirect = -1;
-static gint ett_tns_marker = -1;
-static gint ett_tns_attention = -1;
-static gint ett_tns_control = -1;
-static gint ett_tns_data = -1;
-static gint ett_tns_data_flag = -1;
-static gint ett_tns_acc_versions = -1;
-static gint ett_tns_opi_params = -1;
-static gint ett_tns_opi_par = -1;
-static gint ett_tns_sopt_flag = -1;
-static gint ett_tns_ntp_flag = -1;
-static gint ett_tns_conn_flag = -1;
-static gint ett_tns_rows = -1;
-static gint ett_sql = -1;
+static gint ett_tns;
+static gint ett_tns_connect;
+static gint ett_tns_accept;
+static gint ett_tns_refuse;
+static gint ett_tns_abort;
+static gint ett_tns_redirect;
+static gint ett_tns_marker;
+static gint ett_tns_attention;
+static gint ett_tns_control;
+static gint ett_tns_data;
+static gint ett_tns_data_flag;
+static gint ett_tns_acc_versions;
+static gint ett_tns_opi_params;
+static gint ett_tns_opi_par;
+static gint ett_tns_sopt_flag;
+static gint ett_tns_ntp_flag;
+static gint ett_tns_conn_flag;
+static gint ett_tns_rows;
+static gint ett_sql;
 
-static expert_field ei_tns_connect_data_next_packet = EI_INIT;
-static expert_field ei_tns_data_descriptor_size_mismatch = EI_INIT;
+static expert_field ei_tns_connect_data_next_packet;
+static expert_field ei_tns_data_descriptor_size_mismatch;
 
 #define TCP_PORT_TNS			1521 /* Not IANA registered */
 

@@ -26,35 +26,35 @@
 void proto_register_vsock(void);
 void proto_reg_handoff_vsock(void);
 
-static int proto_vsock = -1;
+static int proto_vsock;
 static int vsock_address_type = -1;
 static dissector_handle_t vsock_handle;
 
 /* Generic header related fields */
-static int hf_vsock_src_cid = -1;
-static int hf_vsock_src_port = -1;
-static int hf_vsock_dst_cid = -1;
-static int hf_vsock_dst_port = -1;
-static int hf_vsock_op = -1;
-static int hf_vsock_t = -1;
-static int hf_vsock_t_len = -1;
-static int hf_vsock_reserved = -1;
-static int hf_vsock_payload = -1;
+static int hf_vsock_src_cid;
+static int hf_vsock_src_port;
+static int hf_vsock_dst_cid;
+static int hf_vsock_dst_port;
+static int hf_vsock_op;
+static int hf_vsock_t;
+static int hf_vsock_t_len;
+static int hf_vsock_reserved;
+static int hf_vsock_payload;
 
 /* Virtio related fields */
-static int hf_virtio_src_cid = -1;
-static int hf_virtio_dst_cid = -1;
-static int hf_virtio_src_port = -1;
-static int hf_virtio_dst_port = -1;
-static int hf_virtio_len = -1;
-static int hf_virtio_type = -1;
-static int hf_virtio_op = -1;
-static int hf_virtio_flags = -1;
-static int hf_virtio_buf_alloc = -1;
-static int hf_virtio_fwd_cnt = -1;
+static int hf_virtio_src_cid;
+static int hf_virtio_dst_cid;
+static int hf_virtio_src_port;
+static int hf_virtio_dst_port;
+static int hf_virtio_len;
+static int hf_virtio_type;
+static int hf_virtio_op;
+static int hf_virtio_flags;
+static int hf_virtio_buf_alloc;
+static int hf_virtio_fwd_cnt;
 
-static gint ett_vsock = -1;
-static gint ett_virtio = -1;
+static gint ett_vsock;
+static gint ett_virtio;
 
 static const value_string af_vsockmon_op_names[] = {
     { 0, "Unknown" },

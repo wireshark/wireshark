@@ -119,42 +119,42 @@ static const value_string sa_unspec_error_vals[] = {
 #define MSDP_PORT  639
 
 /* Initialize the protocol and registered fields */
-static int proto_msdp = -1;
-static int hf_msdp_type = -1;
-static int hf_msdp_length = -1;
+static int proto_msdp;
+static int hf_msdp_type;
+static int hf_msdp_length;
 
-static int hf_msdp_sa_entry_count = -1;
-static int hf_msdp_sa_rp_addr = -1;
-static int hf_msdp_sa_reserved = -1;
-static int hf_msdp_sa_sprefix_len = -1;
-static int hf_msdp_sa_group_addr = -1;
-static int hf_msdp_sa_src_addr = -1;
+static int hf_msdp_sa_entry_count;
+static int hf_msdp_sa_rp_addr;
+static int hf_msdp_sa_reserved;
+static int hf_msdp_sa_sprefix_len;
+static int hf_msdp_sa_group_addr;
+static int hf_msdp_sa_src_addr;
 
-static int hf_msdp_sa_req_res = -1;
-static int hf_msdp_sa_req_group = -1;
+static int hf_msdp_sa_req_res;
+static int hf_msdp_sa_req_group;
 
-static int hf_msdp_not_o = -1;
-static int hf_msdp_not_error = -1;
-static int hf_msdp_not_error_sub = -1;
+static int hf_msdp_not_o;
+static int hf_msdp_not_error;
+static int hf_msdp_not_error_sub;
 
-static int hf_msdp_not_group_address = -1;
-static int hf_msdp_not_rp_address = -1;
-static int hf_msdp_not_source_address = -1;
-static int hf_msdp_not_res = -1;
-static int hf_msdp_not_entry_count = -1;
-static int hf_msdp_not_sprefix_len = -1;
+static int hf_msdp_not_group_address;
+static int hf_msdp_not_rp_address;
+static int hf_msdp_not_source_address;
+static int hf_msdp_not_res;
+static int hf_msdp_not_entry_count;
+static int hf_msdp_not_sprefix_len;
 
-static int hf_msdp_tlv_contents = -1;
-static int hf_msdp_trailing_junk = -1;
-static int hf_msdp_unknown_data = -1;
+static int hf_msdp_tlv_contents;
+static int hf_msdp_trailing_junk;
+static int hf_msdp_unknown_data;
 
-static gint ett_msdp = -1;
-static gint ett_msdp_sa_entry = -1;
-static gint ett_msdp_sa_enc_data = -1;
-static gint ett_msdp_not_data = -1;
+static gint ett_msdp;
+static gint ett_msdp_sa_entry;
+static gint ett_msdp_sa_enc_data;
+static gint ett_msdp_not_data;
 
-static expert_field ei_msdp_tlv_len_too_short = EI_INIT;
-static expert_field ei_msdp_tlv_len_too_long = EI_INIT;
+static expert_field ei_msdp_tlv_len_too_short;
+static expert_field ei_msdp_tlv_len_too_long;
 
 static dissector_handle_t msdp_handle;
 static dissector_handle_t ip_handle;

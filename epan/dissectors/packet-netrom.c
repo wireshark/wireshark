@@ -62,28 +62,28 @@ void proto_reg_handoff_netrom(void);
 static dissector_handle_t ip_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_netrom			= -1;
-static int hf_netrom_src		= -1;
-static int hf_netrom_dst		= -1;
-static int hf_netrom_ttl		= -1;
-static int hf_netrom_my_cct_index	= -1;
-static int hf_netrom_my_cct_id		= -1;
-static int hf_netrom_your_cct_index	= -1;
-static int hf_netrom_your_cct_id	= -1;
-static int hf_netrom_n_r		= -1;
-static int hf_netrom_n_s		= -1;
-static int hf_netrom_type		= -1;
-static int hf_netrom_op			= -1;
-static int hf_netrom_more		= -1;
-static int hf_netrom_nak		= -1;
-static int hf_netrom_choke		= -1;
+static int proto_netrom;
+static int hf_netrom_src;
+static int hf_netrom_dst;
+static int hf_netrom_ttl;
+static int hf_netrom_my_cct_index;
+static int hf_netrom_my_cct_id;
+static int hf_netrom_your_cct_index;
+static int hf_netrom_your_cct_id;
+static int hf_netrom_n_r;
+static int hf_netrom_n_s;
+static int hf_netrom_type;
+static int hf_netrom_op;
+static int hf_netrom_more;
+static int hf_netrom_nak;
+static int hf_netrom_choke;
 
-static int hf_netrom_user		= -1;
-static int hf_netrom_node		= -1;
-static int hf_netrom_pwindow		= -1;
-static int hf_netrom_awindow		= -1;
+static int hf_netrom_user;
+static int hf_netrom_node;
+static int hf_netrom_pwindow;
+static int hf_netrom_awindow;
 
-static int hf_netrom_mnemonic		= -1;
+static int hf_netrom_mnemonic;
 
 /*
  * Structure containing pointers to hf_ values for various subfields of
@@ -127,8 +127,8 @@ static const value_string op_code_vals_text[] = {
 };
 
 /* Initialize the subtree pointers */
-static gint ett_netrom      = -1;
-static gint ett_netrom_type = -1;
+static gint ett_netrom;
+static gint ett_netrom_type;
 
 static void
 dissect_netrom_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,

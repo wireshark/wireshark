@@ -36,76 +36,76 @@
 #define PROTO_TAG_H223 "H.223"
 
 /* Wireshark ID of the H.223 protocol */
-static int proto_h223 = -1;
-static int proto_h223_bitswapped = -1;
+static int proto_h223;
+static int proto_h223_bitswapped;
 
 /* The following hf_* variables are used to hold the Wireshark IDs of
  * our header fields; they are filled out when we call
  * proto_register_field_array() in proto_register_h223()
  */
-/* static int hf_h223_non_h223_data = -1; */
-static int hf_h223_mux_stuffing_pdu = -1;
-static int hf_h223_mux_pdu = -1;
-static int hf_h223_mux_header = -1;
-static int hf_h223_mux_rawhdr = -1;
-static int hf_h223_mux_correctedhdr = -1;
-static int hf_h223_mux_mc = -1;
-static int hf_h223_mux_mpl = -1;
-static int hf_h223_mux_deact = -1;
-static int hf_h223_mux_vc = -1;
-static int hf_h223_mux_extra = -1;
-static int hf_h223_mux_hdlc2 = -1;
-static int hf_h223_mux_fragments = -1;
-static int hf_h223_mux_fragment = -1;
-static int hf_h223_mux_fragment_overlap = -1;
-static int hf_h223_mux_fragment_overlap_conflict = -1;
-static int hf_h223_mux_fragment_multiple_tails = -1;
-static int hf_h223_mux_fragment_too_long_fragment = -1;
-static int hf_h223_mux_fragment_error = -1;
-static int hf_h223_mux_fragment_count = -1;
-static int hf_h223_mux_reassembled_in = -1;
-static int hf_h223_mux_reassembled_length = -1;
+/* static int hf_h223_non_h223_data; */
+static int hf_h223_mux_stuffing_pdu;
+static int hf_h223_mux_pdu;
+static int hf_h223_mux_header;
+static int hf_h223_mux_rawhdr;
+static int hf_h223_mux_correctedhdr;
+static int hf_h223_mux_mc;
+static int hf_h223_mux_mpl;
+static int hf_h223_mux_deact;
+static int hf_h223_mux_vc;
+static int hf_h223_mux_extra;
+static int hf_h223_mux_hdlc2;
+static int hf_h223_mux_fragments;
+static int hf_h223_mux_fragment;
+static int hf_h223_mux_fragment_overlap;
+static int hf_h223_mux_fragment_overlap_conflict;
+static int hf_h223_mux_fragment_multiple_tails;
+static int hf_h223_mux_fragment_too_long_fragment;
+static int hf_h223_mux_fragment_error;
+static int hf_h223_mux_fragment_count;
+static int hf_h223_mux_reassembled_in;
+static int hf_h223_mux_reassembled_length;
 
-static int hf_h223_al_fragments = -1;
-static int hf_h223_al_fragment = -1;
-static int hf_h223_al_fragment_overlap = -1;
-static int hf_h223_al_fragment_overlap_conflict = -1;
-static int hf_h223_al_fragment_multiple_tails = -1;
-static int hf_h223_al_fragment_too_long_fragment = -1;
-static int hf_h223_al_fragment_error = -1;
-static int hf_h223_al_fragment_count = -1;
-static int hf_h223_al_reassembled_in = -1;
-static int hf_h223_al_reassembled_length = -1;
+static int hf_h223_al_fragments;
+static int hf_h223_al_fragment;
+static int hf_h223_al_fragment_overlap;
+static int hf_h223_al_fragment_overlap_conflict;
+static int hf_h223_al_fragment_multiple_tails;
+static int hf_h223_al_fragment_too_long_fragment;
+static int hf_h223_al_fragment_error;
+static int hf_h223_al_fragment_count;
+static int hf_h223_al_reassembled_in;
+static int hf_h223_al_reassembled_length;
 
-static int hf_h223_al1 = -1;
-static int hf_h223_al1_framed = -1;
-static int hf_h223_al2 = -1;
-static int hf_h223_al2_sequenced = -1;
-static int hf_h223_al2_unsequenced = -1;
-static int hf_h223_al2_seqno = -1;
-static int hf_h223_al2_crc = -1;
-static int hf_h223_al2_crc_status = -1;
+static int hf_h223_al1;
+static int hf_h223_al1_framed;
+static int hf_h223_al2;
+static int hf_h223_al2_sequenced;
+static int hf_h223_al2_unsequenced;
+static int hf_h223_al2_seqno;
+static int hf_h223_al2_crc;
+static int hf_h223_al2_crc_status;
 
-static int hf_h223_al_payload = -1;
+static int hf_h223_al_payload;
 
 /* These are the ids of the subtrees that we may be creating */
-static gint ett_h223 = -1;
-static gint ett_h223_non_h223_data = -1;
-static gint ett_h223_mux_stuffing_pdu = -1;
-static gint ett_h223_mux_pdu = -1;
-static gint ett_h223_mux_header = -1;
-static gint ett_h223_mux_deact = -1;
-static gint ett_h223_mux_vc = -1;
-static gint ett_h223_mux_extra = -1;
-static gint ett_h223_mux_fragments = -1;
-static gint ett_h223_mux_fragment  = -1;
-static gint ett_h223_al_fragments = -1;
-static gint ett_h223_al_fragment  = -1;
-static gint ett_h223_al1 = -1;
-static gint ett_h223_al2 = -1;
-static gint ett_h223_al_payload = -1;
+static gint ett_h223;
+static gint ett_h223_non_h223_data;
+static gint ett_h223_mux_stuffing_pdu;
+static gint ett_h223_mux_pdu;
+static gint ett_h223_mux_header;
+static gint ett_h223_mux_deact;
+static gint ett_h223_mux_vc;
+static gint ett_h223_mux_extra;
+static gint ett_h223_mux_fragments;
+static gint ett_h223_mux_fragment;
+static gint ett_h223_al_fragments;
+static gint ett_h223_al_fragment;
+static gint ett_h223_al1;
+static gint ett_h223_al2;
+static gint ett_h223_al_payload;
 
-static expert_field ei_h223_al2_crc = EI_INIT;
+static expert_field ei_h223_al2_crc;
 
 /* These are the handles of our subdissectors */
 static dissector_handle_t data_handle;

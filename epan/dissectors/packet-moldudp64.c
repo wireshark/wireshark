@@ -23,14 +23,14 @@ void proto_reg_handoff_moldudp64(void);
 static dissector_handle_t moldudp64_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_moldudp64       = -1;
-static int hf_moldudp64_session  = -1;
-static int hf_moldudp64_sequence = -1;
-static int hf_moldudp64_count    = -1;
-static int hf_moldudp64_msgblk   = -1;
-static int hf_moldudp64_msglen   = -1;
-static int hf_moldudp64_msgseq   = -1;
-static int hf_moldudp64_msgdata  = -1;
+static int proto_moldudp64;
+static int hf_moldudp64_session;
+static int hf_moldudp64_sequence;
+static int hf_moldudp64_count;
+static int hf_moldudp64_msgblk;
+static int hf_moldudp64_msglen;
+static int hf_moldudp64_msgseq;
+static int hf_moldudp64_msgdata;
 
 #define MOLDUDP64_SESSION_LEN  10
 #define MOLDUDP64_SEQUENCE_LEN  8
@@ -41,13 +41,13 @@ static int hf_moldudp64_msgdata  = -1;
 #define MOLDUDP64_ENDOFSESS 0xFFFF
 
 /* Initialize the subtree pointers */
-static gint ett_moldudp64        = -1;
-static gint ett_moldudp64_msgblk = -1;
+static gint ett_moldudp64;
+static gint ett_moldudp64_msgblk;
 
-static expert_field ei_moldudp64_msglen_invalid = EI_INIT;
-static expert_field ei_moldudp64_end_of_session_extra = EI_INIT;
-static expert_field ei_moldudp64_count_invalid = EI_INIT;
-static expert_field ei_moldudp64_request = EI_INIT;
+static expert_field ei_moldudp64_msglen_invalid;
+static expert_field ei_moldudp64_end_of_session_extra;
+static expert_field ei_moldudp64_count_invalid;
+static expert_field ei_moldudp64_request;
 
 static dissector_table_t moldudp64_payload_table;
 

@@ -23,14 +23,14 @@ void proto_reg_handoff_atmtcp(void);
 
 static dissector_handle_t atmtcp_handle;
 
-static int proto_atmtcp = -1;
-static int hf_atmtcp_vpi = -1;
-static int hf_atmtcp_vci = -1;
-static int hf_atmtcp_length = -1;
+static int proto_atmtcp;
+static int hf_atmtcp_vpi;
+static int hf_atmtcp_vci;
+static int hf_atmtcp_length;
 
 #define ATMTCP_TCP_PORT     2812
 
-static gint ett_atmtcp = -1;
+static gint ett_atmtcp;
 
 #define ATMTCP_HDR_MAGIC        (~0)    /* this length indicates a command */
 #define ATMTCP_CTRL_OPEN        1       /* request/reply */

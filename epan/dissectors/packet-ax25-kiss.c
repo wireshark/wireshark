@@ -128,22 +128,22 @@ void proto_register_ax25_kiss(void);
 void proto_reg_handoff_ax25_kiss(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_ax25_kiss           = -1;
+static int proto_ax25_kiss;
 
-static int hf_ax25_kiss_cmd		= -1;
-static int hf_ax25_kiss_port		= -1;
-static int hf_ax25_kiss_txdelay		= -1;
-static int hf_ax25_kiss_persistence	= -1;
-static int hf_ax25_kiss_slottime	= -1;
-static int hf_ax25_kiss_txtail		= -1;
-static int hf_ax25_kiss_fullduplex	= -1;
-static int hf_ax25_kiss_sethardware	= -1;
-static int hf_ax25_kiss_data_ack	= -1;
-static int hf_ax25_kiss_cksum		= -1;
+static int hf_ax25_kiss_cmd;
+static int hf_ax25_kiss_port;
+static int hf_ax25_kiss_txdelay;
+static int hf_ax25_kiss_persistence;
+static int hf_ax25_kiss_slottime;
+static int hf_ax25_kiss_txtail;
+static int hf_ax25_kiss_fullduplex;
+static int hf_ax25_kiss_sethardware;
+static int hf_ax25_kiss_data_ack;
+static int hf_ax25_kiss_cksum;
 
 
 /* Initialize the subtree pointers */
-static gint ett_ax25_kiss = -1;
+static gint ett_ax25_kiss;
 
 static dissector_handle_t kiss_handle;
 

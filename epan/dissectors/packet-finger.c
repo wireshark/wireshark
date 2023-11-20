@@ -23,16 +23,16 @@ static dissector_handle_t finger_handle;
 
 #define FINGER_PORT     79  /* This is the registered IANA port */
 
-static int proto_finger = -1;
-static int hf_finger_query = -1;
-static int hf_finger_response = -1;
-static int hf_finger_response_in = -1;
-static int hf_finger_response_to = -1;
-static int hf_finger_response_time = -1;
+static int proto_finger;
+static int hf_finger_query;
+static int hf_finger_response;
+static int hf_finger_response_in;
+static int hf_finger_response_to;
+static int hf_finger_response_time;
 
-static expert_field ei_finger_nocrlf = EI_INIT;
+static expert_field ei_finger_nocrlf;
 
-static gint ett_finger = -1;
+static gint ett_finger;
 
 typedef struct _finger_transaction_t {
     guint32  req_frame;

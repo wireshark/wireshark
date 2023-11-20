@@ -97,7 +97,7 @@ static const value_string reject_code_val[] = {
 
 
 /* Initialize the protocol and registered fields */
-static int proto_soupbintcp = -1;
+static int proto_soupbintcp;
 static dissector_handle_t soupbintcp_handle;
 static heur_dissector_list_t heur_subdissector_list;
 
@@ -105,23 +105,23 @@ static heur_dissector_list_t heur_subdissector_list;
 static gboolean soupbintcp_desegment = TRUE;
 
 /* Initialize the subtree pointers */
-static gint ett_soupbintcp = -1;
+static gint ett_soupbintcp;
 
 /* Header field formatting */
-static int hf_soupbintcp_packet_length = -1;
-static int hf_soupbintcp_packet_type = -1;
-static int hf_soupbintcp_message = -1;
-static int hf_soupbintcp_text = -1;
-static int hf_soupbintcp_username = -1;
-static int hf_soupbintcp_password = -1;
-static int hf_soupbintcp_session = -1;
-static int hf_soupbintcp_seq_num = -1;
-static int hf_soupbintcp_next_seq_num = -1;
-static int hf_soupbintcp_req_seq_num = -1;
-static int hf_soupbintcp_reject_code = -1;
+static int hf_soupbintcp_packet_length;
+static int hf_soupbintcp_packet_type;
+static int hf_soupbintcp_message;
+static int hf_soupbintcp_text;
+static int hf_soupbintcp_username;
+static int hf_soupbintcp_password;
+static int hf_soupbintcp_session;
+static int hf_soupbintcp_seq_num;
+static int hf_soupbintcp_next_seq_num;
+static int hf_soupbintcp_req_seq_num;
+static int hf_soupbintcp_reject_code;
 
-static expert_field ei_soupbintcp_next_seq_num_invalid = EI_INIT;
-static expert_field ei_soupbintcp_req_seq_num_invalid = EI_INIT;
+static expert_field ei_soupbintcp_next_seq_num_invalid;
+static expert_field ei_soupbintcp_req_seq_num_invalid;
 
 /** Dissector for SoupBinTCP messages */
 static void

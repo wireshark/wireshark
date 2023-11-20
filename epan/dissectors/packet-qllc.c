@@ -16,11 +16,11 @@
 void proto_register_qllc(void);
 void proto_reg_handoff_qllc(void);
 
-static int proto_qllc = -1;
-static int hf_qllc_address = -1;
-static int hf_qllc_control = -1;
+static int proto_qllc;
+static int hf_qllc_address;
+static int hf_qllc_control;
 
-static gint ett_qllc = -1;
+static gint ett_qllc;
 
 static dissector_handle_t sna_handle;
 

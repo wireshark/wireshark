@@ -30,7 +30,7 @@
 /* proto_expert cannot be static because it's referenced in the
  * print routines
  */
-int proto_expert              = -1;
+int proto_expert;
 
 static int proto_malformed;
 

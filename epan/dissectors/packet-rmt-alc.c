@@ -43,19 +43,19 @@ static dissector_handle_t alc_handle;
 void proto_register_alc(void);
 void proto_reg_handoff_alc(void);
 
-static int proto_rmt_alc = -1;
+static int proto_rmt_alc;
 
-static int hf_version = -1;
-static int hf_atsc3 = -1;
-static int hf_object_start_offset = -1;
-static int hf_payload = -1;
-static int hf_uncomp_payload = -1;
+static int hf_version;
+static int hf_atsc3;
+static int hf_object_start_offset;
+static int hf_payload;
+static int hf_uncomp_payload;
 
-static int ett_main = -1;
-static int ett_uncomp_payload = -1;
-static int ett_uncomp_decode = -1;
+static int ett_main;
+static int ett_uncomp_payload;
+static int ett_uncomp_decode;
 
-static expert_field ei_version1_only = EI_INIT;
+static expert_field ei_version1_only;
 
 static dissector_handle_t xml_handle;
 static dissector_handle_t rmt_lct_handle;

@@ -243,7 +243,7 @@ typedef struct {
 static reassembly_table ltp_reassembly_table;
 
 /* Initialize the protocol and registered fields */
-static int proto_ltp = -1;
+static int proto_ltp;
 
 static int ltp_tap = -1;
 
@@ -251,90 +251,90 @@ static gboolean ltp_reassemble_block = TRUE;
 static gboolean ltp_analyze_sequence = TRUE;
 
 /* LTP Header variables */
-static int hf_ltp_version       = -1;
-static int hf_ltp_type          = -1;
-static int hf_ltp_session_name    = -1;
-static int hf_ltp_session_orig  = -1;
-static int hf_ltp_session_no    = -1;
-static int hf_ltp_hdr_extn_cnt  = -1;
-static int hf_ltp_trl_extn_cnt  = -1;
+static int hf_ltp_version;
+static int hf_ltp_type;
+static int hf_ltp_session_name;
+static int hf_ltp_session_orig;
+static int hf_ltp_session_no;
+static int hf_ltp_hdr_extn_cnt;
+static int hf_ltp_trl_extn_cnt;
 
 /* LTP Data Segment variable */
-static int hf_ltp_data_clid     = -1;
-static int hf_ltp_data_offset   = -1;
-static int hf_ltp_data_length   = -1;
-static int hf_ltp_data_chkp     = -1;
-static int hf_ltp_data_chkp_rpt = -1;
-static int hf_ltp_data_rpt      = -1;
-static int hf_ltp_data_rpt_ref  = -1;
-static int hf_ltp_data_rpt_time = -1;
-static int hf_ltp_data_sda_clid = -1;
-static int hf_ltp_partial_packet = -1;
-static int hf_ltp_data_clidata  = -1;
-static int hf_ltp_data_retrans  = -1;
-static int hf_ltp_data_clm_rpt  = -1;
-static int hf_ltp_block_red_size = -1;
-static int hf_ltp_block_green_size = -1;
-static int hf_ltp_block_bundle_size = -1;
-static int hf_ltp_block_bundle_cnt = -1;
+static int hf_ltp_data_clid;
+static int hf_ltp_data_offset;
+static int hf_ltp_data_length;
+static int hf_ltp_data_chkp;
+static int hf_ltp_data_chkp_rpt;
+static int hf_ltp_data_rpt;
+static int hf_ltp_data_rpt_ref;
+static int hf_ltp_data_rpt_time;
+static int hf_ltp_data_sda_clid;
+static int hf_ltp_partial_packet;
+static int hf_ltp_data_clidata;
+static int hf_ltp_data_retrans;
+static int hf_ltp_data_clm_rpt;
+static int hf_ltp_block_red_size;
+static int hf_ltp_block_green_size;
+static int hf_ltp_block_bundle_size;
+static int hf_ltp_block_bundle_cnt;
 
 /* LTP Report Segment variable */
-static int hf_ltp_rpt_sno       = -1;
-static int hf_ltp_rpt_sno_ack   = -1;
-static int hf_ltp_rpt_sno_data  = -1;
-static int hf_ltp_rpt_chkp      = -1;
-static int hf_ltp_rpt_chkp_ref  = -1;
-static int hf_ltp_rpt_chkp_time = -1;
-static int hf_ltp_rpt_ub        = -1;
-static int hf_ltp_rpt_lb        = -1;
-static int hf_ltp_rpt_len       = -1;
-static int hf_ltp_rpt_retrans   = -1;
-static int hf_ltp_rpt_clm_cnt   = -1;
-static int hf_ltp_rpt_clm_off   = -1;
-static int hf_ltp_rpt_clm_len   = -1;
-static int hf_ltp_rpt_clm_fst   = -1;
-static int hf_ltp_rpt_clm_lst   = -1;
-static int hf_ltp_rpt_clm_ref   = -1;
-static int hf_ltp_rpt_gap       = -1;
-static int hf_ltp_rpt_gap_ref   = -1;
-static int hf_ltp_rpt_gap_total = -1;
+static int hf_ltp_rpt_sno;
+static int hf_ltp_rpt_sno_ack;
+static int hf_ltp_rpt_sno_data;
+static int hf_ltp_rpt_chkp;
+static int hf_ltp_rpt_chkp_ref;
+static int hf_ltp_rpt_chkp_time;
+static int hf_ltp_rpt_ub;
+static int hf_ltp_rpt_lb;
+static int hf_ltp_rpt_len;
+static int hf_ltp_rpt_retrans;
+static int hf_ltp_rpt_clm_cnt;
+static int hf_ltp_rpt_clm_off;
+static int hf_ltp_rpt_clm_len;
+static int hf_ltp_rpt_clm_fst;
+static int hf_ltp_rpt_clm_lst;
+static int hf_ltp_rpt_clm_ref;
+static int hf_ltp_rpt_gap;
+static int hf_ltp_rpt_gap_ref;
+static int hf_ltp_rpt_gap_total;
 
 /* LTP Report Ack Segment Variable */
-static int hf_ltp_rpt_ack_sno   = -1;
-static int hf_ltp_rpt_ack_dupe  = -1;
-static int hf_ltp_rpt_ack_ref   = -1;
-static int hf_ltp_rpt_ack_time   = -1;
-static int hf_ltp_cancel_ack    = -1;
+static int hf_ltp_rpt_ack_sno;
+static int hf_ltp_rpt_ack_dupe;
+static int hf_ltp_rpt_ack_ref;
+static int hf_ltp_rpt_ack_time;
+static int hf_ltp_cancel_ack;
 
 /* LTP Session Management Segment Variable */
-static int hf_ltp_cancel_code   = -1;
+static int hf_ltp_cancel_code;
 
 /* LTP Header Extension Segment */
-static int hf_ltp_hdr_extn_tag  = -1;
-static int hf_ltp_hdr_extn_len  = -1;
-static int hf_ltp_hdr_extn_val  = -1;
+static int hf_ltp_hdr_extn_tag;
+static int hf_ltp_hdr_extn_len;
+static int hf_ltp_hdr_extn_val;
 
 /* LTP Trailer Extension Segment */
-static int hf_ltp_trl_extn_tag  = -1;
-static int hf_ltp_trl_extn_len  = -1;
-static int hf_ltp_trl_extn_val  = -1;
+static int hf_ltp_trl_extn_tag;
+static int hf_ltp_trl_extn_len;
+static int hf_ltp_trl_extn_val;
 
 /*LTP reassembly */
-static int hf_ltp_fragments = -1;
-static int hf_ltp_fragment = -1;
-static int hf_ltp_fragment_overlap = -1;
-static int hf_ltp_fragment_overlap_conflicts = -1;
-static int hf_ltp_fragment_multiple_tails = -1;
-static int hf_ltp_fragment_too_long_fragment = -1;
-static int hf_ltp_fragment_error = -1;
-static int hf_ltp_fragment_count = -1;
-static int hf_ltp_reassembled_in = -1;
-static int hf_ltp_reassembled_length = -1;
+static int hf_ltp_fragments;
+static int hf_ltp_fragment;
+static int hf_ltp_fragment_overlap;
+static int hf_ltp_fragment_overlap_conflicts;
+static int hf_ltp_fragment_multiple_tails;
+static int hf_ltp_fragment_too_long_fragment;
+static int hf_ltp_fragment_error;
+static int hf_ltp_fragment_count;
+static int hf_ltp_reassembled_in;
+static int hf_ltp_reassembled_length;
 
-static expert_field ei_ltp_mal_reception_claim = EI_INIT;
-static expert_field ei_ltp_sdnv_length = EI_INIT;
-static expert_field ei_ltp_sno_larger_than_ccsds = EI_INIT;
-static expert_field ei_ltp_report_async = EI_INIT;
+static expert_field ei_ltp_mal_reception_claim;
+static expert_field ei_ltp_sdnv_length;
+static expert_field ei_ltp_sno_larger_than_ccsds;
+static expert_field ei_ltp_report_async;
 
 static dissector_handle_t bundle_handle;
 
@@ -403,21 +403,21 @@ static const val64_string client_service_id_info[] = {
 #define LTP_PORT    1113
 
 /* Initialize the subtree pointers */
-static gint ett_ltp             = -1;
-static gint ett_ltp_hdr         = -1;
-static gint ett_hdr_session     = -1;
-static gint ett_hdr_extn        = -1;
-static gint ett_frame_ref       = -1;
-static gint ett_data_segm       = -1;
-static gint ett_block           = -1;
-static gint ett_rpt_segm        = -1;
-static gint ett_rpt_clm         = -1;
-static gint ett_rpt_gap         = -1;
-static gint ett_rpt_ack_segm    = -1;
-static gint ett_session_mgmt    = -1;
-static gint ett_trl_extn        = -1;
-static gint ett_ltp_fragment	= -1;
-static gint ett_ltp_fragments	= -1;
+static gint ett_ltp;
+static gint ett_ltp_hdr;
+static gint ett_hdr_session;
+static gint ett_hdr_extn;
+static gint ett_frame_ref;
+static gint ett_data_segm;
+static gint ett_block;
+static gint ett_rpt_segm;
+static gint ett_rpt_clm;
+static gint ett_rpt_gap;
+static gint ett_rpt_ack_segm;
+static gint ett_session_mgmt;
+static gint ett_trl_extn;
+static gint ett_ltp_fragment;
+static gint ett_ltp_fragments;
 
 static const fragment_items ltp_frag_items = {
 	/*Fragment subtrees*/

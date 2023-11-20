@@ -27,23 +27,23 @@
 void proto_register_pw_fr(void);
 void proto_reg_handoff_pw_fr(void);
 
-static gint proto_encaps = -1;
-static gint ett_encaps = -1;
+static gint proto_encaps;
+static gint ett_encaps;
 
-/* static int hf_pw_fr = -1; */
-static int hf_cw_bits03 = -1;
-static int hf_cw_fecn = -1;
-static int hf_cw_becn = -1;
-static int hf_cw_de = -1;
-static int hf_cw_cr = -1;
-static int hf_cw_frg = -1;
-static int hf_cw_len = -1;
-static int hf_cw_seq = -1;
-static int hf_cw_padding = -1;
+/* static int hf_pw_fr; */
+static int hf_cw_bits03;
+static int hf_cw_fecn;
+static int hf_cw_becn;
+static int hf_cw_de;
+static int hf_cw_cr;
+static int hf_cw_frg;
+static int hf_cw_len;
+static int hf_cw_seq;
+static int hf_cw_padding;
 
-static expert_field ei_payload_size_invalid = EI_INIT;
-static expert_field ei_cw_bits03 = EI_INIT;
-static expert_field ei_cw_packet_size_too_small = EI_INIT;
+static expert_field ei_payload_size_invalid;
+static expert_field ei_cw_bits03;
+static expert_field ei_cw_packet_size_too_small;
 
 static const value_string vals_frg[] = {
 	{ 0x0,	"Unfragmented" },

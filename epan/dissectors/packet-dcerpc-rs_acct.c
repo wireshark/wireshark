@@ -21,17 +21,17 @@
 void proto_register_rs_acct (void);
 void proto_reg_handoff_rs_acct (void);
 
-static int proto_rs_acct = -1;
-static int hf_rs_acct_opnum = -1;
-static int hf_rs_acct_lookup_rqst_var = -1;
-static int hf_rs_acct_lookup_rqst_key_size = -1;
-static int hf_rs_acct_lookup_rqst_key_t = -1;
-static int hf_rs_acct_get_projlist_rqst_var1 = -1;
-static int hf_rs_acct_get_projlist_rqst_key_size = -1;
-static int hf_rs_acct_get_projlist_rqst_key_t = -1;
+static int proto_rs_acct;
+static int hf_rs_acct_opnum;
+static int hf_rs_acct_lookup_rqst_var;
+static int hf_rs_acct_lookup_rqst_key_size;
+static int hf_rs_acct_lookup_rqst_key_t;
+static int hf_rs_acct_get_projlist_rqst_var1;
+static int hf_rs_acct_get_projlist_rqst_key_size;
+static int hf_rs_acct_get_projlist_rqst_key_t;
 
 
-static gint ett_rs_acct = -1;
+static gint ett_rs_acct;
 
 
 

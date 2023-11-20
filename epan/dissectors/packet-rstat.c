@@ -17,13 +17,13 @@
 void proto_register_rstat(void);
 void proto_reg_handoff_rstat(void);
 
-static int proto_rstat = -1;
-static int hf_rstat_procedure_v1 = -1;
-static int hf_rstat_procedure_v2 = -1;
-static int hf_rstat_procedure_v3 = -1;
-static int hf_rstat_procedure_v4 = -1;
+static int proto_rstat;
+static int hf_rstat_procedure_v1;
+static int hf_rstat_procedure_v2;
+static int hf_rstat_procedure_v3;
+static int hf_rstat_procedure_v4;
 
-static gint ett_rstat = -1;
+static gint ett_rstat;
 
 #define RSTAT_PROGRAM	100001
 

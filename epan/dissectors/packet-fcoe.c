@@ -76,17 +76,17 @@ static const value_string fcoe_sof_vals[] = {
     {0, NULL}
 };
 
-static int proto_fcoe          = -1;
-static int hf_fcoe_ver         = -1;
-static int hf_fcoe_len         = -1;
-static int hf_fcoe_sof         = -1;
-static int hf_fcoe_eof         = -1;
-static int hf_fcoe_crc         = -1;
-static int hf_fcoe_crc_status  = -1;
+static int proto_fcoe;
+static int hf_fcoe_ver;
+static int hf_fcoe_len;
+static int hf_fcoe_sof;
+static int hf_fcoe_eof;
+static int hf_fcoe_crc;
+static int hf_fcoe_crc_status;
 
-static int ett_fcoe            = -1;
+static int ett_fcoe;
 
-static expert_field ei_fcoe_crc = EI_INIT;
+static expert_field ei_fcoe_crc;
 
 static dissector_handle_t fc_handle;
 static dissector_handle_t fcoe_handle;

@@ -108,373 +108,373 @@ static frame_end_data previous_frame_data = {0,0};
 #define VHT_BW_80_MHZ  2
 #define VHT_BW_160_MHZ 3
 
-static int proto_ixveriwave = -1;
+static int proto_ixveriwave;
 static dissector_handle_t ethernet_handle;
 
-/* static int hf_ixveriwave_version = -1; */
-static int hf_ixveriwave_frame_length = -1;
+/* static int hf_ixveriwave_version; */
+static int hf_ixveriwave_frame_length;
 
-/* static int hf_ixveriwave_fcs = -1; */
+/* static int hf_ixveriwave_fcs; */
 
-static int hf_ixveriwave_vw_msdu_length = -1;
-static int hf_ixveriwave_vw_flowid = -1;
-static int hf_ixveriwave_vw_vcid = -1;
-static int hf_ixveriwave_vw_seqnum = -1;
+static int hf_ixveriwave_vw_msdu_length;
+static int hf_ixveriwave_vw_flowid;
+static int hf_ixveriwave_vw_vcid;
+static int hf_ixveriwave_vw_seqnum;
 
-static int hf_ixveriwave_vw_mslatency = -1;
-static int hf_ixveriwave_vw_latency = -1;
-static int hf_ixveriwave_vw_sig_ts = -1;
-static int hf_ixveriwave_vw_delay = -1;
-static int hf_ixveriwave_vw_startt = -1;
-static int hf_ixveriwave_vw_endt = -1;
-static int hf_ixveriwave_vw_pktdur = -1;
-static int hf_ixveriwave_vw_ifg = -1;
+static int hf_ixveriwave_vw_mslatency;
+static int hf_ixveriwave_vw_latency;
+static int hf_ixveriwave_vw_sig_ts;
+static int hf_ixveriwave_vw_delay;
+static int hf_ixveriwave_vw_startt;
+static int hf_ixveriwave_vw_endt;
+static int hf_ixveriwave_vw_pktdur;
+static int hf_ixveriwave_vw_ifg;
 
 // RF LOGGING
-static int hf_radiotap_rf_info = -1;
-static int hf_radiotap_rfinfo_rfid = -1;
+static int hf_radiotap_rf_info;
+static int hf_radiotap_rfinfo_rfid;
 
 /*
-static int hf_radiotap_rfinfo_noise = -1;
-static int hf_radiotap_rfinfo_noise_anta = -1;
-static int hf_radiotap_rfinfo_noise_antb = -1;
-static int hf_radiotap_rfinfo_noise_antc = -1;
-static int hf_radiotap_rfinfo_noise_antd = -1;
+static int hf_radiotap_rfinfo_noise;
+static int hf_radiotap_rfinfo_noise_anta;
+static int hf_radiotap_rfinfo_noise_antb;
+static int hf_radiotap_rfinfo_noise_antc;
+static int hf_radiotap_rfinfo_noise_antd;
 */
 
-static int hf_radiotap_rfinfo_snr = -1;
-static int hf_radiotap_rfinfo_snr_anta = -1;
-static int hf_radiotap_rfinfo_snr_antb = -1;
-static int hf_radiotap_rfinfo_snr_antc = -1;
-static int hf_radiotap_rfinfo_snr_antd = -1;
+static int hf_radiotap_rfinfo_snr;
+static int hf_radiotap_rfinfo_snr_anta;
+static int hf_radiotap_rfinfo_snr_antb;
+static int hf_radiotap_rfinfo_snr_antc;
+static int hf_radiotap_rfinfo_snr_antd;
 
-static int hf_radiotap_rfinfo_pfe = -1;
-static int hf_radiotap_rfinfo_pfe_anta = -1;
-static int hf_radiotap_rfinfo_pfe_antb = -1;
-static int hf_radiotap_rfinfo_pfe_antc = -1;
-static int hf_radiotap_rfinfo_pfe_antd = -1;
+static int hf_radiotap_rfinfo_pfe;
+static int hf_radiotap_rfinfo_pfe_anta;
+static int hf_radiotap_rfinfo_pfe_antb;
+static int hf_radiotap_rfinfo_pfe_antc;
+static int hf_radiotap_rfinfo_pfe_antd;
 
-static int hf_radiotap_rfinfo_sigdata = -1;
-static int hf_radiotap_rfinfo_avg_evm_sd_siga = -1;
-static int hf_radiotap_rfinfo_avg_evm_sd_sigb = -1;
-static int hf_radiotap_rfinfo_avg_evm_sd_sigc = -1;
-static int hf_radiotap_rfinfo_avg_evm_sd_sigd = -1;
+static int hf_radiotap_rfinfo_sigdata;
+static int hf_radiotap_rfinfo_avg_evm_sd_siga;
+static int hf_radiotap_rfinfo_avg_evm_sd_sigb;
+static int hf_radiotap_rfinfo_avg_evm_sd_sigc;
+static int hf_radiotap_rfinfo_avg_evm_sd_sigd;
 
-static int hf_radiotap_rfinfo_sigpilot = -1;
-static int hf_radiotap_rfinfo_avg_evm_sp_siga = -1;
-static int hf_radiotap_rfinfo_avg_evm_sp_sigb = -1;
-static int hf_radiotap_rfinfo_avg_evm_sp_sigc = -1;
-static int hf_radiotap_rfinfo_avg_evm_sp_sigd = -1;
+static int hf_radiotap_rfinfo_sigpilot;
+static int hf_radiotap_rfinfo_avg_evm_sp_siga;
+static int hf_radiotap_rfinfo_avg_evm_sp_sigb;
+static int hf_radiotap_rfinfo_avg_evm_sp_sigc;
+static int hf_radiotap_rfinfo_avg_evm_sp_sigd;
 
-static int hf_radiotap_rfinfo_datadata = -1;
-static int hf_radiotap_rfinfo_avg_evm_dd_siga = -1;
-static int hf_radiotap_rfinfo_avg_evm_dd_sigb = -1;
-static int hf_radiotap_rfinfo_avg_evm_dd_sigc = -1;
-static int hf_radiotap_rfinfo_avg_evm_dd_sigd = -1;
+static int hf_radiotap_rfinfo_datadata;
+static int hf_radiotap_rfinfo_avg_evm_dd_siga;
+static int hf_radiotap_rfinfo_avg_evm_dd_sigb;
+static int hf_radiotap_rfinfo_avg_evm_dd_sigc;
+static int hf_radiotap_rfinfo_avg_evm_dd_sigd;
 
-static int hf_radiotap_rfinfo_datapilot = -1;
-static int hf_radiotap_rfinfo_avg_evm_dp_siga = -1;
-static int hf_radiotap_rfinfo_avg_evm_dp_sigb = -1;
-static int hf_radiotap_rfinfo_avg_evm_dp_sigc = -1;
-static int hf_radiotap_rfinfo_avg_evm_dp_sigd = -1;
+static int hf_radiotap_rfinfo_datapilot;
+static int hf_radiotap_rfinfo_avg_evm_dp_siga;
+static int hf_radiotap_rfinfo_avg_evm_dp_sigb;
+static int hf_radiotap_rfinfo_avg_evm_dp_sigc;
+static int hf_radiotap_rfinfo_avg_evm_dp_sigd;
 
-static int hf_radiotap_rfinfo_avg_ws_symbol = -1;
-static int hf_radiotap_rfinfo_avg_evm_ws_siga = -1;
-static int hf_radiotap_rfinfo_avg_evm_ws_sigb = -1;
-static int hf_radiotap_rfinfo_avg_evm_ws_sigc = -1;
-static int hf_radiotap_rfinfo_avg_evm_ws_sigd = -1;
+static int hf_radiotap_rfinfo_avg_ws_symbol;
+static int hf_radiotap_rfinfo_avg_evm_ws_siga;
+static int hf_radiotap_rfinfo_avg_evm_ws_sigb;
+static int hf_radiotap_rfinfo_avg_evm_ws_sigc;
+static int hf_radiotap_rfinfo_avg_evm_ws_sigd;
 
-static int hf_radiotap_rfinfo_contextpa = -1;
-static int hf_radiotap_rfinfo_contextpA_snr_noise_valid = -1;
-static int hf_radiotap_rfinfo_contextpA_pfe_valid = -1;
-static int hf_radiotap_rfinfo_contextpA_pfe_is_cck = -1;
-static int hf_radiotap_rfinfo_contextpA_agc_idle2iqrdy_no_gain_change = -1;
-static int hf_radiotap_rfinfo_contextpA_agc_high_pwr_terminated = -1;
-static int hf_radiotap_rfinfo_contextpA_agc_high_pwr_terminator = -1;
-/* static int hf_radiotap_rfinfo_contextpA_frame_format = -1; */
-/* static int hf_radiotap_rfinfo_contextpA_ofdm_or_cck = -1; */
-/* static int hf_radiotap_rfinfo_contextpA_sigbandwidth_of_evm = -1; */
-static int hf_radiotap_rfinfo_contextpA_qam_modulation = -1;
+static int hf_radiotap_rfinfo_contextpa;
+static int hf_radiotap_rfinfo_contextpA_snr_noise_valid;
+static int hf_radiotap_rfinfo_contextpA_pfe_valid;
+static int hf_radiotap_rfinfo_contextpA_pfe_is_cck;
+static int hf_radiotap_rfinfo_contextpA_agc_idle2iqrdy_no_gain_change;
+static int hf_radiotap_rfinfo_contextpA_agc_high_pwr_terminated;
+static int hf_radiotap_rfinfo_contextpA_agc_high_pwr_terminator;
+/* static int hf_radiotap_rfinfo_contextpA_frame_format; */
+/* static int hf_radiotap_rfinfo_contextpA_ofdm_or_cck; */
+/* static int hf_radiotap_rfinfo_contextpA_sigbandwidth_of_evm; */
+static int hf_radiotap_rfinfo_contextpA_qam_modulation;
 
-static int hf_radiotap_rfinfo_frameformatA = -1;
-static int hf_radiotap_rfinfo_sigbwevmA = -1;
-static int hf_radiotap_rfinfo_legacytypeA = -1;
+static int hf_radiotap_rfinfo_frameformatA;
+static int hf_radiotap_rfinfo_sigbwevmA;
+static int hf_radiotap_rfinfo_legacytypeA;
 
-static int hf_radiotap_rfinfo_contextpb = -1;
-static int hf_radiotap_rfinfo_contextpB_snr_noise_valid = -1;
-static int hf_radiotap_rfinfo_contextpB_pfe_valid = -1;
-static int hf_radiotap_rfinfo_contextpB_pfe_is_cck = -1;
-static int hf_radiotap_rfinfo_contextpB_agc_idle2iqrdy_no_gain_change = -1;
-static int hf_radiotap_rfinfo_contextpB_agc_high_pwr_terminated = -1;
-static int hf_radiotap_rfinfo_contextpB_agc_high_pwr_terminator = -1;
-static int hf_radiotap_rfinfo_contextpB_qam_modulation = -1;
+static int hf_radiotap_rfinfo_contextpb;
+static int hf_radiotap_rfinfo_contextpB_snr_noise_valid;
+static int hf_radiotap_rfinfo_contextpB_pfe_valid;
+static int hf_radiotap_rfinfo_contextpB_pfe_is_cck;
+static int hf_radiotap_rfinfo_contextpB_agc_idle2iqrdy_no_gain_change;
+static int hf_radiotap_rfinfo_contextpB_agc_high_pwr_terminated;
+static int hf_radiotap_rfinfo_contextpB_agc_high_pwr_terminator;
+static int hf_radiotap_rfinfo_contextpB_qam_modulation;
 
-static int hf_radiotap_rfinfo_frameformatB = -1;
-static int hf_radiotap_rfinfo_sigbwevmB = -1;
-static int hf_radiotap_rfinfo_legacytypeB = -1;
+static int hf_radiotap_rfinfo_frameformatB;
+static int hf_radiotap_rfinfo_sigbwevmB;
+static int hf_radiotap_rfinfo_legacytypeB;
 
-static int hf_radiotap_rfinfo_contextpc = -1;
-static int hf_radiotap_rfinfo_contextpC_snr_noise_valid = -1;
-static int hf_radiotap_rfinfo_contextpC_pfe_valid = -1;
-static int hf_radiotap_rfinfo_contextpC_pfe_is_cck = -1;
-static int hf_radiotap_rfinfo_contextpC_agc_idle2iqrdy_no_gain_change = -1;
-static int hf_radiotap_rfinfo_contextpC_agc_high_pwr_terminated = -1;
-static int hf_radiotap_rfinfo_contextpC_agc_high_pwr_terminator = -1;
-static int hf_radiotap_rfinfo_contextpC_qam_modulation = -1;
+static int hf_radiotap_rfinfo_contextpc;
+static int hf_radiotap_rfinfo_contextpC_snr_noise_valid;
+static int hf_radiotap_rfinfo_contextpC_pfe_valid;
+static int hf_radiotap_rfinfo_contextpC_pfe_is_cck;
+static int hf_radiotap_rfinfo_contextpC_agc_idle2iqrdy_no_gain_change;
+static int hf_radiotap_rfinfo_contextpC_agc_high_pwr_terminated;
+static int hf_radiotap_rfinfo_contextpC_agc_high_pwr_terminator;
+static int hf_radiotap_rfinfo_contextpC_qam_modulation;
 
-static int hf_radiotap_rfinfo_frameformatC = -1;
-static int hf_radiotap_rfinfo_sigbwevmC = -1;
-static int hf_radiotap_rfinfo_legacytypeC = -1;
+static int hf_radiotap_rfinfo_frameformatC;
+static int hf_radiotap_rfinfo_sigbwevmC;
+static int hf_radiotap_rfinfo_legacytypeC;
 
-static int hf_radiotap_rfinfo_contextpd = -1;
-static int hf_radiotap_rfinfo_contextpD_snr_noise_valid = -1;
-static int hf_radiotap_rfinfo_contextpD_pfe_valid = -1;
-static int hf_radiotap_rfinfo_contextpD_pfe_is_cck = -1;
-static int hf_radiotap_rfinfo_contextpD_agc_idle2iqrdy_no_gain_change = -1;
-static int hf_radiotap_rfinfo_contextpD_agc_high_pwr_terminated = -1;
-static int hf_radiotap_rfinfo_contextpD_agc_high_pwr_terminator = -1;
-static int hf_radiotap_rfinfo_contextpD_qam_modulation = -1;
+static int hf_radiotap_rfinfo_contextpd;
+static int hf_radiotap_rfinfo_contextpD_snr_noise_valid;
+static int hf_radiotap_rfinfo_contextpD_pfe_valid;
+static int hf_radiotap_rfinfo_contextpD_pfe_is_cck;
+static int hf_radiotap_rfinfo_contextpD_agc_idle2iqrdy_no_gain_change;
+static int hf_radiotap_rfinfo_contextpD_agc_high_pwr_terminated;
+static int hf_radiotap_rfinfo_contextpD_agc_high_pwr_terminator;
+static int hf_radiotap_rfinfo_contextpD_qam_modulation;
 
-static int hf_radiotap_rfinfo_frameformatD = -1;
-static int hf_radiotap_rfinfo_sigbwevmD = -1;
-static int hf_radiotap_rfinfo_legacytypeD = -1;
+static int hf_radiotap_rfinfo_frameformatD;
+static int hf_radiotap_rfinfo_sigbwevmD;
+static int hf_radiotap_rfinfo_legacytypeD;
 
-/* static int hf_radiotap_rfinfo_tbd = -1; */
+/* static int hf_radiotap_rfinfo_tbd; */
 
 /* Fields for both Ethernet and WLAN */
-static int hf_ixveriwave_vw_l4id = -1;
+static int hf_ixveriwave_vw_l4id;
 
 /* Ethernet fields */
-static int hf_ixveriwave_vwf_txf = -1;
-static int hf_ixveriwave_vwf_fcserr = -1;
+static int hf_ixveriwave_vwf_txf;
+static int hf_ixveriwave_vwf_fcserr;
 
-static int hf_ixveriwave_vw_info = -1;
-static int hf_ixveriwave_vw_info_go_no_flow = -1;
-static int hf_ixveriwave_vw_info_go_with_flow = -1;
+static int hf_ixveriwave_vw_info;
+static int hf_ixveriwave_vw_info_go_no_flow;
+static int hf_ixveriwave_vw_info_go_with_flow;
 
 /*veriwave note:  i know the below method seems clunky, but
 they didn't have a item_format at the time to dynamically add the appropriate decode text*/
-static int hf_ixveriwave_vw_info_retry_count = -1;
+static int hf_ixveriwave_vw_info_retry_count;
 
-static int hf_ixveriwave_vw_error = -1;
+static int hf_ixveriwave_vw_error;
 
 /*error flags*/
-static int hf_ixveriwave_vw_error_1_alignment_error = -1;
-static int hf_ixveriwave_vw_error_1_packet_fcs_error = -1;
-static int hf_ixveriwave_vw_error_1_bad_magic_byte_signature = -1;
-static int hf_ixveriwave_vw_error_1_bad_payload_checksum = -1;
-static int hf_ixveriwave_vw_error_1_frame_too_long = -1;
-static int hf_ixveriwave_vw_error_1_ip_checksum_error = -1;
-static int hf_ixveriwave_vw_error_1_l4_checksum_error = -1;
-static int hf_ixveriwave_vw_error_1_id_mismatch = -1;
-static int hf_ixveriwave_vw_error_1_length_error = -1;
-static int hf_ixveriwave_vw_error_1_underflow = -1;
-static int hf_ixveriwave_vw_error_1_late_collision = -1;
-static int hf_ixveriwave_vw_error_1_excessive_collisions = -1;
+static int hf_ixveriwave_vw_error_1_alignment_error;
+static int hf_ixveriwave_vw_error_1_packet_fcs_error;
+static int hf_ixveriwave_vw_error_1_bad_magic_byte_signature;
+static int hf_ixveriwave_vw_error_1_bad_payload_checksum;
+static int hf_ixveriwave_vw_error_1_frame_too_long;
+static int hf_ixveriwave_vw_error_1_ip_checksum_error;
+static int hf_ixveriwave_vw_error_1_l4_checksum_error;
+static int hf_ixveriwave_vw_error_1_id_mismatch;
+static int hf_ixveriwave_vw_error_1_length_error;
+static int hf_ixveriwave_vw_error_1_underflow;
+static int hf_ixveriwave_vw_error_1_late_collision;
+static int hf_ixveriwave_vw_error_1_excessive_collisions;
 
 /* WLAN fields */
-static int hf_radiotap_flags = -1;
-static int hf_radiotap_flags_preamble = -1;
-static int hf_radiotap_flags_wep = -1;
-static int hf_radiotap_flags_ht = -1;
-static int hf_radiotap_flags_vht = -1;
-static int hf_radiotap_flags_short_gi = -1;
-static int hf_radiotap_flags_40mhz = -1;
-static int hf_radiotap_flags_80mhz = -1;
+static int hf_radiotap_flags;
+static int hf_radiotap_flags_preamble;
+static int hf_radiotap_flags_wep;
+static int hf_radiotap_flags_ht;
+static int hf_radiotap_flags_vht;
+static int hf_radiotap_flags_short_gi;
+static int hf_radiotap_flags_40mhz;
+static int hf_radiotap_flags_80mhz;
 
-static int hf_radiotap_datarate = -1;
-static int hf_radiotap_mcsindex = -1;
-static int hf_radiotap_nss = -1;
+static int hf_radiotap_datarate;
+static int hf_radiotap_mcsindex;
+static int hf_radiotap_nss;
 
-static int hf_radiotap_dbm_anta = -1;
-static int hf_radiotap_dbm_antb = -1;
-static int hf_radiotap_dbm_antc = -1;
-static int hf_radiotap_dbm_antd = -1;
+static int hf_radiotap_dbm_anta;
+static int hf_radiotap_dbm_antb;
+static int hf_radiotap_dbm_antc;
+static int hf_radiotap_dbm_antd;
 
-static int hf_radiotap_plcptype = -1;
+static int hf_radiotap_plcptype;
 
-static int hf_radiotap_vwf_txf = -1;
-static int hf_radiotap_vwf_fcserr = -1;
-static int hf_radiotap_vwf_dcrerr = -1;
-static int hf_radiotap_vwf_retrerr = -1;
-static int hf_radiotap_vwf_enctype = -1;
+static int hf_radiotap_vwf_txf;
+static int hf_radiotap_vwf_fcserr;
+static int hf_radiotap_vwf_dcrerr;
+static int hf_radiotap_vwf_retrerr;
+static int hf_radiotap_vwf_enctype;
 
-static int hf_radiotap_vw_ht_length = -1;
+static int hf_radiotap_vw_ht_length;
 
-static int hf_radiotap_vw_info = -1;
+static int hf_radiotap_vw_info;
 
-static int hf_radiotap_vw_info_2_ack_withheld_from_frame = -1;
-static int hf_radiotap_vw_info_2_sent_cts_to_self_before_data = -1;
-static int hf_radiotap_vw_info_2_mpdu_of_a_mpdu = -1;
-static int hf_radiotap_vw_info_2_first_mpdu_of_a_mpdu = -1;
-static int hf_radiotap_vw_info_2_last_pdu_of_a_mpdu = -1;
-static int hf_radiotap_vw_info_2_msdu_of_a_msdu = -1;
-static int hf_radiotap_vw_info_2_first_msdu_of_a_msdu = -1;
-static int hf_radiotap_vw_info_2_last_msdu_of_a_msdu = -1;
+static int hf_radiotap_vw_info_2_ack_withheld_from_frame;
+static int hf_radiotap_vw_info_2_sent_cts_to_self_before_data;
+static int hf_radiotap_vw_info_2_mpdu_of_a_mpdu;
+static int hf_radiotap_vw_info_2_first_mpdu_of_a_mpdu;
+static int hf_radiotap_vw_info_2_last_pdu_of_a_mpdu;
+static int hf_radiotap_vw_info_2_msdu_of_a_msdu;
+static int hf_radiotap_vw_info_2_first_msdu_of_a_msdu;
+static int hf_radiotap_vw_info_2_last_msdu_of_a_msdu;
 
-static int hf_radiotap_vw_errors = -1;
+static int hf_radiotap_vw_errors;
 
-static int hf_radiotap_vw_errors_rx_2_crc16_or_parity_error = -1;
-static int hf_radiotap_vw_errors_rx_2_non_supported_rate_or_service_field = -1;
-static int hf_radiotap_vw_errors_rx_2_short_frame = -1;
-static int hf_radiotap_vw_errors_rx_2_fcs_error = -1;
-static int hf_radiotap_vw_errors_rx_2_l2_de_aggregation_error = -1;
-static int hf_radiotap_vw_errors_rx_2_duplicate_mpdu = -1;
-static int hf_radiotap_vw_errors_rx_2_bad_flow_magic_number = -1;
-static int hf_radiotap_vw_errors_rx_2_flow_payload_checksum_error = -1;
-static int hf_radiotap_vw_errors_rx_2_ip_checksum_error = -1;
-static int hf_radiotap_vw_errors_rx_2_l4_checksum_error = -1;
+static int hf_radiotap_vw_errors_rx_2_crc16_or_parity_error;
+static int hf_radiotap_vw_errors_rx_2_non_supported_rate_or_service_field;
+static int hf_radiotap_vw_errors_rx_2_short_frame;
+static int hf_radiotap_vw_errors_rx_2_fcs_error;
+static int hf_radiotap_vw_errors_rx_2_l2_de_aggregation_error;
+static int hf_radiotap_vw_errors_rx_2_duplicate_mpdu;
+static int hf_radiotap_vw_errors_rx_2_bad_flow_magic_number;
+static int hf_radiotap_vw_errors_rx_2_flow_payload_checksum_error;
+static int hf_radiotap_vw_errors_rx_2_ip_checksum_error;
+static int hf_radiotap_vw_errors_rx_2_l4_checksum_error;
 
-static int hf_radiotap_vw_errors_tx_2_crc32_error = -1;
-static int hf_radiotap_vw_errors_tx_2_ip_checksum_error = -1;
-static int hf_radiotap_vw_errors_tx_2_ack_timeout = -1;
-static int hf_radiotap_vw_errors_tx_2_cts_timeout = -1;
-static int hf_radiotap_vw_errors_tx_2_last_retry_attempt = -1;
-static int hf_radiotap_vw_errors_tx_2_internal_error = -1;
+static int hf_radiotap_vw_errors_tx_2_crc32_error;
+static int hf_radiotap_vw_errors_tx_2_ip_checksum_error;
+static int hf_radiotap_vw_errors_tx_2_ack_timeout;
+static int hf_radiotap_vw_errors_tx_2_cts_timeout;
+static int hf_radiotap_vw_errors_tx_2_last_retry_attempt;
+static int hf_radiotap_vw_errors_tx_2_internal_error;
 
-static int hf_radiotap_vht_mu_mimo_flg = -1;
-static int hf_radiotap_vht_user_pos = -1;
-static int hf_radiotap_vht_su_mimo_flg = -1;
+static int hf_radiotap_vht_mu_mimo_flg;
+static int hf_radiotap_vht_user_pos;
+static int hf_radiotap_vht_su_mimo_flg;
 
-static int hf_radiotap_l1info = -1;
-static int hf_radiotap_l1info_preamble = -1;
-static int hf_radiotap_l1info_rateindex = -1;
-static int hf_radiotap_l1info_ht_mcsindex = -1;
-static int hf_radiotap_l1info_vht_mcsindex = -1;
-static int hf_radiotap_l1info_nss = -1;
-static int hf_radiotap_l1info_transmitted = -1;
+static int hf_radiotap_l1info;
+static int hf_radiotap_l1info_preamble;
+static int hf_radiotap_l1info_rateindex;
+static int hf_radiotap_l1info_ht_mcsindex;
+static int hf_radiotap_l1info_vht_mcsindex;
+static int hf_radiotap_l1info_nss;
+static int hf_radiotap_l1info_transmitted;
 
-static int hf_radiotap_sigbandwidth = -1;
-/* static int hf_radiotap_rssi = -1; */
-static int hf_radiotap_modulation = -1;
+static int hf_radiotap_sigbandwidth;
+/* static int hf_radiotap_rssi; */
+static int hf_radiotap_modulation;
 
-static int hf_radiotap_dbm_tx_anta = -1;
-static int hf_radiotap_dbm_tx_antb = -1;
-static int hf_radiotap_dbm_tx_antc = -1;
-static int hf_radiotap_dbm_tx_antd = -1;
+static int hf_radiotap_dbm_tx_anta;
+static int hf_radiotap_dbm_tx_antb;
+static int hf_radiotap_dbm_tx_antc;
+static int hf_radiotap_dbm_tx_antd;
 
-static int hf_radiotap_sigbandwidthmask = -1;
-static int hf_radiotap_antennaportenergydetect = -1;
-static int hf_radiotap_tx_antennaselect = -1;
-static int hf_radiotap_tx_stbcselect = -1;
-static int hf_radiotap_mumask = -1;
+static int hf_radiotap_sigbandwidthmask;
+static int hf_radiotap_antennaportenergydetect;
+static int hf_radiotap_tx_antennaselect;
+static int hf_radiotap_tx_stbcselect;
+static int hf_radiotap_mumask;
 
-static int hf_radiotap_l1infoc = -1;
-static int hf_radiotap_vht_ndp_flg = -1;
+static int hf_radiotap_l1infoc;
+static int hf_radiotap_vht_ndp_flg;
 
-static int hf_radiotap_plcp_info = -1;
-static int hf_radiotap_plcp_type = -1;
-static int hf_radiotap_plcp_default = -1;
+static int hf_radiotap_plcp_info;
+static int hf_radiotap_plcp_type;
+static int hf_radiotap_plcp_default;
 
-static int hf_radiotap_plcp_signal = -1;
-static int hf_radiotap_plcp_locked_clocks = -1;
-static int hf_radiotap_plcp_modulation = -1;
-static int hf_radiotap_plcp_length_extension = -1;
-static int hf_radiotap_plcp_length = -1;
-static int hf_radiotap_plcp_crc16 = -1;
+static int hf_radiotap_plcp_signal;
+static int hf_radiotap_plcp_locked_clocks;
+static int hf_radiotap_plcp_modulation;
+static int hf_radiotap_plcp_length_extension;
+static int hf_radiotap_plcp_length;
+static int hf_radiotap_plcp_crc16;
 
-static int hf_radiotap_ofdm_service = -1;
+static int hf_radiotap_ofdm_service;
 
-static int hf_radiotap_ofdm_rate = -1;
-static int hf_radiotap_ofdm_length = -1;
-static int hf_radiotap_ofdm_parity = -1;
-static int hf_radiotap_ofdm_tail = -1;
+static int hf_radiotap_ofdm_rate;
+static int hf_radiotap_ofdm_length;
+static int hf_radiotap_ofdm_parity;
+static int hf_radiotap_ofdm_tail;
 
 /* HT-SIG1 */
-static int hf_radiotap_ht_mcsindex = -1;
-static int hf_radiotap_ht_bw = -1;
-static int hf_radiotap_ht_length = -1;
+static int hf_radiotap_ht_mcsindex;
+static int hf_radiotap_ht_bw;
+static int hf_radiotap_ht_length;
 
 /* HT-SIG2 */
-static int hf_radiotap_ht_smoothing = -1;
-static int hf_radiotap_ht_notsounding = -1;
-static int hf_radiotap_ht_aggregation = -1;
-static int hf_radiotap_ht_stbc = -1;
-static int hf_radiotap_ht_feccoding = -1;
-static int hf_radiotap_ht_short_gi = -1;
-static int hf_radiotap_ht_ness = -1;
-static int hf_radiotap_ht_crc = -1;
-static int hf_radiotap_ht_tail = -1;
+static int hf_radiotap_ht_smoothing;
+static int hf_radiotap_ht_notsounding;
+static int hf_radiotap_ht_aggregation;
+static int hf_radiotap_ht_stbc;
+static int hf_radiotap_ht_feccoding;
+static int hf_radiotap_ht_short_gi;
+static int hf_radiotap_ht_ness;
+static int hf_radiotap_ht_crc;
+static int hf_radiotap_ht_tail;
 
 /* VHT-SIG-A1 */
-static int hf_radiotap_vht_bw = -1;
-static int hf_radiotap_vht_stbc = -1;
-static int hf_radiotap_vht_group_id = -1;
-static int hf_radiotap_vht_su_nsts = -1;
-static int hf_radiotap_vht_su_partial_aid = -1;
-static int hf_radiotap_vht_u0_nsts = -1;
-static int hf_radiotap_vht_u1_nsts = -1;
-static int hf_radiotap_vht_u2_nsts = -1;
-static int hf_radiotap_vht_u3_nsts = -1;
-static int hf_radiotap_vht_txop_ps_not_allowed = -1;
+static int hf_radiotap_vht_bw;
+static int hf_radiotap_vht_stbc;
+static int hf_radiotap_vht_group_id;
+static int hf_radiotap_vht_su_nsts;
+static int hf_radiotap_vht_su_partial_aid;
+static int hf_radiotap_vht_u0_nsts;
+static int hf_radiotap_vht_u1_nsts;
+static int hf_radiotap_vht_u2_nsts;
+static int hf_radiotap_vht_u3_nsts;
+static int hf_radiotap_vht_txop_ps_not_allowed;
 
 /* VHT-SIG-A2 */
-static int hf_radiotap_vht_short_gi = -1;
-static int hf_radiotap_vht_short_gi_nsym_disambig = -1;
-static int hf_radiotap_vht_su_coding_type = -1;
-static int hf_radiotap_vht_u0_coding_type = -1;
-static int hf_radiotap_vht_ldpc_ofdmsymbol = -1;
-static int hf_radiotap_vht_su_mcs = -1;
-static int hf_radiotap_vht_beamformed = -1;
-static int hf_radiotap_vht_u1_coding_type = -1;
-static int hf_radiotap_vht_u2_coding_type = -1;
-static int hf_radiotap_vht_u3_coding_type = -1;
-static int hf_radiotap_vht_crc = -1;
-static int hf_radiotap_vht_tail = -1;
+static int hf_radiotap_vht_short_gi;
+static int hf_radiotap_vht_short_gi_nsym_disambig;
+static int hf_radiotap_vht_su_coding_type;
+static int hf_radiotap_vht_u0_coding_type;
+static int hf_radiotap_vht_ldpc_ofdmsymbol;
+static int hf_radiotap_vht_su_mcs;
+static int hf_radiotap_vht_beamformed;
+static int hf_radiotap_vht_u1_coding_type;
+static int hf_radiotap_vht_u2_coding_type;
+static int hf_radiotap_vht_u3_coding_type;
+static int hf_radiotap_vht_crc;
+static int hf_radiotap_vht_tail;
 
 /* VHT-SIG-B */
-static int hf_radiotap_vht_su_sig_b_length_20_mhz = -1;
-static int hf_radiotap_vht_su_sig_b_length_40_mhz = -1;
-static int hf_radiotap_vht_su_sig_b_length_80_160_mhz = -1;
-static int hf_radiotap_vht_mu_sig_b_length_20_mhz = -1;
-static int hf_radiotap_vht_mu_mcs_20_mhz = -1;
-static int hf_radiotap_vht_mu_sig_b_length_40_mhz = -1;
-static int hf_radiotap_vht_mu_mcs_40_mhz = -1;
-static int hf_radiotap_vht_mu_sig_b_length_80_160_mhz = -1;
-static int hf_radiotap_vht_mu_mcs_80_160_mhz = -1;
+static int hf_radiotap_vht_su_sig_b_length_20_mhz;
+static int hf_radiotap_vht_su_sig_b_length_40_mhz;
+static int hf_radiotap_vht_su_sig_b_length_80_160_mhz;
+static int hf_radiotap_vht_mu_sig_b_length_20_mhz;
+static int hf_radiotap_vht_mu_mcs_20_mhz;
+static int hf_radiotap_vht_mu_sig_b_length_40_mhz;
+static int hf_radiotap_vht_mu_mcs_40_mhz;
+static int hf_radiotap_vht_mu_sig_b_length_80_160_mhz;
+static int hf_radiotap_vht_mu_mcs_80_160_mhz;
 
-static int hf_radiotap_rfid = -1;
+static int hf_radiotap_rfid;
 
-static int hf_radiotap_l2_l4_info = -1;
+static int hf_radiotap_l2_l4_info;
 
-static int hf_radiotap_bssid = -1;
+static int hf_radiotap_bssid;
 
-static int hf_radiotap_clientidvalid = -1;
-static int hf_radiotap_bssidvalid = -1;
-static int hf_radiotap_unicastormulticast = -1;
+static int hf_radiotap_clientidvalid;
+static int hf_radiotap_bssidvalid;
+static int hf_radiotap_unicastormulticast;
 
-/*static int hf_radiotap_wlantype = -1; */
+/*static int hf_radiotap_wlantype; */
 
-static int hf_radiotap_tid = -1;
-static int hf_radiotap_ac = -1;
-static int hf_radiotap_l4idvalid = -1;
-static int hf_radiotap_containshtfield = -1;
-static int hf_radiotap_istypeqos = -1;
-static int hf_radiotap_flowvalid = -1;
+static int hf_radiotap_tid;
+static int hf_radiotap_ac;
+static int hf_radiotap_l4idvalid;
+static int hf_radiotap_containshtfield;
+static int hf_radiotap_istypeqos;
+static int hf_radiotap_flowvalid;
 
-static int hf_radiotap_payloaddecode = -1;
+static int hf_radiotap_payloaddecode;
 
-static int hf_radiotap_vw_info_rx = -1;
-static int hf_radiotap_vw_info_rx_crypto_wep_encoded = -1;
-static int hf_radiotap_vw_info_rx_crypto_tkip_encoded = -1;
-static int hf_radiotap_vw_info_rx_crypto_rx_tkip_tsc_seqskip = -1;
-static int hf_radiotap_vw_info_rx_crypto_rx_ccmp_pn_seqskip = -1;
-static int hf_radiotap_vw_info_rx_tkip_not_full_msdu = -1;
-static int hf_radiotap_vw_info_rx_mpdu_length_gt_mpdu_octets = -1;
-static int hf_radiotap_vw_info_rx_tkip_ccmp_tsc_seqerr = -1;
-static int hf_radiotap_vw_info_rx_ack_withheld_from_frame = -1;
-static int hf_radiotap_vw_info_rx_client_bssid_matched = -1;
-static int hf_radiotap_vw_info_rx_mpdu_of_a_mpdu = -1;
-static int hf_radiotap_vw_info_rx_first_mpdu_of_a_mpdu = -1;
-static int hf_radiotap_vw_info_rx_last_mpdu_of_a_mpdu = -1;
-static int hf_radiotap_vw_info_rx_msdu_of_a_msdu = -1;
-static int hf_radiotap_vw_info_rx_first_msdu_of_a_msdu = -1;
-static int hf_radiotap_vw_info_rx_last_msdu_of_a_msdu = -1;
-static int hf_radiotap_vw_info_rx_layer_1_info_0 = -1;
-static int hf_radiotap_vw_info_rx_layer_1_info_1 = -1;
-static int hf_radiotap_vw_info_rx_vht_frame_received_with_vht_sig_b_length = -1;
-static int hf_radiotap_vw_info_rx_vht_frame_received_without_vht_sig_b_length = -1;
-static int hf_radiotap_vw_info_rx_factory_internal = -1;
+static int hf_radiotap_vw_info_rx;
+static int hf_radiotap_vw_info_rx_crypto_wep_encoded;
+static int hf_radiotap_vw_info_rx_crypto_tkip_encoded;
+static int hf_radiotap_vw_info_rx_crypto_rx_tkip_tsc_seqskip;
+static int hf_radiotap_vw_info_rx_crypto_rx_ccmp_pn_seqskip;
+static int hf_radiotap_vw_info_rx_tkip_not_full_msdu;
+static int hf_radiotap_vw_info_rx_mpdu_length_gt_mpdu_octets;
+static int hf_radiotap_vw_info_rx_tkip_ccmp_tsc_seqerr;
+static int hf_radiotap_vw_info_rx_ack_withheld_from_frame;
+static int hf_radiotap_vw_info_rx_client_bssid_matched;
+static int hf_radiotap_vw_info_rx_mpdu_of_a_mpdu;
+static int hf_radiotap_vw_info_rx_first_mpdu_of_a_mpdu;
+static int hf_radiotap_vw_info_rx_last_mpdu_of_a_mpdu;
+static int hf_radiotap_vw_info_rx_msdu_of_a_msdu;
+static int hf_radiotap_vw_info_rx_first_msdu_of_a_msdu;
+static int hf_radiotap_vw_info_rx_last_msdu_of_a_msdu;
+static int hf_radiotap_vw_info_rx_layer_1_info_0;
+static int hf_radiotap_vw_info_rx_layer_1_info_1;
+static int hf_radiotap_vw_info_rx_vht_frame_received_with_vht_sig_b_length;
+static int hf_radiotap_vw_info_rx_vht_frame_received_without_vht_sig_b_length;
+static int hf_radiotap_vw_info_rx_factory_internal;
 static int * const radiotap_info_rx_fields[] = {
     &hf_radiotap_vw_info_rx_crypto_wep_encoded,
     &hf_radiotap_vw_info_rx_crypto_tkip_encoded,
@@ -499,22 +499,22 @@ static int * const radiotap_info_rx_fields[] = {
     NULL,
 };
 
-static int hf_radiotap_vw_info_tx = -1;
-static int hf_radiotap_vw_info_tx_crypto_wep_encoded = -1;
-static int hf_radiotap_vw_info_tx_crypto_tkip_encoded = -1;
-static int hf_radiotap_vw_info_tx_crypto_c_bit_error = -1;
-static int hf_radiotap_vw_info_tx_crypto_tkip_not_full_msdu = -1;
-static int hf_radiotap_vw_info_tx_crypto_software_error = -1;
-static int hf_radiotap_vw_info_tx_crypto_short_fault = -1;
-static int hf_radiotap_vw_info_tx_crypto_payload_length_fault = -1;
-static int hf_radiotap_vw_info_tx_sent_rts_before_data = -1;
-static int hf_radiotap_vw_info_tx_sent_cts_to_self_before_data = -1;
-static int hf_radiotap_vw_info_tx_mpdu_of_a_mpdu = -1;
-static int hf_radiotap_vw_info_tx_first_mpdu_of_a_mpdu = -1;
-static int hf_radiotap_vw_info_tx_last_mpdu_of_a_mpdu = -1;
-static int hf_radiotap_vw_info_tx_msdu_of_a_msdu = -1;
-static int hf_radiotap_vw_info_tx_first_msdu_of_a_msdu = -1;
-static int hf_radiotap_vw_info_tx_last_msdu_of_a_msdu = -1;
+static int hf_radiotap_vw_info_tx;
+static int hf_radiotap_vw_info_tx_crypto_wep_encoded;
+static int hf_radiotap_vw_info_tx_crypto_tkip_encoded;
+static int hf_radiotap_vw_info_tx_crypto_c_bit_error;
+static int hf_radiotap_vw_info_tx_crypto_tkip_not_full_msdu;
+static int hf_radiotap_vw_info_tx_crypto_software_error;
+static int hf_radiotap_vw_info_tx_crypto_short_fault;
+static int hf_radiotap_vw_info_tx_crypto_payload_length_fault;
+static int hf_radiotap_vw_info_tx_sent_rts_before_data;
+static int hf_radiotap_vw_info_tx_sent_cts_to_self_before_data;
+static int hf_radiotap_vw_info_tx_mpdu_of_a_mpdu;
+static int hf_radiotap_vw_info_tx_first_mpdu_of_a_mpdu;
+static int hf_radiotap_vw_info_tx_last_mpdu_of_a_mpdu;
+static int hf_radiotap_vw_info_tx_msdu_of_a_msdu;
+static int hf_radiotap_vw_info_tx_first_msdu_of_a_msdu;
+static int hf_radiotap_vw_info_tx_last_msdu_of_a_msdu;
 static int * const radiotap_info_tx_fields[] = {
     &hf_radiotap_vw_info_tx_crypto_wep_encoded,
     &hf_radiotap_vw_info_tx_crypto_tkip_encoded,
@@ -534,56 +534,56 @@ static int * const radiotap_info_tx_fields[] = {
     NULL,
 };
 
-static int hf_radiotap_vw_errors_rx_sig_field_crc_parity_error = -1;
-static int hf_radiotap_vw_errors_rx_non_supported_service_field = -1;
-static int hf_radiotap_vw_errors_rx_frame_length_error = -1;
-static int hf_radiotap_vw_errors_rx_vht_sig_ab_crc_error = -1;
-static int hf_radiotap_vw_errors_rx_crc32_error = -1;
-static int hf_radiotap_vw_errors_rx_l2_de_aggregation_error = -1;
-static int hf_radiotap_vw_errors_rx_duplicate_mpdu = -1;
-static int hf_radiotap_vw_errors_rx_bad_flow_magic_number = -1;
-static int hf_radiotap_vw_errors_rx_bad_flow_payload_checksum = -1;
-static int hf_radiotap_vw_errors_rx_illegal_vht_sig_value = -1;
-static int hf_radiotap_vw_errors_rx_ip_checksum_error = -1;
-static int hf_radiotap_vw_errors_rx_l4_checksum_error = -1;
-static int hf_radiotap_vw_errors_rx_l1_unsupported_feature = -1;
-static int hf_radiotap_vw_errors_rx_l1_packet_termination = -1;
-static int hf_radiotap_vw_errors_rx_internal_error_bit15 = -1;
-static int hf_radiotap_vw_errors_rx_wep_mic_miscompare = -1;
-static int hf_radiotap_vw_errors_rx_wep_tkip_rate_exceeded = -1;
-static int hf_radiotap_vw_errors_rx_crypto_short_error = -1;
-static int hf_radiotap_vw_errors_rx_extiv_fault_a = -1;
-static int hf_radiotap_vw_errors_rx_extiv_fault_b = -1;
-static int hf_radiotap_vw_errors_rx_internal_error_bit21 = -1;
-static int hf_radiotap_vw_errors_rx_protected_fault_a = -1;
-static int hf_radiotap_vw_errors_rx_rx_mac_crypto_incompatibility = -1;
-static int hf_radiotap_vw_errors_rx_factory_debug = -1;
-static int hf_radiotap_vw_errors_rx_internal_error_bit32 = -1;
+static int hf_radiotap_vw_errors_rx_sig_field_crc_parity_error;
+static int hf_radiotap_vw_errors_rx_non_supported_service_field;
+static int hf_radiotap_vw_errors_rx_frame_length_error;
+static int hf_radiotap_vw_errors_rx_vht_sig_ab_crc_error;
+static int hf_radiotap_vw_errors_rx_crc32_error;
+static int hf_radiotap_vw_errors_rx_l2_de_aggregation_error;
+static int hf_radiotap_vw_errors_rx_duplicate_mpdu;
+static int hf_radiotap_vw_errors_rx_bad_flow_magic_number;
+static int hf_radiotap_vw_errors_rx_bad_flow_payload_checksum;
+static int hf_radiotap_vw_errors_rx_illegal_vht_sig_value;
+static int hf_radiotap_vw_errors_rx_ip_checksum_error;
+static int hf_radiotap_vw_errors_rx_l4_checksum_error;
+static int hf_radiotap_vw_errors_rx_l1_unsupported_feature;
+static int hf_radiotap_vw_errors_rx_l1_packet_termination;
+static int hf_radiotap_vw_errors_rx_internal_error_bit15;
+static int hf_radiotap_vw_errors_rx_wep_mic_miscompare;
+static int hf_radiotap_vw_errors_rx_wep_tkip_rate_exceeded;
+static int hf_radiotap_vw_errors_rx_crypto_short_error;
+static int hf_radiotap_vw_errors_rx_extiv_fault_a;
+static int hf_radiotap_vw_errors_rx_extiv_fault_b;
+static int hf_radiotap_vw_errors_rx_internal_error_bit21;
+static int hf_radiotap_vw_errors_rx_protected_fault_a;
+static int hf_radiotap_vw_errors_rx_rx_mac_crypto_incompatibility;
+static int hf_radiotap_vw_errors_rx_factory_debug;
+static int hf_radiotap_vw_errors_rx_internal_error_bit32;
 
-static int hf_radiotap_vw_errors_tx_packet_fcs_error = -1;
-static int hf_radiotap_vw_errors_tx_ip_checksum_error = -1;
+static int hf_radiotap_vw_errors_tx_packet_fcs_error;
+static int hf_radiotap_vw_errors_tx_ip_checksum_error;
 
-static int hf_radiotap_vw_tx_retrycount = -1;
-static int hf_radiotap_vw_tx_factorydebug = -1;
+static int hf_radiotap_vw_tx_retrycount;
+static int hf_radiotap_vw_tx_factorydebug;
 
-static gint ett_radiotap_info = -1;
-static gint ett_radiotap_errors = -1;
-static gint ett_radiotap_times = -1;
-static gint ett_radiotap_layer1 = -1;
-static gint ett_radiotap_layer2to4 = -1;
-static gint ett_radiotap_rf = -1;
-static gint ett_radiotap_plcp = -1;
-static gint ett_radiotap_infoc = -1;
-static gint ett_radiotap_contextp = -1;
-static gint ett_rf_info = -1;
+static gint ett_radiotap_info;
+static gint ett_radiotap_errors;
+static gint ett_radiotap_times;
+static gint ett_radiotap_layer1;
+static gint ett_radiotap_layer2to4;
+static gint ett_radiotap_rf;
+static gint ett_radiotap_plcp;
+static gint ett_radiotap_infoc;
+static gint ett_radiotap_contextp;
+static gint ett_rf_info;
 
-static gint ett_commontap = -1;
-static gint ett_commontap_times = -1;
-static gint ett_ethernettap_info = -1;
-static gint ett_ethernettap_error = -1;
-static gint ett_ethernettap_flags = -1;
+static gint ett_commontap;
+static gint ett_commontap_times;
+static gint ett_ethernettap_info;
+static gint ett_ethernettap_error;
+static gint ett_ethernettap_flags;
 
-static gint ett_radiotap_flags = -1;
+static gint ett_radiotap_flags;
 
 static dissector_handle_t ieee80211_radio_handle;
 

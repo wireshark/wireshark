@@ -21,34 +21,34 @@
 
 #include "packet-pcap_pktdata.h"
 
-static int proto_pcap = -1;
+static int proto_pcap;
 
 static dissector_handle_t pcap_pktdata_handle;
 
-static int hf_pcap_header = -1;
-static int hf_pcap_header_magic_number = -1;
-static int hf_pcap_header_version_major = -1;
-static int hf_pcap_header_version_minor = -1;
-static int hf_pcap_header_this_zone = -1;
-static int hf_pcap_header_sigfigs = -1;
-static int hf_pcap_header_snapshot_length = -1;
-static int hf_pcap_header_link_type = -1;
-static int hf_pcap_packet = -1;
-static int hf_pcap_packet_timestamp = -1;
-static int hf_pcap_packet_timestamp_sec = -1;
-static int hf_pcap_packet_timestamp_usec = -1;
-static int hf_pcap_packet_captured_length = -1;
-static int hf_pcap_packet_original_length = -1;
-static int hf_pcap_packet_data = -1;
+static int hf_pcap_header;
+static int hf_pcap_header_magic_number;
+static int hf_pcap_header_version_major;
+static int hf_pcap_header_version_minor;
+static int hf_pcap_header_this_zone;
+static int hf_pcap_header_sigfigs;
+static int hf_pcap_header_snapshot_length;
+static int hf_pcap_header_link_type;
+static int hf_pcap_packet;
+static int hf_pcap_packet_timestamp;
+static int hf_pcap_packet_timestamp_sec;
+static int hf_pcap_packet_timestamp_usec;
+static int hf_pcap_packet_captured_length;
+static int hf_pcap_packet_original_length;
+static int hf_pcap_packet_data;
 
-static expert_field ei_pcap_capt_larger_than_orig = EI_INIT;
-static expert_field ei_pcap_capt_larger_than_snap = EI_INIT;
+static expert_field ei_pcap_capt_larger_than_orig;
+static expert_field ei_pcap_capt_larger_than_snap;
 
-static gint ett_pcap = -1;
-static gint ett_pcap_header = -1;
-static gint ett_pcap_packet = -1;
-static gint ett_pcap_packet_data = -1;
-static gint ett_pcap_timestamp = -1;
+static gint ett_pcap;
+static gint ett_pcap_header;
+static gint ett_pcap_packet;
+static gint ett_pcap_packet_data;
+static gint ett_pcap_timestamp;
 
 static gboolean pref_dissect_next_layer = FALSE;
 

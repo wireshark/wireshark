@@ -21,10 +21,10 @@
 void proto_register_rs_bind (void);
 void proto_reg_handoff_rs_bind (void);
 
-static int proto_rs_bind = -1;
-static int hf_rs_bind_opnum = -1;
+static int proto_rs_bind;
+static int hf_rs_bind_opnum;
 
-static gint ett_rs_bind = -1;
+static gint ett_rs_bind;
 
 
 static e_guid_t uuid_rs_bind =

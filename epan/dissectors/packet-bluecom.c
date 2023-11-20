@@ -73,74 +73,74 @@ void proto_register_bluecom(void);
 static dissector_handle_t bcp_handle;
 static dissector_table_t bcp_subdissector_table;
 
-static gint proto_bcp = -1;
-static gint ett_bcp = -1;
-static gint ett_bcp_header = -1;
-static gint ett_bcp_blockheader = -1;
-static gint ett_bcp_data = -1;
+static gint proto_bcp;
+static gint ett_bcp;
+static gint ett_bcp_header;
+static gint ett_bcp_blockheader;
+static gint ett_bcp_data;
 
 /* protocol data id */
-static gint hf_bcp_hdr_version = -1;
-static gint hf_bcp_hdr_format = -1;
-static gint hf_bcp_hdr_protflags = -1;
-static gint hf_bcp_hdr_blocknb = -1;
-static gint hf_bcp_hdr_segcode = -1;
-static gint hf_bcp_hdr_auth = -1;
-static gint hf_bcp_hdr_sourceid = -1;
-static gint hf_bcp_hdr_destid = -1;
-static gint hf_bcp_hdr_transid = -1;
-static gint hf_bcp_hdr_cmd = -1;
-static gint hf_bcp_hdr_slavestate = -1;
-static gint hf_bcp_hdr_blockflags = -1;
-static gint hf_bcp_hdr_len = -1;
-static gint hf_bcp_hdr_timestamp = -1;
-static gint hf_bcp_hdr_fragoffset = -1;
+static gint hf_bcp_hdr_version;
+static gint hf_bcp_hdr_format;
+static gint hf_bcp_hdr_protflags;
+static gint hf_bcp_hdr_blocknb;
+static gint hf_bcp_hdr_segcode;
+static gint hf_bcp_hdr_auth;
+static gint hf_bcp_hdr_sourceid;
+static gint hf_bcp_hdr_destid;
+static gint hf_bcp_hdr_transid;
+static gint hf_bcp_hdr_cmd;
+static gint hf_bcp_hdr_slavestate;
+static gint hf_bcp_hdr_blockflags;
+static gint hf_bcp_hdr_len;
+static gint hf_bcp_hdr_timestamp;
+static gint hf_bcp_hdr_fragoffset;
 
-static gint hf_bcp_sync_starttime = -1;
-static gint hf_bcp_sync_cycletime = -1;
-static gint hf_bcp_sync_dataratio = -1;
-static gint hf_bcp_sync_identify = -1;
-static gint hf_bcp_sync_vlantag = -1;
-static gint hf_bcp_sync_ethaddr = -1;
-static gint hf_bcp_sync_ethaddr2 = -1;
+static gint hf_bcp_sync_starttime;
+static gint hf_bcp_sync_cycletime;
+static gint hf_bcp_sync_dataratio;
+static gint hf_bcp_sync_identify;
+static gint hf_bcp_sync_vlantag;
+static gint hf_bcp_sync_ethaddr;
+static gint hf_bcp_sync_ethaddr2;
 
-static gint hf_bcp_identify_error = -1;
-static gint hf_bcp_identify_starttime = -1;
-static gint hf_bcp_identify_ipaddr = -1;
-static gint hf_bcp_identify_name = -1;
-static gint hf_bcp_identify_ethaddr = -1;
-static gint hf_bcp_identify_ethaddr2 = -1;
+static gint hf_bcp_identify_error;
+static gint hf_bcp_identify_starttime;
+static gint hf_bcp_identify_ipaddr;
+static gint hf_bcp_identify_name;
+static gint hf_bcp_identify_ethaddr;
+static gint hf_bcp_identify_ethaddr2;
 
-static gint hf_bcp_searchreq_addrtype = -1;
-static gint hf_bcp_searchreq_reserved = -1;
-static gint hf_bcp_searchreq_name = -1;
-static gint hf_bcp_searchreq_ipaddrfirst = -1;
-static gint hf_bcp_searchreq_ipaddrlast = -1;
-static gint hf_bcp_searchreq_addrdata = -1;
+static gint hf_bcp_searchreq_addrtype;
+static gint hf_bcp_searchreq_reserved;
+static gint hf_bcp_searchreq_name;
+static gint hf_bcp_searchreq_ipaddrfirst;
+static gint hf_bcp_searchreq_ipaddrlast;
+static gint hf_bcp_searchreq_addrdata;
 
-static gint hf_bcp_searchrsp_error = -1;
-static gint hf_bcp_searchrsp_starttime = -1;
-static gint hf_bcp_searchrsp_lenin = -1;
-static gint hf_bcp_searchrsp_lenout = -1;
-static gint hf_bcp_searchrsp_ipaddr = -1;
-static gint hf_bcp_searchrsp_name = -1;
-static gint hf_bcp_searchrsp_ethaddr = -1;
-static gint hf_bcp_searchrsp_ethaddr2 = -1;
+static gint hf_bcp_searchrsp_error;
+static gint hf_bcp_searchrsp_starttime;
+static gint hf_bcp_searchrsp_lenin;
+static gint hf_bcp_searchrsp_lenout;
+static gint hf_bcp_searchrsp_ipaddr;
+static gint hf_bcp_searchrsp_name;
+static gint hf_bcp_searchrsp_ethaddr;
+static gint hf_bcp_searchrsp_ethaddr2;
 
-static gint hf_bcp_connectreq_lenin = -1;
-static gint hf_bcp_connectreq_lenout = -1;
-static gint hf_bcp_connectreq_cycletime = -1;
-static gint hf_bcp_connectreq_offlinefactor = -1;
-static gint hf_bcp_connectreq_ipaddr = -1;
-static gint hf_bcp_connectreq_name = -1;
-static gint hf_bcp_connectreq_ethaddr = -1;
-static gint hf_bcp_connectreq_ethaddr2 = -1;
+static gint hf_bcp_connectreq_lenin;
+static gint hf_bcp_connectreq_lenout;
+static gint hf_bcp_connectreq_cycletime;
+static gint hf_bcp_connectreq_offlinefactor;
+static gint hf_bcp_connectreq_ipaddr;
+static gint hf_bcp_connectreq_name;
+static gint hf_bcp_connectreq_ethaddr;
+static gint hf_bcp_connectreq_ethaddr2;
 
-static gint hf_bcp_connectrsp_error = -1;
-static gint hf_bcp_connectrsp_lenin = -1;
-static gint hf_bcp_connectrsp_lenout = -1;
+static gint hf_bcp_connectrsp_error;
+static gint hf_bcp_connectrsp_lenin;
+static gint hf_bcp_connectrsp_lenout;
 
-static gint hf_bcp_userdata = -1;
+static gint hf_bcp_userdata;
 
 /* command defines */
 static const value_string bcp_cmds[] = {

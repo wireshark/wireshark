@@ -50,29 +50,29 @@ void proto_reg_handoff_openvpn(void);
 #define P_CONTROL_HARD_RESET_CLIENT_V3  10
 #define P_CONTROL_WKC_V1                11
 
-static gint ett_openvpn = -1;
-static gint ett_openvpn_data = -1;
-static gint ett_openvpn_packetarray = -1;
-static gint ett_openvpn_type = -1;
-static gint ett_openvpn_wkc = -1;
-static gint hf_openvpn_data = -1;
-static gint hf_openvpn_wkc_data = -1;
-static gint hf_openvpn_wkc_length = -1;
-static gint hf_openvpn_fragment_bytes = -1;
-static gint hf_openvpn_hmac = -1;
-static gint hf_openvpn_keyid = -1;
-static gint hf_openvpn_mpid = -1;
-static gint hf_openvpn_mpid_arrayelement = -1;
-static gint hf_openvpn_mpid_arraylength = -1;
-static gint hf_openvpn_net_time = -1;
-static gint hf_openvpn_opcode = -1;
-static gint hf_openvpn_pdu_type = -1;
-static gint hf_openvpn_pid = -1;
-static gint hf_openvpn_plen = -1;
-static gint hf_openvpn_rsessionid = -1;
-static gint hf_openvpn_sessionid = -1;
-static gint hf_openvpn_peerid = -1;
-static gint proto_openvpn = -1;
+static gint ett_openvpn;
+static gint ett_openvpn_data;
+static gint ett_openvpn_packetarray;
+static gint ett_openvpn_type;
+static gint ett_openvpn_wkc;
+static gint hf_openvpn_data;
+static gint hf_openvpn_wkc_data;
+static gint hf_openvpn_wkc_length;
+static gint hf_openvpn_fragment_bytes;
+static gint hf_openvpn_hmac;
+static gint hf_openvpn_keyid;
+static gint hf_openvpn_mpid;
+static gint hf_openvpn_mpid_arrayelement;
+static gint hf_openvpn_mpid_arraylength;
+static gint hf_openvpn_net_time;
+static gint hf_openvpn_opcode;
+static gint hf_openvpn_pdu_type;
+static gint hf_openvpn_pid;
+static gint hf_openvpn_plen;
+static gint hf_openvpn_rsessionid;
+static gint hf_openvpn_sessionid;
+static gint hf_openvpn_peerid;
+static gint proto_openvpn;
 
 static dissector_handle_t openvpn_udp_handle;
 static dissector_handle_t openvpn_tcp_handle;
@@ -105,18 +105,18 @@ static const value_string openvpn_message_types[] =
 /* everything used during the reassembly process */
 static reassembly_table msg_reassembly_table;
 
-static gint ett_openvpn_fragment = -1;
-static gint ett_openvpn_fragments = -1;
-static gint hf_openvpn_fragment = -1;
-static gint hf_openvpn_fragment_count = -1;
-static gint hf_openvpn_fragment_error = -1;
-static gint hf_openvpn_fragment_multiple_tails = -1;
-static gint hf_openvpn_fragment_overlap = -1;
-static gint hf_openvpn_fragment_overlap_conflicts = -1;
-static gint hf_openvpn_fragment_too_long_fragment = -1;
-static gint hf_openvpn_fragments = -1;
-static gint hf_openvpn_reassembled_in = -1;
-static gint hf_openvpn_reassembled_length = -1;
+static gint ett_openvpn_fragment;
+static gint ett_openvpn_fragments;
+static gint hf_openvpn_fragment;
+static gint hf_openvpn_fragment_count;
+static gint hf_openvpn_fragment_error;
+static gint hf_openvpn_fragment_multiple_tails;
+static gint hf_openvpn_fragment_overlap;
+static gint hf_openvpn_fragment_overlap_conflicts;
+static gint hf_openvpn_fragment_too_long_fragment;
+static gint hf_openvpn_fragments;
+static gint hf_openvpn_reassembled_in;
+static gint hf_openvpn_reassembled_length;
 
 static const fragment_items openvpn_frag_items = {
   /* Fragment subtrees */

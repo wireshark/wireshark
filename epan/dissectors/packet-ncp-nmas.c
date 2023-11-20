@@ -18,42 +18,42 @@
 
 void proto_register_nmas(void);
 
-static gint ett_nmas = -1;
+static gint ett_nmas;
 
-static int proto_nmas = -1;
-/* static int hf_func = -1; */
-/* static int hf_subfunc = -1; */
-static int hf_ping_version = -1;
-static int hf_ping_flags = -1;
-static int hf_frag_handle = -1;
-static int hf_length = -1;
-static int hf_subverb = -1;
-static int hf_tree = -1;
-static int hf_user = -1;
-static int hf_nmas_version = -1;
-static int hf_msg_version = -1;
-static int hf_session_ident = -1;
-static int hf_verb = -1;
-static int hf_msg_verb = -1;
-/* static int hf_attribute = -1; */
-static int hf_clearance = -1;
-static int hf_login_sequence = -1;
-static int hf_opaque = -1;
-static int hf_data = -1;
-static int hf_return_code = -1;
-static int hf_lsm_verb = -1;
-static int hf_squeue_bytes = -1;
-static int hf_cqueue_bytes = -1;
-static int hf_num_creds = -1;
-static int hf_cred_type = -1;
-static int hf_login_state = -1;
-static int hf_enc_cred = -1;
-static int hf_enc_data = -1;
-static int hf_reply_buffer_size = -1;
-static int hf_encrypt_error = -1;
+static int proto_nmas;
+/* static int hf_func; */
+/* static int hf_subfunc; */
+static int hf_ping_version;
+static int hf_ping_flags;
+static int hf_frag_handle;
+static int hf_length;
+static int hf_subverb;
+static int hf_tree;
+static int hf_user;
+static int hf_nmas_version;
+static int hf_msg_version;
+static int hf_session_ident;
+static int hf_verb;
+static int hf_msg_verb;
+/* static int hf_attribute; */
+static int hf_clearance;
+static int hf_login_sequence;
+static int hf_opaque;
+static int hf_data;
+static int hf_return_code;
+static int hf_lsm_verb;
+static int hf_squeue_bytes;
+static int hf_cqueue_bytes;
+static int hf_num_creds;
+static int hf_cred_type;
+static int hf_login_state;
+static int hf_enc_cred;
+static int hf_enc_data;
+static int hf_reply_buffer_size;
+static int hf_encrypt_error;
 
-static expert_field ei_encrypt_error = EI_INIT;
-static expert_field ei_return_error = EI_INIT;
+static expert_field ei_encrypt_error;
+static expert_field ei_return_error;
 
 static const value_string nmas_func_enum[] = {
     { 0x01, "Ping" },

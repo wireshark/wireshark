@@ -29,11 +29,11 @@ void proto_register_xmcp(void);
 static dissector_table_t media_type_dissector_table;
 
 /* Initialize the protocol and registered fields */
-static int proto_xmcp = -1;
+static int proto_xmcp;
 
-static int hf_xmcp_response_in = -1;
-static int hf_xmcp_response_to = -1;
-static int hf_xmcp_time = -1;
+static int hf_xmcp_response_in;
+static int hf_xmcp_response_to;
+static int hf_xmcp_time;
 
 typedef struct _xmcp_transaction_t {
   guint32 request_frame;
@@ -46,82 +46,82 @@ typedef struct _xmcp_conv_info_t {
   wmem_tree_t *transaction_pdus;
 } xmcp_conv_info_t;
 
-static int hf_xmcp_type = -1;
-static int hf_xmcp_type_reserved = -1;
-static int hf_xmcp_type_class = -1;
-static int hf_xmcp_type_method = -1;
-static int hf_xmcp_length = -1;
-static int hf_xmcp_cookie = -1;
-static int hf_xmcp_id = -1;
-static int hf_xmcp_attributes = -1;
-static int hf_xmcp_attr = -1;
-static int hf_xmcp_msg_is_keepalive = -1;
+static int hf_xmcp_type;
+static int hf_xmcp_type_reserved;
+static int hf_xmcp_type_class;
+static int hf_xmcp_type_method;
+static int hf_xmcp_length;
+static int hf_xmcp_cookie;
+static int hf_xmcp_id;
+static int hf_xmcp_attributes;
+static int hf_xmcp_attr;
+static int hf_xmcp_msg_is_keepalive;
 
-static int hf_xmcp_attr_type = -1;
-static int hf_xmcp_attr_length = -1;
-static int hf_xmcp_attr_value = -1; /* generic value for unrecognized attrs */
-static int hf_xmcp_attr_padding = -1; /* generic value for TLV padding bytes */
-static int hf_xmcp_attr_reserved = -1;
-static int hf_xmcp_attr_username = -1;
-static int hf_xmcp_attr_message_integrity = -1;
-static int hf_xmcp_attr_error_reserved = -1;
-static int hf_xmcp_attr_error_class = -1;
-static int hf_xmcp_attr_error_number = -1;
-static int hf_xmcp_attr_error_code = -1;
-static int hf_xmcp_attr_error_reason = -1;
-static int hf_xmcp_attr_realm = -1;
-static int hf_xmcp_attr_nonce = -1;
-static int hf_xmcp_attr_client_name = -1;
-static int hf_xmcp_attr_client_handle = -1;
-static int hf_xmcp_attr_version_major = -1;
-static int hf_xmcp_attr_version_minor = -1;
-static int hf_xmcp_attr_page_size = -1;
-static int hf_xmcp_attr_client_label = -1;
-static int hf_xmcp_attr_keepalive = -1;
-static int hf_xmcp_attr_serv_service = -1;
-static int hf_xmcp_attr_serv_subservice = -1;
-static int hf_xmcp_attr_serv_instance = -1;
-static int hf_xmcp_attr_servtrans_family = -1;
-static int hf_xmcp_attr_servtrans_port = -1;
-static int hf_xmcp_attr_servtrans_ipv4 = -1;
-static int hf_xmcp_attr_servtrans_ipv6 = -1;
-static int hf_xmcp_attr_service_protocol = -1;
-static int hf_xmcp_attr_flag = -1;
-static int hf_xmcp_attr_flag_type = -1;
-static int hf_xmcp_attr_flag_value = -1;
-static int hf_xmcp_attr_flag_removal_reason_network_withdraw = -1;
-static int hf_xmcp_attr_flag_removal_reason_reserved = -1;
-static int hf_xmcp_attr_flag_trust = -1;
-static int hf_xmcp_attr_flag_visibility_unauthenticated = -1;
-static int hf_xmcp_attr_flag_visibility_reserved = -1;
-static int hf_xmcp_attr_service_version = -1;
-static int hf_xmcp_attr_service_data = -1;
-static int hf_xmcp_attr_subscription_id = -1;
-static int hf_xmcp_attr_service_removed_reason = -1;
-static int hf_xmcp_attr_domain = -1;
+static int hf_xmcp_attr_type;
+static int hf_xmcp_attr_length;
+static int hf_xmcp_attr_value; /* generic value for unrecognized attrs */
+static int hf_xmcp_attr_padding; /* generic value for TLV padding bytes */
+static int hf_xmcp_attr_reserved;
+static int hf_xmcp_attr_username;
+static int hf_xmcp_attr_message_integrity;
+static int hf_xmcp_attr_error_reserved;
+static int hf_xmcp_attr_error_class;
+static int hf_xmcp_attr_error_number;
+static int hf_xmcp_attr_error_code;
+static int hf_xmcp_attr_error_reason;
+static int hf_xmcp_attr_realm;
+static int hf_xmcp_attr_nonce;
+static int hf_xmcp_attr_client_name;
+static int hf_xmcp_attr_client_handle;
+static int hf_xmcp_attr_version_major;
+static int hf_xmcp_attr_version_minor;
+static int hf_xmcp_attr_page_size;
+static int hf_xmcp_attr_client_label;
+static int hf_xmcp_attr_keepalive;
+static int hf_xmcp_attr_serv_service;
+static int hf_xmcp_attr_serv_subservice;
+static int hf_xmcp_attr_serv_instance;
+static int hf_xmcp_attr_servtrans_family;
+static int hf_xmcp_attr_servtrans_port;
+static int hf_xmcp_attr_servtrans_ipv4;
+static int hf_xmcp_attr_servtrans_ipv6;
+static int hf_xmcp_attr_service_protocol;
+static int hf_xmcp_attr_flag;
+static int hf_xmcp_attr_flag_type;
+static int hf_xmcp_attr_flag_value;
+static int hf_xmcp_attr_flag_removal_reason_network_withdraw;
+static int hf_xmcp_attr_flag_removal_reason_reserved;
+static int hf_xmcp_attr_flag_trust;
+static int hf_xmcp_attr_flag_visibility_unauthenticated;
+static int hf_xmcp_attr_flag_visibility_reserved;
+static int hf_xmcp_attr_service_version;
+static int hf_xmcp_attr_service_data;
+static int hf_xmcp_attr_subscription_id;
+static int hf_xmcp_attr_service_removed_reason;
+static int hf_xmcp_attr_domain;
 
-static gint ett_xmcp = -1;
-static gint ett_xmcp_type = -1;
-static gint ett_xmcp_attr_all = -1;
-static gint ett_xmcp_attr = -1;
-static gint ett_xmcp_attr_flag = -1;
+static gint ett_xmcp;
+static gint ett_xmcp_type;
+static gint ett_xmcp_attr_all;
+static gint ett_xmcp_attr;
+static gint ett_xmcp_attr_flag;
 
-static expert_field ei_xmcp_message_class_reserved = EI_INIT;
-static expert_field ei_xmcp_attr_length_bad = EI_INIT;
-static expert_field ei_xmcp_attr_error_number_out_of_range = EI_INIT;
-static expert_field ei_xmcp_type_reserved_not_zero = EI_INIT;
-static expert_field ei_xmcp_data_following_message_integrity = EI_INIT;
-static expert_field ei_xmcp_msg_type_method_reserved = EI_INIT;
-static expert_field ei_xmcp_xmcp_attr_servtrans_unknown = EI_INIT;
-static expert_field ei_xmcp_attr_realm_incorrect = EI_INIT;
-static expert_field ei_xmcp_new_session = EI_INIT;
-static expert_field ei_xmcp_response_without_request = EI_INIT;
-static expert_field ei_xmcp_length_bad = EI_INIT;
-static expert_field ei_xmcp_error_response = EI_INIT;
-static expert_field ei_xmcp_magic_cookie_incorrect = EI_INIT;
-static expert_field ei_xmcp_attr_type_unknown = EI_INIT;
-static expert_field ei_xmcp_session_termination = EI_INIT;
-static expert_field ei_xmcp_attr_error_code_unusual = EI_INIT;
+static expert_field ei_xmcp_message_class_reserved;
+static expert_field ei_xmcp_attr_length_bad;
+static expert_field ei_xmcp_attr_error_number_out_of_range;
+static expert_field ei_xmcp_type_reserved_not_zero;
+static expert_field ei_xmcp_data_following_message_integrity;
+static expert_field ei_xmcp_msg_type_method_reserved;
+static expert_field ei_xmcp_xmcp_attr_servtrans_unknown;
+static expert_field ei_xmcp_attr_realm_incorrect;
+static expert_field ei_xmcp_new_session;
+static expert_field ei_xmcp_response_without_request;
+static expert_field ei_xmcp_length_bad;
+static expert_field ei_xmcp_error_response;
+static expert_field ei_xmcp_magic_cookie_incorrect;
+static expert_field ei_xmcp_attr_type_unknown;
+static expert_field ei_xmcp_session_termination;
+static expert_field ei_xmcp_attr_error_code_unusual;
 
 #define TCP_PORT_XMCP 4788
 #define XMCP_MAGIC_COOKIE 0x7f5a9bc7

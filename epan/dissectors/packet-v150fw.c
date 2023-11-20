@@ -23,49 +23,49 @@ void proto_register_v150fw(void);
 /* Initialize the protocol & registered fields
  * Look familiar?  This is in the same format as an NTE (named telephone event) from RFC 2833:
  */
-static int proto_v150fw =                   -1;
+static int proto_v150fw;
 
-static int hf_v150fw_event_id =             -1; /* 6 bits */
-static int hf_v150fw_force_response_bit =   -1;
-static int hf_v150fw_extension_bit =        -1;
+static int hf_v150fw_event_id; /* 6 bits */
+static int hf_v150fw_force_response_bit;
+static int hf_v150fw_extension_bit;
 
-static int hf_v150fw_reason_id_code =                       -1; /* value & string */
+static int hf_v150fw_reason_id_code; /* value & string */
 
-static int hf_v150fw_reason_id_code_info =                  -1; /* 16 bits */
+static int hf_v150fw_reason_id_code_info; /* 16 bits */
 
-static int hf_v150fw_ric_info_mod_avail =                   -1; /* ric = 1,2 */
-static int hf_v150fw_cm_jm_mod_avail_pcm_mode =             -1;
-static int hf_v150fw_cm_jm_mod_avail_v34_duplex =           -1;
-static int hf_v150fw_cm_jm_mod_avail_v34_half_duplex =      -1;
-static int hf_v150fw_cm_jm_mod_avail_v32_v32bis =           -1;
-static int hf_v150fw_cm_jm_mod_avail_v22_v22bis =           -1;
-static int hf_v150fw_cm_jm_mod_avail_v17 =                  -1;
-static int hf_v150fw_cm_jm_mod_avail_v29_half_duplex =      -1;
-static int hf_v150fw_cm_jm_mod_avail_v27ter =               -1;
-static int hf_v150fw_cm_jm_mod_avail_v26ter =               -1;
-static int hf_v150fw_cm_jm_mod_avail_v26bis =               -1;
-static int hf_v150fw_cm_jm_mod_avail_v23_duplex =           -1;
-static int hf_v150fw_cm_jm_mod_avail_v23_half_duplex =      -1;
-static int hf_v150fw_cm_jm_mod_avail_v21 =                  -1;
-static int hf_v150fw_cm_jm_mod_avail_v90_or_v92_analog =    -1;
-static int hf_v150fw_cm_jm_mod_avail_v90_or_v92_digital =   -1;
-static int hf_v150fw_cm_jm_mod_avail_v91 =                  -1;
+static int hf_v150fw_ric_info_mod_avail; /* ric = 1,2 */
+static int hf_v150fw_cm_jm_mod_avail_pcm_mode;
+static int hf_v150fw_cm_jm_mod_avail_v34_duplex;
+static int hf_v150fw_cm_jm_mod_avail_v34_half_duplex;
+static int hf_v150fw_cm_jm_mod_avail_v32_v32bis;
+static int hf_v150fw_cm_jm_mod_avail_v22_v22bis;
+static int hf_v150fw_cm_jm_mod_avail_v17;
+static int hf_v150fw_cm_jm_mod_avail_v29_half_duplex;
+static int hf_v150fw_cm_jm_mod_avail_v27ter;
+static int hf_v150fw_cm_jm_mod_avail_v26ter;
+static int hf_v150fw_cm_jm_mod_avail_v26bis;
+static int hf_v150fw_cm_jm_mod_avail_v23_duplex;
+static int hf_v150fw_cm_jm_mod_avail_v23_half_duplex;
+static int hf_v150fw_cm_jm_mod_avail_v21;
+static int hf_v150fw_cm_jm_mod_avail_v90_or_v92_analog;
+static int hf_v150fw_cm_jm_mod_avail_v90_or_v92_digital;
+static int hf_v150fw_cm_jm_mod_avail_v91;
 
-static int hf_v150fw_ric_info_timeout =                     -1; /* ric= 18 */
-static int hf_v150fw_ric_info_timeout_vendor =              -1;
+static int hf_v150fw_ric_info_timeout; /* ric= 18 */
+static int hf_v150fw_ric_info_timeout_vendor;
 
-static int hf_v150fw_ric_info_cleardown =                   -1; /* ric = 20 */
-static int hf_v150fw_ric_info_cleardown_reserved =          -1;
-static int hf_v150fw_ric_info_cleardown_vendor_tag =        -1; /* extension fields */
-static int hf_v150fw_ric_info_cleardown_vendor_info =       -1;
+static int hf_v150fw_ric_info_cleardown; /* ric = 20 */
+static int hf_v150fw_ric_info_cleardown_reserved;
+static int hf_v150fw_ric_info_cleardown_vendor_tag; /* extension fields */
+static int hf_v150fw_ric_info_cleardown_vendor_info;
 
-static int hf_v150fw_reserved =             -1; /* 5 bits */
-static int hf_v150fw_extension_len =        -1; /* 11 bits */
-static int hf_v150fw_remainder =            -1;
+static int hf_v150fw_reserved; /* 5 bits */
+static int hf_v150fw_extension_len; /* 11 bits */
+static int hf_v150fw_remainder;
 
 /* initialize the subtree pointers */
-static gint ett_v150fw = -1;
-static gint ett_available_modulations = -1;
+static gint ett_v150fw;
+static gint ett_available_modulations;
 
 /* for some "range_string"s, there's only one value in the range  */
 #define V150FW_VALUE_RANGE(a) a,a

@@ -481,68 +481,68 @@ static dissector_handle_t solaredge_handle;
 
 static gboolean global_show_unknown_fields = TRUE;
 
-static expert_field ei_solaredge_invalid_length = EI_INIT;
-static expert_field ei_solaredge_invalid_crc = EI_INIT;
+static expert_field ei_solaredge_invalid_length;
+static expert_field ei_solaredge_invalid_crc;
 
-static int proto_solaredge = -1;
+static int proto_solaredge;
 
-static int hf_solaredge_length_type = -1;
-static int hf_solaredge_length_inverse_type = -1;
-static int hf_solaredge_sequence_number_type = -1;
-static int hf_solaredge_source_address_type = -1;
-static int hf_solaredge_destination_address_type = -1;
-static int hf_solaredge_command_type = -1;
-static int hf_solaredge_crc_type = -1;
-static int hf_solaredge_crc_status_type = -1;
+static int hf_solaredge_length_type;
+static int hf_solaredge_length_inverse_type;
+static int hf_solaredge_sequence_number_type;
+static int hf_solaredge_source_address_type;
+static int hf_solaredge_destination_address_type;
+static int hf_solaredge_command_type;
+static int hf_solaredge_crc_type;
+static int hf_solaredge_crc_status_type;
 
-static int hf_solaredge_payload_type = -1;
+static int hf_solaredge_payload_type;
 
-static int hf_solaredge_session_key_type = -1;
+static int hf_solaredge_session_key_type;
 
-static int hf_solaredge_post_type = -1;
-static int hf_solaredge_post_device_type = -1;
-static int hf_solaredge_post_device_type_type = -1;
-static int hf_solaredge_post_device_id_type = -1;
-static int hf_solaredge_post_length_type = -1;
+static int hf_solaredge_post_type;
+static int hf_solaredge_post_device_type;
+static int hf_solaredge_post_device_type_type;
+static int hf_solaredge_post_device_id_type;
+static int hf_solaredge_post_length_type;
 
-static int hf_solaredge_post_padding_uint32_type = -1;
-static int hf_solaredge_post_padding_float_type = -1;
+static int hf_solaredge_post_padding_uint32_type;
+static int hf_solaredge_post_padding_float_type;
 
-static int hf_solaredge_post_singlephase_inverter_timestamp_type = -1;
-static int hf_solaredge_post_singlephase_inverter_uptime_type = -1;
-static int hf_solaredge_post_singlephase_inverter_interval_type = -1;
-static int hf_solaredge_post_singlephase_inverter_temperature_type = -1;
-static int hf_solaredge_post_singlephase_inverter_energy_day_type = -1;
-static int hf_solaredge_post_singlephase_inverter_energy_interval_type = -1;
-static int hf_solaredge_post_singlephase_inverter_ac_voltage_type = -1;
-static int hf_solaredge_post_singlephase_inverter_ac_current_type = -1;
-static int hf_solaredge_post_singlephase_inverter_ac_frequency_type = -1;
-static int hf_solaredge_post_singlephase_inverter_dc_voltage_type = -1;
-static int hf_solaredge_post_singlephase_inverter_energy_total_type = -1;
-static int hf_solaredge_post_singlephase_inverter_power_max_type = -1;
-static int hf_solaredge_post_singlephase_inverter_ac_power_type = -1;
+static int hf_solaredge_post_singlephase_inverter_timestamp_type;
+static int hf_solaredge_post_singlephase_inverter_uptime_type;
+static int hf_solaredge_post_singlephase_inverter_interval_type;
+static int hf_solaredge_post_singlephase_inverter_temperature_type;
+static int hf_solaredge_post_singlephase_inverter_energy_day_type;
+static int hf_solaredge_post_singlephase_inverter_energy_interval_type;
+static int hf_solaredge_post_singlephase_inverter_ac_voltage_type;
+static int hf_solaredge_post_singlephase_inverter_ac_current_type;
+static int hf_solaredge_post_singlephase_inverter_ac_frequency_type;
+static int hf_solaredge_post_singlephase_inverter_dc_voltage_type;
+static int hf_solaredge_post_singlephase_inverter_energy_total_type;
+static int hf_solaredge_post_singlephase_inverter_power_max_type;
+static int hf_solaredge_post_singlephase_inverter_ac_power_type;
 
-static int hf_solaredge_post_optimizer_inverter_type = -1;
-static int hf_solaredge_post_optimizer_uptime_type = -1;
-static int hf_solaredge_post_optimizer_dc_current_panel_type = -1;
-static int hf_solaredge_post_optimizer_timestamp_type = -1;
-static int hf_solaredge_post_optimizer_uptime_short_type = -1;
-static int hf_solaredge_post_optimizer_dc_voltage_panel_type = -1;
-static int hf_solaredge_post_optimizer_dc_voltage_optimzer_type = -1;
-static int hf_solaredge_post_optimizer_dc_current_optimzer_type = -1;
-static int hf_solaredge_post_optimizer_energy_day_type = -1;
-static int hf_solaredge_post_optimizer_temperature_type = -1;
+static int hf_solaredge_post_optimizer_inverter_type;
+static int hf_solaredge_post_optimizer_uptime_type;
+static int hf_solaredge_post_optimizer_dc_current_panel_type;
+static int hf_solaredge_post_optimizer_timestamp_type;
+static int hf_solaredge_post_optimizer_uptime_short_type;
+static int hf_solaredge_post_optimizer_dc_voltage_panel_type;
+static int hf_solaredge_post_optimizer_dc_voltage_optimzer_type;
+static int hf_solaredge_post_optimizer_dc_current_optimzer_type;
+static int hf_solaredge_post_optimizer_energy_day_type;
+static int hf_solaredge_post_optimizer_temperature_type;
 
-static int hf_solaredge_post_event_timestamp_type = -1;
-static int hf_solaredge_post_event_type_type = -1;
-static int hf_solaredge_post_event_event_start_timestamp_type = -1;
-static int hf_solaredge_post_event_event_timezone_offset_type = -1;
-static int hf_solaredge_post_event_event_end_timestamp_type = -1;
+static int hf_solaredge_post_event_timestamp_type;
+static int hf_solaredge_post_event_type_type;
+static int hf_solaredge_post_event_event_start_timestamp_type;
+static int hf_solaredge_post_event_event_timezone_offset_type;
+static int hf_solaredge_post_event_event_end_timestamp_type;
 
-static gint ett_solaredge_packet = -1;
-static gint ett_solaredge_packet_decrypted = -1;
-static gint ett_solaredge_packet_post = -1;
-static gint ett_solaredge_packet_post_device = -1;
+static gint ett_solaredge_packet;
+static gint ett_solaredge_packet_decrypted;
+static gint ett_solaredge_packet_post;
+static gint ett_solaredge_packet_post_device;
 
 static const value_string solaredge_packet_commandtypes[] = {
 	{ SOLAREDGE_COMMAND_PARAMS_RESET,					"PARAMS_RESET" },

@@ -27,59 +27,59 @@ void proto_reg_handoff_papi(void);
 static dissector_handle_t papi_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_papi = -1;
-static int hf_papi_hdr_magic = -1;
-static int hf_papi_hdr_version = -1;
-static int hf_papi_hdr_dest_ip = -1;
-static int hf_papi_hdr_src_ip = -1;
-static int hf_papi_hdr_nat_port_number = -1;
-static int hf_papi_hdr_garbage = -1;
-static int hf_papi_hdr_dest_port = -1;
-static int hf_papi_hdr_src_port = -1;
-static int hf_papi_hdr_packet_type = -1;
-static int hf_papi_hdr_packet_size = -1;
-static int hf_papi_hdr_seq_number = -1;
-static int hf_papi_hdr_message_code = -1;
-static int hf_papi_hdr_checksum = -1;
+static int proto_papi;
+static int hf_papi_hdr_magic;
+static int hf_papi_hdr_version;
+static int hf_papi_hdr_dest_ip;
+static int hf_papi_hdr_src_ip;
+static int hf_papi_hdr_nat_port_number;
+static int hf_papi_hdr_garbage;
+static int hf_papi_hdr_dest_port;
+static int hf_papi_hdr_src_port;
+static int hf_papi_hdr_packet_type;
+static int hf_papi_hdr_packet_size;
+static int hf_papi_hdr_seq_number;
+static int hf_papi_hdr_message_code;
+static int hf_papi_hdr_checksum;
 
-static int hf_papi_hdr_srcipv6 = -1;
-static int hf_papi_hdr_destipv6 = -1;
+static int hf_papi_hdr_srcipv6;
+static int hf_papi_hdr_destipv6;
 
-static int hf_papi_debug = -1;
-static int hf_papi_debug_text = -1;
-static int hf_papi_debug_text_length = -1;
-static int hf_papi_debug_48bits = -1;
-static int hf_papi_debug_8bits = -1;
-static int hf_papi_debug_16bits = -1;
-static int hf_papi_debug_32bits = -1;
-static int hf_papi_debug_ipv4 = -1;
-static int hf_papi_debug_64bits = -1;
-static int hf_papi_debug_bytes = -1;
-static int hf_papi_debug_bytes_length = -1;
+static int hf_papi_debug;
+static int hf_papi_debug_text;
+static int hf_papi_debug_text_length;
+static int hf_papi_debug_48bits;
+static int hf_papi_debug_8bits;
+static int hf_papi_debug_16bits;
+static int hf_papi_debug_32bits;
+static int hf_papi_debug_ipv4;
+static int hf_papi_debug_64bits;
+static int hf_papi_debug_bytes;
+static int hf_papi_debug_bytes_length;
 
-static int hf_papi_licmgr = -1;
-static int hf_papi_licmgr_payload_len = -1;
-static int hf_papi_licmgr_tlv = -1;
-static int hf_papi_licmgr_type = -1;
-static int hf_papi_licmgr_length = -1;
-static int hf_papi_licmgr_value = -1;
-static int hf_papi_licmgr_ip = -1;
-static int hf_papi_licmgr_serial_number = -1;
-static int hf_papi_licmgr_hostname = -1;
-static int hf_papi_licmgr_mac_address = -1;
-static int hf_papi_licmgr_license_ap_remaining = -1;
-static int hf_papi_licmgr_license_pef_remaining = -1;
-static int hf_papi_licmgr_license_rfp_remaining = -1;
-static int hf_papi_licmgr_license_xsec_remaining = -1;
-static int hf_papi_licmgr_license_acr_remaining = -1;
-static int hf_papi_licmgr_license_ap_used = -1;
-static int hf_papi_licmgr_license_pef_used = -1;
-static int hf_papi_licmgr_license_rfp_used = -1;
-static int hf_papi_licmgr_license_xsec_used = -1;
-static int hf_papi_licmgr_license_acr_used = -1;
-static int hf_papi_licmgr_padding = -1;
+static int hf_papi_licmgr;
+static int hf_papi_licmgr_payload_len;
+static int hf_papi_licmgr_tlv;
+static int hf_papi_licmgr_type;
+static int hf_papi_licmgr_length;
+static int hf_papi_licmgr_value;
+static int hf_papi_licmgr_ip;
+static int hf_papi_licmgr_serial_number;
+static int hf_papi_licmgr_hostname;
+static int hf_papi_licmgr_mac_address;
+static int hf_papi_licmgr_license_ap_remaining;
+static int hf_papi_licmgr_license_pef_remaining;
+static int hf_papi_licmgr_license_rfp_remaining;
+static int hf_papi_licmgr_license_xsec_remaining;
+static int hf_papi_licmgr_license_acr_remaining;
+static int hf_papi_licmgr_license_ap_used;
+static int hf_papi_licmgr_license_pef_used;
+static int hf_papi_licmgr_license_rfp_used;
+static int hf_papi_licmgr_license_xsec_used;
+static int hf_papi_licmgr_license_acr_used;
+static int hf_papi_licmgr_padding;
 
-static expert_field ei_papi_debug_unknown = EI_INIT;
+static expert_field ei_papi_debug_unknown;
 
 /* variable for dissector table for subdissectors */
 static dissector_table_t papi_dissector_table;
@@ -88,9 +88,9 @@ static dissector_table_t papi_dissector_table;
 static gboolean g_papi_debug = FALSE;
 
 /* Initialize the subtree pointers */
-static gint ett_papi = -1;
-static gint ett_papi_licmgr = -1;
-static gint ett_papi_licmgr_tlv = -1;
+static gint ett_papi;
+static gint ett_papi_licmgr;
+static gint ett_papi_licmgr_tlv;
 
 #define SAMBA_WRAPPER               8442
 #define RESOLVER_PORT               8392

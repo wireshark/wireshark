@@ -19,18 +19,18 @@
 
 void proto_register_gpef(void);
 
-static int proto_gpef = -1;
-static int hf_gpef_keycount = -1;
-static int hf_gpef_efskey = -1;
-static int hf_gpef_efskey_length1 = -1;
-static int hf_gpef_efskey_length2 = -1;
-static int hf_gpef_efskey_sid_offset = -1;
-static int hf_gpef_efskey_cert_offset = -1;
-static int hf_gpef_efskey_cert_length = -1;
-static int hf_gpef_efskey_certificate = -1;
+static int proto_gpef;
+static int hf_gpef_keycount;
+static int hf_gpef_efskey;
+static int hf_gpef_efskey_length1;
+static int hf_gpef_efskey_length2;
+static int hf_gpef_efskey_sid_offset;
+static int hf_gpef_efskey_cert_offset;
+static int hf_gpef_efskey_cert_length;
+static int hf_gpef_efskey_certificate;
 
-static gint ett_gpef = -1;
-static gint ett_gpef_efskey = -1;
+static gint ett_gpef;
+static gint ett_gpef_efskey;
 
 
 /* MS-GPEF section 2.2.1.2.2 EfsKey*/

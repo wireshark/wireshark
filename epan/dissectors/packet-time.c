@@ -31,11 +31,11 @@ static const enum_val_t time_display_types[] = {
     { NULL, NULL, 0 }
 };
 
-static int proto_time = -1;
-static int hf_time_time = -1;
-static int hf_time_response = -1;
+static int proto_time;
+static int hf_time_time;
+static int hf_time_response;
 
-static gint ett_time = -1;
+static gint ett_time;
 
 /* Use int instead of a field_display_type_e enum to avoid incompatible
  * pointer type warnings with prefs_register_enum_preference() */

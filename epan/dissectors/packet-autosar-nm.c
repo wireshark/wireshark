@@ -39,34 +39,34 @@ typedef struct _user_data_field_t {
   gchar*  udf_value_desc;
 } user_data_field_t;
 
-static int proto_autosar_nm = -1;
+static int proto_autosar_nm;
 
 static dissector_handle_t nm_handle;
 static dissector_handle_t nm_handle_can;
 
 /*** header fields ***/
-static int hf_autosar_nm_source_node_identifier = -1;
-static int hf_autosar_nm_control_bit_vector = -1;
-static int hf_autosar_nm_control_bit_vector_repeat_msg_req = -1;
-static int hf_autosar_nm_control_bit_vector_reserved1 = -1;
-static int hf_autosar_nm_control_bit_vector_pn_shutdown_request = -1;
-static int hf_autosar_nm_control_bit_vector_reserved2 = -1;
-static int hf_autosar_nm_control_bit_vector_nm_coord_id = -1;
-static int hf_autosar_nm_control_bit_vector_reserved3 = -1;
-static int hf_autosar_nm_control_bit_vector_nm_coord_sleep = -1;
-static int hf_autosar_nm_control_bit_vector_reserved4 = -1;
-static int hf_autosar_nm_control_bit_vector_active_wakeup = -1;
-static int hf_autosar_nm_control_bit_vector_reserved5 = -1;
-static int hf_autosar_nm_control_bit_vector_pn_learning = -1;
-static int hf_autosar_nm_control_bit_vector_pni = -1;
-static int hf_autosar_nm_control_bit_vector_reserved6 = -1;
-static int hf_autosar_nm_control_bit_vector_reserved7 = -1;
-static int hf_autosar_nm_user_data = -1;
+static int hf_autosar_nm_source_node_identifier;
+static int hf_autosar_nm_control_bit_vector;
+static int hf_autosar_nm_control_bit_vector_repeat_msg_req;
+static int hf_autosar_nm_control_bit_vector_reserved1;
+static int hf_autosar_nm_control_bit_vector_pn_shutdown_request;
+static int hf_autosar_nm_control_bit_vector_reserved2;
+static int hf_autosar_nm_control_bit_vector_nm_coord_id;
+static int hf_autosar_nm_control_bit_vector_reserved3;
+static int hf_autosar_nm_control_bit_vector_nm_coord_sleep;
+static int hf_autosar_nm_control_bit_vector_reserved4;
+static int hf_autosar_nm_control_bit_vector_active_wakeup;
+static int hf_autosar_nm_control_bit_vector_reserved5;
+static int hf_autosar_nm_control_bit_vector_pn_learning;
+static int hf_autosar_nm_control_bit_vector_pni;
+static int hf_autosar_nm_control_bit_vector_reserved6;
+static int hf_autosar_nm_control_bit_vector_reserved7;
+static int hf_autosar_nm_user_data;
 
 /*** protocol tree items ***/
-static gint ett_autosar_nm = -1;
-static gint ett_autosar_nm_cbv = -1;
-static gint ett_autosar_nm_user_data = -1;
+static gint ett_autosar_nm;
+static gint ett_autosar_nm_cbv;
+static gint ett_autosar_nm_user_data;
 
 /*** Bit meanings ***/
 static const true_false_string tfs_autosar_nm_control_rep_msg_req = {

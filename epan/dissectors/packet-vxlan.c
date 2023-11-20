@@ -28,28 +28,28 @@ void proto_reg_handoff_vxlan(void);
 static dissector_handle_t vxlan_handle;
 static dissector_handle_t vxlan_gpe_handle;
 
-static int proto_vxlan = -1;
-static int proto_vxlan_gpe = -1;
+static int proto_vxlan;
+static int proto_vxlan_gpe;
 
-static int hf_vxlan_flags = -1;
-static int hf_vxlan_gpe_flags = -1;
-static int hf_vxlan_flags_reserved = -1;
-static int hf_vxlan_reserved_8 = -1;
-static int hf_vxlan_flag_a = -1;
-static int hf_vxlan_flag_d = -1;
-static int hf_vxlan_flag_i = -1;
-static int hf_vxlan_flag_g = -1;
-static int hf_vxlan_gbp = -1;
-static int hf_vxlan_vni = -1;
-static int hf_vxlan_gpe_flag_i = -1;
-static int hf_vxlan_gpe_flag_p = -1;
-static int hf_vxlan_gpe_flag_o = -1;
-static int hf_vxlan_gpe_flag_ver = -1;
-static int hf_vxlan_gpe_flag_reserved = -1;
-static int hf_vxlan_gpe_reserved_16 = -1;
-static int hf_vxlan_next_proto = -1;
-static int ett_vxlan = -1;
-static int ett_vxlan_flags = -1;
+static int hf_vxlan_flags;
+static int hf_vxlan_gpe_flags;
+static int hf_vxlan_flags_reserved;
+static int hf_vxlan_reserved_8;
+static int hf_vxlan_flag_a;
+static int hf_vxlan_flag_d;
+static int hf_vxlan_flag_i;
+static int hf_vxlan_flag_g;
+static int hf_vxlan_gbp;
+static int hf_vxlan_vni;
+static int hf_vxlan_gpe_flag_i;
+static int hf_vxlan_gpe_flag_p;
+static int hf_vxlan_gpe_flag_o;
+static int hf_vxlan_gpe_flag_ver;
+static int hf_vxlan_gpe_flag_reserved;
+static int hf_vxlan_gpe_reserved_16;
+static int hf_vxlan_next_proto;
+static int ett_vxlan;
+static int ett_vxlan_flags;
 
 static int * const flags_fields[] = {
         &hf_vxlan_flag_g,

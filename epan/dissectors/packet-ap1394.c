@@ -23,12 +23,12 @@ void proto_reg_handoff_ap1394(void);
 static dissector_handle_t ap1394_handle;
 static capture_dissector_handle_t ap1394_cap_handle;
 
-static int proto_ap1394 = -1;
-static int hf_ap1394_dst = -1;
-static int hf_ap1394_src = -1;
-static int hf_ap1394_type = -1;
+static int proto_ap1394;
+static int hf_ap1394_dst;
+static int hf_ap1394_src;
+static int hf_ap1394_type;
 
-static gint ett_ap1394 = -1;
+static gint ett_ap1394;
 
 static dissector_table_t ethertype_subdissector_table;
 

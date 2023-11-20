@@ -51,12 +51,12 @@ static dissector_handle_t llap_handle;
 static capture_dissector_handle_t llap_cap_handle;
 
 
-static int proto_llap = -1;
-static int hf_llap_dst = -1;
-static int hf_llap_src = -1;
-static int hf_llap_type = -1;
+static int proto_llap;
+static int hf_llap_dst;
+static int hf_llap_src;
+static int hf_llap_type;
 
-static int hf_llc_apple_atalk_pid = -1;
+static int hf_llc_apple_atalk_pid;
 
 /*
  * See Inside AppleTalk.
@@ -68,19 +68,19 @@ static const value_string apple_atalk_pid_vals[] = {
   {0, NULL}
 };
 
-static int proto_ddp = -1;
-static int hf_ddp_hopcount = -1;
-static int hf_ddp_len = -1;
-static int hf_ddp_checksum = -1;
-static int hf_ddp_dst = -1;
-static int hf_ddp_dst_net = -1;
-static int hf_ddp_src = -1;
-static int hf_ddp_src_net = -1;
-static int hf_ddp_dst_node = -1;
-static int hf_ddp_src_node = -1;
-static int hf_ddp_dst_socket = -1;
-static int hf_ddp_src_socket = -1;
-static int hf_ddp_type = -1;
+static int proto_ddp;
+static int hf_ddp_hopcount;
+static int hf_ddp_len;
+static int hf_ddp_checksum;
+static int hf_ddp_dst;
+static int hf_ddp_dst_net;
+static int hf_ddp_src;
+static int hf_ddp_src_net;
+static int hf_ddp_dst_node;
+static int hf_ddp_src_node;
+static int hf_ddp_dst_socket;
+static int hf_ddp_src_socket;
+static int hf_ddp_type;
 
 static dissector_handle_t ddp_handle;
 static dissector_handle_t ddp_short_handle;
@@ -120,56 +120,56 @@ static dissector_handle_t ddp_short_handle;
 static dissector_handle_t asp_handle;
 static dissector_handle_t pap_handle;
 
-static int proto_atp = -1;
-static int hf_atp_ctrlinfo  = -1; /* guint8_t    control information */
-static int hf_atp_function  = -1; /* bits 7,6    function */
-static int hf_atp_xo        = -1; /* bit 5       exactly-once */
-static int hf_atp_eom       = -1; /* bit 4       end-of-message */
-static int hf_atp_sts       = -1; /* bit 3       send transaction status */
-static int hf_atp_treltimer = -1; /* bits 2,1,0  TRel timeout indicator */
+static int proto_atp;
+static int hf_atp_ctrlinfo; /* guint8_t    control information */
+static int hf_atp_function; /* bits 7,6    function */
+static int hf_atp_xo; /* bit 5       exactly-once */
+static int hf_atp_eom; /* bit 4       end-of-message */
+static int hf_atp_sts; /* bit 3       send transaction status */
+static int hf_atp_treltimer; /* bits 2,1,0  TRel timeout indicator */
 
-static int hf_atp_bitmap = -1;   /* guint8_t  bitmap or sequence number */
-static int hf_atp_tid = -1;      /* guint16_t transaction id. */
-static int hf_atp_user_bytes = -1;
+static int hf_atp_bitmap;   /* guint8_t  bitmap or sequence number */
+static int hf_atp_tid;      /* guint16_t transaction id. */
+static int hf_atp_user_bytes;
 
-static int hf_atp_segments = -1;
-static int hf_atp_segment = -1;
-static int hf_atp_segment_overlap = -1;
-static int hf_atp_segment_overlap_conflict = -1;
-static int hf_atp_segment_multiple_tails = -1;
-static int hf_atp_segment_too_long_segment = -1;
-static int hf_atp_segment_error = -1;
-static int hf_atp_segment_count = -1;
-static int hf_atp_reassembled_in = -1;
-static int hf_atp_reassembled_length = -1;
+static int hf_atp_segments;
+static int hf_atp_segment;
+static int hf_atp_segment_overlap;
+static int hf_atp_segment_overlap_conflict;
+static int hf_atp_segment_multiple_tails;
+static int hf_atp_segment_too_long_segment;
+static int hf_atp_segment_error;
+static int hf_atp_segment_count;
+static int hf_atp_reassembled_in;
+static int hf_atp_reassembled_length;
 
 /* ------------------------- */
-static int proto_zip = -1;
+static int proto_zip;
 static dissector_handle_t zip_atp_handle;
 
-static int hf_zip_function = -1;
-static int hf_zip_atp_function = -1;
-static int hf_zip_start_index = -1;
-static int hf_zip_count = -1;
-static int hf_zip_zero_value = -1;
+static int hf_zip_function;
+static int hf_zip_atp_function;
+static int hf_zip_start_index;
+static int hf_zip_count;
+static int hf_zip_zero_value;
 
-static int hf_zip_network_count = -1;
-static int hf_zip_network = -1;
-static int hf_zip_network_start = -1;
-static int hf_zip_network_end = -1;
+static int hf_zip_network_count;
+static int hf_zip_network;
+static int hf_zip_network_start;
+static int hf_zip_network_end;
 
-static int hf_zip_flags = -1;
-static int hf_zip_flags_zone_invalid  = -1;
-static int hf_zip_flags_use_broadcast = -1;
-static int hf_zip_flags_only_one_zone = -1;
+static int hf_zip_flags;
+static int hf_zip_flags_zone_invalid;
+static int hf_zip_flags_use_broadcast;
+static int hf_zip_flags_only_one_zone;
 
-static int hf_zip_last_flag = -1;
+static int hf_zip_last_flag;
 
-static int hf_zip_zone_name    = -1;
-static int hf_zip_default_zone = -1;
+static int hf_zip_zone_name;
+static int hf_zip_default_zone;
 
-static int hf_zip_multicast_length  = -1;
-static int hf_zip_multicast_address = -1;
+static int hf_zip_multicast_length;
+static int hf_zip_multicast_address;
 
 static const value_string zip_function_vals[] = {
   {1, "Query"},
@@ -189,10 +189,10 @@ static const value_string zip_atp_function_vals[] = {
   {0, NULL}
 };
 
-static gint ett_zip              = -1;
-static gint ett_zip_flags        = -1;
-static gint ett_zip_zones_list   = -1;
-static gint ett_zip_network_list = -1;
+static gint ett_zip;
+static gint ett_zip_flags;
+static gint ett_zip_zones_list;
+static gint ett_zip_network_list;
 
 /* --------------------------------
  * from netatalk/include/atalk/ats.h
@@ -220,17 +220,17 @@ static gint ett_zip_network_list = -1;
 #define ASPERR_TOOMANY  (-1074)
 #define ASPERR_NOACK    (-1075)
 
-static int proto_asp            = -1;
-static int hf_asp_func          = -1;
-static int hf_asp_error         = -1;
-static int hf_asp_socket        = -1;
-static int hf_asp_version       = -1;
-static int hf_asp_session_id    = -1;
-static int hf_asp_zero_value    = -1;
-static int hf_asp_init_error    = -1;
-static int hf_asp_attn_code     = -1;
-static int hf_asp_seq           = -1;
-static int hf_asp_size          = -1;
+static int proto_asp;
+static int hf_asp_func;
+static int hf_asp_error;
+static int hf_asp_socket;
+static int hf_asp_version;
+static int hf_asp_session_id;
+static int hf_asp_zero_value;
+static int hf_asp_init_error;
+static int hf_asp_attn_code;
+static int hf_asp_seq;
+static int hf_asp_size;
 
 typedef struct {
   guint32 conversation;
@@ -269,49 +269,49 @@ static wmem_map_t *atp_request_hash = NULL;
 
 
 /* ------------------------------------ */
-static int proto_nbp = -1;
-static int hf_nbp_op = -1;
-static int hf_nbp_info = -1;
-static int hf_nbp_count = -1;
-static int hf_nbp_tid = -1;
+static int proto_nbp;
+static int hf_nbp_op;
+static int hf_nbp_info;
+static int hf_nbp_count;
+static int hf_nbp_tid;
 
-static int hf_nbp_node_net = -1;
-static int hf_nbp_node_port = -1;
-static int hf_nbp_node_node = -1;
-static int hf_nbp_node_enum = -1;
-static int hf_nbp_node_object = -1;
-static int hf_nbp_node_type = -1;
-static int hf_nbp_node_zone = -1;
+static int hf_nbp_node_net;
+static int hf_nbp_node_port;
+static int hf_nbp_node_node;
+static int hf_nbp_node_enum;
+static int hf_nbp_node_object;
+static int hf_nbp_node_type;
+static int hf_nbp_node_zone;
 
-static int proto_rtmp = -1;
-static int hf_rtmp_net = -1;
-static int hf_rtmp_node_len = -1;
-static int hf_rtmp_node = -1;
-static int hf_rtmp_tuple_net = -1;
-static int hf_rtmp_tuple_range_start = -1;
-static int hf_rtmp_tuple_range_end = -1;
-static int hf_rtmp_tuple_dist = -1;
-static int hf_rtmp_version = -1;
-static int hf_rtmp_function = -1;
+static int proto_rtmp;
+static int hf_rtmp_net;
+static int hf_rtmp_node_len;
+static int hf_rtmp_node;
+static int hf_rtmp_tuple_net;
+static int hf_rtmp_tuple_range_start;
+static int hf_rtmp_tuple_range_end;
+static int hf_rtmp_tuple_dist;
+static int hf_rtmp_version;
+static int hf_rtmp_function;
 
-static gint ett_atp = -1;
+static gint ett_atp;
 
-static gint ett_atp_segments = -1;
-static gint ett_atp_segment = -1;
-static gint ett_atp_info = -1;
-static gint ett_asp = -1;
-static gint ett_pap = -1;
+static gint ett_atp_segments;
+static gint ett_atp_segment;
+static gint ett_atp_info;
+static gint ett_asp;
+static gint ett_pap;
 
-static gint ett_nbp = -1;
-static gint ett_nbp_info = -1;
-static gint ett_nbp_node = -1;
-static gint ett_rtmp = -1;
-static gint ett_rtmp_tuple = -1;
-static gint ett_ddp = -1;
-static gint ett_llap = -1;
-static gint ett_pstring = -1;
+static gint ett_nbp;
+static gint ett_nbp_info;
+static gint ett_nbp_node;
+static gint ett_rtmp;
+static gint ett_rtmp_tuple;
+static gint ett_ddp;
+static gint ett_llap;
+static gint ett_pstring;
 
-static expert_field ei_ddp_len_invalid = EI_INIT;
+static expert_field ei_ddp_len_invalid;
 
 static const fragment_items atp_frag_items = {
   &ett_atp_segment,
@@ -343,19 +343,19 @@ static const fragment_items atp_frag_items = {
 #define PAPSendStatus     8
 #define PAPStatus         9
 
-static int proto_pap = -1;
+static int proto_pap;
 
-static int hf_pap_connid   = -1;
-static int hf_pap_function = -1;
-static int hf_pap_socket   = -1;
-static int hf_pap_quantum  = -1;
-static int hf_pap_waittime = -1;
-static int hf_pap_result   = -1;
-static int hf_pap_status   = -1;
-static int hf_pap_seq      = -1;
-static int hf_pap_eof      = -1;
+static int hf_pap_connid;
+static int hf_pap_function;
+static int hf_pap_socket;
+static int hf_pap_quantum;
+static int hf_pap_waittime;
+static int hf_pap_result;
+static int hf_pap_status;
+static int hf_pap_seq;
+static int hf_pap_eof;
 
-static int hf_pap_pad = -1;
+static int hf_pap_pad;
 
 static int atalk_address_type = -1;
 

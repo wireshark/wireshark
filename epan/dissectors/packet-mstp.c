@@ -65,24 +65,24 @@ bacnet_mstp_frame_type_name[] = {
 
 static dissector_table_t subdissector_table;
 
-static int proto_mstp = -1;
+static int proto_mstp;
 
-static gint ett_bacnet_mstp = -1;
-static gint ett_bacnet_mstp_checksum = -1;
+static gint ett_bacnet_mstp;
+static gint ett_bacnet_mstp_checksum;
 
-static int hf_mstp_preamble_55 = -1;
-static int hf_mstp_preamble_FF = -1;
-static int hf_mstp_frame_type = -1;
-static int hf_mstp_frame_destination = -1;
-static int hf_mstp_frame_source = -1;
-static int hf_mstp_frame_vendor_id = -1;
-static int hf_mstp_frame_pdu_len = -1;
-static int hf_mstp_frame_crc8 = -1;
-static int hf_mstp_frame_crc16 = -1;
-static int hf_mstp_frame_checksum_status = -1;
+static int hf_mstp_preamble_55;
+static int hf_mstp_preamble_FF;
+static int hf_mstp_frame_type;
+static int hf_mstp_frame_destination;
+static int hf_mstp_frame_source;
+static int hf_mstp_frame_vendor_id;
+static int hf_mstp_frame_pdu_len;
+static int hf_mstp_frame_crc8;
+static int hf_mstp_frame_crc16;
+static int hf_mstp_frame_checksum_status;
 
-static expert_field ei_mstp_frame_pdu_len = EI_INIT;
-static expert_field ei_mstp_frame_checksum_bad = EI_INIT;
+static expert_field ei_mstp_frame_pdu_len;
+static expert_field ei_mstp_frame_checksum_bad;
 
 static int mstp_address_type = -1;
 

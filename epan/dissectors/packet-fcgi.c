@@ -17,27 +17,27 @@
 void proto_register_fcgi(void);
 void proto_reg_handoff_fcgi(void);
 
-static int proto_fcgi = -1;
+static int proto_fcgi;
 
-static int hf_fcgi_version = -1;
-static int hf_fcgi_type = -1;
-static int hf_fcgi_id = -1;
-static int hf_fcgi_content_length = -1;
-static int hf_fcgi_padding_length = -1;
-static int hf_fcgi_content_data = -1;
-static int hf_fcgi_padding_data = -1;
-static int hf_fcgi_begin_request_role = -1;
-static int hf_fcgi_begin_request_flags = -1;
-static int hf_fcgi_begin_request_keep_conn = -1;
-static int hf_fcgi_end_request_app_status = -1;
-static int hf_fcgi_end_request_protocol_status = -1;
-static int hf_fcgi_nv_name = -1;
+static int hf_fcgi_version;
+static int hf_fcgi_type;
+static int hf_fcgi_id;
+static int hf_fcgi_content_length;
+static int hf_fcgi_padding_length;
+static int hf_fcgi_content_data;
+static int hf_fcgi_padding_data;
+static int hf_fcgi_begin_request_role;
+static int hf_fcgi_begin_request_flags;
+static int hf_fcgi_begin_request_keep_conn;
+static int hf_fcgi_end_request_app_status;
+static int hf_fcgi_end_request_protocol_status;
+static int hf_fcgi_nv_name;
 
-static int ett_fcgi = -1;
-static int ett_fcgi_begin_request = -1;
-static int ett_fcgi_abort_request = -1;
-static int ett_fcgi_end_request = -1;
-static int ett_fcgi_params = -1;
+static int ett_fcgi;
+static int ett_fcgi_begin_request;
+static int ett_fcgi_abort_request;
+static int ett_fcgi_end_request;
+static int ett_fcgi_params;
 
 static dissector_handle_t fcgi_handle;
 

@@ -257,49 +257,49 @@ static const value_string ouch_trade_correction_reason_val[] = {
 
 
 /* Initialize the protocol and registered fields */
-static int proto_ouch = -1;
+static int proto_ouch;
 static dissector_handle_t ouch_handle;
 
 /* Initialize the subtree pointers */
-static gint ett_ouch = -1;
+static gint ett_ouch;
 
-static int hf_ouch_bbo_weight_indicator = -1;
-static int hf_ouch_broken_trade_reason = -1;
-static int hf_ouch_buy_sell_indicator = -1;
-static int hf_ouch_cancel_reason = -1;
-static int hf_ouch_capacity = -1;
-static int hf_ouch_cross_type = -1;
-static int hf_ouch_customer_type = -1;
-static int hf_ouch_decrement_shares = -1;
-static int hf_ouch_display = -1;
-static int hf_ouch_event_code = -1;
-static int hf_ouch_executed_shares = -1;
-static int hf_ouch_execution_price = -1;
-static int hf_ouch_existing_order_token = -1;
-static int hf_ouch_firm = -1;
-static int hf_ouch_iso_eligible = -1;
-static int hf_ouch_liquidity_flag = -1;
-static int hf_ouch_match_number = -1;
-static int hf_ouch_message = -1;
-static int hf_ouch_min_quantity = -1;
-static int hf_ouch_new_execution_price = -1;
-static int hf_ouch_order_reference_number = -1;
-static int hf_ouch_order_state = -1;
-static int hf_ouch_order_token = -1;
-static int hf_ouch_packet_type = -1;
-static int hf_ouch_previous_order_token = -1;
-static int hf_ouch_price = -1;
-static int hf_ouch_price_correction_reason = -1;
-static int hf_ouch_quantity_prevented_from_trading = -1;
-static int hf_ouch_reference_price = -1;
-static int hf_ouch_reference_price_type = -1;
-static int hf_ouch_reject_reason = -1;
-static int hf_ouch_replacement_order_token = -1;
-static int hf_ouch_shares = -1;
-static int hf_ouch_stock = -1;
-static int hf_ouch_tif = -1;
-static int hf_ouch_timestamp = -1;
-static int hf_ouch_trade_correction_reason = -1;
+static int hf_ouch_bbo_weight_indicator;
+static int hf_ouch_broken_trade_reason;
+static int hf_ouch_buy_sell_indicator;
+static int hf_ouch_cancel_reason;
+static int hf_ouch_capacity;
+static int hf_ouch_cross_type;
+static int hf_ouch_customer_type;
+static int hf_ouch_decrement_shares;
+static int hf_ouch_display;
+static int hf_ouch_event_code;
+static int hf_ouch_executed_shares;
+static int hf_ouch_execution_price;
+static int hf_ouch_existing_order_token;
+static int hf_ouch_firm;
+static int hf_ouch_iso_eligible;
+static int hf_ouch_liquidity_flag;
+static int hf_ouch_match_number;
+static int hf_ouch_message;
+static int hf_ouch_min_quantity;
+static int hf_ouch_new_execution_price;
+static int hf_ouch_order_reference_number;
+static int hf_ouch_order_state;
+static int hf_ouch_order_token;
+static int hf_ouch_packet_type;
+static int hf_ouch_previous_order_token;
+static int hf_ouch_price;
+static int hf_ouch_price_correction_reason;
+static int hf_ouch_quantity_prevented_from_trading;
+static int hf_ouch_reference_price;
+static int hf_ouch_reference_price_type;
+static int hf_ouch_reject_reason;
+static int hf_ouch_replacement_order_token;
+static int hf_ouch_shares;
+static int hf_ouch_stock;
+static int hf_ouch_tif;
+static int hf_ouch_timestamp;
+static int hf_ouch_trade_correction_reason;
 
 
 /** Format an OUCH timestamp into a useful string

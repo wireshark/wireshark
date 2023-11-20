@@ -20,17 +20,17 @@ void proto_reg_handoff_ax4000(void);
 static dissector_handle_t ax4000_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_ax4000 = -1;
-static int hf_ax4000_port = -1;
-static int hf_ax4000_chassis = -1;
-static int hf_ax4000_fill = -1;
-static int hf_ax4000_index = -1;
-static int hf_ax4000_timestamp = -1;
-static int hf_ax4000_seq = -1;
-static int hf_ax4000_crc = -1;
+static int proto_ax4000;
+static int hf_ax4000_port;
+static int hf_ax4000_chassis;
+static int hf_ax4000_fill;
+static int hf_ax4000_index;
+static int hf_ax4000_timestamp;
+static int hf_ax4000_seq;
+static int hf_ax4000_crc;
 
 /* Initialize the subtree pointers */
-static gint ett_ax4000 = -1;
+static gint ett_ax4000;
 
 /* Code to actually dissect the packets */
 static int

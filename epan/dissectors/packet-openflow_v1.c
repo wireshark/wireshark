@@ -23,140 +23,140 @@ void proto_reg_handoff_openflow_v1(void);
 static dissector_handle_t eth_withoutfcs_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_openflow_v1 = -1;
-static int hf_openflow_version = -1;
-static int hf_openflow_1_0_type = -1;
-static int hf_openflow_length = -1;
-static int hf_openflow_xid = -1;
+static int proto_openflow_v1;
+static int hf_openflow_version;
+static int hf_openflow_1_0_type;
+static int hf_openflow_length;
+static int hf_openflow_xid;
 
-static int hf_openflow_datapath_id = -1;
-static int hf_openflow_datapath_mac = -1;
-static int hf_openflow_datapath_impl = -1;
-static int hf_openflow_n_buffers = -1;
-static int hf_openflow_n_tables = -1;
-/* static int hf_openflow_auxiliary_id = -1; */
-static int hf_openflow_capabilities = -1;
-static int hf_openflow_actions = -1;
-/* static int hf_openflow_reserved32 = -1; */
-static int hf_openflow_cap_flow_stats = -1;
-static int hf_openflow_table_stats = -1;
-static int hf_openflow_port_stats = -1;
-static int hf_openflow_group_stats = -1;
-static int hf_openflow_ip_reasm = -1;
-static int hf_openflow_queue_stats = -1;
-static int hf_openflow_port_blocked = -1;
+static int hf_openflow_datapath_id;
+static int hf_openflow_datapath_mac;
+static int hf_openflow_datapath_impl;
+static int hf_openflow_n_buffers;
+static int hf_openflow_n_tables;
+/* static int hf_openflow_auxiliary_id; */
+static int hf_openflow_capabilities;
+static int hf_openflow_actions;
+/* static int hf_openflow_reserved32; */
+static int hf_openflow_cap_flow_stats;
+static int hf_openflow_table_stats;
+static int hf_openflow_port_stats;
+static int hf_openflow_group_stats;
+static int hf_openflow_ip_reasm;
+static int hf_openflow_queue_stats;
+static int hf_openflow_port_blocked;
 
-static int hf_openflow_output = -1; /* Output to switch port. */
-static int hf_openflow_set_vlan_vid = -1; /* Set the 802.1q VLAN id. */
-static int hf_openflow_set_vlan_pcp = -1; /* Set the 802.1q priority. */
-static int hf_openflow_strip_vlan = -1; /* Strip the 802.1q header. */
-static int hf_openflow_set_dl_src = -1; /* Ethernet source address. */
-static int hf_openflow_set_dl_dst = -1; /* Ethernet destination address. */
-static int hf_openflow_set_nw_src = -1; /* IP source address. */
-static int hf_openflow_set_nw_dst = -1; /* IP destination address. */
-static int hf_openflow_set_nw_tos = -1; /* IP ToS (DSCP field, 6 bits). */
-static int hf_openflow_set_tp_src = -1; /* TCP/UDP source port. */
-static int hf_openflow_set_tp_dst = -1; /* TCP/UDP destination port. */
-static int hf_openflow_enqueue = -1; /* Output to queue. */
+static int hf_openflow_output; /* Output to switch port. */
+static int hf_openflow_set_vlan_vid; /* Set the 802.1q VLAN id. */
+static int hf_openflow_set_vlan_pcp; /* Set the 802.1q priority. */
+static int hf_openflow_strip_vlan; /* Strip the 802.1q header. */
+static int hf_openflow_set_dl_src; /* Ethernet source address. */
+static int hf_openflow_set_dl_dst; /* Ethernet destination address. */
+static int hf_openflow_set_nw_src; /* IP source address. */
+static int hf_openflow_set_nw_dst; /* IP destination address. */
+static int hf_openflow_set_nw_tos; /* IP ToS (DSCP field, 6 bits). */
+static int hf_openflow_set_tp_src; /* TCP/UDP source port. */
+static int hf_openflow_set_tp_dst; /* TCP/UDP destination port. */
+static int hf_openflow_enqueue; /* Output to queue. */
 
-static int hf_openflow_port_no = -1;
-static int hf_openflow_hw_addr = -1;
-static int hf_openflow_port_name = -1;
+static int hf_openflow_port_no;
+static int hf_openflow_hw_addr;
+static int hf_openflow_port_name;
 
 
-static int hf_openflow_port_config = -1;
-static int hf_openflow_port_state = -1;
-static int hf_openflow_port_curr = -1;
-static int hf_openflow_port_advertised = -1;
-static int hf_openflow_port_supported = -1;
-static int hf_openflow_port_peer = -1;
+static int hf_openflow_port_config;
+static int hf_openflow_port_state;
+static int hf_openflow_port_curr;
+static int hf_openflow_port_advertised;
+static int hf_openflow_port_supported;
+static int hf_openflow_port_peer;
 
-static int hf_openflow_port_down = -1;    /* Port is administratively down. */
-static int hf_openflow_no_stp = -1;       /* Disable 802.1D spanning tree on port. */
-static int hf_openflow_no_recv = -1;      /* Drop all packets except 802.1D spanning tree packets. */
-static int hf_openflow_no_recv_stp = -1;  /* Drop received 802.1D STP packets. */
-static int hf_openflow_no_flood = -1;     /* Do not include this port when flooding. */
-static int hf_openflow_no_fwd = -1;       /* Drop packets forwarded to port. */
-static int hf_openflow_no_packet_in = -1; /* Do not send packet-in msgs for port. */
+static int hf_openflow_port_down;    /* Port is administratively down. */
+static int hf_openflow_no_stp;       /* Disable 802.1D spanning tree on port. */
+static int hf_openflow_no_recv;      /* Drop all packets except 802.1D spanning tree packets. */
+static int hf_openflow_no_recv_stp;  /* Drop received 802.1D STP packets. */
+static int hf_openflow_no_flood;     /* Do not include this port when flooding. */
+static int hf_openflow_no_fwd;       /* Drop packets forwarded to port. */
+static int hf_openflow_no_packet_in; /* Do not send packet-in msgs for port. */
 
-static int hf_openflow_link_down = -1;    /* No physical link present. */
+static int hf_openflow_link_down;    /* No physical link present. */
 
-static int hf_openflow_10mb_hd = -1;      /* 10 Mb half-duplex rate support. */
-static int hf_openflow_10mb_fd = -1;      /* 10 Mb full-duplex rate support. */
-static int hf_openflow_100mb_hd = -1;     /* 100 Mb half-duplex rate support. */
-static int hf_openflow_100mb_fd = -1;     /* 100 Mb full-duplex rate support. */
-static int hf_openflow_1gb_hd = -1;       /* 1 Gb half-duplex rate support. */
-static int hf_openflow_1gb_fd = -1;       /* 1 Gb full-duplex rate support. */
-static int hf_openflow_10gb_fd = -1;      /* 10 Gb full-duplex rate support. */
-static int hf_openflow_copper = -1;       /* Copper medium. */
-static int hf_openflow_fiber = -1;        /* Fiber medium. */
-static int hf_openflow_autoneg = -1;      /* Auto-negotiation. */
-static int hf_openflow_pause = -1;        /* Pause. */
-static int hf_openflow_pause_asym = -1;   /* Asymmetric pause. */
+static int hf_openflow_10mb_hd;      /* 10 Mb half-duplex rate support. */
+static int hf_openflow_10mb_fd;      /* 10 Mb full-duplex rate support. */
+static int hf_openflow_100mb_hd;     /* 100 Mb half-duplex rate support. */
+static int hf_openflow_100mb_fd;     /* 100 Mb full-duplex rate support. */
+static int hf_openflow_1gb_hd;       /* 1 Gb half-duplex rate support. */
+static int hf_openflow_1gb_fd;       /* 1 Gb full-duplex rate support. */
+static int hf_openflow_10gb_fd;      /* 10 Gb full-duplex rate support. */
+static int hf_openflow_copper;       /* Copper medium. */
+static int hf_openflow_fiber;        /* Fiber medium. */
+static int hf_openflow_autoneg;      /* Auto-negotiation. */
+static int hf_openflow_pause;        /* Pause. */
+static int hf_openflow_pause_asym;   /* Asymmetric pause. */
 
-static int hf_openflow_config_flags = -1;
-static int hf_openflow_miss_send_len = -1;
+static int hf_openflow_config_flags;
+static int hf_openflow_miss_send_len;
 
-static int hf_openflow_buffer_id = -1;
-static int hf_openflow_total_len = -1;
-static int hf_openflow_in_port = -1;
-static int hf_openflow_reason = -1;
-static int hf_openflow_pkt_in_pad = -1;
-static int hf_openflow_flow_removed_cookie = -1;
-static int hf_openflow_flow_removed_priority = -1;
-static int hf_openflow_flow_removed_reason = -1;
-static int hf_openflow_flow_removed_pad1 = -1;
-static int hf_openflow_flow_removed_duration_sec = -1;
-static int hf_openflow_flow_removed_duration_nsec = -1;
-static int hf_openflow_flow_removed_idle_timeout = -1;
-static int hf_openflow_flow_removed_pad2 = -1;
-static int hf_openflow_flow_removed_packet_count = -1;
-static int hf_openflow_flow_removed_byte_count = -1;
-static int hf_openflow_table_id = -1;
-static int hf_openflow_cookie = -1;
-/* static int hf_openflow_cookie_mask = -1; */
-static int hf_openflow_features_reply_pad = -1;
-static int hf_openflow_actions_len = -1;
-static int hf_openflow_action_type = -1;
-static int hf_openflow_action_len = -1;
-static int hf_openflow_output_port = -1;
-static int hf_openflow_max_len = -1;
-static int hf_openflow_wildcards = -1;
-static int hf_openflow_command = -1;
-static int hf_openflow_eth_src = -1;
-static int hf_openflow_eth_dst = -1;
-static int hf_openflow_dl_vlan = -1;
-static int hf_openflow_dl_vlan_pcp = -1;
-static int hf_openflow_ofp_match_pad = -1;
-static int hf_openflow_match_dl_type = -1;
-static int hf_openflow_ofp_match_tos = -1;
-static int hf_openflow_ofp_match_nw_proto = -1;
-static int hf_openflow_ofp_source_addr = -1;
-static int hf_openflow_ofp_dest_addr = -1;
-static int hf_openflow_ofp_source_port = -1;
-static int hf_openflow_ofp_dest_port = -1;
-static int hf_openflow_idle_timeout = -1;
-static int hf_openflow_hard_timeout = -1;
-static int hf_openflow_priority = -1;
-static int hf_openflow_out_port = -1;
-/* static int hf_openflow_out_group = -1; */
-static int hf_openflow_flags = -1;
-static int hf_openflow_v1_stats_type = -1;
-static int hf_openflow_v1_flow_stats_request_pad = -1;
+static int hf_openflow_buffer_id;
+static int hf_openflow_total_len;
+static int hf_openflow_in_port;
+static int hf_openflow_reason;
+static int hf_openflow_pkt_in_pad;
+static int hf_openflow_flow_removed_cookie;
+static int hf_openflow_flow_removed_priority;
+static int hf_openflow_flow_removed_reason;
+static int hf_openflow_flow_removed_pad1;
+static int hf_openflow_flow_removed_duration_sec;
+static int hf_openflow_flow_removed_duration_nsec;
+static int hf_openflow_flow_removed_idle_timeout;
+static int hf_openflow_flow_removed_pad2;
+static int hf_openflow_flow_removed_packet_count;
+static int hf_openflow_flow_removed_byte_count;
+static int hf_openflow_table_id;
+static int hf_openflow_cookie;
+/* static int hf_openflow_cookie_mask; */
+static int hf_openflow_features_reply_pad;
+static int hf_openflow_actions_len;
+static int hf_openflow_action_type;
+static int hf_openflow_action_len;
+static int hf_openflow_output_port;
+static int hf_openflow_max_len;
+static int hf_openflow_wildcards;
+static int hf_openflow_command;
+static int hf_openflow_eth_src;
+static int hf_openflow_eth_dst;
+static int hf_openflow_dl_vlan;
+static int hf_openflow_dl_vlan_pcp;
+static int hf_openflow_ofp_match_pad;
+static int hf_openflow_match_dl_type;
+static int hf_openflow_ofp_match_tos;
+static int hf_openflow_ofp_match_nw_proto;
+static int hf_openflow_ofp_source_addr;
+static int hf_openflow_ofp_dest_addr;
+static int hf_openflow_ofp_source_port;
+static int hf_openflow_ofp_dest_port;
+static int hf_openflow_idle_timeout;
+static int hf_openflow_hard_timeout;
+static int hf_openflow_priority;
+static int hf_openflow_out_port;
+/* static int hf_openflow_out_group; */
+static int hf_openflow_flags;
+static int hf_openflow_v1_stats_type;
+static int hf_openflow_v1_flow_stats_request_pad;
 
 /* Initialize the subtree pointers */
-static gint ett_openflow = -1;
-static gint ett_openflow_path_id = -1;
-static gint ett_openflow_cap = -1;
-static gint ett_openflow_act = -1;
-static gint ett_openflow_port = -1;
-static gint ett_openflow_port_cnf = -1;
-static gint ett_openflow_port_state = -1;
-static gint ett_openflow_port_cf = -1;
+static gint ett_openflow;
+static gint ett_openflow_path_id;
+static gint ett_openflow_cap;
+static gint ett_openflow_act;
+static gint ett_openflow_port;
+static gint ett_openflow_port_cnf;
+static gint ett_openflow_port_state;
+static gint ett_openflow_port_cf;
 
-/* static expert_field ei_openflow_undecoded_data = EI_INIT; */
-static expert_field ei_openflow_action_type = EI_INIT;
-static expert_field ei_openflow_1_0_type = EI_INIT;
+/* static expert_field ei_openflow_undecoded_data; */
+static expert_field ei_openflow_action_type;
+static expert_field ei_openflow_1_0_type;
 
 static const value_string openflow_version_values[] = {
     { 0x01, "1.0" },

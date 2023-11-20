@@ -29,14 +29,14 @@ void proto_register_q1950(void);
 #define PSNAME "H248Q1950"
 #define PFNAME "h248q1950"
 
-static int proto_q1950 = -1;
+static int proto_q1950;
 static bool implicit = FALSE;
 
 /* A.3 Bearer characteristics package */
-static int hf_h248_pkg_BCP = -1;
-static int hf_h248_pkg_BCP_BNCChar = -1;
+static int hf_h248_pkg_BCP;
+static int hf_h248_pkg_BCP_BNCChar;
 
-static gint ett_h248_pkg_BCP = -1;
+static gint ett_h248_pkg_BCP;
 
 static const value_string h248_pkg_BCP_parameters[] _U_ = {
     {   0x0001, "BNCChar (BNC Characteristics)" },
@@ -71,11 +71,11 @@ static h248_package_t h248_pkg_BCP = {
 };
 
 /* A.4 Bearer Network connection cut-through package */
-static int hf_h248_pkg_BNCCT = -1;
+static int hf_h248_pkg_BNCCT;
 
-static int hf_h248_pkg_BNCCT_prop = -1;
+static int hf_h248_pkg_BNCCT_prop;
 
-static gint ett_h248_pkg_BNCCT = -1;
+static gint ett_h248_pkg_BNCCT;
 
 #if 0
 static const value_string h248_pkg_BNCCT_parameters[] _U_ = {
@@ -118,11 +118,11 @@ static h248_package_t h248_pkg_BNCCT = {
 };
 
 /* A.5 Bearer Reuse Idle Package  */
-static int hf_h248_pkg_RI = -1;
+static int hf_h248_pkg_RI;
 
-static int hf_h248_pkg_RII= -1;
+static int hf_h248_pkg_RII;
 
-static gint ett_h248_pkg_RI= -1;
+static gint ett_h248_pkg_RI;
 
 static const value_string h248_pkg_RI_parameters[] = {
     { 0x0000, "Reuse Idle Q.1950 Annex A" },
@@ -165,21 +165,21 @@ static h248_package_t h248_pkg_RI = {
     Package ID: 0x0021
  */
 
-static int hf_h248_pkg_GB= -1;
-static int hf_h248_pkg_GB_BNCChange= -1;
-static int hf_h248_pkg_GB_BNCChange_type= -1;
-static int hf_h248_pkg_GB_EstBNC= -1;
-static int hf_h248_pkg_GB_ModBNC= -1;
-static int hf_h248_pkg_GB_RelBNC = -1;
-static int hf_h248_pkg_GB_RelBNC_Generalcause = -1;
-static int hf_h248_pkg_GB_RelBNC_Failurecause = -1;
-static int hf_h248_pkg_GB_RelBNC_Reset = -1;
+static int hf_h248_pkg_GB;
+static int hf_h248_pkg_GB_BNCChange;
+static int hf_h248_pkg_GB_BNCChange_type;
+static int hf_h248_pkg_GB_EstBNC;
+static int hf_h248_pkg_GB_ModBNC;
+static int hf_h248_pkg_GB_RelBNC;
+static int hf_h248_pkg_GB_RelBNC_Generalcause;
+static int hf_h248_pkg_GB_RelBNC_Failurecause;
+static int hf_h248_pkg_GB_RelBNC_Reset;
 
-static gint ett_h248_pkg_GB= -1;
-static gint ett_h248_pkg_GB_EstBNC= -1;
-static gint ett_h248_pkg_GB_ModBNC= -1;
-static gint ett_h248_pkg_GB_RelBNC= -1;
-static gint ett_h248_pkg_GB_BNCChange= -1;
+static gint ett_h248_pkg_GB;
+static gint ett_h248_pkg_GB_EstBNC;
+static gint ett_h248_pkg_GB_ModBNC;
+static gint ett_h248_pkg_GB_RelBNC;
+static gint ett_h248_pkg_GB_BNCChange;
 
 static const value_string h248_pkg_GB_events_vals[] = {
     { 0x0001, "BNCChange" },
@@ -271,14 +271,14 @@ static h248_package_t h248_pkg_GB = {
 /* A.7 Bearer control tunnelling package */
 static dissector_handle_t bctp_dissector = NULL;
 
-static int hf_h248_pkg_bt = -1;
-static int hf_h248_pkg_bt_tind = -1;
-static int hf_h248_pkg_bt_tunopt = -1;
-static int hf_h248_pkg_bt_bit = -1;
+static int hf_h248_pkg_bt;
+static int hf_h248_pkg_bt_tind;
+static int hf_h248_pkg_bt_tunopt;
+static int hf_h248_pkg_bt_bit;
 
-static gint ett_h248_pkg_bt = -1;
-static gint ett_h248_pkg_bt_tind = -1;
-static gint ett_h248_pkg_bt_bit= -1;
+static gint ett_h248_pkg_bt;
+static gint ett_h248_pkg_bt_tind;
+static gint ett_h248_pkg_bt_bit;
 
 static void dissect_bt_tunneled_proto(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* i _U_, void* d _U_) {
     tvbuff_t* bctp_tvb = NULL;
@@ -371,21 +371,21 @@ static h248_package_t h248_pkg_bct = {
 };
 
 /* A.8 Basic call progress tones generator with directionality */
-static int hf_h248_pkg_bcg = -1;
-static int hf_h248_pkg_bcg_sig_bdt_par_btd = -1;
-static int hf_h248_pkg_bcg_sig_bdt = -1;
-static int hf_h248_pkg_bcg_sig_brt = -1;
-static int hf_h248_pkg_bcg_sig_bbt = -1;
-static int hf_h248_pkg_bcg_sig_bct = -1;
-static int hf_h248_pkg_bcg_sig_bsit = -1;
-static int hf_h248_pkg_bcg_sig_bwt = -1;
-static int hf_h248_pkg_bcg_sig_bpt = -1;
-static int hf_h248_pkg_bcg_sig_bcw = -1;
-static int hf_h248_pkg_bcg_sig_bcr = -1;
-static int hf_h248_pkg_bcg_sig_bpy = -1;
+static int hf_h248_pkg_bcg;
+static int hf_h248_pkg_bcg_sig_bdt_par_btd;
+static int hf_h248_pkg_bcg_sig_bdt;
+static int hf_h248_pkg_bcg_sig_brt;
+static int hf_h248_pkg_bcg_sig_bbt;
+static int hf_h248_pkg_bcg_sig_bct;
+static int hf_h248_pkg_bcg_sig_bsit;
+static int hf_h248_pkg_bcg_sig_bwt;
+static int hf_h248_pkg_bcg_sig_bpt;
+static int hf_h248_pkg_bcg_sig_bcw;
+static int hf_h248_pkg_bcg_sig_bcr;
+static int hf_h248_pkg_bcg_sig_bpy;
 
-static gint ett_h248_pkg_bcg = -1;
-static gint ett_h248_pkg_bcg_sig_bdt = -1;
+static gint ett_h248_pkg_bcg;
+static gint ett_h248_pkg_bcg_sig_bdt;
 
 static const value_string h248_pkg_bcg_sig_bdt_par_btd_vals[] = {
     {   0x0001, "ext (External)" },

@@ -202,89 +202,89 @@
 /* Initialize the protocol identifier that is needed for the
  protocol hook and to register the fields in the protocol tree
 */
-static gint proto_knxip = -1;
+static gint proto_knxip;
 
 /* Initialize the registered fields identifiers. These fields
  will be registered with the protocol during initialization.
  Protocol fields are like type definitions. The protocol dissector
  later on adds items of these types to the protocol tree.
 */
-static gint hf_bytes = -1;
-static gint hf_folder = -1;
-static gint hf_knxip_header_length = -1;
-static gint hf_knxip_protocol_version = -1;
-static gint hf_knxip_service_id = -1;
-static gint hf_knxip_service_family = -1;
-static gint hf_knxip_service_type = -1;
-static gint hf_knxip_total_length = -1;
-static gint hf_knxip_structure_length = -1;
-static gint hf_knxip_host_protocol = -1;
-static gint hf_knxip_ip_address = -1;
-static gint hf_knxip_port = -1;
-static gint hf_knxip_description_type = -1;
-static gint hf_knxip_knx_medium = -1;
-static gint hf_knxip_device_status = -1;
-static gint hf_knxip_program_mode = -1;
-static gint hf_knxip_knx_address = -1;
-static gint hf_knxip_project_id = -1;
-static gint hf_knxip_project_number = -1;
-static gint hf_knxip_installation_number = -1;
-static gint hf_knxip_serial_number = -1;
-static gint hf_knxip_multicast_address = -1;
-static gint hf_knxip_mac_address = -1;
-static gint hf_knxip_friendly_name = -1;
-static gint hf_knxip_service_version = -1;
-static gint hf_knxip_security_version = -1;
-static gint hf_knxip_manufacturer_code = -1;
-static gint hf_knxip_connection_type = -1;
-static gint hf_knxip_knx_layer = -1;
-static gint hf_knxip_reserved = -1;
-static gint hf_knxip_channel = -1;
-static gint hf_knxip_status = -1;
-static gint hf_knxip_seq_counter = -1;
-static gint hf_knxip_ip_subnet = -1;
-static gint hf_knxip_ip_gateway = -1;
-static gint hf_knxip_ip_assign = -1;
-static gint hf_knxip_ip_caps = -1;
-static gint hf_knxip_ip_dhcp = -1;
-static gint hf_knxip_tunnel_feature = -1;
-static gint hf_knxip_routing_loss = -1;
-static gint hf_knxip_busy_time = -1;
-static gint hf_knxip_busy_control = -1;
-static gint hf_knxip_selector = -1;
-static gint hf_knxip_max_apdu_length = -1;
-static gint hf_knxip_medium_status = -1;
-static gint hf_knxip_mask_version = -1;
-static gint hf_knxip_srp_mandatory = -1;
-static gint hf_knxip_srp_type = -1;
-static gint hf_knxip_reset_command = -1;
-static gint hf_knxip_session = -1;
-static gint hf_knxip_tag = -1;
-static gint hf_knxip_user = -1;
-static gint hf_knxip_session_status = -1;
+static gint hf_bytes;
+static gint hf_folder;
+static gint hf_knxip_header_length;
+static gint hf_knxip_protocol_version;
+static gint hf_knxip_service_id;
+static gint hf_knxip_service_family;
+static gint hf_knxip_service_type;
+static gint hf_knxip_total_length;
+static gint hf_knxip_structure_length;
+static gint hf_knxip_host_protocol;
+static gint hf_knxip_ip_address;
+static gint hf_knxip_port;
+static gint hf_knxip_description_type;
+static gint hf_knxip_knx_medium;
+static gint hf_knxip_device_status;
+static gint hf_knxip_program_mode;
+static gint hf_knxip_knx_address;
+static gint hf_knxip_project_id;
+static gint hf_knxip_project_number;
+static gint hf_knxip_installation_number;
+static gint hf_knxip_serial_number;
+static gint hf_knxip_multicast_address;
+static gint hf_knxip_mac_address;
+static gint hf_knxip_friendly_name;
+static gint hf_knxip_service_version;
+static gint hf_knxip_security_version;
+static gint hf_knxip_manufacturer_code;
+static gint hf_knxip_connection_type;
+static gint hf_knxip_knx_layer;
+static gint hf_knxip_reserved;
+static gint hf_knxip_channel;
+static gint hf_knxip_status;
+static gint hf_knxip_seq_counter;
+static gint hf_knxip_ip_subnet;
+static gint hf_knxip_ip_gateway;
+static gint hf_knxip_ip_assign;
+static gint hf_knxip_ip_caps;
+static gint hf_knxip_ip_dhcp;
+static gint hf_knxip_tunnel_feature;
+static gint hf_knxip_routing_loss;
+static gint hf_knxip_busy_time;
+static gint hf_knxip_busy_control;
+static gint hf_knxip_selector;
+static gint hf_knxip_max_apdu_length;
+static gint hf_knxip_medium_status;
+static gint hf_knxip_mask_version;
+static gint hf_knxip_srp_mandatory;
+static gint hf_knxip_srp_type;
+static gint hf_knxip_reset_command;
+static gint hf_knxip_session;
+static gint hf_knxip_tag;
+static gint hf_knxip_user;
+static gint hf_knxip_session_status;
 
 /* Initialize the subtree pointers. These pointers are needed to
  display the protocol in a structured tree. Subtrees hook on
  already defined fields or (the topmost) on the protocol itself
 */
-static gint ett_kip = -1;
-static gint ett_efcp = -1;
-static gint ett_service = -1;
-static gint ett_hpai = -1;
-static gint ett_dib = -1;
-static gint ett_medium = -1;
-static gint ett_status = -1;
-static gint ett_projectid = -1;
-static gint ett_service_family = -1;
-static gint ett_ip_assignment = -1;
-static gint ett_cri = -1;
-static gint ett_crd = -1;
-static gint ett_cnhdr = -1;
-static gint ett_loss = -1;
-static gint ett_busy = -1;
-static gint ett_selector = -1;
-static gint ett_decrypted = -1;
-static gint ett_tunnel = -1;
+static gint ett_kip;
+static gint ett_efcp;
+static gint ett_service;
+static gint ett_hpai;
+static gint ett_dib;
+static gint ett_medium;
+static gint ett_status;
+static gint ett_projectid;
+static gint ett_service_family;
+static gint ett_ip_assignment;
+static gint ett_cri;
+static gint ett_crd;
+static gint ett_cnhdr;
+static gint ett_loss;
+static gint ett_busy;
+static gint ett_selector;
+static gint ett_decrypted;
+static gint ett_tunnel;
 
 /* Set up the value_string tables for the service families
  and the service types (note that the service types in KNXnet/IP
@@ -487,8 +487,8 @@ static const value_string session_status_vals[] = {
 guint8 knxip_error;
 guint8 knxip_host_protocol;
 
-expert_field ei_knxip_error = EI_INIT;
-expert_field ei_knxip_warning = EI_INIT;
+expert_field ei_knxip_error;
+expert_field ei_knxip_warning;
 
 static gboolean pref_desegment = TRUE;
 static const gchar* pref_key_texts[ MAX_KNX_DECRYPTION_KEYS ];

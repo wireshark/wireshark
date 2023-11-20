@@ -27,24 +27,24 @@ void proto_reg_handoff_lat(void);
 
 static dissector_handle_t lat_handle;
 
-static int proto_lat = -1;
-static int hf_lat_rrf = -1;
-static int hf_lat_master = -1;
-static int hf_lat_msg_typ = -1;
-static int hf_lat_nbr_slots = -1;
-static int hf_lat_dst_cir_id = -1;
-static int hf_lat_src_cir_id = -1;
-static int hf_lat_msg_seq_nbr = -1;
-static int hf_lat_msg_ack_nbr = -1;
-static int hf_lat_min_rcv_datagram_size = -1;
-static int hf_lat_prtcl_ver = -1;
-static int hf_lat_prtcl_eco = -1;
-static int hf_lat_max_sim_slots = -1;
-static int hf_lat_nbr_dl_bufs = -1;
-static int hf_lat_server_circuit_timer = -1;
-static int hf_lat_keep_alive_timer = -1;
-static int hf_lat_facility_number = -1;
-static int hf_lat_prod_type_code = -1;
+static int proto_lat;
+static int hf_lat_rrf;
+static int hf_lat_master;
+static int hf_lat_msg_typ;
+static int hf_lat_nbr_slots;
+static int hf_lat_dst_cir_id;
+static int hf_lat_src_cir_id;
+static int hf_lat_msg_seq_nbr;
+static int hf_lat_msg_ack_nbr;
+static int hf_lat_min_rcv_datagram_size;
+static int hf_lat_prtcl_ver;
+static int hf_lat_prtcl_eco;
+static int hf_lat_max_sim_slots;
+static int hf_lat_nbr_dl_bufs;
+static int hf_lat_server_circuit_timer;
+static int hf_lat_keep_alive_timer;
+static int hf_lat_facility_number;
+static int hf_lat_prod_type_code;
 static const value_string prod_type_code_vals[] = {
 	{ 1, "Ethernet terminal server" },
 	{ 2, "DECserver 100" },
@@ -67,34 +67,34 @@ static const value_string prod_type_code_vals[] = {
 	{ 19, "Actor" },
 	{ 0, NULL }
 };
-static int hf_lat_prod_vers_numb = -1;
-static int hf_lat_slave_node_name = -1;
-static int hf_lat_master_node_name = -1;
-static int hf_lat_location_text = -1;
-static int hf_lat_param_code = -1;
-static int hf_lat_param_len = -1;
-static int hf_lat_param_data = -1;
-static int hf_lat_slot_dst_slot_id = -1;
-static int hf_lat_slot_src_slot_id = -1;
-static int hf_lat_slot_byte_count = -1;
-static int hf_lat_slot_credits = -1;
-static int hf_lat_slot_type = -1;
-static int hf_lat_start_slot_service_class = -1;
-static int hf_lat_start_slot_minimum_attention_slot_size = -1;
-static int hf_lat_start_slot_minimum_data_slot_size = -1;
-static int hf_lat_start_slot_obj_srvc = -1;
-static int hf_lat_start_slot_subj_dscr = -1;
-static int hf_lat_start_slot_class_1_param_code = -1;
-static int hf_lat_status_remaining = -1;
-static int hf_lat_slot_data = -1;
-static int hf_lat_data_b_slot_control_flags = -1;
-static int hf_lat_data_b_slot_control_flags_enable_input_flow_control = -1;
-static int hf_lat_data_b_slot_control_flags_disable_input_flow_control = -1;
-static int hf_lat_data_b_slot_control_flags_enable_output_flow_control = -1;
-static int hf_lat_data_b_slot_control_flags_disable_output_flow_control = -1;
-static int hf_lat_data_b_slot_control_flags_break_detected = -1;
-static int hf_lat_data_b_slot_control_flags_set_port_char = -1;
-static int hf_lat_data_b_slot_control_flags_report_port_char = -1;
+static int hf_lat_prod_vers_numb;
+static int hf_lat_slave_node_name;
+static int hf_lat_master_node_name;
+static int hf_lat_location_text;
+static int hf_lat_param_code;
+static int hf_lat_param_len;
+static int hf_lat_param_data;
+static int hf_lat_slot_dst_slot_id;
+static int hf_lat_slot_src_slot_id;
+static int hf_lat_slot_byte_count;
+static int hf_lat_slot_credits;
+static int hf_lat_slot_type;
+static int hf_lat_start_slot_service_class;
+static int hf_lat_start_slot_minimum_attention_slot_size;
+static int hf_lat_start_slot_minimum_data_slot_size;
+static int hf_lat_start_slot_obj_srvc;
+static int hf_lat_start_slot_subj_dscr;
+static int hf_lat_start_slot_class_1_param_code;
+static int hf_lat_status_remaining;
+static int hf_lat_slot_data;
+static int hf_lat_data_b_slot_control_flags;
+static int hf_lat_data_b_slot_control_flags_enable_input_flow_control;
+static int hf_lat_data_b_slot_control_flags_disable_input_flow_control;
+static int hf_lat_data_b_slot_control_flags_enable_output_flow_control;
+static int hf_lat_data_b_slot_control_flags_disable_output_flow_control;
+static int hf_lat_data_b_slot_control_flags_break_detected;
+static int hf_lat_data_b_slot_control_flags_set_port_char;
+static int hf_lat_data_b_slot_control_flags_report_port_char;
 static int * const data_b_slot_control_flags_fields[] = {
 	&hf_lat_data_b_slot_control_flags_enable_input_flow_control,
 	&hf_lat_data_b_slot_control_flags_disable_input_flow_control,
@@ -105,11 +105,11 @@ static int * const data_b_slot_control_flags_fields[] = {
 	&hf_lat_data_b_slot_control_flags_report_port_char,
 	NULL
 };
-static int hf_lat_data_b_slot_stop_output_channel_char = -1;
-static int hf_lat_data_b_slot_start_output_channel_char = -1;
-static int hf_lat_data_b_slot_stop_input_channel_char = -1;
-static int hf_lat_data_b_slot_start_input_channel_char = -1;
-static int hf_lat_data_b_slot_param_code = -1;
+static int hf_lat_data_b_slot_stop_output_channel_char;
+static int hf_lat_data_b_slot_start_output_channel_char;
+static int hf_lat_data_b_slot_stop_input_channel_char;
+static int hf_lat_data_b_slot_start_input_channel_char;
+static int hf_lat_data_b_slot_param_code;
 static const value_string data_b_slot_param_code_vals[] = {
 	{ 0, "End of parameters" },
 	{ 1, "Parity and frame size" },
@@ -120,39 +120,39 @@ static const value_string data_b_slot_param_code_vals[] = {
 	{ 6, "Status" },
 	{ 0, NULL }
 };
-static int hf_lat_slot_data_remaining = -1;
-static int hf_lat_attention_slot_control_flags = -1;
-static int hf_lat_attention_slot_control_flags_abort = -1;
+static int hf_lat_slot_data_remaining;
+static int hf_lat_attention_slot_control_flags;
+static int hf_lat_attention_slot_control_flags_abort;
 static int * const attention_slot_control_flags_fields[] = {
 	&hf_lat_attention_slot_control_flags_abort,
 	NULL
 };
-static int hf_lat_mbz = -1;
-static int hf_lat_reason = -1;
-static int hf_lat_circuit_disconnect_reason = -1;
-static int hf_lat_reason_text = -1;
-static int hf_lat_high_prtcl_ver = -1;
-static int hf_lat_low_prtcl_ver = -1;
-static int hf_lat_cur_prtcl_ver = -1;
-static int hf_lat_cur_prtcl_eco = -1;
-static int hf_lat_msg_inc = -1;
-static int hf_lat_change_flags = -1;
-static int hf_lat_data_link_rcv_frame_size = -1;
-static int hf_lat_node_multicast_timer = -1;
-static int hf_lat_node_status = -1;
-static int hf_lat_node_group_len = -1;
-static int hf_lat_node_groups = -1;
-static int hf_lat_node_name = -1;
-static int hf_lat_node_description = -1;
-static int hf_lat_service_name_count = -1;
-static int hf_lat_service_rating = -1;
-static int hf_lat_node_service_len = -1;
-static int hf_lat_node_service_class = -1;
+static int hf_lat_mbz;
+static int hf_lat_reason;
+static int hf_lat_circuit_disconnect_reason;
+static int hf_lat_reason_text;
+static int hf_lat_high_prtcl_ver;
+static int hf_lat_low_prtcl_ver;
+static int hf_lat_cur_prtcl_ver;
+static int hf_lat_cur_prtcl_eco;
+static int hf_lat_msg_inc;
+static int hf_lat_change_flags;
+static int hf_lat_data_link_rcv_frame_size;
+static int hf_lat_node_multicast_timer;
+static int hf_lat_node_status;
+static int hf_lat_node_group_len;
+static int hf_lat_node_groups;
+static int hf_lat_node_name;
+static int hf_lat_node_description;
+static int hf_lat_service_name_count;
+static int hf_lat_service_rating;
+static int hf_lat_node_service_len;
+static int hf_lat_node_service_class;
 
-static int hf_lat_prtcl_format = -1;
-static int hf_lat_request_identifier = -1;
-static int hf_lat_entry_identifier = -1;
-static int hf_lat_command_type = -1;
+static int hf_lat_prtcl_format;
+static int hf_lat_request_identifier;
+static int hf_lat_entry_identifier;
+static int hf_lat_command_type;
 static const value_string command_type_vals[] = {
 	{ 1, "Solicit non-queued access to the service" },
 	{ 2, "Solicit queued access to the service" },
@@ -162,25 +162,25 @@ static const value_string command_type_vals[] = {
 	{ 6, "Send status of multiple entries" },
 	{ 0, NULL }
 };
-static int hf_lat_command_modifier = -1;
-static int hf_lat_command_modifier_send_status_periodically = -1;
-static int hf_lat_command_modifier_send_status_on_queue_depth_change = -1;
+static int hf_lat_command_modifier;
+static int hf_lat_command_modifier_send_status_periodically;
+static int hf_lat_command_modifier_send_status_on_queue_depth_change;
 static int * const lat_command_modifier_fields[] = {
 	&hf_lat_command_modifier_send_status_periodically,
 	&hf_lat_command_modifier_send_status_on_queue_depth_change,
 	NULL
 };
-static int hf_lat_obj_node_name = -1;
-static int hf_lat_subj_group_len = -1;
-static int hf_lat_subj_group = -1;
-static int hf_lat_subj_node_name = -1;
-static int hf_lat_subj_port_name = -1;
-static int hf_lat_status_retransmit_timer = -1;
-static int hf_lat_entries_counter = -1;
-static int hf_lat_entry_length = -1;
-static int hf_lat_entry_status = -1;
-static int hf_lat_entry_status_rejected = -1;
-static int hf_lat_entry_status_additional_information = -1;
+static int hf_lat_obj_node_name;
+static int hf_lat_subj_group_len;
+static int hf_lat_subj_group;
+static int hf_lat_subj_node_name;
+static int hf_lat_subj_port_name;
+static int hf_lat_status_retransmit_timer;
+static int hf_lat_entries_counter;
+static int hf_lat_entry_length;
+static int hf_lat_entry_status;
+static int hf_lat_entry_status_rejected;
+static int hf_lat_entry_status_additional_information;
 static int * const lat_entry_status_fields[] = {
 	&hf_lat_entry_status_rejected,
 	&hf_lat_entry_status_additional_information,
@@ -196,7 +196,7 @@ static const value_string additional_information_vals[] = {
 	{ 4, "Queue-depth status report is not supported" },
 	{ 0, NULL }
 };
-static int hf_lat_entry_error = -1;
+static int hf_lat_entry_error;
 static const value_string entry_error_vals[] = {
 	{ 1, "reason is unknown" },
 	{ 2, "user requested disconnect" },
@@ -219,75 +219,75 @@ static const value_string entry_error_vals[] = {
 	{ 19, "Inconsistent or illegal request parameters" },
 	{ 0, NULL }
 };
-static int hf_lat_elapsed_queue_time = -1;
-static int hf_lat_min_queue_position = -1;
-static int hf_lat_max_queue_position = -1;
-static int hf_lat_obj_srvc_name = -1;
-static int hf_lat_obj_port_name = -1;
-static int hf_lat_subj_description = -1;
+static int hf_lat_elapsed_queue_time;
+static int hf_lat_min_queue_position;
+static int hf_lat_max_queue_position;
+static int hf_lat_obj_srvc_name;
+static int hf_lat_obj_port_name;
+static int hf_lat_subj_description;
 
-static int hf_lat_solicit_identifier = -1;
-static int hf_lat_response_timer = -1;
-static int hf_lat_dst_node_name = -1;
-static int hf_lat_src_node_group_len = -1;
-static int hf_lat_src_node_groups = -1;
-static int hf_lat_src_node_name = -1;
-static int hf_lat_dst_srvc_name = -1;
+static int hf_lat_solicit_identifier;
+static int hf_lat_response_timer;
+static int hf_lat_dst_node_name;
+static int hf_lat_src_node_group_len;
+static int hf_lat_src_node_groups;
+static int hf_lat_src_node_name;
+static int hf_lat_dst_srvc_name;
 
-static int hf_lat_response_status = -1;
-static int hf_lat_response_status_node_does_not_offer_requested_service = -1;
+static int hf_lat_response_status;
+static int hf_lat_response_status_node_does_not_offer_requested_service;
 static int * const lat_response_status_fields[] = {
 	&hf_lat_response_status_node_does_not_offer_requested_service,
 	NULL
 };
-static int hf_lat_src_node_status = -1;
-static int hf_lat_src_node_status_node_is_disabled = -1;
-static int hf_lat_src_node_status_start_message_can_be_sent = -1;
-static int hf_lat_src_node_status_command_message_can_be_sent = -1;
+static int hf_lat_src_node_status;
+static int hf_lat_src_node_status_node_is_disabled;
+static int hf_lat_src_node_status_start_message_can_be_sent;
+static int hf_lat_src_node_status_command_message_can_be_sent;
 static int * const lat_src_node_status_fields[] = {
 	&hf_lat_src_node_status_node_is_disabled,
 	&hf_lat_src_node_status_start_message_can_be_sent,
 	&hf_lat_src_node_status_command_message_can_be_sent,
 	NULL
 };
-static int hf_lat_source_node_addr = -1;
-static int hf_lat_src_node_mc_timer = -1;
-static int hf_lat_src_node_desc = -1;
-static int hf_lat_srvc_count = -1;
-static int hf_lat_srvc_entry_len = -1;
-static int hf_lat_srvc_class_len = -1;
-static int hf_lat_srvc_class = -1;
-static int hf_lat_srvc_status = -1;
-static int hf_lat_srvc_status_enabled = -1;
-static int hf_lat_srvc_status_supports_queueing = -1;
+static int hf_lat_source_node_addr;
+static int hf_lat_src_node_mc_timer;
+static int hf_lat_src_node_desc;
+static int hf_lat_srvc_count;
+static int hf_lat_srvc_entry_len;
+static int hf_lat_srvc_class_len;
+static int hf_lat_srvc_class;
+static int hf_lat_srvc_status;
+static int hf_lat_srvc_status_enabled;
+static int hf_lat_srvc_status_supports_queueing;
 static int * const lat_srvc_status_fields[] = {
 	&hf_lat_srvc_status_enabled,
 	&hf_lat_srvc_status_supports_queueing,
 	NULL
 };
-static int hf_lat_srvc_rating = -1;
-static int hf_lat_srvc_group_len = -1;
-static int hf_lat_srvc_groups = -1;
-static int hf_lat_srvc_name = -1;
-static int hf_lat_srvc_desc = -1;
+static int hf_lat_srvc_rating;
+static int hf_lat_srvc_group_len;
+static int hf_lat_srvc_groups;
+static int hf_lat_srvc_name;
+static int hf_lat_srvc_desc;
 
-static int hf_lat_service_name = -1;
-static int hf_lat_service_description = -1;
-static int hf_lat_unknown_command_data = -1;
+static int hf_lat_service_name;
+static int hf_lat_service_description;
+static int hf_lat_unknown_command_data;
 
-static gint ett_lat = -1;
-static gint ett_data_b_slot_control_flags = -1;
-static gint ett_lat_attention_slot_control_flags = -1;
-static gint ett_lat_command_modifier = -1;
-static gint ett_lat_entry_status = -1;
-static gint ett_lat_response_status = -1;
-static gint ett_lat_src_node_status = -1;
-static gint ett_lat_srvc_status = -1;
+static gint ett_lat;
+static gint ett_data_b_slot_control_flags;
+static gint ett_lat_attention_slot_control_flags;
+static gint ett_lat_command_modifier;
+static gint ett_lat_entry_status;
+static gint ett_lat_response_status;
+static gint ett_lat_src_node_status;
+static gint ett_lat_srvc_status;
 
-static expert_field ei_slot_data_len_invalid = EI_INIT;
-static expert_field ei_entry_length_too_short = EI_INIT;
-static expert_field ei_srvc_entry_len_too_short = EI_INIT;
-static expert_field ei_mbz_data_nonzero = EI_INIT;
+static expert_field ei_slot_data_len_invalid;
+static expert_field ei_entry_length_too_short;
+static expert_field ei_srvc_entry_len_too_short;
+static expert_field ei_mbz_data_nonzero;
 
 /* LAT message types. */
 #define LAT_MSG_TYP_RUN				0

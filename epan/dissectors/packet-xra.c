@@ -24,133 +24,133 @@ void proto_reg_handoff_xra(void);
 static dissector_handle_t docsis_handle;
 static dissector_handle_t xra_handle;
 
-static int proto_xra = -1;
+static int proto_xra;
 
-static int proto_plc = -1;
-static int proto_ncp = -1;
-static int proto_segment = -1;
-static int proto_init_ranging = -1;
+static int proto_plc;
+static int proto_ncp;
+static int proto_segment;
+static int proto_init_ranging;
 
-static gint ett_xra = -1;
-static gint ett_xra_tlv = -1;
-static gint ett_xra_tlv_cw_info = -1;
-static gint ett_xra_tlv_ms_info = -1;
-static gint ett_xra_tlv_burst_info = -1;
-static gint ett_plc = -1;
-static gint ett_plc_mb = -1;
-static gint ett_plc_timestamp = -1;
-static gint ett_ncp = -1;
-static gint ett_ncp_mb = -1;
-static gint ett_init_ranging = -1;
+static gint ett_xra;
+static gint ett_xra_tlv;
+static gint ett_xra_tlv_cw_info;
+static gint ett_xra_tlv_ms_info;
+static gint ett_xra_tlv_burst_info;
+static gint ett_plc;
+static gint ett_plc_mb;
+static gint ett_plc_timestamp;
+static gint ett_ncp;
+static gint ett_ncp_mb;
+static gint ett_init_ranging;
 
-static gint hf_xra_version = -1;
-static gint hf_xra_direction = -1;
-static gint hf_xra_packettype = -1;
-static gint hf_xra_tlvlength = -1;
-static gint hf_xra_tlv = -1;
+static gint hf_xra_version;
+static gint hf_xra_direction;
+static gint hf_xra_packettype;
+static gint hf_xra_tlvlength;
+static gint hf_xra_tlv;
 
 /* XRA TLV */
-static gint hf_xra_tlv_ds_channel_id = -1;
-static gint hf_xra_tlv_ds_channel_frequency = -1;
-static gint hf_xra_tlv_modulation = -1;
-static gint hf_xra_tlv_annex = -1;
-static gint hf_xra_tlv_us_channel_id = -1;
-static gint hf_xra_tlv_profile_id = -1;
-static gint hf_xra_tlv_sid = -1;
-static gint hf_xra_tlv_iuc = -1;
-static gint hf_xra_tlv_burstid = -1;
-static gint hf_xra_tlv_ms_info = -1;
-static gint hf_xra_tlv_burst_info = -1;
-static gint hf_xra_tlv_ucd_ccc_parity = -1;
-static gint hf_xra_tlv_grant_size = -1;
-static gint hf_xra_tlv_segment_header_present = -1;
-static gint hf_xra_tlv_ncp_trunc = -1;
-static gint hf_xra_tlv_ncp_symbolid = -1;
+static gint hf_xra_tlv_ds_channel_id;
+static gint hf_xra_tlv_ds_channel_frequency;
+static gint hf_xra_tlv_modulation;
+static gint hf_xra_tlv_annex;
+static gint hf_xra_tlv_us_channel_id;
+static gint hf_xra_tlv_profile_id;
+static gint hf_xra_tlv_sid;
+static gint hf_xra_tlv_iuc;
+static gint hf_xra_tlv_burstid;
+static gint hf_xra_tlv_ms_info;
+static gint hf_xra_tlv_burst_info;
+static gint hf_xra_tlv_ucd_ccc_parity;
+static gint hf_xra_tlv_grant_size;
+static gint hf_xra_tlv_segment_header_present;
+static gint hf_xra_tlv_ncp_trunc;
+static gint hf_xra_tlv_ncp_symbolid;
 
 /* Minislot Info */
-static gint hf_xra_tlv_start_minislot_id_abs = -1;
-static gint hf_xra_tlv_start_minislot_id_rel = -1;
-static gint hf_xra_tlv_stop_minislot_id_rel = -1;
+static gint hf_xra_tlv_start_minislot_id_abs;
+static gint hf_xra_tlv_start_minislot_id_rel;
+static gint hf_xra_tlv_stop_minislot_id_rel;
 
 /* Ranging TLV */
-static gint hf_xra_tlv_ranging_number_ofdma_frames = -1;
-static gint hf_xra_tlv_ranging_timing_adjust = -1;
+static gint hf_xra_tlv_ranging_number_ofdma_frames;
+static gint hf_xra_tlv_ranging_timing_adjust;
 
-static gint hf_xra_tlv_power_level = -1;
-static gint hf_xra_tlv_mer = -1;
-static gint hf_xra_tlv_subslot_id =-1;
-static gint hf_xra_tlv_control_word = -1;
+static gint hf_xra_tlv_power_level;
+static gint hf_xra_tlv_mer;
+static gint hf_xra_tlv_subslot_id;
+static gint hf_xra_tlv_control_word;
 
-static gint hf_xra_unknown = -1;
+static gint hf_xra_unknown;
 
 /* Codeword Info TLV */
-static gint hf_xra_tlv_cw_info = -1;
-static gint hf_xra_tlv_cw_info_nr_of_info_bytes = -1;
-static gint hf_xra_tlv_cw_info_bch_decoding_successful = -1;
-static gint hf_xra_tlv_cw_info_profile_parity = -1;
-static gint hf_xra_tlv_cw_info_bch_number_of_corrected_bits = -1;
-static gint hf_xra_tlv_cw_info_ldpc_nr_of_code_bits = -1;
-static gint hf_xra_tlv_cw_info_ldpc_decoding_successful = -1;
-static gint hf_xra_tlv_cw_info_ldpc_number_of_corrected_bits = -1;
-static gint hf_xra_tlv_cw_info_ldpc_number_of_iterations = -1;
-static gint hf_xra_tlv_cw_info_rs_decoding_successful = -1;
-static gint hf_xra_tlv_cw_info_rs_number_of_corrected_symbols = -1;
+static gint hf_xra_tlv_cw_info;
+static gint hf_xra_tlv_cw_info_nr_of_info_bytes;
+static gint hf_xra_tlv_cw_info_bch_decoding_successful;
+static gint hf_xra_tlv_cw_info_profile_parity;
+static gint hf_xra_tlv_cw_info_bch_number_of_corrected_bits;
+static gint hf_xra_tlv_cw_info_ldpc_nr_of_code_bits;
+static gint hf_xra_tlv_cw_info_ldpc_decoding_successful;
+static gint hf_xra_tlv_cw_info_ldpc_number_of_corrected_bits;
+static gint hf_xra_tlv_cw_info_ldpc_number_of_iterations;
+static gint hf_xra_tlv_cw_info_rs_decoding_successful;
+static gint hf_xra_tlv_cw_info_rs_number_of_corrected_symbols;
 
 /* Burst Info TLV */
-static gint hf_xra_tlv_burst_info_burst_id_reference = -1;
+static gint hf_xra_tlv_burst_info_burst_id_reference;
 
 /* PLC Specific */
-static gint hf_plc_mb = -1;
+static gint hf_plc_mb;
 
 /* NCP Specific */
-static gint hf_ncp_mb = -1;
-static gint hf_ncp_mb_profileid = -1;
-static gint hf_ncp_mb_z = -1;
-static gint hf_ncp_mb_c = -1;
-static gint hf_ncp_mb_n = -1;
-static gint hf_ncp_mb_l = -1;
-static gint hf_ncp_mb_t = -1;
-static gint hf_ncp_mb_u = -1;
-static gint hf_ncp_mb_r = -1;
-static gint hf_ncp_mb_subcarrier_start_pointer = -1;
-static gint hf_ncp_crc = -1;
+static gint hf_ncp_mb;
+static gint hf_ncp_mb_profileid;
+static gint hf_ncp_mb_z;
+static gint hf_ncp_mb_c;
+static gint hf_ncp_mb_n;
+static gint hf_ncp_mb_l;
+static gint hf_ncp_mb_t;
+static gint hf_ncp_mb_u;
+static gint hf_ncp_mb_r;
+static gint hf_ncp_mb_subcarrier_start_pointer;
+static gint hf_ncp_crc;
 
 /* Init Ranging Specific */
-static gint hf_xra_init_ranging_mac = -1;
-static gint hf_xra_init_ranging_ds_channel_id = -1;
-static gint hf_xra_init_ranging_crc = -1;
+static gint hf_xra_init_ranging_mac;
+static gint hf_xra_init_ranging_ds_channel_id;
+static gint hf_xra_init_ranging_crc;
 
 /* PLC MB */
-static gint hf_plc_em_mb = -1;
-static gint hf_plc_trigger_mb = -1;
+static gint hf_plc_em_mb;
+static gint hf_plc_trigger_mb;
 
 /* PLC Timestamp MB Specific */
-static gint hf_plc_mb_ts_reserved = -1;
-static gint hf_plc_mb_ts_timestamp = -1;
-static gint hf_plc_mb_ts_timestamp_epoch = -1;
-static gint hf_plc_mb_ts_timestamp_d30timestamp = -1;
-static gint hf_plc_mb_ts_timestamp_extra_204_8 = -1;
-static gint hf_plc_mb_ts_timestamp_extra_204_8_X_16 = -1;
-static gint hf_plc_mb_ts_timestamp_formatted = -1;
-static gint hf_plc_mb_ts_crc24d = -1;
+static gint hf_plc_mb_ts_reserved;
+static gint hf_plc_mb_ts_timestamp;
+static gint hf_plc_mb_ts_timestamp_epoch;
+static gint hf_plc_mb_ts_timestamp_d30timestamp;
+static gint hf_plc_mb_ts_timestamp_extra_204_8;
+static gint hf_plc_mb_ts_timestamp_extra_204_8_X_16;
+static gint hf_plc_mb_ts_timestamp_formatted;
+static gint hf_plc_mb_ts_crc24d;
 
 /* PLC Message Channel MB Specific */
-static gint hf_plc_mb_mc_reserved = -1;
-static gint hf_plc_mb_mc_pspf_present = -1;
-static gint hf_plc_mb_mc_psp = -1;
+static gint hf_plc_mb_mc_reserved;
+static gint hf_plc_mb_mc_pspf_present;
+static gint hf_plc_mb_mc_psp;
 
 /* OFDMA Segment */
-static gint hf_docsis_segment_pfi = -1;
-static gint hf_docsis_segment_reserved = -1;
-static gint hf_docsis_segment_pointerfield = -1;
-static gint hf_docsis_segment_sequencenumber = -1;
-static gint hf_docsis_segment_sidclusterid = -1;
-static gint hf_docsis_segment_request = -1;
-static gint hf_docsis_segment_hcs = -1;
-static gint hf_docsis_segment_hcs_status = -1;
-static gint hf_docsis_segment_data = -1;
+static gint hf_docsis_segment_pfi;
+static gint hf_docsis_segment_reserved;
+static gint hf_docsis_segment_pointerfield;
+static gint hf_docsis_segment_sequencenumber;
+static gint hf_docsis_segment_sidclusterid;
+static gint hf_docsis_segment_request;
+static gint hf_docsis_segment_hcs;
+static gint hf_docsis_segment_hcs_status;
+static gint hf_docsis_segment_data;
 
-static expert_field ei_docsis_segment_hcs_bad = EI_INIT;
+static expert_field ei_docsis_segment_hcs_bad;
 
 static int dissect_xra(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_);
 static int dissect_xra_tlv(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_, guint16 tlvLength, guint* segmentHeaderPresent);

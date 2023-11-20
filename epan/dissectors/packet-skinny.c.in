@@ -144,15 +144,15 @@ for enum in skinny.enum:
 /*[[[end]]]*/
 
 /* Staticly Declared Variables */
-static int proto_skinny                 = -1;
-static int hf_skinny_messageId          = -1;
-static int hf_skinny_data_length        = -1;
-static int hf_skinny_hdr_version        = -1;
-static int hf_skinny_xmlData            = -1;
-static int hf_skinny_ipv4or6            = -1;
-static int hf_skinny_response_in        = -1;
-static int hf_skinny_response_to        = -1;
-static int hf_skinny_response_time      = -1;
+static int proto_skinny;
+static int hf_skinny_messageId;
+static int hf_skinny_data_length;
+static int hf_skinny_hdr_version;
+static int hf_skinny_xmlData;
+static int hf_skinny_ipv4or6;
+static int hf_skinny_response_in;
+static int hf_skinny_response_to;
+static int hf_skinny_response_time;
 
 /* [[[cog
 for key in sorted(xml2skinny.fieldsArray.keys()):
@@ -163,8 +163,8 @@ for key in sorted(xml2skinny.fieldsArray.keys()):
 static dissector_handle_t xml_handle;
 
 /* Initialize the subtree pointers */
-static int ett_skinny          = -1;
-static int ett_skinny_tree     = -1;
+static int ett_skinny;
+static int ett_skinny_tree;
 
 /* preference globals */
 static gboolean global_skinny_desegment = true;

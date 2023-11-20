@@ -29,52 +29,52 @@ static dissector_handle_t kink_handle;
 
 #define KINK_ISAKMP_PAYLOAD_BASE 14
 
-static int proto_kink = -1;
+static int proto_kink;
 
 /* Argument for proto_tree_add_uint() */
-static int hf_kink_type = -1;
-static int hf_kink_length = -1;
-static int hf_kink_transactionId = -1;
-static int hf_kink_checkSumLength = -1;
-static int hf_kink_A = -1;
-static int hf_kink_version = -1;
-static int hf_kink_domain_of_interpretation = -1;
-static int hf_kink_qmversion = -1;
-static int hf_kink_error_code = -1;
-static int hf_kink_reserved8 = -1;
-static int hf_kink_reserved15 = -1;
-static int hf_kink_reserved16 = -1;
-static int hf_kink_reserved24 = -1;
-static int hf_kink_checkSum = -1;
-static int hf_kink_next_payload = -1;
-static int hf_kink_payload_length = -1;
-static int hf_kink_epoch = -1;
-static int hf_kink_inner_next_pload = -1;
-static int hf_kink_realm_name_length = -1;
-static int hf_kink_realm_name = -1;
-static int hf_kink_princ_name_length = -1;
-static int hf_kink_princ_name = -1;
-static int hf_kink_tgt_length = -1;
-static int hf_kink_tgt = -1;
-static int hf_kink_payload = -1;
+static int hf_kink_type;
+static int hf_kink_length;
+static int hf_kink_transactionId;
+static int hf_kink_checkSumLength;
+static int hf_kink_A;
+static int hf_kink_version;
+static int hf_kink_domain_of_interpretation;
+static int hf_kink_qmversion;
+static int hf_kink_error_code;
+static int hf_kink_reserved8;
+static int hf_kink_reserved15;
+static int hf_kink_reserved16;
+static int hf_kink_reserved24;
+static int hf_kink_checkSum;
+static int hf_kink_next_payload;
+static int hf_kink_payload_length;
+static int hf_kink_epoch;
+static int hf_kink_inner_next_pload;
+static int hf_kink_realm_name_length;
+static int hf_kink_realm_name;
+static int hf_kink_princ_name_length;
+static int hf_kink_princ_name;
+static int hf_kink_tgt_length;
+static int hf_kink_tgt;
+static int hf_kink_payload;
 
 /* Argument for making the subtree */
-static gint ett_kink = -1;
-/*static gint ett_kink_version = -1;*/
-static gint ett_kink_payload = -1;
-static gint ett_payload_kink_ap_req = -1;
-static gint ett_payload_kink_ap_rep = -1;
-static gint ett_payload_kink_krb_error = -1;
-static gint ett_payload_kink_tgt_req = -1;
-static gint ett_payload_kink_tgt_rep = -1;
-static gint ett_payload_kink_isakmp = -1;
-static gint ett_payload_kink_encrypt = -1;
-static gint ett_payload_kink_error = -1;
-static gint ett_payload_not_defined = -1;
-static gint ett_decrypt_kink_encrypt = -1;
+static gint ett_kink;
+/*static gint ett_kink_version;*/
+static gint ett_kink_payload;
+static gint ett_payload_kink_ap_req;
+static gint ett_payload_kink_ap_rep;
+static gint ett_payload_kink_krb_error;
+static gint ett_payload_kink_tgt_req;
+static gint ett_payload_kink_tgt_rep;
+static gint ett_payload_kink_isakmp;
+static gint ett_payload_kink_encrypt;
+static gint ett_payload_kink_error;
+static gint ett_payload_not_defined;
+static gint ett_decrypt_kink_encrypt;
 
-static expert_field ei_kink_payload_length_small = EI_INIT;
-static expert_field ei_kink_payload_length_mismatch = EI_INIT;
+static expert_field ei_kink_payload_length_small;
+static expert_field ei_kink_payload_length_mismatch;
 
 
 /* Define the kink type value */

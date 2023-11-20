@@ -93,16 +93,16 @@ static gboolean fw1_iflist_with_chain = FALSE;
 static dissector_handle_t ethertype_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_fw1 = -1;
-static int hf_fw1_direction = -1;
-static int hf_fw1_chain = -1;
-static int hf_fw1_interface = -1;
-static int hf_fw1_uuid = -1;
-static int hf_fw1_type = -1;
-static int hf_fw1_trailer = -1;
+static int proto_fw1;
+static int hf_fw1_direction;
+static int hf_fw1_chain;
+static int hf_fw1_interface;
+static int hf_fw1_uuid;
+static int hf_fw1_type;
+static int hf_fw1_trailer;
 
 /* Initialize the subtree pointers */
-static gint ett_fw1 = -1;
+static gint ett_fw1;
 
 #define ETH_HEADER_SIZE 14
 

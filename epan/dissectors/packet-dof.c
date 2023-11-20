@@ -865,18 +865,18 @@ static void* dof_packet_get_proto_data(dof_packet_data *packet, int proto);
 /* This is needed to register multicast sessions with the UDP handler. */
 static dissector_handle_t dof_udp_handle;
 
-static int proto_2008_1_dof = -1;
-static int proto_2008_1_dof_tcp = -1;
-static int proto_2008_1_dof_udp = -1;
+static int proto_2008_1_dof;
+static int proto_2008_1_dof_tcp;
+static int proto_2008_1_dof_udp;
 
-static int hf_2008_1_dof_session = -1;
-static int hf_2008_1_dof_is_2_node = -1;
-static int hf_2008_1_dof_is_streaming = -1;
-static int hf_2008_1_dof_is_from_client = -1;
-static int hf_2008_1_dof_frame = -1;
-static int hf_2008_1_dof_session_transport = -1;
+static int hf_2008_1_dof_session;
+static int hf_2008_1_dof_is_2_node;
+static int hf_2008_1_dof_is_streaming;
+static int hf_2008_1_dof_is_from_client;
+static int hf_2008_1_dof_frame;
+static int hf_2008_1_dof_session_transport;
 
-static int ett_2008_1_dof = -1;
+static int ett_2008_1_dof;
 
 /* DOF Tunnel Protocol */
 
@@ -887,12 +887,12 @@ static int ett_2008_1_dof = -1;
 static dissector_table_t dof_tun_app_dissectors;
 
 /***** TUNNEL *****/
-static int proto_2012_1_tunnel = -1;
+static int proto_2012_1_tunnel;
 
-static int ett_2012_1_tunnel = -1;
+static int ett_2012_1_tunnel;
 
-static int hf_2012_1_tunnel_1_version = -1;
-static int hf_2012_1_tunnel_1_length = -1;
+static int hf_2012_1_tunnel_1_version;
+static int hf_2012_1_tunnel_1_length;
 
 /* DOF NETWORK PROTOCOL */
 #define DNP_MAX_VERSION 1
@@ -901,33 +901,33 @@ static int hf_2012_1_tunnel_1_length = -1;
 static dissector_table_t dnp_dissectors;
 static dissector_table_t dnp_framing_dissectors;
 
-static int proto_2008_1_dnp = -1;
+static int proto_2008_1_dnp;
 
-static int hf_2008_1_dnp_1_version = -1;
-static int hf_2008_1_dnp_1_flag = -1;
+static int hf_2008_1_dnp_1_version;
+static int hf_2008_1_dnp_1_flag;
 
-static int ett_2008_1_dnp = -1;
-static int ett_2008_1_dnp_header = -1;
+static int ett_2008_1_dnp;
+static int ett_2008_1_dnp_header;
 
 /* DNP V0 */
-static int proto_2008_1_dnp_0 = -1;
+static int proto_2008_1_dnp_0;
 
-static int hf_2008_1_dnp_0_1_1_padding = -1;
-static int hf_2008_1_dnp_0_1_1_version = -1;
+static int hf_2008_1_dnp_0_1_1_padding;
+static int hf_2008_1_dnp_0_1_1_version;
 
 /* DNP V1 */
 #define DNP_V1_DEFAULT_FLAGS    (0)
-static int proto_2009_9_dnp_1 = -1;
+static int proto_2009_9_dnp_1;
 
-static int hf_2009_9_dnp_1_flags = -1;
-static int hf_2009_9_dnp_1_flag_length = -1;
-static int hf_2009_9_dnp_1_length = -1;
-static int hf_2009_9_dnp_1_flag_srcport = -1;
-static int hf_2009_9_dnp_1_srcport = -1;
-static int hf_2009_9_dnp_1_flag_dstport = -1;
-static int hf_2009_9_dnp_1_dstport = -1;
+static int hf_2009_9_dnp_1_flags;
+static int hf_2009_9_dnp_1_flag_length;
+static int hf_2009_9_dnp_1_length;
+static int hf_2009_9_dnp_1_flag_srcport;
+static int hf_2009_9_dnp_1_srcport;
+static int hf_2009_9_dnp_1_flag_dstport;
+static int hf_2009_9_dnp_1_dstport;
 
-static int ett_2009_9_dnp_1_flags = -1;
+static int ett_2009_9_dnp_1_flags;
 
 static int * const bitmask_2009_9_dnp_1_flags[] = {
     &hf_2009_9_dnp_1_flag_length,
@@ -941,27 +941,27 @@ static int * const bitmask_2009_9_dnp_1_flags[] = {
 
 static dissector_table_t dof_dpp_dissectors;
 
-static int proto_2008_1_dpp = -1;
+static int proto_2008_1_dpp;
 
-static int hf_2008_1_dpp_sid_num = -1;
-static int hf_2008_1_dpp_rid_num = -1;
-static int hf_2008_1_dpp_sid_str = -1;
-static int hf_2008_1_dpp_rid_str = -1;
-static int hf_2008_1_dpp_first_command = -1;
-static int hf_2008_1_dpp_last_command = -1;
-static int hf_2008_1_dpp_first_response = -1;
-static int hf_2008_1_dpp_last_response = -1;
-static int hf_2008_1_dpp_related_frame = -1;
-static int hf_2008_1_dpp_1_version = -1;
-static int hf_2008_1_dpp_1_flag = -1;
+static int hf_2008_1_dpp_sid_num;
+static int hf_2008_1_dpp_rid_num;
+static int hf_2008_1_dpp_sid_str;
+static int hf_2008_1_dpp_rid_str;
+static int hf_2008_1_dpp_first_command;
+static int hf_2008_1_dpp_last_command;
+static int hf_2008_1_dpp_first_response;
+static int hf_2008_1_dpp_last_response;
+static int hf_2008_1_dpp_related_frame;
+static int hf_2008_1_dpp_1_version;
+static int hf_2008_1_dpp_1_flag;
 
-static int ett_2008_1_dpp = -1;
-static int ett_2008_1_dpp_1_header = -1;
+static int ett_2008_1_dpp;
+static int ett_2008_1_dpp_1_header;
 
 /* DPP V0 */
-static int proto_2008_1_dpp_0 = -1;
+static int proto_2008_1_dpp_0;
 
-static int hf_2008_1_dpp_0_1_1_version = -1;
+static int hf_2008_1_dpp_0_1_1_version;
 
 /* DPP V1 - RESERVED, NOT SUPPORTED */
 
@@ -973,41 +973,41 @@ static int hf_2008_1_dpp_0_1_1_version = -1;
 #define DPP_V2_SEC_FLAG_A (0x02)
 #define DPP_V2_SEC_FLAG_S (0x01)
 
-static int proto_2009_12_dpp = -1;
-static int proto_2009_12_dpp_common = -1;
+static int proto_2009_12_dpp;
+static int proto_2009_12_dpp_common;
 
 /* TODO: The complete on final and final flags are not covered. */
-static int hf_2009_12_dpp_2_1_flags = -1;
-static int hf_2009_12_dpp_2_1_flag_security = -1;
-static int hf_2009_12_dpp_2_1_flag_opid = -1;
-static int hf_2009_12_dpp_2_1_flag_seq = -1;
-static int hf_2009_12_dpp_2_1_flag_retry = -1;
-static int hf_2009_12_dpp_2_1_flag_cmdrsp = -1;
-static int hf_2009_12_dpp_2_3_sec_flags = -1;
-static int hf_2009_12_dpp_2_3_sec_flag_secure = -1;
-static int hf_2009_12_dpp_2_3_sec_flag_rdid = -1;
-static int hf_2009_12_dpp_2_3_sec_flag_partition = -1;
-static int hf_2009_12_dpp_2_3_sec_flag_ssid = -1;
-static int hf_2009_12_dpp_2_3_sec_flag_as = -1;
-static int hf_2009_12_dpp_2_3_sec_ssid = -1;
-static int hf_2009_12_dpp_2_3_sec_rdid = -1;
-static int hf_2009_12_dpp_2_3_sec_remote_partition = -1;
-static int hf_2009_12_dpp_2_3_sec_partition = -1;
-static int hf_2009_12_dpp_2_1_opcnt = -1;
-static int hf_2009_12_dpp_2_1_seq = -1;
-static int hf_2009_12_dpp_2_1_retry = -1;
-static int hf_2009_12_dpp_2_1_delay = -1;
-static int hf_2009_12_dpp_2_14_opcode = -1;
+static int hf_2009_12_dpp_2_1_flags;
+static int hf_2009_12_dpp_2_1_flag_security;
+static int hf_2009_12_dpp_2_1_flag_opid;
+static int hf_2009_12_dpp_2_1_flag_seq;
+static int hf_2009_12_dpp_2_1_flag_retry;
+static int hf_2009_12_dpp_2_1_flag_cmdrsp;
+static int hf_2009_12_dpp_2_3_sec_flags;
+static int hf_2009_12_dpp_2_3_sec_flag_secure;
+static int hf_2009_12_dpp_2_3_sec_flag_rdid;
+static int hf_2009_12_dpp_2_3_sec_flag_partition;
+static int hf_2009_12_dpp_2_3_sec_flag_ssid;
+static int hf_2009_12_dpp_2_3_sec_flag_as;
+static int hf_2009_12_dpp_2_3_sec_ssid;
+static int hf_2009_12_dpp_2_3_sec_rdid;
+static int hf_2009_12_dpp_2_3_sec_remote_partition;
+static int hf_2009_12_dpp_2_3_sec_partition;
+static int hf_2009_12_dpp_2_1_opcnt;
+static int hf_2009_12_dpp_2_1_seq;
+static int hf_2009_12_dpp_2_1_retry;
+static int hf_2009_12_dpp_2_1_delay;
+static int hf_2009_12_dpp_2_14_opcode;
 
-static int ett_2009_12_dpp_2_1_flags = -1;
-static int ett_2009_12_dpp_2_3_security = -1;
-static int ett_2009_12_dpp_2_3_sec_flags = -1;
-static int ett_2009_12_dpp_2_3_sec_remote_partition = -1;
-static int ett_2009_12_dpp_2_3_sec_partition = -1;
-static int ett_2009_12_dpp_2_opid = -1;
-static int ett_2009_12_dpp_2_opid_history = -1;
+static int ett_2009_12_dpp_2_1_flags;
+static int ett_2009_12_dpp_2_3_security;
+static int ett_2009_12_dpp_2_3_sec_flags;
+static int ett_2009_12_dpp_2_3_sec_remote_partition;
+static int ett_2009_12_dpp_2_3_sec_partition;
+static int ett_2009_12_dpp_2_opid;
+static int ett_2009_12_dpp_2_opid_history;
 
-static int ett_2009_12_dpp_common = -1;
+static int ett_2009_12_dpp_common;
 
 static const value_string strings_2009_12_dpp_opid_types[] = {
     { 0, "Not Present" },
@@ -1060,19 +1060,19 @@ static const value_string strings_2009_12_dpp_common_opcodes[] = {
 
 static dissector_table_t app_dissectors;
 
-static int proto_2008_1_app = -1;
+static int proto_2008_1_app;
 
-static int hf_2008_1_app_version = -1;
+static int hf_2008_1_app_version;
 
 /* DAP V0 (DSP - DOF SESSION PROTOCOL) */
 /* Note that DSP is *always* appid 0 and so it violates the standard naming rule. */
 static dissector_table_t dsp_option_dissectors;
 
-static int hf_2008_1_dsp_12_opcode = -1;
-static int hf_2008_1_dsp_attribute_code = -1;
-static int hf_2008_1_dsp_attribute_data = -1;
-static int hf_2008_1_dsp_value_length = -1;
-static int hf_2008_1_dsp_value_data = -1;
+static int hf_2008_1_dsp_12_opcode;
+static int hf_2008_1_dsp_attribute_code;
+static int hf_2008_1_dsp_attribute_data;
+static int hf_2008_1_dsp_value_length;
+static int hf_2008_1_dsp_value_data;
 
 static const value_string strings_2008_1_dsp_attribute_codes[] = {
     { 0, "TEP Family" },
@@ -1086,7 +1086,7 @@ static const value_string strings_2008_1_dsp_attribute_codes[] = {
 #define DOF_PROTOCOL_DSP 0
 #define DSP_OAP_FAMILY 0x010000
 
-static int proto_2008_1_dsp = -1;
+static int proto_2008_1_dsp;
 
 #define OP_2008_1_RSP                   (0x80)
 #define OP_2008_1_QUERY_CMD             0
@@ -1133,75 +1133,75 @@ static const value_string strings_2008_1_dsp_values[] = {
 };
 #endif
 
-static int ett_2008_1_dsp_12 = -1;
-static int ett_2008_1_dsp_12_options = -1;
-static int ett_2008_1_dsp_12_option = -1;
+static int ett_2008_1_dsp_12;
+static int ett_2008_1_dsp_12_options;
+static int ett_2008_1_dsp_12_option;
 
 /* DAP V1 (OAP - OBJECT ACCESS PROTOCOL V1) */
 /* This is the defined protocol id for OAP. */
 #define DOF_PROTOCOL_OAP_1 1
 /* There are two "protocols", one hooks into DSP and the other to DOF. */
-static int proto_oap_1 = -1;
-static int proto_oap_1_dsp = -1;
+static int proto_oap_1;
+static int proto_oap_1_dsp;
 
 /* OAP DSP protocol items. */
-static int hf_oap_1_dsp_option = -1;
+static int hf_oap_1_dsp_option;
 
 /* OAP protocol items. */
-static int hf_oap_1_opcode = -1;
+static int hf_oap_1_opcode;
 
-static int hf_oap_1_alias_size = -1;
-static int hf_oap_1_flags = -1;
-static int hf_oap_1_exception_internal_flag = -1;
-static int hf_oap_1_exception_final_flag = -1;
-static int hf_oap_1_exception_provider_flag = -1;
-static int hf_oap_1_cmdcontrol = -1;
-static int hf_oap_1_cmdcontrol_cache_flag = -1;
-static int hf_oap_1_cmdcontrol_verbosity_flag = -1;
-static int hf_oap_1_cmdcontrol_noexecute_flag = -1;
-static int hf_oap_1_cmdcontrol_ack_flag = -1;
-static int hf_oap_1_cmdcontrol_delay_flag = -1;
-static int hf_oap_1_cmdcontrol_heuristic_flag = -1;
-static int hf_oap_1_cmdcontrol_heuristic = -1;
-static int hf_oap_1_cmdcontrol_cache = -1;
-static int hf_oap_1_cmdcontrol_ackcnt = -1;
-static int hf_oap_1_cmdcontrol_ack = -1;
-
-#if 0 /* not used yet */
-static int hf_oap_1_opinfo_start_frame = -1;
-static int hf_oap_1_opinfo_end_frame = -1;
-static int hf_oap_1_opinfo_timeout = -1;
-#endif
-
-static int hf_oap_1_providerid = -1;
-static int ett_oap_1_1_providerid = -1;
-
-static int hf_oap_1_objectid = -1;
-static int ett_oap_1_objectid = -1;
-
-static int hf_oap_1_interfaceid = -1;
-static int hf_oap_1_itemid = -1;
+static int hf_oap_1_alias_size;
+static int hf_oap_1_flags;
+static int hf_oap_1_exception_internal_flag;
+static int hf_oap_1_exception_final_flag;
+static int hf_oap_1_exception_provider_flag;
+static int hf_oap_1_cmdcontrol;
+static int hf_oap_1_cmdcontrol_cache_flag;
+static int hf_oap_1_cmdcontrol_verbosity_flag;
+static int hf_oap_1_cmdcontrol_noexecute_flag;
+static int hf_oap_1_cmdcontrol_ack_flag;
+static int hf_oap_1_cmdcontrol_delay_flag;
+static int hf_oap_1_cmdcontrol_heuristic_flag;
+static int hf_oap_1_cmdcontrol_heuristic;
+static int hf_oap_1_cmdcontrol_cache;
+static int hf_oap_1_cmdcontrol_ackcnt;
+static int hf_oap_1_cmdcontrol_ack;
 
 #if 0 /* not used yet */
-static int hf_oap_1_distance = -1;
+static int hf_oap_1_opinfo_start_frame;
+static int hf_oap_1_opinfo_end_frame;
+static int hf_oap_1_opinfo_timeout;
 #endif
 
-static int hf_oap_1_alias = -1;
-static int hf_oap_1_alias_frame = -1;
+static int hf_oap_1_providerid;
+static int ett_oap_1_1_providerid;
 
-static int hf_oap_1_subscription_delta = -1;
-static int hf_oap_1_update_sequence = -1;
-static int hf_oap_1_value_list = -1;
+static int hf_oap_1_objectid;
+static int ett_oap_1_objectid;
 
-static int ett_oap_1_dsp = -1;
-static int ett_oap_1_dsp_options = -1;
+static int hf_oap_1_interfaceid;
+static int hf_oap_1_itemid;
 
-static int ett_oap_1 = -1;
-static int ett_oap_1_opinfo = -1;
-static int ett_oap_1_cmdcontrol = -1;
-static int ett_oap_1_cmdcontrol_flags = -1;
-static int ett_oap_1_cmdcontrol_ack = -1;
-static int ett_oap_1_alias = -1;
+#if 0 /* not used yet */
+static int hf_oap_1_distance;
+#endif
+
+static int hf_oap_1_alias;
+static int hf_oap_1_alias_frame;
+
+static int hf_oap_1_subscription_delta;
+static int hf_oap_1_update_sequence;
+static int hf_oap_1_value_list;
+
+static int ett_oap_1_dsp;
+static int ett_oap_1_dsp_options;
+
+static int ett_oap_1;
+static int ett_oap_1_opinfo;
+static int ett_oap_1_cmdcontrol;
+static int ett_oap_1_cmdcontrol_flags;
+static int ett_oap_1_cmdcontrol_ack;
+static int ett_oap_1_alias;
 
 static int * const bitmask_oap_1_cmdcontrol_flags[] = {
     &hf_oap_1_cmdcontrol_cache_flag,
@@ -1213,7 +1213,7 @@ static int * const bitmask_oap_1_cmdcontrol_flags[] = {
     NULL
 };
 
-static expert_field ei_oap_no_session = EI_INIT;
+static expert_field ei_oap_no_session;
 
 static GHashTable *oap_1_alias_to_binding = NULL;
 
@@ -1562,50 +1562,50 @@ static oap_1_binding* oap_1_resolve_alias(oap_1_alias_key *key)
 /* DAP V128 (TEP - TICKET EXCHANGE PROTOCOL V1) */
 #define DOF_PROTOCOL_TEP 128
 #define DSP_TEP_FAMILY 0x000000
-static int proto_tep = -1;
-static int proto_tep_dsp = -1;
+static int proto_tep;
+static int proto_tep_dsp;
 
-static int hf_dsp_option = -1;
+static int hf_dsp_option;
 
-static int ett_tep_operation = -1;
-static int hf_tep_operation = -1;
-static int hf_tep_operation_type = -1;
-static int hf_tep_opcode = -1;
-static int hf_tep_k = -1;
-static int hf_tep_c = -1;
-static int hf_tep_reject_code = -1;
-static int hf_tep_reject_data = -1;
+static int ett_tep_operation;
+static int hf_tep_operation;
+static int hf_tep_operation_type;
+static int hf_tep_opcode;
+static int hf_tep_k;
+static int hf_tep_c;
+static int hf_tep_reject_code;
+static int hf_tep_reject_data;
 
 static const true_false_string tep_optype_vals = { "DPP Response", "DPP Command" };
 
 /* TEP.2.1 */
-static int ett_tep_2_1_domain = -1;
-static int hf_tep_2_1_domain = -1;
-static int ett_tep_2_1_initiator_block = -1;
-static int hf_tep_2_1_initiator_block = -1;
-static int hf_tep_2_1_ticket_confirmation = -1;
+static int ett_tep_2_1_domain;
+static int hf_tep_2_1_domain;
+static int ett_tep_2_1_initiator_block;
+static int hf_tep_2_1_initiator_block;
+static int hf_tep_2_1_ticket_confirmation;
 
 /* TEP.2.2 */
-static int ett_tep_2_2_initiator_ticket = -1;
-static int hf_tep_2_2_initiator_ticket = -1;
-static int hf_tep_2_2_ticket_confirmation = -1;
-static int ett_tep_2_2_responder_initialization = -1;
-static int hf_tep_2_2_responder_initialization = -1;
-static int ett_tep_2_2_responder_block = -1;
-static int hf_tep_2_2_responder_block = -1;
-static int ett_tep_2_2_authenticator_initialization = -1;
-static int hf_tep_2_2_authenticator_initialization = -1;
+static int ett_tep_2_2_initiator_ticket;
+static int hf_tep_2_2_initiator_ticket;
+static int hf_tep_2_2_ticket_confirmation;
+static int ett_tep_2_2_responder_initialization;
+static int hf_tep_2_2_responder_initialization;
+static int ett_tep_2_2_responder_block;
+static int hf_tep_2_2_responder_block;
+static int ett_tep_2_2_authenticator_initialization;
+static int hf_tep_2_2_authenticator_initialization;
 
 /* TEP.2.2.1 */
-static int hf_tep_2_2_1_state_identifier = -1;
-static int ett_tep_2_2_1_initial_state = -1;
-static int hf_tep_2_2_1_initial_state = -1;
+static int hf_tep_2_2_1_state_identifier;
+static int ett_tep_2_2_1_initial_state;
+static int hf_tep_2_2_1_initial_state;
 
-static int hf_tep_session_key = -1;
+static int hf_tep_session_key;
 
-static int ett_tep_dsp = -1;
-static int ett_tep_dsp_options = -1;
-static int ett_tep = -1;
+static int ett_tep_dsp;
+static int ett_tep_dsp_options;
+static int ett_tep;
 
 #if 0 /* not used yet */
 static const value_string tep_filter_existing[] = {
@@ -1704,88 +1704,88 @@ typedef struct _trp_packet_data
 } trp_packet_data;
 
 
-static int proto_trp = -1;
-static int proto_trp_dsp = -1;
+static int proto_trp;
+static int proto_trp_dsp;
 
-static int hf_trp_dsp_option = -1;
+static int hf_trp_dsp_option;
 
-static int hf_trp_opcode = -1;
-static int hf_domain = -1;
-static int hf_identity_resolution = -1;
-static int hf_initiator_request = -1;
-static int hf_responder_request = -1;
-static int hf_initiator_ticket = -1;
-static int hf_responder_ticket = -1;
-static int hf_authentication_block = -1;
-static int hf_group_identifier = -1;
-static int hf_node_identifier = -1;
-static int hf_thb = -1;
-static int hf_tmin = -1;
-static int hf_tmax = -1;
-static int hf_trp_epoch = -1;
-static int hf_sidg = -1;
-static int hf_security_scope = -1;
-static int hf_security_mode = -1;
-static int hf_ssid = -1;
+static int hf_trp_opcode;
+static int hf_domain;
+static int hf_identity_resolution;
+static int hf_initiator_request;
+static int hf_responder_request;
+static int hf_initiator_ticket;
+static int hf_responder_ticket;
+static int hf_authentication_block;
+static int hf_group_identifier;
+static int hf_node_identifier;
+static int hf_thb;
+static int hf_tmin;
+static int hf_tmax;
+static int hf_trp_epoch;
+static int hf_sidg;
+static int hf_security_scope;
+static int hf_security_mode;
+static int hf_ssid;
 #if 0 /* not used yet */
-static int hf_initiator_pg = -1;
+static int hf_initiator_pg;
 #endif
-static int hf_initiator_validation = -1;
-static int hf_responder_pg = -1;
-static int hf_responder_validation = -1;
+static int hf_initiator_validation;
+static int hf_responder_pg;
+static int hf_responder_validation;
 
-static int hf_trp_errorcode = -1;
-static int hf_trp_duration = -1;
+static int hf_trp_errorcode;
+static int hf_trp_duration;
 #if 0 /* not used yet */
-static int hf_trp_rnonce = -1;
-static int hf_trp_pnonce = -1;
-static int hf_trp_reqid = -1;
-static int hf_trp_provid = -1;
-static int hf_trp_perm_count = -1;
-static int hf_trp_perm_type = -1;
-static int hf_trp_perm_rcache = -1;
-static int hf_trp_perm_rsrp = -1;
-static int hf_trp_perm_rsrp_a = -1;
-static int hf_trp_perm_rsrp_u = -1;
-static int hf_trp_perm_rflags = -1;
-static int hf_trp_perm_pcache = -1;
-static int hf_trp_perm_psrp = -1;
-static int hf_trp_perm_psrp_a = -1;
-static int hf_trp_perm_psrp_u = -1;
-static int hf_trp_perm_psrp_b = -1;
-static int hf_trp_perm_psrp_s = -1;
-static int hf_trp_perm_pflags = -1;
-static int hf_trp_confirmation = -1;
-static int hf_trp_perm_pke = -1;
-static int hf_trp_perm_pka = -1;
+static int hf_trp_rnonce;
+static int hf_trp_pnonce;
+static int hf_trp_reqid;
+static int hf_trp_provid;
+static int hf_trp_perm_count;
+static int hf_trp_perm_type;
+static int hf_trp_perm_rcache;
+static int hf_trp_perm_rsrp;
+static int hf_trp_perm_rsrp_a;
+static int hf_trp_perm_rsrp_u;
+static int hf_trp_perm_rflags;
+static int hf_trp_perm_pcache;
+static int hf_trp_perm_psrp;
+static int hf_trp_perm_psrp_a;
+static int hf_trp_perm_psrp_u;
+static int hf_trp_perm_psrp_b;
+static int hf_trp_perm_psrp_s;
+static int hf_trp_perm_pflags;
+static int hf_trp_confirmation;
+static int hf_trp_perm_pke;
+static int hf_trp_perm_pka;
 #endif
 
-static int ett_trp_dsp = -1;
-static int ett_trp = -1;
-static int ett_domain = -1;
-static int ett_identity_resolution = -1;
-static int ett_initiator_request = -1;
-static int ett_initiator_ticket = -1;
-static int ett_responder_request = -1;
-static int ett_responder_ticket = -1;
-static int ett_authentication_block = -1;
-static int ett_group_identifier = -1;
-static int ett_node_identifier = -1;
-static int ett_sidg = -1;
-static int ett_security_scope = -1;
-static int ett_security_mode = -1;
-static int ett_initiator_pg = -1;
-static int ett_initiator_validation = -1;
-static int ett_responder_pg = -1;
-static int ett_responder_validation = -1;
+static int ett_trp_dsp;
+static int ett_trp;
+static int ett_domain;
+static int ett_identity_resolution;
+static int ett_initiator_request;
+static int ett_initiator_ticket;
+static int ett_responder_request;
+static int ett_responder_ticket;
+static int ett_authentication_block;
+static int ett_group_identifier;
+static int ett_node_identifier;
+static int ett_sidg;
+static int ett_security_scope;
+static int ett_security_mode;
+static int ett_initiator_pg;
+static int ett_initiator_validation;
+static int ett_responder_pg;
+static int ett_responder_validation;
 
 
-static int ett_trp_permset = -1;
-static int ett_srp_flags = -1;
-static int ett_trp_ticket = -1;
+static int ett_trp_permset;
+static int ett_srp_flags;
+static int ett_trp_ticket;
 
-static expert_field ei_trp_initiator_id_known = EI_INIT;
-static expert_field ei_trp_kek_discovered = EI_INIT;
+static expert_field ei_trp_initiator_id_known;
+static expert_field ei_trp_kek_discovered;
 
 #define TRP_RESPONSE                    (0x80)
 
@@ -1874,28 +1874,28 @@ typedef struct _sgmp_packet_data
     dof_session_data *request_session;
 } sgmp_packet_data;
 
-static int proto_sgmp = -1;
+static int proto_sgmp;
 
-static int hf_opcode = -1;
-static int hf_sgmp_domain = -1;
-static int hf_sgmp_epoch = -1;
-static int hf_initiator_block = -1;
-static int hf_sgmp_security_scope = -1;
-static int hf_initial_state = -1;
-static int hf_latest_version = -1;
-static int hf_desire = -1;
-static int hf_ticket = -1;
-static int hf_sgmp_tmin = -1;
-static int hf_tie_breaker = -1;
-static int hf_delay = -1;
-static int hf_key = -1;
+static int hf_opcode;
+static int hf_sgmp_domain;
+static int hf_sgmp_epoch;
+static int hf_initiator_block;
+static int hf_sgmp_security_scope;
+static int hf_initial_state;
+static int hf_latest_version;
+static int hf_desire;
+static int hf_ticket;
+static int hf_sgmp_tmin;
+static int hf_tie_breaker;
+static int hf_delay;
+static int hf_key;
 
-static int ett_sgmp = -1;
-static int ett_sgmp_domain = -1;
-static int ett_initiator_block = -1;
-static int ett_sgmp_security_scope = -1;
-static int ett_initial_state = -1;
-static int ett_ticket = -1;
+static int ett_sgmp;
+static int ett_sgmp_domain;
+static int ett_initiator_block;
+static int ett_sgmp_security_scope;
+static int ett_initial_state;
+static int ett_ticket;
 
 #define SGMP_RESPONSE                                   (0x80)
 #define SGMP_CMD_HEARTBEAT                              (0)
@@ -1957,17 +1957,17 @@ static dissector_table_t dof_sec_dissectors;
 #define DOF_PROTOCOL_CCM 24577
 #define DSP_CCM_FAMILY 0x020000
 
-static int proto_ccm_app = -1;
-static int proto_ccm = -1;
-static int proto_ccm_dsp = -1;
+static int proto_ccm_app;
+static int proto_ccm;
+static int proto_ccm_dsp;
 
-static int hf_ccm_dsp_option = -1;
-static int hf_ccm_dsp_strength_count = -1;
-static int hf_ccm_dsp_strength = -1;
-static int hf_ccm_dsp_e_flag = -1;
-static int hf_ccm_dsp_m_flag = -1;
-static int hf_ccm_dsp_tmax = -1;
-static int hf_ccm_dsp_tmin = -1;
+static int hf_ccm_dsp_option;
+static int hf_ccm_dsp_strength_count;
+static int hf_ccm_dsp_strength;
+static int hf_ccm_dsp_e_flag;
+static int hf_ccm_dsp_m_flag;
+static int hf_ccm_dsp_tmax;
+static int hf_ccm_dsp_tmin;
 
 static const value_string ccm_strengths[] = {
     { 1, "256-bit" },
@@ -1975,28 +1975,28 @@ static const value_string ccm_strengths[] = {
     { 3, "128-bit" },
     { 0, NULL }
 };
-static int hf_ccm_opcode = -1;
+static int hf_ccm_opcode;
 
-static int hf_epp_v1_ccm_flags = -1;
-static int hf_epp_v1_ccm_flags_manager = -1;
-static int hf_epp_v1_ccm_flags_period = -1;
-static int hf_epp_v1_ccm_flags_target = -1;
-static int hf_epp_v1_ccm_flags_next_nid = -1;
-static int hf_epp_v1_ccm_flags_packet = -1;
-static int hf_epp_v1_ccm_tnid = -1;
-static int hf_epp_v1_ccm_nnid = -1;
-static int hf_epp_v1_ccm_nid = -1;
-static int hf_epp_v1_ccm_slot = -1;
-static int hf_epp_v1_ccm_pn = -1;
+static int hf_epp_v1_ccm_flags;
+static int hf_epp_v1_ccm_flags_manager;
+static int hf_epp_v1_ccm_flags_period;
+static int hf_epp_v1_ccm_flags_target;
+static int hf_epp_v1_ccm_flags_next_nid;
+static int hf_epp_v1_ccm_flags_packet;
+static int hf_epp_v1_ccm_tnid;
+static int hf_epp_v1_ccm_nnid;
+static int hf_epp_v1_ccm_nid;
+static int hf_epp_v1_ccm_slot;
+static int hf_epp_v1_ccm_pn;
 
-static int ett_header = -1;
-static int ett_epp_v1_ccm_flags = -1;
+static int ett_header;
+static int ett_epp_v1_ccm_flags;
 
-static int ett_ccm_dsp_option = -1;
-static int ett_ccm_dsp = -1;
-static int ett_ccm = -1;
+static int ett_ccm_dsp_option;
+static int ett_ccm_dsp;
+static int ett_ccm;
 
-static expert_field ei_decode_failure = EI_INIT;
+static expert_field ei_decode_failure;
 
 typedef struct _ccm_session_data
 {
@@ -2035,24 +2035,24 @@ static dissector_handle_t dof_oid_handle;
 
 static int oid_proto = -1;
 
-static int hf_oid_class = -1;
-static int hf_oid_header = -1;
-static int hf_oid_attribute = -1;
-static int hf_oid_length = -1;
-static int hf_oid_data = -1;
-static int hf_oid_all_attribute_data = -1;
-static int hf_oid_attribute_header = -1;
-static int hf_oid_attribute_attribute = -1;
-static int hf_oid_attribute_id = -1;
-static int hf_oid_attribute_length = -1;
-static int hf_oid_attribute_data = -1;
-static int hf_oid_attribute_oid = -1;
+static int hf_oid_class;
+static int hf_oid_header;
+static int hf_oid_attribute;
+static int hf_oid_length;
+static int hf_oid_data;
+static int hf_oid_all_attribute_data;
+static int hf_oid_attribute_header;
+static int hf_oid_attribute_attribute;
+static int hf_oid_attribute_id;
+static int hf_oid_attribute_length;
+static int hf_oid_attribute_data;
+static int hf_oid_attribute_oid;
 
-static int ett_oid = -1;
-static int ett_oid_header = -1;
-static int ett_oid_attribute = -1;
-static int ett_oid_attribute_header = -1;
-static int ett_oid_attribute_oid = -1;
+static int ett_oid;
+static int ett_oid_header;
+static int ett_oid_attribute;
+static int ett_oid_attribute_header;
+static int ett_oid_attribute_oid;
 
 /**
  * EXPERT INFOS
@@ -2060,27 +2060,27 @@ static int ett_oid_attribute_oid = -1;
  * they are listed separately.
  */
 #if 0
-static expert_field ei_undecoded = EI_INIT;
+static expert_field ei_undecoded;
 #endif
-static expert_field ei_malformed = EI_INIT;
-static expert_field ei_implicit_no_op = EI_INIT;
-static expert_field ei_c2_c3_c4_format = EI_INIT;
-static expert_field ei_type_4_header_zero = EI_INIT;
-static expert_field ei_dof_10_flags_zero = EI_INIT;
+static expert_field ei_malformed;
+static expert_field ei_implicit_no_op;
+static expert_field ei_c2_c3_c4_format;
+static expert_field ei_type_4_header_zero;
+static expert_field ei_dof_10_flags_zero;
 #if 0
-static expert_field ei_dof_13_length_specified = EI_INIT;
+static expert_field ei_dof_13_length_specified;
 #endif
 
-static expert_field ei_dpp2_dof_10_flags_zero = EI_INIT;
-static expert_field ei_dpp_default_flags = EI_INIT;
-static expert_field ei_dpp_explicit_sender_sid_included = EI_INIT;
-static expert_field ei_dpp_explicit_receiver_sid_included = EI_INIT;
-static expert_field ei_dpp_no_security_context = EI_INIT;
-static expert_field ei_dof_6_timeout = EI_INIT;
+static expert_field ei_dpp2_dof_10_flags_zero;
+static expert_field ei_dpp_default_flags;
+static expert_field ei_dpp_explicit_sender_sid_included;
+static expert_field ei_dpp_explicit_receiver_sid_included;
+static expert_field ei_dpp_no_security_context;
+static expert_field ei_dof_6_timeout;
 
-static expert_field ei_security_3_1_invalid_stage = EI_INIT;
-static expert_field ei_security_4_invalid_bit = EI_INIT;
-static expert_field ei_security_13_out_of_range = EI_INIT;
+static expert_field ei_security_3_1_invalid_stage;
+static expert_field ei_security_4_invalid_bit;
+static expert_field ei_security_13_out_of_range;
 
 /**
  * SOURCE IDENTIFIER (SID) SUPPORT
@@ -2308,9 +2308,9 @@ static void dof_ns_session_define(guint transport_session_id, guint client, guin
 /* COMMON PDU DISSECTORS */
 
 /* Security.1 */
-static int hf_security_1_permission_type = -1;
-static int hf_security_1_length = -1;
-static int hf_security_1_data = -1;
+static int hf_security_1_permission_type;
+static int hf_security_1_length;
+static int hf_security_1_data;
 
 static const value_string dof_2008_16_permission_type[] = {
     { 1, "Binding" },
@@ -2324,71 +2324,71 @@ static const value_string dof_2008_16_permission_type[] = {
 };
 
 /* Security.2 */
-static int hf_security_2_count = -1;
-static int ett_security_2_permission = -1;
-static int hf_security_2_permission = -1;
+static int hf_security_2_count;
+static int ett_security_2_permission;
+static int hf_security_2_permission;
 
 /* Security.3.1 */
-static int hf_security_3_1_credential_type = -1;
-static int hf_security_3_1_stage = -1;
-static int ett_security_3_1_security_node_identifier = -1;
-static int hf_security_3_1_security_node_identifier = -1;
+static int hf_security_3_1_credential_type;
+static int hf_security_3_1_stage;
+static int ett_security_3_1_security_node_identifier;
+static int hf_security_3_1_security_node_identifier;
 
 /* Security.3.2 */
-static int hf_security_3_2_credential_type = -1;
-static int hf_security_3_2_stage = -1;
-static int hf_security_3_2_length = -1;
-static int hf_security_3_2_public_data = -1;
+static int hf_security_3_2_credential_type;
+static int hf_security_3_2_stage;
+static int hf_security_3_2_length;
+static int hf_security_3_2_public_data;
 
 /* Security.4 */
-static int hf_security_4_l = -1;
-static int hf_security_4_f = -1;
-static int hf_security_4_ln = -1;
-static int ett_security_4_identity = -1;
-static int hf_security_4_identity = -1;
-static int hf_security_4_nonce = -1;
-static int ett_security_4_permission_set = -1;
-static int hf_security_4_permission_set = -1;
+static int hf_security_4_l;
+static int hf_security_4_f;
+static int hf_security_4_ln;
+static int ett_security_4_identity;
+static int hf_security_4_identity;
+static int hf_security_4_nonce;
+static int ett_security_4_permission_set;
+static int hf_security_4_permission_set;
 
 /* Security.5 */
-static int hf_security_5_mac = -1;
-static int hf_security_5_key = -1;
+static int hf_security_5_mac;
+static int hf_security_5_key;
 
 /* Security.6.1 */
-static int hf_security_6_1_desired_duration = -1;
-static int ett_security_6_1_desired_security_mode = -1;
-static int hf_security_6_1_desired_security_mode = -1;
-static int ett_security_6_1_initiator_request = -1;
-static int hf_security_6_1_initiator_request = -1;
+static int hf_security_6_1_desired_duration;
+static int ett_security_6_1_desired_security_mode;
+static int hf_security_6_1_desired_security_mode;
+static int ett_security_6_1_initiator_request;
+static int hf_security_6_1_initiator_request;
 
 /* Security.6.2 */
-static int ett_security_6_2_responder_request = -1;
-static int hf_security_6_2_responder_request = -1;
+static int ett_security_6_2_responder_request;
+static int hf_security_6_2_responder_request;
 
 /* Security.6.3 */
-static int hf_security_6_3_granted_duration = -1;
-static int ett_security_6_3_session_security_scope = -1;
-static int hf_security_6_3_session_security_scope = -1;
-static int ett_security_6_3_initiator_validation = -1;
-static int hf_security_6_3_initiator_validation = -1;
-static int ett_security_6_3_responder_validation = -1;
-static int hf_security_6_3_responder_validation = -1;
+static int hf_security_6_3_granted_duration;
+static int ett_security_6_3_session_security_scope;
+static int hf_security_6_3_session_security_scope;
+static int ett_security_6_3_initiator_validation;
+static int hf_security_6_3_initiator_validation;
+static int ett_security_6_3_responder_validation;
+static int hf_security_6_3_responder_validation;
 
 /* Security.9 */
-static int hf_security_9_length = -1;
-static int hf_security_9_initial_state = -1;
+static int hf_security_9_length;
+static int hf_security_9_initial_state;
 
 /* Security.10 */
-static int hf_security_10_count = -1;
-static int hf_security_10_permission_group_identifier = -1;
+static int hf_security_10_count;
+static int hf_security_10_permission_group_identifier;
 
 /* Security.11 */
-static int hf_security_11_count = -1;
-static int ett_security_11_permission_security_scope = -1;
-static int hf_security_11_permission_security_scope = -1;
+static int hf_security_11_count;
+static int ett_security_11_permission_security_scope;
+static int hf_security_11_permission_security_scope;
 
 /* Security.12 */
-static int hf_security_12_m = -1;
+static int hf_security_12_m;
 
 static const value_string dof_2008_16_security_12_m[] = {
     { 0, "Reference" },
@@ -2398,8 +2398,8 @@ static const value_string dof_2008_16_security_12_m[] = {
     { 0, NULL }
 };
 
-static int hf_security_12_count = -1;
-static int hf_security_12_permission_group_identifier = -1;
+static int hf_security_12_count;
+static int hf_security_12_permission_group_identifier;
 
 static bool
 dof_sessions_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)

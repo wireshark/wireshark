@@ -22,14 +22,14 @@
 void proto_register_dxl(void);
 void proto_reg_handoff_dxl(void);
 
-static int proto_dxl = -1;
+static int proto_dxl;
 
-static int hf_dxl_version = -1;
-static int hf_dxl_type = -1;
+static int hf_dxl_version;
+static int hf_dxl_type;
 
-static gint ett_dxl = -1;
+static gint ett_dxl;
 
-static expert_field ei_dxl_unsupported = EI_INIT;
+static expert_field ei_dxl_unsupported;
 
 static dissector_handle_t msgpack_handle;
 

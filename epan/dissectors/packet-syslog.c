@@ -74,23 +74,23 @@ static const value_string short_facility_vals[] = {
   { 0, NULL }
 };
 
-static gint proto_syslog = -1;
-static gint hf_syslog_level = -1;
-static gint hf_syslog_facility = -1;
-static gint hf_syslog_msg = -1;
-static gint hf_syslog_msu_present = -1;
-static gint hf_syslog_version = -1;
-static gint hf_syslog_timestamp = -1;
-static gint hf_syslog_timestamp_old = -1;
-static gint hf_syslog_hostname = -1;
-static gint hf_syslog_appname = -1;
-static gint hf_syslog_procid = -1;
-static gint hf_syslog_msgid = -1;
-static gint hf_syslog_msgid_utf8 = -1;
-static gint hf_syslog_msgid_bom = -1;
+static gint proto_syslog;
+static gint hf_syslog_level;
+static gint hf_syslog_facility;
+static gint hf_syslog_msg;
+static gint hf_syslog_msu_present;
+static gint hf_syslog_version;
+static gint hf_syslog_timestamp;
+static gint hf_syslog_timestamp_old;
+static gint hf_syslog_hostname;
+static gint hf_syslog_appname;
+static gint hf_syslog_procid;
+static gint hf_syslog_msgid;
+static gint hf_syslog_msgid_utf8;
+static gint hf_syslog_msgid_bom;
 
-static gint ett_syslog = -1;
-static gint ett_syslog_msg = -1;
+static gint ett_syslog;
+static gint ett_syslog_msg;
 
 static dissector_handle_t syslog_handle;
 

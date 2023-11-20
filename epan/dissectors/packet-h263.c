@@ -26,39 +26,39 @@
 
 void proto_register_h263_data(void);
 
-static int proto_h263_data		= -1;
+static int proto_h263_data;
 
 /* Fields for the data section */
-static int hf_h263_psc = -1;
-static int hf_h263_gbsc = -1;
-static int hf_h263_TR =-1;
-static int hf_h263_split_screen_indicator = -1;
-static int hf_h263_document_camera_indicator = -1;
-static int hf_h263_full_picture_freeze_release = -1;
-static int hf_h263_source_format = -1;
-static int hf_h263_payload_picture_coding_type = -1;
-static int hf_h263_opt_unres_motion_vector_mode = -1;
-static int hf_h263_syntax_based_arithmetic_coding_mode = -1;
-static int hf_h263_optional_advanced_prediction_mode = -1;
-static int hf_h263_PB_frames_mode = -1;
-static int hf_h263_data			= -1;
-static int hf_h263_GN			= -1;
-static int hf_h263_UFEP			= -1;
-static int hf_h263_opptype		= -1;
-static int hf_h263_pquant		= -1;
-static int hf_h263_cpm			= -1;
-static int hf_h263_psbi			= -1;
-static int hf_h263_picture_type_code = -1;
-static int hf_h263_ext_source_format = -1;
-static int hf_h263_custom_pcf	= -1;
-static int hf_h263_pei			= -1;
-static int hf_h263_psupp		= -1;
-static int hf_h263_trb = -1;
-static int hf_h263_not_dissected = -1;
+static int hf_h263_psc;
+static int hf_h263_gbsc;
+static int hf_h263_TR;
+static int hf_h263_split_screen_indicator;
+static int hf_h263_document_camera_indicator;
+static int hf_h263_full_picture_freeze_release;
+static int hf_h263_source_format;
+static int hf_h263_payload_picture_coding_type;
+static int hf_h263_opt_unres_motion_vector_mode;
+static int hf_h263_syntax_based_arithmetic_coding_mode;
+static int hf_h263_optional_advanced_prediction_mode;
+static int hf_h263_PB_frames_mode;
+static int hf_h263_data;
+static int hf_h263_GN;
+static int hf_h263_UFEP;
+static int hf_h263_opptype;
+static int hf_h263_pquant;
+static int hf_h263_cpm;
+static int hf_h263_psbi;
+static int hf_h263_picture_type_code;
+static int hf_h263_ext_source_format;
+static int hf_h263_custom_pcf;
+static int hf_h263_pei;
+static int hf_h263_psupp;
+static int hf_h263_trb;
+static int hf_h263_not_dissected;
 
 /* H.263 fields defining a sub tree */
-static gint ett_h263_payload	= -1;
-static gint ett_h263_optype		= -1;
+static gint ett_h263_payload;
+static gint ett_h263_optype;
 
 
 /* Source format types */

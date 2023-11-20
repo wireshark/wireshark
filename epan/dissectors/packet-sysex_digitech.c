@@ -15,68 +15,68 @@
 void proto_register_sysex_digitech(void);
 
 /* protocols and header fields */
-static int proto_sysex_digitech = -1;
-static int hf_digitech_device_id = -1;
-static int hf_digitech_family_id = -1;
-static int hf_digitech_rp_product_id = -1;
-static int hf_digitech_unknown_product_id = -1;
-static int hf_digitech_procedure_id = -1;
+static int proto_sysex_digitech;
+static int hf_digitech_device_id;
+static int hf_digitech_family_id;
+static int hf_digitech_rp_product_id;
+static int hf_digitech_unknown_product_id;
+static int hf_digitech_procedure_id;
 
-static int hf_digitech_desired_device_id = -1;
-static int hf_digitech_desired_family_id = -1;
-static int hf_digitech_desired_product_id = -1;
-static int hf_digitech_received_device_id = -1;
-static int hf_digitech_os_mode = -1;
+static int hf_digitech_desired_device_id;
+static int hf_digitech_desired_family_id;
+static int hf_digitech_desired_product_id;
+static int hf_digitech_received_device_id;
+static int hf_digitech_os_mode;
 
-static int hf_digitech_preset_bank = -1;
-static int hf_digitech_preset_index = -1;
-static int hf_digitech_preset_count = -1;
-static int hf_digitech_preset_name = -1;
-static int hf_digitech_preset_modified = -1;
+static int hf_digitech_preset_bank;
+static int hf_digitech_preset_index;
+static int hf_digitech_preset_count;
+static int hf_digitech_preset_name;
+static int hf_digitech_preset_modified;
 
-static int hf_digitech_message_count = -1;
+static int hf_digitech_message_count;
 
-static int hf_digitech_parameter_count = -1;
-static int hf_digitech_parameter_id = -1;
-static int hf_digitech_parameter_id_global = -1;
-static int hf_digitech_parameter_id_pickup = -1;
-static int hf_digitech_parameter_id_wah = -1;
-static int hf_digitech_parameter_id_compressor = -1;
-static int hf_digitech_parameter_id_gnx3k_whammy = -1;
-static int hf_digitech_parameter_id_distortion = -1;
-static int hf_digitech_parameter_id_amp_channel = -1;
-static int hf_digitech_parameter_id_amp = -1;
-static int hf_digitech_parameter_id_amp_cabinet = -1;
-static int hf_digitech_parameter_id_amp_b = -1;
-static int hf_digitech_parameter_id_amp_cabinet_b = -1;
-static int hf_digitech_parameter_id_noisegate = -1;
-static int hf_digitech_parameter_id_volume_pre_fx = -1;
-static int hf_digitech_parameter_id_chorusfx = -1;
-static int hf_digitech_parameter_id_delay = -1;
-static int hf_digitech_parameter_id_reverb = -1;
-static int hf_digitech_parameter_id_volume_post_fx = -1;
-static int hf_digitech_parameter_id_preset = -1;
-static int hf_digitech_parameter_id_wah_min_max = -1;
-static int hf_digitech_parameter_id_equalizer = -1;
-static int hf_digitech_parameter_id_equalizer_b = -1;
-static int hf_digitech_parameter_id_amp_loop = -1;
+static int hf_digitech_parameter_count;
+static int hf_digitech_parameter_id;
+static int hf_digitech_parameter_id_global;
+static int hf_digitech_parameter_id_pickup;
+static int hf_digitech_parameter_id_wah;
+static int hf_digitech_parameter_id_compressor;
+static int hf_digitech_parameter_id_gnx3k_whammy;
+static int hf_digitech_parameter_id_distortion;
+static int hf_digitech_parameter_id_amp_channel;
+static int hf_digitech_parameter_id_amp;
+static int hf_digitech_parameter_id_amp_cabinet;
+static int hf_digitech_parameter_id_amp_b;
+static int hf_digitech_parameter_id_amp_cabinet_b;
+static int hf_digitech_parameter_id_noisegate;
+static int hf_digitech_parameter_id_volume_pre_fx;
+static int hf_digitech_parameter_id_chorusfx;
+static int hf_digitech_parameter_id_delay;
+static int hf_digitech_parameter_id_reverb;
+static int hf_digitech_parameter_id_volume_post_fx;
+static int hf_digitech_parameter_id_preset;
+static int hf_digitech_parameter_id_wah_min_max;
+static int hf_digitech_parameter_id_equalizer;
+static int hf_digitech_parameter_id_equalizer_b;
+static int hf_digitech_parameter_id_amp_loop;
 
-static int hf_digitech_parameter_position = -1;
-static int hf_digitech_parameter_data = -1;
-static int hf_digitech_parameter_data_count = -1;
-static int hf_digitech_parameter_data_two_byte_count = -1;
-static int hf_digitech_parameter_multibyte_data = -1;
+static int hf_digitech_parameter_position;
+static int hf_digitech_parameter_data;
+static int hf_digitech_parameter_data_count;
+static int hf_digitech_parameter_data_two_byte_count;
+static int hf_digitech_parameter_multibyte_data;
 
-static int hf_digitech_ack_request_proc_id = -1;
-static int hf_digitech_nack_request_proc_id = -1;
+static int hf_digitech_ack_request_proc_id;
+static int hf_digitech_nack_request_proc_id;
 
-static int hf_digitech_checksum = -1;
-static int hf_digitech_checksum_status = -1;
+static int hf_digitech_checksum;
+static int hf_digitech_checksum_status;
 
-static gint ett_sysex_digitech = -1;
+static gint ett_sysex_digitech;
 
-static expert_field ei_digitech_checksum_bad = EI_INIT;
-static expert_field ei_digitech_undecoded = EI_INIT;
+static expert_field ei_digitech_checksum_bad;
+static expert_field ei_digitech_undecoded;
 
 typedef struct _digitech_conv_data_t {
     gint protocol_version;

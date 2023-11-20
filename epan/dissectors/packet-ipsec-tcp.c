@@ -27,18 +27,18 @@ void proto_reg_handoff_tcpencap(void);
 
 static dissector_handle_t tcpencap_handle;
 
-static int hf_tcpencap_unknown = -1;
-static int hf_tcpencap_zero = -1;
-static int hf_tcpencap_seq = -1;
-static int hf_tcpencap_ike_direction = -1;
-static int hf_tcpencap_esp_zero = -1;
-static int hf_tcpencap_magic = -1;
-static int hf_tcpencap_proto = -1;
-static int hf_tcpencap_magic2 = -1;
+static int hf_tcpencap_unknown;
+static int hf_tcpencap_zero;
+static int hf_tcpencap_seq;
+static int hf_tcpencap_ike_direction;
+static int hf_tcpencap_esp_zero;
+static int hf_tcpencap_magic;
+static int hf_tcpencap_proto;
+static int hf_tcpencap_magic2;
 
-static int proto_tcpencap = -1;
-static gint ett_tcpencap = -1;
-static gint ett_tcpencap_unknown = -1;
+static int proto_tcpencap;
+static gint ett_tcpencap;
+static gint ett_tcpencap_unknown;
 
 static const value_string tcpencap_ikedir_vals[] = {
 	{ 0x0000,	"Server to client" },

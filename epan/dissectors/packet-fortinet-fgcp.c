@@ -24,39 +24,39 @@
 void proto_reg_handoff_fortinet_fgcp(void);
 void proto_register_fortinet_fgcp(void);
 
-static int proto_fortinet_fgcp_hb = -1;
-static int hf_fortinet_fgcp_hb_magic = -1;
-static int hf_fortinet_fgcp_hb_flag = -1;
-static int hf_fortinet_fgcp_hb_flag_b74 = -1;
-static int hf_fortinet_fgcp_hb_flag_b3 = -1;
-static int hf_fortinet_fgcp_hb_flag_b2 = -1;
-static int hf_fortinet_fgcp_hb_flag_authentication = -1;
-static int hf_fortinet_fgcp_hb_flag_encryption = -1;
-static int hf_fortinet_fgcp_hb_mode = -1;
-static int hf_fortinet_fgcp_hb_gn = -1;
-static int hf_fortinet_fgcp_hb_group_id = -1;
-static int hf_fortinet_fgcp_hb_port = -1;
-static int hf_fortinet_fgcp_hb_revision = -1;
-static int hf_fortinet_fgcp_hb_sn = -1;
-static int hf_fortinet_fgcp_hb_payload_encrypted = -1;
-static int hf_fortinet_fgcp_hb_authentication = -1;
+static int proto_fortinet_fgcp_hb;
+static int hf_fortinet_fgcp_hb_magic;
+static int hf_fortinet_fgcp_hb_flag;
+static int hf_fortinet_fgcp_hb_flag_b74;
+static int hf_fortinet_fgcp_hb_flag_b3;
+static int hf_fortinet_fgcp_hb_flag_b2;
+static int hf_fortinet_fgcp_hb_flag_authentication;
+static int hf_fortinet_fgcp_hb_flag_encryption;
+static int hf_fortinet_fgcp_hb_mode;
+static int hf_fortinet_fgcp_hb_gn;
+static int hf_fortinet_fgcp_hb_group_id;
+static int hf_fortinet_fgcp_hb_port;
+static int hf_fortinet_fgcp_hb_revision;
+static int hf_fortinet_fgcp_hb_sn;
+static int hf_fortinet_fgcp_hb_payload_encrypted;
+static int hf_fortinet_fgcp_hb_authentication;
 
-static int hf_fortinet_fgcp_hb_tlv = -1;
-static int hf_fortinet_fgcp_hb_tlv_type = -1;
-static int hf_fortinet_fgcp_hb_tlv_length = -1;
-static int hf_fortinet_fgcp_hb_tlv_value = -1;
-static int hf_fortinet_fgcp_hb_tlv_vcluster_id = -1;
-static int hf_fortinet_fgcp_hb_tlv_priority = -1;
-static int hf_fortinet_fgcp_hb_tlv_override = -1;
+static int hf_fortinet_fgcp_hb_tlv;
+static int hf_fortinet_fgcp_hb_tlv_type;
+static int hf_fortinet_fgcp_hb_tlv_length;
+static int hf_fortinet_fgcp_hb_tlv_value;
+static int hf_fortinet_fgcp_hb_tlv_vcluster_id;
+static int hf_fortinet_fgcp_hb_tlv_priority;
+static int hf_fortinet_fgcp_hb_tlv_override;
 
-//static int hf_fortinet_fgcp_hb_unknown = -1;
-static int hf_fortinet_fgcp_hb_unknown_uint16 = -1;
+//static int hf_fortinet_fgcp_hb_unknown;
+static int hf_fortinet_fgcp_hb_unknown_uint16;
 
 static dissector_handle_t fortinet_fgcp_hb_handle;
 
-static gint ett_fortinet_fgcp_hb = -1;
-static gint ett_fortinet_fgcp_hb_flag = -1;
-static gint ett_fortinet_fgcp_hb_tlv = -1;
+static gint ett_fortinet_fgcp_hb;
+static gint ett_fortinet_fgcp_hb_flag;
+static gint ett_fortinet_fgcp_hb_tlv;
 
 static const value_string fortinet_fgcp_hb_mode_vals[] = {
     { 0x1,            "A/A (Active/Active)"},

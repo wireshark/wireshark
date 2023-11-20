@@ -24,24 +24,24 @@ void proto_reg_handoff_trdp(void);
 void proto_register_trdp(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_trdp = -1;
-static int hf_trdp_seq = -1;
-static int hf_trdp_ver = -1;
-static int hf_trdp_msgtype = -1;
-static int hf_trdp_comid = -1;
-static int hf_trdp_etb_topo = -1;
-static int hf_trdp_oper_topo = -1;
-static int hf_trdp_len = -1;
-static int hf_trdp_res = -1;
-static int hf_trdp_reply_comid = -1;
-static int hf_trdp_reply_ipaddr = -1;
-static int hf_trdp_header_fcs = -1;
-static int hf_trdp_padding = -1;
-static int hf_trdp_reply_status = -1;
-static int hf_trdp_session_id = -1;
-static int hf_trdp_reply_timeout = -1;
-static int hf_trdp_source_uri = -1;
-static int hf_trdp_dest_uri = -1;
+static int proto_trdp;
+static int hf_trdp_seq;
+static int hf_trdp_ver;
+static int hf_trdp_msgtype;
+static int hf_trdp_comid;
+static int hf_trdp_etb_topo;
+static int hf_trdp_oper_topo;
+static int hf_trdp_len;
+static int hf_trdp_res;
+static int hf_trdp_reply_comid;
+static int hf_trdp_reply_ipaddr;
+static int hf_trdp_header_fcs;
+static int hf_trdp_padding;
+static int hf_trdp_reply_status;
+static int hf_trdp_session_id;
+static int hf_trdp_reply_timeout;
+static int hf_trdp_source_uri;
+static int hf_trdp_dest_uri;
 
 #define TRDP_PD_UDP_PORT 17224
 #define TRDP_MD_TCP_UDP_PORT 17225
@@ -49,7 +49,7 @@ static int hf_trdp_dest_uri = -1;
 #define TRDP_MD_HEADER_LEN 116
 
 /* Initialize the subtree pointers */
-static gint ett_trdp = -1;
+static gint ett_trdp;
 
 /* Initialize dissector table */
 static dissector_table_t trdp_dissector_table;

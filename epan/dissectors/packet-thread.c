@@ -49,343 +49,343 @@ void proto_reg_handoff_thread_bcn(void);
 void proto_register_thread(void);
 void proto_reg_handoff_thread(void);
 
-static int proto_thread_address = -1;
-static int proto_thread_dg = -1;
-static int proto_thread_mc = -1;
-static int proto_thread_nwd = -1;
-static int proto_thread_coap = -1;
-static int proto_thread_bcn = -1;
-static int proto_thread = -1;
-static int proto_coap = -1;
+static int proto_thread_address;
+static int proto_thread_dg;
+static int proto_thread_mc;
+static int proto_thread_nwd;
+static int proto_thread_coap;
+static int proto_thread_bcn;
+static int proto_thread;
+static int proto_coap;
 
 /* Header fields */
 
 /* Thread address */
 
-static int hf_thread_address_tlv = -1;
-static int hf_thread_address_tlv_type = -1;
-static int hf_thread_address_tlv_length = -1;
-static int hf_thread_address_tlv_unknown = -1;
-/* static int hf_thread_address_tlv_sub_tlvs = -1; */
+static int hf_thread_address_tlv;
+static int hf_thread_address_tlv_type;
+static int hf_thread_address_tlv_length;
+static int hf_thread_address_tlv_unknown;
+/* static int hf_thread_address_tlv_sub_tlvs; */
 
 /* Target EID TLV fields */
-static int hf_thread_address_tlv_target_eid = -1;
+static int hf_thread_address_tlv_target_eid;
 
 /* Ext. MAC address TLV fields */
-static int hf_thread_address_tlv_ext_mac_addr = -1;
+static int hf_thread_address_tlv_ext_mac_addr;
 
 /* RLOC16 TLV fields */
-static int hf_thread_address_tlv_rloc16 = -1;
+static int hf_thread_address_tlv_rloc16;
 
 /* Mesh Local IID TLV fields */
-static int hf_thread_address_tlv_ml_eid = -1;
+static int hf_thread_address_tlv_ml_eid;
 
 /* Status TLV fields */
-static int hf_thread_address_tlv_status = -1;
+static int hf_thread_address_tlv_status;
 
 /* Attached time TLV fields */
-/* static int hf_thread_address_tlv_attached_time = -1; */
+/* static int hf_thread_address_tlv_attached_time; */
 
 /* Last transaction time TLV fields */
-static int hf_thread_address_tlv_last_transaction_time = -1;
+static int hf_thread_address_tlv_last_transaction_time;
 
 /* Router Mask TLV fields */
-static int hf_thread_address_tlv_router_mask_id_seq = -1;
-static int hf_thread_address_tlv_router_mask_assigned = -1;
+static int hf_thread_address_tlv_router_mask_id_seq;
+static int hf_thread_address_tlv_router_mask_assigned;
 
 /* ND option fields */
-static int hf_thread_address_tlv_nd_option = -1;
+static int hf_thread_address_tlv_nd_option;
 
 /* ND data fields */
-static int hf_thread_address_tlv_nd_data = -1;
+static int hf_thread_address_tlv_nd_data;
 
 /* Thread diagnostics */
 
-static int hf_thread_dg_tlv = -1;
-static int hf_thread_dg_tlv_type = -1;
-static int hf_thread_dg_tlv_length8 = -1;
-static int hf_thread_dg_tlv_length16 = -1;
-static int hf_thread_dg_tlv_general = -1;
-static int hf_thread_dg_tlv_unknown = -1;
+static int hf_thread_dg_tlv;
+static int hf_thread_dg_tlv_type;
+static int hf_thread_dg_tlv_length8;
+static int hf_thread_dg_tlv_length16;
+static int hf_thread_dg_tlv_general;
+static int hf_thread_dg_tlv_unknown;
 
 #if 0
 /**** TBC: will be added later. For now, just use general string ****/
-static int hf_thread_dg_tlv_source_addr = -1;
-static int hf_thread_dg_tlv_mode_device_type = -1;
-static int hf_thread_dg_tlv_mode_idle_rx = -1;
-static int hf_thread_dg_tlv_mode_sec_data_req = -1;
-static int hf_thread_dg_tlv_mode_nwk_data = -1;
-static int hf_thread_dg_tlv_timeout = -1;
-static int hf_thread_dg_tlv_lqi_c = -1;
-static int hf_thread_dg_tlv_lqi_size = -1;
-static int hf_thread_dg_tlv_neighbor = -1;
-static int hf_thread_dg_tlv_neighbor_flagI = -1;
-static int hf_thread_dg_tlv_neighbor_flagO = -1;
-static int hf_thread_dg_tlv_neighbor_flagP = -1;
-static int hf_thread_dg_tlv_neighbor_idr = -1;
-static int hf_thread_dg_tlv_neighbor_addr = -1;
-static int hf_thread_dg_tlv_network_param_id = -1;
-static int hf_thread_dg_tlv_network_delay = -1;
-static int hf_thread_dg_tlv_network_channel = -1;
-static int hf_thread_dg_tlv_network_pan_id = -1;
-static int hf_thread_dg_tlv_network_pmt_join = -1;
-static int hf_thread_dg_tlv_network_bcn_payload = -1;
-static int hf_thread_dg_tlv_network_unknown = -1;
-static int hf_thread_dg_tlv_mle_frm_cntr = -1;
-static int hf_thread_dg_tlv_route_tbl_id_seq = -1;
-static int hf_thread_dg_tlv_route_tbl_id_mask = -1;
-static int hf_thread_dg_tlv_route_tbl_entry = -1;
-static int hf_thread_dg_tlv_route_tbl_nbr_out = -1;
-static int hf_thread_dg_tlv_route_tbl_nbr_in = -1;
-static int hf_thread_dg_tlv_route_tbl_cost = -1;
-static int hf_thread_dg_tlv_route_tbl_unknown = -1;
-static int hf_thread_dg_tlv_addr_16 = -1;
-static int hf_thread_dg_tlv_leader_data_partition_id = -1;
-static int hf_thread_dg_tlv_leader_data_weighting = -1;
-static int hf_thread_dg_tlv_leader_data_version = -1;
-static int hf_thread_dg_tlv_leader_data_stable_version = -1;
-static int hf_thread_dg_tlv_leader_data_router_id = -1;
-static int hf_thread_dg_tlv_network_data = -1;
-static int hf_thread_dg_tlv_scan_mask_r = -1;
-static int hf_thread_dg_tlv_scan_mask_e = -1;
-static int hf_thread_dg_tlv_conn_max_child_cnt = -1;
-static int hf_thread_dg_tlv_conn_child_cnt = -1;
-static int hf_thread_dg_tlv_conn_lq3 = -1;
-static int hf_thread_dg_tlv_conn_lq2 = -1;
-static int hf_thread_dg_tlv_conn_lq1 = -1;
-static int hf_thread_dg_tlv_conn_leader_cost = -1;
-static int hf_thread_dg_tlv_conn_id_seq = -1;
-static int hf_thread_dg_tlv_link_margin = -1;
-static int hf_thread_dg_tlv_status = -1;
-static int hf_thread_dg_tlv_version = -1;
-static int hf_thread_dg_tlv_addr_reg_entry = -1;
-static int hf_thread_dg_tlv_addr_reg_iid_type = -1;
-static int hf_thread_dg_tlv_addr_reg_cid = -1;
-static int hf_thread_dg_tlv_addr_reg_iid = -1;
-static int hf_thread_dg_tlv_addr_reg_ipv6 = -1;
-static int hf_thread_dg_tlv_hold_time = -1;
+static int hf_thread_dg_tlv_source_addr;
+static int hf_thread_dg_tlv_mode_device_type;
+static int hf_thread_dg_tlv_mode_idle_rx;
+static int hf_thread_dg_tlv_mode_sec_data_req;
+static int hf_thread_dg_tlv_mode_nwk_data;
+static int hf_thread_dg_tlv_timeout;
+static int hf_thread_dg_tlv_lqi_c;
+static int hf_thread_dg_tlv_lqi_size;
+static int hf_thread_dg_tlv_neighbor;
+static int hf_thread_dg_tlv_neighbor_flagI;
+static int hf_thread_dg_tlv_neighbor_flagO;
+static int hf_thread_dg_tlv_neighbor_flagP;
+static int hf_thread_dg_tlv_neighbor_idr;
+static int hf_thread_dg_tlv_neighbor_addr;
+static int hf_thread_dg_tlv_network_param_id;
+static int hf_thread_dg_tlv_network_delay;
+static int hf_thread_dg_tlv_network_channel;
+static int hf_thread_dg_tlv_network_pan_id;
+static int hf_thread_dg_tlv_network_pmt_join;
+static int hf_thread_dg_tlv_network_bcn_payload;
+static int hf_thread_dg_tlv_network_unknown;
+static int hf_thread_dg_tlv_mle_frm_cntr;
+static int hf_thread_dg_tlv_route_tbl_id_seq;
+static int hf_thread_dg_tlv_route_tbl_id_mask;
+static int hf_thread_dg_tlv_route_tbl_entry;
+static int hf_thread_dg_tlv_route_tbl_nbr_out;
+static int hf_thread_dg_tlv_route_tbl_nbr_in;
+static int hf_thread_dg_tlv_route_tbl_cost;
+static int hf_thread_dg_tlv_route_tbl_unknown;
+static int hf_thread_dg_tlv_addr_16;
+static int hf_thread_dg_tlv_leader_data_partition_id;
+static int hf_thread_dg_tlv_leader_data_weighting;
+static int hf_thread_dg_tlv_leader_data_version;
+static int hf_thread_dg_tlv_leader_data_stable_version;
+static int hf_thread_dg_tlv_leader_data_router_id;
+static int hf_thread_dg_tlv_network_data;
+static int hf_thread_dg_tlv_scan_mask_r;
+static int hf_thread_dg_tlv_scan_mask_e;
+static int hf_thread_dg_tlv_conn_max_child_cnt;
+static int hf_thread_dg_tlv_conn_child_cnt;
+static int hf_thread_dg_tlv_conn_lq3;
+static int hf_thread_dg_tlv_conn_lq2;
+static int hf_thread_dg_tlv_conn_lq1;
+static int hf_thread_dg_tlv_conn_leader_cost;
+static int hf_thread_dg_tlv_conn_id_seq;
+static int hf_thread_dg_tlv_link_margin;
+static int hf_thread_dg_tlv_status;
+static int hf_thread_dg_tlv_version;
+static int hf_thread_dg_tlv_addr_reg_entry;
+static int hf_thread_dg_tlv_addr_reg_iid_type;
+static int hf_thread_dg_tlv_addr_reg_cid;
+static int hf_thread_dg_tlv_addr_reg_iid;
+static int hf_thread_dg_tlv_addr_reg_ipv6;
+static int hf_thread_dg_tlv_hold_time;
 #endif
 
 /* Thread MeshCoP */
 
-static int hf_thread_mc_tlv = -1;
-static int hf_thread_mc_tlv_type = -1;
-static int hf_thread_mc_tlv_length8 = -1;
-static int hf_thread_mc_tlv_length16 = -1;
-static int hf_thread_mc_tlv_unknown = -1;
-/* static int hf_thread_mc_tlv_sub_tlvs = -1; */
+static int hf_thread_mc_tlv;
+static int hf_thread_mc_tlv_type;
+static int hf_thread_mc_tlv_length8;
+static int hf_thread_mc_tlv_length16;
+static int hf_thread_mc_tlv_unknown;
+/* static int hf_thread_mc_tlv_sub_tlvs; */
 
 /* Channel TLV fields */
-static int hf_thread_mc_tlv_channel_page = -1;
-static int hf_thread_mc_tlv_channel = -1;
+static int hf_thread_mc_tlv_channel_page;
+static int hf_thread_mc_tlv_channel;
 
 /* PAN ID TLV fields */
-static int hf_thread_mc_tlv_pan_id = -1;
+static int hf_thread_mc_tlv_pan_id;
 
 /* Extended PAN ID TLV fields */
-static int hf_thread_mc_tlv_xpan_id = -1;
+static int hf_thread_mc_tlv_xpan_id;
 
 /* Network Name TLV fields */
-static int hf_thread_mc_tlv_net_name = -1;
+static int hf_thread_mc_tlv_net_name;
 
 /* PSKc TLV fields */
-static int hf_thread_mc_tlv_pskc = -1;
+static int hf_thread_mc_tlv_pskc;
 
 /* Master Key TLV fields */
-static int hf_thread_mc_tlv_master_key = -1;
+static int hf_thread_mc_tlv_master_key;
 
 /* Network Key Sequence TLV fields */
-static int hf_thread_mc_tlv_net_key_seq_ctr = -1;
+static int hf_thread_mc_tlv_net_key_seq_ctr;
 
 /* Mesh Local ULA TLV fields */
-static int hf_thread_mc_tlv_ml_prefix = -1;
+static int hf_thread_mc_tlv_ml_prefix;
 
 /* Steering Data TLV fields */
-static int hf_thread_mc_tlv_steering_data = -1;
+static int hf_thread_mc_tlv_steering_data;
 
 /* Border Agent Locator TLV fields */
-static int hf_thread_mc_tlv_ba_locator = -1;
+static int hf_thread_mc_tlv_ba_locator;
 
 /* Commissioner ID TLV fields */
-static int hf_thread_mc_tlv_commissioner_id = -1;
+static int hf_thread_mc_tlv_commissioner_id;
 
 /* Commissioner ID TLV fields */
-static int hf_thread_mc_tlv_commissioner_sess_id = -1;
+static int hf_thread_mc_tlv_commissioner_sess_id;
 
 /* Security Policy TLV fields */
-static int hf_thread_mc_tlv_sec_policy_rot = -1;
-static int hf_thread_mc_tlv_sec_policy_o = -1;
-static int hf_thread_mc_tlv_sec_policy_n = -1;
-static int hf_thread_mc_tlv_sec_policy_r = -1;
-static int hf_thread_mc_tlv_sec_policy_c = -1;
-static int hf_thread_mc_tlv_sec_policy_b = -1;
+static int hf_thread_mc_tlv_sec_policy_rot;
+static int hf_thread_mc_tlv_sec_policy_o;
+static int hf_thread_mc_tlv_sec_policy_n;
+static int hf_thread_mc_tlv_sec_policy_r;
+static int hf_thread_mc_tlv_sec_policy_c;
+static int hf_thread_mc_tlv_sec_policy_b;
 
 /* State TLV fields */
-static int hf_thread_mc_tlv_state = -1;
+static int hf_thread_mc_tlv_state;
 
 /* Timestamp TLV fields */
-static int hf_thread_mc_tlv_active_tstamp = -1;
-static int hf_thread_mc_tlv_pending_tstamp = -1;
+static int hf_thread_mc_tlv_active_tstamp;
+static int hf_thread_mc_tlv_pending_tstamp;
 
 /* Delay Timer TLV fields */
-static int hf_thread_mc_tlv_delay_timer = -1;
+static int hf_thread_mc_tlv_delay_timer;
 
 /* UDP Encapsulation TLV fields */
-static int hf_thread_mc_tlv_udp_encap_src_port = -1;
-static int hf_thread_mc_tlv_udp_encap_dst_port = -1;
+static int hf_thread_mc_tlv_udp_encap_src_port;
+static int hf_thread_mc_tlv_udp_encap_dst_port;
 
 /* IPv6 Address fields */
-static int hf_thread_mc_tlv_ipv6_addr = -1;
+static int hf_thread_mc_tlv_ipv6_addr;
 
 /* UDP Port TLV fields */
-static int hf_thread_mc_tlv_udp_port = -1;
+static int hf_thread_mc_tlv_udp_port;
 
 /* IID TLV fields */
-static int hf_thread_mc_tlv_iid = -1;
+static int hf_thread_mc_tlv_iid;
 
 /* Joiner Router locator TLV fields */
-static int hf_thread_mc_tlv_jr_locator = -1;
+static int hf_thread_mc_tlv_jr_locator;
 
 /* KEK TLV fields */
-static int hf_thread_mc_tlv_kek = -1;
+static int hf_thread_mc_tlv_kek;
 
 /* Provisioning URL TLV fields */
-static int hf_thread_mc_tlv_provisioning_url = -1;
+static int hf_thread_mc_tlv_provisioning_url;
 
 /* Vendor TLV fields */
-static int hf_thread_mc_tlv_vendor_name = -1;
-static int hf_thread_mc_tlv_vendor_model = -1;
-static int hf_thread_mc_tlv_vendor_sw_ver = -1;
-static int hf_thread_mc_tlv_vendor_data = -1;
-static int hf_thread_mc_tlv_vendor_stack_ver_oui = -1;
-static int hf_thread_mc_tlv_vendor_stack_ver_build = -1;
-static int hf_thread_mc_tlv_vendor_stack_ver_rev = -1;
-static int hf_thread_mc_tlv_vendor_stack_ver_min = -1;
-static int hf_thread_mc_tlv_vendor_stack_ver_maj = -1;
+static int hf_thread_mc_tlv_vendor_name;
+static int hf_thread_mc_tlv_vendor_model;
+static int hf_thread_mc_tlv_vendor_sw_ver;
+static int hf_thread_mc_tlv_vendor_data;
+static int hf_thread_mc_tlv_vendor_stack_ver_oui;
+static int hf_thread_mc_tlv_vendor_stack_ver_build;
+static int hf_thread_mc_tlv_vendor_stack_ver_rev;
+static int hf_thread_mc_tlv_vendor_stack_ver_min;
+static int hf_thread_mc_tlv_vendor_stack_ver_maj;
 
 /* Channel Mask TLV fields */
-static int hf_thread_mc_tlv_chan_mask = -1;
-static int hf_thread_mc_tlv_chan_mask_page = -1;
-static int hf_thread_mc_tlv_chan_mask_len = -1;
-static int hf_thread_mc_tlv_chan_mask_mask = -1;
+static int hf_thread_mc_tlv_chan_mask;
+static int hf_thread_mc_tlv_chan_mask_page;
+static int hf_thread_mc_tlv_chan_mask_len;
+static int hf_thread_mc_tlv_chan_mask_mask;
 
 /* Count TLV fields */
-static int hf_thread_mc_tlv_count = -1;
+static int hf_thread_mc_tlv_count;
 
 /* Period TLV fields */
-static int hf_thread_mc_tlv_period = -1;
+static int hf_thread_mc_tlv_period;
 
 /* Period TLV fields */
-static int hf_thread_mc_tlv_scan_duration = -1;
+static int hf_thread_mc_tlv_scan_duration;
 
 /* Energy List TLV fields */
-static int hf_thread_mc_tlv_energy_list = -1;
-static int hf_thread_mc_tlv_el_count = -1;
+static int hf_thread_mc_tlv_energy_list;
+static int hf_thread_mc_tlv_el_count;
 
 /* Discovery Request TLV fields */
-static int hf_thread_mc_tlv_discovery_req_ver = -1;
-static int hf_thread_mc_tlv_discovery_req_j = -1;
+static int hf_thread_mc_tlv_discovery_req_ver;
+static int hf_thread_mc_tlv_discovery_req_j;
 
 /* Discovery Response TLV fields */
-static int hf_thread_mc_tlv_discovery_rsp_ver = -1;
-static int hf_thread_mc_tlv_discovery_rsp_n = -1;
+static int hf_thread_mc_tlv_discovery_rsp_ver;
+static int hf_thread_mc_tlv_discovery_rsp_n;
 
 /* Thread Network Data */
 
-static int hf_thread_nwd_tlv = -1;
-static int hf_thread_nwd_tlv_type = -1;
-static int hf_thread_nwd_tlv_stable = -1;
-static int hf_thread_nwd_tlv_length = -1;
-static int hf_thread_nwd_tlv_unknown = -1;
-static int hf_thread_nwd_tlv_sub_tlvs = -1;
+static int hf_thread_nwd_tlv;
+static int hf_thread_nwd_tlv_type;
+static int hf_thread_nwd_tlv_stable;
+static int hf_thread_nwd_tlv_length;
+static int hf_thread_nwd_tlv_unknown;
+static int hf_thread_nwd_tlv_sub_tlvs;
 
 /* Has Route TLV fields */
-static int hf_thread_nwd_tlv_has_route = -1;
-static int hf_thread_nwd_tlv_has_route_br_16 = -1;
-static int hf_thread_nwd_tlv_has_route_pref = -1;
+static int hf_thread_nwd_tlv_has_route;
+static int hf_thread_nwd_tlv_has_route_br_16;
+static int hf_thread_nwd_tlv_has_route_pref;
 
 /* Prefix TLV fields */
-static int hf_thread_nwd_tlv_prefix = -1;
-static int hf_thread_nwd_tlv_prefix_domain_id = -1;
-static int hf_thread_nwd_tlv_prefix_length = -1;
+static int hf_thread_nwd_tlv_prefix;
+static int hf_thread_nwd_tlv_prefix_domain_id;
+static int hf_thread_nwd_tlv_prefix_length;
 
 /* Border Router TLV fields */
-static int hf_thread_nwd_tlv_border_router = -1;
-static int hf_thread_nwd_tlv_border_router_16 = -1;
-static int hf_thread_nwd_tlv_border_router_pref = -1;
-static int hf_thread_nwd_tlv_border_router_p = -1;
-static int hf_thread_nwd_tlv_border_router_s = -1;
-static int hf_thread_nwd_tlv_border_router_d = -1;
-static int hf_thread_nwd_tlv_border_router_c = -1;
-static int hf_thread_nwd_tlv_border_router_r = -1;
-static int hf_thread_nwd_tlv_border_router_o = -1;
-static int hf_thread_nwd_tlv_border_router_n = -1;
+static int hf_thread_nwd_tlv_border_router;
+static int hf_thread_nwd_tlv_border_router_16;
+static int hf_thread_nwd_tlv_border_router_pref;
+static int hf_thread_nwd_tlv_border_router_p;
+static int hf_thread_nwd_tlv_border_router_s;
+static int hf_thread_nwd_tlv_border_router_d;
+static int hf_thread_nwd_tlv_border_router_c;
+static int hf_thread_nwd_tlv_border_router_r;
+static int hf_thread_nwd_tlv_border_router_o;
+static int hf_thread_nwd_tlv_border_router_n;
 
 /* 6LoWPAN ID TLV fields */
-static int hf_thread_nwd_tlv_6lowpan_id_6co_context_length = -1;
-static int hf_thread_nwd_tlv_6lowpan_id_6co_flag = -1;
-static int hf_thread_nwd_tlv_6lowpan_id_6co_flag_c = -1;
-static int hf_thread_nwd_tlv_6lowpan_id_6co_flag_cid = -1;
-static int hf_thread_nwd_tlv_6lowpan_id_6co_flag_reserved = -1;
+static int hf_thread_nwd_tlv_6lowpan_id_6co_context_length;
+static int hf_thread_nwd_tlv_6lowpan_id_6co_flag;
+static int hf_thread_nwd_tlv_6lowpan_id_6co_flag_c;
+static int hf_thread_nwd_tlv_6lowpan_id_6co_flag_cid;
+static int hf_thread_nwd_tlv_6lowpan_id_6co_flag_reserved;
 
 /* Commissioning Data fields */
-/* static int hf_thread_nwd_tlv_comm_data = -1; */
+/* static int hf_thread_nwd_tlv_comm_data; */
 
 /* Service fields */
-static int hf_thread_nwd_tlv_service_t = -1;
-static int hf_thread_nwd_tlv_service_s_id = -1;
-static int hf_thread_nwd_tlv_service_s_ent_num = -1;
-static int hf_thread_nwd_tlv_service_s_data_len = -1;
-static int hf_thread_nwd_tlv_service_s_data = -1;
+static int hf_thread_nwd_tlv_service_t;
+static int hf_thread_nwd_tlv_service_s_id;
+static int hf_thread_nwd_tlv_service_s_ent_num;
+static int hf_thread_nwd_tlv_service_s_data_len;
+static int hf_thread_nwd_tlv_service_s_data;
 
 /* Server fields */
-static int hf_thread_nwd_tlv_server_16 = -1;
-static int hf_thread_nwd_tlv_server_data = -1;
+static int hf_thread_nwd_tlv_server_16;
+static int hf_thread_nwd_tlv_server_data;
 
 /* Thread Beacon */
 
-static int hf_thread_bcn_protocol = -1;
-static int hf_thread_bcn_joining = -1;
-static int hf_thread_bcn_native = -1;
-static int hf_thread_bcn_version = -1;
-static int hf_thread_bcn_network_id = -1;
-static int hf_thread_bcn_epid = -1;
-static int hf_thread_bcn_tlv = -1;
-static int hf_thread_bcn_tlv_type = -1;
-static int hf_thread_bcn_tlv_length = -1;
-static int hf_thread_bcn_tlv_steering_data = -1;
-static int hf_thread_bcn_tlv_unknown = -1;
+static int hf_thread_bcn_protocol;
+static int hf_thread_bcn_joining;
+static int hf_thread_bcn_native;
+static int hf_thread_bcn_version;
+static int hf_thread_bcn_network_id;
+static int hf_thread_bcn_epid;
+static int hf_thread_bcn_tlv;
+static int hf_thread_bcn_tlv_type;
+static int hf_thread_bcn_tlv_length;
+static int hf_thread_bcn_tlv_steering_data;
+static int hf_thread_bcn_tlv_unknown;
 
 /* Tree types */
 
-static gint ett_thread_address = -1;
-static gint ett_thread_address_tlv = -1;
-static gint ett_thread_dg = -1;
-static gint ett_thread_dg_tlv = -1;
-static gint ett_thread_mc = -1;
-static gint ett_thread_mc_tlv = -1;
-static gint ett_thread_mc_chan_mask = -1;
-static gint ett_thread_mc_el_count = -1;
-static gint ett_thread_nwd = -1;
-static gint ett_thread_nwd_tlv = -1;
-static gint ett_thread_nwd_has_route = -1;
-static gint ett_thread_nwd_6co_flag = -1;
-static gint ett_thread_nwd_border_router = -1;
-static gint ett_thread_nwd_prefix_sub_tlvs = -1;
-static gint ett_thread_bcn = -1;
-static gint ett_thread_bcn_tlv = -1;
+static gint ett_thread_address;
+static gint ett_thread_address_tlv;
+static gint ett_thread_dg;
+static gint ett_thread_dg_tlv;
+static gint ett_thread_mc;
+static gint ett_thread_mc_tlv;
+static gint ett_thread_mc_chan_mask;
+static gint ett_thread_mc_el_count;
+static gint ett_thread_nwd;
+static gint ett_thread_nwd_tlv;
+static gint ett_thread_nwd_has_route;
+static gint ett_thread_nwd_6co_flag;
+static gint ett_thread_nwd_border_router;
+static gint ett_thread_nwd_prefix_sub_tlvs;
+static gint ett_thread_bcn;
+static gint ett_thread_bcn_tlv;
 
 /* Expert info. */
 
-/* static expert_field ei_thread_address_tlv_length_failed = EI_INIT; */
-static expert_field ei_thread_address_len_size_mismatch = EI_INIT;
-/* static expert_field ei_thread_dg_tlv_length_failed = EI_INIT; */
-/* static expert_field ei_thread_dg_len_size_mismatch = EI_INIT; */
-static expert_field ei_thread_mc_tlv_length_failed = EI_INIT;
-static expert_field ei_thread_mc_len_size_mismatch = EI_INIT;
-static expert_field ei_thread_mc_len_too_long      = EI_INIT;
-/* static expert_field ei_thread_nwd_tlv_length_failed = EI_INIT; */
-static expert_field ei_thread_nwd_len_size_mismatch = EI_INIT;
+/* static expert_field ei_thread_address_tlv_length_failed; */
+static expert_field ei_thread_address_len_size_mismatch;
+/* static expert_field ei_thread_dg_tlv_length_failed; */
+/* static expert_field ei_thread_dg_len_size_mismatch; */
+static expert_field ei_thread_mc_tlv_length_failed;
+static expert_field ei_thread_mc_len_size_mismatch;
+static expert_field ei_thread_mc_len_too_long;
+/* static expert_field ei_thread_nwd_tlv_length_failed; */
+static expert_field ei_thread_nwd_len_size_mismatch;
 
 static dissector_table_t thread_coap_namespace;
 

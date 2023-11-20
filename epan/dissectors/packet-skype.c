@@ -45,44 +45,44 @@ typedef struct _skype_udp_conv_info_t {
 } skype_udp_conv_info_t;
 
 /* protocol handles */
-static int proto_skype = -1;
+static int proto_skype;
 
 /* ett handles */
-static int ett_skype = -1;
+static int ett_skype;
 
 #define SKYPE_SOM_UNK_MASK	0xF0
 #define SKYPE_SOM_TYPE_MASK	0x0F
 
 /* hf elements */
 /* Start of Message */
-static int hf_skype_som_id = -1;
-static int hf_skype_som_unk = -1;
-static int hf_skype_som_type = -1;
+static int hf_skype_som_id;
+static int hf_skype_som_unk;
+static int hf_skype_som_type;
 /* Message body */
 /* Unknown_0 */
-static int hf_skype_unknown_0_unk1 = -1;
+static int hf_skype_unknown_0_unk1;
 /* Payload */
-static int hf_skype_payload_iv = -1;
-static int hf_skype_payload_crc = -1;
-static int hf_skype_payload_enc_data = -1;
+static int hf_skype_payload_iv;
+static int hf_skype_payload_crc;
+static int hf_skype_payload_enc_data;
 /* Resend */
-static int hf_skype_ffr_num = -1;
-static int hf_skype_ffr_unk1 = -1;
-static int hf_skype_ffr_iv = -1;
-static int hf_skype_ffr_crc = -1;
-static int hf_skype_ffr_enc_data = -1;
+static int hf_skype_ffr_num;
+static int hf_skype_ffr_unk1;
+static int hf_skype_ffr_iv;
+static int hf_skype_ffr_crc;
+static int hf_skype_ffr_enc_data;
 /* Nat info */
-static int hf_skype_natinfo_srcip = -1;
-static int hf_skype_natinfo_dstip = -1;
+static int hf_skype_natinfo_srcip;
+static int hf_skype_natinfo_dstip;
 /* Nat request */
-static int hf_skype_natrequest_srcip = -1;
-static int hf_skype_natrequest_dstip = -1;
+static int hf_skype_natrequest_srcip;
+static int hf_skype_natrequest_dstip;
 /* Audio */
-static int hf_skype_audio_unk1 = -1;
+static int hf_skype_audio_unk1;
 /* Unknown_f */
-static int hf_skype_unknown_f_unk1 = -1;
+static int hf_skype_unknown_f_unk1;
 /* Unknown packet type */
-static int hf_skype_unknown_packet = -1;
+static int hf_skype_unknown_packet;
 
 
 #define PROTO_SHORT_NAME "SKYPE"

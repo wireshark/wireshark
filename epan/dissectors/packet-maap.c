@@ -56,20 +56,20 @@ static const value_string maap_msg_type_vals [] = {
 /**********************************************************/
 /* Initialize the protocol and registered fields          */
 /**********************************************************/
-static int proto_maap = -1;
+static int proto_maap;
 
 /* MAAP PDU */
-static int hf_maap_message_type = -1;
-static int hf_maap_version = -1;
-static int hf_maap_data_length = -1;
-static int hf_maap_stream_id = -1;
-static int hf_maap_req_start_addr = -1;
-static int hf_maap_req_count = -1;
-static int hf_maap_conflict_start_addr = -1;
-static int hf_maap_conflict_count = -1;
+static int hf_maap_message_type;
+static int hf_maap_version;
+static int hf_maap_data_length;
+static int hf_maap_stream_id;
+static int hf_maap_req_start_addr;
+static int hf_maap_req_count;
+static int hf_maap_conflict_start_addr;
+static int hf_maap_conflict_count;
 
 /* Initialize the subtree pointers */
-static int ett_maap = -1;
+static int ett_maap;
 
 static int
 dissect_maap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

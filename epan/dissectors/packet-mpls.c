@@ -61,15 +61,15 @@
 void proto_register_mpls(void);
 void proto_reg_handoff_mpls(void);
 
-static gint proto_mpls = -1;
-static gint proto_pw_ach = -1;
-static gint proto_pw_ach_mcc = -1;
-static gint proto_pw_mcw = -1;
+static gint proto_mpls;
+static gint proto_pw_ach;
+static gint proto_pw_ach_mcc;
+static gint proto_pw_mcw;
 
-static gint ett_mpls = -1;
-static gint ett_mpls_pw_ach = -1;
-static gint ett_mpls_pw_ach_mcc = -1;
-static gint ett_mpls_pw_mcw = -1;
+static gint ett_mpls;
+static gint ett_mpls_pw_ach;
+static gint ett_mpls_pw_ach_mcc;
+static gint ett_mpls_pw_mcw;
 static char PW_ACH[50] = "PW Associated Channel Header";
 
 const value_string special_labels[] = {
@@ -97,26 +97,26 @@ static dissector_handle_t mpls_mcc_handle;
 /* For RFC6391 - Flow aware transport of pseudowire over a mpls PSN*/
 static gboolean mpls_bos_flowlabel = FALSE;
 
-static int hf_mpls_label = -1;
-static int hf_mpls_label_special = -1;
-static int hf_mpls_exp = -1;
-static int hf_mpls_bos = -1;
-static int hf_mpls_ttl = -1;
+static int hf_mpls_label;
+static int hf_mpls_label_special;
+static int hf_mpls_exp;
+static int hf_mpls_bos;
+static int hf_mpls_ttl;
 
-static int hf_mpls_pw_ach_ver = -1;
-static int hf_mpls_pw_ach_res = -1;
-static int hf_mpls_pw_ach_channel_type = -1;
+static int hf_mpls_pw_ach_ver;
+static int hf_mpls_pw_ach_res;
+static int hf_mpls_pw_ach_channel_type;
 
-static int hf_mpls_pw_ach_mcc_proto = -1;
+static int hf_mpls_pw_ach_mcc_proto;
 
-static int hf_mpls_pw_mcw_flags = -1;
-static int hf_mpls_pw_mcw_length = -1;
-static int hf_mpls_pw_mcw_sequence_number = -1;
+static int hf_mpls_pw_mcw_flags;
+static int hf_mpls_pw_mcw_length;
+static int hf_mpls_pw_mcw_sequence_number;
 
-static expert_field ei_mpls_pw_ach_error_processing_message = EI_INIT;
-static expert_field ei_mpls_pw_ach_res = EI_INIT;
-static expert_field ei_mpls_pw_mcw_error_processing_message = EI_INIT;
-static expert_field ei_mpls_invalid_label = EI_INIT;
+static expert_field ei_mpls_pw_ach_error_processing_message;
+static expert_field ei_mpls_pw_ach_res;
+static expert_field ei_mpls_pw_mcw_error_processing_message;
+static expert_field ei_mpls_invalid_label;
 
 #if 0 /*not used yet*/
 /*

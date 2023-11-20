@@ -33,35 +33,35 @@
 void proto_register_irc(void);
 void proto_reg_handoff_irc(void);
 
-static int proto_irc = -1;
-static int proto_irc_ctcp = -1;
-static int hf_irc_request = -1;
-static int hf_irc_request_prefix = -1;
-static int hf_irc_request_command = -1;
-static int hf_irc_request_command_param = -1;
-static int hf_irc_request_trailer = -1;
-static int hf_irc_response = -1;
-static int hf_irc_response_prefix = -1;
-static int hf_irc_response_command = -1;
-static int hf_irc_response_num_command = -1;
-static int hf_irc_response_command_param = -1;
-static int hf_irc_response_trailer = -1;
-static int hf_irc_ctcp = -1;
-static int hf_irc_ctcp_command = -1;
-static int hf_irc_ctcp_params = -1;
+static int proto_irc;
+static int proto_irc_ctcp;
+static int hf_irc_request;
+static int hf_irc_request_prefix;
+static int hf_irc_request_command;
+static int hf_irc_request_command_param;
+static int hf_irc_request_trailer;
+static int hf_irc_response;
+static int hf_irc_response_prefix;
+static int hf_irc_response_command;
+static int hf_irc_response_num_command;
+static int hf_irc_response_command_param;
+static int hf_irc_response_trailer;
+static int hf_irc_ctcp;
+static int hf_irc_ctcp_command;
+static int hf_irc_ctcp_params;
 
-static gint ett_irc = -1;
-static gint ett_irc_request = -1;
-static gint ett_irc_request_command = -1;
-static gint ett_irc_response = -1;
-static gint ett_irc_response_command = -1;
+static gint ett_irc;
+static gint ett_irc_request;
+static gint ett_irc_request_command;
+static gint ett_irc_response;
+static gint ett_irc_response_command;
 
-static expert_field ei_irc_missing_end_delimiter = EI_INIT;
-static expert_field ei_irc_numeric_request_command = EI_INIT;
-static expert_field ei_irc_response_command = EI_INIT;
-static expert_field ei_irc_prefix_missing_ending_space = EI_INIT;
-static expert_field ei_irc_request_command = EI_INIT;
-static expert_field ei_irc_tag_data_invalid = EI_INIT;
+static expert_field ei_irc_missing_end_delimiter;
+static expert_field ei_irc_numeric_request_command;
+static expert_field ei_irc_response_command;
+static expert_field ei_irc_prefix_missing_ending_space;
+static expert_field ei_irc_request_command;
+static expert_field ei_irc_tag_data_invalid;
 
 /* This must be a null-terminated string */
 static const guint8 TAG_DELIMITER[] = {0x01, 0x00};

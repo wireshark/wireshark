@@ -23,30 +23,30 @@
 #include <epan/ptvcursor.h>
 void proto_register_hdcp(void);
 
-static int proto_hdcp  = -1;
+static int proto_hdcp;
 
 static wmem_tree_t *transactions;
 
-static gint ett_hdcp = -1;
+static gint ett_hdcp;
 
-static int hf_hdcp_reg = -1;
-static int hf_hdcp_resp_in = -1;
-static int hf_hdcp_resp_to = -1;
-static int hf_hdcp_a_ksv = -1;
-static int hf_hdcp_b_ksv = -1;
-static int hf_hdcp_an = -1;
-static int hf_hdcp_hdmi_reserved = -1;
-static int hf_hdcp_repeater = -1;
-static int hf_hdcp_ksv_fifo = -1;
-static int hf_hdcp_fast_trans = -1;
-static int hf_hdcp_features = -1;
-static int hf_hdcp_fast_reauth = -1;
-static int hf_hdcp_hdmi_mode = -1;
-static int hf_hdcp_max_casc_exc = -1;
-static int hf_hdcp_depth = -1;
-static int hf_hdcp_max_devs_exc = -1;
-static int hf_hdcp_downstream = -1;
-static int hf_hdcp_link_vfy = -1;
+static int hf_hdcp_reg;
+static int hf_hdcp_resp_in;
+static int hf_hdcp_resp_to;
+static int hf_hdcp_a_ksv;
+static int hf_hdcp_b_ksv;
+static int hf_hdcp_an;
+static int hf_hdcp_hdmi_reserved;
+static int hf_hdcp_repeater;
+static int hf_hdcp_ksv_fifo;
+static int hf_hdcp_fast_trans;
+static int hf_hdcp_features;
+static int hf_hdcp_fast_reauth;
+static int hf_hdcp_hdmi_mode;
+static int hf_hdcp_max_casc_exc;
+static int hf_hdcp_depth;
+static int hf_hdcp_max_devs_exc;
+static int hf_hdcp_downstream;
+static int hf_hdcp_link_vfy;
 
 #define REG_BKSV    0x0
 #define REG_AKSV    0x10

@@ -23,24 +23,24 @@ void proto_reg_handoff_auto_rp(void);
 
 static dissector_handle_t auto_rp_handle;
 
-static gint proto_auto_rp = -1;
-static gint ett_auto_rp = -1;
-static gint ett_auto_rp_ver_type = -1;
-static gint ett_auto_rp_map = -1;
-static gint ett_auto_rp_group = -1;
+static gint proto_auto_rp;
+static gint ett_auto_rp;
+static gint ett_auto_rp_ver_type;
+static gint ett_auto_rp_map;
+static gint ett_auto_rp_group;
 
-static gint hf_auto_rp_version = -1;
-static gint hf_auto_rp_type = -1;
-static gint hf_auto_rp_count = -1;
-static gint hf_auto_rp_holdtime = -1;
-static gint hf_auto_rp_pim_ver = -1;
-static gint hf_auto_rp_rp_addr = -1;
-static gint hf_auto_rp_prefix_sgn = -1;
-static gint hf_auto_rp_mask_len = -1;
-static gint hf_auto_rp_group_prefix = -1;
-static gint hf_auto_rp_reserved = -1;
-static gint hf_auto_rp_trailing_junk = -1;
-static gint hf_auto_rp_group_num = -1;
+static gint hf_auto_rp_version;
+static gint hf_auto_rp_type;
+static gint hf_auto_rp_count;
+static gint hf_auto_rp_holdtime;
+static gint hf_auto_rp_pim_ver;
+static gint hf_auto_rp_rp_addr;
+static gint hf_auto_rp_prefix_sgn;
+static gint hf_auto_rp_mask_len;
+static gint hf_auto_rp_group_prefix;
+static gint hf_auto_rp_reserved;
+static gint hf_auto_rp_trailing_junk;
+static gint hf_auto_rp_group_num;
 
 #define UDP_PORT_PIM_RP_DISC 496
 

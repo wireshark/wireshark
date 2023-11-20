@@ -22,20 +22,20 @@
 void proto_reg_handoff_alp(void);
 void proto_register_alp(void);
 
-static int proto_alp = -1;
-static gint ett_alp = -1;
-static gint ett_alp_si = -1;
-static gint ett_alp_he = -1;
-static gint ett_alp_sig_info = -1;
-static gint ett_alp_lmt = -1;
-static gint ett_alp_lmt_plp = -1;
-static gint ett_alp_lmt_plp_mc = -1;
+static int proto_alp;
+static gint ett_alp;
+static gint ett_alp_si;
+static gint ett_alp_he;
+static gint ett_alp_sig_info;
+static gint ett_alp_lmt;
+static gint ett_alp_lmt_plp;
+static gint ett_alp_lmt_plp_mc;
 
 static dissector_handle_t alp_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t ts_handle;
 
-static int hf_alp_packet_type = -1;
+static int hf_alp_packet_type;
 #define ALP_PACKET_TYPE_MASK 0xE0
 #define ALP_PACKET_TYPE_IPV4 0
 #define ALP_PACKET_TYPE_SIGNALLING 4
@@ -52,18 +52,18 @@ static const value_string alp_packet_type_vals[] = {
     { 0, NULL }
 };
 
-static int hf_alp_mpegts_numts = -1;
-static int hf_alp_mpegts_ahf = -1;
-static int hf_alp_mpegts_hdm = -1;
-static int hf_alp_mpegts_dnp = -1;
+static int hf_alp_mpegts_numts;
+static int hf_alp_mpegts_ahf;
+static int hf_alp_mpegts_hdm;
+static int hf_alp_mpegts_dnp;
 #define ALP_MPEGTS_NUMTS_MASK 0x1E
 #define ALP_MPEGTS_AHF_MASK 0x01
 #define ALP_MPEGTS_HDM_MASK 0x80
 #define ALP_MPEGTS_DNP_MASK 0x7F
 
-static int hf_alp_payload_configuration = -1;
-static int hf_alp_header_mode = -1;
-static int hf_alp_segmentation_concatenation = -1;
+static int hf_alp_payload_configuration;
+static int hf_alp_header_mode;
+static int hf_alp_segmentation_concatenation;
 #define ALP_PAYLOAD_CONFIGURATION_MASK 0x10
 #define ALP_HEADER_MODE_MASK 0x08
 #define ALP_SEGMENTATION_CONCATENATION_MASK 0x08
@@ -73,49 +73,49 @@ static const value_string alp_segmentation_concatenation_vals[] = {
     { 0, NULL }
 };
 
-static int hf_alp_length = -1;
+static int hf_alp_length;
 #define ALP_LENGTH_MASK 0x07FF
 
-static int hf_alp_single_length = -1;
-static int hf_alp_single_sif = -1;
-static int hf_alp_single_hef = -1;
+static int hf_alp_single_length;
+static int hf_alp_single_sif;
+static int hf_alp_single_hef;
 #define ALP_SINGLE_LENGTH_MASK 0x07FFF8
 #define ALP_SINGLE_SIF_MASK 0x02
 #define ALP_SINGLE_HEF_MASK 0x01
 
-static int hf_alp_segment_sequence_number = -1;
-static int hf_alp_segment_last_indicator = -1;
-static int hf_alp_segment_sif = -1;
-static int hf_alp_segment_hef = -1;
+static int hf_alp_segment_sequence_number;
+static int hf_alp_segment_last_indicator;
+static int hf_alp_segment_sif;
+static int hf_alp_segment_hef;
 #define ALP_SEGMENT_SEQUENCE_NUMBER_MASK 0xF8
 #define ALP_SEGMENT_LAST_INDICATOR_MASK 0x04
 #define ALP_SEGMENT_SIF_MASK 0x02
 #define ALP_SEGMENT_HEF_MASK 0x01
 
-static int hf_alp_concat_length = -1;
-static int hf_alp_concat_count = -1;
-static int hf_alp_concat_sif = -1;
+static int hf_alp_concat_length;
+static int hf_alp_concat_count;
+static int hf_alp_concat_sif;
 #define ALP_CONCAT_LENGTH_MASK 0x07FFF0
 #define ALP_CONCAT_COUNT_MASK 0x0E
 #define ALP_CONCAT_SIF_MASK 0x01
 
-static int hf_alp_si = -1;
-static int hf_alp_sid = -1;
+static int hf_alp_si;
+static int hf_alp_sid;
 
-static int hf_alp_header_extension = -1;
-static int hf_alp_header_extension_type = -1;
-static int hf_alp_header_extension_length = -1;
+static int hf_alp_header_extension;
+static int hf_alp_header_extension_type;
+static int hf_alp_header_extension_length;
 
-static int hf_alp_header_extension_sony_l1d_timeinfo = -1;
-static int hf_alp_header_extension_sony_l1d_timeinfo_flag = -1;
-static int hf_alp_header_extension_sony_l1d_timeinfo_sec = -1;
-static int hf_alp_header_extension_sony_l1d_timeinfo_ms = -1;
-static int hf_alp_header_extension_sony_l1d_timeinfo_us = -1;
-static int hf_alp_header_extension_sony_l1d_timeinfo_ns = -1;
-static int hf_alp_header_extension_sony_l1d_timeinfo_time = -1;
-static int hf_alp_header_extension_sony_l1d_timeinfo_time_ns = -1;
-static int hf_alp_header_extension_sony_plp_id = -1;
-static int hf_alp_header_extension_sony_plp_unk = -1;
+static int hf_alp_header_extension_sony_l1d_timeinfo;
+static int hf_alp_header_extension_sony_l1d_timeinfo_flag;
+static int hf_alp_header_extension_sony_l1d_timeinfo_sec;
+static int hf_alp_header_extension_sony_l1d_timeinfo_ms;
+static int hf_alp_header_extension_sony_l1d_timeinfo_us;
+static int hf_alp_header_extension_sony_l1d_timeinfo_ns;
+static int hf_alp_header_extension_sony_l1d_timeinfo_time;
+static int hf_alp_header_extension_sony_l1d_timeinfo_time_ns;
+static int hf_alp_header_extension_sony_plp_id;
+static int hf_alp_header_extension_sony_plp_unk;
 #define ALP_HE_SONY_L1D_TIME_FLAG_MASK 0xC000000000000000
 #define ALP_HE_SONY_L1D_TIME_SEC_MASK  0x3FFFFFFFC0000000
 #define ALP_HE_SONY_L1D_TIME_MS_MASK   0x000000003FF00000
@@ -124,12 +124,12 @@ static int hf_alp_header_extension_sony_plp_unk = -1;
 #define ALP_HE_SONY_PLP_NUM_MASK 0xFC
 #define ALP_HE_SONY_PLP_UNK_MASK 0x03
 
-static int hf_alp_sig_info = -1;
-static int hf_alp_sig_info_type = -1;
-static int hf_alp_sig_info_type_extension = -1;
-static int hf_alp_sig_info_version = -1;
-static int hf_alp_sig_info_format = -1;
-static int hf_alp_sig_info_encoding = -1;
+static int hf_alp_sig_info;
+static int hf_alp_sig_info_type;
+static int hf_alp_sig_info_type_extension;
+static int hf_alp_sig_info_version;
+static int hf_alp_sig_info_format;
+static int hf_alp_sig_info_encoding;
 #define ALP_SIG_INFO_FORMAT_MASK 0xC0
 #define ALP_SIG_INFO_ENCODING_MASK 0x30
 #define ALP_SIG_INFO_TYPE_LMT 0x01
@@ -153,23 +153,23 @@ static const value_string alp_sig_info_encoding_vals[] = {
     { 0, NULL }
 };
 
-static int hf_alp_lmt = -1;
-static int hf_alp_lmt_numplp = -1;
-static int hf_alp_lmt_reserved = -1;
-static int hf_alp_lmt_plp = -1;
-static int hf_alp_lmt_plp_id = -1;
-static int hf_alp_lmt_plp_reserved = -1;
-static int hf_alp_lmt_plp_nummc = -1;
-static int hf_alp_lmt_plp_mc = -1;
-static int hf_alp_lmt_plp_mc_src_ip = -1;
-static int hf_alp_lmt_plp_mc_dst_ip = -1;
-static int hf_alp_lmt_plp_mc_src_port = -1;
-static int hf_alp_lmt_plp_mc_dst_port = -1;
-static int hf_alp_lmt_plp_mc_sid_flag = -1;
-static int hf_alp_lmt_plp_mc_comp_flag = -1;
-static int hf_alp_lmt_plp_mc_reserved = -1;
-static int hf_alp_lmt_plp_mc_sid = -1;
-static int hf_alp_lmt_plp_mc_context_id = -1;
+static int hf_alp_lmt;
+static int hf_alp_lmt_numplp;
+static int hf_alp_lmt_reserved;
+static int hf_alp_lmt_plp;
+static int hf_alp_lmt_plp_id;
+static int hf_alp_lmt_plp_reserved;
+static int hf_alp_lmt_plp_nummc;
+static int hf_alp_lmt_plp_mc;
+static int hf_alp_lmt_plp_mc_src_ip;
+static int hf_alp_lmt_plp_mc_dst_ip;
+static int hf_alp_lmt_plp_mc_src_port;
+static int hf_alp_lmt_plp_mc_dst_port;
+static int hf_alp_lmt_plp_mc_sid_flag;
+static int hf_alp_lmt_plp_mc_comp_flag;
+static int hf_alp_lmt_plp_mc_reserved;
+static int hf_alp_lmt_plp_mc_sid;
+static int hf_alp_lmt_plp_mc_context_id;
 
 #define ALP_LMT_NUMPLP_MASK 0xFC
 #define ALP_LMT_RESERVED_MASK 0x03
@@ -179,7 +179,7 @@ static int hf_alp_lmt_plp_mc_context_id = -1;
 #define ALP_LMT_PLP_MC_COMP_MASK 0x40
 #define ALP_LMT_PLP_MC_RESERVED_MASK 0x3F
 
-static int hf_alp_junk = -1;
+static int hf_alp_junk;
 
 static int
 dissect_alp_mpegts(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, proto_tree *alp_tree)

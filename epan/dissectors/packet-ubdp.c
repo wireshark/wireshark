@@ -35,34 +35,34 @@
 void proto_register_ubdp(void);
 void proto_reg_handoff_ubdp(void);
 
-static int proto_ubdp = -1;
+static int proto_ubdp;
 
-static int hf_ubdp_version = -1;
-static int hf_ubdp_command = -1;
-static int hf_ubdp_size = -1;
-static int hf_ubdp_type = -1;
-static int hf_ubdp_len = -1;
-static int hf_ubdp_mac = -1;
-static int hf_ubdp_ip = -1;
-static int hf_ubdp_firmware_full = -1;
-static int hf_ubdp_username = -1;
-static int hf_ubdp_uptime = -1;
-static int hf_ubdp_hostname = -1;
-static int hf_ubdp_product = -1;
-static int hf_ubdp_ssid = -1;
-static int hf_ubdp_wlan_mode = -1;
-static int hf_ubdp_system_id = -1;
-static int hf_ubdp_seq_num = -1;
-static int hf_ubdp_model = -1;
-static int hf_ubdp_firmware = -1;
-static int hf_ubdp_platform_vers = -1;
-static int hf_ubdp_generic = -1;
+static int hf_ubdp_version;
+static int hf_ubdp_command;
+static int hf_ubdp_size;
+static int hf_ubdp_type;
+static int hf_ubdp_len;
+static int hf_ubdp_mac;
+static int hf_ubdp_ip;
+static int hf_ubdp_firmware_full;
+static int hf_ubdp_username;
+static int hf_ubdp_uptime;
+static int hf_ubdp_hostname;
+static int hf_ubdp_product;
+static int hf_ubdp_ssid;
+static int hf_ubdp_wlan_mode;
+static int hf_ubdp_system_id;
+static int hf_ubdp_seq_num;
+static int hf_ubdp_model;
+static int hf_ubdp_firmware;
+static int hf_ubdp_platform_vers;
+static int hf_ubdp_generic;
 
-static gint ett_ubdp = -1;
-static gint ett_ubdp_tlv = -1;
+static gint ett_ubdp;
+static gint ett_ubdp_tlv;
 
-static expert_field ei_ubdp_bad_version = EI_INIT;
-static expert_field ei_ubdp_unexpected_len = EI_INIT;
+static expert_field ei_ubdp_bad_version;
+static expert_field ei_ubdp_unexpected_len;
 
 static dissector_handle_t ubdp_handle;
 

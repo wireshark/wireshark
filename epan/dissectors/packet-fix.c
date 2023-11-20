@@ -38,27 +38,27 @@ typedef struct _fix_parameter {
 } fix_parameter;
 
 /* Initialize the protocol and registered fields */
-static int proto_fix = -1;
+static int proto_fix;
 
 /* desegmentation of fix */
 static gboolean fix_desegment = TRUE;
 
 /* Initialize the subtree pointers */
-static gint ett_fix = -1;
-static gint ett_unknown = -1;
-static gint ett_badfield = -1;
-static gint ett_checksum = -1;
+static gint ett_fix;
+static gint ett_unknown;
+static gint ett_badfield;
+static gint ett_checksum;
 
-static expert_field ei_fix_checksum_bad = EI_INIT;
-static expert_field ei_fix_missing_field = EI_INIT;
-static expert_field ei_fix_tag_invalid = EI_INIT;
-static expert_field ei_fix_field_invalid = EI_INIT;
+static expert_field ei_fix_checksum_bad;
+static expert_field ei_fix_missing_field;
+static expert_field ei_fix_tag_invalid;
+static expert_field ei_fix_field_invalid;
 
-static int hf_fix_data = -1; /* continuation data */
-static int hf_fix_checksum_good = -1;
-static int hf_fix_checksum_bad = -1;
-static int hf_fix_field_value = -1;
-static int hf_fix_field_tag = -1;
+static int hf_fix_data; /* continuation data */
+static int hf_fix_checksum_good;
+static int hf_fix_checksum_bad;
+static int hf_fix_field_value;
+static int hf_fix_field_tag;
 
 static dissector_handle_t fix_handle;
 

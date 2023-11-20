@@ -17,19 +17,19 @@ void proto_register_sysex(void);
 void proto_reg_handoff_sysex(void);
 
 /* protocols and header fields */
-static int proto_sysex = -1;
-static int hf_sysex_message_start = -1;
-static int hf_sysex_manufacturer_id = -1;
-static int hf_sysex_three_byte_manufacturer_id = -1;
-static int hf_sysex_message_eox = -1;
+static int proto_sysex;
+static int hf_sysex_message_start;
+static int hf_sysex_manufacturer_id;
+static int hf_sysex_three_byte_manufacturer_id;
+static int hf_sysex_message_eox;
 
-static gint ett_sysex = -1;
+static gint ett_sysex;
 
 static dissector_handle_t sysex_digitech_handle;
 
-static expert_field ei_sysex_message_start_byte = EI_INIT;
-static expert_field ei_sysex_message_end_byte = EI_INIT;
-static expert_field ei_sysex_undecoded = EI_INIT;
+static expert_field ei_sysex_message_start_byte;
+static expert_field ei_sysex_message_end_byte;
+static expert_field ei_sysex_undecoded;
 
 #define SYSEX_MANUFACTURER_DOD 0x000010
 

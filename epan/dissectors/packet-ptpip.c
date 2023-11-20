@@ -31,30 +31,30 @@
 #define PTPIP_MAX_PARAM_COUNT     5  /* [1] Section 2.3.6 */
 
 /* trees */
-static gint ett_ptpIP =  -1;
-static gint ett_ptpIP_hdr = -1;
+static gint ett_ptpIP;
+static gint ett_ptpIP_hdr;
 
 /* PTP/IP Fields */
-static int proto_ptpIP = -1;
-static int hf_ptpIP_len = -1; /* [1] Section 2.3 */
-static int hf_ptpIP_pktType = -1; /* [1] Section 2.3 */
-static int hf_ptpIP_guid = -1;
-static int hf_ptpIP_name = -1;
-static int hf_ptpIP_version = -1;
-static int hf_ptpIP_connectionNumber = -1;
-static int hf_ptpIP_dataPhaseInfo = -1;
+static int proto_ptpIP;
+static int hf_ptpIP_len; /* [1] Section 2.3 */
+static int hf_ptpIP_pktType; /* [1] Section 2.3 */
+static int hf_ptpIP_guid;
+static int hf_ptpIP_name;
+static int hf_ptpIP_version;
+static int hf_ptpIP_connectionNumber;
+static int hf_ptpIP_dataPhaseInfo;
 
 /* note: separating the fields to make it easier to divide this code later. */
 
 /* PTP Fields */
 /* picking hf_ptp for now. Might need to change later for namespace issues with Precision Time Protocol. */
-static int hf_ptp_opCode = -1;
-static int hf_ptp_vendor_opCode = -1;
-static int hf_ptp_respCode = -1;
-static int hf_ptp_eventCode = -1;
-static int hf_ptp_transactionID = -1;
-static int hf_ptp_totalDataLength = -1;
-static int hf_ptp_opCode_param_sessionID = -1;
+static int hf_ptp_opCode;
+static int hf_ptp_vendor_opCode;
+static int hf_ptp_respCode;
+static int hf_ptp_eventCode;
+static int hf_ptp_transactionID;
+static int hf_ptp_totalDataLength;
+static int hf_ptp_opCode_param_sessionID;
 
 /* function declarations */
 static int dissect_ptpIP (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);

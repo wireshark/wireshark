@@ -16,14 +16,14 @@
 void proto_register_ns_rpc(void);
 void proto_reg_handoff_ns_rpc(void);
 
-static int proto_ns_rpc = -1;
-static gint ett_nsrpc = -1;
+static int proto_ns_rpc;
+static gint ett_nsrpc;
 
-static int hf_nsrpc_dlen = -1;
-static int hf_nsrpc_cmd = -1;
-static int hf_nsrpc_errcode = -1;
+static int hf_nsrpc_dlen;
+static int hf_nsrpc_cmd;
+static int hf_nsrpc_errcode;
 
-static int hf_ns_remoteIOCTL = -1;
+static int hf_ns_remoteIOCTL;
 
 
 static const value_string ns_rpc_cmd_vals[] = {

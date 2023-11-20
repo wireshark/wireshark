@@ -36,21 +36,21 @@
 
 void proto_register_uts(void);
 
-static int	proto_uts	= -1;
-static gint	ett_uts		= -1;
-static gint	ett_header_uts	= -1;
-static gint	ett_trailer_uts	= -1;
-static int	hf_rid		= -1;
-static int	hf_sid		= -1;
-static int	hf_did		= -1;
-static int	hf_retxrequest	= -1;
-static int	hf_ack		= -1;
-static int	hf_replyrequest	= -1;
-static int	hf_busy		= -1;
-static int	hf_notbusy	= -1;
-static int	hf_msgwaiting	= -1;
-static int	hf_function	= -1;
-static int	hf_data		= -1;
+static int	proto_uts;
+static gint	ett_uts;
+static gint	ett_header_uts;
+static gint	ett_trailer_uts;
+static int	hf_rid;
+static int	hf_sid;
+static int	hf_did;
+static int	hf_retxrequest;
+static int	hf_ack;
+static int	hf_replyrequest;
+static int	hf_busy;
+static int	hf_notbusy;
+static int	hf_msgwaiting;
+static int	hf_function;
+static int	hf_data;
 
 #define MATCH	(1)
 #define FETCH	(2)

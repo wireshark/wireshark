@@ -22,15 +22,15 @@
 void proto_register_pw_eth(void);
 void proto_reg_handoff_pw_eth(void);
 
-static gint proto_pw_eth_cw = -1;
-static gint proto_pw_eth_nocw = -1;
-static gint proto_pw_eth_heuristic = -1;
+static gint proto_pw_eth_cw;
+static gint proto_pw_eth_nocw;
+static gint proto_pw_eth_heuristic;
 
-static gint ett_pw_eth = -1;
+static gint ett_pw_eth;
 
-static int hf_pw_eth = -1;
-static int hf_pw_eth_cw = -1;
-static int hf_pw_eth_cw_sequence_number = -1;
+static int hf_pw_eth;
+static int hf_pw_eth_cw;
+static int hf_pw_eth_cw_sequence_number;
 
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t pw_eth_handle_cw;

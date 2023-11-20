@@ -53,102 +53,102 @@ void proto_reg_handoff_pdcp_lte(void);
 
 
 /* Initialize the protocol and registered fields. */
-int proto_pdcp_lte = -1;
+int proto_pdcp_lte;
 
 extern int proto_rlc_lte;
 
 /* Configuration (info known outside of PDU) */
-static int hf_pdcp_lte_configuration = -1;
-static int hf_pdcp_lte_direction = -1;
-static int hf_pdcp_lte_ueid = -1;
-static int hf_pdcp_lte_channel_type = -1;
-static int hf_pdcp_lte_channel_id = -1;
+static int hf_pdcp_lte_configuration;
+static int hf_pdcp_lte_direction;
+static int hf_pdcp_lte_ueid;
+static int hf_pdcp_lte_channel_type;
+static int hf_pdcp_lte_channel_id;
 
-static int hf_pdcp_lte_rohc_compression = -1;
-static int hf_pdcp_lte_rohc_mode = -1;
-static int hf_pdcp_lte_rohc_rnd = -1;
-static int hf_pdcp_lte_rohc_udp_checksum_present = -1;
-static int hf_pdcp_lte_rohc_profile = -1;
+static int hf_pdcp_lte_rohc_compression;
+static int hf_pdcp_lte_rohc_mode;
+static int hf_pdcp_lte_rohc_rnd;
+static int hf_pdcp_lte_rohc_udp_checksum_present;
+static int hf_pdcp_lte_rohc_profile;
 
-static int hf_pdcp_lte_no_header_pdu = -1;
-static int hf_pdcp_lte_plane = -1;
-static int hf_pdcp_lte_seqnum_length = -1;
-static int hf_pdcp_lte_cid_inclusion_info = -1;
-static int hf_pdcp_lte_large_cid_present = -1;
+static int hf_pdcp_lte_no_header_pdu;
+static int hf_pdcp_lte_plane;
+static int hf_pdcp_lte_seqnum_length;
+static int hf_pdcp_lte_cid_inclusion_info;
+static int hf_pdcp_lte_large_cid_present;
 
 /* PDCP header fields */
-static int hf_pdcp_lte_control_plane_reserved = -1;
-static int hf_pdcp_lte_seq_num_5 = -1;
-static int hf_pdcp_lte_seq_num_7 = -1;
-static int hf_pdcp_lte_reserved3 = -1;
-static int hf_pdcp_lte_seq_num_12 = -1;
-static int hf_pdcp_lte_seq_num_15 = -1;
-static int hf_pdcp_lte_polling = -1;
-static int hf_pdcp_lte_reserved5 = -1;
-static int hf_pdcp_lte_seq_num_18 = -1;
-static int hf_pdcp_lte_signalling_data = -1;
-static int hf_pdcp_lte_mac = -1;
-static int hf_pdcp_lte_data_control = -1;
-static int hf_pdcp_lte_user_plane_data = -1;
-static int hf_pdcp_lte_control_pdu_type = -1;
-static int hf_pdcp_lte_fms = -1;
-static int hf_pdcp_lte_reserved4 = -1;
-static int hf_pdcp_lte_fms2 = -1;
-static int hf_pdcp_lte_reserved6 = -1;
-static int hf_pdcp_lte_fms3 = -1;
-static int hf_pdcp_lte_bitmap = -1;
-static int hf_pdcp_lte_bitmap_byte = -1;
-static int hf_pdcp_lte_hrw = -1;
-static int hf_pdcp_lte_nmp = -1;
-static int hf_pdcp_lte_reserved7 = -1;
-static int hf_pdcp_lte_hrw2 = -1;
-static int hf_pdcp_lte_nmp2 = -1;
-static int hf_pdcp_lte_hrw3 = -1;
-static int hf_pdcp_lte_reserved8 = -1;
-static int hf_pdcp_lte_nmp3 = -1;
-static int hf_pdcp_lte_lsn = -1;
-static int hf_pdcp_lte_lsn2 = -1;
-static int hf_pdcp_lte_lsn3 = -1;
+static int hf_pdcp_lte_control_plane_reserved;
+static int hf_pdcp_lte_seq_num_5;
+static int hf_pdcp_lte_seq_num_7;
+static int hf_pdcp_lte_reserved3;
+static int hf_pdcp_lte_seq_num_12;
+static int hf_pdcp_lte_seq_num_15;
+static int hf_pdcp_lte_polling;
+static int hf_pdcp_lte_reserved5;
+static int hf_pdcp_lte_seq_num_18;
+static int hf_pdcp_lte_signalling_data;
+static int hf_pdcp_lte_mac;
+static int hf_pdcp_lte_data_control;
+static int hf_pdcp_lte_user_plane_data;
+static int hf_pdcp_lte_control_pdu_type;
+static int hf_pdcp_lte_fms;
+static int hf_pdcp_lte_reserved4;
+static int hf_pdcp_lte_fms2;
+static int hf_pdcp_lte_reserved6;
+static int hf_pdcp_lte_fms3;
+static int hf_pdcp_lte_bitmap;
+static int hf_pdcp_lte_bitmap_byte;
+static int hf_pdcp_lte_hrw;
+static int hf_pdcp_lte_nmp;
+static int hf_pdcp_lte_reserved7;
+static int hf_pdcp_lte_hrw2;
+static int hf_pdcp_lte_nmp2;
+static int hf_pdcp_lte_hrw3;
+static int hf_pdcp_lte_reserved8;
+static int hf_pdcp_lte_nmp3;
+static int hf_pdcp_lte_lsn;
+static int hf_pdcp_lte_lsn2;
+static int hf_pdcp_lte_lsn3;
 
 /* Sequence Analysis */
-static int hf_pdcp_lte_sequence_analysis = -1;
-static int hf_pdcp_lte_sequence_analysis_ok = -1;
-static int hf_pdcp_lte_sequence_analysis_previous_frame = -1;
-static int hf_pdcp_lte_sequence_analysis_next_frame = -1;
-static int hf_pdcp_lte_sequence_analysis_expected_sn = -1;
+static int hf_pdcp_lte_sequence_analysis;
+static int hf_pdcp_lte_sequence_analysis_ok;
+static int hf_pdcp_lte_sequence_analysis_previous_frame;
+static int hf_pdcp_lte_sequence_analysis_next_frame;
+static int hf_pdcp_lte_sequence_analysis_expected_sn;
 
-static int hf_pdcp_lte_sequence_analysis_repeated = -1;
-static int hf_pdcp_lte_sequence_analysis_skipped = -1;
+static int hf_pdcp_lte_sequence_analysis_repeated;
+static int hf_pdcp_lte_sequence_analysis_skipped;
 
 /* Security Settings */
-static int hf_pdcp_lte_security = -1;
-static int hf_pdcp_lte_security_setup_frame = -1;
-static int hf_pdcp_lte_security_integrity_algorithm = -1;
-static int hf_pdcp_lte_security_ciphering_algorithm = -1;
+static int hf_pdcp_lte_security;
+static int hf_pdcp_lte_security_setup_frame;
+static int hf_pdcp_lte_security_integrity_algorithm;
+static int hf_pdcp_lte_security_ciphering_algorithm;
 
-static int hf_pdcp_lte_security_bearer = -1;
-static int hf_pdcp_lte_security_direction = -1;
-static int hf_pdcp_lte_security_count = -1;
-static int hf_pdcp_lte_security_cipher_key = -1;
-static int hf_pdcp_lte_security_integrity_key = -1;
+static int hf_pdcp_lte_security_bearer;
+static int hf_pdcp_lte_security_direction;
+static int hf_pdcp_lte_security_count;
+static int hf_pdcp_lte_security_cipher_key;
+static int hf_pdcp_lte_security_integrity_key;
 
-static int hf_pdcp_lte_security_deciphered_data = -1;
+static int hf_pdcp_lte_security_deciphered_data;
 
 /* Protocol subtree. */
-static int ett_pdcp = -1;
-static int ett_pdcp_configuration = -1;
-static int ett_pdcp_packet = -1;
-static int ett_pdcp_lte_sequence_analysis = -1;
-static int ett_pdcp_report_bitmap = -1;
-static int ett_pdcp_security = -1;
+static int ett_pdcp;
+static int ett_pdcp_configuration;
+static int ett_pdcp_packet;
+static int ett_pdcp_lte_sequence_analysis;
+static int ett_pdcp_report_bitmap;
+static int ett_pdcp_security;
 
-static expert_field ei_pdcp_lte_sequence_analysis_wrong_sequence_number = EI_INIT;
-static expert_field ei_pdcp_lte_reserved_bits_not_zero = EI_INIT;
-static expert_field ei_pdcp_lte_sequence_analysis_sn_repeated = EI_INIT;
-static expert_field ei_pdcp_lte_sequence_analysis_sn_missing = EI_INIT;
-static expert_field ei_pdcp_lte_digest_wrong = EI_INIT;
-static expert_field ei_pdcp_lte_unknown_udp_framing_tag = EI_INIT;
-static expert_field ei_pdcp_lte_missing_udp_framing_tag = EI_INIT;
+static expert_field ei_pdcp_lte_sequence_analysis_wrong_sequence_number;
+static expert_field ei_pdcp_lte_reserved_bits_not_zero;
+static expert_field ei_pdcp_lte_sequence_analysis_sn_repeated;
+static expert_field ei_pdcp_lte_sequence_analysis_sn_missing;
+static expert_field ei_pdcp_lte_digest_wrong;
+static expert_field ei_pdcp_lte_unknown_udp_framing_tag;
+static expert_field ei_pdcp_lte_missing_udp_framing_tag;
 
 
 /*-------------------------------------

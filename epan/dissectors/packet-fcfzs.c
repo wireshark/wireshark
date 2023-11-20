@@ -24,44 +24,44 @@ void proto_reg_handoff_fcfzs(void);
 static dissector_handle_t fzs_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_fcfzs                     = -1;
-static int hf_fcfzs_opcode                 = -1;
-static int hf_fcfzs_gzc_vendor             = -1;
-static int hf_fcfzs_gest_vendor            = -1;
-static int hf_fcfzs_numzoneattrs           = -1;
-static int hf_fcfzs_zonesetnmlen           = -1;
-static int hf_fcfzs_zonesetname            = -1;
-static int hf_fcfzs_numzones               = -1;
-static int hf_fcfzs_numzonesetattrs        = -1;
-static int hf_fcfzs_zonenmlen              = -1;
-static int hf_fcfzs_zonename               = -1;
-static int hf_fcfzs_nummbrs                = -1;
-static int hf_fcfzs_nummbrentries          = -1;
-static int hf_fcfzs_mbrid_fcwwn            = -1;
-static int hf_fcfzs_mbrid_fc               = -1;
-static int hf_fcfzs_mbrid_uint             = -1;
-/* static int hf_fcfzs_mbridlen               = -1; */
-static int hf_fcfzs_mbrtype                = -1;
-static int hf_fcfzs_reason                 = -1;
-static int hf_fcfzs_rjtdetail              = -1;
-static int hf_fcfzs_rjtvendor              = -1;
-static int hf_fcfzs_maxres_size            = -1;
-static int hf_fcfzs_mbrid_lun              = -1;
-static int hf_fcfzs_gzc_flags              = -1;
-static int hf_fcfzs_gzc_flags_hard_zones   = -1;
-static int hf_fcfzs_gzc_flags_soft_zones   = -1;
-static int hf_fcfzs_gzc_flags_zoneset_db   = -1;
-static int hf_fcfzs_zone_state             = -1;
-static int hf_fcfzs_soft_zone_set_enforced = -1;
-static int hf_fcfzs_hard_zone_set_enforced = -1;
+static int proto_fcfzs;
+static int hf_fcfzs_opcode;
+static int hf_fcfzs_gzc_vendor;
+static int hf_fcfzs_gest_vendor;
+static int hf_fcfzs_numzoneattrs;
+static int hf_fcfzs_zonesetnmlen;
+static int hf_fcfzs_zonesetname;
+static int hf_fcfzs_numzones;
+static int hf_fcfzs_numzonesetattrs;
+static int hf_fcfzs_zonenmlen;
+static int hf_fcfzs_zonename;
+static int hf_fcfzs_nummbrs;
+static int hf_fcfzs_nummbrentries;
+static int hf_fcfzs_mbrid_fcwwn;
+static int hf_fcfzs_mbrid_fc;
+static int hf_fcfzs_mbrid_uint;
+/* static int hf_fcfzs_mbridlen; */
+static int hf_fcfzs_mbrtype;
+static int hf_fcfzs_reason;
+static int hf_fcfzs_rjtdetail;
+static int hf_fcfzs_rjtvendor;
+static int hf_fcfzs_maxres_size;
+static int hf_fcfzs_mbrid_lun;
+static int hf_fcfzs_gzc_flags;
+static int hf_fcfzs_gzc_flags_hard_zones;
+static int hf_fcfzs_gzc_flags_soft_zones;
+static int hf_fcfzs_gzc_flags_zoneset_db;
+static int hf_fcfzs_zone_state;
+static int hf_fcfzs_soft_zone_set_enforced;
+static int hf_fcfzs_hard_zone_set_enforced;
 
 /* Initialize the subtree pointers */
-static gint ett_fcfzs = -1;
-static gint ett_fcfzs_gzc_flags = -1;
-static gint ett_fcfzs_zone_state = -1;
+static gint ett_fcfzs;
+static gint ett_fcfzs_gzc_flags;
+static gint ett_fcfzs_zone_state;
 
-static expert_field ei_fcfzs_no_exchange = EI_INIT;
-static expert_field ei_fcfzs_mbrid = EI_INIT;
+static expert_field ei_fcfzs_no_exchange;
+static expert_field ei_fcfzs_mbrid;
 
 typedef struct _fcfzs_conv_key {
     guint32 conv_idx;

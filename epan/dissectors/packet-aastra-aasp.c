@@ -55,33 +55,33 @@ void proto_reg_handoff_aasp(void);
 static dissector_handle_t aasp_handle;
 
 /* Initialize the protocol and registered fields */
-static gint proto_aasp = -1;
+static gint proto_aasp;
 
-static gint hf_a_data = -1;
-static gint hf_a_cmd = -1;
-static gint hf_a_id = -1;
-static gint hf_a_length = -1;
-static gint hf_a_text = -1;
-static gint hf_a_line = -1;
-static gint hf_a_cdpn = -1;
-static gint hf_a_button_id = -1;
+static gint hf_a_data;
+static gint hf_a_cmd;
+static gint hf_a_id;
+static gint hf_a_length;
+static gint hf_a_text;
+static gint hf_a_line;
+static gint hf_a_cdpn;
+static gint hf_a_button_id;
 
-static gint hf_a_attr = -1;
+static gint hf_a_attr;
 
-static gint hf_a_item = -1;
-static gint hf_a_hour = -1;
-static gint hf_a_minute = -1;
-static gint hf_a_day = -1;
-static gint hf_a_month = -1;
-static gint hf_a_weekofyear = -1;
-static gint hf_a_weekday = -1;
-static gint hf_a_month_name = -1;
-static gint hf_a_weekofyear_prefix = -1;
+static gint hf_a_item;
+static gint hf_a_hour;
+static gint hf_a_minute;
+static gint hf_a_day;
+static gint hf_a_month;
+static gint hf_a_weekofyear;
+static gint hf_a_weekday;
+static gint hf_a_month_name;
+static gint hf_a_weekofyear_prefix;
 
 /* Initialize the subtree pointers */
-static gint ett_aasp = -1;
-static gint ett_a_cmd = -1;
-static gint ett_a_item = -1;
+static gint ett_aasp;
+static gint ett_a_cmd;
+static gint ett_a_item;
 
 /* Preferences */
 

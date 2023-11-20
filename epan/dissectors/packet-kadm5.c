@@ -45,9 +45,9 @@ void proto_reg_handoff_kadm5(void);
 #define KADM5PROC_CHRAND_PRINCIPAL3	20
 #define KADM5PROC_SETKEY_PRINCIPAL3	21
 
-static int proto_kadm5 = -1;
-static int hf_kadm5_procedure_v2 = -1;
-static gint ett_kadm5 = -1;
+static int proto_kadm5;
+static int hf_kadm5_procedure_v2;
+static gint ett_kadm5;
 
 /* proc number, "proc name", dissect_request, dissect_reply */
 static const vsff kadm5_v2_proc[] = {

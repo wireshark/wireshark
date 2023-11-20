@@ -24,17 +24,17 @@
 void proto_register_bootparams(void);
 void proto_reg_handoff_bootparams(void);
 
-static int proto_bootparams = -1;
-static int hf_bootparams_procedure_v1 = -1;
-static int hf_bootparams_host = -1;
-static int hf_bootparams_domain = -1;
-static int hf_bootparams_fileid = -1;
-static int hf_bootparams_filepath = -1;
-static int hf_bootparams_hostaddr = -1;
-static int hf_bootparams_routeraddr = -1;
-static int hf_bootparams_addresstype = -1;
+static int proto_bootparams;
+static int hf_bootparams_procedure_v1;
+static int hf_bootparams_host;
+static int hf_bootparams_domain;
+static int hf_bootparams_fileid;
+static int hf_bootparams_filepath;
+static int hf_bootparams_hostaddr;
+static int hf_bootparams_routeraddr;
+static int hf_bootparams_addresstype;
 
-static gint ett_bootparams = -1;
+static gint ett_bootparams;
 
 
 static const value_string addr_type[] =

@@ -94,38 +94,38 @@ static const guint8 ifcp_header_4_bytes[4] = {
     0x02, 0x01, 0xFD, 0xFE
 };
 
-static int proto_ifcp                = -1;
+static int proto_ifcp;
 
-static int hf_ifcp_protocol          = -1;
-static int hf_ifcp_protocol_c        = -1;
-static int hf_ifcp_version           = -1;
-static int hf_ifcp_version_c         = -1;
-static int hf_ifcp_encap_flags_c     = -1;
-static int hf_ifcp_framelen          = -1;
-static int hf_ifcp_framelen_c        = -1;
-static int hf_ifcp_tsec              = -1;
-static int hf_ifcp_tusec             = -1;
-static int hf_ifcp_encap_crc         = -1;
-static int hf_ifcp_sof               = -1;
-static int hf_ifcp_sof_c             = -1;
-static int hf_ifcp_eof               = -1;
-static int hf_ifcp_eof_c             = -1;
-static int hf_ifcp_ls_command_acc    = -1;
-static int hf_ifcp_flags             = -1;
-static int hf_ifcp_flags_ses         = -1;
-static int hf_ifcp_flags_trp         = -1;
-static int hf_ifcp_flags_spc         = -1;
-static int hf_ifcp_common_flags      = -1;
-static int hf_ifcp_common_flags_crcv = -1;
+static int hf_ifcp_protocol;
+static int hf_ifcp_protocol_c;
+static int hf_ifcp_version;
+static int hf_ifcp_version_c;
+static int hf_ifcp_encap_flags_c;
+static int hf_ifcp_framelen;
+static int hf_ifcp_framelen_c;
+static int hf_ifcp_tsec;
+static int hf_ifcp_tusec;
+static int hf_ifcp_encap_crc;
+static int hf_ifcp_sof;
+static int hf_ifcp_sof_c;
+static int hf_ifcp_eof;
+static int hf_ifcp_eof_c;
+static int hf_ifcp_ls_command_acc;
+static int hf_ifcp_flags;
+static int hf_ifcp_flags_ses;
+static int hf_ifcp_flags_trp;
+static int hf_ifcp_flags_spc;
+static int hf_ifcp_common_flags;
+static int hf_ifcp_common_flags_crcv;
 
-static int ett_ifcp              = -1;
-static int ett_ifcp_sof          = -1;
-static int ett_ifcp_eof          = -1;
-static int ett_ifcp_flags        = -1;
-static int ett_ifcp_common_flags = -1;
-static int ett_ifcp_protocol     = -1;
-static int ett_ifcp_version      = -1;
-static int ett_ifcp_frame_len    = -1;
+static int ett_ifcp;
+static int ett_ifcp_sof;
+static int ett_ifcp_eof;
+static int ett_ifcp_flags;
+static int ett_ifcp_common_flags;
+static int ett_ifcp_protocol;
+static int ett_ifcp_version;
+static int ett_ifcp_frame_len;
 
 static gboolean ifcp_desegment    = TRUE;
 

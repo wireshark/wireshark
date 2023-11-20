@@ -20,12 +20,12 @@
 void proto_register_dtsprovider (void);
 void proto_reg_handoff_dtsprovider (void);
 
-static int proto_dtsprovider = -1;
-static int hf_dtsprovider_opnum = -1;
-/* static int hf_dtsprovider_status = -1; */
+static int proto_dtsprovider;
+static int hf_dtsprovider_opnum;
+/* static int hf_dtsprovider_status; */
 
 
-static gint ett_dtsprovider = -1;
+static gint ett_dtsprovider;
 
 
 static e_guid_t uuid_dtsprovider = { 0xbfca1238, 0x628a, 0x11c9, { 0xa0, 0x73, 0x08, 0x00, 0x2b, 0x0d, 0xea, 0x7a } };

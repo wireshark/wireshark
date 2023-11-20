@@ -86,7 +86,7 @@ static dissector_handle_t kdsp_handle;
 #define DATALINK_WLAN 0x69
 #define DATALINK_RADIOTAP 0x7F
 
-static int proto_kdsp = -1;
+static int proto_kdsp;
 
 static dissector_table_t  subdissector_dlt_table;
 
@@ -117,123 +117,123 @@ static const value_string channelcmds[] = {
 };
 
 
-static gint hf_kdsp_sentinel = -1;
-static gint hf_kdsp_cmdnum = -1;
-static gint hf_kdsp_length = -1;
+static gint hf_kdsp_sentinel;
+static gint hf_kdsp_cmdnum;
+static gint hf_kdsp_length;
 
-static gint hf_kdsp_version = -1;
-static gint hf_kdsp_server_version = -1;
-static gint hf_kdsp_hostname = -1;
+static gint hf_kdsp_version;
+static gint hf_kdsp_server_version;
+static gint hf_kdsp_hostname;
 
-static gint hf_kdsp_str_flags = -1;
-static gint hf_kdsp_str_len = -1;
-static gint hf_kdsp_str_msg = -1;
+static gint hf_kdsp_str_flags;
+static gint hf_kdsp_str_len;
+static gint hf_kdsp_str_msg;
 
-static gint hf_kdsp_cpt_bitmap = -1;
-static gint hf_kdsp_cpt_flag_cpt = -1;
-static gint hf_kdsp_cpt_flag_fcs = -1;
-static gint hf_kdsp_cpt_flag_gps = -1;
-static gint hf_kdsp_cpt_flag_radio = -1;
-static gint hf_kdsp_cpt_offset = -1;
+static gint hf_kdsp_cpt_bitmap;
+static gint hf_kdsp_cpt_flag_cpt;
+static gint hf_kdsp_cpt_flag_fcs;
+static gint hf_kdsp_cpt_flag_gps;
+static gint hf_kdsp_cpt_flag_radio;
+static gint hf_kdsp_cpt_offset;
 
-static gint hf_kdsp_fcs = -1;
-static gint hf_kdsp_fcs_data = -1;
+static gint hf_kdsp_fcs;
+static gint hf_kdsp_fcs_data;
 
-static gint hf_kdsp_radio_hdr = -1;
-static gint hf_kdsp_radio_hdr_len = -1;
-static gint hf_kdsp_radio_content_bitmap = -1;
-static gint hf_kdsp_radio_accuracy = -1;
-static gint hf_kdsp_radio_freq_mhz = -1;
-static gint hf_kdsp_radio_signal_dbm = -1;
-static gint hf_kdsp_radio_noise_dbm = -1;
-static gint hf_kdsp_radio_carrier = -1;
-static gint hf_kdsp_radio_encoding = -1;
-static gint hf_kdsp_radio_datarate = -1;
-static gint hf_kdsp_radio_signal_rssi = -1;
-static gint hf_kdsp_radio_noise_rssi = -1;
+static gint hf_kdsp_radio_hdr;
+static gint hf_kdsp_radio_hdr_len;
+static gint hf_kdsp_radio_content_bitmap;
+static gint hf_kdsp_radio_accuracy;
+static gint hf_kdsp_radio_freq_mhz;
+static gint hf_kdsp_radio_signal_dbm;
+static gint hf_kdsp_radio_noise_dbm;
+static gint hf_kdsp_radio_carrier;
+static gint hf_kdsp_radio_encoding;
+static gint hf_kdsp_radio_datarate;
+static gint hf_kdsp_radio_signal_rssi;
+static gint hf_kdsp_radio_noise_rssi;
 
-static gint hf_kdsp_gps_hdr = -1;
-static gint hf_kdsp_gps_hdr_len = -1;
-static gint hf_kdsp_gps_content_bitmap = -1;
-static gint hf_kdsp_gps_fix = -1;
-static gint hf_kdsp_gps_lat = -1;
-static gint hf_kdsp_gps_lon = -1;
-static gint hf_kdsp_gps_alt = -1;
-static gint hf_kdsp_gps_spd = -1;
-static gint hf_kdsp_gps_heading = -1;
+static gint hf_kdsp_gps_hdr;
+static gint hf_kdsp_gps_hdr_len;
+static gint hf_kdsp_gps_content_bitmap;
+static gint hf_kdsp_gps_fix;
+static gint hf_kdsp_gps_lat;
+static gint hf_kdsp_gps_lon;
+static gint hf_kdsp_gps_alt;
+static gint hf_kdsp_gps_spd;
+static gint hf_kdsp_gps_heading;
 
-static gint hf_kdsp_cpt_data_hdr = -1;
-static gint hf_kdsp_cpt_data_hdr_len = -1;
-static gint hf_kdsp_cpt_data_content_bitmap = -1;
-static gint hf_kdsp_cpt_dc_flag_uuid = -1;
-static gint hf_kdsp_cpt_dc_flag_len = -1;
-static gint hf_kdsp_cpt_dc_flag_sec = -1;
-static gint hf_kdsp_cpt_dc_flag_usec = -1;
-static gint hf_kdsp_cpt_dc_flag_dlt = -1;
-static gint hf_kdsp_cpt_uuid = -1;
-static gint hf_kdsp_cpt_packet_len = -1;
-static gint hf_kdsp_cpt_tv_sec = -1;
-static gint hf_kdsp_cpt_tv_usec = -1;
-static gint hf_kdsp_cpt_dlt = -1;
+static gint hf_kdsp_cpt_data_hdr;
+static gint hf_kdsp_cpt_data_hdr_len;
+static gint hf_kdsp_cpt_data_content_bitmap;
+static gint hf_kdsp_cpt_dc_flag_uuid;
+static gint hf_kdsp_cpt_dc_flag_len;
+static gint hf_kdsp_cpt_dc_flag_sec;
+static gint hf_kdsp_cpt_dc_flag_usec;
+static gint hf_kdsp_cpt_dc_flag_dlt;
+static gint hf_kdsp_cpt_uuid;
+static gint hf_kdsp_cpt_packet_len;
+static gint hf_kdsp_cpt_tv_sec;
+static gint hf_kdsp_cpt_tv_usec;
+static gint hf_kdsp_cpt_dlt;
 
-static gint hf_kdsp_ch_length = -1;
-static gint hf_kdsp_ch_bitmap = -1;
-static gint hf_kdsp_ch_flag_uuid = -1;
-static gint hf_kdsp_ch_flag_cmd = -1;
-static gint hf_kdsp_ch_flag_curch = -1;
-static gint hf_kdsp_ch_flag_hop = -1;
-static gint hf_kdsp_ch_flag_numch = -1;
-static gint hf_kdsp_ch_flag_channels = -1;
-static gint hf_kdsp_ch_flag_dwell = -1;
-static gint hf_kdsp_ch_flag_rate = -1;
-static gint hf_kdsp_ch_flag_hopdwell = -1;
-static gint hf_kdsp_ch_uuid = -1;
-static gint hf_kdsp_ch_cmd = -1;
-static gint hf_kdsp_ch_cur_ch = -1;
-static gint hf_kdsp_ch_hop = -1;
-static gint hf_kdsp_ch_num_ch = -1;
-static gint hf_kdsp_ch_data = -1;
-static gint hf_kdsp_ch_ch = -1;
-static gint hf_kdsp_ch_dwell = -1;
-static gint hf_kdsp_ch_start = -1;
-static gint hf_kdsp_ch_end = -1;
-static gint hf_kdsp_ch_width = -1;
-static gint hf_kdsp_ch_iter = -1;
-static gint hf_kdsp_ch_rate = -1;
-static gint hf_kdsp_ch_ch_dwell = -1;
+static gint hf_kdsp_ch_length;
+static gint hf_kdsp_ch_bitmap;
+static gint hf_kdsp_ch_flag_uuid;
+static gint hf_kdsp_ch_flag_cmd;
+static gint hf_kdsp_ch_flag_curch;
+static gint hf_kdsp_ch_flag_hop;
+static gint hf_kdsp_ch_flag_numch;
+static gint hf_kdsp_ch_flag_channels;
+static gint hf_kdsp_ch_flag_dwell;
+static gint hf_kdsp_ch_flag_rate;
+static gint hf_kdsp_ch_flag_hopdwell;
+static gint hf_kdsp_ch_uuid;
+static gint hf_kdsp_ch_cmd;
+static gint hf_kdsp_ch_cur_ch;
+static gint hf_kdsp_ch_hop;
+static gint hf_kdsp_ch_num_ch;
+static gint hf_kdsp_ch_data;
+static gint hf_kdsp_ch_ch;
+static gint hf_kdsp_ch_dwell;
+static gint hf_kdsp_ch_start;
+static gint hf_kdsp_ch_end;
+static gint hf_kdsp_ch_width;
+static gint hf_kdsp_ch_iter;
+static gint hf_kdsp_ch_rate;
+static gint hf_kdsp_ch_ch_dwell;
 
-static gint hf_kdsp_source_length = -1;
-static gint hf_kdsp_source_bitmap = -1;
-static gint hf_kdsp_source_uuid = -1;
-static gint hf_kdsp_source_invalidate = -1;
-static gint hf_kdsp_source_name = -1;
-static gint hf_kdsp_source_interface = -1;
-static gint hf_kdsp_source_type = -1;
-static gint hf_kdsp_source_hop = -1;
-static gint hf_kdsp_source_dwell = -1;
-static gint hf_kdsp_source_rate = -1;
+static gint hf_kdsp_source_length;
+static gint hf_kdsp_source_bitmap;
+static gint hf_kdsp_source_uuid;
+static gint hf_kdsp_source_invalidate;
+static gint hf_kdsp_source_name;
+static gint hf_kdsp_source_interface;
+static gint hf_kdsp_source_type;
+static gint hf_kdsp_source_hop;
+static gint hf_kdsp_source_dwell;
+static gint hf_kdsp_source_rate;
 
-static gint hf_kdsp_report_hdr_len = -1;
-static gint hf_kdsp_report_content_bitmap = -1;
-static gint hf_kdsp_report_uuid = -1;
-static gint hf_kdsp_report_flags = -1;
-static gint hf_kdsp_report_hop_tm_sec = -1;
-static gint hf_kdsp_report_hop_tm_usec = -1;
+static gint hf_kdsp_report_hdr_len;
+static gint hf_kdsp_report_content_bitmap;
+static gint hf_kdsp_report_uuid;
+static gint hf_kdsp_report_flags;
+static gint hf_kdsp_report_hop_tm_sec;
+static gint hf_kdsp_report_hop_tm_usec;
 
-static gint ett_kdsp_pdu = -1;
-static gint ett_cpt_bitmap = -1;
-static gint ett_cpt_data_content_bitmap = -1;
-static gint ett_ch_bitmap = -1;
-static gint ett_ch_data = -1;
-static gint ett_sub_fcs = -1;
-static gint ett_sub_radio = -1;
-static gint ett_sub_gps = -1;
-static gint ett_sub_cpt = -1;
+static gint ett_kdsp_pdu;
+static gint ett_cpt_bitmap;
+static gint ett_cpt_data_content_bitmap;
+static gint ett_ch_bitmap;
+static gint ett_ch_data;
+static gint ett_sub_fcs;
+static gint ett_sub_radio;
+static gint ett_sub_gps;
+static gint ett_sub_cpt;
 
-static expert_field ei_kdsp_payload_expected = EI_INIT;
-static expert_field ei_kdsp_payload_unexpected = EI_INIT;
-static expert_field ei_kdsp_cpt_data_hdr_len = EI_INIT;
-static expert_field ei_kdsp_cmdnum = EI_INIT;
+static expert_field ei_kdsp_payload_expected;
+static expert_field ei_kdsp_payload_unexpected;
+static expert_field ei_kdsp_cpt_data_hdr_len;
+static expert_field ei_kdsp_cmdnum;
 
 /* determine PDU length of protocol */
 static guint

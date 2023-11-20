@@ -23,36 +23,36 @@ void proto_reg_handoff_nmpi(void);
 static dissector_handle_t nbipx_handle;
 static dissector_handle_t nmpi_handle;
 
-static int proto_nbipx = -1;
-static int hf_nbipx_packettype = -1;
-static int hf_nbipx_name_flags = -1;
-static int hf_nbipx_name_flags_group = -1;
-static int hf_nbipx_name_flags_in_use = -1;
-static int hf_nbipx_name_flags_registered = -1;
-static int hf_nbipx_name_flags_duplicated = -1;
-static int hf_nbipx_name_flags_deregistered = -1;
-static int hf_nbipx_conn_control = -1;
-static int hf_nbipx_conn_control_sys_packet = -1;
-static int hf_nbipx_conn_control_ack = -1;
-static int hf_nbipx_conn_control_attention = -1;
-static int hf_nbipx_conn_control_end_msg = -1;
-static int hf_nbipx_conn_control_resend = -1;
-static int hf_nbipx_session_src_conn_id = -1;
-static int hf_nbipx_session_dest_conn_id = -1;
-static int hf_nbipx_session_send_seq_number = -1;
-static int hf_nbipx_session_total_data_length = -1;
-static int hf_nbipx_session_offset = -1;
-static int hf_nbipx_session_data_length = -1;
-static int hf_nbipx_session_recv_seq_number = -1;
-static int hf_nbipx_session_bytes_received = -1;
-static int hf_nbipx_ipx_network = -1;
-static int hf_nbipx_opcode = -1;
-static int hf_nbipx_name_type = -1;
-static int hf_nbipx_messageid = -1;
+static int proto_nbipx;
+static int hf_nbipx_packettype;
+static int hf_nbipx_name_flags;
+static int hf_nbipx_name_flags_group;
+static int hf_nbipx_name_flags_in_use;
+static int hf_nbipx_name_flags_registered;
+static int hf_nbipx_name_flags_duplicated;
+static int hf_nbipx_name_flags_deregistered;
+static int hf_nbipx_conn_control;
+static int hf_nbipx_conn_control_sys_packet;
+static int hf_nbipx_conn_control_ack;
+static int hf_nbipx_conn_control_attention;
+static int hf_nbipx_conn_control_end_msg;
+static int hf_nbipx_conn_control_resend;
+static int hf_nbipx_session_src_conn_id;
+static int hf_nbipx_session_dest_conn_id;
+static int hf_nbipx_session_send_seq_number;
+static int hf_nbipx_session_total_data_length;
+static int hf_nbipx_session_offset;
+static int hf_nbipx_session_data_length;
+static int hf_nbipx_session_recv_seq_number;
+static int hf_nbipx_session_bytes_received;
+static int hf_nbipx_ipx_network;
+static int hf_nbipx_opcode;
+static int hf_nbipx_name_type;
+static int hf_nbipx_messageid;
 
-static gint ett_nbipx = -1;
-static gint ett_nbipx_conn_ctrl = -1;
-static gint ett_nbipx_name_type_flags = -1;
+static gint ett_nbipx;
+static gint ett_nbipx_conn_ctrl;
+static gint ett_nbipx_name_type_flags;
 
 static void dissect_conn_control(tvbuff_t *tvb, int offset, proto_tree *tree);
 
@@ -729,10 +729,10 @@ proto_reg_handoff_nbipx(void)
  *	INTYPE_WKGROUP	2
  *	INTYPE_BROWSER	3
  */
-static int proto_nmpi = -1;
+static int proto_nmpi;
 
-static gint ett_nmpi = -1;
-static gint ett_nmpi_name_type_flags = -1;
+static gint ett_nmpi;
+static gint ett_nmpi_name_type_flags;
 
 
 static int

@@ -79,46 +79,46 @@ static const value_string sensor_unit_str[] = {
 
 void proto_register_ppi_sensor(void);
 /* protocol */
-static int proto_ppi_sensor = -1;
+static int proto_ppi_sensor;
 
-static int hf_ppi_sensor_version = -1;
-static int hf_ppi_sensor_pad = -1;
-static int hf_ppi_sensor_length = -1;
-static int hf_ppi_sensor_present = -1;
-static int hf_ppi_sensor_sensortype = -1;
-static int hf_ppi_sensor_scalefactor = -1;
-static int hf_ppi_sensor_val_x = -1;
-static int hf_ppi_sensor_val_y= -1;
-static int hf_ppi_sensor_val_z= -1;
-static int hf_ppi_sensor_val_t= -1;
-static int hf_ppi_sensor_val_e = -1;
-static int hf_ppi_sensor_descstr = -1;
-static int hf_ppi_sensor_appspecific_num = -1; /* 4-byte tag no */
-static int hf_ppi_sensor_appspecific_data = -1; /* 60 byte arbitrary data */
+static int hf_ppi_sensor_version;
+static int hf_ppi_sensor_pad;
+static int hf_ppi_sensor_length;
+static int hf_ppi_sensor_present;
+static int hf_ppi_sensor_sensortype;
+static int hf_ppi_sensor_scalefactor;
+static int hf_ppi_sensor_val_x;
+static int hf_ppi_sensor_val_y;
+static int hf_ppi_sensor_val_z;
+static int hf_ppi_sensor_val_t;
+static int hf_ppi_sensor_val_e;
+static int hf_ppi_sensor_descstr;
+static int hf_ppi_sensor_appspecific_num; /* 4-byte tag no */
+static int hf_ppi_sensor_appspecific_data; /* 60 byte arbitrary data */
 
 
 /* "Present" flags */
 /* These represent decoded-bits in the gui */
-static int hf_ppi_sensor_present_sensortype = -1;
-static int hf_ppi_sensor_present_scalefactor = -1;
-static int hf_ppi_sensor_present_val_x= -1;
-static int hf_ppi_sensor_present_val_y= -1;
-static int hf_ppi_sensor_present_val_z= -1;
-static int hf_ppi_sensor_present_val_t= -1;
-static int hf_ppi_sensor_present_val_e = -1;
-static int hf_ppi_sensor_present_descstr = -1;
-static int hf_ppi_sensor_present_appspecific_num = -1;
-static int hf_ppi_sensor_present_appspecific_data = -1;
-static int hf_ppi_sensor_present_ext = -1;
+static int hf_ppi_sensor_present_sensortype;
+static int hf_ppi_sensor_present_scalefactor;
+static int hf_ppi_sensor_present_val_x;
+static int hf_ppi_sensor_present_val_y;
+static int hf_ppi_sensor_present_val_z;
+static int hf_ppi_sensor_present_val_t;
+static int hf_ppi_sensor_present_val_e;
+static int hf_ppi_sensor_present_descstr;
+static int hf_ppi_sensor_present_appspecific_num;
+static int hf_ppi_sensor_present_appspecific_data;
+static int hf_ppi_sensor_present_ext;
 
 
 /* These represent arrow-dropdownthings in the gui */
-static gint ett_ppi_sensor = -1;
-static gint ett_ppi_sensor_present = -1;
+static gint ett_ppi_sensor;
+static gint ett_ppi_sensor_present;
 
-static expert_field ei_ppi_sensor_present_bit = EI_INIT;
-static expert_field ei_ppi_sensor_version = EI_INIT;
-static expert_field ei_ppi_sensor_length = EI_INIT;
+static expert_field ei_ppi_sensor_present_bit;
+static expert_field ei_ppi_sensor_version;
+static expert_field ei_ppi_sensor_length;
 
 /* used with ScaleFactor */
 static gdouble

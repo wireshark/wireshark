@@ -185,63 +185,63 @@ static const value_string vals_mm_header_names[] = {
 /*
  * Initialize the protocol and registered fields
  */
-static int proto_mmse = -1;
+static int proto_mmse;
 
-static int hf_mmse_message_type         = -1;
-static int hf_mmse_transaction_id       = -1;
-static int hf_mmse_mms_version          = -1;
-static int hf_mmse_bcc                  = -1;
-static int hf_mmse_cc                   = -1;
-static int hf_mmse_content_location     = -1;
-static int hf_mmse_date                 = -1;
-static int hf_mmse_delivery_report      = -1;
-static int hf_mmse_delivery_time_abs    = -1;
-static int hf_mmse_delivery_time_rel    = -1;
-static int hf_mmse_expiry_abs           = -1;
-static int hf_mmse_expiry_rel           = -1;
-static int hf_mmse_from                 = -1;
-static int hf_mmse_message_class_id     = -1;
-static int hf_mmse_message_class_str    = -1;
-static int hf_mmse_message_id           = -1;
-static int hf_mmse_message_size         = -1;
-static int hf_mmse_priority             = -1;
-static int hf_mmse_read_reply           = -1;
-static int hf_mmse_report_allowed       = -1;
-static int hf_mmse_response_status      = -1;
-static int hf_mmse_response_text        = -1;
-static int hf_mmse_sender_visibility    = -1;
-static int hf_mmse_status               = -1;
-static int hf_mmse_subject              = -1;
-static int hf_mmse_to                   = -1;
-/* static int hf_mmse_content_type              = -1; */
-static int hf_mmse_ffheader             = -1;
+static int hf_mmse_message_type;
+static int hf_mmse_transaction_id;
+static int hf_mmse_mms_version;
+static int hf_mmse_bcc;
+static int hf_mmse_cc;
+static int hf_mmse_content_location;
+static int hf_mmse_date;
+static int hf_mmse_delivery_report;
+static int hf_mmse_delivery_time_abs;
+static int hf_mmse_delivery_time_rel;
+static int hf_mmse_expiry_abs;
+static int hf_mmse_expiry_rel;
+static int hf_mmse_from;
+static int hf_mmse_message_class_id;
+static int hf_mmse_message_class_str;
+static int hf_mmse_message_id;
+static int hf_mmse_message_size;
+static int hf_mmse_priority;
+static int hf_mmse_read_reply;
+static int hf_mmse_report_allowed;
+static int hf_mmse_response_status;
+static int hf_mmse_response_text;
+static int hf_mmse_sender_visibility;
+static int hf_mmse_status;
+static int hf_mmse_subject;
+static int hf_mmse_to;
+/* static int hf_mmse_content_type; */
+static int hf_mmse_ffheader;
 /* MMSE 1.1 */
-static int hf_mmse_read_report          = -1;
-static int hf_mmse_retrieve_status      = -1;
-static int hf_mmse_retrieve_text        = -1;
-static int hf_mmse_read_status          = -1;
-static int hf_mmse_reply_charging       = -1;
-static int hf_mmse_reply_charging_deadline_abs  = -1;
-static int hf_mmse_reply_charging_deadline_rel  = -1;
-static int hf_mmse_reply_charging_id    = -1;
-static int hf_mmse_reply_charging_size  = -1;
-static int hf_mmse_prev_sent_by = -1;
-static int hf_mmse_prev_sent_by_fwd_count       = -1;
-static int hf_mmse_prev_sent_by_address = -1;
-static int hf_mmse_prev_sent_date       = -1;
-static int hf_mmse_prev_sent_date_fwd_count     = -1;
-static int hf_mmse_prev_sent_date_date  = -1;
-static int hf_mmse_header_uint = -1;
-static int hf_mmse_header_string = -1;
-static int hf_mmse_header_bytes = -1;
+static int hf_mmse_read_report;
+static int hf_mmse_retrieve_status;
+static int hf_mmse_retrieve_text;
+static int hf_mmse_read_status;
+static int hf_mmse_reply_charging;
+static int hf_mmse_reply_charging_deadline_abs;
+static int hf_mmse_reply_charging_deadline_rel;
+static int hf_mmse_reply_charging_id;
+static int hf_mmse_reply_charging_size;
+static int hf_mmse_prev_sent_by;
+static int hf_mmse_prev_sent_by_fwd_count;
+static int hf_mmse_prev_sent_by_address;
+static int hf_mmse_prev_sent_date;
+static int hf_mmse_prev_sent_date_fwd_count;
+static int hf_mmse_prev_sent_date_date;
+static int hf_mmse_header_uint;
+static int hf_mmse_header_string;
+static int hf_mmse_header_bytes;
 
 /*
  * Initialize the subtree pointers
  */
-static gint ett_mmse                    = -1;
-static gint ett_mmse_hdr_details        = -1;
+static gint ett_mmse;
+static gint ett_mmse_hdr_details;
 
-static expert_field ei_mmse_oversized_uintvar = EI_INIT;
+static expert_field ei_mmse_oversized_uintvar;
 
 /*
  * Valuestrings for PDU types

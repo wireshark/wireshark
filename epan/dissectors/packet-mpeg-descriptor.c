@@ -18,12 +18,12 @@
 
 void proto_register_mpeg_descriptor(void);
 
-static int proto_mpeg_descriptor = -1;
-static int hf_mpeg_descriptor_tag = -1;
-static int hf_mpeg_descriptor_length = -1;
-static int hf_mpeg_descriptor_data = -1;
+static int proto_mpeg_descriptor;
+static int hf_mpeg_descriptor_tag;
+static int hf_mpeg_descriptor_length;
+static int hf_mpeg_descriptor_data;
 
-static gint ett_mpeg_descriptor = -1;
+static gint ett_mpeg_descriptor;
 
 static const value_string mpeg_descriptor_tag_vals[] = {
     /* From ISO/IEC 13818-1 */
@@ -177,15 +177,15 @@ static const value_string mpeg_descriptor_tag_vals[] = {
 static value_string_ext mpeg_descriptor_tag_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descriptor_tag_vals);
 
 /* 0x02 Video Stream Descriptor */
-static int hf_mpeg_descr_video_stream_multiple_frame_rate_flag = -1;
-static int hf_mpeg_descr_video_stream_frame_rate_code = -1;
-static int hf_mpeg_descr_video_stream_mpeg1_only_flag = -1;
-static int hf_mpeg_descr_video_stream_constrained_parameter_flag = -1;
-static int hf_mpeg_descr_video_stream_still_picture_flag = -1;
-static int hf_mpeg_descr_video_stream_profile_and_level_indication = -1;
-static int hf_mpeg_descr_video_stream_chroma_format = -1;
-static int hf_mpeg_descr_video_stream_frame_rate_extension_flag = -1;
-static int hf_mpeg_descr_video_stream_reserved = -1;
+static int hf_mpeg_descr_video_stream_multiple_frame_rate_flag;
+static int hf_mpeg_descr_video_stream_frame_rate_code;
+static int hf_mpeg_descr_video_stream_mpeg1_only_flag;
+static int hf_mpeg_descr_video_stream_constrained_parameter_flag;
+static int hf_mpeg_descr_video_stream_still_picture_flag;
+static int hf_mpeg_descr_video_stream_profile_and_level_indication;
+static int hf_mpeg_descr_video_stream_chroma_format;
+static int hf_mpeg_descr_video_stream_frame_rate_extension_flag;
+static int hf_mpeg_descr_video_stream_reserved;
 
 #define MPEG_DESCR_VIDEO_STREAM_MULTIPLE_FRAME_RATE_FLAG_MASK   0x80
 #define MPEG_DESCR_VIDEO_STREAM_FRAME_RATE_CODE_MASK            0x78
@@ -230,11 +230,11 @@ proto_mpeg_descriptor_dissect_video_stream(tvbuff_t *tvb, guint offset, proto_tr
 }
 
 /* 0x03 Audio Stream Descriptor */
-static int hf_mpeg_descr_audio_stream_free_format_flag = -1;
-static int hf_mpeg_descr_audio_stream_id = -1;
-static int hf_mpeg_descr_audio_stream_layer = -1;
-static int hf_mpeg_descr_audio_stream_variable_rate_audio_indicator = -1;
-static int hf_mpeg_descr_audio_stream_reserved = -1;
+static int hf_mpeg_descr_audio_stream_free_format_flag;
+static int hf_mpeg_descr_audio_stream_id;
+static int hf_mpeg_descr_audio_stream_layer;
+static int hf_mpeg_descr_audio_stream_variable_rate_audio_indicator;
+static int hf_mpeg_descr_audio_stream_reserved;
 
 #define MPEG_DESCR_AUDIO_STREAM_FREE_FORMAT_FLAG_MASK                   0x80
 #define MPEG_DESCR_AUDIO_STREAM_ID_MASK                                 0x40
@@ -474,8 +474,8 @@ static const value_string mpeg_descr_registration_reg_form_vals[] = {
     { 0x00, NULL }
 };
 
-static int hf_mpeg_descr_reg_form_id = -1;
-static int hf_mpeg_descr_reg_add_id_inf = -1;
+static int hf_mpeg_descr_reg_form_id;
+static int hf_mpeg_descr_reg_add_id_inf;
 
 static void
 proto_mpeg_descriptor_dissect_registration(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
@@ -493,7 +493,7 @@ proto_mpeg_descriptor_dissect_registration(tvbuff_t *tvb, guint offset, guint le
 }
 
 /* 0x06 Data Stream Alignment Descriptor */
-static int hf_mpeg_descr_data_stream_alignment = -1;
+static int hf_mpeg_descr_data_stream_alignment;
 
 static const value_string mpeg_descr_data_stream_alignment_vals[] = {
     { 0x00, "Reserved" },
@@ -512,10 +512,10 @@ proto_mpeg_descriptor_dissect_data_stream_alignment(tvbuff_t *tvb, guint offset,
 }
 
 /* 0x09 CA Descriptor */
-static int hf_mpeg_descr_ca_system_id = -1;
-static int hf_mpeg_descr_ca_reserved = -1;
-static int hf_mpeg_descr_ca_pid = -1;
-static int hf_mpeg_descr_ca_private = -1;
+static int hf_mpeg_descr_ca_system_id;
+static int hf_mpeg_descr_ca_reserved;
+static int hf_mpeg_descr_ca_pid;
+static int hf_mpeg_descr_ca_private;
 
 #define MPEG_DESCR_CA_RESERVED_MASK 0xE000
 #define MPEG_DESCR_CA_PID_MASK      0x1FFF
@@ -536,8 +536,8 @@ proto_mpeg_descriptor_dissect_ca(tvbuff_t *tvb, guint offset, guint len, proto_t
 
 
 /* 0x0A ISO 639 Language Descriptor */
-static int hf_mpeg_descr_iso639_lang = -1;
-static int hf_mpeg_descr_iso639_type = -1;
+static int hf_mpeg_descr_iso639_lang;
+static int hf_mpeg_descr_iso639_type;
 
 static const value_string mpeg_descr_iso639_type_vals[] = {
     { 0x00, "Undefined" },
@@ -558,11 +558,11 @@ proto_mpeg_descriptor_dissect_iso639(tvbuff_t *tvb, guint offset, guint len, pro
 }
 
 /* 0x0B System Clock Descriptor */
-static int hf_mpeg_descr_system_clock_external_clock_reference_indicator = -1;
-static int hf_mpeg_descr_system_clock_reserved1 = -1;
-static int hf_mpeg_descr_system_clock_accuracy_integer = -1;
-static int hf_mpeg_descr_system_clock_accuracy_exponent = -1;
-static int hf_mpeg_descr_system_clock_reserved2 = -1;
+static int hf_mpeg_descr_system_clock_external_clock_reference_indicator;
+static int hf_mpeg_descr_system_clock_reserved1;
+static int hf_mpeg_descr_system_clock_accuracy_integer;
+static int hf_mpeg_descr_system_clock_accuracy_exponent;
+static int hf_mpeg_descr_system_clock_reserved2;
 
 #define MPEG_DESCR_SYSTEM_CLOCK_EXTERNAL_CLOCK_REFERENCE_INDICATOR_MASK 0x80
 #define MPEG_DESCR_SYSTEM_CLOCK_RESERVED1_MASK                          0x40
@@ -583,8 +583,8 @@ proto_mpeg_descriptor_dissect_system_clock(tvbuff_t *tvb, guint offset, proto_tr
 }
 
 /* 0x0E Maximum Bitrate Descriptor */
-static int hf_mpeg_descr_max_bitrate_reserved = -1;
-static int hf_mpeg_descr_max_bitrate = -1;
+static int hf_mpeg_descr_max_bitrate_reserved;
+static int hf_mpeg_descr_max_bitrate;
 
 #define MPEG_DESCR_MAX_BITRATE_RESERVED_MASK    0xC00000
 #define MPEG_DESCR_MAX_BITRATE_MASK     0x3FFFFF
@@ -603,10 +603,10 @@ proto_mpeg_descriptor_dissect_max_bitrate(tvbuff_t *tvb, guint offset, proto_tre
 }
 
 /* 0x10 Smoothing Buffer Descriptor */
-static int hf_mpeg_descr_smoothing_buffer_reserved1 = -1;
-static int hf_mpeg_descr_smoothing_buffer_leak_rate = -1;
-static int hf_mpeg_descr_smoothing_buffer_reserved2 = -1;
-static int hf_mpeg_descr_smoothing_buffer_size = -1;
+static int hf_mpeg_descr_smoothing_buffer_reserved1;
+static int hf_mpeg_descr_smoothing_buffer_leak_rate;
+static int hf_mpeg_descr_smoothing_buffer_reserved2;
+static int hf_mpeg_descr_smoothing_buffer_size;
 
 #define MPEG_DESCR_SMOOTHING_BUFFER_RESERVED1_MASK  0xC00000
 #define MPEG_DESCR_SMOOTHING_BUFFER_LEAK_RATE_MASK  0x3FFFFF
@@ -632,8 +632,8 @@ proto_mpeg_descriptor_dissect_smoothing_buffer(tvbuff_t *tvb, guint offset, prot
 }
 
 /* 0x11 STD Descriptor */
-static int hf_mpeg_descr_std_reserved = -1;
-static int hf_mpeg_descr_std_leak_valid = -1;
+static int hf_mpeg_descr_std_reserved;
+static int hf_mpeg_descr_std_leak_valid;
 
 #define MPEG_DESCR_STD_RESERVED_MASK    0xFE
 #define MPEG_DESCR_STD_LEAK_VALID_MASK  0x01
@@ -646,18 +646,18 @@ proto_mpeg_descriptor_dissect_std(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* 0x13 Carousel Identifier Descriptor */
-static int hf_mpeg_descr_carousel_identifier_id = -1;
-static int hf_mpeg_descr_carousel_identifier_format_id = -1;
-static int hf_mpeg_descr_carousel_identifier_module_version = -1;
-static int hf_mpeg_descr_carousel_identifier_module_id = -1;
-static int hf_mpeg_descr_carousel_identifier_block_size = -1;
-static int hf_mpeg_descr_carousel_identifier_module_size = -1;
-static int hf_mpeg_descr_carousel_identifier_compression_method = -1;
-static int hf_mpeg_descr_carousel_identifier_original_size = -1;
-static int hf_mpeg_descr_carousel_identifier_timeout = -1;
-static int hf_mpeg_descr_carousel_identifier_object_key_len = -1;
-static int hf_mpeg_descr_carousel_identifier_object_key_data = -1;
-static int hf_mpeg_descr_carousel_identifier_private = -1;
+static int hf_mpeg_descr_carousel_identifier_id;
+static int hf_mpeg_descr_carousel_identifier_format_id;
+static int hf_mpeg_descr_carousel_identifier_module_version;
+static int hf_mpeg_descr_carousel_identifier_module_id;
+static int hf_mpeg_descr_carousel_identifier_block_size;
+static int hf_mpeg_descr_carousel_identifier_module_size;
+static int hf_mpeg_descr_carousel_identifier_compression_method;
+static int hf_mpeg_descr_carousel_identifier_original_size;
+static int hf_mpeg_descr_carousel_identifier_timeout;
+static int hf_mpeg_descr_carousel_identifier_object_key_len;
+static int hf_mpeg_descr_carousel_identifier_object_key_data;
+static int hf_mpeg_descr_carousel_identifier_private;
 
 static const value_string mpeg_descr_carousel_identifier_format_id_vals[] = {
     { 0x00, "No Format Specifier" },
@@ -723,13 +723,13 @@ proto_mpeg_descriptor_dissect_carousel_identifier(tvbuff_t *tvb, guint offset, g
 }
 
 /* 0x14 Association Tag Descriptor */
-static int hf_mpeg_descr_association_tag = -1;
-static int hf_mpeg_descr_association_tag_use = -1;
-static int hf_mpeg_descr_association_tag_selector_len = -1;
-static int hf_mpeg_descr_association_tag_transaction_id = -1;
-static int hf_mpeg_descr_association_tag_timeout = -1;
-static int hf_mpeg_descr_association_tag_selector_bytes = -1;
-static int hf_mpeg_descr_association_tag_private_bytes = -1;
+static int hf_mpeg_descr_association_tag;
+static int hf_mpeg_descr_association_tag_use;
+static int hf_mpeg_descr_association_tag_selector_len;
+static int hf_mpeg_descr_association_tag_transaction_id;
+static int hf_mpeg_descr_association_tag_timeout;
+static int hf_mpeg_descr_association_tag_selector_bytes;
+static int hf_mpeg_descr_association_tag_private_bytes;
 
 static void
 proto_mpeg_descriptor_dissect_association_tag(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
@@ -768,15 +768,15 @@ proto_mpeg_descriptor_dissect_association_tag(tvbuff_t *tvb, guint offset, guint
 }
 
 /* 0x28 AVC Video Descriptor */
-static int hf_mpeg_descr_avc_vid_profile_idc = -1;
-static int hf_mpeg_descr_avc_vid_constraint_set0_flag = -1;
-static int hf_mpeg_descr_avc_vid_constraint_set1_flag = -1;
-static int hf_mpeg_descr_avc_vid_constraint_set2_flag = -1;
-static int hf_mpeg_descr_avc_vid_compatible_flags = -1;
-static int hf_mpeg_descr_avc_vid_level_idc = -1;
-static int hf_mpeg_descr_avc_vid_still_present = -1;
-static int hf_mpeg_descr_avc_vid_24h_picture_flag = -1;
-static int hf_mpeg_descr_avc_vid_reserved = -1;
+static int hf_mpeg_descr_avc_vid_profile_idc;
+static int hf_mpeg_descr_avc_vid_constraint_set0_flag;
+static int hf_mpeg_descr_avc_vid_constraint_set1_flag;
+static int hf_mpeg_descr_avc_vid_constraint_set2_flag;
+static int hf_mpeg_descr_avc_vid_compatible_flags;
+static int hf_mpeg_descr_avc_vid_level_idc;
+static int hf_mpeg_descr_avc_vid_still_present;
+static int hf_mpeg_descr_avc_vid_24h_picture_flag;
+static int hf_mpeg_descr_avc_vid_reserved;
 
 #define MPEG_DESCR_AVC_VID_CONSTRAINT_SET0_FLAG_MASK    0x80
 #define MPEG_DESCR_AVC_VID_CONSTRAINT_SET1_FLAG_MASK    0x40
@@ -807,8 +807,8 @@ proto_mpeg_descriptor_dissect_avc_vid(tvbuff_t *tvb, guint offset, proto_tree *t
 }
 
 /* 0x40 Network Name Descriptor */
-static int hf_mpeg_descr_network_name_encoding = -1;
-static int hf_mpeg_descr_network_name_descriptor = -1;
+static int hf_mpeg_descr_network_name_encoding;
+static int hf_mpeg_descr_network_name_descriptor;
 
 static void
 proto_mpeg_descriptor_dissect_network_name(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
@@ -821,10 +821,10 @@ proto_mpeg_descriptor_dissect_network_name(tvbuff_t *tvb, guint offset, guint le
 }
 
 /* 0x41 Service List Descriptor */
-static int hf_mpeg_descr_service_list_id = -1;
-static int hf_mpeg_descr_service_list_type = -1;
+static int hf_mpeg_descr_service_list_id;
+static int hf_mpeg_descr_service_list_type;
 
-static gint ett_mpeg_descriptor_service_list = -1;
+static gint ett_mpeg_descriptor_service_list;
 
 static void
 proto_mpeg_descriptor_dissect_service_list(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
@@ -850,7 +850,7 @@ proto_mpeg_descriptor_dissect_service_list(tvbuff_t *tvb, guint offset, guint le
 }
 
 /* 0x42 Stuffing Descriptor */
-static int hf_mpeg_descr_stuffing = -1;
+static int hf_mpeg_descr_stuffing;
 
 static void
 proto_mpeg_descriptor_stuffing(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
@@ -859,16 +859,16 @@ proto_mpeg_descriptor_stuffing(tvbuff_t *tvb, guint offset, guint len, proto_tre
 }
 
 /* 0x43 Satellite Delivery System Descriptor */
-static int hf_mpeg_descr_satellite_delivery_frequency = -1;
-static int hf_mpeg_descr_satellite_delivery_orbital_position = -1;
-static int hf_mpeg_descr_satellite_delivery_west_east_flag = -1;
-static int hf_mpeg_descr_satellite_delivery_polarization = -1;
-static int hf_mpeg_descr_satellite_delivery_roll_off = -1;
-static int hf_mpeg_descr_satellite_delivery_zero = -1;
-static int hf_mpeg_descr_satellite_delivery_modulation_system = -1;
-static int hf_mpeg_descr_satellite_delivery_modulation_type = -1;
-static int hf_mpeg_descr_satellite_delivery_symbol_rate = -1;
-static int hf_mpeg_descr_satellite_delivery_fec_inner = -1;
+static int hf_mpeg_descr_satellite_delivery_frequency;
+static int hf_mpeg_descr_satellite_delivery_orbital_position;
+static int hf_mpeg_descr_satellite_delivery_west_east_flag;
+static int hf_mpeg_descr_satellite_delivery_polarization;
+static int hf_mpeg_descr_satellite_delivery_roll_off;
+static int hf_mpeg_descr_satellite_delivery_zero;
+static int hf_mpeg_descr_satellite_delivery_modulation_system;
+static int hf_mpeg_descr_satellite_delivery_modulation_type;
+static int hf_mpeg_descr_satellite_delivery_symbol_rate;
+static int hf_mpeg_descr_satellite_delivery_fec_inner;
 
 #define MPEG_DESCR_SATELLITE_DELIVERY_WEST_EAST_FLAG_MASK       0x80
 #define MPEG_DESCR_SATELLITE_DELIVERY_POLARIZATION_MASK         0x60
@@ -984,12 +984,12 @@ proto_mpeg_descriptor_dissect_satellite_delivery(tvbuff_t *tvb, guint offset, pr
 }
 
 /* 0x44 Cable Delivery System Descriptor */
-static int hf_mpeg_descr_cable_delivery_frequency = -1;
-static int hf_mpeg_descr_cable_delivery_reserved = -1;
-static int hf_mpeg_descr_cable_delivery_fec_outer = -1;
-static int hf_mpeg_descr_cable_delivery_modulation = -1;
-static int hf_mpeg_descr_cable_delivery_symbol_rate = -1;
-static int hf_mpeg_descr_cable_delivery_fec_inner = -1;
+static int hf_mpeg_descr_cable_delivery_frequency;
+static int hf_mpeg_descr_cable_delivery_reserved;
+static int hf_mpeg_descr_cable_delivery_fec_outer;
+static int hf_mpeg_descr_cable_delivery_modulation;
+static int hf_mpeg_descr_cable_delivery_symbol_rate;
+static int hf_mpeg_descr_cable_delivery_fec_inner;
 
 #define MPEG_DESCR_CABLE_DELIVERY_RESERVED_MASK     0xFFF0
 #define MPEG_DESCR_CABLE_DELIVERY_FEC_OUTER_MASK    0x000F
@@ -1065,18 +1065,18 @@ proto_mpeg_descriptor_dissect_cable_delivery(tvbuff_t *tvb, guint offset, proto_
 }
 
 /* 0x45 VBI Data Descriptor */
-static int hf_mpeg_descr_vbi_data_service_id = -1;
-static int hf_mpeg_descr_vbi_data_descr_len = -1;
-static int hf_mpeg_descr_vbi_data_reserved1 = -1;
-static int hf_mpeg_descr_vbi_data_field_parity = -1;
-static int hf_mpeg_descr_vbi_data_line_offset = -1;
-static int hf_mpeg_descr_vbi_data_reserved2 = -1;
+static int hf_mpeg_descr_vbi_data_service_id;
+static int hf_mpeg_descr_vbi_data_descr_len;
+static int hf_mpeg_descr_vbi_data_reserved1;
+static int hf_mpeg_descr_vbi_data_field_parity;
+static int hf_mpeg_descr_vbi_data_line_offset;
+static int hf_mpeg_descr_vbi_data_reserved2;
 
 #define MPEG_DESCR_VBI_DATA_RESERVED1_MASK  0xC0
 #define MPEG_DESCR_VBI_DATA_FIELD_PARITY_MASK   0x20
 #define MPEG_DESCR_VBI_DATA_LINE_OFFSET_MASK    0x1F
 
-static gint ett_mpeg_descriptor_vbi_data_service = -1;
+static gint ett_mpeg_descriptor_vbi_data_service;
 
 static const value_string mpeg_descr_vbi_data_service_id_vals[] = {
 
@@ -1145,8 +1145,8 @@ proto_mpeg_descriptor_dissect_vbi_data(tvbuff_t *tvb, guint offset, guint len, p
 }
 
 /* 0x47 Bouquet Name Descriptor */
-static int hf_mpeg_descr_bouquet_name_encoding = -1;
-static int hf_mpeg_descr_bouquet_name = -1;
+static int hf_mpeg_descr_bouquet_name_encoding;
+static int hf_mpeg_descr_bouquet_name;
 
 static void
 proto_mpeg_descriptor_dissect_bouquet_name(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
@@ -1159,13 +1159,13 @@ proto_mpeg_descriptor_dissect_bouquet_name(tvbuff_t *tvb, guint offset, guint le
 }
 
 /* 0x48 Service Descriptor */
-static int hf_mpeg_descr_service_type = -1;
-static int hf_mpeg_descr_service_provider_name_length = -1;
-static int hf_mpeg_descr_service_provider_name_encoding = -1;
-static int hf_mpeg_descr_service_provider = -1;
-static int hf_mpeg_descr_service_name_length = -1;
-static int hf_mpeg_descr_service_name_encoding = -1;
-static int hf_mpeg_descr_service_name = -1;
+static int hf_mpeg_descr_service_type;
+static int hf_mpeg_descr_service_provider_name_length;
+static int hf_mpeg_descr_service_provider_name_encoding;
+static int hf_mpeg_descr_service_provider;
+static int hf_mpeg_descr_service_name_length;
+static int hf_mpeg_descr_service_name_encoding;
+static int hf_mpeg_descr_service_name;
 
 static const value_string mpeg_descr_service_type_vals[] = {
 
@@ -1243,11 +1243,11 @@ proto_mpeg_descriptor_dissect_service(tvbuff_t *tvb, guint offset, proto_tree *t
 }
 
 /* 0x49 Country Availability Descriptor */
-static int hf_mpeg_descr_country_availability_flag = -1;
-static int hf_mpeg_descr_country_availability_reserved_future_use = -1;
-static int hf_mpeg_descr_country_availability_country_code = -1;
+static int hf_mpeg_descr_country_availability_flag;
+static int hf_mpeg_descr_country_availability_reserved_future_use;
+static int hf_mpeg_descr_country_availability_country_code;
 
-static gint ett_mpeg_descriptor_country_availability_countries = -1;
+static gint ett_mpeg_descriptor_country_availability_countries;
 
 #define MPEG_DESCR_COUNTRY_AVAILABILITY_FLAG_MASK           0x80
 #define MPEG_DESCR_COUNTRY_AVAILABILITY_RESERVED_MASK       0x7F
@@ -1279,31 +1279,31 @@ proto_mpeg_descriptor_dissect_country_availability_descriptor(tvbuff_t *tvb, gui
 }
 
 /* 0x4A Linkage Descriptor */
-static int hf_mpeg_descr_linkage_transport_stream_id = -1;
-static int hf_mpeg_descr_linkage_original_network_id = -1;
-static int hf_mpeg_descr_linkage_service_id = -1;
-static int hf_mpeg_descr_linkage_linkage_type = -1;
+static int hf_mpeg_descr_linkage_transport_stream_id;
+static int hf_mpeg_descr_linkage_original_network_id;
+static int hf_mpeg_descr_linkage_service_id;
+static int hf_mpeg_descr_linkage_linkage_type;
 
-static int hf_mpeg_descr_linkage_hand_over_type = -1;
-static int hf_mpeg_descr_linkage_reserved1 = -1;
-static int hf_mpeg_descr_linkage_origin_type = -1;
-static int hf_mpeg_descr_linkage_network_id = -1;
-static int hf_mpeg_descr_linkage_initial_service_id = -1;
+static int hf_mpeg_descr_linkage_hand_over_type;
+static int hf_mpeg_descr_linkage_reserved1;
+static int hf_mpeg_descr_linkage_origin_type;
+static int hf_mpeg_descr_linkage_network_id;
+static int hf_mpeg_descr_linkage_initial_service_id;
 
-static int hf_mpeg_descr_linkage_target_event_id = -1;
-static int hf_mpeg_descr_linkage_target_listed = -1;
-static int hf_mpeg_descr_linkage_event_simulcast = -1;
-static int hf_mpeg_descr_linkage_reserved2 = -1;
+static int hf_mpeg_descr_linkage_target_event_id;
+static int hf_mpeg_descr_linkage_target_listed;
+static int hf_mpeg_descr_linkage_event_simulcast;
+static int hf_mpeg_descr_linkage_reserved2;
 
-static int hf_mpeg_descr_linkage_interactive_network_id = -1;
-static int hf_mpeg_descr_linkage_population_id_loop_count = -1;
-static int hf_mpeg_descr_linkage_population_id = -1;
-static int hf_mpeg_descr_linkage_population_id_base = -1;
-static int hf_mpeg_descr_linkage_population_id_mask = -1;
+static int hf_mpeg_descr_linkage_interactive_network_id;
+static int hf_mpeg_descr_linkage_population_id_loop_count;
+static int hf_mpeg_descr_linkage_population_id;
+static int hf_mpeg_descr_linkage_population_id_base;
+static int hf_mpeg_descr_linkage_population_id_mask;
 
-static int hf_mpeg_descr_linkage_private_data_byte = -1;
+static int hf_mpeg_descr_linkage_private_data_byte;
 
-static gint ett_mpeg_descriptor_linkage_population_id = -1;
+static gint ett_mpeg_descriptor_linkage_population_id;
 
 #define MPEG_DESCR_LINKAGE_HAND_OVER_TYPE_MASK  0xF0
 #define MPEG_DESCR_LINKAGE_HAND_OVER_TYPE_SHIFT 0x04
@@ -1452,11 +1452,11 @@ proto_mpeg_descriptor_dissect_linkage(tvbuff_t *tvb, guint offset, guint len, pr
 }
 
 /* 0x4B NVOD Reference Descriptor */
-static int hf_mpeg_descr_nvod_reference_tsid = -1;
-static int hf_mpeg_descr_nvod_reference_onid = -1;
-static int hf_mpeg_descr_nvod_reference_sid  = -1;
+static int hf_mpeg_descr_nvod_reference_tsid;
+static int hf_mpeg_descr_nvod_reference_onid;
+static int hf_mpeg_descr_nvod_reference_sid;
 
-static gint ett_mpeg_descriptor_nvod_reference_triplet = -1;
+static gint ett_mpeg_descriptor_nvod_reference_triplet;
 
 static void
 proto_mpeg_descriptor_dissect_nvod_reference(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
@@ -1484,7 +1484,7 @@ proto_mpeg_descriptor_dissect_nvod_reference(tvbuff_t *tvb, guint offset, guint 
 }
 
 /* 0x4C Time Shifted Service Descriptor */
-static int hf_mpeg_descr_time_shifted_service_id = -1;
+static int hf_mpeg_descr_time_shifted_service_id;
 
 static void
 proto_mpeg_descriptor_dissect_time_shifted_service(tvbuff_t *tvb, guint offset, proto_tree *tree)
@@ -1493,13 +1493,13 @@ proto_mpeg_descriptor_dissect_time_shifted_service(tvbuff_t *tvb, guint offset, 
 }
 
 /* 0x4D Short Event Descriptor */
-static int hf_mpeg_descr_short_event_lang_code = -1;
-static int hf_mpeg_descr_short_event_name_length = -1;
-static int hf_mpeg_descr_short_event_name_encoding = -1;
-static int hf_mpeg_descr_short_event_name = -1;
-static int hf_mpeg_descr_short_event_text_length = -1;
-static int hf_mpeg_descr_short_event_text_encoding = -1;
-static int hf_mpeg_descr_short_event_text = -1;
+static int hf_mpeg_descr_short_event_lang_code;
+static int hf_mpeg_descr_short_event_name_length;
+static int hf_mpeg_descr_short_event_name_encoding;
+static int hf_mpeg_descr_short_event_name;
+static int hf_mpeg_descr_short_event_text_length;
+static int hf_mpeg_descr_short_event_text_encoding;
+static int hf_mpeg_descr_short_event_text;
 
 static void
 proto_mpeg_descriptor_dissect_short_event(tvbuff_t *tvb, guint offset, proto_tree *tree)
@@ -1536,22 +1536,22 @@ proto_mpeg_descriptor_dissect_short_event(tvbuff_t *tvb, guint offset, proto_tre
 }
 
 /* 0x4E Extended Event Descriptor */
-static int hf_mpeg_descr_extended_event_descriptor_number = -1;
-static int hf_mpeg_descr_extended_event_last_descriptor_number = -1;
-static int hf_mpeg_descr_extended_event_lang_code = -1;
-static int hf_mpeg_descr_extended_event_length_of_items = -1;
-static int hf_mpeg_descr_extended_event_item_description_length = -1;
-static int hf_mpeg_descr_extended_event_item_description_char = -1;
-static int hf_mpeg_descr_extended_event_item_length = -1;
-static int hf_mpeg_descr_extended_event_item_char = -1;
-static int hf_mpeg_descr_extended_event_text_length = -1;
-static int hf_mpeg_descr_extended_event_text_encoding = -1;
-static int hf_mpeg_descr_extended_event_text = -1;
+static int hf_mpeg_descr_extended_event_descriptor_number;
+static int hf_mpeg_descr_extended_event_last_descriptor_number;
+static int hf_mpeg_descr_extended_event_lang_code;
+static int hf_mpeg_descr_extended_event_length_of_items;
+static int hf_mpeg_descr_extended_event_item_description_length;
+static int hf_mpeg_descr_extended_event_item_description_char;
+static int hf_mpeg_descr_extended_event_item_length;
+static int hf_mpeg_descr_extended_event_item_char;
+static int hf_mpeg_descr_extended_event_text_length;
+static int hf_mpeg_descr_extended_event_text_encoding;
+static int hf_mpeg_descr_extended_event_text;
 
 #define MPEG_DESCR_EXTENDED_EVENT_DESCRIPTOR_NUMBER_MASK    0xF0
 #define MPEG_DESCR_EXTENDED_EVENT_LAST_DESCRIPTOR_NUMBER_MASK   0x0F
 
-static gint ett_mpeg_descriptor_extended_event_item = -1;
+static gint ett_mpeg_descriptor_extended_event_item;
 
 static void
 proto_mpeg_descriptor_dissect_extended_event(tvbuff_t *tvb, guint offset, proto_tree *tree)
@@ -1608,8 +1608,8 @@ proto_mpeg_descriptor_dissect_extended_event(tvbuff_t *tvb, guint offset, proto_
 }
 
 /* 0x4F Time Shifted Event Descriptor */
-static int hf_mpeg_descr_time_shifted_event_reference_service_id = -1;
-static int hf_mpeg_descr_time_shifted_event_reference_event_id = -1;
+static int hf_mpeg_descr_time_shifted_event_reference_service_id;
+static int hf_mpeg_descr_time_shifted_event_reference_event_id;
 
 static void
 proto_mpeg_descriptor_dissect_time_shifted_event(tvbuff_t *tvb, guint offset, proto_tree *tree)
@@ -1621,28 +1621,28 @@ proto_mpeg_descriptor_dissect_time_shifted_event(tvbuff_t *tvb, guint offset, pr
 }
 
 /* 0x50 Component Descriptor */
-static int hf_mpeg_descr_component_stream_content_ext = -1;
-static int hf_mpeg_descr_component_stream_content = -1;
-static int hf_mpeg_descr_component_type = -1;
-static int hf_mpeg_descr_component_content_type = -1;
-static int hf_mpeg_descr_component_tag = -1;
-static int hf_mpeg_descr_component_lang_code = -1;
-static int hf_mpeg_descr_component_text_encoding = -1;
-static int hf_mpeg_descr_component_text = -1;
+static int hf_mpeg_descr_component_stream_content_ext;
+static int hf_mpeg_descr_component_stream_content;
+static int hf_mpeg_descr_component_type;
+static int hf_mpeg_descr_component_content_type;
+static int hf_mpeg_descr_component_tag;
+static int hf_mpeg_descr_component_lang_code;
+static int hf_mpeg_descr_component_text_encoding;
+static int hf_mpeg_descr_component_text;
 
-static int hf_mpeg_descr_component_high_stream_content_ext = -1;
-static int hf_mpeg_descr_component_high_stream_content = -1;
-static int hf_mpeg_descr_component_high_stream_content_both = -1;
-static int hf_mpeg_descr_component_high_component_type = -1;
-static int hf_mpeg_descr_component_high_stream_content_n_component_type = -1;
+static int hf_mpeg_descr_component_high_stream_content_ext;
+static int hf_mpeg_descr_component_high_stream_content;
+static int hf_mpeg_descr_component_high_stream_content_both;
+static int hf_mpeg_descr_component_high_component_type;
+static int hf_mpeg_descr_component_high_stream_content_n_component_type;
 
-static int hf_mpeg_descr_component_nga_bits_b7_reserved = -1;
-static int hf_mpeg_descr_component_nga_bits_b6_headphones = -1;
-static int hf_mpeg_descr_component_nga_bits_b5_interactivity = -1;
-static int hf_mpeg_descr_component_nga_bits_b4_dialogue_enhancement = -1;
-static int hf_mpeg_descr_component_nga_bits_b3_spoken_subtitles = -1;
-static int hf_mpeg_descr_component_nga_bits_b2_audio_description = -1;
-static int hf_mpeg_descr_component_nga_bits_b10_channel_layout = -1;
+static int hf_mpeg_descr_component_nga_bits_b7_reserved;
+static int hf_mpeg_descr_component_nga_bits_b6_headphones;
+static int hf_mpeg_descr_component_nga_bits_b5_interactivity;
+static int hf_mpeg_descr_component_nga_bits_b4_dialogue_enhancement;
+static int hf_mpeg_descr_component_nga_bits_b3_spoken_subtitles;
+static int hf_mpeg_descr_component_nga_bits_b2_audio_description;
+static int hf_mpeg_descr_component_nga_bits_b10_channel_layout;
 
 #define MPEG_DESCR_COMPONENT_STREAM_CONTENT_EXT_MASK      0xF0
 #define MPEG_DESCR_COMPONENT_STREAM_CONTENT_MASK    0x0F
@@ -1662,7 +1662,7 @@ static int hf_mpeg_descr_component_nga_bits_b10_channel_layout = -1;
 #define MPEG_DESCR_COMPONENT_NGA_BITS_B2_MASK    0x0004
 #define MPEG_DESCR_COMPONENT_NGA_BITS_B10_MASK   0x0003
 
-static gint ett_mpeg_descriptor_component_content_type = -1;
+static gint ett_mpeg_descriptor_component_content_type;
 
 static const value_string mpeg_descr_component_stream_content_vals[] = {
 
@@ -1918,22 +1918,22 @@ mpeg_descr_component_tail:
 }
 
 /* 0x51 Mosaic Descriptor */
-static int hf_mpeg_descr_mosaic_mosaic_entry_point = -1;
-static int hf_mpeg_descr_mosaic_number_of_horizontal_elementary_cells = -1;
-static int hf_mpeg_descr_mosaic_reserved_future_use1 = -1;
-static int hf_mpeg_descr_mosaic_number_of_vertical_elementary_cells = -1;
-static int hf_mpeg_descr_mosaic_logical_cell_id = -1;
-static int hf_mpeg_descr_mosaic_reserved_future_use2 = -1;
-static int hf_mpeg_descr_mosaic_logical_cell_presentation_info = -1;
-static int hf_mpeg_descr_mosaic_elementary_cell_field_length = -1;
-static int hf_mpeg_descr_mosaic_reserved_future_use3 = -1;
-static int hf_mpeg_descr_mosaic_elementary_cell_id = -1;
-static int hf_mpeg_descr_mosaic_cell_linkage_info = -1;
-static int hf_mpeg_descr_mosaic_bouquet_id = -1;
-static int hf_mpeg_descr_mosaic_original_network_id = -1;
-static int hf_mpeg_descr_mosaic_transport_stream_id = -1;
-static int hf_mpeg_descr_mosaic_service_id = -1;
-static int hf_mpeg_descr_mosaic_event_id = -1;
+static int hf_mpeg_descr_mosaic_mosaic_entry_point;
+static int hf_mpeg_descr_mosaic_number_of_horizontal_elementary_cells;
+static int hf_mpeg_descr_mosaic_reserved_future_use1;
+static int hf_mpeg_descr_mosaic_number_of_vertical_elementary_cells;
+static int hf_mpeg_descr_mosaic_logical_cell_id;
+static int hf_mpeg_descr_mosaic_reserved_future_use2;
+static int hf_mpeg_descr_mosaic_logical_cell_presentation_info;
+static int hf_mpeg_descr_mosaic_elementary_cell_field_length;
+static int hf_mpeg_descr_mosaic_reserved_future_use3;
+static int hf_mpeg_descr_mosaic_elementary_cell_id;
+static int hf_mpeg_descr_mosaic_cell_linkage_info;
+static int hf_mpeg_descr_mosaic_bouquet_id;
+static int hf_mpeg_descr_mosaic_original_network_id;
+static int hf_mpeg_descr_mosaic_transport_stream_id;
+static int hf_mpeg_descr_mosaic_service_id;
+static int hf_mpeg_descr_mosaic_event_id;
 
 #define MPEG_DESCR_MOSAIC_ENTRY_POINT_MASK              0x80
 #define MPEG_DESCR_MOSAIC_NUM_OF_H_CELLS_MASK           0x70
@@ -1945,8 +1945,8 @@ static int hf_mpeg_descr_mosaic_event_id = -1;
 #define MPEG_DESCR_MOSAIC_RESERVED3_MASK                0xC0
 #define MPEG_DESCR_MOSAIC_ELEMENTARY_CELL_ID_MASK       0x3F
 
-static gint ett_mpeg_descriptor_mosaic_logical_cell = -1;
-static gint ett_mpeg_descriptor_mosaic_elementary_cells = -1;
+static gint ett_mpeg_descriptor_mosaic_logical_cell;
+static gint ett_mpeg_descriptor_mosaic_elementary_cells;
 
 static const value_string mpeg_descr_mosaic_number_of_e_cells_vals[] = {
     { 0x00, "One cell" },
@@ -2078,7 +2078,7 @@ proto_mpeg_descriptor_dissect_mosaic(tvbuff_t *tvb, guint offset, guint len, pro
 }
 
 /* 0x52 Stream Identifier Descriptor */
-static int hf_mpeg_descr_stream_identifier_component_tag = -1;
+static int hf_mpeg_descr_stream_identifier_component_tag;
 
 static void
 proto_mpeg_descriptor_dissect_stream_identifier(tvbuff_t *tvb, guint offset, proto_tree *tree)
@@ -2087,7 +2087,7 @@ proto_mpeg_descriptor_dissect_stream_identifier(tvbuff_t *tvb, guint offset, pro
 }
 
 /* 0x53 CA Identifier Descriptor */
-static int hf_mpeg_descr_ca_identifier_system_id = -1;
+static int hf_mpeg_descr_ca_identifier_system_id;
 
 static void
 proto_mpeg_descriptor_dissect_ca_identifier(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
@@ -2102,15 +2102,15 @@ proto_mpeg_descriptor_dissect_ca_identifier(tvbuff_t *tvb, guint offset, guint l
 }
 
 /* 0x54 Content Descriptor */
-static int hf_mpeg_descr_content_nibble = -1;
-static int hf_mpeg_descr_content_nibble_level_1 = -1;
-static int hf_mpeg_descr_content_nibble_level_2 = -1;
-static int hf_mpeg_descr_content_user_byte = -1;
+static int hf_mpeg_descr_content_nibble;
+static int hf_mpeg_descr_content_nibble_level_1;
+static int hf_mpeg_descr_content_nibble_level_2;
+static int hf_mpeg_descr_content_user_byte;
 
 #define MPEG_DESCR_CONTENT_NIBBLE_LEVEL_1_MASK  0xF0
 #define MPEG_DESCR_CONTENT_NIBBLE_LEVEL_2_MASK  0x0F
 
-static gint ett_mpeg_descriptor_content_nibble = -1;
+static gint ett_mpeg_descriptor_content_nibble;
 
 static const value_string mpeg_descr_content_nibble_vals[] = {
 
@@ -2260,8 +2260,8 @@ proto_mpeg_descriptor_dissect_content(tvbuff_t *tvb, guint offset, guint len, pr
 }
 
 /* 0x55 Parental Rating Descriptor */
-static int hf_mpeg_descr_parental_rating_country_code = -1;
-static int hf_mpeg_descr_parental_rating_rating = -1;
+static int hf_mpeg_descr_parental_rating_country_code;
+static int hf_mpeg_descr_parental_rating_rating;
 
 static const value_string mpeg_descr_parental_rating_vals[] = {
     { 0x00, "Undefined" },
@@ -2296,10 +2296,10 @@ proto_mpeg_descriptor_dissect_parental_rating(tvbuff_t *tvb, guint offset, proto
 }
 
 /* 0x56 Teletext Descriptor */
-static int hf_mpeg_descr_teletext_lang_code = -1;
-static int hf_mpeg_descr_teletext_type = -1;
-static int hf_mpeg_descr_teletext_magazine_number = -1;
-static int hf_mpeg_descr_teletext_page_number = -1;
+static int hf_mpeg_descr_teletext_lang_code;
+static int hf_mpeg_descr_teletext_type;
+static int hf_mpeg_descr_teletext_magazine_number;
+static int hf_mpeg_descr_teletext_page_number;
 
 #define MPEG_DESCR_TELETEXT_TYPE_MASK           0xF8
 #define MPEG_DESCR_TELETEXT_MAGAZINE_NUMBER_MASK    0x07
@@ -2335,22 +2335,22 @@ proto_mpeg_descriptor_dissect_teletext(tvbuff_t *tvb, guint offset, guint len, p
 }
 
 /* 0x57 Telephone Descriptor */
-static int hf_mpeg_descr_telephone_reserved_future_use1 = -1;
-static int hf_mpeg_descr_telephone_foreign_availability = -1;
-static int hf_mpeg_descr_telephone_connection_type = -1;
-static int hf_mpeg_descr_telephone_reserved_future_use2 = -1;
-static int hf_mpeg_descr_telephone_country_prefix_length = -1;
-static int hf_mpeg_descr_telephone_international_area_code_length = -1;
-static int hf_mpeg_descr_telephone_operator_code_length = -1;
-static int hf_mpeg_descr_telephone_reserved_future_use3 = -1;
-static int hf_mpeg_descr_telephone_national_area_code_length = -1;
-static int hf_mpeg_descr_telephone_core_number_length = -1;
-static int hf_mpeg_descr_telephone_number = -1;
-static int hf_mpeg_descr_telephone_country_prefix = -1;
-static int hf_mpeg_descr_telephone_international_area_code = -1;
-static int hf_mpeg_descr_telephone_operator_code = -1;
-static int hf_mpeg_descr_telephone_national_area_code = -1;
-static int hf_mpeg_descr_telephone_core_number = -1;
+static int hf_mpeg_descr_telephone_reserved_future_use1;
+static int hf_mpeg_descr_telephone_foreign_availability;
+static int hf_mpeg_descr_telephone_connection_type;
+static int hf_mpeg_descr_telephone_reserved_future_use2;
+static int hf_mpeg_descr_telephone_country_prefix_length;
+static int hf_mpeg_descr_telephone_international_area_code_length;
+static int hf_mpeg_descr_telephone_operator_code_length;
+static int hf_mpeg_descr_telephone_reserved_future_use3;
+static int hf_mpeg_descr_telephone_national_area_code_length;
+static int hf_mpeg_descr_telephone_core_number_length;
+static int hf_mpeg_descr_telephone_number;
+static int hf_mpeg_descr_telephone_country_prefix;
+static int hf_mpeg_descr_telephone_international_area_code;
+static int hf_mpeg_descr_telephone_operator_code;
+static int hf_mpeg_descr_telephone_national_area_code;
+static int hf_mpeg_descr_telephone_core_number;
 
 #define MPEG_DESCR_TELEPHONE_RESERVED1_MASK                 0xC0
 #define MPEG_DESCR_TELEPHONE_FOREIGN_AVAILABILITY_MASK      0x20
@@ -2376,7 +2376,7 @@ static const range_string mpeg_descr_telephone_connection_type_vals[] = {
     { 0, 0, NULL }
 };
 
-static gint ett_mpeg_descriptor_telephone_number = -1;
+static gint ett_mpeg_descriptor_telephone_number;
 
 static void
 proto_mpeg_descriptor_dissect_telephone(tvbuff_t *tvb, guint offset, proto_tree *tree)
@@ -2437,13 +2437,13 @@ proto_mpeg_descriptor_dissect_telephone(tvbuff_t *tvb, guint offset, proto_tree 
 }
 
 /* 0x58 Local Time Offset Descriptor */
-static int hf_mpeg_descr_local_time_offset_country_code = -1;
-static int hf_mpeg_descr_local_time_offset_region_id = -1;
-static int hf_mpeg_descr_local_time_offset_reserved = -1;
-static int hf_mpeg_descr_local_time_offset_polarity = -1;
-static int hf_mpeg_descr_local_time_offset_offset = -1;
-static int hf_mpeg_descr_local_time_offset_time_of_change = -1;
-static int hf_mpeg_descr_local_time_offset_next_time_offset = -1;
+static int hf_mpeg_descr_local_time_offset_country_code;
+static int hf_mpeg_descr_local_time_offset_region_id;
+static int hf_mpeg_descr_local_time_offset_reserved;
+static int hf_mpeg_descr_local_time_offset_polarity;
+static int hf_mpeg_descr_local_time_offset_offset;
+static int hf_mpeg_descr_local_time_offset_time_of_change;
+static int hf_mpeg_descr_local_time_offset_next_time_offset;
 
 #define MPEG_DESCR_LOCAL_TIME_OFFSET_COUNTRY_REGION_ID_MASK 0xFC
 #define MPEG_DESCR_LOCAL_TIME_OFFSET_RESERVED_MASK      0x02
@@ -2499,10 +2499,10 @@ proto_mpeg_descriptor_dissect_local_time_offset(tvbuff_t *tvb, guint offset, gui
 }
 
 /* 0x59 Subtitling Descriptor */
-static int hf_mpeg_descr_subtitling_lang_code = -1;
-static int hf_mpeg_descr_subtitling_type = -1;
-static int hf_mpeg_descr_subtitling_composition_page_id = -1;
-static int hf_mpeg_descr_subtitling_ancillary_page_id = -1;
+static int hf_mpeg_descr_subtitling_lang_code;
+static int hf_mpeg_descr_subtitling_type;
+static int hf_mpeg_descr_subtitling_composition_page_id;
+static int hf_mpeg_descr_subtitling_ancillary_page_id;
 
 
 static const value_string mpeg_descr_subtitling_type_vals[] = {
@@ -2549,20 +2549,20 @@ proto_mpeg_descriptor_dissect_subtitling(tvbuff_t *tvb, guint offset, guint len,
 }
 
 /* 0x5A Terrestrial Delivery System Descriptor */
-static int hf_mpeg_descr_terrestrial_delivery_centre_frequency = -1;
-static int hf_mpeg_descr_terrestrial_delivery_bandwidth = -1;
-static int hf_mpeg_descr_terrestrial_delivery_priority = -1;
-static int hf_mpeg_descr_terrestrial_delivery_time_slicing_indicator = -1;
-static int hf_mpeg_descr_terrestrial_delivery_mpe_fec_indicator = -1;
-static int hf_mpeg_descr_terrestrial_delivery_reserved1 = -1;
-static int hf_mpeg_descr_terrestrial_delivery_constellation = -1;
-static int hf_mpeg_descr_terrestrial_delivery_hierarchy_information = -1;
-static int hf_mpeg_descr_terrestrial_delivery_code_rate_hp_stream = -1;
-static int hf_mpeg_descr_terrestrial_delivery_code_rate_lp_stream = -1;
-static int hf_mpeg_descr_terrestrial_delivery_guard_interval = -1;
-static int hf_mpeg_descr_terrestrial_delivery_transmission_mode = -1;
-static int hf_mpeg_descr_terrestrial_delivery_other_frequency_flag = -1;
-static int hf_mpeg_descr_terrestrial_delivery_reserved2 = -1;
+static int hf_mpeg_descr_terrestrial_delivery_centre_frequency;
+static int hf_mpeg_descr_terrestrial_delivery_bandwidth;
+static int hf_mpeg_descr_terrestrial_delivery_priority;
+static int hf_mpeg_descr_terrestrial_delivery_time_slicing_indicator;
+static int hf_mpeg_descr_terrestrial_delivery_mpe_fec_indicator;
+static int hf_mpeg_descr_terrestrial_delivery_reserved1;
+static int hf_mpeg_descr_terrestrial_delivery_constellation;
+static int hf_mpeg_descr_terrestrial_delivery_hierarchy_information;
+static int hf_mpeg_descr_terrestrial_delivery_code_rate_hp_stream;
+static int hf_mpeg_descr_terrestrial_delivery_code_rate_lp_stream;
+static int hf_mpeg_descr_terrestrial_delivery_guard_interval;
+static int hf_mpeg_descr_terrestrial_delivery_transmission_mode;
+static int hf_mpeg_descr_terrestrial_delivery_other_frequency_flag;
+static int hf_mpeg_descr_terrestrial_delivery_reserved2;
 
 #define MPEG_DESCR_TERRESTRIAL_DELIVERY_BANDWIDTH_MASK          0xE0
 #define MPEG_DESCR_TERRESTRIAL_DELIVERY_PRIORITY_MASK           0x10
@@ -2698,12 +2698,12 @@ proto_mpeg_descriptor_dissect_terrestrial_delivery(tvbuff_t *tvb, guint offset, 
 }
 
 /* 0x5B Multilingual Network Name Descriptor */
-static int hf_mpeg_descr_multilng_network_name_desc_iso639_language_code = -1;
-static int hf_mpeg_descr_multilng_network_name_desc_name_length = -1;
-static int hf_mpeg_descr_multilng_network_name_desc_name_encoding = -1;
-static int hf_mpeg_descr_multilng_network_name_desc_name = -1;
+static int hf_mpeg_descr_multilng_network_name_desc_iso639_language_code;
+static int hf_mpeg_descr_multilng_network_name_desc_name_length;
+static int hf_mpeg_descr_multilng_network_name_desc_name_encoding;
+static int hf_mpeg_descr_multilng_network_name_desc_name;
 
-static gint ett_mpeg_descriptor_multilng_network_name_desc_lng = -1;
+static gint ett_mpeg_descriptor_multilng_network_name_desc_lng;
 
 static guint
 proto_mpeg_descriptor_dissect_multilng_network_name_desc_measure_lng_len(tvbuff_t *tvb, guint offset, guint len)
@@ -2767,12 +2767,12 @@ proto_mpeg_descriptor_dissect_multilng_network_name_desc(tvbuff_t *tvb, guint of
 }
 
 /* 0x5C Multilingual Bouquet Name Descriptor */
-static int hf_mpeg_descr_multilng_bouquet_name_desc_iso639_language_code = -1;
-static int hf_mpeg_descr_multilng_bouquet_name_desc_name_length = -1;
-static int hf_mpeg_descr_multilng_bouquet_name_desc_name_encoding = -1;
-static int hf_mpeg_descr_multilng_bouquet_name_desc_name = -1;
+static int hf_mpeg_descr_multilng_bouquet_name_desc_iso639_language_code;
+static int hf_mpeg_descr_multilng_bouquet_name_desc_name_length;
+static int hf_mpeg_descr_multilng_bouquet_name_desc_name_encoding;
+static int hf_mpeg_descr_multilng_bouquet_name_desc_name;
 
-static gint ett_mpeg_descriptor_multilng_bouquet_name_desc_lng = -1;
+static gint ett_mpeg_descriptor_multilng_bouquet_name_desc_lng;
 
 static guint
 proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc_measure_lng_len(tvbuff_t *tvb, guint offset, guint len)
@@ -2836,15 +2836,15 @@ proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc(tvbuff_t *tvb, guint of
 }
 
 /* 0x5D Multilingual Service Name Descriptor */
-static int hf_mpeg_descr_multilng_srv_name_desc_iso639_language_code = -1;
-static int hf_mpeg_descr_multilng_srv_name_desc_service_provider_name_length = -1;
-static int hf_mpeg_descr_multilng_srv_name_desc_service_provider_name_encoding = -1;
-static int hf_mpeg_descr_multilng_srv_name_desc_service_provider_name = -1;
-static int hf_mpeg_descr_multilng_srv_name_desc_service_name_length = -1;
-static int hf_mpeg_descr_multilng_srv_name_desc_service_name_encoding = -1;
-static int hf_mpeg_descr_multilng_srv_name_desc_service_name = -1;
+static int hf_mpeg_descr_multilng_srv_name_desc_iso639_language_code;
+static int hf_mpeg_descr_multilng_srv_name_desc_service_provider_name_length;
+static int hf_mpeg_descr_multilng_srv_name_desc_service_provider_name_encoding;
+static int hf_mpeg_descr_multilng_srv_name_desc_service_provider_name;
+static int hf_mpeg_descr_multilng_srv_name_desc_service_name_length;
+static int hf_mpeg_descr_multilng_srv_name_desc_service_name_encoding;
+static int hf_mpeg_descr_multilng_srv_name_desc_service_name;
 
-static gint ett_mpeg_descriptor_multilng_srv_name_desc_lng = -1;
+static gint ett_mpeg_descriptor_multilng_srv_name_desc_lng;
 
 static guint
 proto_mpeg_descriptor_dissect_multilng_srv_name_desc_measure_lng_len(tvbuff_t *tvb, guint offset, guint len)
@@ -2932,13 +2932,13 @@ proto_mpeg_descriptor_dissect_multilng_srv_name_desc(tvbuff_t *tvb, guint offset
 }
 
 /* 0x5E Multilingual Component Descriptor */
-static int hf_mpeg_descr_multilng_component_desc_iso639_language_code = -1;
-static int hf_mpeg_descr_multilng_component_desc_tag = -1;
-static int hf_mpeg_descr_multilng_component_desc_text_length = -1;
-static int hf_mpeg_descr_multilng_component_desc_text_encoding = -1;
-static int hf_mpeg_descr_multilng_component_desc_text = -1;
+static int hf_mpeg_descr_multilng_component_desc_iso639_language_code;
+static int hf_mpeg_descr_multilng_component_desc_tag;
+static int hf_mpeg_descr_multilng_component_desc_text_length;
+static int hf_mpeg_descr_multilng_component_desc_text_encoding;
+static int hf_mpeg_descr_multilng_component_desc_text;
 
-static gint ett_mpeg_descriptor_multilng_component_desc_lng = -1;
+static gint ett_mpeg_descriptor_multilng_component_desc_lng;
 
 static guint
 proto_mpeg_descriptor_dissect_multilng_component_desc_measure_lng_len(tvbuff_t *tvb, guint offset, guint len)
@@ -3007,7 +3007,7 @@ proto_mpeg_descriptor_dissect_multilng_component_desc(tvbuff_t *tvb, guint offse
 }
 
 /* 0x5F Private Data Specifier */
-static int hf_mpeg_descr_private_data_specifier_id = -1;
+static int hf_mpeg_descr_private_data_specifier_id;
 
 #define PRIVATE_DATA_SPECIFIER_RESERVED    0x00000000
 #define PRIVATE_DATA_SPECIFIER_NORDIG      0x00000029
@@ -3031,9 +3031,9 @@ proto_mpeg_descriptor_dissect_private_data_specifier(tvbuff_t *tvb, guint offset
 }
 
 /* 0x61 Short Smoothing Buffer Descriptor */
-static int hf_mpeg_descr_short_smoothing_buffer_sb_size = -1;
-static int hf_mpeg_descr_short_smoothing_buffer_sb_leak_rate = -1;
-static int hf_mpeg_descr_short_smoothing_buffer_dvb_reserved = -1;
+static int hf_mpeg_descr_short_smoothing_buffer_sb_size;
+static int hf_mpeg_descr_short_smoothing_buffer_sb_leak_rate;
+static int hf_mpeg_descr_short_smoothing_buffer_dvb_reserved;
 
 #define MPEG_DESCR_SHORT_SMOOTHING_BUFFER_SB_SIZE_MASK      0xC0
 #define MPEG_DESCR_SHORT_SMOOTHING_BUFFER_SB_LEAK_RATE_MASK 0x3F
@@ -3127,12 +3127,12 @@ proto_mpeg_descriptor_dissect_short_smoothing_buffer(tvbuff_t *tvb, guint offset
 }
 
 /* 0x63 Partial Transport Stream Descriptor */
-static int hf_mpeg_descr_partial_transport_stream_reserved_future_use1 = -1;
-static int hf_mpeg_descr_partial_transport_stream_peak_rate = -1;
-static int hf_mpeg_descr_partial_transport_stream_reserved_future_use2 = -1;
-static int hf_mpeg_descr_partial_transport_stream_minimum_overall_smoothing_rate = -1;
-static int hf_mpeg_descr_partial_transport_stream_reserved_future_use3 = -1;
-static int hf_mpeg_descr_partial_transport_stream_maximum_overall_smoothing_buffer = -1;
+static int hf_mpeg_descr_partial_transport_stream_reserved_future_use1;
+static int hf_mpeg_descr_partial_transport_stream_peak_rate;
+static int hf_mpeg_descr_partial_transport_stream_reserved_future_use2;
+static int hf_mpeg_descr_partial_transport_stream_minimum_overall_smoothing_rate;
+static int hf_mpeg_descr_partial_transport_stream_reserved_future_use3;
+static int hf_mpeg_descr_partial_transport_stream_maximum_overall_smoothing_buffer;
 
 #define PARTIAL_TRANSPORT_STREAM_DESCR_RESERVED_FUTURE_USE1_MASK   0xC00000
 #define PARTIAL_TRANSPORT_STREAM_DESCR_PEAK_RATE_MASK              0x3FFFFF
@@ -3170,13 +3170,13 @@ proto_mpeg_descriptor_dissect_partial_transport_stream(tvbuff_t *tvb, guint offs
 }
 
 /* 0x64 Data Broadcast Descriptor */
-static int hf_mpeg_descr_data_bcast_bcast_id = -1;
-static int hf_mpeg_descr_data_bcast_component_tag = -1;
-static int hf_mpeg_descr_data_bcast_selector_len = -1;
-static int hf_mpeg_descr_data_bcast_selector_bytes = -1;
-static int hf_mpeg_descr_data_bcast_lang_code = -1;
-static int hf_mpeg_descr_data_bcast_text_len = -1;
-static int hf_mpeg_descr_data_bcast_text = -1;
+static int hf_mpeg_descr_data_bcast_bcast_id;
+static int hf_mpeg_descr_data_bcast_component_tag;
+static int hf_mpeg_descr_data_bcast_selector_len;
+static int hf_mpeg_descr_data_bcast_selector_bytes;
+static int hf_mpeg_descr_data_bcast_lang_code;
+static int hf_mpeg_descr_data_bcast_text_len;
+static int hf_mpeg_descr_data_bcast_text;
 
 static const value_string mpeg_descr_data_bcast_id_vals[] = {
 
@@ -3235,8 +3235,8 @@ proto_mpeg_descriptor_dissect_data_bcast(tvbuff_t *tvb, guint offset, proto_tree
 }
 
 /* 0x66 Data Broadcast ID Descriptor */
-static int hf_mpeg_descr_data_bcast_id_bcast_id = -1;
-static int hf_mpeg_descr_data_bcast_id_id_selector_bytes = -1;
+static int hf_mpeg_descr_data_bcast_id_bcast_id;
+static int hf_mpeg_descr_data_bcast_id_id_selector_bytes;
 
 static void
 proto_mpeg_descriptor_dissect_data_bcast_id(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
@@ -3249,12 +3249,12 @@ proto_mpeg_descriptor_dissect_data_bcast_id(tvbuff_t *tvb, guint offset, guint l
 }
 
 /* 0x69 PDC Descriptor */
-static int hf_mpeg_descr_pdc_reserved = -1;
-static int hf_mpeg_descr_pdc_pil = -1;
-static int hf_mpeg_descr_pdc_day = -1;
-static int hf_mpeg_descr_pdc_month = -1;
-static int hf_mpeg_descr_pdc_hour = -1;
-static int hf_mpeg_descr_pdc_minute = -1;
+static int hf_mpeg_descr_pdc_reserved;
+static int hf_mpeg_descr_pdc_pil;
+static int hf_mpeg_descr_pdc_day;
+static int hf_mpeg_descr_pdc_month;
+static int hf_mpeg_descr_pdc_hour;
+static int hf_mpeg_descr_pdc_minute;
 
 #define MPEG_DESCR_PDC_RESERVED_MASK    0xF00000
 #define MPEG_DESCR_PDC_PIL_MASK         0x0FFFFF
@@ -3263,7 +3263,7 @@ static int hf_mpeg_descr_pdc_minute = -1;
 #define MPEG_DESCR_PDC_HOUR_MASK        0x0007C0
 #define MPEG_DESCR_PDC_MINUTE_MASK      0x00003F
 
-static gint ett_mpeg_descriptor_pdc_pil = -1;
+static gint ett_mpeg_descriptor_pdc_pil;
 
 static void
 proto_mpeg_descriptor_dissect_pdc(tvbuff_t *tvb, guint offset, proto_tree *tree)
@@ -3281,21 +3281,21 @@ proto_mpeg_descriptor_dissect_pdc(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* 0x6A AC-3 Descriptor */
-static int hf_mpeg_descr_ac3_component_type_flag = -1;
-static int hf_mpeg_descr_ac3_bsid_flag = -1;
-static int hf_mpeg_descr_ac3_mainid_flag = -1;
-static int hf_mpeg_descr_ac3_asvc_flag = -1;
-static int hf_mpeg_descr_ac3_reserved = -1;
-static int hf_mpeg_descr_ac3_component_type_reserved_flag = -1;
-static int hf_mpeg_descr_ac3_component_type_full_service_flag = -1;
-static int hf_mpeg_descr_ac3_component_type_service_type_flags = -1;
-static int hf_mpeg_descr_ac3_component_type_number_of_channels_flags = -1;
-static int hf_mpeg_descr_ac3_bsid = -1;
-static int hf_mpeg_descr_ac3_mainid = -1;
-static int hf_mpeg_descr_ac3_asvc = -1;
-static int hf_mpeg_descr_ac3_additional_info = -1;
+static int hf_mpeg_descr_ac3_component_type_flag;
+static int hf_mpeg_descr_ac3_bsid_flag;
+static int hf_mpeg_descr_ac3_mainid_flag;
+static int hf_mpeg_descr_ac3_asvc_flag;
+static int hf_mpeg_descr_ac3_reserved;
+static int hf_mpeg_descr_ac3_component_type_reserved_flag;
+static int hf_mpeg_descr_ac3_component_type_full_service_flag;
+static int hf_mpeg_descr_ac3_component_type_service_type_flags;
+static int hf_mpeg_descr_ac3_component_type_number_of_channels_flags;
+static int hf_mpeg_descr_ac3_bsid;
+static int hf_mpeg_descr_ac3_mainid;
+static int hf_mpeg_descr_ac3_asvc;
+static int hf_mpeg_descr_ac3_additional_info;
 
-static gint ett_mpeg_descriptor_ac3_component_type = -1;
+static gint ett_mpeg_descriptor_ac3_component_type;
 
 #define MPEG_DESCR_AC3_COMPONENT_TYPE_FLAG_MASK 0x80
 #define MPEG_DESCR_AC3_BSID_FLAG_MASK           0x40
@@ -3413,8 +3413,8 @@ proto_mpeg_descriptor_dissect_ac3(tvbuff_t *tvb, guint offset, guint len, proto_
 }
 
 /* 0x6F Application Signalling Descriptor */
-static int hf_mpeg_descr_app_sig_app_type = -1;
-static int hf_mpeg_descr_app_sig_ait_ver = -1;
+static int hf_mpeg_descr_app_sig_app_type;
+static int hf_mpeg_descr_app_sig_ait_ver;
 
 static void
 proto_mpeg_descriptor_dissect_app_sig(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
@@ -3431,7 +3431,7 @@ proto_mpeg_descriptor_dissect_app_sig(tvbuff_t *tvb, guint offset, guint len, pr
 }
 
 /* 0x71 Service Identifier Descriptor */
-static int hf_mpeg_descr_service_identifier = -1;
+static int hf_mpeg_descr_service_identifier;
 
 static void
 proto_mpeg_descriptor_dissect_service_identifier(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
@@ -3440,14 +3440,14 @@ proto_mpeg_descriptor_dissect_service_identifier(tvbuff_t *tvb, guint offset, gu
 }
 
 /* 0x72 Service Availability Descriptor */
-static int hf_mpeg_descr_service_availability_flag = -1;
-static int hf_mpeg_descr_service_availability_reserved = -1;
-static int hf_mpeg_descr_service_availability_cell_id = -1;
+static int hf_mpeg_descr_service_availability_flag;
+static int hf_mpeg_descr_service_availability_reserved;
+static int hf_mpeg_descr_service_availability_cell_id;
 
 #define MPEG_DESCR_SRV_AVAIL_FLAG_MASK      0x80
 #define MPEG_DESCR_SRV_AVAIL_RESERVED_MASK  0x7F
 
-static gint ett_mpeg_descriptor_srv_avail_cells = -1;
+static gint ett_mpeg_descriptor_srv_avail_cells;
 
 static const value_string mpeg_descr_srv_avail_flag_vals[] = {
     { 0x0, "Service is unavailable on the cells" },
@@ -3476,7 +3476,7 @@ proto_mpeg_descriptor_dissect_service_availability(tvbuff_t *tvb, guint offset, 
 }
 
 /* 0x73 Default Authority Descriptor */
-static int hf_mpeg_descr_default_authority_name = -1;
+static int hf_mpeg_descr_default_authority_name;
 
 static void
 proto_mpeg_descriptor_dissect_default_authority(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
@@ -3485,11 +3485,11 @@ proto_mpeg_descriptor_dissect_default_authority(tvbuff_t *tvb, guint offset, gui
 }
 
 /* 0x75 TVA ID Descriptor */
-static int hf_mpeg_descr_tva_id = -1;
-static int hf_mpeg_descr_tva_reserved = -1;
-static int hf_mpeg_descr_tva_running_status = -1;
+static int hf_mpeg_descr_tva_id;
+static int hf_mpeg_descr_tva_reserved;
+static int hf_mpeg_descr_tva_running_status;
 
-static gint ett_mpeg_descriptor_tva = -1;
+static gint ett_mpeg_descriptor_tva;
 
 #define MPEG_DESCR_TVA_RESREVED_MASK        0xF8
 #define MPEG_DESCR_TVA_RUNNING_STATUS_MASK  0x07
@@ -3528,16 +3528,16 @@ proto_mpeg_descriptor_dissect_tva_id(tvbuff_t *tvb, guint offset, guint len, pro
 }
 
 /* 0x76 Content Identifier Descriptor */
-static int hf_mpeg_descr_content_identifier_crid_type = -1;
-static int hf_mpeg_descr_content_identifier_crid_location = -1;
-static int hf_mpeg_descr_content_identifier_crid_length = -1;
-static int hf_mpeg_descr_content_identifier_crid_bytes = -1;
-static int hf_mpeg_descr_content_identifier_cird_ref = -1;
+static int hf_mpeg_descr_content_identifier_crid_type;
+static int hf_mpeg_descr_content_identifier_crid_location;
+static int hf_mpeg_descr_content_identifier_crid_length;
+static int hf_mpeg_descr_content_identifier_crid_bytes;
+static int hf_mpeg_descr_content_identifier_cird_ref;
 
 #define MPEG_DESCR_CONTENT_IDENTIFIER_CRID_TYPE_MASK        0xFC
 #define MPEG_DESCR_CONTENT_IDENTIFIER_CRID_LOCATION_MASK    0x03
 
-static gint ett_mpeg_descriptor_content_identifier_crid = -1;
+static gint ett_mpeg_descriptor_content_identifier_crid;
 
 static const value_string mpeg_descr_content_identifier_crid_type_vals[] = {
     { 0x00, "No type defined" },
@@ -3600,10 +3600,10 @@ proto_mpeg_descriptor_dissect_content_identifier(tvbuff_t *tvb, guint offset, gu
 }
 
 /* 0x7D XAIT Content Location Descriptor */
-static int hf_mpeg_descr_xait_onid = -1;
-static int hf_mpeg_descr_xait_sid = -1;
-static int hf_mpeg_descr_xait_version_number = -1;
-static int hf_mpeg_descr_xait_update_policy = -1;
+static int hf_mpeg_descr_xait_onid;
+static int hf_mpeg_descr_xait_sid;
+static int hf_mpeg_descr_xait_version_number;
+static int hf_mpeg_descr_xait_update_policy;
 
 #define MPEG_DESCR_XAIT_VERSION_NUM_MASK    0xF8
 #define MPEG_DESCR_XAIT_UPDATE_POLICY_MASK  0x07
@@ -3628,11 +3628,11 @@ proto_mpeg_descriptor_dissect_xait(tvbuff_t *tvb, guint offset, proto_tree *tree
 }
 
 /* 0x7E FTA Content Management Descriptor */
-static int hf_mpeg_descr_fta_user_defined = -1;
-static int hf_mpeg_descr_fta_reserved_future_use = -1;
-static int hf_mpeg_descr_fta_do_not_scramble = -1;
-static int hf_mpeg_descr_fta_control_remote_access_over_internet = -1;
-static int hf_mpeg_descr_fta_do_not_apply_revocation = -1;
+static int hf_mpeg_descr_fta_user_defined;
+static int hf_mpeg_descr_fta_reserved_future_use;
+static int hf_mpeg_descr_fta_do_not_scramble;
+static int hf_mpeg_descr_fta_control_remote_access_over_internet;
+static int hf_mpeg_descr_fta_do_not_apply_revocation;
 
 #define MPEG_DESCR_FTA_USER_DEFINED_MASK 0x80
 #define MPEG_DESCR_FTA_RESERVED_MASK 0x70
@@ -3661,15 +3661,15 @@ proto_mpeg_descriptor_dissect_fta(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 /* 0x7F Extension Descriptor */
-static int hf_mpeg_descr_extension_tag_extension = -1;
-static int hf_mpeg_descr_extension_data = -1;
+static int hf_mpeg_descr_extension_tag_extension;
+static int hf_mpeg_descr_extension_data;
 /* Supplementary Audio (Sub-)Descriptor */
-static int hf_mpeg_descr_extension_supp_audio_mix_type = -1;
-static int hf_mpeg_descr_extension_supp_audio_ed_cla = -1;
-static int hf_mpeg_descr_extension_supp_audio_lang_code_present = -1;
-static int hf_mpeg_descr_extension_supp_audio_lang_code = -1;
+static int hf_mpeg_descr_extension_supp_audio_mix_type;
+static int hf_mpeg_descr_extension_supp_audio_ed_cla;
+static int hf_mpeg_descr_extension_supp_audio_lang_code_present;
+static int hf_mpeg_descr_extension_supp_audio_lang_code;
 
-static int hf_mpeg_descr_private_data = -1;
+static int hf_mpeg_descr_private_data;
 
 #define EXT_TAG_IMG_ICON      0x00
 #define EXT_TAG_CPCM_DLV      0x01
@@ -3772,26 +3772,26 @@ proto_mpeg_descriptor_dissect_extension(tvbuff_t *tvb, guint offset, guint len, 
 #define MPEG_DESCR_AC3_SYSA_LANG1_MASK 0x80
 #define MPEG_DESCR_AC3_SYSA_LANG2_MASK 0x40
 
-static int hf_mpeg_descr_ac3_sysa_srate = -1;
-static int hf_mpeg_descr_ac3_sysa_bsid = -1;
-static int hf_mpeg_descr_ac3_sysa_bitrate = -1;
-static int hf_mpeg_descr_ac3_sysa_bitrate_limit = -1;
-static int hf_mpeg_descr_ac3_sysa_surround = -1;
-static int hf_mpeg_descr_ac3_sysa_bsmod = -1;
-static int hf_mpeg_descr_ac3_sysa_num_channels = -1;
-static int hf_mpeg_descr_ac3_sysa_full_svc = -1;
-static int hf_mpeg_descr_ac3_sysa_langcode = -1;
-static int hf_mpeg_descr_ac3_sysa_langcode2 = -1;
-static int hf_mpeg_descr_ac3_sysa_mainid = -1;
-static int hf_mpeg_descr_ac3_sysa_priority = -1;
-static int hf_mpeg_descr_ac3_sysa_reserved = -1;
-static int hf_mpeg_descr_ac3_sysa_asvcflags = -1;
-static int hf_mpeg_descr_ac3_sysa_textlen = -1;
-static int hf_mpeg_descr_ac3_sysa_textcode = -1;
-static int hf_mpeg_descr_ac3_sysa_lang1 = -1;
-static int hf_mpeg_descr_ac3_sysa_lang2 = -1;
-static int hf_mpeg_descr_ac3_sysa_lang1_bytes = -1;
-static int hf_mpeg_descr_ac3_sysa_lang2_bytes = -1;
+static int hf_mpeg_descr_ac3_sysa_srate;
+static int hf_mpeg_descr_ac3_sysa_bsid;
+static int hf_mpeg_descr_ac3_sysa_bitrate;
+static int hf_mpeg_descr_ac3_sysa_bitrate_limit;
+static int hf_mpeg_descr_ac3_sysa_surround;
+static int hf_mpeg_descr_ac3_sysa_bsmod;
+static int hf_mpeg_descr_ac3_sysa_num_channels;
+static int hf_mpeg_descr_ac3_sysa_full_svc;
+static int hf_mpeg_descr_ac3_sysa_langcode;
+static int hf_mpeg_descr_ac3_sysa_langcode2;
+static int hf_mpeg_descr_ac3_sysa_mainid;
+static int hf_mpeg_descr_ac3_sysa_priority;
+static int hf_mpeg_descr_ac3_sysa_reserved;
+static int hf_mpeg_descr_ac3_sysa_asvcflags;
+static int hf_mpeg_descr_ac3_sysa_textlen;
+static int hf_mpeg_descr_ac3_sysa_textcode;
+static int hf_mpeg_descr_ac3_sysa_lang1;
+static int hf_mpeg_descr_ac3_sysa_lang2;
+static int hf_mpeg_descr_ac3_sysa_lang1_bytes;
+static int hf_mpeg_descr_ac3_sysa_lang2_bytes;
 
 /* ATSC A/52 Annex A Table A4.2*/
 static const value_string mpeg_descr_ac3_sysa_srate_flag_vals[] = {
@@ -3958,12 +3958,12 @@ proto_mpeg_descriptor_dissect_ac3_system_a(tvbuff_t *tvb, guint offset, guint le
 }
 
 /* 0x83 NorDig Logical Channel Descriptor (version 1) */
-static int hf_mpeg_descr_nordig_lcd_v1_service_list_id = -1;
-static int hf_mpeg_descr_nordig_lcd_v1_service_list_visible_service_flag = -1;
-static int hf_mpeg_descr_nordig_lcd_v1_service_list_reserved = -1;
-static int hf_mpeg_descr_nordig_lcd_v1_service_list_logical_channel_number = -1;
+static int hf_mpeg_descr_nordig_lcd_v1_service_list_id;
+static int hf_mpeg_descr_nordig_lcd_v1_service_list_visible_service_flag;
+static int hf_mpeg_descr_nordig_lcd_v1_service_list_reserved;
+static int hf_mpeg_descr_nordig_lcd_v1_service_list_logical_channel_number;
 
-static gint ett_mpeg_descriptor_nordig_lcd_v1_service_list = -1;
+static gint ett_mpeg_descriptor_nordig_lcd_v1_service_list;
 
 #define MPEG_DESCR_NORDIG_LCD_V1_VISIBLE_SERVICE_FLAG_MASK 0x8000
 #define MPEG_DESCR_NORDIG_LCD_V1_RESERVED_MASK             0x4000
@@ -3999,19 +3999,19 @@ proto_mpeg_descriptor_dissect_nordig_lcd_v1(tvbuff_t *tvb, guint offset, guint l
 }
 
 /* 0x87 NorDig Logical Channel Descriptor (version 2) */
-static gint hf_mpeg_descr_nordig_lcd_v2_channel_list_id = -1;
-static gint hf_mpeg_descr_nordig_lcd_v2_channel_list_name_length = -1;
-static gint hf_mpeg_descr_nordig_lcd_v2_channel_list_name_encoding = -1;
-static gint hf_mpeg_descr_nordig_lcd_v2_channel_list_name = -1;
-static gint hf_mpeg_descr_nordig_lcd_v2_country_code = -1;
-static gint hf_mpeg_descr_nordig_lcd_v2_descriptor_length = -1;
-static gint hf_mpeg_descr_nordig_lcd_v2_service_id = -1;
-static gint hf_mpeg_descr_nordig_lcd_v2_visible_service_flag = -1;
-static gint hf_mpeg_descr_nordig_lcd_v2_reserved = -1;
-static gint hf_mpeg_descr_nordig_lcd_v2_logical_channel_number = -1;
+static gint hf_mpeg_descr_nordig_lcd_v2_channel_list_id;
+static gint hf_mpeg_descr_nordig_lcd_v2_channel_list_name_length;
+static gint hf_mpeg_descr_nordig_lcd_v2_channel_list_name_encoding;
+static gint hf_mpeg_descr_nordig_lcd_v2_channel_list_name;
+static gint hf_mpeg_descr_nordig_lcd_v2_country_code;
+static gint hf_mpeg_descr_nordig_lcd_v2_descriptor_length;
+static gint hf_mpeg_descr_nordig_lcd_v2_service_id;
+static gint hf_mpeg_descr_nordig_lcd_v2_visible_service_flag;
+static gint hf_mpeg_descr_nordig_lcd_v2_reserved;
+static gint hf_mpeg_descr_nordig_lcd_v2_logical_channel_number;
 
-static gint ett_mpeg_descriptor_nordig_lcd_v2_channel_list_list = -1;
-static gint ett_mpeg_descriptor_nordig_lcd_v2_service_list = -1;
+static gint ett_mpeg_descriptor_nordig_lcd_v2_channel_list_list;
+static gint ett_mpeg_descriptor_nordig_lcd_v2_service_list;
 
 #define MPEG_DESCR_NORDIG_LCD_V2_VISIBLE_SERVICE_FLAG_MASK 0x8000
 #define MPEG_DESCR_NORDIG_LCD_V2_RESERVED_MASK             0x7c00
@@ -4114,38 +4114,38 @@ proto_mpeg_descriptor_dissect_nordig_lcd_v2(tvbuff_t *tvb, guint offset, guint l
 }
 
 /* 0xA2 Logon Initialize Descriptor */
-static int hf_mpeg_descr_logon_initialize_group_id = -1;
-static int hf_mpeg_descr_logon_initialize_logon_id = -1;
-static int hf_mpeg_descr_logon_initialize_continuous_carrier_reserved = -1;
-static int hf_mpeg_descr_logon_initialize_continuous_carrier = -1;
-static int hf_mpeg_descr_logon_initialize_security_handshake_required = -1;
-static int hf_mpeg_descr_logon_initialize_prefix_flag = -1;
-static int hf_mpeg_descr_logon_initialize_data_unit_labelling_flag = -1;
-static int hf_mpeg_descr_logon_initialize_mini_slot_flag = -1;
-static int hf_mpeg_descr_logon_initialize_contention_based_mini_slot_flag = -1;
-static int hf_mpeg_descr_logon_initialize_capacity_type_flag_reserved = -1;
-static int hf_mpeg_descr_logon_initialize_capacity_type_flag = -1;
-static int hf_mpeg_descr_logon_initialize_traffic_burst_type = -1;
-static int hf_mpeg_descr_logon_initialize_connectivity = -1;
-static int hf_mpeg_descr_logon_initialize_return_vpi_reserved = -1;
-static int hf_mpeg_descr_logon_initialize_return_vpi = -1;
-static int hf_mpeg_descr_logon_initialize_return_vci = -1;
-static int hf_mpeg_descr_logon_initialize_return_signalling_vpi_reserved = -1;
-static int hf_mpeg_descr_logon_initialize_return_signalling_vpi = -1;
-static int hf_mpeg_descr_logon_initialize_return_signalling_vci = -1;
-static int hf_mpeg_descr_logon_initialize_forward_signalling_vpi_reserved = -1;
-static int hf_mpeg_descr_logon_initialize_forward_signalling_vpi = -1;
-static int hf_mpeg_descr_logon_initialize_forward_signalling_vci = -1;
+static int hf_mpeg_descr_logon_initialize_group_id;
+static int hf_mpeg_descr_logon_initialize_logon_id;
+static int hf_mpeg_descr_logon_initialize_continuous_carrier_reserved;
+static int hf_mpeg_descr_logon_initialize_continuous_carrier;
+static int hf_mpeg_descr_logon_initialize_security_handshake_required;
+static int hf_mpeg_descr_logon_initialize_prefix_flag;
+static int hf_mpeg_descr_logon_initialize_data_unit_labelling_flag;
+static int hf_mpeg_descr_logon_initialize_mini_slot_flag;
+static int hf_mpeg_descr_logon_initialize_contention_based_mini_slot_flag;
+static int hf_mpeg_descr_logon_initialize_capacity_type_flag_reserved;
+static int hf_mpeg_descr_logon_initialize_capacity_type_flag;
+static int hf_mpeg_descr_logon_initialize_traffic_burst_type;
+static int hf_mpeg_descr_logon_initialize_connectivity;
+static int hf_mpeg_descr_logon_initialize_return_vpi_reserved;
+static int hf_mpeg_descr_logon_initialize_return_vpi;
+static int hf_mpeg_descr_logon_initialize_return_vci;
+static int hf_mpeg_descr_logon_initialize_return_signalling_vpi_reserved;
+static int hf_mpeg_descr_logon_initialize_return_signalling_vpi;
+static int hf_mpeg_descr_logon_initialize_return_signalling_vci;
+static int hf_mpeg_descr_logon_initialize_forward_signalling_vpi_reserved;
+static int hf_mpeg_descr_logon_initialize_forward_signalling_vpi;
+static int hf_mpeg_descr_logon_initialize_forward_signalling_vci;
 
-static int hf_mpeg_descr_logon_initialize_return_trf_pid = -1;
-static int hf_mpeg_descr_logon_initialize_return_ctrl_mngm_pid_reserved = -1;
-static int hf_mpeg_descr_logon_initialize_return_ctrl_mngm_pid = -1;
+static int hf_mpeg_descr_logon_initialize_return_trf_pid;
+static int hf_mpeg_descr_logon_initialize_return_ctrl_mngm_pid_reserved;
+static int hf_mpeg_descr_logon_initialize_return_ctrl_mngm_pid;
 
-static int hf_mpeg_descr_logon_initialize_cra_level = -1;
-static int hf_mpeg_descr_logon_initialize_vbdc_max_reserved = -1;
-static int hf_mpeg_descr_logon_initialize_vbdc_max = -1;
-static int hf_mpeg_descr_logon_initialize_rbdc_max = -1;
-static int hf_mpeg_descr_logon_initialize_rbdc_timeout = -1;
+static int hf_mpeg_descr_logon_initialize_cra_level;
+static int hf_mpeg_descr_logon_initialize_vbdc_max_reserved;
+static int hf_mpeg_descr_logon_initialize_vbdc_max;
+static int hf_mpeg_descr_logon_initialize_rbdc_max;
+static int hf_mpeg_descr_logon_initialize_rbdc_timeout;
 
 
 #define MPEG_DESCR_LOGON_INITIALIZE_CONTINUOUS_CARRIER_RESERVED_MASK              0xC0
@@ -4286,7 +4286,7 @@ proto_mpeg_descriptor_dissect_logon_initialize(tvbuff_t *tvb, guint offset, guin
 }
 
 /* 0xA7 RCS Content Descriptor */
-static int hf_mpeg_descr_rcs_content_table_id = -1;
+static int hf_mpeg_descr_rcs_content_table_id;
 
 static void
 proto_mpeg_descriptor_dissect_rcs_content(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
@@ -4315,25 +4315,25 @@ static const value_string mpeg_descriptor_ciplus_tag_vals[] = {
 };
 
 /* 0xCB CI+ Content Label Descriptor */
-static int hf_mpeg_descr_ciplus_cl_cb_min = -1;
-static int hf_mpeg_descr_ciplus_cl_cb_max = -1;
-static int hf_mpeg_descr_ciplus_cl_lang = -1;
-static int hf_mpeg_descr_ciplus_cl_label = -1;
+static int hf_mpeg_descr_ciplus_cl_cb_min;
+static int hf_mpeg_descr_ciplus_cl_cb_max;
+static int hf_mpeg_descr_ciplus_cl_lang;
+static int hf_mpeg_descr_ciplus_cl_label;
 
 /* 0xCC CI+ Service Descriptor */
-static int hf_mpeg_descr_ciplus_svc_id = -1;
-static int hf_mpeg_descr_ciplus_svc_type = -1;
-static int hf_mpeg_descr_ciplus_svc_visible = -1;
-static int hf_mpeg_descr_ciplus_svc_selectable = -1;
-static int hf_mpeg_descr_ciplus_svc_lcn = -1;
-static int hf_mpeg_descr_ciplus_svc_prov_name = -1;
-static int hf_mpeg_descr_ciplus_svc_name = -1;
+static int hf_mpeg_descr_ciplus_svc_id;
+static int hf_mpeg_descr_ciplus_svc_type;
+static int hf_mpeg_descr_ciplus_svc_visible;
+static int hf_mpeg_descr_ciplus_svc_selectable;
+static int hf_mpeg_descr_ciplus_svc_lcn;
+static int hf_mpeg_descr_ciplus_svc_prov_name;
+static int hf_mpeg_descr_ciplus_svc_name;
 
 /* 0xCE CI+ Protection Descriptor */
-static int hf_mpeg_descr_ciplus_prot_free_ci_mode = -1;
-static int hf_mpeg_descr_ciplus_prot_match_brand_flag = -1;
-static int hf_mpeg_descr_ciplus_prot_num_entries = -1;
-static int hf_mpeg_descr_ciplus_prot_brand_id = -1;
+static int hf_mpeg_descr_ciplus_prot_free_ci_mode;
+static int hf_mpeg_descr_ciplus_prot_match_brand_flag;
+static int hf_mpeg_descr_ciplus_prot_num_entries;
+static int hf_mpeg_descr_ciplus_prot_brand_id;
 
 static const true_false_string tfs_prot_noprot = { "CI+ protection required", "CI+ protection not required" };
 

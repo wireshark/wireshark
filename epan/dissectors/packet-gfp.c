@@ -41,35 +41,35 @@ void proto_register_gfp(void);
 static dissector_handle_t gfp_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_gfp = -1;
-static int hf_gfp_pli = -1;
-static int hf_gfp_chec = -1;
-static int hf_gfp_chec_status = -1;
-static int hf_gfp_type = -1;
-static int hf_gfp_pti = -1;
-static int hf_gfp_pfi = -1;
-static int hf_gfp_exi = -1;
-static int hf_gfp_upi_data = -1;
-static int hf_gfp_upi_management = -1;
-static int hf_gfp_thec = -1;
-static int hf_gfp_thec_status = -1;
-static int hf_gfp_cid = -1;
-static int hf_gfp_ehec = -1;
-static int hf_gfp_ehec_status = -1;
-static int hf_gfp_fcs = -1;
-static int hf_gfp_fcs_good = -1;
-static int hf_gfp_fcs_bad = -1;
+static int proto_gfp;
+static int hf_gfp_pli;
+static int hf_gfp_chec;
+static int hf_gfp_chec_status;
+static int hf_gfp_type;
+static int hf_gfp_pti;
+static int hf_gfp_pfi;
+static int hf_gfp_exi;
+static int hf_gfp_upi_data;
+static int hf_gfp_upi_management;
+static int hf_gfp_thec;
+static int hf_gfp_thec_status;
+static int hf_gfp_cid;
+static int hf_gfp_ehec;
+static int hf_gfp_ehec_status;
+static int hf_gfp_fcs;
+static int hf_gfp_fcs_good;
+static int hf_gfp_fcs_bad;
 
-static expert_field ei_gfp_pli_idle_nonempty = EI_INIT;
-static expert_field ei_gfp_pli_unknown = EI_INIT;
-static expert_field ei_gfp_pli_invalid = EI_INIT;
-static expert_field ei_gfp_chec_bad = EI_INIT;
-static expert_field ei_gfp_thec_bad = EI_INIT;
-static expert_field ei_gfp_ehec_bad = EI_INIT;
-static expert_field ei_gfp_exi_short = EI_INIT;
-static expert_field ei_gfp_pfi_short = EI_INIT;
-static expert_field ei_gfp_payload_undecoded = EI_INIT;
-static expert_field ei_gfp_fcs_bad = EI_INIT;
+static expert_field ei_gfp_pli_idle_nonempty;
+static expert_field ei_gfp_pli_unknown;
+static expert_field ei_gfp_pli_invalid;
+static expert_field ei_gfp_chec_bad;
+static expert_field ei_gfp_thec_bad;
+static expert_field ei_gfp_ehec_bad;
+static expert_field ei_gfp_exi_short;
+static expert_field ei_gfp_pfi_short;
+static expert_field ei_gfp_payload_undecoded;
+static expert_field ei_gfp_fcs_bad;
 
 #define GFP_USER_DATA 0
 #define GFP_CLIENT_MANAGEMENT 4
@@ -80,9 +80,9 @@ static expert_field ei_gfp_fcs_bad = EI_INIT;
 #define GFP_EXT_RING 2
 
 /* Initialize the subtree pointers */
-static gint ett_gfp = -1;
-static gint ett_gfp_type = -1;
-static gint ett_gfp_fcs = -1;
+static gint ett_gfp;
+static gint ett_gfp_type;
+static gint ett_gfp_fcs;
 
 static dissector_table_t gfp_dissector_table;
 

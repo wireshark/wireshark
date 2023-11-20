@@ -39,11 +39,11 @@ static int hf_tcap_data;
 static int hf_tcap_tid;
 static int hf_tcap_constructor_eoc;
 
-int hf_tcapsrt_SessionId=-1;
-int hf_tcapsrt_Duplicate=-1;
-int hf_tcapsrt_BeginSession=-1;
-int hf_tcapsrt_EndSession=-1;
-int hf_tcapsrt_SessionTime=-1;
+int hf_tcapsrt_SessionId;
+int hf_tcapsrt_Duplicate;
+int hf_tcapsrt_BeginSession;
+int hf_tcapsrt_EndSession;
+int hf_tcapsrt_SessionTime;
 
 #include "packet-tcap-hf.c"
 
@@ -53,7 +53,7 @@ static gint ett_param;
 
 static gint ett_otid;
 static gint ett_dtid;
-gint ett_tcap_stat = -1;
+gint ett_tcap_stat;
 
 static struct tcapsrt_info_t * gp_tcapsrt_info;
 static gboolean tcap_subdissector_used=FALSE;

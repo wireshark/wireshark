@@ -75,31 +75,31 @@ static const value_string sapsnc_qop_vals[] = {
 };
 
 
-static int proto_sapsnc = -1;
+static int proto_sapsnc;
 
 /* SNC Frame */
-static int hf_sapsnc_frame = -1;
-static int hf_sapsnc_eye_catcher = -1;
-static int hf_sapsnc_frame_type = -1;
-static int hf_sapsnc_protocol_version = -1;
-static int hf_sapsnc_header_length = -1;
-static int hf_sapsnc_token_length = -1;
-static int hf_sapsnc_data_length = -1;
-static int hf_sapsnc_mech_id = -1;
-static int hf_sapsnc_flags = -1;
-static int hf_sapsnc_qop_min = -1;
-static int hf_sapsnc_qop_max = -1;
-static int hf_sapsnc_qop_use = -1;
-static int hf_sapsnc_ext_flags = -1;
-static int hf_sapsnc_ext_field_length = -1;
-static int hf_sapsnc_ext_field = -1;
-static int hf_sapsnc_token = -1;
-static int hf_sapsnc_data = -1;
+static int hf_sapsnc_frame;
+static int hf_sapsnc_eye_catcher;
+static int hf_sapsnc_frame_type;
+static int hf_sapsnc_protocol_version;
+static int hf_sapsnc_header_length;
+static int hf_sapsnc_token_length;
+static int hf_sapsnc_data_length;
+static int hf_sapsnc_mech_id;
+static int hf_sapsnc_flags;
+static int hf_sapsnc_qop_min;
+static int hf_sapsnc_qop_max;
+static int hf_sapsnc_qop_use;
+static int hf_sapsnc_ext_flags;
+static int hf_sapsnc_ext_field_length;
+static int hf_sapsnc_ext_field;
+static int hf_sapsnc_token;
+static int hf_sapsnc_data;
 
-static gint ett_sapsnc = -1;
+static gint ett_sapsnc;
 
 /* Expert info */
-static expert_field ei_sapsnc_invalid_header_length = EI_INIT;
+static expert_field ei_sapsnc_invalid_header_length;
 
 
 void proto_reg_handoff_sapsnc(void);

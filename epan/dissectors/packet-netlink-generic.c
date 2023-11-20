@@ -129,37 +129,37 @@ static dissector_table_t genl_dissector_table;
 
 static int proto_netlink_generic;
 
-static int hf_genl_cmd = -1;
-static int hf_genl_ctrl_attr = -1;
-static int hf_genl_ctrl_cmd = -1;
-static int hf_genl_ctrl_family_id = -1;
-static int hf_genl_ctrl_family_name = -1;
-static int hf_genl_ctrl_group_id = -1;
-static int hf_genl_ctrl_group_name = -1;
-static int hf_genl_ctrl_groups_attr = -1;
-static int hf_genl_ctrl_hdrsize = -1;
-static int hf_genl_ctrl_maxattr = -1;
-static int hf_genl_ctrl_op_flags = -1;
-static int hf_genl_ctrl_op_flags_admin_perm = -1;
-static int hf_genl_ctrl_op_flags_cmd_cap_do = -1;
-static int hf_genl_ctrl_op_flags_cmd_cap_dump = -1;
-static int hf_genl_ctrl_op_flags_cmd_cap_haspol = -1;
-static int hf_genl_ctrl_op_flags_uns_admin_perm = -1;
-static int hf_genl_ctrl_op_id = -1;
-static int hf_genl_ctrl_ops_attr = -1;
-static int hf_genl_ctrl_version = -1;
-static int hf_genl_family_id = -1;
-static int hf_genl_reserved = -1;
-static int hf_genl_version = -1;
+static int hf_genl_cmd;
+static int hf_genl_ctrl_attr;
+static int hf_genl_ctrl_cmd;
+static int hf_genl_ctrl_family_id;
+static int hf_genl_ctrl_family_name;
+static int hf_genl_ctrl_group_id;
+static int hf_genl_ctrl_group_name;
+static int hf_genl_ctrl_groups_attr;
+static int hf_genl_ctrl_hdrsize;
+static int hf_genl_ctrl_maxattr;
+static int hf_genl_ctrl_op_flags;
+static int hf_genl_ctrl_op_flags_admin_perm;
+static int hf_genl_ctrl_op_flags_cmd_cap_do;
+static int hf_genl_ctrl_op_flags_cmd_cap_dump;
+static int hf_genl_ctrl_op_flags_cmd_cap_haspol;
+static int hf_genl_ctrl_op_flags_uns_admin_perm;
+static int hf_genl_ctrl_op_id;
+static int hf_genl_ctrl_ops_attr;
+static int hf_genl_ctrl_version;
+static int hf_genl_family_id;
+static int hf_genl_reserved;
+static int hf_genl_version;
 
-static gint ett_netlink_generic = -1;
-static gint ett_genl_ctrl_attr = -1;
-static gint ett_genl_ctrl_ops = -1;
-static gint ett_genl_ctrl_ops_attr = -1;
-static gint ett_genl_ctrl_op_flags = -1;
-static gint ett_genl_ctrl_groups = -1;
-static gint ett_genl_ctrl_groups_attr = -1;
-static gint ett_genl_nested_attr = -1;
+static gint ett_netlink_generic;
+static gint ett_genl_ctrl_attr;
+static gint ett_genl_ctrl_ops;
+static gint ett_genl_ctrl_ops_attr;
+static gint ett_genl_ctrl_op_flags;
+static gint ett_genl_ctrl_groups;
+static gint ett_genl_ctrl_groups_attr;
+static gint ett_genl_nested_attr;
 
 /*
  * Maps family IDs (integers) to family names (strings) within a capture file.

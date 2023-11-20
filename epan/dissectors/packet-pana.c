@@ -72,37 +72,37 @@ static dissector_handle_t pana_handle;
 static dissector_handle_t eap_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_pana = -1;
-static int hf_pana_reserved_type = -1;
-static int hf_pana_length_type = -1;
-static int hf_pana_msg_type = -1;
-static int hf_pana_session_id = -1;
-static int hf_pana_seqnumber = -1;
-static int hf_pana_response_in = -1;
-static int hf_pana_response_to = -1;
-static int hf_pana_response_time = -1;
+static int proto_pana;
+static int hf_pana_reserved_type;
+static int hf_pana_length_type;
+static int hf_pana_msg_type;
+static int hf_pana_session_id;
+static int hf_pana_seqnumber;
+static int hf_pana_response_in;
+static int hf_pana_response_to;
+static int hf_pana_response_time;
 
-static int hf_pana_flags = -1;
-static int hf_pana_flag_r = -1;
-static int hf_pana_flag_s = -1;
-static int hf_pana_flag_c = -1;
-static int hf_pana_flag_a = -1;
-static int hf_pana_flag_p = -1;
-static int hf_pana_flag_i = -1;
-static int hf_pana_avp_code = -1;
-static int hf_pana_avp_data_length = -1;
-static int hf_pana_avp_flags = -1;
-static int hf_pana_avp_flag_v = -1;
-static int hf_pana_avp_reserved = -1;
-static int hf_pana_avp_vendorid = -1;
+static int hf_pana_flags;
+static int hf_pana_flag_r;
+static int hf_pana_flag_s;
+static int hf_pana_flag_c;
+static int hf_pana_flag_a;
+static int hf_pana_flag_p;
+static int hf_pana_flag_i;
+static int hf_pana_avp_code;
+static int hf_pana_avp_data_length;
+static int hf_pana_avp_flags;
+static int hf_pana_avp_flag_v;
+static int hf_pana_avp_reserved;
+static int hf_pana_avp_vendorid;
 
-static int hf_pana_avp_data_uint64 = -1;
-static int hf_pana_avp_data_int64 = -1;
-static int hf_pana_avp_data_uint32 = -1;
-static int hf_pana_avp_data_int32 = -1;
-static int hf_pana_avp_data_bytes = -1;
-static int hf_pana_avp_data_string = -1;
-static int hf_pana_avp_data_enumerated = -1;
+static int hf_pana_avp_data_uint64;
+static int hf_pana_avp_data_int64;
+static int hf_pana_avp_data_uint32;
+static int hf_pana_avp_data_int32;
+static int hf_pana_avp_data_bytes;
+static int hf_pana_avp_data_string;
+static int hf_pana_avp_data_enumerated;
 
 #define MSG_TYPE_MAX 5
 static const value_string msg_type_names[] = {
@@ -184,11 +184,11 @@ static const value_string avp_type_names[]={
 
 
 /* Initialize the subtree pointers */
-static gint ett_pana = -1;
-static gint ett_pana_flags = -1;
-static gint ett_pana_avp = -1;
-static gint ett_pana_avp_info = -1;
-static gint ett_pana_avp_flags = -1;
+static gint ett_pana;
+static gint ett_pana_flags;
+static gint ett_pana_avp;
+static gint ett_pana_avp_info;
+static gint ett_pana_avp_flags;
 
 
 typedef struct _pana_transaction_t {

@@ -30,28 +30,28 @@ void proto_reg_handoff_igrp(void);
 
 static dissector_handle_t igrp_handle;
 
-static gint proto_igrp = -1;
-static gint hf_igrp_update = -1;
-static gint hf_igrp_as = -1;
+static gint proto_igrp;
+static gint hf_igrp_update;
+static gint hf_igrp_as;
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_igrp_load = -1;
-static int hf_igrp_bandwidth = -1;
-static int hf_igrp_command = -1;
-static int hf_igrp_reliability = -1;
-static int hf_igrp_network = -1;
-static int hf_igrp_version = -1;
-static int hf_igrp_interior_routes = -1;
-static int hf_igrp_mtu = -1;
-static int hf_igrp_hop_count = -1;
-static int hf_igrp_exterior_routes = -1;
-static int hf_igrp_delay = -1;
-static int hf_igrp_checksum = -1;
-static int hf_igrp_system_routes = -1;
-static gint ett_igrp = -1;
-static gint ett_igrp_vektor = -1;
-static gint ett_igrp_net = -1;
+static int hf_igrp_load;
+static int hf_igrp_bandwidth;
+static int hf_igrp_command;
+static int hf_igrp_reliability;
+static int hf_igrp_network;
+static int hf_igrp_version;
+static int hf_igrp_interior_routes;
+static int hf_igrp_mtu;
+static int hf_igrp_hop_count;
+static int hf_igrp_exterior_routes;
+static int hf_igrp_delay;
+static int hf_igrp_checksum;
+static int hf_igrp_system_routes;
+static gint ett_igrp;
+static gint ett_igrp_vektor;
+static gint ett_igrp_net;
 
-static expert_field ei_igrp_version = EI_INIT;
+static expert_field ei_igrp_version;
 
 static void dissect_vektor_igrp (packet_info *pinfo, tvbuff_t *tvb, proto_tree *igrp_vektor_tree, guint8 network);
 

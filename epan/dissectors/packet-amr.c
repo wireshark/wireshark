@@ -42,47 +42,47 @@ static dissector_handle_t amr_handle;
 static dissector_handle_t amr_wb_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_amr = -1;
-static int proto_amr_wb = -1;
-static int hf_amr_nb_cmr = -1;
-static int hf_amr_wb_cmr = -1;
-static int hf_amr_payload_decoded_as = -1;
-static int hf_amr_reserved = -1;
-static int hf_amr_toc_f = -1;
-static int hf_amr_nb_toc_ft = -1;
-static int hf_amr_wb_toc_ft = -1;
-static int hf_amr_toc_q = -1;
+static int proto_amr;
+static int proto_amr_wb;
+static int hf_amr_nb_cmr;
+static int hf_amr_wb_cmr;
+static int hf_amr_payload_decoded_as;
+static int hf_amr_reserved;
+static int hf_amr_toc_f;
+static int hf_amr_nb_toc_ft;
+static int hf_amr_wb_toc_ft;
+static int hf_amr_toc_q;
 
-static int hf_amr_speech_data = -1;
-static int hf_amr_frame_data = -1;
-static int hf_amr_nb_if1_ft = -1;
-static int hf_amr_wb_if1_ft = -1;
-static int hf_amr_if1_fqi = -1;
-static int hf_amr_nb_if1_mode_req = -1;
-static int hf_amr_wb_if1_mode_req = -1;
-static int hf_amr_if1_sti = -1;
-static int hf_amr_nb_if1_mode_ind = -1;
-static int hf_amr_wb_if1_mode_ind = -1;
-static int hf_amr_nb_if1_sti_mode_ind = -1;
-static int hf_amr_wb_if1_sti_mode_ind = -1;
-static int hf_amr_if2_sti = -1;
-static int hf_amr_nb_if2_sti_mode_ind = -1;
-static int hf_amr_wb_if2_sti_mode_ind = -1;
+static int hf_amr_speech_data;
+static int hf_amr_frame_data;
+static int hf_amr_nb_if1_ft;
+static int hf_amr_wb_if1_ft;
+static int hf_amr_if1_fqi;
+static int hf_amr_nb_if1_mode_req;
+static int hf_amr_wb_if1_mode_req;
+static int hf_amr_if1_sti;
+static int hf_amr_nb_if1_mode_ind;
+static int hf_amr_wb_if1_mode_ind;
+static int hf_amr_nb_if1_sti_mode_ind;
+static int hf_amr_wb_if1_sti_mode_ind;
+static int hf_amr_if2_sti;
+static int hf_amr_nb_if2_sti_mode_ind;
+static int hf_amr_wb_if2_sti_mode_ind;
 
-static int hf_amr_nb_if2_ft = -1;
-static int hf_amr_wb_if2_ft = -1;
+static int hf_amr_nb_if2_ft;
+static int hf_amr_wb_if2_ft;
 
 
 /* Initialize the subtree pointers */
-static int ett_amr = -1;
-static int ett_amr_toc = -1;
+static int ett_amr;
+static int ett_amr_toc;
 
-static expert_field ei_amr_spare_bit_not0 = EI_INIT;
-static expert_field ei_amr_not_enough_data_for_frames = EI_INIT;
-static expert_field ei_amr_superfluous_data = EI_INIT;
-static expert_field ei_amr_padding_bits_not0 = EI_INIT;
-static expert_field ei_amr_padding_bits_correct = EI_INIT;
-static expert_field ei_amr_reserved = EI_INIT;
+static expert_field ei_amr_spare_bit_not0;
+static expert_field ei_amr_not_enough_data_for_frames;
+static expert_field ei_amr_superfluous_data;
+static expert_field ei_amr_padding_bits_not0;
+static expert_field ei_amr_padding_bits_correct;
+static expert_field ei_amr_reserved;
 
 static gint  amr_encoding_type         = AMR_OA;
 static gint  pref_amr_mode             = AMR_NB;

@@ -32,18 +32,18 @@
 void proto_register_db_lsp(void);
 void proto_reg_handoff_db_lsp(void);
 
-static int proto_db_lsp = -1;
-static int proto_db_lsp_disc = -1;
+static int proto_db_lsp;
+static int proto_db_lsp_disc;
 
-static int hf_type = -1;
-static int hf_magic = -1;
-static int hf_length = -1;
-static int hf_opvalue = -1;
-static int hf_data = -1;
-static int hf_value = -1;
-static int hf_text = -1;
+static int hf_type;
+static int hf_magic;
+static int hf_length;
+static int hf_opvalue;
+static int hf_data;
+static int hf_value;
+static int hf_text;
 
-static gint ett_db_lsp = -1;
+static gint ett_db_lsp;
 
 static heur_dissector_list_t heur_subdissector_list;
 

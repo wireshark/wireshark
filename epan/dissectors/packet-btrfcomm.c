@@ -31,82 +31,82 @@
 #include "packet-btl2cap.h"
 #include "packet-btrfcomm.h"
 
-static int hf_pf = -1;
-static int hf_ea = -1;
-static int hf_len = -1;
-static int hf_frame_type = -1;
-static int hf_cr = -1;
-static int hf_dlci = -1;
-static int hf_channel = -1;
-static int hf_direction = -1;
-static int hf_priority = -1;
-static int hf_error_recovery_mode = -1;
-static int hf_max_frame_size = -1;
-static int hf_max_retrans = -1;
-static int hf_fc_credits = -1;
+static int hf_pf;
+static int hf_ea;
+static int hf_len;
+static int hf_frame_type;
+static int hf_cr;
+static int hf_dlci;
+static int hf_channel;
+static int hf_direction;
+static int hf_priority;
+static int hf_error_recovery_mode;
+static int hf_max_frame_size;
+static int hf_max_retrans;
+static int hf_fc_credits;
 
-static int hf_mcc_pn_parameters = -1;
-static int hf_pn_i14 = -1;
-static int hf_pn_c14 = -1;
+static int hf_mcc_pn_parameters;
+static int hf_pn_i14;
+static int hf_pn_c14;
 
-static int hf_mcc = -1;
-static int hf_mcc_types = -1;
-static int hf_mcc_len = -1;
-static int hf_mcc_ea = -1;
-static int hf_mcc_cr = -1;
-static int hf_mcc_cmd = -1;
+static int hf_mcc;
+static int hf_mcc_types;
+static int hf_mcc_len;
+static int hf_mcc_ea;
+static int hf_mcc_cr;
+static int hf_mcc_cmd;
 
-static int hf_msc_parameters = -1;
-static int hf_msc_fc = -1;
-static int hf_msc_rtc = -1;
-static int hf_msc_rtr = -1;
-static int hf_msc_ic = -1;
-static int hf_msc_dv = -1;
-static int hf_msc_l = -1;
-static int hf_msc_break_bits = -1;
+static int hf_msc_parameters;
+static int hf_msc_fc;
+static int hf_msc_rtc;
+static int hf_msc_rtr;
+static int hf_msc_ic;
+static int hf_msc_dv;
+static int hf_msc_l;
+static int hf_msc_break_bits;
 
-static int hf_fcs = -1;
+static int hf_fcs;
 
-static int hf_dun_at_cmd = -1;
-static int hf_spp_data = -1;
-static int hf_gnss_data = -1;
+static int hf_dun_at_cmd;
+static int hf_spp_data;
+static int hf_gnss_data;
 
-static int hf_mcc_dlci = -1;
-static int hf_mcc_channel = -1;
-static int hf_mcc_direction = -1;
-static int hf_mcc_const_1 = -1;
+static int hf_mcc_dlci;
+static int hf_mcc_channel;
+static int hf_mcc_direction;
+static int hf_mcc_const_1;
 
-static int hf_mcc_pn_dlci = -1;
-static int hf_mcc_pn_channel = -1;
-static int hf_mcc_pn_direction = -1;
-static int hf_mcc_pn_zeros_padding = -1;
+static int hf_mcc_pn_dlci;
+static int hf_mcc_pn_channel;
+static int hf_mcc_pn_direction;
+static int hf_mcc_pn_zeros_padding;
 
-static int hf_acknowledgement_timer_t1 = -1;
-static int hf_address = -1;
-static int hf_control = -1;
+static int hf_acknowledgement_timer_t1;
+static int hf_address;
+static int hf_control;
 
 /* Initialize the protocol and registered fields */
-int proto_btrfcomm = -1;
-static int proto_btdun = -1;
-static int proto_btspp = -1;
-static int proto_btgnss = -1;
+int proto_btrfcomm;
+static int proto_btdun;
+static int proto_btspp;
+static int proto_btgnss;
 
 /* Initialize the subtree pointers */
-static gint ett_btrfcomm = -1;
-static gint ett_btrfcomm_ctrl = -1;
-static gint ett_addr = -1;
-static gint ett_control = -1;
-static gint ett_mcc = -1;
-static gint ett_ctrl_pn_ci = -1;
-static gint ett_ctrl_pn_v24 = -1;
-static gint ett_dlci = -1;
-static gint ett_mcc_dlci = -1;
+static gint ett_btrfcomm;
+static gint ett_btrfcomm_ctrl;
+static gint ett_addr;
+static gint ett_control;
+static gint ett_mcc;
+static gint ett_ctrl_pn_ci;
+static gint ett_ctrl_pn_v24;
+static gint ett_dlci;
+static gint ett_mcc_dlci;
 
-static gint ett_btdun = -1;
-static gint ett_btspp = -1;
-static gint ett_btgnss = -1;
+static gint ett_btdun;
+static gint ett_btspp;
+static gint ett_btgnss;
 
-static expert_field ei_btrfcomm_mcc_length_bad = EI_INIT;
+static expert_field ei_btrfcomm_mcc_length_bad;
 
 static dissector_handle_t btrfcomm_handle;
 static dissector_handle_t btdun_handle;

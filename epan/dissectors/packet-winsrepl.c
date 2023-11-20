@@ -30,63 +30,63 @@ static dissector_handle_t winsrepl_handle;
 
 static gboolean winsrepl_reassemble = TRUE;
 
-static int proto_winsrepl = -1;
+static int proto_winsrepl;
 
-static int hf_winsrepl_size = -1;
-static int hf_winsrepl_opcode = -1;
-static int hf_winsrepl_assoc_ctx = -1;
-static int hf_winsrepl_mess_type = -1;
+static int hf_winsrepl_size;
+static int hf_winsrepl_opcode;
+static int hf_winsrepl_assoc_ctx;
+static int hf_winsrepl_mess_type;
 
-static int hf_winsrepl_start_minor_version = -1;
-static int hf_winsrepl_start_major_version = -1;
+static int hf_winsrepl_start_minor_version;
+static int hf_winsrepl_start_major_version;
 
-static int hf_winsrepl_stop_reason = -1;
+static int hf_winsrepl_stop_reason;
 
-static int hf_winsrepl_replication_command = -1;
+static int hf_winsrepl_replication_command;
 
-static int hf_winsrepl_owner_address = -1;
-static int hf_winsrepl_owner_max_version = -1;
-static int hf_winsrepl_owner_min_version = -1;
-static int hf_winsrepl_owner_type = -1;
+static int hf_winsrepl_owner_address;
+static int hf_winsrepl_owner_max_version;
+static int hf_winsrepl_owner_min_version;
+static int hf_winsrepl_owner_type;
 
-static int hf_winsrepl_table_partner_count = -1;
-static int hf_winsrepl_table_initiator = -1;
+static int hf_winsrepl_table_partner_count;
+static int hf_winsrepl_table_initiator;
 
-static int hf_winsrepl_ip_owner = -1;
-static int hf_winsrepl_ip_ip = -1;
-static int hf_winsrepl_addr_list_num_ips = -1;
+static int hf_winsrepl_ip_owner;
+static int hf_winsrepl_ip_ip;
+static int hf_winsrepl_addr_list_num_ips;
 
-static int hf_winsrepl_name_len = -1;
-static int hf_winsrepl_name_flags = -1;
-static int hf_winsrepl_name_flags_rectype = -1;
-static int hf_winsrepl_name_flags_recstate = -1;
-static int hf_winsrepl_name_flags_local = -1;
-static int hf_winsrepl_name_flags_hosttype = -1;
-static int hf_winsrepl_name_flags_static = -1;
-static int hf_winsrepl_name_group_flag = -1;
-static int hf_winsrepl_name_version_id = -1;
-static int hf_winsrepl_name_unknown = -1;
+static int hf_winsrepl_name_len;
+static int hf_winsrepl_name_flags;
+static int hf_winsrepl_name_flags_rectype;
+static int hf_winsrepl_name_flags_recstate;
+static int hf_winsrepl_name_flags_local;
+static int hf_winsrepl_name_flags_hosttype;
+static int hf_winsrepl_name_flags_static;
+static int hf_winsrepl_name_group_flag;
+static int hf_winsrepl_name_version_id;
+static int hf_winsrepl_name_unknown;
 
-static int hf_winsrepl_reply_num_names = -1;
+static int hf_winsrepl_reply_num_names;
 
-static gint ett_winsrepl = -1;
+static gint ett_winsrepl;
 
-static gint ett_winsrepl_start = -1;
-static gint ett_winsrepl_stop = -1;
-static gint ett_winsrepl_replication = -1;
+static gint ett_winsrepl_start;
+static gint ett_winsrepl_stop;
+static gint ett_winsrepl_replication;
 
-static gint ett_winsrepl_owner = -1;
-static gint ett_winsrepl_table_reply = -1;
+static gint ett_winsrepl_owner;
+static gint ett_winsrepl_table_reply;
 
-static gint ett_winsrepl_ip = -1;
-static gint ett_winsrepl_addr_list = -1;
+static gint ett_winsrepl_ip;
+static gint ett_winsrepl_addr_list;
 
-static gint ett_winsrepl_name = -1;
-static gint ett_winsrepl_send_reply = -1;
+static gint ett_winsrepl_name;
+static gint ett_winsrepl_send_reply;
 
-static gint ett_winsrepl_flags = -1;
+static gint ett_winsrepl_flags;
 
-static expert_field ei_winsrepl_name_len = EI_INIT;
+static expert_field ei_winsrepl_name_len;
 
 #define WINS_REPLICATION_PORT	( 42 )
 #define WREPL_OPCODE_BITS	( 0x7800 )

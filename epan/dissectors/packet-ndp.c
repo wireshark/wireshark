@@ -243,15 +243,15 @@ static const value_string ndp_state_val[] =
 #define NDP_STATE	        9
 #define NDP_NUMBER_OF_LINKS    10
 
-static int proto_ndp = -1;
-static int hf_ndp_ip_address = -1;
-static int hf_ndp_segment_identifier = -1;
-static int hf_ndp_chassis_type = -1;
-static int hf_ndp_backplane_type = -1;
-static int hf_ndp_state = -1;
-static int hf_ndp_number_of_links = -1;
+static int proto_ndp;
+static int hf_ndp_ip_address;
+static int hf_ndp_segment_identifier;
+static int hf_ndp_chassis_type;
+static int hf_ndp_backplane_type;
+static int hf_ndp_state;
+static int hf_ndp_number_of_links;
 
-static gint ett_ndp = -1;
+static gint ett_ndp;
 
 static dissector_handle_t ndp_handle;
 

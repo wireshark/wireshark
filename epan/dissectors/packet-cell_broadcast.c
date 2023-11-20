@@ -91,40 +91,40 @@ static const value_string geographic_scope_values[] = {
 };
 
 /* Initialize the protocol and registered fields */
-static int proto_cell_broadcast = -1;
+static int proto_cell_broadcast;
 
-static int hf_gsm_cbs_serial_number              = -1;
-static int hf_gsm_cbs_geographic_scope           = -1;
-static int hf_gsm_cbs_message_code               = -1;
-static int hf_gsm_cbs_update_number              = -1;
-static int hf_gsm_cbs_message_identifier         = -1;
-static int hf_gsm_cbs_total_pages                = -1;
-static int hf_gsm_cbs_current_page               = -1;
+static int hf_gsm_cbs_serial_number;
+static int hf_gsm_cbs_geographic_scope;
+static int hf_gsm_cbs_message_code;
+static int hf_gsm_cbs_update_number;
+static int hf_gsm_cbs_message_identifier;
+static int hf_gsm_cbs_total_pages;
+static int hf_gsm_cbs_current_page;
 
 /* These fields are used when reassembling multi-page gsm cbs messages */
-static int hf_gsm_cbs_pages                      = -1;
-static int hf_gsm_cbs_page_num                   = -1;
-static int hf_gsm_cbs_page_overlap               = -1;
-static int hf_gsm_cbs_page_overlap_conflict      = -1;
-static int hf_gsm_cbs_page_multiple_tails        = -1;
-static int hf_gsm_cbs_page_too_long_fragment     = -1;
-static int hf_gsm_cbs_page_error                 = -1;
-static int hf_gsm_cbs_page_count                 = -1;
-static int hf_gsm_cbs_message_reassembled_in    = -1;
-static int hf_gsm_cbs_message_reassembled_length = -1;
-static int hf_gsm_cbs_page_content               = -1;
-static int hf_gsm_cbs_page_content_padding       = -1;
-static int hf_gsm_cbs_message_content            = -1;
+static int hf_gsm_cbs_pages;
+static int hf_gsm_cbs_page_num;
+static int hf_gsm_cbs_page_overlap;
+static int hf_gsm_cbs_page_overlap_conflict;
+static int hf_gsm_cbs_page_multiple_tails;
+static int hf_gsm_cbs_page_too_long_fragment;
+static int hf_gsm_cbs_page_error;
+static int hf_gsm_cbs_page_count;
+static int hf_gsm_cbs_message_reassembled_in;
+static int hf_gsm_cbs_message_reassembled_length;
+static int hf_gsm_cbs_page_content;
+static int hf_gsm_cbs_page_content_padding;
+static int hf_gsm_cbs_message_content;
 
 /* Initialize the subtree pointers */
-static gint ett_cbs_msg                          = -1;
-static gint ett_cbs_serial_no                    = -1;
-static gint ett_cbs_coding                       = -1;
-static gint ett_gsm_cbs_page                     = -1;
-static gint ett_gsm_cbs_page_content             = -1;
-static gint ett_gsm_cbs_pages                    = -1;
+static gint ett_cbs_msg;
+static gint ett_cbs_serial_no;
+static gint ett_cbs_coding;
+static gint ett_gsm_cbs_page;
+static gint ett_gsm_cbs_page_content;
+static gint ett_gsm_cbs_pages;
 
-static expert_field ei_gsm_cbs_unhandled_encoding = EI_INIT;
+static expert_field ei_gsm_cbs_unhandled_encoding;
 
 /* reassembly of GSM multi-page messages */
 static reassembly_table gsm_cbs_reassembly_table;

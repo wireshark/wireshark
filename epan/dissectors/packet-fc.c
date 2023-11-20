@@ -49,86 +49,86 @@ void proto_reg_handoff_fc(void);
 #define FC_PARAM_SIZE          4
 
 /* Initialize the protocol and registered fields */
-static int proto_fc = -1;
-static int hf_fc_time = -1;
-static int hf_fc_exchange_first_frame = -1;
-static int hf_fc_exchange_last_frame = -1;
-static int hf_fc_rctl = -1;
-static int hf_fc_did = -1;
-static int hf_fc_csctl = -1;
-static int hf_fc_sid = -1;
-static int hf_fc_id = -1;
-static int hf_fc_type = -1;
-static int hf_fc_fctl = -1;
-static int hf_fc_fctl_exchange_responder = -1;
-static int hf_fc_fctl_seq_recipient = -1;
-static int hf_fc_fctl_exchange_first = -1;
-static int hf_fc_fctl_exchange_last = -1;
-static int hf_fc_fctl_seq_last = -1;
-static int hf_fc_fctl_priority = -1;
-static int hf_fc_fctl_transfer_seq_initiative = -1;
-static int hf_fc_fctl_rexmitted_seq = -1;
-static int hf_fc_fctl_rel_offset = -1;
-static int hf_fc_fctl_abts_ack = -1;
-/* static int hf_fc_fctl_abts_not_ack = -1; */
-static int hf_fc_fctl_last_data_frame = -1;
-static int hf_fc_fctl_ack_0_1 = -1;
-static int hf_fc_seqid = -1;
-static int hf_fc_dfctl = -1;
-static int hf_fc_seqcnt = -1;
-static int hf_fc_oxid = -1;
-static int hf_fc_rxid = -1;
-static int hf_fc_param = -1;
-static int hf_fc_ftype = -1;    /* Derived field, non-existent in FC hdr */
-static int hf_fc_reassembled = -1;
-static int hf_fc_relative_offset = -1;
+static int proto_fc;
+static int hf_fc_time;
+static int hf_fc_exchange_first_frame;
+static int hf_fc_exchange_last_frame;
+static int hf_fc_rctl;
+static int hf_fc_did;
+static int hf_fc_csctl;
+static int hf_fc_sid;
+static int hf_fc_id;
+static int hf_fc_type;
+static int hf_fc_fctl;
+static int hf_fc_fctl_exchange_responder;
+static int hf_fc_fctl_seq_recipient;
+static int hf_fc_fctl_exchange_first;
+static int hf_fc_fctl_exchange_last;
+static int hf_fc_fctl_seq_last;
+static int hf_fc_fctl_priority;
+static int hf_fc_fctl_transfer_seq_initiative;
+static int hf_fc_fctl_rexmitted_seq;
+static int hf_fc_fctl_rel_offset;
+static int hf_fc_fctl_abts_ack;
+/* static int hf_fc_fctl_abts_not_ack; */
+static int hf_fc_fctl_last_data_frame;
+static int hf_fc_fctl_ack_0_1;
+static int hf_fc_seqid;
+static int hf_fc_dfctl;
+static int hf_fc_seqcnt;
+static int hf_fc_oxid;
+static int hf_fc_rxid;
+static int hf_fc_param;
+static int hf_fc_ftype;    /* Derived field, non-existent in FC hdr */
+static int hf_fc_reassembled;
+static int hf_fc_relative_offset;
 
 /* VFT fields */
-static int hf_fc_vft = -1;
-static int hf_fc_vft_rctl = -1;
-static int hf_fc_vft_ver = -1;
-static int hf_fc_vft_type = -1;
-static int hf_fc_vft_pri = -1;
-static int hf_fc_vft_vf_id = -1;
-static int hf_fc_vft_hop_ct = -1;
+static int hf_fc_vft;
+static int hf_fc_vft_rctl;
+static int hf_fc_vft_ver;
+static int hf_fc_vft_type;
+static int hf_fc_vft_pri;
+static int hf_fc_vft_vf_id;
+static int hf_fc_vft_hop_ct;
 
 /* Network_Header fields */
-static int hf_fc_nh_da = -1;
-static int hf_fc_nh_sa = -1;
+static int hf_fc_nh_da;
+static int hf_fc_nh_sa;
 
 /* For Basic Link Svc */
-static int hf_fc_bls_seqid_vld = -1;
-static int hf_fc_bls_lastvld_seqid = -1;
-static int hf_fc_bls_oxid = -1;
-static int hf_fc_bls_rxid = -1;
-static int hf_fc_bls_lowseqcnt = -1;
-static int hf_fc_bls_hiseqcnt = -1;
-static int hf_fc_bls_rjtcode = -1;
-static int hf_fc_bls_rjtdetail = -1;
-static int hf_fc_bls_vendor = -1;
+static int hf_fc_bls_seqid_vld;
+static int hf_fc_bls_lastvld_seqid;
+static int hf_fc_bls_oxid;
+static int hf_fc_bls_rxid;
+static int hf_fc_bls_lowseqcnt;
+static int hf_fc_bls_hiseqcnt;
+static int hf_fc_bls_rjtcode;
+static int hf_fc_bls_rjtdetail;
+static int hf_fc_bls_vendor;
 
 /* For FC SOF */
-static int proto_fcsof = -1;
+static int proto_fcsof;
 
-static int hf_fcsof = -1;
-static int hf_fceof = -1;
-static int hf_fccrc = -1;
-static int hf_fccrc_status = -1;
+static int hf_fcsof;
+static int hf_fceof;
+static int hf_fccrc;
+static int hf_fccrc_status;
 
-static int ett_fcsof = -1;
-static int ett_fceof = -1;
-static int ett_fccrc = -1;
+static int ett_fcsof;
+static int ett_fceof;
+static int ett_fccrc;
 
 
 /* Initialize the subtree pointers */
-static gint ett_fc = -1;
-static gint ett_fctl = -1;
-static gint ett_fcbls = -1;
-static gint ett_fc_vft = -1;
+static gint ett_fc;
+static gint ett_fctl;
+static gint ett_fcbls;
+static gint ett_fc_vft;
 
-static expert_field ei_fccrc = EI_INIT;
-static expert_field ei_short_hdr = EI_INIT;
-/* static expert_field ei_frag_size = EI_INIT; */
+static expert_field ei_fccrc;
+static expert_field ei_short_hdr;
+/* static expert_field ei_frag_size; */
 
 static dissector_handle_t fc_handle, fcsof_handle;
 static dissector_table_t fcftype_dissector_table;

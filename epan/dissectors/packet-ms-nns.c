@@ -42,17 +42,17 @@ struct nns_session_state {
     gboolean  first_handshake_done;
 };
 
-static int proto_nns = -1;
-static int hf_nns_message_id = -1;
-static int hf_nns_major_version = -1;
-static int hf_nns_minor_version = -1;
-static int hf_nns_auth_payload_size = -1;
-static int hf_nns_auth_payload = -1;
-static int hf_nns_payload_size = -1;
-static int hf_nns_payload = -1;
+static int proto_nns;
+static int hf_nns_message_id;
+static int hf_nns_major_version;
+static int hf_nns_minor_version;
+static int hf_nns_auth_payload_size;
+static int hf_nns_auth_payload;
+static int hf_nns_payload_size;
+static int hf_nns_payload;
 
-static gint ett_nns = -1;
-static gint ett_nns_payload = -1;
+static gint ett_nns;
+static gint ett_nns_payload;
 
 #define MS_NNS_MIN_LENGTH 4
 

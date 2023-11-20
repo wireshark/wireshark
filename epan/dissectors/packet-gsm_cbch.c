@@ -45,45 +45,45 @@ static const value_string sched_type_values[] = {
 };
 
 /* Initialize the protocol and registered fields */
-static int proto_cbch = -1;
+static int proto_cbch;
 
-static int hf_gsm_cbch_spare_bit = -1;
-static int hf_gsm_cbch_lpd = -1;
-static int hf_gsm_cbch_lb = -1;
-static int hf_gsm_cbch_seq_num = -1;
-static int hf_gsm_cbch_sched_type = -1;
-static int hf_gsm_cbch_sched_begin_slot = -1;
-static int hf_gsm_cbch_sched_spare = -1;
-static int hf_gsm_cbch_sched_end_slot = -1;
-static int hf_gsm_cbch_slot = -1;
-/* static int hf_gsm_cbch_sched_msg_id = -1; */
-static int hf_gsm_cbch_padding = -1;
-static int hf_gsm_cbch_block = -1;
+static int hf_gsm_cbch_spare_bit;
+static int hf_gsm_cbch_lpd;
+static int hf_gsm_cbch_lb;
+static int hf_gsm_cbch_seq_num;
+static int hf_gsm_cbch_sched_type;
+static int hf_gsm_cbch_sched_begin_slot;
+static int hf_gsm_cbch_sched_spare;
+static int hf_gsm_cbch_sched_end_slot;
+static int hf_gsm_cbch_slot;
+/* static int hf_gsm_cbch_sched_msg_id; */
+static int hf_gsm_cbch_padding;
+static int hf_gsm_cbch_block;
 
 /* These fields are used when reassembling cbch fragments
  */
-static int hf_cbch_fragments = -1;
-static int hf_cbch_fragment = -1;
-static int hf_cbch_fragment_overlap = -1;
-static int hf_cbch_fragment_overlap_conflict = -1;
-static int hf_cbch_fragment_multiple_tails = -1;
-static int hf_cbch_fragment_too_long_fragment = -1;
-static int hf_cbch_fragment_error = -1;
-static int hf_cbch_fragment_count = -1;
-static int hf_cbch_reassembled_in = -1;
-static int hf_cbch_reassembled_length = -1;
+static int hf_cbch_fragments;
+static int hf_cbch_fragment;
+static int hf_cbch_fragment_overlap;
+static int hf_cbch_fragment_overlap_conflict;
+static int hf_cbch_fragment_multiple_tails;
+static int hf_cbch_fragment_too_long_fragment;
+static int hf_cbch_fragment_error;
+static int hf_cbch_fragment_count;
+static int hf_cbch_reassembled_in;
+static int hf_cbch_reassembled_length;
 
 /* Initialize the subtree pointers */
-static gint ett_cbch_msg = -1;
-static gint ett_schedule_msg = -1;
-static gint ett_schedule_new_msg = -1;
-static gint ett_cbch_fragment = -1;
-static gint ett_cbch_fragments = -1;
+static gint ett_cbch_msg;
+static gint ett_schedule_msg;
+static gint ett_schedule_new_msg;
+static gint ett_cbch_fragment;
+static gint ett_cbch_fragments;
 
-static expert_field ei_gsm_cbch_sched_end_slot = EI_INIT;
-static expert_field ei_gsm_cbch_seq_num_null = EI_INIT;
-static expert_field ei_gsm_cbch_seq_num_reserved = EI_INIT;
-static expert_field ei_gsm_cbch_lpd = EI_INIT;
+static expert_field ei_gsm_cbch_sched_end_slot;
+static expert_field ei_gsm_cbch_seq_num_null;
+static expert_field ei_gsm_cbch_seq_num_reserved;
+static expert_field ei_gsm_cbch_lpd;
 
 static dissector_handle_t cbs_handle;
 

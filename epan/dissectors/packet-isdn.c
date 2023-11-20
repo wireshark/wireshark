@@ -18,11 +18,11 @@
 void proto_register_isdn(void);
 void proto_reg_handoff_isdn(void);
 
-static int proto_isdn = -1;
-static int hf_isdn_direction = -1;
-static int hf_isdn_channel = -1;
+static int proto_isdn;
+static int hf_isdn_direction;
+static int hf_isdn_channel;
 
-static gint ett_isdn = -1;
+static gint ett_isdn;
 
 static dissector_handle_t isdn_handle;
 

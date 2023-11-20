@@ -20,28 +20,28 @@
 void proto_register_oxid(void);
 void proto_reg_handoff_oxid(void);
 
-static int proto_oxid = -1;
+static int proto_oxid;
 
-static int hf_oxid_opnum = -1;
-static int hf_oxid_setid = -1;
-static int hf_oxid_seqnum = -1;
-static int hf_oxid_addtoset = -1;
-static int hf_oxid_delfromset = -1;
-static int hf_oxid_oid = -1;
-static int hf_oxid_ping_backoff_factor = -1;
-static int hf_oxid_oxid = -1;
-static int hf_oxid_requested_protseqs = -1;
-static int hf_oxid_protseqs = -1;
-static int hf_oxid_bindings = -1;
-static int hf_oxid_ipid = -1;
-static int hf_oxid_authn_hint = -1;
+static int hf_oxid_opnum;
+static int hf_oxid_setid;
+static int hf_oxid_seqnum;
+static int hf_oxid_addtoset;
+static int hf_oxid_delfromset;
+static int hf_oxid_oid;
+static int hf_oxid_ping_backoff_factor;
+static int hf_oxid_oxid;
+static int hf_oxid_requested_protseqs;
+static int hf_oxid_protseqs;
+static int hf_oxid_bindings;
+static int hf_oxid_ipid;
+static int hf_oxid_authn_hint;
 
-static int hf_oxid_Unknown1 = -1;
-static int hf_oxid_Unknown2 = -1;
-static int hf_oxid_ds_array = -1;
+static int hf_oxid_Unknown1;
+static int hf_oxid_Unknown2;
+static int hf_oxid_ds_array;
 
 
-static gint ett_oxid = -1;
+static gint ett_oxid;
 
 static e_guid_t uuid_oxid = { 0x99fcfec4, 0x5260, 0x101b, { 0xbb, 0xcb, 0x00, 0xaa, 0x00, 0x21, 0x34, 0x7a } };
 static guint16  ver_oxid = 0;

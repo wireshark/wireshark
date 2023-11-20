@@ -38,9 +38,9 @@ static mtp3_addr_pc_t* mtp3_addr_dpc;
 
 static int ss7pc_address_type = -1;
 
-static gint ett_ppcap = -1;
-static gint ett_ppcap1 = -1;
-static gint ett_ppcap_new = -1;
+static gint ett_ppcap;
+static gint ett_ppcap1;
+static gint ett_ppcap_new;
 
 static const value_string payload_tag_values[] = {
 	{  1,	"Payload Type"},
@@ -67,32 +67,32 @@ static const value_string address_type_values[] = {
 
 /* Initialise the header fields */
 
-static int proto_ppcap= -1;
-static int hf_ppcap_length = -1;
-static int hf_ppcap_payload_type = -1;
-static int hf_ppcap_ssn = -1;
-static int hf_ppcap_spc = -1;
-static int hf_ppcap_ssn1 = -1;
-static int hf_ppcap_spc1 = -1;
-static int hf_ppcap_opc = -1;
-static int hf_ppcap_dpc = -1;
-static int hf_ppcap_source_nodeid = -1;
-static int hf_ppcap_destination_nodeid = -1;
-/*static int hf_ppcap_source_address_type = -1; */
-/*static int hf_ppcap_destination_address_type = -1; */
-static int hf_ppcap_address_type = -1;
-static int hf_ppcap_source_ip_address1 = -1;
-static int hf_ppcap_source_ip_address2 = -1;
-static int hf_ppcap_destination_ip_address1 = -1;
-static int hf_ppcap_destination_ip_address2 = -1;
-static int hf_ppcap_reserved = -1;
-static int hf_ppcap_destreserved = -1;
-static int hf_ppcap_info = -1;
-static int hf_ppcap_payload_data = -1;
-static int hf_ppcap_local_port = -1;
-static int hf_ppcap_remote_port = -1;
-static int hf_ppcap_transport_prot = -1;
-static int hf_ppcap_sctp_assoc = -1;
+static int proto_ppcap;
+static int hf_ppcap_length;
+static int hf_ppcap_payload_type;
+static int hf_ppcap_ssn;
+static int hf_ppcap_spc;
+static int hf_ppcap_ssn1;
+static int hf_ppcap_spc1;
+static int hf_ppcap_opc;
+static int hf_ppcap_dpc;
+static int hf_ppcap_source_nodeid;
+static int hf_ppcap_destination_nodeid;
+/*static int hf_ppcap_source_address_type; */
+/*static int hf_ppcap_destination_address_type; */
+static int hf_ppcap_address_type;
+static int hf_ppcap_source_ip_address1;
+static int hf_ppcap_source_ip_address2;
+static int hf_ppcap_destination_ip_address1;
+static int hf_ppcap_destination_ip_address2;
+static int hf_ppcap_reserved;
+static int hf_ppcap_destreserved;
+static int hf_ppcap_info;
+static int hf_ppcap_payload_data;
+static int hf_ppcap_local_port;
+static int hf_ppcap_remote_port;
+static int hf_ppcap_transport_prot;
+static int hf_ppcap_sctp_assoc;
 
 /* Initiliaze the subtree pointers*/
 

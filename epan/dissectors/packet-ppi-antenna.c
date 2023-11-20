@@ -38,57 +38,57 @@ enum ppi_antenna_type {
 void proto_register_ppi_antenna(void);
 
 /* protocol */
-static int proto_ppi_antenna = -1;
+static int proto_ppi_antenna;
 
-static int hf_ppi_antenna_version = -1;
-static int hf_ppi_antenna_pad = -1;
-static int hf_ppi_antenna_length = -1;
-static int hf_ppi_antenna_present = -1;
-static int hf_ppi_antenna_flags = -1;
-static int hf_ppi_antenna_gaindb = -1;
-static int hf_ppi_antenna_horizbw = -1;
-static int hf_ppi_antenna_vertbw = -1;
-static int hf_ppi_antenna_pgain= -1;
-static int hf_ppi_antenna_beamid= -1;
-static int hf_ppi_antenna_serialnum= -1;
-static int hf_ppi_antenna_modelname = -1;
-static int hf_ppi_antenna_descstr = -1;
-static int hf_ppi_antenna_appspecific_num = -1; /* 4-byte tag no */
-static int hf_ppi_antenna_appspecific_data = -1; /* 60 byte arbitrary data */
+static int hf_ppi_antenna_version;
+static int hf_ppi_antenna_pad;
+static int hf_ppi_antenna_length;
+static int hf_ppi_antenna_present;
+static int hf_ppi_antenna_flags;
+static int hf_ppi_antenna_gaindb;
+static int hf_ppi_antenna_horizbw;
+static int hf_ppi_antenna_vertbw;
+static int hf_ppi_antenna_pgain;
+static int hf_ppi_antenna_beamid;
+static int hf_ppi_antenna_serialnum;
+static int hf_ppi_antenna_modelname;
+static int hf_ppi_antenna_descstr;
+static int hf_ppi_antenna_appspecific_num; /* 4-byte tag no */
+static int hf_ppi_antenna_appspecific_data; /* 60 byte arbitrary data */
 
 
 /* "Present" flags */
 /* These represent decoded-bits in the gui */
-static int hf_ppi_antenna_present_flags= -1;
-static int hf_ppi_antenna_present_gaindb = -1;
-static int hf_ppi_antenna_present_horizbw = -1;
-static int hf_ppi_antenna_present_vertbw= -1;
-static int hf_ppi_antenna_present_pgain= -1;
-static int hf_ppi_antenna_present_beamid= -1;
-static int hf_ppi_antenna_present_serialnum= -1;
-static int hf_ppi_antenna_present_modelname = -1;
-static int hf_ppi_antenna_present_descstr = -1;
-static int hf_ppi_antenna_present_appspecific_num = -1;
-static int hf_ppi_antenna_present_appspecific_data = -1;
-static int hf_ppi_antenna_present_ext = -1;
+static int hf_ppi_antenna_present_flags;
+static int hf_ppi_antenna_present_gaindb;
+static int hf_ppi_antenna_present_horizbw;
+static int hf_ppi_antenna_present_vertbw;
+static int hf_ppi_antenna_present_pgain;
+static int hf_ppi_antenna_present_beamid;
+static int hf_ppi_antenna_present_serialnum;
+static int hf_ppi_antenna_present_modelname;
+static int hf_ppi_antenna_present_descstr;
+static int hf_ppi_antenna_present_appspecific_num;
+static int hf_ppi_antenna_present_appspecific_data;
+static int hf_ppi_antenna_present_ext;
 
 /*These are the few defined AntennaFlags bits*/
-static int hf_ppi_antennaflags_mimo= -1;
-static int hf_ppi_antennaflags_horizpol= -1;
-static int hf_ppi_antennaflags_vertpol= -1;
-static int hf_ppi_antennaflags_circpol_l= -1;
-static int hf_ppi_antennaflags_circpol_r= -1;
-static int hf_ppi_antennaflags_steer_elec= -1;
-static int hf_ppi_antennaflags_steer_mech= -1;
+static int hf_ppi_antennaflags_mimo;
+static int hf_ppi_antennaflags_horizpol;
+static int hf_ppi_antennaflags_vertpol;
+static int hf_ppi_antennaflags_circpol_l;
+static int hf_ppi_antennaflags_circpol_r;
+static int hf_ppi_antennaflags_steer_elec;
+static int hf_ppi_antennaflags_steer_mech;
 
 /* These represent arrow-dropdownthings in the gui */
-static gint ett_ppi_antenna = -1;
-static gint ett_ppi_antenna_present = -1;
-static gint ett_ppi_antennaflags= -1;
+static gint ett_ppi_antenna;
+static gint ett_ppi_antenna_present;
+static gint ett_ppi_antennaflags;
 
-static expert_field ei_ppi_antenna_present_bit = EI_INIT;
-static expert_field ei_ppi_antenna_version = EI_INIT;
-static expert_field ei_ppi_antenna_length = EI_INIT;
+static expert_field ei_ppi_antenna_present_bit;
+static expert_field ei_ppi_antenna_version;
+static expert_field ei_ppi_antenna_length;
 
 static int
 dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {

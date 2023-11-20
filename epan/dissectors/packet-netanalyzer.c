@@ -128,27 +128,27 @@ static const value_string buf_source_vals[] = {
 
 static dissector_handle_t  eth_dissector_handle;
 
-static gint  proto_netanalyzer           = -1;
+static gint  proto_netanalyzer;
 
-static gint  hf_netanalyzer_gpio                     = -1;
-static gint  hf_netanalyzer_gpio_number              = -1;
-static gint  hf_netanalyzer_gpio_edge                = -1;
-static gint  hf_netanalyzer_eth                      = -1;
-static gint  hf_netanalyzer_port                     = -1;
-static gint  hf_netanalyzer_length                   = -1;
-static gint  hf_netanalyzer_status                   = -1;
-static gint  hf_netanalyzer_status_rx_err            = -1;
-static gint  hf_netanalyzer_status_align_err         = -1;
-static gint  hf_netanalyzer_status_fcs               = -1;
-static gint  hf_netanalyzer_status_too_long          = -1;
-static gint  hf_netanalyzer_status_sfd_error         = -1;
-static gint  hf_netanalyzer_status_short_frame       = -1;
-static gint  hf_netanalyzer_status_short_preamble    = -1;
-static gint  hf_netanalyzer_status_long_preamble     = -1;
-static gint  hf_netanalyzer_buf                      = -1;
-static gint  hf_netanalyzer_buf_state                = -1;
-static gint  hf_netanalyzer_buf_source               = -1;
-static gint  hf_netanalyzer_timetick                 = -1;
+static gint  hf_netanalyzer_gpio;
+static gint  hf_netanalyzer_gpio_number;
+static gint  hf_netanalyzer_gpio_edge;
+static gint  hf_netanalyzer_eth;
+static gint  hf_netanalyzer_port;
+static gint  hf_netanalyzer_length;
+static gint  hf_netanalyzer_status;
+static gint  hf_netanalyzer_status_rx_err;
+static gint  hf_netanalyzer_status_align_err;
+static gint  hf_netanalyzer_status_fcs;
+static gint  hf_netanalyzer_status_too_long;
+static gint  hf_netanalyzer_status_sfd_error;
+static gint  hf_netanalyzer_status_short_frame;
+static gint  hf_netanalyzer_status_short_preamble;
+static gint  hf_netanalyzer_status_long_preamble;
+static gint  hf_netanalyzer_buf;
+static gint  hf_netanalyzer_buf_state;
+static gint  hf_netanalyzer_buf_source;
+static gint  hf_netanalyzer_timetick;
 
 static int * const hfx_netanalyzer_status[] = {
   &hf_netanalyzer_status_rx_err,
@@ -162,18 +162,18 @@ static int * const hfx_netanalyzer_status[] = {
   NULL
 };
 
-static gint  ett_netanalyzer                         = -1;
-static gint  ett_netanalyzer_gpio                    = -1;
-static gint  ett_netanalyzer_status                  = -1;
-static gint  ett_netanalyzer_transparent             = -1;
-static gint  ett_netanalyzer_buf                     = -1;
+static gint  ett_netanalyzer;
+static gint  ett_netanalyzer_gpio;
+static gint  ett_netanalyzer_status;
+static gint  ett_netanalyzer_transparent;
+static gint  ett_netanalyzer_buf;
 
-static expert_field ei_netanalyzer_header_wrong = EI_INIT;
-static expert_field ei_netanalyzer_gpio_def_none = EI_INIT;
-static expert_field ei_netanalyzer_header_none = EI_INIT;
-static expert_field ei_netanalyzer_transparent_frame = EI_INIT;
-static expert_field ei_netanalyzer_alignment_error = EI_INIT;
-static expert_field ei_netanalyzer_not_implemented = EI_INIT;
+static expert_field ei_netanalyzer_header_wrong;
+static expert_field ei_netanalyzer_gpio_def_none;
+static expert_field ei_netanalyzer_header_none;
+static expert_field ei_netanalyzer_transparent_frame;
+static expert_field ei_netanalyzer_alignment_error;
+static expert_field ei_netanalyzer_not_implemented;
 
 /* common routine for Ethernet and transparent mode */
 static int

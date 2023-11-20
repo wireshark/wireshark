@@ -24,16 +24,16 @@ void proto_reg_handoff_lsd(void);
 #define LSD_MULTICAST_ADDRESS 0xEFC0988F /* 239.192.152.143 */
 #define LSD_PORT 6771
 
-static int proto_lsd = -1;
-static int hf_lsd_header = -1;
-static int hf_lsd_host = -1;
-static int hf_lsd_port = -1;
-static int hf_lsd_infohash = -1;
-static int hf_lsd_cookie = -1;
+static int proto_lsd;
+static int hf_lsd_header;
+static int hf_lsd_host;
+static int hf_lsd_port;
+static int hf_lsd_infohash;
+static int hf_lsd_cookie;
 
-static gint ett_lsd = -1;
+static gint ett_lsd;
 
-static expert_field ei_lsd_field = EI_INIT;
+static expert_field ei_lsd_field;
 
 static gboolean
 parse_string_field(proto_tree *tree, int hf, packet_info *pinfo, tvbuff_t *tvb, int offset, int* next_offset, int* linelen)

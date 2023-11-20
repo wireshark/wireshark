@@ -25,10 +25,10 @@
 void proto_reg_handoff_telkonet(void);
 void proto_register_telkonet(void);
 
-static int proto_telkonet = -1;
-static int hf_telkonet_type = -1;
+static int proto_telkonet;
+static int hf_telkonet_type;
 
-static gint ett_telkonet = -1;
+static gint ett_telkonet;
 
 static dissector_handle_t telkonet_handle;
 static dissector_handle_t eth_withoutfcs_handle;

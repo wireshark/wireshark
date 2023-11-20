@@ -27,12 +27,12 @@ static dissector_handle_t ipfc_handle;
 static capture_dissector_handle_t ipfc_cap_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_ipfc              = -1;
-static int hf_ipfc_network_da = -1;
-static int hf_ipfc_network_sa = -1;
+static int proto_ipfc;
+static int hf_ipfc_network_da;
+static int hf_ipfc_network_sa;
 
 /* Initialize the subtree pointers */
-static gint ett_ipfc = -1;
+static gint ett_ipfc;
 static dissector_handle_t llc_handle;
 static capture_dissector_handle_t llc_cap_handle;
 

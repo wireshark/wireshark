@@ -3034,39 +3034,39 @@ static const value_string mcc_mnc_3digits_codes[] = {
 
 value_string_ext mcc_mnc_3digits_codes_ext = VALUE_STRING_EXT_INIT(mcc_mnc_3digits_codes);
 
-static int proto_e212   = -1;
-static int hf_E212_imsi = -1;
-static int hf_e212_assoc_imsi = -1;
-static int hf_E212_mcc  = -1;
-static int hf_E212_mcc_lai = -1;
-static int hf_E212_mcc_sai = -1;
-static int hf_E212_mcc_rai = -1;
-static int hf_E212_mcc_cgi = -1;
-static int hf_E212_mcc_ecgi = -1;
-static int hf_E212_mcc_tai = -1;
-static int hf_E212_mcc_nrcgi = -1;
-static int hf_E212_mcc_5gstai = -1;
-static int hf_E212_mcc_gummei = -1;
-static int hf_E212_mcc_guami = -1;
-static int hf_E212_mnc  = -1;
-static int hf_E212_mnc_lai = -1;
-static int hf_E212_mnc_sai = -1;
-static int hf_E212_mnc_rai = -1;
-static int hf_E212_mnc_cgi = -1;
-static int hf_E212_mnc_ecgi = -1;
-static int hf_E212_mnc_tai = -1;
-static int hf_E212_mnc_nrcgi = -1;
-static int hf_E212_mnc_5gstai = -1;
-static int hf_E212_mnc_gummei = -1;
-static int hf_E212_mnc_guami = -1;
+static int proto_e212;
+static int hf_E212_imsi;
+static int hf_e212_assoc_imsi;
+static int hf_E212_mcc;
+static int hf_E212_mcc_lai;
+static int hf_E212_mcc_sai;
+static int hf_E212_mcc_rai;
+static int hf_E212_mcc_cgi;
+static int hf_E212_mcc_ecgi;
+static int hf_E212_mcc_tai;
+static int hf_E212_mcc_nrcgi;
+static int hf_E212_mcc_5gstai;
+static int hf_E212_mcc_gummei;
+static int hf_E212_mcc_guami;
+static int hf_E212_mnc;
+static int hf_E212_mnc_lai;
+static int hf_E212_mnc_sai;
+static int hf_E212_mnc_rai;
+static int hf_E212_mnc_cgi;
+static int hf_E212_mnc_ecgi;
+static int hf_E212_mnc_tai;
+static int hf_E212_mnc_nrcgi;
+static int hf_E212_mnc_5gstai;
+static int hf_E212_mnc_gummei;
+static int hf_E212_mnc_guami;
 
-static int ett_e212_imsi = -1;
+static int ett_e212_imsi;
 
-static expert_field ei_E212_mcc_non_decimal = EI_INIT;
-static expert_field ei_E212_mnc_non_decimal = EI_INIT;
-static expert_field ei_E212_imsi_malformed = EI_INIT;
+static expert_field ei_E212_mcc_non_decimal;
+static expert_field ei_E212_mnc_non_decimal;
+static expert_field ei_E212_imsi_malformed;
 
-/* static int hf_E212_msin = -1; */
+/* static int hf_E212_msin; */
 
 /*
  * MCC/MNC dissection - little endian MNC encoding

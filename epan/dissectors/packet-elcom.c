@@ -49,53 +49,53 @@ void proto_reg_handoff_elcom(void);
 
 static dissector_handle_t elcom_handle;
 
-static int proto_elcom = -1;
-static int hf_elcom_response = -1;
-static int hf_elcom_request = -1;
+static int proto_elcom;
+static int hf_elcom_response;
+static int hf_elcom_request;
 
-static int hf_elcom_length = -1;
-static int hf_elcom_type = -1;
+static int hf_elcom_length;
+static int hf_elcom_type;
 
-static int hf_elcom_initiator = -1;
-static int hf_elcom_initiator_endian = -1;
-static int hf_elcom_initiator_ip = -1;
-static int hf_elcom_initiator_port = -1;
-static int hf_elcom_initiator_suff = -1;
+static int hf_elcom_initiator;
+static int hf_elcom_initiator_endian;
+static int hf_elcom_initiator_ip;
+static int hf_elcom_initiator_port;
+static int hf_elcom_initiator_suff;
 
-static int hf_elcom_responder = -1;
-static int hf_elcom_responder_endian = -1;
-static int hf_elcom_responder_ip = -1;
-static int hf_elcom_responder_port = -1;
-static int hf_elcom_responder_suff = -1;
+static int hf_elcom_responder;
+static int hf_elcom_responder_endian;
+static int hf_elcom_responder_ip;
+static int hf_elcom_responder_port;
+static int hf_elcom_responder_suff;
 
-static int hf_elcom_userdata = -1;
-static int hf_elcom_userdata_length = -1;
-static int hf_elcom_userdata_pduid = -1;
-static int hf_elcom_userdata_version = -1;
-static int hf_elcom_userdata_result = -1;
-static int hf_elcom_userdata_restmark = -1;
-static int hf_elcom_userdata_cf = -1;
+static int hf_elcom_userdata;
+static int hf_elcom_userdata_length;
+static int hf_elcom_userdata_pduid;
+static int hf_elcom_userdata_version;
+static int hf_elcom_userdata_result;
+static int hf_elcom_userdata_restmark;
+static int hf_elcom_userdata_cf;
 
-static int hf_elcom_datarequest = -1;
-static int hf_elcom_datarequest_grouptype = -1;
-static int hf_elcom_datarequest_result = -1;
-static int hf_elcom_datarequest_groupnumber = -1;
-static int hf_elcom_datarequest_grouppriority = -1;
-static int hf_elcom_datarequest_groupsize = -1;
-static int hf_elcom_datarequest_groupindex1 = -1;
-static int hf_elcom_datarequest_groupindex2 = -1;
-static int hf_elcom_datarequest_oid = -1;
+static int hf_elcom_datarequest;
+static int hf_elcom_datarequest_grouptype;
+static int hf_elcom_datarequest_result;
+static int hf_elcom_datarequest_groupnumber;
+static int hf_elcom_datarequest_grouppriority;
+static int hf_elcom_datarequest_groupsize;
+static int hf_elcom_datarequest_groupindex1;
+static int hf_elcom_datarequest_groupindex2;
+static int hf_elcom_datarequest_oid;
 
-static int hf_elcom_release_reason = -1;
-static int hf_elcom_release_result = -1;
+static int hf_elcom_release_reason;
+static int hf_elcom_release_result;
 
-static int hf_elcom_strangeleftover = -1;
+static int hf_elcom_strangeleftover;
 
-static gint ett_elcom = -1;
-static gint ett_elcom_initiator = -1;
-static gint ett_elcom_responder = -1;
-static gint ett_elcom_userdata = -1;
-static gint ett_elcom_datarequest = -1;
+static gint ett_elcom;
+static gint ett_elcom_initiator;
+static gint ett_elcom_responder;
+static gint ett_elcom_userdata;
+static gint ett_elcom_datarequest;
 
 static gboolean elcom_show_hex = TRUE;
 

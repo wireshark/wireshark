@@ -21,11 +21,11 @@
 void proto_register_rs_replist (void);
 void proto_reg_handoff_rs_replist (void);
 
-static int proto_rs_replist = -1;
-static int hf_rs_replist_opnum = -1;
+static int proto_rs_replist;
+static int hf_rs_replist_opnum;
 
 
-static gint ett_rs_replist = -1;
+static gint ett_rs_replist;
 
 
 static e_guid_t uuid_rs_replist = { 0x850446b0, 0xe95b, 0x11CA, { 0xad, 0x90, 0x08, 0x00, 0x1e, 0x01, 0x45, 0xb1 } };

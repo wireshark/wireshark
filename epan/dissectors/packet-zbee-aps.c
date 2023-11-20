@@ -60,96 +60,96 @@ void proto_register_zbee_aps(void);
  ********************
  */
 /* Field indices. */
-static int proto_zbee_aps = -1;
-static int hf_zbee_aps_fcf_frame_type = -1;
-static int hf_zbee_aps_fcf_delivery = -1;
-static int hf_zbee_aps_fcf_indirect_mode = -1;  /* ZigBee 2004 and earlier. */
-static int hf_zbee_aps_fcf_ack_format = -1;       /* ZigBee 2007 and later. */
-static int hf_zbee_aps_fcf_security = -1;
-static int hf_zbee_aps_fcf_ack_req = -1;
-static int hf_zbee_aps_fcf_ext_header = -1;
-static int hf_zbee_aps_dst = -1;
-static int hf_zbee_aps_group = -1;
-static int hf_zbee_aps_cluster = -1;
-static int hf_zbee_aps_profile = -1;
-static int hf_zbee_aps_src = -1;
-static int hf_zbee_aps_counter = -1;
-static int hf_zbee_aps_fragmentation = -1;
-static int hf_zbee_aps_block_number = -1;
-static int hf_zbee_aps_block_ack = -1;
-static int hf_zbee_aps_block_ack1 = -1;
-static int hf_zbee_aps_block_ack2 = -1;
-static int hf_zbee_aps_block_ack3 = -1;
-static int hf_zbee_aps_block_ack4 = -1;
-static int hf_zbee_aps_block_ack5 = -1;
-static int hf_zbee_aps_block_ack6 = -1;
-static int hf_zbee_aps_block_ack7 = -1;
-static int hf_zbee_aps_block_ack8 = -1;
+static int proto_zbee_aps;
+static int hf_zbee_aps_fcf_frame_type;
+static int hf_zbee_aps_fcf_delivery;
+static int hf_zbee_aps_fcf_indirect_mode;  /* ZigBee 2004 and earlier. */
+static int hf_zbee_aps_fcf_ack_format;       /* ZigBee 2007 and later. */
+static int hf_zbee_aps_fcf_security;
+static int hf_zbee_aps_fcf_ack_req;
+static int hf_zbee_aps_fcf_ext_header;
+static int hf_zbee_aps_dst;
+static int hf_zbee_aps_group;
+static int hf_zbee_aps_cluster;
+static int hf_zbee_aps_profile;
+static int hf_zbee_aps_src;
+static int hf_zbee_aps_counter;
+static int hf_zbee_aps_fragmentation;
+static int hf_zbee_aps_block_number;
+static int hf_zbee_aps_block_ack;
+static int hf_zbee_aps_block_ack1;
+static int hf_zbee_aps_block_ack2;
+static int hf_zbee_aps_block_ack3;
+static int hf_zbee_aps_block_ack4;
+static int hf_zbee_aps_block_ack5;
+static int hf_zbee_aps_block_ack6;
+static int hf_zbee_aps_block_ack7;
+static int hf_zbee_aps_block_ack8;
 
-static int hf_zbee_aps_cmd_id = -1;
-static int hf_zbee_aps_cmd_initiator = -1;
-static int hf_zbee_aps_cmd_responder = -1;
-static int hf_zbee_aps_cmd_partner = -1;
-static int hf_zbee_aps_cmd_initiator_flag = -1;
-static int hf_zbee_aps_cmd_device = -1;
-static int hf_zbee_aps_cmd_challenge = -1;
-static int hf_zbee_aps_cmd_mac = -1;
-static int hf_zbee_aps_cmd_key = -1;
-static int hf_zbee_aps_cmd_key_hash = -1;
-static int hf_zbee_aps_cmd_key_type = -1;
-static int hf_zbee_aps_cmd_dst = -1;
-static int hf_zbee_aps_cmd_src = -1;
-static int hf_zbee_aps_cmd_seqno = -1;
-static int hf_zbee_aps_cmd_short_addr = -1;
-static int hf_zbee_aps_cmd_device_status = -1;
-static int hf_zbee_aps_cmd_status = -1;
-static int hf_zbee_aps_cmd_ea_key_type = -1;
-static int hf_zbee_aps_cmd_ea_data = -1;
+static int hf_zbee_aps_cmd_id;
+static int hf_zbee_aps_cmd_initiator;
+static int hf_zbee_aps_cmd_responder;
+static int hf_zbee_aps_cmd_partner;
+static int hf_zbee_aps_cmd_initiator_flag;
+static int hf_zbee_aps_cmd_device;
+static int hf_zbee_aps_cmd_challenge;
+static int hf_zbee_aps_cmd_mac;
+static int hf_zbee_aps_cmd_key;
+static int hf_zbee_aps_cmd_key_hash;
+static int hf_zbee_aps_cmd_key_type;
+static int hf_zbee_aps_cmd_dst;
+static int hf_zbee_aps_cmd_src;
+static int hf_zbee_aps_cmd_seqno;
+static int hf_zbee_aps_cmd_short_addr;
+static int hf_zbee_aps_cmd_device_status;
+static int hf_zbee_aps_cmd_status;
+static int hf_zbee_aps_cmd_ea_key_type;
+static int hf_zbee_aps_cmd_ea_data;
 
 /* Field indices for ZigBee 2003 & earlier Application Framework. */
-static int proto_zbee_apf = -1;
-static int hf_zbee_apf_count = -1;
-static int hf_zbee_apf_type = -1;
+static int proto_zbee_apf;
+static int hf_zbee_apf_count;
+static int hf_zbee_apf_type;
 
 /* Subtree indices. */
-static gint ett_zbee_aps = -1;
-static gint ett_zbee_aps_fcf = -1;
-static gint ett_zbee_aps_ext = -1;
-static gint ett_zbee_aps_cmd = -1;
+static gint ett_zbee_aps;
+static gint ett_zbee_aps_fcf;
+static gint ett_zbee_aps_ext;
+static gint ett_zbee_aps_cmd;
 
 /* Fragmentation indices. */
-static int hf_zbee_aps_fragments = -1;
-static int hf_zbee_aps_fragment = -1;
-static int hf_zbee_aps_fragment_overlap = -1;
-static int hf_zbee_aps_fragment_overlap_conflicts = -1;
-static int hf_zbee_aps_fragment_multiple_tails = -1;
-static int hf_zbee_aps_fragment_too_long_fragment = -1;
-static int hf_zbee_aps_fragment_error = -1;
-static int hf_zbee_aps_fragment_count = -1;
-static int hf_zbee_aps_reassembled_in = -1;
-static int hf_zbee_aps_reassembled_length = -1;
-static gint ett_zbee_aps_fragment = -1;
-static gint ett_zbee_aps_fragments = -1;
+static int hf_zbee_aps_fragments;
+static int hf_zbee_aps_fragment;
+static int hf_zbee_aps_fragment_overlap;
+static int hf_zbee_aps_fragment_overlap_conflicts;
+static int hf_zbee_aps_fragment_multiple_tails;
+static int hf_zbee_aps_fragment_too_long_fragment;
+static int hf_zbee_aps_fragment_error;
+static int hf_zbee_aps_fragment_count;
+static int hf_zbee_aps_reassembled_in;
+static int hf_zbee_aps_reassembled_length;
+static gint ett_zbee_aps_fragment;
+static gint ett_zbee_aps_fragments;
 
 /* Test Profile #2 indices. */
-static int hf_zbee_aps_t2_cluster = -1;
-static int hf_zbee_aps_t2_btres_octet_sequence = -1;
-static int hf_zbee_aps_t2_btres_octet_sequence_length_requested = -1;
-static int hf_zbee_aps_t2_btres_status = -1;
-static int hf_zbee_aps_t2_btreq_octet_sequence_length = -1;
+static int hf_zbee_aps_t2_cluster;
+static int hf_zbee_aps_t2_btres_octet_sequence;
+static int hf_zbee_aps_t2_btres_octet_sequence_length_requested;
+static int hf_zbee_aps_t2_btres_status;
+static int hf_zbee_aps_t2_btreq_octet_sequence_length;
 
 /* ZDP indices. */
-static int hf_zbee_aps_zdp_cluster = -1;
+static int hf_zbee_aps_zdp_cluster;
 
 /* Subtree indices for the ZigBee 2004 & earlier Application Framework. */
-static gint ett_zbee_apf = -1;
-static gint ett_zbee_aps_frag_ack = -1;
+static gint ett_zbee_apf;
+static gint ett_zbee_aps_frag_ack;
 
 /* Subtree indices for the ZigBee Test Profile #2. */
-static gint ett_zbee_aps_t2 = -1;
+static gint ett_zbee_aps_t2;
 
-static expert_field ei_zbee_aps_invalid_delivery_mode = EI_INIT;
-static expert_field ei_zbee_aps_missing_payload = EI_INIT;
+static expert_field ei_zbee_aps_invalid_delivery_mode;
+static expert_field ei_zbee_aps_missing_payload;
 
 /* Dissector Handles. */
 static dissector_handle_t   zbee_aps_handle;

@@ -24,16 +24,16 @@
 void proto_reg_handoff_pcaplog(void);
 void proto_register_pcaplog(void);
 
-static int proto_pcaplog = -1;
-static int hf_pcaplog_type = -1;
-static int hf_pcaplog_length = -1;
-static int hf_pcaplog_data = -1;
+static int proto_pcaplog;
+static int hf_pcaplog_type;
+static int hf_pcaplog_length;
+static int hf_pcaplog_data;
 
 static dissector_handle_t pcaplog_handle;
 static dissector_handle_t xml_handle;
 
-static int ett_pcaplog = -1;
-static int ett_pcaplog_data = -1;
+static int ett_pcaplog;
+static int ett_pcaplog_data;
 
 static int
 dissect_pcaplog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,

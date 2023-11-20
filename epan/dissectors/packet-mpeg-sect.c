@@ -21,17 +21,17 @@
 
 void proto_register_mpeg_sect(void);
 
-static int proto_mpeg_sect = -1;
-static int hf_mpeg_sect_table_id = -1;
-static int hf_mpeg_sect_syntax_indicator = -1;
-static int hf_mpeg_sect_reserved = -1;
-static int hf_mpeg_sect_length = -1;
-static int hf_mpeg_sect_crc = -1;
-static int hf_mpeg_sect_crc_status = -1;
+static int proto_mpeg_sect;
+static int hf_mpeg_sect_table_id;
+static int hf_mpeg_sect_syntax_indicator;
+static int hf_mpeg_sect_reserved;
+static int hf_mpeg_sect_length;
+static int hf_mpeg_sect_crc;
+static int hf_mpeg_sect_crc_status;
 
-static gint ett_mpeg_sect = -1;
+static gint ett_mpeg_sect;
 
-static expert_field ei_mpeg_sect_crc = EI_INIT;
+static expert_field ei_mpeg_sect_crc;
 
 static dissector_table_t mpeg_sect_tid_dissector_table;
 

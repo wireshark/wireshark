@@ -70,45 +70,45 @@ static dissector_handle_t pagp_handle;
 
 /* Initialise the protocol and registered fields */
 
-static int proto_pagp = -1;
+static int proto_pagp;
 
-static int hf_pagp_version_number = -1;
+static int hf_pagp_version_number;
 
-static int hf_pagp_flags = -1;
-static int hf_pagp_flags_slow_hello = -1;
-static int hf_pagp_flags_auto_mode = -1;
-static int hf_pagp_flags_consistent_state = -1;
-static int hf_pagp_local_device_id = -1;
-static int hf_pagp_local_learn_cap = -1;
-static int hf_pagp_local_port_priority = -1;
-static int hf_pagp_local_sent_port_ifindex = -1;
-static int hf_pagp_local_group_capability = -1;
-static int hf_pagp_local_group_ifindex = -1;
-static int hf_pagp_partner_device_id = -1;
-static int hf_pagp_partner_learn_cap = -1;
-static int hf_pagp_partner_port_priority = -1;
-static int hf_pagp_partner_sent_port_ifindex = -1;
-static int hf_pagp_partner_group_capability = -1;
-static int hf_pagp_partner_group_ifindex = -1;
-static int hf_pagp_partner_count = -1;
-static int hf_pagp_num_tlvs = -1;
-static int hf_pagp_tlv = -1;
-static int hf_pagp_tlv_length = -1;
-static int hf_pagp_tlv_device_name = -1;
-static int hf_pagp_tlv_port_name = -1;
-static int hf_pagp_tlv_agport_mac = -1;
+static int hf_pagp_flags;
+static int hf_pagp_flags_slow_hello;
+static int hf_pagp_flags_auto_mode;
+static int hf_pagp_flags_consistent_state;
+static int hf_pagp_local_device_id;
+static int hf_pagp_local_learn_cap;
+static int hf_pagp_local_port_priority;
+static int hf_pagp_local_sent_port_ifindex;
+static int hf_pagp_local_group_capability;
+static int hf_pagp_local_group_ifindex;
+static int hf_pagp_partner_device_id;
+static int hf_pagp_partner_learn_cap;
+static int hf_pagp_partner_port_priority;
+static int hf_pagp_partner_sent_port_ifindex;
+static int hf_pagp_partner_group_capability;
+static int hf_pagp_partner_group_ifindex;
+static int hf_pagp_partner_count;
+static int hf_pagp_num_tlvs;
+static int hf_pagp_tlv;
+static int hf_pagp_tlv_length;
+static int hf_pagp_tlv_device_name;
+static int hf_pagp_tlv_port_name;
+static int hf_pagp_tlv_agport_mac;
 
-static int hf_pagp_flush_local_device_id = -1;
-static int hf_pagp_flush_partner_device_id = -1;
-static int hf_pagp_flush_transaction_id = -1;
+static int hf_pagp_flush_local_device_id;
+static int hf_pagp_flush_partner_device_id;
+static int hf_pagp_flush_transaction_id;
 
 /* Initialise the subtree pointers */
 
-static gint ett_pagp = -1;
-static gint ett_pagp_flags = -1;
-static gint ett_pagp_tlvs = -1;
+static gint ett_pagp;
+static gint ett_pagp_flags;
+static gint ett_pagp_tlvs;
 
-static expert_field ei_pagp_tlv_length = EI_INIT;
+static expert_field ei_pagp_tlv_length;
 
 /* General declarations and macros */
 

@@ -29,54 +29,54 @@ static dissector_handle_t ib_sdp_handle;
    this is SDP traffic */
 #define SERVICE_ID_MASK 0x0000000000010000
 
-static int proto_infiniband = -1;   /* we'll need the Infiniband protocol index for conversation data */
+static int proto_infiniband;   /* we'll need the Infiniband protocol index for conversation data */
 
 /* Initialize the protocol and registered fields... */
-static int proto_ib_sdp = -1;
+static int proto_ib_sdp;
 
 /* IB SDP BSDH Header */
-static int hf_ib_sdp_bsdh = -1;
-static int hf_ib_sdp_mid = -1;
-static int hf_ib_sdp_flags = -1;
-static int hf_ib_sdp_flags_oobpres  = -1;
-static int hf_ib_sdp_flags_oob_pend = -1;
-static int hf_ib_sdp_flags_reqpipe  = -1;
+static int hf_ib_sdp_bsdh;
+static int hf_ib_sdp_mid;
+static int hf_ib_sdp_flags;
+static int hf_ib_sdp_flags_oobpres;
+static int hf_ib_sdp_flags_oob_pend;
+static int hf_ib_sdp_flags_reqpipe;
 
-static int hf_ib_sdp_len = -1;
-static int hf_ib_sdp_bufs = -1;
-static int hf_ib_sdp_mseq = -1;
-static int hf_ib_sdp_mseqack = -1;
+static int hf_ib_sdp_len;
+static int hf_ib_sdp_bufs;
+static int hf_ib_sdp_mseq;
+static int hf_ib_sdp_mseqack;
 
 /* IB SDP Hello Header */
-static int hf_ib_sdp_hh = -1;
-static int hf_ib_sdp_majv = -1;
-static int hf_ib_sdp_minv = -1;
-static int hf_ib_sdp_ipv = -1;
-static int hf_ib_sdp_cap = -1;
-static int hf_ib_sdp_cap_invalidate = -1;
-static int hf_ib_sdp_cap_extmaxadverts = -1;
-static int hf_ib_sdp_maxadverts = -1;
-static int hf_ib_sdp_desremrcvsz = -1;
-static int hf_ib_sdp_localrcvsz = -1;
-static int hf_ib_sdp_localport = -1;
-static int hf_ib_sdp_src_ip = -1;
-static int hf_ib_sdp_dst_ip = -1;
-static int hf_ib_sdp_extmaxadverts = -1;
-static int hf_ib_sdp_hah = -1;
-static int hf_ib_sdp_rwch = -1;
-static int hf_ib_sdp_rrch = -1;
-static int hf_ib_sdp_mch = -1;
-static int hf_ib_sdp_crbh = -1;
-static int hf_ib_sdp_crbah = -1;
-static int hf_ib_sdp_suspch = -1;
-static int hf_ib_sdp_sinkah = -1;
-static int hf_ib_sdp_srcah = -1;
-static int hf_ib_sdp_data = -1;
+static int hf_ib_sdp_hh;
+static int hf_ib_sdp_majv;
+static int hf_ib_sdp_minv;
+static int hf_ib_sdp_ipv;
+static int hf_ib_sdp_cap;
+static int hf_ib_sdp_cap_invalidate;
+static int hf_ib_sdp_cap_extmaxadverts;
+static int hf_ib_sdp_maxadverts;
+static int hf_ib_sdp_desremrcvsz;
+static int hf_ib_sdp_localrcvsz;
+static int hf_ib_sdp_localport;
+static int hf_ib_sdp_src_ip;
+static int hf_ib_sdp_dst_ip;
+static int hf_ib_sdp_extmaxadverts;
+static int hf_ib_sdp_hah;
+static int hf_ib_sdp_rwch;
+static int hf_ib_sdp_rrch;
+static int hf_ib_sdp_mch;
+static int hf_ib_sdp_crbh;
+static int hf_ib_sdp_crbah;
+static int hf_ib_sdp_suspch;
+static int hf_ib_sdp_sinkah;
+static int hf_ib_sdp_srcah;
+static int hf_ib_sdp_data;
 
 /* Initialize the subtree pointers */
-static gint ett_ib_sdp = -1;
-static gint ett_ib_sdp_bsdh = -1;
-static gint ett_ib_sdp_hh = -1;
+static gint ett_ib_sdp;
+static gint ett_ib_sdp_bsdh;
+static gint ett_ib_sdp_hh;
 
 typedef enum {
     Hello = 0x0,

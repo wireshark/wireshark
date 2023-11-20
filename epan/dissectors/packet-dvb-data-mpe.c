@@ -19,22 +19,22 @@
 void proto_register_dvb_data_mpe(void);
 void proto_reg_handoff_dvb_data_mpe(void);
 
-static int proto_dvb_data_mpe = -1;
-static int hf_dvb_data_mpe_reserved = -1;
-static int hf_dvb_data_mpe_payload_scrambling_control = -1;
-static int hf_dvb_data_mpe_address_scrambling_control = -1;
-static int hf_dvb_data_mpe_llc_snap_flag = -1;
-static int hf_dvb_data_mpe_current_next_indicator = -1;
-static int hf_dvb_data_mpe_section_number = -1;
-static int hf_dvb_data_mpe_last_section_number = -1;
-static int hf_dvb_data_mpe_dst_mac = -1;
-static int hf_dvb_data_mpe_dst_mac_scrambled = -1;
+static int proto_dvb_data_mpe;
+static int hf_dvb_data_mpe_reserved;
+static int hf_dvb_data_mpe_payload_scrambling_control;
+static int hf_dvb_data_mpe_address_scrambling_control;
+static int hf_dvb_data_mpe_llc_snap_flag;
+static int hf_dvb_data_mpe_current_next_indicator;
+static int hf_dvb_data_mpe_section_number;
+static int hf_dvb_data_mpe_last_section_number;
+static int hf_dvb_data_mpe_dst_mac;
+static int hf_dvb_data_mpe_dst_mac_scrambled;
 
-static gint ett_dvb_data_mpe = -1;
+static gint ett_dvb_data_mpe;
 
-static expert_field ei_dvb_data_mpe_reserved_not_one = EI_INIT;
-static expert_field ei_dvb_data_mpe_payload_scrambled = EI_INIT;
-static expert_field ei_dvb_data_mpe_address_scrambled = EI_INIT;
+static expert_field ei_dvb_data_mpe_reserved_not_one;
+static expert_field ei_dvb_data_mpe_payload_scrambled;
+static expert_field ei_dvb_data_mpe_address_scrambled;
 
 static dissector_handle_t dvb_data_mpe_handle;
 

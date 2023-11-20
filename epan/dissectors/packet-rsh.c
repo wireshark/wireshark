@@ -35,17 +35,17 @@ static gboolean preference_info_show_server_username = TRUE;
 static gboolean preference_info_show_command = FALSE;
 
 /* Initialize the protocol and registered fields */
-static int proto_rsh = -1;
+static int proto_rsh;
 
-static int hf_rsh_stderr_port     = -1;
-static int hf_rsh_client_username = -1;
-static int hf_rsh_server_username = -1;
-static int hf_rsh_command         = -1;
-static int hf_rsh_client_server_data = -1;
-static int hf_rsh_server_client_data = -1;
+static int hf_rsh_stderr_port;
+static int hf_rsh_client_username;
+static int hf_rsh_server_username;
+static int hf_rsh_command;
+static int hf_rsh_client_server_data;
+static int hf_rsh_server_client_data;
 
 /* Initialize the subtree pointers */
-static gint ett_rsh = -1;
+static gint ett_rsh;
 
 #define RSH_STDERR_PORT_LEN 5
 #define RSH_CLIENT_USERNAME_LEN 16

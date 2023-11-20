@@ -29,38 +29,38 @@ void proto_reg_handoff_ipp(void);
 
 static dissector_handle_t ipp_handle;
 
-static int proto_ipp = -1;
+static int proto_ipp;
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_ipp_version = -1;
-static int hf_ipp_operation_id = -1;
-static int hf_ipp_status_code = -1;
-static int hf_ipp_request_id = -1;
-static int hf_ipp_name = -1;
-static int hf_ipp_memberattrname = -1;
-static int hf_ipp_outofband_value = -1;
-static int hf_ipp_charstring_value = -1;
-static int hf_ipp_boolean_value = -1;
-static int hf_ipp_enum_value = -1;
-static int hf_ipp_enum_value_printer_state = -1;
-static int hf_ipp_enum_value_job_state = -1;
-static int hf_ipp_enum_value_document_state = -1;
-static int hf_ipp_enum_value_operations_supported = -1;
-static int hf_ipp_enum_value_finishings = -1;
-static int hf_ipp_enum_value_orientation = -1;
-static int hf_ipp_enum_value_print_quality = -1;
-static int hf_ipp_enum_value_transmission_status = -1;
-static int hf_ipp_integer_value = -1;
-static int hf_ipp_octetstring_value = -1;
-static int hf_ipp_datetime_value = -1;
-static int hf_ipp_resolution_value = -1;
-static int hf_ipp_rangeofinteger_value = -1;
-static int hf_ipp_textwithlanguage_value = -1;
-static int hf_ipp_namewithlanguage_value = -1;
-static int hf_ipp_unknown_value = -1;
+static int hf_ipp_version;
+static int hf_ipp_operation_id;
+static int hf_ipp_status_code;
+static int hf_ipp_request_id;
+static int hf_ipp_name;
+static int hf_ipp_memberattrname;
+static int hf_ipp_outofband_value;
+static int hf_ipp_charstring_value;
+static int hf_ipp_boolean_value;
+static int hf_ipp_enum_value;
+static int hf_ipp_enum_value_printer_state;
+static int hf_ipp_enum_value_job_state;
+static int hf_ipp_enum_value_document_state;
+static int hf_ipp_enum_value_operations_supported;
+static int hf_ipp_enum_value_finishings;
+static int hf_ipp_enum_value_orientation;
+static int hf_ipp_enum_value_print_quality;
+static int hf_ipp_enum_value_transmission_status;
+static int hf_ipp_integer_value;
+static int hf_ipp_octetstring_value;
+static int hf_ipp_datetime_value;
+static int hf_ipp_resolution_value;
+static int hf_ipp_rangeofinteger_value;
+static int hf_ipp_textwithlanguage_value;
+static int hf_ipp_namewithlanguage_value;
+static int hf_ipp_unknown_value;
 
-static int hf_ipp_response_in = -1;
-static int hf_ipp_response_to = -1;
-static int hf_ipp_response_time = -1;
+static int hf_ipp_response_in;
+static int hf_ipp_response_to;
+static int hf_ipp_response_time;
 
 typedef struct _ipp_transaction_t {
         guint32 req_frame;
@@ -72,10 +72,10 @@ typedef struct _ipp_conv_info_t {
         wmem_map_t *pdus;
 } ipp_conv_info_t;
 
-static gint ett_ipp = -1;
-static gint ett_ipp_as = -1;
-static gint ett_ipp_attr = -1;
-static gint ett_ipp_member = -1;
+static gint ett_ipp;
+static gint ett_ipp_as;
+static gint ett_ipp_attr;
+static gint ett_ipp_member;
 
 #define PRINT_JOB              0x0002
 #define PRINT_URI              0x0003

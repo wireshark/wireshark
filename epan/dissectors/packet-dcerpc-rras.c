@@ -19,11 +19,11 @@
 void proto_register_dcerpc_rras(void);
 void proto_reg_handoff_dcerpc_rras(void);
 
-static int proto_dcerpc_rras = -1;
+static int proto_dcerpc_rras;
 
-static int hf_rras_opnum = -1;
+static int hf_rras_opnum;
 
-static gint ett_dcerpc_rras = -1;
+static gint ett_dcerpc_rras;
 
 /*
  * The rras MSRPC interface is typically reached using the ncacn_np transport

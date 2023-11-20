@@ -103,172 +103,172 @@ void proto_reg_handoff_vines_icp(void);
 
 #define UDP_PORT_VINES	573
 
-static int proto_vines_frp = -1;
-static int hf_vines_frp_flags = -1;
-static int hf_vines_frp_flags_first_fragment = -1;
-static int hf_vines_frp_flags_last_fragment = -1;
-static int hf_vines_frp_sequence_number = -1;
+static int proto_vines_frp;
+static int hf_vines_frp_flags;
+static int hf_vines_frp_flags_first_fragment;
+static int hf_vines_frp_flags_last_fragment;
+static int hf_vines_frp_sequence_number;
 
-static gint ett_vines_frp = -1;
-static gint ett_vines_frp_flags = -1;
+static gint ett_vines_frp;
+static gint ett_vines_frp_flags;
 
 static dissector_handle_t vines_frp_handle, vines_frp_new_handle;
 
-static int proto_vines_llc = -1;
-static int hf_vines_llc_packet_type = -1;
+static int proto_vines_llc;
+static int hf_vines_llc_packet_type;
 
-static gint ett_vines_llc = -1;
+static gint ett_vines_llc;
 
 static dissector_handle_t vines_llc_handle;
 
-static int proto_vines_ip = -1;
-static int hf_vines_ip_protocol = -1;
-static int hf_vines_ip_checksum = -1;
-static int hf_vines_ip_length = -1;
-static int hf_vines_ip_source = -1;
-static int hf_vines_ip_destination = -1;
-static int hf_vines_tctl = -1;
-static int hf_vines_tctl_node = -1;
-static int hf_vines_tctl_class = -1;
-static int hf_vines_tctl_forward_router = -1;
-static int hf_vines_tctl_metric = -1;
-static int hf_vines_tctl_notif_packet = -1;
-static int hf_vines_tctl_hop_count = -1;
+static int proto_vines_ip;
+static int hf_vines_ip_protocol;
+static int hf_vines_ip_checksum;
+static int hf_vines_ip_length;
+static int hf_vines_ip_source;
+static int hf_vines_ip_destination;
+static int hf_vines_tctl;
+static int hf_vines_tctl_node;
+static int hf_vines_tctl_class;
+static int hf_vines_tctl_forward_router;
+static int hf_vines_tctl_metric;
+static int hf_vines_tctl_notif_packet;
+static int hf_vines_tctl_hop_count;
 
-static gint ett_vines_ip = -1;
-static gint ett_vines_ip_tctl = -1;
+static gint ett_vines_ip;
+static gint ett_vines_ip_tctl;
 
 static dissector_handle_t vines_ip_handle;
 
-static int proto_vines_echo = -1;
+static int proto_vines_echo;
 
-static gint hf_vines_echo_data = -1;
+static gint hf_vines_echo_data;
 
-static gint ett_vines_echo = -1;
+static gint ett_vines_echo;
 
 static dissector_handle_t vines_echo_handle;
 
-static int proto_vines_ipc = -1;
-static int hf_vines_ipc_src_port = -1;
-static int hf_vines_ipc_dest_port = -1;
-static int hf_vines_ipc_packet_type = -1;
-static int hf_vines_ipc_control = -1;
-static int hf_vines_ipc_control_ack = -1;
-static int hf_vines_ipc_control_end_msg = -1;
-static int hf_vines_ipc_control_beg_msg = -1;
-static int hf_vines_ipc_control_abort_msg = -1;
-static int hf_vines_ipc_local_connection_id = -1;
-static int hf_vines_ipc_sequence_number = -1;
-static int hf_vines_ipc_length = -1;
-static int hf_vines_ipc_remote_connection_id = -1;
-static int hf_vines_ipc_ack_number = -1;
-static int hf_vines_ipc_error = -1;
+static int proto_vines_ipc;
+static int hf_vines_ipc_src_port;
+static int hf_vines_ipc_dest_port;
+static int hf_vines_ipc_packet_type;
+static int hf_vines_ipc_control;
+static int hf_vines_ipc_control_ack;
+static int hf_vines_ipc_control_end_msg;
+static int hf_vines_ipc_control_beg_msg;
+static int hf_vines_ipc_control_abort_msg;
+static int hf_vines_ipc_local_connection_id;
+static int hf_vines_ipc_sequence_number;
+static int hf_vines_ipc_length;
+static int hf_vines_ipc_remote_connection_id;
+static int hf_vines_ipc_ack_number;
+static int hf_vines_ipc_error;
 
-static gint ett_vines_ipc = -1;
-static gint ett_vines_ipc_control = -1;
+static gint ett_vines_ipc;
+static gint ett_vines_ipc_control;
 
 static dissector_handle_t vines_ipc_handle;
 
-static int proto_vines_spp = -1;
-static int hf_vines_spp_src_port = -1;
-static int hf_vines_spp_dest_port = -1;
-static int hf_vines_spp_packet_type = -1;
-static int hf_vines_spp_control = -1;
-static int hf_vines_spp_control_ack = -1;
-static int hf_vines_spp_control_end_msg = -1;
-static int hf_vines_spp_control_beg_msg = -1;
-static int hf_vines_spp_control_abort_msg = -1;
-static int hf_vines_spp_local_id = -1;
-static int hf_vines_spp_remote_id = -1;
-static int hf_vines_spp_seq_num = -1;
-static int hf_vines_spp_ack_num = -1;
-static int hf_vines_spp_window = -1;
+static int proto_vines_spp;
+static int hf_vines_spp_src_port;
+static int hf_vines_spp_dest_port;
+static int hf_vines_spp_packet_type;
+static int hf_vines_spp_control;
+static int hf_vines_spp_control_ack;
+static int hf_vines_spp_control_end_msg;
+static int hf_vines_spp_control_beg_msg;
+static int hf_vines_spp_control_abort_msg;
+static int hf_vines_spp_local_id;
+static int hf_vines_spp_remote_id;
+static int hf_vines_spp_seq_num;
+static int hf_vines_spp_ack_num;
+static int hf_vines_spp_window;
 
-static gint ett_vines_spp = -1;
-static gint ett_vines_spp_control = -1;
+static gint ett_vines_spp;
+static gint ett_vines_spp_control;
 
 static dissector_handle_t vines_spp_handle;
 
-static int proto_vines_arp = -1;
-static int hf_vines_arp_address = -1;
-static int hf_vines_arp_version = -1;
-static int hf_vines_arp_packet_type = -1;
-static int hf_vines_arp_interface_metric = -1;
-static int hf_vines_arp_sequence_number = -1;
+static int proto_vines_arp;
+static int hf_vines_arp_address;
+static int hf_vines_arp_version;
+static int hf_vines_arp_packet_type;
+static int hf_vines_arp_interface_metric;
+static int hf_vines_arp_sequence_number;
 
-static gint ett_vines_arp = -1;
+static gint ett_vines_arp;
 
 static dissector_handle_t vines_arp_handle;
 
-static int proto_vines_rtp = -1;
-static int hf_vines_rtp_comp_flag = -1;
-static int hf_vines_rtp_comp_flag_neighbor_router = -1;
-static int hf_vines_rtp_comp_flag_sequence_rtp = -1;
-static int hf_vines_rtp_comp_flag_sequence_rtp_version = -1;
-static int hf_vines_rtp_control = -1;
-static int hf_vines_rtp_control_sync_broadcast = -1;
-static int hf_vines_rtp_control_topology_update = -1;
-static int hf_vines_rtp_control_specific_request = -1;
-static int hf_vines_rtp_control_end_msg = -1;
-static int hf_vines_rtp_control_beg_msg = -1;
-static int hf_vines_rtp_machine_rtp = -1;
-static int hf_vines_rtp_machine_tcpip = -1;
-static int hf_vines_rtp_machine_bus = -1;
-static int hf_vines_rtp_flag_sequence_rtp = -1;
-static int hf_vines_rtp_flag_network_p2p = -1;
-static int hf_vines_rtp_flag_data_link_p2p = -1;
-static int hf_vines_rtp_flag_broadcast_medium = -1;
-static int hf_vines_rtp_metric_to_preferred_gateway = -1;
-static int hf_vines_rtp_requested_info = -1;
-static int hf_vines_rtp_metric_to_destination = -1;
-static int hf_vines_rtp_source_route_length = -1;
-static int hf_vines_rtp_router_sequence_number = -1;
-static int hf_vines_rtp_sequence_number = -1;
-static int hf_vines_rtp_data_offset = -1;
-static int hf_vines_rtp_preferred_gateway_sequence_number = -1;
-static int hf_vines_rtp_preferred_gateway_node_type = -1;
-static int hf_vines_rtp_metric = -1;
-static int hf_vines_rtp_destination_sequence_number = -1;
-static int hf_vines_rtp_link_address_length = -1;
-static int hf_vines_rtp_controller_type = -1;
-static int hf_vines_rtp_destination_node_type = -1;
-static int hf_vines_rtp_information_type = -1;
-static int hf_vines_rtp_version = -1;
-static int hf_vines_rtp_preferred_gateway = -1;
-static int hf_vines_rtp_neighbor_metric = -1;
-static int hf_vines_rtp_destination = -1;
-static int hf_vines_rtp_node_type = -1;
-static int hf_vines_rtp_operation_type = -1;
-static int hf_vines_rtp_packet_id = -1;
-static int hf_vines_rtp_network_number = -1;
-static int hf_vines_rtp_machine_type = -1;
-static int hf_vines_rtp_destination_controller_type = -1;
-static int hf_vines_rtp_destination_machine = -1;
-static int hf_vines_rtp_pref_gateway_controller_type = -1;
-static int hf_vines_rtp_pref_gateway_machine = -1;
-static int hf_vines_rtp_network_flags = -1;
-static int hf_vines_rtp_destination_flags = -1;
-static int hf_vines_rtp_preferred_gateway_flags = -1;
-static int hf_vines_rtp_preferred_gateway_data_link_address_ether = -1;
-static int hf_vines_rtp_preferred_gateway_data_link_address_bytes = -1;
-static int hf_vines_rtp_preferred_gateway_source_route = -1;
+static int proto_vines_rtp;
+static int hf_vines_rtp_comp_flag;
+static int hf_vines_rtp_comp_flag_neighbor_router;
+static int hf_vines_rtp_comp_flag_sequence_rtp;
+static int hf_vines_rtp_comp_flag_sequence_rtp_version;
+static int hf_vines_rtp_control;
+static int hf_vines_rtp_control_sync_broadcast;
+static int hf_vines_rtp_control_topology_update;
+static int hf_vines_rtp_control_specific_request;
+static int hf_vines_rtp_control_end_msg;
+static int hf_vines_rtp_control_beg_msg;
+static int hf_vines_rtp_machine_rtp;
+static int hf_vines_rtp_machine_tcpip;
+static int hf_vines_rtp_machine_bus;
+static int hf_vines_rtp_flag_sequence_rtp;
+static int hf_vines_rtp_flag_network_p2p;
+static int hf_vines_rtp_flag_data_link_p2p;
+static int hf_vines_rtp_flag_broadcast_medium;
+static int hf_vines_rtp_metric_to_preferred_gateway;
+static int hf_vines_rtp_requested_info;
+static int hf_vines_rtp_metric_to_destination;
+static int hf_vines_rtp_source_route_length;
+static int hf_vines_rtp_router_sequence_number;
+static int hf_vines_rtp_sequence_number;
+static int hf_vines_rtp_data_offset;
+static int hf_vines_rtp_preferred_gateway_sequence_number;
+static int hf_vines_rtp_preferred_gateway_node_type;
+static int hf_vines_rtp_metric;
+static int hf_vines_rtp_destination_sequence_number;
+static int hf_vines_rtp_link_address_length;
+static int hf_vines_rtp_controller_type;
+static int hf_vines_rtp_destination_node_type;
+static int hf_vines_rtp_information_type;
+static int hf_vines_rtp_version;
+static int hf_vines_rtp_preferred_gateway;
+static int hf_vines_rtp_neighbor_metric;
+static int hf_vines_rtp_destination;
+static int hf_vines_rtp_node_type;
+static int hf_vines_rtp_operation_type;
+static int hf_vines_rtp_packet_id;
+static int hf_vines_rtp_network_number;
+static int hf_vines_rtp_machine_type;
+static int hf_vines_rtp_destination_controller_type;
+static int hf_vines_rtp_destination_machine;
+static int hf_vines_rtp_pref_gateway_controller_type;
+static int hf_vines_rtp_pref_gateway_machine;
+static int hf_vines_rtp_network_flags;
+static int hf_vines_rtp_destination_flags;
+static int hf_vines_rtp_preferred_gateway_flags;
+static int hf_vines_rtp_preferred_gateway_data_link_address_ether;
+static int hf_vines_rtp_preferred_gateway_data_link_address_bytes;
+static int hf_vines_rtp_preferred_gateway_source_route;
 
-static gint ett_vines_rtp = -1;
-static gint ett_vines_rtp_compatibility_flags = -1;
-static gint ett_vines_rtp_req_info = -1;
-static gint ett_vines_rtp_control_flags = -1;
-static gint ett_vines_rtp_mtype = -1;
-static gint ett_vines_rtp_flags = -1;
+static gint ett_vines_rtp;
+static gint ett_vines_rtp_compatibility_flags;
+static gint ett_vines_rtp_req_info;
+static gint ett_vines_rtp_control_flags;
+static gint ett_vines_rtp_mtype;
+static gint ett_vines_rtp_flags;
 
 static dissector_handle_t vines_rtp_handle;
 
-static int proto_vines = -1;
-static int proto_vines_icp = -1;
-static int hf_vines_icp_exception_code = -1;
-static int hf_vines_icp_metric = -1;
-static int hf_vines_icp_packet_type = -1;
+static int proto_vines;
+static int proto_vines_icp;
+static int hf_vines_icp_exception_code;
+static int hf_vines_icp_metric;
+static int hf_vines_icp_packet_type;
 
-static gint ett_vines_icp = -1;
+static gint ett_vines_icp;
 
 static dissector_handle_t vines_icp_handle;
 static capture_dissector_handle_t vines_echo_cap_handle;

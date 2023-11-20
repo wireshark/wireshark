@@ -66,9 +66,9 @@ static void add_bits(offset_struct* poffset, gint len_bits);
 #define DEFAULT_STREAM_STATE_INDICATION		0
 
 /* Wireshark ID of the ISMACRYP protocol */
-static int proto_ismacryp = -1;
-static int proto_ismacryp_v11 = -1;
-static int proto_ismacryp_v20 = -1;
+static int proto_ismacryp;
+static int proto_ismacryp_v11;
+static int proto_ismacryp_v20;
 
 /* parameters set in preferences */
 static guint    pref_au_size_length           = DEFAULT_AU_SIZE_LENGTH;            /* default Au size length */
@@ -116,46 +116,46 @@ static const value_string modetypenames[] = {
 * proto_register_field_array() in proto_register_ismacryp()
 */
 /** Kts attempt at defining the protocol */
-/* static gint hf_ismacryp = -1; */
-static gint hf_ismacryp_header = -1;
-static gint hf_ismacryp_au_headers_length = -1;
-/* static gint hf_ismacryp_header_length = -1; */
-static gint hf_ismacryp_header_byte = -1;
-/* static gint hf_ismacryp_version = -1; */
-/* static gint hf_ismacryp_length = -1; */
-/* static gint hf_ismacryp_message_type = -1; */
-/* static gint hf_ismacryp_message_length = -1; */
-static gint hf_ismacryp_message = -1;
-/* static gint hf_ismacryp_parameter = -1; */
-/* static gint hf_ismacryp_parameter_type = -1; */
-/* static gint hf_ismacryp_parameter_length = -1; */
-/* static gint hf_ismacryp_parameter_value = -1; */
-static gint hf_ismacryp_iv = -1;
-static gint hf_ismacryp_delta_iv = -1;
-static gint hf_ismacryp_key_indicator = -1;
-/* static gint hf_ismacryp_delta_iv_length = -1; */
-static gint hf_ismacryp_au_size = -1;
-static gint hf_ismacryp_au_index = -1;
-static gint hf_ismacryp_au_index_delta = -1;
-static gint hf_ismacryp_cts_delta = -1;
-static gint hf_ismacryp_cts_flag = -1;
-static gint hf_ismacryp_dts_flag = -1;
-static gint hf_ismacryp_dts_delta = -1;
-static gint hf_ismacryp_rap_flag = -1;
-static gint hf_ismacryp_au_is_encrypted = -1;
-static gint hf_ismacryp_slice_start = -1;
-static gint hf_ismacryp_slice_end = -1;
-static gint hf_ismacryp_padding_bitcount = -1;
-static gint hf_ismacryp_padding = -1;
-static gint hf_ismacryp_reserved_bits = -1;
-static gint hf_ismacryp_unused_bits = -1;
-static gint hf_ismacryp_stream_state = -1;
+/* static gint hf_ismacryp; */
+static gint hf_ismacryp_header;
+static gint hf_ismacryp_au_headers_length;
+/* static gint hf_ismacryp_header_length; */
+static gint hf_ismacryp_header_byte;
+/* static gint hf_ismacryp_version; */
+/* static gint hf_ismacryp_length; */
+/* static gint hf_ismacryp_message_type; */
+/* static gint hf_ismacryp_message_length; */
+static gint hf_ismacryp_message;
+/* static gint hf_ismacryp_parameter; */
+/* static gint hf_ismacryp_parameter_type; */
+/* static gint hf_ismacryp_parameter_length; */
+/* static gint hf_ismacryp_parameter_value; */
+static gint hf_ismacryp_iv;
+static gint hf_ismacryp_delta_iv;
+static gint hf_ismacryp_key_indicator;
+/* static gint hf_ismacryp_delta_iv_length; */
+static gint hf_ismacryp_au_size;
+static gint hf_ismacryp_au_index;
+static gint hf_ismacryp_au_index_delta;
+static gint hf_ismacryp_cts_delta;
+static gint hf_ismacryp_cts_flag;
+static gint hf_ismacryp_dts_flag;
+static gint hf_ismacryp_dts_delta;
+static gint hf_ismacryp_rap_flag;
+static gint hf_ismacryp_au_is_encrypted;
+static gint hf_ismacryp_slice_start;
+static gint hf_ismacryp_slice_end;
+static gint hf_ismacryp_padding_bitcount;
+static gint hf_ismacryp_padding;
+static gint hf_ismacryp_reserved_bits;
+static gint hf_ismacryp_unused_bits;
+static gint hf_ismacryp_stream_state;
 
 /* These are the ids of the subtrees that we may be creating */
-static gint ett_ismacryp = -1;
-static gint ett_ismacryp_header = -1;
-static gint ett_ismacryp_header_byte = -1;
-static gint ett_ismacryp_message = -1;
+static gint ett_ismacryp;
+static gint ett_ismacryp_header;
+static gint ett_ismacryp_header_byte;
+static gint ett_ismacryp_message;
 
 /* Informative tree structure is shown here:
 * TREE 	-

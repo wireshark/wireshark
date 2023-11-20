@@ -19,24 +19,24 @@
 #include <epan/expert.h>
 #include "packet-usb.h"
 
-static int proto_pn532_hci                                                 = -1;
-static int hf_preamble                                                     = -1;
-static int hf_start_code                                                   = -1;
-static int hf_length                                                       = -1;
-static int hf_length_checksum                                              = -1;
-static int hf_length_checksum_status                                       = -1;
-static int hf_extended_length                                              = -1;
-static int hf_packet_code                                                  = -1;
-static int hf_postable                                                     = -1;
-static int hf_specific_application_level_error_code                        = -1;
-static int hf_data_checksum                                                = -1;
-static int hf_data_checksum_status                                         = -1;
-static int hf_ignored                                                      = -1;
+static int proto_pn532_hci;
+static int hf_preamble;
+static int hf_start_code;
+static int hf_length;
+static int hf_length_checksum;
+static int hf_length_checksum_status;
+static int hf_extended_length;
+static int hf_packet_code;
+static int hf_postable;
+static int hf_specific_application_level_error_code;
+static int hf_data_checksum;
+static int hf_data_checksum_status;
+static int hf_ignored;
 
-static gint ett_pn532_hci                                                  = -1;
+static gint ett_pn532_hci;
 
-static expert_field ei_invalid_length_checksum                        = EI_INIT;
-static expert_field ei_invalid_data_checksum                          = EI_INIT;
+static expert_field ei_invalid_length_checksum;
+static expert_field ei_invalid_data_checksum;
 
 static dissector_handle_t  pn532_handle;
 static dissector_handle_t  pn532_hci_handle;

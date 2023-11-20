@@ -120,68 +120,68 @@ static const value_string SV_HEALTH_CODE[] = {
 };
 
 // Initialize the protocol and registered fields
-static int proto_ubx_gps_l1 = -1;
+static int proto_ubx_gps_l1;
 
 // Telemetry Word (see IS-GPS-200N, Section 20.3.3.1)
-static int hf_ubx_gps_l1_tlm_preamble          = -1;
-static int hf_ubx_gps_l1_tlm_message           = -1;
-static int hf_ubx_gps_l1_tlm_integrity         = -1;
-static int hf_ubx_gps_l1_tlm_reserved          = -1;
-static int hf_ubx_gps_l1_tlm_parity            = -1;
+static int hf_ubx_gps_l1_tlm_preamble;
+static int hf_ubx_gps_l1_tlm_message;
+static int hf_ubx_gps_l1_tlm_integrity;
+static int hf_ubx_gps_l1_tlm_reserved;
+static int hf_ubx_gps_l1_tlm_parity;
 
 // Handover Word (see IS-GPS-200N, Section 20.3.3.2)
-static int hf_ubx_gps_l1_how_tow_count         = -1;
-static int hf_ubx_gps_l1_how_alert             = -1;
-static int hf_ubx_gps_l1_how_anti_spoof        = -1;
-static int hf_ubx_gps_l1_how_subframe_id       = -1;
-static int hf_ubx_gps_l1_how_parity_sol        = -1;
-static int hf_ubx_gps_l1_how_parity            = -1;
+static int hf_ubx_gps_l1_how_tow_count;
+static int hf_ubx_gps_l1_how_alert;
+static int hf_ubx_gps_l1_how_anti_spoof;
+static int hf_ubx_gps_l1_how_subframe_id;
+static int hf_ubx_gps_l1_how_parity_sol;
+static int hf_ubx_gps_l1_how_parity;
 
 // Subframe 1 (see IS-GPS-200N, Section 20.3.3.3)
-static int hf_ubx_gps_l1_sf1                   = -1;
-static int hf_ubx_gps_l1_sf1_week_no           = -1;
-static int hf_ubx_gps_l1_sf1_l2_channel_code   = -1;
-static int hf_ubx_gps_l1_sf1_ura_index         = -1;
-static int hf_ubx_gps_l1_sf1_sv_health_summary = -1;
-static int hf_ubx_gps_l1_sf1_sv_health         = -1;
-static int hf_ubx_gps_l1_sf1_iodc_msbs         = -1;
-static int hf_ubx_gps_l1_sf1_w3_parity         = -1;
-static int hf_ubx_gps_l1_sf1_w4_l2_p_data_flag = -1;
-static int hf_ubx_gps_l1_sf1_w4_reserved       = -1;
-static int hf_ubx_gps_l1_sf1_w4_parity         = -1;
-static int hf_ubx_gps_l1_sf1_w5_reserved       = -1;
-static int hf_ubx_gps_l1_sf1_w5_parity         = -1;
-static int hf_ubx_gps_l1_sf1_w6_reserved       = -1;
-static int hf_ubx_gps_l1_sf1_w6_parity         = -1;
-static int hf_ubx_gps_l1_sf1_w7_reserved       = -1;
-static int hf_ubx_gps_l1_sf1_w7_tgd            = -1;
-static int hf_ubx_gps_l1_sf1_w7_parity         = -1;
-static int hf_ubx_gps_l1_sf1_w8_iodc_lsbs      = -1;
-static int hf_ubx_gps_l1_sf1_w8_toc            = -1;
-static int hf_ubx_gps_l1_sf1_w8_parity         = -1;
-static int hf_ubx_gps_l1_sf1_w9_af2            = -1;
-static int hf_ubx_gps_l1_sf1_w9_af1            = -1;
-static int hf_ubx_gps_l1_sf1_w9_parity         = -1;
-static int hf_ubx_gps_l1_sf1_w10_af0           = -1;
-static int hf_ubx_gps_l1_sf1_w10_parity        = -1;
+static int hf_ubx_gps_l1_sf1;
+static int hf_ubx_gps_l1_sf1_week_no;
+static int hf_ubx_gps_l1_sf1_l2_channel_code;
+static int hf_ubx_gps_l1_sf1_ura_index;
+static int hf_ubx_gps_l1_sf1_sv_health_summary;
+static int hf_ubx_gps_l1_sf1_sv_health;
+static int hf_ubx_gps_l1_sf1_iodc_msbs;
+static int hf_ubx_gps_l1_sf1_w3_parity;
+static int hf_ubx_gps_l1_sf1_w4_l2_p_data_flag;
+static int hf_ubx_gps_l1_sf1_w4_reserved;
+static int hf_ubx_gps_l1_sf1_w4_parity;
+static int hf_ubx_gps_l1_sf1_w5_reserved;
+static int hf_ubx_gps_l1_sf1_w5_parity;
+static int hf_ubx_gps_l1_sf1_w6_reserved;
+static int hf_ubx_gps_l1_sf1_w6_parity;
+static int hf_ubx_gps_l1_sf1_w7_reserved;
+static int hf_ubx_gps_l1_sf1_w7_tgd;
+static int hf_ubx_gps_l1_sf1_w7_parity;
+static int hf_ubx_gps_l1_sf1_w8_iodc_lsbs;
+static int hf_ubx_gps_l1_sf1_w8_toc;
+static int hf_ubx_gps_l1_sf1_w8_parity;
+static int hf_ubx_gps_l1_sf1_w9_af2;
+static int hf_ubx_gps_l1_sf1_w9_af1;
+static int hf_ubx_gps_l1_sf1_w9_parity;
+static int hf_ubx_gps_l1_sf1_w10_af0;
+static int hf_ubx_gps_l1_sf1_w10_parity;
 
 static dissector_table_t ubx_gps_l1_sf_dissector_table;
 
-static expert_field ei_ubx_gps_l1_tlm_preamble    = EI_INIT;
-static expert_field ei_ubx_gps_l1_how_tow_count   = EI_INIT;
-static expert_field ei_ubx_gps_l1_how_subframe_id = EI_INIT;
+static expert_field ei_ubx_gps_l1_tlm_preamble;
+static expert_field ei_ubx_gps_l1_how_tow_count;
+static expert_field ei_ubx_gps_l1_how_subframe_id;
 
-static int ett_ubx_gps_l1         = -1;
-static int ett_ubx_gps_l1_tlm     = -1;
-static int ett_ubx_gps_l1_how     = -1;
-static int ett_ubx_gps_l1_sf1_w3  = -1;
-static int ett_ubx_gps_l1_sf1_w4  = -1;
-static int ett_ubx_gps_l1_sf1_w5  = -1;
-static int ett_ubx_gps_l1_sf1_w6  = -1;
-static int ett_ubx_gps_l1_sf1_w7  = -1;
-static int ett_ubx_gps_l1_sf1_w8  = -1;
-static int ett_ubx_gps_l1_sf1_w9  = -1;
-static int ett_ubx_gps_l1_sf1_w10 = -1;
+static int ett_ubx_gps_l1;
+static int ett_ubx_gps_l1_tlm;
+static int ett_ubx_gps_l1_how;
+static int ett_ubx_gps_l1_sf1_w3;
+static int ett_ubx_gps_l1_sf1_w4;
+static int ett_ubx_gps_l1_sf1_w5;
+static int ett_ubx_gps_l1_sf1_w6;
+static int ett_ubx_gps_l1_sf1_w7;
+static int ett_ubx_gps_l1_sf1_w8;
+static int ett_ubx_gps_l1_sf1_w9;
+static int ett_ubx_gps_l1_sf1_w10;
 
 /* Format TOW count */
 static void fmt_tow_count(gchar *label, gint32 c) {

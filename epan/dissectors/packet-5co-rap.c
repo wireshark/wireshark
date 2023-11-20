@@ -85,35 +85,35 @@ static void disp_mask( gchar *result, guint32 type);
 static void disp_timeout( gchar *result, guint32 type);
 
 /* Initialize the protocol and registered fields */
-static int proto_FiveCoRAP = -1; /* Wireshark ID of the FiveCo protocol */
+static int proto_FiveCoRAP; /* Wireshark ID of the FiveCo protocol */
 
  /* The following hf_* variables are used to hold the Wireshark IDs of */
  /* our header fields; they are filled out when we call */
  /* proto_register_field_array() in proto_register_fiveco() */
-static gint hf_fiveco_source_addr = -1;
-static gint hf_fiveco_dest_addr = -1;
-static gint hf_fiveco_data = -1;
-static gint hf_fiveco_regread = -1;
-static gint hf_fiveco_regread_answer = -1;
-static gint hf_fiveco_regwrite = -1;
-static gint hf_fiveco_regcall = -1;
-static gint hf_fiveco_routing = -1;
-static gint hf_fiveco_routing_answer = -1;
-static gint hf_fiveco_routing_interface = -1;
-static gint hf_fiveco_routing_timeout = -1;
-static gint hf_fiveco_routing_size = -1;
-static gint hf_fiveco_ext_regerror = -1;
-static gint hf_fiveco_ext_frameid = -1;
-static gint hf_fiveco_ext_eof = -1;
-static gint hf_fiveco_ext_frameerror = -1;
-static gint hf_fiveco_ext_easyip = -1;
-static gint hf_fiveco_ext_easyip_version = -1;
-static gint hf_fiveco_ext_easyip_interface = -1;
-static gint hf_fiveco_ext_easyip_mac = -1;
-static gint hf_fiveco_ext_easyip_ip = -1;
-static gint hf_fiveco_ext_easyip_mask = -1;
-static gint hf_fiveco_ext_unsupported = -1;
-static gint hf_fiveco_cks = -1;
+static gint hf_fiveco_source_addr;
+static gint hf_fiveco_dest_addr;
+static gint hf_fiveco_data;
+static gint hf_fiveco_regread;
+static gint hf_fiveco_regread_answer;
+static gint hf_fiveco_regwrite;
+static gint hf_fiveco_regcall;
+static gint hf_fiveco_routing;
+static gint hf_fiveco_routing_answer;
+static gint hf_fiveco_routing_interface;
+static gint hf_fiveco_routing_timeout;
+static gint hf_fiveco_routing_size;
+static gint hf_fiveco_ext_regerror;
+static gint hf_fiveco_ext_frameid;
+static gint hf_fiveco_ext_eof;
+static gint hf_fiveco_ext_frameerror;
+static gint hf_fiveco_ext_easyip;
+static gint hf_fiveco_ext_easyip_version;
+static gint hf_fiveco_ext_easyip_interface;
+static gint hf_fiveco_ext_easyip_mac;
+static gint hf_fiveco_ext_easyip_ip;
+static gint hf_fiveco_ext_easyip_mask;
+static gint hf_fiveco_ext_unsupported;
+static gint hf_fiveco_cks;
 
 /* These are the ids of the subtrees that we may be creating */
 /* for the header fields. */

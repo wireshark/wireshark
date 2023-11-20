@@ -34,55 +34,55 @@ void proto_register_rtpproxy(void);
 
 static dissector_handle_t rtpproxy_handle;
 
-static int proto_rtpproxy = -1;
+static int proto_rtpproxy;
 
-static int hf_rtpproxy_cookie = -1;
-static int hf_rtpproxy_error = -1;
-static int hf_rtpproxy_status = -1;
-static int hf_rtpproxy_ok = -1;
-static int hf_rtpproxy_ipv4 = -1;
-static int hf_rtpproxy_ipv6 = -1;
-static int hf_rtpproxy_port = -1;
-static int hf_rtpproxy_lf = -1;
-static int hf_rtpproxy_request = -1;
-static int hf_rtpproxy_command = -1;
-static int hf_rtpproxy_command_parameters = -1;
-static int hf_rtpproxy_command_parameter = -1;
-static int hf_rtpproxy_command_parameter_codec = -1;
-static int hf_rtpproxy_command_parameter_local_ipv4 = -1;
-static int hf_rtpproxy_command_parameter_remote_ipv4 = -1;
-static int hf_rtpproxy_command_parameter_repacketize = -1;
-static int hf_rtpproxy_command_parameter_dtmf = -1;
-/* static int hf_rtpproxy_command_parameter_cmap = -1; TODO */
-static int hf_rtpproxy_command_parameter_proto = -1;
-static int hf_rtpproxy_command_parameter_transcode = -1;
-static int hf_rtpproxy_command_parameter_acc = -1;
-static int hf_rtpproxy_callid = -1;
-static int hf_rtpproxy_copy_target = -1;
-static int hf_rtpproxy_playback_filename = -1;
-static int hf_rtpproxy_playback_codec = -1;
-static int hf_rtpproxy_notify = -1;
-static int hf_rtpproxy_notify_ipv4 = -1;
-static int hf_rtpproxy_notify_ipv6 = -1;
-static int hf_rtpproxy_notify_port = -1;
-static int hf_rtpproxy_notify_tag = -1;
-static int hf_rtpproxy_tag = -1;
-static int hf_rtpproxy_mediaid = -1;
-static int hf_rtpproxy_reply = -1;
-static int hf_rtpproxy_version_request = -1;
-static int hf_rtpproxy_version_supported = -1;
-static int hf_rtpproxy_ng_bencode = -1;
+static int hf_rtpproxy_cookie;
+static int hf_rtpproxy_error;
+static int hf_rtpproxy_status;
+static int hf_rtpproxy_ok;
+static int hf_rtpproxy_ipv4;
+static int hf_rtpproxy_ipv6;
+static int hf_rtpproxy_port;
+static int hf_rtpproxy_lf;
+static int hf_rtpproxy_request;
+static int hf_rtpproxy_command;
+static int hf_rtpproxy_command_parameters;
+static int hf_rtpproxy_command_parameter;
+static int hf_rtpproxy_command_parameter_codec;
+static int hf_rtpproxy_command_parameter_local_ipv4;
+static int hf_rtpproxy_command_parameter_remote_ipv4;
+static int hf_rtpproxy_command_parameter_repacketize;
+static int hf_rtpproxy_command_parameter_dtmf;
+/* static int hf_rtpproxy_command_parameter_cmap; TODO */
+static int hf_rtpproxy_command_parameter_proto;
+static int hf_rtpproxy_command_parameter_transcode;
+static int hf_rtpproxy_command_parameter_acc;
+static int hf_rtpproxy_callid;
+static int hf_rtpproxy_copy_target;
+static int hf_rtpproxy_playback_filename;
+static int hf_rtpproxy_playback_codec;
+static int hf_rtpproxy_notify;
+static int hf_rtpproxy_notify_ipv4;
+static int hf_rtpproxy_notify_ipv6;
+static int hf_rtpproxy_notify_port;
+static int hf_rtpproxy_notify_tag;
+static int hf_rtpproxy_tag;
+static int hf_rtpproxy_mediaid;
+static int hf_rtpproxy_reply;
+static int hf_rtpproxy_version_request;
+static int hf_rtpproxy_version_supported;
+static int hf_rtpproxy_ng_bencode;
 
 /* Expert fields */
-static expert_field ei_rtpproxy_timeout = EI_INIT;
-static expert_field ei_rtpproxy_notify_no_ip = EI_INIT;
-static expert_field ei_rtpproxy_bad_ipv4 = EI_INIT;
-static expert_field ei_rtpproxy_bad_ipv6 = EI_INIT;
+static expert_field ei_rtpproxy_timeout;
+static expert_field ei_rtpproxy_notify_no_ip;
+static expert_field ei_rtpproxy_bad_ipv4;
+static expert_field ei_rtpproxy_bad_ipv6;
 
 /* Request/response tracking */
-static int hf_rtpproxy_request_in = -1;
-static int hf_rtpproxy_response_in = -1;
-static int hf_rtpproxy_response_time = -1;
+static int hf_rtpproxy_request_in;
+static int hf_rtpproxy_response_in;
+static int hf_rtpproxy_response_time;
 
 typedef struct _rtpproxy_info {
     guint32 req_frame;
@@ -253,26 +253,26 @@ static const string_string errortypenames[] = {
     { 0, NULL }
 };
 
-static gint ett_rtpproxy = -1;
+static gint ett_rtpproxy;
 
-static gint ett_rtpproxy_request = -1;
-static gint ett_rtpproxy_command = -1;
-static gint ett_rtpproxy_command_parameters = -1;
-static gint ett_rtpproxy_command_parameters_codecs = -1;
-static gint ett_rtpproxy_command_parameters_local = -1;
-static gint ett_rtpproxy_command_parameters_remote = -1;
-static gint ett_rtpproxy_command_parameters_repacketize = -1;
-static gint ett_rtpproxy_command_parameters_dtmf = -1;
-static gint ett_rtpproxy_command_parameters_cmap = -1;
-static gint ett_rtpproxy_command_parameters_proto = -1;
-static gint ett_rtpproxy_command_parameters_transcode = -1;
-static gint ett_rtpproxy_command_parameters_acc = -1;
-static gint ett_rtpproxy_tag = -1;
-static gint ett_rtpproxy_notify = -1;
+static gint ett_rtpproxy_request;
+static gint ett_rtpproxy_command;
+static gint ett_rtpproxy_command_parameters;
+static gint ett_rtpproxy_command_parameters_codecs;
+static gint ett_rtpproxy_command_parameters_local;
+static gint ett_rtpproxy_command_parameters_remote;
+static gint ett_rtpproxy_command_parameters_repacketize;
+static gint ett_rtpproxy_command_parameters_dtmf;
+static gint ett_rtpproxy_command_parameters_cmap;
+static gint ett_rtpproxy_command_parameters_proto;
+static gint ett_rtpproxy_command_parameters_transcode;
+static gint ett_rtpproxy_command_parameters_acc;
+static gint ett_rtpproxy_tag;
+static gint ett_rtpproxy_notify;
 
-static gint ett_rtpproxy_reply = -1;
+static gint ett_rtpproxy_reply;
 
-static gint ett_rtpproxy_ng_bencode = -1;
+static gint ett_rtpproxy_ng_bencode;
 
 /* Default values */
 #define RTPPROXY_PORT "22222"  /* Not IANA registered */

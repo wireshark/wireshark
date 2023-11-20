@@ -20,14 +20,14 @@ static dissector_handle_t lpd_handle;
 
 #define TCP_PORT_PRINTER		515
 
-static int proto_lpd = -1;
-static int hf_lpd_response = -1;
-static int hf_lpd_request = -1;
-static int hf_lpd_client_code = -1;
-static int hf_lpd_printer_option = -1;
-static int hf_lpd_response_code = -1;
+static int proto_lpd;
+static int hf_lpd_response;
+static int hf_lpd_request;
+static int hf_lpd_client_code;
+static int hf_lpd_printer_option;
+static int hf_lpd_response_code;
 
-static gint ett_lpd = -1;
+static gint ett_lpd;
 
 enum lpr_type { request, response, unknown };
 

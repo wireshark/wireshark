@@ -15,21 +15,21 @@
 void proto_register_klm(void);
 void proto_reg_handoff_klm(void);
 
-static int proto_klm = -1;
-static int hf_klm_procedure_v1 = -1;
-static int hf_klm_exclusive = -1;
-static int hf_klm_lock = -1;
-static int hf_klm_servername = -1;
-static int hf_klm_pid = -1;
-static int hf_klm_offset = -1;
-static int hf_klm_len = -1;
-static int hf_klm_stats = -1;
-static int hf_klm_holder = -1;
-static int hf_klm_block = -1;
+static int proto_klm;
+static int hf_klm_procedure_v1;
+static int hf_klm_exclusive;
+static int hf_klm_lock;
+static int hf_klm_servername;
+static int hf_klm_pid;
+static int hf_klm_offset;
+static int hf_klm_len;
+static int hf_klm_stats;
+static int hf_klm_holder;
+static int hf_klm_block;
 
-static gint ett_klm = -1;
-static gint ett_klm_lock = -1;
-static gint ett_klm_holder = -1;
+static gint ett_klm;
+static gint ett_klm_lock;
+static gint ett_klm_holder;
 
 #define KLMPROC_TEST   1
 #define KLMPROC_LOCK   2

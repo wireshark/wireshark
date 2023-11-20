@@ -20,25 +20,25 @@
 void proto_register_eapol(void);
 void proto_reg_handoff_eapol(void);
 
-int proto_eapol = -1;
-static int hf_eapol_version = -1;
-static int hf_eapol_type = -1;
-static int hf_eapol_len = -1;
-static int hf_eapol_keydes_type = -1;
-static int hf_eapol_keydes_body = -1;
-static int hf_eapol_keydes_key_len = -1;
-static int hf_eapol_keydes_replay_counter = -1;
-static int hf_eapol_keydes_key_iv = -1;
-static int hf_eapol_keydes_key_index = -1;
-static int hf_eapol_keydes_key_index_type = -1;
-static int hf_eapol_keydes_key_index_number = -1;
-static int hf_eapol_keydes_key_signature = -1;
-static int hf_eapol_keydes_key = -1;
-static int hf_eapol_keydes_key_generated_locally = -1;
+int proto_eapol;
+static int hf_eapol_version;
+static int hf_eapol_type;
+static int hf_eapol_len;
+static int hf_eapol_keydes_type;
+static int hf_eapol_keydes_body;
+static int hf_eapol_keydes_key_len;
+static int hf_eapol_keydes_replay_counter;
+static int hf_eapol_keydes_key_iv;
+static int hf_eapol_keydes_key_index;
+static int hf_eapol_keydes_key_index_type;
+static int hf_eapol_keydes_key_index_number;
+static int hf_eapol_keydes_key_signature;
+static int hf_eapol_keydes_key;
+static int hf_eapol_keydes_key_generated_locally;
 
-static gint ett_eapol = -1;
-static gint ett_eapol_key_index = -1;
-static gint ett_keyinfo = -1;
+static gint ett_eapol;
+static gint ett_eapol_key_index;
+static gint ett_keyinfo;
 
 static dissector_table_t eapol_type_dissector_table;
 static dissector_table_t eapol_keydes_type_dissector_table;

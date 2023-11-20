@@ -25,25 +25,25 @@ void proto_reg_handoff_cesoeth(void);
 
 static dissector_handle_t cesoeth_handle;
 
-static int proto_cesoeth = -1;
-static int hf_cesoeth_pw_ecid = -1;
-static int hf_cesoeth_pw_res = -1;
-static int hf_cesoeth_cw = -1;
-static int hf_cesoeth_cw_reserved1 = -1;
-static int hf_cesoeth_cw_l = -1;
-static int hf_cesoeth_cw_r = -1;
-static int hf_cesoeth_cw_l0_m = -1;
-static int hf_cesoeth_cw_l1_m = -1;
-static int hf_cesoeth_cw_frg = -1;
-static int hf_cesoeth_cw_len = -1;
-static int hf_cesoeth_cw_seq = -1;
-static int hf_cesoeth_padding = -1;
+static int proto_cesoeth;
+static int hf_cesoeth_pw_ecid;
+static int hf_cesoeth_pw_res;
+static int hf_cesoeth_cw;
+static int hf_cesoeth_cw_reserved1;
+static int hf_cesoeth_cw_l;
+static int hf_cesoeth_cw_r;
+static int hf_cesoeth_cw_l0_m;
+static int hf_cesoeth_cw_l1_m;
+static int hf_cesoeth_cw_frg;
+static int hf_cesoeth_cw_len;
+static int hf_cesoeth_cw_seq;
+static int hf_cesoeth_padding;
 
-static gint ett_cesoeth = -1;
-static gint ett_cesoeth_cw = -1;
+static gint ett_cesoeth;
+static gint ett_cesoeth_cw;
 
-static expert_field ei_cesoeth_reserved = EI_INIT;
-static expert_field ei_cesoeth_length = EI_INIT;
+static expert_field ei_cesoeth_reserved;
+static expert_field ei_cesoeth_length;
 
 static int* const cesoeth_l0_cw[] =
 {

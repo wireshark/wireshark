@@ -53,21 +53,21 @@ struct msh {                    // typical/default values
 
 dissector_handle_t hl7_handle;
 
-static int proto_hl7 = -1;
+static int proto_hl7;
 
-static gint hf_hl7_raw = -1;
-static gint hf_hl7_raw_segment = -1;
-static gint hf_hl7_llp_sob = -1;
-static gint hf_hl7_llp_eob = -1;
-static gint hf_hl7_message_type = -1;
-static gint hf_hl7_event_type = -1;
-static gint hf_hl7_segment = -1;
-static gint hf_hl7_field = -1;
+static gint hf_hl7_raw;
+static gint hf_hl7_raw_segment;
+static gint hf_hl7_llp_sob;
+static gint hf_hl7_llp_eob;
+static gint hf_hl7_message_type;
+static gint hf_hl7_event_type;
+static gint hf_hl7_segment;
+static gint hf_hl7_field;
 
-static gint ett_hl7 = -1;
-static gint ett_hl7_segment = -1;
+static gint ett_hl7;
+static gint ett_hl7_segment;
 
-static expert_field ei_hl7_malformed = EI_INIT;
+static expert_field ei_hl7_malformed;
 
 /* FF: global_hl7_raw determines whether we are going to display
  * the raw text of the HL7 message (like SIP and MEGACO dissectors) */

@@ -38,13 +38,13 @@ static const value_string subtype_vals[] = {
 };
 
 /* Initialise the protocol and registered fields */
-static int proto_slow = -1;
+static int proto_slow;
 
-static int hf_slow_subtype = -1;
+static int hf_slow_subtype;
 
 /* Initialise the subtree pointers */
 
-static gint ett_slow = -1;
+static gint ett_slow;
 
 /*
  * Name: dissect_slow_protocols

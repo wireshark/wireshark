@@ -31,55 +31,55 @@ void proto_register_steam_ihs_discovery(void);
 
 static dissector_handle_t steam_ihs_discovery_handle;
 
-static int proto_steam_ihs_discovery = -1;
+static int proto_steam_ihs_discovery;
 
-static int hf_steam_ihs_discovery_signature = -1;
-static int hf_steam_ihs_discovery_header_length = -1;
-static int hf_steam_ihs_discovery_header_clientid = -1;
-static int hf_steam_ihs_discovery_header_msgtype = -1;
-static int hf_steam_ihs_discovery_header_instanceid = -1;
-static int hf_steam_ihs_discovery_body_length = -1;
-static int hf_steam_ihs_discovery_body_discovery_seqnum = -1;
-static int hf_steam_ihs_discovery_body_discovery_clientids = -1;
-static int hf_steam_ihs_discovery_body_status_version = -1;
-static int hf_steam_ihs_discovery_body_status_minversion = -1;
-static int hf_steam_ihs_discovery_body_status_connectport = -1;
-static int hf_steam_ihs_discovery_body_status_hostname = -1;
-static int hf_steam_ihs_discovery_body_status_enabledservices = -1;
-static int hf_steam_ihs_discovery_body_status_ostype = -1;
-static int hf_steam_ihs_discovery_body_status_is64bit = -1;
-static int hf_steam_ihs_discovery_body_status_euniverse = -1;
-static int hf_steam_ihs_discovery_body_status_timestamp = -1;
-static int hf_steam_ihs_discovery_body_status_screenlocked = -1;
-static int hf_steam_ihs_discovery_body_status_gamesrunning = -1;
-static int hf_steam_ihs_discovery_body_status_macaddresses = -1;
-static int hf_steam_ihs_discovery_body_status_user_steamid = -1;
-static int hf_steam_ihs_discovery_body_status_user_authkeyid = -1;
-static int hf_steam_ihs_discovery_body_authrequest_devicetoken = -1;
-static int hf_steam_ihs_discovery_body_authrequest_devicename = -1;
-static int hf_steam_ihs_discovery_body_authrequest_encryptedrequest = -1;
-static int hf_steam_ihs_discovery_body_authresponse_authresult = -1;
-static int hf_steam_ihs_discovery_body_streamingrequest_requestid = -1;
-static int hf_steam_ihs_discovery_body_streamingrequest_maximumresolutionx = -1;
-static int hf_steam_ihs_discovery_body_streamingrequest_maximumresolutiony = -1;
-static int hf_steam_ihs_discovery_body_streamingrequest_audiochannelcount = -1;
-static int hf_steam_ihs_discovery_body_streamingrequest_deviceversion = -1;
-static int hf_steam_ihs_discovery_body_streamingrequest_streamdesktop = -1;
-static int hf_steam_ihs_discovery_body_streamingrequest_devicetoken = -1;
-static int hf_steam_ihs_discovery_body_streamingrequest_pin = -1;
-static int hf_steam_ihs_discovery_body_streamingrequest_enablevideostreaming = -1;
-static int hf_steam_ihs_discovery_body_streamingrequest_enableaudiostreaming = -1;
-static int hf_steam_ihs_discovery_body_streamingrequest_enableinputstreaming = -1;
-static int hf_steam_ihs_discovery_body_streamingcancelrequest_requestid = -1;
-static int hf_steam_ihs_discovery_body_streamingresponse_requestid = -1;
-static int hf_steam_ihs_discovery_body_streamingresponse_result = -1;
-static int hf_steam_ihs_discovery_body_streamingresponse_port = -1;
-static int hf_steam_ihs_discovery_body_streamingresponse_encryptedsessionkey = -1;
-static int hf_steam_ihs_discovery_body_streamingresponse_virtualherelicenseddevicecount = -1;
-static int hf_steam_ihs_discovery_body_proofrequest_challenge = -1;
-static int hf_steam_ihs_discovery_body_proofresponse_response = -1;
-static int hf_steam_ihs_discovery_unknown_data = -1;
-static int hf_steam_ihs_discovery_unknown_number = -1;
+static int hf_steam_ihs_discovery_signature;
+static int hf_steam_ihs_discovery_header_length;
+static int hf_steam_ihs_discovery_header_clientid;
+static int hf_steam_ihs_discovery_header_msgtype;
+static int hf_steam_ihs_discovery_header_instanceid;
+static int hf_steam_ihs_discovery_body_length;
+static int hf_steam_ihs_discovery_body_discovery_seqnum;
+static int hf_steam_ihs_discovery_body_discovery_clientids;
+static int hf_steam_ihs_discovery_body_status_version;
+static int hf_steam_ihs_discovery_body_status_minversion;
+static int hf_steam_ihs_discovery_body_status_connectport;
+static int hf_steam_ihs_discovery_body_status_hostname;
+static int hf_steam_ihs_discovery_body_status_enabledservices;
+static int hf_steam_ihs_discovery_body_status_ostype;
+static int hf_steam_ihs_discovery_body_status_is64bit;
+static int hf_steam_ihs_discovery_body_status_euniverse;
+static int hf_steam_ihs_discovery_body_status_timestamp;
+static int hf_steam_ihs_discovery_body_status_screenlocked;
+static int hf_steam_ihs_discovery_body_status_gamesrunning;
+static int hf_steam_ihs_discovery_body_status_macaddresses;
+static int hf_steam_ihs_discovery_body_status_user_steamid;
+static int hf_steam_ihs_discovery_body_status_user_authkeyid;
+static int hf_steam_ihs_discovery_body_authrequest_devicetoken;
+static int hf_steam_ihs_discovery_body_authrequest_devicename;
+static int hf_steam_ihs_discovery_body_authrequest_encryptedrequest;
+static int hf_steam_ihs_discovery_body_authresponse_authresult;
+static int hf_steam_ihs_discovery_body_streamingrequest_requestid;
+static int hf_steam_ihs_discovery_body_streamingrequest_maximumresolutionx;
+static int hf_steam_ihs_discovery_body_streamingrequest_maximumresolutiony;
+static int hf_steam_ihs_discovery_body_streamingrequest_audiochannelcount;
+static int hf_steam_ihs_discovery_body_streamingrequest_deviceversion;
+static int hf_steam_ihs_discovery_body_streamingrequest_streamdesktop;
+static int hf_steam_ihs_discovery_body_streamingrequest_devicetoken;
+static int hf_steam_ihs_discovery_body_streamingrequest_pin;
+static int hf_steam_ihs_discovery_body_streamingrequest_enablevideostreaming;
+static int hf_steam_ihs_discovery_body_streamingrequest_enableaudiostreaming;
+static int hf_steam_ihs_discovery_body_streamingrequest_enableinputstreaming;
+static int hf_steam_ihs_discovery_body_streamingcancelrequest_requestid;
+static int hf_steam_ihs_discovery_body_streamingresponse_requestid;
+static int hf_steam_ihs_discovery_body_streamingresponse_result;
+static int hf_steam_ihs_discovery_body_streamingresponse_port;
+static int hf_steam_ihs_discovery_body_streamingresponse_encryptedsessionkey;
+static int hf_steam_ihs_discovery_body_streamingresponse_virtualherelicenseddevicecount;
+static int hf_steam_ihs_discovery_body_proofrequest_challenge;
+static int hf_steam_ihs_discovery_body_proofresponse_response;
+static int hf_steam_ihs_discovery_unknown_data;
+static int hf_steam_ihs_discovery_unknown_number;
 
 static const val64_string hf_steam_ihs_discovery_header_msgtype_strings[] = {
     {  0, "Client Discovery" },
@@ -125,17 +125,17 @@ static const val64_string hf_steam_ihs_discovery_body_streamingresponse_result_s
     { 0, NULL }
 };
 
-static expert_field ei_steam_ihs_discovery_unknown_data = EI_INIT;
-static expert_field ei_steam_ihs_discovery_unknown_number = EI_INIT;
-static expert_field ei_steam_ihs_discovery_unknown_lengthdelimited = EI_INIT;
-static expert_field ei_steam_ihs_discovery_invalid_wiretype = EI_INIT;
-static expert_field ei_steam_ihs_discovery_invalid_length = EI_INIT;
+static expert_field ei_steam_ihs_discovery_unknown_data;
+static expert_field ei_steam_ihs_discovery_unknown_number;
+static expert_field ei_steam_ihs_discovery_unknown_lengthdelimited;
+static expert_field ei_steam_ihs_discovery_invalid_wiretype;
+static expert_field ei_steam_ihs_discovery_invalid_length;
 
 #define STEAM_IHS_DISCOVERY_UDP_PORT 27036
 
 /* Initialize the subtree pointers */
-static gint ett_steam_ihs_discovery = -1;
-static gint ett_steam_ihs_discovery_body_status_user = -1;
+static gint ett_steam_ihs_discovery;
+static gint ett_steam_ihs_discovery_body_status_user;
 
 #define STEAM_IHS_DISCOVERY_MIN_LENGTH 12
 #define STEAM_IHS_DISCOVERY_SIGNATURE_LENGTH 8

@@ -74,51 +74,51 @@ static dissector_handle_t amp_handle;
 void proto_register_amp(void);
 void proto_reg_handoff_amp(void);
 
-static int hf_amp_message_header = -1;
-static int hf_amp_report_bytestring = -1;
-static int hf_amp_report_data = -1;
-static int hf_amp_report_integer8_small = -1;
-static int hf_amp_report_integer = -1;
-static int hf_amp_cbor_header = -1;
-static int hf_amp_primary_timestamp = -1;
-static int hf_amp_agent_name = -1;
-static int hf_amp_text_string = -1;
-static int hf_amp_ari_flags = -1;
-static int hf_ari_value = -1;
-static int hf_ari_struct = -1;
-static int hf_ari_nickname = -1;
-static int hf_ari_parameters = -1;
-static int hf_ari_issuer = -1;
-static int hf_ari_tag = -1;
-static int hf_amp_tnvc_flags = -1;
-static int hf_amp_tnvc_reserved = -1;
-static int hf_amp_tnvc_mixed = -1;
-static int hf_amp_tnvc_typed = -1;
-static int hf_amp_tnvc_name = -1;
-static int hf_amp_tnvc_values = -1;
+static int hf_amp_message_header;
+static int hf_amp_report_bytestring;
+static int hf_amp_report_data;
+static int hf_amp_report_integer8_small;
+static int hf_amp_report_integer;
+static int hf_amp_cbor_header;
+static int hf_amp_primary_timestamp;
+static int hf_amp_agent_name;
+static int hf_amp_text_string;
+static int hf_amp_ari_flags;
+static int hf_ari_value;
+static int hf_ari_struct;
+static int hf_ari_nickname;
+static int hf_ari_parameters;
+static int hf_ari_issuer;
+static int hf_ari_tag;
+static int hf_amp_tnvc_flags;
+static int hf_amp_tnvc_reserved;
+static int hf_amp_tnvc_mixed;
+static int hf_amp_tnvc_typed;
+static int hf_amp_tnvc_name;
+static int hf_amp_tnvc_values;
 
 /* Initialize the protocol and registered fields */
-static int proto_amp = -1;
+static int proto_amp;
 
-static gint ett_amp_message_header = -1;
-static gint ett_amp_proto = -1;
-static gint ett_amp = -1;
-static gint ett_amp_cbor_header = -1;
-static gint ett_amp_message = -1;
-static gint ett_amp_register = -1;
-static gint ett_amp_report_set = -1;
-static gint ett_amp_report = -1;
-static gint ett_amp_tnvc_flags = -1;
-static gint ett_amp_ari_flags = -1;
+static gint ett_amp_message_header;
+static gint ett_amp_proto;
+static gint ett_amp;
+static gint ett_amp_cbor_header;
+static gint ett_amp_message;
+static gint ett_amp_register;
+static gint ett_amp_report_set;
+static gint ett_amp_report;
+static gint ett_amp_tnvc_flags;
+static gint ett_amp_ari_flags;
 
-static int hf_amp_reserved = -1;
-static int hf_amp_acl = -1;
-static int hf_amp_nack = -1;
+static int hf_amp_reserved;
+static int hf_amp_acl;
+static int hf_amp_nack;
 static int hf_amp_ack = 0;
-static int hf_amp_opcode = -1;
-static int hf_amp_rx_name = -1;
+static int hf_amp_opcode;
+static int hf_amp_rx_name;
 
-static expert_field ei_amp_cbor_malformed = EI_INIT;
+static expert_field ei_amp_cbor_malformed;
 
 static const value_string opcode[] = {
     { 0, "Register Agent" },

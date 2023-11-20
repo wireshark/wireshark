@@ -134,20 +134,20 @@ static gint cigi3_3_add_short_symbol_control(tvbuff_t*, proto_tree*, gint);
 static dissector_handle_t cigi_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_cigi = -1;
+static int proto_cigi;
 
 /* All CIGI Versions */
-static int hf_cigi_src_port = -1;
-static int hf_cigi_dest_port = -1;
-static int hf_cigi_port = -1;
-static int hf_cigi_data = -1;
-static int hf_cigi_packet_id = -1;
-static int hf_cigi_packet_size = -1;
-static int hf_cigi_version = -1;
+static int hf_cigi_src_port;
+static int hf_cigi_dest_port;
+static int hf_cigi_port;
+static int hf_cigi_data;
+static int hf_cigi_packet_id;
+static int hf_cigi_packet_size;
+static int hf_cigi_version;
 
-static int hf_cigi_frame_size = -1;
+static int hf_cigi_frame_size;
 
-static int hf_cigi_unknown = -1;
+static int hf_cigi_unknown;
 
 
 static const true_false_string attach_detach_tfs = {
@@ -178,7 +178,7 @@ static const true_false_string visible_occulted_tfs = {
 /*** Fields for CIGI2 ***/
 
 /* CIGI2 Packet ID */
-static int hf_cigi2_packet_id = -1;
+static int hf_cigi2_packet_id;
 #define CIGI2_PACKET_ID_IG_CONTROL                               1
 #define CIGI2_PACKET_ID_ENTITY_CONTROL                           2
 #define CIGI2_PACKET_ID_COMPONENT_CONTROL                        3
@@ -260,13 +260,13 @@ static value_string_ext cigi2_packet_id_vals_ext = VALUE_STRING_EXT_INIT(cigi2_p
 
 /* CIGI2 IG Control */
 #define CIGI2_PACKET_SIZE_IG_CONTROL 16
-static int hf_cigi2_ig_control = -1;
-static int hf_cigi2_ig_control_db_number = -1;
-static int hf_cigi2_ig_control_ig_mode = -1;
-static int hf_cigi2_ig_control_tracking_enable = -1;
-static int hf_cigi2_ig_control_boresight = -1;
-static int hf_cigi2_ig_control_frame_ctr = -1;
-static int hf_cigi2_ig_control_time_tag = -1;
+static int hf_cigi2_ig_control;
+static int hf_cigi2_ig_control_db_number;
+static int hf_cigi2_ig_control_ig_mode;
+static int hf_cigi2_ig_control_tracking_enable;
+static int hf_cigi2_ig_control_boresight;
+static int hf_cigi2_ig_control_frame_ctr;
+static int hf_cigi2_ig_control_time_tag;
 
 static const value_string cigi2_ig_control_ig_mode_vals[] = {
     {0, "Standby/Reset"},
@@ -277,22 +277,22 @@ static const value_string cigi2_ig_control_ig_mode_vals[] = {
 
 /* CIGI2 Entity Control */
 #define CIGI2_PACKET_SIZE_ENTITY_CONTROL 56
-static int hf_cigi2_entity_control = -1;
-static int hf_cigi2_entity_control_entity_id = -1;
-static int hf_cigi2_entity_control_entity_state = -1;
-static int hf_cigi2_entity_control_attach_state = -1;
-static int hf_cigi2_entity_control_collision_detect = -1;
-static int hf_cigi2_entity_control_effect_state = -1;
-static int hf_cigi2_entity_control_type = -1;
-static int hf_cigi2_entity_control_parent_id = -1;
-static int hf_cigi2_entity_control_opacity = -1;
-static int hf_cigi2_entity_control_internal_temp = -1;
-static int hf_cigi2_entity_control_roll = -1;
-static int hf_cigi2_entity_control_pitch = -1;
-static int hf_cigi2_entity_control_heading = -1;
-static int hf_cigi2_entity_control_alt = -1;
-static int hf_cigi2_entity_control_lat = -1;
-static int hf_cigi2_entity_control_lon = -1;
+static int hf_cigi2_entity_control;
+static int hf_cigi2_entity_control_entity_id;
+static int hf_cigi2_entity_control_entity_state;
+static int hf_cigi2_entity_control_attach_state;
+static int hf_cigi2_entity_control_collision_detect;
+static int hf_cigi2_entity_control_effect_state;
+static int hf_cigi2_entity_control_type;
+static int hf_cigi2_entity_control_parent_id;
+static int hf_cigi2_entity_control_opacity;
+static int hf_cigi2_entity_control_internal_temp;
+static int hf_cigi2_entity_control_roll;
+static int hf_cigi2_entity_control_pitch;
+static int hf_cigi2_entity_control_heading;
+static int hf_cigi2_entity_control_alt;
+static int hf_cigi2_entity_control_lat;
+static int hf_cigi2_entity_control_lon;
 
 static const value_string cigi2_entity_control_entity_state_vals[] = {
     {0, "Load/Hide"},
@@ -310,13 +310,13 @@ static const value_string cigi2_entity_control_effect_state_vals[] = {
 
 /* CIGI2 Component Control */
 #define CIGI2_PACKET_SIZE_COMPONENT_CONTROL 20
-static int hf_cigi2_component_control = -1;
-static int hf_cigi2_component_control_instance_id = -1;
-static int hf_cigi2_component_control_component_class = -1;
-static int hf_cigi2_component_control_component_id = -1;
-static int hf_cigi2_component_control_component_state = -1;
-static int hf_cigi2_component_control_component_val1 = -1;
-static int hf_cigi2_component_control_component_val2 = -1;
+static int hf_cigi2_component_control;
+static int hf_cigi2_component_control_instance_id;
+static int hf_cigi2_component_control_component_class;
+static int hf_cigi2_component_control_component_id;
+static int hf_cigi2_component_control_component_state;
+static int hf_cigi2_component_control_component_val1;
+static int hf_cigi2_component_control_component_val2;
 
 static const value_string cigi2_component_control_component_class_vals[] = {
     {0, "Entity"},
@@ -330,69 +330,69 @@ static const value_string cigi2_component_control_component_class_vals[] = {
 
 /* CIGI2 Articulated Parts Control */
 #define CIGI2_PACKET_SIZE_ARTICULATED_PARTS_CONTROL 32
-static int hf_cigi2_articulated_parts_control = -1;
-static int hf_cigi2_articulated_parts_control_entity_id = -1;
-static int hf_cigi2_articulated_parts_control_part_id = -1;
-static int hf_cigi2_articulated_parts_control_part_state = -1;
-static int hf_cigi2_articulated_parts_control_xoff_enable = -1;
-static int hf_cigi2_articulated_parts_control_yoff_enable = -1;
-static int hf_cigi2_articulated_parts_control_zoff_enable = -1;
-static int hf_cigi2_articulated_parts_control_roll_enable = -1;
-static int hf_cigi2_articulated_parts_control_pitch_enable = -1;
-static int hf_cigi2_articulated_parts_control_yaw_enable = -1;
-static int hf_cigi2_articulated_parts_control_x_offset = -1;
-static int hf_cigi2_articulated_parts_control_y_offset = -1;
-static int hf_cigi2_articulated_parts_control_z_offset = -1;
-static int hf_cigi2_articulated_parts_control_roll = -1;
-static int hf_cigi2_articulated_parts_control_pitch = -1;
-static int hf_cigi2_articulated_parts_control_yaw = -1;
+static int hf_cigi2_articulated_parts_control;
+static int hf_cigi2_articulated_parts_control_entity_id;
+static int hf_cigi2_articulated_parts_control_part_id;
+static int hf_cigi2_articulated_parts_control_part_state;
+static int hf_cigi2_articulated_parts_control_xoff_enable;
+static int hf_cigi2_articulated_parts_control_yoff_enable;
+static int hf_cigi2_articulated_parts_control_zoff_enable;
+static int hf_cigi2_articulated_parts_control_roll_enable;
+static int hf_cigi2_articulated_parts_control_pitch_enable;
+static int hf_cigi2_articulated_parts_control_yaw_enable;
+static int hf_cigi2_articulated_parts_control_x_offset;
+static int hf_cigi2_articulated_parts_control_y_offset;
+static int hf_cigi2_articulated_parts_control_z_offset;
+static int hf_cigi2_articulated_parts_control_roll;
+static int hf_cigi2_articulated_parts_control_pitch;
+static int hf_cigi2_articulated_parts_control_yaw;
 
 /* CIGI2 Rate Control */
 #define CIGI2_PACKET_SIZE_RATE_CONTROL 32
-static int hf_cigi2_rate_control = -1;
-static int hf_cigi2_rate_control_entity_id = -1;
-static int hf_cigi2_rate_control_part_id = -1;
-static int hf_cigi2_rate_control_x_rate = -1;
-static int hf_cigi2_rate_control_y_rate = -1;
-static int hf_cigi2_rate_control_z_rate = -1;
-static int hf_cigi2_rate_control_roll_rate = -1;
-static int hf_cigi2_rate_control_pitch_rate = -1;
-static int hf_cigi2_rate_control_yaw_rate = -1;
+static int hf_cigi2_rate_control;
+static int hf_cigi2_rate_control_entity_id;
+static int hf_cigi2_rate_control_part_id;
+static int hf_cigi2_rate_control_x_rate;
+static int hf_cigi2_rate_control_y_rate;
+static int hf_cigi2_rate_control_z_rate;
+static int hf_cigi2_rate_control_roll_rate;
+static int hf_cigi2_rate_control_pitch_rate;
+static int hf_cigi2_rate_control_yaw_rate;
 
 /* CIGI2 Environmental Control */
 #define CIGI2_PACKET_SIZE_ENVIRONMENT_CONTROL 36
-static int hf_cigi2_environment_control = -1;
-static int hf_cigi2_environment_control_hour = -1;
-static int hf_cigi2_environment_control_minute = -1;
-static int hf_cigi2_environment_control_ephemeris_enable = -1;
-static int hf_cigi2_environment_control_humidity = -1;
-static int hf_cigi2_environment_control_modtran_enable = -1;
-static int hf_cigi2_environment_control_date = -1;
-static int hf_cigi2_environment_control_air_temp = -1;
-static int hf_cigi2_environment_control_global_visibility = -1;
-static int hf_cigi2_environment_control_wind_speed = -1;
-static int hf_cigi2_environment_control_wind_direction = -1;
-static int hf_cigi2_environment_control_pressure = -1;
-static int hf_cigi2_environment_control_aerosol = -1;
+static int hf_cigi2_environment_control;
+static int hf_cigi2_environment_control_hour;
+static int hf_cigi2_environment_control_minute;
+static int hf_cigi2_environment_control_ephemeris_enable;
+static int hf_cigi2_environment_control_humidity;
+static int hf_cigi2_environment_control_modtran_enable;
+static int hf_cigi2_environment_control_date;
+static int hf_cigi2_environment_control_air_temp;
+static int hf_cigi2_environment_control_global_visibility;
+static int hf_cigi2_environment_control_wind_speed;
+static int hf_cigi2_environment_control_wind_direction;
+static int hf_cigi2_environment_control_pressure;
+static int hf_cigi2_environment_control_aerosol;
 
 /* CIGI2 Weather Control */
 #define CIGI2_PACKET_SIZE_WEATHER_CONTROL 44
-static int hf_cigi2_weather_control = -1;
-static int hf_cigi2_weather_control_entity_id = -1;
-static int hf_cigi2_weather_control_weather_enable = -1;
-static int hf_cigi2_weather_control_scud_enable = -1;
-static int hf_cigi2_weather_control_random_winds = -1;
-static int hf_cigi2_weather_control_severity = -1;
-static int hf_cigi2_weather_control_phenomenon_type = -1;
-static int hf_cigi2_weather_control_air_temp = -1;
-static int hf_cigi2_weather_control_opacity = -1;
-static int hf_cigi2_weather_control_scud_frequency = -1;
-static int hf_cigi2_weather_control_coverage = -1;
-static int hf_cigi2_weather_control_elevation = -1;
-static int hf_cigi2_weather_control_thickness = -1;
-static int hf_cigi2_weather_control_transition_band = -1;
-static int hf_cigi2_weather_control_wind_speed = -1;
-static int hf_cigi2_weather_control_wind_direction = -1;
+static int hf_cigi2_weather_control;
+static int hf_cigi2_weather_control_entity_id;
+static int hf_cigi2_weather_control_weather_enable;
+static int hf_cigi2_weather_control_scud_enable;
+static int hf_cigi2_weather_control_random_winds;
+static int hf_cigi2_weather_control_severity;
+static int hf_cigi2_weather_control_phenomenon_type;
+static int hf_cigi2_weather_control_air_temp;
+static int hf_cigi2_weather_control_opacity;
+static int hf_cigi2_weather_control_scud_frequency;
+static int hf_cigi2_weather_control_coverage;
+static int hf_cigi2_weather_control_elevation;
+static int hf_cigi2_weather_control_thickness;
+static int hf_cigi2_weather_control_transition_band;
+static int hf_cigi2_weather_control_wind_speed;
+static int hf_cigi2_weather_control_wind_direction;
 
 static const value_string cigi2_weather_control_phenomenon_type_vals[] = {
     {0, "Use Entity ID"},
@@ -407,38 +407,38 @@ static const value_string cigi2_weather_control_phenomenon_type_vals[] = {
 
 /* CIGI2 View Control */
 #define CIGI2_PACKET_SIZE_VIEW_CONTROL 32
-static int hf_cigi2_view_control = -1;
-static int hf_cigi2_view_control_entity_id = -1;
-static int hf_cigi2_view_control_view_id = -1;
-static int hf_cigi2_view_control_view_group = -1;
-static int hf_cigi2_view_control_xoff_enable = -1;
-static int hf_cigi2_view_control_yoff_enable = -1;
-static int hf_cigi2_view_control_zoff_enable = -1;
-static int hf_cigi2_view_control_roll_enable = -1;
-static int hf_cigi2_view_control_pitch_enable = -1;
-static int hf_cigi2_view_control_yaw_enable = -1;
-static int hf_cigi2_view_control_x_offset = -1;
-static int hf_cigi2_view_control_y_offset = -1;
-static int hf_cigi2_view_control_z_offset = -1;
-static int hf_cigi2_view_control_roll = -1;
-static int hf_cigi2_view_control_pitch = -1;
-static int hf_cigi2_view_control_yaw = -1;
+static int hf_cigi2_view_control;
+static int hf_cigi2_view_control_entity_id;
+static int hf_cigi2_view_control_view_id;
+static int hf_cigi2_view_control_view_group;
+static int hf_cigi2_view_control_xoff_enable;
+static int hf_cigi2_view_control_yoff_enable;
+static int hf_cigi2_view_control_zoff_enable;
+static int hf_cigi2_view_control_roll_enable;
+static int hf_cigi2_view_control_pitch_enable;
+static int hf_cigi2_view_control_yaw_enable;
+static int hf_cigi2_view_control_x_offset;
+static int hf_cigi2_view_control_y_offset;
+static int hf_cigi2_view_control_z_offset;
+static int hf_cigi2_view_control_roll;
+static int hf_cigi2_view_control_pitch;
+static int hf_cigi2_view_control_yaw;
 
 /* CIGI2 Sensor Control */
 #define CIGI2_PACKET_SIZE_SENSOR_CONTROL 24
-static int hf_cigi2_sensor_control = -1;
-static int hf_cigi2_sensor_control_view_id = -1;
-static int hf_cigi2_sensor_control_sensor_enable = -1;
-static int hf_cigi2_sensor_control_polarity = -1;
-static int hf_cigi2_sensor_control_line_dropout = -1;
-static int hf_cigi2_sensor_control_sensor_id = -1;
-static int hf_cigi2_sensor_control_track_mode = -1;
-static int hf_cigi2_sensor_control_auto_gain = -1;
-static int hf_cigi2_sensor_control_track_polarity = -1;
-static int hf_cigi2_sensor_control_gain = -1;
-static int hf_cigi2_sensor_control_level = -1;
-static int hf_cigi2_sensor_control_ac_coupling = -1;
-static int hf_cigi2_sensor_control_noise = -1;
+static int hf_cigi2_sensor_control;
+static int hf_cigi2_sensor_control_view_id;
+static int hf_cigi2_sensor_control_sensor_enable;
+static int hf_cigi2_sensor_control_polarity;
+static int hf_cigi2_sensor_control_line_dropout;
+static int hf_cigi2_sensor_control_sensor_id;
+static int hf_cigi2_sensor_control_track_mode;
+static int hf_cigi2_sensor_control_auto_gain;
+static int hf_cigi2_sensor_control_track_polarity;
+static int hf_cigi2_sensor_control_gain;
+static int hf_cigi2_sensor_control_level;
+static int hf_cigi2_sensor_control_ac_coupling;
+static int hf_cigi2_sensor_control_noise;
 
 static const true_false_string cigi2_sensor_control_polarity_tfs = {
     "Black",
@@ -456,30 +456,30 @@ static const value_string cigi2_sensor_control_track_mode_vals[] = {
 
 /* CIGI2 Trajectory Definition */
 #define CIGI2_PACKET_SIZE_TRAJECTORY_DEFINITION 16
-static int hf_cigi2_trajectory_definition = -1;
-static int hf_cigi2_trajectory_definition_entity_id = -1;
-static int hf_cigi2_trajectory_definition_acceleration = -1;
-static int hf_cigi2_trajectory_definition_retardation = -1;
-static int hf_cigi2_trajectory_definition_terminal_velocity = -1;
+static int hf_cigi2_trajectory_definition;
+static int hf_cigi2_trajectory_definition_entity_id;
+static int hf_cigi2_trajectory_definition_acceleration;
+static int hf_cigi2_trajectory_definition_retardation;
+static int hf_cigi2_trajectory_definition_terminal_velocity;
 
 /* CIGI2 Special Effect Definition */
 #define CIGI2_PACKET_SIZE_SPECIAL_EFFECT_DEFINITION 32
-static int hf_cigi2_special_effect_definition = -1;
-static int hf_cigi2_special_effect_definition_entity_id = -1;
-static int hf_cigi2_special_effect_definition_seq_direction = -1;
-static int hf_cigi2_special_effect_definition_color_enable = -1;
-static int hf_cigi2_special_effect_definition_red = -1;
-static int hf_cigi2_special_effect_definition_green = -1;
-static int hf_cigi2_special_effect_definition_blue = -1;
-static int hf_cigi2_special_effect_definition_x_scale = -1;
-static int hf_cigi2_special_effect_definition_y_scale = -1;
-static int hf_cigi2_special_effect_definition_z_scale = -1;
-static int hf_cigi2_special_effect_definition_time_scale = -1;
-static int hf_cigi2_special_effect_definition_spare = -1;
-static int hf_cigi2_special_effect_definition_effect_count = -1;
-static int hf_cigi2_special_effect_definition_separation = -1;
-static int hf_cigi2_special_effect_definition_burst_interval = -1;
-static int hf_cigi2_special_effect_definition_duration = -1;
+static int hf_cigi2_special_effect_definition;
+static int hf_cigi2_special_effect_definition_entity_id;
+static int hf_cigi2_special_effect_definition_seq_direction;
+static int hf_cigi2_special_effect_definition_color_enable;
+static int hf_cigi2_special_effect_definition_red;
+static int hf_cigi2_special_effect_definition_green;
+static int hf_cigi2_special_effect_definition_blue;
+static int hf_cigi2_special_effect_definition_x_scale;
+static int hf_cigi2_special_effect_definition_y_scale;
+static int hf_cigi2_special_effect_definition_z_scale;
+static int hf_cigi2_special_effect_definition_time_scale;
+static int hf_cigi2_special_effect_definition_spare;
+static int hf_cigi2_special_effect_definition_effect_count;
+static int hf_cigi2_special_effect_definition_separation;
+static int hf_cigi2_special_effect_definition_burst_interval;
+static int hf_cigi2_special_effect_definition_duration;
 
 static const true_false_string cigi2_special_effect_definition_seq_direction_tfs = {
     "Backward",
@@ -488,25 +488,25 @@ static const true_false_string cigi2_special_effect_definition_seq_direction_tfs
 
 /* CIGI2 View Definition */
 #define CIGI2_PACKET_SIZE_VIEW_DEFINITION 32
-static int hf_cigi2_view_definition = -1;
-static int hf_cigi2_view_definition_view_id = -1;
-static int hf_cigi2_view_definition_view_group = -1;
-static int hf_cigi2_view_definition_view_type = -1;
-static int hf_cigi2_view_definition_pixel_rep = -1;
-static int hf_cigi2_view_definition_mirror = -1;
-static int hf_cigi2_view_definition_tracker_assign = -1;
-static int hf_cigi2_view_definition_near_enable = -1;
-static int hf_cigi2_view_definition_far_enable = -1;
-static int hf_cigi2_view_definition_left_enable = -1;
-static int hf_cigi2_view_definition_right_enable = -1;
-static int hf_cigi2_view_definition_top_enable = -1;
-static int hf_cigi2_view_definition_bottom_enable = -1;
-static int hf_cigi2_view_definition_fov_near = -1;
-static int hf_cigi2_view_definition_fov_far = -1;
-static int hf_cigi2_view_definition_fov_left = -1;
-static int hf_cigi2_view_definition_fov_right = -1;
-static int hf_cigi2_view_definition_fov_top = -1;
-static int hf_cigi2_view_definition_fov_bottom = -1;
+static int hf_cigi2_view_definition;
+static int hf_cigi2_view_definition_view_id;
+static int hf_cigi2_view_definition_view_group;
+static int hf_cigi2_view_definition_view_type;
+static int hf_cigi2_view_definition_pixel_rep;
+static int hf_cigi2_view_definition_mirror;
+static int hf_cigi2_view_definition_tracker_assign;
+static int hf_cigi2_view_definition_near_enable;
+static int hf_cigi2_view_definition_far_enable;
+static int hf_cigi2_view_definition_left_enable;
+static int hf_cigi2_view_definition_right_enable;
+static int hf_cigi2_view_definition_top_enable;
+static int hf_cigi2_view_definition_bottom_enable;
+static int hf_cigi2_view_definition_fov_near;
+static int hf_cigi2_view_definition_fov_far;
+static int hf_cigi2_view_definition_fov_left;
+static int hf_cigi2_view_definition_fov_right;
+static int hf_cigi2_view_definition_fov_top;
+static int hf_cigi2_view_definition_fov_bottom;
 
 static const value_string cigi2_view_definition_pixel_rep_vals[] = {
     {0, "No Replicate"},
@@ -529,77 +529,77 @@ static const value_string cigi2_view_definition_mirror_vals[] = {
 
 /* CIGI2 Collision Detection Segment Definition */
 #define CIGI2_PACKET_SIZE_COLLISION_DETECTION_SEGMENT_DEFINITION 24
-static int hf_cigi2_collision_detection_segment_definition = -1;
-static int hf_cigi2_collision_detection_segment_definition_entity_id = -1;
-static int hf_cigi2_collision_detection_segment_definition_segment_enable = -1;
-static int hf_cigi2_collision_detection_segment_definition_segment_id = -1;
-static int hf_cigi2_collision_detection_segment_definition_collision_mask = -1;
-static int hf_cigi2_collision_detection_segment_definition_x_start = -1;
-static int hf_cigi2_collision_detection_segment_definition_y_start = -1;
-static int hf_cigi2_collision_detection_segment_definition_z_start = -1;
-static int hf_cigi2_collision_detection_segment_definition_x_end = -1;
-static int hf_cigi2_collision_detection_segment_definition_y_end = -1;
-static int hf_cigi2_collision_detection_segment_definition_z_end = -1;
+static int hf_cigi2_collision_detection_segment_definition;
+static int hf_cigi2_collision_detection_segment_definition_entity_id;
+static int hf_cigi2_collision_detection_segment_definition_segment_enable;
+static int hf_cigi2_collision_detection_segment_definition_segment_id;
+static int hf_cigi2_collision_detection_segment_definition_collision_mask;
+static int hf_cigi2_collision_detection_segment_definition_x_start;
+static int hf_cigi2_collision_detection_segment_definition_y_start;
+static int hf_cigi2_collision_detection_segment_definition_z_start;
+static int hf_cigi2_collision_detection_segment_definition_x_end;
+static int hf_cigi2_collision_detection_segment_definition_y_end;
+static int hf_cigi2_collision_detection_segment_definition_z_end;
 
 /* CIGI2 Collision Detection Volume Definition */
 #define CIGI2_PACKET_SIZE_COLLISION_DETECTION_VOLUME_DEFINITION 20
-static int hf_cigi2_collision_detection_volume_definition = -1;
-static int hf_cigi2_collision_detection_volume_definition_entity_id = -1;
-static int hf_cigi2_collision_detection_volume_definition_volume_enable = -1;
-static int hf_cigi2_collision_detection_volume_definition_volume_id = -1;
-static int hf_cigi2_collision_detection_volume_definition_x_offset = -1;
-static int hf_cigi2_collision_detection_volume_definition_y_offset = -1;
-static int hf_cigi2_collision_detection_volume_definition_z_offset = -1;
-static int hf_cigi2_collision_detection_volume_definition_height = -1;
-static int hf_cigi2_collision_detection_volume_definition_width = -1;
-static int hf_cigi2_collision_detection_volume_definition_depth = -1;
+static int hf_cigi2_collision_detection_volume_definition;
+static int hf_cigi2_collision_detection_volume_definition_entity_id;
+static int hf_cigi2_collision_detection_volume_definition_volume_enable;
+static int hf_cigi2_collision_detection_volume_definition_volume_id;
+static int hf_cigi2_collision_detection_volume_definition_x_offset;
+static int hf_cigi2_collision_detection_volume_definition_y_offset;
+static int hf_cigi2_collision_detection_volume_definition_z_offset;
+static int hf_cigi2_collision_detection_volume_definition_height;
+static int hf_cigi2_collision_detection_volume_definition_width;
+static int hf_cigi2_collision_detection_volume_definition_depth;
 
 /* CIGI2 Height Above Terrain Request */
 #define CIGI2_PACKET_SIZE_HEIGHT_ABOVE_TERRAIN_REQUEST 32
-static int hf_cigi2_height_above_terrain_request = -1;
-static int hf_cigi2_height_above_terrain_request_hat_id = -1;
-static int hf_cigi2_height_above_terrain_request_alt = -1;
-static int hf_cigi2_height_above_terrain_request_lat = -1;
-static int hf_cigi2_height_above_terrain_request_lon = -1;
+static int hf_cigi2_height_above_terrain_request;
+static int hf_cigi2_height_above_terrain_request_hat_id;
+static int hf_cigi2_height_above_terrain_request_alt;
+static int hf_cigi2_height_above_terrain_request_lat;
+static int hf_cigi2_height_above_terrain_request_lon;
 
 /* CIGI2 Line of Sight Occult Request */
 #define CIGI2_PACKET_SIZE_LINE_OF_SIGHT_OCCULT_REQUEST 56
-static int hf_cigi2_line_of_sight_occult_request = -1;
-static int hf_cigi2_line_of_sight_occult_request_los_id = -1;
-static int hf_cigi2_line_of_sight_occult_request_source_alt = -1;
-static int hf_cigi2_line_of_sight_occult_request_source_lat = -1;
-static int hf_cigi2_line_of_sight_occult_request_source_lon = -1;
-static int hf_cigi2_line_of_sight_occult_request_dest_alt = -1;
-static int hf_cigi2_line_of_sight_occult_request_dest_lat = -1;
-static int hf_cigi2_line_of_sight_occult_request_dest_lon = -1;
+static int hf_cigi2_line_of_sight_occult_request;
+static int hf_cigi2_line_of_sight_occult_request_los_id;
+static int hf_cigi2_line_of_sight_occult_request_source_alt;
+static int hf_cigi2_line_of_sight_occult_request_source_lat;
+static int hf_cigi2_line_of_sight_occult_request_source_lon;
+static int hf_cigi2_line_of_sight_occult_request_dest_alt;
+static int hf_cigi2_line_of_sight_occult_request_dest_lat;
+static int hf_cigi2_line_of_sight_occult_request_dest_lon;
 
 /* CIGI2 Line of Sight Range Request */
 #define CIGI2_PACKET_SIZE_LINE_OF_SIGHT_RANGE_REQUEST 48
-static int hf_cigi2_line_of_sight_range_request = -1;
-static int hf_cigi2_line_of_sight_range_request_los_id = -1;
-static int hf_cigi2_line_of_sight_range_request_azimuth = -1;
-static int hf_cigi2_line_of_sight_range_request_elevation = -1;
-static int hf_cigi2_line_of_sight_range_request_min_range = -1;
-static int hf_cigi2_line_of_sight_range_request_max_range = -1;
-static int hf_cigi2_line_of_sight_range_request_source_alt = -1;
-static int hf_cigi2_line_of_sight_range_request_source_lat = -1;
-static int hf_cigi2_line_of_sight_range_request_source_lon = -1;
+static int hf_cigi2_line_of_sight_range_request;
+static int hf_cigi2_line_of_sight_range_request_los_id;
+static int hf_cigi2_line_of_sight_range_request_azimuth;
+static int hf_cigi2_line_of_sight_range_request_elevation;
+static int hf_cigi2_line_of_sight_range_request_min_range;
+static int hf_cigi2_line_of_sight_range_request_max_range;
+static int hf_cigi2_line_of_sight_range_request_source_alt;
+static int hf_cigi2_line_of_sight_range_request_source_lat;
+static int hf_cigi2_line_of_sight_range_request_source_lon;
 
 /* CIGI2 Height of Terrain Request */
 #define CIGI2_PACKET_SIZE_HEIGHT_OF_TERRAIN_REQUEST 24
-static int hf_cigi2_height_of_terrain_request = -1;
-static int hf_cigi2_height_of_terrain_request_hot_id = -1;
-static int hf_cigi2_height_of_terrain_request_lat = -1;
-static int hf_cigi2_height_of_terrain_request_lon = -1;
+static int hf_cigi2_height_of_terrain_request;
+static int hf_cigi2_height_of_terrain_request_hot_id;
+static int hf_cigi2_height_of_terrain_request_lat;
+static int hf_cigi2_height_of_terrain_request_lon;
 
 /* CIGI2 Start of Frame */
 #define CIGI2_PACKET_SIZE_START_OF_FRAME 16
-static int hf_cigi2_start_of_frame = -1;
-static int hf_cigi2_start_of_frame_db_number = -1;
-static int hf_cigi2_start_of_frame_ig_status_code = -1;
-static int hf_cigi2_start_of_frame_ig_mode = -1;
-static int hf_cigi2_start_of_frame_frame_ctr = -1;
-static int hf_cigi2_start_of_frame_time_tag = -1;
+static int hf_cigi2_start_of_frame;
+static int hf_cigi2_start_of_frame_db_number;
+static int hf_cigi2_start_of_frame_ig_status_code;
+static int hf_cigi2_start_of_frame_ig_mode;
+static int hf_cigi2_start_of_frame_frame_ctr;
+static int hf_cigi2_start_of_frame_time_tag;
 
 static const value_string cigi2_start_of_frame_ig_mode_vals[] = {
     {0, "Standby/Reset"},
@@ -611,35 +611,35 @@ static const value_string cigi2_start_of_frame_ig_mode_vals[] = {
 
 /* CIGI2 Height Above Terrain Response */
 #define CIGI2_PACKET_SIZE_HEIGHT_ABOVE_TERRAIN_RESPONSE 24
-static int hf_cigi2_height_above_terrain_response = -1;
-static int hf_cigi2_height_above_terrain_response_hat_id = -1;
-static int hf_cigi2_height_above_terrain_response_valid = -1;
-static int hf_cigi2_height_above_terrain_response_material_type = -1;
-static int hf_cigi2_height_above_terrain_response_alt = -1;
+static int hf_cigi2_height_above_terrain_response;
+static int hf_cigi2_height_above_terrain_response_hat_id;
+static int hf_cigi2_height_above_terrain_response_valid;
+static int hf_cigi2_height_above_terrain_response_material_type;
+static int hf_cigi2_height_above_terrain_response_alt;
 
 /* CIGI2 Line of Sight Response */
 #define CIGI2_PACKET_SIZE_LINE_OF_SIGHT_RESPONSE 40
-static int hf_cigi2_line_of_sight_response = -1;
-static int hf_cigi2_line_of_sight_response_los_id = -1;
-static int hf_cigi2_line_of_sight_response_valid = -1;
-static int hf_cigi2_line_of_sight_response_occult_response = -1;
-static int hf_cigi2_line_of_sight_response_material_type = -1;
-static int hf_cigi2_line_of_sight_response_range = -1;
-static int hf_cigi2_line_of_sight_response_alt = -1;
-static int hf_cigi2_line_of_sight_response_lat = -1;
-static int hf_cigi2_line_of_sight_response_lon = -1;
+static int hf_cigi2_line_of_sight_response;
+static int hf_cigi2_line_of_sight_response_los_id;
+static int hf_cigi2_line_of_sight_response_valid;
+static int hf_cigi2_line_of_sight_response_occult_response;
+static int hf_cigi2_line_of_sight_response_material_type;
+static int hf_cigi2_line_of_sight_response_range;
+static int hf_cigi2_line_of_sight_response_alt;
+static int hf_cigi2_line_of_sight_response_lat;
+static int hf_cigi2_line_of_sight_response_lon;
 
 /* CIGI2 Collision Detection Segment Response */
 #define CIGI2_PACKET_SIZE_COLLISION_DETECTION_SEGMENT_RESPONSE 24
-static int hf_cigi2_collision_detection_segment_response = -1;
-static int hf_cigi2_collision_detection_segment_response_entity_id = -1;
-static int hf_cigi2_collision_detection_segment_response_segment_id = -1;
-static int hf_cigi2_collision_detection_segment_response_contact = -1;
-static int hf_cigi2_collision_detection_segment_response_contacted_entity = -1;
-static int hf_cigi2_collision_detection_segment_response_material_type = -1;
-static int hf_cigi2_collision_detection_segment_response_collision_x = -1;
-static int hf_cigi2_collision_detection_segment_response_collision_y = -1;
-static int hf_cigi2_collision_detection_segment_response_collision_z = -1;
+static int hf_cigi2_collision_detection_segment_response;
+static int hf_cigi2_collision_detection_segment_response_entity_id;
+static int hf_cigi2_collision_detection_segment_response_segment_id;
+static int hf_cigi2_collision_detection_segment_response_contact;
+static int hf_cigi2_collision_detection_segment_response_contacted_entity;
+static int hf_cigi2_collision_detection_segment_response_material_type;
+static int hf_cigi2_collision_detection_segment_response_collision_x;
+static int hf_cigi2_collision_detection_segment_response_collision_y;
+static int hf_cigi2_collision_detection_segment_response_collision_z;
 
 static const true_false_string cigi2_collision_detection_segment_response_contact_tfs = {
     "Contact with a defined entity",
@@ -648,14 +648,14 @@ static const true_false_string cigi2_collision_detection_segment_response_contac
 
 /* CIGI2 Sensor Response */
 #define CIGI2_PACKET_SIZE_SENSOR_RESPONSE 12
-static int hf_cigi2_sensor_response = -1;
-static int hf_cigi2_sensor_response_view_id = -1;
-static int hf_cigi2_sensor_response_status = -1;
-static int hf_cigi2_sensor_response_sensor_id = -1;
-static int hf_cigi2_sensor_response_x_offset = -1;
-static int hf_cigi2_sensor_response_y_offset = -1;
-static int hf_cigi2_sensor_response_x_size = -1;
-static int hf_cigi2_sensor_response_y_size = -1;
+static int hf_cigi2_sensor_response;
+static int hf_cigi2_sensor_response_view_id;
+static int hf_cigi2_sensor_response_status;
+static int hf_cigi2_sensor_response_sensor_id;
+static int hf_cigi2_sensor_response_x_offset;
+static int hf_cigi2_sensor_response_y_offset;
+static int hf_cigi2_sensor_response_x_size;
+static int hf_cigi2_sensor_response_y_size;
 
 static const value_string cigi2_sensor_response_status_vals[] = {
     {0, "Searching for Target"},
@@ -667,19 +667,19 @@ static const value_string cigi2_sensor_response_status_vals[] = {
 
 /* CIGI2 Height of Terrain Response */
 #define CIGI2_PACKET_SIZE_HEIGHT_OF_TERRAIN_RESPONSE 24
-static int hf_cigi2_height_of_terrain_response = -1;
-static int hf_cigi2_height_of_terrain_response_hot_id = -1;
-static int hf_cigi2_height_of_terrain_response_valid = -1;
-static int hf_cigi2_height_of_terrain_response_material_type = -1;
-static int hf_cigi2_height_of_terrain_response_alt = -1;
+static int hf_cigi2_height_of_terrain_response;
+static int hf_cigi2_height_of_terrain_response_hot_id;
+static int hf_cigi2_height_of_terrain_response_valid;
+static int hf_cigi2_height_of_terrain_response_material_type;
+static int hf_cigi2_height_of_terrain_response_alt;
 
 /* CIGI2 Collision Detection Volume Response */
 #define CIGI2_PACKET_SIZE_COLLISION_DETECTION_VOLUME_RESPONSE 8
-static int hf_cigi2_collision_detection_volume_response = -1;
-static int hf_cigi2_collision_detection_volume_response_entity_id = -1;
-static int hf_cigi2_collision_detection_volume_response_volume_id = -1;
-static int hf_cigi2_collision_detection_volume_response_contact = -1;
-static int hf_cigi2_collision_detection_volume_response_contact_entity = -1;
+static int hf_cigi2_collision_detection_volume_response;
+static int hf_cigi2_collision_detection_volume_response_entity_id;
+static int hf_cigi2_collision_detection_volume_response_volume_id;
+static int hf_cigi2_collision_detection_volume_response_contact;
+static int hf_cigi2_collision_detection_volume_response_contact_entity;
 
 static const true_false_string cigi2_collision_detection_volume_response_contact_tfs = {
     "Contact with a defined entity",
@@ -687,17 +687,17 @@ static const true_false_string cigi2_collision_detection_volume_response_contact
 };
 
 /* CIGI2 Image Generator Message */
-static int hf_cigi2_image_generator_message = -1;
-static int hf_cigi2_image_generator_message_id = -1;
-static int hf_cigi2_image_generator_message_message = -1;
+static int hf_cigi2_image_generator_message;
+static int hf_cigi2_image_generator_message_id;
+static int hf_cigi2_image_generator_message_message;
 
 /* CIGI2 User Definable */
-static int hf_cigi2_user_definable = -1;
+static int hf_cigi2_user_definable;
 
 
 /*** Fields for CIGI3 ***/
 
-static int hf_cigi3_byte_swap = -1;
+static int hf_cigi3_byte_swap;
 
 #define CIGI3_BYTE_SWAP_BIG_ENDIAN    0x8000
 #define CIGI3_BYTE_SWAP_LITTLE_ENDIAN 0x0080
@@ -708,7 +708,7 @@ static const value_string cigi3_byte_swap_vals[] = {
 };
 
 /* CIGI3 Packet ID */
-static int hf_cigi3_packet_id = -1;
+static int hf_cigi3_packet_id;
 #define CIGI3_PACKET_ID_IG_CONTROL                                 1
 #define CIGI3_PACKET_ID_ENTITY_CONTROL                             2
 #define CIGI3_PACKET_ID_CONFORMAL_CLAMPED_ENTITY_CONTROL           3
@@ -877,12 +877,12 @@ static value_string_ext cigi3_packet_id_vals_ext = VALUE_STRING_EXT_INIT(cigi3_p
 
 /* CIGI3 IG Control */
 #define CIGI3_PACKET_SIZE_IG_CONTROL 16
-static int hf_cigi3_ig_control = -1;
-static int hf_cigi3_ig_control_db_number = -1;
-static int hf_cigi3_ig_control_ig_mode = -1;
-static int hf_cigi3_ig_control_timestamp_valid = -1;
-static int hf_cigi3_ig_control_frame_ctr = -1;
-static int hf_cigi3_ig_control_timestamp = -1;
+static int hf_cigi3_ig_control;
+static int hf_cigi3_ig_control_db_number;
+static int hf_cigi3_ig_control_ig_mode;
+static int hf_cigi3_ig_control_timestamp_valid;
+static int hf_cigi3_ig_control_frame_ctr;
+static int hf_cigi3_ig_control_timestamp;
 
 static const value_string cigi3_ig_control_ig_mode_vals[] = {
     {0, "Reset/Standby"},
@@ -893,14 +893,14 @@ static const value_string cigi3_ig_control_ig_mode_vals[] = {
 
 /* CIGI3_2 IG Control */
 #define CIGI3_2_PACKET_SIZE_IG_CONTROL 24
-static int hf_cigi3_2_ig_control = -1;
-static int hf_cigi3_2_ig_control_db_number = -1;
-static int hf_cigi3_2_ig_control_ig_mode = -1;
-static int hf_cigi3_2_ig_control_timestamp_valid = -1;
-static int hf_cigi3_2_ig_control_minor_version = -1;
-static int hf_cigi3_2_ig_control_host_frame_number = -1;
-static int hf_cigi3_2_ig_control_timestamp = -1;
-static int hf_cigi3_2_ig_control_last_ig_frame_number = -1;
+static int hf_cigi3_2_ig_control;
+static int hf_cigi3_2_ig_control_db_number;
+static int hf_cigi3_2_ig_control_ig_mode;
+static int hf_cigi3_2_ig_control_timestamp_valid;
+static int hf_cigi3_2_ig_control_minor_version;
+static int hf_cigi3_2_ig_control_host_frame_number;
+static int hf_cigi3_2_ig_control_timestamp;
+static int hf_cigi3_2_ig_control_last_ig_frame_number;
 
 static const value_string cigi3_2_ig_control_ig_mode_vals[] = {
     {0, "Reset/Standby"},
@@ -911,15 +911,15 @@ static const value_string cigi3_2_ig_control_ig_mode_vals[] = {
 
 /* CIGI3_3 IG Control */
 #define CIGI3_3_PACKET_SIZE_IG_CONTROL 24
-static int hf_cigi3_3_ig_control = -1;
-static int hf_cigi3_3_ig_control_db_number = -1;
-static int hf_cigi3_3_ig_control_ig_mode = -1;
-static int hf_cigi3_3_ig_control_timestamp_valid = -1;
-static int hf_cigi3_3_ig_control_extrapolation_enable = -1;
-static int hf_cigi3_3_ig_control_minor_version = -1;
-/* static int hf_cigi3_3_ig_control_host_frame_number = -1; */
-/* static int hf_cigi3_3_ig_control_timestamp = -1; */
-/* static int hf_cigi3_3_ig_control_last_ig_frame_number = -1; */
+static int hf_cigi3_3_ig_control;
+static int hf_cigi3_3_ig_control_db_number;
+static int hf_cigi3_3_ig_control_ig_mode;
+static int hf_cigi3_3_ig_control_timestamp_valid;
+static int hf_cigi3_3_ig_control_extrapolation_enable;
+static int hf_cigi3_3_ig_control_minor_version;
+/* static int hf_cigi3_3_ig_control_host_frame_number; */
+/* static int hf_cigi3_3_ig_control_timestamp; */
+/* static int hf_cigi3_3_ig_control_last_ig_frame_number; */
 
 static const value_string cigi3_3_ig_control_ig_mode_vals[] = {
     {0, "Reset/Standby"},
@@ -930,25 +930,25 @@ static const value_string cigi3_3_ig_control_ig_mode_vals[] = {
 
 /* CIGI3 Entity Control */
 #define CIGI3_PACKET_SIZE_ENTITY_CONTROL 48
-static int hf_cigi3_entity_control = -1;
-static int hf_cigi3_entity_control_entity_id = -1;
-static int hf_cigi3_entity_control_entity_state = -1;
-static int hf_cigi3_entity_control_attach_state = -1;
-static int hf_cigi3_entity_control_collision_detection_request = -1;
-static int hf_cigi3_entity_control_inherit_alpha = -1;
-static int hf_cigi3_entity_control_ground_ocean_clamp = -1;
-static int hf_cigi3_entity_control_animation_direction = -1;
-static int hf_cigi3_entity_control_animation_loop_mode = -1;
-static int hf_cigi3_entity_control_animation_state = -1;
-static int hf_cigi3_entity_control_alpha = -1;
-static int hf_cigi3_entity_control_entity_type = -1;
-static int hf_cigi3_entity_control_parent_id = -1;
-static int hf_cigi3_entity_control_roll = -1;
-static int hf_cigi3_entity_control_pitch = -1;
-static int hf_cigi3_entity_control_yaw = -1;
-static int hf_cigi3_entity_control_lat_xoff = -1;
-static int hf_cigi3_entity_control_lon_yoff = -1;
-static int hf_cigi3_entity_control_alt_zoff = -1;
+static int hf_cigi3_entity_control;
+static int hf_cigi3_entity_control_entity_id;
+static int hf_cigi3_entity_control_entity_state;
+static int hf_cigi3_entity_control_attach_state;
+static int hf_cigi3_entity_control_collision_detection_request;
+static int hf_cigi3_entity_control_inherit_alpha;
+static int hf_cigi3_entity_control_ground_ocean_clamp;
+static int hf_cigi3_entity_control_animation_direction;
+static int hf_cigi3_entity_control_animation_loop_mode;
+static int hf_cigi3_entity_control_animation_state;
+static int hf_cigi3_entity_control_alpha;
+static int hf_cigi3_entity_control_entity_type;
+static int hf_cigi3_entity_control_parent_id;
+static int hf_cigi3_entity_control_roll;
+static int hf_cigi3_entity_control_pitch;
+static int hf_cigi3_entity_control_yaw;
+static int hf_cigi3_entity_control_lat_xoff;
+static int hf_cigi3_entity_control_lon_yoff;
+static int hf_cigi3_entity_control_alt_zoff;
 
 static const value_string cigi3_entity_control_entity_state_vals[] = {
     {0, "Inactive/Standby"},
@@ -993,48 +993,48 @@ static const value_string cigi3_entity_control_animation_state_vals[] = {
 };
 
 /* CIGI3_3 Entity Control */
-/* static int hf_cigi3_3_entity_control = -1; */
-static int hf_cigi3_3_entity_control_entity_id = -1;
-static int hf_cigi3_3_entity_control_entity_state = -1;
-static int hf_cigi3_3_entity_control_attach_state = -1;
-static int hf_cigi3_3_entity_control_collision_detection_request = -1;
-static int hf_cigi3_3_entity_control_inherit_alpha = -1;
-static int hf_cigi3_3_entity_control_ground_ocean_clamp = -1;
-static int hf_cigi3_3_entity_control_animation_direction = -1;
-static int hf_cigi3_3_entity_control_animation_loop_mode = -1;
-static int hf_cigi3_3_entity_control_animation_state = -1;
-static int hf_cigi3_3_entity_control_extrapolation_enable = -1;
-static int hf_cigi3_3_entity_control_alpha = -1;
-static int hf_cigi3_3_entity_control_entity_type = -1;
-static int hf_cigi3_3_entity_control_parent_id = -1;
-static int hf_cigi3_3_entity_control_roll = -1;
-static int hf_cigi3_3_entity_control_pitch = -1;
-static int hf_cigi3_3_entity_control_yaw = -1;
-static int hf_cigi3_3_entity_control_lat_xoff = -1;
-static int hf_cigi3_3_entity_control_lon_yoff = -1;
-static int hf_cigi3_3_entity_control_alt_zoff = -1;
+/* static int hf_cigi3_3_entity_control; */
+static int hf_cigi3_3_entity_control_entity_id;
+static int hf_cigi3_3_entity_control_entity_state;
+static int hf_cigi3_3_entity_control_attach_state;
+static int hf_cigi3_3_entity_control_collision_detection_request;
+static int hf_cigi3_3_entity_control_inherit_alpha;
+static int hf_cigi3_3_entity_control_ground_ocean_clamp;
+static int hf_cigi3_3_entity_control_animation_direction;
+static int hf_cigi3_3_entity_control_animation_loop_mode;
+static int hf_cigi3_3_entity_control_animation_state;
+static int hf_cigi3_3_entity_control_extrapolation_enable;
+static int hf_cigi3_3_entity_control_alpha;
+static int hf_cigi3_3_entity_control_entity_type;
+static int hf_cigi3_3_entity_control_parent_id;
+static int hf_cigi3_3_entity_control_roll;
+static int hf_cigi3_3_entity_control_pitch;
+static int hf_cigi3_3_entity_control_yaw;
+static int hf_cigi3_3_entity_control_lat_xoff;
+static int hf_cigi3_3_entity_control_lon_yoff;
+static int hf_cigi3_3_entity_control_alt_zoff;
 
 /* CIGI3 Conformal Clamped Entity Control */
 #define CIGI3_PACKET_SIZE_CONFORMAL_CLAMPED_ENTITY_CONTROL 24
-static int hf_cigi3_conformal_clamped_entity_control = -1;
-static int hf_cigi3_conformal_clamped_entity_control_entity_id = -1;
-static int hf_cigi3_conformal_clamped_entity_control_yaw = -1;
-static int hf_cigi3_conformal_clamped_entity_control_lat = -1;
-static int hf_cigi3_conformal_clamped_entity_control_lon = -1;
+static int hf_cigi3_conformal_clamped_entity_control;
+static int hf_cigi3_conformal_clamped_entity_control_entity_id;
+static int hf_cigi3_conformal_clamped_entity_control_yaw;
+static int hf_cigi3_conformal_clamped_entity_control_lat;
+static int hf_cigi3_conformal_clamped_entity_control_lon;
 
 /* CIGI3 Component Control */
 #define CIGI3_PACKET_SIZE_COMPONENT_CONTROL 32
-static int hf_cigi3_component_control = -1;
-static int hf_cigi3_component_control_component_id = -1;
-static int hf_cigi3_component_control_instance_id = -1;
-static int hf_cigi3_component_control_component_class = -1;
-static int hf_cigi3_component_control_component_state = -1;
-static int hf_cigi3_component_control_data_1 = -1;
-static int hf_cigi3_component_control_data_2 = -1;
-static int hf_cigi3_component_control_data_3 = -1;
-static int hf_cigi3_component_control_data_4 = -1;
-static int hf_cigi3_component_control_data_5 = -1;
-static int hf_cigi3_component_control_data_6 = -1;
+static int hf_cigi3_component_control;
+static int hf_cigi3_component_control_component_id;
+static int hf_cigi3_component_control_instance_id;
+static int hf_cigi3_component_control_component_class;
+static int hf_cigi3_component_control_component_state;
+static int hf_cigi3_component_control_data_1;
+static int hf_cigi3_component_control_data_2;
+static int hf_cigi3_component_control_data_3;
+static int hf_cigi3_component_control_data_4;
+static int hf_cigi3_component_control_data_5;
+static int hf_cigi3_component_control_data_6;
 
 static const value_string cigi3_component_control_component_class_vals[] = {
     {0, "Entity"},
@@ -1055,17 +1055,17 @@ static const value_string cigi3_component_control_component_class_vals[] = {
 };
 
 /* CIGI3_3 Component Control */
-/* static int hf_cigi3_3_component_control = -1; */
-static int hf_cigi3_3_component_control_component_id = -1;
-static int hf_cigi3_3_component_control_instance_id = -1;
-static int hf_cigi3_3_component_control_component_class = -1;
-static int hf_cigi3_3_component_control_component_state = -1;
-static int hf_cigi3_3_component_control_data_1 = -1;
-static int hf_cigi3_3_component_control_data_2 = -1;
-static int hf_cigi3_3_component_control_data_3 = -1;
-static int hf_cigi3_3_component_control_data_4 = -1;
-static int hf_cigi3_3_component_control_data_5 = -1;
-static int hf_cigi3_3_component_control_data_6 = -1;
+/* static int hf_cigi3_3_component_control; */
+static int hf_cigi3_3_component_control_component_id;
+static int hf_cigi3_3_component_control_instance_id;
+static int hf_cigi3_3_component_control_component_class;
+static int hf_cigi3_3_component_control_component_state;
+static int hf_cigi3_3_component_control_data_1;
+static int hf_cigi3_3_component_control_data_2;
+static int hf_cigi3_3_component_control_data_3;
+static int hf_cigi3_3_component_control_data_4;
+static int hf_cigi3_3_component_control_data_5;
+static int hf_cigi3_3_component_control_data_6;
 
 static const value_string cigi3_3_component_control_component_class_vals[] = {
     {0, "Entity"},
@@ -1089,13 +1089,13 @@ static const value_string cigi3_3_component_control_component_class_vals[] = {
 
 /* CIGI3 Short Component Control */
 #define CIGI3_PACKET_SIZE_SHORT_COMPONENT_CONTROL 16
-static int hf_cigi3_short_component_control = -1;
-static int hf_cigi3_short_component_control_component_id = -1;
-static int hf_cigi3_short_component_control_instance_id = -1;
-static int hf_cigi3_short_component_control_component_class = -1;
-static int hf_cigi3_short_component_control_component_state = -1;
-static int hf_cigi3_short_component_control_data_1 = -1;
-static int hf_cigi3_short_component_control_data_2 = -1;
+static int hf_cigi3_short_component_control;
+static int hf_cigi3_short_component_control_component_id;
+static int hf_cigi3_short_component_control_instance_id;
+static int hf_cigi3_short_component_control_component_class;
+static int hf_cigi3_short_component_control_component_state;
+static int hf_cigi3_short_component_control_data_1;
+static int hf_cigi3_short_component_control_data_2;
 
 static const value_string cigi3_short_component_control_component_class_vals[] = {
     {0, "Entity"},
@@ -1116,13 +1116,13 @@ static const value_string cigi3_short_component_control_component_class_vals[] =
 };
 
 /* CIGI3_3 Short Component Control */
-/* static int hf_cigi3_3_short_component_control = -1; */
-static int hf_cigi3_3_short_component_control_component_id = -1;
-static int hf_cigi3_3_short_component_control_instance_id = -1;
-static int hf_cigi3_3_short_component_control_component_class = -1;
-static int hf_cigi3_3_short_component_control_component_state = -1;
-static int hf_cigi3_3_short_component_control_data_1 = -1;
-static int hf_cigi3_3_short_component_control_data_2 = -1;
+/* static int hf_cigi3_3_short_component_control; */
+static int hf_cigi3_3_short_component_control_component_id;
+static int hf_cigi3_3_short_component_control_instance_id;
+static int hf_cigi3_3_short_component_control_component_class;
+static int hf_cigi3_3_short_component_control_component_state;
+static int hf_cigi3_3_short_component_control_data_1;
+static int hf_cigi3_3_short_component_control_data_2;
 
 static const value_string cigi3_3_short_component_control_component_class_vals[] = {
     {0, "Entity"},
@@ -1146,35 +1146,35 @@ static const value_string cigi3_3_short_component_control_component_class_vals[]
 
 /* CIGI3 Articulated Part Control */
 #define CIGI3_PACKET_SIZE_ARTICULATED_PART_CONTROL 32
-static int hf_cigi3_articulated_part_control = -1;
-static int hf_cigi3_articulated_part_control_entity_id = -1;
-static int hf_cigi3_articulated_part_control_part_id = -1;
-static int hf_cigi3_articulated_part_control_part_enable = -1;
-static int hf_cigi3_articulated_part_control_xoff_enable = -1;
-static int hf_cigi3_articulated_part_control_yoff_enable = -1;
-static int hf_cigi3_articulated_part_control_zoff_enable = -1;
-static int hf_cigi3_articulated_part_control_roll_enable = -1;
-static int hf_cigi3_articulated_part_control_pitch_enable = -1;
-static int hf_cigi3_articulated_part_control_yaw_enable = -1;
-static int hf_cigi3_articulated_part_control_xoff = -1;
-static int hf_cigi3_articulated_part_control_yoff = -1;
-static int hf_cigi3_articulated_part_control_zoff = -1;
-static int hf_cigi3_articulated_part_control_roll = -1;
-static int hf_cigi3_articulated_part_control_pitch = -1;
-static int hf_cigi3_articulated_part_control_yaw = -1;
+static int hf_cigi3_articulated_part_control;
+static int hf_cigi3_articulated_part_control_entity_id;
+static int hf_cigi3_articulated_part_control_part_id;
+static int hf_cigi3_articulated_part_control_part_enable;
+static int hf_cigi3_articulated_part_control_xoff_enable;
+static int hf_cigi3_articulated_part_control_yoff_enable;
+static int hf_cigi3_articulated_part_control_zoff_enable;
+static int hf_cigi3_articulated_part_control_roll_enable;
+static int hf_cigi3_articulated_part_control_pitch_enable;
+static int hf_cigi3_articulated_part_control_yaw_enable;
+static int hf_cigi3_articulated_part_control_xoff;
+static int hf_cigi3_articulated_part_control_yoff;
+static int hf_cigi3_articulated_part_control_zoff;
+static int hf_cigi3_articulated_part_control_roll;
+static int hf_cigi3_articulated_part_control_pitch;
+static int hf_cigi3_articulated_part_control_yaw;
 
 /* CIGI3 Short Articulated Part Control */
 #define CIGI3_PACKET_SIZE_SHORT_ARTICULATED_PART_CONTROL 16
-static int hf_cigi3_short_articulated_part_control = -1;
-static int hf_cigi3_short_articulated_part_control_entity_id = -1;
-static int hf_cigi3_short_articulated_part_control_part_id_1 = -1;
-static int hf_cigi3_short_articulated_part_control_part_id_2 = -1;
-static int hf_cigi3_short_articulated_part_control_dof_select_1 = -1;
-static int hf_cigi3_short_articulated_part_control_dof_select_2 = -1;
-static int hf_cigi3_short_articulated_part_control_part_enable_1 = -1;
-static int hf_cigi3_short_articulated_part_control_part_enable_2 = -1;
-static int hf_cigi3_short_articulated_part_control_dof_1 = -1;
-static int hf_cigi3_short_articulated_part_control_dof_2 = -1;
+static int hf_cigi3_short_articulated_part_control;
+static int hf_cigi3_short_articulated_part_control_entity_id;
+static int hf_cigi3_short_articulated_part_control_part_id_1;
+static int hf_cigi3_short_articulated_part_control_part_id_2;
+static int hf_cigi3_short_articulated_part_control_dof_select_1;
+static int hf_cigi3_short_articulated_part_control_dof_select_2;
+static int hf_cigi3_short_articulated_part_control_part_enable_1;
+static int hf_cigi3_short_articulated_part_control_part_enable_2;
+static int hf_cigi3_short_articulated_part_control_dof_1;
+static int hf_cigi3_short_articulated_part_control_dof_2;
 
 static const value_string cigi3_short_articulated_part_control_dof_select_vals[] = {
     {0, "Not Used"},
@@ -1189,30 +1189,30 @@ static const value_string cigi3_short_articulated_part_control_dof_select_vals[]
 
 /* CIGI3 Rate Control */
 #define CIGI3_PACKET_SIZE_RATE_CONTROL 32
-static int hf_cigi3_rate_control = -1;
-static int hf_cigi3_rate_control_entity_id = -1;
-static int hf_cigi3_rate_control_part_id = -1;
-static int hf_cigi3_rate_control_apply_to_part = -1;
-static int hf_cigi3_rate_control_x_rate = -1;
-static int hf_cigi3_rate_control_y_rate = -1;
-static int hf_cigi3_rate_control_z_rate = -1;
-static int hf_cigi3_rate_control_roll_rate = -1;
-static int hf_cigi3_rate_control_pitch_rate = -1;
-static int hf_cigi3_rate_control_yaw_rate = -1;
+static int hf_cigi3_rate_control;
+static int hf_cigi3_rate_control_entity_id;
+static int hf_cigi3_rate_control_part_id;
+static int hf_cigi3_rate_control_apply_to_part;
+static int hf_cigi3_rate_control_x_rate;
+static int hf_cigi3_rate_control_y_rate;
+static int hf_cigi3_rate_control_z_rate;
+static int hf_cigi3_rate_control_roll_rate;
+static int hf_cigi3_rate_control_pitch_rate;
+static int hf_cigi3_rate_control_yaw_rate;
 
 /* CIGI3_2 Rate Control */
 #define CIGI3_2_PACKET_SIZE_RATE_CONTROL 32
-static int hf_cigi3_2_rate_control = -1;
-static int hf_cigi3_2_rate_control_entity_id = -1;
-static int hf_cigi3_2_rate_control_part_id = -1;
-static int hf_cigi3_2_rate_control_apply_to_part = -1;
-static int hf_cigi3_2_rate_control_coordinate_system = -1;
-static int hf_cigi3_2_rate_control_x_rate = -1;
-static int hf_cigi3_2_rate_control_y_rate = -1;
-static int hf_cigi3_2_rate_control_z_rate = -1;
-static int hf_cigi3_2_rate_control_roll_rate = -1;
-static int hf_cigi3_2_rate_control_pitch_rate = -1;
-static int hf_cigi3_2_rate_control_yaw_rate = -1;
+static int hf_cigi3_2_rate_control;
+static int hf_cigi3_2_rate_control_entity_id;
+static int hf_cigi3_2_rate_control_part_id;
+static int hf_cigi3_2_rate_control_apply_to_part;
+static int hf_cigi3_2_rate_control_coordinate_system;
+static int hf_cigi3_2_rate_control_x_rate;
+static int hf_cigi3_2_rate_control_y_rate;
+static int hf_cigi3_2_rate_control_z_rate;
+static int hf_cigi3_2_rate_control_roll_rate;
+static int hf_cigi3_2_rate_control_pitch_rate;
+static int hf_cigi3_2_rate_control_yaw_rate;
 
 static const true_false_string cigi3_2_rate_control_coord_sys_select_vals = {
     "Local",
@@ -1221,45 +1221,45 @@ static const true_false_string cigi3_2_rate_control_coord_sys_select_vals = {
 
 /* CIGI3 Celestial Sphere Control */
 #define CIGI3_PACKET_SIZE_CELESTIAL_SPHERE_CONTROL 16
-static int hf_cigi3_celestial_sphere_control = -1;
-static int hf_cigi3_celestial_sphere_control_hour = -1;
-static int hf_cigi3_celestial_sphere_control_minute = -1;
-static int hf_cigi3_celestial_sphere_control_ephemeris_enable = -1;
-static int hf_cigi3_celestial_sphere_control_sun_enable = -1;
-static int hf_cigi3_celestial_sphere_control_moon_enable = -1;
-static int hf_cigi3_celestial_sphere_control_star_enable = -1;
-static int hf_cigi3_celestial_sphere_control_date_time_valid = -1;
-static int hf_cigi3_celestial_sphere_control_date = -1;
-static int hf_cigi3_celestial_sphere_control_star_intensity = -1;
+static int hf_cigi3_celestial_sphere_control;
+static int hf_cigi3_celestial_sphere_control_hour;
+static int hf_cigi3_celestial_sphere_control_minute;
+static int hf_cigi3_celestial_sphere_control_ephemeris_enable;
+static int hf_cigi3_celestial_sphere_control_sun_enable;
+static int hf_cigi3_celestial_sphere_control_moon_enable;
+static int hf_cigi3_celestial_sphere_control_star_enable;
+static int hf_cigi3_celestial_sphere_control_date_time_valid;
+static int hf_cigi3_celestial_sphere_control_date;
+static int hf_cigi3_celestial_sphere_control_star_intensity;
 
 /* CIGI3 Atmosphere Control */
 #define CIGI3_PACKET_SIZE_ATMOSPHERE_CONTROL 32
-static int hf_cigi3_atmosphere_control = -1;
-static int hf_cigi3_atmosphere_control_atmospheric_model_enable = -1;
-static int hf_cigi3_atmosphere_control_humidity = -1;
-static int hf_cigi3_atmosphere_control_air_temp = -1;
-static int hf_cigi3_atmosphere_control_visibility_range = -1;
-static int hf_cigi3_atmosphere_control_horiz_wind = -1;
-static int hf_cigi3_atmosphere_control_vert_wind = -1;
-static int hf_cigi3_atmosphere_control_wind_direction = -1;
-static int hf_cigi3_atmosphere_control_barometric_pressure = -1;
+static int hf_cigi3_atmosphere_control;
+static int hf_cigi3_atmosphere_control_atmospheric_model_enable;
+static int hf_cigi3_atmosphere_control_humidity;
+static int hf_cigi3_atmosphere_control_air_temp;
+static int hf_cigi3_atmosphere_control_visibility_range;
+static int hf_cigi3_atmosphere_control_horiz_wind;
+static int hf_cigi3_atmosphere_control_vert_wind;
+static int hf_cigi3_atmosphere_control_wind_direction;
+static int hf_cigi3_atmosphere_control_barometric_pressure;
 
 /* CIGI3 Environmental Region Control */
 #define CIGI3_PACKET_SIZE_ENVIRONMENTAL_REGION_CONTROL 48
-static int hf_cigi3_environmental_region_control = -1;
-static int hf_cigi3_environmental_region_control_region_id = -1;
-static int hf_cigi3_environmental_region_control_region_state = -1;
-static int hf_cigi3_environmental_region_control_merge_weather = -1;
-static int hf_cigi3_environmental_region_control_merge_aerosol = -1;
-static int hf_cigi3_environmental_region_control_merge_maritime = -1;
-static int hf_cigi3_environmental_region_control_merge_terrestrial = -1;
-static int hf_cigi3_environmental_region_control_lat = -1;
-static int hf_cigi3_environmental_region_control_lon = -1;
-static int hf_cigi3_environmental_region_control_size_x = -1;
-static int hf_cigi3_environmental_region_control_size_y = -1;
-static int hf_cigi3_environmental_region_control_corner_radius = -1;
-static int hf_cigi3_environmental_region_control_rotation = -1;
-static int hf_cigi3_environmental_region_control_transition_perimeter = -1;
+static int hf_cigi3_environmental_region_control;
+static int hf_cigi3_environmental_region_control_region_id;
+static int hf_cigi3_environmental_region_control_region_state;
+static int hf_cigi3_environmental_region_control_merge_weather;
+static int hf_cigi3_environmental_region_control_merge_aerosol;
+static int hf_cigi3_environmental_region_control_merge_maritime;
+static int hf_cigi3_environmental_region_control_merge_terrestrial;
+static int hf_cigi3_environmental_region_control_lat;
+static int hf_cigi3_environmental_region_control_lon;
+static int hf_cigi3_environmental_region_control_size_x;
+static int hf_cigi3_environmental_region_control_size_y;
+static int hf_cigi3_environmental_region_control_corner_radius;
+static int hf_cigi3_environmental_region_control_rotation;
+static int hf_cigi3_environmental_region_control_transition_perimeter;
 
 static const value_string cigi3_environmental_region_control_region_state_vals[] = {
     {0, "Inactive"},
@@ -1275,29 +1275,29 @@ static const true_false_string cigi3_environmental_region_control_merge_properti
 
 /* CIGI3 Weather Control */
 #define CIGI3_PACKET_SIZE_WEATHER_CONTROL 56
-static int hf_cigi3_weather_control = -1;
-static int hf_cigi3_weather_control_entity_region_id = -1;
-static int hf_cigi3_weather_control_layer_id = -1;
-static int hf_cigi3_weather_control_humidity = -1;
-static int hf_cigi3_weather_control_weather_enable = -1;
-static int hf_cigi3_weather_control_scud_enable = -1;
-static int hf_cigi3_weather_control_random_winds_enable = -1;
-static int hf_cigi3_weather_control_random_lightning_enable = -1;
-static int hf_cigi3_weather_control_cloud_type = -1;
-static int hf_cigi3_weather_control_scope = -1;
-static int hf_cigi3_weather_control_severity = -1;
-static int hf_cigi3_weather_control_air_temp = -1;
-static int hf_cigi3_weather_control_visibility_range = -1;
-static int hf_cigi3_weather_control_scud_frequency = -1;
-static int hf_cigi3_weather_control_coverage = -1;
-static int hf_cigi3_weather_control_base_elevation = -1;
-static int hf_cigi3_weather_control_thickness = -1;
-static int hf_cigi3_weather_control_transition_band = -1;
-static int hf_cigi3_weather_control_horiz_wind = -1;
-static int hf_cigi3_weather_control_vert_wind = -1;
-static int hf_cigi3_weather_control_wind_direction = -1;
-static int hf_cigi3_weather_control_barometric_pressure = -1;
-static int hf_cigi3_weather_control_aerosol_concentration = -1;
+static int hf_cigi3_weather_control;
+static int hf_cigi3_weather_control_entity_region_id;
+static int hf_cigi3_weather_control_layer_id;
+static int hf_cigi3_weather_control_humidity;
+static int hf_cigi3_weather_control_weather_enable;
+static int hf_cigi3_weather_control_scud_enable;
+static int hf_cigi3_weather_control_random_winds_enable;
+static int hf_cigi3_weather_control_random_lightning_enable;
+static int hf_cigi3_weather_control_cloud_type;
+static int hf_cigi3_weather_control_scope;
+static int hf_cigi3_weather_control_severity;
+static int hf_cigi3_weather_control_air_temp;
+static int hf_cigi3_weather_control_visibility_range;
+static int hf_cigi3_weather_control_scud_frequency;
+static int hf_cigi3_weather_control_coverage;
+static int hf_cigi3_weather_control_base_elevation;
+static int hf_cigi3_weather_control_thickness;
+static int hf_cigi3_weather_control_transition_band;
+static int hf_cigi3_weather_control_horiz_wind;
+static int hf_cigi3_weather_control_vert_wind;
+static int hf_cigi3_weather_control_wind_direction;
+static int hf_cigi3_weather_control_barometric_pressure;
+static int hf_cigi3_weather_control_aerosol_concentration;
 
 static const value_string cigi3_weather_control_layer_id_vals[] = {
     {0, "Ground Fog"},
@@ -1342,14 +1342,14 @@ static const value_string cigi3_weather_control_scope_vals[] = {
 
 /* CIGI3 Maritime Surface Conditions Control */
 #define CIGI3_PACKET_SIZE_MARITIME_SURFACE_CONDITIONS_CONTROL 24
-static int hf_cigi3_maritime_surface_conditions_control = -1;
-static int hf_cigi3_maritime_surface_conditions_control_entity_region_id = -1;
-static int hf_cigi3_maritime_surface_conditions_control_surface_conditions_enable = -1;
-static int hf_cigi3_maritime_surface_conditions_control_whitecap_enable = -1;
-static int hf_cigi3_maritime_surface_conditions_control_scope = -1;
-static int hf_cigi3_maritime_surface_conditions_control_sea_surface_height = -1;
-static int hf_cigi3_maritime_surface_conditions_control_surface_water_temp = -1;
-static int hf_cigi3_maritime_surface_conditions_control_surface_clarity = -1;
+static int hf_cigi3_maritime_surface_conditions_control;
+static int hf_cigi3_maritime_surface_conditions_control_entity_region_id;
+static int hf_cigi3_maritime_surface_conditions_control_surface_conditions_enable;
+static int hf_cigi3_maritime_surface_conditions_control_whitecap_enable;
+static int hf_cigi3_maritime_surface_conditions_control_scope;
+static int hf_cigi3_maritime_surface_conditions_control_sea_surface_height;
+static int hf_cigi3_maritime_surface_conditions_control_surface_water_temp;
+static int hf_cigi3_maritime_surface_conditions_control_surface_clarity;
 
 static const value_string cigi3_maritime_surface_conditions_control_scope_vals[] = {
     {0, "Global"},
@@ -1360,18 +1360,18 @@ static const value_string cigi3_maritime_surface_conditions_control_scope_vals[]
 
 /* CIGI3 Wave Control */
 #define CIGI3_PACKET_SIZE_WAVE_CONTROL 32
-static int hf_cigi3_wave_control = -1;
-static int hf_cigi3_wave_control_entity_region_id = -1;
-static int hf_cigi3_wave_control_wave_id = -1;
-static int hf_cigi3_wave_control_wave_enable = -1;
-static int hf_cigi3_wave_control_scope = -1;
-static int hf_cigi3_wave_control_breaker_type = -1;
-static int hf_cigi3_wave_control_height = -1;
-static int hf_cigi3_wave_control_wavelength = -1;
-static int hf_cigi3_wave_control_period = -1;
-static int hf_cigi3_wave_control_direction = -1;
-static int hf_cigi3_wave_control_phase_offset = -1;
-static int hf_cigi3_wave_control_leading = -1;
+static int hf_cigi3_wave_control;
+static int hf_cigi3_wave_control_entity_region_id;
+static int hf_cigi3_wave_control_wave_id;
+static int hf_cigi3_wave_control_wave_enable;
+static int hf_cigi3_wave_control_scope;
+static int hf_cigi3_wave_control_breaker_type;
+static int hf_cigi3_wave_control_height;
+static int hf_cigi3_wave_control_wavelength;
+static int hf_cigi3_wave_control_period;
+static int hf_cigi3_wave_control_direction;
+static int hf_cigi3_wave_control_phase_offset;
+static int hf_cigi3_wave_control_leading;
 
 static const value_string cigi3_wave_control_scope_vals[] = {
     {0, "Global"},
@@ -1389,13 +1389,13 @@ static const value_string cigi3_wave_control_breaker_type_vals[] = {
 
 /* CIGI3 Terrestrial Surface Conditions Control */
 #define CIGI3_PACKET_SIZE_TERRESTRIAL_SURFACE_CONDITIONS_CONTROL 8
-static int hf_cigi3_terrestrial_surface_conditions_control = -1;
-static int hf_cigi3_terrestrial_surface_conditions_control_entity_region_id = -1;
-static int hf_cigi3_terrestrial_surface_conditions_control_surface_condition_id = -1;
-static int hf_cigi3_terrestrial_surface_conditions_control_surface_condition_enable = -1;
-static int hf_cigi3_terrestrial_surface_conditions_control_scope = -1;
-static int hf_cigi3_terrestrial_surface_conditions_control_severity = -1;
-static int hf_cigi3_terrestrial_surface_conditions_control_coverage = -1;
+static int hf_cigi3_terrestrial_surface_conditions_control;
+static int hf_cigi3_terrestrial_surface_conditions_control_entity_region_id;
+static int hf_cigi3_terrestrial_surface_conditions_control_surface_condition_id;
+static int hf_cigi3_terrestrial_surface_conditions_control_surface_condition_enable;
+static int hf_cigi3_terrestrial_surface_conditions_control_scope;
+static int hf_cigi3_terrestrial_surface_conditions_control_severity;
+static int hf_cigi3_terrestrial_surface_conditions_control_coverage;
 
 static const value_string cigi3_terrestrial_surface_conditions_control_scope_vals[] = {
     {0, "Global"},
@@ -1406,39 +1406,39 @@ static const value_string cigi3_terrestrial_surface_conditions_control_scope_val
 
 /* CIGI3 View Control */
 #define CIGI3_PACKET_SIZE_VIEW_CONTROL 32
-static int hf_cigi3_view_control = -1;
-static int hf_cigi3_view_control_view_id = -1;
-static int hf_cigi3_view_control_group_id = -1;
-static int hf_cigi3_view_control_xoff_enable = -1;
-static int hf_cigi3_view_control_yoff_enable = -1;
-static int hf_cigi3_view_control_zoff_enable = -1;
-static int hf_cigi3_view_control_roll_enable = -1;
-static int hf_cigi3_view_control_pitch_enable = -1;
-static int hf_cigi3_view_control_yaw_enable = -1;
-static int hf_cigi3_view_control_entity_id = -1;
-static int hf_cigi3_view_control_xoff = -1;
-static int hf_cigi3_view_control_yoff = -1;
-static int hf_cigi3_view_control_zoff = -1;
-static int hf_cigi3_view_control_roll = -1;
-static int hf_cigi3_view_control_pitch = -1;
-static int hf_cigi3_view_control_yaw = -1;
+static int hf_cigi3_view_control;
+static int hf_cigi3_view_control_view_id;
+static int hf_cigi3_view_control_group_id;
+static int hf_cigi3_view_control_xoff_enable;
+static int hf_cigi3_view_control_yoff_enable;
+static int hf_cigi3_view_control_zoff_enable;
+static int hf_cigi3_view_control_roll_enable;
+static int hf_cigi3_view_control_pitch_enable;
+static int hf_cigi3_view_control_yaw_enable;
+static int hf_cigi3_view_control_entity_id;
+static int hf_cigi3_view_control_xoff;
+static int hf_cigi3_view_control_yoff;
+static int hf_cigi3_view_control_zoff;
+static int hf_cigi3_view_control_roll;
+static int hf_cigi3_view_control_pitch;
+static int hf_cigi3_view_control_yaw;
 
 /* CIGI3 Sensor Control */
 #define CIGI3_PACKET_SIZE_SENSOR_CONTROL 24
-static int hf_cigi3_sensor_control = -1;
-static int hf_cigi3_sensor_control_view_id = -1;
-static int hf_cigi3_sensor_control_sensor_id = -1;
-static int hf_cigi3_sensor_control_sensor_on_off = -1;
-static int hf_cigi3_sensor_control_polarity = -1;
-static int hf_cigi3_sensor_control_line_dropout_enable = -1;
-static int hf_cigi3_sensor_control_auto_gain = -1;
-static int hf_cigi3_sensor_control_track_white_black = -1;
-static int hf_cigi3_sensor_control_track_mode = -1;
-static int hf_cigi3_sensor_control_response_type = -1;
-static int hf_cigi3_sensor_control_gain = -1;
-static int hf_cigi3_sensor_control_level = -1;
-static int hf_cigi3_sensor_control_ac_coupling = -1;
-static int hf_cigi3_sensor_control_noise = -1;
+static int hf_cigi3_sensor_control;
+static int hf_cigi3_sensor_control_view_id;
+static int hf_cigi3_sensor_control_sensor_id;
+static int hf_cigi3_sensor_control_sensor_on_off;
+static int hf_cigi3_sensor_control_polarity;
+static int hf_cigi3_sensor_control_line_dropout_enable;
+static int hf_cigi3_sensor_control_auto_gain;
+static int hf_cigi3_sensor_control_track_white_black;
+static int hf_cigi3_sensor_control_track_mode;
+static int hf_cigi3_sensor_control_response_type;
+static int hf_cigi3_sensor_control_gain;
+static int hf_cigi3_sensor_control_level;
+static int hf_cigi3_sensor_control_ac_coupling;
+static int hf_cigi3_sensor_control_noise;
 
 static const value_string cigi3_sensor_control_track_mode_vals[] = {
     {0, "Off"},
@@ -1466,18 +1466,18 @@ static const true_false_string cigi3_sensor_control_track_white_black_tfs = {
 
 /* CIGI3 Motion Tracker Control */
 #define CIGI3_PACKET_SIZE_MOTION_TRACKER_CONTROL 8
-static int hf_cigi3_motion_tracker_control = -1;
-static int hf_cigi3_motion_tracker_control_view_group_id = -1;
-static int hf_cigi3_motion_tracker_control_tracker_id = -1;
-static int hf_cigi3_motion_tracker_control_tracker_enable = -1;
-static int hf_cigi3_motion_tracker_control_boresight_enable = -1;
-static int hf_cigi3_motion_tracker_control_x_enable = -1;
-static int hf_cigi3_motion_tracker_control_y_enable = -1;
-static int hf_cigi3_motion_tracker_control_z_enable = -1;
-static int hf_cigi3_motion_tracker_control_roll_enable = -1;
-static int hf_cigi3_motion_tracker_control_pitch_enable = -1;
-static int hf_cigi3_motion_tracker_control_yaw_enable = -1;
-static int hf_cigi3_motion_tracker_control_view_group_select = -1;
+static int hf_cigi3_motion_tracker_control;
+static int hf_cigi3_motion_tracker_control_view_group_id;
+static int hf_cigi3_motion_tracker_control_tracker_id;
+static int hf_cigi3_motion_tracker_control_tracker_enable;
+static int hf_cigi3_motion_tracker_control_boresight_enable;
+static int hf_cigi3_motion_tracker_control_x_enable;
+static int hf_cigi3_motion_tracker_control_y_enable;
+static int hf_cigi3_motion_tracker_control_z_enable;
+static int hf_cigi3_motion_tracker_control_roll_enable;
+static int hf_cigi3_motion_tracker_control_pitch_enable;
+static int hf_cigi3_motion_tracker_control_yaw_enable;
+static int hf_cigi3_motion_tracker_control_view_group_select;
 
 static const true_false_string cigi3_motion_tracker_control_view_group_select_tfs = {
     "View Group",
@@ -1486,43 +1486,43 @@ static const true_false_string cigi3_motion_tracker_control_view_group_select_tf
 
 /* CIGI3 Earth Reference Model Definition */
 #define CIGI3_PACKET_SIZE_EARTH_REFERENCE_MODEL_DEFINITION 24
-static int hf_cigi3_earth_reference_model_definition = -1;
-static int hf_cigi3_earth_reference_model_definition_erm_enable = -1;
-static int hf_cigi3_earth_reference_model_definition_equatorial_radius = -1;
-static int hf_cigi3_earth_reference_model_definition_flattening = -1;
+static int hf_cigi3_earth_reference_model_definition;
+static int hf_cigi3_earth_reference_model_definition_erm_enable;
+static int hf_cigi3_earth_reference_model_definition_equatorial_radius;
+static int hf_cigi3_earth_reference_model_definition_flattening;
 
 /* CIGI3 Trajectory Definition */
 #define CIGI3_PACKET_SIZE_TRAJECTORY_DEFINITION 24
-static int hf_cigi3_trajectory_definition = -1;
-static int hf_cigi3_trajectory_definition_entity_id = -1;
-static int hf_cigi3_trajectory_definition_acceleration_x = -1;
-static int hf_cigi3_trajectory_definition_acceleration_y = -1;
-static int hf_cigi3_trajectory_definition_acceleration_z = -1;
-static int hf_cigi3_trajectory_definition_retardation_rate = -1;
-static int hf_cigi3_trajectory_definition_terminal_velocity = -1;
+static int hf_cigi3_trajectory_definition;
+static int hf_cigi3_trajectory_definition_entity_id;
+static int hf_cigi3_trajectory_definition_acceleration_x;
+static int hf_cigi3_trajectory_definition_acceleration_y;
+static int hf_cigi3_trajectory_definition_acceleration_z;
+static int hf_cigi3_trajectory_definition_retardation_rate;
+static int hf_cigi3_trajectory_definition_terminal_velocity;
 
 /* CIGI3 View Definition */
 #define CIGI3_PACKET_SIZE_VIEW_DEFINITION 32
-static int hf_cigi3_view_definition = -1;
-static int hf_cigi3_view_definition_view_id = -1;
-static int hf_cigi3_view_definition_group_id = -1;
-static int hf_cigi3_view_definition_near_enable = -1;
-static int hf_cigi3_view_definition_far_enable = -1;
-static int hf_cigi3_view_definition_left_enable = -1;
-static int hf_cigi3_view_definition_right_enable = -1;
-static int hf_cigi3_view_definition_top_enable = -1;
-static int hf_cigi3_view_definition_bottom_enable = -1;
-static int hf_cigi3_view_definition_mirror_mode = -1;
-static int hf_cigi3_view_definition_pixel_replication = -1;
-static int hf_cigi3_view_definition_projection_type = -1;
-static int hf_cigi3_view_definition_reorder = -1;
-static int hf_cigi3_view_definition_view_type = -1;
-static int hf_cigi3_view_definition_near = -1;
-static int hf_cigi3_view_definition_far = -1;
-static int hf_cigi3_view_definition_left = -1;
-static int hf_cigi3_view_definition_right = -1;
-static int hf_cigi3_view_definition_top = -1;
-static int hf_cigi3_view_definition_bottom = -1;
+static int hf_cigi3_view_definition;
+static int hf_cigi3_view_definition_view_id;
+static int hf_cigi3_view_definition_group_id;
+static int hf_cigi3_view_definition_near_enable;
+static int hf_cigi3_view_definition_far_enable;
+static int hf_cigi3_view_definition_left_enable;
+static int hf_cigi3_view_definition_right_enable;
+static int hf_cigi3_view_definition_top_enable;
+static int hf_cigi3_view_definition_bottom_enable;
+static int hf_cigi3_view_definition_mirror_mode;
+static int hf_cigi3_view_definition_pixel_replication;
+static int hf_cigi3_view_definition_projection_type;
+static int hf_cigi3_view_definition_reorder;
+static int hf_cigi3_view_definition_view_type;
+static int hf_cigi3_view_definition_near;
+static int hf_cigi3_view_definition_far;
+static int hf_cigi3_view_definition_left;
+static int hf_cigi3_view_definition_right;
+static int hf_cigi3_view_definition_top;
+static int hf_cigi3_view_definition_bottom;
 
 static const value_string cigi3_view_definition_mirror_mode_vals[] = {
     {0, "None"},
@@ -1556,34 +1556,34 @@ static const true_false_string cigi3_view_definition_reorder_tfs = {
 
 /* CIGI3 Collision Detection Segment Definition */
 #define CIGI3_PACKET_SIZE_COLLISION_DETECTION_SEGMENT_DEFINITION 40
-static int hf_cigi3_collision_detection_segment_definition = -1;
-static int hf_cigi3_collision_detection_segment_definition_entity_id = -1;
-static int hf_cigi3_collision_detection_segment_definition_segment_id = -1;
-static int hf_cigi3_collision_detection_segment_definition_segment_enable = -1;
-static int hf_cigi3_collision_detection_segment_definition_x1 = -1;
-static int hf_cigi3_collision_detection_segment_definition_y1 = -1;
-static int hf_cigi3_collision_detection_segment_definition_z1 = -1;
-static int hf_cigi3_collision_detection_segment_definition_x2 = -1;
-static int hf_cigi3_collision_detection_segment_definition_y2 = -1;
-static int hf_cigi3_collision_detection_segment_definition_z2 = -1;
-static int hf_cigi3_collision_detection_segment_definition_material_mask = -1;
+static int hf_cigi3_collision_detection_segment_definition;
+static int hf_cigi3_collision_detection_segment_definition_entity_id;
+static int hf_cigi3_collision_detection_segment_definition_segment_id;
+static int hf_cigi3_collision_detection_segment_definition_segment_enable;
+static int hf_cigi3_collision_detection_segment_definition_x1;
+static int hf_cigi3_collision_detection_segment_definition_y1;
+static int hf_cigi3_collision_detection_segment_definition_z1;
+static int hf_cigi3_collision_detection_segment_definition_x2;
+static int hf_cigi3_collision_detection_segment_definition_y2;
+static int hf_cigi3_collision_detection_segment_definition_z2;
+static int hf_cigi3_collision_detection_segment_definition_material_mask;
 
 /* CIGI3 Collision Detection Volume Definition */
 #define CIGI3_PACKET_SIZE_COLLISION_DETECTION_VOLUME_DEFINITION 48
-static int hf_cigi3_collision_detection_volume_definition = -1;
-static int hf_cigi3_collision_detection_volume_definition_entity_id = -1;
-static int hf_cigi3_collision_detection_volume_definition_volume_id = -1;
-static int hf_cigi3_collision_detection_volume_definition_volume_enable = -1;
-static int hf_cigi3_collision_detection_volume_definition_volume_type = -1;
-static int hf_cigi3_collision_detection_volume_definition_x = -1;
-static int hf_cigi3_collision_detection_volume_definition_y = -1;
-static int hf_cigi3_collision_detection_volume_definition_z = -1;
-static int hf_cigi3_collision_detection_volume_definition_radius_height = -1;
-static int hf_cigi3_collision_detection_volume_definition_width = -1;
-static int hf_cigi3_collision_detection_volume_definition_depth = -1;
-static int hf_cigi3_collision_detection_volume_definition_roll = -1;
-static int hf_cigi3_collision_detection_volume_definition_pitch = -1;
-static int hf_cigi3_collision_detection_volume_definition_yaw = -1;
+static int hf_cigi3_collision_detection_volume_definition;
+static int hf_cigi3_collision_detection_volume_definition_entity_id;
+static int hf_cigi3_collision_detection_volume_definition_volume_id;
+static int hf_cigi3_collision_detection_volume_definition_volume_enable;
+static int hf_cigi3_collision_detection_volume_definition_volume_type;
+static int hf_cigi3_collision_detection_volume_definition_x;
+static int hf_cigi3_collision_detection_volume_definition_y;
+static int hf_cigi3_collision_detection_volume_definition_z;
+static int hf_cigi3_collision_detection_volume_definition_radius_height;
+static int hf_cigi3_collision_detection_volume_definition_width;
+static int hf_cigi3_collision_detection_volume_definition_depth;
+static int hf_cigi3_collision_detection_volume_definition_roll;
+static int hf_cigi3_collision_detection_volume_definition_pitch;
+static int hf_cigi3_collision_detection_volume_definition_yaw;
 
 static const true_false_string cigi3_collision_detection_volume_definition_volume_type_tfs = {
     "Cuboid",
@@ -1592,14 +1592,14 @@ static const true_false_string cigi3_collision_detection_volume_definition_volum
 
 /* CIGI3 HAT/HOT Request */
 #define CIGI3_PACKET_SIZE_HAT_HOT_REQUEST 32
-static int hf_cigi3_hat_hot_request = -1;
-static int hf_cigi3_hat_hot_request_hat_hot_id = -1;
-static int hf_cigi3_hat_hot_request_type = -1;
-static int hf_cigi3_hat_hot_request_coordinate_system = -1;
-static int hf_cigi3_hat_hot_request_entity_id = -1;
-static int hf_cigi3_hat_hot_request_lat_xoff = -1;
-static int hf_cigi3_hat_hot_request_lon_yoff = -1;
-static int hf_cigi3_hat_hot_request_alt_zoff = -1;
+static int hf_cigi3_hat_hot_request;
+static int hf_cigi3_hat_hot_request_hat_hot_id;
+static int hf_cigi3_hat_hot_request_type;
+static int hf_cigi3_hat_hot_request_coordinate_system;
+static int hf_cigi3_hat_hot_request_entity_id;
+static int hf_cigi3_hat_hot_request_lat_xoff;
+static int hf_cigi3_hat_hot_request_lon_yoff;
+static int hf_cigi3_hat_hot_request_alt_zoff;
 
 static const value_string cigi3_hat_hot_request_type_vals[] = {
     {0, "HAT"},
@@ -1610,15 +1610,15 @@ static const value_string cigi3_hat_hot_request_type_vals[] = {
 
 /* CIGI3_2 HAT/HOT Request */
 #define CIGI3_2_PACKET_SIZE_HAT_HOT_REQUEST 32
-static int hf_cigi3_2_hat_hot_request = -1;
-static int hf_cigi3_2_hat_hot_request_hat_hot_id = -1;
-static int hf_cigi3_2_hat_hot_request_type = -1;
-static int hf_cigi3_2_hat_hot_request_coordinate_system = -1;
-static int hf_cigi3_2_hat_hot_request_update_period = -1;
-static int hf_cigi3_2_hat_hot_request_entity_id = -1;
-static int hf_cigi3_2_hat_hot_request_lat_xoff = -1;
-static int hf_cigi3_2_hat_hot_request_lon_yoff = -1;
-static int hf_cigi3_2_hat_hot_request_alt_zoff = -1;
+static int hf_cigi3_2_hat_hot_request;
+static int hf_cigi3_2_hat_hot_request_hat_hot_id;
+static int hf_cigi3_2_hat_hot_request_type;
+static int hf_cigi3_2_hat_hot_request_coordinate_system;
+static int hf_cigi3_2_hat_hot_request_update_period;
+static int hf_cigi3_2_hat_hot_request_entity_id;
+static int hf_cigi3_2_hat_hot_request_lat_xoff;
+static int hf_cigi3_2_hat_hot_request_lon_yoff;
+static int hf_cigi3_2_hat_hot_request_alt_zoff;
 
 static const value_string cigi3_2_hat_hot_request_type_vals[] = {
     {0, "HAT"},
@@ -1629,88 +1629,88 @@ static const value_string cigi3_2_hat_hot_request_type_vals[] = {
 
 /* CIGI3 Line of Sight Segment Request */
 #define CIGI3_PACKET_SIZE_LINE_OF_SIGHT_SEGMENT_REQUEST 64
-static int hf_cigi3_line_of_sight_segment_request = -1;
-static int hf_cigi3_line_of_sight_segment_request_los_id = -1;
-static int hf_cigi3_line_of_sight_segment_request_type = -1;
-static int hf_cigi3_line_of_sight_segment_request_source_coord = -1;
-static int hf_cigi3_line_of_sight_segment_request_destination_coord = -1;
-static int hf_cigi3_line_of_sight_segment_request_response_coord = -1;
-static int hf_cigi3_line_of_sight_segment_request_alpha_threshold = -1;
-static int hf_cigi3_line_of_sight_segment_request_entity_id = -1;
-static int hf_cigi3_line_of_sight_segment_request_source_lat_xoff = -1;
-static int hf_cigi3_line_of_sight_segment_request_source_lon_yoff = -1;
-static int hf_cigi3_line_of_sight_segment_request_source_alt_zoff = -1;
-static int hf_cigi3_line_of_sight_segment_request_destination_lat_xoff = -1;
-static int hf_cigi3_line_of_sight_segment_request_destination_lon_yoff = -1;
-static int hf_cigi3_line_of_sight_segment_request_destination_alt_zoff = -1;
-static int hf_cigi3_line_of_sight_segment_request_material_mask = -1;
+static int hf_cigi3_line_of_sight_segment_request;
+static int hf_cigi3_line_of_sight_segment_request_los_id;
+static int hf_cigi3_line_of_sight_segment_request_type;
+static int hf_cigi3_line_of_sight_segment_request_source_coord;
+static int hf_cigi3_line_of_sight_segment_request_destination_coord;
+static int hf_cigi3_line_of_sight_segment_request_response_coord;
+static int hf_cigi3_line_of_sight_segment_request_alpha_threshold;
+static int hf_cigi3_line_of_sight_segment_request_entity_id;
+static int hf_cigi3_line_of_sight_segment_request_source_lat_xoff;
+static int hf_cigi3_line_of_sight_segment_request_source_lon_yoff;
+static int hf_cigi3_line_of_sight_segment_request_source_alt_zoff;
+static int hf_cigi3_line_of_sight_segment_request_destination_lat_xoff;
+static int hf_cigi3_line_of_sight_segment_request_destination_lon_yoff;
+static int hf_cigi3_line_of_sight_segment_request_destination_alt_zoff;
+static int hf_cigi3_line_of_sight_segment_request_material_mask;
 
 /* CIGI3_2 Line of Sight Segment Request */
 #define CIGI3_2_PACKET_SIZE_LINE_OF_SIGHT_SEGMENT_REQUEST 64
-static int hf_cigi3_2_line_of_sight_segment_request = -1;
-static int hf_cigi3_2_line_of_sight_segment_request_los_id = -1;
-static int hf_cigi3_2_line_of_sight_segment_request_type = -1;
-static int hf_cigi3_2_line_of_sight_segment_request_source_coord = -1;
-static int hf_cigi3_2_line_of_sight_segment_request_destination_coord = -1;
-static int hf_cigi3_2_line_of_sight_segment_request_response_coord = -1;
-static int hf_cigi3_2_line_of_sight_segment_request_destination_entity_id_valid = -1;
-static int hf_cigi3_2_line_of_sight_segment_request_alpha_threshold = -1;
-static int hf_cigi3_2_line_of_sight_segment_request_entity_id = -1;
-static int hf_cigi3_2_line_of_sight_segment_request_source_lat_xoff = -1;
-static int hf_cigi3_2_line_of_sight_segment_request_source_lon_yoff = -1;
-static int hf_cigi3_2_line_of_sight_segment_request_source_alt_zoff = -1;
-static int hf_cigi3_2_line_of_sight_segment_request_destination_lat_xoff = -1;
-static int hf_cigi3_2_line_of_sight_segment_request_destination_lon_yoff = -1;
-static int hf_cigi3_2_line_of_sight_segment_request_destination_alt_zoff = -1;
-static int hf_cigi3_2_line_of_sight_segment_request_material_mask = -1;
-static int hf_cigi3_2_line_of_sight_segment_request_update_period = -1;
-static int hf_cigi3_2_line_of_sight_segment_request_destination_entity_id = -1;
+static int hf_cigi3_2_line_of_sight_segment_request;
+static int hf_cigi3_2_line_of_sight_segment_request_los_id;
+static int hf_cigi3_2_line_of_sight_segment_request_type;
+static int hf_cigi3_2_line_of_sight_segment_request_source_coord;
+static int hf_cigi3_2_line_of_sight_segment_request_destination_coord;
+static int hf_cigi3_2_line_of_sight_segment_request_response_coord;
+static int hf_cigi3_2_line_of_sight_segment_request_destination_entity_id_valid;
+static int hf_cigi3_2_line_of_sight_segment_request_alpha_threshold;
+static int hf_cigi3_2_line_of_sight_segment_request_entity_id;
+static int hf_cigi3_2_line_of_sight_segment_request_source_lat_xoff;
+static int hf_cigi3_2_line_of_sight_segment_request_source_lon_yoff;
+static int hf_cigi3_2_line_of_sight_segment_request_source_alt_zoff;
+static int hf_cigi3_2_line_of_sight_segment_request_destination_lat_xoff;
+static int hf_cigi3_2_line_of_sight_segment_request_destination_lon_yoff;
+static int hf_cigi3_2_line_of_sight_segment_request_destination_alt_zoff;
+static int hf_cigi3_2_line_of_sight_segment_request_material_mask;
+static int hf_cigi3_2_line_of_sight_segment_request_update_period;
+static int hf_cigi3_2_line_of_sight_segment_request_destination_entity_id;
 
 /* CIGI3 Line of Sight Vector Request */
 #define CIGI3_PACKET_SIZE_LINE_OF_SIGHT_VECTOR_REQUEST 56
-static int hf_cigi3_line_of_sight_vector_request = -1;
-static int hf_cigi3_line_of_sight_vector_request_los_id = -1;
-static int hf_cigi3_line_of_sight_vector_request_type = -1;
-static int hf_cigi3_line_of_sight_vector_request_source_coord = -1;
-static int hf_cigi3_line_of_sight_vector_request_response_coord = -1;
-static int hf_cigi3_line_of_sight_vector_request_alpha = -1;
-static int hf_cigi3_line_of_sight_vector_request_entity_id = -1;
-static int hf_cigi3_line_of_sight_vector_request_azimuth = -1;
-static int hf_cigi3_line_of_sight_vector_request_elevation = -1;
-static int hf_cigi3_line_of_sight_vector_request_min_range = -1;
-static int hf_cigi3_line_of_sight_vector_request_max_range = -1;
-static int hf_cigi3_line_of_sight_vector_request_source_lat_xoff = -1;
-static int hf_cigi3_line_of_sight_vector_request_source_lon_yoff = -1;
-static int hf_cigi3_line_of_sight_vector_request_source_alt_zoff = -1;
-static int hf_cigi3_line_of_sight_vector_request_material_mask = -1;
+static int hf_cigi3_line_of_sight_vector_request;
+static int hf_cigi3_line_of_sight_vector_request_los_id;
+static int hf_cigi3_line_of_sight_vector_request_type;
+static int hf_cigi3_line_of_sight_vector_request_source_coord;
+static int hf_cigi3_line_of_sight_vector_request_response_coord;
+static int hf_cigi3_line_of_sight_vector_request_alpha;
+static int hf_cigi3_line_of_sight_vector_request_entity_id;
+static int hf_cigi3_line_of_sight_vector_request_azimuth;
+static int hf_cigi3_line_of_sight_vector_request_elevation;
+static int hf_cigi3_line_of_sight_vector_request_min_range;
+static int hf_cigi3_line_of_sight_vector_request_max_range;
+static int hf_cigi3_line_of_sight_vector_request_source_lat_xoff;
+static int hf_cigi3_line_of_sight_vector_request_source_lon_yoff;
+static int hf_cigi3_line_of_sight_vector_request_source_alt_zoff;
+static int hf_cigi3_line_of_sight_vector_request_material_mask;
 
 /* CIGI3_2 Line of Sight Vector Request */
 #define CIGI3_2_PACKET_SIZE_LINE_OF_SIGHT_VECTOR_REQUEST 56
-static int hf_cigi3_2_line_of_sight_vector_request = -1;
-static int hf_cigi3_2_line_of_sight_vector_request_los_id = -1;
-static int hf_cigi3_2_line_of_sight_vector_request_type = -1;
-static int hf_cigi3_2_line_of_sight_vector_request_source_coord = -1;
-static int hf_cigi3_2_line_of_sight_vector_request_response_coord = -1;
-static int hf_cigi3_2_line_of_sight_vector_request_alpha = -1;
-static int hf_cigi3_2_line_of_sight_vector_request_entity_id = -1;
-static int hf_cigi3_2_line_of_sight_vector_request_azimuth = -1;
-static int hf_cigi3_2_line_of_sight_vector_request_elevation = -1;
-static int hf_cigi3_2_line_of_sight_vector_request_min_range = -1;
-static int hf_cigi3_2_line_of_sight_vector_request_max_range = -1;
-static int hf_cigi3_2_line_of_sight_vector_request_source_lat_xoff = -1;
-static int hf_cigi3_2_line_of_sight_vector_request_source_lon_yoff = -1;
-static int hf_cigi3_2_line_of_sight_vector_request_source_alt_zoff = -1;
-static int hf_cigi3_2_line_of_sight_vector_request_material_mask = -1;
-static int hf_cigi3_2_line_of_sight_vector_request_update_period = -1;
+static int hf_cigi3_2_line_of_sight_vector_request;
+static int hf_cigi3_2_line_of_sight_vector_request_los_id;
+static int hf_cigi3_2_line_of_sight_vector_request_type;
+static int hf_cigi3_2_line_of_sight_vector_request_source_coord;
+static int hf_cigi3_2_line_of_sight_vector_request_response_coord;
+static int hf_cigi3_2_line_of_sight_vector_request_alpha;
+static int hf_cigi3_2_line_of_sight_vector_request_entity_id;
+static int hf_cigi3_2_line_of_sight_vector_request_azimuth;
+static int hf_cigi3_2_line_of_sight_vector_request_elevation;
+static int hf_cigi3_2_line_of_sight_vector_request_min_range;
+static int hf_cigi3_2_line_of_sight_vector_request_max_range;
+static int hf_cigi3_2_line_of_sight_vector_request_source_lat_xoff;
+static int hf_cigi3_2_line_of_sight_vector_request_source_lon_yoff;
+static int hf_cigi3_2_line_of_sight_vector_request_source_alt_zoff;
+static int hf_cigi3_2_line_of_sight_vector_request_material_mask;
+static int hf_cigi3_2_line_of_sight_vector_request_update_period;
 
 /* CIGI3 Position Request */
 #define CIGI3_PACKET_SIZE_POSITION_REQUEST 8
-static int hf_cigi3_position_request = -1;
-static int hf_cigi3_position_request_object_id = -1;
-static int hf_cigi3_position_request_part_id = -1;
-static int hf_cigi3_position_request_update_mode = -1;
-static int hf_cigi3_position_request_object_class = -1;
-static int hf_cigi3_position_request_coord_system = -1;
+static int hf_cigi3_position_request;
+static int hf_cigi3_position_request_object_id;
+static int hf_cigi3_position_request_part_id;
+static int hf_cigi3_position_request_update_mode;
+static int hf_cigi3_position_request_object_class;
+static int hf_cigi3_position_request_coord_system;
 
 static const true_false_string cigi3_position_request_update_mode_tfs = {
     "Continuous",
@@ -1735,12 +1735,12 @@ static const value_string cigi3_position_request_coord_system_vals[] = {
 
 /* CIGI3 Environmental Conditions Request */
 #define CIGI3_PACKET_SIZE_ENVIRONMENTAL_CONDITIONS_REQUEST 32
-static int hf_cigi3_environmental_conditions_request = -1;
-static int hf_cigi3_environmental_conditions_request_type = -1;
-static int hf_cigi3_environmental_conditions_request_id = -1;
-static int hf_cigi3_environmental_conditions_request_lat = -1;
-static int hf_cigi3_environmental_conditions_request_lon = -1;
-static int hf_cigi3_environmental_conditions_request_alt = -1;
+static int hf_cigi3_environmental_conditions_request;
+static int hf_cigi3_environmental_conditions_request_type;
+static int hf_cigi3_environmental_conditions_request_id;
+static int hf_cigi3_environmental_conditions_request_lat;
+static int hf_cigi3_environmental_conditions_request_lon;
+static int hf_cigi3_environmental_conditions_request_alt;
 
 static const value_string cigi3_environmental_conditions_request_type_vals[] = {
     {1, "Maritime Surface Conditions"},
@@ -1763,25 +1763,25 @@ static const value_string cigi3_environmental_conditions_request_type_vals[] = {
 
 /* CIGI3_3 Symbol Surface Definition */
 #define CIGI3_PACKET_SIZE_SYMBOL_SURFACE_DEFINITION 56
-static int hf_cigi3_3_symbol_surface_definition = -1;
-static int hf_cigi3_3_symbol_surface_definition_surface_id = -1;
-static int hf_cigi3_3_symbol_surface_definition_surface_state = -1;
-static int hf_cigi3_3_symbol_surface_definition_attach_type = -1;
-static int hf_cigi3_3_symbol_surface_definition_billboard = -1;
-static int hf_cigi3_3_symbol_surface_definition_perspective_growth_enable = -1;
-static int hf_cigi3_3_symbol_surface_definition_entity_view_id = -1;
-static int hf_cigi3_3_symbol_surface_definition_xoff_left = -1;
-static int hf_cigi3_3_symbol_surface_definition_yoff_right = -1;
-static int hf_cigi3_3_symbol_surface_definition_zoff_top = -1;
-static int hf_cigi3_3_symbol_surface_definition_yaw_bottom = -1;
-static int hf_cigi3_3_symbol_surface_definition_pitch = -1;
-static int hf_cigi3_3_symbol_surface_definition_roll = -1;
-static int hf_cigi3_3_symbol_surface_definition_width = -1;
-static int hf_cigi3_3_symbol_surface_definition_height = -1;
-static int hf_cigi3_3_symbol_surface_definition_min_u = -1;
-static int hf_cigi3_3_symbol_surface_definition_max_u = -1;
-static int hf_cigi3_3_symbol_surface_definition_min_v = -1;
-static int hf_cigi3_3_symbol_surface_definition_max_v = -1;
+static int hf_cigi3_3_symbol_surface_definition;
+static int hf_cigi3_3_symbol_surface_definition_surface_id;
+static int hf_cigi3_3_symbol_surface_definition_surface_state;
+static int hf_cigi3_3_symbol_surface_definition_attach_type;
+static int hf_cigi3_3_symbol_surface_definition_billboard;
+static int hf_cigi3_3_symbol_surface_definition_perspective_growth_enable;
+static int hf_cigi3_3_symbol_surface_definition_entity_view_id;
+static int hf_cigi3_3_symbol_surface_definition_xoff_left;
+static int hf_cigi3_3_symbol_surface_definition_yoff_right;
+static int hf_cigi3_3_symbol_surface_definition_zoff_top;
+static int hf_cigi3_3_symbol_surface_definition_yaw_bottom;
+static int hf_cigi3_3_symbol_surface_definition_pitch;
+static int hf_cigi3_3_symbol_surface_definition_roll;
+static int hf_cigi3_3_symbol_surface_definition_width;
+static int hf_cigi3_3_symbol_surface_definition_height;
+static int hf_cigi3_3_symbol_surface_definition_min_u;
+static int hf_cigi3_3_symbol_surface_definition_max_u;
+static int hf_cigi3_3_symbol_surface_definition_min_v;
+static int hf_cigi3_3_symbol_surface_definition_max_v;
 
 static const true_false_string cigi3_3_symbol_surface_definition_surface_state_tfs = {
     "Destroyed",
@@ -1800,13 +1800,13 @@ static const true_false_string cigi3_3_symbol_surface_definition_billboard_tfs =
 
 /* CIGI3_3 Symbol Text Definition */
 #define CIGI3_PACKET_SIZE_SYMBOL_TEXT_DEFINITION 56
-/* static int hf_cigi3_3_symbol_text_definition = -1; */
-static int hf_cigi3_3_symbol_text_definition_symbol_id = -1;
-static int hf_cigi3_3_symbol_text_definition_orientation = -1;
-static int hf_cigi3_3_symbol_text_definition_alignment = -1;
-static int hf_cigi3_3_symbol_text_definition_font_ident = -1;
-static int hf_cigi3_3_symbol_text_definition_font_size = -1;
-static int hf_cigi3_3_symbol_text_definition_text = -1;
+/* static int hf_cigi3_3_symbol_text_definition; */
+static int hf_cigi3_3_symbol_text_definition_symbol_id;
+static int hf_cigi3_3_symbol_text_definition_orientation;
+static int hf_cigi3_3_symbol_text_definition_alignment;
+static int hf_cigi3_3_symbol_text_definition_font_ident;
+static int hf_cigi3_3_symbol_text_definition_font_size;
+static int hf_cigi3_3_symbol_text_definition_text;
 
 static const value_string cigi3_3_symbol_text_definition_alignment_vals[] = {
     {0, "Top Left"},
@@ -1852,12 +1852,12 @@ static const value_string cigi3_3_symbol_text_definition_font_ident_vals[] = {
 
 /* CIGI3_3 Symbol Circle Definition */
 #define CIGI3_PACKET_SIZE_SYMBOL_CIRCLE_DEFINITION 56
-/* static int hf_cigi3_3_symbol_circle_definition = -1; */
-static int hf_cigi3_3_symbol_circle_definition_symbol_id = -1;
-static int hf_cigi3_3_symbol_circle_definition_drawing_style = -1;
-static int hf_cigi3_3_symbol_circle_definition_stipple_pattern = -1;
-static int hf_cigi3_3_symbol_circle_definition_line_width = -1;
-static int hf_cigi3_3_symbol_circle_definition_stipple_pattern_length = -1;
+/* static int hf_cigi3_3_symbol_circle_definition; */
+static int hf_cigi3_3_symbol_circle_definition_symbol_id;
+static int hf_cigi3_3_symbol_circle_definition_drawing_style;
+static int hf_cigi3_3_symbol_circle_definition_stipple_pattern;
+static int hf_cigi3_3_symbol_circle_definition_line_width;
+static int hf_cigi3_3_symbol_circle_definition_stipple_pattern_length;
 static int hf_cigi3_3_symbol_circle_definition_center_u[9];
 static int hf_cigi3_3_symbol_circle_definition_center_v[9];
 static int hf_cigi3_3_symbol_circle_definition_radius[9];
@@ -1872,12 +1872,12 @@ static const true_false_string cigi3_3_symbol_circle_definition_drawing_style_tf
 
 /* CIGI3_3 Symbol Line Definition */
 #define CIGI3_PACKET_SIZE_SYMBOL_LINE_DEFINITION 56
-/* static int hf_cigi3_3_symbol_line_definition = -1; */
-static int hf_cigi3_3_symbol_line_definition_symbol_id = -1;
-static int hf_cigi3_3_symbol_line_definition_primitive_type = -1;
-static int hf_cigi3_3_symbol_line_definition_stipple_pattern = -1;
-static int hf_cigi3_3_symbol_line_definition_line_width = -1;
-static int hf_cigi3_3_symbol_line_definition_stipple_pattern_length = -1;
+/* static int hf_cigi3_3_symbol_line_definition; */
+static int hf_cigi3_3_symbol_line_definition_symbol_id;
+static int hf_cigi3_3_symbol_line_definition_primitive_type;
+static int hf_cigi3_3_symbol_line_definition_stipple_pattern;
+static int hf_cigi3_3_symbol_line_definition_line_width;
+static int hf_cigi3_3_symbol_line_definition_stipple_pattern_length;
 static int hf_cigi3_3_symbol_line_definition_vertex_u[29];
 static int hf_cigi3_3_symbol_line_definition_vertex_v[29];
 
@@ -1896,10 +1896,10 @@ static const value_string cigi3_3_symbol_line_definition_primitive_type_vals[] =
 
 /* CIGI3_3 Symbol Clone */
 #define CIGI3_PACKET_SIZE_SYMBOL_CLONE_DEFINITION 8
-/* static int hf_cigi3_3_symbol_clone = -1; */
-static int hf_cigi3_3_symbol_clone_symbol_id = -1;
-static int hf_cigi3_3_symbol_clone_source_type = -1;
-static int hf_cigi3_3_symbol_clone_source_id = -1;
+/* static int hf_cigi3_3_symbol_clone; */
+static int hf_cigi3_3_symbol_clone_symbol_id;
+static int hf_cigi3_3_symbol_clone_source_type;
+static int hf_cigi3_3_symbol_clone_source_id;
 
 static const true_false_string cigi3_3_symbol_clone_source_type_tfs = {
     "Symbol Template",
@@ -1908,26 +1908,26 @@ static const true_false_string cigi3_3_symbol_clone_source_type_tfs = {
 
 /* CIGI3_3 Symbol Control */
 #define CIGI3_PACKET_SIZE_SYMBOL_CONTROL_DEFINITION 40
-/* static int hf_cigi3_3_symbol_control = -1; */
-static int hf_cigi3_3_symbol_control_symbol_id = -1;
-static int hf_cigi3_3_symbol_control_symbol_state = -1;
-static int hf_cigi3_3_symbol_control_attach_state = -1;
-static int hf_cigi3_3_symbol_control_flash_control = -1;
-static int hf_cigi3_3_symbol_control_inherit_color = -1;
-static int hf_cigi3_3_symbol_control_parent_symbol_ident = -1;
-static int hf_cigi3_3_symbol_control_surface_ident = -1;
-static int hf_cigi3_3_symbol_control_layer = -1;
-static int hf_cigi3_3_symbol_control_flash_duty_cycle = -1;
-static int hf_cigi3_3_symbol_control_flash_period = -1;
-static int hf_cigi3_3_symbol_control_position_u = -1;
-static int hf_cigi3_3_symbol_control_position_v = -1;
-static int hf_cigi3_3_symbol_control_rotation = -1;
-static int hf_cigi3_3_symbol_control_red = -1;
-static int hf_cigi3_3_symbol_control_green = -1;
-static int hf_cigi3_3_symbol_control_blue = -1;
-static int hf_cigi3_3_symbol_control_alpha = -1;
-static int hf_cigi3_3_symbol_control_scale_u = -1;
-static int hf_cigi3_3_symbol_control_scale_v = -1;
+/* static int hf_cigi3_3_symbol_control; */
+static int hf_cigi3_3_symbol_control_symbol_id;
+static int hf_cigi3_3_symbol_control_symbol_state;
+static int hf_cigi3_3_symbol_control_attach_state;
+static int hf_cigi3_3_symbol_control_flash_control;
+static int hf_cigi3_3_symbol_control_inherit_color;
+static int hf_cigi3_3_symbol_control_parent_symbol_ident;
+static int hf_cigi3_3_symbol_control_surface_ident;
+static int hf_cigi3_3_symbol_control_layer;
+static int hf_cigi3_3_symbol_control_flash_duty_cycle;
+static int hf_cigi3_3_symbol_control_flash_period;
+static int hf_cigi3_3_symbol_control_position_u;
+static int hf_cigi3_3_symbol_control_position_v;
+static int hf_cigi3_3_symbol_control_rotation;
+static int hf_cigi3_3_symbol_control_red;
+static int hf_cigi3_3_symbol_control_green;
+static int hf_cigi3_3_symbol_control_blue;
+static int hf_cigi3_3_symbol_control_alpha;
+static int hf_cigi3_3_symbol_control_scale_u;
+static int hf_cigi3_3_symbol_control_scale_v;
 
 static const value_string cigi3_3_symbol_control_symbol_state_vals[] = {
     {0, "Hidden"},
@@ -1948,26 +1948,26 @@ static const true_false_string cigi3_3_symbol_control_inherit_color_tfs = {
 
 /* CIGI3_3 Short Symbol Control */
 #define CIGI3_PACKET_SIZE_SHORT_SYMBOL_CONTROL_DEFINITION 32
-/* static int hf_cigi3_3_short_symbol_control = -1; */
-static int hf_cigi3_3_short_symbol_control_symbol_id = -1;
-static int hf_cigi3_3_short_symbol_control_inherit_color = -1;
-static int hf_cigi3_3_short_symbol_control_flash_control = -1;
-static int hf_cigi3_3_short_symbol_control_attach_state = -1;
-static int hf_cigi3_3_short_symbol_control_symbol_state = -1;
-static int hf_cigi3_3_short_symbol_control_attribute_select1 = -1;
-static int hf_cigi3_3_short_symbol_control_attribute_select2 = -1;
-static int hf_cigi3_3_short_symbol_control_attribute_value1 = -1;
-static int hf_cigi3_3_short_symbol_control_attribute_value2 = -1;
-static int hf_cigi3_3_short_symbol_control_attribute_value1f = -1;
-static int hf_cigi3_3_short_symbol_control_attribute_value2f = -1;
-static int hf_cigi3_3_short_symbol_control_red1 = -1;
-static int hf_cigi3_3_short_symbol_control_green1 = -1;
-static int hf_cigi3_3_short_symbol_control_blue1 = -1;
-static int hf_cigi3_3_short_symbol_control_alpha1 = -1;
-static int hf_cigi3_3_short_symbol_control_red2 = -1;
-static int hf_cigi3_3_short_symbol_control_green2 = -1;
-static int hf_cigi3_3_short_symbol_control_blue2 = -1;
-static int hf_cigi3_3_short_symbol_control_alpha2 = -1;
+/* static int hf_cigi3_3_short_symbol_control; */
+static int hf_cigi3_3_short_symbol_control_symbol_id;
+static int hf_cigi3_3_short_symbol_control_inherit_color;
+static int hf_cigi3_3_short_symbol_control_flash_control;
+static int hf_cigi3_3_short_symbol_control_attach_state;
+static int hf_cigi3_3_short_symbol_control_symbol_state;
+static int hf_cigi3_3_short_symbol_control_attribute_select1;
+static int hf_cigi3_3_short_symbol_control_attribute_select2;
+static int hf_cigi3_3_short_symbol_control_attribute_value1;
+static int hf_cigi3_3_short_symbol_control_attribute_value2;
+static int hf_cigi3_3_short_symbol_control_attribute_value1f;
+static int hf_cigi3_3_short_symbol_control_attribute_value2f;
+static int hf_cigi3_3_short_symbol_control_red1;
+static int hf_cigi3_3_short_symbol_control_green1;
+static int hf_cigi3_3_short_symbol_control_blue1;
+static int hf_cigi3_3_short_symbol_control_alpha1;
+static int hf_cigi3_3_short_symbol_control_red2;
+static int hf_cigi3_3_short_symbol_control_green2;
+static int hf_cigi3_3_short_symbol_control_blue2;
+static int hf_cigi3_3_short_symbol_control_alpha2;
 
 static const value_string cigi3_3_short_symbol_control_attribute_select_vals[] = {
     {0, "None"},
@@ -1987,14 +1987,14 @@ static const value_string cigi3_3_short_symbol_control_attribute_select_vals[] =
 
 /* CIGI3 Start of Frame */
 #define CIGI3_PACKET_SIZE_START_OF_FRAME 16
-static int hf_cigi3_start_of_frame = -1;
-static int hf_cigi3_start_of_frame_db_number = -1;
-static int hf_cigi3_start_of_frame_ig_status = -1;
-static int hf_cigi3_start_of_frame_ig_mode = -1;
-static int hf_cigi3_start_of_frame_timestamp_valid = -1;
-static int hf_cigi3_start_of_frame_earth_reference_model = -1;
-static int hf_cigi3_start_of_frame_frame_ctr = -1;
-static int hf_cigi3_start_of_frame_timestamp = -1;
+static int hf_cigi3_start_of_frame;
+static int hf_cigi3_start_of_frame_db_number;
+static int hf_cigi3_start_of_frame_ig_status;
+static int hf_cigi3_start_of_frame_ig_mode;
+static int hf_cigi3_start_of_frame_timestamp_valid;
+static int hf_cigi3_start_of_frame_earth_reference_model;
+static int hf_cigi3_start_of_frame_frame_ctr;
+static int hf_cigi3_start_of_frame_timestamp;
 
 static const value_string cigi3_start_of_frame_ig_mode_vals[] = {
     {0, "Reset/Standby"},
@@ -2011,16 +2011,16 @@ static const true_false_string cigi3_start_of_frame_earth_reference_model_tfs = 
 
 /* CIGI3_2 Start of Frame */
 #define CIGI3_2_PACKET_SIZE_START_OF_FRAME 24
-static int hf_cigi3_2_start_of_frame = -1;
-static int hf_cigi3_2_start_of_frame_db_number = -1;
-static int hf_cigi3_2_start_of_frame_ig_status = -1;
-static int hf_cigi3_2_start_of_frame_ig_mode = -1;
-static int hf_cigi3_2_start_of_frame_timestamp_valid = -1;
-static int hf_cigi3_2_start_of_frame_earth_reference_model = -1;
-static int hf_cigi3_2_start_of_frame_minor_version = -1;
-static int hf_cigi3_2_start_of_frame_ig_frame_number = -1;
-static int hf_cigi3_2_start_of_frame_timestamp = -1;
-static int hf_cigi3_2_start_of_frame_last_host_frame_number = -1;
+static int hf_cigi3_2_start_of_frame;
+static int hf_cigi3_2_start_of_frame_db_number;
+static int hf_cigi3_2_start_of_frame_ig_status;
+static int hf_cigi3_2_start_of_frame_ig_mode;
+static int hf_cigi3_2_start_of_frame_timestamp_valid;
+static int hf_cigi3_2_start_of_frame_earth_reference_model;
+static int hf_cigi3_2_start_of_frame_minor_version;
+static int hf_cigi3_2_start_of_frame_ig_frame_number;
+static int hf_cigi3_2_start_of_frame_timestamp;
+static int hf_cigi3_2_start_of_frame_last_host_frame_number;
 
 static const value_string cigi3_2_start_of_frame_ig_mode_vals[] = {
     {0, "Reset/Standby"},
@@ -2037,11 +2037,11 @@ static const true_false_string cigi3_2_start_of_frame_earth_reference_model_tfs 
 
 /* CIGI3 HAT/HOT Response */
 #define CIGI3_PACKET_SIZE_HAT_HOT_RESPONSE 16
-static int hf_cigi3_hat_hot_response = -1;
-static int hf_cigi3_hat_hot_response_hat_hot_id = -1;
-static int hf_cigi3_hat_hot_response_valid = -1;
-static int hf_cigi3_hat_hot_response_type = -1;
-static int hf_cigi3_hat_hot_response_height = -1;
+static int hf_cigi3_hat_hot_response;
+static int hf_cigi3_hat_hot_response_hat_hot_id;
+static int hf_cigi3_hat_hot_response_valid;
+static int hf_cigi3_hat_hot_response_type;
+static int hf_cigi3_hat_hot_response_height;
 
 static const true_false_string cigi3_hat_hot_response_type_tfs = {
     "HOT",
@@ -2050,12 +2050,12 @@ static const true_false_string cigi3_hat_hot_response_type_tfs = {
 
 /* CIGI3_2 HAT/HOT Response */
 #define CIGI3_2_PACKET_SIZE_HAT_HOT_RESPONSE 16
-static int hf_cigi3_2_hat_hot_response = -1;
-static int hf_cigi3_2_hat_hot_response_hat_hot_id = -1;
-static int hf_cigi3_2_hat_hot_response_valid = -1;
-static int hf_cigi3_2_hat_hot_response_type = -1;
-static int hf_cigi3_2_hat_hot_response_host_frame_number_lsn = -1;
-static int hf_cigi3_2_hat_hot_response_height = -1;
+static int hf_cigi3_2_hat_hot_response;
+static int hf_cigi3_2_hat_hot_response_hat_hot_id;
+static int hf_cigi3_2_hat_hot_response_valid;
+static int hf_cigi3_2_hat_hot_response_type;
+static int hf_cigi3_2_hat_hot_response_host_frame_number_lsn;
+static int hf_cigi3_2_hat_hot_response_height;
 
 static const true_false_string cigi3_2_hat_hot_response_type_tfs = {
     "HOT",
@@ -2064,107 +2064,107 @@ static const true_false_string cigi3_2_hat_hot_response_type_tfs = {
 
 /* CIGI3 HAT/HOT Extended Response */
 #define CIGI3_PACKET_SIZE_HAT_HOT_EXTENDED_RESPONSE 40
-static int hf_cigi3_hat_hot_extended_response = -1;
-static int hf_cigi3_hat_hot_extended_response_hat_hot_id = -1;
-static int hf_cigi3_hat_hot_extended_response_valid = -1;
-static int hf_cigi3_hat_hot_extended_response_hat = -1;
-static int hf_cigi3_hat_hot_extended_response_hot = -1;
-static int hf_cigi3_hat_hot_extended_response_material_code = -1;
-static int hf_cigi3_hat_hot_extended_response_normal_vector_azimuth = -1;
-static int hf_cigi3_hat_hot_extended_response_normal_vector_elevation = -1;
+static int hf_cigi3_hat_hot_extended_response;
+static int hf_cigi3_hat_hot_extended_response_hat_hot_id;
+static int hf_cigi3_hat_hot_extended_response_valid;
+static int hf_cigi3_hat_hot_extended_response_hat;
+static int hf_cigi3_hat_hot_extended_response_hot;
+static int hf_cigi3_hat_hot_extended_response_material_code;
+static int hf_cigi3_hat_hot_extended_response_normal_vector_azimuth;
+static int hf_cigi3_hat_hot_extended_response_normal_vector_elevation;
 
 /* CIGI3_2 HAT/HOT Extended Response */
 #define CIGI3_2_PACKET_SIZE_HAT_HOT_EXTENDED_RESPONSE 40
-static int hf_cigi3_2_hat_hot_extended_response = -1;
-static int hf_cigi3_2_hat_hot_extended_response_hat_hot_id = -1;
-static int hf_cigi3_2_hat_hot_extended_response_valid = -1;
-static int hf_cigi3_2_hat_hot_extended_response_host_frame_number_lsn = -1;
-static int hf_cigi3_2_hat_hot_extended_response_hat = -1;
-static int hf_cigi3_2_hat_hot_extended_response_hot = -1;
-static int hf_cigi3_2_hat_hot_extended_response_material_code = -1;
-static int hf_cigi3_2_hat_hot_extended_response_normal_vector_azimuth = -1;
-static int hf_cigi3_2_hat_hot_extended_response_normal_vector_elevation = -1;
+static int hf_cigi3_2_hat_hot_extended_response;
+static int hf_cigi3_2_hat_hot_extended_response_hat_hot_id;
+static int hf_cigi3_2_hat_hot_extended_response_valid;
+static int hf_cigi3_2_hat_hot_extended_response_host_frame_number_lsn;
+static int hf_cigi3_2_hat_hot_extended_response_hat;
+static int hf_cigi3_2_hat_hot_extended_response_hot;
+static int hf_cigi3_2_hat_hot_extended_response_material_code;
+static int hf_cigi3_2_hat_hot_extended_response_normal_vector_azimuth;
+static int hf_cigi3_2_hat_hot_extended_response_normal_vector_elevation;
 
 /* CIGI3 Line of Sight Response */
 #define CIGI3_PACKET_SIZE_LINE_OF_SIGHT_RESPONSE 16
-static int hf_cigi3_line_of_sight_response = -1;
-static int hf_cigi3_line_of_sight_response_los_id = -1;
-static int hf_cigi3_line_of_sight_response_valid = -1;
-static int hf_cigi3_line_of_sight_response_entity_id_valid = -1;
-static int hf_cigi3_line_of_sight_response_visible = -1;
-static int hf_cigi3_line_of_sight_response_count = -1;
-static int hf_cigi3_line_of_sight_response_entity_id = -1;
-static int hf_cigi3_line_of_sight_response_range = -1;
+static int hf_cigi3_line_of_sight_response;
+static int hf_cigi3_line_of_sight_response_los_id;
+static int hf_cigi3_line_of_sight_response_valid;
+static int hf_cigi3_line_of_sight_response_entity_id_valid;
+static int hf_cigi3_line_of_sight_response_visible;
+static int hf_cigi3_line_of_sight_response_count;
+static int hf_cigi3_line_of_sight_response_entity_id;
+static int hf_cigi3_line_of_sight_response_range;
 
 /* CIGI3_2 Line of Sight Response */
 #define CIGI3_2_PACKET_SIZE_LINE_OF_SIGHT_RESPONSE 16
-static int hf_cigi3_2_line_of_sight_response = -1;
-static int hf_cigi3_2_line_of_sight_response_los_id = -1;
-static int hf_cigi3_2_line_of_sight_response_valid = -1;
-static int hf_cigi3_2_line_of_sight_response_entity_id_valid = -1;
-static int hf_cigi3_2_line_of_sight_response_visible = -1;
-static int hf_cigi3_2_line_of_sight_response_host_frame_number_lsn = -1;
-static int hf_cigi3_2_line_of_sight_response_count = -1;
-static int hf_cigi3_2_line_of_sight_response_entity_id = -1;
-static int hf_cigi3_2_line_of_sight_response_range = -1;
+static int hf_cigi3_2_line_of_sight_response;
+static int hf_cigi3_2_line_of_sight_response_los_id;
+static int hf_cigi3_2_line_of_sight_response_valid;
+static int hf_cigi3_2_line_of_sight_response_entity_id_valid;
+static int hf_cigi3_2_line_of_sight_response_visible;
+static int hf_cigi3_2_line_of_sight_response_host_frame_number_lsn;
+static int hf_cigi3_2_line_of_sight_response_count;
+static int hf_cigi3_2_line_of_sight_response_entity_id;
+static int hf_cigi3_2_line_of_sight_response_range;
 
 /* CIGI3 Line of Sight Extended Response */
 #define CIGI3_PACKET_SIZE_LINE_OF_SIGHT_EXTENDED_RESPONSE 56
-static int hf_cigi3_line_of_sight_extended_response = -1;
-static int hf_cigi3_line_of_sight_extended_response_los_id = -1;
-static int hf_cigi3_line_of_sight_extended_response_valid = -1;
-static int hf_cigi3_line_of_sight_extended_response_entity_id_valid = -1;
-static int hf_cigi3_line_of_sight_extended_response_range_valid = -1;
-static int hf_cigi3_line_of_sight_extended_response_visible = -1;
-static int hf_cigi3_line_of_sight_extended_response_intersection_coord = -1;
-static int hf_cigi3_line_of_sight_extended_response_response_count = -1;
-static int hf_cigi3_line_of_sight_extended_response_entity_id = -1;
-static int hf_cigi3_line_of_sight_extended_response_range = -1;
-static int hf_cigi3_line_of_sight_extended_response_lat_xoff = -1;
-static int hf_cigi3_line_of_sight_extended_response_lon_yoff = -1;
-static int hf_cigi3_line_of_sight_extended_response_alt_zoff = -1;
-static int hf_cigi3_line_of_sight_extended_response_red = -1;
-static int hf_cigi3_line_of_sight_extended_response_green = -1;
-static int hf_cigi3_line_of_sight_extended_response_blue = -1;
-static int hf_cigi3_line_of_sight_extended_response_alpha = -1;
-static int hf_cigi3_line_of_sight_extended_response_material_code = -1;
-static int hf_cigi3_line_of_sight_extended_response_normal_vector_azimuth = -1;
-static int hf_cigi3_line_of_sight_extended_response_normal_vector_elevation = -1;
+static int hf_cigi3_line_of_sight_extended_response;
+static int hf_cigi3_line_of_sight_extended_response_los_id;
+static int hf_cigi3_line_of_sight_extended_response_valid;
+static int hf_cigi3_line_of_sight_extended_response_entity_id_valid;
+static int hf_cigi3_line_of_sight_extended_response_range_valid;
+static int hf_cigi3_line_of_sight_extended_response_visible;
+static int hf_cigi3_line_of_sight_extended_response_intersection_coord;
+static int hf_cigi3_line_of_sight_extended_response_response_count;
+static int hf_cigi3_line_of_sight_extended_response_entity_id;
+static int hf_cigi3_line_of_sight_extended_response_range;
+static int hf_cigi3_line_of_sight_extended_response_lat_xoff;
+static int hf_cigi3_line_of_sight_extended_response_lon_yoff;
+static int hf_cigi3_line_of_sight_extended_response_alt_zoff;
+static int hf_cigi3_line_of_sight_extended_response_red;
+static int hf_cigi3_line_of_sight_extended_response_green;
+static int hf_cigi3_line_of_sight_extended_response_blue;
+static int hf_cigi3_line_of_sight_extended_response_alpha;
+static int hf_cigi3_line_of_sight_extended_response_material_code;
+static int hf_cigi3_line_of_sight_extended_response_normal_vector_azimuth;
+static int hf_cigi3_line_of_sight_extended_response_normal_vector_elevation;
 
 /* CIGI3_2 Line of Sight Extended Response */
 #define CIGI3_2_PACKET_SIZE_LINE_OF_SIGHT_EXTENDED_RESPONSE 56
-static int hf_cigi3_2_line_of_sight_extended_response = -1;
-static int hf_cigi3_2_line_of_sight_extended_response_los_id = -1;
-static int hf_cigi3_2_line_of_sight_extended_response_valid = -1;
-static int hf_cigi3_2_line_of_sight_extended_response_entity_id_valid = -1;
-static int hf_cigi3_2_line_of_sight_extended_response_range_valid = -1;
-static int hf_cigi3_2_line_of_sight_extended_response_visible = -1;
-static int hf_cigi3_2_line_of_sight_extended_response_host_frame_number_lsn = -1;
-static int hf_cigi3_2_line_of_sight_extended_response_response_count = -1;
-static int hf_cigi3_2_line_of_sight_extended_response_entity_id = -1;
-static int hf_cigi3_2_line_of_sight_extended_response_range = -1;
-static int hf_cigi3_2_line_of_sight_extended_response_lat_xoff = -1;
-static int hf_cigi3_2_line_of_sight_extended_response_lon_yoff = -1;
-static int hf_cigi3_2_line_of_sight_extended_response_alt_zoff = -1;
-static int hf_cigi3_2_line_of_sight_extended_response_red = -1;
-static int hf_cigi3_2_line_of_sight_extended_response_green = -1;
-static int hf_cigi3_2_line_of_sight_extended_response_blue = -1;
-static int hf_cigi3_2_line_of_sight_extended_response_alpha = -1;
-static int hf_cigi3_2_line_of_sight_extended_response_material_code = -1;
-static int hf_cigi3_2_line_of_sight_extended_response_normal_vector_azimuth = -1;
-static int hf_cigi3_2_line_of_sight_extended_response_normal_vector_elevation = -1;
+static int hf_cigi3_2_line_of_sight_extended_response;
+static int hf_cigi3_2_line_of_sight_extended_response_los_id;
+static int hf_cigi3_2_line_of_sight_extended_response_valid;
+static int hf_cigi3_2_line_of_sight_extended_response_entity_id_valid;
+static int hf_cigi3_2_line_of_sight_extended_response_range_valid;
+static int hf_cigi3_2_line_of_sight_extended_response_visible;
+static int hf_cigi3_2_line_of_sight_extended_response_host_frame_number_lsn;
+static int hf_cigi3_2_line_of_sight_extended_response_response_count;
+static int hf_cigi3_2_line_of_sight_extended_response_entity_id;
+static int hf_cigi3_2_line_of_sight_extended_response_range;
+static int hf_cigi3_2_line_of_sight_extended_response_lat_xoff;
+static int hf_cigi3_2_line_of_sight_extended_response_lon_yoff;
+static int hf_cigi3_2_line_of_sight_extended_response_alt_zoff;
+static int hf_cigi3_2_line_of_sight_extended_response_red;
+static int hf_cigi3_2_line_of_sight_extended_response_green;
+static int hf_cigi3_2_line_of_sight_extended_response_blue;
+static int hf_cigi3_2_line_of_sight_extended_response_alpha;
+static int hf_cigi3_2_line_of_sight_extended_response_material_code;
+static int hf_cigi3_2_line_of_sight_extended_response_normal_vector_azimuth;
+static int hf_cigi3_2_line_of_sight_extended_response_normal_vector_elevation;
 
 /* CIGI3 Sensor Response */
 #define CIGI3_PACKET_SIZE_SENSOR_RESPONSE 24
-static int hf_cigi3_sensor_response = -1;
-static int hf_cigi3_sensor_response_view_id = -1;
-static int hf_cigi3_sensor_response_sensor_id = -1;
-static int hf_cigi3_sensor_response_sensor_status = -1;
-static int hf_cigi3_sensor_response_gate_x_size = -1;
-static int hf_cigi3_sensor_response_gate_y_size = -1;
-static int hf_cigi3_sensor_response_gate_x_pos = -1;
-static int hf_cigi3_sensor_response_gate_y_pos = -1;
-static int hf_cigi3_sensor_response_frame_ctr = -1;
+static int hf_cigi3_sensor_response;
+static int hf_cigi3_sensor_response_view_id;
+static int hf_cigi3_sensor_response_sensor_id;
+static int hf_cigi3_sensor_response_sensor_status;
+static int hf_cigi3_sensor_response_gate_x_size;
+static int hf_cigi3_sensor_response_gate_y_size;
+static int hf_cigi3_sensor_response_gate_x_pos;
+static int hf_cigi3_sensor_response_gate_y_pos;
+static int hf_cigi3_sensor_response_frame_ctr;
 
 static const value_string cigi3_sensor_response_sensor_status_vals[] = {
     {0, "Searching for target"},
@@ -2176,20 +2176,20 @@ static const value_string cigi3_sensor_response_sensor_status_vals[] = {
 
 /* CIGI3 Sensor Extended Response */
 #define CIGI3_PACKET_SIZE_SENSOR_EXTENDED_RESPONSE 48
-static int hf_cigi3_sensor_extended_response = -1;
-static int hf_cigi3_sensor_extended_response_view_id = -1;
-static int hf_cigi3_sensor_extended_response_sensor_id = -1;
-static int hf_cigi3_sensor_extended_response_sensor_status = -1;
-static int hf_cigi3_sensor_extended_response_entity_id_valid = -1;
-static int hf_cigi3_sensor_extended_response_entity_id = -1;
-static int hf_cigi3_sensor_extended_response_gate_x_size = -1;
-static int hf_cigi3_sensor_extended_response_gate_y_size = -1;
-static int hf_cigi3_sensor_extended_response_gate_x_pos = -1;
-static int hf_cigi3_sensor_extended_response_gate_y_pos = -1;
-static int hf_cigi3_sensor_extended_response_frame_ctr = -1;
-static int hf_cigi3_sensor_extended_response_track_lat = -1;
-static int hf_cigi3_sensor_extended_response_track_lon = -1;
-static int hf_cigi3_sensor_extended_response_track_alt = -1;
+static int hf_cigi3_sensor_extended_response;
+static int hf_cigi3_sensor_extended_response_view_id;
+static int hf_cigi3_sensor_extended_response_sensor_id;
+static int hf_cigi3_sensor_extended_response_sensor_status;
+static int hf_cigi3_sensor_extended_response_entity_id_valid;
+static int hf_cigi3_sensor_extended_response_entity_id;
+static int hf_cigi3_sensor_extended_response_gate_x_size;
+static int hf_cigi3_sensor_extended_response_gate_y_size;
+static int hf_cigi3_sensor_extended_response_gate_x_pos;
+static int hf_cigi3_sensor_extended_response_gate_y_pos;
+static int hf_cigi3_sensor_extended_response_frame_ctr;
+static int hf_cigi3_sensor_extended_response_track_lat;
+static int hf_cigi3_sensor_extended_response_track_lon;
+static int hf_cigi3_sensor_extended_response_track_alt;
 
 static const value_string cigi3_sensor_extended_response_sensor_status_vals[] = {
     {0, "Searching for target"},
@@ -2201,17 +2201,17 @@ static const value_string cigi3_sensor_extended_response_sensor_status_vals[] = 
 
 /* CIGI3 Position Response */
 #define CIGI3_PACKET_SIZE_POSITION_RESPONSE 48
-static int hf_cigi3_position_response = -1;
-static int hf_cigi3_position_response_object_id = -1;
-static int hf_cigi3_position_response_part_id = -1;
-static int hf_cigi3_position_response_object_class = -1;
-static int hf_cigi3_position_response_coord_system = -1;
-static int hf_cigi3_position_response_lat_xoff = -1;
-static int hf_cigi3_position_response_lon_yoff = -1;
-static int hf_cigi3_position_response_alt_zoff = -1;
-static int hf_cigi3_position_response_roll = -1;
-static int hf_cigi3_position_response_pitch = -1;
-static int hf_cigi3_position_response_yaw = -1;
+static int hf_cigi3_position_response;
+static int hf_cigi3_position_response_object_id;
+static int hf_cigi3_position_response_part_id;
+static int hf_cigi3_position_response_object_class;
+static int hf_cigi3_position_response_coord_system;
+static int hf_cigi3_position_response_lat_xoff;
+static int hf_cigi3_position_response_lon_yoff;
+static int hf_cigi3_position_response_alt_zoff;
+static int hf_cigi3_position_response_roll;
+static int hf_cigi3_position_response_pitch;
+static int hf_cigi3_position_response_yaw;
 
 static const value_string cigi3_position_response_object_class_vals[] = {
     {0, "Entity"},
@@ -2231,46 +2231,46 @@ static const value_string cigi3_position_response_coord_system_vals[] = {
 
 /* CIGI3 Weather Conditions Response */
 #define CIGI3_PACKET_SIZE_WEATHER_CONDITIONS_RESPONSE 32
-static int hf_cigi3_weather_conditions_response = -1;
-static int hf_cigi3_weather_conditions_response_request_id = -1;
-static int hf_cigi3_weather_conditions_response_humidity = -1;
-static int hf_cigi3_weather_conditions_response_air_temp = -1;
-static int hf_cigi3_weather_conditions_response_visibility_range = -1;
-static int hf_cigi3_weather_conditions_response_horiz_speed = -1;
-static int hf_cigi3_weather_conditions_response_vert_speed = -1;
-static int hf_cigi3_weather_conditions_response_wind_direction = -1;
-static int hf_cigi3_weather_conditions_response_barometric_pressure = -1;
+static int hf_cigi3_weather_conditions_response;
+static int hf_cigi3_weather_conditions_response_request_id;
+static int hf_cigi3_weather_conditions_response_humidity;
+static int hf_cigi3_weather_conditions_response_air_temp;
+static int hf_cigi3_weather_conditions_response_visibility_range;
+static int hf_cigi3_weather_conditions_response_horiz_speed;
+static int hf_cigi3_weather_conditions_response_vert_speed;
+static int hf_cigi3_weather_conditions_response_wind_direction;
+static int hf_cigi3_weather_conditions_response_barometric_pressure;
 
 /* CIGI3 Aerosol Concentration Response */
 #define CIGI3_PACKET_SIZE_AEROSOL_CONCENTRATION_RESPONSE 8
-static int hf_cigi3_aerosol_concentration_response = -1;
-static int hf_cigi3_aerosol_concentration_response_request_id = -1;
-static int hf_cigi3_aerosol_concentration_response_layer_id = -1;
-static int hf_cigi3_aerosol_concentration_response_aerosol_concentration = -1;
+static int hf_cigi3_aerosol_concentration_response;
+static int hf_cigi3_aerosol_concentration_response_request_id;
+static int hf_cigi3_aerosol_concentration_response_layer_id;
+static int hf_cigi3_aerosol_concentration_response_aerosol_concentration;
 
 /* CIGI3 Maritime Surface Conditions Response */
 #define CIGI3_PACKET_SIZE_MARITIME_SURFACE_CONDITIONS_RESPONSE 16
-static int hf_cigi3_maritime_surface_conditions_response = -1;
-static int hf_cigi3_maritime_surface_conditions_response_request_id = -1;
-static int hf_cigi3_maritime_surface_conditions_response_sea_surface_height = -1;
-static int hf_cigi3_maritime_surface_conditions_response_surface_water_temp = -1;
-static int hf_cigi3_maritime_surface_conditions_response_surface_clarity = -1;
+static int hf_cigi3_maritime_surface_conditions_response;
+static int hf_cigi3_maritime_surface_conditions_response_request_id;
+static int hf_cigi3_maritime_surface_conditions_response_sea_surface_height;
+static int hf_cigi3_maritime_surface_conditions_response_surface_water_temp;
+static int hf_cigi3_maritime_surface_conditions_response_surface_clarity;
 
 /* CIGI3 Terrestrial Surface Conditions Response */
 #define CIGI3_PACKET_SIZE_TERRESTRIAL_SURFACE_CONDITIONS_RESPONSE 8
-static int hf_cigi3_terrestrial_surface_conditions_response = -1;
-static int hf_cigi3_terrestrial_surface_conditions_response_request_id = -1;
-static int hf_cigi3_terrestrial_surface_conditions_response_surface_id = -1;
+static int hf_cigi3_terrestrial_surface_conditions_response;
+static int hf_cigi3_terrestrial_surface_conditions_response_request_id;
+static int hf_cigi3_terrestrial_surface_conditions_response_surface_id;
 
 /* CIGI3 Collision Detection Segment Notification */
 #define CIGI3_PACKET_SIZE_COLLISION_DETECTION_SEGMENT_NOTIFICATION 16
-static int hf_cigi3_collision_detection_segment_notification = -1;
-static int hf_cigi3_collision_detection_segment_notification_entity_id = -1;
-static int hf_cigi3_collision_detection_segment_notification_segment_id = -1;
-static int hf_cigi3_collision_detection_segment_notification_type = -1;
-static int hf_cigi3_collision_detection_segment_notification_contacted_entity_id = -1;
-static int hf_cigi3_collision_detection_segment_notification_material_code = -1;
-static int hf_cigi3_collision_detection_segment_notification_intersection_distance = -1;
+static int hf_cigi3_collision_detection_segment_notification;
+static int hf_cigi3_collision_detection_segment_notification_entity_id;
+static int hf_cigi3_collision_detection_segment_notification_segment_id;
+static int hf_cigi3_collision_detection_segment_notification_type;
+static int hf_cigi3_collision_detection_segment_notification_contacted_entity_id;
+static int hf_cigi3_collision_detection_segment_notification_material_code;
+static int hf_cigi3_collision_detection_segment_notification_intersection_distance;
 
 static const true_false_string cigi3_collision_detection_segment_notification_type_tfs = {
     "Entity",
@@ -2279,12 +2279,12 @@ static const true_false_string cigi3_collision_detection_segment_notification_ty
 
 /* CIGI3 Collision Detection Volume Notification */
 #define CIGI3_PACKET_SIZE_COLLISION_DETECTION_VOLUME_NOTIFICATION 16
-static int hf_cigi3_collision_detection_volume_notification = -1;
-static int hf_cigi3_collision_detection_volume_notification_entity_id = -1;
-static int hf_cigi3_collision_detection_volume_notification_volume_id = -1;
-static int hf_cigi3_collision_detection_volume_notification_type = -1;
-static int hf_cigi3_collision_detection_volume_notification_contacted_entity_id = -1;
-static int hf_cigi3_collision_detection_volume_notification_contacted_volume_id = -1;
+static int hf_cigi3_collision_detection_volume_notification;
+static int hf_cigi3_collision_detection_volume_notification_entity_id;
+static int hf_cigi3_collision_detection_volume_notification_volume_id;
+static int hf_cigi3_collision_detection_volume_notification_type;
+static int hf_cigi3_collision_detection_volume_notification_contacted_entity_id;
+static int hf_cigi3_collision_detection_volume_notification_contacted_volume_id;
 
 static const true_false_string cigi3_collision_detection_volume_notification_type_tfs = {
     "Entity",
@@ -2293,27 +2293,27 @@ static const true_false_string cigi3_collision_detection_volume_notification_typ
 
 /* CIGI3 Animation Stop Notification */
 #define CIGI3_PACKET_SIZE_ANIMATION_STOP_NOTIFICATION 8
-static int hf_cigi3_animation_stop_notification = -1;
-static int hf_cigi3_animation_stop_notification_entity_id = -1;
+static int hf_cigi3_animation_stop_notification;
+static int hf_cigi3_animation_stop_notification_entity_id;
 
 /* CIGI3 Event Notification */
 #define CIGI3_PACKET_SIZE_EVENT_NOTIFICATION 16
-static int hf_cigi3_event_notification = -1;
-static int hf_cigi3_event_notification_event_id = -1;
-static int hf_cigi3_event_notification_data_1 = -1;
-static int hf_cigi3_event_notification_data_2 = -1;
-static int hf_cigi3_event_notification_data_3 = -1;
+static int hf_cigi3_event_notification;
+static int hf_cigi3_event_notification_event_id;
+static int hf_cigi3_event_notification_data_1;
+static int hf_cigi3_event_notification_data_2;
+static int hf_cigi3_event_notification_data_3;
 
 /* CIGI3 Image Generator Message */
-static int hf_cigi3_image_generator_message = -1;
-static int hf_cigi3_image_generator_message_id = -1;
-static int hf_cigi3_image_generator_message_message = -1;
+static int hf_cigi3_image_generator_message;
+static int hf_cigi3_image_generator_message_id;
+static int hf_cigi3_image_generator_message_message;
 
 /* CIGI3 User-Defined Packets */
-static int hf_cigi3_user_defined = -1;
+static int hf_cigi3_user_defined;
 
 
-static expert_field ei_cigi_invalid_len = EI_INIT;
+static expert_field ei_cigi_invalid_len;
 
 
 /* Global preferences */
@@ -2335,7 +2335,7 @@ static const char *global_ig_ip;
 
 
 /* Initialize the subtree pointers */
-static gint ett_cigi = -1;
+static gint ett_cigi;
 
 /* The version of cigi to use */
 static gint cigi_version = 0;

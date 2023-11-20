@@ -105,40 +105,40 @@ typedef struct mtp2_convo_data {
 } mtp2_convo_data_t;
 
 /* Initialize the protocol and registered fields */
-static int proto_mtp2        = -1;
-static int hf_mtp2_bsn       = -1;
-static int hf_mtp2_ext_bsn   = -1;
-static int hf_mtp2_ext_res   = -1;
-static int hf_mtp2_bib       = -1;
-static int hf_mtp2_ext_bib   = -1;
-static int hf_mtp2_fsn       = -1;
-static int hf_mtp2_ext_fsn   = -1;
-static int hf_mtp2_fib       = -1;
-static int hf_mtp2_ext_fib   = -1;
-static int hf_mtp2_li        = -1;
-static int hf_mtp2_ext_li    = -1;
-static int hf_mtp2_spare     = -1;
-static int hf_mtp2_ext_spare = -1;
-static int hf_mtp2_sf        = -1;
-static int hf_mtp2_sf_extra  = -1;
-static int hf_mtp2_fcs_16    = -1;
-static int hf_mtp2_fcs_16_status = -1;
-static int hf_mtp2_unexpect_end = -1;
-static int hf_mtp2_frame_reset = -1;
+static int proto_mtp2;
+static int hf_mtp2_bsn;
+static int hf_mtp2_ext_bsn;
+static int hf_mtp2_ext_res;
+static int hf_mtp2_bib;
+static int hf_mtp2_ext_bib;
+static int hf_mtp2_fsn;
+static int hf_mtp2_ext_fsn;
+static int hf_mtp2_fib;
+static int hf_mtp2_ext_fib;
+static int hf_mtp2_li;
+static int hf_mtp2_ext_li;
+static int hf_mtp2_spare;
+static int hf_mtp2_ext_spare;
+static int hf_mtp2_sf;
+static int hf_mtp2_sf_extra;
+static int hf_mtp2_fcs_16;
+static int hf_mtp2_fcs_16_status;
+static int hf_mtp2_unexpect_end;
+static int hf_mtp2_frame_reset;
 
 /* reassemble variables */
-static int hf_mtp2_fragments = -1;
-static int hf_mtp2_fragment = -1;
-static int hf_mtp2_fragment_overlap = -1;
-static int hf_mtp2_fragment_overlap_conflicts = -1;
-static int hf_mtp2_fragment_multiple_tails = -1;
-static int hf_mtp2_fragment_too_long_fragment = -1;
-static int hf_mtp2_fragment_error = -1;
-static int hf_mtp2_fragment_count = -1;
-static int hf_mtp2_reassembled_in = -1;
-static int hf_mtp2_reassembled_length = -1;
-static gint ett_mtp2_fragment = -1;
-static gint ett_mtp2_fragments = -1;
+static int hf_mtp2_fragments;
+static int hf_mtp2_fragment;
+static int hf_mtp2_fragment_overlap;
+static int hf_mtp2_fragment_overlap_conflicts;
+static int hf_mtp2_fragment_multiple_tails;
+static int hf_mtp2_fragment_too_long_fragment;
+static int hf_mtp2_fragment_error;
+static int hf_mtp2_fragment_count;
+static int hf_mtp2_reassembled_in;
+static int hf_mtp2_reassembled_length;
+static gint ett_mtp2_fragment;
+static gint ett_mtp2_fragments;
 
 /* local static const needed for reassembly */
 static const fragment_items mtp2_frag_items = {
@@ -164,11 +164,11 @@ static reassembly_table mtp2_reassembly_table;
 /* variables needed for property registration to wireshark menu */
 static gboolean reverse_bit_order_mtp2 = FALSE;
 
-static expert_field ei_mtp2_checksum_error = EI_INIT;
-static expert_field ei_mtp2_li_bad = EI_INIT;
+static expert_field ei_mtp2_checksum_error;
+static expert_field ei_mtp2_li_bad;
 
 /* Initialize the subtree pointers */
-static gint ett_mtp2       = -1;
+static gint ett_mtp2;
 
 static gboolean use_extended_sequence_numbers_default = FALSE;
 static gboolean capture_contains_fcs_crc_default = FALSE;

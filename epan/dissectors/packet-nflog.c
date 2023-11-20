@@ -63,28 +63,28 @@ static const value_string nflog_tlv_vals[] = {
     { 0, NULL }
 };
 
-static int proto_nflog = -1;
+static int proto_nflog;
 
-static int hf_nflog_family = -1;
-static int hf_nflog_resid = -1;
-static int hf_nflog_tlv = -1;
-static int hf_nflog_tlv_gid = -1;
-static int hf_nflog_tlv_hook = -1;
-static int hf_nflog_tlv_hwprotocol = -1;
-static int hf_nflog_tlv_ifindex_indev = -1;
-static int hf_nflog_tlv_ifindex_outdev = -1;
-static int hf_nflog_tlv_ifindex_physindev = -1;
-static int hf_nflog_tlv_ifindex_physoutdev = -1;
-static int hf_nflog_tlv_length = -1;
-static int hf_nflog_tlv_prefix = -1;
-static int hf_nflog_tlv_timestamp = -1;
-static int hf_nflog_tlv_type = -1;
-static int hf_nflog_tlv_uid = -1;
-static int hf_nflog_tlv_unknown = -1;
-static int hf_nflog_version = -1;
+static int hf_nflog_family;
+static int hf_nflog_resid;
+static int hf_nflog_tlv;
+static int hf_nflog_tlv_gid;
+static int hf_nflog_tlv_hook;
+static int hf_nflog_tlv_hwprotocol;
+static int hf_nflog_tlv_ifindex_indev;
+static int hf_nflog_tlv_ifindex_outdev;
+static int hf_nflog_tlv_ifindex_physindev;
+static int hf_nflog_tlv_ifindex_physoutdev;
+static int hf_nflog_tlv_length;
+static int hf_nflog_tlv_prefix;
+static int hf_nflog_tlv_timestamp;
+static int hf_nflog_tlv_type;
+static int hf_nflog_tlv_uid;
+static int hf_nflog_tlv_unknown;
+static int hf_nflog_version;
 
-static int ett_nflog = -1;
-static int ett_nflog_tlv = -1;
+static int ett_nflog;
+static int ett_nflog_tlv;
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t ip6_handle;

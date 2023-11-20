@@ -18,174 +18,174 @@ void proto_register_ehs(void);
 void proto_reg_handoff_ehs(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_ehs = -1;
+static int proto_ehs;
 
-static int hf_ehs_ph_version = -1;
-static int hf_ehs_ph_project = -1;
-static int hf_ehs_ph_support_mode = -1;
-static int hf_ehs_ph_data_mode = -1;
-static int hf_ehs_ph_mission = -1;
-static int hf_ehs_ph_protocol = -1;
+static int hf_ehs_ph_version;
+static int hf_ehs_ph_project;
+static int hf_ehs_ph_support_mode;
+static int hf_ehs_ph_data_mode;
+static int hf_ehs_ph_mission;
+static int hf_ehs_ph_protocol;
 
-static int hf_ehs_ph_year = -1;            /* numeric year as years since 1900 */
-static int hf_ehs_ph_jday = -1;            /* julian day of year */
-static int hf_ehs_ph_hour = -1;
-static int hf_ehs_ph_minute = -1;
-static int hf_ehs_ph_second = -1;
-static int hf_ehs_ph_tenths = -1;
+static int hf_ehs_ph_year;            /* numeric year as years since 1900 */
+static int hf_ehs_ph_jday;            /* julian day of year */
+static int hf_ehs_ph_hour;
+static int hf_ehs_ph_minute;
+static int hf_ehs_ph_second;
+static int hf_ehs_ph_tenths;
 
-static int hf_ehs_ph_new_data_flag = -1;   /* indicates the time has changed */
-/* static int hf_ehs_ph_pad1 = -1; */
-static int hf_ehs_ph_hold_flag = -1;       /* indicates a hold condition */
-static int hf_ehs_ph_sign_flag = -1;       /* indicates pre-mission, i.e. countdown, time */
+static int hf_ehs_ph_new_data_flag;   /* indicates the time has changed */
+/* static int hf_ehs_ph_pad1; */
+static int hf_ehs_ph_hold_flag;       /* indicates a hold condition */
+static int hf_ehs_ph_sign_flag;       /* indicates pre-mission, i.e. countdown, time */
 
-/* static int hf_ehs_ph_pad2 = -1; */
-/* static int hf_ehs_ph_pad3 = -1; */
-/* static int hf_ehs_ph_pad4 = -1; */
+/* static int hf_ehs_ph_pad2; */
+/* static int hf_ehs_ph_pad3; */
+/* static int hf_ehs_ph_pad4; */
 
-static int hf_ehs_ph_hosc_packet_size = -1;
+static int hf_ehs_ph_hosc_packet_size;
 
 /* generic ehs secondary header values */
-static int hf_ehs_sh_version = -1;
-static int hf_ehs_sh_data_status_bit_5 = -1;
-static int hf_ehs_sh_data_status_bit_4 = -1;
-static int hf_ehs_sh_data_status_bit_3 = -1;
-static int hf_ehs_sh_data_status_bit_2 = -1;
-static int hf_ehs_sh_data_status_bit_1 = -1;
-static int hf_ehs_sh_data_status_bit_0 = -1;
+static int hf_ehs_sh_version;
+static int hf_ehs_sh_data_status_bit_5;
+static int hf_ehs_sh_data_status_bit_4;
+static int hf_ehs_sh_data_status_bit_3;
+static int hf_ehs_sh_data_status_bit_2;
+static int hf_ehs_sh_data_status_bit_1;
+static int hf_ehs_sh_data_status_bit_0;
 
 /* other common remappings of the data status bits specific to certain secondary ehs header values */
-static int hf_ehs_sh_parent_stream_error = -1;      /* data status bit 3 */
-static int hf_ehs_sh_vcdu_sequence_error = -1;      /* data status bit 2 */
-static int hf_ehs_sh_packet_sequence_error = -1;    /* data status bit 1 */
+static int hf_ehs_sh_parent_stream_error;      /* data status bit 3 */
+static int hf_ehs_sh_vcdu_sequence_error;      /* data status bit 2 */
+static int hf_ehs_sh_packet_sequence_error;    /* data status bit 1 */
 
 /* common ehs secondary header values */
-static int hf_ehs_sh_vcdu_sequence_number = -1;
-static int hf_ehs_sh_data_stream_id = -1;
-/* static int hf_ehs_sh_pdss_reserved_1 = -1; */
-/* static int hf_ehs_sh_pdss_reserved_2 = -1; */
-/* static int hf_ehs_sh_pdss_reserved_3 = -1; */
-static int hf_ehs_sh_gse_pkt_id = -1;
-static int hf_ehs_sh_payload_vs_core_id = -1;
-static int hf_ehs_sh_apid = -1;
-static int hf_ehs_sh_virtual_channel = -1;
-static int hf_ehs_sh_pdss_reserved_sync = -1;
+static int hf_ehs_sh_vcdu_sequence_number;
+static int hf_ehs_sh_data_stream_id;
+/* static int hf_ehs_sh_pdss_reserved_1; */
+/* static int hf_ehs_sh_pdss_reserved_2; */
+/* static int hf_ehs_sh_pdss_reserved_3; */
+static int hf_ehs_sh_gse_pkt_id;
+static int hf_ehs_sh_payload_vs_core_id;
+static int hf_ehs_sh_apid;
+static int hf_ehs_sh_virtual_channel;
+static int hf_ehs_sh_pdss_reserved_sync;
 
 /* tdm ehs secondary header values */
-static int hf_ehs_sh_tdm_secondary_header_length = -1;
+static int hf_ehs_sh_tdm_secondary_header_length;
 
-static int hf_ehs_sh_tdm_extra_data_packet = -1;
-static int hf_ehs_sh_tdm_backup_stream_id_number = -1;
-static int hf_ehs_sh_tdm_end_of_data_flag = -1;
-static int hf_ehs_sh_tdm_parent_frame_error = -1;
-static int hf_ehs_sh_tdm_checksum_error = -1;
-static int hf_ehs_sh_tdm_fixed_value_error = -1;
+static int hf_ehs_sh_tdm_extra_data_packet;
+static int hf_ehs_sh_tdm_backup_stream_id_number;
+static int hf_ehs_sh_tdm_end_of_data_flag;
+static int hf_ehs_sh_tdm_parent_frame_error;
+static int hf_ehs_sh_tdm_checksum_error;
+static int hf_ehs_sh_tdm_fixed_value_error;
 
-static int hf_ehs_sh_tdm_minor_frame_counter_error = -1;
-static int hf_ehs_sh_tdm_format_id_error = -1;
-static int hf_ehs_sh_tdm_bit_slip_error = -1;
-static int hf_ehs_sh_tdm_sync_error = -1;
-static int hf_ehs_sh_tdm_aoslos_flag = -1;
-static int hf_ehs_sh_tdm_override_errors_flag = -1;
-static int hf_ehs_sh_tdm_data_status = -1;
+static int hf_ehs_sh_tdm_minor_frame_counter_error;
+static int hf_ehs_sh_tdm_format_id_error;
+static int hf_ehs_sh_tdm_bit_slip_error;
+static int hf_ehs_sh_tdm_sync_error;
+static int hf_ehs_sh_tdm_aoslos_flag;
+static int hf_ehs_sh_tdm_override_errors_flag;
+static int hf_ehs_sh_tdm_data_status;
 
-static int hf_ehs_sh_tdm_idq = -1;
-static int hf_ehs_sh_tdm_cdq = -1;
-static int hf_ehs_sh_tdm_adq = -1;
-static int hf_ehs_sh_tdm_data_dq = -1;
-/* static int hf_ehs_sh_tdm_unused = -1; */
-static int hf_ehs_sh_tdm_format_id = -1;
+static int hf_ehs_sh_tdm_idq;
+static int hf_ehs_sh_tdm_cdq;
+static int hf_ehs_sh_tdm_adq;
+static int hf_ehs_sh_tdm_data_dq;
+/* static int hf_ehs_sh_tdm_unused; */
+static int hf_ehs_sh_tdm_format_id;
 
-static int hf_ehs_sh_tdm_major_frame_packet_index = -1;
-static int hf_ehs_sh_tdm_numpkts_per_major_frame = -1;
-static int hf_ehs_sh_tdm_num_minor_frames_per_packet = -1;
+static int hf_ehs_sh_tdm_major_frame_packet_index;
+static int hf_ehs_sh_tdm_numpkts_per_major_frame;
+static int hf_ehs_sh_tdm_num_minor_frames_per_packet;
 
-static int hf_ehs_sh_tdm_cntmet_present = -1;
-static int hf_ehs_sh_tdm_obt_present = -1;
-static int hf_ehs_sh_tdm_major_frame_status_present = -1;
-/* static int hf_ehs_sh_tdm_reserved = -1; */
+static int hf_ehs_sh_tdm_cntmet_present;
+static int hf_ehs_sh_tdm_obt_present;
+static int hf_ehs_sh_tdm_major_frame_status_present;
+/* static int hf_ehs_sh_tdm_reserved; */
 
-static int hf_ehs_sh_tdm_cnt_year = -1;            /* numeric year as years since 1900 */
-static int hf_ehs_sh_tdm_cnt_jday = -1;            /* julian day of year */
-static int hf_ehs_sh_tdm_cnt_hour = -1;
-static int hf_ehs_sh_tdm_cnt_minute = -1;
-static int hf_ehs_sh_tdm_cnt_second = -1;
-static int hf_ehs_sh_tdm_cnt_tenths = -1;
+static int hf_ehs_sh_tdm_cnt_year;            /* numeric year as years since 1900 */
+static int hf_ehs_sh_tdm_cnt_jday;            /* julian day of year */
+static int hf_ehs_sh_tdm_cnt_hour;
+static int hf_ehs_sh_tdm_cnt_minute;
+static int hf_ehs_sh_tdm_cnt_second;
+static int hf_ehs_sh_tdm_cnt_tenths;
 
-static int hf_ehs_sh_tdm_obt_year = -1;            /* numeric year as years since 1900 */
-static int hf_ehs_sh_tdm_obt_jday = -1;            /* julian day of year */
-static int hf_ehs_sh_tdm_obt_hour = -1;
-static int hf_ehs_sh_tdm_obt_minute = -1;
-static int hf_ehs_sh_tdm_obt_second = -1;
-static int hf_ehs_sh_tdm_obt_tenths = -1;
+static int hf_ehs_sh_tdm_obt_year;            /* numeric year as years since 1900 */
+static int hf_ehs_sh_tdm_obt_jday;            /* julian day of year */
+static int hf_ehs_sh_tdm_obt_hour;
+static int hf_ehs_sh_tdm_obt_minute;
+static int hf_ehs_sh_tdm_obt_second;
+static int hf_ehs_sh_tdm_obt_tenths;
 
-static int hf_ehs_sh_tdm_obt_delta_time_flag = -1;
-static int hf_ehs_sh_tdm_obt_computed_flag = -1;
-static int hf_ehs_sh_tdm_obt_not_retrieved_flag = -1;
-/* static int hf_ehs_sh_tdm_obt_reserved = -1; */
-static int hf_ehs_sh_tdm_obt_source_apid = -1;
+static int hf_ehs_sh_tdm_obt_delta_time_flag;
+static int hf_ehs_sh_tdm_obt_computed_flag;
+static int hf_ehs_sh_tdm_obt_not_retrieved_flag;
+/* static int hf_ehs_sh_tdm_obt_reserved; */
+static int hf_ehs_sh_tdm_obt_source_apid;
 
-static int hf_ehs_sh_tdm_num_major_frame_status_words = -1;
+static int hf_ehs_sh_tdm_num_major_frame_status_words;
 
-/* static int hf_ehs_sh_tdm_mjfs_reserved = -1; */
-static int hf_ehs_sh_tdm_mjfs_parent_frame_error = -1;
-static int hf_ehs_sh_tdm_mjfs_checksum_error = -1;
-static int hf_ehs_sh_tdm_mjfs_fixed_value_error = -1;
+/* static int hf_ehs_sh_tdm_mjfs_reserved; */
+static int hf_ehs_sh_tdm_mjfs_parent_frame_error;
+static int hf_ehs_sh_tdm_mjfs_checksum_error;
+static int hf_ehs_sh_tdm_mjfs_fixed_value_error;
 
-static int hf_ehs_sh_tdm_mnfs_parent_frame_error = -1;
-static int hf_ehs_sh_tdm_mnfs_data_not_available = -1;
-static int hf_ehs_sh_tdm_mnfs_checksum_error = -1;
-static int hf_ehs_sh_tdm_mnfs_fixed_value_error = -1;
-static int hf_ehs_sh_tdm_mnfs_counter_error = -1;
-static int hf_ehs_sh_tdm_mnfs_format_id_error = -1;
-static int hf_ehs_sh_tdm_mnfs_bit_slip_error = -1;
-static int hf_ehs_sh_tdm_mnfs_sync_error = -1;
+static int hf_ehs_sh_tdm_mnfs_parent_frame_error;
+static int hf_ehs_sh_tdm_mnfs_data_not_available;
+static int hf_ehs_sh_tdm_mnfs_checksum_error;
+static int hf_ehs_sh_tdm_mnfs_fixed_value_error;
+static int hf_ehs_sh_tdm_mnfs_counter_error;
+static int hf_ehs_sh_tdm_mnfs_format_id_error;
+static int hf_ehs_sh_tdm_mnfs_bit_slip_error;
+static int hf_ehs_sh_tdm_mnfs_sync_error;
 
 /* pseudo ehs secondary header values */
-/* static int hf_ehs_sh_pseudo_unused = -1; */
-static int hf_ehs_sh_pseudo_workstation_id = -1;
-static int hf_ehs_sh_pseudo_user_id = -1;
-static int hf_ehs_sh_pseudo_comp_id = -1;
+/* static int hf_ehs_sh_pseudo_unused; */
+static int hf_ehs_sh_pseudo_workstation_id;
+static int hf_ehs_sh_pseudo_user_id;
+static int hf_ehs_sh_pseudo_comp_id;
 
 /* data zone values for well known protocol AOS/LOS */
-static int hf_ehs_dz_aoslos_indicator = -1;
+static int hf_ehs_dz_aoslos_indicator;
 
 /* data zone values for well known protocol UDSM */
-static int hf_ehs_dz_udsm_ccsds_vs_bpdu = -1;
-/* static int hf_ehs_dz_udsm_unused1 = -1; */
+static int hf_ehs_dz_udsm_ccsds_vs_bpdu;
+/* static int hf_ehs_dz_udsm_unused1; */
 
-/* static int hf_ehs_dz_udsm_unused2 = -1; */
+/* static int hf_ehs_dz_udsm_unused2; */
 
-/* static int hf_ehs_dz_udsm_unused3 = -1; */
-static int hf_ehs_dz_udsm_gse_pkt_id = -1;
-static int hf_ehs_dz_udsm_payload_vs_core = -1;
-static int hf_ehs_dz_udsm_apid = -1;
+/* static int hf_ehs_dz_udsm_unused3; */
+static int hf_ehs_dz_udsm_gse_pkt_id;
+static int hf_ehs_dz_udsm_payload_vs_core;
+static int hf_ehs_dz_udsm_apid;
 
-static int hf_ehs_dz_udsm_start_time_year = -1;
-static int hf_ehs_dz_udsm_start_time_jday = -1;
-static int hf_ehs_dz_udsm_start_time_hour = -1;
-static int hf_ehs_dz_udsm_start_time_minute = -1;
-static int hf_ehs_dz_udsm_start_time_second = -1;
+static int hf_ehs_dz_udsm_start_time_year;
+static int hf_ehs_dz_udsm_start_time_jday;
+static int hf_ehs_dz_udsm_start_time_hour;
+static int hf_ehs_dz_udsm_start_time_minute;
+static int hf_ehs_dz_udsm_start_time_second;
 
-static int hf_ehs_dz_udsm_stop_time_year = -1;
-static int hf_ehs_dz_udsm_stop_time_jday = -1;
-static int hf_ehs_dz_udsm_stop_time_hour = -1;
-static int hf_ehs_dz_udsm_stop_time_minute = -1;
-static int hf_ehs_dz_udsm_stop_time_second = -1;
+static int hf_ehs_dz_udsm_stop_time_year;
+static int hf_ehs_dz_udsm_stop_time_jday;
+static int hf_ehs_dz_udsm_stop_time_hour;
+static int hf_ehs_dz_udsm_stop_time_minute;
+static int hf_ehs_dz_udsm_stop_time_second;
 
-/* static int hf_ehs_dz_udsm_unused4 = -1; */
+/* static int hf_ehs_dz_udsm_unused4; */
 
-static int hf_ehs_dz_udsm_num_pkts_xmtd = -1;
+static int hf_ehs_dz_udsm_num_pkts_xmtd;
 
-static int hf_ehs_dz_udsm_num_vcdu_seqerrs = -1;
+static int hf_ehs_dz_udsm_num_vcdu_seqerrs;
 
-static int hf_ehs_dz_udsm_num_pkt_seqerrs = -1;
+static int hf_ehs_dz_udsm_num_pkt_seqerrs;
 
-static int hf_ehs_dz_udsm_num_pktlen_errors = -1;
+static int hf_ehs_dz_udsm_num_pktlen_errors;
 
-static int hf_ehs_dz_udsm_event = -1;
+static int hf_ehs_dz_udsm_event;
 
-static int hf_ehs_dz_udsm_num_pkts_xmtd_rollover = -1;
+static int hf_ehs_dz_udsm_num_pkts_xmtd_rollover;
 
 
 static dissector_handle_t ehs_handle;
@@ -194,17 +194,17 @@ static dissector_handle_t ehs_handle;
 static dissector_handle_t ccsds_handle;
 
 /* Initialize the subtree pointers */
-static gint ett_ehs = -1;
-static gint ett_ehs_primary_header = -1;
-static gint ett_ehs_secondary_header = -1;
-static gint ett_ehs_data_zone = -1;
-static gint ett_ehs_cnt_time = -1;
-static gint ett_ehs_obt_time = -1;
-static gint ett_ehs_udsm_start_time = -1;
-static gint ett_ehs_udsm_stop_time = -1;
-static gint ett_ehs_ground_receipt_time = -1;
-static gint ett_ehs_major_frame = -1;
-static gint ett_ehs_minor_frame = -1;
+static gint ett_ehs;
+static gint ett_ehs_primary_header;
+static gint ett_ehs_secondary_header;
+static gint ett_ehs_data_zone;
+static gint ett_ehs_cnt_time;
+static gint ett_ehs_obt_time;
+static gint ett_ehs_udsm_start_time;
+static gint ett_ehs_udsm_stop_time;
+static gint ett_ehs_ground_receipt_time;
+static gint ett_ehs_major_frame;
+static gint ett_ehs_minor_frame;
 
 /* EHS protocol types */
 typedef enum EHS_Protocol_Type

@@ -93,37 +93,37 @@ static gboolean gmhdr_summary_in_tree = TRUE;
 static gboolean gmtrailer_summary_in_tree = TRUE;
 static gboolean gmhdr_decode_timestamp_trailer = TRUE;
 
-static int proto_gmhdr = -1;
-static int proto_gmtrailer = -1;
-static int hf_gmhdr_srcport_g = -1;
-static int hf_gmhdr_srcport_g_plfm = -1;
-static int hf_gmhdr_srcport_g_gid = -1;
-static int hf_gmhdr_srcport_g_bid = -1;
-static int hf_gmhdr_srcport_g_pid = -1;
-static int hf_gmhdr_pktsize = -1;
-static int hf_gmhdr_timestamp = -1;
-static int hf_gmhdr_generic = -1;
-static int hf_gmhdr_etype = -1;
-static int hf_gmhdr_len = -1;
-static int hf_gmhdr_trailer = -1;
-static int hf_gmhdr_origcrc = -1;
-static int hf_gmhdr_srcport_h = -1;
-static int hf_gmhdr_srcport_h_plfm = -1;
-static int hf_gmhdr_srcport_h_gid = -1;
-static int hf_gmhdr_srcport_h_bid = -1;
-static int hf_gmhdr_srcport_h_sid = -1;
-static int hf_gmhdr_srcport_h_pid = -1;
+static int proto_gmhdr;
+static int proto_gmtrailer;
+static int hf_gmhdr_srcport_g;
+static int hf_gmhdr_srcport_g_plfm;
+static int hf_gmhdr_srcport_g_gid;
+static int hf_gmhdr_srcport_g_bid;
+static int hf_gmhdr_srcport_g_pid;
+static int hf_gmhdr_pktsize;
+static int hf_gmhdr_timestamp;
+static int hf_gmhdr_generic;
+static int hf_gmhdr_etype;
+static int hf_gmhdr_len;
+static int hf_gmhdr_trailer;
+static int hf_gmhdr_origcrc;
+static int hf_gmhdr_srcport_h;
+static int hf_gmhdr_srcport_h_plfm;
+static int hf_gmhdr_srcport_h_gid;
+static int hf_gmhdr_srcport_h_bid;
+static int hf_gmhdr_srcport_h_sid;
+static int hf_gmhdr_srcport_h_pid;
 
-static int hf_gmtrailer_origcrc = -1;
-static int hf_gmtrailer_portid = -1;
-static int hf_gmtrailer_timestamp = -1;
+static int hf_gmtrailer_origcrc;
+static int hf_gmtrailer_portid;
+static int hf_gmtrailer_timestamp;
 
-static gint ett_gmhdr = -1;
-static gint ett_srcport = -1;
-static gint ett_gmtrailer = -1;
+static gint ett_gmhdr;
+static gint ett_srcport;
+static gint ett_gmtrailer;
 
-static expert_field ei_gmhdr_field_length_invalid = EI_INIT;
-static expert_field ei_gmhdr_len = EI_INIT;
+static expert_field ei_gmhdr_field_length_invalid;
+static expert_field ei_gmhdr_len;
 
 static void
 dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gmhdr_tree, guint offset, guint16 length)

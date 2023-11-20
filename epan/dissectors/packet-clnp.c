@@ -27,44 +27,44 @@ void proto_reg_handoff_clnp(void);
 
 /* protocols and fields */
 
-static int  proto_clnp         = -1;
-static gint ett_clnp           = -1;
-static gint ett_clnp_type      = -1;
-static gint ett_clnp_segments  = -1;
-static gint ett_clnp_segment   = -1;
-static gint ett_clnp_disc_pdu  = -1;
+static int  proto_clnp;
+static gint ett_clnp;
+static gint ett_clnp_type;
+static gint ett_clnp_segments;
+static gint ett_clnp_segment;
+static gint ett_clnp_disc_pdu;
 
-static int hf_clnp_id          = -1;
-static int hf_clnp_length      = -1;
-static int hf_clnp_version     = -1;
-static int hf_clnp_ttl         = -1;
-static int hf_clnp_type        = -1;
-static int hf_clnp_cnf_segmentation         = -1;
-static int hf_clnp_cnf_more_segments        = -1;
-static int hf_clnp_cnf_report_error         = -1;
-static int hf_clnp_cnf_type    = -1;
-static int hf_clnp_pdu_length  = -1;
-static int hf_clnp_data_unit_identifier     = -1;
-static int hf_clnp_segment_offset           = -1;
-static int hf_clnp_total_length             = -1;
-static int hf_clnp_checksum    = -1;
-static int hf_clnp_checksum_status          = -1;
-static int hf_clnp_dest_length = -1;
-static int hf_clnp_dest        = -1;
-static int hf_clnp_src_length  = -1;
-static int hf_clnp_src         = -1;
-       int hf_clnp_atntt       = -1; /* as referenced in packet-osi-options.c */
-       int hf_clnp_atnsc       = -1; /* as referenced in packet-osi-options.c */
-static int hf_clnp_segments    = -1;
-static int hf_clnp_segment     = -1;
-static int hf_clnp_segment_overlap          = -1;
-static int hf_clnp_segment_overlap_conflict = -1;
-static int hf_clnp_segment_multiple_tails   = -1;
-static int hf_clnp_segment_too_long_segment = -1;
-static int hf_clnp_segment_error            = -1;
-static int hf_clnp_segment_count            = -1;
-static int hf_clnp_reassembled_in           = -1;
-static int hf_clnp_reassembled_length       = -1;
+static int hf_clnp_id;
+static int hf_clnp_length;
+static int hf_clnp_version;
+static int hf_clnp_ttl;
+static int hf_clnp_type;
+static int hf_clnp_cnf_segmentation;
+static int hf_clnp_cnf_more_segments;
+static int hf_clnp_cnf_report_error;
+static int hf_clnp_cnf_type;
+static int hf_clnp_pdu_length;
+static int hf_clnp_data_unit_identifier;
+static int hf_clnp_segment_offset;
+static int hf_clnp_total_length;
+static int hf_clnp_checksum;
+static int hf_clnp_checksum_status;
+static int hf_clnp_dest_length;
+static int hf_clnp_dest;
+static int hf_clnp_src_length;
+static int hf_clnp_src;
+       int hf_clnp_atntt; /* as referenced in packet-osi-options.c */
+       int hf_clnp_atnsc; /* as referenced in packet-osi-options.c */
+static int hf_clnp_segments;
+static int hf_clnp_segment;
+static int hf_clnp_segment_overlap;
+static int hf_clnp_segment_overlap_conflict;
+static int hf_clnp_segment_multiple_tails;
+static int hf_clnp_segment_too_long_segment;
+static int hf_clnp_segment_error;
+static int hf_clnp_segment_count;
+static int hf_clnp_reassembled_in;
+static int hf_clnp_reassembled_length;
 
 static const fragment_items clnp_frag_items = {
     &ett_clnp_segment,
@@ -84,8 +84,8 @@ static const fragment_items clnp_frag_items = {
     "segments"
 };
 
-static expert_field ei_clnp_length = EI_INIT;
-static expert_field ei_clnp_checksum = EI_INIT;
+static expert_field ei_clnp_length;
+static expert_field ei_clnp_checksum;
 
 static dissector_handle_t clnp_handle;
 static dissector_handle_t ositp_handle;

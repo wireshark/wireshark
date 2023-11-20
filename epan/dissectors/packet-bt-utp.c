@@ -117,7 +117,7 @@ static const value_string bt_utp_close_reason_vals[] = {
   {  0, NULL }
 };
 
-static int proto_bt_utp = -1;
+static int proto_bt_utp;
 
 /* ---  "Original" uTP Header ("version 0" ?) --------------
 
@@ -192,34 +192,34 @@ Fields Types
 static dissector_handle_t bt_utp_handle;
 static dissector_handle_t bittorrent_handle;
 
-static int hf_bt_utp_ver = -1;
-static int hf_bt_utp_type = -1;
-static int hf_bt_utp_flags = -1;
-static int hf_bt_utp_extension = -1;
-static int hf_bt_utp_next_extension_type = -1;
-static int hf_bt_utp_extension_len = -1;
-static int hf_bt_utp_extension_bitmask = -1;
-static int hf_bt_utp_extension_close_reason = -1;
-static int hf_bt_utp_extension_unknown = -1;
-static int hf_bt_utp_connection_id_v0 = -1;
-static int hf_bt_utp_connection_id_v1 = -1;
-static int hf_bt_utp_stream = -1;
-static int hf_bt_utp_timestamp_sec = -1;
-static int hf_bt_utp_timestamp_us = -1;
-static int hf_bt_utp_timestamp_diff_us = -1;
-static int hf_bt_utp_wnd_size_v0 = -1;
-static int hf_bt_utp_wnd_size_v1 = -1;
-static int hf_bt_utp_seq_nr = -1;
-static int hf_bt_utp_ack_nr = -1;
-static int hf_bt_utp_len = -1;
-static int hf_bt_utp_data = -1;
-static int hf_bt_utp_pdu_size = -1;
-static int hf_bt_utp_continuation_to = -1;
+static int hf_bt_utp_ver;
+static int hf_bt_utp_type;
+static int hf_bt_utp_flags;
+static int hf_bt_utp_extension;
+static int hf_bt_utp_next_extension_type;
+static int hf_bt_utp_extension_len;
+static int hf_bt_utp_extension_bitmask;
+static int hf_bt_utp_extension_close_reason;
+static int hf_bt_utp_extension_unknown;
+static int hf_bt_utp_connection_id_v0;
+static int hf_bt_utp_connection_id_v1;
+static int hf_bt_utp_stream;
+static int hf_bt_utp_timestamp_sec;
+static int hf_bt_utp_timestamp_us;
+static int hf_bt_utp_timestamp_diff_us;
+static int hf_bt_utp_wnd_size_v0;
+static int hf_bt_utp_wnd_size_v1;
+static int hf_bt_utp_seq_nr;
+static int hf_bt_utp_ack_nr;
+static int hf_bt_utp_len;
+static int hf_bt_utp_data;
+static int hf_bt_utp_pdu_size;
+static int hf_bt_utp_continuation_to;
 
-static expert_field ei_extension_len_invalid = EI_INIT;
+static expert_field ei_extension_len_invalid;
 
-static gint ett_bt_utp = -1;
-static gint ett_bt_utp_extension = -1;
+static gint ett_bt_utp;
+static gint ett_bt_utp_extension;
 
 static gboolean enable_version0 = FALSE;
 static guint max_window_size = V1_MAX_WINDOW_SIZE;

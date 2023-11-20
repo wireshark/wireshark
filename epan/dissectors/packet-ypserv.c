@@ -21,26 +21,26 @@
 void proto_register_ypserv(void);
 void proto_reg_handoff_ypserv(void);
 
-static int proto_ypserv = -1;
-static int hf_ypserv_procedure_v1 = -1;
-static int hf_ypserv_procedure_v2 = -1;
-static int hf_ypserv_domain = -1;
-static int hf_ypserv_servesdomain = -1;
-static int hf_ypserv_map = -1;
-static int hf_ypserv_key = -1;
-static int hf_ypserv_peer = -1;
-static int hf_ypserv_more = -1;
-static int hf_ypserv_ordernum = -1;
-static int hf_ypserv_transid = -1;
-static int hf_ypserv_prog = -1;
-static int hf_ypserv_port = -1;
-static int hf_ypserv_value = -1;
-static int hf_ypserv_status = -1;
-static int hf_ypserv_map_parms = -1;
-static int hf_ypserv_xfrstat = -1;
+static int proto_ypserv;
+static int hf_ypserv_procedure_v1;
+static int hf_ypserv_procedure_v2;
+static int hf_ypserv_domain;
+static int hf_ypserv_servesdomain;
+static int hf_ypserv_map;
+static int hf_ypserv_key;
+static int hf_ypserv_peer;
+static int hf_ypserv_more;
+static int hf_ypserv_ordernum;
+static int hf_ypserv_transid;
+static int hf_ypserv_prog;
+static int hf_ypserv_port;
+static int hf_ypserv_value;
+static int hf_ypserv_status;
+static int hf_ypserv_map_parms;
+static int hf_ypserv_xfrstat;
 
-static gint ett_ypserv = -1;
-static gint ett_ypserv_map_parms = -1;
+static gint ett_ypserv;
+static gint ett_ypserv_map_parms;
 
 static const value_string ypstat[] =
 {

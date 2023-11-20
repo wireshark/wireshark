@@ -32,28 +32,28 @@ void proto_reg_handoff_actrace(void);
 static dissector_handle_t actrace_handle;
 
 /* Define the actrace proto */
-static int proto_actrace = -1;
+static int proto_actrace;
 
 /* Define many headers for actrace */
 /* ISDN headers */
-static int hf_actrace_isdn_direction = -1;
-static int hf_actrace_isdn_trunk = -1;
-static int hf_actrace_isdn_length = -1;
+static int hf_actrace_isdn_direction;
+static int hf_actrace_isdn_trunk;
+static int hf_actrace_isdn_length;
 
 
 /* CAS headers */
-static int hf_actrace_cas_time = -1;
-static int hf_actrace_cas_source = -1;
-static int hf_actrace_cas_current_state = -1;
-static int hf_actrace_cas_event = -1;
-static int hf_actrace_cas_next_state = -1;
-static int hf_actrace_cas_function = -1;
-static int hf_actrace_cas_par0 = -1;
-static int hf_actrace_cas_par1 = -1;
-static int hf_actrace_cas_par2 = -1;
-static int hf_actrace_cas_trunk = -1;
-static int hf_actrace_cas_bchannel = -1;
-static int hf_actrace_cas_connection_id = -1;
+static int hf_actrace_cas_time;
+static int hf_actrace_cas_source;
+static int hf_actrace_cas_current_state;
+static int hf_actrace_cas_event;
+static int hf_actrace_cas_next_state;
+static int hf_actrace_cas_function;
+static int hf_actrace_cas_par0;
+static int hf_actrace_cas_par1;
+static int hf_actrace_cas_par2;
+static int hf_actrace_cas_trunk;
+static int hf_actrace_cas_bchannel;
+static int hf_actrace_cas_connection_id;
 
 
 
@@ -409,7 +409,7 @@ static const value_string actrace_isdn_direction_vals[] = {
 /*
  * Define the tree for actrace
  */
-static int ett_actrace = -1;
+static int ett_actrace;
 
 /*
  * Define the tap for actrace

@@ -32,197 +32,197 @@
 void proto_reg_handoff_ncsi(void);
 void proto_register_ncsi(void);
 
-static int proto_ncsi = -1;
+static int proto_ncsi;
 static dissector_handle_t ncsi_handle;
 
 /* Common header fields */
-static int hf_ncsi_mc_id = -1;
-static int hf_ncsi_revision = -1;
-static int hf_ncsi_iid = -1;
-static int hf_ncsi_type = -1;
-static int hf_ncsi_type_code = -1;
-static int hf_ncsi_type_code_masked = -1;
-static int hf_ncsi_type_resp = -1;
-static int hf_ncsi_chan = -1;
-static int hf_ncsi_plen = -1;
+static int hf_ncsi_mc_id;
+static int hf_ncsi_revision;
+static int hf_ncsi_iid;
+static int hf_ncsi_type;
+static int hf_ncsi_type_code;
+static int hf_ncsi_type_code_masked;
+static int hf_ncsi_type_resp;
+static int hf_ncsi_chan;
+static int hf_ncsi_plen;
 
 /* Decode the Package# and internal channel# */
-static int hf_ncsi_pkg = -1;
-static int hf_ncsi_ichan = -1;
+static int hf_ncsi_pkg;
+static int hf_ncsi_ichan;
 
 /* Response generics */
-static int hf_ncsi_resp = -1;
-static int hf_ncsi_reason = -1;
+static int hf_ncsi_resp;
+static int hf_ncsi_reason;
 
 /* Select package */
-static int hf_ncsi_sp_hwarb = -1;
+static int hf_ncsi_sp_hwarb;
 
 /* Disable channel */
-static int hf_ncsi_dc_ald = -1;
+static int hf_ncsi_dc_ald;
 
 /* AEN enable */
-static int hf_ncsi_aene_mc = -1;
+static int hf_ncsi_aene_mc;
 
 /* Set MAC Address */
-static int hf_ncsi_sm_mac = -1;
-static int hf_ncsi_sm_macno = -1;
-static int hf_ncsi_sm_at = -1;
-static int hf_ncsi_sm_e = -1;
+static int hf_ncsi_sm_mac;
+static int hf_ncsi_sm_macno;
+static int hf_ncsi_sm_at;
+static int hf_ncsi_sm_e;
 
 /* Broadcast filter */
-static int hf_ncsi_bf = -1;
-static int hf_ncsi_bf_arp = -1;
-static int hf_ncsi_bf_dhcpc = -1;
-static int hf_ncsi_bf_dhcps = -1;
-static int hf_ncsi_bf_netbios = -1;
+static int hf_ncsi_bf;
+static int hf_ncsi_bf_arp;
+static int hf_ncsi_bf_dhcpc;
+static int hf_ncsi_bf_dhcps;
+static int hf_ncsi_bf_netbios;
 
 /* AEN payload fields */
-static int hf_ncsi_aen_type = -1;
-static int hf_ncsi_aen_lsc_oemstat = -1;
-static int hf_ncsi_aen_hcds = -1;
-static int hf_ncsi_aen_drr_orig_type = -1;
-static int hf_ncsi_aen_drr_orig_iid = -1;
+static int hf_ncsi_aen_type;
+static int hf_ncsi_aen_lsc_oemstat;
+static int hf_ncsi_aen_hcds;
+static int hf_ncsi_aen_drr_orig_type;
+static int hf_ncsi_aen_drr_orig_iid;
 
 /* generic link status */
-static int hf_ncsi_lstat = -1;
-static int hf_ncsi_lstat_flag = -1;
-static int hf_ncsi_lstat_speed_duplex = -1;
-static int hf_ncsi_lstat_autoneg = -1;
-static int hf_ncsi_lstat_autoneg_complete = -1;
-static int hf_ncsi_lstat_parallel_detection = -1;
-static int hf_ncsi_lstat_1000TFD = -1;
-static int hf_ncsi_lstat_1000THD = -1;
-static int hf_ncsi_lstat_100T4 = -1;
-static int hf_ncsi_lstat_100TXFD = -1;
-static int hf_ncsi_lstat_100TXHD = -1;
-static int hf_ncsi_lstat_10TFD = -1;
-static int hf_ncsi_lstat_10THD = -1;
-static int hf_ncsi_lstat_tx_flow = -1;
-static int hf_ncsi_lstat_rx_flow = -1;
-static int hf_ncsi_lstat_partner_flow = -1;
-static int hf_ncsi_lstat_serdes = -1;
-static int hf_ncsi_lstat_oem_speed_valid = -1;
+static int hf_ncsi_lstat;
+static int hf_ncsi_lstat_flag;
+static int hf_ncsi_lstat_speed_duplex;
+static int hf_ncsi_lstat_autoneg;
+static int hf_ncsi_lstat_autoneg_complete;
+static int hf_ncsi_lstat_parallel_detection;
+static int hf_ncsi_lstat_1000TFD;
+static int hf_ncsi_lstat_1000THD;
+static int hf_ncsi_lstat_100T4;
+static int hf_ncsi_lstat_100TXFD;
+static int hf_ncsi_lstat_100TXHD;
+static int hf_ncsi_lstat_10TFD;
+static int hf_ncsi_lstat_10THD;
+static int hf_ncsi_lstat_tx_flow;
+static int hf_ncsi_lstat_rx_flow;
+static int hf_ncsi_lstat_partner_flow;
+static int hf_ncsi_lstat_serdes;
+static int hf_ncsi_lstat_oem_speed_valid;
 
 /* Set Link command (0x09) */
-static int hf_ncsi_ls = -1;
-static int hf_ncsi_ls_an = -1;
-static int hf_ncsi_ls_10m = -1;
-static int hf_ncsi_ls_100m = -1;
-static int hf_ncsi_ls_1g = -1;
-static int hf_ncsi_ls_10g = -1;
-static int hf_ncsi_ls_20g = -1;
-static int hf_ncsi_ls_25g = -1;
-static int hf_ncsi_ls_40g = -1;
-static int hf_ncsi_ls_hd = -1;
-static int hf_ncsi_ls_fd = -1;
-static int hf_ncsi_ls_pc = -1;
-static int hf_ncsi_ls_apc = -1;
-static int hf_ncsi_ls_50g = -1;
-static int hf_ncsi_ls_100g = -1;
-static int hf_ncsi_ls_2_5g = -1;
-static int hf_ncsi_ls_5g = -1;
-static int hf_ncsi_ls_rsv = -1;
-static int hf_ncsi_ls_oemls = -1;
+static int hf_ncsi_ls;
+static int hf_ncsi_ls_an;
+static int hf_ncsi_ls_10m;
+static int hf_ncsi_ls_100m;
+static int hf_ncsi_ls_1g;
+static int hf_ncsi_ls_10g;
+static int hf_ncsi_ls_20g;
+static int hf_ncsi_ls_25g;
+static int hf_ncsi_ls_40g;
+static int hf_ncsi_ls_hd;
+static int hf_ncsi_ls_fd;
+static int hf_ncsi_ls_pc;
+static int hf_ncsi_ls_apc;
+static int hf_ncsi_ls_50g;
+static int hf_ncsi_ls_100g;
+static int hf_ncsi_ls_2_5g;
+static int hf_ncsi_ls_5g;
+static int hf_ncsi_ls_rsv;
+static int hf_ncsi_ls_oemls;
 
 /*Get Capabilities*/
-static int hf_ncsi_cap_flag = -1;        /* Offset 20..23 Capabilities Flags */
-static int hf_ncsi_cap_flag_ha = -1;     /* bit 0 Hardware Arbitration  */
-static int hf_ncsi_cap_flag_op = -1;     /* bit 1 OS Presence  */
-static int hf_ncsi_cap_flag_n2mfc = -1;  /* bit 2 Network Controller to Management Controller Flow Control Support */
-static int hf_ncsi_cap_flag_m2nfc = -1;  /* bit 3 Management Controller to Network Controller Flow Control Support */
-static int hf_ncsi_cap_flag_ama = -1;    /* bit 4 All multicast addresses support */
+static int hf_ncsi_cap_flag;        /* Offset 20..23 Capabilities Flags */
+static int hf_ncsi_cap_flag_ha;     /* bit 0 Hardware Arbitration  */
+static int hf_ncsi_cap_flag_op;     /* bit 1 OS Presence  */
+static int hf_ncsi_cap_flag_n2mfc;  /* bit 2 Network Controller to Management Controller Flow Control Support */
+static int hf_ncsi_cap_flag_m2nfc;  /* bit 3 Management Controller to Network Controller Flow Control Support */
+static int hf_ncsi_cap_flag_ama;    /* bit 4 All multicast addresses support */
 
-static int hf_ncsi_cap_bf = -1;          /* Offset 24..27 Broadcast Packet Filter Capabilities, the variable names are align with Broadcast filter above */
-static int hf_ncsi_cap_bf_arp = -1;
-static int hf_ncsi_cap_bf_dhcpc = -1;
-static int hf_ncsi_cap_bf_dhcps = -1;
-static int hf_ncsi_cap_bf_netbios = -1;
+static int hf_ncsi_cap_bf;          /* Offset 24..27 Broadcast Packet Filter Capabilities, the variable names are align with Broadcast filter above */
+static int hf_ncsi_cap_bf_arp;
+static int hf_ncsi_cap_bf_dhcpc;
+static int hf_ncsi_cap_bf_dhcps;
+static int hf_ncsi_cap_bf_netbios;
 
-static int hf_ncsi_cap_mf = -1;          /* Offset 28..31 Multicast Packet Filter Capabilities */
-static int hf_ncsi_cap_mf_v6na = -1;
-static int hf_ncsi_cap_mf_v6ra = -1;
-static int hf_ncsi_cap_mf_dhcpv6 = -1;
+static int hf_ncsi_cap_mf;          /* Offset 28..31 Multicast Packet Filter Capabilities */
+static int hf_ncsi_cap_mf_v6na;
+static int hf_ncsi_cap_mf_v6ra;
+static int hf_ncsi_cap_mf_dhcpv6;
 
-static int hf_ncsi_cap_buf = -1;         /* Offset 32..35 Buffering Capability */
+static int hf_ncsi_cap_buf;         /* Offset 32..35 Buffering Capability */
 
-static int hf_ncsi_cap_aen = -1;         /* Offset 36..39 AEN Control Support  */
-static int hf_ncsi_cap_aen_lstat = -1;   /* bit 0 Link Status Change AEN control */
-static int hf_ncsi_cap_aen_cfg = -1;     /* bit 1 Configuration Required AEN control */
-static int hf_ncsi_cap_aen_drv = -1;     /* bit 2 Host NC Driver Status Change AEN control */
-static int hf_ncsi_cap_aen_resv = -1;    /* bit 3..15 Reserved Reserved */
-static int hf_ncsi_cap_aen_oem = -1;     /* bit 16..31 OEM-specific AEN control OEM */
+static int hf_ncsi_cap_aen;         /* Offset 36..39 AEN Control Support  */
+static int hf_ncsi_cap_aen_lstat;   /* bit 0 Link Status Change AEN control */
+static int hf_ncsi_cap_aen_cfg;     /* bit 1 Configuration Required AEN control */
+static int hf_ncsi_cap_aen_drv;     /* bit 2 Host NC Driver Status Change AEN control */
+static int hf_ncsi_cap_aen_resv;    /* bit 3..15 Reserved Reserved */
+static int hf_ncsi_cap_aen_oem;     /* bit 16..31 OEM-specific AEN control OEM */
 
-static int hf_ncsi_cap_vcnt = -1;        /* VLAN Filter Count */
-static int hf_ncsi_cap_mixcnt = -1;      /* Mixed Filter Count */
-static int hf_ncsi_cap_mccnt = -1;       /* Multicast Filter Count */
-static int hf_ncsi_cap_uccnt = -1;       /* Unicast Filter Count */
+static int hf_ncsi_cap_vcnt;        /* VLAN Filter Count */
+static int hf_ncsi_cap_mixcnt;      /* Mixed Filter Count */
+static int hf_ncsi_cap_mccnt;       /* Multicast Filter Count */
+static int hf_ncsi_cap_uccnt;       /* Unicast Filter Count */
 
-static int hf_ncsi_cap_vmode = -1;       /* VLAN Mode Support */
-static int hf_ncsi_cap_vmode_vo = -1;    /* bit 0 VLAN only  */
-static int hf_ncsi_cap_vmode_both = -1;  /* bit 1 VLAN + non-VLAN  */
-static int hf_ncsi_cap_vmode_any = -1;  /* bit 2 Any VLAN + non-VLAN  */
-static int hf_ncsi_cap_chcnt = -1;    /* Channel Count */
+static int hf_ncsi_cap_vmode;       /* VLAN Mode Support */
+static int hf_ncsi_cap_vmode_vo;    /* bit 0 VLAN only  */
+static int hf_ncsi_cap_vmode_both;  /* bit 1 VLAN + non-VLAN  */
+static int hf_ncsi_cap_vmode_any;  /* bit 2 Any VLAN + non-VLAN  */
+static int hf_ncsi_cap_chcnt;    /* Channel Count */
 
 /*Get Version ID*/
-static int hf_ncsi_ver = -1;
-static int hf_ncsi_fw_name = -1;
-static int hf_ncsi_fw_ver = -1;
-static int hf_ncsi_pci_did = -1;
-static int hf_ncsi_pci_vid = -1;
-static int hf_ncsi_pci_ssid = -1;
-static int hf_ncsi_iana = -1;
+static int hf_ncsi_ver;
+static int hf_ncsi_fw_name;
+static int hf_ncsi_fw_ver;
+static int hf_ncsi_pci_did;
+static int hf_ncsi_pci_vid;
+static int hf_ncsi_pci_ssid;
+static int hf_ncsi_iana;
 
 /* OEM ID */
-static int hf_ncsi_oem_id = -1;
+static int hf_ncsi_oem_id;
 /* OEM Mellanox Command, Parameter, Host number */
-static int hf_ncsi_mlnx_cmd = -1;
-static int hf_ncsi_mlnx_parm = -1;
-static int hf_ncsi_mlnx_host = -1;
+static int hf_ncsi_mlnx_cmd;
+static int hf_ncsi_mlnx_parm;
+static int hf_ncsi_mlnx_host;
 /* OEM Mellanox Set MC Affinity (Command = 0x1, parameter 0x7) */
-static int hf_ncsi_mlnx_rbt = -1; /* MC RBT address */
-static int hf_ncsi_mlnx_sms = -1;  /* Supported Medias Status */
-static int hf_ncsi_mlnx_sms_rbt = -1;
-static int hf_ncsi_mlnx_sms_smbus = -1;
-static int hf_ncsi_mlnx_sms_pcie = -1;
-static int hf_ncsi_mlnx_sms_rbts = -1;
-static int hf_ncsi_mlnx_sms_smbuss = -1;
-static int hf_ncsi_mlnx_sms_pcies = -1;
+static int hf_ncsi_mlnx_rbt; /* MC RBT address */
+static int hf_ncsi_mlnx_sms;  /* Supported Medias Status */
+static int hf_ncsi_mlnx_sms_rbt;
+static int hf_ncsi_mlnx_sms_smbus;
+static int hf_ncsi_mlnx_sms_pcie;
+static int hf_ncsi_mlnx_sms_rbts;
+static int hf_ncsi_mlnx_sms_smbuss;
+static int hf_ncsi_mlnx_sms_pcies;
 
-static int hf_ncsi_mlnx_beid = -1; /* MC SMBus EID */
-static int hf_ncsi_mlnx_bidx = -1; /* SMBus INDX */
-static int hf_ncsi_mlnx_baddr = -1; /* MC SMBus Address */
-static int hf_ncsi_mlnx_peid = -1; /* MC PCIe EID */
-static int hf_ncsi_mlnx_pidx = -1; /* PCIe INDX */
-static int hf_ncsi_mlnx_paddr = -1; /* MC PCIe Address */
-static int hf_ncsi_mlnx_ifm = -1; /* IP Filter Mode */
-static int hf_ncsi_mlnx_ifm_byip = -1; /* Bits 1-0 - Filter by IP Address */
-static int hf_ncsi_mlnx_ifm_v4en = -1; /* Bit 2 - IPv4 Enable */
-static int hf_ncsi_mlnx_ifm_v6len = -1; /* Bit 3 - IPv6 Link Local Address Enable */
-static int hf_ncsi_mlnx_ifm_v6gen = -1; /* Bit 4 - IPv6 Global Address Enable */
-static int hf_ncsi_mlnx_v4addr = -1; /* MC IPv4 Address */
-static int hf_ncsi_mlnx_v6local = -1; /* MC IPv6 Link Local Address */
-static int hf_ncsi_mlnx_v6gbl = -1; /* MC IPv6 Global Address */
+static int hf_ncsi_mlnx_beid; /* MC SMBus EID */
+static int hf_ncsi_mlnx_bidx; /* SMBus INDX */
+static int hf_ncsi_mlnx_baddr; /* MC SMBus Address */
+static int hf_ncsi_mlnx_peid; /* MC PCIe EID */
+static int hf_ncsi_mlnx_pidx; /* PCIe INDX */
+static int hf_ncsi_mlnx_paddr; /* MC PCIe Address */
+static int hf_ncsi_mlnx_ifm; /* IP Filter Mode */
+static int hf_ncsi_mlnx_ifm_byip; /* Bits 1-0 - Filter by IP Address */
+static int hf_ncsi_mlnx_ifm_v4en; /* Bit 2 - IPv4 Enable */
+static int hf_ncsi_mlnx_ifm_v6len; /* Bit 3 - IPv6 Link Local Address Enable */
+static int hf_ncsi_mlnx_ifm_v6gen; /* Bit 4 - IPv6 Global Address Enable */
+static int hf_ncsi_mlnx_v4addr; /* MC IPv4 Address */
+static int hf_ncsi_mlnx_v6local; /* MC IPv6 Link Local Address */
+static int hf_ncsi_mlnx_v6gbl; /* MC IPv6 Global Address */
 
 /* Get Allocated Management Address (Command = 0x0, Parameter 0x1B) */
-static int hf_ncsi_mlnx_gama_st = -1;  /*Get Allocated Management Address Status */
-static int hf_ncsi_mlnx_gama_mac = -1; /*Allocated MC MAC address */
+static int hf_ncsi_mlnx_gama_st;  /*Get Allocated Management Address Status */
+static int hf_ncsi_mlnx_gama_mac; /*Allocated MC MAC address */
 
 
 
-static gint ett_ncsi = -1;
-static gint ett_ncsi_type = -1;
-static gint ett_ncsi_chan = -1;
-static gint ett_ncsi_payload = -1;
-static gint ett_ncsi_lstat = -1;
-static gint ett_ncsi_cap_flag = -1;
-static gint ett_ncsi_cap_bf = -1;
-static gint ett_ncsi_cap_mf = -1;
-static gint ett_ncsi_cap_aen = -1;
-static gint ett_ncsi_cap_vmode = -1;
-static gint ett_ncsi_ls = -1;
-static gint ett_ncsi_mlnx = -1;
-static gint ett_ncsi_mlnx_sms = -1;
-static gint ett_ncsi_mlnx_ifm = -1;
+static gint ett_ncsi;
+static gint ett_ncsi_type;
+static gint ett_ncsi_chan;
+static gint ett_ncsi_payload;
+static gint ett_ncsi_lstat;
+static gint ett_ncsi_cap_flag;
+static gint ett_ncsi_cap_bf;
+static gint ett_ncsi_cap_mf;
+static gint ett_ncsi_cap_aen;
+static gint ett_ncsi_cap_vmode;
+static gint ett_ncsi_ls;
+static gint ett_ncsi_mlnx;
+static gint ett_ncsi_mlnx_sms;
+static gint ett_ncsi_mlnx_ifm;
 
 #define NCSI_MIN_LENGTH 8
 

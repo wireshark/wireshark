@@ -43,18 +43,18 @@ void proto_register_xti(void);
 
 static dissector_handle_t xti_handle;
 
-static int proto_xti = -1;
-static expert_field ei_xti_counter_overflow = EI_INIT;
-static expert_field ei_xti_invalid_template = EI_INIT;
-static expert_field ei_xti_invalid_length = EI_INIT;
-static expert_field ei_xti_unaligned = EI_INIT;
-static expert_field ei_xti_missing = EI_INIT;
-static expert_field ei_xti_overused = EI_INIT;
+static int proto_xti;
+static expert_field ei_xti_counter_overflow;
+static expert_field ei_xti_invalid_template;
+static expert_field ei_xti_invalid_length;
+static expert_field ei_xti_unaligned;
+static expert_field ei_xti_missing;
+static expert_field ei_xti_overused;
 
 static int hf_xti[324];
-static int hf_xti_dscp_exec_summary = -1;
-static int hf_xti_dscp_improved = -1;
-static int hf_xti_dscp_widened = -1;
+static int hf_xti_dscp_exec_summary;
+static int hf_xti_dscp_improved;
+static int hf_xti_dscp_widened;
 enum Field_Handle_Index {
       ACCOUNT_FH_IDX
     , ACCRUEDINTERESAMT_FH_IDX
@@ -2021,7 +2021,7 @@ struct ETI_Field {
 };
 
 static gint ett_xti[32];
-static gint ett_xti_dscp = -1;
+static gint ett_xti_dscp;
 /* This method dissects fully reassembled messages */
 static int
 dissect_xti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)

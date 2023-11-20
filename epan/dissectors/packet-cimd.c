@@ -124,25 +124,25 @@ static void dissect_cimd_error_code(tvbuff_t *tvb, proto_tree *tree, gint pindex
 
 static dissector_handle_t cimd_handle;
 
-static int proto_cimd = -1;
+static int proto_cimd;
 /* Initialize the subtree pointers */
-static gint ett_cimd = -1;
+static gint ett_cimd;
 
 /* Initialize the protocol and registered fields */
-static int hf_cimd_opcode_indicator = -1;
-static int hf_cimd_packet_number_indicator = -1;
-static int hf_cimd_checksum_indicator = -1;
-static int hf_cimd_pcode_indicator = -1;
+static int hf_cimd_opcode_indicator;
+static int hf_cimd_packet_number_indicator;
+static int hf_cimd_checksum_indicator;
+static int hf_cimd_pcode_indicator;
 
-static int hf_cimd_dcs_coding_group_indicatorC0 = -1;
-static int hf_cimd_dcs_coding_group_indicatorF0 = -1;
-static int hf_cimd_dcs_compressed_indicator = -1;
-static int hf_cimd_dcs_message_class_meaning_indicator = -1;
-static int hf_cimd_dcs_message_class_indicator = -1;
-static int hf_cimd_dcs_character_set_indicator0C = -1;
-static int hf_cimd_dcs_character_set_indicator04 = -1;
-static int hf_cimd_dcs_indication_sense = -1;
-static int hf_cimd_dcs_indication_type = -1;
+static int hf_cimd_dcs_coding_group_indicatorC0;
+static int hf_cimd_dcs_coding_group_indicatorF0;
+static int hf_cimd_dcs_compressed_indicator;
+static int hf_cimd_dcs_message_class_meaning_indicator;
+static int hf_cimd_dcs_message_class_indicator;
+static int hf_cimd_dcs_character_set_indicator0C;
+static int hf_cimd_dcs_character_set_indicator04;
+static int hf_cimd_dcs_indication_sense;
+static int hf_cimd_dcs_indication_type;
 
 static const value_string vals_hdr_OC[] = {
   /* operation codes array */

@@ -32,7 +32,7 @@ static dissector_handle_t ams_handle;
 static dissector_handle_t ecat_mailbox_handle;
 
 /* Define the EtherCAT mailbox proto */
-int proto_ecat_mailbox  = -1;
+int proto_ecat_mailbox;
 
 static int ett_ecat_mailbox;
 static int ett_ecat_mailbox_eoe;

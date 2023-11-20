@@ -20,22 +20,22 @@
 void proto_register_ymsg(void);
 void proto_reg_handoff_ymsg(void);
 
-static int proto_ymsg = -1;
-static int hf_ymsg_version = -1;
-static int hf_ymsg_vendor = -1;
-static int hf_ymsg_len = -1;
-static int hf_ymsg_service = -1;
-static int hf_ymsg_status = -1;
-static int hf_ymsg_session_id = -1;
+static int proto_ymsg;
+static int hf_ymsg_version;
+static int hf_ymsg_vendor;
+static int hf_ymsg_len;
+static int hf_ymsg_service;
+static int hf_ymsg_status;
+static int hf_ymsg_session_id;
 
-static int hf_ymsg_content = -1;
-static int hf_ymsg_content_line = -1;
-static int hf_ymsg_content_line_key = -1;
-static int hf_ymsg_content_line_value = -1;
+static int hf_ymsg_content;
+static int hf_ymsg_content_line;
+static int hf_ymsg_content_line_key;
+static int hf_ymsg_content_line_value;
 
-static gint ett_ymsg = -1;
-static gint ett_ymsg_content = -1;
-static gint ett_ymsg_content_line = -1;
+static gint ett_ymsg;
+static gint ett_ymsg_content;
+static gint ett_ymsg_content_line;
 
 #define TCP_PORT_YMSG	  23	/* XXX - this is Telnet! */
 #define TCP_PORT_YMSG_2	  25	/* And this is SMTP! */

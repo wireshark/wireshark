@@ -76,7 +76,7 @@ static wmem_tree_t *reassembly_start_table_stored;
 
 /**************************************************/
 /* Initialize the protocol and registered fields. */
-int proto_rlc_nr = -1;
+int proto_rlc_nr;
 
 extern int proto_pdcp_nr;
 
@@ -90,76 +90,76 @@ static dissector_handle_t nr_rrc_dl_ccch;
 
 
 /* Decoding context */
-static int hf_rlc_nr_context = -1;
-static int hf_rlc_nr_context_mode = -1;
-static int hf_rlc_nr_context_direction = -1;
-static int hf_rlc_nr_context_ueid = -1;
-static int hf_rlc_nr_context_bearer_type = -1;
-static int hf_rlc_nr_context_bearer_id = -1;
-static int hf_rlc_nr_context_pdu_length = -1;
-static int hf_rlc_nr_context_sn_length = -1;
+static int hf_rlc_nr_context;
+static int hf_rlc_nr_context_mode;
+static int hf_rlc_nr_context_direction;
+static int hf_rlc_nr_context_ueid;
+static int hf_rlc_nr_context_bearer_type;
+static int hf_rlc_nr_context_bearer_id;
+static int hf_rlc_nr_context_pdu_length;
+static int hf_rlc_nr_context_sn_length;
 
 /* Transparent mode fields */
-static int hf_rlc_nr_tm = -1;
-static int hf_rlc_nr_tm_data = -1;
+static int hf_rlc_nr_tm;
+static int hf_rlc_nr_tm_data;
 
 /* Unacknowledged mode fields */
-static int hf_rlc_nr_um = -1;
-static int hf_rlc_nr_um_header = -1;
-static int hf_rlc_nr_um_si = -1;
-static int hf_rlc_nr_um_reserved = -1;
-static int hf_rlc_nr_um_sn6 = -1;
-static int hf_rlc_nr_um_sn12 = -1;
-static int hf_rlc_nr_um_so = -1;
-static int hf_rlc_nr_um_data = -1;
+static int hf_rlc_nr_um;
+static int hf_rlc_nr_um_header;
+static int hf_rlc_nr_um_si;
+static int hf_rlc_nr_um_reserved;
+static int hf_rlc_nr_um_sn6;
+static int hf_rlc_nr_um_sn12;
+static int hf_rlc_nr_um_so;
+static int hf_rlc_nr_um_data;
 
 /* Acknowledged mode fields */
-static int hf_rlc_nr_am = -1;
-static int hf_rlc_nr_am_header = -1;
-static int hf_rlc_nr_am_data_control = -1;
-static int hf_rlc_nr_am_p = -1;
-static int hf_rlc_nr_am_si = -1;
-static int hf_rlc_nr_am_sn12 = -1;
-static int hf_rlc_nr_am_sn18 = -1;
-static int hf_rlc_nr_am_reserved = -1;
-static int hf_rlc_nr_am_so = -1;
-static int hf_rlc_nr_am_data = -1;
+static int hf_rlc_nr_am;
+static int hf_rlc_nr_am_header;
+static int hf_rlc_nr_am_data_control;
+static int hf_rlc_nr_am_p;
+static int hf_rlc_nr_am_si;
+static int hf_rlc_nr_am_sn12;
+static int hf_rlc_nr_am_sn18;
+static int hf_rlc_nr_am_reserved;
+static int hf_rlc_nr_am_so;
+static int hf_rlc_nr_am_data;
 
 /* Control fields */
-static int hf_rlc_nr_am_cpt = -1;
-static int hf_rlc_nr_am_ack_sn = -1;
-static int hf_rlc_nr_am_e1 = -1;
-static int hf_rlc_nr_am_e2 = -1;
-static int hf_rlc_nr_am_e3 = -1;
-static int hf_rlc_nr_am_nack_sn = -1;
-static int hf_rlc_nr_am_so_start = -1;
-static int hf_rlc_nr_am_so_end = -1;
-static int hf_rlc_nr_am_nack_range = -1;
-static int hf_rlc_nr_am_nacks = -1;
+static int hf_rlc_nr_am_cpt;
+static int hf_rlc_nr_am_ack_sn;
+static int hf_rlc_nr_am_e1;
+static int hf_rlc_nr_am_e2;
+static int hf_rlc_nr_am_e3;
+static int hf_rlc_nr_am_nack_sn;
+static int hf_rlc_nr_am_so_start;
+static int hf_rlc_nr_am_so_end;
+static int hf_rlc_nr_am_nack_range;
+static int hf_rlc_nr_am_nacks;
 
-static int hf_rlc_nr_header_only = -1;
+static int hf_rlc_nr_header_only;
 
-static int hf_rlc_nr_fragments = -1;
-static int hf_rlc_nr_fragment = -1;
-static int hf_rlc_nr_fragment_overlap = -1;
-static int hf_rlc_nr_fragment_overlap_conflict = -1;
-static int hf_rlc_nr_fragment_multiple_tails = -1;
-static int hf_rlc_nr_fragment_too_long_fragment = -1;
-static int hf_rlc_nr_fragment_error = -1;
-static int hf_rlc_nr_fragment_count = -1;
-static int hf_rlc_nr_reassembled_in = -1;
-static int hf_rlc_nr_reassembled_length = -1;
-static int hf_rlc_nr_reassembled_data = -1;
+static int hf_rlc_nr_fragments;
+static int hf_rlc_nr_fragment;
+static int hf_rlc_nr_fragment_overlap;
+static int hf_rlc_nr_fragment_overlap_conflict;
+static int hf_rlc_nr_fragment_multiple_tails;
+static int hf_rlc_nr_fragment_too_long_fragment;
+static int hf_rlc_nr_fragment_error;
+static int hf_rlc_nr_fragment_count;
+static int hf_rlc_nr_reassembled_in;
+static int hf_rlc_nr_reassembled_length;
+static int hf_rlc_nr_reassembled_data;
 
 
 
 /* Subtrees. */
-static int ett_rlc_nr = -1;
-static int ett_rlc_nr_context = -1;
-static int ett_rlc_nr_um_header = -1;
-static int ett_rlc_nr_am_header = -1;
-static int ett_rlc_nr_fragments = -1;
-static int ett_rlc_nr_fragment = -1;
+static int ett_rlc_nr;
+static int ett_rlc_nr_context;
+static int ett_rlc_nr_um_header;
+static int ett_rlc_nr_am_header;
+static int ett_rlc_nr_fragments;
+static int ett_rlc_nr_fragment;
 
 
 static const fragment_items rlc_nr_frag_items = {
@@ -180,22 +180,22 @@ static const fragment_items rlc_nr_frag_items = {
 };
 
 
-static expert_field ei_rlc_nr_context_mode = EI_INIT;
-static expert_field ei_rlc_nr_am_nack_sn = EI_INIT;
-static expert_field ei_rlc_nr_am_nack_sn_ahead_ack = EI_INIT;
-static expert_field ei_rlc_nr_am_nack_sn_ack_same = EI_INIT;
-static expert_field ei_rlc_nr_am_nack_range = EI_INIT;
-static expert_field ei_rlc_nr_am_cpt = EI_INIT;
-static expert_field ei_rlc_nr_um_data_no_data = EI_INIT;
-static expert_field ei_rlc_nr_am_data_no_data = EI_INIT;
-static expert_field ei_rlc_nr_am_nack_sn_partial = EI_INIT;
-static expert_field ei_rlc_nr_bytes_after_status_pdu_complete = EI_INIT;
-static expert_field ei_rlc_nr_um_sn = EI_INIT;
-static expert_field ei_rlc_nr_am_sn = EI_INIT;
-static expert_field ei_rlc_nr_header_only = EI_INIT;
-static expert_field ei_rlc_nr_reserved_bits_not_zero = EI_INIT;
-static expert_field ei_rlc_nr_no_per_frame_info = EI_INIT;
-static expert_field ei_rlc_nr_unknown_udp_framing_tag = EI_INIT;
+static expert_field ei_rlc_nr_context_mode;
+static expert_field ei_rlc_nr_am_nack_sn;
+static expert_field ei_rlc_nr_am_nack_sn_ahead_ack;
+static expert_field ei_rlc_nr_am_nack_sn_ack_same;
+static expert_field ei_rlc_nr_am_nack_range;
+static expert_field ei_rlc_nr_am_cpt;
+static expert_field ei_rlc_nr_um_data_no_data;
+static expert_field ei_rlc_nr_am_data_no_data;
+static expert_field ei_rlc_nr_am_nack_sn_partial;
+static expert_field ei_rlc_nr_bytes_after_status_pdu_complete;
+static expert_field ei_rlc_nr_um_sn;
+static expert_field ei_rlc_nr_am_sn;
+static expert_field ei_rlc_nr_header_only;
+static expert_field ei_rlc_nr_reserved_bits_not_zero;
+static expert_field ei_rlc_nr_no_per_frame_info;
+static expert_field ei_rlc_nr_unknown_udp_framing_tag;
 
 /* Value-strings */
 static const value_string direction_vals[] =

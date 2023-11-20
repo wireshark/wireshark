@@ -39,20 +39,20 @@ void proto_reg_handoff_vmlab(void);
 static dissector_handle_t vmlab_handle;
 static dissector_handle_t ethertype_handle;
 
-static int proto_vmlab = -1;
+static int proto_vmlab;
 
-static int hf_vmlab_flags_part1 = -1;           /* Unknown so far */
-static int hf_vmlab_flags_fragment = -1;
-static int hf_vmlab_flags_part2 = -1;           /* Unknown so far */
+static int hf_vmlab_flags_part1;           /* Unknown so far */
+static int hf_vmlab_flags_fragment;
+static int hf_vmlab_flags_part2;           /* Unknown so far */
 
-static int hf_vmlab_portgroup = -1;
-static int hf_vmlab_eth_src = -1;
-static int hf_vmlab_eth_dst = -1;
-static int hf_vmlab_eth_addr = -1;
-static int hf_vmlab_etype = -1;
-static int hf_vmlab_trailer = -1;
+static int hf_vmlab_portgroup;
+static int hf_vmlab_eth_src;
+static int hf_vmlab_eth_dst;
+static int hf_vmlab_eth_addr;
+static int hf_vmlab_etype;
+static int hf_vmlab_trailer;
 
-static gint ett_vmlab = -1;
+static gint ett_vmlab;
 
 static int
 dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

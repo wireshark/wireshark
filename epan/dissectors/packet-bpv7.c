@@ -46,11 +46,11 @@ static gboolean bp_reassemble_payload = TRUE;
 static gboolean bp_payload_try_heur = FALSE;
 
 /// Protocol handles
-static int proto_bp = -1;
+static int proto_bp;
 static int bp_tap = -1;
-static int proto_blocktype = -1;
-static int proto_bp_admin = -1;
-static int proto_admintype = -1;
+static int proto_blocktype;
+static int proto_bp_admin;
+static int proto_admintype;
 /// Protocol-level data
 static bp_history_t *bp_history = NULL;
 
@@ -140,110 +140,110 @@ enum {
     PROTO_DATA_BUNDLE = 1,
 };
 
-static int hf_bundle_head = -1;
-static int hf_bundle_break = -1;
-static int hf_block = -1;
+static int hf_bundle_head;
+static int hf_bundle_break;
+static int hf_block;
 
-static int hf_crc_type = -1;
-static int hf_crc_field_uint16 = -1;
-static int hf_crc_field_uint32 = -1;
-static int hf_crc_status = -1;
+static int hf_crc_type;
+static int hf_crc_field_uint16;
+static int hf_crc_field_uint32;
+static int hf_crc_status;
 
-static int hf_time_dtntime = -1;
-static int hf_time_utctime = -1;
+static int hf_time_dtntime;
+static int hf_time_utctime;
 
-static int hf_create_ts_time = -1;
-static int hf_create_ts_seqno = -1;
+static int hf_create_ts_time;
+static int hf_create_ts_seqno;
 
-static int hf_eid_scheme = -1;
-static int hf_eid_dtn_ssp_code = -1;
-static int hf_eid_dtn_ssp_text = -1;
-static int hf_eid_ipn_node = -1;
-static int hf_eid_ipn_service = -1;
-static int hf_eid_dtn_wkssp = -1;
-static int hf_eid_dtn_serv = -1;
+static int hf_eid_scheme;
+static int hf_eid_dtn_ssp_code;
+static int hf_eid_dtn_ssp_text;
+static int hf_eid_ipn_node;
+static int hf_eid_ipn_service;
+static int hf_eid_dtn_wkssp;
+static int hf_eid_dtn_serv;
 
-static int hf_primary_version = -1;
-static int hf_primary_bundle_flags = -1;
-static int hf_primary_bundle_flags_deletion_report = -1;
-static int hf_primary_bundle_flags_delivery_report = -1;
-static int hf_primary_bundle_flags_forwarding_report = -1;
-static int hf_primary_bundle_flags_reception_report = -1;
-static int hf_primary_bundle_flags_req_status_time = -1;
-static int hf_primary_bundle_flags_user_app_ack = -1;
-static int hf_primary_bundle_flags_no_fragment = -1;
-static int hf_primary_bundle_flags_payload_admin = -1;
-static int hf_primary_bundle_flags_is_fragment = -1;
-static int hf_primary_dst_eid = -1;
-static int hf_primary_dst_uri = -1;
-static int hf_primary_src_nodeid = -1;
-static int hf_primary_src_uri = -1;
-static int hf_primary_srcdst_uri = -1;
-static int hf_primary_report_nodeid = -1;
-static int hf_primary_report_uri = -1;
-static int hf_primary_create_ts = -1;
-static int hf_primary_lifetime = -1;
-static int hf_primary_lifetime_exp = -1;
-static int hf_primary_expire_ts = -1;
-static int hf_primary_frag_offset = -1;
-static int hf_primary_total_length = -1;
+static int hf_primary_version;
+static int hf_primary_bundle_flags;
+static int hf_primary_bundle_flags_deletion_report;
+static int hf_primary_bundle_flags_delivery_report;
+static int hf_primary_bundle_flags_forwarding_report;
+static int hf_primary_bundle_flags_reception_report;
+static int hf_primary_bundle_flags_req_status_time;
+static int hf_primary_bundle_flags_user_app_ack;
+static int hf_primary_bundle_flags_no_fragment;
+static int hf_primary_bundle_flags_payload_admin;
+static int hf_primary_bundle_flags_is_fragment;
+static int hf_primary_dst_eid;
+static int hf_primary_dst_uri;
+static int hf_primary_src_nodeid;
+static int hf_primary_src_uri;
+static int hf_primary_srcdst_uri;
+static int hf_primary_report_nodeid;
+static int hf_primary_report_uri;
+static int hf_primary_create_ts;
+static int hf_primary_lifetime;
+static int hf_primary_lifetime_exp;
+static int hf_primary_expire_ts;
+static int hf_primary_frag_offset;
+static int hf_primary_total_length;
 
-static int hf_bundle_ident = -1;
-static int hf_bundle_first_seen = -1;
-static int hf_bundle_retrans_seen = -1;
-static int hf_bundle_seen_time_diff = -1;
-static int hf_bundle_dst_dtn_srv = -1;
-static int hf_bundle_dst_ipn_srv = -1;
-static int hf_bundle_status_ref = -1;
+static int hf_bundle_ident;
+static int hf_bundle_first_seen;
+static int hf_bundle_retrans_seen;
+static int hf_bundle_seen_time_diff;
+static int hf_bundle_dst_dtn_srv;
+static int hf_bundle_dst_ipn_srv;
+static int hf_bundle_status_ref;
 
-static int hf_canonical_type_code = -1;
-static int hf_canonical_block_num = -1;
-static int hf_canonical_block_flags = -1;
-static int hf_canonical_block_flags_delete_no_process = -1;
-static int hf_canonical_block_flags_status_no_process = -1;
-static int hf_canonical_block_flags_remove_no_process = -1;
-static int hf_canonical_block_flags_replicate_in_fragment = -1;
-static int hf_canonical_data_size = -1;
-static int hf_canonical_data = -1;
+static int hf_canonical_type_code;
+static int hf_canonical_block_num;
+static int hf_canonical_block_flags;
+static int hf_canonical_block_flags_delete_no_process;
+static int hf_canonical_block_flags_status_no_process;
+static int hf_canonical_block_flags_remove_no_process;
+static int hf_canonical_block_flags_replicate_in_fragment;
+static int hf_canonical_data_size;
+static int hf_canonical_data;
 
-static int hf_previous_node_nodeid = -1;
-static int hf_previous_node_uri = -1;
-static int hf_bundle_age_time = -1;
-static int hf_hop_count_limit = -1;
-static int hf_hop_count_current = -1;
+static int hf_previous_node_nodeid;
+static int hf_previous_node_uri;
+static int hf_bundle_age_time;
+static int hf_hop_count_limit;
+static int hf_hop_count_current;
 
-static int hf_admin_record_type = -1;
-static int hf_status_rep = -1;
-static int hf_status_rep_status_info = -1;
-static int hf_status_assert_val = -1;
-static int hf_status_assert_time = -1;
-static int hf_status_rep_received = -1;
-static int hf_status_rep_forwarded = -1;
-static int hf_status_rep_delivered = -1;
-static int hf_status_rep_deleted = -1;
-static int hf_status_rep_reason_code = -1;
-static int hf_status_rep_subj_src_nodeid = -1;
-static int hf_status_rep_subj_src_uri = -1;
-static int hf_status_rep_subj_ts = -1;
-static int hf_status_rep_subj_frag_offset = -1;
-static int hf_status_rep_subj_payload_len = -1;
-static int hf_status_rep_subj_ident = -1;
-static int hf_status_rep_subj_ref = -1;
-static int hf_status_time_diff = -1;
+static int hf_admin_record_type;
+static int hf_status_rep;
+static int hf_status_rep_status_info;
+static int hf_status_assert_val;
+static int hf_status_assert_time;
+static int hf_status_rep_received;
+static int hf_status_rep_forwarded;
+static int hf_status_rep_delivered;
+static int hf_status_rep_deleted;
+static int hf_status_rep_reason_code;
+static int hf_status_rep_subj_src_nodeid;
+static int hf_status_rep_subj_src_uri;
+static int hf_status_rep_subj_ts;
+static int hf_status_rep_subj_frag_offset;
+static int hf_status_rep_subj_payload_len;
+static int hf_status_rep_subj_ident;
+static int hf_status_rep_subj_ref;
+static int hf_status_time_diff;
 
-static int hf_payload_fragments = -1;
-static int hf_payload_fragment = -1;
-static int hf_payload_fragment_overlap = -1;
-static int hf_payload_fragment_overlap_conflicts = -1;
-static int hf_payload_fragment_multiple_tails = -1;
-static int hf_payload_fragment_too_long_fragment = -1;
-static int hf_payload_fragment_error = -1;
-static int hf_payload_fragment_count = -1;
-static int hf_payload_reassembled_in = -1;
-static int hf_payload_reassembled_length = -1;
-static int hf_payload_reassembled_data = -1;
-static gint ett_payload_fragment = -1;
-static gint ett_payload_fragments = -1;
+static int hf_payload_fragments;
+static int hf_payload_fragment;
+static int hf_payload_fragment_overlap;
+static int hf_payload_fragment_overlap_conflicts;
+static int hf_payload_fragment_multiple_tails;
+static int hf_payload_fragment_too_long_fragment;
+static int hf_payload_fragment_error;
+static int hf_payload_fragment_count;
+static int hf_payload_reassembled_in;
+static int hf_payload_reassembled_length;
+static int hf_payload_reassembled_data;
+static gint ett_payload_fragment;
+static gint ett_payload_fragments;
 
 /// Field definitions
 static hf_register_info fields[] = {
@@ -400,20 +400,20 @@ static int *const block_flags[] = {
     NULL
 };
 
-static int ett_bundle = -1;
-static int ett_bundle_flags = -1;
-static int ett_block = -1;
-static int ett_eid = -1;
-static int ett_time = -1;
-static int ett_create_ts = -1;
-static int ett_ident = -1;
-static int ett_block_flags = -1;
-static int ett_canonical_data = -1;
-static int ett_payload = -1;
-static int ett_admin = -1;
-static int ett_status_rep = -1;
-static int ett_status_info = -1;
-static int ett_status_assert = -1;
+static int ett_bundle;
+static int ett_bundle_flags;
+static int ett_block;
+static int ett_eid;
+static int ett_time;
+static int ett_create_ts;
+static int ett_ident;
+static int ett_block_flags;
+static int ett_canonical_data;
+static int ett_payload;
+static int ett_admin;
+static int ett_status_rep;
+static int ett_status_info;
+static int ett_status_assert;
 /// Tree structures
 static int *ett[] = {
     &ett_bundle,
@@ -455,23 +455,23 @@ static const fragment_items payload_frag_items = {
     "Payload fragments"
 };
 
-static expert_field ei_invalid_framing = EI_INIT;
-static expert_field ei_invalid_bp_version = EI_INIT;
-static expert_field ei_eid_scheme_unknown = EI_INIT;
-static expert_field ei_eid_ssp_type_invalid = EI_INIT;
-static expert_field ei_eid_wkssp_unknown = EI_INIT;
-static expert_field ei_block_type_dupe = EI_INIT;
-static expert_field ei_sub_type_unknown = EI_INIT;
-static expert_field ei_sub_partial_decode = EI_INIT;
-static expert_field ei_crc_type_unknown = EI_INIT;
-static expert_field ei_block_failed_crc = EI_INIT;
-static expert_field ei_block_num_dupe = EI_INIT;
-static expert_field ei_block_payload_index = EI_INIT;
-static expert_field ei_block_payload_num = EI_INIT;
-static expert_field ei_fragment_reassemble_size = EI_INIT;
-static expert_field ei_fragment_tot_mismatch = EI_INIT;
-static expert_field ei_block_sec_bib_tgt = EI_INIT;
-static expert_field ei_block_sec_bcb_tgt = EI_INIT;
+static expert_field ei_invalid_framing;
+static expert_field ei_invalid_bp_version;
+static expert_field ei_eid_scheme_unknown;
+static expert_field ei_eid_ssp_type_invalid;
+static expert_field ei_eid_wkssp_unknown;
+static expert_field ei_block_type_dupe;
+static expert_field ei_sub_type_unknown;
+static expert_field ei_sub_partial_decode;
+static expert_field ei_crc_type_unknown;
+static expert_field ei_block_failed_crc;
+static expert_field ei_block_num_dupe;
+static expert_field ei_block_payload_index;
+static expert_field ei_block_payload_num;
+static expert_field ei_fragment_reassemble_size;
+static expert_field ei_fragment_tot_mismatch;
+static expert_field ei_block_sec_bib_tgt;
+static expert_field ei_block_sec_bcb_tgt;
 static ei_register_info expertitems[] = {
     {&ei_invalid_framing, {"bpv7.invalid_framing", PI_MALFORMED, PI_WARN, "Invalid framing", EXPFILL}},
     {&ei_invalid_bp_version, {"bpv7.invalid_bp_version", PI_MALFORMED, PI_ERROR, "Invalid BP version", EXPFILL}},

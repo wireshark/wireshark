@@ -19,12 +19,12 @@ void proto_reg_handoff_daytime(void);
 
 static dissector_handle_t daytime_handle;
 
-static int proto_daytime = -1;
+static int proto_daytime;
 
-static int hf_daytime_string = -1;
-static int hf_response_request = -1;
+static int hf_daytime_string;
+static int hf_response_request;
 
-static gint ett_daytime = -1;
+static gint ett_daytime;
 
 /* This dissector works for TCP and UDP daytime packets */
 #define DAYTIME_PORT 13

@@ -23,30 +23,30 @@ void proto_reg_handoff_uasp(void);
 static dissector_handle_t uasp_descriptor_handle;
 static dissector_handle_t uasp_bulk_handle;
 
-static int proto_uasp = -1;
+static int proto_uasp;
 
-static int hf_pipe_usage_descr_pipe_id = -1;
-static int hf_uas_iu_id = -1;
-static int hf_uas_tag = -1;
-static int hf_uas_cmd_command_priority = -1;
-static int hf_uas_cmd_task_attribute = -1;
-static int hf_uas_cmd_additional_cdb_length = -1;
-static int hf_uas_sense_status_qualifier = -1;
-static int hf_uas_sense_status = -1;
-static int hf_uas_sense_length = -1;
-static int hf_uas_response_additional_info = -1;
-static int hf_uas_response_code = -1;
-static int hf_uas_taskmgmt_function = -1;
-static int hf_uas_taskmgmt_tag_of_managed_task = -1;
-static int hf_uas_tag_started_frame = -1;
-static int hf_uas_tag_completed_frame = -1;
-static int hf_uas_tag_read_ready_frame = -1;
-static int hf_uas_tag_write_ready_frame = -1;
-static int hf_uas_tag_data_recv_frame = -1;
-static int hf_uas_tag_data_sent_frame = -1;
+static int hf_pipe_usage_descr_pipe_id;
+static int hf_uas_iu_id;
+static int hf_uas_tag;
+static int hf_uas_cmd_command_priority;
+static int hf_uas_cmd_task_attribute;
+static int hf_uas_cmd_additional_cdb_length;
+static int hf_uas_sense_status_qualifier;
+static int hf_uas_sense_status;
+static int hf_uas_sense_length;
+static int hf_uas_response_additional_info;
+static int hf_uas_response_code;
+static int hf_uas_taskmgmt_function;
+static int hf_uas_taskmgmt_tag_of_managed_task;
+static int hf_uas_tag_started_frame;
+static int hf_uas_tag_completed_frame;
+static int hf_uas_tag_read_ready_frame;
+static int hf_uas_tag_write_ready_frame;
+static int hf_uas_tag_data_recv_frame;
+static int hf_uas_tag_data_sent_frame;
 
-static int ett_uasp = -1;
-static int ett_uasp_desc = -1;
+static int ett_uasp;
+static int ett_uasp_desc;
 
 #define DT_PIPE_USAGE 0x24
 

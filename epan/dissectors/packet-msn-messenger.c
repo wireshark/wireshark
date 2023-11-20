@@ -42,10 +42,10 @@ static dissector_handle_t msnms_handle;
  * this should be done.
  */
 
-static int proto_msnms = -1;
-/* static int hf_msnms_command = -1; */
+static int proto_msnms;
+/* static int hf_msnms_command; */
 
-static gint ett_msnms = -1;
+static gint ett_msnms;
 
 #define TCP_PORT_MSNMS    1863
 

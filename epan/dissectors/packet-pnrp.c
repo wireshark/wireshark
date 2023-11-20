@@ -110,7 +110,7 @@ static void dissect_signature_structure(tvbuff_t *tvb, gint offset, gint length,
 
 /* Define global variables
  ----------------------------*/
-static int proto_pnrp = -1;
+static int proto_pnrp;
 
 /* Define FieldIDs */
 static const value_string fieldID[] = {
@@ -177,28 +177,28 @@ static const value_string reasonCode[] = {
 
 /* Define IDs for subcomponents */
 /* Message Header */
-static gint hf_pnrp_header = -1;
-static gint hf_pnrp_header_fieldID = -1;
-static gint hf_pnrp_header_length = -1;
-static gint hf_pnrp_header_ident = -1;
-static gint hf_pnrp_header_versionMajor = -1;
-static gint hf_pnrp_header_versionMinor = -1;
-static gint hf_pnrp_header_messageType = -1;
-static gint hf_pnrp_header_messageID = -1;
+static gint hf_pnrp_header;
+static gint hf_pnrp_header_fieldID;
+static gint hf_pnrp_header_length;
+static gint hf_pnrp_header_ident;
+static gint hf_pnrp_header_versionMajor;
+static gint hf_pnrp_header_versionMinor;
+static gint hf_pnrp_header_messageType;
+static gint hf_pnrp_header_messageID;
 /* Message Body */
-static gint hf_pnrp_message_type = -1;
-static gint hf_pnrp_message_length = -1;
-static gint hf_pnrp_message_headerack = -1;
-static gint hf_pnrp_message_pnrpID = -1;    /* Generic variable to display pnrp ID in various situations */
+static gint hf_pnrp_message_type;
+static gint hf_pnrp_message_length;
+static gint hf_pnrp_message_headerack;
+static gint hf_pnrp_message_pnrpID;    /* Generic variable to display pnrp ID in various situations */
 /* Inquire Message Flags */
-static gint hf_pnrp_message_inquire_flags = -1;
-static gint hf_pnrp_message_inquire_flags_reserved1 = -1;
-static gint hf_pnrp_message_inquire_flags_Abit = -1;
-static gint hf_pnrp_message_inquire_flags_Xbit = -1;
-static gint hf_pnrp_message_inquire_flags_Cbit = -1;
-static gint hf_pnrp_message_inquire_flags_reserved2 = -1;
+static gint hf_pnrp_message_inquire_flags;
+static gint hf_pnrp_message_inquire_flags_reserved1;
+static gint hf_pnrp_message_inquire_flags_Abit;
+static gint hf_pnrp_message_inquire_flags_Xbit;
+static gint hf_pnrp_message_inquire_flags_Cbit;
+static gint hf_pnrp_message_inquire_flags_reserved2;
 
-static gint hf_pnrp_padding = -1;
+static gint hf_pnrp_padding;
 
 static int * const inquire_flags[] = {
     &hf_pnrp_message_inquire_flags_reserved1,
@@ -210,27 +210,27 @@ static int * const inquire_flags[] = {
 };
 
 /* Classifier */
-static gint hf_pnrp_message_classifier_unicodeCount = -1;
-static gint hf_pnrp_message_classifier_arrayLength = -1;
-static gint hf_pnrp_message_classifier_entryLength = -1;
-static gint hf_pnrp_message_classifier_string = -1;
+static gint hf_pnrp_message_classifier_unicodeCount;
+static gint hf_pnrp_message_classifier_arrayLength;
+static gint hf_pnrp_message_classifier_entryLength;
+static gint hf_pnrp_message_classifier_string;
 /* ACK Message Flags */
-static gint hf_pnrp_message_ack_flags_reserved = -1;
-static gint hf_pnrp_message_ack_flags_Nbit = -1;
+static gint hf_pnrp_message_ack_flags_reserved;
+static gint hf_pnrp_message_ack_flags_Nbit;
 /* SplitControls */
-static gint hf_pnrp_message_splitControls_authorityBuffer = -1;
+static gint hf_pnrp_message_splitControls_authorityBuffer;
 /* IPv6 Endpoint Array */
-static gint hf_pnrp_message_ipv6EndpointArray_NumberOfEntries = -1;
-static gint hf_pnrp_message_ipv6EndpointArray_ArrayLength = -1;
-static gint hf_pnrp_message_ipv6EndpointArray_EntryLength = -1;
+static gint hf_pnrp_message_ipv6EndpointArray_NumberOfEntries;
+static gint hf_pnrp_message_ipv6EndpointArray_ArrayLength;
+static gint hf_pnrp_message_ipv6EndpointArray_EntryLength;
 /* AUTHORITY Message Flags */
-static gint hf_pnrp_message_authority_flags = -1;
-static gint hf_pnrp_message_authority_flags_reserved1 = -1;
-static gint hf_pnrp_message_authority_flags_Lbit = -1;
-static gint hf_pnrp_message_authority_flags_reserved2 = -1;
-static gint hf_pnrp_message_authority_flags_Bbit = -1;
-static gint hf_pnrp_message_authority_flags_reserved3= -1;
-static gint hf_pnrp_message_authority_flags_Nbit = -1;
+static gint hf_pnrp_message_authority_flags;
+static gint hf_pnrp_message_authority_flags_reserved1;
+static gint hf_pnrp_message_authority_flags_Lbit;
+static gint hf_pnrp_message_authority_flags_reserved2;
+static gint hf_pnrp_message_authority_flags_Bbit;
+static gint hf_pnrp_message_authority_flags_reserved3;
+static gint hf_pnrp_message_authority_flags_Nbit;
 
 static int * const authority_flags[] = {
     &hf_pnrp_message_authority_flags_reserved1,
@@ -243,34 +243,34 @@ static int * const authority_flags[] = {
 };
 
 /* Flood Control Flags */
-static gint hf_pnrp_message_flood_flags_reserved1 = -1;
-static gint hf_pnrp_message_flood_flags_Dbit = -1;
+static gint hf_pnrp_message_flood_flags_reserved1;
+static gint hf_pnrp_message_flood_flags_Dbit;
 
 /* PNRP ID Array */
-static gint hf_pnrp_message_idArray_NumEntries = -1;
-static gint hf_pnrp_message_idArray_Length = -1;
-static gint hf_pnrp_message_ElementFieldType = -1;
-static gint hf_pnrp_message_idarray_Entrylength = -1;
+static gint hf_pnrp_message_idArray_NumEntries;
+static gint hf_pnrp_message_idArray_Length;
+static gint hf_pnrp_message_ElementFieldType;
+static gint hf_pnrp_message_idarray_Entrylength;
 
-static gint hf_pnrp_message_solicitType = -1;
-static gint hf_pnrp_message_certChain = -1;
-static gint hf_pnrp_message_nonce = -1;
-static gint hf_pnrp_message_hashednonce = -1;
-static gint hf_pnrp_message_ipv6 = -1;
+static gint hf_pnrp_message_solicitType;
+static gint hf_pnrp_message_certChain;
+static gint hf_pnrp_message_nonce;
+static gint hf_pnrp_message_hashednonce;
+static gint hf_pnrp_message_ipv6;
 
 /* Encoded CPA */
-static gint hf_pnrp_encodedCPA = -1;
-static gint hf_pnrp_encodedCPA_length = -1;
-static gint hf_pnrp_encodedCPA_minorVersion = -1;
-static gint hf_pnrp_encodedCPA_majorVersion = -1;
-static gint hf_pnrp_encodedCPA_flags = -1;
-static gint hf_pnrp_encodedCPA_flags_reserved = -1;
-static gint hf_pnrp_encodedCPA_flags_Xbit = -1;
-static gint hf_pnrp_encodedCPA_flags_Fbit = -1;
-static gint hf_pnrp_encodedCPA_flags_Cbit = -1;
-static gint hf_pnrp_encodedCPA_flags_Abit = -1;
-static gint hf_pnrp_encodedCPA_flags_Ubit = -1;
-static gint hf_pnrp_encodedCPA_flags_Rbit = -1;
+static gint hf_pnrp_encodedCPA;
+static gint hf_pnrp_encodedCPA_length;
+static gint hf_pnrp_encodedCPA_minorVersion;
+static gint hf_pnrp_encodedCPA_majorVersion;
+static gint hf_pnrp_encodedCPA_flags;
+static gint hf_pnrp_encodedCPA_flags_reserved;
+static gint hf_pnrp_encodedCPA_flags_Xbit;
+static gint hf_pnrp_encodedCPA_flags_Fbit;
+static gint hf_pnrp_encodedCPA_flags_Cbit;
+static gint hf_pnrp_encodedCPA_flags_Abit;
+static gint hf_pnrp_encodedCPA_flags_Ubit;
+static gint hf_pnrp_encodedCPA_flags_Rbit;
 static int * const encodedCPA_flags[] = {
     &hf_pnrp_encodedCPA_flags_reserved,
     &hf_pnrp_encodedCPA_flags_Xbit,
@@ -281,92 +281,92 @@ static int * const encodedCPA_flags[] = {
     &hf_pnrp_encodedCPA_flags_Rbit,
     NULL
 };
-static gint hf_pnrp_encodedCPA_notAfter = -1;
-static gint hf_pnrp_encodedCPA_serviceLocation = -1;
-static gint hf_pnrp_encodedCPA_binaryAuthority = -1;
-static gint hf_pnrp_encodedCPA_classifierHash = -1;
-static gint hf_pnrp_encodedCPA_friendlyName = -1;
+static gint hf_pnrp_encodedCPA_notAfter;
+static gint hf_pnrp_encodedCPA_serviceLocation;
+static gint hf_pnrp_encodedCPA_binaryAuthority;
+static gint hf_pnrp_encodedCPA_classifierHash;
+static gint hf_pnrp_encodedCPA_friendlyName;
 
 /* Lookup Controls */
-static gint hf_pnrp_message_lookupControls_flags = -1;
-static gint hf_pnrp_message_lookupControls_flags_reserved = -1;
-static gint hf_pnrp_message_lookupControls_flags_Abit = -1;
-static gint hf_pnrp_message_lookupControls_flags_0bit = -1;
+static gint hf_pnrp_message_lookupControls_flags;
+static gint hf_pnrp_message_lookupControls_flags_reserved;
+static gint hf_pnrp_message_lookupControls_flags_Abit;
+static gint hf_pnrp_message_lookupControls_flags_0bit;
 static int * const lookupControls_flags[] = {
     &hf_pnrp_message_lookupControls_flags_reserved,
     &hf_pnrp_message_lookupControls_flags_Abit,
     &hf_pnrp_message_lookupControls_flags_0bit,
     NULL
 };
-static gint hf_pnrp_message_lookupControls_precision =-1;
-static gint hf_pnrp_message_lookupControls_resolveCriteria =-1;
-static gint hf_pnrp_message_lookupControls_reasonCode =-1;
+static gint hf_pnrp_message_lookupControls_precision;
+static gint hf_pnrp_message_lookupControls_resolveCriteria;
+static gint hf_pnrp_message_lookupControls_reasonCode;
 
 /* Dissect Route Entry */
-static gint hf_pnrp_message_routeEntry_portNumber = -1;
-static gint hf_pnrp_message_routeEntry_flags = -1;
-static gint hf_pnrp_message_routeEntry_addressCount = -1;
+static gint hf_pnrp_message_routeEntry_portNumber;
+static gint hf_pnrp_message_routeEntry_flags;
+static gint hf_pnrp_message_routeEntry_addressCount;
 
 /* Public Key Structure */
-static gint hf_pnrp_publicKey_objID = -1;
-static gint hf_pnrp_publicKey_publicKeyData = -1;
+static gint hf_pnrp_publicKey_objID;
+static gint hf_pnrp_publicKey_publicKeyData;
 
 /* Signature Structure */
-static gint hf_pnrp_signature_signatureData = -1;
+static gint hf_pnrp_signature_signatureData;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_pnrp_payload_port = -1;
-static int hf_pnrp_signature_length = -1;
-static int hf_pnrp_signature_structure_length = -1;
-static int hf_pnrp_encodedCPA_total_bytes_of_payload = -1;
-static int hf_pnrp_signature_hash_id = -1;
-static int hf_pnrp_message_flags = -1;
-static int hf_pnrp_encodedCPA_number_of_service_addresses = -1;
-static int hf_pnrp_payload_iana_proto = -1;
-static int hf_pnrp_reserved8 = -1;
-static int hf_pnrp_reserved16 = -1;
-static int hf_pnrp_encodedCPA_service_address_length = -1;
-static int hf_pnrp_message_data = -1;
-static int hf_pnrp_publicKey_length_of_structure = -1;
-static int hf_pnrp_publicKey_size_of_cbdata = -1;
-static int hf_pnrp_payload_type = -1;
-static int hf_pnrp_publicKey_size_of_algorithm_oid = -1;
-static int hf_pnrp_message_port_number = -1;
-static int hf_pnrp_publicKey_reserved = -1;
-static int hf_pnrp_encodedCPA_friendlyName_length = -1;
-static int hf_pnrp_message_offset = -1;
-static int hf_pnrp_publicKey_unused_bits = -1;
-static int hf_pnrp_length_of_data = -1;
-static int hf_pnrp_encodedCPA_number_of_payload_structures = -1;
+static int hf_pnrp_payload_port;
+static int hf_pnrp_signature_length;
+static int hf_pnrp_signature_structure_length;
+static int hf_pnrp_encodedCPA_total_bytes_of_payload;
+static int hf_pnrp_signature_hash_id;
+static int hf_pnrp_message_flags;
+static int hf_pnrp_encodedCPA_number_of_service_addresses;
+static int hf_pnrp_payload_iana_proto;
+static int hf_pnrp_reserved8;
+static int hf_pnrp_reserved16;
+static int hf_pnrp_encodedCPA_service_address_length;
+static int hf_pnrp_message_data;
+static int hf_pnrp_publicKey_length_of_structure;
+static int hf_pnrp_publicKey_size_of_cbdata;
+static int hf_pnrp_payload_type;
+static int hf_pnrp_publicKey_size_of_algorithm_oid;
+static int hf_pnrp_message_port_number;
+static int hf_pnrp_publicKey_reserved;
+static int hf_pnrp_encodedCPA_friendlyName_length;
+static int hf_pnrp_message_offset;
+static int hf_pnrp_publicKey_unused_bits;
+static int hf_pnrp_length_of_data;
+static int hf_pnrp_encodedCPA_number_of_payload_structures;
 
 /* Reassembly */
-static int hf_pnrp_fragments = -1;
-static int hf_pnrp_fragment = -1;
-static int hf_pnrp_fragment_overlap = -1;
-static int hf_pnrp_fragment_overlap_conflict = -1;
-static int hf_pnrp_fragment_multiple_tails = -1;
-static int hf_pnrp_fragment_too_long_fragment = -1;
-static int hf_pnrp_fragment_error = -1;
-static int hf_pnrp_fragment_count = -1;
-static int hf_pnrp_reassembled_in = -1;
-static int hf_pnrp_reassembled_length = -1;
-static int hf_pnrp_reassembled_data = -1;
-static int hf_pnrp_fragmented_payload = -1;
+static int hf_pnrp_fragments;
+static int hf_pnrp_fragment;
+static int hf_pnrp_fragment_overlap;
+static int hf_pnrp_fragment_overlap_conflict;
+static int hf_pnrp_fragment_multiple_tails;
+static int hf_pnrp_fragment_too_long_fragment;
+static int hf_pnrp_fragment_error;
+static int hf_pnrp_fragment_count;
+static int hf_pnrp_reassembled_in;
+static int hf_pnrp_reassembled_length;
+static int hf_pnrp_reassembled_data;
+static int hf_pnrp_fragmented_payload;
 
 /* Define variables to reference subtrees */
-static gint ett_pnrp = -1;
-static gint ett_pnrp_header = -1;
-static gint ett_pnrp_message = -1;
-static gint ett_pnrp_message_inquire_flags = -1;
-static gint ett_pnrp_message_authority_flags = -1;
-static gint ett_pnrp_message_encodedCPA = -1;
-static gint ett_pnrp_message_encodedCPA_flags = -1;
-static gint ett_pnrp_message_lookupControls_flags = -1;
-static gint ett_pnrp_message_payloadStructure = -1;
-static gint ett_pnrp_message_publicKeyStructure = -1;
-static gint ett_pnrp_message_signatureStructure = -1;
-static gint ett_pnrp_fragment = -1;
-static gint ett_pnrp_fragments = -1;
+static gint ett_pnrp;
+static gint ett_pnrp_header;
+static gint ett_pnrp_message;
+static gint ett_pnrp_message_inquire_flags;
+static gint ett_pnrp_message_authority_flags;
+static gint ett_pnrp_message_encodedCPA;
+static gint ett_pnrp_message_encodedCPA_flags;
+static gint ett_pnrp_message_lookupControls_flags;
+static gint ett_pnrp_message_payloadStructure;
+static gint ett_pnrp_message_publicKeyStructure;
+static gint ett_pnrp_message_signatureStructure;
+static gint ett_pnrp_fragment;
+static gint ett_pnrp_fragments;
 
 static reassembly_table pnrp_reassembly_table;
 

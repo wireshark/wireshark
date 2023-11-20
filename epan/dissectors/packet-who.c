@@ -50,24 +50,24 @@ void proto_reg_handoff_who(void);
 
 static dissector_handle_t who_handle;
 
-static int proto_who = -1;
-static int hf_who_vers = -1;
-static int hf_who_type = -1;
-static int hf_who_sendtime = -1;
-static int hf_who_recvtime = -1;
-static int hf_who_hostname = -1;
-static int hf_who_loadav_5 = -1;
-static int hf_who_loadav_10 = -1;
-static int hf_who_loadav_15 = -1;
-static int hf_who_boottime = -1;
-static int hf_who_whoent = -1;
-static int hf_who_tty = -1;
-static int hf_who_uid = -1;
-static int hf_who_timeon = -1;
-static int hf_who_idle = -1;
+static int proto_who;
+static int hf_who_vers;
+static int hf_who_type;
+static int hf_who_sendtime;
+static int hf_who_recvtime;
+static int hf_who_hostname;
+static int hf_who_loadav_5;
+static int hf_who_loadav_10;
+static int hf_who_loadav_15;
+static int hf_who_boottime;
+static int hf_who_whoent;
+static int hf_who_tty;
+static int hf_who_uid;
+static int hf_who_timeon;
+static int hf_who_idle;
 
-static gint ett_who = -1;
-static gint ett_whoent = -1;
+static gint ett_who;
+static gint ett_whoent;
 
 #define UDP_PORT_WHO    513
 

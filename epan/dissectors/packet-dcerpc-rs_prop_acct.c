@@ -20,11 +20,11 @@
 void proto_register_rs_prop_acct (void);
 void proto_reg_handoff_rs_prop_acct (void);
 
-static int proto_rs_prop_acct = -1;
-static int hf_rs_prop_acct_opnum = -1;
+static int proto_rs_prop_acct;
+static int hf_rs_prop_acct_opnum;
 
 
-static gint ett_rs_prop_acct = -1;
+static gint ett_rs_prop_acct;
 static e_guid_t uuid_rs_prop_acct = { 0x68097130, 0xde43, 0x11ca, { 0xa5, 0x54, 0x08, 0x00, 0x1e, 0x03, 0x94, 0xc7 } };
 static guint16  ver_rs_prop_acct = 1;
 

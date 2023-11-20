@@ -28,100 +28,100 @@ void proto_register_zrtp(void);
 /*
   RTP header
 */
-static int proto_zrtp = -1;
-static int hf_zrtp_rtpversion = -1;
-static int hf_zrtp_rtppadding = -1;
-static int hf_zrtp_rtpextension = -1;
-/* static int hf_zrtp_id = -1; */
-static int hf_zrtp_sequence = -1;
-static int hf_zrtp_cookie = -1;
-static int hf_zrtp_source_id = -1;
+static int proto_zrtp;
+static int hf_zrtp_rtpversion;
+static int hf_zrtp_rtppadding;
+static int hf_zrtp_rtpextension;
+/* static int hf_zrtp_id; */
+static int hf_zrtp_sequence;
+static int hf_zrtp_cookie;
+static int hf_zrtp_source_id;
 
 /*
   ZRTP header
 */
-static int hf_zrtp_signature = -1;
-static int hf_zrtp_msg_length = -1;
-static int hf_zrtp_msg_type = -1;
-static int hf_zrtp_msg_version = -1;
+static int hf_zrtp_signature;
+static int hf_zrtp_msg_length;
+static int hf_zrtp_msg_type;
+static int hf_zrtp_msg_version;
 
 /*
   Hello Data
 */
-static int hf_zrtp_msg_client_id = -1;
-static int hf_zrtp_msg_zid = -1;
-static int hf_zrtp_msg_sigcap = -1;
-static int hf_zrtp_msg_mitm = -1;
-static int hf_zrtp_msg_passive = -1;
-static int hf_zrtp_msg_hash_count = -1;
-static int hf_zrtp_msg_cipher_count = -1;
-static int hf_zrtp_msg_authtag_count = -1;
-static int hf_zrtp_msg_key_count = -1;
-static int hf_zrtp_msg_sas_count = -1;
-static int hf_zrtp_msg_hash = -1;
-static int hf_zrtp_msg_cipher = -1;
-static int hf_zrtp_msg_at = -1;
-static int hf_zrtp_msg_keya = -1;
-static int hf_zrtp_msg_sas = -1;
-static int hf_zrtp_msg_hash_image = -1;
+static int hf_zrtp_msg_client_id;
+static int hf_zrtp_msg_zid;
+static int hf_zrtp_msg_sigcap;
+static int hf_zrtp_msg_mitm;
+static int hf_zrtp_msg_passive;
+static int hf_zrtp_msg_hash_count;
+static int hf_zrtp_msg_cipher_count;
+static int hf_zrtp_msg_authtag_count;
+static int hf_zrtp_msg_key_count;
+static int hf_zrtp_msg_sas_count;
+static int hf_zrtp_msg_hash;
+static int hf_zrtp_msg_cipher;
+static int hf_zrtp_msg_at;
+static int hf_zrtp_msg_keya;
+static int hf_zrtp_msg_sas;
+static int hf_zrtp_msg_hash_image;
 
 /*
   Commit Data
 */
-static int hf_zrtp_msg_hvi = -1;
-static int hf_zrtp_msg_nonce = -1;
-static int hf_zrtp_msg_key_id = -1;
+static int hf_zrtp_msg_hvi;
+static int hf_zrtp_msg_nonce;
+static int hf_zrtp_msg_key_id;
 
 /*
   DHParts Data
 */
-static int hf_zrtp_msg_rs1ID = -1;
-static int hf_zrtp_msg_rs2ID = -1;
-static int hf_zrtp_msg_auxs = -1;
-static int hf_zrtp_msg_pbxs = -1;
+static int hf_zrtp_msg_rs1ID;
+static int hf_zrtp_msg_rs2ID;
+static int hf_zrtp_msg_auxs;
+static int hf_zrtp_msg_pbxs;
 
 /*
   Confirm Data
 */
-static int hf_zrtp_msg_hmac = -1;
-static int hf_zrtp_msg_cfb = -1;
+static int hf_zrtp_msg_hmac;
+static int hf_zrtp_msg_cfb;
 
 /*
   Error Data
 */
-static int hf_zrtp_msg_error = -1;
+static int hf_zrtp_msg_error;
 
 /*
   Ping Data
 */
-static int hf_zrtp_msg_ping_version = -1;
-static int hf_zrtp_msg_ping_endpointhash = -1;
-static int hf_zrtp_msg_pingack_endpointhash = -1;
-static int hf_zrtp_msg_ping_ssrc = -1;
+static int hf_zrtp_msg_ping_version;
+static int hf_zrtp_msg_ping_endpointhash;
+static int hf_zrtp_msg_pingack_endpointhash;
+static int hf_zrtp_msg_ping_ssrc;
 
 /*
   Checksum Data
 */
-static int hf_zrtp_checksum = -1;
-static int hf_zrtp_checksum_status = -1;
+static int hf_zrtp_checksum;
+static int hf_zrtp_checksum_status;
 
 /*
   Sub-Tree
 */
-static gint ett_zrtp = -1;
-static gint ett_zrtp_msg = -1;
-static gint ett_zrtp_msg_data = -1;
+static gint ett_zrtp;
+static gint ett_zrtp_msg;
+static gint ett_zrtp_msg_data;
 
-static gint ett_zrtp_msg_hc = -1;
-static gint ett_zrtp_msg_kc = -1;
-static gint ett_zrtp_msg_ac = -1;
-static gint ett_zrtp_msg_cc = -1;
-static gint ett_zrtp_msg_sc = -1;
+static gint ett_zrtp_msg_hc;
+static gint ett_zrtp_msg_kc;
+static gint ett_zrtp_msg_ac;
+static gint ett_zrtp_msg_cc;
+static gint ett_zrtp_msg_sc;
 
-static gint ett_zrtp_checksum = -1;
+static gint ett_zrtp_checksum;
 
 
-static expert_field ei_zrtp_checksum = EI_INIT;
+static expert_field ei_zrtp_checksum;
 
 static dissector_handle_t zrtp_handle;
 

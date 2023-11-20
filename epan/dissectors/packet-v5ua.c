@@ -44,64 +44,64 @@ static int paddingl = 0;
 static int dlci_efa = -1;
 
 /* Initialize the protocol and registered fields */
-static int proto_v5ua                    = -1;
+static int proto_v5ua;
 
 static dissector_handle_t q931_handle;
 static dissector_handle_t v52_handle;
 
 /* common msg-header */
-static int hf_version               = -1;
-static int hf_reserved              = -1;
-static int hf_msg_class             = -1;
-static int hf_msg_type              = -1;
-/* static int hf_msg_type_id        = -1; */
-static int hf_msg_length            = -1;
+static int hf_version;
+static int hf_reserved;
+static int hf_msg_class;
+static int hf_msg_type;
+/* static int hf_msg_type_id; */
+static int hf_msg_length;
 /* V5UA message header */
-static int hf_link_id               = -1;
-static int hf_chnl_id               = -1;
-static int hf_adaptation_layer_id   = -1;
-static int hf_text_if_id            = -1;
-static int hf_scn_protocol_id       = -1;
-static int hf_info_string           = -1;
-static int hf_asp_identifier        = -1;
-static int hf_dlci_zero_bit         = -1;
-static int hf_dlci_spare_bit        = -1;
-static int hf_dlci_sapi             = -1;
-static int hf_dlci_one_bit          = -1;
-static int hf_dlci_tei              = -1;
-static int hf_efa                   = -1;
-/* static int hf_spare_efa          = -1; */
+static int hf_link_id;
+static int hf_chnl_id;
+static int hf_adaptation_layer_id;
+static int hf_text_if_id;
+static int hf_scn_protocol_id;
+static int hf_info_string;
+static int hf_asp_identifier;
+static int hf_dlci_zero_bit;
+static int hf_dlci_spare_bit;
+static int hf_dlci_sapi;
+static int hf_dlci_one_bit;
+static int hf_dlci_tei;
+static int hf_efa;
+/* static int hf_spare_efa; */
 /* variable length parameter (msg) */
-static int hf_parameter_tag         = -1;
-static int hf_parameter_tag_draft   = -1;
-static int hf_parameter_length      = -1;
-static int hf_parameter_value       = -1;
-static int hf_parameter_padding     = -1;
+static int hf_parameter_tag;
+static int hf_parameter_tag_draft;
+static int hf_parameter_length;
+static int hf_parameter_value;
+static int hf_parameter_padding;
 
  /* parameter fields */
-static int hf_link_status           = -1;
-static int hf_sa_bit_id             = -1;
-static int hf_sa_bit_value          = -1;
-static int hf_diagnostic_info       = -1;
-static int hf_if_range_start        = -1;
-static int hf_if_range_end          = -1;
-static int hf_heartbeat_data        = -1;
-static int hf_traffic_mode_type     = -1;
-static int hf_error_code            = -1;
-static int hf_draft_error_code      = -1;
-static int hf_status_type           = -1;
-static int hf_status_id             = -1;
-static int hf_error_reason          = -1;
-static int hf_asp_reason            = -1;
-static int hf_tei_status            = -1;
-static int hf_tei_draft_status      = -1;
-static int hf_release_reason        = -1;
+static int hf_link_status;
+static int hf_sa_bit_id;
+static int hf_sa_bit_value;
+static int hf_diagnostic_info;
+static int hf_if_range_start;
+static int hf_if_range_end;
+static int hf_heartbeat_data;
+static int hf_traffic_mode_type;
+static int hf_error_code;
+static int hf_draft_error_code;
+static int hf_status_type;
+static int hf_status_id;
+static int hf_error_reason;
+static int hf_asp_reason;
+static int hf_tei_status;
+static int hf_tei_draft_status;
+static int hf_release_reason;
 
 /* Initialize the subtree pointers */
-static gint ett_v5ua              = -1;
-static gint ett_v5ua_common_header= -1;
-static gint ett_v5ua_parameter    = -1;
-static gint ett_v5ua_layer3       = -1;
+static gint ett_v5ua;
+static gint ett_v5ua_common_header;
+static gint ett_v5ua_parameter;
+static gint ett_v5ua_layer3;
 
 #define RFC             0x1
 #define DRAFT           0x2

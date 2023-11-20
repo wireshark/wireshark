@@ -24,14 +24,14 @@ void proto_reg_handoff_aruba_adp(void);
 
 static dissector_handle_t adp_handle;
 
-static int proto_aruba_adp = -1;
-static gint ett_aruba_adp  = -1;
+static int proto_aruba_adp;
+static gint ett_aruba_adp;
 
-static int hf_adp_version  = -1;
-static int hf_adp_type     = -1;
-static int hf_adp_id       = -1;
-static int hf_adp_mac      = -1;
-static int hf_adp_switchip = -1;
+static int hf_adp_version;
+static int hf_adp_type;
+static int hf_adp_id;
+static int hf_adp_mac;
+static int hf_adp_switchip;
 
 static const value_string adp_type_val[] =
 {

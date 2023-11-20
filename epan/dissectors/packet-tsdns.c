@@ -22,19 +22,19 @@ void proto_register_tsdns(void);
 void proto_reg_handoff_tsdns(void);
 static dissector_handle_t tsdns_handle;
 
-static int proto_tsdns = -1;
+static int proto_tsdns;
 
-static int hf_tsdns_data = -1;
-static int hf_tsdns_request = -1;
-static int hf_tsdns_request_domain = -1;
-static int hf_tsdns_response = -1;
-static int hf_tsdns_response_ip = -1;
-static int hf_tsdns_response_address = -1;
-static int hf_tsdns_response_port = -1;
+static int hf_tsdns_data;
+static int hf_tsdns_request;
+static int hf_tsdns_request_domain;
+static int hf_tsdns_response;
+static int hf_tsdns_response_ip;
+static int hf_tsdns_response_address;
+static int hf_tsdns_response_port;
 
-static expert_field ei_response_port_malformed = EI_INIT;
+static expert_field ei_response_port_malformed;
 
-static gint ett_tsdns = -1;
+static gint ett_tsdns;
 
 static int dissect_tsdns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {

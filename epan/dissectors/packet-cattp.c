@@ -40,23 +40,23 @@
 
 static dissector_handle_t cattp_handle;
 
-static int proto_cattp = -1;
+static int proto_cattp;
 
-static gint ett_cattp = -1;
-static gint ett_cattp_id = -1;
-static gint ett_cattp_flags = -1;
-static gint ett_cattp_eaks = -1;
+static gint ett_cattp;
+static gint ett_cattp_id;
+static gint ett_cattp_flags;
+static gint ett_cattp_eaks;
 
-static int hf_cattp_flags = -1;
+static int hf_cattp_flags;
 
 /* flag components */
-static int hf_cattp_flag_syn = -1;
-static int hf_cattp_flag_ack = -1;
-static int hf_cattp_flag_eak = -1;
-static int hf_cattp_flag_rst = -1;
-static int hf_cattp_flag_nul = -1;
-static int hf_cattp_flag_seg = -1;
-static int hf_cattp_version = -1;
+static int hf_cattp_flag_syn;
+static int hf_cattp_flag_ack;
+static int hf_cattp_flag_eak;
+static int hf_cattp_flag_rst;
+static int hf_cattp_flag_nul;
+static int hf_cattp_flag_seg;
+static int hf_cattp_version;
 
 /* structure of flag components */
 static int * const cattp_flags[] = {
@@ -70,25 +70,25 @@ static int * const cattp_flags[] = {
     NULL
 };
 
-static int hf_cattp_hlen = -1;
-static int hf_cattp_srcport = -1;
-static int hf_cattp_dstport = -1;
-static int hf_cattp_datalen = -1;
-static int hf_cattp_seq = -1;
-static int hf_cattp_ack = -1;
-static int hf_cattp_windowsize = -1;
-static int hf_cattp_checksum = -1;
-static int hf_cattp_checksum_status = -1;
-static int hf_cattp_identification = -1;
-static int hf_cattp_iccid = -1;
-static int hf_cattp_idlen = -1;
-static int hf_cattp_maxpdu = -1;
-static int hf_cattp_maxsdu = -1;
-static int hf_cattp_rc = -1;
-static int hf_cattp_eaklen = -1;
-static int hf_cattp_eaks = -1;
+static int hf_cattp_hlen;
+static int hf_cattp_srcport;
+static int hf_cattp_dstport;
+static int hf_cattp_datalen;
+static int hf_cattp_seq;
+static int hf_cattp_ack;
+static int hf_cattp_windowsize;
+static int hf_cattp_checksum;
+static int hf_cattp_checksum_status;
+static int hf_cattp_identification;
+static int hf_cattp_iccid;
+static int hf_cattp_idlen;
+static int hf_cattp_maxpdu;
+static int hf_cattp_maxsdu;
+static int hf_cattp_rc;
+static int hf_cattp_eaklen;
+static int hf_cattp_eaks;
 
-static expert_field ei_cattp_checksum = EI_INIT;
+static expert_field ei_cattp_checksum;
 
 /* Preference to control whether to check the CATTP checksum */
 static gboolean cattp_check_checksum = TRUE;

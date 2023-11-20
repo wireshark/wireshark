@@ -21,13 +21,13 @@
 void proto_register_dcom_provideclassinfo(void);
 void proto_reg_handoff_dcom_provideclassinfo(void);
 
-static int hf_provideclassinfo_opnum = -1;
-static int hf_typeinfo = -1;
+static int hf_provideclassinfo_opnum;
+static int hf_typeinfo;
 
 static e_guid_t uuid_provideclassinfo = { 0xb196b283, 0xbab4, 0x101a, { 0xB6, 0x9C, 0x00, 0xAA, 0x00, 0x34, 0x1D, 0x07} };
 static guint16 ver_provideclassinfo = 0;
-static gint ett_provideclassinfo = -1;
-static int proto_provideclassinfo = -1;
+static gint ett_provideclassinfo;
+static int proto_provideclassinfo;
 
 static int dissect_IProvideClassInfo_GetClassInfo_rqst(tvbuff_t *tvb, int offset,
                                             packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)

@@ -54,23 +54,23 @@ static capture_dissector_handle_t ipx_cap_handle;
 
 static int proto_vlan;
 
-static int hf_vlan_cfi = -1;
-static int hf_vlan_dei = -1;
-static int hf_vlan_etype = -1;
-static int hf_vlan_id = -1;
-static int hf_vlan_id_name = -1;
-static int hf_vlan_len = -1;
-static int hf_vlan_priority = -1;
-static int hf_vlan_priority_5 = -1;
-static int hf_vlan_priority_6 = -1;
-static int hf_vlan_priority_7 = -1;
-static int hf_vlan_priority_old = -1;
-static int hf_vlan_trailer = -1;
+static int hf_vlan_cfi;
+static int hf_vlan_dei;
+static int hf_vlan_etype;
+static int hf_vlan_id;
+static int hf_vlan_id_name;
+static int hf_vlan_len;
+static int hf_vlan_priority;
+static int hf_vlan_priority_5;
+static int hf_vlan_priority_6;
+static int hf_vlan_priority_7;
+static int hf_vlan_priority_old;
+static int hf_vlan_trailer;
 
-static gint ett_vlan = -1;
+static gint ett_vlan;
 
-static expert_field ei_vlan_len = EI_INIT;
-static expert_field ei_vlan_too_many_tags = EI_INIT;
+static expert_field ei_vlan_len;
+static expert_field ei_vlan_too_many_tags;
 
 /* From Table G-2 of IEEE standard 802.1D-2004 */
 /* Note that 0 is the default priority, but is above 1 and 2.

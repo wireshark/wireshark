@@ -43,7 +43,7 @@ static range_t* metamako_trailer_secs_bounds = NULL;
 static guint metamako_trailer_days_diff_limit = TRAILER_DAYS_DIFF_LIMIT_DFLT;
 
 /* Protocols and Header Fields */
-static int proto_metamako = -1;
+static int proto_metamako;
 
 /*
   Metamako trailer format
@@ -65,34 +65,34 @@ static int proto_metamako = -1;
   +---------------+---------------+---------------+---------------+
 */
 
-static int hf_metamako_origfcs = -1;
-static int hf_metamako_trailerext = -1;
-static int hf_metamako_unknownext = -1;
-static int hf_metamako_seqnum = -1;
-static int hf_metamako_tagstring = -1;
-static int hf_metamako_fracns = -1;
-static int hf_metamako_crchash = -1;
-static int hf_metamako_egress_seqnum = -1;
-static int hf_metamako_time_abs = -1;
-static int hf_metamako_time_rel = -1;
-static int hf_metamako_flags = -1;
-static int hf_metamako_src_port = -1;
-static int hf_metamako_src_device = -1;
-static int hf_metamako_time_diff = -1;
-static int hf_metamako_fcs = -1;
-static int hf_metamako_fcs_status = -1;
+static int hf_metamako_origfcs;
+static int hf_metamako_trailerext;
+static int hf_metamako_unknownext;
+static int hf_metamako_seqnum;
+static int hf_metamako_tagstring;
+static int hf_metamako_fracns;
+static int hf_metamako_crchash;
+static int hf_metamako_egress_seqnum;
+static int hf_metamako_time_abs;
+static int hf_metamako_time_rel;
+static int hf_metamako_flags;
+static int hf_metamako_src_port;
+static int hf_metamako_src_device;
+static int hf_metamako_time_diff;
+static int hf_metamako_fcs;
+static int hf_metamako_fcs_status;
 
-static int hf_metamako_flags_orig_fcs_vld = -1;
-static int hf_metamako_flags_has_ext = -1;
-static int hf_metamako_flags_duplicate = -1;
-static int hf_metamako_flags_ts_degraded = -1;
-static int hf_metamako_flags_control_block_type = -1;
-static int hf_metamako_reserved = -1;
+static int hf_metamako_flags_orig_fcs_vld;
+static int hf_metamako_flags_has_ext;
+static int hf_metamako_flags_duplicate;
+static int hf_metamako_flags_ts_degraded;
+static int hf_metamako_flags_control_block_type;
+static int hf_metamako_reserved;
 
-static gint ett_metamako = -1;
-static gint ett_metamako_timestamp = -1;
-static gint ett_metamako_extensions = -1;
-static gint ett_metamako_flags = -1;
+static gint ett_metamako;
+static gint ett_metamako_timestamp;
+static gint ett_metamako_extensions;
+static gint ett_metamako_flags;
 
 static const enum_val_t metamako_fcs_vals[] = {
   {"heuristic", "According to heuristic", -1},
@@ -130,7 +130,7 @@ static int* const flags[] = {
   NULL
 };
 
-static expert_field ei_metamako_fcs_bad = EI_INIT;
+static expert_field ei_metamako_fcs_bad;
 
 static void
 sub_nanos_base_custom(gchar* result, guint32 value)

@@ -30,34 +30,34 @@ void proto_reg_handoff_rtcdc(void);
 static dissector_handle_t rtcdc_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_rtcdc = -1;
-static int hf_message_type = -1;
-static int hf_channel_type = -1;
-static int hf_flags = -1;
-static int hf_flags_reserved = -1;
-static int hf_unordered_allowed = -1;
-static int hf_reliability = -1;
-static int hf_priority = -1;
-static int hf_label = -1;
-static int hf_error = -1;
-static int hf_sid = -1;
-static int hf_new_channel_type = -1;
-static int hf_new_reliability = -1;
-static int hf_new_priority = -1;
-static int hf_new_label_length = -1;
-static int hf_new_protocol_length = -1;
-static int hf_new_label = -1;
-static int hf_new_protocol = -1;
+static int proto_rtcdc;
+static int hf_message_type;
+static int hf_channel_type;
+static int hf_flags;
+static int hf_flags_reserved;
+static int hf_unordered_allowed;
+static int hf_reliability;
+static int hf_priority;
+static int hf_label;
+static int hf_error;
+static int hf_sid;
+static int hf_new_channel_type;
+static int hf_new_reliability;
+static int hf_new_priority;
+static int hf_new_label_length;
+static int hf_new_protocol_length;
+static int hf_new_label;
+static int hf_new_protocol;
 
 /* Initialize the subtree pointers */
-static gint ett_rtcdc = -1;
-static gint ett_flags = -1;
+static gint ett_rtcdc;
+static gint ett_flags;
 
-static expert_field ei_rtcdc_new_reliability_non_zero = EI_INIT;
-static expert_field ei_rtcdc_message_type_unknown = EI_INIT;
-static expert_field ei_rtcdc_inconsistent_label_and_parameter_length = EI_INIT;
-static expert_field ei_rtcdc_message_too_long = EI_INIT;
-static expert_field ei_rtcdc_new_channel_type = EI_INIT;
+static expert_field ei_rtcdc_new_reliability_non_zero;
+static expert_field ei_rtcdc_message_type_unknown;
+static expert_field ei_rtcdc_inconsistent_label_and_parameter_length;
+static expert_field ei_rtcdc_message_too_long;
+static expert_field ei_rtcdc_new_channel_type;
 
 #define DATA_CHANNEL_OPEN_REQUEST     0x00
 #define DATA_CHANNEL_OPEN_RESPONSE    0x01

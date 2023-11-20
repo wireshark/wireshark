@@ -14,7 +14,7 @@
 #include <epan/packet.h>
 #include "packet-usb.h"
 
-static int proto_usb_ms = -1;
+static int proto_usb_ms;
 
 static dissector_handle_t usb_ms_bulk_handle;
 static dissector_handle_t usb_ms_control_handle;

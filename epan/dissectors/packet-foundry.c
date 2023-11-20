@@ -24,46 +24,46 @@ void proto_reg_handoff_fdp(void);
 
 static dissector_handle_t fdp_handle;
 
-static int hf_llc_foundry_pid = -1;
+static int hf_llc_foundry_pid;
 
-static int proto_fdp = -1;
+static int proto_fdp;
 /* FDP header */
-static int hf_fdp_version = -1;
-static int hf_fdp_holdtime = -1;
-static int hf_fdp_checksum = -1;
+static int hf_fdp_version;
+static int hf_fdp_holdtime;
+static int hf_fdp_checksum;
 /* TLV header */
-static int hf_fdp_tlv_type = -1;
-static int hf_fdp_tlv_length = -1;
+static int hf_fdp_tlv_type;
+static int hf_fdp_tlv_length;
 /* Unknown element */
-static int hf_fdp_unknown = -1;
-static int hf_fdp_unknown_data = -1;
+static int hf_fdp_unknown;
+static int hf_fdp_unknown_data;
 /* Port Tag element */
-static int hf_fdp_tag = -1;
-static int hf_fdp_tag_native = -1;
-static int hf_fdp_tag_type = -1;
-static int hf_fdp_tag_unknown = -1;
+static int hf_fdp_tag;
+static int hf_fdp_tag_native;
+static int hf_fdp_tag_type;
+static int hf_fdp_tag_unknown;
 /* VLAN Bitmap */
-static int hf_fdp_vlanmap = -1;
-static int hf_fdp_vlanmap_vlan = -1;
+static int hf_fdp_vlanmap;
+static int hf_fdp_vlanmap_vlan;
 /* String element */
-static int hf_fdp_string = -1;
-static int hf_fdp_string_data = -1;
-static int hf_fdp_string_text = -1;
+static int hf_fdp_string;
+static int hf_fdp_string_data;
+static int hf_fdp_string_text;
 /* Net? element */
-static int hf_fdp_net = -1;
-static int hf_fdp_net_unknown = -1;
-static int hf_fdp_net_ip = -1;
-static int hf_fdp_net_iplength = -1;
+static int hf_fdp_net;
+static int hf_fdp_net_unknown;
+static int hf_fdp_net_ip;
+static int hf_fdp_net_iplength;
 
-static gint ett_fdp = -1;
-static gint ett_fdp_tlv_header = -1;
-static gint ett_fdp_unknown = -1;
-static gint ett_fdp_string = -1;
-static gint ett_fdp_net = -1;
-static gint ett_fdp_tag = -1;
-static gint ett_fdp_vlanmap = -1;
+static gint ett_fdp;
+static gint ett_fdp_tlv_header;
+static gint ett_fdp_unknown;
+static gint ett_fdp_string;
+static gint ett_fdp_net;
+static gint ett_fdp_tag;
+static gint ett_fdp_vlanmap;
 
-static expert_field ei_fdp_tlv_length = EI_INIT;
+static expert_field ei_fdp_tlv_length;
 
 #define PROTO_SHORT_NAME "FDP"
 #define PROTO_LONG_NAME "Foundry Discovery Protocol"

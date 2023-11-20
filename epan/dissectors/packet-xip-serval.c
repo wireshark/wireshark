@@ -23,39 +23,39 @@ void proto_reg_handoff_xip_serval(void);
 static dissector_handle_t tcp_handle;
 static dissector_handle_t udp_handle;
 
-static gint proto_xip_serval		= -1;
+static gint proto_xip_serval;
 
 /* XIP Serval header. */
-static gint hf_xip_serval_hl		= -1;
-static gint hf_xip_serval_proto		= -1;
-static gint hf_xip_serval_check		= -1;
-static gint hf_xip_serval_check_status = -1;
+static gint hf_xip_serval_hl;
+static gint hf_xip_serval_proto;
+static gint hf_xip_serval_check;
+static gint hf_xip_serval_check_status;
 
 /* XIP Serval general extension header. */
-static gint hf_xip_serval_ext_type	= -1;
-static gint hf_xip_serval_ext_length	= -1;
+static gint hf_xip_serval_ext_type;
+static gint hf_xip_serval_ext_length;
 
 /* XIP Serval control extension header. */
-static gint hf_xip_serval_cext		= -1;
-static gint hf_xip_serval_cext_flags	= -1;
-static gint hf_xip_serval_cext_syn	= -1;
-static gint hf_xip_serval_cext_rsyn	= -1;
-static gint hf_xip_serval_cext_ack	= -1;
-static gint hf_xip_serval_cext_nack	= -1;
-static gint hf_xip_serval_cext_rst	= -1;
-static gint hf_xip_serval_cext_fin	= -1;
-static gint hf_xip_serval_cext_verno	= -1;
-static gint hf_xip_serval_cext_ackno	= -1;
-static gint hf_xip_serval_cext_nonce	= -1;
+static gint hf_xip_serval_cext;
+static gint hf_xip_serval_cext_flags;
+static gint hf_xip_serval_cext_syn;
+static gint hf_xip_serval_cext_rsyn;
+static gint hf_xip_serval_cext_ack;
+static gint hf_xip_serval_cext_nack;
+static gint hf_xip_serval_cext_rst;
+static gint hf_xip_serval_cext_fin;
+static gint hf_xip_serval_cext_verno;
+static gint hf_xip_serval_cext_ackno;
+static gint hf_xip_serval_cext_nonce;
 
-static gint ett_xip_serval_tree		= -1;
-static gint ett_xip_serval_cext		= -1;
-static gint ett_xip_serval_cext_flags	= -1;
+static gint ett_xip_serval_tree;
+static gint ett_xip_serval_cext;
+static gint ett_xip_serval_cext_flags;
 
-static expert_field ei_xip_serval_bad_len	= EI_INIT;
-static expert_field ei_xip_serval_bad_proto	= EI_INIT;
-static expert_field ei_xip_serval_bad_checksum	= EI_INIT;
-static expert_field ei_xip_serval_bad_ext	= EI_INIT;
+static expert_field ei_xip_serval_bad_len;
+static expert_field ei_xip_serval_bad_proto;
+static expert_field ei_xip_serval_bad_checksum;
+static expert_field ei_xip_serval_bad_ext;
 
 #define XIP_SERVAL_PROTO_DATA		0
 static const value_string xip_serval_proto_vals[] = {

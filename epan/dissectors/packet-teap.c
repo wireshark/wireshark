@@ -18,13 +18,13 @@
 void proto_register_teap(void);
 void proto_reg_handoff_teap(void);
 
-static int proto_teap = -1;
+static int proto_teap;
 
-static gint ett_teap = -1;
-static gint ett_teap_tlv = -1;
-static gint ett_pac_attr_tlv = -1;
+static gint ett_teap;
+static gint ett_teap_tlv;
+static gint ett_pac_attr_tlv;
 
-static expert_field ei_teap_bad_length = EI_INIT;
+static expert_field ei_teap_bad_length;
 
 static dissector_handle_t teap_handle;
 
@@ -210,44 +210,44 @@ static const value_string pac_type_vals[] = {
    { 0, NULL }
  };
 
-static int hf_teap_tlv_mandatory = -1;
-static int hf_teap_tlv_reserved = -1;
-static int hf_teap_tlv_type = -1;
-static int hf_teap_tlv_len = -1;
-static int hf_teap_tlv_val = -1;
-static int hf_teap_auth_id = -1;
-static int hf_teap_identity = -1;
-static int hf_teap_status = -1;
-static int hf_teap_vendor_id = -1;
-static int hf_teap_request_action_status = -1;
-static int hf_teap_request_action_action = -1;
-static int hf_teap_crypto_reserved = -1;
-static int hf_teap_crypto_version = -1;
-static int hf_teap_crypto_rcv_version = -1;
-static int hf_teap_crypto_flags = -1;
-static int hf_teap_crypto_subtype = -1;
-static int hf_teap_crypto_nonce = -1;
-static int hf_teap_crypto_emsk = -1;
-static int hf_teap_crypto_msk = -1;
-static int hf_teap_nak_type = -1;
-static int hf_teap_error_code = -1;
-static int hf_teap_prompt = -1;
-static int hf_teap_user_len = -1;
-static int hf_teap_username = -1;
-static int hf_teap_pass_len = -1;
-static int hf_teap_password = -1;
+static int hf_teap_tlv_mandatory;
+static int hf_teap_tlv_reserved;
+static int hf_teap_tlv_type;
+static int hf_teap_tlv_len;
+static int hf_teap_tlv_val;
+static int hf_teap_auth_id;
+static int hf_teap_identity;
+static int hf_teap_status;
+static int hf_teap_vendor_id;
+static int hf_teap_request_action_status;
+static int hf_teap_request_action_action;
+static int hf_teap_crypto_reserved;
+static int hf_teap_crypto_version;
+static int hf_teap_crypto_rcv_version;
+static int hf_teap_crypto_flags;
+static int hf_teap_crypto_subtype;
+static int hf_teap_crypto_nonce;
+static int hf_teap_crypto_emsk;
+static int hf_teap_crypto_msk;
+static int hf_teap_nak_type;
+static int hf_teap_error_code;
+static int hf_teap_prompt;
+static int hf_teap_user_len;
+static int hf_teap_username;
+static int hf_teap_pass_len;
+static int hf_teap_password;
 
-static int hf_pac_attr_type = -1;
-static int hf_pac_attr_pac_key = -1;
-static int hf_pac_attr_pac_opaque = -1;
-static int hf_pac_attr_pac_lifetime = -1;
-static int hf_pac_attr_pac_a_id = -1;
-static int hf_pac_attr_pac_i_id = -1;
-static int hf_pac_attr_pac_reserved = -1;
-static int hf_pac_attr_pac_a_id_info = -1;
-static int hf_pac_attr_pac_result = -1;
-static int hf_pac_attr_pac_type = -1;
-static int hf_pac_attr_val = -1;
+static int hf_pac_attr_type;
+static int hf_pac_attr_pac_key;
+static int hf_pac_attr_pac_opaque;
+static int hf_pac_attr_pac_lifetime;
+static int hf_pac_attr_pac_a_id;
+static int hf_pac_attr_pac_i_id;
+static int hf_pac_attr_pac_reserved;
+static int hf_pac_attr_pac_a_id_info;
+static int hf_pac_attr_pac_result;
+static int hf_pac_attr_pac_type;
+static int hf_pac_attr_val;
 
 static int
 dissect_teap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);

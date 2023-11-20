@@ -175,52 +175,52 @@ static const true_false_string notify_connect_disconnect = {
     "Disconnect"
 };
 
-static int proto_asphodel = -1;
+static int proto_asphodel;
 
 // asphodel inquiry fields
-static int hf_asphodel_version = -1;
-static int hf_asphodel_identifier = -1;
+static int hf_asphodel_version;
+static int hf_asphodel_identifier;
 
 // asphodel response fields
-static int hf_asphodel_tcp_version = -1;
-static int hf_asphodel_connected = -1;
-static int hf_asphodel_max_incoming_param_length = -1;
-static int hf_asphodel_max_outgoing_param_length = -1;
-static int hf_asphodel_stream_packet_length = -1;
-static int hf_asphodel_protocol_type = -1;
-static int hf_asphodel_protocol_type_rf_power = -1;
-static int hf_asphodel_protocol_type_radio = -1;
-static int hf_asphodel_protocol_type_remote = -1;
-static int hf_asphodel_protocol_type_bootloader = -1;
-static int hf_asphodel_serial_number = -1;
-static int hf_asphodel_board_rev = -1;
-static int hf_asphodel_board_type = -1;
-static int hf_asphodel_build_info = -1;
-static int hf_asphodel_build_date = -1;
-static int hf_asphodel_user_tag1 = -1;
-static int hf_asphodel_user_tag2 = -1;
-static int hf_asphodel_remote_max_incoming_param_length = -1;
-static int hf_asphodel_remote_max_outgoing_param_length = -1;
-static int hf_asphodel_remote_stream_packet_length = -1;
+static int hf_asphodel_tcp_version;
+static int hf_asphodel_connected;
+static int hf_asphodel_max_incoming_param_length;
+static int hf_asphodel_max_outgoing_param_length;
+static int hf_asphodel_stream_packet_length;
+static int hf_asphodel_protocol_type;
+static int hf_asphodel_protocol_type_rf_power;
+static int hf_asphodel_protocol_type_radio;
+static int hf_asphodel_protocol_type_remote;
+static int hf_asphodel_protocol_type_bootloader;
+static int hf_asphodel_serial_number;
+static int hf_asphodel_board_rev;
+static int hf_asphodel_board_type;
+static int hf_asphodel_build_info;
+static int hf_asphodel_build_date;
+static int hf_asphodel_user_tag1;
+static int hf_asphodel_user_tag2;
+static int hf_asphodel_remote_max_incoming_param_length;
+static int hf_asphodel_remote_max_outgoing_param_length;
+static int hf_asphodel_remote_stream_packet_length;
 
 // asphodel tcp fields
-static int hf_asphodel_length = -1;
-static int hf_asphodel_type = -1;
-static int hf_asphodel_seq = -1;
-static int hf_asphodel_cmd = -1;
-static int hf_asphodel_err_code = -1;
-static int hf_asphodel_params = -1;
-static int hf_asphodel_stream_data = -1;
-static int hf_asphodel_notify = -1;
-static int hf_asphodel_notify_serial = -1;
+static int hf_asphodel_length;
+static int hf_asphodel_type;
+static int hf_asphodel_seq;
+static int hf_asphodel_cmd;
+static int hf_asphodel_err_code;
+static int hf_asphodel_params;
+static int hf_asphodel_stream_data;
+static int hf_asphodel_notify;
+static int hf_asphodel_notify_serial;
 
-static gint ett_asphodel = -1;
-static gint ett_asphodel_protocol_type = -1;
+static gint ett_asphodel;
+static gint ett_asphodel_protocol_type;
 
-static expert_field ei_asphodel_bad_param_length = EI_INIT;
-static expert_field ei_asphodel_bad_length = EI_INIT;
-static expert_field ei_asphodel_cmd_error = EI_INIT;
-static expert_field ei_asphodel_unknown_type = EI_INIT;
+static expert_field ei_asphodel_bad_param_length;
+static expert_field ei_asphodel_bad_length;
+static expert_field ei_asphodel_cmd_error;
+static expert_field ei_asphodel_unknown_type;
 
 static dissector_handle_t asphodel_inquiry_handle;
 static dissector_handle_t asphodel_response_handle;

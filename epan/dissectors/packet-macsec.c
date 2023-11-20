@@ -31,26 +31,26 @@ static dissector_handle_t ethertype_handle;
 #define AN_MASK      0x03
 
 
-static int proto_macsec = -1;
-static int hf_macsec_TCI                   = -1;
-static int hf_macsec_TCI_V                 = -1;
-static int hf_macsec_TCI_ES                = -1;
-static int hf_macsec_TCI_SC                = -1;
-static int hf_macsec_TCI_SCB               = -1;
-static int hf_macsec_TCI_E                 = -1;
-static int hf_macsec_TCI_C                 = -1;
-static int hf_macsec_AN                    = -1;
-static int hf_macsec_SL                    = -1;
-static int hf_macsec_PN                    = -1;
-static int hf_macsec_SCI_system_identifier = -1;
-static int hf_macsec_SCI_port_identifier   = -1;
-static int hf_macsec_etype                 = -1;
-static int hf_macsec_eth_padding           = -1;
-static int hf_macsec_ICV                   = -1;
+static int proto_macsec;
+static int hf_macsec_TCI;
+static int hf_macsec_TCI_V;
+static int hf_macsec_TCI_ES;
+static int hf_macsec_TCI_SC;
+static int hf_macsec_TCI_SCB;
+static int hf_macsec_TCI_E;
+static int hf_macsec_TCI_C;
+static int hf_macsec_AN;
+static int hf_macsec_SL;
+static int hf_macsec_PN;
+static int hf_macsec_SCI_system_identifier;
+static int hf_macsec_SCI_port_identifier;
+static int hf_macsec_etype;
+static int hf_macsec_eth_padding;
+static int hf_macsec_ICV;
 
 /* Initialize the subtree pointers */
-static gint ett_macsec = -1;
-static gint ett_macsec_tci = -1;
+static gint ett_macsec;
+static gint ett_macsec_tci;
 
 /* Code to actually dissect the packets */
 static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {

@@ -75,51 +75,51 @@ enum meta_direction {
     META_DIR_DOWN
 };
 
-static int proto_meta = -1;
+static int proto_meta;
 extern int proto_sscop;
 
 /* fields */
-static int hf_meta_schema = -1;
-static int hf_meta_hdrlen = -1;
-static int hf_meta_proto = -1;
-static int hf_meta_reserved = -1;
-static int hf_meta_item = -1;
-static int hf_meta_item_id = -1;
-static int hf_meta_item_type = -1;
-static int hf_meta_item_len = -1;
-static int hf_meta_item_data = -1;
+static int hf_meta_schema;
+static int hf_meta_hdrlen;
+static int hf_meta_proto;
+static int hf_meta_reserved;
+static int hf_meta_item;
+static int hf_meta_item_id;
+static int hf_meta_item_type;
+static int hf_meta_item_len;
+static int hf_meta_item_data;
 /* specific fields */
-static int hf_meta_item_direction = -1;
-static int hf_meta_item_ts = -1;
-static int hf_meta_item_phylinkid = -1;
-static int hf_meta_item_nsapi = -1;
-static int hf_meta_item_imsi_value = -1;
-static int hf_meta_item_imsi_digits = -1;
-static int hf_meta_item_imei_value = -1;
-static int hf_meta_item_imei_digits = -1;
-static int hf_meta_item_signaling = -1;
-static int hf_meta_item_incomplete = -1;
-static int hf_meta_item_deciphered = -1;
-static int hf_meta_item_apn = -1;
-static int hf_meta_item_rat = -1;
-static int hf_meta_item_aal5proto = -1;
-static int hf_meta_item_cell = -1;
-static int hf_meta_item_localdevid = -1;
-static int hf_meta_item_remotedevid = -1;
-static int hf_meta_item_tapgroupid = -1;
-static int hf_meta_item_tlli = -1;
-static int hf_meta_item_calling = -1;
-static int hf_meta_item_called = -1;
+static int hf_meta_item_direction;
+static int hf_meta_item_ts;
+static int hf_meta_item_phylinkid;
+static int hf_meta_item_nsapi;
+static int hf_meta_item_imsi_value;
+static int hf_meta_item_imsi_digits;
+static int hf_meta_item_imei_value;
+static int hf_meta_item_imei_digits;
+static int hf_meta_item_signaling;
+static int hf_meta_item_incomplete;
+static int hf_meta_item_deciphered;
+static int hf_meta_item_apn;
+static int hf_meta_item_rat;
+static int hf_meta_item_aal5proto;
+static int hf_meta_item_cell;
+static int hf_meta_item_localdevid;
+static int hf_meta_item_remotedevid;
+static int hf_meta_item_tapgroupid;
+static int hf_meta_item_tlli;
+static int hf_meta_item_calling;
+static int hf_meta_item_called;
 
 /* subtrees */
-static gint ett_meta = -1;
-static gint ett_meta_item = -1;
-static gint ett_meta_cell = -1;
-static gint ett_meta_imsi = -1;
-static gint ett_meta_imei = -1;
+static gint ett_meta;
+static gint ett_meta_item;
+static gint ett_meta_cell;
+static gint ett_meta_imsi;
+static gint ett_meta_imei;
 
-static expert_field ei_meta_malformed = EI_INIT;
-static expert_field ei_meta_invalid_header = EI_INIT;
+static expert_field ei_meta_malformed;
+static expert_field ei_meta_invalid_header;
 
 /* default handle */
 static dissector_handle_t data_handle;

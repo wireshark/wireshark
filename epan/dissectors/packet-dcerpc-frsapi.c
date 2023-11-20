@@ -19,11 +19,11 @@
 void proto_register_dcerpc_frsapi(void);
 void proto_reg_handoff_dcerpc_frsapi(void);
 
-static int proto_dcerpc_frsapi = -1;
+static int proto_dcerpc_frsapi;
 
-static int hf_frsapi_opnum = -1;
+static int hf_frsapi_opnum;
 
-static gint ett_dcerpc_frsapi = -1;
+static gint ett_dcerpc_frsapi;
 
 /*
 IDL [ uuid(d049b186-814f-11d1-9a3c-00c04fc9b232),

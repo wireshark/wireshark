@@ -24,7 +24,7 @@ void proto_register_lbttcp(void);
 void proto_reg_handoff_lbttcp(void);
 
 /* Protocol handle */
-static int proto_lbttcp = -1;
+static int proto_lbttcp;
 
 /* Dissector handle */
 static dissector_handle_t lbttcp_dissector_handle;
@@ -409,14 +409,14 @@ static char * lbttcp_tag_find(packet_info * pinfo)
 /*----------------------------------------------------------------------------*/
 
 /* Dissector tree handles */
-static gint ett_lbttcp = -1;
-static gint ett_lbttcp_channel = -1;
+static gint ett_lbttcp;
+static gint ett_lbttcp_channel;
 
 /* Dissector field handles */
-static int hf_lbttcp_tag = -1;
-static int hf_lbttcp_channel = -1;
-static int hf_lbttcp_channel_id = -1;
-static int hf_lbttcp_channel_client = -1;
+static int hf_lbttcp_tag;
+static int hf_lbttcp_channel;
+static int hf_lbttcp_channel_id;
+static int hf_lbttcp_channel_client;
 
 static gboolean lbttcp_packet_is_transport_source(packet_info * pinfo, const lbttcp_tag_entry_t * tag)
 {

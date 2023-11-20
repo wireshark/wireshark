@@ -73,61 +73,61 @@ void proto_register_netrix(void);
 
 static dissector_handle_t netrix_handle;
 
-static expert_field ei_netrix_unexpected_header = EI_INIT;
-static expert_field ei_netrix_unexpected_record = EI_INIT;
+static expert_field ei_netrix_unexpected_header;
+static expert_field ei_netrix_unexpected_record;
 
-static int proto_netrix = -1;
-static int hf_netrix_header_type = -1;
-static int hf_netrix_header_systeminfo_type = -1;
-static int hf_netrix_header_groupcall_type = -1;
-static int hf_netrix_header_profilecall_type = -1;
-static int hf_netrix_header_get_conversiontable_type = -1;
-static int hf_netrix_header_get_conversiontable_none_type = -1;
-static int hf_netrix_header_get_conversiontable_result_type = -1;
-static int hf_netrix_header_search_conversiontables_type = -1;
-static int hf_netrix_header_search_conversiontables_none_type = -1;
-static int hf_netrix_header_boschcall_type = -1;
+static int proto_netrix;
+static int hf_netrix_header_type;
+static int hf_netrix_header_systeminfo_type;
+static int hf_netrix_header_groupcall_type;
+static int hf_netrix_header_profilecall_type;
+static int hf_netrix_header_get_conversiontable_type;
+static int hf_netrix_header_get_conversiontable_none_type;
+static int hf_netrix_header_get_conversiontable_result_type;
+static int hf_netrix_header_search_conversiontables_type;
+static int hf_netrix_header_search_conversiontables_none_type;
+static int hf_netrix_header_boschcall_type;
 
-static int hf_netrix_ack_type = -1;
+static int hf_netrix_ack_type;
 
-static int hf_netrix_systeminfo_computername_type = -1;
-static int hf_netrix_systeminfo_ipaddress_type = -1;
-static int hf_netrix_systeminfo_version_type = -1;
-static int hf_netrix_systeminfo_beep_type = -1;
+static int hf_netrix_systeminfo_computername_type;
+static int hf_netrix_systeminfo_ipaddress_type;
+static int hf_netrix_systeminfo_version_type;
+static int hf_netrix_systeminfo_beep_type;
 
-static int hf_netrix_groupcall_groupnumber_type = -1;
-static int hf_netrix_groupcall_type_type = -1;
-static int hf_netrix_groupcall_addition_type = -1;
-static int hf_netrix_groupcall_idboschloc_type = -1;
-static int hf_netrix_groupcall_name_type = -1;
-static int hf_netrix_groupcall_room_type = -1;
-static int hf_netrix_groupcall_location_type = -1;
+static int hf_netrix_groupcall_groupnumber_type;
+static int hf_netrix_groupcall_type_type;
+static int hf_netrix_groupcall_addition_type;
+static int hf_netrix_groupcall_idboschloc_type;
+static int hf_netrix_groupcall_name_type;
+static int hf_netrix_groupcall_room_type;
+static int hf_netrix_groupcall_location_type;
 
-static int hf_netrix_profilecall_groupnumber_type = -1;
-static int hf_netrix_profilecall_type_type = -1;
-static int hf_netrix_profilecall_addition_type = -1;
-static int hf_netrix_profilecall_idboschloc_type = -1;
-static int hf_netrix_profilecall_name_type = -1;
-static int hf_netrix_profilecall_room_type = -1;
-static int hf_netrix_profilecall_location_type = -1;
+static int hf_netrix_profilecall_groupnumber_type;
+static int hf_netrix_profilecall_type_type;
+static int hf_netrix_profilecall_addition_type;
+static int hf_netrix_profilecall_idboschloc_type;
+static int hf_netrix_profilecall_name_type;
+static int hf_netrix_profilecall_room_type;
+static int hf_netrix_profilecall_location_type;
 
-static int hf_netrix_get_conversiontable_table_type = -1;
-static int hf_netrix_get_conversiontable_key_type = -1;
-static int hf_netrix_get_conversiontable_value_type = -1;
+static int hf_netrix_get_conversiontable_table_type;
+static int hf_netrix_get_conversiontable_key_type;
+static int hf_netrix_get_conversiontable_value_type;
 
-static int hf_netrix_search_conversiontables_key_type = -1;
-static int hf_netrix_search_conversiontables_table_type = -1;
+static int hf_netrix_search_conversiontables_key_type;
+static int hf_netrix_search_conversiontables_table_type;
 
-static gint ett_netrix = -1;
-static gint ett_netrix_systeminfo = -1;
-static gint ett_netrix_groupcall = -1;
-static gint ett_netrix_profilecall = -1;
-static gint ett_netrix_get_conversiontable = -1;
-static gint ett_netrix_get_conversiontable_result = -1;
-static gint ett_netrix_search_conversiontables = -1;
-static gint ett_netrix_search_conversiontables_result = -1;
-static gint ett_netrix_boschcall = -1;
-static gint ett_netrix_unknown = -1;
+static gint ett_netrix;
+static gint ett_netrix_systeminfo;
+static gint ett_netrix_groupcall;
+static gint ett_netrix_profilecall;
+static gint ett_netrix_get_conversiontable;
+static gint ett_netrix_get_conversiontable_result;
+static gint ett_netrix_search_conversiontables;
+static gint ett_netrix_search_conversiontables_result;
+static gint ett_netrix_boschcall;
+static gint ett_netrix_unknown;
 
 static const value_string netrix_headertypenames[] = {
 	{ INDIGOCARE_NETRIX_SYSTEMINFO,				"System Info" },

@@ -42,7 +42,7 @@
 void proto_register_pdu_transport(void);
 void proto_reg_handoff_pdu_transport(void);
 
-static int proto_pdu_transport = -1;
+static int proto_pdu_transport;
 static dissector_handle_t pdu_transport_handle_udp = NULL;
 static dissector_handle_t pdu_transport_handle_tcp = NULL;
 
@@ -52,15 +52,15 @@ static dissector_table_t subdissector_table = NULL;
 #define PDU_TRANSPORT_HDR_LEN 8
 
 /* header field */
-static int hf_pdu_transport_id = -1;
-static int hf_pdu_transport_length = -1;
-static int hf_pdu_transport_payload = -1;
+static int hf_pdu_transport_id;
+static int hf_pdu_transport_length;
+static int hf_pdu_transport_payload;
 
 /* protocol tree items */
-static gint ett_pdu_transport = -1;
+static gint ett_pdu_transport;
 
 /* expert info items */
-static expert_field ei_pdu_transport_message_truncated = EI_INIT;
+static expert_field ei_pdu_transport_message_truncated;
 
 /********* UATs *********/
 

@@ -19,40 +19,40 @@
 
 void proto_register_dpaux(void);
 
-static int proto_dpaux = -1;
+static int proto_dpaux;
 
-static int hf_dpaux_transaction_type = -1;
-static int hf_dpaux_native_req_cmd = -1;
-static int hf_dpaux_i2c_req_cmd = -1;
-static int hf_dpaux_reply_cmd = -1;
-static int hf_dpaux_mot = -1;
-static int hf_dpaux_addr = -1;
-static int hf_dpaux_len = -1;
-static int hf_dpaux_data = -1;
+static int hf_dpaux_transaction_type;
+static int hf_dpaux_native_req_cmd;
+static int hf_dpaux_i2c_req_cmd;
+static int hf_dpaux_reply_cmd;
+static int hf_dpaux_mot;
+static int hf_dpaux_addr;
+static int hf_dpaux_len;
+static int hf_dpaux_data;
 
-static int hf_dpaux_reg_addr = -1;
+static int hf_dpaux_reg_addr;
 
-static int hf_00000 = -1;
-static int hf_00000_MINOR = -1;
-static int hf_00000_MAJOR = -1;
+static int hf_00000;
+static int hf_00000_MINOR;
+static int hf_00000_MAJOR;
 static int * const reg00000_fields[] = {
     &hf_00000_MAJOR,
     &hf_00000_MINOR,
     NULL
 };
 
-static int hf_00001 = -1;
-static int hf_00001_MAX_LINK_RATE = -1;
+static int hf_00001;
+static int hf_00001_MAX_LINK_RATE;
 static int * const reg00001_fields[] = {
     &hf_00001_MAX_LINK_RATE,
     NULL
 };
 
-static int hf_00002 = -1;
-static int hf_00002_MAX_LANE_COUNT = -1;
-static int hf_00002_POST_LT_ADJ_REQ_SUPPORTED = -1;
-static int hf_00002_TPS3_SUPPORTED = -1;
-static int hf_00002_ENHANCED_FRAME_CAP = -1;
+static int hf_00002;
+static int hf_00002_MAX_LANE_COUNT;
+static int hf_00002_POST_LT_ADJ_REQ_SUPPORTED;
+static int hf_00002_TPS3_SUPPORTED;
+static int hf_00002_ENHANCED_FRAME_CAP;
 static int * const reg00002_fields[] = {
     &hf_00002_MAX_LANE_COUNT,
     &hf_00002_POST_LT_ADJ_REQ_SUPPORTED,
@@ -61,10 +61,10 @@ static int * const reg00002_fields[] = {
     NULL
 };
 
-static int hf_00003 = -1;
-static int hf_00003_MAX_DOWNSPREAD = -1;
-static int hf_00003_NO_AUX_TRANSACTION_LINK_TRAINING = -1;
-static int hf_00003_TPS4_SUPPORTED = -1;
+static int hf_00003;
+static int hf_00003_MAX_DOWNSPREAD;
+static int hf_00003_NO_AUX_TRANSACTION_LINK_TRAINING;
+static int hf_00003_TPS4_SUPPORTED;
 static int * const reg00003_fields[] = {
     &hf_00003_MAX_DOWNSPREAD,
     &hf_00003_NO_AUX_TRANSACTION_LINK_TRAINING,
@@ -72,11 +72,11 @@ static int * const reg00003_fields[] = {
     NULL
 };
 
-static int hf_00004 = -1;
-static int hf_00004_NORP = -1;
-static int hf_00004_5V_DP_PWR_CAP = -1;
-static int hf_00004_12V_DP_PWR_CAP = -1;
-static int hf_00004_18V_DP_PWR_CAP = -1;
+static int hf_00004;
+static int hf_00004_NORP;
+static int hf_00004_5V_DP_PWR_CAP;
+static int hf_00004_12V_DP_PWR_CAP;
+static int hf_00004_18V_DP_PWR_CAP;
 static int * const reg00004_fields[] = {
     &hf_00004_NORP,
     &hf_00004_5V_DP_PWR_CAP,
@@ -86,8 +86,8 @@ static int * const reg00004_fields[] = {
 };
 
 /* Initialize the subtree pointers */
-static gint ett_dpaux = -1;
-static gint ett_register = -1;
+static gint ett_dpaux;
+static gint ett_register;
 
 struct dpaux_transaction {
     gboolean is_native;

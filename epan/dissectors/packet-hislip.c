@@ -56,7 +56,7 @@
 
 
 
-static gint proto_hislip = -1;
+static gint proto_hislip;
 
 static dissector_handle_t hislip_handle;
 
@@ -95,44 +95,44 @@ void proto_reg_handoff_hislip(void);
 #define HISLIP_PORT     4880
 
 /*Field indexs*/
-static gint hf_hislip_prologue = -1;
-static gint hf_hislip_messagetype = -1;
-static gint hf_hislip_controlcode = -1;
-static gint hf_hislip_controlcode_rmt = -1;
-static gint hf_hislip_controlcode_overlap = -1;
-static gint hf_hislip_controlcode_asynclock_code = -1;
-static gint hf_hislip_controlcode_asynclockresponse_code_request = -1;
-static gint hf_hislip_controlcode_asynclockresponse_code_release = -1;
-static gint hf_hislip_controlcode_asynclockinforesponse_code = -1;
-static gint hf_hislip_controlcode_feature_negotiation = -1;
-static gint hf_hislip_controlcode_asyncremotelocalcontrol_code = -1;
-static gint hf_hislip_controlcode_stb = -1;
-static gint hf_hislip_messageparameter = -1;
-static gint hf_hislip_payloadlength = -1;
-static gint hf_hislip_data = -1;
-static gint hf_hislip_msgpara_messageid = -1;
-static gint hf_hislip_msgpara_sessionid = -1;
-static gint hf_hislip_msgpara_serverproto = -1;
-static gint hf_hislip_msgpara_vendorID = -1;
-static gint hf_hislip_msgpara_clientproto = -1;
-static gint hf_hislip_msgpara_clients = -1;
-static gint hf_hislip_msgpara_timeout = -1;
-static gint hf_hislip_fatalerrcode = -1;
-static gint hf_hislip_nonfatalerrorcode = -1;
-static gint hf_hislip_syn = -1;
-static gint hf_hislip_asyn = -1;
-static gint hf_hislip_retransmission = -1;
-static gint hf_hislip_request = -1;
-static gint hf_hislip_maxmessagesize = -1;
-static gint hf_hislip_response = -1;
+static gint hf_hislip_prologue;
+static gint hf_hislip_messagetype;
+static gint hf_hislip_controlcode;
+static gint hf_hislip_controlcode_rmt;
+static gint hf_hislip_controlcode_overlap;
+static gint hf_hislip_controlcode_asynclock_code;
+static gint hf_hislip_controlcode_asynclockresponse_code_request;
+static gint hf_hislip_controlcode_asynclockresponse_code_release;
+static gint hf_hislip_controlcode_asynclockinforesponse_code;
+static gint hf_hislip_controlcode_feature_negotiation;
+static gint hf_hislip_controlcode_asyncremotelocalcontrol_code;
+static gint hf_hislip_controlcode_stb;
+static gint hf_hislip_messageparameter;
+static gint hf_hislip_payloadlength;
+static gint hf_hislip_data;
+static gint hf_hislip_msgpara_messageid;
+static gint hf_hislip_msgpara_sessionid;
+static gint hf_hislip_msgpara_serverproto;
+static gint hf_hislip_msgpara_vendorID;
+static gint hf_hislip_msgpara_clientproto;
+static gint hf_hislip_msgpara_clients;
+static gint hf_hislip_msgpara_timeout;
+static gint hf_hislip_fatalerrcode;
+static gint hf_hislip_nonfatalerrorcode;
+static gint hf_hislip_syn;
+static gint hf_hislip_asyn;
+static gint hf_hislip_retransmission;
+static gint hf_hislip_request;
+static gint hf_hislip_maxmessagesize;
+static gint hf_hislip_response;
 
 /*Subtree index*/
-static gint ett_hislip = -1;
-static gint ett_hislip_msgpara = -1;
+static gint ett_hislip;
+static gint ett_hislip_msgpara;
 
 
-static expert_field ei_wrong_prologue = EI_INIT;
-static expert_field ei_msg_not_null = EI_INIT;
+static expert_field ei_wrong_prologue;
+static expert_field ei_msg_not_null;
 
 static const range_string messagetypestring[] =
 {

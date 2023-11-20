@@ -26,17 +26,17 @@ void proto_register_opa_fe(void);
 #define OPA_FE_HEADER_LEN 24
 
 /* Wireshark ID */
-static gint proto_opa_fe = -1;
+static gint proto_opa_fe;
 
 /* Variables to hold expansion values between packets */
-static gint ett_fe = -1;
+static gint ett_fe;
 
 /* SnC Fields */
-static gint hf_opa_fe_magicnumber = -1;
-static gint hf_opa_fe_length_oob = -1;
-static gint hf_opa_fe_headerversion = -1;
-static gint hf_opa_fe_length = -1;
-static gint hf_opa_fe_Reserved64 = -1;
+static gint hf_opa_fe_magicnumber;
+static gint hf_opa_fe_length_oob;
+static gint hf_opa_fe_headerversion;
+static gint hf_opa_fe_length;
+static gint hf_opa_fe_Reserved64;
 
 /* Dissector Declarations */
 static dissector_handle_t opa_fe_handle;

@@ -27,43 +27,43 @@ void proto_reg_handoff_smb_direct(void);
 
 static dissector_handle_t smb_direct_handle;
 
-static int proto_smb_direct = -1;
+static int proto_smb_direct;
 
-static gint ett_smb_direct = -1;
-static gint ett_smb_direct_hdr = -1;
-static gint ett_smb_direct_flags = -1;
-static gint ett_smb_direct_fragment = -1;
-static gint ett_smb_direct_fragments = -1;
+static gint ett_smb_direct;
+static gint ett_smb_direct_hdr;
+static gint ett_smb_direct_flags;
+static gint ett_smb_direct_fragment;
+static gint ett_smb_direct_fragments;
 
-static int hf_smb_direct_negotiate_request = -1;
-static int hf_smb_direct_negotiate_response = -1;
-static int hf_smb_direct_data_message = -1;
-static int hf_smb_direct_min_version = -1;
-static int hf_smb_direct_max_version = -1;
-static int hf_smb_direct_negotiated_version = -1;
-static int hf_smb_direct_credits_requested = -1;
-static int hf_smb_direct_credits_granted = -1;
-static int hf_smb_direct_status = -1;
-static int hf_smb_direct_max_read_write_size = -1;
-static int hf_smb_direct_preferred_send_size = -1;
-static int hf_smb_direct_max_receive_size = -1;
-static int hf_smb_direct_max_fragmented_size = -1;
-static int hf_smb_direct_flags = -1;
-static int hf_smb_direct_flags_response_requested = -1;
-static int hf_smb_direct_remaining_length = -1;
-static int hf_smb_direct_data_offset = -1;
-static int hf_smb_direct_data_length = -1;
-static int hf_smb_direct_fragments = -1;
-static int hf_smb_direct_fragment = -1;
-static int hf_smb_direct_fragment_overlap = -1;
-static int hf_smb_direct_fragment_overlap_conflict = -1;
-static int hf_smb_direct_fragment_multiple_tails = -1;
-static int hf_smb_direct_fragment_too_long_fragment = -1;
-static int hf_smb_direct_fragment_error = -1;
-static int hf_smb_direct_fragment_count = -1;
-static int hf_smb_direct_reassembled_in = -1;
-static int hf_smb_direct_reassembled_length = -1;
-static int hf_smb_direct_reassembled_data = -1;
+static int hf_smb_direct_negotiate_request;
+static int hf_smb_direct_negotiate_response;
+static int hf_smb_direct_data_message;
+static int hf_smb_direct_min_version;
+static int hf_smb_direct_max_version;
+static int hf_smb_direct_negotiated_version;
+static int hf_smb_direct_credits_requested;
+static int hf_smb_direct_credits_granted;
+static int hf_smb_direct_status;
+static int hf_smb_direct_max_read_write_size;
+static int hf_smb_direct_preferred_send_size;
+static int hf_smb_direct_max_receive_size;
+static int hf_smb_direct_max_fragmented_size;
+static int hf_smb_direct_flags;
+static int hf_smb_direct_flags_response_requested;
+static int hf_smb_direct_remaining_length;
+static int hf_smb_direct_data_offset;
+static int hf_smb_direct_data_length;
+static int hf_smb_direct_fragments;
+static int hf_smb_direct_fragment;
+static int hf_smb_direct_fragment_overlap;
+static int hf_smb_direct_fragment_overlap_conflict;
+static int hf_smb_direct_fragment_multiple_tails;
+static int hf_smb_direct_fragment_too_long_fragment;
+static int hf_smb_direct_fragment_error;
+static int hf_smb_direct_fragment_count;
+static int hf_smb_direct_reassembled_in;
+static int hf_smb_direct_reassembled_length;
+static int hf_smb_direct_reassembled_data;
 
 static const fragment_items smb_direct_frag_items = {
 	&ett_smb_direct_fragment,

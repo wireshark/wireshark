@@ -58,24 +58,24 @@ static heur_dissector_list_t heur_subdissector_list;
 static gboolean hpfeeds_desegment = TRUE;
 static gboolean try_heuristic = TRUE;
 
-static int proto_hpfeeds = -1;
+static int proto_hpfeeds;
 
-static int hf_hpfeeds_opcode = -1;
-static int hf_hpfeeds_msg_length = -1;
-static int hf_hpfeeds_nonce = -1;
-static int hf_hpfeeds_secret = -1;
-static int hf_hpfeeds_payload = -1;
-static int hf_hpfeeds_server_len = -1;
-static int hf_hpfeeds_server = -1;
-static int hf_hpfeeds_ident_len = -1;
-static int hf_hpfeeds_ident = -1;
-static int hf_hpfeeds_channel = -1;
-static int hf_hpfeeds_chan_len = -1;
-static int hf_hpfeeds_errmsg = -1;
+static int hf_hpfeeds_opcode;
+static int hf_hpfeeds_msg_length;
+static int hf_hpfeeds_nonce;
+static int hf_hpfeeds_secret;
+static int hf_hpfeeds_payload;
+static int hf_hpfeeds_server_len;
+static int hf_hpfeeds_server;
+static int hf_hpfeeds_ident_len;
+static int hf_hpfeeds_ident;
+static int hf_hpfeeds_channel;
+static int hf_hpfeeds_chan_len;
+static int hf_hpfeeds_errmsg;
 
-static gint ett_hpfeeds = -1;
+static gint ett_hpfeeds;
 
-static expert_field ei_hpfeeds_opcode_unknown = EI_INIT;
+static expert_field ei_hpfeeds_opcode_unknown;
 
 /* OPCODE */
 #define OP_ERROR       0         /* error message*/

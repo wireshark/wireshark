@@ -39,21 +39,21 @@ void proto_reg_handoff_aruba_iap(void);
 
 static dissector_handle_t iap_handle;
 
-static int proto_aruba_iap = -1;
-static gint ett_aruba_iap  = -1;
+static int proto_aruba_iap;
+static gint ett_aruba_iap;
 
-static int hf_iap_magic = -1;
-static int hf_iap_version = -1;
-static int hf_iap_type = -1;
-static int hf_iap_length = -1;
-static int hf_iap_id = -1;
-static int hf_iap_status = -1;
-static int hf_iap_uptime = -1;
-static int hf_iap_vc_ip = -1;
-static int hf_iap_pvid = -1;
-static int hf_iap_model = -1;
-static int hf_iap_unknown_uint = -1;
-static int hf_iap_unknown_bytes = -1;
+static int hf_iap_magic;
+static int hf_iap_version;
+static int hf_iap_type;
+static int hf_iap_length;
+static int hf_iap_id;
+static int hf_iap_status;
+static int hf_iap_uptime;
+static int hf_iap_vc_ip;
+static int hf_iap_pvid;
+static int hf_iap_model;
+static int hf_iap_unknown_uint;
+static int hf_iap_unknown_bytes;
 
 static const value_string iap_model[] = {
     { 0x0a, "Orion (IAP-104, IAP-105, IAP-175, RAP-3WN and RAP-3WNP)" },

@@ -79,61 +79,61 @@ static const value_string netsync_cmd_vals[] = {
 #define NETSNYC_MERKLE_HASH_LENGTH 20
 
 /* Define the monotone netsync proto */
-static int proto_netsync = -1;
+static int proto_netsync;
 
-static int hf_netsync_version = -1;
-static int hf_netsync_command = -1;
-static int hf_netsync_size = -1;
-static int hf_netsync_data = -1;
-static int hf_netsync_checksum = -1;
+static int hf_netsync_version;
+static int hf_netsync_command;
+static int hf_netsync_size;
+static int hf_netsync_data;
+static int hf_netsync_checksum;
 
-static int hf_netsync_cmd_done_level = -1;
-static int hf_netsync_cmd_done_type = -1;
+static int hf_netsync_cmd_done_level;
+static int hf_netsync_cmd_done_type;
 
-static int hf_netsync_cmd_hello_keyname = -1;
-static int hf_netsync_cmd_hello_key = -1;
-static int hf_netsync_cmd_nonce = -1;
+static int hf_netsync_cmd_hello_keyname;
+static int hf_netsync_cmd_hello_key;
+static int hf_netsync_cmd_nonce;
 
-static int hf_netsync_cmd_anonymous_role = -1;
-static int hf_netsync_cmd_anonymous_collection = -1;
+static int hf_netsync_cmd_anonymous_role;
+static int hf_netsync_cmd_anonymous_collection;
 
-static int hf_netsync_cmd_send_data_type = -1;
-static int hf_netsync_cmd_send_data_id = -1;
+static int hf_netsync_cmd_send_data_type;
+static int hf_netsync_cmd_send_data_id;
 
-static int hf_netsync_cmd_error_msg = -1;
+static int hf_netsync_cmd_error_msg;
 
 
-static int hf_netsync_cmd_confirm_sig = -1;
+static int hf_netsync_cmd_confirm_sig;
 
-static int hf_netsync_cmd_auth_role = -1;
-static int hf_netsync_cmd_auth_collection = -1;
-static int hf_netsync_cmd_auth_id = -1;
-static int hf_netsync_cmd_auth_nonce1 = -1;
-static int hf_netsync_cmd_auth_nonce2 = -1;
-static int hf_netsync_cmd_auth_sig = -1;
+static int hf_netsync_cmd_auth_role;
+static int hf_netsync_cmd_auth_collection;
+static int hf_netsync_cmd_auth_id;
+static int hf_netsync_cmd_auth_nonce1;
+static int hf_netsync_cmd_auth_nonce2;
+static int hf_netsync_cmd_auth_sig;
 
-static int hf_netsync_cmd_data_type = -1;
-static int hf_netsync_cmd_data_id = -1;
-static int hf_netsync_cmd_data_compressed = -1;
-static int hf_netsync_cmd_data_payload = -1;
+static int hf_netsync_cmd_data_type;
+static int hf_netsync_cmd_data_id;
+static int hf_netsync_cmd_data_compressed;
+static int hf_netsync_cmd_data_payload;
 
-static int hf_netsync_cmd_delta_type = -1;
-static int hf_netsync_cmd_delta_base_id = -1;
-static int hf_netsync_cmd_delta_ident_id = -1;
-static int hf_netsync_cmd_delta_compressed = -1;
-static int hf_netsync_cmd_delta_payload = -1;
+static int hf_netsync_cmd_delta_type;
+static int hf_netsync_cmd_delta_base_id;
+static int hf_netsync_cmd_delta_ident_id;
+static int hf_netsync_cmd_delta_compressed;
+static int hf_netsync_cmd_delta_payload;
 
-static int hf_netsync_cmd_refine_tree_node = -1;
+static int hf_netsync_cmd_refine_tree_node;
 
-static int hf_netsync_cmd_send_delta_type = -1;
-static int hf_netsync_cmd_send_delta_base_id = -1;
-static int hf_netsync_cmd_send_delta_ident_id = -1;
+static int hf_netsync_cmd_send_delta_type;
+static int hf_netsync_cmd_send_delta_base_id;
+static int hf_netsync_cmd_send_delta_ident_id;
 
-static int hf_netsync_cmd_nonexistent_type = -1;
-static int hf_netsync_cmd_nonexistent_id = -1;
+static int hf_netsync_cmd_nonexistent_type;
+static int hf_netsync_cmd_nonexistent_id;
 
 /* Define the tree for netsync */
-static int ett_netsync = -1;
+static int ett_netsync;
 
 
 /*

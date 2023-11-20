@@ -100,40 +100,40 @@ static const value_string round_lots_only_val[] = {
 };
 
 /* Initialize the protocol and registered fields */
-static int proto_nasdaq_itch = -1;
+static int proto_nasdaq_itch;
 
 /* Initialize the subtree pointers */
-static gint ett_nasdaq_itch = -1;
+static gint ett_nasdaq_itch;
 
-static int hf_nasdaq_itch_version = -1;
+static int hf_nasdaq_itch_version;
 
-static int hf_nasdaq_itch_message_type = -1;
-static int hf_nasdaq_itch_market_category = -1;
-static int hf_nasdaq_itch_financial_status = -1;
-static int hf_nasdaq_itch_stock = -1;
-static int hf_nasdaq_itch_round_lot_size = -1;
-static int hf_nasdaq_itch_round_lots_only = -1;
+static int hf_nasdaq_itch_message_type;
+static int hf_nasdaq_itch_market_category;
+static int hf_nasdaq_itch_financial_status;
+static int hf_nasdaq_itch_stock;
+static int hf_nasdaq_itch_round_lot_size;
+static int hf_nasdaq_itch_round_lots_only;
 
-static int hf_nasdaq_itch_system_event = -1;
-static int hf_nasdaq_itch_second = -1;
-static int hf_nasdaq_itch_millisecond = -1;
+static int hf_nasdaq_itch_system_event;
+static int hf_nasdaq_itch_second;
+static int hf_nasdaq_itch_millisecond;
 
-static int hf_nasdaq_itch_message = -1;
+static int hf_nasdaq_itch_message;
 
-static int hf_nasdaq_itch_trading_state = -1;
-static int hf_nasdaq_itch_reserved = -1;
-static int hf_nasdaq_itch_reason = -1;
-static int hf_nasdaq_itch_order_reference = -1;
-static int hf_nasdaq_itch_buy_sell = -1;
-static int hf_nasdaq_itch_shares = -1;
-static int hf_nasdaq_itch_price = -1;
-static int hf_nasdaq_itch_attribution = -1;
-static int hf_nasdaq_itch_executed = -1;
-static int hf_nasdaq_itch_match = -1;
-static int hf_nasdaq_itch_printable = -1;
-static int hf_nasdaq_itch_execution_price = -1;
-static int hf_nasdaq_itch_canceled = -1;
-static int hf_nasdaq_itch_cross = -1;
+static int hf_nasdaq_itch_trading_state;
+static int hf_nasdaq_itch_reserved;
+static int hf_nasdaq_itch_reason;
+static int hf_nasdaq_itch_order_reference;
+static int hf_nasdaq_itch_buy_sell;
+static int hf_nasdaq_itch_shares;
+static int hf_nasdaq_itch_price;
+static int hf_nasdaq_itch_attribution;
+static int hf_nasdaq_itch_executed;
+static int hf_nasdaq_itch_match;
+static int hf_nasdaq_itch_printable;
+static int hf_nasdaq_itch_execution_price;
+static int hf_nasdaq_itch_canceled;
+static int hf_nasdaq_itch_cross;
 
 /* ---------------------- */
 static int

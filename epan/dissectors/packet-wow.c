@@ -131,77 +131,77 @@ static const value_string realm_type_vs[] = {
 #define WOW_SERVER_TO_CLIENT pinfo->srcport  == WOW_PORT
 
 /* Initialize the protocol and registered fields */
-static int proto_wow = -1;
+static int proto_wow;
 
 /* More than 1 packet */
-static int hf_wow_command = -1;
-static int hf_wow_error = -1;
-static int hf_wow_protocol_version = -1;
-static int hf_wow_pkt_size = -1;
-static int hf_wow_two_factor_pin_salt = -1;
-static int hf_wow_num_keys = -1;
-static int hf_wow_two_factor_enabled = -1;
-static int hf_wow_challenge_data = -1;
+static int hf_wow_command;
+static int hf_wow_error;
+static int hf_wow_protocol_version;
+static int hf_wow_pkt_size;
+static int hf_wow_two_factor_pin_salt;
+static int hf_wow_num_keys;
+static int hf_wow_two_factor_enabled;
+static int hf_wow_challenge_data;
 
 /* Logon Challenge Client to Server */
-static int hf_wow_gamename = -1;
-static int hf_wow_version1 = -1;
-static int hf_wow_version2 = -1;
-static int hf_wow_version3 = -1;
-static int hf_wow_build = -1;
-static int hf_wow_platform = -1;
-static int hf_wow_os = -1;
-static int hf_wow_country = -1;
-static int hf_wow_timezone_bias = -1;
-static int hf_wow_ip = -1;
-static int hf_wow_srp_i_len = -1;
-static int hf_wow_srp_i = -1;
+static int hf_wow_gamename;
+static int hf_wow_version1;
+static int hf_wow_version2;
+static int hf_wow_version3;
+static int hf_wow_build;
+static int hf_wow_platform;
+static int hf_wow_os;
+static int hf_wow_country;
+static int hf_wow_timezone_bias;
+static int hf_wow_ip;
+static int hf_wow_srp_i_len;
+static int hf_wow_srp_i;
 
 /* Logon Challenge Server to Client */
-static int hf_wow_srp_b = -1;
-static int hf_wow_srp_g_len = -1;
-static int hf_wow_srp_g = -1;
-static int hf_wow_srp_n_len = -1;
-static int hf_wow_srp_n = -1;
-static int hf_wow_srp_s = -1;
-static int hf_wow_crc_salt = -1;
-static int hf_wow_two_factor_pin_grid_seed = -1;
+static int hf_wow_srp_b;
+static int hf_wow_srp_g_len;
+static int hf_wow_srp_g;
+static int hf_wow_srp_n_len;
+static int hf_wow_srp_n;
+static int hf_wow_srp_s;
+static int hf_wow_crc_salt;
+static int hf_wow_two_factor_pin_grid_seed;
 
 /* Logon Proof Client to Server */
-static int hf_wow_srp_a = -1;
-static int hf_wow_srp_m1 = -1;
-static int hf_wow_crc_hash = -1;
-static int hf_wow_two_factor_pin_hash = -1;
+static int hf_wow_srp_a;
+static int hf_wow_srp_m1;
+static int hf_wow_crc_hash;
+static int hf_wow_two_factor_pin_hash;
 
 /* Logon Proof Server to Client */
-static int hf_wow_srp_m2 = -1;
-static int hf_wow_hardware_survey_id = -1;
-static int hf_wow_account_flags = -1;
-static int hf_wow_unknown_flags = -1;
+static int hf_wow_srp_m2;
+static int hf_wow_hardware_survey_id;
+static int hf_wow_account_flags;
+static int hf_wow_unknown_flags;
 
 /* Reconnect Challenge Server to Client */
-static int hf_wow_checksum_salt = -1;
+static int hf_wow_checksum_salt;
 
 /* Reconnect Proof Client to Server */
-static int hf_wow_client_proof = -1;
-static int hf_wow_client_checksum = -1;
+static int hf_wow_client_proof;
+static int hf_wow_client_checksum;
 
 /* Realm List Server to Client */
-static int hf_wow_num_realms = -1;
-static int hf_wow_realm_type = -1;
-static int hf_wow_realm_locked = -1;
-static int hf_wow_realm_flags = -1;
-static int hf_wow_realm_category = -1;
-static int hf_wow_realm_name = -1;
-static int hf_wow_realm_socket = -1;
-static int hf_wow_realm_population_level = -1;
-static int hf_wow_realm_num_characters = -1;
-static int hf_wow_realm_id = -1;
+static int hf_wow_num_realms;
+static int hf_wow_realm_type;
+static int hf_wow_realm_locked;
+static int hf_wow_realm_flags;
+static int hf_wow_realm_category;
+static int hf_wow_realm_name;
+static int hf_wow_realm_socket;
+static int hf_wow_realm_population_level;
+static int hf_wow_realm_num_characters;
+static int hf_wow_realm_id;
 
 static gboolean wow_preference_desegment = TRUE;
 
-static gint ett_wow = -1;
-static gint ett_wow_realms = -1;
+static gint ett_wow;
+static gint ett_wow_realms;
 
 struct game_version {
 	gint8 major_version;

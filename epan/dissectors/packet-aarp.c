@@ -21,24 +21,24 @@
 void proto_register_aarp(void);
 void proto_reg_handoff_aarp(void);
 
-static int proto_aarp = -1;
-static int hf_aarp_hard_type = -1;
-static int hf_aarp_proto_type = -1;
-static int hf_aarp_hard_size = -1;
-static int hf_aarp_proto_size = -1;
-static int hf_aarp_opcode = -1;
-static int hf_aarp_src_hw = -1;
-static int hf_aarp_src_hw_mac = -1;
-static int hf_aarp_src_proto = -1;
-static int hf_aarp_src_proto_id = -1;
-static int hf_aarp_dst_hw = -1;
-static int hf_aarp_dst_hw_mac = -1;
-static int hf_aarp_dst_proto = -1;
-static int hf_aarp_dst_proto_id = -1;
+static int proto_aarp;
+static int hf_aarp_hard_type;
+static int hf_aarp_proto_type;
+static int hf_aarp_hard_size;
+static int hf_aarp_proto_size;
+static int hf_aarp_opcode;
+static int hf_aarp_src_hw;
+static int hf_aarp_src_hw_mac;
+static int hf_aarp_src_proto;
+static int hf_aarp_src_proto_id;
+static int hf_aarp_dst_hw;
+static int hf_aarp_dst_hw_mac;
+static int hf_aarp_dst_proto;
+static int hf_aarp_dst_proto_id;
 
-static gint ett_aarp = -1;
+static gint ett_aarp;
 
-static expert_field ei_aarp_length_invalid = EI_INIT;
+static expert_field ei_aarp_length_invalid;
 
 #ifndef AARP_REQUEST
 #define AARP_REQUEST    0x0001

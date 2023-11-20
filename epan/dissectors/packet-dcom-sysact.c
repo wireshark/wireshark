@@ -19,111 +19,111 @@
 void proto_register_ISystemActivator(void);
 void proto_reg_handoff_ISystemActivator(void);
 
-static int proto_ISystemActivator = -1;
+static int proto_ISystemActivator;
 
-static gint ett_isystemactivator = -1;
-static int hf_opnum = -1;
-static int hf_sysact_actproperties = -1;
-/* static int hf_sysact_unknown = -1; */
+static gint ett_isystemactivator;
+static int hf_opnum;
+static int hf_sysact_actproperties;
+/* static int hf_sysact_unknown; */
 
-static gint ett_actproperties = -1;
-static int hf_sysact_totalsize = -1;
-static int hf_sysact_res = -1;
+static gint ett_actproperties;
+static int hf_sysact_totalsize;
+static int hf_sysact_res;
 
-static gint ett_commonheader = -1;
-static gint ett_propguids = -1;
-static gint ett_properties = -1;
-static int hf_sysact_customhdrsize = -1;
-static int hf_sysact_dstctx = -1;
-static int hf_sysact_actpropnumber = -1;
-static int hf_sysact_actpropclsinfoid = -1;
-/* static int hf_sysact_actpropclsids = -1; */
-static int hf_sysact_actpropclsid = -1;
-/* static int hf_sysact_actpropsizes = -1; */
-static int hf_sysact_actpropsize = -1;
+static gint ett_commonheader;
+static gint ett_propguids;
+static gint ett_properties;
+static int hf_sysact_customhdrsize;
+static int hf_sysact_dstctx;
+static int hf_sysact_actpropnumber;
+static int hf_sysact_actpropclsinfoid;
+/* static int hf_sysact_actpropclsids; */
+static int hf_sysact_actpropclsid;
+/* static int hf_sysact_actpropsizes; */
+static int hf_sysact_actpropsize;
 
 
-static gint ett_dcom_spclsysprop = -1;
-static gint ett_dcom_reserved = -1;
-static int hf_sysact_spsysprop_sid = -1;
-static int hf_sysact_spsysprop_remotethissid = -1;
-static int hf_sysact_spsysprop_cltimpersonating = -1;
-static int hf_sysact_spsysprop_partitionid = -1;
-static int hf_sysact_spsysprop_defauthlvl = -1;
-static int hf_sysact_spsysprop_partition = -1;
-static int hf_sysact_spsysprop_procrqstflgs = -1;
-static int hf_sysact_spsysprop_origclsctx = -1;
-static int hf_sysact_spsysprop_flags = -1;
-/* static int hf_sysact_spsysprop_procid = -1; */
-/* static int hf_sysact_spsysprop_hwnd = -1; */
+static gint ett_dcom_spclsysprop;
+static gint ett_dcom_reserved;
+static int hf_sysact_spsysprop_sid;
+static int hf_sysact_spsysprop_remotethissid;
+static int hf_sysact_spsysprop_cltimpersonating;
+static int hf_sysact_spsysprop_partitionid;
+static int hf_sysact_spsysprop_defauthlvl;
+static int hf_sysact_spsysprop_partition;
+static int hf_sysact_spsysprop_procrqstflgs;
+static int hf_sysact_spsysprop_origclsctx;
+static int hf_sysact_spsysprop_flags;
+/* static int hf_sysact_spsysprop_procid; */
+/* static int hf_sysact_spsysprop_hwnd; */
 
-static gint ett_dcom_instantianinfo = -1;
-static int hf_sysact_instninfo_clsid = -1;
-static int hf_sysact_instninfo_clsctx = -1;
-static int hf_sysact_instninfo_actflags = -1;
-static int hf_sysact_instninfo_issurrogate = -1;
-static int hf_sysact_instninfo_iidcount = -1;
-static int hf_sysact_instninfo_instflags = -1;
-static int hf_sysact_instninfo_entiresize = -1;
-static int hf_sysact_instninfo_iid = -1;
+static gint ett_dcom_instantianinfo;
+static int hf_sysact_instninfo_clsid;
+static int hf_sysact_instninfo_clsctx;
+static int hf_sysact_instninfo_actflags;
+static int hf_sysact_instninfo_issurrogate;
+static int hf_sysact_instninfo_iidcount;
+static int hf_sysact_instninfo_instflags;
+static int hf_sysact_instninfo_entiresize;
+static int hf_sysact_instninfo_iid;
 
-static gint ett_dcom_actctxinfo = -1;
-static int hf_sysact_actctxinfo_cltok = -1;
-static int hf_sysact_context = -1;
+static gint ett_dcom_actctxinfo;
+static int hf_sysact_actctxinfo_cltok;
+static int hf_sysact_context;
 
-static gint ett_dcom_context = -1;
-static int hf_sysact_ctx_id = -1;
-static int hf_sysact_ctx_flags = -1;
-static int hf_sysact_ctx_res = -1;
-static int hf_sysact_ctx_numextents = -1;
-static int hf_sysact_ctx_extentscnt = -1;
-static int hf_sysact_ctx_mashflags = -1;
-static int hf_sysact_ctx_count = -1;
-static int hf_sysact_ctx_frozen = -1;
+static gint ett_dcom_context;
+static int hf_sysact_ctx_id;
+static int hf_sysact_ctx_flags;
+static int hf_sysact_ctx_res;
+static int hf_sysact_ctx_numextents;
+static int hf_sysact_ctx_extentscnt;
+static int hf_sysact_ctx_mashflags;
+static int hf_sysact_ctx_count;
+static int hf_sysact_ctx_frozen;
 
-static gint ett_dcom_securityinfo = -1;
-static int hf_sysact_si_authflalgs = -1;
-static int hf_sysact_si_ci_res = -1;
-static int hf_sysact_si_ci_string = -1;
-static int hf_sysact_si_serverinfo = -1;
+static gint ett_dcom_securityinfo;
+static int hf_sysact_si_authflalgs;
+static int hf_sysact_si_ci_res;
+static int hf_sysact_si_ci_string;
+static int hf_sysact_si_serverinfo;
 
-static gint ett_dcom_locationinfo = -1;
-static int hf_sysact_li_string = -1;
-static int hf_sysact_li_procid = -1;
-static int hf_sysact_li_apartid = -1;
-static int hf_sysact_li_ctxid = -1;
+static gint ett_dcom_locationinfo;
+static int hf_sysact_li_string;
+static int hf_sysact_li_procid;
+static int hf_sysact_li_apartid;
+static int hf_sysact_li_ctxid;
 
-static gint ett_dcom_scmrqstinfo = -1;
-static gint ett_dcom_rmtrqst = -1;
+static gint ett_dcom_scmrqstinfo;
+static gint ett_dcom_rmtrqst;
 
-static int hf_sysact_sri_cltimplvl = -1;
-static int hf_sysact_sri_protseqnum = -1;
-static int hf_sysact_sri_protseq = -1;
+static int hf_sysact_sri_cltimplvl;
+static int hf_sysact_sri_protseqnum;
+static int hf_sysact_sri_protseq;
 
-static gint ett_dcom_propsoutput = -1;
-static int hf_sysact_pi_ifnum = -1;
-static int hf_sysact_pi_retval = -1;
-static int hf_sysact_pi_interf = -1;
-static int hf_sysact_pi_iid = -1;
+static gint ett_dcom_propsoutput;
+static int hf_sysact_pi_ifnum;
+static int hf_sysact_pi_retval;
+static int hf_sysact_pi_interf;
+static int hf_sysact_pi_iid;
 
-static gint ett_dcom_scmrespinfo = -1;
-static gint ett_dcom_rmtresp = -1;
-static gint ett_dcom_oxidbinding = -1;
-static int hf_sysact_scmri_rmtunknid = -1;
-static int hf_sysact_scmri_authhint = -1;
-static int hf_sysact_scmri_binding = -1;
-static int hf_sysact_scmri_oxid = -1;
-static int hf_sysact_unused_buffer = -1;
+static gint ett_dcom_scmrespinfo;
+static gint ett_dcom_rmtresp;
+static gint ett_dcom_oxidbinding;
+static int hf_sysact_scmri_rmtunknid;
+static int hf_sysact_scmri_authhint;
+static int hf_sysact_scmri_binding;
+static int hf_sysact_scmri_oxid;
+static int hf_sysact_unused_buffer;
 
-static gint ett_typeszcommhdr = -1;
-static gint ett_typeszprivhdr = -1;
-static int hf_typeszch = -1;
-static int hf_typeszph = -1;
-static int hf_typesz_ver = -1;
-static int hf_typesz_endianness = -1;
-static int hf_typesz_commhdrlen = -1;
-static int hf_typesz_filler = -1;
-static int hf_typesz_buflen = -1;
+static gint ett_typeszcommhdr;
+static gint ett_typeszprivhdr;
+static int hf_typeszch;
+static int hf_typeszph;
+static int hf_typesz_ver;
+static int hf_typesz_endianness;
+static int hf_typesz_commhdrlen;
+static int hf_typesz_filler;
+static int hf_typesz_buflen;
 
 static e_guid_t uuid_ISystemActivator = { 0x000001a0, 0x0000, 0x0000, { 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
 static guint16  ver_ISystemActivator = 0;

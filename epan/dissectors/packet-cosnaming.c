@@ -45,43 +45,43 @@ void proto_register_giop_cosnaming(void);
 void proto_reg_handoff_giop_cosnaming(void);
 
 /* Initialise the protocol and subtree pointers */
-static int proto_cosnaming = -1;
-static gint ett_cosnaming = -1;
+static int proto_cosnaming;
+static gint ett_cosnaming;
 
 
 /* Initialise the initial Alignment */
 static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */
 
-static int hf_operationrequest = -1;/* Request_Operation field */
+static int hf_operationrequest;/* Request_Operation field */
 
         /* Operation filters */
-static int hf_CosNaming_NamingContext_bind_n_loop = -1;
-static int hf_CosNaming_NamingContext_rebind_n_loop = -1;
-static int hf_CosNaming_NamingContext_bind_context_n_loop = -1;
-static int hf_CosNaming_NamingContext_rebind_context_n_loop = -1;
-static int hf_CosNaming_NamingContext_resolve_n_loop = -1;
-static int hf_CosNaming_NamingContext_unbind_n_loop = -1;
-static int hf_CosNaming_NamingContext_bind_new_context_n_loop = -1;
-static int hf_CosNaming_NamingContext_list_how_many = -1;
-static int hf_CosNaming_NamingContext_list_bl_loop = -1;
-static int hf_CosNaming_BindingIterator_next_one_return = -1;
-static int hf_CosNaming_BindingIterator_next_n_return = -1;
-static int hf_CosNaming_BindingIterator_next_n_how_many = -1;
-static int hf_CosNaming_BindingIterator_next_n_bl_loop = -1;
+static int hf_CosNaming_NamingContext_bind_n_loop;
+static int hf_CosNaming_NamingContext_rebind_n_loop;
+static int hf_CosNaming_NamingContext_bind_context_n_loop;
+static int hf_CosNaming_NamingContext_rebind_context_n_loop;
+static int hf_CosNaming_NamingContext_resolve_n_loop;
+static int hf_CosNaming_NamingContext_unbind_n_loop;
+static int hf_CosNaming_NamingContext_bind_new_context_n_loop;
+static int hf_CosNaming_NamingContext_list_how_many;
+static int hf_CosNaming_NamingContext_list_bl_loop;
+static int hf_CosNaming_BindingIterator_next_one_return;
+static int hf_CosNaming_BindingIterator_next_n_return;
+static int hf_CosNaming_BindingIterator_next_n_how_many;
+static int hf_CosNaming_BindingIterator_next_n_bl_loop;
         /* Struct filters */
-static int hf_CosNaming_NameComponent_id = -1;
-static int hf_CosNaming_NameComponent_kind = -1;
-static int hf_CosNaming_Binding_binding_name_loop = -1;
-static int hf_CosNaming_Binding_binding_type = -1;
+static int hf_CosNaming_NameComponent_id;
+static int hf_CosNaming_NameComponent_kind;
+static int hf_CosNaming_Binding_binding_name_loop;
+static int hf_CosNaming_Binding_binding_type;
         /* User exception filters */
-static int hf_CosNaming_NamingContext_NotFound_why = -1;
-static int hf_CosNaming_NamingContext_NotFound_rest_of_name_loop = -1;
-static int hf_CosNaming_NamingContext_CannotProceed_cxt = -1;
-static int hf_CosNaming_NamingContext_CannotProceed_rest_of_name_loop = -1;
+static int hf_CosNaming_NamingContext_NotFound_why;
+static int hf_CosNaming_NamingContext_NotFound_rest_of_name_loop;
+static int hf_CosNaming_NamingContext_CannotProceed_cxt;
+static int hf_CosNaming_NamingContext_CannotProceed_rest_of_name_loop;
         /* Expert info filters */
-static expert_field ei_cosnaming_unknown_giop_msg = EI_INIT;
-static expert_field ei_cosnaming_unknown_exception = EI_INIT;
-static expert_field ei_cosnaming_unknown_reply_status = EI_INIT;
+static expert_field ei_cosnaming_unknown_giop_msg;
+static expert_field ei_cosnaming_unknown_exception;
+static expert_field ei_cosnaming_unknown_reply_status;
 
 
 static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset);

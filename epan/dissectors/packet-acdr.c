@@ -271,112 +271,112 @@ static const value_string hf_acdr_ext_direction_vals[] = {
     {0, NULL      }
 };
 
-static int proto_acdr = -1;
-static int proto_ac5xmii = -1;
-static int proto_ac5x = -1;
-static int proto_ac48x = -1;
-static int proto_ac49x = -1;
+static int proto_acdr;
+static int proto_ac5xmii;
+static int proto_ac5x;
+static int proto_ac48x;
+static int proto_ac49x;
 
 // Define headers for acdr
-static int hf_acdr_seq_num = -1;
-static int hf_acdr_timestamp = -1;
-static int hf_acdr_sourceid = -1;
-static int hf_acdr_destid = -1;
-static int hf_acdr_version = -1;
-static int hf_acdr_trace_pt = -1;
-static int hf_acdr_media_type = -1;
-static int hf_acdr_media_type_dsp_ac5x = -1;
-static int hf_acdr_pl_offset_type = -1;
-static int hf_acdr_header_ext_len_type = -1;
-static int hf_acdr_data = -1;
-static int hf_acdr_data_mii = -1;
-static int hf_acdr_data_ipv6 = -1;
-static int hf_acdr_data_fragmented = -1;
-static int hf_acdr_data_headeradded = -1;
-static int hf_acdr_data_encrypted = -1;
-static int hf_acdr_data_mtce = -1;
-static int hf_acdr_data_li = -1;
+static int hf_acdr_seq_num;
+static int hf_acdr_timestamp;
+static int hf_acdr_sourceid;
+static int hf_acdr_destid;
+static int hf_acdr_version;
+static int hf_acdr_trace_pt;
+static int hf_acdr_media_type;
+static int hf_acdr_media_type_dsp_ac5x;
+static int hf_acdr_pl_offset_type;
+static int hf_acdr_header_ext_len_type;
+static int hf_acdr_data;
+static int hf_acdr_data_mii;
+static int hf_acdr_data_ipv6;
+static int hf_acdr_data_fragmented;
+static int hf_acdr_data_headeradded;
+static int hf_acdr_data_encrypted;
+static int hf_acdr_data_mtce;
+static int hf_acdr_data_li;
 
-static int hf_acdr_session_id = -1;
-static int hf_acdr_session_id_board_id = -1;
-static int hf_acdr_session_id_reset_counter = -1;
-static int hf_acdr_session_id_session_number = -1;
-static int hf_acdr_session_id_long_session_number = -1;
+static int hf_acdr_session_id;
+static int hf_acdr_session_id_board_id;
+static int hf_acdr_session_id_reset_counter;
+static int hf_acdr_session_id_session_number;
+static int hf_acdr_session_id_long_session_number;
 
-static int hf_acdr_ext_c5_control_favorite = -1;
+static int hf_acdr_ext_c5_control_favorite;
 
-static int hf_acdr_payload_header = -1;
-static int hf_acdr_mii_header = -1;
+static int hf_acdr_payload_header;
+static int hf_acdr_mii_header;
 
 // header extension
-static int hf_acdr_ext_srcudp = -1;
-static int hf_acdr_ext_dstudp = -1;
-static int hf_acdr_ext_srcip = -1;
-static int hf_acdr_ext_srcipv6 = -1;
-static int hf_acdr_ext_dstip = -1;
-static int hf_acdr_ext_dstipv6 = -1;
-static int hf_acdr_ext_protocol = -1;
-static int hf_acdr_ext_tls_application = -1;
-static int hf_acdr_ext_direction = -1;
-static int hf_acdr_ext_iptos = -1;
-static int hf_acdr_ext_c5_control_flags = -1;
+static int hf_acdr_ext_srcudp;
+static int hf_acdr_ext_dstudp;
+static int hf_acdr_ext_srcip;
+static int hf_acdr_ext_srcipv6;
+static int hf_acdr_ext_dstip;
+static int hf_acdr_ext_dstipv6;
+static int hf_acdr_ext_protocol;
+static int hf_acdr_ext_tls_application;
+static int hf_acdr_ext_direction;
+static int hf_acdr_ext_iptos;
+static int hf_acdr_ext_c5_control_flags;
 
-static int hf_acdr_unknown_packet = -1;
-static int hf_acdr_ext_pstn_trace_seq_num = -1;
-static int hf_acdr_header_extension = -1;
-static int hf_acdr_ext_dsp_core = -1;
-static int hf_acdr_ext_dsp_channel = -1;
-static int hf_acdr_ext_event_id = -1;
-static int hf_acdr_ext_event_source = -1;
+static int hf_acdr_unknown_packet;
+static int hf_acdr_ext_pstn_trace_seq_num;
+static int hf_acdr_header_extension;
+static int hf_acdr_ext_dsp_core;
+static int hf_acdr_ext_dsp_channel;
+static int hf_acdr_ext_event_id;
+static int hf_acdr_ext_event_source;
 
 // Mii header extension
-static int hf_acdr_mii_sequence = -1;
-static int hf_acdr_mii_packet_size = -1;
-static int hf_acdr_5x_analysis_packet_header = -1;
-static int hf_5x_analysis_version = -1;
-static int hf_5x_analysis_direction = -1;
-static int hf_5x_analysis_sub_version = -1;
-static int hf_5x_analysis_device = -1;
-static int hf_5x_analysis_sequence = -1;
-static int hf_5x_analysis_spare1 = -1;
-static int hf_5x_analysis_timestamp = -1;
-static int hf_5x_analysis_spare2 = -1;
+static int hf_acdr_mii_sequence;
+static int hf_acdr_mii_packet_size;
+static int hf_acdr_5x_analysis_packet_header;
+static int hf_5x_analysis_version;
+static int hf_5x_analysis_direction;
+static int hf_5x_analysis_sub_version;
+static int hf_5x_analysis_device;
+static int hf_5x_analysis_sequence;
+static int hf_5x_analysis_spare1;
+static int hf_5x_analysis_timestamp;
+static int hf_5x_analysis_spare2;
 
-static int hf_acdr_5x_hpi_packet_header = -1;
-static int hf_5x_hpi_sync5 = -1;
-static int hf_5x_hpi_udp_checksum = -1;
-static int hf_5x_hpi_resource_id = -1;
-static int hf_5x_hpi_favorite = -1;
-static int hf_5x_hpi_protocol = -1;
+static int hf_acdr_5x_hpi_packet_header;
+static int hf_5x_hpi_sync5;
+static int hf_5x_hpi_udp_checksum;
+static int hf_5x_hpi_resource_id;
+static int hf_5x_hpi_favorite;
+static int hf_5x_hpi_protocol;
 
-static int hf_ac45x_packet = -1;
-static int hf_ac48x_packet = -1;
-static int hf_ac49x_packet = -1;
-static int hf_ac5x_packet = -1;
+static int hf_ac45x_packet;
+static int hf_ac48x_packet;
+static int hf_ac49x_packet;
+static int hf_ac5x_packet;
 
-static int hf_signaling_packet = -1;
-static int hf_acdr_signaling_opcode = -1;
-static int hf_acdr_signaling_size = -1;
-static int hf_acdr_signaling_timestamp = -1;
+static int hf_signaling_packet;
+static int hf_acdr_signaling_opcode;
+static int hf_acdr_signaling_size;
+static int hf_acdr_signaling_timestamp;
 
 
 // Define the trees for acdr
-static int ett_acdr = -1;
-static int ett_extension = -1;
-static int ett_ac49x_packet = -1;
-static int ett_ac48x_packet = -1;
-static int ett_ac45x_packet = -1;
-static int ett_ac5x_packet = -1;
-static int ett_ac5x_mii_packet = -1;
-static int ett_mii_header = -1;
-static int ett_signaling_packet = -1;
-static int ett_extra_data = -1;
-static int ett_c5_cntrl_flags = -1;
-static int ett_5x_analysis_packet_header = -1;
-static int ett_5x_hpi_packet_header = -1;
-static int ett_session_id = -1;
+static int ett_acdr;
+static int ett_extension;
+static int ett_ac49x_packet;
+static int ett_ac48x_packet;
+static int ett_ac45x_packet;
+static int ett_ac5x_packet;
+static int ett_ac5x_mii_packet;
+static int ett_mii_header;
+static int ett_signaling_packet;
+static int ett_extra_data;
+static int ett_c5_cntrl_flags;
+static int ett_5x_analysis_packet_header;
+static int ett_5x_hpi_packet_header;
+static int ett_session_id;
 
-static expert_field ei_acdr_version_not_supported = EI_INIT;
+static expert_field ei_acdr_version_not_supported;
 
 static int proto_rtp;
 

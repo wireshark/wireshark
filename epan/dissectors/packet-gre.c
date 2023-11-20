@@ -41,59 +41,59 @@ static capture_dissector_handle_t gre_cap_handle;
  * "Encapsulating MPLS in IP or Generic Routing Encapsulation (GRE)".
  */
 
-static int proto_gre = -1;
-static int hf_gre_proto = -1;
-static int hf_gre_flags_and_version = -1;
-static int hf_gre_flags_checksum = -1;
-static int hf_gre_flags_routing = -1;
-static int hf_gre_flags_key = -1;
-static int hf_gre_flags_sequence_number = -1;
-static int hf_gre_flags_strict_source_route = -1;
-static int hf_gre_flags_recursion_control = -1;
-static int hf_gre_flags_ack = -1;
-static int hf_gre_flags_reserved_ppp = -1;
-static int hf_gre_flags_reserved = -1;
-static int hf_gre_flags_version = -1;
-static int hf_gre_checksum = -1;
-static int hf_gre_checksum_status = -1;
-static int hf_gre_offset = -1;
-static int hf_gre_key = -1;
-static int hf_gre_key_payload_length = -1;
-static int hf_gre_key_call_id = -1;
-static int hf_gre_sequence_number = -1;
-static int hf_gre_ack_number = -1;
-static int hf_gre_routing = -1;
-static int hf_gre_routing_address_family = -1;
-static int hf_gre_routing_sre_length = -1;
-static int hf_gre_routing_sre_offset = -1;
-static int hf_gre_routing_information = -1;
+static int proto_gre;
+static int hf_gre_proto;
+static int hf_gre_flags_and_version;
+static int hf_gre_flags_checksum;
+static int hf_gre_flags_routing;
+static int hf_gre_flags_key;
+static int hf_gre_flags_sequence_number;
+static int hf_gre_flags_strict_source_route;
+static int hf_gre_flags_recursion_control;
+static int hf_gre_flags_ack;
+static int hf_gre_flags_reserved_ppp;
+static int hf_gre_flags_reserved;
+static int hf_gre_flags_version;
+static int hf_gre_checksum;
+static int hf_gre_checksum_status;
+static int hf_gre_offset;
+static int hf_gre_key;
+static int hf_gre_key_payload_length;
+static int hf_gre_key_call_id;
+static int hf_gre_sequence_number;
+static int hf_gre_ack_number;
+static int hf_gre_routing;
+static int hf_gre_routing_address_family;
+static int hf_gre_routing_sre_length;
+static int hf_gre_routing_sre_offset;
+static int hf_gre_routing_information;
 
 /* Ref 3GPP2 A.S0012-C v2.0 and A.S0008-A v1.0 */
-static int hf_gre_3gpp2_attrib = -1;
-static int hf_gre_3gpp2_attrib_id = -1;
-static int hf_gre_3gpp2_attrib_length = -1;
-static int hf_gre_3gpp2_sdi = -1;
-static int hf_gre_3gpp2_fci = -1;
-static int hf_gre_3gpp2_di = -1;
-static int hf_gre_3gpp2_flow_disc = -1;
-static int hf_gre_3gpp2_seg = -1;
+static int hf_gre_3gpp2_attrib;
+static int hf_gre_3gpp2_attrib_id;
+static int hf_gre_3gpp2_attrib_length;
+static int hf_gre_3gpp2_sdi;
+static int hf_gre_3gpp2_fci;
+static int hf_gre_3gpp2_di;
+static int hf_gre_3gpp2_flow_disc;
+static int hf_gre_3gpp2_seg;
 
-static int hf_gre_wccp_redirect_header = -1;
-static int hf_gre_wccp_dynamic_service = -1;
-static int hf_gre_wccp_alternative_bucket_used = -1;
-static int hf_gre_wccp_redirect_header_valid = -1;
-static int hf_gre_wccp_service_id = -1;
-static int hf_gre_wccp_alternative_bucket = -1;
-static int hf_gre_wccp_primary_bucket = -1;
+static int hf_gre_wccp_redirect_header;
+static int hf_gre_wccp_dynamic_service;
+static int hf_gre_wccp_alternative_bucket_used;
+static int hf_gre_wccp_redirect_header_valid;
+static int hf_gre_wccp_service_id;
+static int hf_gre_wccp_alternative_bucket;
+static int hf_gre_wccp_primary_bucket;
 
-static gint ett_gre = -1;
-static gint ett_gre_flags = -1;
-static gint ett_gre_routing = -1;
-static gint ett_gre_wccp2_redirect_header = -1;
-static gint ett_3gpp2_attribs = -1;
-static gint ett_3gpp2_attr = -1;
+static gint ett_gre;
+static gint ett_gre_flags;
+static gint ett_gre_routing;
+static gint ett_gre_wccp2_redirect_header;
+static gint ett_3gpp2_attribs;
+static gint ett_3gpp2_attr;
 
-static expert_field ei_gre_checksum_incorrect = EI_INIT;
+static expert_field ei_gre_checksum_incorrect;
 
 static dissector_table_t gre_dissector_table;
 

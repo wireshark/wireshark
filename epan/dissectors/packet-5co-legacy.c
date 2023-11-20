@@ -89,36 +89,36 @@ static void dispMask( gchar *result, guint32 type);
 static void dispTimeout( gchar *result, guint32 type);
 
 /* Initialize the protocol and registered fields */
-static int proto_FiveCoLegacy = -1; /* Wireshark ID of the FiveCo protocol */
+static int proto_FiveCoLegacy; /* Wireshark ID of the FiveCo protocol */
 
 /* static dissector_handle_t data_handle = NULL; */
-static gint hf_fiveco_header = -1;       /* The following hf_* variables are used to hold the Wireshark IDs of */
-static gint hf_fiveco_fct = -1;          /* our header fields; they are filled out when we call */
-static gint hf_fiveco_id = -1;           /* proto_register_field_array() in proto_register_fiveco() */
-static gint hf_fiveco_length = -1;
-static gint hf_fiveco_data = -1;
-static gint hf_fiveco_cks = -1;
-static gint hf_fiveco_i2cadd = -1;
-static gint hf_fiveco_i2c2write = -1;
-static gint hf_fiveco_i2cwrite = -1;
-static gint hf_fiveco_i2c2read = -1;
-static gint hf_fiveco_i2c2scan = -1;
-static gint hf_fiveco_i2canswer = -1;
-static gint hf_fiveco_i2cwriteanswer = -1;
-static gint hf_fiveco_i2cscaned = -1;
-static gint hf_fiveco_i2cerror = -1;
-static gint hf_fiveco_i2cack = -1;
-static gint hf_fiveco_regread = -1;
-static gint hf_fiveco_regreadunknown = -1;
-static gint hf_fiveco_regreaduk = -1;
-static gint hf_fiveco_EasyIPMAC = -1;
-static gint hf_fiveco_EasyIPIP = -1;
-static gint hf_fiveco_EasyIPSM = -1;
+static gint hf_fiveco_header;       /* The following hf_* variables are used to hold the Wireshark IDs of */
+static gint hf_fiveco_fct;          /* our header fields; they are filled out when we call */
+static gint hf_fiveco_id;           /* proto_register_field_array() in proto_register_fiveco() */
+static gint hf_fiveco_length;
+static gint hf_fiveco_data;
+static gint hf_fiveco_cks;
+static gint hf_fiveco_i2cadd;
+static gint hf_fiveco_i2c2write;
+static gint hf_fiveco_i2cwrite;
+static gint hf_fiveco_i2c2read;
+static gint hf_fiveco_i2c2scan;
+static gint hf_fiveco_i2canswer;
+static gint hf_fiveco_i2cwriteanswer;
+static gint hf_fiveco_i2cscaned;
+static gint hf_fiveco_i2cerror;
+static gint hf_fiveco_i2cack;
+static gint hf_fiveco_regread;
+static gint hf_fiveco_regreadunknown;
+static gint hf_fiveco_regreaduk;
+static gint hf_fiveco_EasyIPMAC;
+static gint hf_fiveco_EasyIPIP;
+static gint hf_fiveco_EasyIPSM;
 
-static gint ett_fiveco_header = -1; /* These are the ids of the subtrees that we may be creating */
-static gint ett_fiveco_data = -1;   /* for the header fields. */
-static gint ett_fiveco = -1;
-static gint ett_fiveco_checksum = -1;
+static gint ett_fiveco_header; /* These are the ids of the subtrees that we may be creating */
+static gint ett_fiveco_data;   /* for the header fields. */
+static gint ett_fiveco;
+static gint ett_fiveco_checksum;
 
 /* Constants declaration */
 static const value_string packettypenames[] = {

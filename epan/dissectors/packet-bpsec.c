@@ -33,7 +33,7 @@ void proto_reg_handoff_bpsec(void);
 //static const char *LOG_DOMAIN = "bpsec";
 
 /// Protocol handles
-static int proto_bpsec = -1;
+static int proto_bpsec;
 
 /// Dissect opaque CBOR data
 static dissector_handle_t handle_cbor = NULL;
@@ -54,34 +54,34 @@ static const val64_string aesvar_vals[] = {
     {0, NULL},
 };
 
-static int hf_bib = -1;
-static int hf_bcb = -1;
-static int hf_asb_target_list = -1;
-static int hf_asb_target = -1;
-static int hf_asb_ctxid = -1;
-static int hf_asb_flags = -1;
-static int hf_asb_flags_has_params = -1;
-static int hf_asb_secsrc_nodeid = -1;
-static int hf_asb_secsrc_uri = -1;
-static int hf_asb_param_list = -1;
-static int hf_asb_param_pair = -1;
-static int hf_asb_param_id = -1;
-static int hf_asb_result_all_list = -1;
-static int hf_asb_result_tgt_list = -1;
-static int hf_asb_result_tgt_ref = -1;
-static int hf_asb_result_pair = -1;
-static int hf_asb_result_id = -1;
+static int hf_bib;
+static int hf_bcb;
+static int hf_asb_target_list;
+static int hf_asb_target;
+static int hf_asb_ctxid;
+static int hf_asb_flags;
+static int hf_asb_flags_has_params;
+static int hf_asb_secsrc_nodeid;
+static int hf_asb_secsrc_uri;
+static int hf_asb_param_list;
+static int hf_asb_param_pair;
+static int hf_asb_param_id;
+static int hf_asb_result_all_list;
+static int hf_asb_result_tgt_list;
+static int hf_asb_result_tgt_ref;
+static int hf_asb_result_pair;
+static int hf_asb_result_id;
 
-static int hf_defaultsc_shavar = -1;
-static int hf_defaultsc_wrapedkey = -1;
-static int hf_defaultsc_scope = -1;
-static int hf_defaultsc_scope_pri_block = -1;
-static int hf_defaultsc_scope_tgt_head = -1;
-static int hf_defaultsc_scope_sec_head = -1;
-static int hf_defaultsc_hmac = -1;
-static int hf_defaultsc_iv = -1;
-static int hf_defaultsc_aesvar = -1;
-static int hf_defaultsc_authtag = -1;
+static int hf_defaultsc_shavar;
+static int hf_defaultsc_wrapedkey;
+static int hf_defaultsc_scope;
+static int hf_defaultsc_scope_pri_block;
+static int hf_defaultsc_scope_tgt_head;
+static int hf_defaultsc_scope_sec_head;
+static int hf_defaultsc_hmac;
+static int hf_defaultsc_iv;
+static int hf_defaultsc_aesvar;
+static int hf_defaultsc_authtag;
 
 /// Field definitions
 static hf_register_info fields[] = {
@@ -127,15 +127,15 @@ static int *const defaultsc_scope[] = {
     NULL
 };
 
-static int ett_asb = -1;
-static int ett_asb_flags = -1;
-static int ett_tgt_list = -1;
-static int ett_param_list = -1;
-static int ett_param_pair = -1;
-static int ett_result_all_list = -1;
-static int ett_result_tgt_list = -1;
-static int ett_result_pair = -1;
-static int ett_defaultsc_scope = -1;
+static int ett_asb;
+static int ett_asb_flags;
+static int ett_tgt_list;
+static int ett_param_list;
+static int ett_param_pair;
+static int ett_result_all_list;
+static int ett_result_tgt_list;
+static int ett_result_pair;
+static int ett_defaultsc_scope;
 /// Tree structures
 static int *ett[] = {
     &ett_asb,
@@ -149,11 +149,11 @@ static int *ett[] = {
     &ett_defaultsc_scope,
 };
 
-static expert_field ei_secsrc_diff = EI_INIT;
-static expert_field ei_ctxid_zero = EI_INIT;
-static expert_field ei_ctxid_priv = EI_INIT;
-static expert_field ei_target_invalid = EI_INIT;
-static expert_field ei_value_partial_decode = EI_INIT;
+static expert_field ei_secsrc_diff;
+static expert_field ei_ctxid_zero;
+static expert_field ei_ctxid_priv;
+static expert_field ei_target_invalid;
+static expert_field ei_value_partial_decode;
 static ei_register_info expertitems[] = {
     {&ei_secsrc_diff, {"bpsec.secsrc_diff", PI_SECURITY, PI_CHAT, "BPSec Security Source different from bundle Source", EXPFILL}},
     {&ei_ctxid_zero, {"bpsec.ctxid_zero", PI_SECURITY, PI_WARN, "BPSec Security Context ID zero is reserved", EXPFILL}},

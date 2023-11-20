@@ -21,10 +21,10 @@
 void proto_register_rsec_login (void);
 void proto_reg_handoff_rsec_login (void);
 
-static int proto_rsec_login = -1;
-static int hf_rsec_login_opnum = -1;
+static int proto_rsec_login;
+static int hf_rsec_login_opnum;
 
-static gint ett_rsec_login = -1;
+static gint ett_rsec_login;
 
 
 static e_guid_t uuid_rsec_login = { 0xa76e832a, 0x10df, 0x11cd, { 0x90, 0x56, 0x08, 0x00, 0x09, 0x24, 0x24, 0x44 } };

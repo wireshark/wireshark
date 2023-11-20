@@ -24,34 +24,34 @@
 void proto_register_tr(void);
 void proto_reg_handoff_tr(void);
 
-static int proto_tr = -1;
-static int hf_tr_dst = -1;
-static int hf_tr_src = -1;
-static int hf_tr_addr = -1;
-static int hf_tr_sr = -1;
-static int hf_tr_ac = -1;
-static int hf_tr_priority = -1;
-static int hf_tr_frame = -1;
-static int hf_tr_monitor_cnt = -1;
-static int hf_tr_priority_reservation = -1;
-static int hf_tr_fc = -1;
-static int hf_tr_fc_type = -1;
-static int hf_tr_fc_pcf = -1;
-static int hf_tr_rif_bytes = -1;
-static int hf_tr_broadcast = -1;
-static int hf_tr_max_frame_size = -1;
-static int hf_tr_direction = -1;
-static int hf_tr_rif = -1;
-static int hf_tr_rif_ring = -1;
-static int hf_tr_rif_bridge = -1;
-static int hf_tr_extra_rif = -1;
+static int proto_tr;
+static int hf_tr_dst;
+static int hf_tr_src;
+static int hf_tr_addr;
+static int hf_tr_sr;
+static int hf_tr_ac;
+static int hf_tr_priority;
+static int hf_tr_frame;
+static int hf_tr_monitor_cnt;
+static int hf_tr_priority_reservation;
+static int hf_tr_fc;
+static int hf_tr_fc_type;
+static int hf_tr_fc_pcf;
+static int hf_tr_rif_bytes;
+static int hf_tr_broadcast;
+static int hf_tr_max_frame_size;
+static int hf_tr_direction;
+static int hf_tr_rif;
+static int hf_tr_rif_ring;
+static int hf_tr_rif_bridge;
+static int hf_tr_extra_rif;
 
-static gint ett_token_ring = -1;
-static gint ett_token_ring_ac = -1;
-static gint ett_token_ring_fc = -1;
+static gint ett_token_ring;
+static gint ett_token_ring_ac;
+static gint ett_token_ring_fc;
 
-static expert_field ei_token_empty_rif = EI_INIT;
-static expert_field ei_token_fake_llc_snap_header = EI_INIT;
+static expert_field ei_token_empty_rif;
+static expert_field ei_token_fake_llc_snap_header;
 
 static int tr_tap = -1;
 

@@ -101,38 +101,38 @@ const value_string rtsp_status_code_vals[] = {
     { 0,    NULL}
 };
 
-static int proto_rtsp       = -1;
+static int proto_rtsp;
 
-static gint ett_rtsp        = -1;
-static gint ett_rtspframe   = -1;
-static gint ett_rtsp_method     = -1;
+static gint ett_rtsp;
+static gint ett_rtspframe;
+static gint ett_rtsp_method;
 
-static int hf_rtsp_request  = -1;
-static int hf_rtsp_response = -1;
-static int hf_rtsp_content_type = -1;
-static int hf_rtsp_content_length   = -1;
-static int hf_rtsp_method   = -1;
-static int hf_rtsp_url      = -1;
-static int hf_rtsp_status   = -1;
-static int hf_rtsp_session  = -1;
-static int hf_rtsp_transport    = -1;
-static int hf_rtsp_rdtfeaturelevel  = -1;
-static int hf_rtsp_X_Vig_Msisdn = -1;
-static int hf_rtsp_magic = -1;
-static int hf_rtsp_channel = -1;
-static int hf_rtsp_length = -1;
-static int hf_rtsp_data = -1;
+static int hf_rtsp_request;
+static int hf_rtsp_response;
+static int hf_rtsp_content_type;
+static int hf_rtsp_content_length;
+static int hf_rtsp_method;
+static int hf_rtsp_url;
+static int hf_rtsp_status;
+static int hf_rtsp_session;
+static int hf_rtsp_transport;
+static int hf_rtsp_rdtfeaturelevel;
+static int hf_rtsp_X_Vig_Msisdn;
+static int hf_rtsp_magic;
+static int hf_rtsp_channel;
+static int hf_rtsp_length;
+static int hf_rtsp_data;
 
 static int voip_tap = -1;
 
-static expert_field ei_rtsp_unknown_transport_type = EI_INIT;
-static expert_field ei_rtsp_bad_server_port = EI_INIT;
-static expert_field ei_rtsp_bad_client_port = EI_INIT;
-static expert_field ei_rtsp_bad_interleaved_channel = EI_INIT;
-static expert_field ei_rtsp_content_length_invalid = EI_INIT;
-static expert_field ei_rtsp_rdtfeaturelevel_invalid = EI_INIT;
-static expert_field ei_rtsp_bad_server_ip_address = EI_INIT;
-static expert_field ei_rtsp_bad_client_ip_address = EI_INIT;
+static expert_field ei_rtsp_unknown_transport_type;
+static expert_field ei_rtsp_bad_server_port;
+static expert_field ei_rtsp_bad_client_port;
+static expert_field ei_rtsp_bad_interleaved_channel;
+static expert_field ei_rtsp_content_length_invalid;
+static expert_field ei_rtsp_rdtfeaturelevel_invalid;
+static expert_field ei_rtsp_bad_server_ip_address;
+static expert_field ei_rtsp_bad_client_ip_address;
 
 static dissector_handle_t rtsp_handle;
 static dissector_handle_t rtp_handle;

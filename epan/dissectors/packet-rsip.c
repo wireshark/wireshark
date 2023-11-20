@@ -24,40 +24,40 @@ void proto_reg_handoff_rsip(void);
 static dissector_handle_t rsip_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_rsip = -1;
-static int hf_rsip_version = -1;
-static int hf_rsip_message_type = -1;
-static int hf_rsip_message_length = -1;
-static int hf_rsip_parameter_type = -1;
-static int hf_rsip_parameter_length = -1;
-static int hf_rsip_parameter_value = -1;
-static int hf_rsip_parameter_address_type = -1;
-static int hf_rsip_parameter_address_ipv4 = -1;
-static int hf_rsip_parameter_address_ipv4_netmask = -1;
-static int hf_rsip_parameter_address_ipv6 = -1;
-static int hf_rsip_parameter_address_fqdn = -1;
-static int hf_rsip_parameter_ports_number = -1;
-static int hf_rsip_parameter_ports_port_number = -1;
-static int hf_rsip_parameter_lease_time = -1;
-static int hf_rsip_parameter_client_id = -1;
-static int hf_rsip_parameter_bind_id = -1;
-static int hf_rsip_parameter_tunnel_type = -1;
-static int hf_rsip_parameter_method = -1;
-static int hf_rsip_parameter_error = -1;
-static int hf_rsip_parameter_flow_policy_local = -1;
-static int hf_rsip_parameter_flow_policy_remote = -1;
-static int hf_rsip_parameter_indicator = -1;
-static int hf_rsip_parameter_message_counter = -1;
-static int hf_rsip_parameter_vendor_specific_vendor_id = -1;
-static int hf_rsip_parameter_vendor_specific_subtype = -1;
-static int hf_rsip_parameter_vendor_specific_value = -1;
-static int hf_rsip_parameter_spi_number = -1;
-static int hf_rsip_parameter_spi = -1;
+static int proto_rsip;
+static int hf_rsip_version;
+static int hf_rsip_message_type;
+static int hf_rsip_message_length;
+static int hf_rsip_parameter_type;
+static int hf_rsip_parameter_length;
+static int hf_rsip_parameter_value;
+static int hf_rsip_parameter_address_type;
+static int hf_rsip_parameter_address_ipv4;
+static int hf_rsip_parameter_address_ipv4_netmask;
+static int hf_rsip_parameter_address_ipv6;
+static int hf_rsip_parameter_address_fqdn;
+static int hf_rsip_parameter_ports_number;
+static int hf_rsip_parameter_ports_port_number;
+static int hf_rsip_parameter_lease_time;
+static int hf_rsip_parameter_client_id;
+static int hf_rsip_parameter_bind_id;
+static int hf_rsip_parameter_tunnel_type;
+static int hf_rsip_parameter_method;
+static int hf_rsip_parameter_error;
+static int hf_rsip_parameter_flow_policy_local;
+static int hf_rsip_parameter_flow_policy_remote;
+static int hf_rsip_parameter_indicator;
+static int hf_rsip_parameter_message_counter;
+static int hf_rsip_parameter_vendor_specific_vendor_id;
+static int hf_rsip_parameter_vendor_specific_subtype;
+static int hf_rsip_parameter_vendor_specific_value;
+static int hf_rsip_parameter_spi_number;
+static int hf_rsip_parameter_spi;
 
 /* Initialize the subtree pointers */
-static gint ett_rsip = -1;
-static gint ett_rsip_param = -1;
-static gint ett_rsip_param_val = -1;
+static gint ett_rsip;
+static gint ett_rsip_param;
+static gint ett_rsip_param_val;
 
 #define UDP_PORT_RSIP	4555
 #define TCP_PORT_RSIP	4555

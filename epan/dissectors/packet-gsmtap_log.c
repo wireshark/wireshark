@@ -20,18 +20,18 @@ void proto_reg_handoff_gsmtap_log(void);
 
 static dissector_handle_t gsmtap_log_handle;
 
-static int proto_gsmtap_log = -1;
+static int proto_gsmtap_log;
 
-static int hf_log_ident = -1;
-static int hf_log_subsys = -1;
-static int hf_log_file_name = -1;
-static int hf_log_file_line = -1;
-static int hf_log_ts = -1;
-static int hf_log_pid = -1;
-static int hf_log_level = -1;
-static int hf_log_string = -1;
+static int hf_log_ident;
+static int hf_log_subsys;
+static int hf_log_file_name;
+static int hf_log_file_line;
+static int hf_log_ts;
+static int hf_log_pid;
+static int hf_log_level;
+static int hf_log_string;
 
-static int ett_gsmtap_log = -1;
+static int ett_gsmtap_log;
 
 /* from libosmocore include/osmocom/core/logging.h */
 static const value_string gsmtap_log_levels[] = {

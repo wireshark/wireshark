@@ -28,39 +28,39 @@
 #define BNEP_TYPE_COMPRESSED_ETHERNET_DESTINATION_ONLY                      0x04
 #define RESERVED_802                                                        0x7F
 
-static int proto_btbnep                                                    = -1;
-static int hf_btbnep_bnep_type                                             = -1;
-static int hf_btbnep_extension_flag                                        = -1;
-static int hf_btbnep_extension_type                                        = -1;
-static int hf_btbnep_extension_length                                      = -1;
-static int hf_btbnep_dst                                                   = -1;
-static int hf_btbnep_src                                                   = -1;
-static int hf_btbnep_len                                                   = -1;
-static int hf_btbnep_invalid_lentype                                       = -1;
-static int hf_btbnep_type                                                  = -1;
-static int hf_btbnep_addr                                                  = -1;
-static int hf_btbnep_lg                                                    = -1;
-static int hf_btbnep_ig                                                    = -1;
-static int hf_btbnep_control_type                                          = -1;
-static int hf_btbnep_unknown_control_type                                  = -1;
-static int hf_btbnep_uuid_size                                             = -1;
-static int hf_btbnep_destination_service_uuid                              = -1;
-static int hf_btbnep_source_service_uuid                                   = -1;
-static int hf_btbnep_setup_connection_response_message                     = -1;
-static int hf_btbnep_filter_net_type_response_message                      = -1;
-static int hf_btbnep_filter_multi_addr_response_message                    = -1;
-static int hf_btbnep_list_length                                           = -1;
-static int hf_btbnep_network_type_start                                    = -1;
-static int hf_btbnep_network_type_end                                      = -1;
-static int hf_btbnep_multicast_address_start                               = -1;
-static int hf_btbnep_multicast_address_end                                 = -1;
+static int proto_btbnep;
+static int hf_btbnep_bnep_type;
+static int hf_btbnep_extension_flag;
+static int hf_btbnep_extension_type;
+static int hf_btbnep_extension_length;
+static int hf_btbnep_dst;
+static int hf_btbnep_src;
+static int hf_btbnep_len;
+static int hf_btbnep_invalid_lentype;
+static int hf_btbnep_type;
+static int hf_btbnep_addr;
+static int hf_btbnep_lg;
+static int hf_btbnep_ig;
+static int hf_btbnep_control_type;
+static int hf_btbnep_unknown_control_type;
+static int hf_btbnep_uuid_size;
+static int hf_btbnep_destination_service_uuid;
+static int hf_btbnep_source_service_uuid;
+static int hf_btbnep_setup_connection_response_message;
+static int hf_btbnep_filter_net_type_response_message;
+static int hf_btbnep_filter_multi_addr_response_message;
+static int hf_btbnep_list_length;
+static int hf_btbnep_network_type_start;
+static int hf_btbnep_network_type_end;
+static int hf_btbnep_multicast_address_start;
+static int hf_btbnep_multicast_address_end;
 
-static gint ett_btbnep                                                     = -1;
-static gint ett_addr                                                       = -1;
+static gint ett_btbnep;
+static gint ett_addr;
 
-static expert_field ei_btbnep_src_not_group_address = EI_INIT;
-static expert_field ei_btbnep_invalid_lentype       = EI_INIT;
-static expert_field ei_btbnep_len_past_end          = EI_INIT;
+static expert_field ei_btbnep_src_not_group_address;
+static expert_field ei_btbnep_invalid_lentype;
+static expert_field ei_btbnep_len_past_end;
 
 static dissector_handle_t btbnep_handle;
 

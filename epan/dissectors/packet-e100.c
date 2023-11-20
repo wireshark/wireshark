@@ -17,21 +17,21 @@
 void proto_register_e100(void);
 void proto_reg_handoff_e100(void);
 
-static int proto_e100 = -1;
+static int proto_e100;
 
 static dissector_handle_t eth_handle;
 
 /* Dissector tree globals */
-static int hf_e100_header = -1;
-static int hf_e100_port = -1;
-static int hf_e100_seq = -1;
-static int hf_e100_ip = -1;
-static int hf_e100_mon_pkt_id = -1;
-static int hf_e100_pkt_ts = -1;
-static int hf_e100_bytes_cap = -1;
-static int hf_e100_bytes_orig = -1;
+static int hf_e100_header;
+static int hf_e100_port;
+static int hf_e100_seq;
+static int hf_e100_ip;
+static int hf_e100_mon_pkt_id;
+static int hf_e100_pkt_ts;
+static int hf_e100_bytes_cap;
+static int hf_e100_bytes_orig;
 
-static gint ett_e100 = -1;
+static gint ett_e100;
 
 /* E100 encapsulated packet offsets */
 typedef struct _e100_encap

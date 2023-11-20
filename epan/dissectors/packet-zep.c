@@ -65,21 +65,21 @@ static const range_string type_rvals[] = {
 static const true_false_string tfs_crc_lqi = { "CRC", "LQI" };
 
 /*  Initialize protocol and registered fields. */
-static int proto_zep = -1;
-static int hf_zep_version = -1;
-static int hf_zep_type = -1;
-static int hf_zep_channel_id = -1;
-static int hf_zep_device_id = -1;
-static int hf_zep_lqi_mode = -1;
-static int hf_zep_lqi = -1;
-static int hf_zep_timestamp = -1;
-static int hf_zep_seqno = -1;
-static int hf_zep_ieee_length = -1;
-static int hf_zep_protocol_id = -1;
-static int hf_zep_reserved_field = -1;
+static int proto_zep;
+static int hf_zep_version;
+static int hf_zep_type;
+static int hf_zep_channel_id;
+static int hf_zep_device_id;
+static int hf_zep_lqi_mode;
+static int hf_zep_lqi;
+static int hf_zep_timestamp;
+static int hf_zep_seqno;
+static int hf_zep_ieee_length;
+static int hf_zep_protocol_id;
+static int hf_zep_reserved_field;
 
 /* Initialize protocol subtrees. */
-static gint ett_zep = -1;
+static gint ett_zep;
 
 /*  Dissector handle */
 static dissector_handle_t zep_handle;

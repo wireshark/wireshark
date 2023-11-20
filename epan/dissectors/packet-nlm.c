@@ -39,39 +39,39 @@ void proto_reg_handoff_nlm(void);
  * and follow the links to the HTML version of the document.
  */
 
-static int proto_nlm = -1;
-static int hf_nlm_procedure_v1 = -1;
-static int hf_nlm_procedure_v2 = -1;
-static int hf_nlm_procedure_v3 = -1;
-static int hf_nlm_procedure_v4 = -1;
-static int hf_nlm_cookie = -1;
-static int hf_nlm_block = -1;
-static int hf_nlm_exclusive = -1;
-static int hf_nlm_lock = -1;
-static int hf_nlm_lock_caller_name = -1;
-static int hf_nlm_lock_owner = -1;
-static int hf_nlm_lock_svid = -1;
-static int hf_nlm_lock_l_offset = -1;
-static int hf_nlm_lock_l_offset64 = -1;
-static int hf_nlm_lock_l_len = -1;
-static int hf_nlm_lock_l_len64 = -1;
-static int hf_nlm_reclaim = -1;
-static int hf_nlm_stat = -1;
-static int hf_nlm_state = -1;
-static int hf_nlm_test_stat = -1;
-static int hf_nlm_test_stat_stat = -1;
-static int hf_nlm_holder = -1;
-static int hf_nlm_share = -1;
-static int hf_nlm_share_mode = -1;
-static int hf_nlm_share_access = -1;
-static int hf_nlm_share_name = -1;
-static int hf_nlm_sequence = -1;
-static int hf_nlm_request_in = -1;
-static int hf_nlm_reply_in = -1;
-static int hf_nlm_time = -1;
+static int proto_nlm;
+static int hf_nlm_procedure_v1;
+static int hf_nlm_procedure_v2;
+static int hf_nlm_procedure_v3;
+static int hf_nlm_procedure_v4;
+static int hf_nlm_cookie;
+static int hf_nlm_block;
+static int hf_nlm_exclusive;
+static int hf_nlm_lock;
+static int hf_nlm_lock_caller_name;
+static int hf_nlm_lock_owner;
+static int hf_nlm_lock_svid;
+static int hf_nlm_lock_l_offset;
+static int hf_nlm_lock_l_offset64;
+static int hf_nlm_lock_l_len;
+static int hf_nlm_lock_l_len64;
+static int hf_nlm_reclaim;
+static int hf_nlm_stat;
+static int hf_nlm_state;
+static int hf_nlm_test_stat;
+static int hf_nlm_test_stat_stat;
+static int hf_nlm_holder;
+static int hf_nlm_share;
+static int hf_nlm_share_mode;
+static int hf_nlm_share_access;
+static int hf_nlm_share_name;
+static int hf_nlm_sequence;
+static int hf_nlm_request_in;
+static int hf_nlm_reply_in;
+static int hf_nlm_time;
 
-static gint ett_nlm = -1;
-static gint ett_nlm_lock = -1;
+static gint ett_nlm;
+static gint ett_nlm_lock;
 
 
 

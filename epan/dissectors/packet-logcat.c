@@ -19,32 +19,32 @@
 #include <epan/prefs.h>
 #include <wiretap/wtap.h>
 
-static int proto_logcat = -1;
+static int proto_logcat;
 
-static int hf_logcat_version = -1;
-static int hf_logcat_length = -1;
-static int hf_logcat_padding = -1;
-static int hf_logcat_header_size = -1;
-static int hf_logcat_pid = -1;
-static int hf_logcat_tid = -1;
-static int hf_logcat_timestamp = -1;
-static int hf_logcat_timestamp_seconds = -1;
-static int hf_logcat_timestamp_nanoseconds = -1;
-static int hf_logcat_euid = -1;
-static int hf_logcat_priority = -1;
-static int hf_logcat_tag = -1;
-static int hf_logcat_log = -1;
+static int hf_logcat_version;
+static int hf_logcat_length;
+static int hf_logcat_padding;
+static int hf_logcat_header_size;
+static int hf_logcat_pid;
+static int hf_logcat_tid;
+static int hf_logcat_timestamp;
+static int hf_logcat_timestamp_seconds;
+static int hf_logcat_timestamp_nanoseconds;
+static int hf_logcat_euid;
+static int hf_logcat_priority;
+static int hf_logcat_tag;
+static int hf_logcat_log;
 
-static gint ett_logcat = -1;
-static gint ett_logcat_timestamp = -1;
-static gint ett_logcat_log = -1;
+static gint ett_logcat;
+static gint ett_logcat_timestamp;
+static gint ett_logcat_log;
 
 static dissector_handle_t logcat_handle;
 static dissector_handle_t data_text_lines_handle;
 
 static gint exported_pdu_tap = -1;
 
-static expert_field ei_invalid_payload_length = EI_INIT;
+static expert_field ei_invalid_payload_length;
 
 static gboolean  pref_one_line_info_column = TRUE;
 

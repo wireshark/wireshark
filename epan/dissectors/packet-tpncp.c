@@ -90,21 +90,21 @@ static tpncp_data_field_info tpncp_commands_info_db[MAX_TPNCP_DB_SIZE];
 static gint bits[] = {0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80};
 
 /* TPNCP packet header fields. */
-static gint proto_tpncp = -1;
-static gint hf_tpncp_version = -1;
-static gint hf_tpncp_length = -1;
-static gint hf_tpncp_seq_number = -1;
-static gint hf_tpncp_length_ext = -1;
-static gint hf_tpncp_reserved = -1;
-static gint hf_tpncp_command_id = -1;
-static gint hf_tpncp_event_id = -1;
-static gint hf_tpncp_cid = -1;
+static gint proto_tpncp;
+static gint hf_tpncp_version;
+static gint hf_tpncp_length;
+static gint hf_tpncp_seq_number;
+static gint hf_tpncp_length_ext;
+static gint hf_tpncp_reserved;
+static gint hf_tpncp_command_id;
+static gint hf_tpncp_event_id;
+static gint hf_tpncp_cid;
 
-static expert_field ei_tpncp_unknown_data = EI_INIT;
+static expert_field ei_tpncp_unknown_data;
 
 /* TPNCP fields defining a subtree. */
-static gint ett_tpncp = -1;
-static gint ett_tpncp_body = -1;
+static gint ett_tpncp;
+static gint ett_tpncp_body;
 
 static gboolean global_tpncp_load_db = FALSE;
 

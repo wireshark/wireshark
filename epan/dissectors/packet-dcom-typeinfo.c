@@ -22,23 +22,23 @@
 void proto_register_dcom_typeinfo(void);
 void proto_reg_handoff_dcom_typeinfo(void);
 
-static gint ett_typeinfo_funcdesc = -1;
-static int hf_typeinfo_funcdesc = -1;
-static int hf_typeinfo_funcdesc_funcflags = -1;
-static gint ett_typeinfo_funcdesc_funcflags = -1;
-static int hf_typeinfo_funcdesc_funcflags_frestricted = -1;
-static int hf_typeinfo_funcdesc_funcflags_fsource = -1;
-static int hf_typeinfo_funcdesc_funcflags_fbindable = -1;
-static int hf_typeinfo_funcdesc_funcflags_frequestedit = -1;
-static int hf_typeinfo_funcdesc_funcflags_fdisplaybind = -1;
-static int hf_typeinfo_funcdesc_funcflags_fdefaultbind = -1;
-static int hf_typeinfo_funcdesc_funcflags_fhidden = -1;
-static int hf_typeinfo_funcdesc_funcflags_fusesgetlasterror = -1;
-static int hf_typeinfo_funcdesc_funcflags_fdefaultcollelem = -1;
-static int hf_typeinfo_funcdesc_funcflags_fuidefault = -1;
-static int hf_typeinfo_funcdesc_funcflags_fnowbrowsable = -1;
-static int hf_typeinfo_funcdesc_funcflags_freplaceable = -1;
-static int hf_typeinfo_funcdesc_funcflags_fimmediatebind = -1;
+static gint ett_typeinfo_funcdesc;
+static int hf_typeinfo_funcdesc;
+static int hf_typeinfo_funcdesc_funcflags;
+static gint ett_typeinfo_funcdesc_funcflags;
+static int hf_typeinfo_funcdesc_funcflags_frestricted;
+static int hf_typeinfo_funcdesc_funcflags_fsource;
+static int hf_typeinfo_funcdesc_funcflags_fbindable;
+static int hf_typeinfo_funcdesc_funcflags_frequestedit;
+static int hf_typeinfo_funcdesc_funcflags_fdisplaybind;
+static int hf_typeinfo_funcdesc_funcflags_fdefaultbind;
+static int hf_typeinfo_funcdesc_funcflags_fhidden;
+static int hf_typeinfo_funcdesc_funcflags_fusesgetlasterror;
+static int hf_typeinfo_funcdesc_funcflags_fdefaultcollelem;
+static int hf_typeinfo_funcdesc_funcflags_fuidefault;
+static int hf_typeinfo_funcdesc_funcflags_fnowbrowsable;
+static int hf_typeinfo_funcdesc_funcflags_freplaceable;
+static int hf_typeinfo_funcdesc_funcflags_fimmediatebind;
 
 #define FUNCFLAG_FRESTRICTED 0x1
 #define FUNCFLAG_FSOURCE 0x2
@@ -54,32 +54,32 @@ static int hf_typeinfo_funcdesc_funcflags_fimmediatebind = -1;
 #define FUNCFLAG_FREPLACEABLE 0x800
 #define FUNCFLAG_FIMMEDIATEBIND 0x1000
 
-static int hf_typeinfo_funcdesc_funckind = -1;
-static int hf_typeinfo_funcdesc_invkind = -1;
-static int hf_typeinfo_funcdesc_callconv = -1;
-static int hf_typeinfo_funcdesc_params = -1;
-static int hf_typeinfo_funcdesc_paramsopt = -1;
-static int hf_typeinfo_funcdesc_memid = -1;
-static int hf_typeinfo_funcdesc_vft = -1;
-static int hf_typeinfo_funcdesc_resv16 = -1;
-static int hf_typeinfo_funcdesc_resv32 = -1;
-static gint ett_typeinfo_elemdesc = -1;
-static int hf_typeinfo_funcdesc_elemdesc = -1;
+static int hf_typeinfo_funcdesc_funckind;
+static int hf_typeinfo_funcdesc_invkind;
+static int hf_typeinfo_funcdesc_callconv;
+static int hf_typeinfo_funcdesc_params;
+static int hf_typeinfo_funcdesc_paramsopt;
+static int hf_typeinfo_funcdesc_memid;
+static int hf_typeinfo_funcdesc_vft;
+static int hf_typeinfo_funcdesc_resv16;
+static int hf_typeinfo_funcdesc_resv32;
+static gint ett_typeinfo_elemdesc;
+static int hf_typeinfo_funcdesc_elemdesc;
 
-static gint ett_typeinfo_typedesc = -1;
-static int hf_typeinfo_typedesc = -1;
+static gint ett_typeinfo_typedesc;
+static int hf_typeinfo_typedesc;
 
-static gint ett_typeinfo_paramdesc = -1;
-static int hf_typeinfo_paramdesc = -1;
-static gint ett_typeinfo_paramdesc_paramflags = -1;
-static int hf_typeinfo_paramdesc_paramflags = -1;
-static int hf_typeinfo_paramdesc_paramflags_fin = -1;
-static int hf_typeinfo_paramdesc_paramflags_fout = -1;
-static int hf_typeinfo_paramdesc_paramflags_flcid = -1;
-static int hf_typeinfo_paramdesc_paramflags_fretval = -1;
-static int hf_typeinfo_paramdesc_paramflags_fopt = -1;
-static int hf_typeinfo_paramdesc_paramflags_fhasdefault = -1;
-static int hf_typeinfo_paramdesc_paramflags_fhascustdata = -1;
+static gint ett_typeinfo_paramdesc;
+static int hf_typeinfo_paramdesc;
+static gint ett_typeinfo_paramdesc_paramflags;
+static int hf_typeinfo_paramdesc_paramflags;
+static int hf_typeinfo_paramdesc_paramflags_fin;
+static int hf_typeinfo_paramdesc_paramflags_fout;
+static int hf_typeinfo_paramdesc_paramflags_flcid;
+static int hf_typeinfo_paramdesc_paramflags_fretval;
+static int hf_typeinfo_paramdesc_paramflags_fopt;
+static int hf_typeinfo_paramdesc_paramflags_fhasdefault;
+static int hf_typeinfo_paramdesc_paramflags_fhascustdata;
 
 #define PARAMFLAG_FIN 0x1
 #define PARAMFLAG_FOUT 0x2
@@ -89,58 +89,58 @@ static int hf_typeinfo_paramdesc_paramflags_fhascustdata = -1;
 #define PARAMFLAG_FHASDEFAULT 0x20
 #define PARAMFLAG_FHASCUSTDATA 0x40
 
-static gint ett_typeinfo_paramdescex = -1;
-static int hf_typeinfo_paramdescex = -1;
-static int hf_typeinfo_paramdescex_cbytes = -1;
-static int hf_typeinfo_paramdescex_varDefaultValue = -1;
+static gint ett_typeinfo_paramdescex;
+static int hf_typeinfo_paramdescex;
+static int hf_typeinfo_paramdescex_cbytes;
+static int hf_typeinfo_paramdescex_varDefaultValue;
 
-static int hf_typeinfo_typedesc_vtret = -1;
-static int hf_typeinfo_typedesc_hreftype = -1;
+static int hf_typeinfo_typedesc_vtret;
+static int hf_typeinfo_typedesc_hreftype;
 
-static int hf_typeinfo_opnum = -1;
-static int hf_typeinfo_index = -1;
+static int hf_typeinfo_opnum;
+static int hf_typeinfo_index;
 
-static int hf_typeinfo_memid = -1;
-static int hf_typeinfo_reserved32 = -1;
-static int hf_typeinfo_reserved16 = -1;
+static int hf_typeinfo_memid;
+static int hf_typeinfo_reserved32;
+static int hf_typeinfo_reserved16;
 
-static int hf_typeinfo_names = -1;
-static int hf_typeinfo_names_value = -1;
-static int hf_typeinfo_maxnames = -1;
+static int hf_typeinfo_names;
+static int hf_typeinfo_names_value;
+static int hf_typeinfo_maxnames;
 
-static int hf_typeinfo_docname = -1;
-static int hf_typeinfo_docstring = -1;
-static int hf_typeinfo_helpctx = -1;
-static int hf_typeinfo_helpfile = -1;
+static int hf_typeinfo_docname;
+static int hf_typeinfo_docstring;
+static int hf_typeinfo_helpctx;
+static int hf_typeinfo_helpfile;
 
-static gint ett_typeinfo_docflags = -1;
-static int hf_typeinfo_docflags = -1;
-static int hf_typeinfo_docflags_name = -1;
-static int hf_typeinfo_docflags_docstring = -1;
-static int hf_typeinfo_docflags_helpctx = -1;
-static int hf_typeinfo_docflags_helpfile = -1;
+static gint ett_typeinfo_docflags;
+static int hf_typeinfo_docflags;
+static int hf_typeinfo_docflags_name;
+static int hf_typeinfo_docflags_docstring;
+static int hf_typeinfo_docflags_helpctx;
+static int hf_typeinfo_docflags_helpfile;
 
 #define TYPEINFO_DOCFLAGS_NameArg 1
 #define TYPEINFO_DOCFLAGS_DocStringArg 2
 #define TYPEINFO_DOCFLAGS_HelpContextArg 4
 #define TYPEINFO_DOCFLAGS_HelpFileArg 8
 
-static gint ett_typeinfo_typeflags = -1;
-static int hf_typeinfo_typeflags = -1;
-static int hf_typeinfo_typeflags_fappobject = -1;
-static int hf_typeinfo_typeflags_fcancreate = -1;
-static int hf_typeinfo_typeflags_flicensed = -1;
-static int hf_typeinfo_typeflags_fpredeclid = -1;
-static int hf_typeinfo_typeflags_fhidden = -1;
-static int hf_typeinfo_typeflags_fcontrol = -1;
-static int hf_typeinfo_typeflags_fdual = -1;
-static int hf_typeinfo_typeflags_fnonextensible = -1;
-static int hf_typeinfo_typeflags_foleautomation = -1;
-static int hf_typeinfo_typeflags_frestricted = -1;
-static int hf_typeinfo_typeflags_faggregatable = -1;
-static int hf_typeinfo_typeflags_freplaceable = -1;
-static int hf_typeinfo_typeflags_fdispatchable = -1;
-static int hf_typeinfo_typeflags_fproxy = -1;
+static gint ett_typeinfo_typeflags;
+static int hf_typeinfo_typeflags;
+static int hf_typeinfo_typeflags_fappobject;
+static int hf_typeinfo_typeflags_fcancreate;
+static int hf_typeinfo_typeflags_flicensed;
+static int hf_typeinfo_typeflags_fpredeclid;
+static int hf_typeinfo_typeflags_fhidden;
+static int hf_typeinfo_typeflags_fcontrol;
+static int hf_typeinfo_typeflags_fdual;
+static int hf_typeinfo_typeflags_fnonextensible;
+static int hf_typeinfo_typeflags_foleautomation;
+static int hf_typeinfo_typeflags_frestricted;
+static int hf_typeinfo_typeflags_faggregatable;
+static int hf_typeinfo_typeflags_freplaceable;
+static int hf_typeinfo_typeflags_fdispatchable;
+static int hf_typeinfo_typeflags_fproxy;
 
 #define TYPEINFO_TYPEFLAG_FAPPOBJECT 0x1
 #define TYPEINFO_TYPEFLAG_FCANCREATE 0x2
@@ -157,26 +157,26 @@ static int hf_typeinfo_typeflags_fproxy = -1;
 #define TYPEINFO_TYPEFLAG_FDISPATCHABLE 0x1000
 #define TYPEINFO_TYPEFLAG_FPROXY 0x4000
 
-static gint ett_typeinfo_typeattr = -1;
-static int hf_typeinfo_typeattr = -1;
-static int hf_typeinfo_guid = -1;
-static int hf_typeinfo_lcid = -1;
-static int hf_typeinfo_sizeInstance = -1;
-static int hf_typeinfo_typekind = -1;
-static int hf_typeinfo_cFuncs = -1;
-static int hf_typeinfo_cVars = -1;
-static int hf_typeinfo_cImplTypes = -1;
-static int hf_typeinfo_cbSizeVft = -1;
-static int hf_typeinfo_cbAlignment = -1;
-static int hf_typeinfo_wMajorVerNum = -1;
-static int hf_typeinfo_wMinorVerNum = -1;
+static gint ett_typeinfo_typeattr;
+static int hf_typeinfo_typeattr;
+static int hf_typeinfo_guid;
+static int hf_typeinfo_lcid;
+static int hf_typeinfo_sizeInstance;
+static int hf_typeinfo_typekind;
+static int hf_typeinfo_cFuncs;
+static int hf_typeinfo_cVars;
+static int hf_typeinfo_cImplTypes;
+static int hf_typeinfo_cbSizeVft;
+static int hf_typeinfo_cbAlignment;
+static int hf_typeinfo_wMajorVerNum;
+static int hf_typeinfo_wMinorVerNum;
 
-static gint ett_typeinfo_names = -1;
+static gint ett_typeinfo_names;
 
 static e_guid_t uuid_typeinfo = {0x00020401, 0x0000, 0x0000, {0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46}};
 static guint16 ver_typeinfo = 0;
-static gint ett_typeinfo = -1;
-static int proto_typeinfo = -1;
+static gint ett_typeinfo;
+static int proto_typeinfo;
 
 static const value_string dcom_lcid_vals[] = {
     {0x0000, "Language neutral"},

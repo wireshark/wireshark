@@ -36,62 +36,62 @@ static dissector_table_t dcp_dissector_table;
 static dissector_table_t af_dissector_table;
 static dissector_table_t tpl_dissector_table;
 
-static int proto_dcp_etsi = -1;
-static int proto_af = -1;
-static int proto_pft = -1;
-static int proto_tpl = -1;
-static int hf_edcp_sync = -1;
-static int hf_edcp_len = -1;
-static int hf_edcp_seq = -1;
-static int hf_edcp_crcflag = -1;
-static int hf_edcp_maj = -1;
-static int hf_edcp_min = -1;
-static int hf_edcp_pt = -1;
-static int hf_edcp_crc = -1;
-static int hf_edcp_crc_ok = -1;
-/* static int hf_edcp_pft_pt = -1; */
-static int hf_edcp_pseq = -1;
-static int hf_edcp_findex = -1;
-static int hf_edcp_fcount = -1;
-static int hf_edcp_fecflag = -1;
-static int hf_edcp_addrflag = -1;
-static int hf_edcp_plen = -1;
-static int hf_edcp_rsk = -1;
-static int hf_edcp_rsz = -1;
-static int hf_edcp_source = -1;
-static int hf_edcp_dest = -1;
-static int hf_edcp_hcrc = -1;
-static int hf_edcp_hcrc_ok = -1;
-/* static int hf_edcp_c_max = -1; */
-/* static int hf_edcp_rx_min = -1; */
-/* static int hf_edcp_rs_corrected = -1; */
-static int hf_edcp_rs_ok = -1;
-static int hf_edcp_pft_payload = -1;
+static int proto_dcp_etsi;
+static int proto_af;
+static int proto_pft;
+static int proto_tpl;
+static int hf_edcp_sync;
+static int hf_edcp_len;
+static int hf_edcp_seq;
+static int hf_edcp_crcflag;
+static int hf_edcp_maj;
+static int hf_edcp_min;
+static int hf_edcp_pt;
+static int hf_edcp_crc;
+static int hf_edcp_crc_ok;
+/* static int hf_edcp_pft_pt; */
+static int hf_edcp_pseq;
+static int hf_edcp_findex;
+static int hf_edcp_fcount;
+static int hf_edcp_fecflag;
+static int hf_edcp_addrflag;
+static int hf_edcp_plen;
+static int hf_edcp_rsk;
+static int hf_edcp_rsz;
+static int hf_edcp_source;
+static int hf_edcp_dest;
+static int hf_edcp_hcrc;
+static int hf_edcp_hcrc_ok;
+/* static int hf_edcp_c_max; */
+/* static int hf_edcp_rx_min; */
+/* static int hf_edcp_rs_corrected; */
+static int hf_edcp_rs_ok;
+static int hf_edcp_pft_payload;
 
-static int hf_tpl_tlv = -1;
-/* static int hf_tpl_ptr = -1; */
+static int hf_tpl_tlv;
+/* static int hf_tpl_ptr; */
 
-static int hf_edcp_fragments = -1;
-static int hf_edcp_fragment = -1;
-static int hf_edcp_fragment_overlap = -1;
-static int hf_edcp_fragment_overlap_conflicts = -1;
-static int hf_edcp_fragment_multiple_tails = -1;
-static int hf_edcp_fragment_too_long_fragment = -1;
-static int hf_edcp_fragment_error = -1;
-static int hf_edcp_fragment_count = -1;
-static int hf_edcp_reassembled_in = -1;
-static int hf_edcp_reassembled_length = -1;
+static int hf_edcp_fragments;
+static int hf_edcp_fragment;
+static int hf_edcp_fragment_overlap;
+static int hf_edcp_fragment_overlap_conflicts;
+static int hf_edcp_fragment_multiple_tails;
+static int hf_edcp_fragment_too_long_fragment;
+static int hf_edcp_fragment_error;
+static int hf_edcp_fragment_count;
+static int hf_edcp_reassembled_in;
+static int hf_edcp_reassembled_length;
 
 /* Initialize the subtree pointers */
-static gint ett_edcp = -1;
-static gint ett_af = -1;
-static gint ett_pft = -1;
-static gint ett_tpl = -1;
-static gint ett_edcp_fragment = -1;
-static gint ett_edcp_fragments = -1;
+static gint ett_edcp;
+static gint ett_af;
+static gint ett_pft;
+static gint ett_tpl;
+static gint ett_edcp_fragment;
+static gint ett_edcp_fragments;
 
-static expert_field ei_edcp_reassembly = EI_INIT;
-static expert_field ei_edcp_reassembly_info = EI_INIT;
+static expert_field ei_edcp_reassembly;
+static expert_field ei_edcp_reassembly_info;
 
 static reassembly_table dcp_reassembly_table;
 

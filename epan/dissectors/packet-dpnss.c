@@ -27,40 +27,40 @@
 void proto_register_dpnss(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_dpnss                        = -1;
-static int hf_dpnss_msg_grp_id                = -1;
-static int hf_dpnss_cc_msg_type               = -1;
-static int hf_dpnss_e2e_msg_type              = -1;
-static int hf_dpnss_LbL_msg_type              = -1;
-static int hf_dpnss_ext_bit                   = -1;
-static int hf_dpnss_ext_bit_notall            = -1;
-static int hf_dpnss_sic_type                  = -1;
-static int hf_dpnss_sic_details_for_speech    = -1;
-static int hf_dpnss_sic_details_for_data1     = -1;
-static int hf_dpnss_sic_details_for_data2     = -1;
-static int hf_dpnss_dest_addr                 = -1;
-static int hf_dpnss_sic_oct2_data_type        = -1;
-static int hf_dpnss_sic_oct2_duplex           = -1;
-static int hf_dpnss_sic_oct2_sync_data_format = -1;
-static int hf_dpnss_sic_oct2_sync_byte_timing = -1;
-static int hf_dpnss_sic_oct2_net_ind_clk      = -1;
-static int hf_dpnss_sic_oct2_async_data       = -1;
-static int hf_dpnss_sic_oct2_async_flow_ctrl  = -1;
-static int hf_dpnss_clearing_cause            = -1;
-static int hf_dpnss_rejection_cause           = -1;
-static int hf_dpnss_man_code                  = -1;
-static int hf_dpnss_subcode                   = -1;
-static int hf_dpnss_maintenance_action        = -1;
+static int proto_dpnss;
+static int hf_dpnss_msg_grp_id;
+static int hf_dpnss_cc_msg_type;
+static int hf_dpnss_e2e_msg_type;
+static int hf_dpnss_LbL_msg_type;
+static int hf_dpnss_ext_bit;
+static int hf_dpnss_ext_bit_notall;
+static int hf_dpnss_sic_type;
+static int hf_dpnss_sic_details_for_speech;
+static int hf_dpnss_sic_details_for_data1;
+static int hf_dpnss_sic_details_for_data2;
+static int hf_dpnss_dest_addr;
+static int hf_dpnss_sic_oct2_data_type;
+static int hf_dpnss_sic_oct2_duplex;
+static int hf_dpnss_sic_oct2_sync_data_format;
+static int hf_dpnss_sic_oct2_sync_byte_timing;
+static int hf_dpnss_sic_oct2_net_ind_clk;
+static int hf_dpnss_sic_oct2_async_data;
+static int hf_dpnss_sic_oct2_async_flow_ctrl;
+static int hf_dpnss_clearing_cause;
+static int hf_dpnss_rejection_cause;
+static int hf_dpnss_man_code;
+static int hf_dpnss_subcode;
+static int hf_dpnss_maintenance_action;
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_dpnss_indication_field          = -1;
-static int hf_dpnss_user_information          = -1;
-static int hf_dpnss_selection_field           = -1;
-static int hf_dpnss_sup_str                   = -1;
-static int hf_dpnss_parameter                 = -1;
+static int hf_dpnss_indication_field;
+static int hf_dpnss_user_information;
+static int hf_dpnss_selection_field;
+static int hf_dpnss_sup_str;
+static int hf_dpnss_parameter;
 
 /* parameters */
-static int hf_dpnss_a_b_party_addr            = -1;
-static int hf_dpnss_call_idx                  = -1;
+static int hf_dpnss_a_b_party_addr;
+static int hf_dpnss_call_idx;
 
 #define DPNNS_MESSAGE_GROUP_CC           0
 #define DPNNS_MESSAGE_GROUP_E2E          2
@@ -81,14 +81,14 @@ static int hf_dpnss_call_idx                  = -1;
 #define DPNSS_CC_MSG_SSRM_C             12
 
 /* Initialize the subtree pointers */
-static int ett_dpnss            = -1;
-static int ett_dpnss_sel_field  = -1;
-static int ett_dpnss_sic_field  = -1;
-static int ett_dpnss_ind_field  = -1;
-static int ett_dpnss_sup_str    = -1;
+static int ett_dpnss;
+static int ett_dpnss_sel_field;
+static int ett_dpnss_sic_field;
+static int ett_dpnss_ind_field;
+static int ett_dpnss_sup_str;
 
-static expert_field ei_dpnss_not_supported_yet = EI_INIT;
-static expert_field ei_dpnss_msg_grp_id = EI_INIT;
+static expert_field ei_dpnss_not_supported_yet;
+static expert_field ei_dpnss_msg_grp_id;
 
 
 static const value_string dpnss_msg_grp_id_vals[] = {

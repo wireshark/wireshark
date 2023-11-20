@@ -76,37 +76,37 @@ static const value_string udt_types[] = {
 	{0, NULL},
 };
 
-static int proto_udt = -1;
-static int hf_udt_iscontrol = -1;
-static int hf_udt_type = -1;
-static int hf_udt_seqno = -1;
-static int hf_udt_ack_seqno = -1;
-static int hf_udt_ackno = -1;
-static int hf_udt_msgno = -1;
-static int hf_udt_msgno_first = -1;
-static int hf_udt_msgno_last = -1;
-static int hf_udt_msgno_inorder = -1;
-static int hf_udt_timestamp = -1;
-static int hf_udt_id = -1;
-static int hf_udt_addinfo = -1;
-static int hf_udt_rtt = -1;
-static int hf_udt_rttvar = -1;
-static int hf_udt_bufavail = -1;
-static int hf_udt_rate = -1;
-static int hf_udt_linkcap = -1;
-static int hf_udt_handshake_version = -1;
-static int hf_udt_handshake_type = -1;
-static int hf_udt_handshake_isn = -1;
-static int hf_udt_handshake_mtu = -1;
-static int hf_udt_handshake_flow_window = -1;
-static int hf_udt_handshake_reqtype = -1;
-static int hf_udt_handshake_id = -1;
-static int hf_udt_handshake_cookie = -1;
-static int hf_udt_handshake_peerip = -1;
+static int proto_udt;
+static int hf_udt_iscontrol;
+static int hf_udt_type;
+static int hf_udt_seqno;
+static int hf_udt_ack_seqno;
+static int hf_udt_ackno;
+static int hf_udt_msgno;
+static int hf_udt_msgno_first;
+static int hf_udt_msgno_last;
+static int hf_udt_msgno_inorder;
+static int hf_udt_timestamp;
+static int hf_udt_id;
+static int hf_udt_addinfo;
+static int hf_udt_rtt;
+static int hf_udt_rttvar;
+static int hf_udt_bufavail;
+static int hf_udt_rate;
+static int hf_udt_linkcap;
+static int hf_udt_handshake_version;
+static int hf_udt_handshake_type;
+static int hf_udt_handshake_isn;
+static int hf_udt_handshake_mtu;
+static int hf_udt_handshake_flow_window;
+static int hf_udt_handshake_reqtype;
+static int hf_udt_handshake_id;
+static int hf_udt_handshake_cookie;
+static int hf_udt_handshake_peerip;
 
-static gint ett_udt = -1;
+static gint ett_udt;
 
-static expert_field ei_udt_nak_seqno = EI_INIT;
+static expert_field ei_udt_nak_seqno;
 
 static dissector_handle_t udt_handle;
 

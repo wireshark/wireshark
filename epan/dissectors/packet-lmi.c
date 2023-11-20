@@ -30,22 +30,22 @@ void proto_reg_handoff_lmi(void);
 
 static dissector_handle_t lmi_handle;
 
-static int proto_lmi = -1;
-static int hf_lmi_call_ref = -1;
-static int hf_lmi_msg_type = -1;
-static int hf_lmi_inf_ele = -1;
-static int hf_lmi_inf_len = -1;
+static int proto_lmi;
+static int hf_lmi_call_ref;
+static int hf_lmi_msg_type;
+static int hf_lmi_inf_ele;
+static int hf_lmi_inf_len;
 
-static int hf_lmi_rcd_type = -1;
-static int hf_lmi_send_seq = -1;
-static int hf_lmi_recv_seq = -1;
-static int hf_lmi_dlci_high = -1;
-static int hf_lmi_dlci_low = -1;
-static int hf_lmi_new = -1;
-static int hf_lmi_act = -1;
+static int hf_lmi_rcd_type;
+static int hf_lmi_send_seq;
+static int hf_lmi_recv_seq;
+static int hf_lmi_dlci_high;
+static int hf_lmi_dlci_low;
+static int hf_lmi_new;
+static int hf_lmi_act;
 
-static gint ett_lmi = -1;
-static gint ett_lmi_ele = -1;
+static gint ett_lmi;
+static gint ett_lmi_ele;
 
 #ifdef _OLD_
 /*

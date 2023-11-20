@@ -79,31 +79,31 @@
 void proto_register_mq(void);
 void proto_reg_handoff_mq(void);
 
-static int proto_mq = -1;
-static int hf_mq_tsh_StructID = -1;
-static int hf_mq_tsh_mqseglen = -1;
-static int hf_mq_tsh_convid = -1;
-static int hf_mq_tsh_requestid = -1;
-static int hf_mq_tsh_byteorder = -1;
-static int hf_mq_tsh_opcode = -1;
-static int hf_mq_tsh_ctlflgs1 = -1;
+static int proto_mq;
+static int hf_mq_tsh_StructID;
+static int hf_mq_tsh_mqseglen;
+static int hf_mq_tsh_convid;
+static int hf_mq_tsh_requestid;
+static int hf_mq_tsh_byteorder;
+static int hf_mq_tsh_opcode;
+static int hf_mq_tsh_ctlflgs1;
 
-static int hf_mq_tsh_ctlflgs2 = -1;
-static int hf_mq_tsh_luwid = -1;
-static int hf_mq_tsh_encoding = -1;
+static int hf_mq_tsh_ctlflgs2;
+static int hf_mq_tsh_luwid;
+static int hf_mq_tsh_encoding;
 
-static int hf_mq_tsh_ccsid = -1;
-static int hf_mq_tsh_reserved = -1;
+static int hf_mq_tsh_ccsid;
+static int hf_mq_tsh_reserved;
 
 /* Transmission Segment Control Flags 1 */
-static int hf_mq_tsh_tcf_confirmreq = -1;
-static int hf_mq_tsh_tcf_error = -1;
-static int hf_mq_tsh_tcf_reqclose = -1;
-static int hf_mq_tsh_tcf_closechann = -1;
-static int hf_mq_tsh_tcf_first = -1;
-static int hf_mq_tsh_tcf_last = -1;
-static int hf_mq_tsh_tcf_reqacc = -1;
-static int hf_mq_tsh_tcf_dlq = -1;
+static int hf_mq_tsh_tcf_confirmreq;
+static int hf_mq_tsh_tcf_error;
+static int hf_mq_tsh_tcf_reqclose;
+static int hf_mq_tsh_tcf_closechann;
+static int hf_mq_tsh_tcf_first;
+static int hf_mq_tsh_tcf_last;
+static int hf_mq_tsh_tcf_reqacc;
+static int hf_mq_tsh_tcf_dlq;
 static int* const pf_flds_tcf[] =
 {
     &hf_mq_tsh_tcf_dlq,
@@ -118,10 +118,10 @@ static int* const pf_flds_tcf[] =
 };
 
 /* Transmission Segment Control Flags 2 */
-static int hf_mq_tsh_tcf2_HdrComp = -1;
-static int hf_mq_tsh_tcf2_MsgComp = -1;
-static int hf_mq_tsh_tcf2_CSH = -1;
-static int hf_mq_tsh_tcf2_CmitIntv = -1;
+static int hf_mq_tsh_tcf2_HdrComp;
+static int hf_mq_tsh_tcf2_MsgComp;
+static int hf_mq_tsh_tcf2_CSH;
+static int hf_mq_tsh_tcf2_CmitIntv;
 static int* const pf_flds_tcf2[] =
 {
     &hf_mq_tsh_tcf2_CmitIntv,
@@ -131,69 +131,69 @@ static int* const pf_flds_tcf2[] =
     NULL
 };
 
-static int hf_mq_api_replylen = -1;
-static int hf_mq_api_compcode = -1;
-static int hf_mq_api_reascode = -1;
-static int hf_mq_api_objecthdl = -1;
-static int hf_mq_socket_conversid = -1;
-static int hf_mq_socket_requestid = -1;
-static int hf_mq_socket_type = -1;
-static int hf_mq_socket_parm1 = -1;
-static int hf_mq_socket_parm2 = -1;
-static int hf_mq_msh_StructID = -1;
-static int hf_mq_msh_seqnum = -1;
-static int hf_mq_msh_datalength = -1;
-static int hf_mq_msh_unknown1 = -1;
-static int hf_mq_msh_msglength = -1;
-static int hf_mq_xqh_StructID = -1;
-static int hf_mq_xqh_version = -1;
-static int hf_mq_xqh_remoteq = -1;
-static int hf_mq_xqh_remoteqmgr = -1;
+static int hf_mq_api_replylen;
+static int hf_mq_api_compcode;
+static int hf_mq_api_reascode;
+static int hf_mq_api_objecthdl;
+static int hf_mq_socket_conversid;
+static int hf_mq_socket_requestid;
+static int hf_mq_socket_type;
+static int hf_mq_socket_parm1;
+static int hf_mq_socket_parm2;
+static int hf_mq_msh_StructID;
+static int hf_mq_msh_seqnum;
+static int hf_mq_msh_datalength;
+static int hf_mq_msh_unknown1;
+static int hf_mq_msh_msglength;
+static int hf_mq_xqh_StructID;
+static int hf_mq_xqh_version;
+static int hf_mq_xqh_remoteq;
+static int hf_mq_xqh_remoteqmgr;
 
-static int hf_mq_id_StructID = -1;
-static int hf_mq_id_FapLevel = -1;
-static int hf_mq_id_cf1 = -1;
-static int hf_mq_id_ecf1 = -1;
-static int hf_mq_id_ief1 = -1;
-static int hf_mq_id_Reserved = -1;
-static int hf_mq_id_MaxMsgBatch = -1;
-static int hf_mq_id_MaxTrSize = -1;
-static int hf_mq_id_MaxMsgSize = -1;
-static int hf_mq_id_SeqWrapVal = -1;
-static int hf_mq_id_channel = -1;
-static int hf_mq_id_cf2 = -1;
-static int hf_mq_id_ecf2 = -1;
-static int hf_mq_id_ccsid = -1;
-static int hf_mq_id_qmgrname = -1;
-static int hf_mq_id_HBInterval = -1;
-static int hf_mq_id_EFLLength = -1;
-static int hf_mq_id_ief2 = -1;
-static int hf_mq_id_Reserved1 = -1;
-static int hf_mq_id_HdrCprsLst = -1;
-static int hf_mq_id_MsgCprsLst = -1;
-static int hf_mq_id_Reserved2 = -1;
-static int hf_mq_id_SSLKeyRst = -1;
-static int hf_mq_id_ConvBySkt = -1;
-static int hf_mq_id_cf3 = -1;
-static int hf_mq_id_ecf3 = -1;
-static int hf_mq_id_Reserved3 = -1;
-static int hf_mq_id_ProcessId = -1;
-static int hf_mq_id_ThreadId = -1;
-static int hf_mq_id_TraceId = -1;
-static int hf_mq_id_ProdId = -1;
-static int hf_mq_id_mqmid = -1;
-static int hf_mq_id_pal = -1;
-static int hf_mq_id_r = -1;
+static int hf_mq_id_StructID;
+static int hf_mq_id_FapLevel;
+static int hf_mq_id_cf1;
+static int hf_mq_id_ecf1;
+static int hf_mq_id_ief1;
+static int hf_mq_id_Reserved;
+static int hf_mq_id_MaxMsgBatch;
+static int hf_mq_id_MaxTrSize;
+static int hf_mq_id_MaxMsgSize;
+static int hf_mq_id_SeqWrapVal;
+static int hf_mq_id_channel;
+static int hf_mq_id_cf2;
+static int hf_mq_id_ecf2;
+static int hf_mq_id_ccsid;
+static int hf_mq_id_qmgrname;
+static int hf_mq_id_HBInterval;
+static int hf_mq_id_EFLLength;
+static int hf_mq_id_ief2;
+static int hf_mq_id_Reserved1;
+static int hf_mq_id_HdrCprsLst;
+static int hf_mq_id_MsgCprsLst;
+static int hf_mq_id_Reserved2;
+static int hf_mq_id_SSLKeyRst;
+static int hf_mq_id_ConvBySkt;
+static int hf_mq_id_cf3;
+static int hf_mq_id_ecf3;
+static int hf_mq_id_Reserved3;
+static int hf_mq_id_ProcessId;
+static int hf_mq_id_ThreadId;
+static int hf_mq_id_TraceId;
+static int hf_mq_id_ProdId;
+static int hf_mq_id_mqmid;
+static int hf_mq_id_pal;
+static int hf_mq_id_r;
 
 /* Initial Data - Capability Flag 1 */
-static int hf_mq_id_cf1_msgseq = -1;
-static int hf_mq_id_cf1_convcap = -1;
-static int hf_mq_id_cf1_splitmsg = -1;
-static int hf_mq_id_cf1_RqstInit = -1;
-static int hf_mq_id_cf1_RqstSecu = -1;
-static int hf_mq_id_cf1_mqreq = -1;
-static int hf_mq_id_cf1_svrsec = -1;
-static int hf_mq_id_cf1_runtime = -1;
+static int hf_mq_id_cf1_msgseq;
+static int hf_mq_id_cf1_convcap;
+static int hf_mq_id_cf1_splitmsg;
+static int hf_mq_id_cf1_RqstInit;
+static int hf_mq_id_cf1_RqstSecu;
+static int hf_mq_id_cf1_mqreq;
+static int hf_mq_id_cf1_svrsec;
+static int hf_mq_id_cf1_runtime;
 static int* const pf_flds_cf1[] =
 {
     &hf_mq_id_cf1_runtime,
@@ -208,14 +208,14 @@ static int* const pf_flds_cf1[] =
 };
 
 /* Initial Data - Init Error Flag 1 */
-static int hf_mq_id_ief1_ccsid = -1;
-static int hf_mq_id_ief1_enc = -1;
-static int hf_mq_id_ief1_mxtrsz = -1;
-static int hf_mq_id_ief1_fap = -1;
-static int hf_mq_id_ief1_mxmsgsz = -1;
-static int hf_mq_id_ief1_mxmsgpb = -1;
-static int hf_mq_id_ief1_seqwrap = -1;
-static int hf_mq_id_ief1_hbint = -1;
+static int hf_mq_id_ief1_ccsid;
+static int hf_mq_id_ief1_enc;
+static int hf_mq_id_ief1_mxtrsz;
+static int hf_mq_id_ief1_fap;
+static int hf_mq_id_ief1_mxmsgsz;
+static int hf_mq_id_ief1_mxmsgpb;
+static int hf_mq_id_ief1_seqwrap;
+static int hf_mq_id_ief1_hbint;
 static int* const pf_flds_ef1[] =
 {
     &hf_mq_id_ief1_hbint,
@@ -230,14 +230,14 @@ static int* const pf_flds_ef1[] =
 };
 
 /* Initial Data - Capability Flag 2 */
-static int hf_mq_id_cf2_CanDstLst = -1;
-static int hf_mq_id_cf2_FstMsgReq = -1;
-static int hf_mq_id_cf2_RespConv = -1;
-static int hf_mq_id_cf2_XARequest = -1;
-static int hf_mq_id_cf2_XARunTApp = -1;
-static int hf_mq_id_cf2_SPIRqst = -1;
-static int hf_mq_id_cf2_DualUOW = -1;
-static int hf_mq_id_cf2_CanTrcRte = -1;
+static int hf_mq_id_cf2_CanDstLst;
+static int hf_mq_id_cf2_FstMsgReq;
+static int hf_mq_id_cf2_RespConv;
+static int hf_mq_id_cf2_XARequest;
+static int hf_mq_id_cf2_XARunTApp;
+static int hf_mq_id_cf2_SPIRqst;
+static int hf_mq_id_cf2_DualUOW;
+static int hf_mq_id_cf2_CanTrcRte;
 static int* const pf_flds_cf2[] =
 {
     &hf_mq_id_cf2_CanTrcRte,
@@ -252,9 +252,9 @@ static int* const pf_flds_cf2[] =
 };
 
 /* Initial Data - Init Error Flag 2 */
-static int hf_mq_id_ief2_HdrCmpLst = -1;
-static int hf_mq_id_ief2_MsgCmpLst = -1;
-static int hf_mq_id_ief2_SSLReset = -1;
+static int hf_mq_id_ief2_HdrCmpLst;
+static int hf_mq_id_ief2_MsgCmpLst;
+static int hf_mq_id_ief2_SSLReset;
 static int* const pf_flds_ef2[] =
 {
     &hf_mq_id_ief2_SSLReset,
@@ -264,12 +264,12 @@ static int* const pf_flds_ef2[] =
 };
 
 /* Initial Data - Capability Flag 3 */
-static int hf_mq_id_cf3_CanMsgPrp = -1;
-static int hf_mq_id_cf3_CanMulticast = -1;
-static int hf_mq_id_cf3_PropIntSep = -1;
-static int hf_mq_id_cf3_MPlxSyGet = -1;
-static int hf_mq_id_cf3_ProtAlgorit = -1;
-static int hf_mq_id_cf3_CanGenConnTag = -1;
+static int hf_mq_id_cf3_CanMsgPrp;
+static int hf_mq_id_cf3_CanMulticast;
+static int hf_mq_id_cf3_PropIntSep;
+static int hf_mq_id_cf3_MPlxSyGet;
+static int hf_mq_id_cf3_ProtAlgorit;
+static int hf_mq_id_cf3_CanGenConnTag;
 
 static int* const pf_flds_cf3[] =
 {
@@ -282,61 +282,61 @@ static int* const pf_flds_cf3[] =
     NULL
 };
 
-static int hf_mq_uid_StructID = -1;
-static int hf_mq_uid_userid = -1;
-static int hf_mq_uid_password = -1;
-static int hf_mq_uid_longuserid = -1;
-static int hf_mq_sidlen = -1;
-static int hf_mq_sidtyp = -1;
-static int hf_mq_securityid = -1;
+static int hf_mq_uid_StructID;
+static int hf_mq_uid_userid;
+static int hf_mq_uid_password;
+static int hf_mq_uid_longuserid;
+static int hf_mq_sidlen;
+static int hf_mq_sidtyp;
+static int hf_mq_securityid;
 
-static int hf_mq_conn_QMgr = -1;
-static int hf_mq_conn_appname = -1;
-static int hf_mq_conn_apptype = -1;
-static int hf_mq_conn_acttoken = -1;
-static int hf_mq_conn_Xoptions = -1;
-static int hf_mq_conn_options = -1;
-static int hf_mq_fcno_StructID = -1;
-static int hf_mq_fcno_prodid = -1;
-static int hf_mq_fcno_mqmid = -1;
-static int hf_mq_fcno_version = -1;
-static int hf_mq_fcno_capflag = -1;
-static int hf_mq_fcno_conn_tag = -1;
-static int hf_mq_fcno_retconn_tag = -1;
-static int hf_mq_fcno_unknowb01 = -1;
+static int hf_mq_conn_QMgr;
+static int hf_mq_conn_appname;
+static int hf_mq_conn_apptype;
+static int hf_mq_conn_acttoken;
+static int hf_mq_conn_Xoptions;
+static int hf_mq_conn_options;
+static int hf_mq_fcno_StructID;
+static int hf_mq_fcno_prodid;
+static int hf_mq_fcno_mqmid;
+static int hf_mq_fcno_version;
+static int hf_mq_fcno_capflag;
+static int hf_mq_fcno_conn_tag;
+static int hf_mq_fcno_retconn_tag;
+static int hf_mq_fcno_unknowb01;
 
-static int hf_mq_inq_nbsel = -1;
-static int hf_mq_inq_nbint = -1;
-static int hf_mq_inq_charlen = -1;
-static int hf_mq_inq_sel = -1;
-static int hf_mq_inq_intvalue = -1;
-static int hf_mq_inq_charvalues = -1;
+static int hf_mq_inq_nbsel;
+static int hf_mq_inq_nbint;
+static int hf_mq_inq_charlen;
+static int hf_mq_inq_sel;
+static int hf_mq_inq_intvalue;
+static int hf_mq_inq_charvalues;
 
-static int hf_mq_spi_verb = -1;
-static int hf_mq_spi_version = -1;
-static int hf_mq_spi_length = -1;
-static int hf_mq_spi_base_StructID = -1;
-static int hf_mq_spi_base_version = -1;
-static int hf_mq_spi_base_length = -1;
-static int hf_mq_spi_spqo_nbverb = -1;
-static int hf_mq_spi_spqo_verbid = -1;
-static int hf_mq_spi_spqo_maxiover = -1;
-static int hf_mq_spi_spqo_maxinver = -1;
-static int hf_mq_spi_spqo_maxouver = -1;
-static int hf_mq_spi_spqo_flags = -1;
-static int hf_mq_spi_spai_mode = -1;
-static int hf_mq_spi_spai_unknown1 = -1;
-static int hf_mq_spi_spai_unknown2 = -1;
-static int hf_mq_spi_spai_msgid = -1;
-static int hf_mq_spi_spgi_batchsz = -1;
-static int hf_mq_spi_spgi_batchint = -1;
-static int hf_mq_spi_spgi_maxmsgsz = -1;
-static int hf_mq_spi_spgo_options = -1;
-static int hf_mq_spi_spgo_size = -1;
+static int hf_mq_spi_verb;
+static int hf_mq_spi_version;
+static int hf_mq_spi_length;
+static int hf_mq_spi_base_StructID;
+static int hf_mq_spi_base_version;
+static int hf_mq_spi_base_length;
+static int hf_mq_spi_spqo_nbverb;
+static int hf_mq_spi_spqo_verbid;
+static int hf_mq_spi_spqo_maxiover;
+static int hf_mq_spi_spqo_maxinver;
+static int hf_mq_spi_spqo_maxouver;
+static int hf_mq_spi_spqo_flags;
+static int hf_mq_spi_spai_mode;
+static int hf_mq_spi_spai_unknown1;
+static int hf_mq_spi_spai_unknown2;
+static int hf_mq_spi_spai_msgid;
+static int hf_mq_spi_spgi_batchsz;
+static int hf_mq_spi_spgi_batchint;
+static int hf_mq_spi_spgi_maxmsgsz;
+static int hf_mq_spi_spgo_options;
+static int hf_mq_spi_spgo_size;
 
-static int hf_mq_spi_opt_blank = -1;
-static int hf_mq_spi_opt_syncp = -1;
-static int hf_mq_spi_opt_deferred = -1;
+static int hf_mq_spi_opt_blank;
+static int hf_mq_spi_opt_syncp;
+static int hf_mq_spi_opt_deferred;
 static int* const pf_flds_spiopt[] =
 {
     &hf_mq_spi_opt_deferred,
@@ -345,14 +345,14 @@ static int* const pf_flds_spiopt[] =
     NULL
 };
 
-static int hf_mq_put_length = -1;
+static int hf_mq_put_length;
 
-static int hf_mq_close_options = -1;
-static int hf_mq_close_options_DELETE = -1;
-static int hf_mq_close_options_DELETE_PURGE = -1;
-static int hf_mq_close_options_KEEP_SUB = -1;
-static int hf_mq_close_options_REMOVE_SUB = -1;
-static int hf_mq_close_options_QUIESCE = -1;
+static int hf_mq_close_options;
+static int hf_mq_close_options_DELETE;
+static int hf_mq_close_options_DELETE_PURGE;
+static int hf_mq_close_options_KEEP_SUB;
+static int hf_mq_close_options_REMOVE_SUB;
+static int hf_mq_close_options_QUIESCE;
 static int* const pf_flds_clsopt[] =
 {
     &hf_mq_close_options_QUIESCE,
@@ -363,30 +363,30 @@ static int* const pf_flds_clsopt[] =
     NULL
 };
 
-static int hf_mq_open_options = -1;
-static int hf_mq_open_options_INPUT_SHARED = -1;
-static int hf_mq_open_options_INPUT_AS_Q_DEF = -1;
-static int hf_mq_open_options_INPUT_EXCLUSIVE = -1;
-static int hf_mq_open_options_BROWSE = -1;
-static int hf_mq_open_options_OUTPUT = -1;
-static int hf_mq_open_options_INQUIRE = -1;
-static int hf_mq_open_options_SET = -1;
-static int hf_mq_open_options_SAVE_ALL_CTX = -1;
-static int hf_mq_open_options_PASS_IDENT_CTX = -1;
-static int hf_mq_open_options_PASS_ALL_CTX = -1;
-static int hf_mq_open_options_SET_IDENT_CTX = -1;
-static int hf_mq_open_options_SET_ALL_CONTEXT = -1;
-static int hf_mq_open_options_ALT_USER_AUTH = -1;
-static int hf_mq_open_options_FAIL_IF_QUIESC = -1;
-static int hf_mq_open_options_BIND_ON_OPEN = -1;
-static int hf_mq_open_options_BIND_NOT_FIXED = -1;
-static int hf_mq_open_options_RESOLVE_NAMES = -1;
-static int hf_mq_open_options_CO_OP = -1;
-static int hf_mq_open_options_RESOLVE_LOCAL_Q = -1;
-static int hf_mq_open_options_NO_READ_AHEAD = -1;
-static int hf_mq_open_options_READ_AHEAD = -1;
-static int hf_mq_open_options_NO_MULTICAST = -1;
-static int hf_mq_open_options_BIND_ON_GROUP = -1;
+static int hf_mq_open_options;
+static int hf_mq_open_options_INPUT_SHARED;
+static int hf_mq_open_options_INPUT_AS_Q_DEF;
+static int hf_mq_open_options_INPUT_EXCLUSIVE;
+static int hf_mq_open_options_BROWSE;
+static int hf_mq_open_options_OUTPUT;
+static int hf_mq_open_options_INQUIRE;
+static int hf_mq_open_options_SET;
+static int hf_mq_open_options_SAVE_ALL_CTX;
+static int hf_mq_open_options_PASS_IDENT_CTX;
+static int hf_mq_open_options_PASS_ALL_CTX;
+static int hf_mq_open_options_SET_IDENT_CTX;
+static int hf_mq_open_options_SET_ALL_CONTEXT;
+static int hf_mq_open_options_ALT_USER_AUTH;
+static int hf_mq_open_options_FAIL_IF_QUIESC;
+static int hf_mq_open_options_BIND_ON_OPEN;
+static int hf_mq_open_options_BIND_NOT_FIXED;
+static int hf_mq_open_options_RESOLVE_NAMES;
+static int hf_mq_open_options_CO_OP;
+static int hf_mq_open_options_RESOLVE_LOCAL_Q;
+static int hf_mq_open_options_NO_READ_AHEAD;
+static int hf_mq_open_options_READ_AHEAD;
+static int hf_mq_open_options_NO_MULTICAST;
+static int hf_mq_open_options_BIND_ON_GROUP;
 static int* const pf_flds_opnopt[] =
 {
     &hf_mq_open_options_BIND_ON_GROUP,
@@ -415,151 +415,151 @@ static int* const pf_flds_opnopt[] =
     NULL
 };
 
-static int hf_mq_fopa_StructID = -1;
-static int hf_mq_fopa_version = -1;
-static int hf_mq_fopa_length = -1;
-static int hf_mq_fopa_DefPersistence = -1;
-static int hf_mq_fopa_DefPutRespType = -1;
-static int hf_mq_fopa_DefReadAhead = -1;
-static int hf_mq_fopa_PropertyControl = -1;
-static int hf_mq_fopa_Unknown = -1;
+static int hf_mq_fopa_StructID;
+static int hf_mq_fopa_version;
+static int hf_mq_fopa_length;
+static int hf_mq_fopa_DefPersistence;
+static int hf_mq_fopa_DefPutRespType;
+static int hf_mq_fopa_DefReadAhead;
+static int hf_mq_fopa_PropertyControl;
+static int hf_mq_fopa_Unknown;
 
-static int hf_mq_fcmi_StructID = -1;
-static int hf_mq_fcmi_unknown = -1;
+static int hf_mq_fcmi_StructID;
+static int hf_mq_fcmi_unknown;
 
-static int hf_mq_ping_length = -1;
-static int hf_mq_ping_buffer = -1;
-static int hf_mq_reset_length = -1;
-static int hf_mq_reset_seqnum = -1;
-static int hf_mq_status_length = -1;
-static int hf_mq_status_code = -1;
-static int hf_mq_status_value = -1;
+static int hf_mq_ping_length;
+static int hf_mq_ping_buffer;
+static int hf_mq_reset_length;
+static int hf_mq_reset_seqnum;
+static int hf_mq_status_length;
+static int hf_mq_status_code;
+static int hf_mq_status_value;
 
-static int hf_mq_caut_StructID = -1;
-static int hf_mq_caut_AuthType = -1;
-static int hf_mq_caut_UsrMaxLen = -1;
-static int hf_mq_caut_PwdMaxLen = -1;
-static int hf_mq_caut_UsrLength = -1;
-static int hf_mq_caut_PwdLength = -1;
-static int hf_mq_caut_usr = -1;
-static int hf_mq_caut_psw = -1;
+static int hf_mq_caut_StructID;
+static int hf_mq_caut_AuthType;
+static int hf_mq_caut_UsrMaxLen;
+static int hf_mq_caut_PwdMaxLen;
+static int hf_mq_caut_UsrLength;
+static int hf_mq_caut_PwdLength;
+static int hf_mq_caut_usr;
+static int hf_mq_caut_psw;
 
-static int hf_mq_od_StructID = -1;
-static int hf_mq_od_version = -1;
-static int hf_mq_od_objecttype = -1;
-static int hf_mq_od_objectname = -1;
-static int hf_mq_od_objqmgrname = -1;
-static int hf_mq_od_dynqname = -1;
-static int hf_mq_od_altuserid = -1;
-static int hf_mq_od_recspresent = -1;
-static int hf_mq_od_knowndstcnt = -1;
-static int hf_mq_od_unknowdstcnt = -1;
-static int hf_mq_od_invaldstcnt = -1;
-static int hf_mq_od_objrecofs = -1;
-static int hf_mq_od_resprecofs = -1;
-static int hf_mq_od_objrecptr = -1;
-static int hf_mq_od_resprecptr = -1;
-static int hf_mq_od_altsecurid = -1;
-static int hf_mq_od_resolvqname = -1;
-static int hf_mq_od_resolvqmgrnm = -1;
-static int hf_mq_od_resolvobjtyp = -1;
+static int hf_mq_od_StructID;
+static int hf_mq_od_version;
+static int hf_mq_od_objecttype;
+static int hf_mq_od_objectname;
+static int hf_mq_od_objqmgrname;
+static int hf_mq_od_dynqname;
+static int hf_mq_od_altuserid;
+static int hf_mq_od_recspresent;
+static int hf_mq_od_knowndstcnt;
+static int hf_mq_od_unknowdstcnt;
+static int hf_mq_od_invaldstcnt;
+static int hf_mq_od_objrecofs;
+static int hf_mq_od_resprecofs;
+static int hf_mq_od_objrecptr;
+static int hf_mq_od_resprecptr;
+static int hf_mq_od_altsecurid;
+static int hf_mq_od_resolvqname;
+static int hf_mq_od_resolvqmgrnm;
+static int hf_mq_od_resolvobjtyp;
 
-static int hf_mq_or_objname = -1;
-static int hf_mq_or_objqmgrname = -1;
-static int hf_mq_rr_compcode = -1;
-static int hf_mq_rr_reascode = -1;
-static int hf_mq_pmr_msgid = -1;
-static int hf_mq_pmr_correlid = -1;
-static int hf_mq_pmr_groupid = -1;
-static int hf_mq_pmr_feedback = -1;
-static int hf_mq_pmr_acttoken = -1;
-static int hf_mq_md_StructID = -1;
-static int hf_mq_md_version = -1;
-static int hf_mq_md_report = -1;
-static int hf_mq_md_msgtype = -1;
-static int hf_mq_md_expiry = -1;
-static int hf_mq_md_feedback = -1;
-static int hf_mq_md_encoding = -1;
-static int hf_mq_md_ccsid = -1;
-static int hf_mq_md_format = -1;
-static int hf_mq_md_priority = -1;
-static int hf_mq_md_persistence = -1;
-static int hf_mq_md_msgid = -1;
-static int hf_mq_md_correlid = -1;
-static int hf_mq_md_backoutcnt = -1;
-static int hf_mq_md_replytoq = -1;
-static int hf_mq_md_replytoqmgr = -1;
-static int hf_mq_md_userid = -1;
-static int hf_mq_md_acttoken = -1;
-static int hf_mq_md_appliddata = -1;
-static int hf_mq_md_putappltype = -1;
-static int hf_mq_md_putapplname = -1;
-static int hf_mq_md_putdate = -1;
-static int hf_mq_md_puttime = -1;
-static int hf_mq_md_apporigdata = -1;
-static int hf_mq_md_groupid = -1;
-static int hf_mq_md_msgseqnumber = -1;
-static int hf_mq_md_offset = -1;
-static int hf_mq_md_msgflags = -1;
-static int hf_mq_md_origlen = -1;
-static int hf_mq_dlh_StructID = -1;
-static int hf_mq_dlh_version = -1;
-static int hf_mq_dlh_reason = -1;
-static int hf_mq_dlh_destq = -1;
-static int hf_mq_dlh_destqmgr = -1;
-static int hf_mq_dlh_encoding = -1;
-static int hf_mq_dlh_ccsid = -1;
-static int hf_mq_dlh_format = -1;
-static int hf_mq_dlh_putappltype = -1;
-static int hf_mq_dlh_putapplname = -1;
-static int hf_mq_dlh_putdate = -1;
-static int hf_mq_dlh_puttime = -1;
+static int hf_mq_or_objname;
+static int hf_mq_or_objqmgrname;
+static int hf_mq_rr_compcode;
+static int hf_mq_rr_reascode;
+static int hf_mq_pmr_msgid;
+static int hf_mq_pmr_correlid;
+static int hf_mq_pmr_groupid;
+static int hf_mq_pmr_feedback;
+static int hf_mq_pmr_acttoken;
+static int hf_mq_md_StructID;
+static int hf_mq_md_version;
+static int hf_mq_md_report;
+static int hf_mq_md_msgtype;
+static int hf_mq_md_expiry;
+static int hf_mq_md_feedback;
+static int hf_mq_md_encoding;
+static int hf_mq_md_ccsid;
+static int hf_mq_md_format;
+static int hf_mq_md_priority;
+static int hf_mq_md_persistence;
+static int hf_mq_md_msgid;
+static int hf_mq_md_correlid;
+static int hf_mq_md_backoutcnt;
+static int hf_mq_md_replytoq;
+static int hf_mq_md_replytoqmgr;
+static int hf_mq_md_userid;
+static int hf_mq_md_acttoken;
+static int hf_mq_md_appliddata;
+static int hf_mq_md_putappltype;
+static int hf_mq_md_putapplname;
+static int hf_mq_md_putdate;
+static int hf_mq_md_puttime;
+static int hf_mq_md_apporigdata;
+static int hf_mq_md_groupid;
+static int hf_mq_md_msgseqnumber;
+static int hf_mq_md_offset;
+static int hf_mq_md_msgflags;
+static int hf_mq_md_origlen;
+static int hf_mq_dlh_StructID;
+static int hf_mq_dlh_version;
+static int hf_mq_dlh_reason;
+static int hf_mq_dlh_destq;
+static int hf_mq_dlh_destqmgr;
+static int hf_mq_dlh_encoding;
+static int hf_mq_dlh_ccsid;
+static int hf_mq_dlh_format;
+static int hf_mq_dlh_putappltype;
+static int hf_mq_dlh_putapplname;
+static int hf_mq_dlh_putdate;
+static int hf_mq_dlh_puttime;
 
-static int hf_mq_gmo_StructID = -1;
-static int hf_mq_gmo_version = -1;
-static int hf_mq_gmo_options = -1;
-static int hf_mq_gmo_waitinterval = -1;
-static int hf_mq_gmo_signal1 = -1;
-static int hf_mq_gmo_signal2 = -1;
-static int hf_mq_gmo_resolvqname = -1;
-static int hf_mq_gmo_matchoptions = -1;
-static int hf_mq_gmo_groupstatus = -1;
-static int hf_mq_gmo_segmstatus = -1;
-static int hf_mq_gmo_segmentation = -1;
-static int hf_mq_gmo_reserved = -1;
-static int hf_mq_gmo_msgtoken = -1;
-static int hf_mq_gmo_returnedlen = -1;
-static int hf_mq_gmo_reserved2 = -1;
-static int hf_mq_gmo_msghandle = -1;
+static int hf_mq_gmo_StructID;
+static int hf_mq_gmo_version;
+static int hf_mq_gmo_options;
+static int hf_mq_gmo_waitinterval;
+static int hf_mq_gmo_signal1;
+static int hf_mq_gmo_signal2;
+static int hf_mq_gmo_resolvqname;
+static int hf_mq_gmo_matchoptions;
+static int hf_mq_gmo_groupstatus;
+static int hf_mq_gmo_segmstatus;
+static int hf_mq_gmo_segmentation;
+static int hf_mq_gmo_reserved;
+static int hf_mq_gmo_msgtoken;
+static int hf_mq_gmo_returnedlen;
+static int hf_mq_gmo_reserved2;
+static int hf_mq_gmo_msghandle;
 
-static int hf_mq_gmo_options_PROPERTIES_COMPATIBILITY = -1;
-static int hf_mq_gmo_options_PROPERTIES_IN_HANDLE = -1;
-static int hf_mq_gmo_options_NO_PROPERTIES = -1;
-static int hf_mq_gmo_options_PROPERTIES_FORCE_MQRFH2 = -1;
-static int hf_mq_gmo_options_UNMARKED_BROWSE_MSG = -1;
-static int hf_mq_gmo_options_UNMARK_BROWSE_HANDLE = -1;
-static int hf_mq_gmo_options_UNMARK_BROWSE_CO_OP = -1;
-static int hf_mq_gmo_options_MARK_BROWSE_CO_OP = -1;
-static int hf_mq_gmo_options_MARK_BROWSE_HANDLE = -1;
-static int hf_mq_gmo_options_ALL_SEGMENTS_AVAILABLE = -1;
-static int hf_mq_gmo_options_ALL_MSGS_AVAILABLE = -1;
-static int hf_mq_gmo_options_COMPLETE_MSG = -1;
-static int hf_mq_gmo_options_LOGICAL_ORDER = -1;
-static int hf_mq_gmo_options_CONVERT = -1;
-static int hf_mq_gmo_options_FAIL_IF_QUIESCING = -1;
-static int hf_mq_gmo_options_SYNCPOINT_IF_PERSISTENT = -1;
-static int hf_mq_gmo_options_BROWSE_MSG_UNDER_CURSOR = -1;
-static int hf_mq_gmo_options_UNLOCK = -1;
-static int hf_mq_gmo_options_LOCK = -1;
-static int hf_mq_gmo_options_MSG_UNDER_CURSOR = -1;
-static int hf_mq_gmo_options_MARK_SKIP_BACKOUT = -1;
-static int hf_mq_gmo_options_ACCEPT_TRUNCATED_MSG = -1;
-static int hf_mq_gmo_options_BROWSE_NEXT = -1;
-static int hf_mq_gmo_options_BROWSE_FIRST = -1;
-static int hf_mq_gmo_options_SET_SIGNAL = -1;
-static int hf_mq_gmo_options_NO_SYNCPOINT = -1;
-static int hf_mq_gmo_options_SYNCPOINT = -1;
-static int hf_mq_gmo_options_WAIT = -1;
+static int hf_mq_gmo_options_PROPERTIES_COMPATIBILITY;
+static int hf_mq_gmo_options_PROPERTIES_IN_HANDLE;
+static int hf_mq_gmo_options_NO_PROPERTIES;
+static int hf_mq_gmo_options_PROPERTIES_FORCE_MQRFH2;
+static int hf_mq_gmo_options_UNMARKED_BROWSE_MSG;
+static int hf_mq_gmo_options_UNMARK_BROWSE_HANDLE;
+static int hf_mq_gmo_options_UNMARK_BROWSE_CO_OP;
+static int hf_mq_gmo_options_MARK_BROWSE_CO_OP;
+static int hf_mq_gmo_options_MARK_BROWSE_HANDLE;
+static int hf_mq_gmo_options_ALL_SEGMENTS_AVAILABLE;
+static int hf_mq_gmo_options_ALL_MSGS_AVAILABLE;
+static int hf_mq_gmo_options_COMPLETE_MSG;
+static int hf_mq_gmo_options_LOGICAL_ORDER;
+static int hf_mq_gmo_options_CONVERT;
+static int hf_mq_gmo_options_FAIL_IF_QUIESCING;
+static int hf_mq_gmo_options_SYNCPOINT_IF_PERSISTENT;
+static int hf_mq_gmo_options_BROWSE_MSG_UNDER_CURSOR;
+static int hf_mq_gmo_options_UNLOCK;
+static int hf_mq_gmo_options_LOCK;
+static int hf_mq_gmo_options_MSG_UNDER_CURSOR;
+static int hf_mq_gmo_options_MARK_SKIP_BACKOUT;
+static int hf_mq_gmo_options_ACCEPT_TRUNCATED_MSG;
+static int hf_mq_gmo_options_BROWSE_NEXT;
+static int hf_mq_gmo_options_BROWSE_FIRST;
+static int hf_mq_gmo_options_SET_SIGNAL;
+static int hf_mq_gmo_options_NO_SYNCPOINT;
+static int hf_mq_gmo_options_SYNCPOINT;
+static int hf_mq_gmo_options_WAIT;
 static int* const pf_flds_gmoopt[] =
 {
     &hf_mq_gmo_options_PROPERTIES_COMPATIBILITY,
@@ -593,12 +593,12 @@ static int* const pf_flds_gmoopt[] =
     NULL
 };
 
-static int hf_mq_gmo_matchoptions_MATCH_MSG_TOKEN = -1;
-static int hf_mq_gmo_matchoptions_MATCH_OFFSET = -1;
-static int hf_mq_gmo_matchoptions_MATCH_MSG_SEQ_NUMBER = -1;
-static int hf_mq_gmo_matchoptions_MATCH_GROUP_ID = -1;
-static int hf_mq_gmo_matchoptions_MATCH_CORREL_ID = -1;
-static int hf_mq_gmo_matchoptions_MATCH_MSG_ID = -1;
+static int hf_mq_gmo_matchoptions_MATCH_MSG_TOKEN;
+static int hf_mq_gmo_matchoptions_MATCH_OFFSET;
+static int hf_mq_gmo_matchoptions_MATCH_MSG_SEQ_NUMBER;
+static int hf_mq_gmo_matchoptions_MATCH_GROUP_ID;
+static int hf_mq_gmo_matchoptions_MATCH_CORREL_ID;
+static int hf_mq_gmo_matchoptions_MATCH_MSG_ID;
 static int* const pf_flds_mtchopt[] =
 {
     &hf_mq_gmo_matchoptions_MATCH_MSG_TOKEN,
@@ -610,20 +610,20 @@ static int* const pf_flds_mtchopt[] =
     NULL
 };
 
-static int hf_mq_lpoo_StructID = -1;
-static int hf_mq_lpoo_version = -1;
-static int hf_mq_lpoo_lpiopts = -1;
-static int hf_mq_lpoo_defpersist = -1;
-static int hf_mq_lpoo_defputresptype = -1;
-static int hf_mq_lpoo_defreadahead = -1;
-static int hf_mq_lpoo_propertyctl = -1;
-static int hf_mq_lpoo_qprotect = -1;
-static int hf_mq_lpoo_qprotect_val1 = -1;
-static int hf_mq_lpoo_qprotect_val2 = -1;
+static int hf_mq_lpoo_StructID;
+static int hf_mq_lpoo_version;
+static int hf_mq_lpoo_lpiopts;
+static int hf_mq_lpoo_defpersist;
+static int hf_mq_lpoo_defputresptype;
+static int hf_mq_lpoo_defreadahead;
+static int hf_mq_lpoo_propertyctl;
+static int hf_mq_lpoo_qprotect;
+static int hf_mq_lpoo_qprotect_val1;
+static int hf_mq_lpoo_qprotect_val2;
 
-static int hf_mq_lpoo_lpiopts_SAVE_IDENTITY_CTXT = -1;
-static int hf_mq_lpoo_lpiopts_SAVE_ORIGIN_CTXT = -1;
-static int hf_mq_lpoo_lpiopts_SAVE_USER_CTXT = -1;
+static int hf_mq_lpoo_lpiopts_SAVE_IDENTITY_CTXT;
+static int hf_mq_lpoo_lpiopts_SAVE_ORIGIN_CTXT;
+static int hf_mq_lpoo_lpiopts_SAVE_USER_CTXT;
 static int* const pf_flds_lpooopt[] =
 {
     &hf_mq_lpoo_lpiopts_SAVE_USER_CTXT,
@@ -633,69 +633,69 @@ static int* const pf_flds_lpooopt[] =
 };
 
 
-static int hf_mq_charv_vsptr = -1;
-static int hf_mq_charv_vsoffset = -1;
-static int hf_mq_charv_vsbufsize = -1;
-static int hf_mq_charv_vslength = -1;
-static int hf_mq_charv_vsccsid = -1;
-static int hf_mq_charv_vsvalue = -1;
+static int hf_mq_charv_vsptr;
+static int hf_mq_charv_vsoffset;
+static int hf_mq_charv_vsbufsize;
+static int hf_mq_charv_vslength;
+static int hf_mq_charv_vsccsid;
+static int hf_mq_charv_vsvalue;
 
-static int hf_mq_pmo_StructID = -1;
-static int hf_mq_pmo_version = -1;
-static int hf_mq_pmo_options = -1;
-static int hf_mq_pmo_timeout = -1;
-static int hf_mq_pmo_context = -1;
-static int hf_mq_pmo_knowndstcnt = -1;
-static int hf_mq_pmo_unkndstcnt = -1;
-static int hf_mq_pmo_invaldstcnt = -1;
-static int hf_mq_pmo_resolvqname = -1;
-static int hf_mq_pmo_resolvqmgr = -1;
-static int hf_mq_pmo_recspresent = -1;
-static int hf_mq_pmo_putmsgrecfld = -1;
-static int hf_mq_pmo_putmsgrecofs = -1;
-static int hf_mq_pmo_resprecofs = -1;
-static int hf_mq_pmo_putmsgrecptr = -1;
-static int hf_mq_pmo_resprecptr = -1;
-static int hf_mq_pmo_originalmsghandle = -1;
-static int hf_mq_pmo_newmsghandle = -1;
-static int hf_mq_pmo_action = -1;
-static int hf_mq_pmo_publevel = -1;
+static int hf_mq_pmo_StructID;
+static int hf_mq_pmo_version;
+static int hf_mq_pmo_options;
+static int hf_mq_pmo_timeout;
+static int hf_mq_pmo_context;
+static int hf_mq_pmo_knowndstcnt;
+static int hf_mq_pmo_unkndstcnt;
+static int hf_mq_pmo_invaldstcnt;
+static int hf_mq_pmo_resolvqname;
+static int hf_mq_pmo_resolvqmgr;
+static int hf_mq_pmo_recspresent;
+static int hf_mq_pmo_putmsgrecfld;
+static int hf_mq_pmo_putmsgrecofs;
+static int hf_mq_pmo_resprecofs;
+static int hf_mq_pmo_putmsgrecptr;
+static int hf_mq_pmo_resprecptr;
+static int hf_mq_pmo_originalmsghandle;
+static int hf_mq_pmo_newmsghandle;
+static int hf_mq_pmo_action;
+static int hf_mq_pmo_publevel;
 
-static int hf_mq_xa_length = -1;
-static int hf_mq_xa_returnvalue = -1;
-static int hf_mq_xa_tmflags = -1;
-static int hf_mq_xa_rmid = -1;
-static int hf_mq_xa_count = -1;
-static int hf_mq_xa_xid_formatid = -1;
-static int hf_mq_xa_xid_glbxid_len = -1;
-static int hf_mq_xa_xid_brq_length = -1;
-static int hf_mq_xa_xid_globalxid = -1;
-static int hf_mq_xa_xid_brq = -1;
-static int hf_mq_xa_xainfo_length = -1;
-static int hf_mq_xa_xainfo_value = -1;
+static int hf_mq_xa_length;
+static int hf_mq_xa_returnvalue;
+static int hf_mq_xa_tmflags;
+static int hf_mq_xa_rmid;
+static int hf_mq_xa_count;
+static int hf_mq_xa_xid_formatid;
+static int hf_mq_xa_xid_glbxid_len;
+static int hf_mq_xa_xid_brq_length;
+static int hf_mq_xa_xid_globalxid;
+static int hf_mq_xa_xid_brq;
+static int hf_mq_xa_xainfo_length;
+static int hf_mq_xa_xainfo_value;
 
-static int hf_mq_pmo_options_NOT_OWN_SUBS = -1;
-static int hf_mq_pmo_options_SUPPRESS_REPLYTO = -1;
-static int hf_mq_pmo_options_SCOPE_QMGR = -1;
-static int hf_mq_pmo_options_MD_FOR_OUTPUT_ONLY = -1;
-static int hf_mq_pmo_options_RETAIN = -1;
-static int hf_mq_pmo_options_WARN_IF_NO_SUBS_MATCHED = -1;
-static int hf_mq_pmo_options_RESOLVE_LOCAL_Q = -1;
-static int hf_mq_pmo_options_SYNC_RESPONSE = -1;
-static int hf_mq_pmo_options_ASYNC_RESPONSE = -1;
-static int hf_mq_pmo_options_LOGICAL_ORDER = -1;
-static int hf_mq_pmo_options_NO_CONTEXT = -1;
-static int hf_mq_pmo_options_FAIL_IF_QUIESCING = -1;
-static int hf_mq_pmo_options_ALTERNATE_USER_AUTHORITY = -1;
-static int hf_mq_pmo_options_SET_ALL_CONTEXT = -1;
-static int hf_mq_pmo_options_SET_IDENTITY_CONTEXT = -1;
-static int hf_mq_pmo_options_PASS_ALL_CONTEXT = -1;
-static int hf_mq_pmo_options_PASS_IDENTITY_CONTEXT = -1;
-static int hf_mq_pmo_options_NEW_CORREL_ID = -1;
-static int hf_mq_pmo_options_NEW_MSG_ID = -1;
-static int hf_mq_pmo_options_DEFAULT_CONTEXT = -1;
-static int hf_mq_pmo_options_NO_SYNCPOINT = -1;
-static int hf_mq_pmo_options_SYNCPOINT = -1;
+static int hf_mq_pmo_options_NOT_OWN_SUBS;
+static int hf_mq_pmo_options_SUPPRESS_REPLYTO;
+static int hf_mq_pmo_options_SCOPE_QMGR;
+static int hf_mq_pmo_options_MD_FOR_OUTPUT_ONLY;
+static int hf_mq_pmo_options_RETAIN;
+static int hf_mq_pmo_options_WARN_IF_NO_SUBS_MATCHED;
+static int hf_mq_pmo_options_RESOLVE_LOCAL_Q;
+static int hf_mq_pmo_options_SYNC_RESPONSE;
+static int hf_mq_pmo_options_ASYNC_RESPONSE;
+static int hf_mq_pmo_options_LOGICAL_ORDER;
+static int hf_mq_pmo_options_NO_CONTEXT;
+static int hf_mq_pmo_options_FAIL_IF_QUIESCING;
+static int hf_mq_pmo_options_ALTERNATE_USER_AUTHORITY;
+static int hf_mq_pmo_options_SET_ALL_CONTEXT;
+static int hf_mq_pmo_options_SET_IDENTITY_CONTEXT;
+static int hf_mq_pmo_options_PASS_ALL_CONTEXT;
+static int hf_mq_pmo_options_PASS_IDENTITY_CONTEXT;
+static int hf_mq_pmo_options_NEW_CORREL_ID;
+static int hf_mq_pmo_options_NEW_MSG_ID;
+static int hf_mq_pmo_options_DEFAULT_CONTEXT;
+static int hf_mq_pmo_options_NO_SYNCPOINT;
+static int hf_mq_pmo_options_SYNCPOINT;
 static int* const pf_flds_pmoopt[] =
 {
     &hf_mq_pmo_options_NOT_OWN_SUBS,
@@ -723,14 +723,14 @@ static int* const pf_flds_pmoopt[] =
     NULL
 };
 
-static int hf_mq_xa_tmflags_join = -1;
-static int hf_mq_xa_tmflags_endrscan = -1;
-static int hf_mq_xa_tmflags_startrscan = -1;
-static int hf_mq_xa_tmflags_suspend = -1;
-static int hf_mq_xa_tmflags_success = -1;
-static int hf_mq_xa_tmflags_resume = -1;
-static int hf_mq_xa_tmflags_fail = -1;
-static int hf_mq_xa_tmflags_onephase = -1;
+static int hf_mq_xa_tmflags_join;
+static int hf_mq_xa_tmflags_endrscan;
+static int hf_mq_xa_tmflags_startrscan;
+static int hf_mq_xa_tmflags_suspend;
+static int hf_mq_xa_tmflags_success;
+static int hf_mq_xa_tmflags_resume;
+static int hf_mq_xa_tmflags_fail;
+static int hf_mq_xa_tmflags_onephase;
 static int* const pf_flds_tmflags[] =
 {
     &hf_mq_xa_tmflags_onephase,
@@ -744,30 +744,30 @@ static int* const pf_flds_tmflags[] =
     NULL
 };
 
-static int hf_mq_msgreq_version = -1;
-static int hf_mq_msgreq_handle = -1;
-static int hf_mq_msgreq_RecvBytes = -1;
-static int hf_mq_msgreq_RqstBytes = -1;
-static int hf_mq_msgreq_MaxMsgLen = -1;
-static int hf_mq_msgreq_WaitIntrv = -1;
-static int hf_mq_msgreq_QueStatus = -1;
-static int hf_mq_msgreq_RqstFlags = -1;
-static int hf_mq_msgreq_GlbMsgIdx = -1;
-static int hf_mq_msgreq_SelectIdx = -1;
-static int hf_mq_msgreq_MQMDVers = -1;
-static int hf_mq_msgreq_ccsid = -1;
-static int hf_mq_msgreq_encoding = -1;
-static int hf_mq_msgreq_MsgSeqNum = -1;
-static int hf_mq_msgreq_offset = -1;
-static int hf_mq_msgreq_mtchMsgId = -1;
-static int hf_mq_msgreq_mtchCorId = -1;
-static int hf_mq_msgreq_mtchGrpid = -1;
-static int hf_mq_msgreq_mtchMsgTk = -1;
+static int hf_mq_msgreq_version;
+static int hf_mq_msgreq_handle;
+static int hf_mq_msgreq_RecvBytes;
+static int hf_mq_msgreq_RqstBytes;
+static int hf_mq_msgreq_MaxMsgLen;
+static int hf_mq_msgreq_WaitIntrv;
+static int hf_mq_msgreq_QueStatus;
+static int hf_mq_msgreq_RqstFlags;
+static int hf_mq_msgreq_GlbMsgIdx;
+static int hf_mq_msgreq_SelectIdx;
+static int hf_mq_msgreq_MQMDVers;
+static int hf_mq_msgreq_ccsid;
+static int hf_mq_msgreq_encoding;
+static int hf_mq_msgreq_MsgSeqNum;
+static int hf_mq_msgreq_offset;
+static int hf_mq_msgreq_mtchMsgId;
+static int hf_mq_msgreq_mtchCorId;
+static int hf_mq_msgreq_mtchGrpid;
+static int hf_mq_msgreq_mtchMsgTk;
 
-static int hf_mq_msgreq_flags_selection = -1;
-static int hf_mq_msgreq_flags_F00000008 = -1;
-static int hf_mq_msgreq_flags_F00000004 = -1;
-static int hf_mq_msgreq_flags_F00000002 = -1;
+static int hf_mq_msgreq_flags_selection;
+static int hf_mq_msgreq_flags_F00000008;
+static int hf_mq_msgreq_flags_F00000004;
+static int hf_mq_msgreq_flags_F00000002;
 static int* const pf_flds_msgreq_flags[] =
 {
     &hf_mq_msgreq_flags_selection,
@@ -777,51 +777,51 @@ static int* const pf_flds_msgreq_flags[] =
     NULL
 };
 
-static int hf_mq_msgasy_version = -1;
-static int hf_mq_msgasy_handle = -1;
-static int hf_mq_msgasy_MsgIndex = -1;
-static int hf_mq_msgasy_GlbMsgIdx = -1;
-static int hf_mq_msgasy_SegLength = -1;
-static int hf_mq_msgasy_SeleIndex = -1;
-static int hf_mq_msgasy_SegmIndex = -1;
-static int hf_mq_msgasy_ReasonCod = -1;
-static int hf_mq_msgasy_ActMsgLen = -1;
-static int hf_mq_msgasy_TotMsgLen = -1;
-static int hf_mq_msgasy_MsgToken = -1;
-static int hf_mq_msgasy_Status = -1;
-static int hf_mq_msgasy_resolQNLn = -1;
-static int hf_mq_msgasy_resolQNme = -1;
-static int hf_mq_msgasy_padding = -1;
+static int hf_mq_msgasy_version;
+static int hf_mq_msgasy_handle;
+static int hf_mq_msgasy_MsgIndex;
+static int hf_mq_msgasy_GlbMsgIdx;
+static int hf_mq_msgasy_SegLength;
+static int hf_mq_msgasy_SeleIndex;
+static int hf_mq_msgasy_SegmIndex;
+static int hf_mq_msgasy_ReasonCod;
+static int hf_mq_msgasy_ActMsgLen;
+static int hf_mq_msgasy_TotMsgLen;
+static int hf_mq_msgasy_MsgToken;
+static int hf_mq_msgasy_Status;
+static int hf_mq_msgasy_resolQNLn;
+static int hf_mq_msgasy_resolQNme;
+static int hf_mq_msgasy_padding;
 
-static int hf_mq_notif_vers = -1;
-static int hf_mq_notif_handle = -1;
-static int hf_mq_notif_code = -1;
-static int hf_mq_notif_value = -1;
+static int hf_mq_notif_vers;
+static int hf_mq_notif_handle;
+static int hf_mq_notif_code;
+static int hf_mq_notif_value;
 
-static int hf_mq_head_StructID = -1;
-static int hf_mq_head_version = -1;
-static int hf_mq_head_length = -1;
-static int hf_mq_head_encoding = -1;
-static int hf_mq_head_ccsid = -1;
-static int hf_mq_head_format = -1;
-static int hf_mq_head_flags = -1;
-static int hf_mq_head_struct = -1;
+static int hf_mq_head_StructID;
+static int hf_mq_head_version;
+static int hf_mq_head_length;
+static int hf_mq_head_encoding;
+static int hf_mq_head_ccsid;
+static int hf_mq_head_format;
+static int hf_mq_head_flags;
+static int hf_mq_head_struct;
 
-static int hf_mq_dh_flags_newmsgid = -1;
+static int hf_mq_dh_flags_newmsgid;
 static int* const pf_flds_dh_flags[] =
 {
     &hf_mq_dh_flags_newmsgid,
     NULL
 };
-static int hf_mq_dh_putmsgrecfld = -1;
-static int hf_mq_dh_recspresent = -1;
-static int hf_mq_dh_objrecofs = -1;
-static int hf_mq_dh_putmsgrecofs = -1;
+static int hf_mq_dh_putmsgrecfld;
+static int hf_mq_dh_recspresent;
+static int hf_mq_dh_objrecofs;
+static int hf_mq_dh_putmsgrecofs;
 
-static int hf_mq_iih_flags_passexpir = -1;
-static int hf_mq_iih_flags_replyfmtnone = -1;
-static int hf_mq_iih_flags_ignorepurg = -1;
-static int hf_mq_iih_flags_cmqrqstresp = -1;
+static int hf_mq_iih_flags_passexpir;
+static int hf_mq_iih_flags_replyfmtnone;
+static int hf_mq_iih_flags_ignorepurg;
+static int hf_mq_iih_flags_cmqrqstresp;
 static int* const pf_flds_iih_flags[] =
 {
     &hf_mq_iih_flags_cmqrqstresp,
@@ -830,45 +830,45 @@ static int* const pf_flds_iih_flags[] =
     &hf_mq_iih_flags_passexpir,
     NULL
 };
-static int hf_mq_iih_ltermoverride = -1;
-static int hf_mq_iih_mfsmapname = -1;
-static int hf_mq_iih_replytofmt = -1;
-static int hf_mq_iih_authenticator = -1;
-static int hf_mq_iih_transinstid = -1;
-static int hf_mq_iih_transstate = -1;
-static int hf_mq_iih_commimode = -1;
-static int hf_mq_iih_securityscope = -1;
-static int hf_mq_iih_reserved = -1;
+static int hf_mq_iih_ltermoverride;
+static int hf_mq_iih_mfsmapname;
+static int hf_mq_iih_replytofmt;
+static int hf_mq_iih_authenticator;
+static int hf_mq_iih_transinstid;
+static int hf_mq_iih_transstate;
+static int hf_mq_iih_commimode;
+static int hf_mq_iih_securityscope;
+static int hf_mq_iih_reserved;
 
-static int hf_mq_ims_ll = -1;
-static int hf_mq_ims_zz = -1;
-static int hf_mq_ims_trx = -1;
-static int hf_mq_ims_data = -1;
+static int hf_mq_ims_ll;
+static int hf_mq_ims_zz;
+static int hf_mq_ims_trx;
+static int hf_mq_ims_data;
 
-static int hf_mq_tm_StructID = -1;
-static int hf_mq_tm_version = -1;
-static int hf_mq_tm_QName = -1;
-static int hf_mq_tm_ProcessNme = -1;
-static int hf_mq_tm_TriggerData = -1;
-static int hf_mq_tm_ApplType = -1;
-static int hf_mq_tm_ApplId = -1;
-static int hf_mq_tm_EnvData = -1;
-static int hf_mq_tm_UserData = -1;
+static int hf_mq_tm_StructID;
+static int hf_mq_tm_version;
+static int hf_mq_tm_QName;
+static int hf_mq_tm_ProcessNme;
+static int hf_mq_tm_TriggerData;
+static int hf_mq_tm_ApplType;
+static int hf_mq_tm_ApplId;
+static int hf_mq_tm_EnvData;
+static int hf_mq_tm_UserData;
 
-static int hf_mq_tmc2_StructID = -1;
-static int hf_mq_tmc2_version = -1;
-static int hf_mq_tmc2_QName = -1;
-static int hf_mq_tmc2_ProcessNme = -1;
-static int hf_mq_tmc2_TriggerData = -1;
-static int hf_mq_tmc2_ApplType = -1;
-static int hf_mq_tmc2_ApplId = -1;
-static int hf_mq_tmc2_EnvData = -1;
-static int hf_mq_tmc2_UserData = -1;
-static int hf_mq_tmc2_QMgrName = -1;
+static int hf_mq_tmc2_StructID;
+static int hf_mq_tmc2_version;
+static int hf_mq_tmc2_QName;
+static int hf_mq_tmc2_ProcessNme;
+static int hf_mq_tmc2_TriggerData;
+static int hf_mq_tmc2_ApplType;
+static int hf_mq_tmc2_ApplId;
+static int hf_mq_tmc2_EnvData;
+static int hf_mq_tmc2_UserData;
+static int hf_mq_tmc2_QMgrName;
 
-static int hf_mq_cih_flags_synconret = -1;
-static int hf_mq_cih_flags_replywonulls = -1;
-static int hf_mq_cih_flags_passexpir = -1;
+static int hf_mq_cih_flags_synconret;
+static int hf_mq_cih_flags_replywonulls;
+static int hf_mq_cih_flags_passexpir;
 static int* const pf_flds_cih_flags[] =
 {
     &hf_mq_cih_flags_synconret,
@@ -876,138 +876,138 @@ static int* const pf_flds_cih_flags[] =
     &hf_mq_cih_flags_passexpir,
     NULL
 };
-static int hf_mq_cih_returncode = -1;
-static int hf_mq_cih_compcode = -1;
-static int hf_mq_cih_reasoncode = -1;
-static int hf_mq_cih_uowcontrols = -1;
-static int hf_mq_cih_getwaitintv = -1;
-static int hf_mq_cih_linktype = -1;
-static int hf_mq_cih_outdatalen = -1;
-static int hf_mq_cih_facilkeeptime = -1;
-static int hf_mq_cih_adsdescriptor = -1;
-static int hf_mq_cih_converstask = -1;
-static int hf_mq_cih_taskendstatus = -1;
-static int hf_mq_cih_bridgefactokn = -1;
-static int hf_mq_cih_function = -1;
-static int hf_mq_cih_abendcode = -1;
-static int hf_mq_cih_authenticator = -1;
-static int hf_mq_cih_reserved = -1;
-static int hf_mq_cih_replytofmt = -1;
-static int hf_mq_cih_remotesysid = -1;
-static int hf_mq_cih_remotetransid = -1;
-static int hf_mq_cih_transactionid = -1;
-static int hf_mq_cih_facilitylike = -1;
-static int hf_mq_cih_attentionid = -1;
-static int hf_mq_cih_startcode = -1;
-static int hf_mq_cih_cancelcode = -1;
-static int hf_mq_cih_nexttransid = -1;
-static int hf_mq_cih_reserved2 = -1;
-static int hf_mq_cih_reserved3 = -1;
-static int hf_mq_cih_cursorpos = -1;
-static int hf_mq_cih_erroroffset = -1;
-static int hf_mq_cih_inputitem = -1;
-static int hf_mq_cih_reserved4 = -1;
+static int hf_mq_cih_returncode;
+static int hf_mq_cih_compcode;
+static int hf_mq_cih_reasoncode;
+static int hf_mq_cih_uowcontrols;
+static int hf_mq_cih_getwaitintv;
+static int hf_mq_cih_linktype;
+static int hf_mq_cih_outdatalen;
+static int hf_mq_cih_facilkeeptime;
+static int hf_mq_cih_adsdescriptor;
+static int hf_mq_cih_converstask;
+static int hf_mq_cih_taskendstatus;
+static int hf_mq_cih_bridgefactokn;
+static int hf_mq_cih_function;
+static int hf_mq_cih_abendcode;
+static int hf_mq_cih_authenticator;
+static int hf_mq_cih_reserved;
+static int hf_mq_cih_replytofmt;
+static int hf_mq_cih_remotesysid;
+static int hf_mq_cih_remotetransid;
+static int hf_mq_cih_transactionid;
+static int hf_mq_cih_facilitylike;
+static int hf_mq_cih_attentionid;
+static int hf_mq_cih_startcode;
+static int hf_mq_cih_cancelcode;
+static int hf_mq_cih_nexttransid;
+static int hf_mq_cih_reserved2;
+static int hf_mq_cih_reserved3;
+static int hf_mq_cih_cursorpos;
+static int hf_mq_cih_erroroffset;
+static int hf_mq_cih_inputitem;
+static int hf_mq_cih_reserved4;
 
-static int hf_mq_rfh_ccsid = -1;
-static int hf_mq_rfh_length = -1;
-static int hf_mq_rfh_string = -1;
+static int hf_mq_rfh_ccsid;
+static int hf_mq_rfh_length;
+static int hf_mq_rfh_string;
 
-static int hf_mq_rmh_flags_last = -1;
+static int hf_mq_rmh_flags_last;
 static int* const pf_flds_rmh_flags[] =
 {
     &hf_mq_rmh_flags_last,
     NULL
 };
-static int hf_mq_rmh_objecttype = -1;
-static int hf_mq_rmh_objectinstid = -1;
-static int hf_mq_rmh_srcenvlen = -1;
-static int hf_mq_rmh_srcenvofs = -1;
-static int hf_mq_rmh_srcnamelen = -1;
-static int hf_mq_rmh_srcnameofs = -1;
-static int hf_mq_rmh_dstenvlen = -1;
-static int hf_mq_rmh_dstenvofs = -1;
-static int hf_mq_rmh_dstnamelen = -1;
-static int hf_mq_rmh_dstnameofs = -1;
-static int hf_mq_rmh_datalogiclen = -1;
-static int hf_mq_rmh_datalogicofsl = -1;
-static int hf_mq_rmh_datalogicofsh = -1;
+static int hf_mq_rmh_objecttype;
+static int hf_mq_rmh_objectinstid;
+static int hf_mq_rmh_srcenvlen;
+static int hf_mq_rmh_srcenvofs;
+static int hf_mq_rmh_srcnamelen;
+static int hf_mq_rmh_srcnameofs;
+static int hf_mq_rmh_dstenvlen;
+static int hf_mq_rmh_dstenvofs;
+static int hf_mq_rmh_dstnamelen;
+static int hf_mq_rmh_dstnameofs;
+static int hf_mq_rmh_datalogiclen;
+static int hf_mq_rmh_datalogicofsl;
+static int hf_mq_rmh_datalogicofsh;
 
-static int hf_mq_wih_servicename = -1;
-static int hf_mq_wih_servicestep = -1;
-static int hf_mq_wih_msgtoken = -1;
-static int hf_mq_wih_reserved = -1;
+static int hf_mq_wih_servicename;
+static int hf_mq_wih_servicestep;
+static int hf_mq_wih_msgtoken;
+static int hf_mq_wih_reserved;
 
-static gint ett_mq = -1;
-static gint ett_mq_tsh = -1;
-static gint ett_mq_tsh_tcf = -1;
-static gint ett_mq_tsh_tcf2 = -1;
-static gint ett_mq_api = -1;
-static gint ett_mq_socket = -1;
-static gint ett_mq_caut = -1;
-static gint ett_mq_msh = -1;
-static gint ett_mq_xqh = -1;
-static gint ett_mq_id = -1;
-static gint ett_mq_id_cf1 = -1;
-static gint ett_mq_id_cf2 = -1;
-static gint ett_mq_id_cf3 = -1;
-static gint ett_mq_id_ecf1 = -1;
-static gint ett_mq_id_ecf2 = -1;
-static gint ett_mq_id_ecf3 = -1;
-static gint ett_mq_id_ief1 = -1;
-static gint ett_mq_id_ief2 = -1;
-static gint ett_mq_uid = -1;
-static gint ett_mq_conn = -1;
-static gint ett_mq_fcno = -1;
-static gint ett_mq_msg = -1;
-static gint ett_mq_inq = -1;
-static gint ett_mq_spi = -1;
-static gint ett_mq_spi_base = -1; /* Factorisation of common SPI items */
-static gint ett_mq_spi_options = -1;
-static gint ett_mq_put = -1;
-static gint ett_mq_open = -1;
-static gint ett_mq_open_option = -1;
-static gint ett_mq_close_option = -1;
-static gint ett_mq_fopa = -1;
-static gint ett_mq_fcmi = -1;
-static gint ett_mq_ping = -1;
-static gint ett_mq_reset = -1;
-static gint ett_mq_status = -1;
-static gint ett_mq_od = -1;
-static gint ett_mq_od_objstr = -1;
-static gint ett_mq_od_selstr = -1;
-static gint ett_mq_od_resobjstr = -1;
-static gint ett_mq_or = -1;
-static gint ett_mq_rr = -1;
-static gint ett_mq_pmr = -1;
-static gint ett_mq_md = -1;
-static gint ett_mq_dlh = -1;
-static gint ett_mq_dh = -1;
-static gint ett_mq_gmo = -1;
-static gint ett_mq_gmo_option = -1;
-static gint ett_mq_gmo_matchoption = -1;
-static gint ett_mq_pmo = -1;
-static gint ett_mq_pmo_option = -1;
-static gint ett_mq_rfh_ValueName = -1;
-static gint ett_mq_msgreq_RqstFlags = -1;
+static gint ett_mq;
+static gint ett_mq_tsh;
+static gint ett_mq_tsh_tcf;
+static gint ett_mq_tsh_tcf2;
+static gint ett_mq_api;
+static gint ett_mq_socket;
+static gint ett_mq_caut;
+static gint ett_mq_msh;
+static gint ett_mq_xqh;
+static gint ett_mq_id;
+static gint ett_mq_id_cf1;
+static gint ett_mq_id_cf2;
+static gint ett_mq_id_cf3;
+static gint ett_mq_id_ecf1;
+static gint ett_mq_id_ecf2;
+static gint ett_mq_id_ecf3;
+static gint ett_mq_id_ief1;
+static gint ett_mq_id_ief2;
+static gint ett_mq_uid;
+static gint ett_mq_conn;
+static gint ett_mq_fcno;
+static gint ett_mq_msg;
+static gint ett_mq_inq;
+static gint ett_mq_spi;
+static gint ett_mq_spi_base; /* Factorisation of common SPI items */
+static gint ett_mq_spi_options;
+static gint ett_mq_put;
+static gint ett_mq_open;
+static gint ett_mq_open_option;
+static gint ett_mq_close_option;
+static gint ett_mq_fopa;
+static gint ett_mq_fcmi;
+static gint ett_mq_ping;
+static gint ett_mq_reset;
+static gint ett_mq_status;
+static gint ett_mq_od;
+static gint ett_mq_od_objstr;
+static gint ett_mq_od_selstr;
+static gint ett_mq_od_resobjstr;
+static gint ett_mq_or;
+static gint ett_mq_rr;
+static gint ett_mq_pmr;
+static gint ett_mq_md;
+static gint ett_mq_dlh;
+static gint ett_mq_dh;
+static gint ett_mq_gmo;
+static gint ett_mq_gmo_option;
+static gint ett_mq_gmo_matchoption;
+static gint ett_mq_pmo;
+static gint ett_mq_pmo_option;
+static gint ett_mq_rfh_ValueName;
+static gint ett_mq_msgreq_RqstFlags;
 
-static gint ett_mq_lpoo = -1;
-static gint ett_mq_lpoo_lpiopts = -1;
+static gint ett_mq_lpoo;
+static gint ett_mq_lpoo_lpiopts;
 
-static gint ett_mq_head = -1; /* Factorisation of common Header structure items (DH, MDE, CIH, IIH, RFH, RMH, WIH, TM, TMC2 */
-static gint ett_mq_head_flags = -1;
-static gint ett_mq_ims = -1;
+static gint ett_mq_head; /* Factorisation of common Header structure items (DH, MDE, CIH, IIH, RFH, RMH, WIH, TM, TMC2 */
+static gint ett_mq_head_flags;
+static gint ett_mq_ims;
 
-static gint ett_mq_xa = -1;
-static gint ett_mq_xa_tmflags = -1;
-static gint ett_mq_xa_xid = -1;
-static gint ett_mq_xa_info = -1;
-static gint ett_mq_charv = -1;
-static gint ett_mq_reassemb = -1;
-static gint ett_mq_notif = -1;
+static gint ett_mq_xa;
+static gint ett_mq_xa_tmflags;
+static gint ett_mq_xa_xid;
+static gint ett_mq_xa_info;
+static gint ett_mq_charv;
+static gint ett_mq_reassemb;
+static gint ett_mq_notif;
 
-static gint ett_mq_structid = -1;
+static gint ett_mq_structid;
 
-static expert_field ei_mq_reassembly_error = EI_INIT;
+static expert_field ei_mq_reassembly_error;
 
 static dissector_handle_t mq_handle;
 static dissector_handle_t mq_spx_handle;

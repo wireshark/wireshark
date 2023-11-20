@@ -52,42 +52,42 @@ enum {
 
 static dissector_handle_t gif_handle;
 
-static int proto_gif = -1;
+static int proto_gif;
 
-static int hf_background_color = -1;
-static int hf_data_block = -1;
-static int hf_extension = -1;
-static int hf_extension_label = -1;
-static int hf_global_color_map = -1;
-static int hf_global_color_map_ordered = -1;
-static int hf_global_color_map_present = -1;
-static int hf_global_color_resolution = -1;
-static int hf_global_image_bpp = -1;
-static int hf_image = -1;
-static int hf_image_code_size = -1;
-static int hf_image_height = -1;
-static int hf_image_left = -1;
-static int hf_image_top = -1;
-static int hf_image_width = -1;
-static int hf_local_color_map = -1;
-static int hf_local_color_map_ordered = -1;
-static int hf_local_color_map_present = -1;
-static int hf_local_color_resolution = -1;
-static int hf_local_image_bpp = -1;
-static int hf_pixel_aspect_ratio = -1;
-static int hf_screen_height = -1;
-static int hf_screen_width = -1;
-static int hf_trailer = -1;
-static int hf_version = -1;
+static int hf_background_color;
+static int hf_data_block;
+static int hf_extension;
+static int hf_extension_label;
+static int hf_global_color_map;
+static int hf_global_color_map_ordered;
+static int hf_global_color_map_present;
+static int hf_global_color_resolution;
+static int hf_global_image_bpp;
+static int hf_image;
+static int hf_image_code_size;
+static int hf_image_height;
+static int hf_image_left;
+static int hf_image_top;
+static int hf_image_width;
+static int hf_local_color_map;
+static int hf_local_color_map_ordered;
+static int hf_local_color_map_present;
+static int hf_local_color_resolution;
+static int hf_local_image_bpp;
+static int hf_pixel_aspect_ratio;
+static int hf_screen_height;
+static int hf_screen_width;
+static int hf_trailer;
+static int hf_version;
 
 /* Initialize the subtree pointers */
-static gint ett_gif = -1;
-static gint ett_global_flags = -1;
-static gint ett_local_flags = -1;
-static gint ett_extension = -1;
-static gint ett_image = -1;
+static gint ett_gif;
+static gint ett_global_flags;
+static gint ett_local_flags;
+static gint ett_extension;
+static gint ett_image;
 
-static expert_field ei_gif_unknown_data_block_type = EI_INIT;
+static expert_field ei_gif_unknown_data_block_type;
 
 /****************** GIF protocol dissection functions ******************/
 

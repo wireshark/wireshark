@@ -38,30 +38,30 @@ typedef enum {
 	FMP_LIST_SERVER_RESOURCE_LOW  = 2
 } revokeHandleListReason;
 
-static int proto_fmp_notify = -1;
-static int hf_fmp_handleListLen = -1;
-static int hf_fmp_notify_procedure = -1;
-static int hf_fmp_fsID = -1;
-/* static int hf_fmp_fsBlkSz = -1; */
-static int hf_fmp_sessionHandle = -1;
-static int hf_fmp_fmpFHandle = -1;
-static int hf_fmp_msgNum = -1;
-static int hf_fmp_fileSize = -1;
-static int hf_fmp_cookie = -1;
-static int hf_fmp_firstLogBlk = -1;
-static int hf_fmp_numBlksReq = -1;
-static int hf_fmp_status = -1;
-static int hf_fmp_extentList_len = -1;
-static int hf_fmp_numBlks = -1;
-static int hf_fmp_volID = -1;
-static int hf_fmp_startOffset = -1;
-static int hf_fmp_extent_state = -1;
-static int hf_fmp_revokeHandleListReason = -1;
+static int proto_fmp_notify;
+static int hf_fmp_handleListLen;
+static int hf_fmp_notify_procedure;
+static int hf_fmp_fsID;
+/* static int hf_fmp_fsBlkSz; */
+static int hf_fmp_sessionHandle;
+static int hf_fmp_fmpFHandle;
+static int hf_fmp_msgNum;
+static int hf_fmp_fileSize;
+static int hf_fmp_cookie;
+static int hf_fmp_firstLogBlk;
+static int hf_fmp_numBlksReq;
+static int hf_fmp_status;
+static int hf_fmp_extentList_len;
+static int hf_fmp_numBlks;
+static int hf_fmp_volID;
+static int hf_fmp_startOffset;
+static int hf_fmp_extent_state;
+static int hf_fmp_revokeHandleListReason;
 
-static gint ett_fmp_notify = -1;
-static gint ett_fmp_notify_hlist = -1;
-static gint ett_fmp_extList = -1;
-static gint ett_fmp_ext = -1;
+static gint ett_fmp_notify;
+static gint ett_fmp_notify_hlist;
+static gint ett_fmp_extList;
+static gint ett_fmp_ext;
 
 
 static int dissect_fmp_notify_extentList(tvbuff_t *, int, packet_info *, proto_tree *);

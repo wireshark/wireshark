@@ -62,36 +62,36 @@ void proto_register_hsms(void);
 static dissector_handle_t hsms_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_hsms = -1;
+static int proto_hsms;
 
-static int hf_hsms_packet_length = -1;
-static int hf_hsms_header_sessionid = -1;
-static int hf_hsms_header_statusbyte2 = -1;
-static int hf_hsms_header_wbit = -1;
-static int hf_hsms_header_stream = -1;
-static int hf_hsms_header_statusbyte3 = -1;
-static int hf_hsms_header_function = -1;
-static int hf_hsms_header_ptype = -1;
-static int hf_hsms_header_stype = -1;
-static int hf_hsms_header_system = -1;
-static int hf_hsms_data_item_format = -1;
-static int hf_hsms_data_item_length_bytes = -1;
-static int hf_hsms_data_item_length = -1;
-static int hf_hsms_data_item_value_binary = -1;
-static int hf_hsms_data_item_value_boolean = -1;
-static int hf_hsms_data_item_value_string = -1;
-static int hf_hsms_data_item_value_i8 = -1;
-static int hf_hsms_data_item_value_i1 = -1;
-static int hf_hsms_data_item_value_i2 = -1;
-static int hf_hsms_data_item_value_i4 = -1;
-static int hf_hsms_data_item_value_f8 = -1;
-static int hf_hsms_data_item_value_f4 = -1;
-static int hf_hsms_data_item_value_u8 = -1;
-static int hf_hsms_data_item_value_u1 = -1;
-static int hf_hsms_data_item_value_u2 = -1;
-static int hf_hsms_data_item_value_u4 = -1;
+static int hf_hsms_packet_length;
+static int hf_hsms_header_sessionid;
+static int hf_hsms_header_statusbyte2;
+static int hf_hsms_header_wbit;
+static int hf_hsms_header_stream;
+static int hf_hsms_header_statusbyte3;
+static int hf_hsms_header_function;
+static int hf_hsms_header_ptype;
+static int hf_hsms_header_stype;
+static int hf_hsms_header_system;
+static int hf_hsms_data_item_format;
+static int hf_hsms_data_item_length_bytes;
+static int hf_hsms_data_item_length;
+static int hf_hsms_data_item_value_binary;
+static int hf_hsms_data_item_value_boolean;
+static int hf_hsms_data_item_value_string;
+static int hf_hsms_data_item_value_i8;
+static int hf_hsms_data_item_value_i1;
+static int hf_hsms_data_item_value_i2;
+static int hf_hsms_data_item_value_i4;
+static int hf_hsms_data_item_value_f8;
+static int hf_hsms_data_item_value_f4;
+static int hf_hsms_data_item_value_u8;
+static int hf_hsms_data_item_value_u1;
+static int hf_hsms_data_item_value_u2;
+static int hf_hsms_data_item_value_u4;
 
-static expert_field ei_hsms_ptype = EI_INIT;
+static expert_field ei_hsms_ptype;
 
 static wmem_map_t *value_lengths;
 
@@ -163,10 +163,10 @@ static const value_string item_format_names[] = {
 #define HSMS_TCP_PORT 0
 
 /* Initialize the subtree pointers */
-static gint ett_hsms = -1;
-static gint ett_hsms_header = -1;
-static gint ett_hsms_data = -1;
-static gint ett_hsms_data_item = -1;
+static gint ett_hsms;
+static gint ett_hsms_header;
+static gint ett_hsms_data;
+static gint ett_hsms_data_item;
 
 /* A sample #define of the minimum length (in bytes) of the protocol data.
  * If data is received with fewer than this many bytes it is rejected by

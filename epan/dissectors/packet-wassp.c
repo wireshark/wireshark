@@ -3885,136 +3885,136 @@ static const true_false_string wassp_eid_rustate_types =
 
 
 /* Wassp protocol registered fields or ru discover fields*/
-static int proto_wassp = -1;
-static int hf_wassp_version = -1;
-static int hf_wassp_type = -1;
-static int hf_ru_rad_num = -1;
-static int hf_ru_checksum = -1;
-static int hf_ru_ac_op = -1;
-static int hf_ru_mac = -1;
-static int hf_ru_ac_mode = -1;
-static int hf_wassp_seq_num_flag = -1;
-static int hf_seq_num = -1;
-static int hf_wassp_use_frag = -1;
-static int hf_wassp_data_frag = -1;
-static int hf_wassp_more_frag = -1;
-static int hf_wassp_first_frag = -1;
-static int hf_wassp_sessionid = -1;
-static int hf_wassp_length = -1;
-static int hf_wassp_header = -1;
-static int hf_ru_discover_header =-1;
+static int proto_wassp;
+static int hf_wassp_version;
+static int hf_wassp_type;
+static int hf_ru_rad_num;
+static int hf_ru_checksum;
+static int hf_ru_ac_op;
+static int hf_ru_mac;
+static int hf_ru_ac_mode;
+static int hf_wassp_seq_num_flag;
+static int hf_seq_num;
+static int hf_wassp_use_frag;
+static int hf_wassp_data_frag;
+static int hf_wassp_more_frag;
+static int hf_wassp_first_frag;
+static int hf_wassp_sessionid;
+static int hf_wassp_length;
+static int hf_wassp_header;
+static int hf_ru_discover_header;
 
 /* ----------- MU data --------------*/
-static int hf_wassp_mu_type = -1;
-static int hf_wassp_mu_qos = -1;
-static int hf_wassp_mu_action_ssid = -1;
-static int hf_wassp_mu_mac = -1;
-static int hf_wassp_mu_data_tree = -1;
-static int hf_wassp_mu_resv0 = -1;
-static int hf_wassp_mu_resv1 = -1;
-static int hf_wassp_mu_assoc_status = -1;
-static int hf_wassp_mu_data_header =-1;
-static int hf_wassp_mu_action =-1;
-static int hf_wassp_mu_action_field_value =-1;
+static int hf_wassp_mu_type;
+static int hf_wassp_mu_qos;
+static int hf_wassp_mu_action_ssid;
+static int hf_wassp_mu_mac;
+static int hf_wassp_mu_data_tree;
+static int hf_wassp_mu_resv0;
+static int hf_wassp_mu_resv1;
+static int hf_wassp_mu_assoc_status;
+static int hf_wassp_mu_data_header;
+static int hf_wassp_mu_action;
+static int hf_wassp_mu_action_field_value;
 
 
 
 // netflow
-static int  hf_wassp_mu_netflow_version = -1;
-static int  hf_wassp_mu_netflow_length = -1;
-static int  hf_wassp_mu_netflow_flags  = -1;
-static int  hf_wassp_mu_netflow_uptime = -1;
-static int  hf_wassp_mu_netflow_record = -1;
-static int  hf_wassp_mu_netflow_in_bytes = -1;
-static int  hf_wassp_mu_netflow_in_packets = -1;
-static int  hf_wassp_mu_netflow_ip_protocol_number = -1;
-static int  hf_wassp_mu_netflow_source_tos = -1;
-static int  hf_wassp_mu_netflow_source_port = -1;
-static int  hf_wassp_mu_netflow_source_ip = -1;
-static int  hf_wassp_mu_netflow_input_snmp = -1;
-static int  hf_wassp_mu_netflow_dest_port = -1;
-static int  hf_wassp_mu_netflow_dest_ip = -1;
-static int  hf_wassp_mu_netflow_output_snmp = -1;
-static int  hf_wassp_mu_netflow_last_time = -1;
-static int  hf_wassp_mu_netflow_first_time = -1;
-static int  hf_wassp_mu_netflow_in_source_mac = -1;
-static int  hf_wassp_mu_netflow_in_dest_mac = -1;
-static int  hf_wassp_mu_netflow_tree = -1;
-static int  hf_wassp_mu_netflow_header = -1;
+static int  hf_wassp_mu_netflow_version;
+static int  hf_wassp_mu_netflow_length;
+static int  hf_wassp_mu_netflow_flags;
+static int  hf_wassp_mu_netflow_uptime;
+static int  hf_wassp_mu_netflow_record;
+static int  hf_wassp_mu_netflow_in_bytes;
+static int  hf_wassp_mu_netflow_in_packets;
+static int  hf_wassp_mu_netflow_ip_protocol_number;
+static int  hf_wassp_mu_netflow_source_tos;
+static int  hf_wassp_mu_netflow_source_port;
+static int  hf_wassp_mu_netflow_source_ip;
+static int  hf_wassp_mu_netflow_input_snmp;
+static int  hf_wassp_mu_netflow_dest_port;
+static int  hf_wassp_mu_netflow_dest_ip;
+static int  hf_wassp_mu_netflow_output_snmp;
+static int  hf_wassp_mu_netflow_last_time;
+static int  hf_wassp_mu_netflow_first_time;
+static int  hf_wassp_mu_netflow_in_source_mac;
+static int  hf_wassp_mu_netflow_in_dest_mac;
+static int  hf_wassp_mu_netflow_tree;
+static int  hf_wassp_mu_netflow_header;
 
 
 
 /* ------  wassp TLV -------*/
-static int hf_wassp_tlv_value = -1;
-static int hf_wassp_tlv_type_main = -1;
-static int hf_wassp_tlv_type_sub = -1;
-static int hf_wassp_tlv_length = -1;
-static int hf_wassp_tlv_value_octext = -1;    // PW_TYPE_OCTETS
-static int hf_wassp_tlv_value_string = -1;
-static int hf_wassp_tlv_value_ip = -1;
-static int hf_wassp_tlv_value_int = -1;
-static int hf_wassp_tlv_eid_status = -1;
-static int hf_wassp_tlv_eid_action = -1;
-static int hf_wassp_tlv_eid_rustate = -1;
-static int hf_wassp_tlv_unknown = -1;
-static int hf_wassp_tlv_invalid = -1;
+static int hf_wassp_tlv_value;
+static int hf_wassp_tlv_type_main;
+static int hf_wassp_tlv_type_sub;
+static int hf_wassp_tlv_length;
+static int hf_wassp_tlv_value_octext;    // PW_TYPE_OCTETS
+static int hf_wassp_tlv_value_string;
+static int hf_wassp_tlv_value_ip;
+static int hf_wassp_tlv_value_int;
+static int hf_wassp_tlv_eid_status;
+static int hf_wassp_tlv_eid_action;
+static int hf_wassp_tlv_eid_rustate;
+static int hf_wassp_tlv_unknown;
+static int hf_wassp_tlv_invalid;
 
-static int hf_wassp_ipaddress = -1;
-static int hf_wassp_sub_tree = -1;
-static int hf_wassp_topologykey = -1;
-static int hf_wassp_vlanid = -1;
-static int hf_wassp_topology_mode = -1;
-static int hf_wassp_in_cir = -1;
-static int hf_wassp_out_cir = -1;
+static int hf_wassp_ipaddress;
+static int hf_wassp_sub_tree;
+static int hf_wassp_topologykey;
+static int hf_wassp_vlanid;
+static int hf_wassp_topology_mode;
+static int hf_wassp_in_cir;
+static int hf_wassp_out_cir;
 
-static int hf_wassp_flag_1b = -1;
-static int hf_wassp_tos = -1;
-static int hf_cos_tos = -1;
-static int hf_cos_tos_mask = -1;
-static int hf_cos_priority_txq = -1;
+static int hf_wassp_flag_1b;
+static int hf_wassp_tos;
+static int hf_cos_tos;
+static int hf_cos_tos_mask;
+static int hf_cos_priority_txq;
 
-static int hf_wassp_tos_mask = -1;
-static int hf_filter_tos_maskbit_priority = -1;
-static int hf_wassp_priority = -1;
-static int hf_cos_rateid = -1;
-static int hf_wassp_filter_rule = -1;
-static int hf_wassp_filter_flag = -1;
-static int hf_filter_rule_port_range = -1;
-static int hf_wassp_ipprotocol = -1;
-static int hf_wassp_netmasklength = -1;
-static int hf_wassp_macaddr = -1;
-static int hf_wassp_macaddr_mask = -1;
-static int hf_wassp_ethernet_type = -1;
-static int hf_wassp_reserve = -1;
-static int hf_wassp_freq = -1;
-static int hf_wassp_rss = -1;
-static int hf_wassp_rssi = -1;
-static int hf_wassp_threatstate = -1;
-static int hf_wassp_radioparams = -1;
-static int hf_wassp_channelfreq = -1;
-static int hf_wassp_mu = -1;
-static int hf_wassp_apprules = -1;
-static int hf_wassp_displayid = -1;
-static int hf_wassp_txbytes = -1;
-static int hf_wassp_rxbytes = -1;
+static int hf_wassp_tos_mask;
+static int hf_filter_tos_maskbit_priority;
+static int hf_wassp_priority;
+static int hf_cos_rateid;
+static int hf_wassp_filter_rule;
+static int hf_wassp_filter_flag;
+static int hf_filter_rule_port_range;
+static int hf_wassp_ipprotocol;
+static int hf_wassp_netmasklength;
+static int hf_wassp_macaddr;
+static int hf_wassp_macaddr_mask;
+static int hf_wassp_ethernet_type;
+static int hf_wassp_reserve;
+static int hf_wassp_freq;
+static int hf_wassp_rss;
+static int hf_wassp_rssi;
+static int hf_wassp_threatstate;
+static int hf_wassp_radioparams;
+static int hf_wassp_channelfreq;
+static int hf_wassp_mu;
+static int hf_wassp_apprules;
+static int hf_wassp_displayid;
+static int hf_wassp_txbytes;
+static int hf_wassp_rxbytes;
 
 
 
 /* ************************************************************************* */
 /*                   Header values for reassembly                            */
 /* ************************************************************************* */
-static int hf_wassp_fragments = -1;
-static int hf_wassp_fragment = -1;
-static int hf_wassp_fragment_overlap = -1;
-static int hf_wassp_fragment_overlap_conflict = -1;
-static int hf_wassp_fragment_multiple_tails = -1;
-static int hf_wassp_fragment_too_long_fragment = -1;
-static int hf_wassp_fragment_error = -1;
-static int hf_wassp_fragment_count = -1;
-static int hf_wassp_reassembled_in = -1;
-static int hf_wassp_reassembled_length = -1;
-static gint ett_wassp_fragment = -1;
-static gint ett_wassp_fragments = -1;
+static int hf_wassp_fragments;
+static int hf_wassp_fragment;
+static int hf_wassp_fragment_overlap;
+static int hf_wassp_fragment_overlap_conflict;
+static int hf_wassp_fragment_multiple_tails;
+static int hf_wassp_fragment_too_long_fragment;
+static int hf_wassp_fragment_error;
+static int hf_wassp_fragment_count;
+static int hf_wassp_reassembled_in;
+static int hf_wassp_reassembled_length;
+static gint ett_wassp_fragment;
+static gint ett_wassp_fragments;
 
 
 static const fragment_items wassp_frag_items =
@@ -4041,80 +4041,80 @@ static const fragment_items wassp_frag_items =
 
 
 /* Wassp protocol registered subtrees */
-static gint ett_wassp = -1;
-static gint ett_seq_flags = -1;
-static gint ett_wassp_header = -1;
-static gint ett_mu_data_header = -1;
-static gint ett_mu_action_field =-1;
+static gint ett_wassp;
+static gint ett_seq_flags;
+static gint ett_wassp_header;
+static gint ett_mu_data_header;
+static gint ett_mu_action_field;
 
-static gint ett_ru_discover_header = -1;
-static gint ett_wassp_tlv = -1;
-static gint ett_wassp_filter_rule = -1;
-static gint ett_lbs_header = -1;
+static gint ett_ru_discover_header;
+static gint ett_wassp_tlv;
+static gint ett_wassp_filter_rule;
+static gint ett_lbs_header;
 
-static gint ett_wassp_mu_appl_stats = -1;
-static gint ett_wassp_data = -1;
-static gint ett_wassp_mu_data_netflow = -1;
-static gint ett_wassp_mu_data_netflow_header = -1;
-static gint ett_wassp_tlv_missing = -1;
-static gint ett_wassp_ap_stats_block = -1;
-static gint ett_wassp_mu_rf_stats_block = -1;
-static gint ett_wassp_config_error_block = -1;
-static gint ett_wassp_config_modified_block = -1;
-static gint ett_wassp_global_config_block = -1;
-static gint ett_wassp_radio_config_block = -1;
-static gint ett_wassp_vns_config_block = -1;
-static gint ett_wassp_mu_stats_block = -1;
-static gint ett_wassp_radio_stats_block = -1;
-static gint ett_wassp_ether_stats_block = -1;
-static gint ett_wassp_wds_stats_block = -1;
-static gint ett_wassp_dot1x_stats_block = -1;
-static gint ett_wassp_filter_config_block = -1;
-static gint ett_wassp_site_filter_config_block = -1;
-static gint ett_wassp_filter_ext_config_block = -1;
-static gint ett_wassp_vns_stats_block = -1;
-static gint ett_wassp_radius_config_block = -1;
-static gint ett_wassp_eid_main_tlv_block = -1;
-static gint ett_wassp_radius_server_config_block = -1;
-static gint ett_wassp_site_config_block = -1;
-static gint ett_wassp_policy_config_block = -1;
-static gint ett_wassp_cos_config_block = -1;
-static gint ett_wassp_localbase_lookup_block = -1;
-static gint ett_wassp_app_policy_fixed_block = -1;
-static gint ett_wassp_app_policy_entry_block = -1;
-static gint ett_wassp_s_topo_m_filter_entry_block = -1;
-static gint ett_wassp_s_topo_m_filter_ext_entry_block = -1;
-static gint ett_wassp_11u_config_entry_block = -1;
-static gint ett_wassp_hs2_config_entry_block = -1;
-static gint ett_wassp_extapp_config_entry_block = -1;
+static gint ett_wassp_mu_appl_stats;
+static gint ett_wassp_data;
+static gint ett_wassp_mu_data_netflow;
+static gint ett_wassp_mu_data_netflow_header;
+static gint ett_wassp_tlv_missing;
+static gint ett_wassp_ap_stats_block;
+static gint ett_wassp_mu_rf_stats_block;
+static gint ett_wassp_config_error_block;
+static gint ett_wassp_config_modified_block;
+static gint ett_wassp_global_config_block;
+static gint ett_wassp_radio_config_block;
+static gint ett_wassp_vns_config_block;
+static gint ett_wassp_mu_stats_block;
+static gint ett_wassp_radio_stats_block;
+static gint ett_wassp_ether_stats_block;
+static gint ett_wassp_wds_stats_block;
+static gint ett_wassp_dot1x_stats_block;
+static gint ett_wassp_filter_config_block;
+static gint ett_wassp_site_filter_config_block;
+static gint ett_wassp_filter_ext_config_block;
+static gint ett_wassp_vns_stats_block;
+static gint ett_wassp_radius_config_block;
+static gint ett_wassp_eid_main_tlv_block;
+static gint ett_wassp_radius_server_config_block;
+static gint ett_wassp_site_config_block;
+static gint ett_wassp_policy_config_block;
+static gint ett_wassp_cos_config_block;
+static gint ett_wassp_localbase_lookup_block;
+static gint ett_wassp_app_policy_fixed_block;
+static gint ett_wassp_app_policy_entry_block;
+static gint ett_wassp_s_topo_m_filter_entry_block;
+static gint ett_wassp_s_topo_m_filter_ext_entry_block;
+static gint ett_wassp_11u_config_entry_block;
+static gint ett_wassp_hs2_config_entry_block;
+static gint ett_wassp_extapp_config_entry_block;
 
 
 /* aeroscout */
-static int hf_aeroscout_header = -1;
-static int hf_aeroscout_header_magic_number = -1;  // 2 bytes
-static int hf_aeroscout_request_id = -1;           // 2 bytes
-static int hf_aeroscout_code = -1;                 // 1 byte
-static int hf_aeroscout_sub_code = -1;             // 1 byte
-static int hf_aeroscout_datalength = -1;           // 2 bytes
-static int hf_lbs_vendor_id = -1;                  // 2 byte
-static int hf_lbs_rsvd1 = -1;                      // 2 bytes
-static int hf_lbs_ap_bssid = -1;                   // 6 bytes
-static int hf_lbs_rsvd2 = -1;                      // 1
-static int hf_lbs_rxchan = -1;                     // 1
-static int hf_lsb_tstamp = -1;                     // 4 bytes
-static int hf_lsb_rsvd3 = -1;                      // 2 bytes
-static int hf_lsb_rssi = -1;                       // 1
-static int hf_lsb_rsvd = -1;                       // 1
-static int hf_lsb_noise_floor = -1;                // 1
-static int hf_lsb_rsvd4 = -1;                      // 3 bytes
-static int hf_lsb_chan_rate = -1;                  // 1
-static int hf_lsb_rsvd5 = -1;                      // 1
-static int hf_lsb_wh_addr2 = -1;                   // 6 bytes
-static int hf_lsb_wh_fc = -1;                      // 2 bytes
-static int hf_lsb_wh_seq = -1;                     // 2 bytes
-static int hf_lsb_rsvd6 = -1;                      // 2 bytes
-static int hf_lsb_wh_addr3 = -1;                   // 6 bytes
-static int hf_lsb_wh_addr4 = -1;                   // 6 bytes
+static int hf_aeroscout_header;
+static int hf_aeroscout_header_magic_number;  // 2 bytes
+static int hf_aeroscout_request_id;           // 2 bytes
+static int hf_aeroscout_code;                 // 1 byte
+static int hf_aeroscout_sub_code;             // 1 byte
+static int hf_aeroscout_datalength;           // 2 bytes
+static int hf_lbs_vendor_id;                  // 2 byte
+static int hf_lbs_rsvd1;                      // 2 bytes
+static int hf_lbs_ap_bssid;                   // 6 bytes
+static int hf_lbs_rsvd2;                      // 1
+static int hf_lbs_rxchan;                     // 1
+static int hf_lsb_tstamp;                     // 4 bytes
+static int hf_lsb_rsvd3;                      // 2 bytes
+static int hf_lsb_rssi;                       // 1
+static int hf_lsb_rsvd;                       // 1
+static int hf_lsb_noise_floor;                // 1
+static int hf_lsb_rsvd4;                      // 3 bytes
+static int hf_lsb_chan_rate;                  // 1
+static int hf_lsb_rsvd5;                      // 1
+static int hf_lsb_wh_addr2;                   // 6 bytes
+static int hf_lsb_wh_fc;                      // 2 bytes
+static int hf_lsb_wh_seq;                     // 2 bytes
+static int hf_lsb_rsvd6;                      // 2 bytes
+static int hf_lsb_wh_addr3;                   // 6 bytes
+static int hf_lsb_wh_addr4;                   // 6 bytes
 
 
 

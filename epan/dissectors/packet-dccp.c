@@ -197,114 +197,114 @@ static const range_string dccp_feature_numbers_rvals[] = {
 
 static const unit_name_string units_bytes_sec = { "bytes/sec", NULL };
 
-static int proto_dccp = -1;
+static int proto_dccp;
 static int dccp_tap = -1;
 static int dccp_follow_tap = -1;
 
-static int hf_dccp_srcport = -1;
-static int hf_dccp_dstport = -1;
-static int hf_dccp_port = -1;
-static int hf_dccp_stream = -1;
-static int hf_dccp_data_offset = -1;
-static int hf_dccp_ccval = -1;
-static int hf_dccp_cscov = -1;
-static int hf_dccp_checksum = -1;
-static int hf_dccp_checksum_status = -1;
-static int hf_dccp_res1 = -1;
-static int hf_dccp_type = -1;
-static int hf_dccp_x = -1;
-static int hf_dccp_res2 = -1;
-static int hf_dccp_seq = -1;
-static int hf_dccp_seq_abs = -1;
+static int hf_dccp_srcport;
+static int hf_dccp_dstport;
+static int hf_dccp_port;
+static int hf_dccp_stream;
+static int hf_dccp_data_offset;
+static int hf_dccp_ccval;
+static int hf_dccp_cscov;
+static int hf_dccp_checksum;
+static int hf_dccp_checksum_status;
+static int hf_dccp_res1;
+static int hf_dccp_type;
+static int hf_dccp_x;
+static int hf_dccp_res2;
+static int hf_dccp_seq;
+static int hf_dccp_seq_abs;
 
-static int hf_dccp_ack_res = -1;
-static int hf_dccp_ack = -1;
-static int hf_dccp_ack_abs = -1;
+static int hf_dccp_ack_res;
+static int hf_dccp_ack;
+static int hf_dccp_ack_abs;
 
-static int hf_dccp_service_code = -1;
-static int hf_dccp_reset_code = -1;
-static int hf_dccp_data1 = -1;
-static int hf_dccp_data2 = -1;
-static int hf_dccp_data3 = -1;
+static int hf_dccp_service_code;
+static int hf_dccp_reset_code;
+static int hf_dccp_data1;
+static int hf_dccp_data2;
+static int hf_dccp_data3;
 
-static int hf_dccp_options = -1;
-static int hf_dccp_option_type = -1;
-static int hf_dccp_feature_number = -1;
-static int hf_dccp_ndp_count = -1;
-static int hf_dccp_timestamp = -1;
-static int hf_dccp_timestamp_echo = -1;
-static int hf_dccp_elapsed_time = -1;
-static int hf_dccp_data_checksum = -1;
+static int hf_dccp_options;
+static int hf_dccp_option_type;
+static int hf_dccp_feature_number;
+static int hf_dccp_ndp_count;
+static int hf_dccp_timestamp;
+static int hf_dccp_timestamp_echo;
+static int hf_dccp_elapsed_time;
+static int hf_dccp_data_checksum;
 
 /* MP-DCCP Option fields */
-static int hf_mpdccp_confirm = -1;
+static int hf_mpdccp_confirm;
 
-static int hf_mpdccp_version = -1;
+static int hf_mpdccp_version;
 
-static int hf_mpdccp_join = -1;
-static int hf_mpdccp_join_id = -1;
-static int hf_mpdccp_join_token = -1;
-static int hf_mpdccp_join_nonce = -1;
+static int hf_mpdccp_join;
+static int hf_mpdccp_join_id;
+static int hf_mpdccp_join_token;
+static int hf_mpdccp_join_nonce;
 
-static int hf_mpdccp_fast_close = -1;
+static int hf_mpdccp_fast_close;
 
-static int hf_mpdccp_key = -1;
-static int hf_mpdccp_key_type = -1;
-static int hf_mpdccp_key_key = -1;
+static int hf_mpdccp_key;
+static int hf_mpdccp_key_type;
+static int hf_mpdccp_key_key;
 
-static int hf_mpdccp_seq = -1;
+static int hf_mpdccp_seq;
 
-static int hf_mpdccp_hmac = -1;
-static int hf_mpdccp_hmac_sha = -1;
+static int hf_mpdccp_hmac;
+static int hf_mpdccp_hmac_sha;
 
-static int hf_mpdccp_rtt = -1;
-static int hf_mpdccp_rtt_type = -1;
-static int hf_mpdccp_rtt_value = -1;
-static int hf_mpdccp_rtt_age = -1;
+static int hf_mpdccp_rtt;
+static int hf_mpdccp_rtt_type;
+static int hf_mpdccp_rtt_value;
+static int hf_mpdccp_rtt_age;
 
-static int hf_mpdccp_addaddr = -1;
-static int hf_mpdccp_addrid = -1;
-//static int hf_mpdccp_addr=-1;
-static int hf_mpdccp_addr_dec=-1;
-static int hf_mpdccp_addr_hex=-1;
-static int hf_mpdccp_addrport=-1;
+static int hf_mpdccp_addaddr;
+static int hf_mpdccp_addrid;
+//static int hf_mpdccp_addr;
+static int hf_mpdccp_addr_dec;
+static int hf_mpdccp_addr_hex;
+static int hf_mpdccp_addrport;
 
-static int hf_mpdccp_removeaddr = -1;
+static int hf_mpdccp_removeaddr;
 
-static int hf_mpdccp_prio = -1;
-static int hf_mpdccp_prio_value = -1;
+static int hf_mpdccp_prio;
+static int hf_mpdccp_prio_value;
 
-static int hf_mpdccp_close = -1;
-static int hf_mpdccp_close_key = -1;
+static int hf_mpdccp_close;
+static int hf_mpdccp_close_key;
 
-static int hf_mpdccp_exp=-1;
+static int hf_mpdccp_exp;
 
-static int hf_dccp_option_data = -1;
+static int hf_dccp_option_data;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_dccp_padding = -1;
-static int hf_dccp_mandatory = -1;
-static int hf_dccp_slow_receiver = -1;
-static int hf_dccp_init_cookie = -1;
-static int hf_dccp_ack_vector_nonce_0 = -1;
-static int hf_dccp_ack_vector_nonce_1 = -1;
-static int hf_dccp_data_dropped = -1;
-static int hf_dccp_ccid3_loss_event_rate = -1;
-static int hf_dccp_ccid3_loss_intervals = -1;
-static int hf_dccp_ccid3_receive_rate = -1;
-static int hf_dccp_option_reserved = -1;
-static int hf_dccp_ccid_option_data = -1;
-static int hf_dccp_option_unknown = -1;
+static int hf_dccp_padding;
+static int hf_dccp_mandatory;
+static int hf_dccp_slow_receiver;
+static int hf_dccp_init_cookie;
+static int hf_dccp_ack_vector_nonce_0;
+static int hf_dccp_ack_vector_nonce_1;
+static int hf_dccp_data_dropped;
+static int hf_dccp_ccid3_loss_event_rate;
+static int hf_dccp_ccid3_loss_intervals;
+static int hf_dccp_ccid3_receive_rate;
+static int hf_dccp_option_reserved;
+static int hf_dccp_ccid_option_data;
+static int hf_dccp_option_unknown;
 
-static gint ett_dccp = -1;
-static gint ett_dccp_options = -1;
-static gint ett_dccp_options_item = -1;
-static gint ett_dccp_feature = -1;
+static gint ett_dccp;
+static gint ett_dccp_options;
+static gint ett_dccp_options_item;
+static gint ett_dccp_feature;
 
-static expert_field ei_dccp_option_len_bad = EI_INIT;
-static expert_field ei_dccp_advertised_header_length_bad = EI_INIT;
-static expert_field ei_dccp_packet_type_reserved = EI_INIT;
-static expert_field ei_dccp_checksum = EI_INIT;
+static expert_field ei_dccp_option_len_bad;
+static expert_field ei_dccp_advertised_header_length_bad;
+static expert_field ei_dccp_packet_type_reserved;
+static expert_field ei_dccp_checksum;
 
 static dissector_table_t dccp_subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;

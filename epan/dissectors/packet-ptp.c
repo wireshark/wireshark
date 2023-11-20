@@ -68,7 +68,7 @@
 void proto_register_ptp(void);
 void proto_reg_handoff_ptp(void);
 
-static int proto_ptp = -1;
+static int proto_ptp;
 /* To keep the decimal point based on locale */
 static char * decimal_point;
 
@@ -491,201 +491,201 @@ static const value_string ptp_messagetype_vals[] = {
 /* Initialize the protocol and registered fields          */
 /**********************************************************/
 
-static int hf_ptp_versionptp = -1;
-static int hf_ptp_versionnetwork = -1;
-static int hf_ptp_subdomain = -1;
-static int hf_ptp_messagetype = -1;
-static int hf_ptp_sourcecommunicationtechnology = -1;
-static int hf_ptp_sourceuuid = -1;
-static int hf_ptp_sourceportid = -1;
-static int hf_ptp_sequenceid = -1;
-static int hf_ptp_controlfield = -1;
-static int hf_ptp_flags = -1;
-static int hf_ptp_flags_li61 = -1;
-static int hf_ptp_flags_li59 = -1;
-static int hf_ptp_flags_boundary_clock = -1;
-static int hf_ptp_flags_assist = -1;
-static int hf_ptp_flags_ext_sync = -1;
-static int hf_ptp_flags_parent = -1;
-static int hf_ptp_flags_sync_burst = -1;
+static int hf_ptp_versionptp;
+static int hf_ptp_versionnetwork;
+static int hf_ptp_subdomain;
+static int hf_ptp_messagetype;
+static int hf_ptp_sourcecommunicationtechnology;
+static int hf_ptp_sourceuuid;
+static int hf_ptp_sourceportid;
+static int hf_ptp_sequenceid;
+static int hf_ptp_controlfield;
+static int hf_ptp_flags;
+static int hf_ptp_flags_li61;
+static int hf_ptp_flags_li59;
+static int hf_ptp_flags_boundary_clock;
+static int hf_ptp_flags_assist;
+static int hf_ptp_flags_ext_sync;
+static int hf_ptp_flags_parent;
+static int hf_ptp_flags_sync_burst;
 
 /* Fields for ptp_sync and delay_req (=sdr) messages */
-static int hf_ptp_sdr_origintimestamp = -1; /* Field for seconds & nanoseconds */
-static int hf_ptp_sdr_origintimestamp_seconds = -1;
-static int hf_ptp_sdr_origintimestamp_nanoseconds = -1;
-static int hf_ptp_sdr_epochnumber = -1;
-static int hf_ptp_sdr_currentutcoffset = -1;
-static int hf_ptp_sdr_grandmastercommunicationtechnology = -1;
-static int hf_ptp_sdr_grandmasterclockuuid = -1;
-static int hf_ptp_sdr_grandmasterportid = -1;
-static int hf_ptp_sdr_grandmastersequenceid = -1;
-static int hf_ptp_sdr_grandmasterclockstratum = -1;
-static int hf_ptp_sdr_grandmasterclockidentifier = -1;
-static int hf_ptp_sdr_grandmasterclockvariance = -1;
-static int hf_ptp_sdr_grandmasterpreferred = -1;
-static int hf_ptp_sdr_grandmasterisboundaryclock = -1;
-static int hf_ptp_sdr_syncinterval = -1;
-static int hf_ptp_sdr_localclockvariance = -1;
-static int hf_ptp_sdr_localstepsremoved = -1;
-static int hf_ptp_sdr_localclockstratum = -1;
-static int hf_ptp_sdr_localclockidentifier = -1;
-static int hf_ptp_sdr_parentcommunicationtechnology = -1;
-static int hf_ptp_sdr_parentuuid = -1;
-static int hf_ptp_sdr_parentportfield = -1;
-static int hf_ptp_sdr_estimatedmastervariance = -1;
-static int hf_ptp_sdr_estimatedmasterdrift = -1;
-static int hf_ptp_sdr_utcreasonable = -1;
+static int hf_ptp_sdr_origintimestamp; /* Field for seconds & nanoseconds */
+static int hf_ptp_sdr_origintimestamp_seconds;
+static int hf_ptp_sdr_origintimestamp_nanoseconds;
+static int hf_ptp_sdr_epochnumber;
+static int hf_ptp_sdr_currentutcoffset;
+static int hf_ptp_sdr_grandmastercommunicationtechnology;
+static int hf_ptp_sdr_grandmasterclockuuid;
+static int hf_ptp_sdr_grandmasterportid;
+static int hf_ptp_sdr_grandmastersequenceid;
+static int hf_ptp_sdr_grandmasterclockstratum;
+static int hf_ptp_sdr_grandmasterclockidentifier;
+static int hf_ptp_sdr_grandmasterclockvariance;
+static int hf_ptp_sdr_grandmasterpreferred;
+static int hf_ptp_sdr_grandmasterisboundaryclock;
+static int hf_ptp_sdr_syncinterval;
+static int hf_ptp_sdr_localclockvariance;
+static int hf_ptp_sdr_localstepsremoved;
+static int hf_ptp_sdr_localclockstratum;
+static int hf_ptp_sdr_localclockidentifier;
+static int hf_ptp_sdr_parentcommunicationtechnology;
+static int hf_ptp_sdr_parentuuid;
+static int hf_ptp_sdr_parentportfield;
+static int hf_ptp_sdr_estimatedmastervariance;
+static int hf_ptp_sdr_estimatedmasterdrift;
+static int hf_ptp_sdr_utcreasonable;
 
 /* Fields for follow_up (=fu) messages */
-static int hf_ptp_fu_associatedsequenceid = -1;
-static int hf_ptp_fu_preciseorigintimestamp = -1;
-static int hf_ptp_fu_preciseorigintimestamp_seconds = -1;
-static int hf_ptp_fu_preciseorigintimestamp_nanoseconds = -1;
+static int hf_ptp_fu_associatedsequenceid;
+static int hf_ptp_fu_preciseorigintimestamp;
+static int hf_ptp_fu_preciseorigintimestamp_seconds;
+static int hf_ptp_fu_preciseorigintimestamp_nanoseconds;
 
 /* Fields for delay_resp (=dr) messages */
-static int hf_ptp_dr_delayreceipttimestamp = -1;
-static int hf_ptp_dr_delayreceipttimestamp_seconds = -1;
-static int hf_ptp_dr_delayreceipttimestamp_nanoseconds = -1;
-static int hf_ptp_dr_requestingsourcecommunicationtechnology = -1;
-static int hf_ptp_dr_requestingsourceuuid = -1;
-static int hf_ptp_dr_requestingsourceportid = -1;
-static int hf_ptp_dr_requestingsourcesequenceid = -1;
+static int hf_ptp_dr_delayreceipttimestamp;
+static int hf_ptp_dr_delayreceipttimestamp_seconds;
+static int hf_ptp_dr_delayreceipttimestamp_nanoseconds;
+static int hf_ptp_dr_requestingsourcecommunicationtechnology;
+static int hf_ptp_dr_requestingsourceuuid;
+static int hf_ptp_dr_requestingsourceportid;
+static int hf_ptp_dr_requestingsourcesequenceid;
 
 /* Fields for management (=mm) messages */
-static int hf_ptp_mm_targetcommunicationtechnology = -1;
-static int hf_ptp_mm_targetuuid = -1;
-static int hf_ptp_mm_targetportid = -1;
-static int hf_ptp_mm_startingboundaryhops = -1;
-static int hf_ptp_mm_boundaryhops = -1;
-static int hf_ptp_mm_managementmessagekey = -1;
-static int hf_ptp_mm_parameterlength = -1;
+static int hf_ptp_mm_targetcommunicationtechnology;
+static int hf_ptp_mm_targetuuid;
+static int hf_ptp_mm_targetportid;
+static int hf_ptp_mm_startingboundaryhops;
+static int hf_ptp_mm_boundaryhops;
+static int hf_ptp_mm_managementmessagekey;
+static int hf_ptp_mm_parameterlength;
     /* parameterlength > 0 */
-/* static int hf_ptp_mm_messageparameters = -1; */
+/* static int hf_ptp_mm_messageparameters; */
     /* ptp_mm_clock_identity (parameterlength = 64) */
-static int hf_ptp_mm_clock_identity_clockcommunicationtechnology = -1;
-static int hf_ptp_mm_clock_identity_clockuuidfield = -1;
-static int hf_ptp_mm_clock_identity_clockportfield = -1;
-static int hf_ptp_mm_clock_identity_manufactureridentity = -1;
+static int hf_ptp_mm_clock_identity_clockcommunicationtechnology;
+static int hf_ptp_mm_clock_identity_clockuuidfield;
+static int hf_ptp_mm_clock_identity_clockportfield;
+static int hf_ptp_mm_clock_identity_manufactureridentity;
 
     /* ptp_mm_initialize_clock (parameterlength = 4) */
-static int hf_ptp_mm_initialize_clock_initialisationkey = -1;
+static int hf_ptp_mm_initialize_clock_initialisationkey;
 
     /* ptp_mm_set_subdomain (parameterlength = 16) */
-static int hf_ptp_mm_set_subdomain_subdomainname = -1;
+static int hf_ptp_mm_set_subdomain_subdomainname;
 
     /* ptp_mm_default_data_set (parameterlength = 76) */
-static int hf_ptp_mm_default_data_set_clockcommunicationtechnology = -1;
-static int hf_ptp_mm_default_data_set_clockuuidfield = -1;
-static int hf_ptp_mm_default_data_set_clockportfield = -1;
-static int hf_ptp_mm_default_data_set_clockstratum = -1;
-static int hf_ptp_mm_default_data_set_clockidentifier = -1;
-static int hf_ptp_mm_default_data_set_clockvariance = -1;
-static int hf_ptp_mm_default_data_set_clockfollowupcapable = -1;
-static int hf_ptp_mm_default_data_set_preferred = -1;
-static int hf_ptp_mm_default_data_set_initializable = -1;
-static int hf_ptp_mm_default_data_set_externaltiming = -1;
-static int hf_ptp_mm_default_data_set_isboundaryclock = -1;
-static int hf_ptp_mm_default_data_set_syncinterval = -1;
-static int hf_ptp_mm_default_data_set_subdomainname = -1;
-static int hf_ptp_mm_default_data_set_numberports = -1;
-static int hf_ptp_mm_default_data_set_numberforeignrecords = -1;
+static int hf_ptp_mm_default_data_set_clockcommunicationtechnology;
+static int hf_ptp_mm_default_data_set_clockuuidfield;
+static int hf_ptp_mm_default_data_set_clockportfield;
+static int hf_ptp_mm_default_data_set_clockstratum;
+static int hf_ptp_mm_default_data_set_clockidentifier;
+static int hf_ptp_mm_default_data_set_clockvariance;
+static int hf_ptp_mm_default_data_set_clockfollowupcapable;
+static int hf_ptp_mm_default_data_set_preferred;
+static int hf_ptp_mm_default_data_set_initializable;
+static int hf_ptp_mm_default_data_set_externaltiming;
+static int hf_ptp_mm_default_data_set_isboundaryclock;
+static int hf_ptp_mm_default_data_set_syncinterval;
+static int hf_ptp_mm_default_data_set_subdomainname;
+static int hf_ptp_mm_default_data_set_numberports;
+static int hf_ptp_mm_default_data_set_numberforeignrecords;
 
     /* ptp_mm_update_default_data_set (parameterlength = 36) */
-static int hf_ptp_mm_update_default_data_set_clockstratum = -1;
-static int hf_ptp_mm_update_default_data_set_clockidentifier = -1;
-static int hf_ptp_mm_update_default_data_set_clockvariance = -1;
-static int hf_ptp_mm_update_default_data_set_preferred = -1;
-static int hf_ptp_mm_update_default_data_set_syncinterval = -1;
-static int hf_ptp_mm_update_default_data_set_subdomainname = -1;
+static int hf_ptp_mm_update_default_data_set_clockstratum;
+static int hf_ptp_mm_update_default_data_set_clockidentifier;
+static int hf_ptp_mm_update_default_data_set_clockvariance;
+static int hf_ptp_mm_update_default_data_set_preferred;
+static int hf_ptp_mm_update_default_data_set_syncinterval;
+static int hf_ptp_mm_update_default_data_set_subdomainname;
 
     /* ptp_mm_current_data_set (parameterlength = 20) */
-static int hf_ptp_mm_current_data_set_stepsremoved = -1;
-static int hf_ptp_mm_current_data_set_offsetfrommaster = -1;
-static int hf_ptp_mm_current_data_set_offsetfrommasterseconds = -1;
-static int hf_ptp_mm_current_data_set_offsetfrommasternanoseconds = -1;
-static int hf_ptp_mm_current_data_set_onewaydelay = -1;
-static int hf_ptp_mm_current_data_set_onewaydelayseconds = -1;
-static int hf_ptp_mm_current_data_set_onewaydelaynanoseconds = -1;
+static int hf_ptp_mm_current_data_set_stepsremoved;
+static int hf_ptp_mm_current_data_set_offsetfrommaster;
+static int hf_ptp_mm_current_data_set_offsetfrommasterseconds;
+static int hf_ptp_mm_current_data_set_offsetfrommasternanoseconds;
+static int hf_ptp_mm_current_data_set_onewaydelay;
+static int hf_ptp_mm_current_data_set_onewaydelayseconds;
+static int hf_ptp_mm_current_data_set_onewaydelaynanoseconds;
 
     /* ptp_mm_parent_data_set (parameterlength = 90) */
-static int hf_ptp_mm_parent_data_set_parentcommunicationtechnology = -1;
-static int hf_ptp_mm_parent_data_set_parentuuid = -1;
-static int hf_ptp_mm_parent_data_set_parentportid = -1;
-static int hf_ptp_mm_parent_data_set_parentlastsyncsequencenumber = -1;
-static int hf_ptp_mm_parent_data_set_parentfollowupcapable = -1;
-static int hf_ptp_mm_parent_data_set_parentexternaltiming = -1;
-static int hf_ptp_mm_parent_data_set_parentvariance = -1;
-static int hf_ptp_mm_parent_data_set_parentstats = -1;
-static int hf_ptp_mm_parent_data_set_observedvariance = -1;
-static int hf_ptp_mm_parent_data_set_observeddrift = -1;
-static int hf_ptp_mm_parent_data_set_utcreasonable = -1;
-static int hf_ptp_mm_parent_data_set_grandmastercommunicationtechnology = -1;
-static int hf_ptp_mm_parent_data_set_grandmasteruuidfield = -1;
-static int hf_ptp_mm_parent_data_set_grandmasterportidfield = -1;
-static int hf_ptp_mm_parent_data_set_grandmasterstratum = -1;
-static int hf_ptp_mm_parent_data_set_grandmasteridentifier = -1;
-static int hf_ptp_mm_parent_data_set_grandmastervariance = -1;
-static int hf_ptp_mm_parent_data_set_grandmasterpreferred = -1;
-static int hf_ptp_mm_parent_data_set_grandmasterisboundaryclock = -1;
-static int hf_ptp_mm_parent_data_set_grandmastersequencenumber = -1;
+static int hf_ptp_mm_parent_data_set_parentcommunicationtechnology;
+static int hf_ptp_mm_parent_data_set_parentuuid;
+static int hf_ptp_mm_parent_data_set_parentportid;
+static int hf_ptp_mm_parent_data_set_parentlastsyncsequencenumber;
+static int hf_ptp_mm_parent_data_set_parentfollowupcapable;
+static int hf_ptp_mm_parent_data_set_parentexternaltiming;
+static int hf_ptp_mm_parent_data_set_parentvariance;
+static int hf_ptp_mm_parent_data_set_parentstats;
+static int hf_ptp_mm_parent_data_set_observedvariance;
+static int hf_ptp_mm_parent_data_set_observeddrift;
+static int hf_ptp_mm_parent_data_set_utcreasonable;
+static int hf_ptp_mm_parent_data_set_grandmastercommunicationtechnology;
+static int hf_ptp_mm_parent_data_set_grandmasteruuidfield;
+static int hf_ptp_mm_parent_data_set_grandmasterportidfield;
+static int hf_ptp_mm_parent_data_set_grandmasterstratum;
+static int hf_ptp_mm_parent_data_set_grandmasteridentifier;
+static int hf_ptp_mm_parent_data_set_grandmastervariance;
+static int hf_ptp_mm_parent_data_set_grandmasterpreferred;
+static int hf_ptp_mm_parent_data_set_grandmasterisboundaryclock;
+static int hf_ptp_mm_parent_data_set_grandmastersequencenumber;
 
     /* ptp_mm_port_data_set (parameterlength = 52) */
-static int hf_ptp_mm_port_data_set_returnedportnumber = -1;
-static int hf_ptp_mm_port_data_set_portstate = -1;
-static int hf_ptp_mm_port_data_set_lastsynceventsequencenumber = -1;
-static int hf_ptp_mm_port_data_set_lastgeneraleventsequencenumber = -1;
-static int hf_ptp_mm_port_data_set_portcommunicationtechnology = -1;
-static int hf_ptp_mm_port_data_set_portuuidfield = -1;
-static int hf_ptp_mm_port_data_set_portidfield = -1;
-static int hf_ptp_mm_port_data_set_burstenabled = -1;
-static int hf_ptp_mm_port_data_set_subdomainaddressoctets = -1;
-static int hf_ptp_mm_port_data_set_eventportaddressoctets = -1;
-static int hf_ptp_mm_port_data_set_generalportaddressoctets = -1;
-static int hf_ptp_mm_port_data_set_subdomainaddress = -1;
-static int hf_ptp_mm_port_data_set_eventportaddress = -1;
-static int hf_ptp_mm_port_data_set_generalportaddress = -1;
+static int hf_ptp_mm_port_data_set_returnedportnumber;
+static int hf_ptp_mm_port_data_set_portstate;
+static int hf_ptp_mm_port_data_set_lastsynceventsequencenumber;
+static int hf_ptp_mm_port_data_set_lastgeneraleventsequencenumber;
+static int hf_ptp_mm_port_data_set_portcommunicationtechnology;
+static int hf_ptp_mm_port_data_set_portuuidfield;
+static int hf_ptp_mm_port_data_set_portidfield;
+static int hf_ptp_mm_port_data_set_burstenabled;
+static int hf_ptp_mm_port_data_set_subdomainaddressoctets;
+static int hf_ptp_mm_port_data_set_eventportaddressoctets;
+static int hf_ptp_mm_port_data_set_generalportaddressoctets;
+static int hf_ptp_mm_port_data_set_subdomainaddress;
+static int hf_ptp_mm_port_data_set_eventportaddress;
+static int hf_ptp_mm_port_data_set_generalportaddress;
 
     /* ptp_mm_global_time_data_set (parameterlength = 24) */
-static int hf_ptp_mm_global_time_data_set_localtime = -1;
-static int hf_ptp_mm_global_time_data_set_localtimeseconds = -1;
-static int hf_ptp_mm_global_time_data_set_localtimenanoseconds = -1;
-static int hf_ptp_mm_global_time_data_set_currentutcoffset = -1;
-static int hf_ptp_mm_global_time_data_set_leap59 = -1;
-static int hf_ptp_mm_global_time_data_set_leap61 = -1;
-static int hf_ptp_mm_global_time_data_set_epochnumber = -1;
+static int hf_ptp_mm_global_time_data_set_localtime;
+static int hf_ptp_mm_global_time_data_set_localtimeseconds;
+static int hf_ptp_mm_global_time_data_set_localtimenanoseconds;
+static int hf_ptp_mm_global_time_data_set_currentutcoffset;
+static int hf_ptp_mm_global_time_data_set_leap59;
+static int hf_ptp_mm_global_time_data_set_leap61;
+static int hf_ptp_mm_global_time_data_set_epochnumber;
 
     /* ptp_mm_update_global_time_properties (parameterlength = 16) */
-static int hf_ptp_mm_update_global_time_properties_currentutcoffset = -1;
-static int hf_ptp_mm_update_global_time_properties_leap59 = -1;
-static int hf_ptp_mm_update_global_time_properties_leap61 = -1;
-/* static int hf_ptp_mm_update_global_time_properties_epochnumber = -1; */
+static int hf_ptp_mm_update_global_time_properties_currentutcoffset;
+static int hf_ptp_mm_update_global_time_properties_leap59;
+static int hf_ptp_mm_update_global_time_properties_leap61;
+/* static int hf_ptp_mm_update_global_time_properties_epochnumber; */
 
     /* ptp_mm_get_foreign_data_set (parameterlength = 4) */
-static int hf_ptp_mm_get_foreign_data_set_recordkey = -1;
+static int hf_ptp_mm_get_foreign_data_set_recordkey;
 
     /* ptp_mm_foreign_data_set (parameterlength = 28) */
-static int hf_ptp_mm_foreign_data_set_returnedportnumber = -1;
-static int hf_ptp_mm_foreign_data_set_returnedrecordnumber = -1;
-static int hf_ptp_mm_foreign_data_set_foreignmastercommunicationtechnology = -1;
-static int hf_ptp_mm_foreign_data_set_foreignmasteruuidfield = -1;
-static int hf_ptp_mm_foreign_data_set_foreignmasterportidfield = -1;
-static int hf_ptp_mm_foreign_data_set_foreignmastersyncs = -1;
+static int hf_ptp_mm_foreign_data_set_returnedportnumber;
+static int hf_ptp_mm_foreign_data_set_returnedrecordnumber;
+static int hf_ptp_mm_foreign_data_set_foreignmastercommunicationtechnology;
+static int hf_ptp_mm_foreign_data_set_foreignmasteruuidfield;
+static int hf_ptp_mm_foreign_data_set_foreignmasterportidfield;
+static int hf_ptp_mm_foreign_data_set_foreignmastersyncs;
 
     /* ptp_mm_set_sync_interval (parameterlength = 4) */
-static int hf_ptp_mm_set_sync_interval_syncinterval = -1;
+static int hf_ptp_mm_set_sync_interval_syncinterval;
 
     /* ptp_mm_set_time (parameterlength = 8) */
-static int hf_ptp_mm_set_time_localtime = -1;
-static int hf_ptp_mm_set_time_localtimeseconds = -1;
-static int hf_ptp_mm_set_time_localtimenanoseconds = -1;
+static int hf_ptp_mm_set_time_localtime;
+static int hf_ptp_mm_set_time_localtimeseconds;
+static int hf_ptp_mm_set_time_localtimenanoseconds;
 
 /* END Initialize the protocol and registered fields */
 
 /* Initialize the subtree pointers */
-static gint ett_ptp = -1;
-static gint ett_ptp_flags = -1;
-static gint ett_ptp_time = -1;
-static gint ett_ptp_time2 = -1;
+static gint ett_ptp;
+static gint ett_ptp_flags;
+static gint ett_ptp_time;
+static gint ett_ptp_time2;
 
 /* END Definitions and fields for PTPv1 dissection. */
 
@@ -1508,426 +1508,426 @@ static const value_string ptpv2_majorsdoid_vals[] = {
 /* Initialize the protocol and registered fields          */
 /**********************************************************/
 
-static int hf_ptp_v2_majorsdoid = -1;
-static int hf_ptp_v2_messagetype = -1;
-static int hf_ptp_v2_minorversionptp = -1;
-static int hf_ptp_v2_versionptp = -1;
-static int hf_ptp_v2_messagelength = -1;
-static int hf_ptp_v2_minorsdoid = -1;
-static int hf_ptp_v2_domainnumber = -1;
-static int hf_ptp_v2_flags = -1;
-static int hf_ptp_v2_flags_alternatemaster = -1;
-static int hf_ptp_v2_flags_twostep = -1;
-static int hf_ptp_v2_flags_unicast = -1;
-static int hf_ptp_v2_flags_specific1 = -1;
-static int hf_ptp_v2_flags_specific2 = -1;
-static int hf_ptp_v2_flags_security = -1;
-static int hf_ptp_v2_flags_li61 = -1;
-static int hf_ptp_v2_flags_li59 = -1;
-static int hf_ptp_v2_flags_utcoffsetvalid = -1;
-static int hf_ptp_v2_flags_ptptimescale = -1;
-static int hf_ptp_v2_flags_timetraceable = -1;
-static int hf_ptp_v2_flags_frequencytraceable = -1;
-static int hf_ptp_v2_correction = -1;
-static int hf_ptp_v2_correctionsubns = -1;
-static int hf_ptp_v2_messagetypespecific = -1;
-static int hf_ptp_v2_clockidentity = -1;
-static int hf_ptp_v2_clockidentity_manuf = -1;
-static int hf_ptp_v2_sourceportid = -1;
-static int hf_ptp_v2_sequenceid = -1;
-static int hf_ptp_v2_controlfield = -1;
-static int hf_ptp_v2_controlfield_default = -1;
-static int hf_ptp_v2_logmessageperiod = -1;
-static int hf_ptp_v2_flags_synchronizationUncertain = -1;
+static int hf_ptp_v2_majorsdoid;
+static int hf_ptp_v2_messagetype;
+static int hf_ptp_v2_minorversionptp;
+static int hf_ptp_v2_versionptp;
+static int hf_ptp_v2_messagelength;
+static int hf_ptp_v2_minorsdoid;
+static int hf_ptp_v2_domainnumber;
+static int hf_ptp_v2_flags;
+static int hf_ptp_v2_flags_alternatemaster;
+static int hf_ptp_v2_flags_twostep;
+static int hf_ptp_v2_flags_unicast;
+static int hf_ptp_v2_flags_specific1;
+static int hf_ptp_v2_flags_specific2;
+static int hf_ptp_v2_flags_security;
+static int hf_ptp_v2_flags_li61;
+static int hf_ptp_v2_flags_li59;
+static int hf_ptp_v2_flags_utcoffsetvalid;
+static int hf_ptp_v2_flags_ptptimescale;
+static int hf_ptp_v2_flags_timetraceable;
+static int hf_ptp_v2_flags_frequencytraceable;
+static int hf_ptp_v2_correction;
+static int hf_ptp_v2_correctionsubns;
+static int hf_ptp_v2_messagetypespecific;
+static int hf_ptp_v2_clockidentity;
+static int hf_ptp_v2_clockidentity_manuf;
+static int hf_ptp_v2_sourceportid;
+static int hf_ptp_v2_sequenceid;
+static int hf_ptp_v2_controlfield;
+static int hf_ptp_v2_controlfield_default;
+static int hf_ptp_v2_logmessageperiod;
+static int hf_ptp_v2_flags_synchronizationUncertain;
 
 
 /* Fields for PTP_Announce (=an) messages */
-/* static int hf_ptp_v2_an_origintimestamp = -1; */   /* Field for seconds & nanoseconds */
-static int hf_ptp_v2_an_origintimestamp_seconds = -1;
-static int hf_ptp_v2_an_origintimestamp_nanoseconds = -1;
-static int hf_ptp_v2_an_origincurrentutcoffset = -1;
-static int hf_ptp_v2_an_timesource = -1;
-static int hf_ptp_v2_an_localstepsremoved = -1;
-static int hf_ptp_v2_an_grandmasterclockidentity = -1;
-static int hf_ptp_v2_an_grandmasterclockclass = -1;
-static int hf_ptp_v2_an_grandmasterclockaccuracy = -1;
-static int hf_ptp_v2_an_grandmasterclockvariance = -1;
-static int hf_ptp_v2_an_priority1 = -1;
-static int hf_ptp_v2_an_priority2 = -1;
+/* static int hf_ptp_v2_an_origintimestamp; */   /* Field for seconds & nanoseconds */
+static int hf_ptp_v2_an_origintimestamp_seconds;
+static int hf_ptp_v2_an_origintimestamp_nanoseconds;
+static int hf_ptp_v2_an_origincurrentutcoffset;
+static int hf_ptp_v2_an_timesource;
+static int hf_ptp_v2_an_localstepsremoved;
+static int hf_ptp_v2_an_grandmasterclockidentity;
+static int hf_ptp_v2_an_grandmasterclockclass;
+static int hf_ptp_v2_an_grandmasterclockaccuracy;
+static int hf_ptp_v2_an_grandmasterclockvariance;
+static int hf_ptp_v2_an_priority1;
+static int hf_ptp_v2_an_priority2;
 
 /* Fields for PTP_Announce TLVs */
-static int hf_ptp_v2_an_tlv_tlvtype = -1;
-static int hf_ptp_v2_an_tlv_lengthfield = -1;
+static int hf_ptp_v2_an_tlv_tlvtype;
+static int hf_ptp_v2_an_tlv_lengthfield;
 /* Fields for the ORGANIZATION_EXTENSION TLV */
-static int hf_ptp_v2_oe_tlv_organizationid = -1;
-static int hf_ptp_v2_oe_tlv_organizationsubtype = -1;
-static int hf_ptp_v2_oe_tlv_2017_organizationsubtype = -1;
-static int hf_ptp_v2_oe_tlv_datafield = -1;
+static int hf_ptp_v2_oe_tlv_organizationid;
+static int hf_ptp_v2_oe_tlv_organizationsubtype;
+static int hf_ptp_v2_oe_tlv_2017_organizationsubtype;
+static int hf_ptp_v2_oe_tlv_datafield;
 
 /* Fields for CERN White Rabbit TLV (OE TLV subtype) */
-static int hf_ptp_v2_an_tlv_oe_cern_subtype = -1;
-static int hf_ptp_v2_an_tlv_oe_cern_wrMessageID = -1;
-static int hf_ptp_v2_an_tlv_oe_cern_wrFlags = -1;
-static int hf_ptp_v2_an_tlv_oe_cern_wrFlags_wrConfig = -1;
-static int hf_ptp_v2_an_tlv_oe_cern_wrFlags_calibrated = -1;
-static int hf_ptp_v2_an_tlv_oe_cern_wrFlags_wrModeOn = -1;
+static int hf_ptp_v2_an_tlv_oe_cern_subtype;
+static int hf_ptp_v2_an_tlv_oe_cern_wrMessageID;
+static int hf_ptp_v2_an_tlv_oe_cern_wrFlags;
+static int hf_ptp_v2_an_tlv_oe_cern_wrFlags_wrConfig;
+static int hf_ptp_v2_an_tlv_oe_cern_wrFlags_calibrated;
+static int hf_ptp_v2_an_tlv_oe_cern_wrFlags_wrModeOn;
 
 /* Fields for IEEE_C37_238 TLV (OE TLV subtype) */
-static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_grandmasterid = -1;
-static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_grandmastertimeinaccuracy = -1;
-static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_networktimeinaccuracy = -1;
-static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_reserved = -1;
+static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_grandmasterid;
+static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_grandmastertimeinaccuracy;
+static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_networktimeinaccuracy;
+static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_reserved;
 
 /* Additional Fields for IEEE_C37_238-2017 TLV (OE TLV subtype) */
-static int hf_ptp_v2_oe_tlv_subtype_c372382017tlv_reserved = -1;
-static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_totaltimeinaccuracy = -1;
+static int hf_ptp_v2_oe_tlv_subtype_c372382017tlv_reserved;
+static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_totaltimeinaccuracy;
 
 /* Fields for SMPTE TLV (OE TLV subtype) */
-static int hf_ptp_v2_oe_tlv_smpte_subtype = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_data = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_defaultsystemframerate = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_defaultsystemframerate_numerator = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_defaultsystemframerate_denominator = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_masterlockingstatus = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags_drop = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags_color = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_currentlocaloffset = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_jumpseconds = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_timeofnextjump = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_timeofnextjam = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_timeofpreviousjam = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_previousjamlocaloffset = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving_current = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving_next = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving_previous = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_leapsecondjump = -1;
-static int hf_ptp_v2_oe_tlv_subtype_smpte_leapsecondjump_change = -1;
+static int hf_ptp_v2_oe_tlv_smpte_subtype;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_data;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_defaultsystemframerate;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_defaultsystemframerate_numerator;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_defaultsystemframerate_denominator;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_masterlockingstatus;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags_drop;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags_color;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_currentlocaloffset;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_jumpseconds;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_timeofnextjump;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_timeofnextjam;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_timeofpreviousjam;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_previousjamlocaloffset;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving_current;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving_next;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving_previous;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_leapsecondjump;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_leapsecondjump_change;
 /* Fields for the ALTERNATE_TIME_OFFSET_INDICATOR TLV */
-static int hf_ptp_v2_atoi_tlv_keyfield = -1;
-static int hf_ptp_v2_atoi_tlv_currentoffset = -1;
-static int hf_ptp_v2_atoi_tlv_jumpseconds = -1;
-static int hf_ptp_v2_atoi_tlv_timeofnextjump = -1;
-static int hf_ptp_v2_atoi_tlv_displayname = -1;
-static int hf_ptp_v2_atoi_tlv_displayname_length = -1;
+static int hf_ptp_v2_atoi_tlv_keyfield;
+static int hf_ptp_v2_atoi_tlv_currentoffset;
+static int hf_ptp_v2_atoi_tlv_jumpseconds;
+static int hf_ptp_v2_atoi_tlv_timeofnextjump;
+static int hf_ptp_v2_atoi_tlv_displayname;
+static int hf_ptp_v2_atoi_tlv_displayname_length;
 /* Field for the PATH TRACE TLV */
-static int hf_ptp_v2_an_tlv_pathsequence = -1;
+static int hf_ptp_v2_an_tlv_pathsequence;
 
 /* Fields for an undissected TLV */
-static int hf_ptp_v2_an_tlv_data = -1;
+static int hf_ptp_v2_an_tlv_data;
 
 /* Fields for PTP_Sync AND PTP_DelayRequest (=sdr) messages */
-/* static int hf_ptp_v2_sdr_origintimestamp = -1; */  /* Field for seconds & nanoseconds */
-static int hf_ptp_v2_sdr_origintimestamp_seconds = -1;
-static int hf_ptp_v2_sdr_origintimestamp_nanoseconds = -1;
-static int hf_ptp_v2_sync_reserved = -1;
+/* static int hf_ptp_v2_sdr_origintimestamp; */  /* Field for seconds & nanoseconds */
+static int hf_ptp_v2_sdr_origintimestamp_seconds;
+static int hf_ptp_v2_sdr_origintimestamp_nanoseconds;
+static int hf_ptp_v2_sync_reserved;
 
 
 /* Fields for PTP_Follow_Up (=fu) messages */
-/* static int hf_ptp_v2_fu_preciseorigintimestamp = -1; */    /* Field for seconds & nanoseconds */
-static int hf_ptp_v2_fu_preciseorigintimestamp_seconds = -1;
-static int hf_ptp_v2_fu_preciseorigintimestamp_nanoseconds = -1;
-static int hf_ptp_v2_fu_preciseorigintimestamp_32bit = -1;
+/* static int hf_ptp_v2_fu_preciseorigintimestamp; */    /* Field for seconds & nanoseconds */
+static int hf_ptp_v2_fu_preciseorigintimestamp_seconds;
+static int hf_ptp_v2_fu_preciseorigintimestamp_nanoseconds;
+static int hf_ptp_v2_fu_preciseorigintimestamp_32bit;
 /* Fields for the Follow_Up Information TLV */
-static int hf_ptp_as_fu_tlv_tlvtype = -1;
-static int hf_ptp_as_fu_tlv_lengthfield = -1;
-static int hf_ptp_as_fu_tlv_organization_id = -1;
-static int hf_ptp_as_fu_tlv_organization_subtype = -1;
-static int hf_ptp_as_fu_tlv_cumulative_offset = -1;
-static int hf_ptp_as_fu_tlv_gm_base_indicator = -1;
-static int hf_ptp_as_fu_tlv_last_gm_phase_change = -1;
-static int hf_ptp_as_fu_tlv_scaled_last_gm_freq_change = -1;
+static int hf_ptp_as_fu_tlv_tlvtype;
+static int hf_ptp_as_fu_tlv_lengthfield;
+static int hf_ptp_as_fu_tlv_organization_id;
+static int hf_ptp_as_fu_tlv_organization_subtype;
+static int hf_ptp_as_fu_tlv_cumulative_offset;
+static int hf_ptp_as_fu_tlv_gm_base_indicator;
+static int hf_ptp_as_fu_tlv_last_gm_phase_change;
+static int hf_ptp_as_fu_tlv_scaled_last_gm_freq_change;
 
 /* Fields for PTP_DelayResponse (=dr) messages */
-/* static int hf_ptp_v2_dr_receivetimestamp = -1; */ /* Field for seconds & nanoseconds */
-static int hf_ptp_v2_dr_receivetimestamp_seconds = -1;
-static int hf_ptp_v2_dr_receivetimestamp_nanoseconds = -1;
-static int hf_ptp_v2_dr_requestingportidentity = -1;
-static int hf_ptp_v2_dr_requestingsourceportid = -1;
+/* static int hf_ptp_v2_dr_receivetimestamp; */ /* Field for seconds & nanoseconds */
+static int hf_ptp_v2_dr_receivetimestamp_seconds;
+static int hf_ptp_v2_dr_receivetimestamp_nanoseconds;
+static int hf_ptp_v2_dr_requestingportidentity;
+static int hf_ptp_v2_dr_requestingsourceportid;
 
 
 /* Fields for PTP_PDelayRequest (=pdrq) messages */
-/* static int hf_ptp_v2_pdrq_origintimestamp = -1; */ /* Field for seconds & nanoseconds */
-static int hf_ptp_v2_pdrq_origintimestamp_seconds = -1;
-static int hf_ptp_v2_pdrq_origintimestamp_nanoseconds = -1;
+/* static int hf_ptp_v2_pdrq_origintimestamp; */ /* Field for seconds & nanoseconds */
+static int hf_ptp_v2_pdrq_origintimestamp_seconds;
+static int hf_ptp_v2_pdrq_origintimestamp_nanoseconds;
 
 
 /* Fields for PTP_PDelayResponse (=pdrs) messages */
-/* static int hf_ptp_v2_pdrs_requestreceipttimestamp = -1; */ /* Field for seconds & nanoseconds */
-static int hf_ptp_v2_pdrs_requestreceipttimestamp_seconds = -1;
-static int hf_ptp_v2_pdrs_requestreceipttimestamp_nanoseconds = -1;
-static int hf_ptp_v2_pdrs_requestingportidentity = -1;
-static int hf_ptp_v2_pdrs_requestingsourceportid = -1;
+/* static int hf_ptp_v2_pdrs_requestreceipttimestamp; */ /* Field for seconds & nanoseconds */
+static int hf_ptp_v2_pdrs_requestreceipttimestamp_seconds;
+static int hf_ptp_v2_pdrs_requestreceipttimestamp_nanoseconds;
+static int hf_ptp_v2_pdrs_requestingportidentity;
+static int hf_ptp_v2_pdrs_requestingsourceportid;
 
 
 /* Fields for PTP_PDelayResponseFollowUp (=pdfu) messages */
-/* static int hf_ptp_v2_pdfu_responseorigintimestamp = -1; */ /* Field for seconds & nanoseconds */
-static int hf_ptp_v2_pdfu_responseorigintimestamp_seconds = -1;
-static int hf_ptp_v2_pdfu_responseorigintimestamp_nanoseconds = -1;
-static int hf_ptp_v2_pdfu_requestingportidentity = -1;
-static int hf_ptp_v2_pdfu_requestingsourceportid = -1;
+/* static int hf_ptp_v2_pdfu_responseorigintimestamp; */ /* Field for seconds & nanoseconds */
+static int hf_ptp_v2_pdfu_responseorigintimestamp_seconds;
+static int hf_ptp_v2_pdfu_responseorigintimestamp_nanoseconds;
+static int hf_ptp_v2_pdfu_requestingportidentity;
+static int hf_ptp_v2_pdfu_requestingsourceportid;
 
 
 /* Fields for PTP_Signalling (=sig) messages */
-static int hf_ptp_v2_sig_targetportidentity         = -1;
-static int hf_ptp_v2_sig_targetportid               = -1;
-static int hf_ptp_v2_sig_tlv_tlvType                = -1;
-static int hf_ptp_v2_sig_tlv_lengthField            = -1;
-static int hf_ptp_v2_sig_tlv_data                   = -1;
-static int hf_ptp_v2_sig_tlv_messageType            = -1;
-static int hf_ptp_v2_sig_tlv_logInterMessagePeriod  = -1;
-static int hf_ptp_v2_sig_tlv_logInterMessagePeriod_period   = -1;
-static int hf_ptp_v2_sig_tlv_logInterMessagePeriod_rate     = -1;
-static int hf_ptp_v2_sig_tlv_durationField          = -1;
-static int hf_ptp_v2_sig_tlv_renewalInvited         = -1;
+static int hf_ptp_v2_sig_targetportidentity;
+static int hf_ptp_v2_sig_targetportid;
+static int hf_ptp_v2_sig_tlv_tlvType;
+static int hf_ptp_v2_sig_tlv_lengthField;
+static int hf_ptp_v2_sig_tlv_data;
+static int hf_ptp_v2_sig_tlv_messageType;
+static int hf_ptp_v2_sig_tlv_logInterMessagePeriod;
+static int hf_ptp_v2_sig_tlv_logInterMessagePeriod_period;
+static int hf_ptp_v2_sig_tlv_logInterMessagePeriod_rate;
+static int hf_ptp_v2_sig_tlv_durationField;
+static int hf_ptp_v2_sig_tlv_renewalInvited;
 
 /* Fields for the Message Interval Request TLV */
-static int hf_ptp_as_sig_tlv_tlvtype = -1;
-static int hf_ptp_as_sig_tlv_lengthfield = -1;
-static int hf_ptp_as_sig_tlv_organization_id = -1;
-static int hf_ptp_as_sig_tlv_organization_subtype = -1;
-static int hf_ptp_as_sig_tlv_link_delay_interval = -1;
-static int hf_ptp_as_sig_tlv_time_sync_interval = -1;
-static int hf_ptp_as_sig_tlv_announce_interval = -1;
-static int hf_ptp_as_sig_tlv_flags = -1;
-static int hf_ptp_as_sig_tlv_flags_comp_rate_ratio = -1;
-static int hf_ptp_as_sig_tlv_flags_comp_mean_link_delay = -1;
-static int hf_ptp_as_sig_tlv_flags_one_step_receive_capable = -1;
-static int hf_ptp_as_sig_tlv_gptp_capable_message_interval = -1;
+static int hf_ptp_as_sig_tlv_tlvtype;
+static int hf_ptp_as_sig_tlv_lengthfield;
+static int hf_ptp_as_sig_tlv_organization_id;
+static int hf_ptp_as_sig_tlv_organization_subtype;
+static int hf_ptp_as_sig_tlv_link_delay_interval;
+static int hf_ptp_as_sig_tlv_time_sync_interval;
+static int hf_ptp_as_sig_tlv_announce_interval;
+static int hf_ptp_as_sig_tlv_flags;
+static int hf_ptp_as_sig_tlv_flags_comp_rate_ratio;
+static int hf_ptp_as_sig_tlv_flags_comp_mean_link_delay;
+static int hf_ptp_as_sig_tlv_flags_one_step_receive_capable;
+static int hf_ptp_as_sig_tlv_gptp_capable_message_interval;
 
 /* Fields for L1SYNC TLV */
-static int hf_ptp_v2_sig_tlv_flags2 = -1;
-static int hf_ptp_v2_sig_tlv_flags3 = -1;
-static int hf_ptp_v2_sig_tlv_l1sync_flags2_reserved = -1;
-static int hf_ptp_v2_sig_tlv_l1sync_flags3_reserved = -1;
-static int hf_ptp_v2_sig_tlv_l1sync_flags2_tcr = -1;
-static int hf_ptp_v2_sig_tlv_l1sync_flags3_tcr = -1;
-static int hf_ptp_v2_sig_tlv_l1sync_flags2_rcr = -1;
-static int hf_ptp_v2_sig_tlv_l1sync_flags3_rcr = -1;
-static int hf_ptp_v2_sig_tlv_l1sync_flags2_cr = -1;
-static int hf_ptp_v2_sig_tlv_l1sync_flags3_cr = -1;
-static int hf_ptp_v2_sig_tlv_l1sync_flags2_ope = -1;
-static int hf_ptp_v2_sig_tlv_l1sync_flags3_ope = -1;
-static int hf_ptp_v2_sig_tlv_l1sync_flags2_itc = -1;
-static int hf_ptp_v2_sig_tlv_l1sync_flags3_itc = -1;
-static int hf_ptp_v2_sig_tlv_l1sync_flags2_irc = -1;
-static int hf_ptp_v2_sig_tlv_l1sync_flags3_irc = -1;
-static int hf_ptp_v2_sig_tlv_l1sync_flags2_ic = -1;
-static int hf_ptp_v2_sig_tlv_l1sync_flags3_ic = -1;
-static int hf_ptp_v2_sig_tlv_l1sync_flags3_tct = -1;
-static int hf_ptp_v2_sig_tlv_l1sync_flags3_pov = -1;
-static int hf_ptp_v2_sig_tlv_l1sync_flags3_fov = -1;
-static int hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTx_ns = -1;
-static int hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTx_subns = -1;
-static int hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTxTimestamp_s = -1;
-static int hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTxTimestamp_ns = -1;
-static int hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTx_ns = -1;
-static int hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTx_subns = -1;
-static int hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTxTimestamp_s = -1;
-static int hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTxTimestamp_ns = -1;
+static int hf_ptp_v2_sig_tlv_flags2;
+static int hf_ptp_v2_sig_tlv_flags3;
+static int hf_ptp_v2_sig_tlv_l1sync_flags2_reserved;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_reserved;
+static int hf_ptp_v2_sig_tlv_l1sync_flags2_tcr;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_tcr;
+static int hf_ptp_v2_sig_tlv_l1sync_flags2_rcr;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_rcr;
+static int hf_ptp_v2_sig_tlv_l1sync_flags2_cr;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_cr;
+static int hf_ptp_v2_sig_tlv_l1sync_flags2_ope;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_ope;
+static int hf_ptp_v2_sig_tlv_l1sync_flags2_itc;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_itc;
+static int hf_ptp_v2_sig_tlv_l1sync_flags2_irc;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_irc;
+static int hf_ptp_v2_sig_tlv_l1sync_flags2_ic;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_ic;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_tct;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_pov;
+static int hf_ptp_v2_sig_tlv_l1sync_flags3_fov;
+static int hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTx_ns;
+static int hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTx_subns;
+static int hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTxTimestamp_s;
+static int hf_ptp_v2_sig_tlv_l1syncext_phaseOffsetTxTimestamp_ns;
+static int hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTx_ns;
+static int hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTx_subns;
+static int hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTxTimestamp_s;
+static int hf_ptp_v2_sig_tlv_l1syncext_freqOffsetTxTimestamp_ns;
 
 /* Fields for CERN White Rabbit TLV (OE TLV subtype) */
-static int hf_ptp_v2_sig_oe_tlv_cern_subtype = -1;
-static int hf_ptp_v2_sig_oe_tlv_cern_wrMessageID = -1;
+static int hf_ptp_v2_sig_oe_tlv_cern_subtype;
+static int hf_ptp_v2_sig_oe_tlv_cern_wrMessageID;
 
-static int hf_ptp_v2_sig_oe_tlv_cern_calSendPattern = -1;
-static int hf_ptp_v2_sig_oe_tlv_cern_calRety = -1;
-static int hf_ptp_v2_sig_oe_tlv_cern_calPeriod = -1;
-static int hf_ptp_v2_sig_oe_tlv_cern_deltaTx = -1;
-static int hf_ptp_v2_sig_oe_tlv_cern_deltaRx = -1;
+static int hf_ptp_v2_sig_oe_tlv_cern_calSendPattern;
+static int hf_ptp_v2_sig_oe_tlv_cern_calRety;
+static int hf_ptp_v2_sig_oe_tlv_cern_calPeriod;
+static int hf_ptp_v2_sig_oe_tlv_cern_deltaTx;
+static int hf_ptp_v2_sig_oe_tlv_cern_deltaRx;
 
-static int hf_ptp_v2_sig_oe_tlv_itut_subtype = -1;
-static int hf_ptp_v2_sig_tlv_interface_bit_period = -1;
-static int hf_ptp_v2_sig_tlv_numberbits_before_timestamp = -1;
-static int hf_ptp_v2_sig_tlv_numberbits_after_timestamp = -1;
+static int hf_ptp_v2_sig_oe_tlv_itut_subtype;
+static int hf_ptp_v2_sig_tlv_interface_bit_period;
+static int hf_ptp_v2_sig_tlv_numberbits_before_timestamp;
+static int hf_ptp_v2_sig_tlv_numberbits_after_timestamp;
 
 /* Fields for PTP_Management (=mm) messages */
-static int hf_ptp_v2_mm_targetportidentity = -1;
-static int hf_ptp_v2_mm_targetportid = -1;
-static int hf_ptp_v2_mm_startingboundaryhops = -1;
-static int hf_ptp_v2_mm_boundaryhops = -1;
-static int hf_ptp_v2_mm_action = -1;
+static int hf_ptp_v2_mm_targetportidentity;
+static int hf_ptp_v2_mm_targetportid;
+static int hf_ptp_v2_mm_startingboundaryhops;
+static int hf_ptp_v2_mm_boundaryhops;
+static int hf_ptp_v2_mm_action;
 
 /* management TLV */
-static int hf_ptp_v2_mm_tlvType = -1;
-static int hf_ptp_v2_mm_lengthField = -1;
-static int hf_ptp_v2_mm_managementId = -1;
-static int hf_ptp_v2_mm_data = -1;
+static int hf_ptp_v2_mm_tlvType;
+static int hf_ptp_v2_mm_lengthField;
+static int hf_ptp_v2_mm_managementId;
+static int hf_ptp_v2_mm_data;
 /* Management dataField  */
 
-static int hf_ptp_v2_mm_clockType = -1;
-static int hf_ptp_v2_mm_clockType_ordinaryClock = -1;
-static int hf_ptp_v2_mm_clockType_boundaryClock = -1;
-static int hf_ptp_v2_mm_clockType_p2p_transparentClock = -1;
-static int hf_ptp_v2_mm_clockType_e2e_transparentClock = -1;
-static int hf_ptp_v2_mm_clockType_managementNode = -1;
-static int hf_ptp_v2_mm_clockType_reserved = -1;
-static int hf_ptp_v2_mm_physicalLayerProtocol = -1;
-static int hf_ptp_v2_mm_physicalLayerProtocol_length = -1;
-static int hf_ptp_v2_mm_physicalAddressLength = -1;
-static int hf_ptp_v2_mm_physicalAddress = -1;
-static int hf_ptp_v2_mm_protocolAddress = -1;
-static int hf_ptp_v2_mm_protocolAddress_networkProtocol = -1;
-static int hf_ptp_v2_mm_protocolAddress_length = -1;
-static int hf_ptp_v2_mm_manufacturerIdentity = -1;
+static int hf_ptp_v2_mm_clockType;
+static int hf_ptp_v2_mm_clockType_ordinaryClock;
+static int hf_ptp_v2_mm_clockType_boundaryClock;
+static int hf_ptp_v2_mm_clockType_p2p_transparentClock;
+static int hf_ptp_v2_mm_clockType_e2e_transparentClock;
+static int hf_ptp_v2_mm_clockType_managementNode;
+static int hf_ptp_v2_mm_clockType_reserved;
+static int hf_ptp_v2_mm_physicalLayerProtocol;
+static int hf_ptp_v2_mm_physicalLayerProtocol_length;
+static int hf_ptp_v2_mm_physicalAddressLength;
+static int hf_ptp_v2_mm_physicalAddress;
+static int hf_ptp_v2_mm_protocolAddress;
+static int hf_ptp_v2_mm_protocolAddress_networkProtocol;
+static int hf_ptp_v2_mm_protocolAddress_length;
+static int hf_ptp_v2_mm_manufacturerIdentity;
 
-static int hf_ptp_v2_mm_reserved = -1;
-static int hf_ptp_v2_mm_productDescription = -1;
-static int hf_ptp_v2_mm_productDescription_length = -1;
-static int hf_ptp_v2_mm_revisionData = -1;
-static int hf_ptp_v2_mm_revisionData_length = -1;
-static int hf_ptp_v2_mm_userDescription = -1;
-static int hf_ptp_v2_mm_userDescription_length = -1;
-static int hf_ptp_v2_mm_profileIdentity = -1;
-static int hf_ptp_v2_mm_pad = -1;
+static int hf_ptp_v2_mm_reserved;
+static int hf_ptp_v2_mm_productDescription;
+static int hf_ptp_v2_mm_productDescription_length;
+static int hf_ptp_v2_mm_revisionData;
+static int hf_ptp_v2_mm_revisionData_length;
+static int hf_ptp_v2_mm_userDescription;
+static int hf_ptp_v2_mm_userDescription_length;
+static int hf_ptp_v2_mm_profileIdentity;
+static int hf_ptp_v2_mm_pad;
 
-static int hf_ptp_v2_mm_numberOfFaultRecords = -1;
-/* static int hf_ptp_v2_mm_faultRecord = -1; */
+static int hf_ptp_v2_mm_numberOfFaultRecords;
+/* static int hf_ptp_v2_mm_faultRecord; */
 
-static int hf_ptp_v2_mm_initializationKey = -1;
-static int hf_ptp_v2_mm_severityCode = -1;
-static int hf_ptp_v2_mm_faultRecordLength = -1;
-/* static int hf_ptp_v2_mm_faultTime = -1; */
-static int hf_ptp_v2_mm_faultTime_s = -1;
-static int hf_ptp_v2_mm_faultTime_ns = -1;
-static int hf_ptp_v2_mm_faultValue = -1;
-static int hf_ptp_v2_mm_faultName = -1;
-static int hf_ptp_v2_mm_faultName_length = -1;
-static int hf_ptp_v2_mm_faultValue_length = -1;
-static int hf_ptp_v2_mm_faultDescription = -1;
-static int hf_ptp_v2_mm_faultDescription_length = -1;
-static int hf_ptp_v2_mm_currentTime_s = -1;
-static int hf_ptp_v2_mm_currentTime_ns = -1;
-static int hf_ptp_v2_mm_clockAccuracy = -1;
-static int hf_ptp_v2_mm_priority1 = -1;
-static int hf_ptp_v2_mm_priority2 = -1;
-static int hf_ptp_v2_mm_dds_SO = -1;
-static int hf_ptp_v2_mm_TSC = -1;
-static int hf_ptp_v2_mm_numberPorts = -1;
-static int hf_ptp_v2_mm_clockclass = -1;
-static int hf_ptp_v2_mm_clockaccuracy = -1;
-static int hf_ptp_v2_mm_clockvariance = -1;
-static int hf_ptp_v2_mm_clockidentity = -1;
-static int hf_ptp_v2_mm_domainNumber = -1;
-static int hf_ptp_v2_mm_SO = -1;
-static int hf_ptp_v2_mm_stepsRemoved = -1;
-static int hf_ptp_v2_mm_parentIdentity = -1;
-static int hf_ptp_v2_mm_parentPort = -1;
-static int hf_ptp_v2_mm_parentStats = -1;
-static int hf_ptp_v2_mm_observedParentOffsetScaledLogVariance = -1;
-static int hf_ptp_v2_mm_observedParentClockPhaseChangeRate = -1;
-static int hf_ptp_v2_mm_grandmasterPriority1 = -1;
-static int hf_ptp_v2_mm_grandmasterPriority2 = -1;
-static int hf_ptp_v2_mm_grandmasterclockclass = -1;
-static int hf_ptp_v2_mm_grandmasterclockaccuracy = -1;
-static int hf_ptp_v2_mm_grandmasterclockvariance = -1;
-static int hf_ptp_v2_mm_grandmasterIdentity = -1;
-static int hf_ptp_v2_mm_currentUtcOffset = -1;
-static int hf_ptp_v2_mm_LI_61 = -1;
-static int hf_ptp_v2_mm_LI_59 = -1;
-static int hf_ptp_v2_mm_UTCV = -1;
-static int hf_ptp_v2_mm_PTP = -1;
-static int hf_ptp_v2_mm_TTRA = -1;
-static int hf_ptp_v2_mm_FTRA = -1;
-static int hf_ptp_v2_mm_timesource = -1;
-static int hf_ptp_v2_mm_offset_ns = -1;
-static int hf_ptp_v2_mm_pathDelay_ns = -1;
-static int hf_ptp_v2_mm_offset_subns = -1;
-static int hf_ptp_v2_mm_pathDelay_subns = -1;
-static int hf_ptp_v2_mm_PortNumber = -1;
-static int hf_ptp_v2_mm_portState = -1;
-static int hf_ptp_v2_mm_logMinDelayReqInterval = -1;
-static int hf_ptp_v2_mm_peerMeanPathDelay_ns = -1;
-static int hf_ptp_v2_mm_peerMeanPathDelay_subns = -1;
-static int hf_ptp_v2_mm_logAnnounceInterval = -1;
-static int hf_ptp_v2_mm_announceReceiptTimeout = -1;
-static int hf_ptp_v2_mm_logSyncInterval = -1;
-static int hf_ptp_v2_mm_delayMechanism = -1;
-static int hf_ptp_v2_mm_logMinPdelayReqInterval = -1;
-static int hf_ptp_v2_mm_versionNumber = -1;
-static int hf_ptp_v2_mm_primaryDomain = -1;
-static int hf_ptp_v2_mm_faultyFlag = -1;
-static int hf_ptp_v2_mm_managementErrorId = -1;
-static int hf_ptp_v2_mm_displayData = -1;
-static int hf_ptp_v2_mm_displayData_length = -1;
-static int hf_ptp_v2_mm_ucEN = -1;
-static int hf_ptp_v2_mm_ptEN = -1;
-static int hf_ptp_v2_mm_atEN = -1;
-static int hf_ptp_v2_mm_keyField = -1;
-static int hf_ptp_v2_mm_displayName = -1;
-static int hf_ptp_v2_mm_displayName_length = -1;
-static int hf_ptp_v2_mm_maxKey = -1;
-static int hf_ptp_v2_mm_currentOffset = -1;
-static int hf_ptp_v2_mm_jumpSeconds = -1;
-static int hf_ptp_v2_mm_nextjumpSeconds = -1;
-static int hf_ptp_v2_mm_logAlternateMulticastSyncInterval = -1;
-static int hf_ptp_v2_mm_numberOfAlternateMasters = -1;
-static int hf_ptp_v2_mm_transmitAlternateMulticastSync = -1;
+static int hf_ptp_v2_mm_initializationKey;
+static int hf_ptp_v2_mm_severityCode;
+static int hf_ptp_v2_mm_faultRecordLength;
+/* static int hf_ptp_v2_mm_faultTime; */
+static int hf_ptp_v2_mm_faultTime_s;
+static int hf_ptp_v2_mm_faultTime_ns;
+static int hf_ptp_v2_mm_faultValue;
+static int hf_ptp_v2_mm_faultName;
+static int hf_ptp_v2_mm_faultName_length;
+static int hf_ptp_v2_mm_faultValue_length;
+static int hf_ptp_v2_mm_faultDescription;
+static int hf_ptp_v2_mm_faultDescription_length;
+static int hf_ptp_v2_mm_currentTime_s;
+static int hf_ptp_v2_mm_currentTime_ns;
+static int hf_ptp_v2_mm_clockAccuracy;
+static int hf_ptp_v2_mm_priority1;
+static int hf_ptp_v2_mm_priority2;
+static int hf_ptp_v2_mm_dds_SO;
+static int hf_ptp_v2_mm_TSC;
+static int hf_ptp_v2_mm_numberPorts;
+static int hf_ptp_v2_mm_clockclass;
+static int hf_ptp_v2_mm_clockaccuracy;
+static int hf_ptp_v2_mm_clockvariance;
+static int hf_ptp_v2_mm_clockidentity;
+static int hf_ptp_v2_mm_domainNumber;
+static int hf_ptp_v2_mm_SO;
+static int hf_ptp_v2_mm_stepsRemoved;
+static int hf_ptp_v2_mm_parentIdentity;
+static int hf_ptp_v2_mm_parentPort;
+static int hf_ptp_v2_mm_parentStats;
+static int hf_ptp_v2_mm_observedParentOffsetScaledLogVariance;
+static int hf_ptp_v2_mm_observedParentClockPhaseChangeRate;
+static int hf_ptp_v2_mm_grandmasterPriority1;
+static int hf_ptp_v2_mm_grandmasterPriority2;
+static int hf_ptp_v2_mm_grandmasterclockclass;
+static int hf_ptp_v2_mm_grandmasterclockaccuracy;
+static int hf_ptp_v2_mm_grandmasterclockvariance;
+static int hf_ptp_v2_mm_grandmasterIdentity;
+static int hf_ptp_v2_mm_currentUtcOffset;
+static int hf_ptp_v2_mm_LI_61;
+static int hf_ptp_v2_mm_LI_59;
+static int hf_ptp_v2_mm_UTCV;
+static int hf_ptp_v2_mm_PTP;
+static int hf_ptp_v2_mm_TTRA;
+static int hf_ptp_v2_mm_FTRA;
+static int hf_ptp_v2_mm_timesource;
+static int hf_ptp_v2_mm_offset_ns;
+static int hf_ptp_v2_mm_pathDelay_ns;
+static int hf_ptp_v2_mm_offset_subns;
+static int hf_ptp_v2_mm_pathDelay_subns;
+static int hf_ptp_v2_mm_PortNumber;
+static int hf_ptp_v2_mm_portState;
+static int hf_ptp_v2_mm_logMinDelayReqInterval;
+static int hf_ptp_v2_mm_peerMeanPathDelay_ns;
+static int hf_ptp_v2_mm_peerMeanPathDelay_subns;
+static int hf_ptp_v2_mm_logAnnounceInterval;
+static int hf_ptp_v2_mm_announceReceiptTimeout;
+static int hf_ptp_v2_mm_logSyncInterval;
+static int hf_ptp_v2_mm_delayMechanism;
+static int hf_ptp_v2_mm_logMinPdelayReqInterval;
+static int hf_ptp_v2_mm_versionNumber;
+static int hf_ptp_v2_mm_primaryDomain;
+static int hf_ptp_v2_mm_faultyFlag;
+static int hf_ptp_v2_mm_managementErrorId;
+static int hf_ptp_v2_mm_displayData;
+static int hf_ptp_v2_mm_displayData_length;
+static int hf_ptp_v2_mm_ucEN;
+static int hf_ptp_v2_mm_ptEN;
+static int hf_ptp_v2_mm_atEN;
+static int hf_ptp_v2_mm_keyField;
+static int hf_ptp_v2_mm_displayName;
+static int hf_ptp_v2_mm_displayName_length;
+static int hf_ptp_v2_mm_maxKey;
+static int hf_ptp_v2_mm_currentOffset;
+static int hf_ptp_v2_mm_jumpSeconds;
+static int hf_ptp_v2_mm_nextjumpSeconds;
+static int hf_ptp_v2_mm_logAlternateMulticastSyncInterval;
+static int hf_ptp_v2_mm_numberOfAlternateMasters;
+static int hf_ptp_v2_mm_transmitAlternateMulticastSync;
 
 /* Fields for analysis code*/
-static int hf_ptp_v2_analysis_sync_to_followup = -1;
-static int hf_ptp_v2_analysis_followup_to_sync = -1;
-static int hf_ptp_v2_analysis_pdelayreq_to_pdelayres = -1;
-static int hf_ptp_v2_analysis_pdelayres_to_pdelayreq = -1;
-static int hf_ptp_v2_analysis_pdelayres_to_pdelayfup = -1;
-static int hf_ptp_v2_analysis_pdelayfup_to_pdelayres = -1;
-static int hf_ptp_v2_analysis_sync_timestamp = -1;
-static int hf_ptp_v2_analysis_sync_timestamp_seconds = -1;
-static int hf_ptp_v2_analysis_sync_timestamp_nanoseconds = -1;
-static int hf_ptp_v2_analysis_sync_period = -1;
-static int hf_ptp_v2_analysis_sync_rateRatio = -1;
-static int hf_ptp_v2_analysis_sync_rateRatio_ppm = -1;
-static int hf_ptp_v2_analysis_pdelay_mpd_unscaled = -1;
-static int hf_ptp_v2_analysis_pdelay_mpd_unscaled_seconds = -1;
-static int hf_ptp_v2_analysis_pdelay_mpd_unscaled_nanoseconds = -1;
-static int hf_ptp_v2_analysis_pdelay_mpd_scaled = -1;
-static int hf_ptp_v2_analysis_pdelay_period = -1;
-static int hf_ptp_v2_analysis_pdelay_neighRateRatio = -1;
-static int hf_ptp_v2_analysis_pdelay_neighRateRatio_ppm = -1;
+static int hf_ptp_v2_analysis_sync_to_followup;
+static int hf_ptp_v2_analysis_followup_to_sync;
+static int hf_ptp_v2_analysis_pdelayreq_to_pdelayres;
+static int hf_ptp_v2_analysis_pdelayres_to_pdelayreq;
+static int hf_ptp_v2_analysis_pdelayres_to_pdelayfup;
+static int hf_ptp_v2_analysis_pdelayfup_to_pdelayres;
+static int hf_ptp_v2_analysis_sync_timestamp;
+static int hf_ptp_v2_analysis_sync_timestamp_seconds;
+static int hf_ptp_v2_analysis_sync_timestamp_nanoseconds;
+static int hf_ptp_v2_analysis_sync_period;
+static int hf_ptp_v2_analysis_sync_rateRatio;
+static int hf_ptp_v2_analysis_sync_rateRatio_ppm;
+static int hf_ptp_v2_analysis_pdelay_mpd_unscaled;
+static int hf_ptp_v2_analysis_pdelay_mpd_unscaled_seconds;
+static int hf_ptp_v2_analysis_pdelay_mpd_unscaled_nanoseconds;
+static int hf_ptp_v2_analysis_pdelay_mpd_scaled;
+static int hf_ptp_v2_analysis_pdelay_period;
+static int hf_ptp_v2_analysis_pdelay_neighRateRatio;
+static int hf_ptp_v2_analysis_pdelay_neighRateRatio_ppm;
 
 /* Initialize the subtree pointers */
-static gint ett_ptp_v2 = -1;
-static gint ett_ptp_v2_flags = -1;
-static gint ett_ptp_v2_clockidentity = -1;
-static gint ett_ptp_v2_correction = -1;
-static gint ett_ptp_v2_time = -1;
-static gint ett_ptp_v2_time2 = -1;
-static gint ett_ptp_v2_managementData = -1;
-static gint ett_ptp_v2_clockType = -1;
-static gint ett_ptp_v2_physicalLayerProtocol = -1;
-static gint ett_ptp_v2_protocolAddress = -1;
-static gint ett_ptp_v2_faultRecord = -1;
-static gint ett_ptp_v2_ptptext = -1;
-static gint ett_ptp_v2_timeInterval = -1;
-static gint ett_ptp_v2_tlv = -1;
-static gint ett_ptp_v2_tlv_log_period = -1;
-static gint ett_ptp_v2_sig_l1sync_flags = -1;
-static gint ett_ptp_as_sig_tlv_flags = -1;
-static gint ett_ptp_oe_wr_flags = -1;
-static gint ett_ptp_oe_smpte_data = -1;
-static gint ett_ptp_oe_smpte_framerate = -1;
-static gint ett_ptp_oe_smpte_timeaddress = -1;
-static gint ett_ptp_oe_smpte_daylightsaving = -1;
-static gint ett_ptp_oe_smpte_leapsecondjump = -1;
-static gint ett_ptp_analysis_timestamp = -1;
-static gint ett_ptp_analysis_mean_propagation_delay = -1;
+static gint ett_ptp_v2;
+static gint ett_ptp_v2_flags;
+static gint ett_ptp_v2_clockidentity;
+static gint ett_ptp_v2_correction;
+static gint ett_ptp_v2_time;
+static gint ett_ptp_v2_time2;
+static gint ett_ptp_v2_managementData;
+static gint ett_ptp_v2_clockType;
+static gint ett_ptp_v2_physicalLayerProtocol;
+static gint ett_ptp_v2_protocolAddress;
+static gint ett_ptp_v2_faultRecord;
+static gint ett_ptp_v2_ptptext;
+static gint ett_ptp_v2_timeInterval;
+static gint ett_ptp_v2_tlv;
+static gint ett_ptp_v2_tlv_log_period;
+static gint ett_ptp_v2_sig_l1sync_flags;
+static gint ett_ptp_as_sig_tlv_flags;
+static gint ett_ptp_oe_wr_flags;
+static gint ett_ptp_oe_smpte_data;
+static gint ett_ptp_oe_smpte_framerate;
+static gint ett_ptp_oe_smpte_timeaddress;
+static gint ett_ptp_oe_smpte_daylightsaving;
+static gint ett_ptp_oe_smpte_leapsecondjump;
+static gint ett_ptp_analysis_timestamp;
+static gint ett_ptp_analysis_mean_propagation_delay;
 
-/* static gint ett_ptp_v2_timesource = -1;
-static gint ett_ptp_v2_priority = -1; */
-static gint ett_ptp_v2_majorsdoid = -1;
+/* static gint ett_ptp_v2_timesource;
+static gint ett_ptp_v2_priority; */
+static gint ett_ptp_v2_majorsdoid;
 
-static expert_field ei_ptp_v2_msg_len_too_large = EI_INIT;
-static expert_field ei_ptp_v2_msg_len_too_small = EI_INIT;
-static expert_field ei_ptp_v2_sync_no_followup  = EI_INIT;
-static expert_field ei_ptp_v2_sync_no_fup_tlv   = EI_INIT;
-static expert_field ei_ptp_v2_followup_no_sync  = EI_INIT;
-static expert_field ei_ptp_v2_pdreq_no_pdresp   = EI_INIT;
-static expert_field ei_ptp_v2_pdresp_no_pdreq   = EI_INIT;
-static expert_field ei_ptp_v2_pdresp_no_pdfup   = EI_INIT;
-static expert_field ei_ptp_v2_pdresp_twostep    = EI_INIT;
-static expert_field ei_ptp_v2_pdfup_no_pdresp   = EI_INIT;
-static expert_field ei_ptp_v2_period_invalid    = EI_INIT;
+static expert_field ei_ptp_v2_msg_len_too_large;
+static expert_field ei_ptp_v2_msg_len_too_small;
+static expert_field ei_ptp_v2_sync_no_followup;
+static expert_field ei_ptp_v2_sync_no_fup_tlv;
+static expert_field ei_ptp_v2_followup_no_sync;
+static expert_field ei_ptp_v2_pdreq_no_pdresp;
+static expert_field ei_ptp_v2_pdresp_no_pdreq;
+static expert_field ei_ptp_v2_pdresp_no_pdfup;
+static expert_field ei_ptp_v2_pdresp_twostep;
+static expert_field ei_ptp_v2_pdfup_no_pdresp;
+static expert_field ei_ptp_v2_period_invalid;
 
 /* END Definitions and fields for PTPv2 dissection. */
 

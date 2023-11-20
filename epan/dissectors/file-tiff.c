@@ -20,33 +20,33 @@
 void proto_reg_handoff_tiff(void);
 void proto_register_tiff(void);
 
-static int proto_tiff = -1;
+static int proto_tiff;
 
 // Header fields
-static int hf_tiff_header_endianness = -1;
-static int hf_tiff_header_magic = -1;
-static int hf_tiff_header_lead_ifd = -1;
+static int hf_tiff_header_endianness;
+static int hf_tiff_header_magic;
+static int hf_tiff_header_lead_ifd;
 
 // IFD fields
-static int hf_tiff_ifd_count = -1;
-static int hf_tiff_ifd_next = -1;
+static int hf_tiff_ifd_count;
+static int hf_tiff_ifd_next;
 
 // Entry fields
-static int hf_tiff_entry_tag = -1;
-static int hf_tiff_entry_type = -1;
-static int hf_tiff_entry_count = -1;
-static int hf_tiff_entry_offset = -1;
-static int hf_tiff_entry_unknown = -1;
+static int hf_tiff_entry_tag;
+static int hf_tiff_entry_type;
+static int hf_tiff_entry_count;
+static int hf_tiff_entry_offset;
+static int hf_tiff_entry_unknown;
 
 // Expert fields
-static expert_field ei_tiff_unknown_tag = EI_INIT;
-static expert_field ei_tiff_bad_entry = EI_INIT;
-static expert_field ei_tiff_zero_denom = EI_INIT;
+static expert_field ei_tiff_unknown_tag;
+static expert_field ei_tiff_bad_entry;
+static expert_field ei_tiff_zero_denom;
 
 
-static gint ett_tiff = -1;
-static gint ett_ifd = -1;
-static gint ett_t6 = -1;
+static gint ett_tiff;
+static gint ett_ifd;
+static gint ett_t6;
 
 #define TIFF_TAG_NEW_SUBFILE_TYPE 254
 // Fields TBD
@@ -55,58 +55,58 @@ static gint ett_t6 = -1;
 // Fields TBD
 
 #define TIFF_TAG_IMAGE_WIDTH 256
-static int hf_tiff_image_width = -1;
+static int hf_tiff_image_width;
 
 #define TIFF_TAG_IMAGE_LENGTH 257
-static int hf_tiff_image_length = -1;
+static int hf_tiff_image_length;
 
 #define TIFF_TAG_BITS_PER_SAMPLE 258
-static int hf_tiff_bits_per_sample = -1;
+static int hf_tiff_bits_per_sample;
 
 #define TIFF_TAG_COMPRESSION 259
-static int hf_tiff_compression = -1;
+static int hf_tiff_compression;
 
 #define TIFF_TAG_PHOTOMETRIC_INTERPRETATION 262
-static int hf_tiff_photometric_interp = -1;
+static int hf_tiff_photometric_interp;
 
 #define TIFF_TAG_THRESHHOLDING 263
-static int hf_tiff_threshholding = -1;
+static int hf_tiff_threshholding;
 
 #define TIFF_TAG_CELL_WIDTH 264
-static int hf_tiff_cell_width = -1;
+static int hf_tiff_cell_width;
 
 #define TIFF_TAG_CELL_LENGTH 265
-static int hf_tiff_cell_length = -1;
+static int hf_tiff_cell_length;
 
 #define TIFF_TAG_FILL_ORDER 266
-static int hf_tiff_fill_order = -1;
+static int hf_tiff_fill_order;
 
 #define TIFF_TAG_DOCUMENT_NAME 269
-static int hf_tiff_document_name = -1;
+static int hf_tiff_document_name;
 
 #define TIFF_TAG_IMAGE_DESCRIPTION 270
-static int hf_tiff_image_description = -1;
+static int hf_tiff_image_description;
 
 #define TIFF_TAG_MAKE 271
-static int hf_tiff_make = -1;
+static int hf_tiff_make;
 
 #define TIFF_TAG_MODEL 272
-static int hf_tiff_model = -1;
+static int hf_tiff_model;
 
 #define TIFF_TAG_STRIP_OFFSETS 273
-static int hf_tiff_strip_offset = -1;
+static int hf_tiff_strip_offset;
 
 #define TIFF_TAG_ORIENTATION 274
-static int hf_tiff_orientation = -1;
+static int hf_tiff_orientation;
 
 #define TIFF_TAG_SAMPLES_PER_PIXEL 277
-static int hf_tiff_samples_per_pixel = -1;
+static int hf_tiff_samples_per_pixel;
 
 #define TIFF_TAG_ROWS_PER_STRIP 278
-static int hf_tiff_rows_per_strip = -1;
+static int hf_tiff_rows_per_strip;
 
 #define TIFF_TAG_STRIP_BYTE_COUNTS 279
-static int hf_tiff_strip_byte_count = -1;
+static int hf_tiff_strip_byte_count;
 
 #define TIFF_TAG_MIN_SAMPLE_VALUE 280
 // Fields TBD
@@ -115,20 +115,20 @@ static int hf_tiff_strip_byte_count = -1;
 // Fields TBD
 
 #define TIFF_TAG_X_RESOLUTION 282
-static int hf_tiff_x_res_numer = -1;
-static int hf_tiff_x_res_denom = -1;
-static int hf_tiff_x_res_approx = -1;
+static int hf_tiff_x_res_numer;
+static int hf_tiff_x_res_denom;
+static int hf_tiff_x_res_approx;
 
 #define TIFF_TAG_Y_RESOLUTION 283
-static int hf_tiff_y_res_numer = -1;
-static int hf_tiff_y_res_denom = -1;
-static int hf_tiff_y_res_approx = -1;
+static int hf_tiff_y_res_numer;
+static int hf_tiff_y_res_denom;
+static int hf_tiff_y_res_approx;
 
 #define TIFF_TAG_PLANAR_CONFIGURATION 284
-static int hf_tiff_planar_configuration = -1;
+static int hf_tiff_planar_configuration;
 
 #define TIFF_TAG_PAGE_NAME 285
-static int hf_tiff_page_name = -1;
+static int hf_tiff_page_name;
 
 #define TIFF_TAG_X_POSITION 286
 // Fields TBD
@@ -143,7 +143,7 @@ static int hf_tiff_page_name = -1;
 // Fields TBD
 
 #define TIFF_TAG_GRAY_RESPONSE_UNIT 290
-static int hf_tiff_gray_response_unit = -1;
+static int hf_tiff_gray_response_unit;
 
 #define TIFF_TAG_GRAY_RESPONSE_CURVE 291
 // Fields TBD
@@ -152,12 +152,12 @@ static int hf_tiff_gray_response_unit = -1;
 // Fields TBD
 
 #define TIFF_TAG_T6_OPTIONS 293
-static int hf_tiff_t6_options = -1;
-static int hf_tiff_t6_unused = -1;
-static int hf_tiff_t6_allow_uncompresed = -1;
+static int hf_tiff_t6_options;
+static int hf_tiff_t6_unused;
+static int hf_tiff_t6_allow_uncompresed;
 
 #define TIFF_TAG_RESOLUTION_UNIT 296
-static int hf_tiff_resolution_unit = -1;
+static int hf_tiff_resolution_unit;
 
 #define TIFF_TAG_PAGE_NUMBER 297
 // Fields TBD
@@ -166,19 +166,19 @@ static int hf_tiff_resolution_unit = -1;
 // Fields TBD
 
 #define TIFF_TAG_SOFTWARE 305
-static int hf_tiff_software = -1;
+static int hf_tiff_software;
 
 #define TIFF_TAG_DATE_TIME 306
-static int hf_tiff_date_time = -1;
+static int hf_tiff_date_time;
 
 #define TIFF_TAG_ARTIST 315
-static int hf_tiff_artist = -1;
+static int hf_tiff_artist;
 
 #define TIFF_TAG_HOST_COMPUTER 316
-static int hf_tiff_host_computer = -1;
+static int hf_tiff_host_computer;
 
 #define TIFF_TAG_PREDICTOR 317
-static int hf_tiff_predictor = -1;
+static int hf_tiff_predictor;
 
 #define TIFF_TAG_WHITE_POINT 318
 // Fields TBD
@@ -193,10 +193,10 @@ static int hf_tiff_predictor = -1;
 // Fields TBD
 
 #define TIFF_TAG_TILE_WIDTH 322
-static int hf_tiff_tile_width = -1;
+static int hf_tiff_tile_width;
 
 #define TIFF_TAG_TILE_LENGTH 323
-static int hf_tiff_tile_length = -1;
+static int hf_tiff_tile_length;
 
 #define TIFF_TAG_TILE_OFFSETS 324
 // Fields TBD
@@ -205,19 +205,19 @@ static int hf_tiff_tile_length = -1;
 // Fields TBD
 
 #define TIFF_TAG_INK_SET 332
-static int hf_tiff_ink_set = -1;
+static int hf_tiff_ink_set;
 
 #define TIFF_TAG_INK_NAMES 333
 // Fields TBD
 
 #define TIFF_TAG_NUMBER_OF_INKS 334
-static int hf_tiff_number_of_inks = -1;
+static int hf_tiff_number_of_inks;
 
 #define TIFF_TAG_DOT_RANGE 336
 // Fields TBD
 
 #define TIFF_TAG_TARGET_PRINTER 337
-static int hf_tiff_target_printer = -1;
+static int hf_tiff_target_printer;
 
 #define TIFF_TAG_EXTRA_SAMPLES 338
 // Fields TBD
@@ -274,7 +274,7 @@ static int hf_tiff_target_printer = -1;
 // Fields TBD
 
 #define TIFF_TAG_COPYRIGHT 0x8298
-static int hf_tiff_copyright = -1;
+static int hf_tiff_copyright;
 
 static const value_string tiff_endianness_names[] = {
     { 0x4949, "Little-Endian" },

@@ -36,44 +36,44 @@
 void proto_register_btmesh_pbadv(void);
 void proto_reg_handoff_btmesh_pbadv(void);
 
-static int proto_btmesh_pbadv = -1;
+static int proto_btmesh_pbadv;
 
 static dissector_handle_t btmesh_provisioning_handle;
 
-static int hf_btmesh_pbadv_linkid = -1;
-static int hf_btmesh_pbadv_trnumber = -1;
+static int hf_btmesh_pbadv_linkid;
+static int hf_btmesh_pbadv_trnumber;
 
-static int hf_btmesh_generic_provisioning_control_format = -1;
-static int hf_btmesh_gpcf_segn = -1;
-static int hf_btmesh_gpcf_total_length = -1;
+static int hf_btmesh_generic_provisioning_control_format;
+static int hf_btmesh_gpcf_segn;
+static int hf_btmesh_gpcf_total_length;
 //TODO - check FCS
-static int hf_btmesh_gpcf_fcs = -1;
-static int hf_btmesh_gpcf_padding = -1;
-static int hf_btmesh_gpcf_segment_index = -1;
-static int hf_btmesh_gpcf_bearer_opcode = -1;
-static int hf_btmesh_gpcf_bearer_opcode_device_UUID = -1;
-static int hf_btmesh_gpcf_bearer_opcode_reason = -1;
-static int hf_btmesh_gpcf_bearer_unknown_data = -1;
+static int hf_btmesh_gpcf_fcs;
+static int hf_btmesh_gpcf_padding;
+static int hf_btmesh_gpcf_segment_index;
+static int hf_btmesh_gpcf_bearer_opcode;
+static int hf_btmesh_gpcf_bearer_opcode_device_UUID;
+static int hf_btmesh_gpcf_bearer_opcode_reason;
+static int hf_btmesh_gpcf_bearer_unknown_data;
 
-static int hf_btmesh_gpp_payload = -1;
-static int hf_btmesh_gpp_payload_fragment = -1;
-static int hf_btmesh_gpp_fragments = -1;
-static int hf_btmesh_gpp_fragment = -1;
-static int hf_btmesh_gpp_fragment_overlap = -1;
-static int hf_btmesh_gpp_fragment_overlap_conflict = -1;
-static int hf_btmesh_gpp_fragment_multiple_tails = -1;
-static int hf_btmesh_gpp_fragment_too_long_fragment = -1;
-static int hf_btmesh_gpp_fragment_error = -1;
-static int hf_btmesh_gpp_fragment_count = -1;
-static int hf_btmesh_gpp_reassembled_length = -1;
+static int hf_btmesh_gpp_payload;
+static int hf_btmesh_gpp_payload_fragment;
+static int hf_btmesh_gpp_fragments;
+static int hf_btmesh_gpp_fragment;
+static int hf_btmesh_gpp_fragment_overlap;
+static int hf_btmesh_gpp_fragment_overlap_conflict;
+static int hf_btmesh_gpp_fragment_multiple_tails;
+static int hf_btmesh_gpp_fragment_too_long_fragment;
+static int hf_btmesh_gpp_fragment_error;
+static int hf_btmesh_gpp_fragment_count;
+static int hf_btmesh_gpp_reassembled_length;
 
-static int ett_btmesh_pbadv = -1;
-static int ett_btmesh_generic_provisioning = -1;
-static int ett_btmesh_gpp_fragments = -1;
-static int ett_btmesh_gpp_fragment = -1;
+static int ett_btmesh_pbadv;
+static int ett_btmesh_generic_provisioning;
+static int ett_btmesh_gpp_fragments;
+static int ett_btmesh_gpp_fragment;
 
-static expert_field ei_btmesh_gpcf_unknown_opcode = EI_INIT;
-static expert_field ei_btmesh_gpcf_unknown_payload = EI_INIT;
+static expert_field ei_btmesh_gpcf_unknown_opcode;
+static expert_field ei_btmesh_gpcf_unknown_payload;
 
 static const fragment_items btmesh_gpp_frag_items = {
     &ett_btmesh_gpp_fragments,

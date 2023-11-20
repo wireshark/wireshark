@@ -39,52 +39,52 @@ void proto_register_msproxy(void);
 void proto_reg_handoff_msproxy(void);
 
 
-static int proto_msproxy = -1;
+static int proto_msproxy;
 
-static int ett_msproxy = -1;
-static int ett_msproxy_name = -1;
+static int ett_msproxy;
+static int ett_msproxy_name;
 
-static int hf_msproxy_cmd = -1;
-static int hf_msproxy_clntport = -1;
+static int hf_msproxy_cmd;
+static int hf_msproxy_clntport;
 
-static int hf_msproxy_dstaddr = -1;
+static int hf_msproxy_dstaddr;
 
-/* static int hf_msproxy_srcport = -1; */
-static int hf_msproxy_dstport = -1;
-static int hf_msproxy_serverport = -1;
-static int hf_msproxy_serveraddr = -1;
-static int hf_msproxy_bindport = -1;
-static int hf_msproxy_bindaddr = -1;
-static int hf_msproxy_boundport = -1;
-static int hf_msproxy_bind_id = -1;
-static int hf_msproxy_resolvaddr = -1;
+/* static int hf_msproxy_srcport; */
+static int hf_msproxy_dstport;
+static int hf_msproxy_serverport;
+static int hf_msproxy_serveraddr;
+static int hf_msproxy_bindport;
+static int hf_msproxy_bindaddr;
+static int hf_msproxy_boundport;
+static int hf_msproxy_bind_id;
+static int hf_msproxy_resolvaddr;
 
-static int hf_msproxy_client_id = -1;
-static int hf_msproxy_version = -1;
-static int hf_msproxy_server_id = -1;
-static int hf_msproxy_server_ack = -1;
-static int hf_msproxy_client_ack = -1;
-static int hf_msproxy_seq_num = -1;
-static int hf_msproxy_rwsp_signature = -1;
-static int hf_msproxy_ntlmssp_signature = -1;
+static int hf_msproxy_client_id;
+static int hf_msproxy_version;
+static int hf_msproxy_server_id;
+static int hf_msproxy_server_ack;
+static int hf_msproxy_client_ack;
+static int hf_msproxy_seq_num;
+static int hf_msproxy_rwsp_signature;
+static int hf_msproxy_ntlmssp_signature;
 
-static int hf_msproxy_server_int_addr = -1;
-static int hf_msproxy_server_int_port = -1;
-static int hf_msproxy_server_ext_addr = -1;
-static int hf_msproxy_server_ext_port = -1;
+static int hf_msproxy_server_int_addr;
+static int hf_msproxy_server_int_port;
+static int hf_msproxy_server_ext_addr;
+static int hf_msproxy_server_ext_port;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_msproxy_host_name = -1;
-static int hf_msproxy_address_offset = -1;
-static int hf_msproxy_client_computer_name = -1;
-static int hf_msproxy_nt_domain = -1;
-static int hf_msproxy_req_resolve_length = -1;
-static int hf_msproxy_application_name = -1;
-static int hf_msproxy_user_name = -1;
-static int hf_msproxy_application = -1;
+static int hf_msproxy_host_name;
+static int hf_msproxy_address_offset;
+static int hf_msproxy_client_computer_name;
+static int hf_msproxy_nt_domain;
+static int hf_msproxy_req_resolve_length;
+static int hf_msproxy_application_name;
+static int hf_msproxy_user_name;
+static int hf_msproxy_application;
 
-static expert_field ei_msproxy_unknown = EI_INIT;
-static expert_field ei_msproxy_unhandled = EI_INIT;
+static expert_field ei_msproxy_unknown;
+static expert_field ei_msproxy_unhandled;
 
 static dissector_handle_t msproxy_sub_handle;
 

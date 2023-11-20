@@ -27,50 +27,50 @@ void proto_register_bfcp(void);
 void proto_reg_handoff_bfcp(void);
 
 /* Initialize protocol and registered fields */
-static int proto_bfcp = -1;
+static int proto_bfcp;
 
-static int hf_bfcp_version = -1;
-static int hf_bfcp_hdr_r_bit = -1;
-static int hf_bfcp_hdr_f_bit = -1;
-static int hf_bfcp_primitive = -1;
-static int hf_bfcp_payload_length = -1;
-static int hf_bfcp_conference_id = -1;
-static int hf_bfcp_transaction_id = -1;
-static int hf_bfcp_user_id = -1;
-static int hf_bfcp_fragment_offset = -1;
-static int hf_bfcp_fragment_length = -1;
-static int hf_bfcp_payload = -1;
-static int hf_bfcp_attribute_types = -1;
-static int hf_bfcp_attribute_types_m_bit = -1;
-static int hf_bfcp_attribute_length = -1;
-static int hf_bfcp_beneficiary_id = -1;
-static int hf_bfcp_floor_id = -1;
-static int hf_bfcp_floor_request_id = -1;
-static int hf_bfcp_priority = -1;
-static int hf_bfcp_request_status = -1;
-static int hf_bfcp_queue_pos = -1;
-static int hf_bfcp_error_code = -1;
-static int hf_bfcp_error_info_text = -1;
-static int hf_bfcp_part_prov_info_text = -1;
-static int hf_bfcp_status_info_text = -1;
-static int hf_bfcp_supp_attr = -1;
-static int hf_bfcp_supp_prim = -1;
-static int hf_bfcp_user_disp_name = -1;
-static int hf_bfcp_user_uri = -1;
-static int hf_bfcp_req_by_id = -1;
-static int hf_bfcp_padding = -1;
-static int hf_bfcp_error_specific_details = -1;
+static int hf_bfcp_version;
+static int hf_bfcp_hdr_r_bit;
+static int hf_bfcp_hdr_f_bit;
+static int hf_bfcp_primitive;
+static int hf_bfcp_payload_length;
+static int hf_bfcp_conference_id;
+static int hf_bfcp_transaction_id;
+static int hf_bfcp_user_id;
+static int hf_bfcp_fragment_offset;
+static int hf_bfcp_fragment_length;
+static int hf_bfcp_payload;
+static int hf_bfcp_attribute_types;
+static int hf_bfcp_attribute_types_m_bit;
+static int hf_bfcp_attribute_length;
+static int hf_bfcp_beneficiary_id;
+static int hf_bfcp_floor_id;
+static int hf_bfcp_floor_request_id;
+static int hf_bfcp_priority;
+static int hf_bfcp_request_status;
+static int hf_bfcp_queue_pos;
+static int hf_bfcp_error_code;
+static int hf_bfcp_error_info_text;
+static int hf_bfcp_part_prov_info_text;
+static int hf_bfcp_status_info_text;
+static int hf_bfcp_supp_attr;
+static int hf_bfcp_supp_prim;
+static int hf_bfcp_user_disp_name;
+static int hf_bfcp_user_uri;
+static int hf_bfcp_req_by_id;
+static int hf_bfcp_padding;
+static int hf_bfcp_error_specific_details;
 /* BFCP setup fields */
-static int hf_bfcp_setup        = -1;
-static int hf_bfcp_setup_frame  = -1;
-static int hf_bfcp_setup_method = -1;
+static int hf_bfcp_setup;
+static int hf_bfcp_setup_frame;
+static int hf_bfcp_setup_method;
 
 /* Initialize subtree pointers */
-static gint ett_bfcp = -1;
-static gint ett_bfcp_setup = -1;
-static gint ett_bfcp_attr = -1;
+static gint ett_bfcp;
+static gint ett_bfcp_setup;
+static gint ett_bfcp_attr;
 
-static expert_field ei_bfcp_attribute_length_too_small = EI_INIT;
+static expert_field ei_bfcp_attribute_length_too_small;
 
 static dissector_handle_t bfcp_handle;
 

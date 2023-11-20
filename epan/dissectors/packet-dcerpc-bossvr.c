@@ -22,11 +22,11 @@ void proto_register_dcerpc_bossvr(void);
 void proto_reg_handoff_dcerpc_bossvr(void);
 
 
-static int proto_bossvr = -1;
-static int hf_bossvr_opnum = -1;
+static int proto_bossvr;
+static int hf_bossvr_opnum;
 
 
-static gint ett_bossvr = -1;
+static gint ett_bossvr;
 
 
 static e_guid_t uuid_bossvr = { 0x4d37f2dd, 0xed43, 0x0000, { 0x02, 0xc0, 0x37, 0xcf, 0x1e, 0x00, 0x00, 0x01 } };

@@ -19,30 +19,30 @@
 
 #include "packet-btsdp.h"
 
-static int proto_btmcap = -1;
+static int proto_btmcap;
 
-static int hf_btmcap_op_code                                               = -1;
-static int hf_btmcap_response_code                                         = -1;
-static int hf_btmcap_mdl_id                                                = -1;
-static int hf_btmcap_mdep_id                                               = -1;
-static int hf_btmcap_response_parameters                                   = -1;
-static int hf_btmcap_configuration                                         = -1;
-static int hf_btmcap_timestamp_required_accuracy                           = -1;
-static int hf_btmcap_timestamp_update_information                          = -1;
-static int hf_btmcap_bluetooth_clock_sync_time                             = -1;
-static int hf_btmcap_timestamp_sync_time                                   = -1;
-static int hf_btmcap_timestamp_sample_accuracy                             = -1;
-static int hf_btmcap_bluetooth_clock_access_resolution                     = -1;
-static int hf_btmcap_sync_lead_time                                        = -1;
-static int hf_btmcap_timestamp_native_resolution                           = -1;
-static int hf_btmcap_timestamp_native_accuracy                             = -1;
-static int hf_btmcap_data                                                  = -1;
+static int hf_btmcap_op_code;
+static int hf_btmcap_response_code;
+static int hf_btmcap_mdl_id;
+static int hf_btmcap_mdep_id;
+static int hf_btmcap_response_parameters;
+static int hf_btmcap_configuration;
+static int hf_btmcap_timestamp_required_accuracy;
+static int hf_btmcap_timestamp_update_information;
+static int hf_btmcap_bluetooth_clock_sync_time;
+static int hf_btmcap_timestamp_sync_time;
+static int hf_btmcap_timestamp_sample_accuracy;
+static int hf_btmcap_bluetooth_clock_access_resolution;
+static int hf_btmcap_sync_lead_time;
+static int hf_btmcap_timestamp_native_resolution;
+static int hf_btmcap_timestamp_native_accuracy;
+static int hf_btmcap_data;
 
-static gint ett_btmcap = -1;
+static gint ett_btmcap;
 
-static expert_field ei_btmcap_mdl_id_ffff = EI_INIT;
-static expert_field ei_btmcap_response_parameters_bad = EI_INIT;
-static expert_field ei_btmcap_unexpected_data = EI_INIT;
+static expert_field ei_btmcap_mdl_id_ffff;
+static expert_field ei_btmcap_response_parameters_bad;
+static expert_field ei_btmcap_unexpected_data;
 
 static dissector_handle_t btmcap_handle;
 

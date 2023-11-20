@@ -44,42 +44,42 @@ void proto_register_fcsp(void);
 #define FC_AUTH_DHCHAP_PARAM_DHgIDLIST 0x2
 
 /* Initialize the protocol and registered fields */
-static int proto_fcsp = -1;
-static int hf_auth_proto_ver = -1;
-static int hf_auth_msg_code = -1;
-static int hf_auth_flags = -1;
-static int hf_auth_len = -1;
-static int hf_auth_tid = -1;
-static int hf_auth_initiator_wwn = -1;
-static int hf_auth_initiator_name = -1;
-static int hf_auth_usable_proto = -1;
-static int hf_auth_rjt_code = -1;
-static int hf_auth_rjt_codedet = -1;
-static int hf_auth_responder_wwn = -1;
-static int hf_auth_responder_name = -1;
-/* static int hf_auth_dhchap_groupid = -1; */
-/* static int hf_auth_dhchap_hashid = -1; */
-static int hf_auth_dhchap_chal_len = -1;
-static int hf_auth_dhchap_val_len = -1;
-static int hf_auth_dhchap_rsp_len  = -1;
-static int hf_auth_initiator_name_type = -1;
-static int hf_auth_initiator_name_len = -1;
-static int hf_auth_responder_name_len = -1;
-static int hf_auth_responder_name_type = -1;
-static int hf_auth_proto_type = -1;
-static int hf_auth_proto_param_len = -1;
-static int hf_auth_dhchap_param_tag = -1;
-static int hf_auth_dhchap_param_len = -1;
-static int hf_auth_dhchap_hash_type = -1;
-static int hf_auth_dhchap_group_type = -1;
-static int hf_auth_dhchap_dhvalue = -1;
-static int hf_auth_dhchap_chal_value = -1;
-static int hf_auth_dhchap_rsp_value = -1;
+static int proto_fcsp;
+static int hf_auth_proto_ver;
+static int hf_auth_msg_code;
+static int hf_auth_flags;
+static int hf_auth_len;
+static int hf_auth_tid;
+static int hf_auth_initiator_wwn;
+static int hf_auth_initiator_name;
+static int hf_auth_usable_proto;
+static int hf_auth_rjt_code;
+static int hf_auth_rjt_codedet;
+static int hf_auth_responder_wwn;
+static int hf_auth_responder_name;
+/* static int hf_auth_dhchap_groupid; */
+/* static int hf_auth_dhchap_hashid; */
+static int hf_auth_dhchap_chal_len;
+static int hf_auth_dhchap_val_len;
+static int hf_auth_dhchap_rsp_len;
+static int hf_auth_initiator_name_type;
+static int hf_auth_initiator_name_len;
+static int hf_auth_responder_name_len;
+static int hf_auth_responder_name_type;
+static int hf_auth_proto_type;
+static int hf_auth_proto_param_len;
+static int hf_auth_dhchap_param_tag;
+static int hf_auth_dhchap_param_len;
+static int hf_auth_dhchap_hash_type;
+static int hf_auth_dhchap_group_type;
+static int hf_auth_dhchap_dhvalue;
+static int hf_auth_dhchap_chal_value;
+static int hf_auth_dhchap_rsp_value;
 
 /* Initialize the subtree pointers */
-static gint ett_fcsp = -1;
+static gint ett_fcsp;
 
-static expert_field ei_auth_fcap_undecoded = EI_INIT;
+static expert_field ei_auth_fcap_undecoded;
 
 static const value_string fcauth_msgcode_vals[] = {
     {FC_AUTH_MSG_AUTH_REJECT,    "AUTH_Reject"},

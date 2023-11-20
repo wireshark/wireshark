@@ -37,55 +37,55 @@
 void proto_register_erspan(void);
 void proto_reg_handoff_erspan(void);
 
-static int proto_erspan = -1;
+static int proto_erspan;
 
-static gint ett_erspan = -1;
+static gint ett_erspan;
 
-static int hf_erspan_version = -1;
-static int hf_erspan_vlan = -1;
-static int hf_erspan_cos = -1;
-static int hf_erspan_encap = -1;
-static int hf_erspan_truncated = -1;
-static int hf_erspan_spanid = -1;
-static int hf_erspan_reserved = -1;
-static int hf_erspan_index = -1;
-static int hf_erspan_timestamp = -1;
-static int hf_erspan_direction = -1;
+static int hf_erspan_version;
+static int hf_erspan_vlan;
+static int hf_erspan_cos;
+static int hf_erspan_encap;
+static int hf_erspan_truncated;
+static int hf_erspan_spanid;
+static int hf_erspan_reserved;
+static int hf_erspan_index;
+static int hf_erspan_timestamp;
+static int hf_erspan_direction;
 
-static int hf_erspan_bso = -1;
-static int hf_erspan_sgt = -1;
-static int hf_erspan_p = -1;
-static int hf_erspan_ft = -1;
-static int hf_erspan_hw = -1;
-static int hf_erspan_gra = -1;
-static int hf_erspan_o = -1;
+static int hf_erspan_bso;
+static int hf_erspan_sgt;
+static int hf_erspan_p;
+static int hf_erspan_ft;
+static int hf_erspan_hw;
+static int hf_erspan_gra;
+static int hf_erspan_o;
 
 /* Optional Sub-header */
-static int hf_erspan_platid = -1;
+static int hf_erspan_platid;
 /* Platform ID = 1 */
-static int hf_erspan_pid1_rsvd1 = -1;
-static int hf_erspan_pid1_domain_id = -1;
-static int hf_erspan_pid1_port_index = -1;
+static int hf_erspan_pid1_rsvd1;
+static int hf_erspan_pid1_domain_id;
+static int hf_erspan_pid1_port_index;
 /* Platform ID = 3 */
-static int hf_erspan_pid3_rsvd1 = -1;
-static int hf_erspan_pid3_port_index = -1;
-static int hf_erspan_pid3_timestamp = -1;
+static int hf_erspan_pid3_rsvd1;
+static int hf_erspan_pid3_port_index;
+static int hf_erspan_pid3_timestamp;
 /* Platform ID = 4 */
-static int hf_erspan_pid4_rsvd1 = -1;
-static int hf_erspan_pid4_rsvd2 = -1;
-static int hf_erspan_pid4_rsvd3 = -1;
+static int hf_erspan_pid4_rsvd1;
+static int hf_erspan_pid4_rsvd2;
+static int hf_erspan_pid4_rsvd3;
 /* Platform ID = 5 or 6 */
-static int hf_erspan_pid5_switchid = -1;
-static int hf_erspan_pid5_port_index = -1;
-static int hf_erspan_pid5_timestamp = -1;
+static int hf_erspan_pid5_switchid;
+static int hf_erspan_pid5_port_index;
+static int hf_erspan_pid5_timestamp;
 /* Platform ID = 7 (or 0) */
-static int hf_erspan_pid7_rsvd1 = -1;
-static int hf_erspan_pid7_source_index = -1;
-static int hf_erspan_pid7_timestamp = -1;
+static int hf_erspan_pid7_rsvd1;
+static int hf_erspan_pid7_source_index;
+static int hf_erspan_pid7_timestamp;
 /* ID: 0x0, 0x2, 0x8-0x63 are reserved. */
-static int hf_erspan_pid_rsvd = -1;
+static int hf_erspan_pid_rsvd;
 
-static expert_field ei_erspan_version_unknown = EI_INIT;
+static expert_field ei_erspan_version_unknown;
 
 #define PROTO_SHORT_NAME "ERSPAN"
 #define PROTO_LONG_NAME "Encapsulated Remote Switch Packet ANalysis"

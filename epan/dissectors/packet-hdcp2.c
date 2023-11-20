@@ -27,38 +27,38 @@
 void proto_register_hdcp2(void);
 void proto_reg_handoff_hdcp2(void);
 
-static int proto_hdcp2 = -1;
+static int proto_hdcp2;
 
-static gint ett_hdcp2 = -1;
-static gint ett_hdcp2_cert = -1;
+static gint ett_hdcp2;
+static gint ett_hdcp2_cert;
 
-static int hf_hdcp2_msg_id = -1;
-static int hf_hdcp2_r_tx = -1;
-static int hf_hdcp2_repeater = -1;
-static int hf_hdcp2_cert_rcv_id = -1;
-static int hf_hdcp2_cert_n = -1;
-static int hf_hdcp2_cert_e = -1;
-static int hf_hdcp2_cert_rcv_sig = -1;
-static int hf_hdcp2_e_kpub_km = -1;
-static int hf_hdcp2_e_kh_km = -1;
-static int hf_hdcp2_m = -1;
-static int hf_hdcp2_r_rx = -1;
-static int hf_hdcp2_h_prime = -1;
-static int hf_hdcp2_r_n = -1;
-static int hf_hdcp2_l_prime = -1;
-static int hf_hdcp2_e_dkey_ks = -1;
-static int hf_hdcp2_r_iv = -1;
-static int hf_hdcp2_reserved = -1;
-static int hf_hdcp2_tx_length = -1;
-static int hf_hdcp2_tx_version = -1;
-static int hf_hdcp2_tx_loc_precompute = -1;
-static int hf_hdcp2_rx_length = -1;
-static int hf_hdcp2_rx_version = -1;
-static int hf_hdcp2_rx_loc_precompute = -1;
+static int hf_hdcp2_msg_id;
+static int hf_hdcp2_r_tx;
+static int hf_hdcp2_repeater;
+static int hf_hdcp2_cert_rcv_id;
+static int hf_hdcp2_cert_n;
+static int hf_hdcp2_cert_e;
+static int hf_hdcp2_cert_rcv_sig;
+static int hf_hdcp2_e_kpub_km;
+static int hf_hdcp2_e_kh_km;
+static int hf_hdcp2_m;
+static int hf_hdcp2_r_rx;
+static int hf_hdcp2_h_prime;
+static int hf_hdcp2_r_n;
+static int hf_hdcp2_l_prime;
+static int hf_hdcp2_e_dkey_ks;
+static int hf_hdcp2_r_iv;
+static int hf_hdcp2_reserved;
+static int hf_hdcp2_tx_length;
+static int hf_hdcp2_tx_version;
+static int hf_hdcp2_tx_loc_precompute;
+static int hf_hdcp2_rx_length;
+static int hf_hdcp2_rx_version;
+static int hf_hdcp2_rx_loc_precompute;
 
-static expert_field ei_hdcp2_reserved_0 = EI_INIT;
-static expert_field ei_hdcp2_version_not_2 = EI_INIT;
-static expert_field ei_hdcp2_length = EI_INIT;
+static expert_field ei_hdcp2_reserved_0;
+static expert_field ei_hdcp2_version_not_2;
+static expert_field ei_hdcp2_length;
 
 
 #define ID_AKE_INIT              2

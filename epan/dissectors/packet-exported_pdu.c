@@ -24,56 +24,56 @@
 void proto_register_exported_pdu(void);
 void proto_reg_handoff_exported_pdu(void);
 
-static int hf_ip_addr = -1;
-static int hf_ip_dst = -1;
-static int hf_ip_src = -1;
-static int hf_ipv6_addr = -1;
-static int hf_ipv6_dst = -1;
-static int hf_ipv6_src = -1;
+static int hf_ip_addr;
+static int hf_ip_dst;
+static int hf_ip_src;
+static int hf_ipv6_addr;
+static int hf_ipv6_dst;
+static int hf_ipv6_src;
 
-static int proto_exported_pdu = -1;
-static int hf_exported_pdu_tag = -1;
-static int hf_exported_pdu_tag_len = -1;
-static int hf_exported_pdu_unknown_tag_val = -1;
-static int hf_exported_pdu_prot_name = -1;
-static int hf_exported_pdu_heur_prot_name = -1;
-static int hf_exported_pdu_dis_table_name = -1;
-static int hf_exported_pdu_p2p_dir = -1;
-static int hf_exported_pdu_dissector_data = -1;
-static int hf_exported_pdu_ddata_version = -1;
-static int hf_exported_pdu_ddata_seq = -1;
-static int hf_exported_pdu_ddata_nxtseq = -1;
-static int hf_exported_pdu_ddata_lastackseq = -1;
-static int hf_exported_pdu_ddata_is_reassembled = -1;
-static int hf_exported_pdu_ddata_flags = -1;
-static int hf_exported_pdu_ddata_urgent_pointer = -1;
-static int hf_exported_pdu_ipv4_src = -1;
-static int hf_exported_pdu_ipv4_dst = -1;
-static int hf_exported_pdu_ipv6_src = -1;
-static int hf_exported_pdu_ipv6_dst = -1;
-static int hf_exported_pdu_port_type = -1;
-static int hf_exported_pdu_src_port = -1;
-static int hf_exported_pdu_dst_port = -1;
-/** static int hf_exported_pdu_sctp_ppid = -1; **/
-static int hf_exported_pdu_ss7_opc = -1;
-static int hf_exported_pdu_ss7_dpc = -1;
-static int hf_exported_pdu_orig_fno = -1;
-static int hf_exported_pdu_dvbci_evt = -1;
-static int hf_exported_pdu_exported_pdu = -1;
-static int hf_exported_pdu_dis_table_val = -1;
-static int hf_exported_pdu_col_proto_str = -1;
-static int hf_exported_pdu_col_info_str = -1;
+static int proto_exported_pdu;
+static int hf_exported_pdu_tag;
+static int hf_exported_pdu_tag_len;
+static int hf_exported_pdu_unknown_tag_val;
+static int hf_exported_pdu_prot_name;
+static int hf_exported_pdu_heur_prot_name;
+static int hf_exported_pdu_dis_table_name;
+static int hf_exported_pdu_p2p_dir;
+static int hf_exported_pdu_dissector_data;
+static int hf_exported_pdu_ddata_version;
+static int hf_exported_pdu_ddata_seq;
+static int hf_exported_pdu_ddata_nxtseq;
+static int hf_exported_pdu_ddata_lastackseq;
+static int hf_exported_pdu_ddata_is_reassembled;
+static int hf_exported_pdu_ddata_flags;
+static int hf_exported_pdu_ddata_urgent_pointer;
+static int hf_exported_pdu_ipv4_src;
+static int hf_exported_pdu_ipv4_dst;
+static int hf_exported_pdu_ipv6_src;
+static int hf_exported_pdu_ipv6_dst;
+static int hf_exported_pdu_port_type;
+static int hf_exported_pdu_src_port;
+static int hf_exported_pdu_dst_port;
+/** static int hf_exported_pdu_sctp_ppid; **/
+static int hf_exported_pdu_ss7_opc;
+static int hf_exported_pdu_ss7_dpc;
+static int hf_exported_pdu_orig_fno;
+static int hf_exported_pdu_dvbci_evt;
+static int hf_exported_pdu_exported_pdu;
+static int hf_exported_pdu_dis_table_val;
+static int hf_exported_pdu_col_proto_str;
+static int hf_exported_pdu_col_info_str;
 
 /* Initialize the subtree pointers */
-static gint ett_exported_pdu = -1;
-static gint ett_exported_pdu_tag = -1;
+static gint ett_exported_pdu;
+static gint ett_exported_pdu_tag;
 
 static int ss7pc_address_type = -1;
 
 static dissector_handle_t exported_pdu_handle;
 
-static expert_field ei_exported_pdu_unsupported_version = EI_INIT;
-static expert_field ei_exported_pdu_unknown_tag = EI_INIT;
+static expert_field ei_exported_pdu_unsupported_version;
+static expert_field ei_exported_pdu_unknown_tag;
 
 static const gchar *user_data_pdu = "data";
 

@@ -29,20 +29,20 @@ static dissector_handle_t calcappprotocol_handle;
 
 
 /* Initialize the protocol and registered fields */
-static int proto_calcappprotocol = -1;
+static int proto_calcappprotocol;
 static int tap_calcappprotocol   = -1;
-static int hf_message_type       = -1;
-static int hf_message_flags      = -1;
-static int hf_message_length     = -1;
-static int hf_message_jobid      = -1;
-static int hf_message_jobsize    = -1;
-static int hf_message_completed  = -1;
+static int hf_message_type;
+static int hf_message_flags;
+static int hf_message_length;
+static int hf_message_jobid;
+static int hf_message_jobsize;
+static int hf_message_completed;
 
 static guint64 calcappprotocol_total_msgs     = 0;
 static guint64 calcappprotocol_total_bytes    = 0;
 
 /* Initialize the subtree pointers */
-static gint ett_calcappprotocol = -1;
+static gint ett_calcappprotocol;
 
 /* Dissectors for messages. This is specific to CalcAppProtocol */
 #define MESSAGE_TYPE_LENGTH      1

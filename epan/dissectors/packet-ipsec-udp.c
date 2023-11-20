@@ -13,12 +13,12 @@ void proto_reg_handoff_udpencap(void);
 
 #define UDPENCAP_PORT 4500
 
-static int proto_udpencap = -1;
+static int proto_udpencap;
 
-static int hf_nat_keepalive = -1;
-static int hf_non_esp_marker = -1;
+static int hf_nat_keepalive;
+static int hf_non_esp_marker;
 
-static gint ett_udpencap = -1;
+static gint ett_udpencap;
 
 static dissector_handle_t udpencap_handle;
 static dissector_handle_t esp_handle;

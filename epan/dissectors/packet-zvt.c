@@ -226,64 +226,64 @@ void proto_reg_handoff_zvt(void);
 
 static dissector_handle_t zvt_tcp_handle;
 
-static int proto_zvt = -1;
+static int proto_zvt;
 
-static int ett_zvt = -1;
-static int ett_zvt_apdu = -1;
-static int ett_zvt_bitmap = -1;
-static int ett_zvt_tlv_dat_obj = -1;
-static int ett_zvt_tlv_subseq = -1;
-static int ett_zvt_tlv_tag = -1;
-static int ett_zvt_tlv_receipt = -1;
+static int ett_zvt;
+static int ett_zvt_apdu;
+static int ett_zvt_bitmap;
+static int ett_zvt_tlv_dat_obj;
+static int ett_zvt_tlv_subseq;
+static int ett_zvt_tlv_tag;
+static int ett_zvt_tlv_receipt;
 
-static int hf_zvt_resp_in = -1;
-static int hf_zvt_resp_to = -1;
-static int hf_zvt_serial_char = -1;
-static int hf_zvt_crc = -1;
-static int hf_zvt_ctrl = -1;
-static int hf_zvt_ccrc = -1;
-static int hf_zvt_aprc = -1;
-static int hf_zvt_len = -1;
-static int hf_zvt_data = -1;
-static int hf_zvt_int_status = -1;
-static int hf_zvt_pwd = -1;
-static int hf_zvt_reg_cfg = -1;
-static int hf_zvt_res_code = -1;
-static int hf_zvt_cc = -1;
-static int hf_zvt_amount = -1;
-static int hf_zvt_terminal_id = -1;
-static int hf_zvt_time = -1;
-static int hf_zvt_date = -1;
-static int hf_zvt_card_type = -1;
-static int hf_zvt_bmp = -1;
-static int hf_zvt_tlv_total_len = -1;
-static int hf_zvt_tlv_tag = -1;
-static int hf_zvt_tlv_tag_class = -1;
-static int hf_zvt_tlv_tag_type = -1;
-static int hf_zvt_tlv_len = -1;
-static int hf_zvt_text_lines_line = -1;
-static int hf_zvt_permitted_cmd = -1;
-static int hf_zvt_receipt_type = -1;
-static int hf_zvt_receipt_parameter_positive_customer = -1;
-static int hf_zvt_receipt_parameter_negative_customer = -1;
-static int hf_zvt_receipt_parameter_positive_merchant = -1;
-static int hf_zvt_receipt_parameter_negative_merchant = -1;
-static int hf_zvt_receipt_parameter_customer_before_merchant = -1;
-static int hf_zvt_receipt_parameter_print_short_receipt = -1;
-static int hf_zvt_receipt_parameter_no_product_data = -1;
-static int hf_zvt_receipt_parameter_ecr_as_printer = -1;
-static int hf_zvt_receipt_parameter = -1;
-static int hf_zvt_trace_number = -1;
-static int hf_zvt_expiry_date = -1;
-static int hf_zvt_card_number = -1;
-static int hf_zvt_card_name = -1;
-static int hf_zvt_additional_data = -1;
-static int hf_zvt_characters_per_line = -1;
-static int hf_zvt_receipt_info = -1;
-static int hf_zvt_receipt_info_positive = -1;
-static int hf_zvt_receipt_info_signature = -1;
-static int hf_zvt_receipt_info_negative = -1;
-static int hf_zvt_receipt_info_printing = -1;
+static int hf_zvt_resp_in;
+static int hf_zvt_resp_to;
+static int hf_zvt_serial_char;
+static int hf_zvt_crc;
+static int hf_zvt_ctrl;
+static int hf_zvt_ccrc;
+static int hf_zvt_aprc;
+static int hf_zvt_len;
+static int hf_zvt_data;
+static int hf_zvt_int_status;
+static int hf_zvt_pwd;
+static int hf_zvt_reg_cfg;
+static int hf_zvt_res_code;
+static int hf_zvt_cc;
+static int hf_zvt_amount;
+static int hf_zvt_terminal_id;
+static int hf_zvt_time;
+static int hf_zvt_date;
+static int hf_zvt_card_type;
+static int hf_zvt_bmp;
+static int hf_zvt_tlv_total_len;
+static int hf_zvt_tlv_tag;
+static int hf_zvt_tlv_tag_class;
+static int hf_zvt_tlv_tag_type;
+static int hf_zvt_tlv_len;
+static int hf_zvt_text_lines_line;
+static int hf_zvt_permitted_cmd;
+static int hf_zvt_receipt_type;
+static int hf_zvt_receipt_parameter_positive_customer;
+static int hf_zvt_receipt_parameter_negative_customer;
+static int hf_zvt_receipt_parameter_positive_merchant;
+static int hf_zvt_receipt_parameter_negative_merchant;
+static int hf_zvt_receipt_parameter_customer_before_merchant;
+static int hf_zvt_receipt_parameter_print_short_receipt;
+static int hf_zvt_receipt_parameter_no_product_data;
+static int hf_zvt_receipt_parameter_ecr_as_printer;
+static int hf_zvt_receipt_parameter;
+static int hf_zvt_trace_number;
+static int hf_zvt_expiry_date;
+static int hf_zvt_card_number;
+static int hf_zvt_card_name;
+static int hf_zvt_additional_data;
+static int hf_zvt_characters_per_line;
+static int hf_zvt_receipt_info;
+static int hf_zvt_receipt_info_positive;
+static int hf_zvt_receipt_info_signature;
+static int hf_zvt_receipt_info_negative;
+static int hf_zvt_receipt_info_printing;
 
 static int * const receipt_parameter_flag_fields[] = {
     &hf_zvt_receipt_parameter_positive_customer,
@@ -305,7 +305,7 @@ static int * const receipt_info_fields[] = {
     NULL
 };
 
-static expert_field ei_invalid_apdu_len = EI_INIT;
+static expert_field ei_invalid_apdu_len;
 
 static const value_string serial_char[] = {
     { STX, "Start of text (STX)" },

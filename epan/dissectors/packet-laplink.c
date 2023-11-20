@@ -26,15 +26,15 @@ static dissector_handle_t laplink_tcp_handle;
 #define UDP_PORT_LAPLINK 1547
 
 /* Initialize the protocol and registered fields */
-static int proto_laplink = -1;
-static int hf_laplink_udp_ident = -1;
-static int hf_laplink_udp_name = -1;
-static int hf_laplink_tcp_ident = -1;
-static int hf_laplink_tcp_length = -1;
-static int hf_laplink_tcp_data = -1;
+static int proto_laplink;
+static int hf_laplink_udp_ident;
+static int hf_laplink_udp_name;
+static int hf_laplink_tcp_ident;
+static int hf_laplink_tcp_length;
+static int hf_laplink_tcp_data;
 
 /* Initialize the subtree pointers */
-static gint ett_laplink = -1;
+static gint ett_laplink;
 
 static const value_string laplink_udp_magic[] = {
 	{ 0x0f010000, "Name Solicitation" },

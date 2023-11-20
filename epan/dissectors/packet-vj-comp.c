@@ -94,20 +94,20 @@ static dissector_handle_t ip_handle;
 void proto_register_vjc(void);
 void proto_reg_handoff_vjc(void);
 
-static int proto_vjc = -1;
+static int proto_vjc;
 
-static gint ett_vjc = -1;
-static gint ett_vjc_change_mask = -1;
+static gint ett_vjc;
+static gint ett_vjc_change_mask;
 
-static expert_field ei_vjc_sawu = EI_INIT;
-static expert_field ei_vjc_swu = EI_INIT;
-static expert_field ei_vjc_no_cnum = EI_INIT;
-static expert_field ei_vjc_no_conversation = EI_INIT;
-static expert_field ei_vjc_no_direction = EI_INIT;
-static expert_field ei_vjc_no_conv_data = EI_INIT;
-static expert_field ei_vjc_undecoded = EI_INIT;
-static expert_field ei_vjc_bad_data = EI_INIT;
-static expert_field ei_vjc_error = EI_INIT;
+static expert_field ei_vjc_sawu;
+static expert_field ei_vjc_swu;
+static expert_field ei_vjc_no_cnum;
+static expert_field ei_vjc_no_conversation;
+static expert_field ei_vjc_no_direction;
+static expert_field ei_vjc_no_conv_data;
+static expert_field ei_vjc_undecoded;
+static expert_field ei_vjc_bad_data;
+static expert_field ei_vjc_error;
 
 #define VJC_FLAG_R 0x80
 #define VJC_FLAG_C 0x40
@@ -121,24 +121,24 @@ static expert_field ei_vjc_error = EI_INIT;
 #define VJC_FLAGS_SAWU 0x0F
 #define VJC_FLAGS_SWU 0x0B
 
-static int hf_vjc_comp = -1;
-static int hf_vjc_cnum = -1;
-static int hf_vjc_change_mask = -1;
-static int hf_vjc_change_mask_r = -1;
-static int hf_vjc_change_mask_c = -1;
-static int hf_vjc_change_mask_i = -1;
-static int hf_vjc_change_mask_p = -1;
-static int hf_vjc_change_mask_s = -1;
-static int hf_vjc_change_mask_a = -1;
-static int hf_vjc_change_mask_w = -1;
-static int hf_vjc_change_mask_u = -1;
-static int hf_vjc_chksum = -1;
-static int hf_vjc_urg = -1;
-static int hf_vjc_d_win = -1;
-static int hf_vjc_d_ack = -1;
-static int hf_vjc_d_seq = -1;
-static int hf_vjc_d_ipid = -1;
-static int hf_vjc_tcpdata = -1;
+static int hf_vjc_comp;
+static int hf_vjc_cnum;
+static int hf_vjc_change_mask;
+static int hf_vjc_change_mask_r;
+static int hf_vjc_change_mask_c;
+static int hf_vjc_change_mask_i;
+static int hf_vjc_change_mask_p;
+static int hf_vjc_change_mask_s;
+static int hf_vjc_change_mask_a;
+static int hf_vjc_change_mask_w;
+static int hf_vjc_change_mask_u;
+static int hf_vjc_chksum;
+static int hf_vjc_urg;
+static int hf_vjc_d_win;
+static int hf_vjc_d_ack;
+static int hf_vjc_d_seq;
+static int hf_vjc_d_ipid;
+static int hf_vjc_tcpdata;
 
 static int * const vjc_change_mask_fields[] = {
     &hf_vjc_change_mask_r,

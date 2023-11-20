@@ -87,70 +87,70 @@
 #define SD_MAX_NUM_OPTIONS                      271
 
 /* ID wireshark identifies the dissector by */
-static int proto_someip_sd = -1;
+static int proto_someip_sd;
 
 /* header field */
-static int hf_someip_sd_flags = -1;
-static int hf_someip_sd_rebootflag = -1;
-static int hf_someip_sd_unicastflag = -1;
-static int hf_someip_sd_explicitiniteventflag = -1;
-static int hf_someip_sd_reserved = -1;
+static int hf_someip_sd_flags;
+static int hf_someip_sd_rebootflag;
+static int hf_someip_sd_unicastflag;
+static int hf_someip_sd_explicitiniteventflag;
+static int hf_someip_sd_reserved;
 
-static int hf_someip_sd_length_entriesarray = -1;
-static int hf_someip_sd_entries = -1;
+static int hf_someip_sd_length_entriesarray;
+static int hf_someip_sd_entries;
 
-static int hf_someip_sd_entry = -1;
-static int hf_someip_sd_entry_type = -1;
-static int hf_someip_sd_entry_type_offerservice = -1;
-static int hf_someip_sd_entry_type_stopofferservice = -1;
-static int hf_someip_sd_entry_type_findservice = -1;
-static int hf_someip_sd_entry_type_subscribeeventgroup = -1;
-static int hf_someip_sd_entry_type_stopsubscribeeventgroup = -1;
-static int hf_someip_sd_entry_type_subscribeeventgroupack = -1;
-static int hf_someip_sd_entry_type_subscribeeventgroupnack = -1;
-static int hf_someip_sd_entry_index1 = -1;
-static int hf_someip_sd_entry_index2 = -1;
-static int hf_someip_sd_entry_numopt1 = -1;
-static int hf_someip_sd_entry_numopt2 = -1;
-static int hf_someip_sd_entry_opts_referenced = -1;
-static int hf_someip_sd_entry_serviceid = -1;
-static int hf_someip_sd_entry_servicename = -1;
-static int hf_someip_sd_entry_instanceid = -1;
-static int hf_someip_sd_entry_majorver = -1;
-static int hf_someip_sd_entry_ttl = -1;
-static int hf_someip_sd_entry_minorver = -1;
-static int hf_someip_sd_entry_eventgroupid = -1;
-static int hf_someip_sd_entry_eventgroupname = -1;
-static int hf_someip_sd_entry_reserved = -1;
-static int hf_someip_sd_entry_counter = -1;
-static int hf_someip_sd_entry_intial_event_flag = -1;
-static int hf_someip_sd_entry_reserved2 = -1;
+static int hf_someip_sd_entry;
+static int hf_someip_sd_entry_type;
+static int hf_someip_sd_entry_type_offerservice;
+static int hf_someip_sd_entry_type_stopofferservice;
+static int hf_someip_sd_entry_type_findservice;
+static int hf_someip_sd_entry_type_subscribeeventgroup;
+static int hf_someip_sd_entry_type_stopsubscribeeventgroup;
+static int hf_someip_sd_entry_type_subscribeeventgroupack;
+static int hf_someip_sd_entry_type_subscribeeventgroupnack;
+static int hf_someip_sd_entry_index1;
+static int hf_someip_sd_entry_index2;
+static int hf_someip_sd_entry_numopt1;
+static int hf_someip_sd_entry_numopt2;
+static int hf_someip_sd_entry_opts_referenced;
+static int hf_someip_sd_entry_serviceid;
+static int hf_someip_sd_entry_servicename;
+static int hf_someip_sd_entry_instanceid;
+static int hf_someip_sd_entry_majorver;
+static int hf_someip_sd_entry_ttl;
+static int hf_someip_sd_entry_minorver;
+static int hf_someip_sd_entry_eventgroupid;
+static int hf_someip_sd_entry_eventgroupname;
+static int hf_someip_sd_entry_reserved;
+static int hf_someip_sd_entry_counter;
+static int hf_someip_sd_entry_intial_event_flag;
+static int hf_someip_sd_entry_reserved2;
 
-static int hf_someip_sd_length_optionsarray = -1;
-static int hf_someip_sd_options = -1;
+static int hf_someip_sd_length_optionsarray;
+static int hf_someip_sd_options;
 
-static int hf_someip_sd_option_type = -1;
-static int hf_someip_sd_option_length = -1;
-static int hf_someip_sd_option_reserved = -1;
-static int hf_someip_sd_option_ipv4 = -1;
-static int hf_someip_sd_option_ipv6 = -1;
-static int hf_someip_sd_option_port = -1;
-static int hf_someip_sd_option_proto = -1;
-static int hf_someip_sd_option_reserved2 = -1;
-static int hf_someip_sd_option_data = -1;
-static int hf_someip_sd_option_config_string = -1;
-static int hf_someip_sd_option_config_string_element = -1;
-static int hf_someip_sd_option_lb_priority = -1;
-static int hf_someip_sd_option_lb_weight = -1;
+static int hf_someip_sd_option_type;
+static int hf_someip_sd_option_length;
+static int hf_someip_sd_option_reserved;
+static int hf_someip_sd_option_ipv4;
+static int hf_someip_sd_option_ipv6;
+static int hf_someip_sd_option_port;
+static int hf_someip_sd_option_proto;
+static int hf_someip_sd_option_reserved2;
+static int hf_someip_sd_option_data;
+static int hf_someip_sd_option_config_string;
+static int hf_someip_sd_option_config_string_element;
+static int hf_someip_sd_option_lb_priority;
+static int hf_someip_sd_option_lb_weight;
 
 /* protocol tree items */
-static gint ett_someip_sd = -1;
-static gint ett_someip_sd_flags = -1;
-static gint ett_someip_sd_entries = -1;
-static gint ett_someip_sd_entry = -1;
-static gint ett_someip_sd_options = -1;
-static gint ett_someip_sd_option = -1;
-static gint ett_someip_sd_config_string = -1;
+static gint ett_someip_sd;
+static gint ett_someip_sd_flags;
+static gint ett_someip_sd_entries;
+static gint ett_someip_sd_entry;
+static gint ett_someip_sd_options;
+static gint ett_someip_sd_option;
+static gint ett_someip_sd_config_string;
 
 
 /*** Taps ***/
@@ -232,16 +232,16 @@ static const true_false_string sd_eiec_flag = {
 };
 
 /*** expert info items ***/
-static expert_field ei_someipsd_message_truncated = EI_INIT;
-static expert_field ei_someipsd_entry_array_malformed = EI_INIT;
-static expert_field ei_someipsd_entry_array_empty = EI_INIT;
-static expert_field ei_someipsd_entry_unknown = EI_INIT;
-static expert_field ei_someipsd_option_array_truncated = EI_INIT;
-static expert_field ei_someipsd_option_array_bytes_left = EI_INIT;
-static expert_field ei_someipsd_option_unknown = EI_INIT;
-static expert_field ei_someipsd_option_wrong_length = EI_INIT;
-static expert_field ei_someipsd_L4_protocol_unsupported = EI_INIT;
-static expert_field ei_someipsd_config_string_malformed = EI_INIT;
+static expert_field ei_someipsd_message_truncated;
+static expert_field ei_someipsd_entry_array_malformed;
+static expert_field ei_someipsd_entry_array_empty;
+static expert_field ei_someipsd_entry_unknown;
+static expert_field ei_someipsd_option_array_truncated;
+static expert_field ei_someipsd_option_array_bytes_left;
+static expert_field ei_someipsd_option_unknown;
+static expert_field ei_someipsd_option_wrong_length;
+static expert_field ei_someipsd_L4_protocol_unsupported;
+static expert_field ei_someipsd_config_string_malformed;
 
 /*** prototypes ***/
 void proto_register_someip_sd(void);

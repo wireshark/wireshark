@@ -54,42 +54,42 @@ void proto_reg_handoff_c15ch(void);
 
 static const char * C15_LABEL = "C15";
 /* Heartbeat Protocol : distinct from normal c15 type */
-static int proto_c15ch_hbeat = -1;
+static int proto_c15ch_hbeat;
 
 /* Subtrees */
-static gint ett_c15ch_hbeat = -1;
+static gint ett_c15ch_hbeat;
 
 /* Fields */
-static int hf_c15ch_hbeat_clli = -1;
-static int hf_c15ch_hbeat_primary = -1;
-static int hf_c15ch_hbeat_secondary = -1;
-static int hf_c15ch_hbeat_interface = -1;
+static int hf_c15ch_hbeat_clli;
+static int hf_c15ch_hbeat_primary;
+static int hf_c15ch_hbeat_secondary;
+static int hf_c15ch_hbeat_interface;
 
 /* C15 base Protocol */
-static int proto_c15ch = -1;
+static int proto_c15ch;
 
 /* Dissector Table */
 static dissector_table_t c15ch_dissector_table;
 
 /* Fields */
-static int hf_c15ch_version = -1;
-static int hf_c15ch_msgtype = -1;
-static int hf_c15ch_size = -1;
-static int hf_c15ch_call_ref = -1;
+static int hf_c15ch_version;
+static int hf_c15ch_msgtype;
+static int hf_c15ch_size;
+static int hf_c15ch_call_ref;
 
-static int hf_c15ch_srce_ni = -1;
-static int hf_c15ch_srce_tn = -1;
-static int hf_c15ch_dest_ni = -1;
-static int hf_c15ch_dest_tn = -1;
+static int hf_c15ch_srce_ni;
+static int hf_c15ch_srce_tn;
+static int hf_c15ch_dest_ni;
+static int hf_c15ch_dest_tn;
 
-static int hf_c15ch_srce_ni_tn = -1;
-static int hf_c15ch_dest_ni_tn = -1;
-static int hf_c15ch_realtime = -1;
+static int hf_c15ch_srce_ni_tn;
+static int hf_c15ch_dest_ni_tn;
+static int hf_c15ch_realtime;
 
 /* Subtrees */
-static gint ett_c15ch = -1;
-static gint ett_src_ni_tn = -1;
-static gint ett_dest_ni_tn = -1;
+static gint ett_c15ch;
+static gint ett_src_ni_tn;
+static gint ett_dest_ni_tn;
 
 /* for msg_type field ...*/
 static const value_string c15_msg_types[] = {
@@ -125,12 +125,12 @@ static const value_string c15_msg_types[] = {
 static value_string_ext c15_msg_types_ext = VALUE_STRING_EXT_INIT(c15_msg_types);
 
 /* Second Level */
-static gint ett_c15ch_second_level = -1;
-static gint ett_c15ch_second_level_sub1 = -1;
-static gint ett_c15ch_second_level_sub2 = -1;
-static gint ett_c15ch_second_level_sub3 = -1;
-static gint ett_c15ch_second_level_sub4 = -1;
-static int proto_c15ch_second_level = -1;
+static gint ett_c15ch_second_level;
+static gint ett_c15ch_second_level_sub1;
+static gint ett_c15ch_second_level_sub2;
+static gint ett_c15ch_second_level_sub3;
+static gint ett_c15ch_second_level_sub4;
+static int proto_c15ch_second_level;
 
 static dissector_handle_t c15ch_hbeat_handle   = NULL;
 static dissector_handle_t c15ch_handle         = NULL;
@@ -141,22 +141,22 @@ static dissector_handle_t general_q931_handle  = NULL;
 /* ama */
 
 /* Fields */
-static int hf_c15ch_ama = -1;
-static int hf_c15ch_ama_call_code = -1;
-static int hf_c15ch_ama_orig_digits = -1;
-static int hf_c15ch_ama_num_dialed_digits = -1;
-static int hf_c15ch_ama_br_prefix = -1;
-static int hf_c15ch_ama_dialed_digits = -1;
-static int hf_c15ch_ama_start_hour = -1;
-static int hf_c15ch_ama_start_minute = -1;
-static int hf_c15ch_ama_start_second = -1;
-static int hf_c15ch_ama_start_tenth_second = -1;
-static int hf_c15ch_ama_start_day = -1;
-static int hf_c15ch_ama_start_month = -1;
-static int hf_c15ch_ama_start_year = -1;
-static int hf_c15ch_ama_answered = -1;
-static int hf_c15ch_ama_elapsed_time = -1; /*elapsed time in millisec*/
-static int hf_c15ch_ama_call_type = -1;
+static int hf_c15ch_ama;
+static int hf_c15ch_ama_call_code;
+static int hf_c15ch_ama_orig_digits;
+static int hf_c15ch_ama_num_dialed_digits;
+static int hf_c15ch_ama_br_prefix;
+static int hf_c15ch_ama_dialed_digits;
+static int hf_c15ch_ama_start_hour;
+static int hf_c15ch_ama_start_minute;
+static int hf_c15ch_ama_start_second;
+static int hf_c15ch_ama_start_tenth_second;
+static int hf_c15ch_ama_start_day;
+static int hf_c15ch_ama_start_month;
+static int hf_c15ch_ama_start_year;
+static int hf_c15ch_ama_answered;
+static int hf_c15ch_ama_elapsed_time; /*elapsed time in millisec*/
+static int hf_c15ch_ama_call_type;
 
 
 /* br_prefix labels */
@@ -229,10 +229,10 @@ static const value_string ama_call_types[] = {
 static value_string_ext ama_call_types_ext = VALUE_STRING_EXT_INIT(ama_call_types);
 /* c15 info */
 /* Fields */
-static int hf_c15ch_c15_info = -1;
-static int hf_c15ch_c15_info_code = -1;
-static int hf_c15ch_c15_info_level = -1;
-static int hf_c15ch_c15_info_text = -1;
+static int hf_c15ch_c15_info;
+static int hf_c15ch_c15_info_code;
+static int hf_c15ch_c15_info_level;
+static int hf_c15ch_c15_info_text;
 
 
 /* labels for level */
@@ -247,35 +247,35 @@ static const value_string c15ch_c15_info_level_types[] = {
 /* clli */
 
 /* Fields */
-static int hf_c15ch_clli = -1;
-static int hf_c15ch_clli_clli_string = -1;
-static int hf_c15ch_clli_active_core = -1;
-static int hf_c15ch_clli_inactive_core = -1;
-static int hf_c15ch_clli_interface_string = -1;
-static int hf_c15ch_clli_seconds = -1;
-static int hf_c15ch_clli_microseconds = -1;
+static int hf_c15ch_clli;
+static int hf_c15ch_clli_clli_string;
+static int hf_c15ch_clli_active_core;
+static int hf_c15ch_clli_inactive_core;
+static int hf_c15ch_clli_interface_string;
+static int hf_c15ch_clli_seconds;
+static int hf_c15ch_clli_microseconds;
 
 
 /* conn */
 
 /* Fields */
-static int hf_c15ch_conn = -1;
-static int hf_c15ch_conn_connfrom = -1;
-static int hf_c15ch_conn_conntype = -1;
-static int hf_c15ch_conn_perphtype = -1;
-static int hf_c15ch_conn_intra = -1;
-static int hf_c15ch_conn_srceni = -1;
-static int hf_c15ch_conn_srcenitn = -1;
-static int hf_c15ch_conn_srcetn = -1;
-static int hf_c15ch_conn_destni = -1;
-static int hf_c15ch_conn_destnitn = -1;
-static int hf_c15ch_conn_desttn = -1;
-static int hf_c15ch_conn_interlinknum = -1;
-static int hf_c15ch_conn_fromport = -1;
-static int hf_c15ch_conn_fromslot = -1;
-static int hf_c15ch_conn_toport = -1;
-static int hf_c15ch_conn_toslot = -1;
-static int hf_c15ch_conn_hubcallid = -1;
+static int hf_c15ch_conn;
+static int hf_c15ch_conn_connfrom;
+static int hf_c15ch_conn_conntype;
+static int hf_c15ch_conn_perphtype;
+static int hf_c15ch_conn_intra;
+static int hf_c15ch_conn_srceni;
+static int hf_c15ch_conn_srcenitn;
+static int hf_c15ch_conn_srcetn;
+static int hf_c15ch_conn_destni;
+static int hf_c15ch_conn_destnitn;
+static int hf_c15ch_conn_desttn;
+static int hf_c15ch_conn_interlinknum;
+static int hf_c15ch_conn_fromport;
+static int hf_c15ch_conn_fromslot;
+static int hf_c15ch_conn_toport;
+static int hf_c15ch_conn_toslot;
+static int hf_c15ch_conn_hubcallid;
 
 /* value_string arrays to label fields */
 /* for connfrom field ...*/
@@ -291,17 +291,17 @@ static const value_string c15_conn_from_types[] = {
 
 
 /* Fields */
-static int hf_c15ch_cp_state_ch = -1;
-static int hf_c15ch_cp_state_ch_oldpm = -1;
-static int hf_c15ch_cp_state_ch_newpm = -1;
-static int hf_c15ch_cp_state_ch_subpm = -1;
-static int hf_c15ch_cp_state_ch_trkpm = -1;
-static int hf_c15ch_cp_state_ch_slepm = -1;
-static int hf_c15ch_cp_state_ch_flags = -1;
-static int hf_c15ch_cp_state_ch_oldrtetype = -1;
-static int hf_c15ch_cp_state_ch_oldrteidx = -1;
-static int hf_c15ch_cp_state_ch_newrtetype = -1;
-static int hf_c15ch_cp_state_ch_newrteidx = -1;
+static int hf_c15ch_cp_state_ch;
+static int hf_c15ch_cp_state_ch_oldpm;
+static int hf_c15ch_cp_state_ch_newpm;
+static int hf_c15ch_cp_state_ch_subpm;
+static int hf_c15ch_cp_state_ch_trkpm;
+static int hf_c15ch_cp_state_ch_slepm;
+static int hf_c15ch_cp_state_ch_flags;
+static int hf_c15ch_cp_state_ch_oldrtetype;
+static int hf_c15ch_cp_state_ch_oldrteidx;
+static int hf_c15ch_cp_state_ch_newrtetype;
+static int hf_c15ch_cp_state_ch_newrteidx;
 
 /* value_string arrays to label fields */
 static const value_string c15_cp_state_pm_types[] = {
@@ -388,29 +388,29 @@ static value_string_ext c15_cp_state_pm_types_ext = VALUE_STRING_EXT_INIT(c15_cp
 /* dest digits */
 
 /* Fields */
-static int hf_c15ch_dest_digits = -1;
-static int hf_c15ch_dest_digits_digits = -1;
+static int hf_c15ch_dest_digits;
+static int hf_c15ch_dest_digits_digits;
 
 
 /* echo cancel */
 
 /* Fields */
-static int hf_c15ch_echo_cancel = -1;
-static int hf_c15ch_echo_cancel_ni = -1;
-static int hf_c15ch_echo_cancel_tn = -1;
-static int hf_c15ch_echo_cancel_ni_tn = -1;
-static int hf_c15ch_echo_cancel_old_l2_mode = -1;
-static int hf_c15ch_echo_cancel_old_channel_mode = -1;
-static int hf_c15ch_echo_cancel_old_ecan_mode = -1;
-static int hf_c15ch_echo_cancel_new_l2_mode = -1;
-static int hf_c15ch_echo_cancel_new_channel_mode = -1;
-static int hf_c15ch_echo_cancel_new_ecan_mode = -1;
-static int hf_c15ch_echo_cancel_tone_id = -1;
-static int hf_c15ch_echo_cancel_pm = -1;
-static int hf_c15ch_echo_cancel_pc = -1;
-static int hf_c15ch_echo_cancel_loop = -1;
-static int hf_c15ch_echo_cancel_slot = -1;
-static int hf_c15ch_echo_cancel_location = -1;
+static int hf_c15ch_echo_cancel;
+static int hf_c15ch_echo_cancel_ni;
+static int hf_c15ch_echo_cancel_tn;
+static int hf_c15ch_echo_cancel_ni_tn;
+static int hf_c15ch_echo_cancel_old_l2_mode;
+static int hf_c15ch_echo_cancel_old_channel_mode;
+static int hf_c15ch_echo_cancel_old_ecan_mode;
+static int hf_c15ch_echo_cancel_new_l2_mode;
+static int hf_c15ch_echo_cancel_new_channel_mode;
+static int hf_c15ch_echo_cancel_new_ecan_mode;
+static int hf_c15ch_echo_cancel_tone_id;
+static int hf_c15ch_echo_cancel_pm;
+static int hf_c15ch_echo_cancel_pc;
+static int hf_c15ch_echo_cancel_loop;
+static int hf_c15ch_echo_cancel_slot;
+static int hf_c15ch_echo_cancel_location;
 
 
 
@@ -459,32 +459,32 @@ static const value_string c15_echo_cancel_ecan_mode_types[] = {
 /* encapsulated isup */
 
 /* Fields */
-static int hf_c15ch_encap_isup = -1;
-static int hf_c15ch_encap_isup_direction = -1;
-static int hf_c15ch_encap_isup_isup_msg_length = -1;
+static int hf_c15ch_encap_isup;
+static int hf_c15ch_encap_isup_direction;
+static int hf_c15ch_encap_isup_isup_msg_length;
 
 
 /* isup ( not encapsulated )*/
 
 /* Fields */
-static int hf_c15ch_isup = -1;
-static int hf_c15ch_isup_direction = -1;
-static int hf_c15ch_isup_msgtype = -1;
-static int hf_c15ch_isup_cic = -1;
-static int hf_c15ch_isup_opcmember = -1;
-static int hf_c15ch_isup_opccluster = -1;
-static int hf_c15ch_isup_opcnetwork = -1;
-static int hf_c15ch_isup_dpcmember = -1;
-static int hf_c15ch_isup_dpccluster = -1;
-static int hf_c15ch_isup_dpcnetwork = -1;
-static int hf_c15ch_isup_level3index = -1;
-static int hf_c15ch_isup_ni = -1;
-static int hf_c15ch_isup_tn = -1;
-static int hf_c15ch_isup_ni_tn = -1;
-static int hf_c15ch_isup_c15hdr = -1;
-static int hf_c15ch_isup_layer2hdr = -1;
-static int hf_c15ch_isup_layer3hdr = -1;
-static int hf_c15ch_isup_iptime = -1;
+static int hf_c15ch_isup;
+static int hf_c15ch_isup_direction;
+static int hf_c15ch_isup_msgtype;
+static int hf_c15ch_isup_cic;
+static int hf_c15ch_isup_opcmember;
+static int hf_c15ch_isup_opccluster;
+static int hf_c15ch_isup_opcnetwork;
+static int hf_c15ch_isup_dpcmember;
+static int hf_c15ch_isup_dpccluster;
+static int hf_c15ch_isup_dpcnetwork;
+static int hf_c15ch_isup_level3index;
+static int hf_c15ch_isup_ni;
+static int hf_c15ch_isup_tn;
+static int hf_c15ch_isup_ni_tn;
+static int hf_c15ch_isup_c15hdr;
+static int hf_c15ch_isup_layer2hdr;
+static int hf_c15ch_isup_layer3hdr;
+static int hf_c15ch_isup_iptime;
 
 
 /* value_string arrays to label fields */
@@ -535,47 +535,47 @@ static const value_string c15_isup_direction_types[] = {
 
 
 /* Fields */
-static int hf_c15ch_mkbrk = -1;
-static int hf_c15ch_mkbrk_makebreak = -1;
-static int hf_c15ch_mkbrk_nshlf = -1;
-static int hf_c15ch_mkbrk_stm = -1;
-static int hf_c15ch_mkbrk_caddr = -1;
-static int hf_c15ch_mkbrk_cdata = -1;
+static int hf_c15ch_mkbrk;
+static int hf_c15ch_mkbrk_makebreak;
+static int hf_c15ch_mkbrk_nshlf;
+static int hf_c15ch_mkbrk_stm;
+static int hf_c15ch_mkbrk_caddr;
+static int hf_c15ch_mkbrk_cdata;
 
 
 /* nitn xlate */
 
 /* Fields */
-static int hf_c15ch_nitnxlate = -1;
-static int hf_c15ch_nitnxlate_ni = -1;
-static int hf_c15ch_nitnxlate_tn = -1;
-static int hf_c15ch_nitnxlate_ni_tn = -1;
-static int hf_c15ch_nitnxlate_equiptype = -1;
-static int hf_c15ch_nitnxlate_concat_string = -1;
-static int hf_c15ch_nitnxlate_sitestring = -1;
-static int hf_c15ch_nitnxlate_subsitestring = -1;
-static int hf_c15ch_nitnxlate_equipname = -1;
-static int hf_c15ch_nitnxlate_gw_type = -1;
-static int hf_c15ch_nitnxlate_parm_1 = -1;
-static int hf_c15ch_nitnxlate_parm_2 = -1;
-static int hf_c15ch_nitnxlate_parm_3 = -1;
-static int hf_c15ch_nitnxlate_parm_4 = -1;
-static int hf_c15ch_nitnxlate_key = -1;
-static int hf_c15ch_nitnxlate_user_tid = -1;
-static int hf_c15ch_nitnxlate_host = -1;
-static int hf_c15ch_nitnxlate_tg_num = -1;
-static int hf_c15ch_nitnxlate_mgcp_line_id = -1;
-static int hf_c15ch_nitnxlate_gateway = -1;
-static int hf_c15ch_nitnxlate_line = -1;
-static int hf_c15ch_nitnxlate_bay = -1;
-static int hf_c15ch_nitnxlate_shelf = -1;
-static int hf_c15ch_nitnxlate_lsg = -1;
-static int hf_c15ch_nitnxlate_idt_rdt = -1;
-static int hf_c15ch_nitnxlate_pm = -1;
-static int hf_c15ch_nitnxlate_channel = -1;
-static int hf_c15ch_nitnxlate_ptrk = -1;
-static int hf_c15ch_nitnxlate_pc_sts1 = -1;
-static int hf_c15ch_nitnxlate_port_vt15 = -1;
+static int hf_c15ch_nitnxlate;
+static int hf_c15ch_nitnxlate_ni;
+static int hf_c15ch_nitnxlate_tn;
+static int hf_c15ch_nitnxlate_ni_tn;
+static int hf_c15ch_nitnxlate_equiptype;
+static int hf_c15ch_nitnxlate_concat_string;
+static int hf_c15ch_nitnxlate_sitestring;
+static int hf_c15ch_nitnxlate_subsitestring;
+static int hf_c15ch_nitnxlate_equipname;
+static int hf_c15ch_nitnxlate_gw_type;
+static int hf_c15ch_nitnxlate_parm_1;
+static int hf_c15ch_nitnxlate_parm_2;
+static int hf_c15ch_nitnxlate_parm_3;
+static int hf_c15ch_nitnxlate_parm_4;
+static int hf_c15ch_nitnxlate_key;
+static int hf_c15ch_nitnxlate_user_tid;
+static int hf_c15ch_nitnxlate_host;
+static int hf_c15ch_nitnxlate_tg_num;
+static int hf_c15ch_nitnxlate_mgcp_line_id;
+static int hf_c15ch_nitnxlate_gateway;
+static int hf_c15ch_nitnxlate_line;
+static int hf_c15ch_nitnxlate_bay;
+static int hf_c15ch_nitnxlate_shelf;
+static int hf_c15ch_nitnxlate_lsg;
+static int hf_c15ch_nitnxlate_idt_rdt;
+static int hf_c15ch_nitnxlate_pm;
+static int hf_c15ch_nitnxlate_channel;
+static int hf_c15ch_nitnxlate_ptrk;
+static int hf_c15ch_nitnxlate_pc_sts1;
+static int hf_c15ch_nitnxlate_port_vt15;
 
 
 static const value_string ett_c15ch_nitnxlate_gwe_types[] = {
@@ -617,29 +617,29 @@ static value_string_ext ett_c15ch_nitnxlate_equip_types_ext = VALUE_STRING_EXT_I
 /* ntwk conn */
 
 /* Fields */
-static int hf_c15ch_ntwk_conn = -1;
-static int hf_c15ch_ntwk_conn_pathtype = -1;
-static int hf_c15ch_ntwk_conn_conntype = -1;
-static int hf_c15ch_ntwk_conn_fromoptimized = -1;
-static int hf_c15ch_ntwk_conn_fromsite = -1;
-static int hf_c15ch_ntwk_conn_frompm = -1;
-static int hf_c15ch_ntwk_conn_frompc = -1;
-static int hf_c15ch_ntwk_conn_fromloop = -1;
-static int hf_c15ch_ntwk_conn_fromslot = -1;
-static int hf_c15ch_ntwk_conn_fromlocation = -1;
-static int hf_c15ch_ntwk_conn_fromcnx = -1;
-static int hf_c15ch_ntwk_conn_fromntwkni = -1;
-static int hf_c15ch_ntwk_conn_fromntwktn = -1;
-static int hf_c15ch_ntwk_conn_fromntwknitn = -1;
-static int hf_c15ch_ntwk_conn_mbshold = -1;
-static int hf_c15ch_ntwk_conn_tooptimized = -1;
-static int hf_c15ch_ntwk_conn_tosite = -1;
-static int hf_c15ch_ntwk_conn_topm = -1;
-static int hf_c15ch_ntwk_conn_topc = -1;
-static int hf_c15ch_ntwk_conn_toloop = -1;
-static int hf_c15ch_ntwk_conn_toslot = -1;
-static int hf_c15ch_ntwk_conn_tolocation = -1;
-static int hf_c15ch_ntwk_conn_tocnx = -1;
+static int hf_c15ch_ntwk_conn;
+static int hf_c15ch_ntwk_conn_pathtype;
+static int hf_c15ch_ntwk_conn_conntype;
+static int hf_c15ch_ntwk_conn_fromoptimized;
+static int hf_c15ch_ntwk_conn_fromsite;
+static int hf_c15ch_ntwk_conn_frompm;
+static int hf_c15ch_ntwk_conn_frompc;
+static int hf_c15ch_ntwk_conn_fromloop;
+static int hf_c15ch_ntwk_conn_fromslot;
+static int hf_c15ch_ntwk_conn_fromlocation;
+static int hf_c15ch_ntwk_conn_fromcnx;
+static int hf_c15ch_ntwk_conn_fromntwkni;
+static int hf_c15ch_ntwk_conn_fromntwktn;
+static int hf_c15ch_ntwk_conn_fromntwknitn;
+static int hf_c15ch_ntwk_conn_mbshold;
+static int hf_c15ch_ntwk_conn_tooptimized;
+static int hf_c15ch_ntwk_conn_tosite;
+static int hf_c15ch_ntwk_conn_topm;
+static int hf_c15ch_ntwk_conn_topc;
+static int hf_c15ch_ntwk_conn_toloop;
+static int hf_c15ch_ntwk_conn_toslot;
+static int hf_c15ch_ntwk_conn_tolocation;
+static int hf_c15ch_ntwk_conn_tocnx;
 
 
 static const value_string ett_c15ch_ntwk_conn_path_types[] = {
@@ -672,35 +672,35 @@ static const value_string ett_c15ch_ntwk_conn_conn_types[] = {
 /* orig */
 
 /* Fields */
-static int hf_c15ch_orig = -1;
-static int hf_c15ch_orig_tnblocktype = -1;
-static int hf_c15ch_orig_ni = -1;
-static int hf_c15ch_orig_tn = -1;
-static int hf_c15ch_orig_ni_tn = -1;
+static int hf_c15ch_orig;
+static int hf_c15ch_orig_tnblocktype;
+static int hf_c15ch_orig_ni;
+static int hf_c15ch_orig_tn;
+static int hf_c15ch_orig_ni_tn;
 
-static int hf_c15ch_orig_dndigits = -1;
+static int hf_c15ch_orig_dndigits;
 
-static int hf_c15ch_orig_nidscrn = -1;
-static int hf_c15ch_orig_nidaddrtype = -1;
-static int hf_c15ch_orig_nidnmbrplan = -1;
-static int hf_c15ch_orig_nidprivind = -1;
-static int hf_c15ch_orig_upnsaved = -1;
+static int hf_c15ch_orig_nidscrn;
+static int hf_c15ch_orig_nidaddrtype;
+static int hf_c15ch_orig_nidnmbrplan;
+static int hf_c15ch_orig_nidprivind;
+static int hf_c15ch_orig_upnsaved;
 
-static int hf_c15ch_orig_upndigits = -1;
+static int hf_c15ch_orig_upndigits;
 
-static int hf_c15ch_orig_upnscrn = -1;
-static int hf_c15ch_orig_upnaddrtype = -1;
-static int hf_c15ch_orig_upnnmbrplan = -1;
-static int hf_c15ch_orig_upnprivind = -1;
-static int hf_c15ch_orig_rnpsaved = -1;
+static int hf_c15ch_orig_upnscrn;
+static int hf_c15ch_orig_upnaddrtype;
+static int hf_c15ch_orig_upnnmbrplan;
+static int hf_c15ch_orig_upnprivind;
+static int hf_c15ch_orig_rnpsaved;
 
-static int hf_c15ch_orig_rnpdigits = -1;
+static int hf_c15ch_orig_rnpdigits;
 
-static int hf_c15ch_orig_rnpscrn = -1;
-static int hf_c15ch_orig_rnpaddrtype = -1;
-static int hf_c15ch_orig_rnpnmbrplan = -1;
-static int hf_c15ch_orig_rnpprivind = -1;
-static int hf_c15ch_orig_iptime = -1;
+static int hf_c15ch_orig_rnpscrn;
+static int hf_c15ch_orig_rnpaddrtype;
+static int hf_c15ch_orig_rnpnmbrplan;
+static int hf_c15ch_orig_rnpprivind;
+static int hf_c15ch_orig_iptime;
 
 
 /* labels for blocktype */
@@ -929,50 +929,50 @@ static value_string_ext c15ch_orig_block_types_ext = VALUE_STRING_EXT_INIT(c15ch
 /* out gwe bc */
 
 /* Fields */
-static int hf_c15ch_outgwebc = -1;
-static int hf_c15ch_outgwebc_pbc_conn_ni = -1;
-static int hf_c15ch_outgwebc_pbc_conn_tn = -1;
-static int hf_c15ch_outgwebc_pbc_conn_ni_tn = -1;
-static int hf_c15ch_outgwebc_pbc_conn_num = -1;
-static int hf_c15ch_outgwebc_pbc_conn_type = -1;
-static int hf_c15ch_outgwebc_bc_msg_type = -1;
-static int hf_c15ch_outgwebc_op_bc_sdp_ip = -1;
-static int hf_c15ch_outgwebc_op_bc_sdp_port = -1;
-static int hf_c15ch_outgwebc_pbc_mdrp_mode = -1;
-static int hf_c15ch_outgwebc_pbc_tst_flags = -1;
+static int hf_c15ch_outgwebc;
+static int hf_c15ch_outgwebc_pbc_conn_ni;
+static int hf_c15ch_outgwebc_pbc_conn_tn;
+static int hf_c15ch_outgwebc_pbc_conn_ni_tn;
+static int hf_c15ch_outgwebc_pbc_conn_num;
+static int hf_c15ch_outgwebc_pbc_conn_type;
+static int hf_c15ch_outgwebc_bc_msg_type;
+static int hf_c15ch_outgwebc_op_bc_sdp_ip;
+static int hf_c15ch_outgwebc_op_bc_sdp_port;
+static int hf_c15ch_outgwebc_pbc_mdrp_mode;
+static int hf_c15ch_outgwebc_pbc_tst_flags;
 
 
 /* pathfind */
 /* Fields */
-static int hf_c15ch_pathfind = -1;
-static int hf_c15ch_pathfind_vds30 = -1;
+static int hf_c15ch_pathfind;
+static int hf_c15ch_pathfind_vds30;
 
-static int hf_c15ch_pathfind_fromgweni = -1;
-static int hf_c15ch_pathfind_fromgwetn = -1;
-static int hf_c15ch_pathfind_fromgwenitn = -1;
-static int hf_c15ch_pathfind_fromoptimized = -1;
-static int hf_c15ch_pathfind_fromsite = -1;
-static int hf_c15ch_pathfind_frompm = -1;
-static int hf_c15ch_pathfind_frompc = -1;
-static int hf_c15ch_pathfind_fromloop = -1;
-static int hf_c15ch_pathfind_fromslot = -1;
-static int hf_c15ch_pathfind_fromcnx = -1;
-static int hf_c15ch_pathfind_fromni = -1;
-static int hf_c15ch_pathfind_fromtn = -1;
-static int hf_c15ch_pathfind_fromnitn = -1;
-static int hf_c15ch_pathfind_togweni = -1;
-static int hf_c15ch_pathfind_togwetn = -1;
-static int hf_c15ch_pathfind_togwenitn = -1;
-static int hf_c15ch_pathfind_tooptimized = -1;
-static int hf_c15ch_pathfind_tosite = -1;
-static int hf_c15ch_pathfind_topm = -1;
-static int hf_c15ch_pathfind_topc = -1;
-static int hf_c15ch_pathfind_toloop = -1;
-static int hf_c15ch_pathfind_toslot = -1;
-static int hf_c15ch_pathfind_tocnx = -1;
-static int hf_c15ch_pathfind_toni = -1;
-static int hf_c15ch_pathfind_totn = -1;
-static int hf_c15ch_pathfind_tonitn = -1;
+static int hf_c15ch_pathfind_fromgweni;
+static int hf_c15ch_pathfind_fromgwetn;
+static int hf_c15ch_pathfind_fromgwenitn;
+static int hf_c15ch_pathfind_fromoptimized;
+static int hf_c15ch_pathfind_fromsite;
+static int hf_c15ch_pathfind_frompm;
+static int hf_c15ch_pathfind_frompc;
+static int hf_c15ch_pathfind_fromloop;
+static int hf_c15ch_pathfind_fromslot;
+static int hf_c15ch_pathfind_fromcnx;
+static int hf_c15ch_pathfind_fromni;
+static int hf_c15ch_pathfind_fromtn;
+static int hf_c15ch_pathfind_fromnitn;
+static int hf_c15ch_pathfind_togweni;
+static int hf_c15ch_pathfind_togwetn;
+static int hf_c15ch_pathfind_togwenitn;
+static int hf_c15ch_pathfind_tooptimized;
+static int hf_c15ch_pathfind_tosite;
+static int hf_c15ch_pathfind_topm;
+static int hf_c15ch_pathfind_topc;
+static int hf_c15ch_pathfind_toloop;
+static int hf_c15ch_pathfind_toslot;
+static int hf_c15ch_pathfind_tocnx;
+static int hf_c15ch_pathfind_toni;
+static int hf_c15ch_pathfind_totn;
+static int hf_c15ch_pathfind_tonitn;
 
 /* value_string arrays to label fields */
 /* for vds30 field ...*/
@@ -988,36 +988,36 @@ static const value_string c15ch_pathfind_vds30_types[] = {
 /* pathidle */
 
 /* Fields */
-static int hf_c15ch_pathidle = -1;
-static int hf_c15ch_pathidle_vds30 = -1;
-static int hf_c15ch_pathidle_idlecode = -1;
-static int hf_c15ch_pathidle_pathtype = -1;
+static int hf_c15ch_pathidle;
+static int hf_c15ch_pathidle_vds30;
+static int hf_c15ch_pathidle_idlecode;
+static int hf_c15ch_pathidle_pathtype;
 
-static int hf_c15ch_pathidle_fromgweni = -1;
-static int hf_c15ch_pathidle_fromgwenitn = -1;
-static int hf_c15ch_pathidle_fromgwetn = -1;
-static int hf_c15ch_pathidle_fromsite = -1;
-static int hf_c15ch_pathidle_frompm = -1;
-static int hf_c15ch_pathidle_frompc = -1;
-static int hf_c15ch_pathidle_fromloop = -1;
-static int hf_c15ch_pathidle_fromslot = -1;
-static int hf_c15ch_pathidle_fromcnx = -1;
-static int hf_c15ch_pathidle_fromni = -1;
-static int hf_c15ch_pathidle_fromnitn = -1;
-static int hf_c15ch_pathidle_fromtn = -1;
+static int hf_c15ch_pathidle_fromgweni;
+static int hf_c15ch_pathidle_fromgwenitn;
+static int hf_c15ch_pathidle_fromgwetn;
+static int hf_c15ch_pathidle_fromsite;
+static int hf_c15ch_pathidle_frompm;
+static int hf_c15ch_pathidle_frompc;
+static int hf_c15ch_pathidle_fromloop;
+static int hf_c15ch_pathidle_fromslot;
+static int hf_c15ch_pathidle_fromcnx;
+static int hf_c15ch_pathidle_fromni;
+static int hf_c15ch_pathidle_fromnitn;
+static int hf_c15ch_pathidle_fromtn;
 
-static int hf_c15ch_pathidle_togweni = -1;
-static int hf_c15ch_pathidle_togwenitn = -1;
-static int hf_c15ch_pathidle_togwetn = -1;
-static int hf_c15ch_pathidle_tosite = -1;
-static int hf_c15ch_pathidle_topm = -1;
-static int hf_c15ch_pathidle_topc = -1;
-static int hf_c15ch_pathidle_toloop = -1;
-static int hf_c15ch_pathidle_toslot = -1;
-static int hf_c15ch_pathidle_tocnx = -1;
-static int hf_c15ch_pathidle_toni = -1;
-static int hf_c15ch_pathidle_tonitn = -1;
-static int hf_c15ch_pathidle_totn = -1;
+static int hf_c15ch_pathidle_togweni;
+static int hf_c15ch_pathidle_togwenitn;
+static int hf_c15ch_pathidle_togwetn;
+static int hf_c15ch_pathidle_tosite;
+static int hf_c15ch_pathidle_topm;
+static int hf_c15ch_pathidle_topc;
+static int hf_c15ch_pathidle_toloop;
+static int hf_c15ch_pathidle_toslot;
+static int hf_c15ch_pathidle_tocnx;
+static int hf_c15ch_pathidle_toni;
+static int hf_c15ch_pathidle_tonitn;
+static int hf_c15ch_pathidle_totn;
 
 
 /* for vds30 field */
@@ -1058,12 +1058,12 @@ static const value_string c15ch_pathidle_idle_types[] = {
 /* q931 */
 
 /* Fields */
-static int hf_c15ch_q931 = -1;
-static int hf_c15ch_q931_direction = -1;
-static int hf_c15ch_q931_ni = -1;
-static int hf_c15ch_q931_tn = -1;
-static int hf_c15ch_q931_ni_tn = -1;
-static int hf_c15ch_q931_msglength = -1;
+static int hf_c15ch_q931;
+static int hf_c15ch_q931_direction;
+static int hf_c15ch_q931_ni;
+static int hf_c15ch_q931_tn;
+static int hf_c15ch_q931_ni_tn;
+static int hf_c15ch_q931_msglength;
 
 
 /* value_string arrays to label fields */
@@ -1077,39 +1077,39 @@ static const value_string c15ch_q931_direction_types[] = {
 /* quality of service (qos) */
 
 /* Fields */
-static int hf_c15ch_qos = -1;
-static int hf_c15ch_qos_ni = -1;
-static int hf_c15ch_qos_tn = -1;
-static int hf_c15ch_qos_ni_tn = -1;
-static int hf_c15ch_qos_rtcp_call_id = -1;
-static int hf_c15ch_qos_register_type = -1;
-static int hf_c15ch_qos_tg_num = -1;
-static int hf_c15ch_qos_trk_type = -1;
-static int hf_c15ch_qos_status = -1;
-static int hf_c15ch_qos_codec = -1;
-static int hf_c15ch_qos_given_ip = -1;
-static int hf_c15ch_qos_real_ip = -1;
-static int hf_c15ch_qos_local_ip = -1;
-static int hf_c15ch_qos_tx_pkts = -1;
-static int hf_c15ch_qos_lost_pkts = -1;
-static int hf_c15ch_qos_lost_pct = -1;
-static int hf_c15ch_qos_jitter = -1;
-static int hf_c15ch_qos_rtt = -1;
-static int hf_c15ch_qos_avg_rtt = -1;
-static int hf_c15ch_qos_duration = -1;
-static int hf_c15ch_qos_mos = -1;
-static int hf_c15ch_qos_ep_type = -1;
-static int hf_c15ch_qos_dn_or_tg = -1;
-static int hf_c15ch_qos_pm = -1;
-static int hf_c15ch_qos_pc = -1;
-static int hf_c15ch_qos_hour = -1;
-static int hf_c15ch_qos_min = -1;
-static int hf_c15ch_qos_sec = -1;
-static int hf_c15ch_qos_tenth_sec = -1;
-static int hf_c15ch_qos_year = -1;
-static int hf_c15ch_qos_month = -1;
-static int hf_c15ch_qos_day = -1;
-static int hf_c15ch_qos_day_of_week = -1;
+static int hf_c15ch_qos;
+static int hf_c15ch_qos_ni;
+static int hf_c15ch_qos_tn;
+static int hf_c15ch_qos_ni_tn;
+static int hf_c15ch_qos_rtcp_call_id;
+static int hf_c15ch_qos_register_type;
+static int hf_c15ch_qos_tg_num;
+static int hf_c15ch_qos_trk_type;
+static int hf_c15ch_qos_status;
+static int hf_c15ch_qos_codec;
+static int hf_c15ch_qos_given_ip;
+static int hf_c15ch_qos_real_ip;
+static int hf_c15ch_qos_local_ip;
+static int hf_c15ch_qos_tx_pkts;
+static int hf_c15ch_qos_lost_pkts;
+static int hf_c15ch_qos_lost_pct;
+static int hf_c15ch_qos_jitter;
+static int hf_c15ch_qos_rtt;
+static int hf_c15ch_qos_avg_rtt;
+static int hf_c15ch_qos_duration;
+static int hf_c15ch_qos_mos;
+static int hf_c15ch_qos_ep_type;
+static int hf_c15ch_qos_dn_or_tg;
+static int hf_c15ch_qos_pm;
+static int hf_c15ch_qos_pc;
+static int hf_c15ch_qos_hour;
+static int hf_c15ch_qos_min;
+static int hf_c15ch_qos_sec;
+static int hf_c15ch_qos_tenth_sec;
+static int hf_c15ch_qos_year;
+static int hf_c15ch_qos_month;
+static int hf_c15ch_qos_day;
+static int hf_c15ch_qos_day_of_week;
 
 
 /* value_string arrays to label fields */
@@ -1127,14 +1127,14 @@ static const value_string ett_c15ch_qos_status_types[] = {
 /* route */
 
 /* Fields */
-static int hf_c15ch_route = -1;
-static int hf_c15ch_route_number = -1;
-static int hf_c15ch_route_type = -1;
-static int hf_c15ch_route_subpm = -1;
-static int hf_c15ch_route_trkpm = -1;
-static int hf_c15ch_route_strtaindo = -1;
-static int hf_c15ch_route_cr_rte_adv = -1;
-static int hf_c15ch_route_cause = -1;
+static int hf_c15ch_route;
+static int hf_c15ch_route_number;
+static int hf_c15ch_route_type;
+static int hf_c15ch_route_subpm;
+static int hf_c15ch_route_trkpm;
+static int hf_c15ch_route_strtaindo;
+static int hf_c15ch_route_cr_rte_adv;
+static int hf_c15ch_route_cause;
 
 
 /* field labels */
@@ -1179,23 +1179,23 @@ static const value_string c15_route_types[] = {
 static value_string_ext c15_route_types_ext = VALUE_STRING_EXT_INIT(c15_route_types);
 
 /* Fields */
-static int hf_c15ch_sccp = -1;
-static int hf_c15ch_sccp_direction = -1;
-static int hf_c15ch_sccp_msgtype = -1;
-static int hf_c15ch_sccp_hopcount = -1;
-static int hf_c15ch_sccp_transactionnum = -1;
-static int hf_c15ch_sccp_opcmember = -1;
-static int hf_c15ch_sccp_opccluster = -1;
-static int hf_c15ch_sccp_opcnetwork = -1;
-static int hf_c15ch_sccp_dpcmember = -1;
-static int hf_c15ch_sccp_dpccluster = -1;
-static int hf_c15ch_sccp_dpcnetwork = -1;
-static int hf_c15ch_sccp_ni = -1;
-static int hf_c15ch_sccp_ni_tn = -1;
-static int hf_c15ch_sccp_tn = -1;
-static int hf_c15ch_sccp_sls = -1;
-static int hf_c15ch_sccp_iptime = -1;
-static int hf_c15ch_sccp_level3index = -1;
+static int hf_c15ch_sccp;
+static int hf_c15ch_sccp_direction;
+static int hf_c15ch_sccp_msgtype;
+static int hf_c15ch_sccp_hopcount;
+static int hf_c15ch_sccp_transactionnum;
+static int hf_c15ch_sccp_opcmember;
+static int hf_c15ch_sccp_opccluster;
+static int hf_c15ch_sccp_opcnetwork;
+static int hf_c15ch_sccp_dpcmember;
+static int hf_c15ch_sccp_dpccluster;
+static int hf_c15ch_sccp_dpcnetwork;
+static int hf_c15ch_sccp_ni;
+static int hf_c15ch_sccp_ni_tn;
+static int hf_c15ch_sccp_tn;
+static int hf_c15ch_sccp_sls;
+static int hf_c15ch_sccp_iptime;
+static int hf_c15ch_sccp_level3index;
 
 
 static const value_string c15ch_sccp_direction_types[] = {
@@ -1215,10 +1215,10 @@ static const value_string c15ch_sccp_msg_types[] = {
 /* srcedest */
 
 /* Fields */
-static int hf_c15ch_srcedest = -1;
-static int hf_c15ch_srcedest_conntype = -1;
-static int hf_c15ch_srcedest_pathtype = -1;
-static int hf_c15ch_srcedest_pathdirect = -1;
+static int hf_c15ch_srcedest;
+static int hf_c15ch_srcedest_conntype;
+static int hf_c15ch_srcedest_pathtype;
+static int hf_c15ch_srcedest_pathdirect;
 
 
 /* field labels */
@@ -1254,24 +1254,24 @@ static const value_string c15_srcedest_path_types[] = {
 
 /* tcap */
 /* Fields */
-static int hf_c15ch_tcap = -1;
-static int hf_c15ch_tcap_direction = -1;
-static int hf_c15ch_tcap_action = -1;
-static int hf_c15ch_tcap_package_type = -1;
-static int hf_c15ch_tcap_ssn = -1;
-static int hf_c15ch_tcap_local_ssn = -1;
-static int hf_c15ch_tcap_result_err_code = -1;
-static int hf_c15ch_tcap_return_reason = -1;
-static int hf_c15ch_tcap_feat_id = -1;
-static int hf_c15ch_tcap_feat_req = -1;
-static int hf_c15ch_tcap_cl_comp_result = -1;
-static int hf_c15ch_tcap_release_bit = -1;
-static int hf_c15ch_tcap_term_cl_request = -1;
-static int hf_c15ch_tcap_opc_index = -1;
-static int hf_c15ch_tcap_dpc_mem = -1;
-static int hf_c15ch_tcap_dpc_clus = -1;
-static int hf_c15ch_tcap_dpc_net = -1;
-static int hf_c15ch_tcap_cp_id = -1;
+static int hf_c15ch_tcap;
+static int hf_c15ch_tcap_direction;
+static int hf_c15ch_tcap_action;
+static int hf_c15ch_tcap_package_type;
+static int hf_c15ch_tcap_ssn;
+static int hf_c15ch_tcap_local_ssn;
+static int hf_c15ch_tcap_result_err_code;
+static int hf_c15ch_tcap_return_reason;
+static int hf_c15ch_tcap_feat_id;
+static int hf_c15ch_tcap_feat_req;
+static int hf_c15ch_tcap_cl_comp_result;
+static int hf_c15ch_tcap_release_bit;
+static int hf_c15ch_tcap_term_cl_request;
+static int hf_c15ch_tcap_opc_index;
+static int hf_c15ch_tcap_dpc_mem;
+static int hf_c15ch_tcap_dpc_clus;
+static int hf_c15ch_tcap_dpc_net;
+static int hf_c15ch_tcap_cp_id;
 
 /* value strings */
 static const value_string c15ch_tcap_action_types[] = {
@@ -1399,115 +1399,115 @@ static const value_string c15ch_tcap_local_ssn_types[] = {
 /* twc rswch */
 
 /* Fields */
-static int hf_c15ch_twc_rswch = -1;
-static int hf_c15ch_twc_rswch_pm = -1;
-static int hf_c15ch_twc_rswch_subpm = -1;
-static int hf_c15ch_twc_rswch_trkpm = -1;
-static int hf_c15ch_twc_rswch_devid = -1;
-static int hf_c15ch_twc_rswch_event = -1;
-static int hf_c15ch_twc_rswch_parm = -1;
-static int hf_c15ch_twc_rswch_iptime = -1;
+static int hf_c15ch_twc_rswch;
+static int hf_c15ch_twc_rswch_pm;
+static int hf_c15ch_twc_rswch_subpm;
+static int hf_c15ch_twc_rswch_trkpm;
+static int hf_c15ch_twc_rswch_devid;
+static int hf_c15ch_twc_rswch_event;
+static int hf_c15ch_twc_rswch_parm;
+static int hf_c15ch_twc_rswch_iptime;
 
 
 /* cp event */
 
 
 /* Fields */
-static int hf_c15ch_cp_event = -1;
-static int hf_c15ch_cp_event_pm = -1;
-static int hf_c15ch_cp_event_subpm = -1;
-static int hf_c15ch_cp_event_trkpm = -1;
-static int hf_c15ch_cp_event_dig_ckt_test_trkpm = -1;
-static int hf_c15ch_cp_event_devid = -1;
-static int hf_c15ch_cp_event_event = -1;
-static int hf_c15ch_cp_event_parm = -1;
-static int hf_c15ch_cp_event_iptime = -1;
-static int hf_c15ch_cp_event_subpm_orig = -1;
-static int hf_c15ch_cp_event_subpm_disc_time = -1;
-static int hf_c15ch_cp_event_subpm_revert = -1;
-static int hf_c15ch_cp_event_subpm_orig_dt = -1;
-static int hf_c15ch_cp_event_subpm_orig_ws = -1;
-static int hf_c15ch_cp_event_subpm_orig_dd = -1;
-static int hf_c15ch_cp_event_subpm_orig_id = -1;
-static int hf_c15ch_cp_event_subpm_no_test = -1;
-static int hf_c15ch_cp_event_subpm_dialing = -1;
-static int hf_c15ch_cp_event_subpm_rebuilt = -1;
-static int hf_c15ch_cp_event_subpm_acfw_reac = -1;
-static int hf_c15ch_cp_event_subpm_process_route = -1;
-static int hf_c15ch_cp_event_subpm_rte_line = -1;
-static int hf_c15ch_cp_event_subpm_mtce = -1;
-static int hf_c15ch_cp_event_subpm_aux_tone = -1;
-static int hf_c15ch_cp_event_subpm_noller = -1;
-static int hf_c15ch_cp_event_subpm_ittk = -1;
-static int hf_c15ch_cp_event_subpm_alm_send = -1;
-static int hf_c15ch_cp_event_subpm_ani_spill = -1;
-static int hf_c15ch_cp_event_subpm_trunk_term = -1;
-static int hf_c15ch_cp_event_subpm_line_term = -1;
-static int hf_c15ch_cp_event_subpm_non_cp = -1;
-static int hf_c15ch_cp_event_subpm_3wc = -1;
-static int hf_c15ch_cp_event_subpm_held_3wc = -1;
-static int hf_c15ch_cp_event_subpm_cwt = -1;
-static int hf_c15ch_cp_event_subpm_held_cwt = -1;
-static int hf_c15ch_cp_event_subpm_update_sc = -1;
-static int hf_c15ch_cp_event_subpm_orig_spdt = -1;
-static int hf_c15ch_cp_event_subpm_acfw_retm = -1;
-static int hf_c15ch_cp_event_subpm_cfw_busy = -1;
-static int hf_c15ch_cp_event_subpm_cfw = -1;
-static int hf_c15ch_cp_event_subpm_cfw_deact = -1;
-static int hf_c15ch_cp_event_subpm_rcfw = -1;
-static int hf_c15ch_cp_event_subpm_rotl_tp = -1;
-static int hf_c15ch_cp_event_subpm_chdt = -1;
-static int hf_c15ch_cp_event_subpm_chd = -1;
-static int hf_c15ch_cp_event_subpm_cheld = -1;
-static int hf_c15ch_cp_event_subpm_3wch = -1;
-static int hf_c15ch_cp_event_subpm_3wcw = -1;
-static int hf_c15ch_cp_event_subpm_cslt = -1;
-static int hf_c15ch_cp_event_subpm_dig_ckt_test = -1;
+static int hf_c15ch_cp_event;
+static int hf_c15ch_cp_event_pm;
+static int hf_c15ch_cp_event_subpm;
+static int hf_c15ch_cp_event_trkpm;
+static int hf_c15ch_cp_event_dig_ckt_test_trkpm;
+static int hf_c15ch_cp_event_devid;
+static int hf_c15ch_cp_event_event;
+static int hf_c15ch_cp_event_parm;
+static int hf_c15ch_cp_event_iptime;
+static int hf_c15ch_cp_event_subpm_orig;
+static int hf_c15ch_cp_event_subpm_disc_time;
+static int hf_c15ch_cp_event_subpm_revert;
+static int hf_c15ch_cp_event_subpm_orig_dt;
+static int hf_c15ch_cp_event_subpm_orig_ws;
+static int hf_c15ch_cp_event_subpm_orig_dd;
+static int hf_c15ch_cp_event_subpm_orig_id;
+static int hf_c15ch_cp_event_subpm_no_test;
+static int hf_c15ch_cp_event_subpm_dialing;
+static int hf_c15ch_cp_event_subpm_rebuilt;
+static int hf_c15ch_cp_event_subpm_acfw_reac;
+static int hf_c15ch_cp_event_subpm_process_route;
+static int hf_c15ch_cp_event_subpm_rte_line;
+static int hf_c15ch_cp_event_subpm_mtce;
+static int hf_c15ch_cp_event_subpm_aux_tone;
+static int hf_c15ch_cp_event_subpm_noller;
+static int hf_c15ch_cp_event_subpm_ittk;
+static int hf_c15ch_cp_event_subpm_alm_send;
+static int hf_c15ch_cp_event_subpm_ani_spill;
+static int hf_c15ch_cp_event_subpm_trunk_term;
+static int hf_c15ch_cp_event_subpm_line_term;
+static int hf_c15ch_cp_event_subpm_non_cp;
+static int hf_c15ch_cp_event_subpm_3wc;
+static int hf_c15ch_cp_event_subpm_held_3wc;
+static int hf_c15ch_cp_event_subpm_cwt;
+static int hf_c15ch_cp_event_subpm_held_cwt;
+static int hf_c15ch_cp_event_subpm_update_sc;
+static int hf_c15ch_cp_event_subpm_orig_spdt;
+static int hf_c15ch_cp_event_subpm_acfw_retm;
+static int hf_c15ch_cp_event_subpm_cfw_busy;
+static int hf_c15ch_cp_event_subpm_cfw;
+static int hf_c15ch_cp_event_subpm_cfw_deact;
+static int hf_c15ch_cp_event_subpm_rcfw;
+static int hf_c15ch_cp_event_subpm_rotl_tp;
+static int hf_c15ch_cp_event_subpm_chdt;
+static int hf_c15ch_cp_event_subpm_chd;
+static int hf_c15ch_cp_event_subpm_cheld;
+static int hf_c15ch_cp_event_subpm_3wch;
+static int hf_c15ch_cp_event_subpm_3wcw;
+static int hf_c15ch_cp_event_subpm_cslt;
+static int hf_c15ch_cp_event_subpm_dig_ckt_test;
 
-static int hf_c15ch_cp_event_dig_ckt_test_subpm_sp = -1;
-static int hf_c15ch_cp_event_dig_ckt_test_subpm_mp = -1;
-static int hf_c15ch_cp_event_dig_ckt_test_subpm_coin = -1;
-static int hf_c15ch_cp_event_dig_ckt_test_subpm_isdn = -1;
-static int hf_c15ch_cp_event_dig_ckt_test_subpm_trc = -1;
-static int hf_c15ch_cp_event_dig_ckt_test_subpm_disc = -1;
+static int hf_c15ch_cp_event_dig_ckt_test_subpm_sp;
+static int hf_c15ch_cp_event_dig_ckt_test_subpm_mp;
+static int hf_c15ch_cp_event_dig_ckt_test_subpm_coin;
+static int hf_c15ch_cp_event_dig_ckt_test_subpm_isdn;
+static int hf_c15ch_cp_event_dig_ckt_test_subpm_trc;
+static int hf_c15ch_cp_event_dig_ckt_test_subpm_disc;
 
-static int hf_c15ch_cp_event_subpm_nail = -1;
-static int hf_c15ch_cp_event_subpm_dcbi = -1;
-static int hf_c15ch_cp_event_subpm_rag_confirm = -1;
-static int hf_c15ch_cp_event_subpm_rag_process = -1;
-static int hf_c15ch_cp_event_subpm_e800 = -1;
-static int hf_c15ch_cp_event_subpm_cfra = -1;
-static int hf_c15ch_cp_event_subpm_mwi_deac = -1;
-static int hf_c15ch_cp_event_subpm_acar_cp = -1;
-static int hf_c15ch_cp_event_subpm_acar_rering = -1;
-static int hf_c15ch_cp_event_subpm_acar_ann = -1;
-static int hf_c15ch_cp_event_subpm_sle = -1;
-static int hf_c15ch_cp_event_subpm_perform_cot = -1;
-static int hf_c15ch_cp_event_subpm_clid = -1;
-static int hf_c15ch_cp_event_subpm_xpm = -1;
-static int hf_c15ch_cp_event_subpm_mwil = -1;
-static int hf_c15ch_cp_event_subpm_ldbs = -1;
-static int hf_c15ch_cp_event_subpm_acr = -1;
-static int hf_c15ch_cp_event_subpm_call_park = -1;
-static int hf_c15ch_cp_event_subpm_camp_on_recall = -1;
-static int hf_c15ch_cp_event_subpm_cff = -1;
-static int hf_c15ch_cp_event_subpm_ibert = -1;
-static int hf_c15ch_cp_event_subpm_ain = -1;
-static int hf_c15ch_cp_event_subpm_ain_sit = -1;
-static int hf_c15ch_cp_event_subpm_ain_rtg = -1;
-static int hf_c15ch_cp_event_subpm_nail_bcon = -1;
-static int hf_c15ch_cp_event_subpm_nail_dcon = -1;
-static int hf_c15ch_cp_event_subpm_qtrn_trvr = -1;
-static int hf_c15ch_cp_event_subpm_ekts = -1;
-static int hf_c15ch_cp_event_subpm_alt = -1;
-static int hf_c15ch_cp_event_subpm_calea = -1;
-static int hf_c15ch_cp_event_subpm_sim_ring = -1;
-static int hf_c15ch_cp_event_subpm_lta = -1;
-static int hf_c15ch_cp_event_subpm_hgq = -1;
-static int hf_c15ch_cp_event_subpm_idle = -1;
-static int hf_c15ch_cp_event_subpm_sig = -1;
-static int hf_c15ch_cp_event_subpm_sig_dest = -1;
-static int hf_c15ch_cp_event_subpm_agl_splrg = -1;
+static int hf_c15ch_cp_event_subpm_nail;
+static int hf_c15ch_cp_event_subpm_dcbi;
+static int hf_c15ch_cp_event_subpm_rag_confirm;
+static int hf_c15ch_cp_event_subpm_rag_process;
+static int hf_c15ch_cp_event_subpm_e800;
+static int hf_c15ch_cp_event_subpm_cfra;
+static int hf_c15ch_cp_event_subpm_mwi_deac;
+static int hf_c15ch_cp_event_subpm_acar_cp;
+static int hf_c15ch_cp_event_subpm_acar_rering;
+static int hf_c15ch_cp_event_subpm_acar_ann;
+static int hf_c15ch_cp_event_subpm_sle;
+static int hf_c15ch_cp_event_subpm_perform_cot;
+static int hf_c15ch_cp_event_subpm_clid;
+static int hf_c15ch_cp_event_subpm_xpm;
+static int hf_c15ch_cp_event_subpm_mwil;
+static int hf_c15ch_cp_event_subpm_ldbs;
+static int hf_c15ch_cp_event_subpm_acr;
+static int hf_c15ch_cp_event_subpm_call_park;
+static int hf_c15ch_cp_event_subpm_camp_on_recall;
+static int hf_c15ch_cp_event_subpm_cff;
+static int hf_c15ch_cp_event_subpm_ibert;
+static int hf_c15ch_cp_event_subpm_ain;
+static int hf_c15ch_cp_event_subpm_ain_sit;
+static int hf_c15ch_cp_event_subpm_ain_rtg;
+static int hf_c15ch_cp_event_subpm_nail_bcon;
+static int hf_c15ch_cp_event_subpm_nail_dcon;
+static int hf_c15ch_cp_event_subpm_qtrn_trvr;
+static int hf_c15ch_cp_event_subpm_ekts;
+static int hf_c15ch_cp_event_subpm_alt;
+static int hf_c15ch_cp_event_subpm_calea;
+static int hf_c15ch_cp_event_subpm_sim_ring;
+static int hf_c15ch_cp_event_subpm_lta;
+static int hf_c15ch_cp_event_subpm_hgq;
+static int hf_c15ch_cp_event_subpm_idle;
+static int hf_c15ch_cp_event_subpm_sig;
+static int hf_c15ch_cp_event_subpm_sig_dest;
+static int hf_c15ch_cp_event_subpm_agl_splrg;
 
 
 /*static const guint32 MIN_PM_VAL = 0; */
@@ -2960,21 +2960,21 @@ static value_string_ext c15_event_types_ext = VALUE_STRING_EXT_INIT(c15_event_ty
 static dissector_table_t c15ch_inc_gwe_dissector_table;
 
 /* Fields */
-static int hf_c15ch_inc_gwe = -1;
-static int hf_c15ch_inc_gwe_ni = -1;
-static int hf_c15ch_inc_gwe_tn = -1;
-static int hf_c15ch_inc_gwe_ni_tn = -1;
-static int hf_c15ch_inc_gwe_taskid = -1;
-static int hf_c15ch_inc_gwe_fiatid_invalid = -1;
-static int hf_c15ch_inc_gwe_fiatid_bc = -1;
-static int hf_c15ch_inc_gwe_fiatid_mtce = -1;
-static int hf_c15ch_inc_gwe_fiatid_om = -1;
-static int hf_c15ch_inc_gwe_fiatid_h248 = -1;
-static int hf_c15ch_inc_gwe_fiatid_sua = -1;
-static int hf_c15ch_inc_gwe_fiatid_mgcp = -1;
-static int hf_c15ch_inc_gwe_fiatid_sip_notify = -1;
-static int hf_c15ch_inc_gwe_fiatid_admn = -1;
-static int hf_c15ch_inc_gwe_datatype = -1;
+static int hf_c15ch_inc_gwe;
+static int hf_c15ch_inc_gwe_ni;
+static int hf_c15ch_inc_gwe_tn;
+static int hf_c15ch_inc_gwe_ni_tn;
+static int hf_c15ch_inc_gwe_taskid;
+static int hf_c15ch_inc_gwe_fiatid_invalid;
+static int hf_c15ch_inc_gwe_fiatid_bc;
+static int hf_c15ch_inc_gwe_fiatid_mtce;
+static int hf_c15ch_inc_gwe_fiatid_om;
+static int hf_c15ch_inc_gwe_fiatid_h248;
+static int hf_c15ch_inc_gwe_fiatid_sua;
+static int hf_c15ch_inc_gwe_fiatid_mgcp;
+static int hf_c15ch_inc_gwe_fiatid_sip_notify;
+static int hf_c15ch_inc_gwe_fiatid_admn;
+static int hf_c15ch_inc_gwe_datatype;
 
 
 /* labels */
@@ -3164,36 +3164,36 @@ static const value_string c15inc_gwe_types[] = {
 static value_string_ext c15inc_gwe_types_ext = VALUE_STRING_EXT_INIT(c15inc_gwe_types);
 
 /* Protocol for all third-level Inc GWE dissection */
-static int proto_c15ch_third_level_inc_gwe = -1;
+static int proto_c15ch_third_level_inc_gwe;
 
-static int ett_c15ch_third_level_inc_gwe = -1;
-static int ett_c15ch_third_level_inc_gwe_sub1 = -1;
-
-
-/* Fields */
-static int hf_c15ch_inc_gwe_admn_dn = -1;
-static int hf_c15ch_inc_gwe_admn_dn_ip_gwe_sua_hndl = -1;
-static int hf_c15ch_inc_gwe_admn_dn_ip_gwe_digits = -1;
+static int ett_c15ch_third_level_inc_gwe;
+static int ett_c15ch_third_level_inc_gwe_sub1;
 
 
 /* Fields */
-static int hf_c15ch_inc_gwe_admn_updt = -1;
-static int hf_c15ch_inc_gwe_admn_updt_ip_gwe_med_ni = -1;
-static int hf_c15ch_inc_gwe_admn_updt_ip_gwe_med_tn = -1;
-static int hf_c15ch_inc_gwe_admn_updt_ip_gwe_med_ni_tn = -1;
-static int hf_c15ch_inc_gwe_admn_updt_ip_ns_iface = -1;
-static int hf_c15ch_inc_gwe_admn_updt_ip_ns_terminal = -1;
-static int hf_c15ch_inc_gwe_admn_updt_ip_gwe_new_rec_addr = -1;
+static int hf_c15ch_inc_gwe_admn_dn;
+static int hf_c15ch_inc_gwe_admn_dn_ip_gwe_sua_hndl;
+static int hf_c15ch_inc_gwe_admn_dn_ip_gwe_digits;
+
 
 /* Fields */
-static int hf_c15ch_inc_gwe_bc_pgi = -1;
-static int hf_c15ch_inc_gwe_bc_pgi_pbc_conn_num = -1;
-static int hf_c15ch_inc_gwe_bc_pgi_pbc_conn_type = -1;
-static int hf_c15ch_inc_gwe_bc_pgi_pbc_msg_type = -1;
-static int hf_c15ch_inc_gwe_bc_pgi_bc_mode = -1;
-static int hf_c15ch_inc_gwe_bc_pgi_bc_pgi_sdp = -1;
-static int hf_c15ch_inc_gwe_bc_pgi_bc_pgi_m_port = -1;
-static int hf_c15ch_inc_gwe_bc_pgi_pbc_tst_flags = -1;
+static int hf_c15ch_inc_gwe_admn_updt;
+static int hf_c15ch_inc_gwe_admn_updt_ip_gwe_med_ni;
+static int hf_c15ch_inc_gwe_admn_updt_ip_gwe_med_tn;
+static int hf_c15ch_inc_gwe_admn_updt_ip_gwe_med_ni_tn;
+static int hf_c15ch_inc_gwe_admn_updt_ip_ns_iface;
+static int hf_c15ch_inc_gwe_admn_updt_ip_ns_terminal;
+static int hf_c15ch_inc_gwe_admn_updt_ip_gwe_new_rec_addr;
+
+/* Fields */
+static int hf_c15ch_inc_gwe_bc_pgi;
+static int hf_c15ch_inc_gwe_bc_pgi_pbc_conn_num;
+static int hf_c15ch_inc_gwe_bc_pgi_pbc_conn_type;
+static int hf_c15ch_inc_gwe_bc_pgi_pbc_msg_type;
+static int hf_c15ch_inc_gwe_bc_pgi_bc_mode;
+static int hf_c15ch_inc_gwe_bc_pgi_bc_pgi_sdp;
+static int hf_c15ch_inc_gwe_bc_pgi_bc_pgi_m_port;
+static int hf_c15ch_inc_gwe_bc_pgi_pbc_tst_flags;
 
 /* Field Labels */
 static const value_string c15_inc_gwe_bc_pgi_pbc_conn_types[] = {
@@ -3206,78 +3206,78 @@ static const value_string c15_inc_gwe_bc_pgi_pbc_conn_types[] = {
 
 /* Subtree */
 #if 0
-static gint ett_c15ch_inc_gwe_bc_pgi = -1;
+static gint ett_c15ch_inc_gwe_bc_pgi;
 #endif
 
 /* Fields */
-static int hf_c15ch_inc_gwe_chg_hndl = -1;
-static int hf_c15ch_inc_gwe_chg_hndl_ip_gwe_sua_hndl = -1;
-static int hf_c15ch_inc_gwe_chg_hndl_ip_gwe_new_hndl = -1;
+static int hf_c15ch_inc_gwe_chg_hndl;
+static int hf_c15ch_inc_gwe_chg_hndl_ip_gwe_sua_hndl;
+static int hf_c15ch_inc_gwe_chg_hndl_ip_gwe_new_hndl;
 
 
 /* Fields */
-static int hf_c15ch_inc_gwe_cl_ans = -1;
-static int hf_c15ch_inc_gwe_cl_ans_ip_gwe_sua_hndl = -1;
-static int hf_c15ch_inc_gwe_cl_ans_ip_gwe_conn_num= -1;
-static int hf_c15ch_inc_gwe_cl_ans_ip_cl_ans_lsdp = -1;
-static int hf_c15ch_inc_gwe_cl_ans_ip_cl_ans_m_port = -1;
-static int hf_c15ch_inc_gwe_cl_ans_encap_isup = -1;
+static int hf_c15ch_inc_gwe_cl_ans;
+static int hf_c15ch_inc_gwe_cl_ans_ip_gwe_sua_hndl;
+static int hf_c15ch_inc_gwe_cl_ans_ip_gwe_conn_num;
+static int hf_c15ch_inc_gwe_cl_ans_ip_cl_ans_lsdp;
+static int hf_c15ch_inc_gwe_cl_ans_ip_cl_ans_m_port;
+static int hf_c15ch_inc_gwe_cl_ans_encap_isup;
 
 /* Fields */
-static int hf_c15ch_inc_gwe_cl_prog = -1;
-static int hf_c15ch_inc_gwe_cl_prog_ip_gwe_sua_hndl = -1;
-static int hf_c15ch_inc_gwe_cl_prog_ip_gwe_conn_num= -1;
-static int hf_c15ch_inc_gwe_cl_prog_ip_cl_prog_lsdp = -1;
-static int hf_c15ch_inc_gwe_cl_prog_ip_cl_prog_m_port = -1;
-static int hf_c15ch_inc_gwe_cl_prog_ip_gwe_stat_code = -1;
-static int hf_c15ch_inc_gwe_cl_prog_encap_isup = -1;
+static int hf_c15ch_inc_gwe_cl_prog;
+static int hf_c15ch_inc_gwe_cl_prog_ip_gwe_sua_hndl;
+static int hf_c15ch_inc_gwe_cl_prog_ip_gwe_conn_num;
+static int hf_c15ch_inc_gwe_cl_prog_ip_cl_prog_lsdp;
+static int hf_c15ch_inc_gwe_cl_prog_ip_cl_prog_m_port;
+static int hf_c15ch_inc_gwe_cl_prog_ip_gwe_stat_code;
+static int hf_c15ch_inc_gwe_cl_prog_encap_isup;
 
 /* Fields */
-static int hf_c15ch_inc_gwe_cl_redir = -1;
-static int hf_c15ch_inc_gwe_cl_redir_ip_gwe_sua_hndl = -1;
-static int hf_c15ch_inc_gwe_cl_redir_ip_gwe_conn_num = -1;
-static int hf_c15ch_inc_gwe_cl_redir_ip_gwe_redir_digits = -1;
-
-
-/* Fields */
-static int hf_c15ch_inc_gwe_cl_refer = -1;
-static int hf_c15ch_inc_gwe_cl_refer_ip_gwe_sua_hndl = -1;
-static int hf_c15ch_inc_gwe_cl_refer_ip_gwe_conn_num = -1;
-static int hf_c15ch_inc_gwe_cl_refer_ip_gwe_trgt_digits = -1;
-static int hf_c15ch_inc_gwe_cl_refer_ip_gwe_trgt_ni = -1;
-static int hf_c15ch_inc_gwe_cl_refer_ip_gwe_trgt_tn = -1;
-static int hf_c15ch_inc_gwe_cl_refer_ip_gwe_trgt_ni_tn = -1;
+static int hf_c15ch_inc_gwe_cl_redir;
+static int hf_c15ch_inc_gwe_cl_redir_ip_gwe_sua_hndl;
+static int hf_c15ch_inc_gwe_cl_redir_ip_gwe_conn_num;
+static int hf_c15ch_inc_gwe_cl_redir_ip_gwe_redir_digits;
 
 
 /* Fields */
-static int hf_c15ch_inc_gwe_cl_rel = -1;
-static int hf_c15ch_inc_gwe_cl_rel_ip_gwe_sua_hndl = -1;
-static int hf_c15ch_inc_gwe_cl_rel_ip_gwe_conn_num = -1;
-static int hf_c15ch_inc_gwe_cl_rel_ip_gwe_stat_code = -1;
-static int hf_c15ch_inc_gwe_cl_rel_encap_isup = -1;
+static int hf_c15ch_inc_gwe_cl_refer;
+static int hf_c15ch_inc_gwe_cl_refer_ip_gwe_sua_hndl;
+static int hf_c15ch_inc_gwe_cl_refer_ip_gwe_conn_num;
+static int hf_c15ch_inc_gwe_cl_refer_ip_gwe_trgt_digits;
+static int hf_c15ch_inc_gwe_cl_refer_ip_gwe_trgt_ni;
+static int hf_c15ch_inc_gwe_cl_refer_ip_gwe_trgt_tn;
+static int hf_c15ch_inc_gwe_cl_refer_ip_gwe_trgt_ni_tn;
+
+
+/* Fields */
+static int hf_c15ch_inc_gwe_cl_rel;
+static int hf_c15ch_inc_gwe_cl_rel_ip_gwe_sua_hndl;
+static int hf_c15ch_inc_gwe_cl_rel_ip_gwe_conn_num;
+static int hf_c15ch_inc_gwe_cl_rel_ip_gwe_stat_code;
+static int hf_c15ch_inc_gwe_cl_rel_encap_isup;
 
 
 
 /* Fields */
-static int hf_c15ch_inc_gwe_cl_setup = -1;
-static int hf_c15ch_inc_gwe_cl_setup_ip_gwe_sua_hndl = -1;
-static int hf_c15ch_inc_gwe_cl_setup_ip_gwe_cled_digits = -1;
-static int hf_c15ch_inc_gwe_cl_setup_ip_cl_setup_lsdp = -1;
-static int hf_c15ch_inc_gwe_cl_setup_ip_cl_setup_m_port = -1;
+static int hf_c15ch_inc_gwe_cl_setup;
+static int hf_c15ch_inc_gwe_cl_setup_ip_gwe_sua_hndl;
+static int hf_c15ch_inc_gwe_cl_setup_ip_gwe_cled_digits;
+static int hf_c15ch_inc_gwe_cl_setup_ip_cl_setup_lsdp;
+static int hf_c15ch_inc_gwe_cl_setup_ip_cl_setup_m_port;
 
 
 /* Fields */
-static int hf_c15ch_inc_gwe_h248_digit = -1;
-static int hf_c15ch_inc_gwe_h248_digit_ip_gwe_digit = -1;
-static int hf_c15ch_inc_gwe_h248_digit_ip_gwe_digit_method = -1;
+static int hf_c15ch_inc_gwe_h248_digit;
+static int hf_c15ch_inc_gwe_h248_digit_ip_gwe_digit;
+static int hf_c15ch_inc_gwe_h248_digit_ip_gwe_digit_method;
 
 
 /* Fields */
-static int hf_c15ch_inc_gwe_info = -1;
-static int hf_c15ch_inc_gwe_info_ip_gwe_sua_hndl = -1;
-static int hf_c15ch_inc_gwe_info_ip_gwe_info_type = -1;
-static int hf_c15ch_inc_gwe_info_ip_gwe_info_digit = -1;
-static int hf_c15ch_inc_gwe_info_encap_isup_msg_type = -1;
+static int hf_c15ch_inc_gwe_info;
+static int hf_c15ch_inc_gwe_info_ip_gwe_sua_hndl;
+static int hf_c15ch_inc_gwe_info_ip_gwe_info_type;
+static int hf_c15ch_inc_gwe_info_ip_gwe_info_digit;
+static int hf_c15ch_inc_gwe_info_encap_isup_msg_type;
 
 /* value_string arrays to label fields */
 /* These two encapsulated isup message types are the only valid ones for this field. */
@@ -3288,98 +3288,98 @@ static const value_string c15ch_inc_gwe_info_encap_isup_msg_types[] = {
 };
 
 /* Fields */
-static int hf_c15ch_inc_gwe_inv_repl = -1;
-static int hf_c15ch_inc_gwe_inv_repl_ip_gwe_sua_hndl = -1;
-static int hf_c15ch_inc_gwe_inv_repl_ip_gwe_conn_num = -1;
-static int hf_c15ch_inc_gwe_inv_repl_ip_inv_repl_rsdp_ip = -1;
-static int hf_c15ch_inc_gwe_inv_repl_ip_inv_repl_rsdp_port = -1;
+static int hf_c15ch_inc_gwe_inv_repl;
+static int hf_c15ch_inc_gwe_inv_repl_ip_gwe_sua_hndl;
+static int hf_c15ch_inc_gwe_inv_repl_ip_gwe_conn_num;
+static int hf_c15ch_inc_gwe_inv_repl_ip_inv_repl_rsdp_ip;
+static int hf_c15ch_inc_gwe_inv_repl_ip_inv_repl_rsdp_port;
 
 /* Fields */
-static int hf_c15ch_inc_gwe_mgcp_dlcx = -1;
-static int hf_c15ch_inc_gwe_mgcp_dlcx_err_code = -1;
+static int hf_c15ch_inc_gwe_mgcp_dlcx;
+static int hf_c15ch_inc_gwe_mgcp_dlcx_err_code;
 
 /* Fields */
-static int hf_c15ch_inc_gwe_notify = -1;
-static int hf_c15ch_inc_gwe_notify_ip_gwe_mwi_stat = -1;
-static int hf_c15ch_inc_gwe_notify_ip_gwe_digits = -1;
+static int hf_c15ch_inc_gwe_notify;
+static int hf_c15ch_inc_gwe_notify_ip_gwe_mwi_stat;
+static int hf_c15ch_inc_gwe_notify_ip_gwe_digits;
 
 /* Fields */
-static int hf_c15ch_inc_gwe_ntwk_mod  = -1;
-static int hf_c15ch_inc_gwe_ntwk_mod_ip_gwe_sua_hndl = -1;
-static int hf_c15ch_inc_gwe_ntwk_mod_ip_gwe_conn_num= -1;
-static int hf_c15ch_inc_gwe_ntwk_mod_ip_ntwk_mod_lsdp = -1;
-static int hf_c15ch_inc_gwe_ntwk_mod_ip_ntwk_mod_l_m_port = -1;
-static int hf_c15ch_inc_gwe_ntwk_mod_ip_ntwk_mod_rsdp = -1;
-static int hf_c15ch_inc_gwe_ntwk_mod_ip_ntwk_mod_r_m_port = -1;
-static int hf_c15ch_inc_gwe_ntwk_mod_ip_gwe_stat_code = -1;
+static int hf_c15ch_inc_gwe_ntwk_mod;
+static int hf_c15ch_inc_gwe_ntwk_mod_ip_gwe_sua_hndl;
+static int hf_c15ch_inc_gwe_ntwk_mod_ip_gwe_conn_num;
+static int hf_c15ch_inc_gwe_ntwk_mod_ip_ntwk_mod_lsdp;
+static int hf_c15ch_inc_gwe_ntwk_mod_ip_ntwk_mod_l_m_port;
+static int hf_c15ch_inc_gwe_ntwk_mod_ip_ntwk_mod_rsdp;
+static int hf_c15ch_inc_gwe_ntwk_mod_ip_ntwk_mod_r_m_port;
+static int hf_c15ch_inc_gwe_ntwk_mod_ip_gwe_stat_code;
 
 
 /* Fields */
-static int hf_c15ch_inc_gwe_ptrk_setup = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_sua_hndl = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_cled_digits = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_ip_cl_setup_lsdp = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_ip_cl_setup_m_port = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_clid_pri = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_clng_digits = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_clng_ton = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_clng_np = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_alert_info = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_redir_digits = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_redir_ton = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_redir_np = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_ocn_digits = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_chrg_digits = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_chrg_noa = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_chrg_npi = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_npdi = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_rn_digits = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_cic_digits = -1;
-static int hf_c15ch_inc_gwe_ptrk_setup_encap_isup = -1;
+static int hf_c15ch_inc_gwe_ptrk_setup;
+static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_sua_hndl;
+static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_cled_digits;
+static int hf_c15ch_inc_gwe_ptrk_setup_ip_cl_setup_lsdp;
+static int hf_c15ch_inc_gwe_ptrk_setup_ip_cl_setup_m_port;
+static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_clid_pri;
+static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_clng_digits;
+static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_clng_ton;
+static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_clng_np;
+static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_alert_info;
+static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_redir_digits;
+static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_redir_ton;
+static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_redir_np;
+static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_ocn_digits;
+static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_chrg_digits;
+static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_chrg_noa;
+static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_chrg_npi;
+static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_npdi;
+static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_rn_digits;
+static int hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_cic_digits;
+static int hf_c15ch_inc_gwe_ptrk_setup_encap_isup;
 
 /* Fields */
-static int hf_c15ch_inc_gwe_reply = -1;
-static int hf_c15ch_inc_gwe_reply_ip_gwe_msg_type = -1;
-static int hf_c15ch_inc_gwe_reply_ip_gwe_stat_code = -1;
-static int hf_c15ch_inc_gwe_reply_ip_gwe_conn_num = -1;
-static int hf_c15ch_inc_gwe_reply_nw_mdcn_lsdp_ip = -1;
-static int hf_c15ch_inc_gwe_reply_nw_mdcn_lsdp_port = -1;
-static int hf_c15ch_inc_gwe_reply_nw_mdcn_rsdp_ip = -1;
-static int hf_c15ch_inc_gwe_reply_nw_mdcn_rsdp_port = -1;
+static int hf_c15ch_inc_gwe_reply;
+static int hf_c15ch_inc_gwe_reply_ip_gwe_msg_type;
+static int hf_c15ch_inc_gwe_reply_ip_gwe_stat_code;
+static int hf_c15ch_inc_gwe_reply_ip_gwe_conn_num;
+static int hf_c15ch_inc_gwe_reply_nw_mdcn_lsdp_ip;
+static int hf_c15ch_inc_gwe_reply_nw_mdcn_lsdp_port;
+static int hf_c15ch_inc_gwe_reply_nw_mdcn_rsdp_ip;
+static int hf_c15ch_inc_gwe_reply_nw_mdcn_rsdp_port;
 
 /* Fields */
-static int hf_c15ch_inc_gwe_rv_avail = -1;
-static int hf_c15ch_inc_gwe_rv_avail_ip_gwe_sua_hndl = -1;
-static int hf_c15ch_inc_gwe_rv_avail_ip_gwe_conn_num = -1;
-static int hf_c15ch_inc_gwe_rv_avail_ip_gwe_info_len = -1;
+static int hf_c15ch_inc_gwe_rv_avail;
+static int hf_c15ch_inc_gwe_rv_avail_ip_gwe_sua_hndl;
+static int hf_c15ch_inc_gwe_rv_avail_ip_gwe_conn_num;
+static int hf_c15ch_inc_gwe_rv_avail_ip_gwe_info_len;
 
 /* Fields */
-static int hf_c15ch_inc_gwe_sua_hndl = -1;
-static int hf_c15ch_inc_gwe_sua_hndl_ip_gwe_sua_hndl = -1;
+static int hf_c15ch_inc_gwe_sua_hndl;
+static int hf_c15ch_inc_gwe_sua_hndl_ip_gwe_sua_hndl;
 
 /* Fields */
-static int hf_c15ch_inc_gwe_sua_reply = -1;
-static int hf_c15ch_inc_gwe_sua_reply_ip_gwe_sua_hndl = -1;
-static int hf_c15ch_inc_gwe_sua_reply_ip_gwe_msg_type = -1;
-static int hf_c15ch_inc_gwe_sua_reply_ip_gwe_stat_code = -1;
-static int hf_c15ch_inc_gwe_sua_reply_ip_gwe_conn_num = -1;
-static int hf_c15ch_inc_gwe_sua_reply_nw_mdcn_lsdp_ip = -1;
-static int hf_c15ch_inc_gwe_sua_reply_nw_mdcn_lsdp_port = -1;
-static int hf_c15ch_inc_gwe_sua_reply_nw_mdcn_rsdp_ip = -1;
-static int hf_c15ch_inc_gwe_sua_reply_nw_mdcn_rsdp_port = -1;
+static int hf_c15ch_inc_gwe_sua_reply;
+static int hf_c15ch_inc_gwe_sua_reply_ip_gwe_sua_hndl;
+static int hf_c15ch_inc_gwe_sua_reply_ip_gwe_msg_type;
+static int hf_c15ch_inc_gwe_sua_reply_ip_gwe_stat_code;
+static int hf_c15ch_inc_gwe_sua_reply_ip_gwe_conn_num;
+static int hf_c15ch_inc_gwe_sua_reply_nw_mdcn_lsdp_ip;
+static int hf_c15ch_inc_gwe_sua_reply_nw_mdcn_lsdp_port;
+static int hf_c15ch_inc_gwe_sua_reply_nw_mdcn_rsdp_ip;
+static int hf_c15ch_inc_gwe_sua_reply_nw_mdcn_rsdp_port;
 
 /* Fields */
-static int hf_c15ch_inc_gwe_subs_chg_hndl = -1;
-static int hf_c15ch_inc_gwe_subs_chg_hndl_ip_gwe_sua_hndl = -1;
-static int hf_c15ch_inc_gwe_subs_chg_hndl_ip_gwe_new_hndl = -1;
-static int hf_c15ch_inc_gwe_subs_chg_hndl_ip_gwe_med_ni = -1;
-static int hf_c15ch_inc_gwe_subs_chg_hndl_ip_gwe_med_tn = -1;
-static int hf_c15ch_inc_gwe_subs_chg_hndl_ip_gwe_med_ni_tn = -1;
+static int hf_c15ch_inc_gwe_subs_chg_hndl;
+static int hf_c15ch_inc_gwe_subs_chg_hndl_ip_gwe_sua_hndl;
+static int hf_c15ch_inc_gwe_subs_chg_hndl_ip_gwe_new_hndl;
+static int hf_c15ch_inc_gwe_subs_chg_hndl_ip_gwe_med_ni;
+static int hf_c15ch_inc_gwe_subs_chg_hndl_ip_gwe_med_tn;
+static int hf_c15ch_inc_gwe_subs_chg_hndl_ip_gwe_med_ni_tn;
 
 /* Fields */
-static int hf_c15ch_inc_gwe_tgh_stat = -1;
-static int hf_c15ch_inc_gwe_tgh_stat_ip_gwe_sua_hndl = -1;
-static int hf_c15ch_inc_gwe_tgh_stat_ip_gwe_tgh_state = -1;
+static int hf_c15ch_inc_gwe_tgh_stat;
+static int hf_c15ch_inc_gwe_tgh_stat_ip_gwe_sua_hndl;
+static int hf_c15ch_inc_gwe_tgh_stat_ip_gwe_tgh_state;
 
 /* value_string arrays to label fields */
 
@@ -3391,8 +3391,8 @@ static const value_string tgh_state_types[] = {
 };
 
 /* Fields */
-static int hf_c15ch_inc_gwe_voip_cot = -1;
-static int hf_c15ch_inc_gwe_voip_cot_ip_gwe_pass_code = -1;
+static int hf_c15ch_inc_gwe_voip_cot;
+static int hf_c15ch_inc_gwe_voip_cot_ip_gwe_pass_code;
 
 /* Field Labels */
 static const true_false_string c15_inc_gwe_voip_cot_ip_gwe_pass_code_types = {
@@ -3402,7 +3402,7 @@ static const true_false_string c15_inc_gwe_voip_cot_ip_gwe_pass_code_types = {
 
 #if 0
 /* Subtree */
-static gint ett_c15ch_inc_gwe_voip_cot = -1;
+static gint ett_c15ch_inc_gwe_voip_cot;
 #endif
 
 /* out gwe */
@@ -3433,29 +3433,29 @@ static gint ett_c15ch_inc_gwe_voip_cot = -1;
 #define C15_OUT_GWE_SIP_INFO       23
 #define C15_OUT_GWE_SIP_REFER      24
 
-static int ett_c15ch_third_level_out_gwe = -1;
-static int ett_c15ch_third_level_out_gwe_sub1 = -1;
-static int ett_c15ch_third_level_out_gwe_sub2 = -1;
+static int ett_c15ch_third_level_out_gwe;
+static int ett_c15ch_third_level_out_gwe_sub1;
+static int ett_c15ch_third_level_out_gwe_sub2;
 
-static int proto_c15ch_third_level_out_gwe = -1;
+static int proto_c15ch_third_level_out_gwe;
 
 /* Dissector Table */
 static dissector_table_t c15ch_out_gwe_dissector_table;
 
 /* Fields */
-static int hf_c15ch_out_gwe = -1;
-static int hf_c15ch_out_gwe_ni = -1;
-static int hf_c15ch_out_gwe_tn = -1;
-static int hf_c15ch_out_gwe_ni_tn = -1;
-static int hf_c15ch_out_gwe_op_gwe_msg_type = -1;
-static int hf_c15ch_out_gwe_op_gwe_protocol = -1;
-static int hf_c15ch_out_gwe_op_sua_hndl = -1;
-static int hf_c15ch_out_gwe_gwe_data_type = -1;
+static int hf_c15ch_out_gwe;
+static int hf_c15ch_out_gwe_ni;
+static int hf_c15ch_out_gwe_tn;
+static int hf_c15ch_out_gwe_ni_tn;
+static int hf_c15ch_out_gwe_op_gwe_msg_type;
+static int hf_c15ch_out_gwe_op_gwe_protocol;
+static int hf_c15ch_out_gwe_op_sua_hndl;
+static int hf_c15ch_out_gwe_gwe_data_type;
 
 #if 0
 /* Subtree */
-static gint ett_c15ch_out_gwe = -1;
-static gint ett_c15ch_out_gwe_sub_ni_tn = -1;
+static gint ett_c15ch_out_gwe;
+static gint ett_c15ch_out_gwe_sub_ni_tn;
 #endif
 
 /* value labels for fields*/
@@ -3560,168 +3560,168 @@ static const value_string c15_out_gwe_msg_types[] = {
 static value_string_ext c15_out_gwe_msg_types_ext = VALUE_STRING_EXT_INIT(c15_out_gwe_msg_types);
 
 /* Fields */
-static int hf_c15ch_out_gwe_audit_conn = -1;
-static int hf_c15ch_out_gwe_audit_conn_ni = -1;
-static int hf_c15ch_out_gwe_audit_conn_tn = -1;
-static int hf_c15ch_out_gwe_audit_conn_ni_tn = -1;
-static int hf_c15ch_out_gwe_audit_conn_context = -1;
+static int hf_c15ch_out_gwe_audit_conn;
+static int hf_c15ch_out_gwe_audit_conn_ni;
+static int hf_c15ch_out_gwe_audit_conn_tn;
+static int hf_c15ch_out_gwe_audit_conn_ni_tn;
+static int hf_c15ch_out_gwe_audit_conn_context;
 
 /* Fields */
-static int hf_c15ch_out_gwe_blf_data = -1;
-static int hf_c15ch_out_gwe_blf_data_rb_ua_handle = -1;
-static int hf_c15ch_out_gwe_blf_data_rb_type = -1;
-static int hf_c15ch_out_gwe_blf_data_med_ni = -1;
-static int hf_c15ch_out_gwe_blf_data_med_tn = -1;
-static int hf_c15ch_out_gwe_blf_data_med_ni_tn = -1;
-static int hf_c15ch_out_gwe_blf_data_rb_ni = -1;
-static int hf_c15ch_out_gwe_blf_data_rb_tn = -1;
-static int hf_c15ch_out_gwe_blf_data_rb_ni_tn = -1;
-
-
-/* Fields */
-static int hf_c15ch_out_gwe_call_ans = -1;
-static int hf_c15ch_out_gwe_call_ans_conn_num = -1;
-static int hf_c15ch_out_gwe_call_ans_op_cl_ans_rsdp_ip = -1;
-static int hf_c15ch_out_gwe_call_ans_op_cl_ans_rsdp_port = -1;
-static int hf_c15ch_out_gwe_call_ans_encap_isup = -1;
-
-/* Fields */
-static int hf_c15ch_out_gwe_call_notify = -1;
-static int hf_c15ch_out_gwe_call_notify_op_gwe_mwi = -1;
-static int hf_c15ch_out_gwe_call_notify_status_code = -1;
+static int hf_c15ch_out_gwe_blf_data;
+static int hf_c15ch_out_gwe_blf_data_rb_ua_handle;
+static int hf_c15ch_out_gwe_blf_data_rb_type;
+static int hf_c15ch_out_gwe_blf_data_med_ni;
+static int hf_c15ch_out_gwe_blf_data_med_tn;
+static int hf_c15ch_out_gwe_blf_data_med_ni_tn;
+static int hf_c15ch_out_gwe_blf_data_rb_ni;
+static int hf_c15ch_out_gwe_blf_data_rb_tn;
+static int hf_c15ch_out_gwe_blf_data_rb_ni_tn;
 
 
 /* Fields */
-static int hf_c15ch_out_gwe_call_prog = -1;
-static int hf_c15ch_out_gwe_call_prog_conn_num = -1;
-static int hf_c15ch_out_gwe_call_prog_op_gwe_stat_code = -1;
-static int hf_c15ch_out_gwe_call_prog_encap_isup = -1;
+static int hf_c15ch_out_gwe_call_ans;
+static int hf_c15ch_out_gwe_call_ans_conn_num;
+static int hf_c15ch_out_gwe_call_ans_op_cl_ans_rsdp_ip;
+static int hf_c15ch_out_gwe_call_ans_op_cl_ans_rsdp_port;
+static int hf_c15ch_out_gwe_call_ans_encap_isup;
 
 /* Fields */
-static int hf_c15ch_out_gwe_call_rel = -1;
-static int hf_c15ch_out_gwe_call_rel_status_code = -1;
-static int hf_c15ch_out_gwe_call_rel_encap_isup = -1;
-
-/* Fields */
-static int hf_c15ch_out_gwe_call_setup = -1;
-static int hf_c15ch_out_gwe_call_setup_conn_num = -1;
-static int hf_c15ch_out_gwe_call_setup_op_cl_ans_rsdp_ip = -1;
-static int hf_c15ch_out_gwe_call_setup_op_cl_ans_rsdp_port = -1;
-
-static int hf_c15ch_out_gwe_call_setup_op_gwe_redir_digits = -1;
-
-static int hf_c15ch_out_gwe_call_setup_op_gwe_rdir_ton = -1;
-static int hf_c15ch_out_gwe_call_setup_op_gwe_rdir_np = -1;
-
-static int hf_c15ch_out_gwe_call_setup_op_gwe_ocn_digits = -1;
-
-static int hf_c15ch_out_gwe_call_setup_op_gwe_chrg_digits = -1;
-
-static int hf_c15ch_out_gwe_call_setup_op_gwe_chrg_noa = -1;
-static int hf_c15ch_out_gwe_call_setup_op_gwe_chrg_npi = -1;
-
-static int hf_c15ch_out_gwe_call_setup_encap_isup = -1;
+static int hf_c15ch_out_gwe_call_notify;
+static int hf_c15ch_out_gwe_call_notify_op_gwe_mwi;
+static int hf_c15ch_out_gwe_call_notify_status_code;
 
 
 /* Fields */
-static int hf_c15ch_out_gwe_conn_num = -1;
-static int hf_c15ch_out_gwe_conn_num_out_gwe_conn_num = -1;
+static int hf_c15ch_out_gwe_call_prog;
+static int hf_c15ch_out_gwe_call_prog_conn_num;
+static int hf_c15ch_out_gwe_call_prog_op_gwe_stat_code;
+static int hf_c15ch_out_gwe_call_prog_encap_isup;
+
+/* Fields */
+static int hf_c15ch_out_gwe_call_rel;
+static int hf_c15ch_out_gwe_call_rel_status_code;
+static int hf_c15ch_out_gwe_call_rel_encap_isup;
+
+/* Fields */
+static int hf_c15ch_out_gwe_call_setup;
+static int hf_c15ch_out_gwe_call_setup_conn_num;
+static int hf_c15ch_out_gwe_call_setup_op_cl_ans_rsdp_ip;
+static int hf_c15ch_out_gwe_call_setup_op_cl_ans_rsdp_port;
+
+static int hf_c15ch_out_gwe_call_setup_op_gwe_redir_digits;
+
+static int hf_c15ch_out_gwe_call_setup_op_gwe_rdir_ton;
+static int hf_c15ch_out_gwe_call_setup_op_gwe_rdir_np;
+
+static int hf_c15ch_out_gwe_call_setup_op_gwe_ocn_digits;
+
+static int hf_c15ch_out_gwe_call_setup_op_gwe_chrg_digits;
+
+static int hf_c15ch_out_gwe_call_setup_op_gwe_chrg_noa;
+static int hf_c15ch_out_gwe_call_setup_op_gwe_chrg_npi;
+
+static int hf_c15ch_out_gwe_call_setup_encap_isup;
 
 
 /* Fields */
-static int hf_c15ch_out_gwe_del_subs_ua = -1;
-static int hf_c15ch_out_gwe_del_subs_ua_op_sip_ua_hndl = -1;
+static int hf_c15ch_out_gwe_conn_num;
+static int hf_c15ch_out_gwe_conn_num_out_gwe_conn_num;
 
 
 /* Fields */
-static int hf_c15ch_out_gwe_digit_scan = -1;
-static int hf_c15ch_out_gwe_digit_scan_voip_dgmp_override = -1;
-static int hf_c15ch_out_gwe_digit_scan_actv_dgmp = -1;
-static int hf_c15ch_out_gwe_digit_scan_op_gwe_digit_scan_tone = -1;
-static int hf_c15ch_out_gwe_digit_scan_op_gwe_tone_type = -1;
-static int hf_c15ch_out_gwe_digit_scan_op_gwe_tone_to = -1;
-static int hf_c15ch_out_gwe_digit_scan_op_gwe_digit_flash = -1;
-
-/* Fields */
-static int hf_c15ch_out_gwe_line_sprvsn = -1;
-static int hf_c15ch_out_gwe_line_sprvsn_op_gwe_ofhk_event = -1;
-static int hf_c15ch_out_gwe_line_sprvsn_op_gwe_onhk_event = -1;
-static int hf_c15ch_out_gwe_line_sprvsn_op_gwe_flhk_event = -1;
+static int hf_c15ch_out_gwe_del_subs_ua;
+static int hf_c15ch_out_gwe_del_subs_ua_op_sip_ua_hndl;
 
 
 /* Fields */
-static int hf_c15ch_out_gwe_md_conn = -1;
-static int hf_c15ch_out_gwe_md_conn_conn_num = -1;
-static int hf_c15ch_out_gwe_md_conn_status_code = -1;
-static int hf_c15ch_out_gwe_md_conn_op_gwe_mode = -1;
+static int hf_c15ch_out_gwe_digit_scan;
+static int hf_c15ch_out_gwe_digit_scan_voip_dgmp_override;
+static int hf_c15ch_out_gwe_digit_scan_actv_dgmp;
+static int hf_c15ch_out_gwe_digit_scan_op_gwe_digit_scan_tone;
+static int hf_c15ch_out_gwe_digit_scan_op_gwe_tone_type;
+static int hf_c15ch_out_gwe_digit_scan_op_gwe_tone_to;
+static int hf_c15ch_out_gwe_digit_scan_op_gwe_digit_flash;
 
 /* Fields */
-static int hf_c15ch_out_gwe_mk_conn = -1;
-static int hf_c15ch_out_gwe_mk_conn_conn_num = -1;
-static int hf_c15ch_out_gwe_mk_conn_op_mk_conn_rsdp_ip = -1;
-static int hf_c15ch_out_gwe_mk_conn_op_mk_conn_rsdp_port = -1;
-
-/* Fields */
-static int hf_c15ch_out_gwe_out_cot = -1;
-static int hf_c15ch_out_gwe_out_cot_ni = -1;
-static int hf_c15ch_out_gwe_out_cot_tn = -1;
-static int hf_c15ch_out_gwe_out_cot_ni_tn = -1;
+static int hf_c15ch_out_gwe_line_sprvsn;
+static int hf_c15ch_out_gwe_line_sprvsn_op_gwe_ofhk_event;
+static int hf_c15ch_out_gwe_line_sprvsn_op_gwe_onhk_event;
+static int hf_c15ch_out_gwe_line_sprvsn_op_gwe_flhk_event;
 
 
 /* Fields */
-static int hf_c15ch_out_gwe_pcm_data = -1;
-static int hf_c15ch_out_gwe_pcm_data_rb_ua_handle_near = -1;
-static int hf_c15ch_out_gwe_pcm_data_rb_ua_handle_far  = -1;
+static int hf_c15ch_out_gwe_md_conn;
+static int hf_c15ch_out_gwe_md_conn_conn_num;
+static int hf_c15ch_out_gwe_md_conn_status_code;
+static int hf_c15ch_out_gwe_md_conn_op_gwe_mode;
 
 /* Fields */
-static int hf_c15ch_out_gwe_ring_line = -1;
-static int hf_c15ch_out_gwe_ring_line_op_gwe_display = -1;
-static int hf_c15ch_out_gwe_ring_line_op_gwe_display_chars = -1;
-
-
-/* Fields */
-static int hf_c15ch_out_gwe_rv_subs_data = -1;
-static int hf_c15ch_out_gwe_rv_subs_data_rb_fe_ni = -1;
-static int hf_c15ch_out_gwe_rv_subs_data_rb_fe_tn = -1;
-static int hf_c15ch_out_gwe_rv_subs_data_rb_fe_ni_tn = -1;
-
+static int hf_c15ch_out_gwe_mk_conn;
+static int hf_c15ch_out_gwe_mk_conn_conn_num;
+static int hf_c15ch_out_gwe_mk_conn_op_mk_conn_rsdp_ip;
+static int hf_c15ch_out_gwe_mk_conn_op_mk_conn_rsdp_port;
 
 /* Fields */
-static int hf_c15ch_out_gwe_sac_list_entry = -1;
-static int hf_c15ch_out_gwe_sac_list_entry_op_gwe_med_uri = -1;
+static int hf_c15ch_out_gwe_out_cot;
+static int hf_c15ch_out_gwe_out_cot_ni;
+static int hf_c15ch_out_gwe_out_cot_tn;
+static int hf_c15ch_out_gwe_out_cot_ni_tn;
 
 
 /* Fields */
-static int hf_c15ch_out_gwe_sac_notify = -1;
-static int hf_c15ch_out_gwe_sac_notify_op_gwe_blf_state = -1;
-static int hf_c15ch_out_gwe_sac_notify_op_gwe_subs_state = -1;
+static int hf_c15ch_out_gwe_pcm_data;
+static int hf_c15ch_out_gwe_pcm_data_rb_ua_handle_near;
+static int hf_c15ch_out_gwe_pcm_data_rb_ua_handle_far;
+
+/* Fields */
+static int hf_c15ch_out_gwe_ring_line;
+static int hf_c15ch_out_gwe_ring_line_op_gwe_display;
+static int hf_c15ch_out_gwe_ring_line_op_gwe_display_chars;
 
 
 /* Fields */
-static int hf_c15ch_out_gwe_sac_sub_valid = -1;
-static int hf_c15ch_out_gwe_sac_sub_valid_op_gwe_subs_valid = -1;
-static int hf_c15ch_out_gwe_sac_sub_valid_op_gwe_num_list_items = -1;
+static int hf_c15ch_out_gwe_rv_subs_data;
+static int hf_c15ch_out_gwe_rv_subs_data_rb_fe_ni;
+static int hf_c15ch_out_gwe_rv_subs_data_rb_fe_tn;
+static int hf_c15ch_out_gwe_rv_subs_data_rb_fe_ni_tn;
 
 
 /* Fields */
-static int hf_c15ch_out_gwe_sip_info = -1;
-static int hf_c15ch_out_gwe_sip_info_op_gwe_sip_info = -1;
-static int hf_c15ch_out_gwe_sip_info_op_gwe_sip_info_type = -1;
-
-/* Fields */
-static int hf_c15ch_out_gwe_sip_refer = -1;
-static int hf_c15ch_out_gwe_sip_refer_op_gwe_refer_ua_hndl = -1;
-
-/* Fields */
-static int hf_c15ch_out_gwe_update_ni_tn = -1;
-static int hf_c15ch_out_gwe_update_ni_tn_ni = -1;
-static int hf_c15ch_out_gwe_update_ni_tn_tn = -1;
-static int hf_c15ch_out_gwe_update_ni_tn_ni_tn = -1;
+static int hf_c15ch_out_gwe_sac_list_entry;
+static int hf_c15ch_out_gwe_sac_list_entry_op_gwe_med_uri;
 
 
 /* Fields */
-static int hf_c15ch_out_gwe_update_rec_addr = -1;
-static int hf_c15ch_out_gwe_update_rec_addr_op_new_rec_addr = -1;
+static int hf_c15ch_out_gwe_sac_notify;
+static int hf_c15ch_out_gwe_sac_notify_op_gwe_blf_state;
+static int hf_c15ch_out_gwe_sac_notify_op_gwe_subs_state;
+
+
+/* Fields */
+static int hf_c15ch_out_gwe_sac_sub_valid;
+static int hf_c15ch_out_gwe_sac_sub_valid_op_gwe_subs_valid;
+static int hf_c15ch_out_gwe_sac_sub_valid_op_gwe_num_list_items;
+
+
+/* Fields */
+static int hf_c15ch_out_gwe_sip_info;
+static int hf_c15ch_out_gwe_sip_info_op_gwe_sip_info;
+static int hf_c15ch_out_gwe_sip_info_op_gwe_sip_info_type;
+
+/* Fields */
+static int hf_c15ch_out_gwe_sip_refer;
+static int hf_c15ch_out_gwe_sip_refer_op_gwe_refer_ua_hndl;
+
+/* Fields */
+static int hf_c15ch_out_gwe_update_ni_tn;
+static int hf_c15ch_out_gwe_update_ni_tn_ni;
+static int hf_c15ch_out_gwe_update_ni_tn_tn;
+static int hf_c15ch_out_gwe_update_ni_tn_ni_tn;
+
+
+/* Fields */
+static int hf_c15ch_out_gwe_update_rec_addr;
+static int hf_c15ch_out_gwe_update_rec_addr_op_new_rec_addr;
 
 /* tone */
 
@@ -3819,22 +3819,22 @@ static value_string_ext tone_types_ext = VALUE_STRING_EXT_INIT(tone_types);
 static dissector_table_t c15ch_tone_dissector_table;
 
 /* Fields */
-static int hf_c15ch_tone = -1;
-static int hf_c15ch_tone_msg_type = -1;
+static int hf_c15ch_tone;
+static int hf_c15ch_tone_msg_type;
 
 /* Subtree */
-static gint ett_c15ch_third_level_tone = -1; /* for third level dissection */
-static gint ett_c15ch_third_level_tone_sub1 = -1;
+static gint ett_c15ch_third_level_tone; /* for third level dissection */
+static gint ett_c15ch_third_level_tone_sub1;
 
 /* Protocol */
-static int proto_c15ch_third_level_tone = -1;
+static int proto_c15ch_third_level_tone;
 /* Fields */
-static int hf_c15ch_tone_cot_control = -1;
-static int hf_c15ch_tone_cot_control_device_id = -1;
-static int hf_c15ch_tone_cot_control_cot_task = -1;
-static int hf_c15ch_tone_cot_control_dest_h248 = -1;
-static int hf_c15ch_tone_cot_control_srce_h248 = -1;
-static int hf_c15ch_tone_cot_control_svc_channel = -1;
+static int hf_c15ch_tone_cot_control;
+static int hf_c15ch_tone_cot_control_device_id;
+static int hf_c15ch_tone_cot_control_cot_task;
+static int hf_c15ch_tone_cot_control_dest_h248;
+static int hf_c15ch_tone_cot_control_srce_h248;
+static int hf_c15ch_tone_cot_control_svc_channel;
 
 /* value labels for fields*/
 static const value_string c15_tone_msg_types[] = {
@@ -3850,15 +3850,15 @@ static const value_string c15_tone_msg_types[] = {
 };
 
 /* Fields */
-static int hf_c15ch_tone_cpm = -1;
-static int hf_c15ch_tone_cpm_loop_type = -1;
-static int hf_c15ch_tone_cpm_device_id = -1;
-static int hf_c15ch_tone_cpm_tone_type = -1;
+static int hf_c15ch_tone_cpm;
+static int hf_c15ch_tone_cpm_loop_type;
+static int hf_c15ch_tone_cpm_device_id;
+static int hf_c15ch_tone_cpm_tone_type;
 
 
 #if 0
 /* Subtree */
-static gint ett_c15ch_tone_cpm = -1;
+static gint ett_c15ch_tone_cpm;
 #endif
 
 /* labels for loop type */
@@ -3921,47 +3921,47 @@ static value_string_ext device_types_ext = VALUE_STRING_EXT_INIT(device_types);
 
 
 /* Fields */
-static int hf_c15ch_tone_give_tone = -1;
-static int hf_c15ch_tone_give_tone_tone_id = -1;
-static int hf_c15ch_tone_give_tone_tone_type = -1;
+static int hf_c15ch_tone_give_tone;
+static int hf_c15ch_tone_give_tone_tone_id;
+static int hf_c15ch_tone_give_tone_tone_type;
 
 /* Fields */
-static int hf_c15ch_tone_madn_ring = -1;
-static int hf_c15ch_tone_madn_ring_device_id = -1;
-static int hf_c15ch_tone_madn_ring_tone_type = -1;
+static int hf_c15ch_tone_madn_ring;
+static int hf_c15ch_tone_madn_ring_device_id;
+static int hf_c15ch_tone_madn_ring_tone_type;
 
 /* Fields */
-static int hf_c15ch_tone_opls = -1;
-static int hf_c15ch_tone_opls_svce_from_ni = -1;
-static int hf_c15ch_tone_opls_svce_to_ni = -1;
-static int hf_c15ch_tone_opls_svce_to_ni_tn = -1;
-static int hf_c15ch_tone_opls_svce_to_tn = -1;
-static int hf_c15ch_tone_opls_digits = -1;
-
-
-/* Fields */
-static int hf_c15ch_tone_rcvr = -1;
-static int hf_c15ch_tone_rcvr_rcvr_id = -1;
-static int hf_c15ch_tone_rcvr_conn_to_ni = -1;
-static int hf_c15ch_tone_rcvr_conn_to_ni_tn = -1;
-static int hf_c15ch_tone_rcvr_conn_to_tn = -1;
+static int hf_c15ch_tone_opls;
+static int hf_c15ch_tone_opls_svce_from_ni;
+static int hf_c15ch_tone_opls_svce_to_ni;
+static int hf_c15ch_tone_opls_svce_to_ni_tn;
+static int hf_c15ch_tone_opls_svce_to_tn;
+static int hf_c15ch_tone_opls_digits;
 
 
 /* Fields */
-static int hf_c15ch_tone_timeout = -1;
-static int hf_c15ch_tone_timeout_device_id = -1;
-static int hf_c15ch_tone_timeout_service_pm = -1;
-static int hf_c15ch_tone_timeout_service_ni = -1;
-static int hf_c15ch_tone_timeout_service_ni_tn = -1;
-static int hf_c15ch_tone_timeout_service_tn = -1;
-static int hf_c15ch_tone_timeout_gw_provided = -1;
-static int hf_c15ch_tone_timeout_gw_service_tone_type_or_from_ni = -1;
+static int hf_c15ch_tone_rcvr;
+static int hf_c15ch_tone_rcvr_rcvr_id;
+static int hf_c15ch_tone_rcvr_conn_to_ni;
+static int hf_c15ch_tone_rcvr_conn_to_ni_tn;
+static int hf_c15ch_tone_rcvr_conn_to_tn;
 
 
 /* Fields */
-static int hf_c15ch_tone_tone_control = -1;
-static int hf_c15ch_tone_tone_control_device_id = -1;
-static int hf_c15ch_tone_tone_control_tone_type = -1;
+static int hf_c15ch_tone_timeout;
+static int hf_c15ch_tone_timeout_device_id;
+static int hf_c15ch_tone_timeout_service_pm;
+static int hf_c15ch_tone_timeout_service_ni;
+static int hf_c15ch_tone_timeout_service_ni_tn;
+static int hf_c15ch_tone_timeout_service_tn;
+static int hf_c15ch_tone_timeout_gw_provided;
+static int hf_c15ch_tone_timeout_gw_service_tone_type_or_from_ni;
+
+
+/* Fields */
+static int hf_c15ch_tone_tone_control;
+static int hf_c15ch_tone_tone_control_device_id;
+static int hf_c15ch_tone_tone_control_tone_type;
 
 
 /* util functions */

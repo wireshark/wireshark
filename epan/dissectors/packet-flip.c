@@ -47,20 +47,20 @@ void proto_reg_handoff_flip(void);
 
 static dissector_handle_t flip_handle;
 
-static int proto_flip = -1;
+static int proto_flip;
 
 /* BASIC */
-static int hf_flip_basic_e         = -1;
-static int hf_flip_basic_reserved  = -1;
-static int hf_flip_basic_flowid    = -1;
-static int hf_flip_basic_seqnum    = -1;
-static int hf_flip_basic_len       = -1;
+static int hf_flip_basic_e;
+static int hf_flip_basic_reserved;
+static int hf_flip_basic_flowid;
+static int hf_flip_basic_seqnum;
+static int hf_flip_basic_len;
 
 /* CHECKSUM */
-static int hf_flip_chksum_etype  = -1;
-static int hf_flip_chksum_spare  = -1;
-static int hf_flip_chksum_e      = -1;
-static int hf_flip_chksum_chksum = -1;
+static int hf_flip_chksum_etype;
+static int hf_flip_chksum_spare;
+static int hf_flip_chksum_e;
+static int hf_flip_chksum_chksum;
 
 #define FLIP_BASIC            (0)
 #define FLIP_CHKSUM           (1)
@@ -76,10 +76,10 @@ static const value_string flip_etype[] = {
 
 static dissector_table_t subdissector_table;
 
-static gint ett_flip         = -1;
-static gint ett_flip_basic   = -1;
-static gint ett_flip_chksum  = -1;
-static gint ett_flip_payload = -1;
+static gint ett_flip;
+static gint ett_flip_basic;
+static gint ett_flip_chksum;
+static gint ett_flip_payload;
 
 static void flip_prompt(packet_info *pinfo _U_, gchar* result)
 {

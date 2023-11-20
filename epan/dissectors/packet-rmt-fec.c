@@ -33,26 +33,26 @@
 
 void proto_register_rmt_fec(void);
 
-static int proto_rmt_fec = -1;
+static int proto_rmt_fec;
 
-static int hf_encoding_id = -1;
-static int hf_instance_id = -1;
-static int hf_sbn = -1;
-static int hf_sbn_with_mask = -1;
-static int hf_sbl = -1;
-static int hf_esi = -1;
-static int hf_esi_with_mask = -1;
-static int hf_fti_transfer_length = -1;
-static int hf_fti_encoding_symbol_length = -1;
-static int hf_fti_max_source_block_length = -1;
-static int hf_fti_max_number_encoding_symbols = -1;
-static int hf_fti_num_blocks = -1;
-static int hf_fti_num_subblocks = -1;
-static int hf_fti_alignment = -1;
+static int hf_encoding_id;
+static int hf_instance_id;
+static int hf_sbn;
+static int hf_sbn_with_mask;
+static int hf_sbl;
+static int hf_esi;
+static int hf_esi_with_mask;
+static int hf_fti_transfer_length;
+static int hf_fti_encoding_symbol_length;
+static int hf_fti_max_source_block_length;
+static int hf_fti_max_number_encoding_symbols;
+static int hf_fti_num_blocks;
+static int hf_fti_num_subblocks;
+static int hf_fti_alignment;
 
-static int ett_main = -1;
+static int ett_main;
 
-static expert_field ei_fec_encoding_id = EI_INIT;
+static expert_field ei_fec_encoding_id;
 
 typedef struct fec_packet_data
 {

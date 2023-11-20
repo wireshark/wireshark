@@ -15,16 +15,16 @@
 void proto_register_spray(void);
 void proto_reg_handoff_spray(void);
 
-static int proto_spray = -1;
-static int hf_spray_procedure_v1 = -1;
-static int hf_spray_sprayarr = -1;
-static int hf_spray_counter = -1;
-static int hf_spray_clock = -1;
-static int hf_spray_sec = -1;
-static int hf_spray_usec = -1;
+static int proto_spray;
+static int hf_spray_procedure_v1;
+static int hf_spray_sprayarr;
+static int hf_spray_counter;
+static int hf_spray_clock;
+static int hf_spray_sec;
+static int hf_spray_usec;
 
-static gint ett_spray = -1;
-static gint ett_spray_clock = -1;
+static gint ett_spray;
+static gint ett_spray_clock;
 
 #define PACKET_SPRAY_H
 

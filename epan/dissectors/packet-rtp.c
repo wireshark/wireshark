@@ -138,19 +138,19 @@ struct _rtp_dyn_payload_t
 
 static reassembly_table rtp_reassembly_table;
 
-static int hf_rtp_fragments = -1;
-static int hf_rtp_fragment = -1;
-static int hf_rtp_fragment_overlap = -1;
-static int hf_rtp_fragment_overlap_conflict = -1;
-static int hf_rtp_fragment_multiple_tails = -1;
-static int hf_rtp_fragment_too_long_fragment = -1;
-static int hf_rtp_fragment_error = -1;
-static int hf_rtp_fragment_count = -1;
-static int hf_rtp_reassembled_in = -1;
-static int hf_rtp_reassembled_length = -1;
+static int hf_rtp_fragments;
+static int hf_rtp_fragment;
+static int hf_rtp_fragment_overlap;
+static int hf_rtp_fragment_overlap_conflict;
+static int hf_rtp_fragment_multiple_tails;
+static int hf_rtp_fragment_too_long_fragment;
+static int hf_rtp_fragment_error;
+static int hf_rtp_fragment_count;
+static int hf_rtp_reassembled_in;
+static int hf_rtp_reassembled_length;
 
-static gint ett_rtp_fragment = -1;
-static gint ett_rtp_fragments = -1;
+static gint ett_rtp_fragment;
+static gint ett_rtp_fragments;
 
 static const fragment_items rtp_fragment_items = {
     &ett_rtp_fragment,
@@ -200,76 +200,76 @@ static dissector_table_t rtp_hdr_ext_dissector_table;
 static dissector_table_t rtp_hdr_ext_rfc5285_dissector_table;
 
 /* Used for storing data to be retreived by the SDP dissector*/
-static int proto_sdp = -1;
+static int proto_sdp;
 
 /* RTP header fields             */
-static int proto_rtp           = -1;
-static int proto_rtp_rfc2198   = -1;
-static int hf_rtp_version      = -1;
-static int hf_rtp_padding      = -1;
-static int hf_rtp_extension    = -1;
-static int hf_rtp_csrc_count   = -1;
-static int hf_rtp_marker       = -1;
-static int hf_rtp_payload_type = -1;
-static int hf_rtp_seq_nr       = -1;
-static int hf_rtp_ext_seq_nr   = -1;
-static int hf_rtp_timestamp    = -1;
-static int hf_rtp_ssrc         = -1;
-static int hf_rtp_csrc_items   = -1;
-static int hf_rtp_csrc_item    = -1;
-static int hf_rtp_data         = -1;
-static int hf_rtp_padding_data = -1;
-static int hf_rtp_padding_count= -1;
-static int hf_rtp_rfc2198_follow= -1;
-static int hf_rtp_rfc2198_tm_off= -1;
-static int hf_rtp_rfc2198_bl_len= -1;
+static int proto_rtp;
+static int proto_rtp_rfc2198;
+static int hf_rtp_version;
+static int hf_rtp_padding;
+static int hf_rtp_extension;
+static int hf_rtp_csrc_count;
+static int hf_rtp_marker;
+static int hf_rtp_payload_type;
+static int hf_rtp_seq_nr;
+static int hf_rtp_ext_seq_nr;
+static int hf_rtp_timestamp;
+static int hf_rtp_ssrc;
+static int hf_rtp_csrc_items;
+static int hf_rtp_csrc_item;
+static int hf_rtp_data;
+static int hf_rtp_padding_data;
+static int hf_rtp_padding_count;
+static int hf_rtp_rfc2198_follow;
+static int hf_rtp_rfc2198_tm_off;
+static int hf_rtp_rfc2198_bl_len;
 
 /* RTP header extension fields   */
-static int hf_rtp_prof_define  = -1;
-static int hf_rtp_length       = -1;
-static int hf_rtp_hdr_exts     = -1;
-static int hf_rtp_hdr_ext      = -1;
+static int hf_rtp_prof_define;
+static int hf_rtp_length;
+static int hf_rtp_hdr_exts;
+static int hf_rtp_hdr_ext;
 
 /* RTP setup fields */
-static int hf_rtp_setup        = -1;
-static int hf_rtp_setup_frame  = -1;
-static int hf_rtp_setup_method = -1;
+static int hf_rtp_setup;
+static int hf_rtp_setup_frame;
+static int hf_rtp_setup_method;
 
 /* RTP fields defining a sub tree */
-static gint ett_rtp       = -1;
-static gint ett_csrc_list = -1;
-static gint ett_hdr_ext   = -1;
-static gint ett_hdr_ext_rfc5285 = -1;
-static gint ett_rtp_setup = -1;
-static gint ett_rtp_rfc2198 = -1;
-static gint ett_rtp_rfc2198_hdr = -1;
+static gint ett_rtp;
+static gint ett_csrc_list;
+static gint ett_hdr_ext;
+static gint ett_hdr_ext_rfc5285;
+static gint ett_rtp_setup;
+static gint ett_rtp_rfc2198;
+static gint ett_rtp_rfc2198_hdr;
 
 /* SRTP fields */
-static int hf_srtp_encrypted_payload = -1;
-/* static int hf_srtp_null_encrypted_payload = -1; */
-static int hf_srtp_mki = -1;
-static int hf_srtp_auth_tag = -1;
+static int hf_srtp_encrypted_payload;
+/* static int hf_srtp_null_encrypted_payload; */
+static int hf_srtp_mki;
+static int hf_srtp_auth_tag;
 
 /* PacketCable CCC header fields */
-static int proto_pkt_ccc       = -1;
-static int hf_pkt_ccc_id       = -1;
-static int hf_pkt_ccc_ts       = -1;
+static int proto_pkt_ccc;
+static int hf_pkt_ccc_id;
+static int hf_pkt_ccc_ts;
 
 /* PacketCable CCC field defining a sub tree */
-static gint ett_pkt_ccc = -1;
+static gint ett_pkt_ccc;
 
-static expert_field ei_rtp_fragment_unfinished = EI_INIT;
-static expert_field ei_rtp_padding_missing = EI_INIT;
-static expert_field ei_rtp_padding_bogus = EI_INIT;
+static expert_field ei_rtp_fragment_unfinished;
+static expert_field ei_rtp_padding_missing;
+static expert_field ei_rtp_padding_bogus;
 
 /* RFC 5285 Header extensions */
-static int hf_rtp_ext_rfc5285_id = -1;
-static int hf_rtp_ext_rfc5285_length = -1;
-static int hf_rtp_ext_rfc5285_appbits = -1;
-static int hf_rtp_ext_rfc5285_data = -1;
+static int hf_rtp_ext_rfc5285_id;
+static int hf_rtp_ext_rfc5285_length;
+static int hf_rtp_ext_rfc5285_appbits;
+static int hf_rtp_ext_rfc5285_data;
 
 /* RFC 4571 Header extension */
-static int hf_rfc4571_header_len = -1;
+static int hf_rfc4571_header_len;
 
 #define RTP0_INVALID 0
 #define RTP0_STUN    1

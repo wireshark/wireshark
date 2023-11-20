@@ -19,33 +19,33 @@
 void proto_register_nfsacl(void);
 void proto_reg_handoff_nfsacl(void);
 
-static int proto_nfsacl = -1;
-static int hf_nfsacl_mask = -1;
-static int hf_nfsacl_mask_acl_entry = -1;
-static int hf_nfsacl_mask_acl_count = -1;
-static int hf_nfsacl_mask_default_acl_entry = -1;
-static int hf_nfsacl_mask_default_acl_count = -1;
-static int hf_nfsacl_procedure_v1 = -1;
-static int hf_nfsacl_procedure_v2 = -1;
-static int hf_nfsacl_procedure_v3 = -1;
-static int hf_nfsacl_entry = -1;
-static int hf_nfsacl_aclcnt = -1;
-static int hf_nfsacl_dfaclcnt = -1;
-static int hf_nfsacl_aclent = -1;
-static int hf_nfsacl_aclent_type = -1;
-static int hf_nfsacl_aclent_uid = -1;
-static int hf_nfsacl_aclent_perm = -1;
-static int hf_nfsacl_aclent_perm_read = -1;
-static int hf_nfsacl_aclent_perm_write = -1;
-static int hf_nfsacl_aclent_perm_exec = -1;
-static int hf_nfsacl_create = -1;
+static int proto_nfsacl;
+static int hf_nfsacl_mask;
+static int hf_nfsacl_mask_acl_entry;
+static int hf_nfsacl_mask_acl_count;
+static int hf_nfsacl_mask_default_acl_entry;
+static int hf_nfsacl_mask_default_acl_count;
+static int hf_nfsacl_procedure_v1;
+static int hf_nfsacl_procedure_v2;
+static int hf_nfsacl_procedure_v3;
+static int hf_nfsacl_entry;
+static int hf_nfsacl_aclcnt;
+static int hf_nfsacl_dfaclcnt;
+static int hf_nfsacl_aclent;
+static int hf_nfsacl_aclent_type;
+static int hf_nfsacl_aclent_uid;
+static int hf_nfsacl_aclent_perm;
+static int hf_nfsacl_aclent_perm_read;
+static int hf_nfsacl_aclent_perm_write;
+static int hf_nfsacl_aclent_perm_exec;
+static int hf_nfsacl_create;
 
-static gint ett_nfsacl = -1;
-static gint ett_nfsacl_mask = -1;
-static gint ett_nfsacl_entry = -1;
-static gint ett_nfsacl_aclent = -1;
-static gint ett_nfsacl_aclent_perm = -1;
-static gint ett_nfsacl_aclent_entries = -1;
+static gint ett_nfsacl;
+static gint ett_nfsacl_mask;
+static gint ett_nfsacl_entry;
+static gint ett_nfsacl_aclent;
+static gint ett_nfsacl_aclent_perm;
+static gint ett_nfsacl_aclent_entries;
 
 #define NFSACL_PROGRAM	100227
 

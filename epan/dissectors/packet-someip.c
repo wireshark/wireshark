@@ -125,76 +125,76 @@
 #define SOMEIP_WTLV_MASK_DATA_ID                 0x0fff
 
 /* ID wireshark identifies the dissector by */
-static int proto_someip = -1;
+static int proto_someip;
 
 static dissector_handle_t someip_handle_udp = NULL;
 static dissector_handle_t someip_handle_tcp = NULL;
 static dissector_handle_t dtls_handle = NULL;
 
 /* header field */
-static int hf_someip_messageid                                          = -1;
-static int hf_someip_serviceid                                          = -1;
-static int hf_someip_servicename                                        = -1;
-static int hf_someip_methodid                                           = -1;
-static int hf_someip_methodname                                         = -1;
-static int hf_someip_length                                             = -1;
-static int hf_someip_clientid                                           = -1;
-static int hf_someip_clientname                                         = -1;
-static int hf_someip_sessionid                                          = -1;
-static int hf_someip_protover                                           = -1;
-static int hf_someip_interface_ver                                      = -1;
-static int hf_someip_messagetype                                        = -1;
-static int hf_someip_messagetype_ack_flag                               = -1;
-static int hf_someip_messagetype_tp_flag                                = -1;
-static int hf_someip_returncode                                         = -1;
+static int hf_someip_messageid;
+static int hf_someip_serviceid;
+static int hf_someip_servicename;
+static int hf_someip_methodid;
+static int hf_someip_methodname;
+static int hf_someip_length;
+static int hf_someip_clientid;
+static int hf_someip_clientname;
+static int hf_someip_sessionid;
+static int hf_someip_protover;
+static int hf_someip_interface_ver;
+static int hf_someip_messagetype;
+static int hf_someip_messagetype_ack_flag;
+static int hf_someip_messagetype_tp_flag;
+static int hf_someip_returncode;
 
-static int hf_someip_tp                                                 = -1;
-static int hf_someip_tp_offset                                          = -1;
-static int hf_someip_tp_offset_encoded                                  = -1;
-static int hf_someip_tp_flags                                           = -1;
-static int hf_someip_tp_reserved                                        = -1;
-static int hf_someip_tp_more_segments                                   = -1;
+static int hf_someip_tp;
+static int hf_someip_tp_offset;
+static int hf_someip_tp_offset_encoded;
+static int hf_someip_tp_flags;
+static int hf_someip_tp_reserved;
+static int hf_someip_tp_more_segments;
 
-static int hf_someip_payload                                            = -1;
+static int hf_someip_payload;
 
 /* protocol tree items */
-static gint ett_someip                                                  = -1;
-static gint ett_someip_msgtype                                          = -1;
-static gint ett_someip_tp                                               = -1;
+static gint ett_someip;
+static gint ett_someip_msgtype;
+static gint ett_someip_tp;
 
 /* dissector handling */
 static dissector_table_t someip_dissector_table = NULL;
 
 /* message reassembly for SOME/IP-TP */
-static int hf_someip_tp_fragments                                       = -1;
-static int hf_someip_tp_fragment                                        = -1;
-static int hf_someip_tp_fragment_overlap                                = -1;
-static int hf_someip_tp_fragment_overlap_conflicts                      = -1;
-static int hf_someip_tp_fragment_multiple_tails                         = -1;
-static int hf_someip_tp_fragment_too_long_fragment                      = -1;
-static int hf_someip_tp_fragment_error                                  = -1;
-static int hf_someip_tp_fragment_count                                  = -1;
-static int hf_someip_tp_reassembled_in                                  = -1;
-static int hf_someip_tp_reassembled_length                              = -1;
-static int hf_someip_tp_reassembled_data                                = -1;
+static int hf_someip_tp_fragments;
+static int hf_someip_tp_fragment;
+static int hf_someip_tp_fragment_overlap;
+static int hf_someip_tp_fragment_overlap_conflicts;
+static int hf_someip_tp_fragment_multiple_tails;
+static int hf_someip_tp_fragment_too_long_fragment;
+static int hf_someip_tp_fragment_error;
+static int hf_someip_tp_fragment_count;
+static int hf_someip_tp_reassembled_in;
+static int hf_someip_tp_reassembled_length;
+static int hf_someip_tp_reassembled_data;
 
-static int hf_payload_unparsed                                          = -1;
-static int hf_payload_length_field_8bit                                 = -1;
-static int hf_payload_length_field_16bit                                = -1;
-static int hf_payload_length_field_32bit                                = -1;
-static int hf_payload_type_field_8bit                                   = -1;
-static int hf_payload_type_field_16bit                                  = -1;
-static int hf_payload_type_field_32bit                                  = -1;
-static int hf_payload_str_base                                          = -1;
-static int hf_payload_str_string                                        = -1;
-static int hf_payload_str_struct                                        = -1;
-static int hf_payload_str_array                                         = -1;
-static int hf_payload_str_union                                         = -1;
+static int hf_payload_unparsed;
+static int hf_payload_length_field_8bit;
+static int hf_payload_length_field_16bit;
+static int hf_payload_length_field_32bit;
+static int hf_payload_type_field_8bit;
+static int hf_payload_type_field_16bit;
+static int hf_payload_type_field_32bit;
+static int hf_payload_str_base;
+static int hf_payload_str_string;
+static int hf_payload_str_struct;
+static int hf_payload_str_array;
+static int hf_payload_str_union;
 
-static int hf_payload_wtlv_tag                                          = -1;
-static int hf_payload_wtlv_tag_res                                      = -1;
-static int hf_payload_wtlv_tag_wire_type                                = -1;
-static int hf_payload_wtlv_tag_data_id                                  = -1;
+static int hf_payload_wtlv_tag;
+static int hf_payload_wtlv_tag_res;
+static int hf_payload_wtlv_tag_wire_type;
+static int hf_payload_wtlv_tag_data_id;
 
 static hf_register_info* dynamic_hf_param                               = NULL;
 static guint dynamic_hf_param_size                                      = 0;
@@ -205,16 +205,16 @@ static guint dynamic_hf_struct_size                                     = 0;
 static hf_register_info* dynamic_hf_union                               = NULL;
 static guint dynamic_hf_union_size                                      = 0;
 
-static gint ett_someip_tp_fragment                                      = -1;
-static gint ett_someip_tp_fragments                                     = -1;
-static gint ett_someip_payload                                          = -1;
-static gint ett_someip_string                                           = -1;
-static gint ett_someip_array                                            = -1;
-static gint ett_someip_array_dim                                        = -1;
-static gint ett_someip_struct                                           = -1;
-static gint ett_someip_union                                            = -1;
-static gint ett_someip_parameter                                        = -1;
-static gint ett_someip_wtlv_tag                                         = -1;
+static gint ett_someip_tp_fragment;
+static gint ett_someip_tp_fragments;
+static gint ett_someip_payload;
+static gint ett_someip_string;
+static gint ett_someip_array;
+static gint ett_someip_array_dim;
+static gint ett_someip_struct;
+static gint ett_someip_union;
+static gint ett_someip_parameter;
+static gint ett_someip_wtlv_tag;
 
 static const fragment_items someip_tp_frag_items = {
     &ett_someip_tp_fragment,
@@ -270,16 +270,16 @@ static const value_string someip_return_code[] = {
 };
 
 /*** expert info items ***/
-static expert_field ei_someip_unknown_version                           = EI_INIT;
-static expert_field ei_someip_message_truncated                         = EI_INIT;
-static expert_field ei_someip_incomplete_headers                        = EI_INIT;
+static expert_field ei_someip_unknown_version;
+static expert_field ei_someip_message_truncated;
+static expert_field ei_someip_incomplete_headers;
 
-static expert_field ei_someip_payload_truncated                         = EI_INIT;
-static expert_field ei_someip_payload_malformed                         = EI_INIT;
-static expert_field ei_someip_payload_config_error                      = EI_INIT;
-static expert_field ei_someip_payload_alignment_error                   = EI_INIT;
-static expert_field ei_someip_payload_static_array_min_not_max          = EI_INIT;
-static expert_field ei_someip_payload_dyn_array_not_within_limit        = EI_INIT;
+static expert_field ei_someip_payload_truncated;
+static expert_field ei_someip_payload_malformed;
+static expert_field ei_someip_payload_config_error;
+static expert_field ei_someip_payload_alignment_error;
+static expert_field ei_someip_payload_static_array_min_not_max;
+static expert_field ei_someip_payload_dyn_array_not_within_limit;
 
 /*** Data Structure for mapping IDs to Names (Services, Methods, ...) ***/
 static GHashTable *data_someip_services                                 = NULL;

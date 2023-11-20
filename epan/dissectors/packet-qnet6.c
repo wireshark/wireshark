@@ -24,493 +24,493 @@ void proto_register_qnet6(void);
 
 static dissector_handle_t qnet6_handle;
 
-static int proto_qnet6_l4 = -1;
-static int proto_qnet6_qos = -1;
-static int proto_qnet6_lr = -1;
-static int proto_qnet6_kif = -1;
-static int proto_qnet6_nr = -1;
+static int proto_qnet6_l4;
+static int proto_qnet6_qos;
+static int proto_qnet6_lr;
+static int proto_qnet6_kif;
+static int proto_qnet6_nr;
 
-static int hf_qnet6_l4_padding = -1;
-static int hf_qnet6_l4_ver = -1;
-static int hf_qnet6_l4_type = -1;
-static int hf_qnet6_l4_flags = -1;
-static int hf_qnet6_l4_flags_first = -1;
-static int hf_qnet6_l4_flags_last = -1;
-static int hf_qnet6_l4_flags_crc = -1;
-static int hf_qnet6_l4_qos_info = -1;
-static int hf_qnet6_l4_qos_src_nd_for_dst = -1;
-static int hf_qnet6_l4_qos_dst_nd_for_src = -1;
-static int hf_qnet6_l4_qos_src_conn_id = -1;
-static int hf_qnet6_l4_qos_dst_conn_id = -1;
-static int hf_qnet6_l4_qos_src_seq_num = -1;
-static int hf_qnet6_l4_qos_qos_type = -1;
-static int hf_qnet6_l4_qos_src_qos_idx = -1;
-static int hf_qnet6_l4_layer = -1;
-static int hf_qnet6_l4_offset = -1;
-static int hf_qnet6_l4_length = -1;
-static int hf_qnet6_l4_crc = -1;
+static int hf_qnet6_l4_padding;
+static int hf_qnet6_l4_ver;
+static int hf_qnet6_l4_type;
+static int hf_qnet6_l4_flags;
+static int hf_qnet6_l4_flags_first;
+static int hf_qnet6_l4_flags_last;
+static int hf_qnet6_l4_flags_crc;
+static int hf_qnet6_l4_qos_info;
+static int hf_qnet6_l4_qos_src_nd_for_dst;
+static int hf_qnet6_l4_qos_dst_nd_for_src;
+static int hf_qnet6_l4_qos_src_conn_id;
+static int hf_qnet6_l4_qos_dst_conn_id;
+static int hf_qnet6_l4_qos_src_seq_num;
+static int hf_qnet6_l4_qos_qos_type;
+static int hf_qnet6_l4_qos_src_qos_idx;
+static int hf_qnet6_l4_layer;
+static int hf_qnet6_l4_offset;
+static int hf_qnet6_l4_length;
+static int hf_qnet6_l4_crc;
 
-static int hf_qnet6_qos_tcs_src_name_off = -1;
-static int hf_qnet6_qos_tcs_src_name_generated = -1;
-static int hf_qnet6_qos_tcs_src_domain_off = -1;
-static int hf_qnet6_qos_tcs_src_domain_generated = -1;
-static int hf_qnet6_qos_tcs_dst_name_off = -1;
-static int hf_qnet6_qos_tcs_dst_name_generated = -1;
-static int hf_qnet6_qos_tcs_dst_domain_off = -1;
-static int hf_qnet6_qos_tcs_dst_domain_generated = -1;
+static int hf_qnet6_qos_tcs_src_name_off;
+static int hf_qnet6_qos_tcs_src_name_generated;
+static int hf_qnet6_qos_tcs_src_domain_off;
+static int hf_qnet6_qos_tcs_src_domain_generated;
+static int hf_qnet6_qos_tcs_dst_name_off;
+static int hf_qnet6_qos_tcs_dst_name_generated;
+static int hf_qnet6_qos_tcs_dst_domain_off;
+static int hf_qnet6_qos_tcs_dst_domain_generated;
 
-static int hf_qnet6_lr_ver = -1;
-static int hf_qnet6_lr_type = -1;
-static int hf_qnet6_lr_total_len = -1;
-static int hf_qnet6_lr_src = -1;
-static int hf_qnet6_lr_src_name_off = -1;
-static int hf_qnet6_lr_src_name_len = -1;
-static int hf_qnet6_lr_src_name_generated = -1;
-static int hf_qnet6_lr_src_domain_off = -1;
-static int hf_qnet6_lr_src_domain_len = -1;
-static int hf_qnet6_lr_src_domain_generated = -1;
-static int hf_qnet6_lr_src_addr_off = -1;
-static int hf_qnet6_lr_src_addr_len = -1;
-static int hf_qnet6_lr_src_addr_generated = -1;
-static int hf_qnet6_lr_dst = -1;
-static int hf_qnet6_lr_dst_name_off = -1;
-static int hf_qnet6_lr_dst_name_len = -1;
-static int hf_qnet6_lr_dst_name_generated = -1;
-static int hf_qnet6_lr_dst_domain_off = -1;
-static int hf_qnet6_lr_dst_domain_len = -1;
-static int hf_qnet6_lr_dst_domain_generated = -1;
-static int hf_qnet6_lr_dst_addr_off = -1;
-static int hf_qnet6_lr_dst_addr_len = -1;
-static int hf_qnet6_lr_dst_addr_generated = -1;
+static int hf_qnet6_lr_ver;
+static int hf_qnet6_lr_type;
+static int hf_qnet6_lr_total_len;
+static int hf_qnet6_lr_src;
+static int hf_qnet6_lr_src_name_off;
+static int hf_qnet6_lr_src_name_len;
+static int hf_qnet6_lr_src_name_generated;
+static int hf_qnet6_lr_src_domain_off;
+static int hf_qnet6_lr_src_domain_len;
+static int hf_qnet6_lr_src_domain_generated;
+static int hf_qnet6_lr_src_addr_off;
+static int hf_qnet6_lr_src_addr_len;
+static int hf_qnet6_lr_src_addr_generated;
+static int hf_qnet6_lr_dst;
+static int hf_qnet6_lr_dst_name_off;
+static int hf_qnet6_lr_dst_name_len;
+static int hf_qnet6_lr_dst_name_generated;
+static int hf_qnet6_lr_dst_domain_off;
+static int hf_qnet6_lr_dst_domain_len;
+static int hf_qnet6_lr_dst_domain_generated;
+static int hf_qnet6_lr_dst_addr_off;
+static int hf_qnet6_lr_dst_addr_len;
+static int hf_qnet6_lr_dst_addr_generated;
 
-static int hf_qnet6_kif_msgtype = -1;
-static int hf_qnet6_kif_size = -1;
+static int hf_qnet6_kif_msgtype;
+static int hf_qnet6_kif_size;
 
-static int hf_qnet6_kif_version = -1;
-static int hf_qnet6_kif_client_info = -1;
-static int hf_qnet6_kif_zero = -1;
+static int hf_qnet6_kif_version;
+static int hf_qnet6_kif_client_info;
+static int hf_qnet6_kif_zero;
 
 /*
  * client_info
  */
-static int hf_qnet6_kif_client_info_nd = -1;
-static int hf_qnet6_kif_client_info_pid = -1;
-static int hf_qnet6_kif_client_info_sid = -1;
-static int hf_qnet6_kif_client_info_flags = -1;
-static int hf_qnet6_kif_client_info_cred = -1;
-static int hf_qnet6_kif_client_info_cred_ruid = -1;
-static int hf_qnet6_kif_client_info_cred_euid = -1;
-static int hf_qnet6_kif_client_info_cred_suid = -1;
-static int hf_qnet6_kif_client_info_cred_rgid = -1;
-static int hf_qnet6_kif_client_info_cred_egid = -1;
-static int hf_qnet6_kif_client_info_cred_sgid = -1;
-static int hf_qnet6_kif_client_info_cred_ngroups = -1;
-static int hf_qnet6_kif_client_info_cred_grouplist = -1;
+static int hf_qnet6_kif_client_info_nd;
+static int hf_qnet6_kif_client_info_pid;
+static int hf_qnet6_kif_client_info_sid;
+static int hf_qnet6_kif_client_info_flags;
+static int hf_qnet6_kif_client_info_cred;
+static int hf_qnet6_kif_client_info_cred_ruid;
+static int hf_qnet6_kif_client_info_cred_euid;
+static int hf_qnet6_kif_client_info_cred_suid;
+static int hf_qnet6_kif_client_info_cred_rgid;
+static int hf_qnet6_kif_client_info_cred_egid;
+static int hf_qnet6_kif_client_info_cred_sgid;
+static int hf_qnet6_kif_client_info_cred_ngroups;
+static int hf_qnet6_kif_client_info_cred_grouplist;
 
 /*
  * connect message
  */
-static int hf_qnet6_kif_connect = -1;
-static int hf_qnet6_kif_connect_server_pid = -1;
-static int hf_qnet6_kif_connect_server_chid = -1;
-static int hf_qnet6_kif_connect_client_id = -1;
-static int hf_qnet6_kif_connect_client_pid = -1;
+static int hf_qnet6_kif_connect;
+static int hf_qnet6_kif_connect_server_pid;
+static int hf_qnet6_kif_connect_server_chid;
+static int hf_qnet6_kif_connect_client_id;
+static int hf_qnet6_kif_connect_client_pid;
 /*
  * connect success message
  */
-static int hf_qnet6_kif_connects_client_id = -1;
-static int hf_qnet6_kif_connects_server_id = -1;
-static int hf_qnet6_kif_connects_scoid = -1;
-static int hf_qnet6_kif_connects_nbytes = -1;
+static int hf_qnet6_kif_connects_client_id;
+static int hf_qnet6_kif_connects_server_id;
+static int hf_qnet6_kif_connects_scoid;
+static int hf_qnet6_kif_connects_nbytes;
 /*
  * connect fail message
  */
-static int hf_qnet6_kif_connectf_client_id = -1;
-static int hf_qnet6_kif_connectf_status = -1;
+static int hf_qnet6_kif_connectf_client_id;
+static int hf_qnet6_kif_connectf_status;
 /*
  * connect death message
  */
-static int hf_qnet6_kif_connectd_client_id = -1;
+static int hf_qnet6_kif_connectd_client_id;
 /*
  * msgsend message
  */
-static int hf_qnet6_kif_msgsend = -1;
-static int hf_qnet6_kif_msgsend_server_id = -1;
-static int hf_qnet6_kif_msgsend_client_handle = -1;
-static int hf_qnet6_kif_msgsend_vinfo = -1;
-static int hf_qnet6_kif_msgsend_nbytes = -1;
+static int hf_qnet6_kif_msgsend;
+static int hf_qnet6_kif_msgsend_server_id;
+static int hf_qnet6_kif_msgsend_client_handle;
+static int hf_qnet6_kif_msgsend_vinfo;
+static int hf_qnet6_kif_msgsend_nbytes;
 /*
  * msgread message
  */
-static int hf_qnet6_kif_msgread_msgread_handle = -1;
-static int hf_qnet6_kif_msgread_client_handle = -1;
-static int hf_qnet6_kif_msgread_offset = -1;
-static int hf_qnet6_kif_msgread_nbytes = -1;
+static int hf_qnet6_kif_msgread_msgread_handle;
+static int hf_qnet6_kif_msgread_client_handle;
+static int hf_qnet6_kif_msgread_offset;
+static int hf_qnet6_kif_msgread_nbytes;
 /*
  * msgwrite message
  */
-static int hf_qnet6_kif_msgwrite_status = -1;
-static int hf_qnet6_kif_msgwrite_handle = -1;
-static int hf_qnet6_kif_msgwrite_offset = -1;
-static int hf_qnet6_kif_msgwrite_nbytes = -1;
-static int hf_qnet6_kif_msgwrite_data = -1;
+static int hf_qnet6_kif_msgwrite_status;
+static int hf_qnet6_kif_msgwrite_handle;
+static int hf_qnet6_kif_msgwrite_offset;
+static int hf_qnet6_kif_msgwrite_nbytes;
+static int hf_qnet6_kif_msgwrite_data;
 /*
  * unblock message
  */
-static int hf_qnet6_kif_unblock_server_id = -1;
-static int hf_qnet6_kif_unblock_client_handle = -1;
-static int hf_qnet6_kif_unblock_tid = -1;
+static int hf_qnet6_kif_unblock_server_id;
+static int hf_qnet6_kif_unblock_client_handle;
+static int hf_qnet6_kif_unblock_tid;
 /*
  * event message
  */
-static int hf_qnet6_kif_event_client_handle = -1;
-static int hf_qnet6_kif_event_event = -1;
-static int hf_qnet6_kif_event_notify = -1;
-static int hf_qnet6_kif_event_union1 = -1;
-static int hf_qnet6_kif_event_value = -1;
-static int hf_qnet6_kif_event_union2 = -1;
+static int hf_qnet6_kif_event_client_handle;
+static int hf_qnet6_kif_event_event;
+static int hf_qnet6_kif_event_notify;
+static int hf_qnet6_kif_event_union1;
+static int hf_qnet6_kif_event_value;
+static int hf_qnet6_kif_event_union2;
 
 /*
  * pulse message
  */
 #if 0
-static int hf_qnet6_kif_pulse_server_id = -1;
-static int hf_qnet6_kif_pulse_client_handle = -1;
-static int hf_qnet6_kif_pulse_vinfo = -1;
+static int hf_qnet6_kif_pulse_server_id;
+static int hf_qnet6_kif_pulse_client_handle;
+static int hf_qnet6_kif_pulse_vinfo;
 #endif
-static int hf_qnet6_kif_pulse_pulse = -1;
-static int hf_qnet6_kif_pulse_priority = -1;
+static int hf_qnet6_kif_pulse_pulse;
+static int hf_qnet6_kif_pulse_priority;
 /*
  * signal message
  */
-static int hf_qnet6_kif_signal_client_handle = -1;
-static int hf_qnet6_kif_signal_pid = -1;
-static int hf_qnet6_kif_signal_tid = -1;
-static int hf_qnet6_kif_signal_signo = -1;
-static int hf_qnet6_kif_signal_code = -1;
-static int hf_qnet6_kif_signal_value = -1;
+static int hf_qnet6_kif_signal_client_handle;
+static int hf_qnet6_kif_signal_pid;
+static int hf_qnet6_kif_signal_tid;
+static int hf_qnet6_kif_signal_signo;
+static int hf_qnet6_kif_signal_code;
+static int hf_qnet6_kif_signal_value;
 /*
  * disconnect message
  */
-static int hf_qnet6_kif_disconnect_server_id = -1;
+static int hf_qnet6_kif_disconnect_server_id;
 
 /*
  * vinfo
  */
-static int hf_qnet6_kif_vtid_info_tid = -1;
-static int hf_qnet6_kif_vtid_info_coid = -1;
-static int hf_qnet6_kif_vtid_info_priority = -1;
-static int hf_qnet6_kif_vtid_info_srcmsglen = -1;
-static int hf_qnet6_kif_vtid_info_keydata = -1;
-static int hf_qnet6_kif_vtid_info_srcnd = -1;
-static int hf_qnet6_kif_vtid_info_dstmsglen = -1;
-static int hf_qnet6_kif_vtid_info_zero = -1;
+static int hf_qnet6_kif_vtid_info_tid;
+static int hf_qnet6_kif_vtid_info_coid;
+static int hf_qnet6_kif_vtid_info_priority;
+static int hf_qnet6_kif_vtid_info_srcmsglen;
+static int hf_qnet6_kif_vtid_info_keydata;
+static int hf_qnet6_kif_vtid_info_srcnd;
+static int hf_qnet6_kif_vtid_info_dstmsglen;
+static int hf_qnet6_kif_vtid_info_zero;
 /*
  * pulse
  */
-static int hf_qnet6_kif_pulse_pulse_type = -1;
-static int hf_qnet6_kif_pulse_pulse_subtype = -1;
-static int hf_qnet6_kif_pulse_pulse_code = -1;
-static int hf_qnet6_kif_pulse_pulse_reserved = -1;
-static int hf_qnet6_kif_pulse_pulse_value = -1;
-static int hf_qnet6_kif_pulse_pulse_scoid = -1;
+static int hf_qnet6_kif_pulse_pulse_type;
+static int hf_qnet6_kif_pulse_pulse_subtype;
+static int hf_qnet6_kif_pulse_pulse_code;
+static int hf_qnet6_kif_pulse_pulse_reserved;
+static int hf_qnet6_kif_pulse_pulse_value;
+static int hf_qnet6_kif_pulse_pulse_scoid;
 /*
  * message
  */
-static int hf_qnet6_kif_msg = -1;
-static int hf_qnet6_kif_msg_type = -1;
-static int hf_qnet6_kif_msg_connect_subtype = -1;
-static int hf_qnet6_kif_msg_connect_filetype = -1;
-static int hf_qnet6_kif_msg_connect_replymax = -1;
-static int hf_qnet6_kif_msg_connect_entrymax = -1;
-static int hf_qnet6_kif_msg_connect_key = -1;
-static int hf_qnet6_kif_msg_connect_handle = -1;
+static int hf_qnet6_kif_msg;
+static int hf_qnet6_kif_msg_type;
+static int hf_qnet6_kif_msg_connect_subtype;
+static int hf_qnet6_kif_msg_connect_filetype;
+static int hf_qnet6_kif_msg_connect_replymax;
+static int hf_qnet6_kif_msg_connect_entrymax;
+static int hf_qnet6_kif_msg_connect_key;
+static int hf_qnet6_kif_msg_connect_handle;
 
-static int hf_qnet6_kif_msg_connect_ioflag = -1;
+static int hf_qnet6_kif_msg_connect_ioflag;
 
-static int hf_qnet6_kif_msg_connect_ioflag_access = -1;
-static int hf_qnet6_kif_msg_connect_ioflag_append = -1;
-static int hf_qnet6_kif_msg_connect_ioflag_dsync = -1;
-static int hf_qnet6_kif_msg_connect_ioflag_sync = -1;
-static int hf_qnet6_kif_msg_connect_ioflag_rsync = -1;
-static int hf_qnet6_kif_msg_connect_ioflag_nonblock = -1;
-static int hf_qnet6_kif_msg_connect_ioflag_creat = -1;
-static int hf_qnet6_kif_msg_connect_ioflag_truncate = -1;
-static int hf_qnet6_kif_msg_connect_ioflag_exclusive = -1;
-static int hf_qnet6_kif_msg_connect_ioflag_noctrltty = -1;
-static int hf_qnet6_kif_msg_connect_ioflag_closexec = -1;
-static int hf_qnet6_kif_msg_connect_ioflag_realids = -1;
-static int hf_qnet6_kif_msg_connect_ioflag_largefile = -1;
-static int hf_qnet6_kif_msg_connect_ioflag_async = -1;
+static int hf_qnet6_kif_msg_connect_ioflag_access;
+static int hf_qnet6_kif_msg_connect_ioflag_append;
+static int hf_qnet6_kif_msg_connect_ioflag_dsync;
+static int hf_qnet6_kif_msg_connect_ioflag_sync;
+static int hf_qnet6_kif_msg_connect_ioflag_rsync;
+static int hf_qnet6_kif_msg_connect_ioflag_nonblock;
+static int hf_qnet6_kif_msg_connect_ioflag_creat;
+static int hf_qnet6_kif_msg_connect_ioflag_truncate;
+static int hf_qnet6_kif_msg_connect_ioflag_exclusive;
+static int hf_qnet6_kif_msg_connect_ioflag_noctrltty;
+static int hf_qnet6_kif_msg_connect_ioflag_closexec;
+static int hf_qnet6_kif_msg_connect_ioflag_realids;
+static int hf_qnet6_kif_msg_connect_ioflag_largefile;
+static int hf_qnet6_kif_msg_connect_ioflag_async;
 
-static int hf_qnet6_kif_msg_connect_mode = -1;
-static int hf_qnet6_kif_msg_connect_mode_other_exe = -1;
-static int hf_qnet6_kif_msg_connect_mode_other_read = -1;
-static int hf_qnet6_kif_msg_connect_mode_other_write = -1;
-static int hf_qnet6_kif_msg_connect_mode_group_read = -1;
-static int hf_qnet6_kif_msg_connect_mode_group_write = -1;
-static int hf_qnet6_kif_msg_connect_mode_group_exe = -1;
-static int hf_qnet6_kif_msg_connect_mode_owner_read = -1;
-static int hf_qnet6_kif_msg_connect_mode_owner_write = -1;
-static int hf_qnet6_kif_msg_connect_mode_owner_exe = -1;
-static int hf_qnet6_kif_msg_connect_mode_setuid = -1;
-static int hf_qnet6_kif_msg_connect_mode_setgid = -1;
-static int hf_qnet6_kif_msg_connect_mode_sticky = -1;
-static int hf_qnet6_kif_msg_connect_mode_format = -1;
+static int hf_qnet6_kif_msg_connect_mode;
+static int hf_qnet6_kif_msg_connect_mode_other_exe;
+static int hf_qnet6_kif_msg_connect_mode_other_read;
+static int hf_qnet6_kif_msg_connect_mode_other_write;
+static int hf_qnet6_kif_msg_connect_mode_group_read;
+static int hf_qnet6_kif_msg_connect_mode_group_write;
+static int hf_qnet6_kif_msg_connect_mode_group_exe;
+static int hf_qnet6_kif_msg_connect_mode_owner_read;
+static int hf_qnet6_kif_msg_connect_mode_owner_write;
+static int hf_qnet6_kif_msg_connect_mode_owner_exe;
+static int hf_qnet6_kif_msg_connect_mode_setuid;
+static int hf_qnet6_kif_msg_connect_mode_setgid;
+static int hf_qnet6_kif_msg_connect_mode_sticky;
+static int hf_qnet6_kif_msg_connect_mode_format;
 
-static int hf_qnet6_kif_msg_connect_sflag = -1;
-static int hf_qnet6_kif_msg_connect_access = -1;
-static int hf_qnet6_kif_msg_connect_zero = -1;
-static int hf_qnet6_kif_msg_connect_pathlen = -1;
-static int hf_qnet6_kif_msg_connect_eflag = -1;
-static int hf_qnet6_kif_msg_connect_eflag_dir = -1;
-static int hf_qnet6_kif_msg_connect_eflag_dot = -1;
-static int hf_qnet6_kif_msg_connect_eflag_dotdot = -1;
-static int hf_qnet6_kif_msg_connect_extratype = -1;
-static int hf_qnet6_kif_msg_connect_extralen = -1;
-static int hf_qnet6_kif_msg_connect_path = -1;
-static int hf_qnet6_kif_msg_connect_pad_data = -1;
-static int hf_qnet6_kif_msg_connect_extra_symlink_path = -1;
-static int hf_qnet6_kif_msg_connect_extra_rename_path = -1;
-static int hf_qnet6_kif_msg_connect_extra_mount = -1;
-static int hf_qnet6_kif_msg_connect_extra_data = -1;
-static int hf_qnet6_kif_msg_connect_extra_link_ocb = -1;
+static int hf_qnet6_kif_msg_connect_sflag;
+static int hf_qnet6_kif_msg_connect_access;
+static int hf_qnet6_kif_msg_connect_zero;
+static int hf_qnet6_kif_msg_connect_pathlen;
+static int hf_qnet6_kif_msg_connect_eflag;
+static int hf_qnet6_kif_msg_connect_eflag_dir;
+static int hf_qnet6_kif_msg_connect_eflag_dot;
+static int hf_qnet6_kif_msg_connect_eflag_dotdot;
+static int hf_qnet6_kif_msg_connect_extratype;
+static int hf_qnet6_kif_msg_connect_extralen;
+static int hf_qnet6_kif_msg_connect_path;
+static int hf_qnet6_kif_msg_connect_pad_data;
+static int hf_qnet6_kif_msg_connect_extra_symlink_path;
+static int hf_qnet6_kif_msg_connect_extra_rename_path;
+static int hf_qnet6_kif_msg_connect_extra_mount;
+static int hf_qnet6_kif_msg_connect_extra_data;
+static int hf_qnet6_kif_msg_connect_extra_link_ocb;
 /*
  * devctl
  */
-static int hf_qnet6_kif_msg_io_combine_len = -1;
-static int hf_qnet6_kif_msg_devctl_dcmd = -1;
-static int hf_qnet6_kif_msg_devctl_dcmd_cmd = -1;
-static int hf_qnet6_kif_msg_devctl_dcmd_ccmd = -1;
-static int hf_qnet6_kif_msg_devctl_dcmd_size = -1;
-static int hf_qnet6_kif_msg_devctl_dcmd_class = -1;
-static int hf_qnet6_kif_msg_devctl_dcmd_from = -1;
-static int hf_qnet6_kif_msg_devctl_dcmd_to = -1;
+static int hf_qnet6_kif_msg_io_combine_len;
+static int hf_qnet6_kif_msg_devctl_dcmd;
+static int hf_qnet6_kif_msg_devctl_dcmd_cmd;
+static int hf_qnet6_kif_msg_devctl_dcmd_ccmd;
+static int hf_qnet6_kif_msg_devctl_dcmd_size;
+static int hf_qnet6_kif_msg_devctl_dcmd_class;
+static int hf_qnet6_kif_msg_devctl_dcmd_from;
+static int hf_qnet6_kif_msg_devctl_dcmd_to;
 
-static int hf_qnet6_kif_msg_devctl_nbytes = -1;
-static int hf_qnet6_kif_msg_devctl_zero = -1;
+static int hf_qnet6_kif_msg_devctl_nbytes;
+static int hf_qnet6_kif_msg_devctl_zero;
 /*
  * stat
  */
 /*
  * read
  */
-static int hf_qnet6_kif_msg_io_read_nbytes = -1;
-static int hf_qnet6_kif_msg_io_read_xtypes = -1;
-static int hf_qnet6_kif_msg_io_read_xtypes_0_7 = -1;
-static int hf_qnet6_kif_msg_io_read_xtypes_8 = -1;
-static int hf_qnet6_kif_msg_io_read_xtypes_14 = -1;
-static int hf_qnet6_kif_msg_io_read_xtypes_15 = -1;
-static int hf_qnet6_kif_msg_io_read_xoffset = -1;
-static int hf_qnet6_kif_msg_io_read_cond_min = -1;
-static int hf_qnet6_kif_msg_io_read_cond_time = -1;
-static int hf_qnet6_kif_msg_io_read_cond_timeout = -1;
+static int hf_qnet6_kif_msg_io_read_nbytes;
+static int hf_qnet6_kif_msg_io_read_xtypes;
+static int hf_qnet6_kif_msg_io_read_xtypes_0_7;
+static int hf_qnet6_kif_msg_io_read_xtypes_8;
+static int hf_qnet6_kif_msg_io_read_xtypes_14;
+static int hf_qnet6_kif_msg_io_read_xtypes_15;
+static int hf_qnet6_kif_msg_io_read_xoffset;
+static int hf_qnet6_kif_msg_io_read_cond_min;
+static int hf_qnet6_kif_msg_io_read_cond_time;
+static int hf_qnet6_kif_msg_io_read_cond_timeout;
 /*
  * write
  */
-static int hf_qnet6_kif_msg_io_write_data = -1;
-static int hf_qnet6_kif_msg_io_write_nbytes = -1;
-static int hf_qnet6_kif_msg_io_write_xtypes = -1;
-static int hf_qnet6_kif_msg_io_write_xtypes_0_7 = -1;
-static int hf_qnet6_kif_msg_io_write_xtypes_8 = -1;
-static int hf_qnet6_kif_msg_io_write_xtypes_14 = -1;
-static int hf_qnet6_kif_msg_io_write_xtypes_15 = -1;
-static int hf_qnet6_kif_msg_io_write_xoffset = -1;
+static int hf_qnet6_kif_msg_io_write_data;
+static int hf_qnet6_kif_msg_io_write_nbytes;
+static int hf_qnet6_kif_msg_io_write_xtypes;
+static int hf_qnet6_kif_msg_io_write_xtypes_0_7;
+static int hf_qnet6_kif_msg_io_write_xtypes_8;
+static int hf_qnet6_kif_msg_io_write_xtypes_14;
+static int hf_qnet6_kif_msg_io_write_xtypes_15;
+static int hf_qnet6_kif_msg_io_write_xoffset;
 
 /*
  * seek
  */
-static int hf_qnet6_kif_msg_seek_whence = -1;
-static int hf_qnet6_kif_msg_seek_offset = -1;
+static int hf_qnet6_kif_msg_seek_whence;
+static int hf_qnet6_kif_msg_seek_offset;
 /*
  * pathconf
  */
-static int hf_qnet6_kif_msg_pathconf_name = -1;
+static int hf_qnet6_kif_msg_pathconf_name;
 /*
  * chmod
  */
-static int hf_qnet6_kif_msg_io_chmod = -1;
-static int hf_qnet6_kif_msg_io_chmod_other_exe = -1;
-static int hf_qnet6_kif_msg_io_chmod_other_read = -1;
-static int hf_qnet6_kif_msg_io_chmod_other_write = -1;
-static int hf_qnet6_kif_msg_io_chmod_group_read = -1;
-static int hf_qnet6_kif_msg_io_chmod_group_write = -1;
-static int hf_qnet6_kif_msg_io_chmod_group_exe = -1;
-static int hf_qnet6_kif_msg_io_chmod_owner_read = -1;
-static int hf_qnet6_kif_msg_io_chmod_owner_write = -1;
-static int hf_qnet6_kif_msg_io_chmod_owner_exe = -1;
-static int hf_qnet6_kif_msg_io_chmod_setuid = -1;
-static int hf_qnet6_kif_msg_io_chmod_setgid = -1;
-static int hf_qnet6_kif_msg_io_chmod_sticky = -1;
+static int hf_qnet6_kif_msg_io_chmod;
+static int hf_qnet6_kif_msg_io_chmod_other_exe;
+static int hf_qnet6_kif_msg_io_chmod_other_read;
+static int hf_qnet6_kif_msg_io_chmod_other_write;
+static int hf_qnet6_kif_msg_io_chmod_group_read;
+static int hf_qnet6_kif_msg_io_chmod_group_write;
+static int hf_qnet6_kif_msg_io_chmod_group_exe;
+static int hf_qnet6_kif_msg_io_chmod_owner_read;
+static int hf_qnet6_kif_msg_io_chmod_owner_write;
+static int hf_qnet6_kif_msg_io_chmod_owner_exe;
+static int hf_qnet6_kif_msg_io_chmod_setuid;
+static int hf_qnet6_kif_msg_io_chmod_setgid;
+static int hf_qnet6_kif_msg_io_chmod_sticky;
 /*
  * chown
  */
-static int hf_qnet6_kif_msg_io_chown_gid = -1;
-static int hf_qnet6_kif_msg_io_chown_uid = -1;
+static int hf_qnet6_kif_msg_io_chown_gid;
+static int hf_qnet6_kif_msg_io_chown_uid;
 /*
  * sync
  */
-static int hf_qnet6_kif_msg_io_sync = -1;
-static int hf_qnet6_kif_msg_syncflag_dsync = -1;
-static int hf_qnet6_kif_msg_syncflag_sync = -1;
-static int hf_qnet6_kif_msg_syncflag_rsync = -1;
+static int hf_qnet6_kif_msg_io_sync;
+static int hf_qnet6_kif_msg_syncflag_dsync;
+static int hf_qnet6_kif_msg_syncflag_sync;
+static int hf_qnet6_kif_msg_syncflag_rsync;
 /*
  * utime
  */
-static int hf_qnet6_kif_msg_io_utime_curflag = -1;
-static int hf_qnet6_kif_msg_io_utime_actime = -1;
-static int hf_qnet6_kif_msg_io_utime_modtime = -1;
+static int hf_qnet6_kif_msg_io_utime_curflag;
+static int hf_qnet6_kif_msg_io_utime_actime;
+static int hf_qnet6_kif_msg_io_utime_modtime;
 /*
  * fdinfo
  */
-static int hf_qnet6_kif_msg_io_fdinfo_flags = -1;
-static int hf_qnet6_kif_msg_io_fdinfo_path_len = -1;
-static int hf_qnet6_kif_msg_io_fdinfo_reserved = -1;
+static int hf_qnet6_kif_msg_io_fdinfo_flags;
+static int hf_qnet6_kif_msg_io_fdinfo_path_len;
+static int hf_qnet6_kif_msg_io_fdinfo_reserved;
 /*
  * lock
  */
-static int hf_qnet6_kif_msg_io_lock_subtype = -1;
-static int hf_qnet6_kif_msg_io_lock_nbytes = -1;
+static int hf_qnet6_kif_msg_io_lock_subtype;
+static int hf_qnet6_kif_msg_io_lock_nbytes;
 /*
  * space
  */
-static int hf_qnet6_kif_msg_io_space_subtype = -1;
-static int hf_qnet6_kif_msg_io_space_whence = -1;
-static int hf_qnet6_kif_msg_io_space_start = -1;
-static int hf_qnet6_kif_msg_io_space_len = -1;
+static int hf_qnet6_kif_msg_io_space_subtype;
+static int hf_qnet6_kif_msg_io_space_whence;
+static int hf_qnet6_kif_msg_io_space_start;
+static int hf_qnet6_kif_msg_io_space_len;
 
-static int hf_qnet6_kif_msgsend_extra = -1;
+static int hf_qnet6_kif_msgsend_extra;
 /*
  * msginfo
  */
-static int hf_qnet6_kif_msg_msginfo_nd = -1;
-static int hf_qnet6_kif_msg_msginfo_srcnd = -1;
-static int hf_qnet6_kif_msg_msginfo_pid = -1;
-static int hf_qnet6_kif_msg_msginfo_tid = -1;
-static int hf_qnet6_kif_msg_msginfo_chid = -1;
-static int hf_qnet6_kif_msg_msginfo_scoid = -1;
-static int hf_qnet6_kif_msg_msginfo_coid = -1;
-static int hf_qnet6_kif_msg_msginfo_msglen = -1;
-static int hf_qnet6_kif_msg_msginfo_srcmsglen = -1;
-static int hf_qnet6_kif_msg_msginfo_dstmsglen = -1;
-static int hf_qnet6_kif_msg_msginfo_priority = -1;
-static int hf_qnet6_kif_msg_msginfo_flags = -1;
-static int hf_qnet6_kif_msg_msginfo_reserved = -1;
+static int hf_qnet6_kif_msg_msginfo_nd;
+static int hf_qnet6_kif_msg_msginfo_srcnd;
+static int hf_qnet6_kif_msg_msginfo_pid;
+static int hf_qnet6_kif_msg_msginfo_tid;
+static int hf_qnet6_kif_msg_msginfo_chid;
+static int hf_qnet6_kif_msg_msginfo_scoid;
+static int hf_qnet6_kif_msg_msginfo_coid;
+static int hf_qnet6_kif_msg_msginfo_msglen;
+static int hf_qnet6_kif_msg_msginfo_srcmsglen;
+static int hf_qnet6_kif_msg_msginfo_dstmsglen;
+static int hf_qnet6_kif_msg_msginfo_priority;
+static int hf_qnet6_kif_msg_msginfo_flags;
+static int hf_qnet6_kif_msg_msginfo_reserved;
 /*
  * openfd
  */
-static int hf_qnet6_kif_msg_openfd_reserved = -1;
-static int hf_qnet6_kif_msg_openfd_key = -1;
-static int hf_qnet6_kif_msg_openfd_ioflag = -1;
+static int hf_qnet6_kif_msg_openfd_reserved;
+static int hf_qnet6_kif_msg_openfd_key;
+static int hf_qnet6_kif_msg_openfd_ioflag;
 
-static int hf_qnet6_kif_msg_openfd_ioflag_access = -1;
-static int hf_qnet6_kif_msg_openfd_ioflag_append = -1;
-static int hf_qnet6_kif_msg_openfd_ioflag_dsync = -1;
-static int hf_qnet6_kif_msg_openfd_ioflag_sync = -1;
-static int hf_qnet6_kif_msg_openfd_ioflag_rsync = -1;
-static int hf_qnet6_kif_msg_openfd_ioflag_nonblock = -1;
-static int hf_qnet6_kif_msg_openfd_ioflag_creat = -1;
-static int hf_qnet6_kif_msg_openfd_ioflag_truncate = -1;
-static int hf_qnet6_kif_msg_openfd_ioflag_exclusive = -1;
-static int hf_qnet6_kif_msg_openfd_ioflag_noctrltty = -1;
-static int hf_qnet6_kif_msg_openfd_ioflag_closexec = -1;
-static int hf_qnet6_kif_msg_openfd_ioflag_realids = -1;
-static int hf_qnet6_kif_msg_openfd_ioflag_largefile = -1;
-static int hf_qnet6_kif_msg_openfd_ioflag_async = -1;
-static int hf_qnet6_kif_msg_openfd_xtype = -1;
-static int hf_qnet6_kif_msg_openfd_sflag = -1;
+static int hf_qnet6_kif_msg_openfd_ioflag_access;
+static int hf_qnet6_kif_msg_openfd_ioflag_append;
+static int hf_qnet6_kif_msg_openfd_ioflag_dsync;
+static int hf_qnet6_kif_msg_openfd_ioflag_sync;
+static int hf_qnet6_kif_msg_openfd_ioflag_rsync;
+static int hf_qnet6_kif_msg_openfd_ioflag_nonblock;
+static int hf_qnet6_kif_msg_openfd_ioflag_creat;
+static int hf_qnet6_kif_msg_openfd_ioflag_truncate;
+static int hf_qnet6_kif_msg_openfd_ioflag_exclusive;
+static int hf_qnet6_kif_msg_openfd_ioflag_noctrltty;
+static int hf_qnet6_kif_msg_openfd_ioflag_closexec;
+static int hf_qnet6_kif_msg_openfd_ioflag_realids;
+static int hf_qnet6_kif_msg_openfd_ioflag_largefile;
+static int hf_qnet6_kif_msg_openfd_ioflag_async;
+static int hf_qnet6_kif_msg_openfd_xtype;
+static int hf_qnet6_kif_msg_openfd_sflag;
 /*
  * dup
  */
-static int hf_qnet6_kif_msg_io_dup_reserved = -1;
-static int hf_qnet6_kif_msg_io_dup_key = -1;
+static int hf_qnet6_kif_msg_io_dup_reserved;
+static int hf_qnet6_kif_msg_io_dup_key;
 /*
  * msg
  */
-static int hf_qnet6_kif_msg_io_msg_mgrid = -1;
-static int hf_qnet6_kif_msg_io_msg_subtype = -1;
+static int hf_qnet6_kif_msg_io_msg_mgrid;
+static int hf_qnet6_kif_msg_io_msg_subtype;
 /*
  * mmap
  */
-static int hf_qnet6_kif_msg_io_mmap_prot = -1;
-static int hf_qnet6_kif_msg_io_mmap_prot_read = -1;
-static int hf_qnet6_kif_msg_io_mmap_prot_write = -1;
-static int hf_qnet6_kif_msg_io_mmap_prot_exec = -1;
-static int hf_qnet6_kif_msg_io_mmap_offset = -1;
+static int hf_qnet6_kif_msg_io_mmap_prot;
+static int hf_qnet6_kif_msg_io_mmap_prot_read;
+static int hf_qnet6_kif_msg_io_mmap_prot_write;
+static int hf_qnet6_kif_msg_io_mmap_prot_exec;
+static int hf_qnet6_kif_msg_io_mmap_offset;
 /*
  * notify
  */
-static int hf_qnet6_kif_msg_io_notify_action = -1;
-static int hf_qnet6_kif_msg_io_notify_flags = -1;
-static int hf_qnet6_kif_msg_io_notify_flags_31 = -1;
-static int hf_qnet6_kif_msg_io_notify_flags_30 = -1;
-static int hf_qnet6_kif_msg_io_notify_flags_29 = -1;
-static int hf_qnet6_kif_msg_io_notify_flags_28 = -1;
-static int hf_qnet6_kif_msg_io_notify_mgr = -1;
-static int hf_qnet6_kif_msg_io_notify_flags_extra_mask = -1;
-static int hf_qnet6_kif_msg_io_notify_flags_exten = -1;
-static int hf_qnet6_kif_msg_io_notify_nfds = -1;
-static int hf_qnet6_kif_msg_io_notify_fd_first = -1;
-static int hf_qnet6_kif_msg_io_notify_nfds_ready = -1;
-static int hf_qnet6_kif_msg_io_notify_timo = -1;
-static int hf_qnet6_kif_msg_io_notify_fds = -1;
+static int hf_qnet6_kif_msg_io_notify_action;
+static int hf_qnet6_kif_msg_io_notify_flags;
+static int hf_qnet6_kif_msg_io_notify_flags_31;
+static int hf_qnet6_kif_msg_io_notify_flags_30;
+static int hf_qnet6_kif_msg_io_notify_flags_29;
+static int hf_qnet6_kif_msg_io_notify_flags_28;
+static int hf_qnet6_kif_msg_io_notify_mgr;
+static int hf_qnet6_kif_msg_io_notify_flags_extra_mask;
+static int hf_qnet6_kif_msg_io_notify_flags_exten;
+static int hf_qnet6_kif_msg_io_notify_nfds;
+static int hf_qnet6_kif_msg_io_notify_fd_first;
+static int hf_qnet6_kif_msg_io_notify_nfds_ready;
+static int hf_qnet6_kif_msg_io_notify_timo;
+static int hf_qnet6_kif_msg_io_notify_fds;
 /*
  * NR
  */
 /*
  * sys/lsm/qnet/nr_msg.h
  */
-static int hf_qnet6_nr_type = -1;
-static int hf_qnet6_nr_remote_req_len = -1;
-static int hf_qnet6_nr_remote_req_id = -1;
-static int hf_qnet6_nr_remote_req_name = -1;
-static int hf_qnet6_nr_remote_rep_spare = -1;
-static int hf_qnet6_nr_remote_rep_id = -1;      /* remote_answer id */
-static int hf_qnet6_nr_remote_rep_nd = -1;      /* remote_answer nd */
-static int hf_qnet6_nr_remote_rep_status = -1;  /* remote_error * status */
+static int hf_qnet6_nr_type;
+static int hf_qnet6_nr_remote_req_len;
+static int hf_qnet6_nr_remote_req_id;
+static int hf_qnet6_nr_remote_req_name;
+static int hf_qnet6_nr_remote_rep_spare;
+static int hf_qnet6_nr_remote_rep_id;      /* remote_answer id */
+static int hf_qnet6_nr_remote_rep_nd;      /* remote_answer nd */
+static int hf_qnet6_nr_remote_rep_status;  /* remote_error * status */
 
 /*
  * Initialize the subtree pointers
  */
-static gint ett_qnet6_l4 = -1;
-static gint ett_qnet6_qos = -1;
-static gint ett_qnet6_flags = -1;
-static gint ett_qnet6_qos_info = -1;
+static gint ett_qnet6_l4;
+static gint ett_qnet6_qos;
+static gint ett_qnet6_flags;
+static gint ett_qnet6_qos_info;
 
-static gint ett_qnet6_lr = -1;
-static gint ett_qnet6_lr_src = -1;
-static gint ett_qnet6_lr_src_name_subtree = -1;
-static gint ett_qnet6_lr_src_domain_subtree = -1;
-static gint ett_qnet6_lr_src_addr_subtree = -1;
-static gint ett_qnet6_lr_dst_name_subtree = -1;
-static gint ett_qnet6_lr_dst_domain_subtree = -1;
-static gint ett_qnet6_lr_dst_addr_subtree = -1;
-static gint ett_qnet6_lr_dst = -1;
+static gint ett_qnet6_lr;
+static gint ett_qnet6_lr_src;
+static gint ett_qnet6_lr_src_name_subtree;
+static gint ett_qnet6_lr_src_domain_subtree;
+static gint ett_qnet6_lr_src_addr_subtree;
+static gint ett_qnet6_lr_dst_name_subtree;
+static gint ett_qnet6_lr_dst_domain_subtree;
+static gint ett_qnet6_lr_dst_addr_subtree;
+static gint ett_qnet6_lr_dst;
 
-static gint ett_qnet6_kif = -1;
-static gint ett_qnet6_kif_vinfo = -1;
-static gint ett_qnet6_kif_pulse = -1;
-static gint ett_qnet6_kif_event = -1;
-static gint ett_qnet6_kif_msg = -1;
-static gint ett_qnet6_kif_msg_ioflag = -1;
-static gint ett_qnet6_kif_msg_mode = -1;
-static gint ett_qnet6_kif_msg_eflag = -1;
-static gint ett_qnet6_kif_connect = -1;
-static gint ett_qnet6_kif_chmod_mode = -1;
-static gint ett_qnet6_kif_msgsend = -1;
-static gint ett_qnet6_kif_client_info = -1;
-static gint ett_qnet6_kif_client_info_cred = -1;
-static gint ett_qnet6_kif_client_info_cred_group = -1;
-static gint ett_qnet6_kif_msg_devctl_dcmd = -1;
-static gint ett_qnet6_kif_msg_read_xtypes = -1;
-static gint ett_qnet6_kif_msg_write_xtypes = -1;
-static gint ett_qnet6_kif_msg_sync = -1;
-static gint ett_qnet6_kif_msg_openfd_ioflag = -1;
-static gint ett_qnet6_kif_msg_msginfo = -1;
-static gint ett_qnet6_kif_msg_prot = -1;
-static gint ett_qnet6_kif_msg_notify_flags = -1;
-static gint ett_qnet6_kif_msg_notify_fds = -1;
-static gint ett_qnet6_nr = -1;
+static gint ett_qnet6_kif;
+static gint ett_qnet6_kif_vinfo;
+static gint ett_qnet6_kif_pulse;
+static gint ett_qnet6_kif_event;
+static gint ett_qnet6_kif_msg;
+static gint ett_qnet6_kif_msg_ioflag;
+static gint ett_qnet6_kif_msg_mode;
+static gint ett_qnet6_kif_msg_eflag;
+static gint ett_qnet6_kif_connect;
+static gint ett_qnet6_kif_chmod_mode;
+static gint ett_qnet6_kif_msgsend;
+static gint ett_qnet6_kif_client_info;
+static gint ett_qnet6_kif_client_info_cred;
+static gint ett_qnet6_kif_client_info_cred_group;
+static gint ett_qnet6_kif_msg_devctl_dcmd;
+static gint ett_qnet6_kif_msg_read_xtypes;
+static gint ett_qnet6_kif_msg_write_xtypes;
+static gint ett_qnet6_kif_msg_sync;
+static gint ett_qnet6_kif_msg_openfd_ioflag;
+static gint ett_qnet6_kif_msg_msginfo;
+static gint ett_qnet6_kif_msg_prot;
+static gint ett_qnet6_kif_msg_notify_flags;
+static gint ett_qnet6_kif_msg_notify_fds;
+static gint ett_qnet6_nr;
 
 /*
  * struct qnet6_lr_pkt { guint8 version; guint8 pad0; guint8 type; guint8

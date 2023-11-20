@@ -36,24 +36,24 @@ void proto_reg_handoff_chdlc(void);
 void proto_register_slarp(void);
 void proto_reg_handoff_slarp(void);
 
-static int proto_chdlc = -1;
-static int hf_chdlc_addr = -1;
-static int hf_chdlc_control = -1;
-static int hf_chdlc_proto = -1;
-static int hf_chdlc_clns_padding = -1;
+static int proto_chdlc;
+static int hf_chdlc_addr;
+static int hf_chdlc_control;
+static int hf_chdlc_proto;
+static int hf_chdlc_clns_padding;
 
-static gint ett_chdlc = -1;
+static gint ett_chdlc;
 
-static int proto_slarp = -1;
-static int hf_slarp_ptype = -1;
-static int hf_slarp_address = -1;
-static int hf_slarp_netmask = -1;
-static int hf_slarp_mysequence = -1;
-static int hf_slarp_yoursequence = -1;
-static int hf_slarp_reliability = -1;
+static int proto_slarp;
+static int hf_slarp_ptype;
+static int hf_slarp_address;
+static int hf_slarp_netmask;
+static int hf_slarp_mysequence;
+static int hf_slarp_yoursequence;
+static int hf_slarp_reliability;
 
-static expert_field ei_slarp_reliability = EI_INIT;
-static gint ett_slarp = -1;
+static expert_field ei_slarp_reliability;
+static gint ett_slarp;
 
 /*
  * Protocol types for the Cisco HDLC format.

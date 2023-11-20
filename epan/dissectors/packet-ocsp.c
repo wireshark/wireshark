@@ -38,7 +38,7 @@ static dissector_handle_t ocsp_request_handle;
 static dissector_handle_t ocsp_response_handle;
 
 /* Initialize the protocol and registered fields */
-int proto_ocsp = -1;
+int proto_ocsp;
 static int hf_ocsp_responseType_id;
 static int hf_ocsp_BasicOCSPResponse_PDU;         /* BasicOCSPResponse */
 static int hf_ocsp_ArchiveCutoff_PDU;             /* ArchiveCutoff */

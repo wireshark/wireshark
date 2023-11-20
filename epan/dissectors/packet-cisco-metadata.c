@@ -28,17 +28,17 @@ static dissector_handle_t ethertype_handle;
 
 static dissector_table_t gre_dissector_table;
 
-static int proto_cmd = -1;
+static int proto_cmd;
 
-static int hf_cmd_version = -1;
-static int hf_cmd_length = -1;
-static int hf_cmd_options = -1;
-static int hf_cmd_sgt = -1;
+static int hf_cmd_version;
+static int hf_cmd_length;
+static int hf_cmd_options;
+static int hf_cmd_sgt;
 
-static int hf_eth_type = -1;
-static int hf_cmd_trailer = -1;
+static int hf_eth_type;
+static int hf_cmd_trailer;
 
-static gint ett_cmd = -1;
+static gint ett_cmd;
 
 static int
 dissect_cmd_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

@@ -66,337 +66,337 @@ void proto_reg_handoff_extrememesh(void);
 static dissector_handle_t extrememesh_handle;
 
 /* Mesh pkt types */
-static int proto_extrememesh = -1;
-static int proto_extrememesh_mch = -1;
-static int proto_extrememesh_ps_areq = -1;
-static int proto_extrememesh_ps_arep = -1;
-static int proto_extrememesh_ps_breq = -1;
-static int proto_extrememesh_ps_brep = -1;
-static int proto_extrememesh_ps_bann = -1;
-static int proto_extrememesh_ps_bred = -1;
-static int proto_extrememesh_ps_sreq = -1;
-static int proto_extrememesh_ps_srep = -1;
-static int proto_extrememesh_ps_preq = -1;
-static int proto_extrememesh_ps_prep = -1;
-static int proto_extrememesh_ps_perr = -1;
-static int proto_extrememesh_ps_prst = -1;
-static int proto_extrememesh_ps_prem = -1;
-static int proto_extrememesh_ps_trace = -1;
-static int proto_extrememesh_ps_prer = -1;
-//static int proto_extrememesh_hello = -1;
-//static int proto_extrememesh_security = -1;
-//static int proto_extrememesh_cfpu = -1;
-//static int proto_extrememesh_eapom = -1;
-static int proto_extrememesh_l2upd = -1;
-static int proto_extrememesh_probe = -1;
+static int proto_extrememesh;
+static int proto_extrememesh_mch;
+static int proto_extrememesh_ps_areq;
+static int proto_extrememesh_ps_arep;
+static int proto_extrememesh_ps_breq;
+static int proto_extrememesh_ps_brep;
+static int proto_extrememesh_ps_bann;
+static int proto_extrememesh_ps_bred;
+static int proto_extrememesh_ps_sreq;
+static int proto_extrememesh_ps_srep;
+static int proto_extrememesh_ps_preq;
+static int proto_extrememesh_ps_prep;
+static int proto_extrememesh_ps_perr;
+static int proto_extrememesh_ps_prst;
+static int proto_extrememesh_ps_prem;
+static int proto_extrememesh_ps_trace;
+static int proto_extrememesh_ps_prer;
+//static int proto_extrememesh_hello;
+//static int proto_extrememesh_security;
+//static int proto_extrememesh_cfpu;
+//static int proto_extrememesh_eapom;
+static int proto_extrememesh_l2upd;
+static int proto_extrememesh_probe;
 
 
 /*MESH fields*/
-static int hf_extrememesh_version = -1;
-static int hf_extrememesh_nextproto = -1;
+static int hf_extrememesh_version;
+static int hf_extrememesh_nextproto;
 
 /*MCH fields*/
-static int hf_extrememesh_mch_version = -1;
-static int hf_extrememesh_mch_next_proto = -1;
-static int hf_extrememesh_mch_lq = -1;
-static int hf_extrememesh_mch_htl = -1;
-static int hf_extrememesh_mch_priority = -1;
-static int hf_extrememesh_mch_usr_pri_flags = -1;
-static int hf_extrememesh_mch_usr_pri_flags_user_priority = -1;
-static int hf_extrememesh_mch_usr_pri_flags_reserved = -1;
-static int hf_extrememesh_mch_usr_pri_flags_from_wan = -1;
-static int hf_extrememesh_mch_usr_pri_flags_to_wan = -1;
-static int hf_extrememesh_mch_usr_pri_flags_forward = -1;
-static int hf_extrememesh_mch_sequence = -1;
-static int hf_extrememesh_mch_dest = -1;
-static int hf_extrememesh_mch_src = -1;
+static int hf_extrememesh_mch_version;
+static int hf_extrememesh_mch_next_proto;
+static int hf_extrememesh_mch_lq;
+static int hf_extrememesh_mch_htl;
+static int hf_extrememesh_mch_priority;
+static int hf_extrememesh_mch_usr_pri_flags;
+static int hf_extrememesh_mch_usr_pri_flags_user_priority;
+static int hf_extrememesh_mch_usr_pri_flags_reserved;
+static int hf_extrememesh_mch_usr_pri_flags_from_wan;
+static int hf_extrememesh_mch_usr_pri_flags_to_wan;
+static int hf_extrememesh_mch_usr_pri_flags_forward;
+static int hf_extrememesh_mch_sequence;
+static int hf_extrememesh_mch_dest;
+static int hf_extrememesh_mch_src;
 
 #if 0
 /*ENCAP_ETH fields*/
 /*Hello fields*/
-static int hf_extrememesh_hello_services = -1;
-static int hf_extrememesh_hello_HTR = -1;
-static int hf_extrememesh_hello_MTR = -1;
-static int hf_extrememesh_hello_root_id = -1;
-static int hf_extrememesh_hello_next_hop_id = -1;
+static int hf_extrememesh_hello_services;
+static int hf_extrememesh_hello_HTR;
+static int hf_extrememesh_hello_MTR;
+static int hf_extrememesh_hello_root_id;
+static int hf_extrememesh_hello_next_hop_id;
 
 /*Security fields*/
-static int hf_extrememesh_security_version = -1;
-static int hf_extrememesh_security_nextproto = -1;
-static int hf_extrememesh_security_flags = -1;
-static int hf_extrememesh_security_packet_num = -1;
-static int hf_extrememesh_security_mic = -1;
+static int hf_extrememesh_security_version;
+static int hf_extrememesh_security_nextproto;
+static int hf_extrememesh_security_flags;
+static int hf_extrememesh_security_packet_num;
+static int hf_extrememesh_security_mic;
 
 /*Cfpu fields*/
-static int hf_extrememesh_cfpu_version = -1;
-static int hf_extrememesh_cfpu_window = -1;
-static int hf_extrememesh_cfpu_cycle = -1;
+static int hf_extrememesh_cfpu_version;
+static int hf_extrememesh_cfpu_window;
+static int hf_extrememesh_cfpu_cycle;
 
 /*EAPOM fields*/
-static int hf_extrememesh_eapom_version = -1;
-static int hf_extrememesh_eapom_header_type = -1;
-static int hf_extrememesh_eapom_supplicant_addr = -1;
-static int hf_extrememesh_eapom_meshid_len = -1;
-static int hf_extrememesh_eapom_meshid = -1;
-static int hf_extrememesh_eapom_body_len = -1;
+static int hf_extrememesh_eapom_version;
+static int hf_extrememesh_eapom_header_type;
+static int hf_extrememesh_eapom_supplicant_addr;
+static int hf_extrememesh_eapom_meshid_len;
+static int hf_extrememesh_eapom_meshid;
+static int hf_extrememesh_eapom_body_len;
 #endif
 
 /*Mesh L2 Update fields*/
-static int hf_extrememesh_l2upd_proxy_owner = -1;
-static int hf_extrememesh_l2upd_ballast = -1;
+static int hf_extrememesh_l2upd_proxy_owner;
+static int hf_extrememesh_l2upd_ballast;
 
 /*Probe fields*/
-static int hf_extrememesh_probe_version = -1;
-static int hf_extrememesh_probe_op_code = -1;
-static int hf_extrememesh_probe_flags = -1;
-static int hf_extrememesh_probe_flags_reserved = -1;
-static int hf_extrememesh_probe_flags_reply = -1;
-static int hf_extrememesh_probe_priority = -1;
-static int hf_extrememesh_probe_job_id = -1;
-static int hf_extrememesh_probe_sequence = -1;
-static int hf_extrememesh_probe_ballast_len = -1;
-static int hf_extrememesh_probe_ballast = -1;
+static int hf_extrememesh_probe_version;
+static int hf_extrememesh_probe_op_code;
+static int hf_extrememesh_probe_flags;
+static int hf_extrememesh_probe_flags_reserved;
+static int hf_extrememesh_probe_flags_reply;
+static int hf_extrememesh_probe_priority;
+static int hf_extrememesh_probe_job_id;
+static int hf_extrememesh_probe_sequence;
+static int hf_extrememesh_probe_ballast_len;
+static int hf_extrememesh_probe_ballast;
 
 /*Path Selection fields*/
 /*PS AREQ fields*/
-static int hf_extrememesh_ps_areq_version = -1;
-static int hf_extrememesh_ps_areq_frame_type = -1;
-static int hf_extrememesh_ps_areq_mpr_addr = -1;
-static int hf_extrememesh_ps_areq_orig_addr = -1;
-static int hf_extrememesh_ps_areq_opt_tot_len = -1;
-static int hf_extrememesh_ps_areq_option = -1;
-static int hf_extrememesh_ps_areq_option_len = -1;
-static int hf_extrememesh_ps_areq_old_mpr = -1;
-static int hf_extrememesh_ps_areq_proxies = -1;
+static int hf_extrememesh_ps_areq_version;
+static int hf_extrememesh_ps_areq_frame_type;
+static int hf_extrememesh_ps_areq_mpr_addr;
+static int hf_extrememesh_ps_areq_orig_addr;
+static int hf_extrememesh_ps_areq_opt_tot_len;
+static int hf_extrememesh_ps_areq_option;
+static int hf_extrememesh_ps_areq_option_len;
+static int hf_extrememesh_ps_areq_old_mpr;
+static int hf_extrememesh_ps_areq_proxies;
 
 /*PS AREP fields*/
-static int hf_extrememesh_ps_arep_version = -1;
-static int hf_extrememesh_ps_arep_frame_type = -1;
-static int hf_extrememesh_ps_arep_mpr_addr = -1;
-static int hf_extrememesh_ps_arep_orig_addr = -1;
-static int hf_extrememesh_ps_arep_opt_tot_len = -1;
-static int hf_extrememesh_ps_arep_option = -1;
-static int hf_extrememesh_ps_arep_option_len = -1;
-static int hf_extrememesh_ps_arep_result = -1;
-static int hf_extrememesh_ps_arep_timeout = -1;
+static int hf_extrememesh_ps_arep_version;
+static int hf_extrememesh_ps_arep_frame_type;
+static int hf_extrememesh_ps_arep_mpr_addr;
+static int hf_extrememesh_ps_arep_orig_addr;
+static int hf_extrememesh_ps_arep_opt_tot_len;
+static int hf_extrememesh_ps_arep_option;
+static int hf_extrememesh_ps_arep_option_len;
+static int hf_extrememesh_ps_arep_result;
+static int hf_extrememesh_ps_arep_timeout;
 
 /*PS BREQ fields*/
-static int hf_extrememesh_ps_breq_version = -1;
-static int hf_extrememesh_ps_breq_frame_type = -1;
-static int hf_extrememesh_ps_breq_mpr_addr = -1;
-static int hf_extrememesh_ps_breq_orig_addr = -1;
-static int hf_extrememesh_ps_breq_opt_tot_len = -1;
-static int hf_extrememesh_ps_breq_option = -1;
-static int hf_extrememesh_ps_breq_option_len = -1;
-static int hf_extrememesh_ps_breq_proxy_addr = -1;
-static int hf_extrememesh_ps_breq_old_mpr = -1;
-static int hf_extrememesh_ps_breq_orig_pri = -1;
-static int hf_extrememesh_ps_breq_proxy_pri = -1;
-static int hf_extrememesh_ps_breq_vlan_id = -1;
-static int hf_extrememesh_ps_breq_proxy_vlan_id = -1;
-static int hf_extrememesh_ps_breq_seq = -1;
+static int hf_extrememesh_ps_breq_version;
+static int hf_extrememesh_ps_breq_frame_type;
+static int hf_extrememesh_ps_breq_mpr_addr;
+static int hf_extrememesh_ps_breq_orig_addr;
+static int hf_extrememesh_ps_breq_opt_tot_len;
+static int hf_extrememesh_ps_breq_option;
+static int hf_extrememesh_ps_breq_option_len;
+static int hf_extrememesh_ps_breq_proxy_addr;
+static int hf_extrememesh_ps_breq_old_mpr;
+static int hf_extrememesh_ps_breq_orig_pri;
+static int hf_extrememesh_ps_breq_proxy_pri;
+static int hf_extrememesh_ps_breq_vlan_id;
+static int hf_extrememesh_ps_breq_proxy_vlan_id;
+static int hf_extrememesh_ps_breq_seq;
 
 /*PS BREP fields*/
-static int hf_extrememesh_ps_brep_version = -1;
-static int hf_extrememesh_ps_brep_frame_type = -1;
-static int hf_extrememesh_ps_brep_mpr_addr = -1;
-static int hf_extrememesh_ps_brep_orig_addr = -1;
-static int hf_extrememesh_ps_brep_opt_tot_len = -1;
-static int hf_extrememesh_ps_brep_option = -1;
-static int hf_extrememesh_ps_brep_option_len = -1;
-static int hf_extrememesh_ps_brep_seq = -1;
+static int hf_extrememesh_ps_brep_version;
+static int hf_extrememesh_ps_brep_frame_type;
+static int hf_extrememesh_ps_brep_mpr_addr;
+static int hf_extrememesh_ps_brep_orig_addr;
+static int hf_extrememesh_ps_brep_opt_tot_len;
+static int hf_extrememesh_ps_brep_option;
+static int hf_extrememesh_ps_brep_option_len;
+static int hf_extrememesh_ps_brep_seq;
 
 /*PS BANN fields*/
-static int hf_extrememesh_ps_bann_version = -1;
-static int hf_extrememesh_ps_bann_frame_type = -1;
-static int hf_extrememesh_ps_bann_mpr_addr = -1;
-static int hf_extrememesh_ps_bann_orig_addr = -1;
-static int hf_extrememesh_ps_bann_opt_tot_len = -1;
-static int hf_extrememesh_ps_bann_option = -1;
-static int hf_extrememesh_ps_bann_option_len = -1;
-static int hf_extrememesh_ps_bann_proxy_addr = -1;
-static int hf_extrememesh_ps_bann_old_root = -1;
-static int hf_extrememesh_ps_bann_vlan_id = -1;
-static int hf_extrememesh_ps_bann_seq = -1;
+static int hf_extrememesh_ps_bann_version;
+static int hf_extrememesh_ps_bann_frame_type;
+static int hf_extrememesh_ps_bann_mpr_addr;
+static int hf_extrememesh_ps_bann_orig_addr;
+static int hf_extrememesh_ps_bann_opt_tot_len;
+static int hf_extrememesh_ps_bann_option;
+static int hf_extrememesh_ps_bann_option_len;
+static int hf_extrememesh_ps_bann_proxy_addr;
+static int hf_extrememesh_ps_bann_old_root;
+static int hf_extrememesh_ps_bann_vlan_id;
+static int hf_extrememesh_ps_bann_seq;
 
 /*PS BRED fields*/
-static int hf_extrememesh_ps_bred_version = -1;
-static int hf_extrememesh_ps_bred_frame_type = -1;
-static int hf_extrememesh_ps_bred_mpr_addr = -1;
-static int hf_extrememesh_ps_bred_orig_addr = -1;
-static int hf_extrememesh_ps_bred_opt_tot_len = -1;
-static int hf_extrememesh_ps_bred_option = -1;
-static int hf_extrememesh_ps_bred_option_len = -1;
-static int hf_extrememesh_ps_bred_seq = -1;
+static int hf_extrememesh_ps_bred_version;
+static int hf_extrememesh_ps_bred_frame_type;
+static int hf_extrememesh_ps_bred_mpr_addr;
+static int hf_extrememesh_ps_bred_orig_addr;
+static int hf_extrememesh_ps_bred_opt_tot_len;
+static int hf_extrememesh_ps_bred_option;
+static int hf_extrememesh_ps_bred_option_len;
+static int hf_extrememesh_ps_bred_seq;
 
 /*PS SREQ fields*/
-static int hf_extrememesh_ps_sreq_version = -1;
-static int hf_extrememesh_ps_sreq_frame_type = -1;
-static int hf_extrememesh_ps_sreq_reserved = -1;
-static int hf_extrememesh_ps_sreq_orig_addr = -1;
-static int hf_extrememesh_ps_sreq_term_addr = -1;
-static int hf_extrememesh_ps_sreq_opt_tot_len = -1;
-static int hf_extrememesh_ps_sreq_option = -1;
-static int hf_extrememesh_ps_sreq_option_len = -1;
-static int hf_extrememesh_ps_sreq_vlan_id = -1;
+static int hf_extrememesh_ps_sreq_version;
+static int hf_extrememesh_ps_sreq_frame_type;
+static int hf_extrememesh_ps_sreq_reserved;
+static int hf_extrememesh_ps_sreq_orig_addr;
+static int hf_extrememesh_ps_sreq_term_addr;
+static int hf_extrememesh_ps_sreq_opt_tot_len;
+static int hf_extrememesh_ps_sreq_option;
+static int hf_extrememesh_ps_sreq_option_len;
+static int hf_extrememesh_ps_sreq_vlan_id;
 
 /*PS SREP fields*/
-static int hf_extrememesh_ps_srep_version = -1;
-static int hf_extrememesh_ps_srep_frame_type = -1;
-static int hf_extrememesh_ps_srep_flags = -1;
-static int hf_extrememesh_ps_srep_flags_reserved = -1;
-static int hf_extrememesh_ps_srep_flags_status = -1;
-static int hf_extrememesh_ps_srep_hop_count = -1;
-static int hf_extrememesh_ps_srep_orig_addr = -1;
-static int hf_extrememesh_ps_srep_dest_addr = -1;
-static int hf_extrememesh_ps_srep_term_addr = -1;
-static int hf_extrememesh_ps_srep_opt_tot_len = -1;
-static int hf_extrememesh_ps_srep_option = -1;
-static int hf_extrememesh_ps_srep_option_len = -1;
-static int hf_extrememesh_ps_srep_vlan_id = -1;
+static int hf_extrememesh_ps_srep_version;
+static int hf_extrememesh_ps_srep_frame_type;
+static int hf_extrememesh_ps_srep_flags;
+static int hf_extrememesh_ps_srep_flags_reserved;
+static int hf_extrememesh_ps_srep_flags_status;
+static int hf_extrememesh_ps_srep_hop_count;
+static int hf_extrememesh_ps_srep_orig_addr;
+static int hf_extrememesh_ps_srep_dest_addr;
+static int hf_extrememesh_ps_srep_term_addr;
+static int hf_extrememesh_ps_srep_opt_tot_len;
+static int hf_extrememesh_ps_srep_option;
+static int hf_extrememesh_ps_srep_option_len;
+static int hf_extrememesh_ps_srep_vlan_id;
 
 /*PS PREQ fields*/
-static int hf_extrememesh_ps_preq_version = -1;
-static int hf_extrememesh_ps_preq_frame_type = -1;
-static int hf_extrememesh_ps_preq_flags = -1;
-static int hf_extrememesh_ps_preq_flags_broadcast = -1;
-static int hf_extrememesh_ps_preq_flags_periodic = -1;
-static int hf_extrememesh_ps_preq_flags_state = -1;
-static int hf_extrememesh_ps_preq_flags_reserved = -1;
-static int hf_extrememesh_ps_preq_flags_gratuitous = -1;
-static int hf_extrememesh_ps_preq_flags_destination = -1;
-static int hf_extrememesh_ps_preq_flags_unknown = -1;
-static int hf_extrememesh_ps_preq_hop_count = -1;
-static int hf_extrememesh_ps_preq_ttl = -1;
-static int hf_extrememesh_ps_preq_path_metrics = -1;
-static int hf_extrememesh_ps_preq_services = -1;
-static int hf_extrememesh_ps_preq_services_reserved = -1;
-static int hf_extrememesh_ps_preq_services_mobile = -1;
-static int hf_extrememesh_ps_preq_services_path_pref = -1;
-static int hf_extrememesh_ps_preq_services_geo = -1;
-static int hf_extrememesh_ps_preq_services_proxy = -1;
-static int hf_extrememesh_ps_preq_services_root = -1;
-static int hf_extrememesh_ps_preq_reserved = -1;
-static int hf_extrememesh_ps_preq_id = -1;
-static int hf_extrememesh_ps_preq_term_addr = -1;
-static int hf_extrememesh_ps_preq_dest_addr = -1;
-static int hf_extrememesh_ps_preq_dest_seq = -1;
-static int hf_extrememesh_ps_preq_orig_addr = -1;
-static int hf_extrememesh_ps_preq_orig_seq = -1;
-static int hf_extrememesh_ps_preq_opt_tot_len = -1;
-static int hf_extrememesh_ps_preq_option = -1;
-static int hf_extrememesh_ps_preq_option_len = -1;
-static int hf_extrememesh_ps_preq_mcast_sub = -1;
-static int hf_extrememesh_ps_preq_vlan_id = -1;
-static int hf_extrememesh_ps_preq_mint_id = -1;
+static int hf_extrememesh_ps_preq_version;
+static int hf_extrememesh_ps_preq_frame_type;
+static int hf_extrememesh_ps_preq_flags;
+static int hf_extrememesh_ps_preq_flags_broadcast;
+static int hf_extrememesh_ps_preq_flags_periodic;
+static int hf_extrememesh_ps_preq_flags_state;
+static int hf_extrememesh_ps_preq_flags_reserved;
+static int hf_extrememesh_ps_preq_flags_gratuitous;
+static int hf_extrememesh_ps_preq_flags_destination;
+static int hf_extrememesh_ps_preq_flags_unknown;
+static int hf_extrememesh_ps_preq_hop_count;
+static int hf_extrememesh_ps_preq_ttl;
+static int hf_extrememesh_ps_preq_path_metrics;
+static int hf_extrememesh_ps_preq_services;
+static int hf_extrememesh_ps_preq_services_reserved;
+static int hf_extrememesh_ps_preq_services_mobile;
+static int hf_extrememesh_ps_preq_services_path_pref;
+static int hf_extrememesh_ps_preq_services_geo;
+static int hf_extrememesh_ps_preq_services_proxy;
+static int hf_extrememesh_ps_preq_services_root;
+static int hf_extrememesh_ps_preq_reserved;
+static int hf_extrememesh_ps_preq_id;
+static int hf_extrememesh_ps_preq_term_addr;
+static int hf_extrememesh_ps_preq_dest_addr;
+static int hf_extrememesh_ps_preq_dest_seq;
+static int hf_extrememesh_ps_preq_orig_addr;
+static int hf_extrememesh_ps_preq_orig_seq;
+static int hf_extrememesh_ps_preq_opt_tot_len;
+static int hf_extrememesh_ps_preq_option;
+static int hf_extrememesh_ps_preq_option_len;
+static int hf_extrememesh_ps_preq_mcast_sub;
+static int hf_extrememesh_ps_preq_vlan_id;
+static int hf_extrememesh_ps_preq_mint_id;
 
 /*PS PREP fields*/
-static int hf_extrememesh_ps_prep_version = -1;
-static int hf_extrememesh_ps_prep_frame_type = -1;
-static int hf_extrememesh_ps_prep_flags = -1;
-static int hf_extrememesh_ps_prep_flags_reserved = -1;
-static int hf_extrememesh_ps_prep_flags_new_route = -1;
-static int hf_extrememesh_ps_prep_flags_repair = -1;
-static int hf_extrememesh_ps_prep_flags_ack = -1;
-static int hf_extrememesh_ps_prep_hop_count = -1;
-static int hf_extrememesh_ps_prep_path_metrics = -1;
-static int hf_extrememesh_ps_prep_services = -1;
-static int hf_extrememesh_ps_prep_services_reserved = -1;
-static int hf_extrememesh_ps_prep_services_mobile = -1;
-static int hf_extrememesh_ps_prep_services_path_pref = -1;
-static int hf_extrememesh_ps_prep_services_geo = -1;
-static int hf_extrememesh_ps_prep_services_proxy = -1;
-static int hf_extrememesh_ps_prep_services_root = -1;
-static int hf_extrememesh_ps_prep_reserved = -1;
-static int hf_extrememesh_ps_prep_term_addr = -1;
-static int hf_extrememesh_ps_prep_dest_addr = -1;
-static int hf_extrememesh_ps_prep_dest_seq = -1;
-static int hf_extrememesh_ps_prep_orig_addr = -1;
-static int hf_extrememesh_ps_prep_orig_seq = -1;
-static int hf_extrememesh_ps_prep_lifetime = -1;
-static int hf_extrememesh_ps_prep_opt_tot_len = -1;
-static int hf_extrememesh_ps_prep_option = -1;
-static int hf_extrememesh_ps_prep_option_len = -1;
-static int hf_extrememesh_ps_prep_mcast_sub = -1;
-static int hf_extrememesh_ps_prep_vlan_id = -1;
-static int hf_extrememesh_ps_prep_mint_id = -1;
+static int hf_extrememesh_ps_prep_version;
+static int hf_extrememesh_ps_prep_frame_type;
+static int hf_extrememesh_ps_prep_flags;
+static int hf_extrememesh_ps_prep_flags_reserved;
+static int hf_extrememesh_ps_prep_flags_new_route;
+static int hf_extrememesh_ps_prep_flags_repair;
+static int hf_extrememesh_ps_prep_flags_ack;
+static int hf_extrememesh_ps_prep_hop_count;
+static int hf_extrememesh_ps_prep_path_metrics;
+static int hf_extrememesh_ps_prep_services;
+static int hf_extrememesh_ps_prep_services_reserved;
+static int hf_extrememesh_ps_prep_services_mobile;
+static int hf_extrememesh_ps_prep_services_path_pref;
+static int hf_extrememesh_ps_prep_services_geo;
+static int hf_extrememesh_ps_prep_services_proxy;
+static int hf_extrememesh_ps_prep_services_root;
+static int hf_extrememesh_ps_prep_reserved;
+static int hf_extrememesh_ps_prep_term_addr;
+static int hf_extrememesh_ps_prep_dest_addr;
+static int hf_extrememesh_ps_prep_dest_seq;
+static int hf_extrememesh_ps_prep_orig_addr;
+static int hf_extrememesh_ps_prep_orig_seq;
+static int hf_extrememesh_ps_prep_lifetime;
+static int hf_extrememesh_ps_prep_opt_tot_len;
+static int hf_extrememesh_ps_prep_option;
+static int hf_extrememesh_ps_prep_option_len;
+static int hf_extrememesh_ps_prep_mcast_sub;
+static int hf_extrememesh_ps_prep_vlan_id;
+static int hf_extrememesh_ps_prep_mint_id;
 
 /*PS PERR fields*/
-static int hf_extrememesh_ps_perr_version = -1;
-static int hf_extrememesh_ps_perr_frame_type = -1;
-static int hf_extrememesh_ps_perr_flags = -1;
-static int hf_extrememesh_ps_perr_flags_reserved = -1;
-static int hf_extrememesh_ps_perr_flags_warning = -1;
-static int hf_extrememesh_ps_perr_flags_no_delete = -1;
-static int hf_extrememesh_ps_perr_dest_count = -1;
-static int hf_extrememesh_ps_perr_unrch_dest = -1;
-static int hf_extrememesh_ps_perr_unrch_dest_seq = -1;
+static int hf_extrememesh_ps_perr_version;
+static int hf_extrememesh_ps_perr_frame_type;
+static int hf_extrememesh_ps_perr_flags;
+static int hf_extrememesh_ps_perr_flags_reserved;
+static int hf_extrememesh_ps_perr_flags_warning;
+static int hf_extrememesh_ps_perr_flags_no_delete;
+static int hf_extrememesh_ps_perr_dest_count;
+static int hf_extrememesh_ps_perr_unrch_dest;
+static int hf_extrememesh_ps_perr_unrch_dest_seq;
 
 /*PS PRST fields*/
-static int hf_extrememesh_ps_prst_version = -1;
-static int hf_extrememesh_ps_prst_frame_type = -1;
-static int hf_extrememesh_ps_prst_hops_to_live = -1;
-static int hf_extrememesh_ps_prst_reserved = -1;
-static int hf_extrememesh_ps_prst_id = -1;
-static int hf_extrememesh_ps_prst_orig_addr = -1;
-static int hf_extrememesh_ps_prst_dest_addr = -1;
+static int hf_extrememesh_ps_prst_version;
+static int hf_extrememesh_ps_prst_frame_type;
+static int hf_extrememesh_ps_prst_hops_to_live;
+static int hf_extrememesh_ps_prst_reserved;
+static int hf_extrememesh_ps_prst_id;
+static int hf_extrememesh_ps_prst_orig_addr;
+static int hf_extrememesh_ps_prst_dest_addr;
 
 /*PS PREM fields*/
-static int hf_extrememesh_ps_prem_version = -1;
-static int hf_extrememesh_ps_prem_frame_type = -1;
-static int hf_extrememesh_ps_prem_mpr_addr = -1;
-static int hf_extrememesh_ps_prem_orig_addr = -1;
-static int hf_extrememesh_ps_prem_opt_tot_len = -1;
-static int hf_extrememesh_ps_prem_option = -1;
-static int hf_extrememesh_ps_prem_option_len = -1;
-static int hf_extrememesh_ps_prem_proxy_addr = -1;
-static int hf_extrememesh_ps_prem_proxy_vlan_id = -1;
+static int hf_extrememesh_ps_prem_version;
+static int hf_extrememesh_ps_prem_frame_type;
+static int hf_extrememesh_ps_prem_mpr_addr;
+static int hf_extrememesh_ps_prem_orig_addr;
+static int hf_extrememesh_ps_prem_opt_tot_len;
+static int hf_extrememesh_ps_prem_option;
+static int hf_extrememesh_ps_prem_option_len;
+static int hf_extrememesh_ps_prem_proxy_addr;
+static int hf_extrememesh_ps_prem_proxy_vlan_id;
 
 /*PS TRACE fields*/
-static int hf_extrememesh_ps_trace_version = -1;
-static int hf_extrememesh_ps_trace_frame_type = -1;
-static int hf_extrememesh_ps_trace_flags = -1;
-static int hf_extrememesh_ps_trace_flags_reserved = -1;
-static int hf_extrememesh_ps_trace_flags_reply = -1;
-static int hf_extrememesh_ps_trace_flags_no_path = -1;
-static int hf_extrememesh_ps_trace_dest_addr = -1;
-static int hf_extrememesh_ps_trace_orig_addr = -1;
-static int hf_extrememesh_ps_trace_hop_count = -1;
-static int hf_extrememesh_ps_trace_addl_path = -1;
+static int hf_extrememesh_ps_trace_version;
+static int hf_extrememesh_ps_trace_frame_type;
+static int hf_extrememesh_ps_trace_flags;
+static int hf_extrememesh_ps_trace_flags_reserved;
+static int hf_extrememesh_ps_trace_flags_reply;
+static int hf_extrememesh_ps_trace_flags_no_path;
+static int hf_extrememesh_ps_trace_dest_addr;
+static int hf_extrememesh_ps_trace_orig_addr;
+static int hf_extrememesh_ps_trace_hop_count;
+static int hf_extrememesh_ps_trace_addl_path;
 
 /*PS PRER fields*/
-static int hf_extrememesh_ps_prer_version = -1;
-static int hf_extrememesh_ps_prer_frame_type = -1;
-static int hf_extrememesh_ps_prer_dest_count = -1;
-static int hf_extrememesh_ps_prer_reserved = -1;
-static int hf_extrememesh_ps_prer_orig_addr = -1;
-static int hf_extrememesh_ps_prer_dest_addr = -1;
-static int hf_extrememesh_ps_prer_unrch_addr = -1;
-static int hf_extrememesh_ps_prer_opt_tot_len = -1;
-static int hf_extrememesh_ps_prer_option = -1;
-static int hf_extrememesh_ps_prer_option_len = -1;
-static int hf_extrememesh_ps_prer_vlan_id = -1;
+static int hf_extrememesh_ps_prer_version;
+static int hf_extrememesh_ps_prer_frame_type;
+static int hf_extrememesh_ps_prer_dest_count;
+static int hf_extrememesh_ps_prer_reserved;
+static int hf_extrememesh_ps_prer_orig_addr;
+static int hf_extrememesh_ps_prer_dest_addr;
+static int hf_extrememesh_ps_prer_unrch_addr;
+static int hf_extrememesh_ps_prer_opt_tot_len;
+static int hf_extrememesh_ps_prer_option;
+static int hf_extrememesh_ps_prer_option_len;
+static int hf_extrememesh_ps_prer_vlan_id;
 
 /*ETT for above fields...*/
-static int ett_extrememesh = -1;
+static int ett_extrememesh;
 
 /*MCH fields*/
-static int ett_extrememesh_mch = -1;
+static int ett_extrememesh_mch;
 
 /*Hello fields*/
-static int ett_extrememesh_hello = -1;
+static int ett_extrememesh_hello;
 
 /*Security fields*/
-static int ett_extrememesh_security = -1;
+static int ett_extrememesh_security;
 
 /*Cfpu fields*/
-static int ett_extrememesh_cfpu = -1;
+static int ett_extrememesh_cfpu;
 
 /*EAPOM fields*/
-static int ett_extrememesh_eapom = -1;
+static int ett_extrememesh_eapom;
 
 /*PS fields*/
-static int ett_extrememesh_ps = -1;
+static int ett_extrememesh_ps;
 
 /*Ethernet without FCS Dissector handle*/
 static dissector_handle_t eth_withoutfcs_handle;

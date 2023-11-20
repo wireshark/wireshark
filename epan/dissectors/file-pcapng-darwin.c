@@ -113,16 +113,16 @@
  *
  */
 
-static int proto_pcapng_darwin_process_info = -1;
+static int proto_pcapng_darwin_process_info;
 
 void proto_register_pcapng_darwin_process_info(void);
 void proto_reg_handoff_pcapng_darwin_process_info(void);
 
 
-static int hf_pcapng_option_code_darwin_process_info = -1;
-static int hf_pcapng_darwin_process_id = -1;
-static int hf_pcapng_option_darwin_process_name = -1;
-static int hf_pcapng_option_darwin_process_uuid = -1;
+static int hf_pcapng_option_code_darwin_process_info;
+static int hf_pcapng_darwin_process_id;
+static int hf_pcapng_option_darwin_process_name;
+static int hf_pcapng_option_darwin_process_uuid;
 
 #define BLOCK_DARWIN_PROCESS         0x80000001
 #define BLOCK_DARWIN_PROCESS_NAME    "Darwin Process Event Block"

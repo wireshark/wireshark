@@ -32,20 +32,20 @@ static dissector_handle_t kingfisher_handle;
 #define UDP_PORT_KINGFISHER_RANGE   "4058"
 #endif
 
-static int proto_kingfisher = -1;
-static int hf_kingfisher_version = -1;
-static int hf_kingfisher_system = -1;
-static int hf_kingfisher_length = -1;
-static int hf_kingfisher_from = -1;
-static int hf_kingfisher_target = -1;
-static int hf_kingfisher_via = -1;
-static int hf_kingfisher_message = -1;
-static int hf_kingfisher_function = -1;
-static int hf_kingfisher_checksum = -1;
-static int hf_kingfisher_checksum_status = -1;
-static int hf_kingfisher_message_data = -1;
+static int proto_kingfisher;
+static int hf_kingfisher_version;
+static int hf_kingfisher_system;
+static int hf_kingfisher_length;
+static int hf_kingfisher_from;
+static int hf_kingfisher_target;
+static int hf_kingfisher_via;
+static int hf_kingfisher_message;
+static int hf_kingfisher_function;
+static int hf_kingfisher_checksum;
+static int hf_kingfisher_checksum_status;
+static int hf_kingfisher_message_data;
 
-static expert_field ei_kingfisher_checksum = EI_INIT;
+static expert_field ei_kingfisher_checksum;
 
 static dissector_handle_t kingfisher_conv_handle;
 
@@ -63,7 +63,7 @@ typedef struct _kingfisher_packet_t
     guint16     checksum;
 } kingfisher_packet_t;
 
-static gint ett_kingfisher = -1;
+static gint ett_kingfisher;
 
 static const value_string function_code_vals[] =
 {

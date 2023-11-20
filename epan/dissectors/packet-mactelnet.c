@@ -25,24 +25,24 @@ void proto_reg_handoff_mactelnet(void);
 #define PROTO_TAG_MACTELNET "MAC-Telnet"
 
 /* Initialize the protocol and registered fields */
-static gint proto_mactelnet = -1;
-static gint hf_mactelnet_control_packet = -1;
-static gint hf_mactelnet_type = -1;
-static gint hf_mactelnet_protocolver = -1;
-static gint hf_mactelnet_source_mac = -1;
-static gint hf_mactelnet_destination_mac = -1;
-static gint hf_mactelnet_session_id = -1;
-static gint hf_mactelnet_client_type = -1;
-static gint hf_mactelnet_databytes = -1;
-static gint hf_mactelnet_datatype = -1;
-static gint hf_mactelnet_control = -1;
-static gint hf_mactelnet_control_length = -1;
-static gint hf_mactelnet_control_encryption_key = -1;
-static gint hf_mactelnet_control_password = -1;
-static gint hf_mactelnet_control_username = -1;
-static gint hf_mactelnet_control_terminal = -1;
-static gint hf_mactelnet_control_width = -1;
-static gint hf_mactelnet_control_height = -1;
+static gint proto_mactelnet;
+static gint hf_mactelnet_control_packet;
+static gint hf_mactelnet_type;
+static gint hf_mactelnet_protocolver;
+static gint hf_mactelnet_source_mac;
+static gint hf_mactelnet_destination_mac;
+static gint hf_mactelnet_session_id;
+static gint hf_mactelnet_client_type;
+static gint hf_mactelnet_databytes;
+static gint hf_mactelnet_datatype;
+static gint hf_mactelnet_control;
+static gint hf_mactelnet_control_length;
+static gint hf_mactelnet_control_encryption_key;
+static gint hf_mactelnet_control_password;
+static gint hf_mactelnet_control_username;
+static gint hf_mactelnet_control_terminal;
+static gint hf_mactelnet_control_width;
+static gint hf_mactelnet_control_height;
 
 #define MACTELNET_UDP_PORT      20561 /* Not IANA registered */
 
@@ -50,8 +50,8 @@ static gint hf_mactelnet_control_height = -1;
 static const guint32 control_packet = 0x563412FF;
 
 /* Initialize the subtree pointers */
-static gint ett_mactelnet = -1;
-static gint ett_mactelnet_control = -1;
+static gint ett_mactelnet;
+static gint ett_mactelnet_control;
 
 /* Packet types */
 static const value_string packettypenames[] = {

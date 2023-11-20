@@ -20,29 +20,29 @@
 void proto_register_remunk(void);
 void proto_reg_handoff_remunk(void);
 
-static int hf_remunk_opnum = -1;
+static int hf_remunk_opnum;
 
 
-static int hf_remunk_refs = -1;
-static int hf_remunk_iids = -1;
+static int hf_remunk_refs;
+static int hf_remunk_iids;
 
-/* static int hf_remunk_flags = -1; */
-static int hf_remunk_qiresult = -1;
+/* static int hf_remunk_flags; */
+static int hf_remunk_qiresult;
 
-static gint ett_remunk_reminterfaceref = -1;
-static int hf_remunk_reminterfaceref = -1;
-static int hf_remunk_interface_refs = -1;
-static int hf_remunk_public_refs = -1;
-static int hf_remunk_private_refs = -1;
-
-
-static gint ett_remunk_rqi_result = -1;
+static gint ett_remunk_reminterfaceref;
+static int hf_remunk_reminterfaceref;
+static int hf_remunk_interface_refs;
+static int hf_remunk_public_refs;
+static int hf_remunk_private_refs;
 
 
-static gint ett_remunk = -1;
+static gint ett_remunk_rqi_result;
+
+
+static gint ett_remunk;
 static e_guid_t uuid_remunk = { 0x00000131, 0x0000, 0x0000, { 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
 static guint16  ver_remunk = 0;
-static int proto_remunk = -1;
+static int proto_remunk;
 
 static e_guid_t ipid_remunk = { 0x00000131, 0x1234, 0x5678, { 0xCA, 0xFE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
 
@@ -52,10 +52,10 @@ static e_guid_t ipid_remunk = { 0x00000131, 0x1234, 0x5678, { 0xCA, 0xFE, 0x00, 
 /* win2000 registry tells us: 0x00000143 IRemUnknown2 (7 methods) */
 /* There is some evidence, that the DCOM documentation is wrong, so using 143 for IRemUnknown2 now. */
 
-static gint ett_remunk2 = -1;
+static gint ett_remunk2;
 static e_guid_t uuid_remunk2 = { 0x00000143, 0x0000, 0x0000, { 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
 static guint16  ver_remunk2 = 0;
-static int proto_remunk2 = -1;
+static int proto_remunk2;
 
 
 typedef struct remunk_remqueryinterface_call_s {

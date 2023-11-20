@@ -51,7 +51,7 @@ void proto_reg_handoff_iax2(void);
 /* #define DEBUG_DESEGMENT */
 
 /* Wireshark ID of the IAX2 protocol */
-static int proto_iax2 = -1;
+static int proto_iax2;
 
 /* tap register id */
 static int iax2_tap = -1;
@@ -64,77 +64,77 @@ static iax2_info_t *iax2_info = ii_arr;
  * our header fields; they are filled out when we call
  * proto_register_field_array() in proto_register_iax2()
  */
-static int hf_iax2_packet_type = -1;
-static int hf_iax2_retransmission = -1;
-static int hf_iax2_callno = -1;
-static int hf_iax2_scallno = -1;
-static int hf_iax2_dcallno = -1;
-static int hf_iax2_ts = -1;
-static int hf_iax2_minits = -1;
-static int hf_iax2_minividts = -1;
-static int hf_iax2_absts = -1;
-static int hf_iax2_lateness = -1;
-static int hf_iax2_minividmarker = -1;
-static int hf_iax2_oseqno = -1;
-static int hf_iax2_iseqno = -1;
-static int hf_iax2_type = -1;
-static int hf_iax2_csub = -1;
-static int hf_iax2_dtmf_csub = -1;
-static int hf_iax2_cmd_csub = -1;
-static int hf_iax2_iax_csub = -1;
-static int hf_iax2_voice_csub = -1;
-static int hf_iax2_voice_codec = -1;
-static int hf_iax2_video_csub = -1;
-static int hf_iax2_video_codec = -1;
-static int hf_iax2_marker = -1;
-static int hf_iax2_modem_csub = -1;
-static int hf_iax2_text_csub = -1;
-static int hf_iax2_text_text = -1;
-static int hf_iax2_html_csub = -1;
-static int hf_iax2_html_url = -1;
-static int hf_iax2_trunk_metacmd = -1;
-static int hf_iax2_trunk_cmddata = -1;
-static int hf_iax2_trunk_cmddata_ts = -1;
-static int hf_iax2_trunk_ts = -1;
-static int hf_iax2_trunk_ncalls = -1;
-static int hf_iax2_trunk_call_len = -1;
-static int hf_iax2_trunk_call_scallno = -1;
-static int hf_iax2_trunk_call_ts = -1;
-static int hf_iax2_trunk_call_data = -1;
+static int hf_iax2_packet_type;
+static int hf_iax2_retransmission;
+static int hf_iax2_callno;
+static int hf_iax2_scallno;
+static int hf_iax2_dcallno;
+static int hf_iax2_ts;
+static int hf_iax2_minits;
+static int hf_iax2_minividts;
+static int hf_iax2_absts;
+static int hf_iax2_lateness;
+static int hf_iax2_minividmarker;
+static int hf_iax2_oseqno;
+static int hf_iax2_iseqno;
+static int hf_iax2_type;
+static int hf_iax2_csub;
+static int hf_iax2_dtmf_csub;
+static int hf_iax2_cmd_csub;
+static int hf_iax2_iax_csub;
+static int hf_iax2_voice_csub;
+static int hf_iax2_voice_codec;
+static int hf_iax2_video_csub;
+static int hf_iax2_video_codec;
+static int hf_iax2_marker;
+static int hf_iax2_modem_csub;
+static int hf_iax2_text_csub;
+static int hf_iax2_text_text;
+static int hf_iax2_html_csub;
+static int hf_iax2_html_url;
+static int hf_iax2_trunk_metacmd;
+static int hf_iax2_trunk_cmddata;
+static int hf_iax2_trunk_cmddata_ts;
+static int hf_iax2_trunk_ts;
+static int hf_iax2_trunk_ncalls;
+static int hf_iax2_trunk_call_len;
+static int hf_iax2_trunk_call_scallno;
+static int hf_iax2_trunk_call_ts;
+static int hf_iax2_trunk_call_data;
 
-static int hf_iax2_ie_id = -1;
-static int hf_iax2_length = -1;
-static int hf_iax2_version = -1;
-static int hf_iax2_cap_g723_1 = -1;
-static int hf_iax2_cap_gsm = -1;
-static int hf_iax2_cap_ulaw = -1;
-static int hf_iax2_cap_alaw = -1;
-static int hf_iax2_cap_g726_aal2 = -1;
-static int hf_iax2_cap_adpcm = -1;
-static int hf_iax2_cap_slinear = -1;
-static int hf_iax2_cap_lpc10 = -1;
-static int hf_iax2_cap_g729a = -1;
-static int hf_iax2_cap_speex = -1;
-static int hf_iax2_cap_ilbc = -1;
-static int hf_iax2_cap_g726 = -1;
-static int hf_iax2_cap_g722 = -1;
-static int hf_iax2_cap_siren7 = -1;
-static int hf_iax2_cap_siren14 = -1;
-static int hf_iax2_cap_slinear16 = -1;
-static int hf_iax2_cap_jpeg = -1;
-static int hf_iax2_cap_png = -1;
-static int hf_iax2_cap_h261 = -1;
-static int hf_iax2_cap_h263 = -1;
-static int hf_iax2_cap_h263_plus = -1;
-static int hf_iax2_cap_h264 = -1;
-static int hf_iax2_cap_mpeg4 = -1;
-static int hf_iax2_cap_vp8 = -1;
-static int hf_iax2_cap_t140_red = -1;
-static int hf_iax2_cap_t140 = -1;
-static int hf_iax2_cap_g719 = -1;
-static int hf_iax2_cap_speex16 = -1;
-static int hf_iax2_cap_opus = -1;
-static int hf_iax2_cap_testlaw = -1;
+static int hf_iax2_ie_id;
+static int hf_iax2_length;
+static int hf_iax2_version;
+static int hf_iax2_cap_g723_1;
+static int hf_iax2_cap_gsm;
+static int hf_iax2_cap_ulaw;
+static int hf_iax2_cap_alaw;
+static int hf_iax2_cap_g726_aal2;
+static int hf_iax2_cap_adpcm;
+static int hf_iax2_cap_slinear;
+static int hf_iax2_cap_lpc10;
+static int hf_iax2_cap_g729a;
+static int hf_iax2_cap_speex;
+static int hf_iax2_cap_ilbc;
+static int hf_iax2_cap_g726;
+static int hf_iax2_cap_g722;
+static int hf_iax2_cap_siren7;
+static int hf_iax2_cap_siren14;
+static int hf_iax2_cap_slinear16;
+static int hf_iax2_cap_jpeg;
+static int hf_iax2_cap_png;
+static int hf_iax2_cap_h261;
+static int hf_iax2_cap_h263;
+static int hf_iax2_cap_h263_plus;
+static int hf_iax2_cap_h264;
+static int hf_iax2_cap_mpeg4;
+static int hf_iax2_cap_vp8;
+static int hf_iax2_cap_t140_red;
+static int hf_iax2_cap_t140;
+static int hf_iax2_cap_g719;
+static int hf_iax2_cap_speex16;
+static int hf_iax2_cap_opus;
+static int hf_iax2_cap_testlaw;
 
 static int * const hf_iax2_caps[] = {
   &hf_iax2_cap_g723_1,
@@ -170,18 +170,18 @@ static int * const hf_iax2_caps[] = {
   NULL
 };
 
-static int hf_iax2_fragment_unfinished = -1;
-static int hf_iax2_payload_data = -1;
-static int hf_iax2_fragments = -1;
-static int hf_iax2_fragment = -1;
-static int hf_iax2_fragment_overlap = -1;
-static int hf_iax2_fragment_overlap_conflict = -1;
-static int hf_iax2_fragment_multiple_tails = -1;
-static int hf_iax2_fragment_too_long_fragment = -1;
-static int hf_iax2_fragment_error = -1;
-static int hf_iax2_fragment_count = -1;
-static int hf_iax2_reassembled_in = -1;
-static int hf_iax2_reassembled_length = -1;
+static int hf_iax2_fragment_unfinished;
+static int hf_iax2_payload_data;
+static int hf_iax2_fragments;
+static int hf_iax2_fragment;
+static int hf_iax2_fragment_overlap;
+static int hf_iax2_fragment_overlap_conflict;
+static int hf_iax2_fragment_multiple_tails;
+static int hf_iax2_fragment_too_long_fragment;
+static int hf_iax2_fragment_error;
+static int hf_iax2_fragment_count;
+static int hf_iax2_reassembled_in;
+static int hf_iax2_reassembled_length;
 
 
 /* hf_iax2_ies is an array of header fields, one per potential Information
@@ -195,31 +195,31 @@ static int hf_iax2_reassembled_length = -1;
  */
 #define NUM_HF_IAX2_IES 256
 static int hf_iax2_ies[NUM_HF_IAX2_IES];
-static int hf_iax2_ie_datetime = -1;
-static int hf_IAX_IE_APPARENTADDR_SINFAMILY = -1;
-static int hf_IAX_IE_APPARENTADDR_SINPORT = -1;
-static int hf_IAX_IE_APPARENTADDR_SINADDR = -1;
-static int hf_IAX_IE_UNKNOWN_BYTE = -1;
-static int hf_IAX_IE_UNKNOWN_I16 = -1;
-static int hf_IAX_IE_UNKNOWN_I32 = -1;
-static int hf_IAX_IE_UNKNOWN_BYTES = -1;
+static int hf_iax2_ie_datetime;
+static int hf_IAX_IE_APPARENTADDR_SINFAMILY;
+static int hf_IAX_IE_APPARENTADDR_SINPORT;
+static int hf_IAX_IE_APPARENTADDR_SINADDR;
+static int hf_IAX_IE_UNKNOWN_BYTE;
+static int hf_IAX_IE_UNKNOWN_I16;
+static int hf_IAX_IE_UNKNOWN_I32;
+static int hf_IAX_IE_UNKNOWN_BYTES;
 
 /* These are the ids of the subtrees that we may be creating */
-static gint ett_iax2 = -1;
-static gint ett_iax2_full_mini_subtree = -1;
-static gint ett_iax2_type = -1;              /* Frame-type specific subtree */
-static gint ett_iax2_ie = -1;                /* single IE */
-static gint ett_iax2_codecs = -1;            /* capabilities IE */
-static gint ett_iax2_ies_apparent_addr = -1; /* apparent address IE */
-static gint ett_iax2_fragment = -1;
-static gint ett_iax2_fragments = -1;
-static gint ett_iax2_trunk_cmddata = -1;
-static gint ett_iax2_trunk_call = -1;
+static gint ett_iax2;
+static gint ett_iax2_full_mini_subtree;
+static gint ett_iax2_type;              /* Frame-type specific subtree */
+static gint ett_iax2_ie;                /* single IE */
+static gint ett_iax2_codecs;            /* capabilities IE */
+static gint ett_iax2_ies_apparent_addr; /* apparent address IE */
+static gint ett_iax2_fragment;
+static gint ett_iax2_fragments;
+static gint ett_iax2_trunk_cmddata;
+static gint ett_iax2_trunk_call;
 
-static expert_field ei_iax_too_many_transfers = EI_INIT;
-static expert_field ei_iax_circuit_id_conflict = EI_INIT;
-static expert_field ei_iax_peer_address_unsupported = EI_INIT;
-static expert_field ei_iax_invalid_len = EI_INIT;
+static expert_field ei_iax_too_many_transfers;
+static expert_field ei_iax_circuit_id_conflict;
+static expert_field ei_iax_peer_address_unsupported;
+static expert_field ei_iax_invalid_len;
 
 static dissector_handle_t iax2_handle;
 

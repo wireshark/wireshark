@@ -32,15 +32,15 @@ void proto_register_h248_3gpp(void);
  * 3GUP Package
  * 3GPP TS 29.232 -- 15.1.1
  */
-static int proto_h248_package_3GUP = -1;
+static int proto_h248_package_3GUP;
 
-static int hf_h248_package_3GUP_Mode = -1;
-static int hf_h248_package_3GUP_UPversions = -1;
-static int hf_h248_package_3GUP_delerrsdu = -1;
-static int hf_h248_package_3GUP_interface = -1;
-static int hf_h248_package_3GUP_initdir = -1;
+static int hf_h248_package_3GUP_Mode;
+static int hf_h248_package_3GUP_UPversions;
+static int hf_h248_package_3GUP_delerrsdu;
+static int hf_h248_package_3GUP_interface;
+static int hf_h248_package_3GUP_initdir;
 
-static gint ett_h248_package_3GUP = -1;
+static gint ett_h248_package_3GUP;
 
 static gboolean implicit = FALSE;
 
@@ -137,22 +137,22 @@ static h248_package_t h248_package_3GUP = {
  * 3GPP TS 29.232 -- 15.2.1
  */
 
-static int hf_h248_package_3GCSD = -1;
+static int hf_h248_package_3GCSD;
 
-static int hf_h248_package_3GCSD_plmnbc = -1;
-static int hf_h248_package_3GCSD_gsmchancod = -1;
-static int hf_h248_pkg_3GCSD_evt_protres = -1;
-static int hf_h248_pkg_3GCSD_evt_protres_result = -1;
-static int hf_h248_pkg_3GCSD_evt_protres_cause = -1;
-static int hf_h248_pkg_3GCSD_evt_ratechg = -1;
-static int hf_h248_pkg_3GCSD_evt_ratechg_rate = -1;
-static int hf_h248_pkg_3GCSD_sig_actprot = -1;
-static int hf_h248_pkg_3GCSD_actprot_sig_localpeer = -1;
+static int hf_h248_package_3GCSD_plmnbc;
+static int hf_h248_package_3GCSD_gsmchancod;
+static int hf_h248_pkg_3GCSD_evt_protres;
+static int hf_h248_pkg_3GCSD_evt_protres_result;
+static int hf_h248_pkg_3GCSD_evt_protres_cause;
+static int hf_h248_pkg_3GCSD_evt_ratechg;
+static int hf_h248_pkg_3GCSD_evt_ratechg_rate;
+static int hf_h248_pkg_3GCSD_sig_actprot;
+static int hf_h248_pkg_3GCSD_actprot_sig_localpeer;
 
-static gint ett_h248_package_3GCSD = -1;
-static gint ett_h248_3GCSD_evt_protres = -1;
-static gint ett_h248_3GCSD_evt_ratechg = -1;
-static gint ett_pkg_3GCSD_sig_actprot = -1;
+static gint ett_h248_package_3GCSD;
+static gint ett_h248_3GCSD_evt_protres;
+static gint ett_h248_3GCSD_evt_ratechg;
+static gint ett_pkg_3GCSD_sig_actprot;
 
 static void dissect_3gcsd_plmnbc(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* cu _U_, void* implicit_param) {
 	asn1_ctx_t asn1_ctx;
@@ -266,23 +266,23 @@ static h248_package_t h248_package_3GCSD = {
  * TFO package
  * 3GPP TS 29.232 -- 15.2.2
  */
-static int hf_h248_package_3GTFO = -1;
+static int hf_h248_package_3GTFO;
 
-static int hf_h248_pkg_3GTFO_evt_codec_modify = -1;
-static int hf_h248_pkg_3GTFO_evt_distant_codec_list = -1;
-static int hf_h248_pkg_3GTFO_evt_status = -1;
-static int hf_h248_pkg_3GTFO_enable = -1;
-static int hf_h248_pkg_3GTFO_codeclist = -1;
-static int hf_h248_pkg_3GTFO_evt_codec_modify_optimalcodec = -1;
-static int hf_h248_pkg_3GTFO_evt_distant_codec_list_distlist = -1;
-static int hf_h248_pkg_3GTFO_evt_status_tfostatus = -1;
+static int hf_h248_pkg_3GTFO_evt_codec_modify;
+static int hf_h248_pkg_3GTFO_evt_distant_codec_list;
+static int hf_h248_pkg_3GTFO_evt_status;
+static int hf_h248_pkg_3GTFO_enable;
+static int hf_h248_pkg_3GTFO_codeclist;
+static int hf_h248_pkg_3GTFO_evt_codec_modify_optimalcodec;
+static int hf_h248_pkg_3GTFO_evt_distant_codec_list_distlist;
+static int hf_h248_pkg_3GTFO_evt_status_tfostatus;
 
-static gint ett_h248_package_3GTFO = -1;
-static gint ett_h248_3GTFO_evt_status = -1;
-static gint ett_h248_3GTFO_evt_distant_codec_list = -1;
-static gint ett_h248_3GTFO_evt_codec_modify = -1;
-static gint ett_h248_3GTFO_codec_list = -1;
-static gint ett_h248_3GTFO_codec = -1;
+static gint ett_h248_package_3GTFO;
+static gint ett_h248_3GTFO_evt_status;
+static gint ett_h248_3GTFO_evt_distant_codec_list;
+static gint ett_h248_3GTFO_evt_codec_modify;
+static gint ett_h248_3GTFO_codec_list;
+static gint ett_h248_3GTFO_codec;
 
 
 static void dissect_3GTFO_codec_mode(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* cu _U_, void* ignored _U_) {
@@ -438,12 +438,12 @@ static h248_package_t h248_package_3GTFO = {
  * IP transport package
  * 3GPP TS 29.232 -- 15.2.7
  */
-static int hf_h248_package_threegiptra = -1;
-static int hf_h248_package_threegiptra_ipv4trans = -1;
-static int hf_h248_package_threegiptra_ipv6trans = -1;
-static int hf_h248_package_threegiptra_UDport = -1;
+static int hf_h248_package_threegiptra;
+static int hf_h248_package_threegiptra_ipv4trans;
+static int hf_h248_package_threegiptra_ipv6trans;
+static int hf_h248_package_threegiptra_UDport;
 
-static int ett_h248_package_threegiptra = -1;
+static int ett_h248_package_threegiptra;
 
 static const value_string h248_threegiptra_properties_vals[] = {
 	{ 0x0000, "threegiptra (3G IP transport)" },
@@ -490,10 +490,10 @@ static h248_package_t h248_package_threegiptra = {
  * 3G Interface Type package
  * 3GPP TS 29.232 -- 15.2.11
  */
-static int hf_h248_package_threegint = -1;
-static int hf_h248_package_threegint_ipint = -1;
+static int hf_h248_package_threegint;
+static int hf_h248_package_threegint_ipint;
 
-static int ett_h248_package_threegint = -1;
+static int ett_h248_package_threegint;
 
 static const value_string h248_threegint_properties_vals[] = {
 	{0000,  "3G Interface Type"},

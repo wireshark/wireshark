@@ -92,43 +92,43 @@ void proto_reg_handoff_vxi11_async(void);
 void proto_register_vxi11_intr(void);
 void proto_reg_handoff_vxi11_intr(void);
 
-static int proto_vxi11_core = -1;
+static int proto_vxi11_core;
 
-static gint ett_vxi11_core = -1;
-static gint ett_vxi11_core_flags = -1;
-static gint ett_vxi11_core_reason = -1;
+static gint ett_vxi11_core;
+static gint ett_vxi11_core_flags;
+static gint ett_vxi11_core_reason;
 
-static int hf_vxi11_core_procedure_v1 = -1;
-static int hf_vxi11_core_abort_port = -1;
-static int hf_vxi11_core_client_id = -1;
-static int hf_vxi11_core_cmd = -1;
-static int hf_vxi11_core_data = -1;
-static int hf_vxi11_core_device = -1;
-static int hf_vxi11_core_enable = -1;
-static int hf_vxi11_core_error = -1;
-static int hf_vxi11_core_flags = -1;
-static int hf_vxi11_core_flag_wait_lock = -1;
-static int hf_vxi11_core_flag_end = -1;
-static int hf_vxi11_core_flag_term_chr_set = -1;
-static int hf_vxi11_core_handle = -1;
-static int hf_vxi11_core_host_addr = -1;
-static int hf_vxi11_core_host_port = -1;
-static int hf_vxi11_core_io_timeout = -1;
-static int hf_vxi11_core_lid = -1;
-static int hf_vxi11_core_lock_device = -1;
-static int hf_vxi11_core_lock_timeout = -1;
-static int hf_vxi11_core_max_recv_size = -1;
-static int hf_vxi11_core_network_order = -1;
-static int hf_vxi11_core_prog_family = -1;
-static int hf_vxi11_core_prog_num = -1;
-static int hf_vxi11_core_prog_vers = -1;
-static int hf_vxi11_core_reason = -1;
-static int hf_vxi11_core_reason_req_cnt = -1;
-static int hf_vxi11_core_reason_chr = -1;
-static int hf_vxi11_core_reason_end = -1;
-static int hf_vxi11_core_size = -1;
-static int hf_vxi11_core_stb = -1;
-static int hf_vxi11_core_term_char = -1;
+static int hf_vxi11_core_procedure_v1;
+static int hf_vxi11_core_abort_port;
+static int hf_vxi11_core_client_id;
+static int hf_vxi11_core_cmd;
+static int hf_vxi11_core_data;
+static int hf_vxi11_core_device;
+static int hf_vxi11_core_enable;
+static int hf_vxi11_core_error;
+static int hf_vxi11_core_flags;
+static int hf_vxi11_core_flag_wait_lock;
+static int hf_vxi11_core_flag_end;
+static int hf_vxi11_core_flag_term_chr_set;
+static int hf_vxi11_core_handle;
+static int hf_vxi11_core_host_addr;
+static int hf_vxi11_core_host_port;
+static int hf_vxi11_core_io_timeout;
+static int hf_vxi11_core_lid;
+static int hf_vxi11_core_lock_device;
+static int hf_vxi11_core_lock_timeout;
+static int hf_vxi11_core_max_recv_size;
+static int hf_vxi11_core_network_order;
+static int hf_vxi11_core_prog_family;
+static int hf_vxi11_core_prog_num;
+static int hf_vxi11_core_prog_vers;
+static int hf_vxi11_core_reason;
+static int hf_vxi11_core_reason_req_cnt;
+static int hf_vxi11_core_reason_chr;
+static int hf_vxi11_core_reason_end;
+static int hf_vxi11_core_size;
+static int hf_vxi11_core_stb;
+static int hf_vxi11_core_term_char;
 
 static const value_string vxi11_core_error_vals[] = {
     { VXI11_CORE_ERROR_NO_ERROR, "No Error" },
@@ -169,11 +169,11 @@ static const value_string vxi11_core_cmd_vals[] = {
 #define VXI11_ASYNC_PROGRAM 0x0607B0
 #define VXI11_ASYNC_VERSION 1
 
-static int proto_vxi11_async = -1;
+static int proto_vxi11_async;
 
-static gint ett_vxi11_async = -1;
+static gint ett_vxi11_async;
 
-static int hf_vxi11_async_procedure_v1 = -1;
+static int hf_vxi11_async_procedure_v1;
 
 
 /* Interrupt protocol. */
@@ -184,12 +184,12 @@ static int hf_vxi11_async_procedure_v1 = -1;
 #define VXI11_INTR_PROGRAM 0x0607B1
 #define VXI11_INTR_VERSION 1
 
-static int proto_vxi11_intr = -1;
+static int proto_vxi11_intr;
 
-static gint ett_vxi11_intr = -1;
+static gint ett_vxi11_intr;
 
-static int hf_vxi11_intr_procedure_v1 = -1;
-static int hf_vxi11_intr_handle = -1;
+static int hf_vxi11_intr_procedure_v1;
+static int hf_vxi11_intr_handle;
 
 
 /* Helper routines for dissecting common fields. */

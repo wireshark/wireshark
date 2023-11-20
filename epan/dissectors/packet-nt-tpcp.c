@@ -68,25 +68,25 @@ static const value_string type_vals[] = {
 #define TPCP_VER_2_LENGTH 28
 
 /* things we can do filters on */
-static int hf_tpcp_version = -1;
-static int hf_tpcp_type = -1;
-static int hf_tpcp_flags = -1;
-static int hf_tpcp_flags_tcp = -1;
-static int hf_tpcp_flags_redir = -1;
-static int hf_tpcp_flags_xon = -1;
-static int hf_tpcp_flags_xoff = -1;
-static int hf_tpcp_id = -1;
-static int hf_tpcp_cport = -1;
-static int hf_tpcp_caddr = -1;
-static int hf_tpcp_saddr = -1;
-static int hf_tpcp_vaddr = -1;
-static int hf_tpcp_rasaddr = -1;
-static int hf_tpcp_signature = -1;
+static int hf_tpcp_version;
+static int hf_tpcp_type;
+static int hf_tpcp_flags;
+static int hf_tpcp_flags_tcp;
+static int hf_tpcp_flags_redir;
+static int hf_tpcp_flags_xon;
+static int hf_tpcp_flags_xoff;
+static int hf_tpcp_id;
+static int hf_tpcp_cport;
+static int hf_tpcp_caddr;
+static int hf_tpcp_saddr;
+static int hf_tpcp_vaddr;
+static int hf_tpcp_rasaddr;
+static int hf_tpcp_signature;
 
-static int proto_tpcp = -1;
+static int proto_tpcp;
 
-static gint ett_tpcp = -1;
-static gint ett_tpcp_flags = -1;
+static gint ett_tpcp;
+static gint ett_tpcp_flags;
 
 
 static int

@@ -31,25 +31,25 @@ void proto_register_pw_satop(void);
 void proto_reg_handoff_pw_satop(void);
 
 static gint proto = -1;
-static gint ett_pw_satop = -1;
+static gint ett_pw_satop;
 
-static int hf_cw = -1;
-static int hf_cw_bits03 = -1;
-static int hf_cw_l = -1;
-static int hf_cw_r = -1;
-static int hf_cw_rsv = -1;
-static int hf_cw_frg = -1;
-static int hf_cw_len = -1;
-static int hf_cw_seq = -1;
-static int hf_payload = -1;
-static int hf_payload_l = -1;
+static int hf_cw;
+static int hf_cw_bits03;
+static int hf_cw_l;
+static int hf_cw_r;
+static int hf_cw_rsv;
+static int hf_cw_frg;
+static int hf_cw_len;
+static int hf_cw_seq;
+static int hf_payload;
+static int hf_payload_l;
 
-static expert_field ei_cw_rsv = EI_INIT;
-static expert_field ei_payload_size_invalid_undecoded = EI_INIT;
-static expert_field ei_payload_size_invalid = EI_INIT;
-static expert_field ei_cw_frg = EI_INIT;
-static expert_field ei_cw_bits03 = EI_INIT;
-static expert_field ei_cw_packet_size_too_small = EI_INIT;
+static expert_field ei_cw_rsv;
+static expert_field ei_payload_size_invalid_undecoded;
+static expert_field ei_payload_size_invalid;
+static expert_field ei_cw_frg;
+static expert_field ei_cw_bits03;
+static expert_field ei_cw_packet_size_too_small;
 
 static dissector_handle_t pw_padding_handle;
 static dissector_handle_t pw_satop_udp_handle;

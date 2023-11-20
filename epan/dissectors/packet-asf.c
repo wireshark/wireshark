@@ -31,27 +31,27 @@ static dissector_handle_t asf_handle;
 
 #define RMCP_CLASS_ASF 0x06
 
-static int proto_asf = -1;
-static int hf_asf_iana = -1;
-static int hf_asf_type = -1;
-static int hf_asf_tag = -1;
-static int hf_asf_len = -1;
-static int hf_asf_rssp_status_code = -1;
-static int hf_asf_mgt_console_id = -1;
-static int hf_asf_client_id = -1;
-static int hf_asf_payload = -1;
-static int hf_asf_payload_type = -1;
-static int hf_asf_payload_len = -1;
-static int hf_asf_payload_data = -1;
-static int hf_asf_auth_alg = -1;
-static int hf_asf_integrity_alg = -1;
-static int hf_asf_reserved = -1;
+static int proto_asf;
+static int hf_asf_iana;
+static int hf_asf_type;
+static int hf_asf_tag;
+static int hf_asf_len;
+static int hf_asf_rssp_status_code;
+static int hf_asf_mgt_console_id;
+static int hf_asf_client_id;
+static int hf_asf_payload;
+static int hf_asf_payload_type;
+static int hf_asf_payload_len;
+static int hf_asf_payload_data;
+static int hf_asf_auth_alg;
+static int hf_asf_integrity_alg;
+static int hf_asf_reserved;
 
-static gint ett_asf = -1;
-static gint ett_asf_payload = -1;
-static gint ett_asf_alg_payload = -1;
+static gint ett_asf;
+static gint ett_asf_payload;
+static gint ett_asf_alg_payload;
 
-static expert_field ei_asf_payload_too_short = EI_INIT;
+static expert_field ei_asf_payload_too_short;
 
 
 #define ASF_TYPE_RESET                  0x10

@@ -1418,290 +1418,290 @@ static gint dissect_object_mapping(struct profile *profile, wmem_array_t *mappin
 static const gchar* decode_epl_address(guchar adr);
 
 /* Initialize the protocol and registered fields */
-static gint proto_epl            = -1;
+static gint proto_epl;
 
-static gint hf_epl_mtyp          = -1;
-static gint hf_epl_node          = -1;
-static gint hf_epl_dest          = -1;
-static gint hf_epl_src           = -1;
-static gint hf_epl_payload_real  = -1;
+static gint hf_epl_mtyp;
+static gint hf_epl_node;
+static gint hf_epl_dest;
+static gint hf_epl_src;
+static gint hf_epl_payload_real;
 
 /* available epl message types */
-static gint hf_epl_soc           = -1;
-static gint hf_epl_preq          = -1;
-static gint hf_epl_pres          = -1;
-static gint hf_epl_soa           = -1;
-static gint hf_epl_asnd          = -1;
-static gint hf_epl_amni          = -1;
-static gint hf_epl_ainv          = -1;
+static gint hf_epl_soc;
+static gint hf_epl_preq;
+static gint hf_epl_pres;
+static gint hf_epl_soa;
+static gint hf_epl_asnd;
+static gint hf_epl_amni;
+static gint hf_epl_ainv;
 
-static gint hf_epl_soc_flags     = -1;
-static gint hf_epl_soc_mc        = -1;
-static gint hf_epl_soc_ps        = -1;
-static gint hf_epl_soc_dna_an    = -1;
-static gint hf_epl_soc_nettime   = -1;
-static gint hf_epl_soc_relativetime = -1;
+static gint hf_epl_soc_flags;
+static gint hf_epl_soc_mc;
+static gint hf_epl_soc_ps;
+static gint hf_epl_soc_dna_an;
+static gint hf_epl_soc_nettime;
+static gint hf_epl_soc_relativetime;
 
-static gint hf_epl_preq_flags    = -1;
-static gint hf_epl_preq_ms       = -1;
-static gint hf_epl_preq_ea       = -1;
-static gint hf_epl_preq_rd       = -1;
-static gint hf_epl_preq_sls      = -1;
-static gint hf_epl_preq_fls      = -1;
-static gint hf_epl_preq_pdov     = -1;
-static gint hf_epl_preq_size     = -1;
+static gint hf_epl_preq_flags;
+static gint hf_epl_preq_ms;
+static gint hf_epl_preq_ea;
+static gint hf_epl_preq_rd;
+static gint hf_epl_preq_sls;
+static gint hf_epl_preq_fls;
+static gint hf_epl_preq_pdov;
+static gint hf_epl_preq_size;
 
-static gint hf_epl_pres_stat_ms  = -1;
-static gint hf_epl_pres_stat_cs  = -1;
-static gint hf_epl_pres_flags    = -1;
-static gint hf_epl_pres_ms       = -1;
-static gint hf_epl_pres_en       = -1;
-static gint hf_epl_pres_rd       = -1;
-static gint hf_epl_pres_pr       = -1;
-static gint hf_epl_pres_rs       = -1;
-static gint hf_epl_pres_sls      = -1;
-static gint hf_epl_pres_fls      = -1;
-static gint hf_epl_pres_pdov     = -1;
-static gint hf_epl_pres_size     = -1;
+static gint hf_epl_pres_stat_ms;
+static gint hf_epl_pres_stat_cs;
+static gint hf_epl_pres_flags;
+static gint hf_epl_pres_ms;
+static gint hf_epl_pres_en;
+static gint hf_epl_pres_rd;
+static gint hf_epl_pres_pr;
+static gint hf_epl_pres_rs;
+static gint hf_epl_pres_sls;
+static gint hf_epl_pres_fls;
+static gint hf_epl_pres_pdov;
+static gint hf_epl_pres_size;
 
-static gint hf_epl_soa_stat_ms   = -1;
-static gint hf_epl_soa_stat_cs   = -1;
-static gint hf_epl_soa_ea        = -1;
-static gint hf_epl_soa_er        = -1;
-static gint hf_epl_soa_svid      = -1;
-static gint hf_epl_soa_svtg      = -1;
-static gint hf_epl_soa_eplv      = -1;
-static gint hf_epl_soa_rrflags          = -1;
-static gint hf_epl_soa_rrflags_mnred    = -1;
-static gint hf_epl_soa_rrflags_cblred   = -1;
-static gint hf_epl_soa_rrflags_ringred  = -1;
-static gint hf_epl_soa_rrflags_ringstat = -1;
+static gint hf_epl_soa_stat_ms;
+static gint hf_epl_soa_stat_cs;
+static gint hf_epl_soa_ea;
+static gint hf_epl_soa_er;
+static gint hf_epl_soa_svid;
+static gint hf_epl_soa_svtg;
+static gint hf_epl_soa_eplv;
+static gint hf_epl_soa_rrflags;
+static gint hf_epl_soa_rrflags_mnred;
+static gint hf_epl_soa_rrflags_cblred;
+static gint hf_epl_soa_rrflags_ringred;
+static gint hf_epl_soa_rrflags_ringstat;
 
 /*SyncRequest*/
-static gint hf_epl_soa_sync      = -1;
-static gint hf_epl_soa_mac       = -1;
-static gint hf_epl_soa_pre_fst   = -1;
-static gint hf_epl_soa_pre_sec   = -1;
-static gint hf_epl_soa_mnd_fst   = -1;
-static gint hf_epl_soa_mnd_sec   = -1;
-static gint hf_epl_soa_pre_tm    = -1;
-static gint hf_epl_soa_pre_set   = -1;
-static gint hf_epl_soa_pre_res   = -1;
-static gint hf_epl_soa_mac_end   = -1;
-static gint hf_epl_soa_pre_fst_end   = -1;
-static gint hf_epl_soa_pre_sec_end   = -1;
-static gint hf_epl_soa_mnd_fst_end   = -1;
-static gint hf_epl_soa_mnd_sec_end   = -1;
-static gint hf_epl_soa_pre_tm_end    = -1;
-static gint hf_epl_soa_dna_an_glb    = -1;
-static gint hf_epl_soa_dna_an_lcl    = -1;
+static gint hf_epl_soa_sync;
+static gint hf_epl_soa_mac;
+static gint hf_epl_soa_pre_fst;
+static gint hf_epl_soa_pre_sec;
+static gint hf_epl_soa_mnd_fst;
+static gint hf_epl_soa_mnd_sec;
+static gint hf_epl_soa_pre_tm;
+static gint hf_epl_soa_pre_set;
+static gint hf_epl_soa_pre_res;
+static gint hf_epl_soa_mac_end;
+static gint hf_epl_soa_pre_fst_end;
+static gint hf_epl_soa_pre_sec_end;
+static gint hf_epl_soa_mnd_fst_end;
+static gint hf_epl_soa_mnd_sec_end;
+static gint hf_epl_soa_pre_tm_end;
+static gint hf_epl_soa_dna_an_glb;
+static gint hf_epl_soa_dna_an_lcl;
 
 /*SyncResponse*/
-static gint hf_epl_asnd_syncResponse_sync           = -1;
-static gint hf_epl_asnd_syncResponse_latency        = -1;
-static gint hf_epl_asnd_syncResponse_node           = -1;
-static gint hf_epl_asnd_syncResponse_delay          = -1;
-static gint hf_epl_asnd_syncResponse_pre_fst        = -1;
-static gint hf_epl_asnd_syncResponse_pre_sec        = -1;
-static gint hf_epl_asnd_syncResponse_fst_val        = -1;
-static gint hf_epl_asnd_syncResponse_sec_val        = -1;
-static gint hf_epl_asnd_syncResponse_mode           = -1;
+static gint hf_epl_asnd_syncResponse_sync;
+static gint hf_epl_asnd_syncResponse_latency;
+static gint hf_epl_asnd_syncResponse_node;
+static gint hf_epl_asnd_syncResponse_delay;
+static gint hf_epl_asnd_syncResponse_pre_fst;
+static gint hf_epl_asnd_syncResponse_pre_sec;
+static gint hf_epl_asnd_syncResponse_fst_val;
+static gint hf_epl_asnd_syncResponse_sec_val;
+static gint hf_epl_asnd_syncResponse_mode;
 
-static gint hf_epl_asnd_svid      = -1;
-static gint hf_epl_asnd_svtg      = -1;
-/* static gint hf_epl_asnd_data     = -1; */
+static gint hf_epl_asnd_svid;
+static gint hf_epl_asnd_svtg;
+/* static gint hf_epl_asnd_data; */
 
 /*IdentResponse*/
-static gint hf_epl_asnd_identresponse_en             = -1;
-static gint hf_epl_asnd_identresponse_ec             = -1;
-static gint hf_epl_asnd_identresponse_pr             = -1;
-static gint hf_epl_asnd_identresponse_rs             = -1;
-static gint hf_epl_asnd_identresponse_sls            = -1;
-static gint hf_epl_asnd_identresponse_fls            = -1;
-static gint hf_epl_asnd_identresponse_stat_ms        = -1;
-static gint hf_epl_asnd_identresponse_stat_cs        = -1;
-static gint hf_epl_asnd_identresponse_ever           = -1;
-static gint hf_epl_asnd_identresponse_feat           = -1;
-static gint hf_epl_asnd_identresponse_feat_bit0      = -1;
-static gint hf_epl_asnd_identresponse_feat_bit1      = -1;
-static gint hf_epl_asnd_identresponse_feat_bit2      = -1;
-static gint hf_epl_asnd_identresponse_feat_bit3      = -1;
-static gint hf_epl_asnd_identresponse_feat_bit4      = -1;
-static gint hf_epl_asnd_identresponse_feat_bit5      = -1;
-static gint hf_epl_asnd_identresponse_feat_bit6      = -1;
-static gint hf_epl_asnd_identresponse_feat_bit7      = -1;
-static gint hf_epl_asnd_identresponse_feat_bit8      = -1;
-static gint hf_epl_asnd_identresponse_feat_bit9      = -1;
-static gint hf_epl_asnd_identresponse_feat_bitA      = -1;
-static gint hf_epl_asnd_identresponse_feat_bitB      = -1;
-static gint hf_epl_asnd_identresponse_feat_bitC      = -1;
-static gint hf_epl_asnd_identresponse_feat_bitD      = -1;
-static gint hf_epl_asnd_identresponse_feat_bitE      = -1;
-static gint hf_epl_asnd_identresponse_feat_bitF      = -1;
-static gint hf_epl_asnd_identresponse_feat_bit10     = -1;
-static gint hf_epl_asnd_identresponse_feat_bit11     = -1;
-static gint hf_epl_asnd_identresponse_feat_bit12     = -1;
-static gint hf_epl_asnd_identresponse_feat_bit13     = -1;
-static gint hf_epl_asnd_identresponse_feat_bit14     = -1;
-static gint hf_epl_asnd_identresponse_feat_bit21     = -1;
-static gint hf_epl_asnd_identresponse_mtu            = -1;
-static gint hf_epl_asnd_identresponse_pis            = -1;
-static gint hf_epl_asnd_identresponse_pos            = -1;
-static gint hf_epl_asnd_identresponse_rst            = -1;
-static gint hf_epl_asnd_identresponse_dt             = -1;
-static gint hf_epl_asnd_identresponse_dt_add         = -1;
-static gint hf_epl_asnd_identresponse_vid            = -1;
-static gint hf_epl_asnd_identresponse_productcode    = -1;
-static gint hf_epl_asnd_identresponse_rno            = -1;
-static gint hf_epl_asnd_identresponse_sno            = -1;
-static gint hf_epl_asnd_identresponse_vex1           = -1;
-static gint hf_epl_asnd_identresponse_vcd            = -1;
-static gint hf_epl_asnd_identresponse_vct            = -1;
-static gint hf_epl_asnd_identresponse_ad             = -1;
-static gint hf_epl_asnd_identresponse_at             = -1;
-static gint hf_epl_asnd_identresponse_ipa            = -1;
-static gint hf_epl_asnd_identresponse_snm            = -1;
-static gint hf_epl_asnd_identresponse_gtw            = -1;
-static gint hf_epl_asnd_identresponse_hn             = -1;
-static gint hf_epl_asnd_identresponse_vex2           = -1;
+static gint hf_epl_asnd_identresponse_en;
+static gint hf_epl_asnd_identresponse_ec;
+static gint hf_epl_asnd_identresponse_pr;
+static gint hf_epl_asnd_identresponse_rs;
+static gint hf_epl_asnd_identresponse_sls;
+static gint hf_epl_asnd_identresponse_fls;
+static gint hf_epl_asnd_identresponse_stat_ms;
+static gint hf_epl_asnd_identresponse_stat_cs;
+static gint hf_epl_asnd_identresponse_ever;
+static gint hf_epl_asnd_identresponse_feat;
+static gint hf_epl_asnd_identresponse_feat_bit0;
+static gint hf_epl_asnd_identresponse_feat_bit1;
+static gint hf_epl_asnd_identresponse_feat_bit2;
+static gint hf_epl_asnd_identresponse_feat_bit3;
+static gint hf_epl_asnd_identresponse_feat_bit4;
+static gint hf_epl_asnd_identresponse_feat_bit5;
+static gint hf_epl_asnd_identresponse_feat_bit6;
+static gint hf_epl_asnd_identresponse_feat_bit7;
+static gint hf_epl_asnd_identresponse_feat_bit8;
+static gint hf_epl_asnd_identresponse_feat_bit9;
+static gint hf_epl_asnd_identresponse_feat_bitA;
+static gint hf_epl_asnd_identresponse_feat_bitB;
+static gint hf_epl_asnd_identresponse_feat_bitC;
+static gint hf_epl_asnd_identresponse_feat_bitD;
+static gint hf_epl_asnd_identresponse_feat_bitE;
+static gint hf_epl_asnd_identresponse_feat_bitF;
+static gint hf_epl_asnd_identresponse_feat_bit10;
+static gint hf_epl_asnd_identresponse_feat_bit11;
+static gint hf_epl_asnd_identresponse_feat_bit12;
+static gint hf_epl_asnd_identresponse_feat_bit13;
+static gint hf_epl_asnd_identresponse_feat_bit14;
+static gint hf_epl_asnd_identresponse_feat_bit21;
+static gint hf_epl_asnd_identresponse_mtu;
+static gint hf_epl_asnd_identresponse_pis;
+static gint hf_epl_asnd_identresponse_pos;
+static gint hf_epl_asnd_identresponse_rst;
+static gint hf_epl_asnd_identresponse_dt;
+static gint hf_epl_asnd_identresponse_dt_add;
+static gint hf_epl_asnd_identresponse_vid;
+static gint hf_epl_asnd_identresponse_productcode;
+static gint hf_epl_asnd_identresponse_rno;
+static gint hf_epl_asnd_identresponse_sno;
+static gint hf_epl_asnd_identresponse_vex1;
+static gint hf_epl_asnd_identresponse_vcd;
+static gint hf_epl_asnd_identresponse_vct;
+static gint hf_epl_asnd_identresponse_ad;
+static gint hf_epl_asnd_identresponse_at;
+static gint hf_epl_asnd_identresponse_ipa;
+static gint hf_epl_asnd_identresponse_snm;
+static gint hf_epl_asnd_identresponse_gtw;
+static gint hf_epl_asnd_identresponse_hn;
+static gint hf_epl_asnd_identresponse_vex2;
 
 /*StatusResponse*/
-static gint hf_epl_asnd_statusresponse_en            = -1;
-static gint hf_epl_asnd_statusresponse_ec            = -1;
-static gint hf_epl_asnd_statusresponse_pr            = -1;
-static gint hf_epl_asnd_statusresponse_rs            = -1;
-static gint hf_epl_asnd_statusresponse_sls           = -1;
-static gint hf_epl_asnd_statusresponse_fls           = -1;
-static gint hf_epl_asnd_statusresponse_stat_ms       = -1;
-static gint hf_epl_asnd_statusresponse_stat_cs       = -1;
-/* static gint hf_epl_asnd_statusresponse_seb           = -1; */
+static gint hf_epl_asnd_statusresponse_en;
+static gint hf_epl_asnd_statusresponse_ec;
+static gint hf_epl_asnd_statusresponse_pr;
+static gint hf_epl_asnd_statusresponse_rs;
+static gint hf_epl_asnd_statusresponse_sls;
+static gint hf_epl_asnd_statusresponse_fls;
+static gint hf_epl_asnd_statusresponse_stat_ms;
+static gint hf_epl_asnd_statusresponse_stat_cs;
+/* static gint hf_epl_asnd_statusresponse_seb; */
 
 /*StaticErrorBitField */
-static gint hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit0 = -1;
-static gint hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit1 = -1;
-static gint hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit2 = -1;
-static gint hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit3 = -1;
-static gint hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit4 = -1;
-static gint hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit5 = -1;
-static gint hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit7 = -1;
-static gint hf_epl_asnd_statusresponse_seb_devicespecific_err        = -1;
+static gint hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit0;
+static gint hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit1;
+static gint hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit2;
+static gint hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit3;
+static gint hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit4;
+static gint hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit5;
+static gint hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit7;
+static gint hf_epl_asnd_statusresponse_seb_devicespecific_err;
 
 /*List of Errors/Events*/
-/* static gint hf_epl_asnd_statusresponse_el                    = -1; */
-/* static gint hf_epl_asnd_statusresponse_el_entry              = -1; */
-static gint hf_epl_asnd_statusresponse_el_entry_type         = -1;
-static gint hf_epl_asnd_statusresponse_el_entry_type_profile = -1;
-static gint hf_epl_asnd_statusresponse_el_entry_type_mode    = -1;
-static gint hf_epl_asnd_statusresponse_el_entry_type_bit14   = -1;
-static gint hf_epl_asnd_statusresponse_el_entry_type_bit15   = -1;
-static gint hf_epl_asnd_statusresponse_el_entry_code         = -1;
-static gint hf_epl_asnd_statusresponse_el_entry_time         = -1;
-static gint hf_epl_asnd_statusresponse_el_entry_add          = -1;
+/* static gint hf_epl_asnd_statusresponse_el; */
+/* static gint hf_epl_asnd_statusresponse_el_entry; */
+static gint hf_epl_asnd_statusresponse_el_entry_type;
+static gint hf_epl_asnd_statusresponse_el_entry_type_profile;
+static gint hf_epl_asnd_statusresponse_el_entry_type_mode;
+static gint hf_epl_asnd_statusresponse_el_entry_type_bit14;
+static gint hf_epl_asnd_statusresponse_el_entry_type_bit15;
+static gint hf_epl_asnd_statusresponse_el_entry_code;
+static gint hf_epl_asnd_statusresponse_el_entry_time;
+static gint hf_epl_asnd_statusresponse_el_entry_add;
 
 /*NMTRequest*/
-static gint hf_epl_asnd_nmtrequest_rcid                      = -1;
-static gint hf_epl_asnd_nmtrequest_rct                       = -1;
-static gint hf_epl_asnd_nmtrequest_rcd                       = -1;
+static gint hf_epl_asnd_nmtrequest_rcid;
+static gint hf_epl_asnd_nmtrequest_rct;
+static gint hf_epl_asnd_nmtrequest_rcd;
 
 /*NMTCommand*/
-static gint hf_epl_asnd_nmtcommand_cid                       = -1;
-static gint hf_epl_asnd_nmtcommand_cdat                      = -1;
-static gint hf_epl_asnd_nmtcommand_resetnode_reason           = -1;
-/*static gint hf_epl_asnd_nmtcommand_nmtnetparameterset_mtu    = -1;*/
-static gint hf_epl_asnd_nmtcommand_nmtnethostnameset_hn      = -1;
-static gint hf_epl_asnd_nmtcommand_nmtflusharpentry_nid      = -1;
-static gint hf_epl_asnd_nmtcommand_nmtpublishtime_dt         = -1;
-static gint hf_epl_asnd_nmtcommand_nmtdna                    = -1;
-static gint hf_epl_asnd_nmtcommand_nmtdna_flags              = -1;
-static gint hf_epl_asnd_nmtcommand_nmtdna_ltv                = -1;
-static gint hf_epl_asnd_nmtcommand_nmtdna_hpm                = -1;
-static gint hf_epl_asnd_nmtcommand_nmtdna_nnn                = -1;
-static gint hf_epl_asnd_nmtcommand_nmtdna_mac                = -1;
-static gint hf_epl_asnd_nmtcommand_nmtdna_cnn                = -1;
-static gint hf_epl_asnd_nmtcommand_nmtdna_currmac            = -1;
-static gint hf_epl_asnd_nmtcommand_nmtdna_hubenmsk           = -1;
-static gint hf_epl_asnd_nmtcommand_nmtdna_currnn             = -1;
-static gint hf_epl_asnd_nmtcommand_nmtdna_newnn              = -1;
-static gint hf_epl_asnd_nmtcommand_nmtdna_leasetime          = -1;
+static gint hf_epl_asnd_nmtcommand_cid;
+static gint hf_epl_asnd_nmtcommand_cdat;
+static gint hf_epl_asnd_nmtcommand_resetnode_reason;
+/*static gint hf_epl_asnd_nmtcommand_nmtnetparameterset_mtu;*/
+static gint hf_epl_asnd_nmtcommand_nmtnethostnameset_hn;
+static gint hf_epl_asnd_nmtcommand_nmtflusharpentry_nid;
+static gint hf_epl_asnd_nmtcommand_nmtpublishtime_dt;
+static gint hf_epl_asnd_nmtcommand_nmtdna;
+static gint hf_epl_asnd_nmtcommand_nmtdna_flags;
+static gint hf_epl_asnd_nmtcommand_nmtdna_ltv;
+static gint hf_epl_asnd_nmtcommand_nmtdna_hpm;
+static gint hf_epl_asnd_nmtcommand_nmtdna_nnn;
+static gint hf_epl_asnd_nmtcommand_nmtdna_mac;
+static gint hf_epl_asnd_nmtcommand_nmtdna_cnn;
+static gint hf_epl_asnd_nmtcommand_nmtdna_currmac;
+static gint hf_epl_asnd_nmtcommand_nmtdna_hubenmsk;
+static gint hf_epl_asnd_nmtcommand_nmtdna_currnn;
+static gint hf_epl_asnd_nmtcommand_nmtdna_newnn;
+static gint hf_epl_asnd_nmtcommand_nmtdna_leasetime;
 
 
 /*Asynchronuous SDO Sequence Layer*/
-static gint hf_epl_asnd_sdo_seq                              = -1;
-static gint hf_epl_asnd_sdo_seq_receive_sequence_number      = -1;
-static gint hf_epl_asnd_sdo_seq_receive_con                  = -1;
-static gint hf_epl_asnd_sdo_seq_send_sequence_number         = -1;
-static gint hf_epl_asnd_sdo_seq_send_con                     = -1;
+static gint hf_epl_asnd_sdo_seq;
+static gint hf_epl_asnd_sdo_seq_receive_sequence_number;
+static gint hf_epl_asnd_sdo_seq_receive_con;
+static gint hf_epl_asnd_sdo_seq_send_sequence_number;
+static gint hf_epl_asnd_sdo_seq_send_con;
 
 /*Asynchronuous SDO Command Layer*/
-static gint hf_epl_asnd_sdo_cmd                              = -1;
-static gint hf_epl_asnd_sdo_cmd_transaction_id               = -1;
-static gint hf_epl_asnd_sdo_cmd_response                     = -1;
+static gint hf_epl_asnd_sdo_cmd;
+static gint hf_epl_asnd_sdo_cmd_transaction_id;
+static gint hf_epl_asnd_sdo_cmd_response;
 
 #if 0
-static gint hf_epl_asnd_sdo_resp_in                          = -1;
-static gint hf_epl_asnd_sdo_no_resp                          = -1;
-static gint hf_epl_asnd_sdo_resp_to                          = -1;
+static gint hf_epl_asnd_sdo_resp_in;
+static gint hf_epl_asnd_sdo_no_resp;
+static gint hf_epl_asnd_sdo_resp_to;
 #endif
 
-static gint hf_epl_asnd_sdo_cmd_abort                        = -1;
-static gint hf_epl_asnd_sdo_cmd_sub_abort                    = -1;
-static gint hf_epl_asnd_sdo_cmd_segmentation                 = -1;
-static gint hf_epl_asnd_sdo_cmd_command_id                   = -1;
-static gint hf_epl_asnd_sdo_cmd_segment_size                 = -1;
+static gint hf_epl_asnd_sdo_cmd_abort;
+static gint hf_epl_asnd_sdo_cmd_sub_abort;
+static gint hf_epl_asnd_sdo_cmd_segmentation;
+static gint hf_epl_asnd_sdo_cmd_command_id;
+static gint hf_epl_asnd_sdo_cmd_segment_size;
 
-static gint hf_epl_asnd_sdo_cmd_data_size                    = -1;
-static gint hf_epl_asnd_sdo_cmd_data_padding                 = -1;
-static gint hf_epl_asnd_sdo_cmd_data_index                   = -1;
-static gint hf_epl_asnd_sdo_cmd_data_subindex                = -1;
-static gint hf_epl_asnd_sdo_cmd_data_mapping                 = -1;
-static gint hf_epl_asnd_sdo_cmd_data_mapping_index           = -1;
-static gint hf_epl_asnd_sdo_cmd_data_mapping_subindex        = -1;
-static gint hf_epl_asnd_sdo_cmd_data_mapping_offset          = -1;
-static gint hf_epl_asnd_sdo_cmd_data_mapping_length          = -1;
-/*static gint hf_epl_asnd_sdo_cmd_data_response      = -1;*/
+static gint hf_epl_asnd_sdo_cmd_data_size;
+static gint hf_epl_asnd_sdo_cmd_data_padding;
+static gint hf_epl_asnd_sdo_cmd_data_index;
+static gint hf_epl_asnd_sdo_cmd_data_subindex;
+static gint hf_epl_asnd_sdo_cmd_data_mapping;
+static gint hf_epl_asnd_sdo_cmd_data_mapping_index;
+static gint hf_epl_asnd_sdo_cmd_data_mapping_subindex;
+static gint hf_epl_asnd_sdo_cmd_data_mapping_offset;
+static gint hf_epl_asnd_sdo_cmd_data_mapping_length;
+/*static gint hf_epl_asnd_sdo_cmd_data_response;*/
 
-static gint hf_epl_asnd_sdo_cmd_reassembled                  = -1;
-static gint hf_epl_fragments                                 = -1;
-static gint hf_epl_fragment                                  = -1;
-static gint hf_epl_fragment_overlap                          = -1;
-static gint hf_epl_fragment_overlap_conflicts                = -1;
-static gint hf_epl_fragment_multiple_tails                   = -1;
-static gint hf_epl_fragment_too_long_fragment                = -1;
-static gint hf_epl_fragment_error                            = -1;
-static gint hf_epl_fragment_count                            = -1;
-static gint hf_epl_reassembled_in                            = -1;
-static gint hf_epl_reassembled_length                        = -1;
-static gint hf_epl_reassembled_data                          = -1;
-static gint hf_epl_sdo_multi_param_sub_abort                 = -1;
+static gint hf_epl_asnd_sdo_cmd_reassembled;
+static gint hf_epl_fragments;
+static gint hf_epl_fragment;
+static gint hf_epl_fragment_overlap;
+static gint hf_epl_fragment_overlap_conflicts;
+static gint hf_epl_fragment_multiple_tails;
+static gint hf_epl_fragment_too_long_fragment;
+static gint hf_epl_fragment_error;
+static gint hf_epl_fragment_count;
+static gint hf_epl_reassembled_in;
+static gint hf_epl_reassembled_length;
+static gint hf_epl_reassembled_data;
+static gint hf_epl_sdo_multi_param_sub_abort;
 
-static gint hf_epl_asnd_identresponse_profile_path = -1;
+static gint hf_epl_asnd_identresponse_profile_path;
 
 /* EPL OD Data Types */
-static gint hf_epl_pdo                = -1;
-static gint hf_epl_pdo_index          = -1;
-static gint hf_epl_pdo_subindex       = -1;
+static gint hf_epl_pdo;
+static gint hf_epl_pdo_index;
+static gint hf_epl_pdo_subindex;
 
-static gint hf_epl_od_meta                  = -1;
-static gint hf_epl_od_meta_mapping_index    = -1;
-static gint hf_epl_od_meta_mapping_subindex = -1;
-static gint hf_epl_od_meta_lifetime_start   = -1;
-static gint hf_epl_od_meta_lifetime_end     = -1;
-static gint hf_epl_od_meta_offset           = -1;
-static gint hf_epl_od_meta_length           = -1;
+static gint hf_epl_od_meta;
+static gint hf_epl_od_meta_mapping_index;
+static gint hf_epl_od_meta_mapping_subindex;
+static gint hf_epl_od_meta_lifetime_start;
+static gint hf_epl_od_meta_lifetime_end;
+static gint hf_epl_od_meta_offset;
+static gint hf_epl_od_meta_length;
 
-static gint hf_epl_od_boolean      = -1;
-static gint hf_epl_od_int          = -1;
-static gint hf_epl_od_uint         = -1;
-static gint hf_epl_od_real         = -1;
-static gint hf_epl_od_string       = -1;
-static gint hf_epl_od_octet_string = -1;
-static gint hf_epl_od_time         = -1;
+static gint hf_epl_od_boolean;
+static gint hf_epl_od_int;
+static gint hf_epl_od_uint;
+static gint hf_epl_od_real;
+static gint hf_epl_od_string;
+static gint hf_epl_od_octet_string;
+static gint hf_epl_od_time;
 #if 0
-static gint hf_epl_od_time_difference = -1;
-static gint hf_epl_od_domain     = -1;
+static gint hf_epl_od_time_difference;
+static gint hf_epl_od_domain;
 #endif
-static gint hf_epl_od_mac        = -1;
-static gint hf_epl_od_ipv4       = -1;
+static gint hf_epl_od_mac;
+static gint hf_epl_od_ipv4;
 
 #define EPL_PDO_TYPE_COUNT 8
 
@@ -1752,8 +1752,8 @@ static const struct epl_datatype {
 };
 
 
-static gint ett_epl_fragment                                 = -1;
-static gint ett_epl_fragments                                = -1;
+static gint ett_epl_fragment;
+static gint ett_epl_fragments;
 
 static const fragment_items epl_frag_items = {
 	/* Fragment subtrees */
@@ -1778,45 +1778,45 @@ static const fragment_items epl_frag_items = {
 	"Message fragments"
 };
 
-static gint hf_epl_asnd_sdo_cmd_abort_code                   = -1;
+static gint hf_epl_asnd_sdo_cmd_abort_code;
 #if 0
-static gint hf_epl_asnd_sdo_cmd_abort_flag                   = -1;
-static gint hf_epl_asnd_sdo_cmd_segmentation_flag            = -1;
-static gint hf_epl_asnd_sdo_cmd_cmd_valid_test               = -1;
+static gint hf_epl_asnd_sdo_cmd_abort_flag;
+static gint hf_epl_asnd_sdo_cmd_segmentation_flag;
+static gint hf_epl_asnd_sdo_cmd_cmd_valid_test;
 
-static gint hf_epl_asnd_sdo_actual_command_id                = -1;
+static gint hf_epl_asnd_sdo_actual_command_id;
 
-static gint hf_epl_asnd_sdo_actual_segment_size              = -1;
-static gint hf_epl_asnd_sdo_actual_payload_size_read         = -1;
+static gint hf_epl_asnd_sdo_actual_segment_size;
+static gint hf_epl_asnd_sdo_actual_payload_size_read;
 #endif
 
 /* Initialize the subtree pointers */
-static gint ett_epl                 = -1;
-static gint ett_epl_soc             = -1;
-static gint ett_epl_preq            = -1;
-static gint ett_epl_pres            = -1;
-static gint ett_epl_feat            = -1;
-static gint ett_epl_seb             = -1;
-static gint ett_epl_el              = -1;
-static gint ett_epl_el_entry        = -1;
-static gint ett_epl_el_entry_type   = -1;
-static gint ett_epl_sdo_entry_type  = -1;
-static gint ett_epl_asnd_nmt_dna    = -1;
+static gint ett_epl;
+static gint ett_epl_soc;
+static gint ett_epl_preq;
+static gint ett_epl_pres;
+static gint ett_epl_feat;
+static gint ett_epl_seb;
+static gint ett_epl_el;
+static gint ett_epl_el_entry;
+static gint ett_epl_el_entry_type;
+static gint ett_epl_sdo_entry_type;
+static gint ett_epl_asnd_nmt_dna;
 
-static gint ett_epl_sdo                       = -1;
-static gint ett_epl_sdo_sequence_layer        = -1;
-static gint ett_epl_sdo_command_layer         = -1;
-static gint ett_epl_sdo_data                  = -1;
-static gint ett_epl_asnd_sdo_cmd_data_mapping = -1;
-static gint ett_epl_soa_sync                  = -1;
-static gint ett_epl_asnd_sync                 = -1;
+static gint ett_epl_sdo;
+static gint ett_epl_sdo_sequence_layer;
+static gint ett_epl_sdo_command_layer;
+static gint ett_epl_sdo_data;
+static gint ett_epl_asnd_sdo_cmd_data_mapping;
+static gint ett_epl_soa_sync;
+static gint ett_epl_asnd_sync;
 
-static gint ett_epl_pdo_meta                  = -1;
+static gint ett_epl_pdo_meta;
 
-static expert_field ei_duplicated_frame       = EI_INIT;
-static expert_field ei_recvseq_value          = EI_INIT;
-static expert_field ei_sendseq_value          = EI_INIT;
-static expert_field ei_real_length_differs    = EI_INIT;
+static expert_field ei_duplicated_frame;
+static expert_field ei_recvseq_value;
+static expert_field ei_sendseq_value;
+static expert_field ei_real_length_differs;
 
 static dissector_handle_t epl_handle;
 static dissector_handle_t epl_udp_handle;
@@ -1827,7 +1827,7 @@ static gboolean use_xdc_mappings = TRUE;
 static gboolean interpret_untyped_as_le = TRUE;
 static gboolean use_sdo_mappings = TRUE;
 
-static gint ett_epl_asnd_sdo_data_reassembled = -1;
+static gint ett_epl_asnd_sdo_data_reassembled;
 
 static reassembly_table epl_reassembly_table;
 static GHashTable *epl_duplication_table = NULL;

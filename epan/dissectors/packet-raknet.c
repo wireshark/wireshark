@@ -36,14 +36,14 @@ static guint8 RAKNET_OFFLINE_MESSAGE_DATA_ID[16] = {0x00, 0xff, 0xff, 0x00, 0xfe
 #define RAKNET_IDENTITY_LENGTH 160
 #define RAKNET_NUMBER_OF_INTERNAL_IDS 10
 
-static int proto_raknet = -1;
-static gint ett_raknet = -1; /* Should this node be expanded */
-static gint ett_raknet_system_address = -1;
-static gint ett_raknet_packet_type = -1;
-static gint ett_raknet_packet_number_range = -1;
-static gint ett_raknet_message = -1;
-static gint ett_raknet_message_flags = -1;
-static gint ett_raknet_system_message = -1;
+static int proto_raknet;
+static gint ett_raknet; /* Should this node be expanded */
+static gint ett_raknet_system_address;
+static gint ett_raknet_packet_type;
+static gint ett_raknet_packet_number_range;
+static gint ett_raknet_message;
+static gint ett_raknet_message_flags;
+static gint ett_raknet_system_message;
 
 /*
  * Dissectors
@@ -57,98 +57,98 @@ static heur_dissector_list_t raknet_heur_subdissectors = NULL;
 /*
  * Expert fields
  */
-static expert_field ei_raknet_unknown_message_id = EI_INIT;
-static expert_field ei_raknet_encrypted_message = EI_INIT;
-static expert_field ei_raknet_subdissector_failed = EI_INIT;
-static expert_field ei_raknet_ip_ver_invalid = EI_INIT;
+static expert_field ei_raknet_unknown_message_id;
+static expert_field ei_raknet_encrypted_message;
+static expert_field ei_raknet_subdissector_failed;
+static expert_field ei_raknet_ip_ver_invalid;
 
 /*
  * First byte gives us the packet id
  */
-static int hf_raknet_offline_message_id = -1;
+static int hf_raknet_offline_message_id;
 
 /*
  * General fields (fields that are in >1 packet types.
  */
-static int hf_raknet_client_guid = -1;
-static int hf_raknet_timestamp = -1;
-static int hf_raknet_offline_message_data_id = -1;
-static int hf_raknet_mtu_size = -1;
-static int hf_raknet_raknet_proto_ver = -1;
-static int hf_raknet_server_guid = -1;
-static int hf_raknet_ip_version = -1;
-static int hf_raknet_ipv4_address = -1;
-static int hf_raknet_ipv6_address = -1;
-static int hf_raknet_port = -1;
+static int hf_raknet_client_guid;
+static int hf_raknet_timestamp;
+static int hf_raknet_offline_message_data_id;
+static int hf_raknet_mtu_size;
+static int hf_raknet_raknet_proto_ver;
+static int hf_raknet_server_guid;
+static int hf_raknet_ip_version;
+static int hf_raknet_ipv4_address;
+static int hf_raknet_ipv6_address;
+static int hf_raknet_port;
 
 /*
  * Fields specific to a packet id type
  */
-static int hf_raknet_null_padding = -1;
-static int hf_raknet_use_encryption = -1;
-static int hf_raknet_server_public_key = -1;
-static int hf_raknet_cookie = -1;
-static int hf_raknet_client_wrote_challenge = -1;
-static int hf_raknet_client_challenge = -1;
-static int hf_raknet_client_address = -1;
-static int hf_raknet_server_address = -1;
-static int hf_raknet_server_answer = -1;
-static int hf_raknet_0x1C_server_id_str_len = -1;
-static int hf_raknet_0x1C_server_id_str = -1;
-static int hf_raknet_packet_type = -1;
-static int hf_raknet_packet_is_for_connected = -1;
-static int hf_raknet_packet_is_ACK = -1;
-static int hf_raknet_packet_has_B_and_AS = -1;
-static int hf_raknet_packet_is_NAK = -1;
-static int hf_raknet_packet_is_pair = -1;
-static int hf_raknet_packet_is_continuous_send = -1;
-static int hf_raknet_packet_needs_B_and_AS = -1;
-static int hf_raknet_AS = -1;
-static int hf_raknet_NACK_record_count = -1;
-static int hf_raknet_packet_number_range = -1;
-static int hf_raknet_range_max_equal_to_min = -1;
-static int hf_raknet_packet_number_min = -1;
-static int hf_raknet_packet_number_max = -1;
-static int hf_raknet_packet_number = -1;
-static int hf_raknet_message = -1;
-static int hf_raknet_message_flags = -1;
-static int hf_raknet_message_reliability = -1;
-static int hf_raknet_message_has_split_packet = -1;
-static int hf_raknet_payload_length = -1;
-static int hf_raknet_reliable_message_number = -1;
-static int hf_raknet_message_sequencing_index = -1;
-static int hf_raknet_message_ordering_index = -1;
-static int hf_raknet_message_ordering_channel = -1;
-static int hf_raknet_split_packet_count = -1;
-static int hf_raknet_split_packet_id = -1;
-static int hf_raknet_split_packet_index = -1;
-static int hf_raknet_split_packet = -1;
-static int hf_raknet_system_message = -1;
-static int hf_raknet_system_message_id = -1;
-static int hf_raknet_client_proof = -1;
-static int hf_raknet_use_client_key = -1;
-static int hf_raknet_client_identity = -1;
-static int hf_raknet_password = -1;
-static int hf_raknet_system_index = -1;
-static int hf_raknet_internal_address = -1;
+static int hf_raknet_null_padding;
+static int hf_raknet_use_encryption;
+static int hf_raknet_server_public_key;
+static int hf_raknet_cookie;
+static int hf_raknet_client_wrote_challenge;
+static int hf_raknet_client_challenge;
+static int hf_raknet_client_address;
+static int hf_raknet_server_address;
+static int hf_raknet_server_answer;
+static int hf_raknet_0x1C_server_id_str_len;
+static int hf_raknet_0x1C_server_id_str;
+static int hf_raknet_packet_type;
+static int hf_raknet_packet_is_for_connected;
+static int hf_raknet_packet_is_ACK;
+static int hf_raknet_packet_has_B_and_AS;
+static int hf_raknet_packet_is_NAK;
+static int hf_raknet_packet_is_pair;
+static int hf_raknet_packet_is_continuous_send;
+static int hf_raknet_packet_needs_B_and_AS;
+static int hf_raknet_AS;
+static int hf_raknet_NACK_record_count;
+static int hf_raknet_packet_number_range;
+static int hf_raknet_range_max_equal_to_min;
+static int hf_raknet_packet_number_min;
+static int hf_raknet_packet_number_max;
+static int hf_raknet_packet_number;
+static int hf_raknet_message;
+static int hf_raknet_message_flags;
+static int hf_raknet_message_reliability;
+static int hf_raknet_message_has_split_packet;
+static int hf_raknet_payload_length;
+static int hf_raknet_reliable_message_number;
+static int hf_raknet_message_sequencing_index;
+static int hf_raknet_message_ordering_index;
+static int hf_raknet_message_ordering_channel;
+static int hf_raknet_split_packet_count;
+static int hf_raknet_split_packet_id;
+static int hf_raknet_split_packet_index;
+static int hf_raknet_split_packet;
+static int hf_raknet_system_message;
+static int hf_raknet_system_message_id;
+static int hf_raknet_client_proof;
+static int hf_raknet_use_client_key;
+static int hf_raknet_client_identity;
+static int hf_raknet_password;
+static int hf_raknet_system_index;
+static int hf_raknet_internal_address;
 
 /*
  * Frame reassembly
  */
 static reassembly_table raknet_reassembly_table;
 
-static gint ett_raknet_fragment = -1;
-static gint ett_raknet_fragments = -1;
-static gint hf_raknet_fragment = -1;
-static gint hf_raknet_fragment_count = -1;
-static gint hf_raknet_fragment_error = -1;
-static gint hf_raknet_fragment_multiple_tails = -1;
-static gint hf_raknet_fragment_overlap = -1;
-static gint hf_raknet_fragment_overlap_conflicts = -1;
-static gint hf_raknet_fragment_too_long_fragment = -1;
-static gint hf_raknet_fragments = -1;
-static gint hf_raknet_reassembled_in = -1;
-static gint hf_raknet_reassembled_length = -1;
+static gint ett_raknet_fragment;
+static gint ett_raknet_fragments;
+static gint hf_raknet_fragment;
+static gint hf_raknet_fragment_count;
+static gint hf_raknet_fragment_error;
+static gint hf_raknet_fragment_multiple_tails;
+static gint hf_raknet_fragment_overlap;
+static gint hf_raknet_fragment_overlap_conflicts;
+static gint hf_raknet_fragment_too_long_fragment;
+static gint hf_raknet_fragments;
+static gint hf_raknet_reassembled_in;
+static gint hf_raknet_reassembled_length;
 
 static const fragment_items raknet_frag_items = {
     /* Fragment subtrees */

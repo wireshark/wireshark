@@ -31,94 +31,94 @@
 void proto_register_mka(void);
 void proto_reg_handoff_mka(void);
 
-static int proto_mka = -1;
+static int proto_mka;
 
-static int hf_mka_version_id = -1;
-static int hf_mka_basic_param_set = -1;
-static int hf_mka_live_peer_list_set = -1;
-static int hf_mka_potential_peer_list_set = -1;
-static int hf_mka_macsec_sak_use_set = -1;
-static int hf_mka_distributed_sak_set = -1;
-static int hf_mka_distributed_cak_set = -1;
-static int hf_mka_kmd_set = -1;
-static int hf_mka_announcement_set = -1;
-static int hf_mka_xpn_set = -1;
-static int hf_mka_icv_set = -1;
-static int hf_mka_param_set_type = -1;
+static int hf_mka_version_id;
+static int hf_mka_basic_param_set;
+static int hf_mka_live_peer_list_set;
+static int hf_mka_potential_peer_list_set;
+static int hf_mka_macsec_sak_use_set;
+static int hf_mka_distributed_sak_set;
+static int hf_mka_distributed_cak_set;
+static int hf_mka_kmd_set;
+static int hf_mka_announcement_set;
+static int hf_mka_xpn_set;
+static int hf_mka_icv_set;
+static int hf_mka_param_set_type;
 
-static int hf_mka_keyserver_priority = -1;
-static int hf_mka_key_server = -1;
-static int hf_mka_macsec_desired = -1;
-static int hf_mka_macsec_capability = -1;
-static int hf_mka_param_body_length = -1;
-static int hf_mka_sci = -1;
-static int hf_mka_actor_mi = -1;
-static int hf_mka_actor_mn = -1;
-static int hf_mka_algo_agility = -1;
-static int hf_mka_cak_name = -1;
-static int hf_mka_cak_name_info = -1;
+static int hf_mka_keyserver_priority;
+static int hf_mka_key_server;
+static int hf_mka_macsec_desired;
+static int hf_mka_macsec_capability;
+static int hf_mka_param_body_length;
+static int hf_mka_sci;
+static int hf_mka_actor_mi;
+static int hf_mka_actor_mn;
+static int hf_mka_algo_agility;
+static int hf_mka_cak_name;
+static int hf_mka_cak_name_info;
 
-static int hf_mka_padding = -1;
+static int hf_mka_padding;
 
-static int hf_mka_key_server_ssci = -1;
-static int hf_mka_peer_mi = -1;
-static int hf_mka_peer_mn = -1;
+static int hf_mka_key_server_ssci;
+static int hf_mka_peer_mi;
+static int hf_mka_peer_mn;
 
-static int hf_mka_latest_key_an = -1;
-static int hf_mka_latest_key_tx = -1;
-static int hf_mka_latest_key_rx = -1;
-static int hf_mka_old_key_an = -1;
-static int hf_mka_old_key_tx = -1;
-static int hf_mka_old_key_rx = -1;
-static int hf_mka_plain_tx = -1;
-static int hf_mka_plain_rx = -1;
-static int hf_mka_delay_protect = -1;
-static int hf_mka_latest_key_server_mi = -1;
-static int hf_mka_latest_key_number = -1;
-static int hf_mka_latest_lowest_acceptable_pn = -1;
-static int hf_mka_old_key_server_mi = -1;
-static int hf_mka_old_key_number = -1;
-static int hf_mka_old_lowest_acceptable_pn = -1;
+static int hf_mka_latest_key_an;
+static int hf_mka_latest_key_tx;
+static int hf_mka_latest_key_rx;
+static int hf_mka_old_key_an;
+static int hf_mka_old_key_tx;
+static int hf_mka_old_key_rx;
+static int hf_mka_plain_tx;
+static int hf_mka_plain_rx;
+static int hf_mka_delay_protect;
+static int hf_mka_latest_key_server_mi;
+static int hf_mka_latest_key_number;
+static int hf_mka_latest_lowest_acceptable_pn;
+static int hf_mka_old_key_server_mi;
+static int hf_mka_old_key_number;
+static int hf_mka_old_lowest_acceptable_pn;
 
-static int hf_mka_distributed_an = -1;
-static int hf_mka_confidentiality_offset = -1;
-static int hf_mka_key_number = -1;
-static int hf_mka_aes_key_wrap_sak = -1;
-static int hf_mka_macsec_cipher_suite = -1;
-static int hf_mka_aes_key_wrap_cak = -1;
+static int hf_mka_distributed_an;
+static int hf_mka_confidentiality_offset;
+static int hf_mka_key_number;
+static int hf_mka_aes_key_wrap_sak;
+static int hf_mka_macsec_cipher_suite;
+static int hf_mka_aes_key_wrap_cak;
 
-static int hf_mka_kmd = -1;
+static int hf_mka_kmd;
 
-static int hf_mka_suspension_time = -1;
+static int hf_mka_suspension_time;
 
-static int hf_mka_unknown_set = -1;
-static int hf_mka_unknown_param_set = -1;
+static int hf_mka_unknown_set;
+static int hf_mka_unknown_param_set;
 
-static int hf_mka_icv = -1;
+static int hf_mka_icv;
 
-static int hf_mka_tlv_entry = -1;
-static int hf_mka_tlv_type = -1;
-static int hf_mka_tlv_info_string_length = -1;
-static int hf_mka_tlv_data = -1;
-static int hf_mka_tlv_cipher_suite_impl_cap = -1;
+static int hf_mka_tlv_entry;
+static int hf_mka_tlv_type;
+static int hf_mka_tlv_info_string_length;
+static int hf_mka_tlv_data;
+static int hf_mka_tlv_cipher_suite_impl_cap;
 
-static expert_field ei_mka_undecoded = EI_INIT;
-static expert_field ei_unexpected_data = EI_INIT;
-static expert_field ei_mka_unimplemented = EI_INIT;
+static expert_field ei_mka_undecoded;
+static expert_field ei_unexpected_data;
+static expert_field ei_mka_unimplemented;
 
-static gint ett_mka = -1;
-static gint ett_mka_basic_param_set = -1;
-static gint ett_mka_peer_list_set = -1;
-static gint ett_mka_sak_use_set = -1;
-static gint ett_mka_distributed_sak_set = -1;
-static gint ett_mka_distributed_cak_set = -1;
-static gint ett_mka_kmd_set = -1;
-static gint ett_mka_announcement_set = -1;
-static gint ett_mka_xpn_set = -1;
-static gint ett_mka_unknown_set = -1;
-static gint ett_mka_icv_set = -1;
-static gint ett_mka_tlv = -1;
-static gint ett_mka_cipher_suite_entry = -1;
+static gint ett_mka;
+static gint ett_mka_basic_param_set;
+static gint ett_mka_peer_list_set;
+static gint ett_mka_sak_use_set;
+static gint ett_mka_distributed_sak_set;
+static gint ett_mka_distributed_cak_set;
+static gint ett_mka_kmd_set;
+static gint ett_mka_announcement_set;
+static gint ett_mka_xpn_set;
+static gint ett_mka_unknown_set;
+static gint ett_mka_icv_set;
+static gint ett_mka_tlv;
+static gint ett_mka_cipher_suite_entry;
 
 static const value_string param_set_type_vals[] = {
   { LIVE_PEER_LIST_TYPE,       "Live Peer List" },

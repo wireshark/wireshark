@@ -54,26 +54,26 @@
 void proto_register_gsm_sms_ud(void);
 void proto_reg_handoff_gsm_sms_ud(void);
 
-static int proto_gsm_sms_ud = -1;
+static int proto_gsm_sms_ud;
 
 /*
  * Short Message fragment handling
  */
-static int hf_gsm_sms_ud_fragments = -1;
-static int hf_gsm_sms_ud_fragment = -1;
-static int hf_gsm_sms_ud_fragment_overlap = -1;
-static int hf_gsm_sms_ud_fragment_overlap_conflicts = -1;
-static int hf_gsm_sms_ud_fragment_multiple_tails = -1;
-static int hf_gsm_sms_ud_fragment_too_long_fragment = -1;
-static int hf_gsm_sms_ud_fragment_error = -1;
-static int hf_gsm_sms_ud_fragment_count = -1;
-static int hf_gsm_sms_ud_reassembled_in = -1;
-static int hf_gsm_sms_ud_reassembled_length = -1;
-static int hf_gsm_sms_ud_short_msg = -1;
+static int hf_gsm_sms_ud_fragments;
+static int hf_gsm_sms_ud_fragment;
+static int hf_gsm_sms_ud_fragment_overlap;
+static int hf_gsm_sms_ud_fragment_overlap_conflicts;
+static int hf_gsm_sms_ud_fragment_multiple_tails;
+static int hf_gsm_sms_ud_fragment_too_long_fragment;
+static int hf_gsm_sms_ud_fragment_error;
+static int hf_gsm_sms_ud_fragment_count;
+static int hf_gsm_sms_ud_reassembled_in;
+static int hf_gsm_sms_ud_reassembled_length;
+static int hf_gsm_sms_ud_short_msg;
 
-static gint ett_gsm_sms = -1;
-static gint ett_gsm_sms_ud_fragment = -1;
-static gint ett_gsm_sms_ud_fragments = -1;
+static gint ett_gsm_sms;
+static gint ett_gsm_sms_ud_fragment;
+static gint ett_gsm_sms_ud_fragments;
 
 /* Subdissector declarations */
 static dissector_table_t gsm_sms_dissector_table;

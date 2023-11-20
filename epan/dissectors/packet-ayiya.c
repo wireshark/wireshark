@@ -21,19 +21,19 @@ void proto_reg_handoff_ayiya(void);
 
 static dissector_table_t ip_dissector_table;
 
-static int proto_ayiya = -1;
-static int hf_id_len = -1;
-static int hf_id_type = -1;
-static int hf_sig_len = -1;
-static int hf_hash_method = -1;
-static int hf_auth_method = -1;
-static int hf_opcode = -1;
-static int hf_next_header = -1;
-static int hf_epoch = -1;
-static int hf_identity = -1;
-static int hf_signature = -1;
+static int proto_ayiya;
+static int hf_id_len;
+static int hf_id_type;
+static int hf_sig_len;
+static int hf_hash_method;
+static int hf_auth_method;
+static int hf_opcode;
+static int hf_next_header;
+static int hf_epoch;
+static int hf_identity;
+static int hf_signature;
 
-static gint ett_ayiya = -1;
+static gint ett_ayiya;
 
 static dissector_handle_t ayiya_handle = NULL;
 

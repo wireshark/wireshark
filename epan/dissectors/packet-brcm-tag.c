@@ -36,19 +36,19 @@ static dissector_handle_t brcm_tag_handle;
 #define BRCM_TAG_MR_SHIFT               4
 #define BRCM_TAG_MO_SHIFT               3
 
-static int proto_brcm_tag               = -1;
+static int proto_brcm_tag;
 
-static int hf_brcm_tag_opcode           = -1;
-static int hf_brcm_tag_frame_octet_cnt  = -1;
-static int hf_brcm_tag_mr               = -1;
-static int hf_brcm_tag_mo               = -1;
-static int hf_brcm_tag_reserved         = -1;
-static int hf_brcm_tag_dest_dev_id      = -1;
-static int hf_brcm_tag_dest_port_id     = -1;
-static int hf_brcm_tag_src_dev_id       = -1;
-static int hf_brcm_tag_src_port_id      = -1;
+static int hf_brcm_tag_opcode;
+static int hf_brcm_tag_frame_octet_cnt;
+static int hf_brcm_tag_mr;
+static int hf_brcm_tag_mo;
+static int hf_brcm_tag_reserved;
+static int hf_brcm_tag_dest_dev_id;
+static int hf_brcm_tag_dest_port_id;
+static int hf_brcm_tag_src_dev_id;
+static int hf_brcm_tag_src_port_id;
 
-static gint ett_brcm_tag                = -1;
+static gint ett_brcm_tag;
 
 #define TVB_LEN_GREATEST  1
 #define TVB_LEN_UNDEF     0

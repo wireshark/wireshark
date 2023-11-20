@@ -67,28 +67,28 @@ static const value_string gsm_rp_elem_strings[] = {
 value_string_ext gsm_rp_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_rp_elem_strings);
 
 /* Initialize the protocol and registered fields */
-static int proto_a_rp = -1;
+static int proto_a_rp;
 
-static int hf_gsm_a_rp_msg_type = -1;
-int hf_gsm_a_rp_elem_id = -1;
+static int hf_gsm_a_rp_msg_type;
+int hf_gsm_a_rp_elem_id;
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_gsm_a_rp_tpdu = -1;
-static int hf_gsm_a_rp_extension = -1;
-static int hf_gsm_a_rp_diagnostic_field = -1;
-static int hf_gsm_a_rp_cause = -1;
-static int hf_gsm_a_rp_message_elements = -1;
-static int hf_gsm_a_rp_rp_message_reference = -1;
+static int hf_gsm_a_rp_tpdu;
+static int hf_gsm_a_rp_extension;
+static int hf_gsm_a_rp_diagnostic_field;
+static int hf_gsm_a_rp_cause;
+static int hf_gsm_a_rp_message_elements;
+static int hf_gsm_a_rp_rp_message_reference;
 
 /* Initialize the subtree pointers */
-static gint ett_rp_msg = -1;
+static gint ett_rp_msg;
 
-static expert_field ei_gsm_a_rp_extraneous_data = EI_INIT;
-static expert_field ei_gsm_a_rp_missing_mandatory_element = EI_INIT;
+static expert_field ei_gsm_a_rp_extraneous_data;
+static expert_field ei_gsm_a_rp_missing_mandatory_element;
 
 static dissector_handle_t gsm_sms_handle;	/* SMS TPDU */
 static dissector_handle_t gsm_a_dtap_handle;
 
-static int proto_json = -1;
+static int proto_json;
 
 static proto_tree *g_tree;
 

@@ -37,15 +37,15 @@ void proto_register_gelf(void);
 void proto_reg_handoff_gelf(void);
 
 static dissector_handle_t json_handle;
-static int proto_gelf = -1;
+static int proto_gelf;
 static dissector_handle_t gelf_udp_handle;
 
-static gint ett_gelf = -1;
-static gint hf_gelf_pdu_type = -1;
-static gint hf_gelf_pdu_message_id = -1;
-static gint hf_gelf_pdu_chunk_number = -1;
-static gint hf_gelf_pdu_chunk_count = -1;
-static gint hf_gelf_pdu_chunked = -1;
+static gint ett_gelf;
+static gint hf_gelf_pdu_type;
+static gint hf_gelf_pdu_message_id;
+static gint hf_gelf_pdu_chunk_number;
+static gint hf_gelf_pdu_chunk_count;
+static gint hf_gelf_pdu_chunked;
 
 static const value_string gelf_udp_types[] = {
     { HEADER_GZIP, "gzip" },
@@ -61,19 +61,19 @@ static const value_string gelf_udp_types[] = {
 
 static reassembly_table gelf_udp_reassembly_table;
 
-static gint ett_gelf_fragment = -1;
-static gint ett_gelf_fragments = -1;
+static gint ett_gelf_fragment;
+static gint ett_gelf_fragments;
 
-static int hf_gelf_fragments = -1;
-static int hf_gelf_fragment = -1;
-static int hf_gelf_fragment_overlap = -1;
-static int hf_gelf_fragment_overlap_conflict = -1;
-static int hf_gelf_fragment_multiple_tails = -1;
-static int hf_gelf_fragment_too_long_fragment = -1;
-static int hf_gelf_fragment_error = -1;
-static int hf_gelf_fragment_count = -1;
-static int hf_gelf_reassembled_in = -1;
-static int hf_gelf_reassembled_length = -1;
+static int hf_gelf_fragments;
+static int hf_gelf_fragment;
+static int hf_gelf_fragment_overlap;
+static int hf_gelf_fragment_overlap_conflict;
+static int hf_gelf_fragment_multiple_tails;
+static int hf_gelf_fragment_too_long_fragment;
+static int hf_gelf_fragment_error;
+static int hf_gelf_fragment_count;
+static int hf_gelf_reassembled_in;
+static int hf_gelf_reassembled_length;
 
 static const fragment_items gelf_fragment_items = {
     &ett_gelf_fragment,
@@ -92,8 +92,8 @@ static const fragment_items gelf_fragment_items = {
     "GELF fragments"
 };
 
-static expert_field ei_gelf_invalid_header = EI_INIT;
-static expert_field ei_gelf_broken_compression = EI_INIT;
+static expert_field ei_gelf_invalid_header;
+static expert_field ei_gelf_broken_compression;
 
 static inline gboolean
 is_simple_zlib(guint16 header) {

@@ -53,50 +53,50 @@ void proto_register_dmx_test(void);
 void proto_register_dmx_text(void);
 void proto_reg_handoff_dmx(void);
 
-static int proto_dmx = -1;
-static int proto_dmx_chan = -1;
-static int proto_dmx_sip = -1;
-static int proto_dmx_test = -1;
-static int proto_dmx_text = -1;
+static int proto_dmx;
+static int proto_dmx_chan;
+static int proto_dmx_sip;
+static int proto_dmx_test;
+static int proto_dmx_text;
 
-static int hf_dmx_start_code = -1;
+static int hf_dmx_start_code;
 
-static int hf_dmx_chan_output_dmx_data = -1;
-static int hf_dmx_chan_output_data_filter = -1;
+static int hf_dmx_chan_output_dmx_data;
+static int hf_dmx_chan_output_data_filter;
 
-static int hf_dmx_sip_byte_count = -1;
-static int hf_dmx_sip_control_bit_field = -1;
-static int hf_dmx_sip_prev_packet_checksum = -1;
-static int hf_dmx_sip_seq_nr = -1;
-static int hf_dmx_sip_dmx_universe_nr = -1;
-static int hf_dmx_sip_dmx_proc_level = -1;
-static int hf_dmx_sip_dmx_software_version = -1;
-static int hf_dmx_sip_dmx_packet_len = -1;
-static int hf_dmx_sip_dmx_nr_packets = -1;
-static int hf_dmx_sip_orig_dev_id = -1;
-static int hf_dmx_sip_sec_dev_id = -1;
-static int hf_dmx_sip_third_dev_id = -1;
-static int hf_dmx_sip_fourth_dev_id = -1;
-static int hf_dmx_sip_fifth_dev_id = -1;
-static int hf_dmx_sip_reserved = -1;
-static int hf_dmx_sip_checksum = -1;
-static int hf_dmx_sip_checksum_status = -1;
-static int hf_dmx_sip_trailer = -1;
+static int hf_dmx_sip_byte_count;
+static int hf_dmx_sip_control_bit_field;
+static int hf_dmx_sip_prev_packet_checksum;
+static int hf_dmx_sip_seq_nr;
+static int hf_dmx_sip_dmx_universe_nr;
+static int hf_dmx_sip_dmx_proc_level;
+static int hf_dmx_sip_dmx_software_version;
+static int hf_dmx_sip_dmx_packet_len;
+static int hf_dmx_sip_dmx_nr_packets;
+static int hf_dmx_sip_orig_dev_id;
+static int hf_dmx_sip_sec_dev_id;
+static int hf_dmx_sip_third_dev_id;
+static int hf_dmx_sip_fourth_dev_id;
+static int hf_dmx_sip_fifth_dev_id;
+static int hf_dmx_sip_reserved;
+static int hf_dmx_sip_checksum;
+static int hf_dmx_sip_checksum_status;
+static int hf_dmx_sip_trailer;
 
-static int hf_dmx_test_data = -1;
-static int hf_dmx_test_data_good = -1;
-static int hf_dmx_test_data_bad = -1;
+static int hf_dmx_test_data;
+static int hf_dmx_test_data_good;
+static int hf_dmx_test_data_bad;
 
-static int hf_dmx_text_page_nr = -1;
-static int hf_dmx_text_line_len = -1;
-static int hf_dmx_text_string = -1;
+static int hf_dmx_text_page_nr;
+static int hf_dmx_text_line_len;
+static int hf_dmx_text_string;
 
-static int ett_dmx_chan = -1;
-static int ett_dmx_sip = -1;
-static int ett_dmx_test = -1;
-static int ett_dmx_text = -1;
+static int ett_dmx_chan;
+static int ett_dmx_sip;
+static int ett_dmx_test;
+static int ett_dmx_text;
 
-static expert_field ei_dmx_sip_checksum = EI_INIT;
+static expert_field ei_dmx_sip_checksum;
 
 static dissector_table_t dmx_dissector_table;
 

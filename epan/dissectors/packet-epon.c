@@ -28,28 +28,28 @@ void proto_reg_handoff_epon(void);
 
 static dissector_handle_t epon_handle;
 
-static int proto_epon = -1;
-static int hf_epon_dpoe_security = -1;
-static int hf_epon_dpoe_encrypted = -1;
-static int hf_epon_dpoe_reserved = -1;
-static int hf_epon_dpoe_encrypted_data = -1;
-static int hf_epon_dpoe_keyid = -1;
-static int hf_epon_mode = -1;
-static int hf_epon_llid = -1;
-static int hf_epon_checksum = -1;
-static int hf_epon_checksum_status = -1;
+static int proto_epon;
+static int hf_epon_dpoe_security;
+static int hf_epon_dpoe_encrypted;
+static int hf_epon_dpoe_reserved;
+static int hf_epon_dpoe_encrypted_data;
+static int hf_epon_dpoe_keyid;
+static int hf_epon_mode;
+static int hf_epon_llid;
+static int hf_epon_checksum;
+static int hf_epon_checksum_status;
 
-static expert_field ei_epon_sld_bad = EI_INIT;
-static expert_field ei_epon_dpoe_reserved_bad = EI_INIT;
-static expert_field ei_epon_dpoe_bad = EI_INIT;
-static expert_field ei_epon_dpoe_encrypted_data = EI_INIT;
-static expert_field ei_epon_checksum_bad = EI_INIT;
+static expert_field ei_epon_sld_bad;
+static expert_field ei_epon_dpoe_reserved_bad;
+static expert_field ei_epon_dpoe_bad;
+static expert_field ei_epon_dpoe_encrypted_data;
+static expert_field ei_epon_checksum_bad;
 
 static dissector_handle_t eth_maybefcs_handle;
 
-static gint ett_epon = -1;
-static gint ett_epon_sec = -1;
-static gint ett_epon_checksum = -1;
+static gint ett_epon;
+static gint ett_epon_sec;
+static gint ett_epon_checksum;
 
 static const true_false_string epon_mode_tfs = {
   "Broadcast/Multicast",

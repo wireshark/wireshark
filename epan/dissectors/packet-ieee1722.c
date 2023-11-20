@@ -344,17 +344,17 @@ static const range_string subtype_range_rvals[] = {
 };
 
 /* Initialize the protocol and registered fields          */
-static int proto_1722 = -1;
-static int hf_1722_encap_seqnum = -1;
-static int hf_1722_subtype = -1;
-static int hf_1722_svfield = -1;
-static int hf_1722_verfield = -1;
+static int proto_1722;
+static int hf_1722_encap_seqnum;
+static int hf_1722_subtype;
+static int hf_1722_svfield;
+static int hf_1722_verfield;
 
 /* Initialize the subtree pointers */
-static int ett_1722 = -1;
+static int ett_1722;
 
-static expert_field ei_1722_encap_seqnum_dup = EI_INIT;
-static expert_field ei_1722_encap_seqnum_ooo = EI_INIT;
+static expert_field ei_1722_encap_seqnum_dup;
+static expert_field ei_1722_encap_seqnum_ooo;
 
 static dissector_table_t avb_dissector_table;
 
@@ -445,60 +445,60 @@ static const range_string syt_rvals [] = {
 };
 
 /* Initialize the protocol and registered fields          */
-static int proto_1722_61883 = -1;
-static int hf_1722_61883_mrfield = -1;
-static int hf_1722_61883_gvfield = -1;
-static int hf_1722_61883_tvfield = -1;
-static int hf_1722_61883_seqnum = -1;
-static int hf_1722_61883_tufield = -1;
-static int hf_1722_61883_stream_id = -1;
-static int hf_1722_61883_avtp_timestamp = -1;
-static int hf_1722_61883_gateway_info = -1;
-static int hf_1722_61883_stream_data_length = -1;
-static int hf_1722_61883_tag = -1;
-static int hf_1722_61883_channel = -1;
-static int hf_1722_61883_tcode = -1;
-static int hf_1722_61883_sy = -1;
-static int hf_1722_61883_cip_qi1 = -1;
-static int hf_1722_61883_cip_sid = -1;
-static int hf_1722_61883_cip_dbs = -1;
-static int hf_1722_61883_cip_fn = -1;
-static int hf_1722_61883_cip_qpc = -1;
-static int hf_1722_61883_cip_sph = -1;
-static int hf_1722_61883_cip_dbc = -1;
-static int hf_1722_61883_cip_qi2 = -1;
-static int hf_1722_61883_cip_fmt = -1;
-static int hf_1722_61883_cip_fdf_no_syt = -1;
-static int hf_1722_61883_cip_fdf_tsf = -1;
-static int hf_1722_61883_cip_fdf = -1;
-static int hf_1722_61883_cip_syt = -1;
-static int hf_1722_61883_audio_data = -1;
-static int hf_1722_61883_label = -1;
-static int hf_1722_61883_sample = -1;
-static int hf_1722_61883_video_data = -1;
-static int hf_1722_61883_source_packet_header_timestamp = -1;
+static int proto_1722_61883;
+static int hf_1722_61883_mrfield;
+static int hf_1722_61883_gvfield;
+static int hf_1722_61883_tvfield;
+static int hf_1722_61883_seqnum;
+static int hf_1722_61883_tufield;
+static int hf_1722_61883_stream_id;
+static int hf_1722_61883_avtp_timestamp;
+static int hf_1722_61883_gateway_info;
+static int hf_1722_61883_stream_data_length;
+static int hf_1722_61883_tag;
+static int hf_1722_61883_channel;
+static int hf_1722_61883_tcode;
+static int hf_1722_61883_sy;
+static int hf_1722_61883_cip_qi1;
+static int hf_1722_61883_cip_sid;
+static int hf_1722_61883_cip_dbs;
+static int hf_1722_61883_cip_fn;
+static int hf_1722_61883_cip_qpc;
+static int hf_1722_61883_cip_sph;
+static int hf_1722_61883_cip_dbc;
+static int hf_1722_61883_cip_qi2;
+static int hf_1722_61883_cip_fmt;
+static int hf_1722_61883_cip_fdf_no_syt;
+static int hf_1722_61883_cip_fdf_tsf;
+static int hf_1722_61883_cip_fdf;
+static int hf_1722_61883_cip_syt;
+static int hf_1722_61883_audio_data;
+static int hf_1722_61883_label;
+static int hf_1722_61883_sample;
+static int hf_1722_61883_video_data;
+static int hf_1722_61883_source_packet_header_timestamp;
 
 /* Initialize the subtree pointers */
-static int ett_1722_61883 = -1;
-static int ett_1722_61883_audio = -1;
-static int ett_1722_61883_sample = -1;
-static int ett_1722_61883_video = -1;
+static int ett_1722_61883;
+static int ett_1722_61883_audio;
+static int ett_1722_61883_sample;
+static int ett_1722_61883_video;
 
 /* Initialize expert fields */
-static expert_field ei_1722_61883_incorrect_tag = EI_INIT;
-static expert_field ei_1722_61883_incorrect_tcode = EI_INIT;
-static expert_field ei_1722_61883_incorrect_qi1 = EI_INIT;
-static expert_field ei_1722_61883_incorrect_qpc = EI_INIT;
-static expert_field ei_1722_61883_incorrect_qi2 = EI_INIT;
-static expert_field ei_1722_61883_unknown_format = EI_INIT;
-static expert_field ei_1722_61883_incorrect_channel_sid = EI_INIT;
-static expert_field ei_1722_61883_incorrect_datalen = EI_INIT;
-static expert_field ei_1722_61883_4_incorrect_cip_fn = EI_INIT;
-static expert_field ei_1722_61883_4_incorrect_cip_dbs = EI_INIT;
-static expert_field ei_1722_61883_4_incorrect_cip_sph = EI_INIT;
-static expert_field ei_1722_61883_6_incorrect_cip_fn = EI_INIT;
-static expert_field ei_1722_61883_6_incorrect_cip_sph = EI_INIT;
-static expert_field ei_1722_61883_incorrect_cip_fdf = EI_INIT;
+static expert_field ei_1722_61883_incorrect_tag;
+static expert_field ei_1722_61883_incorrect_tcode;
+static expert_field ei_1722_61883_incorrect_qi1;
+static expert_field ei_1722_61883_incorrect_qpc;
+static expert_field ei_1722_61883_incorrect_qi2;
+static expert_field ei_1722_61883_unknown_format;
+static expert_field ei_1722_61883_incorrect_channel_sid;
+static expert_field ei_1722_61883_incorrect_datalen;
+static expert_field ei_1722_61883_4_incorrect_cip_fn;
+static expert_field ei_1722_61883_4_incorrect_cip_dbs;
+static expert_field ei_1722_61883_4_incorrect_cip_sph;
+static expert_field ei_1722_61883_6_incorrect_cip_fn;
+static expert_field ei_1722_61883_6_incorrect_cip_sph;
+static expert_field ei_1722_61883_incorrect_cip_fdf;
 
 /**************************************************************************************************/
 /* subtype AAF                                                                                    */
@@ -538,35 +538,35 @@ static const value_string aaf_sparse_timestamp_vals [] = {
 };
 
 /* Initialize the protocol and registered fields          */
-static int proto_1722_aaf = -1;
-static int hf_1722_aaf_mrfield = -1;
-static int hf_1722_aaf_tvfield = -1;
-static int hf_1722_aaf_seqnum = -1;
-static int hf_1722_aaf_tufield = -1;
-static int hf_1722_aaf_stream_id = -1;
-static int hf_1722_aaf_avtp_timestamp = -1;
-static int hf_1722_aaf_format = -1;
-static int hf_1722_aaf_nominal_sample_rate = -1;
-static int hf_1722_aaf_bit_depth = -1;
-static int hf_1722_aaf_stream_data_length = -1;
-static int hf_1722_aaf_sparse_timestamp = -1;
-static int hf_1722_aaf_evtfield = -1;
-static int hf_1722_aaf_reserved = -1;
-static int hf_1722_aaf_channels_per_frame = -1;
-static int hf_1722_aaf_data = -1;
-static int hf_1722_aaf_sample = -1;
+static int proto_1722_aaf;
+static int hf_1722_aaf_mrfield;
+static int hf_1722_aaf_tvfield;
+static int hf_1722_aaf_seqnum;
+static int hf_1722_aaf_tufield;
+static int hf_1722_aaf_stream_id;
+static int hf_1722_aaf_avtp_timestamp;
+static int hf_1722_aaf_format;
+static int hf_1722_aaf_nominal_sample_rate;
+static int hf_1722_aaf_bit_depth;
+static int hf_1722_aaf_stream_data_length;
+static int hf_1722_aaf_sparse_timestamp;
+static int hf_1722_aaf_evtfield;
+static int hf_1722_aaf_reserved;
+static int hf_1722_aaf_channels_per_frame;
+static int hf_1722_aaf_data;
+static int hf_1722_aaf_sample;
 
 /* Initialize the subtree pointers */
-static int ett_1722_aaf = -1;
-static int ett_1722_aaf_audio = -1;
-static int ett_1722_aaf_sample = -1;
+static int ett_1722_aaf;
+static int ett_1722_aaf_audio;
+static int ett_1722_aaf_sample;
 
 /* Initialize expert fields */
-static expert_field ei_aaf_sample_width = EI_INIT;
-static expert_field ei_aaf_reserved_format = EI_INIT;
-static expert_field ei_aaf_aes3_format = EI_INIT;
-static expert_field ei_aaf_channels_per_frame = EI_INIT;
-static expert_field ei_aaf_incorrect_bit_depth = EI_INIT;
+static expert_field ei_aaf_sample_width;
+static expert_field ei_aaf_reserved_format;
+static expert_field ei_aaf_aes3_format;
+static expert_field ei_aaf_channels_per_frame;
+static expert_field ei_aaf_incorrect_bit_depth;
 
 /**************************************************************************************************/
 /* subtype CRF                                                                                    */
@@ -594,26 +594,26 @@ static const range_string crf_type_range_rvals [] = {
 };
 
 /* Initialize the protocol and registered fields          */
-static int proto_1722_crf = -1;
-static int hf_1722_crf_mrfield = -1;
-static int hf_1722_crf_fsfield = -1;
-static int hf_1722_crf_tufield = -1;
-static int hf_1722_crf_seqnum = -1;
-static int hf_1722_crf_type = -1;
-static int hf_1722_crf_stream_id = -1;
-static int hf_1722_crf_pull = -1;
-static int hf_1722_crf_base_frequency = -1;
-static int hf_1722_crf_data_length = -1;
-static int hf_1722_crf_timestamp_interval = -1;
-static int hf_1722_crf_timestamp_data = -1;
-static int hf_1722_crf_timestamp = -1;
+static int proto_1722_crf;
+static int hf_1722_crf_mrfield;
+static int hf_1722_crf_fsfield;
+static int hf_1722_crf_tufield;
+static int hf_1722_crf_seqnum;
+static int hf_1722_crf_type;
+static int hf_1722_crf_stream_id;
+static int hf_1722_crf_pull;
+static int hf_1722_crf_base_frequency;
+static int hf_1722_crf_data_length;
+static int hf_1722_crf_timestamp_interval;
+static int hf_1722_crf_timestamp_data;
+static int hf_1722_crf_timestamp;
 
 /* Initialize the subtree pointers */
-static int ett_1722_crf = -1;
-static int ett_1722_crf_timestamp = -1;
+static int ett_1722_crf;
+static int ett_1722_crf_timestamp;
 
 /* Initialize expert fields */
-static expert_field ei_crf_datalen = EI_INIT;
+static expert_field ei_crf_datalen;
 
 /**************************************************************************************************/
 /* subtype CVF                                                                                    */
@@ -636,28 +636,28 @@ static const range_string cvf_format_subtype_range_rvals [] = {
 
 /* Initialize the protocol and registered fields          */
 
-static int proto_1722_cvf = -1;
-static int hf_1722_cvf_mrfield = -1;
-static int hf_1722_cvf_tvfield = -1;
-static int hf_1722_cvf_seqnum = -1;
-static int hf_1722_cvf_tufield = -1;
-static int hf_1722_cvf_stream_id = -1;
-static int hf_1722_cvf_avtp_timestamp = -1;
-static int hf_1722_cvf_format = -1;
-static int hf_1722_cvf_format_subtype = -1;
-static int hf_1722_cvf_stream_data_length = -1;
-static int hf_1722_cvf_evtfield = -1;
-static int hf_1722_cvf_marker_bit = -1;
-static int hf_1722_cvf_h264_ptvfield = -1;
-static int hf_1722_cvf_h264_timestamp = -1;
+static int proto_1722_cvf;
+static int hf_1722_cvf_mrfield;
+static int hf_1722_cvf_tvfield;
+static int hf_1722_cvf_seqnum;
+static int hf_1722_cvf_tufield;
+static int hf_1722_cvf_stream_id;
+static int hf_1722_cvf_avtp_timestamp;
+static int hf_1722_cvf_format;
+static int hf_1722_cvf_format_subtype;
+static int hf_1722_cvf_stream_data_length;
+static int hf_1722_cvf_evtfield;
+static int hf_1722_cvf_marker_bit;
+static int hf_1722_cvf_h264_ptvfield;
+static int hf_1722_cvf_h264_timestamp;
 
 /* Initialize the subtree pointers */
-static int ett_1722_cvf = -1;
+static int ett_1722_cvf;
 
 /* Initialize expert fields */
-static expert_field ei_cvf_jpeg2000_format = EI_INIT;
-static expert_field ei_cvf_reserved_format = EI_INIT;
-static expert_field ei_cvf_invalid_data_length = EI_INIT;
+static expert_field ei_cvf_jpeg2000_format;
+static expert_field ei_cvf_reserved_format;
+static expert_field ei_cvf_invalid_data_length;
 
 /**************************************************************************************************/
 /* subtype NTSCF                                                                                  */
@@ -665,18 +665,18 @@ static expert_field ei_cvf_invalid_data_length = EI_INIT;
 /**************************************************************************************************/
 
 /* Initialize the protocol and registered fields          */
-static int proto_1722_ntscf = -1;
-static int hf_1722_ntscf_rfield = -1;
-static int hf_1722_ntscf_data_length = -1;
-static int hf_1722_ntscf_seqnum = -1;
-static int hf_1722_ntscf_stream_id = -1;
+static int proto_1722_ntscf;
+static int hf_1722_ntscf_rfield;
+static int hf_1722_ntscf_data_length;
+static int hf_1722_ntscf_seqnum;
+static int hf_1722_ntscf_stream_id;
 
 /* Initialize the subtree pointers */
-static int ett_1722_ntscf = -1;
+static int ett_1722_ntscf;
 
 /* Initialize expert fields */
-static expert_field ei_1722_ntscf_no_space_for_header = EI_INIT;
-static expert_field ei_1722_ntscf_invalid_data_length = EI_INIT;
+static expert_field ei_1722_ntscf_no_space_for_header;
+static expert_field ei_1722_ntscf_invalid_data_length;
 
 /**************************************************************************************************/
 /* subtype TSCF                                                                                   */
@@ -684,27 +684,27 @@ static expert_field ei_1722_ntscf_invalid_data_length = EI_INIT;
 /**************************************************************************************************/
 
 /* Initialize the protocol and registered fields          */
-static int proto_1722_tscf = -1;
-static int hf_1722_tscf_mr = -1;
-static int hf_1722_tscf_rsv1 = -1;
-static int hf_1722_tscf_tv = -1;
-static int hf_1722_tscf_seqnum = -1;
-static int hf_1722_tscf_rsv2 = -1;
-static int hf_1722_tscf_tu = -1;
-static int hf_1722_tscf_stream_id = -1;
-static int hf_1722_tscf_avtp_timestamp = -1;
-static int hf_1722_tscf_rsv3 = -1;
-static int hf_1722_tscf_data_length = -1;
-static int hf_1722_tscf_rsv4 = -1;
+static int proto_1722_tscf;
+static int hf_1722_tscf_mr;
+static int hf_1722_tscf_rsv1;
+static int hf_1722_tscf_tv;
+static int hf_1722_tscf_seqnum;
+static int hf_1722_tscf_rsv2;
+static int hf_1722_tscf_tu;
+static int hf_1722_tscf_stream_id;
+static int hf_1722_tscf_avtp_timestamp;
+static int hf_1722_tscf_rsv3;
+static int hf_1722_tscf_data_length;
+static int hf_1722_tscf_rsv4;
 
 /* Initialize the subtree pointers */
-static int ett_1722_tscf = -1;
-static int ett_1722_tscf_flags = -1;
-static int ett_1722_tscf_tu = -1;
+static int ett_1722_tscf;
+static int ett_1722_tscf_flags;
+static int ett_1722_tscf_tu;
 
 /* Initialize expert fields */
-static expert_field ei_1722_tscf_no_space_for_header = EI_INIT;
-static expert_field ei_1722_tscf_invalid_data_length = EI_INIT;
+static expert_field ei_1722_tscf_no_space_for_header;
+static expert_field ei_1722_tscf_invalid_data_length;
 
 
 /**************************************************************************************************/
@@ -731,17 +731,17 @@ static const range_string acf_msg_type_range_rvals [] = {
 };
 
 /* Initialize the protocol and registered fields          */
-static int proto_1722_acf = -1;
-static int hf_1722_acf_msg_type = -1;
-static int hf_1722_acf_msg_length = -1;
+static int proto_1722_acf;
+static int hf_1722_acf_msg_type;
+static int hf_1722_acf_msg_length;
 
 /* Initialize the subtree pointers */
-static int ett_1722_acf = -1;
-static int ett_1722_acf_header = -1;
+static int ett_1722_acf;
+static int ett_1722_acf_header;
 
 /* Initialize expert fields */
-static expert_field ei_1722_acf_invalid_msg_length = EI_INIT;
-static expert_field ei_1722_acf_message_is_cropped = EI_INIT;
+static expert_field ei_1722_acf_invalid_msg_length;
+static expert_field ei_1722_acf_message_is_cropped;
 
 /* Dissector handles */
 static dissector_handle_t  avb1722_acf_handle;
@@ -764,42 +764,42 @@ typedef struct {
 } acf_can_t;
 
 /* Initialize the protocol and registered fields          */
-static int proto_1722_acf_can = -1;
-static int hf_1722_can_flags = -1;
-static int hf_1722_can_pad = -1;
-static int hf_1722_can_len = -1;
-static int hf_1722_can_mtvfield = -1;
-static int hf_1722_can_rtrfield = -1;
-static int hf_1722_can_efffield = -1;
-static int hf_1722_can_brsfield = -1;
-static int hf_1722_can_fdffield = -1;
-static int hf_1722_can_esifield = -1;
-static int hf_1722_can_rsv1 = -1;
-static int hf_1722_can_bus_id = -1;
-static int hf_1722_can_message_timestamp = -1;
-static int hf_1722_can_rsv2 = -1;
-static int hf_1722_can_identifier = -1;
-static int hf_1722_can_padding = -1;
+static int proto_1722_acf_can;
+static int hf_1722_can_flags;
+static int hf_1722_can_pad;
+static int hf_1722_can_len;
+static int hf_1722_can_mtvfield;
+static int hf_1722_can_rtrfield;
+static int hf_1722_can_efffield;
+static int hf_1722_can_brsfield;
+static int hf_1722_can_fdffield;
+static int hf_1722_can_esifield;
+static int hf_1722_can_rsv1;
+static int hf_1722_can_bus_id;
+static int hf_1722_can_message_timestamp;
+static int hf_1722_can_rsv2;
+static int hf_1722_can_identifier;
+static int hf_1722_can_padding;
 
 /* Initialize the subtree pointers */
-static int ett_can = -1;
-static int ett_1722_can = -1;
-static int ett_1722_can_flags = -1;
-static int ett_1722_can_bus_id = -1;
-static int ett_1722_can_msg_id = -1;
+static int ett_can;
+static int ett_1722_can;
+static int ett_1722_can_flags;
+static int ett_1722_can_bus_id;
+static int ett_1722_can_msg_id;
 
 /* Initialize expert fields */
-static expert_field ei_1722_can_header_cropped = EI_INIT;
-static expert_field ei_1722_can_invalid_message_id = EI_INIT;
-static expert_field ei_1722_can_invalid_payload_length = EI_INIT;
-static expert_field ei_1722_canfd_invalid_payload_length = EI_INIT;
+static expert_field ei_1722_can_header_cropped;
+static expert_field ei_1722_can_invalid_message_id;
+static expert_field ei_1722_can_invalid_payload_length;
+static expert_field ei_1722_canfd_invalid_payload_length;
 
 /* Dissector handles */
 static dissector_handle_t avb1722_can_brief_handle;
 static dissector_handle_t avb1722_can_handle;
 
-static int                      proto_can = -1;
-static int                      proto_canfd = -1;
+static int                      proto_can;
+static int                      proto_canfd;
 static gboolean                 can_heuristic_first = FALSE;
 
 /**************************************************************************************************/
@@ -808,21 +808,21 @@ static gboolean                 can_heuristic_first = FALSE;
 /**************************************************************************************************/
 
 /* Initialize the protocol and registered fields          */
-static int proto_1722_acf_lin = -1;
-static int hf_1722_lin_pad = -1;
-static int hf_1722_lin_mtv = -1;
-static int hf_1722_lin_bus_id = -1;
-static int hf_1722_lin_identifier = -1;
-static int hf_1722_lin_message_timestamp = -1;
-static int hf_1722_lin_padding = -1;
+static int proto_1722_acf_lin;
+static int hf_1722_lin_pad;
+static int hf_1722_lin_mtv;
+static int hf_1722_lin_bus_id;
+static int hf_1722_lin_identifier;
+static int hf_1722_lin_message_timestamp;
+static int hf_1722_lin_padding;
 
 /* Initialize the subtree pointers */
-static int ett_1722_lin = -1;
-static int ett_1722_lin_flags = -1;
+static int ett_1722_lin;
+static int ett_1722_lin_flags;
 
 /* Initialize expert fields */
-static expert_field ei_1722_lin_header_cropped = EI_INIT;
-static expert_field ei_1722_lin_invalid_payload_length = EI_INIT;
+static expert_field ei_1722_lin_header_cropped;
+static expert_field ei_1722_lin_invalid_payload_length;
 
 static dissector_table_t avb1722_acf_lin_dissector_table;
 

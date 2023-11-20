@@ -25,40 +25,40 @@
 
 void proto_register_felica(void);
 
-static int proto_felica = -1;
+static int proto_felica;
 
 /* Opcodes */
-static int hf_felica_opcode = -1;
+static int hf_felica_opcode;
 
 /* System Code */
-static int hf_felica_sys_code = -1;
+static int hf_felica_sys_code;
 
 /* Timeslot */
-static int hf_felica_timeslot = -1;
+static int hf_felica_timeslot;
 
 /* Manufacture ID/NFCID2 */
-static int hf_felica_idm = -1;
+static int hf_felica_idm;
 
 /* Request Code */
-static int hf_felica_req_code = -1;
+static int hf_felica_req_code;
 
 /* Manufacture Parameter/PAD */
-static int hf_felica_pnm = -1;
+static int hf_felica_pnm;
 
 /* Number of Services */
 
-static int hf_felica_nbr_of_svcs = -1;
+static int hf_felica_nbr_of_svcs;
 
-static int hf_felica_svc_code = -1;
+static int hf_felica_svc_code;
 
-static int hf_felica_nbr_of_blocks = -1;
-static int hf_felica_block_nbr = -1;
+static int hf_felica_nbr_of_blocks;
+static int hf_felica_block_nbr;
 
 /* Status flag 1 */
-static int hf_felica_status_flag1 = -1;
+static int hf_felica_status_flag1;
 
 /* Status flag 2 */
-static int hf_felica_status_flag2 = -1;
+static int hf_felica_status_flag2;
 
 /* - Commands - */
 #define CMD_POLLING 0x00
@@ -205,7 +205,7 @@ static const value_string felica_sys_codes[] = {
 };
 
 /* Subtree handles: set by register_subtree_array */
-static gint ett_felica = -1;
+static gint ett_felica;
 
 static int dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {

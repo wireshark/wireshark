@@ -20,11 +20,11 @@
 void proto_register_dcerpc_trksvr(void);
 void proto_reg_handoff_dcerpc_trksvr(void);
 
-static int proto_dcerpc_trksvr = -1;
-static int hf_trksvr_opnum = -1;
-/* static int hf_trksvr_rc = -1; */
+static int proto_dcerpc_trksvr;
+static int hf_trksvr_opnum;
+/* static int hf_trksvr_rc; */
 
-static gint ett_dcerpc_trksvr = -1;
+static gint ett_dcerpc_trksvr;
 
 /*
   IDL [ uuid(4da1-943d-11d1-acae-00c0afc2aa3f),

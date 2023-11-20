@@ -21,11 +21,11 @@ void proto_reg_handoff_ieee802a(void);
 
 static dissector_handle_t ieee802a_handle;
 
-static int proto_ieee802a = -1;
-static int hf_ieee802a_oui = -1;
-static int hf_ieee802a_pid = -1;
+static int proto_ieee802a;
+static int hf_ieee802a_oui;
+static int hf_ieee802a_pid;
 
-static gint ett_ieee802a = -1;
+static gint ett_ieee802a;
 
 /*
  * Hash table for translating OUIs to a dissector table/field info pair;

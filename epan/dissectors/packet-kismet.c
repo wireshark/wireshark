@@ -20,21 +20,21 @@
 #include <epan/expert.h>
 #include <wsutil/strtoi.h>
 
-static int proto_kismet = -1;
-static int hf_kismet_response = -1;
-static int hf_kismet_request = -1;
-static int hf_kismet_version = -1;
-static int hf_kismet_start_time = -1;
-static int hf_kismet_server_name = -1;
-static int hf_kismet_build_revision = -1;
-static int hf_kismet_unknown_field = -1;
-static int hf_kismet_extended_version_string = -1;
-static int hf_kismet_time = -1;
+static int proto_kismet;
+static int hf_kismet_response;
+static int hf_kismet_request;
+static int hf_kismet_version;
+static int hf_kismet_start_time;
+static int hf_kismet_server_name;
+static int hf_kismet_build_revision;
+static int hf_kismet_unknown_field;
+static int hf_kismet_extended_version_string;
+static int hf_kismet_time;
 
-static gint ett_kismet = -1;
-static gint ett_kismet_reqresp = -1;
+static gint ett_kismet;
+static gint ett_kismet_reqresp;
 
-static expert_field ei_time_invalid = EI_INIT;
+static expert_field ei_time_invalid;
 
 #define TCP_PORT_KISMET	2501 /* Not IANA registered */
 

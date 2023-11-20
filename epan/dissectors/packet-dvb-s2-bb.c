@@ -130,89 +130,89 @@ static gint dvb_s2_default_modeadapt = DVB_S2_MODEADAPT_TYPE_L3;
 static gboolean dvb_s2_try_all_modeadapt = TRUE;
 
 /* Initialize the protocol and registered fields */
-static int proto_dvb_s2_modeadapt = -1;
-static int hf_dvb_s2_modeadapt_sync = -1;
-static int hf_dvb_s2_modeadapt_acm = -1;
-static int hf_dvb_s2_modeadapt_acm_fecframe = -1;
-static int hf_dvb_s2_modeadapt_acm_pilot = -1;
-static int hf_dvb_s2_modeadapt_acm_modcod = -1;
-static int hf_dvb_s2_modeadapt_acm_modcod_s2x = -1;
-static int hf_dvb_s2_modeadapt_cni = -1;
-static int hf_dvb_s2_modeadapt_frameno = -1;
+static int proto_dvb_s2_modeadapt;
+static int hf_dvb_s2_modeadapt_sync;
+static int hf_dvb_s2_modeadapt_acm;
+static int hf_dvb_s2_modeadapt_acm_fecframe;
+static int hf_dvb_s2_modeadapt_acm_pilot;
+static int hf_dvb_s2_modeadapt_acm_modcod;
+static int hf_dvb_s2_modeadapt_acm_modcod_s2x;
+static int hf_dvb_s2_modeadapt_cni;
+static int hf_dvb_s2_modeadapt_frameno;
 
-static int proto_dvb_s2_bb = -1;
-static int hf_dvb_s2_bb_matype1 = -1;
-static int hf_dvb_s2_bb_matype1_gs = -1;
-static int hf_dvb_s2_bb_matype1_mis = -1;
-static int hf_dvb_s2_bb_matype1_acm = -1;
-static int hf_dvb_s2_bb_matype1_issyi = -1;
-static int hf_dvb_s2_bb_matype1_npd = -1;
-static int hf_dvb_s2_bb_matype1_high_ro = -1;
-static int hf_dvb_s2_bb_matype1_low_ro = -1;
-static int hf_dvb_s2_bb_matype2 = -1;
-static int hf_dvb_s2_bb_upl = -1;
-static int hf_dvb_s2_bb_dfl = -1;
-static int hf_dvb_s2_bb_sync = -1;
-static int hf_dvb_s2_bb_syncd = -1;
-static int hf_dvb_s2_bb_crc = -1;
-static int hf_dvb_s2_bb_crc_status = -1;
-static int hf_dvb_s2_bb_df = -1;
-static int hf_dvb_s2_bb_eip_crc32 = -1;
-static int hf_dvb_s2_bb_eip_crc32_status = -1;
-static int hf_dvb_s2_bb_up_crc = -1;
-static int hf_dvb_s2_bb_up_crc_status = -1;
-static int hf_dvb_s2_bb_issy_short = -1;
-static int hf_dvb_s2_bb_issy_long = -1;
-static int hf_dvb_s2_bb_dnp = -1;
+static int proto_dvb_s2_bb;
+static int hf_dvb_s2_bb_matype1;
+static int hf_dvb_s2_bb_matype1_gs;
+static int hf_dvb_s2_bb_matype1_mis;
+static int hf_dvb_s2_bb_matype1_acm;
+static int hf_dvb_s2_bb_matype1_issyi;
+static int hf_dvb_s2_bb_matype1_npd;
+static int hf_dvb_s2_bb_matype1_high_ro;
+static int hf_dvb_s2_bb_matype1_low_ro;
+static int hf_dvb_s2_bb_matype2;
+static int hf_dvb_s2_bb_upl;
+static int hf_dvb_s2_bb_dfl;
+static int hf_dvb_s2_bb_sync;
+static int hf_dvb_s2_bb_syncd;
+static int hf_dvb_s2_bb_crc;
+static int hf_dvb_s2_bb_crc_status;
+static int hf_dvb_s2_bb_df;
+static int hf_dvb_s2_bb_eip_crc32;
+static int hf_dvb_s2_bb_eip_crc32_status;
+static int hf_dvb_s2_bb_up_crc;
+static int hf_dvb_s2_bb_up_crc_status;
+static int hf_dvb_s2_bb_issy_short;
+static int hf_dvb_s2_bb_issy_long;
+static int hf_dvb_s2_bb_dnp;
 
-static int hf_dvb_s2_bb_packetized = -1;
-static int hf_dvb_s2_bb_transport = -1;
-static int hf_dvb_s2_bb_reserved = -1;
+static int hf_dvb_s2_bb_packetized;
+static int hf_dvb_s2_bb_transport;
+static int hf_dvb_s2_bb_reserved;
 
-static int proto_dvb_s2_gse = -1;
-static int hf_dvb_s2_gse_hdr = -1;
-static int hf_dvb_s2_gse_hdr_start = -1;
-static int hf_dvb_s2_gse_hdr_stop = -1;
-static int hf_dvb_s2_gse_hdr_labeltype = -1;
-static int hf_dvb_s2_gse_hdr_length = -1;
-static int hf_dvb_s2_gse_padding = -1;
-static int hf_dvb_s2_gse_proto_next_header = -1;
-static int hf_dvb_s2_gse_proto_ethertype = -1;
-static int hf_dvb_s2_gse_label6 = -1;
-static int hf_dvb_s2_gse_label3 = -1;
-static int hf_dvb_s2_gse_fragid = -1;
-static int hf_dvb_s2_gse_totlength = -1;
-static int hf_dvb_s2_gse_exthdr = -1;
-static int hf_dvb_s2_gse_ncr = -1;
-static int hf_dvb_s2_gse_data = -1;
-static int hf_dvb_s2_gse_crc32 = -1;
-static int hf_dvb_s2_gse_crc32_status = -1;
+static int proto_dvb_s2_gse;
+static int hf_dvb_s2_gse_hdr;
+static int hf_dvb_s2_gse_hdr_start;
+static int hf_dvb_s2_gse_hdr_stop;
+static int hf_dvb_s2_gse_hdr_labeltype;
+static int hf_dvb_s2_gse_hdr_length;
+static int hf_dvb_s2_gse_padding;
+static int hf_dvb_s2_gse_proto_next_header;
+static int hf_dvb_s2_gse_proto_ethertype;
+static int hf_dvb_s2_gse_label6;
+static int hf_dvb_s2_gse_label3;
+static int hf_dvb_s2_gse_fragid;
+static int hf_dvb_s2_gse_totlength;
+static int hf_dvb_s2_gse_exthdr;
+static int hf_dvb_s2_gse_ncr;
+static int hf_dvb_s2_gse_data;
+static int hf_dvb_s2_gse_crc32;
+static int hf_dvb_s2_gse_crc32_status;
 
 /* Initialize the subtree pointers */
-static gint ett_dvb_s2_modeadapt = -1;
-static gint ett_dvb_s2_modeadapt_acm = -1;
+static gint ett_dvb_s2_modeadapt;
+static gint ett_dvb_s2_modeadapt_acm;
 
-static gint ett_dvb_s2_bb = -1;
-static gint ett_dvb_s2_bb_matype1 = -1;
+static gint ett_dvb_s2_bb;
+static gint ett_dvb_s2_bb_matype1;
 
-static gint ett_dvb_s2_gse = -1;
-static gint ett_dvb_s2_gse_hdr = -1;
-static gint ett_dvb_s2_gse_ncr = -1;
+static gint ett_dvb_s2_gse;
+static gint ett_dvb_s2_gse_hdr;
+static gint ett_dvb_s2_gse_ncr;
 
-static expert_field ei_dvb_s2_bb_crc = EI_INIT;
-static expert_field ei_dvb_s2_bb_header_ambiguous = EI_INIT;
-static expert_field ei_dvb_s2_bb_issy_invalid = EI_INIT;
-static expert_field ei_dvb_s2_bb_npd_invalid = EI_INIT;
-static expert_field ei_dvb_s2_bb_upl_invalid = EI_INIT;
-static expert_field ei_dvb_s2_bb_dfl_invalid = EI_INIT;
-static expert_field ei_dvb_s2_bb_sync_invalid = EI_INIT;
-static expert_field ei_dvb_s2_bb_syncd_invalid = EI_INIT;
-static expert_field ei_dvb_s2_bb_up_reassembly_invalid = EI_INIT;
-static expert_field ei_dvb_s2_bb_reserved = EI_INIT;
+static expert_field ei_dvb_s2_bb_crc;
+static expert_field ei_dvb_s2_bb_header_ambiguous;
+static expert_field ei_dvb_s2_bb_issy_invalid;
+static expert_field ei_dvb_s2_bb_npd_invalid;
+static expert_field ei_dvb_s2_bb_upl_invalid;
+static expert_field ei_dvb_s2_bb_dfl_invalid;
+static expert_field ei_dvb_s2_bb_sync_invalid;
+static expert_field ei_dvb_s2_bb_syncd_invalid;
+static expert_field ei_dvb_s2_bb_up_reassembly_invalid;
+static expert_field ei_dvb_s2_bb_reserved;
 
-static expert_field ei_dvb_s2_gse_length_invalid = EI_INIT;
-static expert_field ei_dvb_s2_gse_totlength_invalid = EI_INIT;
-static expert_field ei_dvb_s2_gse_crc32 = EI_INIT;
+static expert_field ei_dvb_s2_gse_length_invalid;
+static expert_field ei_dvb_s2_gse_totlength_invalid;
+static expert_field ei_dvb_s2_gse_crc32;
 
 /* Reassembly support */
 
@@ -238,19 +238,19 @@ static expert_field ei_dvb_s2_gse_crc32 = EI_INIT;
  * API.
  */
 
-static gint ett_dvbs2_fragments = -1;
-static gint ett_dvbs2_fragment  = -1;
-static int hf_dvbs2_fragments = -1;
-static int hf_dvbs2_fragment = -1;
-static int hf_dvbs2_fragment_overlap = -1;
-static int hf_dvbs2_fragment_overlap_conflict = -1;
-static int hf_dvbs2_fragment_multiple_tails = -1;
-static int hf_dvbs2_fragment_too_long_fragment = -1;
-static int hf_dvbs2_fragment_error = -1;
-static int hf_dvbs2_fragment_count = -1;
-static int hf_dvbs2_reassembled_in = -1;
-static int hf_dvbs2_reassembled_length = -1;
-static int hf_dvbs2_reassembled_data = -1;
+static gint ett_dvbs2_fragments;
+static gint ett_dvbs2_fragment;
+static int hf_dvbs2_fragments;
+static int hf_dvbs2_fragment;
+static int hf_dvbs2_fragment_overlap;
+static int hf_dvbs2_fragment_overlap_conflict;
+static int hf_dvbs2_fragment_multiple_tails;
+static int hf_dvbs2_fragment_too_long_fragment;
+static int hf_dvbs2_fragment_error;
+static int hf_dvbs2_fragment_count;
+static int hf_dvbs2_reassembled_in;
+static int hf_dvbs2_reassembled_length;
+static int hf_dvbs2_reassembled_data;
 
 static const fragment_items dvbs2_frag_items = {
   &ett_dvbs2_fragment,
@@ -278,19 +278,19 @@ dvb_s2_gse_defragment_init(void)
                         &addresses_reassembly_table_functions);
 }
 
-static gint ett_dvb_s2_gse_fragments = -1;
-static gint ett_dvb_s2_gse_fragment  = -1;
-static int hf_dvb_s2_gse_fragments = -1;
-static int hf_dvb_s2_gse_fragment = -1;
-static int hf_dvb_s2_gse_fragment_overlap = -1;
-static int hf_dvb_s2_gse_fragment_overlap_conflict = -1;
-static int hf_dvb_s2_gse_fragment_multiple_tails = -1;
-static int hf_dvb_s2_gse_fragment_too_long_fragment = -1;
-static int hf_dvb_s2_gse_fragment_error = -1;
-static int hf_dvb_s2_gse_fragment_count = -1;
-static int hf_dvb_s2_gse_reassembled_in = -1;
-static int hf_dvb_s2_gse_reassembled_length = -1;
-static int hf_dvb_s2_gse_reassembled_data = -1;
+static gint ett_dvb_s2_gse_fragments;
+static gint ett_dvb_s2_gse_fragment;
+static int hf_dvb_s2_gse_fragments;
+static int hf_dvb_s2_gse_fragment;
+static int hf_dvb_s2_gse_fragment_overlap;
+static int hf_dvb_s2_gse_fragment_overlap_conflict;
+static int hf_dvb_s2_gse_fragment_multiple_tails;
+static int hf_dvb_s2_gse_fragment_too_long_fragment;
+static int hf_dvb_s2_gse_fragment_error;
+static int hf_dvb_s2_gse_fragment_count;
+static int hf_dvb_s2_gse_reassembled_in;
+static int hf_dvb_s2_gse_reassembled_length;
+static int hf_dvb_s2_gse_reassembled_data;
 
 static const fragment_items dvb_s2_gse_frag_items = {
   &ett_dvb_s2_gse_fragment,

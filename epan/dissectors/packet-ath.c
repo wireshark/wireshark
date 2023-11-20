@@ -40,31 +40,31 @@ static dissector_handle_t ath_handle;
 
 #define ATH_PORT 45564 /* Not IANA registered */
 
-static int proto_ath = -1;
+static int proto_ath;
 
-static int hf_ath_begin   = -1;
-static int hf_ath_padding = -1;
-static int hf_ath_length  = -1;
-static int hf_ath_alive   = -1;
-static int hf_ath_port    = -1;
-static int hf_ath_sport   = -1;
-static int hf_ath_uport   = -1;
-static int hf_ath_hlen    = -1;
-static int hf_ath_ipv4    = -1;
-static int hf_ath_ipv6    = -1;
-static int hf_ath_clen    = -1;
-static int hf_ath_comm    = -1;
-static int hf_ath_dlen    = -1;
-static int hf_ath_domain  = -1;
-static int hf_ath_unique  = -1;
-static int hf_ath_plen    = -1;
-static int hf_ath_payload = -1;
-static int hf_ath_end     = -1;
+static int hf_ath_begin;
+static int hf_ath_padding;
+static int hf_ath_length;
+static int hf_ath_alive;
+static int hf_ath_port;
+static int hf_ath_sport;
+static int hf_ath_uport;
+static int hf_ath_hlen;
+static int hf_ath_ipv4;
+static int hf_ath_ipv6;
+static int hf_ath_clen;
+static int hf_ath_comm;
+static int hf_ath_dlen;
+static int hf_ath_domain;
+static int hf_ath_unique;
+static int hf_ath_plen;
+static int hf_ath_payload;
+static int hf_ath_end;
 
-static gint ett_ath = -1;
+static gint ett_ath;
 
-static expert_field ei_ath_hlen_invalid  = EI_INIT;
-static expert_field ei_ath_hmark_invalid = EI_INIT;
+static expert_field ei_ath_hlen_invalid;
+static expert_field ei_ath_hmark_invalid;
 
 static gboolean
 test_ath(tvbuff_t *tvb)

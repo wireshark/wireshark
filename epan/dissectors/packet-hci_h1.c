@@ -15,11 +15,11 @@
 
 #include "packet-bluetooth.h"
 
-static int proto_hci_h1 = -1;
+static int proto_hci_h1;
 
-static int hf_hci_h1_direction = -1;
+static int hf_hci_h1_direction;
 
-static gint ett_hci_h1 = -1;
+static gint ett_hci_h1;
 
 static dissector_table_t hci_h1_table;
 

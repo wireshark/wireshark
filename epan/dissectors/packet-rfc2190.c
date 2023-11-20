@@ -33,38 +33,38 @@ void proto_register_rfc2190(void);
 void proto_reg_handoff_rfc2190(void);
 
 /* H.263 header fields             */
-static int proto_rfc2190        = -1;
+static int proto_rfc2190;
 
 /* Mode A header */
-static int hf_rfc2190_ftype = -1;
-static int hf_rfc2190_pbframes = -1;
-static int hf_rfc2190_sbit = -1;
-static int hf_rfc2190_ebit = -1;
-static int hf_rfc2190_srcformat = -1;
-static int hf_rfc2190_picture_coding_type_modeA = -1;
-static int hf_rfc2190_unrestricted_motion_vector_modeA = -1;
-static int hf_rfc2190_syntax_based_arithmetic_modeA = -1;
-static int hf_rfc2190_advanced_prediction_modeA = -1;
-static int hf_rfc2190_r_modeA = -1;
-static int hf_rfc2190_rr = -1;
-static int hf_rfc2190_dbq = -1;
-static int hf_rfc2190_trb = -1;
-static int hf_rfc2190_tr = -1;
+static int hf_rfc2190_ftype;
+static int hf_rfc2190_pbframes;
+static int hf_rfc2190_sbit;
+static int hf_rfc2190_ebit;
+static int hf_rfc2190_srcformat;
+static int hf_rfc2190_picture_coding_type_modeA;
+static int hf_rfc2190_unrestricted_motion_vector_modeA;
+static int hf_rfc2190_syntax_based_arithmetic_modeA;
+static int hf_rfc2190_advanced_prediction_modeA;
+static int hf_rfc2190_r_modeA;
+static int hf_rfc2190_rr;
+static int hf_rfc2190_dbq;
+static int hf_rfc2190_trb;
+static int hf_rfc2190_tr;
 /* Additional fields for Mode B or C header */
-static int hf_rfc2190_picture_coding_type_modeB = -1;
-static int hf_rfc2190_unrestricted_motion_vector_modeB = -1;
-static int hf_rfc2190_syntax_based_arithmetic_modeB = -1;
-static int hf_rfc2190_advanced_prediction_modeB = -1;
-static int hf_rfc2190_r_modeB = -1;
-static int hf_rfc2190_quant = -1;
-static int hf_rfc2190_gobn = -1;
-static int hf_rfc2190_mba = -1;
-static int hf_rfc2190_hmv1 = -1;
-static int hf_rfc2190_vmv1 = -1;
-static int hf_rfc2190_hmv2 = -1;
-static int hf_rfc2190_vmv2 = -1;
+static int hf_rfc2190_picture_coding_type_modeB;
+static int hf_rfc2190_unrestricted_motion_vector_modeB;
+static int hf_rfc2190_syntax_based_arithmetic_modeB;
+static int hf_rfc2190_advanced_prediction_modeB;
+static int hf_rfc2190_r_modeB;
+static int hf_rfc2190_quant;
+static int hf_rfc2190_gobn;
+static int hf_rfc2190_mba;
+static int hf_rfc2190_hmv1;
+static int hf_rfc2190_vmv1;
+static int hf_rfc2190_hmv2;
+static int hf_rfc2190_vmv2;
 
-static gint ett_rfc2190         = -1;
+static gint ett_rfc2190;
 static dissector_handle_t h263_handle;
 static dissector_handle_t rfc2190_handle;
 

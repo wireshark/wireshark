@@ -28,34 +28,34 @@ static dissector_handle_t loratap_handle;
 
 static dissector_table_t loratap_dissector_table;
 
-static int proto_loratap = -1;
-static int hf_loratap_header_version_type = -1;
-static int hf_loratap_header_length_type = -1;
-static int hf_loratap_header_padding = -1;
-static int hf_loratap_header_channel_type = -1;
-static int hf_loratap_header_channel_frequency_type = -1;
-static int hf_loratap_header_channel_bandwidth_type = -1;
-static int hf_loratap_header_channel_sf_type = -1;
-static int hf_loratap_header_rssi_type = -1;
-static int hf_loratap_header_rssi_packet_type = -1;
-static int hf_loratap_header_rssi_max_type = -1;
-static int hf_loratap_header_rssi_current_type = -1;
-static int hf_loratap_header_rssi_snr_type = -1;
-static int hf_loratap_header_syncword_type = -1;
-static int hf_loratap_header_tag_type = -1;
-static int hf_loratap_header_payload_type = -1;
-static int hf_loratap_header_source_gw_type = -1;
-static int hf_loratap_header_timestamp_type = -1;
-static int hf_loratap_header_datarate_type = -1;
-static int hf_loratap_header_if_channel_type = -1;
-static int hf_loratap_header_rf_chain_type = -1;
-static int hf_loratap_header_cr_type = -1;
-static int hf_loratap_header_flags_type = -1;
-static int hf_loratap_header_flags_mod_fsk_type = -1;
-static int hf_loratap_header_flags_iq_inverted_type = -1;
-static int hf_loratap_header_flags_implicit_hdr_type = -1;
-static int hf_loratap_header_flags_crc_type = -1;
-static int hf_loratap_header_flags_padding_type = -1;
+static int proto_loratap;
+static int hf_loratap_header_version_type;
+static int hf_loratap_header_length_type;
+static int hf_loratap_header_padding;
+static int hf_loratap_header_channel_type;
+static int hf_loratap_header_channel_frequency_type;
+static int hf_loratap_header_channel_bandwidth_type;
+static int hf_loratap_header_channel_sf_type;
+static int hf_loratap_header_rssi_type;
+static int hf_loratap_header_rssi_packet_type;
+static int hf_loratap_header_rssi_max_type;
+static int hf_loratap_header_rssi_current_type;
+static int hf_loratap_header_rssi_snr_type;
+static int hf_loratap_header_syncword_type;
+static int hf_loratap_header_tag_type;
+static int hf_loratap_header_payload_type;
+static int hf_loratap_header_source_gw_type;
+static int hf_loratap_header_timestamp_type;
+static int hf_loratap_header_datarate_type;
+static int hf_loratap_header_if_channel_type;
+static int hf_loratap_header_rf_chain_type;
+static int hf_loratap_header_cr_type;
+static int hf_loratap_header_flags_type;
+static int hf_loratap_header_flags_mod_fsk_type;
+static int hf_loratap_header_flags_iq_inverted_type;
+static int hf_loratap_header_flags_implicit_hdr_type;
+static int hf_loratap_header_flags_crc_type;
+static int hf_loratap_header_flags_padding_type;
 
 static int * const hfx_loratap_header_flags[] = {
 	&hf_loratap_header_flags_mod_fsk_type,
@@ -66,10 +66,10 @@ static int * const hfx_loratap_header_flags[] = {
 	NULL
 };
 
-static gint ett_loratap = -1;
-static gint ett_loratap_flags = -1;
-static gint ett_loratap_channel = -1;
-static gint ett_loratap_rssi = -1;
+static gint ett_loratap;
+static gint ett_loratap_flags;
+static gint ett_loratap_channel;
+static gint ett_loratap_rssi;
 
 static const value_string channel_bandwidth[] = {
 	{ 1, "125 kHz" },

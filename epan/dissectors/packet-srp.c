@@ -19,22 +19,22 @@ void proto_register_ccsrl(void);
 void proto_reg_handoff_srp(void);
 
 /* Wireshark ID of the protocols */
-static int proto_srp = -1;
-static int proto_ccsrl = -1;
+static int proto_srp;
+static int proto_ccsrl;
 
 /* The following hf_* variables are used to hold the Wireshark IDs of
  * our header fields; they are filled out when we call
  * proto_register_field_array() in proto_register_srp()
  */
-static int hf_srp_header = -1;
-static int hf_srp_seqno = -1;
-static int hf_srp_crc = -1;
-static int hf_srp_crc_bad = -1;
-static int hf_ccsrl_ls = -1;
+static int hf_srp_header;
+static int hf_srp_seqno;
+static int hf_srp_crc;
+static int hf_srp_crc_bad;
+static int hf_ccsrl_ls;
 
 /* These are the ids of the subtrees that we may be creating */
-static gint ett_srp = -1;
-static gint ett_ccsrl = -1;
+static gint ett_srp;
+static gint ett_ccsrl;
 
 static dissector_handle_t ccsrl_handle;
 static dissector_handle_t h245dg_handle;

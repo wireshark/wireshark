@@ -56,21 +56,21 @@
 void proto_register_rtacser(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_rtacser                    = -1;
-static int hf_rtacser_timestamp             = -1;
-static int hf_rtacser_event_type            = -1;
-static int hf_rtacser_ctrl_cts              = -1;
-static int hf_rtacser_ctrl_dcd              = -1;
-static int hf_rtacser_ctrl_dsr              = -1;
-static int hf_rtacser_ctrl_rts              = -1;
-static int hf_rtacser_ctrl_dtr              = -1;
-static int hf_rtacser_ctrl_ring             = -1;
-static int hf_rtacser_ctrl_mbok             = -1;
-static int hf_rtacser_footer                = -1;
+static int proto_rtacser;
+static int hf_rtacser_timestamp;
+static int hf_rtacser_event_type;
+static int hf_rtacser_ctrl_cts;
+static int hf_rtacser_ctrl_dcd;
+static int hf_rtacser_ctrl_dsr;
+static int hf_rtacser_ctrl_rts;
+static int hf_rtacser_ctrl_dtr;
+static int hf_rtacser_ctrl_ring;
+static int hf_rtacser_ctrl_mbok;
+static int hf_rtacser_footer;
 
 /* Initialize the subtree pointers */
-static gint ett_rtacser                   = -1;
-static gint ett_rtacser_cl                = -1;
+static gint ett_rtacser;
+static gint ett_rtacser_cl;
 
 static dissector_handle_t rtacser_handle;
 static dissector_table_t  subdissector_table;

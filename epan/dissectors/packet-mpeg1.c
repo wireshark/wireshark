@@ -30,28 +30,28 @@ static dissector_handle_t mpeg1_handle;
 
 /* MPEG1 header fields             */
 
-static int proto_mpg          = -1;
+static int proto_mpg;
 
-static int hf_rtp_mpg_mbz     = -1;
-static int hf_rtp_mpg_T       = -1;
-static int hf_rtp_mpg_tr      = -1;
-static int hf_rtp_mpg_an      = -1;
-static int hf_rtp_mpg_n       = -1;
-static int hf_rtp_mpg_s       = -1;
-static int hf_rtp_mpg_b       = -1;
-static int hf_rtp_mpg_e       = -1;
-static int hf_rtp_mpg_p       = -1;
+static int hf_rtp_mpg_mbz;
+static int hf_rtp_mpg_T;
+static int hf_rtp_mpg_tr;
+static int hf_rtp_mpg_an;
+static int hf_rtp_mpg_n;
+static int hf_rtp_mpg_s;
+static int hf_rtp_mpg_b;
+static int hf_rtp_mpg_e;
+static int hf_rtp_mpg_p;
 
 
-static int hf_rtp_mpg_fbv     = -1;
-static int hf_rtp_mpg_bfc     = -1;
-static int hf_rtp_mpg_ffv     = -1;
-static int hf_rtp_mpg_ffc     = -1;
-static int hf_rtp_mpg_data    = -1;
+static int hf_rtp_mpg_fbv;
+static int hf_rtp_mpg_bfc;
+static int hf_rtp_mpg_ffv;
+static int hf_rtp_mpg_ffc;
+static int hf_rtp_mpg_data;
 
 
 /* MPEG-1 fields defining a sub tree */
-static gint ett_mpg           = -1;
+static gint ett_mpg;
 
 static const value_string rtp_mpg_picture_types_vals[] =
 {

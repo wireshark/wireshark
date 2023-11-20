@@ -33,21 +33,21 @@ static dissector_handle_t tfp_handle;
 static dissector_handle_t sub_handles[SUB_MAX];
 
 /* initialize the protocol and registered fields */
-static int proto_abis_tfp = -1;
+static int proto_abis_tfp;
 
 /* TFP header */
-static int hf_tfp_hdr_atsr = -1;
-static int hf_tfp_hdr_slot_rate = -1;
-static int hf_tfp_hdr_seq_nr = -1;
-static int hf_tfp_hdr_delay_info = -1;
-static int hf_tfp_hdr_p = -1;
-static int hf_tfp_hdr_s = -1;
-static int hf_tfp_hdr_m = -1;
-static int hf_tfp_hdr_frame_type = -1;
-static int hf_tfp_amr_rate = -1;
+static int hf_tfp_hdr_atsr;
+static int hf_tfp_hdr_slot_rate;
+static int hf_tfp_hdr_seq_nr;
+static int hf_tfp_hdr_delay_info;
+static int hf_tfp_hdr_p;
+static int hf_tfp_hdr_s;
+static int hf_tfp_hdr_m;
+static int hf_tfp_hdr_frame_type;
+static int hf_tfp_amr_rate;
 
 /* initialize the subtree pointers */
-static int ett_tfp = -1;
+static int ett_tfp;
 
 static const value_string tfp_slot_rate_vals[] = {
 	{ 0,	"Full Rate (16kbps)" },

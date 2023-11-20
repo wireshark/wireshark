@@ -30,26 +30,26 @@ static tap_struct_uaudp ua_tap_info;
 static int uasip_tap                = -1;
 #endif
 
-static int proto_uasip              = -1;
-static int hf_uasip_opcode          = -1;
-static int hf_uasip_version         = -1;
-static int hf_uasip_window_size     = -1;
-static int hf_uasip_mtu             = -1;
-static int hf_uasip_udp_lost        = -1;
-static int hf_uasip_udp_lost_reinit = -1;
-static int hf_uasip_keepalive       = -1;
-static int hf_uasip_qos_ip_tos      = -1;
-static int hf_uasip_qos_8021_vlid   = -1;
-static int hf_uasip_qos_8021_pri    = -1;
-static int hf_uasip_expseq          = -1;
-static int hf_uasip_sntseq          = -1;
-static int hf_uasip_type            = -1;
-static int hf_uasip_length          = -1;
+static int proto_uasip;
+static int hf_uasip_opcode;
+static int hf_uasip_version;
+static int hf_uasip_window_size;
+static int hf_uasip_mtu;
+static int hf_uasip_udp_lost;
+static int hf_uasip_udp_lost_reinit;
+static int hf_uasip_keepalive;
+static int hf_uasip_qos_ip_tos;
+static int hf_uasip_qos_8021_vlid;
+static int hf_uasip_qos_8021_pri;
+static int hf_uasip_expseq;
+static int hf_uasip_sntseq;
+static int hf_uasip_type;
+static int hf_uasip_length;
 
-static gint ett_uasip               = -1;
-static gint ett_uasip_tlv           = -1;
+static gint ett_uasip;
+static gint ett_uasip_tlv;
 
-static expert_field ei_uasip_tlv_length = EI_INIT;
+static expert_field ei_uasip_tlv_length;
 
 static guint8      proxy_ipaddr[4];
 static const char *pref_proxy_ipaddr_s = NULL;

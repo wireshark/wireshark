@@ -162,15 +162,15 @@ const value_string Link16_NPG_Strings[] = {
     { 0, NULL },
 };
 
-static int proto_link16 = -1;
+static int proto_link16;
 
-static gint hf_link16_wordformat = -1;
-static gint hf_link16_label = -1;
-static gint hf_link16_sublabel = -1;
-static gint hf_link16_mli = -1;
-static gint hf_link16_contlabel = -1;
+static gint hf_link16_wordformat;
+static gint hf_link16_label;
+static gint hf_link16_sublabel;
+static gint hf_link16_mli;
+static gint hf_link16_contlabel;
 
-static gint ett_link16 = -1;
+static gint ett_link16;
 
 static int * const link16_initial_word_fields[] = {
     &hf_link16_wordformat,

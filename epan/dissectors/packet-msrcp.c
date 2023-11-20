@@ -55,25 +55,25 @@ typedef struct _msrcp_transaction_t {
     gboolean matched;
 } msrcp_transaction_t;
 
-static int proto_msrcp = -1;
-static int hf_msrcp_id = -1;
-static int hf_msrcp_type = -1;
-static int hf_msrcp_vers = -1;
-static int hf_msrcp_reserved = -1;
-static int hf_msrcp_next_header = -1;
-static int hf_msrcp_len = -1;
-static int hf_msrcp_seq = -1;
-static int hf_msrcp_response_in = -1;
-static int hf_msrcp_response_to = -1;
-static int hf_msrcp_ext_header = -1;
-static int hf_msrcp_ext_next_header = -1;
-static int hf_msrcp_ext_len = -1;
-static int hf_msrcp_ext_res = -1;
+static int proto_msrcp;
+static int hf_msrcp_id;
+static int hf_msrcp_type;
+static int hf_msrcp_vers;
+static int hf_msrcp_reserved;
+static int hf_msrcp_next_header;
+static int hf_msrcp_len;
+static int hf_msrcp_seq;
+static int hf_msrcp_response_in;
+static int hf_msrcp_response_to;
+static int hf_msrcp_ext_header;
+static int hf_msrcp_ext_next_header;
+static int hf_msrcp_ext_len;
+static int hf_msrcp_ext_res;
 
-static gint ett_msrcp = -1;
-static gint ett_msrcp_nxt = -1;
+static gint ett_msrcp;
+static gint ett_msrcp_nxt;
 
-static expert_field ei_msrcp_no_resp = EI_INIT;
+static expert_field ei_msrcp_no_resp;
 
 // Handles for subparsing
 static dissector_handle_t eth_handle;

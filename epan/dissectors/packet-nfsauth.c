@@ -17,10 +17,10 @@
 void proto_register_nfsauth(void);
 void proto_reg_handoff_nfsauth(void);
 
-static int proto_nfsauth = -1;
-static int hf_nfsauth_procedure_v1 = -1;
+static int proto_nfsauth;
+static int hf_nfsauth_procedure_v1;
 
-static gint ett_nfsauth = -1;
+static gint ett_nfsauth;
 
 #define NFSAUTH_PROGRAM	100231
 

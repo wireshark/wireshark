@@ -35,26 +35,26 @@ void proto_reg_handoff_dtp(void);
 
 static dissector_handle_t dtp_handle;
 
-static int proto_dtp = -1;
-static int hf_dtp_version = -1;
-static int hf_dtp_domain = -1;
-static int hf_dtp_tlvtype = -1;
-static int hf_dtp_tlvlength = -1;
-static int hf_dtp_senderid = -1;
-static int hf_dtp_tot = -1;
-static int hf_dtp_tat = -1;
-static int hf_dtp_tos = -1;
-static int hf_dtp_tas = -1;
-static int hf_dtp_data = -1;
+static int proto_dtp;
+static int hf_dtp_version;
+static int hf_dtp_domain;
+static int hf_dtp_tlvtype;
+static int hf_dtp_tlvlength;
+static int hf_dtp_senderid;
+static int hf_dtp_tot;
+static int hf_dtp_tat;
+static int hf_dtp_tos;
+static int hf_dtp_tas;
+static int hf_dtp_data;
 
-static gint ett_dtp = -1;
-static gint ett_dtp_tlv = -1;
-static gint ett_dtp_status = -1;
-static gint ett_dtp_type = -1;
+static gint ett_dtp;
+static gint ett_dtp_tlv;
+static gint ett_dtp_status;
+static gint ett_dtp_type;
 
-static expert_field ei_dtp_tlv_length_too_short = EI_INIT;
-static expert_field ei_dtp_tlv_length_invalid = EI_INIT;
-static expert_field ei_dtp_truncated = EI_INIT;
+static expert_field ei_dtp_tlv_length_too_short;
+static expert_field ei_dtp_tlv_length_invalid;
+static expert_field ei_dtp_truncated;
 
 static void
 dissect_dtp_tlv(packet_info *pinfo, tvbuff_t *tvb, int offset, int length,

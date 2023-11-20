@@ -32,19 +32,19 @@ static const value_string prp_lan_vals[] = {
 
 void proto_register_prp(void);
 
-static int proto_prp = -1;
+static int proto_prp;
 
 
 /* Initialize trailer fields */
-static int hf_prp_redundancy_control_trailer_sequence_nr = -1;
-static int hf_prp_redundancy_control_trailer_lan = -1;
-static int hf_prp_redundancy_control_trailer_size = -1;
-static int hf_prp_redundancy_control_trailer_suffix = -1;
-static int hf_prp_redundancy_control_trailer_version = -1;
+static int hf_prp_redundancy_control_trailer_sequence_nr;
+static int hf_prp_redundancy_control_trailer_lan;
+static int hf_prp_redundancy_control_trailer_size;
+static int hf_prp_redundancy_control_trailer_suffix;
+static int hf_prp_redundancy_control_trailer_version;
 
 
 /* Initialize the subtree pointers */
-static gint ett_prp_redundancy_control_trailer = -1;
+static gint ett_prp_redundancy_control_trailer;
 
 
 /* Code to actually dissect the packets */

@@ -22,29 +22,29 @@ void proto_reg_handoff_etv(void);
 static dissector_handle_t etv_dii_handle;
 static dissector_handle_t etv_ddb_handle;
 
-static int proto_etv_dii = -1;
-static int proto_etv_ddb = -1;
+static int proto_etv_dii;
+static int proto_etv_ddb;
 
 static dissector_handle_t dsmcc_handle;
 
-static int hf_etv_dii_filter_info = -1;
-static int hf_etv_dii_reserved = -1;
+static int hf_etv_dii_filter_info;
+static int hf_etv_dii_reserved;
 
-static expert_field ei_etv_dii_invalid_section_syntax_indicator = EI_INIT;
-static expert_field ei_etv_dii_invalid_section_length = EI_INIT;
-static expert_field ei_etv_dii_invalid_reserved_bits = EI_INIT;
-static expert_field ei_etv_dii_filter_info = EI_INIT;
+static expert_field ei_etv_dii_invalid_section_syntax_indicator;
+static expert_field ei_etv_dii_invalid_section_length;
+static expert_field ei_etv_dii_invalid_reserved_bits;
+static expert_field ei_etv_dii_filter_info;
 
-static int hf_etv_ddb_filter_info = -1;
-static int hf_etv_ddb_reserved = -1;
+static int hf_etv_ddb_filter_info;
+static int hf_etv_ddb_reserved;
 
-static expert_field ei_etv_ddb_invalid_section_syntax_indicator = EI_INIT;
-static expert_field ei_etv_ddb_invalid_section_length = EI_INIT;
-static expert_field ei_etv_ddb_invalid_reserved_bits = EI_INIT;
-static expert_field ei_etv_ddb_filter_info = EI_INIT;
+static expert_field ei_etv_ddb_invalid_section_syntax_indicator;
+static expert_field ei_etv_ddb_invalid_section_length;
+static expert_field ei_etv_ddb_invalid_reserved_bits;
+static expert_field ei_etv_ddb_filter_info;
 
-static gint ett_etv = -1;
-static gint ett_etv_payload = -1;
+static gint ett_etv;
+static gint ett_etv_payload;
 
 static void
 dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int proto,

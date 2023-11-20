@@ -28,24 +28,24 @@ void proto_reg_handoff_lanforge(void);
 #define LANFORGE_MAGIC 0x1a2b3c4d
 
 /* Initialize the protocol and registered fields */
-static int proto_lanforge = -1;
+static int proto_lanforge;
 
 /* lanforge header */
-static int hf_lanforge_crc = -1;
-static int hf_lanforge_magic = -1;
-static int hf_lanforge_src_session = -1;
-static int hf_lanforge_dst_session = -1;
-static int hf_lanforge_pld_len_l = -1;
-static int hf_lanforge_pld_len_h = -1;
-static int hf_lanforge_pld_len = -1;
-static int hf_lanforge_pld_pattern = -1;
-static int hf_lanforge_seq = -1;
-static int hf_lanforge_tx_time_s = -1;
-static int hf_lanforge_tx_time_ns = -1;
-static int hf_lanforge_timestamp = -1;
+static int hf_lanforge_crc;
+static int hf_lanforge_magic;
+static int hf_lanforge_src_session;
+static int hf_lanforge_dst_session;
+static int hf_lanforge_pld_len_l;
+static int hf_lanforge_pld_len_h;
+static int hf_lanforge_pld_len;
+static int hf_lanforge_pld_pattern;
+static int hf_lanforge_seq;
+static int hf_lanforge_tx_time_s;
+static int hf_lanforge_tx_time_ns;
+static int hf_lanforge_timestamp;
 
 /* Initialize the subtree pointer */
-static gint ett_lanforge = -1;
+static gint ett_lanforge;
 
 /* entry point */
 static gboolean dissect_lanforge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)

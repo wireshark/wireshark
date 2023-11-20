@@ -212,13 +212,13 @@ static void add_split_lines(packet_info *pinfo, tvbuff_t *tvb, int tvb_offset, p
  * Calibration Chunk: string
  */
 
-static int hf_calibration_sequence_number = -1;
-static int hf_calibration_first_sequence_number = -1;
-static int hf_calibration_last_sequence_number = -1;
-static int hf_calibration_name = -1;
-static int hf_calibration_name_line = -1;
-static int hf_calibration_chunk = -1;
-static int hf_calibration_chunk_line = -1;
+static int hf_calibration_sequence_number;
+static int hf_calibration_first_sequence_number;
+static int hf_calibration_last_sequence_number;
+static int hf_calibration_name;
+static int hf_calibration_name_line;
+static int hf_calibration_chunk;
+static int hf_calibration_chunk_line;
 
 static hf_register_info protocol_registration_calibration[] = {
     {&hf_calibration_sequence_number, {"Sequence Number", "locamation-im.calibration.sequence_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -229,15 +229,15 @@ static hf_register_info protocol_registration_calibration[] = {
     {&hf_calibration_chunk, {"Chunk", "locamation-im.calibration.chunk", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_calibration_chunk_line, {"Chunk Line", "locamation-im.calibration.chunk.line", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}}};
 
-static expert_field ei_calibration_header = EI_INIT;
+static expert_field ei_calibration_header;
 
 static ei_register_info ei_calibration[] = {
     {&ei_calibration_header, {"locamation-im.calibration.header", PI_SEQUENCE, PI_NOTE, "Header Packet", EXPFILL}}};
 
 static int h_protocol_calibration = -1;
 
-static gint ett_protocol_calibration = -1;
-static gint ett_calibration_lines = -1;
+static gint ett_protocol_calibration;
+static gint ett_calibration_lines;
 
 static int dissect_calibration(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTOCOL_SHORTNAME_CALIBRATION);
@@ -311,8 +311,8 @@ static int dissect_calibration(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  * Content: string
  */
 
-static int hf_ident_contents = -1;
-static int hf_ident_contents_line = -1;
+static int hf_ident_contents;
+static int hf_ident_contents_line;
 
 static hf_register_info protocol_registration_ident[] = {
     {&hf_ident_contents, {"Contents", "locamation-im.ident.contents", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
@@ -320,8 +320,8 @@ static hf_register_info protocol_registration_ident[] = {
 
 static int h_protocol_ident = -1;
 
-static gint ett_protocol_ident = -1;
-static gint ett_ident_lines = -1;
+static gint ett_protocol_ident;
+static gint ett_ident_lines;
 
 static int dissect_ident(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTOCOL_SHORTNAME_IDENT);
@@ -349,14 +349,14 @@ static int dissect_ident(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
  * ########################################################################
  */
 
-static expert_field ei_samples_ranges_sample_1_invalid = EI_INIT;
-static expert_field ei_samples_ranges_sample_2_invalid = EI_INIT;
-static expert_field ei_samples_ranges_sample_3_invalid = EI_INIT;
-static expert_field ei_samples_ranges_sample_4_invalid = EI_INIT;
-static expert_field ei_samples_ranges_sample_5_invalid = EI_INIT;
-static expert_field ei_samples_ranges_sample_6_invalid = EI_INIT;
-static expert_field ei_samples_ranges_sample_7_invalid = EI_INIT;
-static expert_field ei_samples_ranges_sample_8_invalid = EI_INIT;
+static expert_field ei_samples_ranges_sample_1_invalid;
+static expert_field ei_samples_ranges_sample_2_invalid;
+static expert_field ei_samples_ranges_sample_3_invalid;
+static expert_field ei_samples_ranges_sample_4_invalid;
+static expert_field ei_samples_ranges_sample_5_invalid;
+static expert_field ei_samples_ranges_sample_6_invalid;
+static expert_field ei_samples_ranges_sample_7_invalid;
+static expert_field ei_samples_ranges_sample_8_invalid;
 
 static void check_ranges(tvbuff_t *tvb, packet_info *pinfo, gint tvb_offset, proto_item *item) {
 	guint16 ranges = tvb_get_guint16(tvb, tvb_offset, ENC_BIG_ENDIAN);
@@ -387,18 +387,18 @@ static void check_ranges(tvbuff_t *tvb, packet_info *pinfo, gint tvb_offset, pro
 	}
 }
 
-static gint ett_samples_sample_set_ranges = -1;
+static gint ett_samples_sample_set_ranges;
 
-static int hf_samples_sample_set_ranges = -1;
+static int hf_samples_sample_set_ranges;
 
-static int hf_samples_sample_set_ranges_sample_1 = -1;
-static int hf_samples_sample_set_ranges_sample_2 = -1;
-static int hf_samples_sample_set_ranges_sample_3 = -1;
-static int hf_samples_sample_set_ranges_sample_4 = -1;
-static int hf_samples_sample_set_ranges_sample_5 = -1;
-static int hf_samples_sample_set_ranges_sample_6 = -1;
-static int hf_samples_sample_set_ranges_sample_7 = -1;
-static int hf_samples_sample_set_ranges_sample_8 = -1;
+static int hf_samples_sample_set_ranges_sample_1;
+static int hf_samples_sample_set_ranges_sample_2;
+static int hf_samples_sample_set_ranges_sample_3;
+static int hf_samples_sample_set_ranges_sample_4;
+static int hf_samples_sample_set_ranges_sample_5;
+static int hf_samples_sample_set_ranges_sample_6;
+static int hf_samples_sample_set_ranges_sample_7;
+static int hf_samples_sample_set_ranges_sample_8;
 
 static int *const rangesBits[] = {
     &hf_samples_sample_set_ranges_sample_8,
@@ -411,14 +411,14 @@ static int *const rangesBits[] = {
     &hf_samples_sample_set_ranges_sample_1,
     NULL};
 
-static int hf_samples_sample_set_sample_1 = -1;
-static int hf_samples_sample_set_sample_2 = -1;
-static int hf_samples_sample_set_sample_3 = -1;
-static int hf_samples_sample_set_sample_4 = -1;
-static int hf_samples_sample_set_sample_5 = -1;
-static int hf_samples_sample_set_sample_6 = -1;
-static int hf_samples_sample_set_sample_7 = -1;
-static int hf_samples_sample_set_sample_8 = -1;
+static int hf_samples_sample_set_sample_1;
+static int hf_samples_sample_set_sample_2;
+static int hf_samples_sample_set_sample_3;
+static int hf_samples_sample_set_sample_4;
+static int hf_samples_sample_set_sample_5;
+static int hf_samples_sample_set_sample_6;
+static int hf_samples_sample_set_sample_7;
+static int hf_samples_sample_set_sample_8;
 
 static void add_sample_set(tvbuff_t *tvb, packet_info *pinfo, gint *tvb_offset, int hf, proto_tree *tree) {
 	gint item_size = SAMPLE_SET_SIZE;
@@ -468,17 +468,17 @@ static void add_rms_values(tvbuff_t *tvb, gint *tvb_offset, int *hfs, guint hfs_
 	}
 }
 
-static gint ett_samples_timestamps_sample = -1;
-static gint ett_samples_timestamps_sample_reserved = -1;
-static gint ett_samples_timestamps_sample_timestamp = -1;
+static gint ett_samples_timestamps_sample;
+static gint ett_samples_timestamps_sample_reserved;
+static gint ett_samples_timestamps_sample_timestamp;
 
-static int hf_samples_timestamps_sample_sync_status = -1;
-static int hf_samples_timestamps_sample_additional_status = -1;
-static int hf_samples_timestamps_sample_additional_status_holdover_state = -1;
-static int hf_samples_timestamps_sample_additional_status_master_clock_switch = -1;
-static int hf_samples_timestamps_sample_timestamp = -1;
-static int hf_samples_timestamps_sample_timestamp_seconds = -1;
-static int hf_samples_timestamps_sample_timestamp_nanoseconds = -1;
+static int hf_samples_timestamps_sample_sync_status;
+static int hf_samples_timestamps_sample_additional_status;
+static int hf_samples_timestamps_sample_additional_status_holdover_state;
+static int hf_samples_timestamps_sample_additional_status_master_clock_switch;
+static int hf_samples_timestamps_sample_timestamp;
+static int hf_samples_timestamps_sample_timestamp_seconds;
+static int hf_samples_timestamps_sample_timestamp_nanoseconds;
 
 static const value_string samples_timestamps_sample_sync_status[] = {
     {0, "None"},
@@ -491,7 +491,7 @@ static int *const timestamp_additional_status_bits[] = {
     &hf_samples_timestamps_sample_additional_status_master_clock_switch,
     NULL};
 
-static expert_field ei_samples_timestamp_sync_status_invalid = EI_INIT;
+static expert_field ei_samples_timestamp_sync_status_invalid;
 
 static void add_timestamp_sample(tvbuff_t *tvb, packet_info *pinfo, gint *tvb_offset_previous, gint *tvb_offset, int hf, proto_tree *tree) {
 	gint item_size = TIMESTAMP_SIZE;
@@ -748,30 +748,30 @@ static void add_timestamps_set(tvbuff_t *tvb, packet_info *pinfo, gint *tvb_offs
  *     Nanoseconds  4 bytes, unsigned
  */
 
-static gint ett_protocol_samples = -1;
-static gint ett_samples_control = -1;
-static gint ett_samples_sets = -1;
-static gint ett_samples_sets_set = -1;
-static gint ett_samples_rms = -1;
-static gint ett_samples_rms_values = -1;
-static gint ett_samples_timestamps = -1;
-static gint ett_samples_timestamps_set = -1;
+static gint ett_protocol_samples;
+static gint ett_samples_control;
+static gint ett_samples_sets;
+static gint ett_samples_sets_set;
+static gint ett_samples_rms;
+static gint ett_samples_rms_values;
+static gint ett_samples_timestamps;
+static gint ett_samples_timestamps_set;
 
-static expert_field ei_samples_im_version_invalid = EI_INIT;
+static expert_field ei_samples_im_version_invalid;
 
-static int hf_samples_transport_delay = -1;
-static int hf_samples_hop_count = -1;
-static int hf_samples_control = -1;
-static int hf_samples_control_type = -1;
-static int hf_samples_control_simulated = -1;
-static int hf_samples_control_version = -1;
-static int hf_samples_control_sequence_number = -1;
-static int hf_samples_temperature = -1;
-static int hf_samples_padding = -1;
-static int hf_samples_adc_status = -1;
-static int hf_samples_sample_set = -1;
-static int hf_samples_rms_values = -1;
-static int hf_samples_timestamps = -1;
+static int hf_samples_transport_delay;
+static int hf_samples_hop_count;
+static int hf_samples_control;
+static int hf_samples_control_type;
+static int hf_samples_control_simulated;
+static int hf_samples_control_version;
+static int hf_samples_control_sequence_number;
+static int hf_samples_temperature;
+static int hf_samples_padding;
+static int hf_samples_adc_status;
+static int hf_samples_sample_set;
+static int hf_samples_rms_values;
+static int hf_samples_timestamps;
 
 static int *const controlBits[] = {
     &hf_samples_control_type,
@@ -780,34 +780,34 @@ static int *const controlBits[] = {
     &hf_samples_control_sequence_number,
     NULL};
 
-static int hf_samples_sample_set_measurement_channel_1 = -1;
-static int hf_samples_sample_set_measurement_channel_2 = -1;
-static int hf_samples_sample_set_measurement_channel_3 = -1;
-static int hf_samples_sample_set_measurement_channel_n = -1;
-static int hf_samples_sample_set_protection_channel_1 = -1;
-static int hf_samples_sample_set_protection_channel_2 = -1;
-static int hf_samples_sample_set_protection_channel_3 = -1;
-static int hf_samples_sample_set_protection_channel_n = -1;
-static int hf_samples_sample_set_channel_unused = -1;
+static int hf_samples_sample_set_measurement_channel_1;
+static int hf_samples_sample_set_measurement_channel_2;
+static int hf_samples_sample_set_measurement_channel_3;
+static int hf_samples_sample_set_measurement_channel_n;
+static int hf_samples_sample_set_protection_channel_1;
+static int hf_samples_sample_set_protection_channel_2;
+static int hf_samples_sample_set_protection_channel_3;
+static int hf_samples_sample_set_protection_channel_n;
+static int hf_samples_sample_set_channel_unused;
 
-static int hf_samples_rms_values_measurement_channel_1 = -1;
-static int hf_samples_rms_values_measurement_channel_2 = -1;
-static int hf_samples_rms_values_measurement_channel_3 = -1;
-static int hf_samples_rms_values_protection_channel_1 = -1;
-static int hf_samples_rms_values_protection_channel_2 = -1;
-static int hf_samples_rms_values_protection_channel_3 = -1;
-static int hf_samples_rms_values_channel_unused = -1;
+static int hf_samples_rms_values_measurement_channel_1;
+static int hf_samples_rms_values_measurement_channel_2;
+static int hf_samples_rms_values_measurement_channel_3;
+static int hf_samples_rms_values_protection_channel_1;
+static int hf_samples_rms_values_protection_channel_2;
+static int hf_samples_rms_values_protection_channel_3;
+static int hf_samples_rms_values_channel_unused;
 
-static int hf_samples_timestamps_version = -1;
-static int hf_samples_timestamps_reserved = -1;
-static int hf_samples_timestamps_sample_1 = -1;
-static int hf_samples_timestamps_sample_2 = -1;
-static int hf_samples_timestamps_sample_3 = -1;
-static int hf_samples_timestamps_sample_4 = -1;
-static int hf_samples_timestamps_sample_5 = -1;
-static int hf_samples_timestamps_sample_6 = -1;
-static int hf_samples_timestamps_sample_7 = -1;
-static int hf_samples_timestamps_sample_8 = -1;
+static int hf_samples_timestamps_version;
+static int hf_samples_timestamps_reserved;
+static int hf_samples_timestamps_sample_1;
+static int hf_samples_timestamps_sample_2;
+static int hf_samples_timestamps_sample_3;
+static int hf_samples_timestamps_sample_4;
+static int hf_samples_timestamps_sample_5;
+static int hf_samples_timestamps_sample_6;
+static int hf_samples_timestamps_sample_7;
+static int hf_samples_timestamps_sample_8;
 
 static int dissect_samples_im(gboolean im1, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_, int h_protocol_samples) {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, im1 ? PROTOCOL_SHORTNAME_SAMPLES_IM1 : PROTOCOL_SHORTNAME_SAMPLES_IM2R0);
@@ -1184,7 +1184,7 @@ static int dissect_samples_im2r0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
  * ########################################################################
  */
 
-static int hf_llc_company_pid = -1;
+static int hf_llc_company_pid;
 
 static hf_register_info llc_registration[] = {
     {&hf_llc_company_pid, {"PID", "locamation-im.llc.pid", FT_UINT16, BASE_HEX, VALS(company_pid_vals), 0x0, "Protocol ID", HFILL}}};

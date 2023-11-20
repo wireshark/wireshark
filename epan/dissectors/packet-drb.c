@@ -17,12 +17,12 @@
 
 static dissector_handle_t drb_handle;
 
-static int proto_drb = -1;
+static int proto_drb;
 
-static int hf_drb_len = -1;
+static int hf_drb_len;
 
-static gint ett_drb = -1;
-static gint ett_ref = -1;
+static gint ett_drb;
+static gint ett_ref;
 
 void proto_register_drb(void);
 void proto_reg_handoff_drb(void);

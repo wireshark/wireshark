@@ -23,16 +23,16 @@ static dissector_handle_t gift_handle;
 
 #define TCP_PORT_GIFT 1213 /* Not IANA registered */
 
-static int proto_gift = -1;
-static int hf_gift_response = -1;
-static int hf_gift_request = -1;
-static int hf_gift_response_cmd = -1;
-static int hf_gift_response_arg = -1;
-static int hf_gift_request_cmd = -1;
-static int hf_gift_request_arg = -1;
+static int proto_gift;
+static int hf_gift_response;
+static int hf_gift_request;
+static int hf_gift_response_cmd;
+static int hf_gift_response_arg;
+static int hf_gift_request_cmd;
+static int hf_gift_request_arg;
 
-static gint ett_gift = -1;
-static gint ett_gift_cmd = -1;
+static gint ett_gift;
+static gint ett_gift_cmd;
 
 static int
 dissect_gift(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

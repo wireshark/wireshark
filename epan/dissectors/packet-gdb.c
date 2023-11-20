@@ -45,15 +45,15 @@ void proto_reg_handoff_gdb(void);
 
 static dissector_handle_t gdb_handle;
 
-static int proto_gdb = -1;
+static int proto_gdb;
 
-static gint ett_gdb = -1;
+static gint ett_gdb;
 
-static int hf_gdb_ack = -1;
-static int hf_gdb_start = -1;
-static int hf_gdb_payload = -1;
-static int hf_gdb_end = -1;
-static int hf_gdb_chksum = -1;
+static int hf_gdb_ack;
+static int hf_gdb_start;
+static int hf_gdb_payload;
+static int hf_gdb_end;
+static int hf_gdb_chksum;
 
 static tvbparse_wanted_t *want;
 

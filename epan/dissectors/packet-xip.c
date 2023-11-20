@@ -33,28 +33,28 @@ void proto_reg_handoff_xip(void);
 /* Next dissector handles. */
 static dissector_handle_t xip_serval_handle;
 
-static gint proto_xip			= -1;
+static gint proto_xip;
 
-static gint hf_xip_version		= -1;
-static gint hf_xip_next_hdr		= -1;
-static gint hf_xip_payload_len		= -1;
-static gint hf_xip_hop_limit		= -1;
-static gint hf_xip_num_dst		= -1;
-static gint hf_xip_num_src		= -1;
-static gint hf_xip_last_node		= -1;
-static gint hf_xip_dst_dag		= -1;
-static gint hf_xip_dst_dag_entry	= -1;
-static gint hf_xip_src_dag		= -1;
-static gint hf_xip_src_dag_entry	= -1;
+static gint hf_xip_version;
+static gint hf_xip_next_hdr;
+static gint hf_xip_payload_len;
+static gint hf_xip_hop_limit;
+static gint hf_xip_num_dst;
+static gint hf_xip_num_src;
+static gint hf_xip_last_node;
+static gint hf_xip_dst_dag;
+static gint hf_xip_dst_dag_entry;
+static gint hf_xip_src_dag;
+static gint hf_xip_src_dag_entry;
 
-static gint ett_xip_tree		= -1;
-static gint ett_xip_ddag		= -1;
-static gint ett_xip_sdag		= -1;
+static gint ett_xip_tree;
+static gint ett_xip_ddag;
+static gint ett_xip_sdag;
 
-static expert_field ei_xip_invalid_len = EI_INIT;
-static expert_field ei_xip_next_header = EI_INIT;
-static expert_field ei_xip_bad_num_dst = EI_INIT;
-static expert_field ei_xip_bad_num_src = EI_INIT;
+static expert_field ei_xip_invalid_len;
+static expert_field ei_xip_next_header;
+static expert_field ei_xip_bad_num_dst;
+static expert_field ei_xip_bad_num_src;
 
 static dissector_handle_t xip_handle;
 

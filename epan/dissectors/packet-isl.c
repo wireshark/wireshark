@@ -33,33 +33,33 @@ void proto_reg_handoff_isl(void);
  *
  * for information on ISL.
  */
-static int proto_isl = -1;
-static int hf_isl_dst = -1;
-static int hf_isl_type = -1;
-static int hf_isl_user_eth = -1;
-static int hf_isl_user = -1;
-static int hf_isl_src = -1;
-static int hf_isl_addr = -1;
-static int hf_isl_len = -1;
-static int hf_isl_hsa = -1;
-static int hf_isl_dsap = -1;
-static int hf_isl_ssap = -1;
-static int hf_isl_control = -1;
-static int hf_isl_vlan_id = -1;
-static int hf_isl_bpdu = -1;
-static int hf_isl_index = -1;
-static int hf_isl_reserved = -1;
-/* static int hf_isl_crc = -1; */
-static int hf_isl_src_vlan_id = -1;
-static int hf_isl_explorer = -1;
-static int hf_isl_dst_route_descriptor = -1;
-static int hf_isl_src_route_descriptor = -1;
-static int hf_isl_fcs_not_incl = -1;
-static int hf_isl_esize = -1;
-static int hf_isl_trailer = -1;
+static int proto_isl;
+static int hf_isl_dst;
+static int hf_isl_type;
+static int hf_isl_user_eth;
+static int hf_isl_user;
+static int hf_isl_src;
+static int hf_isl_addr;
+static int hf_isl_len;
+static int hf_isl_hsa;
+static int hf_isl_dsap;
+static int hf_isl_ssap;
+static int hf_isl_control;
+static int hf_isl_vlan_id;
+static int hf_isl_bpdu;
+static int hf_isl_index;
+static int hf_isl_reserved;
+/* static int hf_isl_crc; */
+static int hf_isl_src_vlan_id;
+static int hf_isl_explorer;
+static int hf_isl_dst_route_descriptor;
+static int hf_isl_src_route_descriptor;
+static int hf_isl_fcs_not_incl;
+static int hf_isl_esize;
+static int hf_isl_trailer;
 
-static gint ett_isl = -1;
-static gint ett_isl_dst = -1;
+static gint ett_isl;
+static gint ett_isl_dst;
 
 #define ISL_HEADER_SIZE 26
 

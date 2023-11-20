@@ -34,93 +34,93 @@ void proto_reg_handoff_cotp(void);
 
 static int  proto_clnp;
 
-static int  proto_cotp         = -1;
-static gint ett_cotp           = -1;
-static gint ett_cotp_segments  = -1;
-static gint ett_cotp_segment   = -1;
+static int  proto_cotp;
+static gint ett_cotp;
+static gint ett_cotp_segments;
+static gint ett_cotp_segment;
 
-static int hf_cotp_li          = -1;
-static int hf_cotp_type        = -1;
-static int hf_cotp_srcref      = -1;
-static int hf_cotp_destref     = -1;
-static int hf_cotp_class       = -1;
-static int hf_cotp_opts_extended_formats = -1;
-static int hf_cotp_opts_no_explicit_flow_control = -1;
-static int hf_cotp_tpdu_number = -1;
-static int hf_cotp_tpdu_number_extended = -1;
-static int hf_cotp_next_tpdu_number = -1;
-static int hf_cotp_next_tpdu_number_extended = -1;
-static int hf_cotp_eot          = -1;
-static int hf_cotp_eot_extended = -1;
+static int hf_cotp_li;
+static int hf_cotp_type;
+static int hf_cotp_srcref;
+static int hf_cotp_destref;
+static int hf_cotp_class;
+static int hf_cotp_opts_extended_formats;
+static int hf_cotp_opts_no_explicit_flow_control;
+static int hf_cotp_tpdu_number;
+static int hf_cotp_tpdu_number_extended;
+static int hf_cotp_next_tpdu_number;
+static int hf_cotp_next_tpdu_number_extended;
+static int hf_cotp_eot;
+static int hf_cotp_eot_extended;
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_cotp_parameter_code = -1;
-static int hf_cotp_parameter_length = -1;
-static int hf_cotp_parameter_value = -1;
-static int hf_cotp_atn_extended_checksum16 = -1;
-static int hf_cotp_atn_extended_checksum32 = -1;
-static int hf_cotp_atn_extended_checksum_status = -1;
-static int hf_cotp_ack_time = -1;
-static int hf_cotp_res_error_rate_target_value = -1;
-static int hf_cotp_res_error_rate_min_accept = -1;
-static int hf_cotp_res_error_rate_tdsu = -1;
-static int hf_cotp_vp_priority = -1;
-static int hf_cotp_transit_delay_targ_calling_called = -1;
-static int hf_cotp_transit_delay_max_accept_calling_called = -1;
-static int hf_cotp_transit_delay_targ_called_calling = -1;
-static int hf_cotp_transit_delay_max_accept_called_calling = -1;
-static int hf_cotp_max_throughput_targ_calling_called = -1;
-static int hf_cotp_max_throughput_min_accept_calling_called = -1;
-static int hf_cotp_max_throughput_targ_called_calling = -1;
-static int hf_cotp_max_throughput_min_accept_called_calling = -1;
-static int hf_cotp_avg_throughput_targ_calling_called = -1;
-static int hf_cotp_avg_throughput_min_accept_calling_called = -1;
-static int hf_cotp_avg_throughput_targ_called_calling = -1;
-static int hf_cotp_avg_throughput_min_accept_called_calling = -1;
-static int hf_cotp_sequence_number = -1;
-static int hf_cotp_reassignment_time = -1;
-static int hf_cotp_lower_window_edge = -1;
-static int hf_cotp_credit = -1;
-static int hf_cotp_tpdu_size = -1;
-static int hf_cotp_checksum = -1;
-static int hf_cotp_checksum_status = -1;
-static int hf_cotp_vp_version_nr = -1;
-static int hf_cotp_network_expedited_data = -1;
-static int hf_cotp_vp_opt_sel_class1_use = -1;
-static int hf_cotp_use_16_bit_checksum = -1;
-static int hf_cotp_transport_expedited_data_transfer = -1;
-static int hf_cotp_preferred_maximum_tpdu_size = -1;
-static int hf_cotp_inactivity_timer = -1;
-static int hf_cotp_cause = -1;
-static int hf_cotp_segment_data = -1;
-static int hf_cotp_credit_cdt = -1;
-static int hf_cotp_reject_cause = -1;
+static int hf_cotp_parameter_code;
+static int hf_cotp_parameter_length;
+static int hf_cotp_parameter_value;
+static int hf_cotp_atn_extended_checksum16;
+static int hf_cotp_atn_extended_checksum32;
+static int hf_cotp_atn_extended_checksum_status;
+static int hf_cotp_ack_time;
+static int hf_cotp_res_error_rate_target_value;
+static int hf_cotp_res_error_rate_min_accept;
+static int hf_cotp_res_error_rate_tdsu;
+static int hf_cotp_vp_priority;
+static int hf_cotp_transit_delay_targ_calling_called;
+static int hf_cotp_transit_delay_max_accept_calling_called;
+static int hf_cotp_transit_delay_targ_called_calling;
+static int hf_cotp_transit_delay_max_accept_called_calling;
+static int hf_cotp_max_throughput_targ_calling_called;
+static int hf_cotp_max_throughput_min_accept_calling_called;
+static int hf_cotp_max_throughput_targ_called_calling;
+static int hf_cotp_max_throughput_min_accept_called_calling;
+static int hf_cotp_avg_throughput_targ_calling_called;
+static int hf_cotp_avg_throughput_min_accept_calling_called;
+static int hf_cotp_avg_throughput_targ_called_calling;
+static int hf_cotp_avg_throughput_min_accept_called_calling;
+static int hf_cotp_sequence_number;
+static int hf_cotp_reassignment_time;
+static int hf_cotp_lower_window_edge;
+static int hf_cotp_credit;
+static int hf_cotp_tpdu_size;
+static int hf_cotp_checksum;
+static int hf_cotp_checksum_status;
+static int hf_cotp_vp_version_nr;
+static int hf_cotp_network_expedited_data;
+static int hf_cotp_vp_opt_sel_class1_use;
+static int hf_cotp_use_16_bit_checksum;
+static int hf_cotp_transport_expedited_data_transfer;
+static int hf_cotp_preferred_maximum_tpdu_size;
+static int hf_cotp_inactivity_timer;
+static int hf_cotp_cause;
+static int hf_cotp_segment_data;
+static int hf_cotp_credit_cdt;
+static int hf_cotp_reject_cause;
 
-static int hf_cotp_segments    = -1;
-static int hf_cotp_segment     = -1;
-static int hf_cotp_segment_overlap = -1;
-static int hf_cotp_segment_overlap_conflict = -1;
-static int hf_cotp_segment_multiple_tails = -1;
-static int hf_cotp_segment_too_long_segment = -1;
-static int hf_cotp_segment_error = -1;
-static int hf_cotp_segment_count = -1;
-static int hf_cotp_reassembled_in = -1;
-static int hf_cotp_reassembled_length = -1;
+static int hf_cotp_segments;
+static int hf_cotp_segment;
+static int hf_cotp_segment_overlap;
+static int hf_cotp_segment_overlap_conflict;
+static int hf_cotp_segment_multiple_tails;
+static int hf_cotp_segment_too_long_segment;
+static int hf_cotp_segment_error;
+static int hf_cotp_segment_count;
+static int hf_cotp_reassembled_in;
+static int hf_cotp_reassembled_length;
 
-static expert_field ei_cotp_disconnect_confirm = EI_INIT;
-static expert_field ei_cotp_multiple_tpdus = EI_INIT;
-static expert_field ei_cotp_reject = EI_INIT;
-static expert_field ei_cotp_connection = EI_INIT;
-static expert_field ei_cotp_disconnect_request = EI_INIT;
-static expert_field ei_cotp_preferred_maximum_tpdu_size = EI_INIT;
-static expert_field ei_cotp_atn_extended_checksum = EI_INIT;
-static expert_field ei_cotp_checksum = EI_INIT;
+static expert_field ei_cotp_disconnect_confirm;
+static expert_field ei_cotp_multiple_tpdus;
+static expert_field ei_cotp_reject;
+static expert_field ei_cotp_connection;
+static expert_field ei_cotp_disconnect_request;
+static expert_field ei_cotp_preferred_maximum_tpdu_size;
+static expert_field ei_cotp_atn_extended_checksum;
+static expert_field ei_cotp_checksum;
 
 
-static int  proto_cltp         = -1;
-static gint ett_cltp           = -1;
+static int  proto_cltp;
+static gint ett_cltp;
 
-static int hf_cltp_li = -1;
-static int hf_cltp_type = -1;
+static int hf_cltp_li;
+static int hf_cltp_type;
 
 static const fragment_items cotp_frag_items = {
   &ett_cotp_segment,
@@ -315,10 +315,10 @@ static const value_string tp_vpart_type_vals[] = {
   { 0,                      NULL }
 };
 
-static int hf_cotp_vp_src_tsap = -1;
-static int hf_cotp_vp_dst_tsap = -1;
-static int hf_cotp_vp_src_tsap_bytes = -1;
-static int hf_cotp_vp_dst_tsap_bytes = -1;
+static int hf_cotp_vp_src_tsap;
+static int hf_cotp_vp_dst_tsap;
+static int hf_cotp_vp_src_tsap_bytes;
+static int hf_cotp_vp_dst_tsap_bytes;
 
 /* global variables */
 

@@ -17,17 +17,17 @@
 void proto_register_ipnet(void);
 void proto_reg_handoff_ipnet(void);
 
-static int proto_ipnet   = -1;
-static int hf_version    = -1;
-static int hf_family     = -1;
-static int hf_htype      = -1;
-static int hf_pktlen     = -1;
-static int hf_ifindex    = -1;
-static int hf_grifindex  = -1;
-static int hf_zsrc       = -1;
-static int hf_zdst       = -1;
+static int proto_ipnet;
+static int hf_version;
+static int hf_family;
+static int hf_htype;
+static int hf_pktlen;
+static int hf_ifindex;
+static int hf_grifindex;
+static int hf_zsrc;
+static int hf_zdst;
 
-static gint ett_raw = -1;
+static gint ett_raw;
 
 static dissector_handle_t ipnet_handle;
 static dissector_handle_t ip_handle;

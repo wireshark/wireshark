@@ -156,74 +156,74 @@ static const value_string http_method_codes[] = {
 
 
 
-static int proto_ajp13     = -1;
-static int hf_ajp13_magic  = -1;
-static int hf_ajp13_len    = -1;
-static int hf_ajp13_code   = -1;
-static int hf_ajp13_method = -1;
-static int hf_ajp13_ver    = -1;
-static int hf_ajp13_uri    = -1;
-static int hf_ajp13_raddr  = -1;
-static int hf_ajp13_rhost  = -1;
-static int hf_ajp13_srv    = -1;
-static int hf_ajp13_port   = -1;
-static int hf_ajp13_sslp   = -1;
-static int hf_ajp13_nhdr   = -1;
+static int proto_ajp13;
+static int hf_ajp13_magic;
+static int hf_ajp13_len;
+static int hf_ajp13_code;
+static int hf_ajp13_method;
+static int hf_ajp13_ver;
+static int hf_ajp13_uri;
+static int hf_ajp13_raddr;
+static int hf_ajp13_rhost;
+static int hf_ajp13_srv;
+static int hf_ajp13_port;
+static int hf_ajp13_sslp;
+static int hf_ajp13_nhdr;
 
 /* response headers */
-static int hf_ajp13_unknown_header    = -1;
-static int hf_ajp13_content_type      = -1;
-static int hf_ajp13_content_language  = -1;
-static int hf_ajp13_content_length    = -1;
-static int hf_ajp13_date              = -1;
-static int hf_ajp13_last_modified     = -1;
-static int hf_ajp13_location          = -1;
-static int hf_ajp13_set_cookie        = -1;
-static int hf_ajp13_set_cookie2       = -1;
-static int hf_ajp13_servlet_engine    = -1;
-static int hf_ajp13_status            = -1;
-static int hf_ajp13_www_authenticate  = -1;
+static int hf_ajp13_unknown_header;
+static int hf_ajp13_content_type;
+static int hf_ajp13_content_language;
+static int hf_ajp13_content_length;
+static int hf_ajp13_date;
+static int hf_ajp13_last_modified;
+static int hf_ajp13_location;
+static int hf_ajp13_set_cookie;
+static int hf_ajp13_set_cookie2;
+static int hf_ajp13_servlet_engine;
+static int hf_ajp13_status;
+static int hf_ajp13_www_authenticate;
 
 /* request headers */
-static int hf_ajp13_accept            = -1;
-static int hf_ajp13_accept_charset    = -1;
-static int hf_ajp13_accept_encoding   = -1;
-static int hf_ajp13_accept_language   = -1;
-static int hf_ajp13_authorization     = -1;
-static int hf_ajp13_connection        = -1;
+static int hf_ajp13_accept;
+static int hf_ajp13_accept_charset;
+static int hf_ajp13_accept_encoding;
+static int hf_ajp13_accept_language;
+static int hf_ajp13_authorization;
+static int hf_ajp13_connection;
                  /* content_type   */
                  /* content_length */
-static int hf_ajp13_cookie            = -1;
-static int hf_ajp13_cookie2           = -1;
-static int hf_ajp13_host              = -1;
-static int hf_ajp13_pragma            = -1;
-static int hf_ajp13_referer           = -1;
-static int hf_ajp13_user_agent        = -1;
+static int hf_ajp13_cookie;
+static int hf_ajp13_cookie2;
+static int hf_ajp13_host;
+static int hf_ajp13_pragma;
+static int hf_ajp13_referer;
+static int hf_ajp13_user_agent;
 
 /* request attributes */
-static int hf_ajp13_unknown_attribute     = -1;
-static int hf_ajp13_req_attribute         = -1;
-static int hf_ajp13_context               = -1;
-static int hf_ajp13_servlet_path          = -1;
-static int hf_ajp13_remote_user           = -1;
-static int hf_ajp13_auth_type             = -1;
-static int hf_ajp13_query_string          = -1;
-static int hf_ajp13_route                 = -1;
-static int hf_ajp13_ssl_cert              = -1;
-static int hf_ajp13_ssl_cipher            = -1;
-static int hf_ajp13_ssl_session           = -1;
-static int hf_ajp13_ssl_key_size          = -1;
-static int hf_ajp13_secret                = -1;
-static int hf_ajp13_stored_method         = -1;
+static int hf_ajp13_unknown_attribute;
+static int hf_ajp13_req_attribute;
+static int hf_ajp13_context;
+static int hf_ajp13_servlet_path;
+static int hf_ajp13_remote_user;
+static int hf_ajp13_auth_type;
+static int hf_ajp13_query_string;
+static int hf_ajp13_route;
+static int hf_ajp13_ssl_cert;
+static int hf_ajp13_ssl_cipher;
+static int hf_ajp13_ssl_session;
+static int hf_ajp13_ssl_key_size;
+static int hf_ajp13_secret;
+static int hf_ajp13_stored_method;
 
-static int hf_ajp13_rlen   = -1;
-static int hf_ajp13_reusep = -1;
-static int hf_ajp13_rstatus= -1;
-static int hf_ajp13_rsmsg  = -1;
-static int hf_ajp13_data   = -1;
-static gint ett_ajp13 = -1;
+static int hf_ajp13_rlen;
+static int hf_ajp13_reusep;
+static int hf_ajp13_rstatus;
+static int hf_ajp13_rsmsg;
+static int hf_ajp13_data;
+static gint ett_ajp13;
 
-static expert_field ei_ajp13_content_length_invalid = EI_INIT;
+static expert_field ei_ajp13_content_length_invalid;
 
 /*
  * Request/response header codes. Common headers are stored as ints in

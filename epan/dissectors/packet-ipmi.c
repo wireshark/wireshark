@@ -120,10 +120,10 @@ typedef struct {
 /* Maximum nest level where it worth caching data */
 #define MAX_NEST_LEVEL	3
 
-gint proto_ipmi = -1;
-static gint proto_ipmb = -1;
-static gint proto_kcs = -1;
-static gint proto_tmode = -1;
+gint proto_ipmi;
+static gint proto_ipmb;
+static gint proto_kcs;
+static gint proto_tmode;
 
 /* WARNING: Setting this to true might result in the entire dissector being
    disabled by default or removed completely. */
@@ -134,32 +134,32 @@ static guint response_before_req = 0;
 static guint message_format = MSGFMT_GUESS;
 static guint selected_oem = IPMI_OEM_NONE;
 
-static gint hf_ipmi_command_data = -1;
-static gint hf_ipmi_session_handle = -1;
-static gint hf_ipmi_header_trg = -1;
-static gint hf_ipmi_header_trg_lun = -1;
-static gint hf_ipmi_header_netfn = -1;
-static gint hf_ipmi_header_crc = -1;
-static gint hf_ipmi_header_src = -1;
-static gint hf_ipmi_header_src_lun = -1;
-static gint hf_ipmi_header_bridged = -1;
-static gint hf_ipmi_header_sequence = -1;
-static gint hf_ipmi_header_command = -1;
-static gint hf_ipmi_header_completion = -1;
-static gint hf_ipmi_header_sig = -1;
-static gint hf_ipmi_data_crc = -1;
-static gint hf_ipmi_response_to = -1;
-static gint hf_ipmi_response_in = -1;
-static gint hf_ipmi_response_time = -1;
+static gint hf_ipmi_command_data;
+static gint hf_ipmi_session_handle;
+static gint hf_ipmi_header_trg;
+static gint hf_ipmi_header_trg_lun;
+static gint hf_ipmi_header_netfn;
+static gint hf_ipmi_header_crc;
+static gint hf_ipmi_header_src;
+static gint hf_ipmi_header_src_lun;
+static gint hf_ipmi_header_bridged;
+static gint hf_ipmi_header_sequence;
+static gint hf_ipmi_header_command;
+static gint hf_ipmi_header_completion;
+static gint hf_ipmi_header_sig;
+static gint hf_ipmi_data_crc;
+static gint hf_ipmi_response_to;
+static gint hf_ipmi_response_in;
+static gint hf_ipmi_response_time;
 
-static gint ett_ipmi = -1;
-static gint ett_header = -1;
-static gint ett_header_byte_1 = -1;
-static gint ett_header_byte_4 = -1;
-static gint ett_data = -1;
-static gint ett_typelen = -1;
+static gint ett_ipmi;
+static gint ett_header;
+static gint ett_header_byte_1;
+static gint ett_header_byte_4;
+static gint ett_data;
+static gint ett_typelen;
 
-static expert_field ei_impi_parser_not_implemented = EI_INIT;
+static expert_field ei_impi_parser_not_implemented;
 
 static struct ipmi_netfn_root ipmi_cmd_tab[IPMI_NETFN_MAX];
 

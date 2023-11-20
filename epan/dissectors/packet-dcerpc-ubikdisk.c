@@ -21,11 +21,11 @@
 void proto_register_ubikdisk (void);
 void proto_reg_handoff_ubikdisk (void);
 
-static int proto_ubikdisk = -1;
-static int hf_ubikdisk_opnum = -1;
+static int proto_ubikdisk;
+static int hf_ubikdisk_opnum;
 
 
-static gint ett_ubikdisk = -1;
+static gint ett_ubikdisk;
 
 
 static e_guid_t uuid_ubikdisk = { 0x4d37f2dd, 0xed43, 0x0002, { 0x02, 0xc0, 0x37, 0xcf, 0x1e, 0x00, 0x00, 0x00 } };

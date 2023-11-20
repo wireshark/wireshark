@@ -46,47 +46,47 @@ static dissector_handle_t scylla_handle;
 #define SCYLLA_NEGOTIATION_SIZE 12
 #define SCYLLA_NEGOTIATION_LEN_OFFSET 8
 
-static int proto_scylla = -1;
+static int proto_scylla;
 
-static int hf_scylla_request = -1;
-static int hf_scylla_request_response_frame = -1;
-static int hf_scylla_timeout = -1;
-static int hf_scylla_verb = -1;
-static int hf_scylla_msg_id = -1;
-static int hf_scylla_len = -1;
-static int hf_scylla_response = -1;
-static int hf_scylla_response_size = -1;
-static int hf_scylla_response_request_frame = -1;
-static int hf_scylla_negotiation_magic = -1;
-static int hf_scylla_negotiation_size = -1;
-static int hf_scylla_payload = -1; // TODO: dissect everything, so that generic "payload" is not needed
+static int hf_scylla_request;
+static int hf_scylla_request_response_frame;
+static int hf_scylla_timeout;
+static int hf_scylla_verb;
+static int hf_scylla_msg_id;
+static int hf_scylla_len;
+static int hf_scylla_response;
+static int hf_scylla_response_size;
+static int hf_scylla_response_request_frame;
+static int hf_scylla_negotiation_magic;
+static int hf_scylla_negotiation_size;
+static int hf_scylla_payload; // TODO: dissect everything, so that generic "payload" is not needed
 
 // Mutation
-static int hf_scylla_mut_size1 = -1;
-static int hf_scylla_mut_size2 = -1;
-static int hf_scylla_mut_table_id = -1;
-static int hf_scylla_mut_schema_id = -1;
-static int hf_scylla_mut_len_pkeys = -1;
-static int hf_scylla_mut_num_pkeys = -1;
-static int hf_scylla_mut_len_pkey = -1;
-static int hf_scylla_mut_pkey = -1;
+static int hf_scylla_mut_size1;
+static int hf_scylla_mut_size2;
+static int hf_scylla_mut_table_id;
+static int hf_scylla_mut_schema_id;
+static int hf_scylla_mut_len_pkeys;
+static int hf_scylla_mut_num_pkeys;
+static int hf_scylla_mut_len_pkey;
+static int hf_scylla_mut_pkey;
 
 // Read data
-static int hf_scylla_read_data_timeout = -1;
-static int hf_scylla_read_data_table_id = -1;
-static int hf_scylla_read_data_schema_version = -1;
+static int hf_scylla_read_data_timeout;
+static int hf_scylla_read_data_table_id;
+static int hf_scylla_read_data_schema_version;
 
-static gint ett_scylla = -1;
-static gint ett_scylla_header = -1;
-static gint ett_scylla_response = -1;
-static gint ett_scylla_negotiation = -1;
-static gint ett_scylla_mut = -1;
-static gint ett_scylla_mut_pkey = -1;
-static gint ett_scylla_read_data = -1;
+static gint ett_scylla;
+static gint ett_scylla_header;
+static gint ett_scylla_response;
+static gint ett_scylla_negotiation;
+static gint ett_scylla_mut;
+static gint ett_scylla_mut_pkey;
+static gint ett_scylla_read_data;
 
 static gboolean scylla_desegment = TRUE;
 
-static expert_field ei_scylla_response_missing = EI_INIT;
+static expert_field ei_scylla_response_missing;
 
 enum scylla_packets {
     CLIENT_ID = 0,

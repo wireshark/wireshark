@@ -24,9 +24,9 @@
 
 void proto_register_media(void);
 
-static int proto_media = -1;
-static gint hf_media_type = -1;
-static gint ett_media = -1;
+static int proto_media;
+static gint hf_media_type;
+static gint ett_media;
 static heur_dissector_list_t heur_subdissector_list;
 
 static int

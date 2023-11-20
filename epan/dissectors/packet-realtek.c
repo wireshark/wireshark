@@ -77,34 +77,34 @@ static const value_string rrcp_opcode_names[] = {
 
 static dissector_handle_t realtek_handle;
 
-static int proto_realtek = -1;
+static int proto_realtek;
 
-static int hf_realtek_packet = -1;
+static int hf_realtek_packet;
 
-static int proto_rrcp = -1;
+static int proto_rrcp;
 
-static int hf_rrcp_protocol = -1;
-static int hf_rrcp_reply = -1;
-static int hf_rrcp_opcode = -1;
-static int hf_rrcp_authkey = -1;
-static int hf_rrcp_regaddr = -1;
-static int hf_rrcp_regdata = -1;
-static int hf_rrcp_hello_reply_dl_port = -1;
-static int hf_rrcp_hello_reply_ul_port = -1;
-static int hf_rrcp_hello_reply_ul_mac = -1;
-static int hf_rrcp_hello_reply_chip_id = -1;
-static int hf_rrcp_hello_reply_vendor_id = -1;
+static int hf_rrcp_protocol;
+static int hf_rrcp_reply;
+static int hf_rrcp_opcode;
+static int hf_rrcp_authkey;
+static int hf_rrcp_regaddr;
+static int hf_rrcp_regdata;
+static int hf_rrcp_hello_reply_dl_port;
+static int hf_rrcp_hello_reply_ul_port;
+static int hf_rrcp_hello_reply_ul_mac;
+static int hf_rrcp_hello_reply_chip_id;
+static int hf_rrcp_hello_reply_vendor_id;
 
-static int proto_rep = -1;
-static int hf_rep_protocol = -1;
+static int proto_rep;
+static int hf_rep_protocol;
 
-static int proto_rldp = -1;
-static int hf_rldp_protocol = -1;
+static int proto_rldp;
+static int hf_rldp_protocol;
 
-static int ett_realtek = -1;
-static int ett_rrcp = -1;
-static int ett_rep = -1;
-static int ett_rldp = -1;
+static int ett_realtek;
+static int ett_rrcp;
+static int ett_rep;
+static int ett_rldp;
 
 static heur_dissector_list_t realtek_heur_subdissector_list;
 

@@ -104,19 +104,19 @@ static void dissect_zcl_appl_idt_attr_data(proto_tree *tree, tvbuff_t *tvb, guin
 /*************************/
 
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_appl_idt = -1;
+static int proto_zbee_zcl_appl_idt;
 
-static int hf_zbee_zcl_appl_idt_attr_id = -1;
-static int hf_zbee_zcl_appl_idt_company_id = -1;
-static int hf_zbee_zcl_appl_idt_brand_id = -1;
-static int hf_zbee_zcl_appl_idt_string_len = -1;
-static int hf_zbee_zcl_appl_idt_prod_type_name = -1;
-static int hf_zbee_zcl_appl_idt_prod_type_id = -1;
-static int hf_zbee_zcl_appl_idt_ceced_spec_ver = -1;
+static int hf_zbee_zcl_appl_idt_attr_id;
+static int hf_zbee_zcl_appl_idt_company_id;
+static int hf_zbee_zcl_appl_idt_brand_id;
+static int hf_zbee_zcl_appl_idt_string_len;
+static int hf_zbee_zcl_appl_idt_prod_type_name;
+static int hf_zbee_zcl_appl_idt_prod_type_id;
+static int hf_zbee_zcl_appl_idt_ceced_spec_ver;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_appl_idt = -1;
-static gint ett_zbee_zcl_appl_idt_basic = -1;
+static gint ett_zbee_zcl_appl_idt;
+static gint ett_zbee_zcl_appl_idt_basic;
 
 /* Attributes */
 static const value_string zbee_zcl_appl_idt_attr_names[] = {
@@ -405,14 +405,14 @@ static void dissect_zcl_met_idt_attr_data  (proto_tree *tree, tvbuff_t *tvb, gui
 /*************************/
 
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_met_idt = -1;
+static int proto_zbee_zcl_met_idt;
 
-static int hf_zbee_zcl_met_idt_attr_id = -1;
-static int hf_zbee_zcl_met_idt_meter_type_id = -1;
-static int hf_zbee_zcl_met_idt_data_quality_id = -1;
+static int hf_zbee_zcl_met_idt_attr_id;
+static int hf_zbee_zcl_met_idt_meter_type_id;
+static int hf_zbee_zcl_met_idt_data_quality_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_met_idt = -1;
+static gint ett_zbee_zcl_met_idt;
 
 /* Attributes */
 static const value_string zbee_zcl_met_idt_attr_names[] = {
@@ -625,22 +625,22 @@ static void dissect_zcl_appl_evtalt_event_notif           (tvbuff_t *tvb, proto_
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_appl_evtalt = -1;
+static int proto_zbee_zcl_appl_evtalt;
 
-static int hf_zbee_zcl_appl_evtalt_srv_tx_cmd_id = -1;
-static int hf_zbee_zcl_appl_evtalt_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_appl_evtalt_count_num = -1;
-static int hf_zbee_zcl_appl_evtalt_count_type = -1;
-static int hf_zbee_zcl_appl_evtalt_alert_id = -1;
-static int hf_zbee_zcl_appl_evtalt_category = -1;
-static int hf_zbee_zcl_appl_evtalt_status = -1;
-static int hf_zbee_zcl_appl_evtalt_reserved = -1;
-static int hf_zbee_zcl_appl_evtalt_proprietary = -1;
-static int hf_zbee_zcl_appl_evtalt_event_hdr = -1;
-static int hf_zbee_zcl_appl_evtalt_event_id = -1;
+static int hf_zbee_zcl_appl_evtalt_srv_tx_cmd_id;
+static int hf_zbee_zcl_appl_evtalt_srv_rx_cmd_id;
+static int hf_zbee_zcl_appl_evtalt_count_num;
+static int hf_zbee_zcl_appl_evtalt_count_type;
+static int hf_zbee_zcl_appl_evtalt_alert_id;
+static int hf_zbee_zcl_appl_evtalt_category;
+static int hf_zbee_zcl_appl_evtalt_status;
+static int hf_zbee_zcl_appl_evtalt_reserved;
+static int hf_zbee_zcl_appl_evtalt_proprietary;
+static int hf_zbee_zcl_appl_evtalt_event_hdr;
+static int hf_zbee_zcl_appl_evtalt_event_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_appl_evtalt = -1;
+static gint ett_zbee_zcl_appl_evtalt;
 static gint ett_zbee_zcl_appl_evtalt_alerts_struct[ZBEE_ZCL_APPL_EVTALT_NUM_STRUCT_ETT];
 
 /* Server Commands Received */
@@ -982,19 +982,19 @@ static void decode_zcl_appl_stats_utc_time              (gchar *s, guint32 value
 /* Global Variables      */
 /*************************/
 /* Initialize the protocol and registered fields */
-static int proto_zbee_zcl_appl_stats = -1;
+static int proto_zbee_zcl_appl_stats;
 
-static int hf_zbee_zcl_appl_stats_attr_id = -1;
-static int hf_zbee_zcl_appl_stats_srv_tx_cmd_id = -1;
-static int hf_zbee_zcl_appl_stats_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_appl_stats_utc_time = -1;
-static int hf_zbee_zcl_appl_stats_log_length = -1;
-static int hf_zbee_zcl_appl_stats_log_payload = -1;
-static int hf_zbee_zcl_appl_stats_log_queue_size = -1;
-static int hf_zbee_zcl_appl_stats_log_id = -1;
+static int hf_zbee_zcl_appl_stats_attr_id;
+static int hf_zbee_zcl_appl_stats_srv_tx_cmd_id;
+static int hf_zbee_zcl_appl_stats_srv_rx_cmd_id;
+static int hf_zbee_zcl_appl_stats_utc_time;
+static int hf_zbee_zcl_appl_stats_log_length;
+static int hf_zbee_zcl_appl_stats_log_payload;
+static int hf_zbee_zcl_appl_stats_log_queue_size;
+static int hf_zbee_zcl_appl_stats_log_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_appl_stats = -1;
+static gint ett_zbee_zcl_appl_stats;
 static gint ett_zbee_zcl_appl_stats_logs[ZBEE_ZCL_APPL_STATS_NUM_LOGS_ETT];
 
 /* Attributes */

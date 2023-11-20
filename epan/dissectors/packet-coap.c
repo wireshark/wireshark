@@ -42,7 +42,7 @@ void proto_register_coap(void);
 static dissector_table_t coap_tmf_media_type_dissector_table;
 static dissector_table_t media_type_dissector_table;
 
-static int proto_coap						= -1;
+static int proto_coap;
 /*
  * Used only to register the "CoAP for Thread Management Framework"
  * dissector, which uses the same protocol and field IDs as the
@@ -54,44 +54,44 @@ static int proto_coap						= -1;
  * transmissions being misreceived?), did not register a media type for
  * its messages and a 'cf' value for that media type.
  */
-static int proto_coap_for_tmf					= -1;
+static int proto_coap_for_tmf;
 
-static int hf_coap_length					= -1;
-static int hf_coap_version					= -1;
-static int hf_coap_ttype					= -1;
-static int hf_coap_token_len					= -1;
-static int hf_coap_token					= -1;
-static int hf_coap_mid						= -1;
+static int hf_coap_length;
+static int hf_coap_version;
+static int hf_coap_ttype;
+static int hf_coap_token_len;
+static int hf_coap_token;
+static int hf_coap_mid;
 
-static int hf_coap_response_in					= -1;
-static int hf_coap_response_to					= -1;
-static int hf_coap_response_time				= -1;
-static int hf_coap_request_resend_in				= -1;
-static int hf_coap_response_resend_in				= -1;
-static int hf_coap_oscore_kid					= -1;
-static int hf_coap_oscore_kid_context				= -1;
-static int hf_coap_oscore_piv					= -1;
+static int hf_coap_response_in;
+static int hf_coap_response_to;
+static int hf_coap_response_time;
+static int hf_coap_request_resend_in;
+static int hf_coap_response_resend_in;
+static int hf_coap_oscore_kid;
+static int hf_coap_oscore_kid_context;
+static int hf_coap_oscore_piv;
 
-static int hf_block_payload					= -1;
-static int hf_block_length					= -1;
+static int hf_block_payload;
+static int hf_block_length;
 
-static int hf_blocks						= -1;
-static int hf_block						= -1;
-static int hf_block_overlap					= -1;
-static int hf_block_overlap_conflicts				= -1;
-static int hf_block_multiple_tails				= -1;
-static int hf_block_too_long					= -1;
-static int hf_block_error					= -1;
-static int hf_block_count					= -1;
-static int hf_block_reassembled_in				= -1;
-static int hf_block_reassembled_length				= -1;
+static int hf_blocks;
+static int hf_block;
+static int hf_block_overlap;
+static int hf_block_overlap_conflicts;
+static int hf_block_multiple_tails;
+static int hf_block_too_long;
+static int hf_block_error;
+static int hf_block_count;
+static int hf_block_reassembled_in;
+static int hf_block_reassembled_length;
 
-static gint ett_coap						= -1;
+static gint ett_coap;
 
-static gint ett_block						= -1;
-static gint ett_blocks						= -1;
+static gint ett_block;
+static gint ett_blocks;
 
-static expert_field ei_retransmitted				= EI_INIT;
+static expert_field ei_retransmitted;
 
 static COAP_COMMON_LIST_T(dissect_coap_hf);
 

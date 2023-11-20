@@ -208,56 +208,56 @@ static const value_string bssmap_le_pos_data_usage_vals[] = {
 };
 
 /* Initialize the protocol and registered fields */
-static int proto_bssmap_le = -1;
-int hf_gsm_bssmap_le_elem_id = -1;
+static int proto_bssmap_le;
+int hf_gsm_bssmap_le_elem_id;
 
 /* The following hf_* variables are used to hold the Wireshark IDs of
 * our header fields; they are filled out when we call
 * proto_register_field_array() in proto_register_bssmap_le()
 */
-static int hf_gsm_bssmap_le_msg_type = -1;
-static int hf_gsm_bssmap_le_apdu_protocol_id = -1;
-static int hf_gsm_bssmap_le_spare = -1;
-static int hf_gsm_bssmap_le_ciphering_key_flag = -1;
-static int hf_gsm_bssmap_le_current_deciphering_key_value = -1;
-static int hf_gsm_bssmap_le_next_deciphering_key_value = -1;
-static int hf_gsm_bssmap_le_acq_ass = -1;
-static int hf_gsm_bssmap_le_ref_time = -1;
-static int hf_gsm_bssmap_le_ref_loc = -1;
-static int hf_gsm_bssmap_le_dgps_corr = -1;
-static int hf_gsm_bssmap_le_nav_mod = -1;
-static int hf_gsm_bssmap_le_iono_mod = -1;
-static int hf_gsm_bssmap_le_utc_mod = -1;
-static int hf_gsm_bssmap_le_almanac = -1;
-static int hf_gsm_bssmap_le_ephemeris_ext_chk = -1;
-static int hf_gsm_bssmap_le_ephemeris_ext = -1;
-static int hf_gsm_bssmap_le_real_time_int = -1;
-static int hf_gsm_bssmap_le_lcs_cause_value =-1;
-static int hf_gsm_bssmap_le_diagnostic_value = -1;
-static int hf_gsm_bssmap_le_client_category = -1;
-static int hf_gsm_bssmap_le_client_subtype = -1;
-static int hf_gsm_bssmap_le_velocity_requested = -1;
-static int hf_gsm_bssmap_le_vertical_coordinate_indicator = -1;
-static int hf_gsm_bssmap_le_horizontal_accuracy_indicator = -1;
-static int hf_gsm_bssmap_le_horizontal_accuracy = -1;
-static int hf_gsm_bssmap_le_vertical_accuracy_indicator = -1;
-static int hf_gsm_bssmap_le_vertical_accuracy = -1;
-static int hf_gsm_bssmap_le_response_time_category = -1;
-static int hf_gsm_bssmap_le_apdu = -1;
-static int hf_gsm_bssmap_le_message_elements = -1;
-static int hf_gsm_bssmap_le_location_inf = -1;
-static int hf_gsm_bssmap_le_pos_method = -1;
-static int hf_gsm_bssmap_le_pos_data_disc = -1;
-static int hf_gsm_bssmap_le_pos_data_pos_method = -1;
-static int hf_gsm_bssmap_le_pos_data_usage = -1;
+static int hf_gsm_bssmap_le_msg_type;
+static int hf_gsm_bssmap_le_apdu_protocol_id;
+static int hf_gsm_bssmap_le_spare;
+static int hf_gsm_bssmap_le_ciphering_key_flag;
+static int hf_gsm_bssmap_le_current_deciphering_key_value;
+static int hf_gsm_bssmap_le_next_deciphering_key_value;
+static int hf_gsm_bssmap_le_acq_ass;
+static int hf_gsm_bssmap_le_ref_time;
+static int hf_gsm_bssmap_le_ref_loc;
+static int hf_gsm_bssmap_le_dgps_corr;
+static int hf_gsm_bssmap_le_nav_mod;
+static int hf_gsm_bssmap_le_iono_mod;
+static int hf_gsm_bssmap_le_utc_mod;
+static int hf_gsm_bssmap_le_almanac;
+static int hf_gsm_bssmap_le_ephemeris_ext_chk;
+static int hf_gsm_bssmap_le_ephemeris_ext;
+static int hf_gsm_bssmap_le_real_time_int;
+static int hf_gsm_bssmap_le_lcs_cause_value;
+static int hf_gsm_bssmap_le_diagnostic_value;
+static int hf_gsm_bssmap_le_client_category;
+static int hf_gsm_bssmap_le_client_subtype;
+static int hf_gsm_bssmap_le_velocity_requested;
+static int hf_gsm_bssmap_le_vertical_coordinate_indicator;
+static int hf_gsm_bssmap_le_horizontal_accuracy_indicator;
+static int hf_gsm_bssmap_le_horizontal_accuracy;
+static int hf_gsm_bssmap_le_vertical_accuracy_indicator;
+static int hf_gsm_bssmap_le_vertical_accuracy;
+static int hf_gsm_bssmap_le_response_time_category;
+static int hf_gsm_bssmap_le_apdu;
+static int hf_gsm_bssmap_le_message_elements;
+static int hf_gsm_bssmap_le_location_inf;
+static int hf_gsm_bssmap_le_pos_method;
+static int hf_gsm_bssmap_le_pos_data_disc;
+static int hf_gsm_bssmap_le_pos_data_pos_method;
+static int hf_gsm_bssmap_le_pos_data_usage;
 
 
 /* Initialize the subtree pointers */
-static gint ett_bssmap_le_msg = -1;
+static gint ett_bssmap_le_msg;
 
-static expert_field ei_gsm_a_bssmap_le_not_decoded_yet = EI_INIT;
-static expert_field ei_gsm_a_bssmap_le_extraneous_data = EI_INIT;
-static expert_field ei_gsm_a_bssmap_le_missing_mandatory_element = EI_INIT;
+static expert_field ei_gsm_a_bssmap_le_not_decoded_yet;
+static expert_field ei_gsm_a_bssmap_le_extraneous_data;
+static expert_field ei_gsm_a_bssmap_le_missing_mandatory_element;
 
 static dissector_handle_t gsm_bsslap_handle = NULL;
 static dissector_handle_t bssmap_le_handle;

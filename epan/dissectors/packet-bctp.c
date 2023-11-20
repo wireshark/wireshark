@@ -24,13 +24,13 @@
 void proto_register_bctp(void);
 void proto_reg_handoff_bctp(void);
 
-static int proto_bctp = -1;
-static int hf_bctp_bvei = -1;
-static int hf_bctp_bvi = -1;
-static int hf_bctp_tpei = -1;
-static int hf_bctp_tpi = -1;
+static int proto_bctp;
+static int hf_bctp_bvei;
+static int hf_bctp_bvi;
+static int hf_bctp_tpei;
+static int hf_bctp_tpi;
 
-static gint ett_bctp = -1;
+static gint ett_bctp;
 static dissector_table_t bctp_dissector_table;
 static dissector_handle_t text_handle;
 

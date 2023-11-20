@@ -58,33 +58,33 @@ static const value_string vals_opa_snc_rhf_rcvtype[] = {
 };
 
 /* Wireshark ID */
-static gint proto_opa_snc = -1;
+static gint proto_opa_snc;
 
 /* Variables to hold expansion values between packets */
-static gint ett_snc = -1;
-static gint ett_sncpbc = -1;
-static gint ett_sncrhf = -1;
+static gint ett_snc;
+static gint ett_sncpbc;
+static gint ett_sncrhf;
 
 /* SnC Fields */
-static gint hf_opa_snc_direction = -1;
-static gint hf_opa_snc_portnumber = -1;
-static gint hf_opa_snc_Reserved16 = -1;
-static gint hf_opa_snc_Reserved32 = -1;
-static gint hf_opa_snc_Reserved64 = -1;
-static gint hf_opa_snc_pbc_reserved_63_48 = -1;
-static gint hf_opa_snc_pbc_pbcstaticratecontrolcnt = -1;
-static gint hf_opa_snc_pbc_pbcintr = -1;
-static gint hf_opa_snc_pbc_pbcdcinfo = -1;
-static gint hf_opa_snc_pbc_pbctestebp = -1;
-static gint hf_opa_snc_pbc_pbcpacketbypass = -1;
-static gint hf_opa_snc_pbc_pbcinserthcrc = -1;
-static gint hf_opa_snc_pbc_pbccreditreturn = -1;
-static gint hf_opa_snc_pbc_pbcinsertbypassicrc = -1;
-static gint hf_opa_snc_pbc_pbctestbadicrc = -1;
-static gint hf_opa_snc_pbc_pbcfecn = -1;
-static gint hf_opa_snc_pbc_reserved_21_16 = -1;
-static gint hf_opa_snc_pbc_pbcvl = -1;
-static gint hf_opa_snc_pbc_pbclengthdws = -1;
+static gint hf_opa_snc_direction;
+static gint hf_opa_snc_portnumber;
+static gint hf_opa_snc_Reserved16;
+static gint hf_opa_snc_Reserved32;
+static gint hf_opa_snc_Reserved64;
+static gint hf_opa_snc_pbc_reserved_63_48;
+static gint hf_opa_snc_pbc_pbcstaticratecontrolcnt;
+static gint hf_opa_snc_pbc_pbcintr;
+static gint hf_opa_snc_pbc_pbcdcinfo;
+static gint hf_opa_snc_pbc_pbctestebp;
+static gint hf_opa_snc_pbc_pbcpacketbypass;
+static gint hf_opa_snc_pbc_pbcinserthcrc;
+static gint hf_opa_snc_pbc_pbccreditreturn;
+static gint hf_opa_snc_pbc_pbcinsertbypassicrc;
+static gint hf_opa_snc_pbc_pbctestbadicrc;
+static gint hf_opa_snc_pbc_pbcfecn;
+static gint hf_opa_snc_pbc_reserved_21_16;
+static gint hf_opa_snc_pbc_pbcvl;
+static gint hf_opa_snc_pbc_pbclengthdws;
 static int * const _snc_pbc_1[] = {
     &hf_opa_snc_pbc_reserved_63_48,
     &hf_opa_snc_pbc_pbcstaticratecontrolcnt,
@@ -105,23 +105,23 @@ static int * const _snc_pbc_2[] = {
     &hf_opa_snc_pbc_pbclengthdws,
     NULL
 };
-static gint hf_opa_snc_rhf_icrcerr = -1;
-static gint hf_opa_snc_rhf_reserved_62 = -1;
-static gint hf_opa_snc_rhf_eccerr = -1;
-static gint hf_opa_snc_rhf_lenerr = -1;
-static gint hf_opa_snc_rhf_tiderr = -1;
-static gint hf_opa_snc_rhf_rcvtypeerr = -1;
-static gint hf_opa_snc_rhf_dcerr = -1;
-static gint hf_opa_snc_rhf_dcuncerr = -1;
-static gint hf_opa_snc_rhf_khdrlenerr = -1;
-static gint hf_opa_snc_rhf_hdrqoffset = -1;
-static gint hf_opa_snc_rhf_egroffset = -1;
-static gint hf_opa_snc_rhf_rcvseq = -1;
-static gint hf_opa_snc_rhf_dcinfo = -1;
-static gint hf_opa_snc_rhf_egrindex = -1;
-static gint hf_opa_snc_rhf_useegrbfr = -1;
-static gint hf_opa_snc_rhf_rcvtype = -1;
-static gint hf_opa_snc_rhf_pktlen = -1;
+static gint hf_opa_snc_rhf_icrcerr;
+static gint hf_opa_snc_rhf_reserved_62;
+static gint hf_opa_snc_rhf_eccerr;
+static gint hf_opa_snc_rhf_lenerr;
+static gint hf_opa_snc_rhf_tiderr;
+static gint hf_opa_snc_rhf_rcvtypeerr;
+static gint hf_opa_snc_rhf_dcerr;
+static gint hf_opa_snc_rhf_dcuncerr;
+static gint hf_opa_snc_rhf_khdrlenerr;
+static gint hf_opa_snc_rhf_hdrqoffset;
+static gint hf_opa_snc_rhf_egroffset;
+static gint hf_opa_snc_rhf_rcvseq;
+static gint hf_opa_snc_rhf_dcinfo;
+static gint hf_opa_snc_rhf_egrindex;
+static gint hf_opa_snc_rhf_useegrbfr;
+static gint hf_opa_snc_rhf_rcvtype;
+static gint hf_opa_snc_rhf_pktlen;
 static int * const _snc_rhf_1[] = {
     &hf_opa_snc_rhf_icrcerr,
     &hf_opa_snc_rhf_reserved_62,
@@ -146,7 +146,7 @@ static int * const _snc_rhf_2[] = {
     NULL
 };
 
-static expert_field ei_opa_snc_nobypass = EI_INIT;
+static expert_field ei_opa_snc_nobypass;
 
 static void cf_opa_snc_dw_to_b(gchar *buf, guint32 value)
 {

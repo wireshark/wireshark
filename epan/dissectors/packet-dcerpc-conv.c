@@ -19,18 +19,18 @@
 void proto_register_conv (void);
 void proto_reg_handoff_conv (void);
 
-static int proto_conv = -1;
-static int hf_conv_opnum = -1;
-static int hf_conv_rc = -1;
-static int hf_conv_who_are_you_rqst_actuid = -1;
-static int hf_conv_who_are_you_rqst_boot_time = -1;
-static int hf_conv_who_are_you2_rqst_actuid = -1;
-static int hf_conv_who_are_you2_rqst_boot_time = -1;
-static int hf_conv_who_are_you_resp_seq = -1;
-static int hf_conv_who_are_you2_resp_seq = -1;
-static int hf_conv_who_are_you2_resp_casuuid = -1;
+static int proto_conv;
+static int hf_conv_opnum;
+static int hf_conv_rc;
+static int hf_conv_who_are_you_rqst_actuid;
+static int hf_conv_who_are_you_rqst_boot_time;
+static int hf_conv_who_are_you2_rqst_actuid;
+static int hf_conv_who_are_you2_rqst_boot_time;
+static int hf_conv_who_are_you_resp_seq;
+static int hf_conv_who_are_you2_resp_seq;
+static int hf_conv_who_are_you2_resp_casuuid;
 
-static gint ett_conv = -1;
+static gint ett_conv;
 
 
 static e_guid_t uuid_conv = { 0x333a2276, 0x0000, 0x0000, { 0x0d, 0x00, 0x00, 0x80, 0x9c, 0x00, 0x00, 0x00 } };

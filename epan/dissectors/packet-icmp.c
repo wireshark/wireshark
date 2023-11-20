@@ -47,12 +47,12 @@ static heur_dissector_list_t icmp_heur_subdissector_list;
 static int icmp_tap = -1;
 
 /* Conversation related data */
-static int hf_icmp_resp_in = -1;
-static int hf_icmp_resp_to = -1;
-static int hf_icmp_no_resp = -1;
-static int hf_icmp_resptime = -1;
-static int hf_icmp_data_time = -1;
-static int hf_icmp_data_time_relative = -1;
+static int hf_icmp_resp_in;
+static int hf_icmp_resp_to;
+static int hf_icmp_no_resp;
+static int hf_icmp_resptime;
+static int hf_icmp_data_time;
+static int hf_icmp_data_time_relative;
 
 typedef struct _icmp_conv_info_t {
 	wmem_tree_t *unmatched_pdus;
@@ -70,123 +70,123 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 if the packet in the payload has more than 128 bytes */
 static gboolean favor_icmp_mpls_ext = FALSE;
 
-static int proto_icmp = -1;
+static int proto_icmp;
 
-static int hf_icmp_type = -1;
-static int hf_icmp_code = -1;
-static int hf_icmp_checksum = -1;
-static int hf_icmp_checksum_status = -1;
-static int hf_icmp_unused = -1;
-static int hf_icmp_reserved = -1;
-static int hf_icmp_ident = -1;
-static int hf_icmp_ident_le = -1;
-static int hf_icmp_seq_num = -1;
-static int hf_icmp_seq_num_le = -1;
-static int hf_icmp_mtu = -1;
-static int hf_icmp_num_addrs = -1;
-static int hf_icmp_addr_entry_size = -1;
-static int hf_icmp_lifetime = -1;
-static int hf_icmp_pointer = -1;
-static int hf_icmp_router_address = -1;
-static int hf_icmp_pref_level = -1;
-static int hf_icmp_redir_gw = -1;
-static int hf_icmp_originate_timestamp = -1;
-static int hf_icmp_receive_timestamp = -1;
-static int hf_icmp_transmit_timestamp = -1;
-static int hf_icmp_address_mask = -1;
-static int hf_icmp_length = -1;
-static int hf_icmp_length_original_datagram = -1;
+static int hf_icmp_type;
+static int hf_icmp_code;
+static int hf_icmp_checksum;
+static int hf_icmp_checksum_status;
+static int hf_icmp_unused;
+static int hf_icmp_reserved;
+static int hf_icmp_ident;
+static int hf_icmp_ident_le;
+static int hf_icmp_seq_num;
+static int hf_icmp_seq_num_le;
+static int hf_icmp_mtu;
+static int hf_icmp_num_addrs;
+static int hf_icmp_addr_entry_size;
+static int hf_icmp_lifetime;
+static int hf_icmp_pointer;
+static int hf_icmp_router_address;
+static int hf_icmp_pref_level;
+static int hf_icmp_redir_gw;
+static int hf_icmp_originate_timestamp;
+static int hf_icmp_receive_timestamp;
+static int hf_icmp_transmit_timestamp;
+static int hf_icmp_address_mask;
+static int hf_icmp_length;
+static int hf_icmp_length_original_datagram;
 
 /* Mobile ip */
-static int hf_icmp_mip_type = -1;
-static int hf_icmp_mip_length = -1;
-static int hf_icmp_mip_prefix_length = -1;
-static int hf_icmp_mip_seq = -1;
-static int hf_icmp_mip_life = -1;
-static int hf_icmp_mip_flags = -1;
-static int hf_icmp_mip_r = -1;
-static int hf_icmp_mip_b = -1;
-static int hf_icmp_mip_h = -1;
-static int hf_icmp_mip_f = -1;
-static int hf_icmp_mip_m = -1;
-static int hf_icmp_mip_g = -1;
-static int hf_icmp_mip_v = -1;
-static int hf_icmp_mip_rt = -1;
-static int hf_icmp_mip_u = -1;
-static int hf_icmp_mip_x = -1;
-static int hf_icmp_mip_reserved = -1;
-static int hf_icmp_mip_coa = -1;
-static int hf_icmp_mip_challenge = -1;
-static int hf_icmp_mip_content = -1;
+static int hf_icmp_mip_type;
+static int hf_icmp_mip_length;
+static int hf_icmp_mip_prefix_length;
+static int hf_icmp_mip_seq;
+static int hf_icmp_mip_life;
+static int hf_icmp_mip_flags;
+static int hf_icmp_mip_r;
+static int hf_icmp_mip_b;
+static int hf_icmp_mip_h;
+static int hf_icmp_mip_f;
+static int hf_icmp_mip_m;
+static int hf_icmp_mip_g;
+static int hf_icmp_mip_v;
+static int hf_icmp_mip_rt;
+static int hf_icmp_mip_u;
+static int hf_icmp_mip_x;
+static int hf_icmp_mip_reserved;
+static int hf_icmp_mip_coa;
+static int hf_icmp_mip_challenge;
+static int hf_icmp_mip_content;
 
 /* extensions RFC 4884*/
-static int hf_icmp_ext = -1;
-static int hf_icmp_ext_version = -1;
-static int hf_icmp_ext_reserved = -1;
-static int hf_icmp_ext_checksum = -1;
-static int hf_icmp_ext_checksum_status = -1;
-static int hf_icmp_ext_length = -1;
-static int hf_icmp_ext_class = -1;
-static int hf_icmp_ext_c_type = -1;
-static int hf_icmp_ext_data = -1;
+static int hf_icmp_ext;
+static int hf_icmp_ext_version;
+static int hf_icmp_ext_reserved;
+static int hf_icmp_ext_checksum;
+static int hf_icmp_ext_checksum_status;
+static int hf_icmp_ext_length;
+static int hf_icmp_ext_class;
+static int hf_icmp_ext_c_type;
+static int hf_icmp_ext_data;
 
 /* Interface information extension RFC 5837 */
-static int hf_icmp_int_info_ifindex = -1;
-static int hf_icmp_int_info_ipaddr = -1;
-static int hf_icmp_int_info_name = -1;
-static int hf_icmp_int_info_mtu_present = -1;
-static int hf_icmp_int_info_mtu = -1;
-static int hf_icmp_int_info_index = -1;
-static int hf_icmp_int_info_afi = -1;
-static int hf_icmp_int_info_ipv4 = -1;
-static int hf_icmp_int_info_ipv6 = -1;
-static int hf_icmp_int_info_ipunknown = -1;
-static int hf_icmp_int_info_name_length = -1;
-static int hf_icmp_int_info_name_string = -1;
-static int hf_icmp_int_info_role = -1;
-static int hf_icmp_int_info_reserved = -1;
-static gint ett_icmp_interface_info_object = -1;
-static gint ett_icmp_interface_ipaddr = -1;
-static gint ett_icmp_interface_name = -1;
+static int hf_icmp_int_info_ifindex;
+static int hf_icmp_int_info_ipaddr;
+static int hf_icmp_int_info_name;
+static int hf_icmp_int_info_mtu_present;
+static int hf_icmp_int_info_mtu;
+static int hf_icmp_int_info_index;
+static int hf_icmp_int_info_afi;
+static int hf_icmp_int_info_ipv4;
+static int hf_icmp_int_info_ipv6;
+static int hf_icmp_int_info_ipunknown;
+static int hf_icmp_int_info_name_length;
+static int hf_icmp_int_info_name_string;
+static int hf_icmp_int_info_role;
+static int hf_icmp_int_info_reserved;
+static gint ett_icmp_interface_info_object;
+static gint ett_icmp_interface_ipaddr;
+static gint ett_icmp_interface_name;
 /* MPLS extension object*/
-static int hf_icmp_mpls_label = -1;
-static int hf_icmp_mpls_exp = -1;
-static int hf_icmp_mpls_s = -1;
-static int hf_icmp_mpls_ttl = -1;
-static int hf_icmp_mpls_data = -1;
+static int hf_icmp_mpls_label;
+static int hf_icmp_mpls_exp;
+static int hf_icmp_mpls_s;
+static int hf_icmp_mpls_ttl;
+static int hf_icmp_mpls_data;
 
-static gint ett_icmp = -1;
-static gint ett_icmp_mip = -1;
-static gint ett_icmp_mip_flags = -1;
+static gint ett_icmp;
+static gint ett_icmp_mip;
+static gint ett_icmp_mip_flags;
 
 /* extensions */
-static gint ett_icmp_ext = -1;
-static gint ett_icmp_ext_object = -1;
+static gint ett_icmp_ext;
+static gint ett_icmp_ext_object;
 
 /* MPLS extensions */
-static gint ett_icmp_mpls_stack_object = -1;
+static gint ett_icmp_mpls_stack_object;
 
-static expert_field ei_icmp_resp_not_found = EI_INIT;
-static expert_field ei_icmp_checksum = EI_INIT;
-static expert_field ei_icmp_ext_checksum = EI_INIT;
+static expert_field ei_icmp_resp_not_found;
+static expert_field ei_icmp_checksum;
+static expert_field ei_icmp_ext_checksum;
 
 /* Extended Echo - Probe */
-static int hf_icmp_ext_echo_seq_num = -1;
-static int hf_icmp_ext_echo_req_reserved = -1;
-static int hf_icmp_ext_echo_req_local = -1;
-static int hf_icmp_ext_echo_rsp_state = -1;
-static int hf_icmp_ext_echo_rsp_reserved = -1;
-static int hf_icmp_ext_echo_rsp_active = -1;
-static int hf_icmp_ext_echo_rsp_ipv4 = -1;
-static int hf_icmp_ext_echo_rsp_ipv6 = -1;
-static int hf_icmp_int_ident_name_string = -1;
-static int hf_icmp_int_ident_index = -1;
-static int hf_icmp_int_ident_afi = -1;
-static int hf_icmp_int_ident_addr_length = -1;
-static int hf_icmp_int_ident_reserved = -1;
-static int hf_icmp_int_ident_ipv4 = -1;
-static int hf_icmp_int_ident_ipv6 = -1;
-static int hf_icmp_int_ident_address = -1;
+static int hf_icmp_ext_echo_seq_num;
+static int hf_icmp_ext_echo_req_reserved;
+static int hf_icmp_ext_echo_req_local;
+static int hf_icmp_ext_echo_rsp_state;
+static int hf_icmp_ext_echo_rsp_reserved;
+static int hf_icmp_ext_echo_rsp_active;
+static int hf_icmp_ext_echo_rsp_ipv4;
+static int hf_icmp_ext_echo_rsp_ipv6;
+static int hf_icmp_int_ident_name_string;
+static int hf_icmp_int_ident_index;
+static int hf_icmp_int_ident_afi;
+static int hf_icmp_int_ident_addr_length;
+static int hf_icmp_int_ident_reserved;
+static int hf_icmp_int_ident_ipv4;
+static int hf_icmp_int_ident_ipv6;
+static int hf_icmp_int_ident_address;
 
 static dissector_handle_t icmp_handle;
 

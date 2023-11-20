@@ -33,16 +33,16 @@ static dissector_handle_t tivoconnect_udp_handle;
 
 #define TIVOCONNECT_PORT 2190
 
-static int proto_tivoconnect = -1;
-static int hf_tivoconnect_flavor = -1;
-static int hf_tivoconnect_method = -1;
-static int hf_tivoconnect_platform = -1;
-static int hf_tivoconnect_machine = -1;
-static int hf_tivoconnect_identity = -1;
-static int hf_tivoconnect_services = -1;
-static int hf_tivoconnect_version = -1;
+static int proto_tivoconnect;
+static int hf_tivoconnect_flavor;
+static int hf_tivoconnect_method;
+static int hf_tivoconnect_platform;
+static int hf_tivoconnect_machine;
+static int hf_tivoconnect_identity;
+static int hf_tivoconnect_services;
+static int hf_tivoconnect_version;
 
-static gint ett_tivoconnect = -1;
+static gint ett_tivoconnect;
 
 static int
 dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_tcp)

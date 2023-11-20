@@ -67,117 +67,117 @@ typedef int (*complex_dissector_t)(proto_tree *tree, tvbuff_t *tvb, int offset);
 
 static gboolean vrt_use_ettus_uhd_header_format = FALSE;
 
-static int proto_vrt = -1;
+static int proto_vrt;
 
 /* fields */
-static int hf_vrt_header = -1; /* 32-bit header */
-static int hf_vrt_type = -1; /* 4-bit pkt type */
-static int hf_vrt_cidflag = -1; /* 1-bit class ID flag */
-static int hf_vrt_tflag = -1; /* 1-bit trailer flag */
-static int hf_vrt_tsmflag = -1; /* 1-bit timestamp mode */
-static int hf_vrt_tsi = -1; /* 2-bit timestamp type */
-static int hf_vrt_tsf = -1; /* 2-bit fractional timestamp type */
-static int hf_vrt_seq = -1; /* 4-bit sequence number */
-static int hf_vrt_len = -1; /* 16-bit length */
-static int hf_vrt_sid = -1; /* 32-bit stream ID (opt.) */
-static int hf_vrt_cid = -1; /* 64-bit class ID (opt.) */
-static int hf_vrt_cid_oui = -1; /* 24-bit class ID OUI */
-static int hf_vrt_cid_icc = -1; /* 16-bit class ID ICC */
-static int hf_vrt_cid_pcc = -1; /* 16-bit class ID PCC */
+static int hf_vrt_header; /* 32-bit header */
+static int hf_vrt_type; /* 4-bit pkt type */
+static int hf_vrt_cidflag; /* 1-bit class ID flag */
+static int hf_vrt_tflag; /* 1-bit trailer flag */
+static int hf_vrt_tsmflag; /* 1-bit timestamp mode */
+static int hf_vrt_tsi; /* 2-bit timestamp type */
+static int hf_vrt_tsf; /* 2-bit fractional timestamp type */
+static int hf_vrt_seq; /* 4-bit sequence number */
+static int hf_vrt_len; /* 16-bit length */
+static int hf_vrt_sid; /* 32-bit stream ID (opt.) */
+static int hf_vrt_cid; /* 64-bit class ID (opt.) */
+static int hf_vrt_cid_oui; /* 24-bit class ID OUI */
+static int hf_vrt_cid_icc; /* 16-bit class ID ICC */
+static int hf_vrt_cid_pcc; /* 16-bit class ID PCC */
 static int hf_vrt_cif[8]; /* 32-bit CIF0-CIF7 (opt.) */
-static int hf_vrt_cif0_change_flag = -1; /* 1-bit context field change indicator */
-static int hf_vrt_cif0_ref_pt_id = -1; /* 1-bit reference point identifier */
-static int hf_vrt_cif0_bandwidth = -1; /* 1-bit bandwidth */
-static int hf_vrt_cif0_if_freq = -1; /* 1-bit IF reference frequency */
-static int hf_vrt_cif0_rf_freq = -1; /* 1-bit RF reference frequency */
-static int hf_vrt_cif0_rf_freq_offset = -1; /* 1-bit RF reference frequency offset */
-static int hf_vrt_cif0_if_band_offset = -1; /* 1-bit IF band offset */
-static int hf_vrt_cif0_ref_level = -1; /* 1-bit reference level */
-static int hf_vrt_cif0_gain = -1; /* 1-bit gain */
-static int hf_vrt_cif0_over_range_count = -1; /* 1-bit over-range count */
-static int hf_vrt_cif0_sample_rate = -1; /* 1-bit sample rate */
-static int hf_vrt_cif0_timestamp_adjust = -1; /* 1-bit timestamp adjustment */
-static int hf_vrt_cif0_timestamp_cal = -1; /* 1-bit timestamp calibration time */
-static int hf_vrt_cif0_temperature = -1; /* 1-bit temperature */
-static int hf_vrt_cif0_device_id = -1; /* 1-bit device identifier */
-static int hf_vrt_cif0_state_event = -1; /* 1-bit state/event indicators */
-static int hf_vrt_cif0_signal_data_format = -1; /* 1-bit signal data packet payload format */
-static int hf_vrt_cif0_gps = -1; /* 1-bit formatted GPS */
-static int hf_vrt_cif0_ins = -1; /* 1-bit formatted INS */
-static int hf_vrt_cif0_ecef_ephemeris = -1; /* 1-bit ECEF ephemeris */
-static int hf_vrt_cif0_rel_ephemeris = -1; /* 1-bit relative ephemeris */
-static int hf_vrt_cif0_ephemeris_ref_id = -1; /* 1-bit ephemeris ref ID */
-static int hf_vrt_cif0_gps_ascii = -1; /* 1-bit GPS ASCII */
-static int hf_vrt_cif0_context_assoc_lists = -1; /* 1-bit context association lists */
-static int hf_vrt_cif0_cif7 = -1; /* 1-bit CIF7 */
-static int hf_vrt_cif0_cif6 = -1; /* 1-bit CIF6 */
-static int hf_vrt_cif0_cif5 = -1; /* 1-bit CIF5 */
-static int hf_vrt_cif0_cif4 = -1; /* 1-bit CIF4 */
-static int hf_vrt_cif0_cif3 = -1; /* 1-bit CIF3 */
-static int hf_vrt_cif0_cif2 = -1; /* 1-bit CIF2 */
-static int hf_vrt_cif0_cif1 = -1; /* 1-bit CIF1 */
+static int hf_vrt_cif0_change_flag; /* 1-bit context field change indicator */
+static int hf_vrt_cif0_ref_pt_id; /* 1-bit reference point identifier */
+static int hf_vrt_cif0_bandwidth; /* 1-bit bandwidth */
+static int hf_vrt_cif0_if_freq; /* 1-bit IF reference frequency */
+static int hf_vrt_cif0_rf_freq; /* 1-bit RF reference frequency */
+static int hf_vrt_cif0_rf_freq_offset; /* 1-bit RF reference frequency offset */
+static int hf_vrt_cif0_if_band_offset; /* 1-bit IF band offset */
+static int hf_vrt_cif0_ref_level; /* 1-bit reference level */
+static int hf_vrt_cif0_gain; /* 1-bit gain */
+static int hf_vrt_cif0_over_range_count; /* 1-bit over-range count */
+static int hf_vrt_cif0_sample_rate; /* 1-bit sample rate */
+static int hf_vrt_cif0_timestamp_adjust; /* 1-bit timestamp adjustment */
+static int hf_vrt_cif0_timestamp_cal; /* 1-bit timestamp calibration time */
+static int hf_vrt_cif0_temperature; /* 1-bit temperature */
+static int hf_vrt_cif0_device_id; /* 1-bit device identifier */
+static int hf_vrt_cif0_state_event; /* 1-bit state/event indicators */
+static int hf_vrt_cif0_signal_data_format; /* 1-bit signal data packet payload format */
+static int hf_vrt_cif0_gps; /* 1-bit formatted GPS */
+static int hf_vrt_cif0_ins; /* 1-bit formatted INS */
+static int hf_vrt_cif0_ecef_ephemeris; /* 1-bit ECEF ephemeris */
+static int hf_vrt_cif0_rel_ephemeris; /* 1-bit relative ephemeris */
+static int hf_vrt_cif0_ephemeris_ref_id; /* 1-bit ephemeris ref ID */
+static int hf_vrt_cif0_gps_ascii; /* 1-bit GPS ASCII */
+static int hf_vrt_cif0_context_assoc_lists; /* 1-bit context association lists */
+static int hf_vrt_cif0_cif7; /* 1-bit CIF7 */
+static int hf_vrt_cif0_cif6; /* 1-bit CIF6 */
+static int hf_vrt_cif0_cif5; /* 1-bit CIF5 */
+static int hf_vrt_cif0_cif4; /* 1-bit CIF4 */
+static int hf_vrt_cif0_cif3; /* 1-bit CIF3 */
+static int hf_vrt_cif0_cif2; /* 1-bit CIF2 */
+static int hf_vrt_cif0_cif1; /* 1-bit CIF1 */
 /* TODO: complete CIF1 support (have partial CIF1 support) */
-static int hf_vrt_cif1_phase_offset = -1; /* 1-bit phase offset */
-static int hf_vrt_cif1_polarization = -1; /* 1-bit polarization */
-static int hf_vrt_cif1_range = -1; /* 1-bit range (distance) */
-static int hf_vrt_cif1_aux_freq = -1; /* 1-bit aux frequency */
-static int hf_vrt_cif1_aux_bandwidth = -1; /* 1-bit aux bandwidth */
-static int hf_vrt_cif1_io32 = -1; /* 1-bit discrete I/O (32-bit) */
-static int hf_vrt_cif1_io64 = -1; /* 1-bit discrete I/O (64-bit) */
-static int hf_vrt_cif1_v49_spec = -1; /* 1-bit V49 spec compliance */
-static int hf_vrt_cif1_ver = -1; /* 1-bit version and build code */
-static int hf_vrt_context_ref_pt_id = -1; /* 32-bit reference point identifier */
-static int hf_vrt_context_bandwidth = -1; /* 64-bit bandwidth */
-static int hf_vrt_context_if_freq = -1; /* 64-bit IF reference frequency */
-static int hf_vrt_context_rf_freq = -1; /* 64-bit RF reference frequency */
-static int hf_vrt_context_rf_freq_offset = -1; /* 64-bit RF frequency offset */
-static int hf_vrt_context_if_band_offset = -1; /* 64-bit IF band offset */
-static int hf_vrt_context_ref_level = -1; /* 16-bit reference level */
-static int hf_vrt_context_gain_stage2 = -1; /* 16-bit gain stage 2 */
-static int hf_vrt_context_gain_stage1 = -1; /* 16-bit gain stage 1 */
-static int hf_vrt_context_over_range_count = -1; /* 32-bit over-range count */
-static int hf_vrt_context_sample_rate = -1; /* 64-bit sample rate */
-static int hf_vrt_context_timestamp_adjust = -1; /* 64-bit timestamp adjustment */
-static int hf_vrt_context_timestamp_cal = -1; /* 32-bit timestamp calibration */
-static int hf_vrt_context_temperature = -1; /* 16-bit device temperature */
-static int hf_vrt_context_device_id_oui = -1; /* 24-bit device ID OUI */
-static int hf_vrt_context_device_id_code = -1; /* 16-bit device ID code */
-static int hf_vrt_context_state_event_en_cal_time = -1; /* 1-bit enable calibrated time */
-static int hf_vrt_context_state_event_en_valid_data = -1; /* 1-bit enable valid data */
-static int hf_vrt_context_state_event_en_ref_lock = -1; /* 1-bit enable reference lock */
-static int hf_vrt_context_state_event_en_agc = -1; /* 1-bit enable AGC/MGC */
-static int hf_vrt_context_state_event_en_detected_sig = -1; /* 1-bit enable detected signal */
-static int hf_vrt_context_state_event_en_spectral_inv = -1; /* 1-bit enable spectral inversion */
-static int hf_vrt_context_state_event_en_over_range = -1; /* 1-bit enable over-range */
-static int hf_vrt_context_state_event_en_sample_loss = -1; /* 1-bit enable sample loss */
-static int hf_vrt_context_state_event_cal_time = -1; /* 1-bit enable calibrated time */
-static int hf_vrt_context_state_event_valid_data = -1; /* 1-bit enable valid data */
-static int hf_vrt_context_state_event_ref_lock = -1; /* 1-bit enable reference lock */
-static int hf_vrt_context_state_event_agc = -1; /* 1-bit enable AGC/MGC */
-static int hf_vrt_context_state_event_detected_sig = -1; /* 1-bit enable detected signal */
-static int hf_vrt_context_state_event_spectral_inv = -1; /* 1-bit enable spectral inversion */
-static int hf_vrt_context_state_event_over_range = -1; /* 1-bit enable over-range */
-static int hf_vrt_context_state_event_sample_loss = -1; /* 1-bit enable sample loss */
-static int hf_vrt_context_state_event_user = -1; /* 8-bit user-defined */
-static int hf_vrt_context_signal_data_format_packing = -1; /* 1-bit signal data format packing */
-static int hf_vrt_context_signal_data_format_type = -1; /* 2-bit real/complex type */
-static int hf_vrt_context_signal_data_format_item = -1; /* 5-bit data item format */
-static int hf_vrt_context_signal_data_format_repeat = -1; /* 1-bit sample-component repeat indicator */
-static int hf_vrt_context_signal_data_format_event_size = -1; /* 3-bit event-tag size */
-static int hf_vrt_context_signal_data_format_channel_size = -1; /* 4-bit channel-tag size */
-static int hf_vrt_context_signal_data_format_fraction_size = -1; /* 4-bit data item fraction size */
-static int hf_vrt_context_signal_data_format_packing_size = -1; /* 6-bit item packing field size */
-static int hf_vrt_context_signal_data_format_item_size = -1; /* 6-bit data item size */
-static int hf_vrt_context_signal_data_format_repeat_count = -1; /* 16-bit repeat count */
-static int hf_vrt_context_signal_data_format_vector_size = -1; /* 16-bit vector size */
+static int hf_vrt_cif1_phase_offset; /* 1-bit phase offset */
+static int hf_vrt_cif1_polarization; /* 1-bit polarization */
+static int hf_vrt_cif1_range; /* 1-bit range (distance) */
+static int hf_vrt_cif1_aux_freq; /* 1-bit aux frequency */
+static int hf_vrt_cif1_aux_bandwidth; /* 1-bit aux bandwidth */
+static int hf_vrt_cif1_io32; /* 1-bit discrete I/O (32-bit) */
+static int hf_vrt_cif1_io64; /* 1-bit discrete I/O (64-bit) */
+static int hf_vrt_cif1_v49_spec; /* 1-bit V49 spec compliance */
+static int hf_vrt_cif1_ver; /* 1-bit version and build code */
+static int hf_vrt_context_ref_pt_id; /* 32-bit reference point identifier */
+static int hf_vrt_context_bandwidth; /* 64-bit bandwidth */
+static int hf_vrt_context_if_freq; /* 64-bit IF reference frequency */
+static int hf_vrt_context_rf_freq; /* 64-bit RF reference frequency */
+static int hf_vrt_context_rf_freq_offset; /* 64-bit RF frequency offset */
+static int hf_vrt_context_if_band_offset; /* 64-bit IF band offset */
+static int hf_vrt_context_ref_level; /* 16-bit reference level */
+static int hf_vrt_context_gain_stage2; /* 16-bit gain stage 2 */
+static int hf_vrt_context_gain_stage1; /* 16-bit gain stage 1 */
+static int hf_vrt_context_over_range_count; /* 32-bit over-range count */
+static int hf_vrt_context_sample_rate; /* 64-bit sample rate */
+static int hf_vrt_context_timestamp_adjust; /* 64-bit timestamp adjustment */
+static int hf_vrt_context_timestamp_cal; /* 32-bit timestamp calibration */
+static int hf_vrt_context_temperature; /* 16-bit device temperature */
+static int hf_vrt_context_device_id_oui; /* 24-bit device ID OUI */
+static int hf_vrt_context_device_id_code; /* 16-bit device ID code */
+static int hf_vrt_context_state_event_en_cal_time; /* 1-bit enable calibrated time */
+static int hf_vrt_context_state_event_en_valid_data; /* 1-bit enable valid data */
+static int hf_vrt_context_state_event_en_ref_lock; /* 1-bit enable reference lock */
+static int hf_vrt_context_state_event_en_agc; /* 1-bit enable AGC/MGC */
+static int hf_vrt_context_state_event_en_detected_sig; /* 1-bit enable detected signal */
+static int hf_vrt_context_state_event_en_spectral_inv; /* 1-bit enable spectral inversion */
+static int hf_vrt_context_state_event_en_over_range; /* 1-bit enable over-range */
+static int hf_vrt_context_state_event_en_sample_loss; /* 1-bit enable sample loss */
+static int hf_vrt_context_state_event_cal_time; /* 1-bit enable calibrated time */
+static int hf_vrt_context_state_event_valid_data; /* 1-bit enable valid data */
+static int hf_vrt_context_state_event_ref_lock; /* 1-bit enable reference lock */
+static int hf_vrt_context_state_event_agc; /* 1-bit enable AGC/MGC */
+static int hf_vrt_context_state_event_detected_sig; /* 1-bit enable detected signal */
+static int hf_vrt_context_state_event_spectral_inv; /* 1-bit enable spectral inversion */
+static int hf_vrt_context_state_event_over_range; /* 1-bit enable over-range */
+static int hf_vrt_context_state_event_sample_loss; /* 1-bit enable sample loss */
+static int hf_vrt_context_state_event_user; /* 8-bit user-defined */
+static int hf_vrt_context_signal_data_format_packing; /* 1-bit signal data format packing */
+static int hf_vrt_context_signal_data_format_type; /* 2-bit real/complex type */
+static int hf_vrt_context_signal_data_format_item; /* 5-bit data item format */
+static int hf_vrt_context_signal_data_format_repeat; /* 1-bit sample-component repeat indicator */
+static int hf_vrt_context_signal_data_format_event_size; /* 3-bit event-tag size */
+static int hf_vrt_context_signal_data_format_channel_size; /* 4-bit channel-tag size */
+static int hf_vrt_context_signal_data_format_fraction_size; /* 4-bit data item fraction size */
+static int hf_vrt_context_signal_data_format_packing_size; /* 6-bit item packing field size */
+static int hf_vrt_context_signal_data_format_item_size; /* 6-bit data item size */
+static int hf_vrt_context_signal_data_format_repeat_count; /* 16-bit repeat count */
+static int hf_vrt_context_signal_data_format_vector_size; /* 16-bit vector size */
 static formatted_gps_ins_fields hf_vrt_context_gps; /* struct for formatted GPS */
 static formatted_gps_ins_fields hf_vrt_context_ins; /* struct for formatted INS */
 static ephemeris_fields hf_vrt_context_ecef_ephemeris; /* struct for ECEF ephemeris */
 static ephemeris_fields hf_vrt_context_rel_ephemeris; /* struct for relative ephemeris */
-static int hf_vrt_context_ephemeris_ref_id = -1; /* 32-bit ephemeris reference identifier */
+static int hf_vrt_context_ephemeris_ref_id; /* 32-bit ephemeris reference identifier */
 static int hf_vrt_context_gps_ascii_oui; /* 24-bit GPS/INS manufacturer OUI */
 static int hf_vrt_context_gps_ascii_size; /* 32-bit number of words */
-static int hf_vrt_context_gps_ascii_data = -1; /* Variable GPS ASCII data */
+static int hf_vrt_context_gps_ascii_data; /* Variable GPS ASCII data */
 static int hf_vrt_context_assoc_lists_src_size; /* 32-bit source list size */
 static int hf_vrt_context_assoc_lists_sys_size; /* 32-bit system list size */
 static int hf_vrt_context_assoc_lists_vec_size; /* 32-bit vector-component list size */
@@ -188,52 +188,52 @@ static int hf_vrt_context_assoc_lists_sys_data; /* Variable system context assoc
 static int hf_vrt_context_assoc_lists_vec_data; /* Variable vector-component context association list */
 static int hf_vrt_context_assoc_lists_asy_data; /* Variable asynchronous-channel context association list */
 static int hf_vrt_context_assoc_lists_asy_tag_data; /* Variable asynchronous-channel tag list */
-static int hf_vrt_context_phase_offset = -1; /* 16-bit phase offset */
-static int hf_vrt_context_pol_tilt = -1; /* 16-bit polarization tilt angle */
-static int hf_vrt_context_pol_ellipticity = -1; /* 16-bit polarization ellipticity angle */
-static int hf_vrt_context_range = -1; /* 32-bit range (distance) */
-static int hf_vrt_context_aux_freq = -1; /* 64-bit aux frequency */
-static int hf_vrt_context_aux_bandwidth = -1; /* 64-bit aux bandwidth */
-static int hf_vrt_context_io32 = -1; /* 32-bit discrete I/O */
-static int hf_vrt_context_io64 = -1; /* 64-bit discrete I/O */
-static int hf_vrt_context_v49_spec = -1; /* 32-bit V49 spec compliance */
-static int hf_vrt_context_ver_year = -1; /* 7-bit year */
-static int hf_vrt_context_ver_day = -1; /* 9-bit day */
-static int hf_vrt_context_ver_rev = -1; /* 6-bit revision */
-static int hf_vrt_context_ver_user = -1; /* 10-bit user defined */
-static int hf_vrt_ts_int = -1; /* 32-bit integer timestamp (opt.) */
-static int hf_vrt_ts_frac_picosecond = -1; /* 64-bit fractional timestamp (opt.) */
-static int hf_vrt_ts_frac_sample = -1; /* 64-bit fractional timestamp (opt.) */
-static int hf_vrt_data = -1; /* data */
-static int hf_vrt_trailer = -1; /* 32-bit trailer (opt.) */
-static int hf_vrt_trailer_enables = -1; /* trailer indicator enables */
-static int hf_vrt_trailer_ind = -1; /* trailer indicators */
-static int hf_vrt_trailer_e = -1; /* ass con pac cnt enable */
-static int hf_vrt_trailer_acpc = -1; /* associated context packet count */
-static int hf_vrt_trailer_en_caltime = -1; /* calibrated time indicator */
-static int hf_vrt_trailer_en_valid = -1; /* valid data ind */
-static int hf_vrt_trailer_en_reflock = -1; /* reference locked ind */
-static int hf_vrt_trailer_en_agc = -1; /* AGC/MGC enabled ind */
-static int hf_vrt_trailer_en_sig = -1; /* signal detected ind */
-static int hf_vrt_trailer_en_inv = -1; /* spectral inversion ind */
-static int hf_vrt_trailer_en_overrng = -1; /* overrange indicator */
-static int hf_vrt_trailer_en_sampleloss = -1; /* sample loss indicator */
-static int hf_vrt_trailer_en_user0 = -1; /* User indicator 0 */
-static int hf_vrt_trailer_en_user1 = -1; /* User indicator 1 */
-static int hf_vrt_trailer_en_user2 = -1; /* User indicator 2 */
-static int hf_vrt_trailer_en_user3 = -1; /* User indicator 3 */
-static int hf_vrt_trailer_ind_caltime = -1; /* calibrated time indicator */
-static int hf_vrt_trailer_ind_valid = -1; /* valid data ind */
-static int hf_vrt_trailer_ind_reflock = -1; /* reference locked ind */
-static int hf_vrt_trailer_ind_agc = -1; /* AGC/MGC enabled ind */
-static int hf_vrt_trailer_ind_sig = -1; /* signal detected ind */
-static int hf_vrt_trailer_ind_inv = -1; /* spectral inversion ind */
-static int hf_vrt_trailer_ind_overrng = -1; /* overrange indicator */
-static int hf_vrt_trailer_ind_sampleloss = -1; /* sample loss indicator */
-static int hf_vrt_trailer_ind_user0 = -1; /* User indicator 0 */
-static int hf_vrt_trailer_ind_user1 = -1; /* User indicator 1 */
-static int hf_vrt_trailer_ind_user2 = -1; /* User indicator 2 */
-static int hf_vrt_trailer_ind_user3 = -1; /* User indicator 3 */
+static int hf_vrt_context_phase_offset; /* 16-bit phase offset */
+static int hf_vrt_context_pol_tilt; /* 16-bit polarization tilt angle */
+static int hf_vrt_context_pol_ellipticity; /* 16-bit polarization ellipticity angle */
+static int hf_vrt_context_range; /* 32-bit range (distance) */
+static int hf_vrt_context_aux_freq; /* 64-bit aux frequency */
+static int hf_vrt_context_aux_bandwidth; /* 64-bit aux bandwidth */
+static int hf_vrt_context_io32; /* 32-bit discrete I/O */
+static int hf_vrt_context_io64; /* 64-bit discrete I/O */
+static int hf_vrt_context_v49_spec; /* 32-bit V49 spec compliance */
+static int hf_vrt_context_ver_year; /* 7-bit year */
+static int hf_vrt_context_ver_day; /* 9-bit day */
+static int hf_vrt_context_ver_rev; /* 6-bit revision */
+static int hf_vrt_context_ver_user; /* 10-bit user defined */
+static int hf_vrt_ts_int; /* 32-bit integer timestamp (opt.) */
+static int hf_vrt_ts_frac_picosecond; /* 64-bit fractional timestamp (opt.) */
+static int hf_vrt_ts_frac_sample; /* 64-bit fractional timestamp (opt.) */
+static int hf_vrt_data; /* data */
+static int hf_vrt_trailer; /* 32-bit trailer (opt.) */
+static int hf_vrt_trailer_enables; /* trailer indicator enables */
+static int hf_vrt_trailer_ind; /* trailer indicators */
+static int hf_vrt_trailer_e; /* ass con pac cnt enable */
+static int hf_vrt_trailer_acpc; /* associated context packet count */
+static int hf_vrt_trailer_en_caltime; /* calibrated time indicator */
+static int hf_vrt_trailer_en_valid; /* valid data ind */
+static int hf_vrt_trailer_en_reflock; /* reference locked ind */
+static int hf_vrt_trailer_en_agc; /* AGC/MGC enabled ind */
+static int hf_vrt_trailer_en_sig; /* signal detected ind */
+static int hf_vrt_trailer_en_inv; /* spectral inversion ind */
+static int hf_vrt_trailer_en_overrng; /* overrange indicator */
+static int hf_vrt_trailer_en_sampleloss; /* sample loss indicator */
+static int hf_vrt_trailer_en_user0; /* User indicator 0 */
+static int hf_vrt_trailer_en_user1; /* User indicator 1 */
+static int hf_vrt_trailer_en_user2; /* User indicator 2 */
+static int hf_vrt_trailer_en_user3; /* User indicator 3 */
+static int hf_vrt_trailer_ind_caltime; /* calibrated time indicator */
+static int hf_vrt_trailer_ind_valid; /* valid data ind */
+static int hf_vrt_trailer_ind_reflock; /* reference locked ind */
+static int hf_vrt_trailer_ind_agc; /* AGC/MGC enabled ind */
+static int hf_vrt_trailer_ind_sig; /* signal detected ind */
+static int hf_vrt_trailer_ind_inv; /* spectral inversion ind */
+static int hf_vrt_trailer_ind_overrng; /* overrange indicator */
+static int hf_vrt_trailer_ind_sampleloss; /* sample loss indicator */
+static int hf_vrt_trailer_ind_user0; /* User indicator 0 */
+static int hf_vrt_trailer_ind_user1; /* User indicator 1 */
+static int hf_vrt_trailer_ind_user2; /* User indicator 2 */
+static int hf_vrt_trailer_ind_user3; /* User indicator 3 */
 
 /* fixed sizes (in bytes) of context packet CIF field bits */
 static int context_size_cif0[32] = { 0, 4, 4, 4, 4, 4, 4, 4, 8, 8, 4, 52, 52, 44, 44, 8,
@@ -242,26 +242,26 @@ static int context_size_cif1[32] = { 0, 8, 4, 4, 4, 8, 4, 0, 0, 0, 52, 0, 0, 8, 
     4, 4, 4, 4, 4, 0, 0, 0, 4, 4, 4, 4, 0, 4, 4, 4 };
 
 /* subtree state variables */
-static gint ett_vrt = -1;
-static gint ett_header = -1;
-static gint ett_trailer = -1;
-static gint ett_indicators = -1;
-static gint ett_ind_enables = -1;
-static gint ett_cid = -1;
-static gint ett_cif0 = -1;
-static gint ett_cif1 = -1;
-static gint ett_gain = -1;
-static gint ett_device_id = -1;
-static gint ett_state_event = -1;
-static gint ett_signal_data_format = -1;
-static gint ett_gps = -1;
-static gint ett_ins = -1;
-static gint ett_ecef_ephem = -1;
-static gint ett_rel_ephem = -1;
-static gint ett_gps_ascii = -1;
-static gint ett_assoc_lists = -1;
-static gint ett_pol = -1;
-static gint ett_ver = -1;
+static gint ett_vrt;
+static gint ett_header;
+static gint ett_trailer;
+static gint ett_indicators;
+static gint ett_ind_enables;
+static gint ett_cid;
+static gint ett_cif0;
+static gint ett_cif1;
+static gint ett_gain;
+static gint ett_device_id;
+static gint ett_state_event;
+static gint ett_signal_data_format;
+static gint ett_gps;
+static gint ett_ins;
+static gint ett_ecef_ephem;
+static gint ett_rel_ephem;
+static gint ett_gps_ascii;
+static gint ett_assoc_lists;
+static gint ett_pol;
+static gint ett_ver;
 
 /* constants (unit conversion) */
 static const double FEMTOSEC_PER_SEC = 1e-15;

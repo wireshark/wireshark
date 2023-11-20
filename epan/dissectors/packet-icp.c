@@ -21,27 +21,27 @@ void proto_reg_handoff_icp(void);
 
 static dissector_handle_t icp_handle;
 
-static int proto_icp = -1;
-static int hf_icp_length = -1;
-static int hf_icp_opcode = -1;
-static int hf_icp_version = -1;
-static int hf_icp_request_nr = -1;
+static int proto_icp;
+static int hf_icp_length;
+static int hf_icp_opcode;
+static int hf_icp_version;
+static int hf_icp_request_nr;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_icp_url = -1;
-static int hf_icp_rtt = -1;
-static int hf_icp_object_data = -1;
-static int hf_icp_requester_host_address = -1;
-static int hf_icp_sender_host_ip_address = -1;
-static int hf_icp_option_src_rtt = -1;
-static int hf_icp_object_length = -1;
-static int hf_icp_option_hit_obj = -1;
+static int hf_icp_url;
+static int hf_icp_rtt;
+static int hf_icp_object_data;
+static int hf_icp_requester_host_address;
+static int hf_icp_sender_host_ip_address;
+static int hf_icp_option_src_rtt;
+static int hf_icp_object_length;
+static int hf_icp_option_hit_obj;
 
-static gint ett_icp = -1;
-static gint ett_icp_payload = -1;
+static gint ett_icp;
+static gint ett_icp_payload;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static expert_field ei_icp_fragmented_packet = EI_INIT;
+static expert_field ei_icp_fragmented_packet;
 
 #define UDP_PORT_ICP    3130
 

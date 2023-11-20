@@ -45,25 +45,25 @@ void proto_reg_handoff_oscore(void);
 void proto_register_oscore(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_oscore                             = -1;
-static int proto_coap                               = -1;
+static int proto_oscore;
+static int proto_coap;
 
-static int hf_oscore_tag                            = -1;
+static int hf_oscore_tag;
 
 static COAP_COMMON_LIST_T(dissect_oscore_hf);
 
-static expert_field ei_oscore_partial_iv_not_found    = EI_INIT;
-static expert_field ei_oscore_context_not_set         = EI_INIT;
-static expert_field ei_oscore_message_too_small       = EI_INIT;
-static expert_field ei_oscore_truncated               = EI_INIT;
-static expert_field ei_oscore_tag_check_failed        = EI_INIT;
-static expert_field ei_oscore_decrypt_error           = EI_INIT;
-static expert_field ei_oscore_cbc_mac_failed          = EI_INIT;
-static expert_field ei_oscore_piv_len_invalid         = EI_INIT;
-static expert_field ei_oscore_info_fetch_failed       = EI_INIT;
+static expert_field ei_oscore_partial_iv_not_found;
+static expert_field ei_oscore_context_not_set;
+static expert_field ei_oscore_message_too_small;
+static expert_field ei_oscore_truncated;
+static expert_field ei_oscore_tag_check_failed;
+static expert_field ei_oscore_decrypt_error;
+static expert_field ei_oscore_cbc_mac_failed;
+static expert_field ei_oscore_piv_len_invalid;
+static expert_field ei_oscore_info_fetch_failed;
 
 /* Initialize the subtree pointers */
-static gint ett_oscore                                = -1;
+static gint ett_oscore;
 
 /* UAT variables */
 static uat_t            *oscore_context_uat = NULL;

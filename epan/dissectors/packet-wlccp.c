@@ -430,250 +430,250 @@ static gboolean get_mic_flag(void);
 static gboolean mic_flag=0, tlv_flag=0;
 
 /* Initialize the protocol and registered fields */
-static int proto_wlccp = -1;
+static int proto_wlccp;
 
-static int hf_llc_wlccp_pid = -1;
+static int hf_llc_wlccp_pid;
 
 
 
-static int hf_wlccp_dstmac = -1;
-static int hf_wlccp_srcmac = -1;
-static int hf_wlccp_hostname = -1;
+static int hf_wlccp_dstmac;
+static int hf_wlccp_srcmac;
+static int hf_wlccp_hostname;
 
 /* WLCCP Fixed header fields */
-static int hf_wlccp_version = -1;
+static int hf_wlccp_version;
 
-static int hf_wlccp_sap = -1; /* SAP Tree */
-static int hf_wlccp_sap_version = -1;
-static int hf_wlccp_sap_id = -1;
+static int hf_wlccp_sap; /* SAP Tree */
+static int hf_wlccp_sap_version;
+static int hf_wlccp_sap_id;
 
-static int hf_wlccp_destination_node_type = -1;
-static int hf_wlccp_length = -1;
+static int hf_wlccp_destination_node_type;
+static int hf_wlccp_length;
 
-static int hf_wlccp_type = -1; /* Message Type Tree */
-static int hf_wlccp_subtype = -1;
-static int hf_wlccp_base_message_type_0 = -1;
-static int hf_wlccp_base_message_type_1 = -1;
-static int hf_wlccp_base_message_type_2 = -1;
-static int hf_wlccp_base_message_type_3 = -1;
-static int hf_wlccp_base_message_type_4 = -1;
-static int hf_wlccp_base_message_type_5 = -1;
-static int hf_wlccp_base_message_type_unknown = -1;
+static int hf_wlccp_type; /* Message Type Tree */
+static int hf_wlccp_subtype;
+static int hf_wlccp_base_message_type_0;
+static int hf_wlccp_base_message_type_1;
+static int hf_wlccp_base_message_type_2;
+static int hf_wlccp_base_message_type_3;
+static int hf_wlccp_base_message_type_4;
+static int hf_wlccp_base_message_type_5;
+static int hf_wlccp_base_message_type_unknown;
 
-static int hf_wlccp_hops = -1;
-static int hf_wlccp_nm_version = -1;
+static int hf_wlccp_hops;
+static int hf_wlccp_nm_version;
 
-static int hf_wlccp_msg_id = -1;
+static int hf_wlccp_msg_id;
 
-static int hf_wlccp_flags = -1; /* Flags Tree */
-static int hf_wlccp_rm_flags = -1;
-static int hf_wlccp_retry_flag = -1;
-static int hf_wlccp_response_request_flag = -1;
-static int hf_wlccp_ack_required_flag = -1;
-static int hf_wlccp_tlv_flag = -1;
-static int hf_wlccp_inbound_flag = -1;
-static int hf_wlccp_outbound_flag = -1;
-static int hf_wlccp_hopwise_routing_flag = -1;
-static int hf_wlccp_root_cm_flag = -1;
-static int hf_wlccp_relay_flag = -1;
-static int hf_wlccp_mic_flag = -1;
-static int hf_wlccp_rm_request_reply_flag = -1;
-static int hf_wlccp_rm_mic_flag = -1;
+static int hf_wlccp_flags; /* Flags Tree */
+static int hf_wlccp_rm_flags;
+static int hf_wlccp_retry_flag;
+static int hf_wlccp_response_request_flag;
+static int hf_wlccp_ack_required_flag;
+static int hf_wlccp_tlv_flag;
+static int hf_wlccp_inbound_flag;
+static int hf_wlccp_outbound_flag;
+static int hf_wlccp_hopwise_routing_flag;
+static int hf_wlccp_root_cm_flag;
+static int hf_wlccp_relay_flag;
+static int hf_wlccp_mic_flag;
+static int hf_wlccp_rm_request_reply_flag;
+static int hf_wlccp_rm_mic_flag;
 
-static int hf_wlccp_originator = -1; /* Originator Tree */
-static int hf_wlccp_originator_node_type = -1;
-/* static int hf_wlccp_originator_id = -1; */
+static int hf_wlccp_originator; /* Originator Tree */
+static int hf_wlccp_originator_node_type;
+/* static int hf_wlccp_originator_id; */
 
-static int hf_wlccp_responder = -1; /* Responder Tree */
-static int hf_wlccp_responder_node_type = -1;
-/*static int hf_wlccp_responder_id = -1; */
+static int hf_wlccp_responder; /* Responder Tree */
+static int hf_wlccp_responder_node_type;
+/*static int hf_wlccp_responder_id; */
 
 
-/* static int hf_wlccp_relay_node = -1;*/ /* Relay Node Tree */
-static int hf_wlccp_relay_node_type = -1;
-static int hf_wlccp_relay_node_id = -1;
+/* static int hf_wlccp_relay_node;*/ /* Relay Node Tree */
+static int hf_wlccp_relay_node_type;
+static int hf_wlccp_relay_node_id;
 
-/* static int hf_wlccp_priority = -1; */
-/* static int hf_wlccp_age = -1; */
-/* static int hf_wlccp_period = -1; */
-static int hf_wlccp_ipv4_address = -1;
+/* static int hf_wlccp_priority; */
+/* static int hf_wlccp_age; */
+/* static int hf_wlccp_period; */
+static int hf_wlccp_ipv4_address;
 
 /* SCM Advertisement */
-static int hf_wlccp_scm_hop_address = -1;
+static int hf_wlccp_scm_hop_address;
 
-static int hf_wlccp_scm_flags = -1; /* SCM Flags Tree */
-static int hf_wlccp_scm_active_flag = -1;
-static int hf_wlccp_scm_unscheduled_flag = -1;
-static int hf_wlccp_scm_unattached_flag = -1;
-static int hf_wlccp_scm_layer2update_flag = -1;
+static int hf_wlccp_scm_flags; /* SCM Flags Tree */
+static int hf_wlccp_scm_active_flag;
+static int hf_wlccp_scm_unscheduled_flag;
+static int hf_wlccp_scm_unattached_flag;
+static int hf_wlccp_scm_layer2update_flag;
 
-static int hf_wlccp_scm_election_group = -1;
-static int hf_wlccp_scm_attach_count = -1;
+static int hf_wlccp_scm_election_group;
+static int hf_wlccp_scm_attach_count;
 
-static int hf_wlccp_scm_priority_flags = -1; /* SCM Priority Flags */
-static int hf_wlccp_scm_priority = -1;
-static int hf_wlccp_scm_preferred_flag = -1;
+static int hf_wlccp_scm_priority_flags; /* SCM Priority Flags */
+static int hf_wlccp_scm_priority;
+static int hf_wlccp_scm_preferred_flag;
 
-static int hf_wlccp_scm_bridge_priority_flags = -1; /* SCM Bridge Priority Flags */
-static int hf_wlccp_scm_bridge_priority = -1;
-static int hf_wlccp_scm_bridge_disable_flag = -1;
+static int hf_wlccp_scm_bridge_priority_flags; /* SCM Bridge Priority Flags */
+static int hf_wlccp_scm_bridge_priority;
+static int hf_wlccp_scm_bridge_disable_flag;
 
-static int hf_wlccp_scm_node_id = -1;
-static int hf_wlccp_scm_unknown_short = -1;
-static int hf_wlccp_scm_instance_age = -1;
-static int hf_wlccp_scm_path_cost = -1;
-static int hf_wlccp_scm_hop_count = -1;
-static int hf_wlccp_scm_advperiod = -1;
+static int hf_wlccp_scm_node_id;
+static int hf_wlccp_scm_unknown_short;
+static int hf_wlccp_scm_instance_age;
+static int hf_wlccp_scm_path_cost;
+static int hf_wlccp_scm_hop_count;
+static int hf_wlccp_scm_advperiod;
 
 /*kan for apRegistration messages*/
-static int hf_wlccp_timestamp = -1;
-static int hf_wlccp_apregstatus = -1;
-static int hf_wlccp_ap_node_id = -1;
-static int hf_wlccp_ap_node_type = -1;
-static int hf_wlccp_ap_node_id_address = -1;
+static int hf_wlccp_timestamp;
+static int hf_wlccp_apregstatus;
+static int hf_wlccp_ap_node_id;
+static int hf_wlccp_ap_node_type;
+static int hf_wlccp_ap_node_id_address;
 /*kan for nmPathInit messages */
-static int hf_wlccp_requ_node_type = -1;
-static int hf_wlccp_requ_node_id = -1;
-static int hf_wlccp_status = -1;
-static int hf_wlccp_path_init_rsvd = -1;
+static int hf_wlccp_requ_node_type;
+static int hf_wlccp_requ_node_id;
+static int hf_wlccp_status;
+static int hf_wlccp_path_init_rsvd;
 /*kan - for cmAAA messages */
-static int hf_wlccp_aaa_msg_type = -1;
-static int hf_wlccp_aaa_auth_type = -1;
-static int hf_wlccp_keymgmt_type = -1;
+static int hf_wlccp_aaa_msg_type;
+static int hf_wlccp_aaa_auth_type;
+static int hf_wlccp_keymgmt_type;
 /*kan - for cmAAA EAPOL messages */
-static int hf_wlccp_eapol_msg = -1;
-static int hf_wlccp_eapol_version = -1;
-static int hf_wlccp_eapol_type = -1;
-static int hf_wlccp_eap_msg_length = -1;
-static int hf_wlccp_eap_msg = -1;
+static int hf_wlccp_eapol_msg;
+static int hf_wlccp_eapol_version;
+static int hf_wlccp_eapol_type;
+static int hf_wlccp_eap_msg_length;
+static int hf_wlccp_eap_msg;
 /*kan - for cmAAA Proprietary message */
-static int hf_wlccp_cisco_acctg_msg = -1;
+static int hf_wlccp_cisco_acctg_msg;
 /*kan - for cmWIDS */
-static int hf_wlccp_wids_msg_type = -1;
+static int hf_wlccp_wids_msg_type;
 /*kan - for nmConfigRequest and nmConfigReply */
-static int hf_wlccp_nmconfig = -1;
+static int hf_wlccp_nmconfig;
 
-static int hf_wlccp_scmstate_change = -1;
-static int hf_wlccp_scmstate_change_reason = -1;
+static int hf_wlccp_scmstate_change;
+static int hf_wlccp_scmstate_change_reason;
 
-static int hf_wlccp_scmattach_state = -1;
-static int hf_wlccp_nmcapability = -1;
-static int hf_wlccp_refresh_req_id = -1;
+static int hf_wlccp_scmattach_state;
+static int hf_wlccp_nmcapability;
+static int hf_wlccp_refresh_req_id;
 
-static int hf_wlccp_tlv = -1;
-static int hf_tlv_flags = -1;
+static int hf_wlccp_tlv;
+static int hf_tlv_flags;
 
-static int hf_wlccp_null_tlv = -1;
+static int hf_wlccp_null_tlv;
 
-static int hf_wlccp_tlv_type = -1;
-static int hf_wlccp_tlv_type0 = -1;
-static int hf_wlccp_tlv_type1 = -1;
-static int hf_wlccp_tlv_type2 = -1;
-static int hf_wlccp_tlv_type3 = -1;
-static int hf_wlccp_tlv_type4 = -1;
-static int hf_wlccp_tlv_type5 = -1;
-static int hf_wlccp_tlv_group = -1;
-static int hf_wlccp_tlv_container_flag = -1;
-static int hf_wlccp_tlv_encrypted_flag = -1;
-static int hf_wlccp_tlv_request_flag = -1;
-static int hf_wlccp_tlv_reserved_bit = -1;
-static int hf_wlccp_tlv_length = -1;
+static int hf_wlccp_tlv_type;
+static int hf_wlccp_tlv_type0;
+static int hf_wlccp_tlv_type1;
+static int hf_wlccp_tlv_type2;
+static int hf_wlccp_tlv_type3;
+static int hf_wlccp_tlv_type4;
+static int hf_wlccp_tlv_type5;
+static int hf_wlccp_tlv_group;
+static int hf_wlccp_tlv_container_flag;
+static int hf_wlccp_tlv_encrypted_flag;
+static int hf_wlccp_tlv_request_flag;
+static int hf_wlccp_tlv_reserved_bit;
+static int hf_wlccp_tlv_length;
 
-/* static int hf_wlccp_tlv_value = -1; */
+/* static int hf_wlccp_tlv_value; */
 
-static int hf_wlccp_path_length = -1;
-static int hf_wlccp_mic_msg_seq_count = -1;
-static int hf_wlccp_mic_length = -1;
-static int hf_wlccp_mic_value = -1;
+static int hf_wlccp_path_length;
+static int hf_wlccp_mic_msg_seq_count;
+static int hf_wlccp_mic_length;
+static int hf_wlccp_mic_value;
 
-static int hf_wlccp_key_seq_count = -1;
-static int hf_wlccp_dest_node_type = -1;
-static int hf_wlccp_dest_node_id = -1;
-static int hf_wlccp_supp_node_type = -1;
-static int hf_wlccp_supp_node_id = -1;
-static int hf_wlccp_key_mgmt_type = -1;
-static int hf_wlccp_nonce = -1;
-static int hf_wlccp_session_timeout = -1;
-static int hf_wlccp_src_node_type = -1;
-static int hf_wlccp_src_node_id = -1;
-static int hf_wlccp_token = -1;
-static int hf_wlccp_mode = -1;
-static int hf_wlccp_scan_mode = -1;
-static int hf_wlccp_rss = -1;
-static int hf_wlccp_srcidx = -1;
-static int hf_wlccp_parent_tsf = -1;
-static int hf_wlccp_target_tsf = -1;
+static int hf_wlccp_key_seq_count;
+static int hf_wlccp_dest_node_type;
+static int hf_wlccp_dest_node_id;
+static int hf_wlccp_supp_node_type;
+static int hf_wlccp_supp_node_id;
+static int hf_wlccp_key_mgmt_type;
+static int hf_wlccp_nonce;
+static int hf_wlccp_session_timeout;
+static int hf_wlccp_src_node_type;
+static int hf_wlccp_src_node_id;
+static int hf_wlccp_token;
+static int hf_wlccp_mode;
+static int hf_wlccp_scan_mode;
+static int hf_wlccp_rss;
+static int hf_wlccp_srcidx;
+static int hf_wlccp_parent_tsf;
+static int hf_wlccp_target_tsf;
 
-static int hf_wlccp_channel = -1;
-static int hf_wlccp_phy_type = -1;
-static int hf_wlccp_bssid = -1;
-static int hf_wlccp_beacon_interval = -1;
-/* static int hf_wlccp_capabilities = -1; */
-static int hf_wlccp_tlv80211 = -1;
-static int hf_wlccp_duration = -1;
-static int hf_wlccp_rpidensity = -1;
-static int hf_wlccp_ccabusy = -1;
-static int hf_wlccp_sta_type = -1;
-static int hf_wlccp_stamac = -1;
-static int hf_wlccp_token2 = -1;
-static int hf_wlccp_interval = -1;
-static int hf_wlccp_count = -1;
-static int hf_framereport_elements = -1;
-static int hf_wlccp_numframes = -1;
-static int hf_wlccp_mfpcapability = -1;
-static int hf_wlccp_mfpflags = -1;
-static int hf_wlccp_mfpconfig = -1;
-static int hf_wlccp_clientmac = -1;
-static int hf_time_elapsed = -1;
-static int hf_wlccp_parent_ap_mac = -1;
-static int hf_wlccp_auth_type =-1;
-static int hf_reg_lifetime = -1;
-static int hf_wlccp_radius_user_name = -1;
-static int hf_wds_reason = -1;
-
-
-static int hf_wlccp_80211_capabilities = -1;
-static int hf_80211_cap_ess = -1;
-static int hf_80211_cap_ibss = -1;
-static int hf_80211_cap_cf_pollable = -1;
-static int hf_80211_cap_cf_poll_req = -1;
-static int hf_80211_cap_privacy = -1;
-static int hf_80211_short_preamble = -1;
-static int hf_80211_pbcc = -1;
-static int hf_80211_chan_agility = -1;
-static int hf_80211_spectrum_mgmt = -1;
-static int hf_80211_qos = -1;
-static int hf_80211_short_time_slot = -1;
-static int hf_80211_apsd = -1;
-static int hf_80211_reserved = -1;
-static int hf_80211_dsss_ofdm = -1;
-static int hf_80211_dlyd_block_ack = -1;
-static int hf_80211_imm_block_ack = -1;
+static int hf_wlccp_channel;
+static int hf_wlccp_phy_type;
+static int hf_wlccp_bssid;
+static int hf_wlccp_beacon_interval;
+/* static int hf_wlccp_capabilities; */
+static int hf_wlccp_tlv80211;
+static int hf_wlccp_duration;
+static int hf_wlccp_rpidensity;
+static int hf_wlccp_ccabusy;
+static int hf_wlccp_sta_type;
+static int hf_wlccp_stamac;
+static int hf_wlccp_token2;
+static int hf_wlccp_interval;
+static int hf_wlccp_count;
+static int hf_framereport_elements;
+static int hf_wlccp_numframes;
+static int hf_wlccp_mfpcapability;
+static int hf_wlccp_mfpflags;
+static int hf_wlccp_mfpconfig;
+static int hf_wlccp_clientmac;
+static int hf_time_elapsed;
+static int hf_wlccp_parent_ap_mac;
+static int hf_wlccp_auth_type;
+static int hf_reg_lifetime;
+static int hf_wlccp_radius_user_name;
+static int hf_wds_reason;
 
 
-static int hf_wlccp_tlv_unknown_value = -1;
+static int hf_wlccp_80211_capabilities;
+static int hf_80211_cap_ess;
+static int hf_80211_cap_ibss;
+static int hf_80211_cap_cf_pollable;
+static int hf_80211_cap_cf_poll_req;
+static int hf_80211_cap_privacy;
+static int hf_80211_short_preamble;
+static int hf_80211_pbcc;
+static int hf_80211_chan_agility;
+static int hf_80211_spectrum_mgmt;
+static int hf_80211_qos;
+static int hf_80211_short_time_slot;
+static int hf_80211_apsd;
+static int hf_80211_reserved;
+static int hf_80211_dsss_ofdm;
+static int hf_80211_dlyd_block_ack;
+static int hf_80211_imm_block_ack;
+
+
+static int hf_wlccp_tlv_unknown_value;
 
 /* Initialize the subtree pointers */
-static gint ett_wlccp = -1;
-static gint ett_wlccp_sap_tree = -1;
-static gint ett_wlccp_type = -1;
-static gint ett_wlccp_cm_flags = -1;
-static gint ett_wlccp_scm_flags = -1;
-static gint ett_wlccp_scm_priority_flags = -1;
-static gint ett_wlccp_scm_bridge_priority_flags = -1;
-static gint ett_wlccp_rm_flags = -1;
-static gint ett_wlccp_nm_flags = -1;
+static gint ett_wlccp;
+static gint ett_wlccp_sap_tree;
+static gint ett_wlccp_type;
+static gint ett_wlccp_cm_flags;
+static gint ett_wlccp_scm_flags;
+static gint ett_wlccp_scm_priority_flags;
+static gint ett_wlccp_scm_bridge_priority_flags;
+static gint ett_wlccp_rm_flags;
+static gint ett_wlccp_nm_flags;
 
 
-static gint ett_wlccp_flags = -1;
-static gint ett_wlccp_ap_node_id = -1;
-static gint ett_wlccp_eapol_msg_tree = -1;
-static gint ett_wlccp_eap_tree = -1;
-static gint ett_wlccp_tlv_tree = -1;
-static gint ett_tlv_flags_tree = -1;
-static gint ett_tlv_sub_tree = -1;
-static gint ett_80211_capability_flags_tree = -1;
-static gint ett_framereport_elements_tree = -1;
+static gint ett_wlccp_flags;
+static gint ett_wlccp_ap_node_id;
+static gint ett_wlccp_eapol_msg_tree;
+static gint ett_wlccp_eap_tree;
+static gint ett_wlccp_tlv_tree;
+static gint ett_tlv_flags_tree;
+static gint ett_tlv_sub_tree;
+static gint ett_80211_capability_flags_tree;
+static gint ett_framereport_elements_tree;
 
 
 

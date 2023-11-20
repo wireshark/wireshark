@@ -19,19 +19,19 @@ void proto_reg_handoff_netdump(void);
 static dissector_handle_t netdump_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_netdump = -1;
-static int hf_netdump_magic_number = -1;
-static int hf_netdump_seq_nr = -1;
-static int hf_netdump_command = -1;
-static int hf_netdump_from = -1;
-static int hf_netdump_to = -1;
-static int hf_netdump_payload = -1;
-static int hf_netdump_code = -1;
-static int hf_netdump_info = -1;
-static int hf_netdump_version = -1;
+static int proto_netdump;
+static int hf_netdump_magic_number;
+static int hf_netdump_seq_nr;
+static int hf_netdump_command;
+static int hf_netdump_from;
+static int hf_netdump_to;
+static int hf_netdump_payload;
+static int hf_netdump_code;
+static int hf_netdump_info;
+static int hf_netdump_version;
 
 /* Initialize the subtree pointers */
-static gint ett_netdump = -1;
+static gint ett_netdump;
 
 static const value_string command_names[] = {
 	{ 0, "COMM_NONE" },

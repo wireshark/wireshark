@@ -26,23 +26,23 @@ void proto_reg_handoff_etag(void);
 static dissector_handle_t etag_handle;
 static dissector_handle_t ethertype_handle;
 
-static int proto_etag = -1;
+static int proto_etag;
 
 static gboolean etag_summary_in_tree = TRUE;
 
-static int hf_etag_etype = -1;
-static int hf_etag_pcp = -1;
-static int hf_etag_dei = -1;
-static int hf_etag_res = -1;
-static int hf_etag_grp = -1;
-static int hf_etag_iecid_base = -1;
-static int hf_etag_iecid_ext = -1;
-static int hf_etag_ecid_base = -1;
-static int hf_etag_ecid_ext = -1;
+static int hf_etag_etype;
+static int hf_etag_pcp;
+static int hf_etag_dei;
+static int hf_etag_res;
+static int hf_etag_grp;
+static int hf_etag_iecid_base;
+static int hf_etag_iecid_ext;
+static int hf_etag_ecid_base;
+static int hf_etag_ecid_ext;
 
-static int hf_etag_trailer = -1;
+static int hf_etag_trailer;
 
-static gint ett_etag = -1;
+static gint ett_etag;
 
 #define IEEE8021BR_LEN 8    /* length including ethertype */
 

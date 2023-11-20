@@ -43,55 +43,55 @@ void proto_register_snort(void);
 void proto_reg_handoff_snort(void);
 
 
-static int proto_snort = -1;
+static int proto_snort;
 
 /* These are from parsing snort fast_alert output and/or looking up snort config */
-static int hf_snort_raw_alert = -1;
-static int hf_snort_classification = -1;
-static int hf_snort_rule = -1;
-static int hf_snort_msg = -1;
-static int hf_snort_rev = -1;
-static int hf_snort_sid = -1;
-static int hf_snort_generator = -1;
-static int hf_snort_priority = -1;
-static int hf_snort_rule_string = -1;
-static int hf_snort_rule_protocol = -1;
-static int hf_snort_rule_filename = -1;
-static int hf_snort_rule_line_number = -1;
-static int hf_snort_rule_ip_var = -1;
-static int hf_snort_rule_port_var = -1;
+static int hf_snort_raw_alert;
+static int hf_snort_classification;
+static int hf_snort_rule;
+static int hf_snort_msg;
+static int hf_snort_rev;
+static int hf_snort_sid;
+static int hf_snort_generator;
+static int hf_snort_priority;
+static int hf_snort_rule_string;
+static int hf_snort_rule_protocol;
+static int hf_snort_rule_filename;
+static int hf_snort_rule_line_number;
+static int hf_snort_rule_ip_var;
+static int hf_snort_rule_port_var;
 
-static int hf_snort_reassembled_in = -1;
-static int hf_snort_reassembled_from = -1;
+static int hf_snort_reassembled_in;
+static int hf_snort_reassembled_from;
 
 /* Patterns to match */
-static int hf_snort_content = -1;
-static int hf_snort_uricontent = -1;
-static int hf_snort_pcre = -1;
+static int hf_snort_content;
+static int hf_snort_uricontent;
+static int hf_snort_pcre;
 
 /* Web links */
-static int hf_snort_reference = -1;
+static int hf_snort_reference;
 
 /* General stats about the rule set */
-static int hf_snort_global_stats = -1;
-static int hf_snort_global_stats_rule_file_count = -1;     /* number of rules files */
-static int hf_snort_global_stats_rule_count = -1;          /* number of rules in config */
+static int hf_snort_global_stats;
+static int hf_snort_global_stats_rule_file_count;     /* number of rules files */
+static int hf_snort_global_stats_rule_count;          /* number of rules in config */
 
-static int hf_snort_global_stats_total_alerts_count = -1;
-static int hf_snort_global_stats_alert_match_number = -1;
+static int hf_snort_global_stats_total_alerts_count;
+static int hf_snort_global_stats_alert_match_number;
 
-static int hf_snort_global_stats_rule_alerts_count = -1;
-static int hf_snort_global_stats_rule_match_number = -1;
+static int hf_snort_global_stats_rule_alerts_count;
+static int hf_snort_global_stats_rule_match_number;
 
 
 /* Subtrees */
-static int ett_snort = -1;
-static int ett_snort_rule = -1;
-static int ett_snort_global_stats = -1;
+static int ett_snort;
+static int ett_snort_rule;
+static int ett_snort_global_stats;
 
 /* Expert info */
-static expert_field ei_snort_alert = EI_INIT;
-static expert_field ei_snort_content_not_matched = EI_INIT;
+static expert_field ei_snort_alert;
+static expert_field ei_snort_content_not_matched;
 
 static dissector_handle_t snort_handle;
 

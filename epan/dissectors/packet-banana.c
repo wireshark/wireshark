@@ -23,25 +23,25 @@ void proto_register_banana(void);
 void proto_reg_handoff_banana(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_banana = -1;
-static int hf_banana_list = -1;
-static int hf_banana_int = -1;
-static int hf_banana_string = -1;
-static int hf_banana_neg_int = -1;
-static int hf_banana_float = -1;
-static int hf_banana_lg_int = -1;
-static int hf_banana_lg_neg_int = -1;
-static int hf_banana_pb = -1;
+static int proto_banana;
+static int hf_banana_list;
+static int hf_banana_int;
+static int hf_banana_string;
+static int hf_banana_neg_int;
+static int hf_banana_float;
+static int hf_banana_lg_int;
+static int hf_banana_lg_neg_int;
+static int hf_banana_pb;
 
 /* Initialize the subtree pointers */
-static gint ett_banana = -1;
-static gint ett_list = -1;
+static gint ett_banana;
+static gint ett_list;
 
-static expert_field ei_banana_unknown_type = EI_INIT;
-static expert_field ei_banana_too_many_value_bytes = EI_INIT;
-static expert_field ei_banana_length_too_long = EI_INIT;
-static expert_field ei_banana_value_too_large = EI_INIT;
-static expert_field ei_banana_pb_error = EI_INIT;
+static expert_field ei_banana_unknown_type;
+static expert_field ei_banana_too_many_value_bytes;
+static expert_field ei_banana_length_too_long;
+static expert_field ei_banana_value_too_large;
+static expert_field ei_banana_pb_error;
 
 static dissector_handle_t banana_handle;
 

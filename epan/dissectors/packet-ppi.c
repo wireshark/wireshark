@@ -174,147 +174,147 @@ typedef enum {
 } ppi_field_type;
 
 /* Protocol */
-static int proto_ppi = -1;
+static int proto_ppi;
 
 /* Packet header */
-static int hf_ppi_head_version = -1;
-static int hf_ppi_head_flags = -1;
-static int hf_ppi_head_flag_alignment = -1;
-static int hf_ppi_head_flag_reserved = -1;
-static int hf_ppi_head_len = -1;
-static int hf_ppi_head_dlt = -1;
+static int hf_ppi_head_version;
+static int hf_ppi_head_flags;
+static int hf_ppi_head_flag_alignment;
+static int hf_ppi_head_flag_reserved;
+static int hf_ppi_head_len;
+static int hf_ppi_head_dlt;
 
 /* Field header */
-static int hf_ppi_field_type = -1;
-static int hf_ppi_field_len = -1;
+static int hf_ppi_field_type;
+static int hf_ppi_field_len;
 
 /* 802.11 Common */
-static int hf_80211_common_tsft = -1;
-static int hf_80211_common_flags = -1;
-static int hf_80211_common_flags_fcs = -1;
-static int hf_80211_common_flags_tsft = -1;
-static int hf_80211_common_flags_fcs_valid = -1;
-static int hf_80211_common_flags_phy_err = -1;
-static int hf_80211_common_rate = -1;
-static int hf_80211_common_chan_freq = -1;
-static int hf_80211_common_chan_flags = -1;
+static int hf_80211_common_tsft;
+static int hf_80211_common_flags;
+static int hf_80211_common_flags_fcs;
+static int hf_80211_common_flags_tsft;
+static int hf_80211_common_flags_fcs_valid;
+static int hf_80211_common_flags_phy_err;
+static int hf_80211_common_rate;
+static int hf_80211_common_chan_freq;
+static int hf_80211_common_chan_flags;
 
-static int hf_80211_common_chan_flags_turbo = -1;
-static int hf_80211_common_chan_flags_cck = -1;
-static int hf_80211_common_chan_flags_ofdm = -1;
-static int hf_80211_common_chan_flags_2ghz = -1;
-static int hf_80211_common_chan_flags_5ghz = -1;
-static int hf_80211_common_chan_flags_passive = -1;
-static int hf_80211_common_chan_flags_dynamic = -1;
-static int hf_80211_common_chan_flags_gfsk = -1;
+static int hf_80211_common_chan_flags_turbo;
+static int hf_80211_common_chan_flags_cck;
+static int hf_80211_common_chan_flags_ofdm;
+static int hf_80211_common_chan_flags_2ghz;
+static int hf_80211_common_chan_flags_5ghz;
+static int hf_80211_common_chan_flags_passive;
+static int hf_80211_common_chan_flags_dynamic;
+static int hf_80211_common_chan_flags_gfsk;
 
-static int hf_80211_common_fhss_hopset = -1;
-static int hf_80211_common_fhss_pattern = -1;
-static int hf_80211_common_dbm_antsignal = -1;
-static int hf_80211_common_dbm_antnoise = -1;
+static int hf_80211_common_fhss_hopset;
+static int hf_80211_common_fhss_pattern;
+static int hf_80211_common_dbm_antsignal;
+static int hf_80211_common_dbm_antnoise;
 
 /* 802.11n MAC */
-static int hf_80211n_mac_flags = -1;
-static int hf_80211n_mac_flags_greenfield = -1;
-static int hf_80211n_mac_flags_ht20_40 = -1;
-static int hf_80211n_mac_flags_rx_guard_interval = -1;
-static int hf_80211n_mac_flags_duplicate_rx = -1;
-static int hf_80211n_mac_flags_more_aggregates = -1;
-static int hf_80211n_mac_flags_aggregate = -1;
-static int hf_80211n_mac_flags_delimiter_crc_after = -1;
-static int hf_80211n_mac_ampdu_id = -1;
-static int hf_80211n_mac_num_delimiters = -1;
-static int hf_80211n_mac_reserved = -1;
+static int hf_80211n_mac_flags;
+static int hf_80211n_mac_flags_greenfield;
+static int hf_80211n_mac_flags_ht20_40;
+static int hf_80211n_mac_flags_rx_guard_interval;
+static int hf_80211n_mac_flags_duplicate_rx;
+static int hf_80211n_mac_flags_more_aggregates;
+static int hf_80211n_mac_flags_aggregate;
+static int hf_80211n_mac_flags_delimiter_crc_after;
+static int hf_80211n_mac_ampdu_id;
+static int hf_80211n_mac_num_delimiters;
+static int hf_80211n_mac_reserved;
 
 /* 802.11n MAC+PHY */
-static int hf_80211n_mac_phy_mcs = -1;
-static int hf_80211n_mac_phy_num_streams = -1;
-static int hf_80211n_mac_phy_rssi_combined = -1;
-static int hf_80211n_mac_phy_rssi_ant0_ctl = -1;
-static int hf_80211n_mac_phy_rssi_ant1_ctl = -1;
-static int hf_80211n_mac_phy_rssi_ant2_ctl = -1;
-static int hf_80211n_mac_phy_rssi_ant3_ctl = -1;
-static int hf_80211n_mac_phy_rssi_ant0_ext = -1;
-static int hf_80211n_mac_phy_rssi_ant1_ext = -1;
-static int hf_80211n_mac_phy_rssi_ant2_ext = -1;
-static int hf_80211n_mac_phy_rssi_ant3_ext = -1;
-static int hf_80211n_mac_phy_ext_chan_freq = -1;
-static int hf_80211n_mac_phy_ext_chan_flags = -1;
-static int hf_80211n_mac_phy_ext_chan_flags_turbo = -1;
-static int hf_80211n_mac_phy_ext_chan_flags_cck = -1;
-static int hf_80211n_mac_phy_ext_chan_flags_ofdm = -1;
-static int hf_80211n_mac_phy_ext_chan_flags_2ghz = -1;
-static int hf_80211n_mac_phy_ext_chan_flags_5ghz = -1;
-static int hf_80211n_mac_phy_ext_chan_flags_passive = -1;
-static int hf_80211n_mac_phy_ext_chan_flags_dynamic = -1;
-static int hf_80211n_mac_phy_ext_chan_flags_gfsk = -1;
-static int hf_80211n_mac_phy_dbm_ant0signal = -1;
-static int hf_80211n_mac_phy_dbm_ant0noise = -1;
-static int hf_80211n_mac_phy_dbm_ant1signal = -1;
-static int hf_80211n_mac_phy_dbm_ant1noise = -1;
-static int hf_80211n_mac_phy_dbm_ant2signal = -1;
-static int hf_80211n_mac_phy_dbm_ant2noise = -1;
-static int hf_80211n_mac_phy_dbm_ant3signal = -1;
-static int hf_80211n_mac_phy_dbm_ant3noise = -1;
-static int hf_80211n_mac_phy_evm0 = -1;
-static int hf_80211n_mac_phy_evm1 = -1;
-static int hf_80211n_mac_phy_evm2 = -1;
-static int hf_80211n_mac_phy_evm3 = -1;
+static int hf_80211n_mac_phy_mcs;
+static int hf_80211n_mac_phy_num_streams;
+static int hf_80211n_mac_phy_rssi_combined;
+static int hf_80211n_mac_phy_rssi_ant0_ctl;
+static int hf_80211n_mac_phy_rssi_ant1_ctl;
+static int hf_80211n_mac_phy_rssi_ant2_ctl;
+static int hf_80211n_mac_phy_rssi_ant3_ctl;
+static int hf_80211n_mac_phy_rssi_ant0_ext;
+static int hf_80211n_mac_phy_rssi_ant1_ext;
+static int hf_80211n_mac_phy_rssi_ant2_ext;
+static int hf_80211n_mac_phy_rssi_ant3_ext;
+static int hf_80211n_mac_phy_ext_chan_freq;
+static int hf_80211n_mac_phy_ext_chan_flags;
+static int hf_80211n_mac_phy_ext_chan_flags_turbo;
+static int hf_80211n_mac_phy_ext_chan_flags_cck;
+static int hf_80211n_mac_phy_ext_chan_flags_ofdm;
+static int hf_80211n_mac_phy_ext_chan_flags_2ghz;
+static int hf_80211n_mac_phy_ext_chan_flags_5ghz;
+static int hf_80211n_mac_phy_ext_chan_flags_passive;
+static int hf_80211n_mac_phy_ext_chan_flags_dynamic;
+static int hf_80211n_mac_phy_ext_chan_flags_gfsk;
+static int hf_80211n_mac_phy_dbm_ant0signal;
+static int hf_80211n_mac_phy_dbm_ant0noise;
+static int hf_80211n_mac_phy_dbm_ant1signal;
+static int hf_80211n_mac_phy_dbm_ant1noise;
+static int hf_80211n_mac_phy_dbm_ant2signal;
+static int hf_80211n_mac_phy_dbm_ant2noise;
+static int hf_80211n_mac_phy_dbm_ant3signal;
+static int hf_80211n_mac_phy_dbm_ant3noise;
+static int hf_80211n_mac_phy_evm0;
+static int hf_80211n_mac_phy_evm1;
+static int hf_80211n_mac_phy_evm2;
+static int hf_80211n_mac_phy_evm3;
 
 /* 802.11n-Extensions A-MPDU fragments */
-static int hf_ampdu_reassembled_in = -1;
-/* static int hf_ampdu_segments = -1; */
-static int hf_ampdu_segment = -1;
-static int hf_ampdu_count  = -1;
+static int hf_ampdu_reassembled_in;
+/* static int hf_ampdu_segments; */
+static int hf_ampdu_segment;
+static int hf_ampdu_count;
 
 /* Spectrum-Map */
-static int hf_spectrum_map = -1;
+static int hf_spectrum_map;
 
 /* Process-Info */
-static int hf_process_info = -1;
+static int hf_process_info;
 
 /* Capture-Info */
-static int hf_capture_info = -1;
+static int hf_capture_info;
 
 /* Aggregation Extension */
-static int hf_aggregation_extension_interface_id = -1;
+static int hf_aggregation_extension_interface_id;
 
 /* 802.3 Extension */
-static int hf_8023_extension_flags = -1;
-static int hf_8023_extension_flags_fcs_present = -1;
-static int hf_8023_extension_errors = -1;
-static int hf_8023_extension_errors_fcs = -1;
-static int hf_8023_extension_errors_sequence = -1;
-static int hf_8023_extension_errors_symbol = -1;
-static int hf_8023_extension_errors_data = -1;
+static int hf_8023_extension_flags;
+static int hf_8023_extension_flags_fcs_present;
+static int hf_8023_extension_errors;
+static int hf_8023_extension_errors_fcs;
+static int hf_8023_extension_errors_sequence;
+static int hf_8023_extension_errors_symbol;
+static int hf_8023_extension_errors_data;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_ppi_antenna = -1;
-static int hf_ppi_harris = -1;
-static int hf_ppi_reserved = -1;
-static int hf_ppi_vector = -1;
-static int hf_ppi_fnet = -1;
-static int hf_ppi_gps = -1;
+static int hf_ppi_antenna;
+static int hf_ppi_harris;
+static int hf_ppi_reserved;
+static int hf_ppi_vector;
+static int hf_ppi_fnet;
+static int hf_ppi_gps;
 
-static gint ett_ppi_pph = -1;
-static gint ett_ppi_flags = -1;
-static gint ett_dot11_common = -1;
-static gint ett_dot11_common_flags = -1;
-static gint ett_dot11_common_channel_flags = -1;
-static gint ett_dot11n_mac = -1;
-static gint ett_dot11n_mac_flags = -1;
-static gint ett_dot11n_mac_phy = -1;
-static gint ett_dot11n_mac_phy_ext_channel_flags = -1;
-static gint ett_ampdu_segments = -1;
-static gint ett_ampdu = -1;
-static gint ett_ampdu_segment  = -1;
-static gint ett_aggregation_extension = -1;
-static gint ett_8023_extension = -1;
-static gint ett_8023_extension_flags = -1;
-static gint ett_8023_extension_errors = -1;
+static gint ett_ppi_pph;
+static gint ett_ppi_flags;
+static gint ett_dot11_common;
+static gint ett_dot11_common_flags;
+static gint ett_dot11_common_channel_flags;
+static gint ett_dot11n_mac;
+static gint ett_dot11n_mac_flags;
+static gint ett_dot11n_mac_phy;
+static gint ett_dot11n_mac_phy_ext_channel_flags;
+static gint ett_ampdu_segments;
+static gint ett_ampdu;
+static gint ett_ampdu_segment;
+static gint ett_aggregation_extension;
+static gint ett_8023_extension;
+static gint ett_8023_extension_flags;
+static gint ett_8023_extension_errors;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static expert_field ei_ppi_invalid_length = EI_INIT;
+static expert_field ei_ppi_invalid_length;
 
 static dissector_handle_t ppi_handle;
 

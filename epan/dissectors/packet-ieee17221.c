@@ -1867,97 +1867,97 @@ static const value_string aecp_sampling_rate_pull_field_vals[] = {
 /**********************************************************/
 /* Initialize the protocol and registered fields          */
 /**********************************************************/
-static int proto_17221 = -1;
+static int proto_17221;
 
 /* AVDECC Discovery Protocol Data Unit (ADPDU) */
-static int hf_adp_message_type = -1;
-static int hf_adp_valid_time = -1;
-static int hf_adp_cd_length = -1;
-static int hf_adp_entity_id = -1;
-static int hf_adp_entity_model_id = -1;
-static int hf_adp_entity_cap = -1;
-static int hf_adp_talker_stream_srcs = -1;
-static int hf_adp_talker_cap = -1;
-static int hf_adp_listener_stream_sinks = -1;
-static int hf_adp_listener_cap = -1;
-static int hf_adp_controller_cap = -1;
-static int hf_adp_avail_index = -1;
-static int hf_adp_gptp_gm_id = -1;
-/* static int hf_adp_def_aud_format = -1; */
-/* static int hf_adp_def_vid_format = -1; */
-static int hf_adp_assoc_id = -1;
-/* static int hf_adp_entity_type = -1; */
+static int hf_adp_message_type;
+static int hf_adp_valid_time;
+static int hf_adp_cd_length;
+static int hf_adp_entity_id;
+static int hf_adp_entity_model_id;
+static int hf_adp_entity_cap;
+static int hf_adp_talker_stream_srcs;
+static int hf_adp_talker_cap;
+static int hf_adp_listener_stream_sinks;
+static int hf_adp_listener_cap;
+static int hf_adp_controller_cap;
+static int hf_adp_avail_index;
+static int hf_adp_gptp_gm_id;
+/* static int hf_adp_def_aud_format; */
+/* static int hf_adp_def_vid_format; */
+static int hf_adp_assoc_id;
+/* static int hf_adp_entity_type; */
 
 /* Entity Capabilties Flags */
-static int hf_adp_entity_cap_efu_mode = -1;
-static int hf_adp_entity_cap_address_access_supported = -1;
-static int hf_adp_entity_cap_gateway_entity = -1;
-static int hf_adp_entity_cap_aem_supported = -1;
-static int hf_adp_entity_cap_legacy_avc = -1;
-static int hf_adp_entity_cap_assoc_id_support = -1;
-static int hf_adp_entity_cap_assoc_id_valid = -1;
-static int hf_adp_entity_cap_vendor_unique = -1;
-static int hf_adp_entity_cap_class_a_supported = -1;
-static int hf_adp_entity_cap_class_b_supported = -1;
-static int hf_adp_entity_cap_gptp_supported = -1;
+static int hf_adp_entity_cap_efu_mode;
+static int hf_adp_entity_cap_address_access_supported;
+static int hf_adp_entity_cap_gateway_entity;
+static int hf_adp_entity_cap_aem_supported;
+static int hf_adp_entity_cap_legacy_avc;
+static int hf_adp_entity_cap_assoc_id_support;
+static int hf_adp_entity_cap_assoc_id_valid;
+static int hf_adp_entity_cap_vendor_unique;
+static int hf_adp_entity_cap_class_a_supported;
+static int hf_adp_entity_cap_class_b_supported;
+static int hf_adp_entity_cap_gptp_supported;
 
 /* Talker Capabilities Flags */
-static int hf_adp_talk_cap_implement = -1;
-static int hf_adp_talk_cap_other_src = -1;
-static int hf_adp_talk_cap_control_src = -1;
-static int hf_adp_talk_cap_media_clk_src = -1;
-static int hf_adp_talk_cap_smpte_src = -1;
-static int hf_adp_talk_cap_midi_src = -1;
-static int hf_adp_talk_cap_audio_src = -1;
-static int hf_adp_talk_cap_video_src = -1;
+static int hf_adp_talk_cap_implement;
+static int hf_adp_talk_cap_other_src;
+static int hf_adp_talk_cap_control_src;
+static int hf_adp_talk_cap_media_clk_src;
+static int hf_adp_talk_cap_smpte_src;
+static int hf_adp_talk_cap_midi_src;
+static int hf_adp_talk_cap_audio_src;
+static int hf_adp_talk_cap_video_src;
 
 /* Listener Capabilities Flags */
-static int hf_adp_list_cap_implement = -1;
-static int hf_adp_list_cap_other_sink = -1;
-static int hf_adp_list_cap_control_sink = -1;
-static int hf_adp_list_cap_media_clk_sink = -1;
-static int hf_adp_list_cap_smpte_sink = -1;
-static int hf_adp_list_cap_midi_sink = -1;
-static int hf_adp_list_cap_audio_sink = -1;
-static int hf_adp_list_cap_video_sink = -1;
+static int hf_adp_list_cap_implement;
+static int hf_adp_list_cap_other_sink;
+static int hf_adp_list_cap_control_sink;
+static int hf_adp_list_cap_media_clk_sink;
+static int hf_adp_list_cap_smpte_sink;
+static int hf_adp_list_cap_midi_sink;
+static int hf_adp_list_cap_audio_sink;
+static int hf_adp_list_cap_video_sink;
 
 /* Controller Capabilities Flags */
-static int hf_adp_cont_cap_implement = -1;
-static int hf_adp_cont_cap_layer3_proxy = -1;
+static int hf_adp_cont_cap_implement;
+static int hf_adp_cont_cap_layer3_proxy;
 
 #if 0
 /* Default Audio Format */
-static int hf_adp_def_aud_sample_rates = -1;
-static int hf_adp_def_aud_max_chan = -1;
-static int hf_adp_def_aud_saf_flag = -1;
-static int hf_adp_def_aud_float_flag = -1;
-static int hf_adp_def_aud_chan_formats = -1;
+static int hf_adp_def_aud_sample_rates;
+static int hf_adp_def_aud_max_chan;
+static int hf_adp_def_aud_saf_flag;
+static int hf_adp_def_aud_float_flag;
+static int hf_adp_def_aud_chan_formats;
 
 /* Default Audio Sample Rates */
-static int hf_adp_samp_rate_44k1 = -1;
-static int hf_adp_samp_rate_48k = -1;
-static int hf_adp_samp_rate_88k2 = -1;
-static int hf_adp_samp_rate_96k = -1;
-static int hf_adp_samp_rate_176k4 = -1;
-static int hf_adp_samp_rate_192k = -1;
+static int hf_adp_samp_rate_44k1;
+static int hf_adp_samp_rate_48k;
+static int hf_adp_samp_rate_88k2;
+static int hf_adp_samp_rate_96k;
+static int hf_adp_samp_rate_176k4;
+static int hf_adp_samp_rate_192k;
 
 /* Audio Channel Formats */
-static int hf_adp_chan_format_mono = -1;
-static int hf_adp_chan_format_2ch = -1;
-static int hf_adp_chan_format_3ch = -1;
-static int hf_adp_chan_format_4ch = -1;
-static int hf_adp_chan_format_5ch = -1;
-static int hf_adp_chan_format_6ch = -1;
-static int hf_adp_chan_format_7ch = -1;
-static int hf_adp_chan_format_8ch = -1;
-static int hf_adp_chan_format_10ch = -1;
-static int hf_adp_chan_format_12ch = -1;
-static int hf_adp_chan_format_14ch = -1;
-static int hf_adp_chan_format_16ch = -1;
-static int hf_adp_chan_format_18ch = -1;
-static int hf_adp_chan_format_20ch = -1;
-static int hf_adp_chan_format_22ch = -1;
-static int hf_adp_chan_format_24ch = -1;
+static int hf_adp_chan_format_mono;
+static int hf_adp_chan_format_2ch;
+static int hf_adp_chan_format_3ch;
+static int hf_adp_chan_format_4ch;
+static int hf_adp_chan_format_5ch;
+static int hf_adp_chan_format_6ch;
+static int hf_adp_chan_format_7ch;
+static int hf_adp_chan_format_8ch;
+static int hf_adp_chan_format_10ch;
+static int hf_adp_chan_format_12ch;
+static int hf_adp_chan_format_14ch;
+static int hf_adp_chan_format_16ch;
+static int hf_adp_chan_format_18ch;
+static int hf_adp_chan_format_20ch;
+static int hf_adp_chan_format_22ch;
+static int hf_adp_chan_format_24ch;
 #endif
 
 /* AECP Vendor Unique Protocol Dissector table */
@@ -1967,471 +1967,471 @@ static dissector_table_t vendor_unique_protocol_dissector_table;
 /*     AVDECC Enumeration and Control Protocol Data Unit (AECPDU)    */
 /* ***************************************************************** */
 
-static int hf_aecp_aa_count = -1;
-static int hf_aecp_aa_tlv_mode = -1;
-static int hf_aecp_aa_tlv_length = -1;
-static int hf_aecp_aa_tlv_address = -1;
+static int hf_aecp_aa_count;
+static int hf_aecp_aa_tlv_mode;
+static int hf_aecp_aa_tlv_length;
+static int hf_aecp_aa_tlv_address;
 
-/* static int hf_aecp_address_type = -1; */
-static int hf_aecp_association_id = -1;
-static int hf_aecp_as_path_count = -1;
-static int hf_aecp_as_path_sequences = -1;
-static int ett_aecp_get_as_path_sequences = -1;
-static int hf_aecp_get_as_info_clock_id = -1;
-static int hf_aecp_auth_token = -1;
-static int hf_aecp_avb_interface_gptp_gm_changed_valid = -1;
-static int hf_aecp_avb_interface_gptp_gm_changed = -1;
-static int hf_aecp_avb_interface_link_up_valid = -1;
-static int hf_aecp_avb_interface_link_up = -1;
-static int hf_aecp_avb_interface_link_down_valid = -1;
-static int hf_aecp_avb_interface_link_down = -1;
-static int hf_aecp_avb_interface_packets_tx_valid = -1;
-static int hf_aecp_avb_interface_packets_tx = -1;
-static int hf_aecp_avb_interface_packets_rx_valid = -1;
-static int hf_aecp_avb_interface_packets_rx = -1;
-static int hf_aecp_avb_interface_rx_crc_error_valid = -1;
-static int hf_aecp_avb_interface_rx_crc_error = -1;
-static int hf_aecp_cd_length = -1;
-static int hf_aecp_clock_domain_locked_valid = -1;
-static int hf_aecp_clock_domain_locked = -1;
-static int hf_aecp_clock_domain_unlocked_valid = -1;
-static int hf_aecp_clock_domain_unlocked = -1;
-static int hf_aecp_clock_source_id = -1;
-static int hf_aecp_command_type = -1;
-static int hf_aecp_configuration = -1;
-static int hf_aecp_configuration_index = -1;
-static int hf_aecp_connected_flag = -1;
-/* static int hf_aecp_continued_flag = -1; */
-/* static int hf_aecp_control_admin_flag = -1; */
-/* static int hf_aecp_control_user_l1 = -1; */
-/* static int hf_aecp_control_user_l2 = -1; */
-/* static int hf_aecp_control_user_l3 = -1; */
-/* static int hf_aecp_control_user_l4 = -1; */
-static int hf_aecp_controller_guid = -1;
-/* static int hf_aecp_count = -1; */
-static int hf_aecp_descriptor_index = -1;
-static int hf_aecp_descriptor_type = -1;
-/* static int hf_aecp_descriptors = -1; */
-static int hf_aecp_dest_mac_valid_flag = -1;
-static int hf_aecp_entity_specific1 = -1;
-static int hf_aecp_entity_specific1_valid = -1;
-static int hf_aecp_entity_specific2 = -1;
-static int hf_aecp_entity_specific2_valid = -1;
-static int hf_aecp_entity_specific3 = -1;
-static int hf_aecp_entity_specific3_valid = -1;
-static int hf_aecp_entity_specific4 = -1;
-static int hf_aecp_entity_specific4_valid = -1;
-static int hf_aecp_entity_specific5 = -1;
-static int hf_aecp_entity_specific5_valid = -1;
-static int hf_aecp_entity_specific6 = -1;
-static int hf_aecp_entity_specific6_valid = -1;
-static int hf_aecp_entity_specific7 = -1;
-static int hf_aecp_entity_specific7_valid = -1;
-static int hf_aecp_entity_specific8 = -1;
-static int hf_aecp_entity_specific8_valid = -1;
-static int hf_aecp_flags_32 = -1;
-/* static int hf_aecp_ipv4_address = -1; */
-/* static int hf_aecp_ipv6_address = -1; */
-static int hf_aecp_key = -1;
-static int hf_aecp_key_eui = -1;
-static int hf_aecp_key_length = -1;
-/* static int hf_aecp_key_number = -1; */
-/* static int hf_aecp_key_part = -1; */
-static int hf_aecp_keychain_id = -1;
-static int hf_aecp_keychain_id_small = -1;
-static int hf_aecp_keychain_list_index = -1;
-static int hf_aecp_keychain_number_of_keys = -1;
-static int hf_aecp_keychain_number_of_lists = -1;
-static int hf_aecp_key_signature = -1;
-static int hf_aecp_key_type = -1;
-static int hf_aecp_locked_guid = -1;
-static int hf_aecp_mac_address = -1;
-static int hf_aecp_map_index = -1;
-/* static int hf_aecp_matrix_affected_item_count = -1; */
-static int hf_aecp_matrix_column = -1;
-static int hf_aecp_matrix_direction = -1;
-static int hf_aecp_matrix_item_offset = -1;
-static int hf_aecp_matrix_region_height = -1;
-static int hf_aecp_matrix_region_width = -1;
-static int hf_aecp_matrix_rep = -1;
-static int hf_aecp_matrix_row = -1;
-static int hf_aecp_matrix_value_count = -1;
-/* static int hf_aecp_media_format = -1; */
-/* static int hf_aecp_mem_obj_admin_flag = -1; */
-/* static int hf_aecp_mem_obj_settings_flag = -1; */
-static int hf_aecp_message_type = -1;
-static int hf_aecp_msrp_acc_lat_valid_flag = -1;
-static int hf_aecp_msrp_accumulated_latency = -1;
-static int hf_aecp_msrp_failure_bridge_id = -1;
-static int hf_aecp_msrp_failure_code = -1;
-static int hf_aecp_msrp_failure_valid_flag = -1;
-/* static int hf_aecp_stream_vlan_id = -1; */
-static int hf_aecp_name = -1;
-static int hf_aecp_name_index = -1;
-static int hf_aecp_number_of_maps = -1;
-static int hf_aecp_operation_id = -1;
-static int hf_aecp_operation_type = -1;
-static int hf_aecp_owner_guid = -1;
-static int hf_aecp_percent_complete = -1;
-static int hf_aecp_persistent_flag = -1;
-/* static int hf_aecp_private_key_read_flag = -1; */
-/* static int hf_aecp_private_key_write_flag = -1; */
-/* static int hf_aecp_public_key_write_flag = -1; */
-/* static int hf_aecp_query_id = -1; */
-/* static int hf_aecp_query_limit = -1; */
-/* static int hf_aecp_query_period = -1; */
-/* static int hf_aecp_query_type = -1; */
-static int hf_aecp_release_flag = -1;
-static int hf_aecp_sampling_rate_base_frequency = -1;
-static int hf_aecp_sampling_rate_pull = -1;
-static int hf_aecp_sequence_id = -1;
-static int hf_aecp_signal_index = -1;
-static int hf_aecp_signal_type = -1;
-static int hf_aecp_signal_output = -1;
-static int hf_aecp_stream_format = -1;
-static int hf_aecp_stream_format_valid_flag = -1;
-static int hf_aecp_stream_id_valid_flag = -1;
-static int hf_aecp_stream_input_early_timestamp_valid = -1;
-static int hf_aecp_stream_input_early_timestamp = -1;
-static int hf_aecp_stream_input_late_timestamp_valid = -1;
-static int hf_aecp_stream_input_late_timestamp = -1;
-static int hf_aecp_stream_input_media_locked_valid = -1;
-static int hf_aecp_stream_input_media_locked = -1;
-static int hf_aecp_stream_input_media_unlocked_valid = -1;
-static int hf_aecp_stream_input_media_unlocked = -1;
-static int hf_aecp_stream_input_media_reset_valid = -1;
-static int hf_aecp_stream_input_media_reset = -1;
-static int hf_aecp_stream_input_packets_rx_valid = -1;
-static int hf_aecp_stream_input_packets_rx = -1;
-static int hf_aecp_stream_input_packets_tx_valid = -1;
-static int hf_aecp_stream_input_packets_tx = -1;
-static int hf_aecp_stream_input_seq_num_mismatch_valid = -1;
-static int hf_aecp_stream_input_seq_num_mismatch = -1;
-static int hf_aecp_stream_input_stream_reset_valid = -1;
-static int hf_aecp_stream_input_stream_reset = -1;
-static int hf_aecp_stream_input_timestamp_uncertain_valid = -1;
-static int hf_aecp_stream_input_timestamp_uncertain = -1;
-static int hf_aecp_stream_input_timestamp_valid_valid = -1;
-static int hf_aecp_stream_input_timestamp_valid = -1;
-static int hf_aecp_stream_input_timestamp_not_valid_valid = -1;
-static int hf_aecp_stream_input_timestamp_not_valid = -1;
-static int hf_aecp_stream_input_unsupported_format_valid = -1;
-static int hf_aecp_stream_input_unsupported_format = -1;
-static int hf_aecp_stream_vlan_id_valid_flag = -1;
-static int hf_aecp_target_guid  = -1;
-static int hf_aecp_token_length = -1;
-static int hf_aecp_u_flag = -1;
-static int hf_aecp_unlock_flag = -1;
-/* static int hf_aecp_values = -1; */
-/* static int hf_aecp_values_count = -1; */
-static int hf_aecp_vendor_unique_protocol_id = -1;
-static int hf_aecp_video_format = -1;
-static int hf_aecp_status_code = -1;
-static int hf_aecp_backup_talker_entity_id_0 = -1;
-static int hf_aecp_backup_talker_entity_id_1 = -1;
-static int hf_aecp_backup_talker_entity_id_2 = -1;
-static int hf_aecp_backup_talker_unique_id_0 = -1;
-static int hf_aecp_backup_talker_unique_id_1 = -1;
-static int hf_aecp_backup_talker_unique_id_2 = -1;
-static int hf_aecp_backedup_talker_entity_id = -1;
-static int hf_aecp_backedup_talker_unique_id = -1;
-static int hf_aecp_avb_info_ptp_grandmaster_id = -1;
-static int hf_aecp_avb_info_propegation_delay = -1;
-static int hf_aecp_avb_info_gptp_domain_number = -1;
-/* static int hf_aecp_avb_info_flags = -1; */
-static int hf_aecp_as_capable_flag = -1;
-static int hf_aecp_gptp_enabled_flag = -1;
-static int hf_aecp_srp_enabled_flag = -1;
-static int hf_aecp_avb_info_msrp_mappings_count = -1;
-static int hf_aecp_avb_info_msrp_mappings = -1;
-static int hf_aecp_avb_info_msrp_mapping_traffic_class = -1;
-static int hf_aecp_avb_info_msrp_mapping_priority = -1;
+/* static int hf_aecp_address_type; */
+static int hf_aecp_association_id;
+static int hf_aecp_as_path_count;
+static int hf_aecp_as_path_sequences;
+static int ett_aecp_get_as_path_sequences;
+static int hf_aecp_get_as_info_clock_id;
+static int hf_aecp_auth_token;
+static int hf_aecp_avb_interface_gptp_gm_changed_valid;
+static int hf_aecp_avb_interface_gptp_gm_changed;
+static int hf_aecp_avb_interface_link_up_valid;
+static int hf_aecp_avb_interface_link_up;
+static int hf_aecp_avb_interface_link_down_valid;
+static int hf_aecp_avb_interface_link_down;
+static int hf_aecp_avb_interface_packets_tx_valid;
+static int hf_aecp_avb_interface_packets_tx;
+static int hf_aecp_avb_interface_packets_rx_valid;
+static int hf_aecp_avb_interface_packets_rx;
+static int hf_aecp_avb_interface_rx_crc_error_valid;
+static int hf_aecp_avb_interface_rx_crc_error;
+static int hf_aecp_cd_length;
+static int hf_aecp_clock_domain_locked_valid;
+static int hf_aecp_clock_domain_locked;
+static int hf_aecp_clock_domain_unlocked_valid;
+static int hf_aecp_clock_domain_unlocked;
+static int hf_aecp_clock_source_id;
+static int hf_aecp_command_type;
+static int hf_aecp_configuration;
+static int hf_aecp_configuration_index;
+static int hf_aecp_connected_flag;
+/* static int hf_aecp_continued_flag; */
+/* static int hf_aecp_control_admin_flag; */
+/* static int hf_aecp_control_user_l1; */
+/* static int hf_aecp_control_user_l2; */
+/* static int hf_aecp_control_user_l3; */
+/* static int hf_aecp_control_user_l4; */
+static int hf_aecp_controller_guid;
+/* static int hf_aecp_count; */
+static int hf_aecp_descriptor_index;
+static int hf_aecp_descriptor_type;
+/* static int hf_aecp_descriptors; */
+static int hf_aecp_dest_mac_valid_flag;
+static int hf_aecp_entity_specific1;
+static int hf_aecp_entity_specific1_valid;
+static int hf_aecp_entity_specific2;
+static int hf_aecp_entity_specific2_valid;
+static int hf_aecp_entity_specific3;
+static int hf_aecp_entity_specific3_valid;
+static int hf_aecp_entity_specific4;
+static int hf_aecp_entity_specific4_valid;
+static int hf_aecp_entity_specific5;
+static int hf_aecp_entity_specific5_valid;
+static int hf_aecp_entity_specific6;
+static int hf_aecp_entity_specific6_valid;
+static int hf_aecp_entity_specific7;
+static int hf_aecp_entity_specific7_valid;
+static int hf_aecp_entity_specific8;
+static int hf_aecp_entity_specific8_valid;
+static int hf_aecp_flags_32;
+/* static int hf_aecp_ipv4_address; */
+/* static int hf_aecp_ipv6_address; */
+static int hf_aecp_key;
+static int hf_aecp_key_eui;
+static int hf_aecp_key_length;
+/* static int hf_aecp_key_number; */
+/* static int hf_aecp_key_part; */
+static int hf_aecp_keychain_id;
+static int hf_aecp_keychain_id_small;
+static int hf_aecp_keychain_list_index;
+static int hf_aecp_keychain_number_of_keys;
+static int hf_aecp_keychain_number_of_lists;
+static int hf_aecp_key_signature;
+static int hf_aecp_key_type;
+static int hf_aecp_locked_guid;
+static int hf_aecp_mac_address;
+static int hf_aecp_map_index;
+/* static int hf_aecp_matrix_affected_item_count; */
+static int hf_aecp_matrix_column;
+static int hf_aecp_matrix_direction;
+static int hf_aecp_matrix_item_offset;
+static int hf_aecp_matrix_region_height;
+static int hf_aecp_matrix_region_width;
+static int hf_aecp_matrix_rep;
+static int hf_aecp_matrix_row;
+static int hf_aecp_matrix_value_count;
+/* static int hf_aecp_media_format; */
+/* static int hf_aecp_mem_obj_admin_flag; */
+/* static int hf_aecp_mem_obj_settings_flag; */
+static int hf_aecp_message_type;
+static int hf_aecp_msrp_acc_lat_valid_flag;
+static int hf_aecp_msrp_accumulated_latency;
+static int hf_aecp_msrp_failure_bridge_id;
+static int hf_aecp_msrp_failure_code;
+static int hf_aecp_msrp_failure_valid_flag;
+/* static int hf_aecp_stream_vlan_id; */
+static int hf_aecp_name;
+static int hf_aecp_name_index;
+static int hf_aecp_number_of_maps;
+static int hf_aecp_operation_id;
+static int hf_aecp_operation_type;
+static int hf_aecp_owner_guid;
+static int hf_aecp_percent_complete;
+static int hf_aecp_persistent_flag;
+/* static int hf_aecp_private_key_read_flag; */
+/* static int hf_aecp_private_key_write_flag; */
+/* static int hf_aecp_public_key_write_flag; */
+/* static int hf_aecp_query_id; */
+/* static int hf_aecp_query_limit; */
+/* static int hf_aecp_query_period; */
+/* static int hf_aecp_query_type; */
+static int hf_aecp_release_flag;
+static int hf_aecp_sampling_rate_base_frequency;
+static int hf_aecp_sampling_rate_pull;
+static int hf_aecp_sequence_id;
+static int hf_aecp_signal_index;
+static int hf_aecp_signal_type;
+static int hf_aecp_signal_output;
+static int hf_aecp_stream_format;
+static int hf_aecp_stream_format_valid_flag;
+static int hf_aecp_stream_id_valid_flag;
+static int hf_aecp_stream_input_early_timestamp_valid;
+static int hf_aecp_stream_input_early_timestamp;
+static int hf_aecp_stream_input_late_timestamp_valid;
+static int hf_aecp_stream_input_late_timestamp;
+static int hf_aecp_stream_input_media_locked_valid;
+static int hf_aecp_stream_input_media_locked;
+static int hf_aecp_stream_input_media_unlocked_valid;
+static int hf_aecp_stream_input_media_unlocked;
+static int hf_aecp_stream_input_media_reset_valid;
+static int hf_aecp_stream_input_media_reset;
+static int hf_aecp_stream_input_packets_rx_valid;
+static int hf_aecp_stream_input_packets_rx;
+static int hf_aecp_stream_input_packets_tx_valid;
+static int hf_aecp_stream_input_packets_tx;
+static int hf_aecp_stream_input_seq_num_mismatch_valid;
+static int hf_aecp_stream_input_seq_num_mismatch;
+static int hf_aecp_stream_input_stream_reset_valid;
+static int hf_aecp_stream_input_stream_reset;
+static int hf_aecp_stream_input_timestamp_uncertain_valid;
+static int hf_aecp_stream_input_timestamp_uncertain;
+static int hf_aecp_stream_input_timestamp_valid_valid;
+static int hf_aecp_stream_input_timestamp_valid;
+static int hf_aecp_stream_input_timestamp_not_valid_valid;
+static int hf_aecp_stream_input_timestamp_not_valid;
+static int hf_aecp_stream_input_unsupported_format_valid;
+static int hf_aecp_stream_input_unsupported_format;
+static int hf_aecp_stream_vlan_id_valid_flag;
+static int hf_aecp_target_guid;
+static int hf_aecp_token_length;
+static int hf_aecp_u_flag;
+static int hf_aecp_unlock_flag;
+/* static int hf_aecp_values; */
+/* static int hf_aecp_values_count; */
+static int hf_aecp_vendor_unique_protocol_id;
+static int hf_aecp_video_format;
+static int hf_aecp_status_code;
+static int hf_aecp_backup_talker_entity_id_0;
+static int hf_aecp_backup_talker_entity_id_1;
+static int hf_aecp_backup_talker_entity_id_2;
+static int hf_aecp_backup_talker_unique_id_0;
+static int hf_aecp_backup_talker_unique_id_1;
+static int hf_aecp_backup_talker_unique_id_2;
+static int hf_aecp_backedup_talker_entity_id;
+static int hf_aecp_backedup_talker_unique_id;
+static int hf_aecp_avb_info_ptp_grandmaster_id;
+static int hf_aecp_avb_info_propegation_delay;
+static int hf_aecp_avb_info_gptp_domain_number;
+/* static int hf_aecp_avb_info_flags; */
+static int hf_aecp_as_capable_flag;
+static int hf_aecp_gptp_enabled_flag;
+static int hf_aecp_srp_enabled_flag;
+static int hf_aecp_avb_info_msrp_mappings_count;
+static int hf_aecp_avb_info_msrp_mappings;
+static int hf_aecp_avb_info_msrp_mapping_traffic_class;
+static int hf_aecp_avb_info_msrp_mapping_priority;
 
-static int hf_aecp_get_avb_info_msrp_vlan_id = -1;
+static int hf_aecp_get_avb_info_msrp_vlan_id;
 
 /* ***************************************************************** */
 /*                   AVDECC Entity Model (AEM)                       */
 /* ***************************************************************** */
-static int hf_aem_am824_label = -1;
-/* static int hf_aem_aspect_x = -1; */
-/* static int hf_aem_aspect_y = -1; */
-/* static int hf_aem_audio_channels = -1; */
-static int hf_aem_avb_interface_id = -1;
-static int hf_aem_buffer_length = -1;
-static int hf_aem_b_flag = -1;
-static int hf_aem_backedup_talker_guid = -1;
-static int hf_aem_backedup_talker_unique = -1;
-static int hf_aem_backup_talker_guid_0 = -1;
-static int hf_aem_backup_talker_guid_1 = -1;
-static int hf_aem_backup_talker_guid_2 = -1;
-static int hf_aem_backup_talker_unique_0 = -1;
-static int hf_aem_backup_talker_unique_1 = -1;
-static int hf_aem_backup_talker_unique_2 = -1;
-static int hf_aem_base_audio_map = -1;
-static int hf_aem_base_cluster = -1;
-static int hf_aem_base_control = -1;
-static int hf_aem_base_control_block = -1;
-/* static int hf_aem_base_destination = -1; */
-static int hf_aem_base_external_input_port = -1;
-static int hf_aem_base_external_output_port = -1;
-static int hf_aem_base_frequency = -1;
-static int hf_aem_base_internal_input_port = -1;
-static int hf_aem_base_internal_output_port = -1;
-static int hf_aem_base_matrix = -1;
-static int hf_aem_base_mixer = -1;
-static int hf_aem_base_signal_selector = -1;
-/* static int hf_aem_base_source = -1; */
-static int hf_aem_number_splitters = -1;
-static int hf_aem_base_splitter = -1;
-static int hf_aem_number_combiners = -1;
-static int hf_aem_base_combiner = -1;
-static int hf_aem_number_demultiplexers = -1;
-static int hf_aem_base_demultiplexer = -1;
-static int hf_aem_number_multiplexers = -1;
-static int hf_aem_base_multiplexer = -1;
-static int hf_aem_number_transcoders = -1;
-static int hf_aem_base_transcoder = -1;
-static int hf_aem_base_stream_input_port = -1;
-static int hf_aem_base_stream_output_port = -1;
-static int hf_aem_base_strings = -1;
-static int hf_aem_binary_blob = -1;
-static int hf_aem_blob_size = -1;
-static int hf_aem_block_latency = -1;
-static int hf_aem_reset_time = -1;
-/* static int hf_aem_bpp = -1; */
-static int hf_aem_channel_count = -1;
-/* static int hf_aem_channels = -1; */
-static int hf_aem_clock_source_flags = -1;
-static int hf_aem_clock_source_id = -1;
-static int hf_aem_clock_domain_id = -1;
-static int hf_aem_clock_sources_offset = -1;
-static int hf_aem_clock_source_index = -1;
-static int hf_aem_clock_sources_count = -1;
-static int hf_aem_clock_sources = -1;
-static int hf_aem_clock_sources_array = -1;
-static int hf_aem_clock_source_location_id = -1;
-static int hf_aem_clock_source_location_type = -1;
-static int hf_aem_clock_source_name = -1;
-static int hf_aem_clock_source_name_string = -1;
-static int hf_aem_clock_source_type = -1;
-/* static int hf_aem_cluster_name = -1; */
-/* static int hf_aem_cluster_name_string = -1; */
-/* static int hf_aem_color_format = -1; */
-static int hf_aem_color_space = -1;
-/* static int hf_aem_comp1 = -1; */
-/* static int hf_aem_comp2 = -1; */
-/* static int hf_aem_comp3 = -1; */
-/* static int hf_aem_comp4 = -1; */
-static int hf_aem_compress_mode = -1;
-static int hf_aem_configuration_name = -1;
-static int hf_aem_configuration_name_string = -1;
-static int hf_aem_configurations_count = -1;
-static int hf_aem_control_domain = -1;
-static int hf_aem_control_latency = -1;
-/* static int hf_aem_control_location_id = -1; */
-/* static int hf_aem_control_location_type = -1; */
-static int hf_aem_control_type = -1;
-static int hf_aem_control_value_type = -1;
-static int hf_aem_count = -1;
-/* static int hf_aem_cs_eui64 = -1; */
-static int hf_aem_ctrl_double = -1;
-static int hf_aem_ctrl_float = -1;
-static int hf_aem_ctrl_int16 = -1;
-static int hf_aem_ctrl_int32 = -1;
-static int hf_aem_ctrl_int64 = -1;
-static int hf_aem_ctrl_int8 = -1;
-static int hf_aem_ctrl_uint16 = -1;
-static int hf_aem_ctrl_uint32 = -1;
-static int hf_aem_ctrl_uint64 = -1;
-static int hf_aem_ctrl_uint8 = -1;
-static int hf_aem_ctrl_vals = -1;
-static int hf_aem_current_configuration = -1;
-static int hf_aem_current_sample_rate = -1;
-/* static int hf_aem_current_signal_id = -1; */
-/* static int hf_aem_current_signal_type = -1; */
-static int hf_aem_dbs = -1;
-/* static int hf_aem_default_signal_id = -1; */
-/* static int hf_aem_default_signal_type = -1; */
-static int hf_aem_descriptor_counts_count = -1;
-static int hf_aem_descriptor_counts_offset = -1;
-/* static int hf_aem_div = -1; */
-static int hf_aem_entity_id = -1;
-static int hf_aem_entity_model_id = -1;
-static int hf_aem_entity_name = -1;
-static int hf_aem_fdf_evt = -1;
-static int hf_aem_fdf_sfc = -1;
-static int hf_aem_firmware_version = -1;
-static int hf_aem_flags_async_sample_rate_conv = -1;
-static int hf_aem_flags_captive = -1;
-static int hf_aem_flags_class_a = -1;
-static int hf_aem_flags_class_b = -1;
-static int hf_aem_flags_clock_sync_source = -1;
-static int hf_aem_flags_sync_sample_rate_conv = -1;
-static int hf_aem_fmt = -1;
-/* static int hf_aem_formats_count = -1; */
-static int hf_aem_formats_offset = -1;
-/* static int hf_aem_frame_rate = -1; */
-static int hf_aem_frequency = -1;
-static int hf_aem_group_name = -1;
-static int hf_aem_guid = -1;
-/* static int hf_aem_height = -1; */
-static int hf_aem_iidc_format = -1;
-static int hf_aem_iidc_mode = -1;
-static int hf_aem_iidc_rate = -1;
-static int hf_aem_interface_name = -1;
-static int hf_aem_interface_name_string = -1;
-/* static int hf_aem_interlace = -1; */
-/* static int hf_aem_internal_id = -1; */
-static int hf_aem_jack_flags = -1;
-static int hf_aem_jack_id = -1;
-static int hf_aem_jack_name = -1;
-static int hf_aem_jack_name_string = -1;
-static int hf_aem_jack_type = -1;
-static int hf_aem_label_iec_60958_cnt = -1;
-static int hf_aem_label_mbla_cnt = -1;
-static int hf_aem_label_midi_cnt = -1;
-static int hf_aem_label_smpte_cnt = -1;
-static int hf_aem_length = -1;
-static int hf_aem_locale_identifier = -1;
-static int hf_aem_mapping_cluster_offset = -1;
-static int hf_aem_mapping_cluster_channel = -1;
-static int hf_aem_mapping_stream_channel = -1;
-static int hf_aem_mapping_stream_index = -1;
-static int hf_aem_mappings = -1;
-static int hf_aem_mappings_offset = -1;
-static int hf_aem_memory_object_type = -1;
-/* static int hf_aem_mf_height = -1; */
-/* static int hf_aem_mf_width = -1; */
-/* static int hf_aem_mfd_type = -1; */
-static int hf_aem_model_name_string = -1;
-static int hf_aem_avb_interface_flags = -1;
-static int hf_aem_avb_clock_identity = -1;
-static int hf_aem_avb_priority1 = -1;
-static int hf_aem_avb_clock_class = -1;
-static int hf_aem_avb_offset_scaled_log_variance = -1;
-static int hf_aem_avb_clock_accuracy = -1;
-static int hf_aem_avb_priority2 = -1;
-static int hf_aem_avb_domain_number = -1;
-static int hf_aem_avb_log_sync_interval = -1;
-/* static int hf_aem_avb_propagation_delay = -1; */
-static int hf_aem_nb_flag = -1;
-static int hf_aem_number_audio_maps = -1;
-/* static int hf_aem_number_destinations = -1; */
-static int hf_aem_number_matrices = -1;
-static int hf_aem_number_mixers = -1;
-static int hf_aem_number_of_clusters = -1;
-static int hf_aem_number_of_controls = -1;
-static int hf_aem_number_control_blocks = -1;
-static int hf_aem_number_of_external_input_ports = -1;
-static int hf_aem_number_of_external_output_ports = -1;
-static int hf_aem_number_of_formats = -1;
-static int hf_aem_number_of_internal_input_ports = -1;
-static int hf_aem_number_of_internal_output_ports = -1;
-static int hf_aem_number_of_mappings = -1;
-/* static int hf_aem_number_of_sources = -1; */
-static int hf_aem_number_of_stream_input_ports = -1;
-static int hf_aem_number_of_stream_output_ports = -1;
-static int hf_aem_number_of_strings = -1;
-static int hf_aem_number_of_values = -1;
-static int hf_aem_number_signal_selectors = -1;
-static int hf_aem_object_name = -1;
-static int hf_aem_localized_description = -1;
-/* static int hf_aem_oui24 = -1; */
-static int hf_aem_path_latency = -1;
-static int hf_aem_port_flags = -1;
-static int hf_aem_pull_field = -1;
-static int hf_aem_sample_rates = -1;
-static int hf_aem_sample_rates_count = -1;
-static int hf_aem_sample_rates_offset = -1;
-static int hf_aem_serial_number = -1;
-static int hf_aem_sf = -1;
-static int hf_aem_sf_version = -1;
-static int hf_aem_sf_subtype = -1;
-static int hf_aem_signal_index = -1;
-static int hf_aem_signal_output = -1;
-static int hf_aem_signal_type = -1;
-static int hf_aem_signals_count = -1;
-static int hf_aem_signals_offset = -1;
-static int hf_aem_sources = -1;
-/* static int hf_aem_sources_offset = -1; */
-static int hf_aem_start_address = -1;
-/* static int hf_aem_stream_channels = -1; */
-static int hf_aem_stream_flags = -1;
-static int hf_aem_stream_format = -1;
-static int hf_aem_stream_formats = -1;
-/* static int hf_aem_stream_id = -1; */
-static int hf_aem_stream_name = -1;
-static int hf_aem_stream_name_string = -1;
-static int hf_aem_string = -1;
-static int hf_aem_string_ref = -1;
-static int hf_aem_target_descriptor_id = -1;
-static int hf_aem_target_descriptor_type = -1;
-static int hf_aem_unit = -1;
-static int hf_aem_unknown_descriptor = -1;
-/* static int hf_aem_value_offset = -1; */
-static int hf_aem_values_offset = -1;
-static int hf_aem_vendor_name_string = -1;
-static int hf_aem_video_mode = -1;
-/* static int hf_aem_width = -1; */
+static int hf_aem_am824_label;
+/* static int hf_aem_aspect_x; */
+/* static int hf_aem_aspect_y; */
+/* static int hf_aem_audio_channels; */
+static int hf_aem_avb_interface_id;
+static int hf_aem_buffer_length;
+static int hf_aem_b_flag;
+static int hf_aem_backedup_talker_guid;
+static int hf_aem_backedup_talker_unique;
+static int hf_aem_backup_talker_guid_0;
+static int hf_aem_backup_talker_guid_1;
+static int hf_aem_backup_talker_guid_2;
+static int hf_aem_backup_talker_unique_0;
+static int hf_aem_backup_talker_unique_1;
+static int hf_aem_backup_talker_unique_2;
+static int hf_aem_base_audio_map;
+static int hf_aem_base_cluster;
+static int hf_aem_base_control;
+static int hf_aem_base_control_block;
+/* static int hf_aem_base_destination; */
+static int hf_aem_base_external_input_port;
+static int hf_aem_base_external_output_port;
+static int hf_aem_base_frequency;
+static int hf_aem_base_internal_input_port;
+static int hf_aem_base_internal_output_port;
+static int hf_aem_base_matrix;
+static int hf_aem_base_mixer;
+static int hf_aem_base_signal_selector;
+/* static int hf_aem_base_source; */
+static int hf_aem_number_splitters;
+static int hf_aem_base_splitter;
+static int hf_aem_number_combiners;
+static int hf_aem_base_combiner;
+static int hf_aem_number_demultiplexers;
+static int hf_aem_base_demultiplexer;
+static int hf_aem_number_multiplexers;
+static int hf_aem_base_multiplexer;
+static int hf_aem_number_transcoders;
+static int hf_aem_base_transcoder;
+static int hf_aem_base_stream_input_port;
+static int hf_aem_base_stream_output_port;
+static int hf_aem_base_strings;
+static int hf_aem_binary_blob;
+static int hf_aem_blob_size;
+static int hf_aem_block_latency;
+static int hf_aem_reset_time;
+/* static int hf_aem_bpp; */
+static int hf_aem_channel_count;
+/* static int hf_aem_channels; */
+static int hf_aem_clock_source_flags;
+static int hf_aem_clock_source_id;
+static int hf_aem_clock_domain_id;
+static int hf_aem_clock_sources_offset;
+static int hf_aem_clock_source_index;
+static int hf_aem_clock_sources_count;
+static int hf_aem_clock_sources;
+static int hf_aem_clock_sources_array;
+static int hf_aem_clock_source_location_id;
+static int hf_aem_clock_source_location_type;
+static int hf_aem_clock_source_name;
+static int hf_aem_clock_source_name_string;
+static int hf_aem_clock_source_type;
+/* static int hf_aem_cluster_name; */
+/* static int hf_aem_cluster_name_string; */
+/* static int hf_aem_color_format; */
+static int hf_aem_color_space;
+/* static int hf_aem_comp1; */
+/* static int hf_aem_comp2; */
+/* static int hf_aem_comp3; */
+/* static int hf_aem_comp4; */
+static int hf_aem_compress_mode;
+static int hf_aem_configuration_name;
+static int hf_aem_configuration_name_string;
+static int hf_aem_configurations_count;
+static int hf_aem_control_domain;
+static int hf_aem_control_latency;
+/* static int hf_aem_control_location_id; */
+/* static int hf_aem_control_location_type; */
+static int hf_aem_control_type;
+static int hf_aem_control_value_type;
+static int hf_aem_count;
+/* static int hf_aem_cs_eui64; */
+static int hf_aem_ctrl_double;
+static int hf_aem_ctrl_float;
+static int hf_aem_ctrl_int16;
+static int hf_aem_ctrl_int32;
+static int hf_aem_ctrl_int64;
+static int hf_aem_ctrl_int8;
+static int hf_aem_ctrl_uint16;
+static int hf_aem_ctrl_uint32;
+static int hf_aem_ctrl_uint64;
+static int hf_aem_ctrl_uint8;
+static int hf_aem_ctrl_vals;
+static int hf_aem_current_configuration;
+static int hf_aem_current_sample_rate;
+/* static int hf_aem_current_signal_id; */
+/* static int hf_aem_current_signal_type; */
+static int hf_aem_dbs;
+/* static int hf_aem_default_signal_id; */
+/* static int hf_aem_default_signal_type; */
+static int hf_aem_descriptor_counts_count;
+static int hf_aem_descriptor_counts_offset;
+/* static int hf_aem_div; */
+static int hf_aem_entity_id;
+static int hf_aem_entity_model_id;
+static int hf_aem_entity_name;
+static int hf_aem_fdf_evt;
+static int hf_aem_fdf_sfc;
+static int hf_aem_firmware_version;
+static int hf_aem_flags_async_sample_rate_conv;
+static int hf_aem_flags_captive;
+static int hf_aem_flags_class_a;
+static int hf_aem_flags_class_b;
+static int hf_aem_flags_clock_sync_source;
+static int hf_aem_flags_sync_sample_rate_conv;
+static int hf_aem_fmt;
+/* static int hf_aem_formats_count; */
+static int hf_aem_formats_offset;
+/* static int hf_aem_frame_rate; */
+static int hf_aem_frequency;
+static int hf_aem_group_name;
+static int hf_aem_guid;
+/* static int hf_aem_height; */
+static int hf_aem_iidc_format;
+static int hf_aem_iidc_mode;
+static int hf_aem_iidc_rate;
+static int hf_aem_interface_name;
+static int hf_aem_interface_name_string;
+/* static int hf_aem_interlace; */
+/* static int hf_aem_internal_id; */
+static int hf_aem_jack_flags;
+static int hf_aem_jack_id;
+static int hf_aem_jack_name;
+static int hf_aem_jack_name_string;
+static int hf_aem_jack_type;
+static int hf_aem_label_iec_60958_cnt;
+static int hf_aem_label_mbla_cnt;
+static int hf_aem_label_midi_cnt;
+static int hf_aem_label_smpte_cnt;
+static int hf_aem_length;
+static int hf_aem_locale_identifier;
+static int hf_aem_mapping_cluster_offset;
+static int hf_aem_mapping_cluster_channel;
+static int hf_aem_mapping_stream_channel;
+static int hf_aem_mapping_stream_index;
+static int hf_aem_mappings;
+static int hf_aem_mappings_offset;
+static int hf_aem_memory_object_type;
+/* static int hf_aem_mf_height; */
+/* static int hf_aem_mf_width; */
+/* static int hf_aem_mfd_type; */
+static int hf_aem_model_name_string;
+static int hf_aem_avb_interface_flags;
+static int hf_aem_avb_clock_identity;
+static int hf_aem_avb_priority1;
+static int hf_aem_avb_clock_class;
+static int hf_aem_avb_offset_scaled_log_variance;
+static int hf_aem_avb_clock_accuracy;
+static int hf_aem_avb_priority2;
+static int hf_aem_avb_domain_number;
+static int hf_aem_avb_log_sync_interval;
+/* static int hf_aem_avb_propagation_delay; */
+static int hf_aem_nb_flag;
+static int hf_aem_number_audio_maps;
+/* static int hf_aem_number_destinations; */
+static int hf_aem_number_matrices;
+static int hf_aem_number_mixers;
+static int hf_aem_number_of_clusters;
+static int hf_aem_number_of_controls;
+static int hf_aem_number_control_blocks;
+static int hf_aem_number_of_external_input_ports;
+static int hf_aem_number_of_external_output_ports;
+static int hf_aem_number_of_formats;
+static int hf_aem_number_of_internal_input_ports;
+static int hf_aem_number_of_internal_output_ports;
+static int hf_aem_number_of_mappings;
+/* static int hf_aem_number_of_sources; */
+static int hf_aem_number_of_stream_input_ports;
+static int hf_aem_number_of_stream_output_ports;
+static int hf_aem_number_of_strings;
+static int hf_aem_number_of_values;
+static int hf_aem_number_signal_selectors;
+static int hf_aem_object_name;
+static int hf_aem_localized_description;
+/* static int hf_aem_oui24; */
+static int hf_aem_path_latency;
+static int hf_aem_port_flags;
+static int hf_aem_pull_field;
+static int hf_aem_sample_rates;
+static int hf_aem_sample_rates_count;
+static int hf_aem_sample_rates_offset;
+static int hf_aem_serial_number;
+static int hf_aem_sf;
+static int hf_aem_sf_version;
+static int hf_aem_sf_subtype;
+static int hf_aem_signal_index;
+static int hf_aem_signal_output;
+static int hf_aem_signal_type;
+static int hf_aem_signals_count;
+static int hf_aem_signals_offset;
+static int hf_aem_sources;
+/* static int hf_aem_sources_offset; */
+static int hf_aem_start_address;
+/* static int hf_aem_stream_channels; */
+static int hf_aem_stream_flags;
+static int hf_aem_stream_format;
+static int hf_aem_stream_formats;
+/* static int hf_aem_stream_id; */
+static int hf_aem_stream_name;
+static int hf_aem_stream_name_string;
+static int hf_aem_string;
+static int hf_aem_string_ref;
+static int hf_aem_target_descriptor_id;
+static int hf_aem_target_descriptor_type;
+static int hf_aem_unit;
+static int hf_aem_unknown_descriptor;
+/* static int hf_aem_value_offset; */
+static int hf_aem_values_offset;
+static int hf_aem_vendor_name_string;
+static int hf_aem_video_mode;
+/* static int hf_aem_width; */
 
 /****************************************************************** */
 /*     AVDECC Connection Management Protocol Data Unit (ACMPDU)     */
 /* **************************************************************** */
-static int hf_acmp_message_type = -1;
-static int hf_acmp_status_field = -1;
-static int hf_acmp_cd_length = -1;
-static int hf_acmp_stream_id = -1;
-static int hf_acmp_controller_guid = -1;
-static int hf_acmp_talker_guid = -1;
-static int hf_acmp_listener_guid = -1;
-static int hf_acmp_talker_unique_id = -1;
-static int hf_acmp_listener_unique_id = -1;
-static int hf_acmp_stream_dest_mac = -1;
-static int hf_acmp_connection_count = -1;
-static int hf_acmp_sequence_id = -1;
-static int hf_acmp_flags = -1;
-static int hf_acmp_vlan_id = -1;
+static int hf_acmp_message_type;
+static int hf_acmp_status_field;
+static int hf_acmp_cd_length;
+static int hf_acmp_stream_id;
+static int hf_acmp_controller_guid;
+static int hf_acmp_talker_guid;
+static int hf_acmp_listener_guid;
+static int hf_acmp_talker_unique_id;
+static int hf_acmp_listener_unique_id;
+static int hf_acmp_stream_dest_mac;
+static int hf_acmp_connection_count;
+static int hf_acmp_sequence_id;
+static int hf_acmp_flags;
+static int hf_acmp_vlan_id;
 
 /* ACMP Flags (8.2.1.17) */
-static int hf_acmp_flags_class_b = -1;
-static int hf_acmp_flags_fast_connect = -1;
-static int hf_acmp_flags_saved_state = -1;
-static int hf_acmp_flags_streaming_wait = -1;
-static int hf_acmp_flags_supports_encrypted = -1;
-static int hf_acmp_flags_encrypted_pdu = -1;
-static int hf_acmp_flags_talker_failed = -1;
+static int hf_acmp_flags_class_b;
+static int hf_acmp_flags_fast_connect;
+static int hf_acmp_flags_saved_state;
+static int hf_acmp_flags_streaming_wait;
+static int hf_acmp_flags_supports_encrypted;
+static int hf_acmp_flags_encrypted_pdu;
+static int hf_acmp_flags_talker_failed;
 
 /* Initialize the subtree pointers */
-static int ett_17221 = -1;
+static int ett_17221;
 /* ADP */
-static int ett_adp_ent_cap = -1;
-static int ett_adp_talk_cap = -1;
-static int ett_adp_list_cap = -1;
-static int ett_adp_cont_cap = -1;
-/* static int ett_adp_aud_format = -1; */
-static int ett_adp_samp_rates = -1;
-static int ett_adp_chan_format = -1;
+static int ett_adp_ent_cap;
+static int ett_adp_talk_cap;
+static int ett_adp_list_cap;
+static int ett_adp_cont_cap;
+/* static int ett_adp_aud_format; */
+static int ett_adp_samp_rates;
+static int ett_adp_chan_format;
 /* ACMP */
-static int ett_acmp_flags = -1;
+static int ett_acmp_flags;
 /* AEM */
-static int ett_aem_descriptor = -1;
-static int ett_aem_desc_counts = -1;
-static int ett_aem_sample_rates = -1;
-static int ett_aem_stream_flags = -1;
-static int ett_aem_clock_sources = -1;
-static int ett_aem_stream_formats = -1;
-static int ett_aem_jack_flags = -1;
-static int ett_aem_port_flags = -1;
-static int ett_aecp_get_avb_info_msrp_mappings = -1;
-static int ett_aem_clock_source_flags = -1;
-static int ett_aem_mappings = -1;
-static int ett_aem_ctrl_vals = -1;
-static int ett_aem_sources = -1;
-/* static int ett_aem_media_format = -1; */
-static int ett_aem_stream_format = -1;
+static int ett_aem_descriptor;
+static int ett_aem_desc_counts;
+static int ett_aem_sample_rates;
+static int ett_aem_stream_flags;
+static int ett_aem_clock_sources;
+static int ett_aem_stream_formats;
+static int ett_aem_jack_flags;
+static int ett_aem_port_flags;
+static int ett_aecp_get_avb_info_msrp_mappings;
+static int ett_aem_clock_source_flags;
+static int ett_aem_mappings;
+static int ett_aem_ctrl_vals;
+static int ett_aem_sources;
+/* static int ett_aem_media_format; */
+static int ett_aem_stream_format;
 
-static int ett_aecp_descriptors = -1;
-static int ett_aecp_flags_32 = -1;
+static int ett_aecp_descriptors;
+static int ett_aecp_flags_32;
 
 typedef struct {
    int hf;

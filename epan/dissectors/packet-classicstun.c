@@ -25,39 +25,39 @@ static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t data_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_classicstun                          = -1;
+static int proto_classicstun;
 
-static int hf_classicstun_type                        = -1; /* CLASSIC-STUN message header */
-static int hf_classicstun_length                      = -1;
-static int hf_classicstun_id                          = -1;
-static int hf_classicstun_att                         = -1;
-static int hf_classicstun_response_in                 = -1;
-static int hf_classicstun_response_to                 = -1;
-static int hf_classicstun_time                        = -1;
+static int hf_classicstun_type; /* CLASSIC-STUN message header */
+static int hf_classicstun_length;
+static int hf_classicstun_id;
+static int hf_classicstun_att;
+static int hf_classicstun_response_in;
+static int hf_classicstun_response_to;
+static int hf_classicstun_time;
 
 
-static int hf_classicstun_att_type                       = -1; /* CLASSIC-STUN attribute fields */
-static int hf_classicstun_att_length                     = -1;
-static int hf_classicstun_att_value                      = -1;
-static int hf_classicstun_att_family                     = -1;
-static int hf_classicstun_att_ipv4                       = -1;
-static int hf_classicstun_att_ipv6                       = -1;
-static int hf_classicstun_att_port                       = -1;
-static int hf_classicstun_att_change_ip                  = -1;
-static int hf_classicstun_att_change_port                = -1;
-static int hf_classicstun_att_unknown                    = -1;
-static int hf_classicstun_att_error_class                = -1;
-static int hf_classicstun_att_error_number               = -1;
-static int hf_classicstun_att_error_reason               = -1;
-static int hf_classicstun_att_server_string              = -1;
-static int hf_classicstun_att_xor_ipv4                   = -1;
-static int hf_classicstun_att_xor_ipv6                   = -1;
-static int hf_classicstun_att_xor_port                   = -1;
-static int hf_classicstun_att_lifetime                   = -1;
-static int hf_classicstun_att_magic_cookie               = -1;
-static int hf_classicstun_att_bandwidth                  = -1;
-static int hf_classicstun_att_data                       = -1;
-static int hf_classicstun_att_connection_request_binding = -1;
+static int hf_classicstun_att_type; /* CLASSIC-STUN attribute fields */
+static int hf_classicstun_att_length;
+static int hf_classicstun_att_value;
+static int hf_classicstun_att_family;
+static int hf_classicstun_att_ipv4;
+static int hf_classicstun_att_ipv6;
+static int hf_classicstun_att_port;
+static int hf_classicstun_att_change_ip;
+static int hf_classicstun_att_change_port;
+static int hf_classicstun_att_unknown;
+static int hf_classicstun_att_error_class;
+static int hf_classicstun_att_error_number;
+static int hf_classicstun_att_error_reason;
+static int hf_classicstun_att_server_string;
+static int hf_classicstun_att_xor_ipv4;
+static int hf_classicstun_att_xor_ipv6;
+static int hf_classicstun_att_xor_port;
+static int hf_classicstun_att_lifetime;
+static int hf_classicstun_att_magic_cookie;
+static int hf_classicstun_att_bandwidth;
+static int hf_classicstun_att_data;
+static int hf_classicstun_att_connection_request_binding;
 
 /* Structure containing transaction specific information */
 typedef struct _classicstun_transaction_t {
@@ -129,9 +129,9 @@ typedef struct _classicstun_conv_info_t {
 
 
 /* Initialize the subtree pointers */
-static gint ett_classicstun = -1;
-static gint ett_classicstun_att_type = -1;
-static gint ett_classicstun_att = -1;
+static gint ett_classicstun;
+static gint ett_classicstun_att_type;
+static gint ett_classicstun_att;
 
 
 #define UDP_PORT_STUN   3478

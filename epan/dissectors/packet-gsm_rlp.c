@@ -19,26 +19,26 @@
 
 void proto_register_gsmrlp(void);
 
-static int proto_gsmrlp = -1;
+static int proto_gsmrlp;
 
-static int hf_gsmrlp_cr = -1;
-static int hf_gsmrlp_pf = -1;
-static int hf_gsmrlp_n_r = -1;
-static int hf_gsmrlp_n_s = -1;
-static int hf_gsmrlp_ftype = -1;
-static int hf_gsmrlp_s_ftype = -1;
-static int hf_gsmrlp_u_ftype = -1;
-static int hf_gsmrlp_fcs = -1;
-static int hf_gsmrlp_fcs_status = -1;
+static int hf_gsmrlp_cr;
+static int hf_gsmrlp_pf;
+static int hf_gsmrlp_n_r;
+static int hf_gsmrlp_n_s;
+static int hf_gsmrlp_ftype;
+static int hf_gsmrlp_s_ftype;
+static int hf_gsmrlp_u_ftype;
+static int hf_gsmrlp_fcs;
+static int hf_gsmrlp_fcs_status;
 
-static int hf_gsmrlp_xid_p_type = -1;
-static int hf_gsmrlp_xid_p_len = -1;
-static int hf_gsmrlp_xid_p_val = -1;
+static int hf_gsmrlp_xid_p_type;
+static int hf_gsmrlp_xid_p_len;
+static int hf_gsmrlp_xid_p_val;
 
-static int ett_gsmrlp = -1;
-static int ett_gsmrlp_xid = -1;
+static int ett_gsmrlp;
+static int ett_gsmrlp_xid;
 
-static expert_field ei_gsmrlp_fcs_bad = EI_INIT;
+static expert_field ei_gsmrlp_fcs_bad;
 
 static dissector_handle_t l2rcop_handle;
 static gboolean decode_as_l2rcop = true;

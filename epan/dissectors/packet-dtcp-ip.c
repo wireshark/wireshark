@@ -30,32 +30,32 @@
 
 #include <epan/packet.h>
 
-static int proto_dtcp_ip = -1;
+static int proto_dtcp_ip;
 
 void proto_register_dtcp_ip(void);
 void proto_reg_handoff_dtcp_ip(void);
 
 static dissector_handle_t dtcp_ip_handle;
 
-static gint ett_dtcp_ip = -1;
-static gint ett_dtcp_ip_ctrl = -1;
-static gint ett_dtcp_ip_ake_procedure = -1;
+static gint ett_dtcp_ip;
+static gint ett_dtcp_ip_ctrl;
+static gint ett_dtcp_ip_ake_procedure;
 
-static int hf_dtcp_ip_type = -1;
-static int hf_dtcp_ip_length = -1;
-static int hf_dtcp_ip_ctype = -1;
-static int hf_dtcp_ip_category = -1;
-static int hf_dtcp_ip_ake_id = -1;
-static int hf_dtcp_ip_subfct = -1;
-static int hf_dtcp_ip_ake_procedure = -1;
-static int hf_dtcp_ip_ake_proc_full = -1;
-static int hf_dtcp_ip_ake_proc_ex_full = -1;
-static int hf_dtcp_ip_ake_xchg_key = -1;
-static int hf_dtcp_ip_subfct_dep = -1;
-static int hf_dtcp_ip_ake_label = -1;
-static int hf_dtcp_ip_number = -1;
-static int hf_dtcp_ip_status = -1;
-static int hf_dtcp_ip_ake_info = -1;
+static int hf_dtcp_ip_type;
+static int hf_dtcp_ip_length;
+static int hf_dtcp_ip_ctype;
+static int hf_dtcp_ip_category;
+static int hf_dtcp_ip_ake_id;
+static int hf_dtcp_ip_subfct;
+static int hf_dtcp_ip_ake_procedure;
+static int hf_dtcp_ip_ake_proc_full;
+static int hf_dtcp_ip_ake_proc_ex_full;
+static int hf_dtcp_ip_ake_xchg_key;
+static int hf_dtcp_ip_subfct_dep;
+static int hf_dtcp_ip_ake_label;
+static int hf_dtcp_ip_number;
+static int hf_dtcp_ip_status;
+static int hf_dtcp_ip_ake_info;
 
 #define CTRL_LEN 8 /* control block is 8 bytes long */
 

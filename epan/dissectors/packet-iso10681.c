@@ -104,28 +104,28 @@ static const value_string iso10681_fc_ack_values[] = {
         {0, NULL}
 };
 
-static int hf_iso10681_target_address = -1;
-static int hf_iso10681_source_address = -1;
-static int hf_iso10681_type = -1;
-static int hf_iso10681_type2 = -1;
-static int hf_iso10681_frame_payload_length = -1;
-static int hf_iso10681_message_length = -1;
-static int hf_iso10681_sequence_number = -1;
-static int hf_iso10681_fc_flow_status = -1;
-static int hf_iso10681_fc_bandwidth_control = -1;
-static int hf_iso10681_fc_bc_separation_cycle_exp = -1;
-static int hf_iso10681_fc_bc_max_num_pdu_per_cycle = -1;
-static int hf_iso10681_fc_buffer_size = -1;
-static int hf_iso10681_fc_ack = -1;
-static int hf_iso10681_fc_byte_position = -1;
+static int hf_iso10681_target_address;
+static int hf_iso10681_source_address;
+static int hf_iso10681_type;
+static int hf_iso10681_type2;
+static int hf_iso10681_frame_payload_length;
+static int hf_iso10681_message_length;
+static int hf_iso10681_sequence_number;
+static int hf_iso10681_fc_flow_status;
+static int hf_iso10681_fc_bandwidth_control;
+static int hf_iso10681_fc_bc_separation_cycle_exp;
+static int hf_iso10681_fc_bc_max_num_pdu_per_cycle;
+static int hf_iso10681_fc_buffer_size;
+static int hf_iso10681_fc_ack;
+static int hf_iso10681_fc_byte_position;
 
 
-static gint ett_iso10681 = -1;
-static gint ett_iso10681_bandwidth_control = -1;
+static gint ett_iso10681;
+static gint ett_iso10681_bandwidth_control;
 
-static expert_field ei_iso10681_message_type_bad = EI_INIT;
+static expert_field ei_iso10681_message_type_bad;
 
-static int proto_iso10681 = -1;
+static int proto_iso10681;
 static dissector_handle_t iso10681_handle_flexray = NULL;
 
 static dissector_table_t subdissector_table;
@@ -139,19 +139,19 @@ static wmem_map_t *iso10681_seq_table = NULL;
 static guint32     next_seqnum = 0;
 
 
-static int hf_iso10681_fragments = -1;
-static int hf_iso10681_fragment = -1;
-static int hf_iso10681_fragment_overlap = -1;
-static int hf_iso10681_fragment_overlap_conflicts = -1;
-static int hf_iso10681_fragment_multiple_tails = -1;
-static int hf_iso10681_fragment_too_long_fragment = -1;
-static int hf_iso10681_fragment_error = -1;
-static int hf_iso10681_fragment_count = -1;
-static int hf_iso10681_reassembled_in = -1;
-static int hf_iso10681_reassembled_length = -1;
+static int hf_iso10681_fragments;
+static int hf_iso10681_fragment;
+static int hf_iso10681_fragment_overlap;
+static int hf_iso10681_fragment_overlap_conflicts;
+static int hf_iso10681_fragment_multiple_tails;
+static int hf_iso10681_fragment_too_long_fragment;
+static int hf_iso10681_fragment_error;
+static int hf_iso10681_fragment_count;
+static int hf_iso10681_reassembled_in;
+static int hf_iso10681_reassembled_length;
 
-static gint ett_iso10681_fragment = -1;
-static gint ett_iso10681_fragments = -1;
+static gint ett_iso10681_fragment;
+static gint ett_iso10681_fragments;
 
 static const fragment_items iso10681_frag_items = {
         /* Fragment subtrees */

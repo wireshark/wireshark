@@ -36,97 +36,97 @@ void proto_reg_handoff_catapult_dct2000(void);
 void proto_register_catapult_dct2000(void);
 
 /* Protocol and registered fields. */
-static int proto_catapult_dct2000 = -1;
+static int proto_catapult_dct2000;
 
-static int hf_catapult_dct2000_context = -1;
-static int hf_catapult_dct2000_port_number = -1;
-static int hf_catapult_dct2000_timestamp = -1;
-static int hf_catapult_dct2000_protocol = -1;
-static int hf_catapult_dct2000_variant = -1;
-static int hf_catapult_dct2000_outhdr = -1;
-static int hf_catapult_dct2000_direction = -1;
-static int hf_catapult_dct2000_encap = -1;
-static int hf_catapult_dct2000_unparsed_data = -1;
-static int hf_catapult_dct2000_comment = -1;
-static int hf_catapult_dct2000_sprint = -1;
-static int hf_catapult_dct2000_error_comment = -1;
-static int hf_catapult_dct2000_tty = -1;
-static int hf_catapult_dct2000_tty_line = -1;
-static int hf_catapult_dct2000_dissected_length = -1;
+static int hf_catapult_dct2000_context;
+static int hf_catapult_dct2000_port_number;
+static int hf_catapult_dct2000_timestamp;
+static int hf_catapult_dct2000_protocol;
+static int hf_catapult_dct2000_variant;
+static int hf_catapult_dct2000_outhdr;
+static int hf_catapult_dct2000_direction;
+static int hf_catapult_dct2000_encap;
+static int hf_catapult_dct2000_unparsed_data;
+static int hf_catapult_dct2000_comment;
+static int hf_catapult_dct2000_sprint;
+static int hf_catapult_dct2000_error_comment;
+static int hf_catapult_dct2000_tty;
+static int hf_catapult_dct2000_tty_line;
+static int hf_catapult_dct2000_dissected_length;
 
-static int hf_catapult_dct2000_ipprim_addresses = -1;
-static int hf_catapult_dct2000_ipprim_src_addr_v4 = -1;
-static int hf_catapult_dct2000_ipprim_src_addr_v6 = -1;
-static int hf_catapult_dct2000_ipprim_dst_addr_v4 = -1;
-static int hf_catapult_dct2000_ipprim_dst_addr_v6 = -1;
-static int hf_catapult_dct2000_ipprim_addr_v4 = -1;
-static int hf_catapult_dct2000_ipprim_addr_v6 = -1;
-static int hf_catapult_dct2000_ipprim_udp_src_port = -1;
-static int hf_catapult_dct2000_ipprim_udp_dst_port = -1;
-static int hf_catapult_dct2000_ipprim_udp_port = -1;
-static int hf_catapult_dct2000_ipprim_tcp_src_port = -1;
-static int hf_catapult_dct2000_ipprim_tcp_dst_port = -1;
-static int hf_catapult_dct2000_ipprim_tcp_port = -1;
-static int hf_catapult_dct2000_ipprim_conn_id = -1;
+static int hf_catapult_dct2000_ipprim_addresses;
+static int hf_catapult_dct2000_ipprim_src_addr_v4;
+static int hf_catapult_dct2000_ipprim_src_addr_v6;
+static int hf_catapult_dct2000_ipprim_dst_addr_v4;
+static int hf_catapult_dct2000_ipprim_dst_addr_v6;
+static int hf_catapult_dct2000_ipprim_addr_v4;
+static int hf_catapult_dct2000_ipprim_addr_v6;
+static int hf_catapult_dct2000_ipprim_udp_src_port;
+static int hf_catapult_dct2000_ipprim_udp_dst_port;
+static int hf_catapult_dct2000_ipprim_udp_port;
+static int hf_catapult_dct2000_ipprim_tcp_src_port;
+static int hf_catapult_dct2000_ipprim_tcp_dst_port;
+static int hf_catapult_dct2000_ipprim_tcp_port;
+static int hf_catapult_dct2000_ipprim_conn_id;
 
-static int hf_catapult_dct2000_sctpprim_addresses = -1;
-static int hf_catapult_dct2000_sctpprim_dst_addr_v4 = -1;
-static int hf_catapult_dct2000_sctpprim_dst_addr_v6 = -1;
-static int hf_catapult_dct2000_sctpprim_addr_v4 = -1;
-static int hf_catapult_dct2000_sctpprim_addr_v6 = -1;
-static int hf_catapult_dct2000_sctpprim_dst_port = -1;
+static int hf_catapult_dct2000_sctpprim_addresses;
+static int hf_catapult_dct2000_sctpprim_dst_addr_v4;
+static int hf_catapult_dct2000_sctpprim_dst_addr_v6;
+static int hf_catapult_dct2000_sctpprim_addr_v4;
+static int hf_catapult_dct2000_sctpprim_addr_v6;
+static int hf_catapult_dct2000_sctpprim_dst_port;
 
-static int hf_catapult_dct2000_ueid = -1;
-static int hf_catapult_dct2000_srbid = -1;
-static int hf_catapult_dct2000_drbid = -1;
-static int hf_catapult_dct2000_cellid = -1;
-static int hf_catapult_dct2000_bcch_transport = -1;
-static int hf_catapult_dct2000_rlc_op = -1;
-static int hf_catapult_dct2000_rlc_channel_type = -1;
-static int hf_catapult_dct2000_rlc_mui = -1;
-static int hf_catapult_dct2000_rlc_cnf = -1;
-static int hf_catapult_dct2000_rlc_discard_req = -1;
-static int hf_catapult_dct2000_carrier_type = -1;
-static int hf_catapult_dct2000_cell_group = -1;
-static int hf_catapult_dct2000_carrier_id = -1;
+static int hf_catapult_dct2000_ueid;
+static int hf_catapult_dct2000_srbid;
+static int hf_catapult_dct2000_drbid;
+static int hf_catapult_dct2000_cellid;
+static int hf_catapult_dct2000_bcch_transport;
+static int hf_catapult_dct2000_rlc_op;
+static int hf_catapult_dct2000_rlc_channel_type;
+static int hf_catapult_dct2000_rlc_mui;
+static int hf_catapult_dct2000_rlc_cnf;
+static int hf_catapult_dct2000_rlc_discard_req;
+static int hf_catapult_dct2000_carrier_type;
+static int hf_catapult_dct2000_cell_group;
+static int hf_catapult_dct2000_carrier_id;
 
-static int hf_catapult_dct2000_security_mode_params = -1;
-static int hf_catapult_dct2000_uplink_sec_mode = -1;
-static int hf_catapult_dct2000_downlink_sec_mode = -1;
-static int hf_catapult_dct2000_ciphering_algorithm = -1;
-static int hf_catapult_dct2000_ciphering_key = -1;
-static int hf_catapult_dct2000_integrity_algorithm = -1;
-static int hf_catapult_dct2000_integrity_key = -1;
+static int hf_catapult_dct2000_security_mode_params;
+static int hf_catapult_dct2000_uplink_sec_mode;
+static int hf_catapult_dct2000_downlink_sec_mode;
+static int hf_catapult_dct2000_ciphering_algorithm;
+static int hf_catapult_dct2000_ciphering_key;
+static int hf_catapult_dct2000_integrity_algorithm;
+static int hf_catapult_dct2000_integrity_key;
 
-static int hf_catapult_dct2000_lte_ccpri_opcode = -1;
-static int hf_catapult_dct2000_lte_ccpri_status = -1;
-static int hf_catapult_dct2000_lte_ccpri_channel = -1;
+static int hf_catapult_dct2000_lte_ccpri_opcode;
+static int hf_catapult_dct2000_lte_ccpri_status;
+static int hf_catapult_dct2000_lte_ccpri_channel;
 
-static int hf_catapult_dct2000_lte_nas_rrc_opcode = -1;
-static int hf_catapult_dct2000_lte_nas_rrc_establish_cause = -1;
-static int hf_catapult_dct2000_lte_nas_rrc_priority = -1;
-static int hf_catapult_dct2000_lte_nas_rrc_release_cause = -1;
+static int hf_catapult_dct2000_lte_nas_rrc_opcode;
+static int hf_catapult_dct2000_lte_nas_rrc_establish_cause;
+static int hf_catapult_dct2000_lte_nas_rrc_priority;
+static int hf_catapult_dct2000_lte_nas_rrc_release_cause;
 
-static int hf_catapult_dct2000_nr_nas_s1ap_opcode = -1;
+static int hf_catapult_dct2000_nr_nas_s1ap_opcode;
 
 /* UMTS RLC fields */
-static int hf_catapult_dct2000_rbid = -1;
-static int hf_catapult_dct2000_ccch_id = -1;
-static int hf_catapult_dct2000_no_crc_error = -1;
-static int hf_catapult_dct2000_crc_error = -1;
-static int hf_catapult_dct2000_clear_tx_buffer = -1;
-static int hf_catapult_dct2000_buffer_occupancy = -1;
-static int hf_catapult_dct2000_pdu_size = -1;
-static int hf_catapult_dct2000_ueid_type = -1;
-static int hf_catapult_dct2000_tx_priority = -1;
-static int hf_catapult_dct2000_last_in_seg_set = -1;
-static int hf_catapult_dct2000_rx_timing_deviation = -1;
-static int hf_catapult_dct2000_transport_channel_type = -1;
-static int hf_catapult_dct2000_no_padding_bits = -1;
+static int hf_catapult_dct2000_rbid;
+static int hf_catapult_dct2000_ccch_id;
+static int hf_catapult_dct2000_no_crc_error;
+static int hf_catapult_dct2000_crc_error;
+static int hf_catapult_dct2000_clear_tx_buffer;
+static int hf_catapult_dct2000_buffer_occupancy;
+static int hf_catapult_dct2000_pdu_size;
+static int hf_catapult_dct2000_ueid_type;
+static int hf_catapult_dct2000_tx_priority;
+static int hf_catapult_dct2000_last_in_seg_set;
+static int hf_catapult_dct2000_rx_timing_deviation;
+static int hf_catapult_dct2000_transport_channel_type;
+static int hf_catapult_dct2000_no_padding_bits;
 
-static int hf_catapult_dct2000_rawtraffic_interface = -1;
-static int hf_catapult_dct2000_rawtraffic_direction = -1;
-static int hf_catapult_dct2000_rawtraffic_pdu = -1;
+static int hf_catapult_dct2000_rawtraffic_interface;
+static int hf_catapult_dct2000_rawtraffic_direction;
+static int hf_catapult_dct2000_rawtraffic_pdu;
 
 
 /* Variables used for preferences */
@@ -138,15 +138,15 @@ static gboolean catapult_dct2000_dissect_old_protocol_names = FALSE;
 static gboolean catapult_dct2000_use_protocol_name_as_dissector_name = FALSE;
 
 /* Protocol subtree. */
-static int ett_catapult_dct2000 = -1;
-static int ett_catapult_dct2000_ipprim = -1;
-static int ett_catapult_dct2000_sctpprim = -1;
-static int ett_catapult_dct2000_tty = -1;
-static int ett_catapult_dct2000_security_mode_params = -1;
+static int ett_catapult_dct2000;
+static int ett_catapult_dct2000_ipprim;
+static int ett_catapult_dct2000_sctpprim;
+static int ett_catapult_dct2000_tty;
+static int ett_catapult_dct2000_security_mode_params;
 
-static expert_field ei_catapult_dct2000_lte_ccpri_status_error = EI_INIT;
-static expert_field ei_catapult_dct2000_error_comment_expert = EI_INIT;
-static expert_field ei_catapult_dct2000_string_invalid = EI_INIT;
+static expert_field ei_catapult_dct2000_lte_ccpri_status_error;
+static expert_field ei_catapult_dct2000_error_comment_expert;
+static expert_field ei_catapult_dct2000_string_invalid;
 
 static const value_string direction_vals[] = {
     { 0,   "Sent" },

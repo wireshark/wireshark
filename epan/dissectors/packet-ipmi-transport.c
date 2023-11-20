@@ -18,549 +18,549 @@
 
 void proto_register_ipmi_transport(void);
 
-static gint ett_ipmi_trn_lan00_byte1 = -1;
-static gint ett_ipmi_trn_lan01_byte1 = -1;
-static gint ett_ipmi_trn_lan02_byte1 = -1;
-static gint ett_ipmi_trn_lan02_byte2 = -1;
-static gint ett_ipmi_trn_lan02_byte3 = -1;
-static gint ett_ipmi_trn_lan02_byte4 = -1;
-static gint ett_ipmi_trn_lan02_byte5 = -1;
-static gint ett_ipmi_trn_lan04_byte1 = -1;
-static gint ett_ipmi_trn_lan07_byte2 = -1;
-static gint ett_ipmi_trn_lan07_byte3 = -1;
-static gint ett_ipmi_trn_lan10_byte1 = -1;
-static gint ett_ipmi_trn_lan17_byte1 = -1;
-static gint ett_ipmi_trn_lan18_byte1 = -1;
-static gint ett_ipmi_trn_lan18_byte2 = -1;
-static gint ett_ipmi_trn_lan18_byte4 = -1;
-static gint ett_ipmi_trn_lan19_byte1 = -1;
-static gint ett_ipmi_trn_lan19_byte2 = -1;
-static gint ett_ipmi_trn_lan19_byte3 = -1;
-static gint ett_ipmi_trn_lan20_byte12 = -1;
-static gint ett_ipmi_trn_lan21_byte1 = -1;
-static gint ett_ipmi_trn_lan22_byte1 = -1;
-static gint ett_ipmi_trn_lan24_byte1 = -1;
-static gint ett_ipmi_trn_lan24_byte2 = -1;
-static gint ett_ipmi_trn_lan24_byte3 = -1;
-static gint ett_ipmi_trn_lan24_byte4 = -1;
-static gint ett_ipmi_trn_lan24_byte5 = -1;
-static gint ett_ipmi_trn_lan24_byte6 = -1;
-static gint ett_ipmi_trn_lan24_byte7 = -1;
-static gint ett_ipmi_trn_lan24_byte8 = -1;
-static gint ett_ipmi_trn_lan25_byte1 = -1;
-static gint ett_ipmi_trn_lan25_byte2 = -1;
-static gint ett_ipmi_trn_lan25_byte34 = -1;
-static gint ett_ipmi_trn_lan50_byte1 = -1;
-static gint ett_ipmi_trn_lan55_byte3 = -1;
-static gint ett_ipmi_trn_lan56_byte2 = -1;
-static gint ett_ipmi_trn_lan64_byte1 = -1;
-static gint ett_ipmi_trn_serial03_byte1 = -1;
-static gint ett_ipmi_trn_serial04_byte1 = -1;
-static gint ett_ipmi_trn_serial05_byte1 = -1;
-static gint ett_ipmi_trn_serial05_byte2 = -1;
-static gint ett_ipmi_trn_serial06_byte1 = -1;
-static gint ett_ipmi_trn_serial07_byte1 = -1;
-static gint ett_ipmi_trn_serial07_byte2 = -1;
-static gint ett_ipmi_trn_serial08_byte1 = -1;
-static gint ett_ipmi_trn_serial08_byte2 = -1;
-static gint ett_ipmi_trn_serial09_byte1 = -1;
-static gint ett_ipmi_trn_serial09_byte2 = -1;
-static gint ett_ipmi_trn_serial16_byte1 = -1;
-static gint ett_ipmi_trn_serial17_byte1 = -1;
-static gint ett_ipmi_trn_serial17_byte2 = -1;
-static gint ett_ipmi_trn_serial17_byte4 = -1;
-static gint ett_ipmi_trn_serial17_byte5 = -1;
-static gint ett_ipmi_trn_serial19_byte1 = -1;
-static gint ett_ipmi_trn_serial19_byte2 = -1;
-static gint ett_ipmi_trn_serial19_byte3 = -1;
-static gint ett_ipmi_trn_serial20_byte1 = -1;
-static gint ett_ipmi_trn_serial21_byte1 = -1;
-static gint ett_ipmi_trn_serial22_byte1 = -1;
-static gint ett_ipmi_trn_serial23_byte1 = -1;
-static gint ett_ipmi_trn_serial24_byte1 = -1;
-static gint ett_ipmi_trn_serial25_byte2 = -1;
-static gint ett_ipmi_trn_serial28_byte1 = -1;
-static gint ett_ipmi_trn_serial28_byte2 = -1;
-static gint ett_ipmi_trn_serial28_byte10 = -1;
-static gint ett_ipmi_trn_serial28_byte11 = -1;
-static gint ett_ipmi_trn_serial28_byte12 = -1;
-static gint ett_ipmi_trn_serial28_byte13 = -1;
-static gint ett_ipmi_trn_serial28_byte14 = -1;
-static gint ett_ipmi_trn_serial29_byte1 = -1;
-static gint ett_ipmi_trn_serial29_byte2 = -1;
-static gint ett_ipmi_trn_serial30_byte1 = -1;
-static gint ett_ipmi_trn_serial30_byte2 = -1;
-static gint ett_ipmi_trn_serial30_byte3 = -1;
-static gint ett_ipmi_trn_serial33_byte1 = -1;
-static gint ett_ipmi_trn_serial37_byte1 = -1;
-static gint ett_ipmi_trn_serial43_byte1 = -1;
-static gint ett_ipmi_trn_serial50_byte1 = -1;
-static gint ett_ipmi_trn_serial51_byte2 = -1;
-static gint ett_ipmi_trn_serial51_byte3 = -1;
-static gint ett_ipmi_trn_01_byte1 = -1;
-static gint ett_ipmi_trn_02_byte1 = -1;
-static gint ett_ipmi_trn_02_rev = -1;
-static gint ett_ipmi_trn_03_rq_byte1 = -1;
-static gint ett_ipmi_trn_03_rq_byte2 = -1;
-static gint ett_ipmi_trn_03_rs_byte1 = -1;
-static gint ett_ipmi_trn_04_byte1 = -1;
-static gint ett_ipmi_trn_04_byte2 = -1;
-static gint ett_ipmi_trn_10_byte1 = -1;
-static gint ett_ipmi_trn_11_byte1 = -1;
-static gint ett_ipmi_trn_11_rev = -1;
-static gint ett_ipmi_trn_12_rq_byte1 = -1;
-static gint ett_ipmi_trn_12_rq_byte2 = -1;
-static gint ett_ipmi_trn_12_rs_byte1 = -1;
-static gint ett_ipmi_trn_13_byte1 = -1;
-static gint ett_ipmi_trn_14_byte1 = -1;
-static gint ett_ipmi_trn_15_byte1 = -1;
-static gint ett_ipmi_trn_16_byte1 = -1;
-static gint ett_ipmi_trn_17_byte1 = -1;
-static gint ett_ipmi_trn_17_byte2 = -1;
-static gint ett_ipmi_trn_18_byte1 = -1;
-static gint ett_ipmi_trn_19_byte1 = -1;
-static gint ett_ipmi_trn_19_byte2 = -1;
-static gint ett_ipmi_trn_XX_usercap = -1;
-static gint ett_ipmi_trn_XX_cbcp = -1;
-static gint ett_ipmi_trn_1a_byte1 = -1;
-static gint ett_ipmi_trn_1a_byte2 = -1;
-static gint ett_ipmi_trn_1b_byte1 = -1;
-static gint ett_ipmi_trn_1b_byte2 = -1;
-static gint ett_ipmi_trn_parameter = -1;
+static gint ett_ipmi_trn_lan00_byte1;
+static gint ett_ipmi_trn_lan01_byte1;
+static gint ett_ipmi_trn_lan02_byte1;
+static gint ett_ipmi_trn_lan02_byte2;
+static gint ett_ipmi_trn_lan02_byte3;
+static gint ett_ipmi_trn_lan02_byte4;
+static gint ett_ipmi_trn_lan02_byte5;
+static gint ett_ipmi_trn_lan04_byte1;
+static gint ett_ipmi_trn_lan07_byte2;
+static gint ett_ipmi_trn_lan07_byte3;
+static gint ett_ipmi_trn_lan10_byte1;
+static gint ett_ipmi_trn_lan17_byte1;
+static gint ett_ipmi_trn_lan18_byte1;
+static gint ett_ipmi_trn_lan18_byte2;
+static gint ett_ipmi_trn_lan18_byte4;
+static gint ett_ipmi_trn_lan19_byte1;
+static gint ett_ipmi_trn_lan19_byte2;
+static gint ett_ipmi_trn_lan19_byte3;
+static gint ett_ipmi_trn_lan20_byte12;
+static gint ett_ipmi_trn_lan21_byte1;
+static gint ett_ipmi_trn_lan22_byte1;
+static gint ett_ipmi_trn_lan24_byte1;
+static gint ett_ipmi_trn_lan24_byte2;
+static gint ett_ipmi_trn_lan24_byte3;
+static gint ett_ipmi_trn_lan24_byte4;
+static gint ett_ipmi_trn_lan24_byte5;
+static gint ett_ipmi_trn_lan24_byte6;
+static gint ett_ipmi_trn_lan24_byte7;
+static gint ett_ipmi_trn_lan24_byte8;
+static gint ett_ipmi_trn_lan25_byte1;
+static gint ett_ipmi_trn_lan25_byte2;
+static gint ett_ipmi_trn_lan25_byte34;
+static gint ett_ipmi_trn_lan50_byte1;
+static gint ett_ipmi_trn_lan55_byte3;
+static gint ett_ipmi_trn_lan56_byte2;
+static gint ett_ipmi_trn_lan64_byte1;
+static gint ett_ipmi_trn_serial03_byte1;
+static gint ett_ipmi_trn_serial04_byte1;
+static gint ett_ipmi_trn_serial05_byte1;
+static gint ett_ipmi_trn_serial05_byte2;
+static gint ett_ipmi_trn_serial06_byte1;
+static gint ett_ipmi_trn_serial07_byte1;
+static gint ett_ipmi_trn_serial07_byte2;
+static gint ett_ipmi_trn_serial08_byte1;
+static gint ett_ipmi_trn_serial08_byte2;
+static gint ett_ipmi_trn_serial09_byte1;
+static gint ett_ipmi_trn_serial09_byte2;
+static gint ett_ipmi_trn_serial16_byte1;
+static gint ett_ipmi_trn_serial17_byte1;
+static gint ett_ipmi_trn_serial17_byte2;
+static gint ett_ipmi_trn_serial17_byte4;
+static gint ett_ipmi_trn_serial17_byte5;
+static gint ett_ipmi_trn_serial19_byte1;
+static gint ett_ipmi_trn_serial19_byte2;
+static gint ett_ipmi_trn_serial19_byte3;
+static gint ett_ipmi_trn_serial20_byte1;
+static gint ett_ipmi_trn_serial21_byte1;
+static gint ett_ipmi_trn_serial22_byte1;
+static gint ett_ipmi_trn_serial23_byte1;
+static gint ett_ipmi_trn_serial24_byte1;
+static gint ett_ipmi_trn_serial25_byte2;
+static gint ett_ipmi_trn_serial28_byte1;
+static gint ett_ipmi_trn_serial28_byte2;
+static gint ett_ipmi_trn_serial28_byte10;
+static gint ett_ipmi_trn_serial28_byte11;
+static gint ett_ipmi_trn_serial28_byte12;
+static gint ett_ipmi_trn_serial28_byte13;
+static gint ett_ipmi_trn_serial28_byte14;
+static gint ett_ipmi_trn_serial29_byte1;
+static gint ett_ipmi_trn_serial29_byte2;
+static gint ett_ipmi_trn_serial30_byte1;
+static gint ett_ipmi_trn_serial30_byte2;
+static gint ett_ipmi_trn_serial30_byte3;
+static gint ett_ipmi_trn_serial33_byte1;
+static gint ett_ipmi_trn_serial37_byte1;
+static gint ett_ipmi_trn_serial43_byte1;
+static gint ett_ipmi_trn_serial50_byte1;
+static gint ett_ipmi_trn_serial51_byte2;
+static gint ett_ipmi_trn_serial51_byte3;
+static gint ett_ipmi_trn_01_byte1;
+static gint ett_ipmi_trn_02_byte1;
+static gint ett_ipmi_trn_02_rev;
+static gint ett_ipmi_trn_03_rq_byte1;
+static gint ett_ipmi_trn_03_rq_byte2;
+static gint ett_ipmi_trn_03_rs_byte1;
+static gint ett_ipmi_trn_04_byte1;
+static gint ett_ipmi_trn_04_byte2;
+static gint ett_ipmi_trn_10_byte1;
+static gint ett_ipmi_trn_11_byte1;
+static gint ett_ipmi_trn_11_rev;
+static gint ett_ipmi_trn_12_rq_byte1;
+static gint ett_ipmi_trn_12_rq_byte2;
+static gint ett_ipmi_trn_12_rs_byte1;
+static gint ett_ipmi_trn_13_byte1;
+static gint ett_ipmi_trn_14_byte1;
+static gint ett_ipmi_trn_15_byte1;
+static gint ett_ipmi_trn_16_byte1;
+static gint ett_ipmi_trn_17_byte1;
+static gint ett_ipmi_trn_17_byte2;
+static gint ett_ipmi_trn_18_byte1;
+static gint ett_ipmi_trn_19_byte1;
+static gint ett_ipmi_trn_19_byte2;
+static gint ett_ipmi_trn_XX_usercap;
+static gint ett_ipmi_trn_XX_cbcp;
+static gint ett_ipmi_trn_1a_byte1;
+static gint ett_ipmi_trn_1a_byte2;
+static gint ett_ipmi_trn_1b_byte1;
+static gint ett_ipmi_trn_1b_byte2;
+static gint ett_ipmi_trn_parameter;
 
-static gint hf_ipmi_trn_lan00_sip = -1;
+static gint hf_ipmi_trn_lan00_sip;
 
-static gint hf_ipmi_trn_lanXX_oem = -1;
-static gint hf_ipmi_trn_lanXX_passwd = -1;
-static gint hf_ipmi_trn_lanXX_md5 = -1;
-static gint hf_ipmi_trn_lanXX_md2 = -1;
-static gint hf_ipmi_trn_lanXX_none = -1;
+static gint hf_ipmi_trn_lanXX_oem;
+static gint hf_ipmi_trn_lanXX_passwd;
+static gint hf_ipmi_trn_lanXX_md5;
+static gint hf_ipmi_trn_lanXX_md2;
+static gint hf_ipmi_trn_lanXX_none;
 
-static gint hf_ipmi_trn_lan03_ip = -1;
+static gint hf_ipmi_trn_lan03_ip;
 
-static gint hf_ipmi_trn_lan04_ipsrc = -1;
+static gint hf_ipmi_trn_lan04_ipsrc;
 
-static gint hf_ipmi_trn_lan05_ether = -1;
+static gint hf_ipmi_trn_lan05_ether;
 
-static gint hf_ipmi_trn_lan06_subnet = -1;
+static gint hf_ipmi_trn_lan06_subnet;
 
-static gint hf_ipmi_trn_lan07_ttl = -1;
-static gint hf_ipmi_trn_lan07_flags = -1;
-static gint hf_ipmi_trn_lan07_precedence = -1;
-static gint hf_ipmi_trn_lan07_tos = -1;
+static gint hf_ipmi_trn_lan07_ttl;
+static gint hf_ipmi_trn_lan07_flags;
+static gint hf_ipmi_trn_lan07_precedence;
+static gint hf_ipmi_trn_lan07_tos;
 
-static gint hf_ipmi_trn_lan08_rmcp_port = -1;
+static gint hf_ipmi_trn_lan08_rmcp_port;
 
-static gint hf_ipmi_trn_lan09_rmcp_port = -1;
+static gint hf_ipmi_trn_lan09_rmcp_port;
 
-static gint hf_ipmi_trn_lan10_responses = -1;
-static gint hf_ipmi_trn_lan10_gratuitous = -1;
+static gint hf_ipmi_trn_lan10_responses;
+static gint hf_ipmi_trn_lan10_gratuitous;
 
-static gint hf_ipmi_trn_lan11_arp_interval = -1;
+static gint hf_ipmi_trn_lan11_arp_interval;
 
-static gint hf_ipmi_trn_lan12_def_gw_ip = -1;
+static gint hf_ipmi_trn_lan12_def_gw_ip;
 
-static gint hf_ipmi_trn_lan13_def_gw_mac = -1;
+static gint hf_ipmi_trn_lan13_def_gw_mac;
 
-static gint hf_ipmi_trn_lan14_bkp_gw_ip = -1;
+static gint hf_ipmi_trn_lan14_bkp_gw_ip;
 
-static gint hf_ipmi_trn_lan15_bkp_gw_mac = -1;
+static gint hf_ipmi_trn_lan15_bkp_gw_mac;
 
-static gint hf_ipmi_trn_lan16_comm_string = -1;
+static gint hf_ipmi_trn_lan16_comm_string;
 
-static gint hf_ipmi_trn_lan17_num_dst = -1;
+static gint hf_ipmi_trn_lan17_num_dst;
 
-static gint hf_ipmi_trn_lan18_dst_selector = -1;
-static gint hf_ipmi_trn_lan18_ack = -1;
-static gint hf_ipmi_trn_lan18_dst_type = -1;
-static gint hf_ipmi_trn_lan18_tout = -1;
-static gint hf_ipmi_trn_lan18_retries = -1;
+static gint hf_ipmi_trn_lan18_dst_selector;
+static gint hf_ipmi_trn_lan18_ack;
+static gint hf_ipmi_trn_lan18_dst_type;
+static gint hf_ipmi_trn_lan18_tout;
+static gint hf_ipmi_trn_lan18_retries;
 
-static gint hf_ipmi_trn_lan19_dst_selector = -1;
-static gint hf_ipmi_trn_lan19_addr_format = -1;
-static gint hf_ipmi_trn_lan19_address = -1;
-static gint hf_ipmi_trn_lan19_gw_sel = -1;
-static gint hf_ipmi_trn_lan19_ip = -1;
-static gint hf_ipmi_trn_lan19_mac = -1;
+static gint hf_ipmi_trn_lan19_dst_selector;
+static gint hf_ipmi_trn_lan19_addr_format;
+static gint hf_ipmi_trn_lan19_address;
+static gint hf_ipmi_trn_lan19_gw_sel;
+static gint hf_ipmi_trn_lan19_ip;
+static gint hf_ipmi_trn_lan19_mac;
 
-static gint hf_ipmi_trn_lan20_vlan_id_enable = -1;
-static gint hf_ipmi_trn_lan20_vlan_id = -1;
-
-static gint hf_ipmi_trn_lan21_vlan_prio = -1;
-
-static gint hf_ipmi_trn_lan22_num_cs_entries = -1;
-
-static gint hf_ipmi_trn_lan23_cs_entry = -1;
-
-static gint hf_ipmi_trn_lan24_priv1 = -1;
-static gint hf_ipmi_trn_lan24_priv2 = -1;
+static gint hf_ipmi_trn_lan20_vlan_id_enable;
+static gint hf_ipmi_trn_lan20_vlan_id;
+
+static gint hf_ipmi_trn_lan21_vlan_prio;
+
+static gint hf_ipmi_trn_lan22_num_cs_entries;
+
+static gint hf_ipmi_trn_lan23_cs_entry;
+
+static gint hf_ipmi_trn_lan24_priv1;
+static gint hf_ipmi_trn_lan24_priv2;
 
-static gint hf_ipmi_trn_lan25_dst_selector = -1;
-static gint hf_ipmi_trn_lan25_addr_format = -1;
-static gint hf_ipmi_trn_lan25_address = -1;
-static gint hf_ipmi_trn_lan25_uprio = -1;
-static gint hf_ipmi_trn_lan25_cfi = -1;
-static gint hf_ipmi_trn_lan25_vlan_id = -1;
-
-static gint hf_ipmi_trn_lan26_gen_event = -1;
-static gint hf_ipmi_trn_lan26_thresh_number = -1;
-static gint hf_ipmi_trn_lan26_reset_interval = -1;
-static gint hf_ipmi_trn_lan26_lock_interval = -1;
-
-static gint hf_ipmi_trn_lan50_ipv6_only = -1;
-static gint hf_ipmi_trn_lan50_both_ipv4_ipv6 = -1;
-static gint hf_ipmi_trn_lan50_ipv6_alerting = -1;
-
-static gint hf_ipmi_trn_lan51_enables = -1;
-
-static gint hf_ipmi_trn_lan52_traffic_class = -1;
-
-static gint hf_ipmi_trn_lanXX_hop_limit = -1;
-
-static gint hf_ipmi_trn_lan54_flow_label = -1;
-
-static gint hf_ipmi_trn_lan55_static_addr_max = -1;
-static gint hf_ipmi_trn_lan55_dynamic_addr_max = -1;
-static gint hf_ipmi_trn_lan55_dhcpv6_support = -1;
-static gint hf_ipmi_trn_lan55_slaac_support = -1;
-
-static gint hf_ipmi_trn_lanXX_addr_selector = -1;
-static gint hf_ipmi_trn_lanXX_addr_type = -1;
-static gint hf_ipmi_trn_lanXX_addr_enable = -1;
-static gint hf_ipmi_trn_lanXX_addr = -1;
-static gint hf_ipmi_trn_lanXX_prefix_len = -1;
-static gint hf_ipmi_trn_lanXX_addr_status = -1;
-
-static gint hf_ipmi_trn_lanXX_max_duid_blocks = -1;
-
-static gint hf_ipmi_trn_lanXX_duid_selector = -1;
-static gint hf_ipmi_trn_lanXX_block_selector = -1;
-static gint hf_ipmi_trn_lanXX_duid = -1;
-
-static gint hf_ipmi_trn_lanXX_timing_support = -1;
-
-static gint hf_ipmi_trn_lanXX_iface_selector = -1;
-static gint hf_ipmi_trn_lan63_sol_max_delay = -1;
-static gint hf_ipmi_trn_lan63_sol_timeout = -1;
-static gint hf_ipmi_trn_lan63_sol_max_rt = -1;
-static gint hf_ipmi_trn_lan63_req_timeout = -1;
-static gint hf_ipmi_trn_lan63_req_max_rt = -1;
-static gint hf_ipmi_trn_lan63_req_max_rc = -1;
-static gint hf_ipmi_trn_lan63_cnf_max_delay = -1;
-static gint hf_ipmi_trn_lan63_cnf_timeout = -1;
-static gint hf_ipmi_trn_lan63_cnf_max_rt = -1;
-static gint hf_ipmi_trn_lan63_cnf_max_rd = -1;
-static gint hf_ipmi_trn_lan63_ren_timeout = -1;
-static gint hf_ipmi_trn_lan63_ren_max_rt = -1;
-static gint hf_ipmi_trn_lan63_reb_timeout = -1;
-static gint hf_ipmi_trn_lan63_reb_max_rt = -1;
-static gint hf_ipmi_trn_lan63_inf_max_delay = -1;
-static gint hf_ipmi_trn_lan63_inf_timeout = -1;
-static gint hf_ipmi_trn_lan63_inf_max_rt = -1;
-static gint hf_ipmi_trn_lan63_rel_timeout = -1;
-static gint hf_ipmi_trn_lan63_rel_max_rc = -1;
-static gint hf_ipmi_trn_lan63_dec_timeout = -1;
-static gint hf_ipmi_trn_lan63_dec_max_rc = -1;
-static gint hf_ipmi_trn_lan63_hop_count_limit = -1;
-
-static gint hf_ipmi_trn_lan64_static_cfg = -1;
-static gint hf_ipmi_trn_lan64_dynamic_cfg = -1;
-
-static gint hf_ipmi_trn_lanXX_router_selector = -1;
-static gint hf_ipmi_trn_lanXX_router_mac = -1;
-static gint hf_ipmi_trn_lanXX_router_prefix = -1;
-
-static gint hf_ipmi_trn_lan73_num_dynamic_sets = -1;
-
-static gint hf_ipmi_trn_lan80_max_rtr_solicitation_delay = -1;
-static gint hf_ipmi_trn_lan80_rtr_solicitation_interval = -1;
-static gint hf_ipmi_trn_lan80_max_rtr_solicitations = -1;
-static gint hf_ipmi_trn_lan80_dup_addr_detect_transmits = -1;
-static gint hf_ipmi_trn_lan80_max_multicast_solicit = -1;
-static gint hf_ipmi_trn_lan80_max_unicast_solicit = -1;
-static gint hf_ipmi_trn_lan80_max_anycast_delay_time = -1;
-static gint hf_ipmi_trn_lan80_max_neighbor_advertisement = -1;
-static gint hf_ipmi_trn_lan80_reachable_time = -1;
-static gint hf_ipmi_trn_lan80_retrans_timer = -1;
-static gint hf_ipmi_trn_lan80_delay_first_probe_time = -1;
-static gint hf_ipmi_trn_lan80_max_random_factor = -1;
-static gint hf_ipmi_trn_lan80_min_random_factor = -1;
-
-static gint hf_ipmi_trn_serial03_connmode = -1;
-static gint hf_ipmi_trn_serial03_terminal = -1;
-static gint hf_ipmi_trn_serial03_ppp = -1;
-static gint hf_ipmi_trn_serial03_basic = -1;
-
-static gint hf_ipmi_trn_serial04_timeout = -1;
-
-static gint hf_ipmi_trn_serial05_cbcp_callback = -1;
-static gint hf_ipmi_trn_serial05_ipmi_callback = -1;
-static gint hf_ipmi_trn_serial05_cb_list = -1;
-static gint hf_ipmi_trn_serial05_cb_user = -1;
-static gint hf_ipmi_trn_serial05_cb_prespec = -1;
-static gint hf_ipmi_trn_serial05_no_cb = -1;
-static gint hf_ipmi_trn_serial05_cb_dest1 = -1;
-static gint hf_ipmi_trn_serial05_cb_dest2 = -1;
-static gint hf_ipmi_trn_serial05_cb_dest3 = -1;
-
-static gint hf_ipmi_trn_serial06_inactivity = -1;
-static gint hf_ipmi_trn_serial06_dcd = -1;
-
-static gint hf_ipmi_trn_serial07_flowctl = -1;
-static gint hf_ipmi_trn_serial07_dtrhangup = -1;
-static gint hf_ipmi_trn_serial07_bitrate = -1;
-
-static gint hf_ipmi_trn_serial08_esc_powerup = -1;
-static gint hf_ipmi_trn_serial08_esc_reset = -1;
-static gint hf_ipmi_trn_serial08_switch_authcap = -1;
-static gint hf_ipmi_trn_serial08_switch_rmcp = -1;
-static gint hf_ipmi_trn_serial08_esc_switch1 = -1;
-static gint hf_ipmi_trn_serial08_esc_switch2 = -1;
-static gint hf_ipmi_trn_serial08_switch_dcdloss = -1;
-static gint hf_ipmi_trn_serial08_sharing = -1;
-static gint hf_ipmi_trn_serial08_ping_callback = -1;
-static gint hf_ipmi_trn_serial08_ping_direct = -1;
-static gint hf_ipmi_trn_serial08_ping_retry = -1;
-
-static gint hf_ipmi_trn_serial09_ring_duration = -1;
-static gint hf_ipmi_trn_serial09_ring_dead = -1;
-
-static gint hf_ipmi_trn_serial10_set_sel = -1;
-static gint hf_ipmi_trn_serial10_init_str = -1;
-static gint hf_ipmi_trn_serial11_esc_seq = -1;
-static gint hf_ipmi_trn_serial12_hangup_seq = -1;
-static gint hf_ipmi_trn_serial13_dial_cmd = -1;
-static gint hf_ipmi_trn_serial14_page_blackout = -1;
-static gint hf_ipmi_trn_serial15_comm_string = -1;
-
-static gint hf_ipmi_trn_serial16_ndest = -1;
-
-static gint hf_ipmi_trn_serial17_dest_sel = -1;
-static gint hf_ipmi_trn_serial17_ack = -1;
-static gint hf_ipmi_trn_serial17_dest_type = -1;
-/* static gint hf_ipmi_trn_serial17_ack_timeout = -1; */
-static gint hf_ipmi_trn_serial17_alert_retries = -1;
-static gint hf_ipmi_trn_serial17_call_retries = -1;
-static gint hf_ipmi_trn_serial17_alert_ack_timeout = -1;
-static gint hf_ipmi_trn_serial17_dialstr_sel = -1;
-static gint hf_ipmi_trn_serial17_tap_sel = -1;
-static gint hf_ipmi_trn_serial17_ipaddr_sel = -1;
-static gint hf_ipmi_trn_serial17_ppp_sel = -1;
-static gint hf_ipmi_trn_serial17_unknown = -1;
-
-static gint hf_ipmi_trn_serial18_call_retry = -1;
-
-static gint hf_ipmi_trn_serial19_destsel = -1;
-static gint hf_ipmi_trn_serial19_flowctl = -1;
-static gint hf_ipmi_trn_serial19_dtrhangup = -1;
-static gint hf_ipmi_trn_serial19_stopbits = -1;
-static gint hf_ipmi_trn_serial19_charsize = -1;
-static gint hf_ipmi_trn_serial19_parity = -1;
-static gint hf_ipmi_trn_serial19_bitrate = -1;
-
-static gint hf_ipmi_trn_serial20_num_dial_strings = -1;
-static gint hf_ipmi_trn_serial21_dialsel = -1;
-static gint hf_ipmi_trn_serial21_blockno = -1;
-static gint hf_ipmi_trn_serial21_dialstr = -1;
-static gint hf_ipmi_trn_serial22_num_ipaddrs = -1;
-static gint hf_ipmi_trn_serial23_destsel = -1;
-static gint hf_ipmi_trn_serial23_ipaddr = -1;
-static gint hf_ipmi_trn_serial24_num_tap_accounts = -1;
-static gint hf_ipmi_trn_serial25_tap_acct = -1;
-static gint hf_ipmi_trn_serial25_dialstr_sel = -1;
-static gint hf_ipmi_trn_serial25_tapsrv_sel = -1;
-static gint hf_ipmi_trn_serial26_tap_acct = -1;
-static gint hf_ipmi_trn_serial26_tap_passwd = -1;
-static gint hf_ipmi_trn_serial27_tap_acct = -1;
-static gint hf_ipmi_trn_serial27_tap_pager_id = -1;
-
-static gint hf_ipmi_trn_serial28_tapsrv_sel = -1;
-static gint hf_ipmi_trn_serial28_confirm = -1;
-static gint hf_ipmi_trn_serial28_srvtype = -1;
-static gint hf_ipmi_trn_serial28_ctrl_esc = -1;
-static gint hf_ipmi_trn_serial28_t2 = -1;
-static gint hf_ipmi_trn_serial28_t1 = -1;
-static gint hf_ipmi_trn_serial28_t4 = -1;
-static gint hf_ipmi_trn_serial28_t3 = -1;
-static gint hf_ipmi_trn_serial28_t6 = -1;
-static gint hf_ipmi_trn_serial28_t5 = -1;
-static gint hf_ipmi_trn_serial28_n2 = -1;
-static gint hf_ipmi_trn_serial28_n1 = -1;
-static gint hf_ipmi_trn_serial28_n4 = -1;
-static gint hf_ipmi_trn_serial28_n3 = -1;
-
-static gint hf_ipmi_trn_serial29_op = -1;
-static gint hf_ipmi_trn_serial29_lineedit = -1;
-static gint hf_ipmi_trn_serial29_deletectl = -1;
-static gint hf_ipmi_trn_serial29_echo = -1;
-static gint hf_ipmi_trn_serial29_handshake = -1;
-static gint hf_ipmi_trn_serial29_o_newline = -1;
-static gint hf_ipmi_trn_serial29_i_newline = -1;
-static gint hf_ipmi_trn_serial30_snooping = -1;
-static gint hf_ipmi_trn_serial30_snoopctl = -1;
-static gint hf_ipmi_trn_serial30_negot_ctl = -1;
-static gint hf_ipmi_trn_serial30_use_xmit_accm = -1;
-static gint hf_ipmi_trn_serial30_xmit_addr_comp = -1;
-static gint hf_ipmi_trn_serial30_xmit_proto_comp = -1;
-static gint hf_ipmi_trn_serial30_ipaddr = -1;
-static gint hf_ipmi_trn_serial30_accm = -1;
-static gint hf_ipmi_trn_serial30_addr_comp = -1;
-static gint hf_ipmi_trn_serial30_proto_comp = -1;
-static gint hf_ipmi_trn_serial31_port = -1;
-static gint hf_ipmi_trn_serial32_port = -1;
-static gint hf_ipmi_trn_serial33_auth_proto = -1;
-static gint hf_ipmi_trn_serial34_chap_name = -1;
-
-static gint hf_ipmi_trn_serial35_recv_accm = -1;
-static gint hf_ipmi_trn_serial35_xmit_accm = -1;
-static gint hf_ipmi_trn_serial36_snoop_accm = -1;
-static gint hf_ipmi_trn_serial37_num_ppp = -1;
-static gint hf_ipmi_trn_serial38_acct_sel = -1;
-static gint hf_ipmi_trn_serial38_dialstr_sel = -1;
-static gint hf_ipmi_trn_serial39_acct_sel = -1;
-static gint hf_ipmi_trn_serial39_ipaddr = -1;
-static gint hf_ipmi_trn_serial40_acct_sel = -1;
-static gint hf_ipmi_trn_serial40_username = -1;
-static gint hf_ipmi_trn_serial41_acct_sel = -1;
-static gint hf_ipmi_trn_serial41_userdomain = -1;
-static gint hf_ipmi_trn_serial42_acct_sel = -1;
-static gint hf_ipmi_trn_serial42_userpass = -1;
-static gint hf_ipmi_trn_serial43_acct_sel = -1;
-static gint hf_ipmi_trn_serial43_auth_proto = -1;
-static gint hf_ipmi_trn_serial44_acct_sel = -1;
-static gint hf_ipmi_trn_serial44_hold_time = -1;
-
-static gint hf_ipmi_trn_serial45_src_ipaddr = -1;
-static gint hf_ipmi_trn_serial45_dst_ipaddr = -1;
-static gint hf_ipmi_trn_serial46_tx_bufsize = -1;
-static gint hf_ipmi_trn_serial47_rx_bufsize = -1;
-static gint hf_ipmi_trn_serial48_ipaddr = -1;
-static gint hf_ipmi_trn_serial49_blockno = -1;
-static gint hf_ipmi_trn_serial49_dialstr = -1;
-static gint hf_ipmi_trn_serial50_115200 = -1;
-static gint hf_ipmi_trn_serial50_57600 = -1;
-static gint hf_ipmi_trn_serial50_38400 = -1;
-static gint hf_ipmi_trn_serial50_19200 = -1;
-static gint hf_ipmi_trn_serial50_9600 = -1;
-
-static gint hf_ipmi_trn_serial51_port_assoc_sel = -1;
-static gint hf_ipmi_trn_serial51_ipmi_channel = -1;
-static gint hf_ipmi_trn_serial51_conn_num = -1;
-static gint hf_ipmi_trn_serial51_ipmi_sharing = -1;
-static gint hf_ipmi_trn_serial51_ipmi_sol = -1;
-static gint hf_ipmi_trn_serial51_chan_num = -1;
-static gint hf_ipmi_trn_serial52_port_assoc_sel = -1;
-static gint hf_ipmi_trn_serial52_conn_name = -1;
-static gint hf_ipmi_trn_serial53_port_assoc_sel = -1;
-static gint hf_ipmi_trn_serial53_chan_name = -1;
-
-static gint hf_ipmi_trn_01_chan = -1;
-static gint hf_ipmi_trn_01_param = -1;
-static gint hf_ipmi_trn_01_param_data = -1;
-
-static gint hf_ipmi_trn_02_getrev = -1;
-static gint hf_ipmi_trn_02_chan = -1;
-static gint hf_ipmi_trn_02_param = -1;
-static gint hf_ipmi_trn_02_set = -1;
-static gint hf_ipmi_trn_02_block = -1;
-static gint hf_ipmi_trn_02_rev_present = -1;
-static gint hf_ipmi_trn_02_rev_compat = -1;
-static gint hf_ipmi_trn_02_param_data = -1;
-
-static gint hf_ipmi_trn_03_chan = -1;
-static gint hf_ipmi_trn_03_arp_resp = -1;
-static gint hf_ipmi_trn_03_gratuitous_arp = -1;
-static gint hf_ipmi_trn_03_status_arp_resp = -1;
-static gint hf_ipmi_trn_03_status_gratuitous_arp = -1;
-
-static gint hf_ipmi_trn_04_chan = -1;
-static gint hf_ipmi_trn_04_clear = -1;
-static gint hf_ipmi_trn_04_rx_ippkts = -1;
-static gint hf_ipmi_trn_04_rx_iphdr_err = -1;
-static gint hf_ipmi_trn_04_rx_ipaddr_err = -1;
-static gint hf_ipmi_trn_04_rx_ippkts_frag = -1;
-static gint hf_ipmi_trn_04_tx_ippkts = -1;
-static gint hf_ipmi_trn_04_rx_udppkts = -1;
-static gint hf_ipmi_trn_04_rx_validrmcp = -1;
-static gint hf_ipmi_trn_04_rx_udpproxy = -1;
-static gint hf_ipmi_trn_04_dr_udpproxy = -1;
-
-static gint hf_ipmi_trn_10_chan = -1;
-static gint hf_ipmi_trn_10_param = -1;
-static gint hf_ipmi_trn_10_param_data = -1;
-
-static gint hf_ipmi_trn_11_getrev = -1;
-static gint hf_ipmi_trn_11_chan = -1;
-static gint hf_ipmi_trn_11_param = -1;
-static gint hf_ipmi_trn_11_set = -1;
-static gint hf_ipmi_trn_11_block = -1;
-static gint hf_ipmi_trn_11_rev_present = -1;
-static gint hf_ipmi_trn_11_rev_compat = -1;
-static gint hf_ipmi_trn_11_param_data = -1;
-
-static gint hf_ipmi_trn_12_chan = -1;
-static gint hf_ipmi_trn_12_mux_setting = -1;
-static gint hf_ipmi_trn_12_sw_to_sys = -1;
-static gint hf_ipmi_trn_12_sw_to_bmc = -1;
-static gint hf_ipmi_trn_12_alert = -1;
-static gint hf_ipmi_trn_12_msg = -1;
-static gint hf_ipmi_trn_12_req = -1;
-static gint hf_ipmi_trn_12_mux_state = -1;
-
-static gint hf_ipmi_trn_13_chan = -1;
-static gint hf_ipmi_trn_13_code1 = -1;
-static gint hf_ipmi_trn_13_code2 = -1;
-static gint hf_ipmi_trn_13_code3 = -1;
-static gint hf_ipmi_trn_13_code4 = -1;
-static gint hf_ipmi_trn_13_code5 = -1;
-
-static gint hf_ipmi_trn_14_chan = -1;
-static gint hf_ipmi_trn_14_block = -1;
-static gint hf_ipmi_trn_14_data = -1;
-
-static gint hf_ipmi_trn_15_chan = -1;
-static gint hf_ipmi_trn_15_block = -1;
-static gint hf_ipmi_trn_15_data = -1;
-
-static gint hf_ipmi_trn_16_chan = -1;
-static gint hf_ipmi_trn_16_src_port = -1;
-static gint hf_ipmi_trn_16_dst_port = -1;
-static gint hf_ipmi_trn_16_src_addr = -1;
-static gint hf_ipmi_trn_16_dst_addr = -1;
-static gint hf_ipmi_trn_16_bytes = -1;
-
-static gint hf_ipmi_trn_17_chan = -1;
-static gint hf_ipmi_trn_17_clear = -1;
-static gint hf_ipmi_trn_17_block_num = -1;
-static gint hf_ipmi_trn_17_size = -1;
-static gint hf_ipmi_trn_17_data = -1;
-
-static gint hf_ipmi_trn_18_state = -1;
-static gint hf_ipmi_trn_18_ipmi_ver = -1;
-
-static gint hf_ipmi_trn_19_chan = -1;
-static gint hf_ipmi_trn_19_dest_sel = -1;
-
-static gint hf_ipmi_trn_XX_cap_cbcp = -1;
-static gint hf_ipmi_trn_XX_cap_ipmi = -1;
-static gint hf_ipmi_trn_XX_cbcp_from_list = -1;
-static gint hf_ipmi_trn_XX_cbcp_user = -1;
-static gint hf_ipmi_trn_XX_cbcp_prespec = -1;
-static gint hf_ipmi_trn_XX_cbcp_nocb = -1;
-static gint hf_ipmi_trn_XX_dst1 = -1;
-static gint hf_ipmi_trn_XX_dst2 = -1;
-static gint hf_ipmi_trn_XX_dst3 = -1;
-
-static gint hf_ipmi_trn_1a_user = -1;
-static gint hf_ipmi_trn_1a_chan = -1;
-
-static gint hf_ipmi_trn_1b_user = -1;
-static gint hf_ipmi_trn_1b_chan = -1;
-
-static expert_field ei_ipmi_trn_02_request_param_rev = EI_INIT;
-static expert_field ei_ipmi_trn_02_request_param_data = EI_INIT;
-static expert_field ei_ipmi_trn_11_request_param_rev = EI_INIT;
-static expert_field ei_ipmi_trn_11_request_param_data = EI_INIT;
+static gint hf_ipmi_trn_lan25_dst_selector;
+static gint hf_ipmi_trn_lan25_addr_format;
+static gint hf_ipmi_trn_lan25_address;
+static gint hf_ipmi_trn_lan25_uprio;
+static gint hf_ipmi_trn_lan25_cfi;
+static gint hf_ipmi_trn_lan25_vlan_id;
+
+static gint hf_ipmi_trn_lan26_gen_event;
+static gint hf_ipmi_trn_lan26_thresh_number;
+static gint hf_ipmi_trn_lan26_reset_interval;
+static gint hf_ipmi_trn_lan26_lock_interval;
+
+static gint hf_ipmi_trn_lan50_ipv6_only;
+static gint hf_ipmi_trn_lan50_both_ipv4_ipv6;
+static gint hf_ipmi_trn_lan50_ipv6_alerting;
+
+static gint hf_ipmi_trn_lan51_enables;
+
+static gint hf_ipmi_trn_lan52_traffic_class;
+
+static gint hf_ipmi_trn_lanXX_hop_limit;
+
+static gint hf_ipmi_trn_lan54_flow_label;
+
+static gint hf_ipmi_trn_lan55_static_addr_max;
+static gint hf_ipmi_trn_lan55_dynamic_addr_max;
+static gint hf_ipmi_trn_lan55_dhcpv6_support;
+static gint hf_ipmi_trn_lan55_slaac_support;
+
+static gint hf_ipmi_trn_lanXX_addr_selector;
+static gint hf_ipmi_trn_lanXX_addr_type;
+static gint hf_ipmi_trn_lanXX_addr_enable;
+static gint hf_ipmi_trn_lanXX_addr;
+static gint hf_ipmi_trn_lanXX_prefix_len;
+static gint hf_ipmi_trn_lanXX_addr_status;
+
+static gint hf_ipmi_trn_lanXX_max_duid_blocks;
+
+static gint hf_ipmi_trn_lanXX_duid_selector;
+static gint hf_ipmi_trn_lanXX_block_selector;
+static gint hf_ipmi_trn_lanXX_duid;
+
+static gint hf_ipmi_trn_lanXX_timing_support;
+
+static gint hf_ipmi_trn_lanXX_iface_selector;
+static gint hf_ipmi_trn_lan63_sol_max_delay;
+static gint hf_ipmi_trn_lan63_sol_timeout;
+static gint hf_ipmi_trn_lan63_sol_max_rt;
+static gint hf_ipmi_trn_lan63_req_timeout;
+static gint hf_ipmi_trn_lan63_req_max_rt;
+static gint hf_ipmi_trn_lan63_req_max_rc;
+static gint hf_ipmi_trn_lan63_cnf_max_delay;
+static gint hf_ipmi_trn_lan63_cnf_timeout;
+static gint hf_ipmi_trn_lan63_cnf_max_rt;
+static gint hf_ipmi_trn_lan63_cnf_max_rd;
+static gint hf_ipmi_trn_lan63_ren_timeout;
+static gint hf_ipmi_trn_lan63_ren_max_rt;
+static gint hf_ipmi_trn_lan63_reb_timeout;
+static gint hf_ipmi_trn_lan63_reb_max_rt;
+static gint hf_ipmi_trn_lan63_inf_max_delay;
+static gint hf_ipmi_trn_lan63_inf_timeout;
+static gint hf_ipmi_trn_lan63_inf_max_rt;
+static gint hf_ipmi_trn_lan63_rel_timeout;
+static gint hf_ipmi_trn_lan63_rel_max_rc;
+static gint hf_ipmi_trn_lan63_dec_timeout;
+static gint hf_ipmi_trn_lan63_dec_max_rc;
+static gint hf_ipmi_trn_lan63_hop_count_limit;
+
+static gint hf_ipmi_trn_lan64_static_cfg;
+static gint hf_ipmi_trn_lan64_dynamic_cfg;
+
+static gint hf_ipmi_trn_lanXX_router_selector;
+static gint hf_ipmi_trn_lanXX_router_mac;
+static gint hf_ipmi_trn_lanXX_router_prefix;
+
+static gint hf_ipmi_trn_lan73_num_dynamic_sets;
+
+static gint hf_ipmi_trn_lan80_max_rtr_solicitation_delay;
+static gint hf_ipmi_trn_lan80_rtr_solicitation_interval;
+static gint hf_ipmi_trn_lan80_max_rtr_solicitations;
+static gint hf_ipmi_trn_lan80_dup_addr_detect_transmits;
+static gint hf_ipmi_trn_lan80_max_multicast_solicit;
+static gint hf_ipmi_trn_lan80_max_unicast_solicit;
+static gint hf_ipmi_trn_lan80_max_anycast_delay_time;
+static gint hf_ipmi_trn_lan80_max_neighbor_advertisement;
+static gint hf_ipmi_trn_lan80_reachable_time;
+static gint hf_ipmi_trn_lan80_retrans_timer;
+static gint hf_ipmi_trn_lan80_delay_first_probe_time;
+static gint hf_ipmi_trn_lan80_max_random_factor;
+static gint hf_ipmi_trn_lan80_min_random_factor;
+
+static gint hf_ipmi_trn_serial03_connmode;
+static gint hf_ipmi_trn_serial03_terminal;
+static gint hf_ipmi_trn_serial03_ppp;
+static gint hf_ipmi_trn_serial03_basic;
+
+static gint hf_ipmi_trn_serial04_timeout;
+
+static gint hf_ipmi_trn_serial05_cbcp_callback;
+static gint hf_ipmi_trn_serial05_ipmi_callback;
+static gint hf_ipmi_trn_serial05_cb_list;
+static gint hf_ipmi_trn_serial05_cb_user;
+static gint hf_ipmi_trn_serial05_cb_prespec;
+static gint hf_ipmi_trn_serial05_no_cb;
+static gint hf_ipmi_trn_serial05_cb_dest1;
+static gint hf_ipmi_trn_serial05_cb_dest2;
+static gint hf_ipmi_trn_serial05_cb_dest3;
+
+static gint hf_ipmi_trn_serial06_inactivity;
+static gint hf_ipmi_trn_serial06_dcd;
+
+static gint hf_ipmi_trn_serial07_flowctl;
+static gint hf_ipmi_trn_serial07_dtrhangup;
+static gint hf_ipmi_trn_serial07_bitrate;
+
+static gint hf_ipmi_trn_serial08_esc_powerup;
+static gint hf_ipmi_trn_serial08_esc_reset;
+static gint hf_ipmi_trn_serial08_switch_authcap;
+static gint hf_ipmi_trn_serial08_switch_rmcp;
+static gint hf_ipmi_trn_serial08_esc_switch1;
+static gint hf_ipmi_trn_serial08_esc_switch2;
+static gint hf_ipmi_trn_serial08_switch_dcdloss;
+static gint hf_ipmi_trn_serial08_sharing;
+static gint hf_ipmi_trn_serial08_ping_callback;
+static gint hf_ipmi_trn_serial08_ping_direct;
+static gint hf_ipmi_trn_serial08_ping_retry;
+
+static gint hf_ipmi_trn_serial09_ring_duration;
+static gint hf_ipmi_trn_serial09_ring_dead;
+
+static gint hf_ipmi_trn_serial10_set_sel;
+static gint hf_ipmi_trn_serial10_init_str;
+static gint hf_ipmi_trn_serial11_esc_seq;
+static gint hf_ipmi_trn_serial12_hangup_seq;
+static gint hf_ipmi_trn_serial13_dial_cmd;
+static gint hf_ipmi_trn_serial14_page_blackout;
+static gint hf_ipmi_trn_serial15_comm_string;
+
+static gint hf_ipmi_trn_serial16_ndest;
+
+static gint hf_ipmi_trn_serial17_dest_sel;
+static gint hf_ipmi_trn_serial17_ack;
+static gint hf_ipmi_trn_serial17_dest_type;
+/* static gint hf_ipmi_trn_serial17_ack_timeout; */
+static gint hf_ipmi_trn_serial17_alert_retries;
+static gint hf_ipmi_trn_serial17_call_retries;
+static gint hf_ipmi_trn_serial17_alert_ack_timeout;
+static gint hf_ipmi_trn_serial17_dialstr_sel;
+static gint hf_ipmi_trn_serial17_tap_sel;
+static gint hf_ipmi_trn_serial17_ipaddr_sel;
+static gint hf_ipmi_trn_serial17_ppp_sel;
+static gint hf_ipmi_trn_serial17_unknown;
+
+static gint hf_ipmi_trn_serial18_call_retry;
+
+static gint hf_ipmi_trn_serial19_destsel;
+static gint hf_ipmi_trn_serial19_flowctl;
+static gint hf_ipmi_trn_serial19_dtrhangup;
+static gint hf_ipmi_trn_serial19_stopbits;
+static gint hf_ipmi_trn_serial19_charsize;
+static gint hf_ipmi_trn_serial19_parity;
+static gint hf_ipmi_trn_serial19_bitrate;
+
+static gint hf_ipmi_trn_serial20_num_dial_strings;
+static gint hf_ipmi_trn_serial21_dialsel;
+static gint hf_ipmi_trn_serial21_blockno;
+static gint hf_ipmi_trn_serial21_dialstr;
+static gint hf_ipmi_trn_serial22_num_ipaddrs;
+static gint hf_ipmi_trn_serial23_destsel;
+static gint hf_ipmi_trn_serial23_ipaddr;
+static gint hf_ipmi_trn_serial24_num_tap_accounts;
+static gint hf_ipmi_trn_serial25_tap_acct;
+static gint hf_ipmi_trn_serial25_dialstr_sel;
+static gint hf_ipmi_trn_serial25_tapsrv_sel;
+static gint hf_ipmi_trn_serial26_tap_acct;
+static gint hf_ipmi_trn_serial26_tap_passwd;
+static gint hf_ipmi_trn_serial27_tap_acct;
+static gint hf_ipmi_trn_serial27_tap_pager_id;
+
+static gint hf_ipmi_trn_serial28_tapsrv_sel;
+static gint hf_ipmi_trn_serial28_confirm;
+static gint hf_ipmi_trn_serial28_srvtype;
+static gint hf_ipmi_trn_serial28_ctrl_esc;
+static gint hf_ipmi_trn_serial28_t2;
+static gint hf_ipmi_trn_serial28_t1;
+static gint hf_ipmi_trn_serial28_t4;
+static gint hf_ipmi_trn_serial28_t3;
+static gint hf_ipmi_trn_serial28_t6;
+static gint hf_ipmi_trn_serial28_t5;
+static gint hf_ipmi_trn_serial28_n2;
+static gint hf_ipmi_trn_serial28_n1;
+static gint hf_ipmi_trn_serial28_n4;
+static gint hf_ipmi_trn_serial28_n3;
+
+static gint hf_ipmi_trn_serial29_op;
+static gint hf_ipmi_trn_serial29_lineedit;
+static gint hf_ipmi_trn_serial29_deletectl;
+static gint hf_ipmi_trn_serial29_echo;
+static gint hf_ipmi_trn_serial29_handshake;
+static gint hf_ipmi_trn_serial29_o_newline;
+static gint hf_ipmi_trn_serial29_i_newline;
+static gint hf_ipmi_trn_serial30_snooping;
+static gint hf_ipmi_trn_serial30_snoopctl;
+static gint hf_ipmi_trn_serial30_negot_ctl;
+static gint hf_ipmi_trn_serial30_use_xmit_accm;
+static gint hf_ipmi_trn_serial30_xmit_addr_comp;
+static gint hf_ipmi_trn_serial30_xmit_proto_comp;
+static gint hf_ipmi_trn_serial30_ipaddr;
+static gint hf_ipmi_trn_serial30_accm;
+static gint hf_ipmi_trn_serial30_addr_comp;
+static gint hf_ipmi_trn_serial30_proto_comp;
+static gint hf_ipmi_trn_serial31_port;
+static gint hf_ipmi_trn_serial32_port;
+static gint hf_ipmi_trn_serial33_auth_proto;
+static gint hf_ipmi_trn_serial34_chap_name;
+
+static gint hf_ipmi_trn_serial35_recv_accm;
+static gint hf_ipmi_trn_serial35_xmit_accm;
+static gint hf_ipmi_trn_serial36_snoop_accm;
+static gint hf_ipmi_trn_serial37_num_ppp;
+static gint hf_ipmi_trn_serial38_acct_sel;
+static gint hf_ipmi_trn_serial38_dialstr_sel;
+static gint hf_ipmi_trn_serial39_acct_sel;
+static gint hf_ipmi_trn_serial39_ipaddr;
+static gint hf_ipmi_trn_serial40_acct_sel;
+static gint hf_ipmi_trn_serial40_username;
+static gint hf_ipmi_trn_serial41_acct_sel;
+static gint hf_ipmi_trn_serial41_userdomain;
+static gint hf_ipmi_trn_serial42_acct_sel;
+static gint hf_ipmi_trn_serial42_userpass;
+static gint hf_ipmi_trn_serial43_acct_sel;
+static gint hf_ipmi_trn_serial43_auth_proto;
+static gint hf_ipmi_trn_serial44_acct_sel;
+static gint hf_ipmi_trn_serial44_hold_time;
+
+static gint hf_ipmi_trn_serial45_src_ipaddr;
+static gint hf_ipmi_trn_serial45_dst_ipaddr;
+static gint hf_ipmi_trn_serial46_tx_bufsize;
+static gint hf_ipmi_trn_serial47_rx_bufsize;
+static gint hf_ipmi_trn_serial48_ipaddr;
+static gint hf_ipmi_trn_serial49_blockno;
+static gint hf_ipmi_trn_serial49_dialstr;
+static gint hf_ipmi_trn_serial50_115200;
+static gint hf_ipmi_trn_serial50_57600;
+static gint hf_ipmi_trn_serial50_38400;
+static gint hf_ipmi_trn_serial50_19200;
+static gint hf_ipmi_trn_serial50_9600;
+
+static gint hf_ipmi_trn_serial51_port_assoc_sel;
+static gint hf_ipmi_trn_serial51_ipmi_channel;
+static gint hf_ipmi_trn_serial51_conn_num;
+static gint hf_ipmi_trn_serial51_ipmi_sharing;
+static gint hf_ipmi_trn_serial51_ipmi_sol;
+static gint hf_ipmi_trn_serial51_chan_num;
+static gint hf_ipmi_trn_serial52_port_assoc_sel;
+static gint hf_ipmi_trn_serial52_conn_name;
+static gint hf_ipmi_trn_serial53_port_assoc_sel;
+static gint hf_ipmi_trn_serial53_chan_name;
+
+static gint hf_ipmi_trn_01_chan;
+static gint hf_ipmi_trn_01_param;
+static gint hf_ipmi_trn_01_param_data;
+
+static gint hf_ipmi_trn_02_getrev;
+static gint hf_ipmi_trn_02_chan;
+static gint hf_ipmi_trn_02_param;
+static gint hf_ipmi_trn_02_set;
+static gint hf_ipmi_trn_02_block;
+static gint hf_ipmi_trn_02_rev_present;
+static gint hf_ipmi_trn_02_rev_compat;
+static gint hf_ipmi_trn_02_param_data;
+
+static gint hf_ipmi_trn_03_chan;
+static gint hf_ipmi_trn_03_arp_resp;
+static gint hf_ipmi_trn_03_gratuitous_arp;
+static gint hf_ipmi_trn_03_status_arp_resp;
+static gint hf_ipmi_trn_03_status_gratuitous_arp;
+
+static gint hf_ipmi_trn_04_chan;
+static gint hf_ipmi_trn_04_clear;
+static gint hf_ipmi_trn_04_rx_ippkts;
+static gint hf_ipmi_trn_04_rx_iphdr_err;
+static gint hf_ipmi_trn_04_rx_ipaddr_err;
+static gint hf_ipmi_trn_04_rx_ippkts_frag;
+static gint hf_ipmi_trn_04_tx_ippkts;
+static gint hf_ipmi_trn_04_rx_udppkts;
+static gint hf_ipmi_trn_04_rx_validrmcp;
+static gint hf_ipmi_trn_04_rx_udpproxy;
+static gint hf_ipmi_trn_04_dr_udpproxy;
+
+static gint hf_ipmi_trn_10_chan;
+static gint hf_ipmi_trn_10_param;
+static gint hf_ipmi_trn_10_param_data;
+
+static gint hf_ipmi_trn_11_getrev;
+static gint hf_ipmi_trn_11_chan;
+static gint hf_ipmi_trn_11_param;
+static gint hf_ipmi_trn_11_set;
+static gint hf_ipmi_trn_11_block;
+static gint hf_ipmi_trn_11_rev_present;
+static gint hf_ipmi_trn_11_rev_compat;
+static gint hf_ipmi_trn_11_param_data;
+
+static gint hf_ipmi_trn_12_chan;
+static gint hf_ipmi_trn_12_mux_setting;
+static gint hf_ipmi_trn_12_sw_to_sys;
+static gint hf_ipmi_trn_12_sw_to_bmc;
+static gint hf_ipmi_trn_12_alert;
+static gint hf_ipmi_trn_12_msg;
+static gint hf_ipmi_trn_12_req;
+static gint hf_ipmi_trn_12_mux_state;
+
+static gint hf_ipmi_trn_13_chan;
+static gint hf_ipmi_trn_13_code1;
+static gint hf_ipmi_trn_13_code2;
+static gint hf_ipmi_trn_13_code3;
+static gint hf_ipmi_trn_13_code4;
+static gint hf_ipmi_trn_13_code5;
+
+static gint hf_ipmi_trn_14_chan;
+static gint hf_ipmi_trn_14_block;
+static gint hf_ipmi_trn_14_data;
+
+static gint hf_ipmi_trn_15_chan;
+static gint hf_ipmi_trn_15_block;
+static gint hf_ipmi_trn_15_data;
+
+static gint hf_ipmi_trn_16_chan;
+static gint hf_ipmi_trn_16_src_port;
+static gint hf_ipmi_trn_16_dst_port;
+static gint hf_ipmi_trn_16_src_addr;
+static gint hf_ipmi_trn_16_dst_addr;
+static gint hf_ipmi_trn_16_bytes;
+
+static gint hf_ipmi_trn_17_chan;
+static gint hf_ipmi_trn_17_clear;
+static gint hf_ipmi_trn_17_block_num;
+static gint hf_ipmi_trn_17_size;
+static gint hf_ipmi_trn_17_data;
+
+static gint hf_ipmi_trn_18_state;
+static gint hf_ipmi_trn_18_ipmi_ver;
+
+static gint hf_ipmi_trn_19_chan;
+static gint hf_ipmi_trn_19_dest_sel;
+
+static gint hf_ipmi_trn_XX_cap_cbcp;
+static gint hf_ipmi_trn_XX_cap_ipmi;
+static gint hf_ipmi_trn_XX_cbcp_from_list;
+static gint hf_ipmi_trn_XX_cbcp_user;
+static gint hf_ipmi_trn_XX_cbcp_prespec;
+static gint hf_ipmi_trn_XX_cbcp_nocb;
+static gint hf_ipmi_trn_XX_dst1;
+static gint hf_ipmi_trn_XX_dst2;
+static gint hf_ipmi_trn_XX_dst3;
+
+static gint hf_ipmi_trn_1a_user;
+static gint hf_ipmi_trn_1a_chan;
+
+static gint hf_ipmi_trn_1b_user;
+static gint hf_ipmi_trn_1b_chan;
+
+static expert_field ei_ipmi_trn_02_request_param_rev;
+static expert_field ei_ipmi_trn_02_request_param_data;
+static expert_field ei_ipmi_trn_11_request_param_rev;
+static expert_field ei_ipmi_trn_11_request_param_data;
 
 static const value_string lan00_sip_vals[] = {
 	{ 0x00, "Set complete" },

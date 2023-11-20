@@ -52,7 +52,7 @@ typedef struct
 
 /* Initialize the protocol and registered fields
 */
-static int proto_sndcp_xid   = -1;
+static int proto_sndcp_xid;
 
 /* These fields are used to store the algorithm ID
 * When the P bit is not set, try to decode the algo based on what whas stored.
@@ -63,71 +63,71 @@ static guint8 pcomp_entity_algo_id[32];
 
 
 /* L3 XID parsing */
-static int hf_sndcp_xid_type = -1;
-static int hf_sndcp_xid_len = -1;
-static int hf_sndcp_xid_value = -1;
-static int hf_sndcp_xid_comp_pbit = -1;
-static int hf_sndcp_xid_comp_spare_byte1 = -1;
-static int hf_sndcp_xid_comp_entity = -1;
-static int hf_sndcp_xid_comp_spare_byte2 = -1;
-static int hf_sndcp_xid_comp_algo_id = -1;
-static int hf_sndcp_xid_comp_len = -1;
+static int hf_sndcp_xid_type;
+static int hf_sndcp_xid_len;
+static int hf_sndcp_xid_value;
+static int hf_sndcp_xid_comp_pbit;
+static int hf_sndcp_xid_comp_spare_byte1;
+static int hf_sndcp_xid_comp_entity;
+static int hf_sndcp_xid_comp_spare_byte2;
+static int hf_sndcp_xid_comp_algo_id;
+static int hf_sndcp_xid_comp_len;
 /* There is currently a maximum of 15 DCOMP/PCOMP: 6.5.1.1.5 */
 static int hf_sndcp_xid_comp[15];
-static int hf_sndcp_xid_comp_spare = -1;
+static int hf_sndcp_xid_comp_spare;
 
-static int hf_element_applicable_nsapi_15 = -1;
-static int hf_element_applicable_nsapi_14 = -1;
-static int hf_element_applicable_nsapi_13 = -1;
-static int hf_element_applicable_nsapi_12 = -1;
-static int hf_element_applicable_nsapi_11 = -1;
-static int hf_element_applicable_nsapi_10 = -1;
-static int hf_element_applicable_nsapi_9 = -1;
-static int hf_element_applicable_nsapi_8 = -1;
-static int hf_element_applicable_nsapi_7 = -1;
-static int hf_element_applicable_nsapi_6 = -1;
-static int hf_element_applicable_nsapi_5 = -1;
-static int hf_element_applicable_nsapi_spare = -1;
+static int hf_element_applicable_nsapi_15;
+static int hf_element_applicable_nsapi_14;
+static int hf_element_applicable_nsapi_13;
+static int hf_element_applicable_nsapi_12;
+static int hf_element_applicable_nsapi_11;
+static int hf_element_applicable_nsapi_10;
+static int hf_element_applicable_nsapi_9;
+static int hf_element_applicable_nsapi_8;
+static int hf_element_applicable_nsapi_7;
+static int hf_element_applicable_nsapi_6;
+static int hf_element_applicable_nsapi_5;
+static int hf_element_applicable_nsapi_spare;
 
-static int hf_sndcp_xid_rfc1144_s0 = -1;
-static int hf_sndcp_xid_rfc2507_f_max_period_msb = -1;
-static int hf_sndcp_xid_rfc2507_f_max_period_lsb = -1;
-static int hf_sndcp_xid_rfc2507_f_max_time = -1;
-static int hf_sndcp_xid_rfc2507_max_header = -1;
-static int hf_sndcp_xid_rfc2507_tcp_space = -1;
-static int hf_sndcp_xid_rfc2507_non_tcp_space_msb = -1;
-static int hf_sndcp_xid_rfc2507_non_tcp_space_lsb = -1;
-static int hf_sndcp_xid_rohc_max_cid_spare = -1;
-static int hf_sndcp_xid_rohc_max_cid_msb = -1;
-static int hf_sndcp_xid_rohc_max_cid_lsb = -1;
-static int hf_sndcp_xid_rohc_max_header = -1;
-static int hf_sndcp_xid_rohc_profile_msb = -1;
-static int hf_sndcp_xid_rohc_profile_lsb = -1;
+static int hf_sndcp_xid_rfc1144_s0;
+static int hf_sndcp_xid_rfc2507_f_max_period_msb;
+static int hf_sndcp_xid_rfc2507_f_max_period_lsb;
+static int hf_sndcp_xid_rfc2507_f_max_time;
+static int hf_sndcp_xid_rfc2507_max_header;
+static int hf_sndcp_xid_rfc2507_tcp_space;
+static int hf_sndcp_xid_rfc2507_non_tcp_space_msb;
+static int hf_sndcp_xid_rfc2507_non_tcp_space_lsb;
+static int hf_sndcp_xid_rohc_max_cid_spare;
+static int hf_sndcp_xid_rohc_max_cid_msb;
+static int hf_sndcp_xid_rohc_max_cid_lsb;
+static int hf_sndcp_xid_rohc_max_header;
+static int hf_sndcp_xid_rohc_profile_msb;
+static int hf_sndcp_xid_rohc_profile_lsb;
 
-static int hf_sndcp_xid_V42bis_p0_spare = -1;
-static int hf_sndcp_xid_V42bis_p0 = -1;
-static int hf_sndcp_xid_V42bis_p1_msb = -1;
-static int hf_sndcp_xid_V42bis_p1_lsb = -1;
-static int hf_sndcp_xid_V42bis_p2 = -1;
-static int hf_sndcp_xid_V44_c0 = -1;
-static int hf_sndcp_xid_V44_c0_spare = -1;
-static int hf_sndcp_xid_V44_p0_spare = -1;
-static int hf_sndcp_xid_V44_p0 = -1;
-static int hf_sndcp_xid_V44_p1t_msb = -1;
-static int hf_sndcp_xid_V44_p1t_lsb = -1;
-static int hf_sndcp_xid_V44_p1r_msb = -1;
-static int hf_sndcp_xid_V44_p1r_lsb = -1;
-static int hf_sndcp_xid_V44_p3t_msb = -1;
-static int hf_sndcp_xid_V44_p3t_lsb = -1;
-static int hf_sndcp_xid_V44_p3r_msb = -1;
-static int hf_sndcp_xid_V44_p3r_lsb = -1;
+static int hf_sndcp_xid_V42bis_p0_spare;
+static int hf_sndcp_xid_V42bis_p0;
+static int hf_sndcp_xid_V42bis_p1_msb;
+static int hf_sndcp_xid_V42bis_p1_lsb;
+static int hf_sndcp_xid_V42bis_p2;
+static int hf_sndcp_xid_V44_c0;
+static int hf_sndcp_xid_V44_c0_spare;
+static int hf_sndcp_xid_V44_p0_spare;
+static int hf_sndcp_xid_V44_p0;
+static int hf_sndcp_xid_V44_p1t_msb;
+static int hf_sndcp_xid_V44_p1t_lsb;
+static int hf_sndcp_xid_V44_p1r_msb;
+static int hf_sndcp_xid_V44_p1r_lsb;
+static int hf_sndcp_xid_V44_p3t_msb;
+static int hf_sndcp_xid_V44_p3t_lsb;
+static int hf_sndcp_xid_V44_p3r_msb;
+static int hf_sndcp_xid_V44_p3r_lsb;
 
 
 /* Initialize the subtree pointers
 */
-static gint ett_sndcp_xid                = -1;
-static gint ett_sndcp_xid_version_field  = -1;
-static gint ett_sndcp_comp_field        = -1;
+static gint ett_sndcp_xid;
+static gint ett_sndcp_xid_version_field;
+static gint ett_sndcp_comp_field;
 
 static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, gboolean dcomp);
 /******************************************************/

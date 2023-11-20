@@ -54,22 +54,22 @@ void proto_reg_handoff_uavcan(void);
 
 static dissector_handle_t uavcan_handle;
 
-static int proto_uavcan = -1;
+static int proto_uavcan;
 
-static int hf_uavcan_can_id = -1;
-static int hf_uavcan_priority = -1;
-static int hf_uavcan_anonymous = -1;
-static int hf_uavcan_req_not_rsp = -1;
-static int hf_uavcan_serv_not_msg = -1;
-static int hf_uavcan_subject_id = -1;
-static int hf_uavcan_service_id = -1;
-static int hf_uavcan_dst_addr = -1;
-static int hf_uavcan_src_addr = -1;
-static int hf_uavcan_data = -1;
-static int hf_uavcan_start_of_transfer = -1;
-static int hf_uavcan_end_of_transfer = -1;
-static int hf_uavcan_toggle = -1;
-static int hf_uavcan_transfer_id = -1;
+static int hf_uavcan_can_id;
+static int hf_uavcan_priority;
+static int hf_uavcan_anonymous;
+static int hf_uavcan_req_not_rsp;
+static int hf_uavcan_serv_not_msg;
+static int hf_uavcan_subject_id;
+static int hf_uavcan_service_id;
+static int hf_uavcan_dst_addr;
+static int hf_uavcan_src_addr;
+static int hf_uavcan_data;
+static int hf_uavcan_start_of_transfer;
+static int hf_uavcan_end_of_transfer;
+static int hf_uavcan_toggle;
+static int hf_uavcan_transfer_id;
 
 static int uavcan_address_type = -1;
 
@@ -77,27 +77,27 @@ static wmem_tree_t *fragment_info_table = NULL;
 
 static reassembly_table uavcan_reassembly_table;
 
-static int hf_uavcan_packet_crc = -1;
+static int hf_uavcan_packet_crc;
 
-static gint ett_uavcan = -1;
-static gint ett_uavcan_can = -1;
-static gint ett_uavcan_message = -1;
+static gint ett_uavcan;
+static gint ett_uavcan_can;
+static gint ett_uavcan_message;
 
-static expert_field ei_uavcan_toggle_bit_error = EI_INIT;
-static expert_field ei_uavcan_transfer_crc_error = EI_INIT;
+static expert_field ei_uavcan_toggle_bit_error;
+static expert_field ei_uavcan_transfer_crc_error;
 
-static gint ett_uavcan_fragment = -1;
-static gint ett_uavcan_fragments = -1;
-static int hf_uavcan_fragments = -1;
-static int hf_uavcan_fragment = -1;
-static int hf_uavcan_fragment_overlap = -1;
-static int hf_uavcan_fragment_overlap_conflicts = -1;
-static int hf_uavcan_fragment_multiple_tails = -1;
-static int hf_uavcan_fragment_too_long_fragment = -1;
-static int hf_uavcan_fragment_error = -1;
-static int hf_uavcan_fragment_count = -1;
-static int hf_uavcan_reassembled_in = -1;
-static int hf_uavcan_reassembled_length = -1;
+static gint ett_uavcan_fragment;
+static gint ett_uavcan_fragments;
+static int hf_uavcan_fragments;
+static int hf_uavcan_fragment;
+static int hf_uavcan_fragment_overlap;
+static int hf_uavcan_fragment_overlap_conflicts;
+static int hf_uavcan_fragment_multiple_tails;
+static int hf_uavcan_fragment_too_long_fragment;
+static int hf_uavcan_fragment_error;
+static int hf_uavcan_fragment_count;
+static int hf_uavcan_reassembled_in;
+static int hf_uavcan_reassembled_length;
 
 /* fragment struct to store packet assembly data */
 typedef struct _fragment_info_t

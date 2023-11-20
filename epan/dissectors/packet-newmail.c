@@ -17,11 +17,11 @@ void proto_register_newmail(void);
 void proto_reg_handoff_newmail(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_newmail = -1;
-static int hf_newmail_payload = -1;
+static int proto_newmail;
+static int hf_newmail_payload;
 
 /* Initialize the subtree pointers */
-static gint ett_newmail = -1;
+static gint ett_newmail;
 
 static dissector_handle_t newmail_handle;
 

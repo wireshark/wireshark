@@ -389,99 +389,99 @@ static const true_false_string tfs_opa_kdeth_offset_32_64 = {
     "64 Byte Words"
 };
 /* Wireshark ID */
-static gint proto_opa_9b = -1;
+static gint proto_opa_9b;
 
 /* Variables to hold expansion values between packets */
-static gint ett_all_headers = -1;
-static gint ett_9b = -1;
-static gint ett_grh = -1;
-static gint ett_bth = -1;
-static gint ett_rdeth = -1;
-static gint ett_deth = -1;
-static gint ett_reth = -1;
-static gint ett_atomiceth = -1;
-static gint ett_aeth = -1;
-static gint ett_atomicacketh = -1;
-static gint ett_immdt = -1;
-static gint ett_ieth = -1;
-static gint ett_kdeth = -1;
-static gint ett_psm = -1;
-static gint ett_tidrdma = -1;
+static gint ett_all_headers;
+static gint ett_9b;
+static gint ett_grh;
+static gint ett_bth;
+static gint ett_rdeth;
+static gint ett_deth;
+static gint ett_reth;
+static gint ett_atomiceth;
+static gint ett_aeth;
+static gint ett_atomicacketh;
+static gint ett_immdt;
+static gint ett_ieth;
+static gint ett_kdeth;
+static gint ett_psm;
+static gint ett_tidrdma;
 
 /* 9B Header Fields */
-static gint hf_opa_9B = -1;
-static gint hf_opa_9B_service_channel = -1;
-static gint hf_opa_9B_link_version = -1;
-static gint hf_opa_9B_service_level = -1;
-static gint hf_opa_9B_reserved2 = -1;
-static gint hf_opa_9B_lnh = -1;
-static gint hf_opa_9B_dlid = -1;
-static gint hf_opa_9B_reserved3 = -1;
-static gint hf_opa_9B_packet_length = -1;
-static gint hf_opa_9B_slid = -1;
+static gint hf_opa_9B;
+static gint hf_opa_9B_service_channel;
+static gint hf_opa_9B_link_version;
+static gint hf_opa_9B_service_level;
+static gint hf_opa_9B_reserved2;
+static gint hf_opa_9B_lnh;
+static gint hf_opa_9B_dlid;
+static gint hf_opa_9B_reserved3;
+static gint hf_opa_9B_packet_length;
+static gint hf_opa_9B_slid;
 /* ICRC */
-static gint hf_opa_9b_ICRC = -1;
+static gint hf_opa_9b_ICRC;
 
 /* GRH */
-static gint hf_opa_grh = -1;
-static gint hf_opa_grh_ip_version = -1;
-static gint hf_opa_grh_traffic_class = -1;
-static gint hf_opa_grh_flow_label = -1;
-static gint hf_opa_grh_payload_length = -1;
-static gint hf_opa_grh_next_header = -1;
-static gint hf_opa_grh_hop_limit = -1;
-static gint hf_opa_grh_source_gid = -1;
-static gint hf_opa_grh_destination_gid = -1;
+static gint hf_opa_grh;
+static gint hf_opa_grh_ip_version;
+static gint hf_opa_grh_traffic_class;
+static gint hf_opa_grh_flow_label;
+static gint hf_opa_grh_payload_length;
+static gint hf_opa_grh_next_header;
+static gint hf_opa_grh_hop_limit;
+static gint hf_opa_grh_source_gid;
+static gint hf_opa_grh_destination_gid;
 
 /* BTH */
-static gint hf_opa_bth = -1;
-static gint hf_opa_bth_opcode = -1;
-static gint hf_opa_bth_solicited_event = -1;
-static gint hf_opa_bth_migreq = -1;
-static gint hf_opa_bth_pad_count = -1;
-static gint hf_opa_bth_transport_header_version = -1;
-static gint hf_opa_bth_partition_key = -1;
-static gint hf_opa_bth_fcn = -1;
-static gint hf_opa_bth_bcn = -1;
-static gint hf_opa_bth_Reserved8a = -1;
-static gint hf_opa_bth_destination_qp = -1;
-static gint hf_opa_bth_acknowledge_request = -1;
-static gint hf_opa_bth_packet_sequence_number = -1;
+static gint hf_opa_bth;
+static gint hf_opa_bth_opcode;
+static gint hf_opa_bth_solicited_event;
+static gint hf_opa_bth_migreq;
+static gint hf_opa_bth_pad_count;
+static gint hf_opa_bth_transport_header_version;
+static gint hf_opa_bth_partition_key;
+static gint hf_opa_bth_fcn;
+static gint hf_opa_bth_bcn;
+static gint hf_opa_bth_Reserved8a;
+static gint hf_opa_bth_destination_qp;
+static gint hf_opa_bth_acknowledge_request;
+static gint hf_opa_bth_packet_sequence_number;
 
 /* XXETH */
-static gint hf_opa_RDETH = -1;
-static gint hf_opa_RDETH_reserved8 = -1;
-static gint hf_opa_RDETH_ee_context = -1;
-static gint hf_opa_DETH = -1;
-static gint hf_opa_DETH_queue_key = -1;
-static gint hf_opa_DETH_reserved8 = -1;
-static gint hf_opa_DETH_source_qp = -1;
-static gint hf_opa_RETH = -1;
-static gint hf_opa_RETH_virtual_address = -1;
-static gint hf_opa_RETH_remote_key = -1;
-static gint hf_opa_RETH_dma_length = -1;
-static gint hf_opa_AtomicETH = -1;
-static gint hf_opa_AtomicETH_virtual_address = -1;
-static gint hf_opa_AtomicETH_remote_key = -1;
-static gint hf_opa_AtomicETH_swap_or_add_data = -1;
-static gint hf_opa_AtomicETH_compare_data = -1;
-static gint hf_opa_AETH = -1;
-static gint hf_opa_AETH_syndrome = -1;
-static gint hf_opa_AETH_message_sequence_number = -1;
-static gint hf_opa_AtomicAckETH = -1;
-static gint hf_opa_AtomicAckETH_original_remote_data = -1;
-static gint hf_opa_IMMDT = -1;
-static gint hf_opa_IMMDT_data = -1;
-static gint hf_opa_IETH = -1;
-static gint hf_opa_IETH_r_key = -1;
-static gint hf_opa_KDETH = -1;
-static gint hf_opa_KDETH_kver = -1;
-static gint hf_opa_KDETH_sh = -1;
-static gint hf_opa_KDETH_intr = -1;
-static gint hf_opa_KDETH_tidctrl = -1;
-static gint hf_opa_KDETH_tid = -1;
-static gint hf_opa_KDETH_offset_mode = -1;
-static gint hf_opa_KDETH_offset = -1;
+static gint hf_opa_RDETH;
+static gint hf_opa_RDETH_reserved8;
+static gint hf_opa_RDETH_ee_context;
+static gint hf_opa_DETH;
+static gint hf_opa_DETH_queue_key;
+static gint hf_opa_DETH_reserved8;
+static gint hf_opa_DETH_source_qp;
+static gint hf_opa_RETH;
+static gint hf_opa_RETH_virtual_address;
+static gint hf_opa_RETH_remote_key;
+static gint hf_opa_RETH_dma_length;
+static gint hf_opa_AtomicETH;
+static gint hf_opa_AtomicETH_virtual_address;
+static gint hf_opa_AtomicETH_remote_key;
+static gint hf_opa_AtomicETH_swap_or_add_data;
+static gint hf_opa_AtomicETH_compare_data;
+static gint hf_opa_AETH;
+static gint hf_opa_AETH_syndrome;
+static gint hf_opa_AETH_message_sequence_number;
+static gint hf_opa_AtomicAckETH;
+static gint hf_opa_AtomicAckETH_original_remote_data;
+static gint hf_opa_IMMDT;
+static gint hf_opa_IMMDT_data;
+static gint hf_opa_IETH;
+static gint hf_opa_IETH_r_key;
+static gint hf_opa_KDETH;
+static gint hf_opa_KDETH_kver;
+static gint hf_opa_KDETH_sh;
+static gint hf_opa_KDETH_intr;
+static gint hf_opa_KDETH_tidctrl;
+static gint hf_opa_KDETH_tid;
+static gint hf_opa_KDETH_offset_mode;
+static gint hf_opa_KDETH_offset;
 static int * const _opa_KDETH_word1[] = {
     &hf_opa_KDETH_kver,
     &hf_opa_KDETH_sh,
@@ -492,50 +492,50 @@ static int * const _opa_KDETH_word1[] = {
     &hf_opa_KDETH_offset,
     NULL
 };
-static gint hf_opa_KDETH_hcrc = -1;
-static gint hf_opa_KDETH_j_key = -1;
+static gint hf_opa_KDETH_hcrc;
+static gint hf_opa_KDETH_j_key;
 static int * const _opa_KDETH_word2[] = {
     &hf_opa_KDETH_hcrc,
     &hf_opa_KDETH_j_key,
     NULL
 };
 /* PSM */
-static gint hf_opa_psm = -1;
-static gint hf_opa_psm_a = -1;
-static gint hf_opa_psm_ackpsn = -1;
-static gint hf_opa_psm_flags = -1;
-static gint hf_opa_psm_commidx = -1;
-static gint hf_opa_psm_flowid = -1;
-static gint hf_opa_psm_msglen = -1;
-static gint hf_opa_psm_msgseq = -1;
-static gint hf_opa_psm_tag = -1;
-static gint hf_opa_psm_msgdata = -1;
-static gint hf_opa_psm_short_msglen = -1;
-static gint hf_opa_psm_paylen = -1;
-static gint hf_opa_psm_offset = -1;
-static gint hf_opa_psm_sreqidx = -1;
-static gint hf_opa_psm_rreqidx = -1;
-static gint hf_opa_psm_rdescid = -1;
-static gint hf_opa_psm_sdescid = -1;
-static gint hf_opa_psm_psn = -1;
-static gint hf_opa_psm_hostipv4 = -1;
-static gint hf_opa_psm_hostpid = -1;
-static gint hf_opa_psm_dlen = -1;
-static gint hf_opa_psm_nargs = -1;
-static gint hf_opa_psm_hidx = -1;
-static gint hf_opa_psm_arg = -1;
-static gint hf_opa_psm_payload = -1;
+static gint hf_opa_psm;
+static gint hf_opa_psm_a;
+static gint hf_opa_psm_ackpsn;
+static gint hf_opa_psm_flags;
+static gint hf_opa_psm_commidx;
+static gint hf_opa_psm_flowid;
+static gint hf_opa_psm_msglen;
+static gint hf_opa_psm_msgseq;
+static gint hf_opa_psm_tag;
+static gint hf_opa_psm_msgdata;
+static gint hf_opa_psm_short_msglen;
+static gint hf_opa_psm_paylen;
+static gint hf_opa_psm_offset;
+static gint hf_opa_psm_sreqidx;
+static gint hf_opa_psm_rreqidx;
+static gint hf_opa_psm_rdescid;
+static gint hf_opa_psm_sdescid;
+static gint hf_opa_psm_psn;
+static gint hf_opa_psm_hostipv4;
+static gint hf_opa_psm_hostpid;
+static gint hf_opa_psm_dlen;
+static gint hf_opa_psm_nargs;
+static gint hf_opa_psm_hidx;
+static gint hf_opa_psm_arg;
+static gint hf_opa_psm_payload;
 /* TID RDMA */
-static gint hf_opa_TIDRDMA = -1;
-static gint hf_opa_TIDRDMA_reserved = -1;
-static gint hf_opa_TIDRDMA_TIDFlowPSN_reserved = -1;
-static gint hf_opa_TIDRDMA_TIDFlowPSN = -1;
-static gint hf_opa_TIDRDMA_TIDFlowQP_reserved = -1;
-static gint hf_opa_TIDRDMA_TIDFlowQP = -1;
-static gint hf_opa_TIDRDMA_VerbsPSN_reserved = -1;
-static gint hf_opa_TIDRDMA_VerbsPSN = -1;
-static gint hf_opa_TIDRDMA_VerbsQP_reserved = -1;
-static gint hf_opa_TIDRDMA_VerbsQP = -1;
+static gint hf_opa_TIDRDMA;
+static gint hf_opa_TIDRDMA_reserved;
+static gint hf_opa_TIDRDMA_TIDFlowPSN_reserved;
+static gint hf_opa_TIDRDMA_TIDFlowPSN;
+static gint hf_opa_TIDRDMA_TIDFlowQP_reserved;
+static gint hf_opa_TIDRDMA_TIDFlowQP;
+static gint hf_opa_TIDRDMA_VerbsPSN_reserved;
+static gint hf_opa_TIDRDMA_VerbsPSN;
+static gint hf_opa_TIDRDMA_VerbsQP_reserved;
+static gint hf_opa_TIDRDMA_VerbsQP;
 
 
 /* Custom Functions */

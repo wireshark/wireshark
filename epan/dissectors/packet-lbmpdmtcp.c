@@ -228,11 +228,11 @@ static char * lbmpdm_tcp_tag_find(packet_info * pinfo)
 /*----------------------------------------------------------------------------*/
 
 /* Dissector tree handles */
-static int ett_lbmpdm_tcp = -1;
+static int ett_lbmpdm_tcp;
 
 /* Dissector field handles */
-static int hf_lbmpdm_tcp_tag = -1;
-static int hf_lbmpdm_tcp_channel = -1;
+static int hf_lbmpdm_tcp_tag;
+static int hf_lbmpdm_tcp_channel;
 
 static guint get_lbmpdm_tcp_pdu_length(packet_info * pinfo _U_, tvbuff_t * tvb,
                                        int offset, void *data _U_)

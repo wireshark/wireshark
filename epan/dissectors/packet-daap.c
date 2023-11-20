@@ -368,25 +368,25 @@ static const value_string vals_tag_code[] = {
 static value_string_ext vals_tag_code_ext = VALUE_STRING_EXT_INIT(vals_tag_code);
 
 /* Initialize the protocol and registered fields */
-static int proto_daap = -1;
-static int hf_daap_name = -1;
-static int hf_daap_size = -1;
-static int hf_daap_data_string = -1;
-static int hf_daap_persistent_id = -1;
-static int hf_daap_status = -1;
-static int hf_daap_rev = -1;
-static int hf_daap_id = -1;
-static int hf_daap_cnt = -1;
-static int hf_daap_timeout = -1;
-static int hf_daap_data = -1;
-static int hf_daap_playlist_id = -1;
-static int hf_daap_track_id = -1;
+static int proto_daap;
+static int hf_daap_name;
+static int hf_daap_size;
+static int hf_daap_data_string;
+static int hf_daap_persistent_id;
+static int hf_daap_status;
+static int hf_daap_rev;
+static int hf_daap_id;
+static int hf_daap_cnt;
+static int hf_daap_timeout;
+static int hf_daap_data;
+static int hf_daap_playlist_id;
+static int hf_daap_track_id;
 
 /* Initialize the subtree pointers */
-static gint ett_daap = -1;
-static gint ett_daap_sub = -1;
+static gint ett_daap;
+static gint ett_daap_sub;
 
-static expert_field ei_daap_max_recursion_depth_reached = EI_INIT;
+static expert_field ei_daap_max_recursion_depth_reached;
 
 /* Forward declarations */
 static void dissect_daap_one_tag(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb);

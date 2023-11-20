@@ -22,12 +22,12 @@ void proto_register_g723(void);
 static dissector_handle_t g723_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_g723					= -1;
-static int hf_g723_frame_size_and_codec	= -1;
-static int hf_g723_lpc_B5_B0			= -1;
+static int proto_g723;
+static int hf_g723_frame_size_and_codec;
+static int hf_g723_lpc_B5_B0;
 
 /* Initialize the subtree pointers */
-static int ett_g723 = -1;
+static int ett_g723;
 
 
 /*		 RFC 3551

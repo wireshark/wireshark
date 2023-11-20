@@ -23,11 +23,11 @@ void proto_reg_handoff_chargen(void);
 
 static dissector_handle_t chargen_handle;
 
-static int proto_chargen = -1;
+static int proto_chargen;
 
-static int hf_chargen_data = -1;
+static int hf_chargen_data;
 
-static gint ett_chargen = -1;
+static gint ett_chargen;
 
 /* dissect_chargen - dissects chargen packet data
  * tvb - tvbuff for packet data (IN)

@@ -36,20 +36,20 @@ void proto_register_corosync_totemnet(void);
 void proto_reg_handoff_corosync_totemnet(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_corosync_totemnet = -1;
+static int proto_corosync_totemnet;
 
 /* field of struct security_header */
-static int hf_corosync_totemnet_security_header_hash_digest    = -1;
-static int hf_corosync_totemnet_security_header_salt           = -1;
-static int hf_corosync_totemnet_security_crypto_type           = -1;
-static int hf_corosync_totemnet_security_crypto_key            = -1;
+static int hf_corosync_totemnet_security_header_hash_digest;
+static int hf_corosync_totemnet_security_header_salt;
+static int hf_corosync_totemnet_security_crypto_type;
+static int hf_corosync_totemnet_security_crypto_key;
 
 /* configurable parameters */
 static gchar*  corosync_totemnet_private_keys      = NULL;
 static gchar** corosync_totemnet_private_keys_list = NULL;
 
 /* Initialize the subtree pointers */
-static gint ett_corosync_totemnet_security_header              = -1;
+static gint ett_corosync_totemnet_security_header;
 
 #define SALT_SIZE          16
 

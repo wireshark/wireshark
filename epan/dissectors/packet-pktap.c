@@ -43,27 +43,27 @@ void proto_reg_handoff_pktap(void);
 #define PKT_REC_PACKET	1	/* a packet follows the header */
 
 /* Protocol */
-static int proto_pktap = -1;
+static int proto_pktap;
 
-static int hf_pktap_hdrlen = -1;
-static int hf_pktap_rectype = -1;
-static int hf_pktap_dlt = -1;
-static int hf_pktap_ifname = -1;
-static int hf_pktap_flags = -1;
-static int hf_pktap_pfamily = -1;
-static int hf_pktap_llhdrlen = -1;
-static int hf_pktap_lltrlrlen = -1;
-static int hf_pktap_pid = -1;
-static int hf_pktap_cmdname = -1;
-static int hf_pktap_svc_class = -1;
-static int hf_pktap_iftype = -1;
-static int hf_pktap_ifunit = -1;
-static int hf_pktap_epid = -1;
-static int hf_pktap_ecmdname = -1;
+static int hf_pktap_hdrlen;
+static int hf_pktap_rectype;
+static int hf_pktap_dlt;
+static int hf_pktap_ifname;
+static int hf_pktap_flags;
+static int hf_pktap_pfamily;
+static int hf_pktap_llhdrlen;
+static int hf_pktap_lltrlrlen;
+static int hf_pktap_pid;
+static int hf_pktap_cmdname;
+static int hf_pktap_svc_class;
+static int hf_pktap_iftype;
+static int hf_pktap_ifunit;
+static int hf_pktap_epid;
+static int hf_pktap_ecmdname;
 
-static gint ett_pktap = -1;
+static gint ett_pktap;
 
-static expert_field ei_pktap_hdrlen_too_short = EI_INIT;
+static expert_field ei_pktap_hdrlen_too_short;
 
 static dissector_handle_t pktap_handle;
 static capture_dissector_handle_t eth_cap_handle;

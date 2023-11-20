@@ -71,45 +71,45 @@ static const value_string sapigs_function_lst[] = {
 	{ 0, NULL}
 };
 
-static int proto_sapigs = -1;
+static int proto_sapigs;
 
 /* Headers */
-static int hf_sapigs_function = -1;
-static int hf_sapigs_listener = -1;
-static int hf_sapigs_hostname = -1;
-static int hf_sapigs_id = -1;
-static int hf_sapigs_padd1 = -1;
-static int hf_sapigs_flag1 = -1;
-static int hf_sapigs_padd2 = -1;
-static int hf_sapigs_flag2 = -1;
-static int hf_sapigs_padd3 = -1;
+static int hf_sapigs_function;
+static int hf_sapigs_listener;
+static int hf_sapigs_hostname;
+static int hf_sapigs_id;
+static int hf_sapigs_padd1;
+static int hf_sapigs_flag1;
+static int hf_sapigs_padd2;
+static int hf_sapigs_flag2;
+static int hf_sapigs_padd3;
 
 /* Data */
-static int hf_sapigs_eye_catcher = -1;
-static int hf_sapigs_padd4 = -1;
-static int hf_sapigs_codepage = -1;
-static int hf_sapigs_offset_data = -1;
-static int hf_sapigs_data_size = -1;
-static int hf_sapigs_data = -1;
+static int hf_sapigs_eye_catcher;
+static int hf_sapigs_padd4;
+static int hf_sapigs_codepage;
+static int hf_sapigs_offset_data;
+static int hf_sapigs_data_size;
+static int hf_sapigs_data;
 
 /* Table definition */
-static int hf_sapigs_tables = -1;
-static int hf_sapigs_table_version = -1;
-static int hf_sapigs_table_name = -1;
-static int hf_sapigs_table_line_number = -1;
-static int hf_sapigs_table_width = -1;
-static int hf_sapigs_table_column_name = -1;
-static int hf_sapigs_table_column_number = -1;
-static int hf_sapigs_table_column_width = -1;
+static int hf_sapigs_tables;
+static int hf_sapigs_table_version;
+static int hf_sapigs_table_name;
+static int hf_sapigs_table_line_number;
+static int hf_sapigs_table_width;
+static int hf_sapigs_table_column_name;
+static int hf_sapigs_table_column_number;
+static int hf_sapigs_table_column_width;
 
 /* Others */
-static int hf_sapigs_portwatcher = -1;
-static int hf_sapigs_portwatcher_version = -1;
-static int hf_sapigs_portwatcher_info = -1;
-static int hf_sapigs_interpreter = -1;
-static int hf_sapigs_chart_config = -1;
+static int hf_sapigs_portwatcher;
+static int hf_sapigs_portwatcher_version;
+static int hf_sapigs_portwatcher_info;
+static int hf_sapigs_interpreter;
+static int hf_sapigs_chart_config;
 
-static gint ett_sapigs = -1;
+static gint ett_sapigs;
 
 /* Global port preference */
 static range_t *global_sapigs_port_range;

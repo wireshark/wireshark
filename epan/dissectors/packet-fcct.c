@@ -22,26 +22,26 @@ void proto_reg_handoff_fcct(void);
 static dissector_handle_t fcct_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_fcct           = -1;
-static int hf_fcct_revision     = -1;
-static int hf_fcct_inid         = -1;
-static int hf_fcct_gstype       = -1;
-static int hf_fcct_gssubtype    = -1;
-static int hf_fcct_options      = -1;
-static int hf_fcct_server       = -1; /* derived field */
+static int proto_fcct;
+static int hf_fcct_revision;
+static int hf_fcct_inid;
+static int hf_fcct_gstype;
+static int hf_fcct_gssubtype;
+static int hf_fcct_options;
+static int hf_fcct_server; /* derived field */
 
 /* Extended preamble fields */
 #if 0
-static int hf_fcct_ext_said     = -1;
-static int hf_fcct_ext_tid      = -1;
-static int hf_fcct_ext_reqname  = -1;
-static int hf_fcct_ext_tstamp   = -1;
-static int hf_fcct_ext_authblk  = -1;
+static int hf_fcct_ext_said;
+static int hf_fcct_ext_tid;
+static int hf_fcct_ext_reqname;
+static int hf_fcct_ext_tstamp;
+static int hf_fcct_ext_authblk;
 #endif
 
 /* Initialize the subtree pointers */
-static gint ett_fcct = -1;
-static gint ett_fcct_ext = -1;  /* for the extended header */
+static gint ett_fcct;
+static gint ett_fcct_ext;  /* for the extended header */
 
 const value_string fc_ct_rjt_code_vals [] = {
     {FCCT_RJT_INVCMDCODE, "Invalid Cmd Code"},

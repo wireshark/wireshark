@@ -20,7 +20,7 @@ void proto_reg_handoff_redback(void);
 
 static dissector_handle_t redback_handle;
 
-static gint ett_redback = -1;
+static gint ett_redback;
 
 static dissector_table_t osinl_incl_subdissector_table;
 static dissector_table_t osinl_excl_subdissector_table;
@@ -33,19 +33,19 @@ static dissector_handle_t arp_handle;
 static dissector_handle_t ppp_handle;
 static dissector_handle_t ppphdlc_handle;
 
-static int proto_redback = -1;
+static int proto_redback;
 
-static int hf_redback_circuit = -1;
-static int hf_redback_context = -1;
-static int hf_redback_dataoffset = -1;
-static int hf_redback_flags = -1;
-static int hf_redback_l3offset = -1;
-static int hf_redback_length = -1;
-static int hf_redback_padding = -1;
-static int hf_redback_protocol = -1;
-static int hf_redback_unknown = -1;
+static int hf_redback_circuit;
+static int hf_redback_context;
+static int hf_redback_dataoffset;
+static int hf_redback_flags;
+static int hf_redback_l3offset;
+static int hf_redback_length;
+static int hf_redback_padding;
+static int hf_redback_protocol;
+static int hf_redback_unknown;
 
-static expert_field ei_redback_protocol = EI_INIT;
+static expert_field ei_redback_protocol;
 
 static int
 dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

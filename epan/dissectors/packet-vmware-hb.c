@@ -24,23 +24,23 @@
 void proto_reg_handoff_vmware_hb(void);
 void proto_register_vmware_hb(void);
 
-static int proto_vmware_hb = -1;
-static int hf_vmware_hb_magic = -1;
-static int hf_vmware_hb_build_number = -1;
-static int hf_vmware_hb_server_id = -1;
-static int hf_vmware_hb_host_key_length = -1;
-static int hf_vmware_hb_host_key = -1;
-static int hf_vmware_hb_change_gen = -1;
-static int hf_vmware_hb_spec_gen = -1;
-static int hf_vmware_hb_bundle_version = -1;
-static int hf_vmware_hb_heartbeat_counter = -1;
-static int hf_vmware_hb_ip4_address_length = -1;
-static int hf_vmware_hb_ip4_address = -1;
-static int hf_vmware_hb_verification_signature = -1;
+static int proto_vmware_hb;
+static int hf_vmware_hb_magic;
+static int hf_vmware_hb_build_number;
+static int hf_vmware_hb_server_id;
+static int hf_vmware_hb_host_key_length;
+static int hf_vmware_hb_host_key;
+static int hf_vmware_hb_change_gen;
+static int hf_vmware_hb_spec_gen;
+static int hf_vmware_hb_bundle_version;
+static int hf_vmware_hb_heartbeat_counter;
+static int hf_vmware_hb_ip4_address_length;
+static int hf_vmware_hb_ip4_address;
+static int hf_vmware_hb_verification_signature;
 
 static dissector_handle_t vmware_hb_handle;
 
-static gint ett_vmware_hb = -1;
+static gint ett_vmware_hb;
 
 static const value_string vmware_hb_build_number[] = {
     { 164009, "ESXi 4.0.0 GA" },

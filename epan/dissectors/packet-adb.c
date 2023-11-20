@@ -20,46 +20,46 @@
 #include "packet-adb_service.h"
 #include "packet-usb.h"
 
-static int proto_adb                                                       = -1;
-static int hf_command                                                      = -1;
-static int hf_argument_0                                                   = -1;
-static int hf_argument_1                                                   = -1;
-static int hf_data_length                                                  = -1;
-static int hf_data_crc32                                                   = -1;
-static int hf_magic                                                        = -1;
-static int hf_local_id                                                     = -1;
-static int hf_remote_id                                                    = -1;
-static int hf_version                                                      = -1;
-static int hf_max_data                                                     = -1;
-static int hf_zero                                                         = -1;
-static int hf_sequence                                                     = -1;
-static int hf_online                                                       = -1;
-static int hf_auth_type                                                    = -1;
-static int hf_data                                                         = -1;
-static int hf_service                                                      = -1;
-static int hf_data_fragment                                                = -1;
-static int hf_command_in_frame                                             = -1;
-static int hf_completed_in_frame                                           = -1;
-static int hf_service_start_in_frame                                       = -1;
-static int hf_close_local_in_frame                                         = -1;
-static int hf_close_remote_in_frame                                        = -1;
-static int hf_connection_info                                              = -1;
+static int proto_adb;
+static int hf_command;
+static int hf_argument_0;
+static int hf_argument_1;
+static int hf_data_length;
+static int hf_data_crc32;
+static int hf_magic;
+static int hf_local_id;
+static int hf_remote_id;
+static int hf_version;
+static int hf_max_data;
+static int hf_zero;
+static int hf_sequence;
+static int hf_online;
+static int hf_auth_type;
+static int hf_data;
+static int hf_service;
+static int hf_data_fragment;
+static int hf_command_in_frame;
+static int hf_completed_in_frame;
+static int hf_service_start_in_frame;
+static int hf_close_local_in_frame;
+static int hf_close_remote_in_frame;
+static int hf_connection_info;
 
-static gint ett_adb                                                        = -1;
-static gint ett_adb_arg0                                                   = -1;
-static gint ett_adb_arg1                                                   = -1;
-static gint ett_adb_crc                                                    = -1;
-static gint ett_adb_magic                                                  = -1;
+static gint ett_adb;
+static gint ett_adb_arg0;
+static gint ett_adb_arg1;
+static gint ett_adb_crc;
+static gint ett_adb_magic;
 
-static expert_field ei_invalid_magic                                  = EI_INIT;
-static expert_field ei_invalid_crc                                    = EI_INIT;
-static expert_field ei_invalid_data                                   = EI_INIT;
+static expert_field ei_invalid_magic;
+static expert_field ei_invalid_crc;
+static expert_field ei_invalid_data;
 
 static dissector_handle_t  adb_handle;
 static dissector_handle_t  adb_service_handle;
 
-static gint proto_tcp = -1;
-static gint proto_usb = -1;
+static gint proto_tcp;
+static gint proto_usb;
 
 static wmem_tree_t *command_info = NULL;
 static wmem_tree_t *service_info = NULL;

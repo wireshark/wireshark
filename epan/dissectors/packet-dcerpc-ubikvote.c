@@ -21,11 +21,11 @@
 void proto_register_ubikvote (void);
 void proto_reg_handoff_ubikvote (void);
 
-static int proto_ubikvote = -1;
-static int hf_ubikvote_opnum = -1;
+static int proto_ubikvote;
+static int hf_ubikvote_opnum;
 
 
-static gint ett_ubikvote = -1;
+static gint ett_ubikvote;
 
 
 static e_guid_t uuid_ubikvote = { 0x4d37f2dd, 0xed43, 0x0003, { 0x02, 0xc0, 0x37, 0xcf, 0x1e, 0x00, 0x00, 0x00 } };

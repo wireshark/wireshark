@@ -30,30 +30,30 @@ static dissector_handle_t fgp_handle;
 
 
 /* Initialize the protocol and registered fields */
-static int proto_fractalgeneratorprotocol = -1;
+static int proto_fractalgeneratorprotocol;
 static int tap_fractalgeneratorprotocol   = -1;
-static int hf_message_type                = -1;
-static int hf_message_flags               = -1;
-static int hf_message_length              = -1;
-static int hf_data_start_x                = -1;
-static int hf_data_start_y                = -1;
-static int hf_data_points                 = -1;
-static int hf_parameter_width             = -1;
-static int hf_parameter_height            = -1;
-static int hf_parameter_maxiterations     = -1;
-static int hf_parameter_algorithmid       = -1;
-static int hf_parameter_c1real            = -1;
-static int hf_parameter_c1imag            = -1;
-static int hf_parameter_c2real            = -1;
-static int hf_parameter_c2imag            = -1;
-static int hf_parameter_n                 = -1;
-static int hf_buffer                      = -1;
+static int hf_message_type;
+static int hf_message_flags;
+static int hf_message_length;
+static int hf_data_start_x;
+static int hf_data_start_y;
+static int hf_data_points;
+static int hf_parameter_width;
+static int hf_parameter_height;
+static int hf_parameter_maxiterations;
+static int hf_parameter_algorithmid;
+static int hf_parameter_c1real;
+static int hf_parameter_c1imag;
+static int hf_parameter_c2real;
+static int hf_parameter_c2imag;
+static int hf_parameter_n;
+static int hf_buffer;
 
 static guint64 fgp_total_msgs     = 0;
 static guint64 fgp_total_bytes    = 0;
 
 /* Initialize the subtree pointers */
-static gint ett_fractalgeneratorprotocol = -1;
+static gint ett_fractalgeneratorprotocol;
 
 /* Dissectors for messages. This is specific to FractalGeneratorProtocol */
 #define MESSAGE_TYPE_LENGTH    1

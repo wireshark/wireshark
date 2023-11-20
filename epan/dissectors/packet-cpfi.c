@@ -51,30 +51,30 @@ static guint gbl_cpfi_ttot_udp_port = CPFI_DEFAULT_TTOT_UDP_PORT;
 static gboolean cpfi_arrow_moves    = TRUE;
 
 /* Initialize the protocol and registered fields */
-static int proto_cpfi = -1;
-static int hf_cpfi_word_one = -1;
-static int hf_cpfi_word_two = -1;
+static int proto_cpfi;
+static int hf_cpfi_word_one;
+static int hf_cpfi_word_two;
 /* SOF word 1: */
-static int hf_cpfi_frame_type = -1;
-static int hf_cpfi_source = -1;
-static int hf_cpfi_dest = -1;
-static int hf_cpfi_SOF_type = -1;
-static int hf_cpfi_speed = -1;
-static int hf_cpfi_OPM_error = -1;
-static int hf_cpfi_from_LCM = -1;
+static int hf_cpfi_frame_type;
+static int hf_cpfi_source;
+static int hf_cpfi_dest;
+static int hf_cpfi_SOF_type;
+static int hf_cpfi_speed;
+static int hf_cpfi_OPM_error;
+static int hf_cpfi_from_LCM;
 /* EOF */
-static int hf_cpfi_CRC_32 = -1;
-static int hf_cpfi_EOF_type = -1;
+static int hf_cpfi_CRC_32;
+static int hf_cpfi_EOF_type;
 /* Hidden items */
-static int hf_cpfi_t_instance = -1;
-static int hf_cpfi_t_src_instance = -1;
-static int hf_cpfi_t_dst_instance = -1;
-static int hf_cpfi_t_board = -1;
-static int hf_cpfi_t_src_board = -1;
-static int hf_cpfi_t_dst_board = -1;
-static int hf_cpfi_t_port = -1;
-static int hf_cpfi_t_src_port = -1;
-static int hf_cpfi_t_dst_port = -1;
+static int hf_cpfi_t_instance;
+static int hf_cpfi_t_src_instance;
+static int hf_cpfi_t_dst_instance;
+static int hf_cpfi_t_board;
+static int hf_cpfi_t_src_board;
+static int hf_cpfi_t_dst_board;
+static int hf_cpfi_t_port;
+static int hf_cpfi_t_src_port;
+static int hf_cpfi_t_dst_port;
 
 static char src_str[20];
 static char dst_str[20];
@@ -87,9 +87,9 @@ static const char direction_and_port_string[] = "[%s %s %s] ";
 
 
 /* Initialize the subtree pointers */
-static gint ett_cpfi = -1;
-static gint ett_cpfi_header = -1;
-static gint ett_cpfi_footer = -1;
+static gint ett_cpfi;
+static gint ett_cpfi_header;
+static gint ett_cpfi_footer;
 
 static dissector_handle_t cpfi_handle;
 static dissector_handle_t fc_handle;

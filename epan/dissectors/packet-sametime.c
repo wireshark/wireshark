@@ -21,7 +21,7 @@
 void proto_register_sametime(void);
 void proto_reg_handoff_sametime(void);
 
-static int proto_sametime = -1;
+static int proto_sametime;
 static dissector_handle_t sametime_handle;
 
 /*preferences*/
@@ -29,50 +29,50 @@ static gboolean global_sametime_show_length = FALSE;
 static gboolean global_sametime_reassemble_packets = TRUE;
 
 /*heart beat*/
-static int hf_sametime_heartbeat = -1;
+static int hf_sametime_heartbeat;
 
 /*sametime message header*/
-static int hf_sametime_message_length = -1;
-static int hf_sametime_message_type = -1;
-static int hf_sametime_message_options = -1;
-static int hf_sametime_message_options_attribute = -1;
-static int hf_sametime_message_options_encrypted = -1;
-static int hf_sametime_message_channel = -1;
+static int hf_sametime_message_length;
+static int hf_sametime_message_type;
+static int hf_sametime_message_options;
+static int hf_sametime_message_options_attribute;
+static int hf_sametime_message_options_encrypted;
+static int hf_sametime_message_channel;
 
 /*common types*/
-static int hf_sametime_field_length = -1;
-static int hf_sametime_field_text = -1;
-static int hf_sametime_code = -1;
-static int hf_sametime_login_type = -1;
-static int hf_sametime_time = -1;
+static int hf_sametime_field_length;
+static int hf_sametime_field_text;
+static int hf_sametime_code;
+static int hf_sametime_login_type;
+static int hf_sametime_time;
 
 /*handshake*/
-static int hf_sametime_handshake_major = -1;
-static int hf_sametime_handshake_minor = -1;
-static int hf_sametime_handshake_srvrcalc_addr = -1;
-static int hf_sametime_handshake_loclcalc_addr = -1;
+static int hf_sametime_handshake_major;
+static int hf_sametime_handshake_minor;
+static int hf_sametime_handshake_srvrcalc_addr;
+static int hf_sametime_handshake_loclcalc_addr;
 
 /*channel*/
-static int hf_sametime_channel_service = -1;
-static int hf_sametime_channel_id = -1;
-static int hf_sametime_channel_send_type = -1;
-static int hf_sametime_channel_awareness = -1;
+static int hf_sametime_channel_service;
+static int hf_sametime_channel_id;
+static int hf_sametime_channel_send_type;
+static int hf_sametime_channel_awareness;
 
 /*user status*/
-static int hf_sametime_user_status = -1;
+static int hf_sametime_user_status;
 
 /*location*/
-static int hf_sametime_location_country = -1;
-static int hf_sametime_location_postalcode = -1;
-static int hf_sametime_location_province = -1;
-static int hf_sametime_location_city = -1;
-static int hf_sametime_location_phone = -1;
-static int hf_sametime_location_name = -1;
-static int hf_sametime_location_timezone = -1;
+static int hf_sametime_location_country;
+static int hf_sametime_location_postalcode;
+static int hf_sametime_location_province;
+static int hf_sametime_location_city;
+static int hf_sametime_location_phone;
+static int hf_sametime_location_name;
+static int hf_sametime_location_timezone;
 
 /*packet detail tree*/
-static gint ett_sametime = -1;
-static gint ett_sametime_options = -1;
+static gint ett_sametime;
+static gint ett_sametime_options;
 
 /*statistics*/
 static int sametime_tap = -1;

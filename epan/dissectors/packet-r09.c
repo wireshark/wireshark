@@ -24,24 +24,24 @@ void proto_reg_handoff_r09(void);
 #define PSNAME "R09"
 #define PFNAME "r09"
 
-static int proto_r09 = -1;
-static int hf_r09_modus = -1;
-static int hf_r09_ty = -1;
-static int hf_r09_tl = -1;
-static int hf_r09_zv = -1;
-static int hf_r09_zw = -1;
-static int hf_r09_mp8 = -1;
-static int hf_r09_mp16 = -1;
-static int hf_r09_pr = -1;
-static int hf_r09_ha = -1;
-static int hf_r09_ln = -1;
-static int hf_r09_kn = -1;
-static int hf_r09_zn = -1;
-static int hf_r09_zl = -1;
-static int hf_r09_fn = -1;
-static int hf_r09_un = -1;
+static int proto_r09;
+static int hf_r09_modus;
+static int hf_r09_ty;
+static int hf_r09_tl;
+static int hf_r09_zv;
+static int hf_r09_zw;
+static int hf_r09_mp8;
+static int hf_r09_mp16;
+static int hf_r09_pr;
+static int hf_r09_ha;
+static int hf_r09_ln;
+static int hf_r09_kn;
+static int hf_r09_zn;
+static int hf_r09_zl;
+static int hf_r09_fn;
+static int hf_r09_un;
 
-static gint ett_r09 = -1;
+static gint ett_r09;
 
 static dissector_handle_t r09_handle;
 

@@ -17,7 +17,7 @@
 
 void proto_register_iana_oui(void);
 
-static int hf_llc_iana_pid = -1;
+static int hf_llc_iana_pid;
 
 static const value_string iana_pid_vals[] = {
 	{ IANA_PID_MARS_DATA_SHORT,	"MARS Data Messages (short form)" },

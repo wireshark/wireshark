@@ -23,14 +23,14 @@
 static dissector_handle_t pmproxy_handle;
 static dissector_handle_t pcp_handle;
 
-static int proto_pmproxy = -1;
+static int proto_pmproxy;
 
-static int hf_pmproxy_host = -1;
-static int hf_pmproxy_port = -1;
-static int hf_pmproxy_client_version = -1;
-static int hf_pmproxy_server_version = -1;
+static int hf_pmproxy_host;
+static int hf_pmproxy_port;
+static int hf_pmproxy_client_version;
+static int hf_pmproxy_server_version;
 
-static gint ett_pmproxy = -1;
+static gint ett_pmproxy;
 
 typedef struct pmproxy_conversation_info_t {
     guint32 last_proxy_frame;

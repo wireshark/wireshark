@@ -29,21 +29,21 @@ void proto_register_tfp(void);
 static dissector_handle_t tfp_handle_tcp;
 
 /* variables for creating the tree */
-static gint proto_tfp = -1;
-static gint ett_tfp = -1;
+static gint proto_tfp;
+static gint ett_tfp;
 
 /* header field variables */
-static gint hf_tfp_uid = -1;
-static gint hf_tfp_uid_numeric = -1;
-static gint hf_tfp_len = -1;
-static gint hf_tfp_fid = -1;
-static gint hf_tfp_seq = -1;
-static gint hf_tfp_r = -1;
-static gint hf_tfp_a = -1;
-static gint hf_tfp_oo = -1;
-static gint hf_tfp_e = -1;
-static gint hf_tfp_future_use = -1;
-static gint hf_tfp_payload = -1;
+static gint hf_tfp_uid;
+static gint hf_tfp_uid_numeric;
+static gint hf_tfp_len;
+static gint hf_tfp_fid;
+static gint hf_tfp_seq;
+static gint hf_tfp_r;
+static gint hf_tfp_a;
+static gint hf_tfp_oo;
+static gint hf_tfp_e;
+static gint hf_tfp_future_use;
+static gint hf_tfp_payload;
 
 /* bit and byte offsets for dissection */
 static const gint byte_offset_len	   = 4;

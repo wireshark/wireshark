@@ -191,142 +191,142 @@ typedef struct {
 /*********************/
 
 /* GP proto handle. */
-static int proto_zbee_nwk_gp = -1;
+static int proto_zbee_nwk_gp;
 
 /* GP NWK FC. */
-static int hf_zbee_nwk_gp_auto_commissioning = -1;
-static int hf_zbee_nwk_gp_fc_ext = -1;
-static int hf_zbee_nwk_gp_fcf = -1;
-static int hf_zbee_nwk_gp_frame_type = -1;
-static int hf_zbee_nwk_gp_proto_version = -1;
+static int hf_zbee_nwk_gp_auto_commissioning;
+static int hf_zbee_nwk_gp_fc_ext;
+static int hf_zbee_nwk_gp_fcf;
+static int hf_zbee_nwk_gp_frame_type;
+static int hf_zbee_nwk_gp_proto_version;
 
 /* GP NWK FC extension. */
-static int hf_zbee_nwk_gp_fc_ext_field = -1;
-static int hf_zbee_nwk_gp_fc_ext_app_id = -1;
-static int hf_zbee_nwk_gp_fc_ext_direction = -1;
-static int hf_zbee_nwk_gp_fc_ext_rx_after_tx = -1;
-static int hf_zbee_nwk_gp_fc_ext_sec_key = -1;
-static int hf_zbee_nwk_gp_fc_ext_sec_level = -1;
+static int hf_zbee_nwk_gp_fc_ext_field;
+static int hf_zbee_nwk_gp_fc_ext_app_id;
+static int hf_zbee_nwk_gp_fc_ext_direction;
+static int hf_zbee_nwk_gp_fc_ext_rx_after_tx;
+static int hf_zbee_nwk_gp_fc_ext_sec_key;
+static int hf_zbee_nwk_gp_fc_ext_sec_level;
 
 /* ZGPD Src ID. */
-static int hf_zbee_nwk_gp_zgpd_src_id = -1;
+static int hf_zbee_nwk_gp_zgpd_src_id;
 
 /* ZGPD Endpoint */
-static int hf_zbee_nwk_gp_zgpd_endpoint = -1;
+static int hf_zbee_nwk_gp_zgpd_endpoint;
 
 /* Security frame counter. */
-static int hf_zbee_nwk_gp_security_frame_counter = -1;
+static int hf_zbee_nwk_gp_security_frame_counter;
 
 /* Security MIC. */
-static int hf_zbee_nwk_gp_security_mic_2b = -1;
-static int hf_zbee_nwk_gp_security_mic_4b = -1;
+static int hf_zbee_nwk_gp_security_mic_2b;
+static int hf_zbee_nwk_gp_security_mic_4b;
 
 /* Payload subframe. */
-static int hf_zbee_nwk_gp_command_id = -1;
+static int hf_zbee_nwk_gp_command_id;
 
 /* Commissioning. */
-static int hf_zbee_nwk_gp_cmd_comm_device_id = -1;
-static int hf_zbee_nwk_gp_cmd_comm_ext_opt = -1;
-static int hf_zbee_nwk_gp_cmd_comm_ext_opt_gpd_key_encr = -1;
-static int hf_zbee_nwk_gp_cmd_comm_ext_opt_gpd_key_present = -1;
-static int hf_zbee_nwk_gp_cmd_comm_ext_opt_key_type = -1;
-static int hf_zbee_nwk_gp_cmd_comm_ext_opt_outgoing_counter = -1;
-static int hf_zbee_nwk_gp_cmd_comm_ext_opt_sec_level_cap = -1;
-static int hf_zbee_nwk_gp_cmd_comm_security_key = -1;
-static int hf_zbee_nwk_gp_cmd_comm_gpd_sec_key_mic = -1;
-static int hf_zbee_nwk_gp_cmd_comm_opt_ext_opt = -1;
-static int hf_zbee_nwk_gp_cmd_comm_opt = -1;
-static int hf_zbee_nwk_gp_cmd_comm_opt_fixed_location = -1;
-static int hf_zbee_nwk_gp_cmd_comm_opt_mac_sec_num_cap = -1;
-static int hf_zbee_nwk_gp_cmd_comm_opt_appli_info_present = -1;
-static int hf_zbee_nwk_gp_cmd_comm_opt_panid_req = -1;
-static int hf_zbee_nwk_gp_cmd_comm_opt_rx_on_cap = -1;
-static int hf_zbee_nwk_gp_cmd_comm_opt_sec_key_req = -1;
-static int hf_zbee_nwk_gp_cmd_comm_outgoing_counter = -1;
-static int hf_zbee_nwk_gp_cmd_comm_manufacturer_greenpeak_dev_id = -1;
-static int hf_zbee_nwk_gp_cmd_comm_manufacturer_dev_id = -1;
-static int hf_zbee_nwk_gp_cmd_comm_manufacturer_id = -1;
-static int hf_zbee_nwk_gp_cmd_comm_appli_info = -1;
-static int hf_zbee_nwk_gp_cmd_comm_appli_info_crp = -1;
-static int hf_zbee_nwk_gp_cmd_comm_appli_info_gclp = -1;
-static int hf_zbee_nwk_gp_cmd_comm_appli_info_mip = -1;
-static int hf_zbee_nwk_gp_cmd_comm_appli_info_mmip = -1;
-static int hf_zbee_nwk_gp_cmd_comm_gpd_cmd_num = -1;
-static int hf_zbee_nwk_gp_cmd_comm_gpd_cmd_id_list = -1;
-static int hf_zbee_nwk_gp_cmd_comm_length_of_clid_list = -1;
-static int hf_zbee_nwk_gp_cmd_comm_length_of_clid_list_server = -1;
-static int hf_zbee_nwk_gp_cmd_comm_length_of_clid_list_client = -1;
-static int hf_zbee_nwk_cmd_comm_clid_list_server = -1;
-static int hf_zbee_nwk_cmd_comm_clid_list_client = -1;
-static int hf_zbee_nwk_cmd_comm_cluster_id = -1;
+static int hf_zbee_nwk_gp_cmd_comm_device_id;
+static int hf_zbee_nwk_gp_cmd_comm_ext_opt;
+static int hf_zbee_nwk_gp_cmd_comm_ext_opt_gpd_key_encr;
+static int hf_zbee_nwk_gp_cmd_comm_ext_opt_gpd_key_present;
+static int hf_zbee_nwk_gp_cmd_comm_ext_opt_key_type;
+static int hf_zbee_nwk_gp_cmd_comm_ext_opt_outgoing_counter;
+static int hf_zbee_nwk_gp_cmd_comm_ext_opt_sec_level_cap;
+static int hf_zbee_nwk_gp_cmd_comm_security_key;
+static int hf_zbee_nwk_gp_cmd_comm_gpd_sec_key_mic;
+static int hf_zbee_nwk_gp_cmd_comm_opt_ext_opt;
+static int hf_zbee_nwk_gp_cmd_comm_opt;
+static int hf_zbee_nwk_gp_cmd_comm_opt_fixed_location;
+static int hf_zbee_nwk_gp_cmd_comm_opt_mac_sec_num_cap;
+static int hf_zbee_nwk_gp_cmd_comm_opt_appli_info_present;
+static int hf_zbee_nwk_gp_cmd_comm_opt_panid_req;
+static int hf_zbee_nwk_gp_cmd_comm_opt_rx_on_cap;
+static int hf_zbee_nwk_gp_cmd_comm_opt_sec_key_req;
+static int hf_zbee_nwk_gp_cmd_comm_outgoing_counter;
+static int hf_zbee_nwk_gp_cmd_comm_manufacturer_greenpeak_dev_id;
+static int hf_zbee_nwk_gp_cmd_comm_manufacturer_dev_id;
+static int hf_zbee_nwk_gp_cmd_comm_manufacturer_id;
+static int hf_zbee_nwk_gp_cmd_comm_appli_info;
+static int hf_zbee_nwk_gp_cmd_comm_appli_info_crp;
+static int hf_zbee_nwk_gp_cmd_comm_appli_info_gclp;
+static int hf_zbee_nwk_gp_cmd_comm_appli_info_mip;
+static int hf_zbee_nwk_gp_cmd_comm_appli_info_mmip;
+static int hf_zbee_nwk_gp_cmd_comm_gpd_cmd_num;
+static int hf_zbee_nwk_gp_cmd_comm_gpd_cmd_id_list;
+static int hf_zbee_nwk_gp_cmd_comm_length_of_clid_list;
+static int hf_zbee_nwk_gp_cmd_comm_length_of_clid_list_server;
+static int hf_zbee_nwk_gp_cmd_comm_length_of_clid_list_client;
+static int hf_zbee_nwk_cmd_comm_clid_list_server;
+static int hf_zbee_nwk_cmd_comm_clid_list_client;
+static int hf_zbee_nwk_cmd_comm_cluster_id;
 
 /* Commissioning reply. */
-static int hf_zbee_nwk_gp_cmd_comm_rep_opt = -1;
-static int hf_zbee_nwk_gp_cmd_comm_rep_opt_key_encr = -1;
-static int hf_zbee_nwk_gp_cmd_comm_rep_opt_panid_present = -1;
-static int hf_zbee_nwk_gp_cmd_comm_rep_opt_sec_key_present = -1;
-static int hf_zbee_nwk_gp_cmd_comm_rep_opt_sec_level = -1;
-static int hf_zbee_nwk_gp_cmd_comm_rep_opt_sec_type = -1;
-static int hf_zbee_nwk_gp_cmd_comm_rep_pan_id = -1;
-static int hf_zbee_nwk_gp_cmd_comm_rep_frame_counter = -1;
+static int hf_zbee_nwk_gp_cmd_comm_rep_opt;
+static int hf_zbee_nwk_gp_cmd_comm_rep_opt_key_encr;
+static int hf_zbee_nwk_gp_cmd_comm_rep_opt_panid_present;
+static int hf_zbee_nwk_gp_cmd_comm_rep_opt_sec_key_present;
+static int hf_zbee_nwk_gp_cmd_comm_rep_opt_sec_level;
+static int hf_zbee_nwk_gp_cmd_comm_rep_opt_sec_type;
+static int hf_zbee_nwk_gp_cmd_comm_rep_pan_id;
+static int hf_zbee_nwk_gp_cmd_comm_rep_frame_counter;
 
 /* Read attribute and read attribute response. */
-static int hf_zbee_nwk_gp_cmd_read_att_opt_multi_rec = -1;
-static int hf_zbee_nwk_gp_cmd_read_att_opt_man_field_present = -1;
-static int hf_zbee_nwk_gp_cmd_read_att_opt = -1;
-static int hf_zbee_nwk_gp_cmd_read_att_record_len = -1;
+static int hf_zbee_nwk_gp_cmd_read_att_opt_multi_rec;
+static int hf_zbee_nwk_gp_cmd_read_att_opt_man_field_present;
+static int hf_zbee_nwk_gp_cmd_read_att_opt;
+static int hf_zbee_nwk_gp_cmd_read_att_record_len;
 
 /* Common to commands returning data */
-static int hf_zbee_nwk_gp_zcl_attr_status = -1;
-static int hf_zbee_nwk_gp_zcl_attr_data_type = -1;
-static int hf_zbee_nwk_gp_zcl_attr_cluster_id = -1;
+static int hf_zbee_nwk_gp_zcl_attr_status;
+static int hf_zbee_nwk_gp_zcl_attr_data_type;
+static int hf_zbee_nwk_gp_zcl_attr_cluster_id;
 
 /* Common to all manufacturer specific commands */
-static int hf_zbee_zcl_gp_cmd_ms_manufacturer_code = -1;
+static int hf_zbee_zcl_gp_cmd_ms_manufacturer_code;
 
 /* Channel request. */
-static int hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour = -1;
-static int hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour_1st = -1;
-static int hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour_2nd = -1;
+static int hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour;
+static int hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour_1st;
+static int hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour_2nd;
 
 /* Channel Configuration command. */
-static int hf_zbee_nwk_gp_cmd_operational_channel = -1;
-static int hf_zbee_nwk_gp_cmd_channel_configuration = -1;
+static int hf_zbee_nwk_gp_cmd_operational_channel;
+static int hf_zbee_nwk_gp_cmd_channel_configuration;
 
 /* Move Color command. */
-static int hf_zbee_nwk_gp_cmd_move_color_ratex = -1;
-static int hf_zbee_nwk_gp_cmd_move_color_ratey = -1;
+static int hf_zbee_nwk_gp_cmd_move_color_ratex;
+static int hf_zbee_nwk_gp_cmd_move_color_ratey;
 
 /* Move Up/Down command. */
-static int hf_zbee_nwk_gp_cmd_move_up_down_rate = -1;
+static int hf_zbee_nwk_gp_cmd_move_up_down_rate;
 
 /* Step Color command. */
-static int hf_zbee_nwk_gp_cmd_step_color_stepx = -1;
-static int hf_zbee_nwk_gp_cmd_step_color_stepy = -1;
-static int hf_zbee_nwk_gp_cmd_step_color_transition_time = -1;
+static int hf_zbee_nwk_gp_cmd_step_color_stepx;
+static int hf_zbee_nwk_gp_cmd_step_color_stepy;
+static int hf_zbee_nwk_gp_cmd_step_color_transition_time;
 
 /* Step Up/Down command. */
-static int hf_zbee_nwk_gp_cmd_step_up_down_step_size = -1;
-static int hf_zbee_nwk_gp_cmd_step_up_down_transition_time = -1;
+static int hf_zbee_nwk_gp_cmd_step_up_down_step_size;
+static int hf_zbee_nwk_gp_cmd_step_up_down_transition_time;
 
-static expert_field ei_zbee_nwk_gp_no_payload = EI_INIT;
-static expert_field ei_zbee_nwk_gp_inval_residual_data = EI_INIT;
-static expert_field ei_zbee_nwk_gp_com_rep_no_out_cnt = EI_INIT;
+static expert_field ei_zbee_nwk_gp_no_payload;
+static expert_field ei_zbee_nwk_gp_inval_residual_data;
+static expert_field ei_zbee_nwk_gp_com_rep_no_out_cnt;
 
 /* Proto tree elements. */
-static gint ett_zbee_nwk = -1;
-static gint ett_zbee_nwk_cmd = -1;
-static gint ett_zbee_nwk_cmd_cinfo = -1;
-static gint ett_zbee_nwk_cmd_appli_info = -1;
-static gint ett_zbee_nwk_cmd_options = -1;
-static gint ett_zbee_nwk_fcf = -1;
-static gint ett_zbee_nwk_fcf_ext = -1;
-static gint ett_zbee_nwk_clu_rec = -1;
-static gint ett_zbee_nwk_att_rec = -1;
-static gint ett_zbee_nwk_cmd_comm_gpd_cmd_id_list = -1;
-static gint ett_zbee_nwk_cmd_comm_length_of_clid_list = -1;
-static gint ett_zbee_nwk_cmd_comm_clid_list_server = -1;
-static gint ett_zbee_nwk_cmd_comm_clid_list_client = -1;
+static gint ett_zbee_nwk;
+static gint ett_zbee_nwk_cmd;
+static gint ett_zbee_nwk_cmd_cinfo;
+static gint ett_zbee_nwk_cmd_appli_info;
+static gint ett_zbee_nwk_cmd_options;
+static gint ett_zbee_nwk_fcf;
+static gint ett_zbee_nwk_fcf_ext;
+static gint ett_zbee_nwk_clu_rec;
+static gint ett_zbee_nwk_att_rec;
+static gint ett_zbee_nwk_cmd_comm_gpd_cmd_id_list;
+static gint ett_zbee_nwk_cmd_comm_length_of_clid_list;
+static gint ett_zbee_nwk_cmd_comm_clid_list_server;
+static gint ett_zbee_nwk_cmd_comm_clid_list_client;
 
 /* Common. */
 static GSList *zbee_gp_keyring = NULL;

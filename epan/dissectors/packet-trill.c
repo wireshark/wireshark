@@ -23,20 +23,20 @@ void proto_reg_handoff_trill(void);
 
 static dissector_handle_t trill_handle;
 
-static int proto_trill = -1 ;
-static gint ett_trill = -1 ;
+static int proto_trill;
+static gint ett_trill;
 
-static int hf_trill_version = -1 ;
-static int hf_trill_reserved = -1 ;
-static int hf_trill_multi_dst = -1 ;
-static int hf_trill_op_len = -1 ;
-static int hf_trill_hop_cnt = -1 ;
-static int hf_trill_egress_nick = -1 ;
-static int hf_trill_ingress_nick = -1 ;
+static int hf_trill_version;
+static int hf_trill_reserved;
+static int hf_trill_multi_dst;
+static int hf_trill_op_len;
+static int hf_trill_hop_cnt;
+static int hf_trill_egress_nick;
+static int hf_trill_ingress_nick;
 /* TODO For now we will just add all the options into a byte field.
    Later this should be parsed out into a sub-tree with all the option
    details. */
-static int hf_trill_options= -1 ;
+static int hf_trill_options;
 
 static dissector_handle_t eth_dissector ;
 

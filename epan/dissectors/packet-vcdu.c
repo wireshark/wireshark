@@ -22,42 +22,42 @@ void proto_register_vcdu(void);
 void proto_reg_handoff_vcdu(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_vcdu = -1;
+static int proto_vcdu;
 
-static int hf_smex_gsc = -1;
-/* static int hf_smex_unused = -1; */
-static int hf_smex_version = -1;
-static int hf_smex_framelen = -1;
-static int hf_smex_rs_error = -1;
-static int hf_smex_rs_enable = -1;
-static int hf_smex_crc_enable = -1;
-static int hf_smex_crc_error = -1;
-static int hf_smex_mcs_enable = -1;
-static int hf_smex_mcs_num_error = -1;
-static int hf_smex_data_inv = -1;
-static int hf_smex_frame_sync = -1;
-static int hf_smex_data_dir = -1;
-static int hf_smex_data_class = -1;
-static int hf_smex_pb5 = -1;
-static int hf_smex_jday = -1;
-static int hf_smex_seconds = -1;
-static int hf_smex_msec = -1;
-/* static int hf_smex_spare = -1; */
+static int hf_smex_gsc;
+/* static int hf_smex_unused; */
+static int hf_smex_version;
+static int hf_smex_framelen;
+static int hf_smex_rs_error;
+static int hf_smex_rs_enable;
+static int hf_smex_crc_enable;
+static int hf_smex_crc_error;
+static int hf_smex_mcs_enable;
+static int hf_smex_mcs_num_error;
+static int hf_smex_data_inv;
+static int hf_smex_frame_sync;
+static int hf_smex_data_dir;
+static int hf_smex_data_class;
+static int hf_smex_pb5;
+static int hf_smex_jday;
+static int hf_smex_seconds;
+static int hf_smex_msec;
+/* static int hf_smex_spare; */
 
-static int hf_vcdu_version = -1;
-static int hf_vcdu_sp_id = -1;
-static int hf_vcdu_vc_id = -1;
-static int hf_vcdu_seq = -1;
-static int hf_vcdu_replay = -1;
+static int hf_vcdu_version;
+static int hf_vcdu_sp_id;
+static int hf_vcdu_vc_id;
+static int hf_vcdu_seq;
+static int hf_vcdu_replay;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_vcdu_data = -1;
-static int hf_vcdu_ground_receipt_time = -1;
-static int hf_vcdu_ccsds_all_fill = -1;
-static int hf_vcdu_bitream_all_fill = -1;
-static int hf_vcdu_bitream_all_data = -1;
-static int hf_vcdu_bitream_all_data_anomaly = -1;
-static int hf_vcdu_ccsds_continuation_packet = -1;
+static int hf_vcdu_data;
+static int hf_vcdu_ground_receipt_time;
+static int hf_vcdu_ccsds_all_fill;
+static int hf_vcdu_bitream_all_fill;
+static int hf_vcdu_bitream_all_data;
+static int hf_vcdu_bitream_all_data_anomaly;
+static int hf_vcdu_ccsds_continuation_packet;
 
 /* although technically not part of the vcdu header, the
  * first header pointer (for ccsds), and the last bit
@@ -65,19 +65,19 @@ static int hf_vcdu_ccsds_continuation_packet = -1;
  * simply adding them to the tail end of the vcdu header
  * branch rather than creating a distinct branch for them
  */
-static int hf_vcdu_fhp = -1;
-static int hf_vcdu_lbp = -1;
+static int hf_vcdu_fhp;
+static int hf_vcdu_lbp;
 
 static dissector_handle_t vcdu_handle;
 
 static dissector_handle_t ccsds_handle;
 
 /* Initialize the subtree pointers */
-static gint ett_vcdu  = -1;
-static gint ett_smex  = -1;
-static gint ett_vcduh = -1;
+static gint ett_vcdu;
+static gint ett_smex;
+static gint ett_vcduh;
 
-static expert_field ei_vcdu_fhp_too_close_to_end_of_vcdu = EI_INIT;
+static expert_field ei_vcdu_fhp_too_close_to_end_of_vcdu;
 
 /*
  * Bits in the first 16-bit header word

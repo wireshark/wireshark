@@ -36,49 +36,49 @@ static const char* get_json_string(wmem_allocator_t *scope, tvbparse_elem_t *tok
 static dissector_handle_t json_handle;
 static dissector_handle_t json_file_handle;
 
-static int proto_json = -1;
+static int proto_json;
 
 //Used to get AC DR proto data
-static int proto_acdr = -1;
+static int proto_acdr;
 
-static int hf_json_array = -1;
-static int hf_json_array_compact = -1;
-static int hf_json_array_item_compact = -1;
-static int hf_json_array_raw = -1;
-static int hf_json_array_item_raw = -1;
-static int hf_json_binary_data = -1;
-static int hf_json_ignored_leading_bytes = -1;
-static int hf_json_key = -1;
-static int hf_json_member = -1;
-static int hf_json_member_compact = -1;
-static int hf_json_member_raw = -1;
-static int hf_json_member_with_value = -1;
-static int hf_json_object = -1;
-static int hf_json_object_compact = -1;
-static int hf_json_object_raw = -1;
-static int hf_json_path = -1;
-static int hf_json_path_with_value = -1;
-static int hf_json_value_false = -1;
-static int hf_json_value_nan = -1;
-static int hf_json_value_null = -1;
-static int hf_json_value_number = -1;
-static int hf_json_value_string = -1;
-static int hf_json_value_true = -1;
+static int hf_json_array;
+static int hf_json_array_compact;
+static int hf_json_array_item_compact;
+static int hf_json_array_raw;
+static int hf_json_array_item_raw;
+static int hf_json_binary_data;
+static int hf_json_ignored_leading_bytes;
+static int hf_json_key;
+static int hf_json_member;
+static int hf_json_member_compact;
+static int hf_json_member_raw;
+static int hf_json_member_with_value;
+static int hf_json_object;
+static int hf_json_object_compact;
+static int hf_json_object_raw;
+static int hf_json_path;
+static int hf_json_path_with_value;
+static int hf_json_value_false;
+static int hf_json_value_nan;
+static int hf_json_value_null;
+static int hf_json_value_number;
+static int hf_json_value_string;
+static int hf_json_value_true;
 
-static gint ett_json = -1;
-static gint ett_json_array = -1;
-static gint ett_json_object = -1;
-static gint ett_json_member = -1;
+static gint ett_json;
+static gint ett_json_array;
+static gint ett_json_object;
+static gint ett_json_member;
 /* Define the trees for json compact form */
-static gint ett_json_compact = -1;
-static gint ett_json_array_compact = -1;
-static gint ett_json_object_compact = -1;
-static gint ett_json_member_compact = -1;
+static gint ett_json_compact;
+static gint ett_json_array_compact;
+static gint ett_json_object_compact;
+static gint ett_json_member_compact;
 /* Define the trees for json raw form */
-static gint ett_json_raw = -1;
-static gint ett_json_array_raw = -1;
-static gint ett_json_object_raw = -1;
-static gint ett_json_member_raw = -1;
+static gint ett_json_raw;
+static gint ett_json_array_raw;
+static gint ett_json_object_raw;
+static gint ett_json_member_raw;
 
 /* Preferences */
 static gboolean json_compact = FALSE;

@@ -118,61 +118,61 @@ static const value_string bfd_control_auth_type_values[] = {
 #define SHA1_AUTH_LEN 28
 #define SHA1_CHECKSUM_LEN 20
 
-static gint proto_bfd = -1;
-static gint proto_bfd_echo = -1;
+static gint proto_bfd;
+static gint proto_bfd_echo;
 
-static gint hf_bfd_version = -1;
-static gint hf_bfd_diag = -1;
-static gint hf_bfd_sta = -1;
-static gint hf_bfd_flags = -1;
-static gint hf_bfd_flags_h = -1;
-static gint hf_bfd_flags_p = -1;
-static gint hf_bfd_flags_f = -1;
-static gint hf_bfd_flags_c = -1;
-static gint hf_bfd_flags_a = -1;
-static gint hf_bfd_flags_d = -1;
-static gint hf_bfd_flags_m = -1;
-static gint hf_bfd_flags_d_v0 = -1;
-static gint hf_bfd_flags_p_v0 = -1;
-static gint hf_bfd_flags_f_v0 = -1;
-static gint hf_bfd_detect_time_multiplier = -1;
-static gint hf_bfd_message_length = -1;
-static gint hf_bfd_my_discriminator = -1;
-static gint hf_bfd_your_discriminator = -1;
-static gint hf_bfd_desired_min_tx_interval = -1;
-static gint hf_bfd_required_min_rx_interval = -1;
-static gint hf_bfd_required_min_echo_interval = -1;
-static gint hf_bfd_checksum = -1;
+static gint hf_bfd_version;
+static gint hf_bfd_diag;
+static gint hf_bfd_sta;
+static gint hf_bfd_flags;
+static gint hf_bfd_flags_h;
+static gint hf_bfd_flags_p;
+static gint hf_bfd_flags_f;
+static gint hf_bfd_flags_c;
+static gint hf_bfd_flags_a;
+static gint hf_bfd_flags_d;
+static gint hf_bfd_flags_m;
+static gint hf_bfd_flags_d_v0;
+static gint hf_bfd_flags_p_v0;
+static gint hf_bfd_flags_f_v0;
+static gint hf_bfd_detect_time_multiplier;
+static gint hf_bfd_message_length;
+static gint hf_bfd_my_discriminator;
+static gint hf_bfd_your_discriminator;
+static gint hf_bfd_desired_min_tx_interval;
+static gint hf_bfd_required_min_rx_interval;
+static gint hf_bfd_required_min_echo_interval;
+static gint hf_bfd_checksum;
 
-static gint hf_bfd_auth_type = -1;
-static gint hf_bfd_auth_len = -1;
-static gint hf_bfd_auth_key = -1;
-static gint hf_bfd_auth_password = -1;
-static gint hf_bfd_auth_seq_num = -1;
+static gint hf_bfd_auth_type;
+static gint hf_bfd_auth_len;
+static gint hf_bfd_auth_key;
+static gint hf_bfd_auth_password;
+static gint hf_bfd_auth_seq_num;
 
-static gint hf_bfd_echo = -1;
+static gint hf_bfd_echo;
 
-static gint ett_bfd = -1;
-static gint ett_bfd_flags = -1;
-static gint ett_bfd_auth = -1;
+static gint ett_bfd;
+static gint ett_bfd_flags;
+static gint ett_bfd_auth;
 
-static gint ett_bfd_echo = -1;
+static gint ett_bfd_echo;
 
-static expert_field ei_bfd_auth_len_invalid = EI_INIT;
-static expert_field ei_bfd_auth_no_data = EI_INIT;
+static expert_field ei_bfd_auth_len_invalid;
+static expert_field ei_bfd_auth_no_data;
 
-static gint hf_mep_type = -1;
-static gint hf_mep_len = -1;
-static gint hf_mep_global_id = -1;
-static gint hf_mep_node_id = -1;
-/* static gint hf_mep_interface_no = -1; */
-static gint hf_mep_tunnel_no = -1;
-static gint hf_mep_lsp_no = -1;
-static gint hf_mep_ac_id = -1;
-static gint hf_mep_agi_type = -1;
-static gint hf_mep_agi_len = -1;
-static gint hf_mep_agi_val = -1;
-static gint hf_section_interface_no = -1;
+static gint hf_mep_type;
+static gint hf_mep_len;
+static gint hf_mep_global_id;
+static gint hf_mep_node_id;
+/* static gint hf_mep_interface_no; */
+static gint hf_mep_tunnel_no;
+static gint hf_mep_lsp_no;
+static gint hf_mep_ac_id;
+static gint hf_mep_agi_type;
+static gint hf_mep_agi_len;
+static gint hf_mep_agi_val;
+static gint hf_section_interface_no;
 /*
  * Control packet version 0, draft-katz-ward-bfd-01.txt
  *

@@ -30,43 +30,43 @@
 void proto_register_mctp(void);
 void proto_reg_handoff_mctp(void);
 
-static int proto_mctp = -1;
+static int proto_mctp;
 
-static int hf_mctp_ver = -1;
-static int hf_mctp_dst = -1;
-static int hf_mctp_src = -1;
-static int hf_mctp_flags = -1;
-static int hf_mctp_flags_som = -1;
-static int hf_mctp_flags_eom = -1;
-static int hf_mctp_seq = -1;
-static int hf_mctp_tag = -1;
-static int hf_mctp_tag_to = -1;
-static int hf_mctp_tag_value = -1;
-static int hf_mctp_msg_ic = -1;
-static int hf_mctp_msg_type = -1;
+static int hf_mctp_ver;
+static int hf_mctp_dst;
+static int hf_mctp_src;
+static int hf_mctp_flags;
+static int hf_mctp_flags_som;
+static int hf_mctp_flags_eom;
+static int hf_mctp_seq;
+static int hf_mctp_tag;
+static int hf_mctp_tag_to;
+static int hf_mctp_tag_value;
+static int hf_mctp_msg_ic;
+static int hf_mctp_msg_type;
 
-static gint ett_mctp = -1;
-static gint ett_mctp_fst = -1;
-static gint ett_mctp_flags = -1;
-static gint ett_mctp_tag = -1;
-static gint ett_mctp_type = -1;
+static gint ett_mctp;
+static gint ett_mctp_fst;
+static gint ett_mctp_flags;
+static gint ett_mctp_tag;
+static gint ett_mctp_type;
 
 static const true_false_string tfs_tag_to = { "Sender", "Receiver" };
 
-static int hf_mctp_fragments = -1;
-static int hf_mctp_fragment = -1;
-static int hf_mctp_fragment_overlap = -1;
-static int hf_mctp_fragment_overlap_conflicts = -1;
-static int hf_mctp_fragment_multiple_tails = -1;
-static int hf_mctp_fragment_too_long_fragment = -1;
-static int hf_mctp_fragment_error = -1;
-static int hf_mctp_fragment_count = -1;
-static int hf_mctp_reassembled_in = -1;
-static int hf_mctp_reassembled_length = -1;
-static int hf_mctp_reassembled_data = -1;
+static int hf_mctp_fragments;
+static int hf_mctp_fragment;
+static int hf_mctp_fragment_overlap;
+static int hf_mctp_fragment_overlap_conflicts;
+static int hf_mctp_fragment_multiple_tails;
+static int hf_mctp_fragment_too_long_fragment;
+static int hf_mctp_fragment_error;
+static int hf_mctp_fragment_count;
+static int hf_mctp_reassembled_in;
+static int hf_mctp_reassembled_length;
+static int hf_mctp_reassembled_data;
 
-static gint ett_mctp_fragment = -1;
-static gint ett_mctp_fragments = -1;
+static gint ett_mctp_fragment;
+static gint ett_mctp_fragments;
 
 static const fragment_items mctp_frag_items = {
     /* Fragment subtrees */

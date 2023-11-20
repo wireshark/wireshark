@@ -43,24 +43,24 @@ void proto_reg_handoff_cnip(void);
 
 static dissector_handle_t cnip_handle;
 
-static gint hf_cnip_len      = -1;
-static gint hf_cnip_ver      = -1;
-static gint hf_cnip_type     = -1;
-static gint hf_cnip_exth     = -1;
-static gint hf_cnip_pf       = -1;
-static gint hf_cnip_pf_sec   = -1;
-static gint hf_cnip_pf_pcode = -1;
-static gint hf_cnip_vcode    = -1;
-static gint hf_cnip_sessid   = -1;
-static gint hf_cnip_seqno    = -1;
-static gint hf_cnip_tstamp   = -1;
+static gint hf_cnip_len;
+static gint hf_cnip_ver;
+static gint hf_cnip_type;
+static gint hf_cnip_exth;
+static gint hf_cnip_pf;
+static gint hf_cnip_pf_sec;
+static gint hf_cnip_pf_pcode;
+static gint hf_cnip_vcode;
+static gint hf_cnip_sessid;
+static gint hf_cnip_seqno;
+static gint hf_cnip_tstamp;
 
-static gint proto_cnip       = -1;
+static gint proto_cnip;
 
-static gint ett_cnip         = -1;
-static gint ett_pf           = -1;
+static gint ett_cnip;
+static gint ett_pf;
 
-static expert_field ei_cnip_type_unknown = EI_INIT;
+static expert_field ei_cnip_type_unknown;
 
 static dissector_table_t cnip_dissector_table;
 

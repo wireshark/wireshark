@@ -33,30 +33,30 @@
 
 #define BTLE_RF_OCTETS 10
 
-static int proto_btle_rf = -1;
+static int proto_btle_rf;
 
-static int hf_btle_rf_signed_byte_unused = -1;
-static int hf_btle_rf_unsigned_byte_unused = -1;
-static int hf_btle_rf_word_unused = -1;
-static int hf_btle_rf_channel = -1;
-static int hf_btle_rf_signal_dbm = -1;
-static int hf_btle_rf_noise_dbm = -1;
-static int hf_btle_rf_access_address_offenses = -1;
-static int hf_btle_rf_reference_access_address = -1;
-static int hf_btle_rf_flags = -1;
-static int hf_btle_rf_dewhitened_flag = -1;
-static int hf_btle_rf_sigpower_valid_flag = -1;
-static int hf_btle_rf_noisepower_valid_flag = -1;
-static int hf_btle_rf_packet_decrypted_flag = -1;
-static int hf_btle_rf_ref_aa_valid_flag = -1;
-static int hf_btle_rf_aa_offenses_valid_flag = -1;
-static int hf_btle_rf_channel_aliased_flag = -1;
-static int hf_btle_rf_pdu_type = -1;
-static int hf_btle_rf_crc_checked_flag = -1;
-static int hf_btle_rf_crc_valid_flag = -1;
-static int hf_btle_rf_mic_checked_flag = -1;
-static int hf_btle_rf_mic_valid_flag = -1;
-static int hf_btle_rf_phy = -1;
+static int hf_btle_rf_signed_byte_unused;
+static int hf_btle_rf_unsigned_byte_unused;
+static int hf_btle_rf_word_unused;
+static int hf_btle_rf_channel;
+static int hf_btle_rf_signal_dbm;
+static int hf_btle_rf_noise_dbm;
+static int hf_btle_rf_access_address_offenses;
+static int hf_btle_rf_reference_access_address;
+static int hf_btle_rf_flags;
+static int hf_btle_rf_dewhitened_flag;
+static int hf_btle_rf_sigpower_valid_flag;
+static int hf_btle_rf_noisepower_valid_flag;
+static int hf_btle_rf_packet_decrypted_flag;
+static int hf_btle_rf_ref_aa_valid_flag;
+static int hf_btle_rf_aa_offenses_valid_flag;
+static int hf_btle_rf_channel_aliased_flag;
+static int hf_btle_rf_pdu_type;
+static int hf_btle_rf_crc_checked_flag;
+static int hf_btle_rf_crc_valid_flag;
+static int hf_btle_rf_mic_checked_flag;
+static int hf_btle_rf_mic_valid_flag;
+static int hf_btle_rf_phy;
 
 static int * const hfs_btle_rf_flags[] = {
     &hf_btle_rf_dewhitened_flag,
@@ -75,8 +75,8 @@ static int * const hfs_btle_rf_flags[] = {
     NULL
 };
 
-static int ett_btle_rf = -1;
-static int ett_btle_rf_flags = -1;
+static int ett_btle_rf;
+static int ett_btle_rf_flags;
 
 static dissector_handle_t btle_rf_handle;
 static dissector_handle_t btle_handle;

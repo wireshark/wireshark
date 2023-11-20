@@ -19,21 +19,21 @@ void proto_reg_handoff_mpeg_pat(void);
 
 static dissector_handle_t mpeg_pat_handle;
 
-static int proto_mpeg_pat = -1;
-static int hf_mpeg_pat_transport_stream_id = -1;
-static int hf_mpeg_pat_reserved = -1;
-static int hf_mpeg_pat_version_number = -1;
-static int hf_mpeg_pat_current_next_indicator = -1;
-static int hf_mpeg_pat_section_number = -1;
-static int hf_mpeg_pat_last_section_number = -1;
+static int proto_mpeg_pat;
+static int hf_mpeg_pat_transport_stream_id;
+static int hf_mpeg_pat_reserved;
+static int hf_mpeg_pat_version_number;
+static int hf_mpeg_pat_current_next_indicator;
+static int hf_mpeg_pat_section_number;
+static int hf_mpeg_pat_last_section_number;
 
-static int hf_mpeg_pat_program_number = -1;
-static int hf_mpeg_pat_program_reserved = -1;
-static int hf_mpeg_pat_program_map_pid = -1;
+static int hf_mpeg_pat_program_number;
+static int hf_mpeg_pat_program_reserved;
+static int hf_mpeg_pat_program_map_pid;
 
 
-static gint ett_mpeg_pat = -1;
-static gint ett_mpeg_pat_prog = -1;
+static gint ett_mpeg_pat;
+static gint ett_mpeg_pat_prog;
 
 #define MPEG_PAT_RESERVED_MASK                    0xC0
 #define MPEG_PAT_VERSION_NUMBER_MASK              0x3E

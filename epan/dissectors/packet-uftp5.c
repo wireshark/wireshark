@@ -208,329 +208,329 @@
 
 void proto_register_uftp5(void);
 
-static int proto_uftp = -1;
+static int proto_uftp;
 
 /* main header and common fields */
-static int hf_uftp_version = -1;
-static int hf_uftp_func = -1;
-static int hf_uftp_seq = -1;
-static int hf_uftp_src_id = -1;
-static int hf_uftp_group_id = -1;
-static int hf_uftp_group_inst = -1;
-static int hf_uftp_grtt = -1;
-static int hf_uftp_gsize = -1;
-static int hf_uftp_reserved = -1;
+static int hf_uftp_version;
+static int hf_uftp_func;
+static int hf_uftp_seq;
+static int hf_uftp_src_id;
+static int hf_uftp_group_id;
+static int hf_uftp_group_inst;
+static int hf_uftp_grtt;
+static int hf_uftp_gsize;
+static int hf_uftp_reserved;
 
-static int hf_uftp_destlist = -1;
-static int hf_uftp_dest = -1;
+static int hf_uftp_destlist;
+static int hf_uftp_dest;
 
 /* ANNOUNCE fields */
-static int hf_uftp_announce = -1;
-static int hf_uftp_announce_func = -1;
-static int hf_uftp_announce_hlen = -1;
-static int hf_uftp_announce_flags = -1;
-static int hf_uftp_announce_flags_sync = -1;
-static int hf_uftp_announce_flags_syncpreview = -1;
-static int hf_uftp_announce_flags_ipv6 = -1;
-static int hf_uftp_announce_flags_reserved = -1;
-static int hf_uftp_announce_robust = -1;
-static int hf_uftp_announce_cc_type = -1;
-static int hf_uftp_announce_reserved = -1;
-static int hf_uftp_announce_blocksize = -1;
-static int hf_uftp_announce_tstamp = -1;
-static int hf_uftp_announce_publicmcast_ipv4 = -1;
-static int hf_uftp_announce_publicmcast_ipv6 = -1;
-static int hf_uftp_announce_privatemcast_ipv4 = -1;
-static int hf_uftp_announce_privatemcast_ipv6 = -1;
+static int hf_uftp_announce;
+static int hf_uftp_announce_func;
+static int hf_uftp_announce_hlen;
+static int hf_uftp_announce_flags;
+static int hf_uftp_announce_flags_sync;
+static int hf_uftp_announce_flags_syncpreview;
+static int hf_uftp_announce_flags_ipv6;
+static int hf_uftp_announce_flags_reserved;
+static int hf_uftp_announce_robust;
+static int hf_uftp_announce_cc_type;
+static int hf_uftp_announce_reserved;
+static int hf_uftp_announce_blocksize;
+static int hf_uftp_announce_tstamp;
+static int hf_uftp_announce_publicmcast_ipv4;
+static int hf_uftp_announce_publicmcast_ipv6;
+static int hf_uftp_announce_privatemcast_ipv4;
+static int hf_uftp_announce_privatemcast_ipv6;
 
 /* EXT_ENC_INFO fields */
-static int hf_uftp_encinfo = -1;
-static int hf_uftp_encinfo_exttype = -1;
-static int hf_uftp_encinfo_extlen = -1;
-static int hf_uftp_encinfo_flags = -1;
-static int hf_uftp_encinfo_flags_client_auth = -1;
-static int hf_uftp_encinfo_flags_reserved = -1;
-static int hf_uftp_encinfo_reserved = -1;
-static int hf_uftp_encinfo_keytype = -1;
-static int hf_uftp_encinfo_hashtype = -1;
-static int hf_uftp_encinfo_keylen = -1;
-static int hf_uftp_encinfo_dhlen = -1;
-static int hf_uftp_encinfo_siglen = -1;
-static int hf_uftp_encinfo_rand1 = -1;
-static int hf_uftp_encinfo_keyblob = -1;
-static int hf_uftp_encinfo_dhblob = -1;
-static int hf_uftp_encinfo_sig = -1;
+static int hf_uftp_encinfo;
+static int hf_uftp_encinfo_exttype;
+static int hf_uftp_encinfo_extlen;
+static int hf_uftp_encinfo_flags;
+static int hf_uftp_encinfo_flags_client_auth;
+static int hf_uftp_encinfo_flags_reserved;
+static int hf_uftp_encinfo_reserved;
+static int hf_uftp_encinfo_keytype;
+static int hf_uftp_encinfo_hashtype;
+static int hf_uftp_encinfo_keylen;
+static int hf_uftp_encinfo_dhlen;
+static int hf_uftp_encinfo_siglen;
+static int hf_uftp_encinfo_rand1;
+static int hf_uftp_encinfo_keyblob;
+static int hf_uftp_encinfo_dhblob;
+static int hf_uftp_encinfo_sig;
 
 /* rsa_blob_t fields */
-static int hf_uftp_rsablob_blobtype = -1;
-static int hf_uftp_rsablob_reserved = -1;
-static int hf_uftp_rsablob_modlen = -1;
-static int hf_uftp_rsablob_exponent = -1;
-static int hf_uftp_rsablob_modulus = -1;
+static int hf_uftp_rsablob_blobtype;
+static int hf_uftp_rsablob_reserved;
+static int hf_uftp_rsablob_modlen;
+static int hf_uftp_rsablob_exponent;
+static int hf_uftp_rsablob_modulus;
 
 /* ec_blob_t fields */
-static int hf_uftp_ecblob_blobtype = -1;
-static int hf_uftp_ecblob_curve = -1;
-static int hf_uftp_ecblob_keylen = -1;
-static int hf_uftp_ecblob_key = -1;
+static int hf_uftp_ecblob_blobtype;
+static int hf_uftp_ecblob_curve;
+static int hf_uftp_ecblob_keylen;
+static int hf_uftp_ecblob_key;
 
 /* REGISTER fields */
-static int hf_uftp_register = -1;
-static int hf_uftp_register_func = -1;
-static int hf_uftp_register_hlen = -1;
-static int hf_uftp_register_dhlen = -1;
-static int hf_uftp_register_tstamp = -1;
-static int hf_uftp_register_rand2 = -1;
-static int hf_uftp_register_dhkey = -1;
+static int hf_uftp_register;
+static int hf_uftp_register_func;
+static int hf_uftp_register_hlen;
+static int hf_uftp_register_dhlen;
+static int hf_uftp_register_tstamp;
+static int hf_uftp_register_rand2;
+static int hf_uftp_register_dhkey;
 
 /* CLIENT_KEY fields */
-static int hf_uftp_clientkey = -1;
-static int hf_uftp_clientkey_func = -1;
-static int hf_uftp_clientkey_hlen = -1;
-static int hf_uftp_clientkey_reserved = -1;
-static int hf_uftp_clientkey_bloblen = -1;
-static int hf_uftp_clientkey_siglen = -1;
-static int hf_uftp_clientkey_keyblob = -1;
-static int hf_uftp_clientkey_verify = -1;
+static int hf_uftp_clientkey;
+static int hf_uftp_clientkey_func;
+static int hf_uftp_clientkey_hlen;
+static int hf_uftp_clientkey_reserved;
+static int hf_uftp_clientkey_bloblen;
+static int hf_uftp_clientkey_siglen;
+static int hf_uftp_clientkey_keyblob;
+static int hf_uftp_clientkey_verify;
 
 /* REG_CONF fields */
-static int hf_uftp_regconf = -1;
-static int hf_uftp_regconf_func = -1;
-static int hf_uftp_regconf_hlen = -1;
-static int hf_uftp_regconf_reserved = -1;
+static int hf_uftp_regconf;
+static int hf_uftp_regconf_func;
+static int hf_uftp_regconf_hlen;
+static int hf_uftp_regconf_reserved;
 
 /* KEYINFO fields */
-static int hf_uftp_keyinfo = -1;
-static int hf_uftp_keyinfo_func = -1;
-static int hf_uftp_keyinfo_hlen = -1;
-static int hf_uftp_keyinfo_siglen = -1;
-static int hf_uftp_keyinfo_ivctr = -1;
-static int hf_uftp_keyinfo_sig = -1;
-static int hf_uftp_keyinfo_destkey = -1;
-static int hf_uftp_keyinfo_destid = -1;
-static int hf_uftp_keyinfo_groupmaster = -1;
+static int hf_uftp_keyinfo;
+static int hf_uftp_keyinfo_func;
+static int hf_uftp_keyinfo_hlen;
+static int hf_uftp_keyinfo_siglen;
+static int hf_uftp_keyinfo_ivctr;
+static int hf_uftp_keyinfo_sig;
+static int hf_uftp_keyinfo_destkey;
+static int hf_uftp_keyinfo_destid;
+static int hf_uftp_keyinfo_groupmaster;
 
 /* KEYINFO_ACK fields */
-static int hf_uftp_keyinfoack = -1;
-static int hf_uftp_keyinfoack_func = -1;
-static int hf_uftp_keyinfoack_hlen = -1;
-static int hf_uftp_keyinfoack_verify_len = -1;
-static int hf_uftp_keyinfoack_verify_data = -1;
+static int hf_uftp_keyinfoack;
+static int hf_uftp_keyinfoack_func;
+static int hf_uftp_keyinfoack_hlen;
+static int hf_uftp_keyinfoack_verify_len;
+static int hf_uftp_keyinfoack_verify_data;
 
 /* FILEINFO fields */
-static int hf_uftp_fileinfo = -1;
-static int hf_uftp_fileinfo_func = -1;
-static int hf_uftp_fileinfo_hlen = -1;
-static int hf_uftp_fileinfo_file_id = -1;
-static int hf_uftp_fileinfo_ftype = -1;
-static int hf_uftp_fileinfo_reserved = -1;
-static int hf_uftp_fileinfo_ftstamp_hi = -1;
-static int hf_uftp_fileinfo_namelen = -1;
-static int hf_uftp_fileinfo_linklen = -1;
-static int hf_uftp_fileinfo_fsize = -1;
-static int hf_uftp_fileinfo_ftstamp = -1;
-static int hf_uftp_fileinfo_tstamp = -1;
-static int hf_uftp_fileinfo_name = -1;
-static int hf_uftp_fileinfo_link = -1;
+static int hf_uftp_fileinfo;
+static int hf_uftp_fileinfo_func;
+static int hf_uftp_fileinfo_hlen;
+static int hf_uftp_fileinfo_file_id;
+static int hf_uftp_fileinfo_ftype;
+static int hf_uftp_fileinfo_reserved;
+static int hf_uftp_fileinfo_ftstamp_hi;
+static int hf_uftp_fileinfo_namelen;
+static int hf_uftp_fileinfo_linklen;
+static int hf_uftp_fileinfo_fsize;
+static int hf_uftp_fileinfo_ftstamp;
+static int hf_uftp_fileinfo_tstamp;
+static int hf_uftp_fileinfo_name;
+static int hf_uftp_fileinfo_link;
 
 /* FILEINFO_ACK fields */
-static int hf_uftp_fileinfoack = -1;
-static int hf_uftp_fileinfoack_func = -1;
-static int hf_uftp_fileinfoack_hlen = -1;
-static int hf_uftp_fileinfoack_file_id = -1;
-static int hf_uftp_fileinfoack_flags = -1;
-static int hf_uftp_fileinfoack_flags_partial = -1;
-static int hf_uftp_fileinfoack_flags_reserved = -1;
-static int hf_uftp_fileinfoack_reserved = -1;
-static int hf_uftp_fileinfoack_tstamp = -1;
+static int hf_uftp_fileinfoack;
+static int hf_uftp_fileinfoack_func;
+static int hf_uftp_fileinfoack_hlen;
+static int hf_uftp_fileinfoack_file_id;
+static int hf_uftp_fileinfoack_flags;
+static int hf_uftp_fileinfoack_flags_partial;
+static int hf_uftp_fileinfoack_flags_reserved;
+static int hf_uftp_fileinfoack_reserved;
+static int hf_uftp_fileinfoack_tstamp;
 
 /* FILESEG fields */
-static int hf_uftp_fileseg = -1;
-static int hf_uftp_fileseg_func = -1;
-static int hf_uftp_fileseg_hlen = -1;
-static int hf_uftp_fileseg_file_id = -1;
-static int hf_uftp_fileseg_section = -1;
-static int hf_uftp_fileseg_sec_block = -1;
-static int hf_uftp_fileseg_data = -1;
+static int hf_uftp_fileseg;
+static int hf_uftp_fileseg_func;
+static int hf_uftp_fileseg_hlen;
+static int hf_uftp_fileseg_file_id;
+static int hf_uftp_fileseg_section;
+static int hf_uftp_fileseg_sec_block;
+static int hf_uftp_fileseg_data;
 
 /* EXT_TFMCC_DATA_INFO fields */
-static int hf_uftp_tfmccdata = -1;
-static int hf_uftp_tfmccdata_exttype = -1;
-static int hf_uftp_tfmccdata_extlen = -1;
-static int hf_uftp_tfmccdata_send_rate = -1;
-static int hf_uftp_tfmccdata_cc_seq = -1;
-static int hf_uftp_tfmccdata_cc_rate = -1;
+static int hf_uftp_tfmccdata;
+static int hf_uftp_tfmccdata_exttype;
+static int hf_uftp_tfmccdata_extlen;
+static int hf_uftp_tfmccdata_send_rate;
+static int hf_uftp_tfmccdata_cc_seq;
+static int hf_uftp_tfmccdata_cc_rate;
 
 /* DONE fields */
-static int hf_uftp_done = -1;
-static int hf_uftp_done_func = -1;
-static int hf_uftp_done_hlen = -1;
-static int hf_uftp_done_file_id = -1;
-static int hf_uftp_done_section = -1;
-static int hf_uftp_done_reserved = -1;
+static int hf_uftp_done;
+static int hf_uftp_done_func;
+static int hf_uftp_done_hlen;
+static int hf_uftp_done_file_id;
+static int hf_uftp_done_section;
+static int hf_uftp_done_reserved;
 
 /* STATUS fields */
-static int hf_uftp_status = -1;
-static int hf_uftp_status_func = -1;
-static int hf_uftp_status_hlen = -1;
-static int hf_uftp_status_file_id = -1;
-static int hf_uftp_status_section = -1;
-static int hf_uftp_status_reserved = -1;
-static int hf_uftp_status_naks = -1;
+static int hf_uftp_status;
+static int hf_uftp_status_func;
+static int hf_uftp_status_hlen;
+static int hf_uftp_status_file_id;
+static int hf_uftp_status_section;
+static int hf_uftp_status_reserved;
+static int hf_uftp_status_naks;
 
 /* COMPLETE fields */
-static int hf_uftp_complete = -1;
-static int hf_uftp_complete_func = -1;
-static int hf_uftp_complete_hlen = -1;
-static int hf_uftp_complete_file_id = -1;
-static int hf_uftp_complete_status = -1;
-static int hf_uftp_complete_reserved = -1;
+static int hf_uftp_complete;
+static int hf_uftp_complete_func;
+static int hf_uftp_complete_hlen;
+static int hf_uftp_complete_file_id;
+static int hf_uftp_complete_status;
+static int hf_uftp_complete_reserved;
 
 /* EXT_FREESPACE_INFO fields */
-static int hf_uftp_freespace = -1;
-static int hf_uftp_freespace_exttype = -1;
-static int hf_uftp_freespace_extlen = -1;
-static int hf_uftp_freespace_reserved = -1;
-static int hf_uftp_freespace_freespace = -1;
+static int hf_uftp_freespace;
+static int hf_uftp_freespace_exttype;
+static int hf_uftp_freespace_extlen;
+static int hf_uftp_freespace_reserved;
+static int hf_uftp_freespace_freespace;
 
 /* DONE_CONF fields */
-static int hf_uftp_doneconf = -1;
-static int hf_uftp_doneconf_func = -1;
-static int hf_uftp_doneconf_hlen = -1;
-static int hf_uftp_doneconf_reserved = -1;
+static int hf_uftp_doneconf;
+static int hf_uftp_doneconf_func;
+static int hf_uftp_doneconf_hlen;
+static int hf_uftp_doneconf_reserved;
 
 /* HB_REQ fields */
-static int hf_uftp_hbreq = -1;
-static int hf_uftp_hbreq_func = -1;
-static int hf_uftp_hbreq_hlen = -1;
-static int hf_uftp_hbreq_reserved = -1;
-static int hf_uftp_hbreq_bloblen = -1;
-static int hf_uftp_hbreq_siglen = -1;
-static int hf_uftp_hbreq_nonce = -1;
-static int hf_uftp_hbreq_keyblob = -1;
-static int hf_uftp_hbreq_verify = -1;
+static int hf_uftp_hbreq;
+static int hf_uftp_hbreq_func;
+static int hf_uftp_hbreq_hlen;
+static int hf_uftp_hbreq_reserved;
+static int hf_uftp_hbreq_bloblen;
+static int hf_uftp_hbreq_siglen;
+static int hf_uftp_hbreq_nonce;
+static int hf_uftp_hbreq_keyblob;
+static int hf_uftp_hbreq_verify;
 
 /* HB_RESP fields */
-static int hf_uftp_hbresp = -1;
-static int hf_uftp_hbresp_func = -1;
-static int hf_uftp_hbresp_hlen = -1;
-static int hf_uftp_hbresp_authenticated = -1;
-static int hf_uftp_hbresp_reserved = -1;
-static int hf_uftp_hbresp_nonce = -1;
+static int hf_uftp_hbresp;
+static int hf_uftp_hbresp_func;
+static int hf_uftp_hbresp_hlen;
+static int hf_uftp_hbresp_authenticated;
+static int hf_uftp_hbresp_reserved;
+static int hf_uftp_hbresp_nonce;
 
 /* PROXY_KEY fields */
-static int hf_uftp_proxykey = -1;
-static int hf_uftp_proxykey_func = -1;
-static int hf_uftp_proxykey_hlen = -1;
-static int hf_uftp_proxykey_bloblen = -1;
-static int hf_uftp_proxykey_dhlen = -1;
-static int hf_uftp_proxykey_siglen = -1;
-static int hf_uftp_proxykey_keyblob = -1;
-static int hf_uftp_proxykey_dhblob = -1;
-static int hf_uftp_proxykey_sig = -1;
+static int hf_uftp_proxykey;
+static int hf_uftp_proxykey_func;
+static int hf_uftp_proxykey_hlen;
+static int hf_uftp_proxykey_bloblen;
+static int hf_uftp_proxykey_dhlen;
+static int hf_uftp_proxykey_siglen;
+static int hf_uftp_proxykey_keyblob;
+static int hf_uftp_proxykey_dhblob;
+static int hf_uftp_proxykey_sig;
 
 /* CONG_CTRL fields */
-static int hf_uftp_congctrl = -1;
-static int hf_uftp_congctrl_func = -1;
-static int hf_uftp_congctrl_hlen = -1;
-static int hf_uftp_congctrl_reserved = -1;
-static int hf_uftp_congctrl_cc_seq = -1;
-static int hf_uftp_congctrl_cc_rate = -1;
-static int hf_uftp_congctrl_tstamp = -1;
-static int hf_uftp_congctrl_cclist = -1;
-static int hf_uftp_congctrl_item = -1;
-static int hf_uftp_congctrl_item_destid = -1;
-static int hf_uftp_congctrl_item_flags = -1;
-static int hf_uftp_congctrl_item_flags_clr = -1;
-static int hf_uftp_congctrl_item_flags_rtt = -1;
-static int hf_uftp_congctrl_item_flags_start = -1;
-static int hf_uftp_congctrl_item_flags_leave = -1;
-static int hf_uftp_congctrl_item_flags_reserved = -1;
-static int hf_uftp_congctrl_item_rtt = -1;
-static int hf_uftp_congctrl_item_rate = -1;
+static int hf_uftp_congctrl;
+static int hf_uftp_congctrl_func;
+static int hf_uftp_congctrl_hlen;
+static int hf_uftp_congctrl_reserved;
+static int hf_uftp_congctrl_cc_seq;
+static int hf_uftp_congctrl_cc_rate;
+static int hf_uftp_congctrl_tstamp;
+static int hf_uftp_congctrl_cclist;
+static int hf_uftp_congctrl_item;
+static int hf_uftp_congctrl_item_destid;
+static int hf_uftp_congctrl_item_flags;
+static int hf_uftp_congctrl_item_flags_clr;
+static int hf_uftp_congctrl_item_flags_rtt;
+static int hf_uftp_congctrl_item_flags_start;
+static int hf_uftp_congctrl_item_flags_leave;
+static int hf_uftp_congctrl_item_flags_reserved;
+static int hf_uftp_congctrl_item_rtt;
+static int hf_uftp_congctrl_item_rate;
 
 /* CC_ACK fields */
-static int hf_uftp_ccack = -1;
-static int hf_uftp_ccack_func = -1;
-static int hf_uftp_ccack_hlen = -1;
-static int hf_uftp_ccack_reserved = -1;
+static int hf_uftp_ccack;
+static int hf_uftp_ccack_func;
+static int hf_uftp_ccack_hlen;
+static int hf_uftp_ccack_reserved;
 
 /* EXT_TFMCC_ACK_INFO fields */
-static int hf_uftp_tfmccack = -1;
-static int hf_uftp_tfmccack_exttype = -1;
-static int hf_uftp_tfmccack_extlen = -1;
-static int hf_uftp_tfmccack_flags = -1;
-static int hf_uftp_tfmccack_flags_clr = -1;
-static int hf_uftp_tfmccack_flags_rtt = -1;
-static int hf_uftp_tfmccack_flags_start = -1;
-static int hf_uftp_tfmccack_flags_leave = -1;
-static int hf_uftp_tfmccack_flags_reserved = -1;
-static int hf_uftp_tfmccack_reserved = -1;
-static int hf_uftp_tfmccack_cc_seq = -1;
-static int hf_uftp_tfmccack_cc_rate = -1;
-static int hf_uftp_tfmccack_client_id = -1;
-static int hf_uftp_tfmccack_tstamp = -1;
+static int hf_uftp_tfmccack;
+static int hf_uftp_tfmccack_exttype;
+static int hf_uftp_tfmccack_extlen;
+static int hf_uftp_tfmccack_flags;
+static int hf_uftp_tfmccack_flags_clr;
+static int hf_uftp_tfmccack_flags_rtt;
+static int hf_uftp_tfmccack_flags_start;
+static int hf_uftp_tfmccack_flags_leave;
+static int hf_uftp_tfmccack_flags_reserved;
+static int hf_uftp_tfmccack_reserved;
+static int hf_uftp_tfmccack_cc_seq;
+static int hf_uftp_tfmccack_cc_rate;
+static int hf_uftp_tfmccack_client_id;
+static int hf_uftp_tfmccack_tstamp;
 
 /* ENCRYPTED fields */
-static int hf_uftp_encrypted = -1;
-static int hf_uftp_encrypted_ivctr = -1;
-static int hf_uftp_encrypted_reserved = -1;
-static int hf_uftp_encrypted_payload_len = -1;
-static int hf_uftp_encrypted_payload = -1;
+static int hf_uftp_encrypted;
+static int hf_uftp_encrypted_ivctr;
+static int hf_uftp_encrypted_reserved;
+static int hf_uftp_encrypted_payload_len;
+static int hf_uftp_encrypted_payload;
 
 /* ABORT fields */
-static int hf_uftp_abort = -1;
-static int hf_uftp_abort_func = -1;
-static int hf_uftp_abort_hlen = -1;
-static int hf_uftp_abort_flags = -1;
-static int hf_uftp_abort_flags_curfile = -1;
-static int hf_uftp_abort_flags_reserved = -1;
-static int hf_uftp_abort_reserved = -1;
-static int hf_uftp_abort_clientid = -1;
-static int hf_uftp_abort_message = -1;
+static int hf_uftp_abort;
+static int hf_uftp_abort_func;
+static int hf_uftp_abort_hlen;
+static int hf_uftp_abort_flags;
+static int hf_uftp_abort_flags_curfile;
+static int hf_uftp_abort_flags_reserved;
+static int hf_uftp_abort_reserved;
+static int hf_uftp_abort_clientid;
+static int hf_uftp_abort_message;
 
-static gint ett_uftp = -1;
-static gint ett_uftp_announce = -1;
-static gint ett_uftp_register = -1;
-static gint ett_uftp_clientkey = -1;
-static gint ett_uftp_regconf = -1;
-static gint ett_uftp_keyinfo = -1;
-static gint ett_uftp_keyinfoack = -1;
-static gint ett_uftp_fileinfo = -1;
-static gint ett_uftp_fileinfoack = -1;
-static gint ett_uftp_fileseg = -1;
-static gint ett_uftp_done = -1;
-static gint ett_uftp_status = -1;
-static gint ett_uftp_complete = -1;
-static gint ett_uftp_doneconf = -1;
-static gint ett_uftp_hbreq = -1;
-static gint ett_uftp_hbresp = -1;
-static gint ett_uftp_proxykey = -1;
-static gint ett_uftp_congctrl = -1;
-static gint ett_uftp_ccack = -1;
-static gint ett_uftp_encrypted = -1;
-static gint ett_uftp_abort = -1;
+static gint ett_uftp;
+static gint ett_uftp_announce;
+static gint ett_uftp_register;
+static gint ett_uftp_clientkey;
+static gint ett_uftp_regconf;
+static gint ett_uftp_keyinfo;
+static gint ett_uftp_keyinfoack;
+static gint ett_uftp_fileinfo;
+static gint ett_uftp_fileinfoack;
+static gint ett_uftp_fileseg;
+static gint ett_uftp_done;
+static gint ett_uftp_status;
+static gint ett_uftp_complete;
+static gint ett_uftp_doneconf;
+static gint ett_uftp_hbreq;
+static gint ett_uftp_hbresp;
+static gint ett_uftp_proxykey;
+static gint ett_uftp_congctrl;
+static gint ett_uftp_ccack;
+static gint ett_uftp_encrypted;
+static gint ett_uftp_abort;
 
-static gint ett_uftp_announce_flags = -1;
-static gint ett_uftp_encinfo = -1;
-static gint ett_uftp_encinfo_flags = -1;
-static gint ett_uftp_keyinfo_destkey = -1;
-static gint ett_uftp_fileinfoack_flags = -1;
-static gint ett_uftp_congctrl_cclist = -1;
-static gint ett_uftp_congctrl_item = -1;
-static gint ett_uftp_congctrl_item_flags = -1;
-static gint ett_uftp_tfmccdata = -1;
-static gint ett_uftp_tfmccack = -1;
-static gint ett_uftp_tfmccack_flags = -1;
-static gint ett_uftp_freespace = -1;
-static gint ett_uftp_abort_flags = -1;
+static gint ett_uftp_announce_flags;
+static gint ett_uftp_encinfo;
+static gint ett_uftp_encinfo_flags;
+static gint ett_uftp_keyinfo_destkey;
+static gint ett_uftp_fileinfoack_flags;
+static gint ett_uftp_congctrl_cclist;
+static gint ett_uftp_congctrl_item;
+static gint ett_uftp_congctrl_item_flags;
+static gint ett_uftp_tfmccdata;
+static gint ett_uftp_tfmccack;
+static gint ett_uftp_tfmccack_flags;
+static gint ett_uftp_freespace;
+static gint ett_uftp_abort_flags;
 
-static gint ett_uftp_destlist = -1;
-static gint ett_uftp_rsablob = -1;
-static gint ett_uftp_ecblob = -1;
+static gint ett_uftp_destlist;
+static gint ett_uftp_rsablob;
+static gint ett_uftp_ecblob;
 
-static expert_field ei_uftp_length_invalid = EI_INIT;
-static expert_field ei_uftp_func_unknown = EI_INIT;
+static expert_field ei_uftp_length_invalid;
+static expert_field ei_uftp_func_unknown;
 
 static const value_string messages[] = {
     { ANNOUNCE,      "ANNOUNCE" },

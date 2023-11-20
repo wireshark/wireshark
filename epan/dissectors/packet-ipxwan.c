@@ -23,37 +23,37 @@ static dissector_handle_t ipxwan_handle;
  * See RFC 1362 for version 1 of this protocol; see the NetWare Link
  * Services Protocol Specification, chapter 3, for version 2.
  */
-static int proto_ipxwan = -1;
+static int proto_ipxwan;
 
-static int hf_ipxwan_identifier = -1;
-static int hf_ipxwan_packet_type = -1;
-static int hf_ipxwan_node_id = -1;
-static int hf_ipxwan_sequence_number = -1;
-static int hf_ipxwan_num_options = -1;
-static int hf_ipxwan_option_num = -1;
-static int hf_ipxwan_accept_option = -1;
-static int hf_ipxwan_option_data_len = -1;
-static int hf_ipxwan_routing_type = -1;
-static int hf_ipxwan_wan_link_delay = -1;
-static int hf_ipxwan_common_network_number = -1;
-static int hf_ipxwan_router_name = -1;
-static int hf_ipxwan_delay = -1;
-static int hf_ipxwan_throughput = -1;
-static int hf_ipxwan_request_size = -1;
-static int hf_ipxwan_delta_time = -1;
-static int hf_ipxwan_extended_node_id = -1;
-static int hf_ipxwan_node_number = -1;
-static int hf_ipxwan_compression_type = -1;
-static int hf_ipxwan_compression_options = -1;
-static int hf_ipxwan_compression_slots = -1;
-static int hf_ipxwan_compression_parameters = -1;
-static int hf_ipxwan_padding = -1;
-static int hf_ipxwan_option_value = -1;
+static int hf_ipxwan_identifier;
+static int hf_ipxwan_packet_type;
+static int hf_ipxwan_node_id;
+static int hf_ipxwan_sequence_number;
+static int hf_ipxwan_num_options;
+static int hf_ipxwan_option_num;
+static int hf_ipxwan_accept_option;
+static int hf_ipxwan_option_data_len;
+static int hf_ipxwan_routing_type;
+static int hf_ipxwan_wan_link_delay;
+static int hf_ipxwan_common_network_number;
+static int hf_ipxwan_router_name;
+static int hf_ipxwan_delay;
+static int hf_ipxwan_throughput;
+static int hf_ipxwan_request_size;
+static int hf_ipxwan_delta_time;
+static int hf_ipxwan_extended_node_id;
+static int hf_ipxwan_node_number;
+static int hf_ipxwan_compression_type;
+static int hf_ipxwan_compression_options;
+static int hf_ipxwan_compression_slots;
+static int hf_ipxwan_compression_parameters;
+static int hf_ipxwan_padding;
+static int hf_ipxwan_option_value;
 
-static gint ett_ipxwan = -1;
-static gint ett_ipxwan_option = -1;
+static gint ett_ipxwan;
+static gint ett_ipxwan_option;
 
-static expert_field ei_ipxwan_option_data_len = EI_INIT;
+static expert_field ei_ipxwan_option_data_len;
 
 static const value_string ipxwan_packet_type_vals[] = {
 	{ 0,    "Timer Request" },

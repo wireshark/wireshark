@@ -41,18 +41,18 @@
  */
 #define SAP_PROTOCOL_HEADER_LEN 4
 
-static int proto_sap_protocol = -1;
+static int proto_sap_protocol;
 
-static int hf_sap_protocol_length = -1;
-static int hf_sap_protocol_payload = -1;
+static int hf_sap_protocol_length;
+static int hf_sap_protocol_payload;
 
-static int hf_sap_protocol_ping = -1;
-static int hf_sap_protocol_pong = -1;
+static int hf_sap_protocol_ping;
+static int hf_sap_protocol_pong;
 
-static gint ett_sap_protocol = -1;
+static gint ett_sap_protocol;
 
 /* Expert info */
-static expert_field ei_sap_invalid_length = EI_INIT;
+static expert_field ei_sap_invalid_length;
 
 /* Global port preference */
 static range_t *global_sap_protocol_port_range;

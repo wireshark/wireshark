@@ -23,47 +23,47 @@ void proto_reg_handoff_dplay(void);
 static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static gint dissect_type1a_message(proto_tree *tree, tvbuff_t *tvb, gint offset);
 
-static int proto_dplay = -1;
+static int proto_dplay;
 
 /* Common data fields */
-static int hf_dplay_size = -1;              /* Size of the whole data */
-static int hf_dplay_token = -1;
-static int hf_dplay_saddr_af = -1;          /* WINSOCK_AF_INET, as this dissector does not handle IPX yet */
-static int hf_dplay_saddr_port = -1;        /* port to use for the reply to this packet */
-static int hf_dplay_saddr_ip = -1;          /* IP to use for the reply to this packet, or 0.0.0.0,
+static int hf_dplay_size;              /* Size of the whole data */
+static int hf_dplay_token;
+static int hf_dplay_saddr_af;          /* WINSOCK_AF_INET, as this dissector does not handle IPX yet */
+static int hf_dplay_saddr_port;        /* port to use for the reply to this packet */
+static int hf_dplay_saddr_ip;          /* IP to use for the reply to this packet, or 0.0.0.0,
                                                then use the same IP as this packet used. */
-static int hf_dplay_saddr_padding = -1;     /* null padding used in s_addr_in structures */
-static int hf_dplay_play_str = -1;          /* always "play" without a null terminator */
-static int hf_dplay_command = -1;           /* the dplay command this message contains*/
-static int hf_dplay_proto_dialect = -1;     /* 0x0b00 for dplay7, 0x0e00 for dplay9 */
-static int hf_dplay_play_str_2 = -1;        /* packet type 0x0015 encapsulates another packet */
-static int hf_dplay_command_2 = -1;         /* that also has a "play" string, a command and a */
-static int hf_dplay_proto_dialect_2 = -1;   /* protocol dialect, same as above */
+static int hf_dplay_saddr_padding;     /* null padding used in s_addr_in structures */
+static int hf_dplay_play_str;          /* always "play" without a null terminator */
+static int hf_dplay_command;           /* the dplay command this message contains*/
+static int hf_dplay_proto_dialect;     /* 0x0b00 for dplay7, 0x0e00 for dplay9 */
+static int hf_dplay_play_str_2;        /* packet type 0x0015 encapsulates another packet */
+static int hf_dplay_command_2;         /* that also has a "play" string, a command and a */
+static int hf_dplay_proto_dialect_2;   /* protocol dialect, same as above */
 static const int DPLAY_HEADER_OFFSET = 28;  /* The dplay header is 28 bytes in size */
-static int hf_dplay_player_msg = -1;
+static int hf_dplay_player_msg;
 
 /* The following fields are not part of the header, but hopefully have the same
  * meaning for all packets they show up in. */
 
-static int hf_dplay_sess_desc_flags = -1; /* This is a 32bit field with some sort of a flag */
-static int hf_dplay_flags_no_create_players = -1;
-static int hf_dplay_flags_0002 = -1;
-static int hf_dplay_flags_migrate_host = -1;
-static int hf_dplay_flags_short_player_msg = -1;
-static int hf_dplay_flags_ignored = -1;
-static int hf_dplay_flags_can_join = -1;
-static int hf_dplay_flags_use_ping = -1;
-static int hf_dplay_flags_no_player_updates = -1;
-static int hf_dplay_flags_use_auth = -1;
-static int hf_dplay_flags_private_session = -1;
-static int hf_dplay_flags_password_req = -1;
-static int hf_dplay_flags_route = -1;
-static int hf_dplay_flags_server_player_only = -1;
-static int hf_dplay_flags_reliable = -1;
-static int hf_dplay_flags_preserve_order = -1;
-static int hf_dplay_flags_optimize_latency = -1;
-static int hf_dplay_flags_acqire_voice = -1;
-static int hf_dplay_flags_no_sess_desc_changes = -1;
+static int hf_dplay_sess_desc_flags; /* This is a 32bit field with some sort of a flag */
+static int hf_dplay_flags_no_create_players;
+static int hf_dplay_flags_0002;
+static int hf_dplay_flags_migrate_host;
+static int hf_dplay_flags_short_player_msg;
+static int hf_dplay_flags_ignored;
+static int hf_dplay_flags_can_join;
+static int hf_dplay_flags_use_ping;
+static int hf_dplay_flags_no_player_updates;
+static int hf_dplay_flags_use_auth;
+static int hf_dplay_flags_private_session;
+static int hf_dplay_flags_password_req;
+static int hf_dplay_flags_route;
+static int hf_dplay_flags_server_player_only;
+static int hf_dplay_flags_reliable;
+static int hf_dplay_flags_preserve_order;
+static int hf_dplay_flags_optimize_latency;
+static int hf_dplay_flags_acqire_voice;
+static int hf_dplay_flags_no_sess_desc_changes;
 
 #define DPLAY_FLAG_NO_CREATE_PLAYERS 0x00000001
 #define DPLAY_FLAG_0002 0x00000002
@@ -85,113 +85,113 @@ static int hf_dplay_flags_no_sess_desc_changes = -1;
 #define DPLAY_FLAG_NO_SESS_DESC_CHANGES 0x00020000
 
 /* Session description structure fields */
-static int hf_dplay_sess_desc_length = -1;
-static int hf_dplay_game_guid = -1;
-static int hf_dplay_instance_guid = -1;
-static int hf_dplay_max_players = -1;
-static int hf_dplay_curr_players = -1;
-static int hf_dplay_sess_name_ptr = -1;
-static int hf_dplay_passwd_ptr = -1;
-static int hf_dplay_sess_desc_reserved_1 = -1;
-static int hf_dplay_sess_desc_reserved_2 = -1;
-static int hf_dplay_sess_desc_user_1 = -1;
-static int hf_dplay_sess_desc_user_2 = -1;
-static int hf_dplay_sess_desc_user_3 = -1;
-static int hf_dplay_sess_desc_user_4 = -1;
+static int hf_dplay_sess_desc_length;
+static int hf_dplay_game_guid;
+static int hf_dplay_instance_guid;
+static int hf_dplay_max_players;
+static int hf_dplay_curr_players;
+static int hf_dplay_sess_name_ptr;
+static int hf_dplay_passwd_ptr;
+static int hf_dplay_sess_desc_reserved_1;
+static int hf_dplay_sess_desc_reserved_2;
+static int hf_dplay_sess_desc_user_1;
+static int hf_dplay_sess_desc_user_2;
+static int hf_dplay_sess_desc_user_3;
+static int hf_dplay_sess_desc_user_4;
 
 /* PackedPlayer structure fields */
-static int hf_dplay_pp_size = -1;
-static int hf_dplay_pp_flags = -1;
-static int hf_dplay_pp_flag_sysplayer = -1;
-static int hf_dplay_pp_flag_nameserver = -1;
-static int hf_dplay_pp_flag_in_group = -1;
-static int hf_dplay_pp_flag_sending = -1;
-static int hf_dplay_pp_id = -1;
-static int hf_dplay_pp_short_name_len = -1;
-static int hf_dplay_pp_long_name_len = -1;
-static int hf_dplay_pp_sp_data_size = -1;
-static int hf_dplay_pp_player_data_size = -1;
-static int hf_dplay_pp_num_players = -1;
-static int hf_dplay_pp_system_player = -1;
-static int hf_dplay_pp_fixed_size = -1;
-static int hf_dplay_pp_dialect = -1;
-static int hf_dplay_pp_unknown_1 = -1;
-static int hf_dplay_pp_short_name = -1;
-static int hf_dplay_pp_long_name = -1;
-static int hf_dplay_pp_sp_data = -1;
-static int hf_dplay_pp_player_data = -1;
-static int hf_dplay_pp_player_id = -1;
-static int hf_dplay_pp_parent_id = -1;
+static int hf_dplay_pp_size;
+static int hf_dplay_pp_flags;
+static int hf_dplay_pp_flag_sysplayer;
+static int hf_dplay_pp_flag_nameserver;
+static int hf_dplay_pp_flag_in_group;
+static int hf_dplay_pp_flag_sending;
+static int hf_dplay_pp_id;
+static int hf_dplay_pp_short_name_len;
+static int hf_dplay_pp_long_name_len;
+static int hf_dplay_pp_sp_data_size;
+static int hf_dplay_pp_player_data_size;
+static int hf_dplay_pp_num_players;
+static int hf_dplay_pp_system_player;
+static int hf_dplay_pp_fixed_size;
+static int hf_dplay_pp_dialect;
+static int hf_dplay_pp_unknown_1;
+static int hf_dplay_pp_short_name;
+static int hf_dplay_pp_long_name;
+static int hf_dplay_pp_sp_data;
+static int hf_dplay_pp_player_data;
+static int hf_dplay_pp_player_id;
+static int hf_dplay_pp_parent_id;
 #define DPLAY_PP_FLAG_SYSPLAYER 0x00000001
 #define DPLAY_PP_FLAG_NAMESERVER 0x00000002
 #define DPLAY_PP_FLAG_IN_GROUP 0x00000004
 #define DPLAY_PP_FLAG_SENDING 0x00000008
 
 /* SuperPackedPlayer structure fields */
-static int hf_dplay_spp_size = -1;
-static int hf_dplay_spp_flags = -1;
-static int hf_dplay_spp_flags_sysplayer = -1;
-static int hf_dplay_spp_flags_nameserver = -1;
-static int hf_dplay_spp_flags_in_group = -1;
-static int hf_dplay_spp_flags_sending = -1;
-static int hf_dplay_spp_id = -1;
-static int hf_dplay_spp_player_info_mask = -1;
-static int hf_dplay_spp_have_short_name = -1;
-static int hf_dplay_spp_have_long_name = -1;
-static int hf_dplay_spp_sp_length_type = -1;
-static int hf_dplay_spp_pd_length_type = -1;
-static int hf_dplay_spp_player_count_type = -1;
-static int hf_dplay_spp_have_parent_id = -1;
-static int hf_dplay_spp_shortcut_count_type = -1;
-static int hf_dplay_spp_dialect = -1;
-static int hf_dplay_spp_sys_player_id = -1;
-static int hf_dplay_spp_short_name = -1;
-static int hf_dplay_spp_long_name = -1;
-static int hf_dplay_spp_player_data_length = -1;
-static int hf_dplay_spp_player_data = -1;
-static int hf_dplay_spp_sp_data_length = -1;
-static int hf_dplay_spp_sp_data = -1;
-static int hf_dplay_spp_player_count = -1;
-static int hf_dplay_spp_player_id = -1;
-static int hf_dplay_spp_parent_id = -1;
-static int hf_dplay_spp_shortcut_count = -1;
-static int hf_dplay_spp_shortcut_id = -1;
+static int hf_dplay_spp_size;
+static int hf_dplay_spp_flags;
+static int hf_dplay_spp_flags_sysplayer;
+static int hf_dplay_spp_flags_nameserver;
+static int hf_dplay_spp_flags_in_group;
+static int hf_dplay_spp_flags_sending;
+static int hf_dplay_spp_id;
+static int hf_dplay_spp_player_info_mask;
+static int hf_dplay_spp_have_short_name;
+static int hf_dplay_spp_have_long_name;
+static int hf_dplay_spp_sp_length_type;
+static int hf_dplay_spp_pd_length_type;
+static int hf_dplay_spp_player_count_type;
+static int hf_dplay_spp_have_parent_id;
+static int hf_dplay_spp_shortcut_count_type;
+static int hf_dplay_spp_dialect;
+static int hf_dplay_spp_sys_player_id;
+static int hf_dplay_spp_short_name;
+static int hf_dplay_spp_long_name;
+static int hf_dplay_spp_player_data_length;
+static int hf_dplay_spp_player_data;
+static int hf_dplay_spp_sp_data_length;
+static int hf_dplay_spp_sp_data;
+static int hf_dplay_spp_player_count;
+static int hf_dplay_spp_player_id;
+static int hf_dplay_spp_parent_id;
+static int hf_dplay_spp_shortcut_count;
+static int hf_dplay_spp_shortcut_id;
 #define DPLAY_SPP_FLAG_SYSPLAYER 0x00000001
 #define DPLAY_SPP_FLAG_NAMESERVER 0x00000002
 #define DPLAY_SPP_FLAG_IN_GROUP 0x00000004
 #define DPLAY_SPP_FLAG_SENDING 0x00000008
 
 /* SecurityDesc structure fields */
-static int hf_dplay_sd_size = -1;
-static int hf_dplay_sd_flags = -1;
-static int hf_dplay_sd_sspi = -1;
-static int hf_dplay_sd_capi = -1;
-static int hf_dplay_sd_capi_type = -1;
-static int hf_dplay_sd_enc_alg = -1;
+static int hf_dplay_sd_size;
+static int hf_dplay_sd_flags;
+static int hf_dplay_sd_sspi;
+static int hf_dplay_sd_capi;
+static int hf_dplay_sd_capi_type;
+static int hf_dplay_sd_enc_alg;
 
 /* Message Type 0x0001 data fields */
-static int hf_dplay_type_01_name_offset = -1;
-static int hf_dplay_type_01_game_name = -1;
+static int hf_dplay_type_01_name_offset;
+static int hf_dplay_type_01_game_name;
 
 /* Message Type 0x0002 data fields */
-static int hf_dplay_type_02_game_guid = -1;
-static int hf_dplay_type_02_password_offset = -1;
-static int hf_dplay_type_02_flags = -1;
-static int hf_dplay_type_02_password = -1;
-static int hf_enum_sess_flag_join = -1;
-static int hf_enum_sess_flag_all = -1;
-static int hf_enum_sess_flag_passwd = -1;
+static int hf_dplay_type_02_game_guid;
+static int hf_dplay_type_02_password_offset;
+static int hf_dplay_type_02_flags;
+static int hf_dplay_type_02_password;
+static int hf_enum_sess_flag_join;
+static int hf_enum_sess_flag_all;
+static int hf_enum_sess_flag_passwd;
 #define DPLAY_ENUM_SESS_FLAG_JOIN 0x00000001
 #define DPLAY_ENUM_SESS_FLAG_ALL 0x00000002
 #define DPLAY_ENUM_SESS_FLAG_PASSWD 0x00000040
 
 /* Message Type 0x0005 data fields */
-static int hf_dplay_type_05_flags = -1;
-static int hf_dplay_type_05_system_player = -1;
-static int hf_dplay_type_05_name_server = -1;
-static int hf_dplay_type_05_local = -1;
-static int hf_dplay_type_05_unknown = -1; /* unknown, but always set */
-static int hf_dplay_type_05_secure = -1;
+static int hf_dplay_type_05_flags;
+static int hf_dplay_type_05_system_player;
+static int hf_dplay_type_05_name_server;
+static int hf_dplay_type_05_local;
+static int hf_dplay_type_05_unknown; /* unknown, but always set */
+static int hf_dplay_type_05_secure;
 #define DPLAY_TYPE05_FLAG_SYSPLAYER 0x00000001
 #define DPLAY_TYPE05_FLAG_NAMESERVER 0x00000002
 #define DPLAY_TYPE05_FLAG_LOCAL 0x00000004
@@ -199,85 +199,85 @@ static int hf_dplay_type_05_secure = -1;
 #define DPLAY_TYPE05_FLAG_SECURE 0x00000200
 
 /* Message Type 0x0007 data fields */
-static int hf_dplay_type_07_dpid = -1;
-static int hf_dplay_type_07_sspi_offset = -1;
-static int hf_dplay_type_07_capi_offset = -1;
-static int hf_dplay_type_07_hresult = -1;
-static int hf_dplay_type_07_sspi = -1;
-static int hf_dplay_type_07_capi = -1;
+static int hf_dplay_type_07_dpid;
+static int hf_dplay_type_07_sspi_offset;
+static int hf_dplay_type_07_capi_offset;
+static int hf_dplay_type_07_hresult;
+static int hf_dplay_type_07_sspi;
+static int hf_dplay_type_07_capi;
 
 /* Data fields for message types 0x08, 0x09, 0x0b, 0x0c, 0x0d, 0x0e */
-static int hf_dplay_multi_id_to = -1;
-static int hf_dplay_multi_player_id = -1;
-static int hf_dplay_multi_group_id = -1;
-static int hf_dplay_multi_create_offset = -1;
-static int hf_dplay_multi_password_offset = -1;
-static int hf_dplay_multi_password = -1;
+static int hf_dplay_multi_id_to;
+static int hf_dplay_multi_player_id;
+static int hf_dplay_multi_group_id;
+static int hf_dplay_multi_create_offset;
+static int hf_dplay_multi_password_offset;
+static int hf_dplay_multi_password;
 
 /* Message Type 0x000f data fields */
-static int hf_dplay_type_0f_id_to = -1;
-static int hf_dplay_type_0f_id = -1;
-static int hf_dplay_type_0f_data_size = -1;
-static int hf_dplay_type_0f_data_offset = -1;
-static int hf_dplay_type_0f_data = -1;
+static int hf_dplay_type_0f_id_to;
+static int hf_dplay_type_0f_id;
+static int hf_dplay_type_0f_data_size;
+static int hf_dplay_type_0f_data_offset;
+static int hf_dplay_type_0f_data;
 
 /* Message Type 0x0013 data fields */
-static int hf_dplay_type_13_id_to = -1;
-static int hf_dplay_type_13_player_id = -1;
-static int hf_dplay_type_13_group_id = -1;
-static int hf_dplay_type_13_create_offset = -1;
-static int hf_dplay_type_13_password_offset = -1;
-static int hf_dplay_type_13_password = -1;
-static int hf_dplay_type_13_tick_count = -1;
+static int hf_dplay_type_13_id_to;
+static int hf_dplay_type_13_player_id;
+static int hf_dplay_type_13_group_id;
+static int hf_dplay_type_13_create_offset;
+static int hf_dplay_type_13_password_offset;
+static int hf_dplay_type_13_password;
+static int hf_dplay_type_13_tick_count;
 
 /* Message Type 0x0015 data fields */
-static int hf_dplay_message_guid = -1;
-static int hf_dplay_type_15_packet_idx = -1;
-static int hf_dplay_type_15_data_size = -1;
-static int hf_dplay_type_15_offset = -1;
-static int hf_dplay_type_15_total_packets = -1;
-static int hf_dplay_type_15_msg_size = -1;
-static int hf_dplay_type_15_packet_offset = -1;
+static int hf_dplay_message_guid;
+static int hf_dplay_type_15_packet_idx;
+static int hf_dplay_type_15_data_size;
+static int hf_dplay_type_15_offset;
+static int hf_dplay_type_15_total_packets;
+static int hf_dplay_type_15_msg_size;
+static int hf_dplay_type_15_packet_offset;
 
 /* Message Type 0x0016 and 0x0017 data fields */
-static int hf_dplay_ping_id_from = -1;
-static int hf_dplay_ping_tick_count = -1;
+static int hf_dplay_ping_id_from;
+static int hf_dplay_ping_tick_count;
 
 /* Message Type 0x001a data fields */
-static int hf_dplay_type_1a_id_to = -1;
-static int hf_dplay_type_1a_sess_name_ofs = -1;
-static int hf_dplay_type_1a_password_ofs = -1;
-static int hf_dplay_type_1a_session_name = -1;
-static int hf_dplay_type_1a_password = -1;
+static int hf_dplay_type_1a_id_to;
+static int hf_dplay_type_1a_sess_name_ofs;
+static int hf_dplay_type_1a_password_ofs;
+static int hf_dplay_type_1a_session_name;
+static int hf_dplay_type_1a_password;
 
 /* Message Type 0x0029 data fields */
-static int hf_dplay_type_29_player_count = -1;
-static int hf_dplay_type_29_group_count = -1;
-static int hf_dplay_type_29_packed_offset = -1;
-static int hf_dplay_type_29_shortcut_count = -1;
-static int hf_dplay_type_29_description_offset = -1;
-static int hf_dplay_type_29_name_offset = -1;
-static int hf_dplay_type_29_password_offset = -1;
-static int hf_dplay_type_29_game_name = -1;
-static int hf_dplay_type_29_password = -1;
+static int hf_dplay_type_29_player_count;
+static int hf_dplay_type_29_group_count;
+static int hf_dplay_type_29_packed_offset;
+static int hf_dplay_type_29_shortcut_count;
+static int hf_dplay_type_29_description_offset;
+static int hf_dplay_type_29_name_offset;
+static int hf_dplay_type_29_password_offset;
+static int hf_dplay_type_29_game_name;
+static int hf_dplay_type_29_password;
 
 /* Message Type 0x002f data fields */
-static int hf_dplay_type_2f_dpid = -1;
+static int hf_dplay_type_2f_dpid;
 
 /* various */
-static gint ett_dplay = -1;
-static gint ett_dplay_header = -1;
-static gint ett_dplay_sockaddr = -1;
-static gint ett_dplay_data = -1;
-static gint ett_dplay_enc_packet = -1;
-static gint ett_dplay_flags = -1;
-static gint ett_dplay_sess_desc_flags = -1;
-static gint ett_dplay_pp_flags = -1;
-static gint ett_dplay_spp_flags = -1;
-static gint ett_dplay_spp_info_mask = -1;
-static gint ett_dplay_type02_flags = -1;
-static gint ett_dplay_type05_flags = -1;
-static gint ett_dplay_type29_spp = -1;
+static gint ett_dplay;
+static gint ett_dplay_header;
+static gint ett_dplay_sockaddr;
+static gint ett_dplay_data;
+static gint ett_dplay_enc_packet;
+static gint ett_dplay_flags;
+static gint ett_dplay_sess_desc_flags;
+static gint ett_dplay_pp_flags;
+static gint ett_dplay_spp_flags;
+static gint ett_dplay_spp_info_mask;
+static gint ett_dplay_type02_flags;
+static gint ett_dplay_type05_flags;
+static gint ett_dplay_type29_spp;
 
 static const value_string dplay_command_val[] = {
     { 0x0001, "Enum Sessions Reply" },

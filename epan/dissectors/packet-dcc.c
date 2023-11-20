@@ -23,56 +23,56 @@
 void proto_register_dcc(void);
 void proto_reg_handoff_dcc(void);
 
-static int proto_dcc = -1;
-static int hf_dcc_len = -1;
-static int hf_dcc_pkt_vers = -1;
-static int hf_dcc_op = -1;
-static int hf_dcc_clientid = -1;
-static int hf_dcc_opnums_host = -1;
-static int hf_dcc_opnums_pid = -1;
-static int hf_dcc_opnums_report = -1;
-static int hf_dcc_opnums_retrans = -1;
+static int proto_dcc;
+static int hf_dcc_len;
+static int hf_dcc_pkt_vers;
+static int hf_dcc_op;
+static int hf_dcc_clientid;
+static int hf_dcc_opnums_host;
+static int hf_dcc_opnums_pid;
+static int hf_dcc_opnums_report;
+static int hf_dcc_opnums_retrans;
 
-static int hf_dcc_signature = -1;
-static int hf_dcc_max_pkt_vers = -1;
-static int hf_dcc_qdelay_ms = -1;
-static int hf_dcc_brand = -1;
+static int hf_dcc_signature;
+static int hf_dcc_max_pkt_vers;
+static int hf_dcc_qdelay_ms;
+static int hf_dcc_brand;
 
-static int hf_dcc_ck_type = -1;
-static int hf_dcc_ck_len = -1;
-static int hf_dcc_ck_sum = -1;
+static int hf_dcc_ck_type;
+static int hf_dcc_ck_len;
+static int hf_dcc_ck_sum;
 
-static int hf_dcc_date = -1;
+static int hf_dcc_date;
 
-static int hf_dcc_target = -1;
-static int hf_dcc_response_text = -1;
+static int hf_dcc_target;
+static int hf_dcc_response_text;
 
-static int hf_dcc_adminop = -1;
-static int hf_dcc_adminval = -1;
-static int hf_dcc_floodop = -1;
-static int hf_dcc_trace = -1;
-static int hf_dcc_trace_admin = -1;
-static int hf_dcc_trace_anon = -1;
-static int hf_dcc_trace_client = -1;
-static int hf_dcc_trace_rlim = -1;
-static int hf_dcc_trace_query = -1;
-static int hf_dcc_trace_ridc = -1;
-static int hf_dcc_trace_flood = -1;
+static int hf_dcc_adminop;
+static int hf_dcc_adminval;
+static int hf_dcc_floodop;
+static int hf_dcc_trace;
+static int hf_dcc_trace_admin;
+static int hf_dcc_trace_anon;
+static int hf_dcc_trace_client;
+static int hf_dcc_trace_rlim;
+static int hf_dcc_trace_query;
+static int hf_dcc_trace_ridc;
+static int hf_dcc_trace_flood;
 
-static int hf_dcc_addr = -1;
-static int hf_dcc_id = -1;
-static int hf_dcc_last_used = -1;
-static int hf_dcc_requests = -1;
-static int hf_dcc_pad = -1;
-static int hf_dcc_unused = -1;
+static int hf_dcc_addr;
+static int hf_dcc_id;
+static int hf_dcc_last_used;
+static int hf_dcc_requests;
+static int hf_dcc_pad;
+static int hf_dcc_unused;
 
-static gint ett_dcc = -1;
-static gint ett_dcc_opnums = -1;
-static gint ett_dcc_op = -1;
-static gint ett_dcc_ck = -1;
-static gint ett_dcc_trace = -1;
+static gint ett_dcc;
+static gint ett_dcc_opnums;
+static gint ett_dcc_op;
+static gint ett_dcc_ck;
+static gint ett_dcc_trace;
 
-static expert_field ei_dcc_len = EI_INIT;
+static expert_field ei_dcc_len;
 
 /* Utility macros */
 #define D_SIGNATURE() \

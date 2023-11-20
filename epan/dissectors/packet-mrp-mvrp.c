@@ -91,37 +91,37 @@ static const value_string three_packed_vals[] = {
 /**********************************************************/
 /* Initialize the protocol and registered fields          */
 /**********************************************************/
-static int proto_mvrp = -1;
-static int hf_mvrp_proto_id = -1;
-static int hf_mvrp_message = -1; /* Message is a group of fields */
-static int hf_mvrp_attribute_type = -1;
-static int hf_mvrp_attribute_length = -1;
-static int hf_mvrp_attribute_list = -1; /* AttributeList is a group of fields */
-static int hf_mvrp_vector_attribute = -1; /* VectorAttribute is a group of fields */
+static int proto_mvrp;
+static int hf_mvrp_proto_id;
+static int hf_mvrp_message; /* Message is a group of fields */
+static int hf_mvrp_attribute_type;
+static int hf_mvrp_attribute_length;
+static int hf_mvrp_attribute_list; /* AttributeList is a group of fields */
+static int hf_mvrp_vector_attribute; /* VectorAttribute is a group of fields */
 
 /* The following VectorHeader contains the LeaveAllEvent and NumberOfValues */
-static int hf_mvrp_vector_header = -1;
-static int hf_mvrp_leave_all_event = -1;
-static int hf_mvrp_number_of_values = -1;
-static gint ett_vector_header = -1;
+static int hf_mvrp_vector_header;
+static int hf_mvrp_leave_all_event;
+static int hf_mvrp_number_of_values;
+static gint ett_vector_header;
 static int * const vector_header_fields[] = {
     &hf_mvrp_leave_all_event,
     &hf_mvrp_number_of_values,
     NULL
 };
 
-static int hf_mvrp_first_value = -1; /* FirstValue is a group of fields */
-static int hf_mvrp_vid = -1;
-static int hf_mvrp_three_packed_event = -1;
+static int hf_mvrp_first_value; /* FirstValue is a group of fields */
+static int hf_mvrp_vid;
+static int hf_mvrp_three_packed_event;
 
-static int hf_mvrp_end_mark = -1;
+static int hf_mvrp_end_mark;
 
 /* Initialize the subtree pointers */
-static gint ett_mvrp = -1;
-static gint ett_msg = -1;
-static gint ett_attr_list = -1;
-static gint ett_vect_attr = -1;
-static gint ett_first_value = -1;
+static gint ett_mvrp;
+static gint ett_msg;
+static gint ett_attr_list;
+static gint ett_vect_attr;
+static gint ett_first_value;
 
 
 

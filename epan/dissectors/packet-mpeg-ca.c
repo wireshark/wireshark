@@ -20,14 +20,14 @@ void proto_reg_handoff_mpeg_ca(void);
 
 static dissector_handle_t mpeg_ca_handle;
 
-static int proto_mpeg_ca = -1;
-static int hf_mpeg_ca_reserved = -1;
-static int hf_mpeg_ca_version_number = -1;
-static int hf_mpeg_ca_current_next_indicator = -1;
-static int hf_mpeg_ca_section_number = -1;
-static int hf_mpeg_ca_last_section_number = -1;
+static int proto_mpeg_ca;
+static int hf_mpeg_ca_reserved;
+static int hf_mpeg_ca_version_number;
+static int hf_mpeg_ca_current_next_indicator;
+static int hf_mpeg_ca_section_number;
+static int hf_mpeg_ca_last_section_number;
 
-static gint ett_mpeg_ca = -1;
+static gint ett_mpeg_ca;
 
 #define MPEG_CA_RESERVED_MASK                   0xFFFFC0
 #define MPEG_CA_VERSION_NUMBER_MASK             0x00003E

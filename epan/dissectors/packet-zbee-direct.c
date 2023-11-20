@@ -49,45 +49,45 @@ static int dissect_zb_direct_common(tvbuff_t **tvb, packet_info *pinfo, proto_tr
 static dissector_handle_t zbee_nwk_handle;
 
 /* TLV Node-elements */
-static int proto_zb_direct = -1;
+static int proto_zb_direct;
 
 /* Leaf-elements */
-static int hf_zb_direct_info_type = -1;
-static int hf_zb_direct_info_key = -1;
-static int hf_zb_direct_info_zdd_ieee = -1;
-static int hf_zb_direct_info_zvd_ieee = -1;
-static int hf_zb_direct_info_encryption = -1;
-static int hf_zb_direct_msg_type = -1;
+static int hf_zb_direct_info_type;
+static int hf_zb_direct_info_key;
+static int hf_zb_direct_info_zdd_ieee;
+static int hf_zb_direct_info_zvd_ieee;
+static int hf_zb_direct_info_encryption;
+static int hf_zb_direct_msg_type;
 
 /* Commissioning */
-static int hf_zb_direct_comm_permit_time = -1;
-static int hf_zb_direct_comm_rejoin = -1;
-static int hf_zb_direct_comm_rm_children = -1;
-static int hf_zb_direct_comm_identify_time = -1;
-static int hf_zb_direct_comm_fb_endpoint = -1;
-static int hf_zb_direct_comm_fb_initiator = -1;
+static int hf_zb_direct_comm_permit_time;
+static int hf_zb_direct_comm_rejoin;
+static int hf_zb_direct_comm_rm_children;
+static int hf_zb_direct_comm_identify_time;
+static int hf_zb_direct_comm_fb_endpoint;
+static int hf_zb_direct_comm_fb_initiator;
 
 /* Markers (also leafs) */
-static int hf_zb_direct_unrecognized_msg = -1;
-static int hf_zb_direct_char_info = -1;
-static int hf_zb_direct_char_c25519_aesmmo = -1;
-static int hf_zb_direct_char_c25519_sha256 = -1;
-static int hf_zb_direct_char_p256 = -1;
-static int hf_zb_direct_char_form = -1;
-static int hf_zb_direct_char_status = -1;
-static int hf_zb_direct_char_join = -1;
-static int hf_zb_direct_char_permit_join = -1;
-static int hf_zb_direct_char_leave = -1;
-static int hf_zb_direct_char_manage_joiners = -1;
-static int hf_zb_direct_char_identify = -1;
-static int hf_zb_direct_char_finding_binding = -1;
-static int hf_zb_direct_char_tunneling = -1;
+static int hf_zb_direct_unrecognized_msg;
+static int hf_zb_direct_char_info;
+static int hf_zb_direct_char_c25519_aesmmo;
+static int hf_zb_direct_char_c25519_sha256;
+static int hf_zb_direct_char_p256;
+static int hf_zb_direct_char_form;
+static int hf_zb_direct_char_status;
+static int hf_zb_direct_char_join;
+static int hf_zb_direct_char_permit_join;
+static int hf_zb_direct_char_leave;
+static int hf_zb_direct_char_manage_joiners;
+static int hf_zb_direct_char_identify;
+static int hf_zb_direct_char_finding_binding;
+static int hf_zb_direct_char_tunneling;
 
 /* Expert items */
-static expert_field ei_zb_direct_crypt_error = EI_INIT;
+static expert_field ei_zb_direct_crypt_error;
 
 /* Trees entitties */
-static gint ett_zb_direct = -1;
+static gint ett_zb_direct;
 
 static const guint8 serv_secur_uuid[]           = { 0xe3, 0x29, 0xb4, 0x99, 0x02, 0x6d, 0xe9, 0xbf,
                                                     0x81, 0x44, 0x00, 0x00, 0xf4, 0x4a, 0x14, 0x29 };

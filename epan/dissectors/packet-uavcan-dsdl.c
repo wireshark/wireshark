@@ -23,69 +23,69 @@
 void proto_register_dsdl(void);
 void proto_reg_handoff_dsdl(void);
 
-static int proto_dsdl = -1;
+static int proto_dsdl;
 
-static int hf_heartbeat_uptime = -1;
-static int hf_heartbeat_health = -1;
-static int hf_heartbeat_mode = -1;
-static int hf_heartbeat_status_code = -1;
+static int hf_heartbeat_uptime;
+static int hf_heartbeat_health;
+static int hf_heartbeat_mode;
+static int hf_heartbeat_status_code;
 
-static int hf_list_index = -1;
-static int hf_register_name = -1;
-static int hf_register_access_mutable = -1;
-static int hf_register_access_persistent = -1;
-static int hf_register_value_tag = -1;
-static int hf_register_value_size = -1;
-
-
-static int hf_node_id = -1;
-static int hf_pnp_unique_id = -1;
-static int hf_pnp_unique_id_hash = -1;
-static int hf_pnp_alloc = -1;
-
-static int hf_uavcan_primitive_Empty = -1;
-static int hf_uavcan_primitive_String = -1;
-static int hf_uavcan_primitive_Unstructured = -1;
-static int hf_uavcan_primitive_array_Integer64 = -1;
-static int hf_uavcan_primitive_array_Integer32 = -1;
-static int hf_uavcan_primitive_array_Integer16 = -1;
-static int hf_uavcan_primitive_array_Integer8 = -1;
-static int hf_uavcan_primitive_array_Natural64 = -1;
-static int hf_uavcan_primitive_array_Natural32 = -1;
-static int hf_uavcan_primitive_array_Natural16 = -1;
-static int hf_uavcan_primitive_array_Natural8 = -1;
-static int hf_uavcan_primitive_array_Real64 = -1;
-static int hf_uavcan_primitive_array_Real32 = -1;
-static int hf_uavcan_primitive_array_Real16 = -1;
+static int hf_list_index;
+static int hf_register_name;
+static int hf_register_access_mutable;
+static int hf_register_access_persistent;
+static int hf_register_value_tag;
+static int hf_register_value_size;
 
 
-static int hf_uavcan_getinfo_path = -1;
-static int hf_uavcan_getinfo_error = -1;
-static int hf_uavcan_getinfo_size = -1;
-static int hf_uavcan_getinfo_timestamp = -1;
-static int hf_uavcan_getinfo_is_file_not_directory = -1;
-static int hf_uavcan_getinfo_is_link = -1;
-static int hf_uavcan_getinfo_is_readable = -1;
-static int hf_uavcan_getinfo_is_writeable = -1;
-static int hf_uavcan_directory_path = -1;
-static int hf_uavcan_entry_base_name = -1;
-static int hf_uavcan_modify_error = -1;
-static int hf_uavcan_modify_source_path = -1;
-static int hf_uavcan_modify_destination_path = -1;
-static int hf_uavcan_modify_preserve_source = -1;
-static int hf_uavcan_modify_overwrite_destination = -1;
-static int hf_uavcan_read_offset = -1;
-static int hf_uavcan_read_path = -1;
-static int hf_uavcan_read_error = -1;
-static int hf_uavcan_write_offset = -1;
-static int hf_uavcan_write_path = -1;
-static int hf_uavcan_write_error = -1;
-static int hf_uavcan_entry_index = -1;
+static int hf_node_id;
+static int hf_pnp_unique_id;
+static int hf_pnp_unique_id_hash;
+static int hf_pnp_alloc;
 
-static int hf_uavcan_time_syncronizedtimestamp = -1;
-static int hf_uavcan_diagnostic_severity = -1;
+static int hf_uavcan_primitive_Empty;
+static int hf_uavcan_primitive_String;
+static int hf_uavcan_primitive_Unstructured;
+static int hf_uavcan_primitive_array_Integer64;
+static int hf_uavcan_primitive_array_Integer32;
+static int hf_uavcan_primitive_array_Integer16;
+static int hf_uavcan_primitive_array_Integer8;
+static int hf_uavcan_primitive_array_Natural64;
+static int hf_uavcan_primitive_array_Natural32;
+static int hf_uavcan_primitive_array_Natural16;
+static int hf_uavcan_primitive_array_Natural8;
+static int hf_uavcan_primitive_array_Real64;
+static int hf_uavcan_primitive_array_Real32;
+static int hf_uavcan_primitive_array_Real16;
 
-static gint ett_dsdl = -1;
+
+static int hf_uavcan_getinfo_path;
+static int hf_uavcan_getinfo_error;
+static int hf_uavcan_getinfo_size;
+static int hf_uavcan_getinfo_timestamp;
+static int hf_uavcan_getinfo_is_file_not_directory;
+static int hf_uavcan_getinfo_is_link;
+static int hf_uavcan_getinfo_is_readable;
+static int hf_uavcan_getinfo_is_writeable;
+static int hf_uavcan_directory_path;
+static int hf_uavcan_entry_base_name;
+static int hf_uavcan_modify_error;
+static int hf_uavcan_modify_source_path;
+static int hf_uavcan_modify_destination_path;
+static int hf_uavcan_modify_preserve_source;
+static int hf_uavcan_modify_overwrite_destination;
+static int hf_uavcan_read_offset;
+static int hf_uavcan_read_path;
+static int hf_uavcan_read_error;
+static int hf_uavcan_write_offset;
+static int hf_uavcan_write_path;
+static int hf_uavcan_write_error;
+static int hf_uavcan_entry_index;
+
+static int hf_uavcan_time_syncronizedtimestamp;
+static int hf_uavcan_diagnostic_severity;
+
+static gint ett_dsdl;
 
 const range_string uavcan_subject_id_vals[] = {
     {      0,   6143, "Unregulated identifier"                 },

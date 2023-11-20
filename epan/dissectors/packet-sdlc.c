@@ -29,21 +29,21 @@ void proto_reg_handoff_sdlc(void);
 
 static dissector_handle_t sdlc_handle;
 
-static int proto_sdlc = -1;
-static int hf_sdlc_address = -1;
-static int hf_sdlc_control = -1;
-static int hf_sdlc_n_r = -1;
-static int hf_sdlc_n_s = -1;
-static int hf_sdlc_p = -1;
-static int hf_sdlc_f = -1;
-static int hf_sdlc_s_ftype = -1;
-static int hf_sdlc_u_modifier_cmd = -1;
-static int hf_sdlc_u_modifier_resp = -1;
-static int hf_sdlc_ftype_i = -1;
-static int hf_sdlc_ftype_s_u = -1;
+static int proto_sdlc;
+static int hf_sdlc_address;
+static int hf_sdlc_control;
+static int hf_sdlc_n_r;
+static int hf_sdlc_n_s;
+static int hf_sdlc_p;
+static int hf_sdlc_f;
+static int hf_sdlc_s_ftype;
+static int hf_sdlc_u_modifier_cmd;
+static int hf_sdlc_u_modifier_resp;
+static int hf_sdlc_ftype_i;
+static int hf_sdlc_ftype_s_u;
 
-static gint ett_sdlc = -1;
-static gint ett_sdlc_control = -1;
+static gint ett_sdlc;
+static gint ett_sdlc_control;
 
 static dissector_handle_t sna_handle;
 

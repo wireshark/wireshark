@@ -80,32 +80,32 @@ void proto_reg_handoff_ipmi_trace(void);
 
 static dissector_handle_t ipmi_trace_handle;
 
-static int proto_ipmi_trace = -1;
+static int proto_ipmi_trace;
 
 static dissector_table_t proto_dissector_table;
 
-static gint ett_ipmi_trace = -1;
-static gint ett_trace_block_type = -1;
-static gint ett_trace_timestamp = -1;
-static gint ett_trace_protocol_data = -1;
-static gint ett_trace_ipmb_state = -1;
+static gint ett_ipmi_trace;
+static gint ett_trace_block_type;
+static gint ett_trace_timestamp;
+static gint ett_trace_protocol_data;
+static gint ett_trace_ipmb_state;
 
-static gint hf_trace_block_type = -1;
-static gint hf_trace_channel_num = -1;
-static gint hf_trace_packet_type = -1;
-static gint hf_trace_timestamp = -1;
-static gint hf_trace_timestamp_sec = -1;
-static gint hf_trace_timestamp_msec = -1;
-static gint hf_trace_data_type = -1;
-static gint hf_trace_protocol_data = -1;
-static gint hf_trace_dir = -1;
-static gint hf_trace_ipmb_red_chn = -1;
-static gint hf_trace_ipmb_link_num = -1;
-static gint hf_trace_data_len = -1;
-static gint hf_trace_notify_format = -1;
-static gint hf_trace_ipmb_state = -1;
-static gint hf_trace_ipmb_ovr_state = -1;
-static gint hf_trace_ipmb_loc_state = -1;
+static gint hf_trace_block_type;
+static gint hf_trace_channel_num;
+static gint hf_trace_packet_type;
+static gint hf_trace_timestamp;
+static gint hf_trace_timestamp_sec;
+static gint hf_trace_timestamp_msec;
+static gint hf_trace_data_type;
+static gint hf_trace_protocol_data;
+static gint hf_trace_dir;
+static gint hf_trace_ipmb_red_chn;
+static gint hf_trace_ipmb_link_num;
+static gint hf_trace_data_len;
+static gint hf_trace_notify_format;
+static gint hf_trace_ipmb_state;
+static gint hf_trace_ipmb_ovr_state;
+static gint hf_trace_ipmb_loc_state;
 
 static const value_string str_packet_types[] = {
 	{ 0, "IPMI Trace Packet Data" },

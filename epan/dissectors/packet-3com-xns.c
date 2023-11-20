@@ -20,12 +20,12 @@ void proto_reg_handoff_3com_xns(void);
 
 static dissector_handle_t our_xns_handle;
 
-static int proto_3com_xns = -1;
+static int proto_3com_xns;
 
-static int hf_3com_xns_type_ethertype = -1;
-static int hf_3com_xns_type_retix_bpdu = -1;
+static int hf_3com_xns_type_ethertype;
+static int hf_3com_xns_type_retix_bpdu;
 
-static gint ett_3com_xns = -1;
+static gint ett_3com_xns;
 
 static const value_string retix_bpdu_type_vals[] = {
 	{ 0x0004, "Retix Spanning Tree" },

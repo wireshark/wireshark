@@ -43,21 +43,21 @@ static const value_string hsr_laneid_vals[] = {
 /* Initialize the protocol and registered fields          */
 /**********************************************************/
 
-static int proto_hsr = -1;
+static int proto_hsr;
 
 /* Initialize supervision frame fields */
 
 
-static int hf_hsr_path = -1;
-static int hf_hsr_netid = -1;
-static int hf_hsr_laneid = -1;
-static int hf_hsr_lsdu_size = -1;
-static int hf_hsr_sequence_nr = -1;
-static int hf_type= -1;
+static int hf_hsr_path;
+static int hf_hsr_netid;
+static int hf_hsr_laneid;
+static int hf_hsr_lsdu_size;
+static int hf_hsr_sequence_nr;
+static int hf_type;
 
 static dissector_table_t ethertype_subdissector_table;
 /* Initialize the subtree pointers */
-static gint ett_hsr_frame = -1;
+static gint ett_hsr_frame;
 
 /* Code to actually dissect the packets */
 static int

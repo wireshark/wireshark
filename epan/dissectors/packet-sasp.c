@@ -44,152 +44,152 @@ static guint32 dissect_weight_entry_data_comp(tvbuff_t *tvb, proto_tree *pay_loa
 static guint32 dissect_grp_wt_entry_datacomp(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
 
 /* Initialize the protocol and registered fields */
-static int proto_sasp = -1;
-static int hf_sasp_type = -1;
-static int hf_sasp_length = -1;
-static int hf_sasp_vrsn = -1;
-static int hf_msg_len = -1;
-static int hf_msg_id = -1;
-static int hf_msg_type = -1;
+static int proto_sasp;
+static int hf_sasp_type;
+static int hf_sasp_length;
+static int hf_sasp_vrsn;
+static int hf_msg_len;
+static int hf_msg_id;
+static int hf_msg_type;
 
 /*reg reply*/
-static int hf_sasp_reg_rep_rcode = -1;
-static int hf_sasp_reg_rep_sz = -1;
+static int hf_sasp_reg_rep_rcode;
+static int hf_sasp_reg_rep_sz;
 
 /*reg req*/
-static int hf_sasp_reg_req_sz = -1;
-static int hf_reg_req_lbflag = -1;
-static int hf_sasp_gmd_cnt = -1;
+static int hf_sasp_reg_req_sz;
+static int hf_reg_req_lbflag;
+static int hf_sasp_gmd_cnt;
 
 /*dereg req*/
-static int hf_sasp_dereg_req_sz = -1;
-static int hf_dereg_req_lbflag = -1;
-/* static int hf_dereg_req_reason = -1; */
-static int hf_dereg_req_reason_flag = -1;
+static int hf_sasp_dereg_req_sz;
+static int hf_dereg_req_lbflag;
+/* static int hf_dereg_req_reason; */
+static int hf_dereg_req_reason_flag;
 
 /*dereg reply*/
-static int hf_sasp_dereg_rep_rcode = -1;
-static int hf_sasp_dereg_rep_sz = -1;
+static int hf_sasp_dereg_rep_rcode;
+static int hf_sasp_dereg_rep_sz;
 
 /*send wt*/
-static int hf_sasp_sendwt_gwedcnt = -1;
-static int hf_sasp_sendwt_sz = -1;
+static int hf_sasp_sendwt_gwedcnt;
+static int hf_sasp_sendwt_sz;
 
 /*setmemstate req*/
-static int hf_sasp_setmemstate_req_sz = -1;
-static int hf_setmemstate_req_lbflag = -1;
-/*static int hf_sasp_setmemstate_req_data = -1;*/
-static int hf_sasp_setmemstate_req_gmsd_cnt = -1;
+static int hf_sasp_setmemstate_req_sz;
+static int hf_setmemstate_req_lbflag;
+/*static int hf_sasp_setmemstate_req_data;*/
+static int hf_sasp_setmemstate_req_gmsd_cnt;
 
 /*setmemstate reply*/
-/* static int hf_sasp_setmemstate_rep = -1; */
-static int hf_sasp_setmemstate_rep_rcode = -1;
-static int hf_sasp_setmemstate_rep_sz = -1;
+/* static int hf_sasp_setmemstate_rep; */
+static int hf_sasp_setmemstate_rep_rcode;
+static int hf_sasp_setmemstate_rep_sz;
 
 /*mem data comp */
-static int hf_sasp_memdatacomp_type = -1;
-static int hf_sasp_memdatacomp_sz = -1;
-static int hf_sasp_memdatacomp_protocol = -1;
-static int hf_sasp_memdatacomp_port = -1;
-static int hf_sasp_memdatacomp_ip = -1;
-static int hf_sasp_memdatacomp_lab_len = -1;
-static int hf_sasp_memdatacomp_label = -1;
+static int hf_sasp_memdatacomp_type;
+static int hf_sasp_memdatacomp_sz;
+static int hf_sasp_memdatacomp_protocol;
+static int hf_sasp_memdatacomp_port;
+static int hf_sasp_memdatacomp_ip;
+static int hf_sasp_memdatacomp_lab_len;
+static int hf_sasp_memdatacomp_label;
 
 /*grp data comp */
-static int hf_sasp_grpdatacomp = -1;
-static int hf_sasp_grpdatacomp_sz = -1;
-static int hf_sasp_grpdatacomp_LB_uid_len = -1;
-static int hf_sasp_grpdatacomp_LB_uid = -1;
-static int hf_sasp_grpdatacomp_grp_name_len = -1;
-static int hf_sasp_grpdatacomp_grp_name = -1;
+static int hf_sasp_grpdatacomp;
+static int hf_sasp_grpdatacomp_sz;
+static int hf_sasp_grpdatacomp_LB_uid_len;
+static int hf_sasp_grpdatacomp_LB_uid;
+static int hf_sasp_grpdatacomp_grp_name_len;
+static int hf_sasp_grpdatacomp_grp_name;
 
 /*grp mem data comp */
-static int hf_sasp_grp_memdatacomp = -1;
-static int hf_sasp_grp_memdatacomp_sz = -1;
-static int hf_sasp_grp_memdatacomp_cnt = -1;
+static int hf_sasp_grp_memdatacomp;
+static int hf_sasp_grp_memdatacomp_sz;
+static int hf_sasp_grp_memdatacomp_cnt;
 
 /*weight req*/
-static int hf_sasp_wt_req_sz = -1;
-static int hf_sasp_wt_req_gd_cnt = -1;
+static int hf_sasp_wt_req_sz;
+static int hf_sasp_wt_req_gd_cnt;
 
 /*weight rep*/
-static int hf_sasp_wt_rep_sz = -1;
-static int hf_sasp_wt_rep_rcode = -1;
-static int hf_sasp_wt_rep_interval = -1;
-static int hf_sasp_wt_rep_gwed_cnt = -1;
+static int hf_sasp_wt_rep_sz;
+static int hf_sasp_wt_rep_rcode;
+static int hf_sasp_wt_rep_interval;
+static int hf_sasp_wt_rep_gwed_cnt;
 
 /*setlbstate req*/
-static int hf_sasp_setlbstate_req_sz  = -1;
-static int hf_sasp_setlbstate_req_LB_uid_len  = -1;
-static int hf_sasp_setlbstate_req_LB_uid  = -1;
-static int hf_sasp_setlbstate_req_LB_health  = -1;
-/*static int hf_sasp_setlbstate_req_LB_flag = -1;*/
-/* static int hf_lbstate_flag = -1; */
-static int hf_sasp_pushflag = -1;
-static int hf_sasp_trustflag = -1;
-static int hf_sasp_nochangeflag = -1;
+static int hf_sasp_setlbstate_req_sz;
+static int hf_sasp_setlbstate_req_LB_uid_len;
+static int hf_sasp_setlbstate_req_LB_uid;
+static int hf_sasp_setlbstate_req_LB_health;
+/*static int hf_sasp_setlbstate_req_LB_flag;*/
+/* static int hf_lbstate_flag; */
+static int hf_sasp_pushflag;
+static int hf_sasp_trustflag;
+static int hf_sasp_nochangeflag;
 
 /*setlbstate reply*/
-/* static int hf_sasp_setlbstate_rep = -1; */
-static int hf_sasp_setlbstate_rep_rcode = -1;
-static int hf_sasp_setlbstate_rep_sz = -1;
+/* static int hf_sasp_setlbstate_rep; */
+static int hf_sasp_setlbstate_rep_rcode;
+static int hf_sasp_setlbstate_rep_sz;
 
 /*grp mem state data*/
-static int hf_sasp_grp_memstatedatacomp = -1;
-static int hf_sasp_grp_memstatedatacomp_sz = -1;
-static int hf_sasp_grp_memstatedatacomp_cnt = -1;
+static int hf_sasp_grp_memstatedatacomp;
+static int hf_sasp_grp_memstatedatacomp_sz;
+static int hf_sasp_grp_memstatedatacomp_cnt;
 
 /*mem state data comp*/
-static int hf_sasp_memstatedatacomp_instance = -1;
-static int hf_sasp_memstatedatacomp_sz = -1;
-static int hf_sasp_memstatedatacomp_state = -1;
-static int hf_sasp_memstatedatacomp_quiesce_flag = -1;
+static int hf_sasp_memstatedatacomp_instance;
+static int hf_sasp_memstatedatacomp_sz;
+static int hf_sasp_memstatedatacomp_state;
+static int hf_sasp_memstatedatacomp_quiesce_flag;
 
 /*wt entry dat  comp*/
-static int hf_sasp_weight_entry_data_comp_type = -1;
-static int hf_sasp_weight_entry_data_comp_sz = -1;
-static int hf_sasp_weight_entry_data_comp_state = -1;
-/* static int hf_wtstate_flag = -1; */
-static int hf_sasp_wed_contactsuccess_flag = -1;
-static int hf_sasp_wed_quiesce_flag = -1;
-static int hf_sasp_wed_registration_flag = -1;
-static int hf_sasp_wed_confident_flag = -1;
-static int hf_sasp_weight_entry_data_comp_weight = -1;
+static int hf_sasp_weight_entry_data_comp_type;
+static int hf_sasp_weight_entry_data_comp_sz;
+static int hf_sasp_weight_entry_data_comp_state;
+/* static int hf_wtstate_flag; */
+static int hf_sasp_wed_contactsuccess_flag;
+static int hf_sasp_wed_quiesce_flag;
+static int hf_sasp_wed_registration_flag;
+static int hf_sasp_wed_confident_flag;
+static int hf_sasp_weight_entry_data_comp_weight;
 
 /*grp wt entry data comp */
-static int hf_sasp_grp_wt_entry_datacomp_type = -1;
-static int hf_sasp_grp_wt_entry_datacomp_sz = -1;
-static int hf_sasp_grp_wt_entry_datacomp_cnt = -1;
+static int hf_sasp_grp_wt_entry_datacomp_type;
+static int hf_sasp_grp_wt_entry_datacomp_sz;
+static int hf_sasp_grp_wt_entry_datacomp_cnt;
 
 /* Initialize the subtree pointers */
-static gint ett_sasp_data = -1;
-static gint ett_sasp_header = -1;
-static gint ett_sasp_msg = -1;
-static gint ett_sasp_payload = -1;
-static gint ett_sasp_reg_req = -1;
-static gint ett_sasp_reg_rep = -1;
-static gint ett_sasp_reg_req_sz = -1;
-static gint ett_sasp_dereg_req_sz= -1;
-static gint ett_sasp_dereg_rep = -1;
-static gint ett_sasp_sendwt = -1;
-static gint ett_sasp_setmemstate_rep = -1;
-static gint ett_sasp_memdatacomp = -1;
-static gint ett_sasp_grpdatacomp = -1;
-static gint ett_sasp_grp_memdatacomp = -1;
-static gint ett_sasp_setlbstate_req = -1;
-static gint ett_sasp_setlbstate_rep = -1;
-static gint ett_sasp_getwt= -1;
-static gint ett_sasp_setmemstate_req = -1;
-static gint ett_setlbstate_req_lbflag = -1;
-static gint ett_sasp_grp_memstatedatacomp = -1;
-static gint ett_sasp_memstatedatacomp = -1;
-/*static gint ett_dereg_req_reason_flag = -1;*/
-static gint ett_sasp_grp_wt_entry_datacomp = -1;
-static gint ett_sasp_weight_entry_data_comp = -1;
-static gint ett_wt_entry_data_flag = -1;
-static gint ett_sasp_wt_rep = -1;
+static gint ett_sasp_data;
+static gint ett_sasp_header;
+static gint ett_sasp_msg;
+static gint ett_sasp_payload;
+static gint ett_sasp_reg_req;
+static gint ett_sasp_reg_rep;
+static gint ett_sasp_reg_req_sz;
+static gint ett_sasp_dereg_req_sz;
+static gint ett_sasp_dereg_rep;
+static gint ett_sasp_sendwt;
+static gint ett_sasp_setmemstate_rep;
+static gint ett_sasp_memdatacomp;
+static gint ett_sasp_grpdatacomp;
+static gint ett_sasp_grp_memdatacomp;
+static gint ett_sasp_setlbstate_req;
+static gint ett_sasp_setlbstate_rep;
+static gint ett_sasp_getwt;
+static gint ett_sasp_setmemstate_req;
+static gint ett_setlbstate_req_lbflag;
+static gint ett_sasp_grp_memstatedatacomp;
+static gint ett_sasp_memstatedatacomp;
+/*static gint ett_dereg_req_reason_flag;*/
+static gint ett_sasp_grp_wt_entry_datacomp;
+static gint ett_sasp_weight_entry_data_comp;
+static gint ett_wt_entry_data_flag;
+static gint ett_sasp_wt_rep;
 
-static expert_field ei_msg_type_invalid = EI_INIT;
+static expert_field ei_msg_type_invalid;
 
 /* desegmentation of SASP over TCP */
 static gboolean sasp_desegment = TRUE;

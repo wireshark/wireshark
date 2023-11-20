@@ -21,39 +21,39 @@
 #include "packet-btl2cap.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_btsmp = -1;
+static int proto_btsmp;
 
-static int hf_btsmp_opcode = -1;
-static int hf_btsmp_io_capabilities = -1;
-static int hf_btsmp_oob_data_flags = -1;
-static int hf_btsmp_reason = -1;
-static int hf_btsmp_cfm_value = -1;
-static int hf_btsmp_random = -1;
-static int hf_btsmp_long_term_key = -1;
-static int hf_btsmp_id_resolving_key = -1;
-static int hf_btsmp_signature_key = -1;
-static int hf_btsmp_bonding_flags = -1;
-static int hf_btsmp_mitm_flag = -1;
-static int hf_btsmp_secure_connection_flag = -1;
-static int hf_btsmp_keypress_flag = -1;
-static int hf_btsmp_ct2_flag = -1;
-static int hf_btsmp_reserved_flag = -1;
-static int hf_btsmp_max_enc_key_size = -1;
-static int hf_btsmp_key_dist_enc = -1;
-static int hf_btsmp_key_dist_id = -1;
-static int hf_btsmp_key_dist_sign = -1;
-static int hf_btsmp_key_dist_linkkey = -1;
-static int hf_btsmp_key_dist_reserved = -1;
-static int hf_btsmp_ediv = -1;
-static int hf_btsmp_authreq = -1;
-static int hf_btsmp_initiator_key_distribution = -1;
-static int hf_btsmp_responder_key_distribution = -1;
-static int hf_bd_addr = -1;
-static int hf_address_type = -1;
-static int hf_btsmp_public_key_x = -1;
-static int hf_btsmp_public_key_y = -1;
-static int hf_btsmp_dhkey_check = -1;
-static int hf_btsmp_notification_type = -1;
+static int hf_btsmp_opcode;
+static int hf_btsmp_io_capabilities;
+static int hf_btsmp_oob_data_flags;
+static int hf_btsmp_reason;
+static int hf_btsmp_cfm_value;
+static int hf_btsmp_random;
+static int hf_btsmp_long_term_key;
+static int hf_btsmp_id_resolving_key;
+static int hf_btsmp_signature_key;
+static int hf_btsmp_bonding_flags;
+static int hf_btsmp_mitm_flag;
+static int hf_btsmp_secure_connection_flag;
+static int hf_btsmp_keypress_flag;
+static int hf_btsmp_ct2_flag;
+static int hf_btsmp_reserved_flag;
+static int hf_btsmp_max_enc_key_size;
+static int hf_btsmp_key_dist_enc;
+static int hf_btsmp_key_dist_id;
+static int hf_btsmp_key_dist_sign;
+static int hf_btsmp_key_dist_linkkey;
+static int hf_btsmp_key_dist_reserved;
+static int hf_btsmp_ediv;
+static int hf_btsmp_authreq;
+static int hf_btsmp_initiator_key_distribution;
+static int hf_btsmp_responder_key_distribution;
+static int hf_bd_addr;
+static int hf_address_type;
+static int hf_btsmp_public_key_x;
+static int hf_btsmp_public_key_y;
+static int hf_btsmp_dhkey_check;
+static int hf_btsmp_notification_type;
 
 static int * const hfx_btsmp_key_distribution[] = {
     &hf_btsmp_key_dist_reserved,
@@ -76,9 +76,9 @@ static int * const hfx_btsmp_authreq[] = {
 
 
 /* Initialize the subtree pointers */
-static gint ett_btsmp = -1;
-static gint ett_btsmp_auth_req = -1;
-static gint ett_btsmp_key_dist = -1;
+static gint ett_btsmp;
+static gint ett_btsmp_auth_req;
+static gint ett_btsmp_key_dist;
 
 static dissector_handle_t btsmp_handle;
 

@@ -312,7 +312,7 @@ static int dissect_SysInfoType22_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 #include "packet-rrc-val.h"
 
 /* Initialize the protocol and registered fields */
-int proto_rrc = -1;
+int proto_rrc;
 static int hf_test;
 static int hf_urnti;
 static int hf_urnti_new;

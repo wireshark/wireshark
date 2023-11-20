@@ -29,10 +29,10 @@ static dissector_handle_t l1_events_handle;
  */
 
 /* Filterable header fields */
-static gint proto_l1_events = -1;
+static gint proto_l1_events;
 
 /* Subtrees */
-static gint ett_l1_events = -1;
+static gint ett_l1_events;
 
 static int
 dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

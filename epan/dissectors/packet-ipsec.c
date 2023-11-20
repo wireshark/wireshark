@@ -80,41 +80,41 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 void proto_register_ipsec(void);
 void proto_reg_handoff_ipsec(void);
 
-static int proto_ah = -1;
-static int hf_ah_next_header = -1;
-static int hf_ah_length = -1;
-static int hf_ah_reserved = -1;
-static int hf_ah_spi = -1;
-static int hf_ah_iv = -1;
-static int hf_ah_sequence = -1;
-static int proto_esp = -1;
-static int hf_esp_spi = -1;
-static int hf_esp_iv = -1;
-static int hf_esp_icv = -1;
-static int hf_esp_icv_good = -1;
-static int hf_esp_icv_bad = -1;
-static int hf_esp_sequence = -1;
-static int hf_esp_encrypted_data = -1;
-static int hf_esp_decrypted_data = -1;
-static int hf_esp_contained_data = -1;
-static int hf_esp_pad = -1;
-static int hf_esp_pad_len = -1;
-static int hf_esp_protocol = -1;
-static int hf_esp_sequence_analysis_expected_sn = -1;
-static int hf_esp_sequence_analysis_previous_frame = -1;
+static int proto_ah;
+static int hf_ah_next_header;
+static int hf_ah_length;
+static int hf_ah_reserved;
+static int hf_ah_spi;
+static int hf_ah_iv;
+static int hf_ah_sequence;
+static int proto_esp;
+static int hf_esp_spi;
+static int hf_esp_iv;
+static int hf_esp_icv;
+static int hf_esp_icv_good;
+static int hf_esp_icv_bad;
+static int hf_esp_sequence;
+static int hf_esp_encrypted_data;
+static int hf_esp_decrypted_data;
+static int hf_esp_contained_data;
+static int hf_esp_pad;
+static int hf_esp_pad_len;
+static int hf_esp_protocol;
+static int hf_esp_sequence_analysis_expected_sn;
+static int hf_esp_sequence_analysis_previous_frame;
 
-static int proto_ipcomp = -1;
-static int hf_ipcomp_next_header = -1;
-static int hf_ipcomp_flags = -1;
-static int hf_ipcomp_cpi = -1;
+static int proto_ipcomp;
+static int hf_ipcomp_next_header;
+static int hf_ipcomp_flags;
+static int hf_ipcomp_cpi;
 
-static gint ett_ah = -1;
-static gint ett_esp = -1;
-static gint ett_esp_icv = -1;
-static gint ett_esp_decrypted_data = -1;
-static gint ett_ipcomp = -1;
+static gint ett_ah;
+static gint ett_esp;
+static gint ett_esp_icv;
+static gint ett_esp_decrypted_data;
+static gint ett_ipcomp;
 
-static expert_field ei_esp_sequence_analysis_wrong_sequence_number = EI_INIT;
+static expert_field ei_esp_sequence_analysis_wrong_sequence_number;
 
 
 static gint exported_pdu_tap = -1;

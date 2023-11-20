@@ -25,8 +25,8 @@ void proto_reg_handoff_ua_msg(void);
 static dissector_table_t ua_opcode_dissector_table;
 #endif
 
-static int  proto_ua_msg        = -1;
-static gint ett_ua_msg          = -1;
+static int  proto_ua_msg;
+static gint ett_ua_msg;
 
 static dissector_handle_t noe_handle;
 static dissector_handle_t ua3g_handle;

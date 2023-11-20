@@ -667,29 +667,29 @@ static const value_string tag_enum_type[] = {
 };
 static value_string_ext tag_enum_type_ext = VALUE_STRING_EXT_INIT(tag_enum_type);
 
-static int proto_ipdc = -1;
-static int hf_ipdc_nr = -1;
-static int hf_ipdc_ns = -1;
-static int hf_ipdc_payload_len = -1;
-static int hf_ipdc_protocol_id = -1;
-static int hf_ipdc_trans_id_size = -1;
-static int hf_ipdc_trans_id = -1;
-static int hf_ipdc_message_code = -1;
-static int hf_ipdc_ascii = -1;
-static int hf_ipdc_uint = -1;
-static int hf_ipdc_ipv4 = -1;
-static int hf_ipdc_line_status = -1;
-static int hf_ipdc_channel_status = -1;
-static int hf_ipdc_enctype = -1;
-static int hf_ipdc_end_of_tags = -1;
-static int hf_ipdc_data_trailing_end_of_tags = -1;
-static int hf_ipdc_type_unknown = -1;
+static int proto_ipdc;
+static int hf_ipdc_nr;
+static int hf_ipdc_ns;
+static int hf_ipdc_payload_len;
+static int hf_ipdc_protocol_id;
+static int hf_ipdc_trans_id_size;
+static int hf_ipdc_trans_id;
+static int hf_ipdc_message_code;
+static int hf_ipdc_ascii;
+static int hf_ipdc_uint;
+static int hf_ipdc_ipv4;
+static int hf_ipdc_line_status;
+static int hf_ipdc_channel_status;
+static int hf_ipdc_enctype;
+static int hf_ipdc_end_of_tags;
+static int hf_ipdc_data_trailing_end_of_tags;
+static int hf_ipdc_type_unknown;
 
-static gint ett_ipdc = -1;
-static gint ett_ipdc_tag = -1;
-static gint ett_ipdc_line_status = -1;
+static gint ett_ipdc;
+static gint ett_ipdc_tag;
+static gint ett_ipdc_line_status;
 
-static expert_field ei_ipdc_ipv4 = EI_INIT;
+static expert_field ei_ipdc_ipv4;
 
 static gboolean ipdc_desegment = TRUE;
 

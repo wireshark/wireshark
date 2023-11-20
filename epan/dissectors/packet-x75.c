@@ -26,21 +26,21 @@ void proto_reg_handoff_x75(void);
 #define X75_ADDRESS_MLP_STE_C 0x0F
 #define X75_ADDRESS_MLP_STE_D 0x07
 
-static int proto_x75 = -1;
-static int hf_x75_address = -1;
-static int hf_x75_control = -1;
-static int hf_x75_n_r = -1;
-static int hf_x75_n_s = -1;
-static int hf_x75_p = -1;
-static int hf_x75_f = -1;
-static int hf_x75_s_ftype = -1;
-static int hf_x75_u_modifier_cmd = -1;
-static int hf_x75_u_modifier_resp = -1;
-static int hf_x75_ftype_i = -1;
-static int hf_x75_ftype_s_u = -1;
+static int proto_x75;
+static int hf_x75_address;
+static int hf_x75_control;
+static int hf_x75_n_r;
+static int hf_x75_n_s;
+static int hf_x75_p;
+static int hf_x75_f;
+static int hf_x75_s_ftype;
+static int hf_x75_u_modifier_cmd;
+static int hf_x75_u_modifier_resp;
+static int hf_x75_ftype_i;
+static int hf_x75_ftype_s_u;
 
-static gint ett_x75 = -1;
-static gint ett_x75_control = -1;
+static gint ett_x75;
+static gint ett_x75_control;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t x75_handle;

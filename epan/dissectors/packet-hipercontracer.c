@@ -25,17 +25,17 @@ void proto_register_hipercontracer(void);
 void proto_reg_handoff_hipercontracer(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_hipercontracer = -1;
+static int proto_hipercontracer;
 
 /* Initialize the subtree pointers */
-static gint ett_hipercontracer = -1;
+static gint ett_hipercontracer;
 
-static gint hf_magic_number   = -1;
-static gint hf_send_ttl       = -1;
-static gint hf_round          = -1;
-static gint hf_checksum_tweak = -1;
-static gint hf_seq_number     = -1;
-static gint hf_send_timestamp = -1;
+static gint hf_magic_number;
+static gint hf_send_ttl;
+static gint hf_round;
+static gint hf_checksum_tweak;
+static gint hf_seq_number;
+static gint hf_send_timestamp;
 
 /* Setup list of header fields */
 static hf_register_info hf[] = {

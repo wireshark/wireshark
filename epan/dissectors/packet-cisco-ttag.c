@@ -24,12 +24,12 @@ static dissector_handle_t ttag_handle;
 
 static dissector_handle_t ethertype_handle;
 
-static int proto_ttag = -1;
+static int proto_ttag;
 
-static int hf_ttag_time_stamp = -1;
-static int hf_ttag_eth_type = -1;
+static int hf_ttag_time_stamp;
+static int hf_ttag_eth_type;
 
-static gint ett_ttag = -1;
+static gint ett_ttag;
 
 static int
 dissect_ttag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

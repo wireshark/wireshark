@@ -24,18 +24,18 @@ static dissector_handle_t ipsictl_handle = NULL;
 #define IPSICTL_PORT            5010 /* Not IANA registered */
 #define IPSICTL_PDU_MAGIC       0x0300
 
-static int proto_ipsictl = -1;
+static int proto_ipsictl;
 
-static int hf_ipsictl_pdu = -1;
-static int hf_ipsictl_magic = -1;
-static int hf_ipsictl_length = -1;
-static int hf_ipsictl_type = -1;
-static int hf_ipsictl_sequence = -1;
-static int hf_ipsictl_field1 = -1;
-static int hf_ipsictl_data = -1;
+static int hf_ipsictl_pdu;
+static int hf_ipsictl_magic;
+static int hf_ipsictl_length;
+static int hf_ipsictl_type;
+static int hf_ipsictl_sequence;
+static int hf_ipsictl_field1;
+static int hf_ipsictl_data;
 
-static gint ett_ipsictl = -1;
-static gint ett_ipsictl_pdu = -1;
+static gint ett_ipsictl;
+static gint ett_ipsictl_pdu;
 
 static int dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {

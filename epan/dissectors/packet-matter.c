@@ -29,43 +29,43 @@ void proto_register_matter(void);
 /* Initialize the protocol and registered fields */
 static dissector_handle_t matter_handle;
 
-static int proto_matter = -1;
-static int hf_message_flags = -1;
-static int hf_message_version = -1;
-static int hf_message_has_source = -1;
-static int hf_message_dsiz = -1;
-static int hf_message_session_id = -1;
-static int hf_message_security_flags = -1;
-static int hf_message_flag_privacy = -1;
-static int hf_message_flag_control = -1;
-static int hf_message_flag_extensions = -1;
-static int hf_message_session_type = -1;
-static int hf_message_counter = -1;
-static int hf_message_src_id = -1;
-static int hf_message_dest_id = -1;
-static int hf_message_privacy_header = -1;
+static int proto_matter;
+static int hf_message_flags;
+static int hf_message_version;
+static int hf_message_has_source;
+static int hf_message_dsiz;
+static int hf_message_session_id;
+static int hf_message_security_flags;
+static int hf_message_flag_privacy;
+static int hf_message_flag_control;
+static int hf_message_flag_extensions;
+static int hf_message_session_type;
+static int hf_message_counter;
+static int hf_message_src_id;
+static int hf_message_dest_id;
+static int hf_message_privacy_header;
 
-static int hf_payload = -1;
-static int hf_payload_exchange_flags = -1;
-static int hf_payload_flag_initiator = -1;
-static int hf_payload_flag_ack = -1;
-static int hf_payload_flag_reliability = -1;
-static int hf_payload_flag_secured_extensions = -1;
-static int hf_payload_flag_vendor = -1;
-static int hf_payload_protocol_opcode = -1;
-static int hf_payload_exchange_id = -1;
-static int hf_payload_protocol_vendor_id = -1;
-static int hf_payload_protocol_id = -1;
-static int hf_payload_ack_counter = -1;
-static int hf_payload_secured_ext_length = -1;
-static int hf_payload_secured_ext = -1;
-static int hf_payload_application = -1;
+static int hf_payload;
+static int hf_payload_exchange_flags;
+static int hf_payload_flag_initiator;
+static int hf_payload_flag_ack;
+static int hf_payload_flag_reliability;
+static int hf_payload_flag_secured_extensions;
+static int hf_payload_flag_vendor;
+static int hf_payload_protocol_opcode;
+static int hf_payload_exchange_id;
+static int hf_payload_protocol_vendor_id;
+static int hf_payload_protocol_id;
+static int hf_payload_ack_counter;
+static int hf_payload_secured_ext_length;
+static int hf_payload_secured_ext;
+static int hf_payload_application;
 
-static gint ett_matter = -1;
-static gint ett_message_flags = -1;
-static gint ett_security_flags = -1;
-static gint ett_payload = -1;
-static gint ett_exchange_flags = -1;
+static gint ett_matter;
+static gint ett_message_flags;
+static gint ett_security_flags;
+static gint ett_payload;
+static gint ett_exchange_flags;
 
 /* message flags + session ID + security flags + counter */
 #define MATTER_MIN_LENGTH 8

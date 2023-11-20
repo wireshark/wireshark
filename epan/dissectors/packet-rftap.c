@@ -33,56 +33,56 @@ void proto_reg_handoff_rftap(void);
 void proto_register_rftap(void);
 
 /* protocols */
-static int proto_rftap = -1;
+static int proto_rftap;
 
 /* rftap fixed fields */
-static int hf_rftap_fixed_header = -1;
-static int hf_rftap_magic = -1;
-static int hf_rftap_len = -1;    /* length in bytes */
-static int hf_rftap_flags = -1;
+static int hf_rftap_fixed_header;
+static int hf_rftap_magic;
+static int hf_rftap_len;    /* length in bytes */
+static int hf_rftap_flags;
 
 /* rftap flags bit-field (16 bits) */
-static int hf_rftap_present_dlt = -1;
-static int hf_rftap_present_freq = -1;
-static int hf_rftap_present_nomfreq = -1;
-static int hf_rftap_present_freqofs = -1;
-static int hf_rftap_power_is_in_dbm = -1;
-static int hf_rftap_present_signal_power = -1;
-static int hf_rftap_present_noise_power = -1;
-static int hf_rftap_present_snr = -1;
-static int hf_rftap_present_signal_quality = -1;
-static int hf_rftap_time_is_unix_time = -1;
-static int hf_rftap_present_time = -1;
-static int hf_rftap_present_duration = -1;
-static int hf_rftap_present_location = -1;
-static int hf_rftap_present_reserved_field_13 = -1;
-static int hf_rftap_present_reserved_field_14 = -1;
-static int hf_rftap_present_reserved_field_15 = -1;
+static int hf_rftap_present_dlt;
+static int hf_rftap_present_freq;
+static int hf_rftap_present_nomfreq;
+static int hf_rftap_present_freqofs;
+static int hf_rftap_power_is_in_dbm;
+static int hf_rftap_present_signal_power;
+static int hf_rftap_present_noise_power;
+static int hf_rftap_present_snr;
+static int hf_rftap_present_signal_quality;
+static int hf_rftap_time_is_unix_time;
+static int hf_rftap_present_time;
+static int hf_rftap_present_duration;
+static int hf_rftap_present_location;
+static int hf_rftap_present_reserved_field_13;
+static int hf_rftap_present_reserved_field_14;
+static int hf_rftap_present_reserved_field_15;
 
 /* rftap optional fields */
-static int hf_rftap_dlt = -1;
-static int hf_rftap_freq = -1;
-static int hf_rftap_nomfreq = -1;
-static int hf_rftap_freqofs = -1;
-static int hf_rftap_signal_power = -1;
-static int hf_rftap_noise_power = -1;
-static int hf_rftap_snr = -1;
-static int hf_rftap_signal_quality = -1;
-static int hf_rftap_time_int = -1;
-static int hf_rftap_time_frac = -1;
-static int hf_rftap_time = -1;
-static int hf_rftap_duration = -1;
-static int hf_rftap_latitude = -1;
-static int hf_rftap_longitude = -1;
-static int hf_rftap_altitude = -1;
+static int hf_rftap_dlt;
+static int hf_rftap_freq;
+static int hf_rftap_nomfreq;
+static int hf_rftap_freqofs;
+static int hf_rftap_signal_power;
+static int hf_rftap_noise_power;
+static int hf_rftap_snr;
+static int hf_rftap_signal_quality;
+static int hf_rftap_time_int;
+static int hf_rftap_time_frac;
+static int hf_rftap_time;
+static int hf_rftap_duration;
+static int hf_rftap_latitude;
+static int hf_rftap_longitude;
+static int hf_rftap_altitude;
 
 /* rftap tag IDs >= 16 */
-static int hf_rftap_subdissector_name = -1;
+static int hf_rftap_subdissector_name;
 
 /* subtree pointers */
-static gint ett_rftap = -1;
-static gint ett_rftap_fixed_header = -1;
-static gint ett_rftap_flags = -1;
+static gint ett_rftap;
+static gint ett_rftap_fixed_header;
+static gint ett_rftap_flags;
 
 static dissector_handle_t pcap_pktdata_handle;
 

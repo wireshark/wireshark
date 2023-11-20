@@ -41,32 +41,32 @@ void proto_reg_handoff_omapi(void);
 
 static dissector_handle_t omapi_handle;
 
-static int proto_omapi = -1;
-static int hf_omapi_version = -1;
-static int hf_omapi_hlength = -1;
-static int hf_omapi_auth_id = -1;
-static int hf_omapi_auth_len = -1;
-static int hf_omapi_opcode = -1;
-static int hf_omapi_handle = -1;
-static int hf_omapi_id = -1;
-static int hf_omapi_rid = -1;
-static int hf_omapi_msg_name_len = -1; /* 16bit */
-static int hf_omapi_msg_name = -1;
-static int hf_omapi_msg_value_len = -1;
-static int hf_omapi_msg_value = -1;
-static int hf_omapi_obj_name_len = -1; /* 16bit */
-static int hf_omapi_obj_name = -1;
-static int hf_omapi_obj_value_len = -1;
-static int hf_omapi_obj_value = -1;
-static int hf_omapi_signature = -1;
+static int proto_omapi;
+static int hf_omapi_version;
+static int hf_omapi_hlength;
+static int hf_omapi_auth_id;
+static int hf_omapi_auth_len;
+static int hf_omapi_opcode;
+static int hf_omapi_handle;
+static int hf_omapi_id;
+static int hf_omapi_rid;
+static int hf_omapi_msg_name_len; /* 16bit */
+static int hf_omapi_msg_name;
+static int hf_omapi_msg_value_len;
+static int hf_omapi_msg_value;
+static int hf_omapi_obj_name_len; /* 16bit */
+static int hf_omapi_obj_name;
+static int hf_omapi_obj_value_len;
+static int hf_omapi_obj_value;
+static int hf_omapi_signature;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_omapi_empty_string = -1;
-static int hf_omapi_object_end_tag = -1;
-static int hf_omapi_message_end_tag = -1;
-static int hf_omapi_no_value = -1;
+static int hf_omapi_empty_string;
+static int hf_omapi_object_end_tag;
+static int hf_omapi_message_end_tag;
+static int hf_omapi_no_value;
 
-static gint ett_omapi = -1;
+static gint ett_omapi;
 
 #define OMAPI_PORT 7911 /* Not IANA registered */
 

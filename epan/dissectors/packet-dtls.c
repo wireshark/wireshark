@@ -98,73 +98,73 @@ static const value_string srtp_protection_profile_vals[] = {
 /* Initialize the protocol and registered fields */
 static gint dtls_tap                            = -1;
 static gint exported_pdu_tap                    = -1;
-static gint proto_dtls                          = -1;
-static gint hf_dtls_record                      = -1;
-static gint hf_dtls_record_content_type         = -1;
-static gint hf_dtls_record_special_type         = -1;
-static gint hf_dtls_record_version              = -1;
-static gint hf_dtls_record_epoch                = -1;
-static gint hf_dtls_record_sequence_number      = -1;
-static gint hf_dtls_record_connection_id        = -1;
-static gint hf_dtls_record_length               = -1;
-static gint hf_dtls_record_appdata              = -1;
-static gint hf_dtls_record_appdata_proto        = -1;
-static gint hf_dtls_record_encrypted_content    = -1;
-static gint hf_dtls_alert_message               = -1;
-static gint hf_dtls_alert_message_level         = -1;
-static gint hf_dtls_alert_message_description   = -1;
-static gint hf_dtls_handshake_protocol          = -1;
-static gint hf_dtls_handshake_type              = -1;
-static gint hf_dtls_handshake_length            = -1;
-static gint hf_dtls_handshake_message_seq       = -1;
-static gint hf_dtls_handshake_fragment_offset   = -1;
-static gint hf_dtls_handshake_fragment_length   = -1;
+static gint proto_dtls;
+static gint hf_dtls_record;
+static gint hf_dtls_record_content_type;
+static gint hf_dtls_record_special_type;
+static gint hf_dtls_record_version;
+static gint hf_dtls_record_epoch;
+static gint hf_dtls_record_sequence_number;
+static gint hf_dtls_record_connection_id;
+static gint hf_dtls_record_length;
+static gint hf_dtls_record_appdata;
+static gint hf_dtls_record_appdata_proto;
+static gint hf_dtls_record_encrypted_content;
+static gint hf_dtls_alert_message;
+static gint hf_dtls_alert_message_level;
+static gint hf_dtls_alert_message_description;
+static gint hf_dtls_handshake_protocol;
+static gint hf_dtls_handshake_type;
+static gint hf_dtls_handshake_length;
+static gint hf_dtls_handshake_message_seq;
+static gint hf_dtls_handshake_fragment_offset;
+static gint hf_dtls_handshake_fragment_length;
 
-static gint hf_dtls_heartbeat_message                 = -1;
-static gint hf_dtls_heartbeat_message_type            = -1;
-static gint hf_dtls_heartbeat_message_payload_length  = -1;
-static gint hf_dtls_heartbeat_message_payload         = -1;
-static gint hf_dtls_heartbeat_message_padding         = -1;
+static gint hf_dtls_heartbeat_message;
+static gint hf_dtls_heartbeat_message_type;
+static gint hf_dtls_heartbeat_message_payload_length;
+static gint hf_dtls_heartbeat_message_payload;
+static gint hf_dtls_heartbeat_message_padding;
 
-static gint hf_dtls_fragments                   = -1;
-static gint hf_dtls_fragment                    = -1;
-static gint hf_dtls_fragment_overlap            = -1;
-static gint hf_dtls_fragment_overlap_conflicts  = -1;
-static gint hf_dtls_fragment_multiple_tails     = -1;
-static gint hf_dtls_fragment_too_long_fragment  = -1;
-static gint hf_dtls_fragment_error              = -1;
-static gint hf_dtls_fragment_count              = -1;
-static gint hf_dtls_reassembled_in              = -1;
-static gint hf_dtls_reassembled_length          = -1;
+static gint hf_dtls_fragments;
+static gint hf_dtls_fragment;
+static gint hf_dtls_fragment_overlap;
+static gint hf_dtls_fragment_overlap_conflicts;
+static gint hf_dtls_fragment_multiple_tails;
+static gint hf_dtls_fragment_too_long_fragment;
+static gint hf_dtls_fragment_error;
+static gint hf_dtls_fragment_count;
+static gint hf_dtls_reassembled_in;
+static gint hf_dtls_reassembled_length;
 
-static gint hf_dtls_hs_ext_use_srtp_protection_profiles_length  = -1;
-static gint hf_dtls_hs_ext_use_srtp_protection_profile          = -1;
-static gint hf_dtls_hs_ext_use_srtp_mki_length                  = -1;
-static gint hf_dtls_hs_ext_use_srtp_mki                         = -1;
+static gint hf_dtls_hs_ext_use_srtp_protection_profiles_length;
+static gint hf_dtls_hs_ext_use_srtp_protection_profile;
+static gint hf_dtls_hs_ext_use_srtp_mki_length;
+static gint hf_dtls_hs_ext_use_srtp_mki;
 
 /* header fields used in ssl-utils, but defined here. */
 static dtls_hfs_t dtls_hfs;
 
 /* Initialize the subtree pointers */
-static gint ett_dtls                   = -1;
-static gint ett_dtls_record            = -1;
-static gint ett_dtls_alert             = -1;
-static gint ett_dtls_handshake         = -1;
-static gint ett_dtls_heartbeat         = -1;
-static gint ett_dtls_certs             = -1;
+static gint ett_dtls;
+static gint ett_dtls_record;
+static gint ett_dtls_alert;
+static gint ett_dtls_handshake;
+static gint ett_dtls_heartbeat;
+static gint ett_dtls_certs;
 
-static gint ett_dtls_fragment          = -1;
-static gint ett_dtls_fragments         = -1;
+static gint ett_dtls_fragment;
+static gint ett_dtls_fragments;
 
-static expert_field ei_dtls_handshake_fragment_length_too_long = EI_INIT;
-static expert_field ei_dtls_handshake_fragment_length_zero = EI_INIT;
-static expert_field ei_dtls_handshake_fragment_past_end_msg = EI_INIT;
-static expert_field ei_dtls_msg_len_diff_fragment = EI_INIT;
-static expert_field ei_dtls_heartbeat_payload_length = EI_INIT;
-static expert_field ei_dtls_cid_invalid_content_type = EI_INIT;
-static expert_field ei_dtls_use_srtp_profiles_length = EI_INIT;
+static expert_field ei_dtls_handshake_fragment_length_too_long;
+static expert_field ei_dtls_handshake_fragment_length_zero;
+static expert_field ei_dtls_handshake_fragment_past_end_msg;
+static expert_field ei_dtls_msg_len_diff_fragment;
+static expert_field ei_dtls_heartbeat_payload_length;
+static expert_field ei_dtls_cid_invalid_content_type;
+static expert_field ei_dtls_use_srtp_profiles_length;
 #if 0
-static expert_field ei_dtls_cid_invalid_enc_content = EI_INIT;
+static expert_field ei_dtls_cid_invalid_enc_content;
 #endif
 
 #ifdef HAVE_LIBGNUTLS

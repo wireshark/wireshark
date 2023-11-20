@@ -27,51 +27,51 @@
 void proto_reg_handoff_do(void);
 void proto_register_do(void);
 
-static int proto_do = -1;
+static int proto_do;
 // Message types
-static int hf_do_handshake_message = -1;
-static int hf_do_keepalive_message = -1;
-static int hf_do_choke_message = -1;
-static int hf_do_unchoke_message = -1;
-static int hf_do_interested_message = -1;
-static int hf_do_notinterested_message = -1;
-static int hf_do_have_message = -1;
-static int hf_do_bitfield_message = -1;
-static int hf_do_request_message = -1;
-static int hf_do_piece_message = -1;
-static int hf_do_cancel_message = -1;
-static int hf_do_heap_spraying_message = -1;
-static int hf_do_unknown_message = -1;
+static int hf_do_handshake_message;
+static int hf_do_keepalive_message;
+static int hf_do_choke_message;
+static int hf_do_unchoke_message;
+static int hf_do_interested_message;
+static int hf_do_notinterested_message;
+static int hf_do_have_message;
+static int hf_do_bitfield_message;
+static int hf_do_request_message;
+static int hf_do_piece_message;
+static int hf_do_cancel_message;
+static int hf_do_heap_spraying_message;
+static int hf_do_unknown_message;
 // Handshake
-static int hf_do_protocol_name = -1;
-static int hf_do_size = -1;
-static int hf_do_swarm_hash = -1;
-static int hf_do_peer_id = -1;
-static int hf_do_peer_id_suffix = -1;
+static int hf_do_protocol_name;
+static int hf_do_size;
+static int hf_do_swarm_hash;
+static int hf_do_peer_id;
+static int hf_do_peer_id_suffix;
 // Message header
-static int hf_do_message_size = -1;
-static int hf_do_message_id = -1;
+static int hf_do_message_size;
+static int hf_do_message_id;
 // BitField
-static int hf_do_bitfield = -1;
-static int hf_do_bitfield_piece = -1;
-static int hf_do_has_piece = -1;
+static int hf_do_bitfield;
+static int hf_do_bitfield_piece;
+static int hf_do_has_piece;
 // Request & Piece
-static int hf_do_piece_index = -1;
-static int hf_do_piece_start_offset = -1;
-static int hf_do_piece_size = -1;
-static int hf_do_piece_buffer = -1;
-static int hf_do_piece_response_size = -1;
+static int hf_do_piece_index;
+static int hf_do_piece_start_offset;
+static int hf_do_piece_size;
+static int hf_do_piece_buffer;
+static int hf_do_piece_response_size;
 // "HeapSpraying"
-static int hf_do_heap_spraying = -1;
+static int hf_do_heap_spraying;
 
-static gint ett_do = -1;
-static gint ett_do_handshake = -1;
-static gint ett_do_message = -1;
-static gint ett_do_bitfield = -1;
-static gint ett_do_bitfield_single = -1;
+static gint ett_do;
+static gint ett_do_handshake;
+static gint ett_do_message;
+static gint ett_do_bitfield;
+static gint ett_do_bitfield_single;
 
-static expert_field ei_do_invalid_message_id = EI_INIT;
-static expert_field ei_do_invalid_message_length = EI_INIT;
+static expert_field ei_do_invalid_message_id;
+static expert_field ei_do_invalid_message_length;
 
 static dissector_handle_t do_handle = NULL;
 

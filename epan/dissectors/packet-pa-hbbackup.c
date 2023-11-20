@@ -28,12 +28,12 @@ void proto_register_hbbak(void);
 
 #define HBBAK_SIZE 8
 
-static int proto_hbbak = -1;
-static int hf_hbbak_unknown1 = -1;
-static int hf_hbbak_etype_outer = -1;
-static int hf_hbbak_trailer = -1;
+static int proto_hbbak;
+static int hf_hbbak_unknown1;
+static int hf_hbbak_etype_outer;
+static int hf_hbbak_trailer;
 
-static gint ett_hbbak = -1;
+static gint ett_hbbak;
 
 static dissector_handle_t hbbak_handle;
 static dissector_handle_t ethertype_handle;

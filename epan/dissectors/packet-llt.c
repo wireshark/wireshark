@@ -29,18 +29,18 @@ static const value_string message_type_vs[] = {
 static guint preference_alternate_ethertype = 0x0;
 
 /* Initialize the protocol and registered fields */
-static int proto_llt = -1;
+static int proto_llt;
 
-static int hf_llt_cluster_num = -1;
-static int hf_llt_node_id = -1;
-static int hf_llt_message_type = -1;
-static int hf_llt_sequence_num = -1;
-static int hf_llt_message_time = -1;
-static int hf_llt_dst_node_id = -1;
-static int hf_llt_src_node_id = -1;
+static int hf_llt_cluster_num;
+static int hf_llt_node_id;
+static int hf_llt_message_type;
+static int hf_llt_sequence_num;
+static int hf_llt_message_time;
+static int hf_llt_dst_node_id;
+static int hf_llt_src_node_id;
 
 /* Initialize the subtree pointers */
-static gint ett_llt = -1;
+static gint ett_llt;
 
 /* Code to actually dissect the packets */
 static int

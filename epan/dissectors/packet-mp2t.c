@@ -42,26 +42,26 @@ static dissector_handle_t mpeg_sect_handle;
 
 static heur_dissector_list_t heur_subdissector_list;
 
-static int proto_mp2t = -1;
-static gint ett_mp2t = -1;
-static gint ett_mp2t_header = -1;
-static gint ett_mp2t_af = -1;
-static gint ett_mp2t_analysis = -1;
-static gint ett_stuff = -1;
+static int proto_mp2t;
+static gint ett_mp2t;
+static gint ett_mp2t_header;
+static gint ett_mp2t_af;
+static gint ett_mp2t_analysis;
+static gint ett_stuff;
 
-static int hf_mp2t_header = -1;
-static int hf_mp2t_sync_byte = -1;
-static int hf_mp2t_tei = -1;
-static int hf_mp2t_pusi = -1;
-static int hf_mp2t_tp = -1;
-static int hf_mp2t_pid = -1;
-static int hf_mp2t_tsc = -1;
-static int hf_mp2t_afc = -1;
-static int hf_mp2t_cc = -1;
+static int hf_mp2t_header;
+static int hf_mp2t_sync_byte;
+static int hf_mp2t_tei;
+static int hf_mp2t_pusi;
+static int hf_mp2t_tp;
+static int hf_mp2t_pid;
+static int hf_mp2t_tsc;
+static int hf_mp2t_afc;
+static int hf_mp2t_cc;
 
-/* static int hf_mp2t_analysis_flags = -1; */
-static int hf_mp2t_analysis_skips = -1;
-static int hf_mp2t_analysis_drops = -1;
+/* static int hf_mp2t_analysis_flags; */
+static int hf_mp2t_analysis_skips;
+static int hf_mp2t_analysis_drops;
 
 #define MP2T_SYNC_BYTE_MASK  0xFF000000
 #define MP2T_TEI_MASK        0x00800000
@@ -81,16 +81,16 @@ static int hf_mp2t_analysis_drops = -1;
 #define MP2T_AFC_SHIFT         4
 #define MP2T_CC_SHIFT          0
 
-static int hf_mp2t_af = -1;
-static int hf_mp2t_af_length = -1;
-static int hf_mp2t_af_di = -1;
-static int hf_mp2t_af_rai = -1;
-static int hf_mp2t_af_espi = -1;
-static int hf_mp2t_af_pcr_flag = -1;
-static int hf_mp2t_af_opcr_flag = -1;
-static int hf_mp2t_af_sp_flag = -1;
-static int hf_mp2t_af_tpd_flag = -1;
-static int hf_mp2t_af_afe_flag = -1;
+static int hf_mp2t_af;
+static int hf_mp2t_af_length;
+static int hf_mp2t_af_di;
+static int hf_mp2t_af_rai;
+static int hf_mp2t_af_espi;
+static int hf_mp2t_af_pcr_flag;
+static int hf_mp2t_af_opcr_flag;
+static int hf_mp2t_af_sp_flag;
+static int hf_mp2t_af_tpd_flag;
+static int hf_mp2t_af_afe_flag;
 
 #define MP2T_AF_DI_MASK     0x80
 #define MP2T_AF_RAI_MASK    0x40
@@ -110,44 +110,44 @@ static int hf_mp2t_af_afe_flag = -1;
 #define MP2T_AF_TPD_SHIFT    1
 #define MP2T_AF_AFE_SHIFT    0
 
-static int hf_mp2t_af_pcr = -1;
-static int hf_mp2t_af_opcr = -1;
+static int hf_mp2t_af_pcr;
+static int hf_mp2t_af_opcr;
 
-static int hf_mp2t_af_sc = -1;
+static int hf_mp2t_af_sc;
 
-static int hf_mp2t_af_tpd_length = -1;
-static int hf_mp2t_af_tpd = -1;
+static int hf_mp2t_af_tpd_length;
+static int hf_mp2t_af_tpd;
 
-static int hf_mp2t_af_e_length = -1;
-static int hf_mp2t_af_e_ltw_flag = -1;
-static int hf_mp2t_af_e_pr_flag = -1;
-static int hf_mp2t_af_e_ss_flag = -1;
-static int hf_mp2t_af_e_reserved = -1;
+static int hf_mp2t_af_e_length;
+static int hf_mp2t_af_e_ltw_flag;
+static int hf_mp2t_af_e_pr_flag;
+static int hf_mp2t_af_e_ss_flag;
+static int hf_mp2t_af_e_reserved;
 
 #define MP2T_AF_E_LTW_FLAG_MASK   0x80
 #define MP2T_AF_E_PR_FLAG_MASK    0x40
 #define MP2T_AF_E_SS_FLAG_MASK    0x20
 
-static int hf_mp2t_af_e_reserved_bytes = -1;
-static int hf_mp2t_af_stuffing_bytes = -1;
+static int hf_mp2t_af_e_reserved_bytes;
+static int hf_mp2t_af_stuffing_bytes;
 
-static int hf_mp2t_af_e_ltwv_flag = -1;
-static int hf_mp2t_af_e_ltwo = -1;
+static int hf_mp2t_af_e_ltwv_flag;
+static int hf_mp2t_af_e_ltwo;
 
-static int hf_mp2t_af_e_pr_reserved = -1;
-static int hf_mp2t_af_e_pr = -1;
+static int hf_mp2t_af_e_pr_reserved;
+static int hf_mp2t_af_e_pr;
 
-static int hf_mp2t_af_e_st = -1;
-static int hf_mp2t_af_e_dnau_32_30 = -1;
-static int hf_mp2t_af_e_m_1 = -1;
-static int hf_mp2t_af_e_dnau_29_15 = -1;
-static int hf_mp2t_af_e_m_2 = -1;
-static int hf_mp2t_af_e_dnau_14_0 = -1;
-static int hf_mp2t_af_e_m_3 = -1;
+static int hf_mp2t_af_e_st;
+static int hf_mp2t_af_e_dnau_32_30;
+static int hf_mp2t_af_e_m_1;
+static int hf_mp2t_af_e_dnau_29_15;
+static int hf_mp2t_af_e_m_2;
+static int hf_mp2t_af_e_dnau_14_0;
+static int hf_mp2t_af_e_m_3;
 
-/* static int hf_mp2t_payload = -1; */
-static int hf_mp2t_stuff_bytes = -1;
-static int hf_mp2t_pointer = -1;
+/* static int hf_mp2t_payload; */
+static int hf_mp2t_stuff_bytes;
+static int hf_mp2t_pointer;
 
 /* proto data keys. Note that the packet_analysis_data structure is stored
  * using the layer number, but since that is at wmem_file_scope() while
@@ -216,24 +216,24 @@ static const value_string mp2t_afc_vals[] = {
     { 0, NULL }
 };
 
-static gint ett_msg_fragment = -1;
-static gint ett_msg_fragments = -1;
-static int hf_msg_fragments = -1;
-static int hf_msg_fragment = -1;
-static int hf_msg_fragment_overlap = -1;
-static int hf_msg_fragment_overlap_conflicts = -1;
-static int hf_msg_fragment_multiple_tails = -1;
-static int hf_msg_fragment_too_long_fragment = -1;
-static int hf_msg_fragment_error = -1;
-static int hf_msg_fragment_count = -1;
-static int hf_msg_reassembled_in = -1;
-static int hf_msg_reassembled_length = -1;
+static gint ett_msg_fragment;
+static gint ett_msg_fragments;
+static int hf_msg_fragments;
+static int hf_msg_fragment;
+static int hf_msg_fragment_overlap;
+static int hf_msg_fragment_overlap_conflicts;
+static int hf_msg_fragment_multiple_tails;
+static int hf_msg_fragment_too_long_fragment;
+static int hf_msg_fragment_error;
+static int hf_msg_fragment_count;
+static int hf_msg_reassembled_in;
+static int hf_msg_reassembled_length;
 
-static int hf_msg_ts_packet_reassembled = -1;
+static int hf_msg_ts_packet_reassembled;
 
-static expert_field ei_mp2t_pointer = EI_INIT;
-static expert_field ei_mp2t_cc_drop = EI_INIT;
-static expert_field ei_mp2t_invalid_afc = EI_INIT;
+static expert_field ei_mp2t_pointer;
+static expert_field ei_mp2t_cc_drop;
+static expert_field ei_mp2t_invalid_afc;
 
 static const fragment_items mp2t_msg_frag_items = {
     /* Fragment subtrees */

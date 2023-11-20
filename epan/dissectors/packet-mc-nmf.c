@@ -94,28 +94,28 @@ struct mc_nmf_session_state {
     guint32   upgrade_rsp;
 };
 
-static int proto_mc_nmf = -1;
-static int hf_mc_nmf_record_type = -1;
-static int hf_mc_nmf_major_version = -1;
-static int hf_mc_nmf_minor_version = -1;
-static int hf_mc_nmf_mode = -1;
-static int hf_mc_nmf_known_encoding = -1;
-static int hf_mc_nmf_via_length = -1;
-static int hf_mc_nmf_via = -1;
-static int hf_mc_nmf_encoding_length = -1;
-static int hf_mc_nmf_encoding_type = -1;
-static int hf_mc_nmf_fault_length = -1;
-static int hf_mc_nmf_fault = -1;
-static int hf_mc_nmf_upgrade_length = -1;
-static int hf_mc_nmf_upgrade = -1;
-static int hf_mc_nmf_chunk_length = -1;
-static int hf_mc_nmf_chunk = -1;
-static int hf_mc_nmf_terminator = -1;
-static int hf_mc_nmf_payload_length = -1;
-static int hf_mc_nmf_payload = -1;
-static int hf_mc_nmf_upgrade_proto_data = -1;
+static int proto_mc_nmf;
+static int hf_mc_nmf_record_type;
+static int hf_mc_nmf_major_version;
+static int hf_mc_nmf_minor_version;
+static int hf_mc_nmf_mode;
+static int hf_mc_nmf_known_encoding;
+static int hf_mc_nmf_via_length;
+static int hf_mc_nmf_via;
+static int hf_mc_nmf_encoding_length;
+static int hf_mc_nmf_encoding_type;
+static int hf_mc_nmf_fault_length;
+static int hf_mc_nmf_fault;
+static int hf_mc_nmf_upgrade_length;
+static int hf_mc_nmf_upgrade;
+static int hf_mc_nmf_chunk_length;
+static int hf_mc_nmf_chunk;
+static int hf_mc_nmf_terminator;
+static int hf_mc_nmf_payload_length;
+static int hf_mc_nmf_payload;
+static int hf_mc_nmf_upgrade_proto_data;
 
-static expert_field ei_mc_nmf_size_too_big = EI_INIT;
+static expert_field ei_mc_nmf_size_too_big;
 
 // [MC-NMF] does not have a defined port https://learn.microsoft.com/en-us/openspecs/windows_protocols/mc-nmf/51b5eb53-f488-4b74-b21d-8a498f016b61
 // but 9389 is ADWS port https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adcap/cfff3d7f-e7cd-4529-86a0-4de89efe3855
@@ -123,8 +123,8 @@ static expert_field ei_mc_nmf_size_too_big = EI_INIT;
 #define MC_NMF_TCP_PORT 9389
 
 /* Initialize the subtree pointers */
-static gint ett_mc_nmf = -1;
-static gint ett_mc_nmf_rec = -1;
+static gint ett_mc_nmf;
+static gint ett_mc_nmf_rec;
 
 #define MC_NMF_MIN_LENGTH 1
 

@@ -75,7 +75,7 @@ static gint arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 /* Static variables */
 static reassembly_table payload_reassembly_table;
 
-gint proto_mac_header_generic_decoder = -1;
+gint proto_mac_header_generic_decoder;
 static gint ett_mac_header_generic_decoder;
 /* static gint ett_mac_subheader_decoder; */
 static gint ett_mac_mesh_subheader_decoder;

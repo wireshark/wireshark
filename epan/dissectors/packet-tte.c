@@ -28,21 +28,21 @@ void proto_reg_handoff_tte(void);
 static dissector_handle_t ethertype_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_tte = -1;
+static int proto_tte;
 
-static int hf_eth_dst       = -1;
-static int hf_tte_dst_cf    = -1;
-static int hf_tte_ctid      = -1;
-static int hf_eth_src       = -1;
-static int hf_eth_type      = -1;
+static int hf_eth_dst;
+static int hf_tte_dst_cf;
+static int hf_tte_ctid;
+static int hf_eth_src;
+static int hf_eth_type;
 
 /* preference value pointers */
 static guint32    tte_pref_ct_marker    = 0xFFFFFFFF;
 static guint32    tte_pref_ct_mask      = 0x0;
 
 /* Initialize the subtree pointers */
-static gint ett_tte = -1;
-static gint ett_tte_macdest = -1;
+static gint ett_tte;
+static gint ett_tte_macdest;
 
 
 /* Code to actually dissect the packets */

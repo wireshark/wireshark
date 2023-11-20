@@ -94,7 +94,7 @@ void proto_reg_handoff_mux27010(void);
 
 
 /* Wireshark ID of the MUX27010 protocol */
-static int proto_mux27010 = -1;
+static int proto_mux27010;
 
 /* Handles of subdissectors */
 static dissector_handle_t ppp_handle;
@@ -169,119 +169,119 @@ struct controlchannel
 * proto_register_field_array() in proto_register_mux27010()
 */
 
-static gint hf_mux27010_extended_header = -1;
-static gint hf_mux27010_direction = -1;
-static gint hf_mux27010 = -1;
-static gint hf_mux27010_address = -1;
-static gint hf_mux27010_control = -1;
-static gint hf_mux27010_length = -1;
-static gint hf_mux27010_controlchannel = -1;
+static gint hf_mux27010_extended_header;
+static gint hf_mux27010_direction;
+static gint hf_mux27010;
+static gint hf_mux27010_address;
+static gint hf_mux27010_control;
+static gint hf_mux27010_length;
+static gint hf_mux27010_controlchannel;
 
 /*Extended Header*/
-static int hf_mux27010_extended_header_size = -1;
-static int hf_mux27010_extended_header_msg_number_I = -1;
-static int hf_mux27010_extended_header_freq_number_I = -1;
-static int hf_mux27010_extended_header_start_pos_I = -1;
-static int hf_mux27010_extended_header_start_byte_I = -1;
-static int hf_mux27010_extended_header_end_pos_I = -1;
-static int hf_mux27010_extended_header_end_byte_I = -1;
-static int hf_mux27010_extended_header_flag_ended_I = -1;
+static int hf_mux27010_extended_header_size;
+static int hf_mux27010_extended_header_msg_number_I;
+static int hf_mux27010_extended_header_freq_number_I;
+static int hf_mux27010_extended_header_start_pos_I;
+static int hf_mux27010_extended_header_start_byte_I;
+static int hf_mux27010_extended_header_end_pos_I;
+static int hf_mux27010_extended_header_end_byte_I;
+static int hf_mux27010_extended_header_flag_ended_I;
 
-static int hf_mux27010_extended_header_msg_number_II = -1;
-static int hf_mux27010_extended_header_freq_number_II = -1;
-static int hf_mux27010_extended_header_start_pos_II = -1;
-static int hf_mux27010_extended_header_start_byte_II = -1;
-static int hf_mux27010_extended_header_end_pos_II = -1;
-static int hf_mux27010_extended_header_end_byte_II = -1;
-static int hf_mux27010_extended_header_flag_ended_II = -1;
+static int hf_mux27010_extended_header_msg_number_II;
+static int hf_mux27010_extended_header_freq_number_II;
+static int hf_mux27010_extended_header_start_pos_II;
+static int hf_mux27010_extended_header_start_byte_II;
+static int hf_mux27010_extended_header_end_pos_II;
+static int hf_mux27010_extended_header_end_byte_II;
+static int hf_mux27010_extended_header_flag_ended_II;
 
-static int hf_mux27010_extended_header_msg_number_III = -1;
-static int hf_mux27010_extended_header_freq_number_III = -1;
-static int hf_mux27010_extended_header_start_pos_III = -1;
-static int hf_mux27010_extended_header_start_byte_III = -1;
-static int hf_mux27010_extended_header_end_pos_III = -1;
-static int hf_mux27010_extended_header_end_byte_III = -1;
-static int hf_mux27010_extended_header_flag_ended_III = -1;
+static int hf_mux27010_extended_header_msg_number_III;
+static int hf_mux27010_extended_header_freq_number_III;
+static int hf_mux27010_extended_header_start_pos_III;
+static int hf_mux27010_extended_header_start_byte_III;
+static int hf_mux27010_extended_header_end_pos_III;
+static int hf_mux27010_extended_header_end_byte_III;
+static int hf_mux27010_extended_header_flag_ended_III;
 
 /*Address*/
-static int hf_mux27010_dlciaddressflag = -1;
-static int hf_mux27010_eaaddressflag = -1;
-static int hf_mux27010_craddressflag = -1;
-/* static int hf_mux27010_addressdirection = -1; */
+static int hf_mux27010_dlciaddressflag;
+static int hf_mux27010_eaaddressflag;
+static int hf_mux27010_craddressflag;
+/* static int hf_mux27010_addressdirection; */
 /*Control*/
-static int hf_mux27010_controlframetype = -1;
-static int hf_mux27010_controlframetypens = -1;
-static int hf_mux27010_controlframetypenr = -1;
-static int hf_mux27010_pfcontrolflag = -1;
+static int hf_mux27010_controlframetype;
+static int hf_mux27010_controlframetypens;
+static int hf_mux27010_controlframetypenr;
+static int hf_mux27010_pfcontrolflag;
 /*Length*/
-static int hf_mux27010_ealengthflag = -1;
-static int hf_mux27010_lengthframesize = -1;
-static int hf_mux27010_lengthframesize_ea = -1;
+static int hf_mux27010_ealengthflag;
+static int hf_mux27010_lengthframesize;
+static int hf_mux27010_lengthframesize_ea;
 /*Control channel dlci = 0*/
-static int hf_mux27010_controlchannelframetype = -1;
-static int hf_mux27010_controlchanneleaframetype = -1;
-static int hf_mux27010_controlchannelcrframetype = -1;
-static int hf_mux27010_controlchannelframetypecommand = -1;
-static int hf_mux27010_controlchannellength = -1;
-static int hf_mux27010_controlchannelealength = -1;
-static int hf_mux27010_controlchannellengthfield = -1;
-static int hf_mux27010_controlchannelvalue = -1;
-static int hf_mux27010_controlchannel_iei_coding = -1;
-static int hf_mux27010_controlchanneldetailedvalue = -1;
-static int hf_mux27010_controlchannel_detailedvalue_response = -1;
-static int hf_mux27010_controlchanneldetailedvaluetestcommandversion = -1;
-static int hf_mux27010_controlchanneldetailedvaluemscdlci = -1;
-/* static int hf_mux27010_controlchanneldetailedvaluemscv24 = -1; */
-static int hf_mux27010_controlchanneldetailedvaluemscv24fc = -1;
-static int hf_mux27010_controlchanneldetailedvaluemscv24rtc = -1;
-static int hf_mux27010_controlchanneldetailedvaluemscv24rtr = -1;
-static int hf_mux27010_controlchanneldetailedvaluemscv24ring = -1;
-static int hf_mux27010_controlchanneldetailedvaluemscv24dcd = -1;
-static int hf_mux27010_controlchanneldetailedvaluemscbreak = -1;
-static int hf_mux27010_controlchanneldetailedvaluepndlci = -1;
-static int hf_mux27010_controlchanneldetailedvaluepnframetype = -1;
-static int hf_mux27010_controlchanneldetailedvaluepncl = -1;
-static int hf_mux27010_controlchanneldetailedvaluepnprio = -1;
-static int hf_mux27010_controlchanneldetailedvaluepntimer = -1;
-static int hf_mux27010_controlchanneldetailedvaluepnframesize = -1;
-static int hf_mux27010_controlchanneldetailedvaluepnna = -1;
-static int hf_mux27010_controlchanneldetailedvaluepnwinsize = -1;
+static int hf_mux27010_controlchannelframetype;
+static int hf_mux27010_controlchanneleaframetype;
+static int hf_mux27010_controlchannelcrframetype;
+static int hf_mux27010_controlchannelframetypecommand;
+static int hf_mux27010_controlchannellength;
+static int hf_mux27010_controlchannelealength;
+static int hf_mux27010_controlchannellengthfield;
+static int hf_mux27010_controlchannelvalue;
+static int hf_mux27010_controlchannel_iei_coding;
+static int hf_mux27010_controlchanneldetailedvalue;
+static int hf_mux27010_controlchannel_detailedvalue_response;
+static int hf_mux27010_controlchanneldetailedvaluetestcommandversion;
+static int hf_mux27010_controlchanneldetailedvaluemscdlci;
+/* static int hf_mux27010_controlchanneldetailedvaluemscv24; */
+static int hf_mux27010_controlchanneldetailedvaluemscv24fc;
+static int hf_mux27010_controlchanneldetailedvaluemscv24rtc;
+static int hf_mux27010_controlchanneldetailedvaluemscv24rtr;
+static int hf_mux27010_controlchanneldetailedvaluemscv24ring;
+static int hf_mux27010_controlchanneldetailedvaluemscv24dcd;
+static int hf_mux27010_controlchanneldetailedvaluemscbreak;
+static int hf_mux27010_controlchanneldetailedvaluepndlci;
+static int hf_mux27010_controlchanneldetailedvaluepnframetype;
+static int hf_mux27010_controlchanneldetailedvaluepncl;
+static int hf_mux27010_controlchanneldetailedvaluepnprio;
+static int hf_mux27010_controlchanneldetailedvaluepntimer;
+static int hf_mux27010_controlchanneldetailedvaluepnframesize;
+static int hf_mux27010_controlchanneldetailedvaluepnna;
+static int hf_mux27010_controlchanneldetailedvaluepnwinsize;
 /*Information*/
-static int hf_mux27010_information = -1;
-static int hf_mux27010_information_str = -1;
+static int hf_mux27010_information;
+static int hf_mux27010_information_str;
 /*Checksum*/
-static int hf_mux27010_checksum = -1;
-static int hf_mux27010_checksum_correct = -1;
+static int hf_mux27010_checksum;
+static int hf_mux27010_checksum_correct;
 
 /* These are the ids of the subtrees that we may be creating */
-static gint ett_mux27010_extended_header = -1;
-static gint ett_mux27010 = -1;
-static gint ett_mux27010_address = -1;
-static gint ett_mux27010_control = -1;
-static gint ett_mux27010_length = -1;
-static gint ett_mux27010_controlchannel = -1;
-static gint ett_mux27010_controlchannelframetype = -1;
-static gint ett_mux27010_controlchannellength = -1;
-static gint ett_mux27010_controlchannelvalue = -1;
-static gint ett_mux27010_information = -1;
-static gint ett_mux27010_checksum = -1;
+static gint ett_mux27010_extended_header;
+static gint ett_mux27010;
+static gint ett_mux27010_address;
+static gint ett_mux27010_control;
+static gint ett_mux27010_length;
+static gint ett_mux27010_controlchannel;
+static gint ett_mux27010_controlchannelframetype;
+static gint ett_mux27010_controlchannellength;
+static gint ett_mux27010_controlchannelvalue;
+static gint ett_mux27010_information;
+static gint ett_mux27010_checksum;
 
-static expert_field ei_mux27010_message_illogical = EI_INIT;
-static expert_field ei_mux27010_checksum_incorrect = EI_INIT;
+static expert_field ei_mux27010_message_illogical;
+static expert_field ei_mux27010_checksum_incorrect;
 
-static int hf_msg_fragments = -1;
-static int hf_msg_fragment = -1;
-static int hf_msg_fragment_overlap = -1;
-static int hf_msg_fragment_overlap_conflicts = -1;
-static int hf_msg_fragment_multiple_tails = -1;
-static int hf_msg_fragment_too_long_fragment = -1;
-static int hf_msg_fragment_error = -1;
-static int hf_msg_fragment_count = -1;
-static int hf_msg_reassembled_in = -1;
-static int hf_msg_reassembled_length = -1;
+static int hf_msg_fragments;
+static int hf_msg_fragment;
+static int hf_msg_fragment_overlap;
+static int hf_msg_fragment_overlap_conflicts;
+static int hf_msg_fragment_multiple_tails;
+static int hf_msg_fragment_too_long_fragment;
+static int hf_msg_fragment_error;
+static int hf_msg_fragment_count;
+static int hf_msg_reassembled_in;
+static int hf_msg_reassembled_length;
 
-static gint ett_msg_fragment = -1;
-static gint ett_msg_fragments = -1;
+static gint ett_msg_fragment;
+static gint ett_msg_fragments;
 
 static dissector_handle_t mux27010_handle;
 

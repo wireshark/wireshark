@@ -20,47 +20,47 @@
 
 void proto_register_quake(void);
 
-static int proto_quake = -1;
-static int hf_quake_header_flags = -1;
-static int hf_quake_header_flags_data = -1;
-static int hf_quake_header_flags_ack = -1;
-static int hf_quake_header_flags_no_ack = -1;
-static int hf_quake_header_flags_endmsg = -1;
-static int hf_quake_header_flags_unreliable = -1;
-static int hf_quake_header_flags_control = -1;
-static int hf_quake_header_length = -1;
-static int hf_quake_header_sequence = -1;
-static int hf_quake_control_command = -1;
+static int proto_quake;
+static int hf_quake_header_flags;
+static int hf_quake_header_flags_data;
+static int hf_quake_header_flags_ack;
+static int hf_quake_header_flags_no_ack;
+static int hf_quake_header_flags_endmsg;
+static int hf_quake_header_flags_unreliable;
+static int hf_quake_header_flags_control;
+static int hf_quake_header_length;
+static int hf_quake_header_sequence;
+static int hf_quake_control_command;
 
-static int hf_quake_CCREQ_CONNECT_game = -1;
-static int hf_quake_CCREQ_CONNECT_version = -1;
-static int hf_quake_CCREQ_SERVER_INFO_game = -1;
-static int hf_quake_CCREQ_SERVER_INFO_version = -1;
-static int hf_quake_CCREQ_PLAYER_INFO_player = -1;
-static int hf_quake_CCREQ_RULE_INFO_lastrule = -1;
+static int hf_quake_CCREQ_CONNECT_game;
+static int hf_quake_CCREQ_CONNECT_version;
+static int hf_quake_CCREQ_SERVER_INFO_game;
+static int hf_quake_CCREQ_SERVER_INFO_version;
+static int hf_quake_CCREQ_PLAYER_INFO_player;
+static int hf_quake_CCREQ_RULE_INFO_lastrule;
 
-static int hf_quake_CCREP_ACCEPT_port = -1;
-static int hf_quake_CCREP_REJECT_reason = -1;
-static int hf_quake_CCREP_SERVER_INFO_address = -1;
-static int hf_quake_CCREP_SERVER_INFO_server = -1;
-static int hf_quake_CCREP_SERVER_INFO_map = -1;
-static int hf_quake_CCREP_SERVER_INFO_num_player = -1;
-static int hf_quake_CCREP_SERVER_INFO_max_player = -1;
-static int hf_quake_CCREP_PLAYER_INFO_name = -1;
-static int hf_quake_CCREP_PLAYER_INFO_colors = -1;
-static int hf_quake_CCREP_PLAYER_INFO_colors_shirt = -1;
-static int hf_quake_CCREP_PLAYER_INFO_colors_pants = -1;
-static int hf_quake_CCREP_PLAYER_INFO_frags = -1;
-static int hf_quake_CCREP_PLAYER_INFO_connect_time = -1;
-static int hf_quake_CCREP_PLAYER_INFO_address = -1;
-static int hf_quake_CCREP_RULE_INFO_rule = -1;
-static int hf_quake_CCREP_RULE_INFO_value = -1;
+static int hf_quake_CCREP_ACCEPT_port;
+static int hf_quake_CCREP_REJECT_reason;
+static int hf_quake_CCREP_SERVER_INFO_address;
+static int hf_quake_CCREP_SERVER_INFO_server;
+static int hf_quake_CCREP_SERVER_INFO_map;
+static int hf_quake_CCREP_SERVER_INFO_num_player;
+static int hf_quake_CCREP_SERVER_INFO_max_player;
+static int hf_quake_CCREP_PLAYER_INFO_name;
+static int hf_quake_CCREP_PLAYER_INFO_colors;
+static int hf_quake_CCREP_PLAYER_INFO_colors_shirt;
+static int hf_quake_CCREP_PLAYER_INFO_colors_pants;
+static int hf_quake_CCREP_PLAYER_INFO_frags;
+static int hf_quake_CCREP_PLAYER_INFO_connect_time;
+static int hf_quake_CCREP_PLAYER_INFO_address;
+static int hf_quake_CCREP_RULE_INFO_rule;
+static int hf_quake_CCREP_RULE_INFO_value;
 
 
-static gint ett_quake = -1;
-static gint ett_quake_control = -1;
-static gint ett_quake_control_colors = -1;
-static gint ett_quake_flags = -1;
+static gint ett_quake;
+static gint ett_quake_control;
+static gint ett_quake_control_colors;
+static gint ett_quake_flags;
 
 static dissector_handle_t quake_handle;
 

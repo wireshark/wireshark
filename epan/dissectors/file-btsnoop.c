@@ -22,36 +22,36 @@ static dissector_handle_t hci_h1_handle;
 static dissector_handle_t hci_h4_handle;
 static dissector_handle_t hci_mon_handle;
 
-static int proto_btsnoop = -1;
+static int proto_btsnoop;
 
-static int hf_btsnoop_header = -1;
-static int hf_btsnoop_magic_bytes = -1;
-static int hf_btsnoop_version = -1;
-static int hf_btsnoop_datalink = -1;
-static int hf_btsnoop_frame = -1;
-static int hf_btsnoop_origin_length = -1;
-static int hf_btsnoop_included_length = -1;
-static int hf_btsnoop_flags = -1;
-static int hf_btsnoop_cumulative_dropped_packets = -1;
-static int hf_btsnoop_timestamp_microseconds = -1;
-static int hf_btsnoop_payload = -1;
-static int hf_btsnoop_flags_h1_reserved = -1;
-static int hf_btsnoop_flags_h1_channel_type = -1;
-static int hf_btsnoop_flags_h1_direction = -1;
-static int hf_btsnoop_flags_h4_reserved = -1;
-static int hf_btsnoop_flags_h4_direction = -1;
-static int hf_btsnoop_flags_linux_monitor_opcode = -1;
-static int hf_btsnoop_flags_linux_monitor_adapter_id = -1;
+static int hf_btsnoop_header;
+static int hf_btsnoop_magic_bytes;
+static int hf_btsnoop_version;
+static int hf_btsnoop_datalink;
+static int hf_btsnoop_frame;
+static int hf_btsnoop_origin_length;
+static int hf_btsnoop_included_length;
+static int hf_btsnoop_flags;
+static int hf_btsnoop_cumulative_dropped_packets;
+static int hf_btsnoop_timestamp_microseconds;
+static int hf_btsnoop_payload;
+static int hf_btsnoop_flags_h1_reserved;
+static int hf_btsnoop_flags_h1_channel_type;
+static int hf_btsnoop_flags_h1_direction;
+static int hf_btsnoop_flags_h4_reserved;
+static int hf_btsnoop_flags_h4_direction;
+static int hf_btsnoop_flags_linux_monitor_opcode;
+static int hf_btsnoop_flags_linux_monitor_adapter_id;
 
-static expert_field ei_malformed_frame = EI_INIT;
-static expert_field ei_not_implemented_yet = EI_INIT;
-static expert_field ei_unknown_data = EI_INIT;
+static expert_field ei_malformed_frame;
+static expert_field ei_not_implemented_yet;
+static expert_field ei_unknown_data;
 
-static gint ett_btsnoop = -1;
-static gint ett_btsnoop_header = -1;
-static gint ett_btsnoop_frame = -1;
-static gint ett_btsnoop_payload = -1;
-static gint ett_btsnoop_flags = -1;
+static gint ett_btsnoop;
+static gint ett_btsnoop_header;
+static gint ett_btsnoop_frame;
+static gint ett_btsnoop_payload;
+static gint ett_btsnoop_flags;
 
 static gboolean pref_dissect_next_layer = FALSE;
 

@@ -21,22 +21,22 @@ void proto_reg_handoff_vntag(void);
 static dissector_handle_t vntag_handle;
 static dissector_handle_t ethertype_handle;
 
-static int proto_vntag = -1;
+static int proto_vntag;
 
-static int hf_vntag_etype = -1;
-static int hf_vntag_dir = -1;
-static int hf_vntag_ptr = -1;
-static int hf_vntag_dst = -1;
-static int hf_vntag_looped = -1;
-static int hf_vntag_r = -1;
-static int hf_vntag_version = -1;
-static int hf_vntag_src = -1;
-static int hf_vntag_len = -1;
-static int hf_vntag_trailer = -1;
+static int hf_vntag_etype;
+static int hf_vntag_dir;
+static int hf_vntag_ptr;
+static int hf_vntag_dst;
+static int hf_vntag_looped;
+static int hf_vntag_r;
+static int hf_vntag_version;
+static int hf_vntag_src;
+static int hf_vntag_len;
+static int hf_vntag_trailer;
 
-static gint ett_vntag = -1;
+static gint ett_vntag;
 
-static expert_field ei_vntag_len = EI_INIT;
+static expert_field ei_vntag_len;
 
 static const true_false_string vntag_dir_tfs = {
         "From Bridge",

@@ -18,15 +18,15 @@
 void proto_register_openthread(void);
 void proto_reg_handoff_openthread(void);
 
-static int proto_openthread = -1;
+static int proto_openthread;
 
 static dissector_handle_t openthread_handle;
 static dissector_handle_t wpan_handle;
 
-static int hf_openthread_channel = -1;
-/* static int hf_openthread_psdu = -1; */
+static int hf_openthread_channel;
+/* static int hf_openthread_psdu; */
 
-static gint ett_openthread = -1;
+static gint ett_openthread;
 
 static int
 dissect_openthread(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)

@@ -22,15 +22,15 @@
 
 void proto_register_mifare(void);
 
-static int proto_mifare = -1;
+static int proto_mifare;
 
-static int hf_mifare_command = -1;
-static int hf_mifare_block_address = -1;
-static int hf_mifare_key_a = -1;
-static int hf_mifare_key_b = -1;
-static int hf_mifare_uid = -1;
-static int hf_mifare_operand = -1;
-static int hf_mifare_payload = -1;
+static int hf_mifare_command;
+static int hf_mifare_block_address;
+static int hf_mifare_key_a;
+static int hf_mifare_key_b;
+static int hf_mifare_uid;
+static int hf_mifare_operand;
+static int hf_mifare_payload;
 
 #define AUTH_A    0x60
 #define AUTH_B    0x61
@@ -56,7 +56,7 @@ static const value_string hf_mifare_commands[] = {
 };
 
 /* Subtree handles: set by register_subtree_array */
-static gint ett_mifare = -1;
+static gint ett_mifare;
 
 static int
 dissect_mifare(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

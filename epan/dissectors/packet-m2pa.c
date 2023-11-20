@@ -31,37 +31,37 @@ void proto_reg_handoff_m2pa(void);
 
 #define SCTP_PORT_M2PA              3565
 
-static int proto_m2pa      = -1;
+static int proto_m2pa;
 static module_t *m2pa_module;
 
-static int hf_version      = -1;
-static int hf_spare        = -1;
-static int hf_v2_type      = -1;
-static int hf_v8_type      = -1;
-static int hf_type         = -1;
-static int hf_class        = -1;
-static int hf_length       = -1;
-static int hf_unused       = -1;
-static int hf_bsn          = -1;
-static int hf_fsn          = -1;
-static int hf_v2_status    = -1;
-static int hf_v8_status    = -1;
-static int hf_status       = -1;
-static int hf_v2_li_spare  = -1;
-static int hf_v8_li_spare  = -1;
-static int hf_v2_li_prio   = -1;
-static int hf_v8_li_prio   = -1;
-static int hf_filler       = -1;
-static int hf_unknown_data = -1;
-static int hf_pri_prio     = -1;
-static int hf_pri_spare    = -1;
-static int hf_undecode_data   = -1;
+static int hf_version;
+static int hf_spare;
+static int hf_v2_type;
+static int hf_v8_type;
+static int hf_type;
+static int hf_class;
+static int hf_length;
+static int hf_unused;
+static int hf_bsn;
+static int hf_fsn;
+static int hf_v2_status;
+static int hf_v8_status;
+static int hf_status;
+static int hf_v2_li_spare;
+static int hf_v8_li_spare;
+static int hf_v2_li_prio;
+static int hf_v8_li_prio;
+static int hf_filler;
+static int hf_unknown_data;
+static int hf_pri_prio;
+static int hf_pri_spare;
+static int hf_undecode_data;
 
-static gint ett_m2pa       = -1;
-static gint ett_m2pa_li    = -1;
+static gint ett_m2pa;
+static gint ett_m2pa_li;
 
-static expert_field ei_undecode_data = EI_INIT;
-static expert_field ei_length = EI_INIT;
+static expert_field ei_undecode_data;
+static expert_field ei_length;
 
 static dissector_handle_t m2pa_handle;
 static dissector_handle_t mtp3_handle;

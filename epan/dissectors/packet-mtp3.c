@@ -41,7 +41,7 @@ void proto_register_mtp3(void);
 void proto_reg_handoff_mtp3(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_mtp3  = -1;
+static int proto_mtp3;
 
 static int mtp3_tap = -1;
 
@@ -49,46 +49,46 @@ static dissector_handle_t mtp3_handle;
 
 static module_t *mtp3_module;
 
-static int hf_mtp3_service_indicator = -1;
-static int hf_mtp3_network_indicator = -1;
-static int hf_mtp3_itu_spare = -1;
-static int hf_mtp3_itu_priority = -1;
-static int hf_mtp3_ansi_priority = -1;
-static int hf_mtp3_itu_pc = -1;
-static int hf_mtp3_24bit_pc = -1;
-static int hf_mtp3_itu_opc = -1;
-static int hf_mtp3_24bit_opc = -1;
-static int hf_mtp3_ansi_opc = -1;
-static int hf_mtp3_chinese_opc = -1;
-static int hf_mtp3_opc_network = -1;
-static int hf_mtp3_opc_cluster = -1;
-static int hf_mtp3_opc_member = -1;
-static int hf_mtp3_itu_dpc = -1;
-static int hf_mtp3_24bit_dpc = -1;
-static int hf_mtp3_ansi_dpc = -1;
-static int hf_mtp3_chinese_dpc = -1;
-static int hf_mtp3_dpc_network = -1;
-static int hf_mtp3_dpc_cluster = -1;
-static int hf_mtp3_dpc_member = -1;
-static int hf_mtp3_itu_sls = -1;
-static int hf_mtp3_ansi_5_bit_sls = -1;
-static int hf_mtp3_ansi_8_bit_sls = -1;
-static int hf_mtp3_chinese_itu_sls = -1;
-static int hf_mtp3_japan_dpc = -1;
-static int hf_mtp3_japan_opc = -1;
-static int hf_mtp3_japan_pc = -1;
-static int hf_mtp3_japan_4_bit_sls = -1;
-static int hf_mtp3_japan_4_bit_sls_spare = -1;
-static int hf_mtp3_japan_5_bit_sls = -1;
-static int hf_mtp3_japan_5_bit_sls_spare = -1;
-static int hf_mtp3_heuristic_standard = -1;
+static int hf_mtp3_service_indicator;
+static int hf_mtp3_network_indicator;
+static int hf_mtp3_itu_spare;
+static int hf_mtp3_itu_priority;
+static int hf_mtp3_ansi_priority;
+static int hf_mtp3_itu_pc;
+static int hf_mtp3_24bit_pc;
+static int hf_mtp3_itu_opc;
+static int hf_mtp3_24bit_opc;
+static int hf_mtp3_ansi_opc;
+static int hf_mtp3_chinese_opc;
+static int hf_mtp3_opc_network;
+static int hf_mtp3_opc_cluster;
+static int hf_mtp3_opc_member;
+static int hf_mtp3_itu_dpc;
+static int hf_mtp3_24bit_dpc;
+static int hf_mtp3_ansi_dpc;
+static int hf_mtp3_chinese_dpc;
+static int hf_mtp3_dpc_network;
+static int hf_mtp3_dpc_cluster;
+static int hf_mtp3_dpc_member;
+static int hf_mtp3_itu_sls;
+static int hf_mtp3_ansi_5_bit_sls;
+static int hf_mtp3_ansi_8_bit_sls;
+static int hf_mtp3_chinese_itu_sls;
+static int hf_mtp3_japan_dpc;
+static int hf_mtp3_japan_opc;
+static int hf_mtp3_japan_pc;
+static int hf_mtp3_japan_4_bit_sls;
+static int hf_mtp3_japan_4_bit_sls_spare;
+static int hf_mtp3_japan_5_bit_sls;
+static int hf_mtp3_japan_5_bit_sls_spare;
+static int hf_mtp3_heuristic_standard;
 
 /* Initialize the subtree pointers */
-static gint ett_mtp3 = -1;
-static gint ett_mtp3_sio = -1;
-static gint ett_mtp3_label = -1;
-static gint ett_mtp3_label_dpc = -1;
-static gint ett_mtp3_label_opc = -1;
+static gint ett_mtp3;
+static gint ett_mtp3_sio;
+static gint ett_mtp3_label;
+static gint ett_mtp3_label_dpc;
+static gint ett_mtp3_label_opc;
 
 static dissector_table_t mtp3_sio_dissector_table;
 

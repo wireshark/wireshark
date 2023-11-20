@@ -72,41 +72,41 @@ void proto_register_riemann(void);
 
 static dissector_handle_t riemann_udp_handle, riemann_tcp_handle;
 
-static int proto_riemann = -1;
-static int hf_riemann_msg_ok = -1;
-static int hf_riemann_msg_error = -1;
-static int hf_riemann_attribute = -1;
-static int hf_riemann_attribute_key = -1;
-static int hf_riemann_attribute_value = -1;
-static int hf_riemann_query = -1;
-static int hf_riemann_query_string = -1;
-static int hf_riemann_event = -1;
-static int hf_riemann_event_state = -1;
-static int hf_riemann_event_service = -1;
-static int hf_riemann_event_host = -1;
-static int hf_riemann_event_description = -1;
-static int hf_riemann_event_tag = -1;
-static int hf_riemann_event_ttl = -1;
-static int hf_riemann_event_time = -1;
-static int hf_riemann_event_metric_d = -1;
-static int hf_riemann_event_metric_f = -1;
-static int hf_riemann_event_time_micros = -1;
-static int hf_riemann_event_metric_sint64 = -1;
-static int hf_riemann_state = -1;
-static int hf_riemann_state_service = -1;
-static int hf_riemann_state_host = -1;
-static int hf_riemann_state_description = -1;
-static int hf_riemann_state_tag = -1;
-static int hf_riemann_state_ttl = -1;
-static int hf_riemann_state_time = -1;
-static int hf_riemann_state_state = -1;
-static int hf_riemann_state_once = -1;
+static int proto_riemann;
+static int hf_riemann_msg_ok;
+static int hf_riemann_msg_error;
+static int hf_riemann_attribute;
+static int hf_riemann_attribute_key;
+static int hf_riemann_attribute_value;
+static int hf_riemann_query;
+static int hf_riemann_query_string;
+static int hf_riemann_event;
+static int hf_riemann_event_state;
+static int hf_riemann_event_service;
+static int hf_riemann_event_host;
+static int hf_riemann_event_description;
+static int hf_riemann_event_tag;
+static int hf_riemann_event_ttl;
+static int hf_riemann_event_time;
+static int hf_riemann_event_metric_d;
+static int hf_riemann_event_metric_f;
+static int hf_riemann_event_time_micros;
+static int hf_riemann_event_metric_sint64;
+static int hf_riemann_state;
+static int hf_riemann_state_service;
+static int hf_riemann_state_host;
+static int hf_riemann_state_description;
+static int hf_riemann_state_tag;
+static int hf_riemann_state_ttl;
+static int hf_riemann_state_time;
+static int hf_riemann_state_state;
+static int hf_riemann_state_once;
 
-static gint ett_riemann = -1;
-static gint ett_query = -1;
-static gint ett_event = -1;
-static gint ett_attribute = -1;
-static gint ett_state = -1;
+static gint ett_riemann;
+static gint ett_query;
+static gint ett_event;
+static gint ett_attribute;
+static gint ett_state;
 
 #define RIEMANN_MIN_LENGTH 16
 #define RIEMANN_MIN_NEEDED_FOR_HEURISTICS 10
@@ -151,9 +151,9 @@ static gint ett_state = -1;
 #define RIEMANN_WIRE_BYTES 2
 #define RIEMANN_WIRE_FLOAT 5
 
-static expert_field ei_error_unknown_wire_tag = EI_INIT;
-static expert_field ei_error_unknown_field_number = EI_INIT;
-static expert_field ei_error_insufficient_data = EI_INIT;
+static expert_field ei_error_unknown_wire_tag;
+static expert_field ei_error_unknown_field_number;
+static expert_field ei_error_insufficient_data;
 
 static void
 riemann_verify_wire_format(guint64 field_number, const char *field_name, int expected, int actual,

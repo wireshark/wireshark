@@ -112,45 +112,45 @@ static gint dissect_rtps_virtual_transport_loss_info_type(
         gint offset);
 
 /* Subtree pointers */
-static gint proto_rtpsvt = -1;
-static gint ett_rtpsvt = -1;
-static gint ett_rtpsvt_version = -1;
-static gint ett_rtpsvt_identifier = -1;
-static gint ett_rtpsvt_information = -1;
-static gint ett_rtpsvt_information_class = -1;
-static gint ett_rtpsvt_information_src_port = -1;
-static gint ett_rtpsvt_information_dst_port = -1;
-static gint ett_rtpsvt_information_src_addr = -1;
-static gint ett_rtpsvt_information_dst_addr = -1;
-static gint ett_rtpsvt_information_direction = -1;
-static gint ett_rtpsvt_monitoring_sn = -1;
-static gint ett_rtpsvt_frame = -1;
+static gint proto_rtpsvt;
+static gint ett_rtpsvt;
+static gint ett_rtpsvt_version;
+static gint ett_rtpsvt_identifier;
+static gint ett_rtpsvt_information;
+static gint ett_rtpsvt_information_class;
+static gint ett_rtpsvt_information_src_port;
+static gint ett_rtpsvt_information_dst_port;
+static gint ett_rtpsvt_information_src_addr;
+static gint ett_rtpsvt_information_dst_addr;
+static gint ett_rtpsvt_information_direction;
+static gint ett_rtpsvt_monitoring_sn;
+static gint ett_rtpsvt_frame;
 
 /* Initialize the protocol and registered fields */
 static header_field_info *rtpsvt_hf = NULL;
-static gint hf_rtpsvt_version = -1;
-static gint hf_rtpsvt_version_major = -1;
-static gint hf_rtpsvt_version_minor = -1;
-static gint hf_rtpsvt_content_kind = -1;
-static gint hf_rtpsvt_param_id = -1;
-static gint hf_rtpsvt_param_length = -1;
-static gint hf_rtpsvt_packet_identifier = -1;
-static gint hf_rtpsvt_monitoring_guid = -1;
-static gint hf_rtpsvt_monitoring_seqNr = -1;
-static gint hf_rtpsvt_information = -1;
-static gint hf_rtpsvt_class = -1;
-static gint hf_rtpsvt_source_port = -1;
-static gint hf_rtpsvt_source_address = -1;
-static gint hf_rtpsvt_source_pid = -1;
-static gint hf_rtpsvt_destination_port = -1;
-static gint hf_rtpsvt_destination_rtps_port = -1;
-static gint hf_rtpsvt_destination_address = -1;
-static gint hf_rtpsvt_direction = -1;
-static gint hf_rtpsvt_destination_pid = -1;
-static gint hf_rtpsvt_missing_messages = -1;
+static gint hf_rtpsvt_version;
+static gint hf_rtpsvt_version_major;
+static gint hf_rtpsvt_version_minor;
+static gint hf_rtpsvt_content_kind;
+static gint hf_rtpsvt_param_id;
+static gint hf_rtpsvt_param_length;
+static gint hf_rtpsvt_packet_identifier;
+static gint hf_rtpsvt_monitoring_guid;
+static gint hf_rtpsvt_monitoring_seqNr;
+static gint hf_rtpsvt_information;
+static gint hf_rtpsvt_class;
+static gint hf_rtpsvt_source_port;
+static gint hf_rtpsvt_source_address;
+static gint hf_rtpsvt_source_pid;
+static gint hf_rtpsvt_destination_port;
+static gint hf_rtpsvt_destination_rtps_port;
+static gint hf_rtpsvt_destination_address;
+static gint hf_rtpsvt_direction;
+static gint hf_rtpsvt_destination_pid;
+static gint hf_rtpsvt_missing_messages;
 
 /* expert info fields */
-static expert_field ei_missing_msg = EI_INIT;
+static expert_field ei_missing_msg;
 
 /* Vendor specific: RTI */
 static const value_string ndds_transport_class_id_vals[] = {

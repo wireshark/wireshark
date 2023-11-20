@@ -23,16 +23,16 @@
 void proto_register_pcap_pktdata(void);
 void proto_reg_handoff_pcap_pktdata(void);
 
-static int proto_pcap_pktdata = -1;
+static int proto_pcap_pktdata;
 
-static int hf_pcap_pktdata_pseudoheader = -1;
-static int hf_pcap_pktdata_pseudoheader_bluetooth_direction = -1;
-static int hf_pcap_pktdata_undecoded_data = -1;
+static int hf_pcap_pktdata_pseudoheader;
+static int hf_pcap_pktdata_pseudoheader_bluetooth_direction;
+static int hf_pcap_pktdata_undecoded_data;
 
-static gint ett_pcap_pktdata_pseudoheader = -1;
+static gint ett_pcap_pktdata_pseudoheader;
 
-static expert_field ei_pcap_pktdata_linktype_unknown = EI_INIT;
-static expert_field ei_pcap_pktdata_cant_generate_phdr = EI_INIT;
+static expert_field ei_pcap_pktdata_linktype_unknown;
+static expert_field ei_pcap_pktdata_cant_generate_phdr;
 
 static dissector_table_t wtap_encap_table;
 

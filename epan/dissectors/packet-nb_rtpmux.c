@@ -17,20 +17,20 @@ void proto_register_nb_rtpmux(void);
 void proto_reg_handoff_nb_rtpmux(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_nb_rtpmux = -1;
-static int hf_nb_rtpmux_compressed = -1;
-static int hf_nb_rtpmux_dstport    = -1;
-static int hf_nb_rtpmux_length     = -1;
-static int hf_nb_r_bit             = -1;
-static int hf_nb_rtpmux_srcport    = -1;
-static int hf_nb_rtpmux_data       = -1;
-static int hf_nb_rtpmux_cmp_rtp_sequence_no   = -1;
-static int hf_nb_rtpmux_cmp_rtp_timestamp     = -1;
-static int hf_nb_rtpmux_cmp_rtp_data          = -1;
+static int proto_nb_rtpmux;
+static int hf_nb_rtpmux_compressed;
+static int hf_nb_rtpmux_dstport;
+static int hf_nb_rtpmux_length;
+static int hf_nb_r_bit;
+static int hf_nb_rtpmux_srcport;
+static int hf_nb_rtpmux_data;
+static int hf_nb_rtpmux_cmp_rtp_sequence_no;
+static int hf_nb_rtpmux_cmp_rtp_timestamp;
+static int hf_nb_rtpmux_cmp_rtp_data;
 
 /* Initialize the subtree pointers */
-static gint ett_nb_rtpmux = -1;
-static gint ett_nb_rtpmux_cmp_rtp_hdr = -1;
+static gint ett_nb_rtpmux;
+static gint ett_nb_rtpmux_cmp_rtp_hdr;
 
 static dissector_handle_t nb_rtpmux_handle;
 static dissector_handle_t rtpdissector;

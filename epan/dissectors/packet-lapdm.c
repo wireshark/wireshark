@@ -50,50 +50,50 @@ void proto_register_lapdm(void);
 
 static dissector_handle_t b4_info_handle;
 
-static int proto_lapdm = -1;
-static int hf_lapdm_address = -1;
-static int hf_lapdm_ea = -1;
-static int hf_lapdm_cr = -1;
-static int hf_lapdm_sapi = -1;
-static int hf_lapdm_lpd = -1;
+static int proto_lapdm;
+static int hf_lapdm_address;
+static int hf_lapdm_ea;
+static int hf_lapdm_cr;
+static int hf_lapdm_sapi;
+static int hf_lapdm_lpd;
 
-static int hf_lapdm_control = -1;
-static int hf_lapdm_n_r = -1;
-static int hf_lapdm_n_s = -1;
-static int hf_lapdm_p = -1;
-static int hf_lapdm_f = -1;
-static int hf_lapdm_s_ftype = -1;
-static int hf_lapdm_u_modifier_cmd = -1;
-static int hf_lapdm_u_modifier_resp = -1;
-static int hf_lapdm_ftype_i = -1;
-static int hf_lapdm_ftype_s_u = -1;
+static int hf_lapdm_control;
+static int hf_lapdm_n_r;
+static int hf_lapdm_n_s;
+static int hf_lapdm_p;
+static int hf_lapdm_f;
+static int hf_lapdm_s_ftype;
+static int hf_lapdm_u_modifier_cmd;
+static int hf_lapdm_u_modifier_resp;
+static int hf_lapdm_ftype_i;
+static int hf_lapdm_ftype_s_u;
 
-static int hf_lapdm_length = -1;
-static int hf_lapdm_el = -1;
-static int hf_lapdm_m = -1;
-static int hf_lapdm_len = -1;
+static int hf_lapdm_length;
+static int hf_lapdm_el;
+static int hf_lapdm_m;
+static int hf_lapdm_len;
 
 /*
  * LAPDm fragment handling
  */
-static int hf_lapdm_fragment_data = -1;
-static int hf_lapdm_fragments = -1;
-static int hf_lapdm_fragment = -1;
-static int hf_lapdm_fragment_overlap = -1;
-static int hf_lapdm_fragment_overlap_conflicts = -1;
-static int hf_lapdm_fragment_multiple_tails = -1;
-static int hf_lapdm_fragment_too_long_fragment = -1;
-static int hf_lapdm_fragment_error = -1;
-static int hf_lapdm_fragment_count = -1;
-static int hf_lapdm_reassembled_in = -1;
-static int hf_lapdm_reassembled_length = -1;
+static int hf_lapdm_fragment_data;
+static int hf_lapdm_fragments;
+static int hf_lapdm_fragment;
+static int hf_lapdm_fragment_overlap;
+static int hf_lapdm_fragment_overlap_conflicts;
+static int hf_lapdm_fragment_multiple_tails;
+static int hf_lapdm_fragment_too_long_fragment;
+static int hf_lapdm_fragment_error;
+static int hf_lapdm_fragment_count;
+static int hf_lapdm_reassembled_in;
+static int hf_lapdm_reassembled_length;
 
-static gint ett_lapdm = -1;
-static gint ett_lapdm_address = -1;
-static gint ett_lapdm_control = -1;
-static gint ett_lapdm_length = -1;
-static gint ett_lapdm_fragment = -1;
-static gint ett_lapdm_fragments = -1;
+static gint ett_lapdm;
+static gint ett_lapdm_address;
+static gint ett_lapdm_control;
+static gint ett_lapdm_length;
+static gint ett_lapdm_fragment;
+static gint ett_lapdm_fragments;
 
 static reassembly_table lapdm_reassembly_table;
 

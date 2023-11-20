@@ -205,56 +205,56 @@ static const range_string dpp_protocol_version_rvals[] = {
   { 0, 0, NULL }
 };
 
-static int proto_wifi_dpp = -1;
+static int proto_wifi_dpp;
 
-static gint ett_wifi_dpp_ie_generic = -1;
-static gint ett_wifi_dpp_attributes = -1;
-static gint ett_wifi_dpp_pa = -1;
-static gint ett_wifi_dpp_attribute = -1;
-static gint ett_wifi_dpp_attr_header = -1;
-static gint ett_wifi_dpp_attr_value = -1;
+static gint ett_wifi_dpp_ie_generic;
+static gint ett_wifi_dpp_attributes;
+static gint ett_wifi_dpp_pa;
+static gint ett_wifi_dpp_attribute;
+static gint ett_wifi_dpp_attr_header;
+static gint ett_wifi_dpp_attr_value;
 
-static int hf_wifi_dpp_ie_attr_id = -1;
-static int hf_wifi_dpp_ie_attr_len = -1;
-static int hf_wifi_dpp_ie_generic = -1;  /* Remove eventually */
-static int hf_wifi_dpp_action_dialog_token = -1;
-static int hf_wifi_dpp_action_subtype = -1;
-static int hf_wifi_dpp_crypto_suite = -1;
-static int hf_wifi_dpp_public_action_subtype = -1;
-static int hf_wifi_dpp_init_hash = -1;
-static int hf_wifi_dpp_resp_hash = -1;
-static int hf_wifi_dpp_status = -1;
-static int hf_wifi_dpp_key_x = -1;
-static int hf_wifi_dpp_key_y = -1;
-static int hf_wifi_dpp_trans_id = -1;
-static int hf_wifi_dpp_finite_cyclic_group = -1;
-static int hf_wifi_dpp_capabilities = -1;
-static int hf_wifi_dpp_code_identifier = -1;
-static int hf_wifi_dpp_enc_key_attribute = -1;
-static int hf_wifi_dpp_primary_wrapped_data = -1;
-static int hf_wifi_dpp_connector_attr = -1;
-static int hf_wifi_dpp_initiator_nonce = -1;
-static int hf_wifi_dpp_operating_class = -1;
-static int hf_wifi_dpp_channel = -1;
-static int hf_wifi_dpp_protocol_version = -1;
-static int hf_wifi_dpp_a_nonce = -1;
-static int hf_wifi_dpp_e_prime_id = -1;
-static int hf_wifi_dpp_unknown_anqp_item = -1;
+static int hf_wifi_dpp_ie_attr_id;
+static int hf_wifi_dpp_ie_attr_len;
+static int hf_wifi_dpp_ie_generic;  /* Remove eventually */
+static int hf_wifi_dpp_action_dialog_token;
+static int hf_wifi_dpp_action_subtype;
+static int hf_wifi_dpp_crypto_suite;
+static int hf_wifi_dpp_public_action_subtype;
+static int hf_wifi_dpp_init_hash;
+static int hf_wifi_dpp_resp_hash;
+static int hf_wifi_dpp_status;
+static int hf_wifi_dpp_key_x;
+static int hf_wifi_dpp_key_y;
+static int hf_wifi_dpp_trans_id;
+static int hf_wifi_dpp_finite_cyclic_group;
+static int hf_wifi_dpp_capabilities;
+static int hf_wifi_dpp_code_identifier;
+static int hf_wifi_dpp_enc_key_attribute;
+static int hf_wifi_dpp_primary_wrapped_data;
+static int hf_wifi_dpp_connector_attr;
+static int hf_wifi_dpp_initiator_nonce;
+static int hf_wifi_dpp_operating_class;
+static int hf_wifi_dpp_channel;
+static int hf_wifi_dpp_protocol_version;
+static int hf_wifi_dpp_a_nonce;
+static int hf_wifi_dpp_e_prime_id;
+static int hf_wifi_dpp_unknown_anqp_item;
 
-static int hf_wifi_dpp_tcp_pdu_length = -1;
-static int hf_wifi_dpp_tcp_pdu_action_field = -1;
-static int hf_wifi_dpp_tcp_oui = -1;
-static int hf_wifi_dpp_tcp_oui_type = -1;
-static int hf_wifi_dpp_tcp_dialog_token = -1;
-static int hf_wifi_dpp_tcp_adv_proto_elt = -1;
-static int hf_wifi_dpp_tcp_vendor_specific = -1;
-static int hf_wifi_dpp_tcp_vendor_spec_len = -1;
-static int hf_wifi_dpp_tcp_config = -1;
-static int hf_wifi_dpp_tcp_query_req_len = -1;
-static int hf_wifi_dpp_tcp_status_code = -1;
-static int hf_wifi_dpp_gas_query_resp_frag_id = -1;
-static int hf_wifi_dpp_tcp_comeback_delay = -1;
-static int hf_wifi_dpp_tcp_query_resp_len = -1;
+static int hf_wifi_dpp_tcp_pdu_length;
+static int hf_wifi_dpp_tcp_pdu_action_field;
+static int hf_wifi_dpp_tcp_oui;
+static int hf_wifi_dpp_tcp_oui_type;
+static int hf_wifi_dpp_tcp_dialog_token;
+static int hf_wifi_dpp_tcp_adv_proto_elt;
+static int hf_wifi_dpp_tcp_vendor_specific;
+static int hf_wifi_dpp_tcp_vendor_spec_len;
+static int hf_wifi_dpp_tcp_config;
+static int hf_wifi_dpp_tcp_query_req_len;
+static int hf_wifi_dpp_tcp_status_code;
+static int hf_wifi_dpp_gas_query_resp_frag_id;
+static int hf_wifi_dpp_tcp_comeback_delay;
+static int hf_wifi_dpp_tcp_query_resp_len;
 
 static int
 dissect_wifi_dpp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)

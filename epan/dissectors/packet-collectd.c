@@ -135,45 +135,45 @@ static const val64_string severity_names[] = {
 
 #define UDP_PORT_COLLECTD 25826 /* Not IANA registered */
 
-static gint proto_collectd		= -1;
+static gint proto_collectd;
 static gint tap_collectd                = -1;
 
-static gint hf_collectd_type		= -1;
-static gint hf_collectd_length		= -1;
-static gint hf_collectd_data		= -1;
-static gint hf_collectd_data_host	= -1;
-static gint hf_collectd_data_time	= -1;
-static gint hf_collectd_data_interval	= -1;
-static gint hf_collectd_data_plugin	= -1;
-static gint hf_collectd_data_plugin_inst= -1;
-static gint hf_collectd_data_type	= -1;
-static gint hf_collectd_data_type_inst	= -1;
-static gint hf_collectd_data_valcnt	= -1;
-static gint hf_collectd_val_type	= -1;
-static gint hf_collectd_val_counter	= -1;
-static gint hf_collectd_val_gauge	= -1;
-static gint hf_collectd_val_derive	= -1;
-static gint hf_collectd_val_absolute	= -1;
-static gint hf_collectd_val_unknown	= -1;
-static gint hf_collectd_data_severity	= -1;
-static gint hf_collectd_data_message	= -1;
-static gint hf_collectd_data_sighash    = -1;
-static gint hf_collectd_data_initvec    = -1;
-static gint hf_collectd_data_username_len = -1;
-static gint hf_collectd_data_username   = -1;
-static gint hf_collectd_data_encrypted  = -1;
+static gint hf_collectd_type;
+static gint hf_collectd_length;
+static gint hf_collectd_data;
+static gint hf_collectd_data_host;
+static gint hf_collectd_data_time;
+static gint hf_collectd_data_interval;
+static gint hf_collectd_data_plugin;
+static gint hf_collectd_data_plugin_inst;
+static gint hf_collectd_data_type;
+static gint hf_collectd_data_type_inst;
+static gint hf_collectd_data_valcnt;
+static gint hf_collectd_val_type;
+static gint hf_collectd_val_counter;
+static gint hf_collectd_val_gauge;
+static gint hf_collectd_val_derive;
+static gint hf_collectd_val_absolute;
+static gint hf_collectd_val_unknown;
+static gint hf_collectd_data_severity;
+static gint hf_collectd_data_message;
+static gint hf_collectd_data_sighash;
+static gint hf_collectd_data_initvec;
+static gint hf_collectd_data_username_len;
+static gint hf_collectd_data_username;
+static gint hf_collectd_data_encrypted;
 
-static gint ett_collectd		= -1;
-static gint ett_collectd_string		= -1;
-static gint ett_collectd_integer	= -1;
-static gint ett_collectd_part_value	= -1;
-static gint ett_collectd_value		= -1;
-static gint ett_collectd_valinfo	= -1;
-static gint ett_collectd_signature	= -1;
-static gint ett_collectd_encryption	= -1;
-static gint ett_collectd_dispatch	= -1;
-static gint ett_collectd_invalid_length	= -1;
-static gint ett_collectd_unknown	= -1;
+static gint ett_collectd;
+static gint ett_collectd_string;
+static gint ett_collectd_integer;
+static gint ett_collectd_part_value;
+static gint ett_collectd_value;
+static gint ett_collectd_valinfo;
+static gint ett_collectd_signature;
+static gint ett_collectd_encryption;
+static gint ett_collectd_dispatch;
+static gint ett_collectd_invalid_length;
+static gint ett_collectd_unknown;
 
 static gint st_collectd_packets = -1;
 static gint st_collectd_values  = -1;
@@ -181,10 +181,10 @@ static gint st_collectd_values_hosts   = -1;
 static gint st_collectd_values_plugins = -1;
 static gint st_collectd_values_types   = -1;
 
-static expert_field ei_collectd_type = EI_INIT;
-static expert_field ei_collectd_invalid_length = EI_INIT;
-static expert_field ei_collectd_data_valcnt = EI_INIT;
-static expert_field ei_collectd_garbage = EI_INIT;
+static expert_field ei_collectd_type;
+static expert_field ei_collectd_invalid_length;
+static expert_field ei_collectd_data_valcnt;
+static expert_field ei_collectd_garbage;
 
 /* Prototype for the handoff function */
 void proto_reg_handoff_collectd (void);

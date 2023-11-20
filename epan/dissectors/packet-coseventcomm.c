@@ -45,22 +45,22 @@ void proto_register_giop_coseventcomm(void);
 void proto_reg_handoff_giop_coseventcomm(void);
 
 /* Initialise the protocol and subtree pointers */
-static int proto_coseventcomm = -1;
-static gint ett_coseventcomm = -1;
+static int proto_coseventcomm;
+static gint ett_coseventcomm;
 
 
 /* Initialise the initial Alignment */
 static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */
 
-static int hf_operationrequest = -1;/* Request_Operation field */
+static int hf_operationrequest;/* Request_Operation field */
 
         /* Operation filters */
-static int hf_CosEventComm_PullSupplier_try_pull_has_event = -1;
+static int hf_CosEventComm_PullSupplier_try_pull_has_event;
         /* User exception filters */
         /* Expert info filters */
-static expert_field ei_coseventcomm_unknown_giop_msg = EI_INIT;
-static expert_field ei_coseventcomm_unknown_exception = EI_INIT;
-static expert_field ei_coseventcomm_unknown_reply_status = EI_INIT;
+static expert_field ei_coseventcomm_unknown_giop_msg;
+static expert_field ei_coseventcomm_unknown_exception;
+static expert_field ei_coseventcomm_unknown_reply_status;
 
 
 static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset);

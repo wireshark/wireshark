@@ -19,11 +19,11 @@
 void proto_register_dcerpc_pnp(void);
 void proto_reg_handoff_dcerpc_pnp(void);
 
-static int proto_dcerpc_pnp = -1;
+static int proto_dcerpc_pnp;
 
-static int hf_pnp_opnum = -1;
+static int hf_pnp_opnum;
 
-static gint ett_dcerpc_pnp = -1;
+static gint ett_dcerpc_pnp;
 
 /*
  * The pnp MSRPC interface is typically reached using the ncacn_np transport

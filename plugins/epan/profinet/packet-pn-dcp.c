@@ -46,7 +46,7 @@
 void proto_register_pn_dcp(void);
 void proto_reg_handoff_pn_dcp(void);
 
-int proto_pn_dcp = -1;
+int proto_pn_dcp;
 
 static int hf_pn_dcp_service_id;
 static int hf_pn_dcp_service_type;

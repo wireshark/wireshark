@@ -27,7 +27,7 @@ extern int proto_umts_rlc;
 void proto_register_fp_mux(void);
 void proto_reg_handoff_fp_mux(void);
 
-static int proto_fp_mux = -1;
+static int proto_fp_mux;
 static dissector_handle_t fp_mux_handle;
 static heur_dissector_list_t heur_subdissector_list;
 
@@ -35,17 +35,17 @@ static heur_dissector_list_t heur_subdissector_list;
 #define MAX_PAYLOADS 64
 
 /* Trees */
-static int ett_fpmux = -1;
+static int ett_fpmux;
 
 /* Fields */
-static int hf_fpmux_uid = -1;
-static int hf_fpmux_extension_flag = -1;
-static int hf_fpmux_length = -1;
+static int hf_fpmux_uid;
+static int hf_fpmux_extension_flag;
+static int hf_fpmux_length;
 
 /* Expert Fields */
-static expert_field ei_fpm_length_needlessly_extended = EI_INIT;
-static expert_field ei_fpm_too_many_payloads = EI_INIT;
-static expert_field ei_fpm_bad_length = EI_INIT;
+static expert_field ei_fpm_length_needlessly_extended;
+static expert_field ei_fpm_too_many_payloads;
+static expert_field ei_fpm_bad_length;
 
 /* Preferences */
 /* Place UID in proto tree */

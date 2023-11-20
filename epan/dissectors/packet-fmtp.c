@@ -22,12 +22,12 @@
 void proto_register_fmtp(void);
 void proto_reg_handoff_fmtp(void);
 
-static int proto_fmtp = -1;
-static int hf_fmtp_pdu_version = -1;
-static int hf_fmtp_pdu_reserved = -1;
-static int hf_fmtp_pdu_type = -1;
-static int hf_fmtp_pdu_length = -1;
-static gint ett_fmtp = -1;
+static int proto_fmtp;
+static int hf_fmtp_pdu_version;
+static int hf_fmtp_pdu_reserved;
+static int hf_fmtp_pdu_type;
+static int hf_fmtp_pdu_length;
+static gint ett_fmtp;
 
 /* #define TCP_PORT_FMTP       8500 */
 #define FMTP_HEADER_LEN     5

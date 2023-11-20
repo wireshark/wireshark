@@ -428,62 +428,62 @@ static value_string_ext packet_type_mapping_ext = VALUE_STRING_EXT_INIT(packet_t
 
 
 /* Initialize the protocol and registered fields */
-static int proto_adwin                = -1;
+static int proto_adwin;
 
 static int global_adwin_dissect_data  = 1;
 
-static int hf_adwin_address           = -1;
-static int hf_adwin_armVersion        = -1;
-static int hf_adwin_binfilesize       = -1;
-static int hf_adwin_blocksize         = -1;
-static int hf_adwin_count             = -1;
-static int hf_adwin_complete_packets  = -1;
-static int hf_adwin_data              = -1;
-static int hf_adwin_data_int          = -1;
-static int hf_adwin_data_float        = -1;
-static int hf_adwin_data_hex          = -1;
-static int hf_adwin_data_no16         = -1;
-static int hf_adwin_data_no32         = -1;
-static int hf_adwin_data_packet_index = -1;
-static int hf_adwin_data_type         = -1;
-static int hf_adwin_dll_version       = -1;
-static int hf_adwin_fifo_no16         = -1;
-static int hf_adwin_fifo_no32         = -1;
-static int hf_adwin_instruction       = -1;
-static int hf_adwin_is_range          = -1;
-static int hf_adwin_i3plus1           = -1;
-static int hf_adwin_link_addr         = -1;
-static int hf_adwin_mem_type          = -1;
-static int hf_adwin_memsize           = -1;
-static int hf_adwin_osys              = -1;
-static int hf_adwin_packet_index      = -1;
-static int hf_adwin_packet_no         = -1;
-static int hf_adwin_packet_start      = -1;
-static int hf_adwin_packet_end        = -1;
-static int hf_adwin_gdsh_status       = -1;
-static int hf_adwin_packet_type       = -1;
-static int hf_adwin_parameter         = -1;
-static int hf_adwin_password          = -1;
-static int hf_adwin_process_no        = -1;
-static int hf_adwin_processor         = -1;
-static int hf_adwin_response_in       = -1;
-static int hf_adwin_response_to       = -1;
-static int hf_adwin_response_time     = -1;
-static int hf_adwin_retry_packet_index= -1;
-static int hf_adwin_request_no        = -1;
-static int hf_adwin_start_index       = -1;
-static int hf_adwin_status            = -1;
-static int hf_adwin_timeout           = -1;
-static int hf_adwin_unused            = -1;
-static int hf_adwin_val1              = -1;
-static int hf_adwin_val1f             = -1;
-static int hf_adwin_val2              = -1;
-static int hf_adwin_val3              = -1;
-static int hf_adwin_val4              = -1;
+static int hf_adwin_address;
+static int hf_adwin_armVersion;
+static int hf_adwin_binfilesize;
+static int hf_adwin_blocksize;
+static int hf_adwin_count;
+static int hf_adwin_complete_packets;
+static int hf_adwin_data;
+static int hf_adwin_data_int;
+static int hf_adwin_data_float;
+static int hf_adwin_data_hex;
+static int hf_adwin_data_no16;
+static int hf_adwin_data_no32;
+static int hf_adwin_data_packet_index;
+static int hf_adwin_data_type;
+static int hf_adwin_dll_version;
+static int hf_adwin_fifo_no16;
+static int hf_adwin_fifo_no32;
+static int hf_adwin_instruction;
+static int hf_adwin_is_range;
+static int hf_adwin_i3plus1;
+static int hf_adwin_link_addr;
+static int hf_adwin_mem_type;
+static int hf_adwin_memsize;
+static int hf_adwin_osys;
+static int hf_adwin_packet_index;
+static int hf_adwin_packet_no;
+static int hf_adwin_packet_start;
+static int hf_adwin_packet_end;
+static int hf_adwin_gdsh_status;
+static int hf_adwin_packet_type;
+static int hf_adwin_parameter;
+static int hf_adwin_password;
+static int hf_adwin_process_no;
+static int hf_adwin_processor;
+static int hf_adwin_response_in;
+static int hf_adwin_response_to;
+static int hf_adwin_response_time;
+static int hf_adwin_retry_packet_index;
+static int hf_adwin_request_no;
+static int hf_adwin_start_index;
+static int hf_adwin_status;
+static int hf_adwin_timeout;
+static int hf_adwin_unused;
+static int hf_adwin_val1;
+static int hf_adwin_val1f;
+static int hf_adwin_val2;
+static int hf_adwin_val3;
+static int hf_adwin_val4;
 
 /* Initialize the subtree pointers */
-static gint ett_adwin                 = -1;
-static gint ett_adwin_debug           = -1;
+static gint ett_adwin;
+static gint ett_adwin_debug;
 
 /* response/request tracking */
 typedef struct _adwin_transaction_t {

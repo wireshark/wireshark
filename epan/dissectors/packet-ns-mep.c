@@ -20,70 +20,70 @@ void proto_reg_handoff_ns_mep(void);
 
 static dissector_handle_t nsmep_handle;
 
-static int proto_ns_mep = -1;
+static int proto_ns_mep;
 
-static gint ett_nsmep = -1;
-static gint ett_nsmep_mfu = -1;
-static gint ett_nsmep_nwu = -1;
+static gint ett_nsmep;
+static gint ett_nsmep_mfu;
+static gint ett_nsmep_nwu;
 
-static int hf_nsmep_majver = -1;
-static int hf_nsmep_minver = -1;
-static int hf_nsmep_msgtype = -1;
-static int hf_nsmep_msglen = -1;
-static int hf_nsmep_errcode = -1;
-static int hf_nsmep_mfu_state = -1;
-
-
-static int hf_ns_metricUpdate = -1;
-static int hf_ns_forceUpdateRequest = -1;
-static int hf_ns_forceUpdateResp = -1;
-static int hf_ns_currentOpenConn = -1;
-static int hf_ns_currentSurgeCount = -1;
-static int hf_ns_currentIOHCount = -1;
-static int hf_ns_currentReusePool  = -1;
-static int hf_ns_currentServerConn = -1;
-static int hf_ns_currentClientConn  = -1;
-static int hf_ns_TotalReq = -1;
-static int hf_ns_TotalReqBytes = -1;
-static int hf_ns_TotalResp = -1;
-static int hf_ns_TotalRespBytes = -1;
-static int hf_ns_networkMetrics = -1;
-static int hf_ns_roundTripTime = -1;
-static int hf_ns_hops = -1;
-static int hf_ns_persistenceInfo = -1;
-static int hf_ns_persistenceGslbServIp = -1;
-static int hf_ns_persistenceGslbServPort = -1;
-static int hf_ns_persistenceId = -1;
-static int hf_ns_sitePersistenceDom  = -1;
-static int hf_ns_gslbDomNamelen  = -1;
-static int hf_ns_gslbServPreflen  = -1;
-static int hf_ns_gslbCookieDomNamelen  = -1;
-static int hf_ns_gslbCookieTimeout = -1;
-static int hf_ns_gslbVidlen = -1;
-static int hf_ns_gslbFlags = -1;
-static int hf_ns_gslbCookieDomName = -1;
-static int hf_ns_gslbVs = -1;
-static int hf_ns_gslbPrefix = -1;
-static int hf_ns_sitePersistenceFlushDom = -1;
-static int hf_ns_gslbDomName = -1;
-static int hf_ns_sitePersistenceFlushServ = -1;
-static int hf_ns_sitePersisGetServReq = -1;
-static int hf_ns_siteDomTTL = -1;
-static int hf_ns_sitePersistenceGetServResp = -1;
+static int hf_nsmep_majver;
+static int hf_nsmep_minver;
+static int hf_nsmep_msgtype;
+static int hf_nsmep_msglen;
+static int hf_nsmep_errcode;
+static int hf_nsmep_mfu_state;
 
 
+static int hf_ns_metricUpdate;
+static int hf_ns_forceUpdateRequest;
+static int hf_ns_forceUpdateResp;
+static int hf_ns_currentOpenConn;
+static int hf_ns_currentSurgeCount;
+static int hf_ns_currentIOHCount;
+static int hf_ns_currentReusePool;
+static int hf_ns_currentServerConn;
+static int hf_ns_currentClientConn;
+static int hf_ns_TotalReq;
+static int hf_ns_TotalReqBytes;
+static int hf_ns_TotalResp;
+static int hf_ns_TotalRespBytes;
+static int hf_ns_networkMetrics;
+static int hf_ns_roundTripTime;
+static int hf_ns_hops;
+static int hf_ns_persistenceInfo;
+static int hf_ns_persistenceGslbServIp;
+static int hf_ns_persistenceGslbServPort;
+static int hf_ns_persistenceId;
+static int hf_ns_sitePersistenceDom;
+static int hf_ns_gslbDomNamelen;
+static int hf_ns_gslbServPreflen;
+static int hf_ns_gslbCookieDomNamelen;
+static int hf_ns_gslbCookieTimeout;
+static int hf_ns_gslbVidlen;
+static int hf_ns_gslbFlags;
+static int hf_ns_gslbCookieDomName;
+static int hf_ns_gslbVs;
+static int hf_ns_gslbPrefix;
+static int hf_ns_sitePersistenceFlushDom;
+static int hf_ns_gslbDomName;
+static int hf_ns_sitePersistenceFlushServ;
+static int hf_ns_sitePersisGetServReq;
+static int hf_ns_siteDomTTL;
+static int hf_ns_sitePersistenceGetServResp;
 
-static int hf_nsmep_mfu_ip = -1;
-static int hf_nsmep_mfu_port = -1;
-static int hf_nsmep_mfu_svctype = -1;
-static int hf_nsmep_mfu_eff_state = -1;
-static int hf_nsmep_mfu_mepflag = -1;
-static int hf_nsmep_mfu_reqflag = -1;
 
-static int hf_nsmep_adv_ip = -1;
 
-static int hf_nsmep_ldns_ip = -1;
-static int hf_nsmep_site_persistence = -1;
+static int hf_nsmep_mfu_ip;
+static int hf_nsmep_mfu_port;
+static int hf_nsmep_mfu_svctype;
+static int hf_nsmep_mfu_eff_state;
+static int hf_nsmep_mfu_mepflag;
+static int hf_nsmep_mfu_reqflag;
+
+static int hf_nsmep_adv_ip;
+
+static int hf_nsmep_ldns_ip;
+static int hf_nsmep_site_persistence;
 dissector_handle_t nsrpc_handle;
 
 /*GSLB MEP message types */

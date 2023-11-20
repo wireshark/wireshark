@@ -74,65 +74,65 @@ void proto_reg_handoff_rtmpt(void);
 
 void proto_register_amf(void);
 
-static int proto_rtmpt = -1;
+static int proto_rtmpt;
 
-static int hf_rtmpt_handshake_c0 = -1;
-static int hf_rtmpt_handshake_s0 = -1;
-static int hf_rtmpt_handshake_c1 = -1;
-static int hf_rtmpt_handshake_s1 = -1;
-static int hf_rtmpt_handshake_c2 = -1;
-static int hf_rtmpt_handshake_s2 = -1;
+static int hf_rtmpt_handshake_c0;
+static int hf_rtmpt_handshake_s0;
+static int hf_rtmpt_handshake_c1;
+static int hf_rtmpt_handshake_s1;
+static int hf_rtmpt_handshake_c2;
+static int hf_rtmpt_handshake_s2;
 
-static int hf_rtmpt_header_format = -1;
-static int hf_rtmpt_header_csid = -1;
-static int hf_rtmpt_header_timestamp = -1;
-static int hf_rtmpt_header_timestamp_delta = -1;
-static int hf_rtmpt_header_body_size = -1;
-static int hf_rtmpt_header_typeid = -1;
-static int hf_rtmpt_header_streamid = -1;
-static int hf_rtmpt_header_ets = -1;
+static int hf_rtmpt_header_format;
+static int hf_rtmpt_header_csid;
+static int hf_rtmpt_header_timestamp;
+static int hf_rtmpt_header_timestamp_delta;
+static int hf_rtmpt_header_body_size;
+static int hf_rtmpt_header_typeid;
+static int hf_rtmpt_header_streamid;
+static int hf_rtmpt_header_ets;
 
-static int hf_rtmpt_scm_chunksize = -1;
-static int hf_rtmpt_scm_csid = -1;
-static int hf_rtmpt_scm_seq = -1;
-static int hf_rtmpt_scm_was = -1;
-static int hf_rtmpt_scm_limittype = -1;
+static int hf_rtmpt_scm_chunksize;
+static int hf_rtmpt_scm_csid;
+static int hf_rtmpt_scm_seq;
+static int hf_rtmpt_scm_was;
+static int hf_rtmpt_scm_limittype;
 
-static int hf_rtmpt_ucm_eventtype = -1;
+static int hf_rtmpt_ucm_eventtype;
 
-static int hf_rtmpt_function_call = -1;
-static int hf_rtmpt_function_response = -1;
+static int hf_rtmpt_function_call;
+static int hf_rtmpt_function_response;
 
-static int hf_rtmpt_audio_control = -1;
-static int hf_rtmpt_audio_format = -1;
-static int hf_rtmpt_audio_rate = -1;
-static int hf_rtmpt_audio_size = -1;
-static int hf_rtmpt_audio_type = -1;
-static int hf_rtmpt_audio_data = -1;
+static int hf_rtmpt_audio_control;
+static int hf_rtmpt_audio_format;
+static int hf_rtmpt_audio_rate;
+static int hf_rtmpt_audio_size;
+static int hf_rtmpt_audio_type;
+static int hf_rtmpt_audio_data;
 
-static int hf_rtmpt_video_control = -1;
-static int hf_rtmpt_video_type = -1;
-static int hf_rtmpt_video_format = -1;
-static int hf_rtmpt_video_data = -1;
+static int hf_rtmpt_video_control;
+static int hf_rtmpt_video_type;
+static int hf_rtmpt_video_format;
+static int hf_rtmpt_video_data;
 
-static int hf_rtmpt_tag_type = -1;
-static int hf_rtmpt_tag_datasize = -1;
-static int hf_rtmpt_tag_timestamp = -1;
-static int hf_rtmpt_tag_ets = -1;
-static int hf_rtmpt_tag_streamid = -1;
-static int hf_rtmpt_tag_tagsize = -1;
+static int hf_rtmpt_tag_type;
+static int hf_rtmpt_tag_datasize;
+static int hf_rtmpt_tag_timestamp;
+static int hf_rtmpt_tag_ets;
+static int hf_rtmpt_tag_streamid;
+static int hf_rtmpt_tag_tagsize;
 
-static expert_field ei_amf_loop = EI_INIT;
+static expert_field ei_amf_loop;
 
-static gint ett_rtmpt = -1;
-static gint ett_rtmpt_handshake = -1;
-static gint ett_rtmpt_header = -1;
-static gint ett_rtmpt_body = -1;
-static gint ett_rtmpt_ucm = -1;
-static gint ett_rtmpt_audio_control = -1;
-static gint ett_rtmpt_video_control = -1;
-static gint ett_rtmpt_tag = -1;
-static gint ett_rtmpt_tag_data = -1;
+static gint ett_rtmpt;
+static gint ett_rtmpt_handshake;
+static gint ett_rtmpt_header;
+static gint ett_rtmpt_body;
+static gint ett_rtmpt_ucm;
+static gint ett_rtmpt_audio_control;
+static gint ett_rtmpt_video_control;
+static gint ett_rtmpt_tag;
+static gint ett_rtmpt_tag_data;
 
 static dissector_handle_t amf_handle;
 static dissector_handle_t rtmpt_tcp_handle;
@@ -307,64 +307,64 @@ static const value_string rtmpt_video_codecs[] = {
         { 0, NULL }
 };
 
-static int proto_amf = -1;
+static int proto_amf;
 
-static int hf_amf_version = -1;
-static int hf_amf_header_count = -1;
-static int hf_amf_header_name = -1;
-static int hf_amf_header_must_understand = -1;
-static int hf_amf_header_length = -1;
-/* static int hf_amf_header_value_type = -1; */
-static int hf_amf_message_count = -1;
-static int hf_amf_message_target_uri = -1;
-static int hf_amf_message_response_uri = -1;
-static int hf_amf_message_length = -1;
+static int hf_amf_version;
+static int hf_amf_header_count;
+static int hf_amf_header_name;
+static int hf_amf_header_must_understand;
+static int hf_amf_header_length;
+/* static int hf_amf_header_value_type; */
+static int hf_amf_message_count;
+static int hf_amf_message_target_uri;
+static int hf_amf_message_response_uri;
+static int hf_amf_message_length;
 
-static int hf_amf_amf0_type = -1;
-static int hf_amf_amf3_type = -1;
-static int hf_amf_number = -1;
-static int hf_amf_integer = -1;
-static int hf_amf_boolean = -1;
-static int hf_amf_stringlength = -1;
-static int hf_amf_string = -1;
-static int hf_amf_string_reference = -1;
-static int hf_amf_object_reference = -1;
-static int hf_amf_date = -1;
-/* static int hf_amf_longstringlength = -1; */
-static int hf_amf_longstring = -1;
-static int hf_amf_xml_doc = -1;
-static int hf_amf_xmllength = -1;
-static int hf_amf_xml = -1;
-static int hf_amf_int64 = -1;
-static int hf_amf_bytearraylength = -1;
-static int hf_amf_bytearray = -1;
+static int hf_amf_amf0_type;
+static int hf_amf_amf3_type;
+static int hf_amf_number;
+static int hf_amf_integer;
+static int hf_amf_boolean;
+static int hf_amf_stringlength;
+static int hf_amf_string;
+static int hf_amf_string_reference;
+static int hf_amf_object_reference;
+static int hf_amf_date;
+/* static int hf_amf_longstringlength; */
+static int hf_amf_longstring;
+static int hf_amf_xml_doc;
+static int hf_amf_xmllength;
+static int hf_amf_xml;
+static int hf_amf_int64;
+static int hf_amf_bytearraylength;
+static int hf_amf_bytearray;
 
-static int hf_amf_object = -1;
-static int hf_amf_traitcount = -1;
-static int hf_amf_classnamelength = -1;
-static int hf_amf_classname = -1;
-static int hf_amf_membernamelength = -1;
-static int hf_amf_membername = -1;
-static int hf_amf_trait_reference = -1;
-static int hf_amf_ecmaarray = -1;
-static int hf_amf_strictarray = -1;
-static int hf_amf_array = -1;
-static int hf_amf_arraylength = -1;
-static int hf_amf_arraydenselength = -1;
+static int hf_amf_object;
+static int hf_amf_traitcount;
+static int hf_amf_classnamelength;
+static int hf_amf_classname;
+static int hf_amf_membernamelength;
+static int hf_amf_membername;
+static int hf_amf_trait_reference;
+static int hf_amf_ecmaarray;
+static int hf_amf_strictarray;
+static int hf_amf_array;
+static int hf_amf_arraylength;
+static int hf_amf_arraydenselength;
 
-static int hf_amf_end_of_object_marker = -1;
-static int hf_amf_end_of_associative_part = -1;
-static int hf_amf_end_of_dynamic_members = -1;
+static int hf_amf_end_of_object_marker;
+static int hf_amf_end_of_associative_part;
+static int hf_amf_end_of_dynamic_members;
 
-static gint ett_amf = -1;
-static gint ett_amf_headers = -1;
-static gint ett_amf_messages = -1;
-static gint ett_amf_value = -1;
-static gint ett_amf_property = -1;
-static gint ett_amf_string = -1;
-static gint ett_amf_array_element = -1;
-static gint ett_amf_traits = -1;
-static gint ett_amf_trait_member = -1;
+static gint ett_amf;
+static gint ett_amf_headers;
+static gint ett_amf_messages;
+static gint ett_amf_value;
+static gint ett_amf_property;
+static gint ett_amf_string;
+static gint ett_amf_array_element;
+static gint ett_amf_traits;
+static gint ett_amf_trait_member;
 
 /* AMF0 type markers */
 #define AMF0_NUMBER              0x00

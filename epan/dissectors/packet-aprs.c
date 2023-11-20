@@ -37,130 +37,130 @@
 
 void proto_register_aprs(void);
 
-static int proto_aprs			= -1;
+static int proto_aprs;
 
 /* aprs timestamp items */
-static int hf_aprs_dhm			= -1;
-static int hf_aprs_hms			= -1;
-static int hf_aprs_mdhm			= -1;
-static int hf_aprs_tz			= -1;
+static int hf_aprs_dhm;
+static int hf_aprs_hms;
+static int hf_aprs_mdhm;
+static int hf_aprs_tz;
 
 /* aprs position items */
-/* static int hf_aprs_position		= -1; */
-static int hf_aprs_lat			= -1;
-static int hf_aprs_long			= -1;
+/* static int hf_aprs_position; */
+static int hf_aprs_lat;
+static int hf_aprs_long;
 
 /* aprs msg items */
-static int hf_aprs_msg			= -1;
-static int hf_aprs_msg_rng		= -1;
-static int hf_aprs_msg_cse		= -1;
-static int hf_aprs_msg_spd		= -1;
-static int hf_aprs_msg_dir		= -1;
-static int hf_aprs_msg_brg		= -1;
-static int hf_aprs_msg_nrq		= -1;
+static int hf_aprs_msg;
+static int hf_aprs_msg_rng;
+static int hf_aprs_msg_cse;
+static int hf_aprs_msg_spd;
+static int hf_aprs_msg_dir;
+static int hf_aprs_msg_brg;
+static int hf_aprs_msg_nrq;
 
 /* aprs compression type items */
-static int hf_aprs_compression_type	= -1;
-static int hf_aprs_ct_gps_fix		= -1;
-static int hf_aprs_ct_nmea_src		= -1;
-static int hf_aprs_ct_origin		= -1;
+static int hf_aprs_compression_type;
+static int hf_aprs_ct_gps_fix;
+static int hf_aprs_ct_nmea_src;
+static int hf_aprs_ct_origin;
 
 /* phg msg items */
-static int hf_aprs_msg_phg_p		= -1;
-static int hf_aprs_msg_phg_h		= -1;
-static int hf_aprs_msg_phg_g		= -1;
-static int hf_aprs_msg_phg_d		= -1;
+static int hf_aprs_msg_phg_p;
+static int hf_aprs_msg_phg_h;
+static int hf_aprs_msg_phg_g;
+static int hf_aprs_msg_phg_d;
 
 /* dfs msg items */
-static int hf_aprs_msg_dfs_s		= -1;
-static int hf_aprs_msg_dfs_h		= -1;
-static int hf_aprs_msg_dfs_g		= -1;
-static int hf_aprs_msg_dfs_d		= -1;
+static int hf_aprs_msg_dfs_s;
+static int hf_aprs_msg_dfs_h;
+static int hf_aprs_msg_dfs_g;
+static int hf_aprs_msg_dfs_d;
 
 /* weather items */
-static int hf_aprs_weather_dir		= -1;
-static int hf_aprs_weather_spd		= -1;
-static int hf_aprs_weather_peak		= -1;
-static int hf_aprs_weather_temp		= -1;
-static int hf_aprs_weather_rain_1	= -1;
-static int hf_aprs_weather_rain_24	= -1;
-static int hf_aprs_weather_rain		= -1;
-static int hf_aprs_weather_humidty	= -1;
-static int hf_aprs_weather_press	= -1;
-static int hf_aprs_weather_luminosity	= -1;
-static int hf_aprs_weather_snow		= -1;
-static int hf_aprs_weather_raw_rain	= -1;
-static int hf_aprs_weather_software	= -1;
-static int hf_aprs_weather_unit		= -1;
+static int hf_aprs_weather_dir;
+static int hf_aprs_weather_spd;
+static int hf_aprs_weather_peak;
+static int hf_aprs_weather_temp;
+static int hf_aprs_weather_rain_1;
+static int hf_aprs_weather_rain_24;
+static int hf_aprs_weather_rain;
+static int hf_aprs_weather_humidty;
+static int hf_aprs_weather_press;
+static int hf_aprs_weather_luminosity;
+static int hf_aprs_weather_snow;
+static int hf_aprs_weather_raw_rain;
+static int hf_aprs_weather_software;
+static int hf_aprs_weather_unit;
 
 /* aod msg items */
-static int hf_aprs_msg_aod_t		= -1;
-static int hf_aprs_msg_aod_c		= -1;
+static int hf_aprs_msg_aod_t;
+static int hf_aprs_msg_aod_c;
 
 /* mic-e msg items */
-static int hf_aprs_mic_e_dst		= -1;
-static int hf_aprs_mic_e_long_d		= -1;
-static int hf_aprs_mic_e_long_m		= -1;
-static int hf_aprs_mic_e_long_h		= -1;
-static int hf_aprs_mic_e_spd_sp		= -1;
-static int hf_aprs_mic_e_spd_dc		= -1;
-static int hf_aprs_mic_e_spd_se		= -1;
-static int hf_aprs_mic_e_telemetry	= -1;
-static int hf_aprs_mic_e_status		= -1;
+static int hf_aprs_mic_e_dst;
+static int hf_aprs_mic_e_long_d;
+static int hf_aprs_mic_e_long_m;
+static int hf_aprs_mic_e_long_h;
+static int hf_aprs_mic_e_spd_sp;
+static int hf_aprs_mic_e_spd_dc;
+static int hf_aprs_mic_e_spd_se;
+static int hf_aprs_mic_e_telemetry;
+static int hf_aprs_mic_e_status;
 
 /* Storm items */
-static int hf_aprs_storm_dir		= -1;
-static int hf_aprs_storm_spd		= -1;
-static int hf_aprs_storm_type		= -1;
-static int hf_aprs_storm_sws		= -1;
-static int hf_aprs_storm_pwg		= -1;
-static int hf_aprs_storm_cp		= -1;
-static int hf_aprs_storm_rhw		= -1;
-static int hf_aprs_storm_rtsw		= -1;
-static int hf_aprs_storm_rwg		= -1;
+static int hf_aprs_storm_dir;
+static int hf_aprs_storm_spd;
+static int hf_aprs_storm_type;
+static int hf_aprs_storm_sws;
+static int hf_aprs_storm_pwg;
+static int hf_aprs_storm_cp;
+static int hf_aprs_storm_rhw;
+static int hf_aprs_storm_rtsw;
+static int hf_aprs_storm_rwg;
 
 /* aprs sundry items */
-static int hf_aprs_dti			= -1;
-static int hf_aprs_sym_id		= -1;
-static int hf_aprs_sym_code		= -1;
-static int hf_aprs_comment		= -1;
-static int hf_aprs_storm		= -1;
+static int hf_aprs_dti;
+static int hf_aprs_sym_id;
+static int hf_aprs_sym_code;
+static int hf_aprs_comment;
+static int hf_aprs_storm;
 
 /* aprs main catgories items */
-static int hf_ultimeter_2000		= -1;
-static int hf_aprs_status		= -1;
-static int hf_aprs_object		= -1;
-static int hf_aprs_item			= -1;
-static int hf_aprs_query		= -1;
-static int hf_aprs_telemetry		= -1;
-static int hf_aprs_raw			= -1;
-static int hf_aprs_station		= -1;
-static int hf_aprs_message		= -1;
-static int hf_aprs_agrelo		= -1;
-static int hf_aprs_maidenhead		= -1;
-static int hf_aprs_weather		= -1;
-static int hf_aprs_invalid_test		= -1;
-static int hf_aprs_user_defined		= -1;
-static int hf_aprs_third_party		= -1;
-static int hf_aprs_mic_e_0_current	= -1;
-static int hf_aprs_mic_e_0_old		= -1;
-static int hf_aprs_mic_e_old		= -1;
-static int hf_aprs_mic_e_current	= -1;
-static int hf_aprs_peet_1		= -1;
-static int hf_aprs_peet_2		= -1;
-static int hf_aprs_map_feature		= -1;
-static int hf_aprs_shelter_data		= -1;
-static int hf_aprs_space_weather	= -1;
+static int hf_ultimeter_2000;
+static int hf_aprs_status;
+static int hf_aprs_object;
+static int hf_aprs_item;
+static int hf_aprs_query;
+static int hf_aprs_telemetry;
+static int hf_aprs_raw;
+static int hf_aprs_station;
+static int hf_aprs_message;
+static int hf_aprs_agrelo;
+static int hf_aprs_maidenhead;
+static int hf_aprs_weather;
+static int hf_aprs_invalid_test;
+static int hf_aprs_user_defined;
+static int hf_aprs_third_party;
+static int hf_aprs_mic_e_0_current;
+static int hf_aprs_mic_e_0_old;
+static int hf_aprs_mic_e_old;
+static int hf_aprs_mic_e_current;
+static int hf_aprs_peet_1;
+static int hf_aprs_peet_2;
+static int hf_aprs_map_feature;
+static int hf_aprs_shelter_data;
+static int hf_aprs_space_weather;
 
 
 static gboolean gPREF_APRS_LAX = FALSE;
 
-static gint ett_aprs		= -1;
-static gint ett_aprs_msg	= -1;
-static gint ett_aprs_ct		= -1;
-static gint ett_aprs_weather	= -1;
-static gint ett_aprs_storm	= -1;
-static gint ett_aprs_mic_e	= -1;
+static gint ett_aprs;
+static gint ett_aprs_msg;
+static gint ett_aprs_ct;
+static gint ett_aprs_weather;
+static gint ett_aprs_storm;
+static gint ett_aprs_mic_e;
 
 
 static const value_string ctype_vals[] = {

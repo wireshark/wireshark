@@ -29,16 +29,16 @@ static dissector_handle_t mausb_tcp_handle;
 static dissector_handle_t mausb_pkt_handle;
 
 /* For SNAP Packets */
-static int hf_llc_mausb_pid = -1;
+static int hf_llc_mausb_pid;
 
 /* Initialize the protocol and registered fields */
-static int proto_mausb = -1;
-static int hf_mausb_version = -1;
-static int hf_mausb_flags = -1;
-static int hf_mausb_flag_host = -1;
-static int hf_mausb_flag_retry = -1;
-static int hf_mausb_flag_timestamp = -1;
-static int hf_mausb_flag_reserved = -1;
+static int proto_mausb;
+static int hf_mausb_version;
+static int hf_mausb_flags;
+static int hf_mausb_flag_host;
+static int hf_mausb_flag_retry;
+static int hf_mausb_flag_timestamp;
+static int hf_mausb_flag_reserved;
 
 
 static int * const mausb_flag_fields[] = {
@@ -49,83 +49,83 @@ static int * const mausb_flag_fields[] = {
     NULL
 };
 
-static int hf_mausb_type = -1;
-static int hf_mausb_length = -1;
-static int hf_mausb_dev_handle = -1;
-static int hf_mausb_ep_handle = -1;
-static int hf_mausb_ep_handle_d = -1;
-static int hf_mausb_ep_handle_ep_num = -1;
-static int hf_mausb_ep_handle_dev_addr = -1;
-static int hf_mausb_ep_handle_bus_num = -1;
-static int hf_mausb_ma_dev_addr = -1;
-static int hf_mausb_ssid = -1;
-static int hf_mausb_status = -1;
+static int hf_mausb_type;
+static int hf_mausb_length;
+static int hf_mausb_dev_handle;
+static int hf_mausb_ep_handle;
+static int hf_mausb_ep_handle_d;
+static int hf_mausb_ep_handle_ep_num;
+static int hf_mausb_ep_handle_dev_addr;
+static int hf_mausb_ep_handle_bus_num;
+static int hf_mausb_ma_dev_addr;
+static int hf_mausb_ssid;
+static int hf_mausb_status;
 
 /* management packet specific */
-static int hf_mausb_token = -1;
-static int hf_mausb_mgmt_pad = -1;
-static int hf_mausb_mgmt_ep_handle_num = -1;
-static int hf_mausb_mgmt_ep_handle_pad = -1;
-static int hf_mausb_mgmt_ep_des_num = -1;
-static int hf_mausb_mgmt_ep_des_size = -1;
-static int hf_mausb_mgmt_ep_des_pad = -1;
-static int hf_mausb_mgmt_type_spec = -1;
-static int hf_mausb_mgmt_type_spec_generic = -1;
+static int hf_mausb_token;
+static int hf_mausb_mgmt_pad;
+static int hf_mausb_mgmt_ep_handle_num;
+static int hf_mausb_mgmt_ep_handle_pad;
+static int hf_mausb_mgmt_ep_des_num;
+static int hf_mausb_mgmt_ep_des_size;
+static int hf_mausb_mgmt_ep_des_pad;
+static int hf_mausb_mgmt_type_spec;
+static int hf_mausb_mgmt_type_spec_generic;
 
 /* CapResp packet specific */
-static int hf_mausb_cap_resp_num_ep = -1;
-static int hf_mausb_cap_resp_num_dev = -1;
-static int hf_mausb_cap_resp_num_stream = -1;
-static int hf_mausb_cap_resp_dev_type = -1;
-static int hf_mausb_cap_resp_desc_count = -1;
-static int hf_mausb_cap_resp_desc_len = -1;
-static int hf_mausb_cap_resp_transfer_req = -1;
-static int hf_mausb_cap_resp_mgmt_req = -1;
-static int hf_mausb_cap_resp_rsvd = -1;
+static int hf_mausb_cap_resp_num_ep;
+static int hf_mausb_cap_resp_num_dev;
+static int hf_mausb_cap_resp_num_stream;
+static int hf_mausb_cap_resp_dev_type;
+static int hf_mausb_cap_resp_desc_count;
+static int hf_mausb_cap_resp_desc_len;
+static int hf_mausb_cap_resp_transfer_req;
+static int hf_mausb_cap_resp_mgmt_req;
+static int hf_mausb_cap_resp_rsvd;
 
-static int hf_mausb_dev_cap_len = -1;
-static int hf_mausb_dev_cap_type = -1;
-static int hf_mausb_dev_cap_generic = -1;
+static int hf_mausb_dev_cap_len;
+static int hf_mausb_dev_cap_type;
+static int hf_mausb_dev_cap_generic;
 
 /* EPHandleReq & Resp packet specific */
-static int hf_mausb_ep_handle_req_pad = -1;
-static int hf_mausb_ep_handle_resp_dir = -1;
-static int hf_mausb_ep_handle_resp_iso = -1;
-static int hf_mausb_ep_handle_resp_lman = -1;
-static int hf_mausb_ep_handle_resp_valid = -1;
-static int hf_mausb_ep_handle_resp_ccu = -1;
-static int hf_mausb_ep_handle_resp_buf_size = -1;
-static int hf_mausb_ep_handle_resp_iso_prog_dly = -1;
-static int hf_mausb_ep_handle_resp_iso_resp_dly = -1;
+static int hf_mausb_ep_handle_req_pad;
+static int hf_mausb_ep_handle_resp_dir;
+static int hf_mausb_ep_handle_resp_iso;
+static int hf_mausb_ep_handle_resp_lman;
+static int hf_mausb_ep_handle_resp_valid;
+static int hf_mausb_ep_handle_resp_ccu;
+static int hf_mausb_ep_handle_resp_buf_size;
+static int hf_mausb_ep_handle_resp_iso_prog_dly;
+static int hf_mausb_ep_handle_resp_iso_resp_dly;
 
 /* (Clear/Cancel)TransferReq & Resp packet specific */
-static int hf_mausb_clear_transfers_info_block = -1;
-static int hf_mausb_clear_transfers_status_block = -1;
-static int hf_mausb_cancel_transfer_rsvd = -1;
-static int hf_mausb_clear_transfers_req_num = -1;
-static int hf_mausb_clear_transfers_req_rsvd = -1;
-static int hf_mausb_clear_transfers_resp_num = -1;
-static int hf_mausb_clear_transfers_resp_rsvd = -1;
-static int hf_mausb_cancel_transfer_status = -1;
-static int hf_mausb_cancel_transfer_rsvd_2 = -1;
-static int hf_mausb_clear_transfers_status = -1;
-static int hf_mausb_clear_transfers_partial = -1;
-static int hf_mausb_clear_transfers_start_req_id = -1;
-static int hf_mausb_clear_transfers_last_req_id = -1;
-static int hf_mausb_clear_transfers_req_block_rsvd = -1;
-static int hf_mausb_clear_transfers_resp_block_rsvd = -1;
-static int hf_mausb_cancel_transfer_seq_num = -1;
-static int hf_mausb_cancel_transfer_byte_offset = -1;
+static int hf_mausb_clear_transfers_info_block;
+static int hf_mausb_clear_transfers_status_block;
+static int hf_mausb_cancel_transfer_rsvd;
+static int hf_mausb_clear_transfers_req_num;
+static int hf_mausb_clear_transfers_req_rsvd;
+static int hf_mausb_clear_transfers_resp_num;
+static int hf_mausb_clear_transfers_resp_rsvd;
+static int hf_mausb_cancel_transfer_status;
+static int hf_mausb_cancel_transfer_rsvd_2;
+static int hf_mausb_clear_transfers_status;
+static int hf_mausb_clear_transfers_partial;
+static int hf_mausb_clear_transfers_start_req_id;
+static int hf_mausb_clear_transfers_last_req_id;
+static int hf_mausb_clear_transfers_req_block_rsvd;
+static int hf_mausb_clear_transfers_resp_block_rsvd;
+static int hf_mausb_cancel_transfer_seq_num;
+static int hf_mausb_cancel_transfer_byte_offset;
 
 /* data packet specific */
-static int hf_mausb_eps = -1;
-static int hf_mausb_eps_rsvd = -1;
-static int hf_mausb_tflags = -1;
-static int hf_mausb_tflag_arq = -1;
-static int hf_mausb_tflag_neg = -1;
-static int hf_mausb_tflag_eot = -1;
-static int hf_mausb_tflag_type = -1;
-static int hf_mausb_tflag_rsvd = -1;
+static int hf_mausb_eps;
+static int hf_mausb_eps_rsvd;
+static int hf_mausb_tflags;
+static int hf_mausb_tflag_arq;
+static int hf_mausb_tflag_neg;
+static int hf_mausb_tflag_eot;
+static int hf_mausb_tflag_type;
+static int hf_mausb_tflag_rsvd;
 
 static int * const mausb_tflag_fields[] = {
     &hf_mausb_tflag_arq,
@@ -136,11 +136,11 @@ static int * const mausb_tflag_fields[] = {
     NULL
 };
 
-static int hf_mausb_num_iso_hdr = -1;
-static int hf_mausb_iflags = -1;
-static int hf_mausb_iflag_mtd = -1;
-static int hf_mausb_iflag_hdr_format = -1;
-static int hf_mausb_iflag_asap = -1;
+static int hf_mausb_num_iso_hdr;
+static int hf_mausb_iflags;
+static int hf_mausb_iflag_mtd;
+static int hf_mausb_iflag_hdr_format;
+static int hf_mausb_iflag_asap;
 
 static int * const mausb_iflag_fields[] = {
     &hf_mausb_iflag_mtd,
@@ -149,32 +149,32 @@ static int * const mausb_iflag_fields[] = {
     NULL
 };
 
-static int hf_mausb_stream_id = -1;
-static int hf_mausb_seq_num = -1;
-static int hf_mausb_req_id = -1;
-static int hf_mausb_present_time = -1;
-static int hf_mausb_uframe = -1;
-static int hf_mausb_frame = -1;
-static int hf_mausb_num_segs = -1;
+static int hf_mausb_stream_id;
+static int hf_mausb_seq_num;
+static int hf_mausb_req_id;
+static int hf_mausb_present_time;
+static int hf_mausb_uframe;
+static int hf_mausb_frame;
+static int hf_mausb_num_segs;
 
-static int hf_mausb_timestamp = -1;
-static int hf_mausb_delta = -1;
-static int hf_mausb_nom_interval = -1;
+static int hf_mausb_timestamp;
+static int hf_mausb_delta;
+static int hf_mausb_nom_interval;
 
 
 
-static int hf_mausb_mtd = -1;
-static int hf_mausb_rem_size_credit = -1;
+static int hf_mausb_mtd;
+static int hf_mausb_rem_size_credit;
 
 /* expert info fields */
-static expert_field ei_ep_handle_len = EI_INIT;
-static expert_field ei_len = EI_INIT;
-static expert_field ei_mgmt_type_undef = EI_INIT;
-static expert_field ei_mgmt_type_spec_len_long = EI_INIT;
-static expert_field ei_mgmt_type_spec_len_short = EI_INIT;
-static expert_field ei_dev_cap_len = EI_INIT;
-static expert_field ei_dev_cap_resp_desc_len = EI_INIT;
-static expert_field ei_cap_resp_desc_len = EI_INIT;
+static expert_field ei_ep_handle_len;
+static expert_field ei_len;
+static expert_field ei_mgmt_type_undef;
+static expert_field ei_mgmt_type_spec_len_long;
+static expert_field ei_mgmt_type_spec_len_short;
+static expert_field ei_dev_cap_len;
+static expert_field ei_dev_cap_resp_desc_len;
+static expert_field ei_cap_resp_desc_len;
 
 /* MAUSB Version, per 6.2.1.1 */
 #define MAUSB_VERSION_1_0     0x0
@@ -668,16 +668,16 @@ static guint mausb_get_pkt_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 }
 
 /* Initialize the subtree pointers */
-static gint ett_mausb = -1;
-static gint ett_mausb_flags = -1;
-static gint ett_mausb_ep_handle = -1;
-static gint ett_mausb_tflags = -1;
-static gint ett_mausb_iflags = -1;
-static gint ett_mausb_present_time = -1;
-static gint ett_mausb_timestamp = -1;
-static gint ett_mgmt = -1;
-static gint ett_dev_cap = -1;
-static gint ett_clear_transfers_block = -1;
+static gint ett_mausb;
+static gint ett_mausb_flags;
+static gint ett_mausb_ep_handle;
+static gint ett_mausb_tflags;
+static gint ett_mausb_iflags;
+static gint ett_mausb_present_time;
+static gint ett_mausb_timestamp;
+static gint ett_mgmt;
+static gint ett_dev_cap;
+static gint ett_clear_transfers_block;
 
 
 #define USB_DT_EP_SIZE              7

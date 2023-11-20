@@ -72,30 +72,30 @@ void proto_reg_handoff_sebek(void);
 
 static dissector_handle_t sebek_handle;
 
-static int proto_sebek = -1;
+static int proto_sebek;
 
-static int hf_sebek_magic = -1;
-static int hf_sebek_version = -1;
-static int hf_sebek_type = -1;
-static int hf_sebek_counter = -1;
-static int hf_sebek_time = -1;
-static int hf_sebek_pid = -1;
-static int hf_sebek_uid = -1;
-static int hf_sebek_fd = -1;
-static int hf_sebek_cmd = -1;
-static int hf_sebek_len = -1;
-static int hf_sebek_data = -1;
-static int hf_sebek_ppid = -1;
-static int hf_sebek_inode = -1;
-static int hf_sebek_socket_src_ip=-1;
-static int hf_sebek_socket_src_port=-1;
-static int hf_sebek_socket_dst_ip=-1;
-static int hf_sebek_socket_dst_port=-1;
-static int hf_sebek_socket_call=-1;
-static int hf_sebek_socket_proto=-1;
+static int hf_sebek_magic;
+static int hf_sebek_version;
+static int hf_sebek_type;
+static int hf_sebek_counter;
+static int hf_sebek_time;
+static int hf_sebek_pid;
+static int hf_sebek_uid;
+static int hf_sebek_fd;
+static int hf_sebek_cmd;
+static int hf_sebek_len;
+static int hf_sebek_data;
+static int hf_sebek_ppid;
+static int hf_sebek_inode;
+static int hf_sebek_socket_src_ip;
+static int hf_sebek_socket_src_port;
+static int hf_sebek_socket_dst_ip;
+static int hf_sebek_socket_dst_port;
+static int hf_sebek_socket_call;
+static int hf_sebek_socket_proto;
 
 
-static gint ett_sebek = -1;
+static gint ett_sebek;
 
 /* dissect_sebek - dissects sebek packet data
  * tvb - tvbuff for packet data (IN)

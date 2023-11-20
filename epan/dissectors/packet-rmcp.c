@@ -31,22 +31,22 @@ static dissector_handle_t rsp_handle;
  * (the ASF specification includes RMCP)
  */
 
-static int proto_rmcp = -1;
-static int hf_rmcp_version = -1;
-static int hf_rmcp_reserved = -1;
-static int hf_rmcp_sequence = -1;
-static int hf_rmcp_class = -1;
-static int hf_rmcp_type = -1;
-static int hf_rmcp_trailer = -1;
+static int proto_rmcp;
+static int hf_rmcp_version;
+static int hf_rmcp_reserved;
+static int hf_rmcp_sequence;
+static int hf_rmcp_class;
+static int hf_rmcp_type;
+static int hf_rmcp_trailer;
 
-static int proto_rsp = -1;
-static int hf_rsp_session_id = -1;
-static int hf_rsp_sequence = -1;
+static int proto_rsp;
+static int hf_rsp_session_id;
+static int hf_rsp_sequence;
 
-static gint ett_rmcp = -1;
-static gint ett_rmcp_typeclass = -1;
+static gint ett_rmcp;
+static gint ett_rmcp_typeclass;
 
-static gint ett_rsp = -1;
+static gint ett_rsp;
 
 static dissector_table_t rmcp_dissector_table;
 

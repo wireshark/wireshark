@@ -20,17 +20,17 @@ void proto_reg_handoff_at_ldf(void);
 
 static dissector_handle_t at_ldf_handle;
 
-static int proto_at_ldf = -1;
+static int proto_at_ldf;
 
 /* Fields */
-static int hf_at_ldf_version  = -1;
-static int hf_at_ldf_src_vlan = -1;
-static int hf_at_ldf_src_port = -1;
-static int hf_at_ldf_ttl      = -1;
-static int hf_at_ldf_id       = -1;
-static int hf_at_ldf_text     = -1;
+static int hf_at_ldf_version;
+static int hf_at_ldf_src_vlan;
+static int hf_at_ldf_src_port;
+static int hf_at_ldf_ttl;
+static int hf_at_ldf_id;
+static int hf_at_ldf_text;
 
-static gint ett_at_ldf     = -1;
+static gint ett_at_ldf;
 
 static int
 dissect_at_ldf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)

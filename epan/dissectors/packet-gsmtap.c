@@ -47,40 +47,40 @@ void proto_reg_handoff_gsmtap(void);
 
 static dissector_handle_t gsmtap_handle;
 
-static int proto_gsmtap = -1;
+static int proto_gsmtap;
 
-static int hf_gsmtap_version = -1;
-static int hf_gsmtap_hdrlen = -1;
-static int hf_gsmtap_type = -1;
-static int hf_gsmtap_timeslot = -1;
-static int hf_gsmtap_subslot = -1;
-static int hf_gsmtap_arfcn = -1;
-static int hf_gsmtap_uplink = -1;
-static int hf_gsmtap_pcs = -1;
-static int hf_gsmtap_signal_dbm = -1;
-static int hf_gsmtap_snr_db = -1;
-static int hf_gsmtap_frame_nr = -1;
-static int hf_gsmtap_burst_type = -1;
-static int hf_gsmtap_channel_type = -1;
-static int hf_gsmtap_tetra_channel_type = -1;
-static int hf_gsmtap_gmr1_channel_type = -1;
-static int hf_gsmtap_rrc_sub_type = -1;
-static int hf_gsmtap_e1t1_sub_type = -1;
-static int hf_gsmtap_antenna = -1;
+static int hf_gsmtap_version;
+static int hf_gsmtap_hdrlen;
+static int hf_gsmtap_type;
+static int hf_gsmtap_timeslot;
+static int hf_gsmtap_subslot;
+static int hf_gsmtap_arfcn;
+static int hf_gsmtap_uplink;
+static int hf_gsmtap_pcs;
+static int hf_gsmtap_signal_dbm;
+static int hf_gsmtap_snr_db;
+static int hf_gsmtap_frame_nr;
+static int hf_gsmtap_burst_type;
+static int hf_gsmtap_channel_type;
+static int hf_gsmtap_tetra_channel_type;
+static int hf_gsmtap_gmr1_channel_type;
+static int hf_gsmtap_rrc_sub_type;
+static int hf_gsmtap_e1t1_sub_type;
+static int hf_gsmtap_antenna;
 
-static int hf_sacch_l1h_power_lev = -1;
-static int hf_sacch_l1h_fpc = -1;
-static int hf_sacch_l1h_sro_srr = -1;
-static int hf_sacch_l1h_ta = -1;
+static int hf_sacch_l1h_power_lev;
+static int hf_sacch_l1h_fpc;
+static int hf_sacch_l1h_sro_srr;
+static int hf_sacch_l1h_ta;
 
-static int hf_ptcch_spare = -1;
-static int hf_ptcch_ta_idx = -1;
-static int hf_ptcch_ta_val = -1;
-static int hf_ptcch_padding = -1;
+static int hf_ptcch_spare;
+static int hf_ptcch_ta_idx;
+static int hf_ptcch_ta_val;
+static int hf_ptcch_padding;
 
-static int hf_um_voice_type = -1;
+static int hf_um_voice_type;
 
-static gint ett_gsmtap = -1;
+static gint ett_gsmtap;
 
 enum {
 	GSMTAP_SUB_DATA = 0,

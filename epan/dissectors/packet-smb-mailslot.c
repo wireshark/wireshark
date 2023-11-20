@@ -21,14 +21,14 @@
 void proto_register_smb_mailslot(void);
 void proto_reg_handoff_smb_mailslot(void);
 
-static int proto_smb_msp = -1;
-static int hf_opcode = -1;
-static int hf_priority = -1;
-static int hf_class = -1;
-static int hf_size = -1;
-static int hf_name = -1;
+static int proto_smb_msp;
+static int hf_opcode;
+static int hf_priority;
+static int hf_class;
+static int hf_size;
+static int hf_name;
 
-static int ett_smb_msp = -1;
+static int ett_smb_msp;
 
 static dissector_handle_t mailslot_browse_handle;
 static dissector_handle_t mailslot_lanman_handle;
