@@ -332,6 +332,12 @@ class TestDfilterArithmetic:
         dfilter = "udp.length == ip.len - 20"
         checkDFilterCount(dfilter, 4)
 
+    def test_sub_5(self, checkDFilterCount):
+        # Make sure 68-67 is parsed as subtraction
+        # and not bytes separated by hyphen XX-XX-XX
+        dfilter = "frame.number == 68-67"
+        checkDFilterCount(dfilter, 1)
+
     def test_expr_1(self, checkDFilterCount):
         dfilter = 'udp.port * { 10 / {5 - 4} } == udp.port * { {50 + 50} / 2 - 40 }'
         checkDFilterCount(dfilter, 4)
