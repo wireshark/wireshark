@@ -109,8 +109,8 @@ void CaptureFilterSyntaxWorker::checkFilter(const QString filter)
             err_str = pcap_geterr(pd);
         } else {
             DEBUG_SYNTAX_CHECK("unknown", "known good");
+            pcap_freecode(&fcode);
         }
-        pcap_freecode(&fcode);
         pcap_close(pd);
 
         pcap_compile_mtx_.unlock();

@@ -98,8 +98,8 @@ void CompiledFilterOutput::compileFilter()
                     compile_results.insert(interfaces, QString(bpf_code_dump->str));
                     g_string_free(bpf_code_dump, TRUE);
                     ui->interfaceList->addItem(new QListWidgetItem(interfaces));
+                    pcap_freecode(&fcode);
                 }
-                pcap_freecode(&fcode);
                 pcap_close(pd);
                 break;
             }
