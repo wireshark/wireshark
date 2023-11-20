@@ -1051,6 +1051,7 @@ int main(int argc, char *qt_argv[])
     // loaded when the dialog is shown.  Register them here.
     profile_register_persconffile("io_graphs");
     profile_register_persconffile("import_hexdump.json");
+    profile_register_persconffile("remote_hosts.json");
 
     profile_store_persconffiles(FALSE);
 

@@ -48,6 +48,10 @@ private:
     InterfaceSortFilterModel * pipeProxyModel;
 
     void showRemoteInterfaces();
+#ifdef HAVE_PCAP_REMOTE
+    void addRemote(const QVariantMap&&);
+    void populateExistingRemotes();
+#endif
 
 signals:
     void ifsChanged();
