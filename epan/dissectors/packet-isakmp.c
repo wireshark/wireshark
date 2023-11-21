@@ -1118,6 +1118,10 @@ static const value_string dh_group[] = {
   { 28, "256-bit Brainpool ECP group" },
   { 29, "384-bit Brainpool ECP group" },
   { 30, "512-bit Brainpool ECP group" },
+  { 31, "Curve25519" },
+  { 32, "Curve448" },
+  { 33, "GOST3410_2012_256" },
+  { 34, "GOST3410_2012_512" },
   { 0,  NULL }
 };
 
