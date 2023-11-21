@@ -152,7 +152,6 @@ typedef struct recent_settings_tag {
 
     gint        gui_geometry_main_upper_pane;
     gint        gui_geometry_main_lower_pane;
-    gint        gui_geometry_wlan_stats_pane;
     gboolean    privs_warn_if_elevated;
     gboolean    sys_warn_if_no_capture;
     GList      *col_width_list;                     /* column widths */

@@ -60,7 +60,6 @@
 #define RECENT_GUI_GEOMETRY_LEFTALIGN_ACTIONS   "gui.geometry_leftalign_actions"
 #define RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE     "gui.geometry_main_upper_pane"
 #define RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE     "gui.geometry_main_lower_pane"
-#define RECENT_GUI_GEOMETRY_WLAN_STATS_PANE     "gui.geometry_status_wlan_stats_pane"
 #define RECENT_LAST_USED_PROFILE                "gui.last_used_profile"
 #define RECENT_GUI_FILEOPEN_REMEMBERED_DIR      "gui.fileopen_remembered_dir"
 #define RECENT_GUI_CONVERSATION_TABS            "gui.conversation_tabs"
@@ -842,11 +841,6 @@ write_recent(void)
     fprintf(rf, "\n# Last used Configuration Profile.\n");
     fprintf(rf, RECENT_LAST_USED_PROFILE ": %s\n", get_profile_name());
 
-    fprintf(rf, "\n# WLAN statistics upper pane size.\n");
-    fprintf(rf, "# Decimal number.\n");
-    fprintf(rf, RECENT_GUI_GEOMETRY_WLAN_STATS_PANE ": %d\n",
-            recent.gui_geometry_wlan_stats_pane);
-
     write_recent_boolean(rf, "Warn if running with elevated permissions (e.g. as root)",
             RECENT_KEY_PRIVS_WARN_IF_ELEVATED,
             recent.privs_warn_if_elevated);
@@ -1171,13 +1165,6 @@ read_set_recent_common_pair_static(gchar *key, const gchar *value,
         if ((strcmp(value, DEFAULT_PROFILE) != 0) && profile_exists (value, FALSE)) {
             set_profile_name (value);
         }
-    } else if (strcmp(key, RECENT_GUI_GEOMETRY_WLAN_STATS_PANE) == 0) {
-        num = strtol(value, &p, 0);
-        if (p == value || *p != '\0')
-            return PREFS_SET_SYNTAX_ERR;      /* number was bad */
-        if (num <= 0)
-            return PREFS_SET_SYNTAX_ERR;      /* number must be positive */
-        recent.gui_geometry_wlan_stats_pane = (gint)num;
     } else if (strncmp(key, RECENT_GUI_GEOMETRY, sizeof(RECENT_GUI_GEOMETRY)-1) == 0) {
         /* now have something like "gui.geom.main.x", split it into win and sub_key */
         char *win = &key[sizeof(RECENT_GUI_GEOMETRY)-1];
@@ -1499,8 +1486,6 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
     recent.gui_geometry_main_maximized=     FALSE;
 
     recent.gui_geometry_leftalign_actions = FALSE;
-
-    recent.gui_geometry_wlan_stats_pane   = 200;
 
     recent.privs_warn_if_elevated = TRUE;
     recent.sys_warn_if_no_capture = TRUE;
