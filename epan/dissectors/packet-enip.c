@@ -2206,8 +2206,9 @@ static int dissect_certificate_management_object_verify_certificate(packet_info 
    }
 }
 
+// Most of the information for the IANA Port Admin attribute and Set_Port_Admin_State service is the same.
 static int dissect_tcpip_port_information(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-   int offset)
+   int offset, gboolean attribute_version)
 {
    int start_offset = offset;
 
@@ -2220,7 +2221,15 @@ static int dissect_tcpip_port_information(packet_info *pinfo, proto_tree *tree, 
       proto_item *port_item;
       proto_tree *port_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_cmd_data, &port_item, "Port: ");
 
-      offset += dissect_cip_string_type(pinfo, port_tree, item, tvb, offset, hf_tcpip_port_name, CIP_SHORT_STRING_TYPE);
+      if (attribute_version == TRUE)
+      {
+         guint8 length = tvb_get_guint8(tvb, offset);
+         const char* port_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, length, ENC_ASCII);
+
+         offset += dissect_cip_string_type(pinfo, port_tree, item, tvb, offset, hf_tcpip_port_name, CIP_SHORT_STRING_TYPE);
+
+         proto_item_append_text(port_item, "Name: %s: ", port_name);
+      }
 
       guint32 port_number;
       proto_tree_add_item_ret_uint(port_tree, hf_tcpip_port_number, tvb, offset, 2, ENC_LITTLE_ENDIAN, &port_number);
@@ -2233,15 +2242,18 @@ static int dissect_tcpip_port_information(packet_info *pinfo, proto_tree *tree, 
       proto_tree_add_item(port_tree, hf_tcpip_port_admin_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset++;
 
-      static int* const capability[] = {
-         &hf_tcpip_admin_capability_configurable,
-         &hf_tcpip_admin_capability_reset_required,
-         &hf_tcpip_admin_capability_reserved,
-         NULL
-      };
+      if (attribute_version == TRUE)
+      {
+         static int* const capability[] = {
+            &hf_tcpip_admin_capability_configurable,
+            &hf_tcpip_admin_capability_reset_required,
+            &hf_tcpip_admin_capability_reserved,
+            NULL
+         };
 
-      proto_tree_add_bitmask(port_tree, tvb, offset, hf_tcpip_port_admin_capability, ett_tcpip_admin_capability, capability, ENC_LITTLE_ENDIAN);
-      offset++;
+         proto_tree_add_bitmask(port_tree, tvb, offset, hf_tcpip_port_admin_capability, ett_tcpip_admin_capability, capability, ENC_LITTLE_ENDIAN);
+         offset++;
+      }
    }
 
    return offset - start_offset;
@@ -2250,7 +2262,19 @@ static int dissect_tcpip_port_information(packet_info *pinfo, proto_tree *tree, 
 static int dissect_tcpip_port_admin(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
-   return dissect_tcpip_port_information(pinfo, tree, item, tvb, offset);
+   return dissect_tcpip_port_information(pinfo, tree, item, tvb, offset, TRUE);
+}
+
+static int dissect_tcpip_set_port_admin_state(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, gboolean request)
+{
+   if (request)
+   {
+      return dissect_tcpip_port_information(pinfo, tree, item, tvb, offset, FALSE);
+   }
+   else
+   {
+      return 0;
+   }
 }
 
 attribute_info_t enip_attribute_vals[] = {
@@ -2391,6 +2415,9 @@ attribute_info_t enip_attribute_vals[] = {
 static cip_service_info_t enip_obj_spec_service_table[] = {
     // Certificate Management
     { 0x5F, 0x4C, "Verify_Certificate", dissect_certificate_management_object_verify_certificate },
+
+    // TCP/IP Interface
+    { 0xF5, 0x4C, "Set_Port_Admin_State", dissect_tcpip_set_port_admin_state },
 };
 
 // Look up a given CIP service from this dissector.
