@@ -26,6 +26,7 @@
 
 #include <capture/capture_ifinfo.h>
 #include <wsutil/inet_addr.h>
+#include <wsutil/wsjson.h>
 
 #ifdef HAVE_PCAP_REMOTE
 static GList *remote_interface_list = NULL;
@@ -199,8 +200,8 @@ capture_get_if_capabilities(const char *ifname, bool monitor_mode,
     if_capabilities_t *caps;
     GList              *linktype_list = NULL, *timestamp_list = NULL;
     int                 err, i;
-    char              *data, *primary_msg, *secondary_msg;
-    char             **raw_list;
+    char               *data, *primary_msg, *secondary_msg, *val_s;
+    jsmntok_t          *tokens, *inf_tok, *array_tok, *cur_tok;
 
     /* see if the interface is from extcap */
     caps = extcap_get_if_dlts(ifname, err_primary_msg);
@@ -228,23 +229,81 @@ capture_get_if_capabilities(const char *ifname, bool monitor_mode,
         return NULL;
     }
 
-    /* Split our lines */
-#ifdef _WIN32
-    raw_list = g_strsplit(data, "\r\n", 0);
-#else
-    raw_list = g_strsplit(data, "\n", 0);
-#endif
-    g_free(data);
+    int num_tokens = json_parse(data, NULL, 0);
+    if (num_tokens <= 0) {
+        ws_warning("Capture Interface Capabilities failed with invalid JSON.");
+        g_free(data);
+        return NULL;
+    }
 
-    /*
-     * First line is 0 if monitor mode isn't supported, 1 if it is.
-     */
-    if (raw_list[0] == NULL || *raw_list[0] == '\0') {
+    tokens = wmem_alloc_array(NULL, jsmntok_t, num_tokens);
+    if (json_parse(data, tokens, num_tokens) <= 0) {
         ws_info("Capture Interface Capabilities returned no information.");
         if (err_primary_msg) {
             *err_primary_msg = g_strdup("Dumpcap returned no interface capability information");
         }
-        g_strfreev(raw_list);
+        wmem_free(NULL, tokens);
+        g_free(data);
+        return NULL;
+    }
+
+    cur_tok = json_get_array_index(tokens, 0);
+    if (cur_tok == NULL) {
+        ws_warning("Capture Interface Capabilities failed with invalid JSON.");
+        wmem_free(NULL, tokens);
+        g_free(data);
+        return NULL;
+    }
+
+    inf_tok = json_get_object(data, cur_tok, ifname);
+    if (inf_tok == NULL) {
+        ws_warning("Capture Interface Capabilities failed with invalid JSON.");
+        wmem_free(NULL, tokens);
+        g_free(data);
+        return NULL;
+    }
+
+    double val_d;
+    if (!json_get_double(data, inf_tok, "status", &val_d)) {
+        ws_warning("Capture Interface Capabilities failed with invalid JSON.");
+        wmem_free(NULL, tokens);
+        g_free(data);
+        return NULL;
+    }
+    err = (int)val_d;
+    if (err != 0) {
+        primary_msg = json_get_string(data, inf_tok, "primary_msg");
+        if (primary_msg) {
+            primary_msg = g_strdup(primary_msg);
+        }
+        secondary_msg = json_get_string(data, inf_tok, "secondary_msg");
+        if (secondary_msg) {
+            secondary_msg = g_strdup(secondary_msg);
+        }
+        ws_info("Capture Interface Capabilities failed. Error %d, %s",
+              err, primary_msg ? primary_msg : "no message");
+        if (err_primary_msg)
+            *err_primary_msg = primary_msg;
+        else
+            g_free(primary_msg);
+        if (err_secondary_msg)
+            *err_secondary_msg = secondary_msg;
+        else
+            g_free(secondary_msg);
+        wmem_free(NULL, tokens);
+        g_free(data);
+        return NULL;
+    }
+
+    bool rfmon;
+    if (!json_get_boolean(data, inf_tok, "rfmon", &rfmon)) {
+        ws_message("Capture Interface Capabilities returned bad information.");
+        ws_message("Didn't return monitor-mode cap");
+        if (err_primary_msg) {
+            *err_primary_msg = ws_strdup_printf("Dumpcap didn't return monitor-mode capability");
+        }
+        wmem_free(NULL, tokens);
+        g_free(data);
         return NULL;
     }
 
@@ -252,74 +311,66 @@ capture_get_if_capabilities(const char *ifname, bool monitor_mode,
      * Allocate the interface capabilities structure.
      */
     caps = (if_capabilities_t *)g_malloc(sizeof *caps);
-    switch (*raw_list[0]) {
-
-    case '0':
-        caps->can_set_rfmon = false;
-        break;
-
-    case '1':
-        caps->can_set_rfmon = true;
-        break;
-
-    default:
-        ws_info("Capture Interface Capabilities returned bad information.");
-        if (err_primary_msg) {
-            *err_primary_msg = ws_strdup_printf("Dumpcap returned \"%s\" for monitor-mode capability",
-                                       raw_list[0]);
-        }
-        g_free(caps);
-        g_strfreev(raw_list);
-        return NULL;
-    }
+    caps->can_set_rfmon = rfmon;
 
     /*
      * The following are link-layer types.
      */
-    for (i = 1; raw_list[i] != NULL && *raw_list[i] != '\0'; i++) {
-        data_link_info_t *data_link_info;
-        /* ...and what if the interface name has a tab in it, Mr. Clever Programmer? */
-        char **lt_parts = g_strsplit(raw_list[i], "\t", 3);
-        if (lt_parts[0] == NULL || lt_parts[1] == NULL || lt_parts[2] == NULL) {
-            g_strfreev(lt_parts);
+    array_tok = json_get_array(data, inf_tok, "data_link_types");
+    if (!array_tok) {
+        ws_message("Capture Interface Capabilities returned bad data_link information.");
+        if (err_primary_msg) {
+            *err_primary_msg = ws_strdup_printf("Dumpcap didn't return data link types capability");
+        }
+        wmem_free(NULL, tokens);
+        g_free(data);
+        g_free(caps);
+        return NULL;
+    }
+    for (i = 0; i < json_get_array_len(array_tok); i++) {
+        cur_tok = json_get_array_index(array_tok, i);
+
+        if (!json_get_double(data, cur_tok, "dlt", &val_d)) {
             continue;
         }
 
+        data_link_info_t *data_link_info;
         data_link_info = g_new(data_link_info_t,1);
-        data_link_info->dlt = (int) strtol(lt_parts[0], NULL, 10);
-        data_link_info->name = g_strdup(lt_parts[1]);
-        if (strcmp(lt_parts[2], "(not supported)") != 0)
-            data_link_info->description = g_strdup(lt_parts[2]);
-        else
-            data_link_info->description = NULL;
-        g_strfreev(lt_parts);
 
+        data_link_info->dlt = (int)val_d;
+        val_s = json_get_string(data, cur_tok, "name");
+        data_link_info->name = val_s ? g_strdup(val_s) : NULL;
+        val_s = json_get_string(data, cur_tok, "description");
+        if (!val_s || strcmp(val_s, "(not supported)") == 0) {
+            data_link_info->description = NULL;
+        } else {
+            data_link_info->description = g_strdup(val_s);
+        }
         linktype_list = g_list_append(linktype_list, data_link_info);
     }
 
-    if (raw_list[i]) { /* Oh, timestamp types! */
-        for (i++; raw_list[i] != NULL && *raw_list[i] != '\0'; i++) {
-            timestamp_info_t *timestamp_info;
-            char **tt_parts = g_strsplit(raw_list[i], "\t", 2);
-            if (tt_parts[0] == NULL || tt_parts[1] == NULL) {
-                g_strfreev(tt_parts);
-                continue;
-            }
+    array_tok = json_get_array(data, inf_tok, "timestamp_types");
+    if (array_tok) {
+        for (i = 0; i < json_get_array_len(array_tok); i++) {
+            cur_tok = json_get_array_index(array_tok, i);
 
+            timestamp_info_t *timestamp_info;
             timestamp_info = g_new(timestamp_info_t,1);
-            timestamp_info->name = g_strdup(tt_parts[0]);
-            timestamp_info->description = g_strdup(tt_parts[1]);
-            g_strfreev(tt_parts);
+            val_s = json_get_string(data, cur_tok, "name");
+            timestamp_info->name = val_s ? g_strdup(val_s) : NULL;
+            val_s = json_get_string(data, cur_tok, "description");
+            timestamp_info->description = val_s ? g_strdup(val_s) : NULL;
 
             timestamp_list = g_list_append(timestamp_list, timestamp_info);
         }
     }
 
-    g_strfreev(raw_list);
-
     caps->data_link_types = linktype_list;
     /* Might be NULL. Not all systems report timestamp types */
     caps->timestamp_types = timestamp_list;
+
+    wmem_free(NULL, tokens);
+    g_free(data);
 
     return caps;
 }

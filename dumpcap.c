@@ -78,6 +78,7 @@
 #include "wsutil/time_util.h"
 #include "wsutil/please_report_bug.h"
 #include "wsutil/glib-compat.h"
+#include <wsutil/json_dumper.h>
 #include <wsutil/ws_assert.h>
 
 #include "capture/ws80211_utils.h"
@@ -1089,21 +1090,17 @@ print_machine_readable_interfaces(GList *if_list)
  * you MUST update capture_ifinfo.c:capture_get_if_capabilities() accordingly!
  */
 static void
-print_machine_readable_if_capabilities(if_capabilities_t *caps, int queries)
+print_machine_readable_if_capabilities(json_dumper *dumper, if_capabilities_t *caps, int queries)
 {
     GList *lt_entry, *ts_entry;
     const gchar *desc_str;
 
-    if (capture_child) {
-        /* Let our parent know we succeeded. */
-        sync_pipe_write_string_msg(2, SP_SUCCESS, NULL);
-    }
-
     if (queries & CAPS_QUERY_LINK_TYPES) {
-        if (caps->can_set_rfmon)
-            printf("1\n");
-        else
-            printf("0\n");
+        json_dumper_set_member_name(dumper, "rfmon");
+        // XXX: wsjson.h doesn't have a function to read booleans
+        json_dumper_value_anyf(dumper, "%s", caps->can_set_rfmon ? "true" : "false");
+        json_dumper_set_member_name(dumper, "data_link_types");
+        json_dumper_begin_array(dumper);
         for (lt_entry = caps->data_link_types; lt_entry != NULL;
              lt_entry = g_list_next(lt_entry)) {
           data_link_info_t *data_link_info = (data_link_info_t *)lt_entry->data;
@@ -1111,12 +1108,20 @@ print_machine_readable_if_capabilities(if_capabilities_t *caps, int queries)
             desc_str = data_link_info->description;
           else
             desc_str = "(not supported)";
-          printf("%d\t%s\t%s\n", data_link_info->dlt, data_link_info->name,
-                 desc_str);
+          json_dumper_begin_object(dumper);
+          json_dumper_set_member_name(dumper, "dlt");
+          json_dumper_value_anyf(dumper, "%d", data_link_info->dlt);
+          json_dumper_set_member_name(dumper, "name");
+          json_dumper_value_string(dumper, data_link_info->name);
+          json_dumper_set_member_name(dumper, "description");
+          json_dumper_value_string(dumper, desc_str);
+          json_dumper_end_object(dumper);
         }
+        json_dumper_end_array(dumper);
     }
-    printf("\n");
     if (queries & CAPS_QUERY_TIMESTAMP_TYPES) {
+        json_dumper_set_member_name(dumper, "timestamp_types");
+        json_dumper_begin_array(dumper);
         for (ts_entry = caps->timestamp_types; ts_entry != NULL;
              ts_entry = g_list_next(ts_entry)) {
           timestamp_info_t *timestamp = (timestamp_info_t *)ts_entry->data;
@@ -1124,8 +1129,14 @@ print_machine_readable_if_capabilities(if_capabilities_t *caps, int queries)
             desc_str = timestamp->description;
           else
             desc_str = "(none)";
-          printf("%s\t%s\n", timestamp->name, desc_str);
+          json_dumper_begin_object(dumper);
+          json_dumper_set_member_name(dumper, "name");
+          json_dumper_value_string(dumper, timestamp->name);
+          json_dumper_set_member_name(dumper, "description");
+          json_dumper_value_string(dumper, desc_str);
+          json_dumper_end_object(dumper);
         }
+        json_dumper_end_array(dumper);
     }
 }
 
@@ -5870,43 +5881,89 @@ main(int argc, char *argv[])
         gchar *open_status_str;
         guint  ii;
 
-        for (ii = 0; ii < global_capture_opts.ifaces->len; ii++) {
-            interface_options *interface_opts;
+        if (machine_readable) {
+            status = 0;
+            json_dumper dumper = {
+                .output_file = stdout,
+                .flags = JSON_DUMPER_FLAGS_NO_DEBUG,
+                // Don't abort on failure
+            };
+            json_dumper_begin_array(&dumper);
+            for (ii = 0; ii < global_capture_opts.ifaces->len; ii++) {
+                interface_options *interface_opts;
 
-            interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, ii);
+                interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, ii);
 
-            caps = get_if_capabilities(interface_opts, &open_status, &open_status_str);
-            if (caps == NULL) {
-                if (capture_child) {
-                    char *error_msg = ws_strdup_printf("The capabilities of the capture device "
-                                                "\"%s\" could not be obtained (%s)",
-                                                interface_opts->name, open_status_str);
-                    sync_pipe_write_errmsgs_to_parent(2, error_msg,
-                            get_pcap_failure_secondary_error_message(open_status, open_status_str));
-                    g_free(error_msg);
+                json_dumper_begin_object(&dumper);
+                json_dumper_set_member_name(&dumper, interface_opts->name);
+
+                json_dumper_begin_object(&dumper);
+
+                open_status = CAP_DEVICE_OPEN_NO_ERR;
+                caps = get_if_capabilities(interface_opts, &open_status, &open_status_str);
+                json_dumper_set_member_name(&dumper, "status");
+                json_dumper_value_anyf(&dumper, "%i", open_status);
+                if (caps == NULL) {
+                    json_dumper_set_member_name(&dumper, "primary_msg");
+                    json_dumper_value_string(&dumper, open_status_str);
+                    json_dumper_set_member_name(&dumper, "secondary_msg");
+                    json_dumper_value_string(&dumper, get_pcap_failure_secondary_error_message(open_status, open_status_str));
+                    g_free(open_status_str);
+                } else {
+                    /* XXX: We need to change the format and adapt consumers */
+                    print_machine_readable_if_capabilities(&dumper, caps, caps_queries);
+                    free_if_capabilities(caps);
                 }
-                else {
-                    cmdarg_err("The capabilities of the capture device "
-                                "\"%s\" could not be obtained (%s).\n%s",
-                                interface_opts->name, open_status_str,
-                                get_pcap_failure_secondary_error_message(open_status, open_status_str));
-                }
-                g_free(open_status_str);
-                exit_main(2);
+                json_dumper_end_object(&dumper);
+                json_dumper_end_object(&dumper);
             }
-
-            if (machine_readable) {     /* tab-separated values to stdout */
-                /* XXX: We need to change the format and adapt consumers */
-                print_machine_readable_if_capabilities(caps, caps_queries);
+            json_dumper_end_array(&dumper);
+            if (json_dumper_finish(&dumper)) {
                 status = 0;
-	    } else
+                if (capture_child) {
+                    /* Let our parent know we succeeded. */
+                    sync_pipe_write_string_msg(2, SP_SUCCESS, NULL);
+                }
+            } else {
+                status = 2;
+                if (capture_child) {
+                    sync_pipe_write_errmsgs_to_parent(2, "Unexpected JSON error", "");
+                }
+            }
+        } else {
+            for (ii = 0; ii < global_capture_opts.ifaces->len; ii++) {
+                interface_options *interface_opts;
+
+                interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, ii);
+
+                caps = get_if_capabilities(interface_opts, &open_status, &open_status_str);
+                if (caps == NULL) {
+                    if (capture_child) {
+                        char *error_msg = ws_strdup_printf("The capabilities of the capture device "
+                                                    "\"%s\" could not be obtained (%s)",
+                                                    interface_opts->name, open_status_str);
+                        sync_pipe_write_errmsgs_to_parent(2, error_msg,
+                                get_pcap_failure_secondary_error_message(open_status, open_status_str));
+                        g_free(error_msg);
+                    }
+                    else {
+                        cmdarg_err("The capabilities of the capture device "
+                                    "\"%s\" could not be obtained (%s).\n%s",
+                                    interface_opts->name, open_status_str,
+                                    get_pcap_failure_secondary_error_message(open_status, open_status_str));
+                    }
+                    g_free(open_status_str);
+                    exit_main(2);
+                }
+
                 /* XXX: We might want to print also the interface name */
                 status = capture_opts_print_if_capabilities(caps,
                                                             interface_opts,
                                                             caps_queries);
-            free_if_capabilities(caps);
-            if (status != 0)
-                break;
+                free_if_capabilities(caps);
+                if (status != 0)
+                    break;
+            }
         }
         exit_main(status);
     }
