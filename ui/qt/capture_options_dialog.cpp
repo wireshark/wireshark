@@ -117,6 +117,9 @@ public:
     {
         if (!device) return;
 
+        // Prevent infinite recursive signal loop
+        // itemChanged->interfaceItemChanged->updateInterfaceColumns
+        treeWidget()->blockSignals(true);
         QString default_str = QObject::tr("default");
 
         // XXX - this is duplicated in InterfaceTreeModel::data;
@@ -164,6 +167,7 @@ public:
             setApplicable(col_monitor_, false);
         }
 #endif
+        treeWidget()->blockSignals(false);
     }
 
     void setApplicable(int column, bool applicable = false) {
