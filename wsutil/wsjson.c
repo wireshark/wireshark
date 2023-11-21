@@ -194,6 +194,43 @@ bool json_get_double(char *buf, jsmntok_t *parent, const char *name, double *val
     return false;
 }
 
+bool json_get_boolean(char *buf, jsmntok_t *parent, const char *name, bool *val)
+{
+    int i;
+    size_t tok_len;
+    jsmntok_t *cur = parent+1;
+
+    for (i = 0; i < parent->size; i++) {
+        if (cur->type == JSMN_STRING &&
+            !strncmp(&buf[cur->start], name, cur->end - cur->start)
+            && strlen(name) == (size_t)(cur->end - cur->start) &&
+            cur->size == 1 && (cur+1)->type == JSMN_PRIMITIVE) {
+            /* JSMN_STRICT guarantees that a primitive starts with the
+             * correct character.
+             */
+            tok_len = (cur+1)->end - (cur+1)->start;
+            switch (buf[(cur+1)->start]) {
+            case 't':
+                if (tok_len == 4 && strncmp(&buf[(cur+1)->start], "true", tok_len) == 0) {
+                    *val = true;
+                    return true;
+                }
+                return false;
+            case 'f':
+                if (tok_len == 5 && strncmp(&buf[(cur+1)->start], "false", tok_len) == 0) {
+                    *val = false;
+                    return true;
+                }
+                return false;
+            default:
+                return false;
+            }
+        }
+        cur = json_get_next_object(cur);
+    }
+    return false;
+}
+
 bool
 json_decode_string_inplace(char *text)
 {

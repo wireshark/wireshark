@@ -70,6 +70,12 @@ WS_DLL_PUBLIC char *json_get_string(char *buf, jsmntok_t *parent, const char *na
 WS_DLL_PUBLIC bool json_get_double(char *buf, jsmntok_t *parent, const char *name, double *val);
 
 /**
+ * Get the value of a boolean belonging to parent object and named as the name variable.
+ * Returns false if not found. (Not the same as the boolean present but false.)
+ */
+WS_DLL_PUBLIC bool json_get_boolean(char *buf, jsmntok_t *parent, const char *name, bool *val);
+
+/**
  * Decode the contents of a JSON string value by overwriting the input data.
  * Returns true on success and false if invalid characters were encountered.
  */
