@@ -475,7 +475,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     }
     if (!ipp_trans) {
         /* create a "fake" ipp_trans structure */
-        ipp_trans=wmem_new(wmem_packet_scope(), ipp_transaction_t);
+        ipp_trans=wmem_new(pinfo->pool, ipp_transaction_t);
         ipp_trans->req_frame = 0;
         ipp_trans->rep_frame = 0;
         ipp_trans->req_time = pinfo->abs_ts;

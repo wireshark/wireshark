@@ -207,7 +207,7 @@ static const value_string edp_tuple_types[] =
 };
 
 static gchar*
-ipx_addr_to_str(const guint32 net, const guint8 *ad)
+ipx_addr_to_str(wmem_allocator_t *scope, const guint32 net, const guint8 *ad)
 {
 	gchar       *buf;
 	const gchar *name;
@@ -215,14 +215,14 @@ ipx_addr_to_str(const guint32 net, const guint8 *ad)
 	name = get_ether_name_if_known(ad);
 
 	if (name) {
-		buf = wmem_strdup_printf(wmem_packet_scope(), "%s.%s",
-				get_ipxnet_name(wmem_packet_scope(), net),
+		buf = wmem_strdup_printf(scope, "%s.%s",
+				get_ipxnet_name(scope, net),
 				name);
 	}
 	else {
-		buf = wmem_strdup_printf(wmem_packet_scope(), "%s.%s",
-				get_ipxnet_name(wmem_packet_scope(), net),
-				bytes_to_str_punct(wmem_packet_scope(), ad, 6, '\0'));
+		buf = wmem_strdup_printf(scope, "%s.%s",
+				get_ipxnet_name(scope, net),
+				bytes_to_str_punct(scope, ad, 6, '\0'));
 	}
 	return buf;
 }
@@ -466,7 +466,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 								proto_tree_add_expert(edp_tree, pinfo, &ei_ismp_malformed, tvb, offset, tuple_length);
 								return;
 							}
-							ipx_addr_str = ipx_addr_to_str(tvb_get_ntohl(tvb, offset), tvb_get_ptr(tvb, offset+4, tuple_length-4));
+							ipx_addr_str = ipx_addr_to_str(pinfo->pool, tvb_get_ntohl(tvb, offset), tvb_get_ptr(tvb, offset+4, tuple_length-4));
 							proto_tree_add_string(edp_tuples_leaf_tree, hf_ismp_interface_ipx_address ,tvb, offset, tuple_length, ipx_addr_str);
 							break;
 						case EDP_TUPLE_UNKNOWN:

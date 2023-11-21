@@ -1158,7 +1158,7 @@ static const value_string sw_vals[] = {
 	{ 0, NULL }
 };
 
-static const gchar *get_sw_string(guint16 sw)
+static const gchar *get_sw_string(wmem_allocator_t *scope, guint16 sw)
 {
 	guint8 sw1 = sw >> 8;
 	guint8 sw2 = sw & 0xFF;
@@ -1169,20 +1169,20 @@ static const gchar *get_sw_string(guint16 sw)
 	case 0x9e:
 		return "Length of the response data given / SIM data download error";
 	case 0x9f:
-		return wmem_strdup_printf(wmem_packet_scope(), "Length of the response data, Length is %u", sw2);
+		return wmem_strdup_printf(scope, "Length of the response data, Length is %u", sw2);
 	case 0x92:
 		if ((sw & 0xf0) == 0x00)
 			return "Command successful but after internal retry routine";
 		break;
 	case 0x61:
-		return wmem_strdup_printf(wmem_packet_scope(), "Response ready, Response length is %u", sw2);
+		return wmem_strdup_printf(scope, "Response ready, Response length is %u", sw2);
 	case 0x67:
 		if (sw2 == 0x00)
 			return "Wrong length"; /* TS 102.221 / Section 10.2.1.5 */
 		else
 			return "Incorrect parameter P3"; /* TS 51.011 / Section 9.4.6 */
 	case 0x6c:
-		return wmem_strdup_printf(wmem_packet_scope(), "Terminal should repeat command, Length for repeated command is %u", sw2);
+		return wmem_strdup_printf(scope, "Terminal should repeat command, Length for repeated command is %u", sw2);
 	case 0x6d:
 		return "Unknown instruction code";
 	case 0x6e:
@@ -1306,7 +1306,7 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 			break;
 		case 0x04:	/* select by AID */
 			col_append_fstr(pinfo->cinfo, COL_INFO, "Application %s ",
-					tvb_bytes_to_str(wmem_packet_scope(), tvb, offset+DATA_OFFS, p3));
+					tvb_bytes_to_str(pinfo->pool, tvb, offset+DATA_OFFS, p3));
 			proto_tree_add_item(tree, hf_aid, tvb, offset+DATA_OFFS, p3, ENC_NA);
 			break;
 
@@ -1513,12 +1513,12 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree 
 	/* obtain status word */
 	sw = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_uint_format(sim_tree, hf_apdu_sw, tvb, offset, 2, sw,
-							"Status Word: %04x %s", sw, get_sw_string(sw));
+							"Status Word: %04x %s", sw, get_sw_string(pinfo->pool, sw));
 	offset += 2;
 
 	if (ti) {
 		/* Always show status in info column when response only */
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Response, %s ", get_sw_string(sw));
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Response, %s ", get_sw_string(pinfo->pool, sw));
 	} else {
 		switch (sw >> 8) {
 		case 0x90:
@@ -1528,7 +1528,7 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree 
 		case 0x9f:
 			break;
 		default:
-			col_append_fstr(pinfo->cinfo, COL_INFO, ": %s ", get_sw_string(sw));
+			col_append_fstr(pinfo->cinfo, COL_INFO, ": %s ", get_sw_string(pinfo->pool, sw));
 			break;
 		}
 	}

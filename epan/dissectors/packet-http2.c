@@ -2361,7 +2361,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
     }
 
     if (have_tap_listener(http2_follow_tap)) {
-        http2_follow_tap_data_t* follow_data = wmem_new0(wmem_packet_scope(), http2_follow_tap_data_t);
+        http2_follow_tap_data_t* follow_data = wmem_new0(pinfo->pool, http2_follow_tap_data_t);
 
         wmem_strbuf_append(headers_buf, "\n");
         follow_data->tvb = tvb_new_child_real_data(header_tvb,
@@ -2384,9 +2384,9 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
         */
         if (method_header_value &&
             strcmp(method_header_value, HTTP2_HEADER_METHOD_CONNECT) == 0) {
-            uri = wmem_strdup(wmem_packet_scope(), authority_header_value);
+            uri = wmem_strdup(pinfo->pool, authority_header_value);
         } else {
-            uri = wmem_strdup_printf(wmem_packet_scope(), "%s://%s%s", scheme_header_value, authority_header_value, path_header_value);
+            uri = wmem_strdup_printf(pinfo->pool, "%s://%s%s", scheme_header_value, authority_header_value, path_header_value);
         }
         e_ti = proto_tree_add_string(tree, hf_http2_header_request_full_uri, tvb, 0, 0, uri);
         proto_item_set_url(e_ti);
@@ -2834,7 +2834,7 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
         proto_tree_add_item(tree, hf_http2_data_data, tvb, start, length, encoding);
 
     if (have_tap_listener(http2_follow_tap)) {
-        http2_follow_tap_data_t *follow_data = wmem_new0(wmem_packet_scope(), http2_follow_tap_data_t);
+        http2_follow_tap_data_t *follow_data = wmem_new0(pinfo->pool, http2_follow_tap_data_t);
 
         follow_data->tvb = tvb_new_subset_length(tvb, start, length);
         follow_data->stream_id = stream_id;
@@ -4000,7 +4000,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
      * and sent to the follow tap inside inflate_http2_header_block.
      */
     if (have_tap_listener(http2_follow_tap) && use_follow_tap) {
-        http2_follow_tap_data_t *follow_data = wmem_new0(wmem_packet_scope(), http2_follow_tap_data_t);
+        http2_follow_tap_data_t *follow_data = wmem_new0(pinfo->pool, http2_follow_tap_data_t);
 
         follow_data->tvb = tvb;
         follow_data->stream_id = streamid;

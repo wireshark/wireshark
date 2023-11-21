@@ -883,7 +883,7 @@ static gboolean is_extended_bootstrap_address(gvcp_conv_info_t *gvcp_info, guint
 \brief Returns a register name based on its address
 */
 
-static const gchar* get_register_name_from_address(guint32 addr, gvcp_conv_info_t *gvcp_info, gboolean* is_custom_register)
+static const gchar* get_register_name_from_address(guint32 addr, wmem_allocator_t *scope, gvcp_conv_info_t *gvcp_info, gboolean* is_custom_register)
 {
 	const gchar* address_string = NULL;
 
@@ -903,7 +903,7 @@ static const gchar* get_register_name_from_address(guint32 addr, gvcp_conv_info_
 
 		if (!address_string)
 		{
-			address_string = wmem_strdup_printf(wmem_packet_scope(), "[Addr:0x%08X]", addr);
+			address_string = wmem_strdup_printf(scope, "[Addr:0x%08X]", addr);
 			if (is_custom_register != NULL)
 			{
 				*is_custom_register = TRUE;
@@ -1634,7 +1634,7 @@ static void dissect_readreg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 	gint num_registers = length / 4;
 
 	addr = tvb_get_ntohl(tvb, offset);
-	address_string = get_register_name_from_address(addr, gvcp_info, &is_custom_register);
+	address_string = get_register_name_from_address(addr, pinfo->pool, gvcp_info, &is_custom_register);
 
 	if (num_registers > 1)
 	{
@@ -1722,7 +1722,7 @@ static void dissect_writereg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 
 	addr = tvb_get_ntohl(tvb, offset);    /* first register address to be read from WRITEREG_CMD */
 	value = tvb_get_ntohl(tvb, offset+4);
-	address_string = get_register_name_from_address(addr, gvcp_info, &is_custom_register);
+	address_string = get_register_name_from_address(addr, pinfo->pool, gvcp_info, &is_custom_register);
 
 	/* Automatically learn stream port. Dissect as external GVSP. */
 	if ((addr == GVCP_SC_DESTINATION_PORT(0)) ||
@@ -1859,7 +1859,7 @@ static void dissect_writemem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 	guint32 addr = 0;
 
 	addr = tvb_get_ntohl(tvb, startoffset);
-	address_string = get_register_name_from_address(addr, gvcp_info, &is_custom_register);
+	address_string = get_register_name_from_address(addr, pinfo->pool, gvcp_info, &is_custom_register);
 
 	/* fill in Info column in Wireshark GUI */
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s: %d bytes", address_string, (length - 4));
@@ -2222,7 +2222,7 @@ static void dissect_readreg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 		{
 			if (addr_list_size > 0)
 			{
-				address_string = get_register_name_from_address(*((guint32*)wmem_array_index(gvcp_trans->addr_list, 0)), gvcp_info, &is_custom_register);
+				address_string = get_register_name_from_address(*((guint32*)wmem_array_index(gvcp_trans->addr_list, 0)), pinfo->pool, gvcp_info, &is_custom_register);
 			}
 
 			if (num_registers)
@@ -2253,7 +2253,7 @@ static void dissect_readreg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 			{
 				gint stream_channel_count = 0;
 				curr_register = *((guint32*)wmem_array_index(gvcp_trans->addr_list, i));
-				address_string = get_register_name_from_address(curr_register, gvcp_info, &is_custom_register);
+				address_string = get_register_name_from_address(curr_register, pinfo->pool, gvcp_info, &is_custom_register);
 				for (; stream_channel_count < GVCP_MAX_STREAM_CHANNEL_COUNT; stream_channel_count++)
 				{
 					if (curr_register == (guint32)GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(stream_channel_count))
@@ -2349,7 +2349,7 @@ static void dissect_readmem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 		gboolean is_custom_register = FALSE;
 
 		addr = tvb_get_ntohl(tvb, startoffset);
-		address_string = get_register_name_from_address(addr, gvcp_info, &is_custom_register);
+		address_string = get_register_name_from_address(addr, pinfo->pool, gvcp_info, &is_custom_register);
 
 		/* Fill in Wireshark GUI Info column */
 		col_append_str(pinfo->cinfo, COL_INFO, address_string);
@@ -2407,7 +2407,7 @@ static void dissect_writemem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 		if (wmem_array_get_count(gvcp_trans->addr_list) > 0)
 		{
 			const gchar *address_string = NULL;
-			address_string = get_register_name_from_address((*((guint32*)wmem_array_index(gvcp_trans->addr_list, 0))), gvcp_info, NULL);
+			address_string = get_register_name_from_address((*((guint32*)wmem_array_index(gvcp_trans->addr_list, 0))), pinfo->pool, gvcp_info, NULL);
 			col_append_str(pinfo->cinfo, COL_INFO, address_string);
 		}
 	}
@@ -2599,7 +2599,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		if (key_code == 0x42)
 		{
 			/* This is a request */
-			gvcp_trans = wmem_new(wmem_packet_scope(), gvcp_transaction_t);
+			gvcp_trans = wmem_new(pinfo->pool, gvcp_transaction_t);
 			gvcp_trans->req_frame = pinfo->num;
 			gvcp_trans->rep_frame = 0;
 			gvcp_trans->addr_list = 0;
@@ -2664,7 +2664,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	if (!gvcp_trans)
 	{
-		gvcp_trans = wmem_new0(wmem_packet_scope(), gvcp_transaction_t);
+		gvcp_trans = wmem_new0(pinfo->pool, gvcp_transaction_t);
 	}
 
 	/* Add telegram subtree */

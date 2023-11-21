@@ -222,7 +222,7 @@ id3v2_decode_encoding(guint8 id3_encoding)
 }
 
 static char *
-id3v2_dissect_textz_item(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 id3_encoding, int hf)
+id3v2_dissect_textz_item(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 id3_encoding, int hf)
 {
 	guint encoding;
 	char *text_value;
@@ -230,7 +230,7 @@ id3v2_dissect_textz_item(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 
 
 	encoding = id3v2_decode_encoding(id3_encoding);
 
-	text_value = tvb_get_stringz_enc(wmem_packet_scope(), tvb, *offset, &text_length, encoding);
+	text_value = tvb_get_stringz_enc(scope, tvb, *offset, &text_length, encoding);
 	proto_tree_add_item(tree, hf, tvb, *offset, text_length, encoding);
 	*offset += text_length;
 
@@ -238,21 +238,21 @@ id3v2_dissect_textz_item(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 
 }
 
 static char *
-id3v2_dissect_text_item(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint end, guint8 id3_encoding, int hf)
+id3v2_dissect_text_item(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *tree, guint *offset, guint end, guint8 id3_encoding, int hf)
 {
 	guint encoding;
 	char *text_value;
 
 	encoding = id3v2_decode_encoding(id3_encoding);
 
-	text_value = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, (end - *offset), encoding);
+	text_value = tvb_get_string_enc(scope, tvb, *offset, (end - *offset), encoding);
 	proto_tree_add_item(tree, hf, tvb, *offset, (end - *offset), encoding);
 
 	return text_value;
 }
 
 static void
-dissect_id3v2_comment_frame(tvbuff_t *tvb, proto_tree *tree, guint offset, guint length, proto_item *pi)
+dissect_id3v2_comment_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint length, proto_item *pi)
 {
 	guint8 id3_encoding;
 	guint end = offset + length;
@@ -265,9 +265,9 @@ dissect_id3v2_comment_frame(tvbuff_t *tvb, proto_tree *tree, guint offset, guint
 	proto_tree_add_item(tree, hf_id3v2_frame_comment_language, tvb, offset, 3, ENC_ISO_8859_1);
 	offset += 3;
 
-	id3v2_dissect_textz_item(tvb, tree, &offset, id3_encoding, hf_id3v2_frame_comment_description);
+	id3v2_dissect_textz_item(pinfo->pool, tvb, tree, &offset, id3_encoding, hf_id3v2_frame_comment_description);
 
-	comment_value = id3v2_dissect_text_item(tvb, tree, &offset, end, id3_encoding, hf_id3v2_frame_comment_text);
+	comment_value = id3v2_dissect_text_item(pinfo->pool, tvb, tree, &offset, end, id3_encoding, hf_id3v2_frame_comment_text);
 	proto_item_append_text(pi, ": %s", comment_value);
 }
 
@@ -283,19 +283,19 @@ dissect_id3v2_apic_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 	proto_tree_add_item(tree, hf_id3v2_frame_text_encoding, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
-	mime_type = id3v2_dissect_textz_item(tvb, tree, &offset, id3_encoding, hf_id3v2_frame_apic_mime_type);
+	mime_type = id3v2_dissect_textz_item(pinfo->pool, tvb, tree, &offset, id3_encoding, hf_id3v2_frame_apic_mime_type);
 
 	proto_tree_add_item(tree, hf_id3v2_frame_apic_picture_type, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
-	id3v2_dissect_textz_item(tvb, tree, &offset, id3_encoding, hf_id3v2_frame_apic_description);
+	id3v2_dissect_textz_item(pinfo->pool, tvb, tree, &offset, id3_encoding, hf_id3v2_frame_apic_description);
 
 	image_tvb = tvb_new_subset_length(tvb, offset, (end - offset));
 	dissector_try_string(media_type_dissector_table, mime_type, image_tvb, pinfo, tree, NULL);
 }
 
 static char *
-dissect_id3v2_text_frame(tvbuff_t *tvb, proto_item *item, proto_tree *tree, guint offset, guint length, gboolean is_txxx)
+dissect_id3v2_text_frame(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, guint offset, guint length, gboolean is_txxx)
 {
 	guint8 id3_encoding;
 	char *text_value;
@@ -308,11 +308,11 @@ dissect_id3v2_text_frame(tvbuff_t *tvb, proto_item *item, proto_tree *tree, guin
 	if (is_txxx) {
 		/* This is a user-defined text frame (contains a description and a value) */
 
-		text_value = id3v2_dissect_textz_item(tvb, tree, &offset, id3_encoding, hf_id3v2_frame_text_description);
+		text_value = id3v2_dissect_textz_item(pinfo->pool, tvb, tree, &offset, id3_encoding, hf_id3v2_frame_text_description);
 		proto_item_append_text(item, ": %s", text_value);
 	}
 
-	text_value = id3v2_dissect_text_item(tvb, tree, &offset, end, id3_encoding, hf_id3v2_frame_text_value);
+	text_value = id3v2_dissect_text_item(pinfo->pool, tvb, tree, &offset, end, id3_encoding, hf_id3v2_frame_text_value);
 	proto_item_append_text(item, ": %s", text_value);
 
 	return text_value;
@@ -326,7 +326,7 @@ dissect_id3v2_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
 	guint32 size;
 	char *frame_id;
 
-	frame_id = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ISO_8859_1);
+	frame_id = tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ISO_8859_1);
 
 	if (strlen(frame_id) == 0) {
 		proto_tree_add_item(tree, hf_id3v2_padding, tvb, offset, -1, ENC_NA);
@@ -356,7 +356,7 @@ dissect_id3v2_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
 	if (frame_id[0] == 'T') {
 		char *tv;
 
-		tv = dissect_id3v2_text_frame(tvb, frame_item, frame_tree, offset, size, !strcmp(frame_id, "TXXX"));
+		tv = dissect_id3v2_text_frame(tvb, pinfo, frame_item, frame_tree, offset, size, !strcmp(frame_id, "TXXX"));
 		offset += size;
 
 		if (!strcmp(frame_id, "TIT2"))
@@ -367,7 +367,7 @@ dissect_id3v2_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
 		guint text_length;
 		char *text_value;
 
-		text_value = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &text_length, ENC_UTF_8);
+		text_value = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &text_length, ENC_UTF_8);
 		proto_tree_add_item(frame_tree, hf_id3v2_frame_ufi_owner, tvb, offset, text_length, ENC_ISO_8859_1);
 		offset += text_length;
 		proto_item_append_text(frame_item, " (Owner: %s)", text_value);
@@ -379,7 +379,7 @@ dissect_id3v2_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
 		dissect_id3v2_apic_frame(tvb, pinfo, frame_tree, offset, size);
 		offset += size;
 	} else if (!strcmp(frame_id, "COMM")) {
-		dissect_id3v2_comment_frame(tvb, frame_tree, offset, size, frame_item);
+		dissect_id3v2_comment_frame(tvb, pinfo, frame_tree, offset, size, frame_item);
 		offset += size;
 	} else if (!strcmp(frame_id, "PRIV")) {
 		proto_tree_add_item(frame_tree, hf_id3v2_frame_private, tvb, offset, size, ENC_NA);

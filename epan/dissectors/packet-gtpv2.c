@@ -6195,7 +6195,7 @@ dissect_gtpv2_node_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   * 8.66 Fully Qualified Domain Name (FQDN)
   */
 static void
-dissect_gtpv2_fqdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+dissect_gtpv2_fqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
     int     offset = 0, name_len;
     const guint8 *fqdn   = NULL;
@@ -6214,9 +6214,9 @@ dissect_gtpv2_fqdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
          * assume that it is so encoded incorrectly.
          */
         if (name_len < 0x40) {
-            proto_tree_add_item_ret_string(tree, hf_gtpv2_fqdn, tvb, offset, length, ENC_APN_STR, wmem_packet_scope(), &fqdn);
+            proto_tree_add_item_ret_string(tree, hf_gtpv2_fqdn, tvb, offset, length, ENC_APN_STR, pinfo->pool, &fqdn);
         } else {
-            proto_tree_add_item_ret_string(tree, hf_gtpv2_fqdn, tvb, offset, length, ENC_ASCII, wmem_packet_scope(), &fqdn);
+            proto_tree_add_item_ret_string(tree, hf_gtpv2_fqdn, tvb, offset, length, ENC_ASCII, pinfo->pool, &fqdn);
         }
         proto_item_append_text(item, "%s", fqdn);
     }

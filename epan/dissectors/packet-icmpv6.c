@@ -1831,12 +1831,12 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
                 /* Prefix Valid Lifetime */
                 ti_opt = proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_prefix_valid_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN, &lifetime);
-                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
+                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(pinfo->pool, lifetime));
                 opt_offset += 4;
 
                 /* Prefix Preferred Lifetime */
                 ti_opt = proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_prefix_preferred_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN, &lifetime);
-                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
+                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(pinfo->pool, lifetime));
                 opt_offset += 4;
 
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 4, ENC_NA);
@@ -2260,7 +2260,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
                 /* Valid Lifetime */
                 ti_opt = proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_map_valid_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN, &lifetime);
-                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
+                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(pinfo->pool, lifetime));
                 opt_offset += 4;
 
                 /* Global Address */
@@ -2297,7 +2297,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
                 /* Route Lifetime */
                 ti_opt = proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_route_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN, &lifetime);
-                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
+                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(pinfo->pool, lifetime));
                 opt_offset += 4;
 
                 /* Prefix */
@@ -2336,7 +2336,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
                 /* RDNSS Lifetime */
                 ti_opt = proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_rdnss_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN, &lifetime);
-                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
+                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(pinfo->pool, lifetime));
                 opt_offset += 4;
 
                 while(opt_offset < (offset + opt_len) ) {
@@ -2484,7 +2484,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
                 /* DNSSL Lifetime */
                 ti_opt = proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_dnssl_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN, &lifetime);
-                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
+                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(pinfo->pool, lifetime));
                 opt_offset += 4;
                 while(opt_offset < (offset + opt_len) ) {
 
@@ -3197,12 +3197,12 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
                 /* Valid Lifetime */
                 ti_opt = proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_vlifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN, &lifetime);
-                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
+                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(pinfo->pool, lifetime));
                 opt_offset += 4;
 
                 /* Preferred Lifetime */
                 ti_opt = proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_plifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN, &lifetime);
-                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
+                proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(pinfo->pool, lifetime));
                 opt_offset += 4;
 
                 /* 4 reserved bytes. */
@@ -3786,7 +3786,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int ni_offset, packet_info *pinfo _U_, proto_tre
 /* RFC 2894 - Router Renumbering for IPv6 */
 
 static int
-dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree *tree, guint8 icmp6_type _U_, guint8 icmp6_code)
+dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo, proto_tree *tree, guint8 icmp6_type _U_, guint8 icmp6_code)
 {
     proto_tree *mp_tree, *up_tree, *rm_tree;
     proto_item *ti,        *ti_mp,   *ti_up,   *ti_rm;
@@ -3921,12 +3921,12 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
 
             /* Valid Lifetime */
             ti = proto_tree_add_item_ret_uint(up_tree, hf_icmpv6_rr_pco_up_validlifetime, tvb, rr_offset, 4, ENC_BIG_ENDIAN, &lifetime);
-            proto_item_append_text(ti, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
+            proto_item_append_text(ti, " (%s)", unsigned_time_secs_to_str(pinfo->pool, lifetime));
             rr_offset += 4;
 
             /* Preferred Lifetime */
             ti = proto_tree_add_item_ret_uint(up_tree, hf_icmpv6_rr_pco_up_preferredlifetime, tvb, rr_offset, 4, ENC_BIG_ENDIAN, &lifetime);
-            proto_item_append_text(ti, " (%s)", unsigned_time_secs_to_str(wmem_packet_scope(), lifetime));
+            proto_item_append_text(ti, " (%s)", unsigned_time_secs_to_str(pinfo->pool, lifetime));
             rr_offset += 4;
 
             /* Flags */

@@ -246,10 +246,10 @@ prism_rate_base_custom(gchar *result, guint32 rate)
 }
 
 static gchar *
-prism_rate_return(guint32 rate)
+prism_rate_return(wmem_allocator_t *scope, guint32 rate)
 {
     gchar *result=NULL;
-    result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
+    result = (gchar *)wmem_alloc(scope, SHORT_STR);
     result[0] = '\0';
     prism_rate_base_custom(result, rate);
 
@@ -392,7 +392,7 @@ static unsigned int vht_160_tbl[10][8] =
 
 
 static gchar *
-prism_rate_return_sig(guint32 rate_phy1, guint32 rate_phy2, struct ieee_802_11_phdr *phdr)
+prism_rate_return_sig(wmem_allocator_t *scope, guint32 rate_phy1, guint32 rate_phy2, struct ieee_802_11_phdr *phdr)
 {
     gchar *result = NULL;
     unsigned int mcs, base, pream_type, disp_rate, bw, sgi, ldpc, stbc, groupid, txbf;
@@ -419,7 +419,7 @@ prism_rate_return_sig(guint32 rate_phy1, guint32 rate_phy2, struct ieee_802_11_p
         phdr->data_rate = mcs * 2;
         signal_type = rate_phy1 & (1 << 12);
         bw = 20 << ((rate_phy1 >> 13) & 0x3);
-        result = wmem_strdup_printf(wmem_packet_scope(),
+        result = wmem_strdup_printf(scope,
               "Rate: %u.%u Mb/s OFDM Signaling:%s BW %d",
                mcs, 0, signal_type ? "Dynamic" : "Static", bw
               );
@@ -436,7 +436,7 @@ prism_rate_return_sig(guint32 rate_phy1, guint32 rate_phy2, struct ieee_802_11_p
         disp_rate = dsss_tbl[mcs];
         phdr->has_data_rate = 1;
         phdr->data_rate = disp_rate;
-        result = wmem_strdup_printf(wmem_packet_scope(), "Rate: %u.%u Mb/s DSSS %s",
+        result = wmem_strdup_printf(scope, "Rate: %u.%u Mb/s DSSS %s",
                       disp_rate / 2,
                       (disp_rate & 1) ? 5 : 0,
                       base ? "[SP]" : "[LP]");
@@ -486,7 +486,7 @@ prism_rate_return_sig(guint32 rate_phy1, guint32 rate_phy2, struct ieee_802_11_p
                 break;
             }
         }
-        result = wmem_strdup_printf(wmem_packet_scope(),
+        result = wmem_strdup_printf(scope,
               "Rate: %u.%u Mb/s HT MCS %d NSS %d BW %d MHz %s %s %s",
                disp_rate/10, disp_rate%10, mcs, nss, bw,
                sgi ? "[SGI]" : "",
@@ -574,7 +574,7 @@ prism_rate_return_sig(guint32 rate_phy1, guint32 rate_phy2, struct ieee_802_11_p
                 }
             }
 
-            result = wmem_strdup_printf(wmem_packet_scope(),
+            result = wmem_strdup_printf(scope,
                 "Rate: %u.%u Mb/s VHT MCS %d NSS %d Partial AID %d BW %d MHz %s %s %s GroupID %d %s %s",
                 disp_rate/10, disp_rate%10,
                 mcs, nss, partial_aid, bw,
@@ -590,7 +590,7 @@ prism_rate_return_sig(guint32 rate_phy1, guint32 rate_phy2, struct ieee_802_11_p
             nsts_u3 = (sig_a_1 >> 16) & 0x7;
             nsts_u4 = (sig_a_1 >> 19) & 0x7;
 
-            result = wmem_strdup_printf(wmem_packet_scope(),
+            result = wmem_strdup_printf(scope,
                 "VHT NSTS %d %d %d %d BW %d MHz %s %s %s GroupID %d %s",
                 nsts_u1, nsts_u2, nsts_u3, nsts_u4, bw,
                 sgi ? "[SGI]" : "",
@@ -702,7 +702,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     offset += 4;
 
     /* Device Name */
-    proto_tree_add_item_ret_string(prism_tree, hf_ieee80211_prism_devname, tvb, offset, 16, ENC_ASCII|ENC_NA, wmem_packet_scope(), &devname_p);
+    proto_tree_add_item_ret_string(prism_tree, hf_ieee80211_prism_devname, tvb, offset, 16, ENC_ASCII|ENC_NA, pinfo->pool, &devname_p);
     offset += 16;
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "Device: %s, Message 0x%x, Length %d", devname_p, msgcode, msglen);
@@ -808,9 +808,9 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                 phdr.data_rate = rate;
                 if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_rate, tvb, offset, 4, byte_order);
-                    proto_item_append_text(ti_did, " %s Mb/s", prism_rate_return(rate));
+                    proto_item_append_text(ti_did, " %s Mb/s", prism_rate_return(pinfo->pool, rate));
                 }
-                col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%s", prism_rate_return(rate));
+                col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%s", prism_rate_return(pinfo->pool, rate));
                 break;
 
             case PRISM_TYPE1_RATE_SIG_A1:
@@ -848,7 +848,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                     proto_item_append_text(ti_did, " 0x%x", tvb_get_letohl(tvb, offset));
 
                     sig_sub_item = proto_tree_add_item(prism_tree, hf_ieee80211_prism_did_sig_rate_field, tvb, offset, 4, byte_order);
-                    proto_item_append_text(sig_sub_item, " %s", prism_rate_return_sig(rate_phy1, rate_phy2, &phdr));
+                    proto_item_append_text(sig_sub_item, " %s", prism_rate_return_sig(pinfo->pool, rate_phy1, rate_phy2, &phdr));
                   }
                   break;
 

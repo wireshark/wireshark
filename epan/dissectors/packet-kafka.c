@@ -1369,7 +1369,7 @@ dissect_kafka_timestamp(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_inf
  * of ZigZag is very compact representation for small numbers.
  *
  * tvb: actual data buffer
- * pinfo: packet information (unused)
+ * pinfo: packet information
  * tree: protocol information tree to append the item
  * hf_item: protocol information item descriptor index
  * offset: offset in the buffer where the string length is to be found
@@ -1379,7 +1379,7 @@ dissect_kafka_timestamp(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_inf
  * is guaranteed to be set to a valid value.
  */
 static int
-dissect_kafka_string_new(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int hf_item, int offset, char **p_display_string)
+dissect_kafka_string_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int hf_item, int offset, char **p_display_string)
 {
     gint64 val;
     guint len;
@@ -1396,7 +1396,7 @@ dissect_kafka_string_new(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     } else if (val > 0) {
         // there is payload available, possibly with 0 octets
         if (p_display_string != NULL)
-            proto_tree_add_item_ret_display_string(tree, hf_item, tvb, offset+len, (gint)val, ENC_UTF_8, wmem_packet_scope(), p_display_string);
+            proto_tree_add_item_ret_display_string(tree, hf_item, tvb, offset+len, (gint)val, ENC_UTF_8, pinfo->pool, p_display_string);
         else
             proto_tree_add_item(tree, hf_item, tvb, offset+len, (gint)val, ENC_UTF_8);
     } else if (val == 0) {

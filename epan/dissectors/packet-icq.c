@@ -663,10 +663,10 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
                     sz_local = left;
                     last = TRUE;
                 }
-                contact = tvb_get_string_enc(wmem_packet_scope(), tvb, sep_offset_prev + 1, sz_local, ENC_ASCII);
+                contact = tvb_get_string_enc(pinfo->pool, tvb, sep_offset_prev + 1, sz_local, ENC_ASCII);
                 proto_tree_add_string_format(subtree, hf_icq_msg_contact, tvb, offset, sz_local + svsz,
                             contact, "%s: %s",
-                            tvb_get_string_enc(wmem_packet_scope(), tvb, offset, svsz, ENC_ASCII),
+                            tvb_get_string_enc(pinfo->pool, tvb, offset, svsz, ENC_ASCII),
                             contact);
                 n_local += 2;
             }
@@ -714,7 +714,7 @@ icqv5_cmd_send_msg(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
 }
 
 static void
-icqv5_cmd_login(proto_tree *tree, tvbuff_t *tvb, int offset)
+icqv5_cmd_login(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo)
 {
     proto_tree *subtree = tree;
     time_t theTime;
@@ -723,7 +723,7 @@ icqv5_cmd_login(proto_tree *tree, tvbuff_t *tvb, int offset)
 
     if (tree) {
         theTime = tvb_get_letohl(tvb, offset + CMD_LOGIN_TIME);
-        aTime = abs_time_secs_to_str(wmem_packet_scope(), theTime, ABSOLUTE_TIME_LOCAL, TRUE);
+        aTime = abs_time_secs_to_str(pinfo->pool, theTime, ABSOLUTE_TIME_LOCAL, TRUE);
         proto_tree_add_uint_format_value(subtree, hf_icq_login_time, tvb, offset + CMD_LOGIN_TIME, 4,
                     (guint32)theTime, "%u = %s", (guint32)theTime, aTime);
         proto_tree_add_item(subtree, hf_icq_login_port, tvb, offset + CMD_LOGIN_PORT, 4, ENC_LITTLE_ENDIAN);
@@ -1090,7 +1090,7 @@ dissect_icqv5Client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(icq_body_tree, hf_icq_group, decr_tvb, ICQ5_CL_HDRSIZE + CMD_RAND_SEARCH_GROUP, 4, ENC_LITTLE_ENDIAN);
         break;
     case CMD_LOGIN:
-        icqv5_cmd_login(icq_body_tree, decr_tvb, ICQ5_CL_HDRSIZE);
+        icqv5_cmd_login(icq_body_tree, decr_tvb, ICQ5_CL_HDRSIZE, pinfo);
         break;
     case CMD_SEND_TEXT_CODE:
         icqv5_cmd_send_text_code(icq_body_tree, decr_tvb, ICQ5_CL_HDRSIZE);

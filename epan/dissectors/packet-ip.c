@@ -1129,7 +1129,7 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
 }
 
 static void
-dissect_option_route(proto_tree *tree, tvbuff_t *tvb, int offset, int hf,
+dissect_option_route(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int hf,
                      int hf_host, gboolean next)
 {
   proto_item *ti;
@@ -1139,7 +1139,7 @@ dissect_option_route(proto_tree *tree, tvbuff_t *tvb, int offset, int hf,
   if (next)
     proto_tree_add_ipv4_format_value(tree, hf, tvb, offset, 4, route,
                                      "%s <- (next)",
-                                     tvb_ip_to_str(wmem_packet_scope(), tvb, offset));
+                                     tvb_ip_to_str(pinfo->pool, tvb, offset));
   else
     proto_tree_add_ipv4(tree, hf, tvb, offset, 4, route);
   ti = proto_tree_add_string(tree, hf_host, tvb, offset, 4, get_hostname(route));
@@ -1181,7 +1181,7 @@ dissect_ipopt_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int pro
 
     if (ptr > len) {
       /* This is a recorded route */
-      dissect_option_route(field_tree, tvb, offset + optoffset, hf_ip_rec_rt,
+      dissect_option_route(field_tree, pinfo, tvb, offset + optoffset, hf_ip_rec_rt,
                            hf_ip_rec_rt_host, FALSE);
     } else if (optoffset == (len - 4)) {
       /* This is the destination */
@@ -1206,17 +1206,17 @@ dissect_ipopt_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int pro
       proto_item_set_hidden(item);
     } else if ((optoffset + 1) < ptr) {
       /* This is also a recorded route */
-      dissect_option_route(field_tree, tvb, offset + optoffset, hf_ip_rec_rt,
+      dissect_option_route(field_tree, pinfo, tvb, offset + optoffset, hf_ip_rec_rt,
                            hf_ip_rec_rt_host, FALSE);
     } else if ((optoffset + 1) == ptr) {
       /* This is the next source route.  TODO: Should we use separate hf's
        * for this, such as hf_ip_next_rt and hf_ip_next_rt_host and avoid
        * having to pass TRUE/FALSE to dissect_option_route()? */
-      dissect_option_route(field_tree, tvb, offset + optoffset, hf_ip_src_rt,
+      dissect_option_route(field_tree, pinfo, tvb, offset + optoffset, hf_ip_src_rt,
                            hf_ip_src_rt_host, TRUE);
     } else {
       /* This must be a source route */
-      dissect_option_route(field_tree, tvb, offset + optoffset, hf_ip_src_rt,
+      dissect_option_route(field_tree, pinfo, tvb, offset + optoffset, hf_ip_src_rt,
                            hf_ip_src_rt_host, FALSE);
     }
   }
@@ -1272,21 +1272,21 @@ dissect_ipopt_record_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     if (ptr > len) {
       /* The recorded route data area is full. */
-      dissect_option_route(field_tree, tvb, offset + optoffset, hf_ip_rec_rt,
+      dissect_option_route(field_tree, pinfo, tvb, offset + optoffset, hf_ip_rec_rt,
                            hf_ip_rec_rt_host, FALSE);
     } else if ((optoffset + 1) < ptr) {
       /* This is a recorded route */
-      dissect_option_route(field_tree, tvb, offset + optoffset, hf_ip_rec_rt,
+      dissect_option_route(field_tree, pinfo, tvb, offset + optoffset, hf_ip_rec_rt,
                            hf_ip_rec_rt_host, FALSE);
     } else if ((optoffset + 1) == ptr) {
       /* This is the next available slot.  TODO: Should we use separate hf's
        * for this, such as hf_ip_next_rt and hf_ip_next_rt_host and avoid
        * having to pass TRUE/FALSE to dissect_option_route()? */
-      dissect_option_route(field_tree, tvb, offset + optoffset, hf_ip_empty_rt,
+      dissect_option_route(field_tree, pinfo, tvb, offset + optoffset, hf_ip_empty_rt,
                            hf_ip_empty_rt_host, TRUE);
     } else {
       /* This must be an available slot too. */
-      dissect_option_route(field_tree, tvb, offset + optoffset, hf_ip_empty_rt,
+      dissect_option_route(field_tree, pinfo, tvb, offset + optoffset, hf_ip_empty_rt,
                            hf_ip_empty_rt_host, FALSE);
     }
   }

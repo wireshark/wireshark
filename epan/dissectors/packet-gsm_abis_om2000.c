@@ -678,13 +678,13 @@ dissect_om2k_time(tvbuff_t *tvb, gint offset, proto_tree *tree)
 }
 
 static gint
-dissect_om2k_attr_unkn(tvbuff_t *tvb, gint offset, gint len, gint iei, proto_tree *tree)
+dissect_om2k_attr_unkn(tvbuff_t *tvb, packet_info *pinfo, gint offset, gint len, gint iei, proto_tree *tree)
 {
 	proto_tree_add_bytes_format(tree, hf_om2k_unknown_val, tvb,
 				    offset, len, NULL,
 				    "%s: %s",
 				    val_to_str_ext(iei, &om2k_attr_vals_ext, "0x%02x"),
-				    tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
+				    tvb_bytes_to_str(pinfo->pool, tvb, offset, len));
 	return len;
 }
 
@@ -771,7 +771,7 @@ dissect_om2k_negotiation_record1(tvbuff_t *tvb, gint base_offset, proto_tree *tr
 }
 
 static gint
-dissect_om2k_mo_record(tvbuff_t *tvb, gint base_offset, gint len, proto_tree *tree)
+dissect_om2k_mo_record(tvbuff_t *tvb, packet_info *pinfo, gint base_offset, gint len, proto_tree *tree)
 {
 	gint offset = base_offset;
 	proto_tree_add_item(tree, hf_om2k_mo_class, tvb, offset++, 1, ENC_NA);
@@ -784,7 +784,7 @@ dissect_om2k_mo_record(tvbuff_t *tvb, gint base_offset, gint len, proto_tree *tr
 		attr_id = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
 		offset += 2;
 		attr_len = tvb_get_guint8(tvb, offset++);
-		offset += dissect_om2k_attr_unkn(tvb, offset, attr_len, attr_id, tree);
+		offset += dissect_om2k_attr_unkn(tvb, pinfo, offset, attr_len, attr_id, tree);
 	}
 
 	return offset - base_offset;
@@ -880,7 +880,7 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 			/* FIXME */
 		case 0x15: /* External Condition Map Class 2 */
 			/* FIXME */
-			offset += dissect_om2k_attr_unkn(tvb, offset, 2, iei, tree);
+			offset += dissect_om2k_attr_unkn(tvb, pinfo, offset, 2, iei, tree);
 			break;
 		case 0x16: /* File Relation Indication */
 			proto_tree_add_item(tree, hf_om2k_filerel_ilr, tvb,
@@ -909,13 +909,13 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 		case 0x1e: /* Frequency List */
 			len = tvb_get_guint8(tvb, offset++);
 			/* FIXME */
-			offset += dissect_om2k_attr_unkn(tvb, offset, len, iei, tree);
+			offset += dissect_om2k_attr_unkn(tvb, pinfo, offset, len, iei, tree);
 			break;
 		case 0x1f: /* Frequency Specifier Rx */
 			/* FIXME */
 		case 0x20: /* Frequency Specifier Rx */
 			/* FIXME */
-			offset += dissect_om2k_attr_unkn(tvb, offset, 2, iei, tree);
+			offset += dissect_om2k_attr_unkn(tvb, pinfo, offset, 2, iei, tree);
 			break;
 		case 0x21: /* HSN */
 			proto_tree_add_item(tree, hf_om2k_hsn, tvb,
@@ -933,7 +933,7 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 			/* FIXME */
 		case 0x26: /* Internal Fault Map Class 2A Ext */
 			/* FIXME */
-			offset += dissect_om2k_attr_unkn(tvb, offset, 6, iei, tree);
+			offset += dissect_om2k_attr_unkn(tvb, pinfo, offset, 6, iei, tree);
 			break;
 		case 0x27: /* IS Connection List */
 			offset += dissect_om2k_is_list(tvb, offset, tree);
@@ -979,7 +979,7 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 			break;
 		case 0x34: /* Replacement Unit Map */
 			/* FIXME */
-			offset += dissect_om2k_attr_unkn(tvb, offset, 6, iei, tree);
+			offset += dissect_om2k_attr_unkn(tvb, pinfo, offset, 6, iei, tree);
 			break;
 		case 0x35: /* Result Code */
 			proto_tree_add_item(tree, hf_om2k_result_code, tvb,
@@ -1021,7 +1021,7 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 		case 0x46: /* RSL Function Map 2 */
 			len = tvb_get_guint8(tvb, offset++);
 			/* FIXME */
-			offset += dissect_om2k_attr_unkn(tvb, offset, len, iei, tree);
+			offset += dissect_om2k_attr_unkn(tvb, pinfo, offset, len, iei, tree);
 			break;
 		case 0x47: /* Ext Range */
 			proto_tree_add_item(tree, hf_om2k_ext_range, tvb,
@@ -1036,11 +1036,11 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 			break;
 		case 0x50: /* Replacement Unit Map Extension */
 			/* FIXME */
-			offset += dissect_om2k_attr_unkn(tvb, offset, 6, iei, tree);
+			offset += dissect_om2k_attr_unkn(tvb, pinfo, offset, 6, iei, tree);
 			break;
 		case 0x74: /* ICM Boundary */
 			/* FIXME */
-			offset += dissect_om2k_attr_unkn(tvb, offset, 5, iei, tree);
+			offset += dissect_om2k_attr_unkn(tvb, pinfo, offset, 5, iei, tree);
 			break;
 		case 0x79: /* Link Supervision Control */
 			proto_tree_add_item(tree, hf_om2k_lsc_fm, tvb,
@@ -1076,7 +1076,7 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 			offset += 2;
 			break;
 		case 0x85: /* MO Record */
-			offset += dissect_om2k_mo_record(tvb, offset, tvb_reported_length_remaining(tvb, offset), tree);
+			offset += dissect_om2k_mo_record(tvb, pinfo, offset, tvb_reported_length_remaining(tvb, offset), tree);
 			break;
 		case 0x87: /* TTA */
 			proto_tree_add_item(tree, hf_om2k_tta, tvb,
@@ -1105,7 +1105,7 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 			break;
 		case 0x95: /* Dedication information */
 			/* FIXME */
-			offset += dissect_om2k_attr_unkn(tvb, offset, 3, iei, tree);
+			offset += dissect_om2k_attr_unkn(tvb, pinfo, offset, 3, iei, tree);
 			break;
 		case 0x98: /* FS Offset */
 			proto_tree_add_item(tree, hf_om2k_tf_fs_offset, tvb,
@@ -1114,7 +1114,7 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 			break;
 		case 0x9c: /* External Condition Class 2 Extension */
 			/* FIXME */
-			offset += dissect_om2k_attr_unkn(tvb, offset, 4, iei, tree);
+			offset += dissect_om2k_attr_unkn(tvb, pinfo, offset, 4, iei, tree);
 			break;
 		case 0x9d: /* TSs MO State */
 			offset += dissect_tss_mo_state(tvb, offset, tree);
@@ -1167,16 +1167,16 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 			 * TLV structure is quite clear in the protocol
 			 * traces */
 			tmp = tvb_get_guint8(tvb, offset++);
-			offset += dissect_om2k_attr_unkn(tvb, offset, tmp, iei, tree);
+			offset += dissect_om2k_attr_unkn(tvb, pinfo, offset, tmp, iei, tree);
 			break;
 		case 0xb5: /* unknown 2-bytes fixed length attribute of TX Config */
-			offset += dissect_om2k_attr_unkn(tvb, offset, 2, iei, tree);
+			offset += dissect_om2k_attr_unkn(tvb, pinfo, offset, 2, iei, tree);
 			break;
 		case 0xd2: /* unknown 6-bytes fixed length attribute of TRXC Fault Rep */
-			offset += dissect_om2k_attr_unkn(tvb, offset, 6, iei, tree);
+			offset += dissect_om2k_attr_unkn(tvb, pinfo, offset, 6, iei, tree);
 			break;
 		case 0xac: /* unknown 58-bytes fixed length attribute of message type 0x0136 */
-			offset += dissect_om2k_attr_unkn(tvb, offset, 58, iei, tree);
+			offset += dissect_om2k_attr_unkn(tvb, pinfo, offset, 58, iei, tree);
 			break;
 		default:
 			tmp = tvb_get_guint8(tvb, offset);

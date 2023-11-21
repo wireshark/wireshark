@@ -1511,8 +1511,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     }
 
     /* Create strings for src, dst addresses */
-    ip_src = address_to_str(wmem_packet_scope(), &pinfo->src);
-    ip_dst = address_to_str(wmem_packet_scope(), &pinfo->dst);
+    ip_src = address_to_str(pinfo->pool, &pinfo->src);
+    ip_dst = address_to_str(pinfo->pool, &pinfo->dst);
 
     /* Get the SPI */
     if (tvb_captured_length(tvb) >= 4)
@@ -1679,7 +1679,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if(icv_type == ICV_TYPE_HMAC)
         {
           /* Allocate buffer for ICV  */
-          esp_icv = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, esp_packet_len - esp_icv_len, esp_icv_len);
+          esp_icv = (guint8 *)tvb_memdup(pinfo->pool, tvb, esp_packet_len - esp_icv_len, esp_icv_len);
 
           err = gcry_md_open (&md_hd, auth_algo_libgcrypt, GCRY_MD_FLAG_HMAC);
           if (err)
@@ -1719,7 +1719,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
               } else {
                 icv_checked = TRUE;
                 icv_correct = FALSE;
-                esp_icv_expected = bytes_to_str(wmem_packet_scope(), esp_icv_computed, esp_icv_len);
+                esp_icv_expected = bytes_to_str(pinfo->pool, esp_icv_computed, esp_icv_len);
               }
             }
 
@@ -1965,7 +1965,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
           /* Allocate buffer for decrypted data  */
           esp_decr_data_len = esp_encr_data_len - esp_icv_len;
-          esp_decr_data = (guint8 *)wmem_alloc(wmem_packet_scope(), esp_decr_data_len);
+          esp_decr_data = (guint8 *)wmem_alloc(pinfo->pool, esp_decr_data_len);
 
           tvb_memcpy(tvb, esp_decr_data, ESP_HEADER_LEN, esp_decr_data_len);
 
@@ -1993,7 +1993,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
           iv_item = proto_tree_add_item(esp_tree, hf_esp_iv, tvb, offset, esp_iv_len, ENC_NA);
             proto_item_append_text(iv_item, " (%d bytes)", esp_iv_len);
-            esp_iv = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, esp_iv_len);
+            esp_iv = (guchar *)tvb_memdup(pinfo->pool, tvb, offset, esp_iv_len);
 
           offset += esp_iv_len;
         }
@@ -2007,7 +2007,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                 esp_encr_data_len,
                                 esp_get_encr_algo_name(esp_encr_algo));
 
-         esp_encr_data = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, esp_encr_data_len);
+         esp_encr_data = (guchar *)tvb_memdup(pinfo->pool, tvb, offset, esp_encr_data_len);
          offset += esp_encr_data_len;
 
          /*
@@ -2119,7 +2119,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
           if (g_esp_enable_authentication_check && icv_type == ICV_TYPE_AEAD) {
             /* Allocate buffer for ICV  */
-            esp_icv = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, esp_packet_len - esp_icv_len, esp_icv_len);
+            esp_icv = (guint8 *)tvb_memdup(pinfo->pool, tvb, esp_packet_len - esp_icv_len, esp_icv_len);
 
             err = gcry_cipher_authenticate(*cipher_hd, tvb_get_ptr(tvb, 0, ESP_HEADER_LEN), ESP_HEADER_LEN);
 
@@ -2157,7 +2157,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                          gcry_md_algo_name(crypt_algo_libgcrypt), tag_len, esp_icv_len);
               }
 
-              esp_icv_computed = (guchar *)wmem_alloc(wmem_packet_scope(), tag_len);
+              esp_icv_computed = (guchar *)wmem_alloc(pinfo->pool, tag_len);
               err = gcry_cipher_gettag(*cipher_hd, esp_icv_computed, tag_len);
               if (err) {
                 gcry_cipher_close(*cipher_hd);
@@ -2171,7 +2171,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
               } else {
                 icv_checked = TRUE;
                 icv_correct = FALSE;
-                esp_icv_expected = bytes_to_str(wmem_packet_scope(), esp_icv_computed, esp_icv_len);
+                esp_icv_expected = bytes_to_str(pinfo->pool, esp_icv_computed, esp_icv_len);
               }
             }
           }

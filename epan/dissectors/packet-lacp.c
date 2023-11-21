@@ -124,9 +124,9 @@ static const true_false_string tfs_short_long_timeout = { "Short Timeout", "Long
 static const true_false_string tfs_aggregatable_individual = { "Aggregatable", "Individual" };
 static const true_false_string tfs_in_sync_out_sync = { "In Sync", "Out of Sync" };
 
-static const char * lacp_state_flags_to_str(guint32 value)
+static const char * lacp_state_flags_to_str(wmem_allocator_t *scope, guint32 value)
 {
-    wmem_strbuf_t *buf = wmem_strbuf_new(wmem_packet_scope(), "");
+    wmem_strbuf_t *buf = wmem_strbuf_new(scope, "");
     const unsigned int flags_count = 8;
     const char first_letters[] = "EFDCSGSA";
     unsigned int i;
@@ -265,7 +265,7 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     proto_tree_add_bitmask_with_flags(lacp_tree, tvb, offset, hf_lacp_actor_state,
                            ett_lacp_a_flags, actor_flags, ENC_NA, BMT_NO_INT|BMT_NO_TFS|BMT_NO_FALSE);
-    flagstr = lacp_state_flags_to_str(tvb_get_guint8(tvb, offset));
+    flagstr = lacp_state_flags_to_str(pinfo->pool, tvb_get_guint8(tvb, offset));
     ti = proto_tree_add_string(lacp_tree, hf_lacp_actor_state_str, tvb, offset, 1, flagstr);
     proto_item_set_generated(ti);
     offset += 1;
@@ -307,7 +307,7 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     offset += 2;
 
     proto_tree_add_bitmask_with_flags(lacp_tree, tvb, offset, hf_lacp_partner_state, ett_lacp_p_flags, partner_flags, ENC_NA, BMT_NO_INT|BMT_NO_TFS|BMT_NO_FALSE);
-    flagstr = lacp_state_flags_to_str(tvb_get_guint8(tvb, offset));
+    flagstr = lacp_state_flags_to_str(pinfo->pool, tvb_get_guint8(tvb, offset));
     ti = proto_tree_add_string(lacp_tree, hf_lacp_partner_state_str, tvb, offset, 1, flagstr);
     proto_item_set_generated(ti);
     offset += 1;

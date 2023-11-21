@@ -10446,7 +10446,7 @@ dissect_nai_realm_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
       break;
     }
     proto_tree_add_item_ret_string(realm_tree, hf_ieee80211_ff_anqp_nai_realm,
-                        tvb, offset, nai_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &realm);
+                        tvb, offset, nai_len, ENC_ASCII|ENC_NA, pinfo->pool, &realm);
     if (realm) {
       proto_item_append_text(r_item, " (%s)", realm);
     }
@@ -18623,11 +18623,11 @@ rsn_akms_base_custom(gchar *result, guint32 akms)
 }
 
 static gchar *
-rsn_pcs_return(guint32 pcs)
+rsn_pcs_return(wmem_allocator_t *scope, guint32 pcs)
 {
   gchar *result;
 
-  result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
+  result = (gchar *)wmem_alloc(scope, SHORT_STR);
   result[0] = '\0';
   rsn_pcs_base_custom(result, pcs);
 
@@ -18635,11 +18635,11 @@ rsn_pcs_return(guint32 pcs)
 }
 
 static gchar *
-rsn_akms_return(guint32 akms)
+rsn_akms_return(wmem_allocator_t *scope, guint32 akms)
 {
   gchar *result;
 
-  result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
+  result = (gchar *)wmem_alloc(scope, SHORT_STR);
   result[0] = '\0';
   rsn_akms_base_custom(result, akms);
 
@@ -18856,11 +18856,11 @@ wpa_akms_base_custom(gchar *result, guint32 akms)
 }
 
 static gchar *
-wpa_ucs_return(guint32 ucs)
+wpa_ucs_return(wmem_allocator_t *scope, guint32 ucs)
 {
   gchar *result;
 
-  result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
+  result = (gchar *)wmem_alloc(scope, SHORT_STR);
   result[0] = '\0';
   wpa_ucs_base_custom(result, ucs);
 
@@ -18868,11 +18868,11 @@ wpa_ucs_return(guint32 ucs)
 }
 
 static gchar *
-wpa_akms_return(guint32 akms)
+wpa_akms_return(wmem_allocator_t *scope, guint32 akms)
 {
   gchar *result;
 
-  result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
+  result = (gchar *)wmem_alloc(scope, SHORT_STR);
   result[0] = '\0';
   wpa_akms_base_custom(result, akms);
 
@@ -19177,7 +19177,7 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
         if (tvb_get_ntoh24(tvb, offset) == OUI_WPAWME)
         {
           proto_tree_add_item(wpa_sub_ucs_tree, hf_ieee80211_wfa_ie_wpa_ucs_wfa_type, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
-          proto_item_append_text(wpa_ucs_item, " %s", wpa_ucs_return(tvb_get_ntohl(tvb, offset)));
+          proto_item_append_text(wpa_ucs_item, " %s", wpa_ucs_return(pinfo->pool, tvb_get_ntohl(tvb, offset)));
           save_proto_data_value(pinfo, tvb_get_guint8(tvb, offset + 3), CIPHER_KEY);
         } else {
           proto_tree_add_item(wpa_sub_ucs_tree, hf_ieee80211_wfa_ie_wpa_ucs_type, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
@@ -19202,7 +19202,7 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
         if (tvb_get_ntoh24(tvb, offset) == OUI_WPAWME)
         {
           proto_tree_add_item(wpa_sub_akms_tree, hf_ieee80211_wfa_ie_wpa_akms_wfa_type, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
-          proto_item_append_text(wpa_akms_item, " %s", wpa_akms_return(tvb_get_ntohl(tvb, offset)));
+          proto_item_append_text(wpa_akms_item, " %s", wpa_akms_return(pinfo->pool, tvb_get_ntohl(tvb, offset)));
           save_proto_data_value(pinfo, tvb_get_guint8(tvb, offset + 3), AKM_KEY);
         } else {
           proto_tree_add_item(wpa_sub_akms_tree, hf_ieee80211_wfa_ie_wpa_akms_type, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
@@ -20650,7 +20650,7 @@ static const value_string ieee80211_vs_aruba_subtype_vals[] = {
 };
 static void
 dissect_vendor_ie_aruba(proto_item *item, proto_tree *ietree,
-                          tvbuff_t *tvb, int offset, guint32 tag_len)
+                          tvbuff_t *tvb, int offset, guint32 tag_len, packet_info *pinfo)
 {
   guint8 type;
   const guint8* name;
@@ -20670,7 +20670,7 @@ dissect_vendor_ie_aruba(proto_item *item, proto_tree *ietree,
     tag_len -= 1;
 
     proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_aruba_apname, tvb,
-                         offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &name);
+                         offset, tag_len, ENC_ASCII|ENC_NA, pinfo->pool, &name);
     proto_item_append_text(item, " (%s)", name);
     break;
 
@@ -20678,7 +20678,7 @@ dissect_vendor_ie_aruba(proto_item *item, proto_tree *ietree,
     proto_tree_add_item(ietree, hf_ieee80211_vs_aruba_data, tvb, offset,
       tag_len, ENC_NA);
     if (tag_len > 0)
-      proto_item_append_text(item, " (Data: %s)", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, tag_len));
+      proto_item_append_text(item, " (Data: %s)", tvb_bytes_to_str(pinfo->pool, tvb, offset, tag_len));
     break;
   }
 }
@@ -20776,7 +20776,7 @@ dissect_vendor_ie_aerohive(proto_item *item _U_, proto_tree *ietree,
         length = tag_len;
       }
 
-      proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_aerohive_hostname, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &hostname);
+      proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_aerohive_hostname, tvb, offset, length, ENC_ASCII|ENC_NA, pinfo->pool, &hostname);
       proto_item_append_text(item, " (%s)", hostname);
 
     break;
@@ -20794,7 +20794,7 @@ static const value_string ieee80211_vs_mist_type_vals[] = {
 };
 static void
 dissect_vendor_ie_mist(proto_item *item _U_, proto_tree *ietree,
-                       tvbuff_t *tvb, int offset, guint32 tag_len)
+                       tvbuff_t *tvb, int offset, guint32 tag_len, packet_info *pinfo)
 {
     guint32 type, length;
     const guint8* apname;
@@ -20808,7 +20808,7 @@ dissect_vendor_ie_mist(proto_item *item _U_, proto_tree *ietree,
     switch(type){
         case MIST_APNAME:
             length = tag_len;
-            proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_mist_ap_name, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &apname);
+            proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_mist_ap_name, tvb, offset, length, ENC_ASCII|ENC_NA, pinfo->pool, &apname);
             proto_item_append_text(item, " (%s)", apname);
             break;
 
@@ -20825,7 +20825,7 @@ static const value_string ieee80211_vs_ruckus_type_vals[] = {
 };
 static void
 dissect_vendor_ie_ruckus(proto_item *item _U_, proto_tree *ietree,
-                       tvbuff_t *tvb, int offset, guint32 tag_len)
+                       tvbuff_t *tvb, int offset, guint32 tag_len, packet_info *pinfo)
 {
     guint32 type, length;
     const guint8* apname;
@@ -20839,7 +20839,7 @@ dissect_vendor_ie_ruckus(proto_item *item _U_, proto_tree *ietree,
     switch(type){
         case RUCKUS_APNAME:
           length = tag_len;
-            proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_ruckus_ap_name, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &apname);
+            proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_ruckus_ap_name, tvb, offset, length, ENC_ASCII|ENC_NA, pinfo->pool, &apname);
             proto_item_append_text(item, " (%s)", apname);
             break;
 
@@ -20856,7 +20856,7 @@ static const value_string ieee80211_vs_alcatel_type_vals[] = {
 };
 static void
 dissect_vendor_ie_alcatel(proto_item *item _U_, proto_tree *ietree,
-                       tvbuff_t *tvb, int offset, guint32 tag_len)
+                       tvbuff_t *tvb, int offset, guint32 tag_len, packet_info *pinfo)
 {
     guint32 type, length;
     const guint8* apname;
@@ -20870,7 +20870,7 @@ dissect_vendor_ie_alcatel(proto_item *item _U_, proto_tree *ietree,
     switch(type){
         case ALCATEL_APNAME:
             length = tag_len;
-            proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_alcatel_ap_name, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &apname);
+            proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_alcatel_ap_name, tvb, offset, length, ENC_ASCII|ENC_NA, pinfo->pool, &apname);
             proto_item_append_text(item, " (%s)", apname);
             break;
 
@@ -20958,9 +20958,9 @@ dissect_vendor_ie_sgdsn(proto_item *item _U_, proto_tree *ietree,
           const guint8* string1;
           const guint8* string2;
           const guint8* string3;
-          proto_tree_add_item_ret_string(tree, hf_ieee80211_vs_sgdsn_manufacturer, tvb, offset, 3, ENC_ASCII|ENC_NA, wmem_packet_scope(), &string1);
-          proto_tree_add_item_ret_string(tree, hf_ieee80211_vs_sgdsn_model, tvb, offset+3, 3, ENC_ASCII|ENC_NA, wmem_packet_scope(), &string2);
-          proto_tree_add_item_ret_string(tree, hf_ieee80211_vs_sgdsn_serialnumber, tvb, offset+6, tlv_len-6, ENC_ASCII|ENC_NA, wmem_packet_scope(), &string3);
+          proto_tree_add_item_ret_string(tree, hf_ieee80211_vs_sgdsn_manufacturer, tvb, offset, 3, ENC_ASCII|ENC_NA, pinfo->pool, &string1);
+          proto_tree_add_item_ret_string(tree, hf_ieee80211_vs_sgdsn_model, tvb, offset+3, 3, ENC_ASCII|ENC_NA, pinfo->pool, &string2);
+          proto_tree_add_item_ret_string(tree, hf_ieee80211_vs_sgdsn_serialnumber, tvb, offset+6, tlv_len-6, ENC_ASCII|ENC_NA, pinfo->pool, &string3);
           proto_item_append_text(tree, ": %s %s %s", string1, string2, string3);
         } else {
           expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length, "Value length must be 30");
@@ -20973,7 +20973,7 @@ dissect_vendor_ie_sgdsn(proto_item *item _U_, proto_tree *ietree,
           const guint8* icao_mfr_code;
           guint32 sn_len;
           const guint8* serial_number;
-          proto_tree_add_item_ret_string(tree, hf_ieee80211_vs_sgdsn_icaomfrcode, tvb, offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &icao_mfr_code);
+          proto_tree_add_item_ret_string(tree, hf_ieee80211_vs_sgdsn_icaomfrcode, tvb, offset, 4, ENC_ASCII|ENC_NA, pinfo->pool, &icao_mfr_code);
           proto_tree_add_item_ret_uint(tree, hf_ieee80211_vs_sgdsn_serialnumber_len, tvb, offset+4, 1, ENC_NA, &sn_len);
           if(sn_len < 0x30 || (sn_len > 0x39 && sn_len < 0x41) || sn_len > 0x46) {
             expert_add_info_format(pinfo, tree, &ei_ieee80211_vs_sgdsn_serialnumber_invalid_len_val, "Serial Number Length must be '0' to '9', or 'A' to 'F'");
@@ -20982,7 +20982,7 @@ dissect_vendor_ie_sgdsn(proto_item *item _U_, proto_tree *ietree,
             // We suppressed the minus 5 in the check above to avoid a compilation warning
             expert_add_info_format(pinfo, tree, &ei_ieee80211_vs_sgdsn_serialnumber_unexpected_len_val, "Expected %d byte(s), got %d byte(s)", tlv_len-5, (sn_len>0x39?sn_len-0x37:sn_len-0x30));
           }
-          proto_tree_add_item_ret_string(tree, hf_ieee80211_vs_sgdsn_serialnumber, tvb, offset+5, tlv_len-5, ENC_ASCII|ENC_NA, wmem_packet_scope(), &serial_number);
+          proto_tree_add_item_ret_string(tree, hf_ieee80211_vs_sgdsn_serialnumber, tvb, offset+5, tlv_len-5, ENC_ASCII|ENC_NA, pinfo->pool, &serial_number);
           proto_item_append_text(tree, ": %s %s", icao_mfr_code, serial_number);
         } else {
           expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length, "Value length must be between 6 and 20");
@@ -21223,7 +21223,7 @@ static const value_string ieee80211_vs_fortinet_system_type_vals[] = {
 
 static void
 dissect_vendor_ie_fortinet(proto_item *item, proto_tree *ietree,
-                          tvbuff_t *tvb, int offset, guint32 tag_len)
+                          tvbuff_t *tvb, int offset, guint32 tag_len, packet_info *pinfo)
 {
   guint32 type;
 
@@ -21251,21 +21251,21 @@ dissect_vendor_ie_fortinet(proto_item *item, proto_tree *ietree,
         case FORTINET_SYSTEM_APNAME:{
           const guint8* name;
           proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_fortinet_system_apname, tvb,
-                               offset, system_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &name);
+                               offset, system_length, ENC_ASCII|ENC_NA, pinfo->pool, &name);
           proto_item_append_text(item, " %s", name);
         }
         break;
         case FORTINET_SYSTEM_APMODEL:{
           const guint8* model;
           proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_fortinet_system_apmodel, tvb,
-                               offset, system_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &model);
+                               offset, system_length, ENC_ASCII|ENC_NA, pinfo->pool, &model);
           proto_item_append_text(item, " %s", model);
         }
         break;
         case FORTINET_SYSTEM_APSERIAL:{
           const guint8* serial;
           proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_fortinet_system_apserial, tvb,
-                               offset, system_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &serial);
+                               offset, system_length, ENC_ASCII|ENC_NA, pinfo->pool, &serial);
           proto_item_append_text(item, " %s", serial);
         }
         break;
@@ -21279,7 +21279,7 @@ dissect_vendor_ie_fortinet(proto_item *item, proto_tree *ietree,
     proto_tree_add_item(ietree, hf_ieee80211_vs_fortinet_data, tvb, offset,
       tag_len, ENC_NA);
     if (tag_len > 0)
-      proto_item_append_text(item, " (Data: %s)", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, tag_len));
+      proto_item_append_text(item, " (Data: %s)", tvb_bytes_to_str(pinfo->pool, tvb, offset, tag_len));
     break;
   }
 }
@@ -21291,7 +21291,7 @@ static const value_string ieee80211_vs_arista_subtype_vals[] = {
 };
 static void
 dissect_vendor_ie_arista(proto_item *item, proto_tree *ietree,
-                          tvbuff_t *tvb, int offset, guint32 tag_len)
+                          tvbuff_t *tvb, int offset, guint32 tag_len, packet_info *pinfo)
 {
   guint8 type;
   const guint8* name;
@@ -21311,7 +21311,7 @@ dissect_vendor_ie_arista(proto_item *item, proto_tree *ietree,
     tag_len -= 1;
 
     proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_arista_apname, tvb,
-                         offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &name);
+                         offset, tag_len, ENC_ASCII|ENC_NA, pinfo->pool, &name);
     proto_item_append_text(item, " (%s)", name);
     break;
 
@@ -21319,7 +21319,7 @@ dissect_vendor_ie_arista(proto_item *item, proto_tree *ietree,
     proto_tree_add_item(ietree, hf_ieee80211_vs_arista_data, tvb, offset,
       tag_len, ENC_NA);
     if (tag_len > 0)
-      proto_item_append_text(item, " (Data: %s)", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, tag_len));
+      proto_item_append_text(item, " (Data: %s)", tvb_bytes_to_str(pinfo->pool, tvb, offset, tag_len));
     break;
   }
 }
@@ -21361,7 +21361,7 @@ static const value_string ieee80211_vs_wisun_nr_vals[] = {
 
 static void
 dissect_vendor_ie_wisun(proto_item *item, proto_tree *ietree,
-                        tvbuff_t *tvb, int offset, guint32 tag_len)
+                        tvbuff_t *tvb, int offset, guint32 tag_len, packet_info *pinfo)
 {
   guint32 type;
 
@@ -21414,7 +21414,7 @@ dissect_vendor_ie_wisun(proto_item *item, proto_tree *ietree,
   default:
     proto_tree_add_item(ietree, hf_ieee80211_vs_wisun_data, tvb, offset, tag_len, ENC_NA);
     if (tag_len > 0)
-      proto_item_append_text(item, " (Data: %s)", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, tag_len));
+      proto_item_append_text(item, " (Data: %s)", tvb_bytes_to_str(pinfo->pool, tvb, offset, tag_len));
     break;
   }
 }
@@ -21625,7 +21625,7 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
     if (tvb_get_ntoh24(tvb, offset) == OUI_RSN)
     {
       proto_tree_add_item(rsn_sub_pcs_tree, hf_ieee80211_rsn_pcs_80211_type, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
-      proto_item_append_text(rsn_pcs_item, " %s", rsn_pcs_return(tvb_get_ntohl(tvb, offset)));
+      proto_item_append_text(rsn_pcs_item, " %s", rsn_pcs_return(pinfo->pool, tvb_get_ntohl(tvb, offset)));
       save_proto_data_value(pinfo, tvb_get_guint8(tvb, offset + 3), CIPHER_KEY);
     } else {
       proto_tree_add_item(rsn_sub_pcs_tree, hf_ieee80211_rsn_pcs_type, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
@@ -21665,7 +21665,7 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
     if (tvb_get_ntoh24(tvb, offset) == OUI_RSN)
     {
       proto_tree_add_item(rsn_sub_akms_tree, hf_ieee80211_rsn_akms_80211_type, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
-      proto_item_append_text(rsn_akms_item, " %s", rsn_akms_return(tvb_get_ntohl(tvb, offset)));
+      proto_item_append_text(rsn_akms_item, " %s", rsn_akms_return(pinfo->pool, tvb_get_ntohl(tvb, offset)));
       save_proto_data_value(pinfo, tvb_get_guint8(tvb, offset + 3), AKM_KEY);
 
       set_packet_data_last_akm_suite(packet_data, tvb_get_ntohl(tvb, offset));
@@ -30203,7 +30203,7 @@ ieee80211_tag_country_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
   /* FIXME: If environment is 'X', the only allowed CC is "XX" */
   proto_tree_add_item_ret_string(tree, hf_ieee80211_tag_country_info_code,
-                      tvb, offset, 2, ENC_ASCII|ENC_NA, wmem_packet_scope(), &country_code);
+                      tvb, offset, 2, ENC_ASCII|ENC_NA, pinfo->pool, &country_code);
   proto_item_append_text(field_data->item_tag, ": Country Code %s", country_code);
   offset += 2;
 
@@ -32806,7 +32806,7 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       dissect_vendor_ie_extreme_mesh(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo, field_data->item_tag_length);
       break;
     case OUI_ARUBA:
-      dissect_vendor_ie_aruba(field_data->item_tag, tree, tvb, offset, tag_vs_len);
+      dissect_vendor_ie_aruba(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
       break;
     case OUI_NINTENDO:
       dissect_vendor_ie_nintendo(field_data->item_tag, tree, tvb, offset, tag_vs_len);
@@ -32824,25 +32824,25 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       dissect_vendor_ie_aerohive(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
       break;
     case OUI_MIST:
-      dissect_vendor_ie_mist(field_data->item_tag, tree, tvb, offset, tag_vs_len);
+      dissect_vendor_ie_mist(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
       break;
     case OUI_RUCKUS:
-      dissect_vendor_ie_ruckus(field_data->item_tag, tree, tvb, offset, tag_vs_len);
+      dissect_vendor_ie_ruckus(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
       break;
     case OUI_ALCATEL_LUCENT:
-      dissect_vendor_ie_alcatel(field_data->item_tag, tree, tvb, offset, tag_vs_len);
+      dissect_vendor_ie_alcatel(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
       break;
     case OUI_SGDSN:
       dissect_vendor_ie_sgdsn(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
       break;
     case OUI_FORTINET:
-      dissect_vendor_ie_fortinet(field_data->item_tag, tree, tvb, offset, tag_vs_len);
+      dissect_vendor_ie_fortinet(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
       break;
     case OUI_MOJO_ARISTA:
-      dissect_vendor_ie_arista(field_data->item_tag, tree, tvb, offset, tag_vs_len);
+      dissect_vendor_ie_arista(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
       break;
     case OUI_WISUN:
-      dissect_vendor_ie_wisun(field_data->item_tag, tree, tvb, offset, tag_vs_len);
+      dissect_vendor_ie_wisun(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
       break;
     default:
       proto_tree_add_item(tree, hf_ieee80211_tag_vendor_data, tvb, offset, tag_vs_len, ENC_NA);
@@ -34969,9 +34969,9 @@ ieee80211_tag_mesh_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
   int tag_len = tvb_reported_length(tvb);
   const guint8* mesh_id;
 
-  proto_tree_add_item_ret_string(tree, hf_ieee80211_mesh_id, tvb, offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &mesh_id);
+  proto_tree_add_item_ret_string(tree, hf_ieee80211_mesh_id, tvb, offset, tag_len, ENC_ASCII|ENC_NA, pinfo->pool, &mesh_id);
   if (tag_len > 0) {
-    gchar* s = format_text(wmem_packet_scope(), mesh_id, tag_len);
+    gchar* s = format_text(pinfo->pool, mesh_id, tag_len);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", MESHID=%s", s);
     proto_item_append_text(field_data->item_tag, ": %s", s);
   }
@@ -36052,7 +36052,7 @@ ieee80211_tag_multi_band(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
       if (tvb_get_ntoh24(tvb, offset) == OUI_RSN)
       {
         proto_tree_add_item(rsn_sub_pcs_tree, hf_ieee80211_rsn_pcs_80211_type, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
-        proto_item_append_text(rsn_pcs_item, " %s", rsn_pcs_return(tvb_get_ntohl(tvb, offset)));
+        proto_item_append_text(rsn_pcs_item, " %s", rsn_pcs_return(pinfo->pool, tvb_get_ntohl(tvb, offset)));
       } else {
         proto_tree_add_item(rsn_sub_pcs_tree, hf_ieee80211_rsn_pcs_type, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
       }
@@ -37967,7 +37967,7 @@ set_src_addr_cols(packet_info *pinfo, tvbuff_t *tvb, int offset, const char *typ
   set_address_tvb(&ether_addr, AT_ETHER, 6, tvb, offset);
 
   col_add_fstr(pinfo->cinfo, COL_RES_DL_SRC, "%s (%s)",
-        address_with_resolution_to_str(wmem_packet_scope(), &ether_addr), type);
+        address_with_resolution_to_str(pinfo->pool, &ether_addr), type);
 }
 
 static void
@@ -37978,7 +37978,7 @@ set_dst_addr_cols(packet_info *pinfo, tvbuff_t *tvb, int offset, const char *typ
   set_address_tvb(&ether_addr, AT_ETHER, 6, tvb, offset);
 
   col_add_fstr(pinfo->cinfo, COL_RES_DL_DST, "%s (%s)",
-        address_with_resolution_to_str(wmem_packet_scope(), &ether_addr), type);
+        address_with_resolution_to_str(pinfo->pool, &ether_addr), type);
 }
 
 static guint32

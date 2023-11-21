@@ -1672,7 +1672,7 @@ static guint8 dissect_dib_devinfo( tvbuff_t* tvb, packet_info* pinfo,
   gint* p_offset, guint8 struct_len, wmem_strbuf_t* output )
 {
   gint offset = *p_offset;
-  wmem_strbuf_t* info = wmem_strbuf_new(wmem_packet_scope(), "");
+  wmem_strbuf_t* info = wmem_strbuf_new(pinfo->pool, "");
   guint8 prog_mode = 0;
   guint8 ok = 1;
 
@@ -1777,7 +1777,7 @@ static guint8 dissect_dib_devinfo( tvbuff_t* tvb, packet_info* pinfo,
                 /* 30 bytes Friendly Name - ISO 8859-1 */
                 char *friendly_name;
 
-                proto_tree_add_item_ret_display_string( dib_tree, hf_knxip_friendly_name, tvb, offset, 30, ENC_ISO_8859_1 | ENC_NA, wmem_packet_scope(), &friendly_name );
+                proto_tree_add_item_ret_display_string( dib_tree, hf_knxip_friendly_name, tvb, offset, 30, ENC_ISO_8859_1 | ENC_NA, pinfo->pool, &friendly_name );
 
                 wmem_strbuf_append_printf( info, " \"%s\"", friendly_name );
 
@@ -3247,7 +3247,7 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
             wmem_strbuf_t* output;
             char *info;
 
-            output = wmem_strbuf_new(wmem_packet_scope(), "");
+            output = wmem_strbuf_new(pinfo->pool, "");
             dissect_dibs( tvb, pinfo, kip_item, kip_tree, &offset, output, '\0', dib_count, &ok );
             info = wmem_strbuf_finalize(output);
             if( *info )

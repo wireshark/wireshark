@@ -5472,7 +5472,7 @@ dissect_homeplug_av_st_iotecha_stp_user_message_ind(ptvcursor_t *cursor, packet_
 
     if (null_offset > -1) {
         col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-                        tvb_get_stringz_enc(wmem_packet_scope(), ptvcursor_tvbuff(cursor),
+                        tvb_get_stringz_enc(pinfo->pool, ptvcursor_tvbuff(cursor),
                                               ptvcursor_current_offset(cursor),
                                               NULL, ENC_ASCII));
     }

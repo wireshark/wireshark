@@ -137,7 +137,7 @@ static const value_string gsm_r_uus1_tags[] = {
  *
  */
 static guint16
-de_gsm_r_uus1_pfn(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+de_gsm_r_uus1_pfn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
 {
     guint32	curr_offset;
     guint32	len;
@@ -159,7 +159,7 @@ de_gsm_r_uus1_pfn(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     if(len == 0) {
         proto_item_append_text(item, ": No FN Available");
     }else {
-        fn_str = tvb_bcd_dig_to_str(wmem_packet_scope(), tvb, offset+2, len, NULL, FALSE);
+        fn_str = tvb_bcd_dig_to_str(pinfo->pool, tvb, offset+2, len, NULL, FALSE);
         proto_tree_add_string(sub_tree, hf_gsm_r_uus1_pfn_digits, tvb, curr_offset, len, fn_str);
         proto_item_append_text(item, ": %s", fn_str);
 
@@ -586,7 +586,7 @@ dissect_gsm_r_uus1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             offset += de_gsm_r_uus1_chpc(tvb, gsm_r_uus1_tree, offset);
             break;
         case 5:
-            offset += de_gsm_r_uus1_pfn(tvb, gsm_r_uus1_tree, offset);
+            offset += de_gsm_r_uus1_pfn(tvb, pinfo, gsm_r_uus1_tree, offset);
             break;
         case 6:
         case 7:

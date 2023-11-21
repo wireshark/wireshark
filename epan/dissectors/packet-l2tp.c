@@ -1965,7 +1965,7 @@ static void process_control_avps(tvbuff_t *tvb,
     int                digest_idx = 0;
     guint16            digest_avp_len = 0;
     proto_item        *digest_item = NULL;
-    l2tp_cntrl_data_t *l2tp_cntrl_data = wmem_new0(wmem_packet_scope(), l2tp_cntrl_data_t);
+    l2tp_cntrl_data_t *l2tp_cntrl_data = wmem_new0(pinfo->pool, l2tp_cntrl_data_t);
 
     l2tpv3_session_t *session = NULL;
 

@@ -291,7 +291,7 @@ static const value_string iuup_fqcs[] = {
 
 
 static proto_item*
-iuup_proto_tree_add_bits(proto_tree* tree, int hf, tvbuff_t* tvb, int offset, int bit_offset, guint bits, guint8** buf) {
+iuup_proto_tree_add_bits(packet_info *pinfo, proto_tree* tree, int hf, tvbuff_t* tvb, int offset, int bit_offset, guint bits, guint8** buf) {
     static const guint8 masks[] = {0x00,0x80,0xc0,0xe0,0xf0,0xf8,0xfc,0xfe};
     int len = (bits + bit_offset)/8 + (((bits + bit_offset)%8) ? 0 : 1);
     guint8* shifted_buffer;
@@ -300,7 +300,7 @@ iuup_proto_tree_add_bits(proto_tree* tree, int hf, tvbuff_t* tvb, int offset, in
 
     DISSECTOR_ASSERT(bit_offset < 8);
 
-    shifted_buffer = (guint8 *)tvb_memdup(wmem_packet_scope(),tvb,offset,len+1);
+    shifted_buffer = (guint8 *)tvb_memdup(pinfo->pool,tvb,offset,len+1);
 
     for(i = 0; i < len; i++) {
         shifted_buffer[i] <<= bit_offset;
@@ -365,7 +365,7 @@ static void dissect_iuup_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
             if (! rfci->subflow[i].len)
                 continue;
 
-            iuup_proto_tree_add_bits(flow_tree, hf_iuup_rfci_subflow[rfci->id][i], tvb,
+            iuup_proto_tree_add_bits(pinfo, flow_tree, hf_iuup_rfci_subflow[rfci->id][i], tvb,
                                 offset + (bit_offset/8),
                                 bit_offset % 8,
                                 rfci->subflow[i].len,
@@ -460,7 +460,7 @@ static void dissect_iuup_init(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
 
         iuup_circuit = wmem_new0(wmem_file_scope(), iuup_circuit_t);
     } else {
-        iuup_circuit = wmem_new0(wmem_packet_scope(), iuup_circuit_t);
+        iuup_circuit = wmem_new0(pinfo->pool, iuup_circuit_t);
     }
 
     iuup_circuit->id = circuit_id;

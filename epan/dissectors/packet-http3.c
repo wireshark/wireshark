@@ -639,12 +639,12 @@ http3_initialize_qpack_decoders(http3_session_info_t *http3_session)
 static GHashTable *header_fields_hash = NULL;
 
 static const char *
-cid_to_string(const quic_cid_t *cid)
+cid_to_string(const quic_cid_t *cid, wmem_allocator_t *scope)
 {
     if (cid->len == 0) {
         return "(none)";
     }
-    char *str = (char *)wmem_alloc0(wmem_packet_scope(), 2 * cid->len + 1);
+    char *str = (char *)wmem_alloc0(scope, 2 * cid->len + 1);
     bytes_to_hexstr(str, cid->cid, cid->len);
     return str;
 }
@@ -1101,9 +1101,9 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
          * a `CONNECT' request; see Section 4.4.
          */
         if (method_header_value && strcmp(method_header_value, HTTP3_HEADER_METHOD_CONNECT) == 0) {
-            uri = wmem_strdup(wmem_packet_scope(), authority_header_value);
+            uri = wmem_strdup(pinfo->pool, authority_header_value);
         } else {
-            uri = wmem_strdup_printf(wmem_packet_scope(), "%s://%s%s", scheme_header_value, authority_header_value,
+            uri = wmem_strdup_printf(pinfo->pool, "%s://%s%s", scheme_header_value, authority_header_value,
                                      path_header_value);
         }
         e_ti = proto_tree_add_string(tree, hf_http3_header_request_full_uri, tvb, 0, 0, uri);
@@ -1719,7 +1719,7 @@ dissect_http3_qpack_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     DISSECTOR_ASSERT(http3_session);
 
     if (remaining > 0) {
-        qpack_buf = (uint8_t *)tvb_memdup(wmem_packet_scope(), tvb, offset, remaining);
+        qpack_buf = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, remaining);
     }
 
     /*
@@ -1751,7 +1751,7 @@ dissect_http3_qpack_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             gboolean   initial_cid_found = quic_conn_data_get_conn_client_dcid_initial(pinfo, &quic_cid);
             proto_tree_add_expert_format(
                 tree, pinfo, &ei_http3_qpack_failed, tvb, offset, 0, "QPAC decoder %p DCID %s [found=%d] error %d (%s)",
-                decoder, cid_to_string(&quic_cid), initial_cid_found, nread, nghttp3_strerror((int)nread));
+                decoder, cid_to_string(&quic_cid, pinfo->pool), initial_cid_found, nread, nghttp3_strerror((int)nread));
         }
 
         icnt_after = (guint32)nghttp3_qpack_decoder_get_icnt(decoder);

@@ -11698,7 +11698,7 @@ static const gchar digits[16] = {
 };
 
 static guint32
-dtap_rr_ec_paging_imsi(tvbuff_t *tvb, proto_tree *tree, guint32 curr_bit_offset)
+dtap_rr_ec_paging_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 curr_bit_offset)
 {
     guint64 imsi_digits;
     guint8 i;
@@ -11708,7 +11708,7 @@ dtap_rr_ec_paging_imsi(tvbuff_t *tvb, proto_tree *tree, guint32 curr_bit_offset)
     proto_tree_add_bits_ret_val(tree, hf_gsm_a_rr_ec_imsi_digits, tvb, curr_bit_offset, 4, &imsi_digits, ENC_BIG_ENDIAN);
     curr_bit_offset += 4;
     sav_bit_offset = curr_bit_offset;
-    imsi_str = wmem_strbuf_new_sized(wmem_packet_scope(), (gsize)imsi_digits+2);
+    imsi_str = wmem_strbuf_new_sized(pinfo->pool, (gsize)imsi_digits+2);
     for (i = 0; i <= (guint8)imsi_digits; i++) {
         wmem_strbuf_append_c(imsi_str, digits[tvb_get_bits8(tvb, curr_bit_offset, 4)]);
         curr_bit_offset += 4;
@@ -11719,7 +11719,7 @@ dtap_rr_ec_paging_imsi(tvbuff_t *tvb, proto_tree *tree, guint32 curr_bit_offset)
 }
 
 static void
-dtap_rr_ec_paging_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_)
+dtap_rr_ec_paging_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_)
 {
     guint32     curr_bit_offset;
     curr_bit_offset  = offset << 3;
@@ -11737,7 +11737,7 @@ dtap_rr_ec_paging_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 
     if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, hf_gsm_a_rr_ec_ptmsi_imsi_select))
     { /* IMSI */
-        curr_bit_offset = dtap_rr_ec_paging_imsi(tvb, tree, curr_bit_offset);
+        curr_bit_offset = dtap_rr_ec_paging_imsi(tvb, pinfo, tree, curr_bit_offset);
     }
     else
     { /* P-TMSI*/
@@ -11749,7 +11749,7 @@ dtap_rr_ec_paging_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     { /* Mobile identity 2 */
         if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, hf_gsm_a_rr_ec_ptmsi_imsi_select))
         { /* IMSI */
-            dtap_rr_ec_paging_imsi(tvb, tree, curr_bit_offset);
+            dtap_rr_ec_paging_imsi(tvb, pinfo, tree, curr_bit_offset);
         }
         else
         { /* P-TMSI*/

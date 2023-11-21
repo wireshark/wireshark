@@ -2718,8 +2718,7 @@ tvb_memeql(tvbuff_t *tvb, const gint offset, const guint8 *str, size_t size)
 }
 
 /**
- * Format the data in the tvb from offset for size.  Returned string is
- * wmem packet_scoped so call must be in that scope.
+ * Format the data in the tvb from offset for size.
  */
 gchar *
 tvb_format_text(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint size)
@@ -2750,8 +2749,7 @@ tvb_format_text_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const gint offse
 
 /**
  * Like "tvb_format_text()", but for null-padded strings; don't show
- * the null padding characters as "\000".  Returned string is wmem packet_scoped
- * so call must be in that scope.
+ * the null padding characters as "\000".
  */
 gchar *
 tvb_format_stringzpad(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint size)
