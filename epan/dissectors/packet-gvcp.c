@@ -552,6 +552,7 @@ static const value_string linkconfiguration_class[] = {
 };
 
 static const value_string devicemodenames_characterset[] = {
+	{ 0x02, "ASCII" },
 	{ 0x01, "UTF-8 Character Set" },
 	{ 0x00, "Reserved" },
 	{ 0, NULL },
