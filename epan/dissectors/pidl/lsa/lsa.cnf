@@ -115,13 +115,13 @@ static void
 lsarpc_domain_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
 	static int* const access_flags[] = {
-		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_AUTH,
-		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_AUTH,
-		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_POSIX,
-		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_POSIX,
-		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_CONTROLLERS,
-		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_CONTROLLERS,
-		&hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_DOMAIN_NAME,
+		&hf_lsarpc_lsa_TrustedAccessMask_LSA_TRUSTED_QUERY_AUTH,
+		&hf_lsarpc_lsa_TrustedAccessMask_LSA_TRUSTED_SET_AUTH,
+		&hf_lsarpc_lsa_TrustedAccessMask_LSA_TRUSTED_SET_POSIX,
+		&hf_lsarpc_lsa_TrustedAccessMask_LSA_TRUSTED_QUERY_POSIX,
+		&hf_lsarpc_lsa_TrustedAccessMask_LSA_TRUSTED_SET_CONTROLLERS,
+		&hf_lsarpc_lsa_TrustedAccessMask_LSA_TRUSTED_QUERY_CONTROLLERS,
+		&hf_lsarpc_lsa_TrustedAccessMask_LSA_TRUSTED_QUERY_DOMAIN_NAME,
 		NULL
 	};
 
