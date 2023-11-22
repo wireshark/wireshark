@@ -741,7 +741,7 @@ dissect_zcl_window_covering_go_to_percentage(tvbuff_t *tvb, proto_tree *tree, gu
  *@param data_type attribute data type
  *@param client_attr ZCL client
 */
-void
+static void
 dissect_zcl_window_covering_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     /* Dissect attribute data type and data */
