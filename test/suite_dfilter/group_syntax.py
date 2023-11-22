@@ -28,6 +28,11 @@ class TestDfilterSyntax:
         dfilter = "_ws.expert"
         checkDFilterCount(dfilter, 1)
 
+    def test_exists_5(self, checkDFilterSucceed):
+        # Protocol field name with leading digit and minus
+        dfilter = "diameter.3GPP-Reporting-Reason"
+        checkDFilterSucceed(dfilter)
+
     def test_commute_1(self, checkDFilterCount):
         dfilter = "ip.proto == 6"
         checkDFilterCount(dfilter, 1)
@@ -315,12 +320,22 @@ class TestDfilterArithmetic:
         checkDFilterCount(dfilter, 2)
 
     def test_sub_3(self, checkDFilterCount):
-        dfilter = "udp.dstport == 68-1"
-        checkDFilterCount(dfilter, 2)
-
-    def test_sub_4(self, checkDFilterCount):
         dfilter = "udp.length == ip.len - 20"
         checkDFilterCount(dfilter, 4)
+
+    def test_sub_no_space_1(self, checkDFilterFail):
+        # Minus operator requires whitespace preceding it.
+        error = '"68-1" is not a valid number'
+        dfilter = "udp.dstport == 68-1"
+        checkDFilterFail(dfilter, error)
+
+    def test_sub_no_space_2(self, checkDFilterFail):
+        # Different case, 68-67 should not be parsed
+        # as bytes separated by hyphen XX-XX-XX
+        # Minus operator still requires whitespace preceding it.
+        error = '"68-67" is not a valid number'
+        dfilter = "frame.number == 68-67"
+        checkDFilterFail(dfilter, error)
 
     def test_expr_1(self, checkDFilterCount):
         dfilter = 'udp.port * { 10 / {5 - 4} } == udp.port * { {50 + 50} / 2 - 40 }'

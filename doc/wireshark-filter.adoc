@@ -531,6 +531,10 @@ will not work for this):
 
 Do not confuse this usage of curly brackets with set membership.
 
+An unfortunate quirk in the filter syntax is that the subtraction operator
+must be preceded by a space character, so "A-B" must be written as "A -B"
+or "A - B".
+
 === Protocol field references
 
 A variable using a sigil with the form ${some.proto.field} is called a field
