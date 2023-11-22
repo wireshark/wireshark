@@ -89,6 +89,7 @@ static int hf_cipsafety_crc_s5_1;
 static int hf_cipsafety_crc_s5_2;
 static int hf_cipsafety_crc_s5_status;
 static int hf_cipsafety_complement_data;
+static int hf_cip_safety_message_encoding;
 
 /* CIP Safety header field identifiers */
 static int hf_cip_reqrsp;
@@ -455,6 +456,32 @@ const range_string safety_max_consumer_numbers[] = {
    { 2, 15, "Multicast" },
 
    { 0, 0, NULL }
+};
+
+enum message_encoding_type {
+   MSG_ENCODING_BASE_1_2_BYTE_DATA,
+   MSG_ENCODING_EXTENDED_1_2_BYTE_DATA,
+   MSG_ENCODING_BASE_3_250_BYTE_DATA,
+   MSG_ENCODING_EXTENDED_3_250_BYTE_DATA,
+   MSG_ENCODING_BASE_TIME_STAMP,
+   MSG_ENCODING_BASE_TIME_COORDINATION,
+   MSG_ENCODING_EXTENDED_TIME_COORDINATION,
+   MSG_ENCODING_BASE_TIME_CORRECTION,
+   MSG_ENCODING_EXTENDED_TIME_CORRECTION,
+};
+
+static const value_string safety_message_encoding_vals[] = {
+   { MSG_ENCODING_BASE_1_2_BYTE_DATA, "Base Format, 1 or 2 Byte Data Section" },
+   { MSG_ENCODING_EXTENDED_1_2_BYTE_DATA, "Extended Format, 1 or 2 Byte Data Section" },
+   { MSG_ENCODING_BASE_3_250_BYTE_DATA, "Base Format, 3 to 250 Byte Data Section" },
+   { MSG_ENCODING_EXTENDED_3_250_BYTE_DATA, "Extended Format, 3 to 250 Byte Data Section" },
+   { MSG_ENCODING_BASE_TIME_STAMP, "Base Format, Time Stamp Section" },
+   { MSG_ENCODING_BASE_TIME_COORDINATION, "Base Format, Time Coordination Section" },
+   { MSG_ENCODING_EXTENDED_TIME_COORDINATION, "Extended Format, Time Coordination Section" },
+   { MSG_ENCODING_BASE_TIME_CORRECTION, "Base Format, Time Correction Section" },
+   { MSG_ENCODING_EXTENDED_TIME_CORRECTION, "Extended Format, Time Correction Section" },
+
+   { 0, NULL }
 };
 
 void cip_safety_128us_fmt(gchar *s, guint32 value)
@@ -1527,6 +1554,9 @@ dissect_mcast_byte( proto_tree *tree, tvbuff_t *tvb, int offset)
 // Base Format Time Correction Message
 static void dissect_base_format_time_correction_message(proto_tree* tree, tvbuff_t* tvb, int offset)
 {
+   proto_item* it = proto_tree_add_uint(tree, hf_cip_safety_message_encoding, tvb, 0, 0, MSG_ENCODING_BASE_TIME_CORRECTION);
+   proto_item_set_generated(it);
+
    dissect_mcast_byte(tree, tvb, offset);
    proto_tree_add_item(tree, hf_cipsafety_time_correction, tvb, offset + 1, 2, ENC_LITTLE_ENDIAN);
    proto_tree_add_item(tree, hf_cipsafety_mcast_byte2, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
@@ -1536,6 +1566,9 @@ static void dissect_base_format_time_correction_message(proto_tree* tree, tvbuff
 // Extended Format Time Correction Message
 static void dissect_extended_format_time_correction_message(proto_tree* tree, tvbuff_t* tvb, int offset)
 {
+   proto_item* it = proto_tree_add_uint(tree, hf_cip_safety_message_encoding, tvb, 0, 0, MSG_ENCODING_EXTENDED_TIME_CORRECTION);
+   proto_item_set_generated(it);
+
    dissect_mcast_byte(tree, tvb, offset);
    proto_tree_add_item(tree, hf_cipsafety_time_correction, tvb, offset + 1, 2, ENC_LITTLE_ENDIAN);
    proto_tree_add_item(tree, hf_cipsafety_crc_s5_0, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
@@ -1549,6 +1582,9 @@ static void dissect_extended_format_time_correction_message(proto_tree* tree, tv
 static void dissect_base_format_time_stamp_section(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, int offset,
    gboolean compute_crc, guint8 mode_byte, const cip_connection_triad_t* connection_triad)
 {
+   proto_item* it = proto_tree_add_uint(tree, hf_cip_safety_message_encoding, tvb, 0, 0, MSG_ENCODING_BASE_TIME_STAMP);
+   proto_item_set_generated(it);
+
    proto_tree_add_item(tree, hf_cipsafety_timestamp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
    guint16 timestamp = tvb_get_letohs(tvb, offset);
 
@@ -1574,6 +1610,9 @@ static void dissect_base_format_time_stamp_section(packet_info* pinfo, proto_tre
 static void dissect_base_format_time_coordination_message(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb,
    gboolean compute_crc, const cip_connection_triad_t* connection_triad)
 {
+   proto_item* it = proto_tree_add_uint(tree, hf_cip_safety_message_encoding, tvb, 0, 0, MSG_ENCODING_BASE_TIME_COORDINATION);
+   proto_item_set_generated(it);
+
    dissect_ack_byte(tree, tvb, 0);
    guint8 ack_byte = tvb_get_guint8(tvb, 0);
 
@@ -1602,6 +1641,9 @@ static void dissect_base_format_time_coordination_message(packet_info* pinfo, pr
 static void dissect_extended_format_time_coordination_message(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb,
    gboolean compute_crc, const cip_connection_triad_t* connection_triad)
 {
+   proto_item* it = proto_tree_add_uint(tree, hf_cip_safety_message_encoding, tvb, 0, 0, MSG_ENCODING_EXTENDED_TIME_COORDINATION);
+   proto_item_set_generated(it);
+
    dissect_ack_byte(tree, tvb, 0);
    guint8 ack_byte = tvb_get_guint8(tvb, 0);
 
@@ -1624,6 +1666,9 @@ static void dissect_extended_format_time_coordination_message(packet_info* pinfo
 static void dissect_base_format_1_or_2_byte_data(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, int io_data_size,
    gboolean compute_crc, const cip_connection_triad_t* connection_triad)
 {
+   proto_item* it = proto_tree_add_uint(tree, hf_cip_safety_message_encoding, tvb, 0, 0, MSG_ENCODING_BASE_1_2_BYTE_DATA);
+   proto_item_set_generated(it);
+
    proto_tree_add_item(tree, hf_cipsafety_data, tvb, 0, io_data_size, ENC_NA);
    dissect_mode_byte(tree, tvb, io_data_size, pinfo);
    guint8 mode_byte = tvb_get_guint8(tvb, io_data_size);
@@ -1663,6 +1708,9 @@ static void dissect_base_format_1_or_2_byte_data(packet_info* pinfo, proto_tree*
 static void dissect_base_format_3_to_250_byte_data(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, int io_data_size,
    gboolean compute_crc, const cip_connection_triad_t* connection_triad)
 {
+   proto_item* it = proto_tree_add_uint(tree, hf_cip_safety_message_encoding, tvb, 0, 0, MSG_ENCODING_BASE_3_250_BYTE_DATA);
+   proto_item_set_generated(it);
+
    proto_tree_add_item(tree, hf_cipsafety_data, tvb, 0, io_data_size, ENC_NA);
    dissect_mode_byte(tree, tvb, io_data_size, pinfo);
    guint mode_byte = tvb_get_guint8(tvb, io_data_size);
@@ -1710,6 +1758,9 @@ static void dissect_base_format_3_to_250_byte_data(packet_info* pinfo, proto_tre
 static void dissect_extended_format_1_or_2_byte_data(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, int io_data_size,
    gboolean compute_crc, const cip_connection_triad_t* connection_triad, const cip_safety_packet_data_t* packet_data)
 {
+   proto_item* it = proto_tree_add_uint(tree, hf_cip_safety_message_encoding, tvb, 0, 0, MSG_ENCODING_EXTENDED_1_2_BYTE_DATA);
+   proto_item_set_generated(it);
+
    proto_tree_add_item(tree, hf_cipsafety_data, tvb, 0, io_data_size, ENC_NA);
    dissect_mode_byte(tree, tvb, io_data_size, pinfo);
    guint mode_byte = tvb_get_guint8(tvb, io_data_size);
@@ -1741,6 +1792,9 @@ static void dissect_extended_format_1_or_2_byte_data(packet_info* pinfo, proto_t
 static void dissect_extended_format_3_to_250_byte_data(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, int io_data_size,
    gboolean compute_crc, const cip_connection_triad_t* connection_triad, const cip_safety_packet_data_t* packet_data)
 {
+   proto_item* it = proto_tree_add_uint(tree, hf_cip_safety_message_encoding, tvb, 0, 0, MSG_ENCODING_EXTENDED_3_250_BYTE_DATA);
+   proto_item_set_generated(it);
+
    proto_tree_add_item(tree, hf_cipsafety_data, tvb, 0, io_data_size, ENC_NA);
    dissect_mode_byte(tree, tvb, io_data_size, pinfo);
    guint mode_byte = tvb_get_guint8(tvb, io_data_size);
@@ -1832,6 +1886,45 @@ static cip_safety_packet_data_t* get_timestamp_packet_data(packet_info* pinfo, c
    return packet_data;
 }
 
+enum cip_safety_data_type {CIP_SAFETY_DATA_TYPE_UNKNOWN, CIP_SAFETY_PRODUCE, CIP_SAFETY_CONSUME};
+static enum cip_safety_data_type get_cip_safety_data_type(enum enip_connid_type conn_type, const cip_safety_epath_info_t* safety)
+{
+   if (conn_type == ECIDT_O2T && safety->originator_type == CIP_SAFETY_ORIGINATOR_PRODUCER)
+   {
+      return CIP_SAFETY_PRODUCE;
+   }
+   else if (conn_type == ECIDT_O2T && safety->originator_type == CIP_SAFETY_ORIGINATOR_CONSUMER)
+   {
+      return CIP_SAFETY_CONSUME;
+   }
+   else if (conn_type == ECIDT_T2O && safety->originator_type == CIP_SAFETY_ORIGINATOR_PRODUCER)
+   {
+      return CIP_SAFETY_CONSUME;
+   }
+   else if (conn_type == ECIDT_T2O && safety->originator_type == CIP_SAFETY_ORIGINATOR_CONSUMER)
+   {
+      return CIP_SAFETY_PRODUCE;
+   }
+   else
+   {
+      return CIP_SAFETY_DATA_TYPE_UNKNOWN;
+   }
+}
+
+void add_safety_data_type_to_info_column(packet_info *pinfo, enum enip_connid_type conn_type, const cip_safety_epath_info_t* safety)
+{
+   enum cip_safety_data_type data_type = get_cip_safety_data_type(conn_type, safety);
+
+   if (data_type == CIP_SAFETY_CONSUME)
+   {
+      col_append_str(pinfo->cinfo, COL_INFO, " [C->P]");
+   }
+   else  // CIP_SAFETY_PRODUCE
+   {
+      col_append_str(pinfo->cinfo, COL_INFO, " [P->C]");
+   }
+}
+
 static void
 dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int item_length, packet_info *pinfo, cip_safety_info_t* safety_info)
 {
@@ -1881,6 +1974,8 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
       }
 
       /* consumer data */
+      proto_item_append_text(item, " [Consume]");
+      col_append_str(pinfo->cinfo, COL_INFO, " [C->P]");
 
       switch (format)
       {
@@ -1911,6 +2006,9 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
          short_format = FALSE;
 
       /* producer data */
+      proto_item_append_text(item, " [Produce]");
+      col_append_str(pinfo->cinfo, COL_INFO, " [P->C]");
+
       switch (format)
       {
       case CIP_SAFETY_BASE_FORMAT:
@@ -2266,7 +2364,7 @@ proto_register_cipsafety(void)
       },
       { &hf_cipsafety_timestamp,
         { "Timestamp", "cipsafety.timestamp",
-          FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+          FT_UINT16, BASE_CUSTOM, CF_FUNC(cip_safety_128us_fmt), 0, NULL, HFILL }
       },
       { &hf_cipsafety_ack_byte,
         { "ACK Byte", "cipsafety.ack_byte",
@@ -2351,6 +2449,11 @@ proto_register_cipsafety(void)
       { &hf_cipsafety_complement_data,
         { "Complement Data", "cipsafety.complement_data",
           FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+      },
+
+      { &hf_cip_safety_message_encoding,
+        { "Safety Message Encoding", "cipsafety.message_encoding",
+          FT_UINT32, BASE_DEC, VALS(safety_message_encoding_vals), 0, NULL, HFILL }
       },
 
       { &hf_cip_sercosiii_link_snn,

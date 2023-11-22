@@ -50,6 +50,7 @@ extern void dissect_unid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_it
              int hf_snn_date, int hf_snn_time, int hf_macid, gint ett, gint ett_snn);
 extern void dissect_cipsafety_snn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int hf_real_datetime, int hf_date, int hf_time);
 extern void cip_safety_128us_fmt(gchar *s, guint32 value);
+extern void add_safety_data_type_to_info_column(packet_info *pinfo, enum enip_connid_type conn_type, const cip_safety_epath_info_t* safety);
 
 /*
 ** Exported variables

@@ -682,6 +682,8 @@ static expert_field ei_cip_safety_open_type1;
 static expert_field ei_cip_safety_open_type2a;
 static expert_field ei_cip_safety_open_type2b;
 static expert_field ei_cip_no_fwd_close;
+static expert_field ei_cip_safety_input;
+static expert_field ei_cip_safety_output;
 
 //// Concurrent Connections
 static int hf_cip_cm_cc_version;
@@ -3551,6 +3553,13 @@ static void add_cip_class_to_info_column(packet_info *pinfo, guint32 class_id, i
        || (cip_req_info->bService == SC_MULT_SERV_PACK && class_id == CI_CLS_MR)))
    {
        return;
+   }
+
+   // Don't show the Assembly class. It's a generic common class, and there are often multiple entries
+   // which clutter the display.
+   if (display_type == DISPLAY_CONNECTION_PATH && class_id == 4)
+   {
+      return;
    }
 
    if (display_type == DISPLAY_CONNECTION_PATH)
@@ -7352,6 +7361,15 @@ static void fwd_open_analysis_safety_open(packet_info* pinfo, proto_item* cmd_it
    {
       expert_add_info(pinfo, cmd_item, &ei_cip_safety_open_type2b);
    }
+
+   if (safety_fwdopen->originator_type == CIP_SAFETY_ORIGINATOR_PRODUCER)
+   {
+      expert_add_info(pinfo, cmd_item, &ei_cip_safety_output);
+   }
+   else if (safety_fwdopen->originator_type == CIP_SAFETY_ORIGINATOR_CONSUMER)
+   {
+      expert_add_info(pinfo, cmd_item, &ei_cip_safety_input);
+   }
 }
 
 static void display_previous_route_connection_path(cip_req_info_t* preq_info, proto_tree* item_tree, tvbuff_t* tvb, packet_info* pinfo, int hf_path, int display_type);
@@ -7379,6 +7397,8 @@ static void display_connection_information_fwd_open_req(packet_info* pinfo, tvbu
 
    if (conn_info->safety.safety_seg)
    {
+      add_safety_data_type_to_info_column(pinfo, ECIDT_O2T, &conn_info->safety);
+
       pi = proto_tree_add_float(conn_info_tree, hf_cip_safety_nte_ms, tvb, 0, 0, conn_info->safety.nte_value_ms);
       proto_item_set_generated(pi);
    }
@@ -7405,6 +7425,11 @@ static void display_connection_information_fwd_open_rsp(packet_info* pinfo, tvbu
    mark_cip_connection(pinfo, tvb, conn_info_tree);
 
    display_previous_route_connection_path(preq_info, conn_info_tree, tvb, pinfo, hf_cip_cm_conn_path_size, DISPLAY_CONNECTION_PATH);
+
+   if (preq_info && preq_info->connInfo && preq_info->connInfo->safety.safety_seg)
+   {
+      add_safety_data_type_to_info_column(pinfo, ECIDT_T2O, &preq_info->connInfo->safety);
+   }
 }
 
 static void display_connection_information_fwd_close_req(packet_info* pinfo, tvbuff_t* tvb, proto_tree* tree)
@@ -7452,6 +7477,7 @@ static void display_connection_information_fwd_close_req(packet_info* pinfo, tvb
    {
       // Make it obvious that the FwdClose is Safety, to match how the FwdOpen looks.
       col_append_str(pinfo->cinfo, COL_INFO, " [Safety]");
+      add_safety_data_type_to_info_column(pinfo, ECIDT_O2T, &conn_info->safety);
    }
 
 }
@@ -7477,6 +7503,7 @@ static void display_connection_information_fwd_close_rsp(packet_info* pinfo, tvb
    {
       // Make it obvious that the FwdClose is Safety, to match how the FwdOpen looks.
       col_append_str(pinfo->cinfo, COL_INFO, " [Safety]");
+      add_safety_data_type_to_info_column(pinfo, ECIDT_T2O, &conn_val->safety);
    }
 }
 
@@ -7759,6 +7786,19 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
          preq_info->connInfo->TransportClass_trigger = TransportClass_trigger;
          preq_info->connInfo->timeout_multiplier = timeout_multiplier;
          preq_info->connInfo->safety = safety_fwdopen;
+         if (preq_info->connInfo->safety.safety_seg)
+         {
+            gboolean server_dir = (TransportClass_trigger & CI_PRODUCTION_DIR_MASK) ? TRUE : FALSE;
+            if (server_dir)
+            {
+               preq_info->connInfo->safety.originator_type = CIP_SAFETY_ORIGINATOR_PRODUCER;
+            }
+            else
+            {
+               preq_info->connInfo->safety.originator_type = CIP_SAFETY_ORIGINATOR_CONSUMER;
+            }
+         }
+
          preq_info->connInfo->connection_path = connection_path;
 
          preq_info->connInfo->FwdOpenPathLenBytes = conn_path_size;
@@ -10129,6 +10169,8 @@ proto_register_cip(void)
       { &ei_cip_safety_open_type1, { "cip.analysis.safety_open_type1", PI_PROTOCOL, PI_NOTE, "Type 1 - Safety Open with Data", EXPFILL } },
       { &ei_cip_safety_open_type2a, { "cip.analysis.safety_open_type2a", PI_PROTOCOL, PI_NOTE, "Type 2a - Safety Open with SCID check", EXPFILL } },
       { &ei_cip_safety_open_type2b, { "cip.analysis.safety_open_type2b", PI_PROTOCOL, PI_NOTE, "Type 2b - Safety Open without SCID check", EXPFILL } },
+      { &ei_cip_safety_input, { "cip.analysis.safety_input", PI_PROTOCOL, PI_NOTE, "Safety Input Connection", EXPFILL } },
+      { &ei_cip_safety_output, { "cip.analysis.safety_output", PI_PROTOCOL, PI_NOTE, "Safety Output Connection", EXPFILL } },
       { &ei_cip_no_fwd_close, { "cip.analysis.no_fwd_close", PI_PROTOCOL, PI_NOTE, "No Forward Close seen for this CIP Connection", EXPFILL } },
    };
 

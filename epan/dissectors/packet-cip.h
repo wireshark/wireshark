@@ -512,6 +512,7 @@ typedef struct cip_connID_info {
 
 enum cip_safety_format_type {CIP_SAFETY_BASE_FORMAT, CIP_SAFETY_EXTENDED_FORMAT};
 enum cip_safety_open_type {CIP_SAFETY_OPEN_UNKNOWN, CIP_SAFETY_OPEN_TYPE1, CIP_SAFETY_OPEN_TYPE2A, CIP_SAFETY_OPEN_TYPE2B};
+enum cip_safety_originator_type {CIP_SAFETY_ORIGINATOR_UNKNOWN, CIP_SAFETY_ORIGINATOR_CONSUMER, CIP_SAFETY_ORIGINATOR_PRODUCER};
 
 typedef struct cip_connection_triad {
    guint16 ConnSerialNumber;
@@ -524,6 +525,8 @@ typedef struct cip_safety_epath_info {
 
    enum cip_safety_format_type format;
    enum cip_safety_open_type safety_open_type;
+
+   enum cip_safety_originator_type originator_type;
 
    // These 3x variables are only used during a first pass calculation.
    guint16 running_rollover_value;   /* Keep track of the rollover value over the course of the connection */
