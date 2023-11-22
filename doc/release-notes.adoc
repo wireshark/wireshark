@@ -88,6 +88,11 @@ The following features are new (or have been significantly updated) since versio
   but it is advisable to check that the "dfilter_macros" (old) and
   "dmacros" (new) files in the profile directory are consistent.
 
+* When selecting "Manage Interfaces" from "Capture Options", Wireshark only
+  attempts to reconnect to rpcap (remote) hosts that were connected to in the
+  last session, instead of every remote host that the current profile has ever
+  connected to. wsbuglink:17484[]
+
 //=== Removed Features and Support
 
 // === Removed Dissectors
