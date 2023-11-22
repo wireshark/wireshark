@@ -231,7 +231,7 @@ capture_get_if_capabilities(const char *ifname, bool monitor_mode,
 
     int num_tokens = json_parse(data, NULL, 0);
     if (num_tokens <= 0) {
-        ws_warning("Capture Interface Capabilities failed with invalid JSON.");
+        ws_info("Capture Interface Capabilities failed with invalid JSON.");
         g_free(data);
         return NULL;
     }
@@ -247,17 +247,13 @@ capture_get_if_capabilities(const char *ifname, bool monitor_mode,
         return NULL;
     }
 
-    cur_tok = json_get_array_index(tokens, 0);
-    if (cur_tok == NULL) {
-        ws_warning("Capture Interface Capabilities failed with invalid JSON.");
-        wmem_free(NULL, tokens);
-        g_free(data);
-        return NULL;
+    inf_tok = json_get_array_index(tokens, 0);
+    if (inf_tok) {
+        inf_tok = json_get_object(data, inf_tok, ifname);
     }
 
-    inf_tok = json_get_object(data, cur_tok, ifname);
     if (inf_tok == NULL) {
-        ws_warning("Capture Interface Capabilities failed with invalid JSON.");
+        ws_info("Capture Interface Capabilities failed with invalid JSON.");
         wmem_free(NULL, tokens);
         g_free(data);
         return NULL;
@@ -265,7 +261,7 @@ capture_get_if_capabilities(const char *ifname, bool monitor_mode,
 
     double val_d;
     if (!json_get_double(data, inf_tok, "status", &val_d)) {
-        ws_warning("Capture Interface Capabilities failed with invalid JSON.");
+        ws_info("Capture Interface Capabilities failed with invalid JSON.");
         wmem_free(NULL, tokens);
         g_free(data);
         return NULL;
@@ -318,7 +314,7 @@ capture_get_if_capabilities(const char *ifname, bool monitor_mode,
      */
     array_tok = json_get_array(data, inf_tok, "data_link_types");
     if (!array_tok) {
-        ws_message("Capture Interface Capabilities returned bad data_link information.");
+        ws_info("Capture Interface Capabilities returned bad data_link information.");
         if (err_primary_msg) {
             *err_primary_msg = ws_strdup_printf("Dumpcap didn't return data link types capability");
         }
