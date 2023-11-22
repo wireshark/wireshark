@@ -720,6 +720,7 @@ const value_string ssl_31_alert_description[] = {
     { 115, "Unknown PSK Identity" },
     { 116, "Certificate Required" },
     { 120, "No application Protocol" },
+    { 121, "ECH Required" },
     { 0x00, NULL }
 };
 
