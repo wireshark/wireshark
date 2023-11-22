@@ -745,7 +745,7 @@ proto_register_zbee_zcl_temp_meas(void)
     static hf_register_info hf[] = {
 
         { &hf_zbee_zcl_temp_meas_attr_id,
-            { "Attribute", "zbee_zcl_meas_sensing.tempmeas.attr_idd", FT_UINT16, BASE_HEX, VALS(zbee_zcl_temp_meas_attr_names),
+            { "Attribute", "zbee_zcl_meas_sensing.tempmeas.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_temp_meas_attr_names),
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_temp_meas_measured_value,
