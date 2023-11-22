@@ -1513,6 +1513,8 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
     recent.sys_warn_if_no_capture = TRUE;
 
     recent.col_width_list = NULL;
+    recent.gui_geometry_main_master_split = NULL;
+    recent.gui_geometry_main_extra_split = NULL;
     recent.gui_fileopen_remembered_dir = NULL;
 
     /* Construct the pathname of the user's recent common file. */

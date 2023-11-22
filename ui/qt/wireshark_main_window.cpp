@@ -1140,6 +1140,8 @@ void WiresharkMainWindow::saveWindowGeometry()
         recent.gui_geometry_main_upper_pane = master_split_.sizes()[0];
     }
 
+    g_free(recent.gui_geometry_main_master_split);
+    g_free(recent.gui_geometry_main_extra_split);
     recent.gui_geometry_main_master_split = g_strdup(master_split_.saveState().toHex().constData());
     recent.gui_geometry_main_extra_split = g_strdup(extra_split_.saveState().toHex().constData());
 
