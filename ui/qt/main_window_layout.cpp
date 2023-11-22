@@ -177,59 +177,65 @@ void MainWindow::layoutPanes()
 // - When the profile changes
 void MainWindow::applyRecentPaneGeometry()
 {
-    // XXX This shrinks slightly each time the application is run. For some
-    // reason the master_split_ geometry is two pixels shorter when
-    // saveWindowGeometry is invoked.
+    if (recent.gui_geometry_main_master_split == nullptr ||
+        recent.gui_geometry_main_extra_split == nullptr ||
+        !master_split_.restoreState(QByteArray::fromHex(recent.gui_geometry_main_master_split)) ||
+        !extra_split_.restoreState(QByteArray::fromHex(recent.gui_geometry_main_extra_split))) {
+        // Restoring the splitter states via the savedState didn't work,
+        // so let's fall back to the older method.
+        //
+        // XXX This shrinks slightly each time the application is run. For some
+        // reason the master_split_ geometry is two pixels shorter when
+        // saveWindowGeometry is invoked.
 
-    // This is also an awful lot of trouble to go through to reuse the GTK+
-    // pane settings. We might want to add gui.geometry_main_master_sizes
-    // and gui.geometry_main_extra_sizes and save QSplitter::saveState in
-    // each.
+        // This is also an awful lot of trouble to go through to reuse the GTK+
+        // pane settings.
 
-    // Force a geometry recalculation
-    QWidget *cur_w = main_stack_->currentWidget();
-    showCapture();
-    QRect geom = main_stack_->geometry();
-    QList<int> master_sizes = master_split_.sizes();
-    QList<int> extra_sizes = extra_split_.sizes();
-    main_stack_->setCurrentWidget(cur_w);
+        // Force a geometry recalculation
+        QWidget *cur_w = main_stack_->currentWidget();
+        showCapture();
+        QRect geom = main_stack_->geometry();
+        QList<int> master_sizes = master_split_.sizes();
+        QList<int> extra_sizes = extra_split_.sizes();
+        main_stack_->setCurrentWidget(cur_w);
 
-    int master_last_size = master_split_.orientation() == Qt::Vertical ? geom.height() : geom.width();
-    master_last_size -= master_split_.handleWidth() * (master_sizes.length() - 1);
+        int master_last_size = master_split_.orientation() == Qt::Vertical ? geom.height() : geom.width();
+        master_last_size -= master_split_.handleWidth() * (master_sizes.length() - 1);
 
-    int extra_last_size = extra_split_.orientation() == Qt::Vertical ? geom.height() : geom.width();
-    extra_last_size -= extra_split_.handleWidth();
+        int extra_last_size = extra_split_.orientation() == Qt::Vertical ? geom.height() : geom.width();
+        extra_last_size -= extra_split_.handleWidth();
 
-    if (recent.gui_geometry_main_upper_pane > 0) {
-        master_sizes[0] = recent.gui_geometry_main_upper_pane;
-        master_last_size -= recent.gui_geometry_main_upper_pane;
-    } else {
-        master_sizes[0] = master_last_size / master_sizes.length();
-        master_last_size -= master_last_size / master_sizes.length();
-    }
-
-    if (recent.gui_geometry_main_lower_pane > 0) {
-        if (master_sizes.length() > 2) {
-            master_sizes[1] = recent.gui_geometry_main_lower_pane;
-            master_last_size -= recent.gui_geometry_main_lower_pane;
-        } else if (extra_sizes.length() > 0) {
-            extra_sizes[0] = recent.gui_geometry_main_lower_pane;
-            extra_last_size -= recent.gui_geometry_main_lower_pane;
-            extra_sizes.last() = extra_last_size;
+        if (recent.gui_geometry_main_upper_pane > 0) {
+            master_sizes[0] = recent.gui_geometry_main_upper_pane;
+            master_last_size -= recent.gui_geometry_main_upper_pane;
+        } else {
+            master_sizes[0] = master_last_size / master_sizes.length();
+            master_last_size -= master_last_size / master_sizes.length();
         }
-    } else {
-        if (master_sizes.length() > 2) {
-            master_sizes[1] = master_last_size / 2;
-            master_last_size -= master_last_size / 2;
-        } else if (extra_sizes.length() > 0) {
-            extra_sizes[0] = extra_last_size / 2;
-            extra_last_size -= extra_last_size / 2;
-            extra_sizes.last() = extra_last_size;
+
+        if (recent.gui_geometry_main_lower_pane > 0) {
+            if (master_sizes.length() > 2) {
+                master_sizes[1] = recent.gui_geometry_main_lower_pane;
+                master_last_size -= recent.gui_geometry_main_lower_pane;
+            } else if (extra_sizes.length() > 0) {
+                extra_sizes[0] = recent.gui_geometry_main_lower_pane;
+                extra_last_size -= recent.gui_geometry_main_lower_pane;
+                extra_sizes.last() = extra_last_size;
+            }
+        } else {
+            if (master_sizes.length() > 2) {
+                master_sizes[1] = master_last_size / 2;
+                master_last_size -= master_last_size / 2;
+            } else if (extra_sizes.length() > 0) {
+                extra_sizes[0] = extra_last_size / 2;
+                extra_last_size -= extra_last_size / 2;
+                extra_sizes.last() = extra_last_size;
+            }
         }
+
+        master_sizes.last() = master_last_size;
+
+        master_split_.setSizes(master_sizes);
+        extra_split_.setSizes(extra_sizes);
     }
-
-    master_sizes.last() = master_last_size;
-
-    master_split_.setSizes(master_sizes);
-    extra_split_.setSizes(extra_sizes);
 }

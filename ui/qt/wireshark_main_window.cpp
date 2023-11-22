@@ -1140,6 +1140,12 @@ void WiresharkMainWindow::saveWindowGeometry()
         recent.gui_geometry_main_upper_pane = master_split_.sizes()[0];
     }
 
+    recent.gui_geometry_main_master_split = g_strdup(master_split_.saveState().toHex().constData());
+    recent.gui_geometry_main_extra_split = g_strdup(extra_split_.saveState().toHex().constData());
+
+    // Saving the QSplitter state is more accurate (#19361), but save
+    // the old GTK-style pane information for backwards compatibility
+    // for switching back and forth with older versions.
     if (master_split_.sizes().length() > 2) {
         recent.gui_geometry_main_lower_pane = master_split_.sizes()[1];
     } else if (extra_split_.sizes().length() > 0) {
