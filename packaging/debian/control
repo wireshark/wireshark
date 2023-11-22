@@ -1,7 +1,7 @@
 Source: wireshark
 Section: net
 Priority: optional
-Maintainer: Balint Reczey <rbalint@ubuntu.com>
+Maintainer: Wireshark Self-made package <wireshark@example.com>
 Standards-Version: 3.9.8
 Build-Depends:
  qtbase5-dev, qtbase5-dev-tools, qttools5-dev, qttools5-dev-tools,
