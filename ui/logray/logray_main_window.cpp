@@ -1029,6 +1029,18 @@ void LograyMainWindow::loadWindowGeometry()
 
 #ifndef Q_OS_MAC
     if (recent.gui_geometry_main_maximized) {
+        // [save|restore]Geometry does a better job (on Linux and Windows)
+        // of restoring to the original monitor because it saves
+        // QGuiApplication::screens().indexOf(screen())
+        // (it also saves Qt::WindowFullScreen, restores the non-maximized
+        // size even when starting out maximized, etc.)
+        // Monitors of different DPI might still be tricky:
+        // https://bugreports.qt.io/browse/QTBUG-70721
+        // https://bugreports.qt.io/browse/QTBUG-77385
+        //
+        // We might eventually want to always use restoreGeometry, but
+        // for now at least use it just for maximized because it's better
+        // then what we've been doing.
         setWindowState(Qt::WindowMaximized);
     } else
 #endif
@@ -1060,6 +1072,13 @@ void LograyMainWindow::loadWindowGeometry()
 
 void LograyMainWindow::saveWindowGeometry()
 {
+    if (prefs.gui_geometry_save_position ||
+        prefs.gui_geometry_save_size ||
+        prefs.gui_geometry_save_maximized) {
+        g_free(recent.gui_geometry_main);
+        recent.gui_geometry_main = g_strdup(saveGeometry().toHex().constData());
+    }
+
     if (prefs.gui_geometry_save_position) {
         recent.gui_geometry_main_x = pos().x();
         recent.gui_geometry_main_y = pos().y();
@@ -1072,6 +1091,9 @@ void LograyMainWindow::saveWindowGeometry()
 
     if (prefs.gui_geometry_save_maximized) {
         // On macOS this is false when it shouldn't be
+        // XXX: Does save/restoreGeometry work any better on macOS
+        // for maximized windows? Apparently not:
+        // https://bugreports.qt.io/browse/QTBUG-100272
         recent.gui_geometry_main_maximized = isMaximized();
     }
 
