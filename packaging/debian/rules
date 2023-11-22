@@ -12,6 +12,8 @@ ifeq ($(distrelease),n/a)
   distrelease     := sid
 endif
 
+include /usr/share/dpkg/pkg-info.mk
+
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
@@ -60,7 +62,6 @@ ifeq ($(MAKE),ninja)
 else
 	$(MAKE) DESTDIR=$(CURDIR)/debian/tmp -C $(CURDIR)/obj-* install-headers
 endif
-	rm -f debian/*.shlibs
 	rm -rf $(CURDIR)/debian/tmp/usr/share/wireshark/COPYING
 
 override_dh_install:
@@ -81,3 +82,11 @@ ifeq (,$(filter $(DEB_BUILD_OPTIONS),nocheck))
 else
 	@echo '"DEB_BUILD_OPTIONS" has "nocheck". Skipping tests'
 endif
+
+override_dh_makeshlibs:
+	for package in $$(grep 'Package: lib.*[0-9]$$' debian/control  | cut -d' ' -f2); do \
+		lib=$${package%%[0-9]*};\
+		major=$${package##*[a-z]}; \
+		echo "$$lib $$major $$package (= $(DEB_VERSION))"  > debian/$$package.shlibs; \
+	done
+	dh_makeshlibs
