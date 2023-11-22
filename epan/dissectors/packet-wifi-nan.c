@@ -55,6 +55,9 @@ static dissector_table_t ie_handle_table;
 #define NAN_SECURITY_CONTEXT_INFO_MIN_LENGTH 4
 #define NAN_PUBLIC_AVAIL_MIN_LENGTH 4
 #define NAN_VENDOR_SPECIFIC_MIN_LENGTH 3
+#define NAN_DEVICE_CAPABILITY_EXTENSION_MIN_LENGTH 2
+#define NAN_IDENTITY_RESOLUTION_MIN_LEN 1
+#define NAN_PAIRING_BOOTSTRAPPING_LEN 5
 
 #define NAN_UNALIGNED_SCH_BAND_ID_EXIST 0
 #define NAN_UNALIGNED_SCH_CHANNEL_ENTRY_EXIST 1
@@ -113,6 +116,9 @@ static gint ett_security_context_identifiers;
 static gint ett_public_availability_sch_entries;
 static gint ett_ie_tree;
 static gint ett_availability_op_class;
+static gint ett_device_capability_extension;
+static gint ett_nan_pairing_bootstrapping_type_status;
+static gint ett_nan_pairing_bootstrapping_method;
 
 static int hf_nan_attribute_type;
 static int hf_nan_attribute_len;
@@ -335,6 +341,42 @@ static int hf_nan_attr_shared_key_rsna_descriptor;
 static int hf_nan_attr_vendor_specific_body;
 static int hf_nan_attr_container_element_id;
 static int hf_nan_attr_container_element_len;
+/* Device Capability Extension attribute, Capability Info field */
+static int hf_nan_attr_device_capability_extension;
+static int hf_nan_attr_device_capability_extension_6g_regulatory_info_presented;
+static int hf_nan_attr_device_capability_extension_6g_regulatory_info;
+static int hf_nan_attr_device_capability_extension_6g_regulatory_info_reserved;
+static int hf_nan_attr_device_capability_extension_paring_setup_enabled;
+static int hf_nan_attr_device_capability_extension_npk_nik_cache_enabled;
+/* NAN Identity Resolution attribute */
+static int hf_nan_attr_identity_cipher_version;
+static int hf_nan_attr_identity_resolution_nonce;
+static int hf_nan_attr_identity_resolution_tag;
+
+/* NAN Pairing Bootstrapping attribute */
+static int hf_nan_attr_pairing_bootstrapping_dialog_token;
+static int hf_nan_attr_pairing_bootstrapping_type_status;
+static int hf_nan_attr_pairing_bootstrapping_type;
+static int hf_nan_attr_pairing_bootstrapping_status;
+static int hf_nan_attr_pairing_bootstrapping_resaon_code;
+static int hf_nan_attr_pairing_bootstrapping_comeback_after;
+static int hf_nan_attr_pairing_bootstrapping_comeback_cookie_len;
+static int hf_nan_attr_pairing_bootstrapping_comeback_cookie;
+static int hf_nan_attr_pairing_bootstrapping_methods;
+static int hf_nan_attr_pairing_bootstrapping_method_opportunistic_bootstrapping;
+static int hf_nan_attr_pairing_bootstrapping_method_pin_code_display;
+static int hf_nan_attr_pairing_bootstrapping_method_passphrase_display;
+static int hf_nan_attr_pairing_bootstrapping_method_qr_code_display;
+static int hf_nan_attr_pairing_bootstrapping_method_nfc_tag;
+static int hf_nan_attr_pairing_bootstrapping_method_keypad_pin_code_only;
+static int hf_nan_attr_pairing_bootstrapping_method_keypad_passphrase;
+static int hf_nan_attr_pairing_bootstrapping_method_qr_code_scan;
+static int hf_nan_attr_pairing_bootstrapping_method_nfc_reader;
+static int hf_nan_attr_pairing_bootstrapping_method_reserved;
+static int hf_nan_attr_pairing_bootstrapping_method_service_managed_bootstrapping;
+static int hf_nan_attr_pairing_bootstrapping_method_bootstrapping_handshakes_skipped;
+
+static int hf_nan_attr_reserved;
 
 enum {
     NAN_ATTR_MASTER_INDICATION = 0x00,
@@ -379,6 +421,9 @@ enum {
     NAN_ATTR_PUBLIC_AVAILABILITY = 0x27,
     NAN_ATTR_SUBSCRIBE_SERVICE_ID_LIST = 0x28,
     NAN_ATTR_NDP_EXTENSION = 0x29,
+    NAN_ATTR_DEVICE_CAPABILITY_EXTENSION = 0x2a,
+    NAN_ATTR_IDENTITY_RESOLUTION = 0x2b,
+    NAN_ATTR_PAIRING_BOOTSTRAPPING = 0x2c,
     NAN_ATTR_VENDOR_SPECIFIC = 0xDD
 };
 
@@ -425,6 +470,9 @@ static const value_string attribute_types[] = {
     { NAN_ATTR_PUBLIC_AVAILABILITY, "Public Availability Attribute" },
     { NAN_ATTR_SUBSCRIBE_SERVICE_ID_LIST, "Subscribe Service ID List Attribute" },
     { NAN_ATTR_NDP_EXTENSION, "NDP Extension Attribute" },
+    { NAN_ATTR_DEVICE_CAPABILITY_EXTENSION, "Device Capability Extension"},
+    { NAN_ATTR_IDENTITY_RESOLUTION, "NAN Identity Resolution"},
+    { NAN_ATTR_PAIRING_BOOTSTRAPPING, "NAN Pairing Bootstrapping"},
     { NAN_ATTR_VENDOR_SPECIFIC, "Vendor Specific Attribute" },
     { 0, NULL }
 };
@@ -676,6 +724,35 @@ static const range_string furth_av_map_id[] = {
     {0, 15, "Identify Further Availability attribute"},
     {16, 255, "Reserved"},
     {0, 0, NULL}
+};
+
+static const value_string device_capability_extension_6g_regulatoty_info[] = {
+    { 0, "Indoor AP" },
+    { 1, "Standard Power AP" },
+    { 2, "Very Low Power AP" },
+    { 3, "Indoor Enabled AP" },
+    { 4, "Indoor Standard Power AP" },
+    { 0, NULL }
+};
+
+static const range_string nan_identity_resolution_cipher_version[] = {
+    {0, 0, "128-bit NIK, 64-bit Nonce, 64-bit Tag, HMAC-SHA-256"},
+    {1, 255, "Reserved"},
+    {0, 0, NULL }
+};
+
+static const value_string nan_pairing_bootstrapping_pairing_bootstrapping_type[] = {
+    { 0, "Advertise" },
+    { 1, "Request" },
+    { 2, "Response" },
+    { 0, NULL } /* Reserved for other value */
+};
+
+static const value_string nan_pairing_bootstrapping_pairing_bootstrapping_status[] = {
+    { 0, "Accepted" },
+    { 1, "Rejected" },
+    { 2, "Comeback" },
+    { 0, NULL } /* Reserved for other value */
 };
 
 typedef struct _range_channel_set {
@@ -2278,6 +2355,159 @@ dissect_attr_vendor_specific(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, 
 }
 
 static void
+dissect_attr_device_capability_extension(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, guint16 attr_len, packet_info* pinfo)
+{
+    if (attr_len < NAN_DEVICE_CAPABILITY_EXTENSION_MIN_LENGTH)
+    {
+        /* At least has 9 bits defined in NAN-R4 spec  */
+        expert_add_info(pinfo, attr_tree, &ei_nan_elem_len_invalid);
+        return;
+    }
+
+    static int* const capability_info_fields[] = {
+        &hf_nan_attr_device_capability_extension_6g_regulatory_info_presented,
+        &hf_nan_attr_device_capability_extension_6g_regulatory_info,
+        &hf_nan_attr_device_capability_extension_6g_regulatory_info_reserved,
+        &hf_nan_attr_device_capability_extension_paring_setup_enabled,
+        &hf_nan_attr_device_capability_extension_npk_nik_cache_enabled,
+        NULL
+    };
+
+    proto_tree_add_bitmask(attr_tree, tvb, offset + 3, hf_nan_attr_device_capability_extension,
+        ett_device_capability_extension, capability_info_fields, ENC_LITTLE_ENDIAN);
+}
+
+static void
+dissect_attr_nan_identity_resolution(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, guint16 attr_len, packet_info* pinfo)
+{
+    if (attr_len < NAN_IDENTITY_RESOLUTION_MIN_LEN)
+    {
+        /* At least 1 byte: Cipher version  */
+        expert_add_info(pinfo, attr_tree, &ei_nan_elem_len_invalid);
+        return;
+    }
+
+    proto_tree_add_item(attr_tree, hf_nan_attr_identity_cipher_version, tvb,
+            offset + 3, 1, ENC_LITTLE_ENDIAN);
+
+    guint8 cipher_version = tvb_get_guint8(tvb, offset + 3);
+    switch (cipher_version)
+    {
+    case 0:
+        proto_tree_add_item(attr_tree, hf_nan_attr_identity_resolution_nonce, tvb,
+            offset + 4, 8, ENC_NA);
+        proto_tree_add_item(attr_tree, hf_nan_attr_identity_resolution_tag, tvb,
+            offset + 12, 8, ENC_NA);
+        break;
+    default:
+        proto_tree_add_item(attr_tree, hf_nan_attr_reserved, tvb,
+            offset + 3, attr_len - 1, ENC_NA);
+    }
+}
+
+static void
+dissect_attr_nan_pairing_bootstrapping(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, guint16 attr_len, packet_info* pinfo)
+{
+    if (attr_len < NAN_PAIRING_BOOTSTRAPPING_LEN)
+    {
+        /* At least 5 bytes: Dialog Token(1) + Type and Status(1) + Reason Code(1) + Pairing Bootstrapping Method(2) */
+        expert_add_info(pinfo, attr_tree, &ei_nan_elem_len_invalid);
+        return;
+    }
+    gint npba_local_offset = offset + 3;
+
+    /* Dialog Token */
+    proto_tree_add_item(attr_tree, hf_nan_attr_pairing_bootstrapping_dialog_token, tvb,
+            npba_local_offset, 1, ENC_LITTLE_ENDIAN);
+    npba_local_offset += 1;
+
+    /* Type and Status */
+    guint8 type_status = tvb_get_guint8(tvb, npba_local_offset);
+    guint8 type = type_status & 0x0f;
+    guint8 status = (type_status & 0xf0) >> 4;
+
+    static int* const type_and_status_fields[] = {
+        &hf_nan_attr_pairing_bootstrapping_type,
+        &hf_nan_attr_pairing_bootstrapping_status,
+        NULL
+    };
+    proto_tree_add_bitmask(attr_tree, tvb, npba_local_offset, hf_nan_attr_pairing_bootstrapping_type_status,
+        ett_nan_pairing_bootstrapping_type_status, type_and_status_fields, ENC_LITTLE_ENDIAN);
+    npba_local_offset += 1;
+
+    /* Resaon code
+     * Indicate the reject reason when Type = 2 (Response) and Status = 1 (Rejected); otherwise, reserved */
+    if ((type == 2) && (status == 1))
+    {
+        proto_tree_add_item(attr_tree, hf_nan_attr_pairing_bootstrapping_resaon_code, tvb,
+            npba_local_offset, 1, ENC_LITTLE_ENDIAN);
+    }
+    else
+    {
+        proto_tree_add_item(attr_tree, hf_nan_attr_reserved, tvb,
+            npba_local_offset, 1, ENC_NA);
+    }
+    npba_local_offset += 1;
+
+    /* Comeback, if any. Presetned if,
+     * a) type is 2 and status is 2, or
+     * b) type is 1 and status is 2, and cookie is requried (based on attribute length)
+     */
+    bool comeback_presented = (attr_len > NAN_PAIRING_BOOTSTRAPPING_LEN);
+
+    bool comeback_after_presented = comeback_presented && ((type == 2) && (status == 2));
+
+    if (comeback_after_presented)
+    {
+        proto_tree_add_item(attr_tree, hf_nan_attr_pairing_bootstrapping_comeback_after, tvb,
+            npba_local_offset, 2, ENC_LITTLE_ENDIAN);
+        npba_local_offset += 2;
+    }
+
+    if (comeback_presented)
+    {
+        guint8 cookie_len = tvb_get_guint8(tvb, npba_local_offset);
+        proto_tree_add_item(attr_tree, hf_nan_attr_pairing_bootstrapping_comeback_cookie_len, tvb,
+            npba_local_offset, 1, ENC_LITTLE_ENDIAN);
+        npba_local_offset += 1;
+
+        if (cookie_len)
+        {
+            proto_tree_add_item(attr_tree, hf_nan_attr_pairing_bootstrapping_comeback_cookie, tvb,
+                npba_local_offset, cookie_len, ENC_NA);
+            npba_local_offset += cookie_len;
+        }
+    }
+
+    /* Pairing Bootstrapping Method */
+    static int* const pairing_bootstrapping_method[] = {
+        &hf_nan_attr_pairing_bootstrapping_method_opportunistic_bootstrapping,
+        &hf_nan_attr_pairing_bootstrapping_method_pin_code_display,
+        &hf_nan_attr_pairing_bootstrapping_method_passphrase_display,
+        &hf_nan_attr_pairing_bootstrapping_method_qr_code_display,
+        &hf_nan_attr_pairing_bootstrapping_method_nfc_tag,
+        &hf_nan_attr_pairing_bootstrapping_method_keypad_pin_code_only,
+        &hf_nan_attr_pairing_bootstrapping_method_keypad_passphrase,
+        &hf_nan_attr_pairing_bootstrapping_method_qr_code_scan,
+        &hf_nan_attr_pairing_bootstrapping_method_nfc_reader,
+        &hf_nan_attr_pairing_bootstrapping_method_reserved,
+        &hf_nan_attr_pairing_bootstrapping_method_service_managed_bootstrapping,
+        &hf_nan_attr_pairing_bootstrapping_method_bootstrapping_handshakes_skipped,
+        NULL
+    };
+    if (type == 2 && status)
+    {
+        proto_tree_add_item(attr_tree, hf_nan_attr_reserved, tvb,
+            npba_local_offset, 2, ENC_NA);
+    }
+    else
+    {
+        proto_tree_add_bitmask(attr_tree, tvb, npba_local_offset, hf_nan_attr_pairing_bootstrapping_methods,
+            ett_nan_pairing_bootstrapping_method, pairing_bootstrapping_method, ENC_LITTLE_ENDIAN);
+    }
+}
+
+static void
 find_attribute_field(proto_tree* nan_tree, tvbuff_t* tvb, guint tvb_len, guint* offset, packet_info* pinfo)
 {
     if ((tvb_len - *offset) < 3)
@@ -2414,6 +2644,15 @@ find_attribute_field(proto_tree* nan_tree, tvbuff_t* tvb, guint tvb_len, guint* 
         break;
     case NAN_ATTR_NDL:
         dissect_attr_ndl(attr_tree, tvb, *offset, attr_len, pinfo);
+        break;
+    case NAN_ATTR_DEVICE_CAPABILITY_EXTENSION:
+        dissect_attr_device_capability_extension(attr_tree, tvb, *offset, attr_len, pinfo);
+        break;
+    case NAN_ATTR_IDENTITY_RESOLUTION:
+        dissect_attr_nan_identity_resolution(attr_tree, tvb, *offset, attr_len, pinfo);
+        break;
+    case NAN_ATTR_PAIRING_BOOTSTRAPPING:
+        dissect_attr_nan_pairing_bootstrapping(attr_tree, tvb, *offset, attr_len, pinfo);
         break;
     default:
         expert_add_info(pinfo, attr_tree, &ei_nan_unknown_attr_id);
@@ -4069,6 +4308,216 @@ proto_register_nan(void)
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
+        { &hf_nan_attr_device_capability_extension,
+            {
+                "Capability Extension",
+                "wifi_nan.device_capability_extension.capability_info",
+                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_device_capability_extension_6g_regulatory_info_presented,
+            {
+                "6GHz Regulatory Info Presented",
+                "wifi_nan.device_capability_extension.6g_regulatory_presented",
+                FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_device_capability_extension_6g_regulatory_info,
+            {
+                "6GHz Regulatory Info",
+                "wifi_nan.device_capability_extension.6g_regulatory",
+                FT_UINT16, BASE_HEX_DEC, VALS(device_capability_extension_6g_regulatoty_info), 0x000e, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_device_capability_extension_6g_regulatory_info_reserved,
+            {
+                "Reserved for 6GHz Regulatory Info",
+                "wifi_nan.device_capability_extension.6g_regulatory_reserved",
+                FT_UINT16, BASE_HEX_DEC, NULL, 0x00f0, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_device_capability_extension_paring_setup_enabled,
+            {
+                "Paring Enable",
+                "wifi_nan.device_capability_extension.paring_enable",
+                FT_BOOLEAN, 16, NULL, 0x0100, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_device_capability_extension_npk_nik_cache_enabled,
+            {
+                "NPK/NIK Caching Enable",
+                "wifi_nan.device_capability_extension.npk_nik_caching_enable",
+                FT_BOOLEAN, 16, NULL, 0x0200, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_identity_cipher_version,
+            {
+                "Cipher Version",
+                "wifi_nan.identity_resolution.cipher_version",
+                FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(nan_identity_resolution_cipher_version), 0x0, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_identity_resolution_nonce,
+            {
+                "Nonce",
+                "wifi_nan.identity_resolution.nonce",
+                FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_identity_resolution_tag,
+            {
+                "Tag",
+                "wifi_nan.identity_resolution.tag",
+                FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_reserved,
+            {
+                "Reserved",
+                "wifi_nan.reserved",
+                FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_dialog_token,
+            {
+                "Dialog Token",
+                "wifi_nan.nan_pairing_bootstrapping.dialog_token",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_type_status,
+            {
+                "Type and Status",
+                "wifi_nan.nan_pairing_bootstrapping.type_status",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_type,
+            {
+                "Type",
+                "wifi_nan.nan_pairing_bootstrapping.type",
+                FT_UINT8, BASE_HEX_DEC, VALS(nan_pairing_bootstrapping_pairing_bootstrapping_type), 0x0f, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_status,
+            {
+                "Status",
+                "wifi_nan.nan_pairing_bootstrapping.status",
+                FT_UINT8, BASE_HEX_DEC, VALS(nan_pairing_bootstrapping_pairing_bootstrapping_status), 0xf0, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_comeback_after,
+            {
+                "Comeback after (TU)",
+                "wifi_nan.nan_pairing_bootstrapping.comeback_after",
+                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_comeback_cookie_len,
+            {
+                "Cookie Length",
+                "wifi_nan.nan_pairing_bootstrapping.cookie_len",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_comeback_cookie,
+            {
+                "Cookie",
+                "wifi_nan.nan_pairing_bootstrapping.cookie",
+                FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_methods,
+            {
+                "Bootstrapping Methods",
+                "wifi_nan.nan_pairing_bootstrapping.bootstrapping_methods",
+                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_method_opportunistic_bootstrapping,
+            {
+                "Opportunistic Bootstrapping",
+                "wifi_nan.nan_pairing_bootstrapping.bootstrapping_methods.opportunistic",
+                FT_UINT16, BASE_HEX, NULL, 0x0001, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_method_pin_code_display,
+            {
+                "Pin Code (Display)",
+                "wifi_nan.nan_pairing_bootstrapping.bootstrapping_methods.pin_code_dsiplay",
+                FT_UINT16, BASE_HEX, NULL, 0x0002, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_method_passphrase_display,
+            {
+                "Passphrase (Display)",
+                "wifi_nan.nan_pairing_bootstrapping.bootstrapping_methods.passphrase_display",
+                FT_UINT16, BASE_HEX, NULL, 0x0004, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_method_qr_code_display,
+            {
+                "QR Code (Display)",
+                "wifi_nan.nan_pairing_bootstrapping.bootstrapping_methods.qr_code_display",
+                FT_UINT16, BASE_HEX, NULL, 0x0008, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_method_nfc_tag,
+            {
+                "NFC Tag",
+                "wifi_nan.nan_pairing_bootstrapping.bootstrapping_methods.nfc_tag",
+                FT_UINT16, BASE_HEX, NULL, 0x0010, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_method_keypad_pin_code_only,
+            {
+                "Pin Code Only (Keypad)",
+                "wifi_nan.nan_pairing_bootstrapping.bootstrapping_methods.pin_code_keypad",
+                FT_UINT16, BASE_HEX, NULL, 0x0020, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_method_keypad_passphrase,
+            {
+                "Passphrase (Keypad)",
+                "wifi_nan.nan_pairing_bootstrapping.bootstrapping_methods.passphrase_keypad",
+                FT_UINT16, BASE_HEX, NULL, 0x0040, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_method_qr_code_scan,
+            {
+                "QR Code (Scan)",
+                "wifi_nan.nan_pairing_bootstrapping.bootstrapping_methods.qr_code_scan",
+                FT_UINT16, BASE_HEX, NULL, 0x0080, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_method_nfc_reader,
+            {
+                "NFC Reader",
+                "wifi_nan.nan_pairing_bootstrapping.bootstrapping_methods.nfc_reader",
+                FT_UINT16, BASE_HEX, NULL, 0x0100, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_method_reserved,
+            {
+                "Reserved",
+                "wifi_nan.nan_pairing_bootstrapping.bootstrapping_methods.reserved",
+                FT_UINT16, BASE_HEX, NULL, 0x3e00, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_method_service_managed_bootstrapping,
+            {
+                "Service Managed",
+                "wifi_nan.nan_pairing_bootstrapping.bootstrapping_methods.service_managed",
+                FT_UINT16, BASE_HEX, NULL, 0x4000, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_pairing_bootstrapping_method_bootstrapping_handshakes_skipped,
+            {
+                "Bootstrapping Handshakes Skipped",
+                "wifi_nan.nan_pairing_bootstrapping.bootstrapping_methods.bootstrapping_handshakes_skipped",
+                FT_UINT16, BASE_HEX, NULL, 0x8000, NULL, HFILL
+            }
+        },
     };
 
     static gint* ett[] = {
@@ -4118,6 +4567,9 @@ proto_register_nan(void)
         &ett_security_context_identifiers,
         &ett_public_availability_sch_entries,
         &ett_ie_tree,
+        &ett_device_capability_extension,
+        &ett_nan_pairing_bootstrapping_type_status,
+        &ett_nan_pairing_bootstrapping_method
     };
 
     static ei_register_info ei[] = {
