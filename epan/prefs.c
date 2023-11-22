@@ -3718,6 +3718,9 @@ prefs_register_modules(void)
     prefs_register_bool_preference(capture_module, "prom_mode", "Capture in promiscuous mode",
         "Capture in promiscuous mode?", &prefs.capture_prom_mode);
 
+    prefs_register_bool_preference(capture_module, "monitor_mode", "Capture in monitor mode on 802.11 devices",
+        "Capture in monitor mode on all 802.11 devices that support it?", &prefs.capture_monitor_mode);
+
     register_string_like_preference(capture_module, "devices_filter", "Interface capture filter",
         "Interface capture filter (Ex: en0(tcp),en1(udp),...)",
         &prefs.capture_devices_filter, PREF_STRING, NULL, FALSE);
@@ -4295,6 +4298,7 @@ pre_init_prefs(void)
 
 /* set the default values for the capture dialog box */
     prefs.capture_prom_mode             = TRUE;
+    prefs.capture_monitor_mode          = FALSE;
     prefs.capture_pcap_ng               = TRUE;
     prefs.capture_real_time             = TRUE;
     prefs.capture_update_interval       = DEFAULT_UPDATE_INTERVAL;

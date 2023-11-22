@@ -214,6 +214,7 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
 #endif
 #ifndef SHOW_MONITOR_COLUMN
     ui->interfaceTree->setColumnHidden(col_monitor_, true);
+    ui->captureMonitorModeCheckBox->setVisible(false);
 #endif
     ui->interfaceTree->setItemDelegateForColumn(col_filter_, &interface_item_delegate_);
 
@@ -370,6 +371,24 @@ void CaptureOptionsDialog::on_capturePromModeCheckBox_toggled(bool checked)
         if (!device) continue;
         device->pmode = checked;
         ti->updateInterfaceColumns(device);
+    }
+}
+
+void CaptureOptionsDialog::on_captureMonitorModeCheckBox_toggled(bool checked)
+{
+    interface_t *device;
+    prefs.capture_monitor_mode = checked;
+    for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
+        InterfaceTreeWidgetItem *ti = dynamic_cast<InterfaceTreeWidgetItem *>(ui->interfaceTree->topLevelItem(row));
+        if (!ti) continue;
+
+        QString device_name = ti->data(col_interface_, Qt::UserRole).toString();
+        device = getDeviceByName(device_name);
+        if (!device) continue;
+        if (device->monitor_mode_supported) {
+            device->monitor_mode_enabled = checked;
+            ti->updateInterfaceColumns(device);
+        }
     }
 }
 
@@ -652,6 +671,8 @@ void CaptureOptionsDialog::updateInterfaces()
         ui->rbPcap->setChecked(true);
     }
     ui->capturePromModeCheckBox->setChecked(prefs.capture_prom_mode);
+    ui->captureMonitorModeCheckBox->setChecked(prefs.capture_monitor_mode);
+    ui->captureMonitorModeCheckBox->setEnabled(false);
 
     if (global_capture_opts.saving_to_file) {
         ui->filenameLineEdit->setText(QString(global_capture_opts.orig_save_file));
@@ -835,6 +856,11 @@ void CaptureOptionsDialog::updateInterfaces()
                 device->buffer = buffer;
             } else {
                 device->buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
+            }
+#endif
+#ifdef SHOW_MONITOR_COLUMN
+            if (device->monitor_mode_supported) {
+                ui->captureMonitorModeCheckBox->setEnabled(true);
             }
 #endif
             ti->updateInterfaceColumns(device);

@@ -70,6 +70,7 @@ protected:
 
 private slots:
     void on_capturePromModeCheckBox_toggled(bool checked);
+    void on_captureMonitorModeCheckBox_toggled(bool checked);
     void on_gbStopCaptureAuto_toggled(bool checked);
     void on_cbUpdatePacketsRT_toggled(bool checked);
     void on_cbAutoScroll_toggled(bool checked);

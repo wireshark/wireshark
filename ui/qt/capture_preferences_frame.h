@@ -32,6 +32,7 @@ protected:
 private slots:
     void on_defaultInterfaceComboBox_editTextChanged(const QString &new_iface);
     void on_capturePromModeCheckBox_toggled(bool checked);
+    void on_captureMonitorModeCheckBox_toggled(bool checked);
     void on_capturePcapNgCheckBox_toggled(bool checked);
     void on_captureRealTimeCheckBox_toggled(bool checked);
     void on_captureUpdateIntervalLineEdit_textChanged(const QString &new_str);
@@ -43,6 +44,7 @@ private:
 
     pref_t *pref_device_;
     pref_t *pref_prom_mode_;
+    pref_t *pref_monitor_mode_;
     pref_t *pref_pcap_ng_;
     pref_t *pref_real_time_;
     pref_t *pref_update_interval_;
