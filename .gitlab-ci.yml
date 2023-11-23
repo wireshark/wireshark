@@ -647,40 +647,6 @@ Windows Build:
     - wsar_html.zip
   needs: []
 
-ABI Check:
-  extends: .build-ubuntu
-  rules: !reference [.if-merge-request]
-  variables:
-    # Use DWARF-4. ABI dumper version 1.3 is required for DWARF-5 support (the GCC 11 default) but version 1.3 is still not released.
-    # https://github.com/lvc/abi-dumper/issues/34
-    CFLAGS: "-Og -gdwarf-4"
-  script:
-    # build-ubuntu puts us in `build`.
-    - DEBIAN_FRONTEND=noninteractive apt-get update
-    - DEBIAN_FRONTEND=noninteractive apt-get --yes install abi-dumper abi-compliance-checker
-    # CMake build type None is required to prevent CMake from adding its own debug flags and clobbering our own.
-    - cmake -G Ninja -DENABLE_CCACHE=ON -DCMAKE_BUILD_TYPE=None -DBUILD_wireshark=OFF ..
-    - ninja wiretap-abi-dump epan-abi-dump wsutil-abi-dump
-    - set +e
-    - abi-compliance-checker -l wiretap -old ../tools/abi-dumps/wiretap-abi-13.0.0.dump -new wiretap-abi-13*.dump
-    - WIRETAP_EXIT=$?
-    - abi-compliance-checker -l epan -old ../tools/abi-dumps/epan-abi-16.0.0.dump -new epan-abi-16*.dump
-    - EPAN_EXIT=$?
-    - abi-compliance-checker -l wsutil -old ../tools/abi-dumps/wsutil-abi-14.0.0.dump -new wsutil-abi-14*.dump
-    - WSUTIL_EXIT=$?
-    - set -e
-    - printf "WIRETAP_EXIT=%d EPAN_EXIT=%d WSUTIL_EXIT=%d\\n" $WIRETAP_EXIT $EPAN_EXIT $WSUTIL_EXIT
-    - mv compat_reports ../compat_reports_4.0
-    - mv *-abi-*.dump ..
-    - cd ..
-    - zip -9 -r compat_reports_4.0.zip compat_reports_4.0
-    - exit $(( WIRETAP_EXIT + EPAN_EXIT + WSUTIL_EXIT ))
-  artifacts:
-    when: always
-    paths:
-      - compat_reports_4.0.zip
-      - ./*-abi-*.dump
-
 # Fuzz TShark using ASAN and valgrind.
 .fuzz-ubuntu:
   extends: .build-ubuntu
