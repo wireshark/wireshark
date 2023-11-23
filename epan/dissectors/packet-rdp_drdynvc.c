@@ -93,22 +93,22 @@ typedef enum {
 
 	DRDYNVC_CHANNEL_RAIL, /* MS-RDPERP */
 	DRDYNVC_CHANNEL_CLIPRDR, /* MS-RDPECLIP */
+	DRDYNVC_CHANNEL_DR, /* MS-RDPDR */
 } drdynvc_known_channel_t;
 
 enum {
 	DRDYNVC_CHANNEL_PDUS_KEY = 1,
 };
 
-typedef struct {
-	guint32 length;
-	guint8* data;
-} drdynvc_pdu_t;
 
 typedef struct {
-	drdynvc_pdu_t key;
-	gboolean fragmented;
+	gboolean reassembled;
+	gboolean decodePayload;
+	guint32 progressStart;
+	guint32 progressEnd;
 	guint32 packetLen;
-	guint32 progress;
+	guint32 startReassemblyFrame;
+	guint32 endReassemblyFrame;
 	tvbuff_t* tvb;
 } drdynvc_pdu_info_t;
 
@@ -117,12 +117,15 @@ typedef struct {
 } drdynvc_pinfo_t;
 
 typedef struct {
-	wmem_array_t *packet;
+	wmem_array_t *currentPacket;
 	guint32 packetLen;
 	guint32 pendingLen;
 	guint32 startFrame;
+	guint32 endReassemblyFrame;
+	wmem_array_t *chunks;
 } drdynvc_pending_packet_t;
 
+/** @brief context associated with a dynamic channel */
 typedef struct {
 	drdynvc_known_channel_t type;
 	char *name;
@@ -160,6 +163,7 @@ static drdynvc_know_channel_def knownChannels[] = {
 	/* static channels that can be reopened on the dynamic channel */
 	{"rail", "rail", DRDYNVC_CHANNEL_RAIL},
 	{"cliprdr", "cliprdr", DRDYNVC_CHANNEL_CLIPRDR},
+	{"rdpdr", "rdpdr", DRDYNVC_CHANNEL_DR},
 };
 
 static const value_string drdynvc_tunneltype_vals[] = {
@@ -195,6 +199,17 @@ static const value_string rdp_drdynvc_cmd_vals[] = {
 	{   DRDYNVC_SOFT_SYNC_RESPONSE_PDU,"Soft-Sync response PDU" },
 	{   0x0, NULL},
 };
+
+static void
+drdynvc_pending_packet_init(drdynvc_pending_packet_t *pending, guint32 startFrame)
+{
+	pending->packetLen = 0;
+	pending->pendingLen = 0;
+	pending->startFrame = startFrame;
+	pending->endReassemblyFrame = 0;
+	pending->currentPacket = NULL;
+	pending->chunks = NULL;
+}
 
 static drdynvc_known_channel_t
 drdynvc_find_channel_type(const char *name)
@@ -298,8 +313,9 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	gboolean haveChannelId, havePri, haveLen;
 	gboolean isServerTarget = rdp_isServerAddressTarget(pinfo);
 	guint32 channelId = 0;
-	guint32 pduLen = 0;
+	guint32 fullPduLen = 0;
 	drdynvc_conv_info_t *info;
+	drdynvc_channel_def_t *channel = NULL;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DRDYNVC");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -342,15 +358,19 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	proto_tree_add_item(tree, hf_rdp_drdynvc_cmd, tvb, offset, 1, ENC_NA);
 
 	offset++;
-	if (haveChannelId)
+
+	info = drdynvc_get_conversation_data(pinfo);
+	if (haveChannelId) {
 		offset += dissect_rdp_vlength(tvb, hf_rdp_drdynvc_channelId, offset, cbId, tree, &channelId);
+
+		channel = wmem_multimap_lookup32_le(info->channels, GUINT_TO_POINTER(channelId), pinfo->num);
+	}
 
 	if (haveLen) {
 		Len = (cbIdSpCmd >> 2) & 0x3;
-		offset += dissect_rdp_vlength(tvb, hf_rdp_drdynvc_length, offset, Len, tree, &pduLen);
+		offset += dissect_rdp_vlength(tvb, hf_rdp_drdynvc_length, offset, Len, tree, &fullPduLen);
 	}
 
-	info = drdynvc_get_conversation_data(pinfo);
 	switch (cmdId) {
 		case DRDYNVC_CREATE_REQUEST_PDU:
 			if (!isServerTarget) {
@@ -359,31 +379,24 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 				col_set_str(pinfo->cinfo, COL_INFO, "CreateChannel Request");
 				proto_tree_add_item(tree, hf_rdp_drdynvc_channelName, tvb, offset, -1, ENC_ASCII);
 
-				drdynvc_channel_def_t *channel;
 				if (!PINFO_FD_VISITED(pinfo)) {
 					channel = wmem_alloc(wmem_file_scope(), sizeof(*channel));
 					channel->channelId = channelId;
 					channel->name = tvb_get_string_enc(wmem_file_scope(), tvb, offset, nameLen, ENC_ASCII);
 					channel->type = drdynvc_find_channel_type(channel->name);
-					channel->pending_cs.pendingLen = 0;
-					channel->pending_cs.packet = NULL;
-					channel->pending_cs.startFrame = pinfo->num;
-					channel->pending_sc.pendingLen = 0;
-					channel->pending_sc.packet = NULL;
-					channel->pending_sc.startFrame = pinfo->num;
-					//printf("dynamic %s -> 0x%x\n", channel->name, channel->channelId);
+					drdynvc_pending_packet_init(&channel->pending_cs, pinfo->num);
+					drdynvc_pending_packet_init(&channel->pending_sc, pinfo->num);
 
 					wmem_multimap_insert32(info->channels, GUINT_TO_POINTER(channelId), pinfo->num, channel);
 				}
 
 			} else {
-				drdynvc_channel_def_t *channel = wmem_multimap_lookup32_le(info->channels, GUINT_TO_POINTER(channelId), pinfo->num);
-
 				col_set_str(pinfo->cinfo, COL_INFO, "CreateChannel Response");
 
 				if (channel) {
-					proto_item *channelName = proto_tree_add_string_format_value(tree, hf_rdp_drdynvc_createresp_channelname, tvb, offset, 0, NULL, "%s", channel->name);
-					proto_item_set_generated(channelName);
+					proto_item_set_generated(
+						proto_tree_add_string_format_value(tree, hf_rdp_drdynvc_createresp_channelname, tvb, offset, 0, NULL, "%s", channel->name)
+					);
 				}
 				proto_tree_add_item(tree, hf_rdp_drdynvc_creationStatus, tvb, offset, 4, ENC_NA);
 
@@ -419,22 +432,55 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		case DRDYNVC_DATA_FIRST_PDU: {
 			col_set_str(pinfo->cinfo, COL_INFO, "Data first");
 
-			drdynvc_channel_def_t *channel = wmem_multimap_lookup32_le(info->channels, GUINT_TO_POINTER(channelId), pinfo->num);
 			if (channel) {
+				drdynvc_pdu_info_t *pduInfo = NULL;
 				drdynvc_pending_packet_t *pendingPacket = isServerTarget ? &channel->pending_cs : &channel->pending_sc;
 				gint payloadLen = tvb_reported_length_remaining(tvb, offset);
-				proto_item *channelName = proto_tree_add_string_format_value(tree, hf_rdp_drdynvc_createresp_channelname, tvb, offset, 0, NULL, "%s", channel->name);
-				proto_item_set_generated(channelName);
+				gboolean isSinglePacket = (fullPduLen == (guint32)payloadLen);
+				drdynvc_pinfo_t *drdynvcPinfo = getDrDynPacketInfo(pinfo);
+				guint32 key = crc32_ccitt_tvb_offset(tvb, offset, payloadLen);
 
 				proto_item_set_generated(
-					proto_tree_add_string_format_value(tree, hf_rdp_drdynvc_data_progress, tvb, offset, 0, NULL, "0-%d/%d", payloadLen, pduLen)
+					proto_tree_add_string_format_value(tree, hf_rdp_drdynvc_createresp_channelname, tvb, offset, 0, NULL, "%s", channel->name)
 				);
 
-				pendingPacket->packetLen = pduLen;
-				pendingPacket->pendingLen = pduLen - payloadLen;
-				pendingPacket->startFrame = pinfo->num;
+				proto_item_set_generated(
+					proto_tree_add_string_format_value(tree, hf_rdp_drdynvc_data_progress, tvb, offset, 0, NULL, "0-%d/%d", payloadLen, fullPduLen)
+				);
 
-				if (!pendingPacket->pendingLen) {
+				if (!PINFO_FD_VISITED(pinfo)) {
+					if (!isSinglePacket) {
+						if (pendingPacket->chunks)
+							wmem_destroy_array(pendingPacket->chunks);
+						pendingPacket->chunks = wmem_array_new(wmem_file_scope(), sizeof(drdynvc_pdu_info_t*));
+
+						pduInfo = wmem_alloc(wmem_file_scope(), sizeof(*pduInfo));
+						pduInfo->reassembled = TRUE;
+						pduInfo->startReassemblyFrame = pinfo->num;
+						pduInfo->progressStart = 0;
+						pduInfo->progressEnd = fullPduLen;
+						pduInfo->tvb = NULL;
+
+						wmem_tree_insert32(drdynvcPinfo->pdus, key, pduInfo);
+						wmem_array_append(pendingPacket->chunks, &pduInfo, 1);
+
+						pendingPacket->packetLen = fullPduLen;
+						pendingPacket->pendingLen = fullPduLen - payloadLen;
+						pendingPacket->startFrame = pinfo->num;
+						pendingPacket->currentPacket = wmem_array_sized_new(wmem_file_scope(), 1, fullPduLen);
+						wmem_array_append(pendingPacket->currentPacket, tvb_get_ptr(tvb, offset, payloadLen), payloadLen);
+					} else {
+						if (pendingPacket->pendingLen || pendingPacket->chunks)
+							printf("(%d) looks like we have a non completed packet...\n", pinfo->num);
+						if (pendingPacket->chunks)
+							wmem_destroy_array(pendingPacket->chunks);
+						memset(pendingPacket, 0, sizeof(*pendingPacket));
+					}
+				} else {
+					pduInfo = (drdynvc_pdu_info_t*)wmem_tree_lookup32(drdynvcPinfo->pdus, key);
+				}
+
+				if (isSinglePacket) {
 					switch (channel->type) {
 					case DRDYNVC_CHANNEL_EGFX:
 						call_dissector(egfx_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
@@ -455,10 +501,8 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 					offset += payloadLen;
 					return offset;
-				} else {
-					pendingPacket->packet = wmem_array_sized_new(wmem_file_scope(), 1, pduLen);
-					wmem_array_append(pendingPacket->packet, tvb_get_ptr(tvb, offset, -1), payloadLen);
 				}
+
 			}
 
 			proto_tree_add_item(tree, hf_rdp_drdynvc_data, tvb, offset, -1, ENC_NA);
@@ -467,54 +511,67 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		case DRDYNVC_DATA_PDU: {
 			col_set_str(pinfo->cinfo, COL_INFO, "Data");
 
-			drdynvc_channel_def_t *channel = wmem_multimap_lookup32_le(info->channels, GUINT_TO_POINTER(channelId), pinfo->num);
 			if (channel) {
 				tvbuff_t *targetTvb = NULL;
-				gboolean fragmented = FALSE;
 
-				proto_item *channelName = proto_tree_add_string_format_value(tree, hf_rdp_drdynvc_createresp_channelname, tvb, offset, 0, NULL, "%s", channel->name);
-				proto_item_set_generated(channelName);
+				proto_item_set_generated(
+					proto_tree_add_string_format_value(tree, hf_rdp_drdynvc_createresp_channelname, tvb, offset, 0, NULL, "%s", channel->name)
+				);
 
 				drdynvc_pinfo_t *drdynvcPinfo = getDrDynPacketInfo(pinfo);
-				drdynvc_pdu_info_t *pduInfo;
+				drdynvc_pdu_info_t *pduInfo = NULL;
 				gint payloadLen = tvb_reported_length_remaining(tvb, offset);
 				guint32 key = crc32_ccitt_tvb_offset(tvb, offset, payloadLen);
 
 				if (!PINFO_FD_VISITED(pinfo)) {
 					drdynvc_pending_packet_t *pendingPacket = isServerTarget ? &channel->pending_cs : &channel->pending_sc;
 
-					/*printf("num=%d payloadLen=%d pendingLen=%d/%d\n", pinfo->num, payloadLen,
-							pendingPacket->pendingLen, pendingPacket->packetLen);*/
+					pduInfo = wmem_alloc(wmem_file_scope(), sizeof(*pduInfo));
+					wmem_tree_insert32(drdynvcPinfo->pdus, key, pduInfo);
+
 					if (pendingPacket->pendingLen) {
+						/* we have a fragmented packet in progress */
 						if ((guint32)payloadLen > pendingPacket->pendingLen) {
 							// TODO: error
-							/*printf("num=%d error\n", pinfo->num);*/
+							printf("num=%d error payload too big\n", pinfo->num);
 							return offset;
 						}
 
+						pduInfo->reassembled = TRUE;
+						pduInfo->decodePayload = FALSE;
+						pduInfo->progressStart = pendingPacket->packetLen - pendingPacket->pendingLen;
+						pduInfo->progressEnd = pduInfo->progressStart + payloadLen;
+						pduInfo->packetLen = pendingPacket->packetLen;
+
+						wmem_array_append(pendingPacket->chunks, &pduInfo, 1);
+
 						pendingPacket->pendingLen -= payloadLen;
-						wmem_array_append(pendingPacket->packet, tvb_get_ptr(tvb, offset, -1), payloadLen);
-						fragmented = TRUE;
-					}
+						wmem_array_append(pendingPacket->currentPacket, tvb_get_ptr(tvb, offset, payloadLen), payloadLen);
 
-					if (!pendingPacket->pendingLen) {
-						pendingPacket->packetLen = 0;
+						if (!pendingPacket->pendingLen) {
+							/* last packet of the reassembly */
+							gint reassembled_len = wmem_array_get_count(pendingPacket->currentPacket);
+							pduInfo->tvb = tvb_new_real_data(wmem_array_get_raw(pendingPacket->currentPacket), reassembled_len, reassembled_len);
+							pduInfo->decodePayload = TRUE;
+							pendingPacket->currentPacket = NULL;
 
-						if (!fragmented) {
-							targetTvb = tvb_new_subset_remaining(tvb, offset);
-						} else {
-							gint reassembled_len = wmem_array_get_count(pendingPacket->packet);
-							targetTvb = tvb_new_real_data(wmem_array_get_raw(pendingPacket->packet), reassembled_len, reassembled_len);
+							for (unsigned i = 0; i < wmem_array_get_count(pendingPacket->chunks); i++) {
+								drdynvc_pdu_info_t *chunk = *(drdynvc_pdu_info_t **)wmem_array_index(pendingPacket->chunks, i);
+								chunk->endReassemblyFrame = pinfo->num;
+							}
+							wmem_destroy_array(pendingPacket->chunks);
+							pendingPacket->chunks = NULL;
 						}
+					} else {
+						/* single data packet */
+						pduInfo->reassembled = FALSE;
+						pduInfo->decodePayload = TRUE;
+						pduInfo->progressStart = 0;
+						pduInfo->progressEnd = payloadLen;
+						pduInfo->packetLen = payloadLen;
+						pduInfo->tvb = NULL;
+						pduInfo->startReassemblyFrame = pduInfo->endReassemblyFrame = pinfo->num;
 					}
-
-					pduInfo = wmem_alloc(wmem_file_scope(), sizeof(*pduInfo));
-					pduInfo->fragmented = fragmented;
-					pduInfo->packetLen = pendingPacket->packetLen ? pendingPacket->packetLen : (guint32)payloadLen;
-					pduInfo->progress = pendingPacket->packetLen - pendingPacket->pendingLen;
-					pduInfo->tvb = fragmented ? targetTvb : NULL;
-
-					wmem_tree_insert32(drdynvcPinfo->pdus, key, pduInfo);
 				} else {
 					pduInfo = (drdynvc_pdu_info_t*)wmem_tree_lookup32(drdynvcPinfo->pdus, key);
 				}
@@ -522,19 +579,22 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 				if (pduInfo) {
 					proto_item_set_generated(
 						proto_tree_add_string_format_value(tree, hf_rdp_drdynvc_data_progress, tvb, offset, 0, NULL, "%d-%d/%d",
-							pduInfo->progress, pduInfo->progress + payloadLen, pduInfo->packetLen)
+							pduInfo->progressStart, pduInfo->progressEnd, pduInfo->packetLen)
 					);
+
+					if (pduInfo->tvb) {
+						targetTvb = pduInfo->tvb;
+						add_new_data_source(pinfo, targetTvb, "Reassembled DRDYNVC");
+					} else {
+						targetTvb = tvb_new_subset_remaining(tvb, offset);
+					}
+
+					if (pduInfo->endReassemblyFrame && (pduInfo->endReassemblyFrame != pinfo->num)) {
+						// TODO: show a link to the end frame ?
+					}
 				}
 
-				if (!pduInfo->fragmented)
-					targetTvb = tvb_new_subset_remaining(tvb, offset);
-				else
-					targetTvb = pduInfo->tvb;
-
-				if(targetTvb) {
-					if (pduInfo->fragmented)
-						add_new_data_source(pinfo, targetTvb, "Reassembled DRDYNVC");
-
+				if (pduInfo && pduInfo->decodePayload) {
 					switch (channel->type) {
 					case DRDYNVC_CHANNEL_EGFX:
 						call_dissector(egfx_handle, targetTvb, pinfo, tree);
@@ -549,7 +609,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 						call_dissector(snd_handle, targetTvb, pinfo, tree);
 						break;
 					default:
-						proto_tree_add_item(tree, hf_rdp_drdynvc_data, targetTvb, offset, -1, ENC_NA);
+						proto_tree_add_item(tree, hf_rdp_drdynvc_data, targetTvb, 0, -1, ENC_NA);
 						break;
 					}
 					return tvb_reported_length(tvb);
@@ -647,12 +707,11 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			break;
 		}
 		case DRDYNVC_CLOSE_REQUEST_PDU: {
-			drdynvc_channel_def_t *channel = wmem_multimap_lookup32_le(info->channels, GUINT_TO_POINTER(channelId), pinfo->num);
-
 			col_set_str(pinfo->cinfo, COL_INFO, "Close request");
 			if (channel) {
-				proto_item *channelName = proto_tree_add_string_format_value(tree, hf_rdp_drdynvc_channelName, tvb, offset, 0, NULL, "%s", channel->name);
-				proto_item_set_generated(channelName);
+				proto_item_set_generated(
+					proto_tree_add_string_format_value(tree, hf_rdp_drdynvc_channelName, tvb, offset, 0, NULL, "%s", channel->name)
+				);
 			}
 			break;
 		}
@@ -770,19 +829,16 @@ void proto_register_rdp_drdynvc(void) {
 
 	/* List of subtrees */
 	static gint *ett[] = {
-			&ett_rdp_drdynvc,
-			&ett_rdp_drdynvc_softsync_channels,
-			&ett_rdp_drdynvc_softsync_channel,
-			&ett_rdp_drdynvc_softsync_dvc
+		&ett_rdp_drdynvc,
+		&ett_rdp_drdynvc_softsync_channels,
+		&ett_rdp_drdynvc_softsync_channel,
+		&ett_rdp_drdynvc_softsync_dvc
 	};
-	//module_t *drdynvc_module;
 
 	proto_rdp_drdynvc = proto_register_protocol(PNAME, PSNAME, PFNAME);
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_rdp_drdynvc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	/*drdynvc_module = prefs_register_protocol(proto_rdp_drdynvc, NULL);*/
 
 	register_dissector("rdp_drdynvc", dissect_rdp_drdynvc, proto_rdp_drdynvc);
 }
