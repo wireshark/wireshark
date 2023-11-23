@@ -1357,6 +1357,51 @@ sync_if_capabilities_open(const char *ifname, bool monitor_mode, const char* aut
     return ret;
 }
 
+int
+sync_if_list_capabilities_open(GList *if_queries,
+                          char **data, char **primary_msg,
+                          char **secondary_msg, void (*update_cb)(void))
+{
+    int argc;
+    char **argv;
+    int ret;
+    if_cap_query_t *if_cap_query;
+
+    ws_debug("sync_if_list_capabilities_open");
+
+    argv = init_pipe_args(&argc);
+
+    if (!argv) {
+        *primary_msg = g_strdup("We don't know where to find dumpcap.");
+        *secondary_msg = NULL;
+        *data = NULL;
+        return -1;
+    }
+
+    for (GList *li = if_queries; li != NULL; li = g_list_next(li)) {
+        if_cap_query = (if_cap_query_t*)li->data;
+        /* Ask for the interface capabilities */
+        argv = sync_pipe_add_arg(argv, &argc, "-i");
+        argv = sync_pipe_add_arg(argv, &argc, if_cap_query->name);
+        if (if_cap_query->monitor_mode)
+            argv = sync_pipe_add_arg(argv, &argc, "-I");
+        if (if_cap_query->auth) {
+            argv = sync_pipe_add_arg(argv, &argc, "-A");
+            argv = sync_pipe_add_arg(argv, &argc, if_cap_query->auth);
+        }
+    }
+    argv = sync_pipe_add_arg(argv, &argc, "-L");
+    argv = sync_pipe_add_arg(argv, &argc, "--list-time-stamp-types");
+
+#ifndef DEBUG_CHILD
+    /* Run dumpcap in capture child mode */
+    argv = sync_pipe_add_arg(argv, &argc, "-Z");
+    argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
+#endif
+    ret = sync_pipe_run_command(argv, data, primary_msg, secondary_msg, update_cb);
+    free_argv(argv, argc);
+    return ret;
+}
 /*
  * Start getting interface statistics using dumpcap.  On success, read_fd
  * contains the file descriptor for the pipe's stdout, *msg is unchanged,

@@ -105,6 +105,12 @@ typedef struct {
 	GList		*timestamp_types;   /* GList of timestamp_info_t's */
 } if_capabilities_t;
 
+typedef struct {
+        const char *name;
+        bool monitor_mode;
+        const char *auth;
+} if_cap_query_t;
+
 /*
  * Information about data link types.
  */
@@ -128,6 +134,14 @@ typedef struct {
 extern if_capabilities_t *
 capture_get_if_capabilities(const char *devname, bool monitor_mode,
                             const char *auth_string,
+                            char **err_primary_msg, char **err_secondary_msg,
+                            void (*update_cb)(void));
+
+/**
+ * Fetch the linktype list for the specified interface from a child process.
+ */
+extern GHashTable *
+capture_get_if_list_capabilities(GList *if_cap_queries,
                             char **err_primary_msg, char **err_secondary_msg,
                             void (*update_cb)(void));
 

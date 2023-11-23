@@ -198,12 +198,48 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
     if_list = capture_interface_list(&global_capture_opts.ifaces_err,
                                      &global_capture_opts.ifaces_err_info,
                                      update_cb);
-    count = 0;
+
+    /*
+     * For each discovered interface name, look up its list of capabilities.
+     * (if it supports monitor mode, supported DLTs, assigned IP addresses).
+     * Do this all at once to reduce the number of spawned privileged dumpcap
+     * processes.
+     * It might be even better to get this information when getting the list,
+     * but some devices can support different DLTs depending on whether
+     * monitor mode is enabled, and we have to look up the monitor mode pref.
+     */
+    GList *if_cap_queries = NULL;
+    if_cap_query_t *if_cap_query;
+    GHashTable *capability_hash;
+    for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
+        if_info = (if_info_t *)if_entry->data;
+        if (strstr(if_info->name, "rpcap:")) {
+            continue;
+        }
+        /* Filter out all interfaces which are not allowed to be scanned */
+        if (allowed_types != NULL)
+        {
+            if(g_list_find(allowed_types, GUINT_TO_POINTER((guint) if_info->type)) == NULL) {
+                continue;
+            }
+        }
+        if_cap_query = g_new(if_cap_query_t, 1);
+        if_cap_query->name = if_info->name;
+        if_cap_query->monitor_mode = prefs_capture_device_monitor_mode(if_info->name);
+        if_cap_query->auth = NULL;
+        if_cap_queries = g_list_prepend(if_cap_queries, if_cap_query);
+    }
+    if_cap_queries = g_list_reverse(if_cap_queries);
+    capability_hash = capture_get_if_list_capabilities(if_cap_queries, NULL, NULL, update_cb);
+    /* The if_info->name are not copied, so we can just free the
+     * if_cap_query_t's and not their members. */
+    g_list_free_full(if_cap_queries, g_free);
 
     /*
      * For each discovered interface name, create a new device and add extra
-     * information (like supported DLTs, assigned IP addresses).
+     * information (including the capabilities we retrieved above).
      */
+    count = 0;
     for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
         memset(&device, 0, sizeof(device));
         if_info = (if_info_t *)if_entry->data;
@@ -211,7 +247,7 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
         if (strstr(if_info->name, "rpcap:")) {
             continue;
         }
-        /* Filter out all interfaces, which are not allowed to be scanned */
+        /* Filter out all interfaces which are not allowed to be scanned */
         if (allowed_types != NULL)
         {
             if(g_list_find(allowed_types, GUINT_TO_POINTER((guint) if_info->type)) == NULL) {
@@ -242,7 +278,7 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
         }
         device.type = if_info->type;
         monitor_mode = prefs_capture_device_monitor_mode(if_info->name);
-        caps = capture_get_if_capabilities(if_info->name, monitor_mode, NULL, NULL, NULL, update_cb);
+        caps = g_hash_table_lookup(capability_hash, if_info->name);
         ip_str = g_string_new("");
         for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
             temp_addr = g_new0(if_addr_t, 1);
@@ -376,6 +412,7 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
 
         count++;
     }
+    g_hash_table_destroy(capability_hash);
     free_interface_list(if_list);
 
     /*

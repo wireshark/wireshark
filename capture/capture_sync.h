@@ -94,6 +94,11 @@ sync_if_capabilities_open(const char *ifname, bool monitor_mode, const char* aut
                           char **data, char **primary_msg,
                           char **secondary_msg, void (*update_cb)(void));
 
+extern int
+sync_if_list_capabilities_open(GList *ifqueries,
+                          char **data, char **primary_msg,
+                          char **secondary_msg, void (*update_cb)(void));
+
 /** Start getting interface statistics using dumpcap. */
 extern int
 sync_interface_stats_open(int *read_fd, ws_process_id *fork_child, char **msg, void (*update_cb)(void));

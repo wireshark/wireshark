@@ -93,6 +93,10 @@ The following features are new (or have been significantly updated) since versio
   last session, instead of every remote host that the current profile has ever
   connected to. wsbuglink:17484[]
 
+* Adding interfaces at startup is about twice as fast, and has many fewer
+  UAC pop-ups when npcap is installed with access restricted to Administrators
+  on Windows
+
 //=== Removed Features and Support
 
 // === Removed Dissectors
