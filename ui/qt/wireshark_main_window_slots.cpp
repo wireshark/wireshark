@@ -2535,6 +2535,10 @@ void WiresharkMainWindow::connectViewMenuActions()
     connect(main_ui_->actionViewResetLayout, &QAction::triggered, this, [this]() {
         recent.gui_geometry_main_upper_pane = 0;
         recent.gui_geometry_main_lower_pane = 0;
+        g_free(recent.gui_geometry_main_master_split);
+        g_free(recent.gui_geometry_main_extra_split);
+        recent.gui_geometry_main_master_split = NULL;
+        recent.gui_geometry_main_extra_split = NULL;
         applyRecentPaneGeometry();
     });
 
