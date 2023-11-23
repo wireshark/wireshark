@@ -2223,15 +2223,12 @@ static void dissect_readreg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 			if (addr_list_size > 0)
 			{
 				address_string = get_register_name_from_address(*((guint32*)wmem_array_index(gvcp_trans->addr_list, 0)), pinfo->pool, gvcp_info, &is_custom_register);
+				col_append_str(pinfo->cinfo, COL_INFO, address_string);
 			}
 
 			if (num_registers)
 			{
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s Value=0x%08X", address_string, tvb_get_ntohl(tvb, offset));
-			}
-			else
-			{
-				col_append_str(pinfo->cinfo, COL_INFO, address_string);
+				col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "Value=0x%08X", tvb_get_ntohl(tvb, offset));
 			}
 		}
 	}
