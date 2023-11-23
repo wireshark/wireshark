@@ -411,6 +411,7 @@ static const value_string rtcp_ssrc_values[] = {
     {   0,  NULL }
 };
 
+/* TS 24.380 V17.7.0 */
 static const value_string rtcp_mcpt_subtype_vals[] = {
     { 0x00,  "Floor Request" },
     { 0x01,  "Floor Granted" },
@@ -422,6 +423,8 @@ static const value_string rtcp_mcpt_subtype_vals[] = {
     { 0x08,  "Floor Queue Position Request" },
     { 0x09,  "Floor Queue Position Info" },
     { 0x0a,  "Floor Ack" },
+    { 0x0b,  "Unicast Media Flow Control" },
+    { 0x0e,  "Floor Queued Cancel" },
     { 0x0f,  "Floor Release Multi Talker" },
 
     { 0x11,  "Floor Granted(ack req)" },
@@ -430,18 +433,23 @@ static const value_string rtcp_mcpt_subtype_vals[] = {
     { 0x14,  "Floor Release(ack req)" },
     { 0x15,  "Floor Idle(ack req)" },
     { 0x19,  "Floor Queue Position Info(ack req)" },
+    { 0x1b,  "Unicast Media Flow Control(ack req)" },
+    { 0x1e,  "Floor Queued Cancel(ack req)" },
 
     { 0,  NULL }
 };
 
+/* TS 24.380 V17.7.0 */
 static const value_string rtcp_mccp_subtype_vals[] = {
     { 0x00,  "Map Group To Bearer" },
     { 0x01,  "Unmap Group To Bearer" },
+    { 0x02,  "Application Paging" },
+    { 0x03,  "Bearer Announcement" },
     { 0,  NULL }
 };
 
 
-/* TS 24.380 */
+/* TS 24.380 V17.7.0 */
 static const value_string rtcp_mcpt_field_id_vals[] = {
     { 0,  "Floor Priority" },
     { 1,  "Duration" },
@@ -464,6 +472,11 @@ static const value_string rtcp_mcpt_field_id_vals[] = {
     { 18,  "List of Functional Aliases" },
     { 19,  "Location" },
     { 20,  "List of Locations" },
+    { 21,  "Queued Floor Requests Purpose" },
+    { 22,  "List of Queued Users" },
+    { 23,  "Response State" },
+    { 24,  "Media Flow Control Indicator" },
+
     { 102,  "Floor Priority" },
     { 103,  "Duration" },
     { 104,  "Reject Cause" },
@@ -474,7 +487,6 @@ static const value_string rtcp_mcpt_field_id_vals[] = {
     { 110,  "Queue Size" },
     { 111,  "Message SequenceNumber" },
     { 112,  "Queued User ID" },
-
     { 113,  "Source" },
     { 114,  "Track Info" },
     { 115,  "Message Type" },
@@ -483,11 +495,12 @@ static const value_string rtcp_mcpt_field_id_vals[] = {
     { 0,  NULL }
 };
 
-/* TS 24.380 */
+/* TS 24.380 V17.7.0 */
 static const value_string rtcp_mccp_field_id_vals[] = {
     { 0,  "Subchannel" },
     { 1,  "TMGI" },
-    { 3,  "MCPTT Group ID" },
+    { 2,  "MCPTT Group ID" },
+    { 3,  "Monitoring State" },
     { 0,  NULL }
 };
 
