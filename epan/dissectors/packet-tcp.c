@@ -4236,9 +4236,6 @@ again:
 
                 if (msp->first_frame == pinfo->num || msp->first_frame_with_seq == pinfo->num) {
                     str = "";
-                    if (first_pdu) {
-                        col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[TCP segment of a reassembled PDU]");
-                    }
                 } else {
                     str = "Retransmitted ";
                     is_retransmission = TRUE;
@@ -4254,6 +4251,11 @@ again:
                             item = proto_tree_add_uint(tcp_tree, hf_tcp_reassembled_in, tvb, 0,
                                                0, ipfd_head->reassembled_in);
                             proto_item_set_generated(item);
+
+                            if (first_pdu) {
+                                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[TCP PDU reassembled in %u]",
+                                    ipfd_head->reassembled_in);
+                            }
                         }
                     }
                 }
@@ -4853,9 +4855,9 @@ again:
              * of the payload, and that's 0).
              * Just mark this as TCP.
              */
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCP");
-            if (first_pdu) {
-                col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[TCP segment of a reassembled PDU]");
+            if (first_pdu && ipfd_head != NULL && ipfd_head->reassembled_in != 0) {
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[TCP PDU reassembled in %u]",
+                    ipfd_head->reassembled_in);
             }
         }
 
@@ -9568,7 +9570,7 @@ proto_register_tcp(void)
 
         { &hf_tcp_segment_data,
           { "TCP segment data", "tcp.segment_data", FT_BYTES, BASE_NONE, NULL, 0x0,
-            "A data segment used in reassembly of a lower-level protocol", HFILL}},
+            "A data segment used in reassembly of an upper-layer protocol (ULP)", HFILL}},
 
         { &hf_tcp_payload,
           { "TCP payload", "tcp.payload", FT_BYTES, BASE_NONE, NULL, 0x0,

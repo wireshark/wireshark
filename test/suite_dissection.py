@@ -646,23 +646,28 @@ class TestDissectTcp:
         lines = stdout.split('\n')
         # 2 - start of OoO MSP
         assert '2\t6\t[TCP Previous segment not captured]' in lines[1]
-        assert '[TCP segment of a reassembled PDU]' in lines[1]
+        assert '[TCP segment of a reassembled PDU]' in lines[1] or '[TCP PDU reassembled in' in lines[1]
+
         # H - first time that the start of the MSP is delivered
         assert '3\t6\t[TCP Out-Of-Order]' in lines[2]
-        assert '[TCP segment of a reassembled PDU]' in lines[2]
+        assert '[TCP segment of a reassembled PDU]' in lines[2] or '[TCP PDU reassembled in' in lines[2]
+
         # H - first retransmission. Because this is before the reassembly
         # completes we can add it to the reassembly
         assert '4\t6\t[TCP Retransmission]' in lines[3]
-        assert '[TCP segment of a reassembled PDU]' in lines[3]
+        assert '[TCP segment of a reassembled PDU]' in lines[3] or '[TCP PDU reassembled in' in lines[3]
+
         # 1 - continue reassembly
         assert '5\t6\t[TCP Out-Of-Order]' in lines[4]
-        assert '[TCP segment of a reassembled PDU]' in lines[4]
+        assert '[TCP segment of a reassembled PDU]' in lines[4] or '[TCP PDU reassembled in' in lines[4]
+
         # 3 - finish reassembly
         assert '6\t\tPUT /0 HTTP/1.1' in lines[5]
+
         # H - second retransmission. This is after the reassembly completes
-        # so we do not add it to the ressembly (but throw a ReassemblyError.)
+        # so we do not add it to the reassembly (but throw a ReassemblyError.)
         assert '7\t\t' in lines[6]
-        assert '[TCP segment of a reassembled PDU]' not in lines[6]
+        assert '[TCP segment of a reassembled PDU]' not in lines[6] and '[TCP PDU reassembled in' not in lines[6]
 
     def test_tcp_reassembly_more_data_1(self, cmd_tshark, capture_file, test_env):
         '''
