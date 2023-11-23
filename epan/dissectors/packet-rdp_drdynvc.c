@@ -60,6 +60,7 @@ dissector_handle_t egfx_handle;
 dissector_handle_t rail_handle;
 dissector_handle_t cliprdr_handle;
 dissector_handle_t snd_handle;
+dissector_handle_t ear_handle;
 
 #define PNAME  "RDP Dynamic Channel Protocol"
 #define PSNAME "DRDYNVC"
@@ -494,6 +495,9 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 					case DRDYNVC_CHANNEL_AUDIOUT:
 						call_dissector(snd_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 						break;
+					case DRDYNVC_CHANNEL_AUTH_REDIR:
+						call_dissector(ear_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+						break;
 					default:
 						proto_tree_add_item(tree, hf_rdp_drdynvc_data, tvb, offset, -1, ENC_NA);
 						break;
@@ -607,6 +611,9 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 						break;
 					case DRDYNVC_CHANNEL_AUDIOUT:
 						call_dissector(snd_handle, targetTvb, pinfo, tree);
+						break;
+					case DRDYNVC_CHANNEL_AUTH_REDIR:
+						call_dissector(ear_handle, targetTvb, pinfo, tree);
 						break;
 					default:
 						proto_tree_add_item(tree, hf_rdp_drdynvc_data, targetTvb, 0, -1, ENC_NA);
@@ -848,6 +855,7 @@ void proto_reg_handoff_drdynvc(void) {
 	rail_handle = find_dissector("rdp_rail");
 	cliprdr_handle = find_dissector("rdp_cliprdr");
 	snd_handle = find_dissector("rdp_snd");
+	ear_handle = find_dissector("rdp_ear");
 }
 
 /*
