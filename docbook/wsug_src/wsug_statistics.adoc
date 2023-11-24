@@ -806,7 +806,7 @@ Illustrated” series of books.
 
 Time Sequence (tcptrace):: Shows TCP metrics similar to the
 http://www.tcptrace.org/[tcptrace] utility, including forward segments,
-acknowledgments, selective acknowledgments, reverse window sizes, and
+acknowledgements, selective acknowledgements, reverse window sizes, and
 zero windows.
 
 Throughput:: Average throughput and goodput.

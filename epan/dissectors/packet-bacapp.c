@@ -10326,7 +10326,7 @@ fSCDirectConnection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
             break;
         case 2: /* connect-timestamp */
             offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
-            offset = fDateTime(tvb, pinfo, tree, offset, "connet-timestamp: ");
+            offset = fDateTime(tvb, pinfo, tree, offset, "connect-timestamp: ");
             offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             break;
         case 3: /* disconnect-timestamp */
@@ -10393,7 +10393,7 @@ fSCFailedConnectionRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         switch (tag_no) {
         case 0: /* timestamp */
             offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
-            offset = fDateTime(tvb, pinfo, tree, offset, "connet-timestamp: ");
+            offset = fDateTime(tvb, pinfo, tree, offset, "connect-timestamp: ");
             offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             break;
         case 1: /* peer-address */
@@ -10457,7 +10457,7 @@ fSCHubConnection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
             break;
         case 1: /* connect-timestamp */
             offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
-            offset = fDateTime(tvb, pinfo, tree, offset, "connet-timestamp: ");
+            offset = fDateTime(tvb, pinfo, tree, offset, "connect-timestamp: ");
             offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             break;
         case 2: /* disconnect-timestamp */
@@ -10518,7 +10518,7 @@ fSCHubFunctionConnection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
             break;
         case 1: /* connect-timestamp */
             offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
-            offset = fDateTime(tvb, pinfo, tree, offset, "connet-timestamp: ");
+            offset = fDateTime(tvb, pinfo, tree, offset, "connect-timestamp: ");
             offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             break;
         case 2: /* disconnect-timestamp */

@@ -1266,7 +1266,7 @@ If you are using the Windows version of Wireshark and you have an [AirPcap](/Air
 
 ![dot11-wireless-toolbar.png](uploads/__moin_import__/attachments/HowToDecrypt802.11/dot11-wireless-toolbar.png "dot11-wireless-toolbar.png")
 
-This will open the decryption key managment window. As shown in the window you can select between three decryption modes: **None**, **Wireshark**, and **Driver**:
+This will open the decryption key management window. As shown in the window you can select between three decryption modes: **None**, **Wireshark**, and **Driver**:
 
 ![dot11-key-management.png](uploads/__moin_import__/attachments/HowToDecrypt802.11/dot11-key-management.png "dot11-key-management.png")
 
