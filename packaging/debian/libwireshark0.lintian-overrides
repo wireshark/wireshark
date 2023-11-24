@@ -1,3 +1,6 @@
+# Some plugins are so simple that they don't need libc
+libwireshark0: library-not-linked-against-libc
+
 # Proper names or typos directly from IANA enterprise-numbers (epan/enterprises.c)
 libwireshark0: spelling-error-in-binary Nam Name [usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0]
 libwireshark0: spelling-error-in-binary Informations Information [usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0]
