@@ -97,14 +97,15 @@ gchar* capture_dev_user_cfilter_find(const gchar *if_name);
 
 /** Return as descriptive a name for an interface as we can get.
  * If the user has specified a comment, use that.  Otherwise,
- * if capture_interface_list() supplies a description, use that,
- * otherwise use the interface name.
+ * if the get_iface_list() method of capture_opts supplies a
+ * description, use that, otherwise use the interface name.
  *
+ * @param capture_opts The capture options to use to find the interface
  * @param if_name The name of the interface.
  *
  * @return The descriptive name (must be g_free'd later)
  */
-char *get_interface_descriptive_name(const char *if_name);
+char *get_interface_descriptive_name(const capture_options *capture_opts, const char *if_name);
 
 /** Build the GList of available capture interfaces.
  *

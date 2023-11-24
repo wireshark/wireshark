@@ -239,18 +239,18 @@ capture_dev_user_cfilter_find(const gchar *if_name)
 /*
  * Return as descriptive a name for an interface as we can get.
  * If the user has specified a comment, use that.  Otherwise,
- * if capture_interface_list() supplies a description, use that,
- * otherwise use the interface name.
+ * if the get_iface_list() method of capture_opts supplies a
+ * description, use that, otherwise use the interface name.
  *
  * The result must be g_free()'d when you're done with it.
  *
- * Note: given that this calls capture_interface_list(), which attempts to
- * open all adapters it finds in order to check whether they can be
- * captured on, this is an expensive routine to call, so don't call it
- * frequently.
+ * Note: given that this likely calls capture_interface_list(), which
+ * attempts to open all adapters it finds in order to check whether
+ * they can be captured on, this is an expensive routine to call, so
+ * don't call it frequently.
  */
 char *
-get_interface_descriptive_name(const char *if_name)
+get_interface_descriptive_name(const capture_options *capture_opts, const char *if_name)
 {
     char *descr;
     GList *if_list;
@@ -276,7 +276,8 @@ get_interface_descriptive_name(const char *if_name)
         } else {
             /* No, we don't have a user-supplied description; did we get
                one from the OS or libpcap? */
-            if_list = capture_interface_list(&err, NULL, NULL);
+            /* XXX: Search in capture_opts->ifaces (or all_ifaces) first. */
+            if_list = capture_opts->get_iface_list(&err, NULL);
             if (if_list != NULL) {
                 if_entry = if_list;
                 do {
@@ -552,7 +553,7 @@ get_iface_list_string(capture_options *capture_opts, guint32 style)
                  */
                 if (interface_opts->descr == NULL) {
                     if (interface_opts->name != NULL)
-                        interface_opts->descr = get_interface_descriptive_name(interface_opts->name);
+                        interface_opts->descr = get_interface_descriptive_name(capture_opts, interface_opts->name);
                     else
                         interface_opts->descr = g_strdup("(Unknown)");
                 }
