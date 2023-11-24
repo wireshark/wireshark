@@ -18,6 +18,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/to_str.h>
 
 #include "packet-zbee.h"
 #include "packet-zbee-nwk.h"
@@ -120,6 +121,7 @@ static int hf_zbee_zcl_attr_mm;
 static int hf_zbee_zcl_attr_md;
 static int hf_zbee_zcl_attr_wd;
 static int hf_zbee_zcl_attr_utc;
+static int hf_zbee_zcl_attr_utc_raw;
 static int hf_zbee_zcl_attr_status;
 static int hf_zbee_zcl_attr_dir;
 static int hf_zbee_zcl_attr_dis;
@@ -2002,6 +2004,8 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
     gfloat    attr_float;
     gdouble   attr_double;
     nstime_t  attr_time;
+    guint32   utc_time;
+    proto_item *attr_utc_item = NULL;
 
     /* Dissect attribute data type and data */
     switch ( data_type ) {
@@ -2346,12 +2350,19 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
 
         case ZBEE_ZCL_UTC:
             /* Display UTC */
-            attr_time.secs = tvb_get_letohl(tvb, *offset);
+            utc_time = tvb_get_letohl(tvb, *offset);
+            attr_time.secs = utc_time;
             attr_time.secs += ZBEE_ZCL_NSTIME_UTC_OFFSET;
             attr_time.nsecs = 0;
             proto_item_append_text(tree, ", %s",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved") );
-            proto_tree_add_time(tree, hf_zbee_zcl_attr_utc, tvb, *offset, 4, &attr_time);
+            attr_string = (const guint8 *)abs_time_to_str(NULL, &attr_time, ABSOLUTE_TIME_UTC, TRUE);
+            proto_tree_add_time_format(tree, hf_zbee_zcl_attr_utc, tvb, *offset, 4, &attr_time,
+                "UTC Time: %s (%u)", attr_string, utc_time);
+
+            /* The raw integer value is sometimes needed independant of the formatted time */
+            attr_utc_item = proto_tree_add_item(tree, hf_zbee_zcl_attr_utc_raw, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+            proto_item_set_hidden(attr_utc_item);
             *offset += 4;
             break;
 
@@ -2747,6 +2758,9 @@ void proto_register_zbee_zcl(void)
 
         { &hf_zbee_zcl_attr_utc,
             { "UTC", "zbee_zcl.attr.utc", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_attr_utc_raw,
+            { "UTC (raw value)", "zbee_zcl.attr.utc_raw", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_status,
             { "Status", "zbee_zcl.attr.status", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &zbee_zcl_status_names_ext,
