@@ -619,11 +619,35 @@ dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
             }
             else
             {
-                int error_code = handshake_reqtype - URQ_FAILURE_TYPES;
+                static const range_string rej_codes_rvals[] = {
+                    { 0,            0, "REJ_UNKNOWN" },
+                    { 1,            1, "REJ_SYSTEM" },
+                    { 2,            2, "REJ_PEER" },
+                    { 3,            3, "REJ_RESOURCE" },
+                    { 4,            4, "REJ_ROGUE" },
+                    { 5,            5, "REJ_BACKLOG" },
+                    { 6,            6, "REJ_IPE" },
+                    { 7,            7, "REJ_CLOSE" },
+                    { 8,            8, "REJ_VERSION" },
+                    { 9,            9, "REJ_RDVCOOKIE" },
+                    { 10,          10, "REJ_BADSECRET" },
+                    { 11,          11, "REJ_UNSECURE" },
+                    { 12,          12, "REJ_MESSAGEAPI" },
+                    { 13,          13, "REJ_CONGESTION" },
+                    { 14,          14, "REJ_FILTER" },
+                    { 15,          15, "REJ_GROUP" },
+                    { 16,          16, "REJ_TIMEOUT" },
+                    { 17,          17, "REJ_CRYPTO" },
+                    { 18,         999, "SRT Internal Rejection Reason"},
+                    { 1000,      1999, "SRT Predefined Rejection Reason"},
+                    { 2000, INT32_MAX, "User Defined Rejection Reason"},
+
+                    { 0x00,      0x00,  NULL },
+                };
+
+                const int error_code = handshake_reqtype - URQ_FAILURE_TYPES;
                 proto_tree_add_uint_format_value(tree, hf_srt_handshake_failure_type, tvb, 36, 4, handshake_reqtype,
-                        "%d (%s)", error_code,
-                        error_code < 1000 ? "SRT internal" :
-                        error_code < 2000 ? "SRT predefined" : "user-defined");
+                    "%d (%s)", error_code, rval_to_str_const(error_code, rej_codes_rvals, "Unknown"));
             }
 
             proto_tree_add_item(tree, hf_srt_handshake_id, tvb,
