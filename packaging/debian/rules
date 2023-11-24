@@ -52,9 +52,6 @@ override_dh_dwz:
 	# run dh_dwz only with debhelper (>= 12.6) to work around https://bugs.debian.org/939164
 	dpkg -l debhelper | awk '/debhelper/ {print $$3}' | xargs dpkg --compare-versions 12.6 gt || dh_dwz
 
-override_dh_strip:
-	dh_strip --dbg-package=wireshark-dbg
-
 override_dh_auto_install:
 	dh_auto_install
 ifeq ($(MAKE),ninja)
