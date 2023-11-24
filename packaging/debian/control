@@ -45,27 +45,19 @@ Description: network traffic analyzer - common files
 
 Package: wireshark
 Architecture: any
-Depends: wireshark-qt (= ${binary:Version}), ${misc:Depends}
-Description: network traffic analyzer - meta-package
- Wireshark is a network "sniffer" - a tool that captures and analyzes
- packets off the wire. Wireshark can decode too many protocols to list
- here.
- .
- This is a meta-package for Wireshark.
-
-Package: wireshark-qt
-Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, wireshark-common (= ${binary:Version}),
- libqt5svg5
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         wireshark-common (= ${binary:Version}),
+         libqt5svg5
 Recommends: libqt5multimedia5-plugins
-Replaces: wireshark (<< 2.0.0~), wireshark-gtk (<< 3.0.0~)
-Breaks: wireshark (<< 2.0.0~), wireshark-gtk (<< 3.0.0~)
-Description: network traffic analyzer - Qt version
+Breaks: wireshark-qt,
+        wireshark-gtk (<< 3.0.0~)
+Replaces: wireshark-qt,
+          wireshark-gtk (<< 3.0.0~)
+Description: network traffic analyzer - graphical interface
  Wireshark is a network "sniffer" - a tool that captures and analyzes
  packets off the wire. Wireshark can decode too many protocols to list
  here.
- .
- This package provides the Qt version of Wireshark.
 
 Package: tshark
 Architecture: any
