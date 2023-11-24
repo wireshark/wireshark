@@ -407,6 +407,31 @@ if_info_get(const char *name)
 	return if_info;
 }
 
+if_addr_t *
+if_addr_copy(const if_addr_t *addr)
+{
+	if_addr_t *new_addr = g_new(if_addr_t, 1);
+	new_addr->ifat_type = addr->ifat_type;
+	switch (addr->ifat_type) {
+	case IF_AT_IPv4:
+		new_addr->addr.ip4_addr = addr->addr.ip4_addr;
+		break;
+	case IF_AT_IPv6:
+		memcpy(new_addr->addr.ip6_addr, addr->addr.ip6_addr, sizeof(addr->addr));
+		break;
+	default:
+		/* In case we add non-IP addresses */
+		break;
+	}
+	return new_addr;
+}
+
+static void*
+if_addr_copy_cb(const void *data, void *user_data _U_)
+{
+	return if_addr_copy((if_addr_t*)data);
+}
+
 void
 if_info_free(if_info_t *if_info)
 {
@@ -416,6 +441,29 @@ if_info_free(if_info_t *if_info)
 	g_free(if_info->extcap);
 	g_slist_free_full(if_info->addrs, g_free);
 	g_free(if_info);
+}
+
+if_info_t *
+if_info_copy(const if_info_t *if_info)
+{
+	if_info_t *new_if_info;
+	new_if_info = g_new(if_info_t, 1);
+	new_if_info->name = g_strdup(if_info->name);
+	/* g_strdup accepts NULL as input and returns NULL. */
+	new_if_info->friendly_name = g_strdup(if_info->friendly_name);
+	new_if_info->vendor_description = g_strdup(if_info->vendor_description);
+	new_if_info->addrs = g_slist_copy_deep(if_info->addrs, if_addr_copy_cb, NULL);
+	new_if_info->type = if_info->type;
+	new_if_info->loopback = if_info->loopback;
+	new_if_info->extcap = g_strdup(if_info->extcap);
+
+	return new_if_info;
+}
+
+static void*
+if_info_copy_cb(const void* data, void *user_data _U_)
+{
+	return if_info_copy((const if_info_t*)data);
 }
 
 if_info_t *
@@ -737,6 +785,12 @@ free_interface_list(GList *if_list)
 {
 	g_list_foreach(if_list, free_if_cb, NULL);
 	g_list_free(if_list);
+}
+
+GList*
+interface_list_copy(GList *if_list)
+{
+	return g_list_copy_deep(if_list, if_info_copy_cb, NULL);
 }
 
 static void

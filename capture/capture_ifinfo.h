@@ -84,6 +84,11 @@ extern GList *capture_interface_list(int *err, char **err_str, void (*update_cb)
 void free_interface_list(GList *if_list);
 
 /**
+ * Deep copy an interface list
+ */
+GList * interface_list_copy(GList *if_list);
+
+/**
  * Get an if_info_t for a particular interface.
  * (May require privilege, so should only be used by dumpcap.)
  */
@@ -93,6 +98,16 @@ extern if_info_t *if_info_get(const char *name);
  * Free an if_info_t.
  */
 void if_info_free(if_info_t *if_info);
+
+/**
+ * Deep copy an if_info_t.
+ */
+if_info_t *if_info_copy(const if_info_t *if_info);
+
+/**
+ * Deep copy an if_addr_t.
+ */
+if_addr_t *if_addr_copy(const if_addr_t *if_addr);
 
 /*
  * "get_if_capabilities()" and "capture_if_capabilities()" return a pointer

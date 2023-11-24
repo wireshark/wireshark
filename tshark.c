@@ -905,13 +905,22 @@ warn_about_capture_filter(const char *rfilter)
 #endif
 
 #ifdef HAVE_LIBPCAP
+static GList *cached_if_list = NULL;
+
 static GList *
 capture_opts_get_interface_list(int *err, char **err_str)
 {
+    if (cached_if_list == NULL) {
+        /*
+         * This isn't a GUI tool, so no need for a callback.
+         */
+        cached_if_list = capture_interface_list(err, err_str, NULL);
+    }
     /*
-     * This isn't a GUI tool, so no need for a callback.
+     * Routines expect to free the returned interface list, so return
+     * a deep copy.
      */
-    return capture_interface_list(err, err_str, NULL);
+    return interface_list_copy(cached_if_list);
 }
 #endif
 
@@ -2716,6 +2725,9 @@ clean_exit:
     g_free(output_file_name);
 #ifdef HAVE_LIBPCAP
     capture_opts_cleanup(&global_capture_opts);
+    if (cached_if_list) {
+        free_interface_list(cached_if_list);
+    }
 #endif
     col_cleanup(&cfile.cinfo);
     wtap_cleanup();
