@@ -197,18 +197,17 @@ deserialize_if_capability(char* data, jsmntok_t *inf_tok,
     GList             *linktype_list = NULL, *timestamp_list = NULL;
     int                err, i;
     char              *primary_msg, *secondary_msg, *val_s;
+    double             val_d;
     jsmntok_t         *array_tok, *cur_tok;
 
-    if (inf_tok == NULL) {
+    if (inf_tok == NULL || !json_get_double(data, inf_tok, "status", &val_d)) {
         ws_info("Capture Interface Capabilities failed with invalid JSON.");
+        if (err_primary_msg) {
+            *err_primary_msg = g_strdup("Dumpcap returned bad JSON.");
+        }
         return NULL;
     }
 
-    double val_d;
-    if (!json_get_double(data, inf_tok, "status", &val_d)) {
-        ws_info("Capture Interface Capabilities failed with invalid JSON.");
-        return NULL;
-    }
     err = (int)val_d;
     if (err != 0) {
         primary_msg = json_get_string(data, inf_tok, "primary_msg");
@@ -345,6 +344,9 @@ capture_get_if_capabilities(const char *ifname, bool monitor_mode,
     int num_tokens = json_parse(data, NULL, 0);
     if (num_tokens <= 0) {
         ws_info("Capture Interface Capabilities failed with invalid JSON.");
+        if (err_primary_msg) {
+            *err_primary_msg = g_strdup("Dumpcap returned bad JSON.");
+        }
         g_free(data);
         return NULL;
     }
@@ -361,11 +363,19 @@ capture_get_if_capabilities(const char *ifname, bool monitor_mode,
     }
 
     inf_tok = json_get_array_index(tokens, 0);
-    if (inf_tok) {
-        inf_tok = json_get_object(data, inf_tok, ifname);
+    if (inf_tok && inf_tok->type == JSMN_OBJECT) {
+        inf_tok++; // Key
+        char *ifname2 = g_strndup(&data[inf_tok->start], inf_tok->end - inf_tok->start);
+        if (json_decode_string_inplace(ifname2) && g_strcmp0(ifname2, ifname) == 0) {
+            inf_tok++;
+            caps = deserialize_if_capability(data, inf_tok, err_primary_msg, err_secondary_msg);
+        } else if (err_primary_msg) {
+            *err_primary_msg = g_strdup("Dumpcap returned bad JSON.");
+        }
+        g_free(ifname2);
+    } else if (err_primary_msg) {
+        *err_primary_msg = g_strdup("Dumpcap returned bad JSON.");
     }
-
-    caps = deserialize_if_capability(data, inf_tok, err_primary_msg, err_secondary_msg);
 
     wmem_free(NULL, tokens);
     g_free(data);
