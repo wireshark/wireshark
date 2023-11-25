@@ -216,7 +216,7 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     ui->pipeView->setModel(pipeProxyModel);
     ui->delPipe->setEnabled(pipeProxyModel->rowCount() > 0);
 
-    ui->pipeView->setItemDelegateForColumn(pipeProxyModel->mapSourceToColumn(IFTREE_COL_PIPE_PATH), new PathSelectionDelegate());
+    ui->pipeView->setItemDelegateForColumn(pipeProxyModel->mapSourceToColumn(IFTREE_COL_PIPE_PATH), new PathSelectionDelegate(this));
      connect(ui->pipeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, [=](const QItemSelection &sel, const QItemSelection &) {
         ui->delPipe->setEnabled(sel.count() > 0);
     });
