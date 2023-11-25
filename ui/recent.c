@@ -57,10 +57,10 @@
 #define RECENT_GUI_GEOMETRY_MAIN_WIDTH          "gui.geometry_main_width"
 #define RECENT_GUI_GEOMETRY_MAIN_HEIGHT         "gui.geometry_main_height"
 #define RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED      "gui.geometry_main_maximized"
+#define RECENT_GUI_GEOMETRY_MAIN                "gui.geometry_main"
 #define RECENT_GUI_GEOMETRY_LEFTALIGN_ACTIONS   "gui.geometry_leftalign_actions"
 #define RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE     "gui.geometry_main_upper_pane"
 #define RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE     "gui.geometry_main_lower_pane"
-#define RECENT_GUI_GEOMETRY_MAIN                "gui.geometry_main"
 #define RECENT_GUI_GEOMETRY_MAIN_MASTER_SPLIT   "gui.geometry_main_master_split"
 #define RECENT_GUI_GEOMETRY_MAIN_EXTRA_SPLIT    "gui.geometry_main_extra_split"
 #define RECENT_LAST_USED_PROFILE                "gui.last_used_profile"
@@ -837,6 +837,13 @@ write_recent(void)
             RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED,
             recent.gui_geometry_main_maximized);
 
+    if (recent.gui_geometry_main != NULL) {
+        fprintf(rf, "\n# Main window geometry state.\n");
+        fprintf(rf, "# Hex byte string.\n");
+        fprintf(rf, RECENT_GUI_GEOMETRY_MAIN ": %s\n",
+                recent.gui_geometry_main);
+    }
+
     write_recent_boolean(rf, "Leftalign Action Buttons",
             RECENT_GUI_GEOMETRY_LEFTALIGN_ACTIONS,
             recent.gui_geometry_leftalign_actions);
@@ -1069,13 +1076,6 @@ write_profile_recent(void)
                 recent.gui_geometry_main_lower_pane);
     }
 
-    if (recent.gui_geometry_main != NULL) {
-        fprintf(rf, "\n# Main window geometry state.\n");
-        fprintf(rf, "# Hex byte string.\n");
-        fprintf(rf, RECENT_GUI_GEOMETRY_MAIN ": %s\n",
-                recent.gui_geometry_main);
-    }
-
     if (recent.gui_geometry_main_master_split != NULL) {
         fprintf(rf, "\n# Main window master splitter state.\n");
         fprintf(rf, "# Hex byte string.\n");
@@ -1185,6 +1185,9 @@ read_set_recent_common_pair_static(gchar *key, const gchar *value,
         if (num <= 0)
             return PREFS_SET_SYNTAX_ERR;      /* number must be positive */
         recent.gui_geometry_main_height = (gint)num;
+    } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN) == 0) {
+        g_free(recent.gui_geometry_main);
+        recent.gui_geometry_main = g_strdup(value);
     } else if (strcmp(key, RECENT_LAST_USED_PROFILE) == 0) {
         if ((strcmp(value, DEFAULT_PROFILE) != 0) && profile_exists (value, FALSE)) {
             set_profile_name (value);
@@ -1320,9 +1323,6 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
         if (num <= 0)
             return PREFS_SET_SYNTAX_ERR;      /* number must be positive */
         recent.gui_geometry_main_lower_pane = (gint)num;
-    } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN) == 0) {
-        g_free(recent.gui_geometry_main);
-        recent.gui_geometry_main = g_strdup(value);
     } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_MASTER_SPLIT) == 0) {
         g_free(recent.gui_geometry_main_master_split);
         recent.gui_geometry_main_master_split = g_strdup(value);
