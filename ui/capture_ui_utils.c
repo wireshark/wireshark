@@ -119,7 +119,17 @@ capture_dev_get_if_int_property(const gchar *pref, const gchar *if_name)
 char *
 capture_dev_user_descr_find(const gchar *if_name)
 {
-    return capture_dev_get_if_property(prefs.capture_devices_descr, if_name);
+    char *descr = capture_dev_get_if_property(prefs.capture_devices_descr, if_name);
+    if (descr == NULL && g_strcmp0(if_name, "-") == 0) {
+        /*
+         * Strictly speaking, -X (extension) options are for modules, e.g. Lua
+         * and using one here stretches that definition. However, this doesn't
+         * waste a single-letter option on something that might be rarely used
+         * and is backward-compatible to 1.0.
+         */
+        descr = g_strdup(ex_opt_get_nth("stdin_descr", 0));
+    }
+    return descr;
 }
 
 gint
@@ -263,16 +273,7 @@ get_interface_descriptive_name(const capture_options *capture_opts, const char *
     if (descr == NULL) {
         /* No; try to construct a descriptive name. */
         if (strcmp(if_name, "-") == 0) {
-            /*
-             * Strictly speaking, -X (extension) options are for modules, e.g. Lua
-             * and using one here stretches that definition. However, this doesn't
-             * waste a single-letter option on something that might be rarely used
-             * and is backward-compatible to 1.0.
-             */
-            descr = g_strdup(ex_opt_get_nth("stdin_descr", 0));
-            if (!descr) {
-                descr = g_strdup("Standard input");
-            }
+            descr = g_strdup("Standard input");
         } else {
             /* No, we don't have a user-supplied description; did we get
                one from the OS or libpcap? */
