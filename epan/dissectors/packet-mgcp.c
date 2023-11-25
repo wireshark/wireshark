@@ -888,26 +888,25 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf, mgcp
 					tvb_current_offset++;
 
 					/* Keep going, through possible vendor param name */
-					char ext_buf[256];
-					ext_buf[0] = '\0';
-					for (ext_off = 0;
-					    ((len > (ext_off + tvb_current_offset-offset)) &&
-					    (g_ascii_isalpha(tempchar = tvb_get_guint8(tvb, tvb_current_offset + ext_off)) ||
-					     g_ascii_isdigit(tempchar))) ;
-					     ext_off++) ext_buf[ext_off] = g_ascii_toupper(tempchar);
+					/* We have a mempbrk; perhaps an equivalent of strspn
+					 * for tvbs would be useful.
+					 */
+					for (ext_off = 0; len > (ext_off + tvb_current_offset-offset); ext_off++) {
+						tempchar = tvb_get_guint8(tvb, tvb_current_offset + ext_off);
+						if (!g_ascii_isalpha(tempchar) && !g_ascii_isdigit(tempchar)) break;
+					}
 
 					if (tempchar == ':')
 					{
 						/* Looks like a valid vendor param name */
-						ext_buf[ext_off] = '\0';
-						//fprintf(stderr, "MGCP Extension: %s\n", ext_buf);
+						//fprintf(stderr, "MGCP Extension: %s\n", tvb_get_string_enc(wmem_packet_scope(), tvb, tvb_current_offset, ext_off, ENC_ASCII));
 						switch (plus_minus)
 						{
 							case '+':
 								*hf = &hf_mgcp_param_extension_critical;
 								break;
 							case '-':
-								if (strcmp(ext_buf, "OSMUX") == 0) {
+								if (tvb_strncaseeql(tvb, tvb_current_offset, "OSMUX", ext_off) == 0) {
 									*hf = &hf_mgcp_param_x_osmux;
 								} else {
 									*hf = &hf_mgcp_param_extension;
