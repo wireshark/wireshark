@@ -1306,8 +1306,6 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
         recent.gui_show_bytes_decode = (bytes_decode_type)str_to_val(value, show_bytes_decode_values, DecodeAsNone);
     } else if (strcmp(key, RECENT_GUI_SHOW_BYTES_SHOW) == 0) {
         recent.gui_show_bytes_show = (bytes_show_type)str_to_val(value, bytes_show_values, SHOW_ASCII);
-    } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED) == 0) {
-        parse_recent_boolean(value, &recent.gui_geometry_main_maximized);
     } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE) == 0) {
         num = strtol(value, &p, 0);
         if (p == value || *p != '\0')
