@@ -589,6 +589,27 @@ fill_in_interface_opts_from_ifinfo(interface_options *interface_opts,
     interface_opts->name = g_strdup(if_info->name);
 
     interface_opts->hardware = g_strdup(if_info->vendor_description);
+    /* XXX: ui/capture_ui_utils.c get_interface_descriptive_name()
+     * does several things different in setting descr (and thus
+     * display name):
+     * 1. It checks for a user-supplied description via
+     * capture_dev_user_descr_find(if_info->name)
+     * 2. It has special handling of "-" for stdin, including a
+     * long-standing -X option of "stdin_descr" that dates back to 1.0
+     * 3. If we don't have a friendly name, but do have a vendor
+     * description (set to hardware above), that is used as the
+     * description.
+     *
+     * Perhaps we don't want to introduce a dependency on the prefs
+     * and ex-opts here. We could do 3 and the simple substitution
+     * of "Standard input" for "-" here, though.
+     *
+     * Because we always set interface_opts->display_name here, it is
+     * never NULL when get_iface_list_string is called, so that never
+     * calls get_interface_descriptive_name(). (And thus, we never
+     * actually use the vendor description in the display name/descr
+     * as a fallback.)
+     */
     if (if_info->friendly_name != NULL) {
         /*
          * We have a friendly name; remember it as the

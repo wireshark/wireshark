@@ -276,7 +276,7 @@ get_interface_descriptive_name(const capture_options *capture_opts, const char *
         } else {
             /* No, we don't have a user-supplied description; did we get
                one from the OS or libpcap? */
-            /* XXX: Search in capture_opts->ifaces (or all_ifaces) first. */
+            /* XXX: Search in capture_opts->ifaces (or all_ifaces) first? */
             if_list = capture_opts->get_iface_list(&err, NULL);
             if (if_list != NULL) {
                 if_entry = if_list;
@@ -547,6 +547,13 @@ get_iface_list_string(capture_options *capture_opts, guint32 style)
 
             if (style & IFLIST_QUOTE_IF_DESCRIPTION)
                 g_string_append_printf(iface_list_string, "'");
+            /* XXX: capture_opts.c fill_in_interface_opts_from_ifinfo()
+             * always fills in the display_name, so we never call this
+             * below. But we probably do want to check the user-supplied
+             * description (via the prefs) and the special handling of
+             * "-" (including the documented "-X stdin_descr" option)
+             * even if the display_name exists.
+             */
             if (interface_opts->display_name == NULL) {
                 /*
                  * We don't have a display name; generate one.

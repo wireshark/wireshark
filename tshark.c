@@ -2763,7 +2763,6 @@ static gboolean
 capture(void)
 {
     volatile gboolean ret = TRUE;
-    guint             i;
     GString          *str;
     GMainContext     *ctx;
 #ifndef _WIN32
@@ -2813,13 +2812,6 @@ capture(void)
     global_capture_session.state = CAPTURE_PREPARING;
 
     /* Let the user know which interfaces were chosen. */
-    for (i = 0; i < global_capture_opts.ifaces->len; i++) {
-        interface_options *interface_opts;
-
-        interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, i);
-        g_free(interface_opts->descr);
-        interface_opts->descr = get_interface_descriptive_name(&global_capture_opts, interface_opts->name);
-    }
     str = get_iface_list_string(&global_capture_opts, IFLIST_QUOTE_IF_DESCRIPTION);
     if (really_quiet == FALSE)
         fprintf(stderr, "Capturing on %s\n", str->str);
