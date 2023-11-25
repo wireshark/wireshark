@@ -142,6 +142,7 @@ void PreferenceEditorFrame::uintLineEditTextEdited(const QString &new_str)
 void PreferenceEditorFrame::stringLineEditTextEdited(const QString &new_str)
 {
     new_str_ = new_str;
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 }
 
 void PreferenceEditorFrame::browsePushButtonClicked()
@@ -184,6 +185,8 @@ void PreferenceEditorFrame::rangeLineEditTextEdited(const QString &new_str)
     } else {
         ui->preferenceLineEdit->setSyntaxState(SyntaxLineEdit::Invalid);
     }
+
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ret == CVT_NO_ERROR);
 }
 
 void PreferenceEditorFrame::showEvent(QShowEvent *event)
