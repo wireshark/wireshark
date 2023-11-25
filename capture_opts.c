@@ -593,16 +593,14 @@ fill_in_interface_opts_from_ifinfo(interface_options *interface_opts,
      * does several things different in setting descr (and thus
      * display name):
      * 1. It checks for a user-supplied description via
-     * capture_dev_user_descr_find(if_info->name)
-     * 2. It has special handling of "-" for stdin, including a
+     * capture_dev_user_descr_find(if_info->name), including a
      * long-standing -X option of "stdin_descr" that dates back to 1.0
-     * 3. If we don't have a friendly name, but do have a vendor
+     * 2. If we don't have a friendly name, but do have a vendor
      * description (set to hardware above), that is used as the
      * description.
      *
      * Perhaps we don't want to introduce a dependency on the prefs
-     * and ex-opts here. We could do 3 and the simple substitution
-     * of "Standard input" for "-" here, though.
+     * and ex-opts here. We could do 2 here, though.
      *
      * Because we always set interface_opts->display_name here, it is
      * never NULL when get_iface_list_string is called, so that never
@@ -795,6 +793,19 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
 	if_info = if_info_get(optarg_str_p);
 	fill_in_interface_opts_from_ifinfo(&interface_opts, if_info);
         if_info_free(if_info);
+    } else if (g_strcmp0(optarg_str_p, "-") == 0) {
+        /*
+         * Standard input. Don't bother to retrieve the interface_list;
+         * assume that there isn't a device named "-". (Retrieving the
+         * interface list involves spawning a privileged dumpcap process.)
+         */
+        interface_opts.name = g_strdup(optarg_str_p);
+        interface_opts.descr = g_strdup("Standard input");
+        interface_opts.hardware = NULL;
+        interface_opts.display_name = g_strdup(interface_opts.descr);
+        interface_opts.ifname = NULL;
+        interface_opts.if_type = capture_opts->default_options.if_type;
+        interface_opts.extcap = g_strdup(capture_opts->default_options.extcap);
     } else {
         /*
          * Search for that name in the interface list and, if we found
@@ -803,12 +814,20 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
          * XXX - if we can't get the interface list, we don't report
          * an error, as, on Windows, that might be due to WinPcap or
          * Npcap not being installed, but the specified "interface"
-         * might be the standard input ("=") or a pipe, and dumpcap
+         * might be the standard input ("-") or a pipe, and dumpcap
          * should support capturing from the standard input or from
          * a pipe even if there's no capture support from *pcap.
          *
          * Perhaps doing something similar to what was suggested
          * for numerical interfaces should be done.
+         *
+         * XXX: On Windows, named pipes have special names.
+         * ( https://learn.microsoft.com/en-us/windows/win32/ipc/pipe-names )
+         * Perhaps we should avoid retrieving the interface list if we're
+         * on Windows and this is one of those special names?
+         * If we ever save pipe settings permanently, it should be
+         * capture_interface_list that tries to check saved pipes (or
+         * extcaps), possibly before retrieving the list.
          */
         if_list = capture_opts->get_iface_list(&err, &err_str);
         if_info = find_ifinfo_by_name(if_list, optarg_str_p);
