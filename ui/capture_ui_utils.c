@@ -548,16 +548,27 @@ get_iface_list_string(capture_options *capture_opts, guint32 style)
 
             if (style & IFLIST_QUOTE_IF_DESCRIPTION)
                 g_string_append_printf(iface_list_string, "'");
-            /* XXX: capture_opts.c fill_in_interface_opts_from_ifinfo()
-             * always fills in the display_name, so we never call this
-             * below. But we probably do want to check the user-supplied
-             * description (via the prefs) and the special handling of
-             * "-" (including the documented "-X stdin_descr" option)
-             * even if the display_name exists.
+            /* If we have a special user-supplied description (via the prefs
+             * or the documented "-X stdin_descr" option for stdin), make sure
+             * we're using it.
              */
+            char *user_descr = capture_dev_user_descr_find(interface_opts->name);
+            if (user_descr != NULL) {
+                if (g_strcmp0(interface_opts->descr, user_descr) != 0) {
+                    g_free(interface_opts->descr);
+                    interface_opts->descr = user_descr;
+                    g_free(interface_opts->display_name);
+                    interface_opts->display_name = g_strdup(interface_opts->descr);
+                } else {
+                    g_free(user_descr);
+                }
+            }
             if (interface_opts->display_name == NULL) {
                 /*
                  * We don't have a display name; generate one.
+                 * fill_in_interface_opts_from_finfo and
+                 * capture_opts_add_iface_opt always fill in
+                 * the display name, so this shouldn't be necessary.
                  */
                 if (interface_opts->descr == NULL) {
                     if (interface_opts->name != NULL)
