@@ -1638,7 +1638,7 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_server_bak_disc,
-        { "Backup Discovery Cache",     "zbee_zdp.server.bak_bind", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_SERVER_BACKUP_DISC,
+        { "Backup Discovery Cache",     "zbee_zdp.server.bak_disc", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_SERVER_BACKUP_DISC,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_server_network_manager,

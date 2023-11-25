@@ -341,7 +341,7 @@ proto_register_sbc(void)
             NULL, HFILL }
         },
         { &hf_sbc_expected_data_speed,
-            { "Expected data speed",             "sbc.expected_speed_data",
+            { "Expected data speed",             "sbc.expected_data_speed",
             FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_kibps, 0x00,
             NULL, HFILL }
         },

@@ -2789,7 +2789,7 @@ void proto_register_gvsp(void)
         }},
 
         {&hf_gvsp_filename,
-        { "ID", "gvsp.filename",
+        { "Filename", "gvsp.filename",
         FT_STRINGZ, BASE_NONE, NULL, 0,
         NULL, HFILL
         }},

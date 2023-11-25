@@ -63,17 +63,17 @@ static dissector_handle_t avb17221_handle;
 #define ADP_ENTITY_DISCOVER_MESSAGE         0x02
 
 /* entity_capabilities_flags                            */
-#define ADP_EFU_MODE_BITMASK                 0x01
-#define ADP_ADDRESS_ACCESS_BITMASK           0x02
-#define ADP_GATEWAY_ENTITY_BITMASK           0x04
-#define ADP_AEM_SUPPORTED_BITMASK            0x08
-#define ADP_LEGACY_AVC_BITMASK               0x10
-#define ADP_ASSOC_ID_SUPPORT_BITMASK         0x20
-#define ADP_ASSOC_ID_VALID_BITMASK           0x40
-#define ADP_VENDOR_UNIQUE_BITMASK            0x80
-#define ADP_CLASS_A_SUPPORTED_BITMASK        0x100
-#define ADP_CLASS_B_SUPPORTED_BITMASK        0x200
-#define ADP_AS_SUPPORTED_BITMASK             0x400
+#define ADP_EFU_MODE_BITMASK                 0x00000001
+#define ADP_ADDRESS_ACCESS_BITMASK           0x00000002
+#define ADP_GATEWAY_ENTITY_BITMASK           0x00000004
+#define ADP_AEM_SUPPORTED_BITMASK            0x00000008
+#define ADP_LEGACY_AVC_BITMASK               0x00000010
+#define ADP_ASSOC_ID_SUPPORT_BITMASK         0x00000020
+#define ADP_ASSOC_ID_VALID_BITMASK           0x00000040
+#define ADP_VENDOR_UNIQUE_BITMASK            0x00000080
+#define ADP_CLASS_A_SUPPORTED_BITMASK        0x00000100
+#define ADP_CLASS_B_SUPPORTED_BITMASK        0x00000200
+#define ADP_AS_SUPPORTED_BITMASK             0x00000400
 
 /* talker capabilities flags                            */
 #define ADP_TALK_IMPLEMENTED_BITMASK         0x0001
@@ -97,8 +97,8 @@ static dissector_handle_t avb17221_handle;
 #define ADP_LIST_VIDEO_SINK_BITMASK          0x8000
 
 /* Controller capabilities flags                        */
-#define ADP_CONT_IMPLEMENTED_BITMASK         0x00000001
-#define ADP_CONT_LAYER3_PROXY_BITMASK        0x00000002
+#define ADP_CONT_IMPLEMENTED_BITMASK         0x0001
+#define ADP_CONT_LAYER3_PROXY_BITMASK        0x0002
 
 /* Default audio formats fields */
 #define ADP_DEF_AUDIO_SAMPLE_RATES_MASK      0xFC

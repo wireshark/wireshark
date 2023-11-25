@@ -8347,7 +8347,7 @@ proto_register_lustre(void)
         { &hf_lustre_mgs_config_body_bits,
           { "mcb bit shift", "lustre.mgs_config_body.bits", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
         { &hf_lustre_mgs_config_body_units,
-          { "mcb units", "lustre.mgs_config_body.type", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+          { "mcb units", "lustre.mgs_config_body.units", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
         /* MGS Config Response */
         { &hf_lustre_mgs_config_res,

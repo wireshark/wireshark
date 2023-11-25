@@ -4671,7 +4671,7 @@ void proto_register_mysql(void)
 		NULL, HFILL }},
 
 		{ &hf_mysql_cap_plugin_auth_lenenc_client_data,
-		{ "Plugin Auth LENENC Client Data","mysql.caps.pm",
+		{ "Plugin Auth LENENC Client Data","mysql.caps.cd",
 		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_AL,
 		NULL, HFILL }},
 
