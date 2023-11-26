@@ -34,7 +34,7 @@ static gint     ett_ipars;
 #define MAX_EOM_MSG_SIZE    (16)            /* max size of an EOMx indicator string */
 
 static int
-dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* data _U_)
+dissect_ipars(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int       bytes;
     guint8    ia     = 0, ta = 0, cmd = 0, la = 0;
