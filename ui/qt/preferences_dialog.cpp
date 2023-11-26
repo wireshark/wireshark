@@ -250,6 +250,10 @@ void PreferencesDialog::on_buttonBox_accepted()
         // Layout type changed, reset sizes
         recent.gui_geometry_main_upper_pane = 0;
         recent.gui_geometry_main_lower_pane = 0;
+        g_free(recent.gui_geometry_main_master_split);
+        g_free(recent.gui_geometry_main_extra_split);
+        recent.gui_geometry_main_master_split = NULL;
+        recent.gui_geometry_main_extra_split = NULL;
     }
 
     pd_ui_->columnFrame->unstash();
