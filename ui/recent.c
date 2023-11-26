@@ -240,11 +240,23 @@ write_recent_geom(gpointer key _U_, gpointer value, gpointer rfh)
     fprintf(rf, RECENT_GUI_GEOMETRY "%s.maximized: %s\n", geom->key,
             geom->maximized == TRUE ? "TRUE" : "FALSE");
 
+    fprintf(rf, "# Qt Geometry State (hex byte string).\n");
+    fprintf(rf, RECENT_GUI_GEOMETRY "%s.qt_geometry: %s\n", geom->key,
+            geom->qt_geom);
 }
 
 /* the geometry hashtable for all known window classes,
  * the window name is the key, and the geometry struct is the value */
 static GHashTable *window_geom_hash = NULL;
+
+void
+window_geom_free(void *data)
+{
+    window_geometry_t *geom = (window_geometry_t*)data;
+    g_free(geom->key);
+    g_free(geom->qt_geom);
+    g_free(geom);
+}
 
 /* save the window and its current geometry into the geometry hashtable */
 void
@@ -255,14 +267,7 @@ window_geom_save(const gchar *name, window_geometry_t *geom)
 
     /* init hashtable, if not already done */
     if (!window_geom_hash) {
-        window_geom_hash = g_hash_table_new(g_str_hash, g_str_equal);
-    }
-    /* if we have an old one, remove and free it first */
-    work = (window_geometry_t *)g_hash_table_lookup(window_geom_hash, name);
-    if (work) {
-        g_hash_table_remove(window_geom_hash, name);
-        g_free(work->key);
-        g_free(work);
+        window_geom_hash = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, window_geom_free);
     }
 
     /* g_malloc and insert the new one */
@@ -270,7 +275,7 @@ window_geom_save(const gchar *name, window_geometry_t *geom)
     *work = *geom;
     key = g_strdup(name);
     work->key = key;
-    g_hash_table_insert(window_geom_hash, key, work);
+    g_hash_table_replace(window_geom_hash, key, work);
 }
 
 /* load the desired geometry for this window from the geometry hashtable */
@@ -282,7 +287,7 @@ window_geom_load(const gchar       *name,
 
     /* init hashtable, if not already done */
     if (!window_geom_hash) {
-        window_geom_hash = g_hash_table_new(g_str_hash, g_str_equal);
+        window_geom_hash = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, window_geom_free);
     }
 
     p = (window_geometry_t *)g_hash_table_lookup(window_geom_hash, name);
@@ -329,6 +334,7 @@ window_geom_recent_read_pair(const char *name,
         geom.set_size   = FALSE;
         geom.width      = -1;
         geom.height     = -1;
+        geom.qt_geom    = NULL;
     }
 
     if (strcmp(key, "x") == 0) {
@@ -346,6 +352,8 @@ window_geom_recent_read_pair(const char *name,
     } else if (strcmp(key, "maximized") == 0) {
         parse_recent_boolean(value, &geom.maximized);
         geom.set_maximized = TRUE;
+    } else if (strcmp(key, "qt_geometry") == 0) {
+        geom.qt_geom = g_strdup(value);
     } else {
         /*
          * Silently ignore the bogus key.  We shouldn't abort here,
@@ -370,7 +378,7 @@ window_geom_recent_write_all(FILE *rf)
 {
     /* init hashtable, if not already done */
     if (!window_geom_hash) {
-        window_geom_hash = g_hash_table_new(g_str_hash, g_str_equal);
+        window_geom_hash = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, window_geom_free);
     }
 
     g_hash_table_foreach(window_geom_hash, write_recent_geom, rf);

@@ -59,7 +59,7 @@ protected:
     void loadGeometry(int width = 0, int height = 0, const QString &dialog_name = QString());
 
 private:
-    void saveGeometry();
+    void saveWindowGeometry();
 
     QString dialog_name_;
 };
