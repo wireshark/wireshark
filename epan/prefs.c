@@ -134,6 +134,12 @@ static const enum_val_t gui_layout_content[] = {
     {NULL, NULL, -1}
 };
 
+static const enum_val_t gui_packet_dialog_layout[] = {
+    {"vertical", "Vertical (Stacked)", layout_vertical},
+    {"horizontal", "Horizontal (Side-by-side)", layout_horizontal},
+    {NULL, NULL, -1}
+};
+
 static const enum_val_t gui_update_channel[] = {
     {"DEVELOPMENT", "DEVELOPMENT", UPDATE_CHANNEL_DEVELOPMENT},
     {"STABLE", "STABLE", UPDATE_CHANNEL_STABLE},
@@ -3530,6 +3536,11 @@ prefs_register_modules(void)
                                    "Show file load time in the Status Bar",
                                    &prefs.gui_show_file_load_time);
 
+    prefs_register_enum_preference(gui_layout_module, "packet_dialog_layout",
+                                   "Packet Dialog layout",
+                                   "Packet Dialog layout",
+                                   (guint*)(void*)(&prefs.gui_packet_dialog_layout), gui_packet_dialog_layout, FALSE);
+
     prefs_register_enum_preference(gui_module, "packet_list_elide_mode",
                        "Elide mode",
                        "The position of \"...\" in packet list text.",
@@ -4322,6 +4333,7 @@ pre_init_prefs(void)
     prefs.gui_io_graph_enable_legend = TRUE;
 
     /* set the default values for the packet dialog */
+    prefs.gui_packet_dialog_layout   = layout_vertical;
     prefs.gui_packet_details_show_byteview = TRUE;
 }
 

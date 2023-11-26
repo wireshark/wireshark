@@ -35,14 +35,29 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="chkShowByteView">
-     <property name="text">
-      <string>Show packet bytes</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="prefsLayout">
+     <item>
+      <widget class="QCheckBox" name="chkShowByteView">
+       <property name="text">
+        <string>Show packet bytes</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="layoutLabel">
+       <property name="text">
+        <string>Layout:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="layoutComboBox">
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">

@@ -113,6 +113,11 @@ typedef enum {
 } version_info_e;
 
 typedef enum {
+    layout_vertical,
+    layout_horizontal
+} splitter_layout_e;
+
+typedef enum {
     pref_default,
     pref_stashed,
     pref_current
@@ -177,6 +182,7 @@ typedef struct _e_prefs {
   layout_pane_content_e gui_layout_content_1;
   layout_pane_content_e gui_layout_content_2;
   layout_pane_content_e gui_layout_content_3;
+  splitter_layout_e gui_packet_dialog_layout;
   gchar       *gui_interfaces_hide_types;
   gboolean     gui_interfaces_show_hidden;
   gboolean     gui_interfaces_remote_display;

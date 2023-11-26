@@ -43,6 +43,7 @@ signals:
 private slots:
     void on_buttonBox_helpRequested();
     void viewVisibilityStateChanged(int);
+    void layoutChanged(int);
 
     void setHintText(FieldInformation *);
     void setHintTextSelected(FieldInformation*);
@@ -50,6 +51,7 @@ private slots:
 private:
     Ui::PacketDialog *ui;
 
+    pref_t *pref_packet_dialog_layout_;
     QString col_info_;
     ProtoTree *proto_tree_;
     ByteViewTab *byte_view_tab_;
