@@ -20,7 +20,6 @@
 void proto_register_ipars(void);
 
 static int      proto_ipars;
-static guint8   ipars_eomtype   = G_MAXUINT8;
 static gint     ett_ipars;
 
 #define S1      (0x00)
@@ -41,6 +40,7 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     tvbuff_t *next_tvb;
     int       offset = 0;
     gchar    *eom_msg;
+    guint8    ipars_eomtype;
 
     eom_msg    = (gchar *)wmem_alloc(pinfo->pool, MAX_EOM_MSG_SIZE);
     eom_msg[0] = 0;
