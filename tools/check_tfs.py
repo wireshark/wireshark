@@ -535,20 +535,20 @@ elif args.commits:
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
     # Will examine dissector files only
-    files = list(filter(lambda f : is_dissector_file(f), files))
+    files = list(filter(is_dissector_file, files))
 elif args.open:
     # Unstaged changes.
     command = ['git', 'diff', '--name-only']
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
     # Only interested in dissector files.
-    files = list(filter(lambda f : is_dissector_file(f), files))
+    files = list(filter(is_dissector_file, files))
     # Staged changes.
     command = ['git', 'diff', '--staged', '--name-only']
     files_staged = [f.decode('utf-8')
                     for f in subprocess.check_output(command).splitlines()]
     # Only interested in dissector files.
-    files_staged = list(filter(lambda f : is_dissector_file(f), files_staged))
+    files = list(filter(is_dissector_file, files_staged))
     for f in files_staged:
         if not f in files:
             files.append(f)
