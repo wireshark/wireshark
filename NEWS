@@ -22,6 +22,9 @@ Wireshark 4.2.1 Release Notes
      • Fixed parsing display filter expressions containing literal OID
        values, e.g. `snmp.name == 1.3.6.1.2.1.1.3.0`.
 
+     • diameter.3GPP-* display filters not working after upgrade to
+       version 4.2.0 (Issue 19493[2]).
+
   New and Updated Features
 
    There are no new or updated features in this release.
@@ -46,7 +49,7 @@ Wireshark 4.2.1 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[2] on the Wireshark web site.
+   be found on the download page[3] on the Wireshark web site.
 
  File Locations
 
@@ -61,32 +64,33 @@ Wireshark 4.2.1 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[3] and on the
+  Community support is available on Wireshark’s Q&A site[4] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[4].
+  for all of Wireshark’s mailing lists can be found on the web site[5].
 
-  Bugs and feature requests can be reported on the issue tracker[5].
+  Bugs and feature requests can be reported on the issue tracker[6].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[6].
+  SharkFest[7].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[7].
+  at wiresharkfoundation.org[8].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[8].
+  A complete FAQ is available on the Wireshark web site[9].
 
  References
 
    1. https://wiresharkfoundation.org
-   2. https://www.wireshark.org/download.html
-   3. https://ask.wireshark.org/
-   4. https://www.wireshark.org/lists/
-   5. https://gitlab.com/wireshark/wireshark/-/issues
-   6. https://sharkfest.wireshark.org
-   7. https://wiresharkfoundation.org
-   8. https://www.wireshark.org/faq.html
+   2. https://gitlab.com/wireshark/wireshark/-/issues/19493
+   3. https://www.wireshark.org/download.html
+   4. https://ask.wireshark.org/
+   5. https://www.wireshark.org/lists/
+   6. https://gitlab.com/wireshark/wireshark/-/issues
+   7. https://sharkfest.wireshark.org
+   8. https://wiresharkfoundation.org
+   9. https://www.wireshark.org/faq.html

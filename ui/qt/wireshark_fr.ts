@@ -7806,7 +7806,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Value</source>
-        <translation>Évaluer</translation>
+        <translation>Valeur</translation>
     </message>
     <message>
         <source>As Filter</source>
