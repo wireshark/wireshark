@@ -80,10 +80,21 @@ Wireshark 4.3.0 Release Notes
        is advisable to check that the "dfilter_macros" (old) and
        "dmacros" (new) files in the profile directory are consistent.
 
+     • When selecting "Manage Interfaces" from "Capture Options",
+       Wireshark only attempts to reconnect to rpcap (remote) hosts that
+       were connected to in the last session, instead of every remote
+       host that the current profile has ever connected to. Issue
+       17484[1]
+
+     • Adding interfaces at startup is about twice as fast, and has many
+       fewer UAC pop-ups when npcap is installed with access restricted
+       to Administrators on Windows
+
   New Protocol Support
 
-   MAC NR Framed (mac-nr-framed), RF4CE Network Layer (RF4CE), and RF4CE
-   Profile (RF4CE Profile)
+   EGNOS Message Server (EMS) file format, MAC NR Framed
+   (mac-nr-framed), RF4CE Network Layer (RF4CE), and RF4CE Profile
+   (RF4CE Profile)
 
   Updated Protocol Support
 
@@ -93,6 +104,8 @@ Wireshark 4.3.0 Release Notes
        (forwardable, globally-routable, etc).
 
    Too many other protocol updates have been made to list them all here.
+
+   EGNOS Messager Server (EMS) files
 
   Major API Changes
 
@@ -110,7 +123,7 @@ Wireshark 4.3.0 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[2] on the Wireshark web site.
 
  File Locations
 
@@ -125,31 +138,32 @@ Wireshark 4.3.0 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[2] and on the
+  Community support is available on Wireshark’s Q&A site[3] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[4].
 
-  Bugs and feature requests can be reported on the issue tracker[4].
+  Bugs and feature requests can be reported on the issue tracker[5].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[5].
+  SharkFest[6].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[6].
+  at wiresharkfoundation.org[7].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[7].
+  A complete FAQ is available on the Wireshark web site[8].
 
  References
 
-   1. https://www.wireshark.org/download.html
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://gitlab.com/wireshark/wireshark/-/issues
-   5. https://sharkfest.wireshark.org
-   6. https://wiresharkfoundation.org
-   7. https://www.wireshark.org/faq.html
+   1. https://gitlab.com/wireshark/wireshark/-/issues/17484
+   2. https://www.wireshark.org/download.html
+   3. https://ask.wireshark.org/
+   4. https://www.wireshark.org/lists/
+   5. https://gitlab.com/wireshark/wireshark/-/issues
+   6. https://sharkfest.wireshark.org
+   7. https://wiresharkfoundation.org
+   8. https://www.wireshark.org/faq.html

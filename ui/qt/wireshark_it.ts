@@ -7470,11 +7470,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Checking this will show only changed preferences.</source>
-        <translation type="unfinished"></translation>
+        <translation>Selezionandola saranno mostrate solo le preferenze modificate.</translation>
     </message>
     <message>
         <source>Show changed values</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra i valori modificati</translation>
     </message>
     <message>
         <source>Preferences</source>

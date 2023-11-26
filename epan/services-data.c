@@ -269,7 +269,6 @@ static ws_services_entry_t global_tcp_udp_services_table[] = {
     { 356, "cloanto-net-1",     "Cloanto Net 1" },
     { 357, "bhevent",           "" },
     { 358, "shrinkwrap",        "Shrinkwrap" },
-    { 359, "nsrmp",             "Network Security Risk Management Protocol" },
     { 360, "scoi2odialog",      "" },
     { 361, "semantix",          "Semantix" },
     { 362, "srssend",           "SRS Send" },

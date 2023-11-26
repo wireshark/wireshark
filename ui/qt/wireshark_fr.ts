@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Copy to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Copier dans le Presse-papiers</translation>
     </message>
     <message>
         <source>Authors</source>
@@ -731,11 +731,11 @@
     </message>
     <message>
         <source>…as decimal</source>
-        <translation type="unfinished"></translation>
+        <translation>...en décimal</translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation type="unfinished"></translation>
+        <translation>...en octal</translation>
     </message>
     <message>
         <source>…as bits</source>
@@ -762,7 +762,7 @@
     </message>
     <message>
         <source>Add Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter un commentaire</translation>
     </message>
     <message>
         <source>Section %1</source>
@@ -4251,7 +4251,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>No events in interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Aucun événement dans l’intervalle</translation>
     </message>
     <message>
         <source>Click to select packet</source>
@@ -4267,7 +4267,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Event</source>
-        <translation type="unfinished">Évènement</translation>
+        <translation>Événement</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
@@ -7918,7 +7918,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Value</source>
-        <translation>Évaluer</translation>
+        <translation>Valeur</translation>
     </message>
     <message>
         <source>As Filter</source>

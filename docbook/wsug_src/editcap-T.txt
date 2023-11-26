@@ -33,6 +33,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     dpnss_link - Digital Private Signalling System No 1 Link Layer
     dvbci - DVB-CI (Common Interface)
     ebhscr - Elektrobit High Speed Capture and Replay
+    ems - EMS (EGNOS Message Server) file
     enc - OpenBSD enc(4) encapsulating interface
     epon - Ethernet Passive Optical Network
     erf - Extensible Record Format
