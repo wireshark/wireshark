@@ -86,60 +86,58 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         }
     }
 
-    if (tree) {
-        bytes = tvb_captured_length_remaining(tvb, 0);
-        if (bytes > 0) {
-            proto_tree  *ipars_tree;
-            proto_item  *ti;
+    bytes = tvb_captured_length_remaining(tvb, 0);
+    if (bytes > 0) {
+        proto_tree  *ipars_tree;
+        proto_item  *ti;
 
-            ia = tvb_get_guint8(tvb, 0) & 0x3f;
+        ia = tvb_get_guint8(tvb, 0) & 0x3f;
 
-            ti = proto_tree_add_protocol_format(tree, proto_ipars, tvb, 0, -1, "Ipars");
-            ipars_tree = proto_item_add_subtree(ti, ett_ipars);
+        ti = proto_tree_add_protocol_format(tree, proto_ipars, tvb, 0, -1, "Ipars");
+        ipars_tree = proto_item_add_subtree(ti, ett_ipars);
 
-            if (ia == 0x03) {
-                proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 0, 1, "GoAhead Next IA");
-                col_set_str(pinfo->cinfo, COL_INFO, "GoAhead");
+        if (ia == 0x03) {
+            proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 0, 1, "GoAhead Next IA");
+            col_set_str(pinfo->cinfo, COL_INFO, "GoAhead");
+            return tvb_captured_length(tvb);
+        } else if (ia != S1) {
+            proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb,
+                0,
+                bytes, "Unknown format - Data (%d byte%s)", bytes,
+                plurality(bytes, "", "s"));
+            return tvb_captured_length(tvb);
+        }
+        proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 0, 1, "S1");
+        ia = tvb_get_guint8(tvb, 1) & 0x3f;
+        if (ia != S2) {
+            proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb,
+                0,
+                bytes, "Unknown format - Data (%d byte%s)", bytes,
+                plurality(bytes, "", "s"));
                 return tvb_captured_length(tvb);
-            } else if (ia != S1) {
-                proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb,
-                    0,
-                    bytes, "Unknown format - Data (%d byte%s)", bytes,
-                    plurality(bytes, "", "s"));
-                return tvb_captured_length(tvb);
+        }
+        proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 1, 1, "S2");
+        ia = tvb_get_guint8(tvb, 2) & 0x3f;
+        if (ia == GA) {
+            ia = tvb_get_guint8(tvb, 3) & 0x3f;
+            proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 2, 2, "GoAhead IA: %2.2X", ia);
+            ipars_eomtype = tvb_get_guint8(tvb, 4) & 0x3f;
+            switch (ipars_eomtype) {
+                case EOMc:  snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMc");                              break;
+                case EOMi:  snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMi");                              break;
+                case EOMu:  snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMu");                              break;
+                case EOMpb: snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMpb");                             break;
+                default:    snprintf(eom_msg, MAX_EOM_MSG_SIZE, "Unknown EOM type (0x%2.2X)", ia);    break;
             }
-            proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 0, 1, "S1");
-            ia = tvb_get_guint8(tvb, 1) & 0x3f;
-            if (ia != S2) {
-                proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb,
-                    0,
-                    bytes, "Unknown format - Data (%d byte%s)", bytes,
-                    plurality(bytes, "", "s"));
-                return tvb_captured_length(tvb);
-            }
-            proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 1, 1, "S2");
-            ia = tvb_get_guint8(tvb, 2) & 0x3f;
-            if (ia == GA) {
-                ia = tvb_get_guint8(tvb, 3) & 0x3f;
-                proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 2, 2, "GoAhead IA: %2.2X", ia);
-                ipars_eomtype = tvb_get_guint8(tvb, 4) & 0x3f;
-                switch (ipars_eomtype) {
-                    case EOMc:  snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMc");                              break;
-                    case EOMi:  snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMi");                              break;
-                    case EOMu:  snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMu");                              break;
-                    case EOMpb: snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMpb");                             break;
-                    default:    snprintf(eom_msg, MAX_EOM_MSG_SIZE, "Unknown EOM type (0x%2.2X)", ia);    break;
-                }
-                proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 4, 1, "%s", eom_msg);
-                proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 5, 1, "Good BCC");
-            } else {
-                next_tvb = tvb_new_subset_remaining(tvb, 3);
-                proto_tree_add_protocol_format(ipars_tree, proto_ipars, next_tvb,
-                    0,
-                    bytes, "Data (%d byte%s)", bytes,
-                    plurality(bytes, "", "s"));
-                return tvb_captured_length(tvb);
-            }
+            proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 4, 1, "%s", eom_msg);
+            proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 5, 1, "Good BCC");
+        } else {
+            next_tvb = tvb_new_subset_remaining(tvb, 3);
+            proto_tree_add_protocol_format(ipars_tree, proto_ipars, next_tvb,
+                0,
+                bytes, "Data (%d byte%s)", bytes,
+                plurality(bytes, "", "s"));
+            return tvb_captured_length(tvb);
         }
     }
     return tvb_captured_length(tvb);
