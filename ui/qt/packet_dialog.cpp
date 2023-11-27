@@ -81,7 +81,9 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     byte_view_tab_->setCaptureFile(cap_file_.capFile());
     byte_view_tab_->selectedFrameChanged(QList<int>() << 0);
 
-    ui->packetSplitter->setStretchFactor(1, 0);
+    // We have to load the splitter state after adding the proto tree
+    // and byte view.
+    loadSplitterState(ui->packetSplitter);
 
     module_t *gui_module = prefs_find_module("gui");
     if (gui_module != nullptr) {
@@ -93,13 +95,25 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
         }
     }
     ui->layoutComboBox->setCurrentIndex(ui->layoutComboBox->findData(QVariant(prefs.gui_packet_dialog_layout)));
+    Qt::Orientation pref_orientation = Qt::Vertical;
     switch(prefs.gui_packet_dialog_layout) {
     case(layout_vertical):
-        ui->packetSplitter->setOrientation(Qt::Vertical);
+        pref_orientation = Qt::Vertical;
         break;
     case(layout_horizontal):
-        ui->packetSplitter->setOrientation(Qt::Horizontal);
+        pref_orientation = Qt::Horizontal;
         break;
+    }
+
+    if (ui->packetSplitter->orientation() != pref_orientation) {
+        ui->packetSplitter->setOrientation(pref_orientation);
+        // If the orientation is different than the restore one,
+        // reset the sizes to 50-50.
+        QList<int> sizes = ui->packetSplitter->sizes();
+        int totalsize = sizes.at(0) + sizes.at(1);
+        sizes[0] = totalsize / 2;
+        sizes[1] = totalsize / 2;
+        ui->packetSplitter->setSizes(sizes);
     }
 
     QStringList col_parts;

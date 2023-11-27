@@ -11,6 +11,7 @@
 #define GEOMETRY_STATE_DIALOG_H
 
 #include <QDialog>
+#include <QSplitter>
 
 class GeometryStateDialog : public QDialog
 {
@@ -57,9 +58,11 @@ public:
 
 protected:
     void loadGeometry(int width = 0, int height = 0, const QString &dialog_name = QString());
+    void loadSplitterState(QSplitter *splitter = nullptr);
 
 private:
     void saveWindowGeometry();
+    void saveSplitterState(const QSplitter *splitter = nullptr);
 
     QString dialog_name_;
 };

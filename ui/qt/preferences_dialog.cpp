@@ -112,6 +112,13 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
 
     pd_ui_->splitter->setStretchFactor(0, 1);
     pd_ui_->splitter->setStretchFactor(1, 5);
+
+    // The calculations done in showEvent to set the minimum size of the
+    // protocol column mean that if we load the splitter state it will become
+    // impossible to shrink the splitter below the width of the widest protocol
+    // that initially fits, so don't do this unless we change showEvent.
+    //loadSplitterState(pd_ui_->splitter);
+
     pd_ui_->prefsView->sortByColumn(ModulePrefsModel::colName, Qt::AscendingOrder);
 
     //Set the Appearance leaf to expanded

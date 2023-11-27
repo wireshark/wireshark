@@ -887,6 +887,8 @@ void RtpPlayerDialog::setMarkers()
 
 void RtpPlayerDialog::showEvent(QShowEvent *)
 {
+    // We could use loadSplitterState(ui->splitter) instead of always
+    // resetting the plot size to 75%
     QList<int> split_sizes = ui->splitter->sizes();
     int tot_size = split_sizes[0] + split_sizes[1];
     int plot_size = tot_size * 3 / 4;

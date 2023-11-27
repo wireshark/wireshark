@@ -44,6 +44,7 @@ IOConsoleDialog::IOConsoleDialog(QWidget &parent,
         title = QString("Console");
 
     loadGeometry(0, 0, title);
+    loadSplitterState(ui->splitter);
     setWindowTitle(mainApp->windowTitleString(title));
 
     QPushButton *eval_button = ui->buttonBox->addButton(tr("Evaluate"), QDialogButtonBox::ActionRole);

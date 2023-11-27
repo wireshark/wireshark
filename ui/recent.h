@@ -257,6 +257,10 @@ extern void window_geom_save(const gchar *name, window_geometry_t *geom);
 /* load the desired geometry for this window from the geometry hashtable */
 extern gboolean window_geom_load(const gchar *name, window_geometry_t *geom);
 
+extern void window_splitter_save(const char *name, const char *splitter_state);
+
+extern const char * window_splitter_load(const char *name);
+
 /**
  * Returns a list of recent capture filters.
  *

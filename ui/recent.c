@@ -249,6 +249,8 @@ write_recent_geom(gpointer key _U_, gpointer value, gpointer rfh)
  * the window name is the key, and the geometry struct is the value */
 static GHashTable *window_geom_hash = NULL;
 
+static GHashTable *window_splitter_hash = NULL;
+
 void
 window_geom_free(void *data)
 {
@@ -299,6 +301,31 @@ window_geom_load(const gchar       *name,
     }
 }
 
+/* save the window and its splitter state into the splitter hashtable */
+void
+window_splitter_save(const char *name, const char *splitter_state)
+{
+    /* init hashtable, if not already done */
+    if (!window_splitter_hash) {
+        window_splitter_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+    }
+
+    g_hash_table_replace(window_splitter_hash, g_strdup(name), g_strdup(splitter_state));
+}
+
+/* save the window and its splitter state into the geometry hashtable */
+const char*
+window_splitter_load(const gchar *name)
+{
+    /* init hashtable, if not already done */
+    if (!window_splitter_hash) {
+        return NULL;
+    }
+
+    return g_hash_table_lookup(window_splitter_hash, name);
+}
+
+
 /* parse values of particular types */
 static void
 parse_recent_boolean(const gchar *val_str, gboolean *valuep)
@@ -323,6 +350,11 @@ window_geom_recent_read_pair(const char *name,
                              const char *value)
 {
     window_geometry_t geom;
+
+    if (strcmp(key, "splitter") == 0) {
+        window_splitter_save(name, value);
+        return;
+    }
 
     /* find window geometry maybe already in hashtable */
     if (!window_geom_load(name, &geom)) {
@@ -382,6 +414,29 @@ window_geom_recent_write_all(FILE *rf)
     }
 
     g_hash_table_foreach(window_geom_hash, write_recent_geom, rf);
+}
+
+/** Write all known window splitter states to the recent file.
+ *
+ * @param rf recent file handle from caller
+ */
+static void
+window_splitter_recent_write_all(FILE *rf)
+{
+    /* init hashtable, if not already done */
+    if (!window_splitter_hash) {
+        return;
+    }
+
+    GHashTableIter iter;
+    gpointer key, value;
+    g_hash_table_iter_init(&iter, window_splitter_hash);
+    while (g_hash_table_iter_next(&iter, &key, &value)) {
+        fprintf(rf, "\n# Splitter state of %s window.\n", (char*)key);
+        fprintf(rf, "# Qt Splitter state (hex byte string).\n");
+        fprintf(rf, RECENT_GUI_GEOMETRY "%s.splitter: %s\n", (char*)key,
+                (char*)value);
+    }
 }
 
 /* Global list of recent capture filters. */
@@ -1098,6 +1153,8 @@ write_profile_recent(void)
                 recent.gui_geometry_main_extra_split);
     }
 
+    window_splitter_recent_write_all(rf);
+
     fprintf(rf, "\n# Packet list column pixel widths.\n");
     fprintf(rf, "# Each pair of strings consists of a column format and its pixel width.\n");
     packet_list_recent_write_all(rf);
@@ -1337,6 +1394,15 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
     } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_EXTRA_SPLIT) == 0) {
         g_free(recent.gui_geometry_main_extra_split);
         recent.gui_geometry_main_extra_split = g_strdup(value);
+    } else if (strncmp(key, RECENT_GUI_GEOMETRY, sizeof(RECENT_GUI_GEOMETRY)-1) == 0) {
+        /* now have something like "gui.geom.win.sub_key", split it into win and sub_key */
+        char *win = &key[sizeof(RECENT_GUI_GEOMETRY)-1];
+        char *sub_key = strchr(win, '.');
+        if (sub_key) {
+            *sub_key = '\0';
+            sub_key++;
+            window_geom_recent_read_pair(win, sub_key, value);
+        }
     } else if (strcmp(key, RECENT_GUI_CONVERSATION_TABS) == 0) {
         recent.conversation_tabs = prefs_get_string_list(value);
     } else if (strcmp(key, RECENT_GUI_CONVERSATION_TABS_COLUMNS) == 0) {

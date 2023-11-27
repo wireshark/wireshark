@@ -15,6 +15,7 @@
 GeometryStateDialog::~GeometryStateDialog()
 {
     saveWindowGeometry();
+    saveSplitterState();
 }
 
 void GeometryStateDialog::loadGeometry(int width, int height, const QString &dialog_name)
@@ -54,6 +55,19 @@ void GeometryStateDialog::loadGeometry(int width, int height, const QString &dia
     }
 }
 
+void GeometryStateDialog::loadSplitterState(QSplitter *splitter)
+{
+    if (splitter == nullptr) {
+        splitter = findChild<QSplitter *>();
+    }
+    if (splitter != nullptr) {
+        const char* splitter_state = window_splitter_load(dialog_name_.toUtf8().constData());
+        if (splitter_state != nullptr) {
+            splitter->restoreState(QByteArray::fromHex(splitter_state));
+        }
+    }
+}
+
 void GeometryStateDialog::saveWindowGeometry()
 {
     if (dialog_name_.isEmpty())
@@ -75,4 +89,14 @@ void GeometryStateDialog::saveWindowGeometry()
     geom.qt_geom = g_strdup(saveGeometry().toHex().constData());
 
     window_geom_save(dialog_name_.toUtf8().constData(), &geom);
+}
+
+void GeometryStateDialog::saveSplitterState(const QSplitter *splitter)
+{
+    if (splitter == nullptr) {
+        splitter = findChild<QSplitter *>();
+    }
+    if (splitter != nullptr) {
+        window_splitter_save(dialog_name_.toUtf8().constData(), splitter->saveState().toHex().constData());
+    }
 }

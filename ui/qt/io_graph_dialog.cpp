@@ -460,6 +460,7 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
 
     ui->splitter->setStretchFactor(0, 95);
     ui->splitter->setStretchFactor(1, 5);
+    loadSplitterState(ui->splitter);
 
     //XXX - resize columns?
 
