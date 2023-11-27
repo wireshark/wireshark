@@ -48,7 +48,7 @@ static int ems_file_type_subtype = -1;
  * Gets one character and returns in case of error.
  * Without error, peeks at next character and returns it.
  */
-static char get_and_peek(FILE_T fh) {
+static int get_and_peek(FILE_T fh) {
     int c;
 
     c = file_getc(fh);
@@ -65,7 +65,7 @@ static char get_and_peek(FILE_T fh) {
  * Skips whitespace at the beginning of a line, comment lines, and empty
  * lines.
  */
-static char peek_relevant_character(FILE_T fh) {
+static int peek_relevant_character(FILE_T fh) {
     int c;
 
     while (true) {
@@ -157,6 +157,9 @@ wtap_open_return_val ems_open(wtap *wth, int *err, gchar **err_info) {
     // skip irrelevant characters
     c = peek_relevant_character(wth->fh);
     if (c < 0) {
+        if (file_eof(wth->fh)) {
+            return WTAP_OPEN_NOT_MINE;
+        }
         *err = file_error(wth->fh, err_info);
         return WTAP_OPEN_ERROR;
     }
