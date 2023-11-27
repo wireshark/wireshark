@@ -1015,7 +1015,7 @@ static const value_string option_vals[] = {
 #define ND_RA_FLAG_H    0x20
 #define ND_RA_FLAG_PRF  0x18
 #define ND_RA_FLAG_P    0x04
-#define ND_RA_FLAG_RSV  0x02
+#define ND_RA_FLAG_RSV  0x03
 
 #define ND_NA_FLAG_R    0x80000000
 #define ND_NA_FLAG_S    0x40000000
