@@ -3377,6 +3377,13 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolea
             return NULL;
         }
 
+        /* XXX: What if this is padding (or anything else) that is falsely
+         * detected as a SH packet after the TLS handshake in Initial frames
+         * but before the TLS handshake in the Handshake frames? Then the check
+         * above won't fail and we will retrieve the wrong TLS information,
+         * including ALPN.
+         */
+
         /* Retrieve secrets for both the client and server. */
         if (!quic_get_traffic_secret(pinfo, quic_info->hash_algo, client_pp, TRUE) ||
             !quic_get_traffic_secret(pinfo, quic_info->hash_algo, server_pp, FALSE)) {
@@ -4455,6 +4462,21 @@ check_dcid_on_coalesced_packet(tvbuff_t *tvb, const quic_datagram *dgram_info,
     if (!grease_quic_bit && (first_byte & 0x40) == 0) {
         return false;
     }
+
+    /* If the first QUIC packet in the frame is an Initial or 0-RTT packet,
+     * then subsequent packets cannot be Short Header packets because the
+     * 1-RTT keys have not been negotiated yet on this connection.
+     * (Initial packets can be coalesced with with 0-RTT or Handshake
+     * long header packets, and it might be possible for Handshake long
+     * header packets to be coalesced with 1-RTT packets.)
+     */
+    if (dgram_info->first_packet.packet_type == QUIC_LPT_INITIAL ||
+        dgram_info->first_packet.packet_type == QUIC_LPT_0RTT) {
+        if ((first_byte & 0x80) == 0) {
+            return false;
+        }
+    }
+
     return quic_connection_equal(&dcid, first_packet_dcid);
 }
 
