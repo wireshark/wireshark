@@ -235,7 +235,7 @@ dissect_vp9(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data 
         V:   | N_S |Y|G|-|-|-|
              +-+-+-+-+-+-+-+-+
         */
-        guint8 n_s = tvb_get_guint8(tvb, offset) & (VP9_3_BITS_MASK);
+        guint8 n_s = (tvb_get_guint8(tvb, offset) & (VP9_3_BITS_MASK)) >> 5;
         guint8 y = tvb_get_guint8(tvb, offset) & (VP9_1_BIT_MASK >> 3);
         guint8 g = tvb_get_guint8(tvb, offset) & (VP9_1_BIT_MASK >> 4);
         proto_tree_add_item(vp9_descriptor_tree, hf_vp9_pld_n_s_bits, tvb, offset, 1, ENC_BIG_ENDIAN);
