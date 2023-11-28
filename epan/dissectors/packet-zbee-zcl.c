@@ -2356,7 +2356,7 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
             attr_time.nsecs = 0;
             proto_item_append_text(tree, ", %s",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved") );
-            attr_string = (const guint8 *)abs_time_to_str(NULL, &attr_time, ABSOLUTE_TIME_UTC, TRUE);
+            attr_string = (const guint8 *)abs_time_to_str(wmem_packet_scope(), &attr_time, ABSOLUTE_TIME_UTC, TRUE);
             proto_tree_add_time_format(tree, hf_zbee_zcl_attr_utc, tvb, *offset, 4, &attr_time,
                 "UTC Time: %s (%u)", attr_string, utc_time);
 
