@@ -50,6 +50,28 @@ static const value_string UDREI_EVALUATION[] = {
     {0,  NULL}
 };
 
+// GIVEI_i mapping
+// see ICAO Annex 10, Vol I, Table B-33
+static const value_string GIVEI_EVALUATION[] = {
+    {0,  "0.0084 m^2"},
+    {1,  "0.0333 m^2"},
+    {2,  "0.0749 m^2"},
+    {3,  "0.1331 m^2"},
+    {4,  "0.2079 m^2"},
+    {5,  "0.2994 m^2"},
+    {6,  "0.4075 m^2"},
+    {7,  "0.5322 m^2"},
+    {8,  "0.6735 m^2"},
+    {9,  "0.8315 m^2"},
+    {10, "1.1974 m^2"},
+    {11, "1.8709 m^2"},
+    {12, "3.3260 m^2"},
+    {13, "20.787 m^2"},
+    {14, "187.0826 m^2"},
+    {15, "Not Monitored"},
+    {0,  NULL}
+};
+
 // Mapping for fast correction degradation factor
 // see ICAO Annex 10, Vol I, Table B-34
 static const value_string DEGRADATION_FACTOR_INDICATOR[] = {
@@ -397,11 +419,50 @@ static int hf_sbas_l1_mt25_h2_v0_delta_a_2_f0;
 static int hf_sbas_l1_mt25_h2_v0_iodp;
 static int hf_sbas_l1_mt25_h2_v0_spare;
 
+// see ICAO Annex 10, Vol I, Table B-50
+static int hf_sbas_l1_mt26;
+static int hf_sbas_l1_mt26_igp_band_id;
+static int hf_sbas_l1_mt26_igp_block_id;
+static int hf_sbas_l1_mt26_igp_vertical_delay_est_1;
+static int hf_sbas_l1_mt26_givei_1;
+static int hf_sbas_l1_mt26_igp_vertical_delay_est_2;
+static int hf_sbas_l1_mt26_givei_2;
+static int hf_sbas_l1_mt26_igp_vertical_delay_est_3;
+static int hf_sbas_l1_mt26_givei_3;
+static int hf_sbas_l1_mt26_igp_vertical_delay_est_4;
+static int hf_sbas_l1_mt26_givei_4;
+static int hf_sbas_l1_mt26_igp_vertical_delay_est_5;
+static int hf_sbas_l1_mt26_givei_5;
+static int hf_sbas_l1_mt26_igp_vertical_delay_est_6;
+static int hf_sbas_l1_mt26_givei_6;
+static int hf_sbas_l1_mt26_igp_vertical_delay_est_7;
+static int hf_sbas_l1_mt26_givei_7;
+static int hf_sbas_l1_mt26_igp_vertical_delay_est_8;
+static int hf_sbas_l1_mt26_givei_8;
+static int hf_sbas_l1_mt26_igp_vertical_delay_est_9;
+static int hf_sbas_l1_mt26_givei_9;
+static int hf_sbas_l1_mt26_igp_vertical_delay_est_10;
+static int hf_sbas_l1_mt26_givei_10;
+static int hf_sbas_l1_mt26_igp_vertical_delay_est_11;
+static int hf_sbas_l1_mt26_givei_11;
+static int hf_sbas_l1_mt26_igp_vertical_delay_est_12;
+static int hf_sbas_l1_mt26_givei_12;
+static int hf_sbas_l1_mt26_igp_vertical_delay_est_13;
+static int hf_sbas_l1_mt26_givei_13;
+static int hf_sbas_l1_mt26_igp_vertical_delay_est_14;
+static int hf_sbas_l1_mt26_givei_14;
+static int hf_sbas_l1_mt26_igp_vertical_delay_est_15;
+static int hf_sbas_l1_mt26_givei_15;
+static int hf_sbas_l1_mt26_iodi_k;
+static int hf_sbas_l1_mt26_spare;
+
 static dissector_table_t sbas_l1_mt_dissector_table;
 
 static expert_field ei_sbas_l1_preamble;
 static expert_field ei_sbas_l1_mt0;
 static expert_field ei_sbas_l1_crc;
+static expert_field ei_sbas_l1_mt26_igp_band_id;
+static expert_field ei_sbas_l1_mt26_igp_block_id;
 
 static int ett_sbas_l1;
 static int ett_sbas_l1_mt1;
@@ -412,6 +473,7 @@ static int ett_sbas_l1_mt5;
 static int ett_sbas_l1_mt6;
 static int ett_sbas_l1_mt7;
 static int ett_sbas_l1_mt25;
+static int ett_sbas_l1_mt26;
 
 // compute the CRC24Q checksum for an SBAS L1 nav msg
 // see ICAO Annex 10, Vol I, Appendix B, Section 3.5.3.5
@@ -923,6 +985,64 @@ static int dissect_sbas_l1_mt25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     return tvb_captured_length(tvb);
 }
 
+/* Dissect SBAS L1 MT 26 */
+static int dissect_sbas_l1_mt26(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBAS L1 MT26");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    proto_item *ti = proto_tree_add_item(tree, hf_sbas_l1_mt26, tvb, 0, 32, ENC_NA);
+    proto_tree *sbas_l1_mt26_tree = proto_item_add_subtree(ti, ett_sbas_l1_mt26);
+
+    guint32 igp_band_id;
+    proto_item* pi_igp_band_id = proto_tree_add_item_ret_uint(sbas_l1_mt26_tree, hf_sbas_l1_mt26_igp_band_id,
+            tvb, 0, 2, ENC_BIG_ENDIAN, &igp_band_id);
+    if (igp_band_id > 10) {
+        expert_add_info_format(pinfo, pi_igp_band_id, &ei_sbas_l1_mt26_igp_band_id, "Invalid IGP Band Identifier");
+    }
+
+    guint32 igp_block_id;
+    proto_item* pi_igp_block_id = proto_tree_add_item_ret_uint(sbas_l1_mt26_tree, hf_sbas_l1_mt26_igp_block_id,
+            tvb, 1, 1, ENC_NA, &igp_block_id);
+    if (igp_block_id > 13) {
+        expert_add_info_format(pinfo, pi_igp_block_id, &ei_sbas_l1_mt26_igp_block_id, "Invalid IGP Block Identifier");
+    }
+
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_igp_vertical_delay_est_1, tvb, 1, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_givei_1, tvb, 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_igp_vertical_delay_est_2, tvb, 3, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_givei_2, tvb, 4, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_igp_vertical_delay_est_3, tvb, 5, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_givei_3, tvb, 6, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_igp_vertical_delay_est_4, tvb, 6, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_givei_4, tvb, 7, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_igp_vertical_delay_est_5, tvb, 8, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_givei_5, tvb, 9, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_igp_vertical_delay_est_6, tvb, 9, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_givei_6, tvb, 11, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_igp_vertical_delay_est_7, tvb, 11, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_givei_7, tvb, 12, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_igp_vertical_delay_est_8, tvb, 13, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_givei_8, tvb, 14, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_igp_vertical_delay_est_9, tvb, 14, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_givei_9, tvb, 15, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_igp_vertical_delay_est_10, tvb, 16, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_givei_10, tvb, 17, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_igp_vertical_delay_est_11, tvb, 18, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_givei_11, tvb, 19, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_igp_vertical_delay_est_12, tvb, 19, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_givei_12, tvb, 20, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_igp_vertical_delay_est_13, tvb, 21, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_givei_13, tvb, 22, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_igp_vertical_delay_est_14, tvb, 22, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_givei_14, tvb, 24, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_igp_vertical_delay_est_15, tvb, 24, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_givei_15, tvb, 25, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_iodi_k, tvb, 26, 1, ENC_NA);
+    proto_tree_add_item(sbas_l1_mt26_tree, hf_sbas_l1_mt26_spare, tvb, 26, 2, ENC_BIG_ENDIAN);
+
+    return tvb_captured_length(tvb);
+}
+
 void proto_register_sbas_l1(void) {
 
     static hf_register_info hf[] = {
@@ -1210,14 +1330,53 @@ void proto_register_sbas_l1(void) {
         {&hf_sbas_l1_mt25_h2_v0_delta_a_2_f0,  {"da_i_f0",                  "sbas_l1.mt25.h2.v0.da_2_f0",       FT_INT16,  BASE_CUSTOM, CF_FUNC(&fmt_clock_correction), 0x07fe, NULL, HFILL}},
         {&hf_sbas_l1_mt25_h2_v0_iodp,          {"Issue of Data PRN (IODP)", "sbas_l1.mt25.h2.v0.iodp",          FT_UINT16, BASE_DEC,    NULL,                           0x0180, NULL, HFILL}},
         {&hf_sbas_l1_mt25_h2_v0_spare,         {"Spare",                    "sbas_l1.mt25.h2.v0.spare",         FT_NONE,   BASE_NONE,   NULL,                           0x0,    NULL, HFILL}},
+
+        // MT26
+        {&hf_sbas_l1_mt26,                           {"MT26",                          "sbas_l1.mt26",                                    FT_NONE,   BASE_NONE,   NULL,                          0x0,    NULL, HFILL}},
+        {&hf_sbas_l1_mt26_igp_band_id,               {"IGP Band Identifier",           "sbas_l1.mt26.igp_band_id",                        FT_UINT16, BASE_DEC,    NULL,                          0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_igp_block_id,              {"IGP Block Identifier",          "sbas_l1.mt26.igp_block_id",                       FT_UINT16, BASE_DEC,    NULL,                          0x3c,   NULL, HFILL}},
+        {&hf_sbas_l1_mt26_igp_vertical_delay_est_1,  {"IGP Vertical Delay Estimate 1", "sbas_l1.mt26.igp_vertical_delay_est_1",           FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_correction_125m), 0x03fe, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_givei_1,                   {"Grid Ionospheric Vertical Error Indicator 1 (GIVEI_1)", "sbas_l1.mt26.give_1",     FT_UINT16, BASE_DEC,    VALS(GIVEI_EVALUATION),        0x01e0, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_igp_vertical_delay_est_2,  {"IGP Vertical Delay Estimate 2", "sbas_l1.mt26.igp_vertical_delay_est_2",           FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_correction_125m), 0x1ff0, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_givei_2,                   {"Grid Ionospheric Vertical Error Indicator 2 (GIVEI_2)", "sbas_l1.mt26.give_2",     FT_UINT16, BASE_DEC,    VALS(GIVEI_EVALUATION),        0x0f00, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_igp_vertical_delay_est_3,  {"IGP Vertical Delay Estimate 3", "sbas_l1.mt26.igp_vertical_delay_est_3",           FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_correction_125m), 0xff80, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_givei_3,                   {"Grid Ionospheric Vertical Error Indicator 3 (GIVEI_3)", "sbas_l1.mt26.give_3",     FT_UINT16, BASE_DEC,    VALS(GIVEI_EVALUATION),        0x7800, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_igp_vertical_delay_est_4,  {"IGP Vertical Delay Estimate 4", "sbas_l1.mt26.igp_vertical_delay_est_4",           FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_correction_125m), 0x07fc, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_givei_4,                   {"Grid Ionospheric Vertical Error Indicator 4 (GIVEI_4)", "sbas_l1.mt26.give_4",     FT_UINT16, BASE_DEC,    VALS(GIVEI_EVALUATION),        0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_igp_vertical_delay_est_5,  {"IGP Vertical Delay Estimate 5", "sbas_l1.mt26.igp_vertical_delay_est_5",           FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_correction_125m), 0x3fe0, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_givei_5,                   {"Grid Ionospheric Vertical Error Indicator 5 (GIVEI_5)", "sbas_l1.mt26.give_5",     FT_UINT16, BASE_DEC,    VALS(GIVEI_EVALUATION),        0x1e00, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_igp_vertical_delay_est_6,  {"IGP Vertical Delay Estimate 6", "sbas_l1.mt26.igp_vertical_delay_est_6",           FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_correction_125m), 0x01ff, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_givei_6,                   {"Grid Ionospheric Vertical Error Indicator 6 (GIVEI_6)", "sbas_l1.mt26.give_6",     FT_UINT16, BASE_DEC,    VALS(GIVEI_EVALUATION),        0xf000, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_igp_vertical_delay_est_7,  {"IGP Vertical Delay Estimate 7", "sbas_l1.mt26.igp_vertical_delay_est_7",           FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_correction_125m), 0x0ff8, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_givei_7,                   {"Grid Ionospheric Vertical Error Indicator 7 (GIVEI_7)", "sbas_l1.mt26.give_7",     FT_UINT16, BASE_DEC,    VALS(GIVEI_EVALUATION),        0x0780, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_igp_vertical_delay_est_8,  {"IGP Vertical Delay Estimate 8", "sbas_l1.mt26.igp_vertical_delay_est_8",           FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_correction_125m), 0x7fc0, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_givei_8,                   {"Grid Ionospheric Vertical Error Indicator 8 (GIVEI_8)", "sbas_l1.mt26.give_8",     FT_UINT16, BASE_DEC,    VALS(GIVEI_EVALUATION),        0x3c00, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_igp_vertical_delay_est_9,  {"IGP Vertical Delay Estimate 9", "sbas_l1.mt26.igp_vertical_delay_est_9",           FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_correction_125m), 0x03fe, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_givei_9,                   {"Grid Ionospheric Vertical Error Indicator 9 (GIVEI_9)", "sbas_l1.mt26.give_9",     FT_UINT16, BASE_DEC,    VALS(GIVEI_EVALUATION),        0x01e0, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_igp_vertical_delay_est_10,  {"IGP Vertical Delay Estimate 10", "sbas_l1.mt26.igp_vertical_delay_est_10",        FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_correction_125m), 0x1ff0, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_givei_10,                   {"Grid Ionospheric Vertical Error Indicator 10 (GIVEI_10)", "sbas_l1.mt26.give_10", FT_UINT16, BASE_DEC,    VALS(GIVEI_EVALUATION),        0x0f00, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_igp_vertical_delay_est_11,  {"IGP Vertical Delay Estimate 11", "sbas_l1.mt26.igp_vertical_delay_est_11",        FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_correction_125m), 0xff80, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_givei_11,                   {"Grid Ionospheric Vertical Error Indicator 11 (GIVEI_11)", "sbas_l1.mt26.give_11", FT_UINT16, BASE_DEC,    VALS(GIVEI_EVALUATION),        0x7800, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_igp_vertical_delay_est_12,  {"IGP Vertical Delay Estimate 12", "sbas_l1.mt26.igp_vertical_delay_est_12",        FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_correction_125m), 0x07fc, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_givei_12,                   {"Grid Ionospheric Vertical Error Indicator 12 (GIVEI_12)", "sbas_l1.mt26.give_12", FT_UINT16, BASE_DEC,    VALS(GIVEI_EVALUATION),        0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_igp_vertical_delay_est_13,  {"IGP Vertical Delay Estimate 13", "sbas_l1.mt26.igp_vertical_delay_est_13",        FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_correction_125m), 0x3fe0, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_givei_13,                   {"Grid Ionospheric Vertical Error Indicator 13 (GIVEI_13)", "sbas_l1.mt26.give_13", FT_UINT16, BASE_DEC,    VALS(GIVEI_EVALUATION),        0x1e00, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_igp_vertical_delay_est_14,  {"IGP Vertical Delay Estimate 14", "sbas_l1.mt26.igp_vertical_delay_est_14",        FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_correction_125m), 0x01ff, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_givei_14,                   {"Grid Ionospheric Vertical Error Indicator 14 (GIVEI_14)", "sbas_l1.mt26.give_14", FT_UINT16, BASE_DEC,    VALS(GIVEI_EVALUATION),        0xf000, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_igp_vertical_delay_est_15,  {"IGP Vertical Delay Estimate 15", "sbas_l1.mt26.igp_vertical_delay_est_15",        FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_correction_125m), 0x0ff8, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_givei_15,                   {"Grid Ionospheric Vertical Error Indicator 15 (GIVEI_15)", "sbas_l1.mt26.give_15", FT_UINT16, BASE_DEC,    VALS(GIVEI_EVALUATION),        0x0780, NULL, HFILL}},
+        {&hf_sbas_l1_mt26_iodi_k,                     {"Issue of Data - IGP (IODI_k)", "sbas_l1.mt26.iodi_k",                             FT_UINT8,  BASE_DEC,    NULL,                          0x60,   NULL, HFILL}},
+        {&hf_sbas_l1_mt26_spare,                      {"Spare", "sbas_l1.mt26.spare",                                                     FT_UINT16, BASE_DEC,    NULL,                          0x1fc0, NULL, HFILL}},
     };
 
     expert_module_t *expert_sbas_l1;
 
     static ei_register_info ei[] = {
-        {&ei_sbas_l1_preamble, {"sbas_l1.illegal_preamble", PI_PROTOCOL, PI_WARN, "Illegal preamble", EXPFILL}},
-        {&ei_sbas_l1_mt0,      {"sbas_l1.mt0",              PI_PROTOCOL, PI_WARN, "MT is 0", EXPFILL}},
-        {&ei_sbas_l1_crc,      {"sbas_l1.crc",              PI_CHECKSUM, PI_WARN, "CRC", EXPFILL}},
+        {&ei_sbas_l1_preamble,          {"sbas_l1.illegal_preamble",          PI_PROTOCOL, PI_WARN, "Illegal preamble", EXPFILL}},
+        {&ei_sbas_l1_mt0,               {"sbas_l1.mt0",                       PI_PROTOCOL, PI_WARN, "MT is 0", EXPFILL}},
+        {&ei_sbas_l1_crc,               {"sbas_l1.crc",                       PI_CHECKSUM, PI_WARN, "CRC", EXPFILL}},
+        {&ei_sbas_l1_mt26_igp_band_id,  {"sbas_l1.mt26.illegal_igp_band_id",  PI_PROTOCOL, PI_WARN, "Illegal IGP Band Identifier", EXPFILL}},
+        {&ei_sbas_l1_mt26_igp_block_id, {"sbas_l1.mt26.illegal_igp_block_id", PI_PROTOCOL, PI_WARN, "Illegal IGP Block Identifier", EXPFILL}},
     };
 
     static gint *ett[] = {
@@ -1230,6 +1389,7 @@ void proto_register_sbas_l1(void) {
         &ett_sbas_l1_mt6,
         &ett_sbas_l1_mt7,
         &ett_sbas_l1_mt25,
+        &ett_sbas_l1_mt26,
     };
 
     proto_sbas_l1 = proto_register_protocol("SBAS L1 Navigation Message", "SBAS L1", "sbas_l1");
@@ -1259,4 +1419,5 @@ void proto_reg_handoff_sbas_l1(void) {
     dissector_add_uint("sbas_l1.mt", 6,  create_dissector_handle(dissect_sbas_l1_mt6,  proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 7,  create_dissector_handle(dissect_sbas_l1_mt7,  proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 25, create_dissector_handle(dissect_sbas_l1_mt25, proto_sbas_l1));
+    dissector_add_uint("sbas_l1.mt", 26, create_dissector_handle(dissect_sbas_l1_mt26, proto_sbas_l1));
 }
