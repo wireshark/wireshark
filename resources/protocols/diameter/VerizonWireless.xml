@@ -18,6 +18,14 @@
     <type type-name="OctetString"/>
   </avp>
 
+  <avp name="Originating-User-Location-Info" vendor-id="VerizonWireless" code="6080" >
+    <type type-name="OctetString"/>
+  </avp>
+
+  <avp name="Originating-BSID" vendor-id="VerizonWireless" code="6081" >
+    <type type-name="OctetString"/>
+  </avp>
+
   <avp name="LI-Indicator-Gx" code="6092" vendor-id="VerizonWireless" >
     <grouped>
       <gavp name="Random-Vector"/>
