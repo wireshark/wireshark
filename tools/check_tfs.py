@@ -372,15 +372,14 @@ def is_dissector_file(filename):
     return p.match(filename)
 
 def findDissectorFilesInFolder(folder):
-    # Look at files in sorted order, to give some idea of how far through is.
-    files = []
+    files = set()
 
-    for f in sorted(os.listdir(folder)):
+    for f in os.listdir(folder):
         if should_exit:
             return
         if is_dissector_file(f):
             filename = os.path.join(folder, f)
-            files.append(filename)
+            files.add(filename)
     return files
 
 
@@ -518,7 +517,7 @@ args = parser.parse_args()
 
 
 # Get files from wherever command-line args indicate.
-files = []
+files = set()
 if args.file:
     # Add specified file(s)
     for f in args.file:
@@ -528,30 +527,29 @@ if args.file:
             print('Chosen file', f, 'does not exist.')
             exit(1)
         else:
-            files.append(f)
+            files.add(f)
 elif args.commits:
     # Get files affected by specified number of commits.
     command = ['git', 'diff', '--name-only', 'HEAD~' + args.commits]
-    files = [f.decode('utf-8')
-             for f in subprocess.check_output(command).splitlines()]
+    files = {f.decode('utf-8')
+             for f in subprocess.check_output(command).splitlines()}
     # Will examine dissector files only
-    files = list(filter(is_dissector_file, files))
+    files = set(filter(is_dissector_file, files))
 elif args.open:
     # Unstaged changes.
     command = ['git', 'diff', '--name-only']
-    files = [f.decode('utf-8')
-             for f in subprocess.check_output(command).splitlines()]
+    files = {f.decode('utf-8')
+             for f in subprocess.check_output(command).splitlines()}
     # Only interested in dissector files.
     files = list(filter(is_dissector_file, files))
     # Staged changes.
     command = ['git', 'diff', '--staged', '--name-only']
-    files_staged = [f.decode('utf-8')
-                    for f in subprocess.check_output(command).splitlines()]
+    files_staged = {f.decode('utf-8')
+                    for f in subprocess.check_output(command).splitlines()}
     # Only interested in dissector files.
-    files = list(filter(is_dissector_file, files_staged))
+    files = set(filter(is_dissector_file, files_staged))
     for f in files_staged:
-        if not f in files:
-            files.append(f)
+        files.add(f)
 else:
     # Find all dissector files from folder.
     files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'))
@@ -561,7 +559,7 @@ else:
 print('Examining:')
 if args.file or args.commits or args.open:
     if files:
-        print(' '.join(files), '\n')
+        print(' '.join(sorted(files)), '\n')
     else:
         print('No files to check.\n')
 else:
@@ -572,7 +570,8 @@ else:
 tfs_entries = findTFS(os.path.join('epan', 'tfs.c'))
 
 # Now check the files to see if they could have used shared ones instead.
-for f in files:
+# Look at files in sorted order, to give some idea of how far through we are.
+for f in sorted(files):
     if should_exit:
         exit(1)
     if not isGeneratedFile(f):
