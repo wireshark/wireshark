@@ -33,6 +33,9 @@ libwiretap.so.13 libwiretap13 #MINVER#
  wtap_block_add_bytes_option@Base 3.5.0
  wtap_block_add_bytes_option_borrow@Base 3.5.0
  wtap_block_add_if_filter_option@Base 3.5.0
+ wtap_block_add_int32_option@Base 4.0.12
+ wtap_block_add_int64_option@Base 4.0.12
+ wtap_block_add_int8_option@Base 4.0.12
  wtap_block_add_ipv4_option@Base 2.1.2
  wtap_block_add_ipv6_option@Base 2.1.2
  wtap_block_add_nflx_custom_option@Base 3.5.0
