@@ -307,6 +307,9 @@ typedef enum {
     WTAP_OPTTYPE_IF_FILTER,
     WTAP_OPTTYPE_PACKET_VERDICT,
     WTAP_OPTTYPE_PACKET_HASH,
+    WTAP_OPTTYPE_INT8,
+    WTAP_OPTTYPE_INT32,
+    WTAP_OPTTYPE_INT64,
 } wtap_opttype_e;
 
 typedef enum {
@@ -414,6 +417,9 @@ typedef union {
     guint8 uint8val;
     guint32 uint32val;
     guint64 uint64val;
+    gint8 int8val;
+    gint32 int32val;
+    gint64 int64val;
     ws_in4_addr ipv4val;    /* network byte order */
     ws_in6_addr ipv6val;
     char *stringval;
@@ -724,6 +730,105 @@ wtap_block_set_uint64_option_value(wtap_block_t block, guint option_id, guint64 
  */
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_get_uint64_option_value(wtap_block_t block, guint option_id, guint64* value) G_GNUC_WARN_UNUSED_RESULT;
+
+/** Add INT8 option value to a block
+ *
+ * @param[in] block Block to which to add the option
+ * @param[in] option_id Identifier value for option
+ * @param[in] value Value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_add_int8_option(wtap_block_t block, guint option_id, gint8 value);
+
+/** Set INT8 option value in a block
+ *
+ * @param[in] block Block in which to set the option value
+ * @param[in] option_id Identifier value for option
+ * @param[in] value New value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_set_int8_option_value(wtap_block_t block, guint option_id, gint8 value);
+
+/** Get INT8 option value from a block
+ *
+ * @param[in] block Block from which to get the option value
+ * @param[in] option_id Identifier value for option
+ * @param[out] value Returned value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_get_int8_option_value(wtap_block_t block, guint option_id, gint8* value) G_GNUC_WARN_UNUSED_RESULT;
+
+/** Add INT32 option value to a block
+ *
+ * @param[in] block Block to which to add the option
+ * @param[in] option_id Identifier value for option
+ * @param[in] value Value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_add_int32_option(wtap_block_t block, guint option_id, gint32 value);
+
+/** Set INT32 option value in a block
+ *
+ * @param[in] block Block in which to set the option value
+ * @param[in] option_id Identifier value for option
+ * @param[in] value New value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_set_int32_option_value(wtap_block_t block, guint option_id, gint32 value);
+
+/** Get INT32 option value from a block
+ *
+ * @param[in] block Block from which to get the option value
+ * @param[in] option_id Identifier value for option
+ * @param[out] value Returned value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_get_int32_option_value(wtap_block_t block, guint option_id, gint32* value) G_GNUC_WARN_UNUSED_RESULT;
+
+/** Add INT64 option value to a block
+ *
+ * @param[in] block Block to which to add the option
+ * @param[in] option_id Identifier value for option
+ * @param[in] value Value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_add_int64_option(wtap_block_t block, guint option_id, gint64 value);
+
+/** Set INT64 option value in a block
+ *
+ * @param[in] block Block in which to set the option value
+ * @param[in] option_id Identifier value for option
+ * @param[in] value New value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_set_int64_option_value(wtap_block_t block, guint option_id, gint64 value);
+
+/** Get INT64 option value from a block
+ *
+ * @param[in] block Block from which to get the option value
+ * @param[in] option_id Identifier value for option
+ * @param[out] value Returned value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_get_int64_option_value(wtap_block_t block, guint option_id, gint64* value) G_GNUC_WARN_UNUSED_RESULT;
 
 /** Add IPv4 address option value to a block
  *

@@ -503,6 +503,18 @@ wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_block)
             wtap_block_add_uint64_option(dest_block, src_opt->option_id, src_opt->value.uint64val);
             break;
 
+        case WTAP_OPTTYPE_INT8:
+            wtap_block_add_int8_option(dest_block, src_opt->option_id, src_opt->value.int8val);
+            break;
+
+        case WTAP_OPTTYPE_INT32:
+            wtap_block_add_int32_option(dest_block, src_opt->option_id, src_opt->value.int32val);
+            break;
+
+        case WTAP_OPTTYPE_INT64:
+            wtap_block_add_int64_option(dest_block, src_opt->option_id, src_opt->value.int64val);
+            break;
+
         case WTAP_OPTTYPE_IPv4:
             wtap_block_add_ipv4_option(dest_block, src_opt->option_id, src_opt->value.ipv4val);
             break;
@@ -853,6 +865,123 @@ wtap_block_get_uint64_option_value(wtap_block_t block, guint option_id, guint64 
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
     *value = optval->uint64val;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_add_int8_option(wtap_block_t block, guint option_id, gint8 value)
+{
+    wtap_opttype_return_val ret;
+    wtap_option_t *opt;
+
+    ret = wtap_block_add_option_common(block, option_id, WTAP_OPTTYPE_INT8, &opt);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    opt->value.int8val = value;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_set_int8_option_value(wtap_block_t block, guint option_id, gint8 value)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+
+    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_INT8, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    optval->int8val = value;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_get_int8_option_value(wtap_block_t block, guint option_id, gint8* value)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+
+    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_INT8, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    *value = optval->int8val;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_add_int32_option(wtap_block_t block, guint option_id, gint32 value)
+{
+    wtap_opttype_return_val ret;
+    wtap_option_t *opt;
+
+    ret = wtap_block_add_option_common(block, option_id, WTAP_OPTTYPE_INT32, &opt);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    opt->value.int32val = value;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_set_int32_option_value(wtap_block_t block, guint option_id, gint32 value)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+
+    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_INT32, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    optval->int32val = value;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_get_int32_option_value(wtap_block_t block, guint option_id, gint32* value)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+
+    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_INT32, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    *value = optval->int32val;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_add_int64_option(wtap_block_t block, guint option_id, gint64 value)
+{
+    wtap_opttype_return_val ret;
+    wtap_option_t *opt;
+
+    ret = wtap_block_add_option_common(block, option_id, WTAP_OPTTYPE_INT64, &opt);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    opt->value.int64val = value;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_set_int64_option_value(wtap_block_t block, guint option_id, gint64 value)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+
+    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_INT64, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    optval->int64val = value;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_get_int64_option_value(wtap_block_t block, guint option_id, gint64 *value)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+
+    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_INT64, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    *value = optval->int64val;
     return WTAP_OPTTYPE_SUCCESS;
 }
 
