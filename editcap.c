@@ -1060,7 +1060,7 @@ editcap_dump_open(const char *filename, const wtap_dump_params *params,
         return NULL;
 
     /*
-     * If the output file supporst identifying the interfaces on which
+     * If the output file supports identifying the interfaces on which
      * packets arrive, add all the IDBs we've seen so far.
      *
      * That mean that the abstract interface provided by libwiretap
