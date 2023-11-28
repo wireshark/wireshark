@@ -22,6 +22,68 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#if !GLIB_CHECK_VERSION(2, 61, 2)
+
+typedef volatile gint   gatomicrefcount;
+
+typedef struct _GRealArray  GRealArray;
+struct _GRealArray
+{
+  guint8 *data;
+  guint   len;
+  guint   alloc;
+  guint   elt_size;
+  guint   zero_terminated ;
+  guint   clear;
+  gatomicrefcount ref_count;
+  GDestroyNotify clear_func;
+};
+
+static inline gboolean
+g_array_binary_search (GArray        *array,
+                       gconstpointer  target,
+                       GCompareFunc   compare_func,
+                       guint         *out_match_index)
+{
+  gboolean result = FALSE;
+  GRealArray *_array = (GRealArray *) array;
+  guint left, middle, right;
+  gint val;
+
+  g_return_val_if_fail (_array != NULL, FALSE);
+  g_return_val_if_fail (compare_func != NULL, FALSE);
+
+  if (G_LIKELY(_array->len))
+    {
+      left = 0;
+      right = _array->len - 1;
+
+      while (left <= right)
+        {
+          middle = left + (right - left) / 2;
+
+          val = compare_func (_array->data + (_array->elt_size * middle), target);
+          if (val == 0)
+            {
+              result = TRUE;
+              break;
+            }
+          else if (val < 0)
+            left = middle + 1;
+          else if (/* val > 0 && */ middle > 0)
+            right = middle - 1;
+          else
+            break;  /* element not found */
+        }
+    }
+
+  if (result && out_match_index != NULL)
+    *out_match_index = middle;
+
+  return result;
+}
+#endif
+
 #if !GLIB_CHECK_VERSION(2, 68, 0)
 static inline void *
 g_memdup2(gconstpointer mem, size_t byte_size)
