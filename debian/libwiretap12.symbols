@@ -33,6 +33,9 @@ libwiretap.so.12 libwiretap12 #MINVER#
  wtap_block_add_bytes_option@Base 3.5.0
  wtap_block_add_bytes_option_borrow@Base 3.5.0
  wtap_block_add_if_filter_option@Base 3.5.0
+ wtap_block_add_int32_option@Base 3.6.20
+ wtap_block_add_int64_option@Base 3.6.20
+ wtap_block_add_int8_option@Base 3.6.20
  wtap_block_add_ipv4_option@Base 2.1.2
  wtap_block_add_ipv6_option@Base 2.1.2
  wtap_block_add_nflx_custom_option@Base 3.5.0
@@ -49,6 +52,9 @@ libwiretap.so.12 libwiretap12 #MINVER#
  wtap_block_foreach_option@Base 2.1.2
  wtap_block_get_bytes_option_value@Base 3.5.0
  wtap_block_get_if_filter_option_value@Base 3.5.0
+ wtap_block_get_int32_option@Base 3.6.20
+ wtap_block_get_int64_option@Base 3.6.20
+ wtap_block_get_int8_option@Base 3.6.20
  wtap_block_get_ipv4_option_value@Base 2.1.2
  wtap_block_get_ipv6_option_value@Base 2.1.2
  wtap_block_get_mandatory_data@Base 2.1.2
@@ -67,6 +73,9 @@ libwiretap.so.12 libwiretap12 #MINVER#
  wtap_block_remove_option@Base 2.2.0
  wtap_block_set_bytes_option_value@Base 3.5.0
  wtap_block_set_if_filter_option_value@Base 3.5.0
+ wtap_block_set_int32_option@Base 3.6.20
+ wtap_block_set_int64_option@Base 3.6.20
+ wtap_block_set_int8_option@Base 3.6.20
  wtap_block_set_ipv4_option_value@Base 2.1.2
  wtap_block_set_ipv6_option_value@Base 2.1.2
  wtap_block_set_nth_bytes_option_value@Base 3.5.0
