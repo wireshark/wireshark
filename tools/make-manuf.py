@@ -114,6 +114,7 @@ skip_start = [
     'hangzhou',
     'guangxi',
     'guangdong',
+    'chengdu',
 ]
 
 # Special cases handled directly
@@ -139,6 +140,9 @@ def shorten(manuf):
     # Remove any punctuation
     # XXX Use string.punctuation? Note that it includes '-' and '*'.
     manuf = re.sub(r"[\"',./:()+-]", ' ', manuf)
+    # XXX For some reason including the double angle brackets in the above
+    # regex makes it bomb
+    manuf = re.sub(r"[«»“”]", ' ', manuf)
     # & isn't needed when Standalone
     manuf = manuf.replace(" & ", " ")
     # Remove business types and other general terms ("the", "inc", "plc", etc.)
@@ -153,6 +157,9 @@ def shorten(manuf):
     if manuf in special_case.keys():
         manuf = special_case[manuf]
 
+    # XXX: Some of the entries have Chinese city or other location
+    # names written with spaces between each character, like
+    # Bei jing, Wu Han, Shen Zhen, etc. We should remove that too.
     split = manuf.split()
     if len(split) > 1 and split[0].lower() in skip_start:
         manuf = ' '.join(split[1:])
