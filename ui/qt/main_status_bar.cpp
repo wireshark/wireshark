@@ -491,8 +491,17 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
 {
     ProfileModel model;
 
-    QMenu * profile_menu = new QMenu(this);
-    profile_menu->setAttribute(Qt::WA_DeleteOnClose);
+    QMenu * ctx_menu_;
+    QMenu * profile_menu;
+    if (button == Qt::LeftButton) {
+        ctx_menu_ = nullptr;
+        profile_menu = new QMenu(this);
+        profile_menu->setAttribute(Qt::WA_DeleteOnClose);
+    } else {
+        ctx_menu_ = new QMenu(this);
+        ctx_menu_->setAttribute(Qt::WA_DeleteOnClose);
+        profile_menu = new QMenu(ctx_menu_);
+    }
     QActionGroup * global = new QActionGroup(profile_menu);
     QActionGroup * user = new QActionGroup(profile_menu);
 
@@ -552,8 +561,6 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
             enable_edit = true;
 
         profile_menu->setTitle(tr("Switch to"));
-        QMenu * ctx_menu_ = new QMenu(this);
-        ctx_menu_->setAttribute(Qt::WA_DeleteOnClose);
         QAction * action = ctx_menu_->addAction(tr("Manage Profiles…"), this, SLOT(manageProfile()));
         action->setProperty("dialog_action_", (int)ProfileDialog::ShowProfiles);
 
@@ -569,7 +576,7 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
         ctx_menu_->addSeparator();
 
 #ifdef HAVE_MINIZIP
-        QMenu * importMenu = new QMenu(tr("Import"));
+        QMenu * importMenu = new QMenu(tr("Import"), ctx_menu_);
         action = importMenu->addAction(tr("from zip file"), this, SLOT(manageProfile()));
         action->setProperty("dialog_action_", (int)ProfileDialog::ImportZipProfile);
         action = importMenu->addAction(tr("from directory"), this, SLOT(manageProfile()));
