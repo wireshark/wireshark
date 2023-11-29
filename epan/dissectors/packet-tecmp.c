@@ -50,6 +50,7 @@ static gboolean heuristic_first = FALSE;
 static gboolean analog_samples_are_signed_int = TRUE;
 static gboolean show_ethernet_in_tecmp_tree = FALSE;
 static gboolean detect_asam_cmp = TRUE;
+static gboolean detect_asam_cmp_ignore_user_defined = TRUE;
 
 static dissector_table_t lin_subdissector_table;
 static dissector_table_t data_subdissector_table;
@@ -2096,10 +2097,14 @@ dissect_tecmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     /* ASAM CMP is the successor of TECMP and uses the same EtherType.
      *
      * How to detect what the message is:
-     * The first byte in TECMP is always 0.
+     * The first byte in TECMP 1.7 and later is always 0.
+     * The first byte in TECMP 1.6 and older allowed 0xff for user-defined IDs.
      * The first byte in ASAM CMP is defined as version and is required to be > 0.
-     * If the first byte is not 0, we pass it be ASAM CMP */
-    if (detect_asam_cmp && asam_cmp_handle != 0 && tvb_get_guint8(tvb, offset) != 0) {
+     * If the first byte is not 0, we pass it be ASAM CMP.
+     * For backward compatibility: If 0xff allow as TECMP.
+     */
+    if ( (detect_asam_cmp && asam_cmp_handle != 0 && tvb_get_guint8(tvb, offset) != 0) &&
+         (!detect_asam_cmp_ignore_user_defined || tvb_get_guint8(tvb, offset) != 0xff) ) {
         return call_dissector_with_data(asam_cmp_handle, tvb, pinfo, tree, data);
     }
 
@@ -2894,6 +2899,11 @@ proto_register_tecmp(void) {
         "Detect ASAM CMP",
         "Detect ASAM CMP messages and the ASAM CMP dissector handle them.",
         &detect_asam_cmp);
+
+    prefs_register_bool_preference(tecmp_module, "detect_asam_cmp_ignore_user_defined",
+        "Ignore Device IDs 0xff00-0xffff for ASAM CMP Detection",
+        "Ignore Device IDs 0xff00-0xffff (user-defined range) for ASAM CMP Detection",
+        &detect_asam_cmp_ignore_user_defined);
 }
 
 void
