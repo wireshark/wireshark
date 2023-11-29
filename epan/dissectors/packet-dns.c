@@ -4777,11 +4777,12 @@ dissect_dns_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
    * - Answer RRs: 0 (for queries) or a low number (for responses)
    * - Authority RRs: 0 (for queries) or a low number (for responses)
    * - Additional RRs: assume a low number.
-   *
-   * Not implemented, but perhaps we could check for:
    * - Require that the question and answer count cannot both be zero. Perhaps
    *   some protocols have large sequences of zero bytes, this check reduces the
    *   probability of matching such payloads.
+   * - Check that the packet is long enough to carry the Questions and RRs.
+   *
+   * Not implemented, but perhaps we could check for:
    * - Assume a valid QNAME in the question section. (Is there sufficient data
    *   for a valid name?)
    * - Assume a common QTYPE and QCLASS (IN/CH).
@@ -4818,6 +4819,13 @@ dissect_dns_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
   add = tvb_get_ntohs(tvb, offset + DNS_ADD);
   if (add > max_add)
+    return FALSE;
+
+  if (quest + ans == 0)
+    return FALSE;
+
+  /* Do we even have enough space left? */
+  if ( (quest * 6 + (ans + auth + add) * 11) > tvb_reported_length_remaining(tvb, offset + DNS_HDRLEN))
     return FALSE;
 
   dissect_dns(tvb, pinfo, tree, NULL);
