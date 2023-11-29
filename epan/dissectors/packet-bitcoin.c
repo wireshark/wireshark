@@ -52,6 +52,17 @@ static const value_string inv_types[] =
   { 0, NULL }
 };
 
+static const value_string network_ids[] =
+{
+  { 0x01, "IPv4" },
+  { 0x02, "IPv6" },
+  { 0x03, "Tor v2" },
+  { 0x04, "Tor v3" },
+  { 0x05, "I2P" },
+  { 0x06, "Cjdns" },
+  { 0, NULL }
+};
+
 static const value_string reject_ccode[] =
 {
   { 0x01, "REJECT_MALFORMED" },
@@ -99,6 +110,7 @@ static int hf_bitcoin_command;
 static int hf_bitcoin_length;
 static int hf_bitcoin_magic;
 static int hf_bitcoin_msg_addr;
+static int hf_bitcoin_msg_addrv2;
 static int hf_bitcoin_msg_block;
 static int hf_bitcoin_msg_feefilter;
 static int hf_bitcoin_msg_filteradd;
@@ -127,6 +139,18 @@ static int hf_msg_addr_count32;
 static int hf_msg_addr_count64;
 static int hf_msg_addr_count8;
 static int hf_msg_addr_timestamp;
+static int hf_msg_addrv2_count16;
+static int hf_msg_addrv2_count32;
+static int hf_msg_addrv2_count64;
+static int hf_msg_addrv2_count8;
+static int hf_msg_addrv2_item;
+static int hf_msg_addrv2_timestamp;
+static int hf_msg_addrv2_services;
+static int hf_msg_addrv2_network;
+static int hf_msg_addrv2_address_ipv4;
+static int hf_msg_addrv2_address_ipv6;
+static int hf_msg_addrv2_address_other;
+static int hf_msg_addrv2_port;
 static int hf_msg_block_bits;
 static int hf_msg_block_merkle_root;
 static int hf_msg_block_nonce;
@@ -301,6 +325,7 @@ static gint ett_tx_witness_list;
 static gint ett_tx_witness_component_list;
 
 static expert_field ei_bitcoin_command_unknown;
+static expert_field ei_bitcoin_address_length;
 static expert_field ei_bitcoin_script_len;
 
 
@@ -577,6 +602,87 @@ dissect_bitcoin_msg_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_tree_add_item(subtree, hf_msg_addr_timestamp, tvb, offset, 4, ENC_TIME_SECS|ENC_LITTLE_ENDIAN);
     offset += 26;
     offset += 4;
+  }
+
+  return offset;
+}
+
+/**
+ * Handler for addrv2 messages
+ */
+static int
+dissect_bitcoin_msg_addrv2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+  proto_item *ti;
+  gint        length;
+  guint64     count;
+  guint32     offset = 0;
+
+  ti   = proto_tree_add_item(tree, hf_bitcoin_msg_addrv2, tvb, offset, -1, ENC_NA);
+  tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
+
+  get_varint(tvb, offset, &length, &count);
+  add_varint_item(tree, tvb, offset, length, hf_msg_addrv2_count8, hf_msg_addrv2_count16,
+                  hf_msg_addrv2_count32, hf_msg_addrv2_count64);
+  offset += length;
+
+  for (; count > 0; count--)
+  {
+    proto_item *sti;
+    proto_item *sti_services;
+    proto_tree *subtree;
+    guint64     services;
+    guint8      network;
+    guint64     address_length;
+    guint32     item_start_offset = offset;
+
+    sti = proto_tree_add_item(tree, hf_msg_addrv2_item, tvb, offset, -1, ENC_NA);
+    subtree = proto_item_add_subtree(sti, ett_addr_list);
+
+    proto_tree_add_item(subtree, hf_msg_addrv2_timestamp, tvb, offset, 4, ENC_TIME_SECS|ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    get_varint(tvb, offset, &length, &services);
+    sti_services = proto_tree_add_bitmask_value(subtree, tvb, offset, hf_msg_addrv2_services,
+                                                ett_services, services_hf_flags, services);
+    proto_item_set_len(sti_services, length);
+    offset += length;
+
+    network = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(subtree, hf_msg_addrv2_network, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    get_varint(tvb, offset, &length, &address_length);
+    offset += length;
+
+    switch (network)
+    {
+      case 1:
+        proto_tree_add_item(subtree, hf_msg_addrv2_address_ipv4, tvb, offset, (guint) address_length, ENC_NA);
+        if (address_length != 4) {
+          proto_tree_add_expert(subtree, pinfo, &ei_bitcoin_address_length,
+                                tvb, offset, (guint) address_length);
+        }
+        break;
+
+      case 2:
+        proto_tree_add_item(subtree, hf_msg_addrv2_address_ipv6, tvb, offset, (guint) address_length, ENC_NA);
+        if (address_length != 16) {
+          proto_tree_add_expert(subtree, pinfo, &ei_bitcoin_address_length,
+                                tvb, offset, (guint) address_length);
+        }
+        break;
+
+      default:
+        proto_tree_add_item(subtree, hf_msg_addrv2_address_other, tvb, offset, (guint) address_length, ENC_NA);
+        break;
+    }
+    offset += address_length;
+
+    proto_tree_add_item(subtree, hf_msg_addrv2_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_item_set_len(sti, offset - item_start_offset);
   }
 
   return offset;
@@ -1490,6 +1596,71 @@ proto_register_bitcoin(void)
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_msg_addrv2_count8,
+      { "Count", "bitcoin.addrv2.count",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_addrv2_count16,
+      { "Count", "bitcoin.addrv2.count",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_addrv2_count32,
+      { "Count", "bitcoin.addrv2.count",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_addrv2_count64,
+      { "Count", "bitcoin.addrv2.count64",
+        FT_UINT64, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_addrv2_item,
+      { "Address", "bitcoin.addrv2.item",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_addrv2_timestamp,
+      { "Timestamp", "bitcoin.addrv2.timestamp",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_addrv2_services,
+      { "Node services", "bitcoin.addrv2.services",
+        FT_UINT64, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_addrv2_network,
+      { "Node network", "bitcoin.addrv2.network",
+        FT_UINT8, BASE_DEC, VALS(network_ids), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_addrv2_address_ipv4,
+      { "Node address", "bitcoin.addrv2.address.ipv4",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_addrv2_address_ipv6,
+      { "Node address", "bitcoin.addrv2.address.ipv6",
+        FT_IPv6, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_addrv2_address_other,
+      { "Node address", "bitcoin.addrv2.address.other",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_msg_addrv2_port,
+      { "Node port", "bitcoin.addrv2.port",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_bitcoin_msg_addrv2,
+      { "Addrv2 message", "bitcoin.addrv2",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_msg_inv_count8,
       { "Count", "bitcoin.inv.count",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -2303,6 +2474,7 @@ proto_register_bitcoin(void)
 
   static ei_register_info ei[] = {
      { &ei_bitcoin_command_unknown, { "bitcoin.command.unknown", PI_PROTOCOL, PI_WARN, "Unknown command", EXPFILL }},
+     { &ei_bitcoin_address_length, { "bitcoin.address_length.invalid", PI_MALFORMED, PI_WARN, "Address length does not match network type", EXPFILL }},
      { &ei_bitcoin_script_len, { "bitcoin.script_length.invalid", PI_MALFORMED, PI_ERROR, "script_len too large", EXPFILL }}
   };
 
@@ -2344,6 +2516,8 @@ proto_reg_handoff_bitcoin(void)
   dissector_add_string("bitcoin.command", "version", command_handle);
   command_handle = create_dissector_handle( dissect_bitcoin_msg_addr, proto_bitcoin );
   dissector_add_string("bitcoin.command", "addr", command_handle);
+  command_handle = create_dissector_handle( dissect_bitcoin_msg_addrv2, proto_bitcoin );
+  dissector_add_string("bitcoin.command", "addrv2", command_handle);
   command_handle = create_dissector_handle( dissect_bitcoin_msg_inv, proto_bitcoin );
   dissector_add_string("bitcoin.command", "inv", command_handle);
   command_handle = create_dissector_handle( dissect_bitcoin_msg_getdata, proto_bitcoin );
