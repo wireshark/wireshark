@@ -623,12 +623,36 @@ void DisplayFilterEdit::clearFilter()
 void DisplayFilterEdit::applyDisplayFilter()
 {
     if (completer()->popup()->currentIndex().isValid()) {
-        // If the popup (not the QCompleter itself) has a currently
-        // valid QModelIndex, that means that the popup's
-        // QAbstractItemView::activated() signal has not yet
-        // been handled, which means that text() has the old value,
-        // not the one from the completer.
-        return;
+        // If the popup (not the QCompleter itself) has a currently valid
+        // QModelIndex, check to see if text() matches the text from the popup.
+        // If it does, then all is well, go ahead and filter (this happens
+        // if the popup entry is selected via mouse.)
+        //
+        // If it doesn't match, then it has the old value. There are two
+        // possibilities:
+        // 1) The user clicked away from the popup *without* selecting
+        // anything (making the popup disappear), and then hit Enter, in
+        // which case the user wants to filter with text() and doesn't care
+        // about what's in the popup. However, the QModelIndex for the popup
+        // is still valid until some time after this signal is handled.
+        //
+        // 2) The user pressed Return on an entry in the popup, in which
+        // case the user wants to filter with the new value in the popup,
+        // not the value in text(), but for some reason the popup's
+        // activated() signal gets handled *after* returnPressed on the
+        // LineEdit, unfortunately (#19323).
+        //
+        // We haven't figured out how to distinguish case 1 from case 2 yet,
+        // so ignore this force the user to press Enter again, and which
+        // point everything will have reconciled.
+        //
+        // Note that the currentCompletion() / currentIndex.data() of
+        // the completer() itself is "what would be the first completion
+        // of the text currently displayed in the line edit" and has naught
+        // to do with what was selected in the popup.
+        if (text() != completer()->popup()->currentIndex().data()) {
+            return;
+        }
     }
 
     if (syntaxState() == Invalid)
