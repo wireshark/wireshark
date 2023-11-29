@@ -427,14 +427,14 @@ capture_get_if_list_capabilities(GList *if_cap_queries,
             *err_secondary_msg = secondary_msg;
         else
             g_free(secondary_msg);
-        return NULL;
+        return caps_hash;
     }
 
     int num_tokens = json_parse(data, NULL, 0);
     if (num_tokens <= 0) {
         ws_info("Capture Interface Capabilities failed with invalid JSON.");
         g_free(data);
-        return NULL;
+        return caps_hash;
     }
 
     tokens = wmem_alloc_array(NULL, jsmntok_t, num_tokens);
@@ -445,7 +445,7 @@ capture_get_if_list_capabilities(GList *if_cap_queries,
         }
         wmem_free(NULL, tokens);
         g_free(data);
-        return NULL;
+        return caps_hash;
     }
 
     char *ifname;
