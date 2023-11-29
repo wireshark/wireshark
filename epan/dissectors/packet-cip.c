@@ -4,8 +4,8 @@
  *
  * This dissector includes items from:
  *    CIP Volume 1: Common Industrial Protocol, Edition 3.34
- *    CIP Volume 5: Integration of Modbus Devices into the CIP Architecture, Edition 2.17
- *    CIP Volume 7: CIP Safety, Edition 1.9
+ *    CIP Volume 5: CIP Safety, Edition 2.25
+ *    CIP Volume 7A: Integration of Modbus Devices into the CIP Architecture, Edition 1.9
  *    CIP Volume 8: CIP Security, Edition 1.11
  *
  * Copyright 2004
@@ -7832,6 +7832,64 @@ static void display_previous_route_connection_path(cip_req_info_t *preq_info, pr
    }
 }
 
+typedef struct safety_application_reply_data {
+   cip_connection_triad_t target_triad;
+   guint16 init_rollover_value;
+   guint16 init_timestamp_value;
+} safety_application_reply_data_t;
+
+static int dissect_fwd_open_rsp_safety_application_reply_data(cip_req_info_t* preq_info, proto_tree* tree, tvbuff_t* tvb, int offset, safety_application_reply_data_t* safety_reply_data)
+{
+   int reply_parsed_len = 10;
+
+   proto_item* safety_item;
+   proto_tree* safety_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_cip_cm_safety, &safety_item, "");
+
+   // Consumer Number and PID/CID are common to all formats.
+   proto_tree_add_item(safety_tree, hf_cip_cm_consumer_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+   proto_item* pid_item;
+   proto_tree* pid_tree = proto_tree_add_subtree(safety_tree, tvb, offset + 2, 8, ett_cip_cm_pid, &pid_item, "");
+   gboolean server_dir = (preq_info->connInfo->TransportClass_trigger & CI_PRODUCTION_DIR_MASK) ? TRUE : FALSE;
+   if (server_dir)
+   {
+      proto_item_set_text(pid_item, "Consumer ID (CID)");
+   }
+   else
+   {
+      proto_item_set_text(pid_item, "Producer ID (PID)");
+   }
+
+   proto_tree_add_item(pid_tree, hf_cip_cm_targ_vendor_id, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
+   safety_reply_data->target_triad.VendorID = tvb_get_letohs(tvb, offset + 2);
+
+   proto_tree_add_item_ret_uint(pid_tree, hf_cip_cm_targ_dev_serial_num, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN, &(safety_reply_data->target_triad.DeviceSerialNumber));
+
+   proto_tree_add_item(pid_tree, hf_cip_cm_targ_conn_serial_num, tvb, offset + 8, 2, ENC_LITTLE_ENDIAN);
+   safety_reply_data->target_triad.ConnSerialNumber = tvb_get_letohs(tvb, offset + 8);
+
+   if (preq_info->connInfo->safety.format == CIP_SAFETY_EXTENDED_FORMAT)
+   {
+      proto_tree_add_item(safety_tree, hf_cip_cm_initial_timestamp, tvb, offset + 10, 2, ENC_LITTLE_ENDIAN);
+      safety_reply_data->init_timestamp_value = tvb_get_letohs(tvb, offset + 10);
+
+      proto_tree_add_item(safety_tree, hf_cip_cm_initial_rollover, tvb, offset + 12, 2, ENC_LITTLE_ENDIAN);
+      safety_reply_data->init_rollover_value = tvb_get_letohs(tvb, offset + 12);
+
+      reply_parsed_len += 4;
+
+      proto_item_set_text(safety_item, "CIP Safety Extended Format Target Application Reply");
+   }
+   else  // CIP_SAFETY_BASE_FORMAT
+   {
+      proto_item_set_text(safety_item, "CIP Safety Target Application Reply");
+   }
+
+   proto_item_set_len(safety_item, reply_parsed_len);
+
+   return reply_parsed_len;
+}
+
 gboolean cip_connection_triad_match(const cip_connection_triad_t* left, const cip_connection_triad_t* right)
 {
    return (left->ConnSerialNumber == right->ConnSerialNumber) &&
@@ -7843,10 +7901,6 @@ static int
 dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo)
 {
    int parsed_len = 26;
-
-   guint16 init_rollover_value = 0, init_timestamp_value = 0;
-   proto_tree *pid_tree, *safety_tree;
-   cip_connection_triad_t target_triad = {0};
 
    /* Display originator to target connection ID */
    guint32 O2TConnID;
@@ -7883,50 +7937,17 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
    proto_tree_add_item(tree, hf_cip_reserved8, tvb, offset+25, 1, ENC_LITTLE_ENDIAN );
 
    // Handle the Application Reply Data.
-   if (app_rep_size > 0)
+   int reply_parsed_len = 0;
+   safety_application_reply_data_t safety_reply_data = {0};
+   if (preq_info && preq_info->connInfo && preq_info->connInfo->safety.safety_seg == TRUE)
    {
-      if ((preq_info == NULL) || (preq_info->connInfo == NULL) ||
-          (preq_info->connInfo->safety.safety_seg == FALSE))
-      {
-         proto_tree_add_item(tree, hf_cip_cm_app_reply_data, tvb, offset+26, app_rep_size, ENC_NA );
-      }
-      else if (preq_info->connInfo->safety.format == CIP_SAFETY_BASE_FORMAT)
-      {
-         safety_tree = proto_tree_add_subtree( tree, tvb, offset+26, 10, ett_cip_cm_safety, NULL, "Safety Application Reply Data");
-         proto_tree_add_item( safety_tree, hf_cip_cm_consumer_number, tvb, offset+26, 2, ENC_LITTLE_ENDIAN);
-         pid_tree = proto_tree_add_subtree( safety_tree, tvb, offset+28, 8, ett_cip_cm_pid, NULL, "PID/CID");
-         proto_tree_add_item( pid_tree, hf_cip_cm_targ_vendor_id, tvb, offset+28, 2, ENC_LITTLE_ENDIAN);
-         target_triad.VendorID = tvb_get_letohs(tvb, offset+28);
+      reply_parsed_len = dissect_fwd_open_rsp_safety_application_reply_data(preq_info, tree, tvb, offset + 26, &safety_reply_data);
+   }
 
-         proto_tree_add_item_ret_uint( pid_tree, hf_cip_cm_targ_dev_serial_num, tvb, offset+30, 4, ENC_LITTLE_ENDIAN, &target_triad.DeviceSerialNumber);
-
-         proto_tree_add_item( pid_tree, hf_cip_cm_targ_conn_serial_num, tvb, offset+34, 2, ENC_LITTLE_ENDIAN);
-         target_triad.ConnSerialNumber = tvb_get_letohs(tvb, offset+34);
-
-         if (app_rep_size > 10)
-            proto_tree_add_item(tree, hf_cip_cm_app_reply_data, tvb, offset+36, app_rep_size-10, ENC_NA );
-      }
-      else if (preq_info->connInfo->safety.format == CIP_SAFETY_EXTENDED_FORMAT)
-      {
-         safety_tree = proto_tree_add_subtree( tree, tvb, offset+26, 14, ett_cip_cm_safety, NULL, "Safety Application Reply Data");
-         proto_tree_add_item( safety_tree, hf_cip_cm_consumer_number, tvb, offset+26, 2, ENC_LITTLE_ENDIAN);
-         pid_tree = proto_tree_add_subtree( safety_tree, tvb, offset+28, 12, ett_cip_cm_pid, NULL, "PID/CID");
-         proto_tree_add_item( pid_tree, hf_cip_cm_targ_vendor_id, tvb, offset+28, 2, ENC_LITTLE_ENDIAN);
-         target_triad.VendorID = tvb_get_letohs(tvb, offset+28);
-
-         proto_tree_add_item_ret_uint( pid_tree, hf_cip_cm_targ_dev_serial_num, tvb, offset+30, 4, ENC_LITTLE_ENDIAN, &target_triad.DeviceSerialNumber);
-
-         proto_tree_add_item( pid_tree, hf_cip_cm_targ_conn_serial_num, tvb, offset+34, 2, ENC_LITTLE_ENDIAN);
-         target_triad.ConnSerialNumber = tvb_get_letohs(tvb, offset+34);
-
-         proto_tree_add_item( pid_tree, hf_cip_cm_initial_timestamp, tvb, offset+36, 2, ENC_LITTLE_ENDIAN);
-         init_timestamp_value = tvb_get_letohs(tvb, offset+36);
-         proto_tree_add_item( pid_tree, hf_cip_cm_initial_rollover, tvb, offset+38, 2, ENC_LITTLE_ENDIAN);
-         init_rollover_value = tvb_get_letohs(tvb, offset+38);
-
-         if (app_rep_size > 14)
-            proto_tree_add_item(tree, hf_cip_cm_app_reply_data, tvb, offset+40, app_rep_size-14, ENC_NA );
-      }
+   int remaining_reply_len = app_rep_size - reply_parsed_len;
+   if (remaining_reply_len > 0)
+   {
+      proto_tree_add_item(tree, hf_cip_cm_app_reply_data, tvb, offset + 26 + reply_parsed_len, remaining_reply_len, ENC_NA);
    }
 
    display_connection_information_fwd_open_rsp(pinfo, tvb, tree, preq_info);
@@ -7950,9 +7971,9 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
          preq_info->connInfo->T2O.api = T2OAPI;
          if (preq_info->connInfo->safety.safety_seg == TRUE)
          {
-             preq_info->connInfo->safety.running_rollover_value = init_rollover_value;
-             preq_info->connInfo->safety.running_timestamp_value = init_timestamp_value;
-             preq_info->connInfo->safety.target_triad = target_triad;
+             preq_info->connInfo->safety.running_rollover_value = safety_reply_data.init_rollover_value;
+             preq_info->connInfo->safety.running_timestamp_value = safety_reply_data.init_timestamp_value;
+             preq_info->connInfo->safety.target_triad = safety_reply_data.target_triad;
              preq_info->connInfo->safety.seen_non_zero_timestamp = FALSE;
          }
       }
