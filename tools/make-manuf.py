@@ -113,11 +113,13 @@ skip_start = [
     'wuhan',
     'hangzhou',
     'guangxi',
+    'guangdong',
 ]
 
 # Special cases handled directly
 special_case = {
     "Advanced Micro Devices": "AMD",
+    "杭州德澜科技有限公司": "DelanTech" # 杭州德澜科技有限公司（HangZhou Delan Technology Co.,Ltd）
 }
 
 def shorten(manuf):
@@ -130,6 +132,8 @@ def shorten(manuf):
         manuf = manuf.title()
     # Remove the contents of parenthesis as ancillary data
     manuf = re.sub(r"\(.*\)", '', manuf)
+    # Remove the contents of fullwidth parenthesis (mostly in Asian names)
+    manuf = re.sub(r"（.*）", '', manuf)
     # Remove "a" before removing punctuation ("Aruba, a Hewlett [...]" etc.)
     manuf = manuf.replace(" a ", " ")
     # Remove any punctuation
