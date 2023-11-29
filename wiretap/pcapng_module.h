@@ -194,6 +194,13 @@ void pcapng_process_uint64_option(wtapng_block_t *wblock,
                                   const guint8 *option_content);
 
 WS_DLL_PUBLIC
+void pcapng_process_int64_option(wtapng_block_t *wblock,
+                                 const section_info_t *section_info,
+                                 pcapng_opt_byte_order_e byte_order,
+                                 guint16 option_code, guint16 option_length,
+                                 const guint8 *option_content);
+
+WS_DLL_PUBLIC
 void pcapng_process_string_option(wtapng_block_t *wblock, guint16 option_code,
                                   guint16 option_length, const guint8 *option_content);
 

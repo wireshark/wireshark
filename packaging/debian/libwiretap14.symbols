@@ -19,6 +19,7 @@ libwiretap.so.14 libwiretap14 #MINVER#
  open_info_name_to_type@Base 1.12.0~rc1
  open_routines@Base 1.12.0~rc1
  pcapng_process_bytes_option@Base 3.5.0
+ pcapng_process_int64_option@Base 4.2.1
  pcapng_process_options@Base 3.5.0
  pcapng_process_string_option@Base 3.5.0
  pcapng_process_timestamp_option@Base 3.5.0
