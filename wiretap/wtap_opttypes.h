@@ -76,7 +76,12 @@ extern "C" {
                                        *     If this option is not present, a resolution of 10^-6 is assumed
                                        *     (i.e. timestamps have the same resolution of the standard 'libpcap' timestamps).
                                        */
-#define OPT_IDB_TZONE          10    /**< XXX: if_tzone    Time zone for GMT support (TODO: specify better). */
+#define OPT_IDB_TZONE          10    /**< Time zone for GMT support.  This option has neer been specified in
+                                       *     greater detail and, unless it were to identify something such as
+                                       *     an IANA time zone database timezone, would be insufficient for
+                                       *     converting between UTC and local time.  Therefore, it SHOULD NOT
+                                       *     be used; instead, the if_iana_tzname option SHOULD be used if
+                                       *     time zone information is to be specified. */
 #define OPT_IDB_FILTER         11    /**< The filter (e.g. "capture only TCP traffic") used to capture traffic.
                                        *     The first byte of the Option Data keeps a code of the filter used
                                        *     (e.g. if this is a libpcap string, or BPF bytecode, and more).
@@ -97,13 +102,15 @@ extern "C" {
                                        *     For link layers whose FCS length can change during time,
                                        *     the Packet Block Flags Word can be used (see Appendix A (Packet Block Flags Word))
                                        */
-#define OPT_IDB_TSOFFSET       14    /**< XXX: A 64 bits integer value that specifies an offset (in seconds)
+#define OPT_IDB_TSOFFSET       14    /**< A 64-bit signed integer value that specifies an offset (in seconds)
                                        *     that must be added to the timestamp of each packet to obtain
-                                       *     the absolute timestamp of a packet. If the option is missing,
-                                       *     the timestamps stored in the packet must be considered absolute
-                                       *     timestamps. The time zone of the offset can be specified with the
-                                       *     option if_tzone. TODO: won't a if_tsoffset_low for fractional
-                                       *     second offsets be useful for highly synchronized capture systems?
+                                       *     the absolute timestamp of a packet. If the option is not present,
+                                       *     an offst of 0 is assumed (i.e., timestamps in blocks are absolute
+                                       *     timestamps).
+                                       *
+                                       *     This offset is not intended to be used as an offset between local
+                                       *     time and UTC; for this purpose, the if_iana_tzname option SHOULD be
+                                       *     used to specify a timezone.
                                        */
 #define OPT_IDB_HARDWARE       15    /**< A UTF-8 string containing the description
                                        *     of the hardware of the device used

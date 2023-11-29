@@ -1965,6 +1965,12 @@ void wtap_opttypes_initialize(void)
         WTAP_OPTTYPE_UINT8,
         0
     };
+    static const wtap_opttype_t if_tsoffset = {
+        "tsoffset",
+        "IDB Time Stamp Offset",
+        WTAP_OPTTYPE_INT64,
+        0
+    };
     static const wtap_opttype_t if_hardware = {
         "hardware",
         "IDB Hardware",
@@ -2167,6 +2173,7 @@ void wtap_opttypes_initialize(void)
     wtap_opttype_option_register(&idb_block, OPT_IDB_FILTER, &if_filter);
     wtap_opttype_option_register(&idb_block, OPT_IDB_OS, &if_os);
     wtap_opttype_option_register(&idb_block, OPT_IDB_FCSLEN, &if_fcslen);
+    wtap_opttype_option_register(&idb_block, OPT_IDB_TSOFFSET, &if_tsoffset);
     wtap_opttype_option_register(&idb_block, OPT_IDB_HARDWARE, &if_hardware);
 
     /*
