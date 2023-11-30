@@ -28,10 +28,9 @@
 #include <QClipboard>
 #include <QPushButton>
 
-CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, QStringList &intList, QString &compile_filter) :
+CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, QList<InterfaceFilter> &intList) :
     GeometryStateDialog(parent),
     intList_(intList),
-    compile_filter_(compile_filter),
     ui(new Ui::CompiledFilterOutput)
 {
     ui->setupUi(this);
@@ -71,21 +70,21 @@ void CompiledFilterOutput::compileFilter()
 {
     struct bpf_program fcode;
 
-    foreach (QString interfaces, intList_) {
+    foreach (InterfaceFilter current, intList_) {
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
             interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
 
-            if (interfaces.compare(device->display_name)) {
+            if (current.interface.compare(device->display_name)) {
                 continue;
             } else {
                 pcap_t *pd = pcap_open_dead(device->active_dlt, WTAP_MAX_PACKET_SIZE_STANDARD);
                 if (pd == NULL)
                     break;
                 g_mutex_lock(&pcap_compile_mtx_);
-                if (pcap_compile(pd, &fcode, compile_filter_.toUtf8().data(), 1, 0) < 0) {
-                    compile_results.insert(interfaces, QString(pcap_geterr(pd)));
+                if (pcap_compile(pd, &fcode, current.filter.toUtf8().data(), 1, 0) < 0) {
+                    compile_results.insert(current.interface, QString(pcap_geterr(pd)));
                     g_mutex_unlock(&pcap_compile_mtx_);
-                    ui->interfaceList->addItem(new QListWidgetItem(QIcon(":expert/expert_error.png"),interfaces));
+                    ui->interfaceList->addItem(new QListWidgetItem(QIcon(":expert/expert_error.png"), current.interface));
                 } else {
                     GString *bpf_code_dump = g_string_new("");
                     struct bpf_insn *insn = fcode.bf_insns;
@@ -95,9 +94,9 @@ void CompiledFilterOutput::compileFilter()
                         g_string_append(bpf_code_dump, "\n");
                     }
                     g_mutex_unlock(&pcap_compile_mtx_);
-                    compile_results.insert(interfaces, QString(bpf_code_dump->str));
+                    compile_results.insert(current.interface, QString(bpf_code_dump->str));
                     g_string_free(bpf_code_dump, TRUE);
-                    ui->interfaceList->addItem(new QListWidgetItem(interfaces));
+                    ui->interfaceList->addItem(new QListWidgetItem(current.interface));
                     pcap_freecode(&fcode);
                 }
                 pcap_close(pd);

@@ -955,13 +955,17 @@ void CaptureOptionsDialog::updateStatistics(void)
 
 void CaptureOptionsDialog::on_compileBPF_clicked()
 {
-    QStringList interfaces;
+    QList<InterfaceFilter> interfaces;
     foreach (QTreeWidgetItem *ti, ui->interfaceTree->selectedItems()) {
-        interfaces.append(ti->text(col_interface_));
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        interfaces.emplaceBack(ti->text(col_interface_), ti->text(col_filter_));
+#else
+        interfaces.append(InterfaceFilter(ti->text(col_interface_), ti->text(col_filter_)));
+#endif
     }
 
     QString filter = ui->captureFilterComboBox->currentText();
-    CompiledFilterOutput *cfo = new CompiledFilterOutput(this, interfaces, filter);
+    CompiledFilterOutput *cfo = new CompiledFilterOutput(this, interfaces);
 
     cfo->show();
 }
