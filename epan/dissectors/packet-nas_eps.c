@@ -28,6 +28,8 @@
 #include <wsutil/pow2.h>
 #include <wsutil/pint.h>
 #include <wsutil/str_util.h>
+#include <epan/strutil.h>
+#include <wsutil/wsgcrypt.h>
 #include "packet-gsm_map.h"
 #include "packet-gsm_a_common.h"
 #include "packet-lcsap.h"
@@ -39,6 +41,9 @@ void proto_reg_handoff_nas_eps(void);
 #define PNAME  "Non-Access-Stratum (NAS)PDU"
 #define PSNAME "NAS-EPS"
 #define PFNAME "nas-eps"
+
+#define AES_KEY_LEN 16
+#define AES_BLOCK_LEN 16
 
 /* Initialize the protocol and registered fields */
 static int proto_nas_eps;
@@ -66,6 +71,7 @@ static int hf_nas_eps_security_header_type;
 static int hf_nas_eps_msg_auth_code;
 static int hf_nas_eps_seq_no;
 static int hf_nas_eps_ciphered_msg;
+static int hf_nas_eps_deciphered_msg;
 static int hf_nas_eps_msg_elems;
 static int hf_nas_eps_seq_no_short;
 static int hf_nas_eps_emm_ebi0;
@@ -492,6 +498,8 @@ static const enum_val_t nas_eps_user_data_container_as_vals[] = {
 };
 static int g_nas_eps_decode_user_data_container_as = DECODE_USER_DATA_AS_NONE;
 static const char *g_nas_eps_non_ip_data_dissector = "";
+static const char *g_nas_eps_decipher_key_str = "";
+static GByteArray *g_nas_eps_decipher_key = NULL;
 
 /* Table 9.8.1: Message types for EPS mobility management
  *  0   1   -   -   -   -   -   -       EPS mobility management messages
@@ -689,6 +697,70 @@ calc_bitrate_ext2(uint8_t value) {
 
 #define NUM_NAS_EPS_COMMON_ELEM array_length(nas_eps_common_elem_strings)
 int ett_nas_eps_common_elem[NUM_NAS_EPS_COMMON_ELEM];
+
+static tvbuff_t *
+deciphering_eea2_msg(packet_info *pinfo, tvbuff_t *tvb, gint offset, gint len)
+{
+    gcry_cipher_hd_t cipher;
+    gcry_error_t err = 0;
+    GByteArray *decipher_msg = NULL;
+    tvbuff_t *clear_tvb = NULL;
+
+    if (!g_nas_eps_decipher_key)
+        return NULL;
+    if (!g_nas_eps_decipher_key->data)
+        return NULL;
+    if (g_nas_eps_decipher_key->len != AES_KEY_LEN)
+        return NULL;
+
+    int direction = pinfo->link_dir;
+
+    // Get Seq Number from msg
+    uint8_t seqn = tvb_get_uint8(tvb, offset);
+    offset++;
+
+    guint8 siv[AES_BLOCK_LEN] = {0};
+
+    siv[0] = 0x00;
+    siv[1] = 0x00; // Missing calculation of overflow
+    siv[2] = 0x00; // Missing calculation of overflow
+    siv[3] = seqn;
+    siv[4] = (direction << 2) & 0x04; // Direction...
+
+    err = gcry_cipher_open(&cipher, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0);
+    if (gcry_err_code(err))
+        return NULL;
+
+    err = gcry_cipher_setkey(cipher, g_nas_eps_decipher_key->data, g_nas_eps_decipher_key->len);
+    if (gcry_err_code(err))
+    {
+        gcry_cipher_close(cipher);
+        return NULL;
+    }
+
+    err = gcry_cipher_setctr(cipher, siv, AES_BLOCK_LEN);
+    if (gcry_err_code(err))
+    {
+        gcry_cipher_close(cipher);
+        return NULL;
+    }
+
+    decipher_msg = g_byte_array_sized_new(len);
+    g_byte_array_set_size(decipher_msg, len);
+    const guint8 *ciphered_msg = tvb_get_ptr(tvb, offset, len);
+    err = gcry_cipher_decrypt(cipher, decipher_msg->data, decipher_msg->len, ciphered_msg, len);
+    if (gcry_err_code(err))
+    {
+        g_byte_array_free(decipher_msg, TRUE);
+        gcry_cipher_close(cipher);
+        return NULL;
+    }
+    clear_tvb = tvb_new_child_real_data(tvb,
+                                        (const guint8 *)decipher_msg->data, decipher_msg->len, decipher_msg->len);
+    gcry_cipher_close(cipher);
+    return clear_tvb;
+}
+
 
 /*
  * 9.9.2    Common information elements
@@ -7149,18 +7221,39 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                 /* Sequence number  Sequence number 9.6 M   V   1 */
                 proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
+
+                col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Ciphered message");
+                proto_tree_add_item(nas_eps_tree, hf_nas_eps_ciphered_msg, tvb, offset, len - 6, ENC_NA);
+
                 /* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
-                /* Read security_header_type / EPS bearer id AND pd */
-                pd = tvb_get_uint8(tvb,offset);
-                /* If pd is in plaintext this message probably isn't ciphered */
                 /* Use preferences settings to override this behavior */
-                if (!g_nas_eps_null_decipher ||
-                    ((pd != 7) && (pd != 15) && ((pd&0x0f) != 2))) {
-                    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Ciphered message");
-                    proto_tree_add_item(nas_eps_tree, hf_nas_eps_ciphered_msg, tvb, offset, len-6, ENC_NA);
+                /* No decipher mechanism selected, retruning without trying to decipher */
+                if (!g_nas_eps_null_decipher)
+                {
                     return tvb_captured_length(tvb);
                 }
-            } else {
+                /* Force deciphering with EEA2*/
+                else if (g_nas_eps_decipher_key != NULL)
+                {
+                    tvbuff_t *tvb_deciphered = deciphering_eea2_msg(pinfo, tvb, offset - 1, len - 6);
+
+                    if (!tvb_deciphered)
+                    {
+                        return tvb_captured_length(tvb);
+                    }
+                    uint32_t pd_deciphered = tvb_get_uint8(tvb_deciphered, 0);
+                    if ((pd_deciphered != 7) && (pd_deciphered != 15) && ((pd_deciphered & 0x0f) != 2))
+                    {
+                        return tvb_captured_length(tvb);
+                    }
+                    len = tvb_reported_length(tvb_deciphered);
+                    tvb = tvb_deciphered;
+                    offset = 0;
+                    proto_tree_add_item(nas_eps_tree, hf_nas_eps_deciphered_msg, tvb, offset, len, ENC_NA);
+                }
+            }
+            else
+            {
                 /* msg_auth_code == 0, probably not ciphered */
                 /* Sequence number  Sequence number 9.6 M   V   1 */
                 proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -7266,6 +7359,11 @@ proto_register_nas_eps(void)
         { "Ciphered message","nas-eps.ciphered_msg",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
+    },
+    { &hf_nas_eps_deciphered_msg,
+        {"Deciphered message","nas_eps.deciphered_msg",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL}
     },
     { &hf_nas_eps_msg_elems,
         { "Message Elements", "nas-eps.message_elements",
@@ -9265,6 +9363,10 @@ proto_register_nas_eps(void)
                                         "Dissector name for non IP data", NULL,
                                         &g_nas_eps_non_ip_data_dissector);
 
+    prefs_register_string_preference(nas_eps_module, "decipherkey", "Decipher Key",
+                                     "Decipher Key in hex format (only support EEA2)",
+                                     &g_nas_eps_decipher_key_str);
+
     prefs_register_obsolete_preference(nas_eps_module, "user_data_container_as_ip");
 }
 
@@ -9320,6 +9422,13 @@ proto_reg_handoff_nas_eps(void)
         non_ip_data_handle = find_dissector(g_nas_eps_non_ip_data_dissector);
     } else {
         non_ip_data_handle = NULL;
+    }
+
+    if (g_nas_eps_decipher_key_str[0] != '\0')
+    {
+        g_nas_eps_decipher_key = g_byte_array_sized_new(AES_KEY_LEN);
+        if (!hex_str_to_bytes_encoding(g_nas_eps_decipher_key_str, g_nas_eps_decipher_key, NULL,  ENC_STR_HEX | ENC_SEP_SPACE , FALSE))
+            g_nas_eps_decipher_key = NULL;
     }
 }
 
