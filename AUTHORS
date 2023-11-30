@@ -3219,9 +3219,8 @@ Juha Siltanen		<juha.siltanen[AT]nsn.com> {
 	FLIP dissector
 }
 
-Cal Turney		<cturney[AT]charter.net> {
-	NFS access tracking
-	tshark version of the SCSI tap
+Cal Turney		<cturney111[AT]gmail.com> {
+	Updates to iSCSI, HTTP, TCP, NFS, SMB, BER
 }
 
 Lukasz Kotasa		<lukasz.kotasa[AT]tieto.com> {
