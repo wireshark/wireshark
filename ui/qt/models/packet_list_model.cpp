@@ -180,6 +180,7 @@ void PacketListModel::clear() {
     endResetModel();
     max_row_height_ = 0;
     max_line_count_ = 1;
+    idle_dissection_timer_->invalidate();
     idle_dissection_row_ = 0;
 }
 
