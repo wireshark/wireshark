@@ -39,6 +39,18 @@ WS_DLL_PUBLIC
 const char *
 ws_manuf_lookup_str(const uint8_t addr[6], const char **long_name_ptr);
 
+/* Returns the short name. Takes an optional pointer to return the long name.
+ * Takes an optional pointer to return the length of the mask. */
+WS_DLL_PUBLIC
+const char *
+ws_manuf_lookup(const uint8_t addr[6], const char **long_name_ptr, unsigned *mask_ptr);
+
+/* Search only in the OUI/MA-L/CID tables for a 24-bit OUI. Returns the short
+ * name. Takes an optional pointer to return the long time. */
+WS_DLL_PUBLIC
+const char *
+ws_manuf_lookup_oui24(const uint8_t oui[3], const char **long_name_ptr);
+
 WS_DLL_PUBLIC
 void
 ws_manuf_iter_init(ws_manuf_iter_t *iter);

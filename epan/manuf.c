@@ -122,10 +122,71 @@ manuf_oui36_lookup(const uint8_t addr[6])
 }
 
 const char *
-ws_manuf_lookup_str(const uint8_t addr[6], const char **long_name_ptr)
+ws_manuf_lookup(const uint8_t addr[6], const char **long_name_ptr, unsigned *mask_ptr)
 {
     uint8_t addr_copy[6];
     memcpy(addr_copy, addr, 6);
+    /* Mask out the broadcast/multicast flag */
+    addr_copy[0] &= 0xFE;
+
+    const char *short_name = NULL, *long_name = NULL;
+    unsigned mask = 0;
+
+    switch (select_registry(addr_copy)) {
+        case MA_L:
+        {
+            const manuf_oui24_t *ptr = manuf_oui24_lookup(addr_copy);
+            if (ptr) {
+                short_name = ptr->short_name;
+                long_name = ptr->long_name;
+                mask = 24;
+            }
+            break;
+        }
+        case MA_M:
+        {
+            const manuf_oui28_t *ptr = manuf_oui28_lookup(addr_copy);
+            if (ptr) {
+                short_name = ptr->short_name;
+                long_name = ptr->long_name;
+                mask = 28;
+            }
+            break;
+        }
+        case MA_S:
+        {
+            const manuf_oui36_t *ptr = manuf_oui36_lookup(addr_copy);
+            if (ptr) {
+                short_name = ptr->short_name;
+                long_name = ptr->long_name;
+                mask = 36;
+            }
+            break;
+        }
+        default:
+            ws_assert_not_reached();
+    }
+
+    if (mask_ptr) {
+        *mask_ptr = mask;
+    }
+    if (long_name_ptr) {
+        *long_name_ptr = long_name;
+    }
+    return short_name;
+}
+
+const char *
+ws_manuf_lookup_str(const uint8_t addr[6], const char **long_name_ptr)
+{
+    return ws_manuf_lookup(addr, long_name_ptr, NULL);
+}
+
+const char *
+ws_manuf_lookup_oui24(const uint8_t oui[3], const char **long_name_ptr)
+{
+    uint8_t addr_copy[6] = {0};
+    memcpy(addr_copy, oui, 3);
     /* Mask out the broadcast/multicast flag */
     addr_copy[0] &= 0xFE;
 
@@ -142,21 +203,12 @@ ws_manuf_lookup_str(const uint8_t addr[6], const char **long_name_ptr)
             break;
         }
         case MA_M:
-        {
-            const manuf_oui28_t *ptr = manuf_oui28_lookup(addr_copy);
-            if (ptr) {
-                short_name = ptr->short_name;
-                long_name = ptr->long_name;
-            }
-            break;
-        }
         case MA_S:
         {
-            const manuf_oui36_t *ptr = manuf_oui36_lookup(addr_copy);
-            if (ptr) {
-                short_name = ptr->short_name;
-                long_name = ptr->long_name;
-            }
+            /* XXX: These are officially registered to
+             * "IEEE Registration Authority" and we could return that, but
+             * we'd have to change expectatins elsewhere in the code.
+             */
             break;
         }
         default:
