@@ -4,10 +4,20 @@ There are a multitude of plugin options available in Wireshark that allow to
 extend its functionality without changing the source code itself.  Using the
 available APIs gives you the means to do this.
 
-Currently plugin APIs are available for dissectors (epan), capture file types
-(wiretap) and media decoders (codecs).  This README focuses primarily on
-dissector plugins; most of the descriptions are applicable to the other plugin
-types as well.
+Plugins have three distinct binary types:
+  * codec: These plugins are loaded by Wireshark to implement audio codecs
+  * wiretap: These plugins can implement various extensions to libwiretap
+  * epan: These plugins implement extensions to libwireshark
+
+Whithin each type we can differentiate by the features and APIs used. There
+are the following functional types:
+
+  * codec: is its own class of functionality, described above
+  * dissector (epan): implements new protocol dissectors
+  * tap listener (epan): implements statistics and other extensions using taps
+  * display filter (epan): implements new display filter functions
+  * epan (epan): used to implement language bindings such as Lua
+  * file type (wiretap): implements support for reading new capture file types
 
 1. Dissector plugins
 
@@ -159,84 +169,63 @@ by going to the plugins/foo directory and running
 
 make install
 
-5. Update "old style" plugins
+5. Plugin registration API common to all plugin types
 
-5.1 How to update an "old style" plugin (since Wireshark 2.5)
+You must include the plugin API header:
 
-Plugins need exactly four visible symbols: plugin_version, plugin_want_major,
-plugin_want_minor and plugin_register. Each plugin is either a codec plugin,
-libwiretap plugin or libwireshark plugin and the library will call
-"plugin_register" after loading the plugin. "plugin_register" in turn calls all
-the hooks necessary to enable the plugin. So if you had two function like so:
+#include <wsutil/plugins.h>
 
-    WS_DLL_PUBLIC void plugin_register(void);
-    WS_DLL_PUBLIC void plugin_reg_handoff(void);
+First declare a struct with the plugin metadata fields:
 
-    void plugin_register(void) {...};
-    void plugin_reg_handoff(void) {...};
+static struct ws_module module = {
+    .license = WS_PLUGIN_IS_GPLv2_OR_LATER,
+    .flags = WS_PLUGIN_DESC_DISSECTOR,
+    .version = "X.Y.Z",
+    .spdx_id = "GPL-2.0-or-later",
+    .home_url = "Your-URL-here",
+    .blurb = "Short description for the functionality",
+    .register_cb = &plugin_register,
+};
 
-You'll have to rewrite it as:
+You must declare if the plugin license is GPLv2 or later, or compatible
+with the GPLv2. Only GPLv2 compatible plugins can be used with Wireshark.
+See [gpl-compat] for details on GPL license compatibility.
 
-    WS_DLL_PUBLIC void plugin_register(void);
+Flags currently is only used to categorize a plugin according to its
+functionality, for display purposes. A plugin can implement more than one
+functionality type within each binary type, although this is rare in practice.
 
-    static void proto_register_foo(void) {...};
-    static void proto_reg_handoff_foo(void) {...};
+Version is a string and conventionally uses the format major.minor.micro,
+althout this isn't enforced.
 
-    void plugin_register(void)
-    {
-	static proto_plugin plugin_foo;
+spdx_is is the SPDX license ID.
 
-	plugin_foo.register_protoinfo = proto_register_foo;
-	plugin_foo.register_handoff = proto_reg_handoff_foo;
-	proto_register_plugin(&plugin_foo);
-    }
+Home URL should be a string where users can obtain the source for the plugin
+and more detailed information about the plugin.
 
-See doc/plugins.example for an example.
+The blurb is a short description of that the plugin does.
 
-5.2 How to update an "old style" plugin (using plugin_register and
-    plugin_reg_handoff functions).
+The plugin registration callback implementation is specific for each plugin
+type (see the various plugins bundled with Wireshark for examples).
 
-The plugin registration has changed with the extension of the build
-scripts. These now generate the additional code needed for plugin
-encapsulation in plugin.c. When using the new style build scripts,
-strips the parts outlined below:
+static void
+plugin_register(void)
+{
+        /* Code to register the dissector, tap listener, etc. */
+}
 
-    o Remove the following include statements:
+Finally the plugin must use one of the following macros to register itself:
 
-        #include <gmodule.h>
-        #include "moduleinfo.h"
+WIRESHARK_PLUGIN_REGISTER_EPAN(&module, 0)
+WIRESHARK_PLUGIN_REGISTER_WIRETAP(&module, 0)
+WIRESHARK_PLUGIN_REGISTER_CODEC(&module, 0)
 
-    o Removed the definition:
+As the name implies each plugin binary type has a specific registration
+macro (but they all have the same arguments). The macro takes a pointer to
+the struct ws_module as the first argument. The second argument is
+currently unused and should be zero.
 
-        #ifndef ENABLE_STATIC
-        WS_DLL_PUBLIC_DEF char version[] = VERSION;
-        #endif
-
-    o Move relevant code from the blocks and delete these functions:
-
-        #ifndef ENABLE_STATIC
-        plugin_reg_handoff()
-        ....
-        #endif
-
-        #ifndef ENABLE_STATIC
-        plugin_register()
-        ....
-        #endif
-
-This will leave a clean dissector source file without plugin specifics.
-
-5.3 How to update an "old style" plugin (using plugin_init function)
-
-The plugin registering has changed between 0.10.9 and 0.10.10; everyone
-is encouraged to update their plugins as outlined below:
-
-    o Remove following include statements from all plugin sources:
-
-	#include "plugins/plugin_api.h"
-	#include "plugins/plugin_api_defs.h"
-
-    o Remove the init function.
+[gpl-compat]https://www.gnu.org/licenses/gpl-faq.html#WhatDoesCompatMean
 
 6 How to plugin related interface options
 

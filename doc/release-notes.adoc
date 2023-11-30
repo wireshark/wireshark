@@ -24,6 +24,9 @@ representations for numeric fields).
 
 Display filter functions can be implemented as runtime-loadable C plugins.
 
+Plugin registration API was refactored. Plugin authors must update their
+plugins as described below.
+
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 
@@ -146,8 +149,11 @@ EGNOS Messager Server (EMS) files
 
 === Major API Changes
 
-* Plugins should provide a `plugin_describe()` function that returns an ORed
-  list of flags consisting of the plugin types used (declared in wsutil/plugins.h).
+* Plugin registration API was refactored. Plugin authors must do the following:
+  1 - Remove the existing bloilerplate (version, want_major` and `want_minor` and
+  plugin API declarations. 2 - Add a struct ws_module to the plugin.
+  3 - Call one of the WIRESHARK_PLUGIN_REGISTER_* macros. See README.plugins
+  sections 5 and doc/plugins.example/hello.c for details and examples.
 
 == Getting Wireshark
 
