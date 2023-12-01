@@ -10,6 +10,7 @@
  */
 
 #include <config.h>
+#include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/proto_data.h>
 
@@ -233,6 +234,8 @@ static gint ett_zbee_tlv_zbd_tunneling_npdu_flags = -1;
 
 static gint ett_zbee_tlv_link_key_flags = -1;
 static gint ett_zbee_tlv_network_status_map = -1;
+
+static expert_field ei_zbee_tlv_max_recursion_depth_reached;
 
 static const value_string zbee_tlv_local_types_key_method_str[] =
 {
@@ -2777,17 +2780,31 @@ dissect_zbee_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint 
  *@param  cmd_id ToDo:
  *@return offset after command dissection.
  */
+
+#define ZBEE_TLV_MAX_RECURSION_DEPTH 5 // Arbitrarily chosen
+
 guint
 dissect_zbee_tlvs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, void *data, guint8 source_type, guint cmd_id)
 {
     proto_tree  *subtree;
     guint8       length;
+    unsigned     recursion_depth = p_get_proto_depth(pinfo, proto_zbee_tlv);
+
+   if (++recursion_depth >= ZBEE_TLV_MAX_RECURSION_DEPTH) {
+      proto_tree_add_expert(tree, pinfo, &ei_zbee_tlv_max_recursion_depth_reached, tvb, 0, 0);
+      return tvb_reported_length_remaining(tvb, offset);
+   }
+
+   p_set_proto_depth(pinfo, proto_zbee_tlv, recursion_depth);
 
     while (tvb_bytes_exist(tvb, offset, ZBEE_TLV_HEADER_LENGTH)) {
         length = tvb_get_guint8(tvb, offset + 1) + 1;
         subtree = proto_tree_add_subtree(tree, tvb, offset, ZBEE_TLV_HEADER_LENGTH + length, ett_zbee_tlv, NULL, "TLV");
         offset = dissect_zbee_tlv(tvb, pinfo, subtree, offset, data, source_type, cmd_id);
     }
+
+    recursion_depth = p_get_proto_depth(pinfo, proto_zbee_tlv);
+    p_set_proto_depth(pinfo, proto_zbee_tlv, recursion_depth - 1);
 
     return offset;
 } /* dissect_zbee_tlvs */
@@ -3272,10 +3289,18 @@ void proto_register_zbee_tlv(void)
             &ett_zbee_tlv_network_status_map
         };
 
+    static ei_register_info ei[] = {
+        { &ei_zbee_tlv_max_recursion_depth_reached, { "zbee_tlv.max_recursion_depth_reached",
+            PI_PROTOCOL, PI_WARN, "Maximum allowed recursion depth reached - stop decoding", EXPFILL }}
+    };
+
     proto_zbee_tlv = proto_register_protocol("Zigbee TLV", "ZB TLV", "zbee_tlv");
 
     proto_register_field_array(proto_zbee_tlv, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_module_t* expert_zbee_tlv = expert_register_protocol(proto_zbee_tlv);
+    expert_register_field_array(expert_zbee_tlv, ei, array_length(ei));
 
     register_dissector("zbee_tlv", dissect_zbee_tlv_default, proto_zbee_tlv);
     zbee_nwk_handle = find_dissector("zbee_nwk");
