@@ -198,8 +198,7 @@ variables:
 # https://gitlab.com/gitlab-org/ci-cd/shared-runners/images/macstadium/orka/-/blob/main/toolchain/monterey.yml
 .build-macos:
   stage: build
-  tags: [ saas-macos-medium-m1 ]
-  image: macos-12-xcode-14 # https://docs.gitlab.com/ee/ci/runners/saas/macos/environment.html
+  tags: [ saas-macos-medium-m1 ] # https://docs.gitlab.com/ee/ci/runners/saas/macos/environment.html
   retry: 1
   # https://gould.cx/ted/blog/2017/06/10/ccache-for-Gitlab-CI/
   cache:
@@ -221,8 +220,8 @@ variables:
     # The suite_clopts.case_tshark_extcap.test_tshark_extcap_interfaces test will fail because
     # it sets an alternate HOME, which results in asdf returning
     #   unknown command: python3. Perhaps you have to reshim?
-    # Make sure /usr/local/bin is first in order to work around asdf.
-    - export PATH=/usr/local/bin:$PATH
+    # Make sure directories that might contain Python are first in order to work around asdf.
+    - export PATH=/usr/local/bin:/opt/homebrew/Frameworks/Python.framework/Versions/Current/bin:$PATH
     - brew --version
     - printf "\e[0Ksection_start:%s:brew_section[collapsed=true]\r\e[0KInstalling prerequisites" "$( date +%s)"
     - ./tools/macos-setup-brew.sh --install-optional --install-test-deps
