@@ -29,6 +29,7 @@ set_source_files_properties(
 
 register_plugin_files(plugin.c
 	plugin_codec
+	"Opus audio"
 	${CODEC_SRC}
 )
 

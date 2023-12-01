@@ -53,6 +53,7 @@ set_source_files_properties(
 
 register_plugin_files(plugin.c
 	plugin
+	"Qt demonstration plugin"
 	${DISSECTOR_SRC}
 )
 

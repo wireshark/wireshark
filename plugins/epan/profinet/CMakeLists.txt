@@ -43,6 +43,7 @@ set_source_files_properties(
 
 register_plugin_files(plugin.c
 	plugin
+	"PROFINET dissector"
 	${DISSECTOR_SRC}
 	${DISSECTOR_SUPPORT_SRC}
 )

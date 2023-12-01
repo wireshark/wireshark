@@ -29,6 +29,7 @@ set_source_files_properties(
 
 register_plugin_files(plugin.c
 	plugin_codec
+	"A-law G.711"
 	${CODEC_SRC}
 )
 

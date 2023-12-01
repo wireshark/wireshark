@@ -29,6 +29,7 @@ set_source_files_properties(
 
 register_plugin_files(plugin.c
 	plugin
+	"Gryphon automotive network tool protocol"
 	${DISSECTOR_SRC}
 )
 

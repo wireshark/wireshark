@@ -29,6 +29,7 @@ set_source_files_properties(
 
 register_plugin_files(plugin.c
 	plugin
+	"WiMAX MAC PHY over Ethernet dissection"
 	${DISSECTOR_SRC}
 )
 

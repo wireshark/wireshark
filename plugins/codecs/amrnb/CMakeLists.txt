@@ -29,6 +29,7 @@ set_source_files_properties(
 
 register_plugin_files(plugin.c
 	plugin_codec
+	"OpenCORE Adaptive Multi Rate (AMR)"
 	${CODEC_SRC}
 )
 
