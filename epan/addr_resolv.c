@@ -159,12 +159,8 @@ typedef struct ss7pc {
 } hashss7pc_t;
 
 /* hash tables used for ethernet and manufacturer lookup */
-#define HASHETHER_STATUS_UNRESOLVED     1
-#define HASHETHER_STATUS_RESOLVED_DUMMY 2
-#define HASHETHER_STATUS_RESOLVED_NAME  3
-
 struct hashether {
-    guint             status;  /* (See above) */
+    uint8_t           flags;  /* (See above) */
     guint8            addr[6];
     char              hexaddr[6*3];
     char              resolved_name[MAXNAMELEN];
@@ -1672,10 +1668,12 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name, gchar *longna
         break;
         }
     case 48:
+        {
         /* This is a well-known MAC address; add it to the Ethernet hash table */
-        add_eth_name(addr, name);
+        hashether_t *entry = add_eth_name(addr, name);
+        entry->flags |= STATIC_HOSTNAME;
         break;
-
+        }
     default:
         {
         /* This is a range of well-known addresses; add it to the well-known-address table */
@@ -1782,7 +1780,12 @@ wka_name_lookup(const guint8 *addr, const unsigned int mask)
 
 guint get_hash_ether_status(hashether_t* ether)
 {
-    return ether->status;
+    return ether->flags;
+}
+
+bool get_hash_ether_used(hashether_t* ether)
+{
+    return ((ether->flags & TRIED_OR_RESOLVED_MASK) == TRIED_OR_RESOLVED_MASK);
 }
 
 char* get_hash_ether_hexaddr(hashether_t* ether)
@@ -1961,7 +1964,7 @@ eth_addr_resolve(hashether_t *tp) {
 
     if ( (eth = get_ethbyaddr(addr)) != NULL) {
         (void) g_strlcpy(tp->resolved_name, eth->name, MAXNAMELEN);
-        tp->status = HASHETHER_STATUS_RESOLVED_NAME;
+        tp->flags |= NAME_RESOLVED | STATIC_HOSTNAME;
         return tp;
     } else {
         guint         mask;
@@ -1976,7 +1979,7 @@ eth_addr_resolve(hashether_t *tp) {
             if ((name = wka_name_lookup(addr, mask+40)) != NULL) {
                 snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x",
                         name, addr[5] & (0xFF >> mask));
-                tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
+                tp->flags |= NAME_RESOLVED | NAME_RESOLVED_PREFIX;
                 return tp;
             }
         } while (mask--);
@@ -1987,7 +1990,7 @@ eth_addr_resolve(hashether_t *tp) {
             if ((name = wka_name_lookup(addr, mask+32)) != NULL) {
                 snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x",
                         name, addr[4] & (0xFF >> mask), addr[5]);
-                tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
+                tp->flags |= NAME_RESOLVED | NAME_RESOLVED_PREFIX;
                 return tp;
             }
         } while (mask--);
@@ -1998,7 +2001,7 @@ eth_addr_resolve(hashether_t *tp) {
             if ((name = wka_name_lookup(addr, mask+24)) != NULL) {
                 snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x",
                         name, addr[3] & (0xFF >> mask), addr[4], addr[5]);
-                tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
+                tp->flags |= NAME_RESOLVED | NAME_RESOLVED_PREFIX;
                 return tp;
             }
         } while (mask--);
@@ -2008,7 +2011,7 @@ eth_addr_resolve(hashether_t *tp) {
         if ((manuf_value != NULL) && ((manuf_value->flags & NAME_RESOLVED) == NAME_RESOLVED)) {
             snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x",
                     manuf_value->resolved_name, addr[3], addr[4], addr[5]);
-            tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
+            tp->flags |= NAME_RESOLVED | NAME_RESOLVED_PREFIX;
             return tp;
         }
 
@@ -2021,7 +2024,7 @@ eth_addr_resolve(hashether_t *tp) {
                 snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x:%02x",
                         name, addr[2] & (0xFF >> mask), addr[3], addr[4],
                         addr[5]);
-                tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
+                tp->flags |= NAME_RESOLVED | NAME_RESOLVED_PREFIX;
                 return tp;
             }
         } while (mask--);
@@ -2033,7 +2036,7 @@ eth_addr_resolve(hashether_t *tp) {
                 snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x:%02x:%02x",
                         name, addr[1] & (0xFF >> mask), addr[2], addr[3],
                         addr[4], addr[5]);
-                tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
+                tp->flags |= NAME_RESOLVED | NAME_RESOLVED_PREFIX;
                 return tp;
             }
         } while (mask--);
@@ -2045,7 +2048,7 @@ eth_addr_resolve(hashether_t *tp) {
                 snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x:%02x:%02x:%02x",
                         name, addr[0] & (0xFF >> mask), addr[1], addr[2],
                         addr[3], addr[4], addr[5]);
-                tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
+                tp->flags |= NAME_RESOLVED | NAME_RESOLVED_PREFIX;
                 return tp;
             }
         } while (--mask); /* Work down to the last bit */
@@ -2064,13 +2067,12 @@ eth_addr_resolve(hashether_t *tp) {
                 manuf_hash_new_entry(addr, short_name, long_name);
             }
             eth_resolved_name_fill(tp, short_name, mask, addr);
-            tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
+            tp->flags |= NAME_RESOLVED | NAME_RESOLVED_PREFIX;
             return tp;
         }
         /* No match whatsoever. */
         set_address(&ether_addr, AT_ETHER, 6, addr);
         address_to_str_buf(&ether_addr, tp->resolved_name, MAXNAMELEN);
-        tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
         return tp;
     }
     ws_assert_not_reached();
@@ -2084,7 +2086,7 @@ eth_hash_new_entry(const guint8 *addr, const gboolean resolve)
 
     tp = wmem_new(addr_resolv_scope, hashether_t);
     memcpy(tp->addr, addr, sizeof(tp->addr));
-    tp->status = HASHETHER_STATUS_UNRESOLVED;
+    tp->flags = 0;
     /* Values returned by bytes_to_hexstr_punct() are *not* null-terminated */
     endp = bytes_to_hexstr_punct(tp->hexaddr, addr, sizeof(tp->addr), ':');
     *endp = '\0';
@@ -2111,7 +2113,7 @@ add_eth_name(const guint8 *addr, const gchar *name)
 
     if (strcmp(tp->resolved_name, name) != 0) {
         (void) g_strlcpy(tp->resolved_name, name, MAXNAMELEN);
-        tp->status = HASHETHER_STATUS_RESOLVED_NAME;
+        tp->flags |= NAME_RESOLVED;
         new_resolved_objects = TRUE;
     }
 
@@ -2128,10 +2130,11 @@ eth_name_lookup(const guint8 *addr, const gboolean resolve)
     if (tp == NULL) {
         tp = eth_hash_new_entry(addr, resolve);
     } else {
-        if (resolve && (tp->status == HASHETHER_STATUS_UNRESOLVED)) {
+        if (resolve && !(tp->flags & NAME_RESOLVED)) {
             eth_addr_resolve(tp); /* Found but needs to be resolved */
         }
     }
+    tp->flags |= TRIED_RESOLVE_ADDRESS;
 
     return tp;
 
@@ -3524,8 +3527,8 @@ get_ether_name_if_known(const guint8 *addr)
      * if it doesn't exist, so it never returns NULL */
     tp = eth_name_lookup(addr, TRUE);
 
-    if (tp->status == HASHETHER_STATUS_RESOLVED_NAME) {
-        /* Name is from an ethers file */
+    if ((tp->flags & (NAME_RESOLVED | NAME_RESOLVED_PREFIX)) == NAME_RESOLVED) {
+        /* Name is from an exact match, not a prefix/OUI */
         return tp->resolved_name;
     }
     else {

@@ -88,7 +88,9 @@ eth_hash_to_qstringlist(gpointer, gpointer value, gpointer sl_ptr)
     QList<QStringList> *values = (QList<QStringList> *) sl_ptr;
     hashether_t* tp = (hashether_t*)value;
 
-    *values << (QStringList() << QString(get_hash_ether_hexaddr(tp)) << QString(get_hash_ether_resolved_name(tp)));
+    if (get_hash_ether_used(tp)) {
+        *values << (QStringList() << QString(get_hash_ether_hexaddr(tp)) << QString(get_hash_ether_resolved_name(tp)));
+    }
 }
 
 static void
