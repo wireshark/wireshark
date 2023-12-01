@@ -102,7 +102,9 @@ QStringList AuthorListModel::headerColumns() const
 
 #ifdef HAVE_PLUGINS
 static void plugins_add_description(const char *name, const char *version,
-                                    uint32_t flags, const char *filename,
+                                    uint32_t flags, const char *spdx_id _U_,
+                                    const char *blurb, const char *home_url,
+                                    const char *filename,
                                     void *user_data)
 {
     QList<QStringList> *plugin_data = (QList<QStringList> *)user_data;
@@ -121,7 +123,8 @@ static void plugins_add_description(const char *name, const char *version,
         plugin_types << "dfilter";
     if (plugin_types.empty())
         plugin_types << "unknown";
-    QStringList plugin_row = QStringList() << name << version << plugin_types.join(", ") << filename;
+    QStringList plugin_row = QStringList() << name << version << plugin_types.join(", ")
+                                << blurb << filename << home_url;
     *plugin_data << plugin_row;
 }
 #endif
@@ -131,7 +134,7 @@ static void other_plugins_add_description(const char *name, const char *version,
                                     void *user_data)
 {
     QList<QStringList> *plugin_data = (QList<QStringList> *)user_data;
-    QStringList plugin_row = QStringList() << name << version << types << filename;
+    QStringList plugin_row = QStringList() << name << version << types << "" << filename << "";
     *plugin_data << plugin_row;
 }
 
@@ -167,7 +170,8 @@ QStringList PluginListModel::typeNames() const
 
 QStringList PluginListModel::headerColumns() const
 {
-    return QStringList() << tr("Name") << tr("Version") << tr("Type") << tr("Path");
+    return QStringList() << tr("Name") << tr("Version") << tr("Type")
+                << tr("Description") << tr("Path") << tr("Homepage");
 }
 
 ShortcutListModel::ShortcutListModel(QObject * parent):

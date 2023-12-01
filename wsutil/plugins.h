@@ -51,7 +51,9 @@ typedef plugin_type_e (*ws_load_module_func)(int *, int *, struct ws_module **);
 WS_DLL_PUBLIC plugins_t *plugins_init(plugin_type_e type);
 
 typedef void (*plugin_description_callback)(const char *name, const char *version,
-                                            uint32_t flags, const char *filename,
+                                            uint32_t flags, const char *spdx_id,
+                                            const char *blurb, const char *home_url,
+                                            const char *filename,
                                             void *user_data);
 
 WS_DLL_PUBLIC void plugins_get_descriptions(plugin_description_callback callback, void *user_data);
