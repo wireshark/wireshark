@@ -170,6 +170,11 @@ struct hashether {
     char              resolved_name[MAXNAMELEN];
 };
 
+struct hashwka {
+    uint8_t           flags;  /* (See above) */
+    char*             name;
+};
+
 struct hashmanuf {
     guint             status;  /* (See above) */
     guint8            addr[3];
@@ -226,9 +231,9 @@ struct cb_serv_data {
 // We might want to store vendor names from MA-M and MA-S to
 // present in the Resolved Addresses dialog.
 static wmem_map_t *manuf_hashtable = NULL;
-
-// Maps address -> hashether_t*
+// Maps address -> hashwka_t*
 static wmem_map_t *wka_hashtable = NULL;
+// Maps address -> hashether_t*
 static wmem_map_t *eth_hashtable = NULL;
 // Maps guint -> serv_port_t*
 static wmem_map_t *serv_port_hashtable = NULL;
@@ -1637,15 +1642,21 @@ manuf_hash_new_entry(const guint8 *addr, const char* name, const char* longname)
     return manuf_value;
 }
 
-static void
+static hashwka_t*
 wka_hash_new_entry(const guint8 *addr, char* name)
 {
     guint8 *wka_key;
+    hashwka_t *wka_value;
 
     wka_key = (guint8 *)wmem_alloc(addr_resolv_scope, 6);
     memcpy(wka_key, addr, 6);
 
-    wmem_map_insert(wka_hashtable, wka_key, wmem_strdup(addr_resolv_scope, name));
+    wka_value = (hashwka_t*)wmem_new(addr_resolv_scope, hashwka_t);
+    wka_value->flags = NAME_RESOLVED;
+    wka_value->name = wmem_strdup(addr_resolv_scope, name);
+
+    wmem_map_insert(wka_hashtable, wka_key, wka_value);
+    return wka_value;
 }
 
 static void
@@ -1664,9 +1675,12 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name, gchar *longna
         break;
 
     default:
+        {
         /* This is a range of well-known addresses; add it to the well-known-address table */
-        wka_hash_new_entry(addr, name);
+        hashwka_t *entry = wka_hash_new_entry(addr, name);
+        entry->flags |= STATIC_HOSTNAME;
         break;
+        }
     }
 } /* add_manuf_name */
 
@@ -1733,7 +1747,7 @@ wka_name_lookup(const guint8 *addr, const unsigned int mask)
     guint8     masked_addr[6];
     guint      num;
     gint       i;
-    gchar     *name;
+    hashwka_t *value;
 
     if (wka_hashtable == NULL) {
         return NULL;
@@ -1748,12 +1762,16 @@ wka_name_lookup(const guint8 *addr, const unsigned int mask)
     for (; i < 6; i++)
         masked_addr[i] = 0;
 
-    name = (gchar *)wmem_map_lookup(wka_hashtable, masked_addr);
+    value = (hashwka_t*)wmem_map_lookup(wka_hashtable, masked_addr);
 
-    return name;
+    if (value) {
+        value->flags |= TRIED_RESOLVE_ADDRESS;
+        return value->name;
+    }
+
+    return NULL;
 
 } /* wka_name_lookup */
-
 
 guint get_hash_ether_status(hashether_t* ether)
 {
@@ -1768,6 +1786,16 @@ char* get_hash_ether_hexaddr(hashether_t* ether)
 char* get_hash_ether_resolved_name(hashether_t* ether)
 {
     return ether->resolved_name;
+}
+
+bool get_hash_wka_used(hashwka_t* wka)
+{
+    return ((wka->flags & TRIED_OR_RESOLVED_MASK) == TRIED_OR_RESOLVED_MASK);
+}
+
+char* get_hash_wka_resolved_name(hashwka_t* wka)
+{
+    return wka->name;
 }
 
 static guint

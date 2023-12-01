@@ -65,6 +65,9 @@ typedef struct _e_addr_resolve {
 struct hashether;
 typedef struct hashether hashether_t;
 
+struct hashwka;
+typedef struct hashwka hashwka_t;
+
 struct hashmanuf;
 typedef struct hashmanuf hashmanuf_t;
 
@@ -292,6 +295,8 @@ WS_DLL_PUBLIC char* get_hash_ether_resolved_name(hashether_t* ether);
 
 WS_DLL_PUBLIC char* get_hash_manuf_resolved_name(hashmanuf_t* manuf);
 
+WS_DLL_PUBLIC bool get_hash_wka_used(hashwka_t* wka);
+WS_DLL_PUBLIC char* get_hash_wka_resolved_name(hashwka_t* wka);
 
 /* adds a hostname/IPv4 in the hash table */
 WS_DLL_PUBLIC void add_ipv4_name(const guint addr, const gchar *name, const gboolean static_entry);
