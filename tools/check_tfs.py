@@ -428,7 +428,8 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
                     found = True
 
                 if found:
-                    print("Error:" if exact_case else "Warn: ", filename, f, "- could have used", c, 'from tfs.c instead: ', common_tfs[c],
+                    print("Error:" if exact_case else "Warn: ", filename, f,
+                          "- could have used", c, 'from tfs.c instead: ', common_tfs[c],
                           '' if exact_case else '  (capitalisation differs)')
                     if exact_case:
                         errors_found += 1
@@ -487,8 +488,9 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
                                 if re.match(r'VALS\(\s*'+v+r'\s*\)', items[i].strings):
                                     if items[i].bits_set == 1:
                                         print("Warn:" if exact_case else "Note:", filename, 'value_string', "'"+v+"'",
-                                              "- could have used", c, 'from tfs.c instead: ', common_tfs[c], 'for', i,
-                                            '' if exact_case else '  (capitalisation differs)')
+                                              '- could have used tfs.c entry instead: for', i,
+                                              ' - "FT_BOOLEAN,', str(items[i].get_field_width_in_bits()) + ', TFS(&' + c + '),"',
+                                              '' if exact_case else '  (capitalisation differs)')
                                         if exact_case:
                                             warnings_found += 1
 

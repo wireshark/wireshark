@@ -107,8 +107,8 @@ static const value_string msg_parm_strings[] = {
 
 
 static const value_string enabled_disabled[] = {
-    {0, "disabled" },
-    {1, "enabled" },
+    {0, "Disabled" },
+    {1, "Enabled" },
     {0,NULL}
 };
 
@@ -1665,37 +1665,37 @@ proto_register_alcap(void)
     },
     { &hf_alcap_ssia_frm,
       { "Frame Mode", "alcap.ssia.frm",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
         NULL, HFILL }
     },
     { &hf_alcap_ssia_cmd,
       { "Circuit Mode", "alcap.ssia.cmd",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x40,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
         NULL, HFILL }
     },
     { &hf_alcap_ssia_mfr2,
       { "Multi-Frequency R2", "alcap.ssia.mfr2",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x20,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
         NULL, HFILL }
     },
     { &hf_alcap_ssia_mfr1,
       { "Multi-Frequency R1", "alcap.ssia.mfr1",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x10,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
         NULL, HFILL }
     },
     { &hf_alcap_ssia_dtmf,
       { "DTMF", "alcap.ssia.dtmf",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x08,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
         NULL, HFILL }
     },
     { &hf_alcap_ssia_cas,
       { "CAS", "alcap.ssia.cas",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x04,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
         "Channel Associated Signalling", HFILL }
     },
     { &hf_alcap_ssia_fax,
       { "Fax", "alcap.ssia.fax",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x02,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
         "Facsimile", HFILL }
     },
     { &hf_alcap_ssia_pcm,
@@ -1716,7 +1716,7 @@ proto_register_alcap(void)
 
     { &hf_alcap_ssim_frm,
       { "Frame Mode", "alcap.ssim.frm",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
         NULL, HFILL }
     },
     { &hf_alcap_ssim_mult,
@@ -1773,7 +1773,7 @@ proto_register_alcap(void)
     },
     { &hf_alcap_ssisu_ted,
       { "Transmission Error Detection", "alcap.ssisu.ted",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
         NULL, HFILL }
     },
 
@@ -1851,37 +1851,37 @@ proto_register_alcap(void)
     },
     { &hf_alcap_pssiae_frm,
       { "Frame Mode", "alcap.pssiae.frm",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
         NULL, HFILL }
     },
     { &hf_alcap_pssiae_cmd,
       { "Circuit Mode", "alcap.pssiae.cmd",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x40,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
         NULL, HFILL }
     },
     { &hf_alcap_pssiae_mfr2,
       { "Multi-Frequency R2", "alcap.pssiae.mfr2",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x20,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
         NULL, HFILL }
     },
     { &hf_alcap_pssiae_mfr1,
       { "Multi-Frequency R1", "alcap.pssiae.mfr1",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x10,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
         NULL, HFILL }
     },
     { &hf_alcap_pssiae_dtmf,
       { "DTMF", "alcap.pssiae.dtmf",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x08,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
         NULL, HFILL }
     },
     { &hf_alcap_pssiae_cas,
       { "CAS", "alcap.pssiae.cas",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x04,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
         "Channel Associated Signalling", HFILL }
     },
     { &hf_alcap_pssiae_fax,
       { "Fax", "alcap.pssiae.fax",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x02,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
         "Facsimile", HFILL }
     },
     { &hf_alcap_pssiae_pcm,
@@ -1902,12 +1902,12 @@ proto_register_alcap(void)
 
     { &hf_alcap_pssime_frm,
       { "Frame Mode", "alcap.pssime.frm",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
         NULL, HFILL }
     },
     { &hf_alcap_pssime_lb,
       { "Loopback", "alcap.pssime.lb",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x40,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
         NULL, HFILL }
     },
     { &hf_alcap_pssime_mult,
@@ -1960,37 +1960,37 @@ proto_register_alcap(void)
     },
     { &hf_alcap_ssiae_frm,
       { "Frame Mode", "alcap.ssiae.frm",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
         NULL, HFILL }
     },
     { &hf_alcap_ssiae_cmd,
       { "Circuit Mode", "alcap.ssiae.cmd",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x40,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
         NULL, HFILL }
     },
     { &hf_alcap_ssiae_mfr2,
       { "Multi-Frequency R2", "alcap.ssiae.mfr2",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x20,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
         NULL, HFILL }
     },
     { &hf_alcap_ssiae_mfr1,
       { "Multi-Frequency R1", "alcap.ssiae.mfr1",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x10,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
         NULL, HFILL }
     },
     { &hf_alcap_ssiae_dtmf,
       { "DTMF", "alcap.ssiae.dtmf",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x08,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
         NULL, HFILL }
     },
     { &hf_alcap_ssiae_cas,
       { "CAS", "alcap.ssiae.cas",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x04,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
         "Channel Associated Signalling", HFILL }
     },
     { &hf_alcap_ssiae_fax,
       { "Fax", "alcap.ssiae.fax",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x02,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
         "Facsimile", HFILL }
     },
     { &hf_alcap_ssiae_pcm,
@@ -2011,12 +2011,12 @@ proto_register_alcap(void)
 
     { &hf_alcap_ssime_frm,
       { "Frame Mode", "alcap.ssime.frm",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
         NULL, HFILL }
     },
     { &hf_alcap_ssime_lb,
       { "Loopback", "alcap.ssime.lb",
-        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x40,
+        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
         NULL, HFILL }
     },
     { &hf_alcap_ssime_mult,

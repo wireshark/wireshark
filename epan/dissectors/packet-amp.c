@@ -127,18 +127,6 @@ static const value_string opcode[] = {
     { 0, NULL }
 };
 
-static const value_string tnvc_yesno[] = {
-    { 0, "no" },
-    { 1, "yes" },
-    { 0, NULL }
-};
-
-static const value_string tnvc_present_notpresent[] = {
-    { 0, "not present" },
-    { 1, "present" },
-    { 0, NULL }
-};
-
 static const value_string amp_ari_struct_type[] = {
     { 0, "Const" },
     { 1, "Control" },
@@ -687,27 +675,27 @@ proto_register_amp(void)
         },
         { &hf_amp_tnvc_mixed,
         { "Mixed", "amp.tnvc.mixed",
-          FT_UINT8, BASE_DEC, VALS(tnvc_yesno), AMP_TNVC_MIXED,
+          FT_BOOLEAN, 8, TFS(&tfs_yes_no), AMP_TNVC_MIXED,
           NULL, HFILL }
         },
         { &hf_amp_tnvc_typed,
         { "TNVC Values are Typed", "amp.tnvc.typed",
-          FT_UINT8, BASE_DEC, VALS(tnvc_yesno), AMP_TNVC_TYPE,
+          FT_BOOLEAN, 8, TFS(&tfs_yes_no), AMP_TNVC_TYPE,
           NULL, HFILL }
         },
         { &hf_amp_tnvc_name,
         { "Name", "amp.tnvc.name",
-          FT_UINT8, BASE_DEC, VALS(tnvc_yesno), AMP_TNVC_NAME,
+          FT_BOOLEAN, 8, TFS(&tfs_yes_no), AMP_TNVC_NAME,
           NULL, HFILL }
         },
         { &hf_amp_tnvc_values,
         { "Values", "amp.tnvc.value",
-          FT_UINT8, BASE_DEC, VALS(tnvc_yesno), AMP_TNVC_VALUE,
+          FT_BOOLEAN, 8, TFS(&tfs_yes_no), AMP_TNVC_VALUE,
           NULL, HFILL }
         },
         { &hf_ari_nickname,
         { "Nickname", "amp.nickname",
-          FT_UINT8, BASE_DEC, VALS(tnvc_present_notpresent), AMP_ARI_NICKNAME,
+          FT_BOOLEAN, 8, TFS(&tfs_present_not_present), AMP_ARI_NICKNAME,
           NULL, HFILL }
         },
         { &hf_amp_ari_flags,
@@ -717,17 +705,17 @@ proto_register_amp(void)
         },
         { &hf_ari_parameters,
         { "Parameters", "amp.parameters",
-          FT_UINT8, BASE_DEC, VALS(tnvc_present_notpresent), AMP_ARI_PARAMETERS,
+          FT_BOOLEAN, 8, TFS(&tfs_present_not_present), AMP_ARI_PARAMETERS,
           NULL, HFILL }
         },
         { &hf_ari_issuer,
         { "Issuer", "amp.issuer",
-          FT_UINT8, BASE_DEC, VALS(tnvc_present_notpresent), AMP_ARI_ISSUER,
+          FT_BOOLEAN, 8, TFS(&tfs_present_not_present), AMP_ARI_ISSUER,
           NULL, HFILL }
         },
         { &hf_ari_tag,
         { "Tag", "amp.tag",
-          FT_UINT8, BASE_DEC, VALS(tnvc_present_notpresent), AMP_ARI_TAG,
+          FT_BOOLEAN, 8, TFS(&tfs_present_not_present), AMP_ARI_TAG,
           NULL, HFILL }
         },
         { &hf_ari_value,
@@ -747,17 +735,17 @@ proto_register_amp(void)
         },
         { &hf_amp_acl,
           { "ACL", "amp.acl",
-          FT_UINT8, BASE_DEC, VALS(tnvc_present_notpresent), AMP_HDR_ACL,
+          FT_BOOLEAN, 8, TFS(&tfs_present_not_present), AMP_HDR_ACL,
           NULL, HFILL }
         },
         { &hf_amp_nack,
           { "NACK", "amp.nack",
-          FT_UINT8, BASE_DEC, VALS(tnvc_present_notpresent), AMP_HDR_NACK,
+          FT_BOOLEAN, 8, TFS(&tfs_present_not_present), AMP_HDR_NACK,
           NULL, HFILL }
         },
         { &hf_amp_ack,
           { "ACK", "amp.ack",
-          FT_UINT8, BASE_DEC, VALS(tnvc_present_notpresent), AMP_HDR_ACK,
+          FT_BOOLEAN, 8, TFS(&tfs_present_not_present), AMP_HDR_ACK,
           NULL, HFILL }
         },
         { &hf_amp_opcode,
