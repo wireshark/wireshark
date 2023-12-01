@@ -66,7 +66,7 @@ ipv4_hash_table_resolved_to_list(gpointer, gpointer value, gpointer sl_ptr)
     QList<QStringList> *hosts = (QList<QStringList> *) sl_ptr;
     hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *) value;
 
-    if ((ipv4_hash_table_entry->flags & NAME_RESOLVED)) {
+    if ((ipv4_hash_table_entry->flags & (USED_AND_RESOLVED_MASK)) == USED_AND_RESOLVED_MASK) {
         *hosts << (QStringList() << QString(ipv4_hash_table_entry->ip) << QString(ipv4_hash_table_entry->name));
     }
 }
@@ -77,7 +77,7 @@ ipv6_hash_table_resolved_to_list(gpointer, gpointer value, gpointer sl_ptr)
     QList<QStringList> *hosts = (QList<QStringList> *) sl_ptr;
     hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *) value;
 
-    if ((ipv6_hash_table_entry->flags & NAME_RESOLVED)) {
+    if ((ipv6_hash_table_entry->flags & USED_AND_RESOLVED_MASK) == USED_AND_RESOLVED_MASK) {
         *hosts << (QStringList() << QString(ipv6_hash_table_entry->ip6) << QString(ipv6_hash_table_entry->name));
     }
 }
