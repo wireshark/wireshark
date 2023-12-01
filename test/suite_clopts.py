@@ -326,7 +326,19 @@ class TestTsharkExtcap:
         os.makedirs(extcap_dir_path)
         test_env['WIRESHARK_EXTCAP_DIR'] = extcap_dir_path
         source_file = os.path.join(os.path.dirname(__file__), 'sampleif.py')
-        shutil.copy2(source_file, extcap_dir_path)
+        # We run our tests in a bare, reproducible home environment. This can result in an
+        # invalid or missing Python interpreter if our main environment has a wonky Python
+        # path, as is the case in the GitLab SaaS macOS runners which use `asdf`. Force
+        # sampleif.py to use our current Python executable.
+        with open(source_file, 'r') as sf:
+            sampleif_py = sf.read()
+            sampleif_py = sampleif_py.replace('/usr/bin/env python3', sys.executable)
+            sys.stderr.write(sampleif_py)
+            extcap_file = os.path.join(extcap_dir_path, 'sampleif.py')
+            with open(extcap_file, 'w') as ef:
+                ef.write(sampleif_py)
+                os.fchmod(ef.fileno(), os.fstat(sf.fileno()).st_mode)
+
         # Ensure the test extcap_tool is properly loaded
         proc = subprocesstest.run((cmd_tshark, '-D'), capture_output=True, env=test_env)
         assert count_output(proc.stdout, 'sampleif') == 1
