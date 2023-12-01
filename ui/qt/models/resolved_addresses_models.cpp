@@ -98,12 +98,14 @@ manuf_hash_to_qstringlist(gpointer key, gpointer value, gpointer sl_ptr)
     hashmanuf_t *manuf = (hashmanuf_t*)value;
     guint eth_as_guint = GPOINTER_TO_UINT(key);
 
-    QString entry = QString("%1:%2:%3")
-            .arg((eth_as_guint >> 16 & 0xff), 2, 16, QChar('0'))
-            .arg((eth_as_guint >>  8 & 0xff), 2, 16, QChar('0'))
-            .arg((eth_as_guint & 0xff), 2, 16, QChar('0'));
+    if (get_hash_manuf_used(manuf)) {
+        QString entry = QString("%1:%2:%3")
+                .arg((eth_as_guint >> 16 & 0xff), 2, 16, QChar('0'))
+                .arg((eth_as_guint >>  8 & 0xff), 2, 16, QChar('0'))
+                .arg((eth_as_guint & 0xff), 2, 16, QChar('0'));
 
-    *values << (QStringList() << entry << QString(get_hash_manuf_resolved_name(manuf)));
+        *values << (QStringList() << entry << QString(get_hash_manuf_resolved_name(manuf)));
+    }
 }
 
 static void

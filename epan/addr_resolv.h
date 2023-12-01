@@ -293,6 +293,7 @@ WS_DLL_PUBLIC guint get_hash_ether_status(hashether_t* ether);
 WS_DLL_PUBLIC char* get_hash_ether_hexaddr(hashether_t* ether);
 WS_DLL_PUBLIC char* get_hash_ether_resolved_name(hashether_t* ether);
 
+WS_DLL_PUBLIC bool get_hash_manuf_used(hashmanuf_t* manuf);
 WS_DLL_PUBLIC char* get_hash_manuf_resolved_name(hashmanuf_t* manuf);
 
 WS_DLL_PUBLIC bool get_hash_wka_used(hashwka_t* wka);

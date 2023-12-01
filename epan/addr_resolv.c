@@ -176,7 +176,7 @@ struct hashwka {
 };
 
 struct hashmanuf {
-    guint             status;  /* (See above) */
+    uint8_t           flags;  /* (See above) */
     guint8            addr[3];
     char              hexaddr[3*3];
     char              resolved_name[MAXNAMELEN];
@@ -1621,7 +1621,7 @@ manuf_hash_new_entry(const guint8 *addr, const char* name, const char* longname)
     memcpy(manuf_value->addr, addr, 3);
     if (name != NULL) {
         (void) g_strlcpy(manuf_value->resolved_name, name, MAXNAMELEN);
-        manuf_value->status = HASHETHER_STATUS_RESOLVED_NAME;
+        manuf_value->flags = NAME_RESOLVED;
         if (longname != NULL) {
             (void) g_strlcpy(manuf_value->resolved_longname, longname, MAXNAMELEN);
         }
@@ -1630,7 +1630,7 @@ manuf_hash_new_entry(const guint8 *addr, const char* name, const char* longname)
         }
     }
     else {
-        manuf_value->status = HASHETHER_STATUS_UNRESOLVED;
+        manuf_value->flags = 0;
         manuf_value->resolved_name[0] = '\0';
         manuf_value->resolved_longname[0] = '\0';
     }
@@ -1665,10 +1665,12 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name, gchar *longna
     switch (mask)
     {
     case 0:
+        {
         /* This is a manufacturer ID; add it to the manufacturer ID hash table */
-        manuf_hash_new_entry(addr, name, longname);
+        hashmanuf_t *entry = manuf_hash_new_entry(addr, name, longname);
+        entry->flags |= STATIC_HOSTNAME;
         break;
-
+        }
     case 48:
         /* This is a well-known MAC address; add it to the Ethernet hash table */
         add_eth_name(addr, name);
@@ -1711,6 +1713,7 @@ manuf_name_lookup(const guint8 *addr, size_t size)
     /* first try to find a "perfect match" */
     manuf_value = (hashmanuf_t*)wmem_map_lookup(manuf_hashtable, GUINT_TO_POINTER(manuf_key));
     if (manuf_value != NULL) {
+        manuf_value->flags |= TRIED_RESOLVE_ADDRESS;
         return manuf_value;
     }
 
@@ -1723,6 +1726,7 @@ manuf_name_lookup(const guint8 *addr, size_t size)
         manuf_key &= 0x00FEFFFF;
         manuf_value = (hashmanuf_t*)wmem_map_lookup(manuf_hashtable, GUINT_TO_POINTER(manuf_key));
         if (manuf_value != NULL) {
+            manuf_value->flags |= TRIED_RESOLVE_ADDRESS;
             return manuf_value;
         }
     }
@@ -1733,11 +1737,14 @@ manuf_name_lookup(const guint8 *addr, size_t size)
     short_name = ws_manuf_lookup_oui24(addr, &long_name);
     if (short_name != NULL) {
         /* Found it */
-        return manuf_hash_new_entry(addr, short_name, long_name);
+        manuf_value = manuf_hash_new_entry(addr, short_name, long_name);
+    } else {
+        /* Add the address as a hex string */
+        manuf_value = manuf_hash_new_entry(addr, NULL, NULL);
     }
 
-    /* Add the address as a hex string */
-    return manuf_hash_new_entry(addr, NULL, NULL);
+    manuf_value->flags |= TRIED_RESOLVE_ADDRESS;
+    return manuf_value;
 
 } /* manuf_name_lookup */
 
@@ -1998,7 +2005,7 @@ eth_addr_resolve(hashether_t *tp) {
 
         /* Now try looking in the manufacturer table. */
         manuf_value = manuf_name_lookup(addr, addr_size);
-        if ((manuf_value != NULL) && (manuf_value->status != HASHETHER_STATUS_UNRESOLVED)) {
+        if ((manuf_value != NULL) && ((manuf_value->flags & NAME_RESOLVED) == NAME_RESOLVED)) {
             snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x",
                     manuf_value->resolved_name, addr[3], addr[4], addr[5]);
             tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
@@ -3580,8 +3587,10 @@ get_manuf_name(const guint8 *addr, size_t size)
 {
     hashmanuf_t *manuf_value;
 
+    ws_return_val_if(size < 3, NULL);
+
     manuf_value = manuf_name_lookup(addr, size);
-    if (gbl_resolv_flags.mac_name && manuf_value->status != HASHETHER_STATUS_UNRESOLVED)
+    if (gbl_resolv_flags.mac_name && ((manuf_value->flags & NAME_RESOLVED) == NAME_RESOLVED))
         return manuf_value->resolved_name;
 
     return manuf_value->hexaddr;
@@ -3604,7 +3613,7 @@ get_manuf_name_if_known(const guint8 *addr, size_t size)
     ws_return_val_if(size < 3, NULL);
 
     manuf_value = manuf_name_lookup(addr, size);
-    if (manuf_value != NULL && manuf_value->status != HASHETHER_STATUS_UNRESOLVED) {
+    if (manuf_value != NULL && ((manuf_value->flags & NAME_RESOLVED) == NAME_RESOLVED)) {
         return manuf_value->resolved_longname;
     }
 
@@ -3641,6 +3650,11 @@ tvb_get_manuf_name_if_known(tvbuff_t *tvb, gint offset)
     return get_manuf_name_if_known(buf, sizeof(buf));
 }
 
+bool get_hash_manuf_used(hashmanuf_t* manuf)
+{
+    return ((manuf->flags & TRIED_OR_RESOLVED_MASK) == TRIED_OR_RESOLVED_MASK);
+}
+
 char* get_hash_manuf_resolved_name(hashmanuf_t* manuf)
 {
     return manuf->resolved_longname;
@@ -3661,7 +3675,7 @@ eui64_to_display(wmem_allocator_t *allocator, const guint64 addr_eui64)
      * it first so it also covers the user-defined tables.
      */
     manuf_value = manuf_name_lookup(addr, 8);
-    if (!gbl_resolv_flags.mac_name || (manuf_value->status == HASHETHER_STATUS_UNRESOLVED)) {
+    if (!gbl_resolv_flags.mac_name || !manuf_value || ((manuf_value->flags & NAME_RESOLVED) == 0)) {
         /* Now try looking in the global manuf data for a MA-M or MA-S match.
          */
         const char *short_name, *long_name;
