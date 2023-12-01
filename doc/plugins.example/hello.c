@@ -17,20 +17,13 @@
 #define VERSION "0.0.0"
 #endif
 
-WS_DLL_PUBLIC_DEF const char plugin_version[] = VERSION;
-WS_DLL_PUBLIC_DEF const int plugin_want_major = WIRESHARK_VERSION_MAJOR;
-WS_DLL_PUBLIC_DEF const int plugin_want_minor = WIRESHARK_VERSION_MINOR;
-
-WS_DLL_PUBLIC void plugin_register(void);
-WS_DLL_PUBLIC uint32_t plugin_describe(void);
-
 static int proto_hello;
 static dissector_handle_t handle_hello;
 
 static int
 dissect_hello(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    proto_tree_add_protocol_format(tree, proto_hello, tvb, 0, -1, "This is Hello version %s, a Wireshark postdissector plugin prototype", plugin_version);
+    proto_tree_add_protocol_format(tree, proto_hello, tvb, 0, -1, "This is Hello version %s, a Wireshark postdissector plugin prototype", VERSION);
     return tvb_captured_length(tvb);
 }
 
@@ -48,7 +41,7 @@ proto_reg_handoff_hello(void)
     /* empty */
 }
 
-void
+static void
 plugin_register(void)
 {
     static proto_plugin plug;
@@ -58,8 +51,14 @@ plugin_register(void)
     proto_register_plugin(&plug);
 }
 
-uint32_t
-plugin_describe(void)
-{
-    return WS_PLUGIN_DESC_DISSECTOR;
-}
+static struct ws_module module = {
+    .license = WS_PLUGIN_IS_GPLv2_OR_LATER,
+    .flags = WS_PLUGIN_DESC_DISSECTOR,
+    .version = VERSION,
+    .spdx_id = "GPL-2.0-or-later",
+    .home_url = "Your-URL-here",
+    .blurb = "Hello world for Wireshark plugin development",
+    .register_cb = &plugin_register,
+};
+
+WIRESHARK_PLUGIN_REGISTER_EPAN(&module, 0)

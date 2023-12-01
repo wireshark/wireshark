@@ -29,8 +29,7 @@
 typedef struct _plugin {
     GModule        *handle;       /* handle returned by g_module_open */
     char           *name;         /* plugin name */
-    const char     *version;      /* plugin version */
-    uint32_t        flags;        /* plugin flags */
+    struct ws_module *module;
 } plugin;
 
 #define TYPE_DIR_EPAN       "epan"
@@ -53,6 +52,22 @@ type_to_dir(plugin_type_e type)
     default:
         ws_error("Unknown plugin type: %u. Aborting.", (unsigned) type);
         break;
+    }
+    ws_assert_not_reached();
+}
+
+static inline const char *
+type_to_name(plugin_type_e type)
+{
+    switch (type) {
+    case WS_PLUGIN_EPAN:
+        return "epan";
+    case WS_PLUGIN_WIRETAP:
+        return "wiretap";
+    case WS_PLUGIN_CODEC:
+        return "codec";
+    default:
+        return "unknown";
     }
     ws_assert_not_reached();
 }
@@ -94,26 +109,20 @@ compare_plugins(gconstpointer a, gconstpointer b)
 }
 
 static bool
-pass_plugin_version_compatibility(GModule *handle, const char *name)
+pass_plugin_compatibility(const char *name, plugin_type_e type,
+                            int abi_version, int min_api_level _U_,
+                            struct ws_module *module)
 {
-    void * symb;
-    int major, minor;
-
-    if(!g_module_symbol(handle, "plugin_want_major", &symb)) {
-        report_failure("The plugin '%s' has no \"plugin_want_major\" symbol", name);
+    if (abi_version != plugins_abi_version(type)) {
+        report_failure("The plugin '%s' has incompatible ABI, have version %d, expected %d",
+                            name, abi_version, plugins_abi_version(type));
         return false;
     }
-    major = *(int *)symb;
 
-    if(!g_module_symbol(handle, "plugin_want_minor", &symb)) {
-        report_failure("The plugin '%s' has no \"plugin_want_minor\" symbol", name);
-        return false;
-    }
-    minor = *(int *)symb;
-
-    if (major != VERSION_MAJOR || minor != VERSION_MINOR) {
-        report_failure("The plugin '%s' was compiled for Wireshark version %d.%d",
-                            name, major, minor);
+    if (module->license != WS_PLUGIN_IS_GPLv2_OR_LATER &&
+                module->license != WS_PLUGIN_IS_GPLv2_COMPATIBLE) {
+        report_failure("The plugin '%s' is not GPLv2 compatible (invalid license 0x%x, with SPDX ID \"%s\")",
+                                name, module->license, module->spdx_id);
         return false;
     }
 
@@ -135,10 +144,12 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
     char          *plugin_folder;
     char          *plugin_file;     /* current file full path */
     GModule       *handle;          /* handle returned by g_module_open */
-    void *         symbol;
-    const char    *plug_version;
-    uint32_t       flags;
+    void          *symbol;
     plugin        *new_plug;
+    plugin_type_e have_type;
+    int            abi_version;
+    int            min_api_level;
+    struct ws_module *module;
 
     if (append_type)
         plugin_folder = g_build_filename(dirpath, type_to_dir(type), (char *)NULL);
@@ -178,45 +189,41 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
             continue;
         }
 
-        if (!g_module_symbol(handle, "plugin_version", &symbol))
-        {
-            report_failure("The plugin '%s' has no \"plugin_version\" symbol", name);
-            g_module_close(handle);
-            g_free(plugin_file);
-            continue;
-        }
-        plug_version = (const char *)symbol;
-
-        if (!pass_plugin_version_compatibility(handle, name)) {
-            g_module_close(handle);
-            g_free(plugin_file);
-            continue;
-        }
-
         /* Search for the entry point for the plugin registration function */
-        if (!g_module_symbol(handle, "plugin_register", &symbol)) {
-            report_failure("The plugin '%s' has no \"plugin_register\" symbol", name);
+        if (!g_module_symbol(handle, "wireshark_load_module", &symbol)) {
+            report_failure("The plugin '%s' has no \"wireshark_load_module\" symbol", name);
             g_module_close(handle);
             g_free(plugin_file);
             continue;
         }
 
 DIAG_OFF_PEDANTIC
-        /* Found it, call the plugin registration function. */
-        ((plugin_register_func)symbol)();
+        /* Found it, load module. */
+        have_type = ((ws_load_module_func)symbol)(&abi_version, &min_api_level, &module);
 DIAG_ON_PEDANTIC
 
-        /* Search for the (optional) description flag registration function */
-        if (g_module_symbol(handle, "plugin_describe", &symbol))
-            flags = ((plugin_describe_func)symbol)();
-        else
-            flags = 0;
+        if (have_type != type) {
+            // Should not happen. Our filesystem hierarchy uses plugin type.
+            report_failure("The plugin '%s' has invalid type, expected %s, have %s",
+                                name, type_to_name(type), type_to_name(have_type));
+            g_module_close(handle);
+            g_free(plugin_file);
+            continue;
+        }
+
+        if (!pass_plugin_compatibility(name, type, abi_version, min_api_level, module)) {
+            g_module_close(handle);
+            g_free(plugin_file);
+            continue;
+        }
+
+        /* Call the plugin registration function. */
+        module->register_cb();
 
         new_plug = g_new(plugin, 1);
         new_plug->handle = handle;
         new_plug->name = g_strdup(name);
-        new_plug->version = plug_version;
-        new_plug->flags = flags;
+        new_plug->module = module;
 
         /* Add it to the list of plugins. */
         g_hash_table_replace(plugins_module, new_plug->name, new_plug);
@@ -278,7 +285,8 @@ plugins_get_descriptions(plugin_description_callback callback, void *callback_da
 
     for (unsigned i = 0; i < plugins_array->len; i++) {
         plugin *plug = (plugin *)plugins_array->pdata[i];
-        callback(plug->name, plug->version, plug->flags, g_module_name(plug->handle), callback_data);
+        callback(plug->name, plug->module->version, plug->module->flags,
+                    g_module_name(plug->handle), callback_data);
     }
 
     g_ptr_array_free(plugins_array, true);
@@ -323,6 +331,18 @@ bool
 plugins_supported(void)
 {
     return g_module_supported();
+}
+
+int
+plugins_abi_version(plugin_type_e type)
+{
+    switch (type) {
+        case WS_PLUGIN_EPAN:    return WIRESHARK_ABI_VERSION_EPAN;
+        case WS_PLUGIN_WIRETAP: return WIRESHARK_ABI_VERSION_WIRETAP;
+        case WS_PLUGIN_CODEC:   return WIRESHARK_ABI_VERSION_CODEC;
+        default: return -1;
+    }
+    ws_assert_not_reached();
 }
 
 /*

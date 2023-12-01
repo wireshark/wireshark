@@ -19,13 +19,6 @@
 #define PLUGIN_VERSION "0.0.0"
 #endif
 
-WS_DLL_PUBLIC_DEF const gchar plugin_version[] = PLUGIN_VERSION;
-WS_DLL_PUBLIC_DEF const int plugin_want_major = WIRESHARK_VERSION_MAJOR;
-WS_DLL_PUBLIC_DEF const int plugin_want_minor = WIRESHARK_VERSION_MINOR;
-
-WS_DLL_PUBLIC void plugin_register(void);
-WS_DLL_PUBLIC uint32_t plugin_describe(void);
-
 typedef bool (*ip_is_func_t)(fvalue_t *);
 
 static const struct ws_iana_ip_special_block *
@@ -345,7 +338,7 @@ cleanup(void)
     df_func_deregister(&func_ip_is_ula);
 }
 
-void
+static void
 plugin_register(void)
 {
     static dfilter_plugin plug;
@@ -355,8 +348,14 @@ plugin_register(void)
     dfilter_plugins_register(&plug);
 }
 
-uint32_t
-plugin_describe(void)
-{
-    return WS_PLUGIN_DESC_DFILTER;
-}
+static struct ws_module module = {
+    .license = WS_PLUGIN_IS_GPLv2_OR_LATER,
+    .flags = WS_PLUGIN_DESC_DFILTER,
+    .version = PLUGIN_VERSION,
+    .spdx_id = WS_PLUGIN_SPDX_GPLv2,
+    .home_url = WS_PLUGIN_GITLAB_URL,
+    .blurb = "Display filter functions to test IP addresses",
+    .register_cb = &plugin_register,
+};
+
+WIRESHARK_PLUGIN_REGISTER_EPAN(&module, 0)

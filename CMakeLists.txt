@@ -59,6 +59,22 @@ set(PROJECT_MAJOR_VERSION 4)
 set(PROJECT_MINOR_VERSION 3)
 set(PROJECT_PATCH_VERSION 0)
 set(PROJECT_BUILD_VERSION 0)
+# ABI version for plugins. It must be incremented by one for
+# every odd minor release number.
+# start at 1 (arbitrary).
+# release 4.3.X (unstable) = ABI version 1 (start)
+# release 4.4.X (stable)   = ABI version 1 (stable release, freeze ABI 1)
+# release 4.5.X (unstable) = ABI version 2 (increment for new unstable release, ABI break)
+# release 4.6.X (stable)   = ABI version 2 (stable release, freeze ABI 2)
+# release 4.7.X (unstable) = ABI version 3 (increment for new unstable release, ABI break)
+# release 5.0.X (stable)   = ABI version 3 (stable release, freeze ABI 3)
+# etc.
+set(PROJECT_ABI_VERSION_EPAN    1)
+set(PROJECT_ABI_VERSION_WIRETAP 1)
+# Codecs API/ABI is much more narrow and stable than the other two so this
+# may not need to be incremented every X.Y release.
+set(PROJECT_ABI_VERSION_CODEC   1)
+
 set(PROJECT_VERSION_EXTENSION "")
 
 if(DEFINED ENV{WIRESHARK_VERSION_EXTRA})
