@@ -95,6 +95,9 @@ WS_DLL_PUBLIC char *plugins_pers_type_folder(plugin_type_e type);
 WS_DLL_PUBLIC char *plugins_file_suffix(plugin_type_e type);
 
 WS_DLL_PUBLIC
+int plugins_api_max_level(plugin_type_e type);
+
+WS_DLL_PUBLIC
 int plugins_abi_version(plugin_type_e type);
 
 #define WIRESHARK_PLUGIN_REGISTER(type, ptr_, api_level_) \

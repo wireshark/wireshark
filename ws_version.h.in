@@ -12,4 +12,13 @@
 #define WIRESHARK_ABI_VERSION_WIRETAP  @PROJECT_ABI_VERSION_WIRETAP@
 #define WIRESHARK_ABI_VERSION_CODEC    @PROJECT_ABI_VERSION_CODEC@
 
+/*
+ * API level for codec plugins
+ */
+/* The minimum level is the minimum API requirement for a codec
+ * to be used with this version of Wireshark (possibly with reduced functionality). */
+#define WIRESHARK_API_MIN_LEVEL_CODEC   1
+/* The maximum level supported for this version of Wireshark. */
+#define WIRESHARK_API_MAX_LEVEL_CODEC   1
+
 #endif /* __WS_VERSION_H__ */

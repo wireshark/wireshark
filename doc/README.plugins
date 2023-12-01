@@ -169,7 +169,9 @@ by going to the plugins/foo directory and running
 
 make install
 
-5. Plugin registration API common to all plugin types
+5. Plugin registration
+
+5.1 Registration API common to all plugin types
 
 You must include the plugin API header:
 
@@ -218,7 +220,24 @@ WIRESHARK_PLUGIN_REGISTER_CODEC(&module, 0)
 As the name implies each plugin binary type has a specific registration
 macro (but they all have the same arguments). The macro takes a pointer to
 the struct ws_module as the first argument. The second argument is
-currently unused and should be zero.
+unused only by codec plugins and explained in the next section. For all
+other plugin types it is ignored and should be zero.
+
+5.2 The plugin minimum API level argument
+
+The ABI version test for equality is the main check for compatibility for
+all plugin types but additionally the codec plugin API has an extra
+check called the API level. The codec API is very small and changes very
+infrequently. Codecs plugins that only use the API in wsutil/codecs.h should
+declare a minimum API level required. If the API needs to be changed and that
+can be done in a backward-compatible manner for the ABI/API then only the
+maximum API level will be increased and the minimum API level can stay the same.
+
+This means the same plugin can still be loaded successfully without
+recompilation using the older API (possibly with reduced functionality).
+
+This is currently experimental and may change in the future or be removed
+entirely.
 
 6 How to plugin related interface options
 

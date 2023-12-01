@@ -125,7 +125,7 @@
 #include "extcap.h"
 
 #ifdef HAVE_PLUGINS
-#include <wsutil/codecs.h>
+#include <wsutil/codecs_priv.h>
 #include <wsutil/plugins.h>
 #endif
 

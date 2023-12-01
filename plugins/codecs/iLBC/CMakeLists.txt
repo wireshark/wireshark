@@ -27,8 +27,7 @@ set_source_files_properties(
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
-register_plugin_files(plugin.c
-	plugin_codec
+register_codec_files(plugin.c 1
 	"Internet Low Bitrate Codec (iLBC)"
 	${CODEC_SRC}
 )

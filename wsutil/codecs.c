@@ -10,9 +10,8 @@
 
 #include "config.h"
 
-#include "codecs.h"
+#include "codecs_priv.h"
 
-#include <wsutil/wslog.h>
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
 #endif
