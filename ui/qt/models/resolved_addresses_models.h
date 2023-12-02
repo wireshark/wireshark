@@ -30,6 +30,13 @@ protected:
 
 };
 
+enum PortsModelColumns
+{
+    PORTS_COL_NAME,
+    PORTS_COL_PORT,
+    PORTS_COL_PROTOCOL
+};
+
 class PortsModel : public AStringListListModel
 {
     Q_OBJECT
