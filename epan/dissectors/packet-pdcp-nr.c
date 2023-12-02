@@ -2625,7 +2625,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 expert_add_info_format(pinfo, mac_ti, &ei_pdcp_nr_digest_wrong,
                                        "MAC-I Digest wrong - calculated %08x but found %08x",
                                        calculated_digest, mac);
-                proto_item_append_text(mac_ti, " (but calculated %08x !)", calculated_digest);
+                proto_item_append_text(mac_ti, " (but calculated 0x%08x !)", calculated_digest);
             }
             else {
                 proto_item_append_text(mac_ti, " [Matches calculated result]");
