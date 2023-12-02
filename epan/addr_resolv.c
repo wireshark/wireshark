@@ -201,6 +201,12 @@ typedef struct _vlan
     char              name[MAXVLANNAMELEN];
 } vlan_t;
 
+/* internal services custom type */
+typedef struct _serv_port_custom_key {
+    uint16_t          port;
+    port_type         type;
+} serv_port_custom_key_t;
+
 static wmem_allocator_t *addr_resolv_scope = NULL;
 
 // Maps guint -> hashipxnet_t*
@@ -233,6 +239,7 @@ static wmem_map_t *wka_hashtable = NULL;
 static wmem_map_t *eth_hashtable = NULL;
 // Maps guint -> serv_port_t*
 static wmem_map_t *serv_port_hashtable = NULL;
+static wmem_map_t *serv_port_custom_hashtable = NULL;
 
 // Maps enterprise-id -> enterprise-desc (only used for user additions)
 static GHashTable *enterprises_hashtable = NULL;
@@ -666,43 +673,78 @@ fgetline(char *buf, int size, FILE *fp)
 static subnet_entry_t subnet_lookup(const guint32 addr);
 static void subnet_entry_set(guint32 subnet_addr, const guint8 mask_length, const gchar* name);
 
+static unsigned serv_port_custom_hash(gconstpointer k)
+{
+    const serv_port_custom_key_t *key = (const serv_port_custom_key_t*)k;
+    return key->port + (key->type << 16);
+}
+
+static gboolean serv_port_custom_equal(gconstpointer k1, gconstpointer k2)
+{
+    const serv_port_custom_key_t *key1 = (const serv_port_custom_key_t*)k1;
+    const serv_port_custom_key_t *key2 = (const serv_port_custom_key_t*)k2;
+
+    return (key1->port == key2->port) && (key1->type == key2->type);
+}
 
 static void
-add_service_name(port_type proto, const guint port, const char *service_name)
+add_custom_service_name(port_type proto, const guint port, const char *service_name)
 {
-    serv_port_t *serv_port_table;
+    char *name;
+    serv_port_custom_key_t *key, *orig_key;
 
-    serv_port_table = (serv_port_t *)wmem_map_lookup(serv_port_hashtable, GUINT_TO_POINTER(port));
-    if (serv_port_table == NULL) {
-        serv_port_table = wmem_new0(addr_resolv_scope, serv_port_t);
-        wmem_map_insert(serv_port_hashtable, GUINT_TO_POINTER(port), serv_port_table);
+    key = wmem_new(addr_resolv_scope, serv_port_custom_key_t);
+    key->port = (uint16_t)port;
+    key->type = proto;
+
+    if (wmem_map_lookup_extended(serv_port_custom_hashtable, key, (const void**)&orig_key, (void**)&name)) {
+        wmem_free(addr_resolv_scope, orig_key);
+        wmem_free(addr_resolv_scope, name);
     }
 
+    name = wmem_strdup(addr_resolv_scope, service_name);
+    wmem_map_insert(serv_port_custom_hashtable, key, name);
+
+    // A new custom entry is not a new resolved object.
+    // new_resolved_objects = TRUE;
+}
+
+static serv_port_t*
+add_service_name(port_type proto, const guint port, const char *service_name)
+{
+    serv_port_t *serv_port_names;
+
+    serv_port_names = (serv_port_t *)wmem_map_lookup(serv_port_hashtable, GUINT_TO_POINTER(port));
+    if (serv_port_names == NULL) {
+        serv_port_names = wmem_new0(addr_resolv_scope, serv_port_t);
+        wmem_map_insert(serv_port_hashtable, GUINT_TO_POINTER(port), serv_port_names);
+    }
+
+    /* We don't need to strdup because service_name is owned by either
+     * the global arrays or the custom table, which manage the memory
+     * and have lifespans at least as long as the addr_resolv_scope.
+     */
     switch(proto) {
         case PT_TCP:
-            wmem_free(addr_resolv_scope, serv_port_table->tcp_name);
-            serv_port_table->tcp_name = wmem_strdup(addr_resolv_scope, service_name);
+            serv_port_names->tcp_name = service_name;
             break;
         case PT_UDP:
-            wmem_free(addr_resolv_scope, serv_port_table->udp_name);
-            serv_port_table->udp_name = wmem_strdup(addr_resolv_scope, service_name);
+            serv_port_names->udp_name = service_name;
             break;
         case PT_SCTP:
-            wmem_free(addr_resolv_scope, serv_port_table->sctp_name);
-            serv_port_table->sctp_name = wmem_strdup(addr_resolv_scope, service_name);
+            serv_port_names->sctp_name = service_name;
             break;
         case PT_DCCP:
-            wmem_free(addr_resolv_scope, serv_port_table->dccp_name);
-            serv_port_table->dccp_name = wmem_strdup(addr_resolv_scope, service_name);
+            serv_port_names->dccp_name = service_name;
             break;
         default:
-            return;
+            return serv_port_names;
             /* Should not happen */
     }
 
     new_resolved_objects = TRUE;
+    return serv_port_names;
 }
-
 
 static void
 parse_service_line (char *line)
@@ -766,7 +808,7 @@ add_serv_port_cb(const guint32 port, gpointer ptr)
     struct cb_serv_data *cb_data = (struct cb_serv_data *)ptr;
 
     if ( port ) {
-        add_service_name(cb_data->proto, port, cb_data->service);
+        add_custom_service_name(cb_data->proto, port, cb_data->service);
     }
 }
 
@@ -807,25 +849,55 @@ wmem_utoa(wmem_allocator_t *allocator, guint port)
 static const gchar *
 _serv_name_lookup(port_type proto, guint port, serv_port_t **value_ret)
 {
-    serv_port_t *serv_port_table;
+    serv_port_t *serv_port_names;
+    const char* name = NULL;
+    ws_services_proto_t p;
+    ws_services_entry_t *serv;
 
-    serv_port_table = (serv_port_t *)wmem_map_lookup(serv_port_hashtable, GUINT_TO_POINTER(port));
+    /* Look in the cache */
+    serv_port_names = (serv_port_t *)wmem_map_lookup(serv_port_hashtable, GUINT_TO_POINTER(port));
+
+    if (serv_port_names == NULL) {
+        /* Try the user custom table */
+        serv_port_custom_key_t custom_key = { (uint16_t)port, proto };
+        name = wmem_map_lookup(serv_port_custom_hashtable, &custom_key);
+    }
+
+    if (name == NULL) {
+        /* now look in the global tables */
+        switch(proto) {
+            case PT_TCP: p = ws_tcp; break;
+            case PT_UDP: p = ws_udp; break;
+            case PT_SCTP: p = ws_sctp; break;
+            case PT_DCCP: p = ws_dccp; break;
+            default: ws_assert_not_reached();
+        }
+        serv = global_services_lookup(port, p);
+        if (serv) {
+            name = serv->name;
+        }
+    }
+
+    if (name) {
+        /* Cache result */
+        serv_port_names = add_service_name(proto, port, name);
+    }
 
     if (value_ret != NULL)
-        *value_ret = serv_port_table;
+        *value_ret = serv_port_names;
 
-    if (serv_port_table == NULL)
+    if (serv_port_names == NULL)
         return NULL;
 
     switch (proto) {
         case PT_UDP:
-            return serv_port_table->udp_name;
+            return serv_port_names->udp_name;
         case PT_TCP:
-            return serv_port_table->tcp_name;
+            return serv_port_names->tcp_name;
         case PT_SCTP:
-            return serv_port_table->sctp_name;
+            return serv_port_names->sctp_name;
         case PT_DCCP:
-            return serv_port_table->dccp_name;
+            return serv_port_names->dccp_name;
         default:
             break;
     }
@@ -841,42 +913,25 @@ try_serv_name_lookup(port_type proto, guint port)
 const gchar *
 serv_name_lookup(port_type proto, guint port)
 {
-    serv_port_t *serv_port_table = NULL;
+    serv_port_t *serv_port_names = NULL;
     const char *name;
-    ws_services_proto_t p;
-    ws_services_entry_t *serv;
 
-    /* first look in the personal services file + cache */
-    name = _serv_name_lookup(proto, port, &serv_port_table);
+    /* first look for the name */
+    name = _serv_name_lookup(proto, port, &serv_port_names);
     if (name != NULL)
         return name;
 
-    /* now look in the global tables */
-    switch(proto) {
-        case PT_TCP: p = ws_tcp; break;
-        case PT_UDP: p = ws_udp; break;
-        case PT_SCTP: p = ws_sctp; break;
-        case PT_DCCP: p = ws_dccp; break;
-        default: ws_assert_not_reached();
-    }
-    serv = global_services_lookup(port, p);
-    if (serv) {
-        /* Cache result */
-        /* XXX would be nice to avoid the strdup for this name static string but user/custom entries
-         * are dynamic and they share the same table. */
-        add_service_name(proto, port, serv->name);
-        return serv->name;
+    if (serv_port_names == NULL) {
+        serv_port_names = wmem_new0(addr_resolv_scope, serv_port_t);
+        wmem_map_insert(serv_port_hashtable, GUINT_TO_POINTER(port), serv_port_names);
     }
 
-    if (serv_port_table == NULL) {
-        serv_port_table = wmem_new0(addr_resolv_scope, serv_port_t);
-        wmem_map_insert(serv_port_hashtable, GUINT_TO_POINTER(port), serv_port_table);
-    }
-    if (serv_port_table->numeric == NULL) {
-        serv_port_table->numeric = wmem_strdup_printf(addr_resolv_scope, "%u", port);
+    /* No name; create the numeric string. */
+    if (serv_port_names->numeric == NULL) {
+        serv_port_names->numeric = wmem_strdup_printf(addr_resolv_scope, "%u", port);
     }
 
-    return serv_port_table->numeric;
+    return serv_port_names->numeric;
 }
 
 static void
@@ -884,6 +939,8 @@ initialize_services(void)
 {
     ws_assert(serv_port_hashtable == NULL);
     serv_port_hashtable = wmem_map_new(addr_resolv_scope, g_direct_hash, g_direct_equal);
+    ws_assert(serv_port_custom_hashtable == NULL);
+    serv_port_custom_hashtable = wmem_map_new(addr_resolv_scope, serv_port_custom_hash, serv_port_custom_equal);
 
     /* Compute the pathname of the global services file. */
     if (g_services_path == NULL) {
@@ -907,6 +964,7 @@ static void
 service_name_lookup_cleanup(void)
 {
     serv_port_hashtable = NULL;
+    serv_port_custom_hashtable = NULL;
     g_free(g_services_path);
     g_services_path = NULL;
     g_free(g_pservices_path);

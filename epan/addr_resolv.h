@@ -72,11 +72,11 @@ struct hashmanuf;
 typedef struct hashmanuf hashmanuf_t;
 
 typedef struct serv_port {
-  gchar            *udp_name;
-  gchar            *tcp_name;
-  gchar            *sctp_name;
-  gchar            *dccp_name;
-  gchar            *numeric;
+  const char       *udp_name;
+  const char       *tcp_name;
+  const char       *sctp_name;
+  const char       *dccp_name;
+  const char       *numeric;
 } serv_port_t;
 
 typedef struct _resolved_name {
