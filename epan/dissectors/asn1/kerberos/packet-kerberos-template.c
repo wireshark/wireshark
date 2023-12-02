@@ -15,11 +15,11 @@
  *
  * and
  *
- *	https://tools.ietf.org/html/draft-ietf-krb-wg-kerberos-clarifications-07
+ *	https://tools.ietf.org/html/rfc4120
  *
  * and
  *
- *  https://tools.ietf.org/html/draft-ietf-krb-wg-kerberos-referrals-05
+ *  https://tools.ietf.org/html/rfc6806
  *
  * Some structures from RFC2630
  *

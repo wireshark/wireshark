@@ -19,12 +19,12 @@
  *
  * References:
  * ISO 2709: https://www.iso.org/standard/41319.html
- * MARC21: http://www.loc.gov/marc/bibliographic/
- * Z39.50 Maintenance Agency: http://www.loc.gov/z3950/agency/
- * Z39.50 2003 standard: http://www.loc.gov/z3950/agency/Z39-50-2003.pdf
+ * MARC21: https://www.loc.gov/marc/bibliographic/
+ * Z39.50 Maintenance Agency: https://www.loc.gov/z3950/agency/
+ * Z39.50 2003 standard: https://www.loc.gov/z3950/agency/Z39-50-2003.pdf
  * Z39.50 1995 ASN.1: https://www.loc.gov/z3950/agency/asn1.html
  * Registered Z39.50 Object Identifiers:
- *   http://www.loc.gov/z3950/agency/defns/oids.html
+ *   https://www.loc.gov/z3950/agency/defns/oids.html
  * Bib-1 Attribute Set: https://www.loc.gov/z3950/agency/defns/bib1.html
  * Bib-1 Diagnostics: https://www.loc.gov/z3950/agency/defns/bib1diag.html
  * RFC for Z39.50 over TCP/IP: https://tools.ietf.org/html/rfc1729

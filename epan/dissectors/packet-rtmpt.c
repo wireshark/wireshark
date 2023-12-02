@@ -31,7 +31,7 @@
 *          http://wiki.gnashdev.org/RTMP
 *          http://wiki.gnashdev.org/RTMP_Messages_Decoded
 *          http://www.acmewebworks.com/Downloads/openCS/TheAMF.pdf
-*          http://www.gnashdev.org/files/rtmp-decoded.pdf
+*          https://rtmp.veriskope.com/pdf/rtmp_specification_1.0.pdf
 *
 *   It's also available from Adobe at
 *
@@ -49,7 +49,7 @@
 *
 *   For FLV, see:
 *
-*          http://download.macromedia.com/f4v/video_file_format_spec_v10_1.pdf
+*          https://rtmp.veriskope.com/pdf/video_file_format_spec_v10.pdf
 *
 *   Default TCP port is 1935
 */
@@ -246,9 +246,9 @@ static const value_string rtmpt_tag_vals[] = {
         { 0, NULL }
 };
 
-/* [Spec] http://www.adobe.com/content/dam/Adobe/en/devnet/rtmp/pdf/rtmp_specification_1.0.pdf       */
+/* [Spec] https://github.com/runner365/read_book/blob/master/rtmp/rtmp_specification_1.0.pdf       */
 /* [DevG] http://help.adobe.com/en_US/flashmediaserver/devguide/index.html "working with Live Video" => Adding metadata to a live stream */
-/* [SWF] http://www.adobe.com/content/dam/Adobe/en/devnet/swf/pdf/swf_file_format_spec_v10.pdf */
+/* [SWF] https://github.com/blackears/raven/blob/master/proj/SWFParser/doc/swf_file_format_spec_v10.pdf */
 static const value_string rtmpt_audio_codecs[] = {
         {  0,                               "Uncompressed" },             /* [DevG] */
         {  1,                               "ADPCM" },                    /* [DevG] */

@@ -41,9 +41,7 @@
   *
   *   See:
   *
-  *       http://www-01.ibm.com/support/docview.wss?uid=pub1sc34606203
-  *
-  *       http://www-01.ibm.com/support/docview.wss?uid=pub1sc34694001
+  *       https://www.ibm.com/docs/en/ibm-mq/7.5?topic=structure-application-programming-reference
   *
   *   Possible structures combinations :
   *   TSH [ ID ^ UID ^ CONN ^ INQ ^ OD ]
