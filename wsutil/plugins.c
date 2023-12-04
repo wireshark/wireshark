@@ -110,7 +110,7 @@ compare_plugins(gconstpointer a, gconstpointer b)
 
 static bool
 pass_plugin_compatibility(const char *name, plugin_type_e type,
-                            int abi_version, int min_api_level _U_,
+                            int abi_version,
                             struct ws_module *module)
 {
     if (abi_version != plugins_abi_version(type)) {
@@ -148,7 +148,6 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
     plugin        *new_plug;
     plugin_type_e have_type;
     int            abi_version;
-    int            min_api_level;
     struct ws_module *module;
 
     if (append_type)
@@ -199,7 +198,7 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
 
 DIAG_OFF_PEDANTIC
         /* Found it, load module. */
-        have_type = ((ws_load_module_func)symbol)(&abi_version, &min_api_level, &module);
+        have_type = ((ws_load_module_func)symbol)(&abi_version, NULL, &module);
 DIAG_ON_PEDANTIC
 
         if (have_type != type) {
@@ -211,7 +210,7 @@ DIAG_ON_PEDANTIC
             continue;
         }
 
-        if (!pass_plugin_compatibility(name, type, abi_version, min_api_level, module)) {
+        if (!pass_plugin_compatibility(name, type, abi_version, module)) {
             g_module_close(handle);
             g_free(plugin_file);
             continue;
