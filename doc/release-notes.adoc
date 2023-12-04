@@ -100,6 +100,11 @@ The following features are new (or have been significantly updated) since versio
   UAC pop-ups when npcap is installed with access restricted to Administrators
   on Windows
 
+* The Resolved Addresses dialog only shows what addresses and ports are
+  present in the file (not including information from static files), and
+  selected rows or the entire table can be saved or copied to the clipboard
+  in several formats.
+
 //=== Removed Features and Support
 
 // === Removed Dissectors

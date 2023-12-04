@@ -21,6 +21,7 @@
 
 class AStringListListModel : public QAbstractTableModel
 {
+    Q_OBJECT
 public:
     explicit AStringListListModel(QObject * parent = Q_NULLPTR);
     virtual ~AStringListListModel();

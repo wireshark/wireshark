@@ -39,19 +39,7 @@
         </layout>
        </item>
        <item>
-        <widget class="QTableView" name="tblAddresses">
-         <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
-         </property>
-         <property name="sortingEnabled">
-          <bool>true</bool>
-         </property>
-         <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-          <bool>true</bool>
-         </attribute>
-         <attribute name="verticalHeaderVisible">
-          <bool>false</bool>
-         </attribute>
+        <widget class="ResolvedAddressesView" name="tblAddresses">
         </widget>
        </item>
       </layout>
@@ -76,13 +64,7 @@
         </layout>
        </item>
        <item>
-        <widget class="QTableView" name="tblPorts">
-         <property name="sortingEnabled">
-          <bool>true</bool>
-         </property>
-         <attribute name="verticalHeaderVisible">
-          <bool>false</bool>
-         </attribute>
+        <widget class="ResolvedAddressesView" name="tblPorts">
         </widget>
        </item>
       </layout>
@@ -233,6 +215,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ResolvedAddressesView</class>
+   <extends>QTableVew</extends>
+   <header>ui/qt/widgets/resolved_addresses_view.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

@@ -28,15 +28,8 @@ class ResolvedAddressesDialog : public GeometryStateDialog
     Q_OBJECT
 
 public:
-    typedef enum {
-        EXPORT_TEXT,
-        EXPORT_CSV,
-        EXPORT_JSON
-    } eResolvedAddressesExport;
-
     explicit ResolvedAddressesDialog(QWidget *parent, QString captureFile, wtap* wth);
     ~ResolvedAddressesDialog();
-    QMenu *createCopyMenu(QWidget *parent = nullptr);
 
 protected slots:
     void on_cmbDataType_currentIndexChanged(int index);
@@ -50,6 +43,8 @@ private:
     Ui::ResolvedAddressesDialog *ui;
     QString file_name_;
     QString comment_;
+    QPushButton *copy_bt_;
+    QPushButton *save_bt_;
 
     AStringListListSortFilterProxyModel * ethSortModel;
     AStringListListSortFilterProxyModel * ethTypeModel;
@@ -57,13 +52,10 @@ private:
     AStringListListSortFilterProxyModel * portTypeModel;
 
     void fillBlocks();
-    void copyToClipboard(eResolvedAddressesExport format);
 
 private slots:
     void tabChanged(int index);
-    void clipboardAction();
     void saveAs();
-    void toTextStream(QTextStream &stream, eResolvedAddressesExport format) const;
 };
 
 #endif // RESOLVED_ADDRESSES_DIALOG_H
