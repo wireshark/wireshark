@@ -1400,6 +1400,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Di solito una scheda di rete wireless catturerà solo il traffico inviato e ricevuto dal suo indirizzo di rete e catturerà solo il traffico &lt;em&gt;dati dell&apos;utente&lt;/em&gt; con intestazioni Ethernet &amp;quot;fittizie&amp;quot;. Se desideri catturare tutto il traffico che transita sulle schede di rete wireless o sei interessato ai pacchetti di gestione o di controllo 802.11, o alle informazioni del livello radio, seleziona questa opzione. La disponibilità della modalità di monitoraggio dipende dalla scheda di rete wireless e dal driver. Consulta il Wiki per ulteriori dettagli sulla cattura dei pacchetti nelle reti WLAN.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Enable monitor mode on all 802.11 interfaces</source>
+        <translation>Abilita la modalità monitor su tutte le interfacce 802.11</translation>
+    </message>
+    <message>
         <source>compression</source>
         <translation>compressione</translation>
     </message>
@@ -1589,6 +1597,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Capture packets in promiscuous mode</source>
         <translation>Cattura i pacchetti in modalità promiscua</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Di solito una scheda di rete wireless catturerà solo il traffico inviato e ricevuto dal suo indirizzo di rete e catturerà solo il traffico &lt;em&gt;dati dell&apos;utente&lt;/em&gt; con intestazioni Ethernet &amp;quot;fittizie&amp;quot;. Se desideri catturare tutto il traffico che transita sulle schede di rete wireless o sei interessato ai pacchetti di gestione o di controllo 802.11, o alle informazioni del livello radio, seleziona questa opzione. La disponibilità della modalità di monitoraggio dipende dalla scheda di rete wireless e dal driver. Consulta il Wiki per ulteriori dettagli sulla cattura dei pacchetti nelle reti WLAN.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Capture packets in monitor mode on 802.11 devices</source>
+        <translation>Cattura i pacchetti in modalità monitor sui dispositivi 802.11</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture packets in the next-generation capture file format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -7113,6 +7129,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Mostra byte del pacchetto</translation>
     </message>
     <message>
+        <source>Layout:</source>
+        <translation>Disposizione:</translation>
+    </message>
+    <message>
         <source>Packet %1</source>
         <translation>Pacchetto %1</translation>
     </message>
@@ -8760,6 +8780,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Indirizzi risolti</translation>
     </message>
     <message>
+        <source>Copy</source>
+        <translation>Copia</translation>
+    </message>
+    <message>
+        <source>Save as…</source>
+        <translation>Salva come...</translation>
+    </message>
+    <message>
         <source># Resolved addresses found in %1</source>
         <translation># Trovati indirizzi risolti in %1</translation>
     </message>
@@ -8770,6 +8798,61 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation># Commenti
 #
 # </translation>
+    </message>
+</context>
+<context>
+    <name>ResolvedAddressesView</name>
+    <message>
+        <source>as Plain Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy selected rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>as CSV</source>
+        <translation type="unfinished">come CSV</translation>
+    </message>
+    <message>
+        <source>as JSON</source>
+        <translation type="unfinished">come JSON</translation>
+    </message>
+    <message>
+        <source>Save selected rows as…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save table as…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Resolved Addresses As…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Plain text (*.txt)</source>
+        <translation type="unfinished">Testo (*.txt)</translation>
+    </message>
+    <message>
+        <source>CSV Document (*.csv)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JSON Document (*.json)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation type="unfinished">Avviso</translation>
+    </message>
+    <message>
+        <source>Unable to save %1: %2</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -16,6 +16,9 @@ Wireshark 4.3.0 Release Notes
   Display filter functions can be implemented as runtime-loadable C
   plugins.
 
+  Plugin registration API was refactored. Plugin authors must update
+  their plugins as described below.
+
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
 
@@ -90,6 +93,11 @@ Wireshark 4.3.0 Release Notes
        fewer UAC pop-ups when npcap is installed with access restricted
        to Administrators on Windows
 
+     • The Resolved Addresses dialog only shows what addresses and ports
+       are present in the file (not including information from static
+       files), and selected rows or the entire table can be saved or
+       copied to the clipboard in several formats.
+
   New Protocol Support
 
    EGNOS Message Server (EMS) file format, MAC NR Framed
@@ -109,9 +117,12 @@ Wireshark 4.3.0 Release Notes
 
   Major API Changes
 
-     • Plugins should provide a `plugin_describe()` function that
-       returns an ORed list of flags consisting of the plugin types used
-       (declared in wsutil/plugins.h).
+     • Plugin registration API was refactored. Plugin authors must do
+       the following: 1 - Remove the existing bloilerplate (version,
+       want_major` and `want_minor` and plugin API declarations. 2 - Add
+       a struct ws_module to the plugin. 3 - Call one of the
+       WIRESHARK_PLUGIN_REGISTER_* macros. See README.plugins sections 5
+       and doc/plugins.example/hello.c for details and examples.
 
  Getting Wireshark
 

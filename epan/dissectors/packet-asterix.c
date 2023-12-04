@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: 85b4b69a838a642933a67a4d036e8ce6ced660e4
+git revision: f85cee6ce7d3e40c654563064608c7f94cac0b9f
 
 
 */
@@ -33326,7 +33326,7 @@ static const FieldPart *I034_V1_27_110_PARTS[] = {
 static const AsterixField I034_V1_27_110 = { FIXED, 1, 0, 0, &hf_034_V1_27_110, I034_V1_27_110_PARTS, { NULL } };
 static int hf_034_V1_27_120;
 static int hf_034_V1_27_120_HGT;
-static const FieldPart I034_V1_27_120_HGT = { 16, 1.0, FIELD_PART_UFLOAT, &hf_034_V1_27_120_HGT, NULL };
+static const FieldPart I034_V1_27_120_HGT = { 16, 1.0, FIELD_PART_FLOAT, &hf_034_V1_27_120_HGT, NULL };
 static int hf_034_V1_27_120_LAT;
 static const FieldPart I034_V1_27_120_LAT = { 24, 0.000021457672119140625, FIELD_PART_FLOAT, &hf_034_V1_27_120_LAT, NULL };
 static int hf_034_V1_27_120_LON;
@@ -33844,7 +33844,7 @@ static const FieldPart *I034_V1_28_110_PARTS[] = {
 static const AsterixField I034_V1_28_110 = { FIXED, 1, 0, 0, &hf_034_V1_28_110, I034_V1_28_110_PARTS, { NULL } };
 static int hf_034_V1_28_120;
 static int hf_034_V1_28_120_HGT;
-static const FieldPart I034_V1_28_120_HGT = { 16, 1.0, FIELD_PART_UFLOAT, &hf_034_V1_28_120_HGT, NULL };
+static const FieldPart I034_V1_28_120_HGT = { 16, 1.0, FIELD_PART_FLOAT, &hf_034_V1_28_120_HGT, NULL };
 static int hf_034_V1_28_120_LAT;
 static const FieldPart I034_V1_28_120_LAT = { 24, 0.000021457672119140625, FIELD_PART_FLOAT, &hf_034_V1_28_120_LAT, NULL };
 static int hf_034_V1_28_120_LON;
@@ -34364,7 +34364,7 @@ static const FieldPart *I034_V1_29_110_PARTS[] = {
 static const AsterixField I034_V1_29_110 = { FIXED, 1, 0, 0, &hf_034_V1_29_110, I034_V1_29_110_PARTS, { NULL } };
 static int hf_034_V1_29_120;
 static int hf_034_V1_29_120_HGT;
-static const FieldPart I034_V1_29_120_HGT = { 16, 1.0, FIELD_PART_UFLOAT, &hf_034_V1_29_120_HGT, NULL };
+static const FieldPart I034_V1_29_120_HGT = { 16, 1.0, FIELD_PART_FLOAT, &hf_034_V1_29_120_HGT, NULL };
 static int hf_034_V1_29_120_LAT;
 static const FieldPart I034_V1_29_120_LAT = { 24, 0.000021457672119140625, FIELD_PART_FLOAT, &hf_034_V1_29_120_LAT, NULL };
 static int hf_034_V1_29_120_LON;
@@ -34860,7 +34860,7 @@ static const FieldPart *I034_110_PARTS[] = {
 static const AsterixField I034_110 = { FIXED, 1, 0, 0, &hf_034_110, I034_110_PARTS, { NULL } };
 static int hf_034_120;
 static int hf_034_120_HGT;
-static const FieldPart I034_120_HGT = { 16, 1.0, FIELD_PART_UFLOAT, &hf_034_120_HGT, NULL };
+static const FieldPart I034_120_HGT = { 16, 1.0, FIELD_PART_FLOAT, &hf_034_120_HGT, NULL };
 static int hf_034_120_LAT;
 static const FieldPart I034_120_LAT = { 24, 0.000021457672119140625, FIELD_PART_FLOAT, &hf_034_120_LAT, NULL };
 static int hf_034_120_LON;
