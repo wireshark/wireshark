@@ -575,9 +575,8 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
             offset += 8;
             proto_tree_add_item(subtree, hf_blf_sys_var_name, tvb, offset, namelength, ENC_UTF_8 | ENC_NA);
             offset += namelength;
-            proto_tree_add_item(subtree, hf_blf_sys_var_data, tvb, offset, namelength, ENC_NA);
-            offset += namelength;
-
+            proto_tree_add_item(subtree, hf_blf_sys_var_data, tvb, offset, datalength, ENC_NA);
+            offset += datalength;
         }
         break;
         case BLF_OBJTYPE_ETHERNET_STATUS:
