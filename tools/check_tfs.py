@@ -374,12 +374,13 @@ def is_dissector_file(filename):
 def findDissectorFilesInFolder(folder):
     files = set()
 
-    for f in os.listdir(folder):
-        if should_exit:
-            return
-        if is_dissector_file(f):
-            filename = os.path.join(folder, f)
-            files.add(filename)
+    for path, tmp_unused, names in os.walk(folder):
+        for f in names:
+            if should_exit:
+                return
+            if is_dissector_file(f):
+                files.add(os.path.join(path, f))
+
     return files
 
 
