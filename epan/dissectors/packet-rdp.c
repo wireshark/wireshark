@@ -2137,7 +2137,7 @@ rdp_transport_set_udp_conversation(const address *serverAddr, guint16 serverPort
 	key.reliable = reliable;
 	key.requestId = reqId;
 	memcpy(key.securityCookie, cookie, 16);
-	copy_address(&key.serverAddr, serverAddr);
+	copy_address_shallow(&key.serverAddr, serverAddr);
 	key.serverPort = serverPort;
 
 	transport_link = (rdp_transports_link_t *)wmem_map_lookup(rdp_transport_links, &key);
@@ -2219,7 +2219,7 @@ dissect_rdp_MessageChannelData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 		transport_key.reliable = !!(reqProto & INITITATE_REQUEST_PROTOCOL_UDPFECR);
 		transport_key.requestId = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
-		copy_address(&transport_key.serverAddr, &pinfo->src);
+		copy_address_shallow(&transport_key.serverAddr, &pinfo->src);
 		transport_key.serverPort = pinfo->srcport;
 		tvb_memcpy(tvb, transport_key.securityCookie, offset + 8, 16);
 
@@ -2676,7 +2676,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
   rdp_info = rdp_get_conversation_data(pinfo);
 
-  copy_address(&rdp_info->serverAddr.addr, &pinfo->dst);
+  copy_address_wmem(wmem_file_scope(), &rdp_info->serverAddr.addr, &pinfo->dst);
   rdp_info->serverAddr.port = pinfo->destport;
 
   col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "ClientData");
