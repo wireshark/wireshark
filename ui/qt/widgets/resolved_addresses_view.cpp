@@ -190,7 +190,7 @@ void ResolvedAddressesView::toTextStream(QTextStream& stream,
                 stream << "# service-name\tport/protocol\n";
             }
             for (int row = 0; row < model()->rowCount(); row++) {
-                if (selected && !selectionModel()->isRowSelected(row)) continue;
+                if (selected && !selectionModel()->isRowSelected(row, QModelIndex())) continue;
                 rowText.clear();
                 rowText << model()->data(model()->index(row, PORTS_COL_NAME)).toString();
                 rowText << QString("%1/%2")
@@ -207,7 +207,7 @@ void ResolvedAddressesView::toTextStream(QTextStream& stream,
                 stream << "# " << rowText.join("\t") << "\n";
             }
             for (int row = 0; row < model()->rowCount(); row++) {
-                if (selected && !selectionModel()->isRowSelected(row)) continue;
+                if (selected && !selectionModel()->isRowSelected(row, QModelIndex())) continue;
                 rowText.clear();
                 for (int col = 0; col < model()->columnCount(); col++) {
                     rowText << model()->data(model()->index(row, col)).toString();
@@ -223,7 +223,7 @@ void ResolvedAddressesView::toTextStream(QTextStream& stream,
             stream << rowText.join(",") << "\n";
         }
         for (int row = 0; row < model()->rowCount(); row++) {
-            if (selected && !selectionModel()->isRowSelected(row)) continue;
+            if (selected && !selectionModel()->isRowSelected(row, QModelIndex())) continue;
             rowText.clear();
             for (int col = 0; col < model()->columnCount(); col++) {
                 QVariant v = model()->data(model()->index(row, col));
@@ -245,7 +245,7 @@ void ResolvedAddressesView::toTextStream(QTextStream& stream,
         QJsonArray records;
 
         for (int row = 0; row < model()->rowCount(); row++) {
-            if (selected && !selectionModel()->isRowSelected(row)) continue;
+            if (selected && !selectionModel()->isRowSelected(row, QModelIndex())) continue;
             QJsonObject rowData;
             foreach(int col, headers.keys()) {
                 QModelIndex idx = model()->index(row, col);
