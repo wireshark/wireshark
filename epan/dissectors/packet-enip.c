@@ -432,6 +432,10 @@ static expert_field ei_mal_eip_cert_capability_flags;
 static expert_field ei_mal_cpf_item_length_mismatch;
 static expert_field ei_mal_cpf_item_minimum_size;
 
+static expert_field ei_cip_request_no_response;
+static expert_field ei_cip_io_heartbeat;
+
+
 static dissector_table_t   subdissector_srrd_table;
 static dissector_table_t   subdissector_io_table;
 static dissector_table_t   subdissector_decode_as_io_table;
@@ -942,6 +946,10 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
                   NULL, 0, 0, request_info->rep_num);
             proto_item_set_generated(it);
          }
+         else
+         {
+            expert_add_info(pinfo, tree, &ei_cip_request_no_response);
+         }
       }
       else
       {
@@ -1198,7 +1206,7 @@ static void enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connI
       return;
 
    // Don't create connections for Null Forward Opens.
-   if (connInfo->T2O.type == CONN_TYPE_NULL && connInfo->O2T.type == CONN_TYPE_NULL)
+   if (connInfo->IsNullFwdOpen)
    {
       return;
    }
@@ -2553,7 +2561,39 @@ void display_fwd_open_connection_path(cip_conn_info_t* conn_info, proto_tree* tr
    }
 }
 
-static void display_connection_information(packet_info* pinfo, tvbuff_t* tvb, proto_tree* tree, cip_conn_info_t* conn_info, enum enip_connid_type connid_type)
+// returns TRUE if this is a likely Heartbeat message
+// Note: item_length include the CIP Sequence Count, if applicable.
+static gboolean cip_io_is_likely_heartbeat(const cip_conn_info_t* conn_info, enum enip_connid_type connid_type, guint32 item_length)
+{
+   // Heartbeat messages only occur in the O->T direction.
+   if (connid_type != ECIDT_O2T)
+   {
+      return FALSE;
+   }
+
+   // Class 0 heartbeat messages have 0 length.
+   if (item_length == 0)
+   {
+      return TRUE;
+   }
+
+   // The only other possibility for a heartbeat is for Class 1 (the 2 bytes is the Sequence Count)
+   if (item_length != 2)
+   {
+      return FALSE;
+   }
+
+   // The only possibility for a heartbeat is: Class 1 with 2 bytes of data only, and it must be a "Fixed" size.
+   guint8 transport_class = conn_info->TransportClass_trigger & CI_TRANSPORT_CLASS_MASK;
+   if (transport_class == 1 && conn_info->O2T.connection_size_type == CIP_CONNECTION_SIZE_TYPE_FIXED)
+   {
+      return TRUE;
+   }
+   return FALSE;
+}
+
+static void display_connection_information(packet_info* pinfo, tvbuff_t* tvb, proto_tree* tree, cip_conn_info_t* conn_info,
+   enum enip_connid_type connid_type, guint32 item_length)
 {
    proto_item* conn_info_item = NULL;
    proto_tree* conn_info_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_connection_info, &conn_info_item, "Connection Information");
@@ -2581,6 +2621,11 @@ static void display_connection_information(packet_info* pinfo, tvbuff_t* tvb, pr
 
    pi = proto_tree_add_uint(conn_info_tree, hf_enip_fwd_open_in, tvb, 0, 0, conn_info->open_req_frame);
    proto_item_set_generated(pi);
+
+   if (cip_io_is_likely_heartbeat(conn_info, connid_type, item_length))
+   {
+      expert_add_info(pinfo, conn_info_item, &ei_cip_io_heartbeat);
+   }
 }
 
 // This dissects Class 0 or Class 1 I/O.
@@ -3023,7 +3068,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
                if (conn_info)
                {
-                  display_connection_information(pinfo, tvb, enip_layer_tree, conn_info, connid_type);
+                  display_connection_information(pinfo, tvb, enip_layer_tree, conn_info, connid_type, item_length);
                }
 
                break;
@@ -4826,6 +4871,10 @@ proto_register_enip(void)
       { &ei_mal_eip_cert_capability_flags, { "cip.malformed.eip_cert.capability_flags", PI_MALFORMED, PI_ERROR, "Malformed EIP Certificate Management Capability Flags", EXPFILL }},
       { &ei_mal_cpf_item_length_mismatch, { "enip.malformed.cpf_item_length_mismatch", PI_MALFORMED, PI_ERROR, "CPF Item Length Mismatch", EXPFILL } },
       { &ei_mal_cpf_item_minimum_size, { "enip.malformed.cpf_item_minimum_size", PI_MALFORMED, PI_ERROR, "CPF Item Minimum Size is 4", EXPFILL } },
+
+      // Analysis Checks
+      { &ei_cip_request_no_response, { "cip.analysis.request_no_response", PI_PROTOCOL, PI_NOTE, "CIP request without a response", EXPFILL } },
+      { &ei_cip_io_heartbeat, { "cip.analysis.cip_io_heartbeat", PI_PROTOCOL, PI_NOTE, "[Likely] CIP I/O Heartbeat [Listen/Input Only Connection]", EXPFILL } },
    };
 
    /* Setup list of header fields for DLR  See Section 1.6.1 for details*/

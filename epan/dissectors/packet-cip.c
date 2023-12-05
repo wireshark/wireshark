@@ -678,12 +678,14 @@ static expert_field ei_mal_opt_service_list;
 static expert_field ei_mal_padded_epath_size;
 static expert_field ei_mal_missing_string_data;
 
+static expert_field ei_cip_null_fwd_open;
 static expert_field ei_cip_safety_open_type1;
 static expert_field ei_cip_safety_open_type2a;
 static expert_field ei_cip_safety_open_type2b;
 static expert_field ei_cip_no_fwd_close;
 static expert_field ei_cip_safety_input;
 static expert_field ei_cip_safety_output;
+static expert_field ei_cip_listen_input_connection;
 
 //// Concurrent Connections
 static int hf_cip_cm_cc_version;
@@ -4840,8 +4842,8 @@ dissect_net_param16(tvbuff_t *tvb, int offset, proto_tree *tree,
    proto_tree_add_item(net_param_tree, hf_owner, tvb, offset, 2, ENC_LITTLE_ENDIAN );
    proto_tree_add_item_ret_uint(net_param_tree, hf_type, tvb, offset, 2, ENC_LITTLE_ENDIAN, &conn_info->type);
    proto_tree_add_item(net_param_tree, hf_priority, tvb, offset, 2, ENC_LITTLE_ENDIAN );
-   proto_tree_add_item(net_param_tree, hf_fixed_var, tvb, offset, 2, ENC_LITTLE_ENDIAN );
-   proto_tree_add_item(net_param_tree, hf_con_size, tvb, offset, 2, ENC_LITTLE_ENDIAN );
+   proto_tree_add_item_ret_uint(net_param_tree, hf_fixed_var, tvb, offset, 2, ENC_LITTLE_ENDIAN, &conn_info->connection_size_type);
+   proto_tree_add_item_ret_uint(net_param_tree, hf_con_size, tvb, offset, 2, ENC_LITTLE_ENDIAN, &conn_info->connection_size);
 }
 
 static void
@@ -4859,8 +4861,8 @@ dissect_net_param32(tvbuff_t *tvb, int offset, proto_tree *tree,
    proto_tree_add_item(net_param_tree, hf_owner, tvb, offset, 4, ENC_LITTLE_ENDIAN );
    proto_tree_add_item_ret_uint(net_param_tree, hf_type, tvb, offset, 4, ENC_LITTLE_ENDIAN, &conn_info->type);
    proto_tree_add_item(net_param_tree, hf_priority, tvb, offset, 4, ENC_LITTLE_ENDIAN );
-   proto_tree_add_item(net_param_tree, hf_fixed_var, tvb, offset, 4, ENC_LITTLE_ENDIAN );
-   proto_tree_add_item(net_param_tree, hf_con_size, tvb, offset, 4, ENC_LITTLE_ENDIAN );
+   proto_tree_add_item_ret_uint(net_param_tree, hf_fixed_var, tvb, offset, 4, ENC_LITTLE_ENDIAN, &conn_info->connection_size_type);
+   proto_tree_add_item_ret_uint(net_param_tree, hf_con_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &conn_info->connection_size);
 }
 
 static void
@@ -7372,6 +7374,22 @@ static void fwd_open_analysis_safety_open(packet_info* pinfo, proto_item* cmd_it
    }
 }
 
+void fwd_open_analysis_listen_input_connection(packet_info* pinfo, proto_item* cmd_item, guint8 TransportClass_trigger, const cip_connID_info_t* O2T_info)
+{
+   // Listen Only and Input Only connections must be 'Fixed'.
+   if (O2T_info->connection_size_type != CIP_CONNECTION_SIZE_TYPE_FIXED)
+   {
+      return;
+   }
+
+   guint8 transport_class = TransportClass_trigger & CI_TRANSPORT_CLASS_MASK;
+   if ((transport_class == 0 && O2T_info->connection_size == 0)
+      || (transport_class == 1 && O2T_info->connection_size == 2))
+   {
+      expert_add_info(pinfo, cmd_item, &ei_cip_listen_input_connection);
+   }
+}
+
 static void display_previous_route_connection_path(cip_req_info_t* preq_info, proto_tree* item_tree, tvbuff_t* tvb, packet_info* pinfo, int hf_path, int display_type);
 
 // Display all Connection Information and Analysis.
@@ -7414,6 +7432,7 @@ static void display_connection_information_fwd_open_req(packet_info* pinfo, tvbu
    }
 
    fwd_open_analysis_safety_open(pinfo, conn_info_item, &conn_info->safety);
+   fwd_open_analysis_listen_input_connection(pinfo, conn_info_item, conn_info->TransportClass_trigger, &conn_info->O2T);
 }
 
 static void display_connection_information_fwd_open_rsp(packet_info* pinfo, tvbuff_t* tvb, proto_tree* tree, cip_req_info_t* preq_info)
@@ -7676,7 +7695,7 @@ int dissect_concurrent_connection_network_segment(packet_info* pinfo, tvbuff_t* 
 }
 
 static void
-dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvbuff_t *tvb, int offset,
+dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, proto_item* cmd_item, tvbuff_t *tvb, int offset,
    gboolean large_fwd_open, packet_info *pinfo, gboolean concurrent_connection)
 {
    proto_item *pi;
@@ -7764,6 +7783,13 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
    dissect_epath( tvb, pinfo, epath_tree, pi, offset+26+net_param_offset+6, conn_path_size, FALSE, FALSE, &connection_path, &safety_fwdopen, DISPLAY_CONNECTION_PATH, NULL, FALSE);
    save_route_connection_path(pinfo, tvb, offset + 26 + net_param_offset + 6, conn_path_size);
 
+   // Null Forward Opens are a special case, so make it obvious.
+   if ((O2T_info.type == CONN_TYPE_NULL) && (T2O_info.type == CONN_TYPE_NULL))
+   {
+      col_append_str(pinfo->cinfo, COL_INFO, " [Null]");
+      expert_add_info(pinfo, cmd_item, &ei_cip_null_fwd_open);
+   }
+
    if (pinfo->fd->visited)
    {
        /* "Connection" is created during ForwardOpen reply (which will be after ForwardOpen request),
@@ -7784,6 +7810,7 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
          preq_info->connInfo->T2O = T2O_info;
 
          preq_info->connInfo->TransportClass_trigger = TransportClass_trigger;
+         preq_info->connInfo->IsNullFwdOpen = (O2T_info.type == CONN_TYPE_NULL) && (T2O_info.type == CONN_TYPE_NULL);
          preq_info->connInfo->timeout_multiplier = timeout_multiplier;
          preq_info->connInfo->safety = safety_fwdopen;
          if (preq_info->connInfo->safety.safety_seg)
@@ -7829,6 +7856,12 @@ static void display_previous_route_connection_path(cip_req_info_t *preq_info, pr
       cip_simple_request_info_t route_conn_path;
       dissect_epath(tvbIOI, pinfo, epath_tree, pi, 0, preq_info->RouteConnectionPathLen * 2, TRUE, FALSE, &route_conn_path, NULL, display_type, NULL, FALSE);
       tvb_free(tvbIOI);
+
+      if (preq_info->connInfo && preq_info->connInfo->IsNullFwdOpen)
+      {
+         col_append_str(pinfo->cinfo, COL_INFO, " [Null]");
+         expert_add_info(pinfo, item_tree, &ei_cip_null_fwd_open);
+      }
    }
 }
 
@@ -8412,23 +8445,23 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
       /* If there is any command specific data creat a sub-tree for it */
       if( (item_length-req_path_size-2) != 0 )
       {
-
+         proto_item* cmd_data_item;
          cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+2+req_path_size, item_length-req_path_size-2,
-                                                 ett_cm_cmd_data, NULL, "Command Specific Data" );
+                                                 ett_cm_cmd_data, &cmd_data_item, "Command Specific Data" );
 
          /* Check what service code that received */
          switch (service)
          {
          case SC_CM_FWD_OPEN:
             /* Forward open Request*/
-            dissect_cip_cm_fwd_open_req(preq_info, cmd_data_tree, tvb, offset+2+req_path_size, FALSE, pinfo, FALSE);
+            dissect_cip_cm_fwd_open_req(preq_info, cmd_data_tree, cmd_data_item, tvb, offset+2+req_path_size, FALSE, pinfo, FALSE);
             break;
          case SC_CM_CONCURRENT_FWD_OPEN:
-            dissect_cip_cm_fwd_open_req(preq_info, cmd_data_tree, tvb, offset+2+req_path_size, FALSE, pinfo, TRUE);
+            dissect_cip_cm_fwd_open_req(preq_info, cmd_data_tree, cmd_data_item, tvb, offset+2+req_path_size, FALSE, pinfo, TRUE);
             break;
          case SC_CM_LARGE_FWD_OPEN:
             /* Large Forward open Request*/
-            dissect_cip_cm_fwd_open_req(preq_info, cmd_data_tree, tvb, offset+2+req_path_size, TRUE, pinfo, FALSE);
+            dissect_cip_cm_fwd_open_req(preq_info, cmd_data_tree, cmd_data_item, tvb, offset+2+req_path_size, TRUE, pinfo, FALSE);
             break;
          case SC_CM_FWD_CLOSE:
          case SC_CM_CONCURRENT_FWD_CLOSE:
@@ -10187,11 +10220,13 @@ proto_register_cip(void)
       { &ei_mal_padded_epath_size, { "cip.malformed.epath.size", PI_MALFORMED, PI_ERROR, "Malformed EPATH vs Size", EXPFILL } },
       { &ei_mal_missing_string_data, { "cip.malformed.missing_str_data", PI_MALFORMED, PI_ERROR, "Missing string data", EXPFILL } },
 
+      { &ei_cip_null_fwd_open, { "cip.analysis.null_fwd_open", PI_PROTOCOL, PI_NOTE, "Null Forward Open", EXPFILL } },
       { &ei_cip_safety_open_type1, { "cip.analysis.safety_open_type1", PI_PROTOCOL, PI_NOTE, "Type 1 - Safety Open with Data", EXPFILL } },
       { &ei_cip_safety_open_type2a, { "cip.analysis.safety_open_type2a", PI_PROTOCOL, PI_NOTE, "Type 2a - Safety Open with SCID check", EXPFILL } },
       { &ei_cip_safety_open_type2b, { "cip.analysis.safety_open_type2b", PI_PROTOCOL, PI_NOTE, "Type 2b - Safety Open without SCID check", EXPFILL } },
       { &ei_cip_safety_input, { "cip.analysis.safety_input", PI_PROTOCOL, PI_NOTE, "Safety Input Connection", EXPFILL } },
       { &ei_cip_safety_output, { "cip.analysis.safety_output", PI_PROTOCOL, PI_NOTE, "Safety Output Connection", EXPFILL } },
+      { &ei_cip_listen_input_connection, { "cip.analysis.listen_input_connection", PI_PROTOCOL, PI_NOTE, "[Likely] Listen Only or Input Only Connection", EXPFILL } },
       { &ei_cip_no_fwd_close, { "cip.analysis.no_fwd_close", PI_PROTOCOL, PI_NOTE, "No Forward Close seen for this CIP Connection", EXPFILL } },
    };
 

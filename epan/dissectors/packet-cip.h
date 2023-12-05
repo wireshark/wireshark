@@ -492,6 +492,7 @@ typedef struct cip_service_info {
 } cip_service_info_t;
 
 // This describes a one-way connection. Each CIP Connection includes 2 of these.
+#define CIP_CONNECTION_SIZE_TYPE_FIXED (0)
 typedef struct cip_connID_info {
    // Connection ID from Forward Open Request. This may get updated in the Forward Open Response.
    guint32 connID;
@@ -502,6 +503,8 @@ typedef struct cip_connID_info {
 
    // Network Connection Parameters
    guint32 type;  // See: cip_con_type_vals
+   guint32 connection_size;
+   guint32 connection_size_type;  // 0 = Fixed, 1 = Variable
 
    // Requested Packet Interval in microseconds.
    guint32 rpi;
@@ -566,6 +569,9 @@ typedef struct cip_conn_info {
    guint32 connid;
 
    gboolean is_concurrent_connection;
+
+   // True if this is a Null Forward Open. In this case, a new connection is not created.
+   gboolean IsNullFwdOpen;
 } cip_conn_info_t;
 
 typedef struct cip_req_info {
