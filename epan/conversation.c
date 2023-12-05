@@ -59,6 +59,7 @@ enum {
     PORT2_IDX,
     ENDP_EXACT_IDX,
     EXACT_IDX_COUNT,
+    ADDRS_IDX_COUNT = PORT2_IDX,
     PORT2_NO_ADDR2_IDX = ADDR2_IDX,
     ENDP_NO_ADDR2_IDX = PORT2_IDX,
     ENDP_NO_PORT2_IDX = PORT2_IDX,
@@ -66,12 +67,18 @@ enum {
     NO_ADDR2_IDX_COUNT = ENDP_EXACT_IDX,
     NO_PORT2_IDX_COUNT = ENDP_EXACT_IDX,
     NO_ADDR2_PORT2_IDX_COUNT = PORT2_IDX,
+    ENDP_NO_PORTS_IDX = ADDR2_IDX
 };
 
 /*
  * Hash table of hash tables for conversations identified by element lists.
  */
 static wmem_map_t *conversation_hashtable_element_list = NULL;
+
+/*
+ * Hash table for conversations based on addresses only
+ */
+static wmem_map_t *conversation_hashtable_exact_addr = NULL;
 
 /*
  * Hash table for conversations with no wildcards.
@@ -486,6 +493,18 @@ conversation_init(void)
     wmem_map_insert(conversation_hashtable_element_list, wmem_strdup(wmem_epan_scope(), exact_map_key),
                     conversation_hashtable_exact_addr_port);
 
+    conversation_element_t addrs_elements[ADDRS_IDX_COUNT] = {
+        { CE_ADDRESS, .addr_val = ADDRESS_INIT_NONE },
+        { CE_ADDRESS, .addr_val = ADDRESS_INIT_NONE },
+        { CE_CONVERSATION_TYPE, .conversation_type_val = CONVERSATION_NONE }
+    };
+    char *addrs_map_key = conversation_element_list_name(wmem_epan_scope(), addrs_elements);
+    conversation_hashtable_exact_addr = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
+                                                                    conversation_hash_element_list,
+                                                                    conversation_match_element_list);
+    wmem_map_insert(conversation_hashtable_element_list, wmem_strdup(wmem_epan_scope(), addrs_map_key),
+                    conversation_hashtable_exact_addr);
+
     conversation_element_t no_addr2_elements[NO_ADDR2_IDX_COUNT] = {
         { CE_ADDRESS, .addr_val = ADDRESS_INIT_NONE },
         { CE_PORT, .port_val = 0 },
@@ -799,6 +818,13 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
                  */
                 DPRINT(("creating conversation for frame #%u: %s:%u -> %s (ctype=%d)",
                             setup_frame, addr1_str, port1, addr2_str, ctype));
+
+            } else if (options & NO_PORTS) {
+                /*
+                 * No Ports.
+                 */
+                DPRINT(("creating conversation for frame #%u: %s -> %s (ctype=%d)",
+                            setup_frame, addr1_str, addr2_str, ctype));
             } else {
                 /*
                  * Ports 1 and 2.
@@ -825,8 +851,11 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
     } else {
         clear_address(&new_key[ADDR1_IDX].addr_val);
     }
-    new_key[PORT1_IDX].type = CE_PORT;
-    new_key[PORT1_IDX].port_val = port1;
+
+    if (!(options & NO_PORTS)) {
+        new_key[PORT1_IDX].type = CE_PORT;
+        new_key[PORT1_IDX].port_val = port1;
+    }
 
     if (options & NO_ADDR2) {
         if (options & (NO_PORT2|NO_PORT2_FORCE)) {
@@ -838,12 +867,17 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
             endp_idx = ENDP_NO_ADDR2_IDX;
         }
     } else {
-        addr2_idx = ADDR2_IDX;
         if (options & (NO_PORT2|NO_PORT2_FORCE)) {
             hashtable = conversation_hashtable_no_port2;
+            addr2_idx = ADDR2_IDX;
             endp_idx = ENDP_NO_PORT2_IDX;
+        } else if (options & NO_PORTS) {
+            hashtable = conversation_hashtable_exact_addr;
+            addr2_idx = PORT1_IDX;
+            endp_idx = ENDP_NO_PORTS_IDX;
         } else {
             hashtable = conversation_hashtable_exact_addr_port;
+            addr2_idx = ADDR2_IDX;
             port2_idx = PORT2_IDX;
             endp_idx = ENDP_EXACT_IDX;
         }
@@ -1108,6 +1142,22 @@ conversation_lookup_no_addr2_or_port2(const guint32 frame_num, const address *ad
 }
 
 /*
+ * Search a particular hash table for a conversation with the specified
+ * {addr1, addr2} and set up before frame_num.
+ */
+static conversation_t *
+conversation_lookup_no_ports(const guint32 frame_num, const address *addr1,
+                          const address *addr2, const conversation_type ctype)
+{
+    conversation_element_t key[ADDRS_IDX_COUNT] = {
+        { CE_ADDRESS, .addr_val = *addr1 },
+        { CE_ADDRESS, .addr_val = *addr2 },
+        { CE_CONVERSATION_TYPE, .conversation_type_val = ctype },
+    };
+    return conversation_lookup_hashtable(conversation_hashtable_exact_addr, frame_num, key);
+}
+
+/*
  * Given two address/port pairs for a packet, search for a conversation
  * containing packets between those address/port pairs.  Returns NULL if
  * not found.
@@ -1166,7 +1216,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
     /*
      * First try an exact match, if we have two addresses and ports.
      */
-    if (!(options & (NO_ADDR_B|NO_PORT_B))) {
+    if (!(options & (NO_ADDR_B|NO_PORT_B|NO_PORTS))) {
         /*
          * Neither search address B nor search port B are wildcarded,
          * start out with an exact match.
@@ -1213,7 +1263,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
      * Well, that didn't find anything.  Try matches that wildcard
      * one of the addresses, if we have two ports.
      */
-    if (!(options & NO_PORT_B)) {
+    if (!(options & (NO_PORT_B|NO_PORTS))) {
         /*
          * Search port B isn't wildcarded.
          *
@@ -1306,7 +1356,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
      * Well, that didn't find anything.  Try matches that wildcard
      * one of the ports, if we have two addresses.
      */
-    if (!(options & NO_ADDR_B)) {
+    if (!(options & (NO_ADDR_B|NO_PORTS))) {
         /*
          * Search address B isn't wildcarded.
          *
@@ -1489,6 +1539,28 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
             goto end;
         }
     }
+
+    if (options & NO_PORT_X) {
+        /*
+         * Search for conversations between two addresses, strictly
+         */
+        DPRINT(("trying exact match: %s -> %s",
+                    addr_a_str, addr_b_str));
+        conversation = conversation_lookup_no_ports(frame_num, addr_a, addr_b, ctype);
+
+        if (conversation != NULL) {
+            DPRINT(("match found"));
+            goto end;
+        }
+        else {
+            conversation = conversation_lookup_no_ports(frame_num, addr_b, addr_a, ctype);
+            if (conversation != NULL) {
+                DPRINT(("match found"));
+                goto end;
+            }
+        }
+    }
+
     DPRINT(("no matches found"));
 
     /*

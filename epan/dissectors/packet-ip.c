@@ -126,6 +126,7 @@ static int hf_ip_proto;
 static int hf_ip_checksum;
 static int hf_ip_checksum_calculated;
 static int hf_ip_checksum_status;
+static int hf_ip_stream;
 
 /* IP option fields */
 static int hf_ip_opt_type;
@@ -267,6 +268,8 @@ static dissector_handle_t ip_handle;
 static dissector_table_t ip_option_table;
 
 static gint ett_geoip_info;
+
+static guint32 ip_stream_count;
 
 static const fragment_items ip_frag_items = {
   &ett_ip_fragment,
@@ -509,7 +512,9 @@ ip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, c
     hash->flags = flags;
     const ws_ip4 *iph=(const ws_ip4 *)vip;
 
-    add_conversation_table_data(hash, &iph->ip_src, &iph->ip_dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &ip_ct_dissector_info, CONVERSATION_NONE);
+    add_conversation_table_data_with_conv_id(hash, &iph->ip_src, &iph->ip_dst, 0, 0, (conv_id_t)iph->ip_stream, 1, pinfo->fd->pkt_len,
+                                              &pinfo->rel_ts, &pinfo->abs_ts, &ip_ct_dissector_info, CONVERSATION_IP);
+
 
     return TAP_PACKET_REDRAW;
 }
@@ -1846,6 +1851,46 @@ export_pdu(tvbuff_t *tvb, packet_info *pinfo)
   }
 }
 
+static struct ip_analysis *
+init_ip_conversation_data(packet_info *pinfo)
+{
+    struct ip_analysis *ipd;
+
+    /* Initialize the ip protocol data structure to add to the ip conversation */
+    ipd=wmem_new0(wmem_file_scope(), struct ip_analysis);
+
+    ipd->initial_frame = pinfo->num;
+    ipd->stream = 0;
+    ipd->stream = ip_stream_count++;
+
+    return ipd;
+}
+
+struct ip_analysis *
+get_ip_conversation_data(conversation_t *conv, packet_info *pinfo)
+{
+  struct ip_analysis *ipd;
+
+  /* Did the caller supply the conversation pointer? */
+  if( conv==NULL ) {
+    return NULL;
+  }
+
+  /* Get the data for this conversation */
+  ipd=(struct ip_analysis *)conversation_get_proto_data(conv, proto_ip);
+
+  if (!ipd) {
+    ipd = init_ip_conversation_data(pinfo);
+    conversation_add_proto_data(conv, proto_ip, ipd);
+  }
+
+  if (!ipd) {
+    return NULL;
+  }
+
+  return ipd;
+}
+
 static int
 dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
@@ -1864,6 +1909,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   proto_tree *tree;
   proto_item *item = NULL, *ttl_item;
   guint16 ttl_valid;
+  struct ip_analysis *ipd=NULL;
 
   tree = parent_tree;
   iph = wmem_new0(pinfo->pool, ws_ip4);
@@ -2300,6 +2346,31 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     }
   }
 
+  conversation_t *conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IP, 0, 0, NO_PORT_X);
+  if(!conv) {
+    conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IP, 0, 0, NO_PORTS);
+  }
+  else {
+    /*
+     * while not strictly necessary because there is only 1
+     * conversation between 2 IPs, we still move the last frame
+     * indicator as being a usual practice.
+     */
+    if (!(pinfo->fd->visited)) {
+      if (pinfo->num > conv->last_frame) {
+        conv->last_frame = pinfo->num;
+      }
+    }
+  }
+
+  ipd = get_ip_conversation_data(conv, pinfo);
+  if(ipd) {
+    iph->ip_stream = ipd->stream;
+
+    item = proto_tree_add_uint(ip_tree, hf_ip_stream, tvb, offset, 0, ipd->stream);
+    proto_item_set_generated(item);
+  }
+
   if (next_tvb == NULL) {
     /* Just show this as a fragment. */
     col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -2459,6 +2530,12 @@ dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     return TRUE;
 }
 
+static void
+ip_init(void)
+{
+    ip_stream_count = 0;
+}
+
 void
 proto_register_ip(void)
 {
@@ -2539,6 +2616,10 @@ proto_register_ip(void)
 
     { &hf_ip_host,
       { "Source or Destination Host", "ip.host", FT_STRING, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
+
+    { &hf_ip_stream,
+      { "Stream index", "ip.stream", FT_UINT32, BASE_DEC,
         NULL, 0x0, NULL, HFILL }},
 
     { &hf_geoip_country,
@@ -3006,6 +3087,8 @@ proto_register_ip(void)
   prefs_register_static_text_preference(ip_module, "text_use_geoip",
     "IP geolocation settings can be changed in the Name Resolution preferences",
     "IP geolocation settings can be changed in the Name Resolution preferences");
+
+  register_init_routine(ip_init);
 
   ip_handle = register_dissector("ip", dissect_ip, proto_ip);
   reassembly_table_register(&ip_reassembly_table,

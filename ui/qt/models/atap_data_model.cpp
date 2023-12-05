@@ -844,7 +844,9 @@ bool ConversationDataModel::showConversationId(int row) const
         return false;
 
     conv_item_t *conv_item = (conv_item_t *)&g_array_index(storage_, conv_item_t, row);
-    if (conv_item && (conv_item->ctype == CONVERSATION_TCP || conv_item->ctype == CONVERSATION_UDP))
+    if (conv_item && (conv_item->ctype == CONVERSATION_TCP ||
+                      conv_item->ctype == CONVERSATION_UDP ||
+                      conv_item->ctype == CONVERSATION_IP))
         return true;
     return false;
 }

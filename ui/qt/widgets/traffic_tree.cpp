@@ -694,7 +694,19 @@ QMenu * TrafficTree::createActionSubMenu(FilterAction::Action cur_action, QModel
         if (isConversation && conv_item) {
             QMenu *subsubmenu = subMenu->addMenu(FilterAction::actionTypeName(at));
             if (hasConvId && (cur_action == FilterAction::ActionApply || cur_action == FilterAction::ActionPrepare)) {
-                QString filter = QString("%1.stream eq %2").arg(conv_item->ctype == CONVERSATION_TCP ? "tcp" : "udp").arg(conv_item->conv_id);
+                QString filter;
+                switch (conv_item->ctype) {
+                case CONVERSATION_TCP:
+                    filter = QString("%1.stream eq %2").arg("tcp").arg(conv_item->conv_id);
+                    break;
+                case CONVERSATION_UDP:
+                    filter = QString("%1.stream eq %2").arg("udp").arg(conv_item->conv_id);
+                    break;
+                case CONVERSATION_IP:
+                default:
+                    filter = QString("%1.stream eq %2").arg("ip").arg(conv_item->conv_id);
+                    break;
+                }
                 FilterAction * act = new FilterAction(subsubmenu, cur_action, at, tr("Filter on stream id"));
                 act->setProperty("filter", filter);
                 subsubmenu->addAction(act);
