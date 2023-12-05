@@ -25,6 +25,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/tap.h>
 #include <epan/srt_table.h>
+#include <proto.h>
 
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"
@@ -825,6 +826,9 @@ static int hf_gtpv2_node_number_len;
 static int hf_gtpv2_additional_rrm_policy_index;
 
 static int hf_gtpv2_group_id;
+static int hf_gtpv2_nf_instance_id_nf_instance_id;
+static int hf_gtpv2_nf_timer_in_seconds_timer_value;
+
 
 static gint ett_gtpv2;
 static gint ett_gtpv2_flags;
@@ -1287,6 +1291,8 @@ static gint ett_gtpv2_ies[NUM_GTPV2_IES];
 #define GTPV2_IE_PSCELL_ID                           217
 #define GTPV2_IE_UP_SECURITY_POLICY                  218
 #define GTPV2_IE_ALT_IMSI                            219
+#define GTPV2_IE_NF_INSTANCE_ID                      220
+#define GTPV2_IE_TIMER_IN_SECONDS                    221
 /*
 220 to 253    Spare. For future use.
 254    Special IE type for IE Type Extension
@@ -1485,7 +1491,9 @@ static const value_string gtpv2_element_type_vals[] = {
     {217, "PSCell ID" },                                                        /* Fixed Length / 8.148*/
     {218, "UP Security Policy" },                                               /* Extendable / 8.149*/
     {219, "Alternative IMSI" },                                                 /* Variable Length / 8.150 */
-                                                                                /* 220 to 254    Spare. For future use.    */
+    {220, "NF Instance ID" },                                                   /* Fixed Length / 8.151 */
+    {221, "Timer in Seconds"},                                                  /* Variable Length / 8.152 */
+                                                                                /* 222 to 254    Spare. For future use.    */
     {255, "Private Extension"},                                                 /* Variable Length / 8.67 */
     {0, NULL}
 };
@@ -8584,6 +8592,29 @@ dissect_gtpv2_ie_alternative_imsi(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
     proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 
+static void
+dissect_gtpv2_ie_nf_instance_id(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, guint16 _U_ length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+{
+    /*
+     *  String uniquely identifying a NF instance. The format of the NF Instance ID shall be a
+     *  Universally Unique Identifier (UUID) version 4, as described in IETF RFC 4122 [15]. The
+     *  hexadecimal letters should be formatted as lower-case characters by the sender, and they
+     *  shall be handled as case-insensitive by the receiver.
+     *
+     *  Example: "4ace9d34-2c69-4f99-92d5-a73a3fe8e23b"
+     */
+    proto_tree_add_item(tree, hf_gtpv2_nf_instance_id_nf_instance_id, tvb, 0, 36, ENC_BIG_ENDIAN);
+}
+
+static void
+dissect_gtpv2_timer_in_seconds(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, guint16 _U_ length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+{
+    proto_tree_add_item(tree, hf_gtpv2_nf_timer_in_seconds_timer_value, tvb, 0, 3, ENC_BIG_ENDIAN);
+    if (length > 4) {
+        proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 3, length - 4);
+    }
+}
+
 /* Table 8.1-1: Information Element types for GTPv2 */
 
 typedef struct _gtpv2_ie {
@@ -8760,8 +8791,9 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_PSCELL_ID, dissect_gtpv2_ie_pscell_id },                       /* 217 PSCell Id Fixed Length / 8.148 */
     {GTPV2_IE_UP_SECURITY_POLICY, dissect_gtpv2_ie_up_security_policy },     /* 218 UP Security Policy Extendable / 8.149 */
     {GTPV2_IE_ALT_IMSI, dissect_gtpv2_ie_alternative_imsi },                 /* 219 Alternative IMSI Variable Length / 8.150 */
-
-    {GTPV2_IE_PRIVATE_EXT, dissect_gtpv2_private_ext},
+    {GTPV2_IE_PRIVATE_EXT, dissect_gtpv2_private_ext },
+    {GTPV2_IE_NF_INSTANCE_ID, dissect_gtpv2_ie_nf_instance_id },              /* 220 NF Instance ID*/
+    {GTPV2_IE_TIMER_IN_SECONDS, dissect_gtpv2_timer_in_seconds },             /* 221 Timer in Seconds*/
 
     {0, dissect_gtpv2_unknown}
 };
@@ -12590,6 +12622,16 @@ void proto_register_gtpv2(void)
       { "Group ID", "gtpv2.group_id",
           FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL }
+      },
+      { &hf_gtpv2_nf_instance_id_nf_instance_id,
+      { "NF Instance ID", "gtpv2.nf_instance_id_nf_instance_id",
+          FT_GUID, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_nf_timer_in_seconds_timer_value,
+      { "Timer in Seconds", "gtpv2.timer_in_seconds_timer_value",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
       },
     };
 
