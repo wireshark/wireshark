@@ -9,7 +9,7 @@ Plugins have three distinct binary types:
   * wiretap: These plugins can implement various extensions to libwiretap
   * epan: These plugins implement extensions to libwireshark
 
-Whithin each type we can differentiate by the features and APIs used. There
+Within each type we can differentiate by the features and APIs used. There
 are the following functional types:
 
   * codec: is its own class of functionality, described above
@@ -178,7 +178,6 @@ You must include the plugin API header:
 First declare a struct with the plugin metadata fields:
 
 static struct ws_module module = {
-    .license = WS_PLUGIN_IS_GPLv2_OR_LATER,
     .flags = WS_PLUGIN_DESC_DISSECTOR,
     .version = "X.Y.Z",
     .spdx_id = "GPL-2.0-or-later",
@@ -187,23 +186,19 @@ static struct ws_module module = {
     .register_cb = &plugin_register,
 };
 
-You must declare if the plugin license is GPLv2 or later, or compatible
-with the GPLv2. Only GPLv2 compatible plugins can be used with Wireshark.
-See [gpl-compat] for details on GPL license compatibility.
-
-Flags currently is only used to categorize a plugin according to its
+The flags field is currently only used to categorize a plugin according to its
 functionality, for display purposes. A plugin can implement more than one
 functionality type within each binary type, although this is rare in practice.
 
 Version is a string and conventionally uses the format major.minor.micro,
-althout this isn't enforced.
+although this isn't enforced.
 
-spdx_is is the SPDX license ID.
+The spdx_id field is the SPDX license ID for your plugin.
 
-Home URL should be a string where users can obtain the source for the plugin
-and more detailed information about the plugin.
+Home URL should be a string where users can obtain the source code
+and other detailed information about the plugin.
 
-The blurb is a short description of that the plugin does.
+The blurb is a short description of what the plugin does.
 
 The plugin registration callback implementation is specific for each plugin
 type (see the various plugins bundled with Wireshark for examples).
@@ -224,8 +219,6 @@ As the name implies each plugin binary type has a specific registration
 macro (but they all have the same arguments). The macro takes a pointer to
 the struct ws_module as the first argument. The second argument is
 currently unused and should be zero.
-
-[gpl-compat]https://www.gnu.org/licenses/gpl-faq.html#WhatDoesCompatMean
 
 6 How to plugin related interface options
 

@@ -110,19 +110,11 @@ compare_plugins(gconstpointer a, gconstpointer b)
 
 static bool
 pass_plugin_compatibility(const char *name, plugin_type_e type,
-                            int abi_version,
-                            struct ws_module *module)
+                            int abi_version)
 {
     if (abi_version != plugins_abi_version(type)) {
         report_failure("The plugin '%s' has incompatible ABI, have version %d, expected %d",
                             name, abi_version, plugins_abi_version(type));
-        return false;
-    }
-
-    if (module->license != WS_PLUGIN_IS_GPLv2_OR_LATER &&
-                module->license != WS_PLUGIN_IS_GPLv2_COMPATIBLE) {
-        report_failure("The plugin '%s' is not GPLv2 compatible (invalid license 0x%x, with SPDX ID \"%s\")",
-                                name, module->license, module->spdx_id);
         return false;
     }
 
@@ -210,7 +202,7 @@ DIAG_ON_PEDANTIC
             continue;
         }
 
-        if (!pass_plugin_compatibility(name, type, abi_version, module)) {
+        if (!pass_plugin_compatibility(name, type, abi_version)) {
             g_module_close(handle);
             g_free(plugin_file);
             continue;

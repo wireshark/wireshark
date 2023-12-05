@@ -52,7 +52,6 @@ plugin_register(void)
 }
 
 static struct ws_module module = {
-    .license = WS_PLUGIN_IS_GPLv2_OR_LATER,
     .flags = WS_PLUGIN_DESC_DISSECTOR,
     .version = VERSION,
     .spdx_id = "GPL-2.0-or-later",
