@@ -3771,6 +3771,7 @@ pcapng_process_internal_block(wtap *wth, pcapng_t *pcapng, section_info_t *curre
              * Add this SHB to the table of SHBs.
              */
             g_array_append_val(wth->shb_hdrs, wblock->block);
+            g_array_append_val(wth->shb_iface_to_global, wth->interface_data->len);
 
             /*
              * Update the current section number, and add
@@ -5280,9 +5281,16 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
      * Check the interface ID. Do this before writing the header,
      * in case we need to add a new IDB.
      */
-    if (rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+    if (rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
         epb.interface_id        = rec->rec_header.packet_header.interface_id;
-    else {
+        if (rec->presence_flags & WTAP_HAS_SECTION_NUMBER && wdh->shb_iface_to_global) {
+            /*
+             * In the extremely unlikely event this overflows we give the
+             * wrong interface ID.
+             */
+            epb.interface_id += g_array_index(wdh->shb_iface_to_global, unsigned, rec->section_number);
+        }
+    } else {
         /*
          * The source isn't sending us IDBs. See if we already have a
          * matching interface, and use it if so.

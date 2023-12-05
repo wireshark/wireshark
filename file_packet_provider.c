@@ -25,7 +25,7 @@ frame_cmp(gconstpointer a, gconstpointer b, gpointer user_data _U_)
 }
 
 const char *
-cap_file_provider_get_interface_name(struct packet_provider_data *prov, guint32 interface_id)
+cap_file_provider_get_interface_name(struct packet_provider_data *prov, guint32 interface_id, unsigned section_number)
 {
   wtapng_iface_descriptions_t *idb_info;
   wtap_block_t wtapng_if_descr = NULL;
@@ -33,8 +33,10 @@ cap_file_provider_get_interface_name(struct packet_provider_data *prov, guint32 
 
   idb_info = wtap_file_get_idb_info(prov->wth);
 
-  if (interface_id < idb_info->interface_data->len)
-    wtapng_if_descr = g_array_index(idb_info->interface_data, wtap_block_t, interface_id);
+  unsigned gbl_iface_id = wtap_file_get_shb_global_interface_id(prov->wth, section_number, interface_id);
+
+  if (gbl_iface_id < idb_info->interface_data->len)
+    wtapng_if_descr = g_array_index(idb_info->interface_data, wtap_block_t, gbl_iface_id);
 
   g_free(idb_info);
 
@@ -50,13 +52,15 @@ cap_file_provider_get_interface_name(struct packet_provider_data *prov, guint32 
 }
 
 const char *
-cap_file_provider_get_interface_description(struct packet_provider_data *prov, guint32 interface_id)
+cap_file_provider_get_interface_description(struct packet_provider_data *prov, guint32 interface_id, unsigned section_number)
 {
   wtapng_iface_descriptions_t *idb_info;
   wtap_block_t wtapng_if_descr = NULL;
   char* interface_name;
 
   idb_info = wtap_file_get_idb_info(prov->wth);
+
+  interface_id = wtap_file_get_shb_global_interface_id(prov->wth, section_number, interface_id);
 
   if (interface_id < idb_info->interface_data->len)
     wtapng_if_descr = g_array_index(idb_info->interface_data, wtap_block_t, interface_id);

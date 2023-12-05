@@ -40,6 +40,7 @@ struct wtap {
     int                         file_type_subtype;
     guint                       snapshot_length;
     GArray                      *shb_hdrs;
+    GArray                      *shb_iface_to_global;   /**< An array mapping the per-section interface numbers to global IDs */
     GArray                      *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?)*/
     guint                       next_interface_data;    /**< Next interface data that wtap_get_next_interface_description() will show */
     GArray                      *nrbs;                  /**< holds the Name Res Blocks, or NULL */
@@ -115,6 +116,7 @@ struct wtap_dumper {
 
     addrinfo_lists_t        *addrinfo_lists; /**< Struct containing lists of resolved addresses */
     GArray                  *shb_hdrs;
+    const GArray            *shb_iface_to_global; /**< An array mapping the per-section interface numbers to global IDs */
     GArray                  *interface_data; /**< An array holding the interface data from pcapng IDB:s or equivalent(?) NULL if not present.*/
     GArray                  *dsbs_initial;   /**< An array of initial DSBs (of type wtap_block_t) */
 

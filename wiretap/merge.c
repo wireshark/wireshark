@@ -851,6 +851,11 @@ process_new_idbs(wtap_dumper *pdh, merge_in_file_t *in_files, const guint in_fil
 
     for (i = 0; i < in_file_count; i++) {
 
+        /*
+         * The number below is the global interface number within wth,
+         * not the number within the section. We will do both mappings
+         * in map_rec_interface_id().
+         */
         itf_count = in_files[i].wth->next_interface_data;
         while ((input_file_idb = wtap_get_next_interface_description(in_files[i].wth)) != NULL) {
 
@@ -985,7 +990,8 @@ map_rec_interface_id(wtap_rec *rec, const merge_in_file_t *in_file)
     ws_assert(in_file->idb_index_map != NULL);
 
     if (rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
-        current_interface_id = rec->rec_header.packet_header.interface_id;
+        unsigned section_num = (rec->presence_flags & WTAP_HAS_SECTION_NUMBER) ? rec->section_number : 0;
+        current_interface_id = wtap_file_get_shb_global_interface_id(in_file->wth, section_num, rec->rec_header.packet_header.interface_id);
     }
 
     if (current_interface_id >= in_file->idb_index_map->len) {
@@ -1307,6 +1313,8 @@ merge_files_common(const gchar* out_filename, /* filename in normal output mode,
             idb_inf = generate_merged_idbs(in_files, open_file_count, &mode);
             ws_debug("IDB merge operation complete, got %u IDBs", idb_inf ? idb_inf->interface_data->len : 0);
 
+            /* We do our own mapping of interface numbers */
+            params.shb_iface_to_global = NULL;
             /* XXX other blocks like ISB are now discarded. */
             params.shb_hdrs = shb_hdrs;
             params.idb_inf = idb_inf;

@@ -1490,6 +1490,9 @@ typedef struct wtap_dump_params {
     int         snaplen;                    /**< Per-file snapshot length (what if it's per-interface?) */
     int         tsprec;                     /**< Per-file time stamp precision */
     GArray     *shb_hdrs;                   /**< The section header block(s) information, or NULL. */
+    const GArray *shb_iface_to_global;      /**< An array mapping the per-section interface numbers to global IDs
+                                                 This array may grow after the dumper is opened if a new
+                                                 section header is read. */
     wtapng_iface_descriptions_t *idb_inf;   /**< The interface description information, or NULL. */
     const GArray *nrbs_growing;             /**< NRBs that will be written while writing packets, or NULL.
                                                  This array may grow since the dumper was opened and will subsequently
@@ -1970,6 +1973,20 @@ wtap_block_t wtap_file_get_shb(wtap *wth, guint shb_num);
  */
 WS_DLL_PUBLIC
 void wtap_write_shb_comment(wtap *wth, gchar *comment);
+
+/**
+ * @brief Gets the unique interface id for a SHB's interface
+ * @details Given an existing SHB number and an interface ID within
+ *          that section, returns the unique ordinal number (0-based)
+ *          of that interface over the entire wiretap session.
+ *
+ * @param wth The wiretap session.
+ * @param shb_num The ordinal number (0-based) of a section header
+ * @param interface_id An interface id within the section
+ * @return The unique wtap session-wide interface id for that interface
+ */
+WS_DLL_PUBLIC
+unsigned wtap_file_get_shb_global_interface_id(wtap *wth, guint shb_num, uint32_t interface_id);
 
 /**
  * @brief Gets existing interface descriptions.

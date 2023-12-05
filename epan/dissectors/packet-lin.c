@@ -252,13 +252,14 @@ post_update_lin_interfaces_cb(void) {
 
 static guint
 get_bus_id(packet_info *pinfo) {
-    guint32             interface_id = pinfo->rec->rec_header.packet_header.interface_id;
-    const char         *interface_name = epan_get_interface_name(pinfo->epan, interface_id);
-    interface_config_t *tmp = NULL;
-
     if (!(pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)) {
         return 0;
     }
+
+    guint32             interface_id = pinfo->rec->rec_header.packet_header.interface_id;
+    unsigned            section_number = pinfo->rec->presence_flags & WTAP_HAS_SECTION_NUMBER ? pinfo->rec->section_number : 0;
+    const char         *interface_name = epan_get_interface_name(pinfo->epan, interface_id, section_number);
+    interface_config_t *tmp = NULL;
 
     if (interface_name != NULL && interface_name[0] != 0) {
         tmp = ht_lookup_interface_config_by_name(interface_name);

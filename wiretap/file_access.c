@@ -912,6 +912,9 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 	 */
 	wth->next_interface_data = 0;
 
+	wth->shb_iface_to_global = g_array_new(FALSE, FALSE, sizeof(unsigned));
+	g_array_append_val(wth->shb_iface_to_global, wth->interface_data->len);
+
 	if (wth->random_fh) {
 		wth->fast_seek = g_ptr_array_new();
 
@@ -2335,6 +2338,7 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 	wdh->file_encap = params->encap;
 	wdh->compression_type = compression_type;
 	wdh->wslua_data = NULL;
+	wdh->shb_iface_to_global = params->shb_iface_to_global;
 	wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 
 	/* Set Section Header Block data */

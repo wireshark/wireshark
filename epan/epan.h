@@ -48,8 +48,8 @@ struct packet_provider_data;
  */
 struct packet_provider_funcs {
 	const nstime_t *(*get_frame_ts)(struct packet_provider_data *prov, guint32 frame_num);
-	const char *(*get_interface_name)(struct packet_provider_data *prov, guint32 interface_id);
-	const char *(*get_interface_description)(struct packet_provider_data *prov, guint32 interface_id);
+	const char *(*get_interface_name)(struct packet_provider_data *prov, guint32 interface_id, unsigned section_number);
+	const char *(*get_interface_description)(struct packet_provider_data *prov, guint32 interface_id, unsigned section_number);
 	wtap_block_t (*get_modified_block)(struct packet_provider_data *prov, const frame_data *fd);
 };
 
@@ -157,9 +157,9 @@ WS_DLL_PUBLIC epan_t *epan_new(struct packet_provider_data *prov,
 
 WS_DLL_PUBLIC wtap_block_t epan_get_modified_block(const epan_t *session, const frame_data *fd);
 
-WS_DLL_PUBLIC const char *epan_get_interface_name(const epan_t *session, guint32 interface_id);
+WS_DLL_PUBLIC const char *epan_get_interface_name(const epan_t *session, guint32 interface_id, unsigned section_number);
 
-WS_DLL_PUBLIC const char *epan_get_interface_description(const epan_t *session, guint32 interface_id);
+WS_DLL_PUBLIC const char *epan_get_interface_description(const epan_t *session, guint32 interface_id, unsigned section_number);
 
 const nstime_t *epan_get_frame_ts(const epan_t *session, guint32 frame_num);
 

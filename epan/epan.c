@@ -487,19 +487,19 @@ epan_get_modified_block(const epan_t *session, const frame_data *fd)
 }
 
 const char *
-epan_get_interface_name(const epan_t *session, guint32 interface_id)
+epan_get_interface_name(const epan_t *session, guint32 interface_id, unsigned section_number)
 {
 	if (session->funcs.get_interface_name)
-		return session->funcs.get_interface_name(session->prov, interface_id);
+		return session->funcs.get_interface_name(session->prov, interface_id, section_number);
 
 	return NULL;
 }
 
 const char *
-epan_get_interface_description(const epan_t *session, guint32 interface_id)
+epan_get_interface_description(const epan_t *session, guint32 interface_id, unsigned section_number)
 {
 	if (session->funcs.get_interface_description)
-		return session->funcs.get_interface_description(session->prov, interface_id);
+		return session->funcs.get_interface_description(session->prov, interface_id, section_number);
 
 	return NULL;
 }

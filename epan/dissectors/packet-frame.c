@@ -796,7 +796,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			}
 			if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
 				const char *interface_name = epan_get_interface_name(pinfo->epan,
-				    pinfo->rec->rec_header.packet_header.interface_id);
+				    pinfo->rec->rec_header.packet_header.interface_id,
+				    pinfo->rec->presence_flags & WTAP_HAS_SECTION_NUMBER ? pinfo->rec->section_number : 0);
 				if (interface_name != NULL) {
 					proto_item_append_text(ti, " on interface %s, id %u",
 					    interface_name, pinfo->rec->rec_header.packet_header.interface_id);
@@ -912,8 +913,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 		if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID &&
 		   (proto_field_is_referenced(tree, hf_frame_interface_id) || proto_field_is_referenced(tree, hf_frame_interface_name) || proto_field_is_referenced(tree, hf_frame_interface_description))) {
-			const char *interface_name = epan_get_interface_name(pinfo->epan, pinfo->rec->rec_header.packet_header.interface_id);
-			const char *interface_description = epan_get_interface_description(pinfo->epan, pinfo->rec->rec_header.packet_header.interface_id);
+			unsigned section_number = pinfo->rec->presence_flags & WTAP_HAS_SECTION_NUMBER ? pinfo->rec->section_number : 0;
+			const char *interface_name = epan_get_interface_name(pinfo->epan, pinfo->rec->rec_header.packet_header.interface_id, section_number);
+			const char *interface_description = epan_get_interface_description(pinfo->epan, pinfo->rec->rec_header.packet_header.interface_id, section_number);
 			proto_tree *if_tree;
 			proto_item *if_item;
 

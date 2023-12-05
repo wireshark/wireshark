@@ -992,7 +992,7 @@ tfshark_get_frame_ts(struct packet_provider_data *prov, guint32 frame_num)
 }
 
 static const char *
-no_interface_name(struct packet_provider_data *prov _U_, guint32 interface_id _U_)
+no_interface_name(struct packet_provider_data *prov _U_, guint32 interface_id _U_, unsigned section_number _U_)
 {
     return "";
 }

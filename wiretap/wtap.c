@@ -134,6 +134,17 @@ wtap_file_get_shb(wtap *wth, guint shb_num)
 	return g_array_index(wth->shb_hdrs, wtap_block_t, shb_num);
 }
 
+unsigned
+wtap_file_get_shb_global_interface_id(wtap *wth, guint shb_num, uint32_t interface_id)
+{
+	if ((wth == NULL) || (wth->shb_hdrs == NULL) || (shb_num >= wth->shb_hdrs->len)) {
+		ws_warning("unexpected SHB %u and interface id %u", shb_num, interface_id);
+		return interface_id;
+	}
+
+	return interface_id + g_array_index(wth->shb_iface_to_global, unsigned, shb_num);
+}
+
 GArray*
 wtap_file_get_shb_for_new_file(wtap *wth)
 {
@@ -541,6 +552,7 @@ wtap_dump_params_init(wtap_dump_params *params, wtap *wth)
 	/* Assume that the input handle remains open until the dumper is closed.
 	 * Refer to the DSBs from the input file, wtap_dump will then copy DSBs
 	 * as they become available. */
+	params->shb_iface_to_global = wth->shb_iface_to_global;
 	params->nrbs_growing = wth->nrbs;
 	params->dsbs_growing = wth->dsbs;
 	params->mevs_growing = wth->meta_events;
@@ -566,6 +578,7 @@ wtap_dump_params_init_no_idbs(wtap_dump_params *params, wtap *wth)
 	/* Assume that the input handle remains open until the dumper is closed.
 	 * Refer to the DSBs from the input file, wtap_dump will then copy DSBs
 	 * as they become available. */
+	params->shb_iface_to_global = wth->shb_iface_to_global;
 	params->nrbs_growing = wth->nrbs;
 	params->dsbs_growing = wth->dsbs;
 	params->dont_copy_idbs = TRUE;
@@ -1568,6 +1581,7 @@ wtap_close(wtap *wth)
 
 	wtap_block_array_free(wth->shb_hdrs);
 	wtap_block_array_free(wth->nrbs);
+	g_array_free(wth->shb_iface_to_global, TRUE);
 	wtap_block_array_free(wth->interface_data);
 	wtap_block_array_free(wth->dsbs);
 	wtap_block_array_free(wth->meta_events);
