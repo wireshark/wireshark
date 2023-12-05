@@ -753,7 +753,8 @@ static gint string_compare(gconstpointer a, gconstpointer b) {
 }
 
 static int lua_load_plugins(const char *dirname, register_cb cb, gpointer client_data,
-                            gboolean count_only, const gboolean is_user, GHashTable *loaded_files)
+                            gboolean count_only, const gboolean is_user, GHashTable *loaded_files,
+                            int depth)
 {
     WS_DIR        *dir;             /* scanned directory */
     WS_DIRENT     *file;            /* current file */
@@ -768,10 +769,15 @@ static int lua_load_plugins(const char *dirname, register_cb cb, gpointer client
         while ((file = ws_dir_read_name(dir)) != NULL) {
             name = ws_dir_get_name(file);
 
-            if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0 ||
-                                            strcmp(name, "init.lua") == 0) {
+            if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0) {
                 /* skip "." and ".." */
-                /* init.lua was already loaded if it exists, skip */
+                continue;
+            }
+            if (depth == 0 && strcmp(name, "init.lua") == 0) {
+                /* If we are in the root directory skip the special "init.lua"
+                 * file that was already loaded before every other user script.
+                 * (If we are below the root script directory we just treat it like any other
+                 * lua script.) */
                 continue;
             }
 
@@ -808,7 +814,7 @@ static int lua_load_plugins(const char *dirname, register_cb cb, gpointer client
     if (sorted_dirnames != NULL) {
         sorted_dirnames = g_list_sort(sorted_dirnames, string_compare);
         for (l = sorted_dirnames; l != NULL; l = l->next) {
-            plugins_counter += lua_load_plugins((const char *)l->data, cb, client_data, count_only, is_user, loaded_files);
+            plugins_counter += lua_load_plugins((const char *)l->data, cb, client_data, count_only, is_user, loaded_files, depth + 1);
         }
         g_list_free_full(sorted_dirnames, g_free);
     }
@@ -845,7 +851,7 @@ static int lua_load_plugins(const char *dirname, register_cb cb, gpointer client
 static int lua_load_global_plugins(register_cb cb, gpointer client_data,
                                     gboolean count_only)
 {
-    return lua_load_plugins(get_plugins_dir(), cb, client_data, count_only, FALSE, NULL);
+    return lua_load_plugins(get_plugins_dir(), cb, client_data, count_only, FALSE, NULL, 0);
 }
 
 static int lua_load_pers_plugins(register_cb cb, gpointer client_data,
@@ -857,12 +863,12 @@ static int lua_load_pers_plugins(register_cb cb, gpointer client_data,
     GHashTable *loaded_user_scripts = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 
     /* load user scripts */
-    plugins_counter += lua_load_plugins(get_plugins_pers_dir(), cb, client_data, count_only, TRUE, loaded_user_scripts);
+    plugins_counter += lua_load_plugins(get_plugins_pers_dir(), cb, client_data, count_only, TRUE, loaded_user_scripts, 0);
 
     /* for backward compatibility check old plugin directory */
     char *old_path = get_persconffile_path("plugins", FALSE);
     if (strcmp(get_plugins_pers_dir(), old_path) != 0) {
-        plugins_counter += lua_load_plugins(old_path, cb, client_data, count_only, TRUE, loaded_user_scripts);
+        plugins_counter += lua_load_plugins(old_path, cb, client_data, count_only, TRUE, loaded_user_scripts, 0);
     }
     g_free(old_path);
 

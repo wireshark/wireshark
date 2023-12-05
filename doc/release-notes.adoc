@@ -43,7 +43,9 @@ The following bugs have been fixed:
 
 * Fixed parsing display filter expressions containing literal OID values, e.g. `snmp.name == 1.3.6.1.2.1.1.3.0`.
 
-* diameter.3GPP-* display filters not working after upgrade to version 4.2.0 (wsbuglink:19493[]).
+* wsbuglink:19493[] - diameter.3GPP-* display filters not working after upgrade to version 4.2.0.
+
+* wsbuglink:19516[] - init.lua in subdirectories not loaded anymore.
 
 === New and Updated Features
 
