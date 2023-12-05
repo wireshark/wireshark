@@ -1387,7 +1387,7 @@ static const string_string option242_avaya_icmpred_vals[] = {
 
 static const string_string option242_avaya_loglocal_vals[] = {
 	{ "0", "Disabled" },
-	{ "1", "Emergencie" },
+	{ "1", "Emergency" },
 	{ "2", "Alerts" },
 	{ "3", "Critical" },
 	{ "4", "Errors" },

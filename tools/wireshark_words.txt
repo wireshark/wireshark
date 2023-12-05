@@ -118,6 +118,7 @@ authorizer
 authtoken
 authtype
 authz
+autocompletions
 autoconfiguration
 autodiscovery
 autoneg
@@ -251,6 +252,7 @@ chksum
 chmod
 choco
 chocolatey
+chooser
 choplen
 chroma
 chromaticities
@@ -492,6 +494,7 @@ dlsch
 dmepi
 dnskey
 dnssec
+docomo
 docsis
 dodag
 dot11Qos
@@ -603,6 +606,7 @@ extern
 exthdr
 extlen
 extpfx
+extractors
 extrainformation
 eyesdn
 facch
@@ -669,6 +673,7 @@ getentrybyname
 getgroupinfo
 getimageinfo
 getnext
+getsetinfo
 getter
 gidaddr
 gigabit
@@ -741,6 +746,8 @@ hutchison
 hysteresis
 hytec
 icmpv
+icount
+idempotent
 ident
 identifier
 ideographic
@@ -855,6 +862,7 @@ iwarp
 ixveriwave
 jacobson
 jetds
+joiners
 jsonraw
 k12xx
 kademlia
@@ -1586,6 +1594,7 @@ sname
 snaplen
 snow3g
 snprintf
+sockaddr
 softkey
 solera
 someip
@@ -1615,6 +1624,7 @@ srbid
 srcport
 srtcp
 srvcc
+sscop
 sshdump
 sshkey
 ssupervisor
@@ -1731,6 +1741,7 @@ terminations
 tesla
 text2pcap
 textbox
+tfshark
 thermister
 thermistor
 throughput
@@ -1751,6 +1762,7 @@ tooltip
 toprowflag
 topup
 toshiba
+tostring
 totemsrp
 touchlink
 touchpad
@@ -1819,7 +1831,9 @@ unassign
 unassoc
 unassociated
 unauthenticated
+unavailability
 unbind
+unblocking
 unbuffered
 uncalculated
 uncalibrated
@@ -1922,6 +1936,7 @@ unsegmented
 unsequenced
 unset
 unsilence
+unsnoopables
 unsorted
 unspec
 unspecific

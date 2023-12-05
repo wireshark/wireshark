@@ -78,7 +78,7 @@ static const value_string pldmBaseCmd[] = {{1, "Set TID"},
                                            {4, "Get PLDM Types"},
                                            {5, "GetPLDMCommands"},
                                            {6, "SelectPLDMVersion"},
-                                           {7, "NegotiateTranferParameters"},
+                                           {7, "NegotiateTransferParameters"},
                                            {8, "Multipart Send"},
                                            {9, "Multipart Receive"},
                                            {0, NULL}};

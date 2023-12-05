@@ -3241,7 +3241,7 @@ static const value_string cip_vendor_vals[] = {
    { 1674,   "CoreTigo LTD" },
    { 1675,   "Inxpect SPA" },
    { 1676,   "Kostal Industrie Elektrik GmbH" },
-   { 1677,   "JingQi（Tianjin）technology Co.,Ltd" },
+   { 1677,   "JingQi (Tianjin) technology Co.,Ltd" },
    { 1678,   "AGI Suretrack" },
    { 1679,   "JAKA Robotics Co., Ltd." },
    { 1680,   "Polarteknik Oy" },
