@@ -6740,12 +6740,21 @@ dissect_zcl_met_get_profile_response(tvbuff_t *tvb, proto_tree *tree, guint *off
 static void
 dissect_zcl_met_request_fast_poll_mode_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
+    guint32         end_time_utc;
+    nstime_t        end_time;
+    const guint8   *end_time_string;
+
     /* Applied Update Period */
     proto_tree_add_item(tree, hf_zbee_zcl_met_request_fast_poll_mode_response_applied_update_period, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Fast Poll End Time */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_request_fast_poll_mode_response_fast_poll_mode_end_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    end_time_utc = (guint32)tvb_get_letohl(tvb, *offset);
+    end_time.secs =  end_time_utc + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    end_time.nsecs = 0;
+    end_time_string = (const guint8 *)abs_time_to_str(wmem_packet_scope(), &end_time, ABSOLUTE_TIME_UTC, TRUE);
+    proto_tree_add_time_format(tree, hf_zbee_zcl_met_request_fast_poll_mode_response_fast_poll_mode_end_time, tvb, *offset, 4, &end_time,
+        "Fast Poll Mode End Time: %s (%u)", end_time_string, end_time_utc);
     *offset += 4;
 } /*dissect_zcl_met_request_fast_poll_mode_response*/
 
