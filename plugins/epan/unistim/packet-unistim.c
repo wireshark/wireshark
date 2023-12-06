@@ -35,7 +35,7 @@ void proto_register_unistim(void);
 static dissector_handle_t unistim_handle;
 
 static unistim_info_t *uinfo;
-static int unistim_tap = -1;
+static int unistim_tap;
 
 void proto_reg_handoff_unistim(void);
 static void dissect_payload(proto_tree *unistim_tree,tvbuff_t *tvb,gint offset, packet_info *pinfo);

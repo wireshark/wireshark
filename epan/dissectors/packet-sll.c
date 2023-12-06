@@ -85,7 +85,7 @@ static dissector_handle_t ethertype_handle;
 static dissector_handle_t netlink_handle;
 
 static int proto_sll;
-static int sll_tap = -1;
+static int sll_tap;
 
 static int hf_sll_etype;
 static int hf_sll_gretype;

@@ -289,7 +289,7 @@ static int hf_v6_deregistration_result_context;
 static int hf_li;
 static int hf_heuristic_standard;
 
-static int m3ua_tap = -1;
+static int m3ua_tap;
 
 /* Initialize the subtree pointers */
 static gint ett_m3ua;

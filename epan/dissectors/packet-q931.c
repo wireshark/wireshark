@@ -42,7 +42,7 @@ void proto_register_q931(void);
 void proto_reg_handoff_q931(void);
 
 static void reset_q931_packet_info(q931_packet_info *pi);
-static int q931_tap = -1;
+static int q931_tap;
 
 static dissector_handle_t q931_handle;
 static dissector_handle_t q931_over_ip_handle;

@@ -133,7 +133,7 @@ static expert_field ei_short_hdr;
 static dissector_handle_t fc_handle, fcsof_handle;
 static dissector_table_t fcftype_dissector_table;
 
-static int fc_tap = -1;
+static int fc_tap;
 
 typedef struct _fc_conv_data_t {
     wmem_tree_t *exchanges;

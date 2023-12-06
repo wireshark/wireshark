@@ -279,7 +279,7 @@ typedef enum {
 static gint smpp_decode_dcs_0_sms = DO_NOT_DECODE;
 
 /* Tap */
-static int smpp_tap             = -1;
+static int smpp_tap;
 
 #define SMPP_COMMAND_ID_GENERIC_NACK        0x00000000
 #define SMPP_COMMAND_ID_BIND_RECEIVER       0x00000001

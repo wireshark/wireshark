@@ -24,7 +24,7 @@
 #include <epan/stats_tree.h>
 #include "packet-bacapp.h"
 
-static int bacapp_tap = -1;
+static int bacapp_tap;
 
 /* formerly bacapp.h  contains definitions and forward declarations */
 

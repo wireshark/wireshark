@@ -2814,7 +2814,7 @@ static guint32 errorCode;
 static int application_context_version;
 static guint ProtocolId;
 static guint AccessNetworkProtocolId;
-static int gsm_map_tap = -1;
+static int gsm_map_tap;
 static guint8 gsmmap_pdu_type = 0;
 static guint8 gsm_map_pdu_size = 0;
 

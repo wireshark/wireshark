@@ -38,7 +38,7 @@ void proto_reg_handoff_enrp(void);
 static dissector_handle_t enrp_handle;
 
 /* Initialize the protocol and registered fields */
-static int enrp_tap = -1;
+static int enrp_tap;
 static int proto_enrp;
 static int hf_cause_code;
 static int hf_cause_length;

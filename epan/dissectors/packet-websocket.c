@@ -83,7 +83,7 @@ typedef struct {
 } websocket_packet_t;
 #endif
 
-static int websocket_follow_tap = -1;
+static int websocket_follow_tap;
 
 /* Initialize the protocol and registered fields */
 static int proto_websocket;

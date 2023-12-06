@@ -763,7 +763,7 @@ static expert_field ei_scsi_unknown_page;
 static expert_field ei_scsi_no_dissection_for_service_action;
 static expert_field ei_scsi_unknown_serv_action;
 
-static int scsi_tap = -1;
+static int scsi_tap;
 
 /* Defragment of SCSI DATA IN/OUT */
 static gboolean scsi_defragment = FALSE;

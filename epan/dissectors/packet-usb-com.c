@@ -16,7 +16,7 @@
 #include <epan/follow.h>
 #include "packet-usb.h"
 
-static int cdc_data_follow_tap = -1;
+static int cdc_data_follow_tap;
 static int proto_usb;
 
 /* protocols and header fields */

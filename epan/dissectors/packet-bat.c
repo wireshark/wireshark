@@ -166,8 +166,8 @@ static int proto_bat_gw;
 static int proto_bat_vis;
 
 /* tap */
-static int bat_tap = -1;
-static int bat_follow_tap = -1;
+static int bat_tap;
+static int bat_follow_tap;
 
 static int dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {

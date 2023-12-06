@@ -105,7 +105,7 @@ static gint ansi_map_response_matching_type = ANSI_MAP_TID_AND_SOURCE;
 static dissector_handle_t ansi_map_handle=NULL;
 
 /* Initialize the protocol and registered fields */
-static int ansi_map_tap = -1;
+static int ansi_map_tap;
 static int proto_ansi_map;
 
 #if 0

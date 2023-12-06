@@ -224,7 +224,7 @@ static expert_field ei_ucp_stx_missing;
 static expert_field ei_ucp_intstring_invalid;
 
 /* Tap */
-static int ucp_tap               = -1;
+static int ucp_tap;
 
 /*
  * Value-arrays for certain field-contents

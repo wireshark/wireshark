@@ -67,9 +67,9 @@ static wmem_tree_t *hci_vendors             = NULL;
 
 wmem_tree_t *bluetooth_uuids = NULL;
 
-static int bluetooth_tap = -1;
-int bluetooth_device_tap = -1;
-int bluetooth_hci_summary_tap = -1;
+static int bluetooth_tap;
+int bluetooth_device_tap;
+int bluetooth_hci_summary_tap;
 
 // UAT structure
 typedef struct _bt_uuid_t {

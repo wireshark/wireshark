@@ -547,7 +547,7 @@ const value_string gsm_a_rr_rxqual_vals[] = {
 static int proto_a_common;
 static int proto_3gpp;
 
-int gsm_a_tap = -1;
+int gsm_a_tap;
 
 int hf_gsm_a_common_elem_id;
 static int hf_gsm_a_common_elem_id_f0;

@@ -50,7 +50,7 @@ void proto_reg_handoff_dcerpc(void);
 
 static dissector_handle_t dcerpc_tcp_handle;
 
-static int dcerpc_tap = -1;
+static int dcerpc_tap;
 
 /* 32bit Network Data Representation, see DCE/RPC Appendix I */
 static e_guid_t uuid_data_repr_proto        = { 0x8a885d04, 0x1ceb, 0x11c9,

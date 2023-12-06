@@ -191,7 +191,7 @@ static dissector_handle_t bta2dp_handle;
 static dissector_handle_t btvdp_handle;
 static dissector_handle_t sbc_handle;
 
-static int rtp_tap = -1;
+static int rtp_tap;
 
 static dissector_table_t rtp_pt_dissector_table;
 static dissector_table_t rtp_dyn_pt_dissector_table;

@@ -324,7 +324,7 @@ static const value_string hartip_pt_delimiter_address_type_values[] = {
 };
 
 /* Handle for statistics tap. */
-static int hartip_tap = -1;
+static int hartip_tap;
 
 /* Structure used for passing data for statistics processing. */
 typedef struct _hartip_tap_info {

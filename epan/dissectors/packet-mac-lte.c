@@ -37,7 +37,7 @@ void proto_reg_handoff_mac_lte(void);
 /* Initialize the protocol and registered fields. */
 int proto_mac_lte;
 
-static int mac_lte_tap = -1;
+static int mac_lte_tap;
 
 static dissector_handle_t rlc_lte_handle;
 static dissector_handle_t lte_rrc_bcch_dl_sch_handle;

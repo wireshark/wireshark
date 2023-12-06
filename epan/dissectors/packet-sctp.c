@@ -259,8 +259,8 @@ static int hf_sctp_assoc_index;
 static dissector_table_t sctp_port_dissector_table;
 static dissector_table_t sctp_ppi_dissector_table;
 static heur_dissector_list_t sctp_heur_subdissector_list;
-static int sctp_tap = -1;
-static int exported_pdu_tap = -1;
+static int sctp_tap;
+static int exported_pdu_tap;
 
 /* Initialize the subtree pointers */
 static gint ett_sctp;

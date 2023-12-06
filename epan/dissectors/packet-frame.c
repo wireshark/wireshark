@@ -208,7 +208,7 @@ static expert_field ei_arrive_time_out_of_range;
 static expert_field ei_incomplete;
 static expert_field ei_len_lt_caplen;
 
-static int frame_tap = -1;
+static int frame_tap;
 
 static dissector_handle_t docsis_handle;
 static dissector_handle_t sysdig_handle;

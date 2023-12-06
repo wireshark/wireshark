@@ -2945,7 +2945,7 @@ static const guint8 *st_str_packet_types   = "NGAP Packet Types";
 
 static int st_node_packets = -1;
 static int st_node_packet_types = -1;
-static int ngap_tap = -1;
+static int ngap_tap;
 
 struct ngap_tap_t {
     gint ngap_mtype;

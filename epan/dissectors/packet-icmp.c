@@ -44,7 +44,7 @@ void proto_register_icmp(void);
 void proto_reg_handoff_icmp(void);
 
 static heur_dissector_list_t icmp_heur_subdissector_list;
-static int icmp_tap = -1;
+static int icmp_tap;
 
 /* Conversation related data */
 static int hf_icmp_resp_in;

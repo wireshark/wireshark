@@ -367,7 +367,7 @@ static expert_field ei_afp_ip_port_reused;
 static expert_field ei_afp_toc_offset;
 
 
-static int afp_tap			    = -1;
+static int afp_tap;
 
 static dissector_handle_t spotlight_handle;
 

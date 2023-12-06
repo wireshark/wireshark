@@ -257,7 +257,7 @@ static int ett_mgcp_param_remotevoicemetrics;
 /*
  * Define the tap for mgcp
  */
-static int mgcp_tap = -1;
+static int mgcp_tap;
 
 /*
  * Here are the global variables associated with

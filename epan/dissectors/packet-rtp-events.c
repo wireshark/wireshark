@@ -40,7 +40,7 @@ void proto_reg_handoff_rtp_events(void);
 /* RTP Event Fields */
 
 static int proto_rtp_events;
-static int rtp_event_tap = -1;
+static int rtp_event_tap;
 
 static int hf_rtp_events_event;	/* one byte */
 static int hf_rtp_events_end;	/* one bit */

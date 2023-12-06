@@ -716,7 +716,7 @@ static gboolean dt1_ignore_length = FALSE;
 
 static int ss7pc_address_type = -1;
 
-static int sccp_tap = -1;
+static int sccp_tap;
 
 
 static const fragment_items sccp_xudt_msg_frag_items = {

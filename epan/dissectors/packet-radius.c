@@ -194,7 +194,7 @@ static expert_field ei_radius_invalid_length;
 /*
  * Define the tap for radius
  */
-static int radius_tap = -1;
+static int radius_tap;
 
 static radius_vendor_info_t no_vendor = {"Unknown Vendor", 0, NULL, -1, 1, 1, FALSE};
 

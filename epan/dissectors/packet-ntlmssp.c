@@ -59,7 +59,7 @@
 void proto_register_ntlmssp(void);
 void proto_reg_handoff_ntlmssp(void);
 
-static int ntlmssp_tap = -1;
+static int ntlmssp_tap;
 
 #define CLIENT_SIGN_TEXT "session key to client-to-server signing key magic constant"
 #define CLIENT_SEAL_TEXT "session key to client-to-server sealing key magic constant"

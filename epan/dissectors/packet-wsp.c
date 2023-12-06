@@ -48,7 +48,7 @@ void proto_reg_handoff_wsp(void);
 void proto_register_sir(void);
 void proto_reg_handoff_sir(void);
 
-static int wsp_tap = -1;
+static int wsp_tap;
 
 
 /* File scoped variables for the protocol and registered fields */

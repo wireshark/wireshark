@@ -158,11 +158,11 @@ static int proto_geonw;
 static int proto_btpa;
 static int proto_btpb;
 
-static int geonw_tap = -1;
-static int btpa_tap = -1;
-static int btpa_follow_tap = -1;
-static int btpb_tap = -1;
-static int btpb_follow_tap = -1;
+static int geonw_tap;
+static int btpa_tap;
+static int btpa_follow_tap;
+static int btpb_tap;
+static int btpb_follow_tap;
 
 static int hf_geonw_bh;
 static int hf_geonw_bh_version;

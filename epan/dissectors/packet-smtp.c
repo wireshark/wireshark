@@ -45,7 +45,7 @@ void proto_reg_handoff_smtp(void);
 
 static int proto_smtp;
 
-static int credentials_tap = -1;
+static int credentials_tap;
 
 static int hf_smtp_req;
 static int hf_smtp_rsp;

@@ -30,7 +30,7 @@ void proto_reg_handoff_hazelcast(void);
 static dissector_handle_t hazelcast_handle;
 
 static int proto_hazelcast;
-static int hazelcast_tap = -1;
+static int hazelcast_tap;
 
 static int hf_hazelcast_headerLength;
 static int hf_hazelcast_headerKeyLength;

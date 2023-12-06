@@ -554,7 +554,7 @@ static int hf_icmpv6_da_eui64;
 static int hf_icmpv6_da_raddr;
 
 static heur_dissector_list_t icmpv6_heur_subdissector_list;
-static int icmpv6_tap = -1;
+static int icmpv6_tap;
 
 /* RFC 7731 MPL (159) */
 static int hf_icmpv6_mpl_seed_info_min_sequence;

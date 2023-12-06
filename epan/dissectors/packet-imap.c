@@ -48,7 +48,7 @@ static int hf_imap_time;
 static gint ett_imap;
 static gint ett_imap_reqresp;
 
-static int credentials_tap = -1;
+static int credentials_tap;
 
 static dissector_handle_t imap_handle;
 static dissector_handle_t tls_handle;

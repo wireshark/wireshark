@@ -74,7 +74,7 @@
 #define SNMP_NUM_PROCEDURES 8
 
 /* Initialize the protocol and registered fields */
-static int snmp_tap = -1;
+static int snmp_tap;
 static int proto_snmp;
 static int proto_smux;
 

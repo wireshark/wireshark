@@ -108,7 +108,7 @@ static next_tvb_list_t *h245_list;
 static next_tvb_list_t *tp_list;
 
 /* Initialize the protocol and registered fields */
-static int h225_tap = -1;
+static int h225_tap;
 static int proto_h225;
 
 static int hf_h221Manufacturer;

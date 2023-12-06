@@ -43,10 +43,10 @@ void proto_register_tcp(void);
 void proto_reg_handoff_tcp(void);
 static void conversation_completeness_fill(gchar*, guint32);
 
-static int tcp_tap = -1;
-static int tcp_follow_tap = -1;
-static int mptcp_tap = -1;
-static int exported_pdu_tap = -1;
+static int tcp_tap;
+static int tcp_follow_tap;
+static int mptcp_tap;
+static int exported_pdu_tap;
 
 /* Place TCP summary in proto tree */
 static gboolean tcp_summary_in_tree = TRUE;

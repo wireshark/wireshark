@@ -53,9 +53,9 @@
 void proto_register_ip(void);
 void proto_reg_handoff_ip(void);
 
-static int ip_tap = -1;
+static int ip_tap;
 
-static int exported_pdu_tap = -1;
+static int exported_pdu_tap;
 
 /* Decode the old IPv4 TOS field as the DiffServ DS Field (RFC2474/2475) */
 static gboolean g_ip_dscp_actif = TRUE;

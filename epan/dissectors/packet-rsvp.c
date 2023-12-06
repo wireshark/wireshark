@@ -631,7 +631,7 @@ static expert_field ei_rsvp_adspec_type;
 static expert_field ei_rsvp_call_id_address_type;
 static expert_field ei_rsvp_session_type;
 
-static int rsvp_tap = -1;
+static int rsvp_tap;
 
 /*
  * All RSVP packets belonging to a particular flow  belong to the same

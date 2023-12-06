@@ -920,7 +920,7 @@ static expert_field ei_gtpv2_ie;
 static expert_field ei_gtpv2_int_size_not_handled;
 static expert_field ei_gtpv2_apn_too_long;
 
-static int gtpv2_tap = -1;
+static int gtpv2_tap;
 
 /* Definition of User Location Info (AVP 22) masks */
 #define GTPv2_ULI_CGI_MASK              0x01

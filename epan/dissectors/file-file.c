@@ -47,7 +47,7 @@ static int hf_file_color_filter_text;
 
 static gint ett_file;
 
-static int file_tap = -1;
+static int file_tap;
 
 dissector_table_t file_encap_dissector_table;
 

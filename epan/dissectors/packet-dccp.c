@@ -198,8 +198,8 @@ static const range_string dccp_feature_numbers_rvals[] = {
 static const unit_name_string units_bytes_sec = { "bytes/sec", NULL };
 
 static int proto_dccp;
-static int dccp_tap = -1;
-static int dccp_follow_tap = -1;
+static int dccp_tap;
+static int dccp_follow_tap;
 
 static int hf_dccp_srcport;
 static int hf_dccp_dstport;

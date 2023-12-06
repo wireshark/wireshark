@@ -871,8 +871,8 @@ static expert_field ei_smb_posix_ace_type;
 static expert_field ei_smb_info_level_unknown;
 static expert_field ei_smb_info_level_not_understood;
 
-static int smb_tap = -1;
-static int smb_eo_tap = -1;
+static int smb_tap;
+static int smb_eo_tap;
 
 static dissector_handle_t smb_handle;
 static dissector_handle_t gssapi_handle;

@@ -98,8 +98,8 @@ static expert_field ei_wlan_radio_assumed_no_stbc;
 static expert_field ei_wlan_radio_assumed_no_extension_streams;
 static expert_field ei_wlan_radio_assumed_bcc_fec;
 
-static int wlan_radio_tap = -1;
-static int wlan_radio_timeline_tap = -1;
+static int wlan_radio_tap;
+static int wlan_radio_timeline_tap;
 
 /* Settings */
 static gboolean wlan_radio_always_short_preamble = FALSE;

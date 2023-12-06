@@ -792,8 +792,8 @@ static expert_field ei_smb2_invalid_getinfo_size;
 static expert_field ei_smb2_empty_getinfo_buffer;
 static expert_field ei_smb2_invalid_signature;
 
-static int smb2_tap = -1;
-static int smb2_eo_tap = -1;
+static int smb2_tap;
+static int smb2_eo_tap;
 
 static dissector_handle_t gssapi_handle  = NULL;
 static dissector_handle_t ntlmssp_handle = NULL;

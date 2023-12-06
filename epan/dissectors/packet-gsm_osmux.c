@@ -73,7 +73,7 @@ static guint8 amr_ft_bytes[AMR_FT_MAX] = {12, 13, 15, 17, 19, 20, 26, 31, 5};
 /* Initialize the protocol and registered fields */
 static dissector_handle_t osmux_handle;
 static int proto_osmux;
-static int osmux_tap = -1;
+static int osmux_tap;
 
 static int hf_osmux_stream_id;
 static int hf_osmux_ft_ctr;

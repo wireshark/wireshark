@@ -177,8 +177,8 @@ typedef struct _spdy_stream_info_t {
 
 /* Handles for metadata population. */
 
-static int spdy_tap = -1;
-static int spdy_eo_tap = -1;
+static int spdy_tap;
+static int spdy_eo_tap;
 
 static int proto_spdy;
 static int hf_spdy_data;

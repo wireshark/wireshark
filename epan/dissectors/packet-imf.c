@@ -30,7 +30,7 @@
 void proto_register_imf(void);
 void proto_reg_handoff_imf(void);
 
-static int imf_eo_tap = -1;
+static int imf_eo_tap;
 
 #define PNAME  "Internet Message Format"
 #define PSNAME "IMF"

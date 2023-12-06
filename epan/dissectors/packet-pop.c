@@ -38,7 +38,7 @@ void proto_reg_handoff_pop(void);
 
 static int proto_pop;
 
-static int credentials_tap = -1;
+static int credentials_tap;
 
 static int hf_pop_response;
 static int hf_pop_response_indicator;

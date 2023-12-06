@@ -69,7 +69,7 @@
 void proto_reg_handoff_quic(void);
 void proto_register_quic(void);
 
-static int quic_follow_tap = -1;
+static int quic_follow_tap;
 
 /* Initialize the protocol and registered fields */
 static int proto_quic;

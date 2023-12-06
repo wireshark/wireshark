@@ -218,7 +218,7 @@ static dissector_handle_t   zbee_gp_handle;
 
 static int zbee_nwk_address_type = -1;
 
-static int zbee_nwk_tap = -1;
+static int zbee_nwk_tap;
 
 /********************/
 /* Field Names      */

@@ -908,8 +908,8 @@ static dissector_handle_t eth_handle;
 static int proto_batadv_plugin;
 
 /* tap */
-static int batadv_tap = -1;
-static int batadv_follow_tap = -1;
+static int batadv_tap;
+static int batadv_follow_tap;
 
 /* segmented messages */
 static reassembly_table msg_reassembly_table;

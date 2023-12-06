@@ -96,7 +96,7 @@ struct DnsTap {
     nstime_t rrt;
 };
 
-static int dns_tap = -1;
+static int dns_tap;
 
 static const gchar* st_str_packets = "Total Packets";
 static const gchar* st_str_packet_qr = "Query/Response";

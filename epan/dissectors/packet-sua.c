@@ -355,7 +355,7 @@ static gint ett_sua_return_on_error_bit_and_protocol_class;
 static gint ett_sua_protocol_classes;
 static gint ett_sua_assoc;
 
-static int sua_tap = -1;
+static int sua_tap;
 
 static mtp3_addr_pc_t *sua_dpc;
 static mtp3_addr_pc_t *sua_opc;

@@ -25,7 +25,7 @@
 void proto_reg_handoff_teredo(void);
 void proto_register_teredo(void);
 
-static int teredo_tap = -1;
+static int teredo_tap;
 
 static int proto_teredo;
 

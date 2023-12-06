@@ -32,7 +32,7 @@ struct HpfeedsTap {
     guint8 opcode;
 };
 
-static int hpfeeds_tap = -1;
+static int hpfeeds_tap;
 
 static const gchar* st_str_channels_payload = "Payload size per channel";
 static const gchar* st_str_opcodes = "Opcodes";

@@ -307,7 +307,7 @@ static expert_field ei_diameter_invalid_user_equipment_info_value_len;
 static expert_field ei_diameter_unexpected_imei_as_user_equipment_info;
 
 /* Tap for Diameter */
-static int diameter_tap = -1;
+static int diameter_tap;
 
 /* For conversations */
 

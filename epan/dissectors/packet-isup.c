@@ -2782,7 +2782,7 @@ static int hf_isup_charge_number;
 static int hf_isup_cic;
 static int hf_bicc_cic;
 
-static int isup_tap = -1;
+static int isup_tap;
 
 static int hf_isup_message_type;
 static int hf_isup_parameter_type;

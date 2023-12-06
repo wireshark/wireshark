@@ -79,7 +79,7 @@ static gboolean rpc_dissect_unknown_programs = FALSE;
  */
 static gboolean rpc_find_fragment_start = FALSE;
 
-static int rpc_tap = -1;
+static int rpc_tap;
 
 static dissector_handle_t spnego_krb5_wrap_handle = NULL;
 

@@ -108,7 +108,7 @@ static dissector_handle_t lte_rrc_bcch_dl_sch_nb;
 static dissector_handle_t lte_rrc_pcch_nb;
 
 
-static int rlc_lte_tap = -1;
+static int rlc_lte_tap;
 
 /* Decoding context */
 static int hf_rlc_lte_context;

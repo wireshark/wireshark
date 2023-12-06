@@ -62,7 +62,7 @@ void proto_register_sv(void);
 void proto_reg_handoff_sv(void);
 
 /* Data for SV tap */
-static int sv_tap = -1;
+static int sv_tap;
 static sv_frame_data sv_data;
 
 /* Initialize the protocol and registered fields */

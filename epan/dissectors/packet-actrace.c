@@ -414,7 +414,7 @@ static int ett_actrace;
 /*
  * Define the tap for actrace
  */
-static int actrace_tap = -1;
+static int actrace_tap;
 static actrace_info_t *actrace_pi;
 
 /* Some basic utility functions that are specific to this dissector */

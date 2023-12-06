@@ -60,7 +60,7 @@ static dissector_handle_t h264_handle;
 static dissector_handle_t h265_handle;
 static dissector_handle_t mp4ves_config_handle;
 
-static int sdp_tap = -1;
+static int sdp_tap;
 
 static int proto_sdp;
 static int proto_sprt;

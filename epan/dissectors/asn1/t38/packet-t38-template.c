@@ -50,7 +50,7 @@
 
 void proto_register_t38(void);
 
-static int t38_tap = -1;
+static int t38_tap;
 
 /* dissect using the Pre Corrigendum T.38 ASN.1 specification (1998) */
 static gboolean use_pre_corrigendum_asn1_specification = TRUE;

@@ -47,7 +47,7 @@ static gboolean bp_payload_try_heur = FALSE;
 
 /// Protocol handles
 static int proto_bp;
-static int bp_tap = -1;
+static int bp_tap;
 static int proto_blocktype;
 static int proto_bp_admin;
 static int proto_admintype;

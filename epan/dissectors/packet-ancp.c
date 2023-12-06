@@ -148,7 +148,7 @@ static const guint8 *st_str_adj_pack_types = "ANCP Adjacency Packet Types";
 static int st_node_packets = -1;
 static int st_node_packet_types = -1;
 static int st_node_adj_pack_types = -1;
-static int ancp_tap = -1;
+static int ancp_tap;
 
 struct ancp_tap_t {
     gint ancp_mtype;

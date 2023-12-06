@@ -43,9 +43,9 @@ static dissector_handle_t udplite_handle;
 static capture_dissector_handle_t udp_cap_handle;
 static capture_dissector_handle_t udplite_cap_handle;
 
-static int udp_tap = -1;
-static int udp_follow_tap = -1;
-static int exported_pdu_tap = -1;
+static int udp_tap;
+static int udp_follow_tap;
+static int exported_pdu_tap;
 
 static int proto_udp;
 static int proto_udplite;

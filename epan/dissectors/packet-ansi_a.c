@@ -930,7 +930,7 @@ const ext_value_string_t *ansi_a_bsmap_strings = NULL;
 const ext_value_string_t *ansi_a_dtap_strings = NULL;
 const ext_value_string_t *ansi_a_elem_1_strings = NULL;
 
-static int ansi_a_tap = -1;
+static int ansi_a_tap;
 
 static int hf_ansi_a_bsmap_msgtype;
 static int hf_ansi_a_dtap_msgtype;

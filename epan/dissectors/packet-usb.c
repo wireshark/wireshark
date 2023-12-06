@@ -422,7 +422,7 @@ static int * const usb_usbpcap_info_fields[] = {
     NULL
 };
 
-static int usb_tap = -1;
+static int usb_tap;
 static gboolean try_heuristics = TRUE;
 
 static dissector_table_t usb_bulk_dissector_table;

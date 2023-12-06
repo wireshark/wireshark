@@ -60,7 +60,7 @@ static const int JXTAMSG2_ELMFLAG_ENCODINGS = 1 << 4;
 
 static int proto_jxta;
 static int proto_message_jxta;
-static int jxta_tap = -1;
+static int jxta_tap;
 
 static dissector_table_t media_type_dissector_table = NULL;
 static dissector_handle_t media_handle = NULL;

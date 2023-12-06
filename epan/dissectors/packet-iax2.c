@@ -54,7 +54,7 @@ void proto_reg_handoff_iax2(void);
 static int proto_iax2;
 
 /* tap register id */
-static int iax2_tap = -1;
+static int iax2_tap;
 
 /* protocol tap info */
 static iax2_info_t ii_arr[1];

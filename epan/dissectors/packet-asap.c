@@ -37,7 +37,7 @@ void proto_reg_handoff_asap(void);
 static dissector_handle_t asap_handle;
 
 /* Initialize the protocol and registered fields */
-static int asap_tap = -1;
+static int asap_tap;
 static int proto_asap;
 static int hf_cause_code;
 static int hf_cause_length;

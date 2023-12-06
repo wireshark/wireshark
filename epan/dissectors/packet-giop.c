@@ -348,7 +348,7 @@ static guint32 get_CDR_typeCode_with_params(tvbuff_t *tvb, packet_info* pinfo, p
  * ------------------------------------------------------------------------------------------+
  */
 
-static int giop_tap = -1;
+static int giop_tap;
 static int proto_giop;
 static int hf_giop_message_magic;
 static int hf_giop_message_major_version;

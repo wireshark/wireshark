@@ -8781,7 +8781,7 @@ static dissector_table_t wifi_alliance_anqp_info_table;
 static dissector_table_t wifi_alliance_ie_table;
 static dissector_table_t wifi_alliance_public_action_table;
 
-static int wlan_tap = -1;
+static int wlan_tap;
 
 static const value_string access_network_type_vals[] = {
   {  0, "Private network" },

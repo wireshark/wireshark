@@ -75,7 +75,7 @@ static gint ett_sametime;
 static gint ett_sametime_options;
 
 /*statistics*/
-static int sametime_tap = -1;
+static int sametime_tap;
 static const guint8* st_str_packet = "Sametime Message Count";
 static const guint8* st_str_message_type = "Message Type";
 static const guint8* st_str_send_type = "Send Type";

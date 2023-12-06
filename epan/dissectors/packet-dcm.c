@@ -284,7 +284,7 @@ static wmem_map_t *dcm_status_table = NULL;
 /* Initialize the protocol and registered fields */
 static int proto_dcm;
 
-static int dicom_eo_tap = -1;
+static int dicom_eo_tap;
 
 static int hf_dcm_pdu_type;
 static int hf_dcm_pdu_len;

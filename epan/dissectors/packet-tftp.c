@@ -205,7 +205,7 @@ static const value_string tftp_error_code_vals[] = {
   { 0, NULL }
 };
 
-static int tftp_eo_tap = -1;
+static int tftp_eo_tap;
 
 /* Preference setting - defragment fragmented TFTP files */
 static gboolean tftp_defragment = FALSE;

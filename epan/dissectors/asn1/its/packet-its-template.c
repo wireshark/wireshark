@@ -112,7 +112,7 @@ static dissector_handle_t its_handle;
 static expert_field ei_its_no_sub_dis;
 
 // TAP
-static int its_tap = -1;
+static int its_tap;
 
 // Protocols
 static int proto_its;

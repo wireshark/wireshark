@@ -245,7 +245,7 @@ static reassembly_table ltp_reassembly_table;
 /* Initialize the protocol and registered fields */
 static int proto_ltp;
 
-static int ltp_tap = -1;
+static int ltp_tap;
 
 static gboolean ltp_reassemble_block = TRUE;
 static gboolean ltp_analyze_sequence = TRUE;

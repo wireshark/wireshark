@@ -4228,7 +4228,7 @@ static const guint8 *st_str_packet_types   = "F1AP Packet Types";
 
 static int st_node_packets = -1;
 static int st_node_packet_types = -1;
-static int f1ap_tap = -1;
+static int f1ap_tap;
 
 struct f1ap_tap_t {
     gint f1ap_mtype;

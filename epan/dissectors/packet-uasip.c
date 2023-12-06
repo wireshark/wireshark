@@ -27,7 +27,7 @@ void proto_reg_handoff_uasip(void);
 
 static tap_struct_uaudp ua_tap_info;
 #if 0
-static int uasip_tap                = -1;
+static int uasip_tap;
 #endif
 
 static int proto_uasip;

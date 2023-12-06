@@ -146,7 +146,7 @@
 void proto_register_dhcp(void);
 void proto_reg_handoff_dhcp(void);
 
-static int dhcp_bootp_tap = -1;
+static int dhcp_bootp_tap;
 static int proto_dhcp;
 static int hf_dhcp_type;
 static int hf_dhcp_hw_type;

@@ -111,7 +111,7 @@ static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t eth_maybefcs_handle;
 
 
-static int eth_tap = -1;
+static int eth_tap;
 
 static gint exported_pdu_tap = -1;
 

@@ -976,8 +976,8 @@ static const enum_val_t gtp_decode_tpdu_as[] = {
 };
 
 
-static int gtp_tap = -1;
-static int gtpv1_tap = -1;
+static int gtp_tap;
+static int gtpv1_tap;
 
 /* Definition of flags masks */
 #define GTP_VER_MASK 0xE0

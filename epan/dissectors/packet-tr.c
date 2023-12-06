@@ -53,7 +53,7 @@ static gint ett_token_ring_fc;
 static expert_field ei_token_empty_rif;
 static expert_field ei_token_fake_llc_snap_header;
 
-static int tr_tap = -1;
+static int tr_tap;
 
 /*
  * Check for and attempt to fix Linux link-layer header mangling.

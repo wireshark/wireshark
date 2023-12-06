@@ -138,9 +138,9 @@ void proto_reg_handoff_ipv6(void);
 #define IPV6_PROTO_VALUE            1
 #define IPV6_PROTO_PINFO            2
 
-static int ipv6_tap  = -1;
+static int ipv6_tap;
 
-static int exported_pdu_tap = -1;
+static int exported_pdu_tap;
 
 static int proto_ipv6;
 static int proto_ipv6_hopopts;

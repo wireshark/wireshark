@@ -165,7 +165,7 @@ static expert_field ei_megaco_invalid_sdr;
 
 static dissector_handle_t megaco_text_handle;
 
-static int megaco_tap = -1;
+static int megaco_tap;
 static gint exported_pdu_tap = -1;
 
 

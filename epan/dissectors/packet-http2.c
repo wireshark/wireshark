@@ -83,7 +83,7 @@ static gboolean http2_decompress_body = FALSE;
 /* Try to dissect reassembled http2.data.data according to content-type later */
 static dissector_table_t media_type_dissector_table;
 
-static int http_eo_tap = -1;
+static int http_eo_tap;
 #endif
 
 /* Some protocols on top of http2 require http2 streams to remain open. For example, the stream
@@ -308,8 +308,8 @@ struct HTTP2Tap {
     guint8 type;
 };
 
-static int http2_tap = -1;
-static int http2_follow_tap = -1;
+static int http2_tap;
+static int http2_follow_tap;
 
 static const guint8* st_str_http2 = "HTTP2";
 static const guint8* st_str_http2_type = "Type";

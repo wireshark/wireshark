@@ -66,8 +66,8 @@ static void init_h245_packet_info(h245_packet_info *pi);
 static int hf_h245_pdu_type;
 static int hf_h245Manufacturer;
 static int hf_h245_subMessageIdentifier_standard;
-static int h245_tap = -1;
-static int h245dg_tap = -1;
+static int h245_tap;
+static int h245dg_tap;
 static int hf_h245_debug_dissector_try_string;
 
 h245_packet_info *h245_pi=NULL;

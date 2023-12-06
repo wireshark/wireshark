@@ -43,7 +43,7 @@ void proto_reg_handoff_mtp3(void);
 /* Initialize the protocol and registered fields */
 static int proto_mtp3;
 
-static int mtp3_tap = -1;
+static int mtp3_tap;
 
 static dissector_handle_t mtp3_handle;
 

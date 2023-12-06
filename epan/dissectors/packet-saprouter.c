@@ -137,7 +137,7 @@ static const value_string saprouter_admin_command_vals[] = {
 	{ 0, NULL}
 };
 
-static int credentials_tap = -1;
+static int credentials_tap;
 
 static int proto_saprouter;
 

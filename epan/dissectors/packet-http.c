@@ -54,10 +54,10 @@ void proto_reg_handoff_http(void);
 void proto_register_message_http(void);
 void proto_reg_handoff_message_http(void);
 
-static int http_tap = -1;
-static int http_eo_tap = -1;
-static int http_follow_tap = -1;
-static int credentials_tap = -1;
+static int http_tap;
+static int http_eo_tap;
+static int http_follow_tap;
+static int credentials_tap;
 
 static int proto_http;
 static int proto_http2;

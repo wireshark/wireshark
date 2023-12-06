@@ -895,7 +895,7 @@ static dissector_handle_t  ieee802154_nonask_phy_handle;
 static dissector_handle_t  ieee802154_nofcs_handle;
 static dissector_handle_t  ieee802154_tap_handle;
 
-static int ieee802154_tap = -1;
+static int ieee802154_tap;
 
 /* Handles for MPX-IE the Multiplex ID */
 static dissector_table_t ethertype_table;

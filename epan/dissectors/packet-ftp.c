@@ -35,7 +35,7 @@
 void proto_register_ftp(void);
 void proto_reg_handoff_ftp(void);
 
-static int credentials_tap = -1;
+static int credentials_tap;
 
 static int proto_ftp;
 static int proto_ftp_data;
@@ -83,7 +83,7 @@ static expert_field ei_ftp_epsv_args_invalid;
 static expert_field ei_ftp_response_code_invalid;
 static expert_field ei_ftp_pwd_response_invalid;
 
-static int ftp_eo_tap = -1;
+static int ftp_eo_tap;
 
 static dissector_handle_t ftpdata_handle;
 static dissector_handle_t ftp_handle;

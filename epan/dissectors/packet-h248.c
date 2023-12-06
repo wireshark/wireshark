@@ -396,7 +396,7 @@ static gint ett_h248_no_pkg;
 static gint ett_h248_no_sig;
 static gint ett_h248_no_evt;
 
-static int h248_tap = -1;
+static int h248_tap;
 
 static gcp_hf_ett_t h248_arrel;
 

@@ -236,7 +236,7 @@ static gint ett_oss_udp_transport;
 static const true_false_string tfs_udp_transport_cyclic_acyclic = { "Cyclic", "ACyclic" };
 static guint global_network_oss_udp_port = OPENSAFETY_UDP_PORT;
 
-static int opensafety_tap = -1;
+static int opensafety_tap;
 
 static const fragment_items oss_frag_items = {
     /* Fragment subtrees */

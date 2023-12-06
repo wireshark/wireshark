@@ -170,7 +170,7 @@ static int ett_skinny_tree;
 static gboolean global_skinny_desegment = true;
 
 /* tap register id */
-static int skinny_tap = -1;
+static int skinny_tap;
 
 /* skinny protocol tap info */
 #define MAX_SKINNY_MESSAGES_IN_PACKET 10

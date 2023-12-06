@@ -42,7 +42,7 @@ static int hf_fddi_addr;
 static gint ett_fddi;
 static gint ett_fddi_fc;
 
-static int fddi_tap = -1;
+static int fddi_tap;
 
 static dissector_handle_t fddi_handle, fddi_bitswapped_handle;
 

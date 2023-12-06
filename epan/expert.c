@@ -34,7 +34,7 @@ int proto_expert;
 
 static int proto_malformed;
 
-static int expert_tap         = -1;
+static int expert_tap;
 static int highest_severity   =  0;
 
 static int ett_expert;
@@ -211,7 +211,7 @@ expert_packet_init(void)
 		UAT_END_FIELDS
 	};
 
-	if (expert_tap == -1) {
+	if (expert_tap == 0) {
 		expert_tap = register_tap("expert");
 	}
 

@@ -39,7 +39,7 @@
 
 void proto_register_rtsp(void);
 
-static int rtsp_tap = -1;
+static int rtsp_tap;
 static rtsp_info_value_t *rtsp_stat_info;
 
 /* http://www.iana.org/assignments/rtsp-parameters/rtsp-parameters.xml */
@@ -123,7 +123,7 @@ static int hf_rtsp_channel;
 static int hf_rtsp_length;
 static int hf_rtsp_data;
 
-static int voip_tap = -1;
+static int voip_tap;
 
 static expert_field ei_rtsp_unknown_transport_type;
 static expert_field ei_rtsp_bad_server_port;
