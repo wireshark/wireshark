@@ -100,6 +100,7 @@ static int ett_rdp_fastpath_header;
 static int ett_rdp_fastpath_scancode_flags;
 static int ett_rdp_fastpath_mouse_flags;
 static int ett_rdp_fastpath_mousex_flags;
+static int ett_rdp_fastpath_relmouse_flags;
 static int ett_rdp_fastpath_compression;
 
 static expert_field ei_rdp_neg_len_invalid;
@@ -483,6 +484,16 @@ static int hf_rdp_fastpathSyncKanaLock;
 static int hf_rdp_fastpathQoeTimestamp;
 static int hf_rdp_fastpathUnicodeFlagsRelease;
 static int hf_rdp_fastpathUnicodeCode;
+static int hf_rdp_fastpathRelMouseFlags;
+static int hf_rdp_fastpathRelMouseFlags_Move;
+static int hf_rdp_fastpathRelMouseFlags_Down;
+static int hf_rdp_fastpathRelMouseFlags_Button1;
+static int hf_rdp_fastpathRelMouseFlags_Button2;
+static int hf_rdp_fastpathRelMouseFlags_Button3;
+static int hf_rdp_fastpathRelMouseFlags_XButton1;
+static int hf_rdp_fastpathRelMouseFlags_XButton2;
+static int hf_rdp_fastpathRelMouseDeltaX;
+static int hf_rdp_fastpathRelMouseDeltaY;
 
 static int * const fastpath_clientHeader_flags[] = {
 	&hf_rdp_fastpathAction,
@@ -537,6 +548,17 @@ static int * const ts_pointerx_flags[] = {
 	&hf_rdp_pointerxFlags_down,
 	&hf_rdp_pointerxFlags_button1,
 	&hf_rdp_pointerxFlags_button2,
+	NULL
+};
+
+static int * const ts_relpointer_flags[] = {
+	&hf_rdp_fastpathRelMouseFlags_Move,
+	&hf_rdp_fastpathRelMouseFlags_Down,
+	&hf_rdp_fastpathRelMouseFlags_Button1,
+	&hf_rdp_fastpathRelMouseFlags_Button2,
+	&hf_rdp_fastpathRelMouseFlags_Button3,
+	&hf_rdp_fastpathRelMouseFlags_XButton1,
+	&hf_rdp_fastpathRelMouseFlags_XButton2,
 	NULL
 };
 
@@ -1086,6 +1108,7 @@ enum {
 	FASTPATH_INPUT_EVENT_MOUSEX = 0x2,
 	FASTPATH_INPUT_EVENT_SYNC = 0x3,
 	FASTPATH_INPUT_EVENT_UNICODE = 0x4,
+	FASTPATH_INPUT_EVENT_RELMOUSE = 0x5,
 	FASTPATH_INPUT_EVENT_QOE_TIMESTAMP = 0x6
 };
 
@@ -1095,6 +1118,7 @@ static const value_string rdp_fastpath_client_event_vals[] = {
 	{ FASTPATH_INPUT_EVENT_MOUSEX, "MouseEx" },
 	{ FASTPATH_INPUT_EVENT_SYNC, "Sync" },
 	{ FASTPATH_INPUT_EVENT_UNICODE, "Unicode" },
+	{ FASTPATH_INPUT_EVENT_RELMOUSE, "RelMouse" },
 	{ FASTPATH_INPUT_EVENT_QOE_TIMESTAMP, "QUOE Timestamp"},
 	{ 0, NULL},
 };
@@ -3283,6 +3307,10 @@ dissect_rdp_fastpath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 			  eventSize = 3;
 			  flagsList = fastpath_inputunicode_flags;
 			  break;
+		  case FASTPATH_INPUT_EVENT_RELMOUSE:
+			  event_name = "RelMouse";
+			  eventSize = 7;
+			  break;
 		  case FASTPATH_INPUT_EVENT_QOE_TIMESTAMP:
 			  event_name = "QoE timestamp";
 			  eventSize = 5;
@@ -3316,6 +3344,11 @@ dissect_rdp_fastpath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 				  break;
 			  case FASTPATH_INPUT_EVENT_UNICODE:
 				  proto_tree_add_item(event_tree, hf_rdp_fastpathUnicodeCode, tvb, offset+1, 2, ENC_LITTLE_ENDIAN);
+				  break;
+			  case FASTPATH_INPUT_EVENT_RELMOUSE:
+				  proto_tree_add_bitmask(event_tree, tvb, offset+1, hf_rdp_fastpathRelMouseFlags, ett_rdp_fastpath_relmouse_flags, ts_relpointer_flags, ENC_LITTLE_ENDIAN);
+				  proto_tree_add_item(event_tree, hf_rdp_fastpathRelMouseDeltaX, tvb, offset+1+2, 2, ENC_LITTLE_ENDIAN);
+				  proto_tree_add_item(event_tree, hf_rdp_fastpathRelMouseDeltaY, tvb, offset+1+4, 2, ENC_LITTLE_ENDIAN);
 				  break;
 			  case FASTPATH_INPUT_EVENT_QOE_TIMESTAMP:
 				  proto_tree_add_item(event_tree, hf_rdp_fastpathQoeTimestamp, tvb, offset+1, 4, ENC_LITTLE_ENDIAN);
@@ -3471,12 +3504,14 @@ dissect_rdp_rdstls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree _U
 		{&hf_rdp_rdstls_domain,    0, &cbDomain, 0, RDP_FI_STRING|RDP_FI_UNICODE, NULL },
 		{&hf_rdp_rdstls_passwordLen, 2, &cbPassword, 0, 0, NULL},
 		{&hf_rdp_rdstls_password,    0, &cbPassword, 0, 0, NULL },
+		FI_TERMINATOR,
 	};
 
 	rdp_field_info_t reconCookie_fields[] = {
 		{&hf_rdp_rdstls_sessionId, 4, NULL, 0, 0, NULL},
 		{&hf_rdp_rdstls_autoReconnectCookieLen, 2, &cbCookie, 0, 0, NULL},
 		{&hf_rdp_rdstls_autoReconnectCookie,    0, &cbCookie, 0, 0, NULL },
+		FI_TERMINATOR,
 	};
 	rdp_field_info_t *authReqFields = NULL;
 
@@ -3983,11 +4018,11 @@ proto_register_rdp(void) {
         NULL, HFILL }},
     { &hf_rdp_encryptionMethods,
       { "encryptionMethods", "rdp.encryptionMethods",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }},
     { &hf_rdp_extEncryptionMethods,
       { "extEncryptionMethods", "rdp.extEncryptionMethods",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }},
     { &hf_rdp_cluster_flags,    /* ToDo: Display flags in detail */
       { "clusterFlags", "rdp.clusterFlags",
@@ -4579,6 +4614,46 @@ proto_register_rdp(void) {
       { "unicodeCode", "rdp.fastpath.unicode.code",
             FT_UINT16, BASE_HEX, NULL, 0x00,
             NULL, HFILL }},
+    { &hf_rdp_fastpathRelMouseFlags,
+      { "Flags", "rdp.relmouse.flags",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }},
+    { &hf_rdp_fastpathRelMouseFlags_Move,
+      { "Move", "rdp.relmouse.flags.move",
+            FT_UINT16, BASE_HEX, NULL, 0x0800,
+            NULL, HFILL }},
+    { &hf_rdp_fastpathRelMouseFlags_Down,
+      { "Down", "rdp.relmouse.flags.down",
+            FT_UINT16, BASE_HEX, NULL, 0x8000,
+            NULL, HFILL }},
+    { &hf_rdp_fastpathRelMouseFlags_Button1,
+      { "Button1", "rdp.relmouse.flags.button1",
+            FT_UINT16, BASE_HEX, NULL, 0x1000,
+            NULL, HFILL }},
+    { &hf_rdp_fastpathRelMouseFlags_Button2,
+      { "Button2", "rdp.relmouse.flags.button2",
+            FT_UINT16, BASE_HEX, NULL, 0x2000,
+            NULL, HFILL }},
+    { &hf_rdp_fastpathRelMouseFlags_Button3,
+      { "Button3", "rdp.relmouse.flags.button3",
+            FT_UINT16, BASE_HEX, NULL, 0x4000,
+            NULL, HFILL }},
+    { &hf_rdp_fastpathRelMouseFlags_XButton1,
+      { "XButton1", "rdp.relmouse.flags.xbutton1",
+            FT_UINT16, BASE_HEX, NULL, 0x0001,
+            NULL, HFILL }},
+    { &hf_rdp_fastpathRelMouseFlags_XButton2,
+      { "XButton2", "rdp.relmouse.flags.xbutton2",
+            FT_UINT16, BASE_HEX, NULL, 0x0002,
+            NULL, HFILL }},
+    { &hf_rdp_fastpathRelMouseDeltaX,
+      { "deltaX", "rdp.relmouse.deltax",
+            FT_INT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }},
+    { &hf_rdp_fastpathRelMouseDeltaY,
+      { "deltaY", "rdp.relmouse.deltay",
+            FT_INT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }},
     { &hf_rdp_fastpathServerCompressionType,
       { "CompressionType", "rdp.fastpath.server.compressiontype",
             FT_UINT8, BASE_HEX, NULL, 0x00,
@@ -5106,6 +5181,7 @@ proto_register_rdp(void) {
     &ett_rdp_fastpath_scancode_flags,
     &ett_rdp_fastpath_mouse_flags,
     &ett_rdp_fastpath_mousex_flags,
+    &ett_rdp_fastpath_relmouse_flags,
     &ett_rdp_fastpath_compression,
   };
   static ei_register_info ei[] = {
