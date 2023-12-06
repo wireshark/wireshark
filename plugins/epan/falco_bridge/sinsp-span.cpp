@@ -435,7 +435,7 @@ bool extract_syscall_source_fields(sinsp_source_info_t *ssi, uint16_t event_type
 // The code below, falcosecurity/libs, and falcosecurity/plugins need to be in alignment.
 // The Makefile in /plugins defines FALCOSECURITY_LIBS_REVISION and uses that version of
 // plugin_info.h. We need to build against a compatible revision of /libs.
-bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint16_t event_type _U_, uint32_t nparams _U_, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len)
+bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint32_t event_num, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len)
 {
     if (!ssi->source) {
         return false;
@@ -466,6 +466,7 @@ bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint16_t event_type 
     memcpy(ssi->evt_storage + sizeof(scap_evt), payload_hdr, sizeof(payload_hdr));
     memcpy(ssi->evt_storage + sizeof(scap_evt) + sizeof(payload_hdr), evt_data, evt_datalen);
     ssi->evt->init(ssi->evt_storage, 0);
+    ssi->evt->set_num(event_num);
 
     fields.resize(sinsp_field_len);
     // We must supply field_id, field, arg, and type.

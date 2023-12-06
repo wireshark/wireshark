@@ -788,7 +788,7 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
     }
 
     // If we have a failure, try to dissect what we can first, then bail out with an error.
-    bool rc = extract_plugin_source_fields(bi->ssi, pinfo->rec->rec_header.syscall_header.event_type, pinfo->rec->rec_header.syscall_header.nparams, payload, payload_len, pinfo->pool, sinsp_fields, bi->visible_fields);
+    bool rc = extract_plugin_source_fields(bi->ssi, pinfo->num, payload, payload_len, pinfo->pool, sinsp_fields, bi->visible_fields);
 
     if (!rc) {
         REPORT_DISSECTOR_BUG("Falco plugin %s extract error: %s", get_sinsp_source_name(bi->ssi), get_sinsp_source_last_error(bi->ssi));
