@@ -369,7 +369,8 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'xmcp.type.method',
                                 'hf_hiqnet_flags',
                                 'hf_hiqnet_flagmask',
-                                'hf_h223_mux_mpl'
+                                'hf_h223_mux_mpl',
+                                'rdp.flags.pkt'
                               }
 ##################################################################################################
 
