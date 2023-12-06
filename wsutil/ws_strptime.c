@@ -178,6 +178,123 @@ first_wday_of(int yr)
 #define SET_ZONEP(p, off, zone) \
 	do { if (p) { p->tm_gmtoff = off; p->tm_zone = zone; } } while (0)
 
+/*
+ * This is spectacularly ugly.
+ *
+ * POSIX require that there be a variable named "timezone", which contains
+ * "the difference, in seconds, between Coordinated Universal Time (UTC)
+ * and local standard time.".
+ *
+ * Most of the platforms on which we run have this.
+ *
+ * FreeBSD, however, does not.  Instead, it provides a function named
+ * "timezone", which takes two integer arguments, "zone" and "dst",
+ * and "returns a pointer to a time zone abbreviation for the specified
+ * zone and dst values.  The zone argument is the number of minutes west
+ * of GMT and dst is non-zero if daylight savings time is in effect."
+ *
+ * So we need a way to get "the difference, in seconds, between Coordinated
+ * Universal Time (UTC) and local standard time."
+ *
+ * The FreeBSD Wireshark port, as of 2023-12-05, does so by handing
+ * a time_t value of 0, meaning 1970-01-01 00:00:00 UTC (the Unix Epoch),
+ * to localtime() and using the tm_gmtoff value from the resulting
+ * struct tm.  That works in countries that were in standard time
+ * then, but doesn't work in countries that were not in standard time
+ * then, meaning it doesn't work correctly in countries in the Southern
+ * Hemisphere that were in Daylight Saving Tie at that point, and may or
+ * may not work correctly in Ireland, depending on how "standard time"
+ * is defined (don't ask).
+ *
+ * For now, we use a similar mechanism to the one above, but we check
+ * whether tm_isdst is greater than 0 in the resulting struct tm and,
+ * if it is, use a time_t value of 86400*(365/2), in the hopes that,
+ * halfway through 1970, the location in question was in standard
+ * time.
+ *
+ * Also, for now, we test for FreeBSD rather than doing a configure-
+ * time check; checking whether the symbol "timezone" is defined
+ * won't work, as it's defined in FreeBSD as a function, so we'd
+ * have to check *how* it's defined.
+ *
+ * So we have a function to return the difference in question. It
+ * returns a long because timezone is defined to be a long in POSIX
+ * and because the tm_gmtoff member of a struct tm, if such a member
+ * is present, is also a long.
+ */
+static long
+utc_offset(void)
+{
+#if defined(__FreeBSD__)
+	/*
+	 * We only calculate the standard time UTC offset once, under the
+	 * assumption that we won't change what time zone we're in.
+	 *
+	 * XXX - that assumption is violated if:
+	 *
+	 *   you're running on an OS where you can set the current
+	 *   time zone and that will affect all running programs,
+	 *   or where the OS tries to determine where you're located
+	 *   and changes the time zone to match (for example, macOS,
+	 *   in which both of those are the case);
+	 *
+	 *   you're in a location that has moved between time zones
+	 *   since 1970-01-01 00:00:00 UTC (there are some, and the
+	 *   IANA time zone database, at least, takes that into
+	 *   account);
+	 *
+	 *   we add support for the if_iana_tzname Interface
+	 *   Description Block option, so that, when looking
+	 *   at a file with that option for one or more
+	 *   interfaces, and using the timezone from that
+	 *   option rather than the local timezone, the
+	 *   offset from UTC may change from file to file.
+	 *
+	 * This *probably* won't make much of a difference, as
+	 * we have to do this sort of hackery only when parsing
+	 * a date that doesn't use the "Obsolete Date and Time",
+	 * as it's called in RFC 2822.
+	 */
+	static bool got_utcoffset = false;
+	static struct tm *gtm;
+	time_t then = 0;
+
+	if (got_utcoffset) {
+		if (gtm != NULL)
+			return gtm->tm_gmtoff;
+		else
+			return 0;	/* localtime() failed on us */
+	}
+
+	gtm = localtime(&then);
+	got_utcoffset = true;
+	if (gtm == NULL) {
+		/*
+		 * Oh, heck, it can't convert the Epoch.  Just
+		 * return 0 and say to hell with it.
+		 */
+		return 0;
+	}
+	if (gtm->tm_isdst > 0) {
+		/*
+		 * Sorry, we were in Daylight Saving Time on
+		 * 1970-01-01 at 00:00:00 UTC.  Try the middle
+		 * of the year.  (We don't bother making sure
+		 * we weren't in DST then.)
+		 */
+		then = 86400*(365/2);
+		gtm = localtime(&then);
+		if (gtm == NULL) {
+			/* See above. */
+			return 0;
+		}
+	}
+	return gtm->tm_gmtoff;
+#else
+	return timezone;
+#endif
+}
+
 char *
 ws_strptime_p(const char *buf, const char *format, struct tm *tm)
 {
@@ -570,7 +687,7 @@ namedzone:
 				}
 				/* 'J' is local time */
 				if (delim(bp[1]) && *bp == 'J') {
-					tm_gmtoff = -timezone;
+					tm_gmtoff = -utc_offset();
 					tm_zone = NULL; /* XXX */
 					SET_ZONEP(zonep, tm_gmtoff, tm_zone);
 					bp++;
@@ -605,7 +722,7 @@ namedzone:
 						 NULL, 2);
 				if (ep != NULL) {
 					tm->tm_isdst = i;
-					tm_gmtoff = -timezone;
+					tm_gmtoff = -utc_offset();
 					tm_zone = tzname[i];
 					SET_ZONEP(zonep, tm_gmtoff, tm_zone);
 					bp = ep;
