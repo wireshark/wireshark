@@ -1127,7 +1127,7 @@
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Framed-Pool" code="88" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
-			<type type-name="OctetString"/>
+			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="CUI" code="89" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>

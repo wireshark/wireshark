@@ -11,7 +11,7 @@
   </avp>
 
   <avp name="Charging-Gateway-Function-Host" vendor-id="VerizonWireless" code="6068" >
-    <type type-name="OctetString"/>
+    <type type-name="UTF8String"/>
   </avp>
 
   <avp name="Charging-Group-ID" vendor-id="VerizonWireless" code="6069" >
