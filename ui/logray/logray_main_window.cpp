@@ -449,6 +449,11 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
 
 #ifndef HAVE_LIBPCAP
     main_ui_->menuCapture->setEnabled(false);
+    main_ui_->actionCaptureStart->setEnabled(false);
+    main_ui_->actionCaptureStop->setEnabled(false);
+    main_ui_->actionCaptureRestart->setEnabled(false);
+    main_ui_->actionCaptureOptions->setEnabled(false);
+    main_ui_->actionCaptureRefreshInterfaces->setEnabled(false);
 #endif
 
     // Set OS specific shortcuts for fullscreen mode
