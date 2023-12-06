@@ -49,6 +49,9 @@ PreferenceEditorFrame::PreferenceEditorFrame(QWidget *parent) :
 #endif
 
     connect(ui->preferenceBrowseButton, &QPushButton::clicked, this, &PreferenceEditorFrame::browsePushButtonClicked);
+
+    // Disconnect textChanged signal for DissectorSyntaxLineEdit.
+    disconnect(ui->preferenceLineEdit, &DissectorSyntaxLineEdit::textChanged, NULL, NULL);
 }
 
 PreferenceEditorFrame::~PreferenceEditorFrame()
@@ -81,13 +84,8 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
     ui->preferenceLineEdit->clear();
     ui->preferenceLineEdit->setSyntaxState(SyntaxLineEdit::Empty);
 
-    // Disconnect previous textChanged signals.
-    disconnect(ui->preferenceLineEdit, &SyntaxLineEdit::textChanged,
-               this, &PreferenceEditorFrame::uintLineEditTextEdited);
-    disconnect(ui->preferenceLineEdit, &SyntaxLineEdit::textChanged,
-               this, &PreferenceEditorFrame::stringLineEditTextEdited);
-    disconnect(ui->preferenceLineEdit, &SyntaxLineEdit::textChanged,
-               this, &PreferenceEditorFrame::rangeLineEditTextEdited);
+    // Disconnect previous textChanged signal.
+    disconnect(ui->preferenceLineEdit, &SyntaxLineEdit::textChanged, this, NULL);
 
     bool show = false;
     bool browse_button = false;
