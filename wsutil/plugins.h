@@ -23,6 +23,12 @@ typedef enum {
     WS_PLUGIN_CODEC
 } plugin_type_e;
 
+typedef enum {
+    WS_PLUGIN_SCOPE_NONE,
+    WS_PLUGIN_SCOPE_USER,
+    WS_PLUGIN_SCOPE_GLOBAL,
+} plugin_scope_e;
+
 #define WS_PLUGIN_SPDX_GPLv2    "GPL-2.0-or-later"
 #define WS_PLUGIN_GITLAB_URL    "https://gitlab.com/wireshark/wireshark"
 
@@ -53,7 +59,7 @@ WS_DLL_PUBLIC plugins_t *plugins_init(plugin_type_e type);
 typedef void (*plugin_description_callback)(const char *name, const char *version,
                                             uint32_t flags, const char *spdx_id,
                                             const char *blurb, const char *home_url,
-                                            const char *filename,
+                                            const char *filename, plugin_scope_e scope,
                                             void *user_data);
 
 WS_DLL_PUBLIC void plugins_get_descriptions(plugin_description_callback callback, void *user_data);
