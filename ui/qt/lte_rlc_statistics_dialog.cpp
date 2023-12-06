@@ -13,8 +13,6 @@
 #include <epan/strutil.h>
 #include <epan/tap.h>
 
-#include <epan/dissectors/packet-rlc-lte.h>
-
 #include <QFormLayout>
 #include <QTreeWidgetItem>
 #include <QPushButton>
@@ -26,6 +24,7 @@
 // TODO: have never tested in a live capture.
 
 enum {
+    col_rat_,
     col_ueid_,
     col_mode_,     // channel only
     col_priority_, // channel only
@@ -108,10 +107,12 @@ class RlcChannelTreeWidgetItem : public QTreeWidgetItem
 {
 public:
     RlcChannelTreeWidgetItem(QTreeWidgetItem *parent,
+                             uint8_t  RAT,
                              unsigned ueid,
                              unsigned mode,
                              unsigned channelType, unsigned channelId) :
         QTreeWidgetItem(parent, rlc_channel_row_type_),
+        RAT_(RAT),
         ueid_(ueid),
         channelType_(channelType),
         channelId_(channelId),
@@ -163,7 +164,7 @@ public:
     }
 
     // Update UE/channels from tap info.
-    void update(const rlc_lte_tap_info *tap_info) {
+    void update(const rlc_3gpp_tap_info *tap_info) {
 
         // Copy these fields into UE stats.
         if (tap_info->rlcMode != stats_.rlcMode) {
@@ -183,9 +184,9 @@ public:
         if (tap_info->direction == DIRECTION_UPLINK) {
             // Update time range.
             if (stats_.UL_frames == 0) {
-                stats_.UL_time_start = tap_info->rlc_lte_time;
+                stats_.UL_time_start = tap_info->rlc_time;
             }
-            stats_.UL_time_stop = tap_info->rlc_lte_time;
+            stats_.UL_time_stop = tap_info->rlc_time;
 
             stats_.UL_frames++;
             stats_.UL_bytes += tap_info->pduLength;
@@ -201,9 +202,9 @@ public:
         else {
             // Update time range.
             if (stats_.DL_frames == 0) {
-                stats_.DL_time_start = tap_info->rlc_lte_time;
+                stats_.DL_time_start = tap_info->rlc_time;
             }
-            stats_.DL_time_stop = tap_info->rlc_lte_time;
+            stats_.DL_time_stop = tap_info->rlc_time;
 
             stats_.DL_frames++;
             stats_.DL_bytes += tap_info->pduLength;
@@ -269,7 +270,7 @@ public:
         return QTreeWidgetItem::operator< (other);
     }
 
-    // Filter expression for channel.
+    // Filter expression for this bearer.
     const QString filterExpression(bool showSR, bool showRACH) {
         // Create an expression to match with all traffic for this UE.
         QString filter_expr;
@@ -310,6 +311,7 @@ public:
     }
 
     // Accessors (queried for launching graph)
+    uint8_t  get_RAT() const { return RAT_; }
     unsigned get_ueid() const { return ueid_; }
     unsigned get_channelType() const { return channelType_; }
     unsigned get_channelId() const { return channelId_; }
@@ -325,10 +327,11 @@ public:
     }
 
 private:
+    uint8_t  RAT_;
     unsigned ueid_;
     unsigned channelType_;
     unsigned channelId_;
-    unsigned mode_;
+    unsigned mode_;          // RLC mode for this bearer
     unsigned priority_;
 
     unsigned channelRank() const
@@ -377,11 +380,17 @@ typedef struct rlc_ue_stats {
 class RlcUeTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-    RlcUeTreeWidgetItem(QTreeWidget *parent, const rlc_lte_tap_info *rlt_info) :
+    RlcUeTreeWidgetItem(QTreeWidget *parent, const rlc_3gpp_tap_info *rlt_info) :
         QTreeWidgetItem (parent, rlc_ue_row_type_),
         ueid_(0)
     {
         ueid_ = rlt_info->ueid;
+        rat_ = rlt_info->rat;
+
+        // Version matches UE number
+        setText(col_rat_, (rat_ == RLC_RAT_LTE) ?
+                                 QObject::tr("LTE") :
+                                 QObject::tr("NR"));
         setText(col_ueid_, QString::number(ueid_));
 
         // We create RlcChannelTreeWidgetItems when first data on new channel is seen.
@@ -398,17 +407,17 @@ public:
     }
 
     // Does UE match?
-    bool isMatch(const rlc_lte_tap_info *rlt_info) {
-        return ueid_ == rlt_info->ueid;
+    bool isMatch(const rlc_3gpp_tap_info *rlt_info) {
+        return (rat_ == rlt_info->rat) && (ueid_ == rlt_info->ueid);
     }
 
     // Update UE/channels from tap info.
-    void update(const rlc_lte_tap_info *tap_info) {
+    void update(const rlc_3gpp_tap_info *tap_info) {
 
         // Are we ignoring RLC frames that were found in MAC frames, or only those
         // that were logged separately?
-        if ((!recent.gui_rlc_use_pdus_from_mac && tap_info->loggedInMACFrame) ||
-            (recent.gui_rlc_use_pdus_from_mac  && !tap_info->loggedInMACFrame)) {
+        if ((!recent.gui_rlc_use_pdus_from_mac &&  tap_info->loggedInMACFrame) ||
+             (recent.gui_rlc_use_pdus_from_mac && !tap_info->loggedInMACFrame)) {
             return;
         }
 
@@ -430,9 +439,9 @@ public:
         if (tap_info->direction == DIRECTION_UPLINK) {
             // Update time range.
             if (stats_.UL_frames == 0) {
-                stats_.UL_time_start = tap_info->rlc_lte_time;
+                stats_.UL_time_start = tap_info->rlc_time;
             }
-            stats_.UL_time_stop = tap_info->rlc_lte_time;
+            stats_.UL_time_stop = tap_info->rlc_time;
 
             stats_.UL_frames++;
             stats_.UL_total_bytes += tap_info->pduLength;
@@ -448,9 +457,9 @@ public:
         else {
             // Update time range.
             if (stats_.DL_frames == 0) {
-                stats_.DL_time_start = tap_info->rlc_lte_time;
+                stats_.DL_time_start = tap_info->rlc_time;
             }
-            stats_.DL_time_stop = tap_info->rlc_lte_time;
+            stats_.DL_time_stop = tap_info->rlc_time;
 
             stats_.DL_frames++;
             stats_.DL_total_bytes += tap_info->pduLength;
@@ -472,7 +481,7 @@ public:
                 channel_item = CCCH_stats_;
                 if (channel_item == NULL) {
                     channel_item = CCCH_stats_ =
-                            new RlcChannelTreeWidgetItem(this, tap_info->ueid, RLC_TM_MODE,
+                            new RlcChannelTreeWidgetItem(this, tap_info->rat, tap_info->ueid, RLC_TM_MODE,
                                                          tap_info->channelType, tap_info->channelId);
                 }
                 break;
@@ -481,7 +490,7 @@ public:
                 channel_item = srb_stats_[tap_info->channelId-1];
                 if (channel_item == NULL) {
                     channel_item = srb_stats_[tap_info->channelId-1] =
-                            new RlcChannelTreeWidgetItem(this, tap_info->ueid, RLC_AM_MODE,
+                            new RlcChannelTreeWidgetItem(this, tap_info->rat, tap_info->ueid, RLC_AM_MODE,
                                                          tap_info->channelType, tap_info->channelId);
                 }
                 break;
@@ -490,7 +499,7 @@ public:
                 channel_item = drb_stats_[tap_info->channelId-1];
                 if (channel_item == NULL) {
                     channel_item = drb_stats_[tap_info->channelId-1] =
-                            new RlcChannelTreeWidgetItem(this, tap_info->ueid, tap_info->rlcMode,
+                            new RlcChannelTreeWidgetItem(this, tap_info->rat, tap_info->ueid, tap_info->rlcMode,
                                                          tap_info->channelType, tap_info->channelId);
                 }
                 break;
@@ -515,6 +524,8 @@ public:
         double DL_bw = calculate_bw(&stats_.DL_time_start,
                                     &stats_.DL_time_stop,
                                     stats_.DL_total_bytes);
+
+        setText(col_rat_,    (rat_ == RLC_RAT_LTE) ? QString("LTE") : QString("NR"));
 
         // Uplink.
         setText(col_ul_frames_,  QString::number(stats_.UL_frames));
@@ -584,6 +595,7 @@ public:
             filter_expr += QString("(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %1)) or (").arg(ueid_);
         }
 
+        // Must match UE
         filter_expr += QString("rlc-lte.ueid==%1").arg(ueid_);
 
         // Close () if open because of SR
@@ -623,6 +635,7 @@ public:
     }
 
 private:
+    uint8_t  rat_;
     unsigned ueid_;
     rlc_ue_stats stats_;
 
@@ -633,15 +646,16 @@ private:
 };
 
 
-// Only the first 3 columns headings differ between UE and channel rows.
-
-static const QString ue_col_0_title_ = QObject::tr("UE Id");
-static const QString ue_col_1_title_ = QObject::tr("");
+// Only the first 4 columns headings differ between UE and channel rows.
+static const QString ue_col_0_title_ = QObject::tr("RAT");
+static const QString ue_col_1_title_ = QObject::tr("UE Id");
 static const QString ue_col_2_title_ = QObject::tr("");
+static const QString ue_col_3_title_ = QObject::tr("");
 
-static const QString channel_col_0_title_ = QObject::tr("Name");
-static const QString channel_col_1_title_ = QObject::tr("Mode");
-static const QString channel_col_2_title_ = QObject::tr("Priority");
+static const QString channel_col_0_title_ = QObject::tr("");
+static const QString channel_col_1_title_ = QObject::tr("Name");
+static const QString channel_col_2_title_ = QObject::tr("Mode");
+static const QString channel_col_3_title_ = QObject::tr("Priority");
 
 
 
@@ -654,7 +668,7 @@ LteRlcStatisticsDialog::LteRlcStatisticsDialog(QWidget &parent, CaptureFile &cf,
     cf_(cf),
     packet_count_(0)
 {
-    setWindowSubtitle(tr("LTE RLC Statistics"));
+    setWindowSubtitle(tr("LTE/NR RLC Statistics"));
     loadGeometry((parent.width() * 5) / 5, (parent.height() * 3) / 4, "LTERLCStatisticsDialog");
 
     // Create a grid for filtering-related widgetsto also appear in layout.
@@ -692,7 +706,7 @@ LteRlcStatisticsDialog::LteRlcStatisticsDialog(QWidget &parent, CaptureFile &cf,
     filter_controls_grid->addWidget(useRLCFramesFromMacCheckBox_);
 
     QStringList header_labels = QStringList()
-            << "" << "" << ""
+            << "" << "" << "" << ""
             << tr("UL Frames") << tr("UL Bytes") << tr("UL MB/s")
             << tr("UL ACKs") << tr("UL NACKs") << tr("UL Missing")
             << tr("DL Frames") << tr("DL Bytes") << tr("DL MB/s")
@@ -705,6 +719,9 @@ LteRlcStatisticsDialog::LteRlcStatisticsDialog(QWidget &parent, CaptureFile &cf,
     // resizeColumnToContents doesn't work well here, so set sizes manually.
     for (int col = 0; col < statsTreeWidget()->columnCount() - 1; col++) {
         switch (col) {
+            case col_rat_:
+                statsTreeWidget()->setColumnWidth(col, one_em * 3);
+                break;
             case col_ueid_:
                 statsTreeWidget()->setColumnWidth(col, one_em * 7);
                 break;
@@ -770,11 +787,11 @@ void LteRlcStatisticsDialog::tapReset(void *ws_dlg_ptr)
 
 // Process the tap info from a dissected RLC PDU.
 // Returns TAP_PACKET_REDRAW if a redraw is needed, TAP_PACKET_DONT_REDRAW otherwise.
-tap_packet_status LteRlcStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info *, epan_dissect *, const void *rlc_lte_tap_info_ptr, tap_flags_t)
+tap_packet_status LteRlcStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info *, epan_dissect *, const void *rlc_3gpp_tap_info_ptr, tap_flags_t)
 {
     // Look up dialog.
     LteRlcStatisticsDialog *ws_dlg = static_cast<LteRlcStatisticsDialog *>(ws_dlg_ptr);
-    const rlc_lte_tap_info *rlt_info  = (const rlc_lte_tap_info *) rlc_lte_tap_info_ptr;
+    const rlc_3gpp_tap_info *rlt_info  = (const rlc_3gpp_tap_info *) rlc_3gpp_tap_info_ptr;
     if (!ws_dlg || !rlt_info) {
         return TAP_PACKET_DONT_REDRAW;
     }
@@ -786,8 +803,10 @@ tap_packet_status LteRlcStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _pa
     for (int i = 0; i < ws_dlg->statsTreeWidget()->topLevelItemCount(); i++) {
         QTreeWidgetItem *ti = ws_dlg->statsTreeWidget()->topLevelItem(i);
         if (ti->type() != rlc_ue_row_type_) continue;
+        // Get UE object for this entry
         RlcUeTreeWidgetItem *cur_ru_ti = static_cast<RlcUeTreeWidgetItem*>(ti);
 
+        // Does it match this tap?
         if (cur_ru_ti->isMatch(rlt_info)) {
             ue_ti = cur_ru_ti;
             break;
@@ -842,6 +861,7 @@ void LteRlcStatisticsDialog::useRLCFramesFromMacCheckBoxToggled(bool state)
     fillTree();
 }
 
+// Return a filter expression for currently selected UE or bearer row
 const QString LteRlcStatisticsDialog::filterExpression()
 {
     QString filter_expr;
@@ -864,7 +884,7 @@ const QString LteRlcStatisticsDialog::filterExpression()
 
 void LteRlcStatisticsDialog::fillTree()
 {
-    if (!registerTapListener("rlc-lte",
+    if (!registerTapListener("rlc-3gpp",
                              this,
                              displayFilter_.toLatin1().data(),
                              TL_REQUIRES_NOTHING,
@@ -904,14 +924,16 @@ void LteRlcStatisticsDialog::updateHeaderLabels()
         statsTreeWidget()->selectedItems()[0]->type() == rlc_channel_row_type_) {
 
         // UE column headings.
-        statsTreeWidget()->headerItem()->setText(col_ueid_, channel_col_0_title_);
-        statsTreeWidget()->headerItem()->setText(col_mode_, channel_col_1_title_);
-        statsTreeWidget()->headerItem()->setText(col_priority_, channel_col_2_title_);
+        statsTreeWidget()->headerItem()->setText(col_rat_, channel_col_0_title_);
+        statsTreeWidget()->headerItem()->setText(col_ueid_, channel_col_1_title_);
+        statsTreeWidget()->headerItem()->setText(col_mode_, channel_col_2_title_);
+        statsTreeWidget()->headerItem()->setText(col_priority_, channel_col_3_title_);
     } else {
         // Channel column headings.
-        statsTreeWidget()->headerItem()->setText(col_ueid_, ue_col_0_title_);
-        statsTreeWidget()->headerItem()->setText(col_mode_, ue_col_1_title_);
-        statsTreeWidget()->headerItem()->setText(col_priority_, ue_col_2_title_);
+        statsTreeWidget()->headerItem()->setText(col_rat_, ue_col_0_title_);
+        statsTreeWidget()->headerItem()->setText(col_ueid_, ue_col_1_title_);
+        statsTreeWidget()->headerItem()->setText(col_mode_, ue_col_2_title_);
+        statsTreeWidget()->headerItem()->setText(col_priority_, ue_col_3_title_);
     }
 }
 
@@ -925,11 +947,15 @@ void LteRlcStatisticsDialog::captureFileClosing()
 // Launch a UL graph for the currently-selected channel.
 void LteRlcStatisticsDialog::launchULGraphButtonClicked()
 {
-    if (statsTreeWidget()->selectedItems().count() > 0 && statsTreeWidget()->selectedItems()[0]->type() == rlc_channel_row_type_) {
+    if (statsTreeWidget()->selectedItems().count() > 0 &&
+        statsTreeWidget()->selectedItems()[0]->type() == rlc_channel_row_type_) {
+
         // Get the channel item.
         QTreeWidgetItem *ti = statsTreeWidget()->selectedItems()[0];
         RlcChannelTreeWidgetItem *rc_ti = static_cast<RlcChannelTreeWidgetItem*>(ti);
+        // Launch the graph.
         emit launchRLCGraph(true,
+                            rc_ti->get_RAT(),
                             rc_ti->get_ueid(),
                             rc_ti->get_mode(),
                             rc_ti->get_channelType(),
@@ -946,6 +972,7 @@ void LteRlcStatisticsDialog::launchDLGraphButtonClicked()
         QTreeWidgetItem *ti = statsTreeWidget()->selectedItems()[0];
         RlcChannelTreeWidgetItem *rc_ti = static_cast<RlcChannelTreeWidgetItem*>(ti);
         emit launchRLCGraph(true,
+                            rc_ti->get_RAT(),
                             rc_ti->get_ueid(),
                             rc_ti->get_mode(),
                             rc_ti->get_channelType(),
@@ -992,7 +1019,7 @@ lte_rlc_statistics_init(const char *args, void*) {
 }
 
 static stat_tap_ui lte_rlc_statistics_ui = {
-    REGISTER_STAT_GROUP_TELEPHONY_LTE,
+    REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU,
     QT_TRANSLATE_NOOP("LteRlcStatisticsDialog", "RLC Statistics"),
     "rlc-lte,stat",
     lte_rlc_statistics_init,

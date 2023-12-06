@@ -8264,7 +8264,7 @@ proto_get_frame_protocols(const wmem_list_t *layers, gboolean *is_ip,
 			*is_tls = TRUE;
 		} else if (is_rtp && !strcmp(proto_name, "rtp")) {
 			*is_rtp = TRUE;
-		} else if (is_lte_rlc && !strcmp(proto_name, "rlc-lte")) {
+		} else if (is_lte_rlc && (!strcmp(proto_name, "rlc-lte") || !strcmp(proto_name, "rlc-nr"))) {
 			*is_lte_rlc = TRUE;
 		}
 

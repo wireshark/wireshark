@@ -512,8 +512,9 @@ void TapParameterDialog::updateWidgets()
 void TapParameterDialog::on_applyFilterButton_clicked()
 {
     beginRetapPackets();
-    if (!ui->displayFilterLineEdit->checkFilter())
+    if (!ui->displayFilterLineEdit->checkFilter()) {
         return;
+    }
 
     QString filter = ui->displayFilterLineEdit->text();
     emit updateFilter(filter);

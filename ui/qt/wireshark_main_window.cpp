@@ -374,7 +374,7 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
             << REGISTER_STAT_GROUP_TELEPHONY
             << REGISTER_STAT_GROUP_TELEPHONY_ANSI
             << REGISTER_STAT_GROUP_TELEPHONY_GSM
-            << REGISTER_STAT_GROUP_TELEPHONY_LTE
+            << REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU
             << REGISTER_STAT_GROUP_TELEPHONY_MTP3
             << REGISTER_STAT_GROUP_TELEPHONY_SCTP
             << REGISTER_TOOLS_GROUP_UNSORTED;
@@ -2831,7 +2831,7 @@ void WiresharkMainWindow::addMenuActions(QList<QAction *> &actions, int menu_gro
         case REGISTER_STAT_GROUP_TELEPHONY_GSM:
             main_ui_->menuGSM->addAction(action);
             break;
-        case REGISTER_STAT_GROUP_TELEPHONY_LTE:
+        case REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU:
             main_ui_->menuLTE->addAction(action);
             break;
         case REGISTER_STAT_GROUP_TELEPHONY_MTP3:
@@ -2897,7 +2897,7 @@ void WiresharkMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_
         case REGISTER_STAT_GROUP_TELEPHONY_GSM:
             main_ui_->menuGSM->removeAction(action);
             break;
-        case REGISTER_STAT_GROUP_TELEPHONY_LTE:
+        case REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU:
             main_ui_->menuLTE->removeAction(action);
             break;
         case REGISTER_STAT_GROUP_TELEPHONY_MTP3:
@@ -2934,9 +2934,9 @@ void WiresharkMainWindow::addDynamicMenus()
 {
     // Manual additions
     mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_GSM, main_ui_->actionTelephonyGsmMapSummary);
-    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_LTE, main_ui_->actionTelephonyLteMacStatistics);
-    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_LTE, main_ui_->actionTelephonyLteRlcStatistics);
-    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_LTE, main_ui_->actionTelephonyLteRlcGraph);
+    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU, main_ui_->actionTelephonyLteMacStatistics);
+    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU, main_ui_->actionTelephonyLteRlcStatistics);
+    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU, main_ui_->actionTelephonyLteRlcGraph);
     mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_MTP3, main_ui_->actionTelephonyMtp3Summary);
     mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY, main_ui_->actionTelephonySipFlows);
 
@@ -2955,7 +2955,7 @@ void WiresharkMainWindow::addDynamicMenus()
     if (mainApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_GSM).length() > 0) {
         main_ui_->actionTelephonyGSMPlaceholder->setVisible(false);
     }
-    if (mainApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_LTE).length() > 0) {
+    if (mainApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU).length() > 0) {
         main_ui_->actionTelephonyLTEPlaceholder->setVisible(false);
     }
     if (mainApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_MTP3).length() > 0) {

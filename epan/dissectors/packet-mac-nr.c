@@ -15,9 +15,11 @@
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/tap.h>
 #include <epan/uat.h>
 
 #include "packet-mac-nr.h"
+#include "packet-mac-3gpp-common.h"
 #include "packet-rlc-nr.h"
 
 void proto_register_mac_nr(void);
@@ -29,6 +31,8 @@ void proto_reg_handoff_mac_nr(void);
 
 /* Initialize the protocol and registered fields. */
 int proto_mac_nr;
+
+static int mac_nr_tap = -1;
 
 static dissector_handle_t rlc_nr_handle;
 
@@ -1343,7 +1347,9 @@ call_with_catch_all(dissector_handle_t handle, tvbuff_t* tvb, packet_info *pinfo
 /* Dissect BCCH PDU */
 static void dissect_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                          proto_item *pdu_ti,
-                         int offset, mac_nr_info *p_mac_nr_info)
+                         int offset,
+                         mac_nr_info *p_mac_nr_info,
+                         mac_3gpp_tap_info *tap_info _U_)
 {
     proto_item *ti;
 
@@ -1386,7 +1392,9 @@ static void dissect_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* Dissect PCCH PDU */
 static void dissect_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                         proto_item *pdu_ti, int offset, mac_nr_info *p_mac_nr_info _U_)
+                         proto_item *pdu_ti, int offset,
+                         mac_nr_info *p_mac_nr_info _U_,
+                         mac_3gpp_tap_info *tap_info _U_)
 {
     proto_item *ti;
 
@@ -1400,6 +1408,8 @@ static void dissect_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Always show as raw data */
     ti = proto_tree_add_item(tree, hf_mac_nr_pcch_pdu,
                              tvb, offset, -1, ENC_NA);
+
+    // TODO: add to tap_info->number_of_paging_ids.  See LTE.
 
     if (global_mac_nr_attempt_rrc_decode) {
 
@@ -1416,7 +1426,7 @@ static void dissect_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         proto_item *pdu_ti _U_, guint32 offset,
-                        mac_nr_info *p_mac_nr_info _U_)
+                        mac_nr_info *p_mac_nr_info, mac_3gpp_tap_info *tap_info)
 {
     write_pdu_label_and_info(pdu_ti, NULL, pinfo,
                              "RAR (RA-RNTI=%u) ",
@@ -1480,7 +1490,6 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     &hf_mac_nr_rar_grant_csi,
                     NULL
                 };
-
                 proto_tree_add_bitmask(rar_subheader_tree, tvb, offset, hf_mac_nr_rar_grant,
                                        ett_mac_nr_rar_grant, rar_grant_fields, ENC_BIG_ENDIAN);
                 offset += 4;
@@ -1493,10 +1502,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                 write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
                                          "(RAPID=%u TA=%u Temp C-RNTI=%u) ", rapid, ta, c_rnti);
             }
-            //else {
-            //    write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
-            //                             "(RAPID=%u) ", rapid);
-            //}
+            tap_info->number_of_rars++;
         }
         /* Set subheader (+subpdu..) length */
         proto_item_set_end(subheader_ti, tvb, offset);
@@ -1507,6 +1513,10 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tvb_reported_length_remaining(tvb, offset)) {
         proto_tree_add_item(tree, hf_mac_nr_padding, tvb, offset, -1, ENC_NA);
     }
+
+    /* Update padding bytes in stats */
+    tap_info->padding_bytes += (p_mac_nr_info->length - offset);
+
 }
 
 static gboolean is_fixed_sized_lcid(guint8 lcid, guint8 direction)
@@ -1859,7 +1869,8 @@ mac_nr_pcmax_f_c_fmt(gchar *s, guint32 v)
 static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                    proto_item *pdu_ti, guint32 offset,
                                    mac_nr_info *p_mac_nr_info,
-                                   proto_tree *context_tree _U_)
+                                   proto_tree *context_tree _U_,
+                                   mac_3gpp_tap_info *tap_info)
 {
     gboolean ces_seen = FALSE;
     gboolean data_seen = FALSE;
@@ -1867,6 +1878,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     write_pdu_label_and_info(pdu_ti, NULL, pinfo,
                              "%s ",
                              (p_mac_nr_info->direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH");
+
+    tap_info->raw_length = p_mac_nr_info->length;
 
     /************************************************************************/
     /* Dissect each sub-pdu.                                             */
@@ -1983,6 +1996,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 guint8 seqnum_length;
                 gint drb_id;
 
+                tap_info->sdus_for_lcid[lcid]++;
+                tap_info->bytes_for_lcid[lcid] += SDU_length;
+
                 // TODO: priority not set.
                 guint8 priority = 0;
                 lookup_rlc_bearer_from_lcid(p_mac_nr_info->ueid,
@@ -2022,6 +2038,10 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         break;
                 }
             } else if (lcid >= 1 && lcid <= 3) {
+
+                tap_info->sdus_for_lcid[lcid]++;
+                tap_info->bytes_for_lcid[lcid] += SDU_length;
+
                 if (global_mac_nr_attempt_srb_decode) {
                     /* SRB, call RLC dissector */
                     /* These are defaults (38.331, 9.2.1) - only priority may be overridden, but not passing in yet. */
@@ -3022,6 +3042,10 @@ static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo,
     gint                 offset = 0;
     struct mac_nr_info *p_mac_nr_info;
 
+    /* Allocate and zero tap struct */
+    mac_3gpp_tap_info *tap_info = wmem_new0(wmem_file_scope(), mac_3gpp_tap_info);
+    tap_info->rat = MAC_RAT_NR;
+
     /* Set protocol name */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC-NR");
 
@@ -3107,18 +3131,29 @@ static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
 
+    /* Set context-info parts of tap struct */
+    tap_info->rnti = p_mac_nr_info->rnti;
+    tap_info->ueid = p_mac_nr_info->ueid;
+    tap_info->rntiType = p_mac_nr_info->rntiType;
+    tap_info->isPredefinedData = FALSE;
+    tap_info->isPHYRetx =      FALSE;  /* don't really know */
+    tap_info->crcStatusValid = FALSE;  /* don't really know */
+    tap_info->direction = p_mac_nr_info->direction;
+
+    tap_info->mac_time = pinfo->abs_ts;
+    tap_info->single_number_of_bytes = tvb_reported_length_remaining(tvb, offset);
 
     /* Dissect the MAC PDU itself. Format depends upon RNTI type. */
     switch (p_mac_nr_info->rntiType) {
 
         case P_RNTI:
             /* PCCH PDU */
-            dissect_pcch(tvb, pinfo, mac_nr_tree, pdu_ti, offset, p_mac_nr_info);
+            dissect_pcch(tvb, pinfo, mac_nr_tree, pdu_ti, offset, p_mac_nr_info, tap_info);
             break;
 
         case RA_RNTI:
             /* RAR PDU */
-            dissect_rar(tvb, pinfo, mac_nr_tree, pdu_ti, offset, p_mac_nr_info);
+            dissect_rar(tvb, pinfo, mac_nr_tree, pdu_ti, offset, p_mac_nr_info, tap_info);
             break;
 
         case C_RNTI:
@@ -3126,23 +3161,27 @@ static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo,
             /* Can be UL-SCH or DL-SCH */
             dissect_ulsch_or_dlsch(tvb, pinfo, mac_nr_tree, pdu_ti, offset,
                                    p_mac_nr_info,
-                                   context_tree);
+                                   context_tree,
+                                   tap_info);
             break;
 
         case SI_RNTI:
             /* BCCH over DL-SCH */
-            dissect_bcch(tvb, pinfo, mac_nr_tree, pdu_ti, offset, p_mac_nr_info);
+            dissect_bcch(tvb, pinfo, mac_nr_tree, pdu_ti, offset,
+                         p_mac_nr_info, tap_info);
             break;
 
         case NO_RNTI:
             /* Must be BCCH over BCH... */
-            dissect_bcch(tvb, pinfo, mac_nr_tree, pdu_ti, offset, p_mac_nr_info);
+            dissect_bcch(tvb, pinfo, mac_nr_tree, pdu_ti, offset,
+                         p_mac_nr_info, tap_info);
             break;
-
 
         default:
             break;
     }
+
+    tap_queue_packet(mac_nr_tap, pinfo, tap_info);
 
     return -1;
 }
@@ -5134,6 +5173,9 @@ void proto_register_mac_nr(void)
 
     /* Allow other dissectors to find this one by name. */
     register_dissector("mac-nr", dissect_mac_nr, proto_mac_nr);
+
+    /* Register the tap name. */
+    mac_nr_tap = register_tap("mac-3gpp");
 
     /* Preferences */
     mac_nr_module = prefs_register_protocol(proto_mac_nr, NULL);

@@ -33,7 +33,7 @@ public:
     explicit LteRlcGraphDialog(QWidget &parent, CaptureFile &cf, bool channelKnown);
     ~LteRlcGraphDialog();
 
-    void setChannelInfo(guint16 ueid, guint8 rlcMode,
+    void setChannelInfo(uint8_t rat, guint16 ueid, guint8 rlcMode,
                         guint16 channelType, guint16 channelId, guint8 direction,
                         bool maybe_empty=false);
 

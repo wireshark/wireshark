@@ -18,11 +18,15 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
+
 #include <epan/dissectors/packet-rlc-lte.h>
+#include <epan/dissectors/packet-rlc-3gpp-common.h>
+
 
 void register_tap_listener_rlc_lte_stat(void);
 
 enum {
+    RAT_COLUMN,
     UEID_COLUMN,
     UL_FRAMES_COLUMN,
     UL_BYTES_COLUMN,
@@ -39,13 +43,14 @@ enum {
     NUM_UE_COLUMNS
 };
 
-static const gchar *ue_titles[] = { " UEId",
+static const gchar *ue_titles[] = { "RAT", " UEId",
                                     "UL Frames", "UL Bytes", "   UL Mbs", "UL ACKs", "UL NACKs", "UL Missed",
                                     "DL Frames", "DL Bytes", "   DL Mbs", "DL ACKs", "DL NACKs", "DL Missed"};
 
 /* Stats for one UE */
 typedef struct rlc_lte_row_data {
     /* Key for matching this row */
+    uint8_t  rat;
     guint16  ueid;
 
     gboolean is_predefined_data;
@@ -69,7 +74,7 @@ typedef struct rlc_lte_row_data {
 } rlc_lte_row_data;
 
 
-/* Common channel stats */
+/* Common channel stats (i.e. independent of UEs) */
 typedef struct rlc_lte_common_stats {
     guint32 bcch_frames;
     guint32 bcch_bytes;
@@ -85,7 +90,7 @@ typedef struct rlc_lte_ep {
 } rlc_lte_ep_t;
 
 
-/* Used to keep track of all RLC LTE statistics */
+/* Top-level struct for RLC LTE statistics */
 typedef struct rlc_lte_stat_t {
     rlc_lte_ep_t  *ep_list;
     guint32       total_frames;
@@ -115,7 +120,7 @@ rlc_lte_stat_reset(void *phs)
 
 
 /* Allocate a rlc_lte_ep_t struct to store info for new UE */
-static rlc_lte_ep_t *alloc_rlc_lte_ep(const struct rlc_lte_tap_info *si, packet_info *pinfo _U_)
+static rlc_lte_ep_t *alloc_rlc_lte_ep(const struct rlc_3gpp_tap_info *si, packet_info *pinfo _U_)
 {
     rlc_lte_ep_t *ep;
 
@@ -128,6 +133,7 @@ static rlc_lte_ep_t *alloc_rlc_lte_ep(const struct rlc_lte_tap_info *si, packet_
     }
 
     /* Copy SI data into ep->stats */
+    ep->stats.rat = si->rat;
     ep->stats.ueid = si->ueid;
 
     /* Counts for new UE are all 0 */
@@ -160,7 +166,7 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     rlc_lte_ep_t *tmp = NULL, *te = NULL;
 
     /* Cast tap info struct */
-    const struct rlc_lte_tap_info *si = (const struct rlc_lte_tap_info *)phi;
+    const struct rlc_3gpp_tap_info *si = (const struct rlc_3gpp_tap_info *)phi;
 
     /* Need this */
     if (!hs) {
@@ -195,6 +201,7 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         te = hs->ep_list;
     } else {
         /* Look among existing rows for this UEId */
+        /* TODO: with different data structures, could avoid this linear search */
         for (tmp = hs->ep_list; (tmp != NULL); tmp = tmp->next) {
             if (tmp->stats.ueid == si->ueid) {
                 te = tmp;
@@ -202,7 +209,7 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             }
         }
 
-        /* Not found among existing, so create a new one anyway */
+        /* Not found among existing, so create a new one now */
         if (te == NULL) {
             if ((te = alloc_rlc_lte_ep(si, pinfo))) {
                 /* Add new item to end of list */
@@ -228,9 +235,9 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     if (si->direction == DIRECTION_UPLINK) {
         /* Update time range */
         if (te->stats.UL_frames == 0) {
-            te->stats.UL_time_start = si->rlc_lte_time;
+            te->stats.UL_time_start = si->rlc_time;
         }
-        te->stats.UL_time_stop = si->rlc_lte_time;
+        te->stats.UL_time_stop = si->rlc_time;
 
         te->stats.UL_frames++;
         te->stats.UL_total_bytes += si->pduLength;
@@ -238,9 +245,9 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     else {
         /* Update time range */
         if (te->stats.DL_frames == 0) {
-            te->stats.DL_time_start = si->rlc_lte_time;
+            te->stats.DL_time_start = si->rlc_time;
         }
-        te->stats.DL_time_stop = si->rlc_lte_time;
+        te->stats.DL_time_stop = si->rlc_time;
 
         te->stats.DL_frames++;
         te->stats.DL_total_bytes += si->pduLength;
@@ -330,7 +337,8 @@ rlc_lte_stat_draw(void *phs)
                                    &tmp->stats.DL_time_stop,
                                    tmp->stats.DL_total_bytes);
 
-        printf("%5u %10u %9u %10f %8u %9u %10u %10u %9u %10f %8u %9u %10u\n",
+        printf("%s  %5u %10u %9u %10f %8u %9u %10u %10u %9u %10f %8u %9u %10u\n",
+               (tmp->stats.rat == RLC_RAT_LTE) ? "LTE" : "NR ",
                tmp->stats.ueid,
                tmp->stats.UL_frames,
                tmp->stats.UL_total_bytes, UL_bw,
@@ -356,9 +364,9 @@ static void rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
     GString           *error_string;
 
     /* Check for a filter string */
-    if (strncmp(opt_arg, "rlc-lte,stat,", 13) == 0) {
+    if (strncmp(opt_arg, "rlc-3gpp,stat,", 14) == 0) {
         /* Skip those characters from filter to display */
-        filter = opt_arg + 13;
+        filter = opt_arg + 14;
     }
     else {
         /* No filter */
@@ -374,7 +382,7 @@ static void rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
     /* Register the tap listener                  */
     /**********************************************/
 
-    error_string = register_tap_listener("rlc-lte", hs,
+    error_string = register_tap_listener("rlc-3gpp", hs,
                                          filter, 0,
                                          rlc_lte_stat_reset,
                                          rlc_lte_stat_packet,
@@ -393,7 +401,7 @@ static void rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
 static stat_tap_ui rlc_lte_stat_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
-    "rlc-lte,stat",
+    "rlc-3gpp,stat",
     rlc_lte_stat_init,
     0,
     NULL

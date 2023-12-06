@@ -608,7 +608,7 @@
     </widget>
     <widget class="QMenu" name="menuLTE">
      <property name="title">
-      <string>&amp;LTE</string>
+      <string>&amp;3GPP Uu</string>
      </property>
      <addaction name="actionTelephonyLTEPlaceholder"/>
     </widget>

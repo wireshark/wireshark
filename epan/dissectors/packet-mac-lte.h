@@ -18,6 +18,9 @@
 
 #include "ws_symbol_export.h"
 
+#include "packet-mac-3gpp-common.h"
+
+
 /* radioType */
 #define FDD_RADIO 1
 #define TDD_RADIO 2
@@ -181,36 +184,6 @@ typedef struct mac_lte_info
     guint16            oob_ueid[MAX_SRs];
     guint16            oob_rnti[MAX_SRs];
 } mac_lte_info;
-
- /* 0 to 10 and 32 to 38 */
-#define MAC_LTE_DATA_LCID_COUNT_MAX 18
-
-typedef struct mac_lte_tap_info {
-    /* Info from context */
-    guint16  rnti;
-    guint16  ueid;
-    guint8   rntiType;
-    guint8   isPredefinedData;
-    gboolean crcStatusValid;
-    mac_lte_crc_status   crcStatus;
-    guint8   direction;
-
-    guint8   isPHYRetx;
-    guint16  ueInTTI;
-
-    nstime_t mac_lte_time;
-
-    /* Number of bytes (which part is used depends upon context settings) */
-    guint32  single_number_of_bytes;
-    guint32  bytes_for_lcid[MAC_LTE_DATA_LCID_COUNT_MAX];
-    guint32  sdus_for_lcid[MAC_LTE_DATA_LCID_COUNT_MAX];
-    guint8   number_of_rars;
-    guint8   number_of_paging_ids;
-
-    /* Number of padding bytes includes padding subheaders and trailing padding */
-    guint16  padding_bytes;
-    guint16  raw_length;
-} mac_lte_tap_info;
 
 
 /* Accessor function to check if a frame was considered to be ReTx */

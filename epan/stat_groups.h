@@ -40,7 +40,7 @@ typedef enum register_stat_group_e {
     REGISTER_STAT_GROUP_TELEPHONY,              /*!< Telephony specific */
     REGISTER_STAT_GROUP_TELEPHONY_ANSI,         /*!< Name says it all */
     REGISTER_STAT_GROUP_TELEPHONY_GSM,          /*!< GSM (and UMTS?) */
-    REGISTER_STAT_GROUP_TELEPHONY_LTE,          /*!< Name says it all */
+    REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU,      /*!< Name says it all */
     REGISTER_STAT_GROUP_TELEPHONY_MTP3,         /*!< Name says it all */
     REGISTER_STAT_GROUP_TELEPHONY_SCTP,         /*!< Name says it all */
     REGISTER_TOOLS_GROUP_UNSORTED,              /*!< Unsorted tools */

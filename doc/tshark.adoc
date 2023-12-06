@@ -1911,19 +1911,19 @@ queries collated by receiver address and then topic name.
 Calculate statistics on LBM Topic Resolution Packets. Displays topic
 queries collated by topic name and then receiver address.
 
-*-z* mac-lte,stat[,__filter__]::
+*-z* mac-3gpp,stat[,__filter__]::
 +
 --
-This option will activate a counter for LTE MAC messages.  You will get
+This option will activate a counter for LTE or NR MAC messages.  You will get
 information about the maximum number of UEs/TTI, common messages and
 various counters for each UE that appears in the log.
 
-Example: *tshark -z mac-lte,stat*.
+Example: *tshark -z mac-3gpp,stat*.
 
 This option can be used multiple times on the command line.
 
-Example: *-z "mac-lte,stat,mac-lte.rnti>3000"* will only collect stats for
-UEs with an assigned RNTI whose value is more than 3000.
+Example: *-z "mac-3gpp,stat,mac-lte.rnti>3000"* will only collect stats for
+LTE UEs with an assigned RNTI whose value is more than 3000.
 --
 
 *-z* megaco,rtd[,__filter__]::
@@ -2025,19 +2025,19 @@ Minimum RTD, Maximum RTD, Average RTD, Minimum in Frame, and Maximum in Frame,
 along with the number of Open Requests (Unresponded Requests), Discarded
 Responses (Responses without matching request) and Duplicate Messages.
 
-*-z* rlc-lte,stat[,__filter__]::
+*-z* rlc-3gpp,stat[,__filter__]::
 +
 --
-This option will activate a counter for LTE RLC messages.  You will get
+This option will activate a counter for LTE or NR RLC messages.  You will get
 information about common messages and various counters for each UE that appears
 in the log.
 
-Example: *tshark -z rlc-lte,stat*.
+Example: *tshark -z rlc-3gpp,stat*.
 
 This option can be used multiple times on the command line.
 
-Example: *-z "rlc-lte,stat,rlc-lte.ueid>3000"* will only collect stats for
-UEs with a UEId of more than 3000.
+Example: *-z "rlc-3gpp,stat,rlc-nr.ueid>3000"* will only collect stats for
+NR UEs with a UEId of more than 3000.
 --
 
 *-z* rpc,programs::

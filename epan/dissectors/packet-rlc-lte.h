@@ -62,31 +62,6 @@ typedef struct rlc_lte_info
 } rlc_lte_info;
 
 
-typedef struct rlc_lte_tap_info {
-    /* Info from context */
-    guint8          rlcMode;
-    guint8          direction;
-    guint8          priority;
-    guint16         ueid;
-    guint16         channelType;
-    guint16         channelId;
-    guint16         pduLength;
-    guint8          sequenceNumberLength;
-
-    nstime_t        rlc_lte_time;
-    guint8          loggedInMACFrame;
-    guint16         sequenceNumber;
-    guint8          isResegmented;
-    guint8          isControlPDU;
-    guint16         ACKNo;
-    #define MAX_NACKs 128
-    guint16         noOfNACKs;
-    guint16         NACKs[MAX_NACKs];
-
-    guint16         missingSNs;
-} rlc_lte_tap_info;
-
-
 /* Configure number of PDCP SN bits to use for DRB channels. */
 void set_rlc_lte_drb_pdcp_seqnum_length(packet_info *pinfo, guint16 ueid, guint8 drbid, guint8 userplane_seqnum_length);
 

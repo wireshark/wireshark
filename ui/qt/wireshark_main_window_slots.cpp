@@ -3596,7 +3596,7 @@ void WiresharkMainWindow::connectTelephonyMenuActions()
     connect(main_ui_->actionTelephonyLteMacStatistics, &QAction::triggered, this, [=]() { statCommandLteMacStatistics(NULL, NULL); });
     connect(main_ui_->actionTelephonyLteRlcGraph, &QAction::triggered, this, [=]() {
         // We don't yet know the channel.
-        launchRLCGraph(false, 0, 0, 0, 0, 0);
+        launchRLCGraph(false, RLC_RAT_LTE, 0, 0, 0, 0, 0);
     });
     connect(main_ui_->actionTelephonyLteRlcStatistics, &QAction::triggered, this, [=]() { statCommandLteRlcStatistics(NULL, NULL); });
 
@@ -3652,7 +3652,7 @@ RtpAnalysisDialog *WiresharkMainWindow::openTelephonyRtpAnalysisDialog()
     return dialog;
 }
 
-// -z mac-lte,stat
+// -z mac-3gpp,stat
 void WiresharkMainWindow::statCommandLteMacStatistics(const char *arg, void *)
 {
     LteMacStatisticsDialog *lte_mac_stats_dlg = new LteMacStatisticsDialog(*this, capture_file_, arg);
@@ -3668,14 +3668,14 @@ void WiresharkMainWindow::statCommandLteRlcStatistics(const char *arg, void *)
             this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
     // N.B. It is necessary for the RLC Statistics window to launch the RLC graph in this way, to ensure
     // that the goToPacket() signal/slot connection gets set up...
-    connect(lte_rlc_stats_dlg, SIGNAL(launchRLCGraph(bool, guint16, guint8, guint16, guint16, guint8)),
-            this, SLOT(launchRLCGraph(bool, guint16, guint8, guint16, guint16, guint8)));
+    connect(lte_rlc_stats_dlg, SIGNAL(launchRLCGraph(bool, uint8_t, guint16, guint8, guint16, guint16, guint8)),
+            this, SLOT(launchRLCGraph(bool, uint8_t, guint16, guint8, guint16, guint16, guint8)));
 
     lte_rlc_stats_dlg->show();
 }
 
 void WiresharkMainWindow::launchRLCGraph(bool channelKnown,
-    guint16 ueid, guint8 rlcMode,
+    uint8_t RAT, guint16 ueid, guint8 rlcMode,
     guint16 channelType, guint16 channelId, guint8 direction)
 {
     LteRlcGraphDialog *lrg_dialog = new LteRlcGraphDialog(*this, capture_file_, channelKnown);
@@ -3683,7 +3683,7 @@ void WiresharkMainWindow::launchRLCGraph(bool channelKnown,
     // This is a bit messy, but wanted to hide these parameters from users of
     // on_actionTelephonyLteRlcGraph_triggered().
     if (channelKnown) {
-        lrg_dialog->setChannelInfo(ueid, rlcMode, channelType, channelId, direction);
+        lrg_dialog->setChannelInfo(RAT, ueid, rlcMode, channelType, channelId, direction);
     }
     lrg_dialog->show();
 }

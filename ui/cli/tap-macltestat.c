@@ -26,6 +26,7 @@ void register_tap_listener_mac_lte_stat(void);
 /* Table column identifiers and title strings */
 
 enum {
+    RAT_COLUMN,
     RNTI_COLUMN,
     RNTI_TYPE_COLUMN,
     UEID_COLUMN,
@@ -47,14 +48,15 @@ enum {
 };
 
 
-static const gchar *ue_titles[] = { " RNTI", "  Type", "UEId",
+static const gchar *ue_titles[] = { "RAT", " RNTI", "  Type", "UEId",
                                     "UL Frames", "UL Bytes", "UL Mb/sec", " UL Pad %", "UL ReTX",
                                     "DL Frames", "DL Bytes", "DL Mb/sec", " DL Pad %", "DL CRC Fail", "DL CRC HCR", "DL CRC PDSCH Lost", "DL CRC DupNonZeroRV", "DL ReTX"};
 
 
 /* Stats for one UE */
-typedef struct mac_lte_row_data {
+typedef struct mac_lte_nr_row_data {
     /* Key for matching this row */
+    uint8_t  rat;
     guint16  rnti;
     guint8   rnti_type;
     guint16  ueid;
@@ -83,17 +85,17 @@ typedef struct mac_lte_row_data {
     guint32  DL_CRC_Duplicate_NonZero_RV;
     guint32  DL_retx_frames;
 
-} mac_lte_row_data;
+} mac_lte_nr_row_data;
 
 
-/* One row/UE in the UE table */
+/* One row/UE list item in the UE table */
 typedef struct mac_lte_ep {
     struct mac_lte_ep *next;
-    struct mac_lte_row_data stats;
+    struct mac_lte_nr_row_data stats;
 } mac_lte_ep_t;
 
 
-/* Common channel stats */
+/* Common channel stats (i.e. independent of UEs) */
 typedef struct mac_lte_common_stats {
     guint32 all_frames;
     guint32 mib_frames;
@@ -111,25 +113,26 @@ typedef struct mac_lte_common_stats {
 
 
 /* Top-level struct for MAC LTE statistics */
-typedef struct mac_lte_stat_t {
+typedef struct mac_lte_nr_stat_t {
     /* Common stats */
     mac_lte_common_stats common_stats;
 
-    /* Keep track of unique rntis & ueids */
+    /* Keep track of unique rntis & ueids. N.B. only used for counting number of UEs - not for lookup */
     guint8 used_ueids[65535];
     guint8 used_rntis[65535];
     guint16 number_of_ueids;
     guint16 number_of_rntis;
 
+    /* List of UE entries */
     mac_lte_ep_t  *ep_list;
-} mac_lte_stat_t;
+} mac_lte_nr_stat_t;
 
 
 /* Reset the statistics window */
 static void
 mac_lte_stat_reset(void *phs)
 {
-    mac_lte_stat_t *mac_lte_stat = (mac_lte_stat_t *)phs;
+    mac_lte_nr_stat_t *mac_lte_stat = (mac_lte_nr_stat_t *)phs;
     mac_lte_ep_t *list = mac_lte_stat->ep_list;
 
     /* Reset counts of unique ueids & rntis */
@@ -150,7 +153,7 @@ mac_lte_stat_reset(void *phs)
 
 
 /* Allocate a mac_lte_ep_t struct to store info for new UE */
-static mac_lte_ep_t *alloc_mac_lte_ep(const struct mac_lte_tap_info *si, packet_info *pinfo _U_)
+static mac_lte_ep_t *alloc_mac_lte_ep(const struct mac_3gpp_tap_info *si, packet_info *pinfo _U_)
 {
     mac_lte_ep_t *ep;
 
@@ -193,8 +196,13 @@ static mac_lte_ep_t *alloc_mac_lte_ep(const struct mac_lte_tap_info *si, packet_
 
 
 /* Update counts of unique rntis & ueids */
-static void update_ueid_rnti_counts(guint16 rnti, guint16 ueid, mac_lte_stat_t *hs)
+static void update_ueid_rnti_counts(guint16 rnti, guint16 ueid, mac_lte_nr_stat_t *hs)
 {
+    if (hs->number_of_ueids == 65535 || hs->number_of_rntis == 65535) {
+        /* Arrays are already full! */
+        return;
+    }
+
     if (!hs->used_ueids[ueid]) {
         hs->used_ueids[ueid] = TRUE;
         hs->number_of_ueids++;
@@ -212,12 +220,12 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
                     const void *phi, tap_flags_t flags _U_)
 {
     /* Get reference to stat window instance */
-    mac_lte_stat_t *hs = (mac_lte_stat_t *)phs;
+    mac_lte_nr_stat_t *hs = (mac_lte_nr_stat_t*)phs;
     mac_lte_ep_t *tmp = NULL, *te = NULL;
     int i;
 
     /* Cast tap info struct */
-    const struct mac_lte_tap_info *si = (const struct mac_lte_tap_info *)phi;
+    const struct mac_3gpp_tap_info *si = (const struct mac_3gpp_tap_info *)phi;
 
     if (!hs) {
         return TAP_PACKET_DONT_REDRAW;
@@ -253,7 +261,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             return TAP_PACKET_DONT_REDRAW;
     }
 
-    /* Check max UEs/tti counter */
+    /* Check/update max UEs/tti counter */
     switch (si->direction) {
         case DIRECTION_UPLINK:
             hs->common_stats.max_ul_ues_in_tti =
@@ -276,6 +284,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         update_ueid_rnti_counts(si->rnti, si->ueid, hs);
     } else {
         /* Look among existing rows for this RNTI */
+        /* TODO: with different data structures, could avoid this linear search */
         for (tmp = hs->ep_list;(tmp != NULL); tmp = tmp->next) {
             /* Match only by RNTI and UEId together */
             if ((tmp->stats.rnti == si->rnti) &&
@@ -285,7 +294,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             }
         }
 
-        /* Not found among existing, so create a new one anyway */
+        /* Not found among existing, so create a new one now */
         if (te == NULL) {
             if ((te = alloc_mac_lte_ep(si, pinfo))) {
                 /* Add new item to end of list */
@@ -308,6 +317,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     }
 
     /* Update entry with details from si */
+    te->stats.rat = si->rat;
     te->stats.rnti = si->rnti;
     te->stats.is_predefined_data = si->isPredefinedData;
 
@@ -325,9 +335,9 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
         /* Update time range */
         if (te->stats.UL_frames == 0) {
-            te->stats.UL_time_start = si->mac_lte_time;
+            te->stats.UL_time_start = si->mac_time;
         }
-        te->stats.UL_time_stop = si->mac_lte_time;
+        te->stats.UL_time_stop = si->mac_time;
 
         te->stats.UL_frames++;
 
@@ -338,7 +348,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             te->stats.UL_total_bytes += si->single_number_of_bytes;
         }
         else {
-            for (i = 0; i < MAC_LTE_DATA_LCID_COUNT_MAX; i++) {
+            for (i = 0; i < MAC_3GPP_DATA_LCID_COUNT_MAX; i++) {
                 te->stats.UL_total_bytes += si->bytes_for_lcid[i];
             }
         }
@@ -375,9 +385,9 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
         /* Update time range */
         if (te->stats.DL_frames == 0) {
-            te->stats.DL_time_start = si->mac_lte_time;
+            te->stats.DL_time_start = si->mac_time;
         }
-        te->stats.DL_time_stop = si->mac_lte_time;
+        te->stats.DL_time_stop = si->mac_time;
 
         te->stats.DL_frames++;
 
@@ -388,7 +398,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             te->stats.DL_total_bytes += si->single_number_of_bytes;
         }
         else {
-            for (i = 0; i < MAC_LTE_DATA_LCID_COUNT_MAX; i++) {
+            for (i = 0; i < MAC_3GPP_DATA_LCID_COUNT_MAX; i++) {
                 te->stats.DL_total_bytes += si->bytes_for_lcid[i];
             }
         }
@@ -404,7 +414,7 @@ static float calculate_bw(nstime_t *start_time, nstime_t *stop_time, guint32 byt
 {
     /* Can only calculate bandwidth if have time delta */
     if (memcmp(start_time, stop_time, sizeof(nstime_t)) != 0) {
-        float elapsed_ms = (((float)stop_time->secs - (float)start_time->secs) * 1000) +
+        float elapsed_ms = (((float)stop_time->secs -  (float)start_time->secs) * 1000) +
                            (((float)stop_time->nsecs - (float)start_time->nsecs) / 1000000);
 
         /* Only really meaningful if have a few frames spread over time...
@@ -429,7 +439,7 @@ mac_lte_stat_draw(void *phs)
     guint16 number_of_ues = 0;
 
     /* Deref the struct */
-    mac_lte_stat_t *hs = (mac_lte_stat_t *)phs;
+    mac_lte_nr_stat_t *hs = (mac_lte_nr_stat_t*)phs;
     mac_lte_ep_t *list = hs->ep_list, *tmp = 0;
 
     /* System data */
@@ -475,7 +485,8 @@ mac_lte_stat_draw(void *phs)
                                    &tmp->stats.DL_time_stop,
                                    tmp->stats.DL_total_bytes);
 
-        printf("%5u %7s %5u %10u %9u %10f %10f %8u %10u %9u %10f %10f %12u %11u %18u %20u %8u\n",
+        printf("%s %5u %7s %5u %10u %9u %10f %10f %8u %10u %9u %10f %10f %12u %11u %18u %20u %8u\n",
+               (tmp->stats.rat == MAC_RAT_LTE) ? "LTE " : "NR  ",
                tmp->stats.rnti,
                (tmp->stats.rnti_type == C_RNTI) ? "C-RNTI" : "SPS-RNTI",
                tmp->stats.ueid,
@@ -503,14 +514,14 @@ mac_lte_stat_draw(void *phs)
 /* Create a new MAC LTE stats struct */
 static void mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
 {
-    mac_lte_stat_t    *hs;
+    mac_lte_nr_stat_t    *hs;
     const char    *filter = NULL;
     GString       *error_string;
 
     /* Check for a filter string */
-    if (strncmp(opt_arg, "mac-lte,stat,", 13) == 0) {
+    if (strncmp(opt_arg, "mac-3gpp,stat,", 14) == 0) {
         /* Skip those characters from filter to display */
-        filter = opt_arg + 13;
+        filter = opt_arg + 14;
     }
     else {
         /* No filter */
@@ -518,10 +529,10 @@ static void mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
     }
 
     /* Create struct */
-    hs = g_new0(mac_lte_stat_t, 1);
+    hs = g_new0(mac_lte_nr_stat_t, 1);
     hs->ep_list = NULL;
 
-    error_string = register_tap_listener("mac-lte", hs,
+    error_string = register_tap_listener("mac-3gpp", hs,
                                          filter, 0,
                                          mac_lte_stat_reset,
                                          mac_lte_stat_packet,
@@ -537,7 +548,7 @@ static void mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
 static stat_tap_ui mac_lte_stat_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
-    "mac-lte,stat",
+    "mac-3gpp,stat",
     mac_lte_stat_init,
     0,
     NULL

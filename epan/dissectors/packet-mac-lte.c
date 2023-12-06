@@ -3375,7 +3375,7 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 #define MAX_RAR_PDUS 64
 /* Dissect Random Access Response (RAR) PDU */
 static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *pdu_ti,
-                        gint offset, mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info)
+                        gint offset, mac_lte_info *p_mac_lte_info, mac_3gpp_tap_info *tap_info)
 {
     guint       number_of_rars         = 0; /* No of RAR bodies expected following headers */
     guint8     *rapids                 = (guint8 *)wmem_alloc(pinfo->pool, MAX_RAR_PDUS * sizeof(guint8));
@@ -3597,7 +3597,9 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* Dissect PCH PDU */
 static void dissect_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                        proto_item *pdu_ti, int offset, mac_lte_info *p_mac_lte_info,  mac_lte_tap_info *tap_info)
+                        proto_item *pdu_ti, int offset,
+                        mac_lte_info *p_mac_lte_info,
+                        mac_3gpp_tap_info *tap_info)
 {
     proto_item *ti;
 
@@ -4609,7 +4611,7 @@ static guint get_dual_conn_phr_num_c_bytes(tvbuff_t *tvb, guint offset,
    function */
 static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                    proto_item *pdu_ti, guint32 offset,
-                                   mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info,
+                                   mac_lte_info *p_mac_lte_info, mac_3gpp_tap_info *tap_info,
                                    proto_item *retx_ti, proto_tree *context_tree,
                                    guint pdu_instance)
 {
@@ -7554,7 +7556,8 @@ static int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     guint               pdu_instance = GPOINTER_TO_UINT(data);
 
     /* Allocate and zero tap struct */
-    mac_lte_tap_info *tap_info = wmem_new0(wmem_file_scope(), mac_lte_tap_info);
+    mac_3gpp_tap_info *tap_info = wmem_new0(wmem_file_scope(), mac_3gpp_tap_info);
+    tap_info->rat = MAC_RAT_LTE;
 
     /* Set protocol name */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC-LTE");
@@ -7915,7 +7918,7 @@ static int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     tap_info->crcStatus = p_mac_lte_info->crcStatus;
     tap_info->direction = p_mac_lte_info->direction;
 
-    tap_info->mac_lte_time = pinfo->abs_ts;
+    tap_info->mac_time = pinfo->abs_ts;
 
     /* Add hidden item to filter on */
     if ((p_mac_lte_info->rntiType == C_RNTI) ||
@@ -10880,7 +10883,7 @@ void proto_register_mac_lte(void)
     register_dissector("mac-lte", dissect_mac_lte, proto_mac_lte);
 
     /* Register the tap name */
-    mac_lte_tap = register_tap("mac-lte");
+    mac_lte_tap = register_tap("mac-3gpp");
 
     /* Preferences */
     mac_lte_module = prefs_register_protocol(proto_mac_lte, NULL);

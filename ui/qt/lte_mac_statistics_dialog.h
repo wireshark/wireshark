@@ -18,7 +18,7 @@
 #include <ui/qt/models/percent_bar_delegate.h>
 
 // Common channel stats
-typedef struct mac_lte_common_stats {
+typedef struct mac_3gpp_common_stats {
     guint32 all_frames;
     guint32 mib_frames;
     guint32 sib_frames;
@@ -31,7 +31,7 @@ typedef struct mac_lte_common_stats {
 
     guint16  max_ul_ues_in_tti;
     guint16  max_dl_ues_in_tti;
-} mac_lte_common_stats;
+} mac_3gpp_common_stats;
 
 
 class LteMacStatisticsDialog : public TapParameterDialog
@@ -55,15 +55,15 @@ private:
 
     // Callbacks for register_tap_listener
     static void tapReset(void *ws_dlg_ptr);
-    static tap_packet_status tapPacket(void *ws_dlg_ptr, struct _packet_info *, struct epan_dissect *, const void *mac_lte_tap_info_ptr, tap_flags_t flags);
+    static tap_packet_status tapPacket(void *ws_dlg_ptr, struct _packet_info *, struct epan_dissect *, const void *mac_3gpp_tap_info_ptr, tap_flags_t flags);
     static void tapDraw(void *ws_dlg_ptr);
 
     virtual const QString filterExpression();
 
     // Common stats.
-    mac_lte_common_stats commonStats_;
+    mac_3gpp_common_stats commonStats_;
     bool commonStatsCurrent_;          // Set when changes have not yet been drawn
-    void updateCommonStats(const struct mac_lte_tap_info *mlt_info);
+    void updateCommonStats(const struct mac_3gpp_tap_info *mlt_info);
     void drawCommonStats();
     void clearCommonStats();
 

@@ -17,8 +17,10 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/proto_data.h>
+
 #include "packet-mac-lte.h"
 #include "packet-rlc-lte.h"
+#include "packet-rlc-3gpp-common.h"
 #include "packet-pdcp-lte.h"
 
 
@@ -1093,7 +1095,7 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                                    rlc_lte_info *p_rlc_lte_info,
                                    guint16   sequenceNumber,
                                    gboolean  newSegmentStarted,
-                                   rlc_lte_tap_info *tap_info,
+                                   rlc_3gpp_tap_info *tap_info,
                                    packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 {
     proto_tree *seqnum_tree;
@@ -1415,7 +1417,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                                                         guint16 sequenceNumber,
                                                         gboolean first_includes_start, gboolean last_includes_end,
                                                         gboolean is_resegmented _U_,
-                                                        rlc_lte_tap_info *tap_info,
+                                                        rlc_3gpp_tap_info *tap_info,
                                                         proto_tree *tree)
 {
     channel_hash_key   channel_key;
@@ -1830,7 +1832,7 @@ static void addChannelRepeatedNACKInfo(channel_repeated_nack_report *p,
 /* Update the channel repeated NACK status and set report for this frame */
 static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
                                          rlc_lte_info *p_rlc_lte_info,
-                                         rlc_lte_tap_info *tap_info,
+                                         rlc_3gpp_tap_info *tap_info,
                                          proto_tree *tree,
                                          tvbuff_t *tvb)
 {
@@ -1938,7 +1940,7 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
 static void checkChannelACKWindow(guint16 ack_sn,
                                   packet_info *pinfo,
                                   rlc_lte_info *p_rlc_lte_info,
-                                  rlc_lte_tap_info *tap_info,
+                                  rlc_3gpp_tap_info *tap_info,
                                   proto_tree *tree,
                                   tvbuff_t *tvb)
 {
@@ -2093,7 +2095,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
                                int offset,
                                rlc_lte_info *p_rlc_lte_info,
                                proto_item *top_ti,
-                               rlc_lte_tap_info *tap_info)
+                               rlc_3gpp_tap_info *tap_info)
 {
     guint64 framing_info;
     gboolean first_includes_start;
@@ -2176,6 +2178,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
         return;
     }
 
+    tap_info->sequenceNumberGiven = TRUE;
     tap_info->sequenceNumber = (guint16)sn;
 
     /* Show SN in info column */
@@ -2310,7 +2313,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
                                           int offset,
                                           proto_item *top_ti,
                                           rlc_lte_info *p_rlc_lte_info,
-                                          rlc_lte_tap_info *tap_info)
+                                          rlc_3gpp_tap_info *tap_info)
 {
     guint32    cpt;
     guint8     sn_size, so_size;
@@ -2492,7 +2495,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
                                int offset,
                                rlc_lte_info *p_rlc_lte_info,
                                proto_item *top_ti,
-                               rlc_lte_tap_info *tap_info)
+                               rlc_3gpp_tap_info *tap_info)
 {
     guint32 is_data;
     guint32 is_resegmented;
@@ -2594,6 +2597,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item_ret_uint(am_header_tree, hf_rlc_lte_am_fixed_sn, tvb, offset, 2, ENC_BIG_ENDIAN, &sn);
         offset += 2;
     }
+    tap_info->sequenceNumberGiven = TRUE;
     tap_info->sequenceNumber = sn;
 
     write_pdu_label_and_info(top_ti, am_header_ti, pinfo, "sn=%-4u", sn);
@@ -2912,7 +2916,8 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     struct rlc_lte_info    *p_rlc_lte_info;
 
     /* Allocate and Zero tap struct */
-    rlc_lte_tap_info *tap_info = wmem_new0(pinfo->pool, rlc_lte_tap_info);
+    rlc_3gpp_tap_info *tap_info = wmem_new0(pinfo->pool, rlc_3gpp_tap_info);
+    tap_info->rat = RLC_RAT_LTE;
 
     /* Set protocol name */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC-LTE");
@@ -3027,7 +3032,7 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     tap_info->sequenceNumberLength = p_rlc_lte_info->sequenceNumberLength;
     tap_info->loggedInMACFrame = (p_get_proto_data(wmem_file_scope(), pinfo, proto_mac_lte, 0) != NULL);
 
-    tap_info->rlc_lte_time = pinfo->abs_ts;
+    tap_info->rlc_time = pinfo->abs_ts;
 
     /* Reset this count */
     s_number_of_extensions = 0;
@@ -3640,7 +3645,7 @@ void proto_register_rlc_lte(void)
     register_dissector("rlc-lte", dissect_rlc_lte, proto_rlc_lte);
 
     /* Register the tap name */
-    rlc_lte_tap = register_tap("rlc-lte");
+    rlc_lte_tap = register_tap("rlc-3gpp");
 
     /* Preferences */
     rlc_lte_module = prefs_register_protocol(proto_rlc_lte, NULL);

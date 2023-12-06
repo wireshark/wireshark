@@ -57,11 +57,11 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
     int       n;
     gboolean  is_unique = TRUE;
     th_t     *th        = (th_t *)pct;
-    const rlc_lte_tap_info *header = (const rlc_lte_tap_info*)vip;
+    const rlc_3gpp_tap_info *header = (const rlc_3gpp_tap_info*)vip;
 
     /* Check new header details against any/all stored ones */
     for (n=0; n < th->num_hdrs; n++) {
-        rlc_lte_tap_info *stored = th->rlchdrs[n];
+        rlc_3gpp_tap_info *stored = th->rlchdrs[n];
 
         if (compare_rlc_headers(stored->ueid, stored->channelType, stored->channelId, stored->rlcMode, stored->direction,
                                 header->ueid, header->channelType, header->channelId, header->rlcMode, header->direction,
@@ -76,7 +76,7 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
         /* Copy the tap struct in as next header */
         /* Need to take a deep copy of the tap struct, it may not be valid
            to read after this function returns? */
-        th->rlchdrs[th->num_hdrs] = g_new(rlc_lte_tap_info,1);
+        th->rlchdrs[th->num_hdrs] = g_new(rlc_3gpp_tap_info,1);
         *(th->rlchdrs[th->num_hdrs]) = *header;
 
         /* Store in direction of data though... */
@@ -92,9 +92,9 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
 /* Return an array of tap_info structs that were found while dissecting the current frame
  * in the packet list. Errors are passed back to the caller, as they will be reported differently
  * depending upon which GUI toolkit is being used. */
-rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
-                                         struct rlc_segment *hdrs,
-                                         gchar **err_msg)
+rlc_3gpp_tap_info* select_rlc_lte_session(capture_file *cf,
+                                            struct rlc_segment *hdrs,
+                                            gchar **err_msg)
 {
     frame_data     *fdata;
     epan_dissect_t  edt;
@@ -110,7 +110,7 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
     }
 
     /* No real filter yet */
-    if (!dfilter_compile("rlc-lte", &sfcode, NULL)) {
+    if (!dfilter_compile("rlc-lte or rlc-nr", &sfcode, NULL)) {
         return NULL;
     }
 
@@ -123,7 +123,7 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
     fdata = cf->current_frame;
 
     /* Set tap listener that will populate th. */
-    error_string = register_tap_listener("rlc-lte", &th, NULL, 0, NULL, tap_lte_rlc_packet, NULL, NULL);
+    error_string = register_tap_listener("rlc-3gpp", &th, NULL, 0, NULL, tap_lte_rlc_packet, NULL, NULL);
     if (error_string){
         fprintf(stderr, "wireshark: Couldn't register rlc_lte_graph tap: %s\n",
                 error_string->str);
@@ -176,7 +176,7 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
 static tap_packet_status rlc_lte_tap_for_graph_data(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
     struct rlc_graph *graph  = (struct rlc_graph *)pct;
-    const rlc_lte_tap_info *rlchdr = (const rlc_lte_tap_info*)vip;
+    const rlc_3gpp_tap_info *rlchdr = (const rlc_3gpp_tap_info*)vip;
 
     /* See if this one matches graph's channel */
     if (compare_rlc_headers(graph->ueid,   graph->channelType,  graph->channelId,  graph->rlcMode,   graph->direction,
@@ -199,10 +199,15 @@ static tap_packet_status rlc_lte_tap_for_graph_data(void *pct, packet_info *pinf
         segment->isControlPDU = rlchdr->isControlPDU;
 
         if (!rlchdr->isControlPDU) {
-            /* Data */
-            segment->SN = rlchdr->sequenceNumber;
-            segment->isResegmented = rlchdr->isResegmented;
-            segment->pduLength = rlchdr->pduLength;
+            if (rlchdr->sequenceNumberGiven) {
+                /* Data */
+                segment->SN = rlchdr->sequenceNumber;
+                segment->isResegmented = rlchdr->isResegmented;
+                segment->pduLength = rlchdr->pduLength;
+            }
+            else {
+                return TAP_PACKET_DONT_REDRAW; /* i.e. no immediate redraw requested */
+            }
         }
         else {
             /* Status PDU */
@@ -244,7 +249,7 @@ gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, gbool
     }
 
     if (!stream_known) {
-        struct rlc_lte_tap_info *header = select_rlc_lte_session(cf, &current, err_string);
+        struct rlc_3gpp_tap_info *header = select_rlc_lte_session(cf, &current, err_string);
         if (!header) {
             /* Didn't have a channel, and current frame didn't provide one */
             return FALSE;
@@ -259,12 +264,15 @@ gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, gbool
 
 
     /* Rescan all the packets and pick up all interesting RLC headers.
-     * We only filter for rlc-lte here for speed and do the actual compare
+     * We only filter for RLC frames here for speed and do the actual compare
      * in the tap listener
      */
 
     g->last_segment = NULL;
-    error_string = register_tap_listener("rlc-lte", g, "rlc-lte", 0, NULL, rlc_lte_tap_for_graph_data, NULL, NULL);
+    error_string = register_tap_listener("rlc-3gpp",           // tap name
+                                         g,
+                                         "rlc-lte or rlc-nr", // filter name
+                                         0, NULL, rlc_lte_tap_for_graph_data, NULL, NULL);
     if (error_string) {
         fprintf(stderr, "wireshark: Couldn't register rlc_graph tap: %s\n",
                 error_string->str);

@@ -31,6 +31,8 @@
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <epan/dissectors/packet-rlc-lte.h>
+#include <epan/dissectors/packet-rlc-3gpp-common.h>
+
 
 #include <ui/tap-rlc-graph.h>
 
@@ -111,10 +113,11 @@ LteRlcGraphDialog::~LteRlcGraphDialog()
 }
 
 // Set the channel information that this graph should show.
-void LteRlcGraphDialog::setChannelInfo(guint16 ueid, guint8 rlcMode,
+void LteRlcGraphDialog::setChannelInfo(uint8_t rat, guint16 ueid, guint8 rlcMode,
                                        guint16 channelType, guint16 channelId, guint8 direction,
                                        bool maybe_empty)
 {
+    graph_.rat = rat;
     graph_.ueid = ueid;
     graph_.rlcMode = rlcMode;
     graph_.channelType = channelType;
@@ -135,7 +138,8 @@ void LteRlcGraphDialog::completeGraph(bool may_be_empty)
 
     // Set window title here.
     if (graph_.channelSet) {
-        QString dlg_title = tr("LTE RLC Graph (UE=%1 chan=%2%3 %4 - %5)")
+        QString dlg_title = tr("%1 RLC Graph (UE=%2 chan=%3%4 %5 - %6)")
+                                 .arg((graph_.rat == RLC_RAT_LTE) ? "LTE" : "NR")
                                  .arg(graph_.ueid)
                                  .arg((graph_.channelType == CHANNEL_TYPE_SRB) ? "SRB" : "DRB")
                                  .arg(graph_.channelId)
@@ -801,7 +805,8 @@ void LteRlcGraphDialog::on_actionSwitchDirection_triggered()
 {
     // Channel settings exactly the same, except change direction.
     // N.B. do not fail and close if there are no packets in opposite direction.
-    setChannelInfo(graph_.ueid,
+    setChannelInfo(graph_.rat,
+                   graph_.ueid,
                    graph_.rlcMode,
                    graph_.channelType,
                    graph_.channelId,

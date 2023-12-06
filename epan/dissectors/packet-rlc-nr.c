@@ -15,10 +15,12 @@
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/tap.h>
 #include <epan/proto_data.h>
 #include <epan/reassemble.h>
 
 #include "packet-rlc-nr.h"
+#include "packet-rlc-3gpp-common.h"
 #include "packet-pdcp-nr.h"
 
 
@@ -78,6 +80,7 @@ static wmem_tree_t *reassembly_start_table_stored;
 /* Initialize the protocol and registered fields. */
 int proto_rlc_nr;
 
+extern int proto_mac_nr;
 extern int proto_pdcp_nr;
 
 static dissector_handle_t pdcp_nr_handle;
@@ -88,6 +91,8 @@ static dissector_handle_t nr_rrc_ul_ccch;
 static dissector_handle_t nr_rrc_ul_ccch1;
 static dissector_handle_t nr_rrc_dl_ccch;
 
+
+static int rlc_nr_tap = -1;
 
 /* Decoding context */
 static int hf_rlc_nr_context;
@@ -668,7 +673,8 @@ static void reassembly_frame_complete(packet_info *pinfo,
 /* Unacknowledged mode PDU                         */
 static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
                               proto_tree *tree, int offset,
-                              rlc_nr_info *p_rlc_nr_info, proto_item *top_ti)
+                              rlc_nr_info *p_rlc_nr_info, proto_item *top_ti,
+                              rlc_3gpp_tap_info *tap_info)
 {
     guint32 seg_info, sn;
     guint64 reserved;
@@ -706,16 +712,20 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
     } else {
         /* Add sequence number */
         if (p_rlc_nr_info->sequenceNumberLength == UM_SN_LENGTH_6_BITS) {
+            /* SN */
             proto_tree_add_item_ret_uint(um_header_tree, hf_rlc_nr_um_sn6, tvb, offset, 1, ENC_BIG_ENDIAN, &sn);
             offset++;
+            tap_info->sequenceNumberGiven = TRUE;
         } else if (p_rlc_nr_info->sequenceNumberLength == UM_SN_LENGTH_12_BITS) {
             reserved_ti = proto_tree_add_bits_ret_val(um_header_tree, hf_rlc_nr_um_reserved, tvb,
                                                       (offset<<3)+2, 2, &reserved, ENC_BIG_ENDIAN);
             if (reserved) {
                 expert_add_info(pinfo, reserved_ti, &ei_rlc_nr_reserved_bits_not_zero);
             }
+            /* SN */
             proto_tree_add_item_ret_uint(um_header_tree, hf_rlc_nr_um_sn12, tvb, offset, 2, ENC_BIG_ENDIAN, &sn);
             offset += 2;
+            tap_info->sequenceNumberGiven = TRUE;
         } else {
             /* Invalid length of sequence number */
             proto_tree_add_expert_format(um_header_tree, pinfo, &ei_rlc_nr_um_sn, tvb, 0, 0,
@@ -723,6 +733,9 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
                                          p_rlc_nr_info->sequenceNumberLength);
             return;
         }
+
+        tap_info->sequenceNumber = sn;
+
         if (seg_info >= 2) {
             /* Segment offset */
             proto_tree_add_item_ret_uint(um_header_tree, hf_rlc_nr_um_so, tvb, offset, 2, ENC_BIG_ENDIAN, &so);
@@ -808,7 +821,8 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
                                          proto_item *status_ti,
                                          int offset,
                                          proto_item *top_ti,
-                                         rlc_nr_info *p_rlc_nr_info)
+                                         rlc_nr_info *p_rlc_nr_info,
+                                         rlc_3gpp_tap_info *tap_info)
 {
     guint8     sn_size, reserved_bits1, reserved_bits2;
     guint32    cpt, sn_limit, nack_count = 0;
@@ -855,6 +869,7 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
                                 bit_offset, sn_size, &ack_sn, ENC_BIG_ENDIAN);
     bit_offset += sn_size;
     write_pdu_label_and_info(top_ti, status_ti, pinfo, "  ACK_SN=%-6u", (guint32)ack_sn);
+    tap_info->ACKNo = (guint32)ack_sn;
 
     /* E1 */
     proto_tree_add_bits_ret_val(tree, hf_rlc_nr_am_e1, tvb,
@@ -882,6 +897,9 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
         bit_offset += sn_size;
         write_pdu_label_and_info(top_ti, NULL, pinfo, "  NACK_SN=%-6u", (guint32)nack_sn);
 
+
+        tap_info->NACKs[nack_count++] = (guint32)nack_sn;
+
         /* We shouldn't NACK the ACK_SN! */
         if (nack_sn == ack_sn) {
             expert_add_info_format(pinfo, nack_ti, &ei_rlc_nr_am_nack_sn_ack_same,
@@ -894,7 +912,15 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
             expert_add_info(pinfo, nack_ti, &ei_rlc_nr_am_nack_sn_ahead_ack);
         }
 
-        nack_count++;
+        /* Copy into tap struct, but don't exceed buffer */
+        if (nack_count < MAX_NACKs) {
+            tap_info->NACKs[nack_count++] = (guint32)nack_sn;
+        }
+        else {
+            /* Let it get bigger than the array for accurate stats... */
+            nack_count++;
+        }
+
 
         /* E1 */
         proto_tree_add_bits_ret_val(tree, hf_rlc_nr_am_e1, tvb,
@@ -966,9 +992,17 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
             } else {
                 nack_count += nack_range-1;
             }
-            proto_item_append_text(nack_range_ti, " (SNs %" G_GUINT64_FORMAT "-%" G_GUINT64_FORMAT " missing)", nack_sn, nack_sn+nack_range-1);
+            proto_item_append_text(nack_range_ti, " (SNs %" G_GUINT64_FORMAT "-%" G_GUINT64_FORMAT " missing)",
+                                   nack_sn, nack_sn+nack_range-1);
 
             write_pdu_label_and_info(top_ti, NULL, pinfo," NACK range=%u", nack_range);
+
+            /* Copy NACK SNs into tap_info */
+            for (guint n=1; n < nack_range-1; n++) {
+                if (n < MAX_NACKs) {
+                    tap_info->NACKs[n] = (guint32)nack_sn+1;
+                }
+            }
         }
     }
 
@@ -976,6 +1010,7 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
         proto_item *count_ti = proto_tree_add_uint(tree, hf_rlc_nr_am_nacks, tvb, 0, 1, nack_count);
         proto_item_set_generated(count_ti);
         proto_item_append_text(status_ti, "  (%u NACKs)", nack_count);
+        tap_info->noOfNACKs = nack_count;
     }
 
     /* Check that we've reached the end of the PDU. If not, show malformed */
@@ -996,7 +1031,8 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
 /* Acknowledged mode PDU                           */
 static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
                               proto_tree *tree, int offset,
-                              rlc_nr_info *p_rlc_nr_info, proto_item *top_ti)
+                              rlc_nr_info *p_rlc_nr_info, proto_item *top_ti,
+                              rlc_3gpp_tap_info *tap_info _U_)
 {
     gboolean dc, polling;
     guint32 seg_info, sn;
@@ -1024,6 +1060,7 @@ static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
     /* First bit is Data/Control flag */
     proto_tree_add_item_ret_boolean(am_header_tree, hf_rlc_nr_am_data_control,
                                     tvb, offset, 1, ENC_BIG_ENDIAN, &dc);
+    tap_info->isControlPDU = !dc;
 
     if (dc == 0) {
         /**********************/
@@ -1032,7 +1069,8 @@ static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
 
         /* Control PDUs are a completely separate format  */
         dissect_rlc_nr_am_status_pdu(tvb, pinfo, am_header_tree, am_header_ti,
-                                     offset, top_ti, p_rlc_nr_info);
+                                     offset, top_ti,
+                                     p_rlc_nr_info, tap_info);
         return;
     }
 
@@ -1074,6 +1112,9 @@ static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
                                      p_rlc_nr_info->sequenceNumberLength);
         return;
     }
+
+    tap_info->sequenceNumberGiven = TRUE;
+    tap_info->sequenceNumber = sn;
 
     /* Segment Offset */
     if (seg_info >= 2) {
@@ -1266,6 +1307,10 @@ static void dissect_rlc_nr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     gint                   offset = 0;
     struct rlc_nr_info     *p_rlc_nr_info;
 
+    /* Allocate and Zero tap struct */
+    rlc_3gpp_tap_info *tap_info = wmem_new0(pinfo->pool, rlc_3gpp_tap_info);
+    tap_info->rat = RLC_RAT_NR;
+
     /* Set protocol name */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC-NR");
 
@@ -1353,6 +1398,20 @@ static void dissect_rlc_nr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                                  p_rlc_nr_info->bearerId);
     }
 
+    /* Set context-info parts of tap struct */
+    tap_info->rlcMode = p_rlc_nr_info->rlcMode;
+    tap_info->direction = p_rlc_nr_info->direction;
+    /* TODO: p_rlc_nr_info does not have priority. */
+    tap_info->ueid = p_rlc_nr_info->ueid;
+    tap_info->channelType = p_rlc_nr_info->bearerType;
+    tap_info->channelId = p_rlc_nr_info->bearerId;
+    tap_info->pduLength = p_rlc_nr_info->pduLength;
+    tap_info->sequenceNumberLength = p_rlc_nr_info->sequenceNumberLength;
+    tap_info->loggedInMACFrame = (p_get_proto_data(wmem_file_scope(), pinfo, proto_mac_nr, 0) != NULL);
+
+    tap_info->rlc_time = pinfo->abs_ts;
+
+
     /* Dissect the RLC PDU itself. Format depends upon mode... */
     switch (p_rlc_nr_info->rlcMode) {
 
@@ -1361,11 +1420,11 @@ static void dissect_rlc_nr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             break;
 
         case RLC_UM_MODE:
-            dissect_rlc_nr_um(tvb, pinfo, rlc_nr_tree, offset, p_rlc_nr_info, top_ti);
+            dissect_rlc_nr_um(tvb, pinfo, rlc_nr_tree, offset, p_rlc_nr_info, top_ti, tap_info);
             break;
 
         case RLC_AM_MODE:
-            dissect_rlc_nr_am(tvb, pinfo, rlc_nr_tree, offset, p_rlc_nr_info, top_ti);
+            dissect_rlc_nr_am(tvb, pinfo, rlc_nr_tree, offset, p_rlc_nr_info, top_ti, tap_info);
             break;
 
         default:
@@ -1374,6 +1433,9 @@ static void dissect_rlc_nr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                                    "Unrecognised RLC Mode set (%u)", p_rlc_nr_info->rlcMode);
             break;
     }
+
+    /* Queue tap info */
+    tap_queue_packet(rlc_nr_tap, pinfo, tap_info);
 }
 
 
@@ -1792,6 +1854,9 @@ void proto_register_rlc_nr(void)
 
     /* Allow other dissectors to find this one by name. */
     register_dissector("rlc-nr", dissect_rlc_nr, proto_rlc_nr);
+
+    /* Register the tap name */
+    rlc_nr_tap = register_tap("rlc-3gpp");
 
     /* Preferences */
     rlc_nr_module = prefs_register_protocol(proto_rlc_nr, NULL);

@@ -16,6 +16,7 @@
 #include <epan/packet.h>
 #include <cfile.h>
 #include <epan/dissectors/packet-rlc-lte.h>
+#include <epan/dissectors/packet-rlc-3gpp-common.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,12 +29,11 @@ struct rlc_segment {
     guint32         rel_usecs;
 
     gboolean        isControlPDU;
-    guint16         SN;
+    guint32         SN;
     guint16         isResegmented;
-    guint16         ACKNo;
-    #define MAX_NACKs 128
+    guint32         ACKNo;
     guint16         noOfNACKs;
-    guint16         NACKs[MAX_NACKs];
+    guint32         NACKs[MAX_NACKs];
     guint16         pduLength;
 
     guint16         ueid;
@@ -48,7 +48,7 @@ struct rlc_segment {
 typedef struct _th_t {
     int num_hdrs;
     #define MAX_SUPPORTED_CHANNELS 8
-    rlc_lte_tap_info *rlchdrs[MAX_SUPPORTED_CHANNELS];
+    rlc_3gpp_tap_info *rlchdrs[MAX_SUPPORTED_CHANNELS];
 } th_t;
 
 struct rlc_graph {
@@ -58,6 +58,7 @@ struct rlc_graph {
 
     /* These are filled in with the channel/direction this graph is showing */
     gboolean        channelSet;
+    uint8_t         rat;
     guint16         ueid;
     guint16         channelType;
     guint16         channelId;
@@ -74,7 +75,7 @@ void rlc_graph_segment_list_free(struct rlc_graph * );
 gboolean compare_rlc_headers(guint16 ueid1, guint16 channelType1, guint16 channelId1, guint8 rlcMode1, guint8 direction1,
                             guint16 ueid2, guint16 channelType2, guint16 channelId2, guint8 rlcMode2, guint8 direction2,
                             gboolean isControlFrame);
-rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf, struct rlc_segment *hdrs,
+rlc_3gpp_tap_info *select_rlc_lte_session(capture_file *cf, struct rlc_segment *hdrs,
                                          gchar **err_msg);
 
 

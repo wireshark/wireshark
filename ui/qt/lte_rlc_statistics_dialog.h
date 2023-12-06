@@ -12,6 +12,10 @@
 
 #include "tap_parameter_dialog.h"
 
+#include <epan/dissectors/packet-rlc-lte.h>
+#include <epan/dissectors/packet-rlc-3gpp-common.h>
+
+
 #include <QCheckBox>
 
 class LteRlcStatisticsDialog : public TapParameterDialog
@@ -30,7 +34,9 @@ protected:
 
 signals:
     void launchRLCGraph(bool channelKnown,
-                        guint16 ueid, guint8 rlcMode,
+                        uint8_t version,
+                        guint16 ueid,
+                        guint8 rlcMode,
                         guint16 channelType, guint16 channelId,
                         guint8 direction);
 
