@@ -211,6 +211,14 @@ http://www.cisco.com/c/dam/en/us/td/docs/wireless/asr_5000/20/AAA/20-AAA-Referen
     <enum name="Pre-Emption-Vulnerability-Disabled" code="1"/>
   </avp>
 
+  <avp name="Cumulative-Acct-Input-Octets" code="132044" vendor-id="CiscoSystems" >
+    <type type-name="Unsigned64" />
+  </avp>
+
+  <avp name="Cumulative-Acct-Output-Octets" code="132045" vendor-id="CiscoSystems" >
+    <type type-name="Unsigned64" />
+  </avp>
+
   <avp name="Override-Tos-Value" code="132046" vendor-id="CiscoSystems">
     <grouped>
       <gavp name="Override-Tos-Direction" />
