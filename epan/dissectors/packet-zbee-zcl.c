@@ -2521,6 +2521,24 @@ static void zcl_dump_data(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto
 } /* zcl_dump_data */
 
 /**
+ * This function decodes ZCL UTCTime into a string representation of the time
+ * with the integer UTCTime value in brackets afterwards as the value is
+ * sometimes also useful.
+ *
+ * @param s string to display
+ * @param value value to decode as ZCL 32 bit UTCTime
+*/
+void
+decode_zcl_utc_time(gchar *s, guint32 value)
+{
+    gchar *start_time;
+    time_t epoch_time = (time_t)value + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time = abs_time_secs_to_str (NULL, epoch_time, ABSOLUTE_TIME_UTC, TRUE);
+    snprintf(s, ITEM_LABEL_LENGTH, "%s (%d)", start_time, value);
+    wmem_free(NULL, start_time);
+} /* decode_zcl_utc_time */
+
+/**
  *This function decodes tenth of second time type variable
  *
 */

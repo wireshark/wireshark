@@ -209,6 +209,7 @@ extern guint dissect_zcl_attr_uint8 (tvbuff_t *tvb, proto_tree *tree, guint *off
 /* Helper functions */
 
 /* Exported DLL functions */
+void decode_zcl_utc_time (gchar *s, guint32 value);
 WS_DLL_PUBLIC void decode_zcl_time_in_100ms (gchar *s, guint16 value);
 WS_DLL_PUBLIC void decode_zcl_time_in_seconds (gchar *s, guint16 value);
 WS_DLL_PUBLIC void decode_zcl_time_in_minutes (gchar *s, guint16 value);
