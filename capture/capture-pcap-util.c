@@ -1333,8 +1333,20 @@ get_if_capabilities_pcap_create(interface_options *interface_opts,
 		caps->can_set_rfmon = false;
 	else if (status == 1) {
 		caps->can_set_rfmon = true;
-		if (interface_opts->monitor_mode)
-			pcap_set_rfmon(pch, 1);
+		if (interface_opts->monitor_mode) {
+			status = pcap_set_rfmon(pch, 1);
+			if (status < 0) {
+				/*
+				 * This "should not happen".
+				 */
+				*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
+				*open_status_str = ws_strdup_printf("pcap_set_rfmon() returned %d",
+				    status);
+				pcap_close(pch);
+				g_free(caps);
+				return NULL;
+			}
+		}
 	} else {
 		/*
 		 * This "should not happen".
