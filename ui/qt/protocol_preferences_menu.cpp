@@ -293,10 +293,10 @@ void ProtocolPreferencesMenu::addMenuItem(preference *pref)
 
         /* ensure we have access to MainWindow, and indirectly to the selection */
         if (mainApp) {
-            QWidget * mainWin = mainApp->mainWindow();
+            MainWindow * mainWin = qobject_cast<MainWindow *>(mainApp->mainWindow());
 
-            if (qobject_cast<MainWindow *>(mainWin)) {
-                frame_data * fdata = qobject_cast<MainWindow *>(mainWin)->frameDataForRow((qobject_cast<MainWindow *>(mainWin)->selectedRows()).at(0));
+            if (mainWin != nullptr && !mainWin->selectedRows().isEmpty()) {
+                frame_data * fdata = mainWin->frameDataForRow(mainWin->selectedRows().at(0));
                 if(fdata) {
                     override_id = fdata->tcp_snd_manual_analysis;
                 }
@@ -406,9 +406,9 @@ void ProtocolPreferencesMenu::enumCustomTCPOverridePreferenceTriggered()
 
     /* ensure we have access to MainWindow, and indirectly to the selection */
     if (mainApp) {
-        QWidget * mainWin = mainApp->mainWindow();
-        if (qobject_cast<MainWindow *>(mainWin)) {
-            frame_data * fdata = qobject_cast<MainWindow *>(mainWin)->frameDataForRow((qobject_cast<MainWindow *>(mainWin)->selectedRows()).at(0));
+        MainWindow * mainWin = qobject_cast<MainWindow *>(mainApp->mainWindow());
+        if (mainWin != nullptr && !mainWin->selectedRows().isEmpty()) {
+            frame_data * fdata = mainWin->frameDataForRow(mainWin->selectedRows().at(0));
             if(!fdata)
                 return;
 
