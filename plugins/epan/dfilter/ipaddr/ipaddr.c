@@ -349,7 +349,7 @@ plugin_register(void)
 }
 
 static struct ws_module module = {
-    .flags = WS_PLUGIN_DESC_DFILTER,
+    .flags = WS_PLUGIN_DESC_DFUNCTION,
     .version = PLUGIN_VERSION,
     .spdx_id = WS_PLUGIN_SPDX_GPLv2,
     .home_url = WS_PLUGIN_GITLAB_URL,

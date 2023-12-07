@@ -38,7 +38,7 @@ typedef enum {
 #define WS_PLUGIN_DESC_CODEC        (1UL << 2)
 #define WS_PLUGIN_DESC_EPAN         (1UL << 3)
 #define WS_PLUGIN_DESC_TAP_LISTENER (1UL << 4)
-#define WS_PLUGIN_DESC_DFILTER      (1UL << 5)
+#define WS_PLUGIN_DESC_DFUNCTION    (1UL << 5)
 
 // GLib and Qt allow ".dylib" and ".so" on macOS. Should we do the same?
 #ifdef _WIN32

@@ -15,7 +15,7 @@ are the following functional types:
   * codec: is its own class of functionality, described above
   * dissector (epan): implements new protocol dissectors
   * tap listener (epan): implements statistics and other extensions using taps
-  * display filter (epan): implements new display filter functions
+  * dfunction (epan): implements new display filter functions
   * epan (epan): used to implement language bindings such as Lua
   * file type (wiretap): implements support for reading new capture file types
 

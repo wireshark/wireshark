@@ -88,8 +88,8 @@ flags_to_str(uint32_t flags)
         return "epan";
     else if (flags & WS_PLUGIN_DESC_TAP_LISTENER)
         return "tap listener";
-    else if (flags & WS_PLUGIN_DESC_DFILTER)
-        return "dfilter";
+    else if (flags & WS_PLUGIN_DESC_DFUNCTION)
+        return "dfunction";
     else
         return "unknown";
 }

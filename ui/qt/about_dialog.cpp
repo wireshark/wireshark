@@ -121,8 +121,8 @@ static void plugins_add_description(const char *name, const char *version,
         plugin_types << "epan";
     if (flags & WS_PLUGIN_DESC_TAP_LISTENER)
         plugin_types << "tap listener";
-    if (flags & WS_PLUGIN_DESC_DFILTER)
-        plugin_types << "dfilter";
+    if (flags & WS_PLUGIN_DESC_DFUNCTION)
+        plugin_types << "dfunction";
     if (plugin_types.empty())
         plugin_types << "unknown";
 
