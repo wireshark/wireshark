@@ -1220,15 +1220,16 @@ print_statistics_loop(gboolean machine_readable)
     while (global_ld.go) {
         for (stat_entry = g_list_first(stat_list); stat_entry != NULL; stat_entry = g_list_next(stat_entry)) {
             if_stat = (if_stat_t *)stat_entry->data;
-            pcap_stats(if_stat->pch, &ps);
-
-            if (!machine_readable) {
-                printf("%-15s  %10u  %10u\n", if_stat->name,
-                    ps.ps_recv, ps.ps_drop);
-            } else {
-                printf("%s\t%u\t%u\n", if_stat->name,
-                    ps.ps_recv, ps.ps_drop);
-                fflush(stdout);
+            /* XXX - what if this fails? */
+            if (pcap_stats(if_stat->pch, &ps) == 0) {
+                if (!machine_readable) {
+                    printf("%-15s  %10u  %10u\n", if_stat->name,
+                           ps.ps_recv, ps.ps_drop);
+                } else {
+                    printf("%s\t%u\t%u\n", if_stat->name,
+                           ps.ps_recv, ps.ps_drop);
+                    fflush(stdout);
+                }
             }
         }
 #ifdef _WIN32
