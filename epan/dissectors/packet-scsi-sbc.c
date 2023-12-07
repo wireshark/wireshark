@@ -210,10 +210,14 @@ dissect_sbc_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         guint offset, gboolean isreq, gboolean iscdb,
         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
+    guint8 blocks;
+    guint32 bytes;
+
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%06x, Len: %u)",
-                    tvb_get_ntoh24 (tvb, offset),
-                    tvb_get_guint8 (tvb, offset+3));
+        blocks = tvb_get_guint8(tvb, offset+3);
+        bytes = blocks * 512;
+        col_append_fstr (pinfo->cinfo, COL_INFO, ", %u blocks (%u bytes) at LBA: 0x%06x",
+            blocks, bytes, tvb_get_ntoh24(tvb, offset));
     }
 
     if (tree && isreq && iscdb) {
@@ -229,10 +233,14 @@ dissect_sbc_write6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         guint offset, gboolean isreq, gboolean iscdb,
         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
+    guint8 blocks;
+    guint32 bytes;
+
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%06x, Len: %u)",
-                tvb_get_ntoh24 (tvb, offset),
-                tvb_get_guint8 (tvb, offset+3));
+        blocks = tvb_get_guint8(tvb, offset+3);
+        bytes = blocks * 512;
+        col_append_fstr (pinfo->cinfo, COL_INFO, ", %u blocks (%u bytes) at LBA: 0x%06x",
+            blocks, bytes, tvb_get_ntoh24(tvb, offset));
     }
 
     if (tree && isreq && iscdb) {
@@ -361,8 +369,9 @@ void
 dissect_sbc_read10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
-
 {
+    guint16 blocks;
+    guint32 bytes;
     static int * const rdwr10_fields[] = {
         &hf_scsi_sbc_rdprotect,
         &hf_scsi_sbc_dpo,
@@ -372,9 +381,10 @@ dissect_sbc_read10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     };
 
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
-                tvb_get_ntohl (tvb, offset+1),
-                tvb_get_ntohs (tvb, offset+6));
+        blocks = tvb_get_ntohs(tvb, offset+6);
+        bytes = blocks * 512;
+        col_append_fstr (pinfo->cinfo, COL_INFO, ", %u blocks (%u bytes) at LBA: 0x%08x",
+            blocks, bytes, tvb_get_ntohl(tvb, offset+1));
     }
 
     if (tree && isreq && iscdb) {
@@ -516,8 +526,9 @@ void
 dissect_sbc_write10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         guint offset, gboolean isreq, gboolean iscdb,
         guint payload_len _U_, scsi_task_data_t *cdata _U_)
-
 {
+    guint16 blocks;
+    guint32 bytes;
     static int * const rdwr10_fields[] = {
         &hf_scsi_sbc_wrprotect,
         &hf_scsi_sbc_dpo,
@@ -527,9 +538,10 @@ dissect_sbc_write10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     };
 
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
-                tvb_get_ntohl (tvb, offset+1),
-                tvb_get_ntohs (tvb, offset+6));
+        blocks = tvb_get_ntohs(tvb, offset+6);
+        bytes = blocks * 512;
+        col_append_fstr (pinfo->cinfo, COL_INFO, ", %u blocks (%u bytes) at LBA: 0x%08x",
+            blocks, bytes, tvb_get_ntohl (tvb, offset+1));
     }
 
     if (tree && isreq && iscdb) {
@@ -548,6 +560,8 @@ dissect_sbc_read12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         guint offset, gboolean isreq, gboolean iscdb,
         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
+    guint16 blocks;
+    guint32 bytes;
     static int * const rdwr12_fields[] = {
         &hf_scsi_sbc_rdprotect,
         &hf_scsi_sbc_dpo,
@@ -557,9 +571,10 @@ dissect_sbc_read12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     };
 
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
-                tvb_get_ntohl (tvb, offset+1),
-                tvb_get_ntohl (tvb, offset+5));
+        blocks = tvb_get_ntohs(tvb, offset+5);
+        bytes = blocks * 512;
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", %u blocks (%u bytes) at LBA: 0x%08x",
+            blocks, bytes, tvb_get_ntohl(tvb, offset+1));
     }
 
     if (tree && isreq && iscdb) {
@@ -578,6 +593,8 @@ dissect_sbc_write12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         guint offset, gboolean isreq, gboolean iscdb,
         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
+    guint16 blocks;
+    guint32 bytes;
     static int * const rdwr12_fields[] = {
         &hf_scsi_sbc_wrprotect,
         &hf_scsi_sbc_dpo,
@@ -587,9 +604,10 @@ dissect_sbc_write12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     };
 
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
-                tvb_get_ntohl (tvb, offset+1),
-                tvb_get_ntohl (tvb, offset+5));
+        blocks = tvb_get_ntohs(tvb, offset+5);
+        bytes = blocks * 512;
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", %u blocks (%u bytes) at LBA: 0x%08x",
+            blocks, bytes, tvb_get_ntohl(tvb, offset+1));
     }
 
     if (tree && isreq && iscdb) {
@@ -608,18 +626,21 @@ dissect_sbc_read16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
+    guint32 blocks;
+    guint64 bytes;
     static int * const rdwr16_fields[] = {
-        &hf_scsi_sbc_rdprotect,
-        &hf_scsi_sbc_dpo,
-        &hf_scsi_sbc_fua,
-        &hf_scsi_sbc_fua_nv,
-        NULL
-    };
+    &hf_scsi_sbc_rdprotect,
+    &hf_scsi_sbc_dpo,
+    &hf_scsi_sbc_fua,
+    &hf_scsi_sbc_fua_nv,
+    NULL
+};
 
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
-                tvb_get_ntoh64 (tvb, offset+1),
-                tvb_get_ntohl (tvb, offset+9));
+        blocks = tvb_get_ntohl(tvb, offset+9);
+        bytes = blocks * 512;
+        col_append_fstr (pinfo->cinfo, COL_INFO, ", %u blocks (%u bytes) at LBA: %" PRIu64 "0x%08x",
+            blocks, bytes, tvb_get_ntoh64 (tvb, offset+1));
     }
 
     if (tree && isreq && iscdb) {
@@ -637,6 +658,8 @@ dissect_sbc_write16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
+    guint32 blocks;
+    guint64 bytes;
     static int * const rdwr16_fields[] = {
         &hf_scsi_sbc_wrprotect,
         &hf_scsi_sbc_dpo,
@@ -646,9 +669,10 @@ dissect_sbc_write16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     };
 
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
-                tvb_get_ntoh64 (tvb, offset+1),
-                tvb_get_ntohl (tvb, offset+9));
+        blocks = tvb_get_ntohl(tvb, offset+9);
+        bytes = blocks * 512;
+        col_append_fstr (pinfo->cinfo, COL_INFO, ", %u blocks (%u bytes) at LBA: %" PRIu64 "0x%08x",
+            blocks, bytes, tvb_get_ntoh64 (tvb, offset+1));
     }
 
     if (tree && isreq && iscdb) {

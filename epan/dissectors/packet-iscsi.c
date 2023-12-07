@@ -75,7 +75,9 @@ static guint iscsi_system_port = 860;
 /* Initialize the protocol and registered fields */
 static int proto_iscsi;
 static int hf_iscsi_time;
+static int hf_iscsi_r2t_time;
 static int hf_iscsi_request_frame;
+static int hf_iscsi_r2t_frame;
 static int hf_iscsi_data_in_frame;
 static int hf_iscsi_data_out_frame;
 static int hf_iscsi_response_frame;
@@ -497,6 +499,7 @@ static const value_string iscsi_reject_reasons[] = {
 typedef struct _iscsi_conv_data {
     guint32 data_in_frame;
     guint32 data_out_frame;
+    guint32 r2t_frame;
     guint32 itt;
     itlq_nexus_t itlq;
 } iscsi_conv_data_t;
@@ -760,11 +763,13 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             cdata->itlq.data_length = 0;
             cdata->itlq.bidir_data_length = 0;
             cdata->itlq.fc_time = pinfo->abs_ts;
+            cdata->itlq.r2t_time = pinfo->abs_ts;
             cdata->itlq.first_exchange_frame = 0;
             cdata->itlq.last_exchange_frame = 0;
             cdata->itlq.flags = 0;
             cdata->itlq.alloc_len = 0;
             cdata->itlq.extra_data = NULL;
+            cdata->r2t_frame = 0;
             cdata->data_in_frame = 0;
             cdata->data_out_frame = 0;
             cdata->itt = itt;
@@ -798,6 +803,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         cdata->itlq.extra_data = NULL;
         cdata->data_in_frame = 0;
         cdata->data_out_frame = 0;
+        cdata->r2t_frame = 0;
         cdata->itt = itt;
     }
 
@@ -808,11 +814,15 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
     if ((opcode == ISCSI_OPCODE_SCSI_RESPONSE) ||
         (opcode == ISCSI_OPCODE_SCSI_DATA_IN) ||
-        (opcode == ISCSI_OPCODE_SCSI_DATA_OUT)) {
+        (opcode == ISCSI_OPCODE_SCSI_DATA_OUT) ||
+        (opcode == ISCSI_OPCODE_R2T)) {
         /* first time we see this packet. check if we can find the request */
         switch(opcode){
         case ISCSI_OPCODE_SCSI_RESPONSE:
             cdata->itlq.last_exchange_frame=pinfo->num;
+            break;
+        case ISCSI_OPCODE_R2T:
+            cdata->r2t_frame=pinfo->num;
             break;
         case ISCSI_OPCODE_SCSI_DATA_IN:
             /* a bit ugly but we need to check the S bit here */
@@ -1589,10 +1599,33 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             nstime_delta(&delta_time, &pinfo->abs_ts, &cdata->itlq.fc_time);
             proto_tree_add_time(ti, hf_iscsi_time, tvb, 0, 0, &delta_time);
         }
+        if (cdata->r2t_frame)
+            proto_tree_add_uint(ti, hf_iscsi_r2t_frame, tvb, 0, 0, cdata->r2t_frame);
         if (cdata->data_in_frame)
             proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
         if (cdata->data_out_frame)
             proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
+        break;
+
+    case ISCSI_OPCODE_R2T:
+        if (cdata->itlq.first_exchange_frame)
+            proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
+        if (cdata->r2t_frame) {
+            nstime_t delta_time;
+            nstime_delta(&delta_time, &pinfo->abs_ts, &cdata->itlq.r2t_time);
+            proto_tree_add_time(ti, hf_iscsi_r2t_time, tvb, 0, 0, &delta_time);
+        }
+        if (cdata->data_out_frame)
+            proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
+        if (cdata->itlq.last_exchange_frame)
+            proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->itlq.last_exchange_frame);
+
+        col_append_fstr (pinfo->cinfo, COL_INFO,
+            " LUN: 0x0%x, OK to write %u blocks (%u bytes)",
+            cdata->itlq.lun,
+            cdata->itlq.data_length>=512 ? cdata->itlq.data_length/512 : 0,
+            cdata->itlq.data_length
+        );
         break;
     case ISCSI_OPCODE_SCSI_DATA_IN:
         /* if we have phase collaps then we might have the
@@ -1616,12 +1649,24 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     case ISCSI_OPCODE_SCSI_DATA_OUT:
         if (cdata->itlq.first_exchange_frame)
             proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
+        if (cdata->r2t_frame)
+            proto_tree_add_uint(ti, hf_iscsi_r2t_frame, tvb, 0, 0, cdata->r2t_frame);
         if (cdata->data_in_frame)
             proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
         if (cdata->itlq.last_exchange_frame)
             proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->itlq.last_exchange_frame);
+
+        col_set_fence(pinfo->cinfo, COL_INFO);
+        col_append_fstr (pinfo->cinfo, COL_INFO,
+            " LUN: 0x0%x, wrote %u blocks (%u bytes)",
+            cdata->itlq.lun,
+            cdata->itlq.data_length>=512 ? cdata->itlq.data_length/512 : 0,
+            cdata->itlq.data_length
+        );
         break;
     case ISCSI_OPCODE_SCSI_COMMAND:
+        if (cdata->r2t_frame)
+            proto_tree_add_uint(ti, hf_iscsi_r2t_frame, tvb, 0, 0, cdata->r2t_frame);
         if (cdata->data_in_frame)
             proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
         if (cdata->data_out_frame)
@@ -2570,6 +2615,16 @@ proto_register_iscsi(void)
           { "Time from request", "iscsi.time",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
             "Time between the Command and the Response", HFILL }},
+
+        { &hf_iscsi_r2t_frame,
+          { "Ready To Transfer", "iscsi.r2t_frame",
+            FT_FRAMENUM, BASE_NONE, NULL, 0,
+            "Frame number of the R2T", HFILL }},
+
+         { &hf_iscsi_r2t_time,
+          { "Time from request to R2T", "iscsi.r2t_time",
+            FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
+            "Time from the client's request to the server's R2T", HFILL }},
 
         { &hf_iscsi_data_in_frame,
           { "Data In in", "iscsi.data_in_frame",

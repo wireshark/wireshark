@@ -70,7 +70,7 @@ typedef struct _itlq_nexus_t {
 			 * the DATA pdus for some opcodes.
 			 */
     nstime_t fc_time;
-
+    nstime_t r2t_time;
 
     void *extra_data;     /* extra data that is task specific */
 } itlq_nexus_t;

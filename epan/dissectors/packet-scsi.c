@@ -6274,14 +6274,14 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         scsi_tree = proto_item_add_subtree(ti, ett_scsi);
     }
 
-    col_add_fstr(pinfo->cinfo, COL_INFO,
+    /*col_add_fstr(pinfo->cinfo, COL_INFO,
                     "SCSI: Data %s LUN: 0x%02x (%s %s) ",
                     isreq ? "Out" : "In",
                     itlq->lun,
                     val_to_str_ext(opcode, csdata->cdb_vals_ext, "0x%02x"),
                     isreq ? "Request Data" : "Response Data");
-
     col_set_fence(pinfo->cinfo, COL_INFO);
+    */
 
     ti = proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, itlq->lun);
     proto_item_set_generated(ti);
