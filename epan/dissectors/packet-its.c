@@ -586,6 +586,7 @@ static int hf_its_value_04;                       /* ObjectDimensionValue */
 static int hf_its_confidence_05;                  /* ObjectDimensionConfidence */
 static int hf_its_Path_item;                      /* PathPoint */
 static int hf_its_PathHistory_item;               /* PathPoint */
+static int hf_its_PathHistoryV2_item;             /* PathPoint */
 static int hf_its_PathPredicted_item;             /* PathPointPredicted */
 static int hf_its_pathPosition;                   /* DeltaReferencePosition */
 static int hf_its_pathDeltaTime;                  /* PathDeltaTime */
@@ -1788,7 +1789,7 @@ static int hf_cam_performanceClass;               /* PerformanceClass */
 static int hf_cam_cenDsrcTollingZone;             /* CenDsrcTollingZone */
 static int hf_cam_vehicleRole;                    /* VehicleRole */
 static int hf_cam_exteriorLights;                 /* ExteriorLights */
-static int hf_cam_pathHistory;                    /* PathHistory */
+static int hf_cam_pathHistory;                    /* PathHistoryV2 */
 static int hf_cam_embarkationStatus;              /* EmbarkationStatus */
 static int hf_cam_ptActivation;                   /* PtActivation */
 static int hf_cam_specialTransportType;           /* SpecialTransportType */
@@ -2311,6 +2312,7 @@ static gint ett_its_ObjectClassWithConfidence;
 static gint ett_its_ObjectDimension;
 static gint ett_its_Path;
 static gint ett_its_PathHistory;
+static gint ett_its_PathHistoryV2;
 static gint ett_its_PathPredicted;
 static gint ett_its_PathPoint;
 static gint ett_its_PathPointPredicted;
@@ -7584,6 +7586,20 @@ dissect_its_PathHistory(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_its_PathHistory, its_PathHistory_sequence_of,
                                                   40, 40, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t its_PathHistoryV2_sequence_of[1] = {
+  { &hf_its_PathHistoryV2_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_PathPoint },
+};
+
+static int
+dissect_its_PathHistoryV2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_its_PathHistoryV2, its_PathHistoryV2_sequence_of,
+                                                  0, 40, FALSE);
 
   return offset;
 }
@@ -17734,7 +17750,7 @@ dissect_cam_HighFrequencyContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static const per_sequence_t cam_BasicVehicleContainerLowFrequency_sequence[] = {
   { &hf_cam_vehicleRole     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_VehicleRole },
   { &hf_cam_exteriorLights  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_ExteriorLights },
-  { &hf_cam_pathHistory     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_PathHistory },
+  { &hf_cam_pathHistory     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_PathHistoryV2 },
   { NULL, 0, 0, NULL }
 };
 
@@ -22399,6 +22415,10 @@ void proto_register_its(void)
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_its_PathHistory_item,
+      { "PathPoint", "its.PathPoint_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_its_PathHistoryV2_item,
       { "PathPoint", "its.PathPoint_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -27121,7 +27141,7 @@ void proto_register_its(void)
     { &hf_cam_pathHistory,
       { "pathHistory", "cam.pathHistory",
         FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
+        "PathHistoryV2", HFILL }},
     { &hf_cam_embarkationStatus,
       { "embarkationStatus", "cam.embarkationStatus",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
@@ -28947,6 +28967,7 @@ void proto_register_its(void)
     &ett_its_ObjectDimension,
     &ett_its_Path,
     &ett_its_PathHistory,
+    &ett_its_PathHistoryV2,
     &ett_its_PathPredicted,
     &ett_its_PathPoint,
     &ett_its_PathPointPredicted,
