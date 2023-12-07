@@ -1404,12 +1404,16 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
             window_geom_recent_read_pair(win, sub_key, value);
         }
     } else if (strcmp(key, RECENT_GUI_CONVERSATION_TABS) == 0) {
+        g_list_free_full(recent.conversation_tabs, g_free);
         recent.conversation_tabs = prefs_get_string_list(value);
     } else if (strcmp(key, RECENT_GUI_CONVERSATION_TABS_COLUMNS) == 0) {
+        g_list_free_full(recent.conversation_tabs_columns, g_free);
         recent.conversation_tabs_columns = prefs_get_string_list(value);
     } else if (strcmp(key, RECENT_GUI_ENDPOINT_TABS) == 0) {
+        g_list_free_full(recent.endpoint_tabs, g_free);
         recent.endpoint_tabs = prefs_get_string_list(value);
     } else if (strcmp(key, RECENT_GUI_ENDPOINT_TABS_COLUMNS) == 0) {
+        g_list_free_full(recent.endpoint_tabs_columns, g_free);
         recent.endpoint_tabs_columns = prefs_get_string_list(value);
     } else if (strcmp(key, RECENT_GUI_RLC_PDUS_FROM_MAC_FRAMES) == 0) {
         parse_recent_boolean(value, &recent.gui_rlc_use_pdus_from_mac);
