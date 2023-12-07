@@ -40,9 +40,6 @@ enum {
     DL_BW_COLUMN,
     DL_PADDING_PERCENT_COLUMN,
     DL_CRC_FAILED_COLUMN,
-    DL_CRC_HIGH_CODE_RATE_COLUMN,
-    DL_CRC_PDSCH_LOST_COLUMN,
-    DL_CRC_DUPLICATE_NONZERO_RV_COLUMN,
     DL_RETX_FRAMES_COLUMN,
     NUM_UE_COLUMNS
 };
@@ -50,7 +47,7 @@ enum {
 
 static const gchar *ue_titles[] = { "RAT", " RNTI", "  Type", "UEId",
                                     "UL Frames", "UL Bytes", "UL Mb/sec", " UL Pad %", "UL ReTX",
-                                    "DL Frames", "DL Bytes", "DL Mb/sec", " DL Pad %", "DL CRC Fail", "DL CRC HCR", "DL CRC PDSCH Lost", "DL CRC DupNonZeroRV", "DL ReTX"};
+                                    "DL Frames", "DL Bytes", "DL Mb/sec", " DL Pad %", "DL CRC Fail", "DL ReTX"};
 
 
 /* Stats for one UE */
@@ -80,9 +77,6 @@ typedef struct mac_lte_nr_row_data {
     guint32  DL_padding_bytes;
 
     guint32  DL_CRC_failures;
-    guint32  DL_CRC_high_code_rate;
-    guint32  DL_CRC_PDSCH_lost;
-    guint32  DL_CRC_Duplicate_NonZero_RV;
     guint32  DL_retx_frames;
 
 } mac_lte_nr_row_data;
@@ -183,9 +177,6 @@ static mac_lte_ep_t *alloc_mac_lte_ep(const struct mac_3gpp_tap_info *si, packet
 
     ep->stats.UL_CRC_errors = 0;
     ep->stats.DL_CRC_failures = 0;
-    ep->stats.DL_CRC_high_code_rate = 0;
-    ep->stats.DL_CRC_PDSCH_lost = 0;
-    ep->stats.DL_CRC_Duplicate_NonZero_RV = 0;
     ep->stats.UL_retx_frames = 0;
     ep->stats.DL_retx_frames = 0;
 
@@ -362,24 +353,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         }
 
         if (si->crcStatusValid && (si->crcStatus != crc_success)) {
-            switch (si->crcStatus) {
-                case crc_fail:
-                    te->stats.DL_CRC_failures++;
-                    break;
-                case crc_high_code_rate:
-                    te->stats.DL_CRC_high_code_rate++;
-                    break;
-                case crc_pdsch_lost:
-                    te->stats.DL_CRC_PDSCH_lost++;
-                    break;
-                case crc_duplicate_nonzero_rv:
-                    te->stats.DL_CRC_Duplicate_NonZero_RV++;
-                    break;
-
-                default:
-                    /* Something went wrong! */
-                    break;
-            }
+            te->stats.DL_CRC_failures++;
             return TAP_PACKET_REDRAW;
         }
 
@@ -485,7 +459,7 @@ mac_lte_stat_draw(void *phs)
                                    &tmp->stats.DL_time_stop,
                                    tmp->stats.DL_total_bytes);
 
-        printf("%s %5u %7s %5u %10u %9u %10f %10f %8u %10u %9u %10f %10f %12u %11u %18u %20u %8u\n",
+        printf("%s %5u %7s %5u %10u %9u %10f %10f %8u %10u %9u %10f %10f %12u %8u\n",
                (tmp->stats.rat == MAC_RAT_LTE) ? "LTE " : "NR  ",
                tmp->stats.rnti,
                (tmp->stats.rnti_type == C_RNTI) ? "C-RNTI" : "SPS-RNTI",
@@ -504,9 +478,6 @@ mac_lte_stat_draw(void *phs)
                                     (((float)tmp->stats.DL_padding_bytes / (float)tmp->stats.DL_raw_bytes) * 100.0) :
                                     0.0,
                tmp->stats.DL_CRC_failures,
-               tmp->stats.DL_CRC_high_code_rate,
-               tmp->stats.DL_CRC_PDSCH_lost,
-               tmp->stats.DL_CRC_Duplicate_NonZero_RV,
                tmp->stats.DL_retx_frames);
     }
 }

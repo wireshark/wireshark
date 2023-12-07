@@ -54,6 +54,8 @@ typedef enum mac_lte_dl_retx {
     dl_retx_unknown
 } mac_lte_dl_retx;
 
+/* N.B. These error codes are too specific to one old implementation, */
+/* all just shown as failures */
 typedef enum mac_lte_crc_status {
     crc_fail = 0,
     crc_success = 1,
