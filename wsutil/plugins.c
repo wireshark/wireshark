@@ -234,7 +234,8 @@ plugins_init(plugin_type_e type)
     /*
      * Scan the global plugin directory.
      */
-    scan_plugins_dir(plugins_module, get_plugins_dir_with_version(), type, WS_PLUGIN_SCOPE_GLOBAL);
+    const char* global_dir = get_plugins_dir_with_version();
+    scan_plugins_dir(plugins_module, global_dir, type, WS_PLUGIN_SCOPE_GLOBAL);
 
     /*
      * If the program wasn't started with special privileges,
@@ -245,7 +246,10 @@ plugins_init(plugin_type_e type)
      * reclaim them before each time we start capturing.)
      */
     if (!started_with_special_privs()) {
-        scan_plugins_dir(plugins_module, get_plugins_pers_dir_with_version(), type, WS_PLUGIN_SCOPE_USER);
+        const char* users_dir = get_plugins_pers_dir_with_version();
+        if (0 != strcmp(global_dir, users_dir)) {
+            scan_plugins_dir(plugins_module, users_dir, type, WS_PLUGIN_SCOPE_USER);
+        }
     }
 
     plugins_module_list = g_slist_prepend(plugins_module_list, plugins_module);
