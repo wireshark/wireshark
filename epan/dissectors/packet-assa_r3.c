@@ -3622,7 +3622,6 @@ dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset, guint32 length, 
       /*
        *  Booleans, 8 & 16 bit values
        */
-      case UPSTREAMFIELD_NOTUSED :
       case UPSTREAMFIELD_PRIMARYPIN :
       case UPSTREAMFIELD_AUXPIN :
       case UPSTREAMFIELD_ACCESSALWAYS :
@@ -3823,6 +3822,7 @@ dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset, guint32 length, 
         }
         break;
 
+      case UPSTREAMFIELD_NOTUSED :
       default :
         proto_tree_add_none_format (upstreamfield_tree, hf_r3_upstreamfielderror, tvb, offset, dataLength, "Unknown Field Type");
         break;
