@@ -105,6 +105,9 @@ The following features are new (or have been significantly updated) since versio
   selected rows or the entire table can be saved or copied to the clipboard
   in several formats.
 
+* New menu:Tools[Install Plugin] option provides a convenient method to install
+  a binary plugin to the personal folder.
+
 //=== Removed Features and Support
 
 // === Removed Dissectors

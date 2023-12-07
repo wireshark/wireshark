@@ -25,6 +25,9 @@ DIAG_ON(frame-larger-than=)
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/version_info.h>
+#ifdef HAVE_PLUGINS
+#include <wsutil/plugins.h>
+#endif
 #include <epan/prefs.h>
 #include <epan/stats_tree_priv.h>
 #include <epan/plugin_if.h>
@@ -3292,3 +3295,89 @@ void WiresharkMainWindow::openTLSKeylogDialog()
     tlskeylog_dialog_->raise();
     tlskeylog_dialog_->activateWindow();
 }
+
+#ifdef HAVE_PLUGINS
+void WiresharkMainWindow::installPersonalBinaryPlugin()
+{
+    QMessageBox::StandardButton reply;
+
+    QString caption = mainApp->windowTitleString(tr("Install plugin"));
+
+    // Get the plugin file path to install
+    QString plugin_filter = tr("Binary plugin (*%1)").arg(WS_PLUGIN_MODULE_SUFFIX);
+    QString src_path = WiresharkFileDialog::getOpenFileName(this, caption, "", plugin_filter);
+    if (src_path.isEmpty()) {
+        return;
+    }
+
+    // Plugins from untrusted sources can be dangerous.
+    // Inform the user and ask for confirmation.
+    // We need to do this before checking the plugin compatibility.
+    reply = QMessageBox::question(this, caption,
+                        tr("Plugins can execute arbitrary code as the current user. "
+                           "Make sure you trust it before installing.\n\n"
+                           "Continue installing the file \"%1\" to the personal plugin folder?")
+                                .arg(src_path));
+    if (reply != QMessageBox::Yes) {
+        return;
+    }
+
+    // Check if this is a valid plugin file and get the plugin binary type.
+    // The function will report any errors.
+    plugin_type_e have_type = plugins_check_file(qUtf8Printable(src_path));
+    if (have_type == WS_PLUGIN_NONE)
+        return;
+
+    // Create the destination folder if necessary
+    QString type_path = gchar_free_to_qstring(plugins_pers_type_folder(have_type));
+    QDir type_dir(type_path);
+    if (!type_dir.exists(type_path)) {
+        if (!type_dir.mkpath(type_path)) {
+            QMessageBox::warning(this, caption,
+                        tr("Failed to create the directory: %1").arg(type_path));
+            return;
+        }
+    }
+
+    // Check if the file exists in the destination folder, in case we need to overwrite it
+    // XXX Overwriting will probably fail on Windows because the plugin is loaded. We need
+    // a way to load and unload plugins without having to restart the program.
+    QFileInfo file_info(src_path);
+    QString file_name = file_info.fileName();
+    if (type_dir.exists(file_name)) {
+#ifdef Q_OS_WIN
+        QMessageBox::warning(this, tr("Install Plugin"),
+                        tr("The plugin already exists in the personal plugin folder."));
+        return;
+#else
+        reply = QMessageBox::question(this, caption,
+                        tr("The file already exists. Do you want to overwrite it?"));
+        if (reply == QMessageBox::Yes) {
+            if (!type_dir.remove(file_name)) {
+                QMessageBox::warning(this, caption,
+                        tr("Error removing the old plugin file from the personal plugin folder."));
+                return;
+            }
+        }
+        else {
+            // Overwrite refused, we are done
+            return;
+        }
+#endif // Q_OS_WIN
+    }
+
+    // File does not exist in the destination or the user chose to overwrite it
+    // Do the copy to install it.
+    QString dst_path = type_dir.filePath(file_name);
+    if (!QFile::copy(src_path, dst_path)) {
+        QMessageBox::warning(this, caption,
+                        tr("Failed to copy the file to the destination: %1").arg(dst_path));
+        return;
+    }
+
+    // Success
+    QMessageBox::information(this, caption,
+                    tr("Plugin '%1' installed successfully. "
+                       "You must restart the program to be able to use it.").arg(file_name));
+}
+#endif
