@@ -8262,6 +8262,14 @@ proto_disable_all(void)
 	}
 }
 
+static void
+heur_reenable_cb(void *data, void *user_data _U_)
+{
+	heur_dtbl_entry_t *heur = (heur_dtbl_entry_t*)data;
+
+	heur->enabled = heur->enabled_by_default;
+}
+
 void
 proto_reenable_all(void)
 {
@@ -8275,6 +8283,7 @@ proto_reenable_all(void)
 		protocol = (protocol_t *)list_item->data;
 		if (protocol->can_toggle)
 			protocol->is_enabled = protocol->enabled_by_default;
+		proto_heuristic_dissector_foreach(protocol, heur_reenable_cb, NULL);
 		list_item = g_list_next(list_item);
 	}
 }

@@ -465,6 +465,7 @@ typedef struct heur_dtbl_entry {
 	const gchar *display_name;     /* the string used to present heuristic to user */
 	gchar *short_name;     /* string used for "internal" use to uniquely identify heuristic */
 	gboolean enabled;
+	bool enabled_by_default;
 } heur_dtbl_entry_t;
 
 /** A protocol uses this function to register a heuristic sub-dissector list.

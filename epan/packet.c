@@ -2851,6 +2851,7 @@ heur_dissector_add(const char *name, heur_dissector_t dissector, const char *dis
 	hdtbl_entry->short_name = g_strdup(internal_name);
 	hdtbl_entry->list_name = g_strdup(name);
 	hdtbl_entry->enabled   = (enable == HEURISTIC_ENABLE);
+	hdtbl_entry->enabled_by_default = (enable == HEURISTIC_ENABLE);
 
 	/* do the table insertion */
 	g_hash_table_insert(heuristic_short_names, (gpointer)hdtbl_entry->short_name, hdtbl_entry);
@@ -3129,7 +3130,7 @@ display_heur_dissector_table_entries(const char *table_name,
 		       table_name,
 		       proto_get_protocol_filter_name(proto_get_id(hdtbl_entry->protocol)),
 		       (proto_is_protocol_enabled(hdtbl_entry->protocol) && hdtbl_entry->enabled) ? 'T' : 'F',
-		       (proto_is_protocol_enabled_by_default(hdtbl_entry->protocol) && hdtbl_entry->enabled) ? 'T' : 'F',
+		       (proto_is_protocol_enabled_by_default(hdtbl_entry->protocol) && hdtbl_entry->enabled_by_default) ? 'T' : 'F',
 		       hdtbl_entry->short_name,
 		       hdtbl_entry->display_name);
 	}
