@@ -22,17 +22,6 @@ extern GList *get_interface_list_findalldevs_ex(const char *hostname,
 #endif /* HAVE_PCAP_REMOTE */
 extern GList *get_interface_list_findalldevs(int *err, char **err_str);
 
-#ifdef HAVE_PCAP_SET_TSTAMP_PRECISION
-/*
- * Request that a pcap_t provide high-resolution (nanosecond) time
- * stamps; if that request fails, we'll just silently continue to
- * use the microsecond-resolution time stamps, and our caller will
- * find out, when they call have_high_resolution_timestamp(), that
- * we don't have high-resolution time stamps.
- */
-extern void request_high_resolution_timestamp(pcap_t *pcap_h);
-#endif
-
 extern if_capabilities_t *get_if_capabilities_local(interface_options *interface_opts,
     cap_device_open_status *status, char **status_str);
 extern pcap_t *open_capture_device_local(capture_options *capture_opts,

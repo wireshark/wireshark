@@ -1133,17 +1133,15 @@ get_pcap_timestamp_types(pcap_t *pch _U_, char **err_str _U_)
 /*
  * Request high-resolution time stamps.
  *
- * We don't check for errors - if this fails, we just live with boring old
- * microsecond-resolution time stamps. The only errors pcap_set_tstamp_precision()
- * is documenting as returning are PCAP_ERROR_TSTAMP_PRECISION_NOTSUP, which just
- * means we can't do nanosecond precision on this adapter, in which case we
- * just live with whatever resolution we get by default, and
- * PCAP_ERROR_ACTIVATED, which shouldn't happen as we shouldn't call this
- * after we've activated the pcap_t.
+ * If this fails with PCAP_ERROR_TSTAMP_PRECISION_NOTSUP, that means
+ * that boring old microsecond-resolution time stamps are all that
+ * are supported, so we just live with that.
  */
-void
+static int
 request_high_resolution_timestamp(pcap_t *pcap_h)
 {
+	int status;
+
 #ifdef __APPLE__
 	/*
 	 * On macOS, if you build with a newer SDK, pcap_set_tstamp_precision()
@@ -1169,16 +1167,29 @@ request_high_resolution_timestamp(pcap_t *pcap_h)
 		      dlsym(RTLD_NEXT, "pcap_set_tstamp_precision");
 		initialized = true;
 	}
-	if (p_pcap_set_tstamp_precision != NULL)
-		(*p_pcap_set_tstamp_precision)(pcap_h, PCAP_TSTAMP_PRECISION_NANO);
+	if (p_pcap_set_tstamp_precision != NULL) {
+		status = (*p_pcap_set_tstamp_precision)(pcap_h,
+		    PCAP_TSTAMP_PRECISION_NANO);
+	} else {
+		/*
+		 * Older libpcap, which doesn't have support
+		 * for setting the time stamp resolution.
+		 */
+		status = PCAP_ERROR_TSTAMP_PRECISION_NOTSUP;
+	}
 #else /* __APPLE__ */
 	/*
 	 * On other UN*Xes we require that we be run on an OS version
 	 * with a libpcap equal to or later than the version with which
 	 * we were built.
 	 */
-	pcap_set_tstamp_precision(pcap_h, PCAP_TSTAMP_PRECISION_NANO);
+	status = pcap_set_tstamp_precision(pcap_h, PCAP_TSTAMP_PRECISION_NANO);
 #endif /* __APPLE__ */
+	if (status == PCAP_ERROR_TSTAMP_PRECISION_NOTSUP) {
+		/* This isn't a fatal error. */
+		status = 0;
+	}
+	return status;
 }
 
 /*
@@ -1393,6 +1404,24 @@ get_if_capabilities_pcap_create(interface_options *interface_opts,
 	return caps;
 }
 
+static void
+set_open_status_str(int status, pcap_t *pcap_h,
+    char (*open_status_str)[PCAP_ERRBUF_SIZE])
+{
+	switch (status) {
+
+	case PCAP_ERROR:
+		(void) g_strlcpy(*open_status_str, pcap_geterr(pcap_h),
+		    sizeof *open_status_str);
+		break;
+
+	default:
+		(void) g_strlcpy(*open_status_str, pcap_statustostr(status),
+		    sizeof *open_status_str);
+		break;
+	}
+}
+
 pcap_t *
 open_capture_device_pcap_create(
 #if defined(HAVE_PCAP_SET_TSTAMP_PRECISION)
@@ -1417,12 +1446,33 @@ open_capture_device_pcap_create(
 	if (interface_opts->has_snaplen) {
 		ws_debug("Calling pcap_set_snaplen() with snaplen %d.",
 		    interface_opts->snaplen);
-		pcap_set_snaplen(pcap_h, interface_opts->snaplen);
+		status = pcap_set_snaplen(pcap_h, interface_opts->snaplen);
+		if (status < 0) {
+			/* Error. */
+			set_open_status_str(status, pcap_h, open_status_str);
+			*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
+			pcap_close(pcap_h);
+			return NULL;
+		}
 	}
 	ws_debug("Calling pcap_set_promisc() with promisc_mode %d.",
 	    interface_opts->promisc_mode);
-	pcap_set_promisc(pcap_h, interface_opts->promisc_mode);
-	pcap_set_timeout(pcap_h, timeout);
+	status = pcap_set_promisc(pcap_h, interface_opts->promisc_mode);
+	if (status < 0) {
+		/* Error. */
+		set_open_status_str(status, pcap_h, open_status_str);
+		*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
+		pcap_close(pcap_h);
+		return NULL;
+	}
+	status = pcap_set_timeout(pcap_h, timeout);
+	if (status < 0) {
+		/* Error. */
+		set_open_status_str(status, pcap_h, open_status_str);
+		*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
+		pcap_close(pcap_h);
+		return NULL;
+	}
 
 #ifdef HAVE_PCAP_SET_TSTAMP_PRECISION
 	/*
@@ -1444,8 +1494,16 @@ open_capture_device_pcap_create(
 	 * nanosecond resolution timing), we just use microsecond-
 	 * resolution time stamps.
 	 */
-	if (capture_opts->use_pcapng)
-		request_high_resolution_timestamp(pcap_h);
+	if (capture_opts->use_pcapng) {
+		status = request_high_resolution_timestamp(pcap_h);
+		if (status < 0) {
+			/* Error. */
+			set_open_status_str(status, pcap_h, open_status_str);
+			*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
+			pcap_close(pcap_h);
+			return NULL;
+		}
+	}
 #endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
 
 #ifdef HAVE_PCAP_SET_TSTAMP_TYPE
@@ -1455,10 +1513,9 @@ open_capture_device_pcap_create(
 		 * XXX - what if it fails because that time stamp type
 		 * isn't supported?
 		 */
-		if (status == PCAP_ERROR) {
+		if (status < 0) {
+			set_open_status_str(status, pcap_h, open_status_str);
 			*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
-			(void) g_strlcpy(*open_status_str, pcap_geterr(pcap_h),
-			    sizeof *open_status_str);
 			pcap_close(pcap_h);
 			return NULL;
 		}
@@ -1466,12 +1523,26 @@ open_capture_device_pcap_create(
 #endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
 
 	ws_debug("buffersize %d.", interface_opts->buffer_size);
-	if (interface_opts->buffer_size != 0)
-		pcap_set_buffer_size(pcap_h,
+	if (interface_opts->buffer_size != 0) {
+		status = pcap_set_buffer_size(pcap_h,
 		    interface_opts->buffer_size * 1024 * 1024);
+		if (status < 0) {
+			set_open_status_str(status, pcap_h, open_status_str);
+			*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
+			pcap_close(pcap_h);
+			return NULL;
+		}
+	}
 	ws_debug("monitor_mode %d.", interface_opts->monitor_mode);
-	if (interface_opts->monitor_mode)
-		pcap_set_rfmon(pcap_h, 1);
+	if (interface_opts->monitor_mode) {
+		status = pcap_set_rfmon(pcap_h, 1);
+		if (status < 0) {
+			set_open_status_str(status, pcap_h, open_status_str);
+			*open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
+			pcap_close(pcap_h);
+			return NULL;
+		}
+	}
 	status = pcap_activate(pcap_h);
 	ws_debug("pcap_activate() returned %d.", status);
 	if (status < 0) {
