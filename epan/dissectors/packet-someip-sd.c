@@ -1,7 +1,7 @@
 /* packet-someip-sd.c
  * SOME/IP-SD dissector.
  * By Dr. Lars Voelker <lars.voelker@technica-engineering.de> / <lars.voelker@bmw.de>
- * Copyright 2012-2022 Dr. Lars Voelker
+ * Copyright 2012-2023 Dr. Lars Voelker
  * Copyright 2020      Ayoub Kaanich
  * Copyright 2019      Ana Pantar
  * Copyright 2019      Guenter Ebermann
@@ -236,6 +236,7 @@ static expert_field ei_someipsd_message_truncated;
 static expert_field ei_someipsd_entry_array_malformed;
 static expert_field ei_someipsd_entry_array_empty;
 static expert_field ei_someipsd_entry_unknown;
+static expert_field ei_someipsd_offer_without_endpoint;
 static expert_field ei_someipsd_option_array_truncated;
 static expert_field ei_someipsd_option_array_bytes_left;
 static expert_field ei_someipsd_option_unknown;
@@ -693,6 +694,11 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     proto_item_set_hidden(ti);
+
+    /* check for Offer Entry without referenced Endpoints */
+    if (opt_num1 == 0 && opt_num2 == 0 && type == SD_ENTRY_OFFER_SERVICE && ttl > 0) {
+        expert_add_info(pinfo, ti_top, &ei_someipsd_offer_without_endpoint);
+    }
 
     /* register ports but we skip 0xfffe because of other-serv */
     if (serviceid != SOMEIP_SD_SERVICE_ID_OTHER_SERVICE && !PINFO_FD_VISITED(pinfo)) {
@@ -1189,6 +1195,7 @@ proto_register_someip_sd(void) {
         { &ei_someipsd_entry_array_malformed,{ "someipsd.entry_array_malformed", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Entry Array length not multiple of 16 bytes!", EXPFILL } },
         { &ei_someipsd_entry_array_empty,{ "someipsd.entry_array_empty", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Empty Entry Array!", EXPFILL } },
         { &ei_someipsd_entry_unknown,{ "someipsd.entry_unknown", PI_MALFORMED, PI_WARN, "SOME/IP-SD Unknown Entry!", EXPFILL } },
+        { &ei_someipsd_offer_without_endpoint,{ "someipsd.offer_no_endpoints", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Offer Service references no endpoints!", EXPFILL } },
         { &ei_someipsd_option_array_truncated,{ "someipsd.option_array_truncated", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Option Array truncated!", EXPFILL } },
         { &ei_someipsd_option_array_bytes_left,{ "someipsd.option_array_bytes_left", PI_MALFORMED, PI_WARN, "SOME/IP-SD Option Array bytes left after parsing options!", EXPFILL } },
         { &ei_someipsd_option_unknown,{ "someipsd.option_unknown", PI_MALFORMED, PI_WARN, "SOME/IP-SD Unknown Option!", EXPFILL } },
