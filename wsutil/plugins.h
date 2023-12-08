@@ -28,6 +28,7 @@ typedef enum {
     WS_PLUGIN_SCOPE_NONE,
     WS_PLUGIN_SCOPE_USER,
     WS_PLUGIN_SCOPE_GLOBAL,
+    WS_PLUGIN_SCOPE_CLI,
 } plugin_scope_e;
 
 #define WS_PLUGIN_SPDX_GPLv2    "GPL-2.0-or-later"
