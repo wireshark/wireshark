@@ -118,7 +118,7 @@ scope_to_str(plugin_scope_e scope)
 static void plugins_add_description(const char *name, const char *version,
                                     uint32_t flags, const char *spdx_id _U_,
                                     const char *blurb, const char *home_url,
-                                    const char *filename _U_, plugin_scope_e scope,
+                                    const char *filename, plugin_scope_e scope,
                                     void *user_data)
 {
     QList<QStringList> *plugin_data = (QList<QStringList> *)user_data;
@@ -140,7 +140,7 @@ static void plugins_add_description(const char *name, const char *version,
         plugin_types << "unknown";
 
     QStringList plugin_row = QStringList() << name << version << plugin_types.join(", ")
-                                << scope_to_str(scope) << blurb << home_url;
+                                << scope_to_str(scope) << blurb << filename << home_url;
     *plugin_data << plugin_row;
 }
 #endif
@@ -154,22 +154,23 @@ static void plugins_add_description(const char *name, const char *version,
 static void wslua_plugins_add_description(const char *name, const char *version,
                                     uint32_t flags _U_, const char *spdx_id _U_,
                                     const char *blurb, const char *home_url,
-                                    const char *filename _U_, plugin_scope_e scope,
+                                    const char *filename, plugin_scope_e scope,
                                     void *user_data)
 {
     QList<QStringList> *plugin_data = (QList<QStringList> *)user_data;
     QStringList plugin_row = QStringList() << name << version << "lua script"
-                                << scope_to_str(scope) << blurb << home_url;
+                                << scope_to_str(scope) << blurb << filename << home_url;
     *plugin_data << plugin_row;
 }
 #endif
 
 static void extcap_plugins_add_description(const char *name, const char *version,
-                                    const char *types _U_, const char *filename _U_,
+                                    const char *types, const char *filename,
                                     void *user_data)
 {
     QList<QStringList> *plugin_data = (QList<QStringList> *)user_data;
-    QStringList plugin_row = QStringList() << name << version << "extcap" << "" << "" << "";
+    QStringList plugin_row = QStringList() << name << version << types
+                                << "" << "" << filename << "";
     *plugin_data << plugin_row;
 }
 
@@ -206,7 +207,7 @@ QStringList PluginListModel::typeNames() const
 QStringList PluginListModel::headerColumns() const
 {
     return QStringList() << tr("Name") << tr("Version") << tr("Type")
-                << tr("Scope") << tr("Description") << tr("Homepage");
+                << tr("Scope") << tr("Description") << tr("Path") << tr("Homepage");
 }
 
 ShortcutListModel::ShortcutListModel(QObject * parent):
