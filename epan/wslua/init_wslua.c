@@ -34,6 +34,9 @@
 typedef struct _wslua_plugin {
     gchar       *name;            /**< plugin name */
     gchar       *version;         /**< plugin version */
+    gchar       *spdx_id;         /**< plugin SPDX ID */
+    gchar       *home_url;        /**< plugin homepage */
+    gchar       *blurb;           /**< plugin description */
     gchar       *filename;        /**< plugin filename */
     plugin_scope_e scope;         /**< plugin scope */
     struct _wslua_plugin *next;
@@ -550,7 +553,7 @@ static int error_handler_with_callback(lua_State *LS) {
     return 1;
 }
 
-static void wslua_add_plugin(const gchar *name, const gchar *version,
+static void wslua_add_plugin(const gchar *name,
                                 const gchar *filename, plugin_scope_e scope)
 {
     wslua_plugin *new_plug, *lua_plug;
@@ -568,10 +571,16 @@ static void wslua_add_plugin(const gchar *name, const gchar *version,
     }
 
     new_plug->name = g_strdup(name);
-    new_plug->version = g_strdup(version);
+    new_plug->version = g_strdup(get_current_plugin_version());
+    new_plug->spdx_id = g_strdup(get_current_plugin_spdx_id());
+    new_plug->home_url = g_strdup(get_current_plugin_repository());
+    new_plug->blurb = g_strdup(get_current_plugin_description());
     new_plug->filename = g_strdup(filename);
     new_plug->scope = scope;
     new_plug->next = NULL;
+
+    ws_debug("Lua plugin '%s' meta data: version = %s, flags = 0x0, spdx = %s, blurb = %s",
+                    name, new_plug->version, new_plug->spdx_id, new_plug->blurb);
 }
 
 static void wslua_clear_plugin_list(void)
@@ -739,8 +748,8 @@ static gboolean lua_load_plugin_script(const gchar* name,
 {
     ws_debug("Loading lua script: %s", filename);
     if (lua_load_script(filename, dirname, file_count)) {
-        wslua_add_plugin(name, get_current_plugin_version(), filename, scope);
-        clear_current_plugin_version();
+        wslua_add_plugin(name, filename, scope);
+        clear_current_plugin_info();
         return TRUE;
     }
     return FALSE;
@@ -903,7 +912,7 @@ void wslua_plugins_get_descriptions(plugin_description_callback callback, void *
     for (lua_plug = wslua_plugin_list; lua_plug != NULL; lua_plug = lua_plug->next)
     {
         callback(lua_plug->name, lua_plug->version,
-                 0 /* flags */, "" /* spdx */, "" /* blurb */, "" /* home_url */,
+                 0 /* flags */, lua_plug->spdx_id, lua_plug->blurb, lua_plug->home_url,
                  lua_plug->filename, lua_plug->scope, user_data);
     }
 }
