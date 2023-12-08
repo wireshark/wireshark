@@ -55,6 +55,7 @@
 
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>
+#include <wsutil/win32-utils.h>
 #endif
 
 #include "globals.h"
@@ -238,7 +239,6 @@ raw_pipe_open(const char *pipe_name)
 #ifndef _WIN32
     ws_statb64 pipe_stat;
 #else
-    char *pncopy, *pos = NULL;
     DWORD err;
     wchar_t *err_str;
     HANDLE hPipe = NULL;
@@ -286,20 +286,7 @@ raw_pipe_open(const char *pipe_name)
             return -1;
         }
 #else /* _WIN32 */
-#define PIPE_STR "\\pipe\\"
-        /* Under Windows, named pipes _must_ have the form
-         * "\\<server>\pipe\<pipe_name>".  <server> may be "." for localhost.
-         */
-        pncopy = g_strdup(pipe_name);
-        if (strstr(pncopy, "\\\\") == pncopy) {
-            pos = strchr(pncopy + 3, '\\');
-            if (pos && g_ascii_strncasecmp(pos, PIPE_STR, strlen(PIPE_STR)) != 0)
-                pos = NULL;
-        }
-
-        g_free(pncopy);
-
-        if (!pos) {
+        if (!win32_is_pipe_name(pipe_name)) {
             fprintf(stderr, "rawshark: \"%s\" is neither an interface nor a pipe\n",
                     pipe_name);
             return -1;

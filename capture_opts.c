@@ -34,6 +34,10 @@
 #include <wsutil/ws_pipe.h>
 #include <wsutil/ws_assert.h>
 
+#ifdef _WIN32
+#include <wsutil/win32-utils.h>
+#endif
+
 #include "capture/capture_ifinfo.h"
 #include "capture/capture-pcap-util.h"
 
@@ -804,8 +808,23 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
         interface_opts.hardware = NULL;
         interface_opts.display_name = g_strdup(interface_opts.descr);
         interface_opts.ifname = NULL;
-        interface_opts.if_type = capture_opts->default_options.if_type;
+        interface_opts.if_type = IF_STDIN;
         interface_opts.extcap = g_strdup(capture_opts->default_options.extcap);
+#ifdef _WIN32
+    } else if (win32_is_pipe_name(optarg_str_p)) {
+        /*
+         * Special named pipe name on Windows.
+         * https://learn.microsoft.com/en-us/windows/win32/ipc/pipe-names
+         * Don't bother retrieving the interface list.
+         */
+        interface_opts.name = g_strdup(optarg_str_p);
+        interface_opts.descr = NULL;
+        interface_opts.hardware = NULL;
+        interface_opts.display_name = g_strdup(optarg_str_p);
+        interface_opts.ifname = NULL;
+        interface_opts.if_type = IF_PIPE;
+        interface_opts.extcap = g_strdup(capture_opts->default_options.extcap);
+#endif
     } else {
         /*
          * Search for that name in the interface list and, if we found
@@ -821,11 +840,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
          * Perhaps doing something similar to what was suggested
          * for numerical interfaces should be done.
          *
-         * XXX: On Windows, named pipes have special names.
-         * ( https://learn.microsoft.com/en-us/windows/win32/ipc/pipe-names )
-         * Perhaps we should avoid retrieving the interface list if we're
-         * on Windows and this is one of those special names?
-         * If we ever save pipe settings permanently, it should be
+         * XXX: If we ever save pipe settings permanently, it should be
          * capture_interface_list that tries to check saved pipes (or
          * extcaps), possibly before retrieving the list.
          */

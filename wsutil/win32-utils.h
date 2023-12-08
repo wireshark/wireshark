@@ -41,6 +41,17 @@ extern "C" {
 WS_DLL_PUBLIC
 char * protect_arg (const char *argv);
 
+/** Tests a UTF-8 string to see if it is a Windows pipe name.
+ * Under Windows, named pipes _must_ have the form "\\<server>\pipe\<pipename>".
+ * <server> may be "." for localhost. This does not check that a pipe server
+ * has actually created the pipe, only that the name is the proper form.
+ *
+ * @param pipename The UTF-8 string to be checked
+ * @return TRUE if the string is a valid Windows pipe name.
+ */
+WS_DLL_PUBLIC
+bool win32_is_pipe_name(const char* pipe_name);
+
 /** Generate a string for a Windows error.
  *
  * @param error The Windows error code

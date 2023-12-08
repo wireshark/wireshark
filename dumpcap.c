@@ -1943,7 +1943,6 @@ cap_pipe_open_live(char *pipename,
     ws_statb64         pipe_stat;
     struct sockaddr_un sa;
 #else /* _WIN32 */
-    char    *pncopy, *pos;
     guintptr extcap_pipe_handle;
 #endif
     gboolean extcap_pipe = FALSE;
@@ -2075,27 +2074,13 @@ cap_pipe_open_live(char *pipename,
         }
         else
         {
-#define PIPE_STR "\\pipe\\"
-            /* Under Windows, named pipes _must_ have the form
-             * "\\<server>\pipe\<pipename>".  <server> may be "." for localhost.
-             */
-            pncopy = g_strdup(pipename);
-            if ((pos = strstr(pncopy, "\\\\")) == pncopy) {
-                pos = strchr(pncopy + 3, '\\');
-                if (pos && g_ascii_strncasecmp(pos, PIPE_STR, strlen(PIPE_STR)) != 0)
-                    pos = NULL;
-            }
-
-            g_free(pncopy);
-
-            if (!pos) {
+            if (!win32_is_pipe_name(pipename)) {
                 snprintf(errmsg, errmsgl,
                     "The capture session could not be initiated because\n"
                     "\"%s\" is neither an interface nor a pipe.", pipename);
                 pcap_src->cap_pipe_err = PIPNEXIST;
                 return;
             }
-
 
             /* Wait for the pipe to appear */
             while (1) {

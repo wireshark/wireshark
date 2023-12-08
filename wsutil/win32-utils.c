@@ -80,6 +80,28 @@ protect_arg (const char *argv)
     return new_arg;
 }
 
+#define PIPE_STR "\\pipe\\"
+
+bool
+win32_is_pipe_name(const char *pipe_name)
+{
+    char *pncopy, *pos;
+    /* Under Windows, named pipes _must_ have the form
+     * "\\<server>\pipe\<pipename>".  <server> may be "." for localhost.
+     * https://learn.microsoft.com/en-us/windows/win32/ipc/pipe-names
+     */
+    pncopy = g_strdup(pipe_name);
+    if ((pos = strstr(pncopy, "\\\\")) == pncopy) {
+        pos = strchr(pncopy + 3, '\\');
+        if (pos && g_ascii_strncasecmp(pos, PIPE_STR, strlen(PIPE_STR)) != 0)
+            pos = NULL;
+    }
+
+    g_free(pncopy);
+
+    return (pos != NULL);
+}
+
 /*
  * Generate a UTF-8 string for a Windows error.
  */
