@@ -8031,7 +8031,7 @@ proto_register_artnet(void) {
     { &hf_artnet_input_input_disabled,
       { "Disabled",
       "artnet.input.disabled",
-      FT_BOOLEAN, 8, NULL, 0x00,
+      FT_BOOLEAN, 8, NULL, 0xff,
       NULL, HFILL }},
 
     /* ArtFirmwareMaster */

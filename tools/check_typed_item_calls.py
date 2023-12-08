@@ -1127,7 +1127,7 @@ class Item:
 
     # A mask where all bits are set should instead be 0.
     # Exceptions might be where:
-    # - in add_bitmask() set and only one there!
+    # - in add_bitmask()
     # - represents flags, but dissector is not yet decoding them
     def check_full_mask(self, mask, field_arrays):
         if self.item_type == "FT_BOOLEAN":
@@ -1142,16 +1142,34 @@ class Item:
             if num_digits is None:
                 return
             if mask[2:] == 'f'*num_digits   or   mask[2:] == 'F'*num_digits:
-                # Don't report though if the only item in a field_array
+                # Don't report if appears in a 'fields' array
                 for arr in field_arrays:
                     list = field_arrays[arr][0]
-                    if len(list) == 1 and list[0] == self.hf:
-                        # Was first and only!
+                    if self.hf in list:
+                        # These need to have a mask - don't judge for being 0
                         return
 
-                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - mask is all set - this is confusing - set 0 instead! :', '"' + mask + '"')
-                global warnings_found
-                warnings_found += 1
+                print('Note:', self.filename, self.hf, 'filter=', self.filter, " - mask is all set - if only want value (rather than bits), set 0 instead? :", '"' + mask + '"')
+
+    # An item that appears in a bitmask set, needs to have a non-zero mask.
+    def check_mask_if_in_field_array(self, mask, field_arrays):
+        # Work out if this item appears in a field array
+        found = False
+        array_name = None
+        for arr in field_arrays:
+            list = field_arrays[arr][0]
+            if self.hf in list:
+                # These need to have a mask - don't judge for being 0
+                found = True
+                array_name = arr
+                break
+
+        if found:
+            # It needs to have a non-zero mask.
+            if self.mask_read and self.mask_value == 0:
+                print('Error:', self.filename, self.hf, 'is in fields array', arr, 'but has a zero mask - this is not allowed')
+                global errors_found
+                errors_found += 1
 
 
 
@@ -1603,6 +1621,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         for i in items_defined:
             item = items_defined[i]
             item.check_full_mask(item.mask, field_arrays)
+            item.check_mask_if_in_field_array(item.mask, field_arrays)
 
     # Now actually check the calls
     for c in apiChecks:

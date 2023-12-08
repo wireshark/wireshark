@@ -5766,7 +5766,7 @@ s7comm_register_szl_types(int proto)
         { "Diagnostic type", "s7comm.data.userdata.szl_id.diag_type", FT_UINT16, BASE_HEX, VALS(szl_module_type_names), 0xf000,
           NULL, HFILL }},
         { &hf_s7comm_userdata_szl_id_partlist_ex,
-        { "Number of the partial list extract", "s7comm.data.userdata.szl_id.partlist_ex", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &szl_id_partlist_ex_names_ext, 0x0,
+        { "Number of the partial list extract", "s7comm.data.userdata.szl_id.partlist_ex", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &szl_id_partlist_ex_names_ext, 0x0f00,
           NULL, HFILL }},
         { &hf_s7comm_userdata_szl_id_partlist_num,
         { "Number of the partial list", "s7comm.data.userdata.szl_id.partlist_num", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &szl_partial_list_names_ext, 0x00ff,

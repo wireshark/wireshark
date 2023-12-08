@@ -46112,7 +46112,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_gann_flags_reserved,
      {"Reserved", "wlan.gann.flags.reserved",
-       FT_UINT8, BASE_HEX, NULL, 0,
+       FT_UINT8, BASE_HEX, NULL, 0xff,
       NULL, HFILL }},
 
     {&hf_ieee80211_gann_hop_count,
@@ -54288,7 +54288,7 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_he_trigger_bar_info_blk_ack_seq_ctrl,
      {"Block Ack Starting Sequence Control",
       "wlan.trigger.he.common_info.bar_info.blk_ack_starting_seq_ctrl",
-      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0xffff, NULL, HFILL }},
 
     {&hf_ieee80211_he_trigger_user_info,
      {"User Info", "wlan.trigger.he.user_info",
