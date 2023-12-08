@@ -353,7 +353,6 @@ plugins_check_file(const char *from_filename)
     void          *symbol;
     plugin_type_e  have_type;
     int            abi_version;
-    struct ws_module *module;
 
     handle = g_module_open(from_filename, G_MODULE_BIND_LAZY);
     if (handle == NULL) {
@@ -370,7 +369,7 @@ plugins_check_file(const char *from_filename)
 
 DIAG_OFF_PEDANTIC
     /* Load module. */
-    have_type = ((ws_load_module_func)symbol)(&abi_version, NULL, &module);
+    have_type = ((ws_load_module_func)symbol)(&abi_version, NULL, NULL);
 DIAG_ON_PEDANTIC
 
     name = g_path_get_basename(from_filename);

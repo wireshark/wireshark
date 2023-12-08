@@ -96,8 +96,8 @@ int plugins_abi_version(plugin_type_e type);
             *abi_version_ptr = WIRESHARK_ABI_VERSION_ ## type; \
         if (min_api_level_ptr) \
             *min_api_level_ptr = api_level_; \
-        ws_assert(module_ptr); \
-        *module_ptr = ptr_; \
+        if (module_ptr) \
+            *module_ptr = ptr_; \
         return WS_PLUGIN_ ## type; \
     }
 
