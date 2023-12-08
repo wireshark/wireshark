@@ -52,6 +52,7 @@ typedef enum {
     KPM_RANFUNCTIONS=0,
     RC_RANFUNCTIONS,
     NI_RANFUNCTIONS,
+    CCC_RANFUNCTIONS,
     MAX_RANFUNCTIONS
 } ran_function_t;
 

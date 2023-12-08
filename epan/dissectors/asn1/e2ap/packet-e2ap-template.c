@@ -86,9 +86,6 @@ static int dissect_E2SM_RC_CallProcessID_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_E2SM_RC_ControlHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_RC_ControlMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_RC_ControlOutcome_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-//static int dissect_E2SM_RC_QueryOutcome_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-//static int dissect_E2SM_RC_QueryDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-//static int dissect_E2SM_RC_QueryHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 static int dissect_E2SM_NI_EventTriggerDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_NI_ActionDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -142,17 +139,14 @@ e2ap_get_private_data(packet_info *pinfo)
 }
 
 /****************************************************************************************************************/
-/* We learn which set of RAN functions pointers corresponds to a given ranFunctionID when we see E2SetupRequest */
-/* TODO: unfortunately, it seems that different versions of these protocols are not backward-compatible, so     */
-/* it would be good to show where (going by OID) the dissector isn't at the same version as the message..       */
-/* An alternative would be to have multiple versions of each protocol and have them register in tables...       */
-
+/* These are the strings that we look for at the beginning of RAN Function Description to identify RAN Function */
 /* Static table mapping from string -> ran_function */
 static const char* g_ran_function_name_table[MAX_RANFUNCTIONS] =
 {
     "ORAN-E2SM-KPM",
     "ORAN-E2SM-RC",
-    "ORAN-E2SM-NI"
+    "ORAN-E2SM-NI",
+    "{"               /* For now, CCC is the only JSON-based RAN Function, so just match opening */
 };
 
 
@@ -181,6 +175,9 @@ static const char *ran_function_to_str(ran_function_t ran_function)
             return "RC";
         case NI_RANFUNCTIONS:
             return "NI";
+        case CCC_RANFUNCTIONS:
+            return "CCC";
+
         default:
             return "Unknown";
     }
@@ -538,6 +535,14 @@ static void update_conversation_from_gnb_id(asn1_ctx_t *actx)
     }
 }
 
+static dissector_handle_t json_handle;
+
+static int dissect_E2SM_NI_JSON_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    /* Send to JSON dissector */
+    return call_dissector_only(json_handle, tvb, pinfo, tree, NULL);
+}
+
 
 /* Dissector tables */
 static dissector_table_t e2ap_ies_dissector_table;
@@ -656,6 +661,9 @@ proto_reg_handoff_e2ap(void)
 
   /********************************/
   /* Known OIDs for RAN providers */
+  /* N.B. These appear in the RAN Function ASN.1 definitions (except for CCC, which is based on JSON).
+   * There is a registry of known OIDs though in the E2SM specification
+   */
 
   /* KPM */
   oid_add_from_string("KPM v1",         "1.3.6.1.4.1.53148.1.1.2.2");
@@ -670,6 +678,10 @@ proto_reg_handoff_e2ap(void)
 
   /* NI */
   oid_add_from_string("NI  v1",         "1.3.6.1.4.1.53148.1.1.2.1");
+
+  /* CCC */
+  oid_add_from_string("CCC v1",         "1.3.6.1.4.1.53148.1.1.2.4");
+
 
   /********************************/
   /* Register 'built-in' dissectors */
@@ -701,9 +713,9 @@ proto_reg_handoff_e2ap(void)
        dissect_E2SM_RC_ControlMessage_PDU,
        dissect_E2SM_RC_ControlOutcome_PDU,
        /* new for v3 */
-       NULL, //dissect_E2SM_RC_QueryOutcome_PDU,
-       NULL, //dissect_E2SM_RC_QueryDefinition_PDU,
-       NULL, //dissect_E2SM_RC_QueryHeader_PDU,
+       NULL,
+       NULL,
+       NULL,
 
        dissect_E2SM_RC_ActionDefinition_PDU,
        dissect_E2SM_RC_IndicationMessage_PDU,
@@ -732,11 +744,35 @@ proto_reg_handoff_e2ap(void)
     }
   };
 
-  /* Register available dissectors.  TODO: break these out into separate
-   * ASN.1 protocols that register themselves, or leave one of each here? */
+  static ran_function_dissector_t ccc_v2 =
+  { "{", /*"ORAN-E2SM-CCC",*/  "1.3.6.1.4.1.53148.1.1.2.4", 1, 0,
+    {  dissect_E2SM_NI_JSON_PDU,
+       /* TODO: are these all possible? */
+       dissect_E2SM_NI_JSON_PDU,
+       dissect_E2SM_NI_JSON_PDU,
+       dissect_E2SM_NI_JSON_PDU,
+       dissect_E2SM_NI_JSON_PDU,
+       dissect_E2SM_NI_JSON_PDU,
+       dissect_E2SM_NI_JSON_PDU,
+
+       dissect_E2SM_NI_JSON_PDU,
+       dissect_E2SM_NI_JSON_PDU,
+       dissect_E2SM_NI_JSON_PDU,
+       dissect_E2SM_NI_JSON_PDU,
+       dissect_E2SM_NI_JSON_PDU
+    }
+  };
+
+  /* Register available dissectors.
+   * Registering one version of each RAN Function here - others will need to be
+   * registered in sepparate dissectors (e.g. kpm_v2) */
   register_e2ap_ran_function_dissector(KPM_RANFUNCTIONS, &kpm_v3);
   register_e2ap_ran_function_dissector(RC_RANFUNCTIONS,  &rc_v1);
   register_e2ap_ran_function_dissector(NI_RANFUNCTIONS,  &ni_v1);
+  register_e2ap_ran_function_dissector(CCC_RANFUNCTIONS,  &ccc_v2);
+
+  /* Cache JSON dissector */
+  json_handle = find_dissector("json");
 }
 
 

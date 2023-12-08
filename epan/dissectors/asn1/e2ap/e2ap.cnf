@@ -261,23 +261,34 @@ SuccessfulOutcome/value successfulOutcome_value
   /* Looking for shortName string near beginning of tvb */
   gboolean found = FALSE;
   /* For each RAN function name.. */
-  for (int n=KPM_RANFUNCTIONS; n<MAX_RANFUNCTIONS && !found; n++) {
+  int n, found_index;
+  for (n=KPM_RANFUNCTIONS; n<MAX_RANFUNCTIONS && !found; n++) {
     guint32 tvb_len = tvb_captured_length(parameter_tvb);
     guint name_len = (gint)strlen(g_ran_function_name_table[n]);
     /* For each of several byte positions.. */
     for (int m=0; (m<30) && ((m+name_len+1))<tvb_len; m++) {
       /* Have we found a match on the name? */
       if (tvb_strneql(parameter_tvb, m, g_ran_function_name_table[n], name_len) == 0) {
-        /* TODO: we don't yet know the OID (hopefully won't make a difference for this message though...),
+        /* TODO: we don't yet know the OID (should be OK),
            so for now just call with the first/only available dissector for this RAN Function name */
         if (g_ran_functions_available_dissectors[n].num_available_dissectors) {
           g_ran_functions_available_dissectors[n].ran_function_dissectors[0]->functions.ran_function_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
           found = TRUE;
+          found_index = n;
           break;
         }
       }
     }
   }
+
+  if (found && (found_index==CCC_RANFUNCTIONS)) {
+    // ranFunctionName, for this ranFunction, is inside the JSON.  Rather than try to retrive it,
+    // just use this proxy that ought to appear at the start...  OID should get set in the normal way.
+    if (!actx->pinfo->fd->visited) {
+      e2ap_store_ran_function_mapping(actx->pinfo, tree, parameter_tvb, "{" /*"ORAN-E2SM-CCC"*/);
+    }
+  }
+
   if (!found) {
     proto_item *ti = proto_tree_add_item(tree, hf_e2ap_ran_function_name_not_recognised, tvb, 0, 0, ENC_NA);
     expert_add_info_format(actx->pinfo, ti, &ei_e2ap_ran_function_names_no_match,
@@ -293,13 +304,23 @@ SuccessfulOutcome/value successfulOutcome_value
                                     tvb_get_string_enc(actx->pinfo->pool, value_tvb, 0, tvb_captured_length(value_tvb), ENC_ASCII));
   }
 
-
+// TODO: is this still needed now that have added function below?
 #.FN_BODY RANfunction-Name/ranFunction-E2SM-OID  VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
+  /* Now complete mapping with OID string */
   e2ap_update_ran_function_mapping(actx->pinfo, tree, parameter_tvb,
                                    tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0,
                                    tvb_captured_length(parameter_tvb), ENC_ASCII));
+
+#.FN_BODY RANfunctionOID  VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  %(DEFAULT_BODY)s
+  /* Now complete mapping with OID string */
+  e2ap_update_ran_function_mapping(actx->pinfo, tree, parameter_tvb,
+                                   tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0,
+                                   tvb_captured_length(parameter_tvb), ENC_ASCII));
+
 
 
 #.FN_BODY RICcontrolHeader VAL_PTR = &parameter_tvb

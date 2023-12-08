@@ -1609,9 +1609,6 @@ static int dissect_E2SM_RC_CallProcessID_PDU(tvbuff_t *tvb _U_, packet_info *pin
 static int dissect_E2SM_RC_ControlHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_RC_ControlMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_RC_ControlOutcome_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-//static int dissect_E2SM_RC_QueryOutcome_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-//static int dissect_E2SM_RC_QueryDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-//static int dissect_E2SM_RC_QueryHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 static int dissect_E2SM_NI_EventTriggerDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_NI_ActionDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -1665,17 +1662,14 @@ e2ap_get_private_data(packet_info *pinfo)
 }
 
 /****************************************************************************************************************/
-/* We learn which set of RAN functions pointers corresponds to a given ranFunctionID when we see E2SetupRequest */
-/* TODO: unfortunately, it seems that different versions of these protocols are not backward-compatible, so     */
-/* it would be good to show where (going by OID) the dissector isn't at the same version as the message..       */
-/* An alternative would be to have multiple versions of each protocol and have them register in tables...       */
-
+/* These are the strings that we look for at the beginning of RAN Function Description to identify RAN Function */
 /* Static table mapping from string -> ran_function */
 static const char* g_ran_function_name_table[MAX_RANFUNCTIONS] =
 {
     "ORAN-E2SM-KPM",
     "ORAN-E2SM-RC",
-    "ORAN-E2SM-NI"
+    "ORAN-E2SM-NI",
+    "{"               /* For now, CCC is the only JSON-based RAN Function, so just match opening */
 };
 
 
@@ -1704,6 +1698,9 @@ static const char *ran_function_to_str(ran_function_t ran_function)
             return "RC";
         case NI_RANFUNCTIONS:
             return "NI";
+        case CCC_RANFUNCTIONS:
+            return "CCC";
+
         default:
             return "Unknown";
     }
@@ -2059,6 +2056,14 @@ static void update_conversation_from_gnb_id(asn1_ctx_t *actx)
             }
         }
     }
+}
+
+static dissector_handle_t json_handle;
+
+static int dissect_E2SM_NI_JSON_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    /* Send to JSON dissector */
+    return call_dissector_only(json_handle, tvb, pinfo, tree, NULL);
 }
 
 
@@ -3325,23 +3330,34 @@ dissect_e2ap_RANfunctionDefinition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   /* Looking for shortName string near beginning of tvb */
   gboolean found = FALSE;
   /* For each RAN function name.. */
-  for (int n=KPM_RANFUNCTIONS; n<MAX_RANFUNCTIONS && !found; n++) {
+  int n, found_index;
+  for (n=KPM_RANFUNCTIONS; n<MAX_RANFUNCTIONS && !found; n++) {
     guint32 tvb_len = tvb_captured_length(parameter_tvb);
     guint name_len = (gint)strlen(g_ran_function_name_table[n]);
     /* For each of several byte positions.. */
     for (int m=0; (m<30) && ((m+name_len+1))<tvb_len; m++) {
       /* Have we found a match on the name? */
       if (tvb_strneql(parameter_tvb, m, g_ran_function_name_table[n], name_len) == 0) {
-        /* TODO: we don't yet know the OID (hopefully won't make a difference for this message though...),
+        /* TODO: we don't yet know the OID (should be OK),
            so for now just call with the first/only available dissector for this RAN Function name */
         if (g_ran_functions_available_dissectors[n].num_available_dissectors) {
           g_ran_functions_available_dissectors[n].ran_function_dissectors[0]->functions.ran_function_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
           found = TRUE;
+          found_index = n;
           break;
         }
       }
     }
   }
+
+  if (found && (found_index==CCC_RANFUNCTIONS)) {
+    // ranFunctionName, for this ranFunction, is inside the JSON.  Rather than try to retrive it,
+    // just use this proxy that ought to appear at the start...  OID should get set in the normal way.
+    if (!actx->pinfo->fd->visited) {
+      e2ap_store_ran_function_mapping(actx->pinfo, tree, parameter_tvb, "{" /*"ORAN-E2SM-CCC"*/);
+    }
+  }
+
   if (!found) {
     proto_item *ti = proto_tree_add_item(tree, hf_e2ap_ran_function_name_not_recognised, tvb, 0, 0, ENC_NA);
     expert_add_info_format(actx->pinfo, ti, &ei_e2ap_ran_function_names_no_match,
@@ -3373,9 +3389,18 @@ dissect_e2ap_RANfunctionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_e2ap_RANfunctionOID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_PrintableString(tvb, offset, actx, tree, hf_index,
+  tvbuff_t *parameter_tvb;
+    offset = dissect_per_PrintableString(tvb, offset, actx, tree, hf_index,
                                           1, 1000, TRUE,
-                                          NULL);
+                                          &parameter_tvb);
+
+  /* Now complete mapping with OID string */
+  e2ap_update_ran_function_mapping(actx->pinfo, tree, parameter_tvb,
+                                   tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0,
+                                   tvb_captured_length(parameter_tvb), ENC_ASCII));
+
+
+
 
   return offset;
 }
@@ -6028,7 +6053,7 @@ dissect_e2ap_T_ranFunction_ShortName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
                                     tvb_get_string_enc(actx->pinfo->pool, value_tvb, 0, tvb_captured_length(value_tvb), ENC_ASCII));
   }
 
-
+// TODO: is this still needed now that have added function below?
 
   return offset;
 }
@@ -6042,10 +6067,10 @@ dissect_e2ap_T_ranFunction_E2SM_OID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                           1, 1000, TRUE,
                                           &parameter_tvb);
 
+  /* Now complete mapping with OID string */
   e2ap_update_ran_function_mapping(actx->pinfo, tree, parameter_tvb,
                                    tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0,
                                    tvb_captured_length(parameter_tvb), ENC_ASCII));
-
 
 
   return offset;
@@ -14591,6 +14616,9 @@ proto_reg_handoff_e2ap(void)
 
   /********************************/
   /* Known OIDs for RAN providers */
+  /* N.B. These appear in the RAN Function ASN.1 definitions (except for CCC, which is based on JSON).
+   * There is a registry of known OIDs though in the E2SM specification
+   */
 
   /* KPM */
   oid_add_from_string("KPM v1",         "1.3.6.1.4.1.53148.1.1.2.2");
@@ -14605,6 +14633,10 @@ proto_reg_handoff_e2ap(void)
 
   /* NI */
   oid_add_from_string("NI  v1",         "1.3.6.1.4.1.53148.1.1.2.1");
+
+  /* CCC */
+  oid_add_from_string("CCC v1",         "1.3.6.1.4.1.53148.1.1.2.4");
+
 
   /********************************/
   /* Register 'built-in' dissectors */
@@ -14636,9 +14668,9 @@ proto_reg_handoff_e2ap(void)
        dissect_E2SM_RC_ControlMessage_PDU,
        dissect_E2SM_RC_ControlOutcome_PDU,
        /* new for v3 */
-       NULL, //dissect_E2SM_RC_QueryOutcome_PDU,
-       NULL, //dissect_E2SM_RC_QueryDefinition_PDU,
-       NULL, //dissect_E2SM_RC_QueryHeader_PDU,
+       NULL,
+       NULL,
+       NULL,
 
        dissect_E2SM_RC_ActionDefinition_PDU,
        dissect_E2SM_RC_IndicationMessage_PDU,
@@ -14667,11 +14699,35 @@ proto_reg_handoff_e2ap(void)
     }
   };
 
-  /* Register available dissectors.  TODO: break these out into separate
-   * ASN.1 protocols that register themselves, or leave one of each here? */
+  static ran_function_dissector_t ccc_v2 =
+  { "{", /*"ORAN-E2SM-CCC",*/  "1.3.6.1.4.1.53148.1.1.2.4", 1, 0,
+    {  dissect_E2SM_NI_JSON_PDU,
+       /* TODO: are these all possible? */
+       dissect_E2SM_NI_JSON_PDU,
+       dissect_E2SM_NI_JSON_PDU,
+       dissect_E2SM_NI_JSON_PDU,
+       dissect_E2SM_NI_JSON_PDU,
+       dissect_E2SM_NI_JSON_PDU,
+       dissect_E2SM_NI_JSON_PDU,
+
+       dissect_E2SM_NI_JSON_PDU,
+       dissect_E2SM_NI_JSON_PDU,
+       dissect_E2SM_NI_JSON_PDU,
+       dissect_E2SM_NI_JSON_PDU,
+       dissect_E2SM_NI_JSON_PDU
+    }
+  };
+
+  /* Register available dissectors.
+   * Registering one version of each RAN Function here - others will need to be
+   * registered in sepparate dissectors (e.g. kpm_v2) */
   register_e2ap_ran_function_dissector(KPM_RANFUNCTIONS, &kpm_v3);
   register_e2ap_ran_function_dissector(RC_RANFUNCTIONS,  &rc_v1);
   register_e2ap_ran_function_dissector(NI_RANFUNCTIONS,  &ni_v1);
+  register_e2ap_ran_function_dissector(CCC_RANFUNCTIONS,  &ccc_v2);
+
+  /* Cache JSON dissector */
+  json_handle = find_dissector("json");
 }
 
 
