@@ -278,15 +278,18 @@ bool InterfaceSortFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex
     int type = -1;
     bool hidden = false;
 
-    if (dynamic_cast<InterfaceTreeCacheModel*>(sourceModel()) != 0)
+    InterfaceTreeCacheModel* cacheModel = qobject_cast<InterfaceTreeCacheModel*>(sourceModel());
+    InterfaceTreeModel* treeModel = nullptr;
+
+    if (cacheModel != nullptr)
     {
-        type = ((InterfaceTreeCacheModel *)sourceModel())->getColumnContent(idx, IFTREE_COL_TYPE).toInt();
-        hidden = ((InterfaceTreeCacheModel *)sourceModel())->getColumnContent(idx, IFTREE_COL_HIDDEN, Qt::UserRole).toBool();
+        type = cacheModel->getColumnContent(idx, IFTREE_COL_TYPE).toInt();
+        hidden = cacheModel->getColumnContent(idx, IFTREE_COL_HIDDEN, Qt::UserRole).toBool();
     }
-    else if (dynamic_cast<InterfaceTreeModel*>(sourceModel()) != 0)
+    else if ((treeModel = qobject_cast<InterfaceTreeModel*>(sourceModel())) != nullptr)
     {
-        type = ((InterfaceTreeModel *)sourceModel())->getColumnContent(idx, IFTREE_COL_TYPE).toInt();
-        hidden = ((InterfaceTreeModel *)sourceModel())->getColumnContent(idx, IFTREE_COL_HIDDEN, Qt::UserRole).toBool();
+        type = treeModel->getColumnContent(idx, IFTREE_COL_TYPE).toInt();
+        hidden = treeModel->getColumnContent(idx, IFTREE_COL_HIDDEN, Qt::UserRole).toBool();
     }
     else
         return false;
@@ -294,24 +297,31 @@ bool InterfaceSortFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex
     if (hidden && _filterHidden)
         return false;
 
+#ifdef HAVE_PCAP_REMOTE
+    bool isRemote = false;
+    if (cacheModel && cacheModel->isRemote(realIndex)) {
+        isRemote = true;
+    } else if (treeModel && treeModel->isRemote(idx)) {
+        isRemote = true;
+    }
+#endif
+
     if (_filterTypes && ! isInterfaceTypeShown(type))
     {
 #ifdef HAVE_PCAP_REMOTE
-        /* Remote interfaces have the if type IF_WIRED, therefore would be filtered, if not explicitly checked here */
-        if (type != IF_WIRED || ! ((InterfaceTreeModel *)sourceModel())->isRemote(idx))
+        /* Remote interfaces have the if type IF_WIRED, therefore would be filtered if not explicitly checked here */
+        if (type != IF_WIRED || !isRemote)
 #endif
         return false;
     }
 
 #ifdef HAVE_PCAP_REMOTE
-    if (((InterfaceTreeModel *)sourceModel())->isRemote(idx))
-    {
-        if (! _remoteDisplay)
+    if (isRemote && !_remoteDisplay) {
             return false;
     }
 #endif
 
-#endif
+#endif /* HAVE_LIBPCAP */
 
     return true;
 }

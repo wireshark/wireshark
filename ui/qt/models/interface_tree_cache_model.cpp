@@ -518,6 +518,17 @@ QVariant InterfaceTreeCacheModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
+#ifdef HAVE_PCAP_REMOTE
+bool InterfaceTreeCacheModel::isRemote(const QModelIndex &index) const
+{
+    const interface_t *device = lookup(index);
+    if (device != nullptr && device->remote_opts.src_type == CAPTURE_IFREMOTE) {
+        return true;
+    }
+    return false;
+}
+#endif
+
 #ifdef HAVE_LIBPCAP
 QModelIndex InterfaceTreeCacheModel::index(int row, int column, const QModelIndex &parent) const
 {

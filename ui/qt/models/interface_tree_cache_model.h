@@ -20,6 +20,8 @@
 
 class InterfaceTreeCacheModel : public QIdentityProxyModel
 {
+    Q_OBJECT
+
 public:
     explicit InterfaceTreeCacheModel(QObject *parent);
     ~InterfaceTreeCacheModel();
@@ -40,6 +42,10 @@ public:
 
     void addDevice(const interface_t * newDevice);
     void deleteDevice(const QModelIndex &index);
+#endif
+
+#ifdef HAVE_PCAP_REMOTE
+    bool isRemote(const QModelIndex &index) const;
 #endif
 
 private:
