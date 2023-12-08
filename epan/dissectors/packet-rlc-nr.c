@@ -909,7 +909,7 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
             expert_add_info(pinfo, nack_ti, &ei_rlc_nr_am_nack_sn_ahead_ack);
         }
 
-        /* Copy into tap struct, but don't exceed buffer */
+        /* Copy single NACK into tap struct, but don't exceed buffer */
         if (nack_count < MAX_NACKs) {
             tap_info->NACKs[nack_count++] = (guint32)nack_sn;
         }
@@ -961,6 +961,7 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
                                          bit_offset>>3, 2, ENC_BIG_ENDIAN, &so_start);
             bit_offset += 16;
 
+            /* N.B., if E3 is set, this refers to a byte offset within the last PDU of the range.. */
             proto_tree_add_item_ret_uint(tree, hf_rlc_nr_am_so_end, tvb,
                                          bit_offset>>3, 2, ENC_BIG_ENDIAN, &so_end);
             bit_offset += 16;
@@ -978,16 +979,15 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
         }
 
         if (e3) {
+            /* NACK range */
             proto_item *nack_range_ti;
-
-            /* Read NACK range */
             nack_range_ti = proto_tree_add_item_ret_uint(tree, hf_rlc_nr_am_nack_range, tvb,
                                                          bit_offset>>3, 1, ENC_BIG_ENDIAN, &nack_range);
             bit_offset += 8;
             if (nack_range == 0) {
+                /* It is the number of PDUs not received, so 0 does not make sense */
                 expert_add_info(pinfo, nack_range_ti, &ei_rlc_nr_am_nack_range);
-            } else {
-                nack_count += nack_range-1;
+                return;
             }
             proto_item_append_text(nack_range_ti, " (SNs %" G_GUINT64_FORMAT "-%" G_GUINT64_FORMAT " missing)",
                                    nack_sn, nack_sn+nack_range-1);
@@ -995,14 +995,14 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
             write_pdu_label_and_info(top_ti, NULL, pinfo," NACK range=%u", nack_range);
 
             /* Copy NACK SNs into tap_info */
-            guint last_nack = nack_count + nack_range - 1;
-            for (guint n=nack_count; n <= last_nack; n++) {
-                if (n < MAX_NACKs) {
-                    tap_info->NACKs[n] = (guint32)nack_sn+n;
+            for (guint nack=0; nack < nack_range-1; nack++) {
+                if (nack_count+nack < MAX_NACKs) {
+                    /* Guard against wrapping the SN range */
+                    tap_info->NACKs[nack_count+nack] = (guint32)((nack_sn+nack+1) % sn_limit);
                 }
-                /* Let it get bigger than the array for accurate stats... */
-                nack_count++;
             }
+            /* Let it get bigger than the array for accurate stats.  Take care not to double-count nack-sn itself. */
+            nack_count += (nack_range-1);
         }
     }
 
