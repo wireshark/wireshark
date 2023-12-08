@@ -64,6 +64,8 @@
 #include <QMessageBox>
 #include <QPlainTextEdit>
 
+#define PLUGIN_PATH_COLUMN 5
+
 AuthorListModel::AuthorListModel(QObject * parent) :
 AStringListListModel(parent)
 {
@@ -386,8 +388,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->tblPlugins->setRootIsDecorated(false);
     UrlLinkDelegate *plugin_delegate = new UrlLinkDelegate(this);
     script_pattern = QString("\\.(lua|py)$");
-    plugin_delegate->setColCheck(3, script_pattern);
-    ui->tblPlugins->setItemDelegateForColumn(3, plugin_delegate);
+    plugin_delegate->setColCheck(PLUGIN_PATH_COLUMN, script_pattern);
+    ui->tblPlugins->setItemDelegateForColumn(PLUGIN_PATH_COLUMN, plugin_delegate);
     ui->cmbType->addItems(pluginModel->typeNames());
     ui->tblPlugins->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->tblPlugins->setTextElideMode(Qt::ElideMiddle);
@@ -627,7 +629,7 @@ void AboutDialog::showInFolderActionTriggered()
 
     foreach (QModelIndex index, selectedRows)
     {
-        QString cf_path = tree->model()->index(index.row(), 3).data().toString();
+        QString cf_path = tree->model()->index(index.row(), PLUGIN_PATH_COLUMN).data().toString();
         desktop_show_in_folder(cf_path);
     }
 }
@@ -700,7 +702,7 @@ void AboutDialog::copyActionTriggered(bool copyRow)
 
 void AboutDialog::on_tblPlugins_doubleClicked(const QModelIndex &index)
 {
-    const int path_col = 3;
+    const int path_col = PLUGIN_PATH_COLUMN;
     if (index.column() != path_col) {
         return;
     }
