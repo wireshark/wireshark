@@ -236,7 +236,7 @@ DIAG_ON_PEDANTIC
 plugins_t *
 plugins_init(plugin_type_e type)
 {
-    if (!g_module_supported())
+    if (!plugins_supported())
         return NULL; /* nothing to do */
 
     GHashTable *plugins_module = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, free_plugin);
@@ -342,7 +342,11 @@ plugins_cleanup(plugins_t *plugins)
 bool
 plugins_supported(void)
 {
+#ifndef HAVE_PLUGINS
+    return false;
+#else
     return g_module_supported();
+#endif
 }
 
 plugin_type_e

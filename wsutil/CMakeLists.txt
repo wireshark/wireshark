@@ -183,6 +183,7 @@ set(WSUTIL_COMMON_FILES
 	cpu_info.c
 	os_version_info.c
 	please_report_bug.c
+	plugins.c
 	privileges.c
 	regex.c
 	rsa.c
@@ -211,12 +212,6 @@ set(WSUTIL_COMMON_FILES
 if(WIN32)
 	list(APPEND WSUTIL_COMMON_FILES
 		console_win32.c
-	)
-endif()
-
-if(ENABLE_PLUGINS)
-	list(APPEND WSUTIL_COMMON_FILES
-		plugins.c
 	)
 endif()
 
