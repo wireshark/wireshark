@@ -236,8 +236,9 @@ Parts of Wireshark can be built and distributed as libraries. These
 parts are still covered by the GPL, and NOT by the Lesser General Public
 License or any other license.
 
-If you integrate all or part of Wireshark into your own application, then
-that application must be released under a license compatible with the GPL.
+If you integrate all or part of Wireshark into your own application and you
+opt to publish or release it then the combined work must be released under
+the terms of the GPLv2.
 
 
 Disclaimer
