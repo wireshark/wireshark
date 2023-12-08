@@ -152,17 +152,27 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath,
         if (!g_str_has_suffix(name, WS_PLUGIN_MODULE_SUFFIX))
             continue;
 
+        plugin_file = g_build_filename(plugin_folder, name, (char *)NULL);
+
         /*
          * Check if the same name is already registered.
          */
         if (g_hash_table_lookup(plugins_module, name)) {
-            /* Yes, it is. */
-            report_warning("The plugin '%s' was found "
-                                "in multiple directories", name);
+            /* Yes, it is. In that case ignore it without
+             * requiring user intervention. There are situations
+             * where this is a legitimate case, like the user overwriting
+             * the system plugin with their own updated version. They may not have
+             * permissions to replace the system plugin. We still log a
+             * message to the console in case this catches someone by surprise,
+             * and while it is not ideal to have duplicate plugins (at a minimum
+             * it is inneficient), it doesn't raise to the level of warning,
+             * i.e something that requires corrective action. */
+            ws_message("The plugin name '%s' is already registered, ignoring the "
+                       "file \"%s\"", name, plugin_file);
+            g_free(plugin_file);
             continue;
         }
 
-        plugin_file = g_build_filename(plugin_folder, name, (char *)NULL);
         handle = g_module_open(plugin_file, G_MODULE_BIND_LOCAL);
         if (handle == NULL) {
             /* g_module_error() provides file path. */
@@ -231,25 +241,33 @@ plugins_init(plugin_type_e type)
 
     GHashTable *plugins_module = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, free_plugin);
 
-    /*
-     * Scan the global plugin directory.
-     */
-    const char* global_dir = get_plugins_dir_with_version();
-    scan_plugins_dir(plugins_module, global_dir, type, WS_PLUGIN_SCOPE_GLOBAL);
-
-    /*
-     * If the program wasn't started with special privileges,
-     * scan the users plugin directory.  (Even if we relinquish
+    /* Scan the users plugins directory first, giving it priority over the
+     * global plugins folder. Only scan it if we weren't started with special
+     * privileges.  (Even if we relinquish
      * them, plugins aren't safe unless we've *permanently*
      * relinquished them, and we can't do that in Wireshark as,
      * if we need privileges to start capturing, we'd need to
      * reclaim them before each time we start capturing.)
      */
+    const char *user_dir = get_plugins_pers_dir_with_version();
     if (!started_with_special_privs()) {
-        const char* users_dir = get_plugins_pers_dir_with_version();
-        if (0 != strcmp(global_dir, users_dir)) {
-            scan_plugins_dir(plugins_module, users_dir, type, WS_PLUGIN_SCOPE_USER);
-        }
+        scan_plugins_dir(plugins_module, user_dir, type, WS_PLUGIN_SCOPE_USER);
+    }
+    else {
+        ws_message("Skipping the personal plugin folder because we were "
+                   "started with special privileges");
+    }
+
+    /*
+     * Scan the global plugin directory. Make sure we don't scan the same directory
+     * twice (under some unusual install configurations).
+     */
+    const char *global_dir = get_plugins_dir_with_version();
+    if (strcmp(global_dir, user_dir) != 0) {
+        scan_plugins_dir(plugins_module, global_dir, type, WS_PLUGIN_SCOPE_GLOBAL);
+    }
+    else {
+        ws_warning("Skipping the global plugin folder because it is the same path as the personal folder");
     }
 
     plugins_module_list = g_slist_prepend(plugins_module_list, plugins_module);

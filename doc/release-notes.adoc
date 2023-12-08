@@ -108,6 +108,9 @@ The following features are new (or have been significantly updated) since versio
 * New menu:Tools[Install Plugin] option provides a convenient method to install
   a binary plugin to the personal folder.
 
+* The personal binary plugins folder now has higher priority than the global
+  folder.
+
 //=== Removed Features and Support
 
 // === Removed Dissectors
