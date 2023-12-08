@@ -897,9 +897,6 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
         bit_offset += sn_size;
         write_pdu_label_and_info(top_ti, NULL, pinfo, "  NACK_SN=%-6u", (guint32)nack_sn);
 
-
-        tap_info->NACKs[nack_count++] = (guint32)nack_sn;
-
         /* We shouldn't NACK the ACK_SN! */
         if (nack_sn == ack_sn) {
             expert_add_info_format(pinfo, nack_ti, &ei_rlc_nr_am_nack_sn_ack_same,
@@ -998,10 +995,13 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
             write_pdu_label_and_info(top_ti, NULL, pinfo," NACK range=%u", nack_range);
 
             /* Copy NACK SNs into tap_info */
-            for (guint n=1; n < nack_range-1; n++) {
+            guint last_nack = nack_count + nack_range - 1;
+            for (guint n=nack_count; n <= last_nack; n++) {
                 if (n < MAX_NACKs) {
-                    tap_info->NACKs[n] = (guint32)nack_sn+1;
+                    tap_info->NACKs[n] = (guint32)nack_sn+n;
                 }
+                /* Let it get bigger than the array for accurate stats... */
+                nack_count++;
             }
         }
     }

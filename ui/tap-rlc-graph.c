@@ -206,6 +206,8 @@ static tap_packet_status rlc_lte_tap_for_graph_data(void *pct, packet_info *pinf
                 segment->pduLength = rlchdr->pduLength;
             }
             else {
+                /* No sequence number, so not going to show at all */
+                g_free(segment);
                 return TAP_PACKET_DONT_REDRAW; /* i.e. no immediate redraw requested */
             }
         }
@@ -214,7 +216,7 @@ static tap_packet_status rlc_lte_tap_for_graph_data(void *pct, packet_info *pinf
             gint n;
             segment->ACKNo = rlchdr->ACKNo;
             segment->noOfNACKs = rlchdr->noOfNACKs;
-            for (n=0; n < rlchdr->noOfNACKs; n++) {
+            for (n=0; (n < rlchdr->noOfNACKs) && (n < MAX_NACKs); n++) {
                 segment->NACKs[n] = rlchdr->NACKs[n];
             }
         }
