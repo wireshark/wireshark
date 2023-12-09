@@ -74,9 +74,10 @@ There are no new protocols in this release.
 
 There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+pcapng: the if_tsoffset option is now supported.
+--
 
 // === New and Updated Capture Interfaces support
 
