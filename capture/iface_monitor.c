@@ -17,6 +17,8 @@
 
 /*
  * Linux with libnl.
+ *
+ * Use Netlink to get indications of new/removed intrfaces.
  */
 
 #include <stdio.h>
@@ -181,6 +183,8 @@ iface_mon_stop(void)
 
 /*
  * macOS.
+ *
+ * Use a PF_SYSTEM socket to get indications of new/removed intrfaces.
  */
 
 #include <stddef.h>
@@ -351,6 +355,177 @@ iface_mon_event(void)
          * have a BPF device attached to it.
          */
         break;
+    }
+}
+
+#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
+
+/*
+ * FreeBSD, NetBSD, OpenBSD, DragonFly BSD.
+ *
+ * Use a PF_ROUTE socket to get indications of new/removed intrfaces.
+ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <unistd.h>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <net/if.h>
+#include <net/if_var.h>
+#include <net/route.h>
+#include <net/if_dl.h>
+
+#include <netinet/in.h>
+#include <netinet/in_var.h>
+
+static int s;
+static iface_mon_cb callback;
+
+int
+iface_mon_start(iface_mon_cb cb)
+{
+#ifdef RO_MSGFILTER
+    unsigned char msgfilter[] = {
+        RTM_IFANNOUNCE,
+    };
+#endif
+
+    /* Create a socket of type PF_ROUTE to listen for events. */
+    s = socket(PF_ROUTE, SOCK_RAW, 0);
+    if (s == -1)
+        return -errno;
+
+#ifdef RO_MSGFILTER
+    /*
+     * This OS supports filtering PF_ROUTE sockets for specific
+     * events; we only want interface announcement events.
+     *
+     * If this fails, we just live with extra events that we ignore,
+     * which we also do on platforms that don't support filtering.
+     */
+    (void) setsockopt(s, PF_ROUTE, RO_MSGFILTER, &msgfilter, sizeof msgfilter);
+#endif
+#ifdef SO_RERROR
+    /*
+     * This OS supports getting error reports from recvmsg() if a
+     * receive buffer overflow occurs.  If that happens, it means
+     * that we may have lost interface reports, so we should
+     * probably just refetch all interface data.
+     *
+     * If we can't get those error reports, we're out of luck.
+     */
+    int n = 1;
+    (void) setsockopt(s, SOL_SOCKET, SO_RERROR, &n, sizeof(n));
+#endif
+
+    callback = cb;
+    return 0;
+}
+
+void
+iface_mon_stop(void)
+{
+    close(s);
+}
+
+int
+iface_mon_get_sock(void)
+{
+    return s;
+}
+
+void
+iface_mon_event(void)
+{
+    union msgbuf {
+        char buf[2048];
+        struct rt_msghdr hd;
+        struct if_announcemsghdr ifan;
+    } msgbuf;
+    struct iovec iov[1];
+    struct msghdr msg;
+    bool message_seen = false;
+    ssize_t received;
+
+    iov[0].iov_base = &msgbuf;
+    iov[0].iov_len = sizeof msgbuf;
+    memset(&msg, 0, sizeof msg);
+    msg.msg_iov = iov;
+    msg.msg_iovlen = 1;
+
+    while (!message_seen) {
+        received = recvmsg(s, &msg, 0);
+        if (received == -1) {
+            if (errno == ENOBUFS) {
+                /*
+                 * Receive buffer overflow.  Keep reading,
+                 * to get any messages in the socket buffer.
+                 *
+                 * XXX - that means we may have lost indications;
+                 * should there be a callback that indicates that
+                 * all interface data should be refreshed?
+                 */
+                continue;
+            } else {
+                /*
+                 * Other error - just ignore.
+                 */
+                return;
+            }
+        }
+
+        /*
+         * We've seen a message.
+         */
+        message_seen = true;
+    }
+    if (received != 0) {
+        /*
+         * XXX - should we check received, to make sure it's large
+         * enough?
+         */
+        if (msgbuf.hd.rtm_version != RTM_VERSION)
+            return;
+
+        switch (msgbuf.hd.rtm_type) {
+
+        case RTM_IFANNOUNCE:
+            switch (msgbuf.ifan.ifan_what) {
+
+            case IFAN_ARRIVAL:
+                /*
+                 * A new interface has arrived.
+                 *
+                 * XXX - see comment about interface arrivals in the
+                 * macOS section; it applies here as well.
+                 */
+                callback(msgbuf.ifan.ifan_name, 1, 1);
+                break;
+
+            case IFAN_DEPARTURE:
+                /*
+                 * An existing interface has been removed.
+                 */
+                callback(msgbuf.ifan.ifan_name, 0, 0);
+                break;
+
+            default:
+                /*
+                 * Ignore other notifications.
+                 */
+                break;
+            }
+            break;
+
+        default:
+            /*
+             * Ignore other messages.
+             */
+            break;
+        }
     }
 }
 
