@@ -1819,8 +1819,16 @@ dissect_quic_stream_payload(tvbuff_t *tvb, int offset, int length, packet_info *
      * preference to disable reassembly.
      */
 
-    pinfo->can_desegment = 2;
-    desegment_quic_stream(tvb, offset, length, pinfo, tree, quic_info, stream_info, stream);
+    if (length > 0) {
+        /* Don't call a subdissector for a zero length segment. It won't
+         * work for dissection (see #12368), and our methods of determing
+         * if desegmentation is needed won't work either (#19497). If there
+         * ever is an app_handle on top of QUIC that needs to be called with
+         * a zero length segment, revisit this. (Cf. #15159)
+         */
+        pinfo->can_desegment = 2;
+        desegment_quic_stream(tvb, offset, length, pinfo, tree, quic_info, stream_info, stream);
+    }
 }
 /* QUIC Streams tracking and reassembly. }}} */
 
