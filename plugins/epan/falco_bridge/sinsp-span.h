@@ -34,6 +34,22 @@ typedef enum sinsp_field_display_format_e {
     SFDF_OCTAL
 } sinsp_field_display_format_e;
 
+// Should match sinsp_filter_check_list in libsinsp as closely as possible.
+
+typedef enum sinsp_syscall_category_e {
+    SSC_EVENT, // gen_event, event
+    SSC_PROCESS, // thread
+    SSC_USER, // user
+    SSC_GROUP, // group
+    SSC_CONTAINER, // container
+    SSC_FD, // fd
+    SSC_FS, // fs.path
+//    SSC_SYSLOG, // syslog. Collides with syslog dissector so skip for now.
+    SSC_FDLIST, // fdlist
+    SSC_OTHER, // "falco.", catch-all
+    NUM_SINSP_SYSCALL_CATEGORIES
+} sinsp_syscall_category_e;
+
 typedef struct sinsp_field_info_t {
     enum ftenum type;
     sinsp_field_display_format_e display_format;
@@ -63,7 +79,7 @@ typedef struct sinsp_field_extract_t {
         bool boolean;
     } res;
     int res_len;                // out
-    size_t parent_category;     // out
+    sinsp_syscall_category_e parent_category;     // out
 } sinsp_field_extract_t;
 
 sinsp_span_t *create_sinsp_span(void);
@@ -80,8 +96,6 @@ bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, size_t field_num, sin
 void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t **ssi_ptr);
 void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath);
 void close_sinsp_capture(sinsp_span_t *sinsp_span);
-size_t get_syscall_source_ncategories(sinsp_source_info_t *ssi);
-bool get_syscall_source_category_info(sinsp_source_info_t *ssi, size_t category_num, sinsp_field_info_t *field);
 bool extract_syscall_source_fields(sinsp_source_info_t *ssi, uint16_t event_type, uint32_t nparams, uint64_t ts, uint64_t thread_id, uint16_t cpu_id, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len);
 
 // Extractor plugin routines.

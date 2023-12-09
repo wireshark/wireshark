@@ -40,7 +40,7 @@ typedef struct sinsp_source_info_t {
     std::vector<gen_event_filter_check *> syscall_event_filter_checks;
     std::vector<const filtercheck_field_info *> syscall_filter_fields;
     std::map<const filtercheck_field_info *, size_t> ffi_to_sf_idx;
-    std::map<size_t, size_t> field_to_category;
+    std::map<size_t, sinsp_syscall_category_e> field_to_category;
     sinsp_evt *evt;
     uint8_t *evt_storage;
     size_t evt_storage_size;
@@ -65,6 +65,27 @@ void destroy_sinsp_span(sinsp_span_t *sinsp_span) {
     delete(sinsp_span);
 }
 
+static sinsp_syscall_category_e filtercheck_name_to_category(const std::string fc_name) {
+    // Must match libsinsp/sinsp_filtercheck_*.cpp
+    std::map<const char *, sinsp_syscall_category_e> fc_name_to_category = {
+        { "evt", SSC_EVENT },
+        { "process", SSC_PROCESS },
+        { "user", SSC_USER },
+        { "group", SSC_GROUP },
+        { "container", SSC_CONTAINER },
+        { "fd", SSC_FD },
+        { "fdlist", SSC_FDLIST },
+        { "fs.path", SSC_FS },
+    };
+
+    for (const auto ptc : fc_name_to_category) {
+        if (ptc.first == fc_name) {
+            return ptc.second;
+        }
+    }
+    return SSC_OTHER;
+}
+
 /*
  * Populate a sinsp_source_info_t struct with the symbols coming from libsinsp's builtin syscall extractors
  */
@@ -82,6 +103,7 @@ void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t *
         if (fci->m_flags == filter_check_info::FL_HIDDEN) {
             continue;
         }
+        sinsp_syscall_category_e syscall_category = filtercheck_name_to_category(fci->m_name);
 
         for (int i = 0; i < fci->m_nfields; i++) {
             const filtercheck_field_info *ffi = &fci->m_fields[i];
@@ -92,7 +114,7 @@ void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t *
                 }
                 gefc->parse_field_name(ffi->m_name, true, false);
                 ssi->ffi_to_sf_idx[ffi] = ssi->syscall_filter_fields.size();
-                ssi->field_to_category[ssi->syscall_filter_fields.size()] = ssi->syscall_filter_checks.size();
+                ssi->field_to_category[ssi->syscall_filter_fields.size()] = syscall_category;
                 ssi->syscall_event_filter_checks.push_back(gefc);
                 ssi->syscall_filter_fields.push_back(ffi);
             }
@@ -200,8 +222,14 @@ bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, size_t field_num, sin
         g_strlcpy(field->abbrev, ffi->m_name, sizeof(field->abbrev));
     } else {
         ffi = ssi->syscall_filter_fields[field_num];
-        snprintf(field->abbrev, sizeof(field->abbrev), FALCO_FIELD_NAME_PREFIX "%s", ffi->m_name);
+        if (ssi->field_to_category[field_num] == SSC_OTHER) {
+            snprintf(field->abbrev, sizeof(field->abbrev), FALCO_FIELD_NAME_PREFIX "%s", ffi->m_name);
+        } else {
+            snprintf(field->abbrev, sizeof(field->abbrev), "%s", ffi->m_name);
+        }
     }
+
+    field->is_numeric_address = false;
 
     switch (ffi->m_type) {
     case PT_INT8:
@@ -292,51 +320,6 @@ void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath)
 void close_sinsp_capture(sinsp_span_t *sinsp_span)
 {
     sinsp_span->inspector.close();
-}
-
-size_t get_syscall_source_ncategories(sinsp_source_info_t *ssi)
-{
-    return ssi->syscall_filter_checks.size();
-}
-
-bool get_syscall_source_category_info(sinsp_source_info_t *ssi, size_t category_num, sinsp_field_info_t *field)
-{
-    if (category_num >= get_syscall_source_ncategories(ssi)) {
-        return false;
-    }
-
-    const filter_check_info *fci = ssi->syscall_filter_checks[category_num];
-
-    std::map<std::string, const char *> name_to_display = {
-        { "process", "Process information" },
-        { "user", "User information" },
-        { "group", "Group information" },
-        { "container", "Container information" },
-        { "fd", "File descriptors" },
-        { "fs.path", "Filesystem paths" },
-        { "syslog", "Syslog information" },
-        { "fdlist", "Poll event fields" },
-        { "span", "Distributed tracing" },
-        { "evtin", "Distributed tracing" },
-    };
-
-    snprintf(field->abbrev, sizeof(field->abbrev), FALCO_FIELD_NAME_PREFIX "%s", fci->m_name.c_str());
-    if (!fci->m_shortdesc.empty()) {
-        g_strlcpy(field->display, fci->m_shortdesc.c_str(), sizeof(field->display));
-    } else {
-        if (auto iter = name_to_display.find(fci->m_name); iter != name_to_display.end()) {
-            g_strlcpy(field->display, iter->second, sizeof(field->display));
-        } else {
-            g_strlcpy(field->display, "Enriched information", sizeof(field->display));
-        };
-    }
-    g_strlcpy(field->description, fci->m_desc.c_str(), sizeof(field->description));
-
-    field->is_hidden = false;
-    field->is_info = false;
-    field->is_conversation = false;
-
-    return true;
 }
 
 bool extract_syscall_source_fields(sinsp_source_info_t *ssi, uint16_t event_type, uint32_t nparams, uint64_t ts, uint64_t thread_id, uint16_t cpu_id, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len) {
