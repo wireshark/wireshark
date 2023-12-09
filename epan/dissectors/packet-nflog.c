@@ -222,9 +222,15 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
                 case WS_NFULA_TIMESTAMP:
                     if (value_len == 16) {
-                        /* XXX - add an "expert info" warning if the nanoseconds are >= 10^9? */
+                        /*
+                         * 64-bit seconds and 64-bit microseconds.
+                         *
+                         * XXX - add an "expert info" warning if the
+                         * microseconds are >= 10^6?
+                         */
                         proto_tree_add_item(tlv_tree, hf_nflog_tlv_timestamp,
-                                    tvb, offset + 4, value_len, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
+                                    tvb, offset + 4, value_len,
+                                    ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN);
                         handled = TRUE;
                     }
                     break;

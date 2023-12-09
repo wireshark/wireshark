@@ -2238,12 +2238,28 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 
 		case ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN:
 			/*
-			 * 4-byte seconds, followed by 4-byte fractional
-			 * time in microseconds, both big-endian.
+			 * If the length is 16, 8-byte seconds, followed
+			 * by 8-byte fractional time in microseconds,
+			 * both big-endian.
+			 *
+			 * If the length is 12, 8-byte seconds, followed
+			 * by 4-byte fractional time in microseconds,
+			 * both big-endian.
+			 *
+			 * If the length is 8, 4-byte seconds, followed
+			 * by 4-byte fractional time in microseconds,
+			 * both big-endian.
+			 *
 			 * For absolute times, the seconds are seconds
 			 * since the UN*X epoch.
 			 */
-			if (length == 8) {
+			if (length == 16) {
+				time_stamp->secs  = (time_t)tvb_get_ntoh64(tvb, start);
+				time_stamp->nsecs = (guint32)tvb_get_ntoh64(tvb, start+8)*1000;
+			} else if (length == 12) {
+				time_stamp->secs  = (time_t)tvb_get_ntoh64(tvb, start);
+				time_stamp->nsecs = tvb_get_ntohl(tvb, start+8)*1000;
+			} else if (length == 8) {
 				time_stamp->secs  = (time_t)tvb_get_ntohl(tvb, start);
 				time_stamp->nsecs = tvb_get_ntohl(tvb, start+4)*1000;
 			} else {
@@ -2255,12 +2271,28 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 
 		case ENC_TIME_SECS_USECS|ENC_LITTLE_ENDIAN:
 			/*
-			 * 4-byte seconds, followed by 4-byte fractional
-			 * time in microseconds, both little-endian.
+			 * If the length is 16, 8-byte seconds, followed
+			 * by 8-byte fractional time in microseconds,
+			 * both little-endian.
+			 *
+			 * If the length is 12, 8-byte seconds, followed
+			 * by 4-byte fractional time in microseconds,
+			 * both little-endian.
+			 *
+			 * If the length is 8, 4-byte seconds, followed
+			 * by 4-byte fractional time in microseconds,
+			 * both little-endian.
+			 *
 			 * For absolute times, the seconds are seconds
 			 * since the UN*X epoch.
 			 */
-			if (length == 8) {
+			if (length == 16) {
+				time_stamp->secs  = (time_t)tvb_get_letoh64(tvb, start);
+				time_stamp->nsecs = (guint32)tvb_get_letoh64(tvb, start+8)*1000;
+			} else if (length == 12) {
+				time_stamp->secs  = (time_t)tvb_get_letoh64(tvb, start);
+				time_stamp->nsecs = tvb_get_letohl(tvb, start+8)*1000;
+			} else if (length == 8) {
 				time_stamp->secs  = (time_t)tvb_get_letohl(tvb, start);
 				time_stamp->nsecs = tvb_get_letohl(tvb, start+4)*1000;
 			} else {
