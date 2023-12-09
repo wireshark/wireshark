@@ -105,6 +105,13 @@ public:
     void emitLocalInterfaceEvent(const char *ifname, int added, int up);
 
     virtual void refreshLocalInterfaces();
+#ifdef HAVE_LIBPCAP
+    // This returns a deep copy of the cached interface list that must
+    // be freed with free_interface_list.
+    GList * getInterfaceList() const;
+    // This set the cached interface list to a deep copy of if_list.
+    void setInterfaceList(GList *if_list);
+#endif
 
     struct _e_prefs * readConfigurationFiles(bool reset);
     QList<recent_item_status *> recentItems() const;
@@ -160,6 +167,7 @@ private:
     static QString window_title_separator_;
     QList<AppSignal> app_signals_;
     int active_captures_;
+
 #if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
     bool software_update_ok_;
 #endif
@@ -173,6 +181,9 @@ protected:
 
     QIcon normal_icon_;
     QIcon capture_icon_;
+#ifdef HAVE_LIBPCAP
+    GList *cached_if_list_;
+#endif
 
 signals:
     void appInitialized();

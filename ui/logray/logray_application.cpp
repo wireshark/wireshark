@@ -34,6 +34,9 @@ void LograyApplication::refreshLocalInterfaces()
     extcap_clear_interfaces();
 
 #ifdef HAVE_LIBPCAP
+    free_interface_list(cached_if_list_);
+    cached_if_list_ = NULL;
+
     GList * filter_list = NULL;
     filter_list = g_list_append(filter_list, GUINT_TO_POINTER((guint) IF_EXTCAP));
 

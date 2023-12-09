@@ -404,16 +404,18 @@ macos_enable_layer_backing(void)
 static GList *
 capture_opts_get_interface_list(int *err, char **err_str)
 {
-    /*
-     * XXX - should this pass an update callback?
-     * We already have a window up by the time we start parsing
-     * the majority of the command-line arguments, because
-     * we need to do a bunch of initialization work before
-     * parsing those arguments, and we want to let the user
-     * know that we're doing that initialization, given that
-     * it can take a while.
-     */
-    return capture_interface_list(err, err_str, NULL);
+    // XXX: logray only wants the IF_EXTCAP interfaces.
+    // Probably instead of calling capture_interface_list we should
+    // just call append_extcap_interface_list(NULL)
+    if (mainApp) {
+        GList *if_list = mainApp->getInterfaceList();
+        if (if_list == NULL) {
+            if_list = capture_interface_list(err, err_str, main_window_update);
+            mainApp->setInterfaceList(if_list);
+        }
+        return if_list;
+    }
+    return capture_interface_list(err, err_str, main_window_update);
 }
 #endif
 

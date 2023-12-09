@@ -195,9 +195,8 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
 
     /* Retrieve list of interface information (if_info_t) into if_list. */
     g_free(global_capture_opts.ifaces_err_info);
-    if_list = capture_interface_list(&global_capture_opts.ifaces_err,
-                                     &global_capture_opts.ifaces_err_info,
-                                     update_cb);
+    if_list = global_capture_opts.get_iface_list(&global_capture_opts.ifaces_err,
+                                     &global_capture_opts.ifaces_err_info);
 
     /*
      * For each discovered interface name, look up its list of capabilities.

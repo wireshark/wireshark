@@ -649,6 +649,9 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     is_reloading_lua_(false),
     if_notifier_(NULL),
     active_captures_(0)
+#ifdef HAVE_LIBPCAP
+    , cached_if_list_(NULL)
+#endif
 {
     mainApp = this;
 
@@ -810,6 +813,9 @@ MainApplication::MainApplication(int &argc,  char **argv) :
 MainApplication::~MainApplication()
 {
     mainApp = NULL;
+#ifdef HAVE_LIBPCAP
+    free_interface_list(cached_if_list_);
+#endif
     clearDynamicMenuGroupItems();
 }
 
@@ -1046,6 +1052,12 @@ void MainApplication::refreshLocalInterfaces()
 
 #ifdef HAVE_LIBPCAP
     /*
+     * Free any cached interface list.
+     */
+    free_interface_list(cached_if_list_);
+    cached_if_list_ = NULL;
+
+    /*
      * Reload the local interface list.
      */
     scan_local_interfaces(main_window_update);
@@ -1054,11 +1066,23 @@ void MainApplication::refreshLocalInterfaces()
      * Now emit a signal to indicate that the list changed, so that all
      * places displaying the list will get updated.
      *
-     * XXX - only if it *did* change.
+     * XXX - only if it *did* change - compare with the cached list above?
      */
     emit localInterfaceListChanged();
 #endif
 }
+
+#ifdef HAVE_LIBPCAP
+GList* MainApplication::getInterfaceList() const
+{
+     return interface_list_copy(cached_if_list_);
+}
+
+void MainApplication::setInterfaceList(GList *if_list)
+{
+     cached_if_list_ = interface_list_copy(if_list);
+}
+#endif
 
 void MainApplication::allSystemsGo()
 {
