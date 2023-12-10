@@ -254,7 +254,7 @@ plugins_init(plugin_type_e type)
         scan_plugins_dir(plugins_module, user_dir, type, WS_PLUGIN_SCOPE_USER);
     }
     else {
-        ws_message("Skipping the personal plugin folder because we were "
+        ws_info("Skipping the personal plugin folder because we were "
                    "started with special privileges");
     }
 
