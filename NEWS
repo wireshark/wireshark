@@ -34,6 +34,8 @@
 
    There is no new or updated capture file support in this release.
 
+   pcapng: the if_tsoffset option is now supported.
+
   New File Format Decoding Support
 
    There is no new or updated file format support in this release.
