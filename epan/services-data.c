@@ -5736,7 +5736,6 @@ static ws_services_entry_t global_tcp_services_table[] = {
     { 10162, "snmptls-trap",    "SNMP-Trap-TLS" },
     { 10201, "rsms",            "Remote Server Management Service" },
     { 10261, "tile-ml",         "Tile remote machine learning" },
-    { 10321, "cosir",           "Computer Op System Information Report" },
     { 10443, "cirrossp",        "CirrosSP Workstation Communication" },
     { 10548, "serverdocs",      "Apple Document Sharing Service" },
     { 10631, "printopia",       "Printopia Serve" },
