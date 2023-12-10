@@ -464,6 +464,25 @@ class TestDissectHttp2:
         # Stream ID 1 bytes, decrypted and uncompressed, human readable
         assert grep_output(stdout, '00000000  3a 6d 65 74 68 6f 64 3a')
 
+class TestDissectHttp2:
+    def test_http3_qpack_reassembly(self, cmd_tshark, features, dirs, capture_file, test_env):
+        '''HTTP/3 QPACK encoder stream reassembly'''
+        if not features.have_nghttp3:
+            pytest.skip('Requires nghttp3.')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('http3-qpack-reassembly-anon.pcapng'),
+                '-Y', 'http3.frame_type == "HEADERS"',
+                '-T', 'fields', '-e', 'http3.headers.method',
+                '-e', 'http3.headers.authority',
+                '-e', 'http3.headers.referer', '-e', 'http3.headers.user_agent',
+                '-e', 'http3.qpack.encoder.icnt'
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, 'POST')
+        assert grep_output(stdout, 'googlevideo.com')
+        assert grep_output(stdout, 'https://www.youtube.com')
+        assert grep_output(stdout, 'Mozilla/5.0')
+        assert grep_output(stdout, '21') # Total number of QPACK insertions
+
 class TestDissectProtobuf:
     def test_protobuf_udp_message_mapping(self, cmd_tshark, features, dirs, capture_file, test_env):
         '''Test Protobuf UDP Message Mapping and parsing google.protobuf.Timestamp features'''
