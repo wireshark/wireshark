@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: f85cee6ce7d3e40c654563064608c7f94cac0b9f
+git revision: 6c6a8186e2c1f12a57976cf15f23522d8b20cfb0
 
 
 */
@@ -53332,6 +53332,460 @@ static const AsterixField **I065[] = {
 };
 DIAG_ON_PEDANTIC
 
+/* Category 205, edition 1.0 */
+static int hf_205_V1_0_000;
+static int hf_205_V1_0_000_VALUE;
+static const value_string valstr_205_V1_0_000_VALUE[] = {
+    { 1, "System Position Report" },
+    { 2, "System Bearing Report" },
+    { 3, "System Position Report of conflicting transmission" },
+    { 4, "System Detection End Report" },
+    { 5, "Sensor Data Report" },
+    { 0, NULL }
+};
+static const FieldPart I205_V1_0_000_VALUE = { 8, 1.0, FIELD_PART_UINT, &hf_205_V1_0_000_VALUE, NULL };
+static const FieldPart *I205_V1_0_000_PARTS[] = {
+    &I205_V1_0_000_VALUE,
+    NULL
+};
+static const AsterixField I205_V1_0_000 = { FIXED, 1, 0, 0, &hf_205_V1_0_000, I205_V1_0_000_PARTS, { NULL } };
+static int hf_205_V1_0_010;
+static int hf_205_V1_0_010_SAC;
+static const FieldPart I205_V1_0_010_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_205_V1_0_010_SAC, NULL };
+static int hf_205_V1_0_010_SIC;
+static const FieldPart I205_V1_0_010_SIC = { 8, 1.0, FIELD_PART_HEX, &hf_205_V1_0_010_SIC, NULL };
+static const FieldPart *I205_V1_0_010_PARTS[] = {
+    &I205_V1_0_010_SAC,
+    &I205_V1_0_010_SIC,
+    NULL
+};
+static const AsterixField I205_V1_0_010 = { FIXED, 2, 0, 0, &hf_205_V1_0_010, I205_V1_0_010_PARTS, { NULL } };
+static int hf_205_V1_0_015;
+static int hf_205_V1_0_015_VALUE;
+static const FieldPart I205_V1_0_015_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_205_V1_0_015_VALUE, NULL };
+static const FieldPart *I205_V1_0_015_PARTS[] = {
+    &I205_V1_0_015_VALUE,
+    NULL
+};
+static const AsterixField I205_V1_0_015 = { FIXED, 1, 0, 0, &hf_205_V1_0_015, I205_V1_0_015_PARTS, { NULL } };
+static int hf_205_V1_0_030;
+static int hf_205_V1_0_030_VALUE;
+static const FieldPart I205_V1_0_030_VALUE = { 24, 0.0078125, FIELD_PART_UFLOAT, &hf_205_V1_0_030_VALUE, NULL };
+static const FieldPart *I205_V1_0_030_PARTS[] = {
+    &I205_V1_0_030_VALUE,
+    NULL
+};
+static const AsterixField I205_V1_0_030 = { FIXED, 3, 0, 0, &hf_205_V1_0_030, I205_V1_0_030_PARTS, { NULL } };
+static int hf_205_V1_0_040;
+static int hf_205_V1_0_040_VALUE;
+static const FieldPart I205_V1_0_040_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_205_V1_0_040_VALUE, NULL };
+static const FieldPart *I205_V1_0_040_PARTS[] = {
+    &I205_V1_0_040_VALUE,
+    NULL
+};
+static const AsterixField I205_V1_0_040 = { FIXED, 1, 0, 0, &hf_205_V1_0_040, I205_V1_0_040_PARTS, { NULL } };
+static int hf_205_V1_0_050;
+static int hf_205_V1_0_050_LAT;
+static const FieldPart I205_V1_0_050_LAT = { 32, 0.00000536441802978515625, FIELD_PART_FLOAT, &hf_205_V1_0_050_LAT, NULL };
+static int hf_205_V1_0_050_LON;
+static const FieldPart I205_V1_0_050_LON = { 32, 0.00000536441802978515625, FIELD_PART_FLOAT, &hf_205_V1_0_050_LON, NULL };
+static const FieldPart *I205_V1_0_050_PARTS[] = {
+    &I205_V1_0_050_LAT,
+    &I205_V1_0_050_LON,
+    NULL
+};
+static const AsterixField I205_V1_0_050 = { FIXED, 8, 0, 0, &hf_205_V1_0_050, I205_V1_0_050_PARTS, { NULL } };
+static int hf_205_V1_0_060;
+static int hf_205_V1_0_060_X;
+static const FieldPart I205_V1_0_060_X = { 24, 0.5, FIELD_PART_FLOAT, &hf_205_V1_0_060_X, NULL };
+static int hf_205_V1_0_060_Y;
+static const FieldPart I205_V1_0_060_Y = { 24, 0.5, FIELD_PART_FLOAT, &hf_205_V1_0_060_Y, NULL };
+static const FieldPart *I205_V1_0_060_PARTS[] = {
+    &I205_V1_0_060_X,
+    &I205_V1_0_060_Y,
+    NULL
+};
+static const AsterixField I205_V1_0_060 = { FIXED, 6, 0, 0, &hf_205_V1_0_060, I205_V1_0_060_PARTS, { NULL } };
+static int hf_205_V1_0_070;
+static int hf_205_V1_0_070_VALUE;
+static const FieldPart I205_V1_0_070_VALUE = { 16, 0.01, FIELD_PART_UFLOAT, &hf_205_V1_0_070_VALUE, NULL };
+static const FieldPart *I205_V1_0_070_PARTS[] = {
+    &I205_V1_0_070_VALUE,
+    NULL
+};
+static const AsterixField I205_V1_0_070 = { FIXED, 2, 0, 0, &hf_205_V1_0_070, I205_V1_0_070_PARTS, { NULL } };
+static int hf_205_V1_0_080;
+static int hf_205_V1_0_080_VALUE;
+static const FieldPart I205_V1_0_080_VALUE = { 16, 0.01, FIELD_PART_UFLOAT, &hf_205_V1_0_080_VALUE, NULL };
+static const FieldPart *I205_V1_0_080_PARTS[] = {
+    &I205_V1_0_080_VALUE,
+    NULL
+};
+static const AsterixField I205_V1_0_080 = { FIXED, 2, 0, 0, &hf_205_V1_0_080, I205_V1_0_080_PARTS, { NULL } };
+static int hf_205_V1_0_090;
+static int hf_205_V1_0_090_VALUE;
+static const FieldPart I205_V1_0_090_VALUE = { 56, 1.0, FIELD_PART_ASCII, &hf_205_V1_0_090_VALUE, NULL };
+static const FieldPart *I205_V1_0_090_PARTS[] = {
+    &I205_V1_0_090_VALUE,
+    NULL
+};
+static const AsterixField I205_V1_0_090 = { FIXED, 7, 0, 0, &hf_205_V1_0_090, I205_V1_0_090_PARTS, { NULL } };
+static int hf_205_V1_0_100;
+static int hf_205_V1_0_100_VALUE;
+static const FieldPart I205_V1_0_100_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_205_V1_0_100_VALUE, NULL };
+static const FieldPart *I205_V1_0_100_PARTS[] = {
+    &I205_V1_0_100_VALUE,
+    NULL
+};
+static const AsterixField I205_V1_0_100 = { FIXED, 1, 0, 0, &hf_205_V1_0_100, I205_V1_0_100_PARTS, { NULL } };
+static int hf_205_V1_0_110;
+static int hf_205_V1_0_110_VALUE;
+static const FieldPart I205_V1_0_110_VALUE = { 8, 100.0, FIELD_PART_UFLOAT, &hf_205_V1_0_110_VALUE, NULL };
+static const FieldPart *I205_V1_0_110_PARTS[] = {
+    &I205_V1_0_110_VALUE,
+    NULL
+};
+static const AsterixField I205_V1_0_110 = { FIXED, 1, 0, 0, &hf_205_V1_0_110, I205_V1_0_110_PARTS, { NULL } };
+static int hf_205_V1_0_120;
+static int hf_205_V1_0_120_VALUE;
+static const FieldPart I205_V1_0_120_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_205_V1_0_120_VALUE, NULL };
+static const FieldPart *I205_V1_0_120_PARTS[] = {
+    &I205_V1_0_120_VALUE,
+    NULL
+};
+static const AsterixField I205_V1_0_120 = { REPETITIVE, 1, 1, 0, &hf_205_V1_0_120, I205_V1_0_120_PARTS, { NULL } };
+static int hf_205_V1_0_130;
+static int hf_205_V1_0_130_LAT;
+static const FieldPart I205_V1_0_130_LAT = { 32, 0.00000536441802978515625, FIELD_PART_FLOAT, &hf_205_V1_0_130_LAT, NULL };
+static int hf_205_V1_0_130_LON;
+static const FieldPart I205_V1_0_130_LON = { 32, 0.00000536441802978515625, FIELD_PART_FLOAT, &hf_205_V1_0_130_LON, NULL };
+static const FieldPart *I205_V1_0_130_PARTS[] = {
+    &I205_V1_0_130_LAT,
+    &I205_V1_0_130_LON,
+    NULL
+};
+static const AsterixField I205_V1_0_130 = { FIXED, 8, 0, 0, &hf_205_V1_0_130, I205_V1_0_130_PARTS, { NULL } };
+static int hf_205_V1_0_140;
+static int hf_205_V1_0_140_X;
+static const FieldPart I205_V1_0_140_X = { 24, 0.5, FIELD_PART_FLOAT, &hf_205_V1_0_140_X, NULL };
+static int hf_205_V1_0_140_Y;
+static const FieldPart I205_V1_0_140_Y = { 24, 0.5, FIELD_PART_FLOAT, &hf_205_V1_0_140_Y, NULL };
+static const FieldPart *I205_V1_0_140_PARTS[] = {
+    &I205_V1_0_140_X,
+    &I205_V1_0_140_Y,
+    NULL
+};
+static const AsterixField I205_V1_0_140 = { FIXED, 6, 0, 0, &hf_205_V1_0_140, I205_V1_0_140_PARTS, { NULL } };
+static int hf_205_V1_0_150;
+static int hf_205_V1_0_150_VALUE;
+static const FieldPart I205_V1_0_150_VALUE = { 8, 100.0, FIELD_PART_UFLOAT, &hf_205_V1_0_150_VALUE, NULL };
+static const FieldPart *I205_V1_0_150_PARTS[] = {
+    &I205_V1_0_150_VALUE,
+    NULL
+};
+static const AsterixField I205_V1_0_150 = { FIXED, 1, 0, 0, &hf_205_V1_0_150, I205_V1_0_150_PARTS, { NULL } };
+static int hf_205_V1_0_160;
+static int hf_205_V1_0_160_VALUE;
+static const FieldPart I205_V1_0_160_VALUE = { 16, 1.0, FIELD_PART_HEX, &hf_205_V1_0_160_VALUE, NULL };
+static const FieldPart *I205_V1_0_160_PARTS[] = {
+    &I205_V1_0_160_VALUE,
+    NULL
+};
+static const AsterixField I205_V1_0_160 = { FIXED, 2, 0, 0, &hf_205_V1_0_160, I205_V1_0_160_PARTS, { NULL } };
+static int hf_205_V1_0_170;
+static int hf_205_V1_0_170_VALUE;
+static const FieldPart I205_V1_0_170_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_205_V1_0_170_VALUE, NULL };
+static const FieldPart *I205_V1_0_170_PARTS[] = {
+    &I205_V1_0_170_VALUE,
+    NULL
+};
+static const AsterixField I205_V1_0_170 = { FIXED, 1, 0, 0, &hf_205_V1_0_170, I205_V1_0_170_PARTS, { NULL } };
+static int hf_205_V1_0_180;
+static int hf_205_V1_0_180_VALUE;
+static const FieldPart I205_V1_0_180_VALUE = { 16, 0.01, FIELD_PART_FLOAT, &hf_205_V1_0_180_VALUE, NULL };
+static const FieldPart *I205_V1_0_180_PARTS[] = {
+    &I205_V1_0_180_VALUE,
+    NULL
+};
+static const AsterixField I205_V1_0_180 = { FIXED, 2, 0, 0, &hf_205_V1_0_180, I205_V1_0_180_PARTS, { NULL } };
+static int hf_205_V1_0_190;
+static int hf_205_V1_0_190_VALUE;
+static const FieldPart I205_V1_0_190_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_205_V1_0_190_VALUE, NULL };
+static const FieldPart *I205_V1_0_190_PARTS[] = {
+    &I205_V1_0_190_VALUE,
+    NULL
+};
+static const AsterixField I205_V1_0_190 = { FIXED, 1, 0, 0, &hf_205_V1_0_190, I205_V1_0_190_PARTS, { NULL } };
+static int hf_205_V1_0_200;
+static int hf_205_V1_0_200_VALUE;
+static const FieldPart I205_V1_0_200_VALUE = { 16, 0.01, FIELD_PART_FLOAT, &hf_205_V1_0_200_VALUE, NULL };
+static const FieldPart *I205_V1_0_200_PARTS[] = {
+    &I205_V1_0_200_VALUE,
+    NULL
+};
+static const AsterixField I205_V1_0_200 = { FIXED, 2, 0, 0, &hf_205_V1_0_200, I205_V1_0_200_PARTS, { NULL } };
+static int hf_205_V1_0_SP;
+static const AsterixField I205_V1_0_SP = { EXP, 0, 0, 1, &hf_205_V1_0_SP, NULL, { NULL } };
+
+/* Category 205, edition 1.0 (latest) */
+static int hf_205_000;
+static int hf_205_000_VALUE;
+static const value_string valstr_205_000_VALUE[] = {
+    { 1, "System Position Report" },
+    { 2, "System Bearing Report" },
+    { 3, "System Position Report of conflicting transmission" },
+    { 4, "System Detection End Report" },
+    { 5, "Sensor Data Report" },
+    { 0, NULL }
+};
+static const FieldPart I205_000_VALUE = { 8, 1.0, FIELD_PART_UINT, &hf_205_000_VALUE, NULL };
+static const FieldPart *I205_000_PARTS[] = {
+    &I205_000_VALUE,
+    NULL
+};
+static const AsterixField I205_000 = { FIXED, 1, 0, 0, &hf_205_000, I205_000_PARTS, { NULL } };
+static int hf_205_010;
+static int hf_205_010_SAC;
+static const FieldPart I205_010_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_205_010_SAC, NULL };
+static int hf_205_010_SIC;
+static const FieldPart I205_010_SIC = { 8, 1.0, FIELD_PART_HEX, &hf_205_010_SIC, NULL };
+static const FieldPart *I205_010_PARTS[] = {
+    &I205_010_SAC,
+    &I205_010_SIC,
+    NULL
+};
+static const AsterixField I205_010 = { FIXED, 2, 0, 0, &hf_205_010, I205_010_PARTS, { NULL } };
+static int hf_205_015;
+static int hf_205_015_VALUE;
+static const FieldPart I205_015_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_205_015_VALUE, NULL };
+static const FieldPart *I205_015_PARTS[] = {
+    &I205_015_VALUE,
+    NULL
+};
+static const AsterixField I205_015 = { FIXED, 1, 0, 0, &hf_205_015, I205_015_PARTS, { NULL } };
+static int hf_205_030;
+static int hf_205_030_VALUE;
+static const FieldPart I205_030_VALUE = { 24, 0.0078125, FIELD_PART_UFLOAT, &hf_205_030_VALUE, NULL };
+static const FieldPart *I205_030_PARTS[] = {
+    &I205_030_VALUE,
+    NULL
+};
+static const AsterixField I205_030 = { FIXED, 3, 0, 0, &hf_205_030, I205_030_PARTS, { NULL } };
+static int hf_205_040;
+static int hf_205_040_VALUE;
+static const FieldPart I205_040_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_205_040_VALUE, NULL };
+static const FieldPart *I205_040_PARTS[] = {
+    &I205_040_VALUE,
+    NULL
+};
+static const AsterixField I205_040 = { FIXED, 1, 0, 0, &hf_205_040, I205_040_PARTS, { NULL } };
+static int hf_205_050;
+static int hf_205_050_LAT;
+static const FieldPart I205_050_LAT = { 32, 0.00000536441802978515625, FIELD_PART_FLOAT, &hf_205_050_LAT, NULL };
+static int hf_205_050_LON;
+static const FieldPart I205_050_LON = { 32, 0.00000536441802978515625, FIELD_PART_FLOAT, &hf_205_050_LON, NULL };
+static const FieldPart *I205_050_PARTS[] = {
+    &I205_050_LAT,
+    &I205_050_LON,
+    NULL
+};
+static const AsterixField I205_050 = { FIXED, 8, 0, 0, &hf_205_050, I205_050_PARTS, { NULL } };
+static int hf_205_060;
+static int hf_205_060_X;
+static const FieldPart I205_060_X = { 24, 0.5, FIELD_PART_FLOAT, &hf_205_060_X, NULL };
+static int hf_205_060_Y;
+static const FieldPart I205_060_Y = { 24, 0.5, FIELD_PART_FLOAT, &hf_205_060_Y, NULL };
+static const FieldPart *I205_060_PARTS[] = {
+    &I205_060_X,
+    &I205_060_Y,
+    NULL
+};
+static const AsterixField I205_060 = { FIXED, 6, 0, 0, &hf_205_060, I205_060_PARTS, { NULL } };
+static int hf_205_070;
+static int hf_205_070_VALUE;
+static const FieldPart I205_070_VALUE = { 16, 0.01, FIELD_PART_UFLOAT, &hf_205_070_VALUE, NULL };
+static const FieldPart *I205_070_PARTS[] = {
+    &I205_070_VALUE,
+    NULL
+};
+static const AsterixField I205_070 = { FIXED, 2, 0, 0, &hf_205_070, I205_070_PARTS, { NULL } };
+static int hf_205_080;
+static int hf_205_080_VALUE;
+static const FieldPart I205_080_VALUE = { 16, 0.01, FIELD_PART_UFLOAT, &hf_205_080_VALUE, NULL };
+static const FieldPart *I205_080_PARTS[] = {
+    &I205_080_VALUE,
+    NULL
+};
+static const AsterixField I205_080 = { FIXED, 2, 0, 0, &hf_205_080, I205_080_PARTS, { NULL } };
+static int hf_205_090;
+static int hf_205_090_VALUE;
+static const FieldPart I205_090_VALUE = { 56, 1.0, FIELD_PART_ASCII, &hf_205_090_VALUE, NULL };
+static const FieldPart *I205_090_PARTS[] = {
+    &I205_090_VALUE,
+    NULL
+};
+static const AsterixField I205_090 = { FIXED, 7, 0, 0, &hf_205_090, I205_090_PARTS, { NULL } };
+static int hf_205_100;
+static int hf_205_100_VALUE;
+static const FieldPart I205_100_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_205_100_VALUE, NULL };
+static const FieldPart *I205_100_PARTS[] = {
+    &I205_100_VALUE,
+    NULL
+};
+static const AsterixField I205_100 = { FIXED, 1, 0, 0, &hf_205_100, I205_100_PARTS, { NULL } };
+static int hf_205_110;
+static int hf_205_110_VALUE;
+static const FieldPart I205_110_VALUE = { 8, 100.0, FIELD_PART_UFLOAT, &hf_205_110_VALUE, NULL };
+static const FieldPart *I205_110_PARTS[] = {
+    &I205_110_VALUE,
+    NULL
+};
+static const AsterixField I205_110 = { FIXED, 1, 0, 0, &hf_205_110, I205_110_PARTS, { NULL } };
+static int hf_205_120;
+static int hf_205_120_VALUE;
+static const FieldPart I205_120_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_205_120_VALUE, NULL };
+static const FieldPart *I205_120_PARTS[] = {
+    &I205_120_VALUE,
+    NULL
+};
+static const AsterixField I205_120 = { REPETITIVE, 1, 1, 0, &hf_205_120, I205_120_PARTS, { NULL } };
+static int hf_205_130;
+static int hf_205_130_LAT;
+static const FieldPart I205_130_LAT = { 32, 0.00000536441802978515625, FIELD_PART_FLOAT, &hf_205_130_LAT, NULL };
+static int hf_205_130_LON;
+static const FieldPart I205_130_LON = { 32, 0.00000536441802978515625, FIELD_PART_FLOAT, &hf_205_130_LON, NULL };
+static const FieldPart *I205_130_PARTS[] = {
+    &I205_130_LAT,
+    &I205_130_LON,
+    NULL
+};
+static const AsterixField I205_130 = { FIXED, 8, 0, 0, &hf_205_130, I205_130_PARTS, { NULL } };
+static int hf_205_140;
+static int hf_205_140_X;
+static const FieldPart I205_140_X = { 24, 0.5, FIELD_PART_FLOAT, &hf_205_140_X, NULL };
+static int hf_205_140_Y;
+static const FieldPart I205_140_Y = { 24, 0.5, FIELD_PART_FLOAT, &hf_205_140_Y, NULL };
+static const FieldPart *I205_140_PARTS[] = {
+    &I205_140_X,
+    &I205_140_Y,
+    NULL
+};
+static const AsterixField I205_140 = { FIXED, 6, 0, 0, &hf_205_140, I205_140_PARTS, { NULL } };
+static int hf_205_150;
+static int hf_205_150_VALUE;
+static const FieldPart I205_150_VALUE = { 8, 100.0, FIELD_PART_UFLOAT, &hf_205_150_VALUE, NULL };
+static const FieldPart *I205_150_PARTS[] = {
+    &I205_150_VALUE,
+    NULL
+};
+static const AsterixField I205_150 = { FIXED, 1, 0, 0, &hf_205_150, I205_150_PARTS, { NULL } };
+static int hf_205_160;
+static int hf_205_160_VALUE;
+static const FieldPart I205_160_VALUE = { 16, 1.0, FIELD_PART_HEX, &hf_205_160_VALUE, NULL };
+static const FieldPart *I205_160_PARTS[] = {
+    &I205_160_VALUE,
+    NULL
+};
+static const AsterixField I205_160 = { FIXED, 2, 0, 0, &hf_205_160, I205_160_PARTS, { NULL } };
+static int hf_205_170;
+static int hf_205_170_VALUE;
+static const FieldPart I205_170_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_205_170_VALUE, NULL };
+static const FieldPart *I205_170_PARTS[] = {
+    &I205_170_VALUE,
+    NULL
+};
+static const AsterixField I205_170 = { FIXED, 1, 0, 0, &hf_205_170, I205_170_PARTS, { NULL } };
+static int hf_205_180;
+static int hf_205_180_VALUE;
+static const FieldPart I205_180_VALUE = { 16, 0.01, FIELD_PART_FLOAT, &hf_205_180_VALUE, NULL };
+static const FieldPart *I205_180_PARTS[] = {
+    &I205_180_VALUE,
+    NULL
+};
+static const AsterixField I205_180 = { FIXED, 2, 0, 0, &hf_205_180, I205_180_PARTS, { NULL } };
+static int hf_205_190;
+static int hf_205_190_VALUE;
+static const FieldPart I205_190_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_205_190_VALUE, NULL };
+static const FieldPart *I205_190_PARTS[] = {
+    &I205_190_VALUE,
+    NULL
+};
+static const AsterixField I205_190 = { FIXED, 1, 0, 0, &hf_205_190, I205_190_PARTS, { NULL } };
+static int hf_205_200;
+static int hf_205_200_VALUE;
+static const FieldPart I205_200_VALUE = { 16, 0.01, FIELD_PART_FLOAT, &hf_205_200_VALUE, NULL };
+static const FieldPart *I205_200_PARTS[] = {
+    &I205_200_VALUE,
+    NULL
+};
+static const AsterixField I205_200 = { FIXED, 2, 0, 0, &hf_205_200, I205_200_PARTS, { NULL } };
+static int hf_205_SP;
+static const AsterixField I205_SP = { EXP, 0, 0, 1, &hf_205_SP, NULL, { NULL } };
+
+DIAG_OFF_PEDANTIC
+static const AsterixField *I205_V1_0_uap[] = {
+    &I205_V1_0_010,
+    &I205_V1_0_015,
+    &I205_V1_0_000,
+    &I205_V1_0_030,
+    &I205_V1_0_040,
+    &I205_V1_0_090,
+    &I205_V1_0_050,
+    &I205_V1_0_060,
+    &I205_V1_0_070,
+    &I205_V1_0_080,
+    &I205_V1_0_100,
+    &I205_V1_0_110,
+    &I205_V1_0_120,
+    &I205_V1_0_130,
+    &I205_V1_0_140,
+    &I205_V1_0_150,
+    &I205_V1_0_160,
+    &I205_V1_0_170,
+    &I205_V1_0_180,
+    &I205_V1_0_190,
+    &I205_V1_0_200,
+    &I205_V1_0_SP,
+    NULL
+};
+static const AsterixField **I205_V1_0[] = {
+    I205_V1_0_uap,
+    NULL
+};
+DIAG_ON_PEDANTIC
+
+DIAG_OFF_PEDANTIC
+static const AsterixField *I205_uap[] = {
+    &I205_010,
+    &I205_015,
+    &I205_000,
+    &I205_030,
+    &I205_040,
+    &I205_090,
+    &I205_050,
+    &I205_060,
+    &I205_070,
+    &I205_080,
+    &I205_100,
+    &I205_110,
+    &I205_120,
+    &I205_130,
+    &I205_140,
+    &I205_150,
+    &I205_160,
+    &I205_170,
+    &I205_180,
+    &I205_190,
+    &I205_200,
+    &I205_SP,
+    NULL
+};
+static const AsterixField **I205[] = {
+    I205_uap,
+    NULL
+};
+DIAG_ON_PEDANTIC
+
 /* Category 240, edition 1.3 */
 static int hf_240_V1_3_000;
 static int hf_240_V1_3_000_VALUE;
@@ -54108,6 +54562,16 @@ static const enum_val_t I065_versions[] = {
 };
 
 DIAG_OFF_PEDANTIC
+static const AsterixField ***I205all[] = { I205, I205_V1_0 };
+DIAG_ON_PEDANTIC
+
+static const enum_val_t I205_versions[] = {
+    { "I205", "Version 1.0 (latest)", 0 },
+    { "I205_v1_0", "Version 1.0", 1 },
+    { NULL, NULL, 0 }
+};
+
+DIAG_OFF_PEDANTIC
 static const AsterixField ***I240all[] = { I240, I240_V1_3 };
 DIAG_ON_PEDANTIC
 
@@ -54334,7 +54798,7 @@ static const AsterixField ****categories[] = {
     NULL, /* 202 */
     NULL, /* 203 */
     NULL, /* 204 */
-    NULL, /* 205 */
+    I205all, /* 205 */
     NULL, /* 206 */
     NULL, /* 207 */
     NULL, /* 208 */
@@ -63803,6 +64267,102 @@ void proto_register_asterix (void)
         { &hf_065_050_VALUE, { "Service Status Report", "asterix.065_050_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_065_050_VALUE), 0x00, NULL, HFILL } },
         { &hf_065_RE, { "RE, Reserved Expansion Field", "asterix.065_RE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_065_SP, { "SP, Special Purpose Field", "asterix.065_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_000, { "000, Message Type", "asterix.205_V1_0_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_000_VALUE, { "Message Type", "asterix.205_V1_0_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_205_V1_0_000_VALUE), 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_010, { "010, Data Source Identifier", "asterix.205_V1_0_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_010_SAC, { "SAC, System Area Code", "asterix.205_V1_0_010_SAC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_010_SIC, { "SIC, System Identification Code", "asterix.205_V1_0_010_SIC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_015, { "015, Service Identification", "asterix.205_V1_0_015", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_015_VALUE, { "Service Identification", "asterix.205_V1_0_015_VALUE", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_030, { "030, Time of Day", "asterix.205_V1_0_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_030_VALUE, { "Time of Day, [s]", "asterix.205_V1_0_030_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_040, { "040, Report Number", "asterix.205_V1_0_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_040_VALUE, { "Report Number", "asterix.205_V1_0_040_VALUE", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_050, { "050, Position in WGS-84 Coordinates", "asterix.205_V1_0_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_050_LAT, { "LAT, Latitude in WGS-84, [°]", "asterix.205_V1_0_050_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_050_LON, { "LON, Longitude in WGS-84, [°]", "asterix.205_V1_0_050_LON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_060, { "060, Position in Cartesian Coordinates", "asterix.205_V1_0_060", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_060_X, { "X, X-coordinate, [m]", "asterix.205_V1_0_060_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_060_Y, { "Y, Y-coordinate, [m]", "asterix.205_V1_0_060_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_070, { "070, Local Bearing", "asterix.205_V1_0_070", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_070_VALUE, { "Local Bearing, [°]", "asterix.205_V1_0_070_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_080, { "080, System Bearing", "asterix.205_V1_0_080", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_080_VALUE, { "System Bearing, [°]", "asterix.205_V1_0_080_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_090, { "090, Radio Channel Name", "asterix.205_V1_0_090", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_090_VALUE, { "Radio Channel Name", "asterix.205_V1_0_090_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_100, { "100, Quality of Measurement", "asterix.205_V1_0_100", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_100_VALUE, { "Quality of Measurement", "asterix.205_V1_0_100_VALUE", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_110, { "110, Estimated Uncertainty", "asterix.205_V1_0_110", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_110_VALUE, { "Estimated Uncertainty, [m]", "asterix.205_V1_0_110_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_120, { "120, Contributing Sensors", "asterix.205_V1_0_120", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_120_VALUE, { "Contributing Sensors", "asterix.205_V1_0_120_VALUE", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_130, { "130, Conflicting Transmitter Position in WGS-84 Coordinates", "asterix.205_V1_0_130", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_130_LAT, { "LAT, Latitude in WGS-84, [°]", "asterix.205_V1_0_130_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_130_LON, { "LON, Longitude in WGS-84, [°]", "asterix.205_V1_0_130_LON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_140, { "140, Conflicting Transmitter Position in Cartesian Coordinates", "asterix.205_V1_0_140", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_140_X, { "X, X-coordinate, [m]", "asterix.205_V1_0_140_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_140_Y, { "Y, Y-coordinate, [m]", "asterix.205_V1_0_140_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_150, { "150, Conflicting Transmitter Estimated Uncertainty", "asterix.205_V1_0_150", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_150_VALUE, { "Conflicting Transmitter Estimated Uncertainty, [m]", "asterix.205_V1_0_150_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_160, { "160, Track Number", "asterix.205_V1_0_160", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_160_VALUE, { "Track Number", "asterix.205_V1_0_160_VALUE", FT_UINT16, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_170, { "170, Sensor Identification", "asterix.205_V1_0_170", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_170_VALUE, { "Sensor Identification", "asterix.205_V1_0_170_VALUE", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_180, { "180, Signal Level", "asterix.205_V1_0_180", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_180_VALUE, { "Signal Level, [dBµV]", "asterix.205_V1_0_180_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_190, { "190, Signal Quality", "asterix.205_V1_0_190", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_190_VALUE, { "Signal Quality", "asterix.205_V1_0_190_VALUE", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_200, { "200, Signal Elevation", "asterix.205_V1_0_200", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_200_VALUE, { "Signal Elevation, [°]", "asterix.205_V1_0_200_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_V1_0_SP, { "SP, Special Purpose Field", "asterix.205_V1_0_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_000, { "000, Message Type", "asterix.205_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_000_VALUE, { "Message Type", "asterix.205_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_205_000_VALUE), 0x00, NULL, HFILL } },
+        { &hf_205_010, { "010, Data Source Identifier", "asterix.205_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_010_SAC, { "SAC, System Area Code", "asterix.205_010_SAC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_010_SIC, { "SIC, System Identification Code", "asterix.205_010_SIC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_015, { "015, Service Identification", "asterix.205_015", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_015_VALUE, { "Service Identification", "asterix.205_015_VALUE", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_030, { "030, Time of Day", "asterix.205_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_030_VALUE, { "Time of Day, [s]", "asterix.205_030_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_040, { "040, Report Number", "asterix.205_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_040_VALUE, { "Report Number", "asterix.205_040_VALUE", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_050, { "050, Position in WGS-84 Coordinates", "asterix.205_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_050_LAT, { "LAT, Latitude in WGS-84, [°]", "asterix.205_050_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_050_LON, { "LON, Longitude in WGS-84, [°]", "asterix.205_050_LON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_060, { "060, Position in Cartesian Coordinates", "asterix.205_060", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_060_X, { "X, X-coordinate, [m]", "asterix.205_060_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_060_Y, { "Y, Y-coordinate, [m]", "asterix.205_060_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_070, { "070, Local Bearing", "asterix.205_070", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_070_VALUE, { "Local Bearing, [°]", "asterix.205_070_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_080, { "080, System Bearing", "asterix.205_080", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_080_VALUE, { "System Bearing, [°]", "asterix.205_080_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_090, { "090, Radio Channel Name", "asterix.205_090", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_090_VALUE, { "Radio Channel Name", "asterix.205_090_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_100, { "100, Quality of Measurement", "asterix.205_100", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_100_VALUE, { "Quality of Measurement", "asterix.205_100_VALUE", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_110, { "110, Estimated Uncertainty", "asterix.205_110", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_110_VALUE, { "Estimated Uncertainty, [m]", "asterix.205_110_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_120, { "120, Contributing Sensors", "asterix.205_120", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_120_VALUE, { "Contributing Sensors", "asterix.205_120_VALUE", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_130, { "130, Conflicting Transmitter Position in WGS-84 Coordinates", "asterix.205_130", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_130_LAT, { "LAT, Latitude in WGS-84, [°]", "asterix.205_130_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_130_LON, { "LON, Longitude in WGS-84, [°]", "asterix.205_130_LON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_140, { "140, Conflicting Transmitter Position in Cartesian Coordinates", "asterix.205_140", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_140_X, { "X, X-coordinate, [m]", "asterix.205_140_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_140_Y, { "Y, Y-coordinate, [m]", "asterix.205_140_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_150, { "150, Conflicting Transmitter Estimated Uncertainty", "asterix.205_150", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_150_VALUE, { "Conflicting Transmitter Estimated Uncertainty, [m]", "asterix.205_150_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_160, { "160, Track Number", "asterix.205_160", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_160_VALUE, { "Track Number", "asterix.205_160_VALUE", FT_UINT16, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_170, { "170, Sensor Identification", "asterix.205_170", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_170_VALUE, { "Sensor Identification", "asterix.205_170_VALUE", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_180, { "180, Signal Level", "asterix.205_180", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_180_VALUE, { "Signal Level, [dBµV]", "asterix.205_180_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_190, { "190, Signal Quality", "asterix.205_190", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_190_VALUE, { "Signal Quality", "asterix.205_190_VALUE", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_200, { "200, Signal Elevation", "asterix.205_200", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_200_VALUE, { "Signal Elevation, [°]", "asterix.205_200_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_205_SP, { "SP, Special Purpose Field", "asterix.205_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_240_V1_3_000, { "000, Message Type", "asterix.240_V1_3_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_240_V1_3_000_VALUE, { "Message Type", "asterix.240_V1_3_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_240_V1_3_000_VALUE), 0x00, NULL, HFILL } },
         { &hf_240_V1_3_010, { "010, Data Source Identifier", "asterix.240_V1_3_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -63961,6 +64521,7 @@ void proto_register_asterix (void)
     prefs_register_enum_preference (asterix_prefs_module, "i062_version", "I062 version", "Select the CAT062 version", &global_categories_version[62], I062_versions, false);
     prefs_register_enum_preference (asterix_prefs_module, "i063_version", "I063 version", "Select the CAT063 version", &global_categories_version[63], I063_versions, false);
     prefs_register_enum_preference (asterix_prefs_module, "i065_version", "I065 version", "Select the CAT065 version", &global_categories_version[65], I065_versions, false);
+    prefs_register_enum_preference (asterix_prefs_module, "i205_version", "I205 version", "Select the CAT205 version", &global_categories_version[205], I205_versions, false);
     prefs_register_enum_preference (asterix_prefs_module, "i240_version", "I240 version", "Select the CAT240 version", &global_categories_version[240], I240_versions, false);
     prefs_register_enum_preference (asterix_prefs_module, "i247_version", "I247 version", "Select the CAT247 version", &global_categories_version[247], I247_versions, false);
 /* insert3 */

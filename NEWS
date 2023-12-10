@@ -98,6 +98,12 @@ Wireshark 4.3.0 Release Notes
        files), and selected rows or the entire table can be saved or
        copied to the clipboard in several formats.
 
+     • New "Tools › Install Plugin" option provides a convenient method
+       to install a binary plugin to the personal folder.
+
+     • The personal binary plugins folder now has higher priority than
+       the global folder.
+
   New Protocol Support
 
    EGNOS Message Server (EMS) file format, MAC NR Framed
@@ -118,7 +124,7 @@ Wireshark 4.3.0 Release Notes
   Major API Changes
 
      • Plugin registration API was refactored. Plugin authors must do
-       the following: 1 - Remove the existing bloilerplate (version,
+       the following: 1 - Remove the existing boilerplate (version,
        want_major` and `want_minor` and plugin API declarations. 2 - Add
        a struct ws_module to the plugin. 3 - Call one of the
        WIRESHARK_PLUGIN_REGISTER_* macros. See README.plugins sections 5
