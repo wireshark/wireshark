@@ -1796,14 +1796,14 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         ENDTRY;
     }
 
-    return offset + decoded;
+    return decoded;
 }
 
 static gint
 dissect_http3_qpack_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
                         quic_stream_info *stream_info, http3_stream_info_t *http3_stream)
 {
-    gint                  remaining, remaining_captured, retval; //, decoded = 0;
+    gint                  remaining, remaining_captured, retval, decoded = 0;
     proto_item *          qpack_update;
     proto_tree *          qpack_update_tree;
     http3_session_info_t *http3_session;
@@ -1821,8 +1821,13 @@ dissect_http3_qpack_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
      */
     qpack_update      = proto_tree_add_item(tree, hf_http3_qpack_encoder, tvb, offset, remaining, ENC_NA);
     qpack_update_tree = proto_item_add_subtree(qpack_update, ett_http3_qpack_update);
-    /* decoded = */     dissect_http3_qpack_encoder_stream(tvb, pinfo, qpack_update_tree, offset,
+    decoded =     dissect_http3_qpack_encoder_stream(tvb, pinfo, qpack_update_tree, offset,
                                                            http3_stream);
+
+    if (decoded < remaining) {
+        pinfo->desegment_offset = offset + decoded;
+        pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+    }
 
 #ifdef HAVE_NGHTTP3
     if (remaining > 0) {
@@ -1830,29 +1835,25 @@ dissect_http3_qpack_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
         http3_stream_dir       packet_direction = http3_packet_get_direction(stream_info);
         nghttp3_qpack_decoder *decoder          = http3_session->qpack_decoder[packet_direction];
 
-        /* XXX: We could use what's in this decoder state in order to help
-         * defragment encoded QPACK data that is split across multiple
-         * packets. (The nghttp3_qpack_decoder handles this already; that
-         * would be for improving what we put in the proto tree.)
-         */
         http3_qpack_encoder_state_t *encoder_state = http3_get_qpack_encoder_state(pinfo, tvb, offset);
 
         if (!PINFO_FD_VISITED(pinfo)) {
 
-            uint8_t *qpack_buf = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, remaining);
             /*
-             * Pass the entire stream buffer to the decoder; we stop adding
-             * instructions that are split across packet boundaries,
-             * but the nghttp3_qpack_decoder saves states.
+             * Since we are now defragmenting, pass only the number of bytes
+             * decoded to the nghttp3_qpack_decoder. Otherwise, we'll end up
+             * sending the same bytes to the decoder again when the packet
+             * is defragmented.
              */
-            gint                   qpack_buf_len = remaining;
+            uint8_t *qpack_buf = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, decoded);
+            gint                   qpack_buf_len = decoded;
 
             /*
              * Get the instr count prior to processing the data.
              */
             uint64_t icnt_before = nghttp3_qpack_decoder_get_icnt(decoder);
 
-            HTTP3_DISSECTOR_DPRINTF("decode encoder stream: decoder=%p remaining=%u", decoder, remaining);
+            HTTP3_DISSECTOR_DPRINTF("decode encoder stream: decoder=%p decoded=%u remaining=%u", decoder, decoded, remaining);
 
             encoder_state->nread = nghttp3_qpack_decoder_read_encoder(decoder, qpack_buf, qpack_buf_len);
             encoder_state->icnt = nghttp3_qpack_decoder_get_icnt(decoder);
@@ -1867,7 +1868,7 @@ dissect_http3_qpack_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             quic_cid_t quic_cid          = {.len = 0};
             gboolean   initial_cid_found = quic_conn_data_get_conn_client_dcid_initial(pinfo, &quic_cid);
             proto_tree_add_expert_format(
-                tree, pinfo, &ei_http3_qpack_failed, tvb, offset, 0, "QPAC decoder %p DCID %s [found=%d] error %d (%s)",
+                tree, pinfo, &ei_http3_qpack_failed, tvb, offset, 0, "QPACK decoder %p DCID %s [found=%d] error %d (%s)",
                 decoder, cid_to_string(&quic_cid, pinfo->pool), initial_cid_found, (int)encoder_state->nread, nghttp3_strerror((int)encoder_state->nread));
         }
 
@@ -1884,7 +1885,7 @@ dissect_http3_qpack_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 #else
     (void)stream_info;
     (void)qpack_update;
-    /*(void)decoded;*/
+    (void)decoded;
 #endif /* HAVE_NGHTTP3 */
 
     return retval;

@@ -177,6 +177,7 @@ def features(cmd_tshark, make_env):
         have_lua='with Lua' in tshark_v,
         have_lua_unicode='(with UfW patches)' in tshark_v,
         have_nghttp2='with nghttp2' in tshark_v,
+        have_nghttp3='with nghttp3' in tshark_v,
         have_kerberos='with Kerberos' in tshark_v,
         have_gnutls='with GnuTLS' in tshark_v,
         have_pkcs11='and PKCS #11 support' in tshark_v,

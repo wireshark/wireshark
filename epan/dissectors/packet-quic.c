@@ -1626,13 +1626,11 @@ again:
 
         /* Did the subdissector ask us to desegment some more data
          * before it could handle the packet?
-         * If so we have to create some structures in our table but
-         * this is something we only do the first time we see this
-         * packet.
+         * If so we'll have to handle that later.
          */
         if (pinfo->desegment_len) {
+            must_desegment = TRUE;
             if (!PINFO_FD_VISITED(pinfo)) {
-                must_desegment = TRUE;
                 if (msp)
                     msp->flags &= ~MSP_FLAGS_GOT_ALL_SEGMENTS;
             }
@@ -1753,33 +1751,42 @@ again:
         }
     }
 
-    if (must_desegment && !PINFO_FD_VISITED(pinfo)) {
-        // TODO handle DESEGMENT_UNTIL_FIN if needed, maybe use the FIN bit?
+    if (must_desegment) {
 
         guint32 deseg_seq = seq + (deseg_offset - offset);
 
-        if (((nxtseq - deseg_seq) <= 1024*1024)
-            && (!PINFO_FD_VISITED(pinfo))) {
-            if(pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
-                /* The subdissector asked to reassemble using the
-                 * entire next segment.
-                 * Just ask reassembly for one more byte
-                 * but set this msp flag so we can pick it up
-                 * above.
-                 */
-                msp = pdu_store_sequencenumber_of_next_pdu(pinfo, deseg_seq,
-                    nxtseq+1, stream->multisegment_pdus);
-                msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
-            } else {
-                msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
-                    deseg_seq, nxtseq+pinfo->desegment_len, stream->multisegment_pdus);
-            }
+        if (!PINFO_FD_VISITED(pinfo)) {
+            // TODO handle DESEGMENT_UNTIL_FIN if needed, maybe use the FIN bit?
+            if ((nxtseq - deseg_seq) <= 1024*1024) {
+                if(pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
+                    /* The subdissector asked to reassemble using the
+                     * entire next segment.
+                     * Just ask reassembly for one more byte
+                     * but set this msp flag so we can pick it up
+                     * above.
+                     */
+                    msp = pdu_store_sequencenumber_of_next_pdu(pinfo, deseg_seq,
+                        nxtseq+1, stream->multisegment_pdus);
+                    msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
+                } else {
+                    msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
+                        deseg_seq, nxtseq+pinfo->desegment_len, stream->multisegment_pdus);
+                }
 
-            /* add this segment as the first one for this new pdu */
-            fragment_add(&quic_reassembly_table, tvb, deseg_offset,
-                         pinfo, reassembly_id, NULL,
-                         0, nxtseq - deseg_seq,
-                         nxtseq < msp->nxtpdu);
+                /* add this segment as the first one for this new pdu */
+                fragment_add(&quic_reassembly_table, tvb, deseg_offset,
+                             pinfo, reassembly_id, NULL,
+                             0, nxtseq - deseg_seq,
+                             nxtseq < msp->nxtpdu);
+            }
+        } else {
+            /* If this is not the first time we have seen the packet, then
+             * the MSP should already be created. Retrieve it to see if we
+             * know what later frame the PDU is reassembled in.
+             */
+            if ((msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32(stream->multisegment_pdus, deseg_seq))) {
+                fh = fragment_get(&quic_reassembly_table, pinfo, reassembly_id, NULL);
+            }
         }
     }
 
@@ -1794,6 +1801,10 @@ again:
                                                    0, fh->reassembled_in);
             proto_item_set_generated(item);
         }
+
+        /* TODO: Show what's left in the packet as a raw QUIC "segment", like
+         * packet-tcp.c does here.
+         */
     }
     pinfo->can_desegment = 0;
     pinfo->desegment_offset = 0;
