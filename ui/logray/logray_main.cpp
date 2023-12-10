@@ -402,11 +402,11 @@ macos_enable_layer_backing(void)
 
 #ifdef HAVE_LIBPCAP
 static GList *
-capture_opts_get_interface_list(int *err, char **err_str)
+capture_opts_get_interface_list(int *err _U_, char **err_str _U_)
 {
-    // XXX: logray only wants the IF_EXTCAP interfaces.
-    // Probably instead of calling capture_interface_list we should
-    // just call append_extcap_interface_list(NULL)
+    // logray only wants the IF_EXTCAP interfaces, so there's no point
+    // in spawning dumpcap to retrieve the other types of interfaces.
+#if 0
     if (mainApp) {
         GList *if_list = mainApp->getInterfaceList();
         if (if_list == NULL) {
@@ -416,6 +416,8 @@ capture_opts_get_interface_list(int *err, char **err_str)
         return if_list;
     }
     return capture_interface_list(err, err_str, main_window_update);
+#endif
+    return append_extcap_interface_list(NULL);
 }
 #endif
 
