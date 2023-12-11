@@ -279,13 +279,15 @@ static guint pref_sample_bit_width_uplink = 14;
 static guint pref_sample_bit_width_downlink = 14;
 
 /* Compression schemes */
-#define COMP_NONE                  0
-#define COMP_BLOCK_FP              1
-#define COMP_BLOCK_SCALE           2
-#define COMP_U_LAW                 3
-#define COMP_MODULATION            4
-#define BFP_AND_SELECTIVE_RE       5
-#define MOD_COMPR_AND_SELECTIVE_RE 6
+#define COMP_NONE                             0
+#define COMP_BLOCK_FP                         1
+#define COMP_BLOCK_SCALE                      2
+#define COMP_U_LAW                            3
+#define COMP_MODULATION                       4
+#define BFP_AND_SELECTIVE_RE                  5
+#define MOD_COMPR_AND_SELECTIVE_RE            6
+#define BFP_AND_SELECTIVE_RE_WITH_MASKS       7
+#define MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS 8
 
 static gint pref_iqCompressionUplink = COMP_BLOCK_FP;
 static gint pref_iqCompressionDownlink = COMP_BLOCK_FP;
@@ -306,6 +308,8 @@ static const enum_val_t compression_options[] = {
     { "COMP_MODULATION",            "Modulation Compression",           COMP_MODULATION },
     { "BFP_AND_SELECTIVE_RE",       "BFP + selective RE sending",       BFP_AND_SELECTIVE_RE },
     { "MOD_COMPR_AND_SELECTIVE_RE", "mod-compr + selective RE sending", MOD_COMPR_AND_SELECTIVE_RE },
+    { "BFP_AND_SELECTIVE_RE_WITH_MASKS",       "BFP + selective RE sending with masks in section header",       BFP_AND_SELECTIVE_RE_WITH_MASKS },
+    { "MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS", "mod-compr + selective RE sending with masks in section header", MOD_COMPR_AND_SELECTIVE_RE },
     { NULL, NULL, 0 }
 };
 
@@ -351,7 +355,8 @@ static const range_string filter_indices[] = {
     {3, 3,  "UL filter for PRACH preamble formats A1, A2, A3, B1, B2, B3, B4, C0, C2; min. passband 139 x \u0394fRA"},
     {4, 4,  "UL filter for NPRACH 0, 1; min. passband 48 x 3.75KHz = 180 KHz"},
     {5, 5,  "UL filter for PRACH preamble formats"},
-    {6, 15, "Reserved"},
+    {8, 8,  "UL filter NPUSCH"},
+    {9, 15, "Reserved"},
     {0, 0, NULL}
 };
 
@@ -400,21 +405,28 @@ static const range_string ud_comp_header_width[] = {
     {1, 15, "Bit width of I and Q"},
     {0, 0, NULL} };
 
+/* Table 8.3.3.13-3 */
 static const range_string ud_comp_header_meth[] = {
-    {COMP_NONE,                  COMP_NONE,                  "No compression" },
-    {COMP_BLOCK_FP,              COMP_BLOCK_FP,              "Block floating point compression" },
-    {COMP_BLOCK_SCALE,           COMP_BLOCK_SCALE,           "Block scaling" },
-    {COMP_U_LAW,                 COMP_U_LAW,                 "Mu - law" },
-    {COMP_MODULATION,            COMP_MODULATION,            "Modulation compression" },
-    {BFP_AND_SELECTIVE_RE,       BFP_AND_SELECTIVE_RE,       "BFP + selective RE sending" },
-    {MOD_COMPR_AND_SELECTIVE_RE, MOD_COMPR_AND_SELECTIVE_RE, "mod-compr + selective RE sending" },
-    {7, 15, "Reserved"},
+    {COMP_NONE,                             COMP_NONE,                             "No compression" },
+    {COMP_BLOCK_FP,                         COMP_BLOCK_FP,                         "Block floating point compression" },
+    {COMP_BLOCK_SCALE,                      COMP_BLOCK_SCALE,                      "Block scaling" },
+    {COMP_U_LAW,                            COMP_U_LAW,                            "Mu - law" },
+    {COMP_MODULATION,                       COMP_MODULATION,                       "Modulation compression" },
+    {BFP_AND_SELECTIVE_RE,                  BFP_AND_SELECTIVE_RE,                  "BFP + selective RE sending" },
+    {MOD_COMPR_AND_SELECTIVE_RE,            MOD_COMPR_AND_SELECTIVE_RE,            "mod-compr + selective RE sending" },
+    {BFP_AND_SELECTIVE_RE_WITH_MASKS,       BFP_AND_SELECTIVE_RE_WITH_MASKS,       "BFP + selective RE sending with masks in section header" },
+    {MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS, MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS, "mod-compr + selective RE sending with masks in section header"},
+    {9, 15, "Reserved"},
     {0, 0, NULL}
 };
 
+/* Table 7.5.2.13-2 */
 static const range_string frame_structure_fft[] = {
     {0,  0,  "Reserved (no FFT / iFFT processing)"},
-    {1,  6,  "Reserved"},
+    {1,  3,  "Reserved"},
+    {4,  4,  "FFT size 16"},
+    {5,  5,  "FFT size 32"},
+    {6,  6,  "FFT size 64"},
     {7,  7,  "FFT size 128"},
     {8,  8,  "FFT size 256"},
     {9,  9,  "FFT size 512"},
@@ -427,13 +439,14 @@ static const range_string frame_structure_fft[] = {
     {0, 0, NULL}
 };
 
+/* Table 7.5.2.13-3 */
 static const range_string subcarrier_spacings[] = {
     { 0,  0,  "SCS 15 kHz, 1 slot/subframe, slot length 1 ms" },
     { 1,  1,  "SCS 30 kHz, 2 slots/subframe, slot length 500 \u03bcs" },
     { 2,  2,  "SCS 60 kHz, 4 slots/subframe, slot length 250 \u03bcs" },
     { 3,  3,  "SCS 120 kHz, 8 slots/subframe, slot length 125 \u03bcs" },
     { 4,  4,  "SCS 240 kHz, 16 slots/subframe, slot length 62.5 \u03bcs" },
-    { 5,  5,  "SCS 480 kHz, 32 slots/subframe, slot length 31.25 \u03bcs" },
+    { 5,  5,  "SCS 480 kHz, 32 slots/subframe, slot length 31.25 \u03bcs" }, /* TODO: not in v13.0 */
     { 6,  11, "Reserved" },
     { 12, 12, "SCS 1.25 kHz, 1 slot/subframe, slot length 1 ms" },
     { 13, 13, "SCS 3.75 kHz(LTE - specific), 1 slot/subframe, slot length 1 ms" },
@@ -454,7 +467,7 @@ static const range_string laaMsgTypes[] = {
     {0, 0, NULL}
 };
 
-
+/* Table 7.6.1-1 */
 static const value_string exttype_vals[] = {
     {0,     "Reserved"},
     {1,     "Beamforming weights"},
@@ -479,6 +492,7 @@ static const value_string exttype_vals[] = {
     {20,    "Puncturing extension"},
     {21,    "Variable PRB group size for channel information"},
     {22,    "ACK/NACK request"},
+    {23,    "Multiple symbol modulation compression parameters"},
     {0, NULL}
 };
 
@@ -502,6 +516,7 @@ static const value_string bfw_comp_headers_iq_width[] = {
     {0, NULL}
 };
 
+/* Table 7.7.1.2-3 */
 static const value_string bfw_comp_headers_comp_meth[] = {
     {COMP_NONE,         "no compression"},
     {COMP_BLOCK_FP,     "block floating point"},
@@ -554,6 +569,8 @@ static const value_string interface_name_vals[] = {
 static const value_string type_of_transmission_vals[] = {
     {0x0, "normal transmission mode, data can be distributed in any way the O-RU is implemented to transmit data"},
     {0x1, "uniformly distributed over the transmission window"},
+    {0x2, "Reserved"},
+    {0x3, "Reserved"},
     {0, NULL}
 };
 
@@ -959,7 +976,7 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
     proto_tree *bfwcompparam_tree = proto_item_add_subtree(bfwcompparam_ti, ett_oran_bfwcompparam);
 
     proto_item_append_text(bfwcompparam_ti,
-                           " (meth=%s)", val_to_str_const(bfw_comp_method, bfw_comp_headers_comp_meth, "Unknown"));
+                           " (meth=%s)", val_to_str_const(bfw_comp_method, bfw_comp_headers_comp_meth, "reserved"));
 
 
     *supported = FALSE;
@@ -1014,7 +1031,7 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         expert_add_info_format(pinfo, ti, &ei_oran_unsupported_bfw_compression_method,
                                "BFW Compression method %u (%s) not supported by dissector",
                                bfw_comp_method,
-                               val_to_str_const(bfw_comp_method, bfw_comp_headers_comp_meth, "Unknown"));
+                               val_to_str_const(bfw_comp_method, bfw_comp_headers_comp_meth, "reserved"));
     }
     return offset;
 }
@@ -1500,7 +1517,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         offset++;
         proto_item_append_text(sectionHeading, " (ext-%u)", exttype);
 
-        proto_item_append_text(extension_ti, " (ext-%u: %s)", exttype, val_to_str_const(exttype, exttype_vals, "Unknown"));
+        proto_item_append_text(extension_ti, " (ext-%u: %s)", exttype, val_to_str_const(exttype, exttype_vals, "Reserved"));
 
         /* extLen (number of 32-bit words) */
         guint32 extlen_len = ((exttype==11)||(exttype==19)||(exttype==20)) ? 2 : 1;  /* Extensions 11/19/20 are special */
