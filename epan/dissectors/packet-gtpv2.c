@@ -908,6 +908,7 @@ static gint ett_gtpv2_if_pcf;
 static gint ett_gtpv2_if_smf;
 static gint ett_gtpv2_if_upf;
 static gint ett_gtpv2_if_ng_ran_node;
+static gint ett_gtpv2_PGW_change_info;
 
 
 static expert_field ei_gtpv2_ie_data_not_dissected;
@@ -8445,9 +8446,17 @@ dissect_gtpv2_ie_sgi_ptp_tunnel_address(tvbuff_t* tvb, packet_info* pinfo, proto
 
 /* 214 PGW Change Info Extendable / 8.145 */
 static void
-dissect_gtpv2_ie_pgw_change_info(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+dissect_gtpv2_ie_pgw_change_info(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, proto_item* item, guint16 length, guint8 message_type, guint8 instance _U_, session_args_t* args)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    int         offset = 0;
+    proto_tree *grouped_tree;
+    tvbuff_t   *new_tvb;
+
+    proto_item_append_text(item, "[Grouped IE]");
+    grouped_tree = proto_item_add_subtree(item, ett_gtpv2_PGW_change_info);
+    new_tvb = tvb_new_subset_length(tvb, offset, length);
+
+    dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, offset, message_type, args);
 }
 
 /* 215 PGW Set FQDN Extendable / 8.146 */
@@ -12482,7 +12491,7 @@ void proto_register_gtpv2(void)
     };
 
     /* Setup protocol subtree array */
-#define GTPV2_NUM_INDIVIDUAL_ELEMS    84
+#define GTPV2_NUM_INDIVIDUAL_ELEMS    85
     static gint *ett_gtpv2_array[GTPV2_NUM_INDIVIDUAL_ELEMS + NUM_GTPV2_IES];
 
     ett_gtpv2_array[0] = &ett_gtpv2;
@@ -12569,6 +12578,7 @@ void proto_register_gtpv2(void)
     ett_gtpv2_array[81] = &ett_gtpv2_if_smf;
     ett_gtpv2_array[82] = &ett_gtpv2_if_upf;
     ett_gtpv2_array[83] = &ett_gtpv2_if_ng_ran_node;
+    ett_gtpv2_array[84] = &ett_gtpv2_PGW_change_info;
     last_offset = GTPV2_NUM_INDIVIDUAL_ELEMS;
 
     for (i=0; i < NUM_GTPV2_IES; i++, last_offset++)
