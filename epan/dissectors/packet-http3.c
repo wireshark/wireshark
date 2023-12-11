@@ -2484,7 +2484,7 @@ proto_register_http3(void)
         },
         { &hf_http3_qpack_encoder_opcode_insert_indexed_val,
             { "Value", "http3.qpack.encoder.opcode.insert_indexed.val",
-              FT_BYTES, BASE_NONE, NULL, 0x0,
+              FT_BYTES, BASE_SHOW_ASCII_PRINTABLE, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_http3_qpack_encoder_opcode_insert_indexed_hval,
@@ -2499,7 +2499,7 @@ proto_register_http3(void)
         },
         { &hf_http3_qpack_encoder_opcode_insert_name,
             { "Literal Name", "http3.qpack.encoder.opcode.insert.name",
-              FT_BYTES, BASE_NONE, NULL, 0x0,
+              FT_BYTES, BASE_SHOW_ASCII_PRINTABLE, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_http3_qpack_encoder_opcode_insert_hname,
@@ -2509,7 +2509,7 @@ proto_register_http3(void)
         },
         { &hf_http3_qpack_encoder_opcode_insert_val,
             { "Value", "http3.qpack.encoder.opcode.insert.val",
-              FT_BYTES, BASE_NONE, NULL, 0x0,
+              FT_BYTES, BASE_SHOW_ASCII_PRINTABLE, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_http3_qpack_encoder_opcode_insert_hval,
