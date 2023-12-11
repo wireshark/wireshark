@@ -889,17 +889,9 @@ int main(int argc, char *qt_argv[])
     timestamp_set_seconds_type (recent.gui_seconds_format);
 
 #ifdef HAVE_LIBPCAP
-#ifdef DEBUG_STARTUP_TIME
-    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling fill_in_local_interfaces, elapsed time %" PRIu64 " us \n", g_get_monotonic_time() - start_time);
-#endif
-    splash_update(RA_INTERFACES, NULL, NULL);
-
-    if (!global_commandline_info.cf_name && !prefs.capture_no_interface_load)
-        fill_in_local_interfaces(main_window_update);
-
-    if  (global_commandline_info.list_link_layer_types)
+    if (global_commandline_info.list_link_layer_types)
         caps_queries |= CAPS_QUERY_LINK_TYPES;
-     if (global_commandline_info.list_timestamp_types)
+    if (global_commandline_info.list_timestamp_types)
         caps_queries |= CAPS_QUERY_TIMESTAMP_TYPES;
 
     if (global_commandline_info.start_capture || caps_queries) {
@@ -958,6 +950,14 @@ int main(int argc, char *qt_argv[])
 #endif /* _WIN32 */
         goto clean_exit;
     }
+
+#ifdef DEBUG_STARTUP_TIME
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling fill_in_local_interfaces, elapsed time %" PRIu64 " us \n", g_get_monotonic_time() - start_time);
+#endif
+    splash_update(RA_INTERFACES, NULL, NULL);
+
+    if (!global_commandline_info.cf_name && !prefs.capture_no_interface_load)
+        fill_in_local_interfaces(main_window_update);
 
     capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);
     capture_opts_trim_ring_num_files(&global_capture_opts);
