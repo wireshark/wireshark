@@ -22351,14 +22351,6 @@ static const true_false_string gsm_map_Ss_Status_q_bit_values = {
   "Quiescent",
   "Operative"
 };
-static const true_false_string gsm_map_Ss_Status_p_values = {
-  "Provisioned",
-  "Not Provisioned"
-};
-static const true_false_string gsm_map_Ss_Status_r_values = {
-  "Registered",
-  "Not Registered"
-};
 static const true_false_string gsm_map_Ss_Status_a_values = {
   "Active",
   "not Active"
@@ -24297,11 +24289,11 @@ void proto_register_gsm_map(void) {
           NULL, HFILL }},
       { &hf_gsm_map_Ss_Status_p_bit,
         { "P bit", "gsm_map.ss_status_p_bit",
-          FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_p_values), 0x04,
+          FT_BOOLEAN, 8, TFS(&tfs_provisioned_not_provisioned), 0x04,
           NULL, HFILL }},
       { &hf_gsm_map_Ss_Status_r_bit,
         { "R bit", "gsm_map.ss_status_r_bit",
-          FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_r_values), 0x02,
+          FT_BOOLEAN, 8, TFS(&tfs_registered_not_registered), 0x02,
           NULL, HFILL }},
       { &hf_gsm_map_Ss_Status_a_bit,
         { "A bit", "gsm_map.ss_status_a_bit",
