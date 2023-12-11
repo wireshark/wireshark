@@ -1226,6 +1226,15 @@ extern tvbuff_t* base64_to_tvb(tvbuff_t *parent, const char *base64);
 extern tvbuff_t* base64_tvb_to_new_tvb(tvbuff_t* parent, int offset, int length);
 
 extern tvbuff_t* base64uri_tvb_to_new_tvb(tvbuff_t* parent, int offset, int length);
+
+/* From tvbuff_hpackhuff.c */
+
+WS_DLL_PUBLIC wmem_strbuf_t* tvb_get_hpack_huffman_strbuf(wmem_allocator_t *scope,
+    tvbuff_t *tvb, const int offset, const int len);
+
+WS_DLL_PUBLIC tvbuff_t* tvb_child_uncompress_hpack_huff(tvbuff_t *parent,
+    int offset, int length);
+
 /**
  * Extract a variable length integer from a tvbuff.
  * Each byte in a varint, except the last byte, has the most significant bit (msb)

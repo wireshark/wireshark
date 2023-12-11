@@ -1606,6 +1606,7 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     guint         remaining;
     proto_item   *opcode_ti;
     proto_tree   *opcode_tree;
+    tvbuff_t     *decoded_tvb;
     guint         decoded = 0;
     gint          fin = 0, inc = 0;
     volatile bool can_continue = true;
@@ -1663,6 +1664,12 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 if (value_huffman) {
                     proto_tree_add_item(opcode_tree, hf_http3_qpack_encoder_opcode_insert_indexed_hval, tvb,
                                         val_bytes_offset, (guint32)val_bytes_len, ENC_NA);
+                    decoded_tvb = tvb_child_uncompress_hpack_huff(tvb, (int)val_bytes_offset, (int)val_bytes_len);
+                    if (decoded_tvb) {
+                        add_new_data_source(pinfo, decoded_tvb, "Decoded QPACK Value");
+                        proto_tree_add_item(opcode_tree, hf_http3_qpack_encoder_opcode_insert_indexed_val, decoded_tvb,
+                                            0, tvb_captured_length(decoded_tvb), ENC_NA);
+                    }
                 } else {
                     proto_tree_add_item(opcode_tree, hf_http3_qpack_encoder_opcode_insert_indexed_val, tvb,
                                         val_bytes_offset, (guint32)val_bytes_len, ENC_NA);
@@ -1724,6 +1731,12 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 if (name_huffman) {
                     proto_tree_add_item(opcode_tree, hf_http3_qpack_encoder_opcode_insert_hname, tvb, name_bytes_offset,
                                         (guint32)name_bytes_len, ENC_NA);
+                    decoded_tvb = tvb_child_uncompress_hpack_huff(tvb, (int)name_bytes_offset, (int)name_bytes_len);
+                    if (decoded_tvb) {
+                        add_new_data_source(pinfo, decoded_tvb, "Decoded QPACK Name");
+                        proto_tree_add_item(opcode_tree, hf_http3_qpack_encoder_opcode_insert_name, decoded_tvb,
+                                            0, tvb_captured_length(decoded_tvb), ENC_NA);
+                    }
                 } else {
                     proto_tree_add_item(opcode_tree, hf_http3_qpack_encoder_opcode_insert_name, tvb, name_bytes_offset,
                                         (guint32)name_bytes_len, ENC_NA);
@@ -1732,6 +1745,12 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 if (value_huffman) {
                     proto_tree_add_item(opcode_tree, hf_http3_qpack_encoder_opcode_insert_hval, tvb, val_bytes_offset,
                                         (guint32)val_bytes_len, ENC_NA);
+                    decoded_tvb = tvb_child_uncompress_hpack_huff(tvb, (int)val_bytes_offset, (int)val_bytes_len);
+                    if (decoded_tvb) {
+                        add_new_data_source(pinfo, decoded_tvb, "Decoded QPACK Value");
+                        proto_tree_add_item(opcode_tree, hf_http3_qpack_encoder_opcode_insert_val, decoded_tvb,
+                                            0, tvb_captured_length(decoded_tvb), ENC_NA);
+                    }
                 } else {
                     proto_tree_add_item(opcode_tree, hf_http3_qpack_encoder_opcode_insert_val, tvb, val_bytes_offset,
                                         (guint32)val_bytes_len, ENC_NA);

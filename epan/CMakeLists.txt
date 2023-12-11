@@ -107,6 +107,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	maxmind_db.h
 	media_params.h
 	next_tvb.h
+	nghttp2_hd_huffman.h
 	nlpid.h
 	oids.h
 	osi-utils.h
@@ -216,6 +217,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	maxmind_db.c
 	media_params.c
 	next_tvb.c
+	nghttp2_hd_huffman_data.c
 	oids.c
 	osi-utils.c
 	packet.c
@@ -253,6 +255,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	tvbuff_base64.c
 	tvbuff_brotli.c
 	tvbuff_composite.c
+	tvbuff_hpackhuff.c
 	tvbuff_real.c
 	tvbuff_subset.c
 	tvbuff_zlib.c
