@@ -149,7 +149,7 @@ typedef struct {
 			yyextra->valid_record = false; \
 		}\
 	}\
-	yyextra->uat->fields[yyextra->colnum].cb.set(yyextra->record, yyextra->ptrx, yyextra->len, yyextra->uat->fields[yyextra->colnum].cbdata.chk, yyextra->uat->fields[yyextra->colnum].fld_data);\
+	yyextra->uat->fields[yyextra->colnum].cb.set(yyextra->record, yyextra->ptrx, yyextra->len, yyextra->uat->fields[yyextra->colnum].cbdata.set, yyextra->uat->fields[yyextra->colnum].fld_data);\
 	g_free(yyextra->ptrx);\
 	yyextra->ptrx = NULL;\
 	yyextra->colnum++; \
@@ -315,7 +315,7 @@ comment #[^\n]*\n
 		if (!default_value) {
 			break;
 		}
-		yyextra->uat->fields[yyextra->colnum].cb.set(yyextra->record, default_value, (unsigned) strlen(default_value), yyextra->uat->fields[yyextra->colnum].cbdata.chk, yyextra->uat->fields[yyextra->colnum].fld_data);
+		yyextra->uat->fields[yyextra->colnum].cb.set(yyextra->record, default_value, (unsigned) strlen(default_value), yyextra->uat->fields[yyextra->colnum].cbdata.set, yyextra->uat->fields[yyextra->colnum].fld_data);
 		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_INFO, "%s:%d: Set %s to %s.",
 			yyextra->uat->filename, yyextra->linenum, yyextra->uat->fields[yyextra->colnum].name, default_value);
 		yyextra->colnum++;
