@@ -120,7 +120,7 @@ static int dissect_monero_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
   offset += MONERO_HEADER_LENGTH;
 
   command_label = val_to_str(command, monero_commands, "[Unknown command %d]");
-  col_set_str(pinfo->cinfo, COL_INFO, command_label);
+  col_add_str(pinfo->cinfo, COL_INFO, command_label);
 
   /* data payload */
   size = tvb_get_letoh64(tvb, 8);
