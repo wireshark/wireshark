@@ -383,6 +383,14 @@ capture_get_if_capabilities(const char *ifname, bool monitor_mode,
     return caps;
 }
 
+static void
+free_if_capabilities_cb(void *data)
+{
+    if (data != NULL) {
+        free_if_capabilities((if_capabilities_t*)data);
+    }
+}
+
 GHashTable*
 capture_get_if_list_capabilities(GList *if_cap_queries,
                             char **err_primary_msg, char **err_secondary_msg,
@@ -396,7 +404,7 @@ capture_get_if_list_capabilities(GList *if_cap_queries,
     char              *data, *primary_msg, *secondary_msg;
     jsmntok_t         *tokens, *inf_tok;
 
-    caps_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+    caps_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, free_if_capabilities_cb);
     for (GList *li = if_cap_queries; li != NULL; li = g_list_next(li)) {
 
         query = (if_cap_query_t *)li->data;

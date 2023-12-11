@@ -405,10 +405,6 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
         } else {
             g_array_insert_val(global_capture_opts.all_ifaces, count, device);
         }
-        if (caps != NULL) {
-            free_if_capabilities(caps);
-        }
-
         count++;
     }
     g_hash_table_destroy(capability_hash);
