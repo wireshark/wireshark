@@ -524,9 +524,7 @@ private slots:
     QString findRtpStreams(QVector<rtpstream_id_t *> *stream_ids, bool reverse);
 
     void openTLSKeylogDialog();
-#ifdef HAVE_PLUGINS
     void installPersonalBinaryPlugin();
-#endif
 
     friend class MainApplication;
 };

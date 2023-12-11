@@ -25,9 +25,7 @@ DIAG_ON(frame-larger-than=)
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/version_info.h>
-#ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
-#endif
 #include <epan/prefs.h>
 #include <epan/stats_tree_priv.h>
 #include <epan/plugin_if.h>
@@ -3296,7 +3294,6 @@ void WiresharkMainWindow::openTLSKeylogDialog()
     tlskeylog_dialog_->activateWindow();
 }
 
-#ifdef HAVE_PLUGINS
 void WiresharkMainWindow::installPersonalBinaryPlugin()
 {
     QMessageBox::StandardButton reply;
@@ -3375,4 +3372,3 @@ void WiresharkMainWindow::installPersonalBinaryPlugin()
                     tr("Plugin '%1' installed successfully. "
                        "You must restart the program to be able to use it.").arg(file_name));
 }
-#endif
