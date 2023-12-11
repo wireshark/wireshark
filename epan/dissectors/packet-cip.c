@@ -7374,7 +7374,7 @@ static void fwd_open_analysis_safety_open(packet_info* pinfo, proto_item* cmd_it
    }
 }
 
-void fwd_open_analysis_listen_input_connection(packet_info* pinfo, proto_item* cmd_item, guint8 TransportClass_trigger, const cip_connID_info_t* O2T_info)
+static void fwd_open_analysis_listen_input_connection(packet_info* pinfo, proto_item* cmd_item, guint8 TransportClass_trigger, const cip_connID_info_t* O2T_info)
 {
    // Listen Only and Input Only connections must be 'Fixed'.
    if (O2T_info->connection_size_type != CIP_CONNECTION_SIZE_TYPE_FIXED)

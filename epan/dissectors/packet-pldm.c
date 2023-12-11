@@ -153,7 +153,7 @@ static int print_version_field(guint8 bcd, char *buffer, size_t buffer_size) {
   return snprintf(buffer, buffer_size, "%02d", v);
 }
 
-void ver2str(tvbuff_t *tvb, int offset, char *buf_ptr, size_t buffer_size) {
+static void ver2str(tvbuff_t *tvb, int offset, char *buf_ptr, size_t buffer_size) {
   int rc;
   guint8 major = tvb_get_guint8(tvb, offset);
   offset += 1;
@@ -199,6 +199,7 @@ void ver2str(tvbuff_t *tvb, int offset, char *buf_ptr, size_t buffer_size) {
 }
 
 
+static
 int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree,
                  void *data) {
   struct packet_data *d = (struct packet_data *)data;
