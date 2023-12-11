@@ -34,7 +34,7 @@ typedef struct rlc_3gpp_tap_info {
 
     gboolean        sequenceNumberGiven;  // absent for NR UM if not segmented
     guint32         sequenceNumber;
-    guint8          isResegmented;
+    guint8          isResegmented;        // LTE only..
     guint8          isControlPDU;
     guint32         ACKNo;
     #define MAX_NACKs 512

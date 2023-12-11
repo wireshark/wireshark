@@ -41,6 +41,7 @@ struct rlc_segment {
     guint16         channelId;
     guint8          rlcMode;
     guint8          direction;
+    guint16         sequenceNumberLength;
 };
 
 /* A collection of channels that may be found in one frame.  Used when working out

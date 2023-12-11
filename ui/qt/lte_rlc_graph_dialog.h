@@ -51,7 +51,7 @@ private:
     QPoint rb_origin_;
     QMenu *ctx_menu_;
 
-    // Data gleaned directly from tapping packets (shared with gtk impl)
+    // Data gleaned directly from tapping packets
     struct rlc_graph graph_;
 
     // Data

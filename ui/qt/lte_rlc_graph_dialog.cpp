@@ -273,6 +273,16 @@ void LteRlcGraphDialog::fillGraph()
                     reseg_seq_time, reseg_seq,
                     acks_time, acks,
                     nacks_time, nacks;
+
+    guint16 last_ackSN = 0;
+    guint32 maxSN = 0;
+
+    // Note the max possible SN
+    if (graph_.segments) {
+        maxSN = (1 << graph_.segments->sequenceNumberLength);
+    }
+
+    // Run through the segments to get data
     for (struct rlc_segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
         double ts = seg->rel_secs + (seg->rel_usecs / 1000000.0);
         if (compareHeaders(seg)) {
@@ -288,12 +298,22 @@ void LteRlcGraphDialog::fillGraph()
                 }
             }
             else {
-                // Status (ACKs/NACKs)
-                acks_time.append(ts);
-                acks.append(seg->ACKNo-1);
-                for (int n=0; n < seg->noOfNACKs; n++) {
-                    nacks_time.append(ts);
-                    nacks.append(seg->NACKs[n]);
+                // Status
+
+                // Filter out ACKS that are likely caused by MAC retx, so track last ACK
+                if ((seg->ACKNo != last_ackSN) &&
+                    (((maxSN +  last_ackSN-seg->ACKNo) % maxSN) > 2)) {
+
+                    // Status (ACKs/NACKs)
+                    acks_time.append(ts);
+                    acks.append((seg->ACKNo-1) % maxSN);
+                    last_ackSN = seg->ACKNo;
+
+                    // Any NACKs
+                    for (int n=0; n < seg->noOfNACKs; n++) {
+                        nacks_time.append(ts);
+                        nacks.append(seg->NACKs[n]);
+                    }
                 }
             }
         }
@@ -686,7 +706,11 @@ void LteRlcGraphDialog::resetAxes()
     double pixel_pad = 10.0; // per side
 
     rp->rescaleAxes(true);
+    // Make sure ranges of all sub-graphs are taken into account
     base_graph_->rescaleValueAxis(false, true);
+    reseg_graph_->rescaleValueAxis(true, true);
+    acks_graph_->rescaleValueAxis(true, true);
+    nacks_graph_->rescaleValueAxis(true, true);
 
     double axis_pixels = rp->xAxis->axisRect()->width();
     rp->xAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, x_range.center());

@@ -93,8 +93,8 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
  * in the packet list. Errors are passed back to the caller, as they will be reported differently
  * depending upon which GUI toolkit is being used. */
 rlc_3gpp_tap_info* select_rlc_lte_session(capture_file *cf,
-                                            struct rlc_segment *hdrs,
-                                            gchar **err_msg)
+                                          struct rlc_segment *hdrs,
+                                          gchar **err_msg)
 {
     frame_data     *fdata;
     epan_dissect_t  edt;
@@ -195,6 +195,7 @@ static tap_packet_status rlc_lte_tap_for_graph_data(void *pct, packet_info *pinf
         segment->channelId = rlchdr->channelId;
         segment->direction = rlchdr->direction;
         segment->rlcMode = rlchdr->rlcMode;
+        segment->sequenceNumberLength = rlchdr->sequenceNumberLength;
 
         segment->isControlPDU = rlchdr->isControlPDU;
 
