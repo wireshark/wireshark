@@ -85,6 +85,25 @@ static int hf_srt_handshake_ext_flag_nak_report;
 static int hf_srt_handshake_ext_flag_rexmit;
 static int hf_srt_handshake_ext_flag_stream;
 
+/* Key Material (KM) */
+static int hf_srt_km;
+static int hf_srt_km_s;
+static int hf_srt_km_v;
+static int hf_srt_km_pt;
+static int hf_srt_km_sign;
+static int hf_srt_km_resv1;
+static int hf_srt_km_kk;
+static int hf_srt_km_keki;
+static int hf_srt_km_cipher;
+static int hf_srt_km_auth;
+static int hf_srt_km_se;
+static int hf_srt_km_resv2;
+static int hf_srt_km_resv3;
+static int hf_srt_km_slen;
+static int hf_srt_km_klen;
+static int hf_srt_km_salt;
+static int hf_srt_km_wrap;
+
 static int hf_srt_srths_blocktype;
 static int hf_srt_srths_blocklen;
 static int hf_srt_srths_agent_latency; // TSBPD delay
@@ -109,6 +128,12 @@ static dissector_handle_t srt_udp_handle;
 #define SRT_TYPE_DATA            0
 #define SRT_TYPE_CONTROL        1
 #define SRT_CONTROL_MASK (~0x80000000)
+
+#define SRT_KM_S_MASK           0x80
+#define SRT_KM_V_MASK           0x70
+#define SRT_KM_PT_MASK          0x0F
+#define SRT_KM_KK_MASK          0x03
+#define SRT_KM_RESV1_MASK       0xFC
 
 #define SRT_LOSS_SEQUENCE_FIRST 0x80000000
 #define SRT_LOSS_SEQUENCE_MASK  (~SRT_LOSS_SEQUENCE_FIRST)
@@ -285,8 +310,8 @@ static const value_string srt_pb_types[] = {
 
 static const value_string srt_msgno_enctypes[] = {
     {SRT_MSGNO_EK_NONE, "Not encrypted"},
-    {SRT_MSGNO_EK_EVEN, "Encrypted ith even key"},
-    {SRT_MSGNO_EK_ODD,  "Encrypted with odd key"},
+    {SRT_MSGNO_EK_EVEN, "Encrypted (even key)"},
+    {SRT_MSGNO_EK_ODD,  "Encrypted (odd key)"},
     {0, NULL},
 };
 
@@ -341,15 +366,15 @@ static void srt_format_ip_address(gchar* dest, size_t dest_size, const gchar* pt
     {
         for (i = 4; i < 16; ++i)
         {
-            if ( ptr[i] == 0 )
+            if (ptr[i] == 0)
                 continue;
 
             /* This is not an IP4 */
-            p = (guint32*) &ia6;
+            p = (guint32*)&ia6;
             for (j = 0; j < 4; ++j)
                 p[j] = g_ntohl(((guint32*)ptr)[j]);
 
-            ws_inet_ntop6(&ia6, dest, (guint) dest_size);
+            ws_inet_ntop6(&ia6, dest, (guint)dest_size);
             return;
         }
     }
@@ -361,7 +386,7 @@ static void srt_format_ip_address(gchar* dest, size_t dest_size, const gchar* pt
     // Here's IPv4, so invert only one l.
     ia4 = g_ntohl(*((const guint32*)ptr));
 
-    ws_inet_ntop4(&ia4, dest, (guint) dest_size);
+    ws_inet_ntop4(&ia4, dest, (guint)dest_size);
     return;
 }
 
@@ -389,10 +414,97 @@ static void srt_format_hs_ext_hsreq(proto_tree* tree, tvbuff_t* tvb, int baseoff
     };
 
     proto_tree_add_bitmask_with_flags(tree, tvb, baseoff + 4, hf_srt_handshake_ext_flags,
-                                      ett_srt_handshake_ext_flags, ext_hs_flags, ENC_NA, BMT_NO_APPEND);
+        ett_srt_handshake_ext_flags, ext_hs_flags, ENC_NA, BMT_NO_APPEND);
 
-    proto_tree_add_item(tree, hf_srt_srths_peer_latency, tvb, baseoff+8, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_srt_srths_agent_latency, tvb, baseoff+10, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_srt_srths_peer_latency, tvb, baseoff + 8, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_srt_srths_agent_latency, tvb, baseoff + 10, 2, ENC_BIG_ENDIAN);
+}
+
+static void srt_format_km(proto_tree* tree, tvbuff_t* tvb, int baseoff, int blocklen)
+{
+    //  0                   1                   2                   3
+    //  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // |S|  V  |   PT  |              Sign             |   Resv1   | KK|
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // |                              KEKI                             |
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // |     Cipher    |      Auth     |       SE      |     Resv2     |
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // |             Resv3             |     SLen/4    |     KLen/4    |
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // |                              Salt                             |
+    // |                           (16 bytes)                          |
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // |                                                               |
+    // +                          Wrapped Key                          +
+    // |                                                               |
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    guint   u8bits = 0;
+    guint32 slen = 0;
+
+    proto_tree_add_item(tree, hf_srt_km_s, tvb, baseoff, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_srt_km_v, tvb, baseoff, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_srt_km_pt, tvb, baseoff, 1, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(tree, hf_srt_km_sign, tvb, baseoff + 1, 2, ENC_NA);
+
+    proto_tree_add_item(tree, hf_srt_km_resv1, tvb, baseoff + 3, 1, ENC_NA);
+
+    const value_string kk_desc[] = {
+        { 0, "No SEK is provided - invalid KM" },
+        { 1, "Even key is provided" },
+        { 2, "Odd key is provided" },
+        { 3, "Both even and odd keys are provided"},
+        { 0, NULL }
+    };
+
+    u8bits = tvb_get_guint8(tvb, baseoff + 3);
+    proto_tree_add_uint_format_value(tree, hf_srt_km_kk, tvb, baseoff + 3, 1,
+        u8bits, "%u (%s)", (u8bits & SRT_KM_KK_MASK), try_val_to_str(u8bits & SRT_KM_KK_MASK, kk_desc));
+
+    const value_string cipher_desc[] = {
+        { 0, "None or KEKI indexed crypto context" },
+        { 1, "AES-ECB (reserved, not supported)" },
+        { 2, "AES-CTR" },
+        { 3, "AES-CBC (reserved, not supported)" },
+        { 4, "AES-GCM" },
+        { 0, NULL }
+    };
+    proto_tree_add_item(tree, hf_srt_km_keki, tvb, baseoff + 4, 4, ENC_BIG_ENDIAN);
+
+    u8bits = tvb_get_guint8(tvb, baseoff + 8);
+    proto_tree_add_uint_format_value(tree, hf_srt_km_cipher, tvb, baseoff + 8, 1,
+        u8bits, "%u (%s)", u8bits, try_val_to_str(u8bits, cipher_desc));
+
+    proto_tree_add_item(tree, hf_srt_km_auth, tvb, baseoff + 9, 1, ENC_BIG_ENDIAN);
+
+    const value_string se_desc[] = {
+        { 0, "Unspecified" },
+        { 1, "MPEG2-TS/UDP" },
+        { 2, "MPEG2-TS/SRT" },
+        { 0, NULL }
+    };
+    u8bits = tvb_get_guint8(tvb, baseoff + 10); // km.se
+    proto_tree_add_uint_format_value(tree, hf_srt_km_se, tvb, baseoff + 10, 1,
+        u8bits, "%u (%s)", u8bits, try_val_to_str(u8bits, se_desc));
+
+    proto_tree_add_item(tree, hf_srt_km_resv2, tvb, baseoff + 11, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_srt_km_resv3, tvb, baseoff + 12, 2, ENC_NA);
+
+    u8bits = tvb_get_guint8(tvb, baseoff + 14); // km.slen
+    slen = 4 * u8bits;
+    proto_tree_add_uint_format_value(tree, hf_srt_km_slen, tvb, baseoff + 14, 1,
+        u8bits, "%u (%d bytes)", u8bits, slen);
+
+    u8bits = tvb_get_guint8(tvb, baseoff + 15); // km.klen
+    proto_tree_add_uint_format_value(tree, hf_srt_km_klen, tvb, baseoff + 15, 1,
+        u8bits, "%u (%d bytes)", u8bits, 4 * u8bits);
+
+    proto_tree_add_item(tree, hf_srt_km_salt, tvb, baseoff + 16, slen, ENC_NA);
+
+    const int wrap_offset = 16 + slen;
+    proto_tree_add_item(tree, hf_srt_km_wrap, tvb, baseoff + wrap_offset, blocklen - wrap_offset, ENC_NA);
 }
 
 static void srt_format_kmx(proto_tree* tree, tvbuff_t* tvb, int baseoff, int blocklen)
@@ -404,7 +516,7 @@ static void srt_format_kmx(proto_tree* tree, tvbuff_t* tvb, int baseoff, int blo
     }
     else
     {
-        proto_tree_add_item(tree, hf_srt_srtkm_msg, tvb, baseoff, blocklen, ENC_NA);
+        srt_format_km(tree, tvb, baseoff, blocklen);
     }
 }
 
@@ -1147,6 +1259,7 @@ void proto_register_srt(void)
             "SYN Cookie", "srt.hs.cookie",
             FT_UINT32, BASE_HEX,
             NULL, 0, NULL, HFILL}},
+
         {&hf_srt_handshake_peerip, {
             /* FT_STRINGZ is used because the value
              * is formatted to a temporary buffer first */
@@ -1253,6 +1366,104 @@ void proto_register_srt(void)
         {&hf_srt_srths_congestcontrol, {
             "Congestion Control Type", "srt.hs.congestctrl",
             FT_STRING, BASE_NONE,
+            NULL, 0, NULL, HFILL}},
+
+        {&hf_srt_km, {
+            "Key Material", "srt.km",
+            FT_BYTES, BASE_NONE,
+            NULL, 0, NULL, HFILL}},
+
+        {&hf_srt_km_s, {
+            "Reserved 'S' Bit", "srt.km.s",
+            FT_UINT8, BASE_DEC, NULL,
+            SRT_KM_S_MASK, NULL, HFILL}},
+
+        {&hf_srt_km_v, {
+            "KM Version", "srt.km.v",
+            FT_UINT8, BASE_DEC,
+            NULL, SRT_KM_V_MASK, NULL,
+            HFILL} },
+
+        {&hf_srt_km_pt, {
+            "KM Payload Type", "srt.km.pt",
+            FT_UINT8, BASE_DEC,
+            NULL, SRT_KM_PT_MASK, NULL,
+            HFILL} },
+
+        {&hf_srt_km_sign, {
+            "KM Signature", "srt.km.sign",
+            FT_BYTES, BASE_NONE,
+            NULL, 0, NULL,
+            HFILL} },
+
+        {&hf_srt_km_resv1, {
+            "Reserved1", "srt.km.resv1",
+            FT_UINT8, BASE_DEC,
+            NULL, SRT_KM_RESV1_MASK, NULL,
+            HFILL} },
+
+        {&hf_srt_km_kk, {
+            "Encryption Keys", "srt.km.kk",
+            FT_UINT8, BASE_DEC,
+            NULL, SRT_KM_KK_MASK, NULL,
+            HFILL} },
+
+        {&hf_srt_km_keki, {
+            "KEK index", "srt.km.keki",
+            FT_UINT32, BASE_DEC,
+            NULL, 0, NULL,
+            HFILL} },
+
+        {&hf_srt_km_cipher, {
+            "Cipher", "srt.km.cipher",
+            FT_UINT8, BASE_DEC,
+            NULL, 0, NULL,
+            HFILL} },
+
+        {&hf_srt_km_auth, {
+            "Auth", "srt.km.auth",
+            FT_UINT8, BASE_DEC,
+            NULL, 0, NULL,
+            HFILL} },
+
+        {&hf_srt_km_se, {
+            "Stream Encapsulation", "srt.km.se",
+            FT_UINT8, BASE_DEC,
+            NULL, 0, NULL,
+            HFILL} },
+
+        {&hf_srt_km_resv2, {
+            "Reserved2", "srt.km.resv2",
+            FT_UINT8, BASE_DEC,
+            NULL, 0, NULL,
+            HFILL} },
+
+        { &hf_srt_km_resv3, {
+            "Reserved3", "srt.km.resv3",
+            FT_UINT16, BASE_DEC,
+            NULL, 0, NULL,
+            HFILL} },
+
+        {&hf_srt_km_slen, {
+            "Salt Length (4-byte blocks)", "srt.km.slen",
+            FT_UINT8, BASE_DEC,
+            NULL, 0, NULL,
+            HFILL} },
+
+        {&hf_srt_km_klen, {
+            "SEK Length (4-byte blocks)", "srt.km.klen",
+            FT_UINT8, BASE_DEC,
+            NULL, 0, NULL,
+            HFILL} },
+
+         {&hf_srt_km_salt, {
+            "Salt", "srt.km.salt",
+            FT_BYTES, BASE_NONE,
+            NULL, 0, NULL, HFILL}},
+
+        {&hf_srt_km_wrap, {
+            "Key wrap", "srt.km.wrap",
+            FT_BYTES, BASE_NONE,
             NULL, 0, NULL, HFILL}}
     };
 
