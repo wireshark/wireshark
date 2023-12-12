@@ -822,6 +822,9 @@ free_if_capabilities(if_capabilities_t *caps)
 	g_list_foreach(caps->timestamp_types, free_timestamp_cb, NULL);
 	g_list_free(caps->timestamp_types);
 
+	g_free(caps->primary_msg);
+	g_free(caps->secondary_msg);
+
 	g_free(caps);
 }
 
@@ -1328,7 +1331,7 @@ get_if_capabilities_pcap_create(interface_options *interface_opts,
 		pcap_close(pch);
 		return NULL;
 	}
-	caps = (if_capabilities_t *)g_malloc(sizeof *caps);
+	caps = (if_capabilities_t *)g_malloc0(sizeof *caps);
 	if (status == 0)
 		caps->can_set_rfmon = false;
 	else if (status == 1) {
@@ -1667,7 +1670,7 @@ get_if_capabilities_pcap_open_live(interface_options *interface_opts,
 		return NULL;
 	}
 
-	caps = (if_capabilities_t *)g_malloc(sizeof *caps);
+	caps = (if_capabilities_t *)g_malloc0(sizeof *caps);
 	caps->can_set_rfmon = false;
 	caps->data_link_types = get_data_link_types(pch, interface_opts,
 	    open_status, open_status_str);
@@ -1817,7 +1820,7 @@ get_if_capabilities(interface_options *interface_opts,
 		return NULL;
 	}
 
-        caps = (if_capabilities_t *)g_malloc(sizeof *caps);
+        caps = (if_capabilities_t *)g_malloc0(sizeof *caps);
         caps->can_set_rfmon = false;
         caps->data_link_types = NULL;
         deflt = get_pcap_datalink(pch, interface_opts->name);

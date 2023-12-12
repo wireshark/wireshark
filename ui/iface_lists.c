@@ -277,7 +277,6 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
         }
         device.type = if_info->type;
         monitor_mode = prefs_capture_device_monitor_mode(if_info->name);
-        caps = g_hash_table_lookup(capability_hash, if_info->name);
         ip_str = g_string_new("");
         for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
             temp_addr = g_new0(if_addr_t, 1);
@@ -335,7 +334,8 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
         device.remote_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
 #endif
         device.links = NULL;
-        if (caps != NULL) {
+        caps = g_hash_table_lookup(capability_hash, if_info->name);
+        if (caps != NULL && !caps->primary_msg) {
 #if defined(HAVE_PCAP_CREATE)
             device.monitor_mode_enabled = monitor_mode;
             device.monitor_mode_supported = caps->can_set_rfmon;
