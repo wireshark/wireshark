@@ -31,9 +31,7 @@
 #include <wsutil/privileges.h>
 #include <wsutil/socket.h>
 #include <wsutil/wslog.h>
-#ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
-#endif
 #include <wsutil/report_message.h>
 #include <wsutil/please_report_bug.h>
 #include <wsutil/unicode-utils.h>

@@ -102,7 +102,6 @@ QStringList AuthorListModel::headerColumns() const
     return QStringList() << tr("Name") << tr("Email");
 }
 
-#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
 static const char *
 scope_to_str(plugin_scope_e scope)
 {
@@ -114,9 +113,7 @@ scope_to_str(plugin_scope_e scope)
     }
     return "";
 }
-#endif // HAVE_PLUGINS || HAVE_LUA
 
-#ifdef HAVE_PLUGINS
 static void plugins_add_description(const char *name, const char *version,
                                     uint32_t flags, const char *spdx_id _U_,
                                     const char *blurb, const char *home_url,
@@ -145,7 +142,6 @@ static void plugins_add_description(const char *name, const char *version,
                                 << scope_to_str(scope) << blurb << filename << home_url;
     *plugin_data << plugin_row;
 }
-#endif
 
 #ifdef HAVE_LUA
 // This exists only to add "lua script" to the type, otherwise we could use
@@ -179,9 +175,8 @@ static void extcap_plugins_add_description(const char *name, const char *version
 PluginListModel::PluginListModel(QObject *parent) : AStringListListModel(parent)
 {
     QList<QStringList> plugin_data;
-#ifdef HAVE_PLUGINS
+
     plugins_get_descriptions(plugins_add_description, &plugin_data);
-#endif
 
 #ifdef HAVE_LUA
     wslua_plugins_get_descriptions(wslua_plugins_add_description, &plugin_data);
