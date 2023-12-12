@@ -1712,7 +1712,7 @@ if(ENABLE_PLUGINS)
 		plugins/epan/wimaxmacphy
 		plugins/epan/dfilter/ipaddr
 		plugins/wiretap/usbdump
-		plugins/codecs/G711
+		plugins/codecs/g711
 		plugins/codecs/l16_mono
 		${CUSTOM_PLUGIN_SRC_DIR}
 	)
@@ -1724,13 +1724,13 @@ if(ENABLE_PLUGINS)
 	endif()
 	if(SPANDSP_FOUND)
 		list(APPEND PLUGIN_SRC_DIRS
-			plugins/codecs/G722
-			plugins/codecs/G726
+			plugins/codecs/g722
+			plugins/codecs/g726
 		)
 	endif()
 	if(BCG729_FOUND)
 		list(APPEND PLUGIN_SRC_DIRS
-			plugins/codecs/G729
+			plugins/codecs/g729
 		)
 	endif()
 	if(AMRNB_FOUND)
@@ -1740,7 +1740,7 @@ if(ENABLE_PLUGINS)
 	endif()
 	if(ILBC_FOUND)
 		list(APPEND PLUGIN_SRC_DIRS
-			plugins/codecs/iLBC
+			plugins/codecs/ilbc
 		)
 	endif()
 	if(OPUS_FOUND)
