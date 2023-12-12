@@ -33,7 +33,6 @@
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/version_info.h>
-#include <wsutil/plugins.h>
 
 #include "conversation.h"
 #include "except.h"
@@ -210,6 +209,20 @@ void epan_register_plugin(const epan_plugin *plug)
 		epan_plugin_register_all_procotols = g_slist_prepend(epan_plugin_register_all_procotols, plug->register_all_protocols);
 	if (plug->register_all_handoffs)
 		epan_plugin_register_all_handoffs = g_slist_prepend(epan_plugin_register_all_handoffs, plug->register_all_handoffs);
+}
+
+void epan_plugins_get_descriptions(plugin_description_callback callback, void *user_data)
+{
+	GSList *l;
+
+	for (l = epan_plugins; l != NULL; l = l->next) {
+		((epan_plugin *)l->data)->get_descriptions(callback, user_data);
+	}
+}
+
+void epan_plugins_dump_all(void)
+{
+	epan_plugins_get_descriptions(plugins_print_description, NULL);
 }
 
 int epan_plugins_supported(void)

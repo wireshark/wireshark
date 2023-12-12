@@ -73,6 +73,12 @@ typedef void (*plugin_description_callback)(const char *name, const char *versio
 
 WS_DLL_PUBLIC void plugins_get_descriptions(plugin_description_callback callback, void *user_data);
 
+WS_DLL_PUBLIC void plugins_print_description(const char *name, const char *version,
+                         uint32_t flags, const char *spdx_id,
+                         const char *blurb, const char *home_url,
+                         const char *filename, plugin_scope_e scope,
+                         void *user_data _U_);
+
 WS_DLL_PUBLIC void plugins_dump_all(void);
 
 WS_DLL_PUBLIC int plugins_get_count(void);

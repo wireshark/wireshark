@@ -302,8 +302,8 @@ plugins_get_descriptions(plugin_description_callback callback, void *callback_da
     g_ptr_array_free(plugins_array, true);
 }
 
-static void
-print_plugin_description(const char *name, const char *version,
+void
+plugins_print_description(const char *name, const char *version,
                          uint32_t flags, const char *spdx_id _U_,
                          const char *blurb _U_, const char *home_url _U_,
                          const char *filename, plugin_scope_e scope _U_,
@@ -315,7 +315,7 @@ print_plugin_description(const char *name, const char *version,
 void
 plugins_dump_all(void)
 {
-    plugins_get_descriptions(print_plugin_description, NULL);
+    plugins_get_descriptions(plugins_print_description, NULL);
 }
 
 int

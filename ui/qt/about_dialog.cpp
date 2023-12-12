@@ -178,6 +178,8 @@ PluginListModel::PluginListModel(QObject *parent) : AStringListListModel(parent)
 
     plugins_get_descriptions(plugins_add_description, &plugin_data);
 
+    epan_plugins_get_descriptions(plugins_add_description, &plugin_data);
+
 #ifdef HAVE_LUA
     wslua_plugins_get_descriptions(wslua_plugins_add_description, &plugin_data);
 #endif

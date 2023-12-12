@@ -1311,6 +1311,7 @@ main(int argc, char *argv[])
                 wslua_plugins_dump_all();
 #endif
                 extcap_dump_all();
+                epan_plugins_dump_all();
             }
             else if (strcmp(argv[2], "protocols") == 0)
                 proto_registrar_dump_protocols();
