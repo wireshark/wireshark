@@ -33,6 +33,7 @@
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/version_info.h>
+#include <wsutil/plugins.h>
 
 #include "conversation.h"
 #include "except.h"
@@ -61,10 +62,6 @@
 #include "funnel.h"
 #include "wscbor.h"
 #include <dtd.h>
-
-#ifdef HAVE_PLUGINS
-#include <wsutil/plugins.h>
-#endif
 
 #ifdef HAVE_LUA
 #include <lua.h>
@@ -117,10 +114,8 @@ static wmem_allocator_t *pinfo_pool_cache = NULL;
 gboolean wireshark_abort_on_dissector_bug = FALSE;
 gboolean wireshark_abort_on_too_many_items = FALSE;
 
-#ifdef HAVE_PLUGINS
 /* Used for bookkeeping, includes all libwireshark plugin types (dissector, tap, epan). */
 static plugins_t *libwireshark_plugins = NULL;
-#endif
 
 /* "epan_plugins" are a specific type of libwireshark plugin (the name isn't the best for clarity). */
 static GSList *epan_plugins = NULL;
@@ -204,21 +199,18 @@ epan_plugin_cleanup(gpointer data, gpointer user_data _U_)
 	((epan_plugin *)data)->cleanup();
 }
 
-#ifdef HAVE_PLUGINS
 void epan_register_plugin(const epan_plugin *plug)
 {
+	if (epan_plugins_supported() != 0) {
+		ws_debug("epan_register_plugin: plugins not enabled or supported by the platform");
+		return;
+	}
 	epan_plugins = g_slist_prepend(epan_plugins, (epan_plugin *)plug);
 	if (plug->register_all_protocols)
 		epan_plugin_register_all_procotols = g_slist_prepend(epan_plugin_register_all_procotols, plug->register_all_protocols);
 	if (plug->register_all_handoffs)
 		epan_plugin_register_all_handoffs = g_slist_prepend(epan_plugin_register_all_handoffs, plug->register_all_handoffs);
 }
-#else /* HAVE_PLUGINS */
-void epan_register_plugin(const epan_plugin *plug _U_)
-{
-	ws_warning("epan_register_plugin: built without support for binary plugins");
-}
-#endif /* HAVE_PLUGINS */
 
 int epan_plugins_supported(void)
 {
@@ -276,9 +268,7 @@ epan_init(register_cb cb, gpointer client_data, gboolean load_plugins)
 	except_init();
 
 	if (load_plugins) {
-#ifdef HAVE_PLUGINS
 		libwireshark_plugins = plugins_init(WS_PLUGIN_EPAN);
-#endif
 	}
 
 	/* initialize libgcrypt (beware, it won't be thread-safe) */
@@ -444,10 +434,8 @@ epan_cleanup(void)
 	except_deinit();
 	addr_resolv_cleanup();
 
-#ifdef HAVE_PLUGINS
 	plugins_cleanup(libwireshark_plugins);
 	libwireshark_plugins = NULL;
-#endif
 
 	if (pinfo_pool_cache != NULL) {
 		wmem_destroy_allocator(pinfo_pool_cache);
