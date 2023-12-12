@@ -107,12 +107,12 @@ class RlcChannelTreeWidgetItem : public QTreeWidgetItem
 {
 public:
     RlcChannelTreeWidgetItem(QTreeWidgetItem *parent,
-                             uint8_t  RAT,
+                             uint8_t  rat,
                              unsigned ueid,
                              unsigned mode,
                              unsigned channelType, unsigned channelId) :
         QTreeWidgetItem(parent, rlc_channel_row_type_),
-        RAT_(RAT),
+        rat_(rat),
         ueid_(ueid),
         channelType_(channelType),
         channelId_(channelId),
@@ -277,41 +277,74 @@ public:
 
         // Are we taking RLC PDUs from MAC, or not?
         if (!recent.gui_rlc_use_pdus_from_mac) {
-            filter_expr += QString("not mac-lte and ");
+            if (rat_ == RLC_RAT_LTE) {
+                filter_expr += QString("not mac-lte and ");
+            }
+            else {
+                filter_expr += QString("not mac-nr and ");
+            }
         }
         else {
-            filter_expr += QString("mac-lte and ");
+            if (rat_ == RLC_RAT_LTE) {
+                filter_expr += QString("mac-lte and ");
+            }
+            else {
+                filter_expr += QString("mac-nr and ");
+            }
         }
 
         if (showSR) {
-            filter_expr += QString("(mac-lte.sr-req and mac-lte.ueid == %1) or (").arg(ueid_);
+            if (rat_ == RLC_RAT_LTE) {
+                filter_expr += QString("(mac-lte.sr-req and mac-lte.ueid == %1) or (").arg(ueid_);
+            }
         }
 
         if (showRACH) {
-            filter_expr += QString("(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %1)) or (").arg(ueid_);
+            if (rat_ == RLC_RAT_LTE) {
+                filter_expr += QString("(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %1)) or (").arg(ueid_);
+            }
+            else {
+                filter_expr += QString("(mac-nr.rar or ");
+            }
         }
 
         // Main part of expression.
-        filter_expr += QString("rlc-lte.ueid==%1 and rlc-lte.channel-type == %2").
-                                  arg(ueid_).arg(channelType_);
+        if (rat_ == RLC_RAT_LTE) {
+            filter_expr += QString("rlc-lte.ueid==%1 and rlc-lte.channel-type == %2").
+                                      arg(ueid_).arg(channelType_);
+        }
+        else {
+            filter_expr += QString("rlc-nr.ueid==%1 and rlc-nr.bearer-type == %2").
+                                      arg(ueid_).arg(channelType_);
+        }
+        // Channel/bearer Id
         if ((channelType_ == CHANNEL_TYPE_SRB) || (channelType_ == CHANNEL_TYPE_DRB)) {
-            filter_expr += QString(" and rlc-lte.channel-id == %1").arg(channelId_);
+            if (rat_ == RLC_RAT_LTE) {
+                filter_expr += QString(" and rlc-lte.channel-id == %1").arg(channelId_);
+            }
+            else {
+                filter_expr += QString(" and rlc-nr.bearer-id == %1").arg(channelId_);
+            }
         }
 
         // Close () if open because of SR
         if (showSR) {
-            filter_expr += QString(")");
+            if (rat_ == RLC_RAT_LTE) {
+                filter_expr += QString(")");
+            }
         }
         // Close () if open because of RACH
         if (showRACH) {
-            filter_expr += QString(")");
+            if (rat_ == RLC_RAT_LTE) {
+                filter_expr += QString(")");
+            }
         }
 
         return filter_expr;
     }
 
     // Accessors (queried for launching graph)
-    uint8_t  get_RAT() const { return RAT_; }
+    uint8_t  get_rat() const { return rat_; }
     unsigned get_ueid() const { return ueid_; }
     unsigned get_channelType() const { return channelType_; }
     unsigned get_channelId() const { return channelId_; }
@@ -327,7 +360,7 @@ public:
     }
 
 private:
-    uint8_t  RAT_;
+    uint8_t  rat_;
     unsigned ueid_;
     unsigned channelType_;
     unsigned channelId_;
@@ -581,30 +614,56 @@ public:
 
         // Are we taking RLC PDUs from MAC, or not?
         if (!recent.gui_rlc_use_pdus_from_mac) {
-            filter_expr += QString("not mac-lte and ");
+            if (rat_ == RLC_RAT_LTE) {
+                filter_expr += QString("not mac-lte and ");
+            }
+            else {
+                filter_expr += QString("not mac-nr and ");
+            }
         }
         else {
-            filter_expr += QString("mac-lte and ");
+            if (rat_ == RLC_RAT_LTE) {
+                filter_expr += QString("mac-lte and ");
+            }
+            else {
+                filter_expr += QString("mac-nr and ");
+            }
         }
 
         if (showSR) {
-            filter_expr += QString("(mac-lte.sr-req and mac-lte.ueid == %1) or (").arg(ueid_);
+            if (rat_ == RLC_RAT_LTE) {
+                filter_expr += QString("(mac-lte.sr-req and mac-lte.ueid == %1) or (").arg(ueid_);
+            }
         }
 
         if (showRACH) {
-            filter_expr += QString("(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %1)) or (").arg(ueid_);
+            if (rat_ == RLC_RAT_LTE) {
+                filter_expr += QString("(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %1)) or (").arg(ueid_);
+            }
+            else {
+                filter_expr += QString("mac-nr.rar or ");
+            }
         }
 
         // Must match UE
-        filter_expr += QString("rlc-lte.ueid==%1").arg(ueid_);
+        if (rat_ == RLC_RAT_LTE) {
+            filter_expr += QString("rlc-lte.ueid==%1").arg(ueid_);
+        }
+        else {
+            filter_expr += QString("rlc-nr.ueid==%1").arg(ueid_);
+        }
 
         // Close () if open because of SR
         if (showSR) {
-            filter_expr += QString(")");
+            if (rat_ == RLC_RAT_LTE) {
+                filter_expr += QString(")");
+            }
         }
         // Close () if open because of RACH
         if (showRACH) {
-            filter_expr += QString(")");
+            if (rat_ == RLC_RAT_LTE) {
+                filter_expr += QString(")");
+            }
         }
 
         return filter_expr;
@@ -955,7 +1014,7 @@ void LteRlcStatisticsDialog::launchULGraphButtonClicked()
         RlcChannelTreeWidgetItem *rc_ti = static_cast<RlcChannelTreeWidgetItem*>(ti);
         // Launch the graph.
         emit launchRLCGraph(true,
-                            rc_ti->get_RAT(),
+                            rc_ti->get_rat(),
                             rc_ti->get_ueid(),
                             rc_ti->get_mode(),
                             rc_ti->get_channelType(),
@@ -972,7 +1031,7 @@ void LteRlcStatisticsDialog::launchDLGraphButtonClicked()
         QTreeWidgetItem *ti = statsTreeWidget()->selectedItems()[0];
         RlcChannelTreeWidgetItem *rc_ti = static_cast<RlcChannelTreeWidgetItem*>(ti);
         emit launchRLCGraph(true,
-                            rc_ti->get_RAT(),
+                            rc_ti->get_rat(),
                             rc_ti->get_ueid(),
                             rc_ti->get_mode(),
                             rc_ti->get_channelType(),
@@ -1021,7 +1080,7 @@ lte_rlc_statistics_init(const char *args, void*) {
 static stat_tap_ui lte_rlc_statistics_ui = {
     REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU,
     QT_TRANSLATE_NOOP("LteRlcStatisticsDialog", "RLC Statistics"),
-    "rlc-lte,stat",
+    "rlc-3gpp,stat",
     lte_rlc_statistics_init,
     0,
     NULL

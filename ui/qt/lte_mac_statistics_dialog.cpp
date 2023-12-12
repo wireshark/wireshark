@@ -84,10 +84,11 @@ static double calculate_bw(const nstime_t *start_time, const nstime_t *stop_time
 class MacULDLTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-    MacULDLTreeWidgetItem(QTreeWidgetItem *parent, unsigned ueid, unsigned rnti, int row_type) :
+    MacULDLTreeWidgetItem(QTreeWidgetItem *parent, unsigned ueid, unsigned rnti, unsigned rat, int row_type) :
         QTreeWidgetItem (parent, row_type),
         ueid_(ueid),
-        rnti_(rnti)
+        rnti_(rnti),
+        rat_(rat)
     {
         // Init values held for all lcids to 0.
         for (int n=0; n < MAC_3GPP_DATA_LCID_COUNT_MAX; n++) {
@@ -137,31 +138,50 @@ public:
     }
 
     // Generate expression for this UE and direction, also filter for SRs and RACH if indicated.
-    const QString filterExpression(bool showSR, bool showRACH) {
+    const QString filterExpression(bool showSR, bool showRACH)
+    {
         int direction = (type() == mac_dlsch_packet_count_row_type) ||
                         (type() == mac_dlsch_byte_count_row_type);
 
         QString filter_expr;
 
         if (showSR) {
-            filter_expr = QString("(mac-lte.sr-req and mac-lte.ueid == %1) or (").arg(ueid_);
+            // Only applies to LTE.
+            if (rat_ == MAC_RAT_LTE) {
+                filter_expr = QString("(mac-lte.sr-req and mac-lte.ueid == %1) or (").arg(ueid_);
+            }
         }
 
         if (showRACH) {
-            filter_expr += QString("(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %1)) or (").arg(ueid_);
+            if (rat_ == MAC_RAT_LTE) {
+                filter_expr += QString("(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %1)) or (").arg(ueid_);
+            }
+            else {
+                filter_expr += QString("mac-nr.rar or ");
+            }
         }
 
         // Main expression matching this UE and direction
-        filter_expr += QString("mac-lte.ueid==%1 && mac-lte.rnti==%2 && mac-lte.direction==%3").
-                              arg(ueid_).arg(rnti_).arg(direction);
+        if (rat_ == MAC_RAT_LTE) {
+            filter_expr += QString("mac-lte.ueid==%1 && mac-lte.rnti==%2 && mac-lte.direction==%3").
+                                  arg(ueid_).arg(rnti_).arg(direction);
+        }
+        else {
+            filter_expr += QString("mac-nr.ueid==%1 && mac-nr.rnti==%2 && mac-nr.direction==%3").
+                                  arg(ueid_).arg(rnti_).arg(direction);
+        }
 
         // Close () if open because of SR
         if (showSR) {
-            filter_expr += QString(")");
+            if (rat_ == MAC_RAT_LTE) {
+                filter_expr += QString(")");
+            }
         }
         // Close () if open because of RACH
         if (showRACH) {
-            filter_expr += QString(")");
+            if (rat_ == MAC_RAT_LTE) {
+                filter_expr += QString(")");
+            }
         }
 
         return filter_expr;
@@ -177,6 +197,7 @@ public:
 private:
     unsigned ueid_;
     unsigned rnti_;
+    unsigned rat_;
     int lcids[MAC_3GPP_DATA_LCID_COUNT_MAX]; /* For LTE, mapped to 0 to 10 and 32 to 38 */
 };
 
@@ -314,10 +335,10 @@ public:
 
     void addDetails() {
         // Add UL/DL packet and byte counts.
-        ul_frames_item_ = new MacULDLTreeWidgetItem(this,  ueid_, rnti_, mac_ulsch_packet_count_row_type);
-        ul_bytes_item_ = new MacULDLTreeWidgetItem(this,  ueid_, rnti_, mac_ulsch_byte_count_row_type);
-        dl_frames_item_ = new MacULDLTreeWidgetItem(this,  ueid_, rnti_, mac_dlsch_packet_count_row_type);
-        dl_bytes_item_ = new MacULDLTreeWidgetItem(this,  ueid_, rnti_, mac_dlsch_byte_count_row_type);
+        ul_frames_item_ = new MacULDLTreeWidgetItem(this,  ueid_, rnti_, rat_, mac_ulsch_packet_count_row_type);
+        ul_bytes_item_ = new MacULDLTreeWidgetItem(this,  ueid_, rnti_, rat_, mac_ulsch_byte_count_row_type);
+        dl_frames_item_ = new MacULDLTreeWidgetItem(this,  ueid_, rnti_, rat_, mac_dlsch_packet_count_row_type);
+        dl_bytes_item_ = new MacULDLTreeWidgetItem(this,  ueid_, rnti_, rat_, mac_dlsch_byte_count_row_type);
 
         setExpanded(false);
     }
@@ -388,23 +409,39 @@ public:
         QString filter_expr;
 
         if (showSR) {
-            filter_expr = QString("(mac-lte.sr-req and mac-lte.ueid == %1) or (").arg(ueid_);
+            if (rat_ == MAC_RAT_LTE) {
+                filter_expr = QString("(mac-lte.sr-req and mac-lte.ueid == %1) or (").arg(ueid_);
+            }
         }
 
         if (showRACH) {
-            filter_expr += QString("(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %1)) or (").arg(ueid_);
+            if (rat_ == MAC_RAT_LTE) {
+                filter_expr += QString("(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %1)) or (").arg(ueid_);
+            }
+            else {
+                filter_expr += QString("mac-nr.rar or ");
+            }
         }
 
         // Main expression matching this UE
-        filter_expr += QString("mac-lte.ueid==%1 && mac-lte.rnti==%2").arg(ueid_).arg(rnti_);
+        if (rat_ == MAC_RAT_LTE) {
+            filter_expr += QString("mac-lte.ueid==%1 && mac-lte.rnti==%2").arg(ueid_).arg(rnti_);
+        }
+        else {
+            filter_expr += QString("mac-nr.ueid==%1 && mac-nr.rnti==%2").arg(ueid_).arg(rnti_);
+        }
 
         // Close () if open because of SR
         if (showSR) {
-            filter_expr += QString(")");
+            if (rat_ == MAC_RAT_LTE) {
+                filter_expr += QString(")");
+            }
         }
         // Close () if open because of RACH
         if (showRACH) {
-            filter_expr += QString(")");
+            if (rat_ == MAC_RAT_LTE) {
+                filter_expr += QString(")");
+            }
         }
 
         return filter_expr;
@@ -919,7 +956,7 @@ lte_mac_statistics_init(const char *args, void*) {
 static stat_tap_ui lte_mac_statistics_ui = {
     REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU,
     QT_TRANSLATE_NOOP("LteMacStatisticsDialog", "MAC Statistics"),
-    "mac-lte,stat",
+    "mac-3gpp,stat",
     lte_mac_statistics_init,
     0,
     NULL
