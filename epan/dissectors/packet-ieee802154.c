@@ -4422,7 +4422,7 @@ dissect_ieee802154_header_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         guint16 ie_header = tvb_get_letohs(tvb, offset);
         guint16 id = (guint16) ((ie_header & IEEE802154_HEADER_IE_ID_MASK) >> 7);
         guint16 length = (guint16) (ie_header & IEEE802154_HEADER_IE_LENGTH_MASK);
-        tvbuff_t *ie_tvb = tvb_new_subset_length(tvb, offset, 2 + length);
+        tvbuff_t * volatile ie_tvb = tvb_new_subset_length(tvb, offset, 2 + length);
 
         if (id == IEEE802154_HEADER_IE_HT1 || id == IEEE802154_HEADER_IE_HT2) {
             int hf_term_ie = (id == IEEE802154_HEADER_IE_HT1) ? hf_ieee802154_hie_ht1 : hf_ieee802154_hie_ht2;
@@ -4758,7 +4758,7 @@ dissect_ieee802154_payload_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         guint16 ie_header = tvb_get_letohs(tvb, offset);
         guint16 id = (guint16) ((ie_header & IEEE802154_PAYLOAD_IE_ID_MASK) >> 11);
         volatile guint16 length = (guint16) (ie_header & IEEE802154_PAYLOAD_IE_LENGTH_MASK);
-        tvbuff_t *ie_tvb = tvb_new_subset_length(tvb, offset, 2 + length);
+        tvbuff_t * volatile ie_tvb = tvb_new_subset_length(tvb, offset, 2 + length);
 
         if (id == IEEE802154_PAYLOAD_IE_TERMINATION) {
             ieee802154_create_pie_tree(ie_tvb, ies_tree, hf_ieee802154_pie_termination, ett_ieee802154_pie_termination);

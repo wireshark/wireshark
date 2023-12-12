@@ -2994,7 +2994,7 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 		    struct access_mask_info *ami)
 {
 	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_tree * volatile tree = NULL;
 	guint16 revision;
 	int start_offset = offset_a;
 	volatile int offset_v=offset_a;
