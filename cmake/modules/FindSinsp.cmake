@@ -22,7 +22,7 @@
 #  SINSP_DLL            - (Windows) Name of the libsinsp and libscap DLLs
 
 include( FindWSWinLibs )
-FindWSWinLibs( "libsinsp-.*" "SINSP_HINTS" )
+FindWSWinLibs( "libfalcosecurity-.*" SINSP_HINTS )
 
 include(CMakeDependentOption)
 
@@ -31,17 +31,21 @@ if( NOT USE_REPOSITORY)
   pkg_check_modules(SINSP libsinsp)
 endif()
 
+# Include both legacy (#include <sinsp.h>) and current (#include <libsinsp/sinsp.h>) paths for now.
 if(NOT SINSP_FOUND)
   # pkg_check_modules didn't work, so look for ourselves.
-  find_path(SINSP_INCLUDE_DIRS
-    NAMES sinsp.h
+  find_path(_sinsp_include_dirs NO_CACHE
+    NAMES libsinsp/sinsp.h
     HINTS "${SINSP_INCLUDEDIR}" "${SINSP_HINTS}/include"
-    PATH_SUFFIXES falcosecurity/userspace/libsinsp
+    PATH_SUFFIXES falcosecurity/userspace
     /usr/include
     /usr/local/include
   )
+  if(_sinsp_include_dirs)
+    list(APPEND _sinsp_include_dirs ${_sinsp_include_dirs}/libsinsp)
+  endif()
 
-  find_path(_scap_include_dir
+  find_path(_scap_include_dir NO_CACHE
     NAMES scap.h
     HINTS "${SINSP_INCLUDEDIR}" "${SINSP_HINTS}/include"
     PATH_SUFFIXES falcosecurity/userspace/libscap
@@ -49,11 +53,11 @@ if(NOT SINSP_FOUND)
     /usr/local/include
   )
   if(_scap_include_dir)
-    list(APPEND SINSP_INCLUDE_DIRS _scap_include_dir)
+    list(APPEND _sinsp_include_dirs ${_scap_include_dir})
   endif()
   unset(_scap_include_dir)
 
-  find_library(SINSP_LINK_LIBRARIES
+  find_library(_sinsp_link_libs NO_CACHE
     NAMES sinsp
     HINTS "${SINSP_LIBDIR}" "${SINSP_HINTS}/lib"
     PATHS falcosecurity
@@ -63,21 +67,18 @@ if(NOT SINSP_FOUND)
 
   set(_scap_libs
     scap
-    scap_engine_util
-    scap_event_schema
-    driver_event_schema
-    scap_engine_bpf
-    scap_engine_gvisor
-    scap_engine_kmod
     scap_engine_nodriver
     scap_engine_noop
     scap_engine_savefile
     scap_engine_source_plugin
-    scap_engine_udig
+    scap_engine_test_input
+    scap_error
+    scap_event_schema
+    scap_platform_util
   )
 
   foreach(_scap_lib ${_scap_libs})
-    find_library(_lib
+    find_library(_lib NO_CACHE
       NAMES ${_scap_lib}
       HINTS "${SINSP_LIBDIR}" "${SINSP_HINTS}/lib"
       PATHS falcosecurity
@@ -85,58 +86,108 @@ if(NOT SINSP_FOUND)
       /usr/local/lib
     )
     if (_lib)
-      list(APPEND SINSP_LINK_LIBRARIES ${_lib})
+      list(APPEND _sinsp_link_libs ${_lib})
+      unset(_lib)
     endif()
   endforeach()
   unset(_scap_libs)
   unset(_scap_lib)
-  unset(_lib)
-  if(SINSP_INCLUDE_DIRS AND JSONCPP_LIBRARY)
-    set(SINSP_FOUND 1)
-  endif()
 
-  find_path(JSONCPP_INCLUDE_DIR
+  find_path(_jsoncpp_include_dir NO_CACHE
     NAMES json/json.h
     HINTS "${SINSP_INCLUDEDIR}" "${SINSP_HINTS}/include"
-    PATH_SUFFIXES jsoncpp
+    PATH_SUFFIXES falcosecurity jsoncpp
+    PATHS
     /usr/include
     /usr/local/include
   )
-  if (JSON_INCLUDE_DIR)
-    list(APPEND SINSP_INCLUDE_DIRS ${JSONCPP_INCLUDE_DIR})
+  if (_jsoncpp_include_dir)
+    list(APPEND _sinsp_include_dirs ${_jsoncpp_include_dir})
+    unset(_jsoncpp_include_dir)
   endif()
 
-  find_library(JSONCPP_LIBRARY
+  find_library(_jsoncpp_lib NO_CACHE
     NAMES jsoncpp
-    HINTS "${SINSP_LIBDIR}" "${SINSP_HINTS}/lib"
+    HINTS "${SINSP_LIBDIR}" "${SINSP_HINTS}/lib" "${SINSP_HINTS}/lib/falcosecurity"
     PATHS
     /usr/lib
     /usr/local/lib
   )
-  if (JSONCPP_LIBRARY)
-    list(APPEND JSONCPP_LIBRARY ${JSONCPP_LIBRARY})
+  if (_jsoncpp_lib)
+    list(APPEND _sinsp_link_libs ${_jsoncpp_lib})
+    unset(_jsoncpp_lib)
   endif()
 
-  find_path(TBB_INCLUDE_DIR
+  find_library(_re2_lib NO_CACHE
+    NAMES re2
+    HINTS "${SINSP_LIBDIR}" "${SINSP_HINTS}/lib" "${SINSP_HINTS}/lib/falcosecurity"
+    PATHS
+    /usr/lib
+    /usr/local/lib
+  )
+  if (_re2_lib)
+    list(APPEND _sinsp_link_libs ${_re2_lib})
+    unset(_re2_lib)
+  endif()
+
+  find_path(_tbb_include_dir NO_CACHE
     NAMES tbb/tbb.h
     HINTS "${SINSP_INCLUDEDIR}" "${SINSP_HINTS}/include"
+    PATHS
     /usr/include
     /usr/local/include
   )
-  if (TBB_INCLUDE_DIR)
-    list(APPEND SINSP_INCLUDE_DIRS ${TBB_INCLUDE_DIR})
+  if (_tbb_include_dir)
+    list(APPEND _sinsp_include_dirs ${_tbb_include_dir})
+    unset(_tbb_include_dir)
   endif()
 
-  find_library(TBB_LIBRARY
-    NAMES tbb
-    HINTS "${SINSP_LIBDIR}" "${SINSP_HINTS}/lib"
+  find_library(_tbb_lib NO_CACHE
+    NAMES tbb tbb12
+    HINTS "${SINSP_LIBDIR}" "${SINSP_HINTS}/lib" "${SINSP_HINTS}/lib/falcosecurity"
     PATHS
     /usr/lib
     /usr/local/lib
   )
-  if (TBB_LIBRARY)
-    list(APPEND JSONCPP_LIBRARY ${TBB_LIBRARY})
+  if (_tbb_lib)
+    list(APPEND _sinsp_link_libs ${_tbb_lib})
+    unset(_tbb_lib)
   endif()
+
+  # This is terrible, but libsinsp/libscap doesn't support dynamic linking on Windows (yet).
+  find_path(_zlib_include_dir NO_CACHE
+    NAMES zlib/zlib.h
+    HINTS "${SINSP_INCLUDEDIR}" "${SINSP_HINTS}/include"
+    PATHS
+    /usr/include
+    /usr/local/include
+  )
+  if (_zlib_include_dir)
+    list(APPEND _sinsp_include_dirs ${_zlib_include_dir})
+    unset(_zlib_include_dir)
+  endif()
+
+  find_library(_zlib_lib NO_CACHE
+    NAMES zlib
+    HINTS "${SINSP_LIBDIR}" "${SINSP_HINTS}/lib" "${SINSP_HINTS}/lib/falcosecurity"
+    PATHS
+    /usr/lib
+    /usr/local/lib
+  )
+  if (_zlib_lib)
+    list(APPEND _sinsp_link_libs ${_zlib_lib})
+    unset(_zlib_lib)
+  endif()
+
+  if(_sinsp_include_dirs AND _sinsp_link_libs)
+    list(REMOVE_DUPLICATES _sinsp_include_dirs)
+    set(SINSP_INCLUDE_DIRS ${_sinsp_include_dirs} CACHE PATH "Paths to libsinsp and libscap headers")
+    set(SINSP_LINK_LIBRARIES ${_sinsp_link_libs} CACHE PATH "Paths to libsinsp, libscap, etc.")
+    set(SINSP_FOUND 1)
+    unset(_sinsp_include_dirs)
+    unset(_sinsp_link_libs)
+  endif()
+
 endif()
 
 # As https://cmake.org/cmake/help/latest/command/link_directories.html

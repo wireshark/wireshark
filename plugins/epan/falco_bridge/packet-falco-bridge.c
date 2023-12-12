@@ -552,9 +552,9 @@ static gchar* sysdig_thread_build_filter(packet_info *pinfo, void *user_data _U_
 static gchar* sysdig_fd_build_filter(packet_info *pinfo, void *user_data _U_) {
     falco_conv_filter_fields cff;
     extract_syscall_conversation_fields(pinfo, &cff);
-    return ws_strdup_printf("container.id==\"%s\" && thread.tid==%" PRIu64 " && fd.containername==\"%s\"", 
-        cff.container_id, 
-        cff.tid, 
+    return ws_strdup_printf("container.id==\"%s\" && thread.tid==%" PRIu64 " && fd.containername==\"%s\"",
+        cff.container_id,
+        cff.tid,
         cff.fd_containername);
 }
 
@@ -889,8 +889,8 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
         return tvb_captured_length(tvb);
     }
 
-    proto_tree *parent_trees[NUM_SINSP_SYSCALL_CATEGORIES] = {};
-    proto_tree *lineage_trees[N_PROC_LINEAGE_ENTRIES] = {};
+    proto_tree *parent_trees[NUM_SINSP_SYSCALL_CATEGORIES] = {0};
+    proto_tree *lineage_trees[N_PROC_LINEAGE_ENTRIES] = {0};
     bool is_io_write = false;
     const char* io_buffer = NULL;
     uint32_t io_buffer_len = 0;

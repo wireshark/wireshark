@@ -49,6 +49,7 @@ target_compile_definitions(falco-bridge PRIVATE
 
 target_include_directories(falco-bridge SYSTEM PRIVATE
 	${SINSP_INCLUDE_DIRS}
+	${ZLIB_INCLUDE_DIR}
 )
 
 target_link_libraries(falco-bridge

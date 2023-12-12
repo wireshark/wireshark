@@ -82,9 +82,7 @@ macro(set_extcap_executable_properties _executable)
 endmacro()
 
 macro(set_extlog_executable_properties _executable)
-	set_target_properties(${_executable} PROPERTIES
-		RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
-	)
+	set_extcap_executable_properties(${_executable})
 	if(ENABLE_APPLICATION_BUNDLE)
 		if(NOT CMAKE_CFG_INTDIR STREQUAL ".")
 			# Xcode
@@ -364,12 +362,9 @@ if(BUILD_falcodump AND SINSP_FOUND)
 	add_executable(falcodump ${falcodump_FILES})
 	set_extlog_executable_properties(falcodump)
 	target_link_libraries(falcodump ${falcodump_LIBS})
-	target_include_directories(falcodump SYSTEM PRIVATE ${SINSP_INCLUDE_DIRS})
+	target_include_directories(falcodump SYSTEM PRIVATE ${SINSP_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR})
 	install(TARGETS falcodump RUNTIME DESTINATION ${EXTCAP_INSTALL_LIBDIR})
 	add_dependencies(extcaps falcodump)
-
-	# XXX Hack; We need to fix this in falcosecurity-libs.
-	target_compile_definitions(falcodump PRIVATE HAVE_STRLCPY=1)
 
 endif()
 

@@ -46,7 +46,7 @@ typedef struct sinsp_source_info_t {
     std::vector<const filter_check_info *> syscall_filter_checks;
     std::vector<const filtercheck_field_info *> syscall_filter_fields;
     std::vector<gen_event_filter_check *> syscall_event_filter_checks;  // Same size as syscall_filter_fields
-    std::vector<const sinsp_syscall_category_e> field_to_category;      // Same size as syscall_filter_fields
+    std::vector<sinsp_syscall_category_e> field_to_category;            // Same size as syscall_filter_fields
     sinsp_evt *evt;
     uint8_t *evt_storage;
     size_t evt_storage_size;
