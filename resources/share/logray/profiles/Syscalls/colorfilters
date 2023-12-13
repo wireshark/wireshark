@@ -1,3 +1,4 @@
 # This file was created by Logray. Edit with care.
 @Write@sysdig.event_type == 8 || sysdig.event_type == 9@[61423,50372,39578][0,0,0]
 @Read@sysdig.event_type == 7@[38036,60909,60395][0,0,0]
+@Process Information@sysdig.event_type == 234 || sysdig.event_type == 235@[41026,41026,41026][4718,10030,11796]
