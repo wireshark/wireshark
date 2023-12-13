@@ -41,8 +41,9 @@ typedef enum {
 #define WS_PLUGIN_DESC_TAP_LISTENER (1UL << 4)
 #define WS_PLUGIN_DESC_DFUNCTION    (1UL << 5)
 
-// GLib and Qt allow ".dylib" and ".so" on macOS. Should we do the same?
-#ifdef _WIN32
+#if defined(SHARED_MODULE_SUFFIX)
+#define WS_PLUGIN_MODULE_SUFFIX SHARED_MODULE_SUFFIX
+#elif defined(_WIN32)
 #define WS_PLUGIN_MODULE_SUFFIX ".dll"
 #else
 #define WS_PLUGIN_MODULE_SUFFIX ".so"
@@ -90,6 +91,8 @@ WS_DLL_PUBLIC bool plugins_supported(void);
 WS_DLL_PUBLIC plugin_type_e plugins_check_file(const char *path);
 
 WS_DLL_PUBLIC char *plugins_pers_type_folder(plugin_type_e type);
+
+WS_DLL_PUBLIC char *plugins_file_suffix(plugin_type_e type);
 
 WS_DLL_PUBLIC
 int plugins_abi_version(plugin_type_e type);

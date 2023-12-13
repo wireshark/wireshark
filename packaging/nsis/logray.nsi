@@ -890,23 +890,23 @@ SectionGroup "Plugins & Extensions" SecPluginsGroup
 
 Section "Dissector Plugins" SecPlugins
 ;-------------------------------------------
-SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
-File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\falco-bridge.dll"
-SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\falco'
-File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\falco\cloudtrail.dll"
+SetOutPath '$INSTDIR\plugins\epan'
+File "${STAGING_DIR}\plugins\epan\falco-bridge.dll.${ABI_VERSION_EPAN}"
+SetOutPath '$INSTDIR\plugins\falco'
+File "${STAGING_DIR}\plugins\falco\cloudtrail.dll.${ABI_VERSION_EPAN}"
 !include "custom_plugins.txt"
 SectionEnd
 
 Section "Tree Statistics Plugin" SecStatsTree
 ;-------------------------------------------
-SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
-File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\stats_tree.dll"
+SetOutPath '$INSTDIR\plugins\epan'
+File "${STAGING_DIR}\plugins\epan\stats_tree.dll.${ABI_VERSION_EPAN}"
 SectionEnd
 
 Section "Mate - Meta Analysis and Tracing Engine" SecMate
 ;-------------------------------------------
-SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
-File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\mate.dll"
+SetOutPath '$INSTDIR\plugins\epan'
+File "${STAGING_DIR}\plugins\epan\mate.dll.${ABI_VERSION_EPAN}"
 SectionEnd
 
 Section "Configuration Profiles" SecProfiles

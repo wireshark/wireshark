@@ -3301,7 +3301,7 @@ void WiresharkMainWindow::installPersonalBinaryPlugin()
     QString caption = mainApp->windowTitleString(tr("Install plugin"));
 
     // Get the plugin file path to install
-    QString plugin_filter = tr("Binary plugin (*%1)").arg(WS_PLUGIN_MODULE_SUFFIX);
+    QString plugin_filter = tr("Binary plugin (*%1 *%1.[0-9]*)").arg(WS_PLUGIN_MODULE_SUFFIX);
     QString src_path = WiresharkFileDialog::getOpenFileName(this, caption, "", plugin_filter);
     if (src_path.isEmpty()) {
         return;
@@ -3341,6 +3341,10 @@ void WiresharkMainWindow::installPersonalBinaryPlugin()
     // a way to load and unload plugins without having to restart the program.
     QFileInfo file_info(src_path);
     QString file_name = file_info.fileName();
+    if (file_name.endsWith(WS_PLUGIN_MODULE_SUFFIX)) {
+        // Append the version to our destination name
+        file_name = QString("%1.%2").arg(file_name).arg(plugins_abi_version(have_type));
+    }
     if (type_dir.exists(file_name)) {
         reply = QMessageBox::question(this, caption,
                         tr("The file already exists. Do you want to overwrite it?"));

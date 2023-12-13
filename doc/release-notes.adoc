@@ -111,6 +111,9 @@ The following features are new (or have been significantly updated) since versio
 * The personal binary plugins folder now has higher priority than the global
   folder.
 
+* The binary plugins folder path no longer uses an X.Y version component. Plugins
+  are required to add the ABI version to the file name.
+
 //=== Removed Features and Support
 
 // === Removed Dissectors
