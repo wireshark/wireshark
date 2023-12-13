@@ -1,9 +1,9 @@
-prefix=@prefix@
-exec_prefix=@exec_prefix@
-libdir=@libdir@
-includedir=@includedir@
+prefix=${pcfiledir}/../..
+exec_prefix=${prefix}
+libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
+includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
 sharedlibdir=${libdir}
-plugindir=@plugindir@
+plugindir=${libdir}/wireshark/@PLUGIN_VERSION_DIR@
 
 Name: Wireshark
 Description: Network Packet Dissection Library
