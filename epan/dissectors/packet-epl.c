@@ -5929,7 +5929,8 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_asnd_statusresponse_el_entry_code,
 			{ "Error Code", "epl.asnd.sres.el.entry.code",
-				FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+				FT_UINT16, BASE_HEX|BASE_EXT_STRING,
+				&errorcode_vals_ext, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_statusresponse_el_entry_time,
 			{ "Time Stamp", "epl.asnd.sres.el.entry.time",
