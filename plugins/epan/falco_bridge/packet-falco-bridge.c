@@ -251,6 +251,7 @@ create_source_hfids(bridge_info* bi)
                 continue;
             }
 
+            ws_assert(fld_cnt < bi->visible_fields);
             bi->field_ids[fld_cnt] = (int) j;
             bi->field_flags[fld_cnt] = BFF_NONE;
 
@@ -311,6 +312,7 @@ create_source_hfids(bridge_info* bi)
             bi->hf[fld_cnt] = finfo;
 
             if (sfi.is_conversation) {
+                ws_assert(conv_fld_cnt < bi->num_conversation_filters);
                 bi->field_flags[fld_cnt] |= BFF_CONVERSATION;
                 bi->conversation_filters[conv_fld_cnt].field_info = &bi->hf[fld_cnt];
                 bi->conversation_filters[conv_fld_cnt].strbuf = wmem_strbuf_new(wmem_epan_scope(), "");
@@ -894,9 +896,4 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
     }
 
     return payload_len;
-}
-
-void
-proto_reg_handoff_sdplugin(void)
-{
 }

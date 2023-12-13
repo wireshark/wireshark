@@ -74,8 +74,9 @@ static sinsp_syscall_category_e filtercheck_name_to_category(const std::string f
         { "group", SSC_GROUP },
         { "container", SSC_CONTAINER },
         { "fd", SSC_FD },
-        { "fdlist", SSC_FDLIST },
         { "fs.path", SSC_FS },
+        // syslog collides with the dissector
+        { "fdlist", SSC_FDLIST },
     };
 
     for (const auto ptc : fc_name_to_category) {
@@ -225,9 +226,16 @@ bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, size_t field_num, sin
         if (ssi->field_to_category[field_num] == SSC_OTHER) {
             snprintf(field->abbrev, sizeof(field->abbrev), FALCO_FIELD_NAME_PREFIX "%s", ffi->m_name);
         } else {
-            snprintf(field->abbrev, sizeof(field->abbrev), "%s", ffi->m_name);
+            g_strlcpy(field->abbrev, ffi->m_name, sizeof(field->abbrev));
         }
     }
+
+    g_strlcpy(field->display, ffi->m_display, sizeof(field->display));
+    g_strlcpy(field->description, ffi->m_description, sizeof(field->description));
+
+    field->is_hidden = ffi->m_flags & EPF_TABLE_ONLY;
+    field->is_conversation = ffi->m_flags & EPF_CONVERSATION;
+    field->is_info = ffi->m_flags & EPF_INFO;
 
     field->is_numeric_address = false;
 
@@ -301,13 +309,6 @@ bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, size_t field_num, sin
         field->display_format = SFDF_UNKNOWN;
         break;
     }
-
-    g_strlcpy(field->display, ffi->m_display, sizeof(field->display));
-    g_strlcpy(field->description, ffi->m_description, sizeof(field->description));
-
-    field->is_hidden = ffi->m_flags & EPF_TABLE_ONLY;
-    field->is_info = ffi->m_flags & EPF_INFO;
-    field->is_conversation = ffi->m_flags & EPF_CONVERSATION;
 
     return true;
 }
