@@ -28,7 +28,7 @@ macro(SET_MODULE_INFO _plugin _ver_major _ver_minor _ver_micro _ver_extra)
 	add_definitions(-DPLUGIN_VERSION=\"${PLUGIN_VERSION}\")
 endmacro()
 
-macro(ADD_WIRESHARK_PLUGIN_LIBRARY _plugin _subfolder)
+macro(ADD_PLUGIN_LIBRARY _plugin _output_dir)
 	add_library(${_plugin} MODULE
 		${PLUGIN_FILES}
 		${PLUGIN_RC_FILE}
@@ -40,30 +40,30 @@ macro(ADD_WIRESHARK_PLUGIN_LIBRARY _plugin _subfolder)
 		PREFIX ""
 		LINK_FLAGS "${WS_LINK_FLAGS}"
 		FOLDER "Plugins"
+		LIBRARY_OUTPUT_DIRECTORY ${_output_dir}
+		INSTALL_RPATH ""
 	)
 	if(MSVC)
 		set_target_properties(${_plugin} PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
 	endif()
 
-	set_target_properties(${_plugin} PROPERTIES
-		LIBRARY_OUTPUT_DIRECTORY ${PLUGIN_DIR}/${_subfolder}
-		INSTALL_RPATH ""
-	)
-
 	add_dependencies(plugins ${_plugin})
 endmacro()
 
-macro(ADD_PLUGIN_LIBRARY _plugin _subfolder)
-	message(WARNING "${CMAKE_PARENT_LIST_FILE}: add_plugin_library is deprecated. Use add_wireshark_plugin_library instead.")
-	ADD_WIRESHARK_PLUGIN_LIBRARY(${_plugin} ${_subfolder})
+macro(ADD_WIRESHARK_EPAN_PLUGIN_LIBRARY _plugin)
+	ADD_PLUGIN_LIBRARY(${_plugin} "${PLUGIN_DIR}/epan")
 endmacro()
 
-macro(ADD_LOGRAY_PLUGIN_LIBRARY _plugin _subfolder)
-	ADD_WIRESHARK_PLUGIN_LIBRARY(${_plugin} ${_subfolder})
+macro(ADD_WIRESHARK_WIRETAP_PLUGIN_LIBRARY _plugin)
+	ADD_PLUGIN_LIBRARY(${_plugin} "${PLUGIN_DIR}/wiretap")
+endmacro()
 
-	set_target_properties(${_plugin} PROPERTIES
-		LIBRARY_OUTPUT_DIRECTORY ${LOGRAY_PLUGIN_DIR}/${_subfolder}
-	)
+macro(ADD_WIRESHARK_CODEC_PLUGIN_LIBRARY _plugin)
+	ADD_PLUGIN_LIBRARY(${_plugin} "${PLUGIN_DIR}/codecs")
+endmacro()
+
+macro(ADD_LOGRAY_EPAN_PLUGIN_LIBRARY _plugin)
+	ADD_PLUGIN_LIBRARY(${_plugin} "${LOGRAY_PLUGIN_DIR}/epan")
 endmacro()
 
 macro(INSTALL_PLUGIN _plugin _subfolder)

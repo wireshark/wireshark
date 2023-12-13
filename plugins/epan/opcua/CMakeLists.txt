@@ -50,7 +50,7 @@ register_plugin_files(plugin.c
 	${DISSECTOR_SUPPORT_SRC}
 )
 
-add_wireshark_plugin_library(opcua epan)
+add_wireshark_epan_plugin_library(opcua)
 
 target_link_libraries(opcua epan ${GCRYPT_LIBRARIES})
 

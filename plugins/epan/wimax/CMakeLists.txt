@@ -80,7 +80,7 @@ register_plugin_files(plugin.c
 	${DISSECTOR_SUPPORT_SRC}
 )
 
-add_wireshark_plugin_library(wimax epan)
+add_wireshark_epan_plugin_library(wimax)
 
 target_link_libraries(wimax epan)
 

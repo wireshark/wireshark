@@ -33,7 +33,7 @@ register_plugin_files(plugin.c
 	${DISSECTOR_SRC}
 )
 
-add_wireshark_plugin_library(unistim epan)
+add_wireshark_epan_plugin_library(unistim)
 
 target_link_libraries(unistim epan)
 

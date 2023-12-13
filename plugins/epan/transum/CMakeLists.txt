@@ -40,7 +40,7 @@ register_plugin_files(plugin.c
 	${DISSECTOR_SUPPORT_SRC}
 )
 
-add_wireshark_plugin_library(transum epan)
+add_wireshark_epan_plugin_library(transum)
 
 target_link_libraries(transum epan)
 

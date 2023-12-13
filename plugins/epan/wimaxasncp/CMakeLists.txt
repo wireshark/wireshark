@@ -37,7 +37,7 @@ register_plugin_files(plugin.c
 	${DISSECTOR_SRC}
 )
 
-add_wireshark_plugin_library(wimaxasncp epan)
+add_wireshark_epan_plugin_library(wimaxasncp)
 
 target_link_libraries(wimaxasncp epan)
 

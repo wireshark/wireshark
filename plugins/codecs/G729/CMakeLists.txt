@@ -33,7 +33,7 @@ register_plugin_files(plugin.c
 	${CODEC_SRC}
 )
 
-add_wireshark_plugin_library(g729 codecs)
+add_wireshark_codec_plugin_library(g729)
 
 target_include_directories(g729 PRIVATE ${CMAKE_SOURCE_DIR}/codecs)
 

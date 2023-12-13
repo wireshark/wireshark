@@ -57,7 +57,7 @@ register_plugin_files(plugin.c
 	${DISSECTOR_SRC}
 )
 
-add_wireshark_plugin_library(pluginifdemo epan)
+add_wireshark_epan_plugin_library(pluginifdemo)
 
 target_link_libraries(pluginifdemo epan Qt${qtver}::Core Qt${qtver}::Widgets Qt${qtver}::PrintSupport)
 

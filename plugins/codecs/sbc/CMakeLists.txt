@@ -33,7 +33,7 @@ register_plugin_files(plugin.c
 	${CODEC_SRC}
 )
 
-add_wireshark_plugin_library(sbc codecs)
+add_wireshark_codec_plugin_library(sbc)
 
 target_include_directories(sbc PRIVATE ${CMAKE_SOURCE_DIR}/codecs)
 

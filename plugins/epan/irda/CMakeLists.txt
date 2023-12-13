@@ -35,7 +35,7 @@ register_plugin_files(plugin.c
 	${DISSECTOR_SRC}
 )
 
-add_wireshark_plugin_library(irda epan)
+add_wireshark_epan_plugin_library(irda)
 
 target_link_libraries(irda epan)
 

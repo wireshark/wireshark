@@ -33,7 +33,7 @@ register_plugin_files(plugin.c
 	${TAP_SRC}
 )
 
-add_wireshark_plugin_library(stats_tree epan)
+add_wireshark_epan_plugin_library(stats_tree)
 
 target_link_libraries(stats_tree epan)
 
