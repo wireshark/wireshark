@@ -824,6 +824,8 @@ static int hf_gtpv2_mm_context_ear_len;
 static int hf_gtpv2_node_number_len;
 static int hf_gtpv2_additional_rrm_policy_index;
 
+static int hf_gtpv2_group_id;
+
 static gint ett_gtpv2;
 static gint ett_gtpv2_flags;
 static gint ett_gtpv2_uli_flags;
@@ -8482,9 +8484,9 @@ dissect_gtpv2_ie_pgw_set_fqdn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
 
 /* 216 Group Id / 8.147 */
 static void
-dissect_gtpv2_ie_group_id(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+dissect_gtpv2_ie_group_id(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    proto_tree_add_item(tree, hf_gtpv2_group_id, tvb, 0, length, ENC_UTF_8);
 }
 
 /* 217 PSCell Id / 8.148 */
@@ -12500,6 +12502,11 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_additional_rrm_policy_index,
       { "Additional RRM Policy Index", "gtpv2.additional_rrm_policy_index",
           FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_group_id,
+      { "Group ID", "gtpv2.group_id",
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL }
       },
     };
