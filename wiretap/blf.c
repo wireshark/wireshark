@@ -1864,7 +1864,7 @@ blf_read_canfderror64(blf_params_t *params, int *err, gchar **err_info, gint64 b
     tmpbuf[2] = (canid & 0x0000ff00) >> 8;
     tmpbuf[3] = (canid & 0x000000ff);
     tmpbuf[4] = payload_length;
-    tmpbuf[5] = (canheader.extFlags & BLF_CANERROR64_FLAG_FDF) << 2 | (canheader.extFlags & BLF_CANERROR65_FLAG_ESI) >> 1 | (canheader.extFlags & BLF_CANERROR65_FLAG_BRS) >> 1;
+    // Don't set FDF, ESI and BRS flags, since error messages are always encapsulated in Classic CAN frames
 
     ws_buffer_assure_space(params->buf, sizeof(tmpbuf));
     ws_buffer_append(params->buf, tmpbuf, sizeof(tmpbuf));
