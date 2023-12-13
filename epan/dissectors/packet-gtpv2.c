@@ -6195,10 +6195,10 @@ dissect_gtpv2_node_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
  /*
   * 8.66 Fully Qualified Domain Name (FQDN)
   */
-static void
-dissect_gtpv2_fqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+static int
+decode_gtpv2_fqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, int offset, guint16 length)
 {
-    int     offset = 0, name_len;
+    int           name_len;
     const guint8 *fqdn   = NULL;
 
     /* The FQDN field encoding shall be identical to the encoding of
@@ -6207,7 +6207,7 @@ dissect_gtpv2_fqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_it
      *
      * XXX: is compression possible?
      */
-    if (length > 0) {
+    if (offset < length) {
         name_len = tvb_get_guint8(tvb, offset);
 
         /* "NOTE 1: The FQDN field in the IE is not encoded as a dotted string"
@@ -6221,6 +6221,15 @@ dissect_gtpv2_fqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_it
         }
         proto_item_append_text(item, "%s", fqdn);
     }
+
+    return length; //TODO return length of fqdn
+}
+
+static void
+dissect_gtpv2_fqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+{
+    int offset = 0;
+    decode_gtpv2_fqdn(tvb, pinfo, tree, item, offset, length);
 }
 
 /*
@@ -8461,9 +8470,14 @@ dissect_gtpv2_ie_pgw_change_info(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
 
 /* 215 PGW Set FQDN Extendable / 8.146 */
 static void
-dissect_gtpv2_ie_pgw_set_fqdn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+dissect_gtpv2_ie_pgw_set_fqdn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    int offset = 0;
+    offset = decode_gtpv2_fqdn(tvb, pinfo, tree, item, offset, length);
+
+    if(offset < length){
+        proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length- offset);
+    }
 }
 
 /* 216 Group Id / 8.147 */
