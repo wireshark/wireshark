@@ -76,19 +76,21 @@ static GList * append_remote_list(GList *iflist)
  *
  */
 
-/* XXX - We parse simple text output to get our interface list.  Should
- * we use "real" data serialization instead, e.g. via XML? */
 GList *
 capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
 {
     int        ret;
     GList     *if_list = NULL;
     int        i, j;
-    char     *data, *primary_msg, *secondary_msg;
-    char    **raw_list, **if_parts, **addr_parts;
-    char     *name;
+    char      *data, *primary_msg, *secondary_msg;
+    char      *name, *addr;
+    char      *val_s;
+    double     val_d;
+    bool       loopback;
     if_info_t *if_info;
+    interface_type type;
     if_addr_t *if_addr;
+    jsmntok_t *tokens, *if_tok, *addrs_tok, *cur_tok;
 
     *err = 0;
     if (err_str) {
@@ -118,62 +120,91 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
         return if_list;
     }
 
-    /* Split our lines */
-#ifdef _WIN32
-    raw_list = g_strsplit(data, "\r\n", 0);
-#else
-    raw_list = g_strsplit(data, "\n", 0);
-#endif
-    g_free(data);
-
-    for (i = 0; raw_list[i] != NULL; i++) {
-        if_parts = g_strsplit(raw_list[i], "\t", 7);
-        if (if_parts[0] == NULL || if_parts[1] == NULL || if_parts[2] == NULL ||
-                if_parts[3] == NULL || if_parts[4] == NULL || if_parts[5] == NULL ||
-                if_parts[6] == NULL) {
-            g_strfreev(if_parts);
-            continue;
+    int num_tokens = json_parse(data, NULL, 0);
+    if (num_tokens <= 0) {
+        ws_info("Capture Interface List failed with invalid JSON.");
+        if (err_str) {
+            *err_str = g_strdup("Dumpcap returned bad JSON.");
         }
-
-        /* Number followed by the name, e.g "1. eth0" */
-        name = strchr(if_parts[0], ' ');
-        if (name) {
-            name++;
-        } else {
-            g_strfreev(if_parts);
-            continue;
-        }
-
-        if_info = g_new0(if_info_t,1);
-        if_info->name = g_strdup(name);
-        if (strlen(if_parts[1]) > 0)
-            if_info->vendor_description = g_strdup(if_parts[1]);
-        if (strlen(if_parts[2]) > 0)
-            if_info->friendly_name = g_strdup(if_parts[2]);
-        if_info->type = (interface_type)(int)strtol(if_parts[3], NULL, 10);
-        addr_parts = g_strsplit(if_parts[4], ",", 0);
-        for (j = 0; addr_parts[j] != NULL; j++) {
-            if_addr = g_new0(if_addr_t,1);
-            if (ws_inet_pton4(addr_parts[j], &if_addr->addr.ip4_addr)) {
-                if_addr->ifat_type = IF_AT_IPv4;
-            } else if (ws_inet_pton6(addr_parts[j], (ws_in6_addr *)&if_addr->addr.ip6_addr)) {
-                if_addr->ifat_type = IF_AT_IPv6;
-            } else {
-                g_free(if_addr);
-                if_addr = NULL;
-            }
-            if (if_addr) {
-                if_info->addrs = g_slist_append(if_info->addrs, if_addr);
-            }
-        }
-        if (strcmp(if_parts[5], "loopback") == 0)
-            if_info->loopback = true;
-        if_info->extcap = g_strdup(if_parts[6]);
-        g_strfreev(if_parts);
-        g_strfreev(addr_parts);
-        if_list = g_list_append(if_list, if_info);
+        g_free(data);
+        return NULL;
     }
-    g_strfreev(raw_list);
+
+    tokens = wmem_alloc_array(NULL, jsmntok_t, num_tokens);
+    if (json_parse(data, tokens, num_tokens) <= 0) {
+        ws_info("Capture Interface List failed with invalid JSON.");
+        if (err_str) {
+            *err_str = g_strdup("Dumpcap returned bad JSON.");
+        }
+        wmem_free(NULL, tokens);
+        g_free(data);
+        return NULL;
+    }
+
+    for (i = 0; i < json_get_array_len(tokens); i++) {
+        if_tok = json_get_array_index(tokens, i);
+        if (if_tok && if_tok->type == JSMN_OBJECT) {
+            if_tok++; // Key
+            name = g_strndup(&data[if_tok->start], if_tok->end - if_tok->start);
+            if (!json_decode_string_inplace(name)) {
+                g_free(name);
+                continue;
+            }
+            if_tok++;
+
+            if (!json_get_double(data, if_tok, "type", &val_d)) {
+                g_free(name);
+                continue;
+            }
+            type = (interface_type)val_d;
+
+            if (!json_get_boolean(data, if_tok, "loopback", &loopback)) {
+                g_free(name);
+                continue;
+            }
+
+            if_info = g_new0(if_info_t,1);
+            if_info->name = name;
+            val_s = json_get_string(data, if_tok, "friendly_name");
+            if_info->friendly_name = g_strdup(val_s);
+            val_s = json_get_string(data, if_tok, "vendor_description");
+            if_info->vendor_description = g_strdup(val_s);
+            if_info->type = type;
+
+            addrs_tok = json_get_array(data, if_tok, "addrs");
+            for (cur_tok = addrs_tok + 1, j = 0; j < json_get_array_len(addrs_tok); cur_tok++, j++) {
+                addr = g_strndup(&data[cur_tok->start], cur_tok->end - cur_tok->start);
+                if (json_decode_string_inplace(addr)) {
+                    if_addr = g_new0(if_addr_t, 1);
+                    if (ws_inet_pton4(addr, &if_addr->addr.ip4_addr)) {
+                        if_addr->ifat_type = IF_AT_IPv4;
+                    } else if (ws_inet_pton6(addr, (ws_in6_addr *)&if_addr->addr.ip6_addr)) {
+                        if_addr->ifat_type = IF_AT_IPv6;
+                    } else {
+                        g_free(if_addr);
+                        if_addr = NULL;
+                    }
+                    if (if_addr) {
+                        if_info->addrs = g_slist_append(if_info->addrs, if_addr);
+                    }
+                }
+                g_free(addr);
+            }
+
+            if_info->loopback = loopback;
+
+            val_s = json_get_string(data, if_tok, "extcap");
+            /* if_info->extcap is never NULL, unlike the friendly name
+             * and vendor description. (see if_info_new)
+             */
+            if_info->extcap = val_s ? g_strdup(val_s) : "";
+
+            if_list = g_list_append(if_list, if_info);
+        }
+    }
+
+    wmem_free(NULL, tokens);
+    g_free(data);
 
 #ifdef HAVE_PCAP_REMOTE
     /* Add the remote interface list */
@@ -462,7 +493,10 @@ capture_get_if_list_capabilities(GList *if_cap_queries,
         if (inf_tok && inf_tok->type == JSMN_OBJECT) {
             inf_tok++; // Key
             ifname = g_strndup(&data[inf_tok->start], inf_tok->end - inf_tok->start);
-            if (!json_decode_string_inplace(ifname)) continue;
+            if (!json_decode_string_inplace(ifname)) {
+                g_free(ifname);
+                continue;
+            }
             inf_tok++;
             caps = deserialize_if_capability(data, inf_tok, err_primary_msg, err_secondary_msg);
             g_hash_table_replace(caps_hash, ifname, caps);
