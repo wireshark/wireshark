@@ -201,8 +201,6 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     connect(sp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
     connect(sp, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheeled(QWheelEvent*)));
 
-    disconnect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-
     // Button must be enabled by VoIP dialogs
     player_button_->setVisible(false);
     player_button_->setEnabled(false);
