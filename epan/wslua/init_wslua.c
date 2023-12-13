@@ -793,6 +793,13 @@ static int lua_load_plugins(const char *dirname, register_cb cb, gpointer client
                  * lua script.) */
                 continue;
             }
+            if (depth == 0 && (strcmp(name, "epan") == 0 ||
+                                    strcmp(name, "wiretap") == 0 ||
+                                    strcmp(name, "codecs") == 0)) {
+                /* Skip the binary plugin directories, which unfortunately are
+                 * subfolders of the Lua plugins directory. */
+                continue;
+            }
 
             filename = ws_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", dirname, name);
             if (test_for_directory(filename) == EISDIR) {
