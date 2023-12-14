@@ -336,14 +336,18 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
         device.links = NULL;
         caps = g_hash_table_lookup(capability_hash, if_info->name);
         if (caps != NULL && !caps->primary_msg) {
+            GList *lt_list = caps->data_link_types;
 #if defined(HAVE_PCAP_CREATE)
-            device.monitor_mode_enabled = monitor_mode;
+            device.monitor_mode_enabled = monitor_mode && caps->can_set_rfmon;
             device.monitor_mode_supported = caps->can_set_rfmon;
+            if (device.monitor_mode_enabled) {
+                lt_list = caps->data_link_types_rfmon;
+            }
 #endif
             /*
              * Process the list of link-layer header types.
              */
-            for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
+            for (lt_entry = lt_list; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
                 data_link_info = (data_link_info_t *)lt_entry->data;
                 link = g_new(link_row, 1);
                 if (data_link_info->description != NULL) {

@@ -456,9 +456,10 @@ void CaptureOptionsDialog::interfaceItemChanged(QTreeWidgetItem *item, int colum
             }
             device->active_dlt = -1;
             device->monitor_mode_supported = caps->can_set_rfmon;
-            device->monitor_mode_enabled = monitor_mode;
+            device->monitor_mode_enabled = monitor_mode && caps->can_set_rfmon;
+            GList *lt_list = device->monitor_mode_enabled ? caps->data_link_types_rfmon : caps->data_link_types;
 
-            for (GList *lt_entry = caps->data_link_types; lt_entry != Q_NULLPTR; lt_entry = gxx_list_next(lt_entry)) {
+            for (GList *lt_entry = lt_list; lt_entry != Q_NULLPTR; lt_entry = gxx_list_next(lt_entry)) {
                 link_row *linkr = new link_row();
                 data_link_info_t *data_link_info = gxx_list_data(data_link_info_t *, lt_entry);
                 /*

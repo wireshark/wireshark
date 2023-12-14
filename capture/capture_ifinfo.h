@@ -117,6 +117,7 @@ if_addr_t *if_addr_copy(const if_addr_t *if_addr);
 typedef struct {
 	bool	can_set_rfmon;	/* true if can be put into monitor mode */
 	GList		*data_link_types;	/* GList of data_link_info_t's */
+	GList		*data_link_types_rfmon; /* GList of data_link_info_t's */
 	GList		*timestamp_types;   /* GList of timestamp_info_t's */
         /* XXX: Would there be any value in adding the status? It would
          * allow the messages to have warnings, not just failures. */

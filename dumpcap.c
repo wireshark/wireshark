@@ -1133,6 +1133,26 @@ print_machine_readable_if_capabilities(json_dumper *dumper, if_capabilities_t *c
           json_dumper_end_object(dumper);
         }
         json_dumper_end_array(dumper);
+
+        json_dumper_set_member_name(dumper, "data_link_types_rfmon");
+        json_dumper_begin_array(dumper);
+        for (lt_entry = caps->data_link_types_rfmon; lt_entry != NULL;
+             lt_entry = g_list_next(lt_entry)) {
+          data_link_info_t *data_link_info = (data_link_info_t *)lt_entry->data;
+          if (data_link_info->description != NULL)
+            desc_str = data_link_info->description;
+          else
+            desc_str = "(not supported)";
+          json_dumper_begin_object(dumper);
+          json_dumper_set_member_name(dumper, "dlt");
+          json_dumper_value_anyf(dumper, "%d", data_link_info->dlt);
+          json_dumper_set_member_name(dumper, "name");
+          json_dumper_value_string(dumper, data_link_info->name);
+          json_dumper_set_member_name(dumper, "description");
+          json_dumper_value_string(dumper, desc_str);
+          json_dumper_end_object(dumper);
+        }
+        json_dumper_end_array(dumper);
     }
     if (queries & CAPS_QUERY_TIMESTAMP_TYPES) {
         json_dumper_set_member_name(dumper, "timestamp_types");

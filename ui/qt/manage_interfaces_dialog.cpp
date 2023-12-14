@@ -373,6 +373,11 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
     interface_t device;
     guint num_interfaces;
 
+    // Add any (remote) interface in rlist to the global list of all
+    // interfaces.
+    // Most of this is copied from scan_local_interfaces_filtered, but
+    // some of it doesn't make sense for remote interfaces (yet?) - we
+    // can't, for example, control monitor mode.
     num_interfaces = global_capture_opts.all_ifaces->len;
     for (if_entry = g_list_first(rlist); if_entry != NULL; if_entry = gxx_list_next(if_entry)) {
         auth_str = NULL;
@@ -470,11 +475,15 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
         linktype_count = 0;
         device.links = NULL;
         if (caps != NULL) {
+            GList *lt_list = caps->data_link_types;
 #ifdef HAVE_PCAP_CREATE
-            device.monitor_mode_enabled = monitor_mode;
+            device.monitor_mode_enabled = monitor_mode && caps->can_set_rfmon;
             device.monitor_mode_supported = caps->can_set_rfmon;
+            if (device.monitor_mode_enabled) {
+                lt_list = caps->data_link_types_rfmon;
+            }
 #endif
-            for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = gxx_list_next(lt_entry)) {
+            for (lt_entry = lt_list; lt_entry != NULL; lt_entry = gxx_list_next(lt_entry)) {
                 data_link_info = gxx_list_data(data_link_info_t *, lt_entry);
                 linkr = new link_row;
                 /*

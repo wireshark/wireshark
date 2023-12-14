@@ -225,6 +225,7 @@ deserialize_if_capability(char* data, jsmntok_t *inf_tok)
 {
     if_capabilities_t *caps;
     GList             *linktype_list = NULL, *timestamp_list = NULL;
+    GList             *linktype_rfmon_list = NULL;
     int                err, i;
     char              *val_s;
     double             val_d;
@@ -299,6 +300,36 @@ deserialize_if_capability(char* data, jsmntok_t *inf_tok)
         linktype_list = g_list_append(linktype_list, data_link_info);
     }
 
+    if (rfmon) {
+        array_tok = json_get_array(data, inf_tok, "data_link_types_rfmon");
+
+        if (!array_tok) {
+            ws_info("Capture Interface Capabilities returned bad data_link information for monitor mode.");
+            caps->primary_msg = g_strdup("Dumpcap claimed that interface supported monitor mode, but didn't return data link types when in monitor mode");
+            caps->can_set_rfmon = false;
+        } else for (i = 0; i < json_get_array_len(array_tok); i++) {
+            cur_tok = json_get_array_index(array_tok, i);
+
+            if (!json_get_double(data, cur_tok, "dlt", &val_d)) {
+                continue;
+            }
+
+            data_link_info_t *data_link_info;
+            data_link_info = g_new(data_link_info_t,1);
+
+            data_link_info->dlt = (int)val_d;
+            val_s = json_get_string(data, cur_tok, "name");
+            data_link_info->name = val_s ? g_strdup(val_s) : NULL;
+            val_s = json_get_string(data, cur_tok, "description");
+            if (!val_s || strcmp(val_s, "(not supported)") == 0) {
+                data_link_info->description = NULL;
+            } else {
+                data_link_info->description = g_strdup(val_s);
+            }
+            linktype_rfmon_list = g_list_append(linktype_rfmon_list, data_link_info);
+        }
+    }
+
     array_tok = json_get_array(data, inf_tok, "timestamp_types");
     if (array_tok) {
         for (i = 0; i < json_get_array_len(array_tok); i++) {
@@ -316,6 +347,8 @@ deserialize_if_capability(char* data, jsmntok_t *inf_tok)
     }
 
     caps->data_link_types = linktype_list;
+    /* Should be NULL if rfmon unsupported. */
+    caps->data_link_types_rfmon = linktype_rfmon_list;
     /* Might be NULL. Not all systems report timestamp types */
     caps->timestamp_types = timestamp_list;
 

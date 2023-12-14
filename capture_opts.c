@@ -1175,9 +1175,8 @@ capture_opts_print_if_capabilities(if_capabilities_t *caps,
             return WS_EXIT_IFACE_HAS_NO_LINK_TYPES;
         }
         if (caps->can_set_rfmon)
-            printf("Data link types of interface %s when %sin monitor mode (use option -y to set):\n",
-                   interface_opts->name,
-                   (interface_opts->monitor_mode) ? "" : "not ");
+            printf("Data link types of interface %s when not in monitor mode (use option -y to set):\n",
+                   interface_opts->name);
         else
             printf("Data link types of interface %s (use option -y to set):\n",
                    interface_opts->name);
@@ -1190,6 +1189,20 @@ capture_opts_print_if_capabilities(if_capabilities_t *caps,
             else
                 printf(" (not supported)");
             printf("\n");
+        }
+        if (caps->can_set_rfmon) {
+            printf("Data link types of interface %s when in monitor mode (use option -y to set):\n",
+                   interface_opts->name);
+            for (lt_entry = caps->data_link_types_rfmon; lt_entry != NULL;
+                 lt_entry = g_list_next(lt_entry)) {
+                data_link_info_t *data_link_info = (data_link_info_t *)lt_entry->data;
+                printf("  %s", data_link_info->name);
+                if (data_link_info->description != NULL)
+                    printf(" (%s)", data_link_info->description);
+                else
+                    printf(" (not supported)");
+                printf("\n");
+            }
         }
     }
 
