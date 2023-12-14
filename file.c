@@ -1218,13 +1218,16 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
         prime_epan_dissect_with_postdissector_wanted_hfids(edt);
     }
 
+    /* Intitialize passed_dfilter here so that dissectors can hide packets. */
+    /* XXX We might want to add a separate "visible" bit to frame_data instead. */
+    fdata->passed_dfilter = 1;
+
     /* Dissect the frame. */
     epan_dissect_run_with_taps(edt, cf->cd_t, rec,
             frame_tvbuff_new_buffer(&cf->provider, fdata, buf),
             fdata, cinfo);
 
-    /* If we don't have a display filter, set "passed_dfilter" to 1. */
-    if (dfcode != NULL) {
+    if (fdata->passed_dfilter && dfcode != NULL) {
         fdata->passed_dfilter = dfilter_apply_edt(dfcode, edt) ? 1 : 0;
 
         if (fdata->passed_dfilter && edt->pi.fd->dependent_frames) {
@@ -1234,8 +1237,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
              */
             g_hash_table_foreach(edt->pi.fd->dependent_frames, find_and_mark_frame_depended_upon, cf->provider.frames);
         }
-    } else
-        fdata->passed_dfilter = 1;
+    }
 
     if (fdata->passed_dfilter || fdata->ref_time)
         cf->displayed_count++;

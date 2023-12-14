@@ -159,7 +159,7 @@ frame_data_init(frame_data *fdata, guint32 num, const wtap_rec *rec,
   fdata->num = num;
   fdata->file_off = offset;
   fdata->subnum = 0;
-  fdata->passed_dfilter = 0;
+  fdata->passed_dfilter = 1;
   fdata->dependent_of_displayed = 0;
   fdata->dependent_frames = NULL;
   fdata->encoding = PACKET_CHAR_ENC_CHAR_ASCII;
