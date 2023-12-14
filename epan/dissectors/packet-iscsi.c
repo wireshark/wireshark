@@ -721,7 +721,7 @@ static void
 dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 opcode, guint32 data_segment_len, iscsi_session_t *iscsi_session, conversation_t *conversation) {
 
     guint original_offset = offset;
-    proto_tree *ti = NULL, *opcode_item = NULL;
+    proto_tree *ti = NULL, *opcode_item = NULL, *tt = NULL;
     guint8 scsi_status = 0;
     gboolean S_bit=FALSE;
     gboolean A_bit=FALSE;
@@ -742,7 +742,6 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
     if(paddedDataSegmentLength & 3)
         paddedDataSegmentLength += 4 - (paddedDataSegmentLength & 3);
-
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "iSCSI");
 
@@ -884,12 +883,12 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         if (opcode == ISCSI_OPCODE_SCSI_RESPONSE ||
             (opcode == ISCSI_OPCODE_SCSI_DATA_IN &&
                 (tvb_get_guint8(tvb, offset + 1) & ISCSI_SCSI_DATA_FLAG_S))) {
-            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
+            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s) ",
                                 val_to_str (scsi_status, scsi_status_val, "0x%x"));
         }
         else if (opcode == ISCSI_OPCODE_LOGIN_RESPONSE) {
             guint16 login_status = tvb_get_ntohs(tvb, offset+36);
-            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
+            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s) ",
                                 val_to_str (login_status, iscsi_login_status, "0x%x"));
         }
         else if (opcode == ISCSI_OPCODE_LOGOUT_COMMAND) {
@@ -902,27 +901,27 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             else {
                 logoutReason = tvb_get_guint8(tvb, offset+23);
             }
-            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
+            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s) ",
                                 val_to_str (logoutReason, iscsi_logout_reasons, "0x%x"));
         }
         else if (opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION) {
             guint8 tmf = tvb_get_guint8(tvb, offset + 1) & 0x7f;
-            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
+            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s) ",
                                 val_to_str (tmf, iscsi_task_management_functions, "0x%x"));
         }
         else if (opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION_RESPONSE) {
             guint8 resp = tvb_get_guint8(tvb, offset + 2);
-            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
+            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s) ",
                                 val_to_str (resp, iscsi_task_management_responses, "0x%x"));
         }
         else if (opcode == ISCSI_OPCODE_REJECT) {
             guint8 reason = tvb_get_guint8(tvb, offset + 2);
-            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
+            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s) ",
                                 val_to_str (reason, iscsi_reject_reasons, "0x%x"));
         }
         else if (opcode == ISCSI_OPCODE_ASYNC_MESSAGE) {
             guint8 asyncEvent = tvb_get_guint8(tvb, offset + 36);
-            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
+            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s) ",
                                 val_to_str (asyncEvent, iscsi_asyncevents, "0x%x"));
         }
     }
@@ -933,7 +932,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         proto_item *tp;
         /* create display subtree for the protocol */
         tp = proto_tree_add_protocol_format(tree, proto_iscsi, tvb,
-                                            offset, -1, "iSCSI (%s)",
+                                            offset, -1, "iSCSI (%s) ",
                                             opcode_str);
         ti = proto_item_add_subtree(tp, ett_iscsi);
     }
@@ -1595,84 +1594,132 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     case ISCSI_OPCODE_SCSI_RESPONSE:
         if (cdata->itlq.first_exchange_frame){
             nstime_t delta_time;
-            proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
+            tt = proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
+            proto_item_set_generated(tt);
             nstime_delta(&delta_time, &pinfo->abs_ts, &cdata->itlq.fc_time);
-            proto_tree_add_time(ti, hf_iscsi_time, tvb, 0, 0, &delta_time);
+            tt = proto_tree_add_time(ti, hf_iscsi_time, tvb, 0, 0, &delta_time);
+            proto_item_set_generated(tt);
         }
-        if (cdata->r2t_frame)
-            proto_tree_add_uint(ti, hf_iscsi_r2t_frame, tvb, 0, 0, cdata->r2t_frame);
-        if (cdata->data_in_frame)
-            proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
-        if (cdata->data_out_frame)
-            proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
+        if (cdata->r2t_frame) {
+            tt = proto_tree_add_uint(ti, hf_iscsi_r2t_frame, tvb, 0, 0, cdata->r2t_frame);
+            proto_item_set_generated(tt);
+        }
+        if (cdata->data_in_frame) {
+            tt = proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
+            proto_item_set_generated(tt);
+        }
+        if (cdata->data_out_frame) {
+            tt = proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
+            proto_item_set_generated(tt);
+        }
         break;
 
     case ISCSI_OPCODE_R2T:
-        if (cdata->itlq.first_exchange_frame)
-            proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
-        if (cdata->r2t_frame) {
+        if (cdata->itlq.first_exchange_frame) {
+            tt = proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
+            proto_item_set_generated(tt);
+        }
+        if (cdata->itlq.first_exchange_frame && (cdata->itlq.first_exchange_frame < pinfo->num)) {
             nstime_t delta_time;
             nstime_delta(&delta_time, &pinfo->abs_ts, &cdata->itlq.r2t_time);
-            proto_tree_add_time(ti, hf_iscsi_r2t_time, tvb, 0, 0, &delta_time);
+            tt = proto_tree_add_time(ti, hf_iscsi_r2t_time, tvb, 0, 0, &delta_time);
+            proto_item_set_generated(tt);
         }
-        if (cdata->data_out_frame)
-            proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
-        if (cdata->itlq.last_exchange_frame)
-            proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->itlq.last_exchange_frame);
+        if (cdata->data_out_frame) {
+            tt = proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
+            proto_item_set_generated(tt);
+        }
+        if (cdata->itlq.last_exchange_frame) {
+            tt = proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->itlq.last_exchange_frame);
+            proto_item_set_generated(tt);
+        }
 
-        col_append_fstr (pinfo->cinfo, COL_INFO,
-            " LUN: 0x0%x, OK to write %u blocks (%u bytes)",
-            cdata->itlq.lun,
-            cdata->itlq.data_length>=512 ? cdata->itlq.data_length/512 : 0,
-            cdata->itlq.data_length
-        );
+        if (cdata->itlq.lun == 0xffff)
+            col_append_str (pinfo->cinfo, COL_INFO,
+                " <missing request> "
+            );
+        else
+            col_append_fstr (pinfo->cinfo, COL_INFO,
+                " LUN: 0x0%x, OK to write %u bytes (%u blocks) ",
+                cdata->itlq.lun,
+                cdata->itlq.data_length,
+                cdata->itlq.data_length>=512 ? cdata->itlq.data_length/512 : 0
+            );
         break;
     case ISCSI_OPCODE_SCSI_DATA_IN:
         /* if we have phase collaps then we might have the
            response embedded in the last DataIn segment */
         if(!S_bit){
-            if (cdata->itlq.first_exchange_frame)
-                proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
-            if (cdata->itlq.last_exchange_frame)
-                proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->itlq.last_exchange_frame);
+            if (cdata->itlq.first_exchange_frame) {
+                tt = proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->itlq.last_exchange_frame);
+                proto_item_set_generated(tt);
+            }
         } else {
             if (cdata->itlq.first_exchange_frame){
                 nstime_t delta_time;
-                proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
+                tt = proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
+                proto_item_set_generated(tt);
                 nstime_delta(&delta_time, &pinfo->abs_ts, &cdata->itlq.fc_time);
-                proto_tree_add_time(ti, hf_iscsi_time, tvb, 0, 0, &delta_time);
+                tt = proto_tree_add_time(ti, hf_iscsi_time, tvb, 0, 0, &delta_time);
+                proto_item_set_generated(tt);
             }
         }
-        if (cdata->data_out_frame)
-            proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
-        break;
-    case ISCSI_OPCODE_SCSI_DATA_OUT:
-        if (cdata->itlq.first_exchange_frame)
-            proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
-        if (cdata->r2t_frame)
-            proto_tree_add_uint(ti, hf_iscsi_r2t_frame, tvb, 0, 0, cdata->r2t_frame);
-        if (cdata->data_in_frame)
-            proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
-        if (cdata->itlq.last_exchange_frame)
-            proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->itlq.last_exchange_frame);
+        if (cdata->data_out_frame) {
+            tt = proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
+            proto_item_set_generated(tt);
+        }
 
         col_set_fence(pinfo->cinfo, COL_INFO);
         col_append_fstr (pinfo->cinfo, COL_INFO,
-            " LUN: 0x0%x, wrote %u blocks (%u bytes)",
+            " LUN: %u, read %u bytes (%u blocks) ",
             cdata->itlq.lun,
-            cdata->itlq.data_length>=512 ? cdata->itlq.data_length/512 : 0,
-            cdata->itlq.data_length
+            data_segment_len,
+            data_segment_len>=512 ? data_segment_len/512 : 0
+        );
+        break;
+    case ISCSI_OPCODE_SCSI_DATA_OUT:
+        if (cdata->itlq.first_exchange_frame) {
+            tt = proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
+            proto_item_set_generated(tt);
+        }
+        if (cdata->r2t_frame) {
+            tt = proto_tree_add_uint(ti, hf_iscsi_r2t_frame, tvb, 0, 0, cdata->r2t_frame);
+            proto_item_set_generated(tt);
+        }
+        if (cdata->data_in_frame) {
+            tt = proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
+            proto_item_set_generated(tt);
+        }
+        if (cdata->itlq.last_exchange_frame) {
+            tt = proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->itlq.last_exchange_frame);
+            proto_item_set_generated(tt);
+        }
+
+        col_set_fence(pinfo->cinfo, COL_INFO);
+        col_append_fstr (pinfo->cinfo, COL_INFO,
+            " LUN: 0x0%x, wrote %u bytes (%u blocks) ",
+            cdata->itlq.lun,
+            data_segment_len,
+            data_segment_len>=512 ? data_segment_len/512 : 0
         );
         break;
     case ISCSI_OPCODE_SCSI_COMMAND:
-        if (cdata->r2t_frame)
-            proto_tree_add_uint(ti, hf_iscsi_r2t_frame, tvb, 0, 0, cdata->r2t_frame);
-        if (cdata->data_in_frame)
-            proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
-        if (cdata->data_out_frame)
-            proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
-        if (cdata->itlq.last_exchange_frame)
-            proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->itlq.last_exchange_frame);
+        if (cdata->r2t_frame) {
+            tt = proto_tree_add_uint(ti, hf_iscsi_r2t_frame, tvb, 0, 0, cdata->r2t_frame);
+            proto_item_set_generated(tt);
+        }
+        if (cdata->data_in_frame) {
+            tt = proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
+            proto_item_set_generated(tt);
+        }
+        if (cdata->data_out_frame) {
+            tt = proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
+            proto_item_set_generated(tt);
+        }
+        if (cdata->itlq.last_exchange_frame) {
+            tt = proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->itlq.last_exchange_frame);
+            proto_item_set_generated(tt);
+        }
         break;
     }
 
@@ -2609,7 +2656,7 @@ proto_register_iscsi(void)
         { &hf_iscsi_request_frame,
           { "Request in", "iscsi.request_frame",
             FT_FRAMENUM, BASE_NONE, NULL, 0,
-            "The request to this transaction is in this frame", HFILL }},
+            "Frame number of the request", HFILL }},
 
         { &hf_iscsi_time,
           { "Time from request", "iscsi.time",
@@ -2629,17 +2676,17 @@ proto_register_iscsi(void)
         { &hf_iscsi_data_in_frame,
           { "Data In in", "iscsi.data_in_frame",
             FT_FRAMENUM, BASE_NONE, NULL, 0,
-            "The Data In for this transaction is in this frame", HFILL }},
+            "Frame number of the final Data In (could be multiple)", HFILL }},
 
         { &hf_iscsi_data_out_frame,
-          { "Data Out in", "iscsi.data_out_frame",
+          { "Final Data Out in", "iscsi.data_out_frame",
             FT_FRAMENUM, BASE_NONE, NULL, 0,
-            "The Data Out for this transaction is in this frame", HFILL }},
+            "Frame number of the final Data Out (could be multiple)", HFILL }},
 
         { &hf_iscsi_response_frame,
           { "Response in", "iscsi.response_frame",
             FT_FRAMENUM, BASE_NONE, NULL, 0,
-            "The response to this transaction is in this frame", HFILL }},
+            "Frame number of the response", HFILL }},
         { &hf_iscsi_AHS_length,
           { "AHS Length", "iscsi.ahs.length",
             FT_UINT16, BASE_DEC, NULL, 0,

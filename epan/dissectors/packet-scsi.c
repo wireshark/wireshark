@@ -3282,7 +3282,7 @@ dissect_spc_inquiry(tvbuff_t *tvb_a, packet_info *pinfo,
             proto_tree_add_item(tree, hf_scsi_inquiry_evpd_page, tvb_a, offset_a+1,
                                 1, ENC_BIG_ENDIAN);
 
-        col_add_fstr(pinfo->cinfo, COL_INFO, " %s",
+        col_add_fstr(pinfo->cinfo, COL_INFO, " %s ",
              val_to_str(tvb_get_guint8(tvb_a, offset_a+1),
                     scsi_evpd_pagecode_val,
                     "Unknown VPD 0x%02x"));
@@ -5343,7 +5343,7 @@ dissect_spc_mgmt_protocol_in(tvbuff_t *tvb_a, packet_info *pinfo _U_,
         cdata->itlq->flags=service_action;
     }
     col_append_str(pinfo->cinfo, COL_INFO,
-            val_to_str_const(service_action, mpi_action_vals, "Unknown"));
+            val_to_str_const(service_action, mpi_action_vals, "Unknown "));
 
     proto_tree_add_item(tree, hf_scsi_mpi_service_action, tvb_a,
             offset_a, 1, ENC_BIG_ENDIAN);
@@ -5773,15 +5773,33 @@ dissect_scsi_rsp(tvbuff_t *tvb, packet_info *pinfo,
     csdata = get_cmdset_data(pinfo->pool, itlq, itl);
 
     /* Nothing really to do here, just print some stuff passed to us
-     */
-    if (tree) {
-        ti = proto_tree_add_protocol_format(tree, proto_scsi, tvb, 0,
-                                            0, "SCSI Response (%s)",
-                                            val_to_str_ext(itlq->scsi_opcode,
-                                                           csdata->cdb_vals_ext,
-                                                           "CDB:0x%02x"));
-        scsi_tree = proto_item_add_subtree(ti, ett_scsi);
+    */
+    if (!tree)
+        return;
+    /* If the LUN is missing, the request is missing in which case there is literally
+       nothing to put in the SCSI Response subtree, so just return.
+    */
+    if (itlq->lun == 0xffff) {
+       col_append_str(pinfo->cinfo, COL_INFO, "<missing request>");
+       return;
     }
+    else {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "SCSI Response LUN: 0x%02x %s, %u bytes (%u blocks) (%s) ",
+            itlq->lun,
+            val_to_str_ext(itlq->scsi_opcode, csdata->cdb_vals_ext, "CDB:0x%02x"),
+            itlq->data_length,
+            itlq->data_length/512,
+            val_to_str(scsi_status, scsi_status_val, "Unknown (0x%08x) ")
+        );
+        col_set_fence(pinfo->cinfo, COL_INFO);
+    }
+
+    ti = proto_tree_add_protocol_format(tree, proto_scsi, tvb, 0,
+                                        0, "SCSI Response (%s)",
+                                        val_to_str_ext(itlq->scsi_opcode,
+                                                        csdata->cdb_vals_ext,
+                                                        "CDB:0x%02x"));
+    scsi_tree = proto_item_add_subtree(ti, ett_scsi);
 
     ti = proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, itlq->lun);
     proto_item_set_generated(ti);
@@ -5808,11 +5826,6 @@ dissect_scsi_rsp(tvbuff_t *tvb, packet_info *pinfo,
 
     ti = proto_tree_add_uint(scsi_tree, hf_scsi_status, tvb, 0, 0, scsi_status);
     proto_item_set_generated(ti);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "SCSI: Response LUN: 0x%02x (%s) (%s)", itlq->lun,
-                     val_to_str_ext(itlq->scsi_opcode, csdata->cdb_vals_ext, "CDB:0x%02x"),
-                     val_to_str(scsi_status, scsi_status_val, "Unknown (0x%08x)"));
-
-    col_set_fence(pinfo->cinfo, COL_INFO);
 }
 
 void
@@ -6162,7 +6175,7 @@ dissect_scsi_cdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     if (valstr != NULL) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "SCSI: %s LUN: 0x%02x ", valstr, itlq->lun);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "SCSI %s LUN: 0x%02x ", valstr, itlq->lun);
     } else {
         col_add_fstr(pinfo->cinfo, COL_INFO, "SCSI Command: 0x%02x LUN:0x%02x ", opcode, itlq->lun);
     }
@@ -6274,15 +6287,6 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         scsi_tree = proto_item_add_subtree(ti, ett_scsi);
     }
 
-    /*col_add_fstr(pinfo->cinfo, COL_INFO,
-                    "SCSI: Data %s LUN: 0x%02x (%s %s) ",
-                    isreq ? "Out" : "In",
-                    itlq->lun,
-                    val_to_str_ext(opcode, csdata->cdb_vals_ext, "0x%02x"),
-                    isreq ? "Request Data" : "Response Data");
-    col_set_fence(pinfo->cinfo, COL_INFO);
-    */
-
     ti = proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, itlq->lun);
     proto_item_set_generated(ti);
 
@@ -6383,7 +6387,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled SCSI DATA", ipfd_head, &scsi_frag_items, &update_col_info, tree);
 
     if ( ipfd_head && (ipfd_head->reassembled_in != pinfo->num) ) {
-        col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Reassembled in #%u] ",
+        col_prepend_fstr(pinfo->cinfo, COL_INFO, "[SCSI PDU Reassembled in #%u] ",
                              ipfd_head->reassembled_in);
     }
 
@@ -6890,13 +6894,13 @@ proto_register_scsi(void)
            NULL, 0x1, NULL, HFILL}},
         { &hf_scsi_request_frame,
           { "Request in", "scsi.request_frame", FT_FRAMENUM, BASE_NONE, NULL, 0,
-            "The request to this transaction is in this frame", HFILL }},
+            "Frame number of the request", HFILL }},
         { &hf_scsi_time,
           { "Time from request", "scsi.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
             "Time between the Command and the Response", HFILL }},
         { &hf_scsi_response_frame,
           { "Response in", "scsi.response_frame", FT_FRAMENUM, BASE_NONE, NULL, 0,
-            "The response to this transaction is in this frame", HFILL }},
+            "Frame number of the response", HFILL }},
         { &hf_scsi_fragments,
           { "SCSI Fragments", "scsi.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
