@@ -348,13 +348,23 @@ static const value_string rtcp_app_mux_selection_vals[] =
     {  0,   NULL}
 };
 
-/* RFC 4585 and RFC 5104 */
+/* RFC 4585, RFC 5104, RFC 6051, RFC 6285, RFC 6642, RFC 6679, RFC 7728,
+ * 3GPP TS 26.114 v16.3.0, RFC 8888 and
+ * draft-holmer-rmcat-transport-wide-cc-extensions-01
+ */
 static const value_string rtcp_rtpfb_fmt_vals[] =
 {
     {   1,  "Generic negative acknowledgement (NACK)"},
     {   3,  "Temporary Maximum Media Stream Bit Rate Request (TMMBR)"},
     {   4,  "Temporary Maximum Media Stream Bit Rate Notification (TMMBN)"},
-    {  15,  "Transport-wide Congestion Control (Transport-cc)"}, /*https://tools.ietf.org/html/draft-holmer-rmcat-transport-wide-cc-extensions-01*/
+    {   5,  "RTCP Rapid Resynchronisation Request (RTCP-SR-REQ)"},
+    {   6,  "Rapid Acquisition of Multicast Sessions (RAMS)"},
+    {   7,  "Transport-Layer Third-Party Loss Early Indication (TLLEI)"},
+    {   8,  "RTCP ECN Feedback (RTCP-ECN-FB)"},
+    {   9,  "Media Pause/Resume (PAUSE-RESUME)"},
+    {  10,  "Delay Budget Information (DBI)"},
+    {  11,  "RTP Congestion Control Feedback (CCFB)"},
+    {  15,  "Transport-wide Congestion Control (Transport-cc)"},
     {  31,  "Reserved for future extensions"},
     {   0,  NULL }
 };
@@ -865,6 +875,7 @@ static expert_field ei_rtcp_missing_block_header;
 static expert_field ei_rtcp_block_length;
 static expert_field ei_srtcp_encrypted_payload;
 static expert_field ei_rtcp_rtpfb_transportcc_bad;
+static expert_field ei_rtcp_rtpfb_fmt_not_implemented;
 static expert_field ei_rtcp_mcptt_unknown_fld;
 static expert_field ei_rtcp_mcptt_location_type;
 static expert_field ei_rtcp_appl_extra_bytes;
@@ -1664,24 +1675,42 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item
     counter = 0;
     while ((offset - start_offset) < packet_length) {
       counter++;
-      if (rtcp_rtpfb_fmt == 1) {
-        offset = dissect_rtcp_rtpfb_nack(tvb, offset, rtcp_tree, top_item);
-      } else if (rtcp_rtpfb_fmt == 3) {
-        offset = dissect_rtcp_rtpfb_tmmbr(tvb, offset, rtcp_tree, top_item, counter, 0);
-      } else if (rtcp_rtpfb_fmt == 4) {
-        offset = dissect_rtcp_rtpfb_tmmbr(tvb, offset, rtcp_tree, top_item, counter, 1);
-      } else if (rtcp_rtpfb_fmt == 15) {
-        /* Handle transport-cc (RTP Extensions for Transport-wide Congestion Control) - https://tools.ietf.org/html/draft-holmer-rmcat-transport-wide-cc-extensions-01 */
-        offset = dissect_rtcp_rtpfb_transport_cc( tvb, offset, pinfo, rtcp_tree, padding_set, packet_length);
-      } else {
-        /* Unknown FMT */
-        proto_tree_add_item(rtcp_tree, hf_rtcp_fci, tvb, offset, start_offset + packet_length - offset, ENC_NA );
-        offset = start_offset + packet_length;
+      switch (rtcp_rtpfb_fmt)
+      {
+        case 1:   // Generic negative acknowledgement (NACK)
+          offset = dissect_rtcp_rtpfb_nack(tvb, offset, rtcp_tree, top_item);
+          break;
+        case 3:   // Temporary Maximum Media Stream Bit Rate Request (TMMBR)
+          offset = dissect_rtcp_rtpfb_tmmbr(tvb, offset, rtcp_tree, top_item, counter, false);
+          break;
+        case 4:   // Temporary Maximum Media Stream Bit Rate Notification (TMMBN)
+          offset = dissect_rtcp_rtpfb_tmmbr(tvb, offset, rtcp_tree, top_item, counter, true);
+          break;
+        case 15:  // Transport-wide Congestion Control (Transport-cc)
+          offset = dissect_rtcp_rtpfb_transport_cc( tvb, offset, pinfo, rtcp_tree, padding_set, packet_length);
+          break;
+        case 5:   // RTCP Rapid Resynchronisation Request (RTCP-SR-REQ)
+        case 6:   // Rapid Acquisition of Multicast Sessions (RAMS)
+        case 7:   // Transport-Layer Third-Party Loss Early Indication (TLLEI)
+        case 8:   // RTCP ECN Feedback (RTCP-ECN-FB)
+        case 9:   // Media Pause/Resume (PAUSE-RESUME)
+        case 10:  // Delay Budget Information (DBI),
+        case 11:  // RTP Congestion Control Feedback (CCFB)
+        {
+          proto_item *ti = proto_tree_add_item(rtcp_tree, hf_rtcp_fci, tvb, offset, start_offset + packet_length - offset, ENC_NA );
+          expert_add_info(pinfo, ti, &ei_rtcp_rtpfb_fmt_not_implemented);
+          offset = start_offset + packet_length;
+          break;
+        }
+        default:  // Unknown FMT
+          proto_tree_add_item(rtcp_tree, hf_rtcp_fci, tvb, offset, start_offset + packet_length - offset, ENC_NA );
+          offset = start_offset + packet_length;
       }
     }
 
     return offset;
 }
+
 static int
 dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
     int packet_length, proto_item *top_item _U_, packet_info *pinfo _U_)
@@ -8074,6 +8103,7 @@ proto_register_rtcp(void)
         { &ei_rtcp_block_length, { "rtcp.block_length.invalid", PI_PROTOCOL, PI_WARN, "Block length is greater than packet length", EXPFILL }},
         { &ei_srtcp_encrypted_payload, { "srtcp.encrypted_payload", PI_UNDECODED, PI_WARN, "Encrypted RTCP Payload - not dissected", EXPFILL }},
         { &ei_rtcp_rtpfb_transportcc_bad, { "rtcp.rtpfb.transportcc_bad", PI_MALFORMED, PI_WARN, "Too many packet chunks (more than packet status count)", EXPFILL }},
+        { &ei_rtcp_rtpfb_fmt_not_implemented, { "rtcp.rfpfb.fmt_not_implemented", PI_UNDECODED, PI_WARN, "RCPFB FMT not dissected, contact Wireshark developers if you want this to be supported", EXPFILL }},
         { &ei_rtcp_mcptt_unknown_fld, { "rtcp.mcptt.unknown_fld", PI_PROTOCOL, PI_WARN, "Unknown field", EXPFILL }},
         { &ei_rtcp_mcptt_location_type, { "rtcp.mcptt.location_type_uk", PI_PROTOCOL, PI_WARN, "Unknown location type", EXPFILL }},
         { &ei_rtcp_appl_extra_bytes, { "rtcp.appl.extra_bytes", PI_PROTOCOL, PI_ERROR, "Extra bytes detected", EXPFILL }},
