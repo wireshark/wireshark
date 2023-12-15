@@ -613,7 +613,11 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
     socketcan_set_source_and_destination_columns(pinfo, &can_info);
 
-    ti = proto_tree_add_item(tree, (can_packet_type == PACKET_TYPE_CAN_FD) ? proto_canfd : proto_can, tvb, 0, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_can, tvb, 0, -1, ENC_NA);
+    if (can_packet_type == PACKET_TYPE_CAN_FD) {
+        proto_item_set_hidden(ti);
+        ti = proto_tree_add_item(tree, proto_canfd, tvb, 0, -1, ENC_NA);
+    }
     can_tree = proto_item_add_subtree(ti, (can_packet_type == PACKET_TYPE_CAN_FD) ? ett_can_fd : ett_can);
 
     proto_item_append_text(can_tree, ", %s: %d (0x%" PRIx32 "), Length: %d", id_name, effective_can_id, effective_can_id, can_info.len);
