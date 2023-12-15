@@ -721,7 +721,7 @@ static void
 dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 opcode, guint32 data_segment_len, iscsi_session_t *iscsi_session, conversation_t *conversation) {
 
     guint original_offset = offset;
-    proto_tree *ti = NULL, *opcode_item = NULL, *tt = NULL;
+    proto_tree *ti = NULL, *opcode_item = NULL, *itm = NULL;
     guint8 scsi_status = 0;
     gboolean S_bit=FALSE;
     gboolean A_bit=FALSE;
@@ -1594,44 +1594,44 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     case ISCSI_OPCODE_SCSI_RESPONSE:
         if (cdata->itlq.first_exchange_frame){
             nstime_t delta_time;
-            tt = proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
-            proto_item_set_generated(tt);
+            itm = proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
+            proto_item_set_generated(itm);
             nstime_delta(&delta_time, &pinfo->abs_ts, &cdata->itlq.fc_time);
-            tt = proto_tree_add_time(ti, hf_iscsi_time, tvb, 0, 0, &delta_time);
-            proto_item_set_generated(tt);
+            itm = proto_tree_add_time(ti, hf_iscsi_time, tvb, 0, 0, &delta_time);
+            proto_item_set_generated(itm);
         }
         if (cdata->r2t_frame) {
-            tt = proto_tree_add_uint(ti, hf_iscsi_r2t_frame, tvb, 0, 0, cdata->r2t_frame);
-            proto_item_set_generated(tt);
+            itm = proto_tree_add_uint(ti, hf_iscsi_r2t_frame, tvb, 0, 0, cdata->r2t_frame);
+            proto_item_set_generated(itm);
         }
         if (cdata->data_in_frame) {
-            tt = proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
-            proto_item_set_generated(tt);
+            itm = proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
+            proto_item_set_generated(itm);
         }
         if (cdata->data_out_frame) {
-            tt = proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
-            proto_item_set_generated(tt);
+            itm = proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
+            proto_item_set_generated(itm);
         }
         break;
 
     case ISCSI_OPCODE_R2T:
         if (cdata->itlq.first_exchange_frame) {
-            tt = proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
-            proto_item_set_generated(tt);
+            itm = proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
+            proto_item_set_generated(itm);
         }
         if (cdata->itlq.first_exchange_frame && (cdata->itlq.first_exchange_frame < pinfo->num)) {
             nstime_t delta_time;
             nstime_delta(&delta_time, &pinfo->abs_ts, &cdata->itlq.r2t_time);
-            tt = proto_tree_add_time(ti, hf_iscsi_r2t_time, tvb, 0, 0, &delta_time);
-            proto_item_set_generated(tt);
+            itm = proto_tree_add_time(ti, hf_iscsi_r2t_time, tvb, 0, 0, &delta_time);
+            proto_item_set_generated(itm);
         }
         if (cdata->data_out_frame) {
-            tt = proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
-            proto_item_set_generated(tt);
+            itm = proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
+            proto_item_set_generated(itm);
         }
         if (cdata->itlq.last_exchange_frame) {
-            tt = proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->itlq.last_exchange_frame);
-            proto_item_set_generated(tt);
+            itm = proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->itlq.last_exchange_frame);
+            proto_item_set_generated(itm);
         }
 
         if (cdata->itlq.lun == 0xffff)
@@ -1651,22 +1651,22 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
            response embedded in the last DataIn segment */
         if(!S_bit){
             if (cdata->itlq.first_exchange_frame) {
-                tt = proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->itlq.last_exchange_frame);
-                proto_item_set_generated(tt);
+                itm = proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->itlq.last_exchange_frame);
+                proto_item_set_generated(itm);
             }
         } else {
             if (cdata->itlq.first_exchange_frame){
                 nstime_t delta_time;
-                tt = proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
-                proto_item_set_generated(tt);
+                itm = proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
+                proto_item_set_generated(itm);
                 nstime_delta(&delta_time, &pinfo->abs_ts, &cdata->itlq.fc_time);
-                tt = proto_tree_add_time(ti, hf_iscsi_time, tvb, 0, 0, &delta_time);
-                proto_item_set_generated(tt);
+                itm = proto_tree_add_time(ti, hf_iscsi_time, tvb, 0, 0, &delta_time);
+                proto_item_set_generated(itm);
             }
         }
         if (cdata->data_out_frame) {
-            tt = proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
-            proto_item_set_generated(tt);
+            itm = proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
+            proto_item_set_generated(itm);
         }
 
         col_set_fence(pinfo->cinfo, COL_INFO);
@@ -1679,20 +1679,20 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         break;
     case ISCSI_OPCODE_SCSI_DATA_OUT:
         if (cdata->itlq.first_exchange_frame) {
-            tt = proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
-            proto_item_set_generated(tt);
+            itm = proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
+            proto_item_set_generated(itm);
         }
         if (cdata->r2t_frame) {
-            tt = proto_tree_add_uint(ti, hf_iscsi_r2t_frame, tvb, 0, 0, cdata->r2t_frame);
-            proto_item_set_generated(tt);
+            itm = proto_tree_add_uint(ti, hf_iscsi_r2t_frame, tvb, 0, 0, cdata->r2t_frame);
+            proto_item_set_generated(itm);
         }
         if (cdata->data_in_frame) {
-            tt = proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
-            proto_item_set_generated(tt);
+            itm = proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
+            proto_item_set_generated(itm);
         }
         if (cdata->itlq.last_exchange_frame) {
-            tt = proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->itlq.last_exchange_frame);
-            proto_item_set_generated(tt);
+            itm = proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->itlq.last_exchange_frame);
+            proto_item_set_generated(itm);
         }
 
         col_set_fence(pinfo->cinfo, COL_INFO);
@@ -1705,20 +1705,20 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         break;
     case ISCSI_OPCODE_SCSI_COMMAND:
         if (cdata->r2t_frame) {
-            tt = proto_tree_add_uint(ti, hf_iscsi_r2t_frame, tvb, 0, 0, cdata->r2t_frame);
-            proto_item_set_generated(tt);
+            itm = proto_tree_add_uint(ti, hf_iscsi_r2t_frame, tvb, 0, 0, cdata->r2t_frame);
+            proto_item_set_generated(itm);
         }
         if (cdata->data_in_frame) {
-            tt = proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
-            proto_item_set_generated(tt);
+            itm = proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
+            proto_item_set_generated(itm);
         }
         if (cdata->data_out_frame) {
-            tt = proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
-            proto_item_set_generated(tt);
+            itm = proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
+            proto_item_set_generated(itm);
         }
         if (cdata->itlq.last_exchange_frame) {
-            tt = proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->itlq.last_exchange_frame);
-            proto_item_set_generated(tt);
+            itm = proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->itlq.last_exchange_frame);
+            proto_item_set_generated(itm);
         }
         break;
     }
