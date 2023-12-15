@@ -8417,7 +8417,7 @@ decode_gtp_reliable_irat_ho_inf(tvbuff_t * tvb, int offset, packet_info * pinfo 
 static int
 decode_gtp_rfsp_index(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
-    guint16     length, rfsp;
+    guint16     length;
     proto_tree *ext_tree;
 
     length = tvb_get_ntohs(tvb, offset + 1);
@@ -8429,8 +8429,7 @@ decode_gtp_rfsp_index(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
 
-    rfsp = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_uint(ext_tree, hf_gtp_rfsp_index, tvb, offset, length, rfsp+1);
+    proto_tree_add_item(ext_tree, hf_gtp_rfsp_index, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     return 3 + length;
 }
