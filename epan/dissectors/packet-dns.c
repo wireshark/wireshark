@@ -5016,7 +5016,7 @@ proto_register_dns(void)
         "Was the reply data authenticated by the server?", HFILL }},
 
     { &hf_dns_flags_ad,
-      { "AD bit", "dns.flags.authenticated",
+      { "AD bit", "dns.flags.ad",
         FT_BOOLEAN, 16, TFS(&tfs_set_notset), F_AUTHENTIC,
         NULL, HFILL }},
 
