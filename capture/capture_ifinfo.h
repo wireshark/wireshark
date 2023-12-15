@@ -36,6 +36,21 @@ typedef enum {
 } interface_type;
 
 /*
+ * "get_if_capabilities()" and "capture_if_capabilities()" return a pointer
+ * to an allocated instance of this structure.  "free_if_capabilities()"
+ * frees the returned instance.
+ */
+typedef struct {
+	bool	can_set_rfmon;	/* true if can be put into monitor mode */
+	GList		*data_link_types;	/* GList of data_link_info_t's */
+	GList		*data_link_types_rfmon; /* GList of data_link_info_t's */
+	GList		*timestamp_types;   /* GList of timestamp_info_t's */
+	int status;
+	char *primary_msg;   /* If non-NULL, the query failed, and a message explaing why */
+	char *secondary_msg; /* An optional supplementary message */
+} if_capabilities_t;
+
+/*
  * The list of interfaces returned by "get_interface_list()" is
  * a list of these structures.
  */
@@ -51,6 +66,7 @@ typedef struct {
 	interface_type type;    /* type of interface */
 	bool loopback;      /* true if loopback, false otherwise */
 	char	*extcap;		/* extcap arguments, which present the data to call the extcap interface */
+	if_capabilities_t *caps;
 } if_info_t;
 
 /*
@@ -108,22 +124,6 @@ if_info_t *if_info_copy(const if_info_t *if_info);
  * Deep copy an if_addr_t.
  */
 if_addr_t *if_addr_copy(const if_addr_t *if_addr);
-
-/*
- * "get_if_capabilities()" and "capture_if_capabilities()" return a pointer
- * to an allocated instance of this structure.  "free_if_capabilities()"
- * frees the returned instance.
- */
-typedef struct {
-	bool	can_set_rfmon;	/* true if can be put into monitor mode */
-	GList		*data_link_types;	/* GList of data_link_info_t's */
-	GList		*data_link_types_rfmon; /* GList of data_link_info_t's */
-	GList		*timestamp_types;   /* GList of timestamp_info_t's */
-        /* XXX: Would there be any value in adding the status? It would
-         * allow the messages to have warnings, not just failures. */
-	char *primary_msg;   /* If non-NULL, the query failed, and a message explaing why */
-	char *secondary_msg; /* An optional supplementary message */
-} if_capabilities_t;
 
 typedef struct {
         const char *name;

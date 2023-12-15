@@ -587,6 +587,51 @@ capture_opts_generate_display_name(const char *friendly_name,
 #endif
 
 static void
+fill_in_interface_opts_defaults(interface_options *interface_opts, const capture_options *capture_opts)
+{
+
+    interface_opts->cfilter = g_strdup(capture_opts->default_options.cfilter);
+    interface_opts->snaplen = capture_opts->default_options.snaplen;
+    interface_opts->has_snaplen = capture_opts->default_options.has_snaplen;
+    interface_opts->linktype = capture_opts->default_options.linktype;
+    interface_opts->promisc_mode = capture_opts->default_options.promisc_mode;
+    interface_opts->extcap_fifo = g_strdup(capture_opts->default_options.extcap_fifo);
+    interface_opts->extcap_args = NULL;
+    interface_opts->extcap_pid = WS_INVALID_PID;
+    interface_opts->extcap_pipedata = NULL;
+    interface_opts->extcap_stderr = NULL;
+    interface_opts->extcap_stdout_watch = 0;
+    interface_opts->extcap_stderr_watch = 0;
+#ifdef _WIN32
+    interface_opts->extcap_pipe_h = INVALID_HANDLE_VALUE;
+    interface_opts->extcap_control_in_h = INVALID_HANDLE_VALUE;
+    interface_opts->extcap_control_out_h = INVALID_HANDLE_VALUE;
+#endif
+    interface_opts->extcap_control_in = g_strdup(capture_opts->default_options.extcap_control_in);
+    interface_opts->extcap_control_out = g_strdup(capture_opts->default_options.extcap_control_out);
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
+    interface_opts->buffer_size = capture_opts->default_options.buffer_size;
+#endif
+    interface_opts->monitor_mode = capture_opts->default_options.monitor_mode;
+#ifdef HAVE_PCAP_REMOTE
+    interface_opts->src_type = capture_opts->default_options.src_type;
+    interface_opts->remote_host = g_strdup(capture_opts->default_options.remote_host);
+    interface_opts->remote_port = g_strdup(capture_opts->default_options.remote_port);
+    interface_opts->auth_type = capture_opts->default_options.auth_type;
+    interface_opts->auth_username = g_strdup(capture_opts->default_options.auth_username);
+    interface_opts->auth_password = g_strdup(capture_opts->default_options.auth_password);
+    interface_opts->datatx_udp = capture_opts->default_options.datatx_udp;
+    interface_opts->nocap_rpcap = capture_opts->default_options.nocap_rpcap;
+    interface_opts->nocap_local = capture_opts->default_options.nocap_local;
+#endif
+#ifdef HAVE_PCAP_SETSAMPLING
+    interface_opts->sampling_method = capture_opts->default_options.sampling_method;
+    interface_opts->sampling_param  = capture_opts->default_options.sampling_param;
+#endif
+    interface_opts->timestamp_type  = capture_opts->default_options.timestamp_type;
+}
+
+static void
 fill_in_interface_opts_from_ifinfo(interface_options *interface_opts,
                                    const if_info_t *if_info)
 {
@@ -872,45 +917,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
         free_interface_list(if_list);
     }
 
-    interface_opts.cfilter = g_strdup(capture_opts->default_options.cfilter);
-    interface_opts.snaplen = capture_opts->default_options.snaplen;
-    interface_opts.has_snaplen = capture_opts->default_options.has_snaplen;
-    interface_opts.linktype = capture_opts->default_options.linktype;
-    interface_opts.promisc_mode = capture_opts->default_options.promisc_mode;
-    interface_opts.extcap_fifo = g_strdup(capture_opts->default_options.extcap_fifo);
-    interface_opts.extcap_args = NULL;
-    interface_opts.extcap_pid = WS_INVALID_PID;
-    interface_opts.extcap_pipedata = NULL;
-    interface_opts.extcap_stderr = NULL;
-    interface_opts.extcap_stdout_watch = 0;
-    interface_opts.extcap_stderr_watch = 0;
-#ifdef _WIN32
-    interface_opts.extcap_pipe_h = INVALID_HANDLE_VALUE;
-    interface_opts.extcap_control_in_h = INVALID_HANDLE_VALUE;
-    interface_opts.extcap_control_out_h = INVALID_HANDLE_VALUE;
-#endif
-    interface_opts.extcap_control_in = g_strdup(capture_opts->default_options.extcap_control_in);
-    interface_opts.extcap_control_out = g_strdup(capture_opts->default_options.extcap_control_out);
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
-    interface_opts.buffer_size = capture_opts->default_options.buffer_size;
-#endif
-    interface_opts.monitor_mode = capture_opts->default_options.monitor_mode;
-#ifdef HAVE_PCAP_REMOTE
-    interface_opts.src_type = capture_opts->default_options.src_type;
-    interface_opts.remote_host = g_strdup(capture_opts->default_options.remote_host);
-    interface_opts.remote_port = g_strdup(capture_opts->default_options.remote_port);
-    interface_opts.auth_type = capture_opts->default_options.auth_type;
-    interface_opts.auth_username = g_strdup(capture_opts->default_options.auth_username);
-    interface_opts.auth_password = g_strdup(capture_opts->default_options.auth_password);
-    interface_opts.datatx_udp = capture_opts->default_options.datatx_udp;
-    interface_opts.nocap_rpcap = capture_opts->default_options.nocap_rpcap;
-    interface_opts.nocap_local = capture_opts->default_options.nocap_local;
-#endif
-#ifdef HAVE_PCAP_SETSAMPLING
-    interface_opts.sampling_method = capture_opts->default_options.sampling_method;
-    interface_opts.sampling_param  = capture_opts->default_options.sampling_param;
-#endif
-    interface_opts.timestamp_type  = capture_opts->default_options.timestamp_type;
+    fill_in_interface_opts_defaults(&interface_opts, capture_opts);
 
     g_array_append_val(capture_opts->ifaces, interface_opts);
 
@@ -1163,7 +1170,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
 
 int
 capture_opts_print_if_capabilities(if_capabilities_t *caps,
-                                   interface_options *interface_opts,
+                                   const interface_options *interface_opts,
                                    int queries)
 {
     GList *lt_entry, *ts_entry;
@@ -1383,12 +1390,10 @@ capture_opts_output_to_pipe(const char *save_file, gboolean *is_pipe)
 }
 
 void
-capture_opts_del_iface(capture_options *capture_opts, guint if_index)
+interface_opts_free(interface_options *interface_opts)
 {
-    interface_options *interface_opts;
-
-    interface_opts = &g_array_index(capture_opts->ifaces, interface_options, if_index);
-    /* XXX - check if found? */
+    if (interface_opts == NULL)
+        return;
 
     g_free(interface_opts->name);
     g_free(interface_opts->descr);
@@ -1416,10 +1421,30 @@ capture_opts_del_iface(capture_options *capture_opts, guint if_index)
         g_free(interface_opts->auth_password);
     }
 #endif
+}
+
+void
+capture_opts_del_iface(capture_options *capture_opts, guint if_index)
+{
+    interface_options *interface_opts;
+
+    interface_opts = &g_array_index(capture_opts->ifaces, interface_options, if_index);
+    /* XXX - check if found? */
+    interface_opts_free(interface_opts);
+
     capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, if_index);
 }
 
+interface_options*
+interface_opts_from_if_info(capture_options *capture_opts, const if_info_t *if_info)
+{
+    interface_options *interface_opts = g_new(interface_options, 1);
 
+    fill_in_interface_opts_from_ifinfo(interface_opts, if_info);
+    fill_in_interface_opts_defaults(interface_opts, capture_opts);
+
+    return interface_opts;
+}
 
 /*
  * Add all non-hidden selected interfaces in the "all interfaces" list

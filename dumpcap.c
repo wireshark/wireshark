@@ -1013,13 +1013,16 @@ show_filter_code(capture_options *capture_opts)
     return TRUE;
 }
 
+static void
+print_machine_readable_if_capabilities(json_dumper *dumper, if_capabilities_t *caps, int queries);
+
 /*
  * Output a machine readable list of the interfaces
  * This list is retrieved by the sync_interface_list_open() function
  * The actual output of this function can be viewed with the command "dumpcap -D -Z none"
  */
 static int
-print_machine_readable_interfaces(GList *if_list)
+print_machine_readable_interfaces(GList *if_list, int caps_queries)
 {
     GList       *if_entry;
     if_info_t   *if_info;
@@ -1082,6 +1085,12 @@ print_machine_readable_interfaces(GList *if_list)
         json_dumper_set_member_name(&dumper, "extcap");
         json_dumper_value_string(&dumper, if_info->extcap);
 
+        if (if_info->caps && caps_queries) {
+            json_dumper_set_member_name(&dumper, "caps");
+            json_dumper_begin_object(&dumper);
+            print_machine_readable_if_capabilities(&dumper, if_info->caps, caps_queries);
+            json_dumper_end_object(&dumper);
+        }
         json_dumper_end_object(&dumper);
         json_dumper_end_object(&dumper);
     }
@@ -1110,6 +1119,15 @@ print_machine_readable_if_capabilities(json_dumper *dumper, if_capabilities_t *c
 {
     GList *lt_entry, *ts_entry;
     const gchar *desc_str;
+
+    json_dumper_set_member_name(dumper, "status");
+    json_dumper_value_anyf(dumper, "%i", caps->status);
+    if (caps->primary_msg) {
+        json_dumper_set_member_name(dumper, "primary_msg");
+        json_dumper_value_string(dumper, caps->primary_msg);
+        json_dumper_set_member_name(dumper, "secondary_msg");
+        json_dumper_value_string(dumper, caps->secondary_msg);
+    }
 
     if (queries & CAPS_QUERY_LINK_TYPES) {
         json_dumper_set_member_name(dumper, "rfmon");
@@ -5685,20 +5703,23 @@ main(int argc, char *argv[])
             break;
             /*** all non capture option specific ***/
         case 'D':        /* Print a list of capture devices and exit */
-            if (!list_interfaces) {
-                list_interfaces = TRUE;
+            if (!list_interfaces && !caps_queries) {
                 run_once_args++;
             }
+            list_interfaces = TRUE;
             break;
         case 'L':        /* Print list of link-layer types and exit */
-            if (!(caps_queries & CAPS_QUERY_LINK_TYPES)) {
-                caps_queries |= CAPS_QUERY_LINK_TYPES;
+            if (!list_interfaces && !caps_queries) {
                 run_once_args++;
             }
+            caps_queries |= CAPS_QUERY_LINK_TYPES;
             break;
         case LONGOPT_LIST_TSTAMP_TYPES:
-                caps_queries |= CAPS_QUERY_TIMESTAMP_TYPES;
-        break;
+            if (!list_interfaces && !caps_queries) {
+                run_once_args++;
+            }
+            caps_queries |= CAPS_QUERY_TIMESTAMP_TYPES;
+            break;
         case 'd':        /* Print BPF code for capture filter and exit */
             if (!print_bpf_code) {
                 print_bpf_code = TRUE;
@@ -5855,11 +5876,63 @@ main(int argc, char *argv[])
             }
         }
 
-        if (machine_readable) {
-            status = print_machine_readable_interfaces(if_list);
-        } else {
+        if (!machine_readable) {
             status = 0;
             capture_opts_print_interfaces(if_list);
+        }
+
+        if (caps_queries) {
+            if_info_t *if_info;
+            interface_options *interface_opts;
+            cap_device_open_status open_status;
+            gchar *open_status_str;
+            for (GList *if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
+                if_info = (if_info_t *)if_entry->data;
+
+                interface_opts = interface_opts_from_if_info(&global_capture_opts, if_info);
+
+                if_info->caps = get_if_capabilities(interface_opts, &open_status, &open_status_str);
+
+                if (!machine_readable) {
+                    if (if_info->caps == NULL) {
+                        cmdarg_err("The capabilities of the capture device "
+                                    "\"%s\" could not be obtained (%s).\n%s",
+                                    interface_opts->name, open_status_str,
+                                    get_pcap_failure_secondary_error_message(open_status, open_status_str));
+                        g_free(open_status_str);
+                        /* Break after one error, as when printing selected
+                         * interface capabilities. (XXX: We could print all
+                         * the primary status strings, and only the unique
+                         * set of secondary messages / suggestions; printing
+                         * the same long secondary error is a lot.)
+                         */
+                        interface_opts_free(interface_opts);
+                        g_free(interface_opts);
+                        break;
+                    } else {
+                        status = capture_opts_print_if_capabilities(if_info->caps, interface_opts, caps_queries);
+                        if (status != 0) {
+                            interface_opts_free(interface_opts);
+                            g_free(interface_opts);
+                            break;
+                        }
+                    }
+                } else {
+                    if (if_info->caps == NULL) {
+                        if_info->caps = g_new0(if_capabilities_t, 1);
+                        if_info->caps->primary_msg = open_status_str;
+                        if_info->caps->secondary_msg = g_strdup(get_pcap_failure_secondary_error_message(open_status, open_status_str));
+                    }
+                    if_info->caps->status = open_status;
+                }
+
+                interface_opts_free(interface_opts);
+                g_free(interface_opts);
+            }
+        }
+
+        if (machine_readable) {
+            status = print_machine_readable_interfaces(if_list, caps_queries);
         }
         free_interface_list(if_list);
         exit_main(status);
@@ -5924,15 +5997,16 @@ main(int argc, char *argv[])
 
                 open_status = CAP_DEVICE_OPEN_NO_ERR;
                 caps = get_if_capabilities(interface_opts, &open_status, &open_status_str);
-                json_dumper_set_member_name(&dumper, "status");
-                json_dumper_value_anyf(&dumper, "%i", open_status);
                 if (caps == NULL) {
+                    json_dumper_set_member_name(&dumper, "status");
+                    json_dumper_value_anyf(&dumper, "%i", open_status);
                     json_dumper_set_member_name(&dumper, "primary_msg");
                     json_dumper_value_string(&dumper, open_status_str);
                     json_dumper_set_member_name(&dumper, "secondary_msg");
                     json_dumper_value_string(&dumper, get_pcap_failure_secondary_error_message(open_status, open_status_str));
                     g_free(open_status_str);
                 } else {
+                    caps->status = open_status;
                     print_machine_readable_if_capabilities(&dumper, caps, caps_queries);
                     free_if_capabilities(caps);
                 }

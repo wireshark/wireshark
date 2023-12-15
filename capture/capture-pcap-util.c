@@ -440,7 +440,48 @@ if_info_free(if_info_t *if_info)
 	g_free(if_info->vendor_description);
 	g_free(if_info->extcap);
 	g_slist_free_full(if_info->addrs, g_free);
+	if (if_info->caps) {
+		free_if_capabilities(if_info->caps);
+	}
 	g_free(if_info);
+}
+
+static void*
+copy_linktype_cb(const void *data, void *user_data _U_)
+{
+	data_link_info_t *linktype_info = (data_link_info_t *)data;
+
+	data_link_info_t *ret = g_new(data_link_info_t, 1);
+	ret->name = g_strdup(linktype_info->name);
+	ret->description = g_strdup(linktype_info->description);
+	return ret;
+}
+
+static void*
+copy_timestamp_cb(const void *data, void *user_data _U_)
+{
+	timestamp_info_t *timestamp_info = (timestamp_info_t *)data;
+
+	timestamp_info_t *ret = g_new(timestamp_info_t, 1);
+	ret->name = g_strdup(timestamp_info->name);
+	ret->description = g_strdup(timestamp_info->description);
+	return ret;
+}
+
+static if_capabilities_t *
+if_capabilities_copy(const if_capabilities_t *caps)
+{
+	if (caps == NULL) return NULL;
+
+	if_capabilities_t *ret = g_new(if_capabilities_t, 1);
+	ret->can_set_rfmon = caps->can_set_rfmon;
+	ret->data_link_types = g_list_copy_deep(caps->data_link_types, copy_linktype_cb, NULL);
+	ret->timestamp_types = g_list_copy_deep(caps->timestamp_types, copy_timestamp_cb, NULL);
+	ret->data_link_types_rfmon = g_list_copy_deep(caps->data_link_types_rfmon, copy_linktype_cb, NULL);
+	ret->primary_msg = g_strdup(caps->primary_msg);
+	ret->secondary_msg = g_strdup(caps->secondary_msg);
+
+	return ret;
 }
 
 if_info_t *
@@ -456,6 +497,7 @@ if_info_copy(const if_info_t *if_info)
 	new_if_info->type = if_info->type;
 	new_if_info->loopback = if_info->loopback;
 	new_if_info->extcap = g_strdup(if_info->extcap);
+	new_if_info->caps = if_capabilities_copy(if_info->caps);
 
 	return new_if_info;
 }
@@ -597,6 +639,7 @@ if_info_new(const char *name, const char *description, bool loopback)
 #endif
 	if_info->loopback = loopback;
 	if_info->addrs = NULL;
+	if_info->caps = NULL;
 	return if_info;
 }
 

@@ -372,7 +372,7 @@ enum caps_query {
 /* print interface capabilities, including link layer types */
 extern int
 capture_opts_print_if_capabilities(if_capabilities_t *caps,
-                                   interface_options *interface_opts,
+                                   const interface_options *interface_opts,
                                    int queries);
 
 /* print list of interfaces */
@@ -394,6 +394,12 @@ capture_opts_default_iface_if_necessary(capture_options *capture_opts,
 
 extern void
 capture_opts_del_iface(capture_options *capture_opts, guint if_index);
+
+extern void
+interface_opts_free(interface_options *interface_opts);
+
+extern interface_options*
+interface_opts_from_if_info(capture_options *capture_opts, const if_info_t *if_info);
 
 extern void
 collect_ifaces(capture_options *capture_opts);
