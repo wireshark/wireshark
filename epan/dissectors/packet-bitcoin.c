@@ -915,7 +915,7 @@ dissect_bitcoin_msg_tx_common(tvbuff_t *tvb, guint32 offset, packet_info *pinfo,
    *   [ 4]  index              uint32_t
    *
    */
-  for (guint64 index = 0; index < in_count; index++)
+  for (guint64 idx = 0; idx < in_count; idx++)
   {
     proto_tree *subtree;
     proto_tree *prevtree;
