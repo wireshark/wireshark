@@ -447,8 +447,7 @@ static const fragment_items ssh_segment_items = {
 static const gchar *ssh_debug_file_name     = NULL;
 #endif
 
-// 29418/tcp: Gerrit Code Review
-#define TCP_RANGE_SSH  "22,29418"
+#define TCP_RANGE_SSH  "22"
 #define SCTP_PORT_SSH 22
 
 /* Message Numbers (from RFC 4250) (1-255) */
