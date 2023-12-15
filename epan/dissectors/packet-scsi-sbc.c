@@ -621,10 +621,11 @@ dissect_sbc_read16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 };
 
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "%u bytes (%u blocks) at LBA: %" PRIu64 "0x%08x ",
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%u bytes (%u blocks) at LBA: %" PRIu64,
             cdata->itlq->data_length,
             tvb_get_ntohl(tvb, offset+9),
-            tvb_get_ntoh64 (tvb, offset+1));
+            tvb_get_ntoh64(tvb, offset+1)
+        );
     }
 
     if (tree && isreq && iscdb) {
@@ -651,10 +652,11 @@ dissect_sbc_write16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     };
 
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "%u bytes (%u blocks) at LBA: % " PRIu64 "0x%08x ",
+        col_append_fstr (pinfo->cinfo, COL_INFO, "%u bytes (%u blocks) at LBA: %" PRIu64,
             cdata->itlq->data_length,
             tvb_get_ntohl(tvb, offset+9),
-            tvb_get_ntoh64 (tvb, offset+1));
+            tvb_get_ntoh64 (tvb, offset+1)
+        );
     }
 
     if (tree && isreq && iscdb) {
