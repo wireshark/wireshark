@@ -1001,7 +1001,7 @@ dissect_sbc_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     guint64     totalSizeBytes64;
     double      totalSizeBytes, totalSizeAbbrev;
     const char* binaryPrefixes[] = { "B", "KiB", "MiB", "GiB", "TiB", "PiB" };
-    gint        index = 0;
+    gint        idx = 0;
 
     if (!tree)
         return;
@@ -1020,15 +1020,15 @@ dissect_sbc_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
         totalSizeBytes = (double)totalSizeBytes64;
         totalSizeAbbrev = totalSizeBytes;
 
-        while (totalSizeAbbrev >= 1024 && index < 5) {
+        while (totalSizeAbbrev >= 1024 && idx < 5) {
             totalSizeAbbrev /= 1024.0;
-            index++;
+            idx++;
         }
         proto_tree_add_double_format(tree, hf_scsi_sbc_read_capacity, tvb, 0, 0,
             totalSizeBytes, "Read capacity: %.0f bytes (%.2f %s)",
-            totalSizeBytes, totalSizeAbbrev, binaryPrefixes[index]);
+            totalSizeBytes, totalSizeAbbrev, binaryPrefixes[idx]);
         col_prepend_fstr(pinfo->cinfo, COL_INFO, "%.2f %s ",
-            totalSizeAbbrev, binaryPrefixes[index]);
+            totalSizeAbbrev, binaryPrefixes[idx]);
     }
 }
 
