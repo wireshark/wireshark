@@ -823,10 +823,10 @@ proto_register_rdpudp(void) {
 		 {"Flags", "rdpudp.flags", FT_UINT16, BASE_HEX, NULL, 0xfff, NULL, HFILL}
 	  },
 	  { &hf_rdpudp2_flag_ack,
-		{"Ack", "rdpudp.flags.ack", FT_UINT16, BASE_HEX, NULL, RDPUDP2_ACK, NULL, HFILL}
+		{"Ack", "rdpudp.flags.ack", FT_BOOLEAN, 16, NULL, RDPUDP2_ACK, NULL, HFILL}
 	  },
 	  { &hf_rdpudp2_flag_data,
-		{"Data", "rdpudp.flags.data", FT_UINT16, BASE_HEX, NULL, RDPUDP2_DATA, NULL, HFILL}
+		{"Data", "rdpudp.flags.data", FT_BOOLEAN, 16, NULL, RDPUDP2_DATA, NULL, HFILL}
 	  },
 	  { &hf_rdpudp2_flag_ackvec,
 		{"AckVec", "rdpudp.flags.ackvec", FT_UINT16, BASE_HEX, NULL, RDPUDP2_ACKVEC, NULL, HFILL}
