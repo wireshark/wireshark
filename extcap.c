@@ -566,7 +566,7 @@ static gboolean cb_dlt(extcap_callback_info_t cb_info)
     }
 
     /* Check to see if we built a list */
-    if (linktype_list != NULL && cb_info.data != NULL)
+    if (linktype_list != NULL)
     {
         caps->data_link_types = linktype_list;
     }
@@ -579,7 +579,20 @@ static gboolean cb_dlt(extcap_callback_info_t cb_info)
             *(cb_info.err_str) = g_strdup(caps->primary_msg);
         }
     }
-    *(if_capabilities_t **) cb_info.data = caps;
+    if (cb_info.data != NULL)
+    {
+        *(if_capabilities_t **) cb_info.data = caps;
+    } else
+    {
+#ifdef HAVE_LIBPCAP
+        free_if_capabilities(caps);
+#else
+        /* TODO: free_if_capabilities is in capture-pcap-util.c and doesn't
+         * get defined unless HAVE_LIBPCAP is set.
+         */
+        g_free(caps);
+#endif
+    }
 
     extcap_free_dlts(temp);
 
