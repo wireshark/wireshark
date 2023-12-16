@@ -634,7 +634,6 @@ dissect_bitcoin_msg_addrv2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     guint64     services;
     guint8      network;
     guint64     address_length;
-    guint32     item_start_offset = offset;
 
     sti = proto_tree_add_item(tree, hf_msg_addrv2_item, tvb, offset, -1, ENC_NA);
     subtree = proto_item_add_subtree(sti, ett_addr_list);
@@ -682,7 +681,7 @@ dissect_bitcoin_msg_addrv2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     proto_tree_add_item(subtree, hf_msg_addrv2_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_item_set_len(sti, offset - item_start_offset);
+    proto_item_set_end(sti, tvb, offset);
   }
 
   return offset;
@@ -1011,7 +1010,6 @@ dissect_bitcoin_msg_tx_common(tvbuff_t *tvb, guint32 offset, packet_info *pinfo,
     */
     for (; in_count > 0; in_count--)
     {
-      guint32 witness_start_offset = offset;
       proto_item *ti;
       proto_tree *subtree;
 
@@ -1051,7 +1049,7 @@ dissect_bitcoin_msg_tx_common(tvbuff_t *tvb, guint32 offset, packet_info *pinfo,
         offset += component_size;
       }
 
-      proto_item_set_len(ti, offset - witness_start_offset);
+      proto_item_set_end(ti, tvb, offset);
     }
   }
 
