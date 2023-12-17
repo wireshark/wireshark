@@ -101,6 +101,11 @@ static char *dummy_control_id;
 static const char *sync_pipe_signame(int);
 #endif
 
+/* We use this pipe buffer size for both the sync message pipe and the
+ * data pipe. Ensure that it's large enough for the indicator and header
+ * plus maximum message size.
+ */
+#define PIPE_BUF_SIZE (SP_MAX_MSG_LEN+4)
 
 static gboolean sync_pipe_input_cb(GIOChannel *pipe_io, capture_session *cap_session);
 static int sync_pipe_wait_for_child(ws_process_id fork_child, char **msgp);
@@ -269,9 +274,7 @@ pipe_io_cb(GIOChannel *pipe_io, GIOCondition condition _U_, void * user_data)
  * On failure, *msg points to an error message for the failure, and -1 is
  * returned, in which case *msg must be freed with g_free().
  */
-/* XXX - assumes PIPE_BUF_SIZE > SP_MAX_MSG_LEN */
 #define ARGV_NUMBER_LEN 24
-#define PIPE_BUF_SIZE 5120
 static int
 #ifdef _WIN32
 sync_pipe_open_command(char* const argv[], int *data_read_fd,
@@ -960,8 +963,6 @@ sync_pipe_close_command(int *data_read_fd, GIOChannel *message_read_io,
  * NULL, and -1 is returned; *primary_msg, and *secondary_msg if not NULL,
  * must be freed with g_free().
  */
-/* XXX - assumes PIPE_BUF_SIZE > SP_MAX_MSG_LEN */
-#define PIPE_BUF_SIZE 5120
 static int
 sync_pipe_run_command_actual(char* const argv[], char **data, char **primary_msg,
                       char **secondary_msg,  void(*update_cb)(void))
@@ -1402,6 +1403,7 @@ sync_if_list_capabilities_open(GList *if_queries,
     free_argv(argv, argc);
     return ret;
 }
+
 /*
  * Start getting interface statistics using dumpcap.  On success, read_fd
  * contains the file descriptor for the pipe's stdout, *msg is unchanged,
