@@ -10727,6 +10727,8 @@ static const value_string usb_products_vals[] = {
     { 0x054c0d01, "Sony NW-ZX500" },
     { 0x054c0d0f, "Sony Alpha-A6600" },
     { 0x054c0d10, "Sony Alpha-A6600" },
+    { 0x054c0d13, "Sony Alpha-A6100" },
+    { 0x054c0d14, "Sony Alpha-A6100" },
     { 0x054c0d17, "Sony DSC-A7S III" },
     { 0x054c0d18, "Sony DSC-A7S III" },
     { 0x054c0d1c, "Sony ILCE-1" },
