@@ -69,157 +69,6 @@ static GList * append_remote_list(GList *iflist)
 }
 #endif
 
-/**
- * Fetch the interface list from a child process (dumpcap).
- *
- * @return A GList containing if_info_t structs if successful, NULL (with err and possibly err_str set) otherwise.
- *
- */
-
-GList *
-capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
-{
-    int        ret;
-    GList     *if_list = NULL;
-    int        i, j;
-    char      *data, *primary_msg, *secondary_msg;
-    char      *name, *addr;
-    char      *val_s;
-    double     val_d;
-    bool       loopback;
-    if_info_t *if_info;
-    interface_type type;
-    if_addr_t *if_addr;
-    jsmntok_t *tokens, *if_tok, *addrs_tok, *cur_tok;
-
-    *err = 0;
-    if (err_str) {
-        *err_str = NULL;
-    }
-
-    /* Try to get the local interface list */
-    ret = sync_interface_list_open(&data, &primary_msg, &secondary_msg, update_cb);
-    if (ret != 0) {
-        ws_info("sync_interface_list_open() failed. %s (%s)",
-                  primary_msg ? primary_msg : "no message",
-                  secondary_msg ? secondary_msg : "no secondary message");
-        if (err_str) {
-            *err_str = primary_msg;
-        } else {
-            g_free(primary_msg);
-        }
-        g_free(secondary_msg);
-        *err = CANT_GET_INTERFACE_LIST;
-
-        /*
-         * Add the extcap interfaces that can exist; they may exist
-         * even if no native interfaces have been found.
-         */
-        ws_debug("Loading External Capture Interface List ...");
-        if_list = append_extcap_interface_list(if_list);
-        return if_list;
-    }
-
-    int num_tokens = json_parse(data, NULL, 0);
-    if (num_tokens <= 0) {
-        ws_info("Capture Interface List failed with invalid JSON.");
-        if (err_str) {
-            *err_str = g_strdup("Dumpcap returned bad JSON.");
-        }
-        g_free(data);
-        return NULL;
-    }
-
-    tokens = wmem_alloc_array(NULL, jsmntok_t, num_tokens);
-    if (json_parse(data, tokens, num_tokens) <= 0) {
-        ws_info("Capture Interface List failed with invalid JSON.");
-        if (err_str) {
-            *err_str = g_strdup("Dumpcap returned bad JSON.");
-        }
-        wmem_free(NULL, tokens);
-        g_free(data);
-        return NULL;
-    }
-
-    for (i = 0; i < json_get_array_len(tokens); i++) {
-        if_tok = json_get_array_index(tokens, i);
-        if (if_tok && if_tok->type == JSMN_OBJECT) {
-            if_tok++; // Key
-            name = g_strndup(&data[if_tok->start], if_tok->end - if_tok->start);
-            if (!json_decode_string_inplace(name)) {
-                g_free(name);
-                continue;
-            }
-            if_tok++;
-
-            if (!json_get_double(data, if_tok, "type", &val_d)) {
-                g_free(name);
-                continue;
-            }
-            type = (interface_type)val_d;
-
-            if (!json_get_boolean(data, if_tok, "loopback", &loopback)) {
-                g_free(name);
-                continue;
-            }
-
-            if_info = g_new0(if_info_t,1);
-            if_info->name = name;
-            val_s = json_get_string(data, if_tok, "friendly_name");
-            if_info->friendly_name = g_strdup(val_s);
-            val_s = json_get_string(data, if_tok, "vendor_description");
-            if_info->vendor_description = g_strdup(val_s);
-            if_info->type = type;
-
-            addrs_tok = json_get_array(data, if_tok, "addrs");
-            for (cur_tok = addrs_tok + 1, j = 0; j < json_get_array_len(addrs_tok); cur_tok++, j++) {
-                addr = g_strndup(&data[cur_tok->start], cur_tok->end - cur_tok->start);
-                if (json_decode_string_inplace(addr)) {
-                    if_addr = g_new0(if_addr_t, 1);
-                    if (ws_inet_pton4(addr, &if_addr->addr.ip4_addr)) {
-                        if_addr->ifat_type = IF_AT_IPv4;
-                    } else if (ws_inet_pton6(addr, (ws_in6_addr *)&if_addr->addr.ip6_addr)) {
-                        if_addr->ifat_type = IF_AT_IPv6;
-                    } else {
-                        g_free(if_addr);
-                        if_addr = NULL;
-                    }
-                    if (if_addr) {
-                        if_info->addrs = g_slist_append(if_info->addrs, if_addr);
-                    }
-                }
-                g_free(addr);
-            }
-
-            if_info->loopback = loopback;
-
-            val_s = json_get_string(data, if_tok, "extcap");
-            /* if_info->extcap is never NULL, unlike the friendly name
-             * and vendor description. (see if_info_new)
-             */
-            if_info->extcap = val_s ? g_strdup(val_s) : "";
-
-            if_list = g_list_append(if_list, if_info);
-        }
-    }
-
-    wmem_free(NULL, tokens);
-    g_free(data);
-
-#ifdef HAVE_PCAP_REMOTE
-    /* Add the remote interface list */
-    if (remote_interface_list && g_list_length(remote_interface_list) > 0) {
-        if_list = append_remote_list(if_list);
-    }
-#endif
-
-    /* Add the extcap interfaces after the native and remote interfaces */
-    ws_debug("Loading External Capture Interface List ...");
-    if_list = append_extcap_interface_list(if_list);
-
-    return if_list;
-}
-
 static if_capabilities_t *
 deserialize_if_capability(char* data, jsmntok_t *inf_tok)
 {
@@ -353,6 +202,168 @@ deserialize_if_capability(char* data, jsmntok_t *inf_tok)
     caps->timestamp_types = timestamp_list;
 
     return caps;
+}
+
+static GList *
+deserialize_interface_list(char *data, int *err, char **err_str)
+{
+    int        i, j;
+    char      *name, *addr;
+    char      *val_s;
+    double     val_d;
+    bool       loopback;
+    if_info_t *if_info;
+    interface_type type;
+    if_addr_t *if_addr;
+    jsmntok_t *tokens, *if_tok, *addrs_tok, *cur_tok;
+    GList     *if_list = NULL;
+
+    int num_tokens = json_parse(data, NULL, 0);
+    if (num_tokens <= 0) {
+        ws_info("Capture Interface List failed with invalid JSON.");
+        if (err_str) {
+            *err_str = g_strdup("Dumpcap returned bad JSON.");
+        }
+        g_free(data);
+        *err = CANT_GET_INTERFACE_LIST;
+        return NULL;
+    }
+
+    tokens = wmem_alloc_array(NULL, jsmntok_t, num_tokens);
+    if (json_parse(data, tokens, num_tokens) <= 0) {
+        ws_info("Capture Interface List failed with invalid JSON.");
+        if (err_str) {
+            *err_str = g_strdup("Dumpcap returned bad JSON.");
+        }
+        wmem_free(NULL, tokens);
+        g_free(data);
+        *err = CANT_GET_INTERFACE_LIST;
+        return NULL;
+    }
+
+    for (i = 0; i < json_get_array_len(tokens); i++) {
+        if_tok = json_get_array_index(tokens, i);
+        if (if_tok && if_tok->type == JSMN_OBJECT) {
+            if_tok++; // Key
+            name = g_strndup(&data[if_tok->start], if_tok->end - if_tok->start);
+            if (!json_decode_string_inplace(name)) {
+                g_free(name);
+                continue;
+            }
+            if_tok++;
+
+            if (!json_get_double(data, if_tok, "type", &val_d)) {
+                g_free(name);
+                continue;
+            }
+            type = (interface_type)val_d;
+
+            if (!json_get_boolean(data, if_tok, "loopback", &loopback)) {
+                g_free(name);
+                continue;
+            }
+
+            if_info = g_new0(if_info_t,1);
+            if_info->name = name;
+            val_s = json_get_string(data, if_tok, "friendly_name");
+            if_info->friendly_name = g_strdup(val_s);
+            val_s = json_get_string(data, if_tok, "vendor_description");
+            if_info->vendor_description = g_strdup(val_s);
+            if_info->type = type;
+
+            addrs_tok = json_get_array(data, if_tok, "addrs");
+            for (cur_tok = addrs_tok + 1, j = 0; j < json_get_array_len(addrs_tok); cur_tok++, j++) {
+                addr = g_strndup(&data[cur_tok->start], cur_tok->end - cur_tok->start);
+                if (json_decode_string_inplace(addr)) {
+                    if_addr = g_new0(if_addr_t, 1);
+                    if (ws_inet_pton4(addr, &if_addr->addr.ip4_addr)) {
+                        if_addr->ifat_type = IF_AT_IPv4;
+                    } else if (ws_inet_pton6(addr, (ws_in6_addr *)&if_addr->addr.ip6_addr)) {
+                        if_addr->ifat_type = IF_AT_IPv6;
+                    } else {
+                        g_free(if_addr);
+                        if_addr = NULL;
+                    }
+                    if (if_addr) {
+                        if_info->addrs = g_slist_append(if_info->addrs, if_addr);
+                    }
+                }
+                g_free(addr);
+            }
+
+            if_info->loopback = loopback;
+
+            val_s = json_get_string(data, if_tok, "extcap");
+            /* if_info->extcap is never NULL, unlike the friendly name
+             * and vendor description. (see if_info_new)
+             */
+            if_info->extcap = val_s ? g_strdup(val_s) : "";
+
+            if_list = g_list_append(if_list, if_info);
+        }
+    }
+
+    wmem_free(NULL, tokens);
+    g_free(data);
+
+    return if_list;
+}
+
+/**
+ * Fetch the interface list from a child process (dumpcap).
+ *
+ * @return A GList containing if_info_t structs if successful, NULL (with err and possibly err_str set) otherwise.
+ *
+ */
+GList *
+capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
+{
+    int        ret;
+    GList     *if_list = NULL;
+    char      *data, *primary_msg, *secondary_msg;
+
+    *err = 0;
+    if (err_str) {
+        *err_str = NULL;
+    }
+
+    /* Try to get the local interface list */
+    ret = sync_interface_list_open(&data, &primary_msg, &secondary_msg, update_cb);
+    if (ret != 0) {
+        ws_info("sync_interface_list_open() failed. %s (%s)",
+                  primary_msg ? primary_msg : "no message",
+                  secondary_msg ? secondary_msg : "no secondary message");
+        if (err_str) {
+            *err_str = primary_msg;
+        } else {
+            g_free(primary_msg);
+        }
+        g_free(secondary_msg);
+        *err = CANT_GET_INTERFACE_LIST;
+
+        /*
+         * Add the extcap interfaces that can exist; they may exist
+         * even if no native interfaces have been found.
+         */
+        ws_debug("Loading External Capture Interface List ...");
+        if_list = append_extcap_interface_list(if_list);
+        return if_list;
+    }
+
+    if_list = deserialize_interface_list(data, err, err_str);
+
+#ifdef HAVE_PCAP_REMOTE
+    /* Add the remote interface list */
+    if (remote_interface_list && g_list_length(remote_interface_list) > 0) {
+        if_list = append_remote_list(if_list);
+    }
+#endif
+
+    /* Add the extcap interfaces after the native and remote interfaces */
+    ws_debug("Loading External Capture Interface List ...");
+    if_list = append_extcap_interface_list(if_list);
+
+    return if_list;
 }
 
 if_capabilities_t *
