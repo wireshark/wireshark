@@ -104,6 +104,10 @@ Wireshark 4.3.0 Release Notes
      • The personal binary plugins folder now has higher priority than
        the global folder.
 
+     • The binary plugins folder path no longer uses an X.Y version
+       component. Plugins are required to add the ABI version to the
+       file name.
+
   New Protocol Support
 
    EGNOS Message Server (EMS) file format, MAC NR Framed

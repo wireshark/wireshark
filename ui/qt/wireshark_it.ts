@@ -6030,12 +6030,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 <context>
     <name>LteMacStatisticsDialog</name>
     <message>
-        <source>LTE Mac Statistics</source>
-        <translation type="vanished">Statistiche Mac LTE</translation>
-    </message>
-    <message>
         <source>LTE/NR Mac Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statistiche Mac LTE/NR</translation>
     </message>
     <message>
         <source>Include SR frames in filter</source>
@@ -6339,12 +6335,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Numero di sequenza</translation>
     </message>
     <message>
-        <source>LTE RLC Graph (UE=%1 chan=%2%3 %4 - %5)</source>
-        <translation type="vanished">Grafico RLC LTE (UE=%1 can=%2%3 %4 - %5)</translation>
-    </message>
-    <message>
         <source>%1 RLC Graph (UE=%2 chan=%3%4 %5 - %6)</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafico RLC %1 (UE=%2 can=%3%4 %5 - %6)</translation>
     </message>
     <message>
         <source>LTE RLC Graph - no channel selected</source>
@@ -6402,12 +6394,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 <context>
     <name>LteRlcStatisticsDialog</name>
     <message>
-        <source>LTE RLC Statistics</source>
-        <translation type="vanished">Statistiche RLC LTE</translation>
-    </message>
-    <message>
         <source>LTE/NR RLC Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statistiche RLC LTE/NR</translation>
     </message>
     <message>
         <source>Include SR frames in filter</source>
@@ -7433,15 +7421,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Scope</source>
-        <translation type="unfinished"></translation>
+        <translation>Ambito</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Descrizione</translation>
+        <translation>Descrizione</translation>
     </message>
     <message>
         <source>Homepage</source>
-        <translation type="unfinished"></translation>
+        <translation>Pagina principale</translation>
     </message>
 </context>
 <context>
@@ -8344,11 +8332,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>LTE</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE</translation>
     </message>
     <message>
         <source>NR</source>
-        <translation type="unfinished"></translation>
+        <translation>NR</translation>
     </message>
     <message>
         <source>C-RNTI</source>
@@ -8372,7 +8360,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>RAT</source>
-        <translation type="unfinished"></translation>
+        <translation>RAT</translation>
     </message>
     <message>
         <source>UL Frames</source>
@@ -8600,17 +8588,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
 </context>
 <context>
-    <name>QObject::QObject</name>
-    <message>
-        <source>CCCH</source>
-        <translation type="vanished">CCCH</translation>
-    </message>
-</context>
-<context>
     <name>QObject::QObject::QObject</name>
     <message>
         <source>CCCH</source>
-        <translation type="unfinished">CCCH</translation>
+        <translation>CCCH</translation>
     </message>
 </context>
 <context>
@@ -14008,7 +13989,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;3GPP Uu</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;3GPP Uu</translation>
     </message>
     <message>
         <source>&amp;Wireless</source>
@@ -14469,10 +14450,6 @@ a:hover {
         <translation>&amp;GSM</translation>
     </message>
     <message>
-        <source>&amp;LTE</source>
-        <translation type="vanished">&amp;LTE</translation>
-    </message>
-    <message>
         <source>&amp;MTP3</source>
         <translation>&amp;MTP3</translation>
     </message>
@@ -14774,41 +14751,48 @@ a:hover {
     </message>
     <message>
         <source>Install plugin</source>
+        <translation>Installa plugin</translation>
+    </message>
+    <message>
+        <source>Binary plugin (*%1 *%1.[0-9]*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error removing the old plugin from the personal plugin folder. You may need to close Wireshark first and then manually remove the file &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Binary plugin (*%1)</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Plugin binario (*%1)</translation>
     </message>
     <message>
         <source>Plugins can execute arbitrary code as the current user. Make sure you trust it before installing.
 
 Continue installing the file &quot;%1&quot; to the personal plugin folder?</source>
-        <translation type="unfinished"></translation>
+        <translation>I plugin possono eseguire codice arbitrario come l&apos;utente corrente. Assicurati che sia affidabile prima di installarlo.
+
+Vuoi continuare l&apos;installazione del file &quot;%1&quot; nella cartella dei plugin personali?</translation>
     </message>
     <message>
         <source>Failed to create the directory: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The plugin already exists in the personal plugin folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile creare la cartella: %1</translation>
     </message>
     <message>
         <source>The file already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <oldsource>The plugin already exists in the personal plugin folder.</oldsource>
+        <translation type="unfinished">Il plugin esiste già nella cartella dei plugin personali.</translation>
     </message>
     <message>
         <source>Error removing the old plugin file from the personal plugin folder.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Errore durante la rimozione del vecchio file del plugin dalla cartella dei plugin personali.</translation>
     </message>
     <message>
         <source>Failed to copy the file to the destination: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia del file non riuscita nella destinazione: %1</translation>
     </message>
     <message>
         <source>Plugin &apos;%1&apos; installed successfully. You must restart the program to be able to use it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugin &apos;%1&apos; installato correttamente. È necessario riavviare il programma per poterlo utilizzare.</translation>
     </message>
     <message>
         <source>Show or hide the toolbar</source>
@@ -15019,7 +15003,7 @@ Continue installing the file &quot;%1&quot; to the personal plugin folder?</sour
     </message>
     <message>
         <source>Install Plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>Installa plugin</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>

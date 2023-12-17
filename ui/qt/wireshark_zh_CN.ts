@@ -6009,10 +6009,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>LteMacStatisticsDialog</name>
     <message>
-        <source>LTE Mac Statistics</source>
-        <translation type="vanished">LTE MAC 统计</translation>
-    </message>
-    <message>
         <source>LTE/NR Mac Statistics</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6318,10 +6314,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>序列号</translation>
     </message>
     <message>
-        <source>LTE RLC Graph (UE=%1 chan=%2%3 %4 - %5)</source>
-        <translation type="vanished">LTE RLC 图表 (UE=%1 chan=%2%3 %4 - %5)</translation>
-    </message>
-    <message>
         <source>%1 RLC Graph (UE=%2 chan=%3%4 %5 - %6)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6380,10 +6372,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 </context>
 <context>
     <name>LteRlcStatisticsDialog</name>
-    <message>
-        <source>LTE RLC Statistics</source>
-        <translation type="vanished">LTE RLC 统计</translation>
-    </message>
     <message>
         <source>LTE/NR RLC Statistics</source>
         <translation type="unfinished"></translation>
@@ -8553,13 +8541,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Browse…</source>
         <translation type="unfinished">浏览…</translation>
-    </message>
-</context>
-<context>
-    <name>QObject::QObject</name>
-    <message>
-        <source>CCCH</source>
-        <translation type="vanished">CCCH</translation>
     </message>
 </context>
 <context>
@@ -14683,7 +14664,11 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Binary plugin (*%1)</source>
+        <source>Binary plugin (*%1 *%1.[0-9]*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error removing the old plugin from the personal plugin folder. You may need to close Wireshark first and then manually remove the file &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14697,15 +14682,8 @@ Continue installing the file &quot;%1&quot; to the personal plugin folder?</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The plugin already exists in the personal plugin folder.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>The file already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error removing the old plugin file from the personal plugin folder.</source>
+        <oldsource>The plugin already exists in the personal plugin folder.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -6013,10 +6013,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>LteMacStatisticsDialog</name>
     <message>
-        <source>LTE Mac Statistics</source>
-        <translation type="vanished">LTE Mac İstatistikleri</translation>
-    </message>
-    <message>
         <source>LTE/NR Mac Statistics</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6322,10 +6318,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Sıra Numarası</translation>
     </message>
     <message>
-        <source>LTE RLC Graph (UE=%1 chan=%2%3 %4 - %5)</source>
-        <translation type="vanished">LTE RLC Grafiği (UE=%1 chan=%2%3 %4 - %5)</translation>
-    </message>
-    <message>
         <source>%1 RLC Graph (UE=%2 chan=%3%4 %5 - %6)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6384,10 +6376,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 </context>
 <context>
     <name>LteRlcStatisticsDialog</name>
-    <message>
-        <source>LTE RLC Statistics</source>
-        <translation type="vanished">LTE RLC İstatistikleri</translation>
-    </message>
     <message>
         <source>LTE/NR RLC Statistics</source>
         <translation type="unfinished"></translation>
@@ -8570,13 +8558,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Browse…</source>
         <translation>Gözat…</translation>
-    </message>
-</context>
-<context>
-    <name>QObject::QObject</name>
-    <message>
-        <source>CCCH</source>
-        <translation type="vanished">CCCH</translation>
     </message>
 </context>
 <context>
@@ -14442,10 +14423,6 @@ a:üzerine gelin{
         <translation>&amp;GSM</translation>
     </message>
     <message>
-        <source>&amp;LTE</source>
-        <translation type="vanished">&amp;LTE</translation>
-    </message>
-    <message>
         <source>&amp;MTP3</source>
         <translation>&amp;MTP3</translation>
     </message>
@@ -14750,7 +14727,11 @@ a:üzerine gelin{
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Binary plugin (*%1)</source>
+        <source>Binary plugin (*%1 *%1.[0-9]*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error removing the old plugin from the personal plugin folder. You may need to close Wireshark first and then manually remove the file &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14764,15 +14745,8 @@ Continue installing the file &quot;%1&quot; to the personal plugin folder?</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The plugin already exists in the personal plugin folder.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>The file already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error removing the old plugin file from the personal plugin folder.</source>
+        <oldsource>The plugin already exists in the personal plugin folder.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
