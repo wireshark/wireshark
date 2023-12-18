@@ -122,6 +122,9 @@ files = []
 all_urls = set()
 
 def find_links_in_file(filename):
+    if os.path.isdir(filename):
+        return
+
     with open(filename, 'r', encoding="utf8") as f:
         for line_number, line in enumerate(f, start=1):
             # TODO: not matching
@@ -146,8 +149,8 @@ def find_links_in_folder(folder):
     # Look at files in sorted order, to give some idea of how far through it
     # is.
     for filename in sorted(os.listdir(folder)):
-        if filename.endswith('.c'):
-            global links
+        global links
+        if filename.endswith('.c') or filename.endswith('.adoc'):
             find_links_in_file(os.path.join(folder, filename))
 
 
@@ -199,6 +202,9 @@ parser.add_argument('--open', action='store_true',
                     help='check open files')
 parser.add_argument('--verbose', action='store_true',
                     help='when enabled, show more output')
+parser.add_argument('--docs', action='store_true',
+                    help='when enabled, also check document folders')
+
 
 args = parser.parse_args()
 
@@ -246,10 +252,14 @@ elif args.open:
         if f not in files:
             find_links_in_file(f)
             files.append(f)
+elif args.docs:
+    # Find links from doc folder(s)
+    find_links_in_folder(os.path.join(os.path.dirname(__file__), '..', 'doc'))
+    find_links_in_folder(os.path.join(os.path.dirname(__file__), '..', 'docbook'))
+
 else:
     # Find links from dissector folder.
-    find_links_in_folder(os.path.join(os.path.dirname(
-        __file__), '..', 'epan', 'dissectors'))
+    find_links_in_folder(os.path.join(os.path.dirname(__file__), '..', 'epan', 'dissectors'))
 
 
 # If scanning a subset of files, list them here.

@@ -107,7 +107,7 @@ and disadvantages:
 
 == WebHelp
 
-https://en.wikipedia.org/wiki/Web_help[WebHelp] has three main
+https://en.wikipedia.org/wiki/Webhelp[WebHelp] has three main
 dependencies:
 
 - DocBook XSL, including...

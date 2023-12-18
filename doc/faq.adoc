@@ -668,7 +668,7 @@ that name in the "Interface:" field and capturing on that device.
 If the attempt to capture on it succeeds, the interface is somehow not
 being reported by the mechanism Wireshark uses to get a list of
 interfaces. Try listing the interfaces with WinDump; see
-https://www.windump.org/[the WinDump Web site] for information on using
+https://www.winpcap.org/windump/[the WinDump Web site] for information on using
 WinDump.
 
 You would run WinDump with the `-D` flag; if it lists the interface,
@@ -693,7 +693,7 @@ If not, then see {npcap-main-url}[the main Npcap page] - check the "Patches, Bug
 
 If you are having trouble capturing on a particular network interface,
 first try capturing on that device with WinDump; see
-https://www.windump.org/[the WinDump Web site] for information on using
+https://www.winpcap.org/windump/[the WinDump Web site] for information on using
 WinDump.
 
 If you can capture on the interface with WinDump, send mail to
