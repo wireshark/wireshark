@@ -13,6 +13,24 @@
 
 #include "cfile.h"
 
+const nstime_t *
+cap_file_provider_get_frame_ts(struct packet_provider_data *prov, guint32 frame_num)
+{
+    const frame_data *fd = NULL;
+
+    if (prov->ref && prov->ref->num == frame_num) {
+        fd = prov->ref;
+    } else if (prov->prev_dis && prov->prev_dis->num == frame_num) {
+        fd = prov->prev_dis;
+    } else if (prov->prev_cap && prov->prev_cap->num == frame_num) {
+        fd = prov->prev_cap;
+    } else if (prov->frames) {
+        fd = frame_data_sequence_find(prov->frames, frame_num);
+    }
+
+    return (fd && fd->has_ts) ? &fd->abs_ts : NULL;
+}
+
 static int
 frame_cmp(gconstpointer a, gconstpointer b, gpointer user_data _U_)
 {

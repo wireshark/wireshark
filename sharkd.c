@@ -213,28 +213,11 @@ clean_exit:
     return ret;
 }
 
-static const nstime_t *
-sharkd_get_frame_ts(struct packet_provider_data *prov, guint32 frame_num)
-{
-    const frame_data *fd = NULL;
-    if (prov->ref && prov->ref->num == frame_num) {
-        fd = prov->ref;
-    } else if (prov->prev_dis && prov->prev_dis->num == frame_num) {
-        fd = prov->prev_dis;
-    } else if (prov->prev_cap && prov->prev_cap->num == frame_num) {
-        fd = prov->prev_cap;
-    } else if (prov->frames) {
-        fd = frame_data_sequence_find(prov->frames, frame_num);
-    }
-
-    return (fd && fd->has_ts) ? &fd->abs_ts : NULL;
-}
-
 static epan_t *
 sharkd_epan_new(capture_file *cf)
 {
     static const struct packet_provider_funcs funcs = {
-        sharkd_get_frame_ts,
+        cap_file_provider_get_frame_ts,
         cap_file_provider_get_interface_name,
         cap_file_provider_get_interface_description,
         cap_file_provider_get_modified_block

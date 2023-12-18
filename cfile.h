@@ -131,6 +131,7 @@ typedef struct _capture_file {
 
 extern void cap_file_init(capture_file *cf);
 
+const nstime_t *cap_file_provider_get_frame_ts(struct packet_provider_data *prov, guint32 frame_num);
 const char *cap_file_provider_get_interface_name(struct packet_provider_data *prov, guint32 interface_id, unsigned section_number);
 const char *cap_file_provider_get_interface_description(struct packet_provider_data *prov, guint32 interface_id, unsigned section_number);
 wtap_block_t cap_file_provider_get_modified_block(struct packet_provider_data *prov, const frame_data *fd);

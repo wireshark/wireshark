@@ -2744,28 +2744,11 @@ clean_exit:
 gboolean loop_running = FALSE;
 guint32 packet_count = 0;
 
-static const nstime_t *
-tshark_get_frame_ts(struct packet_provider_data *prov, guint32 frame_num)
-{
-    const frame_data *fd = NULL;
-    if (prov->ref && prov->ref->num == frame_num) {
-        fd = prov->ref;
-    } else if (prov->prev_dis && prov->prev_dis->num == frame_num) {
-        fd = prov->prev_dis;
-    } else if (prov->prev_cap && prov->prev_cap->num == frame_num) {
-        fd = prov->prev_cap;
-    } else if (prov->frames) {
-        fd = frame_data_sequence_find(prov->frames, frame_num);
-    }
-
-    return (fd && fd->has_ts) ? &fd->abs_ts : NULL;
-}
-
 static epan_t *
 tshark_epan_new(capture_file *cf)
 {
     static const struct packet_provider_funcs funcs = {
-        tshark_get_frame_ts,
+        cap_file_provider_get_frame_ts,
         cap_file_provider_get_interface_name,
         cap_file_provider_get_interface_description,
         NULL,

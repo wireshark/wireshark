@@ -974,23 +974,6 @@ clean_exit:
     return exit_status;
 }
 
-static const nstime_t *
-tfshark_get_frame_ts(struct packet_provider_data *prov, guint32 frame_num)
-{
-    const frame_data *fd = NULL;
-    if (prov->ref && prov->ref->num == frame_num) {
-        fd = prov->ref;
-    } else if (prov->prev_dis && prov->prev_dis->num == frame_num) {
-        fd = prov->prev_dis;
-    } else if (prov->prev_cap && prov->prev_cap->num == frame_num) {
-        fd = prov->prev_cap;
-    } else if (prov->frames) {
-        fd = frame_data_sequence_find(prov->frames, frame_num);
-    }
-
-    return (fd && fd->has_ts) ? &fd->abs_ts : NULL;
-}
-
 static const char *
 no_interface_name(struct packet_provider_data *prov _U_, guint32 interface_id _U_, unsigned section_number _U_)
 {
@@ -1001,7 +984,8 @@ static epan_t *
 tfshark_epan_new(capture_file *cf)
 {
     static const struct packet_provider_funcs funcs = {
-        tfshark_get_frame_ts,
+        /* XXX - there should be no need for time stamps */
+        cap_file_provider_get_frame_ts,
         no_interface_name,
         NULL,
         NULL,
