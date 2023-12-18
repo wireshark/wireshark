@@ -28,6 +28,7 @@
 #include <capture/capture_sync.h>
 #include "ui/capture_info.h"
 #include "ui/capture_ui_utils.h"
+#include "ui/iface_lists.h"
 #include "ui/util.h"
 #include "ui/urls.h"
 #include "capture/capture-pcap-util.h"
@@ -895,6 +896,84 @@ capture_stat_start(capture_options *capture_opts)
         ws_warning("%s", msg);
         g_free(msg); /* XXX: should we display this to the user via the GUI? */
     }
+    return sc;
+}
+
+if_stat_cache_t *
+capture_interface_stat_start(capture_options *capture_opts _U_, GList **if_list)
+{
+    int stat_fd;
+    ws_process_id fork_child;
+    gchar *msg;
+    if_stat_cache_t *sc = g_new0(if_stat_cache_t, 1);
+    if_stat_cache_item_t *sc_item;
+    char *data = NULL;
+
+    sc->stat_fd = -1;
+    sc->fork_child = WS_INVALID_PID;
+
+    /* Fire up dumpcap. */
+    /*
+     * XXX - on systems with BPF, the number of BPF devices limits the
+     * number of devices on which you can capture simultaneously.
+     *
+     * This means that
+     *
+     *    1) this might fail if you run out of BPF devices
+     *
+     * and
+     *
+     *    2) opening every interface could leave too few BPF devices
+     *       for *other* programs.
+     *
+     * It also means the system could end up getting a lot of traffic
+     * that it has to pass through the networking stack and capture
+     * mechanism, so opening all the devices and presenting packet
+     * counts might not always be a good idea.
+     */
+    int status;
+    status = sync_interface_stats_open(&stat_fd, &fork_child, &data, &msg, NULL);
+    /* In order to initialize the stat cache (below), we need to have
+     * filled in capture_opts->all_ifaces
+     *
+     * Note that the operation above can return a failed status but
+     * valid data, e.g. if dumpcap returns an interface list but none
+     * of them have permission to do a capture.
+     */
+    int err = 0;
+    char *err_msg;
+    *if_list = deserialize_interface_list(data, &err, &err_msg);
+    if (err != 0) {
+        ws_info("%s", err_msg);
+        g_free(err_msg);
+    }
+    if (status == 0) {
+        sc->stat_fd = stat_fd;
+        sc->fork_child = fork_child;
+
+        /* Initialize the cache */
+        for (GList *if_entry = *if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
+            if_info_t *if_info = (if_info_t*)if_entry->data;
+            /* We just got this list from dumpcap so it shouldn't
+             * contain stdin, pipes, extcaps, or remote interfaces
+             * list. We could test if_info->type and the name to
+             * exclude those types from the cache anyway, though.
+             */
+            sc_item = g_new0(if_stat_cache_item_t, 1);
+            ws_assert(if_info->name);
+            sc_item->name = g_strdup(if_info->name);
+            sc->cache_list = g_list_prepend(sc->cache_list, sc_item);
+        }
+    } else {
+        ws_warning("%s", msg);
+        g_free(msg); /* XXX: should we display this to the user via the GUI? */
+    }
+
+#ifdef HAVE_PCAP_REMOTE
+    *if_list = append_remote_list(*if_list);
+#endif
+
+    *if_list = append_extcap_interface_list(*if_list);
     return sc;
 }
 

@@ -68,6 +68,7 @@ public:
 
     void updateStatistic(unsigned int row);
 #ifdef HAVE_LIBPCAP
+    void setCache(if_stat_cache_t *stat_cache);
     void stopStatistic();
 #endif
 

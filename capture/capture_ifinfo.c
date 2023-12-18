@@ -33,7 +33,7 @@
 #ifdef HAVE_PCAP_REMOTE
 static GList *remote_interface_list = NULL;
 
-static GList * append_remote_list(GList *iflist)
+GList * append_remote_list(GList *iflist)
 {
     GSList *list;
     GList *rlist;
@@ -203,7 +203,7 @@ deserialize_if_capability(char* data, jsmntok_t *inf_tok)
     return caps;
 }
 
-static GList *
+GList *
 deserialize_interface_list(char *data, int *err, char **err_str)
 {
     int        i, j;
@@ -216,6 +216,12 @@ deserialize_interface_list(char *data, int *err, char **err_str)
     if_addr_t *if_addr;
     jsmntok_t *tokens, *if_tok, *addrs_tok, *cur_tok;
     GList     *if_list = NULL;
+
+    if (data == NULL) {
+        ws_info("Passed NULL capture interface list");
+        *err = CANT_GET_INTERFACE_LIST;
+        return if_list;
+    }
 
     int num_tokens = json_parse(data, NULL, 0);
     if (num_tokens <= 0) {

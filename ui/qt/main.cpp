@@ -872,6 +872,20 @@ int main(int argc, char *qt_argv[])
     prefs_to_capture_opts();
 
     /* Now get our remaining args */
+
+    /* XXX: Processing interface options on the command line might retrieve
+     * interface list. We don't yet know if we will need to retrieve the
+     * interface capabilities as well (e.g. are we printing capabilities,
+     * or loading the interface list?) until we parse other options, like
+     * whether we have a capture file.
+     *
+     * We'd prefer to avoid firing up dumpcap twice (once for the list
+     * without the capabilities and once for capabilities), especially
+     * on Windows where that could mean two UAC prompts. However, getting
+     * the interface capabilities is a bit time-consuming so we don't want
+     * to do it if we don't need to.
+     */
+
     commandline_other_options(argc, argv, TRUE);
 
     /* Convert some command-line parameters to QStrings */
@@ -954,8 +968,9 @@ int main(int argc, char *qt_argv[])
 #endif
     splash_update(RA_INTERFACES, NULL, NULL);
 
-    if (!global_commandline_info.cf_name && !prefs.capture_no_interface_load)
-        fill_in_local_interfaces(main_window_update);
+    if (!global_commandline_info.cf_name && !prefs.capture_no_interface_load) {
+        wsApp->scanLocalInterfaces(nullptr);
+    }
 
     capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);
     capture_opts_trim_ring_num_files(&global_capture_opts);
@@ -1076,6 +1091,9 @@ int main(int argc, char *qt_argv[])
             /* If no user interfaces were specified on the command line,
                copy the list of selected interfaces to the set of interfaces
                to use for this capture. */
+            /* XXX: I don't think this can happen, because if start_capture is
+             * true then capture_opts_default_iface_if_necessary() was called
+             */
             if (global_capture_opts.ifaces->len == 0)
                 collect_ifaces(&global_capture_opts);
             CaptureFile::globalCapFile()->window = main_w;

@@ -52,6 +52,9 @@ Q_SIGNALS:
     void typeSelectionChanged();
 
 public slots:
+#ifdef HAVE_LIBPCAP
+    void scanLocalInterfaces(GList *filter_list = nullptr);
+#endif
     void updateSelectedInterfaces();
     void interfaceListChanged();
     void toggleHiddenInterfaces();

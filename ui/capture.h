@@ -92,6 +92,15 @@ typedef struct if_stat_cache_s if_stat_cache_t;
 extern WS_RETNONNULL if_stat_cache_t * capture_stat_start(capture_options *capture_opts);
 
 /**
+ * Retrieve the list of interfaces and their capabilities, and start
+ * gathering capture statistics for the interfaces.
+ * @param capture_opts A structure containing options for the capture.
+ * @param[out] if_list A pointer that will store a GList of if_info_t.
+ * @return A pointer to the statistics state data.
+ */
+extern WS_RETNONNULL if_stat_cache_t * capture_interface_stat_start(capture_options *capture_opts, GList **if_list);
+
+/**
  * Fetch capture statistics, similar to pcap_stats().
  */
 struct pcap_stat; /* Stub in case we don't or haven't yet included pcap.h */

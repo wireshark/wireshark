@@ -188,6 +188,7 @@ protected:
 signals:
     void appInitialized();
     void localInterfaceEvent(const char *ifname, int added, int up);
+    void scanLocalInterfaces(GList *filter_list = nullptr);
     void localInterfaceListChanged();
     void openCaptureFile(QString cf_path, QString display_filter, unsigned int type);
     void openCaptureOptions();

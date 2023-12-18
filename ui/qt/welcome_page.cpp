@@ -79,6 +79,10 @@ WelcomePage::WelcomePage(QWidget *parent) :
     connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(updateRecentCaptures()));
     connect(mainApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
     connect(mainApp, SIGNAL(localInterfaceListChanged()), this, SLOT(interfaceListChanged()));
+#ifdef HAVE_LIBPCAP
+    connect(mainApp, &MainApplication::scanLocalInterfaces,
+            welcome_ui_->interfaceFrame, &InterfaceFrame::scanLocalInterfaces);
+#endif
     connect(welcome_ui_->interfaceFrame, SIGNAL(itemSelectionChanged()),
             welcome_ui_->captureFilterComboBox, SIGNAL(interfacesChanged()));
     connect(welcome_ui_->interfaceFrame, SIGNAL(typeSelectionChanged()),

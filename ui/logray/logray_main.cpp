@@ -914,6 +914,9 @@ int main(int argc, char *qt_argv[])
         /* Allow only extcap interfaces to be found */
         GList * filter_list = NULL;
         filter_list = g_list_append(filter_list, GUINT_TO_POINTER((guint) IF_EXTCAP));
+        // The below starts the stats; we don't need that since Logyray only
+        // supports extcaps.
+        //lwApp->scanLocalInterfaces(filter_list);
         fill_in_local_interfaces_filtered(filter_list, main_window_update);
         g_list_free(filter_list);
     }

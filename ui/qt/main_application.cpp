@@ -1020,6 +1020,27 @@ iface_mon_event_cb(const char *iface, int added, int up)
         /*
          * We've been told that there's a new interface or that an old
          * interface is gone; reload the local interface list.
+         *
+         * XXX: We also want to reload the local interface list if [what
+         * we can retrieve about] the capabilities of the device have changed.
+         * Ideally we'd update the capabilities of just the one device in
+         * the cache and signal that the list has been updated, instead of
+         * freeing the entire cache and scanning again - but some extcaps
+         * depend on other interfaces being up; e.g. by default androiddump
+         * tries to connect to the loopback interface to look for adb running,
+         * so if the loopback interface changes so does the status of
+         * androiddump.
+         *
+         * On Linux, at least, you can't get the capabilities from a down
+         * interface, but it's still present in all_ifaces - dumpcap returns
+         * it in the list, and we show it so the user can get a status / error
+         * message when trying to capture on it instead of it vanishing.
+         * So if both present and up are true, then we still want to refresh
+         * to update the capabilities and restart the stats.
+         *
+         * We also store the address in all_ifaces and show them to the user,
+         * so we probably should monitor those events as well and update
+         * the interface list appropriately when those change.
          */
         mainApp->refreshLocalInterfaces();
     }
@@ -1051,24 +1072,7 @@ void MainApplication::refreshLocalInterfaces()
     extcap_clear_interfaces();
 
 #ifdef HAVE_LIBPCAP
-    /*
-     * Free any cached interface list.
-     */
-    free_interface_list(cached_if_list_);
-    cached_if_list_ = NULL;
-
-    /*
-     * Reload the local interface list.
-     */
-    scan_local_interfaces(main_window_update);
-
-    /*
-     * Now emit a signal to indicate that the list changed, so that all
-     * places displaying the list will get updated.
-     *
-     * XXX - only if it *did* change - compare with the cached list above?
-     */
-    emit localInterfaceListChanged();
+    emit scanLocalInterfaces(nullptr);
 #endif
 }
 

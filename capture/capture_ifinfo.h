@@ -85,6 +85,8 @@ typedef struct {
 	} addr;
 } if_addr_t;
 
+extern GList *deserialize_interface_list(char *data, int *err, char **err_str);
+
 /**
  * Return the list of interfaces.
  *
@@ -167,7 +169,11 @@ capture_get_if_list_capabilities(GList *if_cap_queries,
 
 void free_if_capabilities(if_capabilities_t *caps);
 
+#ifdef HAVE_PCAP_REMOTE
 void add_interface_to_remote_list(if_info_t *if_info);
+
+GList* append_remote_list(GList *iflist);
+#endif
 
 #ifdef __cplusplus
 }
