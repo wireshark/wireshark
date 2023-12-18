@@ -13,7 +13,9 @@
  * as needed.
  *
  * The "Wake On LAN" dissector was written based primarily on the AMD white
- * paper, available from: http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/20213.pdf.
+ * paper, available from:
+ *
+ *    https://web.archive.org/web/20100601154907/http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/20213.pdf
  *
  * In addition, testing of the dissector was conducted using 2 utilities
  * downloaded from http://www.moldaner.de/wakeonlan/wakeonlan.html and
