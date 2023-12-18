@@ -727,7 +727,7 @@ LteRlcStatisticsDialog::LteRlcStatisticsDialog(QWidget &parent, CaptureFile &cf,
     cf_(cf),
     packet_count_(0)
 {
-    setWindowSubtitle(tr("LTE/NR RLC Statistics"));
+    setWindowSubtitle(tr("3GPP RLC Statistics"));
     loadGeometry((parent.width() * 5) / 5, (parent.height() * 3) / 4, "LTERLCStatisticsDialog");
 
     // Create a grid for filtering-related widgetsto also appear in layout.
@@ -857,7 +857,7 @@ tap_packet_status LteRlcStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _pa
 
     ws_dlg->incFrameCount();
 
-    // Look for this UE (TODO: avoid linear search if have lots of UEs in capture...)
+    // Look for this UE (TODO: avoid linear search if have lots of UEs in capture?)
     RlcUeTreeWidgetItem *ue_ti = NULL;
     for (int i = 0; i < ws_dlg->statsTreeWidget()->topLevelItemCount(); i++) {
         QTreeWidgetItem *ti = ws_dlg->statsTreeWidget()->topLevelItem(i);
@@ -1080,10 +1080,10 @@ lte_rlc_statistics_init(const char *args, void*) {
 static stat_tap_ui lte_rlc_statistics_ui = {
     REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU,
     QT_TRANSLATE_NOOP("LteRlcStatisticsDialog", "RLC Statistics"),
-    "rlc-3gpp,stat",
+    "rlc-3gpp,stat",            // cli_string
     lte_rlc_statistics_init,
-    0,
-    NULL
+    0,                          // nparams
+    NULL                        // params
 };
 
 extern "C" {

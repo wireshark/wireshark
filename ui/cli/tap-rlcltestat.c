@@ -200,10 +200,12 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         /* Make it the first/only entry */
         te = hs->ep_list;
     } else {
-        /* Look among existing rows for this UEId */
+        /* Look among existing rows for this rat/UEId */
         /* TODO: with different data structures, could avoid this linear search */
         for (tmp = hs->ep_list; (tmp != NULL); tmp = tmp->next) {
-            if (tmp->stats.ueid == si->ueid) {
+            if ((tmp->stats.rat == si->rat) &&
+                (tmp->stats.ueid == si->ueid))
+            {
                 te = tmp;
                 break;
             }

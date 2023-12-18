@@ -843,7 +843,7 @@ void LteMacStatisticsDialog::tapDraw(void *ws_dlg_ptr)
     ws_dlg->drawCommonStats();
 
     // Update title
-    ws_dlg->setWindowSubtitle(QString("LTE Mac Statistics (%1 UEs, %2 frames)").
+    ws_dlg->setWindowSubtitle(QString("3GPP Mac Statistics (%1 UEs, %2 frames)").
                                   arg(ws_dlg->statsTreeWidget()->topLevelItemCount()).arg(ws_dlg->getFrameCount()));
 }
 
@@ -956,10 +956,10 @@ lte_mac_statistics_init(const char *args, void*) {
 static stat_tap_ui lte_mac_statistics_ui = {
     REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU,
     QT_TRANSLATE_NOOP("LteMacStatisticsDialog", "MAC Statistics"),
-    "mac-3gpp,stat",
+    "mac-3gpp,stat",             // cli_string
     lte_mac_statistics_init,
-    0,
-    NULL
+    0,                           // nparams
+    NULL                         // params
 };
 
 extern "C" {

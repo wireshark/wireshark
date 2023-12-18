@@ -276,9 +276,10 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     } else {
         /* Look among existing rows for this RNTI */
         /* TODO: with different data structures, could avoid this linear search */
-        for (tmp = hs->ep_list;(tmp != NULL); tmp = tmp->next) {
-            /* Match only by RNTI and UEId together */
-            if ((tmp->stats.rnti == si->rnti) &&
+        for (tmp = hs->ep_list; tmp != NULL; tmp = tmp->next) {
+            /* Match only by RAT, RNTI and UEId together */
+            if ((tmp->stats.rat  == si->rat) &&
+                (tmp->stats.rnti == si->rnti) &&
                 (tmp->stats.ueid == si->ueid)) {
                 te = tmp;
                 break;

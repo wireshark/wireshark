@@ -36,6 +36,7 @@ struct rlc_segment {
     guint32         NACKs[MAX_NACKs];
     guint16         pduLength;
 
+    guint8          rat;
     guint16         ueid;
     guint16         channelType;
     guint16         channelId;
@@ -59,6 +60,7 @@ struct rlc_graph {
 
     /* These are filled in with the channel/direction this graph is showing */
     gboolean        channelSet;
+
     uint8_t         rat;
     guint16         ueid;
     guint16         channelType;
@@ -73,9 +75,10 @@ void rlc_graph_segment_list_free(struct rlc_graph * );
 
 
 
-gboolean compare_rlc_headers(guint16 ueid1, guint16 channelType1, guint16 channelId1, guint8 rlcMode1, guint8 direction1,
-                            guint16 ueid2, guint16 channelType2, guint16 channelId2, guint8 rlcMode2, guint8 direction2,
-                            gboolean isControlFrame);
+gboolean compare_rlc_headers(guint8 rat1, guint8 rat2,
+                             guint16 ueid1, guint16 channelType1, guint16 channelId1, guint8 rlcMode1, guint8 direction1,
+                             guint16 ueid2, guint16 channelType2, guint16 channelId2, guint8 rlcMode2, guint8 direction2,
+                             gboolean isControlFrame);
 rlc_3gpp_tap_info *select_rlc_lte_session(capture_file *cf, struct rlc_segment *hdrs,
                                          gchar **err_msg);
 

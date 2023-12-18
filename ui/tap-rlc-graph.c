@@ -23,10 +23,15 @@
 #include <epan/tap.h>
 
 /* Return TRUE if the 2 sets of parameters refer to the same channel. */
-gboolean compare_rlc_headers(guint16 ueid1, guint16 channelType1, guint16 channelId1, guint8 rlcMode1, guint8 direction1,
+gboolean compare_rlc_headers(guint8 rat1, guint8 rat2,
+                             guint16 ueid1, guint16 channelType1, guint16 channelId1, guint8 rlcMode1, guint8 direction1,
                              guint16 ueid2, guint16 channelType2, guint16 channelId2, guint8 rlcMode2, guint8 direction2,
                              gboolean frameIsControl)
 {
+    if (rat1 != rat2) {
+        return FALSE;
+    }
+
     /* Same direction, data - OK. */
     if (!frameIsControl) {
         return (direction1 == direction2) &&
@@ -63,7 +68,8 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
     for (n=0; n < th->num_hdrs; n++) {
         rlc_3gpp_tap_info *stored = th->rlchdrs[n];
 
-        if (compare_rlc_headers(stored->ueid, stored->channelType, stored->channelId, stored->rlcMode, stored->direction,
+        if (compare_rlc_headers(stored->rat, header->rat,
+                                stored->ueid, stored->channelType, stored->channelId, stored->rlcMode, stored->direction,
                                 header->ueid, header->channelType, header->channelId, header->rlcMode, header->direction,
                                 header->isControlPDU)) {
             is_unique = FALSE;
@@ -161,6 +167,7 @@ rlc_3gpp_tap_info* select_rlc_lte_session(capture_file *cf,
     hdrs->rel_secs = rel_ts.secs;
     hdrs->rel_usecs = rel_ts.nsecs/1000;
 
+    hdrs->rat = th.rlchdrs[0]->rat;
     hdrs->ueid = th.rlchdrs[0]->ueid;
     hdrs->channelType = th.rlchdrs[0]->channelType;
     hdrs->channelId = th.rlchdrs[0]->channelId;
@@ -179,7 +186,8 @@ static tap_packet_status rlc_lte_tap_for_graph_data(void *pct, packet_info *pinf
     const rlc_3gpp_tap_info *rlchdr = (const rlc_3gpp_tap_info*)vip;
 
     /* See if this one matches graph's channel */
-    if (compare_rlc_headers(graph->ueid,   graph->channelType,  graph->channelId,  graph->rlcMode,   graph->direction,
+    if (compare_rlc_headers(graph->rat,    rlchdr->rat,
+                            graph->ueid,   graph->channelType,  graph->channelId,  graph->rlcMode,   graph->direction,
                             rlchdr->ueid,  rlchdr->channelType, rlchdr->channelId, rlchdr->rlcMode,  rlchdr->direction,
                             rlchdr->isControlPDU)) {
 
@@ -190,6 +198,7 @@ static tap_packet_status rlc_lte_tap_for_graph_data(void *pct, packet_info *pinf
         segment->rel_secs = (guint32) pinfo->rel_ts.secs;
         segment->rel_usecs = pinfo->rel_ts.nsecs/1000;
 
+        segment->rat = rlchdr->rat;
         segment->ueid = rlchdr->ueid;
         segment->channelType = rlchdr->channelType;
         segment->channelId = rlchdr->channelId;
@@ -258,6 +267,8 @@ gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, gbool
             return FALSE;
         }
         g->channelSet = TRUE;
+
+        g->rat = header->rat;
         g->ueid = header->ueid;
         g->channelType = header->channelType;
         g->channelId = header->channelId;

@@ -2993,9 +2993,11 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     }
 
     if (p_rlc_lte_info->rlcMode == RLC_AM_MODE) {
+        if (!p_rlc_lte_info->sequenceNumberLength) {
+            p_rlc_lte_info->sequenceNumberLength = 10;
+        }
         ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_am_sn_length,
-                                 tvb, 0, 0, p_rlc_lte_info->sequenceNumberLength ?
-                                    p_rlc_lte_info->sequenceNumberLength : 10);
+                                 tvb, 0, 0, p_rlc_lte_info->sequenceNumberLength);
         proto_item_set_generated(ti);
     }
 
