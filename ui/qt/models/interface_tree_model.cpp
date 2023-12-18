@@ -464,9 +464,9 @@ void InterfaceTreeModel::updateStatistic(unsigned int idx)
 
     if (active[device->name] != isActive)
     {
-        beginResetModel();
+        emit layoutAboutToBeChanged();
         active[device->name] = isActive;
-        endResetModel();
+        emit layoutChanged();
     }
 
     emit dataChanged(index(idx, IFTREE_COL_STATS), index(idx, IFTREE_COL_STATS));
