@@ -235,12 +235,12 @@ void LteRlcGraphDialog::fillGraph()
         return;
     }
 
-    tracer_->setGraph(NULL);
-
     base_graph_->setLineStyle(QCPGraph::lsNone);       // dot
     reseg_graph_->setLineStyle(QCPGraph::lsNone);      // dot
     acks_graph_->setLineStyle(QCPGraph::lsStepLeft);   // to get step effect...
     nacks_graph_->setLineStyle(QCPGraph::lsNone);      // dot, but bigger.
+
+    tracer_->setGraph(NULL);
 
     // Will show all graphs with data we find.
     for (int i = 0; i < sp->graphCount(); i++) {
@@ -257,14 +257,13 @@ void LteRlcGraphDialog::fillGraph()
     // NACKs are shown bigger than others.
     nacks_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, pkt_point_size_*2));
 
-    // Map timestamps -> segments in first pass.
+    // Map timestamps -> segments (time_stamp_map_) in first pass.
     time_stamp_map_.clear();
     for (struct rlc_segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
         if (!compareHeaders(seg)) {
             continue;
         }
         double ts = seg->rel_secs + seg->rel_usecs / 1000000.0;
-
         time_stamp_map_.insert(ts, seg);
     }
 
@@ -287,8 +286,9 @@ void LteRlcGraphDialog::fillGraph()
         double ts = seg->rel_secs + (seg->rel_usecs / 1000000.0);
         if (compareHeaders(seg)) {
             if (!seg->isControlPDU) {
-                // Data
+                // Data PDUs
                 if (seg->isResegmented) {
+                    // LTE only
                     reseg_seq_time.append(ts);
                     reseg_seq.append(seg->SN);
                 }
@@ -298,7 +298,7 @@ void LteRlcGraphDialog::fillGraph()
                 }
             }
             else {
-                // Status
+                // Status PDUs
 
                 // Filter out ACKS that are likely caused by MAC retx, so track last ACK
                 if (seg->ACKNo != last_ackSN) {
@@ -318,10 +318,11 @@ void LteRlcGraphDialog::fillGraph()
     }
 
     // Add the data from the graphs.
-    base_graph_->setData(seq_time, seq);
-    reseg_graph_->setData(reseg_seq_time, reseg_seq);
-    acks_graph_->setData(acks_time, acks);
-    nacks_graph_->setData(nacks_time, nacks);
+    // N.B. passing true to assume the timestamps are already sorted..
+    base_graph_->setData(seq_time, seq, true);
+    reseg_graph_->setData(reseg_seq_time, reseg_seq, true);
+    acks_graph_->setData(acks_time, acks, true);
+    nacks_graph_->setData(nacks_time, nacks, true);
 
     sp->setEnabled(true);
 
@@ -698,25 +699,21 @@ void LteRlcGraphDialog::resetAxes()
 {
     QCustomPlot *rp = ui->rlcPlot;
 
-    QCPRange x_range = rp->xAxis->range();
-
     double pixel_pad = 10.0; // per side
 
     rp->rescaleAxes(true);
 
-    // Make sure ranges of all sub-graphs are taken into account
-    base_graph_->rescaleValueAxis(false, true);
-    reseg_graph_->rescaleValueAxis(false, true);
-    acks_graph_->rescaleValueAxis(false, true);
-    nacks_graph_->rescaleValueAxis(false, true);
+    QCPRange x_range = rp->xAxis->range();
 
     double axis_pixels = rp->xAxis->axisRect()->width();
     rp->xAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, x_range.center());
 
     axis_pixels = rp->yAxis->axisRect()->height();
-    rp->yAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, rp->yAxis->range().center());
+    rp->yAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels,
+                          rp->yAxis->range().center());
 
-    rp->replot(QCustomPlot::rpQueuedReplot);
+    // N.B. TCP Stream Dialog uses default (rpRefreshHint) - was using QCustomPlot::rpQueuedReplot
+    rp->replot();
 }
 
 void LteRlcGraphDialog::on_actionGoToPacket_triggered()

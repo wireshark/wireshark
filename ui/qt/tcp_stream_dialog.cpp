@@ -759,7 +759,8 @@ void TCPStreamDialog::resetAxes()
 //    }
 
     double axis_pixels = sp->xAxis->axisRect()->width();
-    sp->xAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, sp->xAxis->range().center());
+    sp->xAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels,
+                          sp->xAxis->range().center());
 
     if (sp->yAxis2->visible()) {
         double ratio = sp->yAxis2->range().size() / sp->yAxis->range().size();
@@ -768,7 +769,8 @@ void TCPStreamDialog::resetAxes()
     }
 
     axis_pixels = sp->yAxis->axisRect()->height();
-    sp->yAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, sp->yAxis->range().center());
+    sp->yAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels,
+                          sp->yAxis->range().center());
 
     sp->replot();
 }

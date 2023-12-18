@@ -55,10 +55,10 @@ private:
     struct rlc_graph graph_;
 
     // Data
-    QMultiMap<double, struct rlc_segment *> time_stamp_map_;
+    QMultiMap<double, struct rlc_segment *> time_stamp_map_;  // used for mapping clicks back to segment/frame
     QMap<double, struct rlc_segment *> sequence_num_map_;
 
-    QCPGraph *base_graph_; // Clickable packets
+    QCPGraph *base_graph_; // Data SNs - clickable packets
     QCPGraph *reseg_graph_;
     QCPGraph *acks_graph_;
     QCPGraph *nacks_graph_;
