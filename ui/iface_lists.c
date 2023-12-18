@@ -222,6 +222,9 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
                 continue;
             }
         }
+        if (if_info->caps != NULL) {
+            continue;
+        }
         if_cap_query = g_new(if_cap_query_t, 1);
         if_cap_query->name = if_info->name;
         if_cap_query->monitor_mode = prefs_capture_device_monitor_mode(if_info->name);
@@ -334,7 +337,10 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
         device.remote_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
 #endif
         device.links = NULL;
-        caps = g_hash_table_lookup(capability_hash, if_info->name);
+        caps = if_info->caps;
+        if (caps == NULL) {
+            caps = g_hash_table_lookup(capability_hash, if_info->name);
+        }
         if (caps != NULL && !caps->primary_msg) {
             GList *lt_list = caps->data_link_types;
 #if defined(HAVE_PCAP_CREATE)

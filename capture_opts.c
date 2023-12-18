@@ -1175,6 +1175,15 @@ capture_opts_print_if_capabilities(if_capabilities_t *caps,
 {
     GList *lt_entry, *ts_entry;
 
+    if (caps->primary_msg) {
+        cmdarg_err("The capabilities of the capture device "
+                   "\"%s\" could not be obtained (%s).%s%s",
+                   interface_opts->name, caps->primary_msg,
+                   caps->secondary_msg ? "\n" : "",
+                   caps->secondary_msg ? caps->secondary_msg : "");
+        return WS_EXIT_INVALID_CAPABILITY;
+    }
+
     if (queries & CAPS_QUERY_LINK_TYPES) {
         if (caps->data_link_types == NULL) {
             cmdarg_err("The capture device \"%s\" has no data link types.",

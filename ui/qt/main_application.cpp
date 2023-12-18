@@ -1080,6 +1080,7 @@ GList* MainApplication::getInterfaceList() const
 
 void MainApplication::setInterfaceList(GList *if_list)
 {
+     free_interface_list(cached_if_list_);
      cached_if_list_ = interface_list_copy(if_list);
 }
 #endif

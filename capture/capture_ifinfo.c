@@ -299,6 +299,11 @@ deserialize_interface_list(char *data, int *err, char **err_str)
              */
             if_info->extcap = val_s ? g_strdup(val_s) : "";
 
+            cur_tok = json_get_object(data, if_tok, "caps");
+            if (cur_tok) {
+                if_info->caps = deserialize_if_capability(data, cur_tok);
+            }
+
             if_list = g_list_append(if_list, if_info);
         }
     }
@@ -493,6 +498,9 @@ capture_get_if_list_capabilities(GList *if_cap_queries,
             local_queries = g_list_prepend(local_queries, query);
         }
     }
+
+    if (local_queries == NULL)
+        return caps_hash;
 
     local_queries = g_list_reverse(local_queries);
 
