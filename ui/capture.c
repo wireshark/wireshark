@@ -877,7 +877,7 @@ capture_stat_start(capture_options *capture_opts)
      * mechanism, so opening all the devices and presenting packet
      * counts might not always be a good idea.
      */
-    if (sync_interface_stats_open(&stat_fd, &fork_child, &msg, NULL) == 0) {
+    if (sync_interface_stats_open(&stat_fd, &fork_child, NULL, &msg, NULL) == 0) {
         sc->stat_fd = stat_fd;
         sc->fork_child = fork_child;
 

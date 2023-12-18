@@ -44,6 +44,7 @@
 #define SP_DROPS        'D'     /* count of packets dropped in capture */
 #define SP_SUCCESS      'S'     /* success indication, no extra data */
 #define SP_TOOLBAR_CTRL 'T'     /* interface toolbar control packet */
+#define SP_IFACE_LIST   'I'     /* interface list */
 /*
  * Win32 only: Indications sent out on the signal pipe (from parent to child)
  * (UNIX-like sends signals for this)

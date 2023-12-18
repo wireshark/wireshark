@@ -789,7 +789,7 @@ print_machine_readable_if_capabilities(json_dumper *dumper, if_capabilities_t *c
  * The actual output of this function can be viewed with the command "dumpcap -D -Z none"
  */
 static int
-print_machine_readable_interfaces(GList *if_list, int caps_queries)
+print_machine_readable_interfaces(GList *if_list, int caps_queries, bool print_statistics)
 {
     GList       *if_entry;
     if_info_t   *if_info;
@@ -799,7 +799,7 @@ print_machine_readable_interfaces(GList *if_list, int caps_queries)
     int         status;
 
     json_dumper dumper = {
-        .output_file = stdout,
+        .output_string = g_string_new(NULL),
         .flags = JSON_DUMPER_FLAGS_NO_DEBUG,
         // Don't abort on failure
     };
@@ -865,8 +865,13 @@ print_machine_readable_interfaces(GList *if_list, int caps_queries)
     if (json_dumper_finish(&dumper)) {
         status = 0;
         if (capture_child) {
-            /* Let our parent know we succeeded. */
-            sync_pipe_write_string_msg(2, SP_SUCCESS, NULL);
+            if (print_statistics) {
+                sync_pipe_write_string_msg(2, SP_IFACE_LIST, dumper.output_string->str);
+            } else {
+                /* Let our parent know we succeeded. */
+                sync_pipe_write_string_msg(2, SP_SUCCESS, NULL);
+                printf("%s", dumper.output_string->str);
+            }
         }
     } else {
         status = 2;
@@ -874,6 +879,7 @@ print_machine_readable_interfaces(GList *if_list, int caps_queries)
             sync_pipe_write_errmsgs_to_parent(2, "Unexpected JSON error", "");
         }
     }
+    g_string_free(dumper.output_string, TRUE);
     return status;
 }
 
@@ -5468,19 +5474,19 @@ main(int argc, char *argv[])
             break;
             /*** all non capture option specific ***/
         case 'D':        /* Print a list of capture devices and exit */
-            if (!list_interfaces && !caps_queries) {
+            if (!list_interfaces && !caps_queries & !print_statistics) {
                 run_once_args++;
             }
             list_interfaces = TRUE;
             break;
         case 'L':        /* Print list of link-layer types and exit */
-            if (!list_interfaces && !caps_queries) {
+            if (!list_interfaces && !caps_queries & !print_statistics) {
                 run_once_args++;
             }
             caps_queries |= CAPS_QUERY_LINK_TYPES;
             break;
         case LONGOPT_LIST_TSTAMP_TYPES:
-            if (!list_interfaces && !caps_queries) {
+            if (!list_interfaces && !caps_queries & !print_statistics) {
                 run_once_args++;
             }
             caps_queries |= CAPS_QUERY_TIMESTAMP_TYPES;
@@ -5492,10 +5498,10 @@ main(int argc, char *argv[])
             }
             break;
         case 'S':        /* Print interface statistics once a second */
-            if (!print_statistics) {
-                print_statistics = TRUE;
+            if (!list_interfaces && !caps_queries & !print_statistics) {
                 run_once_args++;
             }
+            print_statistics = TRUE;
             break;
         case 'k':        /* Set wireless channel */
             if (!set_chan) {
@@ -5697,10 +5703,12 @@ main(int argc, char *argv[])
         }
 
         if (machine_readable) {
-            status = print_machine_readable_interfaces(if_list, caps_queries);
+            status = print_machine_readable_interfaces(if_list, caps_queries, print_statistics);
         }
         free_interface_list(if_list);
-        exit_main(status);
+        if (!print_statistics) {
+            exit_main(status);
+        }
     }
 
     /*

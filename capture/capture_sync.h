@@ -101,7 +101,7 @@ sync_if_list_capabilities_open(GList *ifqueries,
 
 /** Start getting interface statistics using dumpcap. */
 extern int
-sync_interface_stats_open(int *read_fd, ws_process_id *fork_child, char **msg, void (*update_cb)(void));
+sync_interface_stats_open(int *read_fd, ws_process_id *fork_child, char **data, char **msg, void (*update_cb)(void));
 
 /** Stop gathering statistics. */
 extern int
