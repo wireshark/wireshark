@@ -517,7 +517,7 @@ static int hf_e2ap_global_ng_eNB_ID_01;           /* GlobalNgENB_ID */
 static int hf_e2ap_interfaceProcedureID;          /* INTEGER */
 static int hf_e2ap_messageType;                   /* T_messageType */
 static int hf_e2ap_ranFunction_ShortName;         /* T_ranFunction_ShortName */
-static int hf_e2ap_ranFunction_E2SM_OID;          /* T_ranFunction_E2SM_OID */
+static int hf_e2ap_ranFunction_E2SM_OID;          /* PrintableString_SIZE_1_1000_ */
 static int hf_e2ap_ranFunction_Description;       /* PrintableString_SIZE_1_150_ */
 static int hf_e2ap_ranFunction_Instance;          /* INTEGER */
 static int hf_e2ap_rrcType;                       /* T_rrcType */
@@ -3338,7 +3338,7 @@ dissect_e2ap_RANfunctionDefinition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
     for (int m=0; (m<30) && ((m+name_len+1))<tvb_len; m++) {
       /* Have we found a match on the name? */
       if (tvb_strneql(parameter_tvb, m, g_ran_function_name_table[n], name_len) == 0) {
-        /* TODO: we don't yet know the OID (should be OK),
+        /* We don't yet know the OID (should be OK),
            so for now just call with the first/only available dissector for this RAN Function name */
         if (g_ran_functions_available_dissectors[n].num_available_dissectors) {
           g_ran_functions_available_dissectors[n].ran_function_dissectors[0]->functions.ran_function_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -6053,7 +6053,6 @@ dissect_e2ap_T_ranFunction_ShortName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
                                     tvb_get_string_enc(actx->pinfo->pool, value_tvb, 0, tvb_captured_length(value_tvb), ENC_ASCII));
   }
 
-// TODO: is this still needed now that have added function below?
 
   return offset;
 }
@@ -6061,17 +6060,10 @@ dissect_e2ap_T_ranFunction_ShortName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static int
-dissect_e2ap_T_ranFunction_E2SM_OID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  tvbuff_t *parameter_tvb;
-    offset = dissect_per_PrintableString(tvb, offset, actx, tree, hf_index,
+dissect_e2ap_PrintableString_SIZE_1_1000_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_PrintableString(tvb, offset, actx, tree, hf_index,
                                           1, 1000, TRUE,
-                                          &parameter_tvb);
-
-  /* Now complete mapping with OID string */
-  e2ap_update_ran_function_mapping(actx->pinfo, tree, parameter_tvb,
-                                   tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0,
-                                   tvb_captured_length(parameter_tvb), ENC_ASCII));
-
+                                          NULL);
 
   return offset;
 }
@@ -6090,7 +6082,7 @@ dissect_e2ap_PrintableString_SIZE_1_150_(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static const per_sequence_t RANfunction_Name_sequence[] = {
   { &hf_e2ap_ranFunction_ShortName, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_T_ranFunction_ShortName },
-  { &hf_e2ap_ranFunction_E2SM_OID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_T_ranFunction_E2SM_OID },
+  { &hf_e2ap_ranFunction_E2SM_OID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_PrintableString_SIZE_1_1000_ },
   { &hf_e2ap_ranFunction_Description, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_PrintableString_SIZE_1_150_ },
   { &hf_e2ap_ranFunction_Instance, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e2ap_INTEGER },
   { NULL, 0, 0, NULL }
@@ -15937,7 +15929,7 @@ void proto_register_e2ap(void) {
     { &hf_e2ap_ranFunction_E2SM_OID,
       { "ranFunction-E2SM-OID", "e2ap.ranFunction_E2SM_OID",
         FT_STRING, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "PrintableString_SIZE_1_1000_", HFILL }},
     { &hf_e2ap_ranFunction_Description,
       { "ranFunction-Description", "e2ap.ranFunction_Description",
         FT_STRING, BASE_NONE, NULL, 0,
