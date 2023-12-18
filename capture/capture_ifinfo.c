@@ -24,6 +24,8 @@
 #include "capture/capture_sync.h"
 #include "extcap.h"
 
+#include <capture/capture-pcap-util.h>
+#include <capture/capture-pcap-util-int.h>
 #include <capture/capture_ifinfo.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/wsjson.h>
@@ -96,12 +98,9 @@ deserialize_if_capability(char* data, jsmntok_t *inf_tok)
         caps->primary_msg = json_get_string(data, inf_tok, "primary_msg");
         if (caps->primary_msg) {
             caps->primary_msg = g_strdup(caps->primary_msg);
+            caps->secondary_msg = get_pcap_failure_secondary_error_message(err, caps->primary_msg);
         } else {
             caps->primary_msg = g_strdup("Failed with no message");
-        }
-        caps->secondary_msg = json_get_string(data, inf_tok, "secondary_msg");
-        if (caps->secondary_msg) {
-            caps->secondary_msg = g_strdup(caps->secondary_msg);
         }
         ws_info("Capture Interface Capabilities failed. Error %d, %s",
               err, caps->primary_msg ? caps->primary_msg : "no message");
@@ -444,8 +443,7 @@ capture_get_if_capabilities(const char *ifname, bool monitor_mode,
                     caps->primary_msg = NULL;
                 }
                 if (caps->secondary_msg && err_secondary_msg) {
-                    *err_secondary_msg = caps->secondary_msg;
-                    caps->secondary_msg = NULL;
+                    *err_secondary_msg = g_strdup(caps->secondary_msg);
                 }
                 free_if_capabilities(caps);
                 caps = NULL;

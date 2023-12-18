@@ -47,7 +47,7 @@ typedef struct {
 	GList		*timestamp_types;   /* GList of timestamp_info_t's */
 	int status;
 	char *primary_msg;   /* If non-NULL, the query failed, and a message explaing why */
-	char *secondary_msg; /* An optional supplementary message */
+	const char *secondary_msg; /* An optional supplementary message */
 } if_capabilities_t;
 
 /*
