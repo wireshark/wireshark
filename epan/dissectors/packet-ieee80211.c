@@ -23910,6 +23910,11 @@ s1g_raw_type_options_custom(gchar *result, guint8 raw_type)
   }
 }
 
+static void s1g_raw_slot_duration_custom(gchar *result, guint16 slot_def)
+{
+  snprintf(result, ITEM_LABEL_LENGTH, "%u (%u uS)", slot_def, (500 + slot_def * 120));
+}
+
 static int * const s1g_raw_control_headers[] = {
   &hf_ieee80211_s1g_raw_type,
   &hf_ieee80211_s1g_raw_type_options,
@@ -23968,7 +23973,7 @@ dissect_rps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data 
                                     ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   offset += 1;
 
-  if ((raw_slot_def & 0x01) || (global_s1g_raw_type == 0x01)) {
+  if (((raw_slot_def & 0x01) == 0x00) || (global_s1g_raw_type == 0x01)) {
     proto_tree_add_bitmask_with_flags(tree, tvb, offset,
                                     hf_ieee80211_s1g_raw_slot_def,
                                     ett_s1g_raw_slot_def,
@@ -48937,7 +48942,7 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_s1g_slot_def_slot_duration_count8,
      {"Slot Duration Count",
       "wlan.s1g.rps.raw_slot_definition.slot_duration_count",
-      FT_UINT16, BASE_DEC, NULL, 0x03FC, NULL, HFILL }},
+      FT_UINT16, BASE_CUSTOM, CF_FUNC(s1g_raw_slot_duration_custom), 0x03FC, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_slot_def_num_slots6,
      {"Number of Slots",
@@ -48947,7 +48952,7 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_s1g_slot_def_slot_duration_count11,
      {"Slot Duration Count",
       "wlan.s1g.rps.raw_slot_definition.slot_duration_count",
-      FT_UINT16, BASE_DEC, NULL, 0x1FC0, NULL, HFILL }},
+      FT_UINT16, BASE_CUSTOM, CF_FUNC(s1g_raw_slot_duration_custom), 0x1FFC, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_slot_def_num_slots3,
      {"Number of Slots",
