@@ -26,7 +26,7 @@ set_source_files_properties(
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
-add_wireshark_epan_plugin_library(ipaddr)
+add_wireshark_plugin_library(ipaddr epan)
 
 target_link_libraries(ipaddr epan)
 

@@ -33,7 +33,7 @@ register_plugin_files(plugin.c
 	${CODEC_SRC}
 )
 
-add_wireshark_codec_plugin_library(opus_dec)
+add_wireshark_plugin_library(opus_dec codecs)
 
 target_include_directories(opus_dec PRIVATE ${CMAKE_SOURCE_DIR}/codecs)
 
