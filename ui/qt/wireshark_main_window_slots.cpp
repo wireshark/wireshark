@@ -3803,11 +3803,11 @@ void WiresharkMainWindow::connectToolsMenuActions()
 
     connect(main_ui_->actionToolsTLSKeylog, &QAction::triggered, this, &WiresharkMainWindow::openTLSKeylogDialog);
 
-    if (plugins_supported()) {
-        QAction *actionToolsInstallPlugin = new QAction(tr("Install Plugin"), this);
-        connect(actionToolsInstallPlugin, &QAction::triggered, this, &WiresharkMainWindow::installPersonalBinaryPlugin);
-        main_ui_->menuTools->addAction(actionToolsInstallPlugin);
-    }
+#ifdef HAVE_PLUGINS
+    QAction *actionToolsInstallPlugin = new QAction(tr("Install Plugin"), this);
+    connect(actionToolsInstallPlugin, &QAction::triggered, this, &WiresharkMainWindow::installPersonalBinaryPlugin);
+    main_ui_->menuTools->addAction(actionToolsInstallPlugin);
+#endif
 }
 
 // Help Menu
