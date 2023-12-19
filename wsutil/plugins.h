@@ -23,6 +23,16 @@ typedef enum {
     WS_PLUGIN_CODEC
 } plugin_type_e;
 
+typedef enum {
+    /* Plug-in license is GPLv2-or-later */
+    WS_PLUGIN_IS_GPLv2_OR_LATER     = 0x2222,     /* Ok */
+    /* Plug-in license is compatible with the GPL version 2, according to the FSF. */
+    /* https://www.gnu.org/licenses/gpl-faq.html#WhatDoesCompatMean */
+    WS_PLUGIN_IS_GPLv2_COMPATIBLE   = 0x2002,     /* Ok */
+    /* Plug-in license is none of the above */
+    WS_PLUGIN_IS_GPLv2_INCOMPATIBLE = 0,          /* Not allowed, will refuse to load.*/
+} plugin_license_e;
+
 #define WS_PLUGIN_SPDX_GPLv2    "GPL-2.0-or-later"
 #define WS_PLUGIN_GITLAB_URL    "https://gitlab.com/wireshark/wireshark"
 
@@ -38,6 +48,7 @@ typedef void plugins_t;
 typedef void (*module_register_func)(void);
 
 struct ws_module {
+    plugin_license_e license;
     uint32_t flags;
     const char *version;
     const char *spdx_id;
