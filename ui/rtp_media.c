@@ -14,7 +14,7 @@
 
 #include "config.h"
 
-#include <wsutil/codecs_priv.h>
+#include <wsutil/codecs.h>
 
 #include <epan/rtp_pt.h>
 #include <epan/dissectors/packet-rtp.h>

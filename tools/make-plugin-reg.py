@@ -23,13 +23,9 @@ registertype = sys.argv[2]
 #
 plugin_blurb = sys.argv[3]
 #
-# The fourth argument is the plugin minimum api level
-#
-min_api_level = sys.argv[4]
-#
 # All subsequent arguments are the files to scan.
 #
-files = sys.argv[5:]
+files = sys.argv[4:]
 
 final_filename = "plugin.c"
 preamble = """\
@@ -205,8 +201,8 @@ static struct ws_module module = {
     .register_cb = &plugin_register,
 };
 
-%s(&module, %s)
-""" % (DESCRIPTION_FLAG[registertype], plugin_blurb, PLUGIN_REGISTER[registertype], min_api_level)
+%s(&module, 0)
+""" % (DESCRIPTION_FLAG[registertype], plugin_blurb, PLUGIN_REGISTER[registertype])
 
 try:
     fh = open(final_filename, 'w')

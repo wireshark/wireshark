@@ -54,7 +54,7 @@
 #include <epan/uat-int.h>
 #include <epan/secrets.h>
 
-#include <wsutil/codecs_priv.h>
+#include <wsutil/codecs.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/utf8_entities.h>

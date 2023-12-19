@@ -11,30 +11,37 @@
 #ifndef _CODECS_H_
 #define _CODECS_H_
 
-#include <wireshark.h>
+#include "ws_symbol_export.h"
+#include "ws_attributes.h"
+
+#include <stdbool.h>
+
+#include "wsutil/wmem/wmem_map.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-/*
- * IMPORTANT: This header is the public plugin API for codecs.
- *
- * When this API changes the API level must be bumped in ws_version.h.in.
- * If the change is backward-compatible only the maximum (codec) API level is increased by one.
- * If the change is backward-incompatible, meaning a plugin that does not use
- * new functionaly may not compile anymore, both the maximum (codec) API level is increased by one
- * and the minimum (codec) API level is bumped to the new maximum (codec) API level.
- *
- * API functionality above level one should be annotated with a comment indicating
- * the API level required (when it was first introduced).
- */
 
 typedef struct {
     void (*register_codec_module)(void);  /* routine to call to register a codec */
 } codecs_plugin;
 
 WS_DLL_PUBLIC void codecs_register_plugin(const codecs_plugin *plug);
+
+/**
+ * For all built-in codecs and codec plugins, call their register routines.
+ */
+WS_DLL_PUBLIC void codecs_init(void);
+
+WS_DLL_PUBLIC void codecs_cleanup(void);
+
+/**
+ * Get compile-time information for libraries used by libwscodecs.
+ */
+WS_DLL_PUBLIC void codec_get_compiled_version_info(GString *str);
+
+struct codec_handle;
+typedef struct codec_handle *codec_handle_t;
 
 typedef struct _codec_context_t {
     unsigned sample_rate;
@@ -112,6 +119,15 @@ typedef size_t (*codec_decode_fn)(codec_context_t *context,
 WS_DLL_PUBLIC bool register_codec(const char *name, codec_init_fn init_fn,
         codec_release_fn release_fn, codec_get_channels_fn channels_fn,
         codec_get_frequency_fn frequency_fn, codec_decode_fn decode_fn);
+WS_DLL_PUBLIC bool deregister_codec(const char *name);
+WS_DLL_PUBLIC codec_handle_t find_codec(const char *name);
+WS_DLL_PUBLIC void *codec_init(codec_handle_t codec, codec_context_t *context);
+WS_DLL_PUBLIC void codec_release(codec_handle_t codec, codec_context_t *context);
+WS_DLL_PUBLIC unsigned codec_get_channels(codec_handle_t codec, codec_context_t *context);
+WS_DLL_PUBLIC unsigned codec_get_frequency(codec_handle_t codec, codec_context_t *context);
+WS_DLL_PUBLIC size_t codec_decode(codec_handle_t codec, codec_context_t *context,
+        const void *inputBytes, size_t inputBytesSize,
+        void *outputSamples, size_t *outputSamplesSize);
 
 #ifdef __cplusplus
 }

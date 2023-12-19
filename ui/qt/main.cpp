@@ -49,7 +49,7 @@
 #include <epan/dissectors/packet-kerberos.h>
 #endif
 
-#include <wsutil/codecs_priv.h>
+#include <wsutil/codecs.h>
 
 #include <extcap.h>
 

@@ -27,7 +27,8 @@ set_source_files_properties(
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
-register_codec_files(plugin.c 1
+register_plugin_files(plugin.c
+	plugin_codec
 	"OpenCORE Adaptive Multi Rate (AMR)"
 	${CODEC_SRC}
 )
