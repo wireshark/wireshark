@@ -1831,7 +1831,9 @@ dissect_lldp_end_of_lldpdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item(end_of_lldpdu_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(end_of_lldpdu_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-	return -1;	/* Force the lldp dissector to terminate */
+	offset += 2;
+	offset += dataLen;
+	return offset;
 }
 
 /* Dissect Port Description TLV */
@@ -4767,6 +4769,11 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		}
 		else
 			offset += rtnValue;
+
+		/* Terminate the LLDP dissector after reaching the END_OF_LLDPDU */
+		if (tlvType == END_OF_LLDPDU_TLV_TYPE) {
+			break;
+		}
 	}
 
 	return tvb_captured_length(tvb);
