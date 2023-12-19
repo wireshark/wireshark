@@ -18,7 +18,6 @@
 #include <epan/frame_data.h>
 #include <epan/register.h>
 #include <wiretap/wtap_opttypes.h>
-#include <wsutil/plugins.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -124,14 +123,9 @@ typedef struct {
 	void (*cleanup)(void);
 	void (*register_all_protocols)(register_cb, gpointer);
 	void (*register_all_handoffs)(register_cb, gpointer);
-	void (*get_descriptions)(plugin_description_callback callback, void *user_data);
 } epan_plugin;
 
 WS_DLL_PUBLIC void epan_register_plugin(const epan_plugin *plugin);
-
-WS_DLL_PUBLIC void epan_plugins_get_descriptions(plugin_description_callback callback, void *user_data);
-
-WS_DLL_PUBLIC void epan_plugins_dump_all(void);
 
 /** Returns_
  *     0 if plugins can be loaded for all of libwireshark (tap, dissector, epan).
