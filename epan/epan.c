@@ -221,6 +221,13 @@ int epan_plugins_supported(void)
 #endif
 }
 
+static void epan_plugin_register_all_tap_listeners(gpointer data, gpointer user_data _U_)
+{
+	epan_plugin *plug = (epan_plugin *)data;
+	if (plug->register_all_tap_listeners)
+		plug->register_all_tap_listeners();
+}
+
 gboolean
 epan_init(register_cb cb, gpointer client_data, gboolean load_plugins)
 {
@@ -311,6 +318,7 @@ epan_init(register_cb cb, gpointer client_data, gboolean load_plugins)
 		conversation_filters_init();
 		g_slist_foreach(epan_plugins, epan_plugin_init, NULL);
 		proto_init(epan_plugin_register_all_procotols, epan_plugin_register_all_handoffs, cb, client_data);
+		g_slist_foreach(epan_plugins, epan_plugin_register_all_tap_listeners, NULL);
 		packet_cache_proto_handles();
 		dfilter_init();
 		wscbor_init();
