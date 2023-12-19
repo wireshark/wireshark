@@ -1563,7 +1563,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
                 *msg = g_strdup(primary_msg_text);
                 ret = -1;
             }
-            break;
+            return ret;
 
         case SP_IFACE_LIST:
             /*
@@ -1600,7 +1600,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
             }
             break;
         }
-    } while (indicator == SP_IFACE_LIST);
+    } while (indicator == SP_IFACE_LIST && ret != -1);
 
     return ret;
 }
