@@ -49,6 +49,7 @@ typedef void (*module_register_func)(void);
 
 struct ws_module {
     plugin_license_e license;
+    int min_api_level; /* unused */
     uint32_t flags;
     const char *version;
     const char *spdx_id;
@@ -80,15 +81,12 @@ int plugins_abi_version(plugin_type_e type);
 
 #define WIRESHARK_PLUGIN_REGISTER(type, ptr_, api_level_) \
     WS_DLL_PUBLIC plugin_type_e \
-    wireshark_load_module(int *abi_version_ptr, int *min_api_level_ptr, \
-                            struct ws_module **module_ptr) \
+    wireshark_load_module(int *abi_version, int *min_api_level, \
+                            struct ws_module **plug_ptr) \
     { \
-        if (abi_version_ptr) \
-            *abi_version_ptr = WIRESHARK_ABI_VERSION_ ## type; \
-        if (min_api_level_ptr) \
-            *min_api_level_ptr = api_level_; \
-        ws_assert(module_ptr); \
-        *module_ptr = ptr_; \
+        *abi_version = WIRESHARK_ABI_VERSION_ ## type; \
+        *min_api_level = api_level_; \
+        *plug_ptr = ptr_; \
         return WS_PLUGIN_ ## type; \
     }
 
