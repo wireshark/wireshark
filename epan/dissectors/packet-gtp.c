@@ -5368,8 +5368,10 @@ decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
 /*
  * GPP TS 24.008 10.5.5.12 ( see packet-gsm_a.c )
  */
-    de_gmm_ms_net_cap(tvb, tf_tree, pinfo, offset, len, NULL, 0);
-    offset = offset + len;
+    if (len > 0) {
+        de_gmm_ms_net_cap(tvb, tf_tree, pinfo, offset, len, NULL, 0);
+        offset = offset + len;
+    }
 
 /* 3GPP TS 29.060 version 9.4.0 Release 9
  *  The two octets Container Length holds the length of the Container, excluding the Container Length octets.
