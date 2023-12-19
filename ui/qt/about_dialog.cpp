@@ -144,18 +144,18 @@ static void plugins_add_description(const char *name, const char *version,
 #ifdef HAVE_LUA
 // This exists only to add "lua script" to the type, otherwise we could use
 // plugins_add_description(). Eventually lua scripts
-// should support plugin functional flags too
+// should support plugin functional flags too (along with the other info fields)
 // and the "lua script" type can be dropped, or moved to
 // a new binary/lua/extcap type column (but not really).
 static void wslua_plugins_add_description(const char *name, const char *version,
                                     uint32_t flags _U_, const char *spdx_id _U_,
-                                    const char *blurb, const char *home_url,
+                                    const char *blurb _U_, const char *home_url _U_,
                                     const char *filename _U_, plugin_scope_e scope,
                                     void *user_data)
 {
     QList<QStringList> *plugin_data = (QList<QStringList> *)user_data;
     QStringList plugin_row = QStringList() << name << version << "lua script"
-                                << scope_to_str(scope) << blurb << home_url;
+                                << scope_to_str(scope) << "" << "";
     *plugin_data << plugin_row;
 }
 #endif

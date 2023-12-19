@@ -807,10 +807,7 @@ extern int wslua_hex2bin(lua_State* L, const char* data, const unsigned len, con
 extern int luaopen_rex_pcre2(lua_State *L);
 
 extern const char* get_current_plugin_version(void);
-extern const char* get_current_plugin_description(void);
-extern const char* get_current_plugin_repository(void);
-extern const char* get_current_plugin_spdx_id(void);
-extern void clear_current_plugin_info(void);
+extern void clear_current_plugin_version(void);
 
 extern int wslua_deregister_heur_dissectors(lua_State* L);
 extern int wslua_deregister_protocols(lua_State* L);

@@ -28,36 +28,17 @@ WSLUA_FUNCTION wslua_get_version(lua_State* L) { /* Gets the Wireshark version a
 }
 
 
-static char *current_plugin_version;
-static char *current_plugin_description;
-static char *current_plugin_repository;
-static char *current_plugin_spdx_id;
+static char* current_plugin_version = NULL;
 
 const char* get_current_plugin_version(void) {
     return current_plugin_version ? current_plugin_version : "";
 }
 
-const char* get_current_plugin_description(void) {
-    return current_plugin_description ? current_plugin_description : "";
-}
-
-const char* get_current_plugin_repository(void) {
-    return current_plugin_repository ? current_plugin_repository : "";
-}
-
-const char* get_current_plugin_spdx_id(void) {
-    return current_plugin_spdx_id ? current_plugin_spdx_id : "";
-}
-
-void clear_current_plugin_info(void) {
-    g_free(current_plugin_version);
-    current_plugin_version = NULL;
-    g_free(current_plugin_description);
-    current_plugin_description = NULL;
-    g_free(current_plugin_repository);
-    current_plugin_repository = NULL;
-    g_free(current_plugin_spdx_id);
-    current_plugin_spdx_id = NULL;
+void clear_current_plugin_version(void) {
+    if (current_plugin_version != NULL) {
+        g_free(current_plugin_version);
+        current_plugin_version = NULL;
+    }
 }
 
 WSLUA_FUNCTION wslua_set_plugin_info(lua_State* L) {
@@ -83,9 +64,7 @@ WSLUA_FUNCTION wslua_set_plugin_info(lua_State* L) {
     local my_info = {
         version = "1.0.1",
         author = "Jane Doe",
-        repository = "https://github.com/octocat/Spoon-Knife",
-        spdx_id = "GPL-2.0-or-later",
-        description = "Spoon-Knives can scoop and cut at the same time"
+        repository = "https://github.com/octocat/Spoon-Knife"
     }
 
     set_plugin_info(my_info)
@@ -94,18 +73,18 @@ WSLUA_FUNCTION wslua_set_plugin_info(lua_State* L) {
 #define WSLUA_ARG_set_plugin_info_TABLE 1 /* The Lua table of information. */
 
     if ( lua_istable(L,WSLUA_ARG_set_plugin_info_TABLE) ) {
+        int top;
         lua_getfield(L, WSLUA_ARG_set_plugin_info_TABLE, "version");
-        current_plugin_version = g_strdup(lua_tostring(L, -1));
-        if (current_plugin_version == NULL) {
+        top = lua_gettop(L);
+        if (lua_isstring(L, top)) {
+            clear_current_plugin_version();
+            current_plugin_version = g_strdup( luaL_checkstring(L, top) );
+            /* pop the string */
+            lua_pop(L, 1);
+        }
+        else {
             return luaL_error(L,"the Lua table must have a 'version' key entry with a string value");
         }
-        lua_getfield(L, WSLUA_ARG_set_plugin_info_TABLE, "description");
-        current_plugin_description = g_strdup(lua_tostring(L, -1));
-        lua_getfield(L, WSLUA_ARG_set_plugin_info_TABLE, "repository");
-        current_plugin_repository = g_strdup(lua_tostring(L, -1));
-        lua_getfield(L, WSLUA_ARG_set_plugin_info_TABLE, "spdx_id");
-        current_plugin_spdx_id = g_strdup(lua_tostring(L, -1));
-        lua_pop(L, 4);
     } else {
         return luaL_error(L,"a Lua table with at least a 'version' string entry");
     }
