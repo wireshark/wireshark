@@ -122,6 +122,13 @@ pass_plugin_compatibility(const char *name, plugin_type_e type,
     return true;
 }
 
+// GLib and Qt allow ".dylib" and ".so" on macOS. Should we do the same?
+#ifdef _WIN32
+#define MODULE_SUFFIX ".dll"
+#else
+#define MODULE_SUFFIX ".so"
+#endif
+
 static void
 scan_plugins_dir(GHashTable *plugins_module, const char *dirpath,
                         plugin_type_e type, plugin_scope_e scope)
@@ -149,7 +156,7 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath,
 
     while ((name = g_dir_read_name(dir)) != NULL) {
         /* Skip anything but files with .dll or .so. */
-        if (!g_str_has_suffix(name, WS_PLUGIN_MODULE_SUFFIX))
+        if (!g_str_has_suffix(name, MODULE_SUFFIX))
             continue;
 
         /*
@@ -321,54 +328,6 @@ bool
 plugins_supported(void)
 {
     return g_module_supported();
-}
-
-plugin_type_e
-plugins_check_file(const char *from_filename)
-{
-    char          *name;
-    GModule       *handle;
-    void          *symbol;
-    plugin_type_e  have_type;
-    int            abi_version;
-    struct ws_module *module;
-
-    handle = g_module_open(from_filename, G_MODULE_BIND_LAZY);
-    if (handle == NULL) {
-        /* g_module_error() provides file path. */
-        report_failure("Couldn't load file: %s", g_module_error());
-        return WS_PLUGIN_NONE;
-    }
-
-    /* Search for the entry point for the plugin registration function */
-    if (!g_module_symbol(handle, "wireshark_load_module", &symbol)) {
-        report_failure("The file '%s' has no \"wireshark_load_module\" symbol", from_filename);
-        return WS_PLUGIN_NONE;
-    }
-
-DIAG_OFF_PEDANTIC
-    /* Load module. */
-    have_type = ((ws_load_module_func)symbol)(&abi_version, NULL, &module);
-DIAG_ON_PEDANTIC
-
-    name = g_path_get_basename(from_filename);
-
-    if (!pass_plugin_compatibility(name, have_type, abi_version)) {
-        g_module_close(handle);
-        g_free(name);
-        return WS_PLUGIN_NONE;
-    }
-
-    g_module_close(handle);
-    g_free(name);
-    return have_type;
-}
-
-char *
-plugins_pers_type_folder(plugin_type_e type)
-{
-    return g_build_filename(get_plugins_pers_dir_with_version(),
-                type_to_dir(type), (const char *)NULL);
 }
 
 int

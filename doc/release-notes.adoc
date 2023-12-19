@@ -173,9 +173,6 @@ The following features are new (or have been significantly updated) since versio
   selected rows or the entire table can be saved or copied to the clipboard
   in several formats.
 
-* New menu:Tools[Install Plugin] option provides a convenient method to install
-  a binary plugin to the personal folder.
-
 * When capturing files in multiple file mode, a pattern that places the date and time
   before the index number can be used (e.g., foo_20240714110102_00001.pcap instead of
   foo_00001_20240714110102.pcap). This causes filenames to sort in chronological order
