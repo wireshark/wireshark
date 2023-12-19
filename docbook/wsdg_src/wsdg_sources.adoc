@@ -25,7 +25,7 @@ such as where to find specific functionality. This is done in
 
 https://git-scm.com/[Git] is used to keep track of the changes made to the Wireshark source code.
 The official repository is hosted at {wireshark-gitlab-project-url}[GitLab], and incoming changes are evaluated and reviewed there.
-For more information on GitLab see https://docs.gitlab.com/ce/gitlab-basics/[their documentation].
+For more information on GitLab see https://docs.gitlab.com/ee/[their documentation].
 
 .Why Git?
 
@@ -636,7 +636,7 @@ For the steps below we’ll pretend that your username is “henry.perry”.
 
 . Sign in to {wireshark-gitlab-project-url} by clicking “Sign in / Register” in the upper right corner of the web page and following the login instructions.
 
-. https://docs.gitlab.com/ce/ssh/[Add an SSH key to your account] as described in the GitLab documentation.
+. https://docs.gitlab.com/ee/user/ssh.html/[Add an SSH key to your account] as described in the GitLab documentation.
 
 . Make sure you have a clone of the main repository as described in <<ChSrcGit>>.
 

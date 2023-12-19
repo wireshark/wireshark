@@ -144,14 +144,21 @@ def find_links_in_file(filename):
                 all_urls.add(url)
 
 
-# Scan the given folder for links to test.
+# Scan the given folder for links to test. Recurses.
 def find_links_in_folder(folder):
-    # Look at files in sorted order, to give some idea of how far through it
-    # is.
-    for filename in sorted(os.listdir(folder)):
-        global links
-        if filename.endswith('.c') or filename.endswith('.adoc'):
-            find_links_in_file(os.path.join(folder, filename))
+    files_to_check = []
+    for root,subfolders,files in os.walk(folder):
+        for f in files:
+            if should_exit:
+                return
+            file = os.path.join(root, f)
+            if file.endswith('.c') or file.endswith('.adoc'):
+                files_to_check.append(file)
+
+    # Deal with files in sorted order.
+    for file in sorted(files_to_check):
+        find_links_in_file(file)
+
 
 
 async def populate_cache(sem, session, url):
@@ -270,7 +277,10 @@ if args.file or args.commits or args.open:
     else:
         print('No files to check.\n')
 else:
-    print('All dissector modules\n')
+    if not args.docs:
+        print('All dissector modules\n')
+    else:
+        print('Document sources')
 
 asyncio.run(check_all_links(links))
 

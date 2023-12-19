@@ -4,7 +4,7 @@
 
 The following table shows the typographic conventions that are used in this guide.
 
-// https://github.com/oreillymedia/orm_book_samples/blob/master/asciidoc_only/preface.adoc
+// https://github.com/oreillymedia/orm_book_samples/blob/master/asciidoc_only/preface.asciidoc
 
 // AsciiDoc allows alternative markup for some styles, specifically
 // 'single quotes' and _underlines_ for italics and +plus signs+ and

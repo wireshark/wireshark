@@ -452,7 +452,7 @@ additional configuration in protocol preferences.
 
 The file format is described by <secrets type> which can be one of:
 
-__tls__  TLS Key Log as described at https://udn.realitytripple.com/docs/Mozilla/Projects/NSS_Key_Log_Format +
+__tls__  TLS Key Log as described at https://udn.realityripple.com/docs/Mozilla/Projects/NSS/Key_Log_Format +
 __wg__   WireGuard Key Log, see https://gitlab.com/wireshark/wireshark/-/wikis/WireGuard#key-log-format
 
 This option may be specified multiple times. The available options for
