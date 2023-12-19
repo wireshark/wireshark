@@ -30,7 +30,6 @@ typedef struct _plugin {
     GModule        *handle;       /* handle returned by g_module_open */
     char           *name;         /* plugin name */
     struct ws_module *module;
-    plugin_scope_e  scope;
 } plugin;
 
 #define TYPE_DIR_EPAN       "epan"
@@ -130,8 +129,7 @@ pass_plugin_compatibility(const char *name, plugin_type_e type,
 #endif
 
 static void
-scan_plugins_dir(GHashTable *plugins_module, const char *dirpath,
-                        plugin_type_e type, plugin_scope_e scope)
+scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e type)
 {
     GDir          *dir;
     const char    *name;            /* current file name */
@@ -214,7 +212,6 @@ DIAG_ON_PEDANTIC
         new_plug->handle = handle;
         new_plug->name = g_strdup(name);
         new_plug->module = module;
-        new_plug->scope = scope;
 
         /* Add it to the list of plugins. */
         g_hash_table_replace(plugins_module, new_plug->name, new_plug);
@@ -241,7 +238,7 @@ plugins_init(plugin_type_e type)
     /*
      * Scan the global plugin directory.
      */
-    scan_plugins_dir(plugins_module, get_plugins_dir_with_version(), type, WS_PLUGIN_SCOPE_GLOBAL);
+    scan_plugins_dir(plugins_module, get_plugins_dir_with_version(), type);
 
     /*
      * If the program wasn't started with special privileges,
@@ -252,7 +249,7 @@ plugins_init(plugin_type_e type)
      * reclaim them before each time we start capturing.)
      */
     if (!started_with_special_privs()) {
-        scan_plugins_dir(plugins_module, get_plugins_pers_dir_with_version(), type, WS_PLUGIN_SCOPE_USER);
+        scan_plugins_dir(plugins_module, get_plugins_pers_dir_with_version(), type);
     }
 
     plugins_module_list = g_slist_prepend(plugins_module_list, plugins_module);
@@ -279,9 +276,7 @@ plugins_get_descriptions(plugin_description_callback callback, void *callback_da
     for (unsigned i = 0; i < plugins_array->len; i++) {
         plugin *plug = (plugin *)plugins_array->pdata[i];
         callback(plug->name, plug->module->version, plug->module->flags, plug->module->spdx_id,
-                    plug->module->blurb, plug->module->home_url,
-                    g_module_name(plug->handle), plug->scope,
-                    callback_data);
+                    plug->module->blurb, plug->module->home_url, g_module_name(plug->handle), callback_data);
     }
 
     g_ptr_array_free(plugins_array, true);
@@ -291,7 +286,7 @@ static void
 print_plugin_description(const char *name, const char *version,
                          uint32_t flags, const char *spdx_id _U_,
                          const char *blurb _U_, const char *home_url _U_,
-                         const char *filename, plugin_scope_e scope _U_,
+                         const char *filename,
                          void *user_data _U_)
 {
     printf("%-16s\t%s\t%s\t%s\n", name, version, flags_to_str(flags), filename);
