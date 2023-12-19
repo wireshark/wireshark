@@ -30,9 +30,6 @@ representations for numeric fields).
 
 Display filter functions can be implemented as runtime-loadable C plugins.
 
-Plugin registration API was refactored. Plugin authors must update their
-plugins as described below.
-
 Custom columns can be defined using any valid field expression, such as
 display filter functions, slices, arithmetic calculations, logical tests,
 raw byte addressing, and the layer modifier.
@@ -257,11 +254,8 @@ u-blox GNSS receivers
 
 === Major API Changes
 
-* Plugin registration API was refactored. Plugin authors must do the following:
-  1 - Remove the existing boilerplate (version, want_major` and `want_minor` and
-  plugin API declarations. 2 - Add a struct ws_module to the plugin.
-  3 - Call one of the WIRESHARK_PLUGIN_REGISTER_* macros. See README.plugins
-  sections 5 and doc/plugins.example/hello.c for details and examples.
+* Plugins should provide a `plugin_describe()` function that returns an ORed
+  list of flags consisting of the plugin types used (declared in wsutil/plugins.h).
 
 == Getting Wireshark
 
