@@ -96,20 +96,6 @@ QStringList AuthorListModel::headerColumns() const
     return QStringList() << tr("Name") << tr("Email");
 }
 
-#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
-static const char *
-scope_to_str(plugin_scope_e scope)
-{
-    switch (scope) {
-        case WS_PLUGIN_SCOPE_NONE :     return "";
-        case WS_PLUGIN_SCOPE_USER:      return "personal";
-        case WS_PLUGIN_SCOPE_GLOBAL:    return "global";
-        case WS_PLUGIN_SCOPE_CLI:       return "cli";
-    }
-    return "";
-}
-#endif // HAVE_PLUGINS || HAVE_LUA
-
 #ifdef HAVE_PLUGINS
 static void plugins_add_description(const char *name, const char *version,
                                     uint32_t flags, const char *spdx_id _U_,
@@ -119,6 +105,7 @@ static void plugins_add_description(const char *name, const char *version,
 {
     QList<QStringList> *plugin_data = (QList<QStringList> *)user_data;
     QStringList plugin_types;
+    const char *scope_str = "";
 
     if (flags & WS_PLUGIN_DESC_DISSECTOR)
         plugin_types << "dissector";
@@ -135,37 +122,27 @@ static void plugins_add_description(const char *name, const char *version,
     if (plugin_types.empty())
         plugin_types << "unknown";
 
+    switch (scope) {
+        case WS_PLUGIN_SCOPE_NONE: scope_str = "";
+            break;
+        case WS_PLUGIN_SCOPE_USER: scope_str = "personal";
+            break;
+        case WS_PLUGIN_SCOPE_GLOBAL: scope_str = "global";
+            break;
+    }
+
     QStringList plugin_row = QStringList() << name << version << plugin_types.join(", ")
-                                << scope_to_str(scope) << blurb << home_url;
+                                << scope_str << blurb << home_url;
     *plugin_data << plugin_row;
 }
 #endif
 
-#ifdef HAVE_LUA
-// This exists only to add "lua script" to the type, otherwise we could use
-// plugins_add_description(). Eventually lua scripts
-// should support plugin functional flags too (along with the other info fields)
-// and the "lua script" type can be dropped, or moved to
-// a new binary/lua/extcap type column (but not really).
-static void wslua_plugins_add_description(const char *name, const char *version,
-                                    uint32_t flags _U_, const char *spdx_id _U_,
-                                    const char *blurb _U_, const char *home_url _U_,
-                                    const char *filename _U_, plugin_scope_e scope,
+static void other_plugins_add_description(const char *name, const char *version,
+                                    const char *types, const char *filename _U_,
                                     void *user_data)
 {
     QList<QStringList> *plugin_data = (QList<QStringList> *)user_data;
-    QStringList plugin_row = QStringList() << name << version << "lua script"
-                                << scope_to_str(scope) << "" << "";
-    *plugin_data << plugin_row;
-}
-#endif
-
-static void extcap_plugins_add_description(const char *name, const char *version,
-                                    const char *types _U_, const char *filename _U_,
-                                    void *user_data)
-{
-    QList<QStringList> *plugin_data = (QList<QStringList> *)user_data;
-    QStringList plugin_row = QStringList() << name << version << "extcap" << "" << "" << "";
+    QStringList plugin_row = QStringList() << name << version << types << "" << "" << "";
     *plugin_data << plugin_row;
 }
 
@@ -177,10 +154,10 @@ PluginListModel::PluginListModel(QObject *parent) : AStringListListModel(parent)
 #endif
 
 #ifdef HAVE_LUA
-    wslua_plugins_get_descriptions(wslua_plugins_add_description, &plugin_data);
+    wslua_plugins_get_descriptions(other_plugins_add_description, &plugin_data);
 #endif
 
-    extcap_get_descriptions(extcap_plugins_add_description, &plugin_data);
+    extcap_get_descriptions(other_plugins_add_description, &plugin_data);
 
     typeNames_ << QString("");
     foreach(QStringList row, plugin_data)

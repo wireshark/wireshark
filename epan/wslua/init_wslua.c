@@ -35,7 +35,6 @@ typedef struct _wslua_plugin {
     char       *name;            /**< plugin name */
     char       *version;         /**< plugin version */
     char       *filename;        /**< plugin filename */
-    plugin_scope_e scope;         /**< plugin scope */
     struct _wslua_plugin *next;
 } wslua_plugin;
 
@@ -562,8 +561,7 @@ static int error_handler_with_callback(lua_State *LS) {
     return 1;
 }
 
-static void wslua_add_plugin(const char *name, const char *version,
-                                const char *filename, plugin_scope_e scope)
+static void wslua_add_plugin(const char *name, const char *version, const char *filename)
 {
     wslua_plugin *new_plug, *lua_plug;
 
@@ -582,7 +580,6 @@ static void wslua_add_plugin(const char *name, const char *version,
     new_plug->name = g_strdup(name);
     new_plug->version = g_strdup(version);
     new_plug->filename = g_strdup(filename);
-    new_plug->scope = scope;
     new_plug->next = NULL;
 }
 
@@ -743,15 +740,14 @@ static bool lua_load_internal_script(const char* filename) {
 /* This one is used to load plugins: either from the plugin directories,
  *   or from the command line.
  */
-static bool lua_load_plugin_script(const char* name,
+static gboolean lua_load_plugin_script(const char* name,
                                        const char* filename,
                                        const char* dirname,
-                                       plugin_scope_e scope,
                                        const int file_count)
 {
     ws_debug("Loading lua script: %s", filename);
     if (lua_load_script(filename, dirname, file_count)) {
-        wslua_add_plugin(name, get_current_plugin_version(), filename, scope);
+        wslua_add_plugin(name, get_current_plugin_version(), filename);
         clear_current_plugin_version();
         return true;
     }
@@ -850,8 +846,7 @@ static int lua_load_plugins(const char *dirname, register_cb cb, void *client_da
             if (!count_only) {
                 if (cb)
                     (*cb)(RA_LUA_PLUGINS, name, client_data);
-                lua_load_plugin_script(name, filename, is_user ? dirname : NULL,
-                                        is_user ? WS_PLUGIN_SCOPE_USER : WS_PLUGIN_SCOPE_GLOBAL, 0);
+                lua_load_plugin_script(name, filename, is_user ? dirname : NULL, 0);
 
                 if (loaded_files) {
                     g_hash_table_insert(loaded_files, g_strdup(name), NULL);
@@ -909,31 +904,32 @@ int wslua_count_plugins(void) {
     return plugins_counter;
 }
 
-void wslua_plugins_get_descriptions(plugin_description_callback callback, void *user_data) {
+void wslua_plugins_get_descriptions(wslua_plugin_description_callback callback, void *user_data) {
     wslua_plugin  *lua_plug;
 
     for (lua_plug = wslua_plugin_list; lua_plug != NULL; lua_plug = lua_plug->next)
     {
-        callback(lua_plug->name, lua_plug->version,
-                 0 /* flags */, "" /* spdx */, "" /* blurb */, "" /* home_url */,
-                 lua_plug->filename, lua_plug->scope, user_data);
+        callback(lua_plug->name, lua_plug->version, wslua_plugin_type_name(),
+                 lua_plug->filename, user_data);
     }
 }
 
 static void
 print_wslua_plugin_description(const char *name, const char *version,
-                                uint32_t flags _U_, const char *spdx_id _U_,
-                                const char *blurb _U_, const char *home_url _U_,
-                                const char *filename, plugin_scope_e scope _U_,
-                                void *user_data _U_)
+                               const char *description, const char *filename,
+                               void *user_data _U_)
 {
-    printf("%s\t%s\t%s\t%s\n", name, version, "lua script", filename);
+    printf("%s\t%s\t%s\t%s\n", name, version, description, filename);
 }
 
 void
 wslua_plugins_dump_all(void)
 {
     wslua_plugins_get_descriptions(print_wslua_plugin_description, NULL);
+}
+
+const char *wslua_plugin_type_name(void) {
+    return "lua script";
 }
 
 static ei_register_info* ws_lua_ei;
@@ -1708,7 +1704,6 @@ void wslua_init(register_cb cb, void *client_data) {
             lua_load_plugin_script(ws_dir_get_name(script_filename),
                                    script_filename,
                                    dname ? dname : "",
-                                   WS_PLUGIN_SCOPE_CLI,
                                    file_count);
             file_count++;
             g_free(dirname);

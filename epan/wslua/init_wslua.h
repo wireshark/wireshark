@@ -12,8 +12,6 @@
 
 #include "ws_symbol_export.h"
 
-#include <wsutil/plugins.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -21,8 +19,12 @@ extern "C" {
 WS_DLL_PUBLIC int wslua_count_plugins(void);
 WS_DLL_PUBLIC void wslua_reload_plugins (register_cb cb, void *client_data);
 
-WS_DLL_PUBLIC void wslua_plugins_get_descriptions(plugin_description_callback callback, void *user_data);
+typedef void (*wslua_plugin_description_callback)(const char *, const char *,
+                                                  const char *, const char *,
+                                                  void *);
+WS_DLL_PUBLIC void wslua_plugins_get_descriptions(wslua_plugin_description_callback callback, void *user_data);
 WS_DLL_PUBLIC void wslua_plugins_dump_all(void);
+WS_DLL_PUBLIC const char *wslua_plugin_type_name(void);
 
 #ifdef __cplusplus
 }
