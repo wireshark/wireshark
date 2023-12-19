@@ -35,7 +35,6 @@ set_source_files_properties(
 
 register_plugin_files(plugin.c
 	plugin
-	"Response time information based on the RTE model"
 	${DISSECTOR_SRC}
 	${DISSECTOR_SUPPORT_SRC}
 )

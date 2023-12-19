@@ -35,7 +35,6 @@ set_source_files_properties(
 
 register_plugin_files(plugin.c
 	plugin
-	"EtherCAT (Ethernet for Control Automation Technology) dissection"
 	${DISSECTOR_SRC}
 )
 

@@ -45,7 +45,6 @@ set_source_files_properties(
 
 register_plugin_files(plugin.c
 	plugin
-	"OpcUa (OPC Unified Architecture) dissection"
 	${DISSECTOR_SRC}
 	${DISSECTOR_SUPPORT_SRC}
 )

@@ -29,7 +29,6 @@ set_source_files_properties(
 
 register_plugin_files(plugin.c
 	plugin_wtap
-	"Add support for reading FreeBSD usbdump(8) files"
 	${WIRETAP_SRC}
 )
 

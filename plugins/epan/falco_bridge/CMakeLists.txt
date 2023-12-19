@@ -35,7 +35,6 @@ set_source_files_properties(
 
 register_plugin_files(plugin.c
 	plugin
-	"Implements a bridge between Falco plugins and Wireshark"
 	${DISSECTOR_SRC}
 )
 

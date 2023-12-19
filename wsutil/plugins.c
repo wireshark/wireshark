@@ -228,8 +228,6 @@ DIAG_ON_PEDANTIC
         /* Add it to the list of plugins. */
         g_hash_table_replace(plugins_module, new_plug->name, new_plug);
         ws_info("Registered plugin: %s (%s)", new_plug->name, plugin_file);
-        ws_debug("plugin '%s' meta data: version = %s, flags = 0x%"PRIu32", spdx = %s, blurb = %s",
-                    name, module->version, module->flags, module->spdx_id, module->blurb);
         g_free(plugin_file);
     }
     ws_dir_close(dir);

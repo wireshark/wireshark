@@ -21,11 +21,12 @@ registertype = sys.argv[2]
 #
 # The third argument is the plugin short description
 #
-plugin_blurb = sys.argv[3]
+#plugin_blurb = sys.argv[3]
+plugin_blurb = "FIXME"
 #
 # All subsequent arguments are the files to scan.
 #
-files = sys.argv[4:]
+files = sys.argv[3:]
 
 final_filename = "plugin.c"
 preamble = """\
