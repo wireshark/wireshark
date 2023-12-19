@@ -880,19 +880,19 @@ SectionEnd
 Section "-Plugins & Extensions"
 
 ;-------------------------------------------
-SetOutPath '$INSTDIR\plugins\epan'
-File "${STAGING_DIR}\plugins\epan\falco-bridge.dll.${ABI_VERSION_EPAN}"
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\falco-bridge.dll"
 SetOutPath '$INSTDIR\plugins\falco'
 File "${STAGING_DIR}\plugins\falco\cloudtrail.dll"
 !include "custom_plugins.txt"
 
 ;-------------------------------------------
-SetOutPath '$INSTDIR\plugins\epan'
-File "${STAGING_DIR}\plugins\epan\stats_tree.dll.${ABI_VERSION_EPAN}"
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\stats_tree.dll"
 
 ;-------------------------------------------
-SetOutPath '$INSTDIR\plugins\epan'
-File "${STAGING_DIR}\plugins\epan\mate.dll.${ABI_VERSION_EPAN}"
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\mate.dll"
 
 ;-------------------------------------------
 ; This should be a function or macro

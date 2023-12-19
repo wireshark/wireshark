@@ -264,13 +264,13 @@ FolderListModel::FolderListModel(QObject * parent):
     /* program */
     appendRow(QStringList() << tr("Program") << get_progfile_dir() << tr("Program files"));
 
-    if (plugins_supported()) {
-        /* pers plugins */
-        appendRow(QStringList() << tr("Personal Plugins") << get_plugins_pers_dir() << tr("Binary plugins"));
+#ifdef HAVE_PLUGINS
+    /* pers plugins */
+    appendRow(QStringList() << tr("Personal Plugins") << get_plugins_pers_dir_with_version() << tr("Binary plugins"));
 
-        /* global plugins */
-        appendRow(QStringList() << tr("Global Plugins") << get_plugins_dir() << tr("Binary plugins"));
-    }
+    /* global plugins */
+    appendRow(QStringList() << tr("Global Plugins") << get_plugins_dir_with_version() << tr("Binary plugins"));
+#endif
 
 #ifdef HAVE_LUA
     /* pers plugins */

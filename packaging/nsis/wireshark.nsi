@@ -1040,24 +1040,24 @@ SectionEnd
 
 Section "-Plugins & Extensions"
 
-SetOutPath '$INSTDIR\plugins\codecs'
-File "${STAGING_DIR}\plugins\codecs\g711.dll.${ABI_VERSION_CODEC}"
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\g711.dll"
 !ifdef SPANDSP_FOUND
-File "${STAGING_DIR}\plugins\codecs\g722.dll.${ABI_VERSION_CODEC}"
-File "${STAGING_DIR}\plugins\codecs\g726.dll.${ABI_VERSION_CODEC}"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\g722.dll"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\g726.dll"
 !endif
 !ifdef BCG729_FOUND
-File "${STAGING_DIR}\plugins\codecs\g729.dll.${ABI_VERSION_CODEC}"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\g729.dll"
 !endif
-File "${STAGING_DIR}\plugins\codecs\l16mono.dll.${ABI_VERSION_CODEC}"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\l16mono.dll"
 !ifdef SBC_FOUND
-File "${STAGING_DIR}\plugins\codecs\sbc.dll.${ABI_VERSION_CODEC}"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\sbc.dll"
 !endif
 !ifdef ILBC_FOUND
-File "${STAGING_DIR}\plugins\codecs\ilbc.dll.${ABI_VERSION_CODEC}"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\ilbc.dll"
 !endif
 !ifdef OPUS_FOUND
-File "${STAGING_DIR}\plugins\codecs\opus_dec.dll.${ABI_VERSION_CODEC}"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\opus_dec.dll"
 !endif
 
 ; This should be a function or macro
@@ -1069,23 +1069,23 @@ File "${STAGING_DIR}\profiles\Classic\colorfilters"
 SetOutPath '$INSTDIR\profiles\No Reassembly'
 File "${STAGING_DIR}\profiles\No Reassembly\preferences"
 
-SetOutPath '$INSTDIR\plugins\epan'
-File "${STAGING_DIR}\plugins\epan\ethercat.dll.${ABI_VERSION_EPAN}"
-File "${STAGING_DIR}\plugins\epan\gryphon.dll.${ABI_VERSION_EPAN}"
-File "${STAGING_DIR}\plugins\epan\irda.dll.${ABI_VERSION_EPAN}"
-File "${STAGING_DIR}\plugins\epan\opcua.dll.${ABI_VERSION_EPAN}"
-File "${STAGING_DIR}\plugins\epan\profinet.dll.${ABI_VERSION_EPAN}"
-File "${STAGING_DIR}\plugins\epan\unistim.dll.${ABI_VERSION_EPAN}"
-File "${STAGING_DIR}\plugins\epan\wimax.dll.${ABI_VERSION_EPAN}"
-File "${STAGING_DIR}\plugins\epan\wimaxasncp.dll.${ABI_VERSION_EPAN}"
-File "${STAGING_DIR}\plugins\epan\wimaxmacphy.dll.${ABI_VERSION_EPAN}"
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\ethercat.dll"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\gryphon.dll"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\irda.dll"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\opcua.dll"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\profinet.dll"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\unistim.dll"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\wimax.dll"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\wimaxasncp.dll"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\wimaxmacphy.dll"
 !include "custom_plugins.txt"
 
-SetOutPath '$INSTDIR\plugins\wiretap'
-File "${STAGING_DIR}\plugins\wiretap\usbdump.dll.${ABI_VERSION_WIRETAP}"
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\wiretap'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\wiretap\usbdump.dll"
 
-SetOutPath '$INSTDIR\plugins\epan'
-File "${STAGING_DIR}\plugins\epan\mate.dll.${ABI_VERSION_EPAN}"
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\mate.dll"
 
 !ifdef SMI_DIR
 SetOutPath '$INSTDIR\snmp\mibs'
@@ -1098,11 +1098,11 @@ File "${SMI_DIR}\share\yang\*.yang"
 !include "custom_mibs.txt"
 !endif
 
-SetOutPath '$INSTDIR\plugins\epan'
-File "${STAGING_DIR}\plugins\epan\transum.dll.${ABI_VERSION_EPAN}"
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\transum.dll"
 
-SetOutPath '$INSTDIR\plugins\epan'
-File "${STAGING_DIR}\plugins\epan\stats_tree.dll.${ABI_VERSION_EPAN}"
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\stats_tree.dll"
 
 SectionEnd ; "Plugins / Extensions"
 

@@ -28,7 +28,7 @@ macro(SET_MODULE_INFO _plugin _ver_major _ver_minor _ver_micro _ver_extra)
 	add_definitions(-DPLUGIN_VERSION=\"${PLUGIN_VERSION}\")
 endmacro()
 
-macro(ADD_PLUGIN_LIBRARY _plugin _output_dir _abi_version)
+macro(ADD_PLUGIN_LIBRARY _plugin _output_dir)
 	add_library(${_plugin} MODULE
 		${PLUGIN_FILES}
 		${PLUGIN_RC_FILE}
@@ -38,7 +38,6 @@ macro(ADD_PLUGIN_LIBRARY _plugin _output_dir _abi_version)
 
 	set_target_properties(${_plugin} PROPERTIES
 		PREFIX ""
-		SUFFIX "${CMAKE_SHARED_MODULE_SUFFIX}.${_abi_version}"
 		LINK_FLAGS "${WS_LINK_FLAGS}"
 		FOLDER "Plugins"
 		LIBRARY_OUTPUT_DIRECTORY ${_output_dir}
@@ -52,25 +51,25 @@ macro(ADD_PLUGIN_LIBRARY _plugin _output_dir _abi_version)
 endmacro()
 
 macro(ADD_WIRESHARK_EPAN_PLUGIN_LIBRARY _plugin)
-	ADD_PLUGIN_LIBRARY(${_plugin} "${PLUGIN_DIR}/epan" ${PROJECT_ABI_VERSION_EPAN})
+	ADD_PLUGIN_LIBRARY(${_plugin} "${PLUGIN_DIR}/epan")
 endmacro()
 
 macro(ADD_WIRESHARK_WIRETAP_PLUGIN_LIBRARY _plugin)
-	ADD_PLUGIN_LIBRARY(${_plugin} "${PLUGIN_DIR}/wiretap" ${PROJECT_ABI_VERSION_WIRETAP})
+	ADD_PLUGIN_LIBRARY(${_plugin} "${PLUGIN_DIR}/wiretap")
 endmacro()
 
 macro(ADD_WIRESHARK_CODEC_PLUGIN_LIBRARY _plugin)
-	ADD_PLUGIN_LIBRARY(${_plugin} "${PLUGIN_DIR}/codecs" ${PROJECT_ABI_VERSION_CODEC})
+	ADD_PLUGIN_LIBRARY(${_plugin} "${PLUGIN_DIR}/codecs")
 endmacro()
 
 macro(ADD_LOGRAY_EPAN_PLUGIN_LIBRARY _plugin)
-	ADD_PLUGIN_LIBRARY(${_plugin} "${LOGRAY_PLUGIN_DIR}/epan" ${PROJECT_ABI_VERSION_EPAN})
+	ADD_PLUGIN_LIBRARY(${_plugin} "${LOGRAY_PLUGIN_DIR}/epan")
 endmacro()
 
 macro(INSTALL_PLUGIN _plugin _subfolder)
 	install(TARGETS ${_plugin}
-		LIBRARY DESTINATION ${PLUGIN_INSTALL_LIBDIR}/${_subfolder} NAMELINK_SKIP
-		RUNTIME DESTINATION ${PLUGIN_INSTALL_LIBDIR}
-		ARCHIVE DESTINATION ${PLUGIN_INSTALL_LIBDIR}
+		LIBRARY DESTINATION ${PLUGIN_INSTALL_VERSION_LIBDIR}/${_subfolder} NAMELINK_SKIP
+		RUNTIME DESTINATION ${PLUGIN_INSTALL_VERSION_LIBDIR}
+		ARCHIVE DESTINATION ${PLUGIN_INSTALL_VERSION_LIBDIR}
 )
 endmacro()

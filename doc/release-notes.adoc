@@ -179,11 +179,6 @@ The following features are new (or have been significantly updated) since versio
 * The personal binary plugins folder now has higher priority than the global
   folder.
 
-* The binary plugins folder path no longer uses an X.Y version component. Plugins
-  are required to add the ABI version to the file name.
-
-* Truncated fields in the detail view are now displayed as "Field name […]: data" instead of "Field name [truncated]: data"
-
 * When capturing files in multiple file mode, a pattern that places the date and time
   before the index number can be used (e.g., foo_20240714110102_00001.pcap instead of
   foo_00001_20240714110102.pcap). This causes filenames to sort in chronological order

@@ -3,15 +3,8 @@ set(Wireshark_MINOR_VERSION @PROJECT_MINOR_VERSION@)
 set(Wireshark_PATCH_VERSION @PROJECT_PATCH_VERSION@)
 set(Wireshark_VERSION "@PROJECT_VERSION@")
 
-set(Wireshark_ABI_VERSION_EPAN    @PROJECT_ABI_VERSION_EPAN@)
-set(Wireshark_ABI_VERSION_WIRETAP @PROJECT_ABI_VERSION_WIRETAP@)
-set(Wireshark_ABI_VERSION_CODEC   @PROJECT_ABI_VERSION_CODEC@)
-
 set(Wireshark_PLUGINS_ENABLED @HAVE_PLUGINS@)
-set(Wireshark_PLUGIN_SUFFIX_EPAN    "${CMAKE_SHARED_MODULE_SUFFIX}.${Wireshark_ABI_VERSION_EPAN}")
-set(Wireshark_PLUGIN_SUFFIX_WIRETAP "${CMAKE_SHARED_MODULE_SUFFIX}.${Wireshark_ABI_VERSION_WIRETAP}")
-set(Wireshark_PLUGIN_SUFFIX_CODEC   "${CMAKE_SHARED_MODULE_SUFFIX}.${Wireshark_ABI_VERSION_CODEC}")
-set(Wireshark_PLUGIN_LIBDIR "@PLUGIN_INSTALL_LIBDIR@")
+set(Wireshark_PLUGIN_LIBDIR "@PLUGIN_INSTALL_VERSION_LIBDIR@")
 
 @PACKAGE_INIT@
 
@@ -25,7 +18,9 @@ set_and_check(Wireshark_INCLUDE_DIR        "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@/w
 # which is not helpful because the variable is correct, it's just that the empty directories
 # were not created (also correctly, empty directories are just noise).
 #
-set(Wireshark_PLUGIN_INSTALL_DIR "@PACKAGE_PLUGIN_INSTALL_LIBDIR@")
+if(Wireshark_PLUGINS_ENABLED)
+    set(Wireshark_PLUGIN_INSTALL_DIR "@PACKAGE_PLUGIN_INSTALL_VERSION_LIBDIR@")
+endif()
 set(Wireshark_EXTCAP_INSTALL_DIR "@PACKAGE_EXTCAP_INSTALL_LIBDIR@")
 
 include("${CMAKE_CURRENT_LIST_DIR}/WiresharkTargets.cmake")

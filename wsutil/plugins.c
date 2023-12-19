@@ -130,14 +130,12 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath,
     const char    *name;            /* current file name */
     char          *plugin_folder;
     char          *plugin_file;     /* current file full path */
-    char          *plugin_ext;      /* plugin file extension */
     GModule       *handle;          /* handle returned by g_module_open */
     void          *symbol;
     plugin        *new_plug;
     plugin_type_e have_type;
     int            abi_version;
     struct ws_module *module;
-    char          *s;
 
     plugin_folder = g_build_filename(dirpath, type_to_dir(type), (char *)NULL);
 
@@ -147,13 +145,11 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath,
         return;
     }
 
-    plugin_ext = plugins_file_suffix(type);
-
-    ws_debug("Scanning plugins folder \"%s\" for *%s", plugin_folder, plugin_ext);
+    ws_debug("Scanning plugins folder \"%s\"", plugin_folder);
 
     while ((name = g_dir_read_name(dir)) != NULL) {
         /* Skip anything but files with .dll or .so. */
-        if (!g_str_has_suffix(name, plugin_ext))
+        if (!g_str_has_suffix(name, WS_PLUGIN_MODULE_SUFFIX))
             continue;
 
         plugin_file = g_build_filename(plugin_folder, name, (char *)NULL);
@@ -223,20 +219,14 @@ DIAG_ON_PEDANTIC
         new_plug->module = module;
         new_plug->scope = scope;
 
-        // Strip version from plugin display name
-        s = strrchr(new_plug->name, '.');
-        if (s != NULL && g_ascii_isdigit(*(s+1)))
-            *s = '\0';
-
         /* Add it to the list of plugins. */
-        g_hash_table_replace(plugins_module, g_strdup(name), new_plug);
+        g_hash_table_replace(plugins_module, new_plug->name, new_plug);
         ws_info("Registered plugin: %s (%s)", new_plug->name, plugin_file);
         ws_debug("plugin '%s' meta data: version = %s, flags = 0x%"PRIu32", spdx = %s, blurb = %s",
                     name, module->version, module->flags, module->spdx_id, module->blurb);
         g_free(plugin_file);
     }
     ws_dir_close(dir);
-    wmem_free(NULL, plugin_ext);
     g_free(plugin_folder);
 }
 
@@ -249,7 +239,7 @@ plugins_init(plugin_type_e type)
     if (!plugins_supported())
         return NULL; /* nothing to do */
 
-    GHashTable *plugins_module = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, free_plugin);
+    GHashTable *plugins_module = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, free_plugin);
 
     /* Scan the users plugins directory first, giving it priority over the
      * global plugins folder. Only scan it if we weren't started with special
@@ -259,7 +249,7 @@ plugins_init(plugin_type_e type)
      * if we need privileges to start capturing, we'd need to
      * reclaim them before each time we start capturing.)
      */
-    const char *user_dir = get_plugins_pers_dir();
+    const char *user_dir = get_plugins_pers_dir_with_version();
     if (!started_with_special_privs()) {
         scan_plugins_dir(plugins_module, user_dir, type, WS_PLUGIN_SCOPE_USER);
     }
@@ -272,7 +262,7 @@ plugins_init(plugin_type_e type)
      * Scan the global plugin directory. Make sure we don't scan the same directory
      * twice (under some unusual install configurations).
      */
-    const char *global_dir = get_plugins_dir();
+    const char *global_dir = get_plugins_dir_with_version();
     if (strcmp(global_dir, user_dir) != 0) {
         scan_plugins_dir(plugins_module, global_dir, type, WS_PLUGIN_SCOPE_GLOBAL);
     }
@@ -402,14 +392,8 @@ DIAG_ON_PEDANTIC
 char *
 plugins_pers_type_folder(plugin_type_e type)
 {
-    return g_build_filename(get_plugins_pers_dir(),
+    return g_build_filename(get_plugins_pers_dir_with_version(),
                 type_to_dir(type), (const char *)NULL);
-}
-
-char *
-plugins_file_suffix(plugin_type_e type)
-{
-    return ws_strdup_printf("%s.%d", WS_PLUGIN_MODULE_SUFFIX, plugins_abi_version(type));
 }
 
 int

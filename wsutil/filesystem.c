@@ -1154,7 +1154,9 @@ get_doc_dir(void)
  *    configure script.
  */
 static char *plugin_dir;
+static char *plugin_dir_with_version;
 static char *plugin_pers_dir;
+static char *plugin_pers_dir_with_version;
 static char *extcap_pers_dir;
 
 static void
@@ -1240,6 +1242,16 @@ get_plugins_dir(void)
     return plugin_dir;
 }
 
+const char *
+get_plugins_dir_with_version(void)
+{
+    if (!plugin_dir)
+        init_plugin_dir();
+    if (plugin_dir && !plugin_dir_with_version)
+        plugin_dir_with_version = g_build_filename(plugin_dir, PLUGIN_PATH_ID, (char *)NULL);
+    return plugin_dir_with_version;
+}
+
 /* Get the personal plugin dir */
 const char *
 get_plugins_pers_dir(void)
@@ -1247,6 +1259,16 @@ get_plugins_pers_dir(void)
     if (!plugin_pers_dir)
         init_plugin_pers_dir();
     return plugin_pers_dir;
+}
+
+const char *
+get_plugins_pers_dir_with_version(void)
+{
+    if (!plugin_pers_dir)
+        init_plugin_pers_dir();
+    if (plugin_pers_dir && !plugin_pers_dir_with_version)
+        plugin_pers_dir_with_version = g_build_filename(plugin_pers_dir, PLUGIN_PATH_ID, (char *)NULL);
+    return plugin_pers_dir_with_version;
 }
 
 /*
@@ -2674,8 +2696,12 @@ free_progdirs(void)
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
     g_free(plugin_dir);
     plugin_dir = NULL;
+    g_free(plugin_dir_with_version);
+    plugin_dir_with_version = NULL;
     g_free(plugin_pers_dir);
     plugin_pers_dir = NULL;
+    g_free(plugin_pers_dir_with_version);
+    plugin_pers_dir_with_version = NULL;
 #endif
     g_free(extcap_dir);
     extcap_dir = NULL;

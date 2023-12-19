@@ -188,9 +188,8 @@ set(WIX_CANDLE_DEFINES
 	-dPlatform=${WIRESHARK_TARGET_PLATFORM}
 	-dWiresharkName=${CMAKE_PROJECT_NAME}
 	-dWiresharkVersion=${PRODUCT_VERSION}
-	-dWiresharkAbiVersionEpan=${PROJECT_ABI_VERSION_EPAN}
-	-dWiresharkAbiVersionWtap=${PROJECT_ABI_VERSION_WIRETAP}
-	-dWiresharkAbiVersionCodec=${PROJECT_ABI_VERSION_CODEC}
+	-dWiresharkMajorVersion=${PROJECT_MAJOR_VERSION}
+	-dWiresharkMinorVersion=${PROJECT_MINOR_VERSION}
 	-dAssetDir=${CMAKE_SOURCE_DIR}/packaging/wix
 	-dBuildOutputDir=${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}
 	-dDiameterDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/diameter

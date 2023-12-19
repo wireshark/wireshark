@@ -19,9 +19,8 @@
 /* Version number of Logray and associated utilities */
 #define LOG_VERSION "${LOG_PROJECT_VERSION}${VERSION_EXTRA}"
 
+#define PLUGIN_PATH_ID "${PLUGIN_PATH_ID}"
 #define VERSION_FLAVOR "${VERSION_FLAVOR}"
-
-#define SHARED_MODULE_SUFFIX "${CMAKE_SHARED_MODULE_SUFFIX}"
 
 /* Build wsutil with SIMD optimization */
 #cmakedefine HAVE_SSE4_2 1
