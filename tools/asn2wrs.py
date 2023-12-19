@@ -8079,7 +8079,7 @@ def eth_main():
         if o in ("-C",):
             ectx.constraints_check = True
         if o in ("-L",):
-            ectx.suppress_line = True
+            ectx.conform.suppress_line = True;
         if o in ("-X",):
             warnings.warn("Command line option -X is obsolete and can be removed")
         if o in ("-T",):
@@ -8164,7 +8164,7 @@ def eth_main():
 
     if ectx.dbg('o'):
         ectx.output.dbg_print()
-    ectx.output.make_single_file(ectx.suppress_line)
+    ectx.output.make_single_file(ectx.conform.suppress_line)
 
 
 # Python compiler
