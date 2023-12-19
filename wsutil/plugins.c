@@ -129,7 +129,7 @@ pass_plugin_compatibility(const char *name, plugin_type_e type,
 #endif
 
 static void
-scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e type)
+scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e type, bool append_type)
 {
     GDir          *dir;
     const char    *name;            /* current file name */
@@ -142,7 +142,10 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
     int            abi_version;
     struct ws_module *module;
 
-    plugin_folder = g_build_filename(dirpath, type_to_dir(type), (char *)NULL);
+    if (append_type)
+        plugin_folder = g_build_filename(dirpath, type_to_dir(type), (char *)NULL);
+    else
+        plugin_folder = g_strdup(dirpath);
 
     dir = g_dir_open(plugin_folder, 0, NULL);
     if (dir == NULL) {
@@ -238,7 +241,7 @@ plugins_init(plugin_type_e type)
     /*
      * Scan the global plugin directory.
      */
-    scan_plugins_dir(plugins_module, get_plugins_dir_with_version(), type);
+    scan_plugins_dir(plugins_module, get_plugins_dir_with_version(), type, true);
 
     /*
      * If the program wasn't started with special privileges,
@@ -249,7 +252,7 @@ plugins_init(plugin_type_e type)
      * reclaim them before each time we start capturing.)
      */
     if (!started_with_special_privs()) {
-        scan_plugins_dir(plugins_module, get_plugins_pers_dir_with_version(), type);
+        scan_plugins_dir(plugins_module, get_plugins_pers_dir_with_version(), type, true);
     }
 
     plugins_module_list = g_slist_prepend(plugins_module_list, plugins_module);
