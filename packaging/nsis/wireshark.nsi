@@ -503,7 +503,7 @@ Function DisplayDonatePage
 FunctionEnd
 
 Function DisplayNpcapPage
-  !insertmacro MUI_HEADER_TEXT "Packet Capture" "Wireshark requires either Npcap or WinPcap to capture live network data."
+  !insertmacro MUI_HEADER_TEXT "Packet Capture" "Wireshark requires Npcap to capture live network data."
   !insertmacro INSTALLOPTIONS_DISPLAY "NpcapPage.ini"
 FunctionEnd
 
