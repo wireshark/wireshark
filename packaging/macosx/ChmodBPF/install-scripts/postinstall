@@ -24,6 +24,7 @@ if ! dscl . -read /Groups/"$BPF_GROUP" > /dev/null 2>&1; then
    dseditgroup -q -o create -i $free_gid -r "$BPF_GROUP_NAME" "$BPF_GROUP"
 fi
 
+dseditgroup -q -o edit -a admin -t group "$BPF_GROUP"
 dseditgroup -q -o edit -a "$USER" -t user "$BPF_GROUP"
 
 chmod u=rw,g=r,o=r "$CHMOD_BPF_PLIST"
