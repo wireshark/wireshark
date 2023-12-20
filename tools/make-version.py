@@ -94,7 +94,7 @@ def update_debian_changelog(src_dir, repo_data):
         changelog_contents = fh.read()
 
     CHANGELOG_PATTERN = r"^.*"
-    text_replacement = f"wireshark ({repo_data['version_major']}.{repo_data['version_minor']}.{repo_data['version_patch']}{repo_data['package_string']}) unstable; urgency=low"
+    text_replacement = f"wireshark ({repo_data['version_major']}.{repo_data['version_minor']}.{repo_data['version_patch']}{repo_data['package_string']}) UNRELEASED; urgency=low"
     # Note: Only need to replace the first line, so we don't use re.MULTILINE or re.DOTALL
     new_changelog_contents = re.sub(CHANGELOG_PATTERN, text_replacement, changelog_contents)
     with open(deb_changelog_filepath, mode='w', encoding='utf-8') as fh:
