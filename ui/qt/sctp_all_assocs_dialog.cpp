@@ -95,8 +95,8 @@ void SCTPAllAssocsDialog::on_analyseButton_clicked()
     if (!selected_assoc) return;
 
     SCTPAssocAnalyseDialog *sctp_analyse = new SCTPAssocAnalyseDialog(this, selected_assoc, cap_file_);
-    connect(sctp_analyse, SIGNAL(filterPackets(QString&,bool)),
-            parent(), SLOT(filterPackets(QString&,bool)));
+    connect(sctp_analyse, SIGNAL(filterPackets(QString,bool)),
+            parent(), SLOT(filterPackets(QString,bool)));
 
     if (sctp_analyse->isMinimized() == true)
     {
