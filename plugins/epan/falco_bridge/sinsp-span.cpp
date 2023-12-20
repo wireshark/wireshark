@@ -17,11 +17,24 @@
 
 #include <glib.h>
 
+#include <epan/wmem_scopes.h>
+
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable:4100)
 #pragma warning(disable:4267)
 #endif
+
+// To do:
+// [x] Create an array of array of sinsp_field_extract_t. (std::vectors of pointers + lengths seem to be working OK).
+// [.] Shrink sinsp_field_extract_t:
+//     [ ] Move parent_category to a separate lookup
+//     [.] Create a separate syscall_extract_t struct? We probably don't need the field
+//         name, type, or is_present. We might be able to move parent_category to a dynamic lookup.
+//     [x] The res union is 16 bytes; dup short strings in the struct and intern longer ones somewhere?
+//     [ ] As with short strings, dup short bytes in the struct and intern longer ones somewhere?
+// [ ] Don't cache some fields, e.g. event time
+
 
 // epan/address.h and driver/ppm_events_public.h both define PT_NONE, so
 // handle libsinsp calls here.
@@ -49,20 +62,52 @@ typedef struct sinsp_source_info_t {
     char *last_error;
 } sinsp_source_info_t;
 
+static const size_t sfe_slab_prealloc = 250000;
+
 typedef struct sinsp_span_t {
     sinsp inspector;
     sinsp_filter_check_list filter_checks;
+    sinsp_field_extract_t *sfe_slab;
+    size_t sfe_slab_offset;
+    // XXX Combine these into a single struct?
+    std::vector<sinsp_field_extract_t *> sfe_ptrs;
+    std::vector<uint16_t> sfe_lengths;
+    // Interned data. Copied from maxmind_db.c.
+    wmem_map_t *str_chunk;
 } sinsp_span_t;
+
+#define SS_MEMORY_STATISTICS 1
+
+#ifdef SS_MEMORY_STATISTICS
+#include <wsutil/str_util.h>
+
+static int alloc_sfe_bytes;
+static int unused_sfe_bytes;
+static int total_chunked_strings;
+static int total_bytes;
+#endif
 
 sinsp_span_t *create_sinsp_span()
 {
     sinsp_span_t *span = new(sinsp_span_t);
+    span->inspector.set_internal_events_mode(true);
 
     return span;
 }
 
 void destroy_sinsp_span(sinsp_span_t *sinsp_span) {
     delete(sinsp_span);
+}
+
+static const char *chunkify_string(sinsp_span_t *sinsp_span, const char *key) {
+    char *chunk_string = (char *) wmem_map_lookup(sinsp_span->str_chunk, key);
+
+    if (!chunk_string) {
+        chunk_string = wmem_strdup(wmem_file_scope(), key);
+        wmem_map_insert(sinsp_span->str_chunk, chunk_string, chunk_string);
+    }
+
+    return chunk_string;
 }
 
 static sinsp_syscall_category_e filtercheck_name_to_category(const std::string fc_name) {
@@ -315,111 +360,214 @@ bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, size_t field_num, sin
 
 void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath)
 {
+    sinsp_span->sfe_slab = NULL;
+    sinsp_span->sfe_slab_offset = 0;
+    sinsp_span->sfe_ptrs.clear();
+    sinsp_span->sfe_lengths.clear();
     sinsp_span->inspector.open_savefile(filepath);
+    sinsp_span->str_chunk = wmem_map_new(wmem_file_scope(), wmem_str_hash, g_str_equal);
+
+#ifdef SS_MEMORY_STATISTICS
+    alloc_sfe_bytes = 0;
+    unused_sfe_bytes = 0;
+    total_chunked_strings = 0;
+    total_bytes = 0;
+#endif
 }
 
-void close_sinsp_capture(sinsp_span_t *sinsp_span)
+static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_info_t *ssi, sinsp_evt *evt)
 {
-    sinsp_span->inspector.close();
-}
+    uint64_t evt_num = evt->get_num();
 
-bool extract_syscall_source_fields(sinsp_source_info_t *ssi, uint16_t event_type, uint32_t nparams, uint64_t ts, uint64_t thread_id, uint16_t cpu_id, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len) {
-    if (ssi->source) {
-        return false;
+    // Fill in any gaps
+    if (evt_num > 1 && evt_num - 1 > sinsp_span->sfe_ptrs.size()) {
+        ws_debug("Filling syscall gap from %d to %u", (int) sinsp_span->sfe_ptrs.size(), (unsigned) evt_num - 1);
+        sinsp_span->sfe_ptrs.resize(evt_num - 1);
+        sinsp_span->sfe_lengths.resize(evt_num - 1);
     }
 
-    uint32_t payload_hdr_size = (nparams + 1) * 4;
-    uint32_t tot_evt_len = (uint32_t)sizeof(scap_evt) + evt_datalen;
-    if (ssi->evt_storage_size < tot_evt_len) {
-        while (ssi->evt_storage_size < tot_evt_len) {
-            ssi->evt_storage_size *= 2;
+    // libsinsp requires that events be processed in order so we cache our extracted
+    // data during the first pass. We don't know how many fields we're going to extract
+    // during an event, so we preallocate slabs of `sfe_slab_prealloc` entries.
+    //
+    // XXX This assumes that we won't extract more than ssi->syscall_event_filter_checks.size()
+    // fields per event.
+    if (sinsp_span->sfe_slab_offset + ssi->syscall_event_filter_checks.size() > sfe_slab_prealloc) {
+#ifdef SS_MEMORY_STATISTICS
+        if (sinsp_span->sfe_slab_offset > 0) {
+            unused_sfe_bytes += sizeof(sinsp_field_extract_t) * (sfe_slab_prealloc - sinsp_span->sfe_slab_offset);
         }
-        ssi->evt_storage = (uint8_t *) g_realloc(ssi->evt_storage, ssi->evt_storage_size);
-    }
-    scap_evt *sevt = (scap_evt *) ssi->evt_storage;
-
-    sevt->ts = ts;
-    sevt->tid = thread_id;
-    sevt->len = tot_evt_len - payload_hdr_size;
-    sevt->type = event_type;
-    sevt->nparams = nparams;
-
-    memcpy(ssi->evt_storage + sizeof(scap_evt), evt_data, evt_datalen);
-    ssi->evt->init(ssi->evt_storage, cpu_id);
-
-    for (size_t sf_idx = 0; sf_idx < sinsp_field_len; sf_idx++) {
-        sinsp_fields[sf_idx].is_present = false;
+#endif
+        sinsp_span->sfe_slab = NULL;
+        sinsp_span->sfe_slab_offset = 0;
     }
 
-    bool status = false;
+    if (sinsp_span->sfe_slab == NULL) {
+#ifdef SS_MEMORY_STATISTICS
+        alloc_sfe_bytes += sizeof(sinsp_field_extract_t) * sfe_slab_prealloc;
+#endif
+        sinsp_span->sfe_slab = (sinsp_field_extract_t *) wmem_alloc(wmem_file_scope(), sizeof(sinsp_field_extract_t) * sfe_slab_prealloc);
+    }
+
+    sinsp_field_extract_t *sfe_block = &sinsp_span->sfe_slab[sinsp_span->sfe_slab_offset];
+    std::vector<extract_value_t> values;
+    uint16_t sfe_idx = 0;
+
     for (size_t fc_idx = 0; fc_idx < ssi->syscall_event_filter_checks.size(); fc_idx++) {
-        std::vector<extract_value_t> values;
         auto gefc = ssi->syscall_event_filter_checks[fc_idx];
         values.clear();
-        if (!gefc->extract(ssi->evt, values, false) || values.size() < 1) {
+        if (!gefc->extract(evt, values, false) || values.size() < 1) {
             continue;
         }
         auto ffi = ssi->syscall_filter_fields[fc_idx];
         if (ffi->m_flags == filtercheck_field_flags::EPF_NONE && values[0].len > 0) {
-            size_t sf_idx = ssi->ffi_to_sf_idx[ffi];
+            if (sinsp_span->sfe_slab_offset + sfe_idx >= sfe_slab_prealloc) {
+                ws_error("Extracting too many fields for event %u (%d vs %d)", (unsigned) evt->get_num(), (int) sfe_idx, (int) ssi->syscall_event_filter_checks.size());
+            }
+
+            sinsp_field_extract_t *sfe = &sfe_block[sfe_idx];
+            sfe_idx++;
+            sfe->field_idx = (uint32_t) fc_idx;
             // XXX Use memcpy instead of all this casting?
             switch (ffi->m_type) {
             case PT_INT8:
-                sinsp_fields[sf_idx].res.i32 = *(int8_t*)values[0].ptr;
+                sfe->res.i32 = *(int8_t*)values[0].ptr;
                 break;
             case PT_INT16:
-                sinsp_fields[sf_idx].res.i32 = *(int16_t*)values[0].ptr;
+                sfe->res.i32 = *(int16_t*)values[0].ptr;
                 break;
             case PT_INT32:
-                sinsp_fields[sf_idx].res.i32 = *(int32_t*)values[0].ptr;
+                sfe->res.i32 = *(int32_t*)values[0].ptr;
                 break;
             case PT_INT64:
-                sinsp_fields[sf_idx].res.i64 = *(int64_t *)values[0].ptr;
+                sfe->res.i64 = *(int64_t *)values[0].ptr;
                 break;
             case PT_UINT8:
-                sinsp_fields[sf_idx].res.u32 = *(uint8_t*)values[0].ptr;
+                sfe->res.u32 = *(uint8_t*)values[0].ptr;
                 break;
             case PT_UINT16:
             case PT_PORT:
-                sinsp_fields[sf_idx].res.u32 = *(int16_t*)values[0].ptr;
+                sfe->res.u32 = *(int16_t*)values[0].ptr;
                 break;
             case PT_UINT32:
-                sinsp_fields[sf_idx].res.u32 = *(int32_t*)values[0].ptr;
+                sfe->res.u32 = *(int32_t*)values[0].ptr;
                 break;
             case PT_UINT64:
             case PT_RELTIME:
             case PT_ABSTIME:
-                sinsp_fields[sf_idx].res.u64 = *(uint64_t *)values[0].ptr;
+                sfe->res.u64 = *(uint64_t *)values[0].ptr;
                 break;
             case PT_CHARBUF:
-                sinsp_fields[sf_idx].res.str = (char *) wmem_strdup(pool, (const char *) values[0].ptr);
+                if (values[0].len < SFE_SMALL_BUF_SIZE) {
+                    g_strlcpy(sfe->res.small_str, (const char *) values[0].ptr, SFE_SMALL_BUF_SIZE);
+                } else {
+                    sfe->res.str = chunkify_string(sinsp_span, (const char *) values[0].ptr);
+                    total_chunked_strings += values[0].len;
+                }
                 // XXX - Not needed? This sometimes runs into length mismatches.
-                // sinsp_fields[sf_idx].res.str[values[0].len] = '\0';
+                // sfe_value.res.str[values[0].len] = '\0';
                 break;
             case PT_BOOL:
-                sinsp_fields[sf_idx].res.boolean = (bool)(uint32_t) *(uint32_t*)values[0].ptr;
+                sfe->res.boolean = (bool)(uint32_t) *(uint32_t*)values[0].ptr;
                 break;
             case PT_DOUBLE:
-                sinsp_fields[sf_idx].res.dbl = *(double*)values[0].ptr;
+                sfe->res.dbl = *(double*)values[0].ptr;
                 break;
             default:
-                sinsp_fields[sf_idx].res.bytes = (uint8_t*) wmem_memdup(pool, (const uint8_t *) values[0].ptr, values[0].len);
+                sfe->res.bytes = (uint8_t*) wmem_memdup(wmem_file_scope(), (const uint8_t *) values[0].ptr, values[0].len);
+                total_bytes += values[0].len;
             }
 
-            sinsp_fields[sf_idx].res_len = values[0].len;
-            sinsp_fields[sf_idx].is_present = true;
-            sinsp_fields[sf_idx].parent_category = ssi->field_to_category[fc_idx];
+            sfe->res_len = values[0].len;
+            sfe->parent_category = ssi->field_to_category[fc_idx];            
         }
-        status = true;
     }
 
-    return status;
+    sinsp_span->sfe_slab_offset += sfe_idx;
+    sinsp_span->sfe_ptrs.push_back(sfe_block);
+    sinsp_span->sfe_lengths.push_back(sfe_idx);
+
+    if (sinsp_span->sfe_ptrs.size() < evt_num) {
+        ws_warning("Unable to fill cache to the proper size (%d vs %u)", (int) sinsp_span->sfe_ptrs.size(), (unsigned) evt_num);
+    }
+
+    return;
+}
+
+void close_sinsp_capture(sinsp_span_t *sinsp_span)
+{
+#ifdef SS_MEMORY_STATISTICS
+    unused_sfe_bytes += sizeof(sinsp_field_extract_t) * sfe_slab_prealloc - sinsp_span->sfe_slab_offset;
+
+    g_warning("Allocated sinsp_field_extract_t bytes: %s", format_size(alloc_sfe_bytes, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI));
+    g_warning("Unused sinsp_field_extract_t bytes: %s", format_size(unused_sfe_bytes, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI));
+    g_warning("Chunked string bytes: %s", format_size(total_chunked_strings, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI));
+    g_warning("Byte value (I/O) bytes: %s", format_size(total_bytes, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI));
+    g_warning("Cache capacity: %s items, sinsp_field_extract_t pointer bytes = %s, length bytes = %s",
+              format_size(sinsp_span->sfe_ptrs.capacity(), FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI),
+              format_size(sinsp_span->sfe_ptrs.capacity() * sizeof(sinsp_field_extract_t *), FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI),
+              format_size(sinsp_span->sfe_ptrs.capacity() * sizeof(uint16_t), FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI));
+
+    alloc_sfe_bytes = 0;
+    unused_sfe_bytes = 0;
+    total_chunked_strings = 0;
+    total_bytes = 0;
+#endif
+
+    sinsp_span->inspector.close();
+    sinsp_span->sfe_ptrs.clear();
+    sinsp_span->sfe_lengths.clear();
+    sinsp_span->str_chunk = NULL;
+}
+
+bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t *ssi, uint32_t frame_num, sinsp_field_extract_t **sinsp_fields, uint32_t *sinsp_field_len) {
+    if (ssi->source) {
+        return false;
+    }
+
+    // libsinsp event numbers may or may not be contiguous. Make sure our event cache is at
+    // least as large as the current frame number. add_syscall_event_to_cache will fill in
+    // any gaps with null entries.
+    while (frame_num > sinsp_span->sfe_ptrs.size()) {
+        sinsp_evt *evt = NULL;
+        try {
+            int32_t res = sinsp_span->inspector.next(&evt);
+            switch (res) {
+            case SCAP_TIMEOUT:
+            case SCAP_FILTERED_EVENT:
+                break;
+            case SCAP_EOF:
+                ws_warning("Unexpected EOF");
+                return false;
+            case SCAP_SUCCESS:
+                add_syscall_event_to_cache(sinsp_span, ssi, evt);
+                break;
+            default:
+                ws_warning("%s", sinsp_span->inspector.getlasterr().c_str());
+                return false;
+            }
+        } catch (sinsp_exception &e) {
+            ws_warning("%s", e.what());
+            return false;
+        }
+    }
+
+    // Shouldn't happen
+    if (frame_num > sinsp_span->sfe_ptrs.size()) {
+        ws_error("Frame number %u exceeds cache size %d", frame_num, (int) sinsp_span->sfe_ptrs.size());
+        return false;
+    }
+
+    *sinsp_fields = sinsp_span->sfe_ptrs[frame_num - 1];
+    *sinsp_field_len = sinsp_span->sfe_lengths[frame_num - 1];
+
+    return true;
 }
 
 // The code below, falcosecurity/libs, and falcosecurity/plugins need to be in alignment.
 // The Makefile in /plugins defines FALCOSECURITY_LIBS_REVISION and uses that version of
 // plugin_info.h. We need to build against a compatible revision of /libs.
-bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint32_t event_num, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len)
+bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint32_t event_num, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, plugin_field_extract_t *sinsp_fields, uint32_t sinsp_field_len)
 {
     if (!ssi->source) {
         return false;

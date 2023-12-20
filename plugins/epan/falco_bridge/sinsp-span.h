@@ -62,14 +62,37 @@ typedef struct sinsp_field_info_t {
     bool is_numeric_address;
 } sinsp_field_info_t;
 
+#define SFE_SMALL_BUF_SIZE 16
 typedef struct sinsp_field_extract_t {
-    uint32_t field_id;          // in
+    //    const char *field_name;     // in
+    //    bool is_present;            // out
+    union {
+        uint8_t *bytes;
+        const char *str;
+        int32_t i32;
+        int64_t i64;
+        uint32_t u32;
+        uint64_t u64;
+        double dbl;
+        uint8_t ipv6[16];
+        bool boolean;
+        char small_str[SFE_SMALL_BUF_SIZE];
+        uint8_t small_bytes[SFE_SMALL_BUF_SIZE];
+    } res;
+    int res_len;                // out
+    uint32_t field_idx;          // out for syscalls
+    enum ftenum type;           // in, out
+    sinsp_syscall_category_e parent_category;     // out
+} sinsp_field_extract_t;
+
+typedef struct plugin_field_extract_t {
+    uint32_t field_id;          // out for syscalls, in for plugins
     const char *field_name;     // in
     enum ftenum type;           // in, out
     bool is_present;            // out
     union {
         uint8_t *bytes;
-        char *str;
+        const char *str;
         int32_t i32;
         int64_t i64;
         uint32_t u32;
@@ -79,8 +102,8 @@ typedef struct sinsp_field_extract_t {
         bool boolean;
     } res;
     int res_len;                // out
-    sinsp_syscall_category_e parent_category;     // out
-} sinsp_field_extract_t;
+//    sinsp_syscall_category_e parent_category;     // out
+} plugin_field_extract_t;
 
 sinsp_span_t *create_sinsp_span(void);
 void destroy_sinsp_span(sinsp_span_t *sinsp_span);
@@ -95,14 +118,15 @@ bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, size_t field_num, sin
 // libsinsp builtin syscall routines.
 void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t **ssi_ptr);
 void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath);
+//uint32_t process_syscall_capture(sinsp_span_t * sinsp_span, sinsp_source_info_t *ssi, uint32_t to_event);
 void close_sinsp_capture(sinsp_span_t *sinsp_span);
-bool extract_syscall_source_fields(sinsp_source_info_t *ssi, uint16_t event_type, uint32_t nparams, uint64_t ts, uint64_t thread_id, uint16_t cpu_id, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len);
+bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t *ssi, uint32_t frame_num, sinsp_field_extract_t **sinsp_fields, uint32_t *sinsp_field_len);
 
 // Extractor plugin routines.
 // These roughly match common_plugin_info
 char *create_sinsp_plugin_source(sinsp_span_t *sinsp_span, const char* libname, sinsp_source_info_t **ssi_ptr);
 size_t get_sinsp_source_nfields(sinsp_source_info_t *ssi);
-bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint32_t event_num, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len);
+bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint32_t event_num, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, plugin_field_extract_t *sinsp_fields, uint32_t sinsp_field_len);
 
 
 #ifdef __cplusplus
