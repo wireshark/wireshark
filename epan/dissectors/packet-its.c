@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-its.c                                                               */
-/* asn2wrs.py -L -o its -c ./its.cnf -s ./packet-its-template -D . -O ../.. ETSI-ITS-CDD.asn ITS-ContainerV1.asn ISO_TS_14816.asn ISO_TS_14906_Application.asn ISO_TS_19091.asn GDD.asn ISO19321IVIv2.asn ETSI_TS_103301.asn CAMv1.asn CAM.asn DENMv1.asn DENM-PDU-Descriptions.asn TIS_TPG_Transactions_Descriptions.asn EVCSN-PDU-Descriptions.asn EV-RSR-PDU-Descriptions.asn CPM-OriginatingStationContainers.asn CPM-PDU-Descriptions.asn CPM-PerceivedObjectContainer.asn CPM-PerceptionRegionContainer.asn CPM-SensorInformationContainer.asn VAM-PDU-Descriptions.asn IMZM-PDU-Descriptions.asn */
+/* asn2wrs.py -L -o its -c ./its.cnf -s ./packet-its-template -D . -O ../.. ETSI-ITS-CDD.asn ITS-ContainerV1.asn ISO_TS_14816.asn ISO_TS_14906_Application.asn ISO_TS_19091.asn GDD.asn ISO19321IVIv2.asn ETSI_TS_103301.asn CAMv1.asn CAM-PDU-Descriptions.asn DENMv1.asn DENM-PDU-Descriptions.asn TIS_TPG_Transactions_Descriptions.asn EVCSN-PDU-Descriptions.asn EV-RSR-PDU-Descriptions.asn CPM-OriginatingStationContainers.asn CPM-PDU-Descriptions.asn CPM-PerceivedObjectContainer.asn CPM-PerceptionRegionContainer.asn CPM-SensorInformationContainer.asn VAM-PDU-Descriptions.asn IMZM-PDU-Descriptions.asn */
 
 /* packet-its-template.c
  *
@@ -586,7 +586,6 @@ static int hf_its_value_04;                       /* ObjectDimensionValue */
 static int hf_its_confidence_05;                  /* ObjectDimensionConfidence */
 static int hf_its_Path_item;                      /* PathPoint */
 static int hf_its_PathHistory_item;               /* PathPoint */
-static int hf_its_PathHistoryV2_item;             /* PathPoint */
 static int hf_its_PathPredicted_item;             /* PathPointPredicted */
 static int hf_its_pathPosition;                   /* DeltaReferencePosition */
 static int hf_its_pathDeltaTime;                  /* PathDeltaTime */
@@ -1752,7 +1751,7 @@ static int hf_camv1_protectedCommunicationZonesRSU;  /* ProtectedCommunicationZo
 
 /* --- Module CAM-PDU-Descriptions --- --- ---                                */
 
-static int hf_cam_cam_CoopAwareness_PDU;          /* CoopAwareness */
+static int hf_cam_cam_CamPayload_PDU;             /* CamPayload */
 static int hf_cam_generationDeltaTime;            /* GenerationDeltaTime */
 static int hf_cam_camParameters;                  /* CamParameters */
 static int hf_cam_basicContainer;                 /* BasicContainer */
@@ -1769,27 +1768,25 @@ static int hf_cam_roadWorksContainerBasic;        /* RoadWorksContainerBasic */
 static int hf_cam_rescueContainer;                /* RescueContainer */
 static int hf_cam_emergencyContainer;             /* EmergencyContainer */
 static int hf_cam_safetyCarContainer;             /* SafetyCarContainer */
-static int hf_cam_stationType;                    /* StationType */
-static int hf_cam_referencePosition;              /* ReferencePosition */
 static int hf_cam_heading;                        /* Heading */
 static int hf_cam_speed;                          /* Speed */
 static int hf_cam_driveDirection;                 /* DriveDirection */
 static int hf_cam_vehicleLength;                  /* VehicleLength */
 static int hf_cam_vehicleWidth;                   /* VehicleWidth */
-static int hf_cam_longitudinalAcceleration;       /* LongitudinalAcceleration */
+static int hf_cam_longitudinalAcceleration;       /* AccelerationComponent */
 static int hf_cam_curvature;                      /* Curvature */
 static int hf_cam_curvatureCalculationMode;       /* CurvatureCalculationMode */
 static int hf_cam_yawRate;                        /* YawRate */
 static int hf_cam_accelerationControl;            /* AccelerationControl */
 static int hf_cam_lanePosition;                   /* LanePosition */
 static int hf_cam_steeringWheelAngle;             /* SteeringWheelAngle */
-static int hf_cam_lateralAcceleration;            /* LateralAcceleration */
-static int hf_cam_verticalAcceleration;           /* VerticalAcceleration */
+static int hf_cam_lateralAcceleration;            /* AccelerationComponent */
+static int hf_cam_verticalAcceleration;           /* AccelerationComponent */
 static int hf_cam_performanceClass;               /* PerformanceClass */
 static int hf_cam_cenDsrcTollingZone;             /* CenDsrcTollingZone */
 static int hf_cam_vehicleRole;                    /* VehicleRole */
 static int hf_cam_exteriorLights;                 /* ExteriorLights */
-static int hf_cam_pathHistory;                    /* PathHistoryV2 */
+static int hf_cam_pathHistory;                    /* Path */
 static int hf_cam_embarkationStatus;              /* EmbarkationStatus */
 static int hf_cam_ptActivation;                   /* PtActivation */
 static int hf_cam_specialTransportType;           /* SpecialTransportType */
@@ -1797,7 +1794,7 @@ static int hf_cam_lightBarSirenInUse;             /* LightBarSirenInUse */
 static int hf_cam_dangerousGoodsBasic;            /* DangerousGoodsBasic */
 static int hf_cam_roadworksSubCauseCode;          /* RoadworksSubCauseCode */
 static int hf_cam_closedLanes;                    /* ClosedLanes */
-static int hf_cam_incidentIndication;             /* CauseCode */
+static int hf_cam_incidentIndication;             /* CauseCodeV2 */
 static int hf_cam_emergencyPriority;              /* EmergencyPriority */
 static int hf_cam_trafficRule;                    /* TrafficRule */
 static int hf_cam_speedLimit;                     /* SpeedLimit */
@@ -2312,7 +2309,6 @@ static gint ett_its_ObjectClassWithConfidence;
 static gint ett_its_ObjectDimension;
 static gint ett_its_Path;
 static gint ett_its_PathHistory;
-static gint ett_its_PathHistoryV2;
 static gint ett_its_PathPredicted;
 static gint ett_its_PathPoint;
 static gint ett_its_PathPointPredicted;
@@ -2719,12 +2715,11 @@ static gint ett_camv1_RSUContainerHighFrequency;
 
 /* --- Module CAM-PDU-Descriptions --- --- ---                                */
 
-static gint ett_cam_CoopAwareness;
+static gint ett_cam_CamPayload;
 static gint ett_cam_CamParameters;
 static gint ett_cam_HighFrequencyContainer;
 static gint ett_cam_LowFrequencyContainer;
 static gint ett_cam_SpecialVehicleContainer;
-static gint ett_cam_BasicContainer;
 static gint ett_cam_BasicVehicleContainerHighFrequency;
 static gint ett_cam_BasicVehicleContainerLowFrequency;
 static gint ett_cam_PublicTransportContainer;
@@ -7586,20 +7581,6 @@ dissect_its_PathHistory(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_its_PathHistory, its_PathHistory_sequence_of,
                                                   40, 40, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t its_PathHistoryV2_sequence_of[1] = {
-  { &hf_its_PathHistoryV2_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_PathPoint },
-};
-
-static int
-dissect_its_PathHistoryV2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_its_PathHistoryV2, its_PathHistoryV2_sequence_of,
-                                                  0, 40, FALSE);
 
   return offset;
 }
@@ -17657,46 +17638,21 @@ static int dissect_camv1_CoopAwarenessV1_PDU(tvbuff_t *tvb _U_, packet_info *pin
 /* --- Module CAM-PDU-Descriptions --- --- ---                                */
 
 
-
-static int
-dissect_cam_GenerationDeltaTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 65535U, NULL, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t cam_BasicContainer_sequence[] = {
-  { &hf_cam_stationType     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_StationType },
-  { &hf_cam_referencePosition, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_ReferencePosition },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_cam_BasicContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_cam_BasicContainer, cam_BasicContainer_sequence);
-
-  return offset;
-}
-
-
 static const per_sequence_t cam_BasicVehicleContainerHighFrequency_sequence[] = {
   { &hf_cam_heading         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_Heading },
   { &hf_cam_speed           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_Speed },
   { &hf_cam_driveDirection  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_DriveDirection },
   { &hf_cam_vehicleLength   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_VehicleLength },
   { &hf_cam_vehicleWidth    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_VehicleWidth },
-  { &hf_cam_longitudinalAcceleration, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_LongitudinalAcceleration },
+  { &hf_cam_longitudinalAcceleration, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_AccelerationComponent },
   { &hf_cam_curvature       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_Curvature },
   { &hf_cam_curvatureCalculationMode, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_CurvatureCalculationMode },
   { &hf_cam_yawRate         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_YawRate },
   { &hf_cam_accelerationControl, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_AccelerationControl },
   { &hf_cam_lanePosition    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_LanePosition },
   { &hf_cam_steeringWheelAngle, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_SteeringWheelAngle },
-  { &hf_cam_lateralAcceleration, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_LateralAcceleration },
-  { &hf_cam_verticalAcceleration, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_VerticalAcceleration },
+  { &hf_cam_lateralAcceleration, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_AccelerationComponent },
+  { &hf_cam_verticalAcceleration, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_AccelerationComponent },
   { &hf_cam_performanceClass, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_PerformanceClass },
   { &hf_cam_cenDsrcTollingZone, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_CenDsrcTollingZone },
   { NULL, 0, 0, NULL }
@@ -17750,7 +17706,7 @@ dissect_cam_HighFrequencyContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static const per_sequence_t cam_BasicVehicleContainerLowFrequency_sequence[] = {
   { &hf_cam_vehicleRole     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_VehicleRole },
   { &hf_cam_exteriorLights  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_ExteriorLights },
-  { &hf_cam_pathHistory     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_PathHistoryV2 },
+  { &hf_cam_pathHistory     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_Path },
   { NULL, 0, 0, NULL }
 };
 
@@ -17859,7 +17815,7 @@ dissect_cam_RescueContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static const per_sequence_t cam_EmergencyContainer_sequence[] = {
   { &hf_cam_lightBarSirenInUse, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_LightBarSirenInUse },
-  { &hf_cam_incidentIndication, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_CauseCode },
+  { &hf_cam_incidentIndication, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_CauseCodeV2 },
   { &hf_cam_emergencyPriority, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_EmergencyPriority },
   { NULL, 0, 0, NULL }
 };
@@ -17875,7 +17831,7 @@ dissect_cam_EmergencyContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static const per_sequence_t cam_SafetyCarContainer_sequence[] = {
   { &hf_cam_lightBarSirenInUse, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_LightBarSirenInUse },
-  { &hf_cam_incidentIndication, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_CauseCode },
+  { &hf_cam_incidentIndication, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_CauseCodeV2 },
   { &hf_cam_trafficRule     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_TrafficRule },
   { &hf_cam_speedLimit      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_SpeedLimit },
   { NULL, 0, 0, NULL }
@@ -17923,7 +17879,7 @@ dissect_cam_SpecialVehicleContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 
 static const per_sequence_t cam_CamParameters_sequence[] = {
-  { &hf_cam_basicContainer  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cam_BasicContainer },
+  { &hf_cam_basicContainer  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_BasicContainer },
   { &hf_cam_highFrequencyContainer, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cam_HighFrequencyContainer },
   { &hf_cam_lowFrequencyContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cam_LowFrequencyContainer },
   { &hf_cam_specialVehicleContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cam_SpecialVehicleContainer },
@@ -17939,30 +17895,30 @@ dissect_cam_CamParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-static const per_sequence_t cam_CoopAwareness_sequence[] = {
-  { &hf_cam_generationDeltaTime, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cam_GenerationDeltaTime },
+static const per_sequence_t cam_CamPayload_sequence[] = {
+  { &hf_cam_generationDeltaTime, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_GenerationDeltaTime },
   { &hf_cam_camParameters   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cam_CamParameters },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_cam_CoopAwareness(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_cam_CamPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CAM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CAM");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_cam_CoopAwareness, cam_CoopAwareness_sequence);
+                                   ett_cam_CamPayload, cam_CamPayload_sequence);
 
   return offset;
 }
 
 /*--- PDUs ---*/
 
-static int dissect_cam_CoopAwareness_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+static int dissect_cam_CamPayload_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
-  offset = dissect_cam_CoopAwareness(tvb, offset, &asn1_ctx, tree, hf_cam_cam_CoopAwareness_PDU);
+  offset = dissect_cam_CamPayload(tvb, offset, &asn1_ctx, tree, hf_cam_cam_CamPayload_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -20831,7 +20787,7 @@ dissect_imzm_ImzmContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 
 static const per_sequence_t imzm_ImzmParameters_sequence[] = {
-  { &hf_imzm_basicContainer , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cam_BasicContainer },
+  { &hf_imzm_basicContainer , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_BasicContainer },
   { &hf_imzm_imzmContainer  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_imzm_ImzmContainer },
   { NULL, 0, 0, NULL }
 };
@@ -20846,7 +20802,7 @@ dissect_imzm_ImzmParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 
 static const per_sequence_t imzm_InterferenceManagementZoneMessage_sequence[] = {
-  { &hf_imzm_generationDeltaTime, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cam_GenerationDeltaTime },
+  { &hf_imzm_generationDeltaTime, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_GenerationDeltaTime },
   { &hf_imzm_imzmParameters , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_imzm_ImzmParameters },
   { NULL, 0, 0, NULL }
 };
@@ -22415,10 +22371,6 @@ void proto_register_its(void)
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_its_PathHistory_item,
-      { "PathPoint", "its.PathPoint_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_its_PathHistoryV2_item,
       { "PathPoint", "its.PathPoint_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -26990,8 +26942,8 @@ void proto_register_its(void)
 
 /* --- Module CAM-PDU-Descriptions --- --- ---                                */
 
-    { &hf_cam_cam_CoopAwareness_PDU,
-      { "CoopAwareness", "cam.CoopAwareness_element",
+    { &hf_cam_cam_CamPayload_PDU,
+      { "CamPayload", "cam.CamPayload_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_cam_generationDeltaTime,
@@ -27058,14 +27010,6 @@ void proto_register_its(void)
       { "safetyCarContainer", "cam.safetyCarContainer_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_cam_stationType,
-      { "stationType", "cam.stationType",
-        FT_UINT32, BASE_DEC, VALS(its_StationType_vals), 0,
-        NULL, HFILL }},
-    { &hf_cam_referencePosition,
-      { "referencePosition", "cam.referencePosition_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_cam_heading,
       { "heading", "cam.heading_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -27089,7 +27033,7 @@ void proto_register_its(void)
     { &hf_cam_longitudinalAcceleration,
       { "longitudinalAcceleration", "cam.longitudinalAcceleration_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "AccelerationComponent", HFILL }},
     { &hf_cam_curvature,
       { "curvature", "cam.curvature_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -27117,11 +27061,11 @@ void proto_register_its(void)
     { &hf_cam_lateralAcceleration,
       { "lateralAcceleration", "cam.lateralAcceleration_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "AccelerationComponent", HFILL }},
     { &hf_cam_verticalAcceleration,
       { "verticalAcceleration", "cam.verticalAcceleration_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "AccelerationComponent", HFILL }},
     { &hf_cam_performanceClass,
       { "performanceClass", "cam.performanceClass",
         FT_UINT32, BASE_DEC, VALS(its_PerformanceClass_vals), 0,
@@ -27141,7 +27085,7 @@ void proto_register_its(void)
     { &hf_cam_pathHistory,
       { "pathHistory", "cam.pathHistory",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "PathHistoryV2", HFILL }},
+        "Path", HFILL }},
     { &hf_cam_embarkationStatus,
       { "embarkationStatus", "cam.embarkationStatus",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
@@ -27173,7 +27117,7 @@ void proto_register_its(void)
     { &hf_cam_incidentIndication,
       { "incidentIndication", "cam.incidentIndication_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "CauseCode", HFILL }},
+        "CauseCodeV2", HFILL }},
     { &hf_cam_emergencyPriority,
       { "emergencyPriority", "cam.emergencyPriority",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -28967,7 +28911,6 @@ void proto_register_its(void)
     &ett_its_ObjectDimension,
     &ett_its_Path,
     &ett_its_PathHistory,
-    &ett_its_PathHistoryV2,
     &ett_its_PathPredicted,
     &ett_its_PathPoint,
     &ett_its_PathPointPredicted,
@@ -29374,12 +29317,11 @@ void proto_register_its(void)
 
 /* --- Module CAM-PDU-Descriptions --- --- ---                                */
 
-    &ett_cam_CoopAwareness,
+    &ett_cam_CamPayload,
     &ett_cam_CamParameters,
     &ett_cam_HighFrequencyContainer,
     &ett_cam_LowFrequencyContainer,
     &ett_cam_SpecialVehicleContainer,
-    &ett_cam_BasicContainer,
     &ett_cam_BasicVehicleContainerHighFrequency,
     &ett_cam_BasicVehicleContainerLowFrequency,
     &ett_cam_PublicTransportContainer,
@@ -29629,7 +29571,7 @@ void proto_reg_handoff_its(void)
 
     dissector_add_uint("its.msg_id", (ITS_DENM_PROT_VER << 16) + ITS_DENM,          create_dissector_handle(dissect_denm_DenmPayload_PDU, proto_its_denm ));
     dissector_add_uint("its.msg_id", (ITS_DENM_PROT_VERv1 << 16) + ITS_DENM,        create_dissector_handle(dissect_denmv1_DecentralizedEnvironmentalNotificationMessageV1_PDU, proto_its_denmv1 ));
-    dissector_add_uint("its.msg_id", (ITS_CAM_PROT_VER << 16) + ITS_CAM,            create_dissector_handle( dissect_cam_CoopAwareness_PDU, proto_its_cam ));
+    dissector_add_uint("its.msg_id", (ITS_CAM_PROT_VER << 16) + ITS_CAM,            create_dissector_handle( dissect_cam_CamPayload_PDU, proto_its_cam ));
     dissector_add_uint("its.msg_id", (ITS_CAM_PROT_VERv1 << 16) + ITS_CAM,          create_dissector_handle( dissect_camv1_CoopAwarenessV1_PDU, proto_its_camv1));
     dissector_add_uint("its.msg_id", (ITS_SPATEM_PROT_VERv1 << 16) + ITS_SPATEM,    create_dissector_handle( dissect_dsrc_SPAT_PDU, proto_its_spatemv1 ));
     dissector_add_uint("its.msg_id", (ITS_SPATEM_PROT_VER << 16) + ITS_SPATEM,      create_dissector_handle( dissect_dsrc_SPAT_PDU, proto_its_spatem ));

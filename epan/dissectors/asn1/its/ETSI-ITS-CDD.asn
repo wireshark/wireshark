@@ -1841,7 +1841,7 @@ Path::= SEQUENCE (SIZE(0..40)) OF PathPoint
 
 PathHistory::= SEQUENCE (SIZE(40)) OF PathPoint
 
-PathHistoryV2::= SEQUENCE (SIZE(0..40)) OF PathPoint
+--PathHistoryV2::= SEQUENCE (SIZE(0..40)) OF PathPoint
 
 PathPredicted::= SEQUENCE (SIZE(0..15,...)) OF PathPointPredicted
 
