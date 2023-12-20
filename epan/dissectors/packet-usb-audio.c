@@ -2370,7 +2370,7 @@ dissect_v1_control(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         offset++;
 
         if (vwalue_fields[0]) {
-            ti = proto_tree_add_bitmask(tree, tvb, offset, hf_wvalue, ett_wvalue, vwalue_fields, ENC_LITTLE_ENDIAN);
+            proto_tree_add_bitmask(tree, tvb, offset, hf_wvalue, ett_wvalue, vwalue_fields, ENC_LITTLE_ENDIAN);
         } else {
             ti = proto_tree_add_item(tree, hf_wvalue, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             /* Selector doesn't use wValue (must be zero), all others do use it */
