@@ -5751,7 +5751,6 @@ main(int argc, char *argv[])
         guint  ii;
 
         if (machine_readable) {
-            status = 0;
             json_dumper dumper = {
                 .output_file = stdout,
                 .flags = JSON_DUMPER_FLAGS_NO_DEBUG,
