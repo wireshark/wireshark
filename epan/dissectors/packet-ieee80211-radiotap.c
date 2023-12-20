@@ -1891,7 +1891,6 @@ dissect_radiotap_0_length_psdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 	proto_tree_add_item_ret_uint(zero_len_tree, hf_radiotap_0_length_psdu_type,
 		tvb, offset, 1, ENC_NA, &psdu_type);
-	offset += 1;
 
 	switch (psdu_type) {
 
