@@ -4586,14 +4586,16 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
 }
 
 static void
-dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *sctp_item, proto_tree *sctp_tree, sctp_half_assoc_t *ha, gboolean encapsulated)
+dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *sctp_item, proto_tree *sctp_tree, sctp_half_assoc_t *ha, gboolean encapsulated, proto_item *vt)
 {
+  proto_item *pi;
   tvbuff_t *chunk_tvb;
   guint16 length, total_length, remaining_length;
   gint last_offset, offset;
   gboolean sctp_item_length_set;
   assoc_info_t tmpinfo;
   infodata_t id_dir;
+  bool first_chunk = true;
 
   /* the common header of the datagram is already handled */
   last_offset = 0;
@@ -4620,42 +4622,58 @@ dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
       else
         sctp_info.incomplete = TRUE;
     }
-    if (enable_association_indexing) {
-      tmpinfo.assoc_index = -1;
-      tmpinfo.sport = sctp_info.sport;
-      tmpinfo.dport = sctp_info.dport;
-      tmpinfo.vtag_reflected = FALSE;
-      if (tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET) == SCTP_ABORT_CHUNK_ID) {
-        if ((tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_ABORT_CHUNK_T_BIT) != 0) {
-          tmpinfo.vtag_reflected = TRUE;
+    if (first_chunk) {
+      first_chunk = false;
+      if (enable_association_indexing) {
+        tmpinfo.assoc_index = -1;
+        tmpinfo.sport = sctp_info.sport;
+        tmpinfo.dport = sctp_info.dport;
+        tmpinfo.vtag_reflected = FALSE;
+        /* Certain chunk types have exceptional Verification Tag handling
+         * ( see https://datatracker.ietf.org/doc/html/rfc9260#section-8.5.1 )
+         * XXX: Those chunk types shouldn't be bundled with other chunk types
+         * (ABORT can be bundled after other control types, but ABORT with the
+         * T bit set should not be) and there should be an expert info if so.
+         * Should we use the association from the first chunk or the last
+         * chunk in such a case?
+         */
+        if (tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET) == SCTP_ABORT_CHUNK_ID) {
+          if ((tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_ABORT_CHUNK_T_BIT) != 0) {
+            tmpinfo.vtag_reflected = TRUE;
+          }
         }
-      }
-      if (tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET) == SCTP_SHUTDOWN_COMPLETE_CHUNK_ID) {
-        if ((tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_SHUTDOWN_COMPLETE_CHUNK_T_BIT) != 0) {
-          tmpinfo.vtag_reflected = TRUE;
+        if (tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET) == SCTP_SHUTDOWN_COMPLETE_CHUNK_ID) {
+          if ((tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_SHUTDOWN_COMPLETE_CHUNK_T_BIT) != 0) {
+            tmpinfo.vtag_reflected = TRUE;
+          }
         }
-      }
-      if (tmpinfo.vtag_reflected) {
-        tmpinfo.verification_tag2 = sctp_info.verification_tag;
-        tmpinfo.verification_tag1 = 0;
-      }
-      else {
-        tmpinfo.verification_tag1 = sctp_info.verification_tag;
-        tmpinfo.verification_tag2 = 0;
-      }
-      if (tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET) == SCTP_INIT_CHUNK_ID) {
-        tmpinfo.initiate_tag = tvb_get_ntohl(sctp_info.tvb[0], 4);
-      }
-      else {
-        tmpinfo.initiate_tag = 0;
+        if (tmpinfo.vtag_reflected) {
+          tmpinfo.verification_tag2 = sctp_info.verification_tag;
+          tmpinfo.verification_tag1 = 0;
+        }
+        else {
+          tmpinfo.verification_tag1 = sctp_info.verification_tag;
+          tmpinfo.verification_tag2 = 0;
+        }
+        if (tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET) == SCTP_INIT_CHUNK_ID) {
+          tmpinfo.initiate_tag = tvb_get_ntohl(sctp_info.tvb[0], 4);
+        }
+        else {
+          tmpinfo.initiate_tag = 0;
+        }
+
+        id_dir = find_assoc_index(&tmpinfo, PINFO_FD_VISITED(pinfo));
+        pi = proto_tree_add_uint(sctp_tree, hf_sctp_assoc_index, tvb, 0 , 0, id_dir.assoc_index);
+        /* XXX: Should we set these if encapsulated is true or not? */
+        sctp_info.assoc_index = id_dir.assoc_index;
+        sctp_info.direction = id_dir.direction;
+
+      } else {
+          pi = proto_tree_add_uint_format_value(sctp_tree, hf_sctp_assoc_index, tvb, 0 , 0, sctp_info.assoc_index, "disabled (enable in preferences)");
       }
 
-      id_dir = find_assoc_index(&tmpinfo, PINFO_FD_VISITED(pinfo));
-      sctp_info.assoc_index = id_dir.assoc_index;
-      sctp_info.direction = id_dir.direction;
-    } else {
-      sctp_info.assoc_index = -1;
-      sctp_info.direction = ASSOC_NOT_FOUND;
+      proto_item_set_generated(pi);
+      proto_tree_move_item(sctp_tree, vt, pi);
     }
 
     /* call dissect_sctp_chunk for the actual work */
@@ -4690,7 +4708,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   proto_tree *sctp_tree;
   guint32 vtag;
   sctp_half_assoc_t *ha = NULL;
-  proto_item *pi, *vt = NULL;
+  proto_item *vt = NULL;
 
   captured_length = tvb_captured_length(tvb);
   reported_length = tvb_reported_length(tvb);
@@ -4801,17 +4819,8 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   }
 
   /* add all chunks of the sctp datagram to the protocol tree */
-  dissect_sctp_chunks(tvb, pinfo, tree, sctp_item, sctp_tree, ha, encapsulated);
+  dissect_sctp_chunks(tvb, pinfo, tree, sctp_item, sctp_tree, ha, encapsulated, vt);
 
-  /* add assoc_index and move it behind the verification tag */
-  if (enable_association_indexing) {
-     pi = proto_tree_add_uint(sctp_tree, hf_sctp_assoc_index, tvb, 0 , 0, sctp_info.assoc_index);
-  }
-  else {
-     pi = proto_tree_add_uint_format_value(sctp_tree, hf_sctp_assoc_index, tvb, 0 , 0, sctp_info.assoc_index, "disabled (enable in preferences)");
-  }
-  proto_item_set_generated(pi);
-  proto_tree_move_item(sctp_tree, vt, pi);
 }
 
 static gboolean
@@ -4861,6 +4870,9 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   sctp_info.vtag_reflected = 0;
   sctp_info.number_of_tvbs = 0;
   sctp_info.verification_tag = tvb_get_ntohl(tvb, VERIFICATION_TAG_OFFSET);
+  /* Initialize these to unknown */
+  sctp_info.assoc_index = -1;
+  sctp_info.direction = ASSOC_NOT_FOUND;
 
   sctp_info.sport = pinfo->srcport;
   sctp_info.dport = pinfo->destport;
@@ -4870,9 +4882,22 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   p_add_proto_data(pinfo->pool, pinfo, hf_source_port, pinfo->curr_layer_num, GUINT_TO_POINTER(pinfo->srcport));
   p_add_proto_data(pinfo->pool, pinfo, hf_destination_port, pinfo->curr_layer_num, GUINT_TO_POINTER(pinfo->destport));
 
-  dissect_sctp_packet(tvb, pinfo, tree, FALSE);
-  if (!pinfo->flags.in_error_pkt && sctp_info.number_of_tvbs > 0)
-    tap_queue_packet(sctp_tap, pinfo, &sctp_info);
+  TRY {
+    dissect_sctp_packet(tvb, pinfo, tree, FALSE);
+  }
+
+  FINALLY {
+    if (!pinfo->flags.in_error_pkt && sctp_info.number_of_tvbs > 0)
+      /* XXX: If a (only present in an expired Internet-Draft)
+       * PKTDROP chunk is present, that shouldn't stop us from
+       * tapping the information from the outer encapsulation,
+       * but we'd have to be careful about not updating sctp_info
+       * with information from the encapsulated packet.
+       */
+      tap_queue_packet(sctp_tap, pinfo, &sctp_info);
+  }
+
+  ENDTRY;
 
   return tvb_captured_length(tvb);
 }
