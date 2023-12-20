@@ -1998,7 +1998,6 @@ eth_resolved_name_fill(hashether_t *tp, const char *name, unsigned mask, const g
                 pos += snprintf(tp->resolved_name + pos, MAXNAMELEN - pos,
                     bitmask >= 4 ? "_%01x" : "_%02x",
                     addr[bytes] & (0xFF >> bitmask));
-                bitmask = 0;
                 bytes++;
             }
 
