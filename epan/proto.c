@@ -1429,11 +1429,11 @@ proto_tree_add_text_valist_internal(proto_tree *tree, tvbuff_t *tvb, gint start,
 	proto_item        *pi;
 	header_field_info *hfinfo;
 
-	if (length == -1) {
-		length = tvb_captured_length(tvb) ? tvb_ensure_captured_length_remaining(tvb, start) : 0;
-	} else {
-		tvb_ensure_bytes_exist(tvb, start, length);
-	}
+	/* proto_tree_add_text_node calls proto_tree_add_pi() with the
+	 * FT_NONE hf_text_only, which calls get_hfi_length, which adjusts
+	 * the length to be what's in the tvbuff if length is -1, and the
+	 * minimum of length and what's in the tvbuff if not.
+	 */
 
 	CHECK_FOR_NULL_TREE(tree);
 
