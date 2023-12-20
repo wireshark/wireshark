@@ -471,6 +471,10 @@ void e2ap_update_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbu
     /* Copy OID into table entry (so may be used to choose and be compared with chosen available dissector */
     struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
     ran_functionid_table_t *table = get_ran_functionid_table(pinfo);
+    /* Make sure we have private and table data to compare */
+    if (!e2ap_data || !table) {
+        return;
+    }
     ran_function_t ran_function = MAX_RANFUNCTIONS;
     for (guint n=0; n < table->num_entries; n++) {
         if (e2ap_data->ran_function_id == table->entries[n].ran_function_id) {
