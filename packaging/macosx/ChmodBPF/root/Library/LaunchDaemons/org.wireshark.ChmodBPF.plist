@@ -8,5 +8,7 @@
 	<true/>
 	<key>Program</key>
 	<string>/Library/Application Support/Wireshark/ChmodBPF/ChmodBPF</string>
+	<key>AssociatedBundleIdentifiers</key>
+	<string>org.wireshark.Wireshark</string>
 </dict>
 </plist>
