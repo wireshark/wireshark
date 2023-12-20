@@ -249,6 +249,7 @@ static gint ett_ip_opt_sec_prot_auth_flags;
 static gint ett_ip_unknown_opt;
 
 static expert_field ei_ip_opt_len_invalid;
+static expert_field ei_ip_opt_deprecated;
 static expert_field ei_ip_opt_sec_prot_auth_fti;
 static expert_field ei_ip_extraneous_data;
 static expert_field ei_ip_opt_ptr_before_address;
@@ -391,7 +392,8 @@ const value_string ip_version_vals[] = {
 #define IPOPT_RESERVED2         0x60
 
 /* REF: http://www.iana.org/assignments/ip-parameters */
-/* TODO: Not all of these are implemented. */
+/* TODO: Not all of these are implemented, especially those
+ * deprecated by RFC 6814. */
 #define IPOPT_EOOL      (0 |IPOPT_CONTROL)
 #define IPOPT_NOP       (1 |IPOPT_CONTROL)
 #define IPOPT_SEC       (2 |IPOPT_COPY|IPOPT_CONTROL)       /* RFC 791/1108 */
@@ -400,23 +402,23 @@ const value_string ip_version_vals[] = {
 #define IPOPT_ESEC      (5 |IPOPT_COPY|IPOPT_CONTROL)       /* RFC 1108 */
 #define IPOPT_CIPSO     (6 |IPOPT_COPY|IPOPT_CONTROL)       /* draft-ietf-cipso-ipsecurity-01 */
 #define IPOPT_RR        (7 |IPOPT_CONTROL)
-#define IPOPT_SID       (8 |IPOPT_COPY|IPOPT_CONTROL)
+#define IPOPT_SID       (8 |IPOPT_COPY|IPOPT_CONTROL)       /* Deprecated */
 #define IPOPT_SSR       (9 |IPOPT_COPY|IPOPT_CONTROL)
 #define IPOPT_ZSU       (10|IPOPT_CONTROL)                  /* Zsu */
 #define IPOPT_MTUP      (11|IPOPT_CONTROL)                  /* RFC 1063 */
 #define IPOPT_MTUR      (12|IPOPT_CONTROL)                  /* RFC 1063 */
 #define IPOPT_FINN      (13|IPOPT_COPY|IPOPT_MEASUREMENT)   /* Finn */
-#define IPOPT_VISA      (14|IPOPT_COPY|IPOPT_CONTROL)       /* Estrin */
-#define IPOPT_ENCODE    (15|IPOPT_CONTROL)                  /* VerSteeg */
+#define IPOPT_VISA      (14|IPOPT_COPY|IPOPT_CONTROL)       /* Estrin; Deprecated */
+#define IPOPT_ENCODE    (15|IPOPT_CONTROL)                  /* VerSteeg; Deprecated */
 #define IPOPT_IMITD     (16|IPOPT_COPY|IPOPT_CONTROL)       /* Lee */
-#define IPOPT_EIP       (17|IPOPT_COPY|IPOPT_CONTROL)       /* RFC 1385 */
-#define IPOPT_TR        (18|IPOPT_MEASUREMENT)              /* RFC 1393 */
-#define IPOPT_ADDEXT    (19|IPOPT_COPY|IPOPT_CONTROL)       /* Ullmann IPv7 */
+#define IPOPT_EIP       (17|IPOPT_COPY|IPOPT_CONTROL)       /* RFC 1385; Deprecated */
+#define IPOPT_TR        (18|IPOPT_MEASUREMENT)              /* RFC 1393; Deprecated */
+#define IPOPT_ADDEXT    (19|IPOPT_COPY|IPOPT_CONTROL)       /* Ullmann IPv7; Deprecated */
 #define IPOPT_RTRALT    (20|IPOPT_COPY|IPOPT_CONTROL)       /* RFC 2113 */
-#define IPOPT_SDB       (21|IPOPT_COPY|IPOPT_CONTROL)       /* RFC 1770 Graff */
+#define IPOPT_SDB       (21|IPOPT_COPY|IPOPT_CONTROL)       /* RFC 1770 Graff; Deprecated */
 #define IPOPT_UN        (22|IPOPT_COPY|IPOPT_CONTROL)       /* Released 18-Oct-2005 */
-#define IPOPT_DPS       (23|IPOPT_COPY|IPOPT_CONTROL)       /* Malis */
-#define IPOPT_UMP       (24|IPOPT_COPY|IPOPT_CONTROL)       /* Farinacci */
+#define IPOPT_DPS       (23|IPOPT_COPY|IPOPT_CONTROL)       /* Malis; Deprecated */
+#define IPOPT_UMP       (24|IPOPT_COPY|IPOPT_CONTROL)       /* Farinacci; Deprecated */
 #define IPOPT_QS        (25|IPOPT_CONTROL)                  /* RFC 4782 */
 #define IPOPT_EXP       (30|IPOPT_CONTROL)                  /* RFC 4727 */
 
@@ -1307,6 +1309,7 @@ dissect_ipopt_sid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * da
   proto_item *tf;
 
   field_tree = ip_fixed_option_header(tree, pinfo, tvb, proto_ip_option_sid, ett_ip_option_sid, &tf, IPOLEN_SID, tvb_reported_length(tvb));
+  expert_add_info(pinfo, tf, &ei_ip_opt_deprecated);
 
   proto_tree_add_item(field_tree, hf_ip_opt_sid, tvb, 2, 2, ENC_BIG_ENDIAN);
   return tvb_captured_length(tvb);
@@ -1346,6 +1349,7 @@ dissect_ipopt_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * dat
   gint       offset = 2;
 
   field_tree = ip_fixed_option_header(tree, pinfo, tvb, proto_ip_option_traceroute, ett_ip_option_tr, &tf, IPOLEN_TR, tvb_reported_length(tvb));
+  expert_add_info(pinfo, tf, &ei_ip_opt_deprecated);
 
   proto_tree_add_item(field_tree, hf_ip_opt_id_number, tvb, offset, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item(field_tree, hf_ip_opt_ohc, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -1454,6 +1458,7 @@ dissect_ipopt_sdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * da
              optlen = tvb_reported_length(tvb);
 
   field_tree = ip_var_option_header(tree, pinfo, tvb, proto_ip_option_sdb, ett_ip_option_sdb, &tf, optlen);
+  expert_add_info(pinfo, tf, &ei_ip_opt_deprecated);
 
   for (offset += 2, optlen -= 2; optlen >= 4; offset += 4, optlen -= 4)
     proto_tree_add_item(field_tree, hf_ip_opt_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -3014,6 +3019,7 @@ proto_register_ip(void)
   };
   static ei_register_info ei[] = {
      { &ei_ip_opt_len_invalid, { "ip.opt.len.invalid", PI_PROTOCOL, PI_WARN, "Invalid length for option", EXPFILL }},
+     { &ei_ip_opt_deprecated, { "ip.opt.deprecated", PI_DEPRECATED, PI_NOTE, "Option type is deprecated", EXPFILL }},
      { &ei_ip_opt_sec_prot_auth_fti, { "ip.opt.len.invalid", PI_PROTOCOL, PI_WARN, "Field Termination Indicator set to 1 for last byte of option", EXPFILL }},
      { &ei_ip_extraneous_data, { "ip.opt.len.invalid", PI_PROTOCOL, PI_WARN, "Extraneous data in option", EXPFILL }},
      { &ei_ip_opt_ptr_before_address, { "ip.opt.ptr.before_address", PI_PROTOCOL, PI_WARN, "Pointer points before first address", EXPFILL }},
