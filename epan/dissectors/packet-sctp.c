@@ -86,6 +86,7 @@ static int hf_checksum_adler;
 static int hf_checksum_crc32c;
 static int hf_checksum_status;
 
+static int hf_chunk;
 static int hf_chunk_type;
 static int hf_chunk_flags;
 static int hf_chunk_bit_1;
@@ -4452,9 +4453,9 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(type, chunk_type_values, "RESERVED"));
 
   /* create proto_tree stuff */
-  chunk_tree   = proto_tree_add_subtree_format(sctp_tree, chunk_tvb, CHUNK_HEADER_OFFSET, reported_length,
-                    ett_sctp_chunk, &chunk_item, "%s chunk",
-                    val_to_str_const(type, chunk_type_values, "RESERVED"));
+  chunk_item = proto_tree_add_none_format(sctp_tree, hf_chunk, chunk_tvb, CHUNK_HEADER_OFFSET, reported_length,
+                    "%s chunk", val_to_str_const(type, chunk_type_values, "RESERVED"));
+  chunk_tree = proto_item_add_subtree(chunk_item, ett_sctp_chunk);
 
   if (tree) {
     /* then insert the chunk header components into the protocol tree */
@@ -4891,6 +4892,7 @@ proto_register_sctp(void)
     { &hf_checksum_adler,                           { "Checksum (Adler)",                               "sctp.checksum",                                        FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_checksum_crc32c,                          { "Checksum (CRC32C)",                              "sctp.checksum",                                        FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_checksum_status,                          { "Checksum Status",                                "sctp.checksum.status",                                 FT_UINT8,   BASE_NONE, VALS(proto_checksum_vals),                      0x0,                                NULL, HFILL } },
+    { &hf_chunk,                                    { "Chunk",                                          "sctp.chunk",                                           FT_NONE,    BASE_NONE, NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_chunk_type,                               { "Chunk type",                                     "sctp.chunk_type",                                      FT_UINT8,   BASE_DEC,  VALS(chunk_type_values),                        0x0,                                NULL, HFILL } },
     { &hf_chunk_flags,                              { "Chunk flags",                                    "sctp.chunk_flags",                                     FT_UINT8,   BASE_HEX,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_chunk_bit_1,                              { "Bit",                                            "sctp.chunk_bit_1",                                     FT_BOOLEAN, 8,         TFS(&sctp_chunk_bit_1_value),                   SCTP_CHUNK_BIT_1,                   NULL, HFILL } },
