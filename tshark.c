@@ -1249,6 +1249,16 @@ main(int argc, char *argv[])
        XXX - we do this here, for now, to support "-G" with no arguments.
        If none of our build or other processes uses "-G" with no arguments,
        we can just process it with the other arguments. */
+
+    /* NOTE: This is before the preferences are loaded with
+     * epan_load_settings() below, so if you add a new report
+     * and it depends on the profile settings, call epan_load_settings()
+     * first.
+     *
+     * It is after addr_resolv_init() is called (done by epan_init()),
+     * so "manuf", "enterprises", and "services" have the values from
+     * the global and personal profile files already loaded.
+     */
     if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
         proto_initialize_all_prefixes();
 
@@ -1261,9 +1271,10 @@ main(int argc, char *argv[])
                 epan_load_settings();
                 write_prefs(NULL);
             }
-            else if (strcmp(argv[2], "decodes") == 0)
+            else if (strcmp(argv[2], "decodes") == 0) {
+                epan_load_settings();
                 dissector_dump_decodes();
-            else if (strcmp(argv[2], "defaultprefs") == 0)
+            } else if (strcmp(argv[2], "defaultprefs") == 0)
                 write_prefs(NULL);
             else if (strcmp(argv[2], "dissector-tables") == 0)
                 dissector_dump_dissector_tables();
@@ -1294,9 +1305,10 @@ main(int argc, char *argv[])
                 about_folders();
             } else if (strcmp(argv[2], "ftypes") == 0)
                 proto_registrar_dump_ftypes();
-            else if (strcmp(argv[2], "heuristic-decodes") == 0)
+            else if (strcmp(argv[2], "heuristic-decodes") == 0) {
+                epan_load_settings();
                 dissector_dump_heur_decodes();
-            else if (strcmp(argv[2], "manuf") == 0)
+            } else if (strcmp(argv[2], "manuf") == 0)
                 ws_manuf_dump(stdout);
             else if (strcmp(argv[2], "enterprises") == 0)
                 global_enterprises_dump(stdout);
@@ -1313,9 +1325,10 @@ main(int argc, char *argv[])
                 extcap_dump_all();
                 epan_plugins_dump_all();
             }
-            else if (strcmp(argv[2], "protocols") == 0)
+            else if (strcmp(argv[2], "protocols") == 0) {
+                epan_load_settings();
                 proto_registrar_dump_protocols();
-            else if (strcmp(argv[2], "values") == 0)
+            } else if (strcmp(argv[2], "values") == 0)
                 proto_registrar_dump_values();
             else if (strcmp(argv[2], "help") == 0)
                 glossary_option_help();
