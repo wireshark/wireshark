@@ -7651,10 +7651,61 @@ ssl_dissect_hnd_hello_ext_early_data(ssl_common_dissect_t *hf, tvbuff_t *tvb, pa
     return offset;
 }
 
+static uint16_t
+tls_try_get_version(gboolean is_dtls, uint16_t version, uint8_t *draft_version)
+{
+    if (draft_version) {
+        *draft_version = 0;
+    }
+    if (!is_dtls) {
+        uint8_t tls13_draft = extract_tls13_draft_version(version);
+        if (tls13_draft != 0) {
+            /* This is TLS 1.3 (a draft version). */
+            if (draft_version) {
+                *draft_version = tls13_draft;
+            }
+            version = TLSV1DOT3_VERSION;
+        }
+        if (version == 0xfb17 || version == 0xfb1a) {
+            /* Unofficial TLS 1.3 draft version for Facebook fizz. */
+            tls13_draft = (uint8_t)version;
+            if (draft_version) {
+                *draft_version = tls13_draft;
+            }
+            version = TLSV1DOT3_VERSION;
+        }
+    }
+
+    switch (version) {
+    case SSLV3_VERSION:
+    case TLSV1_VERSION:
+    case TLSV1DOT1_VERSION:
+    case TLSV1DOT2_VERSION:
+    case TLSV1DOT3_VERSION:
+    case TLCPV1_VERSION:
+        if (is_dtls)
+            return SSL_VER_UNKNOWN;
+        break;
+
+    case DTLSV1DOT0_VERSION:
+    case DTLSV1DOT0_OPENSSL_VERSION:
+    case DTLSV1DOT2_VERSION:
+    case DTLSV1DOT3_VERSION:
+        if (!is_dtls)
+            return SSL_VER_UNKNOWN;
+        break;
+
+    default: /* invalid version number */
+        return SSL_VER_UNKNOWN;
+    }
+
+    return version;
+}
+
 static gint
 ssl_dissect_hnd_hello_ext_supported_versions(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                                              proto_tree *tree, guint32 offset, guint32 offset_end,
-                                             SslSession *session, ja4_data_t *ja4_data)
+                                             SslSession *session, gboolean is_dtls, ja4_data_t *ja4_data)
 {
 
    /* RFC 8446 Section 4.2.1
@@ -7673,6 +7724,7 @@ ssl_dissect_hnd_hello_ext_supported_versions(ssl_common_dissect_t *hf, tvbuff_t 
     next_offset = offset + versions_length;
 
     guint version;
+    unsigned current_version, lowest_version = SSL_VER_UNKNOWN;
     guint8 draft_version, max_draft_version = 0;
     const char *sep = " ";
     while (offset + 2 <= next_offset) {
@@ -7684,11 +7736,30 @@ ssl_dissect_hnd_hello_ext_supported_versions(ssl_common_dissect_t *hf, tvbuff_t 
             sep = ", ";
         }
 
-        draft_version = extract_tls13_draft_version(version);
+        current_version = tls_try_get_version(is_dtls, version, &draft_version);
+        if (session->version == SSL_VER_UNKNOWN) {
+            if (lowest_version == SSL_VER_UNKNOWN) {
+                lowest_version = current_version;
+            } else if (current_version != SSL_VER_UNKNOWN) {
+                if (!is_dtls) {
+                    lowest_version = MIN(lowest_version, current_version);
+                } else {
+                    lowest_version = MAX(lowest_version, current_version);
+                }
+            }
+        }
         max_draft_version = MAX(draft_version, max_draft_version);
         if (ja4_data && !IS_GREASE_TLS(version)) {
+            /* The DTLS version numbers get mapped to "00" for unknown per
+             * JA4 spec, but if JA4 ever does support DTLS we'll probably
+             * need to take the MIN instead of MAX here for DTLS.
+             */
             ja4_data->max_version = MAX(version, ja4_data->max_version);
         }
+    }
+    if (session->version == SSL_VER_UNKNOWN && lowest_version != SSL_VER_UNKNOWN) {
+        col_set_str(pinfo->cinfo, COL_PROTOCOL,
+                    val_to_str_const(version, ssl_version_short_names, is_dtls ? "DTLS" : "TLS"));
     }
     if (!ssl_end_vector(hf, tvb, pinfo, tree, offset, next_offset)) {
         offset = next_offset;
@@ -9440,39 +9511,8 @@ ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
                 is_dtls))
         return;
 
-    if (handshake_type == SSL_HND_SERVER_HELLO && !is_dtls) {
-        tls13_draft = extract_tls13_draft_version(version);
-        if (tls13_draft != 0) {
-            /* This is TLS 1.3 (a draft version). */
-            version = TLSV1DOT3_VERSION;
-        }
-        if (version == 0xfb17 || version == 0xfb1a) {
-            /* Unofficial TLS 1.3 draft version for Facebook fizz. */
-            tls13_draft = (guint8)version;
-            version = TLSV1DOT3_VERSION;
-        }
-    }
-
-    switch (version) {
-    case SSLV3_VERSION:
-    case TLSV1_VERSION:
-    case TLSV1DOT1_VERSION:
-    case TLSV1DOT2_VERSION:
-    case TLSV1DOT3_VERSION:
-    case TLCPV1_VERSION:
-        if (is_dtls)
-            return;
-        break;
-
-    case DTLSV1DOT0_VERSION:
-    case DTLSV1DOT0_OPENSSL_VERSION:
-    case DTLSV1DOT2_VERSION:
-    case DTLSV1DOT3_VERSION:
-        if (!is_dtls)
-            return;
-        break;
-
-    default: /* invalid version number */
+    version = tls_try_get_version(is_dtls, version, &tls13_draft);
+    if (version == SSL_VER_UNKNOWN) {
         return;
     }
 
@@ -10716,7 +10756,7 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         case SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS:
             switch (hnd_type) {
             case SSL_HND_CLIENT_HELLO:
-                offset = ssl_dissect_hnd_hello_ext_supported_versions(hf, tvb, pinfo, ext_tree, offset, next_offset, session, ja4_data);
+                offset = ssl_dissect_hnd_hello_ext_supported_versions(hf, tvb, pinfo, ext_tree, offset, next_offset, session, is_dtls, ja4_data);
                 break;
             case SSL_HND_SERVER_HELLO:
             case SSL_HND_HELLO_RETRY_REQUEST:
