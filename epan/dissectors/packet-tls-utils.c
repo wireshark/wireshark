@@ -75,6 +75,7 @@ const value_string ssl_version_short_names[] = {
     { TLSV1DOT3_VERSION,    "TLSv1.3" },
     { DTLSV1DOT0_VERSION,   "DTLSv1.0" },
     { DTLSV1DOT2_VERSION,   "DTLSv1.2" },
+    { DTLSV1DOT3_VERSION,   "DTLSv1.3" },
     { DTLSV1DOT0_OPENSSL_VERSION, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
     { 0x00, NULL }
 };
@@ -9432,7 +9433,7 @@ ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
                 is_dtls))
         return;
 
-    if (handshake_type == SSL_HND_SERVER_HELLO) {
+    if (handshake_type == SSL_HND_SERVER_HELLO && !is_dtls) {
         tls13_draft = extract_tls13_draft_version(version);
         if (tls13_draft != 0) {
             /* This is TLS 1.3 (a draft version). */
@@ -9459,6 +9460,7 @@ ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
     case DTLSV1DOT0_VERSION:
     case DTLSV1DOT0_OPENSSL_VERSION:
     case DTLSV1DOT2_VERSION:
+    case DTLSV1DOT3_VERSION:
         if (!is_dtls)
             return;
         break;
