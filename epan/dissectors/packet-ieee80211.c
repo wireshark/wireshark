@@ -1946,7 +1946,7 @@ static const value_string ieee80211_tag_measure_report_civic_sub_id_vals[] = {
   { MEASURE_REP_CIVIC_SUB_REPORTED_LOCATION_SHAPE, "Location Shape" },
   { MEASURE_REP_CIVIC_SUB_REPORTED_MAP_IMAGE, "Map Image" },
   { MEASURE_REP_CIVIC_SUB_REPORTED_RESERVED, "Reserved" },
-  { MEASURE_REP_CIVIC_SUB_REPORTED_CO_BSSID, "Co-Locatel BSSID List" },
+  { MEASURE_REP_CIVIC_SUB_REPORTED_CO_BSSID, "Co-Located BSSID List" },
   { 221, "Vendor Specific" },
   { 0x00, NULL}
 };
@@ -27882,7 +27882,7 @@ dissect_multi_link_per_sta(tvbuff_t *tvb, packet_info *pinfo _U_,
       proto_tree * oper_tree;
 
       oper_tree = proto_tree_add_subtree(sta_info_tree, tvb, offset, 3,
-                                         ett_eht_multi_link_reconf_oper_param, NULL, "Operation Paramters");
+                                         ett_eht_multi_link_reconf_oper_param, NULL, "Operation Parameters");
 
       proto_tree_add_bitmask_with_flags(oper_tree, tvb, offset,
                              hf_ieee80211_eht_sta_profile_presence_indi,
@@ -47819,7 +47819,7 @@ proto_register_ieee80211(void)
       FT_UINT24, BASE_HEX, VALS(address_2_mask_vals), 0x000030, NULL, HFILL }},
 
     {&hf_ieee80211_tclas_class_mask8_sequence_control_spec,
-     {"Sequence Control Spec", "wlan.tclas.class8.mask.sequence_contol_spec",
+     {"Sequence Control Spec", "wlan.tclas.class8.mask.sequence_control_spec",
       FT_UINT24, BASE_HEX, VALS(sequence_control_mask_vals),
       0x0000C0, NULL, HFILL }},
 
@@ -57868,11 +57868,11 @@ proto_register_ieee80211(void)
        FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_twt_traffic_info_dl_bitmap_valid,
-      {"DL TID Bitmap Valid", "wlan.twt.traffic_info.dl_tid_bitamp_valid",
+      {"DL TID Bitmap Valid", "wlan.twt.traffic_info.dl_tid_bitmap_valid",
        FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
 
     {&hf_ieee80211_tag_twt_traffic_info_ul_bitmap_valid,
-      {"UL TID Bitmap Valid", "wlan.twt.traffic_info.ul_tid_bitamp_valid",
+      {"UL TID Bitmap Valid", "wlan.twt.traffic_info.ul_tid_bitmap_valid",
        FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
 
     {&hf_ieee80211_tag_twt_traffic_info_reserved,

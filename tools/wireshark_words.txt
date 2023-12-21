@@ -69,6 +69,7 @@ annunc
 annunciation
 anonsvn
 anonymization
+antsel
 aperiodic
 appdata
 append
@@ -147,6 +148,7 @@ beamforming
 bgpspec
 bibliographic
 bibliography
+bidirection
 bidirectional
 bidirectionally
 bigint
@@ -391,6 +393,7 @@ deauthentications
 debian
 debug
 debugger
+debuggers
 decapsulation
 decca
 decentralization
@@ -655,6 +658,7 @@ functionalities
 funkt
 fuzzed
 fuzzer
+fuzzing
 fvalue
 g711a
 g711u
@@ -798,6 +802,7 @@ initializer
 initializers
 initializes
 initializing
+initiators
 inkey
 inline
 inode
@@ -1093,6 +1098,7 @@ ngsniffer
 niagra
 nikon
 nitnxlate
+nmtcommand
 nnsvc
 noascii
 noauth
@@ -1132,6 +1138,7 @@ ntohl
 ntohs
 ntwkconn
 nullptr
+nvgre
 nvmeof
 nvram
 oampdu
@@ -1507,7 +1514,9 @@ rtpmux
 rtpstream
 ruleset
 rwanda
+rxbitmask
 rxchannel
+rxflags
 rxlen
 rxlev
 rxmcsmap
@@ -1637,12 +1646,14 @@ stderr
 stdin
 stdout
 strbuf
+strcmp
 strdup
 streamid
 stringz
 stringzpad
 struct
 structs
+stype
 subaddress
 subband
 subcarrier
@@ -1759,6 +1770,7 @@ toolbar
 toolongfragment
 toolset
 tooltip
+topologies
 toprowflag
 topup
 toshiba

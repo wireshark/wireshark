@@ -5610,7 +5610,7 @@ void proto_register_radiotap(void)
 		  NULL, HFILL}},
 
 		{&hf_radiotap_he_ru_allocation_offset_known,
-		 {"RU allocation offset known", "radiotap.he.data_2.ru_allocation_offseti_known",
+		 {"RU allocation offset known", "radiotap.he.data_2.ru_allocation_offset_known",
 		  FT_BOOLEAN, 16, TFS(&tfs_known_unknown),
 			IEEE80211_RADIOTAP_HE_RU_ALLOCATION_OFFSET_KNOWN,
 		  NULL, HFILL}},
