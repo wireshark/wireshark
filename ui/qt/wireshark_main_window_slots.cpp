@@ -3621,6 +3621,8 @@ void WiresharkMainWindow::connectTelephonyMenuActions()
 
     connect(main_ui_->actionTelephonyNGAPMessages, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("ngap"); });
 
+    connect(main_ui_->actionTelephonyE2APMessages, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("e2ap"); });
+
     connect(main_ui_->actionTelephonySipFlows, &QAction::triggered, this, [=]() {
         VoipCallsDialog *dialog = VoipCallsDialog::openVoipCallsDialogSip(*this, capture_file_, packet_list_);
         dialog->show();

@@ -821,98 +821,130 @@ RICQueryResponse                         N e2ap.proc.sout id-RICquery
 
 
 
+# Set labels and update stats for the various message types
+
 #.FN_HDR E2connectionUpdate
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E2connectionUpdate");
+  set_message_label(actx, MTYPE_E2_CONNECTION_UPDATE);
+  set_stats_message_type(actx->pinfo, MTYPE_E2_CONNECTION_UPDATE);
+
 
 #.FN_HDR E2connectionUpdateAcknowledge
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E2connectionUpdateAcknowledge");
+  set_message_label(actx, MTYPE_E2_CONNECTION_UPDATE_ACK);
+  set_stats_message_type(actx->pinfo, MTYPE_E2_CONNECTION_UPDATE_ACK);
 
 #.FN_HDR E2connectionUpdateFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E2connectionUpdateFailure");
+  set_message_label(actx, MTYPE_E2_CONNECTION_UPDATE_FAIL);
+  set_stats_message_type(actx->pinfo, MTYPE_E2_CONNECTION_UPDATE_FAIL);
 
 
 #.FN_HDR E2nodeConfigurationUpdate
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E2nodeConfigurationUpdate");
+  set_message_label(actx, MTYPE_E2_CONFIGURATION_UPDATE_FAIL);
+  set_stats_message_type(actx->pinfo, MTYPE_E2_CONFIGURATION_UPDATE_FAIL);
+
 
 #.FN_HDR E2nodeConfigurationUpdateAcknowledge
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E2nodeConfigurationUpdateAcknowledge");
+  set_message_label(actx, MTYPE_E2_CONFIGURATION_UPDATE_ACK);
+  set_stats_message_type(actx->pinfo, MTYPE_E2_CONFIGURATION_UPDATE_ACK);
 
 #.FN_HDR E2nodeConfigurationUpdateFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E2nodeConfigurationUpdateFailure");
+  set_message_label(actx, MTYPE_E2_CONFIGURATION_UPDATE_FAIL);
+  set_stats_message_type(actx->pinfo, MTYPE_E2_CONFIGURATION_UPDATE_FAIL);
 
 
 #.FN_HDR E2setupFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E2setupFailure");
+  set_message_label(actx, MTYPE_E2_SETUP_FAIL);
+  set_stats_message_type(actx->pinfo, MTYPE_E2_SETUP_FAIL);
 
 #.FN_HDR E2setupRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E2setupRequest");
+  set_message_label(actx, MTYPE_E2_SETUP_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_E2_SETUP_REQUEST);
 
 #.FN_HDR E2setupResponse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E2setupResponse");
+  set_message_label(actx, MTYPE_E2_SETUP_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_E2_SETUP_RESPONSE);
+
 
 
 #.FN_HDR ErrorIndication
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ErrorIndication");
+  set_message_label(actx, MTYPE_ERROR_INDICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_ERROR_INDICATION);
 
 
 #.FN_HDR ResetRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResetRequest");
+  set_message_label(actx, MTYPE_RESET_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_RESET_REQUEST);
 
 #.FN_HDR ResetResponse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResetResponse");
+  set_message_label(actx, MTYPE_RESET_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_RESET_RESPONSE);
 
 
 #.FN_HDR RICcontrolAcknowledge
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICcontrolAcknowledge");
+  set_message_label(actx, MTYPE_RIC_CONTROL_ACK);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_CONTROL_ACK);
 
 #.FN_HDR RICcontrolFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICcontrolFailure");
+  set_message_label(actx, MTYPE_RIC_CONTROL_FAIL);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_CONTROL_FAIL);
 
 #.FN_HDR RICcontrolRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICcontrolRequest");
+  set_message_label(actx, MTYPE_RIC_CONTROL_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_CONTROL_REQUEST);
 
 
 #.FN_HDR RICindication
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICindication");
+  set_message_label(actx, MTYPE_RIC_IND);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_IND);
 
 
 #.FN_HDR RICserviceQuery
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICserviceQuery");
+  set_message_label(actx, MTYPE_RIC_SERVICE_QUERY);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_SERVICE_QUERY);
 
 
 #.FN_HDR RICserviceUpdate
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICserviceUpdate");
+  set_message_label(actx, MTYPE_RIC_SERVICE_UPDATE);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_SERVICE_UPDATE);
 
 #.FN_HDR RICserviceUpdateAcknowledge
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICserviceUpdateAcknowledge");
+  set_message_label(actx, MTYPE_RIC_SERVICE_UPDATE_ACK);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_SERVICE_UPDATE_ACK);
 
 #.FN_HDR RICserviceUpdateFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICserviceUpdateFailure");
+  set_message_label(actx, MTYPE_RIC_SERVICE_UPDATE_FAIL);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_SERVICE_UPDATE_FAIL);
 
 
 
 #.FN_HDR RICsubscriptionFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICsubscriptionFailure");
+  set_message_label(actx, MTYPE_RIC_SUBSCRIPTION_FAIL);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_SUBSCRIPTION_FAIL);
 
 #.FN_HDR RICsubscriptionRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICsubscriptionRequest");
+  set_message_label(actx, MTYPE_RIC_SUBSCRIPTION_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_SUBSCRIPTION_REQUEST);
 
 #.FN_HDR RICsubscriptionResponse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICsubscriptionResponse");
+  set_message_label(actx, MTYPE_RIC_SUBSCRIPTION_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_SUBSCRIPTION_RESPONSE);
 
 
 
 #.FN_HDR RICsubscriptionDeleteFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICsubscriptionDeleteFailure");
+  set_message_label(actx, MTYPE_RIC_SUBSCRIPTION_DELETE_FAIL);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_SUBSCRIPTION_DELETE_FAIL);
 
 #.FN_HDR RICsubscriptionDeleteRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICsubscriptionDeleteRequest");
+  set_message_label(actx, MTYPE_RIC_SUBSCRIPTION_DELETE_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_SUBSCRIPTION_DELETE_REQUEST);
 
 #.FN_HDR RICsubscriptionDeleteResponse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICsubscriptionDeleteResponse");
+  set_message_label(actx, MTYPE_RIC_SUBSCRIPTION_DELETE_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_SUBSCRIPTION_DELETE_RESPONSE);
 
 #.FN_HDR RICsubscriptionDeleteRequired
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICsubscriptionDeleteRequired");
+  set_message_label(actx, MTYPE_RIC_SUBSCRIPTION_DELETE_REQUIRED);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_SUBSCRIPTION_DELETE_REQUIRED);
 
 
 #
