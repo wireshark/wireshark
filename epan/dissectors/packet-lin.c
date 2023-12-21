@@ -425,6 +425,7 @@ dissect_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     guint payload_length;
     guint msg_type;
     lin_info_t lininfo;
+    guint64 errors;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, LIN_NAME);
     col_clear(pinfo->cinfo, COL_INFO);
@@ -452,9 +453,15 @@ dissect_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         lininfo.len = 0;
         lin_set_source_and_destination_columns(pinfo, &lininfo);
     }
-    proto_tree_add_bitmask(lin_tree, tvb, 7, hf_lin_err_errors, ett_errors, error_fields, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_ret_uint64(lin_tree, tvb, 7, hf_lin_err_errors, ett_errors, error_fields, ENC_BIG_ENDIAN, &errors);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "LIN %s", val_to_str(msg_type, lin_msg_type_names, "(0x%02x)"));
+
+    if (errors != 0) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " - ERR");
+        proto_item_set_end(ti_root, tvb, 8);
+        return 8;
+    }
 
     switch (msg_type) {
     case LIN_MSG_TYPE_EVENT: {
