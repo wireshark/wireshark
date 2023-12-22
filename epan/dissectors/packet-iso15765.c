@@ -9,6 +9,33 @@
  */
 
 /*
+ * CAN ID Mapping
+ *
+ * When using ISO15765 to transport UDS and others, the diagnostic addresses might be
+ * determined by mapping the underlaying CAN ID (29bit or 11bit).
+ *
+ * Option 1: Two Addresses can be determined (Source and Target Address.
+ * Option 2: One Address can be determined (ECU Address).
+ * Option 3: No Address can be determined.
+ *
+ * For Option 1 and 2 the ISO15765_can_id_mappings table can be used to determine the addresses:
+ * - Ext Addr determines, if the CAN ID is 29bit (TRUE) or 11bit (FALSE)
+ * - CAN ID and CAN ID Mask determined how to know if a CAN ID should be mapped
+ * - Source Addr Mask and Target Addr Mask show the bits used to determine the addresses of Option 1
+ * - ECU Addr Mask defines the bits for the address of Option 2
+ *
+ * Example:
+ * - ISO15765 is applicable to all 29bit CAN IDs 0x9988TTSS, with TT the target address and SS the source address.
+ * - Ext Addr: TRUE
+ * - CAN ID: 0x99880000
+ * - CAN ID Mask: 0xffff0000
+ * - Target Addr Mask: 0x0000ff00
+ * - Source Addr Mask: 0x000000ff
+ *
+ * The addresses are passed via iso15765data_t to the next dissector (e.g., UDS).
+ */
+
+/*
  * Support for FlexRay variant, see: https://www.autosar.org/fileadmin/user_upload/standards/classic/20-11/AUTOSAR_SWS_FlexRayARTransportLayer.pdf
  */
 
@@ -65,8 +92,7 @@ void proto_reg_handoff_iso15765(void);
 
 #define ISO15765_ADDR_INVALID 0xffffffff
 
-struct iso15765_identifier
-{
+struct iso15765_identifier {
     guint32 id;
     guint32 seq;
     guint16 frag_id;
@@ -76,8 +102,7 @@ struct iso15765_identifier
 typedef struct iso15765_identifier iso15765_identifier_t;
 
 
-struct iso15765_frame
-{
+struct iso15765_frame {
     guint32  seq;
     guint32  offset;
     guint32  len;
@@ -310,14 +335,12 @@ post_update_config_can_addr_mappings_cb(void) {
 }
 
 static guint16
-masked_guint16_value(const guint16 value, const guint16 mask)
-{
+masked_guint16_value(const guint16 value, const guint16 mask) {
     return (value & mask) >> ws_ctz(mask);
 }
 
 static guint32
-masked_guint32_value(const guint32 value, const guint32 mask)
-{
+masked_guint32_value(const guint32 value, const guint32 mask) {
     return (value & mask) >> ws_ctz(mask);
 }
 
@@ -527,8 +550,7 @@ handle_pdu_transport_addresses(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 }
 
 static int
-dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bus_type, guint32 frame_id, guint32 frame_length)
-{
+dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bus_type, guint32 frame_id, guint32 frame_length) {
     static guint32 msg_seqid = 0;
 
     proto_tree *iso15765_tree;
@@ -859,8 +881,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
 }
 
 static int
-dissect_iso15765_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
-{
+dissect_iso15765_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
     struct can_info can_info;
 
     DISSECTOR_ASSERT(data);
@@ -879,8 +900,7 @@ dissect_iso15765_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 }
 
 static int
-dissect_iso15765_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
-{
+dissect_iso15765_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
     DISSECTOR_ASSERT(data);
 
     lin_info_t *lininfo = (lin_info_t *)data;
@@ -889,8 +909,7 @@ dissect_iso15765_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 }
 
 static int
-dissect_iso15765_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
-{
+dissect_iso15765_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
     DISSECTOR_ASSERT(data);
 
     flexray_info_t *flexray_id = (flexray_info_t *)data;
@@ -901,8 +920,7 @@ dissect_iso15765_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 }
 
 static int
-dissect_iso15765_ipdum(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
-{
+dissect_iso15765_ipdum(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
     DISSECTOR_ASSERT(data);
 
     autosar_ipdu_multiplexer_info_t *ipdum_data = (autosar_ipdu_multiplexer_info_t *)data;
@@ -911,8 +929,7 @@ dissect_iso15765_ipdum(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 }
 
 static int
-dissect_iso15765_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
-{
+dissect_iso15765_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
     DISSECTOR_ASSERT(data);
 
     pdu_transport_info_t *pdu_transport_data = (pdu_transport_info_t *)data;
@@ -921,8 +938,7 @@ dissect_iso15765_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 static void
-update_config(void)
-{
+update_config(void) {
     if (iso15765_handle_lin != NULL) {
         dissector_delete_all("lin.frame_id", iso15765_handle_lin);
         if (register_lin_diag_frames) {
@@ -946,8 +962,7 @@ update_config(void)
 }
 
 void
-proto_register_iso15765(void)
-{
+proto_register_iso15765(void) {
     uat_t *config_can_addr_mapping_uat;
     uat_t *config_pdu_transport_config_uat;
 
@@ -1216,12 +1231,12 @@ proto_register_iso15765(void)
 
     /* UATs for config_can_addr_mapping_uat */
     static uat_field_t config_can_addr_mapping_uat_fields[] = {
-        UAT_FLD_BOOL(config_can_addr_mappings, extended_address, "Ext. Addr.",       "Extended Addressing (TRUE), Standard Addressing (FALSE)"),
-        UAT_FLD_HEX(config_can_addr_mappings,  can_id,           "CAN ID",           "CAN ID (hex)"),
-        UAT_FLD_HEX(config_can_addr_mappings,  can_id_mask,      "CAN ID Mask",      "CAN ID Mask (hex)"),
-        UAT_FLD_HEX(config_can_addr_mappings,  source_addr_mask, "Source Addr Mask", "Bitmask to specify location of Source Address (hex)"),
-        UAT_FLD_HEX(config_can_addr_mappings,  target_addr_mask, "Target Addr Mask", "Bitmask to specify location of Target Address (hex)"),
-        UAT_FLD_HEX(config_can_addr_mappings,  ecu_addr_mask,    "ECU Addr Mask",    "Bitmask to specify location of ECU Address (hex)"),
+        UAT_FLD_BOOL(config_can_addr_mappings, extended_address, "Ext Addr (29bit)",    "29bit Addressing (TRUE), 11bit Addressing (FALSE)"),
+        UAT_FLD_HEX(config_can_addr_mappings,  can_id,           "CAN ID",              "CAN ID (hex)"),
+        UAT_FLD_HEX(config_can_addr_mappings,  can_id_mask,      "CAN ID Mask",         "CAN ID Mask (hex)"),
+        UAT_FLD_HEX(config_can_addr_mappings,  source_addr_mask, "Source Addr Mask",    "Bitmask to specify location of Source Address (hex)"),
+        UAT_FLD_HEX(config_can_addr_mappings,  target_addr_mask, "Target Addr Mask",    "Bitmask to specify location of Target Address (hex)"),
+        UAT_FLD_HEX(config_can_addr_mappings,  ecu_addr_mask,    "ECU Addr Mask",       "Bitmask to specify location of ECU Address (hex)"),
         UAT_END_FIELDS
     };
 
@@ -1318,8 +1333,7 @@ proto_register_iso15765(void)
 }
 
 void
-proto_reg_handoff_iso15765(void)
-{
+proto_reg_handoff_iso15765(void) {
     iso15765_handle_can = create_dissector_handle(dissect_iso15765_can, proto_iso15765);
     iso15765_handle_lin = create_dissector_handle(dissect_iso15765_lin, proto_iso15765);
     iso15765_handle_flexray = create_dissector_handle(dissect_iso15765_flexray, proto_iso15765);
