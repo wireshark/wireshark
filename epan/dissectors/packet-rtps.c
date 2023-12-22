@@ -2808,8 +2808,9 @@ static const true_false_string tfs_little_big_endianness = { "Little-Endian", "B
 /* #19359 - ensure strings we copy aren't truncated halfway through a Unicode codepoint */
 static void rtps_strlcpy(char *dest, const char *src, size_t dest_size)
 {
+  /* Reserving the last character in case ws_utf8_truncate overwites it */
   (void) g_strlcpy(dest, src, dest_size);
-  ws_utf8_truncate(dest, dest_size);
+  ws_utf8_truncate(dest, strlen(dest));
 }
 
 static gint check_offset_addition(gint offset, guint32 value, proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
