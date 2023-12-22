@@ -1814,7 +1814,7 @@ static ran_function_available_dissectors_t g_ran_functions_available_dissectors[
 /* Will be called from outside this file by separate dissectors */
 void register_e2ap_ran_function_dissector(ran_function_t ran_function, ran_function_dissector_t *dissector)
 {
-    if ((ran_function >= MIN_RANFUNCTIONS) && (ran_function <= MAX_RANFUNCTIONS)) {
+    if ((ran_function >= MIN_RANFUNCTIONS) && (ran_function < MAX_RANFUNCTIONS)) {
         ran_function_available_dissectors_t *available_dissectors = &g_ran_functions_available_dissectors[ran_function];
         if (available_dissectors->num_available_dissectors < MAX_DISSECTORS_PER_RAN_FUNCTION) {
             available_dissectors->ran_function_dissectors[available_dissectors->num_available_dissectors++] = dissector;
