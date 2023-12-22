@@ -1392,7 +1392,7 @@ proto_register_json_3gpp(void)
 			"Celluar IoT", HFILL }
 		},
 		{ &hf_json_3gpp_suppfeat_nsmf_pdusession_2_mapdu,
-			{ "MPADU", "json.3gpp.suppfeat.mapdu",
+			{ "MAPDU", "json.3gpp.suppfeat.mapdu",
 			FT_BOOLEAN, 4, NULL, 0x2,
 			"Multi-Access PDU Session", HFILL }
 		},
