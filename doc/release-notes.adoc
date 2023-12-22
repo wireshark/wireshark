@@ -114,7 +114,10 @@ The following features are new (or have been significantly updated) since versio
 * The binary plugins folder path no longer uses an X.Y version component. Plugins
   are required to add the ABI version to the file name.
 
-//=== Removed Features and Support
+=== Removed Features and Support
+
+* The tshark `-G` option with no argument is deprecated and will be removed in
+  a future version. Use `tshark -G fields` to produce the same report.
 
 // === Removed Dissectors
 

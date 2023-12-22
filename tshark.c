@@ -1262,9 +1262,11 @@ main(int argc, char *argv[])
     if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
         proto_initialize_all_prefixes();
 
-        if (argc == 2)
+        if (argc == 2) {
+            cmdarg_err("-G with no argument is deprecated and will removed in a future version.");
+            cmdarg_err_cont("Generating fields glossary.");
             proto_registrar_dump_fields();
-        else {
+        } else {
             if (strcmp(argv[2], "column-formats") == 0)
                 column_dump_column_formats();
             else if (strcmp(argv[2], "currentprefs") == 0) {
