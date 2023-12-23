@@ -166,6 +166,7 @@ static gint ett_icmp_ext_object;
 /* MPLS extensions */
 static gint ett_icmp_mpls_stack_object;
 
+static expert_field ei_icmp_type_deprecated;
 static expert_field ei_icmp_resp_not_found;
 static expert_field ei_icmp_checksum;
 static expert_field ei_icmp_ext_checksum;
@@ -237,14 +238,17 @@ static dissector_handle_t icmp_handle;
 
 static dissector_handle_t ip_handle;
 
+/* RFC 6633 and 6918 formally deprecated a number of types, including
+ * those never widely implemented nor deployed (in Wireshark or elsewhere.)
+ */
 static const value_string icmp_type_str[] = {
 	{ICMP_ECHOREPLY,    "Echo (ping) reply"},
 	{1,		    "Reserved"},
 	{2,		    "Reserved"},
 	{ICMP_UNREACH,	    "Destination unreachable"},
-	{ICMP_SOURCEQUENCH, "Source quench (flow control)"},
+	{ICMP_SOURCEQUENCH, "Source quench (flow control)"}, /* Deprecated */
 	{ICMP_REDIRECT,	    "Redirect"},
-	{ICMP_ALTHOST,	    "Alternate host address"},
+	{ICMP_ALTHOST,	    "Alternate host address"}, /* Deprecated */
 	{ICMP_ECHO,	    "Echo (ping) request"},
 	{ICMP_RTRADVERT,    "Router advertisement"},
 	{ICMP_RTRSOLICIT,   "Router solicitation"},
@@ -252,21 +256,21 @@ static const value_string icmp_type_str[] = {
 	{ICMP_PARAMPROB,    "Parameter problem"},
 	{ICMP_TSTAMP,	    "Timestamp request"},
 	{ICMP_TSTAMPREPLY,  "Timestamp reply"},
-	{ICMP_IREQ,	    "Information request"},
-	{ICMP_IREQREPLY,    "Information reply"},
-	{ICMP_MASKREQ,	    "Address mask request"},
-	{ICMP_MASKREPLY,    "Address mask reply"},
+	{ICMP_IREQ,	    "Information request"}, /* Deprecated */
+	{ICMP_IREQREPLY,    "Information reply"}, /* Deprecated */
+	{ICMP_MASKREQ,	    "Address mask request"}, /* Deprecated */
+	{ICMP_MASKREPLY,    "Address mask reply"}, /* Deprecated */
 	{19,		    "Reserved (for security)"},
-	{30,		    "Traceroute"},
-	{31,		    "Datagram Conversion Error"},
-	{32,		    "Mobile Host Redirect"},
-	{33,		    "IPv6 Where-Are-You"},
-	{34,		    "IPv6 I-Am-Here"},
-	{35,		    "Mobile Registration Request"},
-	{36,		    "Mobile Registration Reply"},
-	{37,		    "Domain Name Request"},
-	{38,		    "Domain Name Reply"},
-	{39,		    "SKIP"},
+	{30,		    "Traceroute"}, /* Deprecated */
+	{31,		    "Datagram Conversion Error"}, /* Deprecated */
+	{32,		    "Mobile Host Redirect"}, /* Deprecated */
+	{33,		    "IPv6 Where-Are-You"}, /* Deprecated */
+	{34,		    "IPv6 I-Am-Here"}, /* Deprecated */
+	{35,		    "Mobile Registration Request"}, /* Deprecated */
+	{36,		    "Mobile Registration Reply"}, /* Deprecated */
+	{37,		    "Domain Name Request"}, /* Deprecated */
+	{38,		    "Domain Name Reply"}, /* Deprecated */
+	{39,		    "SKIP"}, /* Deprecated */
 	{ICMP_PHOTURIS,	    "Photuris"},
 	{41,		    "Experimental mobility protocols"},
 	{ICMP_EXTECHO,	    "Extended Echo request"},
@@ -1581,6 +1585,28 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 	ti = proto_tree_add_item(icmp_tree, hf_icmp_type, tvb, 0, 1,
 				 ENC_BIG_ENDIAN);
 	proto_item_append_text(ti, " (%s)", type_str);
+        switch (icmp_type) {
+	case ICMP_SOURCEQUENCH:
+	case ICMP_ALTHOST:
+	case ICMP_IREQ:
+	case ICMP_IREQREPLY:
+	case ICMP_MASKREQ:
+	case ICMP_MASKREPLY:
+	case 30:
+	case 31:
+	case 32:
+	case 33:
+	case 34:
+	case 35:
+	case 36:
+	case 37:
+	case 38:
+	case 39:
+		expert_add_info(pinfo, ti, &ei_icmp_type_deprecated);
+		break;
+	default:
+		break;
+	}
 
 	ti = proto_tree_add_item(icmp_tree, hf_icmp_code, tvb, 1, 1,
 				 ENC_BIG_ENDIAN);
@@ -2385,6 +2411,7 @@ void proto_register_icmp(void)
 	};
 
 	static ei_register_info ei[] = {
+		{ &ei_icmp_type_deprecated, { "icmp.type.deprecated", PI_DEPRECATED, PI_NOTE, "Type is deprecated", EXPFILL }},
 		{ &ei_icmp_resp_not_found, { "icmp.resp_not_found", PI_SEQUENCE, PI_WARN, "Response not found", EXPFILL }},
 		{ &ei_icmp_checksum, { "icmp.checksum_bad", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
 		{ &ei_icmp_ext_checksum, { "icmp.ext.checksum_bad", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
