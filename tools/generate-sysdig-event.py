@@ -290,7 +290,7 @@ def main():
     header_fields_re = re.compile('/\*\s+' + header_fields_c, flags = re.IGNORECASE)
     header_fields_l = []
     for hf_name in sorted(hf_d.keys()):
-        header_fields_l.append('static int {} = -1;'.format(hf_name))
+        header_fields_l.append('static int {};'.format(hf_name))
 
     event_names_c = 'Event names'
     event_names_re = re.compile('/\*\s+' + event_names_c, flags = re.IGNORECASE)

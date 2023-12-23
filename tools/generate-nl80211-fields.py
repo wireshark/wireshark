@@ -169,7 +169,7 @@ def remove_prefix(prefix, text):
     return text
 
 def make_hf_defs(name, indent):
-    code = 'static gint hf_%s = -1;' % name
+    code = 'static gint hf_%s;' % name
     return code
 
 def make_hf(name, indent):
@@ -202,7 +202,7 @@ def make_hf(name, indent):
     return code
 
 def make_ett_defs(name, indent):
-    code = 'static gint ett_%s = -1;' % name
+    code = 'static gint ett_%s;' % name
     return code
 
 def make_ett(name, indent):
