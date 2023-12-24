@@ -6280,7 +6280,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>LTE RLC Graph - no channel selected</source>
+        <source>3GPP RLC Graph - no channel selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6335,7 +6335,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>LteRlcStatisticsDialog</name>
     <message>
-        <source>LTE/NR RLC Statistics</source>
+        <source>3GPP RLC Statistics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13923,6 +13923,14 @@ a:hover {
     </message>
     <message>
         <source>HTTP Request Sequences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>E2AP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>E2AP Messages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

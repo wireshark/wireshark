@@ -6339,8 +6339,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Grafico RLC %1 (UE=%2 can=%3%4 %5 - %6)</translation>
     </message>
     <message>
-        <source>LTE RLC Graph - no channel selected</source>
-        <translation>Grafico RLC LTE - nessun canale selezionato</translation>
+        <source>3GPP RLC Graph - no channel selected</source>
+        <oldsource>LTE RLC Graph - no channel selected</oldsource>
+        <translation type="unfinished">Grafico RLC LTE - nessun canale selezionato</translation>
     </message>
     <message>
         <source>Save As…</source>
@@ -6394,8 +6395,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 <context>
     <name>LteRlcStatisticsDialog</name>
     <message>
-        <source>LTE/NR RLC Statistics</source>
-        <translation>Statistiche RLC LTE/NR</translation>
+        <source>3GPP RLC Statistics</source>
+        <oldsource>LTE/NR RLC Statistics</oldsource>
+        <translation type="unfinished">Statistiche RLC LTE/NR</translation>
     </message>
     <message>
         <source>Include SR frames in filter</source>
@@ -14092,6 +14094,14 @@ a:hover {
         <translation>Sequenze richiesta HTTP</translation>
     </message>
     <message>
+        <source>E2AP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>E2AP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Decode &amp;As…</source>
         <translation>Decodific&amp;a come...</translation>
     </message>
@@ -14755,15 +14765,11 @@ a:hover {
     </message>
     <message>
         <source>Binary plugin (*%1 *%1.[0-9]*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugin binario (*%1 *%1.[0-9]*)</translation>
     </message>
     <message>
         <source>Error removing the old plugin from the personal plugin folder. You may need to close Wireshark first and then manually remove the file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Binary plugin (*%1)</source>
-        <translation type="vanished">Plugin binario (*%1)</translation>
+        <translation>Errore durante la rimozione del vecchio plugin dalla cartella dei plugin personali. Potresti dover chiudere Wireshark prima e quindi rimuovere manualmente il file &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Plugins can execute arbitrary code as the current user. Make sure you trust it before installing.
@@ -14779,12 +14785,7 @@ Vuoi continuare l&apos;installazione del file &quot;%1&quot; nella cartella dei 
     </message>
     <message>
         <source>The file already exists. Do you want to overwrite it?</source>
-        <oldsource>The plugin already exists in the personal plugin folder.</oldsource>
-        <translation type="unfinished">Il plugin esiste già nella cartella dei plugin personali.</translation>
-    </message>
-    <message>
-        <source>Error removing the old plugin file from the personal plugin folder.</source>
-        <translation type="vanished">Errore durante la rimozione del vecchio file del plugin dalla cartella dei plugin personali.</translation>
+        <translation>Il file esiste già. Vuoi sovrascriverò?</translation>
     </message>
     <message>
         <source>Failed to copy the file to the destination: %1</source>

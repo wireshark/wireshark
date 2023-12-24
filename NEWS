@@ -108,6 +108,12 @@ Wireshark 4.3.0 Release Notes
        component. Plugins are required to add the ABI version to the
        file name.
 
+  Removed Features and Support
+
+     • The tshark `-G` option with no argument is deprecated and will be
+       removed in a future version. Use `tshark -G fields` to produce
+       the same report.
+
   New Protocol Support
 
    EGNOS Message Server (EMS) file format, MAC NR Framed

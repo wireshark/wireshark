@@ -6356,8 +6356,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>LTE RLC Graph - no channel selected</source>
-        <translation>График LTE RLC — канал не выбран</translation>
+        <source>3GPP RLC Graph - no channel selected</source>
+        <oldsource>LTE RLC Graph - no channel selected</oldsource>
+        <translation type="unfinished">График LTE RLC — канал не выбран</translation>
     </message>
     <message>
         <source>Save As…</source>
@@ -6411,7 +6412,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>LteRlcStatisticsDialog</name>
     <message>
-        <source>LTE/NR RLC Statistics</source>
+        <source>3GPP RLC Statistics</source>
+        <oldsource>LTE/NR RLC Statistics</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14129,6 +14131,14 @@ a:hover {
         <translation>Последовательности HTTP-запросов</translation>
     </message>
     <message>
+        <source>E2AP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>E2AP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Decode &amp;As…</source>
         <translation>Декодировать &amp;как…</translation>
     </message>
@@ -14810,7 +14820,6 @@ Continue installing the file &quot;%1&quot; to the personal plugin folder?</sour
     </message>
     <message>
         <source>The file already exists. Do you want to overwrite it?</source>
-        <oldsource>The plugin already exists in the personal plugin folder.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

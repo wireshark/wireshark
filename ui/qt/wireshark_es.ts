@@ -6275,7 +6275,8 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>LTE RLC Graph - no channel selected</source>
+        <source>3GPP RLC Graph - no channel selected</source>
+        <oldsource>LTE RLC Graph - no channel selected</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6330,7 +6331,8 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
 <context>
     <name>LteRlcStatisticsDialog</name>
     <message>
-        <source>LTE/NR RLC Statistics</source>
+        <source>3GPP RLC Statistics</source>
+        <oldsource>LTE/NR RLC Statistics</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13958,6 +13960,14 @@ a:hover {
         <translation>Secuencias de solicitud HTTP</translation>
     </message>
     <message>
+        <source>E2AP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>E2AP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Decode &amp;As…</source>
         <translation>Decodificar &amp;como…</translation>
     </message>
@@ -14639,7 +14649,6 @@ Continue installing the file &quot;%1&quot; to the personal plugin folder?</sour
     </message>
     <message>
         <source>The file already exists. Do you want to overwrite it?</source>
-        <oldsource>The plugin already exists in the personal plugin folder.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

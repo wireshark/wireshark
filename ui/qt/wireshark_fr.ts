@@ -6338,8 +6338,9 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>LTE RLC Graph - no channel selected</source>
-        <translation>Graphique LTE RLC - aucun canal sélectionné </translation>
+        <source>3GPP RLC Graph - no channel selected</source>
+        <oldsource>LTE RLC Graph - no channel selected</oldsource>
+        <translation type="unfinished">Graphique LTE RLC - aucun canal sélectionné </translation>
     </message>
     <message>
         <source>Save As…</source>
@@ -6393,7 +6394,8 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
 <context>
     <name>LteRlcStatisticsDialog</name>
     <message>
-        <source>LTE/NR RLC Statistics</source>
+        <source>3GPP RLC Statistics</source>
+        <oldsource>LTE/NR RLC Statistics</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14053,6 +14055,14 @@ a:hover {
         <translation>Séquences de requête HTTP</translation>
     </message>
     <message>
+        <source>E2AP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>E2AP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Decode &amp;As…</source>
         <translation>Décoder &amp;Comme...</translation>
     </message>
@@ -14734,7 +14744,6 @@ Continue installing the file &quot;%1&quot; to the personal plugin folder?</sour
     </message>
     <message>
         <source>The file already exists. Do you want to overwrite it?</source>
-        <oldsource>The plugin already exists in the personal plugin folder.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
