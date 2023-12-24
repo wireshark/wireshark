@@ -415,7 +415,9 @@ proto_register_falcoplugin(void)
     register_dissector("falcobridge", dissect_falco_bridge, proto_falco_bridge);
 
     // Try to have a 1:1 mapping for as many Sysdig / Falco fields as possible.
+    // The exception is SSC_ARGS, which exposes the event arguments in a way that is convenient for the user.
     proto_syscalls[SSC_EVENT] = proto_register_protocol("Event Information", "Falco Event", "evt");
+    proto_syscalls[SSC_ARGS] = proto_register_protocol("Event Arguments", "Falco Event Info", "evt.arg");
     proto_syscalls[SSC_PROCESS] = proto_register_protocol("Process Information", "Falco Process", "process");
     proto_syscalls[SSC_USER] = proto_register_protocol("User Information", "Falco User", "user");
     proto_syscalls[SSC_GROUP] = proto_register_protocol("Group Information", "Falco Group", "group");
@@ -498,6 +500,7 @@ proto_register_falcoplugin(void)
     static int *ett[] = {
         &ett_falco_bridge,
         &ett_syscalls[SSC_EVENT],
+        &ett_syscalls[SSC_ARGS],
         &ett_syscalls[SSC_PROCESS],
         &ett_syscalls[SSC_USER],
         &ett_syscalls[SSC_GROUP],
@@ -597,7 +600,8 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
 
     sinsp_field_extract_t *sinsp_fields = NULL;
     uint32_t sinsp_fields_count = 0;
-    bool rc = extract_syscall_source_fields(sinsp_span, bi->ssi, pinfo->fd->num, &sinsp_fields, &sinsp_fields_count);
+    void* sinp_evt_info;
+    bool rc = extract_syscall_source_fields(sinsp_span, bi->ssi, pinfo->fd->num, &sinsp_fields, &sinsp_fields_count, &sinp_evt_info);
 
     if (!rc) {
         REPORT_DISSECTOR_BUG("Falco plugin %s extract error: %s", get_sinsp_source_name(bi->ssi), get_sinsp_source_last_error(bi->ssi));
@@ -633,6 +637,11 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
         }
         proto_tree *parent_tree = parent_trees[sinsp_fields[sf_idx].parent_category];
 
+        int32_t arg_num;
+        if (sscanf(hfinfo->abbrev, "evt.arg.%d", &arg_num) != 1) {
+            arg_num = -1;
+        }
+
         switch (hfinfo->type) {
         case FT_INT8:
         case FT_INT16:
@@ -664,7 +673,15 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
                 }
                 res_str = sinsp_fields[sf_idx].res.str;
             }
-            ti = proto_tree_add_string(parent_tree, bi->hf_ids[hf_idx], tvb, 0, 0, res_str);
+
+            if (arg_num != -1) {
+                // When the field is an argument, we want to display things in a way that includes the argument name and value.
+                char* argname = get_evt_arg_name(sinp_evt_info, arg_num);
+                ti = proto_tree_add_string_format(parent_tree, bi->hf_ids[hf_idx], tvb, 0, 0, res_str, "%s: %s", argname, res_str);
+            } else {
+                ti = proto_tree_add_string(parent_tree, bi->hf_ids[hf_idx], tvb, 0, 0, res_str);
+            }
+
             if (bi->field_flags[hf_idx] & BFF_INFO) {
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", res_str);
                 // Mark it hidden, otherwise we end up with a bunch of empty "Info" tree items.

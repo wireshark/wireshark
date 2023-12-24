@@ -72,6 +72,7 @@ typedef struct sinsp_span_t {
     // XXX Combine these into a single struct?
     std::vector<sinsp_field_extract_t *> sfe_ptrs;
     std::vector<uint16_t> sfe_lengths;
+    std::vector<const ppm_event_info*> sfe_infos;
     // Interned data. Copied from maxmind_db.c.
     wmem_map_t *str_chunk;
 } sinsp_span_t;
@@ -86,6 +87,8 @@ static int unused_sfe_bytes;
 static int total_chunked_strings;
 static int total_bytes;
 #endif
+
+static filter_check_info g_args_fci;
 
 sinsp_span_t *create_sinsp_span()
 {
@@ -111,9 +114,9 @@ static const char *chunkify_string(sinsp_span_t *sinsp_span, const char *key) {
 }
 
 static sinsp_syscall_category_e filtercheck_name_to_category(const std::string fc_name) {
-    // Must match libsinsp/sinsp_filtercheck_*.cpp
     std::map<const char *, sinsp_syscall_category_e> fc_name_to_category = {
         { "evt", SSC_EVENT },
+        { "args", SSC_ARGS },
         { "process", SSC_PROCESS },
         { "user", SSC_USER },
         { "group", SSC_GROUP },
@@ -132,6 +135,65 @@ static sinsp_syscall_category_e filtercheck_name_to_category(const std::string f
     return SSC_OTHER;
 }
 
+const filtercheck_field_info args_event_fields[] =
+{
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.0", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.1", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.2", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.3", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.4", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.5", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.6", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.7", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.8", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.9", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.10", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.11", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.12", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.13", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.14", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.15", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.16", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.17", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.18", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.19", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.20", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.21", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.22", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.23", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.24", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.25", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.26", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.27", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.28", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.29", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.30", "Argument", "Event argument."},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.31", "Argument", "Event argument."},
+};
+
+void add_arg_event(uint32_t arg_number,
+        sinsp_filter_factory* filter_factory,
+        sinsp_source_info_t *ssi,
+        sinsp_syscall_category_e args_syscall_category) {
+
+    if (arg_number >= sizeof(args_event_fields) / sizeof(args_event_fields[0])) {
+        ws_error("falco event has too many arguments (%" PRIu32 ")", arg_number);
+    }
+
+    std::string fname = "evt.arg[" + std::to_string(arg_number) + "]";
+
+    const filtercheck_field_info *ffi = &args_event_fields[arg_number];
+    gen_event_filter_check *gefc = filter_factory->new_filtercheck(fname.c_str());
+    if (!gefc) {
+        ws_error("cannot find expected Falco field evt.arg");
+    }
+    gefc->parse_field_name(fname.c_str(), true, false);
+    ssi->ffi_to_sf_idx[ffi] = ssi->syscall_filter_fields.size();
+    ssi->field_to_category[ssi->syscall_filter_fields.size()] = args_syscall_category;
+    ssi->syscall_event_filter_checks.push_back(gefc);
+    ssi->syscall_filter_fields.push_back(ffi);
+}
+
 /*
  * Populate a sinsp_source_info_t struct with the symbols coming from libsinsp's builtin syscall extractors
  */
@@ -143,12 +205,27 @@ void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t *
     std::vector<const filter_check_info*> all_syscall_fields;
 
     // Extract the fields defined in filterchecks.{cpp,h}
-
     sinsp_span->filter_checks.get_all_fields(all_syscall_fields);
     for (const auto fci : all_syscall_fields) {
         if (fci->m_flags == filter_check_info::FL_HIDDEN) {
             continue;
         }
+
+        if (fci->m_name == "process") {
+            // This creates a meta-filtercheck for the events arguments and it register its fields.
+            // We do it before the process filtercheck because we want to have it exactly in the position
+            // after event and before process.
+            g_args_fci.m_name = "args";
+            sinsp_syscall_category_e args_syscall_category = filtercheck_name_to_category(g_args_fci.m_name);
+
+            g_args_fci = *fci;
+
+            for (uint32_t i = 0; i < 32; i++) {
+                add_arg_event(i, &filter_factory, ssi, args_syscall_category);
+            }
+            ssi->syscall_filter_checks.push_back(&g_args_fci);
+        }
+
         sinsp_syscall_category_e syscall_category = filtercheck_name_to_category(fci->m_name);
 
         for (int i = 0; i < fci->m_nfields; i++) {
@@ -165,6 +242,7 @@ void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t *
                 ssi->syscall_filter_fields.push_back(ffi);
             }
         }
+
         ssi->syscall_filter_checks.push_back(fci);
     }
 
@@ -358,12 +436,23 @@ bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, size_t field_num, sin
     return true;
 }
 
+char* get_evt_arg_name(void* sinp_evt_info, uint32_t arg_num) {
+    ppm_event_info* realinfo = (ppm_event_info*)sinp_evt_info;
+
+    if (arg_num > realinfo->nparams) {
+        ws_error("Arg number %u exceeds event parameter count %u", arg_num, realinfo->nparams);
+        return NULL;
+    }
+    return realinfo->params[arg_num].name;
+}
+
 void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath)
 {
     sinsp_span->sfe_slab = NULL;
     sinsp_span->sfe_slab_offset = 0;
     sinsp_span->sfe_ptrs.clear();
     sinsp_span->sfe_lengths.clear();
+    sinsp_span->sfe_infos.clear();
     sinsp_span->inspector.open_savefile(filepath);
     sinsp_span->str_chunk = wmem_map_new(wmem_file_scope(), wmem_str_hash, g_str_equal);
 
@@ -384,6 +473,7 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
         ws_debug("Filling syscall gap from %d to %u", (int) sinsp_span->sfe_ptrs.size(), (unsigned) evt_num - 1);
         sinsp_span->sfe_ptrs.resize(evt_num - 1);
         sinsp_span->sfe_lengths.resize(evt_num - 1);
+        sinsp_span->sfe_infos.resize(evt_num - 1);
     }
 
     // libsinsp requires that events be processed in order so we cache our extracted
@@ -479,13 +569,14 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
             }
 
             sfe->res_len = values[0].len;
-            sfe->parent_category = ssi->field_to_category[fc_idx];            
+            sfe->parent_category = ssi->field_to_category[fc_idx];
         }
     }
 
     sinsp_span->sfe_slab_offset += sfe_idx;
     sinsp_span->sfe_ptrs.push_back(sfe_block);
     sinsp_span->sfe_lengths.push_back(sfe_idx);
+    sinsp_span->sfe_infos.push_back(evt->get_info());
 
     if (sinsp_span->sfe_ptrs.size() < evt_num) {
         ws_warning("Unable to fill cache to the proper size (%d vs %u)", (int) sinsp_span->sfe_ptrs.size(), (unsigned) evt_num);
@@ -517,10 +608,11 @@ void close_sinsp_capture(sinsp_span_t *sinsp_span)
     sinsp_span->inspector.close();
     sinsp_span->sfe_ptrs.clear();
     sinsp_span->sfe_lengths.clear();
+    sinsp_span->sfe_infos.clear();
     sinsp_span->str_chunk = NULL;
 }
 
-bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t *ssi, uint32_t frame_num, sinsp_field_extract_t **sinsp_fields, uint32_t *sinsp_field_len) {
+bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t *ssi, uint32_t frame_num, sinsp_field_extract_t **sinsp_fields, uint32_t *sinsp_field_len, void** sinp_evt_info) {
     if (ssi->source) {
         return false;
     }
@@ -560,6 +652,7 @@ bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t
 
     *sinsp_fields = sinsp_span->sfe_ptrs[frame_num - 1];
     *sinsp_field_len = sinsp_span->sfe_lengths[frame_num - 1];
+    *sinp_evt_info = (void*)sinsp_span->sfe_infos[frame_num - 1];
 
     return true;
 }
