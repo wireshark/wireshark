@@ -480,7 +480,7 @@ if_capabilities_copy(const if_capabilities_t *caps)
 	ret->timestamp_types = g_list_copy_deep(caps->timestamp_types, copy_timestamp_cb, NULL);
 	ret->data_link_types_rfmon = g_list_copy_deep(caps->data_link_types_rfmon, copy_linktype_cb, NULL);
 	ret->primary_msg = g_strdup(caps->primary_msg);
-	ret->secondary_msg = g_strdup(caps->secondary_msg);
+	ret->secondary_msg = caps->secondary_msg;
 
 	return ret;
 }
