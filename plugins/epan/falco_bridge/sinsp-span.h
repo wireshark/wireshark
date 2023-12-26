@@ -63,10 +63,8 @@ typedef struct sinsp_field_info_t {
     bool is_numeric_address;
 } sinsp_field_info_t;
 
-#define SFE_SMALL_BUF_SIZE 16
+#define SFE_SMALL_BUF_SIZE 8
 typedef struct sinsp_field_extract_t {
-    //    const char *field_name;     // in
-    //    bool is_present;            // out
     union {
         uint8_t *bytes;
         const char *str;
@@ -75,15 +73,12 @@ typedef struct sinsp_field_extract_t {
         uint32_t u32;
         uint64_t u64;
         double dbl;
-        uint8_t ipv6[16];
         bool boolean;
         char small_str[SFE_SMALL_BUF_SIZE];
         uint8_t small_bytes[SFE_SMALL_BUF_SIZE];
     } res;
     int res_len;                // out
-    uint32_t field_idx;          // out for syscalls
-    enum ftenum type;           // in, out
-    sinsp_syscall_category_e parent_category;     // out
+    uint16_t field_idx;          // out for syscalls
 } sinsp_field_extract_t;
 
 typedef struct plugin_field_extract_t {
@@ -123,6 +118,7 @@ void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath);
 //uint32_t process_syscall_capture(sinsp_span_t * sinsp_span, sinsp_source_info_t *ssi, uint32_t to_event);
 void close_sinsp_capture(sinsp_span_t *sinsp_span);
 bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t *ssi, uint32_t frame_num, sinsp_field_extract_t **sinsp_fields, uint32_t *sinsp_field_len, void** sinp_evt_info);
+sinsp_syscall_category_e get_syscall_parent_category(sinsp_source_info_t *ssi, size_t field_check_idx);
 
 // Extractor plugin routines.
 // These roughly match common_plugin_info

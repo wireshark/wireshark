@@ -631,11 +631,12 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
 //                                 hfinfo->abbrev, sinsp_fields[sf_idx].type, hfinfo->type);
 //        }
 
-        if (!parent_trees[sinsp_fields[sf_idx].parent_category]) {
-            ti = proto_tree_add_item(tree, proto_syscalls[sinsp_fields[sf_idx].parent_category], tvb, 0, 0, BASE_NONE);
-            parent_trees[sinsp_fields[sf_idx].parent_category] = proto_item_add_subtree(ti, ett_syscalls[sinsp_fields[sf_idx].parent_category]);
+        sinsp_syscall_category_e parent_category = get_syscall_parent_category(bi->ssi, sinsp_fields[sf_idx].field_idx);
+        if (!parent_trees[parent_category]) {
+            ti = proto_tree_add_item(tree, proto_syscalls[parent_category], tvb, 0, 0, BASE_NONE);
+            parent_trees[parent_category] = proto_item_add_subtree(ti, ett_syscalls[parent_category]);
         }
-        proto_tree *parent_tree = parent_trees[sinsp_fields[sf_idx].parent_category];
+        proto_tree *parent_tree = parent_trees[parent_category];
 
         int32_t arg_num;
         if (sscanf(hfinfo->abbrev, "evt.arg.%d", &arg_num) != 1) {

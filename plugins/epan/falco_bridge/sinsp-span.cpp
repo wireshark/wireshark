@@ -26,13 +26,10 @@
 #endif
 
 // To do:
-// [x] Create an array of array of sinsp_field_extract_t. (std::vectors of pointers + lengths seem to be working OK).
 // [.] Shrink sinsp_field_extract_t:
-//     [ ] Move parent_category to a separate lookup
-//     [.] Create a separate syscall_extract_t struct? We probably don't need the field
-//         name, type, or is_present. We might be able to move parent_category to a dynamic lookup.
-//     [x] The res union is 16 bytes; dup short strings in the struct and intern longer ones somewhere?
-//     [ ] As with short strings, dup short bytes in the struct and intern longer ones somewhere?
+//     [.] Create separate syscall_extract_t and plugin_extract_t structs? We probably don't need the
+//         field name, type, or is_present.
+//     [ ] Dup short bytes in the struct and intern longer ones somewhere?
 // [ ] Don't cache some fields, e.g. event time
 
 
@@ -569,7 +566,6 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
             }
 
             sfe->res_len = values[0].len;
-            sfe->parent_category = ssi->field_to_category[fc_idx];
         }
     }
 
@@ -612,6 +608,15 @@ void close_sinsp_capture(sinsp_span_t *sinsp_span)
     sinsp_span->str_chunk = NULL;
 }
 
+sinsp_syscall_category_e get_syscall_parent_category(sinsp_source_info_t *ssi, size_t field_check_idx)
+{
+    if (field_check_idx < ssi->field_to_category.size()) {
+        return ssi->field_to_category[field_check_idx];
+    }
+    return SSC_OTHER;
+}
+
+// Either have separate cached / non-cached params or pass a pointer to a pointer array.
 bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t *ssi, uint32_t frame_num, sinsp_field_extract_t **sinsp_fields, uint32_t *sinsp_field_len, void** sinp_evt_info) {
     if (ssi->source) {
         return false;
