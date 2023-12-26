@@ -627,12 +627,12 @@ static int dissect_sbas_l1_mt1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_item *ti = proto_tree_add_item(tree, hf_sbas_l1_mt1, tvb, 0, 32, ENC_NA);
     proto_tree *sbas_l1_mt1_tree = proto_item_add_subtree(ti, ett_sbas_l1_mt1);
 
-    proto_tree_add_item(sbas_l1_mt1_tree, hf_sbas_l1_mt1_prn_mask_gps,     tvb, 0,  6, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt1_tree, hf_sbas_l1_mt1_prn_mask_glonass, tvb, 5,  4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt1_tree, hf_sbas_l1_mt1_prn_mask_spare_1, tvb, 8,  8, ENC_NA);
-    proto_tree_add_item(sbas_l1_mt1_tree, hf_sbas_l1_mt1_prn_mask_sbas,    tvb, 15, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt1_tree, hf_sbas_l1_mt1_prn_mask_spare_2, tvb, 18, 9, ENC_NA);
-    proto_tree_add_item(sbas_l1_mt1_tree, hf_sbas_l1_mt1_iodp,             tvb, 26, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt1_tree, hf_sbas_l1_mt1_prn_mask_gps,     tvb, 0,  8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt1_tree, hf_sbas_l1_mt1_prn_mask_glonass, tvb, 5,  8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt1_tree, hf_sbas_l1_mt1_prn_mask_spare_1, tvb, 8,  8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt1_tree, hf_sbas_l1_mt1_prn_mask_sbas,    tvb, 15, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt1_tree, hf_sbas_l1_mt1_prn_mask_spare_2, tvb, 20, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt1_tree, hf_sbas_l1_mt1_iodp,             tvb, 27, 1, ENC_NA);
 
     return tvb_captured_length(tvb);
 }
@@ -647,31 +647,31 @@ static int dissect_sbas_l1_mt2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_iodf_j,   tvb, 0,  1, ENC_NA);
     proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_iodp,     tvb, 1,  1, ENC_NA);
-    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_1,     tvb, 1,  2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_2,     tvb, 2,  3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_3,     tvb, 4,  2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_4,     tvb, 5,  3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_5,     tvb, 7,  2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_6,     tvb, 8,  3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_7,     tvb, 10, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_8,     tvb, 11, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_9,     tvb, 13, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_10,    tvb, 14, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_11,    tvb, 16, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_12,    tvb, 17, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_13,    tvb, 19, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_1,     tvb, 1,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_2,     tvb, 2,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_3,     tvb, 4,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_4,     tvb, 5,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_5,     tvb, 7,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_6,     tvb, 8,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_7,     tvb, 10, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_8,     tvb, 11, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_9,     tvb, 13, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_10,    tvb, 14, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_11,    tvb, 16, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_12,    tvb, 17, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_fc_13,    tvb, 19, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_udrei_1,  tvb, 20, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_udrei_2,  tvb, 21, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_udrei_2,  tvb, 21, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_udrei_3,  tvb, 21, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_udrei_4,  tvb, 22, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_udrei_4,  tvb, 22, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_udrei_5,  tvb, 22, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_udrei_6,  tvb, 23, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_udrei_6,  tvb, 23, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_udrei_7,  tvb, 23, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_udrei_8,  tvb, 24, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_udrei_8,  tvb, 24, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_udrei_9,  tvb, 24, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_udrei_10, tvb, 25, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_udrei_10, tvb, 25, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_udrei_11, tvb, 25, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_udrei_12, tvb, 26, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_udrei_12, tvb, 26, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt2_tree, hf_sbas_l1_mt2_udrei_13, tvb, 26, 2, ENC_BIG_ENDIAN);
 
     return tvb_captured_length(tvb);
@@ -687,31 +687,31 @@ static int dissect_sbas_l1_mt3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_iodf_j,   tvb, 0,  1, ENC_NA);
     proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_iodp,     tvb, 1,  1, ENC_NA);
-    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_14,    tvb, 1,  2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_15,    tvb, 2,  3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_16,    tvb, 4,  2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_17,    tvb, 5,  3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_18,    tvb, 7,  2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_19,    tvb, 8,  3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_20,    tvb, 10, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_21,    tvb, 11, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_22,    tvb, 13, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_23,    tvb, 14, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_24,    tvb, 16, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_25,    tvb, 17, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_26,    tvb, 19, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_14,    tvb, 1,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_15,    tvb, 2,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_16,    tvb, 4,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_17,    tvb, 5,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_18,    tvb, 7,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_19,    tvb, 8,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_20,    tvb, 10, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_21,    tvb, 11, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_22,    tvb, 13, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_23,    tvb, 14, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_24,    tvb, 16, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_25,    tvb, 17, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_fc_26,    tvb, 19, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_udrei_14, tvb, 20, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_udrei_15, tvb, 21, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_udrei_15, tvb, 21, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_udrei_16, tvb, 21, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_udrei_17, tvb, 22, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_udrei_17, tvb, 22, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_udrei_18, tvb, 22, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_udrei_19, tvb, 23, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_udrei_19, tvb, 23, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_udrei_20, tvb, 23, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_udrei_21, tvb, 24, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_udrei_21, tvb, 24, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_udrei_22, tvb, 24, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_udrei_23, tvb, 25, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_udrei_23, tvb, 25, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_udrei_24, tvb, 25, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_udrei_25, tvb, 26, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_udrei_25, tvb, 26, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt3_tree, hf_sbas_l1_mt3_udrei_26, tvb, 26, 2, ENC_BIG_ENDIAN);
 
     return tvb_captured_length(tvb);
@@ -727,31 +727,31 @@ static int dissect_sbas_l1_mt4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_iodf_j,   tvb, 0,  1, ENC_NA);
     proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_iodp,     tvb, 1,  1, ENC_NA);
-    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_27,    tvb, 1,  2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_28,    tvb, 2,  3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_29,    tvb, 4,  2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_30,    tvb, 5,  3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_31,    tvb, 7,  2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_32,    tvb, 8,  3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_33,    tvb, 10, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_34,    tvb, 11, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_35,    tvb, 13, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_36,    tvb, 14, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_37,    tvb, 16, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_38,    tvb, 17, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_39,    tvb, 19, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_27,    tvb, 1,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_28,    tvb, 2,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_29,    tvb, 4,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_30,    tvb, 5,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_31,    tvb, 7,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_32,    tvb, 8,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_33,    tvb, 10, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_34,    tvb, 11, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_35,    tvb, 13, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_36,    tvb, 14, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_37,    tvb, 16, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_38,    tvb, 17, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_fc_39,    tvb, 19, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_udrei_27, tvb, 20, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_udrei_28, tvb, 21, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_udrei_28, tvb, 21, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_udrei_29, tvb, 21, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_udrei_30, tvb, 22, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_udrei_30, tvb, 22, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_udrei_31, tvb, 22, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_udrei_32, tvb, 23, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_udrei_32, tvb, 23, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_udrei_33, tvb, 23, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_udrei_34, tvb, 24, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_udrei_34, tvb, 24, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_udrei_35, tvb, 24, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_udrei_36, tvb, 25, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_udrei_36, tvb, 25, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_udrei_37, tvb, 25, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_udrei_38, tvb, 26, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_udrei_38, tvb, 26, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt4_tree, hf_sbas_l1_mt4_udrei_39, tvb, 26, 2, ENC_BIG_ENDIAN);
 
     return tvb_captured_length(tvb);
@@ -767,31 +767,31 @@ static int dissect_sbas_l1_mt5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_iodf_j,   tvb, 0,  1, ENC_NA);
     proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_iodp,     tvb, 1,  1, ENC_NA);
-    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_40,    tvb, 1,  2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_41,    tvb, 2,  3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_42,    tvb, 4,  2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_43,    tvb, 5,  3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_44,    tvb, 7,  2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_45,    tvb, 8,  3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_46,    tvb, 10, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_47,    tvb, 11, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_48,    tvb, 13, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_49,    tvb, 14, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_50,    tvb, 16, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_51,    tvb, 17, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_52,    tvb, 19, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_40,    tvb, 1,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_41,    tvb, 2,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_42,    tvb, 4,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_43,    tvb, 5,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_44,    tvb, 7,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_45,    tvb, 8,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_46,    tvb, 10, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_47,    tvb, 11, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_48,    tvb, 13, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_49,    tvb, 14, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_50,    tvb, 16, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_51,    tvb, 17, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_fc_52,    tvb, 19, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_udrei_40, tvb, 20, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_udrei_41, tvb, 21, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_udrei_41, tvb, 21, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_udrei_42, tvb, 21, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_udrei_43, tvb, 22, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_udrei_43, tvb, 22, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_udrei_44, tvb, 22, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_udrei_45, tvb, 23, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_udrei_45, tvb, 23, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_udrei_46, tvb, 23, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_udrei_47, tvb, 24, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_udrei_47, tvb, 24, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_udrei_48, tvb, 24, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_udrei_49, tvb, 25, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_udrei_49, tvb, 25, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_udrei_50, tvb, 25, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_udrei_51, tvb, 26, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_udrei_51, tvb, 26, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt5_tree, hf_sbas_l1_mt5_udrei_52, tvb, 26, 2, ENC_BIG_ENDIAN);
 
     return tvb_captured_length(tvb);
@@ -806,10 +806,10 @@ static int dissect_sbas_l1_mt6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_tree *sbas_l1_mt6_tree = proto_item_add_subtree(ti, ett_sbas_l1_mt6);
 
     // IODF_2 to IODF_5
-    proto_tree_add_item(sbas_l1_mt6_tree, hf_sbas_l1_mt6_iodf_2, tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt6_tree, hf_sbas_l1_mt6_iodf_3, tvb, 1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt6_tree, hf_sbas_l1_mt6_iodf_4, tvb, 1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbas_l1_mt6_tree, hf_sbas_l1_mt6_iodf_5, tvb, 1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt6_tree, hf_sbas_l1_mt6_iodf_2, tvb, 0, 1, ENC_NA);
+    proto_tree_add_item(sbas_l1_mt6_tree, hf_sbas_l1_mt6_iodf_3, tvb, 1, 1, ENC_NA);
+    proto_tree_add_item(sbas_l1_mt6_tree, hf_sbas_l1_mt6_iodf_4, tvb, 1, 1, ENC_NA);
+    proto_tree_add_item(sbas_l1_mt6_tree, hf_sbas_l1_mt6_iodf_5, tvb, 1, 1, ENC_NA);
 
     // UDREI_i
     proto_tree_add_item(sbas_l1_mt6_tree, hf_sbas_l1_mt6_udrei_1,  tvb, 1,  2, ENC_BIG_ENDIAN);
@@ -1136,13 +1136,13 @@ void proto_register_sbas_l1(void) {
         {&hf_sbas_l1_chksum,   {"Checksum",     "sbas_l1.chksum"  , FT_UINT32, BASE_HEX, NULL, 0x3fffffc0, NULL, HFILL}},
 
         // MT1
-        {&hf_sbas_l1_mt1,                  {"MT1",                        "sbas_l1.mt1",                  FT_NONE,   BASE_NONE, NULL, 0x0,            NULL, HFILL}},
-        {&hf_sbas_l1_mt1_prn_mask_gps,     {"PRN Mask GPS",               "sbas_l1.mt1.prn_mask_gps",     FT_UINT64, BASE_HEX,  NULL, 0x03ffffffffe0, NULL, HFILL}},
-        {&hf_sbas_l1_mt1_prn_mask_glonass, {"PRN Mask Glonass",           "sbas_l1.mt1.prn_mask_glonass", FT_UINT32, BASE_HEX,  NULL, 0x1fffffe0,     NULL, HFILL}},
-        {&hf_sbas_l1_mt1_prn_mask_spare_1, {"PRN Mask spare",             "sbas_l1.mt1.prn_mask_spare_1", FT_NONE,   BASE_NONE, NULL, 0x0,            NULL, HFILL}},
-        {&hf_sbas_l1_mt1_prn_mask_sbas,    {"PRN Mask SBAS",              "sbas_l1.mt1.prn_mask_sbas",    FT_UINT32, BASE_HEX,  NULL, 0x07ffff,       NULL, HFILL}},
-        {&hf_sbas_l1_mt1_prn_mask_spare_2, {"PRN Mask spare",             "sbas_l1.mt1.prn_mask_spare_2", FT_NONE,   BASE_NONE, NULL, 0x0,            NULL, HFILL}},
-        {&hf_sbas_l1_mt1_iodp,             {"Issue of Data - PRN (IODP)", "sbas_l1.mt1.iodp",             FT_UINT8,  BASE_DEC,  NULL, 0x03,           NULL, HFILL}},
+        {&hf_sbas_l1_mt1,                  {"MT1",                        "sbas_l1.mt1",                  FT_NONE,   BASE_NONE, NULL, 0x0,                          NULL, HFILL}},
+        {&hf_sbas_l1_mt1_prn_mask_gps,     {"PRN Mask GPS",               "sbas_l1.mt1.prn_mask_gps",     FT_UINT64, BASE_HEX,  NULL, UINT64_C(0x03ffffffffe00000), NULL, HFILL}},
+        {&hf_sbas_l1_mt1_prn_mask_glonass, {"PRN Mask Glonass",           "sbas_l1.mt1.prn_mask_glonass", FT_UINT64, BASE_HEX,  NULL, UINT64_C(0x1fffffe000000000), NULL, HFILL}},
+        {&hf_sbas_l1_mt1_prn_mask_spare_1, {"PRN Mask spare",             "sbas_l1.mt1.prn_mask_spare_1", FT_UINT64, BASE_HEX,  NULL, UINT64_C(0x1ffffffffffffff8), NULL, HFILL}},
+        {&hf_sbas_l1_mt1_prn_mask_sbas,    {"PRN Mask SBAS",              "sbas_l1.mt1.prn_mask_sbas",    FT_UINT64, BASE_HEX,  NULL, UINT64_C(0x07fffffffff00000), NULL, HFILL}},
+        {&hf_sbas_l1_mt1_prn_mask_spare_2, {"PRN Mask spare",             "sbas_l1.mt1.prn_mask_spare_2", FT_UINT64, BASE_HEX,  NULL, UINT64_C(0x0fffffffffffff00), NULL, HFILL}},
+        {&hf_sbas_l1_mt1_iodp,             {"Issue of Data - PRN (IODP)", "sbas_l1.mt1.iodp",             FT_UINT8,  BASE_DEC,  NULL, 0xc0,                         NULL, HFILL}},
 
         // MT2
         {&hf_sbas_l1_mt2,          {"MT2",                                      "sbas_l1.mt2",          FT_NONE,   BASE_NONE,   NULL,                          0x0,        NULL, HFILL}},
