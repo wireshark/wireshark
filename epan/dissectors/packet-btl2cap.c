@@ -3615,7 +3615,7 @@ proto_register_btl2cap(void)
         },
         { &hf_btl2cap_service,
           { "Service",           "btl2cap.service",
-            FT_UINT16, BASE_HEX, VALS(bluetooth_uuid_vals), 0x0,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_uuid_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_btl2cap_connect_in_frame,
