@@ -21881,7 +21881,7 @@ dissect_NokiaMAP_Extensions_AllowedServiceData(bool implicit_tag _U_, tvbuff_t *
 
 
 /* Specific translation for MAP V3 */
-const value_string gsm_map_V1V2_opr_code_strings[] = {
+static const value_string gsm_map_V1V2_opr_code_strings[] = {
   {  44, "forwardSM" },
   {  45, "sendRoutingInfoForSM" },
   {  46, "forwardSM" },

@@ -2872,7 +2872,7 @@ static gint ett_imzm_ImzmParameters;
 static gint ett_imzm_ImzmContainer;
 
 // Deal with cause/subcause code management
-struct { CauseCodeType_enum cause; int* hf; } cause_to_subcause[] = {
+static struct { CauseCodeType_enum cause; int* hf; } cause_to_subcause[] = {
     { trafficCondition, &hf_its_trafficCondition1 },
     { accident, &hf_its_accident2 },
     { roadworks, &hf_its_roadworks3 },

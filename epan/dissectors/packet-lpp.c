@@ -5802,7 +5802,7 @@ lpp_mbs_beaconMeasElt_codePhase_fmt(gchar *s, guint32 v)
   snprintf(s, ITEM_LABEL_LENGTH, "%gms (%u)", codePhase, v);
 }
 
-const unit_name_string units_pa = { "Pa", NULL };
+static const unit_name_string units_pa = { "Pa", NULL };
 
 
 static const value_string lpp_Initiator_vals[] = {

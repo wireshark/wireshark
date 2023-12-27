@@ -95,12 +95,14 @@ static expert_field ei_inap_unknown_returnErrorData;
 
 #include "packet-inap-table.c"
 
-const value_string inap_general_problem_strings[] = {
-{0,"General Problem Unrecognized Component"},
-{1,"General Problem Mistyped Component"},
-{3,"General Problem Badly Structured Component"},
-{0, NULL}
+#if 0
+static const value_string inap_general_problem_strings[] = {
+  {0,"General Problem Unrecognized Component"},
+  {1,"General Problem Mistyped Component"},
+  {3,"General Problem Badly Structured Component"},
+  {0, NULL}
 };
+#endif
 
 /* Forvard declarations */
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);

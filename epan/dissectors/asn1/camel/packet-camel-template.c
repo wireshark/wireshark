@@ -49,8 +49,8 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_camel;
-int date_format = 1; /*assume european date format */
-int camel_tap;
+static int date_format = 1; /*assume european date format */
+static int camel_tap;
 /* Global variables */
 static guint32 opcode=0;
 static guint32 errorCode=0;

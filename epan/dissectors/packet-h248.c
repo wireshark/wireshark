@@ -1948,7 +1948,7 @@ static const h248_pkg_sig_t no_signal = { 0, &hf_h248_no_sig, &ett_h248_no_sig, 
 static const h248_pkg_param_t no_param = { 0, &hf_h248_param, h248_param_uint_item,  NULL };
 static const h248_pkg_evt_t no_event = { 0, &hf_h248_no_evt, &ett_h248_no_evt, NULL, NULL };
 
-const h248_package_t *find_package_id(guint16 pkgid);
+static const h248_package_t *find_package_id(guint16 pkgid);
 static wmem_tree_t* packages = NULL;
 
 extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo , int hfid _U_, h248_curr_info_t* u1 _U_, void* u2 _U_) {
@@ -2087,7 +2087,7 @@ static s_h248_package_t *s_find_package_id(guint16 pkgid) {
     return s_pkg;
 }
 
-const h248_package_t *find_package_id(guint16 pkgid) {
+static const h248_package_t *find_package_id(guint16 pkgid) {
     s_h248_package_t *s_pkg = NULL;
     s_pkg = s_find_package_id(pkgid); /*(packages, GUINT_TO_POINTER((guint32)(pkgid))); */
     if (! s_pkg ) return &no_package;

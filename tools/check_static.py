@@ -14,6 +14,9 @@ import signal
 # Look for dissector symbols that could/should be static.
 # This will not run on Windows, unless/until we check the platform
 # and use (I think) dumpbin.exe
+#
+# N.B. Will report false positives if symbols are extern'd rather than
+# declared in a header file.
 
 # Try to exit soon after Ctrl-C is pressed.
 should_exit = False
@@ -28,12 +31,16 @@ signal.signal(signal.SIGINT, signal_handler)
 # Allow this as a default build folder name...
 build_folder = os.getcwd() + '-build' 
 
+
 # Record which symbols are referred to (by a set of files).
 class CalledSymbols:
     def __init__(self):
         self.referred = set()
 
     def addCalls(self, file):
+        if should_exit:
+            exit(1)
+
         # Make sure that file is built.
         last_dir = os.path.split(os.path.dirname(file))[-1]
         if file.find('ui/cli') != -1:
@@ -47,12 +54,15 @@ class CalledSymbols:
             else:
                 object_file = os.path.join(build_folder, os.path.dirname(file), 'CMakeFiles', last_dir + '.dir', os.path.basename(file) + '.o')
         if not os.path.exists(object_file):
+            # Not built for whatever reason..
             #print('Warning -', object_file, 'does not exist')
             return
+
+        # Run command to check symbols.
         command = ['nm', object_file]
         for f in subprocess.check_output(command).splitlines():
             l = str(f)[2:-1]
-            # Lines might or might not have an address before letter and symbol.
+            # Lines might, or might not, have an address before letter and symbol.
             p1 = re.compile(r'[0-9a-f]* ([a-zA-Z]) (.*)')
             p2 = re.compile(r'[ ]* ([a-zA-Z]) (.*)')
 
@@ -63,26 +73,26 @@ class CalledSymbols:
                 letter = m.group(1)
                 function_name = m.group(2)
 
-                # Only interested in undefined references to symbols.
+                # Only interested in undefined/external references to symbols.
                 if letter == 'U':
                     self.referred.add(function_name)
 
 
 
-# Record which symbols are defined in a single file.
+# Record which symbols are defined in a single dissector file.
 class DefinedSymbols:
     def __init__(self, file):
         self.filename = file
-        self.global_dict = {}
+        self.global_symbols = {}       # map from defined symbol -> whole output-line
         self.header_file_contents = None
 
         # Make sure that file is built.
         object_file = os.path.join(build_folder, 'epan', 'dissectors', 'CMakeFiles', 'dissectors.dir', os.path.basename(file) + '.o')
-
         if not os.path.exists(object_file):
             #print('Warning -', object_file, 'does not exist')
             return
 
+        # Get header file contents if available
         header_file= file.replace('.c', '.h')
         try:
             f = open(header_file, 'r')
@@ -90,7 +100,7 @@ class DefinedSymbols:
         except IOError:
             pass
 
-
+        # Run command to see which symbols are defined
         command = ['nm', object_file]
         for f in subprocess.check_output(command).splitlines():
             # Line consists of whitespace, [address], letter, symbolName
@@ -100,19 +110,20 @@ class DefinedSymbols:
             if m:
                 letter = m.group(1)
                 function_name = m.group(2)
-                # globally-defined symbols. Would be 't' or 'd' if already static.
+                # Globally-defined symbols. Would be 't' or 'd' if already static..
                 if letter in 'TD':
-                    self.add(function_name, l)
+                    self.addDefinedSymbol(function_name, l)
 
-    def add(self, letter, function_name):
-        self.global_dict[letter] = function_name
+    def addDefinedSymbol(self, symbol, line):
+        self.global_symbols[symbol] = line
 
+    # Check if a given symbol is mentioned in headers
     def mentionedInHeaders(self, symbol):
         if self.header_file_contents:
              if self.header_file_contents.find(symbol) != -1:
                 return True
         # Also check some of the 'common' header files that don't match the dissector file name.
-        # TODO: could cache the contents of these files, but it's not that slow.
+        # TODO: could cache the contents of these files?
         common_mismatched_headers = [ os.path.join('epan', 'dissectors', 'packet-ncp-int.h'),
                                       os.path.join('epan', 'dissectors', 'packet-mq.h'),
                                       os.path.join('epan', 'dissectors', 'packet-ip.h'),
@@ -133,13 +144,13 @@ class DefinedSymbols:
 
         return False
 
-    def check(self, called_symbols):
+    def checkIfSymbolsAreCalled(self, called_symbols):
         global issues_found
-        for f in self.global_dict:
+        for f in self.global_symbols:
             if not f in called_symbols:
                 mentioned_in_header = self.mentionedInHeaders(f)
-                fun = self.global_dict[f]
-                print(self.filename, '(' + fun + ')', 'is not referred to so could be static?', '(in header)' if mentioned_in_header else '')
+                fun = self.global_symbols[f]
+                print(self.filename, '(' + fun + ')', 'is not referred to so could be static?', '(declared in header)' if mentioned_in_header else '')
                 issues_found += 1
 
 
@@ -147,6 +158,7 @@ class DefinedSymbols:
 # Helper functions.
 
 def isDissectorFile(filename):
+    # Ignoring usb.c & errno.c
     p = re.compile(r'(packet|file)-.*\.c')
     return p.match(filename)
 
@@ -216,8 +228,6 @@ def is_dissector_file(filename):
     return p.match(filename)
 
 
-issues_found = 0
-
 
 
 #################################################################
@@ -237,6 +247,7 @@ parser.add_argument('--open', action='store_true',
 
 args = parser.parse_args()
 
+issues_found = 0
 
 # Get files from wherever command-line args indicate.
 files = []
@@ -282,7 +293,7 @@ elif args.open:
 else:
     # Find all dissector files from folder.
     files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'),
-                                       include_generated=False)
+                                       include_generated=True)
 
 
 # If scanning a subset of files, list them here.
@@ -316,11 +327,12 @@ for d in findFilesInFolder(os.path.join('ui', 'cli')):
     called.addCalls(d)
 
 
-# Now check identified files.
+# Now check identified dissector files.
 for f in files:
     if should_exit:
         exit(1)
-    DefinedSymbols(f).check(called.referred)
+    # Are these symbols called - or could they be deleted or static????
+    DefinedSymbols(f).checkIfSymbolsAreCalled(called.referred)
 
 # Show summary.
 print(issues_found, 'issues found')

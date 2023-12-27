@@ -1649,21 +1649,21 @@ static gint ett_atn_ses;
 
 #define ATN_SES_PROTO "ICAO Doc9705 ULCS Session (ISO 8326/8327-1:1994)"
 
-const value_string atn_ses_param_ind[] =
+static const value_string atn_ses_param_ind[] =
 {
     {0, "No Parameter Indication "},
     {1, "Parameter Indication "},
     {0, NULL }
 };
 
-const value_string srf_b2[] =
+static const value_string srf_b2[] =
 {
     {0, "Transport Connection is kept"},
     {1, "Transport Connection is released" },
     {0, NULL }
 };
 
-const value_string srf_b1[] =
+static const value_string srf_b1[] =
 {
     {0, "Transport Connection is transient"},
     {1, "Transport Connection is persistent"},
@@ -1677,7 +1677,7 @@ const value_string srf_b1[] =
 #define SES_ATN_SRF       0xe0
 #define SES_ATN_SRFC      0xa0
 
-const value_string atn_ses_type[] =
+static const value_string atn_ses_type[] =
 {
     { 0x1d, "Short Connect (SCN) SPDU" },
     { 0x1f, "Short Connect Accept (SAC) SPDU" },
@@ -1698,7 +1698,7 @@ static gint ett_atn_pres;
 #define PRES_CPR_ER_MASK    0x70
 
 /* type determined by SPDU and PPDU */
-const value_string atn_pres_vals[] =
+static const value_string atn_pres_vals[] =
 {
     { 0xe802, "Short Presentation Connect PPDU (CP) " },
     { 0xf802, "Short Presentation Connect PPDU (CP) " },
@@ -1710,7 +1710,7 @@ const value_string atn_pres_vals[] =
 };
 
 /* Short Presentation Connect Reject PPDU's 0yyy 00zz */
-const value_string atn_pres_err[] =
+static const value_string atn_pres_err[] =
 {
     { 0x00, "Presentation-user" },
     { 0x01, "Reason not specified (transient)"},

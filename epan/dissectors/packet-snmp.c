@@ -412,7 +412,7 @@ static const value_string smux_types[] = {
 #endif
 
 /* Procedure names (used in Service Response Time) */
-const value_string snmp_procedure_names[] = {
+static const value_string snmp_procedure_names[] = {
 	{ 0,	"Get" },
 	{ 1,	"GetNext" },
 	{ 3,	"Set" },

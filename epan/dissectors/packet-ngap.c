@@ -3346,7 +3346,7 @@ static int dissect_MBSSessionSetupOrModResponseTransfer_PDU(tvbuff_t *tvb _U_, p
 static int dissect_MBSSessionSetupOrModFailureTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_MBSSessionReleaseResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
-const value_string ngap_serialNumber_gs_vals[] = {
+static const value_string ngap_serialNumber_gs_vals[] = {
   { 0, "Display mode immediate, cell wide"},
   { 1, "Display mode normal, PLMN wide"},
   { 2, "Display mode normal, tracking area wide"},
@@ -3354,7 +3354,7 @@ const value_string ngap_serialNumber_gs_vals[] = {
   { 0, NULL},
 };
 
-const value_string ngap_warningType_vals[] = {
+static const value_string ngap_warningType_vals[] = {
   { 0, "Earthquake"},
   { 1, "Tsunami"},
   { 2, "Earthquake and Tsunami"},
@@ -3516,7 +3516,7 @@ ngap_is_nbiot_ue(packet_info *pinfo)
   return FALSE;
 }
 
-const true_false_string ngap_not_updated_updated = {
+static const true_false_string ngap_not_updated_updated = {
     "Not updated",
     "Updated"
 };
@@ -27186,7 +27186,7 @@ found:
   }
 }
 
-void
+static void
 apply_ngap_prefs(void)
 {
   gbl_ngapSctpRange = prefs_get_range_value("ngap", "sctp.port");

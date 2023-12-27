@@ -1042,7 +1042,7 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #include "packet-gsm_map-fn.c"
 
 /* Specific translation for MAP V3 */
-const value_string gsm_map_V1V2_opr_code_strings[] = {
+static const value_string gsm_map_V1V2_opr_code_strings[] = {
   {  44, "forwardSM" },
   {  45, "sendRoutingInfoForSM" },
   {  46, "forwardSM" },
