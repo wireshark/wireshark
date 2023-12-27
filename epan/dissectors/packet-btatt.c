@@ -17475,10 +17475,9 @@ proto_reg_handoff_btatt(void)
             continue;
         }
 
-        // Skip Units (0x27xx) and Members (0xFDxx and 0xFExx)
+        // Skip Units (0x27xx) and Members (0xFxxx)
         if (((bluetooth_uuid_vals[i_array].value & 0xFF00) == 0x2700) ||
-            ((bluetooth_uuid_vals[i_array].value & 0xFF00) == 0xFD00) ||
-            ((bluetooth_uuid_vals[i_array].value & 0xFF00) == 0xFE00))
+            ((bluetooth_uuid_vals[i_array].value & 0xF000) == 0xF000))
         {
             continue;
         }
