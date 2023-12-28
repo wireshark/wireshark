@@ -31,7 +31,8 @@
 
 /* see IEC61850-8-1 8.2 */
 #define Q_VALIDITY_GOOD			(0x0U << 0)
-#define Q_VALIDITY_INVALID		(0x1U << 0)
+#define Q_VALIDITY_INVALID_BW		(0x1U << 0)
+#define Q_VALIDITY_INVALID		(0x2U << 0)
 #define Q_VALIDITY_QUESTIONABLE		(0x3U << 0)
 #define Q_VALIDITY_MASK			(0x3U << 0)
 
@@ -110,9 +111,20 @@ static gboolean sv_decode_data_as_phsmeas = FALSE;
 
 static dissector_handle_t sv_handle;
 
+/*
+ * See
+ *   IEC 61850-9-2 Edition 2.1 2020-02,
+ *   Section 8.6 Definitions for basic data types – Presentation layer functionality,
+ *   Table 21
+ *
+ * Be aware that in the specification the bits are numbered in reverse (it
+ * specifies the least significant bit as bit 31 instead of as bit 0)!
+ */
+
 static const value_string sv_q_validity_vals[] = {
 	{ 0, "good" },
-	{ 1, "invalid" },
+	{ 1, "invalid (backwards compatible)" },
+	{ 2, "invalid" },
 	{ 3, "questionable" },
 	{ 0, NULL }
 };
