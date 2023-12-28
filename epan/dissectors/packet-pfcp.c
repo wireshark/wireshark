@@ -24,6 +24,8 @@
 #include <epan/ipproto.h>
 #include <epan/sminmpec.h>
 #include <epan/addr_resolv.h> /* Needed for BASE_ENTERPRISES */
+#include <epan/tap.h>
+#include <epan/srt_table.h>
 #include <proto.h>
 #include <tvbuff.h>
 #include "packet-e164.h"
@@ -1248,6 +1250,7 @@ static expert_field ei_pfcp_ie_not_decoded_null;
 static expert_field ei_pfcp_ie_not_decoded_too_large;
 static expert_field ei_pfcp_ie_encoding_error;
 
+static int pfcp_tap = -1;
 
 static gboolean g_pfcp_session = FALSE;
 static guint32 pfcp_session_count;
@@ -2018,6 +2021,60 @@ pfcp_sn_equal_unmatched(gconstpointer k1, gconstpointer k2)
     const pfcp_msg_hash_t *key2 = (const pfcp_msg_hash_t *)k2;
 
     return key1->seq_nr == key2->seq_nr;
+}
+
+static GHashTable *pfcp_stat_msg_idx_hash = NULL;
+
+static void
+pfcp_stat_init(struct register_srt* srt _U_, GArray*srt_array)
+{
+    if (pfcp_stat_msg_idx_hash != NULL) {
+        g_hash_table_destroy(pfcp_stat_msg_idx_hash);
+    }
+    pfcp_stat_msg_idx_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
+
+    init_srt_table("PFPC Requests", NULL, srt_array, 0, NULL, NULL, NULL);
+}
+
+static tap_packet_status
+pfcp_stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv, tap_flags_t flags _U_)
+{
+    guint i = 0;
+    srt_stat_table *pfcp_srt_table;
+    srt_data_t *srt_data = (srt_data_t*)pss;
+    const pfcp_msg_hash_t *pcrp = (const pfcp_msg_hash_t *)prv;
+    int idx = 0;
+
+    /* We are only interested in matched reply packets. */
+    if (pcrp->is_request) {
+        return TAP_PACKET_DONT_REDRAW;
+    }
+    if (!pcrp->req_frame) {
+        return TAP_PACKET_DONT_REDRAW;
+    }
+
+    pfcp_srt_table = g_array_index(srt_data->srt_array, srt_stat_table*, i);
+
+    /* XXX: It would be nice if srt_table handled hashing so that the
+     * real procedure number could be displayed in the table without
+     * having to add empty rows for unused message types and responses
+     * (requests and responses have different message types, and we
+     * only use the request value.)
+     */
+    idx = GPOINTER_TO_UINT(g_hash_table_lookup(pfcp_stat_msg_idx_hash, GUINT_TO_POINTER(pcrp->msgtype)));
+
+    /* Store the row value incremented by 1 to distinguish 0 from NULL */
+    if (idx == 0) {
+        idx = g_hash_table_size(pfcp_stat_msg_idx_hash);
+        g_hash_table_insert(pfcp_stat_msg_idx_hash, GUINT_TO_POINTER(pcrp->msgtype), GUINT_TO_POINTER(idx + 1));
+        init_srt_table_row(pfcp_srt_table, idx, val_to_str_ext(pcrp->msgtype, &pfcp_message_type_ext, "Unknown (%d)"));
+    } else {
+        idx -= 1;
+    }
+
+    add_srt_table_data(pfcp_srt_table, idx, &pcrp->req_time, pinfo);
+
+    return TAP_PACKET_REDRAW;
 }
 
 static void
@@ -10447,6 +10504,7 @@ dissect_pfcp_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     conversation_t      *conversation;
     pfcp_conv_info_t    *pfcp_info;
     pfcp_session_args_t *args = NULL;
+    pfcp_msg_hash_t     *pcrp = NULL;
     pfcp_hdr_t          *pfcp_hdr = NULL;
 
     static int * const pfcp_hdr_flags[] = {
@@ -10571,7 +10629,10 @@ dissect_pfcp_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         pfcp_fill_map(args->seid_list, args->ip_list, pinfo->num);
         cause_aux = args->last_cause;
     }
-    pfcp_match_response(tvb, pinfo, sub_tree, seq_no, message_type, pfcp_info, cause_aux);
+    pcrp = pfcp_match_response(tvb, pinfo, sub_tree, seq_no, message_type, pfcp_info, cause_aux);
+    if (pcrp) {
+        tap_queue_packet(pfcp_tap, pinfo, pcrp);
+    }
     if (g_pfcp_session) {
         pfcp_track_session(tvb, pinfo, sub_tree, pfcp_hdr, args->seid_list, args->ip_list, args->last_seid, args->last_ip);
     }
@@ -17082,6 +17143,9 @@ proto_register_pfcp(void)
     register_init_routine(pfcp_init);
     register_cleanup_routine(pfcp_cleanup);
 
+    pfcp_tap = register_tap("pfcp");
+
+    register_srt_table(proto_pfcp, NULL, 1, pfcp_stat_packet, pfcp_stat_init, NULL);
 }
 
 void
