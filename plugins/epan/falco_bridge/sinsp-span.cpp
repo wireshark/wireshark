@@ -87,6 +87,41 @@ static int total_bytes;
 
 static filter_check_info g_args_fci;
 
+// These sinsp fields are not interesting in a wireshark-like use case, so we skip them.
+std::set<std::string> g_fields_to_skip = {
+    "evt.num",
+    "evt.time",
+    "evt.time.s",
+    "evt.time.iso8601",
+    "evt.datetime",
+    "evt.datetime.s",
+    "evt.rawtime",
+    "evt.rawtime.s",
+    "evt.rawtime.ns",
+    "evt.reltime",
+    "evt.reltime.s",
+    "evt.reltime.ns",
+    "evt.deltatime",
+    "evt.deltatime.s",
+    "evt.deltatime.ns",
+    "syscall.type",
+    "evt.is_async",
+    "evt.is_syslog",
+    "evt.count",
+    "proc.aexe",
+    "proc.aexepath",
+    "proc.aname",
+    "proc.acmdline",
+    "proc.apid",
+    "proc.cmdlenargs",
+    "proc.ppid.duration",
+    "proc.ppid.ts",
+    "thread.exetime",
+    "thread.totexetime",
+    "thread.vmsize",
+    "thread.vmrss",
+};
+
 sinsp_span_t *create_sinsp_span()
 {
     sinsp_span_t *span = new(sinsp_span_t);
@@ -191,6 +226,15 @@ void add_arg_event(uint32_t arg_number,
     ssi->syscall_filter_fields.push_back(ffi);
 }
 
+// Not all of the fields in sinsp have been designed with a Wireshark-like use case in mind.
+// This functions determines which fields we should skip.
+bool skip_field(const filtercheck_field_info *ffi) {
+    if (g_fields_to_skip.find(ffi->m_name) != g_fields_to_skip.end()) {
+        return true;
+    }
+    return false;
+}
+
 /*
  * Populate a sinsp_source_info_t struct with the symbols coming from libsinsp's builtin syscall extractors
  */
@@ -228,6 +272,11 @@ void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t *
         for (int i = 0; i < fci->m_nfields; i++) {
             const filtercheck_field_info *ffi = &fci->m_fields[i];
             if (ffi->m_flags == filtercheck_field_flags::EPF_NONE) {
+                // This is where we exclude fields that are not interesting in a wireshark-like use case.
+                if (skip_field(ffi)) {
+                    continue;
+                }
+
                 gen_event_filter_check *gefc = filter_factory.new_filtercheck(ffi->m_name);
                 if (!gefc) {
                     continue;
