@@ -85,6 +85,7 @@ class DefinedSymbols:
         self.filename = file
         self.global_symbols = {}       # map from defined symbol -> whole output-line
         self.header_file_contents = None
+        self.from_generated_file = isGeneratedFile(file)
 
         # Make sure that file is built.
         object_file = os.path.join(build_folder, 'epan', 'dissectors', 'CMakeFiles', 'dissectors.dir', os.path.basename(file) + '.o')
@@ -150,7 +151,9 @@ class DefinedSymbols:
             if not f in called_symbols:
                 mentioned_in_header = self.mentionedInHeaders(f)
                 fun = self.global_symbols[f]
-                print(self.filename, '(' + fun + ')', 'is not referred to so could be static?', '(declared in header)' if mentioned_in_header else '')
+                print(self.filename, '' if not self.from_generated_file else '(GENERATED)',
+                      '(' + fun + ')',
+                      'is not referred to so could be static?', '(declared in header)' if mentioned_in_header else '')
                 issues_found += 1
 
 
