@@ -16,13 +16,20 @@
 /*
  * See
  *
- *    http://www.irdajp.info/specifications.php
+ *    https://web.archive.org/web/20040405053146/http://www.irda.org/standards/specifications.asp
  *
  * or
  *
- *    https://web.archive.org/web/20040405053146/http://www.irda.org/standards/specifications.asp
+ *    https://archive.org/search?query=creator%3A%22Infrared+Data+Association%22
  *
- * for various IrDA specifications.
+ * for various IrDA specifications, including the IrCOMM 1.0 specification
+ * at
+ *
+ *    https://web.archive.org/web/20040229015523/http://www.irda.org/standards/pubs/IrCOMM10.PDF
+ *
+ * or
+ *
+ *    https://archive.org/details/ir-comm-10
  */
 
 #include "irda-appl.h"

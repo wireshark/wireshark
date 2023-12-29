@@ -29,16 +29,24 @@
 #include "irda-appl.h"
 
 /*
- * This plugin dissects infrared data transmissions as defined by the IrDA
- * specification (www.irda.org).  See
+ * This plugin dissects infrared data transmissions as defined by IrDA
+ * specifications.  See
  *
- *      http://www.irdajp.info/specifications.php
+ *    https://web.archive.org/web/20040405053146/http://www.irda.org/standards/specifications.asp
  *
  * or
  *
- *      https://web.archive.org/web/20040405053146/http://www.irda.org/standards/specifications.asp
+ *    https://archive.org/search?query=creator%3A%22Infrared+Data+Association%22
  *
- * for various IrDA specifications.
+ * for various IrDA specifications, including a zip archive of the IrPHY
+ * 1.4, IrLAP 1.1, IrLMP 1.1, IrDA Tiny TP 1.1, and IrDA Point and Shoot
+ * Profile 1.1 and Test Specification 1.0 at
+ *
+ *    https://web.archive.org/web/20040405053146/http://www.irda.org/standards/pubs/IrData.zip
+ *
+ * or the the IrLAP 1.1 specification at
+ *
+ *    https://archive.org/details/ir-lap-11
  *
  * The plugin operates both offline with libpcap files and online on supported
  * platforms. Live dissection is currently available for Linux-IrDA
