@@ -131,6 +131,7 @@ static gchar *sig_pipe_name = NULL;
 static HANDLE sig_pipe_handle = NULL;
 static gboolean signal_pipe_check_running(void);
 #endif
+static int sync_pipe_fd = 2;
 
 #ifdef ENABLE_ASAN
 /* This has public visibility so that if compiled with shared libasan (the
@@ -563,7 +564,7 @@ dumpcap_cmdarg_err(const char *fmt, va_list ap)
         gchar *msg;
         /* Generate a 'special format' message back to parent */
         msg = ws_strdup_vprintf(fmt, ap);
-        sync_pipe_write_errmsgs_to_parent(2, msg, "");
+        sync_pipe_write_errmsgs_to_parent(sync_pipe_fd, msg, "");
         g_free(msg);
     } else {
         fprintf(stderr, "dumpcap: ");
@@ -583,7 +584,7 @@ dumpcap_cmdarg_err_cont(const char *fmt, va_list ap)
     if (capture_child) {
         gchar *msg;
         msg = ws_strdup_vprintf(fmt, ap);
-        sync_pipe_write_errmsgs_to_parent(2, msg, "");
+        sync_pipe_write_errmsgs_to_parent(sync_pipe_fd, msg, "");
         g_free(msg);
     } else {
         vfprintf(stderr, fmt, ap);
@@ -775,7 +776,7 @@ show_filter_code(capture_options *capture_opts)
 #endif
     if (capture_child) {
         /* Let our parent know we succeeded. */
-        sync_pipe_write_string_msg(2, SP_SUCCESS, NULL);
+        sync_pipe_write_string_msg(sync_pipe_fd, SP_SUCCESS, NULL);
     }
     return TRUE;
 }
@@ -866,17 +867,17 @@ print_machine_readable_interfaces(GList *if_list, int caps_queries, bool print_s
         status = 0;
         if (capture_child) {
             if (print_statistics) {
-                sync_pipe_write_string_msg(2, SP_IFACE_LIST, dumper.output_string->str);
+                sync_pipe_write_string_msg(sync_pipe_fd, SP_IFACE_LIST, dumper.output_string->str);
             } else {
                 /* Let our parent know we succeeded. */
-                sync_pipe_write_string_msg(2, SP_SUCCESS, NULL);
+                sync_pipe_write_string_msg(sync_pipe_fd, SP_SUCCESS, NULL);
                 printf("%s", dumper.output_string->str);
             }
         }
     } else {
         status = 2;
         if (capture_child) {
-            sync_pipe_write_errmsgs_to_parent(2, "Unexpected JSON error", "");
+            sync_pipe_write_errmsgs_to_parent(sync_pipe_fd, "Unexpected JSON error", "");
         }
     }
     g_string_free(dumper.output_string, TRUE);
@@ -1032,7 +1033,7 @@ print_statistics_loop(gboolean machine_readable)
 
     if (capture_child) {
         /* Let our parent know we succeeded. */
-        sync_pipe_write_string_msg(2, SP_SUCCESS, NULL);
+        sync_pipe_write_string_msg(sync_pipe_fd, SP_SUCCESS, NULL);
     }
 
     if (!machine_readable) {
@@ -4806,7 +4807,7 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t 
             ws_info("Sending SP_FILE on first SHB");
 #endif
             /* SHB is now ready for capture parent to read on SP_FILE message */
-            sync_pipe_write_string_msg(2, SP_FILE, report_capture_filename);
+            sync_pipe_write_string_msg(sync_pipe_fd, SP_FILE, report_capture_filename);
             report_capture_filename = NULL;
         }
     }
@@ -5035,7 +5036,7 @@ set_80211_channel(const char *iface, const char *opt)
     }
 
     if (capture_child)
-        sync_pipe_write_string_msg(2, SP_SUCCESS, NULL);
+        sync_pipe_write_string_msg(sync_pipe_fd, SP_SUCCESS, NULL);
 
 out:
     g_strfreev(options);
@@ -5059,6 +5060,9 @@ gather_dumpcap_runtime_info(feature_list l)
 #define LONGOPT_IFNAME             LONGOPT_BASE_APPLICATION+1
 #define LONGOPT_IFDESCR            LONGOPT_BASE_APPLICATION+2
 #define LONGOPT_CAPTURE_COMMENT    LONGOPT_BASE_APPLICATION+3
+#ifdef _WIN32
+#define LONGOPT_SIGNAL_PIPE        LONGOPT_BASE_APPLICATION+4
+#endif
 
 /* And now our feature presentation... [ fade to music ] */
 int
@@ -5073,6 +5077,9 @@ main(int argc, char *argv[])
         {"ifname", ws_required_argument, NULL, LONGOPT_IFNAME},
         {"ifdescr", ws_required_argument, NULL, LONGOPT_IFDESCR},
         {"capture-comment", ws_required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
+#ifdef _WIN32
+        {"signal-pipe", ws_required_argument, NULL, LONGOPT_SIGNAL_PIPE},
+#endif
         {0, 0, 0, 0 }
     };
 
@@ -5129,10 +5136,31 @@ main(int argc, char *argv[])
         if (strcmp("-Z", argv[i]) == 0) {
             capture_child    = TRUE;
             machine_readable = TRUE;  /* request machine-readable output */
+            i++;
+            if (i >= argc) {
+                exit_main(1);
+            }
+
+            if (strcmp(argv[i], SIGNAL_PIPE_CTRL_ID_NONE) != 0) {
+                // get_positive_int calls cmdarg_err
+                if (!ws_strtoi(argv[i], NULL, &sync_pipe_fd) || sync_pipe_fd <= 0) {
+                    exit_main(1);
+                }
 #ifdef _WIN32
-            /* set output pipe to binary mode, to avoid ugly text conversions */
-            _setmode(2, O_BINARY);
+                /* On UN*X the fd is the same when we fork + exec.
+                 * On Windows the HANDLE value is the same for inherited
+                 * handles in the child process and the parent, although
+                 * not necessarily the fd value from _open_osfhandle.
+                 * https://learn.microsoft.com/en-us/windows/win32/procthread/inheritance
+                 * Also, "64-bit versions of Windows use 32-bit handles for
+                 * interoperability... only the lower 32 bits are significant,
+                 * so it is safe to truncate... or sign-extend the handle."
+                 * https://learn.microsoft.com/en-us/windows/win32/winprog64/interprocess-communication
+                 */
+                /* set output pipe to binary mode, avoid ugly text conversions */
+                sync_pipe_fd = _open_osfhandle( (intptr_t) sync_pipe_fd, _O_BINARY);
 #endif
+            }
         }
     }
 
@@ -5449,9 +5477,17 @@ main(int argc, char *argv[])
             break;
         case 'Z':
             capture_child = TRUE;
+            /*
+             * Handled above
+             */
+            break;
 #ifdef _WIN32
-            /* set output pipe to binary mode, to avoid ugly text conversions */
-            _setmode(2, O_BINARY);
+        case LONGOPT_SIGNAL_PIPE:
+            if (!capture_child) {
+                /* We have already checked for -Z at the very beginning. */
+                cmdarg_err("--signal-pipe may only be specified with -Z");
+                exit_main(1);
+            }
             /*
              * ws_optarg = the control ID, aka the PPID, currently used for the
              * signal pipe name.
@@ -5467,9 +5503,8 @@ main(int argc, char *argv[])
                     exit_main(1);
                 }
             }
-#endif
             break;
-
+#endif
         case 'q':        /* Quiet */
             quiet = TRUE;
             break;
@@ -5792,12 +5827,12 @@ main(int argc, char *argv[])
                 status = 0;
                 if (capture_child) {
                     /* Let our parent know we succeeded. */
-                    sync_pipe_write_string_msg(2, SP_SUCCESS, NULL);
+                    sync_pipe_write_string_msg(sync_pipe_fd, SP_SUCCESS, NULL);
                 }
             } else {
                 status = 2;
                 if (capture_child) {
-                    sync_pipe_write_errmsgs_to_parent(2, "Unexpected JSON error", "");
+                    sync_pipe_write_errmsgs_to_parent(sync_pipe_fd, "Unexpected JSON error", "");
                 }
             }
         } else {
@@ -5812,7 +5847,7 @@ main(int argc, char *argv[])
                         char *error_msg = ws_strdup_printf("The capabilities of the capture device "
                                                     "\"%s\" could not be obtained (%s)",
                                                     interface_opts->name, open_status_str);
-                        sync_pipe_write_errmsgs_to_parent(2, error_msg,
+                        sync_pipe_write_errmsgs_to_parent(sync_pipe_fd, error_msg,
                                 get_pcap_failure_secondary_error_message(open_status, open_status_str));
                         g_free(error_msg);
                     }
@@ -5955,7 +5990,7 @@ dumpcap_log_writer(const char *domain, enum ws_log_level level,
 #endif
         if (capture_child) {
             gchar *msg = ws_strdup_vprintf(user_format, user_ap);
-            sync_pipe_write_errmsgs_to_parent(2, msg, "");
+            sync_pipe_write_errmsgs_to_parent(sync_pipe_fd, msg, "");
             g_free(msg);
         } else {
             ws_log_console_writer(domain, level, file, line, func, mft, user_format, user_ap);
@@ -5975,7 +6010,7 @@ dumpcap_log_writer(const char *domain, enum ws_log_level level,
     /*  to parent especially formatted if dumpcap running as child. */
     if (capture_child) {
         gchar *msg = ws_strdup_vprintf(user_format, user_ap);
-        sync_pipe_write_errmsgs_to_parent(2, msg, "");
+        sync_pipe_write_errmsgs_to_parent(sync_pipe_fd, msg, "");
         g_free(msg);
     } else if(ws_log_msg_is_active(domain, level)) {
         ws_log_console_writer(domain, level, file, line, func, mft, user_format, user_ap);
@@ -5994,7 +6029,7 @@ report_packet_count(unsigned int packet_count)
 
     if (capture_child) {
         ws_debug("Packets: %u", packet_count);
-        sync_pipe_write_uint_msg(2, SP_PACKET_COUNT, packet_count);
+        sync_pipe_write_uint_msg(sync_pipe_fd, SP_PACKET_COUNT, packet_count);
     } else {
         count += packet_count;
         fprintf(stderr, "\rPackets: %u ", count);
@@ -6015,7 +6050,7 @@ report_new_capture_file(const char *filename)
 #endif
             report_capture_filename = filename;
         } else {
-            sync_pipe_write_string_msg(2, SP_FILE, filename);
+            sync_pipe_write_string_msg(sync_pipe_fd, SP_FILE, filename);
         }
     } else {
 #ifdef SIGINFO
@@ -6055,7 +6090,7 @@ report_cfilter_error(capture_options *capture_opts, guint i, const char *errmsg)
         if (capture_child) {
             snprintf(tmp, sizeof(tmp), "%u:%s", i, errmsg);
             ws_debug("Capture filter error: %s", errmsg);
-            sync_pipe_write_string_msg(2, SP_BAD_FILTER, tmp);
+            sync_pipe_write_string_msg(sync_pipe_fd, SP_BAD_FILTER, tmp);
         } else {
             /*
              * clopts_step_invalid_capfilter in test/suite-clopts.sh MUST match
@@ -6078,7 +6113,7 @@ report_capture_error(const char *error_msg, const char *secondary_error_msg)
     if (capture_child) {
         ws_debug("Primary Error: %s", error_msg);
         ws_debug("Secondary Error: %s", secondary_error_msg);
-        sync_pipe_write_errmsgs_to_parent(2, error_msg, secondary_error_msg);
+        sync_pipe_write_errmsgs_to_parent(sync_pipe_fd, error_msg, secondary_error_msg);
     } else {
         cmdarg_err("%s", error_msg);
         if (secondary_error_msg[0] != '\0')
@@ -6096,7 +6131,7 @@ report_packet_drops(guint32 received, guint32 pcap_drops, guint32 drops, guint32
 
         ws_debug("Packets received/dropped on interface '%s': %u/%u (pcap:%u/dumpcap:%u/flushed:%u/ps_ifdrop:%u)",
             name, received, total_drops, pcap_drops, drops, flushed, ps_ifdrop);
-        sync_pipe_write_string_msg(2, SP_DROPS, tmp);
+        sync_pipe_write_string_msg(sync_pipe_fd, SP_DROPS, tmp);
         g_free(tmp);
     } else {
         fprintf(stderr,
