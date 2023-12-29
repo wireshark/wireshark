@@ -1804,7 +1804,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     offset++;
 
     /* process the control field */
-    c = dissect_xdlc_control(tvb, 1, pinfo, tree, hf_lap_c,
+    c = dissect_xdlc_control(tvb, offset, pinfo, tree, hf_lap_c,
             ett_lap_c, &irlap_cf_items, NULL, lap_c_u_cmd_abbr_vals,
             lap_c_u_rsp_abbr_vals, is_response, FALSE, FALSE);
     offset++;
