@@ -1299,6 +1299,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_EMS */
 	{ "ems", "EMS (EGNOS Message Server) file"},
+
+	/* WTAP_ENCAP_DECT_NR */
+	{ "dect_nr", "DECT-2020 New Radio (NR) MAC layer" },
 };
 
 WS_DLL_LOCAL

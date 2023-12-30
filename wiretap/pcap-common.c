@@ -507,6 +507,9 @@ static const struct {
 	/* MDB (Multi-Drop Bus) */
 	{ 300,		WTAP_ENCAP_MDB },
 
+	/* DECT_NR (DECT-2020 New Radio (NR) MAC layer) */
+	{ 301,		WTAP_ENCAP_DECT_NR },
+
 	/*
 	 * To repeat:
 	 *
