@@ -3967,6 +3967,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
     /* if we select the next dissector based on a class,
        this is the (device or interface) class we're using */
     guint32                  usb_class;
+    guint32                  protocol;
     guint8                   transfer_type;
     gboolean                 use_setup_tree = FALSE;
 
@@ -4065,6 +4066,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
 
                 usb_conv_info = get_usb_iface_conv_info(pinfo, interface_num);
                 usb_conv_info->usb_trans_info = usb_trans_info;
+                usb_conv_info->endpoint = NO_ENDPOINT8;
             }
             else if (ctrl_recip == RQT_SETUP_RECIPIENT_ENDPOINT) {
                 address               endpoint_addr;
@@ -4111,6 +4113,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
 
             if (old_conv_info != usb_conv_info) {
                 /* Preserve URB specific information */
+                usb_conv_info->transfer_type = old_conv_info->transfer_type;
                 usb_conv_info->is_setup = old_conv_info->is_setup;
                 usb_conv_info->is_request = old_conv_info->is_request;
                 usb_conv_info->setup_requesttype = old_conv_info->setup_requesttype;
@@ -4125,6 +4128,15 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
         default:
             break;
     }
+
+    /* try "usb.protocol" on interface level */
+    protocol = (usb_conv_info->interfaceClass & 0xFF) << 16 |
+               (usb_conv_info->interfaceSubclass & 0xFF) << 8 |
+               (usb_conv_info->interfaceProtocol & 0xFF);
+    ret = dissector_try_uint_new(protocol_to_dissector, protocol,
+                                 next_tvb, pinfo, tree, TRUE, usb_conv_info);
+    if (ret)
+        return tvb_captured_length(next_tvb);
 
     if (try_heuristics && heur_subdissector_list) {
         ret = dissector_try_heuristic(heur_subdissector_list,
