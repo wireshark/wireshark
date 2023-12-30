@@ -317,7 +317,6 @@ typedef struct _someip_payload_parameter_item {
     guint32     id_ref;
     int        *hf_id;
     gchar      *filter_string;
-
 } someip_payload_parameter_item_t;
 
 #define INIT_SOMEIP_PAYLOAD_PARAMETER_ITEM(NAME) \
