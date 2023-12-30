@@ -717,6 +717,7 @@ static gint ett_cfm_tlv = -1;
 static gint ett_cfm_raps_status = -1;
 
 static expert_field ei_tlv_tst_id_length = EI_INIT;
+static expert_field ei_tlv_management_addr_length = EI_INIT;
 
 static dissector_handle_t cfm_handle;
 
@@ -2375,7 +2376,7 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		guint8 cfm_tlv_type;
 		guint16 cfm_tlv_length;
 		proto_tree *cfm_tlv_tree;
-		proto_item *cfm_tlv_ti;
+		proto_item *cfm_tlv_ti, *expert_ti;
 		gint tlv_data_offset;
 		gboolean test_id_length_bogus = FALSE;
 
@@ -2434,10 +2435,14 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				tlv_data_offset = sender_id_tlv_chassis_id(cfm_tlv_tree, tvb, tlv_data_offset, tlv_chassis_id_length);
 			}
 
+			/* IEEE 802.1Q 21.5.3.2 If the Chassis ID Length field
+			 * is 0, then the Chassis ID Subtype is not present.
+			 */
+			uint16_t chassis_id_tot_length = tlv_chassis_id_length ? 2 + tlv_chassis_id_length : 1;
 			/* If the TLV length is greater than the number of octets used for the
 			 * Chassis ID, then we must have a Management Address Domain
 			 */
-			if (cfm_tlv_length > (2 + tlv_chassis_id_length)) {
+			if (cfm_tlv_length > chassis_id_tot_length) {
 				guint8 tlv_ma_domain_length;
 				void *tlv_ma_domain_oid = NULL;
 				proto_tree_add_item(cfm_tlv_tree, hf_tlv_ma_domain_length,
@@ -2456,10 +2461,17 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				 * Chassis ID and the Management Address Domain, then we must have a
 				 * Management Address
 				 */
-				if (cfm_tlv_length > (2 + tlv_chassis_id_length + 1 + tlv_ma_domain_length)) {
+				if (cfm_tlv_length > (chassis_id_tot_length + 1 + tlv_ma_domain_length)) {
 					guint8 tlv_management_addr_length;
-					proto_tree_add_item(cfm_tlv_tree, hf_tlv_management_addr_length,
+					expert_ti = proto_tree_add_item(cfm_tlv_tree, hf_tlv_management_addr_length,
 						tvb, tlv_data_offset, 1, ENC_NA);
+					/* IEEE 802.1Q 21.5.3.6 "[Management Address Length] is not
+					 * present if the Management Address Domain Length is not
+					 * present or contains a 0."
+					 */
+					if (tlv_ma_domain_length == 0) {
+						expert_add_info(pinfo, expert_ti, &ei_tlv_management_addr_length);
+					}
 					tlv_management_addr_length = tvb_get_guint8(tvb, tlv_data_offset);
 					tlv_data_offset += 1;
 					if (tlv_management_addr_length > 0) {
@@ -3691,6 +3703,12 @@ void proto_register_cfm(void)
 		{ &ei_tlv_tst_id_length,
 			{ "cfm.tlv.tst_id.length", PI_PROTOCOL, PI_NOTE,
 			  "Test ID TLV length is bits, not octets, unlike other TLVs",
+			  EXPFILL }
+		},
+		{ &ei_tlv_management_addr_length,
+			{ "cfm.tlv.sender_id.management_addr.length.zero",
+			  PI_PROTOCOL, PI_WARN,
+			  "Management Address Length should not be present if Management Address Domain Length is 0",
 			  EXPFILL }
 		},
 	};
