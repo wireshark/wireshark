@@ -1458,6 +1458,7 @@ static const value_string pcep_error_value_19_vals[] = {
     {1,  "Attempted LSP Update Request for a non-delegated LSP. The PCEP-ERROR Object is followed by the LSP Object that identifies the LSP"},
     {2,  "Attempted LSP Update Request if active stateful PCE capability was not advertised"},
     {3,  "Attempted LSP Update Request for an LSP identified by an unknown PLSP-ID"},
+    {4,  "Unassigned"},
     {5,  "Attempted LSP State Report if active stateful PCE capability was not advertised"},
     {6,  "PCE-initiated LSP limit reached"},                    /* draft-ietf-pce-pce-initiated-lsp */
     {7,  "Delegation for PCE-initiated LSP cannot be revoked"}, /* draft-ietf-pce-pce-initiated-lsp */

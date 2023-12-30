@@ -1066,6 +1066,7 @@ static const value_string openflow_v5_oxm_basic_field_values[] = {
     { 37, "OFPXMT_OFB_PBB_ISID" },
     { 38, "OFPXMT_OFB_TUNNEL_ID" },
     { 39, "OFPXMT_OFB_IPV6_EXTHDR" },
+    { 40, "UNASSIGNED" },               /* include to allow direct lookup */
     { 41, "OFPXMT_OFB_PBB_UCA" },
     {  0, NULL }
 };

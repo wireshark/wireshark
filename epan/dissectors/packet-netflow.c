@@ -1230,7 +1230,7 @@ static const value_string v10_template_types_plixer[] = {
     { 120, "source_context" },
     { 121, "connector_id" },
     { 122, "source_component" },
-    /* TODO: missing value? */
+    { 123, "unassigned" },                    /* added to allow direct lookup */
     { 124, "related_recipient_address" },
     { 125, "reference" },
     { 126, "return_path" },

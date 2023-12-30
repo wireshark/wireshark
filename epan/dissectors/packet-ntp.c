@@ -519,6 +519,7 @@ static const value_string priv_rc_types[] = {
 	{ PRIV_RC_SET_CLKFUDGE,		"SET_CLKFUDGE" },
 	{ PRIV_RC_GET_KERNEL,		"GET_KERNEL" },
 	{ PRIV_RC_GET_CLKBUGINFO,	"GET_CLKBUGINFO" },
+	{ 40,				"UNASSIGNED" },     /* included to allow direct lookup */
 	{ 41,				"SET_PRECISION" },
 	{ PRIV_RC_MON_GETLIST_1,	"MON_GETLIST_1" },
 	{ 43,				"HOSTNAME_ASSOCID" },

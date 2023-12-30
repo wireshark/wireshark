@@ -484,6 +484,7 @@ static const value_string sapdiag_item_appl_st_user_vals[] = {
 	{ 0x07, "GUITIMEZONE" },
 	{ 0x08, "TURNTIME" },
 	{ 0x09, "GUIVERSION" },
+	/* No entry for 0xa... */
 	{ 0x0b, "SUPPORTDATA" },
 	{ 0x0c, "RFC_CONNECT" },
 	{ 0x0d, "WSIZE" },

@@ -843,7 +843,7 @@ const value_string ansi_tsb58_language_ind_vals[] = {
     { 0x0013,   "Dutch" },
     { 0x0014,   "Swedish" },
     { 0x0015,   "Danish" },
-    /* N.B. no entry for 0x16 in spec! */
+    { 0x0016,   "Unassigned"}, /* N.B. no entry spec, but include to allow direct lookup */
     { 0x0017,   "Finnish" },
     { 0x0018,   "Norwegian" },
     { 0x0019,   "Greek" },

@@ -522,6 +522,7 @@ static const value_string linux_errno[] =
 	{38, "Function not implemented"},		/* ENOSYS */
 	{39, "Directory not empty"},			/* ENOTEMPTY */
 	{40, "Too many symbolic links encountered"},	/* ELOOP */
+	{41, "Operation would block"},			/* EWOULDBLOCK */
 	{42, "No message of desired type"},		/* ENOMSG */
 	{43, "Identifier removed"},			/* EIDRM */
 	{44, "Channel number out of range"},		/* ECHRNG */

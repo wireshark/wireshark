@@ -261,6 +261,7 @@ static const value_string grace_tlv_type_vals[] = {
 #define OPAQUE_TLV_NAT              10
 #define OPAQUE_TLV_SBD              11
 #define OPAQUE_TLV_NODE_MSD         12
+#define OPAQUE_TLV_TUNN_ENCAPS      13
 #define OPAQUE_TLV_SRLB             14
 #define OPAQUE_TLV_SRMS_PREF        15
 #define OPAQUE_TLV_FLEX_ALGO_DEF    16
@@ -279,6 +280,7 @@ static const value_string ri_tlv_type_vals[] = {
     {OPAQUE_TLV_NAT,                "Node Admin Tag "                    },
     {OPAQUE_TLV_SBD,                "S-BFD Discriminator"                },
     {OPAQUE_TLV_NODE_MSD,           "Node MSD"                           },
+    {OPAQUE_TLV_TUNN_ENCAPS,        "Tunnel Encapsulations"              },
     {OPAQUE_TLV_SRLB,               "SR Local Block"                     },
     {OPAQUE_TLV_SRMS_PREF,          "SRMS Preference"                    },
     {OPAQUE_TLV_FLEX_ALGO_DEF,      "Flexible Algorithm Definition"      },

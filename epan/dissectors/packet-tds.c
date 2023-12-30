@@ -1609,6 +1609,7 @@ static const value_string envchg_names[] = {
     {11, "Enlist DTC Transaction"},
     {12, "Defect Transaction"},
     {13, "Real Time Log Shipping"},
+    /* 14 not assigned */
     {15, "Promote Transaction"},
     {16, "Transaction Manager Address"},
     {17, "Transaction ended"},
