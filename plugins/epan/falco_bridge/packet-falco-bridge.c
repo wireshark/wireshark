@@ -84,6 +84,7 @@ static int proto_syscalls[NUM_SINSP_SYSCALL_CATEGORIES];
 
 static int ett_falco_bridge;
 static int ett_syscalls[NUM_SINSP_SYSCALL_CATEGORIES];
+static int ett_lineage[N_PROC_LINEAGE_ENTRIES];
 
 static int ett_sinsp_enriched;
 static int ett_sinsp_span;
@@ -415,10 +416,11 @@ proto_register_falcoplugin(void)
     register_dissector("falcobridge", dissect_falco_bridge, proto_falco_bridge);
 
     // Try to have a 1:1 mapping for as many Sysdig / Falco fields as possible.
-    // The exception is SSC_ARGS, which exposes the event arguments in a way that is convenient for the user.
+    // The exceptions are SSC_EVTARGS and SSC_PROCLINEAGE, which exposes the event arguments in a way that is convenient for the user.
     proto_syscalls[SSC_EVENT] = proto_register_protocol("Event Information", "Falco Event", "evt");
-    proto_syscalls[SSC_ARGS] = proto_register_protocol("Event Arguments", "Falco Event Info", "evt.arg");
+    proto_syscalls[SSC_EVTARGS] = proto_register_protocol("Event Arguments", "Falco Event Info", "evt.arg");
     proto_syscalls[SSC_PROCESS] = proto_register_protocol("Process Information", "Falco Process", "process");
+    proto_syscalls[SSC_PROCLINEAGE] = proto_register_protocol("Process Ancestors", "Falco Process Lineage", "proc.aname");
     proto_syscalls[SSC_USER] = proto_register_protocol("User Information", "Falco User", "user");
     proto_syscalls[SSC_GROUP] = proto_register_protocol("Group Information", "Falco Group", "group");
     proto_syscalls[SSC_CONTAINER] = proto_register_protocol("Container Information", "Falco Container", "container");
@@ -500,8 +502,9 @@ proto_register_falcoplugin(void)
     static int *ett[] = {
         &ett_falco_bridge,
         &ett_syscalls[SSC_EVENT],
-        &ett_syscalls[SSC_ARGS],
+        &ett_syscalls[SSC_EVTARGS],
         &ett_syscalls[SSC_PROCESS],
+        &ett_syscalls[SSC_PROCLINEAGE],
         &ett_syscalls[SSC_USER],
         &ett_syscalls[SSC_GROUP],
         &ett_syscalls[SSC_FD],
@@ -513,8 +516,31 @@ proto_register_falcoplugin(void)
         &ett_address,
     };
 
+    /*
+     * Setup process lineage subtree array
+     */
+    static int *ett_lin[] = {
+        &ett_lineage[0],
+        &ett_lineage[1],
+        &ett_lineage[2],
+        &ett_lineage[3],
+        &ett_lineage[4],
+        &ett_lineage[5],
+        &ett_lineage[6],
+        &ett_lineage[7],
+        &ett_lineage[8],
+        &ett_lineage[9],
+        &ett_lineage[10],
+        &ett_lineage[11],
+        &ett_lineage[12],
+        &ett_lineage[13],
+        &ett_lineage[14],
+        &ett_lineage[15],
+    };
+
     proto_register_field_array(proto_falco_bridge, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    proto_register_subtree_array(ett_lin, array_length(ett_lin));
 
     register_shutdown_routine(on_wireshark_exit);
 }
@@ -584,6 +610,30 @@ dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     return tvb_captured_length(tvb);
 }
 
+int extract_lineage_number(const char *fld_name) {
+    char *last_dot = strrchr(fld_name, '.');
+    if (last_dot != NULL) {
+        return atoi(last_dot + 1);
+    }
+    return -1;
+}
+
+const char* get_str_value(sinsp_field_extract_t *sinsp_fields, uint32_t sf_idx) {
+    const char *res_str;
+    if (sinsp_fields[sf_idx].res_len < SFE_SMALL_BUF_SIZE) {
+        res_str = sinsp_fields[sf_idx].res.small_str;
+    } else {
+        if (sinsp_fields[sf_idx].res.str == NULL) {
+            ws_debug("Field %u has NULL result string", sf_idx);
+            return NULL;
+        }
+        res_str = sinsp_fields[sf_idx].res.str;
+    }
+
+    return res_str;
+}
+
+
 static int
 dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* bi_ptr)
 {
@@ -614,6 +664,7 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
     }
 
     proto_tree *parent_trees[NUM_SINSP_SYSCALL_CATEGORIES] = {};
+    proto_tree *lineage_trees[N_PROC_LINEAGE_ENTRIES] = {};
 
     for (uint32_t hf_idx = 0, sf_idx = 0; hf_idx < bi->visible_fields && sf_idx < sinsp_fields_count; hf_idx++) {
         if (sinsp_fields[sf_idx].field_idx != hf_idx) {
@@ -637,6 +688,26 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
             parent_trees[parent_category] = proto_item_add_subtree(ti, ett_syscalls[parent_category]);
         }
         proto_tree *parent_tree = parent_trees[parent_category];
+
+        if (parent_category == SSC_PROCLINEAGE) {
+            int32_t lnum = extract_lineage_number(hfinfo->abbrev);
+            if (lnum == -1) {
+                ws_error("Invalid lineage field name %s", hfinfo->abbrev);
+            }
+
+            if (!lineage_trees[lnum]) {
+                const char* res_str = get_str_value(sinsp_fields, sf_idx);
+                if (res_str == NULL) {
+                    ws_error("empty value for field %s", hfinfo->abbrev);
+                }
+
+                lineage_trees[lnum] = proto_tree_add_subtree_format(parent_tree, tvb, 0, 0, ett_lineage[0], NULL, "%" PRIu32 ". %s", lnum, res_str);
+                sf_idx++;
+                continue;
+            }
+
+            parent_tree = lineage_trees[lnum];
+        }
 
         int32_t arg_num;
         if (sscanf(hfinfo->abbrev, "evt.arg.%d", &arg_num) != 1) {
@@ -664,15 +735,9 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
             break;
         case FT_STRINGZ:
         {
-            const char *res_str;
-            if (sinsp_fields[sf_idx].res_len < SFE_SMALL_BUF_SIZE) {
-                res_str = sinsp_fields[sf_idx].res.small_str;
-            } else {
-                if (sinsp_fields[sf_idx].res.str == NULL) {
-                    ws_debug("Field %u has NULL result string", sf_idx);
-                    continue;
-                }
-                res_str = sinsp_fields[sf_idx].res.str;
+            const char* res_str = get_str_value(sinsp_fields, sf_idx);
+            if (res_str == NULL) {
+                continue;
             }
 
             if (arg_num != -1) {

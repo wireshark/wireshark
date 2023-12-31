@@ -24,6 +24,9 @@ extern "C" {
 
 #define FALCO_FIELD_NAME_PREFIX "falco."
 
+#define N_PROC_LINEAGE_ENTRIES 16
+#define N_PROC_LINEAGE_ENTRY_FIELDS 4
+
 typedef struct sinsp_source_info_t sinsp_source_info_t;
 typedef struct sinsp_span_t sinsp_span_t;
 
@@ -38,8 +41,9 @@ typedef enum sinsp_field_display_format_e {
 
 typedef enum sinsp_syscall_category_e {
     SSC_EVENT, // gen_event, event
-    SSC_ARGS, // event arguments
+    SSC_EVTARGS, // event arguments
     SSC_PROCESS, // thread
+    SSC_PROCLINEAGE, // process lineage
     SSC_USER, // user
     SSC_GROUP, // group
     SSC_CONTAINER, // container

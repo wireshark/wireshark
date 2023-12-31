@@ -86,6 +86,7 @@ static int total_bytes;
 #endif
 
 static filter_check_info g_args_fci;
+static filter_check_info g_lineage_fci;
 
 // These sinsp fields are not interesting in a wireshark-like use case, so we skip them.
 std::set<std::string> g_fields_to_skip = {
@@ -148,8 +149,9 @@ static const char *chunkify_string(sinsp_span_t *sinsp_span, const char *key) {
 static sinsp_syscall_category_e filtercheck_name_to_category(const std::string fc_name) {
     std::map<const char *, sinsp_syscall_category_e> fc_name_to_category = {
         { "evt", SSC_EVENT },
-        { "args", SSC_ARGS },
+        { "args", SSC_EVTARGS },
         { "process", SSC_PROCESS },
+        { "lineage", SSC_PROCLINEAGE},
         { "user", SSC_USER },
         { "group", SSC_GROUP },
         { "container", SSC_CONTAINER },
@@ -167,6 +169,9 @@ static sinsp_syscall_category_e filtercheck_name_to_category(const std::string f
     return SSC_OTHER;
 }
 
+/*
+ * This is the list of "fake" fields that we create for the Falco event arguments.
+ */
 const filtercheck_field_info args_event_fields[] =
 {
 	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.0", "Argument", "Event argument."},
@@ -203,6 +208,35 @@ const filtercheck_field_info args_event_fields[] =
 	{PT_CHARBUF, EPF_NONE, PF_NA, "evt.arg.31", "Argument", "Event argument."},
 };
 
+#define CREATE_FIELD_INFO(index) \
+    {PT_CHARBUF, EPF_NONE, PF_NA, "proc.aname." #index, "Name", "The proc.name..."}, \
+    {PT_CHARBUF, EPF_NONE, PF_NA, "proc.aexepath." #index, "Executable Path", "The proc.exepath..."}, \
+    {PT_INT64, EPF_NONE, PF_ID, "proc.apid." #index, "Process ID", "The pid..."}, \
+    {PT_CHARBUF, EPF_NONE, PF_NA, "proc.acmdline." #index, "Command Line", "The full command line..."}
+
+/*
+ * This is the list of "fake" fields that we create for process lineage.
+ * We construct the array using a macro to limit verboseness.
+ */
+const filtercheck_field_info proc_lineage_event_fields[] = {
+    CREATE_FIELD_INFO(1),
+    CREATE_FIELD_INFO(2),
+    CREATE_FIELD_INFO(3),
+    CREATE_FIELD_INFO(4),
+    CREATE_FIELD_INFO(5),
+    CREATE_FIELD_INFO(6),
+    CREATE_FIELD_INFO(7),
+    CREATE_FIELD_INFO(8),
+    CREATE_FIELD_INFO(9),
+    CREATE_FIELD_INFO(10),
+    CREATE_FIELD_INFO(11),
+    CREATE_FIELD_INFO(12),
+    CREATE_FIELD_INFO(13),
+    CREATE_FIELD_INFO(14),
+    CREATE_FIELD_INFO(15),
+    CREATE_FIELD_INFO(16),
+};
+
 void add_arg_event(uint32_t arg_number,
         sinsp_filter_factory* filter_factory,
         sinsp_source_info_t *ssi,
@@ -226,6 +260,69 @@ void add_arg_event(uint32_t arg_number,
     ssi->syscall_filter_fields.push_back(ffi);
 }
 
+void create_args_source(sinsp_source_info_t *ssi,
+    sinsp_filter_factory* filter_factory,
+    const filter_check_info* fci) {
+    g_args_fci.m_name = "args";
+    sinsp_syscall_category_e args_syscall_category = filtercheck_name_to_category(g_args_fci.m_name);
+
+    g_args_fci = *fci;
+
+    for (uint32_t i = 0; i < 32; i++) {
+        add_arg_event(i, filter_factory, ssi, args_syscall_category);
+    }
+    ssi->syscall_filter_checks.push_back(&g_args_fci);
+}
+
+void add_lineage_field(std::string basefname,
+        uint32_t ancestor_number,
+        uint32_t field_number,
+        sinsp_filter_factory* filter_factory,
+        sinsp_source_info_t *ssi,
+        sinsp_syscall_category_e args_syscall_category) {
+    std::string fname = basefname + "[" + std::to_string(ancestor_number) + "]";
+    const filtercheck_field_info *ffi = &proc_lineage_event_fields[(ancestor_number - 1) * N_PROC_LINEAGE_ENTRY_FIELDS + field_number];
+    gen_event_filter_check *gefc = filter_factory->new_filtercheck(fname.c_str());
+    if (!gefc) {
+        ws_error("cannot find expected Falco field evt.arg");
+    }
+
+    gefc->parse_field_name(fname.c_str(), true, false);
+    ssi->ffi_to_sf_idx[ffi] = ssi->syscall_filter_fields.size();
+    ssi->field_to_category[ssi->syscall_filter_fields.size()] = args_syscall_category;
+    ssi->syscall_event_filter_checks.push_back(gefc);
+    ssi->syscall_filter_fields.push_back(ffi);
+}
+
+void add_lineage_events(uint32_t ancestor_number,
+        sinsp_filter_factory* filter_factory,
+        sinsp_source_info_t *ssi,
+        sinsp_syscall_category_e args_syscall_category) {
+
+    if (ancestor_number >= sizeof(proc_lineage_event_fields) / sizeof(proc_lineage_event_fields[0]) / N_PROC_LINEAGE_ENTRY_FIELDS) {
+        ws_error("falco lineage mismatch (%" PRIu32 ")", ancestor_number);
+    }
+
+    add_lineage_field("proc.aname", ancestor_number, 0, filter_factory, ssi, args_syscall_category);
+    add_lineage_field("proc.acmdline", ancestor_number, 3, filter_factory, ssi, args_syscall_category);
+    add_lineage_field("proc.aexepath", ancestor_number, 1, filter_factory, ssi, args_syscall_category);
+    add_lineage_field("proc.apid", ancestor_number, 2, filter_factory, ssi, args_syscall_category);
+}
+
+void create_lineage_source(sinsp_source_info_t *ssi,
+    sinsp_filter_factory* filter_factory,
+    const filter_check_info* fci) {
+    g_lineage_fci.m_name = "lineage";
+    sinsp_syscall_category_e args_syscall_category = filtercheck_name_to_category(g_lineage_fci.m_name);
+
+    g_lineage_fci = *fci;
+
+    for (uint32_t i = 1; i < N_PROC_LINEAGE_ENTRIES; i++) {
+        add_lineage_events(i, filter_factory, ssi, args_syscall_category);
+    }
+    ssi->syscall_filter_checks.push_back(&g_lineage_fci);
+}
+
 // Not all of the fields in sinsp have been designed with a Wireshark-like use case in mind.
 // This functions determines which fields we should skip.
 bool skip_field(const filtercheck_field_info *ffi) {
@@ -233,6 +330,20 @@ bool skip_field(const filtercheck_field_info *ffi) {
         return true;
     }
     return false;
+}
+
+/*
+ * We want the flexibility to decide the deiplay order of the fields in the UI, since
+ * the order in which they are defined in filterchecks.{cpp,h} is not necessarily the one we want.
+ */
+void reorder_syscall_fields(std::vector<const filter_check_info*>* all_syscall_fields) {
+    // Move "fd" after "proc"
+    all_syscall_fields->insert(all_syscall_fields->begin() + 3, all_syscall_fields->at(6));
+    all_syscall_fields->erase(all_syscall_fields->begin() + 7);
+
+    // Move "container" after "fd"
+    all_syscall_fields->insert(all_syscall_fields->begin() + 4, all_syscall_fields->at(6));
+    all_syscall_fields->erase(all_syscall_fields->begin() + 7);
 }
 
 /*
@@ -247,6 +358,8 @@ void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t *
 
     // Extract the fields defined in filterchecks.{cpp,h}
     sinsp_span->filter_checks.get_all_fields(all_syscall_fields);
+    // Reorder the list of extractor the way we want them to appear in the UI.
+    reorder_syscall_fields(&all_syscall_fields);
     for (const auto fci : all_syscall_fields) {
         if (fci->m_flags == filter_check_info::FL_HIDDEN) {
             continue;
@@ -256,15 +369,11 @@ void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t *
             // This creates a meta-filtercheck for the events arguments and it register its fields.
             // We do it before the process filtercheck because we want to have it exactly in the position
             // after event and before process.
-            g_args_fci.m_name = "args";
-            sinsp_syscall_category_e args_syscall_category = filtercheck_name_to_category(g_args_fci.m_name);
-
-            g_args_fci = *fci;
-
-            for (uint32_t i = 0; i < 32; i++) {
-                add_arg_event(i, &filter_factory, ssi, args_syscall_category);
-            }
-            ssi->syscall_filter_checks.push_back(&g_args_fci);
+            create_args_source(ssi, &filter_factory, fci);
+        } else if (fci->m_name == "fd") {
+            // This creates a meta-filtercheck for process lineage.
+            // We do it before the fd filtercheck because we want it to be between the proc and fd trees.
+            create_lineage_source(ssi, &filter_factory, fci);
         }
 
         sinsp_syscall_category_e syscall_category = filtercheck_name_to_category(fci->m_name);
