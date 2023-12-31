@@ -5980,18 +5980,36 @@ dumpcap_log_writer(const char *domain, enum ws_log_level level,
                                     const char *user_format, va_list user_ap,
                                     void *user_data _U_)
 {
-    /* DEBUG & INFO msgs (if we're debugging today)                 */
-#if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
-    if (level <= LOG_LEVEL_INFO && ws_log_msg_is_active(domain, level)) {
-#ifdef DEBUG_DUMPCAP
+    if (ws_log_msg_is_active(domain, level)) {
+        /* log messages go to stderr or    */
+        /* to parent especially formatted if dumpcap running as child. */
 #ifdef DEBUG_CHILD_DUMPCAP
         va_list user_ap_copy;
         va_copy(user_ap_copy, user_ap);
 #endif
         if (capture_child) {
-            gchar *msg = ws_strdup_vprintf(user_format, user_ap);
-            sync_pipe_write_errmsgs_to_parent(sync_pipe_fd, msg, "");
-            g_free(msg);
+            /* Format the log mesage as the numeric level, followed
+             * by a colon and then a string matching the standard log
+             * string. In the future perhaps we serialize file, line,
+             * and func (which can be NULL) instead.
+             */
+            GString *msg = g_string_new(NULL);
+            g_string_append_printf(msg, "%u:", level);
+            if (file != NULL) {
+                g_string_append_printf(msg, "%s", file);
+                if (line >= 0) {
+                    g_string_append_printf(msg, ":%ld", line);
+                }
+            }
+            g_string_append(msg, " --");
+            if (func != NULL) {
+                g_string_append_printf(msg, " %s():", func);
+            }
+            g_string_append_c(msg, ' ');
+            g_string_append_vprintf(msg, user_format, user_ap);
+
+            sync_pipe_write_string_msg(sync_pipe_fd, SP_LOG_MSG, msg->str);
+            g_string_free(msg, TRUE);
         } else {
             ws_log_console_writer(domain, level, file, line, func, mft, user_format, user_ap);
         }
@@ -5999,21 +6017,6 @@ dumpcap_log_writer(const char *domain, enum ws_log_level level,
         ws_log_file_writer(debug_log, domain, level, file, line, func, mft, user_format, user_ap_copy);
         va_end(user_ap_copy);
 #endif
-#elif defined(DEBUG_CHILD_DUMPCAP)
-        ws_log_file_writer(debug_log, domain, level, file, line, func, mft, user_format, user_ap);
-#endif
-        return;
-    }
-#endif
-
-    /* ERROR, CRITICAL, WARNING, MESSAGE messages goto stderr or    */
-    /*  to parent especially formatted if dumpcap running as child. */
-    if (capture_child) {
-        gchar *msg = ws_strdup_vprintf(user_format, user_ap);
-        sync_pipe_write_errmsgs_to_parent(sync_pipe_fd, msg, "");
-        g_free(msg);
-    } else if(ws_log_msg_is_active(domain, level)) {
-        ws_log_console_writer(domain, level, file, line, func, mft, user_format, user_ap);
     }
 }
 

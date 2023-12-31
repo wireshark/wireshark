@@ -42,6 +42,7 @@
 #define SP_EXEC_FAILED  'X'     /* errno value for the exec failing */
 #define SP_FILE         'F'     /* the name of the recently opened file */
 #define SP_ERROR_MSG    'E'     /* error message */
+#define SP_LOG_MSG      'L'     /* log message */
 #define SP_BAD_FILTER   'B'     /* error message for bad capture filter */
 #define SP_PACKET_COUNT 'P'     /* count of packets captured since last message */
 #define SP_DROPS        'D'     /* count of packets dropped in capture */

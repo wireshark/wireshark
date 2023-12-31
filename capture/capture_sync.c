@@ -218,6 +218,23 @@ sync_pipe_add_arg(char **args, int *argc, const char *arg)
     return args;
 }
 
+/* Take a buffer from an SP_LOG_MSG from dumpcap and send it to our
+ * current logger. Keep this in sync with the format used in
+ * dumpcap_log_writer. (We might want to do more proper serialization
+ * of more than just the log level.)
+ */
+static void
+sync_pipe_handle_log_msg(const char *buffer) {
+    const char *log_msg = NULL;
+    const char* end;
+    uint32_t level = 0;
+
+    if (ws_strtou32(buffer, &end, &level) && end[0] == ':') {
+        log_msg = end + 1;
+    }
+    ws_log(LOG_DOMAIN_CAPCHILD, level, "%s", log_msg);
+}
+
 /* Initialize an argument list and add dumpcap to it. */
 static char **
 init_pipe_args(int *argc) {
@@ -1140,6 +1157,13 @@ sync_pipe_run_command_actual(char **argv, char **data, char **primary_msg,
         *data = NULL;
         break;
 
+    case SP_LOG_MSG:
+        /*
+         * Log from dumpcap; pass to our log
+         */
+        sync_pipe_handle_log_msg(buffer);
+        break;
+
     case SP_SUCCESS:
         /* read the output from the command */
         data_buf = g_string_new("");
@@ -1566,6 +1590,13 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
             }
             return ret;
 
+        case SP_LOG_MSG:
+            /*
+             * Log from dumpcap; pass to our log
+             */
+            sync_pipe_handle_log_msg(buffer);
+            break;
+
         case SP_IFACE_LIST:
             /*
              * Dumpcap giving us the interface list
@@ -1909,6 +1940,12 @@ sync_pipe_input_cb(GIOChannel *pipe_io, capture_session *cap_session)
         cap_session->error(cap_session, primary_msg, secondary_msg);
         /* the capture child will close the sync_pipe, nothing to do for now */
         /* (an error message doesn't mean we have to stop capturing) */
+        break;
+    case SP_LOG_MSG:
+        /*
+         * Log from dumpcap; pass to our log
+         */
+        sync_pipe_handle_log_msg(buffer);
         break;
     case SP_BAD_FILTER: {
         const char *message=NULL;
