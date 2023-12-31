@@ -1550,6 +1550,23 @@ class EthCtx:
         if self.conform.check_item('PDU', tname):
             out += self.output_proto_root()
 
+        cycle_size = 0
+        if self.eth_dep_cycle:
+            for cur_cycle in self.eth_dep_cycle:
+                t = self.type[cur_cycle[0]]['ethname']
+                if t == tname:
+                    cycle_size = len(cur_cycle)
+                    break
+
+        if cycle_size > 0:
+            out += f'''\
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = {cycle_size};
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
+'''
+
         if self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
             out += self.conform.get_fn_text(self.eth_type[tname]['ref'][0], 'FN_HDR')
         return out
@@ -1560,6 +1577,20 @@ class EthCtx:
         #if self.conform.get_fn_presence(tname):
         #  out += self.conform.get_fn_text(tname, 'FN_FTR')
         #el
+
+        add_recursion_check = False
+        if self.eth_dep_cycle:
+            for cur_cycle in self.eth_dep_cycle:
+                t = self.type[cur_cycle[0]]['ethname']
+                if t == tname:
+                    add_recursion_check = True
+                    break
+
+        if add_recursion_check:
+            out += '''\
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
+'''
+
         if self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
             out += self.conform.get_fn_text(self.eth_type[tname]['ref'][0], 'FN_FTR')
         out += "  return offset;\n"
@@ -1827,12 +1858,15 @@ class EthCtx:
                     fx.write(self.eth_out_pdu_decl(f))
             if not first_decl:
                 fx.write('\n')
+
+        add_depth_define = False
         if self.eth_dep_cycle:
             fx.write('/*--- Cyclic dependencies ---*/\n\n')
             i = 0
             while i < len(self.eth_dep_cycle):
                 t = self.type[self.eth_dep_cycle[i][0]]['ethname']
                 if self.dep_cycle_eth_type[t][0] != i: i += 1; continue
+                add_depth_define = True
                 fx.write(''.join(['/* %s */\n' % ' -> '.join(self.eth_dep_cycle[i]) for i in self.dep_cycle_eth_type[t]]))
                 if not self.eth_type[t]['export'] & EF_TYPE:
                     fx.write(self.eth_type_fn_h(t))
@@ -1841,6 +1875,8 @@ class EthCtx:
                 fx.write('\n')
                 i += 1
             fx.write('\n')
+        if add_depth_define:
+            fx.write('#define MAX_RECURSION_DEPTH 100 // Arbitrarily chosen.\n')
         for t in self.eth_type_ord1:
             if self.eth_type[t]['import']:
                 continue

@@ -80,6 +80,7 @@
 #include <epan/strutil.h>
 #include <epan/show_exception.h>
 #include <epan/asn1.h>
+#include <epan/proto_data.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
 #include <epan/charsets.h>

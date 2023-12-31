@@ -28,6 +28,7 @@
 #include <epan/t35.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/proto_data.h>
 #include <epan/tap.h>
 #include <wsutil/pint.h>
 #include "packet-tpkt.h"
