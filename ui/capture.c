@@ -703,7 +703,7 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
     ws_message("Capture stopped.");
     ws_assert(cap_session->state == CAPTURE_PREPARING || cap_session->state == CAPTURE_RUNNING);
 
-    if (msg != NULL) {
+    if (msg != NULL && msg[0] != '\0') {
         ESD_TYPE_E dlg_type = ESD_TYPE_ERROR;
         if (strstr(msg, " WARNING] ")) {
             dlg_type = ESD_TYPE_WARN;
