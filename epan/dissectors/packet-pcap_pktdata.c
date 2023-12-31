@@ -245,6 +245,23 @@ const value_string link_type_vals[] = {
     { 281,  "DSA_TAG_BRCM" },
     { 282,  "DSA_TAG_BRCM_PREPEND" },
     { 283,  "IEEE802_15_4_TAP" },
+    { 284,  "DSA_TAG_DSA" },
+    { 285,  "DSA_TAG_EDSA" },
+    { 286,  "ELEE" },
+    { 288,  "USB_2_0" },
+    { 289,  "ATSC_ALP" },
+    { 290,  "ETW" },
+    { 291,  "NETANALYZER_NG" },
+    { 292,  "ZBOSS_NCP" },
+    { 293,  "USB_2_0_LOW_SPEED" },
+    { 294,  "USB_2_0_FULL_SPEED" },
+    { 295,  "USB_2_0_HIGH_SPEED" },
+    { 296,  "AUERSWALD_LOG" },
+    { 297,  "ZWAVE_TAP" },
+    { 298,  "SILABS_DEBUG_CHANNEL" },
+    { 299,  "FIRA_UCI" },
+    { 300,  "MDB" },
+    { 301,  "DECT_NR" },
     { 0, NULL }
 };
 
