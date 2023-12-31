@@ -36,6 +36,7 @@
 #include <epan/t35.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/proto_data.h>
 #include <epan/tap.h>
 #include <wsutil/pint.h>
 #include "packet-tpkt.h"
@@ -202,7 +203,7 @@ typedef enum _IndicationMessage_enum {
 } IndicationMessage_enum;
 
 /*--- End of included file: packet-h245-val.h ---*/
-#line 75 "./asn1/h245/packet-h245-template.c"
+#line 76 "./asn1/h245/packet-h245-template.c"
 
 static const value_string h245_RequestMessage_short_vals[] = {
 	{ RequestMessage_nonStandard              ,	"NSM" },
@@ -1909,7 +1910,7 @@ static int hf_h245_encrypted = -1;                /* OCTET_STRING */
 static int hf_h245_encryptedAlphanumeric = -1;    /* EncryptedAlphanumeric */
 
 /*--- End of included file: packet-h245-hf.c ---*/
-#line 375 "./asn1/h245/packet-h245-template.c"
+#line 376 "./asn1/h245/packet-h245-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_h245 = -1;
@@ -2410,7 +2411,7 @@ static gint ett_h245_FlowControlIndication = -1;
 static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
 
 /*--- End of included file: packet-h245-ett.c ---*/
-#line 380 "./asn1/h245/packet-h245-template.c"
+#line 381 "./asn1/h245/packet-h245-template.c"
 
 /* Forward declarations */
 static int dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -2449,6 +2450,7 @@ static int dissect_h245_AudioMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int dissect_h245_ModeElementType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 
+#define MAX_RECURSION_DEPTH 100 // Arbitrarily chosen.
 
 
 static int
@@ -3921,9 +3923,15 @@ static const per_sequence_t GenericParameter_sequence[] = {
 
 static int
 dissect_h245_GenericParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 4;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_GenericParameter, GenericParameter_sequence);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -5738,6 +5746,11 @@ static const per_choice_t VideoCapability_choice[] = {
 
 static int
 dissect_h245_VideoCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 4;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
 #line 457 "./asn1/h245/h245.cnf"
   gint32 value;
 
@@ -5749,6 +5762,7 @@ dissect_h245_VideoCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -6056,6 +6070,11 @@ static const per_choice_t AudioCapability_choice[] = {
 
 static int
 dissect_h245_AudioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 3;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
 #line 450 "./asn1/h245/h245.cnf"
   gint32 value;
 
@@ -6066,6 +6085,7 @@ dissect_h245_AudioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
         codec_type = val_to_str(value, h245_AudioCapability_short_vals, "<unknown>");
 
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -7236,6 +7256,11 @@ static const per_choice_t DataType_choice[] = {
 
 static int
 dissect_h245_DataType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 5;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
 #line 1007 "./asn1/h245/h245.cnf"
 gint choice_index;
 
@@ -7254,6 +7279,7 @@ if (upcoming_channel){
 
 
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -9018,6 +9044,11 @@ static const per_sequence_t MultiplexElement_sequence[] = {
 
 static int
 dissect_h245_MultiplexElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 4;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
 #line 82 "./asn1/h245/h245.cnf"
   /*MultiplexElement*/
   h223_mux_element* me = wmem_new(wmem_file_scope(), h223_mux_element);
@@ -9028,6 +9059,7 @@ dissect_h245_MultiplexElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_MultiplexElement, MultiplexElement_sequence);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -9655,6 +9687,11 @@ static const per_choice_t AudioMode_choice[] = {
 
 static int
 dissect_h245_AudioMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 3;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
 #line 472 "./asn1/h245/h245.cnf"
   gint32 value;
 
@@ -9665,6 +9702,7 @@ dissect_h245_AudioMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
   codec_type = val_to_str(value, h245_AudioMode_vals, "<unknown>");
 
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -10012,10 +10050,16 @@ static const per_choice_t ModeElementType_choice[] = {
 
 static int
 dissect_h245_ModeElementType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 6;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_ModeElementType, ModeElementType_choice,
                                  NULL);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -14497,7 +14541,7 @@ static int dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-h245-fn.c ---*/
-#line 389 "./asn1/h245/packet-h245-template.c"
+#line 390 "./asn1/h245/packet-h245-template.c"
 
 static int
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
@@ -20196,7 +20240,7 @@ void proto_register_h245(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-#line 475 "./asn1/h245/packet-h245-template.c"
+#line 476 "./asn1/h245/packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -20699,7 +20743,7 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-#line 482 "./asn1/h245/packet-h245-template.c"
+#line 483 "./asn1/h245/packet-h245-template.c"
   };
   module_t *h245_module;
 

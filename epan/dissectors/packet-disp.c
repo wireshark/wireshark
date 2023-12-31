@@ -24,6 +24,7 @@
 #include <epan/prefs.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/proto_data.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"
@@ -165,7 +166,7 @@ static int hf_disp_signedShadowError = -1;        /* T_signedShadowError */
 static int hf_disp_shadowError = -1;              /* ShadowErrorData */
 
 /*--- End of included file: packet-disp-hf.c ---*/
-#line 49 "./asn1/disp/packet-disp-template.c"
+#line 50 "./asn1/disp/packet-disp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_disp = -1;
@@ -228,7 +229,7 @@ static gint ett_disp_ShadowError = -1;
 static gint ett_disp_T_signedShadowError = -1;
 
 /*--- End of included file: packet-disp-ett.c ---*/
-#line 53 "./asn1/disp/packet-disp-template.c"
+#line 54 "./asn1/disp/packet-disp-template.c"
 
 static expert_field ei_disp_unsupported_opcode = EI_INIT;
 static expert_field ei_disp_unsupported_errcode = EI_INIT;
@@ -249,6 +250,7 @@ static int dissect_disp_Subtree(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int dissect_disp_IncrementalStepRefresh(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 
+#define MAX_RECURSION_DEPTH 100 // Arbitrarily chosen.
 
 
 static int
@@ -1066,9 +1068,15 @@ static const ber_sequence_t Subtree_sequence[] = {
 
 static int
 dissect_disp_Subtree(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 3;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Subtree_sequence, hf_index, ett_disp_Subtree);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -1224,9 +1232,15 @@ static const ber_sequence_t IncrementalStepRefresh_sequence[] = {
 
 static int
 dissect_disp_IncrementalStepRefresh(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 4;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IncrementalStepRefresh_sequence, hf_index, ett_disp_IncrementalStepRefresh);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -1467,7 +1481,7 @@ static int dissect_ShadowingAgreementInfo_PDU(tvbuff_t *tvb _U_, packet_info *pi
 
 
 /*--- End of included file: packet-disp-fn.c ---*/
-#line 62 "./asn1/disp/packet-disp-template.c"
+#line 63 "./asn1/disp/packet-disp-template.c"
 
 /*
 * Dissect DISP PDUs inside a ROS PDUs
@@ -2025,7 +2039,7 @@ void proto_register_disp(void) {
         "ShadowErrorData", HFILL }},
 
 /*--- End of included file: packet-disp-hfarr.c ---*/
-#line 187 "./asn1/disp/packet-disp-template.c"
+#line 188 "./asn1/disp/packet-disp-template.c"
   };
 
   /* List of subtrees */
@@ -2090,7 +2104,7 @@ void proto_register_disp(void) {
     &ett_disp_T_signedShadowError,
 
 /*--- End of included file: packet-disp-ettarr.c ---*/
-#line 193 "./asn1/disp/packet-disp-template.c"
+#line 194 "./asn1/disp/packet-disp-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -2139,7 +2153,7 @@ void proto_reg_handoff_disp(void) {
 
 
 /*--- End of included file: packet-disp-dis-tab.c ---*/
-#line 231 "./asn1/disp/packet-disp-template.c"
+#line 232 "./asn1/disp/packet-disp-template.c"
 
   /* APPLICATION CONTEXT */
 

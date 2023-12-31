@@ -1925,7 +1925,7 @@ static int hf_cpm_node_Z5 = -1;                   /* Offset_B14 */
 static int hf_cpm_node_Z6 = -1;                   /* Offset_B16 */
 
 /*--- End of included file: packet-its-hf.c ---*/
-#line 288 "./asn1/its/packet-its-template.c"
+#line 289 "./asn1/its/packet-its-template.c"
 
 // CauseCode/SubCauseCode management
 static int hf_its_trafficConditionSubCauseCode = -1;
@@ -2526,7 +2526,7 @@ static gint ett_cpm_OffsetPoint = -1;
 static gint ett_cpm_NodeOffsetPointZ = -1;
 
 /*--- End of included file: packet-its-ett.c ---*/
-#line 318 "./asn1/its/packet-its-template.c"
+#line 319 "./asn1/its/packet-its-template.c"
 
 // Deal with cause/subcause code management
 struct { CauseCodeType_enum cause; int* hf; } cause_to_subcause[] = {
@@ -11004,6 +11004,7 @@ static int dissect_AddGrpC_SignalStatusPackage_addGrpC_PDU(tvbuff_t *tvb _U_, pa
 static int dissect_gdd_GddStructure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 
+#define MAX_RECURSION_DEPTH 100 // Arbitrarily chosen.
 
 
 static int
@@ -11928,9 +11929,15 @@ static const per_sequence_t gdd_GddStructure_sequence[] = {
 
 static int
 dissect_gdd_GddStructure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 9;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_gdd_GddStructure, gdd_GddStructure_sequence);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -18527,7 +18534,7 @@ static int dissect_cpm_CollectivePerceptionMessage_PDU(tvbuff_t *tvb _U_, packet
 
 
 /*--- End of included file: packet-its-fn.c ---*/
-#line 360 "./asn1/its/packet-its-template.c"
+#line 361 "./asn1/its/packet-its-template.c"
 
 static void
 its_latitude_fmt(gchar *s, guint32 v)
@@ -25353,7 +25360,7 @@ void proto_register_its(void)
         "Offset_B16", HFILL }},
 
 /*--- End of included file: packet-its-hfarr.c ---*/
-#line 858 "./asn1/its/packet-its-template.c"
+#line 859 "./asn1/its/packet-its-template.c"
 
     { &hf_its_roadworksSubCauseCode,
       { "roadworksSubCauseCode", "its.subCauseCode",
@@ -26127,7 +26134,7 @@ void proto_register_its(void)
     &ett_cpm_NodeOffsetPointZ,
 
 /*--- End of included file: packet-its-ettarr.c ---*/
-#line 1061 "./asn1/its/packet-its-template.c"
+#line 1062 "./asn1/its/packet-its-template.c"
     };
 
     static ei_register_info ei[] = {

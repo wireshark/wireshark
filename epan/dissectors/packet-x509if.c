@@ -22,6 +22,7 @@
 #include <epan/packet.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/proto_data.h>
 #include <epan/strutil.h>
 
 #include "packet-ber.h"
@@ -201,7 +202,7 @@ static int hf_x509if_AllowedSubset_oneLevel = -1;
 static int hf_x509if_AllowedSubset_wholeSubtree = -1;
 
 /*--- End of included file: packet-x509if-hf.c ---*/
-#line 37 "./asn1/x509if/packet-x509if-template.c"
+#line 38 "./asn1/x509if/packet-x509if-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -282,7 +283,7 @@ static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_AttributeType = -1;
 static gint ett_x509if_SET_SIZE_1_MAX_OF_DirectoryString = -1;
 
 /*--- End of included file: packet-x509if-ett.c ---*/
-#line 40 "./asn1/x509if/packet-x509if-template.c"
+#line 41 "./asn1/x509if/packet-x509if-template.c"
 
 static proto_tree *top_of_dn = NULL;
 static proto_tree *top_of_rdn = NULL;
@@ -336,6 +337,7 @@ x509if_frame_end(void)
 /*int dissect_x509if_AttributeCombination(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);*/
 
 
+#define MAX_RECURSION_DEPTH 100 // Arbitrarily chosen.
 
 
 static int
@@ -1096,10 +1098,16 @@ static const ber_choice_t Refinement_choice[] = {
 
 int
 dissect_x509if_Refinement(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 3;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Refinement_choice, hf_index, ett_x509if_Refinement,
                                  NULL);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -1541,10 +1549,16 @@ static const ber_choice_t ContextCombination_choice[] = {
 
 int
 dissect_x509if_ContextCombination(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 3;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ContextCombination_choice, hf_index, ett_x509if_ContextCombination,
                                  NULL);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -1662,10 +1676,16 @@ static const ber_choice_t AttributeCombination_choice[] = {
 
 int
 dissect_x509if_AttributeCombination(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 3;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  AttributeCombination_choice, hf_index, ett_x509if_AttributeCombination,
                                  NULL);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -2090,7 +2110,7 @@ static int dissect_HierarchyBelow_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-x509if-fn.c ---*/
-#line 76 "./asn1/x509if/packet-x509if-template.c"
+#line 77 "./asn1/x509if/packet-x509if-template.c"
 
 const char * x509if_get_last_dn(void)
 {
@@ -2756,7 +2776,7 @@ void proto_register_x509if(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-x509if-hfarr.c ---*/
-#line 121 "./asn1/x509if/packet-x509if-template.c"
+#line 122 "./asn1/x509if/packet-x509if-template.c"
   };
 
   /* List of subtrees */
@@ -2839,7 +2859,7 @@ void proto_register_x509if(void) {
     &ett_x509if_SET_SIZE_1_MAX_OF_DirectoryString,
 
 /*--- End of included file: packet-x509if-ettarr.c ---*/
-#line 126 "./asn1/x509if/packet-x509if-template.c"
+#line 127 "./asn1/x509if/packet-x509if-template.c"
   };
 
   /* Register protocol */
@@ -2897,6 +2917,6 @@ void proto_reg_handoff_x509if(void) {
 
 
 /*--- End of included file: packet-x509if-dis-tab.c ---*/
-#line 145 "./asn1/x509if/packet-x509if-template.c"
+#line 146 "./asn1/x509if/packet-x509if-template.c"
 }
 

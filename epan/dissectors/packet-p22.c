@@ -22,6 +22,7 @@
 #include <epan/packet.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/proto_data.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"
@@ -323,7 +324,7 @@ static const value_string charsetreg_vals [] = {
 #define ub_telephone_number            32
 
 /*--- End of included file: packet-p22-val.h ---*/
-#line 67 "./asn1/p22/packet-p22-template.c"
+#line 68 "./asn1/p22/packet-p22-template.c"
 
 
 /*--- Included file: packet-p22-hf.c ---*/
@@ -708,7 +709,7 @@ static int hf_p22_RecipientSecurityRequest_ipn_non_repudiation = -1;
 static int hf_p22_RecipientSecurityRequest_ipn_proof = -1;
 
 /*--- End of included file: packet-p22-hf.c ---*/
-#line 69 "./asn1/p22/packet-p22-template.c"
+#line 70 "./asn1/p22/packet-p22-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_p22 = -1;
@@ -842,7 +843,7 @@ static gint ett_p22_T_body_part_token_choice = -1;
 static gint ett_p22_T_choice = -1;
 
 /*--- End of included file: packet-p22-ett.c ---*/
-#line 73 "./asn1/p22/packet-p22-template.c"
+#line 74 "./asn1/p22/packet-p22-template.c"
 
 
 /*--- Included file: packet-p22-fn.c ---*/
@@ -862,6 +863,7 @@ static int dissect_p22_BodyPartTokens(gboolean implicit_tag _U_, tvbuff_t *tvb _
 static int dissect_p22_ForwardedContentToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 
+#define MAX_RECURSION_DEPTH 100 // Arbitrarily chosen.
 
 
 static int
@@ -1834,6 +1836,11 @@ static const ber_sequence_t IPM_sequence[] = {
 
 int
 dissect_p22_IPM(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 7;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
 #line 243 "./asn1/p22/p22.cnf"
 
  col_append_str(actx->pinfo->cinfo, COL_INFO, " Message");
@@ -1845,6 +1852,7 @@ dissect_p22_IPM(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
 
 
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -3557,9 +3565,15 @@ static const ber_sequence_t IPMSynopsis_sequence_of[1] = {
 
 static int
 dissect_p22_IPMSynopsis(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 4;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       IPMSynopsis_sequence_of, hf_index, ett_p22_IPMSynopsis);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -4017,9 +4031,15 @@ static const ber_sequence_t BodyPartTokens_set_of[1] = {
 
 static int
 dissect_p22_BodyPartTokens(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 4;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  BodyPartTokens_set_of, hf_index, ett_p22_BodyPartTokens);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -4067,9 +4087,15 @@ static const ber_sequence_t ForwardedContentToken_set_of[1] = {
 
 static int
 dissect_p22_ForwardedContentToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 4;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  ForwardedContentToken_set_of, hf_index, ett_p22_ForwardedContentToken);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -4659,7 +4685,7 @@ static int dissect_ForwardedContentToken_PDU(tvbuff_t *tvb _U_, packet_info *pin
 
 
 /*--- End of included file: packet-p22-fn.c ---*/
-#line 75 "./asn1/p22/packet-p22-template.c"
+#line 76 "./asn1/p22/packet-p22-template.c"
 
 /*
 * Dissect P22 PDUs inside a PPDU.
@@ -6205,7 +6231,7 @@ void proto_register_p22(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p22-hfarr.c ---*/
-#line 108 "./asn1/p22/packet-p22-template.c"
+#line 109 "./asn1/p22/packet-p22-template.c"
   };
 
   /* List of subtrees */
@@ -6341,7 +6367,7 @@ void proto_register_p22(void) {
     &ett_p22_T_choice,
 
 /*--- End of included file: packet-p22-ettarr.c ---*/
-#line 114 "./asn1/p22/packet-p22-template.c"
+#line 115 "./asn1/p22/packet-p22-template.c"
   };
 
   /* Register protocol */
@@ -6461,7 +6487,7 @@ void proto_reg_handoff_p22(void) {
 
 
 /*--- End of included file: packet-p22-dis-tab.c ---*/
-#line 130 "./asn1/p22/packet-p22-template.c"
+#line 131 "./asn1/p22/packet-p22-template.c"
 
   register_ber_oid_dissector("2.6.1.10.0", dissect_p22, proto_p22, "InterPersonal Message (1984)");
   register_ber_oid_dissector("2.6.1.10.1", dissect_p22, proto_p22, "InterPersonal Message (1988)");

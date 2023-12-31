@@ -26,6 +26,7 @@
 
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/proto_data.h>
 #include "packet-ber.h"
 #include "packet-cmp.h"
 #include "packet-crmf.h"
@@ -224,7 +225,7 @@ static int hf_cmp_PKIFailureInfo_systemFailure = -1;
 static int hf_cmp_PKIFailureInfo_duplicateCertReq = -1;
 
 /*--- End of included file: packet-cmp-hf.c ---*/
-#line 56 "./asn1/cmp/packet-cmp-template.c"
+#line 57 "./asn1/cmp/packet-cmp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_cmp = -1;
@@ -280,7 +281,7 @@ static gint ett_cmp_PollRepContent = -1;
 static gint ett_cmp_PollRepContent_item = -1;
 
 /*--- End of included file: packet-cmp-ett.c ---*/
-#line 60 "./asn1/cmp/packet-cmp-template.c"
+#line 61 "./asn1/cmp/packet-cmp-template.c"
 
 /*--- Included file: packet-cmp-fn.c ---*/
 #line 1 "./asn1/cmp/packet-cmp-fn.c"
@@ -290,6 +291,7 @@ static gint ett_cmp_PollRepContent_item = -1;
 /*int dissect_cmp_PKIMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);*/
 
 
+#define MAX_RECURSION_DEPTH 100 // Arbitrarily chosen.
 
 static const value_string cmp_CMPCertificate_vals[] = {
   {   0, "x509v3PKCert" },
@@ -1106,9 +1108,15 @@ static const ber_sequence_t PKIMessage_sequence[] = {
 
 int
 dissect_cmp_PKIMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 5;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PKIMessage_sequence, hf_index, ett_cmp_PKIMessage);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -1463,7 +1471,7 @@ static int dissect_SuppLangTagsValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 
 
 /*--- End of included file: packet-cmp-fn.c ---*/
-#line 61 "./asn1/cmp/packet-cmp-template.c"
+#line 62 "./asn1/cmp/packet-cmp-template.c"
 
 static int
 dissect_cmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -2342,7 +2350,7 @@ void proto_register_cmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmp-hfarr.c ---*/
-#line 303 "./asn1/cmp/packet-cmp-template.c"
+#line 304 "./asn1/cmp/packet-cmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -2400,7 +2408,7 @@ void proto_register_cmp(void) {
     &ett_cmp_PollRepContent_item,
 
 /*--- End of included file: packet-cmp-ettarr.c ---*/
-#line 309 "./asn1/cmp/packet-cmp-template.c"
+#line 310 "./asn1/cmp/packet-cmp-template.c"
 	};
 	module_t *cmp_module;
 
@@ -2487,7 +2495,7 @@ void proto_reg_handoff_cmp(void) {
 
 
 /*--- End of included file: packet-cmp-dis-tab.c ---*/
-#line 374 "./asn1/cmp/packet-cmp-template.c"
+#line 375 "./asn1/cmp/packet-cmp-template.c"
 		inited = TRUE;
 	}
 

@@ -21,6 +21,7 @@
 # include "config.h"
 
 #include <epan/packet.h>
+#include <epan/proto_data.h>
 #include "packet-ber.h"
 
 #define PNAME  "Glow"
@@ -131,7 +132,7 @@ static int hf_glow_qualifiedFunction = -1;        /* QualifiedFunction */
 static int hf_glow_qualifiedTemplate = -1;        /* QualifiedTemplate */
 
 /*--- End of included file: packet-glow-hf.c ---*/
-#line 28 "./asn1/glow/packet-glow-template.c"
+#line 29 "./asn1/glow/packet-glow-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_glow = -1;
@@ -183,7 +184,7 @@ static gint ett_glow_SEQUENCE_OF_RootElement = -1;
 static gint ett_glow_RootElement = -1;
 
 /*--- End of included file: packet-glow-ett.c ---*/
-#line 33 "./asn1/glow/packet-glow-template.c"
+#line 34 "./asn1/glow/packet-glow-template.c"
 
 
 /*--- Included file: packet-glow-fn.c ---*/
@@ -202,6 +203,7 @@ static int dissect_glow_ElementCollection(gboolean implicit_tag _U_, tvbuff_t *t
 static int dissect_glow_Template(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 
+#define MAX_RECURSION_DEPTH 100 // Arbitrarily chosen.
 
 
 static int
@@ -1102,9 +1104,15 @@ dissect_glow_SEQUENCE_OF_Element(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_glow_ElementCollection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 6;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 4, TRUE, dissect_glow_SEQUENCE_OF_Element);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -1128,9 +1136,15 @@ dissect_glow_Parameter_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_glow_Parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 6;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 1, TRUE, dissect_glow_Parameter_U);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -1180,9 +1194,15 @@ dissect_glow_Template_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_glow_Template(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 9;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 24, TRUE, dissect_glow_Template_U);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -1492,7 +1512,7 @@ static int dissect_Root_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-glow-fn.c ---*/
-#line 35 "./asn1/glow/packet-glow-template.c"
+#line 36 "./asn1/glow/packet-glow-template.c"
 
 static int
 dissect_glow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -1898,7 +1918,7 @@ void proto_register_glow(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-glow-hfarr.c ---*/
-#line 60 "./asn1/glow/packet-glow-template.c"
+#line 61 "./asn1/glow/packet-glow-template.c"
   };
 
   /* List of subtrees */
@@ -1951,7 +1971,7 @@ void proto_register_glow(void) {
     &ett_glow_RootElement,
 
 /*--- End of included file: packet-glow-ettarr.c ---*/
-#line 66 "./asn1/glow/packet-glow-template.c"
+#line 67 "./asn1/glow/packet-glow-template.c"
   };
 
 
