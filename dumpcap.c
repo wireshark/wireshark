@@ -4616,7 +4616,11 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                                               interface_opts->display_name);
                 secondary_msg = handle_npcap_bug(interface_opts->display_name,
                                                  "The interface disappeared (error code ERROR_DEVICE_REMOVED/STATUS_DEVICE_REMOVED)");
-            } else if (strcmp(cap_err_str, "The other host terminated the connection.") == 0) {
+            } else if (strcmp(cap_err_str, "The other host terminated the connection.") == 0 ||
+                       g_str_has_prefix(cap_err_str, "Is the server properly installed?")) {
+                /*
+                 * Networking error for a remote capture.
+                 */
                 primary_msg = g_strdup(cap_err_str);
                 secondary_msg = g_strdup("This may be a problem with the "
                                          "remote host on which you are "
