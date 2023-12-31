@@ -576,9 +576,9 @@ static void dissect_srt_hs_ext_field(proto_tree* tree,
  *
  * and so on, with null padding (not null termination).
  */
-static void format_text_reorder_32(proto_tree* tree, tvbuff_t* tvb, int hfinfo, int baseoff, int blocklen)
+static void format_text_reorder_32(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo, int hfinfo, int baseoff, int blocklen)
 {
-    wmem_strbuf_t *sid = wmem_strbuf_create(wmem_packet_scope());
+    wmem_strbuf_t *sid = wmem_strbuf_create(pinfo->pool);
     for (int ii = 0; ii < blocklen; ii += 4)
     {
         //
@@ -767,7 +767,7 @@ dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
             proto_tree_add_item(tree, hf_srt_handshake_cookie, tvb,
                         44,  4, ENC_BIG_ENDIAN);
 
-            srt_format_ip_address(ipbuf, sizeof ipbuf, (const gchar *)tvb_memdup(wmem_packet_scope(), tvb, 48, 16));
+            srt_format_ip_address(ipbuf, sizeof ipbuf, (const gchar *)tvb_memdup(pinfo->pool, tvb, 48, 16));
 
             proto_tree_add_string(tree, hf_srt_handshake_peerip, tvb,
                                   48, 16, ipbuf);
@@ -815,11 +815,11 @@ dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
                         break;
 
                     case SRT_CMD_SID:
-                        format_text_reorder_32(tree, tvb, hf_srt_srths_sid, begin, 4 * blocklen);
+                        format_text_reorder_32(tree, tvb, pinfo, hf_srt_srths_sid, begin, 4 * blocklen);
                         break;
 
                     case SRT_CMD_CONGESTCTRL:
-                        format_text_reorder_32(tree, tvb, hf_srt_srths_congestcontrol, begin, 4 * blocklen);
+                        format_text_reorder_32(tree, tvb, pinfo, hf_srt_srths_congestcontrol, begin, 4 * blocklen);
                         break;
 
                     default:

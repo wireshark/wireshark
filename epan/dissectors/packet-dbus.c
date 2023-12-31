@@ -460,11 +460,11 @@ skip_single_complete_type(const char *signature) {
 }
 
 static gboolean
-is_dbus_signature_valid(const char *signature) {
+is_dbus_signature_valid(const char *signature, dbus_packet_t *packet) {
 	char sig_code;
 	size_t length = 0;
 	char prev_sig_code = '\0';
-	wmem_stack_t *expected_chars = wmem_stack_new(wmem_packet_scope());
+	wmem_stack_t *expected_chars = wmem_stack_new(packet->pinfo->pool);
 
 	while ((sig_code = *signature++) != '\0') {
 		if (++length >= DBUS_MAX_SIGNATURE_LENGTH) {
@@ -726,7 +726,7 @@ reader_next(dbus_type_reader_t *reader, int hf, int ett, dbus_val_t *value) {
 	}
 	case SIG_CODE_SIGNATURE: {
 		const char *val = add_dbus_string(packet, hf != -1 ? hf : hf_dbus_type_signature, 1);
-		if (!val || !is_dbus_signature_valid(val)) {
+		if (!val || !is_dbus_signature_valid(val, packet)) {
 			add_expert(packet, &ei_dbus_type_signature_invalid);
 			err = 1;
 		}
@@ -792,7 +792,7 @@ reader_next(dbus_type_reader_t *reader, int hf, int ett, dbus_val_t *value) {
 				SUBTREE_UNDEFINED_LENGTH, ENC_NA, ett != -1 ? ett : ett_dbus_type_variant);
 		const char *variant_signature = add_dbus_string(packet, hf_dbus_type_variant_signature, 1);
 		value->string = variant_signature;
-		if (variant_signature && is_dbus_signature_valid(variant_signature)) {
+		if (variant_signature && is_dbus_signature_valid(variant_signature, packet)) {
 			if (variant_signature[0] != '\0') {
 				dbus_type_reader_t *child = wmem_new(packet->pinfo->pool, dbus_type_reader_t);
 				*child = (dbus_type_reader_t){

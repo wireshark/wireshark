@@ -921,13 +921,12 @@ static void dissect_rf4ce_nwk_common_node_capabilities(tvbuff_t *tvb, proto_tree
 
 static void dissect_rf4ce_nwk_common_vendor_info(tvbuff_t *tvb, proto_tree *tree, gint *offset)
 {
-    const guint8 *prodname;
     proto_tree *vendor_info_tree = proto_tree_add_subtree(tree, tvb, *offset, tvb_captured_length(tvb) - *offset, ett_rf4ce_nwk_vendor_info, NULL, "Vendor Information Fields");
 
     proto_tree_add_item(vendor_info_tree, hf_rf4ce_nwk_disc_req_vendor_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
 
-    proto_tree_add_item_ret_string(vendor_info_tree, hf_rf4ce_nwk_vendor_string, tvb, *offset, RF4CE_NWK_VENDOR_STRING_MAX_LENGTH, ENC_UTF_8, wmem_packet_scope(), &prodname);
+    proto_tree_add_item(vendor_info_tree, hf_rf4ce_nwk_vendor_string, tvb, *offset, RF4CE_NWK_VENDOR_STRING_MAX_LENGTH, ENC_UTF_8);
     *offset += RF4CE_NWK_VENDOR_STRING_MAX_LENGTH;
 }
 
