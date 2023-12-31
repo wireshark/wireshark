@@ -22,8 +22,6 @@ variables:
   GIT_DEPTH: "1"
   GIT_FETCH_EXTRA_FLAGS: "--depth=5000"
   CCACHE_DIR: "${CI_PROJECT_DIR}/ccache"
-  # Preferred version of clang available on wireshark-ubuntu-dev
-  CLANG_VERSION: "17"
   # Enable color output in various tools.
   # CMake, Ninja, and others: https://bixense.com/clicolors/
   CLICOLOR_FORCE: "1"
@@ -757,11 +755,9 @@ Fedora MinGW Build:
 Clang + Code Checks:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
-  variables:
-    CC: "clang-$CLANG_VERSION"
-    CXX: "clang++-$CLANG_VERSION"
   needs: [ 'Commit Check' ]
   script:
+    - source /clang-latest.env
     # build-ubuntu puts us in `build`.
     - cd ..
     - mkdir cppcheck
@@ -948,10 +944,8 @@ Clang Static Analyzer:
   rules: !reference [.if-daily-schedule]
   stage: analysis
   needs: []
-  variables:
-    CC: "clang-${CLANG_VERSION}"
-    CXX: "clang++-${CLANG_VERSION}"
   script:
+    - source /clang-latest.env
     - scan-build-${CLANG_VERSION} cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_WERROR=OFF -G Ninja ..
     - scan-build-${CLANG_VERSION} -o ../sbout ninja
     - cd ../sbout
@@ -1085,12 +1079,11 @@ Code Lines and Data:
     - wireshark-ubuntu-fuzz
   resource_group: fuzz-master
   variables:
-    CC: "clang-$CLANG_VERSION"
-    CXX: "clang++-$CLANG_VERSION"
     INSTALL_PREFIX: "$CI_PROJECT_DIR/_install"
     MIN_PLUGINS: 10
     MAX_PASSES: 15
   before_script:
+    - source /clang-latest.env
     - DEBIAN_FRONTEND=noninteractive apt-get update
     # Use DPkg::options::="--force-overwrite" until
     # https://bugs.launchpad.net/ubuntu/+source/llvm-toolchain-15/+bug/2008755
