@@ -1275,6 +1275,7 @@ static int dissect_h225_EnumeratedParameter(tvbuff_t *tvb _U_, int offset _U_, a
 /*int dissect_h225_GenericData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);*/
 
 
+#define MAX_RECURSION_DEPTH 100 // Arbitrarily chosen.
 
 
 static int
@@ -4019,6 +4020,11 @@ static const per_sequence_t EnumeratedParameter_sequence[] = {
 
 static int
 dissect_h225_EnumeratedParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 4;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
 #line 864 "./asn1/h225/h225.cnf"
   gef_ctx_t *parent_gefx;
 
@@ -4028,6 +4034,7 @@ dissect_h225_EnumeratedParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h225_EnumeratedParameter, EnumeratedParameter_sequence);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
 #line 869 "./asn1/h225/h225.cnf"
   actx->private_data = parent_gefx;
 
@@ -4043,6 +4050,11 @@ static const per_sequence_t GenericData_sequence[] = {
 
 int
 dissect_h225_GenericData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 6;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
 #line 850 "./asn1/h225/h225.cnf"
   void *priv_data = actx->private_data;
   gef_ctx_t *gefx;
@@ -4057,6 +4069,7 @@ dissect_h225_GenericData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h225_GenericData, GenericData_sequence);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
 #line 860 "./asn1/h225/h225.cnf"
   actx->private_data = priv_data;
 

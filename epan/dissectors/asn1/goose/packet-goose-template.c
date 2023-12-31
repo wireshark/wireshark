@@ -16,6 +16,7 @@
 
 #include <epan/packet.h>
 #include <epan/asn1.h>
+#include <epan/proto_data.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
 

@@ -24,6 +24,7 @@
 #include <epan/expert.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/proto_data.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"
@@ -463,7 +464,7 @@ static int hf_dap_SearchControlOptions_separateFamilyMembers = -1;
 static int hf_dap_SearchControlOptions_searchFamily = -1;
 
 /*--- End of included file: packet-dap-hf.c ---*/
-#line 49 "./asn1/dap/packet-dap-template.c"
+#line 50 "./asn1/dap/packet-dap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dap = -1;
@@ -642,7 +643,7 @@ static gint ett_dap_UpdateError = -1;
 static gint ett_dap_T_signedUpdateError = -1;
 
 /*--- End of included file: packet-dap-ett.c ---*/
-#line 53 "./asn1/dap/packet-dap-template.c"
+#line 54 "./asn1/dap/packet-dap-template.c"
 
 static expert_field ei_dap_anonymous = EI_INIT;
 
@@ -669,7 +670,7 @@ static expert_field ei_dap_anonymous = EI_INIT;
 #define id_errcode_dsaReferral         9
 
 /*--- End of included file: packet-dap-val.h ---*/
-#line 57 "./asn1/dap/packet-dap-template.c"
+#line 58 "./asn1/dap/packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-table.c ---*/
@@ -707,7 +708,7 @@ static const value_string dap_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-dap-table.c ---*/
-#line 59 "./asn1/dap/packet-dap-template.c"
+#line 60 "./asn1/dap/packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-fn.c ---*/
@@ -730,6 +731,7 @@ static int dissect_dap_ListResultData(gboolean implicit_tag _U_, tvbuff_t *tvb _
 static int dissect_dap_SearchResultData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 
+#define MAX_RECURSION_DEPTH 100 // Arbitrarily chosen.
 
 const value_string dap_FamilyGrouping_vals[] = {
   {   1, "entryOnly" },
@@ -1294,9 +1296,15 @@ static const ber_sequence_t FamilyEntries_sequence[] = {
 
 static int
 dissect_dap_FamilyEntries(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 5;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    FamilyEntries_sequence, hf_index, ett_dap_FamilyEntries);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -1492,10 +1500,16 @@ static const ber_choice_t Filter_choice[] = {
 
 int
 dissect_dap_Filter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 3;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Filter_choice, hf_index, ett_dap_Filter,
                                  NULL);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -2948,10 +2962,16 @@ static const ber_choice_t ListResultData_choice[] = {
 
 static int
 dissect_dap_ListResultData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 4;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ListResultData_choice, hf_index, ett_dap_ListResultData,
                                  NULL);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -3333,10 +3353,16 @@ static const ber_choice_t SearchResultData_choice[] = {
 
 static int
 dissect_dap_SearchResultData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 4;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  SearchResultData_choice, hf_index, ett_dap_SearchResultData,
                                  NULL);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -4754,7 +4780,7 @@ static int dissect_UpdateError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-dap-fn.c ---*/
-#line 61 "./asn1/dap/packet-dap-template.c"
+#line 62 "./asn1/dap/packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-table11.c ---*/
@@ -4786,7 +4812,7 @@ static const ros_opr_t dap_opr_tab[] = {
 
 
 /*--- End of included file: packet-dap-table11.c ---*/
-#line 63 "./asn1/dap/packet-dap-template.c"
+#line 64 "./asn1/dap/packet-dap-template.c"
 
 /*--- Included file: packet-dap-table21.c ---*/
 #line 1 "./asn1/dap/packet-dap-table21.c"
@@ -4815,7 +4841,7 @@ static const ros_err_t dap_err_tab[] = {
 
 
 /*--- End of included file: packet-dap-table21.c ---*/
-#line 64 "./asn1/dap/packet-dap-template.c"
+#line 65 "./asn1/dap/packet-dap-template.c"
 
 static const ros_info_t dap_ros_info = {
   "DAP",
@@ -6455,7 +6481,7 @@ void proto_register_dap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-dap-hfarr.c ---*/
-#line 83 "./asn1/dap/packet-dap-template.c"
+#line 84 "./asn1/dap/packet-dap-template.c"
   };
 
   /* List of subtrees */
@@ -6636,7 +6662,7 @@ void proto_register_dap(void) {
     &ett_dap_T_signedUpdateError,
 
 /*--- End of included file: packet-dap-ettarr.c ---*/
-#line 89 "./asn1/dap/packet-dap-template.c"
+#line 90 "./asn1/dap/packet-dap-template.c"
   };
 
   static ei_register_info ei[] = {

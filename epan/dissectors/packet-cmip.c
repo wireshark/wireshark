@@ -23,6 +23,7 @@
 #include <epan/expert.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/proto_data.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"
@@ -328,7 +329,7 @@ static int hf_cmip_T_daysOfWeek_friday = -1;
 static int hf_cmip_T_daysOfWeek_saturday = -1;
 
 /*--- End of included file: packet-cmip-hf.c ---*/
-#line 43 "./asn1/cmip/packet-cmip-template.c"
+#line 44 "./asn1/cmip/packet-cmip-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_cmip = -1;
@@ -458,7 +459,7 @@ static gint ett_cmip_T_modificationList = -1;
 static gint ett_cmip_T_modificationList_item = -1;
 
 /*--- End of included file: packet-cmip-ett.c ---*/
-#line 47 "./asn1/cmip/packet-cmip-template.c"
+#line 48 "./asn1/cmip/packet-cmip-template.c"
 
 static expert_field ei_wrong_spdu_type = EI_INIT;
 
@@ -521,7 +522,7 @@ static const value_string cmip_error_code_vals[] = {
 
 
 /*--- End of included file: packet-cmip-table.c ---*/
-#line 58 "./asn1/cmip/packet-cmip-template.c"
+#line 59 "./asn1/cmip/packet-cmip-template.c"
 
 static int opcode_type;
 #define OPCODE_INVOKE        1
@@ -620,7 +621,7 @@ static const char *object_identifier_id;
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-cmip-val.h ---*/
-#line 68 "./asn1/cmip/packet-cmip-template.c"
+#line 69 "./asn1/cmip/packet-cmip-template.c"
 
 /*--- Included file: packet-cmip-fn.c ---*/
 #line 1 "./asn1/cmip/packet-cmip-fn.c"
@@ -631,6 +632,7 @@ static const char *object_identifier_id;
 static int dissect_cmip_CMISFilter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 
+#define MAX_RECURSION_DEPTH 100 // Arbitrarily chosen.
 
 
 static int
@@ -1050,10 +1052,16 @@ static const ber_choice_t CMISFilter_choice[] = {
 
 static int
 dissect_cmip_CMISFilter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 3;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  CMISFilter_choice, hf_index, ett_cmip_CMISFilter,
                                  NULL);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -4454,7 +4462,7 @@ static int dissect_WeekMask_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-cmip-fn.c ---*/
-#line 69 "./asn1/cmip/packet-cmip-template.c"
+#line 70 "./asn1/cmip/packet-cmip-template.c"
 
 
 
@@ -5635,7 +5643,7 @@ void proto_register_cmip(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmip-hfarr.c ---*/
-#line 145 "./asn1/cmip/packet-cmip-template.c"
+#line 146 "./asn1/cmip/packet-cmip-template.c"
   };
 
   /* List of subtrees */
@@ -5767,7 +5775,7 @@ void proto_register_cmip(void) {
     &ett_cmip_T_modificationList_item,
 
 /*--- End of included file: packet-cmip-ettarr.c ---*/
-#line 151 "./asn1/cmip/packet-cmip-template.c"
+#line 152 "./asn1/cmip/packet-cmip-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -5862,7 +5870,7 @@ void proto_register_cmip(void) {
 
 
 /*--- End of included file: packet-cmip-dis-tab.c ---*/
-#line 170 "./asn1/cmip/packet-cmip-template.c"
+#line 171 "./asn1/cmip/packet-cmip-template.c"
     oid_add_from_string("discriminatorId(1)","2.9.3.2.7.1");
 
   attribute_id_dissector_table = register_dissector_table("cmip.attribute_id", "CMIP Attribute Id", proto_cmip, FT_UINT32, BASE_DEC);

@@ -23,6 +23,7 @@
 #include <epan/prefs.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/proto_data.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"
@@ -104,7 +105,7 @@ static int proto_p7 = -1;
 #define ub_ua_restrictions             16
 
 /*--- End of included file: packet-p7-val.h ---*/
-#line 41 "./asn1/p7/packet-p7-template.c"
+#line 42 "./asn1/p7/packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-hf.c ---*/
@@ -476,7 +477,7 @@ static int hf_p7_T_entry_class_problem_entry_class_not_subscribed = -1;
 static int hf_p7_T_entry_class_problem_inappropriate_entry_class = -1;
 
 /*--- End of included file: packet-p7-hf.c ---*/
-#line 43 "./asn1/p7/packet-p7-template.c"
+#line 44 "./asn1/p7/packet-p7-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_p7 = -1;
@@ -618,7 +619,7 @@ static gint ett_p7_RTSE_apdus = -1;
 static gint ett_p7_RTABapdu = -1;
 
 /*--- End of included file: packet-p7-ett.c ---*/
-#line 47 "./asn1/p7/packet-p7-template.c"
+#line 48 "./asn1/p7/packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-table.c ---*/
@@ -661,7 +662,7 @@ static const value_string p7_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-p7-table.c ---*/
-#line 49 "./asn1/p7/packet-p7-template.c"
+#line 50 "./asn1/p7/packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-fn.c ---*/
@@ -673,6 +674,7 @@ static const value_string p7_err_code_string_vals[] = {
 static int dissect_p7_Filter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 
+#define MAX_RECURSION_DEPTH 100 // Arbitrarily chosen.
 
 
 static int
@@ -1587,10 +1589,16 @@ static const ber_choice_t Filter_choice[] = {
 
 static int
 dissect_p7_Filter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
+  const unsigned cycle_size = 3;
+  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Filter_choice, hf_index, ett_p7_Filter,
                                  NULL);
 
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
   return offset;
 }
 
@@ -4106,7 +4114,7 @@ static int dissect_RTSE_apdus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-p7-fn.c ---*/
-#line 51 "./asn1/p7/packet-p7-template.c"
+#line 52 "./asn1/p7/packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-table11.c ---*/
@@ -4138,7 +4146,7 @@ static const ros_opr_t p7_opr_tab[] = {
 
 
 /*--- End of included file: packet-p7-table11.c ---*/
-#line 53 "./asn1/p7/packet-p7-template.c"
+#line 54 "./asn1/p7/packet-p7-template.c"
 
 /*--- Included file: packet-p7-table21.c ---*/
 #line 1 "./asn1/p7/packet-p7-table21.c"
@@ -4177,7 +4185,7 @@ static const ros_err_t p7_err_tab[] = {
 
 
 /*--- End of included file: packet-p7-table21.c ---*/
-#line 54 "./asn1/p7/packet-p7-template.c"
+#line 55 "./asn1/p7/packet-p7-template.c"
 
 static const ros_info_t p7_ros_info = {
   "P7",
@@ -5657,7 +5665,7 @@ void proto_register_p7(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p7-hfarr.c ---*/
-#line 73 "./asn1/p7/packet-p7-template.c"
+#line 74 "./asn1/p7/packet-p7-template.c"
   };
 
   /* List of subtrees */
@@ -5801,7 +5809,7 @@ void proto_register_p7(void) {
     &ett_p7_RTABapdu,
 
 /*--- End of included file: packet-p7-ettarr.c ---*/
-#line 79 "./asn1/p7/packet-p7-template.c"
+#line 80 "./asn1/p7/packet-p7-template.c"
   };
   module_t *p7_module;
 
@@ -5860,7 +5868,7 @@ void proto_reg_handoff_p7(void) {
 
 
 /*--- End of included file: packet-p7-dis-tab.c ---*/
-#line 105 "./asn1/p7/packet-p7-template.c"
+#line 106 "./asn1/p7/packet-p7-template.c"
 
   /* APPLICATION CONTEXT */
 
