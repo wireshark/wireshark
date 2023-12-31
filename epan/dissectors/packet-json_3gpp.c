@@ -1404,7 +1404,7 @@ proto_register_json_3gpp(void)
 		{ &hf_json_3gpp_suppfeat_nsmf_pdusession_4_carpt,
 			{ "CARPT", "json.3gpp.suppfeat.carpt",
 			FT_BOOLEAN, 4, NULL, 0x8,
-			"SMF derived CN Assisted RAN pparameters Tuning", HFILL }
+			"SMF derived CN Assisted RAN parameters Tuning", HFILL }
 		},
 
 		{ &hf_json_3gpp_suppfeat_nsmf_pdusession_5_ctxtr,
