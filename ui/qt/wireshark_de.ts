@@ -6340,8 +6340,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>3GPP RLC Graph - no channel selected</source>
-        <oldsource>LTE RLC Graph - no channel selected</oldsource>
-        <translation type="unfinished">LTE RLC Graph - Kein Kanal ausgewählt</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save As…</source>
@@ -6396,7 +6395,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>LteRlcStatisticsDialog</name>
     <message>
         <source>3GPP RLC Statistics</source>
-        <oldsource>LTE/NR RLC Statistics</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

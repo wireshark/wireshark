@@ -6340,8 +6340,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>3GPP RLC Graph - no channel selected</source>
-        <oldsource>LTE RLC Graph - no channel selected</oldsource>
-        <translation type="unfinished">LTE RLC-graf – ingen kanal vald</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save As…</source>
@@ -6396,7 +6395,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>LteRlcStatisticsDialog</name>
     <message>
         <source>3GPP RLC Statistics</source>
-        <oldsource>LTE/NR RLC Statistics</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

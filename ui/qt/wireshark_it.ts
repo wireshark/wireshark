@@ -6340,8 +6340,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>3GPP RLC Graph - no channel selected</source>
-        <oldsource>LTE RLC Graph - no channel selected</oldsource>
-        <translation type="unfinished">Grafico RLC LTE - nessun canale selezionato</translation>
+        <translation>Grafico 3GPP RLC LTE - nessun canale selezionato</translation>
     </message>
     <message>
         <source>Save As…</source>
@@ -6396,8 +6395,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>LteRlcStatisticsDialog</name>
     <message>
         <source>3GPP RLC Statistics</source>
-        <oldsource>LTE/NR RLC Statistics</oldsource>
-        <translation type="unfinished">Statistiche RLC LTE/NR</translation>
+        <translation>Statistiche 3GPP RLC</translation>
     </message>
     <message>
         <source>Include SR frames in filter</source>
@@ -14095,11 +14093,11 @@ a:hover {
     </message>
     <message>
         <source>E2AP</source>
-        <translation type="unfinished"></translation>
+        <translation>E2AP</translation>
     </message>
     <message>
         <source>E2AP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Messaggi E2AP</translation>
     </message>
     <message>
         <source>Decode &amp;As…</source>

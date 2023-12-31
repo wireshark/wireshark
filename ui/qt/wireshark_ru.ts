@@ -6357,8 +6357,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>3GPP RLC Graph - no channel selected</source>
-        <oldsource>LTE RLC Graph - no channel selected</oldsource>
-        <translation type="unfinished">График LTE RLC — канал не выбран</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save As…</source>
@@ -6413,7 +6412,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>LteRlcStatisticsDialog</name>
     <message>
         <source>3GPP RLC Statistics</source>
-        <oldsource>LTE/NR RLC Statistics</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

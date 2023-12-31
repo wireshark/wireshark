@@ -6339,8 +6339,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>3GPP RLC Graph - no channel selected</source>
-        <oldsource>LTE RLC Graph - no channel selected</oldsource>
-        <translation type="unfinished">Graphique LTE RLC - aucun canal sélectionné </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save As…</source>
@@ -6395,7 +6394,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <name>LteRlcStatisticsDialog</name>
     <message>
         <source>3GPP RLC Statistics</source>
-        <oldsource>LTE/NR RLC Statistics</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
