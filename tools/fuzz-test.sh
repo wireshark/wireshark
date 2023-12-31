@@ -64,7 +64,7 @@ while getopts "2b:C:d:e:agp:P:o:t:U" OPTCHAR ; do
         C) CONFIG_PROFILE="-C $OPTARG " ;;
         d) TMP_DIR=$OPTARG ;;
         e) ERR_PROB=$OPTARG ;;
-        g) VALGRIND=1 ;;
+        g) VALGRIND=1 ; CHECK_UTF_8= ;;
         p) MAX_PASSES=$OPTARG ;;
         P) MIN_PLUGINS=$OPTARG ;;
         o) CHANGE_OFFSET=$OPTARG ;;
