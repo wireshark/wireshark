@@ -87,11 +87,13 @@ void proto_reg_handoff_rtcp(void);
 
 static dissector_handle_t rtcp_handle;
 static dissector_handle_t srtcp_handle;
+static dissector_handle_t ms_pse_handle;
 
 /* add dissector table to permit sub-protocol registration */
 static dissector_table_t rtcp_dissector_table;
 static dissector_table_t rtcp_psfb_dissector_table;
 static dissector_table_t rtcp_rtpfb_dissector_table;
+static dissector_table_t rtcp_pse_dissector_table;
 
 static const value_string rtcp_version_vals[] =
 {
@@ -518,6 +520,7 @@ static const value_string rtcp_mccp_field_id_vals[] = {
 /* RTCP header fields                   */
 static int proto_rtcp;
 static int proto_srtcp;
+static int proto_rtcp_ms_pse;
 static int hf_rtcp_version;
 static int hf_rtcp_padding;
 static int hf_rtcp_rc;
@@ -3792,135 +3795,169 @@ dissect_rtcp_token( tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tre
     return offset + (packet_len - 4);
 }
 
-static void
-dissect_rtcp_profile_specific_extensions (packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int offset, int remaining)
+static int
+dissect_ms_profile_specific_extensions(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pse_tree, void *data _U_)
 {
     gint16  extension_type;
     gint16  extension_length;
-    proto_tree *pse_tree;
     proto_item *pse_item;
     proto_item *item;
+    int offset = 0;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "(");
-    while (remaining)
-    {
-        extension_type   = tvb_get_ntohs (tvb, offset);
-        extension_length = tvb_get_ntohs (tvb, offset+2);
-        if (extension_length < 4) {
-            extension_length = 4; /* expert info? */
-        }
-
-        pse_tree = proto_tree_add_subtree(tree, tvb, offset, extension_length, ett_pse, &pse_item, "Payload Specific Extension");
-        proto_item_append_text(pse_item, " (%s)",
-                val_to_str_const(extension_type, rtcp_ms_profile_extension_vals, "Unknown"));
-        col_append_fstr(pinfo->cinfo, COL_INFO, "PSE:%s  ",
-                      val_to_str_const(extension_type, rtcp_ms_profile_extension_vals, "Unknown"));
-
-        proto_tree_add_item(pse_tree, hf_rtcp_profile_specific_extension_type, tvb, offset,
-                2, ENC_BIG_ENDIAN);
-        offset += 2;
-        proto_tree_add_item(pse_tree, hf_rtcp_profile_specific_extension_length, tvb, offset,
-                2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        switch (extension_type)
-        {
-        case 1:
-            /* MS Estimated Bandwidth */
-            item = proto_tree_add_item(pse_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, ENC_BIG_ENDIAN);
-            /* Decode if it is NONE or ANY and add to line */
-            proto_item_append_text(item," %s", val_to_str_const(tvb_get_ntohl (tvb, offset), rtcp_ssrc_values, ""));
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_bandwidth, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-            /* Confidence level byte is optional so check length first */
-            if (extension_length == 16)
-            {
-                proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_confidence_level, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
-            }
-            break;
-        case 4:
-            /* MS Packet Loss Notification */
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_seq_num, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-            break;
-        case 5:
-            /* MS Video Preference */
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_frame_resolution_width, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_frame_resolution_height, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_bitrate, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_frame_rate, tvb, offset + 12, 2, ENC_BIG_ENDIAN);
-            break;
-        case 7:
-            /* MS Policy Server Bandwidth */
-            /* First 4 bytes are reserved */
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_bandwidth, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-            break;
-        case 8:
-            /* MS TURN Server Bandwidth */
-            /* First 4 bytes are reserved */
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_bandwidth, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-            break;
-        case 9:
-            /* MS Audio Healer Metrics */
-            item = proto_tree_add_item(pse_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, ENC_BIG_ENDIAN);
-            /* Decode if it is NONE or ANY and add to line */
-            proto_item_append_text(item," %s", val_to_str_const(tvb_get_ntohl (tvb, offset), rtcp_ssrc_values, ""));
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_concealed_frames, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_stretched_frames, tvb, offset+8, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_compressed_frames, tvb, offset+12, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_total_frames, tvb, offset+16, 4, ENC_BIG_ENDIAN);
-            /* 2 bytes Reserved */
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_receive_quality_state, tvb, offset+22, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_fec_distance_request, tvb, offset+23, 1, ENC_BIG_ENDIAN);
-            break;
-        case 10:
-            /* MS Receiver-side Bandwidth Limit */
-            /* First 4 bytes are reserved */
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_bandwidth, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-            break;
-        case 11:
-            /* MS Packet Train Packet */
-            item = proto_tree_add_item(pse_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, ENC_BIG_ENDIAN);
-            /* Decode if it is NONE or ANY and add to line */
-            proto_item_append_text(item," %s", val_to_str_const(tvb_get_ntohl (tvb, offset), rtcp_ssrc_values, ""));
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_last_packet_train, tvb, offset+4, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_packet_idx, tvb, offset+4, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_packet_cnt, tvb, offset+5, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_packet_train_byte_cnt, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-            break;
-        case 12:
-            /* MS Peer Info Exchange */
-            item = proto_tree_add_item(pse_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, ENC_BIG_ENDIAN);
-            /* Decode if it is NONE or ANY and add to line */
-            proto_item_append_text(item," %s", val_to_str_const(tvb_get_ntohl (tvb, offset), rtcp_ssrc_values, ""));
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_inbound_bandwidth, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_outbound_bandwidth, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_no_cache, tvb, offset + 12, 1, ENC_BIG_ENDIAN);
-            break;
-        case 13:
-            /* MS Network Congestion Notification */
-            proto_tree_add_item(pse_tree, hf_rtcp_ntp_msw, tvb, offset, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pse_tree, hf_rtcp_ntp_lsw, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pse_tree, hf_rtcp_ntp, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_congestion_info, tvb, offset + 12, 1, ENC_BIG_ENDIAN);
-            break;
-        case 14:
-            /* MS Modality Send Bandwidth Limit */
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_modality, tvb, offset, 1, ENC_BIG_ENDIAN);
-            /* 3 bytes Reserved */
-            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_bandwidth, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-            break;
-
-        case 6:
-            /* MS Padding */
-        default:
-            /* Unrecognized */
-            proto_tree_add_item(pse_tree, hf_rtcp_profile_specific_extension, tvb, offset,
-                    extension_length - 4, ENC_NA);
-            break;
-        }
-        remaining -= extension_length;
-        offset += extension_length - 4;
+    extension_type   = tvb_get_ntohs (tvb, offset);
+    extension_length = tvb_get_ntohs (tvb, offset+2);
+    if (extension_length < 4) {
+        extension_length = 4; /* expert info? */
     }
-    col_append_fstr(pinfo->cinfo, COL_INFO, ")  ");
+
+    pse_item = proto_tree_get_parent(pse_tree);
+    proto_item_append_text(pse_item, " (%s)",
+            val_to_str_const(extension_type, rtcp_ms_profile_extension_vals, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "PSE:%s  ",
+                  val_to_str_const(extension_type, rtcp_ms_profile_extension_vals, "Unknown"));
+
+    proto_tree_add_item(pse_tree, hf_rtcp_profile_specific_extension_type, tvb, offset,
+            2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(pse_tree, hf_rtcp_profile_specific_extension_length, tvb, offset,
+            2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    switch (extension_type)
+    {
+    case 1:
+        /* MS Estimated Bandwidth */
+        item = proto_tree_add_item(pse_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, ENC_BIG_ENDIAN);
+        /* Decode if it is NONE or ANY and add to line */
+        proto_item_append_text(item," %s", val_to_str_const(tvb_get_ntohl (tvb, offset), rtcp_ssrc_values, ""));
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_bandwidth, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+        /* Confidence level byte is optional so check length first */
+        if (extension_length == 16)
+        {
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_confidence_level, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
+        }
+        break;
+    case 4:
+        /* MS Packet Loss Notification */
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_seq_num, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        break;
+    case 5:
+        /* MS Video Preference */
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_frame_resolution_width, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_frame_resolution_height, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_bitrate, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_frame_rate, tvb, offset + 12, 2, ENC_BIG_ENDIAN);
+        break;
+    case 7:
+        /* MS Policy Server Bandwidth */
+        /* First 4 bytes are reserved */
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_bandwidth, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+        break;
+    case 8:
+        /* MS TURN Server Bandwidth */
+        /* First 4 bytes are reserved */
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_bandwidth, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+        break;
+    case 9:
+        /* MS Audio Healer Metrics */
+        item = proto_tree_add_item(pse_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, ENC_BIG_ENDIAN);
+        /* Decode if it is NONE or ANY and add to line */
+        proto_item_append_text(item," %s", val_to_str_const(tvb_get_ntohl (tvb, offset), rtcp_ssrc_values, ""));
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_concealed_frames, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_stretched_frames, tvb, offset+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_compressed_frames, tvb, offset+12, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_total_frames, tvb, offset+16, 4, ENC_BIG_ENDIAN);
+        /* 2 bytes Reserved */
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_receive_quality_state, tvb, offset+22, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_fec_distance_request, tvb, offset+23, 1, ENC_BIG_ENDIAN);
+        break;
+    case 10:
+        /* MS Receiver-side Bandwidth Limit */
+        /* First 4 bytes are reserved */
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_bandwidth, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+        break;
+    case 11:
+        /* MS Packet Train Packet */
+        item = proto_tree_add_item(pse_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, ENC_BIG_ENDIAN);
+        /* Decode if it is NONE or ANY and add to line */
+        proto_item_append_text(item," %s", val_to_str_const(tvb_get_ntohl (tvb, offset), rtcp_ssrc_values, ""));
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_last_packet_train, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_packet_idx, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_packet_cnt, tvb, offset+5, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_packet_train_byte_cnt, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        break;
+    case 12:
+        /* MS Peer Info Exchange */
+        item = proto_tree_add_item(pse_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, ENC_BIG_ENDIAN);
+        /* Decode if it is NONE or ANY and add to line */
+        proto_item_append_text(item," %s", val_to_str_const(tvb_get_ntohl (tvb, offset), rtcp_ssrc_values, ""));
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_inbound_bandwidth, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_outbound_bandwidth, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_no_cache, tvb, offset + 12, 1, ENC_BIG_ENDIAN);
+        break;
+    case 13:
+        /* MS Network Congestion Notification */
+        proto_tree_add_item(pse_tree, hf_rtcp_ntp_msw, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pse_tree, hf_rtcp_ntp_lsw, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pse_tree, hf_rtcp_ntp, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_congestion_info, tvb, offset + 12, 1, ENC_BIG_ENDIAN);
+        break;
+    case 14:
+        /* MS Modality Send Bandwidth Limit */
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_modality, tvb, offset, 1, ENC_BIG_ENDIAN);
+        /* 3 bytes Reserved */
+        proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_bandwidth, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+        break;
+
+    case 6:
+        /* MS Padding */
+    default:
+        /* Unrecognized */
+        proto_tree_add_item(pse_tree, hf_rtcp_profile_specific_extension, tvb, offset,
+                extension_length - 4, ENC_NA);
+        break;
+    }
+    offset += extension_length - 4;
+    return offset;
+}
+
+static void
+dissect_rtcp_profile_specific_extensions (packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int offset, int remaining)
+{
+    tvbuff_t   *next_tvb;
+    proto_tree *pse_tree;
+    proto_item *pse_item;
+    int         bytes_consumed;
+    uint16_t    extension_type;
+
+    /* Profile-specific extensions, as by their name, are supposed to be
+     * associated with a profile, negotiated in SDP or similar in the
+     * Media Description ("m=" line). In practice, the standards the
+     * define profile-specific extensions, like MS-RT, use the "RTP/AVP"
+     * profile, so we can't use that. They do seem to use the first two
+     * bytes as a type, though different standards disagree about the
+     * the nature of the length field (bytes vs 32-bit words).
+     *
+     * So we use a FT_UINT16 dissector table. If that ever proves
+     * insufficient, we could try a FT_NONE payload table.
+     */
+    col_append_fstr(pinfo->cinfo, COL_INFO, "(");
+    while (remaining) {
+        extension_type = tvb_get_ntohs(tvb, offset);
+        next_tvb = tvb_new_subset_length(tvb, offset, remaining);
+        pse_tree = proto_tree_add_subtree(tree, tvb, offset, remaining, ett_pse, &pse_item, "Profile Specific Extension");
+        bytes_consumed = dissector_try_uint_new(rtcp_pse_dissector_table, extension_type, next_tvb, pinfo, pse_tree, FALSE, NULL);
+        if (!bytes_consumed) {
+            proto_item_append_text(pse_item, " (Unknown)");
+            col_append_str(pinfo->cinfo, COL_INFO, "PSE:Unknown ");
+            proto_tree_add_item(pse_tree, hf_rtcp_profile_specific_extension, tvb, offset,
+                    remaining, ENC_NA);
+            bytes_consumed = remaining;
+        }
+        offset += bytes_consumed;
+        remaining -= bytes_consumed;
+    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, ") ");
 }
 
 static int
@@ -8166,6 +8203,11 @@ proto_register_rtcp(void)
     rtcp_dissector_table = register_dissector_table("rtcp.app.name", "RTCP Application Name", proto_rtcp, FT_STRING, STRING_CASE_SENSITIVE);
     rtcp_psfb_dissector_table = register_dissector_table("rtcp.psfb.fmt", "RTCP Payload Specific Feedback Message Format", proto_rtcp, FT_UINT8, BASE_DEC);
     rtcp_rtpfb_dissector_table = register_dissector_table("rtcp.rtpfb.fmt", "RTCP Generic RTP Feedback Message Format", proto_rtcp, FT_UINT8, BASE_DEC);
+    rtcp_pse_dissector_table = register_dissector_table("rtcp.pse", "RTCP Profile Specific Extension", proto_rtcp, FT_UINT16, BASE_DEC);
+
+    proto_rtcp_ms_pse = proto_register_protocol_in_name_only("Microsoft RTCP Profile Specific Extensions", "MS-RTP PSE", "rtcp_ms_pse", proto_rtcp, FT_BYTES);
+
+    ms_pse_handle = register_dissector("rctp_ms_pse", dissect_ms_profile_specific_extensions, proto_rtcp_ms_pse);
 }
 
 void
@@ -8178,6 +8220,10 @@ proto_reg_handoff_rtcp(void)
     dissector_add_for_decode_as_with_preference("udp.port", rtcp_handle);
     dissector_add_for_decode_as("flip.payload", rtcp_handle );
     dissector_add_for_decode_as_with_preference("udp.port", srtcp_handle);
+
+    for (int idx = 0; rtcp_ms_profile_extension_vals[idx].strptr != NULL; idx++) {
+        dissector_add_uint("rtcp.pse", rtcp_ms_profile_extension_vals[idx].value, ms_pse_handle);
+    }
 
     heur_dissector_add( "udp", dissect_rtcp_heur, "RTCP over UDP", "rtcp_udp", proto_rtcp, HEURISTIC_ENABLE);
     heur_dissector_add("stun", dissect_rtcp_heur, "RTCP over TURN", "rtcp_stun", proto_rtcp, HEURISTIC_ENABLE);
