@@ -256,6 +256,18 @@ init_pipe_args(int *argc) {
     /* Make that the first argument in the argument list (argv[0]). */
     argv = sync_pipe_add_arg(argv, argc, exename);
 
+    /* Tell dumpcap to log at the lowest level its domain (Capchild) is
+     * set to log in the main program. (It might be in the special noisy
+     * or debug filter, so we can't just check the overall level.)
+     */
+    for (enum ws_log_level level = LOG_LEVEL_NOISY; level != _LOG_LEVEL_LAST; level++) {
+        if (ws_log_msg_is_active(LOG_DOMAIN_CAPCHILD, level)) {
+            argv = sync_pipe_add_arg(argv, argc, "--log-level");
+            argv = sync_pipe_add_arg(argv, argc, ws_log_level_to_string(level));
+            break;
+        }
+    }
+
     /* sync_pipe_add_arg strdupes exename, so we should free our copy */
     g_free(exename);
 
@@ -1632,7 +1644,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
             }
             break;
         }
-    } while (indicator == SP_IFACE_LIST && ret != -1);
+    } while (indicator != SP_SUCCESS && ret != -1);
 
     return ret;
 }
