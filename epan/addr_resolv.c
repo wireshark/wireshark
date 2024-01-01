@@ -865,16 +865,19 @@ _serv_name_lookup(port_type proto, guint port, serv_port_t **value_ret)
 
     if (name == NULL) {
         /* now look in the global tables */
+        bool valid_proto = true;
         switch(proto) {
             case PT_TCP: p = ws_tcp; break;
             case PT_UDP: p = ws_udp; break;
             case PT_SCTP: p = ws_sctp; break;
             case PT_DCCP: p = ws_dccp; break;
-            default: ws_assert_not_reached();
+            default: valid_proto = false;
         }
-        serv = global_services_lookup(port, p);
-        if (serv) {
-            name = serv->name;
+        if (valid_proto) {
+            serv = global_services_lookup(port, p);
+            if (serv) {
+                name = serv->name;
+            }
         }
     }
 
