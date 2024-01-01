@@ -1464,7 +1464,7 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
         }
 
         default:
-          if (ie_hf != -1) {
+          if (ie_hf != 0) {
             gint explen = proto_registrar_get_length(ie_hf);
             if (explen != 0 && ies_len != explen) {
               proto_tree_add_expert(ies_tree, pinfo, &ei_iax_invalid_len, tvb, offset+1, 1);
