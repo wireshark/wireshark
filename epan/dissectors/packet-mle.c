@@ -782,13 +782,17 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             case MLE_TLV_CHALLENGE:
                 proto_tree_add_item(tlv_tree, hf_mle_tlv_challenge, payload_tvb, offset, tlv_len, ENC_NA);
-                proto_item_append_text(ti, " = %s)", tvb_bytes_to_str(pinfo->pool, payload_tvb, offset, tlv_len));
+                if (tlv_len) {
+                    proto_item_append_text(ti, " = %s)", tvb_bytes_to_str(pinfo->pool, payload_tvb, offset, tlv_len));
+                }
                 offset += tlv_len;
                 break;
 
             case MLE_TLV_RESPONSE:
                 proto_tree_add_item(tlv_tree, hf_mle_tlv_response, payload_tvb, offset, tlv_len, ENC_NA);
-                proto_item_append_text(ti, " = %s)", tvb_bytes_to_str(pinfo->pool, payload_tvb, offset, tlv_len));
+                if (tlv_len) {
+                    proto_item_append_text(ti, " = %s)", tvb_bytes_to_str(pinfo->pool, payload_tvb, offset, tlv_len));
+                }
                 offset += tlv_len;
                 break;
 
