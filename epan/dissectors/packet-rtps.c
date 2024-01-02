@@ -13607,7 +13607,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   guint8       majorRev;
   guint16      version, vendor_id;
   gboolean     is_ping;
-  endpoint_guid guid;
+  endpoint_guid guid = {0};
   endpoint_guid *guid_copy;
   guint32 magic_number;
   gchar domain_id_str[RTPS_UNKNOWN_DOMAIN_ID_STR_LEN] = RTPS_UNKNOWN_DOMAIN_ID_STR;
@@ -13632,9 +13632,6 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   majorRev = tvb_get_guint8(tvb,offset+4);
   if ((majorRev != 1) && (majorRev != 2))
     return FALSE;
-
-  /* No fields have been set in GUID yet. */
-  guid.fields_present = 0;
 
   /* Save the begining of the RTPS message */
   rtps_root.tvb = tvb;
