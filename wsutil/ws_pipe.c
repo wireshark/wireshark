@@ -29,11 +29,13 @@
 #endif
 #endif
 
+#if !GLIB_CHECK_VERSION(2, 58, 2)
 #ifdef __linux__
 #define HAS_G_SPAWN_LINUX_THREAD_SAFETY_BUG
 #include <fcntl.h>
 #include <sys/syscall.h>        /* for syscall and SYS_getdents64 */
 #include <wsutil/file_util.h>   /* for ws_open -> open to pacify checkAPIs.pl */
+#endif
 #endif
 
 #include "wsutil/filesystem.h"
