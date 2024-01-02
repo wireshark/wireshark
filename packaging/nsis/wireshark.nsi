@@ -1134,6 +1134,9 @@ File "${STAGING_DIR}\rawshark.html"
 File "${STAGING_DIR}\reordercap.exe"
 File "${STAGING_DIR}\reordercap.html"
 
+File "${STAGING_DIR}\sharkd.exe"
+;File "${STAGING_DIR}\sharkd.html"
+
 File "${STAGING_DIR}\text2pcap.exe"
 File "${STAGING_DIR}\text2pcap.html"
 
@@ -1296,6 +1299,7 @@ Push "mergecap"
 Push "randpkt"
 Push "rawshark"
 Push "reordercap"
+Push "sharkd"
 Push "text2pcap"
 Push "tshark"
 

@@ -413,6 +413,28 @@
     </ComponentGroup>
   </Fragment>
 
+  <!-- Sharkd -->
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpSharkd_exe" Guid="*">
+        <File Id="filSharkd_exe" KeyPath="yes" Source="$(var.Staging.Dir)\sharkd.exe" />
+      </Component>
+      <!--
+      <Component Id="cmpSharkd_html" Guid="*">
+        <File Id="filSharkd_html" KeyPath="yes" Source="$(var.Staging.Dir)\sharkd.html" />
+      </Component>
+      -->
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Sharkd">
+      <ComponentRef Id="cmpSharkd_exe" />
+      <!--
+      <ComponentRef Id="cmpSharkd_html" />
+      -->
+    </ComponentGroup>
+  </Fragment>
+
   <!-- MMDBResolve -->
   <?ifdef MMDBRESOLVE_EXE?>
   <Fragment>
