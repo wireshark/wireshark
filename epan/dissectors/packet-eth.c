@@ -88,6 +88,7 @@ static int hf_eth_padding;
 static int hf_eth_trailer;
 static int hf_eth_fcs;
 static int hf_eth_fcs_status;
+static int hf_eth_stream;
 
 static gint ett_ieee8023;
 static gint ett_ether2;
@@ -112,6 +113,7 @@ static dissector_handle_t eth_maybefcs_handle;
 
 
 static int eth_tap;
+static guint32 eth_stream_count;
 
 static gint exported_pdu_tap = -1;
 
@@ -163,7 +165,8 @@ eth_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
   hash->flags = flags;
   const eth_hdr *ehdr=(const eth_hdr *)vip;
 
-  add_conversation_table_data(hash, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &eth_ct_dissector_info, CONVERSATION_NONE);
+  add_conversation_table_data_with_conv_id(hash, &ehdr->src, &ehdr->dst, 0, 0, (conv_id_t)ehdr->stream, 1, pinfo->fd->pkt_len,
+                                           &pinfo->rel_ts, &pinfo->abs_ts, &eth_ct_dissector_info, CONVERSATION_ETH);
 
   return TAP_PACKET_REDRAW;
 }
@@ -363,6 +366,46 @@ export_pdu(tvbuff_t *tvb, packet_info *pinfo)
   }
 }
 
+static struct eth_analysis *
+init_eth_conversation_data(packet_info *pinfo)
+{
+    struct eth_analysis *ethd;
+
+    /* Initialize the eth protocol data structure to add to the ip conversation */
+    ethd=wmem_new0(wmem_file_scope(), struct eth_analysis);
+
+    ethd->initial_frame = pinfo->num;
+    ethd->stream = 0;
+    ethd->stream = eth_stream_count++;
+
+    return ethd;
+}
+
+struct eth_analysis *
+get_eth_conversation_data(conversation_t *conv, packet_info *pinfo)
+{
+  struct eth_analysis *ethd;
+
+  /* Did the caller supply the conversation pointer? */
+  if( conv==NULL ) {
+    return NULL;
+  }
+
+  /* Get the data for this conversation */
+  ethd=(struct eth_analysis *)conversation_get_proto_data(conv, proto_eth);
+
+  if (!ethd) {
+    ethd = init_eth_conversation_data(pinfo);
+    conversation_add_proto_data(conv, proto_eth, ethd);
+  }
+
+  if (!ethd) {
+    return NULL;
+  }
+
+  return ethd;
+}
+
 static proto_tree *
 dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     int fcs_len)
@@ -376,6 +419,9 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
   proto_tree        *tree;
   ethertype_data_t  ethertype_data;
   heur_dtbl_entry_t *hdtbl_entry = NULL;
+  struct eth_analysis *ethd=NULL;
+  /* a facility for not duplicating long code */
+  gboolean          needs_dissector_with_data = FALSE;
 
   ehdr_num++;
   if(ehdr_num>=4){
@@ -528,9 +574,48 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     ethertype_data.trailer_id = hf_eth_trailer;
     ethertype_data.fcs_len = fcs_len;
 
+    needs_dissector_with_data = TRUE;
+  }
+
+  /* if we still did not leave the dissection, try identifying any ETH conversation
+   *
+   */
+  conversation_t *conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_ETH, 0, 0, NO_PORT_X);
+  if(!conv) {
+    conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_ETH, 0, 0, NO_PORTS);
+  }
+  else {
+    /*
+     * while not strictly necessary because there is only 1
+     * conversation between 2 IPs, we still move the last frame
+     * indicator as being a usual practice.
+     */
+    if (!(pinfo->fd->visited)) {
+      if (pinfo->num > conv->last_frame) {
+        conv->last_frame = pinfo->num;
+      }
+    }
+  }
+  ethd = get_eth_conversation_data(conv, pinfo);
+  if(ethd) {
+    ehdr->stream = ethd->stream;
+    if(tree) {
+      ti = proto_tree_add_uint(fh_tree, hf_eth_stream, tvb, 0, 0, ethd->stream);
+      proto_item_set_generated(ti);
+    }
+  }
+
+  if(needs_dissector_with_data) {
     call_dissector_with_data(ethertype_handle, tvb, pinfo, parent_tree, &ethertype_data);
   }
+
   return fh_tree;
+}
+
+static void
+eth_init(void)
+{
+    eth_stream_count = 0;
 }
 
 /* -------------- */
@@ -920,6 +1005,8 @@ dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 void
 proto_register_eth(void)
 {
+  register_init_routine(eth_init);
+
   static hf_register_info hf[] = {
 
     { &hf_eth_dst,
@@ -1029,7 +1116,11 @@ proto_register_eth(void)
     { &hf_eth_ig,
       { "IG bit", "eth.ig", FT_BOOLEAN, 24,
         TFS(&ig_tfs), 0x010000,
-        "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }}
+        "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }},
+
+    { &hf_eth_stream,
+      { "Stream index", "eth.stream", FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }}
   };
   static gint *ett[] = {
     &ett_ieee8023,

@@ -102,6 +102,7 @@ typedef enum {
     CONVERSATION_QUIC,		/* QUIC */
     CONVERSATION_IDN,
     CONVERSATION_IP,		/* IP */
+    CONVERSATION_ETH     	/* ETHERNET */
 } conversation_type;
 
 /*
@@ -162,7 +163,7 @@ typedef enum {
     CE_STRING,			/* string */
     CE_UINT,			/* unsigned integer not representing a port */
     CE_UINT64,			/* 64-bit unsigned integer */
-    CE_INT,             /* signed integer */
+    CE_INT,             	/* signed integer */
 } conversation_element_type;
 
 /**

@@ -818,7 +818,6 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
                  */
                 DPRINT(("creating conversation for frame #%u: %s:%u -> %s (ctype=%d)",
                             setup_frame, addr1_str, port1, addr2_str, ctype));
-
             } else if (options & NO_PORTS) {
                 /*
                  * No Ports.

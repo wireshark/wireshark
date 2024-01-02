@@ -703,8 +703,11 @@ QMenu * TrafficTree::createActionSubMenu(FilterAction::Action cur_action, QModel
                     filter = QString("%1.stream eq %2").arg("udp").arg(conv_item->conv_id);
                     break;
                 case CONVERSATION_IP:
-                default:
                     filter = QString("%1.stream eq %2").arg("ip").arg(conv_item->conv_id);
+                    break;
+                case CONVERSATION_ETH:
+                default:
+                    filter = QString("%1.stream eq %2").arg("eth").arg(conv_item->conv_id);
                     break;
                 }
                 FilterAction * act = new FilterAction(subsubmenu, cur_action, at, tr("Filter on stream id"));
