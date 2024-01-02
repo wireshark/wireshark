@@ -18,21 +18,69 @@ If you or your employer would like to contribute or become a sponsor, please vis
 
 == What’s New
 
-
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
 
-// * wssalink:2024-01[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxx[].
+* wssalink:2024-01[]
+GVCP dissector crash.
+wsbuglink:19496[].
 // cveidlink:2023-xxx[].
-// Fixed in master: xxx
-// Fixed in release-4.2: xxx
+// Fixed in master: a8586fde3a
+// Fixed in release-4.2: 9dd7b50c3e
+// Fixed in release-4.0: 0a0669c9d4
+// Fixed in release-3.6: 4953fa99e7
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-674
+// * Fuzz job crash output: fuzz-2023-11-23-7156.pcap. wsbuglink:19496[].
+
+* wssalink:2024-02[]
+IEEE 1609.2 dissector crash.
+wsbuglink:19501[].
+// cveidlink:2023-xxx[].
+// Fixed in master: 8f797db63c
+// Fixed in release-4.2: c59e392e80
+// Fixed in release-4.0: 496679c1c3
+// Fixed in release-3.6: 5e94986719
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-674
+// * OSS-Fuzz bug in fuzzshark: stack overflow in tvb_parse_param and dissect_oer_sequence. wsbuglink:19501[].
+
+* wssalink:2024-03[]
+HTTP3 dissector crash.
+wsbuglink:19502[].
+// cveidlink:2023-xxx[].
+// Fixed in master: 577cc97f32
+// Fixed in release-4.2: e9e71ca8c7
 // Fixed in release-4.0: xxx
 // Fixed in release-3.6: xxx
 // CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
 // CWE-125
+// * HTTP3 crash in read_qpack_prefixed_integer. wsbuglink:19502[].
+
+* wssalink:2024-04[]
+Zigbee TLV dissector crash.
+wsbuglink:19504[].
+// cveidlink:2023-xxx[].
+// Fixed in master: 98a8a9787b
+// Fixed in release-4.2: 649d1398fa
+// Fixed in release-4.0: xxx
+// Fixed in release-3.6: xxx
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-674
+// * OSS-Fuzz bug in fuzzshark: stack exhausion for dissect_zbee_tlvs. wsbuglink:19504[].
+
+* wssalink:2024-05[]
+DOCSIS dissector crash.
+wsbuglink:19557[].
+// cveidlink:2023-xxx[].
+// Fixed in master: 77b0583568
+// Fixed in release-4.2: 4cac2027e0
+// Fixed in release-4.0: xxx
+// Fixed in release-3.6: xxx
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-125
+* Fuzz job crash output: fuzz-2024-01-01-7166.pcap. wsbuglink:19557[].
 
 The following bugs have been fixed:
 
@@ -41,11 +89,31 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark grabs your ID at 3 am, goes to Waffle House, and insults people.
 
+* Capture filters not saved to recently used list. wsbuglink:12918[].
+* CFM dissector does not handle Sender ID TLV correctly when Chassis ID Length is zero. wsbuglink:13720[].
+* OSS-Fuzz 64290: wireshark:fuzzshark_ip: Global-buffer-overflow in dissect_zcl_read_attr_struct. wsbuglink:19490[].
+* Overriding capture options set by preference by command line arguments (like -S) doesn't work. wsbuglink:14549[].
+* Segfault when enabling monitor mode on wireless card that falsely claims to support it. wsbuglink:16693[].
+* Documented format of temporary file name is out of date in the Wireshark User's Guide. wsbuglink:18464[].
+* Selection highlight lost when interface list is sorted. wsbuglink:19133[].
+* HTTP3 malformed packets. wsbuglink:19475[].
+* Capture filter compilation fails with obscure error message. wsbuglink:19480[].
+* XML: Parsing encoding attribute failed when standalone attribute exists. wsbuglink:19485[].
+* Display filter expressions where the protocol name starts with digit and contains a hyphen are rejected. wsbuglink:19489[].
+* diameter.3GPP-*** display filters not working after upgrade to version 4.2.0. wsbuglink:19493[].
+* GigE-vision: Control Protocol shows \"unknown\" as value for ASCII character set. wsbuglink:19494[].
+* The HTTP/3 Request Header URI is not correct. wsbuglink:19497[].
+* QUIC/TLS not extracting \"h3\" from ALPN in a capture. wsbuglink:19503[].
+* Documentation on system requirements should be updated. wsbuglink:19512[].
+* 4.2.0: init.lua in subdirectories not loaded anymore. wsbuglink:19516[].
+* Malformed SIP/SDP messages: components are not decoded properly. wsbuglink:19518[].
+* heuristic_protos do not reset on profile swap. wsbuglink:19520[].
+* Wireshark 4.2 crashes on Apply As Column. wsbuglink:19521[].
+* NFLOG timestamp is incorrect. wsbuglink:19525[].
+* Qt6 Crash (Double Free) When Attempting to Save TCP Stream Graph. wsbuglink:19529[].
+
 * Fixed parsing display filter expressions containing literal OID values, e.g. `snmp.name == 1.3.6.1.2.1.1.3.0`.
 
-* wsbuglink:19493[] - diameter.3GPP-* display filters not working after upgrade to version 4.2.0.
-
-* wsbuglink:19516[] - init.lua in subdirectories not loaded anymore.
 
 === New and Updated Features
 
@@ -84,6 +152,12 @@ pcapng: the if_tsoffset option is now supported.
 // === New and Updated Codec support
 
 // === Major API Changes
+
+== Prior Versions
+
+You can find release notes for prior versions at the following locations:
+
+* https://www.wireshark.org/docs/relnotes/wireshark-4.2.0.html[Wireshark 4.2.0]
 
 == Getting Wireshark
 
