@@ -39,12 +39,24 @@ The following vulnerabilities have been fixed:
 // CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
 // CWE-125
 
+* Fuzz job crash output: fuzz-2023-11-23-7156.pcap. wsbuglink:19496[].
+* OSS-Fuzz bug in fuzzshark: stack overflow in tvb_parse_param and dissect_oer_sequence. wsbuglink:19501[].
+
 The following bugs have been fixed:
 
 //* wsbuglink:5000[]
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark insists on subscribing to two dozen streaming services but only watches three.
+
+* Capture filters not saved to recently used list. wsbuglink:12918[].
+* OSS-Fuzz 64290: wireshark:fuzzshark_ip: Global-buffer-overflow in dissect_zcl_read_attr_struct. wsbuglink:19490[].
+* Segfault when enabling monitor mode on wireless card that falsely claims to support it. wsbuglink:16693[].
+* Selection highlight lost when interface list is sorted. wsbuglink:19133[].
+* Capture filter compilation fails with obscure error message. wsbuglink:19480[].
+* GigE-vision: Control Protocol shows \"unknown\" as value for ASCII character set. wsbuglink:19494[].
+* NFLOG timestamp is incorrect. wsbuglink:19525[].
+* Qt6 Crash (Double Free) When Attempting to Save TCP Stream Graph. wsbuglink:19529[].
 
 === New and Updated Features
 
