@@ -79,6 +79,9 @@
       <Feature Id="Fe.Tools.Rawshark" Title="Rawshark" Level="1" AllowAdvertise="yes" Display="expand" Description="Raw packet filter.">
         <ComponentGroupRef Id="CG.Tools.Rawshark" />
       </Feature>
+      <Feature Id="Fe.Tools.Sharkd" Title="Sharkd" Level="1" AllowAdvertise="yes" Display="expand" Description="Packet dissection daemon.">
+        <ComponentGroupRef Id="CG.Tools.Sharkd" />
+      </Feature>
       <?ifdef MMDBRESOLVE_EXE?>
       <Feature Id="Fe.Tools.MMDBResolve" Title="MMDBResolve" Level="1" AllowAdvertise="yes" Display="expand" Description="IP geolocation database resolution.">
         <ComponentGroupRef Id="CG.Tools.MMDBResolve" />
