@@ -445,6 +445,20 @@ static gboolean dissect_header_pair(dissector_table_t dis_table, cose_header_con
     return TRUE;
 }
 
+static void
+cose_header_context_cleanup(void *user_data) {
+
+    cose_header_context_t *ctx = (cose_header_context_t*)user_data;
+
+    if (ctx->principal) {
+        g_variant_unref(ctx->principal);
+    }
+    if (ctx->label) {
+        g_variant_unref(ctx->label);
+        ctx->label = NULL;
+    }
+}
+
 /** Dissect an entire header map, either for messages, recipients, or keys.
  *
  * @param dis_table The cose_param_key_t dissector table.
@@ -462,15 +476,16 @@ static void dissect_header_map(dissector_table_t dis_table, tvbuff_t *tvb, packe
 
         cose_header_context_t *ctx = wmem_new0(pinfo->pool, cose_header_context_t);
 
+        CLEANUP_PUSH(cose_header_context_cleanup, ctx);
+
         for (guint64 ix = 0; ix < chunk_hdr_map->head_value; ++ix) {
             if (!dissect_header_pair(dis_table, ctx, tvb, pinfo, tree_hdr_map, offset)) {
                 break;
             }
         }
 
-        if (ctx->principal) {
-            g_variant_unref(ctx->principal);
-        }
+        CLEANUP_CALL_AND_POP;
+
         wmem_free(pinfo->pool, ctx);
     }
 
@@ -1051,6 +1066,9 @@ static int dissect_keyparam_kty(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             gint64 *val = wscbor_require_int64(pinfo->pool, chunk);
             proto_tree_add_cbor_int64(tree, hf_keyparam_kty_int, pinfo, tvb, chunk, val);
             if (val) {
+                if (ctx->principal) {
+                    g_variant_unref(ctx->principal);
+                }
                 ctx->principal = g_variant_new_int64(*val);
             }
             break;
@@ -1059,6 +1077,9 @@ static int dissect_keyparam_kty(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             const char *val = wscbor_require_tstr(pinfo->pool, chunk);
             proto_tree_add_cbor_tstr(tree, hf_keyparam_kty_tstr, pinfo, tvb, chunk);
             if (val) {
+                if (ctx->principal) {
+                    g_variant_unref(ctx->principal);
+                }
                 ctx->principal = g_variant_new_string(val);
             }
             break;
