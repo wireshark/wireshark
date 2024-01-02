@@ -29,6 +29,7 @@ The following files:
 ../packet-dcerpc-iwbemlevel1login.h
 ../packet-dcerpc-iwbemloginclientid.h
 ../packet-dcerpc-iwbemloginclientidex.h
+../packet-dcerpc-iwbemservices.h
 ../packet-dcerpc-lsa.h
 ../packet-dcerpc-mapi.h
 ../packet-dcerpc-misc.h

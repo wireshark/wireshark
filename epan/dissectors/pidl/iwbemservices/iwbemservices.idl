@@ -1,0 +1,158 @@
+#include "idl_types.h"
+
+/*
+  IWbemServices interface definitions
+*/
+[ uuid("9556dc99-828c-11cf-a37e-00aa003240c7"),
+  restricted,
+  pointer_default(unique)
+]
+interface IWbemServices
+{
+  typedef struct
+  {
+  } ORPCTHIS;
+
+  typedef struct
+  {
+  } ORPCTHAT;
+
+  typedef struct
+  {
+  } IWbemCallResult;
+
+  /*****************/
+  /* Function 0 */
+  [todo] WERROR iwbemservices_opnum0(
+  );
+  /*****************/
+  /* Function 1 */
+  [todo] WERROR iwbemservices_opnum1(
+  );
+  /*****************/
+  /* Function 2 */
+  [todo] WERROR iwbemservices_opnum2(
+  );
+  /*****************/
+  /* Function 3 */
+  [todo] WERROR iwbemservices_OpenNamespace(
+  );
+  /*****************/
+  /* Function 4 */
+  [todo] WERROR iwbemservices_CancelAsyncCall(
+  );
+  /*****************/
+  /* Function 5 */
+  [todo] WERROR iwbemservices_QueryObjectSink(
+  );
+
+  typedef struct
+  {
+    uint32 count;
+    [size_is(count)] uint8 objects[];
+  } IWbemClassObject;
+
+  typedef struct
+  {
+    uint32 ulCntData;
+    [size_is(count)] uint8 abData[];
+  } MInterfacePointer;
+
+  typedef struct
+  {
+    uint32 u;
+    MInterfacePointer *intPtr;
+  } IWbemContext;
+
+  /*****************/
+  /* Function 6 */
+  WERROR GetObject(
+   [in] ORPCTHIS orpcthis,
+   [in, unique, string, charset(UTF16)] uint16* strObjectPath,
+   [in] uint32 lFlags,
+   [in]  IWbemContext* pCtx,
+   [out] ORPCTHAT* orpcthat,
+   [out, in, unique] IWbemClassObject** ppObject,
+   [out, in, unique] IWbemCallResult** ppCallResult
+  );
+
+  /*****************/
+  /* Function 7 */
+  [todo] WERROR iwbemservices_opnum7(
+  );
+  /*****************/
+  /* Function 8 */
+  [todo] WERROR iwbemservices_opnum8(
+  );
+  /*****************/
+  /* Function 9 */
+  [todo] WERROR iwbemservices_opnum9(
+  );
+  /*****************/
+  /* Function 10 */
+  [todo] WERROR iwbemservices_opnum10(
+  );
+  /*****************/
+  /* Function 11 */
+  [todo] WERROR iwbemservices_opnum11(
+  );
+  /*****************/
+  /* Function 12 */
+  [todo] WERROR iwbemservices_opnum12(
+  );
+  /*****************/
+  /* Function 13 */
+  [todo] WERROR iwbemservices_opnum13(
+  );
+  /*****************/
+  /* Function 14 */
+  [todo] WERROR iwbemservices_opnum14(
+  );
+  /*****************/
+  /* Function 15 */
+  [todo] WERROR iwbemservices_opnum15(
+  );
+  /*****************/
+  /* Function 16 */
+  [todo] WERROR iwbemservices_opnum16(
+  );
+  /*****************/
+  /* Function 17 */
+  [todo] WERROR iwbemservices_opnum17(
+  );
+  /*****************/
+  /* Function 18 */
+  [todo] WERROR iwbemservices_opnum18(
+  );
+  /*****************/
+  /* Function 19 */
+  [todo] WERROR iwbemservices_opnum19(
+  );
+  /*****************/
+  /* Function 20 */
+  [todo] WERROR iwbemservices_opnum20(
+  );
+  /*****************/
+  /* Function 21 */
+  [todo] WERROR iwbemservices_opnum21(
+  );
+  /*****************/
+  /* Function 22 */
+  [todo] WERROR iwbemservices_opnum22(
+  );
+  /*****************/
+  /* Function 23 */
+  [todo] WERROR iwbemservices_opnum23(
+  );
+
+  /*****************/
+  /* Function 24 */
+  WERROR ExecMethod(
+   [in] ORPCTHIS orpcthis,
+   [in, unique, string, charset(UTF16)] uint16* strObjectPath,
+   [in, unique, string, charset(UTF16)] uint16* strMethodName,
+   [in] uint32 lFlags,
+   [out] ORPCTHAT* orpcthat
+  );
+
+};

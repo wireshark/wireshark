@@ -56,6 +56,7 @@ set(PIDL_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-iwbemlevel1login.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-iwbemloginclientid.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-iwbemloginclientidex.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-iwbemservices.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-lsa.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-mapi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-mdssvc.c
@@ -2077,6 +2078,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-winsrepl.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-wisun.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-wlccp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-wmio.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-wol.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-wow.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-woww.c

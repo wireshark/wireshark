@@ -2017,7 +2017,7 @@ dissect_dcom_CUSTOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	/* the following data depends on the iid, get the routine by iid */
 	routine = dcom_get_routine_by_uuid(iid);
 	if (routine){
-		offset = routine(tvb, offset, pinfo, sub_tree, di, drep, 0);
+		offset = routine(tvb, offset, pinfo, sub_tree, di, drep, u32Size);
 	}
 
 	/* append info to subtree header */

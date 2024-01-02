@@ -1,0 +1,111 @@
+# Conformance file for iwbemservices
+
+MANUAL IWbemServices_dissect_element_GetObject_orpcthis
+MANUAL IWbemServices_dissect_element_GetObject_orpcthat_
+
+MANUAL IWbemServices_dissect_element_ExecMethod_orpcthis
+MANUAL IWbemServices_dissect_element_ExecMethod_orpcthat_
+
+MANUAL IWbemServices_dissect_element_IWbemClassObject_objects
+NOEMIT IWbemServices_dissect_element_IWbemClassObject_objects_
+NOEMIT IWbemServices_dissect_element_GetObject_strObjectPath_
+
+ETT_FIELD ett_IWbemServices_GetObject_orpcthis
+ETT_FIELD ett_IWbemServices_GetObject_orpcthat
+
+ETT_FIELD ett_IWbemServices_ExecMethod_orpcthis
+ETT_FIELD ett_IWbemServices_ExecMethod_orpcthat
+
+CODE START
+
+	#include "packet-dcom.h"
+
+static int
+IWbemServices_dissect_element_IWbemClassObject_objects_(tvbuff_t *tvb, int offset, int length, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep);
+static int
+IWbemServices_dissect_element_GetObject_strObjectPath_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+
+extern void register_dcom_wmio (void);
+
+/* GetObject */
+static int
+IWbemServices_dissect_element_GetObject_orpcthis(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+{
+	proto_item *sub_item;
+	proto_tree *sub_tree;
+
+	sub_item = proto_tree_add_item(tree, hf_IWbemServices_GetObject_orpcthis, tvb, offset, 0, ENC_NA);
+	sub_tree = proto_item_add_subtree(sub_item, ett_IWbemServices_GetObject_orpcthis);
+
+	return dissect_dcom_this(tvb, offset, pinfo, sub_tree, di, drep);
+}
+
+static int
+IWbemServices_dissect_element_GetObject_orpcthat_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+{
+	proto_item *sub_item;
+	proto_tree *sub_tree;
+
+	register_dcom_wmio();
+
+	sub_item = proto_tree_add_item(tree, hf_IWbemServices_GetObject_orpcthat, tvb, offset, 0, ENC_NA);
+	sub_tree = proto_item_add_subtree(sub_item, ett_IWbemServices_GetObject_orpcthat);
+
+	return dissect_dcom_that(tvb, offset, pinfo, sub_tree, di, drep);
+}
+
+/* ExecMethod */
+static int
+IWbemServices_dissect_element_ExecMethod_orpcthis(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+{
+	proto_item *sub_item;
+	proto_tree *sub_tree;
+
+	sub_item = proto_tree_add_item(tree, hf_IWbemServices_ExecMethod_orpcthis, tvb, offset, 0, ENC_NA);
+	sub_tree = proto_item_add_subtree(sub_item, ett_IWbemServices_ExecMethod_orpcthis);
+
+	return dissect_dcom_this(tvb, offset, pinfo, sub_tree, di, drep);
+}
+
+static int
+IWbemServices_dissect_element_ExecMethod_orpcthat_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+{
+	proto_item *sub_item;
+	proto_tree *sub_tree;
+
+	register_dcom_wmio();
+
+	sub_item = proto_tree_add_item(tree, hf_IWbemServices_ExecMethod_orpcthat, tvb, offset, 0, ENC_NA);
+	sub_tree = proto_item_add_subtree(sub_item, ett_IWbemServices_ExecMethod_orpcthat);
+
+	return dissect_dcom_that(tvb, offset, pinfo, sub_tree, di, drep);
+}
+
+static int
+IWbemServices_dissect_element_IWbemClassObject_objects(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+{
+	return dissect_ndr_ucarray_block(tvb, offset, pinfo, tree, di, drep, &IWbemServices_dissect_element_IWbemClassObject_objects_);
+}
+
+static int
+IWbemServices_dissect_element_IWbemClassObject_objects_(tvbuff_t *tvb, int offset, int length, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+{
+	dissect_dcom_OBJREF(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_IWbemClassObject_objects, NULL);
+	return offset + length;
+}
+
+static int
+IWbemServices_dissect_element_GetObject_strObjectPath_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+{
+	char *data = NULL;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemServices_GetObject_strObjectPath, FALSE, &data);
+	if (data){
+		proto_item_append_text(tree, ": %s", data);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Object=%s", data);
+	}
+
+	return offset;
+}
+
+CODE END

@@ -38,6 +38,7 @@ SUBDIRS = \
 	iwbemlevel1login	\
 	iwbemloginclientid	\
 	iwbemloginclientidex	\
+	iwbemservices	\
 	lsa		\
 	mapi		\
 	mdssvc		\
@@ -127,6 +128,12 @@ $(SUBDIRS) $(DONT_BUILD_SUBDIRS): %: ../packet-dcerpc-%.c ../packet-dcerpc-%.h
 ../packet-dcerpc-iwbemloginclientidex.c \
 ../packet-dcerpc-iwbemloginclientidex.h: iwbemloginclientidex/iwbemloginclientidex.idl \
 					iwbemloginclientidex/iwbemloginclientidex.cnf \
+					idl_types.h
+	cd $(<D) && $(PIDL) $(pidl_out) $(pidl_inc) -- $(<F)
+
+../packet-dcerpc-iwbemservices.c \
+../packet-dcerpc-iwbemservices.h: iwbemservices/iwbemservices.idl \
+					iwbemservices/iwbemservices.cnf \
 					idl_types.h
 	cd $(<D) && $(PIDL) $(pidl_out) $(pidl_inc) -- $(<F)
 
