@@ -24,6 +24,7 @@ static mmdb_lookup_t mmdb_not_found;
 
 #include <stdio.h>
 #include <errno.h>
+#include <fcntl.h>
 
 #ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>
@@ -509,6 +510,13 @@ static void mmdb_resolve_start(void) {
         return;
     }
     g_io_channel_unref(mmdbr_pipe.stderr_io);
+#ifndef _WIN32
+    /* Make sure that these close if we spawn a dumpcap process
+     * (capturing or capture stats/sparklines.)
+     */
+    fcntl(g_io_channel_unix_get_fd(mmdbr_pipe.stdin_io), F_SETFD, FD_CLOEXEC);
+    fcntl(g_io_channel_unix_get_fd(mmdbr_pipe.stdout_io), F_SETFD, FD_CLOEXEC);
+#endif
 
     write_mmdbr_stdin_thread = g_thread_new("write_mmdbr_stdin_worker", write_mmdbr_stdin_worker, NULL);
     read_mmdbr_stdout_thread = g_thread_new("read_mmdbr_stdout_worker", read_mmdbr_stdout_worker, NULL);
