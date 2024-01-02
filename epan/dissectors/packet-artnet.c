@@ -3043,7 +3043,7 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x22B9, "Etherlight" },
   { 0x2337, "Focon Showtechnic" },
   { 0x2338, "Humanlitech Co., Ltd." },
-  { 0x2339, "Sky-Skan Europe GmbH " },
+  { 0x2339, "Sky-Skan Europe GmbH " },
   { 0x233A, "4 Frames Lost UG" },
   { 0x23B2, "Gekko Technology Ltd." },
   { 0x2421, "HB-Laserkomponenten GmbH" },
@@ -8031,7 +8031,7 @@ proto_register_artnet(void) {
     { &hf_artnet_input_input_disabled,
       { "Disabled",
       "artnet.input.disabled",
-      FT_BOOLEAN, 8, NULL, 0x00,
+      FT_BOOLEAN, 8, NULL, 0xff,
       NULL, HFILL }},
 
     /* ArtFirmwareMaster */

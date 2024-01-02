@@ -36,7 +36,7 @@ def name_has_one_of(name, substring_list):
             return True
     return False
 
-# A call is an individual call to an API we are interested in.
+# An individual call to an API we are interested in.
 # Used by APICheck below.
 class Call:
     def __init__(self, hf_name, macros, line_number=None, length=None, fields=None):
@@ -303,7 +303,9 @@ class ProtoTreeAddItemCheck(APICheck):
                                             '(skip == 1) ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN',
                                             'pdu_info->sbc', 'pdu_info->mbc',
                                             'seq_info->txt_enc | ENC_NA',
-                                            'BASE_SHOW_UTF_8_PRINTABLE'
+                                            'BASE_SHOW_UTF_8_PRINTABLE',
+                                            'dhcp_secs_endian',
+                                            'is_mdns ? ENC_UTF_8|ENC_NA : ENC_ASCII|ENC_NA'
                                           }:
                                 global warnings_found
 
@@ -367,7 +369,8 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'xmcp.type.method',
                                 'hf_hiqnet_flags',
                                 'hf_hiqnet_flagmask',
-                                'hf_h223_mux_mpl'
+                                'hf_h223_mux_mpl',
+                                'rdp.flags.pkt'
                               }
 ##################################################################################################
 
@@ -492,7 +495,34 @@ def is_ignored_consecutive_filter(filter):
         re.compile(r'^isystemactivator.actproperties.ts.hdr'),
         re.compile(r'^rtpdump.txt_addr'),
         re.compile(r'^unistim.vocoder.id'),
-        re.compile(r'^mac.ueid')
+        re.compile(r'^mac.ueid'),
+        re.compile(r'cip.symbol.size'),
+        re.compile(r'dnp3.al.range.start'),
+        re.compile(r'dnp3.al.range.stop'),
+        re.compile(r'gtpv2.mp'),
+        re.compile(r'gvcp.cmd.resend.firstpacketid'),
+        re.compile(r'gvcp.cmd.resend.lastpacketid'),
+        re.compile(r'wlan.bf.reserved'),
+        re.compile(r'opa.sa.reserved'),
+        re.compile(r'rmt-lct.ext_tol_transfer_len'),
+        re.compile(r'pn_io.error_code2'),
+        re.compile(r'gryphon.ldf.schedsize'),
+        re.compile(r'wimaxmacphy.burst_opt_mimo_matrix_indicator'),
+        re.compile(r'alcap.*bwt.*.[b|f]w'),
+        re.compile(r'ccsds.packet_type'),
+        re.compile(r'iso15765.flow_control.stmin'),
+        re.compile(r'msdo.PieceSize'),
+        re.compile(r'opa.clasportinfo.redirect.reserved'),
+        re.compile(r'p_mul.unused'),
+        re.compile(r'btle.control.phys.le_[1|2]m_phy'),
+        re.compile(r'opa.pm.dataportcounters.reserved'),
+        re.compile(r'opa.switchinfo.switchcapabilitymask.reserved'),
+        re.compile(r'nvme-rdma.read_from_host_resp'),
+        re.compile(r'nvme-rdma.write_to_host_req'),
+        re.compile(r'netlink-route.ifla_linkstats.rx_errors.fifo_errs'),
+        re.compile(r'mtp3mg.japan_spare'),
+        re.compile(r'ixveriwave.errors.ip_checksum_error'),
+        re.compile(r'ansi_a_bsmap.cm2.scm.bc_entry.opmode[0|1]')
     ]
 
     for patt in ignore_patterns:
@@ -570,7 +600,6 @@ class ValueString:
                 if value < self.min_value:
                     self.min_value = value
 
-
     def extraChecks(self):
         global warnings_found
 
@@ -624,6 +653,108 @@ class ValueString:
     def __str__(self):
         return  self.name + '= { ' + self.raw_vals + ' }'
 
+
+class RangeStringEntry:
+    def __init__(self, min, max, label):
+        self.min = min
+        self.max = max
+        self.label = label
+
+    def hides(self, min, max):
+        return min >= self.min and max <= self.max
+
+    def __str__(self):
+        return '(' + str(self.min) + ', ' + str(self.max) + ') -> ' + self.label
+
+
+class RangeString:
+    def __init__(self, file, name, vals, macros, do_extra_checks=False):
+        self.file = file
+        self.name = name
+        self.raw_vals = vals
+        self.parsed_vals = []
+        self.seen_labels = set()
+        self.valid = True
+        self.min_value =  99999
+        self.max_value = -99999
+
+        # Now parse out each entry in the value_string
+        matches = re.finditer(r'\{\s*([0-9_A-Za-z]*)\s*,\s*([0-9_A-Za-z]*)\s*,\s*(".*?")\s*}\s*,', self.raw_vals)
+        for m in matches:
+            min,max,label = m.group(1), m.group(2), m.group(3)
+            if min in macros:
+                min = macros[min]
+            elif any(not c in '0123456789abcdefABCDEFxX' for c in min):
+                self.valid = False
+                return
+            if max in macros:
+                max = macros[max]
+            elif any(not c in '0123456789abcdefABCDEFxX' for c in max):
+                self.valid = False
+                return
+
+
+            try:
+                # Read according to the appropriate base.
+                if min.lower().startswith('0x'):
+                    min = int(min, 16)
+                elif min.startswith('0b'):
+                    min = int(min[2:], 2)
+                elif min.startswith('0'):
+                    min = int(min, 8)
+                else:
+                    min = int(min, 10)
+
+                if max.lower().startswith('0x'):
+                    max = int(max, 16)
+                elif max.startswith('0b'):
+                    max = int(max[2:], 2)
+                elif max.startswith('0'):
+                    max = int(max, 8)
+                else:
+                    max = int(max, 10)
+            except:
+                return
+
+            # Now check what we've found.
+            global warnings_found
+
+            if min < self.min_value:
+                self.min_value = min
+            # For overall max value, still use min of each entry.
+            # It is common for entries to extend to e.g. 0xff, but at least we can check for items
+            # that can never match if we only chec the min.
+            if min > self.max_value:
+                self.max_value = min
+
+            # This value should not be entirely hidden by earlier entries
+            for prev in self.parsed_vals:
+                if prev.hides(min, max):
+                    print('Warning:', self.file, ': range_string label', label, 'hidden by', prev)
+                    warnings_found += 1
+
+            # Max should not be > min
+            if min > max:
+                print('Warning:', self.file, ': range_string', self.name, 'entry', label, 'min', min, '>', max)
+                warnings_found += 1
+
+            # Check label.
+            if label[1:-1].startswith(' ') or label[1:-1].endswith(' '):
+                print('Warning:', self.file, ': range_string', self.name, 'entry', label, 'starts or ends with space')
+                warnings_found += 1
+
+            # OK, add this entry
+            self.parsed_vals.append(RangeStringEntry(min, max, label))
+
+    def extraChecks(self):
+        pass
+        # TODO: some checks over all entries.  e.g.,
+        # - can multiple values be coalesced into 1?
+        # - if in all cases min==max, suggest value_string instead?
+
+
+
+
 # Look for value_string entries in a dissector file.  Return a dict name -> ValueString
 def findValueStrings(filename, macros, do_extra_checks=False):
     vals_found = {}
@@ -649,13 +780,40 @@ def findValueStrings(filename, macros, do_extra_checks=False):
 
     return vals_found
 
+# Look for value_string entries in a dissector file.  Return a dict name -> ValueString
+def findRangeStrings(filename, macros, do_extra_checks=False):
+    vals_found = {}
+
+    #static const range_string symbol_table_shndx_rvals[] = {
+    #    { 0x0000, 0x0000,  "Undefined" },
+    #    { 0x0001, 0xfeff,  "Normal Section" },
+    #    { 0, 0, NULL }
+    #};
+
+    with open(filename, 'r', encoding="utf8") as f:
+        contents = f.read()
+
+        # Remove comments so as not to trip up RE.
+        contents = removeComments(contents)
+
+        matches =   re.finditer(r'.*const range_string\s*([a-zA-Z0-9_]*)\s*\[\s*\]\s*\=\s*\{([\{\}\d\,a-zA-Z0-9_\-\*\#\.:\/\(\)\'\s\"]*)\};', contents)
+        for m in matches:
+            name = m.group(1)
+            vals = m.group(2)
+            vals_found[name] = RangeString(filename, name, vals, macros, do_extra_checks)
+
+    return vals_found
+
+
 
 # The relevant parts of an hf item.  Used as value in dict where hf variable name is key.
 class Item:
 
-    previousItem = None
+    # Keep the previous few items
+    previousItems = []
 
-    def __init__(self, filename, hf, filter, label, item_type, display, strings, macros, value_strings,
+    def __init__(self, filename, hf, filter, label, item_type, display, strings, macros,
+                 value_strings, range_strings,
                  mask=None, check_mask=False, mask_exact_width=False, check_label=False,
                  check_consecutive=False, blurb=''):
         self.filename = filename
@@ -671,14 +829,20 @@ class Item:
         self.set_mask_value(macros)
 
         if check_consecutive:
-            if Item.previousItem and Item.previousItem.filter == filter:
-                if label != Item.previousItem.label:
-                    if not is_ignored_consecutive_filter(self.filter):
-                        print('Warning:', filename, hf, ': - filter "' + filter +
-                            '" appears consecutively - labels are "' + Item.previousItem.label + '" and "' + label + '"')
-                        warnings_found += 1
+            for previous_index,previous_item in enumerate(Item.previousItems):
+                if previous_item.filter == filter:
+                    if label != previous_item.label:
+                        if not is_ignored_consecutive_filter(self.filter):
+                            print('Warning:', filename, hf, ': - filter "' + filter +
+                                '" appears ' + str(previous_index+1) + ' items before - labels are "' + previous_item.label + '" and "' + label + '"')
+                            warnings_found += 1
 
-            Item.previousItem = self
+            # Add this one to front of (short) previous list
+            Item.previousItems = [self] + Item.previousItems
+            if len(Item.previousItems) > 5:
+                # Get rid of oldest one now
+                #Item.previousItems = Item.previousItems[:-1]
+                Item.previousItems.pop()
 
         self.item_type = item_type
         self.display = display
@@ -714,6 +878,15 @@ class Item:
             if self.vs_name in value_strings:
                 vs = value_strings[self.vs_name]
                 self.check_value_string_range(vs.min_value, vs.max_value)
+
+        # For RVALS, lookup the corresponding RangeString and try to check range.
+        rs_re = re.compile(r'RVALS\(([a-zA-Z0-9_]*)\)')
+        m = rs_re.search(strings)
+        if m:
+            self.rs_name = m.group(1)
+            if self.rs_name in range_strings:
+                rs = range_strings[self.rs_name]
+                self.check_range_string_range(rs.min_value, rs.max_value)
 
 
     def __str__(self):
@@ -767,24 +940,53 @@ class Item:
             self.mask_value = 0
 
     def check_value_string_range(self, vs_min, vs_max):
-        # N,B, this doesn't reduce bit count when a mask is set!
         item_width = self.get_field_width_in_bits()
-        if self.mask_value > 0:
-            # Have mask, so count number of bits set.
-            item_width = 0
-            for n in range(0,63):
-                item_width += 1 if self.check_bit(self.mask_value, n) else 0
 
         if item_width is None:
             # Type field defined by macro?
             return
-        item_max = (2 ** item_width) - 1
+
+        if self.mask_value > 0:
+            # Distance between first and last '1'
+            bitBools = bin(self.mask_value)[2:]
+            mask_width = bitBools.rfind('1') - bitBools.find('1') + 1
+        else:
+            # No mask is effectively a full mask..
+            mask_width = item_width
+
+        item_max = (2 ** mask_width)
         if vs_max > item_max:
             global warnings_found
             print('Warning:', self.filename, self.hf, 'filter=', self.filter,
-                  self.strings, "has max value", vs_max, '(' + hex(vs_max) + ')', "which doesn't fit into", item_width, 'bits',
+                  self.strings, "has max value", vs_max, '(' + hex(vs_max) + ')', "which doesn't fit into", mask_width, 'bits',
                   '( mask is', hex(self.mask_value), ')')
             warnings_found += 1
+
+    def check_range_string_range(self, rs_min, rs_max):
+        item_width = self.get_field_width_in_bits()
+
+        if item_width is None:
+            # Type field defined by macro?
+            return
+
+        if self.mask_value > 0:
+            # Distance between first and last '1'
+            bitBools = bin(self.mask_value)[2:]
+            mask_width = bitBools.rfind('1') - bitBools.find('1') + 1
+        else:
+            # No mask is effectively a full mask..
+            mask_width = item_width
+
+        item_max = (2 ** mask_width)
+        if rs_max > item_max:
+            global warnings_found
+            print('Warning:', self.filename, self.hf, 'filter=', self.filter,
+                  self.strings, "has values", rs_min, rs_max, '(' + hex(rs_max) + ')', "which doesn't fit into", mask_width, 'bits',
+                  '( mask is', hex(self.mask_value), ')')
+            warnings_found += 1
+
+
+
 
     # Return true if bit position n is set in value.
     def check_bit(self, value, n):
@@ -793,7 +995,7 @@ class Item:
     # Output a warning if non-contigous bits are found in the mask (guint64).
     # Note that this legimately happens in several dissectors where multiple reserved/unassigned
     # bits are conflated into one field.
-    # TODO: there is probably a cool/efficient way to check this (+1 => 1-bit set?)
+    # - there is probably a cool/efficient way to check this (+1 => 1-bit set?)
     def check_contiguous_bits(self, mask):
         if not self.mask_value:
             return
@@ -925,7 +1127,7 @@ class Item:
 
     # A mask where all bits are set should instead be 0.
     # Exceptions might be where:
-    # - in add_bitmask() set and only one there!
+    # - in add_bitmask()
     # - represents flags, but dissector is not yet decoding them
     def check_full_mask(self, mask, field_arrays):
         if self.item_type == "FT_BOOLEAN":
@@ -940,16 +1142,34 @@ class Item:
             if num_digits is None:
                 return
             if mask[2:] == 'f'*num_digits   or   mask[2:] == 'F'*num_digits:
-                # Don't report though if the only item in a field_array
+                # Don't report if appears in a 'fields' array
                 for arr in field_arrays:
                     list = field_arrays[arr][0]
-                    if len(list) == 1 and list[0] == self.hf:
-                        # Was first and only!
+                    if self.hf in list:
+                        # These need to have a mask - don't judge for being 0
                         return
 
-                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - mask is all set - this is confusing - set 0 instead! :', '"' + mask + '"')
-                global warnings_found
-                warnings_found += 1
+                print('Note:', self.filename, self.hf, 'filter=', self.filter, " - mask is all set - if only want value (rather than bits), set 0 instead? :", '"' + mask + '"')
+
+    # An item that appears in a bitmask set, needs to have a non-zero mask.
+    def check_mask_if_in_field_array(self, mask, field_arrays):
+        # Work out if this item appears in a field array
+        found = False
+        array_name = None
+        for arr in field_arrays:
+            list = field_arrays[arr][0]
+            if self.hf in list:
+                # These need to have a mask - don't judge for being 0
+                found = True
+                array_name = arr
+                break
+
+        if found:
+            # It needs to have a non-zero mask.
+            if self.mask_read and self.mask_value == 0:
+                print('Error:', self.filename, self.hf, 'is in fields array', arr, 'but has a zero mask - this is not allowed')
+                global errors_found
+                errors_found += 1
 
 
 
@@ -1195,7 +1415,7 @@ def find_macros(filename):
 
 
 # Look for hf items (i.e. full item to be registered) in a dissector file.
-def find_items(filename, macros, value_strings,
+def find_items(filename, macros, value_strings, range_strings,
                check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
     is_generated = isGeneratedFile(filename)
     items = {}
@@ -1207,7 +1427,6 @@ def find_items(filename, macros, value_strings,
         # N.B. re extends all the way to HFILL to avoid greedy matching
         # TODO: fix a problem where re can't cope with mask that involve a macro with commas in it...
         matches = re.finditer( r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"(.*?)\"\s*,\s*\"(.*?)\"\s*,\s*(.*?)\s*,\s*([0-9A-Z_\|\s]*?)\s*,\s*(.*?)\s*,\s*(.*?)\s*,\s*([a-zA-Z0-9\W\s_\u00f6\u00e4]*?)\s*,\s*HFILL', contents)
-        #matches = re.finditer( r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"(.*?)\"\s*,\s*\"(.*?)\"\s*,\s*(.*?)\s*,\s*([0-9A-Z_\|\s]*?)\s*,\s*(.*?)\s*,\s*(.*?)\s*,\s*(NULL|"[a-zA-Z0-9\W\s_/\u00f6\u00e4]*?")\s*,\s*HFILL', contents)
         for m in matches:
             # Store this item.
             hf = m.group(1)
@@ -1221,6 +1440,7 @@ def find_items(filename, macros, value_strings,
                              strings=m.group(6),
                              macros=macros,
                              value_strings=value_strings,
+                             range_strings=range_strings,
                              mask=m.group(7),
                              blurb=blurb,
                              check_mask=check_mask,
@@ -1364,9 +1584,16 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         for name in value_strings:
             value_strings[name].extraChecks()
 
+    # Find (and sanity-check) range_strings
+    range_strings = findRangeStrings(filename, macros, do_extra_checks=extra_value_string_checks)
+    if extra_value_string_checks:
+        for name in range_strings:
+            range_strings[name].extraChecks()
+
+
 
     # Find important parts of items.
-    items_defined = find_items(filename, macros, value_strings,
+    items_defined = find_items(filename, macros, value_strings, range_strings,
                                check_mask, mask_exact_width, check_label, check_consecutive)
     items_extern_declared = {}
 
@@ -1394,6 +1621,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         for i in items_defined:
             item = items_defined[i]
             item.check_full_mask(item.mask, field_arrays)
+            item.check_mask_if_in_field_array(item.mask, field_arrays)
 
     # Now actually check the calls
     for c in apiChecks:
