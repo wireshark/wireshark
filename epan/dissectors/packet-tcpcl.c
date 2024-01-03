@@ -694,7 +694,7 @@ static guint tcpcl_frame_loc_hash(gconstpointer key) {
     const tcpcl_frame_loc_t *obj = key;
     return (
         g_int_hash(&(obj->frame_num))
-        ^ g_int64_hash(&(obj->raw_offset))
+        ^ g_int_hash(&(obj->raw_offset))
     );
 }
 
