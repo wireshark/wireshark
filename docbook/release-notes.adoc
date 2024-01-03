@@ -22,7 +22,7 @@ wsbuglink:17779[]
 // They previously shipped with Npcap 1.55.
 
 // The Windows installers now ship with USBPcap 1.5.X.0.
-// They previously shipped with USBPcap 1.5.4.0.
+// They previously shipped with USBPcap 1.5.3.6.
 
 // The Windows installers now ship with Qt 5.15.2.
 // They previously shipped with Qt 5.12.1.
@@ -34,19 +34,29 @@ wsbuglink:18734[].
 
 // The following vulnerabilities have been fixed:
 
-// * wssalink:2024-01[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxx[].
-// cveidlink:2023-xxx[].
-// Fixed in master: xxx
-// Fixed in release-4.2: xxx
-// Fixed in release-4.0: xxx
-// Fixed in release-3.6: xxx
+* wssalink:2024-01[]
+GVCP dissector crash.
+wsbuglink:19496[].
+cveidlink:2024-0208[].
+// Fixed in master: a8586fde3a
+// Fixed in release-4.2: 9dd7b50c3e
+// Fixed in release-4.0: 0a0669c9d4
+// Fixed in release-3.6: 4953fa99e7
 // CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-125
+// CWE-674
+// * Fuzz job crash output: fuzz-2023-11-23-7156.pcap. wsbuglink:19496[].
 
-* Fuzz job crash output: fuzz-2023-11-23-7156.pcap wsbuglink:19496[].
-* OSS-Fuzz bug in fuzzshark: stack overflow in tvb_parse_param and dissect_oer_sequence wsbuglink:19501[].
+* wssalink:2024-02[]
+IEEE 1609.2 dissector crash.
+wsbuglink:19501[].
+cveidlink:2024-0209[].
+// Fixed in master: 8f797db63c
+// Fixed in release-4.2: c59e392e80
+// Fixed in release-4.0: 496679c1c3
+// Fixed in release-3.6: 5e94986719
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-674
+// * OSS-Fuzz bug in fuzzshark: stack overflow in tvb_parse_param and dissect_oer_sequence. wsbuglink:19501[].
 
 The following bugs have been fixed:
 
@@ -108,6 +118,32 @@ There is no new or updated file format support in this release.
 // === New and Updated Capture Interfaces support
 
 // === Major API Changes
+
+== Prior Versions
+
+This document only describes the changes introduced in Wireshark {wireshark-version}.
+You can find release notes for prior versions at the following locations:
+
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.19.html[Wireshark 3.6.19]
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.18.html[Wireshark 3.6.18]
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.17.html[Wireshark 3.6.17]
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.16.html[Wireshark 3.6.16]
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.15.html[Wireshark 3.6.15]
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.14.html[Wireshark 3.6.14]
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.13.html[Wireshark 3.6.13]
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.12.html[Wireshark 3.6.12]
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.11.html[Wireshark 3.6.11]
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.10.html[Wireshark 3.6.10]
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.9.html[Wireshark 3.6.9]
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.8.html[Wireshark 3.6.8]
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.7.html[Wireshark 3.6.7]
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.6.html[Wireshark 3.6.6]
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.5.html[Wireshark 3.6.5]
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.4.html[Wireshark 3.6.4]
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.3.html[Wireshark 3.6.3]
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.2.html[Wireshark 3.6.2]
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.1.html[Wireshark 3.6.1]
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.0.html[Wireshark 3.6.0]
 
 == Getting Wireshark
 
