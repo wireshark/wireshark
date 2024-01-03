@@ -8423,7 +8423,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             } else {
                 proto_item* calc_item;
                 uint16_t shouldbe_cksum = in_cksum_shouldbe(th_sum, computed_cksum);
-                if (th_sum == g_htons(partial_cksum)) {
+                if (computed_cksum != 0 && th_sum == g_htons(partial_cksum)) {
                     /* Don't use PROTO_CHECKSUM_IN_CKSUM because we expect the value
                      * to match what we pass in. */
                     item = proto_tree_add_checksum(tcp_tree, tvb, offset+16, hf_tcp_checksum, hf_tcp_checksum_status, &ei_tcp_checksum_bad, pinfo, g_htons(partial_cksum),
