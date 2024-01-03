@@ -993,6 +993,7 @@ init_t38_info_conv(packet_info *pinfo)
 
 		p_t38_conv->src_t38_info.reass_ID = 0;
 		p_t38_conv->src_t38_info.reass_start_seqnum = -1;
+		p_t38_conv->src_t38_info.reass_start_data_field = 0;
 		p_t38_conv->src_t38_info.reass_data_type = 0;
 		p_t38_conv->src_t38_info.last_seqnum = -1;
 		p_t38_conv->src_t38_info.packet_lost = 0;
@@ -1004,6 +1005,7 @@ init_t38_info_conv(packet_info *pinfo)
 
 		p_t38_conv->dst_t38_info.reass_ID = 0;
 		p_t38_conv->dst_t38_info.reass_start_seqnum = -1;
+		p_t38_conv->dst_t38_info.reass_start_data_field = 0;
 		p_t38_conv->dst_t38_info.reass_data_type = 0;
 		p_t38_conv->dst_t38_info.last_seqnum = -1;
 		p_t38_conv->dst_t38_info.packet_lost = 0;
