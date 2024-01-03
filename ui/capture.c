@@ -839,9 +839,26 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
             capture_opts->save_file = NULL;
         }
     } else {
-        /* We're not doing a capture any more, so we don't have a save file. */
-        g_free(capture_opts->save_file);
-        capture_opts->save_file = NULL;
+
+        /* If we're in multiple file mode, restore the original save file
+           name (template), so that it will be used if a new capture is started
+           without opening the Capture Options dialog. Any files we just wrote
+           won't get overwritten. If we set it to NULL, a tempfile name would
+           be used, but that doesn't work in multiple file mode - we could turn
+           off multiple file mode instead, but that would change the behavior
+           if the Capture Options dialog is re-opened. */
+        if ((capture_opts->multi_files_on) && (capture_opts->orig_save_file != NULL)) {
+            g_free(capture_opts->save_file);
+            capture_opts->save_file = g_strdup(capture_opts->orig_save_file);
+        } else {
+            /* We're not doing a capture any more, so we don't have a save file.
+               If a new capture is started without opening the Capture Options
+               dialog (Start button or double-clicking on an interface from
+               the welcome screen), we'll use a tempfile. Thus if our current
+               capture is to a permanent file, we won't overwrite it. */
+            g_free(capture_opts->save_file);
+            capture_opts->save_file = NULL;
+        }
     }
 }
 
