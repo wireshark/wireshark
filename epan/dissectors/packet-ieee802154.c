@@ -420,6 +420,7 @@ static void dissect_ieee802154_gtsreq          (tvbuff_t *, packet_info *, proto
 static tvbuff_t *dissect_ieee802154_decrypt(tvbuff_t *, guint, packet_info *, ieee802154_packet *, ieee802154_decrypt_info_t*);
 
 static guint ieee802154_set_mac_key(ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key);
+static guint ieee802154_set_trel_key(ieee802154_packet* packet, unsigned char* key, unsigned char* alt_key, ieee802154_key_t* uat_key);
 static void tsch_ccm_init_nonce(guint64 addr, guint64 asn, gchar* generic_nonce);
 
 /* Initialize Protocol and Registered fields */
@@ -462,10 +463,12 @@ static int hf_ieee802154_header_ie_type;
 static int hf_ieee802154_header_ie_id;
 static int hf_ieee802154_header_ie_length;
 static int hf_ieee802154_ie_unknown_content;
+static int hf_ieee802154_ie_unknown_content_payload;
 static int hf_ieee802154_hie_unsupported;
 static int hf_ieee802154_hie_time_correction;
 static int hf_ieee802154_hie_ht1;
 static int hf_ieee802154_hie_ht2;
+static int hf_ieee802154_hie_thread;
 static int hf_ieee802154_nack;
 static int hf_ieee802154_hie_time_correction_time_sync_info;
 static int hf_ieee802154_hie_time_correction_value;
@@ -489,6 +492,7 @@ static int hf_ieee802154_pie_unsupported;
 static int hf_ieee802154_pie_termination;
 static int hf_ieee802154_pie_vendor;
 static int hf_ieee802154_pie_vendor_oui;
+static int hf_ieee802154_pie_vendor_variable;
 static int hf_ieee802154_pie_ietf;
 static int hf_ieee802154_mlme;
 static int hf_ieee802154_mlme_ie_data;
@@ -802,6 +806,7 @@ static gint ett_ieee802154_header_ie_tlv;
 static gint ett_ieee802154_hie_unsupported;
 static gint ett_ieee802154_hie_time_correction;
 static gint ett_ieee802154_hie_ht;
+static gint ett_ieee802154_hie_thread;
 static gint ett_ieee802154_hie_csl;
 static gint ett_ieee802154_hie_rdv;
 static gint ett_ieee802154_hie_global_time;
@@ -857,6 +862,7 @@ static expert_field ei_ieee802154_6top_unsupported_return_code;
 static expert_field ei_ieee802154_6top_unsupported_command;
 static expert_field ei_ieee802154_ie_unsupported_id;
 static expert_field ei_ieee802154_ie_unknown_extra_content;
+static expert_field ei_ieee802154_ie_unknown_extra_content_payload;
 static expert_field ei_ieee802159_mpx_invalid_transfer_type;
 static expert_field ei_ieee802159_mpx_unsupported_kmp;
 static expert_field ei_ieee802159_mpx_unknown_kmp;
@@ -894,6 +900,9 @@ static dissector_handle_t  ieee802154_handle;
 static dissector_handle_t  ieee802154_nonask_phy_handle;
 static dissector_handle_t  ieee802154_nofcs_handle;
 static dissector_handle_t  ieee802154_tap_handle;
+
+/* Thread 802.15.4 - 2015 */
+static dissector_handle_t thread_ie_handle;
 
 static int ieee802154_tap;
 
@@ -3026,8 +3035,11 @@ ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *pinfo, pro
     ieee802154_decrypt_status status = DECRYPT_NOT_ENCRYPTED;
     tvbuff_t *payload_tvb;
 
+    guint id2 = proto_get_id_by_short_name("TREL");
+    wmem_list_frame_t* ptr2 = wmem_list_find(pinfo->layers, GUINT_TO_POINTER(id2));
+
     /* Encrypted Payload. */
-    if (packet->security_enable) {
+    if (packet->security_enable || ptr2) {
         ieee802154_decrypt_info_t decrypt_info;
 
         decrypt_info.rx_mic = rx_mic;
@@ -3035,6 +3047,10 @@ ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *pinfo, pro
         decrypt_info.status = &status;
         decrypt_info.key = NULL; /* payload function will fill that in */
 
+        if (ptr2)  // if this pointer is not null that mean we foound trel
+            payload_tvb = decrypt_ieee802154_payload(tvb, mhr_len, pinfo, NULL, packet, &decrypt_info,
+                ieee802154_set_trel_key, dissect_ieee802154_decrypt);
+        else
         /* call with NULL tree since we add the key_number below without hiding it */
         payload_tvb = decrypt_ieee802154_payload(tvb, mhr_len, pinfo, NULL, packet, &decrypt_info,
                                      ieee802154_set_mac_key, dissect_ieee802154_decrypt);
@@ -4377,6 +4393,39 @@ dissect_hie_vendor_specific(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 /**
+ Subdissector for Vendor Specific Header IEs (Information Elements)
+ */
+static int
+dissect_ie_vendor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ies_tree, void *data _U_)
+{
+    proto_tree *tree = ieee802154_create_pie_tree(tvb, ies_tree, hf_ieee802154_pie_vendor, ett_ieee802154_pie_vendor);
+
+    guint      offset = 2;
+    guint      pie_length = tvb_reported_length(tvb) - 2;
+    tvbuff_t  *next_tvb;
+    guint32    vendor_oui;
+
+    vendor_oui = tvb_get_letoh24(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee802154_pie_vendor_oui, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3; /* adjust for vendor OUI */
+    pie_length -= 3;
+    next_tvb = tvb_new_subset_length(tvb, offset, pie_length);
+
+    switch (vendor_oui) {
+        case OUI_THREAD:
+            /*Decoding vendor variable data */
+            proto_tree_add_item(tree, hf_ieee802154_pie_vendor_variable, tvb, offset, pie_length, ENC_NA);
+            break;
+
+        default:
+            call_data_dissector(next_tvb, pinfo, tree);
+            break;
+    }
+
+    return tvb_reported_length(tvb);
+}
+
+/**
  * Subdissector for Header IEs (Information Elements)
  *
  * Since the header is never encrypted and the payload may be encrypted,
@@ -4428,6 +4477,10 @@ dissect_ieee802154_header_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             int hf_term_ie = (id == IEEE802154_HEADER_IE_HT1) ? hf_ieee802154_hie_ht1 : hf_ieee802154_hie_ht2;
             ieee802154_create_hie_tree(ie_tvb, ies_tree, hf_term_ie, ett_ieee802154_hie_ht);
             consumed = 2;
+        } else if (id == IEEE802154_HEADER_IE_VENDOR_SPECIFIC) {
+            ieee802154_create_hie_tree(ie_tvb, ies_tree, hf_ieee802154_hie_thread, ett_ieee802154_hie_thread);
+            dissect_ie_vendor(ie_tvb, pinfo, ies_tree, packet);
+            consumed = 2 + length;
         } else {
             TRY {
                 consumed = dissector_try_uint_new(header_ie_dissector_table, id, ie_tvb, pinfo, ies_tree, FALSE, packet);
@@ -4767,9 +4820,8 @@ dissect_ieee802154_payload_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             TRY {
                 consumed = dissector_try_uint_new(payload_ie_dissector_table, id, ie_tvb, pinfo, ies_tree, FALSE, packet);
                 if (consumed == 0) {
-                    proto_tree *subtree = ieee802154_create_pie_tree(ie_tvb, ies_tree, hf_ieee802154_pie_unsupported,
-                                                                 ett_ieee802154_pie_unsupported);
-                    proto_tree_add_item(subtree, hf_ieee802154_ie_unknown_content, ie_tvb, 2, length, ENC_NA);
+                    proto_tree *subtree = ieee802154_create_pie_tree(ie_tvb, ies_tree, hf_ieee802154_pie_unsupported, ett_ieee802154_pie_unsupported);
+                    proto_tree_add_item(subtree, hf_ieee802154_ie_unknown_content_payload, ie_tvb, 2, length, ENC_NA);
                     consumed = 2 + length;
                     expert_add_info(pinfo, proto_tree_get_parent(subtree), &ei_ieee802154_ie_unsupported_id);
                 }
@@ -4782,8 +4834,8 @@ dissect_ieee802154_payload_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         }
 
         if (consumed < 2 + length) {
-            proto_tree_add_item(ies_tree, hf_ieee802154_ie_unknown_content, ie_tvb, consumed, 2 + length - consumed, ENC_NA);
-            expert_add_info(pinfo, ies_item, &ei_ieee802154_ie_unknown_extra_content);
+            proto_tree_add_item(ies_tree, hf_ieee802154_ie_unknown_content_payload, ie_tvb, consumed, 2 + length - consumed, ENC_NA);
+            expert_add_info(pinfo, ies_item, &ei_ieee802154_ie_unknown_extra_content_payload);
         }
 
         offset += 2 + length;
@@ -5699,6 +5751,49 @@ static guint ieee802154_set_mac_key(ieee802154_packet *packet, unsigned char *ke
     return 0;
 }
 
+static gboolean trel_key_derivation_func(/*ieee802154_packet* packet*/ unsigned char* key, uint32_t seq, ieee802154_key_t* uat_key)
+{
+    guint8          prk[32];    /* GCRY_MD_SHA256 hash output. */
+    gcry_error_t    err;
+    uint32_t Key_sequence = seq;
+    unsigned char ikm[16];
+    GByteArray* bytes;
+    bytes = g_byte_array_new();
+    gboolean res = hex_str_to_bytes(uat_key->pref_key, bytes, FALSE);
+    if (!res) return FALSE;
+
+    guint8 saltstring[] = { 'T', 'h', 'r', 'e', 'a', 'd', 'S', 'e', 'q', 'u', 'e', 'n', 'c', 'e', 'M', 'a', 's', 't', 'e', 'r', 'K', 'e', 'y' };
+    guint8  info_str[] = { 'T', 'h', 'r', 'e', 'a', 'd', 'O', 'v', 'e','r', 'I', 'n', 'f', 'r', 'a', 'K', 'e', 'y' };
+    guint8  salt[sizeof(uint32_t) + sizeof(saltstring)];
+
+    salt[0] = (Key_sequence >> 24) & 0xff;
+    salt[1] = (Key_sequence >> 16) & 0xff;
+    salt[2] = (Key_sequence >> 8) & 0xff;
+    salt[3] = (Key_sequence >> 0) & 0xff;
+
+    memcpy(ikm, bytes->data, 16);
+    memcpy(salt + sizeof(uint32_t), saltstring, sizeof(saltstring));
+
+    err = hkdf_extract(GCRY_MD_SHA256, salt, sizeof(salt), ikm, sizeof(ikm), prk);
+    DISSECTOR_ASSERT(err == 0);
+    err = hkdf_expand(GCRY_MD_SHA256, prk, sizeof(prk), info_str, sizeof(info_str), key, 16);
+    DISSECTOR_ASSERT(err == 0);
+
+    return TRUE;
+}
+static guint ieee802154_set_trel_key(ieee802154_packet* packet, unsigned char* key, unsigned char* alt_key, ieee802154_key_t* uat_key)
+{
+    if (packet->key_index == uat_key->key_index && alt_key)
+    {
+        memcpy(key, uat_key->key, IEEE802154_CIPHER_SIZE);
+    }
+
+    if(trel_key_derivation_func(key, 0, uat_key) == 1)
+    return 1;
+
+    return 0;
+}
+
 /**
  * Creates a record that maps the given short address and pan to a long (extended) address.
  * @param short_addr 16-bit short address
@@ -6136,6 +6231,10 @@ void proto_register_ieee802154(void)
         { "Unknown Content",                "wpan.ie.unknown_content", FT_BYTES, SEP_SPACE, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_ieee802154_ie_unknown_content_payload,
+        { "Unknown Content Payload",        "wpan.ie.unknown_content_payload", FT_BYTES, SEP_SPACE, NULL, 0x0,
+            NULL, HFILL }},
+
         /* Header IE */
 
         { &hf_ieee802154_header_ies,
@@ -6170,6 +6269,10 @@ void proto_register_ieee802154(void)
 
         { &hf_ieee802154_hie_ht2,
         { "Header Termination 2 IE (Payload follows)",    "wpan.header_ie.ht2", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_hie_thread,
+        { "Thread IE (Payload follows)",    "wpan.header_ie.thread", FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
 
@@ -6225,7 +6328,7 @@ void proto_register_ieee802154(void)
         { "Global Time",                    "wpan.header_ie.global_time.value", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
             NULL, HFILL }},
 
-		/* Vendor Specific IE */
+        /* Vendor Specific IE */
         { &hf_ieee802154_hie_vendor_specific,
         { "Vendor Specific IE",             "wpan.header_ie.vendor_specific", FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
@@ -6234,7 +6337,7 @@ void proto_register_ieee802154(void)
         { "Vendor OUI",                 "wpan.header_ie.vendor_specific.vendor_oui", FT_UINT24, BASE_OUI, NULL, 0x0,
             NULL, HFILL }},
 
-		{ &hf_ieee802154_hie_vendor_specific_content,
+        { &hf_ieee802154_hie_vendor_specific_content,
         { "Vendor Content",                "wpan.header_ie.vendor_specific.content", FT_BYTES, SEP_SPACE, NULL, 0x0,
             NULL, HFILL }},
 
@@ -6275,6 +6378,10 @@ void proto_register_ieee802154(void)
 
         { &hf_ieee802154_pie_vendor_oui,
         { "Vendor OUI",                     "wpan.payload_ie.vendor.oui", FT_UINT24, BASE_OUI, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_pie_vendor_variable,
+        { "Vendor variable",                "wpan.payload_ie.vendor.variable", FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ieee802154_mlme,
@@ -6699,7 +6806,7 @@ void proto_register_ieee802154(void)
             "The PAN identifier the coordinator wishes to use for future communication.", HFILL }},
 
         { &hf_ieee802154_realign_caddr,
-        { "Coordinator Short Address",  "wpan.realign.addr", FT_UINT16, BASE_HEX, NULL, 0x0,
+        { "Coordinator Short Address",  "wpan.realign.caddr", FT_UINT16, BASE_HEX, NULL, 0x0,
             "The 16-bit address the coordinator wishes to use for future communication.", HFILL }},
 
         { &hf_ieee802154_realign_channel,
@@ -7127,6 +7234,7 @@ void proto_register_ieee802154(void)
         &ett_ieee802154_hie_unsupported,
         &ett_ieee802154_hie_time_correction,
         &ett_ieee802154_hie_ht,
+        &ett_ieee802154_hie_thread,
         &ett_ieee802154_hie_csl,
         &ett_ieee802154_hie_rdv,
         &ett_ieee802154_hie_global_time,
@@ -7205,6 +7313,8 @@ void proto_register_ieee802154(void)
                 "Unsupported IE ID", EXPFILL }},
         { &ei_ieee802154_ie_unknown_extra_content, { "wpan.ie_unknown_extra_content", PI_PROTOCOL, PI_WARN,
                 "Unexpected extra content for IE", EXPFILL }},
+        { &ei_ieee802154_ie_unknown_extra_content_payload, { "wpan.ie_unknown_extra_content_payload", PI_PROTOCOL, PI_WARN,
+                "Unexpected extra content for IE payload", EXPFILL }},
         { &ei_ieee802159_mpx_invalid_transfer_type, { "wpan.payload_ie.mpx.invalid_transfer_type", PI_PROTOCOL, PI_WARN,
                 "Invalid transfer type (cf. IEEE 802.15.9 Table 19)", EXPFILL }},
         { &ei_ieee802159_mpx_unsupported_kmp, { "wpan.mpx.unsupported_kmp", PI_PROTOCOL, PI_WARN,
@@ -7428,6 +7538,7 @@ void proto_reg_handoff_ieee802154(void)
         zigbee_ie_handle = find_dissector_add_dependency("zbee_ie", proto_ieee802154);
         zigbee_nwk_handle = find_dissector("zbee_nwk");
 
+        thread_ie_handle = find_dissector_add_dependency("thread_ie",proto_ieee802154);
         dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4, ieee802154_handle);
         dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4_NONASK_PHY, ieee802154_nonask_phy_handle);
         dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4_NOFCS, ieee802154_nofcs_handle);

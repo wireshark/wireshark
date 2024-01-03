@@ -96,6 +96,7 @@
 #define OUI_3GPP2           0xCF0002    /* 3GPP2 */
 #define OUI_AVAYA_EXTREME2  0xD88466    /* Avaya Extreme Fabric */
 #define OUI_ALCATEL_LUCENT  0xDC0856    /* Alcatel-Lucent */
+#define OUI_THREAD          0xEAB89B    /* Thread */
 
 #endif
 

@@ -260,6 +260,10 @@ typedef enum {
 /* Reserved 0x2c-0x7d */
 #define IEEE802154_HEADER_IE_HT1            0x7e
 #define IEEE802154_HEADER_IE_HT2            0x7f
+
+/* Thread vendor ID */
+#define IEEE802154_HEADER_IE_THREAD         0x9b
+
 /* Reserved 0x80-0xff */
 
 /* Payload IE Group ID */

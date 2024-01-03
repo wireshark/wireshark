@@ -1335,6 +1335,15 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 //	coinfo->parent_protocol = parent_protocol;
 	coinfo->is_coap_for_tmf = is_coap_for_tmf;
+	/* check if trel is previously dissected */
+	if (coinfo->is_coap_for_tmf == 0)
+	{
+		guint id2 = proto_get_id_by_short_name("TREL");
+		wmem_list_frame_t* ptr2 = wmem_list_find(pinfo->layers, GUINT_TO_POINTER(id2));
+
+		if (  ptr2 != NULL)
+			coinfo->is_coap_for_tmf = 1;
+	}
 
 	/* initialize the CoAP length and the content-Format */
 	/*

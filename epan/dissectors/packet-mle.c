@@ -53,6 +53,11 @@ static int hf_mle_tlv_source_addr;
 static int hf_mle_tlv_mode_device_type;
 static int hf_mle_tlv_mode_idle_rx;
 static int hf_mle_tlv_mode_sec_data_req;
+static int hf_mle_tlv_mode_receiver_on_idle;
+static int hf_mle_tlv_mode_reserved1;
+static int hf_mle_tlv_mode_reserved2;
+static int hf_mle_tlv_mode_device_type_bit;
+static int hf_mle_tlv_mode_network_data;
 static int hf_mle_tlv_mode_nwk_data;
 static int hf_mle_tlv_timeout;
 static int hf_mle_tlv_challenge;
@@ -118,13 +123,45 @@ static int hf_mle_tlv_hold_time;
 #endif
 static int hf_mle_tlv_channel_page; /* v1.1-draft-2 */
 static int hf_mle_tlv_channel; /* v1.1-draft-2 */
+static int hf_mle_tlv_csl_accuracy; /* v1.2-draft-5 */
+static int hf_mle_tlv_csl_synchronied_timeout; /* v1.2-draft-5 */
+static int hf_mle_tlv_csl_clock_accuracy; /* v1.2-draft-5 */
+static int hf_mle_tlv_csl_uncertainty;
 static int hf_mle_tlv_pan_id; /* v1.1-draft-2 */
 static int hf_mle_tlv_active_tstamp; /* SPEC-472 */
 static int hf_mle_tlv_pending_tstamp; /* SPEC-472 */
+static int hf_mle_tlv_supervision_interval;
 #if 0
 static int hf_mle_tlv_active_op_dataset; /* SPEC-472 */
 static int hf_mle_tlv_pending_op_dataset; /* SPEC-472 */
 #endif
+
+//Added for Thread 1.2 support
+/* New suppport*/
+static int hf_mle_tlv_metric_type_id_flags;
+static int hf_mle_tlv_metric_type_id_flags_l;
+static int hf_mle_tlv_metric_type_id_flags_e;
+static int hf_mle_tlv_metric_type_id_flags_type;
+static int hf_mle_tlv_metric_type_id_flags_metric;
+static int hf_mle_tlv_value;
+static int hf_mle_tlv_query_id;
+static int hf_mle_tlv_link_sub_tlv;
+static int hf_mle_tlv_link_status;
+static int hf_mle_tlv_link_status_sub_tlv;
+
+/*Link TLVs*/
+static int hf_mle_tlv_link_query_options;
+static int hf_mle_tlv_link_enh_ack_flags;
+static int hf_mle_tlv_link_requested_type_id_flags;
+static int hf_mle_tlv_csl_sychronized_timeout;
+static int hf_mle_tlv_link_forward_series;
+static int hf_mle_tlv_link_concatenation_link_metric_typeid_flags;
+static int hf_mle_tlv_link_timeout;
+static int hf_mle_tlv_link_forward_series_flags;
+
+
+/* End of New support */
+
 
 static gint ett_mle;
 static gint ett_mle_tlv;
@@ -194,6 +231,14 @@ static const value_string mle_conn_tlv_flags_pp_enums[] = {
 #define MLE_CMD_DISCOVERY_REQUEST     16
 #define MLE_CMD_DISCOVERY_RESPONSE    17
 
+//Added new for Thread 1.2
+#define MLE_CMD_LINK_METRICS_MANAGEMENT_REQUEST  18
+#define MLE_CMD_LINK_METRICS_MANAGEMENT_RESPONSE 19
+#define MLE_CMD_LINK_PROBE                       20
+#define MLE_CMD_CIM_DISCOVERY_REQUEST                21
+#define MLE_CMD_CIM_DISCOVERY_RESPONSE               22
+#define MLE_CMD_CIM_ANNOUNCE                         23
+
 static const value_string mle_command_vals[] = {
     { MLE_CMD_REQUEST,                  "Link Request" },
     { MLE_CMD_ACCEPT,                   "Link Accept" },
@@ -213,6 +258,12 @@ static const value_string mle_command_vals[] = {
     { MLE_CMD_ANNOUNCE,                 "Announce" },
     { MLE_CMD_DISCOVERY_REQUEST,        "Discovery Request" },
     { MLE_CMD_DISCOVERY_RESPONSE,       "Discovery Response" },
+    { MLE_CMD_LINK_METRICS_MANAGEMENT_REQUEST, "Link Metrics Management Request" },
+    { MLE_CMD_LINK_METRICS_MANAGEMENT_RESPONSE, "Link Metrics Management Response" },
+    { MLE_CMD_LINK_PROBE, "Link Probe" },
+    { MLE_CMD_CIM_DISCOVERY_REQUEST,    "CIM Discovery Request" },
+    { MLE_CMD_CIM_DISCOVERY_RESPONSE,   "CIM Discovery Response" },
+    { MLE_CMD_CIM_ANNOUNCE,             "CIM Announce" },
     { 0, NULL}
 };
 
@@ -243,6 +294,34 @@ static const value_string mle_command_vals[] = {
 #define MLE_TLV_ACTIVE_OP_DATASET           24 /* Defined in Ch04_Mesh Link Establishment v1.1-rc1 */
 #define MLE_TLV_PENDING_OP_DATASET          25 /* Defined in Ch04_Mesh Link Establishment v1.1-rc1 */
 #define MLE_TLV_THREAD_DISCOVERY            26 /* Defined in Ch04_Mesh Link Establishment v1.1-rc1 */
+#define MLE_TLV_SUPERVISION_INTERVAL        27 /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_CIM_PROVISIONER_INTERFACE_DATA 28 /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_CIM_PROVISIONING_DATASET    29 /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_CIM_DISCOVERY_REQUEST       30 /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_SECURE_DISSEMINATION        31 /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+
+#define MLE_TLV_CSL_CHANNEL                 80  /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_CSL_SYNCHRONIZED_TIMEOUT    85  /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_CSL_ACCURACY                86  /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_LINK_METRICS_QUERY          87  /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_LINK_METRICS_MANAGEMENT     88  /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_LINK_METRICS_REPORT         89  /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_LINK_PROBE                  90  /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+
+
+#define MLE_TLV_CIM_DEVICE_INTERFACE_DATA   27 /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_CIM_PROVISIONER_INTERFACE_DATA 28 /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_CIM_PROVISIONING_DATASET    29 /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_CIM_DISCOVERY_REQUEST       30 /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_SECURE_DISSEMINATION        31 /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+
+#define MLE_TLV_CSL_CHANNEL                 80  /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_CSL_SYNCHRONIZED_TIMEOUT    85  /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_CSL_ACCURACY                86  /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_LINK_METRICS_QUERY          87  /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_LINK_METRICS_MANAGEMENT     88  /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_LINK_METRICS_REPORT         89  /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
+#define MLE_TLV_LINK_PROBE                  90  /* Defined in Ch04_Mesh Link Establishment v1.2-Draft3 */
 
 static const value_string mle_tlv_vals[] = {
     { MLE_TLV_SOURCE_ADDRESS,           "Source Address" },
@@ -272,8 +351,71 @@ static const value_string mle_tlv_vals[] = {
     { MLE_TLV_ACTIVE_OP_DATASET,        "Active Operational Dataset"},
     { MLE_TLV_PENDING_OP_DATASET,       "Pending Operational Dataset"},
     { MLE_TLV_THREAD_DISCOVERY,         "Thread Discovery"},
+    { MLE_TLV_SUPERVISION_INTERVAL,     "Supervision Interval"},
+    { MLE_TLV_CSL_CHANNEL,              "CSL Channel"},
+    { MLE_TLV_CSL_SYNCHRONIZED_TIMEOUT, "CSL Synchronized Timeout"},
+    { MLE_TLV_CSL_ACCURACY,             "CSL Accuracy"},
+    { MLE_TLV_LINK_METRICS_QUERY,       "Link Metrics Query"},
+    { MLE_TLV_LINK_METRICS_MANAGEMENT,  "Link Metrics Management"},
+    { MLE_TLV_LINK_METRICS_REPORT,      "Link Metrics Report"},
+    { MLE_TLV_LINK_PROBE,               "Link Probe"},
     { 0, NULL}
 };
+
+/*Link Metrics*/
+#define LINK_METRICS_REPORT_SUB_TLV          0
+#define LINK_METRICS_QUERY_ID_SUB_TLV        1
+#define LINK_METRICS_QUERY_OPTIONS_SUB_TLV   2
+#define FORWARD_PROBING_REGISTRATION_SUB_TLV 3
+//#define REVERSE_PROBING_REGISTRATION_SUB_TLV 4
+#define LINK_METRICS_STATUS_SUB_TLV          5
+//#define LINK_METRICS_TRACKING_CAPABILITIES_SUB_TLV   6
+#define ENHANCED_ACK_LINK_METRICS_CONFIGURATION_SUB_TLV 7
+
+static const value_string mle_tlv_link_param_vals[] = {
+    { LINK_METRICS_REPORT_SUB_TLV,                      "Links Metrics Report" },
+    { LINK_METRICS_QUERY_ID_SUB_TLV,                    "Link Metrics Query" },
+    { LINK_METRICS_QUERY_OPTIONS_SUB_TLV,               "Link Metrics Query Options" },
+    { FORWARD_PROBING_REGISTRATION_SUB_TLV ,            "Forward Probing Registration" },
+    { LINK_METRICS_STATUS_SUB_TLV ,                     "Link Metrics Status" },
+    { ENHANCED_ACK_LINK_METRICS_CONFIGURATION_SUB_TLV , "Enhance Ack Link Metrics Configuration" },
+    { 0, NULL}
+};
+
+#define LINK_SUCCESS                                        0
+#define LINK_FAILURE_CANNOT_SUPPORT_NEW_SERIES_REGISTRATION 1
+#define LINK_FAILURE_SERIES_ID_ALREADY_REGISTERED           2
+#define LINK_FAILURE_SERIES_ID_NOT_RECOGNIZED               3
+#define LINK_FAILURE_NO_MATCHING_FRAMES_RECEIVED            4
+#define LINK_FAILURE_OTHER_FAILURE                          254
+
+static const value_string mle_tlv_link_sub_tlv_vals[] = {
+    { LINK_SUCCESS,                                         "Success" },
+    { LINK_FAILURE_CANNOT_SUPPORT_NEW_SERIES_REGISTRATION,  " Failure - Cannot Support New Series Registration" },
+    { LINK_FAILURE_SERIES_ID_ALREADY_REGISTERED ,           "Failure - Series ID Already Registered" },
+    { LINK_FAILURE_SERIES_ID_NOT_RECOGNIZED ,               "Failure - Series ID not Recognized" },
+    { LINK_FAILURE_NO_MATCHING_FRAMES_RECEIVED ,            "Failure - No matching frames received" },
+    { LINK_FAILURE_OTHER_FAILURE ,                          "Failure - Other Failure" },
+    { 0, NULL}
+};
+
+#define CLEAR_ENHANCED_ACK_LINK_METRICS_CONFIGURATION     0
+#define REGISTER_ENHANCED_ACK_LINK_METRICS_CONFIGURATION  1
+
+static const value_string mle_tlv_link_enh_ack_flags_vals[] = {
+    { CLEAR_ENHANCED_ACK_LINK_METRICS_CONFIGURATION,    "Clear Enhanced ACK Link Metrics Configuration" },
+    { REGISTER_ENHANCED_ACK_LINK_METRICS_CONFIGURATION, "Register Enhanced ACK Link Metrics Configuration" },
+    { 0, NULL}
+};
+
+/* Link Metrics End*/
+
+#define LINK_SUCCESS                                        0
+#define LINK_FAILURE_CANNOT_SUPPORT_NEW_SERIES_REGISTRATION 1
+#define LINK_FAILURE_SERIES_ID_ALREADY_REGISTERED           2
+#define LINK_FAILURE_SERIES_ID_NOT_RECOGNIZED               3
+#define LINK_FAILURE_NO_MATCHING_FRAMES_RECEIVED            4
+#define LINK_FAILURE_OTHER_FAILURE                          254
 
 #define LQI_FLAGS_C         0x80
 #define LQI_FLAGS_SIZE      0x0F
@@ -753,10 +895,11 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     capability = tvb_get_guint8(payload_tvb, offset);
                     proto_item_append_text(ti, " = %02x)", capability);
                     /* Get and display capability info. (blatantly plagiarised from packet-ieee802154.c */
-                    proto_tree_add_item(tlv_tree, hf_mle_tlv_mode_nwk_data, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tlv_tree, hf_mle_tlv_mode_device_type, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tlv_tree, hf_mle_tlv_mode_sec_data_req, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tlv_tree, hf_mle_tlv_mode_idle_rx, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_bits_item(tlv_tree, hf_mle_tlv_mode_reserved1, payload_tvb, (offset * 8) + 0, 4, ENC_NA);//R1
+                    proto_tree_add_bits_item(tlv_tree, hf_mle_tlv_mode_receiver_on_idle, payload_tvb, (offset * 8) + 4, 1, ENC_NA);//Receiver
+                    proto_tree_add_bits_item(tlv_tree, hf_mle_tlv_mode_reserved2, payload_tvb, (offset * 8) + 5, 1, ENC_NA);//R2
+                    proto_tree_add_bits_item(tlv_tree, hf_mle_tlv_mode_device_type_bit, payload_tvb, (offset * 8) +6, 1, ENC_NA);//Device Type
+                    proto_tree_add_bits_item(tlv_tree, hf_mle_tlv_mode_network_data, payload_tvb, (offset * 8) +7, 1, ENC_NA);//Network Data
                 }
                 else {
                     /* TLV Length must be 1 */
@@ -774,7 +917,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 } else {
                     guint32 to_data = 0;
                     proto_tree_add_item_ret_uint(tlv_tree, hf_mle_tlv_timeout, payload_tvb, offset, 4, ENC_BIG_ENDIAN, &to_data);
-                    proto_item_append_text(ti, " = %d", (guint16)to_data);
+                    proto_item_append_text(ti, " = %u", to_data);
                 }
                 proto_item_append_text(ti, ")");
                 offset += tlv_len;
@@ -1266,6 +1409,161 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 }
                 break;
 
+            case MLE_TLV_CSL_CHANNEL:
+              {
+                  /* Check length is consistent */
+                  if (tlv_len != 3) {
+                      expert_add_info(pinfo, proto_root, &ei_mle_tlv_length_failed);
+                      proto_tree_add_item(tlv_tree, hf_mle_tlv_unknown, payload_tvb, offset, tlv_len, ENC_NA);
+                  } else {
+                      /* Channel page */
+                      proto_tree_add_item(tlv_tree, hf_mle_tlv_channel_page, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
+                      /* Channel */
+                      proto_tree_add_item(tlv_tree, hf_mle_tlv_channel, payload_tvb, offset+1, 2, ENC_BIG_ENDIAN);
+                  }
+                  offset += tlv_len;
+              }
+              break;
+
+            case MLE_TLV_CSL_SYNCHRONIZED_TIMEOUT:/*Defined in Ch04_Mesh Link Establishment v1.2*/
+            /* Check length is consistent */
+                if (tlv_len != 4) {
+                    expert_add_info(pinfo, proto_root, &ei_mle_tlv_length_failed);
+                    proto_tree_add_item(tlv_tree, hf_mle_tlv_unknown, payload_tvb, offset, tlv_len, ENC_NA);
+                } else {
+                    /*  CSL synchronized timeout */
+                    guint32 to_data = 0;
+                    proto_tree_add_item_ret_uint(tlv_tree, hf_mle_tlv_csl_synchronied_timeout, payload_tvb, offset, 4, ENC_BIG_ENDIAN, &to_data);
+                    proto_item_append_text(ti, " = %u", to_data);
+                }
+                proto_item_append_text(ti, ")");
+                offset += tlv_len;
+                break;
+            case MLE_TLV_CSL_ACCURACY:
+            proto_item_append_text(ti, ")");
+              if (tlv_len != 2) {
+                  /* TLV Length must be 2 */
+                  expert_add_info(pinfo, proto_root, &ei_mle_tlv_length_failed);
+                  proto_tree_add_item(tlv_tree, hf_mle_tlv_unknown, payload_tvb, offset, tlv_len, ENC_NA);
+              } else {
+                  proto_tree_add_item(tlv_tree, hf_mle_tlv_csl_clock_accuracy, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
+                  offset++;
+                  proto_tree_add_item(tlv_tree, hf_mle_tlv_csl_uncertainty, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
+                  offset++;
+              }
+            break;
+            case MLE_TLV_LINK_METRICS_QUERY:
+            case MLE_TLV_LINK_METRICS_MANAGEMENT:
+            case MLE_TLV_LINK_METRICS_REPORT:
+            {
+                proto_item_append_text(ti, ")");
+                proto_item *sub_item;
+                proto_tree *sub_tree;
+                guint8 metrics_tlv;
+                while (tvb_offset_exists(payload_tvb, offset)) {
+                    guint8 sub_tlv = tvb_get_guint8(payload_tvb, offset);
+
+                    sub_tree = proto_tree_add_subtree(tlv_tree, payload_tvb, offset, -1, 1, &sub_item, "Sub TLV");
+                    sub_item = proto_tree_add_item(sub_tree, hf_mle_tlv_link_sub_tlv, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset++;
+                    /* Length */
+                    proto_tree_add_item(sub_tree, hf_mle_tlv_length, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
+                    guint8 length_sub_tlv = tvb_get_guint8(payload_tvb,offset);
+                    offset++;
+                    switch (sub_tlv) {
+                    case LINK_METRICS_REPORT_SUB_TLV:
+                        metrics_tlv = tvb_get_guint8(payload_tvb, offset);
+                        /* Type ID Flags */
+                        proto_tree_add_bits_item(sub_tree, hf_mle_tlv_metric_type_id_flags_e, payload_tvb, (offset * 8) + 0, 1, ENC_NA);//E
+                        proto_tree_add_bits_item(sub_tree, hf_mle_tlv_metric_type_id_flags_l, payload_tvb, (offset * 8) + 1, 1, ENC_NA);//L
+                        proto_tree_add_bits_item(sub_tree, hf_mle_tlv_metric_type_id_flags_type, payload_tvb, (offset * 8) + 2, 3, ENC_NA);//Type enum
+                        proto_tree_add_bits_item(sub_tree, hf_mle_tlv_metric_type_id_flags_metric, payload_tvb, (offset * 8) + 5, 3, ENC_NA);//Metric enum
+                        /* Type ID Flags */
+                        offset++;
+                        //latest draft the length is 1 indicates that the extended value is 4 else 1
+                        if((metrics_tlv & 0x40) == 0x40)
+                        {
+                            sub_item = proto_tree_add_item(sub_tree, hf_mle_tlv_value, payload_tvb, offset, 4, ENC_NA);
+                            offset+=4;
+                        }
+                        else
+                        {
+                            sub_item = proto_tree_add_item(sub_tree, hf_mle_tlv_value, payload_tvb, offset, 1, ENC_NA);
+                            offset++;
+                        }
+                        break;
+                    case LINK_METRICS_QUERY_ID_SUB_TLV:
+                        /* Query ID */
+                        proto_tree_add_item(sub_tree, hf_mle_tlv_query_id, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset++;
+                        break;
+                    case LINK_METRICS_QUERY_OPTIONS_SUB_TLV:
+                        proto_tree_add_item(sub_tree, hf_mle_tlv_link_query_options, payload_tvb, offset, length_sub_tlv, ENC_NA);
+                        offset+= length_sub_tlv;
+                        break;
+                    case FORWARD_PROBING_REGISTRATION_SUB_TLV:
+                        proto_tree_add_item(sub_tree, hf_mle_tlv_link_forward_series, payload_tvb, offset, 1, ENC_NA);
+                        offset++;
+                        proto_tree_add_item(sub_tree, hf_mle_tlv_link_forward_series_flags, payload_tvb, offset, 1, ENC_NA);
+                        guint8 forward_series_flag = tvb_get_guint8(payload_tvb, offset);
+                        offset++;
+                        if (forward_series_flag > 0)
+                        {
+                            proto_tree_add_bits_item(sub_tree, hf_mle_tlv_metric_type_id_flags_e, payload_tvb, (offset * 8) + 0, 1, ENC_NA);//Receiver
+                            proto_tree_add_bits_item(sub_tree, hf_mle_tlv_metric_type_id_flags_l, payload_tvb, (offset * 8) + 1, 1, ENC_NA);//Receiver
+                            proto_tree_add_bits_item(sub_tree, hf_mle_tlv_metric_type_id_flags_type, payload_tvb, (offset * 8) + 2, 3, ENC_NA);//Receiver
+                            proto_tree_add_bits_item(sub_tree, hf_mle_tlv_metric_type_id_flags_metric, payload_tvb, (offset * 8) + 5, 3, ENC_NA);//Receiver
+                            offset+=1;
+                        }
+                        break;
+                    case LINK_METRICS_STATUS_SUB_TLV:
+                        proto_tree_add_item(sub_tree, hf_mle_tlv_link_status_sub_tlv, payload_tvb, offset, 1, ENC_NA);
+                        offset++;
+                        break;
+                    case ENHANCED_ACK_LINK_METRICS_CONFIGURATION_SUB_TLV:
+                        if(length_sub_tlv == 1)
+                        {
+                           sub_item = proto_tree_add_item(sub_tree, hf_mle_tlv_link_enh_ack_flags, payload_tvb, offset, 1, ENC_NA);
+                        }
+                        else
+                        {
+                           sub_item = proto_tree_add_item(sub_tree, hf_mle_tlv_link_enh_ack_flags, payload_tvb, offset, 1, ENC_NA);
+                           sub_item = proto_tree_add_item(sub_tree, hf_mle_tlv_link_requested_type_id_flags, payload_tvb, offset+1, (length_sub_tlv-1), ENC_NA);
+                        }
+                        offset+= length_sub_tlv;
+                        break;
+                    }
+                }
+            }
+            break;
+            case MLE_TLV_LINK_PROBE:
+            {
+                proto_item_append_text(ti, ")");
+                proto_tree_add_item(tlv_tree, hf_mle_tlv_link_status, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset++;
+            }
+            break;
+            case MLE_TLV_SUPERVISION_INTERVAL:
+                if (tlv_len != 2) {
+                    /* TLV Length must be 2 */
+                    proto_item_append_text(ti, ")");
+                    expert_add_info(pinfo, proto_root, &ei_mle_tlv_length_failed);
+                    proto_tree_add_item(tlv_tree, hf_mle_tlv_unknown, payload_tvb, offset, tlv_len, ENC_NA);
+                }
+                else {
+                    guint16 interval;
+
+                    interval = tvb_get_ntohs(payload_tvb, offset);
+                    proto_item_append_text(ti, " = %d)", interval);
+                    proto_tree_add_item(tlv_tree, hf_mle_tlv_supervision_interval, payload_tvb, offset, tlv_len, ENC_BIG_ENDIAN);
+                }
+                offset += tlv_len;
+                break;
+            case MLE_TLV_CIM_PROVISIONER_INTERFACE_DATA:
+            case MLE_TLV_CIM_PROVISIONING_DATASET:
+            case MLE_TLV_CIM_DISCOVERY_REQUEST:
+            case MLE_TLV_SECURE_DISSEMINATION:
+
             default:
                 proto_item_append_text(ti, ")");
                 proto_tree_add_item(tlv_tree, hf_mle_tlv_unknown, payload_tvb, offset, tlv_len, ENC_NA);
@@ -1291,7 +1589,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_mic,
       { "Decrypted MIC",
         "mle.mic",
@@ -1300,7 +1597,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     /*MLE Command*/
     { &hf_mle_command,
       { "Command",
@@ -1310,7 +1606,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     /* Generic TLV */
     { &hf_mle_tlv,
       { "TLV",
@@ -1320,7 +1615,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_type,
       { "Type",
         "mle.tlv.type",
@@ -1329,7 +1623,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_length,
       { "Length",
         "mle.tlv.len",
@@ -1338,7 +1631,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     /* Type-Specific TLV Fields */
     { &hf_mle_tlv_source_addr,
       { "Address",
@@ -1348,7 +1640,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     /*  Capability Information Fields */
     { &hf_mle_tlv_mode_nwk_data,
       { "Network Data",
@@ -1358,7 +1649,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_mode_device_type,
       { "Device Type",
         "mle.tlv.mode.device_type",
@@ -1367,7 +1657,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_mode_sec_data_req,
       { "Secure Data Requests",
         "mle.tlv.mode.sec_data_req",
@@ -1376,7 +1665,46 @@ proto_register_mle(void)
         HFILL
       }
     },
-
+    { &hf_mle_tlv_mode_receiver_on_idle,
+      { "R(Reciever/rx)-on-idle",
+        "mle.tlv.mode.receiver_on_idle",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL,
+       HFILL
+      }
+    },
+    { &hf_mle_tlv_mode_reserved1,
+     { "R1(Reserved)",
+        "mle.tlv.mode.reserved1",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL,
+        HFILL
+      }
+    },
+    { &hf_mle_tlv_mode_reserved2,
+      { "R2(Reserved)",
+        "mle.tlv.mode.reserved2",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL,
+        HFILL
+      }
+    },
+    { &hf_mle_tlv_mode_device_type_bit,
+      { "D(Device Type)",
+       "mle.tlv.mode.device_type_bit",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL,
+        HFILL
+     }
+    },
+    { &hf_mle_tlv_mode_network_data,
+       { "N(Network Data)",
+         "mle.tlv.mode.network_data",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL,
+        HFILL
+     }
+    },
     { &hf_mle_tlv_mode_idle_rx,
       { "Receive On When Idle",
         "mle.tlv.mode.idle_rx",
@@ -1385,7 +1713,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_timeout,
       { "Timeout",
         "mle.tlv.timeout",
@@ -1394,7 +1721,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_challenge,
       { "Challenge",
         "mle.tlv.challenge",
@@ -1403,7 +1729,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_response,
       { "Response",
         "mle.tlv.response",
@@ -1412,7 +1737,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_ll_frm_cntr,
       { "Link Layer Frame Counter",
         "mle.tlv.ll_frm_cntr",
@@ -1421,7 +1745,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_mle_frm_cntr,
       { "MLE Frame Counter",
         "mle.tlv.mle_frm_cntr",
@@ -1430,7 +1753,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_unknown,
       { "Unknown",
         "mle.tlv.unknown",
@@ -1439,7 +1761,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_lqi_c,
       { "Complete Flag",
         "mle.tlv.lqi.complete",
@@ -1448,7 +1769,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_lqi_size,
       { "Address Size",
         "mle.tlv.lqi.size",
@@ -1457,7 +1777,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_neighbor,
       { "Neighbor Record",
         "mle.tlv.neighbor",
@@ -1466,7 +1785,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_neighbor_flagI,
       { "Incoming",
         "mle.tlv.neighbor.flagI",
@@ -1475,7 +1793,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_neighbor_flagO,
       { "Outgoing",
         "mle.tlv.neighbor.flagO",
@@ -1484,7 +1801,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_neighbor_flagP,
       { "Priority",
         "mle.tlv.neighbor.flagP",
@@ -1493,7 +1809,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_neighbor_idr,
       { "Inverse Delivery Ratio",
         "mle.tlv.neighbor.idr",
@@ -1502,7 +1817,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_neighbor_addr,
       { "Address",
         "mle.tlv.neighbor.addr",
@@ -1511,7 +1825,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_network_param_id,
       { "Parameter ID",
         "mle.tlv.network.param_id",
@@ -1520,7 +1833,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_network_delay,
       { "Delay",
         "mle.tlv.network.delay",
@@ -1529,7 +1841,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_network_channel,
       { "Channel",
         "mle.tlv.network.channel",
@@ -1538,7 +1849,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_network_pan_id,
       { "PAN ID",
         "mle.tlv.network.pan_id",
@@ -1547,7 +1857,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_network_pmt_join,
       { "Permit Join",
         "mle.tlv.network.pmt_join",
@@ -1556,7 +1865,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_network_bcn_payload,
       { "Beacon Payload",
         "mle.tlv.network.bcn_payload",
@@ -1565,7 +1873,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_route64_id_seq,
       { "ID Sequence",
         "mle.tlv.route64.id_seq",
@@ -1574,7 +1881,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_route64_id_mask,
       { "Assigned Router ID Mask",
         "mle.tlv.route64.id_mask",
@@ -1583,7 +1889,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_route64_entry,
       { "Routing Table Entry",
         "mle.tlv.route64",
@@ -1592,7 +1897,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_route64_nbr_out,
       { "Neighbor Out Link Quality",
         "mle.tlv.route64.nbr_out",
@@ -1601,7 +1905,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_route64_nbr_in,
       { "Neighbor In Link Quality",
         "mle.tlv.route64.nbr_in",
@@ -1610,7 +1913,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_route64_cost,
       { "Router Cost",
         "mle.tlv.route64.cost",
@@ -1629,6 +1931,38 @@ proto_register_mle(void)
       }
     },
 #endif
+    { &hf_mle_tlv_metric_type_id_flags_l,
+      { "L",
+        "mle.tlv.metric_type_id_flags.l",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL,
+        HFILL
+      }
+    },
+    { &hf_mle_tlv_metric_type_id_flags_e,
+      { "E",
+        "mle.tlv.metric_type_id_flags.e",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL,
+        HFILL
+      }
+    },
+    { &hf_mle_tlv_metric_type_id_flags_type,
+      { "Type/average enum",
+        "mle.tlv.metric_type_id_flags.type",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL,
+        HFILL
+      }
+    },
+    { &hf_mle_tlv_metric_type_id_flags_metric,
+      { "Metric enum",
+        "mle.tlv.metric_type_id_flags.metric",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL,
+        HFILL
+      }
+    },
     { &hf_mle_tlv_addr16,
       { "Address16",
         "mle.tlv.addr16",
@@ -1637,7 +1971,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_leader_data_partition_id,
       { "Partition ID",
         "mle.tlv.leader_data.partition_id",
@@ -1646,7 +1979,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_leader_data_weighting,
       { "Weighting",
         "mle.tlv.leader_data.weighting",
@@ -1655,7 +1987,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_leader_data_version,
       { "Data Version",
         "mle.tlv.leader_data.data_version",
@@ -1664,7 +1995,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_leader_data_stable_version,
       { "Stable Data Version",
         "mle.tlv.leader_data.stable_data_version",
@@ -1673,7 +2003,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_leader_data_router_id,
       { "Leader Router ID",
         "mle.tlv.leader_data.router_id",
@@ -1700,7 +2029,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_scan_mask_e,
       { "End Device",
         "mle.tlv.scan_mask.e",
@@ -1709,7 +2037,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_conn_flags,
       { "Flags",
         "mle.tlv.conn.flags",
@@ -1718,7 +2045,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_conn_flags_pp,
       { "Parent Priority",
         "mle.tlv.conn.flags.pp",
@@ -1727,7 +2053,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_conn_lq3,
       { "Link Quality 3",
         "mle.tlv.conn.lq3",
@@ -1736,7 +2061,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_conn_lq2,
       { "Link Quality 2",
         "mle.tlv.conn.lq2",
@@ -1745,7 +2069,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_conn_lq1,
       { "Link Quality 1",
         "mle.tlv.conn.lq1",
@@ -1754,7 +2077,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_conn_leader_cost,
       { "Leader Cost",
         "mle.tlv.conn.leader_cost",
@@ -1763,7 +2085,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_conn_id_seq,
       { "ID Sequence",
         "mle.tlv.conn.id_seq",
@@ -1772,7 +2093,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_conn_active_rtrs,
       { "Active Routers",
         "mle.tlv.conn.active_rtrs",
@@ -1781,7 +2101,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_conn_sed_buf_size,
       { "SED Buffer Size",
         "mle.tlv.conn.sed_buf_size",
@@ -1790,7 +2109,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_conn_sed_dgram_cnt,
       { "SED Datagram Count",
         "mle.tlv.conn.sed_dgram_cnt",
@@ -1799,7 +2117,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_link_margin,
       { "Link Margin",
         "mle.tlv.link_margin",
@@ -1808,7 +2125,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_status,
       { "Status",
         "mle.tlv.status",
@@ -1817,7 +2133,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_version,
       { "Version",
         "mle.tlv.version",
@@ -1826,7 +2141,14 @@ proto_register_mle(void)
         HFILL
       }
     },
-
+    { &hf_mle_tlv_supervision_interval,
+      { "Supervision Interval",
+        "mle.tlv.supervision_interval",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL,
+        HFILL
+      }
+    },
     { &hf_mle_tlv_addr_reg_entry,
       { "Address Registration Entry",
         "mle.tlv.addr_reg",
@@ -1835,7 +2157,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_addr_reg_iid_type,
       { "IID type",
         "mle.tlv.addr_reg_iid_type",
@@ -1844,7 +2165,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_addr_reg_cid,
       { "Context ID",
         "mle.tlv.addr_reg_cid",
@@ -1853,7 +2173,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_addr_reg_iid,
       { "IID",
         "mle.tlv.addr_reg_iid",
@@ -1862,7 +2181,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_addr_reg_ipv6,
       { "IPv6 Address",
         "mle.tlv.addr_reg_ipv6",
@@ -1889,7 +2207,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_channel_page,
       { "Channel Page",
         "mle.tlv.channel_page",
@@ -1898,7 +2215,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_channel,
       { "Channel",
         "mle.tlv.channel",
@@ -1907,7 +2223,30 @@ proto_register_mle(void)
         HFILL
       }
     },
-
+    { &hf_mle_tlv_csl_accuracy,
+      { "CSL Accuracy",
+        "mle.tlv.csl_accuracy",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL,
+        HFILL
+      }
+    },
+    { &hf_mle_tlv_csl_clock_accuracy,
+      { "CSL Clock Accuracy",
+        "mle.tlv.csl_clock_accuracy",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL,
+        HFILL
+      }
+    },
+    { &hf_mle_tlv_csl_uncertainty,
+      { "CSL Uncertainty",
+        "mle.tlv.csl_uncertainty",
+         FT_UINT8, BASE_DEC, NULL, 0x0,
+         NULL,
+         HFILL
+       }
+    },
     { &hf_mle_tlv_pan_id,
       { "PAN ID",
         "mle.tlv.pan_id",
@@ -1916,7 +2255,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_active_tstamp,
       { "Active Timestamp",
         "mle.tlv.active_tstamp",
@@ -1925,7 +2263,6 @@ proto_register_mle(void)
         HFILL
       }
     },
-
     { &hf_mle_tlv_pending_tstamp,
       { "Pending Timestamp",
         "mle.tlv.pending_tstamp",
@@ -1952,6 +2289,119 @@ proto_register_mle(void)
       }
     },
 #endif
+    { &hf_mle_tlv_link_query_options,
+      { "Link Query options",
+        "mle.tlv.link_query_options",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "Link Sub TLV",
+          HFILL
+      }
+    },
+    { &hf_mle_tlv_csl_sychronized_timeout,
+        { "CSL Synchronized Timeout",
+          "mle.tlv.link_csl_synchronized_timeout",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          "Thread CSL Synchronized Timeout",
+          HFILL
+        }
+      },
+    { &hf_mle_tlv_link_enh_ack_flags,
+      { "Enh-ACK Flags",
+        "mle.tlv.link_enh_ack_flags",
+          FT_UINT8, BASE_DEC, VALS(mle_tlv_link_enh_ack_flags_vals), 0x0,
+          "Thread Enh-ACK Flags",
+          HFILL
+      }
+    },
+    { &hf_mle_tlv_link_requested_type_id_flags,
+      { "Requested Type ID flags",
+        "mle.tlv.link_requested_type_id_flags",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "Thread Requested Type ID flags",
+          HFILL
+      }
+    },
+    { &hf_mle_tlv_link_forward_series,
+        { "Link Forward Series",
+          "mle.tlv.link_forward_series",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "Link Sub TLV",
+          HFILL
+        }
+    },
+    { &hf_mle_tlv_link_forward_series_flags,
+      { "Link Forward Series Flags",
+        "mle.tlv.link_forward_series_flags",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "Link Sub TLV",
+        HFILL
+      }
+    },
+    { &hf_mle_tlv_link_timeout,
+      { "Link Timeout",
+        "mle.tlv.link_timeout",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "Link Sub TLV",
+        HFILL
+      }
+    },
+    { &hf_mle_tlv_link_concatenation_link_metric_typeid_flags,
+      { "Concatenation of Link Metric Type ID Flags",
+        "mle.tlv.link_concatentation_link_metric_typeid_flags",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "Link Sub TLV",
+        HFILL
+      }
+    },
+    { &hf_mle_tlv_link_status,
+      { "Link Status",
+        "mle.tlv.link_status",
+        FT_UINT8, BASE_DEC,  VALS(mle_tlv_link_param_vals), 0x0,
+        "Link Sub TLV",
+        HFILL
+      }
+    },
+    { &hf_mle_tlv_link_status_sub_tlv,
+      { "Link Sub TLV Status",
+        "mle.tlv.link_status_sub_tlv",
+        FT_UINT8, BASE_DEC,  VALS(mle_tlv_link_sub_tlv_vals), 0x0,
+        "Thread Link Sub TLV Status",
+        HFILL
+      }
+    },
+    { &hf_mle_tlv_link_sub_tlv,
+      { "Link Metrics Sub TLV",
+        "mle.tlv.link_sub_tlv",
+        FT_UINT8, BASE_DEC,  VALS(mle_tlv_link_param_vals), 0x0,
+        "Link Sub TLV",
+        HFILL
+      }
+    },
+    { &hf_mle_tlv_metric_type_id_flags,
+      { "Metric Type ID Flags",
+        "mle.tlv.metric_type_id_flags",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Thread Metric Type ID Flags",
+        HFILL
+      }
+    },
+    { &hf_mle_tlv_value,
+      { "Value",
+        "mle.tlv.value",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Thread Value",
+        HFILL
+      }
+    },
+    { &hf_mle_tlv_query_id,
+      { "Query ID",
+        "mle.tlv.query_id",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        "Thread Query ID",
+        HFILL
+      }
+    }
+
   };
 
   static gint *ett[] = {
@@ -1997,7 +2447,7 @@ proto_register_mle(void)
 
     /* setup registration for other dissectors to provide mle key hash algorithms */
     mle_key_hash_handlers = wmem_tree_new(wmem_epan_scope());
-}
+ }
 
 void
 proto_reg_handoff_mle(void)
