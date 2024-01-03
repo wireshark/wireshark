@@ -87,7 +87,7 @@ IMZM-PDU-Descriptions                           imzm
 #.END
 
 #.PDU
-CoopAwareness
+CamPayload
 CoopAwarenessV1
 DenmPayload
 DecentralizedEnvironmentalNotificationMessageV1
@@ -395,7 +395,7 @@ MessageId
 RegionId
 CauseCodeType
 
-#.FN_HDR CoopAwareness
+#.FN_HDR CamPayload
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CAM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CAM");

@@ -27,7 +27,8 @@ set( ASN_FILE_LIST
 	ISO19321IVIv2.asn
 	ETSI_TS_103301.asn
 	CAMv1.asn
-	CAM.asn
+#	CAM.asn
+	CAM-PDU-Descriptions.asn
 	DENMv1.asn
 #	DENM.asn
 	DENM-PDU-Descriptions.asn

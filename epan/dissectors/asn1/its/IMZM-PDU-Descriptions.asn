@@ -13,14 +13,15 @@ BEGIN
 IMPORTS 
 --! @brief Include ETSI TS 102 894-2
 --! Include references from @url https:
-ItsPduHeader, Latitude, Longitude, TimestampIts, ProtectedZoneRadius, ProtectedZoneId, InterferenceManagementZones
+ItsPduHeader, Latitude, Longitude, TimestampIts, ProtectedZoneRadius, ProtectedZoneId, InterferenceManagementZones, BasicContainer, GenerationDeltaTime
 FROM ETSI-ITS-CDD {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) 102894 cdd (2) major-version-3 (3) minor-version-1 (1) }
 
 
 --! @brief Include ETSI EN 302 637-2
 --! Include references from @url https:
-BasicContainer, GenerationDeltaTime
-FROM CAM-PDU-Descriptions { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) en (302637) cam (2) version (2)}
+--BasicContainer,
+--GenerationDeltaTime
+--FROM CAM-PDU-Descriptions { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) en (302637) cam (2) version (2)}
 
 --! @brief Include ETSI TS 103 300-3
 --! All data types, imported from `VAM-Temp-Imports` will be imported from the CDD ETSI TS 102 894-2 Release 2 when available  
