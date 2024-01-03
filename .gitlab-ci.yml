@@ -271,20 +271,30 @@ Source Package:
     - !reference [.if-w-w-only-merged]
     - !reference [.if-2x-daily-schedule]
   script:
-    - ../tools/make-version.py --set-release ..
+    - ../tools/make-version.py --set-release --version-file=wireshark_version.txt ..
     - ../tools/update-appdata.py
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -G Ninja $CMAKE_ARGS ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - cd $CI_PROJECT_DIR
     - build/packaging/source/git-export-release.sh -d .
+    - cd build
+    - ninja release_notes
+    - WIRESHARK_VERSION=$(< wireshark_version.txt)
+    - cp -v doc/release-notes.html ../release-notes-${WIRESHARK_VERSION}.html
+    - cp -v doc/release-notes.txt ../release-notes-${WIRESHARK_VERSION}.txt
   after_script:
-    - if [ -n "$SCHEDULE_TYPE" ] ; then exit 0 ; fi
     # - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
+    - if [ -n "$SCHEDULE_TYPE" ] ; then exit 0 ; fi
     - stat --format="%n %s bytes" wireshark-*.tar.*
     - for digest in sha512 sha256 sha1 ; do openssl $digest wireshark-*.tar.* ; done
     # This will break if we produce multiple tarballs, which is arguably a good thing.
     - if [ -n "$S3_DESTINATION_DIST" ] ; then aws s3 cp wireshark-*.tar.* "$S3_DESTINATION_DIST/" ; fi
+    - |
+      if [ -n "$S3_DESTINATION_RELEASE" ] ; then
+        aws s3 cp release-notes-*.txt "$S3_DESTINATION_RELEASE/"
+        aws s3 cp release-notes-*.html "$S3_DESTINATION_RELEASE/"
+      fi
   artifacts:
     paths:
       - wireshark-*.tar.*
