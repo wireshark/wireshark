@@ -1,0 +1,1282 @@
+commit 520740c420
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Fri Dec 15 16:53:39 2023 +0100
+
+    SSH: don't hide signature types you don't dissect
+
+    (cherry picked from commit c550e9f26aab5fee47930a75f0b4e9623ad48102)
+
+commit 7251bd3b49
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Wed Jan 3 15:34:18 2024 +0100
+
+    ITS:Backport update of ASN1 files to fix a bug.
+
+commit 2b2dfed3a2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jan 3 08:46:20 2024 -0500
+
+    TCP: Prefer full checksum over partial if the same
+
+    If the full checksum and partial checksum are the same (because
+    the contribution from the TCP payload doesn't change it), don't
+    call it a partial checksum.
+
+    This is already done in UDP.
+
+    (cherry picked from commit 0e9ea401f7c339a6896c6ced7777c84c9a4539fb)
+
+commit 1e691f7d48
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jan 2 21:28:02 2024 -0500
+
+    TCPCL: Do not call g_int64_hash on a gint
+
+    Do not call g_int64_hash on a pointer to a gint (which might
+    be 32 bit). Call g_int_hash instead.
+
+    Fixes use of unitialized value.
+
+    (cherry picked from commit 329523afee81e7f14c88fbe4ca82d8de9f53d7e7)
+
+commit ff30f964dc
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jan 2 19:19:41 2024 -0500
+
+    T38: Fully initialize t38_conv struct
+
+    Fix #19563
+
+    (cherry picked from commit d44e171cee882b06ec3acf64789723f404c854d7)
+
+commit 150cf56090
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jan 2 14:10:23 2024 -0800
+
+    Prep for 4.2.1
+
+    [skip ci]
+
+commit 1e19263699
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Jan 1 22:10:30 2024 -0500
+
+    maxmind_db: Set CLOEXEC on the pipe file descriptors
+
+    maxmind_db tries to quit mmdbresolve by closing the pipe that
+    it uses to write to mmdbresolve, so that mmdbresolve will exit
+    when it tries to read and the pipe is broken.
+
+    However, if mmdbresolve is started, and then later dumpcap is
+    spawned via fork() and exec*(), either to capture or for capture
+    stats (sparklines), then the dumpcap process will have open ends
+    of the pipe, and so mmdbresolve will not exit when disabled
+    via Preferences->Name Resolution->Enable IP Geolocation.
+    Instead, Wireshark will hang on waitpid().
+
+    Fix the hang by setting FD_CLOEXEC on the pipe's stdin and stdout
+    file descriptors after spawning the mmdbresolve process, so that
+    dumpcap does not inherit them.
+
+    (cherry picked from commit 940feb7bf23e4b780d70842f83f97880c8dbf70b)
+
+commit 4cac2027e0
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Jan 1 09:06:25 2024 -0500
+
+    DOCSIS: Extended EH Elements are not recursive
+
+    Extended EH Elements, which are still not defined as of DOCSIS 4.0
+    and must be ignored (CM-SP-MULPIv4.0-I08-231211), are not recursive
+    but instead have a full byte each for type and length instead of
+    a nibble, allowing specifying more than 15 extended header types or
+    extended header types with length longer than 15.
+
+    Increment the position for the first type/length byte to make the
+    logic more straightforward.
+
+    Part of #19557
+
+    (backported from commit 77b0583568836554bd51ee8fde54ba5a3d000c0e)
+
+commit c59e392e80
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 31 15:06:40 2023 -0800
+
+    asn2wrs: Add recursion checks
+
+    Add a recursion depth check whenever we have cyclic dependencies.
+    Regenerate our dissectors.
+
+    Fixes #19501
+
+    (cherry picked from commit 8f797db63ca44875a07d0d8a5d298a79d09b44ec)
+
+commit 6cb1e60e20
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jan 1 17:20:10 2024 -0800
+
+    RTPS: Fully initialize a struct
+
+    Make sure we fully initialize an endpoint_guid struct. Blind attempt
+    at fixing
+
+    ```
+    ==23447== Use of uninitialised value of size 8
+    ==23447==    at 0xDAF0816: wmem_map_lookup (wsutil/wmem/wmem_map.c:264)
+    ==23447==    by 0x7DE388C: get_domain_id_from_tcp_discovered_participants (epan/dissectors/packet-rtps.c:6518)
+    ==23447==    by 0x7DE33AB: dissect_rtps (epan/dissectors/packet-rtps.c:13741)
+    ```
+
+    in #19558.
+
+    (cherry picked from commit 45b929a1b63a766edaa7eb52071f10614b87a5e2)
+
+commit 023ef43fa9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Dec 29 19:55:44 2023 -0500
+
+    CFM: Fix check for Management Address [Domain] when Chassis ID Len is 0
+
+    According to IEEE 802.1Q 21.5.3.2, if the Chassis ID Length field is 0,
+    then the Chassis ID Subtype is not present. Thus the number of octets
+    used for the Chassis ID is 1 (the length field itself) if the length is
+    0, and 2 plus the length value if the length is > 0.
+
+    According to 21.5.3.6, the Management Address Length field should not
+    be present if the Management Address Domain Length has the value zero.
+    If it is present anyway (as in the file provided in #13720), handle it
+    but add an expert info.
+
+    Fix #13720
+
+    (backported from commit 97d59fc20fb0823e90e24eadd907d8a914b0d626)
+
+commit 54b9e60451
+Author: Martin Mathieson <martin.r.mathieson@googlemail.com>
+Date:   Tue Jan 2 00:32:10 2024 +0000
+
+    Set some item masks back to previous values
+
+commit c000387e0c
+Author: Ilya Kulakov <kulakov.ilya@gmail.com>
+Date:   Wed Dec 20 12:31:03 2023 -0800
+
+    ChmodBPF: Specify AssociatedBundleIdentifiers in the Launch Daemon property list
+
+    As per https://developer.apple.com/documentation/servicemanagement/updating_helper_executables_from_earlier_versions_of_macos
+
+    (cherry picked from commit e07603d512bee0932c56205cbf55949d6bf55b8d)
+
+commit be9c9a9151
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Mon Jan 1 12:25:09 2024 +0100
+
+    Happy New Year 2024
+
+    (cherry picked from commit 322ae0f0d86e62cedbea74dbe85fd9ca98d7f3a6)
+
+commit 2f55b74eec
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 31 16:24:43 2023 +0000
+
+    [Automatic update for 2023-12-31]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 331546db2b
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sun Dec 31 12:56:53 2023 +0100
+
+    pcap: Update link_type_vals
+
+    (cherry picked from commit 17fcdb4735113b155994254cc10ce733b82c00e2)
+
+commit 52943e58b6
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Dec 30 21:58:01 2023 -0800
+
+    dumpcap: treat connect errors as remote capture errors.
+
+    Treat errors beginning with "Is the server properly installed?" similarly
+    to "The other host terminated the connection.", and don't tell the user
+    to report them as Wireshark bugs.
+
+    This should clear up at least some of the Wireshark side of #14920.
+    (Libpcap should do a better job of reporting errors as well, although
+    that will ultimately involve better libpcap APIs, for which there are
+    other reasons as well.)
+
+    (cherry picked from commit dc6f197726f8fbe60d2d9204ffefd22a6c470913)
+
+commit eaa1f0edff
+Author: Ferry Huberts <ferry.huberts@pelagic.nl>
+Date:   Thu Dec 28 21:58:05 2023 +0100
+
+    packet-sv: fix the seqData validity
+
+    Update to the latest specification, which specifies the currently used
+    value for 'invalid' as 'backward compatible (do not use)'.
+
+    See
+      IEC 61850-9-2 Edition 2.1 2020-02,
+      Section 8.6 Definitions for basic data types – Presentation layer functionality,
+      Table 21
+
+    Be aware that in the specification the bits are numbered in reverse (it
+    specifies the least significant bit as bit 31 instead of as bit 0)!
+
+    Signed-off-by: Ferry Huberts <ferry.huberts@pelagic.nl>
+
+    (cherry picked from commit 1ccbc482a07683cddcd04df368e6d941bca993b1)
+
+commit a249644eb6
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Thu Dec 28 11:22:14 2023 +0100
+
+    Bluetooth: update UUID and Company ID registry
+
+    Pull current values from the Bluetooth SIG registry, while keeping
+    old values around. Don't be afraid for UTF-8.
+
+    (cherry picked from commit 1d6abf627c68e0907602f4b3b05479288b15ed56)
+
+commit 46b91b5999
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Dec 27 20:57:27 2023 +0100
+
+    BTL2CAP: Switch to using more efficient bluetooth_uuid_vals_ext
+
+    (cherry picked from commit 64b9bad19919337845ef7112e5d2c25168d3ac3e)
+
+commit abdbb30e41
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Dec 27 20:51:09 2023 +0100
+
+    BT_ATT: Adjust ranges for protocol registration
+
+    With the growth of the member registry they became part of the
+    protocol registrations for use with decode as.
+    Extend the code space reserved for member registrations, to
+    exclude these and new members for the foreseeable future.
+
+    (cherry picked from commit 2dae7c2d797a9df0fd9fd7244badbb9f3c465db0)
+
+commit da9b788154
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 24 16:28:11 2023 +0000
+
+    [Automatic update for 2023-12-24]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 169ed5893f
+Author: Simon Steinmann <simon.steinmann91@gmail.com>
+Date:   Wed Dec 20 07:34:12 2023 +0000
+
+    s4607 - Fix Dwell Mask
+
+    (cherry picked from commit c1ecdb49b341999b4dac9a82ae080780bb81e6f1)
+
+commit 62ab1d55e4
+Author: Tomasz Moń <desowin@gmail.com>
+Date:   Wed Nov 29 18:30:26 2023 +0100
+
+    Qt: Fix profile menu widget parent relationships
+
+    Prevent crash after profile import by correctly setting import menu
+    parent. Set profile menu delete on close attribute only on left click to
+    prevent the "Switch to" menu from disappearing after first time the
+    submenu is shown and mouse is moved away.
+
+    While the symptoms of the issue this commit fixes are the same as #18875
+    the actual reason behind the crash is different. In other words, this
+    crash after profile import is fixed only if this commit is used together
+    with Qt version that has QTBUG-106718 fixed.
+
+    (cherry picked from commit c001d55cc42ba0e555bdc7ff40dcb1b11f2db8b8)
+
+commit ae1f9778e2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Dec 20 11:05:17 2023 -0500
+
+    Qt: connect SCTP All Associations Analyze button correctly
+
+    The filterPackets signal takes a QString by value, not by
+    reference (which is fine in Qt due to implicit sharing), and
+    must be connected correctly to work (at least on Qt6):
+
+     ** (wireshark:829501) 10:56:20.423294 [GUI WARNING] -- QObject::connect: No such signal SCTPAssocAnalyseDialog::filterPackets(QString&,bool) in ui/qt/sctp_all_assocs_dialog.cpp:98
+     ** (wireshark:829501) 10:56:20.423357 [GUI WARNING] -- QObject::connect:  (sender name:   'SCTPAssocAnalyseDialog')
+     ** (wireshark:829501) 10:56:20.423382 [GUI WARNING] -- QObject::connect:  (receiver name: 'WiresharkMainWindow')
+
+    Related to #19544
+
+    (cherry picked from commit a0d904896dcc53f54023df26b85fcbc5b2533ee6)
+
+commit bc96c6d601
+Author: Liam Kearney <liam.kearney@morsemicro.com>
+Date:   Wed Dec 20 09:28:52 2023 +1100
+
+    ieee80211: Allow RPS IE dissector to parse multiple raw assignments
+
+    (cherry-picked from commit e2594ef0e422df1aed765e4e59f986d65e4baaca)
+
+commit 40f87cbc85
+Author: Liam Kearney <liam.kearney@morsemicro.com>
+Date:   Mon Dec 18 11:45:48 2023 +1100
+
+    ieee80211: Fix RPS IE (802.11ah / S1G) dissector for RAW slot definition.
+
+    Fix slot definition subfield format to give an 8 bit slot duration if set to 0, update the 11 bit mask to be 11 bits,
+    and add a custom formatter to print the slot duration in uS
+
+    (cherry picked from commit 71da5f72b580263d63df62690250b34b6409006d)
+
+commit 7323a7af50
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Dec 18 17:16:28 2023 -0500
+
+    Qt: Don't clear selected interface when auto sorting
+
+    Use layoutAboutToBeChanged() and layoutChanged() instead of
+    beginResetModel() / endResetModel(). It still causes a sort
+    but doesn't clear the selected item.
+
+    Fix #19133
+
+    (cherry picked from commit 71344aa160b115e75443e763ca00f5dbea9d7b64)
+
+commit 0ab51ac7f0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 17 16:24:55 2023 +0000
+
+    [Automatic update for 2023-12-17]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit a731f1468b
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Dec 12 22:40:01 2023 +0100
+
+    Resolve GCC clobbered variable warnings
+
+    Building with GCC 13.2.0 exposes even more clobbered variable warnings.
+    Mark these volatile to circumvent those.
+
+    (cherry picked from commit c0bfd405b551aeef69f989320ddd5f2618cffaf8)
+
+commit e90c6fed2e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Dec 13 09:13:59 2023 -0800
+
+    GitLab CI: Switch to clang 17
+
+    (cherry picked from commit 5353057795700e71ad1ea250c648f6c11065e3e7)
+
+commit 362119c715
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Dec 12 20:49:51 2023 -0500
+
+    Qt: Don't connect in the .ui file only to disconnect in constructor
+
+    Don't connect the QDialogButtonBox accepted() signal to the
+    dialog's accept() slot in the Qt Creator .ui XML only to
+    disconnect that connection in the constructor.
+
+    Apparently in Qt6 these things are parsed in somewhat different
+    order, so the disconnection wasn't happening, leading to
+    destroying the dialog while the FileDialog was still open.
+
+    There's a case for moving the Save As actions to ActionRole buttons
+    (though then the little save icon would have to be set manually.)
+
+    Fix #19529
+
+    (cherry picked from commit 897c94bd0422fb72c57aabddac91c8a0b8523156)
+
+commit bdd4ece32a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Dec 12 14:58:18 2023 -0800
+
+    Windows: Upgrade GnuTLS to 3.8.2
+
+    (cherry picked from commit ac524cff38c80a20b8a8a10ab261c23cd2f2fbad)
+
+commit e49c398962
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Dec 9 22:05:28 2023 -0500
+
+    HTTP3, QUIC: Desegment HTTP3 QPACK Encoder Streams
+
+    Return the number of bytes decoded and placed in the tree and
+    set pinfo->desegment_offset and desegment_len so that the QUIC
+    disssector can desegment the HTTP3 Encoder stream.
+
+    Pass that number of bytes to the nghttp3 decoder so that we don't
+    end up passing the same bytes twice with reassembly.
+
+    Make it so the QUIC data stream desegmenting code puts a link
+    to the frame data was reassembled in for segments that begin
+    an MSP as well in more cases, as the TCP dissector does.
+    (There are a few more cases TODO to produce results similar to
+    TCP.)
+
+    Fix #19475
+
+    (backported from commit 2e5f5ab6455ea4f6baf8585bda7bc906294ed2b1)
+
+commit 4d5f88c12f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 10 16:24:13 2023 +0000
+
+    [Automatic update for 2023-12-10]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 0477cea190
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Dec 8 10:32:35 2023 -0500
+
+    HTTP/3: Only decode a QPACK encoder stream on the first pass
+
+    Store the QPACK encoder stream state, such as the number of insertions
+    in the current segment and the total so far, and retrieve it on subsequent
+    passes. Passing the data to the nghttp3_qpack_decoder on subquent
+    dissections creates confusion and inaccurate results.
+
+    We don't have to memdup the buffer unless we're actually doing the
+    decoding.
+
+    We can later use this information in order to defragment QPACK
+    table insertion instructions that are split across QUIC packets.
+
+    Related to #19475
+
+    (backported from commit 2e288ae3931fe01d6a4694a3dc94a641abe76e5c)
+
+commit e845b9d845
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Dec 9 13:22:20 2023 -0800
+
+    release notes: note support for if_tsoffset option in pcapng.
+
+commit bf929bc2e4
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Dec 9 12:15:50 2023 -0800
+
+    nflog: time stamps are in seconds/microseconds, not seconds/nanoseconds.
+
+    See
+
+    1. https://www.tcpdump.org/linktypes/LINKTYPE_NFLOG.html
+
+    2. The `nla_put(inst->skb, NFULA_TIMESTAMP, sizeof(ts), &ts))`
+       call in net/netfilter/nfnetlink_log.c in the Linux kernel source.
+
+    Add support for 16-byte and 12-byte seconds/microseconds time stamp, to
+    match what we already have for seconds/nanoseconds time stamps, in
+    `proto_tree_add_item()` etc., and use that.
+
+    Fixes #19525.
+
+    (cherry picked from commit 17d479f87604da3859cb79323b6ce63d49f0af44)
+
+commit bb42e54ca1
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Dec 8 20:40:13 2023 -0500
+
+    QUIC: Don't desegment and call app handles for 0-length stream segments
+
+    Don't bother trying to desegment and calling the subdissector indicated
+    by the app handle / ALPN for a zero length stream payload segment. It
+    won't work, and it messes up our methods of determining if desegmentation
+    is needed.
+
+    Revisit this is there ever is a protocol on top of QUIC that must
+    be called with a zero length payload segment.
+
+    Fix #19497
+
+    (cherry picked from commit 7a6338c60c3c3ee2f942e035b2e965eef1891e8a)
+
+commit fe76ec14da
+Author: Paul Aurich <paul@darkrain42.org>
+Date:   Fri Dec 8 12:51:12 2023 -0800
+
+    debian: fix names of added symbols
+
+    Change-Id: Ic400836ff0da0ba43b831f6865a535e5d14d7d6a
+
+commit 89c3c1c2a6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Dec 7 18:18:49 2023 -0800
+
+    GitLab CI: Make sure we set the ccache size in our fuzz jobs
+
+    (cherry picked from commit 9a9b2e114fe29bfed31f29c231da8a975434d2b8)
+
+commit e9e71ca8c7
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Dec 5 22:43:26 2023 -0500
+
+    HTTP3: Improve QPACK dissection split across packets, prevent crash
+
+    Pass the tvbuff and offset into read_qpack_prefixed_integer
+    instead of raw pointers, and call tvb_get_ptr before doing
+    the pointer arithmetic. This throws a ReportedBoundsError if
+    we're trying to get something at an illegal offset, instead of
+    crashing.
+
+    Catch the ReportedBoundsError there and when adding the opcode
+    to the tree in order to break out of the loop instead of having
+    malformed packets and failing to pass information to the qpack
+    decoder.
+
+    Pass the entire stream buffer to the nghttp3 qpack decoder,
+    not just what is decoded; it saves state and doing so is
+    necessary in order to handle QPACK instructions that are split
+    across QUIC packet boundaries.
+
+    We don't properly put the QPACK information into the proto
+    tree when it's split across boundaries still, but it at least
+    is processed by the decoder so that the HEADERS are now properly
+    displayed.
+
+    The QPACK information is also still passed to the decoder every time
+    a packet is dissected, which eventually results in the decoder erring
+    out (especially with random packet access.)
+
+    Fix #19502. Related to #19475.
+
+    (cherry picked from commit 577cc97f322d5df60a1215061aa8dc4aa2a0f75b)
+
+commit fe34d207a9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Dec 7 07:16:43 2023 -0500
+
+    Qt: Fix crash related to new TCP analysis pref
+
+    The selected rows the main window returns could be an empty list.
+    Check for that.
+
+    Fix #19521
+
+    (cherry picked from commit 18a5b0976a63db2346f8104afcff35813534ddf0)
+
+commit abecf5a280
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Dec 6 19:35:48 2023 -0500
+
+    epan: Remember whether heuristic dissectors are enabled by default
+
+    Store whether or not heuristic dissectors are enabled by default.
+    When reenabling protocols to their initial state, such as when
+    changing profiles, also set heuristic dissectors back to their
+    initial state.
+
+    Also use the initial state in dissector_dump_heur_decodes so
+    that it correctly displays the default state of a heuristic
+    dissector, even if the heuristic dissector has been changed from
+    the default.
+
+    Fix #19520
+
+    (cherry picked from commit 8e8e07d892e7d4f374d2e2e91687e57d7f1a215c)
+
+commit a41eb988c7
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Dec 6 06:57:24 2023 -0500
+
+    Qt: Disable the capture actions at startup if built without libpcap
+
+    This prevents the icons from being colored in the toolbar but
+    unusable. More importantly, it makes it possible to quit
+    Wireshark without the check in WiresharkMainWindow::closeEvent
+    preventing quitting because actionCaptureStop is enabled.
+
+    Fixup 3aafecb7b95a12e4b1cf52f36c1e1e51e30805ee
+
+    (cherry picked from commit 184cf9e28b36bc8aec281a1a1a5674416edad933)
+
+commit 256bb86c91
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed Dec 6 00:15:04 2023 -0800
+
+    Fix wsutil/ws_strptime.c to compile on FreeBSD.
+
+    Based on the FreeBSD port of Wireshark's changes, but generalized and
+    fixed so as not to upset people in locales that weren't on standard time
+    at 1970-01-01 00:00:00 UTC.  Read the comment for the painful details.
+
+    (cherry picked from commit 85e0909553e0ac3b1f4db43befe7a83a615bc515)
+
+commit 3eb4bc85f2
+Author: João Valverde <j@v6e.pt>
+Date:   Tue Dec 5 12:38:30 2023 +0000
+
+    wslua: Fix loading "init.lua" in subdirectories
+
+    Commit 9fb85a847d0ae94d6b4a94baa67f16bcfbd965fe inadvertently
+    broke loading of scripts named "init.lua" in subfolders below
+    the root plugin dir.
+
+    Fix the code so that only the "init.lua" file in the root plugin
+    dir is treated as a special case.
+
+    Fixes #19516.
+
+    (cherry picked from commit 242ddbb24b1d581fcd7c236c908b9bd0ec642ffa)
+
+commit 110aa34a60
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Dec 5 08:51:55 2023 -0500
+
+    SDP: Don't look past the fmtp parameter tokenlen for equals
+
+    Fixes an issue with SDP media format parameters that aren't in the
+    "parameter=value" format being followed by parameters that are.
+
+    Fix #19518
+
+    (cherry picked from commit 0e01240e78c7b9abe960b99d484372ed913d0397)
+
+commit ca70692fc7
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Wed Nov 29 16:56:37 2023 +0100
+
+    DNS: Reduce false positives of the DNS heuristic
+
+    Reducing false positives:
+    - DNS with no query and no answer does not make sense
+    - DNS packet has to have a minimum size for questions and RRs
+
+    (cherry picked from commit 363e0a74473a065fec0984d07d67740cc8312994)
+
+commit 649d1398fa
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Dec 1 11:00:34 2023 -0800
+
+    ZigBee TLV: Add a recursion check
+
+    Blind attempt at fixing #19504.
+
+    (cherry picked from commit 98a8a9787bd9a6b15684f32f4cb760f0072f1b87)
+
+commit d73c33a1be
+Author: Giovanni Musto <giovanni.musto@partner.italdesign.it>
+Date:   Mon Dec 4 11:13:59 2023 +0100
+
+    BLF: Fix BLF_OBJTYPE_SYS_VARIABLE dissection
+
+    (cherry picked from commit 369651d61838a098132bc5bfcc2ae03587b953f9)
+
+commit 0b0b76c7d5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 3 16:27:50 2023 +0000
+
+    [Automatic update for 2023-12-03]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 9f508cc4f3
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Dec 1 05:33:02 2023 -0500
+
+    doc: Update WSUG for Windows 8.1, Server 2012
+
+    Those are no longer supported by Microsoft nor Qt 6.
+
+    Also add Windows 11 and Server 2022 to the list of MS supported
+    versions.
+
+    [skip ci]
+
+    Fix #19512
+
+    (cherry picked from commit 268df12057d79d7795cd4b252a5e27522febe90a)
+
+commit f9a537ded9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Nov 29 23:25:34 2023 -0500
+
+    Qt: Invalidate the idle dissection timer when clearing packet list
+
+    When clearing the packet list model (called eventually from closing
+    the capturing file or redissecting), mark the idle dissection timer
+    as invalid so that idle dissection stops. It will be started again
+    by PacketList::captureFileReadFinished()
+
+    This saves some CPU during what is a fairly intensive and not
+    actually idle time, computing information that might be invalid.
+
+    In particular, this can prevent some read failures and spurious pop-up
+    error messages when opening a large file and saving it to a different
+    format (so that it is closed, and rescanned for new packet offsets)
+    while idle dissection is still ongoing. The idle dissection can
+    attempt to read packets with the wrong offsets. The error is caught
+    without serious issues, but messages like "pcap: file has X-byte
+    packet, bigger than maximum of Y" would imply to a user that something
+    went wrong with saving the file in the new format.
+
+    Related to #19486
+
+    (cherry picked from commit 6409a42f4bad9655fd2827ff437164e5d0ee3df8)
+
+commit 365466a80e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Nov 29 09:24:55 2023 -0500
+
+    manuf: Remove curly quotes, double angle brackets
+
+    Remove curly quotes and double angle bracket punctuation too.
+    For some reason this has to be done in a different regex substitution
+    or Python handles it incorrectly.
+
+    Also add Chengdu to the list of Chinese locations
+
+    (cherry picked from commit 2f3f879f90fbe9b6304296862e320f54ce32643c)
+
+commit a5584d8851
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Nov 29 07:37:43 2023 -0500
+
+    manuf: Update make-manuf for a few more Chinese names
+
+    Remove the contents of fullwidth parenthesis for the same reason as
+    parenthesis.
+
+    Special case 杭州德澜科技有限公司（HangZhou Delan Technology Co.,Ltd）
+    where the item in the parenthesis is the English name.
+
+    Add Guangdong to the list of city names to remove at the start.
+
+    (cherry picked from commit 7234ce727b2d3e2305cb2481efb8907850b2b8e3)
+
+commit e30637d5e9
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Wed Nov 29 12:06:50 2023 +0100
+
+    TECMP: Make ASAM CMP detection backward compatible (Bugfix)
+
+    TECMP 1.7 states that the first byte of the Device ID is always 0x00, so
+    we can detect ASAM CMP on this. The older TECMP versions allowed that
+    byte to 0xff for user-defined Device IDs. Since traces with TECMP 1.6
+    and before still exist, the ASAM CMP Detection is updated to allow the
+    first byte to be 0xff in TECMP too.
+
+    (cherry picked from commit fc0f96477eea0c752275ec8668054278fcfed87b)
+
+commit 987a39ef2a
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Nov 28 22:43:48 2023 -0800
+
+    pcapng: support the if_tsoffset option.
+
+    When calculating packet timestamps, add the timestamp offset to the
+    seconds value of the timestamp.
+
+    At least one DPDK developer considered using if_tsoffset, but abandoned
+    the idea because of the lack of Wireshark support:
+
+    https://lore.kernel.org/all/36758990.XM6RcZxFsP@thomas/t/#mafbe5280ba947327be1798bf15e0781d63b049a7
+
+    and the pcapng code in the Rust pcap_parser crate:
+
+    https://docs.rs/pcap-parser/latest/pcap_parser/
+
+    supports if_tsoffset.
+
+    libpcap doesn't currently support it, but I'll be changing it to do so.
+
+    While we're at it, update comments to reflect the deprecation of
+    if_tzone (never well defined, and, unless you can map them to IANA
+    timezone names or something such as that, far from sufficient to allow
+    converting UTC to the appropriate local time), and the clarification of
+    the definition of if_tsoffset, in the pcapng spec.
+
+    (backported from commit 1c2093eec8dc8667c9f6b7c5ec9f67e0c86c7571)
+
+commit da2af38eaa
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Nov 28 20:04:57 2023 -0500
+
+    Qt: Handle manufacturer names with spaces in Resolved Addresses
+
+    Manufacturer long names can have spaces in them, so don't create
+    a string from the OUI/address and the long name and then split it
+    on space later, just create a QStringList to begin with.
+
+    Fixes names with spaces in them not appearing in Resolved Addresses.
+
+    (cherry picked from commit f9914098f605df3a28e429768bbac2597cc3413d)
+
+commit 8f43374e92
+Author: Albert Chuang <achuang@wi-fi.org>
+Date:   Tue Nov 28 15:26:11 2023 +0800
+
+    ieee80211: Fix two issues
+
+    1. Check if there are elements after SAE confirm paramter
+    2. Fix wrong MIC length in FT element for AKM FT_FILS_SAH256
+
+    (cherry picked from commit 3b8fb201a0e861812a875f8af22ed7b0c22e2a76)
+
+commit a570d1fb1e
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Nov 28 10:18:03 2023 -0800
+
+    debian: add more new symbols.
+
+commit e1b799f066
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Nov 27 06:33:07 2023 -0500
+
+    QUIC: Short Header packets can't be coalesced with Initial or 0-RTT
+
+    If the first QUIC packet in a frame is an Initial or 0-RTT packet,
+    then we know that the handshake cannot be completed until the other
+    side responds. Thus it is impossible for subsequent packets in the
+    same frame to be Short Header packets on the same connection (which
+    is what check_dcid_on_coalesced_packet() tests), as the 1-RTT keys
+    cannot have been negotiated. This is true even with GSO/GRO.
+
+    It is possible for Initial packets to be coalesced with 0-RTT or
+    Handshake packets, and it might be possible for a frame to have
+    a first QUIC packet be a Handshake packet and subsequent packets
+    be 1-RTT short header packets.
+
+    Fix #19503
+
+    (cherry picked from commit 860c3e0ba36506586c02c83b5439188a7191161e)
+
+commit 0d35b7708d
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Nov 28 00:17:23 2023 -0800
+
+    libwiretap: add support for signed integer-valued options.
+
+    if_tsoffset is one such option in pcapng.
+
+    (backported from commit a8eef49a9edc372b1ea1ec06bb7d9cf6b9fa91a5)
+
+commit 1ff9b426af
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Nov 28 09:34:55 2023 +0000
+
+    BACapp: Update BACnet vendor ID's
+
+commit c0a84e8438
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Nov 27 22:58:41 2023 -0800
+
+    Handle the if_fcslen option as having an unsigned 1-byte value.
+
+    That's how it's defined in pcapng.  Internally, we have a per-interface
+    FCS length value that's a signed 32-bit value, with -1 meaning
+    "unknown", but all possible values of if_fcslen fit in there.
+
+    When printing it, print it as unsigned.
+
+    (cherry picked from commit 14c524a278ee71de4120a5614da2d0493655b327)
+
+commit 97c29347b9
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Mon Nov 27 12:11:15 2023 +0100
+
+    icmpv6: Make ND_RA_FLAG_RSV the two last bits
+
+    The two last bits in Router Advertisement flags are reserved.
+
+    (cherry picked from commit 83c94249b493e96dc5611045e9422e828d0853ec)
+
+commit 345e3ab026
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Nov 27 20:50:46 2023 -0800
+
+    editcap: fix a tpyo in a comment.
+
+    [skip ci]
+
+    (cherry picked from commit 10eece14e3b87a904e51de5c94c83a16ed526822)
+
+commit 97214de1a5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 26 16:24:39 2023 +0000
+
+    [Automatic update for 2023-11-26]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 894ef88206
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sat Nov 25 16:21:02 2023 +0100
+
+    Qt: Disable Ok button on invalid range preference
+
+    Disable the Ok button when having a invalid range preference.
+    This also prevents a crash in on_buttonBox_accepted() when doing
+    pref_unstash().
+
+    Enable Ok button for string preference.
+
+    (cherry picked from commit d762dd521a34cf6c85d221fda7bd60e5cbb224ef)
+
+commit e6906bb294
+Author: Chris Brandson <chris.brandson@gmail.com>
+Date:   Thu Nov 23 17:27:37 2023 -0800
+
+    Zigbee fix incorrect endianness on Smart Energy (SE) Tunnel Close Timeout Value
+
+    Zigbee values are little endian, however original implementation of Tunnel Close attribute used ENC_NA resulting in incorrect dissection
+
+    Cole Wu <colewu9712@gmail.com> provided this fix and data used to verify.
+
+    (cherry picked from commit 3381725b71972654801944048b0efd69cf0a67bd)
+
+commit e529942200
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Nov 23 13:39:52 2023 -0500
+
+    wustil: Warn about passing NULL string to ws_label_strcpy
+
+    Don't crash (see #19496) but warn
+
+    (cherry picked from commit 0837f2015a8de5ac941fa26b541f21e719e886d6)
+
+commit 70c450e5f4
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Thu Nov 23 20:44:07 2023 +0000
+
+    RTCP: Add MCPTT values from TS 24.380 V17.7.0
+
+commit 9dd7b50c3e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Nov 23 13:47:51 2023 -0500
+
+    gvcp: Don't try to add a NULL string to a column
+
+    This was caught as an invalid argument by g_strlcpy before 4.2,
+    but it was never a good idea.
+
+    Fix #19496
+
+    (backported from commit a8586fde3a6512466afb2a660538ef3fe712076b)
+
+commit 647bd1945a
+Author: Daniel McCarney <daniel@binaryparadox.net>
+Date:   Wed Nov 22 16:58:33 2023 -0500
+
+    TLS: recognize ech_required alert
+
+    The draft-ietf-tls-esni-17 document[0] defines an update to the IANA TLS
+    alert registry in Section 11.2[1]:
+
+    > IANA is requested to create an entry, ech_required(121) in the
+    > existing registry for Alerts (defined in [RFC8446]), with the "DTLS-OK"
+    > column set to "Y".
+
+    This commit updates the existing `ssl_31_alert_description` array to
+    recognize alert 121 as "ECH Required".
+
+    [0]: https://datatracker.ietf.org/doc/html/draft-ietf-tls-esni-17
+    [1]: https://datatracker.ietf.org/doc/html/draft-ietf-tls-esni-17#section-11.2
+
+    (cherry picked from commit 136ca4287d66b84b2bbd46d616530abb458ddfdc)
+
+commit 9f51b954d7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Nov 23 11:02:36 2023 -0800
+
+    GitLab CI: Remove the ABI Check job
+
+commit 804e2aa929
+Author: João Valverde <j@v6e.pt>
+Date:   Wed Nov 22 21:37:57 2023 +0000
+
+    dfilter: Fix diameter.3GPP-* filters
+
+    Manual revert of commit 0e82c6b4b8ed18ef1878446dd26d6345be2d2c2b.
+
+    Fixes #19493.
+
+    (cherry picked from commit 1506126169f894084319e4d2a5c5466ee8c3f041)
+
+commit 9e21153658
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Tue Nov 21 20:55:50 2023 +0100
+
+    isakmp: update dh_group value_string with RFC8031 and RFC9385
+
+    Add new following dh group :
+
+    31      Curve25519 [RFC8031]
+    32      Curve448 [RFC8031]
+    33      GOST3410_2012_256 [RFC9385]
+    34      GOST3410_2012_512 [RFC9385]
+
+    https://www.iana.org/assignments/ikev2-parameters/ikev2-parameters.xhtml#ikev2-parameters-8
+
+    (cherry picked from commit 3570a9a2191c119fcbf32b36d58d3c6637bebb08)
+
+commit 77cd002eea
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Tue Nov 21 20:45:45 2023 +0100
+
+    GVCP: add ASCII (0x02) to Character Set value_string
+
+    Close: #19494
+
+    (cherry picked from commit afb03fa5152a06b25c269f38228814312fdbcaa8)
+
+commit 81cddc0ebf
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Nov 20 17:47:22 2023 -0500
+
+    manuf: Add back the special case for all zeroes
+
+    These words from Jörg Mayer are as true today as they were
+    21 years ago in 49a2f32336053e230f1636f347d9c4ad2a21dd11,
+    "I still have yet to see a case when a MAC address starting
+    with 0:0:0 actually means Xerox", but there are lots of cases
+    where all zero OUIs, MAC-48s, EUI-64s, etc are used to mean
+    null.
+
+    [skip ci]
+
+    (cherry picked from commit c3548e30050086201ed02c889cfc35c8bd185ce3)
+
+commit bf9f0533d7
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Nov 20 20:16:57 2023 -0500
+
+    Qt: Prevent infinite recursive stack smash in CaptureOptionsDialog
+
+    updateInterfaceColumns can call setData, which triggers a line
+    of signals QAbstractItemMode::dataChanged -> QTreeWidget::itemChanged
+     -> CaptureInterfacesDialog::interfaceItemChanged->
+     back to InterfaceTreeWidgetItem::updateInterfaceColumns again.
+
+    Block the signals so that doesn't happen. It's rare, but can
+    happen with cards that falsely report that they support monitor
+    mode but then turn out not to so when we try to actually set
+    monitor mode (23d1fed59f20e813088252bac268df142fa96e80)
+
+    Fixes #16693
+
+    (cherry picked from commit d1699f0c674df41acd58a377ac509199f4b77849)
+
+commit 780abf795f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Nov 18 17:54:00 2023 -0800
+
+    ZigBee ZCL: Fix an array bounds check
+
+    Use the correct value when checking the bounds of ett_zbee_zcl_sel. Our
+    ett definitions are only used in the C module, so move them there. Fix a
+    name.
+
+    Fixes #19490
+
+    (cherry picked from commit a9b0dc0aa7e5d6e0ddc8ee4010106fc2a44dc8d9)
+
+    Conflicts:
+            epan/dissectors/packet-zbee-zcl.c
+            epan/dissectors/packet-zbee-zcl.h
+
+commit e5456831ea
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 19 16:24:45 2023 +0000
+
+    [Automatic update for 2023-11-19]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit ae025b2614
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Nov 18 12:15:12 2023 -0800
+
+    GitLab CI: Don't run Lintian
+
+    We generally try to be supportive of downstream OS distributions, but
+    we're not exclusively a Debian package and enforcing Debian's packaging
+    policies is outside our scope.
+
+commit 543a240568
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Nov 17 20:47:55 2023 -0500
+
+    Fix saving recently used capture filters
+
+    The recently used capture filters list was organized so that
+    the newest filters were last, but when writing to recent_common
+    we start with the beginning of the list and write up to the max.
+    This meant that only the first 20 entries ever used for a profile
+    would be written, after which the list would be frozen.
+
+    Fix that. The best way to do that is to keep the most recently
+    used filter first, in presentation order, by prepending each
+    filter. That way we can AddItems to the combo boxes and write
+    to the file in the natural way. In order to do so, we have to
+    reverse the list after reading all the entries from the recent_common
+    file on startup. This also has better performance, as it's O(N) to
+    prepend a bunch of list items and them reverse them, but O(N^2)
+    to add N list items to the end of a linked-list (that doesn't have
+    a pointer to the end, unlike a GQueue.)
+
+    Fix #12918
+
+    (cherry picked from commit 2b4c88cb42182b05dafd7fac5ffc88783f9f618a)
+
+commit 9ba818b94a
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Nov 18 06:57:06 2023 -0500
+
+    Qt: Don't try to compile capture filters for unknown dlts
+
+    If an interface's active_dlt is set to -1 (an invalid value, used
+    when permissions are bad, or set by CaptureOptionsDialog for
+    "link-layer types libpcap/WinPcap/Npcap doesn't know about"),
+    don't try to compile and check capture filters. Give the same
+    yellow Deprecated background and warning about being unable to
+    check the capture filter as for the DLT_USER types, instead of a
+    cryptic error message.
+
+    Fix #19480
+
+    (cherry picked from commit 49f5bea629c6160b20faf46bac506e1862b257b6)
+
+commit 3a5e669c15
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Nov 18 09:24:29 2023 -0500
+
+    docs: Alter FollowStreamSection anchor
+
+    According to the Asciidoctor docs, we can assign multiple anchors
+    to a section using this method, which still uses the modern shorthand
+    syntax for the main anchor (the one that's been used for the last five
+    years). We have to use the double square brackets for the additional
+    anchor, though.
+
+        https://docs.asciidoctor.org/asciidoc/latest/attributes/id/#add-additional-anchors-to-a-section
+
+    Related to #17982
+
+    (cherry picked from commit 958131ca10b0a3483b06860ecda5903c7562895f)
+
+commit dbe7809832
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Nov 18 09:07:57 2023 -0500
+
+    docs: Add Time Shift section to WSUG
+
+    The help button for Time Shift already tries to open this page,
+    so use the existing name for the section so older versions work.
+
+    Related to #17982
+
+    (cherry picked from commit 5f95a57ff26f60ac59231606cb6b403c22f2b90d)
+
+commit 2b08a78ec6
+Author: João Valverde <j@v6e.pt>
+Date:   Fri Nov 17 20:22:51 2023 +0000
+
+    5Co: Fix protocol name in fields
+
+    The field name should match the protocol name. Furthermore protocol
+    names starting with a digit cannot contain '-'.
+
+    Fixes #19489.
+
+    (cherry picked from commit d6f158c848bd7f445191a0a01843b659fb1a984e)
+
+commit 05591f38e1
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Nov 15 21:12:47 2023 -0500
+
+    Fix overriding capture option prefs at the command line
+
+    Some capture options can be overridden with command line arguments.
+    We want those options, like -p, -n/-P, -H, -S, and --update-interval,
+    to take precedence over preferences, at least until the user saves
+    preferences or switches profiles (at which point the new settings
+    will be applied.) That means we have to apply preferences to capture
+    options before we read most command line arguments.
+
+    However, preferences can be altered at the command line, including
+    the preferences that affect the capture options. So we have to
+    read the command line arguments that alter preferences after
+    reading preferences (which has to be after reading command line
+    arguments that control what preferences are read, like the
+    configuration profile), but before applying preferences to the
+    capture options.
+
+    Add a new "process some command line options" function that only
+    gets the command line options that override preferences. Final
+    interleaved command line / preference / capture options sequence:
+
+    1. Read command line arguments that affect what preferences to read
+    2. Initialize capture options to default value
+    3. Read preferences
+    4. Read command line arguments that affect value of already read
+       preferences
+    5. Apply preferences to capture options
+    6. Read other command line arguments, set capture options final values
+    7. Apply other preferences
+
+    Fix #14549
+
+    (cherry picked from commit c25e0f9084d1108ea51952eb97531027c1291d38)
+
+commit 8e30f78351
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Nov 16 22:46:05 2023 -0500
+
+    docs: Temporary capture file format
+
+    The XXXXXX is not a number, it's alphanumeric
+
+    [skip ci]
+
+    Fix #18464
+
+    (cherry picked from commit 3b386ed6e649edbc081adde6035b2216b0cea6bb)
+
+commit e1f9d0c178
+Author: Huang Qiangxiong <qiangxiong.huang@qq.com>
+Date:   Thu Nov 16 21:45:08 2023 +0800
+
+    XML: fix issue about parsing encoding attr when standalone attr exists
+
+    close #19485
+
+    At the same time, this commit fixed a bug introduced from MR !12306 that
+    cause the encoding attribute unable to be parsed (the {,50} should be
+    {1,50}).
+
+    (cherry picked from commit 3fac54aaa85874deedc455dd05a0f3289131082d)
+
+commit 6751926161
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Sep 27 12:04:07 2023 -0700
+
+    XML: Set a maximum length in a regex capture group
+
+    (cherry picked from commit b38f051a7e23ceefb509f2e5b7bc05b573dc64d2)
+
+commit fdf31e440b
+Author: João Valverde <j@v6e.pt>
+Date:   Thu Nov 16 15:14:31 2023 +0000
+
+    dfilter: Fix parsing OID literal values
+
+    Fix expressions such as `snmp.name == 1.3.6.1.2.1.1.3.0`. We must not
+    parse the right hand side like an invalid protocol field.
+
+commit b58c5142b8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Nov 15 12:45:16 2023 -0800
+
+    Version: 4.2.0 → 4.2.1
+
+    [skip ci]

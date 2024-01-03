@@ -25,7 +25,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2024-01[]
 GVCP dissector crash.
 wsbuglink:19496[].
-// cveidlink:2023-xxx[].
+cveidlink:2024-0208[].
 // Fixed in master: a8586fde3a
 // Fixed in release-4.2: 9dd7b50c3e
 // Fixed in release-4.0: 0a0669c9d4
@@ -37,7 +37,7 @@ wsbuglink:19496[].
 * wssalink:2024-02[]
 IEEE 1609.2 dissector crash.
 wsbuglink:19501[].
-// cveidlink:2023-xxx[].
+cveidlink:2024-0209[].
 // Fixed in master: 8f797db63c
 // Fixed in release-4.2: c59e392e80
 // Fixed in release-4.0: 496679c1c3
@@ -49,7 +49,7 @@ wsbuglink:19501[].
 * wssalink:2024-03[]
 HTTP3 dissector crash.
 wsbuglink:19502[].
-// cveidlink:2023-xxx[].
+cveidlink:2024-0207[].
 // Fixed in master: 577cc97f32
 // Fixed in release-4.2: e9e71ca8c7
 // Fixed in release-4.0: xxx
@@ -61,7 +61,7 @@ wsbuglink:19502[].
 * wssalink:2024-04[]
 Zigbee TLV dissector crash.
 wsbuglink:19504[].
-// cveidlink:2023-xxx[].
+cveidlink:2024-0210[].
 // Fixed in master: 98a8a9787b
 // Fixed in release-4.2: 649d1398fa
 // Fixed in release-4.0: xxx
@@ -73,14 +73,14 @@ wsbuglink:19504[].
 * wssalink:2024-05[]
 DOCSIS dissector crash.
 wsbuglink:19557[].
-// cveidlink:2023-xxx[].
+cveidlink:2024-0211[].
 // Fixed in master: 77b0583568
 // Fixed in release-4.2: 4cac2027e0
 // Fixed in release-4.0: xxx
 // Fixed in release-3.6: xxx
 // CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
 // CWE-125
-* Fuzz job crash output: fuzz-2024-01-01-7166.pcap. wsbuglink:19557[].
+// * Fuzz job crash output: fuzz-2024-01-01-7166.pcap. wsbuglink:19557[].
 
 The following bugs have been fixed:
 
@@ -155,6 +155,7 @@ pcapng: the if_tsoffset option is now supported.
 
 == Prior Versions
 
+This document only describes the changes introduced in Wireshark {wireshark-version}.
 You can find release notes for prior versions at the following locations:
 
 * https://www.wireshark.org/docs/relnotes/wireshark-4.2.0.html[Wireshark 4.2.0]
