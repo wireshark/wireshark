@@ -4680,6 +4680,7 @@ dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
       first_chunk = false;
       if (enable_association_indexing) {
         tmpinfo.assoc_index = -1;
+        tmpinfo.direction = 1;
         copy_address_shallow(&tmpinfo.saddr, &pinfo->src);
         copy_address_shallow(&tmpinfo.daddr, &pinfo->dst);
         tmpinfo.sport = sctp_info.sport;
