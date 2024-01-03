@@ -20,7 +20,35 @@ Wireshark 4.0.12 Release Notes
 
    The following vulnerabilities have been fixed:
 
+     • wnpa-sec-2024-01[3] GVCP dissector crash. Issue 19496[4].
+       CVE-2024-0208[5].
+
+     • wnpa-sec-2024-02[6] IEEE 1609.2 dissector crash. Issue 19501[7].
+       CVE-2024-0209[8].
+
    The following bugs have been fixed:
+
+     • Capture filters not saved to recently used list. Issue 12918[9].
+
+     • OSS-Fuzz 64290: wireshark:fuzzshark_ip: Global-buffer-overflow in
+       dissect_zcl_read_attr_struct. Issue 19490[10].
+
+     • Segfault when enabling monitor mode on wireless card that falsely
+       claims to support it. Issue 16693[11].
+
+     • Selection highlight lost when interface list is sorted. Issue
+       19133[12].
+
+     • Capture filter compilation fails with obscure error message.
+       Issue 19480[13].
+
+     • GigE-vision: Control Protocol shows \"unknown\" as value for
+       ASCII character set. Issue 19494[14].
+
+     • NFLOG timestamp is incorrect. Issue 19525[15].
+
+     • Qt6 Crash (Double Free) When Attempting to Save TCP Stream Graph.
+       Issue 19529[16].
 
   New and Updated Features
 
@@ -42,6 +70,36 @@ Wireshark 4.0.12 Release Notes
 
    There is no new or updated file format support in this release.
 
+ Prior Versions
+
+  This document only describes the changes introduced in Wireshark
+  4.0.12. You can find release notes for prior versions at the following
+  locations:
+
+    • Wireshark 4.0.11[17]
+
+    • Wireshark 4.0.10[18]
+
+    • Wireshark 4.0.9[19]
+
+    • Wireshark 4.0.8[20]
+
+    • Wireshark 4.0.7[21]
+
+    • Wireshark 4.0.6[22]
+
+    • Wireshark 4.0.5[23]
+
+    • Wireshark 4.0.4[24]
+
+    • Wireshark 4.0.3[25]
+
+    • Wireshark 4.0.2[26]
+
+    • Wireshark 4.0.1[27]
+
+    • Wireshark 4.0.0[28]
+
  Getting Wireshark
 
   Wireshark source code and installation packages are available from
@@ -52,7 +110,7 @@ Wireshark 4.0.12 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[3] on the Wireshark web site.
+   be found on the download page[29] on the Wireshark web site.
 
  File Locations
 
@@ -67,33 +125,59 @@ Wireshark 4.0.12 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[4] and on the
+  Community support is available on Wireshark’s Q&A site[30] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[5].
+  for all of Wireshark’s mailing lists can be found on the web site[31].
 
-  Bugs and feature requests can be reported on the issue tracker[6].
+  Bugs and feature requests can be reported on the issue tracker[32].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[7].
+  SharkFest[33].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[8].
+  at wiresharkfoundation.org[34].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[9].
+  A complete FAQ is available on the Wireshark web site[35].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
    2. https://gitlab.com/wireshark/wireshark/-/issues/18734
-   3. https://www.wireshark.org/download.html
-   4. https://ask.wireshark.org/
-   5. https://www.wireshark.org/lists/
-   6. https://gitlab.com/wireshark/wireshark/-/issues
-   7. https://sharkfest.wireshark.org
-   8. https://wiresharkfoundation.org
-   9. https://www.wireshark.org/faq.html
+   3. https://www.wireshark.org/security/wnpa-sec-2024-01
+   4. https://gitlab.com/wireshark/wireshark/-/issues/19496
+   5. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-0208
+   6. https://www.wireshark.org/security/wnpa-sec-2024-02
+   7. https://gitlab.com/wireshark/wireshark/-/issues/19501
+   8. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-0209
+   9. https://gitlab.com/wireshark/wireshark/-/issues/12918
+  10. https://gitlab.com/wireshark/wireshark/-/issues/19490
+  11. https://gitlab.com/wireshark/wireshark/-/issues/16693
+  12. https://gitlab.com/wireshark/wireshark/-/issues/19133
+  13. https://gitlab.com/wireshark/wireshark/-/issues/19480
+  14. https://gitlab.com/wireshark/wireshark/-/issues/19494
+  15. https://gitlab.com/wireshark/wireshark/-/issues/19525
+  16. https://gitlab.com/wireshark/wireshark/-/issues/19529
+  17. https://www.wireshark.org/docs/relnotes/wireshark-4.0.11.html
+  18. https://www.wireshark.org/docs/relnotes/wireshark-4.0.10.html
+  19. https://www.wireshark.org/docs/relnotes/wireshark-4.0.9.html
+  20. https://www.wireshark.org/docs/relnotes/wireshark-4.0.8.html
+  21. https://www.wireshark.org/docs/relnotes/wireshark-4.0.7.html
+  22. https://www.wireshark.org/docs/relnotes/wireshark-4.0.6.html
+  23. https://www.wireshark.org/docs/relnotes/wireshark-4.0.5.html
+  24. https://www.wireshark.org/docs/relnotes/wireshark-4.0.4.html
+  25. https://www.wireshark.org/docs/relnotes/wireshark-4.0.3.html
+  26. https://www.wireshark.org/docs/relnotes/wireshark-4.0.2.html
+  27. https://www.wireshark.org/docs/relnotes/wireshark-4.0.1.html
+  28. https://www.wireshark.org/docs/relnotes/wireshark-4.0.0.html
+  29. https://www.wireshark.org/download.html
+  30. https://ask.wireshark.org/
+  31. https://www.wireshark.org/lists/
+  32. https://gitlab.com/wireshark/wireshark/-/issues
+  33. https://sharkfest.wireshark.org
+  34. https://wiresharkfoundation.org
+  35. https://www.wireshark.org/faq.html
