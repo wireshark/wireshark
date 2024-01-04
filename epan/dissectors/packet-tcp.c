@@ -2525,6 +2525,8 @@ finished_fwd:
             goto finished_checking_retransmission_type;
         }
 
+        nextseq = seq+seglen;
+
         gboolean precedence_count = tcp_fastrt_precedence;
         do {
             switch(precedence_count) {
@@ -2548,6 +2550,31 @@ finished_fwd:
                         tcpd->ta->flags|=TCP_A_FAST_RETRANSMISSION;
                         goto finished_checking_retransmission_type;
                     }
+
+                    /* Look for this segment in reported SACK ranges,
+                     * if not present this might very well be a FAST Retrans,
+                     * when the conditions above (timing, number of retrans) are still true */
+                    if( seq_not_advanced
+                    &&  t<20000000
+                    &&  tcpd->rev->tcp_analyze_seq_info->dupacknum>=2
+                    &&  tcpd->rev->tcp_analyze_seq_info->num_sack_ranges > 0) {
+
+                        gboolean is_sacked = FALSE;
+                        int i=0;
+                        while( !is_sacked && i<tcpd->rev->tcp_analyze_seq_info->num_sack_ranges ) {
+                            is_sacked = ((seq >= tcpd->rev->tcp_analyze_seq_info->sack_left_edge[i++])
+                                        && (nextseq <= tcpd->rev->tcp_analyze_seq_info->sack_right_edge[i]));
+                        }
+
+                        /* fine, it's probably a Fast Retrans triggered by the SACK sender algo */
+                        if(!is_sacked) {
+                            if(!tcpd->ta)
+                                tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
+                            tcpd->ta->flags|=TCP_A_FAST_RETRANSMISSION;
+                            goto finished_checking_retransmission_type;
+                        }
+                    }
+
                     precedence_count=!precedence_count;
                     break;
 
@@ -5594,6 +5621,31 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                 tcpd->fwd->tcp_analyze_seq_info->num_sack_ranges = 0;
             }
         }
+    }
+
+    /* Late discovery of a 'false' Window Update in presence of SACK option,
+     * which means we are dealing with a Dup ACK rather than a Window Update.
+     * Classify accordingly by removing the UPDATE and adding the DUP flags.
+     * Mostly a copy/paste from tcp_analyze_sequence_number(), ensure consistency
+     * whenever the latter changes.
+     * see Issue #14937
+     */
+    if( tcp_analyze_seq && tcpd && tcpd->ta && tcpd->ta->flags&TCP_A_WINDOW_UPDATE ) {
+
+        /* MPTCP tolerates duplicate acks in some circumstances, see RFC 8684 4. */
+        if(tcpd->mptcp_analysis && (tcpd->mptcp_analysis->mp_operations!=tcpd->fwd->mp_operations)) {
+            /* just ignore this DUPLICATE ACK */
+        } else {
+            tcpd->fwd->tcp_analyze_seq_info->dupacknum++;
+
+            /* no initialization required of the tcpd->ta as this code would
+             * be unreachable otherwise
+             */
+            tcpd->ta->flags &= ~TCP_A_WINDOW_UPDATE;
+            tcpd->ta->flags |= TCP_A_DUPLICATE_ACK;
+            tcpd->ta->dupack_num=tcpd->fwd->tcp_analyze_seq_info->dupacknum;
+            tcpd->ta->dupack_frame=tcpd->fwd->tcp_analyze_seq_info->lastnondupack;
+       }
     }
 
     ti = proto_tree_add_item(tree, proto_tcp_option_sack, tvb, offset, -1, ENC_NA);

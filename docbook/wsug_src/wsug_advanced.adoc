@@ -532,7 +532,7 @@ direction and it’s less than the current acknowledgment number.
 Set when all of the following are true:
 
 * The segment size is zero.
-* The window size is non-zero and hasn’t changed.
+* The window size is non-zero and hasn’t changed, or there is valid SACK data.
 * The next expected sequence number and last-seen acknowledgment number are non-zero (i.e., the connection has been established).
 * SYN, FIN, and RST are not set.
 
@@ -644,7 +644,7 @@ reverse direction.
 Set when the all of the following are true:
 
 * The segment size is zero.
-* The window size is non-zero and not equal to the last-seen window size.
+* The window size is non-zero and not equal to the last-seen window size, and there is no valid SACK data.
 * The sequence number is equal to the next expected sequence number.
 * The acknowledgment number is equal to the last-seen acknowledgment number,
 * or to the next expected sequence number when answering to a ZeroWindowProbe.
