@@ -213,7 +213,6 @@ signals:
 #if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
     // Each of these are called from a separate thread.
     void softwareUpdateRequested();
-    void softwareUpdateClose();
     void softwareUpdateQuit();
 #endif
 

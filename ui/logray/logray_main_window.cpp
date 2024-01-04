@@ -402,8 +402,6 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
 #if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
     connect(mainApp, SIGNAL(softwareUpdateRequested()), this, SLOT(softwareUpdateRequested()),
         Qt::BlockingQueuedConnection);
-    connect(mainApp, SIGNAL(softwareUpdateClose()), this, SLOT(close()),
-        Qt::BlockingQueuedConnection);
 #endif
 
     df_combo_box_ = new DisplayFilterCombo(this);

@@ -1268,7 +1268,6 @@ bool MainApplication::softwareUpdateCanShutdown() {
     if (software_update_ok_ == true) {
 
         // Step 2: Close the "running" mutexes.
-        emit softwareUpdateClose();
         close_app_running_mutex();
     }
     return software_update_ok_;
