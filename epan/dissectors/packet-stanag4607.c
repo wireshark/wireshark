@@ -1635,6 +1635,8 @@ proto_register_stanag4607(void)
 void
 proto_reg_handoff_stanag4607(void)
 {
+	dissector_add_for_decode_as("tcp.port", stanag4607_handle);
+	dissector_add_for_decode_as("udp.port", stanag4607_handle);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_STANAG_4607, stanag4607_handle);
 }
 
