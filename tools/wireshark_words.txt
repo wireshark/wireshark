@@ -295,6 +295,7 @@ codute
 collectd
 collimation
 colocated
+colons
 coloring
 colorise
 colorization
@@ -333,6 +334,7 @@ contextp
 contiguity
 contiguously
 convolutional
+convs
 coord
 Coord3D
 coords
@@ -373,6 +375,7 @@ datagrams
 dataitem
 datalen
 datarate
+dataset
 datastate
 datetime
 dccreq
@@ -552,6 +555,7 @@ endian
 endianness
 endif
 endpoint
+endpt
 engineid
 enodeb
 enqueue
@@ -625,6 +629,7 @@ featureful
 fhandle
 fiber
 fileset
+firefox
 firewall
 fixme
 flag1
@@ -694,6 +699,7 @@ gnutls
 goaway
 golomb
 google
+gopname
 gpointer
 gprscdr
 gprsmeasurementparams3g
@@ -901,6 +907,7 @@ lcsap
 leasequery
 legitimisation
 libgcrypt
+libiconv
 libpcap
 libsmi
 licmgr
@@ -1107,6 +1114,7 @@ nofcs
 nokia
 nominals
 non3gpp
+nonask
 nonblock
 noncriticalextension
 noncriticalextensions
@@ -1131,6 +1139,7 @@ nrtcws
 nsapi
 nssai
 nssvc
+nstat
 nstime
 nstrace
 ntlmssp
@@ -1201,6 +1210,7 @@ packetization
 packetized
 pagings
 panasonic
+parallelism
 parallelization
 param
 parameterization
@@ -1277,6 +1287,7 @@ pppoe
 prach
 preambles
 preauth
+precisions
 preconfiguration
 preconfigured
 predef
@@ -1386,6 +1397,7 @@ recalculating
 recalculation
 recalibrate
 recognizer
+recompile
 recompiled
 recompiling
 recomputed
@@ -1645,6 +1657,7 @@ statusbar
 stderr
 stdin
 stdout
+strawberryperl
 strbuf
 strcmp
 strdup
@@ -2069,6 +2082,7 @@ xattr
 xauth
 xchannel
 xcode
+xdist
 xetra
 xferext
 xmlns

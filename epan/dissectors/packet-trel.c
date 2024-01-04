@@ -47,7 +47,7 @@ static gint ett_trel_hdr;
 void proto_register_trel(void);
 
 static const value_string trel_command_vals[] = {
-    { TREL_TYPE_BROADCAST,                "TREL Advertisment" },
+    { TREL_TYPE_BROADCAST,                "TREL Advertisement" },
     { TREL_TYPE_UNICAST,                  "TREL Unicast Response" },
     { TREL_TYPE_ACK,                      "TREL Acknowledgement"},
     { 0, NULL}

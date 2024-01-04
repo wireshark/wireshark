@@ -1,6 +1,6 @@
 /* ems.c
  *
- * File format support for EGNOS Messager Server files
+ * File format support for EGNOS Message Server files
  * Copyright (c) 2023 by Timo Warns <timo.warns@gmail.com>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later

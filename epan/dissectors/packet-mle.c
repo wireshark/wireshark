@@ -2347,7 +2347,7 @@ proto_register_mle(void)
     },
     { &hf_mle_tlv_link_concatenation_link_metric_typeid_flags,
       { "Concatenation of Link Metric Type ID Flags",
-        "mle.tlv.link_concatentation_link_metric_typeid_flags",
+        "mle.tlv.link_concatenation_link_metric_typeid_flags",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "Link Sub TLV",
         HFILL
