@@ -1,0 +1,131 @@
+commit 8e38c07020
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Jan 4 14:16:36 2024 -0800
+
+    Prep for 4.2.2
+
+commit 73c949e970
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Jan 4 14:12:37 2024 -0800
+
+    Qt: Update some comments related to WinSparkle
+
+    [skip ci]
+
+    (cherry picked from commit e68771714aa72f1217d225821121a09ab2cf6fd0)
+
+commit a8642e2956
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jan 4 11:39:01 2024 -0500
+
+    Qt+WinSparkle: Don't close the main window in the can shutdown callback
+
+    Apparently in Qt6 closing the main window can exit the Qt event loop,
+    which means that WinSparkle never gets the notifications it needs to
+    proceed.
+
+    WinSparkle will call quit() shortly thereafter via the shutdown
+    request callback, so the main window will still close at approximately
+    the same time.
+
+    See discussion in https://github.com/vslavik/winsparkle/issues/237
+
+    Fix #19568
+
+    (cherry picked from commit 96b0a674c71761f2c0d30d046e9f118caeefeb56)
+
+commit c2ad918749
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jan 4 08:28:36 2024 -0500
+
+    RSVP: Fix typo
+
+    The variable type is being passed for the encoding instead of
+    ENC_BIG_ENDIAN
+
+    (cherry picked from commit 75fa97e7f2decfb4a772a3d03f17299a1ac0d649)
+
+commit 8d0e01a099
+Author: Ismael Mendez Matamoros <ismael@rti.com>
+Date:   Fri Dec 22 13:40:36 2023 +0100
+
+    RTPS: Fixed User Data Dissection feature
+
+    Function rtps_strlcpy broke the User Data dissection feature because it
+    overwites beyond the size of the string
+
+    (cherry picked from commit 6f17dcd67d861ac9116982d05ad01fbd76159b63)
+
+commit 143f8be037
+Author: Simon Steinmann <simon.steinmann91@gmail.com>
+Date:   Thu Jan 4 02:17:38 2024 +0000
+
+    s4607: Add to "decode as"
+
+    Fix #19566
+
+    (cherry picked from commit 8f7f7cd7de724578c583c4d88752c70a68d7f747)
+
+commit 343c864939
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jan 3 19:56:19 2024 -0500
+
+    RTPS: Don't leak in the guid hash
+
+    If hashing a newly created GBytes, unref the GBytes after computing
+    the hash (and before returning it.)
+
+    Fix #19558 (in combination with 45b929a1b63a766edaa7eb52071f10614b87a5e2
+    and 6f17dcd67d861ac9116982d05ad01fbd76159b63)
+
+    (cherry picked from commit ca027987142407980e3d98f5ba9b45daf61abb25)
+
+commit 0d9bc173c4
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed Jan 3 16:32:12 2024 -0800
+
+    Add ".snoop" to the list of capture file extensions.
+
+    It's in other such lists.
+
+    Update some comments while we're at it.
+
+    Fixes #19565.
+
+    (cherry picked from commit dd7df70be8cbf7e47e7ad855b5ff2daa771e651a)
+
+commit 42c28428e4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jan 2 15:31:21 2024 -0800
+
+    NSIS+WiX: Install sharkd
+
+    Install sharkd. As noted in #19562, we don't yet have a man page.
+
+    Fixes #19556
+
+    (cherry picked from commit bcb0d025684d20b5a21d93d2f8a57e604d83df2a)
+
+commit 4d4f695860
+Author: Balint Reczey <balint@balintreczey.hu>
+Date:   Wed Jan 3 22:44:18 2024 +0100
+
+    wiretap: Bump ABI version to 14.1.0
+
+    The added symbols since 14.0.0 requires bumping the minor version.
+
+commit 622e368175
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jan 3 11:16:23 2024 -0800
+
+    GitLab CI: Generate our release notes
+
+    (cherry picked from commit 40111d9e8fa069fd2cf221792c8c1b3708b1975e)
+
+commit 42bcc8f69e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jan 3 12:44:04 2024 -0800
+
+    Version: 4.2.1 → 4.2.2
+
+    [skip ci]

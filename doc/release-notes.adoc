@@ -20,7 +20,10 @@ If you or your employer would like to contribute or become a sponsor, please vis
 
 === Bug Fixes
 
-The following vulnerabilities have been fixed:
+This release fixes a software update issue on Windows which causes Wireshark to hang if you are upgrading from version 4.2.0 or 4.2.1.
+If you are experiencing this issue you will need to https://www.wireshark.org/download.html[download and install] Wireshark 4.2.2 or later.
+
+// The following vulnerabilities have been fixed:
 
 // * wssalink:2024-06[]
 // Foo dissector {crash,infinite loop,memory leak}.
@@ -39,6 +42,12 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark grabs your ID at 3 am, goes to Waffle House, and insults people.
+
+* sharkd is not installed by the Windows installer. wsbuglink:19556[].
+* Fuzz job crash output: fuzz-2024-01-01-7740.pcap. wsbuglink:19558[].
+* Can't open a snoop file from the Open dialog box unless I select \"All files\" as the file type. wsbuglink:19565[].
+* Add s4607 dissector to \"decode as\" wsbuglink:19566[].
+* Updater for 4.2.1 hangs. wsbuglink:19568[].
 
 === New and Updated Features
 
@@ -61,6 +70,9 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.2.2.. | ag packet- | sort -u)
 [commaize]
 --
+RSVP
+RTPS
+STANAG 4607
 --
 
 === New and Updated Capture File Support
