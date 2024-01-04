@@ -6496,7 +6496,9 @@ static guint hash_by_participant_guid(gconstpointer key) {
   const endpoint_guid* guid = (const endpoint_guid*)key;
   gint vals[] = { guid->host_id, guid->app_id, guid->instance_id };
   GBytes* gbytes = g_bytes_new(vals, sizeof(vals));
-  return g_bytes_hash(gbytes);
+  guint hash = g_bytes_hash(gbytes);
+  g_bytes_unref(gbytes);
+  return hash;
 }
 
 static guint hash_by_guid(gconstpointer key) {
