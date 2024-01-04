@@ -84,8 +84,8 @@ Exec '"$SYSDIR\ie4uinit.exe" -ClearIconCache'
 
 ; ============================================================================
 ; Push our known file extensions onto the stack, prepended with a marker
-; Note that this is a subset of dump_open_table in wiretap/file_access.c. We
-; probably don't want to grab JPEG or MP3 files.
+; Note that this is a subset of all the extensions for files that
+; Wireshark can read. We probably don't want to grab JPEG or MP3 files.
 ; ============================================================================
 
 ; Used to add associations between file extensions and Wireshark

@@ -142,6 +142,7 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "Wireshark/tcpdump/... - pcap", TRUE, "pcap;cap;dmp" },
 	{ "Wireshark/... - pcapng", TRUE, "pcapng;ntar;scap" },
 	{ "Network Monitor, Surveyor, NetScaler", TRUE, "cap" },
+	{ "Sun snoop", TRUE, "snoop" },
 	{ "InfoVista 5View capture", TRUE, "5vw" },
 	{ "Sniffer (DOS)", TRUE, "cap;enc;trc;fdc;syc" },
 	{ "Cinco NetXRay, Sniffer (Windows)", TRUE, "cap;caz" },
@@ -315,11 +316,15 @@ wtap_get_file_extension_type_extensions(guint extension_type)
  * know that Wireshark can open the file:
  *	1) resources/freedesktop/org.wireshark.Wireshark-mime.xml (for freedesktop.org environments)
  *	2) packaging/macosx/WiresharkInfo.plist.in (for macOS)
- *	3) packaging/nsis/AdditionalTasksPage.ini, packaging/nsis/wireshark-common.nsh,
- *	   and packaging/wix/ComponentGroups.wxi (for Windows)
  *
- * If your file format has an expected extension (e.g., ".pcap") then you
- * should probably also add it to file_type_extensions_base[] (in this file).
+ * If your file format has a commonly-used extension (e.g., ".pcap") then you
+ * should probably also add it to file_type_extensions_base[] (in this file),
+ * to the list of "<glob pattern=...>" entries for this file format in
+ * resources/freedesktop/org.wireshark.Wireshark-mime.xml, to the
+ * CFBundleTypeExtensions array for this file format in
+ * packaging/macosx/WiresharkInfo.plist, and to the PushFileExtensions macro
+ * in packaging/nsis/wireshark-common.nsh and the File Associations in
+ * packaging/wix/ComponentGroups.wxi (for Windows).
  */
 static const struct open_info open_info_base[] = {
 	/* Open routines that look for magic numbers */
