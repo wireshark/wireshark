@@ -6927,7 +6927,7 @@ dissect_rsvp_link_cap(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_objec
     proto_item_set_text(ti, "LINK CAPABILITY: ");
     switch(type) {
     case 1:
-        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_link_cap, tvb, offset+3, 1, type);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_link_cap, tvb, offset+3, 1, ENC_BIG_ENDIAN);
 
         dissect_rsvp_ro_subobjects(ti, pinfo, rsvp_object_tree, tvb,
                                         offset + 4, obj_length, rsvp_class);
