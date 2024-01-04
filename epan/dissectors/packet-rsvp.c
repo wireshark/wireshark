@@ -101,6 +101,7 @@
 #include <epan/conversation_table.h>
 #include <epan/tap.h>
 #include <epan/addr_resolv.h>
+#include <wsutil/utf8_entities.h>
 #include "packet-rsvp.h"
 #include "packet-ip.h"
 #include "packet-diffserv-mpls-common.h"
@@ -326,6 +327,7 @@ static int hf_rsvp_ctype_tunnel_if_id;
 static int hf_rsvp_ctype_3gpp_object;
 static int hf_rsvp_ctype_restart_cap;
 static int hf_rsvp_ctype_link_cap;
+static int hf_rsvp_ctype_capability;
 static int hf_rsvp_ctype_protection_info;
 static int hf_rsvp_ctype_fast_reroute;
 static int hf_rsvp_ctype_detour;
@@ -532,6 +534,15 @@ static int hf_rsvp_message_id_epoch;
 static int hf_rsvp_flowspec_signal_type_g709;
 static int hf_rsvp_label_request_data;
 static int hf_rsvp_restart_cap_data;
+static int hf_rsvp_link_cap_data;
+static int hf_rsvp_capability_flags;
+static int hf_rsvp_capability_flags_reserved;
+static int hf_rsvp_capability_flags_i;
+static int hf_rsvp_capability_flags_f;
+static int hf_rsvp_capability_flags_t;
+static int hf_rsvp_capability_flags_r;
+static int hf_rsvp_capability_flags_s;
+static int hf_rsvp_capability_data;
 static int hf_rsvp_lsp_attributes_tlv;
 static int hf_rsvp_flowspec_mtu;
 static int hf_rsvp_flowspec_m;
@@ -806,6 +817,8 @@ enum {
     TT_BUNDLE_COMPMSG,
     TT_RESTART_CAP,
     TT_LINK_CAP,
+    TT_CAPABILITY,
+    TT_CAPABILITY_FLAGS,
     TT_PROTECTION_INFO,
     TT_PROTECTION_INFO_LINK,
     TT_PROTECTION_INFO_LSP,
@@ -979,8 +992,9 @@ enum rsvp_classes {
     RSVP_CLASS_ACCEPTABLE_LABEL_SET,
     RSVP_CLASS_RESTART_CAP,
     RSVP_CLASS_LINK_CAP          = 133,
+    RSVP_CLASS_CAPABILITY,
 
-    /* 132-160 Unassigned */
+    /* 135-160 Unassigned */
 
     /* 166-187 Unassigned */
 
@@ -1110,6 +1124,7 @@ static const value_string rsvp_class_vals[] = {
     { RSVP_CLASS_ACCEPTABLE_LABEL_SET,  "ACCEPTABLE-LABEL-SET object"},
     { RSVP_CLASS_RESTART_CAP,           "RESTART-CAPABILITY object"},
     { RSVP_CLASS_LINK_CAP,              "LINK-CAPABILITY object"},
+    { RSVP_CLASS_CAPABILITY,            "Capability object"},
 
     { RSVP_CLASS_VENDOR_PRIVATE_5,      "VENDOR PRIVATE object (10bbbbbb: "
                                          "ignore if unknown)"},
@@ -1860,6 +1875,7 @@ enum hf_rsvp_filter_keys {
     RSVPF_RESTART_CAP,
 
     RSVPF_LINK_CAP,
+    RSVPF_CAPABILITY,
 
     RSVPF_SESSION_ATTRIBUTE,
     RSVPF_DCLASS,
@@ -2212,6 +2228,9 @@ rsvp_class_to_filter_num(int classnum)
     case RSVP_CLASS_LINK_CAP :
         return RSVPF_LINK_CAP;
 
+    case RSVP_CLASS_CAPABILITY :
+        return RSVPF_CAPABILITY;
+
     case RSVP_CLASS_DIFFSERV :
         return RSVPF_DIFFSERV;
 
@@ -2334,6 +2353,8 @@ rsvp_class_to_tree_type(int classnum)
         return TT_RESTART_CAP;
     case RSVP_CLASS_LINK_CAP :
         return TT_LINK_CAP;
+    case RSVP_CLASS_CAPABILITY :
+        return TT_CAPABILITY;
     case RSVP_CLASS_DIFFSERV :
         return TT_DIFFSERV;
     case RSVP_CLASS_CLASSTYPE:
@@ -6935,7 +6956,55 @@ dissect_rsvp_link_cap(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_objec
 
     default:
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_link_cap, tvb, offset+3, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(rsvp_object_tree, hf_rsvp_record_route_data, tvb, offset+4, obj_length - 4, ENC_NA);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_link_cap_data, tvb, offset+4, obj_length - 4, ENC_NA);
+        break;
+    }
+
+}
+
+/*------------------------------------------------------------------------------
+ * Capability Object
+ *------------------------------------------------------------------------------*/
+static void
+dissect_rsvp_capability(proto_item *ti, packet_info* pinfo _U_, proto_tree *rsvp_object_tree,
+                          tvbuff_t *tvb,
+                          int offset, int obj_length,
+                          int rsvp_class _U_, int type)
+{
+    proto_tree *hidden_item;
+
+    hidden_item = proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+    proto_item_set_hidden(hidden_item);
+
+    proto_item_set_text(ti, "Capability: ");
+
+    static int * const flags[] = {
+        &hf_rsvp_capability_flags_reserved,
+        &hf_rsvp_capability_flags_f,
+        &hf_rsvp_capability_flags_i,
+        &hf_rsvp_capability_flags_t,
+        &hf_rsvp_capability_flags_r,
+        &hf_rsvp_capability_flags_s,
+        NULL
+    };
+    uint64_t cap_flags;
+
+    switch(type) {
+    case 1:
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_capability, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+
+        proto_tree_add_bitmask_ret_uint64(rsvp_object_tree, tvb, offset+4, hf_rsvp_capability_flags, TREE(TT_CAPABILITY_FLAGS), flags, ENC_BIG_ENDIAN, &cap_flags);
+        proto_item_append_text(ti, "%s%s%s%s%s",
+                               cap_flags&0x10 ? "F":UTF8_MIDDLE_DOT,
+                               cap_flags&0x08 ? "I":UTF8_MIDDLE_DOT,
+                               cap_flags&0x04 ? "T":UTF8_MIDDLE_DOT,
+                               cap_flags&0x02 ? "R":UTF8_MIDDLE_DOT,
+                               cap_flags&0x01 ? "S":UTF8_MIDDLE_DOT);
+        break;
+
+    default:
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_capability, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_capability_data, tvb, offset+4, obj_length - 4, ENC_NA);
         break;
     }
 
@@ -7848,6 +7917,10 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             dissect_rsvp_link_cap(ti, pinfo, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
             break;
 
+        case RSVP_CLASS_CAPABILITY:
+            dissect_rsvp_capability(ti, pinfo, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
+            break;
+
         case RSVP_CLASS_PROTECTION:
             dissect_rsvp_protection_info(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
             break;
@@ -8295,6 +8368,12 @@ proto_register_rsvp(void)
            NULL, HFILL }
         },
 
+        {&hf_rsvp_ctype_capability,
+         { "C-type", "rsvp.ctype.capability",
+           FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }
+        },
+
         {&hf_rsvp_ctype_protection_info,
          { "C-type", "rsvp.ctype.protection_info",
            FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -8568,6 +8647,12 @@ proto_register_rsvp(void)
 
         {&hf_rsvp_filter[RSVPF_LINK_CAP],
          { "LINK CAPABILITY", "rsvp.link",
+           FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_filter[RSVPF_CAPABILITY],
+         { "Capability", "rsvp.capability",
            FT_NONE, BASE_NONE, NULL, 0x0,
            NULL, HFILL }
         },
@@ -10230,6 +10315,15 @@ proto_register_rsvp(void)
       { &hf_rsvp_call_id_national_segment, { "National Segment", "rsvp.call_id.national_segment", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_call_id_local_identifier, { "Local Identifier", "rsvp.call_id.local_identifier", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_restart_cap_data, { "Data", "rsvp.restart_cap.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_link_cap_data, { "Data", "rsvp.link_cap.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_capability_flags, { "Flags", "rsvp.capability.flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_capability_flags_reserved, { "Reserved", "rsvp.capability.flags.reserved", FT_UINT32, BASE_HEX, NULL, 0xFFFFFFE0, NULL, HFILL }},
+      { &hf_rsvp_capability_flags_f, { "Per-Peer Flow-Control (F)", "rsvp.capability.flags.f", FT_BOOLEAN, 32, TFS(&tfs_capable_not_capable), 0x0010, NULL, HFILL }},
+      { &hf_rsvp_capability_flags_i, { "RI-RSVP (I)", "rsvp.capability.flags.i", FT_BOOLEAN, 32, TFS(&tfs_capable_not_capable), 0x0008, NULL, HFILL }},
+      { &hf_rsvp_capability_flags_t, { "RecoveryPath Transmit (T)", "rsvp.capability.flags.t", FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x0004, NULL, HFILL }},
+      { &hf_rsvp_capability_flags_r, { "RecoveryPath (R)", "rsvp.capability.flags.r", FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x0002, NULL, HFILL }},
+      { &hf_rsvp_capability_flags_s, { "RecoveryPath Srefresh (S)", "rsvp.capability.flags.s", FT_BOOLEAN, 32, TFS(&tfs_capable_not_capable), 0x0001, NULL, HFILL }},
+      { &hf_rsvp_capability_data, { "Data", "rsvp.capability.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_protection_info_link_flags, { "Link Flags", "rsvp.protection_info.link_flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_protection_info_data, { "Data", "rsvp.protection_info.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_fast_reroute_setup_priority, { "Setup Priority", "rsvp.fast_reroute.setup_priority", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
