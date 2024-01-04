@@ -520,6 +520,10 @@ static void update_dissector_using_oid(packet_info *pinfo, ran_function_t ran_fu
     guint ran_function_id = e2ap_data->ran_function_id;
     ran_function_id_mapping_t *mapping = NULL;
     ran_functionid_table_t *table = get_ran_functionid_table(pinfo);
+    if (!table) {
+        return;
+    }
+
     /* Find the entry in this table corresponding to ran_function_id */
     for (guint n=0; n < table->num_entries; n++) {
         if (ran_function_id == table->entries[n].ran_function_id) {
