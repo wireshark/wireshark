@@ -764,6 +764,7 @@ create_ntlmssp_v1_key(const guint8 *serverchallenge, const guint8 *clientchallen
   static const unsigned char lmhash_key[] =
     {0x4b, 0x47, 0x53, 0x21, 0x40, 0x23, 0x24, 0x25}; // "KGS!@#$%"
 
+  memset(sessionkey, 0, NTLMSSP_KEY_LEN);
   /* Create a NT hash of the input password, even if empty */
   // NTOWFv1 as defined in https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-nlmp/464551a8-9fc4-428e-b3d3-bc5bfb2e73a5
   password_len = strlen(password);
@@ -857,7 +858,6 @@ create_ntlmssp_v1_key(const guint8 *serverchallenge, const guint8 *clientchallen
   }
 
   get_keyexchange_key(keyexchangekey, sessionbasekey, lm_challenge_response, flags);
-  memset(sessionkey, 0, NTLMSSP_KEY_LEN);
   /*printnbyte(nt_challenge_response, 24, "NT challenge response", "\n");
   printnbyte(lm_challenge_response, 24, "LM challenge response", "\n");*/
   /* now decrypt session key if needed and setup sessionkey for decrypting further communications */
