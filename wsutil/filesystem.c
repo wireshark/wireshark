@@ -1100,7 +1100,7 @@ get_doc_dir(void)
      */
     else if (appbundle_dir != NULL) {
         doc_dir = ws_strdup_printf("%s/Contents/Resources/%s",
-                                        appbundle_dir, DOC_DIR);
+                                        appbundle_dir, DATA_DIR);
     }
 #endif
     else if (running_in_build_directory_flag && progfile_dir != NULL) {
