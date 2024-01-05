@@ -282,11 +282,11 @@ Var WIX_DISPLAYVERSION
 Var WIX_UNINSTALLSTRING
 
 ; ============================================================================
-; 64-bit support
+; Platform and OS version checks
 ; ============================================================================
-!include x64.nsh
 
-!include "GetWindowsVersion.nsh"
+!include x64.nsh
+!include WinVer.nsh
 !include WinMessages.nsh
 
 Function .onInit
@@ -309,9 +309,6 @@ Function .onInit
     ${EndIf}
   !endif
 
-  ; Get the Windows version
-  ${GetWindowsVersion} $R0
-
   ; This should match the following:
   ; - The NTDDI_VERSION and _WIN32_WINNT parts of cmakeconfig.h.in
   ; - The <compatibility><application> section in image\wireshark.exe.manifest.in
@@ -320,49 +317,51 @@ Function .onInit
   ; Uncomment to test.
   ; MessageBox MB_OK "You're running Windows $R0."
 
-  ; Check if we're able to run with this version
-  StrCmp $R0 '95' lbl_winversion_unsupported
-  StrCmp $R0 '98' lbl_winversion_unsupported
-  StrCmp $R0 'ME' lbl_winversion_unsupported
-  StrCmp $R0 'NT 4.0' lbl_winversion_unsupported_nt4
-  StrCmp $R0 '2000' lbl_winversion_unsupported_2000
-  StrCmp $R0 'XP' lbl_winversion_unsupported_xp_2003
-  StrCmp $R0 '2003' lbl_winversion_unsupported_xp_2003
-  StrCmp $R0 'Vista' lbl_winversion_unsupported_vista_2008
-  StrCmp $R0 '2008' lbl_winversion_unsupported_vista_2008
-  Goto lbl_winversion_supported
-
-lbl_winversion_unsupported:
+${If} ${AtMostWinME}
   MessageBox MB_OK \
-      "Windows $R0 is no longer supported.$\nPlease install Ethereal 0.99.0 instead." \
-      /SD IDOK
+    "Windows 95, 98, and ME are no longer supported.$\nPlease install Ethereal 0.99.0 instead." \
+    /SD IDOK
   Quit
+${EndIf}
 
-lbl_winversion_unsupported_nt4:
+${If} ${IsWinNT4}
   MessageBox MB_OK \
-          "Windows $R0 is no longer supported.$\nPlease install Wireshark 0.99.4 instead." \
-          /SD IDOK
+    "Windows NT 4.0 is no longer supported.$\nPlease install Wireshark 0.99.4 instead." \
+    /SD IDOK
   Quit
+${EndIf}
 
-lbl_winversion_unsupported_2000:
+${If} ${IsWin2000}
   MessageBox MB_OK \
-      "Windows $R0 is no longer supported.$\nPlease install Wireshark 1.2 or 1.0 instead." \
-      /SD IDOK
+    "Windows 2000 is no longer supported.$\nPlease install Wireshark 1.2 or 1.0 instead." \
+    /SD IDOK
   Quit
+${EndIf}
 
-lbl_winversion_unsupported_xp_2003:
+${If} ${IsWinXP}
+${OrIf} ${IsWin2003}
   MessageBox MB_OK \
-      "Windows $R0 is no longer supported.$\nPlease install ${PROGRAM_NAME} 1.12 or 1.10 instead." \
-      /SD IDOK
+    "Windows XP and Server 2003 are no longer supported.$\nPlease install ${PROGRAM_NAME} 1.12 or 1.10 instead." \
+    /SD IDOK
   Quit
+${EndIf}
 
-lbl_winversion_unsupported_vista_2008:
+${If} ${IsWinVista}
+${OrIf} ${IsWin2008}
   MessageBox MB_OK \
-      "Windows $R0 is no longer supported.$\nPlease install ${PROGRAM_NAME} 2.2 instead." \
-      /SD IDOK
+    "Windows Vista and Server 2008 are no longer supported.$\nPlease install ${PROGRAM_NAME} 2.2 instead." \
+    /SD IDOK
   Quit
+${EndIf}
 
-lbl_winversion_supported:
+${If} ${AtMostWin8.1}
+${OrIf} ${AtMostWin2012R2}
+  MessageBox MB_OK \
+    "Windows 7, 8, 8.1, Server 2008R2, and Server 2012 are no longer supported.$\nPlease install ${PROGRAM_NAME} 4.0 instead." \
+    /SD IDOK
+  Quit
+${EndIf}
+
 !insertmacro IsWiresharkRunning
 
   ; Default control values.

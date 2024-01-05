@@ -361,15 +361,15 @@
  * for our needs.
  * This should match the following:
  * - The <compatibility><application> section in resources\wireshark.exe.manifest.in
- * - The GetWindowsVersion parts of packaging\nsis\wireshark.nsi
+ * - The WinVer parts of packaging\nsis\wireshark.nsi
  * - The VersionNT parts of packaging\wix\Prerequisites.wxi
  */
 #  ifndef NTDDI_VERSION
-#  define NTDDI_VERSION   NTDDI_WIN7
+#  define NTDDI_VERSION   NTDDI_WIN10
 #  endif
 
 #  ifndef _WIN32_WINNT
-#  define _WIN32_WINNT    _WIN32_WINNT_WIN7
+#  define _WIN32_WINNT    _WIN32_WINNT_WIN10
 #  endif
 #endif
 

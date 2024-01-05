@@ -22,7 +22,6 @@ set(WIRESHARK_NSIS_GENERATED_FILES ${WIRESHARK_NSIS_GENERATED_FILES} PARENT_SCOP
 set(WIRESHARK_NSIS_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/wireshark.nsi
 	${CMAKE_CURRENT_SOURCE_DIR}/wireshark-common.nsh
-	${CMAKE_CURRENT_SOURCE_DIR}/GetWindowsVersion.nsh
 	${CMAKE_CURRENT_SOURCE_DIR}/servicelib.nsh
 	${CMAKE_CURRENT_SOURCE_DIR}/NpcapPage.ini
 	${CMAKE_CURRENT_SOURCE_DIR}/USBPcapPage.ini
@@ -41,7 +40,6 @@ set(LOGRAY_NSIS_FILES
 	logray.nsi
 	uninstall-logray.nsi
 	logray-common.nsh
-	GetWindowsVersion.nsh
 	servicelib.nsh
 	NpcapPage.ini
 	USBPcapPage.ini

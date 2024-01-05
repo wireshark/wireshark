@@ -17,7 +17,7 @@
     <!-- This should match the following:
          - The NTDDI_VERSION and _WIN32_WINNT parts of cmakeconfig.h.in
          - The <compatibility><application> section in image\wireshark.exe.manifest.in
-         - The GetWindowsVersion parts of packaging\nsis\wireshark.nsi
+         - The WinVer parts of packaging\nsis\wireshark.nsi
     -->
     <Condition Message="Windows 2000 is no longer supported. Please install $(var.WiresharkName) 1.2 or 1.0 instead.">
       <![CDATA[Installed OR (VersionNT < 500) OR (VersionNT > 500)]]>
@@ -35,8 +35,12 @@
       <![CDATA[Installed OR (VersionNT < 600) OR (VersionNT > 600)]]>
     </Condition>
 
-    <Condition Message="$(var.WiresharkName)$(var.WiresharkVersion) is only supported on Windows 7, Windows Server 2008R2, or higher.">
-      <![CDATA[Installed OR (VersionNT >= 601)]]>
+    <Condition Message="Windows 7, 8, 8.1, Server 2008R2, and Server 2012 are no longer supported. Please install $(var.WiresharkName) 4.0 instead.">
+      <![CDATA[Installed OR (VersionNT < 601) OR (VersionNT > 602)]]>
+    </Condition>
+
+    <Condition Message="$(var.WiresharkName)$(var.WiresharkVersion) is only supported on Windows 10, Windows Server 2016, or higher.">
+      <![CDATA[Installed OR (VersionNT >= 603)]]>
     </Condition>
 
 <!--

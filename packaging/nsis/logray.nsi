@@ -250,11 +250,11 @@ Var WIX_DISPLAYVERSION
 Var WIX_UNINSTALLSTRING
 
 ; ============================================================================
-; 64-bit support
+; Platform and OS version checks
 ; ============================================================================
-!include x64.nsh
 
-!include "GetWindowsVersion.nsh"
+!include x64.nsh
+!include WinVer.nsh
 !include WinMessages.nsh
 
 Function .onInit
@@ -266,9 +266,6 @@ Function .onInit
     ${EndIf}
   !endif
 
-  ; Get the Windows version
-  ${GetWindowsVersion} $R0
-
   ; This should match the following:
   ; - The NTDDI_VERSION and _WIN32_WINNT parts of cmakeconfig.h.in
   ; - The <compatibility><application> section in image\wireshark.exe.manifest.in
@@ -277,23 +274,13 @@ Function .onInit
   ; Uncomment to test.
   ; MessageBox MB_OK "You're running Windows $R0."
 
-  ; Check if we're able to run with this version
-  StrCmp $R0 '95' lbl_winversion_unsupported
-  StrCmp $R0 '98' lbl_winversion_unsupported
-  StrCmp $R0 'ME' lbl_winversion_unsupported
-  StrCmp $R0 'NT 4.0' lbl_winversion_unsupported
-  StrCmp $R0 '2000' lbl_winversion_unsupported
-  StrCmp $R0 'XP' lbl_winversion_unsupported
-  StrCmp $R0 '2003' lbl_winversion_unsupported
-  StrCmp $R0 'Vista' lbl_winversion_unsupported
-  StrCmp $R0 '2008' lbl_winversion_unsupported
-  Goto lbl_winversion_supported
 
-lbl_winversion_unsupported:
+${If} ${AtMostWin8.1}
+${OrIf} ${AtMostWin2012R2}
   MessageBox MB_OK \
-    "Windows $R0 is not supported." \
-    /SD IDOK
+    "Windows 10, Server 2016, and later are required." /SD IDOK
   Quit
+${EndIf}
 
 lbl_winversion_supported:
 !insertmacro IsLograyRunning
