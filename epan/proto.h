@@ -752,7 +752,8 @@ typedef enum {
 typedef enum {
     HF_REF_TYPE_NONE,       /**< Field is not referenced */
     HF_REF_TYPE_INDIRECT,   /**< Field is indirectly referenced (only applicable for FT_PROTOCOL) via. its child */
-    HF_REF_TYPE_DIRECT      /**< Field is directly referenced */
+    HF_REF_TYPE_DIRECT,     /**< Field is directly referenced */
+    HF_REF_TYPE_PRINT       /**< Field is directly referenced for printing (so don't fake its representation either) */
 } hf_ref_type;
 
 /** information describing a header field */
@@ -1081,7 +1082,7 @@ extern void proto_cleanup(void);
 
 /** This function takes a tree and a protocol id as parameter and
     will return TRUE/FALSE for whether the protocol or any of the filterable
-    fields in the protocol is referenced by any fitlers.
+    fields in the protocol is referenced by any filters.
     If this function returns FALSE then it is safe to skip any
     proto_tree_add_...() calls and just treat the call as if the
     dissector was called with tree==NULL.
@@ -1210,11 +1211,21 @@ extern void
 proto_tree_set_fake_protocols(proto_tree *tree, gboolean fake_protocols);
 
 /** Mark a field/protocol ID as "interesting".
+ * That means that we don't fake the item (because we are filtering on it),
+ * and we mark its parent protocol (if any) as being indirectly referenced
+ * (so proto_field_is_referenced() will return TRUE for the protocol as well.)
  @param tree the tree to be set (currently ignored)
- @param hfid the interesting field id
- @todo what *does* interesting mean? */
+ @param hfid the interesting field id */
 extern void
 proto_tree_prime_with_hfid(proto_tree *tree, const int hfid);
+
+/** Mark a field/protocol ID as something we want to print.
+ * That means that we don't fake it, and we also don't hide it by
+ * default even if the tree isn't visible.
+ @param tree the tree to be set (currently ignored)
+ @param hfid the field id */
+extern void
+proto_tree_prime_with_hfid_print(proto_tree *tree, const int hfid);
 
 /** Get a parent item of a subtree.
  @param tree the tree to get the parent from

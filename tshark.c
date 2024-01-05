@@ -1903,6 +1903,11 @@ main(int argc, char *argv[])
     }
 
     /* If we specified output fields, but not the output field type... */
+    /* XXX: If we specfied both output fields with -e *and* protocol filters
+     * with -j/-J, only the former are used. Should we warn or abort?
+     * This also doesn't distinguish PDML from PSML, but shouldn't allow the
+     * latter.
+     */
     if ((WRITE_FIELDS != output_action && WRITE_XML != output_action && WRITE_JSON != output_action && WRITE_EK != output_action) && 0 != output_fields_num_fields(output_fields)) {
         cmdarg_err("Output fields were specified with \"-e\", "
                 "but \"-Tek, -Tfields, -Tjson or -Tpdml\" was not specified.");
@@ -3054,11 +3059,13 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
              (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_hfids() ||
              have_custom_cols(&cf->cinfo) || dissect_color);
 
-        /* The protocol tree will be "visible", i.e., printed, only if we're
-           printing packet details, which is true if we're printing stuff
+        /* The protocol tree will be "visible", i.e., nothing faked, only if
+           we're printing packet details, which is true if we're printing stuff
            ("print_packet_info" is true) and we're in verbose mode
-           ("packet_details" is true). */
-        edt = epan_dissect_new(cf->epan, create_proto_tree, print_packet_info && print_details);
+           ("packet_details" is true). But if we specified certain fields with
+           "-e", we'll prime those directly later. */
+        bool visible = print_packet_info && print_details && output_fields_num_fields(output_fields) == 0;
+        edt = epan_dissect_new(cf->epan, create_proto_tree, visible);
 
         wtap_rec_init(&rec);
         ws_buffer_init(&buf, 1514);
@@ -3507,6 +3514,15 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
 
         col_custom_prime_edt(edt, &cf->cinfo);
 
+        output_fields_prime_edt(edt, output_fields);
+        /* The PDML spec requires a 'geninfo' pseudo-protocol that needs
+         * information from our 'frame' protocol.
+         */
+        if (output_fields_num_fields(output_fields) != 0 &&
+                output_action == WRITE_XML) {
+            epan_dissect_prime_with_hfid(edt, proto_registrar_get_id_byname("frame"));
+        }
+
         /* We only need the columns if either
            1) some tap or filter needs the columns
            or
@@ -3659,11 +3675,13 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
 
         ws_debug("tshark: create_proto_tree = %s", create_proto_tree ? "TRUE" : "FALSE");
 
-        /* The protocol tree will be "visible", i.e., printed, only if we're
-           printing packet details, which is true if we're printing stuff
+        /* The protocol tree will be "visible", i.e., nothing faked, only if
+           we're printing packet details, which is true if we're printing stuff
            ("print_packet_info" is true) and we're in verbose mode
-           ("packet_details" is true). */
-        edt = epan_dissect_new(cf->epan, create_proto_tree, print_packet_info && print_details);
+           ("packet_details" is true). But if we specified certain fields with
+           "-e", we'll prime those directly later. */
+        bool visible = print_packet_info && print_details && output_fields_num_fields(output_fields) == 0;
+        edt = epan_dissect_new(cf->epan, create_proto_tree, visible);
     }
 
     /*
@@ -3774,11 +3792,13 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
 
         ws_debug("tshark: create_proto_tree = %s", create_proto_tree ? "TRUE" : "FALSE");
 
-        /* The protocol tree will be "visible", i.e., printed, only if we're
-           printing packet details, which is true if we're printing stuff
+        /* The protocol tree will be "visible", i.e., nothing faked, only if
+           we're printing packet details, which is true if we're printing stuff
            ("print_packet_info" is true) and we're in verbose mode
-           ("packet_details" is true). */
-        edt = epan_dissect_new(cf->epan, create_proto_tree, print_packet_info && print_details);
+           ("packet_details" is true). But if we specified certain fields with
+           "-e", we'll prime those directly later. */
+        bool visible = print_packet_info && print_details && output_fields_num_fields(output_fields) == 0;
+        edt = epan_dissect_new(cf->epan, create_proto_tree, visible);
     }
 
     /*
@@ -4190,6 +4210,15 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
         prime_epan_dissect_with_postdissector_wanted_hfids(edt);
 
         col_custom_prime_edt(edt, &cf->cinfo);
+
+        output_fields_prime_edt(edt, output_fields);
+        /* The PDML spec requires a 'geninfo' pseudo-protocol that needs
+         * information from our 'frame' protocol.
+         */
+        if (output_fields_num_fields(output_fields) != 0 &&
+                output_action == WRITE_XML) {
+            epan_dissect_prime_with_hfid(edt, proto_registrar_get_id_byname("frame"));
+        }
 
         /* We only need the columns if either
            1) some tap or filter needs the columns

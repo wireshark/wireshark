@@ -71,6 +71,7 @@ WS_DLL_PUBLIC gboolean output_fields_set_option(output_fields_t* info, gchar* op
 WS_DLL_PUBLIC void output_fields_list_options(FILE *fh);
 WS_DLL_PUBLIC bool output_fields_add_protocolfilter(output_fields_t* info, const char* field, pf_flags filter_flags);
 WS_DLL_PUBLIC gboolean output_fields_has_cols(output_fields_t* info);
+WS_DLL_PUBLIC void output_fields_prime_edt(struct epan_dissect *edt, output_fields_t* info);
 
 /*
  * Higher-level packet-printing code.

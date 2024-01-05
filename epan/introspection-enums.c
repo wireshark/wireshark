@@ -254,6 +254,7 @@ static ws_enum_t all_enums[] = {
     ENUM(HF_REF_TYPE_DIRECT),
     ENUM(HF_REF_TYPE_INDIRECT),
     ENUM(HF_REF_TYPE_NONE),
+    ENUM(HF_REF_TYPE_PRINT),
     ENUM(IP_PROTO_3PC),
     ENUM(IP_PROTO_AH),
     ENUM(IP_PROTO_AN),

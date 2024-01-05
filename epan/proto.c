@@ -142,6 +142,7 @@ struct ptvcursor {
 	if (!(PTREE_DATA(tree)->visible)) {				\
 		if (PTREE_FINFO(tree)) {				\
 			if ((hfinfo->ref_type != HF_REF_TYPE_DIRECT)	\
+			    && (hfinfo->ref_type != HF_REF_TYPE_PRINT)	\
 			    && (hfinfo->type != FT_PROTOCOL ||		\
 				PTREE_DATA(tree)->fake_protocols)) {	\
 				free_block;				\
@@ -164,25 +165,28 @@ struct ptvcursor {
  @param pi the created protocol item we're about to return */
 #define TRY_TO_FAKE_THIS_REPR(pi)	\
 	ws_assert(pi);			\
-	if (!(PTREE_DATA(pi)->visible)) { \
-		/* If the tree (GUI) isn't visible it's pointless for us to generate the protocol \
-		 * items string representation */ \
+	if (!(PTREE_DATA(pi)->visible) && \
+	      PROTO_ITEM_IS_HIDDEN(pi)) { \
+		/* If the tree (GUI) or item isn't visible it's pointless for \
+		 * us to generate the protocol item's string representation */ \
 		return pi; \
 	}
 /* Same as above but returning void */
 #define TRY_TO_FAKE_THIS_REPR_VOID(pi)	\
 	if (!pi)			\
 		return;			\
-	if (!(PTREE_DATA(pi)->visible)) { \
-		/* If the tree (GUI) isn't visible it's pointless for us to generate the protocol \
-		 * items string representation */ \
+	if (!(PTREE_DATA(pi)->visible) && \
+	      PROTO_ITEM_IS_HIDDEN(pi)) { \
+		/* If the tree (GUI) or item isn't visible it's pointless for \
+		 * us to generate the protocol item's string representation */ \
 		return; \
 	}
 /* Similar to above, but allows a NULL tree */
 #define TRY_TO_FAKE_THIS_REPR_NESTED(pi)	\
-	if ((pi == NULL) || (!(PTREE_DATA(pi)->visible))) { \
-		/* If the tree (GUI) isn't visible it's pointless for us to generate the protocol \
-		 * items string representation */ \
+	if ((pi == NULL) || (!(PTREE_DATA(pi)->visible) && \
+		PROTO_ITEM_IS_HIDDEN(pi))) { \
+		/* If the tree (GUI) or item isn't visible it's pointless for \
+		 * us to generate the protocol item's string representation */ \
 		return pi; \
 	}
 
@@ -2598,7 +2602,7 @@ tree_data_add_maybe_interesting_field(tree_data_t *tree_data, field_info *fi)
 {
 	const header_field_info *hfinfo = fi->hfinfo;
 
-	if (hfinfo->ref_type == HF_REF_TYPE_DIRECT) {
+	if (hfinfo->ref_type == HF_REF_TYPE_DIRECT || hfinfo->ref_type == HF_REF_TYPE_PRINT) {
 		GPtrArray *ptrs = NULL;
 
 		if (tree_data->interesting_hfids == NULL) {
@@ -6709,7 +6713,7 @@ new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 	fi->length     = item_length;
 	fi->tree_type  = -1;
 	fi->flags      = 0;
-	if (!PTREE_DATA(tree)->visible)
+	if (!PTREE_DATA(tree)->visible && hfinfo->ref_type != HF_REF_TYPE_PRINT)
 		FI_SET_FLAG(fi, FI_HIDDEN);
 	fi->value = fvalue_new(fi->hfinfo->type);
 	fi->rep        = NULL;
@@ -7666,8 +7670,12 @@ proto_tree_prime_with_hfid(proto_tree *tree _U_, const gint hfid)
 	PROTO_REGISTRAR_GET_NTH(hfid, hfinfo);
 	/* this field is referenced by a filter so increase the refcount.
 	   also increase the refcount for the parent, i.e the protocol.
+	   Don't increase the refcount if we're already printing the
+	   type, as that is a superset of direct reference.
 	*/
-	hfinfo->ref_type = HF_REF_TYPE_DIRECT;
+	if (hfinfo->ref_type != HF_REF_TYPE_PRINT) {
+		hfinfo->ref_type = HF_REF_TYPE_DIRECT;
+	}
 	/* only increase the refcount if there is a parent.
 	   if this is a protocol and not a field then parent will be -1
 	   and there is no parent to add any refcounting for.
@@ -7679,7 +7687,35 @@ proto_tree_prime_with_hfid(proto_tree *tree _U_, const gint hfid)
 		/* Mark parent as indirectly referenced unless it is already directly
 		 * referenced, i.e. the user has specified the parent in a filter.
 		 */
-		if (parent_hfinfo->ref_type != HF_REF_TYPE_DIRECT)
+		if (parent_hfinfo->ref_type == HF_REF_TYPE_NONE)
+			parent_hfinfo->ref_type = HF_REF_TYPE_INDIRECT;
+	}
+}
+
+/* "prime" a proto_tree with a single hfid that a dfilter
+ * is interested in. */
+void
+proto_tree_prime_with_hfid_print(proto_tree *tree _U_, const gint hfid)
+{
+	header_field_info *hfinfo;
+
+	PROTO_REGISTRAR_GET_NTH(hfid, hfinfo);
+	/* this field is referenced by an (output) filter so increase the refcount.
+	   also increase the refcount for the parent, i.e the protocol.
+	*/
+	hfinfo->ref_type = HF_REF_TYPE_PRINT;
+	/* only increase the refcount if there is a parent.
+	   if this is a protocol and not a field then parent will be -1
+	   and there is no parent to add any refcounting for.
+	*/
+	if (hfinfo->parent != -1) {
+		header_field_info *parent_hfinfo;
+		PROTO_REGISTRAR_GET_NTH(hfinfo->parent, parent_hfinfo);
+
+		/* Mark parent as indirectly referenced unless it is already directly
+		 * referenced, i.e. the user has specified the parent in a filter.
+		 */
+		if (parent_hfinfo->ref_type == HF_REF_TYPE_NONE)
 			parent_hfinfo->ref_type = HF_REF_TYPE_INDIRECT;
 	}
 }
