@@ -236,7 +236,6 @@ PacketList::PacketList(QWidget *parent) :
     setRootIsDecorated(false);
     setSortingEnabled(prefs.gui_packet_list_sortable);
     setUniformRowHeights(true);
-    setAutoScroll(false);
     setAccessibleName("Packet list");
 
     proto_prefs_menus_.setTitle(tr("Protocol Preferences"));
@@ -298,6 +297,19 @@ PacketList::~PacketList()
     {
         g_ptr_array_free(finfo_array, TRUE);
     }
+}
+
+void PacketList::scrollTo(const QModelIndex &index, QAbstractItemView::ScrollHint hint)
+{
+    /* QAbstractItemView doesn't have a way to indicate "auto scroll, but
+     * only vertically." So just restore the horizontal scroll value whenever
+     * it scrolls.
+     */
+    setUpdatesEnabled(false);
+    int horizVal = horizontalScrollBar()->value();
+    QTreeView::scrollTo(index, hint);
+    horizontalScrollBar()->setValue(horizVal);
+    setUpdatesEnabled(true);
 }
 
 void PacketList::colorsChanged()

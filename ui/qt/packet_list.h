@@ -49,6 +49,7 @@ public:
     };
     Q_ENUM(SummaryCopyType)
 
+    virtual void scrollTo(const QModelIndex &index, QAbstractItemView::ScrollHint hint = EnsureVisible) override;
     QMenu *conversationMenu() { return &conv_menu_; }
     QMenu *colorizeMenu() { return &colorize_menu_; }
     void setProtoTree(ProtoTree *proto_tree);
