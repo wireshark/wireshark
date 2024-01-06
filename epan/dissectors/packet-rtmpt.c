@@ -569,7 +569,7 @@ rtmpt_get_amf_length(tvbuff_t *tvb, gint offset, proto_item* pi)
 
         while (rv == 0 || depth > 0) {
 
-                if (--iterations) {
+                if (--iterations == 0) {
                         expert_add_info(NULL, pi, &ei_amf_loop);
                         return 0;
                 }
