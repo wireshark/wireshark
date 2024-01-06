@@ -1430,9 +1430,13 @@ sync_if_list_capabilities_open(GList *if_queries,
         argv = sync_pipe_add_arg(argv, &argc, if_cap_query->name);
         if (if_cap_query->monitor_mode)
             argv = sync_pipe_add_arg(argv, &argc, "-I");
-        if (if_cap_query->auth) {
+        if (if_cap_query->auth_username && if_cap_query->auth_password) {
+            char sauth[256];
             argv = sync_pipe_add_arg(argv, &argc, "-A");
-            argv = sync_pipe_add_arg(argv, &argc, if_cap_query->auth);
+            snprintf(sauth, sizeof(sauth), "%s:%s",
+                       if_cap_query->auth_username,
+                       if_cap_query->auth_password);
+            argv = sync_pipe_add_arg(argv, &argc, sauth);
         }
     }
     argv = sync_pipe_add_arg(argv, &argc, "-L");

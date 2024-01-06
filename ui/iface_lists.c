@@ -228,7 +228,8 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
         if_cap_query = g_new(if_cap_query_t, 1);
         if_cap_query->name = if_info->name;
         if_cap_query->monitor_mode = prefs_capture_device_monitor_mode(if_info->name);
-        if_cap_query->auth = NULL;
+        if_cap_query->auth_username = NULL;
+        if_cap_query->auth_password = NULL;
         if_cap_queries = g_list_prepend(if_cap_queries, if_cap_query);
     }
     if_cap_queries = g_list_reverse(if_cap_queries);

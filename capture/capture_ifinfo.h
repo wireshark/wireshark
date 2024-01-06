@@ -130,7 +130,8 @@ if_addr_t *if_addr_copy(const if_addr_t *if_addr);
 typedef struct {
         const char *name;
         bool monitor_mode;
-        const char *auth;
+        const char *auth_username;
+        const char *auth_password;
 } if_cap_query_t;
 
 /*
