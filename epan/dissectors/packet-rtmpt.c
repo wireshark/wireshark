@@ -144,11 +144,14 @@ static gboolean rtmpt_desegment = TRUE;
  * onBWDone() calls) transmits a series of increasing size packets over
  * the course of 2 seconds. On a fast link the largest packet can just
  * exceed 256KB, but setting the limit there can cause massive memory
- * usage in some scenarios. For now make it a preference, but a better fix
- * is really needed.
+ * usage, especially with fuzzed packets where the length value is bogus.
+ * Limit the initial allocation size and realloc if needed, i.e., in
+ * future frames if the bytes are actually there.
+ * This initial max allocation size can be reduced further if need be,
+ * but keep it at least 18 so that the headers fit without checking,
  * See https://gitlab.com/wireshark/wireshark/-/issues/6898
  */
-static guint rtmpt_max_packet_size = 32768;
+#define RTMPT_INIT_ALLOC_SIZE 32768
 
 #define RTMP_PORT                     1935 /* Not IANA registered */
 
@@ -444,6 +447,15 @@ static const value_string amf3_type_vals[] = {
 
 /* Holds the reassembled data for a packet during un-chunking
  */
+/* XXX: Because we don't use the TCP dissector's built-in desegmentation,
+ * or the standard reassembly API, we don't get FT_FRAMENUM links for
+ * chunk fragments, and we don't mark depended upon frames for export.
+ * Ideally we'd use the standard API (mark pinfo->desegment_offset and
+ * pinfo->desegment_len for TCP, or use the reassembly API), or call
+ * mark_frame_as_depended_upon and add the FT_FRAMENUM fields ourselves.
+ * To do the latter, we should have a data structure indicating which
+ * frames contributed to the packet.
+ */
 typedef struct rtmpt_packet {
         guint32          seq;
         guint32          lastseq;
@@ -455,6 +467,7 @@ typedef struct rtmpt_packet {
         } data;
 
         /* used during unchunking */
+        int              alloc;
         int              want;
         int              have;
         int              chunkwant;
@@ -1712,9 +1725,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
 
                 if (tp->cmd == RTMPT_TYPE_CHUNK_SIZE && tp->len >= 4 && iBodyRemain >= 4) {
                         guint32 newchunksize = tvb_get_ntohl(tvb, iBodyOffset);
-                        if (newchunksize < rtmpt_max_packet_size) {
-                                wmem_tree_insert32(rconv->chunksize[cdir], tp->lastseq, GINT_TO_POINTER(newchunksize));
-                        }
+                        wmem_tree_insert32(rconv->chunksize[cdir], tp->lastseq, GINT_TO_POINTER(newchunksize));
                 }
 
                 if (tp->cmd == RTMPT_TYPE_COMMAND_AMF0 || tp->cmd == RTMPT_TYPE_COMMAND_AMF3 ||
@@ -2111,10 +2122,6 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                                 body_len = ti->len;
                         else
                                 body_len = chunk_size;
-
-                        if (body_len > (gint)rtmpt_max_packet_size) {
-                                return;
-                        }
                 }
 
                 if (!ti || !tp || header_type<3 || tp->have == tp->want || tp->chunkhave != tp->chunkwant) {
@@ -2206,7 +2213,15 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                         } else {
                                 /* Some more reassembly required */
                                 tp->resident = TRUE;
-                                tp->data.p = (guint8 *)wmem_alloc(wmem_file_scope(), tp->bhlen+tp->mhlen+tp->len);
+                                /* tp->want is how much data we think we want.
+                                 * If it's a really big number, we don't want
+                                 * to allocate it all at once, due to memory
+                                 * exhaustion on fuzzed data (#6898).
+                                 * RTMPT_INIT_ALLOC_SIZE should always be larger
+                                 * than basic_hlen + message_hlen.
+                                 */
+                                tp->alloc = MIN(tp->want, RTMPT_INIT_ALLOC_SIZE);
+                                tp->data.p = (guint8 *)wmem_alloc(wmem_file_scope(), tp->alloc);
 
                                 if (tf && tf->ishdr) {
                                         memcpy(tp->data.p, tf->saved.d, tf->len);
@@ -2262,6 +2277,11 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                         want = remain;
                 RTMPT_DEBUG("  cw=%d ch=%d r=%d w=%d\n", tp->chunkwant, tp->chunkhave, remain, want);
 
+                /* message length is a 3 byte number, never overflows an int */
+                if (tp->alloc < tp->have + want) {
+                        tp->alloc = MIN(tp->alloc*2, tp->want);
+                        tp->data.p = wmem_realloc(wmem_file_scope(), tp->data.p, tp->alloc);
+                }
                 tvb_memcpy(tvb, tp->data.p+tp->have, offset, want);
 
                 if (tf) {
@@ -2753,6 +2773,7 @@ proto_register_rtmpt(void)
         rtmpt_http_handle = register_dissector("rtmpt.http", dissect_rtmpt_http, proto_rtmpt);
 
         rtmpt_module = prefs_register_protocol(proto_rtmpt, NULL);
+        /* XXX: This desegment preference doesn't do anything */
         prefs_register_bool_preference(rtmpt_module, "desegment",
                                        "Reassemble RTMPT messages spanning multiple TCP segments",
                                        "Whether the RTMPT dissector should reassemble messages spanning multiple TCP segments."
@@ -2760,11 +2781,7 @@ proto_register_rtmpt(void)
                                        " in the TCP protocol settings.",
                                        &rtmpt_desegment);
 
-        prefs_register_uint_preference(rtmpt_module, "max_packet_size",
-                                       "Maximum packet size",
-                                       "The largest acceptable packet size for reassembly",
-                                       10, &rtmpt_max_packet_size);
-
+        prefs_register_obsolete_preference(rtmpt_module, "max_packet_size");
 }
 
 void
