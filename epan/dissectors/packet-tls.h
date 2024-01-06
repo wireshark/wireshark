@@ -59,4 +59,11 @@ tls13_get_quic_secret(packet_info *pinfo, gboolean is_from_server, int type, gui
 const char *
 tls_get_alpn(packet_info *pinfo);
 
+/**
+ * Returns the application-layer protocol name (ALPN) that the client wanted for
+ * the current TLS session, or NULL if unavailable.
+ */
+const char *
+tls_get_client_alpn(packet_info *pinfo);
+
 #endif  /* __PACKET_TLS_H__ */

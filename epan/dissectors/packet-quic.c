@@ -445,6 +445,7 @@ struct quic_info_data {
     quic_cid_item_t server_cids;    /**< SCID of server from first Retry/Handshake. */
     quic_cid_t      client_dcid_initial;    /**< DCID from Initial Packet. */
     dissector_handle_t app_handle;  /**< Application protocol handle (NULL if unknown). */
+    dissector_handle_t zrtt_app_handle;  /**< Application protocol handle (NULL if unknown) for 0-RTT data. */
     wmem_map_t     *client_streams; /**< Map from Stream ID -> STREAM info (guint64 -> quic_stream_state), sent by the client. */
     wmem_map_t     *server_streams; /**< Map from Stream ID -> STREAM info (guint64 -> quic_stream_state), sent by the server. */
     wmem_list_t    *streams_list;   /**< Ordered list of QUIC Stream ID in this connection (both directions). Used by "Follow QUIC Stream" functionality */
@@ -1470,9 +1471,10 @@ quic_get_stream_state(packet_info *pinfo, quic_info_data_t *quic_info, gboolean 
 
 static void
 process_quic_stream(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
-                    quic_info_data_t *quic_info, quic_stream_info *stream_info)
+                    quic_info_data_t *quic_info, quic_stream_info *stream_info,
+                    const quic_packet_info_t *quic_packet)
 {
-    if (quic_info->app_handle) {
+    if (quic_packet->packet_type != QUIC_LPT_0RTT && quic_info->app_handle) {
         tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
         // Traverse the STREAM frame tree.
         proto_tree *top_tree = proto_tree_get_parent_tree(tree);
@@ -1480,6 +1482,11 @@ process_quic_stream(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
         // Subdissectors MUST NOT assume that 'stream_info' remains valid after
         // returning. Copying the pointer will result in illegal memory access.
         call_dissector_with_data(quic_info->app_handle, next_tvb, pinfo, top_tree, stream_info);
+    } else if (quic_packet->packet_type == QUIC_LPT_0RTT && quic_info->zrtt_app_handle) {
+        tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
+        proto_tree *top_tree = proto_tree_get_parent_tree(tree);
+        top_tree = proto_tree_get_parent_tree(top_tree);
+        call_dissector_with_data(quic_info->zrtt_app_handle, next_tvb, pinfo, top_tree, stream_info);
     }
 }
 
@@ -1490,7 +1497,8 @@ static void
 desegment_quic_stream(tvbuff_t *tvb, int offset, int length, packet_info *pinfo,
                       proto_tree *tree, quic_info_data_t *quic_info,
                       quic_stream_info *stream_info,
-                      quic_stream_state *stream)
+                      quic_stream_state *stream,
+                      const quic_packet_info_t *quic_packet)
 {
     fragment_head *fh;
     int last_fragment_len;
@@ -1629,7 +1637,7 @@ again:
          */
 
         stream_info->offset = seq;
-        process_quic_stream(tvb, offset, pinfo, tree, quic_info, stream_info);
+        process_quic_stream(tvb, offset, pinfo, tree, quic_info, stream_info, quic_packet);
         called_dissector = TRUE;
 
         /* Did the subdissector ask us to desegment some more data
@@ -1676,7 +1684,7 @@ again:
             tvbuff_t *next_tvb = tvb_new_chain(tvb, fh->tvb_data);
             add_new_data_source(pinfo, next_tvb, "Reassembled QUIC");
             stream_info->offset = seq;
-            process_quic_stream(next_tvb, 0, pinfo, tree, quic_info, stream_info);
+            process_quic_stream(next_tvb, 0, pinfo, tree, quic_info, stream_info, quic_packet);
             called_dissector = TRUE;
 
             int old_len = (int)(tvb_reported_length(next_tvb) - last_fragment_len);
@@ -1831,7 +1839,8 @@ static void
 dissect_quic_stream_payload(tvbuff_t *tvb, int offset, int length, packet_info *pinfo,
                             proto_tree *tree, quic_info_data_t *quic_info,
                             quic_stream_info *stream_info,
-                            quic_stream_state *stream)
+                            quic_stream_state *stream,
+                            const quic_packet_info_t *quic_packet)
 {
     /* QUIC application data is most likely not properly dissected when
      * reassembly is not enabled. Therefore we do not even offer "desegment"
@@ -1846,7 +1855,7 @@ dissect_quic_stream_payload(tvbuff_t *tvb, int offset, int length, packet_info *
          * a zero length segment, revisit this. (Cf. #15159)
          */
         pinfo->can_desegment = 2;
-        desegment_quic_stream(tvb, offset, length, pinfo, tree, quic_info, stream_info, stream);
+        desegment_quic_stream(tvb, offset, length, pinfo, tree, quic_info, stream_info, stream, quic_packet);
     }
 }
 /* QUIC Streams tracking and reassembly. }}} */
@@ -2508,7 +2517,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 .quic_info = quic_info,
                 .from_server = from_server,
             };
-            dissect_quic_stream_payload(tvb, offset, (int)length, pinfo, ft_tree, quic_info, &stream_info, stream);
+            dissect_quic_stream_payload(tvb, offset, (int)length, pinfo, ft_tree, quic_info, &stream_info, stream, quic_packet);
             offset += (int)length;
         }
         break;
@@ -4118,6 +4127,22 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     if (!PINFO_FD_VISITED(pinfo) && !quic_packet->decryption.error) {
         // Packet number is verified to be valid, remember it.
         *quic_max_packet_number(conn, dgram_info->seq_num, from_server, first_byte) = quic_packet->packet_number;
+
+        // To be able to understand 0-RTT data sent we need to grab the ALPN the client wanted.
+        if (long_packet_type == QUIC_LPT_INITIAL) {
+            const char *proto_name = tls_get_client_alpn(pinfo);
+            if (proto_name) {
+                conn->zrtt_app_handle = dissector_get_string_handle(quic_proto_dissector_table, proto_name);
+                // If no specific handle is found, alias "h3-*" to "h3" and "doq-*" to "doq"
+                if (!conn->zrtt_app_handle) {
+                    if (g_str_has_prefix(proto_name, "h3-")) {
+                        conn->zrtt_app_handle = dissector_get_string_handle(quic_proto_dissector_table, "h3");
+                    } else if (g_str_has_prefix(proto_name, "doq-")) {
+                        conn->zrtt_app_handle = dissector_get_string_handle(quic_proto_dissector_table, "doq");
+                    }
+                }
+            }
+        }
     }
     offset += tvb_reported_length_remaining(tvb, offset);
 

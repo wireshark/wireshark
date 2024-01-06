@@ -469,6 +469,8 @@ typedef struct _SslSession {
     /* The Application layer protocol if known (for STARTTLS support) */
     dissector_handle_t   app_handle;
     const char          *alpn_name;
+    /* The ALPN the client requested, not necessarily the one chosen */
+    const char          *client_alpn_name;
     guint32              last_nontls_frame;
     gboolean             is_session_resumed;
 

@@ -4162,6 +4162,22 @@ tls_get_alpn(packet_info *pinfo)
     return session->session.alpn_name;
 }
 
+const char *
+tls_get_client_alpn(packet_info *pinfo)
+{
+    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+    if (!conv) {
+        return NULL;
+    }
+
+    SslDecryptSession *session = (SslDecryptSession *)conversation_get_proto_data(conv, proto_tls);
+    if (session == NULL) {
+        return NULL;
+    }
+
+    return session->session.client_alpn_name;
+}
+
 /* TLS Exporters {{{ */
 /**
  * Computes the TLS 1.3 Exporter value (RFC 8446 Section 7.5).

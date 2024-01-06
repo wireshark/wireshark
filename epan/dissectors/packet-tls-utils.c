@@ -7269,7 +7269,7 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     proto_tree *alpn_tree;
     proto_item *ti;
     guint32     next_offset, alpn_length, name_length;
-    guint8     *proto_name = NULL;
+    guint8     *proto_name = NULL, *client_proto_name = NULL;
 
     /* ProtocolName protocol_name_list<2..2^16-1> */
     if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &alpn_length,
@@ -7312,6 +7312,9 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
              * comparison purposes. */
             proto_name = tvb_get_string_enc(pinfo->pool, tvb, offset,
                                             name_length, ENC_ASCII);
+        } else if (hnd_type == SSL_HND_CLIENT_HELLO) {
+            client_proto_name = tvb_get_string_enc(pinfo->pool, tvb, offset,
+                                                   name_length, ENC_ASCII);
         }
         offset += name_length;
     }
@@ -7353,6 +7356,10 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                              dissector_handle_get_dissector_name(handle));
             session->app_handle = handle;
         }
+    } else if (client_proto_name) {
+        // No current use for looking up the handle as the only consumer of this API is currently the QUIC dissector
+        // and it just needs the string since there are/were various HTTP/3 ALPNs to check for.
+        session->client_alpn_name = wmem_strdup(wmem_file_scope(), client_proto_name);
     }
 
     return offset;
