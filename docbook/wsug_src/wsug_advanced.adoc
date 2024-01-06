@@ -723,10 +723,12 @@ data transfer will be found with a longer filter as closing a connection can be
 associated with FIN or RST packets, or even both :
 'tcp.completeness==31 or tcp.completeness==47 or tcp.completeness==63'
 
-Another way to select specific conversation values is to filter on the
-tcp.completeness.str field. Thus, 'tcp.completeness.str matches "(R.*|F)[^D]ASS"'
-will find all 'Complete, NO_DATA' conversations, while the 'Complete, WITH_DATA'
-ones will be found with 'tcp.completeness.str matches "(R.*|F)DASS"'.
+Another way to select specific conversation values is to filter on individual
+flags, the summary field, or a combination of them.
+Thus, '(tcp.completeness.fin==1 || tcp.completeness.rst==1) && tcp.completeness.str contains "DASS"'
+will find all 'Complete, WITH_DATA' conversations, while the 'Complete, NO_DATA'
+ones will be found with
+'(tcp.completeness.fin==1 || tcp.completeness.rst==1) && tcp.completeness.data==0 && tcp.completeness.str contains "ASS"'.
 
 [#ChAdvTimestamps]
 
