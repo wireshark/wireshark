@@ -413,7 +413,7 @@ static int dissect_wmio_encoding_qualifierset(tvbuff_t *tvb, gint offset, packet
 /* DictionaryReference
  * https://learn.microsoft.com/de-de/openspecs/windows_protocols/ms-wmio/40adf451-f5bc-4b0a-ab97-d620bb638470
  */
-const gchar* stringDictionary[] =
+static const gchar* stringDictionary[] =
   { "'"
   , "key"
   , ""
