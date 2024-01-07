@@ -1,4 +1,4 @@
-Wireshark 4.2.1 Release Notes
+Wireshark 4.2.3 Release Notes
 
  What is Wireshark?
 
@@ -6,7 +6,7 @@ Wireshark 4.2.1 Release Notes
   used for troubleshooting, analysis, development and education.
 
   Wireshark is hosted by the Wireshark Foundation, a nonprofit which
-  promotes protocol analysis educaton. Wireshark and the foundation
+  promotes protocol analysis education. Wireshark and the foundation
   depend on your contributions in order to do their work. If you or your
   employer would like to contribute or become a sponsor, please visit
   wiresharkfoundation.org[1].
@@ -15,87 +15,10 @@ Wireshark 4.2.1 Release Notes
 
   Bug Fixes
 
-   The following vulnerabilities have been fixed:
-
-     • wnpa-sec-2024-01[2] GVCP dissector crash. Issue 19496[3].
-       CVE-2024-0208[4].
-
-     • wnpa-sec-2024-02[5] IEEE 1609.2 dissector crash. Issue 19501[6].
-       CVE-2024-0209[7].
-
-     • wnpa-sec-2024-03[8] HTTP3 dissector crash. Issue 19502[9].
-       CVE-2024-0207[10].
-
-     • wnpa-sec-2024-04[11] Zigbee TLV dissector crash. Issue 19504[12].
-       CVE-2024-0210[13].
-
-     • wnpa-sec-2024-05[14] DOCSIS dissector crash. Issue 19557[15].
-       CVE-2024-0211[16].
+   If you are upgrading Wireshark 4.2.0 or 4.2.1 on Windows you will
+   need to download and install[2] Wireshark 4.2.3 or later by hand.
 
    The following bugs have been fixed:
-
-     • Capture filters not saved to recently used list. Issue 12918[17].
-
-     • CFM dissector does not handle Sender ID TLV correctly when
-       Chassis ID Length is zero. Issue 13720[18].
-
-     • OSS-Fuzz 64290: wireshark:fuzzshark_ip: Global-buffer-overflow in
-       dissect_zcl_read_attr_struct. Issue 19490[19].
-
-     • Overriding capture options set by preference by command line
-       arguments (like -S) doesn’t work. Issue 14549[20].
-
-     • Segfault when enabling monitor mode on wireless card that falsely
-       claims to support it. Issue 16693[21].
-
-     • Documented format of temporary file name is out of date in the
-       Wireshark User’s Guide. Issue 18464[22].
-
-     • Selection highlight lost when interface list is sorted. Issue
-       19133[23].
-
-     • HTTP3 malformed packets. Issue 19475[24].
-
-     • Capture filter compilation fails with obscure error message.
-       Issue 19480[25].
-
-     • XML: Parsing encoding attribute failed when standalone attribute
-       exists. Issue 19485[26].
-
-     • Display filter expressions where the protocol name starts with
-       digit and contains a hyphen are rejected. Issue 19489[27].
-
-     • diameter.3GPP-* display filters not working after upgrade to
-       version 4.2.0. Issue 19493[28].
-
-     • GigE-vision: Control Protocol shows \"unknown\" as value for
-       ASCII character set. Issue 19494[29].
-
-     • The HTTP/3 Request Header URI is not correct. Issue 19497[30].
-
-     • QUIC/TLS not extracting \"h3\" from ALPN in a capture. Issue
-       19503[31].
-
-     • Documentation on system requirements should be updated. Issue
-       19512[32].
-
-     • 4.2.0: init.lua in subdirectories not loaded anymore. Issue
-       19516[33].
-
-     • Malformed SIP/SDP messages: components are not decoded properly.
-       Issue 19518[34].
-
-     • heuristic_protos do not reset on profile swap. Issue 19520[35].
-
-     • Wireshark 4.2 crashes on Apply As Column. Issue 19521[36].
-
-     • NFLOG timestamp is incorrect. Issue 19525[37].
-
-     • Qt6 Crash (Double Free) When Attempting to Save TCP Stream Graph.
-       Issue 19529[38].
-
-     • Fixed parsing display filter expressions containing literal OID
-       values, e.g. `snmp.name == 1.3.6.1.2.1.1.3.0`.
 
   New and Updated Features
 
@@ -111,15 +34,17 @@ Wireshark 4.2.1 Release Notes
 
    There is no new or updated capture file support in this release.
 
-   pcapng: the if_tsoffset option is now supported.
-
  Prior Versions
 
   This document only describes the changes introduced in Wireshark
-  4.2.1. You can find release notes for prior versions at the following
+  4.2.3. You can find release notes for prior versions at the following
   locations:
 
-    • Wireshark 4.2.0[39]
+    • Wireshark 4.2.2[3]
+
+    • Wireshark 4.2.1[4]
+
+    • Wireshark 4.2.0[5]
 
  Getting Wireshark
 
@@ -131,7 +56,7 @@ Wireshark 4.2.1 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[40] on the Wireshark web site.
+   be found on the download page[6] on the Wireshark web site.
 
  File Locations
 
@@ -146,70 +71,36 @@ Wireshark 4.2.1 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[41] and on the
+  Community support is available on Wireshark’s Q&A site[7] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[42].
+  for all of Wireshark’s mailing lists can be found on the web site[8].
 
-  Bugs and feature requests can be reported on the issue tracker[43].
+  Bugs and feature requests can be reported on the issue tracker[9].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[44].
+  SharkFest[10].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[45].
+  at wiresharkfoundation.org[11].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[46].
+  A complete FAQ is available on the Wireshark web site[12].
 
  References
 
    1. https://wiresharkfoundation.org
-   2. https://www.wireshark.org/security/wnpa-sec-2024-01
-   3. https://gitlab.com/wireshark/wireshark/-/issues/19496
-   4. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-0208
-   5. https://www.wireshark.org/security/wnpa-sec-2024-02
-   6. https://gitlab.com/wireshark/wireshark/-/issues/19501
-   7. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-0209
-   8. https://www.wireshark.org/security/wnpa-sec-2024-03
-   9. https://gitlab.com/wireshark/wireshark/-/issues/19502
-  10. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-0207
-  11. https://www.wireshark.org/security/wnpa-sec-2024-04
-  12. https://gitlab.com/wireshark/wireshark/-/issues/19504
-  13. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-0210
-  14. https://www.wireshark.org/security/wnpa-sec-2024-05
-  15. https://gitlab.com/wireshark/wireshark/-/issues/19557
-  16. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-0211
-  17. https://gitlab.com/wireshark/wireshark/-/issues/12918
-  18. https://gitlab.com/wireshark/wireshark/-/issues/13720
-  19. https://gitlab.com/wireshark/wireshark/-/issues/19490
-  20. https://gitlab.com/wireshark/wireshark/-/issues/14549
-  21. https://gitlab.com/wireshark/wireshark/-/issues/16693
-  22. https://gitlab.com/wireshark/wireshark/-/issues/18464
-  23. https://gitlab.com/wireshark/wireshark/-/issues/19133
-  24. https://gitlab.com/wireshark/wireshark/-/issues/19475
-  25. https://gitlab.com/wireshark/wireshark/-/issues/19480
-  26. https://gitlab.com/wireshark/wireshark/-/issues/19485
-  27. https://gitlab.com/wireshark/wireshark/-/issues/19489
-  28. https://gitlab.com/wireshark/wireshark/-/issues/19493
-  29. https://gitlab.com/wireshark/wireshark/-/issues/19494
-  30. https://gitlab.com/wireshark/wireshark/-/issues/19497
-  31. https://gitlab.com/wireshark/wireshark/-/issues/19503
-  32. https://gitlab.com/wireshark/wireshark/-/issues/19512
-  33. https://gitlab.com/wireshark/wireshark/-/issues/19516
-  34. https://gitlab.com/wireshark/wireshark/-/issues/19518
-  35. https://gitlab.com/wireshark/wireshark/-/issues/19520
-  36. https://gitlab.com/wireshark/wireshark/-/issues/19521
-  37. https://gitlab.com/wireshark/wireshark/-/issues/19525
-  38. https://gitlab.com/wireshark/wireshark/-/issues/19529
-  39. https://www.wireshark.org/docs/relnotes/wireshark-4.2.0.html
-  40. https://www.wireshark.org/download.html
-  41. https://ask.wireshark.org/
-  42. https://www.wireshark.org/lists/
-  43. https://gitlab.com/wireshark/wireshark/-/issues
-  44. https://sharkfest.wireshark.org
-  45. https://wiresharkfoundation.org
-  46. https://www.wireshark.org/faq.html
+   2. https://www.wireshark.org/download.html
+   3. https://www.wireshark.org/docs/relnotes/wireshark-4.2.2.html
+   4. https://www.wireshark.org/docs/relnotes/wireshark-4.2.1.html
+   5. https://www.wireshark.org/docs/relnotes/wireshark-4.2.0.html
+   6. https://www.wireshark.org/download.html
+   7. https://ask.wireshark.org/
+   8. https://www.wireshark.org/lists/
+   9. https://gitlab.com/wireshark/wireshark/-/issues
+  10. https://sharkfest.wireshark.org
+  11. https://wiresharkfoundation.org
+  12. https://www.wireshark.org/faq.html
