@@ -25,6 +25,7 @@
 #include "wmem_interval_tree.h"
 #include "wmem_user_cb.h"
 
+// NOLINT(misc-no-recursion)
 
 static void
 print_range(const void *value)

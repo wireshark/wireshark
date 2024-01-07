@@ -20,6 +20,8 @@
 
 #include <wsutil/unicode-utils.h>
 
+// NOLINT(misc-no-recursion)
+
 #define DEFAULT_MINIMUM_SIZE 16
 
 /* _ROOM accounts for the null-terminator, _RAW_ROOM does not.

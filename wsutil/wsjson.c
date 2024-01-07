@@ -22,6 +22,8 @@
 #include <wsutil/unicode-utils.h>
 #include <wsutil/wslog.h>
 
+// NOLINT(misc-no-recursion)
+
 bool
 json_validate(const uint8_t *buf, const size_t len)
 {

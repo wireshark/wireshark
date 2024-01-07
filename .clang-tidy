@@ -1,0 +1,20 @@
+# You can use clang-tidy with CMake by:
+#
+# Checking files individually by passing `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON`
+# to CMake, then running `clang-tidy <file>`
+#
+# Checking the entire build by passing `-DCMAKE_C_CLANG_TIDY=clang-tidy`
+# and `-DCMAKE_CXX_CLANG_TIDY=clang-tidy` to CMake
+
+ExtraArgs:
+  - '-Wno-unknown-warning-option'
+
+# Checks to run. A complete list of checks can be found at
+# https://clang.llvm.org/extra/clang-tidy/checks/list.html
+Checks:
+  - '-*'
+  - 'misc-no-recursion'
+
+#WarningsAsErrors: 'misc-no-recursion'
+
+UseColor: true

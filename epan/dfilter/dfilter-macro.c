@@ -24,6 +24,7 @@
 #include <wsutil/glib-compat.h>
 #include <wsutil/filter_files.h>
 
+// NOLINT(misc-no-recursion)
 
 static GHashTable *macros_table = NULL;
 

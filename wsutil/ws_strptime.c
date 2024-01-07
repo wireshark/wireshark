@@ -33,6 +33,8 @@
 #include <wsutil/time_util.h> /* For ws_localtime_r() */
 #include <wsutil/strtoi.h>
 
+// NOLINT(misc-no-recursion)
+
 #ifdef _WIN32
 #define tzset		_tzset
 #define tzname		_tzname

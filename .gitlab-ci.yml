@@ -779,7 +779,7 @@ Clang + Code Checks:
     - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     # We don't have an "All options" job, so build fuzzshark and tfshark here.
-    - cmake -DENABLE_CHECKHF_CONFLICT=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DBUILD_fuzzshark=ON -DBUILD_tfshark=On -DBUILD_logray=ON -DENABLE_DEBUG=ON -DENABLE_CCACHE=ON -DENABLE_WERROR=ON -G Ninja ..
+    - cmake -DENABLE_CHECKHF_CONFLICT=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DCMAKE_C_CLANG_TIDY=clang-tidy-$CLANG_VERSION -DCMAKE_CXX_CLANG_TIDY=clang-tidy-$CLANG_VERSION -DBUILD_fuzzshark=ON -DBUILD_tfshark=On -DBUILD_logray=ON -DENABLE_DEBUG=ON -DENABLE_CCACHE=ON -DENABLE_WERROR=ON -G Ninja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - printf "\e[0Ksection_start:%s:asn1_section[collapsed=true]\r\e[0KRegenerating ASN.1 dissectors" "$( date +%s)"
     - ninja asn1

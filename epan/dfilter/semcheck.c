@@ -31,6 +31,7 @@
 
 #include <ftypes/ftypes.h>
 
+// NOLINT(misc-no-recursion)
 
 #define FAIL(dfw, node, ...) \
 	do {								\
