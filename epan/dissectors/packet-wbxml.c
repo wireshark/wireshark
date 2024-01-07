@@ -7307,6 +7307,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
  */
 #define WBXML_MAX_RECURSION_LEVEL 255
 static guint32
+// NOLINTNEXTLINE(misc-no-recursion)
 parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 			 guint32 str_tbl, guint8 *codepage_stag, guint8 *codepage_attr,
 			 const wbxml_decoding *map)

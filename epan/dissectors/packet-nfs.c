@@ -1295,6 +1295,7 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 #define NFS_MAX_FS_DEPTH 100
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 nfs_full_name_snoop(packet_info *pinfo, nfs_name_snoop_t *nns, int *len, char **name, char **pos)
 {
 	nfs_name_snoop_t     *parent_nns = NULL;

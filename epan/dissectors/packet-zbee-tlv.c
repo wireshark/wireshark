@@ -2615,6 +2615,7 @@ dissect_zbee_tlv_device_auth_level(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
  * ToDo: descr
  */
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_global_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
     guint8  type;
@@ -2734,6 +2735,7 @@ dissect_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
  *@return offset after command dissection.
  */
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_zbee_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, void *data, guint8 source_type, guint cmd_id)
 {
     guint8       type;
@@ -2784,6 +2786,7 @@ dissect_zbee_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint 
 #define ZBEE_TLV_MAX_RECURSION_DEPTH 5 // Arbitrarily chosen
 
 guint
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_zbee_tlvs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, void *data, guint8 source_type, guint cmd_id)
 {
     proto_tree  *subtree;

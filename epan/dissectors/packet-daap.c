@@ -429,6 +429,7 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 #define DAAP_MAX_RECURSION_DEPTH 100
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_daap_one_tag(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {
    guint       offset = 0;
