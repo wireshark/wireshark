@@ -3376,7 +3376,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>FollowStreamAction</name>
     <message>
         <source>%1 Stream</source>
-        <translation>%1 flusso</translation>
+        <translation>Flusso %1</translation>
     </message>
 </context>
 <context>
@@ -10083,7 +10083,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>%1 streams</source>
-        <translation>flussi %1</translation>
+        <translation>%1 flussi</translation>
     </message>
     <message>
         <source>, %1 selected, %2 total packets</source>

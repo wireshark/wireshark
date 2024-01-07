@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: 411d7ea9a58ffbf04385b049ffe2d541d410a658
+git revision: 765fd3b1be7a1d82df183ac98e78ea673d137d93
 
 
 */

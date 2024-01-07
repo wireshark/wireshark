@@ -6013,7 +6013,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>LteMacStatisticsDialog</name>
     <message>
         <source>LTE/NR Mac Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE/NR Mac 統計</translation>
     </message>
     <message>
         <source>Include SR frames in filter</source>
@@ -6322,11 +6322,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>%1 RLC Graph (UE=%2 chan=%3%4 %5 - %6)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 RLC グラフ (UE=%2 chan=%3%4 %5 - %6)</translation>
     </message>
     <message>
         <source>3GPP RLC Graph - no channel selected</source>
-        <translation type="unfinished"></translation>
+        <translation>3GPP RLC グラフ - チャンネルが選択されていません</translation>
     </message>
     <message>
         <source>Save As…</source>
@@ -6381,7 +6381,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>LteRlcStatisticsDialog</name>
     <message>
         <source>3GPP RLC Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>3GPP RLC 統計</translation>
     </message>
     <message>
         <source>Include SR frames in filter</source>
@@ -7404,15 +7404,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Scope</source>
-        <translation type="unfinished"></translation>
+        <translation>スコープ</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">記述</translation>
+        <translation>記述</translation>
     </message>
     <message>
         <source>Homepage</source>
-        <translation type="unfinished"></translation>
+        <translation>ホームページ</translation>
     </message>
 </context>
 <context>
@@ -8308,11 +8308,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>LTE</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE</translation>
     </message>
     <message>
         <source>NR</source>
-        <translation type="unfinished"></translation>
+        <translation>NR</translation>
     </message>
     <message>
         <source>C-RNTI</source>
@@ -8336,7 +8336,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>RAT</source>
-        <translation type="unfinished"></translation>
+        <translation>RAT</translation>
     </message>
     <message>
         <source>UL Frames</source>
@@ -8567,7 +8567,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>QObject::QObject::QObject</name>
     <message>
         <source>CCCH</source>
-        <translation type="unfinished">CCCH</translation>
+        <translation>CCCH</translation>
     </message>
 </context>
 <context>
@@ -13965,7 +13965,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;3GPP Uu</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;3GPP Uu</translation>
     </message>
     <message>
         <source>&amp;Wireless</source>
@@ -14069,11 +14069,11 @@ a:hover {
     </message>
     <message>
         <source>E2AP</source>
-        <translation type="unfinished"></translation>
+        <translation>E2AP</translation>
     </message>
     <message>
         <source>E2AP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>E2AP メッセージ</translation>
     </message>
     <message>
         <source>Decode &amp;As…</source>
@@ -14735,37 +14735,39 @@ a:hover {
     </message>
     <message>
         <source>Install plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>プラグインのインストール</translation>
     </message>
     <message>
         <source>Binary plugin (*%1 *%1.[0-9]*)</source>
-        <translation type="unfinished"></translation>
+        <translation>バイナリープラグイン (*%1 *%1.[0-9]*)</translation>
     </message>
     <message>
         <source>Error removing the old plugin from the personal plugin folder. You may need to close Wireshark first and then manually remove the file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>個人プラグインフォルダーから古いプラグインを削除する際のエラー。 最初にWiresharkを閉じて手動で &quot;%1&quot; ファイルを削除する必要があるかもしれません。</translation>
     </message>
     <message>
         <source>Plugins can execute arbitrary code as the current user. Make sure you trust it before installing.
 
 Continue installing the file &quot;%1&quot; to the personal plugin folder?</source>
-        <translation type="unfinished"></translation>
+        <translation>プラグインは現在のユーザとして任意のコードを実行できます。インストール前に信頼できるか確認ください。
+
+引き続き、個人プラグインフォルダにファイル&quot;%1&quot; をインストールしますか？</translation>
     </message>
     <message>
         <source>Failed to create the directory: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>ディレクトリを作成できませんでした: %1</translation>
     </message>
     <message>
         <source>The file already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルがすでに存在します。上書きしますか？</translation>
     </message>
     <message>
         <source>Failed to copy the file to the destination: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルを宛先へコピーできませんでした: %1</translation>
     </message>
     <message>
         <source>Plugin &apos;%1&apos; installed successfully. You must restart the program to be able to use it.</source>
-        <translation type="unfinished"></translation>
+        <translation>プラグイン&apos;%1&apos; のインストールは成功しました。 プログラムを再起動して利用できるようにする必要があります。</translation>
     </message>
     <message>
         <source>Show or hide the toolbar</source>
@@ -14973,7 +14975,7 @@ Continue installing the file &quot;%1&quot; to the personal plugin folder?</sour
     </message>
     <message>
         <source>Install Plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>プラグインのインストール</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
