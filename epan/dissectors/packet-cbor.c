@@ -91,6 +91,8 @@ static dissector_handle_t cborseq_handle;
 #define CBOR_TYPE_TAGGED	6
 #define CBOR_TYPE_FLOAT		7
 
+#define MAX_RECURSION_DEPTH 100 /* pretty arbitrary */
+
 static const value_string major_type_vals[] = {
 	{ 0, "Unsigned Integer" },
 	{ 1, "Negative Integer" },
@@ -686,6 +688,12 @@ dissect_cbor_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gint 
 	guint64          tag = 0;
 	proto_item      *item;
 	proto_tree      *subtree;
+	unsigned recursion_depth = p_get_proto_depth(pinfo, proto_cbor);
+
+	/* dissect_cbor_main_type and dissect_cbor_tag can exhaust the stack
+	 * calling each other recursively on malformed packets otherwise */
+	DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+	p_set_proto_depth(pinfo, proto_cbor, recursion_depth + 1);
 
 	item = proto_tree_add_item(cbor_tree, hf_cbor_item_tag, tvb, *offset, -1, ENC_NA);
 	subtree = proto_item_add_subtree(item, ett_cbor_tag);
@@ -721,17 +729,20 @@ dissect_cbor_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gint 
 		if (type_minor > 0x17) {
 			expert_add_info_format(pinfo, subtree, &ei_cbor_invalid_minor_type,
 					"invalid minor type %i in tag", type_minor);
+			p_set_proto_depth(pinfo, proto_cbor, recursion_depth);
 			return FALSE;
 		}
 		break;
 	}
 
 	if (!dissect_cbor_main_type(tvb, pinfo, subtree, offset)) {
+		p_set_proto_depth(pinfo, proto_cbor, recursion_depth);
 		return FALSE;
 	}
 
 	proto_item_append_text(item, ": %s (%" PRIu64 ")", val64_to_str(tag, tag64_vals, "Unknown"), tag);
 	proto_item_set_end(item, tvb, *offset);
+	p_set_proto_depth(pinfo, proto_cbor, recursion_depth);
 
 	return TRUE;
 }
