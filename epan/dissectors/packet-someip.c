@@ -3513,17 +3513,6 @@ dissect_someip_payload(tvbuff_t* tvb, packet_info* pinfo, proto_item *ti, guint1
 
     proto_tree *tree = NULL;
 
-    /* TAP */
-    if (have_tap_listener(tap_someip_messages)) {
-        someip_messages_tap_t *data = wmem_alloc(pinfo->pool, sizeof(someip_messages_tap_t));
-        data->service_id = serviceid;
-        data->method_id = methodid;
-        data->interface_version = version;
-        data->message_type = msgtype;
-
-        tap_queue_packet(tap_someip_messages, pinfo, data);
-    }
-
     length = tvb_captured_length_remaining(tvb, 0);
     tree = proto_item_add_subtree(ti, ett_someip_payload);
     paramlist = get_parameter_config(serviceid, methodid, version, msgtype);
@@ -3738,7 +3727,18 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         subtvb = tvb_new_subset_length(tvb, SOMEIP_HDR_LEN, someip_payload_length);
     }
 
-    if (subtvb!=NULL) {
+    if (subtvb != NULL) {
+        /* TAP */
+        if (have_tap_listener(tap_someip_messages)) {
+            someip_messages_tap_t *stats_data = wmem_alloc(pinfo->pool, sizeof(someip_messages_tap_t));
+            stats_data->service_id = (guint16)someip_serviceid;
+            stats_data->method_id = (guint16)someip_methodid;
+            stats_data->interface_version = (guint8)version;
+            stats_data->message_type = (guint8)(~SOMEIP_MSGTYPE_TP_MASK) & msgtype;
+
+            tap_queue_packet(tap_someip_messages, pinfo, stats_data);
+        }
+
         tvb_length = tvb_captured_length_remaining(subtvb, 0);
         if (tvb_length > 0) {
             tmp = dissector_try_uint_new(someip_dissector_table, someip_messageid, subtvb, pinfo, tree, FALSE, &someip_data);
