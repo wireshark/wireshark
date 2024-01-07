@@ -19,16 +19,15 @@
 #define ISO15765_TYPE_PDU_TRANSPORT 6
 
 
-struct iso15765_info {
+typedef struct _iso15765_info {
     guint32  bus_type;
     guint32  id;
     guint32  len;
-    guint32  target_address;
-    guint32  source_address;
+    guint16  target_address;
+    guint16  source_address;
     guint8   number_of_addresses_valid;
-};
-
-typedef struct iso15765_info iso15765_info_t;
+    guint8   address_length;
+} iso15765_info_t;
 
 #endif /* __PACKET_ISO15765_H__ */
 

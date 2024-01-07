@@ -1487,6 +1487,22 @@ uds_proto_tree_add_address_name(proto_tree *tree, int hf, tvbuff_t *tvb, const g
     return ti;
 }
 
+static void
+uds_proto_item_append_address_text(proto_item *ti, guint8 address_length, const char *name, guint32 value) {
+    if (ti == NULL) {
+        return;
+    }
+
+    switch (address_length) {
+    case 1:
+        proto_item_append_text(ti, ", %s: 0x%02x", name, value);
+        break;
+    case 2:
+        proto_item_append_text(ti, ", %s: 0x%04x", name, value);
+        break;
+    }
+}
+
 /*** Configuration End ***/
 
 static gboolean
@@ -2220,8 +2236,7 @@ dissect_uds_certificates_into_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 static int
-dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 source_address, guint32 target_address, guint8 number_of_addresses_valid)
-{
+dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 source_address, guint16 target_address, guint8 number_of_addresses_valid, guint8 address_size) {
     proto_tree *uds_tree;
     proto_tree *subfunction_tree;
     proto_item *ti;
@@ -2262,25 +2277,25 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
         ecu_address = G_MAXUINT32;
         break;
     case 1:
-        proto_item_append_text(ti, ", Address: 0x%04x", source_address);
+        uds_proto_item_append_address_text(ti, address_size, "Address", source_address);
         uds_proto_item_append_address_name(ti, source_address);
 
-        uds_proto_tree_add_address_item(uds_tree, hf_uds_diag_addr, tvb, 0, 0, source_address, false, false);
+        uds_proto_tree_add_address_item(uds_tree, hf_uds_diag_addr, tvb, 0, 0, source_address, true, false);
         uds_proto_tree_add_address_name(uds_tree, hf_uds_diag_addr_name, tvb, 0, 0, source_address);
         break;
     case 2:
-        proto_item_append_text(ti, ", Source: 0x%04x", source_address);
+        uds_proto_item_append_address_text(ti, address_size, "Source", source_address);
         uds_proto_item_append_address_name(ti, source_address);
-        proto_item_append_text(ti, ", Target: 0x%04x", target_address);
+        uds_proto_item_append_address_text(ti, address_size, "Target", target_address);
         uds_proto_item_append_address_name(ti, target_address);
 
-        uds_proto_tree_add_address_item(uds_tree, hf_uds_diag_source_addr, tvb, 0, 0, source_address, false, false);
+        uds_proto_tree_add_address_item(uds_tree, hf_uds_diag_source_addr, tvb, 0, 0, source_address, true, false);
         uds_proto_tree_add_address_name(uds_tree, hf_uds_diag_source_addr_name, tvb, 0, 0, source_address);
 
         uds_proto_tree_add_address_item(uds_tree, hf_uds_diag_addr, tvb, 0, 0, source_address, true, true);
         uds_proto_tree_add_address_name(uds_tree, hf_uds_diag_addr_name, tvb, 0, 0, source_address);
 
-        uds_proto_tree_add_address_item(uds_tree, hf_uds_diag_target_addr, tvb, 0, 0, target_address, false, false);
+        uds_proto_tree_add_address_item(uds_tree, hf_uds_diag_target_addr, tvb, 0, 0, target_address, true, false);
         uds_proto_tree_add_address_name(uds_tree, hf_uds_diag_target_addr_name, tvb, 0, 0, target_address);
 
         uds_proto_tree_add_address_item(uds_tree, hf_uds_diag_addr, tvb, 0, 0, target_address, true, true);
@@ -3204,7 +3219,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
 static int
 dissect_uds_no_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    return dissect_uds_internal(tvb, pinfo, tree, 0, 0, 0);
+    return dissect_uds_internal(tvb, pinfo, tree, 0, 0, 0, 0);
 }
 
 static int
@@ -3212,7 +3227,7 @@ dissect_uds_doip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     DISSECTOR_ASSERT(data);
 
     doip_info_t *doip_info = (doip_info_t *)data;
-    return dissect_uds_internal(tvb, pinfo, tree, doip_info->source_address, doip_info->target_address, 2);
+    return dissect_uds_internal(tvb, pinfo, tree, doip_info->source_address, doip_info->target_address, 2, 2);
 }
 
 static int
@@ -3220,7 +3235,7 @@ dissect_uds_hsfz(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     DISSECTOR_ASSERT(data);
 
     hsfz_info_t *hsfz_info = (hsfz_info_t *)data;
-    return dissect_uds_internal(tvb, pinfo, tree, hsfz_info->source_address, hsfz_info->target_address, 2);
+    return dissect_uds_internal(tvb, pinfo, tree, hsfz_info->source_address, hsfz_info->target_address, 2, 1);
 }
 
 static int
@@ -3228,7 +3243,7 @@ dissect_uds_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     DISSECTOR_ASSERT(data);
 
     iso15765_info_t *info = (iso15765_info_t *)data;
-    return dissect_uds_internal(tvb, pinfo, tree, info->source_address, info->target_address, info->number_of_addresses_valid);
+    return dissect_uds_internal(tvb, pinfo, tree, info->source_address, info->target_address, info->number_of_addresses_valid, info->address_length);
 }
 
 static int
@@ -3236,7 +3251,7 @@ dissect_uds_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     DISSECTOR_ASSERT(data);
 
     iso10681_info_t *info = (iso10681_info_t *)data;
-    return dissect_uds_internal(tvb, pinfo, tree, info->source_address, info->target_address, 2);
+    return dissect_uds_internal(tvb, pinfo, tree, info->source_address, info->target_address, 2, 2);
 }
 
 static void

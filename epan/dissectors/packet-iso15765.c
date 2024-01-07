@@ -49,6 +49,7 @@
 #include <epan/proto_data.h>
 #include <epan/uat.h>
 #include <wsutil/bits_ctz.h>
+#include <wsutil/bits_count_ones.h>
 
 #include "packet-socketcan.h"
 #include "packet-lin.h"
@@ -340,11 +341,10 @@ masked_guint32_value(const guint32 value, const guint32 mask) {
 }
 
 /*
- * setting addresses to 0xffffffff, if not found or configured
- * returning number of addresses (0: none, 1:ecu (both addr same), 2:source+target)
+ * returning number of addresses (0:none, 1:ecu (both addr same), 2:source+target)
  */
 static guint8
-find_config_can_addr_mapping(gboolean ext_id, guint32 can_id, guint32 *source_addr, guint32 *target_addr) {
+find_config_can_addr_mapping(gboolean ext_id, guint32 can_id, guint16 *source_addr, guint16 *target_addr, guint8 *addr_len) {
     config_can_addr_mapping_t *tmp = NULL;
     guint32 i;
 
@@ -361,15 +361,23 @@ find_config_can_addr_mapping(gboolean ext_id, guint32 can_id, guint32 *source_ad
         }
     }
 
+    *addr_len = 0;
+
     if (tmp != NULL) {
         if (tmp->ecu_addr_mask != 0) {
             *source_addr = masked_guint32_value(can_id, tmp->ecu_addr_mask);
             *target_addr = *source_addr;
+            *addr_len = (7 + ws_count_ones(tmp->ecu_addr_mask)) / 8;
             return 1;
         }
         if (tmp->source_addr_mask != 0 && tmp->target_addr_mask != 0) {
             *source_addr = masked_guint32_value(can_id, tmp->source_addr_mask);
             *target_addr = masked_guint32_value(can_id, tmp->target_addr_mask);
+            guint8 tmp_len = ws_count_ones(tmp->source_addr_mask);
+            if (ws_count_ones(tmp->target_addr_mask) > tmp_len) {
+                tmp_len = ws_count_ones(tmp->target_addr_mask);
+            }
+            *addr_len = (7 + tmp_len) / 8;
             return 2;
         }
     }
@@ -494,36 +502,46 @@ handle_pdu_transport_addresses(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     config_pdu_transport_config_t *config = find_pdu_transport_config(pdu_id);
 
     iso15765data->number_of_addresses_valid = 0;
-    iso15765data->source_address = 0xffffffff;
-    iso15765data->target_address = 0xffffffff;
+    iso15765data->source_address = 0xffff;
+    iso15765data->target_address = 0xffff;
 
     if (config == NULL) {
         return offset - offset_orig;
     }
 
     guint32 tmp;
+    /* single address, in payload */
     if (config->ecu_address_size != 0) {
         proto_tree_add_item_ret_uint(tree, hf_iso15765_address, tvb, offset, config->ecu_address_size, ENC_BIG_ENDIAN, &tmp);
         offset += config->ecu_address_size;
         iso15765data->number_of_addresses_valid = 1;
-        iso15765data->source_address = tmp;
-        iso15765data->target_address = tmp;
+        iso15765data->source_address = (guint16)tmp;
+        iso15765data->target_address = (guint16)tmp;
+        iso15765data->address_length = config->ecu_address_size;
         return offset - offset_orig;
     }
 
+    /* single address, fixed */
     if (config->ecu_address_fixed != ISO15765_ADDR_INVALID) {
         iso15765data->number_of_addresses_valid = 1;
         iso15765data->source_address = config->ecu_address_fixed;
         iso15765data->target_address = config->ecu_address_fixed;
+        iso15765data->address_length = 2; /* could be also 1 Byte but we cannot know for sure */
         return offset - offset_orig;
     }
 
+    /* no address possible */
     if (config->source_address_size == 0 && config->source_address_fixed == ISO15765_ADDR_INVALID && config->target_address_size == 0 && config->target_address_fixed == ISO15765_ADDR_INVALID) {
+        iso15765data->address_length = 0;
         return offset - offset_orig;
     }
 
     /* now we can only have two addresses! */
     iso15765data->number_of_addresses_valid = 2;
+    iso15765data->address_length = config->source_address_size;
+    if (config->target_address_size > iso15765data->address_length) {
+        iso15765data->address_length = config->target_address_size;
+    }
 
     if (config->source_address_size != 0) {
         proto_tree_add_item_ret_uint(tree, hf_iso15765_source_address, tvb, offset, config->source_address_size, ENC_BIG_ENDIAN, &tmp);
@@ -531,6 +549,7 @@ handle_pdu_transport_addresses(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         iso15765data->source_address = tmp;
     } else if (config->source_address_fixed != ISO15765_ADDR_INVALID) {
         iso15765data->source_address = config->source_address_fixed;
+        iso15765data->address_length = 2; /* could be also 1 Byte but we cannot know for sure */
     }
 
     if (config->target_address_size != 0) {
@@ -539,6 +558,7 @@ handle_pdu_transport_addresses(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         iso15765data->target_address = tmp;
     } else if (config->target_address_fixed != ISO15765_ADDR_INVALID) {
         iso15765data->target_address = config->target_address_fixed;
+        iso15765data->address_length = 2; /* could be also 1 Byte but we cannot know for sure */
     }
 
     return offset - offset_orig;
@@ -583,6 +603,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
     iso15765data.bus_type = bus_type;
     iso15765data.id = frame_id;
     iso15765data.number_of_addresses_valid = 0;
+    iso15765data.address_length = 0;
 
     if (bus_type == ISO15765_TYPE_FLEXRAY) {
         guint32 tmp;
@@ -591,6 +612,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
         proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_target_address, tvb, flexray_addressing, flexray_addressing, ENC_BIG_ENDIAN, &tmp);
         iso15765data.target_address = (guint16)tmp;
         iso15765data.number_of_addresses_valid = 2;
+        iso15765data.address_length = flexray_addressing;
         ae = 2 * flexray_addressing;
     } else if (bus_type == ISO15765_TYPE_IPDUM && ipdum_addressing > 0) {
         guint32 tmp;
@@ -599,6 +621,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
         proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_target_address, tvb, ipdum_addressing, ipdum_addressing, ENC_BIG_ENDIAN, &tmp);
         iso15765data.target_address = (guint16)tmp;
         iso15765data.number_of_addresses_valid = 2;
+        iso15765data.address_length = ipdum_addressing;
         ae = 2 * ipdum_addressing;
     } else if (bus_type == ISO15765_TYPE_PDU_TRANSPORT) {
         ae = handle_pdu_transport_addresses(tvb, pinfo, iso15765_tree, 0, frame_id, &iso15765data);
@@ -606,6 +629,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
         if (ae != 0) {
             guint32 tmp;
             iso15765data.number_of_addresses_valid = 1;
+            iso15765data.address_length = ae;
             proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_address, tvb, 0, ae, ENC_NA, &tmp);
             iso15765data.source_address = (guint16)tmp;
             iso15765data.target_address = (guint16)tmp;
@@ -614,13 +638,12 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
             if (bus_type == ISO15765_TYPE_CAN || bus_type == ISO15765_TYPE_CAN_FD) {
                 gboolean ext_id = (CAN_EFF_FLAG & frame_id) == CAN_EFF_FLAG;
                 guint32  can_id = ext_id ? frame_id & CAN_EFF_MASK : frame_id & CAN_SFF_MASK;
-                iso15765data.number_of_addresses_valid = find_config_can_addr_mapping(ext_id, can_id, &(iso15765data.source_address), &(iso15765data.target_address));
+                iso15765data.number_of_addresses_valid = find_config_can_addr_mapping(ext_id, can_id, &(iso15765data.source_address), &(iso15765data.target_address), &(iso15765data.address_length));
             }
         }
     }
 
-    message_type_item = proto_tree_add_item(iso15765_tree, hf_iso15765_message_type, tvb,
-                                            ae, ISO15765_PCI_LEN, ENC_BIG_ENDIAN);
+    message_type_item = proto_tree_add_item(iso15765_tree, hf_iso15765_message_type, tvb, ae, ISO15765_PCI_LEN, ENC_BIG_ENDIAN);
 
     pci = tvb_get_guint8(tvb, ae);
     message_type = masked_guint16_value(pci, ISO15765_MESSAGE_TYPE_MASK);
