@@ -1107,12 +1107,14 @@ dissect_glow_ElementCollection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
   const unsigned cycle_size = 6;
   unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+
   DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
   p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
+
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 4, TRUE, dissect_glow_SEQUENCE_OF_Element);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
   return offset;
 }
 
@@ -1139,12 +1141,14 @@ dissect_glow_Parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
   const unsigned cycle_size = 6;
   unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+
   DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
   p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
+
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 1, TRUE, dissect_glow_Parameter_U);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
   return offset;
 }
 
@@ -1197,12 +1201,14 @@ dissect_glow_Template(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
   const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
   const unsigned cycle_size = 9;
   unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+
   DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
   p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
+
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 24, TRUE, dissect_glow_Template_U);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
   return offset;
 }
 
