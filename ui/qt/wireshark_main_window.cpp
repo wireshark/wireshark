@@ -949,13 +949,6 @@ void WiresharkMainWindow::keyPressEvent(QKeyEvent *event) {
 }
 
 void WiresharkMainWindow::closeEvent(QCloseEvent *event) {
-    if (main_ui_->actionCaptureStop->isEnabled()) {
-        // Capture is running, we should stop it before close and ignore the event
-        stopCapture();
-        event->ignore();
-        return;
-    }
-
     saveWindowGeometry();
 
     /* If we're in the middle of stopping a capture, don't do anything;
