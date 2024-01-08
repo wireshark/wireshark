@@ -1561,13 +1561,15 @@ dissect_mms_TypeSpecification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
   const unsigned cycle_size = 3;
   unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+
   DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
   p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
+
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  TypeSpecification_choice, hf_index, ett_mms_TypeSpecification,
                                  NULL);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
   return offset;
 }
 
@@ -1752,12 +1754,14 @@ dissect_mms_AlternateAccess(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
   const unsigned cycle_size = 5;
   unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+
   DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
   p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
+
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       AlternateAccess_sequence_of, hf_index, ett_mms_AlternateAccess);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
   return offset;
 }
 
@@ -1814,13 +1818,15 @@ dissect_mms_VariableSpecification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
   const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
   const unsigned cycle_size = 4;
   unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+
   DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
   p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
+
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  VariableSpecification_choice, hf_index, ett_mms_VariableSpecification,
                                  NULL);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
   return offset;
 }
 
@@ -2100,13 +2106,15 @@ dissect_mms_Data(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_
   const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
   const unsigned cycle_size = 3;
   unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+
   DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
   p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
+
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Data_choice, hf_index, ett_mms_Data,
                                  NULL);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
   return offset;
 }
 

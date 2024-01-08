@@ -3027,13 +3027,15 @@ dissect_ieee1609dot2_Ieee1609Dot2Data(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
   const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
   const unsigned cycle_size = 6;
   unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+
   DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
   p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
+
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, ieee1609_private_data_t);
   offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ieee1609dot2_Ieee1609Dot2Data, Ieee1609Dot2Data_sequence);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
   return offset;
 }
 
