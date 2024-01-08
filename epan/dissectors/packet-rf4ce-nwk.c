@@ -628,6 +628,7 @@ static gboolean dissect_rf4ce_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_
     guint length = tvb_captured_length(tvb);
     guint8 fcf;
     guint8 frame_type;
+    guint8 security_enabled;
     guint8 reserved;
     guint8 profile_id;
     guint16 vendor_id;
@@ -641,6 +642,7 @@ static gboolean dissect_rf4ce_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_
         }
         fcf = tvb_get_guint8(tvb, 0);
         frame_type = fcf & RF4CE_NWK_FCF_FRAME_TYPE_MASK;
+        security_enabled = fcf & RF4CE_NWK_FCF_SECURITY_MASK;
         reserved = (fcf & RF4CE_NWK_FCF_RESERVED_MASK) >> 5;
 
         switch (frame_type)
@@ -703,22 +705,26 @@ static gboolean dissect_rf4ce_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_
             {
                 return FALSE;
             }
-            command_id = tvb_get_guint8(tvb, 5);
-            switch (command_id)
+            /* If security is enabled, the command ID will be encrypted */
+            if (!security_enabled)
             {
-                case RF4CE_NWK_CMD_DISCOVERY_REQ:
-                case RF4CE_NWK_CMD_DISCOVERY_RSP:
-                case RF4CE_NWK_CMD_PAIR_REQ:
-                case RF4CE_NWK_CMD_PAIR_RSP:
-                case RF4CE_NWK_CMD_UNPAIR_REQ:
-                case RF4CE_NWK_CMD_KEY_SEED:
-                case RF4CE_NWK_CMD_PING_REQ:
-                case RF4CE_NWK_CMD_PING_RSP:
-                    /* Allowed command IDs */
-                    break;
+                command_id = tvb_get_guint8(tvb, 5);
+                switch (command_id)
+                {
+                    case RF4CE_NWK_CMD_DISCOVERY_REQ:
+                    case RF4CE_NWK_CMD_DISCOVERY_RSP:
+                    case RF4CE_NWK_CMD_PAIR_REQ:
+                    case RF4CE_NWK_CMD_PAIR_RSP:
+                    case RF4CE_NWK_CMD_UNPAIR_REQ:
+                    case RF4CE_NWK_CMD_KEY_SEED:
+                    case RF4CE_NWK_CMD_PING_REQ:
+                    case RF4CE_NWK_CMD_PING_RSP:
+                        /* Allowed command IDs */
+                        break;
 
-                default:
-                    return FALSE;
+                    default:
+                        return FALSE;
+                }
             }
         }
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RF4CE NWK");
