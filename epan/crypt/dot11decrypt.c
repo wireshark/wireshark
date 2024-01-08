@@ -1106,13 +1106,14 @@ Dot11DecryptCleanKeys(
 }
 
 static void
-Dot11DecryptRecurseCleanSA(
+Dot11DecryptCleanSA(
     void * first_sa)
 {
-    DOT11DECRYPT_SEC_ASSOCIATION *sa = (DOT11DECRYPT_SEC_ASSOCIATION *)first_sa;
-    if (sa != NULL) {
-        Dot11DecryptRecurseCleanSA((void *)sa->next);
-        g_free(sa);
+    DOT11DECRYPT_SEC_ASSOCIATION *cur_sa = (DOT11DECRYPT_SEC_ASSOCIATION *)first_sa;
+    while (cur_sa) {
+        DOT11DECRYPT_SEC_ASSOCIATION *next_sa = cur_sa->next;
+        g_free(cur_sa);
+        cur_sa = next_sa;
     }
 }
 
@@ -1174,7 +1175,7 @@ int Dot11DecryptInitContext(
 
     ctx->pkt_ssid_len = 0;
     ctx->sa_hash = g_hash_table_new_full(Dot11DecryptSaHash, Dot11DecryptIsSaIdEqual,
-                                         g_free, Dot11DecryptRecurseCleanSA);
+                                         g_free, Dot11DecryptCleanSA);
     if (ctx->sa_hash == NULL) {
         return DOT11DECRYPT_RET_UNSUCCESS;
     }
