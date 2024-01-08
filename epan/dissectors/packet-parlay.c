@@ -23,6 +23,7 @@
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
+#include <epan/proto_data.h>
 #include "packet-giop.h"
 #include <epan/expert.h>
 
@@ -2997,6 +2998,7 @@ static expert_field ei_parlay_unknown_giop_msg;
 static expert_field ei_parlay_unknown_exception;
 static expert_field ei_parlay_unknown_reply_status;
 
+#define MAX_RECURSION_DEPTH 50 // Arbitrarily chosen.
 
 static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset);
 
@@ -53623,6 +53625,7 @@ decode_org_csapi_cs_TpAppInformation_un(tvbuff_t *tvb _U_, packet_info *pinfo _U
 }
 
 /* Union = IDL:org/csapi/policy/TpPolicyType:1.0 */
+// NOLINTBEGIN(misc-no-recursion)
 static void
 decode_org_csapi_policy_TpPolicyType_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
@@ -53632,6 +53635,11 @@ decode_org_csapi_policy_TpPolicyType_un(tvbuff_t *tvb _U_, packet_info *pinfo _U
     guint32   u_octet4;
     gint32    disc_s_TpPolicyType;
     /* Operation specific Variable declarations End */
+
+    // Cycle: this -> decode_org_csapi_policy_TpPolicyType_TpPolicyListType_st -> this
+    unsigned recursion_depth = p_get_proto_depth(pinfo, proto_parlay);
+    DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+    p_set_proto_depth(pinfo, proto_parlay, recursion_depth + 1);
 
     /*
      * IDL Union Start - IDL:org/csapi/policy/TpPolicyType:1.0
@@ -53651,6 +53659,7 @@ decode_org_csapi_policy_TpPolicyType_un(tvbuff_t *tvb _U_, packet_info *pinfo _U
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_org_csapi_policy_TpPolicyType_SimpleType, tvb, *offset-4, 4, u_octet4);
 
+        p_set_proto_depth(pinfo, proto_parlay, recursion_depth);
         return;     /* End Compare for this discriminant type */
     }
 
@@ -53659,6 +53668,7 @@ decode_org_csapi_policy_TpPolicyType_un(tvbuff_t *tvb _U_, packet_info *pinfo _U
         /*  Begin struct "org_csapi_policy_TpPolicyType_TpPolicyRecordType"  */
         decode_org_csapi_policy_TpPolicyType_TpPolicyRecordType_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_policy_TpPolicyType_TpPolicyRecordType"  */
+        p_set_proto_depth(pinfo, proto_parlay, recursion_depth);
         return;     /* End Compare for this discriminant type */
     }
 
@@ -53667,6 +53677,7 @@ decode_org_csapi_policy_TpPolicyType_un(tvbuff_t *tvb _U_, packet_info *pinfo _U
         /*  Begin struct "org_csapi_policy_TpPolicyType_TpPolicyListType"  */
         decode_org_csapi_policy_TpPolicyType_TpPolicyListType_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_policy_TpPolicyType_TpPolicyListType"  */
+        p_set_proto_depth(pinfo, proto_parlay, recursion_depth);
         return;     /* End Compare for this discriminant type */
     }
 
@@ -53674,6 +53685,7 @@ decode_org_csapi_policy_TpPolicyType_un(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_TpPolicyType_StructuredType);
 
+        p_set_proto_depth(pinfo, proto_parlay, recursion_depth);
         return;     /* End Compare for this discriminant type */
     }
 
@@ -53681,10 +53693,13 @@ decode_org_csapi_policy_TpPolicyType_un(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_TpPolicyType_XMLString);
 
+        p_set_proto_depth(pinfo, proto_parlay, recursion_depth);
         return;     /* End Compare for this discriminant type */
     }
 
+    p_set_proto_depth(pinfo, proto_parlay, recursion_depth);
 }
+// NOLINTEND(misc-no-recursion)
 
 /* Union = IDL:org/csapi/pam/TpPAMContextData:1.0 */
 static void
