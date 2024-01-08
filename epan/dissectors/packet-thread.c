@@ -4120,7 +4120,7 @@ proto_register_thread_mc(void)
         },
 
          { &hf_thread_mc_tlv_sec_policy_ccm,
-            { "Commercial Commisioning Mode Bit disabled",
+            { "Commercial Commissioning Mode Bit disabled",
             "thread_meshcop.tlv.sec_policy_ccm",
             FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), THREAD_MC_SEC_POLICY_MASK_CCM_MASK,
             NULL,

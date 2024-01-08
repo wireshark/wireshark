@@ -151,6 +151,7 @@ bibliography
 bidirection
 bidirectional
 bidirectionally
+bifuel
 bigint
 bigtk
 binlog
@@ -268,6 +269,7 @@ ciphersuite
 ciphertext
 ciplus
 cipso
+circularly
 citrix
 cksum
 classifiers
@@ -682,6 +684,7 @@ getentrybyname
 getgroupinfo
 getimageinfo
 getnext
+getopt
 getsetinfo
 getter
 gidaddr
@@ -831,6 +834,7 @@ inuse
 invalidation
 invalidity
 invalidly
+invariance
 invariant
 ioctl
 ioerr
@@ -843,6 +847,7 @@ ipaddr
 ipaddress
 ipcomp
 ipconfig
+ipdum
 iperf
 ipfix
 ipmap
@@ -850,6 +855,7 @@ ipphone
 ipprim
 ipsec
 ipseckey
+ipset
 iptables
 iptrace
 ipv4addr
@@ -908,6 +914,7 @@ leasequery
 legitimisation
 libgcrypt
 libiconv
+libnl
 libpcap
 libsmi
 licmgr
@@ -1143,6 +1150,7 @@ nstat
 nstime
 nstrace
 ntlmssp
+ntlmv
 ntohl
 ntohs
 ntwkconn
@@ -1164,9 +1172,13 @@ ofdma
 offloadability
 ofpat
 ofpbac
+ofpbfc
+ofpbmc
 ofpbrc
 ofpet
 ofpgmfc
+ofpmf
+ofpmmfc
 ofpmp
 ofppf
 ofprr
@@ -1269,6 +1281,7 @@ pmconfig
 pmkid
 pname
 polestar
+polycom
 polygon
 popup
 portcounters
@@ -1358,6 +1371,7 @@ quintuplets
 r3info
 radcom
 radeon
+radians
 radiotap
 radix
 ralink
@@ -1484,6 +1498,7 @@ resub
 resubmission
 resynchronization
 resynchronize
+retarder
 retrans
 retransmission
 retransmissions
@@ -1556,6 +1571,7 @@ scrollbar
 sdcch
 sdjournal
 sdusize
+sectigo
 sectorization
 sectorized
 segmenting
@@ -1572,6 +1588,7 @@ seqnum
 seqpkt
 sequenceno
 sercos
+sercosiii
 serialised
 serialization
 serialize
@@ -1621,6 +1638,7 @@ solera
 someip
 someipsd
 sonet
+spacings
 spare
 spare1
 spare2
@@ -1864,6 +1882,7 @@ uncalculated
 uncalibrated
 uncategorized
 unchannelized
+unchunked
 unciphered
 uncoloured
 uncomment

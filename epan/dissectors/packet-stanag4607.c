@@ -251,8 +251,8 @@ static const value_string stanag4607_terrain_vals[] = {
 
 static const value_string stanag4607_geoid_vals[] = {
 	{   0, "None Specified" },
-	{   1, "EGM96 (Earth Gravitional Model, Version 1996)" },
-	{   2, "GEO96 (Geoid Gravitional Model, Version 1996)" },
+	{   1, "EGM96 (Earth Gravitational Model, Version 1996)" },
+	{   2, "GEO96 (Geoid Gravitational Model, Version 1996)" },
 	{   3, "Flat Earth" },
 	{ 0, NULL }
 };

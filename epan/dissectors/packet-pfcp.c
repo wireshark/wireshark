@@ -16286,7 +16286,7 @@ proto_register_pfcp(void)
         },
 
         { &hf_pfcp_reporting_suggestion_info_reporting_urgency_value,
-        { "Teporting Urgency value", "pfcp.reporting_suggestion_info.reporting_urgency_value",
+        { "Reporting Urgency value", "pfcp.reporting_suggestion_info.reporting_urgency_value",
             FT_UINT8, BASE_DEC, VALS(pfcp_reporting_urgency_type_vals), 0x0f,
             NULL, HFILL }
         },
