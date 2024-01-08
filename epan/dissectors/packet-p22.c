@@ -1805,8 +1805,10 @@ dissect_p22_IPM(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_c
   const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
   const unsigned cycle_size = 7;
   unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+
   DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
   p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
+
 
  col_append_str(actx->pinfo->cinfo, COL_INFO, " Message");
 
@@ -1816,7 +1818,7 @@ dissect_p22_IPM(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
   return offset;
 }
 
@@ -3522,12 +3524,14 @@ dissect_p22_IPMSynopsis(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
   const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
   const unsigned cycle_size = 4;
   unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+
   DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
   p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
+
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       IPMSynopsis_sequence_of, hf_index, ett_p22_IPMSynopsis);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
   return offset;
 }
 
@@ -3988,12 +3992,14 @@ dissect_p22_BodyPartTokens(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
   const unsigned cycle_size = 4;
   unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+
   DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
   p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
+
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  BodyPartTokens_set_of, hf_index, ett_p22_BodyPartTokens);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
   return offset;
 }
 
@@ -4044,12 +4050,14 @@ dissect_p22_ForwardedContentToken(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
   const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
   const unsigned cycle_size = 4;
   unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
+
   DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
   p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
+
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  ForwardedContentToken_set_of, hf_index, ett_p22_ForwardedContentToken);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth - cycle_size);
+  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
   return offset;
 }
 
