@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 24.501 17.12.0
+ * References: 3GPP TS 24.501 17.13.0
  */
 
 #include "config.h"
@@ -194,6 +194,8 @@ static int hf_nas_5gs_mm_ciph_key_data_eutra_pos_sib_type_2_25;
 static int hf_nas_5gs_mm_ciph_key_data_eutra_pos_sib_type_3_1;
 static int hf_nas_5gs_mm_ciph_key_data_eutra_pos_sib_type_4_1;
 static int hf_nas_5gs_mm_ciph_key_data_eutra_pos_sib_type_5_1;
+static int hf_nas_5gs_mm_ciph_key_data_eutra_pos_sib_type_1_9;
+static int hf_nas_5gs_mm_ciph_key_data_eutra_pos_sib_type_1_10;
 static int hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_1_1;
 static int hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_1_2;
 static int hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_1_3;
@@ -231,6 +233,13 @@ static int hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_5_1;
 static int hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_6_1;
 static int hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_6_2;
 static int hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_6_3;
+static int hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_6_4;
+static int hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_6_5;
+static int hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_6_6;
+static int hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_1_9;
+static int hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_1_10;
+static int hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_2_24;
+static int hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_2_25;
 static int hf_nas_5gs_mm_ciph_key_data_ciphering_set_id;
 static int hf_nas_5gs_mm_ciph_key_data_ciphering_key;
 static int hf_nas_5gs_mm_ciph_key_data_c0_len;
@@ -2108,8 +2117,8 @@ de_nas_5gs_mm_ciphering_key_data(tvbuff_t* tvb, proto_tree* tree, packet_info* p
             &hf_nas_5gs_mm_ciph_key_data_eutra_pos_sib_type_3_1,
             &hf_nas_5gs_mm_ciph_key_data_eutra_pos_sib_type_4_1,
             &hf_nas_5gs_mm_ciph_key_data_eutra_pos_sib_type_5_1,
-            &hf_nas_5gs_spare_b3,
-            &hf_nas_5gs_spare_b2,
+            &hf_nas_5gs_mm_ciph_key_data_eutra_pos_sib_type_1_9,
+            &hf_nas_5gs_mm_ciph_key_data_eutra_pos_sib_type_1_10,
             &hf_nas_5gs_spare_b1,
             &hf_nas_5gs_spare_b0,
             NULL
@@ -2164,6 +2173,17 @@ de_nas_5gs_mm_ciphering_key_data(tvbuff_t* tvb, proto_tree* tree, packet_info* p
             &hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_6_1,
             &hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_6_2,
             &hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_6_3,
+            &hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_6_4,
+            &hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_6_5,
+            &hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_6_6,
+            NULL
+        };
+        static int * const nr_flags6[] = {
+            &hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_1_9,
+            &hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_1_10,
+            &hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_2_24,
+            &hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_2_25,
+            &hf_nas_5gs_spare_b3,
             &hf_nas_5gs_spare_b2,
             &hf_nas_5gs_spare_b1,
             &hf_nas_5gs_spare_b0,
@@ -2212,6 +2232,8 @@ de_nas_5gs_mm_ciphering_key_data(tvbuff_t* tvb, proto_tree* tree, packet_info* p
                 proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset + 3, 1, nr_flags4, ENC_NA);
             if (pos_sib_len >= 5)
                 proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset + 4, 1, nr_flags5, ENC_NA);
+            if (pos_sib_len >= 6)
+                proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset + 5, 1, nr_flags6, ENC_NA);
             curr_offset += pos_sib_len;
         }
         tm.tm_wday = 0;
@@ -11125,6 +11147,16 @@ proto_register_nas_5gs(void)
             FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x10,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_mm_ciph_key_data_eutra_pos_sib_type_1_9,
+        { "Ciphering data set for E-UTRA positioning SIB type 1-9","nas-5gs.mm.ciph_key_data.eutra_pos_sib_type_1_9",
+            FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_ciph_key_data_eutra_pos_sib_type_1_10,
+        { "Ciphering data set for E-UTRA positioning SIB type 1-10","nas-5gs.mm.ciph_key_data.eutra_pos_sib_type_1_10",
+            FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x04,
+            NULL, HFILL }
+        },
         { &hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_1_1,
         { "Ciphering data set for NR positioning SIB type 1-1","nas-5gs.mm.ciph_key_data.nr_pos_sib_type_1_1",
             FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x80,
@@ -11308,6 +11340,41 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_6_3,
         { "Ciphering data set for NR positioning SIB type 6-3","nas-5gs.mm.ciph_key_data.nr_pos_sib_type_6_3",
             FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_6_4,
+        { "Ciphering data set for NR positioning SIB type 6-4","nas-5gs.mm.ciph_key_data.nr_pos_sib_type_6_4",
+            FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_6_5,
+        { "Ciphering data set for NR positioning SIB type 6-5","nas-5gs.mm.ciph_key_data.nr_pos_sib_type_6_5",
+            FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_6_6,
+        { "Ciphering data set for NR positioning SIB type 6-6","nas-5gs.mm.ciph_key_data.nr_pos_sib_type_6_6",
+            FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_1_9,
+        { "Ciphering data set for NR positioning SIB type 1-9","nas-5gs.mm.ciph_key_data.nr_pos_sib_type_1_9",
+            FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_1_10,
+        { "Ciphering data set for NR positioning SIB type 1-10","nas-5gs.mm.ciph_key_data.nr_pos_sib_type_1_10",
+            FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_2_24,
+        { "Ciphering data set for NR positioning SIB type 2-24","nas-5gs.mm.ciph_key_data.nr_pos_sib_type_2_24",
+            FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_type_2_25,
+        { "Ciphering data set for NR positioning SIB type 2-25","nas-5gs.mm.ciph_key_data.nr_pos_sib_type_2_25",
+            FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x10,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_ciph_key_data_ciphering_set_id,
