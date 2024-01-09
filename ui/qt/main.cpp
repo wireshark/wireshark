@@ -929,20 +929,34 @@ int main(int argc, char *qt_argv[])
 #endif /* _WIN32 */
         /* Get the list of link-layer types for the capture devices. */
         ret_val = EXIT_SUCCESS;
+        GList *if_cap_queries = NULL;
+        if_cap_query_t *if_cap_query;
+        GHashTable *capability_hash;
+        for (i = 0; i < global_capture_opts.ifaces->len; i++) {
+            interface_options *interface_opts;
+
+            interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, i);
+            if_cap_query = g_new(if_cap_query_t, 1);
+            if_cap_query->name = interface_opts->name;
+            if_cap_query->monitor_mode = interface_opts->monitor_mode;
+            if_cap_query->auth_username = NULL;
+            if_cap_query->auth_password = NULL;
+#ifdef HAVE_PCAP_REMOTE
+            if (interface_opts->auth_type == CAPTURE_AUTH_PWD) {
+                if_cap_query->auth_username = interface_opts->auth_username;
+                if_cap_query->auth_password = interface_opts->auth_password;
+            }
+#endif
+            if_cap_queries = g_list_prepend(if_cap_queries, if_cap_query);
+        }
+        if_cap_queries = g_list_reverse(if_cap_queries);
+        capability_hash = capture_get_if_list_capabilities(if_cap_queries, &err_str, &err_str_secondary, NULL);
+        g_list_free_full(if_cap_queries, g_free);
         for (i = 0; i < global_capture_opts.ifaces->len; i++) {
             interface_options *interface_opts;
             if_capabilities_t *caps;
-            char *auth_str = NULL;
-
             interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, i);
-#ifdef HAVE_PCAP_REMOTE
-            if (interface_opts->auth_type == CAPTURE_AUTH_PWD) {
-                auth_str = ws_strdup_printf("%s:%s", interface_opts->auth_username, interface_opts->auth_password);
-            }
-#endif
-            caps = capture_get_if_capabilities(interface_opts->name, interface_opts->monitor_mode,
-                                               auth_str, &err_str, &err_str_secondary, NULL);
-            g_free(auth_str);
+            caps = static_cast<if_capabilities_t*>(g_hash_table_lookup(capability_hash, interface_opts->name));
             if (caps == NULL) {
                 cmdarg_err("%s%s%s", err_str, err_str_secondary ? "\n" : "", err_str_secondary ? err_str_secondary : "");
                 g_free(err_str);
@@ -952,7 +966,6 @@ int main(int argc, char *qt_argv[])
             }
             ret_val = capture_opts_print_if_capabilities(caps, interface_opts,
                                                          caps_queries);
-            free_if_capabilities(caps);
             if (ret_val != EXIT_SUCCESS) {
                 break;
             }
@@ -960,6 +973,7 @@ int main(int argc, char *qt_argv[])
 #ifdef _WIN32
         destroy_console();
 #endif /* _WIN32 */
+        g_hash_table_destroy(capability_hash);
         goto clean_exit;
     }
 
