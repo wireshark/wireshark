@@ -153,6 +153,7 @@ The Parlay dissector has been removed.
 // git log --oneline --diff-filter=A --stat v4.3.0rc0.. epan/dissectors plugins
 [commaize]
 --
+Allied Telesis Resiliency Link (AT RL)
 MAC NR Framed (mac-nr-framed)
 RF4CE Network Layer (RF4CE)
 RF4CE Profile (RF4CE Profile)

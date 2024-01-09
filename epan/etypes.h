@@ -666,6 +666,10 @@ extern "C" {
 #define ETHERTYPE_EXEH			0xE555	/* EXos internal Extra Header */
 #endif
 
+#ifndef ETHERTYPE_ATRL
+#define ETHERTYPE_ATRL			0xFBAC	/* Allied Telesis Resiliency Link frames */
+#endif
+
 #ifndef ETHERTYPE_FCFT
 #define ETHERTYPE_FCFT			0xFCFC	/* used to transport FC frames+MDS hdr internal to Cisco's MDS switch */
 #endif
