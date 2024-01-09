@@ -142,6 +142,7 @@ static int hf_cql_string_result_rows_udt_field_name;
 static int hf_cql_string_result_rows_list_size;
 static int hf_cql_string_result_rows_map_size;
 static int hf_cql_string_result_rows_set_size;
+static int hf_cql_bytesmap_string;
 
 static int ett_cql_protocol;
 static int ett_cql_version;
@@ -154,6 +155,7 @@ static int ett_cql_result_rows;
 static int ett_cql_result_metadata_colspec;
 static int ett_cql_header_flags_bitmap;
 static int ett_cql_query_flags_bitmap;
+static int ett_cql_custom_payload;
 
 static int hf_cql_response_in;
 static int hf_cql_response_to;
@@ -963,6 +965,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 	proto_tree* cql_tree;
 	proto_tree* version_tree;
 	proto_tree* cql_subtree = NULL;
+	proto_tree* cust_payload_tree = NULL;
 	proto_tree* rows_subtree = NULL;
 	proto_tree* columns_subtree = NULL;
 	proto_tree* single_column_subtree = NULL;
@@ -1396,6 +1399,22 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 
 			case CQL_OPCODE_RESULT:
 				cql_subtree = proto_tree_add_subtree(cql_tree, tvb, offset, message_length, ett_cql_message, &ti, "Message RESULT");
+
+				if (flags & CQL_HEADER_FLAG_CUSTOM_PAYLOAD) {
+					guint32 bytesmap_count;
+					cust_payload_tree = proto_tree_add_subtree(cql_subtree, tvb, offset, 0, ett_cql_custom_payload, NULL, "Custom Payload");
+					proto_tree_add_item_ret_uint(cust_payload_tree, hf_cql_value_count, tvb, offset, 2, ENC_BIG_ENDIAN, &bytesmap_count);
+					offset += 2;
+					for(k = 0; k < bytesmap_count; ++k) {
+						proto_tree_add_item_ret_uint(cust_payload_tree, hf_cql_string_length, tvb, offset, 2, ENC_BIG_ENDIAN, &string_length);
+						offset += 2;
+						proto_tree_add_item(cust_payload_tree, hf_cql_bytesmap_string, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
+						offset += string_length;
+						proto_tree_add_item(single_column_subtree, hf_cql_bytes, tvb, offset, bytes_length, ENC_NA);
+						offset += bytes_length;
+					}
+					return offset;
+				}
 
 				proto_tree_add_item_ret_int(cql_subtree, hf_cql_result_kind, tvb, offset, 4, ENC_BIG_ENDIAN, &result_kind);
 				offset += 4;
@@ -2050,6 +2069,15 @@ proto_register_cql(void)
 			&hf_cql_string_result_rows_keyspace_name,
 			{
 				"Keyspace Name", "cql.result.rows.keyspace_name",
+				FT_STRING, BASE_NONE,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_bytesmap_string,
+			{
+				"Key", "cql.bytesmap.key",
 				FT_STRING, BASE_NONE,
 				NULL, 0x0,
 				NULL, HFILL
