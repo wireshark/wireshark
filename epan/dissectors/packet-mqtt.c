@@ -1821,7 +1821,7 @@ void proto_register_mqtt(void)
   proto_register_field_array(proto_mqtt, hf_mqtt, array_length(hf_mqtt));
   proto_register_subtree_array(ett_mqtt, array_length(ett_mqtt));
 
-  mqtt_topic_subdissector = register_heur_dissector_list("mqtt.topic", proto_mqtt);
+  mqtt_topic_subdissector = register_heur_dissector_list_with_description("mqtt.topic", "MQTT message topic", proto_mqtt);
 
   expert_mqtt = expert_register_protocol(proto_mqtt);
   expert_register_field_array(expert_mqtt, ei, array_length(ei));

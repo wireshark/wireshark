@@ -158,6 +158,7 @@ destroy_depend_dissector_list(void *data)
  * A heuristics dissector list.
  */
 struct heur_dissector_list {
+	const char	*ui_name;
 	protocol_t	*protocol;
 	GSList		*dissectors;
 };
@@ -3183,7 +3184,7 @@ dissector_dump_heur_decodes(void)
 
 
 heur_dissector_list_t
-register_heur_dissector_list(const char *name, const int proto)
+register_heur_dissector_list_with_description(const char *name, const char *ui_name, const int proto)
 {
 	heur_dissector_list_t sub_dissectors;
 
@@ -3196,10 +3197,23 @@ register_heur_dissector_list(const char *name, const int proto)
 	/* a pointer to the dissector table. */
 	sub_dissectors = g_slice_new(struct heur_dissector_list);
 	sub_dissectors->protocol  = (proto == -1) ? NULL : find_protocol_by_id(proto);
+	sub_dissectors->ui_name = ui_name;
 	sub_dissectors->dissectors = NULL;	/* initially empty */
 	g_hash_table_insert(heur_dissector_lists, (gpointer)name,
 			    (gpointer) sub_dissectors);
 	return sub_dissectors;
+}
+
+heur_dissector_list_t
+register_heur_dissector_list(const char *name, const int proto)
+{
+	return register_heur_dissector_list_with_description(name, NULL, proto);
+}
+
+const char *
+heur_dissector_list_get_description(heur_dissector_list_t list)
+{
+	return list ? list->ui_name : NULL;
 }
 
 /*

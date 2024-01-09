@@ -285,7 +285,12 @@ static void gatherHeurTableNames(const char *table_name, heur_dissector_list *li
     if (table == NULL)
         return;
 
-    DissectorTablesItem *heur = new DissectorTablesItem(table_name, QString(""), table);
+    QString desc_name = table_name;
+    if (list) {
+        const char *desc = heur_dissector_list_get_description(list);
+        if (desc) desc_name = desc;
+    }
+    DissectorTablesItem *heur = new DissectorTablesItem(desc_name, table_name, table);
     table->prependChild(heur);
 
     if (list) {
