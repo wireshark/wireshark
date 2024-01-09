@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 29.244 V18.3.0 (2023-09-20)
+ * Ref 3GPP TS 29.244 V18.4.0 (2024-01-04)
  */
 #include "config.h"
 
@@ -489,10 +489,12 @@ static int hf_pfcp_remote_gtp_u_peer_flags_b0_v6;
 static int hf_pfcp_remote_gtp_u_peer_flags_b1_v4;
 static int hf_pfcp_remote_gtp_u_peer_flags_b2_di;
 static int hf_pfcp_remote_gtp_u_peer_flags_b3_ni;
+static int hf_pfcp_remote_gtp_u_peer_flags_b4_rts;
 static int hf_pfcp_remote_gtp_u_peer_ipv4;
 static int hf_pfcp_remote_gtp_u_peer_ipv6;
 static int hf_pfcp_remote_gtp_u_peer_length_di;
 static int hf_pfcp_remote_gtp_u_peer_length_ni;
+static int hf_pfcp_remote_gtp_u_peer_time_stamp;
 static int hf_pfcp_ur_seqn;
 
 static int hf_pfcp_oci_flags_b0_aoci;
@@ -991,9 +993,25 @@ static int hf_pfcp_protocol_description_flags_b2_srtp;
 static int hf_pfcp_protocol_description_flags_b1_rtp;
 static int hf_pfcp_protocol_description_flags_b0_h264;
 
-static int hf_pfcp_reporting_suggestion_info_flags_b0_rurg;
+static int hf_pfcp_reporting_suggestion_info_reporting_urgency_value;
+static int hf_pfcp_reporting_suggestion_info_reporting_time_info;
 
 static int hf_pfcp_tl_container;
+
+static int hf_pfcp_measurement_indication_flags_b0_dqfi;
+
+static int hf_pfcp_hplmn_s_nssai_sst;
+static int hf_pfcp_hplmn_s_nssai_sd;
+
+static int hf_pfcp_media_transport_protocol;
+
+static int hf_pfcp_rtp_header_extension_type;
+
+static int hf_pfcp_rtp_header_extension_id;
+
+static int hf_pfcp_rtp_payload_type;
+
+static int hf_pfcp_rtp_payload_format;
 
 /* Enterprise IEs */
 /* BBF */
@@ -1810,10 +1828,19 @@ static const value_string pfcp_ie_type[] = {
     { 331, "MPQUIC Parameters"},                                    /* Extendable / Table 7.5.3.7-5 */
     { 332, "MPQUIC Address Information"},                           /* Extendable / Clause 8.2.226 */
     { 333, "Transport Mode"},                                       /* Extendable / Clause 8.2.227 */
-    { 334, "Protocol Description"},                                 /* Extendable / Clause 8.2.228 */
+    { 334, "Protocol Description"},                                 /* Extendable / Table 7.5.2.2-7 */
     { 335, "Reporting Suggestion Info"},                            /* Extendable / Clause 8.2.289 */
     { 336, "TL-Container"},                                         /* Variable Length / Clause 8.2.230 */
-    //337 to 32767 Spare. For future use.
+    { 337, "Measurement Indication"},                               /* Extendable / Clause 8.2.231 */
+    { 338, "HPLMN S-NSSAI"},                                        /* Fixed Length / Clause 8.2.232 */
+    { 339, "Media Transport Protocol"},                             /* Extendable / Clause 8.2.233 */
+    { 340, "RTP Header Extension Information"},                     /* Extendable / Table 7.5.2.2-8 */
+    { 341, "RTP Payload Information"},                              /* Extendable / Table 7.5.2.2-9 */
+    { 342, "RTP Header Extension Type"},                            /* Fixed Length / Clause 8.2.234 */
+    { 343, "RTP Header Extension ID"},                              /* Fixed Length / Clause 8.2.235 */
+    { 344, "RTP Payload Type"},                                     /* Fixed Length / Clause 8.2.236 */
+    { 345, "RTP Payload Format"},                                   /* Fixed Length / Clause 8.2.237 */
+    //346 to 32767 Spare. For future use.
     //32768 to 65535 Vendor-specific IEs.
     {0, NULL}
 };
@@ -5159,14 +5186,15 @@ dissect_pfcp_remote_gtp_u_peer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     guint32 length_di, length_ni;
 
     static int * const pfcp_remote_gtp_u_peer_flags[] = {
-        &hf_pfcp_spare_b7_b4,
+        &hf_pfcp_spare_b7_b5,
+        &hf_pfcp_remote_gtp_u_peer_flags_b4_rts,
         &hf_pfcp_remote_gtp_u_peer_flags_b3_ni,
         &hf_pfcp_remote_gtp_u_peer_flags_b2_di,
         &hf_pfcp_remote_gtp_u_peer_flags_b1_v4,
         &hf_pfcp_remote_gtp_u_peer_flags_b0_v6,
         NULL
     };
-    /* Octet 5  Spare   NI DI V4  V6*/
+    /* Octet 5  Spare   RTS NI DI V4  V6*/
     proto_tree_add_bitmask_list_ret_uint64(tree, tvb, offset, 1, pfcp_remote_gtp_u_peer_flags, ENC_BIG_ENDIAN, &flags);
     offset += 1;
 
@@ -5199,6 +5227,11 @@ dissect_pfcp_remote_gtp_u_peer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         /* Network Instance */
         offset += decode_pfcp_network_instance(tvb, pinfo, tree, item, offset, length_ni);
+    }
+    /* RTS (if present)*/
+    if (flags & 0x8) {
+        proto_tree_add_item(tree, hf_pfcp_remote_gtp_u_peer_time_stamp, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN);
+        offset += 4;
     }
 
     if (offset < length) {
@@ -9494,19 +9527,27 @@ dissect_pfcp_protocol_description(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 /*
  * 8.2.229   Reporting Suggestion Info
  */
+static const value_string pfcp_reporting_urgency_type_vals[] = {
+    { 0, "Delay tolerant" },
+    { 1, "Non delay tolerant" },
+    { 0, NULL }
+};
+
 static void
 dissect_pfcp_reporting_suggestion_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     int offset = 0;
+    guint32 value;
 
-    static int * const pfcp_reporting_suggestion_info_flags[] = {
-        &hf_pfcp_spare_b7_b1,
-        &hf_pfcp_reporting_suggestion_info_flags_b0_rurg,
-        NULL
-    };
-    /* Octet 5  Spare    RURG   */
-    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_reporting_suggestion_info_flags, ENC_BIG_ENDIAN);
+    /* 5 Reporting Urgency value */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_reporting_suggestion_info_reporting_urgency_value, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
     offset += 1;
+
+    /* 6-9 Reporting Time Info */
+    if (value == 0) {
+        proto_tree_add_item(tree, hf_pfcp_reporting_suggestion_info_reporting_time_info, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -9525,6 +9566,119 @@ dissect_pfcp_tl_container(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     * It shall encode a Get or Set Request or Response message defined in 3GPP TS 29.585.
     */
     proto_tree_add_item(tree, hf_pfcp_tl_container, tvb, offset, length, ENC_NA);
+}
+
+/*
+ * 8.2.231   Measurement Indication
+ */
+static void
+dissect_pfcp_measurement_indication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+
+    static int * const pfcp_measurement_indication_flags[] = {
+        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_measurement_indication_flags_b0_dqfi,
+        NULL
+    };
+    /* Octet 5  Spare   DQFI */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_measurement_indication_flags, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.232   HPLMN S-NSSAI
+ */
+static void
+dissect_pfcp_hplmn_s_nssai(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+
+    /* The SST (Slice/Service Type) and SD (Slice Differentiator) fields shall be encoded as defined in clause 28.4.2 of 3GPP TS 23.003. */
+    /* Octet 5 SST */
+    proto_tree_add_item(tree, hf_pfcp_hplmn_s_nssai_sst, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    /* Octet 6-8 SD */
+    proto_tree_add_item(tree, hf_pfcp_hplmn_s_nssai_sd, tvb, offset, 3, ENC_NA);
+}
+
+/*
+ * 8.2.233   Media Transport Protocol
+ */
+static const value_string pfcp_media_transport_protocol_vals[] = {
+    { 0, "Unspecified" },
+    { 1, "RTP (Real-time Transport Protocol)" },
+    { 2, "SRTP (Secure Real-Time Protocol)" },
+    { 0, NULL }
+};
+
+static void
+dissect_pfcp_media_transport_protocol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+
+    /* 5 Media Transport Protocol */
+    proto_tree_add_item(tree, hf_pfcp_media_transport_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.234   RTP Header Extension Type
+ */
+static const value_string pfcp_rtp_header_extension_type_vals[] = {
+    { 1, "RTP Header Extension for PDU Set Marking" },
+    { 0, NULL }
+};
+
+static void
+dissect_pfcp_rtp_header_extension_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    /* Octet 5 RTP Header Extension Type */
+    proto_tree_add_item(tree, hf_pfcp_rtp_header_extension_type, tvb, 0, length, ENC_NA);
+}
+
+/*
+ * 8.2.235   RTP Header Extension ID
+ */
+static void
+dissect_pfcp_rtp_header_extension_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    /* Octet 5 RTP Header Extension ID */
+    proto_tree_add_item(tree, hf_pfcp_rtp_header_extension_id, tvb, 0, length, ENC_NA);
+}
+
+/*
+ * 8.2.236   RTP Payload Type
+ */
+static void
+dissect_pfcp_rtp_payload_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    /* Octet 5 RTP Payload Type */
+    proto_tree_add_item(tree, hf_pfcp_rtp_payload_type, tvb, 0, length, ENC_NA);
+}
+
+/*
+ * 8.2.237   RTP Payload Format
+ */
+static const value_string pfcp_rtp_payload_format_vals[] = {
+    { 1, "RTP Header Extension for PDU Set Marking" },
+    { 0, NULL }
+};
+
+static void
+dissect_pfcp_rtp_payload_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    /* Octet 5 RTP Payload Format */
+    proto_tree_add_item(tree, hf_pfcp_rtp_payload_format, tvb, 0, length, ENC_NA);
 }
 
 static pfcp_msg_hash_t *
@@ -10250,10 +10404,19 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    331 */    { dissect_pfcp_grouped_ie },                                    /* MPQUIC Parameters                                Extendable / Table 7.5.3.7-5 */
 /*    332 */    { dissect_pfcp_mpquic_address_information },                    /* MPQUIC Address Information                       Extendable / Clause 8.2.226 */
 /*    333 */    { dissect_pfcp_transport_mode },                                /* Transport Mode                                   Extendable / Clause 8.2.227 */
-/*    334 */    { dissect_pfcp_protocol_description },                          /* Protocol Description                             Extendable / Clause 8.2.228 */
+/*    334 */    { dissect_pfcp_protocol_description },                          /* Protocol Description                             Extendable / Table 7.5.2.2-7 */
 /*    335 */    { dissect_pfcp_reporting_suggestion_info },                     /* Reporting Suggestion Info                        Extendable / Clause 8.2.229 */
 /*    336 */    { dissect_pfcp_tl_container },                                  /* TL-Container                                     Variable Length / Clause 8.2.230 */
-//337 to 32767 Spare. For future use.
+/*    337 */    { dissect_pfcp_measurement_indication },                        /* Measurement Indication                           Extendable / Clause 8.2.231 */
+/*    338 */    { dissect_pfcp_hplmn_s_nssai },                                 /* HPLMN S-NSSAI                                    Fixed Length / Clause 8.2.232 */
+/*    339 */    { dissect_pfcp_media_transport_protocol },                      /* Media Transport Protocol                         Extendable / Clause 8.2.233 */
+/*    340 */    { dissect_pfcp_grouped_ie },                                    /* RTP Header Extension Information                 Extendable / Table 7.5.2.2-8 */
+/*    341 */    { dissect_pfcp_grouped_ie },                                    /* RTP Payload Information                          Extendable / Table 7.5.2.2-9 */
+/*    342 */    { dissect_pfcp_rtp_header_extension_type },                     /* RTP Header Extension Type                        Fixed Length / Clause 8.2.234 */
+/*    343 */    { dissect_pfcp_rtp_header_extension_id },                       /* RTP Header Extension ID                          Fixed Length / Clause 8.2.235 */
+/*    344 */    { dissect_pfcp_rtp_payload_type },                              /* RTP Payload Type                                 Fixed Length / Clause 8.2.236 */
+/*    345 */    { dissect_pfcp_rtp_payload_format },                            /* RTP Payload Format                               Fixed Length / Clause 8.2.237 */
+//346 to 32767 Spare. For future use.
 //32768 to 65535 Vendor-specific IEs.
     { NULL },                                                        /* End of List */
 };
@@ -13992,7 +14155,7 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_dnp,
-        { "Domain Name Protocol", "pfcp.dn",
+        { "Domain Name Protocol", "pfcp.dnp",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -14109,43 +14272,53 @@ proto_register_pfcp(void)
         },
 
         { &hf_pfcp_remote_gtp_u_peer_flags_b0_v6,
-        { "V6 (IPv6)", "pfcp.remote_gtp_u_peer_flags.v6",
+        { "V6 (IPv6)", "pfcp.remote_gtp_u_peer.flags.v6",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
             NULL, HFILL }
         },
         { &hf_pfcp_remote_gtp_u_peer_flags_b1_v4,
-        { "V4 (IPv4)", "pfcp.remote_gtp_u_peer_flags.v4",
+        { "V4 (IPv4)", "pfcp.remote_gtp_u_peer.flags.v4",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
             NULL, HFILL }
         },
         { &hf_pfcp_remote_gtp_u_peer_flags_b2_di,
-        { "DI (Destination Interface)", "pfcp.remote_gtp_u_peer_flags.di",
+        { "DI (Destination Interface)", "pfcp.remote_gtp_u_peer.flags.di",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
             NULL, HFILL }
         },
         { &hf_pfcp_remote_gtp_u_peer_flags_b3_ni,
-        { "NI (Network Instance)", "pfcp.remote_gtp_u_peer_flags.ni",
+        { "NI (Network Instance)", "pfcp.remote_gtp_u_peer.flags.ni",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
             NULL, HFILL }
         },
+        { &hf_pfcp_remote_gtp_u_peer_flags_b4_rts,
+        { "RTS (Recovery Timestamp)", "pfcp.remote_gtp_u_peer.flags.rts",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
+            NULL, HFILL }
+        },
         { &hf_pfcp_remote_gtp_u_peer_ipv4,
-        { "IPv4 address", "pfcp.node_id_ipv4",
+        { "IPv4 address", "pfcp.remote_gtp_u_peer.ipv4",
             FT_IPv4, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_remote_gtp_u_peer_ipv6,
-        { "IPv6 address", "pfcp.node_id_ipv6",
+        { "IPv6 address", "pfcp.remote_gtp_u_peer.ipv6",
             FT_IPv6, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_remote_gtp_u_peer_length_di,
-        { "Length of Destination Interface field", "pfcp.node_id_length_di",
+        { "Length of Destination Interface field", "pfcp.remote_gtp_u_peer.length_di",
             FT_UINT16, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
         { &hf_pfcp_remote_gtp_u_peer_length_ni,
-        { "Length of Network Instance field", "pfcp.node_id_length_ni",
+        { "Length of Network Instance field", "pfcp.remote_gtp_u_peer.length_ni",
             FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_remote_gtp_u_peer_time_stamp,
+        { "Time Stamp", "pfcp.remote_gtp_u_peer.time_stamp",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC, NULL, 0,
             NULL, HFILL }
         },
         { &hf_pfcp_ur_seqn,
@@ -15384,12 +15557,12 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_qos_monitoring_measurement_downlink_packet_rate,
-        { "Downlink packet rate (kilobits per second)", "pfcp.qos_monitoring_measurement.downlink_packet_rate",
+        { "Average Downlink packet rate (kilobits per second)", "pfcp.qos_monitoring_measurement.downlink_packet_rate",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_qos_monitoring_measurement_uplink_packet_rate,
-        { "Uplink packet rate (kilobits per second)", "pfcp.qos_monitoring_measurement.uplink_packet_rate",
+        { "Average Uplink packet rate (kilobits per second)", "pfcp.qos_monitoring_measurement.uplink_packet_rate",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -16112,15 +16285,61 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
 
-        { &hf_pfcp_reporting_suggestion_info_flags_b0_rurg,
-        { "RURG", "pfcp.reporting_suggestion_info.rurg",
-            FT_BOOLEAN, 8, NULL, 0x01,
+        { &hf_pfcp_reporting_suggestion_info_reporting_urgency_value,
+        { "Teporting Urgency value", "pfcp.reporting_suggestion_info.reporting_urgency_value",
+            FT_UINT8, BASE_DEC, VALS(pfcp_reporting_urgency_type_vals), 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_reporting_suggestion_info_reporting_time_info,
+        { "Reporting Time Info", "pfcp.reporting_suggestion_info.reporting_time_info",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
         { &hf_pfcp_tl_container,
         { "TL-Container", "pfcp.tl_container",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_hplmn_s_nssai_sst,
+        { "SST (Slice/Service Type)", "pfcp.hplmn_s_nssai.sst",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_hplmn_s_nssai_sd,
+        { "SD (Slice Differentiator)", "pfcp.hplmn_s_nssai.sd",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_media_transport_protocol,
+        { "Media Transport Protocol", "pfcp.media_transport_protocol.media_transport_protocol_value",
+            FT_UINT8, BASE_DEC, VALS(pfcp_media_transport_protocol_vals), 0x0f,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_rtp_header_extension_type,
+        { "RTP Header Extension Type", "pfcp.rtp_header_extension.rtp_header_extension_type",
+            FT_UINT8, BASE_DEC, VALS(pfcp_rtp_header_extension_type_vals), 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_rtp_header_extension_id,
+        { "RTP Header Extension ID", "pfcp.rtp_header_extension_id.rtp_header_extension_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_rtp_payload_type,
+        { "RTP Payload Type", "pfcp.rtp_payload_type.rtp_payload_type",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_rtp_payload_format,
+        { "RTP Payload Format", "pfcp.rtp_payload_format.rtp_payload_format",
+            FT_UINT8, BASE_DEC, VALS(pfcp_rtp_payload_format_vals), 0x0,
             NULL, HFILL }
         },
 
