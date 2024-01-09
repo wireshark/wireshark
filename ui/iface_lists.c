@@ -136,14 +136,14 @@ void
 scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
 {
     GList             *if_entry, *lt_entry, *if_list;
-    if_info_t         *if_info, temp;
+    if_info_t         *if_info;
     gchar             *descr;
     if_capabilities_t *caps=NULL;
     gboolean          monitor_mode;
     GSList            *curr_addr;
     int               ips = 0, i;
     guint             count = 0, j;
-    if_addr_t         *addr, *temp_addr;
+    if_addr_t         *addr;
     link_row          *link = NULL;
     data_link_info_t  *data_link_info;
     interface_t       device;
@@ -262,13 +262,6 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
         device.friendly_name = g_strdup(if_info->friendly_name);
         device.vendor_description = g_strdup(if_info->vendor_description);
         device.hidden = FALSE;
-        memset(&temp, 0, sizeof(temp));
-        temp.name = g_strdup(if_info->name);
-        temp.friendly_name = g_strdup(if_info->friendly_name);
-        temp.vendor_description = g_strdup(if_info->vendor_description);
-        temp.loopback = if_info->loopback;
-        temp.type = if_info->type;
-        temp.extcap = g_strdup(if_info->extcap);
 
         /* Is this interface hidden and, if so, should we include it anyway? */
 
@@ -283,7 +276,6 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
         monitor_mode = prefs_capture_device_monitor_mode(if_info->name);
         ip_str = g_string_new("");
         for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
-            temp_addr = g_new0(if_addr_t, 1);
             if (ips != 0) {
                 g_string_append(ip_str, "\n");
             }
@@ -291,16 +283,13 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
             if (addr) {
                 address addr_str;
                 char* temp_addr_str = NULL;
-                temp_addr->ifat_type = addr->ifat_type;
                 switch (addr->ifat_type) {
                     case IF_AT_IPv4:
-                        temp_addr->addr.ip4_addr = addr->addr.ip4_addr;
                         set_address(&addr_str, AT_IPv4, 4, &addr->addr.ip4_addr);
                         temp_addr_str = address_to_str(NULL, &addr_str);
                         g_string_append(ip_str, temp_addr_str);
                         break;
                     case IF_AT_IPv6:
-                        memcpy(temp_addr->addr.ip6_addr, addr->addr.ip6_addr, sizeof(addr->addr));
                         set_address(&addr_str, AT_IPv6, 16, addr->addr.ip6_addr);
                         temp_addr_str = address_to_str(NULL, &addr_str);
                         g_string_append(ip_str, temp_addr_str);
@@ -310,12 +299,6 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
                         break;
                 }
                 wmem_free(NULL, temp_addr_str);
-            } else {
-                g_free(temp_addr);
-                temp_addr = NULL;
-            }
-            if (temp_addr) {
-                temp.addrs = g_slist_append(temp.addrs, temp_addr);
             }
         }
         device.addresses = g_strdup(ip_str->str);
@@ -381,7 +364,6 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
 
         device.no_addresses = ips;
         device.local = TRUE;
-        device.if_info = temp;
         device.last_packets = 0;
         if (!capture_dev_user_pmode_find(if_info->name, &device.pmode)) {
             device.pmode = global_capture_opts.default_options.promisc_mode;
@@ -410,6 +392,15 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
         /* Extcap devices start with no cached args */
         device.external_cap_args_settings = NULL;
 
+        /* We shallow copy if_info and then adding to the GArray shallow
+         * copies it again, so free the if_info_t itself but not its members.
+         * Then set the GList element data to NULL so that we don't free
+         * it or its members when freeing the interface list. (This seems a
+         * little easier than removing the link from the list while iterating.)
+         */
+        device.if_info = *if_info;
+        if_entry->data = NULL;
+        g_free(if_info);
         if (global_capture_opts.all_ifaces->len <= count) {
             g_array_append_val(global_capture_opts.all_ifaces, device);
             count = global_capture_opts.all_ifaces->len;

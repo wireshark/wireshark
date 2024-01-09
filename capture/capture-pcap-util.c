@@ -435,6 +435,9 @@ if_addr_copy_cb(const void *data, void *user_data _U_)
 void
 if_info_free(if_info_t *if_info)
 {
+	if (if_info == NULL) {
+		return;
+	}
 	g_free(if_info->name);
 	g_free(if_info->friendly_name);
 	g_free(if_info->vendor_description);

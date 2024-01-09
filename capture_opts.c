@@ -1564,6 +1564,9 @@ capture_opts_free_interface_t(interface_t *device)
         g_free(device->if_info.vendor_description);
         g_slist_free_full(device->if_info.addrs, g_free);
         g_free(device->if_info.extcap);
+        if (device->if_info.caps) {
+                free_if_capabilities(device->if_info.caps);
+        }
     }
 }
 
