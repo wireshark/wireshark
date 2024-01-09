@@ -1496,6 +1496,7 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
 
     if (lap_tree)
     {
+        /* Discovery flags */
         ti = proto_tree_add_item(i_tree, hf_xid_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
         flags_tree = proto_item_add_subtree(ti, ett_xid_flags);
         proto_tree_add_item(flags_tree, hf_xid_s, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1517,6 +1518,7 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
                 proto_item_append_text(ti, " (final)");
         }
     }
+    /* Skip (empty?) byte even if no command.. Have seen non-zero values in a capture */
     offset++;
 
     if (lap_tree)

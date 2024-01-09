@@ -3666,7 +3666,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     guint8               ls_type;
     guint16              ls_length;
     int                  end_offset;
-    guint16              nr_links;
+    guint32              nr_links;
     guint16              nr_metric;
 
     /* router LSA */
@@ -3774,9 +3774,8 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     case OSPF_LSTYPE_ROUTER:
         /* flags field in an router-lsa */
         proto_tree_add_bitmask(ospf_lsa_tree, tvb, offset, hf_ospf_v2_router_lsa_flag, ett_ospf_v2_router_lsa_flags, bf_v2_router_lsa_flags, ENC_BIG_ENDIAN);
-
-        nr_links = tvb_get_ntohs(tvb, offset + 2);
-        proto_tree_add_item(ospf_lsa_tree, hf_ospf_lsa_number_of_links, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        /* TODO: flags are only 1 byte, so there is an apparently unused byte here */
+        proto_tree_add_item_ret_uint(ospf_lsa_tree, hf_ospf_lsa_number_of_links, tvb, offset + 2, 2, ENC_BIG_ENDIAN, &nr_links);
 
         offset += 4;
 
