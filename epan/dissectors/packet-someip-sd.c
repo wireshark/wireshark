@@ -1,7 +1,7 @@
 /* packet-someip-sd.c
  * SOME/IP-SD dissector.
  * By Dr. Lars Voelker <lars.voelker@technica-engineering.de> / <lars.voelker@bmw.de>
- * Copyright 2012-2023 Dr. Lars Voelker
+ * Copyright 2012-2024 Dr. Lars Voelker
  * Copyright 2020      Ayoub Kaanich
  * Copyright 2019      Ana Pantar
  * Copyright 2019      Guenter Ebermann
@@ -192,6 +192,31 @@ static const value_string sd_entry_type_negative[] = {
     {SD_ENTRY_STOP_OFFER_SERVICE,                                       "Stop Offer Service"},
     {SD_ENTRY_STOP_SUBSCRIBE_EVENTGROUP,                                "Stop Subscribe Eventgroup"},
     {SD_ENTRY_SUBSCRIBE_EVENTGROUP_NACK,                                "Subscribe Eventgroup Negative Ack"},
+    {0, NULL}
+};
+
+static const value_string sd_serviceid_vs[] = {
+    {0xFFFF,        "ANY"},
+    {0, NULL}
+};
+
+static const value_string sd_instanceid_vs[] = {
+    {0xFFFF,        "ANY"},
+    {0, NULL}
+};
+
+static const value_string sd_majorversion_vs[] = {
+    {0xFF,          "ANY"},
+    {0, NULL}
+};
+
+static const value_string sd_minorversion_vs[] = {
+    {0xFFFFFFFF,    "ANY"},
+    {0, NULL}
+};
+
+static const value_string sd_eventgroupid_vs[] = {
+    {0xFFFF,        "ANY"},
     {0, NULL}
 };
 
@@ -532,6 +557,51 @@ dissect_someip_sd_pdu_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static void
+someip_sd_pdu_entry_append_text(proto_item *ti_entry, guint8 category, guint16 serviceid, guint16 instanceid, guint8 majorver, guint32 minorver, guint16 eventgroupid, gchar *buf_opt_ref) {
+    if (category != SD_ENTRY_SERVICE && category != SD_ENTRY_EVENTGROUP) {
+        return;
+    }
+
+    if (serviceid == 0xffff) {
+        proto_item_append_text(ti_entry, " (Service ID ANY");
+    } else {
+        proto_item_append_text(ti_entry, " (Service ID 0x%04x", serviceid);
+    }
+
+    if (instanceid == 0xffff) {
+        proto_item_append_text(ti_entry, ", Instance ID ANY");
+    } else {
+        proto_item_append_text(ti_entry, ", Instance ID 0x%04x", instanceid);
+    }
+
+    if (majorver == 0xff) {
+        proto_item_append_text(ti_entry, ", Version ANY");
+    } else {
+        proto_item_append_text(ti_entry, ", Version %u", majorver);
+    }
+
+    switch (category) {
+    case SD_ENTRY_SERVICE:
+        if (minorver == 0xffffffff) {
+            proto_item_append_text(ti_entry, ".ANY");
+        } else {
+            proto_item_append_text(ti_entry, ".%u", minorver);
+        }
+        break;
+
+    case SD_ENTRY_EVENTGROUP:
+        if (eventgroupid == 0xffff) {
+            proto_item_append_text(ti_entry, ", Eventgroup ID ANY");
+        } else {
+            proto_item_append_text(ti_entry, ", Eventgroup ID 0x%04x", eventgroupid);
+        }
+        break;
+    }
+
+    proto_item_append_text(ti_entry, ", Options: %s)", buf_opt_ref);
+}
+
+static void
 dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset_orig, guint32 length, guint8 *type, guint32 *ttl, guint64 *uniqueid, guint32 option_ports[], guint option_count, proto_item **ti_entry) {
     guint32             serviceid = 0;
     guint32             instanceid = 0;
@@ -575,9 +645,9 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     if (*ttl == 0) {
-        description = val_to_str(*type, sd_entry_type_negative, "(Unknown Entry: %d)");
+        description = val_to_str(*type, sd_entry_type_negative, "Unknown");
     } else {
-        description = val_to_str(*type, sd_entry_type_positive, "(Unknown Entry: %d)");
+        description = val_to_str(*type, sd_entry_type_positive, "Unknown");
     }
 
     *ti_entry = proto_tree_add_none_format(tree, hf_someip_sd_entry, tvb, offset, SD_ENTRY_LENGTH, "%s Entry", description);
@@ -618,10 +688,10 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     offset += 2;
 
-    proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_instanceid, tvb, offset, 2, ENC_BIG_ENDIAN, &instanceid);
+    ti = proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_instanceid, tvb, offset, 2, ENC_BIG_ENDIAN, &instanceid);
     offset += 2;
 
-    proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_majorver, tvb, offset, 1, ENC_BIG_ENDIAN, &majorver);
+    ti = proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_majorver, tvb, offset, 1, ENC_BIG_ENDIAN, &majorver);
     offset += 1;
 
     proto_tree_add_item(tree, hf_someip_sd_entry_ttl, tvb, offset, 3, ENC_BIG_ENDIAN);
@@ -629,8 +699,8 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Add specific fields - i.e. the last line */
     if (category == SD_ENTRY_SERVICE) {
-        proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_minorver, tvb, offset, 4, ENC_BIG_ENDIAN, &minorver);
-        proto_item_append_text(*ti_entry, " (Service ID 0x%04x, Instance ID 0x%04x, Version %u.%u, Options: %s)", serviceid, instanceid, majorver, minorver, buf_opt_ref);
+        ti = proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_minorver, tvb, offset, 4, ENC_BIG_ENDIAN, &minorver);
+        someip_sd_pdu_entry_append_text(*ti_entry, category, serviceid, instanceid, majorver, minorver, 0, buf_opt_ref);
     } else if (category == SD_ENTRY_EVENTGROUP) {
         proto_tree_add_item(tree, hf_someip_sd_entry_reserved, tvb, offset, 1, ENC_NA);
         offset += 1;
@@ -649,7 +719,7 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_item_set_hidden(ti);
         }
 
-        proto_item_append_text(*ti_entry, " (Service ID 0x%04x, Instance ID 0x%04x, Eventgroup ID 0x%04x, Version %u, Options: %s)", serviceid, instanceid, eventgroupid, majorver, buf_opt_ref);
+        someip_sd_pdu_entry_append_text(*ti_entry, category, serviceid, instanceid, majorver, 0, eventgroupid, buf_opt_ref);
     }
 
     /* lets add some combined filtering term */
@@ -1093,25 +1163,25 @@ proto_register_someip_sd(void) {
 
         { &hf_someip_sd_entry_serviceid,
             { "Service ID", "someipsd.entry.serviceid",
-            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            FT_UINT16, BASE_HEX | BASE_SPECIAL_VALS, VALS(sd_serviceid_vs), 0x0, NULL, HFILL }},
         { &hf_someip_sd_entry_servicename,
             { "Service Name", "someipsd.entry.servicename",
             FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_someip_sd_entry_instanceid,
             { "Instance ID", "someipsd.entry.instanceid",
-            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            FT_UINT16, BASE_HEX | BASE_SPECIAL_VALS, VALS(sd_instanceid_vs), 0x0, NULL, HFILL }},
         { &hf_someip_sd_entry_majorver,
             { "Major Version", "someipsd.entry.majorver",
-            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            FT_UINT8, BASE_DEC | BASE_SPECIAL_VALS, VALS(sd_majorversion_vs), 0x0, NULL, HFILL }},
         { &hf_someip_sd_entry_ttl,
             { "TTL", "someipsd.entry.ttl",
             FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_someip_sd_entry_minorver,
             { "Minor Version", "someipsd.entry.minorver",
-            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            FT_UINT32, BASE_DEC | BASE_SPECIAL_VALS, VALS(sd_minorversion_vs), 0x0, NULL, HFILL }},
         { &hf_someip_sd_entry_eventgroupid,
             { "Eventgroup ID", "someipsd.entry.eventgroupid",
-            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            FT_UINT16, BASE_HEX | BASE_SPECIAL_VALS, VALS(sd_eventgroupid_vs), 0x0, NULL, HFILL }},
         { &hf_someip_sd_entry_eventgroupname,
             { "Eventgroup Name", "someipsd.entry.eventgroupname",
             FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
