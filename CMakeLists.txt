@@ -2936,9 +2936,8 @@ endif()
 if (BUILD_logray AND FALCO_PLUGINS)
 	add_custom_target(copy_falco_plugins)
 	add_custom_command(TARGET copy_falco_plugins
-		# LOGRAY_PLUGIN_DIR is versioned. Place our Falco plugins alongsided it.
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${LOGRAY_PLUGIN_DIR}/../falco
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FALCO_PLUGINS} ${LOGRAY_PLUGIN_DIR}/../falco
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${LOGRAY_PLUGIN_DIR}/falco
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FALCO_PLUGINS} ${LOGRAY_PLUGIN_DIR}/falco
 		VERBATIM
 	)
 	add_dependencies(logray copy_falco_plugins)
