@@ -3584,9 +3584,11 @@ static void parse_CM_Req(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb
     local_offset += 16;
 
     proto_tree_add_item(CM_header_tree, hf_cm_req_primary_flow_label, tvb, local_offset, 3, ENC_BIG_ENDIAN);
+    local_offset += 2;
     proto_tree_add_item(CM_header_tree, hf_cm_req_primary_reserved0, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    local_offset += 1;
     proto_tree_add_item(CM_header_tree, hf_cm_req_primary_packet_rate, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    local_offset += 4;
+    local_offset += 1;
     proto_tree_add_item(CM_header_tree, hf_cm_req_primary_traffic_class, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
     proto_tree_add_item(CM_header_tree, hf_cm_req_primary_hop_limit, tvb, local_offset, 1, ENC_BIG_ENDIAN);
@@ -3607,9 +3609,11 @@ static void parse_CM_Req(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb
     proto_tree_add_item(CM_header_tree, hf_cm_req_alt_remote_gid, tvb, local_offset, 16, ENC_NA);
     local_offset += 16;
     proto_tree_add_item(CM_header_tree, hf_cm_req_flow_label, tvb, local_offset, 3, ENC_BIG_ENDIAN);
+    local_offset += 2;
     proto_tree_add_item(CM_header_tree, hf_cm_req_alt_reserved0, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    local_offset += 1;
     proto_tree_add_item(CM_header_tree, hf_cm_req_packet_rate, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    local_offset += 4;
+    local_offset += 1;
     proto_tree_add_item(CM_header_tree, hf_cm_req_alt_traffic_class, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
     proto_tree_add_item(CM_header_tree, hf_cm_req_alt_hop_limit, tvb, local_offset, 1, ENC_BIG_ENDIAN);
