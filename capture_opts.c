@@ -1530,7 +1530,7 @@ collect_ifaces(capture_options *capture_opts)
     }
 }
 
-static void
+void
 capture_opts_free_link_row(gpointer elem)
 {
     link_row* e = (link_row*)elem;

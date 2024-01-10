@@ -405,6 +405,9 @@ extern void
 collect_ifaces(capture_options *capture_opts);
 
 extern void
+capture_opts_free_link_row(gpointer elem);
+
+extern void
 capture_opts_free_interface_t(interface_t *device);
 
 /* Default capture buffer size in Mbytes. */
