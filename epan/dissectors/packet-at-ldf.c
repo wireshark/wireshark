@@ -33,7 +33,7 @@ static int hf_at_ldf_text;
 static gint ett_at_ldf;
 
 static int
-dissect_at_ldf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
+dissect_at_ldf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /*
      * Packet description
