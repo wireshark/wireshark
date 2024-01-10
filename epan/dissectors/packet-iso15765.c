@@ -61,10 +61,6 @@
 void proto_register_iso15765(void);
 void proto_reg_handoff_iso15765(void);
 
-#define ISO15765_PCI_LEN 1
-#define ISO15765_PCI_FD_SF_LEN 2
-#define ISO15765_PCI_FD_FF_LEN 6
-
 #define ISO15765_MESSAGE_TYPE_MASK 0xF0
 #define ISO15765_MESSAGE_TYPES_SINGLE_FRAME 0
 #define ISO15765_MESSAGE_TYPES_FIRST_FRAME 1
@@ -76,17 +72,10 @@ void proto_reg_handoff_iso15765(void);
 #define ISO15765_MESSAGE_TYPES_FR_ACK_FRAME 7
 
 #define ISO15765_MESSAGE_DATA_LENGTH_MASK 0x0F
-#define ISO15765_FD_MESSAGE_DATA_LENGTH_MASK 0x00FF
-#define ISO15765_MESSAGE_EXTENDED_FRAME_LENGTH_MASK 0x0F
-#define ISO15765_MESSAGE_FRAME_LENGTH_OFFSET (ISO15765_PCI_LEN)
-#define ISO15765_MESSAGE_FRAME_LENGTH_LEN 1
 #define ISO15765_MESSAGE_SEQUENCE_NUMBER_MASK 0x0F
 #define ISO15765_MESSAGE_FLOW_STATUS_MASK 0x0F
 
-#define ISO15765_FC_BS_OFFSET (ISO15765_PCI_LEN)
-#define ISO15765_FC_BS_LEN 1
-#define ISO15765_FC_STMIN_OFFSET (ISO15765_FC_BS_OFFSET + ISO15765_FC_BS_LEN)
-#define ISO15765_FC_STMIN_LEN 1
+#define ISO15765_MESSAGE_FIRST_FRAME_DATA_LENGTH_MASK 0x0FFF
 
 #define ISO15765_MESSAGE_AUTOSAR_ACK_MASK 0xF0
 #define ISO15765_AUTOSAR_ACK_OFFSET 3
@@ -98,6 +87,7 @@ typedef struct iso15765_identifier {
     guint32 seq;
     guint16 frag_id;
     gboolean last;
+    guint32 bytes_used;
 } iso15765_identifier_t;
 
 typedef struct iso15765_frame {
@@ -171,10 +161,14 @@ static int hf_iso15765_address;
 static int hf_iso15765_target_address;
 static int hf_iso15765_source_address;
 static int hf_iso15765_message_type;
-static int hf_iso15765_data_length;
-static int hf_iso15765_frame_length;
+static int hf_iso15765_data_length_8bit;
+static int hf_iso15765_data_length_4bit;
+static int hf_iso15765_frame_length_32bit;
+static int hf_iso15765_frame_length_12bit;
 static int hf_iso15765_sequence_number;
 static int hf_iso15765_flow_status;
+static int hf_iso15765_segment_data;
+static int hf_iso15765_padding;
 
 static int hf_iso15765_fc_bs;
 static int hf_iso15765_fc_stmin;
@@ -572,13 +566,14 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
     proto_item *ti;
     proto_item *message_type_item;
     tvbuff_t*   next_tvb = NULL;
-    guint16     pci, message_type;
+    guint16     pci;
+    guint32     message_type;
     iso15765_identifier_t* iso15765_info;
     /* LIN is always extended addressing */
     guint8      ae = (addressing == NORMAL_ADDRESSING && bus_type != ISO15765_TYPE_LIN) ? 0 : 1;
     guint16     frag_id_low = 0;
-    guint32     offset;
-    gint32      data_length;
+    guint32     offset, pci_offset;
+    guint32     data_length;
     guint32     full_len;
     gboolean    fragmented = FALSE;
     gboolean    complete = FALSE;
@@ -594,6 +589,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
         iso15765_info = wmem_new0(wmem_file_scope(), iso15765_identifier_t);
         iso15765_info->id = frame_id;
         iso15765_info->last = FALSE;
+        iso15765_info->bytes_used = 0;
         p_add_proto_data(wmem_file_scope(), pinfo, proto_iso15765, 0, iso15765_info);
     }
 
@@ -613,7 +609,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
         iso15765data.target_address = (guint16)tmp;
         iso15765data.number_of_addresses_valid = 2;
         iso15765data.address_length = flexray_addressing;
-        ae = 2 * flexray_addressing;
+        pci_offset = 2 * flexray_addressing;
     } else if (bus_type == ISO15765_TYPE_IPDUM && ipdum_addressing > 0) {
         guint32 tmp;
         proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_source_address, tvb, 0, ipdum_addressing, ENC_BIG_ENDIAN, &tmp);
@@ -622,9 +618,9 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
         iso15765data.target_address = (guint16)tmp;
         iso15765data.number_of_addresses_valid = 2;
         iso15765data.address_length = ipdum_addressing;
-        ae = 2 * ipdum_addressing;
+        pci_offset = 2 * ipdum_addressing;
     } else if (bus_type == ISO15765_TYPE_PDU_TRANSPORT) {
-        ae = handle_pdu_transport_addresses(tvb, pinfo, iso15765_tree, 0, frame_id, &iso15765data);
+        pci_offset = handle_pdu_transport_addresses(tvb, pinfo, iso15765_tree, 0, frame_id, &iso15765data);
     } else {
         if (ae != 0) {
             guint32 tmp;
@@ -633,6 +629,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
             proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_address, tvb, 0, ae, ENC_NA, &tmp);
             iso15765data.source_address = (guint16)tmp;
             iso15765data.target_address = (guint16)tmp;
+            pci_offset = ae;
         } else {
             /* Address implicitly encoded? */
             if (bus_type == ISO15765_TYPE_CAN || bus_type == ISO15765_TYPE_CAN_FD) {
@@ -640,26 +637,30 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
                 guint32  can_id = ext_id ? frame_id & CAN_EFF_MASK : frame_id & CAN_SFF_MASK;
                 iso15765data.number_of_addresses_valid = find_config_can_addr_mapping(ext_id, can_id, &(iso15765data.source_address), &(iso15765data.target_address), &(iso15765data.address_length));
             }
+            pci_offset = 0;
         }
     }
 
-    message_type_item = proto_tree_add_item(iso15765_tree, hf_iso15765_message_type, tvb, ae, ISO15765_PCI_LEN, ENC_BIG_ENDIAN);
-
-    pci = tvb_get_guint8(tvb, ae);
-    message_type = masked_guint16_value(pci, ISO15765_MESSAGE_TYPE_MASK);
-
+    offset = pci_offset;
+    pci = tvb_get_guint8(tvb, offset);
+    message_type_item = proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_message_type, tvb, offset, 1, ENC_NA, &message_type);
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, iso15765_message_types, "Unknown (0x%02x)"));
 
     switch(message_type) {
         case ISO15765_MESSAGE_TYPES_SINGLE_FRAME: {
             if (frame_length > 8 && (pci & ISO15765_MESSAGE_DATA_LENGTH_MASK) == 0) {
-                offset = ae + ISO15765_PCI_FD_SF_LEN;
-                data_length = tvb_get_guint8(tvb, ae + 1);
-                proto_tree_add_item(iso15765_tree, hf_iso15765_data_length, tvb, ae + 1, 1, ENC_BIG_ENDIAN);
+                /* Single Frame with CAN_DL > 8 Bytes: TTTT0000 LLLLLLLL, Type, Length */
+
+                /* This is always zero but still we need to dissect... */
+                proto_tree_add_item(iso15765_tree, hf_iso15765_data_length_4bit, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_data_length_8bit, tvb, offset, 1, ENC_NA, &data_length);
+                offset += 1;
             } else {
-                offset = ae + ISO15765_PCI_LEN;
-                data_length = masked_guint16_value(pci, ISO15765_MESSAGE_DATA_LENGTH_MASK);
-                proto_tree_add_uint(iso15765_tree, hf_iso15765_data_length, tvb, ae, 1, data_length);
+                /* Single Frame with CAN_DL <= 8 Bytes: TTTTLLLL, Type, Length */
+                proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_data_length_4bit, tvb, offset, 1, ENC_NA, &data_length);
+                offset += 1;
             }
 
             next_tvb = tvb_new_subset_length(tvb, offset, data_length);
@@ -669,21 +670,29 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
             break;
         }
         case ISO15765_MESSAGE_TYPES_FIRST_FRAME: {
-            pci = tvb_get_guint16(tvb, ae, ENC_BIG_ENDIAN);
+            pci = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
             if (pci == 0x1000) {
-                full_len = tvb_get_guint32(tvb, ae + 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(iso15765_tree, hf_iso15765_frame_length, tvb, ae + 2, 4, ENC_BIG_ENDIAN);
-                offset = ae + 2 + 4;
+                /* First Frame with CAN_DL > 4095 Bytes: TTTT0000 00000000 LLLLLLLL LLLLLLLL LLLLLLLL LLLLLLLL, Type, Length */
+
+                /* This is always zero but still we need to dissect... */
+                proto_tree_add_item(iso15765_tree, hf_iso15765_frame_length_12bit, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_frame_length_32bit, tvb, offset, 4, ENC_BIG_ENDIAN, &full_len);
+                offset += 4;
             } else {
-                full_len = tvb_get_guint16(tvb, ae, ENC_BIG_ENDIAN) & 0xFFF;
-                proto_tree_add_uint(iso15765_tree, hf_iso15765_frame_length, tvb, ae, 2, full_len);
-                offset = ae + 2;
+                /* First Frame with CAN_DL <= 4095 Bytes: TTTTLLLL LLLLLLLL, Type, Length */
+                full_len = pci & ISO15765_MESSAGE_FIRST_FRAME_DATA_LENGTH_MASK;
+                proto_tree_add_item(iso15765_tree, hf_iso15765_frame_length_12bit, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
             }
 
+            /* we need to assume that all following bytes are of the first frame data */
             data_length = tvb_reported_length(tvb) - offset;
-            if (bus_type == ISO15765_TYPE_FLEXRAY && flexray_segment_size_limit != 0
-                && (guint32)data_length > flexray_segment_size_limit - (offset - ae)) {
-                data_length = flexray_segment_size_limit - (offset - ae);
+
+            /* FlexRay data_length cut off, if configured */
+            if (bus_type == ISO15765_TYPE_FLEXRAY && flexray_segment_size_limit != 0 && (guint32)data_length > flexray_segment_size_limit - (offset - pci_offset)) {
+                data_length = flexray_segment_size_limit - (offset - pci_offset);
             }
 
             fragmented = TRUE;
@@ -703,57 +712,60 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
         }
         case ISO15765_MESSAGE_TYPES_FR_CONSECUTIVE_FRAME_2:
         case ISO15765_MESSAGE_TYPES_CONSECUTIVE_FRAME: {
-            offset = ae + ISO15765_PCI_LEN;
+            /* Consecutive Frame (DF): TTTTSSSS, Type, SeqNo */
+            proto_tree_add_item(iso15765_tree, hf_iso15765_sequence_number, tvb, offset, 1, ENC_NA);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(Seq: %d)", (pci & ISO15765_MESSAGE_DATA_LENGTH_MASK));
+            offset += 1;
+
+            /* we need to assume that all following bytes are of the first frame data */
             data_length = tvb_reported_length(tvb) - offset;
+
             frag_id_low = masked_guint16_value(pci, ISO15765_MESSAGE_SEQUENCE_NUMBER_MASK);
             fragmented = TRUE;
 
-            if (bus_type == ISO15765_TYPE_FLEXRAY && flexray_segment_size_limit != 0
-                && (guint32)data_length > flexray_segment_size_limit - (offset - ae)) {
-                data_length = flexray_segment_size_limit - (offset - ae);
+            /* FlexRay data_length cut off, if configured */
+            if (bus_type == ISO15765_TYPE_FLEXRAY && flexray_segment_size_limit != 0 && (guint32)data_length > flexray_segment_size_limit - (offset - pci_offset)) {
+                data_length = flexray_segment_size_limit - (offset - pci_offset);
             }
 
             /* Save information */
             if (!(pinfo->fd->visited)) {
                 iso15765_info->seq = msg_seqid;
             }
-
-            proto_tree_add_item(iso15765_tree, hf_iso15765_sequence_number,
-                                tvb, ae, ISO15765_PCI_LEN, ENC_BIG_ENDIAN);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(Seq: %d)", (pci & ISO15765_MESSAGE_DATA_LENGTH_MASK));
             break;
         }
         case ISO15765_MESSAGE_TYPES_FR_ACK_FRAME:
         case ISO15765_MESSAGE_TYPES_FLOW_CONTROL: {
+            /* Flow Control Frame (FC): TTTTFFFF, BBBBBBBB, SSSSSSSS, Type, Flow status, Block size, Separation time */
             guint32 status = 0;
             guint32 bs = 0;
             guint32 stmin = 0;
             gboolean stmin_in_us = FALSE;
             data_length = 0;
 
-            proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_flow_status, tvb, ae,
-                                         ISO15765_PCI_LEN, ENC_BIG_ENDIAN, &status);
-            proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_fc_bs, tvb, ae + ISO15765_FC_BS_OFFSET,
-                                         ISO15765_FC_BS_LEN, ENC_BIG_ENDIAN, &bs);
+            proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_flow_status, tvb, offset, 1, ENC_NA, &status);
+            offset += 1;
 
-            stmin = tvb_get_guint8(tvb, ae + ISO15765_FC_STMIN_OFFSET);
+            proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_fc_bs, tvb, offset, 1, ENC_NA, &bs);
+            offset += 1;
+
+            stmin = tvb_get_guint8(tvb, offset);
             if (stmin >= 0xF1 && stmin <= 0xF9) {
                 stmin_in_us = TRUE;
                 stmin = (stmin - 0xF0) * 100U;
-                proto_tree_add_uint(iso15765_tree, hf_iso15765_fc_stmin_in_us, tvb, ae + ISO15765_FC_STMIN_OFFSET,
-                    ISO15765_FC_STMIN_LEN, stmin);
+                proto_tree_add_uint(iso15765_tree, hf_iso15765_fc_stmin_in_us, tvb, offset, 1, stmin);
             } else {
-                proto_tree_add_uint(iso15765_tree, hf_iso15765_fc_stmin, tvb, ae + ISO15765_FC_STMIN_OFFSET,
-                                             ISO15765_FC_STMIN_LEN, stmin);
+                proto_tree_add_uint(iso15765_tree, hf_iso15765_fc_stmin, tvb, offset, 1, stmin);
             }
+            offset += 1;
 
             if (message_type == ISO15765_MESSAGE_TYPES_FR_ACK_FRAME) {
                 guint32 ack = 0;
                 guint32 sn = 0;
-                offset = ae + ISO15765_FC_STMIN_OFFSET + ISO15765_FC_STMIN_LEN;
 
-                proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_autosar_ack, tvb, offset, 1, ENC_BIG_ENDIAN, &ack);
-                proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_sequence_number, tvb, offset, 1, ENC_BIG_ENDIAN, &sn);
+                proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_autosar_ack, tvb, offset, 1, ENC_NA, &ack);
+                proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_sequence_number, tvb, offset, 1, ENC_NA, &sn);
+                offset += 1;
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "(Status: %d, Block size: 0x%x, Separation time minimum: %d %s, Ack: %d, Seq: %d)",
                                 status, bs, stmin, stmin_in_us ? "µs" : "ms", ack, sn);
@@ -763,28 +775,29 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
             }
             break;
         }
-        /* And now the AUTOSAR FlexRay TP Types... */
         case ISO15765_MESSAGE_TYPES_FR_SINGLE_FRAME_EXT: {
-            offset = ae + ISO15765_PCI_FD_SF_LEN;
-            data_length = tvb_get_guint8(tvb, ae + 1);
-            proto_tree_add_item(iso15765_tree, hf_iso15765_data_length, tvb, ae + 1, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+
+            data_length = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(iso15765_tree, hf_iso15765_data_length_8bit, tvb, offset, 1, ENC_NA);
+            offset += 1;
 
             next_tvb = tvb_new_subset_length(tvb, offset, data_length);
             complete = TRUE;
 
-            /* Show some info */
             col_append_fstr(pinfo->cinfo, COL_INFO, "(Len: %d)", data_length);
             break;
         }
         case ISO15765_MESSAGE_TYPES_FR_FIRST_FRAME_EXT: {
-            full_len = tvb_get_guint32(tvb, ae + 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(iso15765_tree, hf_iso15765_frame_length, tvb, ae + 1, 4, ENC_BIG_ENDIAN);
-            offset = ae + 1 + 4;
+            offset += 1;
+
+            full_len = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+            proto_tree_add_item(iso15765_tree, hf_iso15765_frame_length_32bit, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
 
             data_length = tvb_reported_length(tvb) - offset;
-            if (bus_type == ISO15765_TYPE_FLEXRAY && flexray_segment_size_limit != 0
-                && (guint32)data_length > flexray_segment_size_limit - (offset - ae)) {
-                data_length = flexray_segment_size_limit - (offset - ae);
+            if (bus_type == ISO15765_TYPE_FLEXRAY && flexray_segment_size_limit != 0 && (guint32)data_length > flexray_segment_size_limit - (offset - pci_offset)) {
+                data_length = flexray_segment_size_limit - (offset - pci_offset);
             }
 
             fragmented = TRUE;
@@ -799,20 +812,17 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
                 wmem_map_insert(iso15765_frame_table, GUINT_TO_POINTER(iso15765_info->seq), iso15765_frame);
             }
 
-            /* Show some info */
             col_append_fstr(pinfo->cinfo, COL_INFO, "(Frame Len: %d)", full_len);
             break;
         }
         default:
-            expert_add_info_format(pinfo, message_type_item, &ei_iso15765_message_type_bad,
-                                   "Bad Message Type value %u <= 7", message_type);
-            return ae;
+            expert_add_info_format(pinfo, message_type_item, &ei_iso15765_message_type_bad, "Bad Message Type value %u!", message_type);
+            return offset;
     }
 
     /* Show data */
     if (data_length > 0) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                        tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length, ' '));
+        col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length, ' '));
     }
 
     if (fragmented) {
@@ -820,8 +830,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
         iso15765_frame_t *iso15765_frame;
         guint16 frag_id = frag_id_low;
         /* Get frame information */
-        iso15765_frame = (iso15765_frame_t *)wmem_map_lookup(iso15765_frame_table,
-                                                             GUINT_TO_POINTER(iso15765_info->seq));
+        iso15765_frame = (iso15765_frame_t *)wmem_map_lookup(iso15765_frame_table, GUINT_TO_POINTER(iso15765_info->seq));
 
         if (iso15765_frame != NULL) {
             if (!(pinfo->fd->visited)) {
@@ -848,6 +857,8 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
 
                 /* Check if it's the last packet */
                 if (!(pinfo->fd->visited)) {
+                    iso15765_info->bytes_used = data_length;
+
                     /* Update the last_frag_id */
                     if (frag_id > iso15765_frame->last_frag_id) {
                         iso15765_frame->last_frag_id = frag_id;
@@ -858,6 +869,9 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
                         iso15765_info->last = TRUE;
                         iso15765_frame->complete = TRUE;
                         len -= (iso15765_frame->offset - iso15765_frame->len);
+
+                        /* Determine how many bytes were needed to calculate padding latter. */
+                        iso15765_info->bytes_used = data_length - (iso15765_frame->offset - iso15765_frame->len);
                     }
                 }
                 pinfo->fragmented = TRUE;
@@ -870,8 +884,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
                                                    &iso15765_frag_items, NULL, iso15765_tree);
 
                 if (frag_msg && frag_msg->reassembled_in != pinfo->num) {
-                    col_append_frame_number(pinfo, COL_INFO, " [Reassembled in #%u]",
-                                    frag_msg->reassembled_in);
+                    col_append_frame_number(pinfo, COL_INFO, " [Reassembled in #%u]", frag_msg->reassembled_in);
                 }
 
                 pinfo->fragmented = save_fragmented;
@@ -881,10 +894,25 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
                 /* This is a complete TVB to dissect */
                 next_tvb = new_tvb;
                 complete = TRUE;
-            } else {
-                next_tvb = tvb_new_subset_length(tvb, offset, data_length);
             }
         }
+    }
+
+    /* Let us correct bytes used for last segment to identify padding. */
+    if (iso15765_info != NULL && iso15765_info->last) {
+        data_length = iso15765_info->bytes_used;
+    }
+
+    if (message_type == ISO15765_MESSAGE_TYPES_FIRST_FRAME || message_type == ISO15765_MESSAGE_TYPES_CONSECUTIVE_FRAME ||
+        message_type == ISO15765_MESSAGE_TYPES_FR_FIRST_FRAME_EXT || message_type == ISO15765_MESSAGE_TYPES_FR_CONSECUTIVE_FRAME_2) {
+        proto_tree_add_item(iso15765_tree, hf_iso15765_segment_data, tvb, offset, data_length, ENC_NA);
+    }
+
+    offset += data_length;
+
+    if (offset < tvb_captured_length(tvb)) {
+        /* Unused bytes should be filled with 0xCC padding. */
+        proto_tree_add_item(iso15765_tree, hf_iso15765_padding, tvb, offset, tvb_captured_length(tvb) - offset, ENC_NA);
     }
 
     if (next_tvb) {
@@ -986,21 +1014,25 @@ proto_register_iso15765(void) {
 
     static hf_register_info hf[] = {
         { &hf_iso15765_address, {
-            "Address", "iso15765.address", FT_UINT8,  BASE_HEX, NULL, 0, NULL, HFILL } },
+            "Address", "iso15765.address", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_iso15765_target_address, {
-            "Target Address", "iso15765.target_address", FT_UINT16,  BASE_HEX, NULL, 0, NULL, HFILL } },
+            "Target Address", "iso15765.target_address", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_iso15765_source_address, {
-            "Source Address", "iso15765.source_address", FT_UINT16,  BASE_HEX, NULL, 0, NULL, HFILL } },
+            "Source Address", "iso15765.source_address", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_iso15765_message_type, {
-            "Message Type", "iso15765.message_type", FT_UINT8,  BASE_HEX, VALS(iso15765_message_types), ISO15765_MESSAGE_TYPE_MASK, NULL, HFILL } },
-        { &hf_iso15765_data_length, {
-            "Data length", "iso15765.data_length", FT_UINT32,  BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_iso15765_frame_length, {
-            "Frame length", "iso15765.frame_length", FT_UINT32,  BASE_DEC, NULL, 0x0, NULL, HFILL } },
+            "Message Type", "iso15765.message_type", FT_UINT8, BASE_HEX, VALS(iso15765_message_types), ISO15765_MESSAGE_TYPE_MASK, NULL, HFILL } },
+        { &hf_iso15765_data_length_8bit, {
+            "Data length (8bit)", "iso15765.data_length_8bit", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_iso15765_data_length_4bit, {
+            "Data length (4bit)", "iso15765.data_length_4bit", FT_UINT8, BASE_DEC, NULL, ISO15765_MESSAGE_DATA_LENGTH_MASK, NULL, HFILL } },
+        { &hf_iso15765_frame_length_32bit, {
+            "Frame length (32bit)", "iso15765.frame_length_32bit", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_iso15765_frame_length_12bit, {
+            "Frame length (12bit)", "iso15765.frame_length_12bit", FT_UINT16, BASE_DEC, NULL, ISO15765_MESSAGE_FIRST_FRAME_DATA_LENGTH_MASK, NULL, HFILL } },
         { &hf_iso15765_sequence_number, {
-            "Sequence number", "iso15765.sequence_number", FT_UINT8,  BASE_HEX, NULL, ISO15765_MESSAGE_SEQUENCE_NUMBER_MASK, NULL, HFILL } },
+            "Sequence number", "iso15765.sequence_number", FT_UINT8, BASE_HEX, NULL, ISO15765_MESSAGE_SEQUENCE_NUMBER_MASK, NULL, HFILL } },
         { &hf_iso15765_flow_status, {
-            "Flow status", "iso15765.flow_status", FT_UINT8,  BASE_HEX, VALS(iso15765_flow_status_types), ISO15765_MESSAGE_FLOW_STATUS_MASK, NULL, HFILL } },
+            "Flow status", "iso15765.flow_status", FT_UINT8, BASE_HEX, VALS(iso15765_flow_status_types), ISO15765_MESSAGE_FLOW_STATUS_MASK, NULL, HFILL } },
 
         { &hf_iso15765_fc_bs, {
             "Block size",    "iso15765.flow_control.bs", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL } },
@@ -1010,6 +1042,10 @@ proto_register_iso15765(void) {
             "Separation time minimum (µs)", "iso15765.flow_control.stmin", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_iso15765_autosar_ack, {
             "Acknowledgment", "iso15765.autosar_ack.ack", FT_UINT8, BASE_HEX, NULL, ISO15765_MESSAGE_AUTOSAR_ACK_MASK, NULL, HFILL } },
+        { &hf_iso15765_segment_data, {
+            "Segment Data", "iso15765.segment_data", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_iso15765_padding, {
+            "Padding", "iso15765.padding", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 
         { &hf_iso15765_fragments, {
             "Message fragments", "iso15765.fragments", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }, },
