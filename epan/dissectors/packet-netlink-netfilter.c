@@ -507,6 +507,7 @@ static int hf_nfq_uid;
 static int hf_nfq_verdict_id;
 static int hf_nfq_verdict_verdict;
 static int hf_nftables_command;
+static int hf_padding;
 
 static int ett_netlink_netfilter;
 static int ett_nfct_attr;
@@ -986,7 +987,9 @@ dissect_nfq_config_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_da
 		case WS_NFQA_CFG_CMD:
 			if (len == 4) {
 				proto_tree_add_item(tree, hf_nfq_config_command_command, tvb, offset, 1, ENC_NA);
-				offset += 2; /* skip command and 1 byte padding. */
+				offset += 1;
+				proto_tree_add_item(tree, hf_padding, tvb, offset, 1, ENC_NA);
+				offset += 1;
 
 				proto_tree_add_item(tree, hf_nfq_config_command_pf, tvb, offset, 2, ENC_BIG_ENDIAN);
 				offset += 2;
@@ -1181,7 +1184,10 @@ dissect_nfq_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data
 
 				proto_tree_add_item(tree, hf_nfq_hwaddr_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 				addrlen = tvb_get_ntohs(tvb, offset);
-				offset += 4; /* skip len and padding */
+				offset += 2;
+				proto_tree_add_item(tree, hf_padding, tvb, offset, 2, ENC_NA);
+				offset += 2;
+
 
 				/* XXX expert info if 4 + addrlen > len. */
 				addrlen = MIN(addrlen, len - 4);
@@ -2209,6 +2215,11 @@ proto_register_netlink_netfilter(void)
 			  FT_UINT16, BASE_DEC, VALS(netlink_netfilter_subsystem_vals), 0xFF00,
 			  NULL, HFILL }
 		},
+		{ &hf_padding,
+			{ "Padding", "netlink-netfilter.padding",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		}
 	};
 
 	static gint *ett[] = {
