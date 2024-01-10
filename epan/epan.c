@@ -439,15 +439,15 @@ epan_cleanup(void)
 	except_deinit();
 	addr_resolv_cleanup();
 
-	plugins_cleanup(libwireshark_plugins);
-	libwireshark_plugins = NULL;
-
 	if (pinfo_pool_cache != NULL) {
 		wmem_destroy_allocator(pinfo_pool_cache);
 		pinfo_pool_cache = NULL;
 	}
 
 	wmem_cleanup_scopes();
+
+	plugins_cleanup(libwireshark_plugins);
+	libwireshark_plugins = NULL;
 }
 
 struct epan_session {
