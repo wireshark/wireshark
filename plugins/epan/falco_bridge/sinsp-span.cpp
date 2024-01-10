@@ -74,7 +74,7 @@ typedef struct sinsp_span_t {
     wmem_map_t *str_chunk;
 } sinsp_span_t;
 
-#define SS_MEMORY_STATISTICS 1
+// #define SS_MEMORY_STATISTICS 1
 
 #ifdef SS_MEMORY_STATISTICS
 #include <wsutil/str_util.h>
@@ -707,7 +707,9 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
                     g_strlcpy(sfe->res.small_str, (const char *) values[0].ptr, SFE_SMALL_BUF_SIZE);
                 } else {
                     sfe->res.str = chunkify_string(sinsp_span, (const char *) values[0].ptr);
+#ifdef SS_MEMORY_STATISTICS
                     total_chunked_strings += values[0].len;
+#endif
                 }
                 // XXX - Not needed? This sometimes runs into length mismatches.
                 // sfe_value.res.str[values[0].len] = '\0';
@@ -720,7 +722,9 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
                 break;
             default:
                 sfe->res.bytes = (uint8_t*) wmem_memdup(wmem_file_scope(), (const uint8_t *) values[0].ptr, values[0].len);
+#ifdef SS_MEMORY_STATISTICS
                 total_bytes += values[0].len;
+#endif
             }
 
             sfe->res_len = values[0].len;
