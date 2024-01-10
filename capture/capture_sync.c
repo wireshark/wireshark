@@ -1566,8 +1566,14 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
             /*
              * Pick up the child status.
              */
+            char *close_msg = NULL;
             sync_pipe_close_command(data_read_fd, message_read_io,
-                                    fork_child, msg);
+                                    fork_child, &close_msg);
+            /*
+             * Ignore the error from sync_pipe_close_command, presumably the one
+             * returned by the child is more pertinent to what went wrong.
+             */
+            g_free(close_msg);
             ret = -1;
             break;
 
