@@ -101,6 +101,7 @@ static int hf_netlink_hdr_len;
 static int hf_netlink_hdr_pid;
 static int hf_netlink_hdr_seq;
 static int hf_netlink_hdr_type;
+static int hf_netlink_padding;
 
 static gint ett_netlink_cooked;
 static gint ett_netlink_msghdr;
@@ -265,8 +266,16 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, int hf_type, int ett_tree, int 
 		}
 
 		/* Assume offset already aligned, next offset is rta_len plus alignment. */
+		guint signalled_len = rta_len;
 		rta_len = MIN(WS_ROUNDUP_4(rta_len), data_length);
+		/* Possible padding following attr */
+		if (rta_len > signalled_len) {
+			proto_tree_add_item(tree, hf_netlink_padding, tvb, offset+1, rta_len-signalled_len, ENC_NA);
+		}
+
 		offset += rta_len - 4;  /* Header was already skipped */
+
+
 		if (data_length < rta_len)
 			THROW(ReportedBoundsError);
 		data_length -= rta_len;
@@ -653,6 +662,11 @@ proto_register_netlink(void)
 			{ "Error code", "netlink.error",
 			  FT_INT32, BASE_DEC | BASE_EXT_STRING, &linux_negative_errno_vals_ext, 0x0,
 			  "Negative errno or 0 for acknowledgements", HFILL }
+		},
+		{ &hf_netlink_padding,
+			{ "Padding", "netlink.padding",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
 		},
 	};
 
