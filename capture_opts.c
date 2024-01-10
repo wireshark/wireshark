@@ -1531,7 +1531,7 @@ collect_ifaces(capture_options *capture_opts)
 }
 
 static void
-capture_opts_free_interface_t_links(gpointer elem, gpointer unused _U_)
+capture_opts_free_link_row(gpointer elem)
 {
     link_row* e = (link_row*)elem;
     if (e != NULL)
@@ -1550,9 +1550,7 @@ capture_opts_free_interface_t(interface_t *device)
         g_free(device->addresses);
         g_free(device->cfilter);
         g_free(device->timestamp_type);
-        g_list_foreach(device->links,
-                       capture_opts_free_interface_t_links, NULL);
-        g_list_free(device->links);
+        g_list_free_full(device->links, capture_opts_free_link_row);
 #ifdef HAVE_PCAP_REMOTE
         g_free(device->remote_opts.remote_host_opts.remote_host);
         g_free(device->remote_opts.remote_host_opts.remote_port);
