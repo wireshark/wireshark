@@ -681,8 +681,7 @@ dissect_wmio_qualifier(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 break;
             case CIM_ARRAY_OBJECT:
                 {
-                    guint32 i = 0;
-                    while (i < array_count){
+                    for (guint32 i=0; i < array_count; i++){
                         gint32 objEncLength = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
                         offset += objEncLength;
                     }
@@ -825,6 +824,7 @@ dissect_wmio_encoding_qualifierset(tvbuff_t *tvb, gint offset, packet_info *pinf
     offset += 4;
 
     while((guint32)offset < (old_offset + length)){
+        /* N.B. guaranteed to advance offset */
         offset = dissect_wmio_qualifier(tvb, offset, pinfo, tree, classheapoffset);
     }
 
@@ -1049,7 +1049,8 @@ dissect_wmio_encoding_derivationlist(tvbuff_t *tvb, gint offset, packet_info *pi
     proto_tree_add_item_ret_uint(tree, hf_wmio_class_derivation_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &length);
     offset+= 4;
 
-    while((guint32)offset < (old_offset + length)){
+    while((guint32)offset < (old_offset + length)) {
+        /* Offset is guaranteed to increase here as heapoffset (last arg) is 0 */
         offset = dissect_wmio_encoded_string(tvb, offset, hf_wmio_derivation_classname, pinfo, tree, TRUE, 0);
     }
 
