@@ -59,6 +59,7 @@ DIAG_ON(frame-larger-than=)
 #include "export_object_action.h"
 #include "file_set_dialog.h"
 #include "filter_dialog.h"
+#include "follow_stream_action.h"
 #include "funnel_statistics.h"
 #include "import_text_dialog.h"
 #include "interface_toolbar.h"
@@ -387,6 +388,7 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
     connect(mainApp, SIGNAL(appInitialized()), this, SLOT(addPluginIFStructures()));
     connect(mainApp, SIGNAL(appInitialized()), this, SLOT(initConversationMenus()));
     connect(mainApp, SIGNAL(appInitialized()), this, SLOT(initExportObjectsMenus()));
+    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(initFollowStreamMenus()));
 
     connect(mainApp, SIGNAL(profileChanging()), this, SLOT(saveWindowGeometry()));
     connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(layoutPanes()));
@@ -2351,6 +2353,55 @@ bool LograyMainWindow::addExportObjectsMenuItem(const void *, void *value, void 
 void LograyMainWindow::initExportObjectsMenus()
 {
     eo_iterate_tables(addExportObjectsMenuItem, this);
+}
+
+bool LograyMainWindow::addFollowStreamMenuItem(const void *key, void *value, void *userdata)
+{
+    register_follow_t *follow = (register_follow_t*)value;
+    LograyMainWindow *window = (LograyMainWindow*)userdata;
+
+    FollowStreamAction *follow_action = new FollowStreamAction(window->main_ui_->menuFollow, follow);
+    window->main_ui_->menuFollow->addAction(follow_action);
+
+    follow_action->setEnabled(false);
+
+    /* Special features for some of the built in follow types, like
+     * shortcuts and overriding the name. XXX: Should these go in
+     * FollowStreamAction, or should some of these (e.g. TCP and UDP)
+     * be registered in initFollowStreamMenus so that they can be
+     * on the top of the menu list too?
+     */
+    // XXX - Should we add matches for syscall properties, e.g. file descriptors?
+    // const char *short_name = (const char*)key;
+    // if (g_strcmp0(short_name, "TCP") == 0) {
+    //     follow_action->setShortcut(Qt::CTRL | Qt::ALT | Qt::SHIFT | Qt::Key_T);
+    // } else if (g_strcmp0(short_name, "UDP") == 0) {
+    //     follow_action->setShortcut(Qt::CTRL | Qt::ALT | Qt::SHIFT | Qt::Key_U);
+    // } else if (g_strcmp0(short_name, "DCCP") == 0) {
+    //     /* XXX: Not sure this one is widely enough used to need a shortcut. */
+    //     follow_action->setShortcut(Qt::CTRL | Qt::ALT | Qt::SHIFT | Qt::Key_E);
+    // } else if (g_strcmp0(short_name, "TLS") == 0) {
+    //     follow_action->setShortcut(Qt::CTRL | Qt::ALT | Qt::SHIFT | Qt::Key_S);
+    // } else if (g_strcmp0(short_name, "HTTP") == 0) {
+    //     follow_action->setShortcut(Qt::CTRL | Qt::ALT | Qt::SHIFT | Qt::Key_H);
+    // } else if (g_strcmp0(short_name, "HTTP2") == 0) {
+    //     follow_action->setText(tr("HTTP/2 Stream"));
+    // } else if (g_strcmp0(short_name, "SIP") == 0) {
+    //     follow_action->setText(tr("SIP Call"));
+    // } else if (g_strcmp0(short_name, "USBCOM") == 0) {
+    //     follow_action->setText(tr("USB CDC Data"));
+    // }
+
+    connect(follow_action, &QAction::triggered, window,
+            [window, follow]() { window->openFollowStreamDialog(get_follow_proto_id(follow)); },
+            Qt::QueuedConnection);
+    return FALSE;
+}
+
+void LograyMainWindow::initFollowStreamMenus()
+{
+    /* This puts them all in the menus in alphabetical order.  */
+    follow_iterate_followers(addFollowStreamMenuItem, this);
 }
 
 // Titlebar

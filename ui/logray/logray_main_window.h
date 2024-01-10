@@ -296,6 +296,8 @@ private slots:
     void initConversationMenus();
     static bool addExportObjectsMenuItem(const void *key, void *value, void *userdata);
     void initExportObjectsMenus();
+    static bool addFollowStreamMenuItem(const void *key, void *value, void *userdata);
+    void initFollowStreamMenus();
 
     // in main_window_slots.cpp
     /**
@@ -432,6 +434,9 @@ private slots:
 
     void applyConversationFilter();
     void applyExportObject();
+
+    void openFollowStreamDialog(int proto_id, guint stream_num, guint sub_stream_num, bool use_stream_index = true);
+    void openFollowStreamDialog(int proto_id);
 
     void statCommandExpertInfo(const char *, void *);
 

@@ -403,6 +403,11 @@
       <string>Prepare as Filter</string>
      </property>
     </widget>
+    <widget class="QMenu" name="menuFollow">
+     <property name="title">
+      <string>Follow</string>
+     </property>
+    </widget>
     <widget class="QMenu" name="menuConversationFilter">
      <property name="title">
       <string>Conversation Filter</string>
@@ -420,6 +425,8 @@
     <addaction name="actionAnalyzeEnabledProtocols"/>
     <addaction name="actionAnalyzeDecodeAs"/>
     <addaction name="actionAnalyzeReloadLuaPlugins"/>
+    <addaction name="separator"/>
+    <addaction name="menuFollow"/>
     <addaction name="separator"/>
     <addaction name="actionAnalyzeShowPacketBytes"/>
     <addaction name="actionAnalyzeExpertInfo"/>

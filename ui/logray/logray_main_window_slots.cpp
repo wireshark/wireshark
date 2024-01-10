@@ -112,6 +112,8 @@ DIAG_ON(frame-larger-than=)
 #include "file_set_dialog.h"
 #include "filter_action.h"
 #include "filter_dialog.h"
+#include "follow_stream_action.h"
+#include "follow_stream_dialog.h"
 #include "funnel_statistics.h"
 #include "interface_toolbar.h"
 #include "io_graph_dialog.h"
@@ -1180,6 +1182,19 @@ void LograyMainWindow::setMenusForSelectedPacket()
         have_time_ref = capture_file_.capFile()->ref_time_count > 0;
         another_is_time_ref = have_time_ref && rows.count() <= 1 &&
                 !(capture_file_.capFile()->ref_time_count == 1 && frame_selected && current_frame->ref_time);
+
+        if (capture_file_.capFile()->edt && ! multi_selection)
+        {
+            bool have_follows = false;
+            foreach (FollowStreamAction *follow_action, main_ui_->menuFollow->findChildren<FollowStreamAction *>()) {
+                gboolean is_frame = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, follow_action->filterName());
+                follow_action->setEnabled(is_frame);
+                if (is_frame) {
+                    have_follows = true;
+                }
+            }
+            main_ui_->menuFollow->setEnabled(have_follows);
+        }
     }
 
     main_ui_->actionEditMarkPacket->setText(tr("&Mark/Unmark Packet(s)", "", static_cast<int>(selectedRows().count())));
@@ -3035,6 +3050,25 @@ void LograyMainWindow::applyExportObject()
     export_dialog->setWindowModality(Qt::ApplicationModal);
     export_dialog->setAttribute(Qt::WA_DeleteOnClose);
     export_dialog->show();
+}
+
+void LograyMainWindow::openFollowStreamDialog(int proto_id, guint stream_num, guint sub_stream_num, bool use_stream_index) {
+    FollowStreamDialog *fsd = new FollowStreamDialog(*this, capture_file_, proto_id);
+    connect(fsd, SIGNAL(updateFilter(QString, bool)), this, SLOT(filterPackets(QString, bool)));
+    connect(fsd, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
+    fsd->addCodecs(text_codec_map_);
+    fsd->show();
+    if (use_stream_index) {
+        // If a specific conversation was requested, then ignore any previous
+        // display filters and display all related packets.
+        fsd->follow("", true, stream_num, sub_stream_num);
+    } else {
+        fsd->follow(getFilter());
+    }
+}
+
+void LograyMainWindow::openFollowStreamDialog(int proto_id) {
+    openFollowStreamDialog(proto_id, 0, 0, false);
 }
 
 // -z expert

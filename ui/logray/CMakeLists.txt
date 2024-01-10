@@ -37,6 +37,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	../qt/widgets/field_filter_edit.h
 	../qt/widgets/filter_expression_toolbar.h
 	../qt/widgets/find_line_edit.h
+	../qt/widgets/follow_stream_text.h
 	../qt/widgets/interface_toolbar_lineedit.h
 	../qt/widgets/label_stack.h
 	../qt/widgets/overlay_scroll_bar.h
@@ -172,6 +173,7 @@ set(WIRESHARK_QT_HEADERS
 	../qt/filter_dialog.h
 	../qt/filter_expression_frame.h
 	../qt/follow_stream_action.h
+	../qt/follow_stream_dialog.h
 	../qt/font_color_preferences_frame.h
 	../qt/funnel_statistics.h
 	../qt/funnel_string_dialog.h
@@ -269,6 +271,7 @@ set(WIRESHARK_WIDGET_SRCS
 	../qt/widgets/field_filter_edit.cpp
 	../qt/widgets/filter_expression_toolbar.cpp
 	../qt/widgets/find_line_edit.cpp
+	../qt/widgets/follow_stream_text.cpp
 	../qt/widgets/interface_toolbar_lineedit.cpp
 	../qt/widgets/label_stack.cpp
 	../qt/widgets/overlay_scroll_bar.cpp
@@ -395,6 +398,7 @@ set(WIRESHARK_QT_SRC
 	../qt/filter_action.cpp
 	../qt/filter_dialog.cpp
 	../qt/filter_expression_frame.cpp
+	../qt/follow_stream_dialog.cpp
 	../qt/follow_stream_action.cpp
 	../qt/font_color_preferences_frame.cpp
 	../qt/funnel_string_dialog.cpp
@@ -512,6 +516,7 @@ set(WIRESHARK_QT_UI
 	../qt/file_set_dialog.ui
 	../qt/filter_dialog.ui
 	../qt/filter_expression_frame.ui
+	../qt/follow_stream_dialog.ui
 	../qt/font_color_preferences_frame.ui
 	../qt/funnel_string_dialog.ui
 	../qt/funnel_text_dialog.ui

@@ -324,11 +324,14 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         if (main_menu_item) {
             submenu = new QMenu(main_menu_item->title(), ctx_menu);
             ctx_menu->addMenu(submenu);
+            bool have_follows = false;
             foreach (FollowStreamAction *follow_action, main_menu_item->findChildren<FollowStreamAction *>()) {
                 if (follow_action->isEnabled()) {
                     submenu->addAction(follow_action);
+                    have_follows = true;
                 }
             }
+            submenu->setEnabled(have_follows);
         }
 
         ctx_menu->addSeparator();
