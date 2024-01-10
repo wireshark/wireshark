@@ -444,17 +444,17 @@ epan_cleanup(void)
 	except_deinit();
 	addr_resolv_cleanup();
 
-#ifdef HAVE_PLUGINS
-	plugins_cleanup(libwireshark_plugins);
-	libwireshark_plugins = NULL;
-#endif
-
 	if (pinfo_pool_cache != NULL) {
 		wmem_destroy_allocator(pinfo_pool_cache);
 		pinfo_pool_cache = NULL;
 	}
 
 	wmem_cleanup_scopes();
+
+#ifdef HAVE_PLUGINS
+	plugins_cleanup(libwireshark_plugins);
+	libwireshark_plugins = NULL;
+#endif
 }
 
 struct epan_session {
