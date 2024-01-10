@@ -958,7 +958,7 @@ capture_interface_stat_start(capture_options *capture_opts _U_, GList **if_list)
      * of them have permission to do a capture.
      */
     int err = 0;
-    char *err_msg;
+    char *err_msg = NULL;
     *if_list = deserialize_interface_list(data, &err, &err_msg);
     if (err != 0) {
         ws_info("%s", err_msg);
