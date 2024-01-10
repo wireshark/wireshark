@@ -110,3 +110,8 @@ class TestDfilterMembership:
     def test_membership_arithmetic_1(self, checkDFilterCountWithSelectedFrame):
         dfilter = 'frame.time_epoch in {${frame.time_epoch}-46..${frame.time_epoch}+43}'
         checkDFilterCountWithSelectedFrame(dfilter, 1, 1)
+
+    def test_membership_bad_rhs_string_2(self, checkDFilterFail):
+        dfilter = 'eth.src in {11:12:13:14:15:16, 22-33-}'
+        error = 'Error: "22-33-" is not a valid protocol or protocol field.'
+        checkDFilterFail(dfilter, error)

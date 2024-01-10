@@ -1042,6 +1042,10 @@ check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op,
 					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
 		}
 	}
+	else if (type2 == STTYPE_UNPARSED) {
+		resolve_unparsed(dfw, st_arg2, true);
+		ASSERT_STTYPE_NOT_REACHED(type2);
+	}
 	else {
 		ASSERT_STTYPE_NOT_REACHED(type2);
 	}
@@ -1105,6 +1109,10 @@ check_relation_LHS_FVALUE(dfwork_t *dfw, stnode_op_t st_op,
 			FAIL(dfw, st_arg2, "%s (type=%s) cannot participate in specified comparison.",
 					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
 		}
+	}
+	else if (type2 == STTYPE_UNPARSED) {
+		resolve_unparsed(dfw, st_arg2, true);
+		ASSERT_STTYPE_NOT_REACHED(type2);
 	}
 	else {
 		ASSERT_STTYPE_NOT_REACHED(type2);
@@ -1231,6 +1239,10 @@ check_relation_LHS_SLICE(dfwork_t *dfw, stnode_op_t st_op _U_,
 					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
 		}
 	}
+	else if (type2 == STTYPE_UNPARSED) {
+		resolve_unparsed(dfw, st_arg2, true);
+		ASSERT_STTYPE_NOT_REACHED(type2);
+	}
 	else {
 		ASSERT_STTYPE_NOT_REACHED(type2);
 	}
@@ -1341,6 +1353,10 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, stnode_op_t st_op _U_,
 					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
 		}
 	}
+	else if (type2 == STTYPE_UNPARSED) {
+		resolve_unparsed(dfw, st_arg2, true);
+		ASSERT_STTYPE_NOT_REACHED(type2);
+	}
 	else {
 		ASSERT_STTYPE_NOT_REACHED(type2);
 	}
@@ -1442,6 +1458,10 @@ check_relation_LHS_ARITHMETIC(dfwork_t *dfw, stnode_op_t st_op _U_,
 			FAIL(dfw, st_arg2, "%s (type=%s) cannot participate in specified comparison.",
 					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
 		}
+	}
+	else if (type2 == STTYPE_UNPARSED) {
+		resolve_unparsed(dfw, st_arg2, true);
+		ASSERT_STTYPE_NOT_REACHED(type2);
 	}
 	else {
 		ASSERT_STTYPE_NOT_REACHED(type2);
