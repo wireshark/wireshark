@@ -10492,8 +10492,7 @@ dissect_nas_5gs_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     } else if (!strcmp(n1_msg_class, "LPP")) {
         subdissector = lpp_handle;
     } else if (!strcmp(n1_msg_class, "SMS")) {
-        /* how to know the direction? */
-        subdissector = NULL;
+        subdissector = gsm_a_dtap_handle;
     } else if (!strcmp(n1_msg_class, "UPDP")) {
         /* UD policy delivery service */
         dissect_nas_5gs_updp(tvb, pinfo, tree, 0);
