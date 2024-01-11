@@ -665,7 +665,7 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                 if (ret != 0) {
                     debugprintf("Processing security footer of signed message failed.\n");
                 } else {
-                    /* signed only messages habe no padding, so the payload is the message size
+                    /* signed only messages have no padding, so the payload is the message size
                      * without 24 byte header and without signature */
                     payload_len -= sig_len;
                 }
@@ -675,7 +675,7 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                 decrypted_tvb = tvb;
             } else {
                 /* no padding, no signature, just payload */
-                payload_len = tvb_ensure_captured_length_remaining(tvb, 16);
+                payload_len = tvb_ensure_captured_length_remaining(tvb, 24); /* subtract header */
                 pad_len= 0;
                 sig_len = 0;
             }
