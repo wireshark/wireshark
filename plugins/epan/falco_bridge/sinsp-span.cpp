@@ -47,10 +47,10 @@ typedef struct ss_plugin_info ss_plugin_info;
 typedef struct sinsp_source_info_t {
     sinsp_plugin *source;
     std::vector<const filter_check_info *> syscall_filter_checks;
-    std::vector<gen_event_filter_check *> syscall_event_filter_checks;
     std::vector<const filtercheck_field_info *> syscall_filter_fields;
+    std::vector<gen_event_filter_check *> syscall_event_filter_checks;  // Same size as syscall_filter_fields
+    std::vector<const sinsp_syscall_category_e> field_to_category;      // Same size as syscall_filter_fields
     std::map<const filtercheck_field_info *, size_t> ffi_to_sf_idx;
-    std::map<size_t, sinsp_syscall_category_e> field_to_category;
     sinsp_evt *evt;
     uint8_t *evt_storage;
     size_t evt_storage_size;
@@ -255,7 +255,7 @@ void add_arg_event(uint32_t arg_number,
     }
     gefc->parse_field_name(fname.c_str(), true, false);
     ssi->ffi_to_sf_idx[ffi] = ssi->syscall_filter_fields.size();
-    ssi->field_to_category[ssi->syscall_filter_fields.size()] = args_syscall_category;
+    ssi->field_to_category.push_back(args_syscall_category);
     ssi->syscall_event_filter_checks.push_back(gefc);
     ssi->syscall_filter_fields.push_back(ffi);
 }
@@ -289,7 +289,7 @@ void add_lineage_field(std::string basefname,
 
     gefc->parse_field_name(fname.c_str(), true, false);
     ssi->ffi_to_sf_idx[ffi] = ssi->syscall_filter_fields.size();
-    ssi->field_to_category[ssi->syscall_filter_fields.size()] = args_syscall_category;
+    ssi->field_to_category.push_back(args_syscall_category);
     ssi->syscall_event_filter_checks.push_back(gefc);
     ssi->syscall_filter_fields.push_back(ffi);
 }
@@ -392,7 +392,7 @@ void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t *
                 }
                 gefc->parse_field_name(ffi->m_name, true, false);
                 ssi->ffi_to_sf_idx[ffi] = ssi->syscall_filter_fields.size();
-                ssi->field_to_category[ssi->syscall_filter_fields.size()] = syscall_category;
+                ssi->field_to_category.push_back(syscall_category);
                 ssi->syscall_event_filter_checks.push_back(gefc);
                 ssi->syscall_filter_fields.push_back(ffi);
             }
