@@ -19,6 +19,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include "epan/column-utils.h"
+
 #include "opcua_security_layer.h"
 #include "opcua_application_layer.h"
 #include "opcua_simpletypes.h"
@@ -235,7 +236,7 @@ int parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, 
     proto_tree_add_item(tree, hf_opcua_transport_scid, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     // Asym Security Header
     parseString_ret_string_and_length(tree, tvb, pinfo, pOffset, hf_opcua_transport_spu, &sec_policy, &sec_policy_len);
-    parseByteString(tree, tvb, pinfo, pOffset, hf_opcua_transport_scert);
+    parseCertificate(tree, tvb, pinfo, pOffset, hf_opcua_transport_scert);
     parseByteString(tree, tvb, pinfo, pOffset, hf_opcua_transport_rcthumb);
 
     if (opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_NONE_STRING ) == 0) {

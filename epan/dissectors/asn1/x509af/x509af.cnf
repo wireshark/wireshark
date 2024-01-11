@@ -5,6 +5,9 @@
 #.IMPORT ../x509if/x509if-exp.cnf
 #.IMPORT ../x509sat/x509sat-exp.cnf
 
+#.MODULE_EXPORTS EXTERN WS_DLL
+Certificate
+
 #.MODULE_EXPORTS
 EXTENSION
 ACPathData
@@ -14,7 +17,6 @@ AttributeCertificate
 AttributeCertificateAssertion
 AttributeCertificateInfo
 AttributeCertificationPath
-Certificate
 Certificate_PDU
 Certificates
 CertificateList

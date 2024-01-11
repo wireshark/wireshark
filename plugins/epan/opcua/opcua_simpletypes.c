@@ -19,9 +19,11 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/dissectors/packet-windows-common.h>
+#include <epan/proto.h>
 #include <epan/proto_data.h>
-#include "epan/proto.h"
+#include <epan/asn1.h>
+#include <epan/dissectors/packet-windows-common.h>
+#include <epan/dissectors/packet-x509af.h>
 #include "opcua_simpletypes.h"
 #include "opcua_hfindeces.h"
 #include "opcua_statuscode.h"
@@ -918,6 +920,41 @@ void parseQualifiedName(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gin
     parseString(subtree, tvb, pinfo, pOffset, hf_opcua_qualifiedname_name);
 
     proto_item_set_end(ti, tvb, *pOffset);
+}
+
+void parseCertificate(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, int hfIndex)
+{
+    proto_item *item = NULL;
+    char *szValue;
+    int iOffset = *pOffset;
+    gint32 iLen = tvb_get_letohl(tvb, iOffset);
+    iOffset += 4;
+
+    if (iLen == -1)
+    {
+        item = proto_tree_add_bytes_with_length(tree, hfIndex, tvb, *pOffset, 4, NULL, 0);
+        proto_item_append_text(item, "[OpcUa Null ByteString]");
+    }
+    else if (iLen == 0)
+    {
+        item = proto_tree_add_bytes_with_length(tree, hfIndex, tvb, *pOffset, 4, NULL, 0);
+        proto_item_append_text(item, "[OpcUa Empty ByteString]");
+    }
+    else if (iLen > 0)
+    {
+        asn1_ctx_t asn1_ctx;
+        asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+        dissect_x509af_Certificate(FALSE, tvb, iOffset, &asn1_ctx, tree, hfIndex);
+        iOffset += iLen; /* eat the whole bytestring */
+    }
+    else
+    {
+        item = proto_tree_add_bytes_with_length(tree, hfIndex, tvb, *pOffset, 4, NULL, 0);
+        szValue = wmem_strdup_printf(pinfo->pool, "[Invalid ByteString] Invalid length: %d", iLen);
+        proto_item_append_text(item, "%s", szValue);
+    }
+
+    *pOffset = iOffset;
 }
 
 void parseDataValue(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
