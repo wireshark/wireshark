@@ -593,9 +593,7 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             guint8 chunkType = 0;
             guint32 opcua_seqno = 0; /* OPCUA sequence number */
             guint32 opcua_reqid = 0; /* OPCUA request id */
-            guint32 opcua_frag_seqnum; /* wireshark reassemble fragment number (zero based) */
             fragment_head *frag_msg = NULL;
-            fragment_item *frag_i = NULL;
 
             bParseService = TRUE;
             offset = 3;
@@ -714,30 +712,16 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                 gboolean bSaveFragmented = pinfo->fragmented;
                 gboolean bMoreFragments = TRUE;
                 tvbuff_t *reassembled_tvb = NULL;
+                bool first_frag = false;
 
                 pinfo->fragmented = TRUE;
 
                 if (frag_msg == NULL)
                 {
-                    /* first fragment */
-                    opcua_frag_seqnum = 0;
+                    first_frag = true;
                 }
                 else
                 {
-                    /* the UA protocol does not number the chunks beginning from 0 but from a
-                       arbitrary value, so we have to fake the numbers in the stored fragments.
-                       this way Wireshark reassembles the message, as it expects the fragment
-                       sequence numbers to start at 0 */
-                    for (frag_i = frag_msg->next; frag_i && frag_i->next; frag_i = frag_i->next); /* get last fragment */
-                    if (frag_i) {
-                        opcua_frag_seqnum = frag_i->offset + 1; /* offset contains fragment number */
-                    } else {
-                        /* We should never have a fragment head with no fragment items, but
-                         * just in case.
-                         */
-                        opcua_frag_seqnum = 0;
-                    }
-
                     if (chunkType == 'F')
                     {
                         bMoreFragments = FALSE;
@@ -750,10 +734,21 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                                                   pinfo,
                                                   opcua_reqid, /* ID for fragments belonging together */
                                                   NULL,
-                                                  opcua_frag_seqnum, /* fragment sequence number */
+                                                  first_frag ? 0 : opcua_seqno, /* fragment sequence number */
                                                   payload_len,
                                                   bMoreFragments); /* More fragments? */
 
+                if (first_frag) {
+                        /* the UA protocol does not number the chunks beginning
+                         * from 0 but uses the common sequence number. We
+                         * handle that in Wireshark by setting the sequence
+                         * offset here, after passing in 0 for the first
+                         * fragment. For later fragments we can use the
+                         * sequence number as contained in the protocol.
+                         */
+
+                        fragment_add_seq_offset(&opcua_reassembly_table, pinfo, opcua_reqid, NULL, opcua_seqno);
+                }
                 reassembled_tvb = process_reassembled_data(tvb,
                                                    offset,
                                                    pinfo,
