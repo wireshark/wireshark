@@ -282,7 +282,7 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                        arbitrary value, so we have to fake the numbers in the stored fragments.
                        this way Wireshark reassembles the message, as it expects the fragment
                        sequence numbers to start at 0 */
-                    for (frag_i = frag_msg->next; frag_i; frag_i = frag_i->next) {}
+                    for (frag_i = frag_msg->next; frag_i && frag_i->next; frag_i = frag_i->next) {}
                     if (frag_i) {
                         opcua_seqnum = frag_i->offset + 1;
                     } else {
