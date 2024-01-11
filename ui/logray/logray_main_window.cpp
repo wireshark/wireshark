@@ -2355,7 +2355,7 @@ void LograyMainWindow::initExportObjectsMenus()
     eo_iterate_tables(addExportObjectsMenuItem, this);
 }
 
-bool LograyMainWindow::addFollowStreamMenuItem(const void *key, void *value, void *userdata)
+bool LograyMainWindow::addFollowStreamMenuItem(const void *key _U_, void *value, void *userdata)
 {
     register_follow_t *follow = (register_follow_t*)value;
     LograyMainWindow *window = (LograyMainWindow*)userdata;
