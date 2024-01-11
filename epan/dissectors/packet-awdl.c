@@ -88,7 +88,18 @@ static int hf_awdl_datastate_extflags;
 static int hf_awdl_datastate_extflags_0;
 static int hf_awdl_datastate_extflags_1;
 static int hf_awdl_datastate_extflags_2;
-static int hf_awdl_datastate_extflags_3to15;
+static int hf_awdl_datastate_extflags_3;
+static int hf_awdl_datastate_extflags_4;
+static int hf_awdl_datastate_extflags_5;
+static int hf_awdl_datastate_extflags_6;
+static int hf_awdl_datastate_extflags_7;
+static int hf_awdl_datastate_extflags_8;
+static int hf_awdl_datastate_extflags_9;
+static int hf_awdl_datastate_extflags_10;
+static int hf_awdl_datastate_extflags_11;
+static int hf_awdl_datastate_extflags_12;
+static int hf_awdl_datastate_extflags_13;
+static int hf_awdl_datastate_extflags_14to15;
 static int hf_awdl_datastate_infra_channel;
 static int hf_awdl_datastate_countrycode;
 static int hf_awdl_datastate_social_channel;
@@ -104,7 +115,10 @@ static int hf_awdl_datastate_umi;
 static int hf_awdl_datastate_umioptions;
 static int hf_awdl_datastate_umioptions_length;
 static int hf_awdl_datastate_logtrigger;
-static int hf_awdl_datastate_undecoded;
+static int hf_awdl_datastate_rlfc;
+static int hf_awdl_datastate_active_time;
+static int hf_awdl_datastate_aw_sequence_counter;
+static int hf_awdl_datastate_update_counter;
 
 static int hf_awdl_synctree_addr;
 
@@ -424,12 +438,14 @@ static const value_string awdl_chanseq_fill_chan[] = {
 enum {
   AWDL_VERSION_MACOS = 1,
   AWDL_VERSION_IOS = 2,
+  AWDL_VERSION_WATCHOS = 4,
   AWDL_VERSION_TVOS = 8,
 };
 
 static const value_string awdl_version_devclass[] = {
   { AWDL_VERSION_MACOS, "macOS" },
-  { AWDL_VERSION_IOS, "iOS or watchOS" },
+  { AWDL_VERSION_IOS, "iOS" },
+  { AWDL_VERSION_WATCHOS, "watchOS" },
   { AWDL_VERSION_TVOS, "tvOS" },
   { 0, NULL }
 };
@@ -757,7 +773,7 @@ awdl_tag_channel_sequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     chanlist_tree = proto_item_add_subtree(chanlist_item, ett_awdl_channelseq_channel_list);
     for (guint i = 0; i < channels; i++) {
       /* channel number is 2nd byte */
-      channel_item = proto_tree_add_item_ret_uint(chanlist_tree, hf_awdl_channelseq_channel, tvb, offset, 2,
+      channel_item = proto_tree_add_item_ret_uint(chanlist_tree, hf_awdl_channelseq_channel, tvb, offset + 1, 1,
                                                   ENC_LITTLE_ENDIAN, &chan_number);
       channel_tree = proto_item_add_subtree(channel_item, ett_awdl_channelseq_channel);
       proto_tree_add_bitmask(channel_tree, tvb, offset, hf_awdl_channelseq_channel_flags,
@@ -778,8 +794,8 @@ awdl_tag_channel_sequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     chanlist_item = proto_tree_add_item(tree, hf_awdl_channelseq_channel_list, tvb, offset, 2 * channels, ENC_NA);
     chanlist_tree = proto_item_add_subtree(chanlist_item, ett_awdl_channelseq_channel_list);
     for (guint i = 0; i < channels; i++) {
-      /* channel number is 2nd byte */
-      channel_item = proto_tree_add_item_ret_uint(chanlist_tree, hf_awdl_channelseq_channel, tvb, offset, 2,
+      /* channel number is 1st byte */
+      channel_item = proto_tree_add_item_ret_uint(chanlist_tree, hf_awdl_channelseq_channel, tvb, offset, 1,
                                                   ENC_LITTLE_ENDIAN, &chan_number);
       channel_tree = proto_item_add_subtree(channel_item, ett_awdl_channelseq_channel);
       proto_tree_add_item(channel_tree, hf_awdl_channelseq_channel_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -962,7 +978,18 @@ awdl_tag_datapath_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     &hf_awdl_datastate_extflags_0,
     &hf_awdl_datastate_extflags_1,
     &hf_awdl_datastate_extflags_2,
-    &hf_awdl_datastate_extflags_3to15,
+    &hf_awdl_datastate_extflags_3,
+    &hf_awdl_datastate_extflags_4,
+    &hf_awdl_datastate_extflags_5,
+    &hf_awdl_datastate_extflags_6,
+    &hf_awdl_datastate_extflags_7,
+    &hf_awdl_datastate_extflags_8,
+    &hf_awdl_datastate_extflags_9,
+    &hf_awdl_datastate_extflags_10,
+    &hf_awdl_datastate_extflags_11,
+    &hf_awdl_datastate_extflags_12,
+    &hf_awdl_datastate_extflags_13,
+    &hf_awdl_datastate_extflags_14to15,
     NULL
   };
 
@@ -1020,23 +1047,23 @@ awdl_tag_datapath_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                            ett_awdl_datastate_extflags, extflags_fields, ENC_LITTLE_ENDIAN);
     offset += 2;
 
+    if (extflags & 0x1) {
+      /* The logtrigger is actually two bytes. */
+      proto_tree_add_item(tree, hf_awdl_datastate_logtrigger, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+    }
     if (extflags & 0x4) {
-      proto_tree_add_item(tree, hf_awdl_datastate_logtrigger, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      /* Meaning unknown. */
+      proto_tree_add_item(tree, hf_awdl_datastate_rlfc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
       offset += 4;
     }
-    if (extflags & 0x1) {
-      /* TODO add actual fields
-       *
-       * Binary: IO80211Family
-       * Method: IO80211AWDLPeer::parseAwdlDataPathTLVAndTakeAction
-       *
-       * __cstring:0000000000091E2A aRlfc           db 'RLFC',0
-       * __cstring:0000000000091E2F aMsecsince      db 'msecSince',0
-       * __cstring:0000000000091E39 aAwseq          db 'awSeq',0
-       * __cstring:0000000000091E3F aPayupdatecount db 'payUpdateCounter',0
-       */
-      proto_tree_add_item(tree, hf_awdl_datastate_undecoded, tvb, offset, 14, ENC_NA);
-      offset += 14;
+    if (extflags & 0x40) {
+      proto_tree_add_item(tree, hf_awdl_datastate_active_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(tree, hf_awdl_datastate_aw_sequence_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(tree, hf_awdl_datastate_update_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      offset += 4;
     }
   }
 
@@ -1654,7 +1681,7 @@ void proto_register_awdl(void)
       }
     },
     { &hf_awdl_datastate_flags_3,
-      { "Bit 3", "awdl.datastate.flags.3",
+      { "RSDB Support", "awdl.datastate.flags.3",
         FT_BOOLEAN, 16, NULL, 0x0008, NULL, HFILL
       }
     },
@@ -1664,17 +1691,17 @@ void proto_register_awdl(void)
       }
     },
     { &hf_awdl_datastate_flags_5,
-      { "Bit 5", "awdl.datastate.flags.5",
+      { "Dualband Support", "awdl.datastate.flags.5",
         FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_flags_6,
-      { "Is AirPlay (?)", "awdl.datastate.flags.6",
+      { "AirPlay Sink", "awdl.datastate.flags.6",
         FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_flags_7,
-      { "Bit 7", "awdl.datastate.flags.7",
+      { "Follow Channel Sequence", "awdl.datastate.flags.7",
         FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL
       }
     },
@@ -1689,12 +1716,12 @@ void proto_register_awdl(void)
       }
     },
     { &hf_awdl_datastate_flags_10,
-      { "Bit 10", "awdl.datastate.flags.10",
+      { "AirPlay Solo Mode", "awdl.datastate.flags.10",
         FT_BOOLEAN, 16, NULL, 0x0400, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_flags_11,
-      { "Bit 11", "awdl.datastate.flags.11",
+      { "UMI Supported", "awdl.datastate.flags.11",
         FT_BOOLEAN, 16, NULL, 0x0800, NULL, HFILL
       }
     },
@@ -1704,12 +1731,12 @@ void proto_register_awdl(void)
       }
     },
     { &hf_awdl_datastate_flags_13,
-      { "Bit 13", "awdl.datastate.flags.13",
+      { "Real-Time", "awdl.datastate.flags.13",
         FT_BOOLEAN, 16, NULL, 0x2000, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_flags_14,
-      { "Is Rangeable", "awdl.datastate.flags.14",
+      { "Rangeable", "awdl.datastate.flags.14",
         FT_BOOLEAN, 16, NULL, 0x4000, NULL, HFILL
       }
     },
@@ -1797,7 +1824,7 @@ void proto_register_awdl(void)
       }
     },
     { &hf_awdl_datastate_extflags_0,
-      { "Undecoded (?)", "awdl.datastate.extflags.0",
+      { "Logtrigger ID", "awdl.datastate.extflags.0",
         FT_BOOLEAN, 16, NULL, 0x1, NULL, HFILL
       }
     },
@@ -1807,24 +1834,96 @@ void proto_register_awdl(void)
       }
     },
     { &hf_awdl_datastate_extflags_2,
-      { "Logtrigger ID", "awdl.datastate.extflags.2",
+      { "RLFC", "awdl.datastate.extflags.2",
         FT_BOOLEAN, 16, NULL, 0x4, NULL, HFILL
       }
     },
-    { &hf_awdl_datastate_extflags_3to15,
-      { "Unknown", "awdl.datastate.extflags.3to15",
-        FT_UINT16, BASE_HEX_DEC, NULL, 0xfff8, NULL, HFILL
+    { &hf_awdl_datastate_extflags_3,
+      { "Is Social Channel Map Supported", "awdl.datastate.extflags.3",
+        FT_BOOLEAN, 16, NULL, 0x8, NULL, HFILL
+      }
+    },
+    { &hf_awdl_datastate_extflags_4,
+      { "Dynamic SDB Support", "awdl.datastate.extflags.4",
+        FT_BOOLEAN, 16, NULL, 0x10, NULL, HFILL
+      }
+    },
+    { &hf_awdl_datastate_extflags_5,
+      { "Misc", "awdl.datastate.extflags.5",
+        FT_BOOLEAN, 16, NULL, 0x20,
+        "Indicates the presence of the rlfc, active_time and update_counter fields.", HFILL
+      }
+    },
+    { &hf_awdl_datastate_extflags_6,
+      { "DFS Proxy Support", "awdl.datastate.extflags.6",
+        FT_BOOLEAN, 16, NULL, 0x40, NULL, HFILL
+      }
+    },
+    { &hf_awdl_datastate_extflags_7,
+      { "Unknown", "awdl.datastate.extflags.7",
+        FT_BOOLEAN, 16, NULL, 0x80, NULL, HFILL
+      }
+    },
+    { &hf_awdl_datastate_extflags_8,
+      { "High Efficiency Support", "awdl.datastate.extflags.8",
+        FT_BOOLEAN, 16, NULL, 0x100, NULL, HFILL
+      }
+    },
+    { &hf_awdl_datastate_extflags_9,
+      { "Sidekick Hub", "awdl.datastate.extflags.9",
+        FT_BOOLEAN, 16, NULL, 0x200, NULL, HFILL
+      }
+    },
+    { &hf_awdl_datastate_extflags_10,
+      { "Fast Discovery Enabled", "awdl.datastate.extflags.10",
+        FT_BOOLEAN, 16, NULL, 0x400, NULL, HFILL
+      }
+    },
+    { &hf_awdl_datastate_extflags_11,
+      { "WiFi 6E Support", "awdl.datastate.extflags.11",
+        FT_BOOLEAN, 16, NULL, 0x800, NULL, HFILL
+      }
+    },
+    { &hf_awdl_datastate_extflags_12,
+      { "Ultra Low Latency Infra Supported", "awdl.datastate.extflags.12",
+        FT_BOOLEAN, 16, NULL, 0x1000, NULL, HFILL
+      }
+    },
+    { &hf_awdl_datastate_extflags_13,
+      { "In Pro Mode", "awdl.datastate.extflags.13",
+        FT_BOOLEAN, 16, NULL, 0x2000, NULL, HFILL
+      }
+    },
+    { &hf_awdl_datastate_extflags_14to15,
+      { "Unknown", "awdl.datastate.extflags.14to15",
+        FT_UINT16, BASE_HEX_DEC, NULL, 0xc000, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_logtrigger,
       { "Logtrigger ID", "awdl.datastate.logtrigger",
-        FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL
+        FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
       }
     },
-    { &hf_awdl_datastate_undecoded,
-      { "Undecoded", "awdl.datastate.undecoded",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "Possibly contains 'RLFC', a timestamp in ms, a AW sequence number, and 'payUpdateCounter'", HFILL
+    { &hf_awdl_datastate_rlfc,
+      { "RLFC", "awdl.datastate.rlfc",
+        FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL
+      }
+    },
+    { &hf_awdl_datastate_active_time,
+      { "Active Time", "awdl.datastate.active_time",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "The amount of milliseconds, which have passed since the activation of the peer.", HFILL
+      }
+    },
+    { &hf_awdl_datastate_aw_sequence_counter,
+      { "AW Sequence Counter", "awdl.datastate.aw_sequence_counter",
+        FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL
+      }
+    },
+    { &hf_awdl_datastate_update_counter,
+      { "Update Counter", "awdl.datastate.update_counter",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Incremented by one on every AF change.", HFILL
       }
     },
 
