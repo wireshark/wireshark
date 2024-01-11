@@ -27,19 +27,28 @@
 
 typedef QList<int> PointList;
 
+/*
+ * When sorting, QSortFilterProxyModel creates its own mapping instead
+ * of using the QModelIndex mapping with mapToSource to determine which
+ * column in the proxy model maps to which column in the source. Its own
+ * mapping is always done in order; this means that it's easier if all
+ * the Views of this model keep the columns in the same relative order,
+ * but can omit columns. (If you really need to change the order,
+ * QHeaderView::swapSections() can be used.)
+ */
 enum InterfaceTreeColumns
 {
-    IFTREE_COL_EXTCAP,
+    IFTREE_COL_EXTCAP,         // InterfaceFrame interfaceTree
     IFTREE_COL_EXTCAP_PATH,
-    IFTREE_COL_NAME,
-    IFTREE_COL_DESCRIPTION,
-    IFTREE_COL_DISPLAY_NAME,
-    IFTREE_COL_COMMENT,
-    IFTREE_COL_HIDDEN,
+    IFTREE_COL_HIDDEN,         // ManageInterfaceDialog localView
+    IFTREE_COL_DISPLAY_NAME,   // InterfaceFrame interfaceTree
+    IFTREE_COL_DESCRIPTION,    // ManageInterfaceDialog localView
+    IFTREE_COL_NAME,           // ManageInterfaceDialog localView
+    IFTREE_COL_COMMENT,        // ManageInterfaceDialog localView
+    IFTREE_COL_STATS,          // InterfaceFrame interfaceTree
     IFTREE_COL_DLT,
     IFTREE_COL_PROMISCUOUSMODE,
     IFTREE_COL_TYPE,
-    IFTREE_COL_STATS,
     IFTREE_COL_ACTIVE,
     IFTREE_COL_SNAPLEN,
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
@@ -49,7 +58,7 @@ enum InterfaceTreeColumns
     IFTREE_COL_MONITOR_MODE,
 #endif
     IFTREE_COL_CAPTURE_FILTER,
-    IFTREE_COL_PIPE_PATH,
+    IFTREE_COL_PIPE_PATH,      // ManageInterfaceDialog pipeView
     IFTREE_COL_MAX /* is not being displayed, it is the definition for the maximum numbers of columns */
 };
 

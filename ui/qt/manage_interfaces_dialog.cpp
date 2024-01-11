@@ -197,10 +197,13 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     proxyModel->setRemoteDisplay(false);
 #endif
     proxyModel->setFilterByType(false);
+    proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
 
     ui->localView->setModel(proxyModel);
     ui->localView->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_HIDDEN));
     ui->localView->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_NAME));
+    ui->localView->header()->setSortIndicator(-1, Qt::AscendingOrder);
+    ui->localView->setSortingEnabled(true);
 
     pipeProxyModel = new InterfaceSortFilterModel(this);
     columns.clear();
