@@ -2508,7 +2508,7 @@ verify_krb5_pac_ticket_checksum(proto_tree *tree _U_,
 	}
 	checksum.length = MIN(checksum.length, (unsigned int)checksum_length);
 
-	tepdata.data = (void *)(uintptr_t)tepbuffer;
+	tepdata.data = (void *)tepbuffer;
 	tepdata.length = teplength;
 
 	ret = decode_krb5_enc_tkt_part(&tepdata, &tep);
