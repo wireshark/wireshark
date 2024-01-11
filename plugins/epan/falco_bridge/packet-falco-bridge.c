@@ -34,6 +34,7 @@
 
 #include <epan/exceptions.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/proto.h>
 #include <epan/proto_data.h>
 #include <epan/conversation.h>
@@ -89,6 +90,8 @@ static int ett_lineage[N_PROC_LINEAGE_ENTRIES];
 static int ett_sinsp_enriched;
 static int ett_sinsp_span;
 static int ett_address;
+
+static gboolean pref_show_internal = false;
 
 static dissector_table_t ptype_dissector_table;
 
@@ -430,6 +433,14 @@ proto_register_falcoplugin(void)
     proto_syscalls[SSC_FDLIST] = proto_register_protocol("File Descriptor List", "Falco FD List", "fdlist");
     proto_syscalls[SSC_OTHER] = proto_register_protocol("Unknown or Miscellaneous Falco", "Falco Misc", "falco");
 
+    // Preferences
+    module_t *falco_bridge_module = prefs_register_protocol(proto_falco_bridge, NULL);
+    prefs_register_bool_preference(falco_bridge_module, "show_internal_events",
+                                   "Show internal events",
+                                   "Show internal libsinsp events in the event list.",
+                                   &pref_show_internal);
+
+
     /*
      * Create the dissector table that we will use to route the dissection to
      * the appropriate Falco plugin.
@@ -659,7 +670,9 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
 
     if (sinsp_fields_count == 0) {
         col_append_str(pinfo->cinfo, COL_INFO, " [Internal event]");
-        pinfo->fd->passed_dfilter = false;
+        if (!pref_show_internal) {
+            pinfo->fd->passed_dfilter = false;
+        }
         return tvb_captured_length(tvb);
     }
 
