@@ -637,7 +637,7 @@ void parseEndpointDescription(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
   proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, ett_opcua_EndpointDescription, &ti, "%s: EndpointDescription", szFieldName);
   parseString(subtree, tvb, pinfo, pOffset, hf_opcua_EndpointUrl);
   parseApplicationDescription(subtree, tvb, pinfo, pOffset, "Server");
-  parseByteString(subtree, tvb, pinfo, pOffset, hf_opcua_ServerCertificate);
+  parseCertificate(subtree, tvb, pinfo, pOffset, hf_opcua_ServerCertificate);
   parseMessageSecurityMode(subtree, tvb, pinfo, pOffset);
   parseString(subtree, tvb, pinfo, pOffset, hf_opcua_SecurityPolicyUri);
   /* Array length field ignored: NoOfUserIdentityTokens */
@@ -1817,7 +1817,7 @@ void parseSessionSecurityDiagnosticsDataType(proto_tree *tree, tvbuff_t *tvb, pa
   parseString(subtree, tvb, pinfo, pOffset, hf_opcua_TransportProtocol);
   parseMessageSecurityMode(subtree, tvb, pinfo, pOffset);
   parseString(subtree, tvb, pinfo, pOffset, hf_opcua_SecurityPolicyUri);
-  parseByteString(subtree, tvb, pinfo, pOffset, hf_opcua_ClientCertificate);
+  parseCertificate(subtree, tvb, pinfo, pOffset, hf_opcua_ClientCertificate);
   proto_item_set_end(ti, tvb, *pOffset);
 }
 void parseServiceCounterDataType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)

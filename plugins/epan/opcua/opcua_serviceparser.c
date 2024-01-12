@@ -360,7 +360,7 @@ void parseCreateSessionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pin
   parseString(subtree, tvb, pinfo, pOffset, hf_opcua_EndpointUrl);
   parseString(subtree, tvb, pinfo, pOffset, hf_opcua_SessionName);
   parseByteString(subtree, tvb, pinfo, pOffset, hf_opcua_ClientNonce);
-  parseByteString(subtree, tvb, pinfo, pOffset, hf_opcua_ClientCertificate);
+  parseCertificate(subtree, tvb, pinfo, pOffset, hf_opcua_ClientCertificate);
   parseDouble(subtree, tvb, pinfo, pOffset, hf_opcua_RequestedSessionTimeout);
   parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_MaxResponseMessageSize);
   proto_item_set_end(ti, tvb, *pOffset);
@@ -375,7 +375,7 @@ void parseCreateSessionResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pi
   parseNodeId(subtree, tvb, pinfo, pOffset, "AuthenticationToken");
   parseDouble(subtree, tvb, pinfo, pOffset, hf_opcua_RevisedSessionTimeout);
   parseByteString(subtree, tvb, pinfo, pOffset, hf_opcua_ServerNonce);
-  parseByteString(subtree, tvb, pinfo, pOffset, hf_opcua_ServerCertificate);
+  parseCertificate(subtree, tvb, pinfo, pOffset, hf_opcua_ServerCertificate);
   /* Array length field ignored: NoOfServerEndpoints */
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "ServerEndpoints", "EndpointDescription", parseEndpointDescription, ett_opcua_array_EndpointDescription);
   /* Array length field ignored: NoOfServerSoftwareCertificates */
