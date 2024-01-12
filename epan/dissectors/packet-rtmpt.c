@@ -484,6 +484,8 @@ typedef struct rtmpt_packet {
                 guint32  offset;
         } data;
 
+        wmem_list_t *frames;
+
         /* used during unchunking */
         int              alloc;
         int              want;
@@ -549,6 +551,14 @@ typedef struct rtmpt_conv {
         wmem_tree_t *chunksize[2];
         wmem_tree_t *txids[2];
 } rtmpt_conv_t;
+
+static void
+rtmpt_packet_mark_depended(gpointer data, gpointer user_data)
+{
+    frame_data *fd = (frame_data *)user_data;
+    uint32_t frame_num = GPOINTER_TO_UINT(data);
+    mark_frame_as_depended_upon(fd, frame_num);
+}
 
 #ifdef DEBUG_RTMPT
 static void rtmpt_debug(const char *fmt, ...)
@@ -2222,6 +2232,9 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                         tp->isresponse = FALSE;
                         tp->otherframe = 0;
 
+                        tp->frames     = wmem_list_new(wmem_file_scope());
+                        wmem_list_prepend(tp->frames, GUINT_TO_POINTER(pinfo->num));
+
                         /* Save the header information for future defaulting needs */
                         ti->ts  = ts;
                         ti->tsd = tsd;
@@ -2321,6 +2334,10 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                         tp->data.p = wmem_realloc(wmem_file_scope(), tp->data.p, tp->alloc);
                 }
                 tvb_memcpy(tvb, tp->data.p+tp->have, offset, want);
+                wmem_list_frame_t *frame_head = wmem_list_head(tp->frames);
+                if (wmem_list_frame_data(frame_head) != GUINT_TO_POINTER(pinfo->num)) {
+                        wmem_list_prepend(tp->frames, GUINT_TO_POINTER(pinfo->num));
+                }
 
                 if (tf) {
                         tf->have += want;
@@ -2342,6 +2359,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                 if (tp->have == tp->want) {
                         /* Whole packet is complete */
                         wmem_tree_insert32(rconv->packets[cdir], tp->lastseq, tp);
+                        wmem_list_foreach(tp->frames, rtmpt_packet_mark_depended, pinfo->fd);
 
                         pktbuf = tvb_new_child_real_data(tvb, tp->data.p, tp->have, tp->have);
                         add_new_data_source(pinfo, pktbuf, "Unchunked RTMP");
