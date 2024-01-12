@@ -605,7 +605,7 @@ void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath)
     sinsp_span->sfe_lengths.clear();
     sinsp_span->sfe_infos.clear();
     sinsp_span->inspector.open_savefile(filepath);
-    sinsp_span->str_chunk = wmem_map_new(wmem_file_scope(), wmem_str_hash, g_str_equal);
+    sinsp_span->str_chunk = wmem_map_new(wmem_file_scope(), g_str_hash, g_str_equal);
 
 #ifdef SS_MEMORY_STATISTICS
     alloc_sfe_bytes = 0;
