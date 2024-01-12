@@ -4,3 +4,5 @@ idl2wrs Parlay.idl
 
 The Parlay.idl file includes all the other .idl files to create one
 dissector for Parlay.
+2023-01-12 The Parlay dissector has been removed on the assumption that it is no longer required. These files will be keept around for a while
+if the need to regenerate it should arise.
