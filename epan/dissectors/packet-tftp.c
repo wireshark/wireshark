@@ -779,7 +779,7 @@ is_valid_request_body(tvbuff_t *tvb)
   guint len = tvb_strsize(tvb, offset);
   const gchar* mode = tvb_format_stringzpad(wmem_packet_scope(), tvb, offset, len);
 
-  const gchar* modes[] = {"netscii", "octet", "mail"};
+  const gchar* modes[] = {"netascii", "octet", "mail"};
   for(guint i = 0; i < array_length(modes); ++i) {
     if (g_ascii_strcasecmp(mode, modes[i]) == 0) return TRUE;
   }
