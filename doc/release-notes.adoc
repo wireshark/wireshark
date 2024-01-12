@@ -159,6 +159,10 @@ EGNOS Messager Server (EMS) files
 --
 
 // === New and Updated Capture Interfaces support
+[commaize]
+--
+u-blox GNSS receivers
+--
 
 //=== New and Updated Codec support
 

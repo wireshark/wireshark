@@ -179,15 +179,14 @@ static const value_string UBX_MSG_CLASS_ID[] = {
     {0, NULL},
 };
 
-/* mapping UBX GNSS IDs to constellation name */
 static const value_string UBX_GNSS_ID[] = {
-    {0, "GPS"},
-    {1, "SBAS"},
-    {2, "Galileo"},
-    {3, "Beidou"},
-    {4, "IMES"},
-    {5, "QZSS"},
-    {6, "Glonass"},
+    {GNSS_ID_GPS,     "GPS"},
+    {GNSS_ID_SBAS,    "SBAS"},
+    {GNSS_ID_GALILEO, "Galileo"},
+    {GNSS_ID_BEIDOU,  "Beidou"},
+    {GNSS_ID_IMES,    "IMES"},
+    {GNSS_ID_QZSS,    "QZSS"},
+    {GNSS_ID_GLONASS, "Glonass"},
     {0, NULL},
 };
 
@@ -257,6 +256,62 @@ static const value_string UBX_ORBIT_SOURCE[] = {
     {0, NULL}
 };
 
+/* CFG-GNSS GPS sigCfgMsk */
+static const value_string UBX_CFG_GNSS_GPS_SIGCFGMASK[] = {
+    {0x01, "GPS L1C/A"},
+    {0x10, "GPS L2C"},
+    {0, NULL}
+};
+
+/* CFG-GNSS SBAS sigCfgMsk */
+static const value_string UBX_CFG_GNSS_SBAS_SIGCFGMASK[] = {
+    {0x01, "SBAS L1C/A"},
+    {0, NULL}
+};
+
+/* CFG-GNSS Galileo sigCfgMsk */
+static const value_string UBX_CFG_GNSS_GAL_SIGCFGMASK[] = {
+    {0x01, "Galileo E1"},
+    {0x20, "Galileo E5b"},
+    {0, NULL}
+};
+
+/* CFG-GNSS BeiDou sigCfgMsk */
+static const value_string UBX_CFG_GNSS_BDS_SIGCFGMASK[] = {
+    {0x01, "BeiDou B1I"},
+    {0x10, "BeiDou B2I"},
+    {0, NULL}
+};
+
+/* CFG-GNSS IMES sigCfgMsk */
+static const value_string UBX_CFG_GNSS_IMES_SIGCFGMASK[] = {
+    {0x01, "IMES L1"},
+    {0, NULL}
+};
+
+/* CFG-GNSS QZSS sigCfgMsk */
+static const value_string UBX_CFG_GNSS_QZSS_SIGCFGMASK[] = {
+    {0x01, "QZSS L1C/A"},
+    {0x04, "QZSS L1S"},
+    {0x10, "QZSS L2C"},
+    {0, NULL}
+};
+
+/* CFG-GNSS Glonass sigCfgMsk */
+static const value_string UBX_CFG_GNSS_GLO_SIGCFGMASK[] = {
+    {0x01, "Glonass L1"},
+    {0x10, "Glonass L2"},
+    {0, NULL}
+};
+
+
+/* SBAS testbed description */
+static const value_string UBX_SBAS_TESTBED[] = {
+    {0, "Ignore data when in test mode (SBAS msg 0)"},
+    {1, "Use data anyhow"},
+    {0, NULL}
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_ubx;
 
@@ -264,6 +319,78 @@ static int hf_ubx_preamble;
 static int hf_ubx_msg_class_id;
 static int hf_ubx_payload_len;
 static int hf_ubx_chksum;
+
+static int hf_ubx_ack_ack;
+static int hf_ubx_ack_ack_msg_class_id;
+
+static int hf_ubx_ack_nak;
+static int hf_ubx_ack_nak_msg_class_id;
+
+static int hf_ubx_cfg_gnss;
+static int hf_ubx_cfg_gnss_version;
+static int hf_ubx_cfg_gnss_numtrkchhw;
+static int hf_ubx_cfg_gnss_numtrkchuse;
+static int hf_ubx_cfg_gnss_numconfigblocks;
+static int hf_ubx_cfg_gnss_blk_gnssid;
+static int hf_ubx_cfg_gnss_blk_restrkch;
+static int hf_ubx_cfg_gnss_blk_maxtrkch;
+static int hf_ubx_cfg_gnss_blk_reserved1;
+static int hf_ubx_cfg_gnss_blk_enable;
+static int hf_ubx_cfg_gnss_blk_sigcfgmask;
+static int hf_ubx_cfg_gnss_blk_gps_sigcfgmask;
+static int hf_ubx_cfg_gnss_blk_sbas_sigcfgmask;
+static int hf_ubx_cfg_gnss_blk_gal_sigcfgmask;
+static int hf_ubx_cfg_gnss_blk_bds_sigcfgmask;
+static int hf_ubx_cfg_gnss_blk_imes_sigcfgmask;
+static int hf_ubx_cfg_gnss_blk_qzss_sigcfgmask;
+static int hf_ubx_cfg_gnss_blk_glo_sigcfgmask;
+
+static int hf_ubx_cfg_sbas;
+static int hf_ubx_cfg_sbas_mode_enabled;
+static int hf_ubx_cfg_sbas_mode_test;
+static int hf_ubx_cfg_sbas_usage_range;
+static int hf_ubx_cfg_sbas_usage_diffcorr;
+static int hf_ubx_cfg_sbas_usage_integrity;
+static int hf_ubx_cfg_sbas_max_sbas;
+static int hf_ubx_cfg_sbas_scanmode_prn158;
+static int hf_ubx_cfg_sbas_scanmode_prn157;
+static int hf_ubx_cfg_sbas_scanmode_prn156;
+static int hf_ubx_cfg_sbas_scanmode_prn155;
+static int hf_ubx_cfg_sbas_scanmode_prn154;
+static int hf_ubx_cfg_sbas_scanmode_prn153;
+static int hf_ubx_cfg_sbas_scanmode_prn152;
+static int hf_ubx_cfg_sbas_scanmode_prn151;
+static int hf_ubx_cfg_sbas_scanmode_prn150;
+static int hf_ubx_cfg_sbas_scanmode_prn149;
+static int hf_ubx_cfg_sbas_scanmode_prn148;
+static int hf_ubx_cfg_sbas_scanmode_prn147;
+static int hf_ubx_cfg_sbas_scanmode_prn146;
+static int hf_ubx_cfg_sbas_scanmode_prn145;
+static int hf_ubx_cfg_sbas_scanmode_prn144;
+static int hf_ubx_cfg_sbas_scanmode_prn143;
+static int hf_ubx_cfg_sbas_scanmode_prn142;
+static int hf_ubx_cfg_sbas_scanmode_prn141;
+static int hf_ubx_cfg_sbas_scanmode_prn140;
+static int hf_ubx_cfg_sbas_scanmode_prn139;
+static int hf_ubx_cfg_sbas_scanmode_prn138;
+static int hf_ubx_cfg_sbas_scanmode_prn137;
+static int hf_ubx_cfg_sbas_scanmode_prn136;
+static int hf_ubx_cfg_sbas_scanmode_prn135;
+static int hf_ubx_cfg_sbas_scanmode_prn134;
+static int hf_ubx_cfg_sbas_scanmode_prn133;
+static int hf_ubx_cfg_sbas_scanmode_prn132;
+static int hf_ubx_cfg_sbas_scanmode_prn131;
+static int hf_ubx_cfg_sbas_scanmode_prn130;
+static int hf_ubx_cfg_sbas_scanmode_prn129;
+static int hf_ubx_cfg_sbas_scanmode_prn128;
+static int hf_ubx_cfg_sbas_scanmode_prn127;
+static int hf_ubx_cfg_sbas_scanmode_prn126;
+static int hf_ubx_cfg_sbas_scanmode_prn125;
+static int hf_ubx_cfg_sbas_scanmode_prn124;
+static int hf_ubx_cfg_sbas_scanmode_prn123;
+static int hf_ubx_cfg_sbas_scanmode_prn122;
+static int hf_ubx_cfg_sbas_scanmode_prn121;
+static int hf_ubx_cfg_sbas_scanmode_prn120;
 
 static int hf_ubx_nav_dop;
 static int hf_ubx_nav_dop_itow;
@@ -277,6 +404,14 @@ static int hf_ubx_nav_dop_edop;
 
 static int hf_ubx_nav_eoe;
 static int hf_ubx_nav_eoe_itow;
+
+static int hf_ubx_nav_odo;
+static int hf_ubx_nav_odo_version;
+static int hf_ubx_nav_odo_reserved1;
+static int hf_ubx_nav_odo_itow;
+static int hf_ubx_nav_odo_distance;
+static int hf_ubx_nav_odo_totaldistance;
+static int hf_ubx_nav_odo_distancestd;
 
 static int hf_ubx_nav_posecef;
 static int hf_ubx_nav_posecef_itow;
@@ -395,8 +530,15 @@ static dissector_table_t ubx_gnssid_dissector_table;
 static expert_field ei_ubx_chksum;
 
 static int ett_ubx;
+static int ett_ubx_ack_ack;
+static int ett_ubx_ack_nak;
+static int ett_ubx_cfg_gnss;
+static int ett_ubx_cfg_gnss_block[255];
+static int ett_ubx_cfg_sbas;
+static int ett_ubx_cfg_sbas_scanmode;
 static int ett_ubx_nav_dop;
 static int ett_ubx_nav_eoe;
+static int ett_ubx_nav_odo;
 static int ett_ubx_nav_posecef;
 static int ett_ubx_nav_pvt;
 static int ett_ubx_nav_pvt_datetime;
@@ -526,6 +668,221 @@ static int dissect_ubx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     return tvb_captured_length(tvb);
 }
 
+/* Dissect UBX-ACK-ACK message */
+static int dissect_ubx_ack_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UBX-ACK-ACK");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    proto_item *ti = proto_tree_add_item(tree, hf_ubx_ack_ack, tvb, 0, 2, ENC_NA);
+    proto_tree *ubx_ack_ack_tree = proto_item_add_subtree(ti, ett_ubx_ack_ack);
+
+    // dissect the registered fields
+    proto_tree_add_item(ubx_ack_ack_tree, hf_ubx_ack_ack_msg_class_id,
+            tvb, 0, 2, ENC_BIG_ENDIAN);
+
+    return tvb_captured_length(tvb);
+}
+
+/* Dissect UBX-ACK-NAK message */
+static int dissect_ubx_ack_nak(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UBX-ACK-NAK");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    proto_item *ti = proto_tree_add_item(tree, hf_ubx_ack_nak, tvb, 0, 2, ENC_NA);
+    proto_tree *ubx_ack_nak_tree = proto_item_add_subtree(ti, ett_ubx_ack_nak);
+
+    // dissect the registered fields
+    proto_tree_add_item(ubx_ack_nak_tree, hf_ubx_ack_nak_msg_class_id,
+            tvb, 0, 2, ENC_BIG_ENDIAN);
+
+    return tvb_captured_length(tvb);
+}
+
+/* Dissect UBX-CFG-SBAS message */
+static int dissect_ubx_cfg_gnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    guint8 i, num_config_blocks;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UBX-CFG-GNSS");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    num_config_blocks = tvb_get_guint8(tvb, 3);
+
+    proto_item *ti = proto_tree_add_item(tree, hf_ubx_cfg_gnss,
+            tvb, 0, 4 + 8 * num_config_blocks, ENC_NA);
+    proto_tree *ubx_cfg_gnss_tree = proto_item_add_subtree(ti, ett_ubx_cfg_gnss);
+
+    // dissect the registered fields
+    proto_tree_add_item(ubx_cfg_gnss_tree, hf_ubx_cfg_gnss_version,
+            tvb, 0, 1, ENC_NA);
+    proto_tree_add_item(ubx_cfg_gnss_tree, hf_ubx_cfg_gnss_numtrkchhw,
+            tvb, 1, 1, ENC_NA);
+    proto_tree_add_item(ubx_cfg_gnss_tree, hf_ubx_cfg_gnss_numtrkchuse,
+            tvb, 2, 1, ENC_NA);
+    proto_tree_add_item(ubx_cfg_gnss_tree, hf_ubx_cfg_gnss_numconfigblocks,
+            tvb, 3, 1, ENC_NA);
+
+    for (i = 0; i < num_config_blocks; i++) {
+        const guint8 gnss_id = tvb_get_guint8(tvb, 4 + 8 * i);
+        const guint8 res_trk_ch = tvb_get_guint8(tvb, 5 + 8 * i);
+        const guint8 max_trk_ch = tvb_get_guint8(tvb, 6 + 8 * i);
+
+        proto_tree *gnss_blk_tree = proto_tree_add_subtree_format(ubx_cfg_gnss_tree,
+                tvb, 4 + 8 * i, 8, ett_ubx_cfg_gnss_block[i], NULL,
+                "%-7s (Res Trk Ch %2d, Max Trk Ch %2d)",
+                val_to_str_const(gnss_id, UBX_GNSS_ID, "Unknown GNSS ID"),
+                res_trk_ch, max_trk_ch);
+
+        proto_tree_add_item(gnss_blk_tree, hf_ubx_cfg_gnss_blk_gnssid,
+            tvb,  4 + 8 * i, 1, ENC_NA);
+        proto_tree_add_item(gnss_blk_tree, hf_ubx_cfg_gnss_blk_restrkch,
+            tvb,  5 + 8 * i, 1, ENC_NA);
+        proto_tree_add_item(gnss_blk_tree, hf_ubx_cfg_gnss_blk_maxtrkch,
+            tvb,  6 + 8 * i, 1, ENC_NA);
+        proto_tree_add_item(gnss_blk_tree, hf_ubx_cfg_gnss_blk_reserved1,
+            tvb,  7 + 8 * i, 1, ENC_NA);
+        proto_tree_add_item(gnss_blk_tree, hf_ubx_cfg_gnss_blk_enable,
+            tvb,  8 + 8 * i, 4, ENC_LITTLE_ENDIAN);
+
+        int hf;
+        switch (gnss_id) {
+            case GNSS_ID_GPS:
+                hf = hf_ubx_cfg_gnss_blk_gps_sigcfgmask;
+                break;
+            case GNSS_ID_SBAS:
+                hf = hf_ubx_cfg_gnss_blk_sbas_sigcfgmask;
+                break;
+            case GNSS_ID_GALILEO:
+                hf = hf_ubx_cfg_gnss_blk_gal_sigcfgmask;
+                break;
+            case GNSS_ID_BEIDOU:
+                hf = hf_ubx_cfg_gnss_blk_bds_sigcfgmask;
+                break;
+            case GNSS_ID_IMES:
+                hf = hf_ubx_cfg_gnss_blk_imes_sigcfgmask;
+                break;
+            case GNSS_ID_QZSS:
+                hf = hf_ubx_cfg_gnss_blk_qzss_sigcfgmask;
+                break;
+            case GNSS_ID_GLONASS:
+                hf = hf_ubx_cfg_gnss_blk_glo_sigcfgmask;
+                break;
+            default:
+                hf = hf_ubx_cfg_gnss_blk_sigcfgmask;
+        }
+        proto_tree_add_item(gnss_blk_tree, hf,
+            tvb,  8 + 8 * i, 4, ENC_LITTLE_ENDIAN);
+    }
+
+    return tvb_captured_length(tvb);
+}
+
+/* Dissect UBX-CFG-SBAS message */
+static int dissect_ubx_cfg_sbas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UBX-CFG-SBAS");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    proto_item *ti = proto_tree_add_item(tree, hf_ubx_cfg_sbas, tvb, 0, 2, ENC_NA);
+    proto_tree *ubx_cfg_sbas_tree = proto_item_add_subtree(ti, ett_ubx_cfg_sbas);
+
+    // dissect the registered fields
+    proto_tree_add_item(ubx_cfg_sbas_tree, hf_ubx_cfg_sbas_mode_enabled,
+            tvb, 0, 1, ENC_NA);
+    proto_tree_add_item(ubx_cfg_sbas_tree, hf_ubx_cfg_sbas_mode_test,
+            tvb, 0, 1, ENC_NA);
+    proto_tree_add_item(ubx_cfg_sbas_tree, hf_ubx_cfg_sbas_usage_range,
+            tvb, 1, 1, ENC_NA);
+    proto_tree_add_item(ubx_cfg_sbas_tree, hf_ubx_cfg_sbas_usage_diffcorr,
+            tvb, 1, 1, ENC_NA);
+    proto_tree_add_item(ubx_cfg_sbas_tree, hf_ubx_cfg_sbas_usage_integrity,
+            tvb, 1, 1, ENC_NA);
+    proto_tree_add_item(ubx_cfg_sbas_tree, hf_ubx_cfg_sbas_max_sbas,
+            tvb, 2, 1, ENC_NA);
+
+    // scanmode bitmask
+    proto_tree *scanmode_tree = proto_tree_add_subtree(ubx_cfg_sbas_tree,
+            tvb, 3, 5, ett_ubx_cfg_sbas_scanmode, NULL, "Scanmode bitmask");
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn120,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn121,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn122,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn123,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn124,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn125,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn126,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn127,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn128,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn129,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn130,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn131,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn132,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn133,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn134,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn135,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn136,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn137,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn138,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn139,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn140,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn141,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn142,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn143,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn144,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn145,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn146,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn147,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn148,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn149,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn150,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn151,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn152,
+            tvb, 3, 1, ENC_NA);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn153,
+            tvb, 3, 1, ENC_NA);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn154,
+            tvb, 3, 1, ENC_NA);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn155,
+            tvb, 3, 1, ENC_NA);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn156,
+            tvb, 3, 1, ENC_NA);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn157,
+            tvb, 3, 1, ENC_NA);
+    proto_tree_add_item(scanmode_tree, hf_ubx_cfg_sbas_scanmode_prn158,
+            tvb, 3, 1, ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
 /* Dissect UBX-NAV-DOP message */
 static int dissect_ubx_nav_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UBX-NAV-DOP");
@@ -561,6 +918,32 @@ static int dissect_ubx_nav_eoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     // dissect the registered fields
     proto_tree_add_item(ubx_nav_eoe_tree, hf_ubx_nav_eoe_itow,
             tvb, 0, 4, ENC_LITTLE_ENDIAN);
+
+    return tvb_captured_length(tvb);
+}
+
+/* Dissect UBX-NAV-ODO message */
+static int dissect_ubx_nav_odo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UBX-NAV-ODO");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    proto_item *ti = proto_tree_add_item(tree, hf_ubx_nav_odo,
+            tvb, 0, 20, ENC_NA);
+    proto_tree *ubx_nav_odo_tree = proto_item_add_subtree(ti, ett_ubx_nav_odo);
+
+    // dissect the registered fields
+    proto_tree_add_item(ubx_nav_odo_tree, hf_ubx_nav_odo_version,
+            tvb, 0, 1, ENC_NA);
+    proto_tree_add_item(ubx_nav_odo_tree, hf_ubx_nav_odo_reserved1,
+            tvb, 1, 3, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ubx_nav_odo_tree, hf_ubx_nav_odo_itow,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ubx_nav_odo_tree, hf_ubx_nav_odo_distance,
+            tvb, 8, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ubx_nav_odo_tree, hf_ubx_nav_odo_totaldistance,
+            tvb, 12, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ubx_nav_odo_tree, hf_ubx_nav_odo_distancestd,
+            tvb, 16, 4, ENC_LITTLE_ENDIAN);
 
     return tvb_captured_length(tvb);
 }
@@ -947,6 +1330,218 @@ void proto_register_ubx(void) {
             {"Checksum", "ubx.checksum",
                 FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
+        // ACK-ACK
+        {&hf_ubx_ack_ack,
+            {"UBX-ACK-ACK", "ubx.ack.ack",
+                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_ack_ack_msg_class_id,
+            {"Msg Class & ID", "ubx.ack.ack.msg_class_id",
+                FT_UINT16, BASE_HEX, VALS(UBX_MSG_CLASS_ID), 0x0, NULL, HFILL}},
+
+        // ACK-NAK
+        {&hf_ubx_ack_nak,
+            {"UBX-ACK-NAK", "ubx.ack.nak",
+                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_ack_nak_msg_class_id,
+            {"Msg Class & ID", "ubx.ack.nak.msg_class_id",
+                FT_UINT16, BASE_HEX, VALS(UBX_MSG_CLASS_ID), 0x0, NULL, HFILL}},
+
+        // CFG-GNSS
+        {&hf_ubx_cfg_gnss,
+            {"UBX-CFG-GNSS", "ubx.cfg.gnss",
+                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_cfg_gnss_version,
+            {"Version", "ubx.cfg.gnss.version",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_cfg_gnss_numtrkchhw,
+            {"Number of tracking channels available in hardware", "ubx.cfg.gnss.numtrkchhw",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_cfg_gnss_numtrkchuse,
+            {"Number of tracking channels to use", "ubx.cfg.gnss.numtrkchuse",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_cfg_gnss_numconfigblocks,
+            {"Number of configuration blocks following", "ubx.cfg.gnss.numconfigblocks",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_cfg_gnss_blk_gnssid,
+            {"GNSS ID", "ubx.cfg.gnss.gnssid",
+                FT_UINT8, BASE_DEC, VALS(UBX_GNSS_ID), 0x0, NULL, HFILL}},
+        {&hf_ubx_cfg_gnss_blk_restrkch,
+            {"Number of reserved (minimum) tracking channels", "ubx.cfg.gnss.restrkch",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_cfg_gnss_blk_maxtrkch,
+            {"Maximum number of tracking channels", "ubx.cfg.gnss.maxtrkch",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_cfg_gnss_blk_reserved1,
+            {"Reserved", "ubx.cfg.gnss.reserved1",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_cfg_gnss_blk_enable,
+            {"Enabled", "ubx.cfg.gnss.enabled",
+                FT_UINT32, BASE_HEX, NULL, 0x00000001, NULL, HFILL}},
+        {&hf_ubx_cfg_gnss_blk_sigcfgmask,
+            {"Signal configuration mask", "ubx.cfg.gnss.sigcfgmask",
+                FT_UINT32, BASE_HEX, NULL, 0x00ff0000, NULL, HFILL}},
+        {&hf_ubx_cfg_gnss_blk_gps_sigcfgmask,
+            {"Signal configuration mask", "ubx.cfg.gnss.sigcfgmask",
+                FT_UINT32, BASE_HEX, VALS(UBX_CFG_GNSS_GPS_SIGCFGMASK), 0x00ff0000, NULL, HFILL}},
+        {&hf_ubx_cfg_gnss_blk_sbas_sigcfgmask,
+            {"Signal configuration mask", "ubx.cfg.gnss.sigcfgmask",
+                FT_UINT32, BASE_HEX, VALS(UBX_CFG_GNSS_SBAS_SIGCFGMASK), 0x00ff0000, NULL, HFILL}},
+        {&hf_ubx_cfg_gnss_blk_gal_sigcfgmask,
+            {"Signal configuration mask", "ubx.cfg.gnss.sigcfgmask",
+                FT_UINT32, BASE_HEX, VALS(UBX_CFG_GNSS_GAL_SIGCFGMASK), 0x00ff0000, NULL, HFILL}},
+        {&hf_ubx_cfg_gnss_blk_bds_sigcfgmask,
+            {"Signal configuration mask", "ubx.cfg.gnss.sigcfgmask",
+                FT_UINT32, BASE_HEX, VALS(UBX_CFG_GNSS_BDS_SIGCFGMASK), 0x00ff0000, NULL, HFILL}},
+        {&hf_ubx_cfg_gnss_blk_imes_sigcfgmask,
+            {"Signal configuration mask", "ubx.cfg.gnss.sigcfgmask",
+                FT_UINT32, BASE_HEX, VALS(UBX_CFG_GNSS_IMES_SIGCFGMASK), 0x00ff0000, NULL, HFILL}},
+        {&hf_ubx_cfg_gnss_blk_qzss_sigcfgmask,
+            {"Signal configuration mask", "ubx.cfg.gnss.sigcfgmask",
+                FT_UINT32, BASE_HEX, VALS(UBX_CFG_GNSS_QZSS_SIGCFGMASK), 0x00ff0000, NULL, HFILL}},
+        {&hf_ubx_cfg_gnss_blk_glo_sigcfgmask,
+            {"Signal configuration mask", "ubx.cfg.gnss.sigcfgmask",
+                FT_UINT32, BASE_HEX, VALS(UBX_CFG_GNSS_GLO_SIGCFGMASK), 0x00ff0000, NULL, HFILL}},
+
+        // CFG-SBAS
+        {&hf_ubx_cfg_sbas,
+            {"UBX-CFG-SBAS", "ubx.cfg.sbas",
+                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_mode_enabled,
+            {"SBAS enabled", "ubx.cfg.sbas.mode.enabled",
+                FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_mode_test,
+            {"SBAS testbed", "ubx.cfg.sbas.mode.test",
+                FT_UINT8, BASE_HEX, VALS(UBX_SBAS_TESTBED), 0x02, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_usage_range,
+            {"Use SBAS GEOs as a ranging source (for navigation)", "ubx.cfg.sbas.usage.range",
+                FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_usage_diffcorr,
+            {"Use SBAS differential corrections", "ubx.cfg.sbas.usage.diffcorr",
+                FT_UINT8, BASE_HEX, NULL, 0x02, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_usage_integrity,
+            {"Use SBAS integrity information", "ubx.cfg.sbas.usage.integrity",
+                FT_UINT8, BASE_HEX, NULL, 0x04, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_max_sbas,
+            {"Maximum number of SBAS prioritized tracking channels to use", "ubx.cfg.sbas.maxsbas",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn158,
+            {"PRN 158", "ubx.cfg.sbas.scanmode.prn158",
+                FT_UINT8, BASE_HEX, NULL, 0x40, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn157,
+            {"PRN 157", "ubx.cfg.sbas.scanmode.prn157",
+                FT_UINT8, BASE_HEX, NULL, 0x20, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn156,
+            {"PRN 156", "ubx.cfg.sbas.scanmode.prn156",
+                FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn155,
+            {"PRN 155", "ubx.cfg.sbas.scanmode.prn155",
+                FT_UINT8, BASE_HEX, NULL, 0x08, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn154,
+            {"PRN 154", "ubx.cfg.sbas.scanmode.prn154",
+                FT_UINT8, BASE_HEX, NULL, 0x04, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn153,
+            {"PRN 153", "ubx.cfg.sbas.scanmode.prn153",
+                FT_UINT8, BASE_HEX, NULL, 0x02, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn152,
+            {"PRN 152", "ubx.cfg.sbas.scanmode.prn152",
+                FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn151,
+            {"PRN 151", "ubx.cfg.sbas.scanmode.prn151",
+                FT_UINT32, BASE_HEX, NULL, 0x80000000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn150,
+            {"PRN 150", "ubx.cfg.sbas.scanmode.prn150",
+                FT_UINT32, BASE_HEX, NULL, 0x40000000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn149,
+            {"PRN 149", "ubx.cfg.sbas.scanmode.prn149",
+                FT_UINT32, BASE_HEX, NULL, 0x20000000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn148,
+            {"PRN 148", "ubx.cfg.sbas.scanmode.prn148",
+                FT_UINT32, BASE_HEX, NULL, 0x10000000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn147,
+            {"PRN 147", "ubx.cfg.sbas.scanmode.prn147",
+                FT_UINT32, BASE_HEX, NULL, 0x08000000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn146,
+            {"PRN 146", "ubx.cfg.sbas.scanmode.prn146",
+                FT_UINT32, BASE_HEX, NULL, 0x04000000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn145,
+            {"PRN 145", "ubx.cfg.sbas.scanmode.prn145",
+                FT_UINT32, BASE_HEX, NULL, 0x02000000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn144,
+            {"PRN 144", "ubx.cfg.sbas.scanmode.prn144",
+                FT_UINT32, BASE_HEX, NULL, 0x01000000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn143,
+            {"PRN 143", "ubx.cfg.sbas.scanmode.prn143",
+                FT_UINT32, BASE_HEX, NULL, 0x00800000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn142,
+            {"PRN 142", "ubx.cfg.sbas.scanmode.prn142",
+                FT_UINT32, BASE_HEX, NULL, 0x00400000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn141,
+            {"PRN 141", "ubx.cfg.sbas.scanmode.prn141",
+                FT_UINT32, BASE_HEX, NULL, 0x00200000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn140,
+            {"PRN 140", "ubx.cfg.sbas.scanmode.prn140",
+                FT_UINT32, BASE_HEX, NULL, 0x00100000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn139,
+            {"PRN 139", "ubx.cfg.sbas.scanmode.prn139",
+                FT_UINT32, BASE_HEX, NULL, 0x00080000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn138,
+            {"PRN 138", "ubx.cfg.sbas.scanmode.prn138",
+                FT_UINT32, BASE_HEX, NULL, 0x00040000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn137,
+            {"PRN 137", "ubx.cfg.sbas.scanmode.prn137",
+                FT_UINT32, BASE_HEX, NULL, 0x00020000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn136,
+            {"PRN 136", "ubx.cfg.sbas.scanmode.prn136",
+                FT_UINT32, BASE_HEX, NULL, 0x00010000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn135,
+            {"PRN 135", "ubx.cfg.sbas.scanmode.prn135",
+                FT_UINT32, BASE_HEX, NULL, 0x00008000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn134,
+            {"PRN 134", "ubx.cfg.sbas.scanmode.prn134",
+                FT_UINT32, BASE_HEX, NULL, 0x00004000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn133,
+            {"PRN 133", "ubx.cfg.sbas.scanmode.prn133",
+                FT_UINT32, BASE_HEX, NULL, 0x00002000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn132,
+            {"PRN 132", "ubx.cfg.sbas.scanmode.prn132",
+                FT_UINT32, BASE_HEX, NULL, 0x00001000, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn131,
+            {"PRN 131", "ubx.cfg.sbas.scanmode.prn131",
+                FT_UINT32, BASE_HEX, NULL, 0x00000800, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn130,
+            {"PRN 130", "ubx.cfg.sbas.scanmode.prn130",
+                FT_UINT32, BASE_HEX, NULL, 0x00000400, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn129,
+            {"PRN 129", "ubx.cfg.sbas.scanmode.prn129",
+                FT_UINT32, BASE_HEX, NULL, 0x00000200, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn128,
+            {"PRN 128", "ubx.cfg.sbas.scanmode.prn128",
+                FT_UINT32, BASE_HEX, NULL, 0x00000100, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn127,
+            {"PRN 127", "ubx.cfg.sbas.scanmode.prn127",
+                FT_UINT32, BASE_HEX, NULL, 0x00000080, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn126,
+            {"PRN 126", "ubx.cfg.sbas.scanmode.prn126",
+                FT_UINT32, BASE_HEX, NULL, 0x00000040, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn125,
+            {"PRN 125", "ubx.cfg.sbas.scanmode.prn125",
+                FT_UINT32, BASE_HEX, NULL, 0x00000020, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn124,
+            {"PRN 124", "ubx.cfg.sbas.scanmode.prn124",
+                FT_UINT32, BASE_HEX, NULL, 0x00000010, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn123,
+            {"PRN 123", "ubx.cfg.sbas.scanmode.prn123",
+                FT_UINT32, BASE_HEX, NULL, 0x00000008, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn122,
+            {"PRN 122", "ubx.cfg.sbas.scanmode.prn122",
+                FT_UINT32, BASE_HEX, NULL, 0x00000004, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn121,
+            {"PRN 121", "ubx.cfg.sbas.scanmode.prn121",
+                FT_UINT32, BASE_HEX, NULL, 0x00000002, NULL, HFILL}},
+        {&hf_ubx_cfg_sbas_scanmode_prn120,
+            {"PRN 120", "ubx.cfg.sbas.scanmode.prn120",
+                FT_UINT32, BASE_HEX, NULL, 0x00000001, NULL, HFILL}},
+
         // NAV-DOP
         {&hf_ubx_nav_dop,
             {"UBX-NAV-DOP", "ubx.nav.dop",
@@ -983,6 +1578,29 @@ void proto_register_ubx(void) {
         {&hf_ubx_nav_eoe_itow,
             {"iTOW", "ubx.nav.eoe.itow",
                 FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL}},
+
+        // NAV-ODO
+        {&hf_ubx_nav_odo,
+            {"UBX-NAV-ODO", "ubx.nav.odo",
+                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_odo_version,
+            {"Version", "ubx.nav.odo.version",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_odo_reserved1,
+            {"Reserved", "ubx.nav.odo.reserved1",
+                FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_odo_itow,
+            {"iTOW", "ubx.nav.odo.itow",
+                FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_odo_distance,
+            {"Ground distance since last reset", "ubx.nav.odo.distance",
+                FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_meter_meters, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_odo_totaldistance,
+            {"Total cumulative ground distance", "ubx.nav.odo.totaldistance",
+                FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_meter_meters, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_odo_distancestd,
+            {"Ground distance accuracy (1-sigma)", "ubx.nav.odo.distancestd",
+                FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_meter_meters, 0x0, NULL, HFILL}},
 
         // NAV-POSECEF
         {&hf_ubx_nav_posecef,
@@ -1320,8 +1938,14 @@ void proto_register_ubx(void) {
 
     static gint *ett_part[] = {
         &ett_ubx,
+        &ett_ubx_ack_ack,
+        &ett_ubx_ack_nak,
+        &ett_ubx_cfg_gnss,
+        &ett_ubx_cfg_sbas,
+        &ett_ubx_cfg_sbas_scanmode,
         &ett_ubx_nav_dop,
         &ett_ubx_nav_eoe,
+        &ett_ubx_nav_odo,
         &ett_ubx_nav_posecef,
         &ett_ubx_nav_pvt,
         &ett_ubx_nav_pvt_datetime,
@@ -1332,15 +1956,23 @@ void proto_register_ubx(void) {
         &ett_ubx_rxm_sfrbx,
     };
 
-    static gint *ett[array_length(ett_part) + array_length(ett_ubx_nav_sat_sv_info)];
+    static gint *ett[array_length(ett_part)
+        + array_length(ett_ubx_nav_sat_sv_info)
+        + array_length(ett_ubx_cfg_gnss_block)];
 
-    // fill ett with elements from ett_part and pointers to ett_ubx_nav_sat_sv_info elements
+    // fill ett with elements from ett_part,
+    // pointers to ett_ubx_nav_sat_sv_info elements, and
+    // pointers to ett_ubx_cfg_gnss_block elements
     guint16 i;
     for (i = 0; i < array_length(ett_part); i++) {
         ett[i] = ett_part[i];
     }
     for (i = 0; i < array_length(ett_ubx_nav_sat_sv_info); i++) {
         ett[i + array_length(ett_part)] = &ett_ubx_nav_sat_sv_info[i];
+    }
+    for (i = 0; i < array_length(ett_ubx_cfg_gnss_block); i++) {
+        ett[i + array_length(ett_part) + array_length(ett_ubx_nav_sat_sv_info)]
+            = &ett_ubx_cfg_gnss_block[i];
     }
 
     proto_ubx = proto_register_protocol("UBX Protocol", "UBX", "ubx");
@@ -1361,8 +1993,13 @@ void proto_register_ubx(void) {
 }
 
 void proto_reg_handoff_ubx(void) {
+    UBX_REGISTER_DISSECTOR(dissect_ubx_ack_ack,     UBX_ACK_ACK);
+    UBX_REGISTER_DISSECTOR(dissect_ubx_ack_nak,     UBX_ACK_NAK);
+    UBX_REGISTER_DISSECTOR(dissect_ubx_cfg_gnss,    UBX_CFG_GNSS);
+    UBX_REGISTER_DISSECTOR(dissect_ubx_cfg_sbas,    UBX_CFG_SBAS);
     UBX_REGISTER_DISSECTOR(dissect_ubx_nav_dop,     UBX_NAV_DOP);
     UBX_REGISTER_DISSECTOR(dissect_ubx_nav_eoe,     UBX_NAV_EOE);
+    UBX_REGISTER_DISSECTOR(dissect_ubx_nav_odo,     UBX_NAV_ODO);
     UBX_REGISTER_DISSECTOR(dissect_ubx_nav_posecef, UBX_NAV_POSECEF);
     UBX_REGISTER_DISSECTOR(dissect_ubx_nav_pvt,     UBX_NAV_PVT);
     UBX_REGISTER_DISSECTOR(dissect_ubx_nav_sat,     UBX_NAV_SAT);
