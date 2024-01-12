@@ -46,6 +46,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/report_message.h>
+#include <wsutil/strtoi.h>
 
 #include "sinsp-span.h"
 
@@ -723,7 +724,8 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
         }
 
         int32_t arg_num;
-        if (sscanf(hfinfo->abbrev, "evt.arg.%d", &arg_num) != 1) {
+#define EVT_ARG_PFX "evt.arg."
+        if (! (g_str_has_prefix(hfinfo->abbrev, EVT_ARG_PFX) && ws_strtoi32(hfinfo->abbrev + sizeof(EVT_ARG_PFX) - 1, NULL, &arg_num)) ) {
             arg_num = -1;
         }
 
