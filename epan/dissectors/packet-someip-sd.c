@@ -644,11 +644,9 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return;
     }
 
-    if (*ttl == 0) {
-        description = val_to_str(*type, sd_entry_type_negative, "Unknown");
-    } else {
-        description = val_to_str(*type, sd_entry_type_positive, "Unknown");
-    }
+    description = val_to_str_const(*type,
+                                   (*ttl == 0) ? sd_entry_type_negative : sd_entry_type_positive,
+                                   "Unknown");
 
     *ti_entry = proto_tree_add_none_format(tree, hf_someip_sd_entry, tvb, offset, SD_ENTRY_LENGTH, "%s Entry", description);
     tree = proto_item_add_subtree(*ti_entry, ett_someip_sd_entry);
