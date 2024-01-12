@@ -807,9 +807,10 @@ btn:[Copy from]:: Copy the list of user specified display filter buttons from an
 
 The columns in the entries are as follows.
 
-Selecting _Show in toolbar_ causes the column to be shown in the toolbar besides the display filter text entry.
+Selecting _Show in toolbar_ causes the button to be shown in the toolbar besides the display filter text entry.
 
 The _Button Label_ is the text shown on the button in the toolbar.
+The use of a double slash causes the button to create a dropdown list to allow grouping of multiple buttons, e.g. TCP//Syn and TCP//Res.
 
 The _Filter Expression_ is the <<ChWorkBuildDisplayFilterSection,display filter expression>> entered into the display filter text entry when the button is clicked.
 
