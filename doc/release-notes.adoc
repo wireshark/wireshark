@@ -119,20 +119,21 @@ The following features are new (or have been significantly updated) since versio
 * The tshark `-G` option with no argument is deprecated and will be removed in
   a future version. Use `tshark -G fields` to produce the same report.
 
-// === Removed Dissectors
+=== Removed Dissectors
+
+The Parlay dissector has been removed.
 
 //=== New File Format Decoding Support
 
 //[commaize]
 //--
-//RTPDump
 //--
 
 === New Protocol Support
 
 // Add one protocol per line between the -- delimiters in the format
 // “Full protocol name (Abbreviation)”
-// git log --oneline --diff-filter=A --stat v4.1.0rc0.. epan/dissectors plugins
+// git log --oneline --diff-filter=A --stat v4.3.0rc0.. epan/dissectors plugins
 [commaize]
 --
 MAC NR Framed (mac-nr-framed)
