@@ -165,7 +165,9 @@ static gboolean rtmpt_desegment = TRUE;
 #define RTMPT_HANDSHAKE_LENGTH_1      1537
 #define RTMPT_HANDSHAKE_LENGTH_2      3073
 #define RTMPT_HANDSHAKE_LENGTH_3      1536
-#define RTMPT_DEFAULT_CHUNK_SIZE       128
+#define RTMPT_INITIAL_CHUNK_SIZE       128
+
+static guint rtmpt_default_chunk_size = 128;
 
 #define RTMPT_ID_MAX                     65599
 #define RTMPT_TYPE_HANDSHAKE_1        0x100001
@@ -1788,6 +1790,9 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
                                 wmem_tree_insert32(rconv->txids[cdir], tp->txid, GINT_TO_POINTER(pinfo->num));
                         }
                 }
+        } else if (tp->id == RTMPT_TYPE_HANDSHAKE_2 || tp->id == RTMPT_TYPE_HANDSHAKE_3) {
+                guint32 newchunksize = RTMPT_INITIAL_CHUNK_SIZE;
+                wmem_tree_insert32(rconv->chunksize[cdir], tp->lastseq, GINT_TO_POINTER(newchunksize));
         }
 
         if (tp->id <= RTMPT_ID_MAX)
@@ -2161,8 +2166,9 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                                 chunk_size = body_len = 1536;
                 } else {
                         chunk_size = GPOINTER_TO_INT(wmem_tree_lookup32_le(rconv->chunksize[cdir], seq+offset-1));
-                        if (!chunk_size)
-                                chunk_size = RTMPT_DEFAULT_CHUNK_SIZE;
+                        if (!chunk_size) {
+                                chunk_size = rtmpt_default_chunk_size;
+                        }
 
                         if (header_type < 2)
                                 body_len = tf ? pntoh24(tf->saved.d+basic_hlen+3) : tvb_get_ntoh24(tvb, offset+basic_hlen+3);
@@ -2850,6 +2856,12 @@ proto_register_rtmpt(void)
                                        &rtmpt_desegment);
 
         prefs_register_obsolete_preference(rtmpt_module, "max_packet_size");
+
+        prefs_register_uint_preference(rtmpt_module, "default_chunk_size",
+                                       "Default chunk size",
+                                       "Chunk size to use for connections where the initial handshake is missing,"
+                                       " i.e. are already in progress at the beginning of the capture file.",
+                                       10, &rtmpt_default_chunk_size);
 }
 
 void
