@@ -223,6 +223,7 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     ui->filenameLineEdit->setPlaceholderText(tr("Leave blank to use a temporary file"));
 
     ui->rbCompressionNone->setChecked(true);
+    ui->rbTimeNum->setChecked(true);
 
     ui->tempDirLineEdit->setPlaceholderText(g_get_tmp_dir());
     ui->tempDirLineEdit->setText(global_capture_opts.temp_dir);
@@ -1264,6 +1265,14 @@ bool CaptureOptionsDialog::saveOptionsToPreferences()
         global_capture_opts.compress_type = qstring_strdup("gzip");
     }  else {
         global_capture_opts.compress_type = NULL;
+    }
+
+    if (ui->rbTimeNum->isChecked() )  {
+        global_capture_opts.has_nametimenum = true;
+    } else if (ui->rbNumTime->isChecked() )  {
+        global_capture_opts.has_nametimenum = false;
+    }  else {
+        global_capture_opts.has_nametimenum = false;
     }
 
     prefs_main_write();

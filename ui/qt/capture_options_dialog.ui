@@ -483,7 +483,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
             <property name="title">
              <string>compression</string>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout_5">
+            <layout class="QVBoxLayout" name="verticalLayout_4">
              <item>
               <widget class="QRadioButton" name="rbCompressionNone">
                <property name="text">
@@ -501,6 +501,44 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
                </property>
                <attribute name="buttonGroup">
                 <string notr="true">buttonGroup</string>
+               </attribute>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="5" column="1" colspan="2">
+           <widget class="QGroupBox" name="nameTemplateGB">
+            <property name="title">
+             <string>File infix pattern</string>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;In multiple file mode, the date and time and file index number are inserted between filename template and any suffix. Select their order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_5">
+             <item>
+              <widget class="QRadioButton" name="rbTimeNum">
+               <property name="text">
+                <string>YYYYmmDDHHMMSS_NNNNN</string>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Date and time before the file index number. This causes files to sort in creation time order, and keeps files from the same batch closely ordered.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">nameTimeNumBG</string>
+               </attribute>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="rbNumTime">
+               <property name="text">
+                <string>NNNNN_YYYYmmDDHHMMSS</string>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;File index number before the date and time. This is the historic Wireshark ordering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">nameTimeNumBG</string>
                </attribute>
               </widget>
              </item>
@@ -982,5 +1020,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
  <connections/>
  <buttongroups>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="nameTimeNumBG"/>
  </buttongroups>
 </ui>
