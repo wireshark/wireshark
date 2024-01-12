@@ -440,20 +440,14 @@ public:
     }
 
     // Does UE match?
-    bool isMatch(const rlc_3gpp_tap_info *rlt_info) {
+    bool isMatch(const rlc_3gpp_tap_info *rlt_info)
+    {
         return (rat_ == rlt_info->rat) && (ueid_ == rlt_info->ueid);
     }
 
     // Update UE/channels from tap info.
-    void update(const rlc_3gpp_tap_info *tap_info) {
-
-        // Are we ignoring RLC frames that were found in MAC frames, or only those
-        // that were logged separately?
-        if ((!recent.gui_rlc_use_pdus_from_mac &&  tap_info->loggedInMACFrame) ||
-             (recent.gui_rlc_use_pdus_from_mac && !tap_info->loggedInMACFrame)) {
-            return;
-        }
-
+    void update(const rlc_3gpp_tap_info *tap_info)
+    {
         // TODO: update title with number of UEs and frames like MAC does?
 
         // N.B. not really expecting to see common stats - ignoring them.
@@ -547,7 +541,8 @@ public:
     }
 
     // Draw UE entry
-    void draw() {
+    void draw()
+    {
         // Fixed fields only drawn once from constructor so don't redraw here.
 
         /* Calculate bandwidths. */
@@ -608,7 +603,8 @@ public:
     }
 
     // Filter expression for UE.
-    const QString filterExpression(bool showSR, bool showRACH) {
+    const QString filterExpression(bool showSR, bool showRACH)
+    {
         // Create an expression to match with all traffic for this UE.
         QString filter_expr;
 
@@ -855,6 +851,13 @@ tap_packet_status LteRlcStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _pa
         return TAP_PACKET_DONT_REDRAW;
     }
 
+    // Are we ignoring RLC frames that were found in MAC frames, or only those
+    // that were logged separately?
+    if ((!recent.gui_rlc_use_pdus_from_mac &&  rlt_info->loggedInMACFrame) ||
+         (recent.gui_rlc_use_pdus_from_mac && !rlt_info->loggedInMACFrame)) {
+        return TAP_PACKET_DONT_REDRAW;
+    }
+
     ws_dlg->incFrameCount();
 
     // Look for this UE (TODO: avoid linear search if have lots of UEs in capture?)
@@ -1068,7 +1071,8 @@ QList<QVariant> LteRlcStatisticsDialog::treeItemData(QTreeWidgetItem *item) cons
 // Stat command + args
 
 static void
-lte_rlc_statistics_init(const char *args, void*) {
+lte_rlc_statistics_init(const char *args, void*)
+{
     QStringList args_l = QString(args).split(',');
     QByteArray filter;
     if (args_l.length() > 2) {
