@@ -1468,16 +1468,39 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
      * (If it is reassembled data, it shouldn't be a continuation,
      * as reassembly should've gathered the continuations together
      * into a message.)
+     * XXX: Unless it was reassembled because we didn't have enough
+     * data for a NBSS header, it had a first byte that looked like a
+     * message type, but it turned out not to be a message but continuation
+     * data after all. Perhaps we should check even reassembled data,
+     * at least if it's the first message in the conversation.
      */
     if (!tcpinfo->is_reassembled) {
         if (max_data < 4) {
             /*
-             * Not enough data for an NBSS header; assume
-             * it's a continuation of a message.
-             *
-             * XXX - if there's not enough data, we should
-             * attempt to reassemble the data, if the first byte
-             * is a valid message type.
+             * Not enough data for an NBSS header. It could be a message
+             * split into a very small payload, or a continuation of a message.
+             */
+            if (try_val_to_str(msg_type, message_types)) {
+                /*
+                 * The first byte looks like a valid message type.
+                 * Can we do reassembly?
+                 */
+                if (nbss_desegment && pinfo->can_desegment) {
+                    /*
+                     * Yes.  Tell the TCP dissector where the data for this message
+                     * starts in the data it handed us and that we need "some more
+                     * data."  Don't tell it exactly how many bytes we need because
+                     * if/when we ask for even more (after the header) that will
+                     * break reassembly.
+                     */
+                    pinfo->desegment_offset = offset;
+                    pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+                    return tvb_captured_length(tvb);
+                }
+            }
+            /*
+             * Either we can't do reassembly, or this doesn't look
+             * like a valid message type. Mark it as continuation.
              */
             return dissect_continuation_packet(tvb, pinfo, tree);
         }
