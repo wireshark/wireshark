@@ -710,14 +710,15 @@ dissect_zbee_zdp_rsp_nwk_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
     offset += 2;
 
-    if (tvb_bytes_exist(tvb, offset, 2*(int)sizeof(guint8))) {
+    if (tvb_bytes_exist(tvb, offset, 1)) {
         /* The presence of these fields depends on the request message. Include them if they exist. */
         proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_assoc_device_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &assoc);
         offset += 1;
-        proto_tree_add_item(tree, hf_zbee_zdp_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        offset += 1;
 
         if ((tree) && (assoc)) {
+            proto_tree_add_item(tree, hf_zbee_zdp_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+
             field_tree = proto_tree_add_subtree(tree, tvb, offset, assoc*(int)sizeof(guint16),
                             ett_zbee_zdp_assoc_device, NULL, "Associated Device List");
         }
@@ -726,6 +727,7 @@ dissect_zbee_zdp_rsp_nwk_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             offset += 2;
         }
     }
+
 
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
     if (status == ZBEE_ZDP_STATUS_SUCCESS) {
@@ -759,14 +761,15 @@ dissect_zbee_zdp_rsp_ext_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
     offset += 2;
 
-    if (tvb_bytes_exist(tvb, offset, 2*(int)sizeof(guint8))) {
+    if (tvb_bytes_exist(tvb, offset, 1)) {
         /* The presence of these fields depends on the request message. Include them if they exist. */
         proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_assoc_device_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &assoc);
         offset += 1;
-        proto_tree_add_item(tree, hf_zbee_zdp_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        offset += 1;
 
         if ((tree) && (assoc)) {
+            proto_tree_add_item(tree, hf_zbee_zdp_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+
             field_tree = proto_tree_add_subtree(tree, tvb, offset, assoc*(int)sizeof(guint16),
                     ett_zbee_zdp_assoc_device, NULL, "Associated Device List");
         }
