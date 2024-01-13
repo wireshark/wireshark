@@ -1185,6 +1185,7 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
     conversation_t* p_conv, *sdp_conv;
     struct _rtp_conversation_info *p_conv_data;
     wmem_array_t *rtp_conv_info_list = NULL;
+    wmem_map_t *ssrc_number_space = NULL;
 
     /*
      * If this isn't the first time this packet has been processed,
@@ -1213,10 +1214,20 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
     if (p_conv) {
         /*
          * Check if the conversation has data associated with it.
+         * Sometimes there are multiple setup messages for the same
+         * conversation, and it's worth copying over some of our
+         * internal data to the new conversation. The extended sequence
+         * number and timestamp cycle information is per-SSRC, and it
+         * doesn't hurt (and can definitely help) to ensure that the
+         * new conversation uses the same extended cycles as the old one.
+         * XXX: It's not actually clear that we really need to create
+         * extra conversations for each setup frame, because we save the
+         * relevant information to per-packet data for the subsequent passes.
          */
         p_conv_data = (struct _rtp_conversation_info *)conversation_get_proto_data(p_conv, proto_rtp);
         if (p_conv_data) {
             rtp_conv_info_list = p_conv_data->rtp_sdp_setup_info_list;
+            ssrc_number_space = p_conv_data->ssrc_number_space;
         }
     }
 
@@ -1266,7 +1277,7 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
         /* Create conversation data */
         p_conv_data = wmem_new0(wmem_file_scope(), struct _rtp_conversation_info);
 
-        p_conv_data->ssrc_number_space = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+        p_conv_data->ssrc_number_space = ssrc_number_space ? ssrc_number_space : wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
         p_conv_data->rtp_conv_info = wmem_new(wmem_file_scope(), rtp_private_conv_info);
         p_conv_data->rtp_conv_info->multisegment_pdus = wmem_tree_new(wmem_file_scope());
         DINDENT();
