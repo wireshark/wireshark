@@ -26,11 +26,8 @@
 #endif
 
 // To do:
-// [.] Shrink sinsp_field_extract_t:
-//     [.] Create separate syscall_extract_t and plugin_extract_t structs? We probably don't need the
-//         field name, type, or is_present.
-//     [ ] Dup short bytes in the struct and intern longer ones somewhere?
-// [ ] Don't cache some fields, e.g. event time
+// [ ] Move chunkify_string to a thread? For captures with large command lines,
+//     we spend a lot of time hashing strings.
 
 
 // epan/address.h and driver/ppm_events_public.h both define PT_NONE, so
@@ -78,9 +75,11 @@ typedef struct sinsp_span_t {
 #ifdef SS_MEMORY_STATISTICS
 #include <wsutil/str_util.h>
 
-static int alloc_sfe_bytes;
+static int alloc_sfe;
 static int unused_sfe_bytes;
 static int total_chunked_strings;
+static int unique_chunked_strings;
+static int alloc_chunked_string_bytes;
 static int total_bytes;
 #endif
 
@@ -136,8 +135,15 @@ void destroy_sinsp_span(sinsp_span_t *sinsp_span) {
 
 static const char *chunkify_string(sinsp_span_t *sinsp_span, const char *key) {
     char *chunk_string = (char *) wmem_map_lookup(sinsp_span->str_chunk, key);
+#ifdef SS_MEMORY_STATISTICS
+    total_chunked_strings++;
+#endif
 
     if (!chunk_string) {
+#ifdef SS_MEMORY_STATISTICS
+        unique_chunked_strings++;
+        alloc_chunked_string_bytes += (int) strlen(key);
+#endif
         chunk_string = wmem_strdup(wmem_file_scope(), key);
         wmem_map_insert(sinsp_span->str_chunk, chunk_string, chunk_string);
     }
@@ -608,9 +614,11 @@ void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath)
     sinsp_span->str_chunk = wmem_map_new(wmem_file_scope(), g_str_hash, g_str_equal);
 
 #ifdef SS_MEMORY_STATISTICS
-    alloc_sfe_bytes = 0;
+    alloc_sfe = 0;
     unused_sfe_bytes = 0;
     total_chunked_strings = 0;
+    unique_chunked_strings = 0;
+    alloc_chunked_string_bytes = 0;
     total_bytes = 0;
 #endif
 }
@@ -645,7 +653,7 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
 
     if (sinsp_span->sfe_slab == NULL) {
 #ifdef SS_MEMORY_STATISTICS
-        alloc_sfe_bytes += sizeof(sinsp_field_extract_t) * sfe_slab_prealloc;
+        alloc_sfe += sfe_slab_prealloc;
 #endif
         sinsp_span->sfe_slab = (sinsp_field_extract_t *) wmem_alloc(wmem_file_scope(), sizeof(sinsp_field_extract_t) * sfe_slab_prealloc);
     }
@@ -703,9 +711,6 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
                     g_strlcpy(sfe->res.small_str, (const char *) values[0].ptr, SFE_SMALL_BUF_SIZE);
                 } else {
                     sfe->res.str = chunkify_string(sinsp_span, (const char *) values[0].ptr);
-#ifdef SS_MEMORY_STATISTICS
-                    total_chunked_strings += values[0].len;
-#endif
                 }
                 // XXX - Not needed? This sometimes runs into length mismatches.
                 // sfe_value.res.str[values[0].len] = '\0';
@@ -744,18 +749,25 @@ void close_sinsp_capture(sinsp_span_t *sinsp_span)
 #ifdef SS_MEMORY_STATISTICS
     unused_sfe_bytes += sizeof(sinsp_field_extract_t) * sfe_slab_prealloc - sinsp_span->sfe_slab_offset;
 
-    g_warning("Allocated sinsp_field_extract_t bytes: %s", format_size(alloc_sfe_bytes, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI));
+    g_warning("Allocated sinsp_field_extract_t structs: %s (%s)",
+              format_size(alloc_sfe, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI),
+              format_size(alloc_sfe * sizeof(sinsp_field_extract_t), FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI));
     g_warning("Unused sinsp_field_extract_t bytes: %s", format_size(unused_sfe_bytes, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI));
-    g_warning("Chunked string bytes: %s", format_size(total_chunked_strings, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI));
+    g_warning("Chunked strings: %s (%s unique, %s)",
+              format_size(total_chunked_strings, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI),
+              format_size(unique_chunked_strings, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI),
+              format_size(alloc_chunked_string_bytes, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI));
     g_warning("Byte value (I/O) bytes: %s", format_size(total_bytes, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI));
     g_warning("Cache capacity: %s items, sinsp_field_extract_t pointer bytes = %s, length bytes = %s",
               format_size(sinsp_span->sfe_ptrs.capacity(), FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI),
               format_size(sinsp_span->sfe_ptrs.capacity() * sizeof(sinsp_field_extract_t *), FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI),
               format_size(sinsp_span->sfe_ptrs.capacity() * sizeof(uint16_t), FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI));
 
-    alloc_sfe_bytes = 0;
+    alloc_sfe = 0;
     unused_sfe_bytes = 0;
     total_chunked_strings = 0;
+    unique_chunked_strings = 0;
+    alloc_chunked_string_bytes = 0;
     total_bytes = 0;
 #endif
 
