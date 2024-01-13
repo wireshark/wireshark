@@ -215,7 +215,7 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
     if (global_capture_opts.all_ifaces->len > 0) {
         for (i = (int)global_capture_opts.all_ifaces->len-1; i >= 0; i--) {
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            if (device.local && device.type != IF_PIPE && device.type != IF_STDIN) {
+            if (device.local && device.if_info.type != IF_PIPE && device.if_info.type != IF_STDIN) {
 
                 found = FALSE;
                 for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
@@ -337,16 +337,12 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
              * your previously chosen link-layer type isn't supported then
              * your capture filter might not be either, which will result in
              * it being marked invalid instead of being cleared. */
-            /* XXX: Why do we have both a copy of the if_info and also
-             * some members that are direct copies of if_info members,
-             * e.g. name, friendly name, and vendor description?
-             * At least the addresses and links are transformed into new
+            /* XXX: We have duplicate copies of the name and we have
+             * the addresses and links from the if_info transformed into new
              * types, but perhaps that transformation should be done when
              * creating the if_info and if_capabilities.
              */
             g_free(device.display_name);
-            g_free(device.friendly_name);
-            g_free(device.vendor_description);
             g_free(device.addresses);
             g_list_free_full(device.links, capture_opts_free_link_row);
             g_free(device.if_info.name);
@@ -360,13 +356,9 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
             monitor_mode = device.monitor_mode_enabled;
         }
 
-        device.friendly_name = g_strdup(if_info->friendly_name);
-        device.vendor_description = g_strdup(if_info->vendor_description);
-
         descr = capture_dev_user_descr_find(if_info->name);
         device.display_name = get_iface_display_name(descr, if_info);
         g_free(descr);
-        device.type = if_info->type;
         ip_str = g_string_new("");
         for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
             if (ips != 0) {
@@ -501,13 +493,11 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
         if (!found) {  /* new interface, maybe a pipe */
             memset(&device, 0, sizeof(device));
             device.name         = g_strdup(interface_opts->name);
-            device.vendor_description = g_strdup(interface_opts->hardware);
             device.display_name = interface_opts->descr ?
                 ws_strdup_printf("%s: %s", device.name, interface_opts->descr) :
                 g_strdup(device.name);
             device.hidden       = FALSE;
             device.selected     = TRUE;
-            device.type         = interface_opts->if_type;
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
             device.buffer = interface_opts->buffer_size;
 #endif
@@ -527,8 +517,9 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
             device.links        = NULL;
             device.local        = TRUE;
             device.if_info.name = g_strdup(interface_opts->name);
+            device.if_info.type = interface_opts->if_type;
             device.if_info.friendly_name = NULL;
-            device.if_info.vendor_description = g_strdup(interface_opts->descr);
+            device.if_info.vendor_description = g_strdup(interface_opts->hardware);
             device.if_info.addrs = NULL;
             device.if_info.loopback = FALSE;
             device.if_info.extcap = g_strdup(interface_opts->extcap);
@@ -622,7 +613,7 @@ update_local_interfaces(void)
 
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        device->type = capture_dev_user_linktype_find(device->name);
+        device->if_info.type = capture_dev_user_linktype_find(device->name);
         g_free(device->display_name);
         descr = capture_dev_user_descr_find(device->name);
         device->display_name = get_iface_display_name(descr, &device->if_info);

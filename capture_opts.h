@@ -159,9 +159,6 @@ typedef struct remote_options_tag {
 typedef struct interface_tag {
     gchar          *name;
     gchar          *display_name;
-    gchar          *friendly_name;
-    gchar          *vendor_description;
-    guint           type;
     gchar          *addresses;
     gint            no_addresses;
     gchar          *cfilter;

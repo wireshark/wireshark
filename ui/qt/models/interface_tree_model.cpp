@@ -136,7 +136,7 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
             }
             else if (col == IFTREE_COL_DESCRIPTION)
             {
-                return QString(device->friendly_name);
+                return QString(device->if_info.friendly_name);
             }
             else if (col == IFTREE_COL_DISPLAY_NAME)
             {

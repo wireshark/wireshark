@@ -1475,9 +1475,9 @@ collect_ifaces(capture_options *capture_opts)
         device = &g_array_index(capture_opts->all_ifaces, interface_t, i);
         if (device->selected) {
             interface_opts.name = g_strdup(device->name);
-            interface_opts.descr = g_strdup(device->friendly_name);
+            interface_opts.descr = g_strdup(device->if_info.friendly_name);
             interface_opts.ifname = NULL;
-            interface_opts.hardware = g_strdup(device->vendor_description);
+            interface_opts.hardware = g_strdup(device->if_info.vendor_description);
             interface_opts.display_name = g_strdup(device->display_name);
             interface_opts.linktype = device->active_dlt;
             interface_opts.cfilter = g_strdup(device->cfilter);
@@ -1545,8 +1545,6 @@ capture_opts_free_interface_t(interface_t *device)
     if (device != NULL) {
         g_free(device->name);
         g_free(device->display_name);
-        g_free(device->vendor_description);
-        g_free(device->friendly_name);
         g_free(device->addresses);
         g_free(device->cfilter);
         g_free(device->timestamp_type);
