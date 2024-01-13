@@ -1,0 +1,22 @@
+####### User Interface: Columns ########
+
+# Packet list hidden columns
+# List all columns to hide in the packet list.
+gui.column.hidden: %i
+
+# Packet list column format
+# Each pair of strings consists of a column title and its format
+gui.column.format:
+	"No.", "%m",
+	"Time", "%t",
+	"Event name", "%Cus:sysdig.event_name:0:R",
+	"Dir", "%Cus:evt.dir:0:R",
+	"Proc Name", "%Cus:proc.name:0:R",
+	"PID", "%Cus:proc.pid:0:R",
+	"TID", "%Cus:thread.tid:0:R",
+	"FD", "%Cus:fd.num:0:R",
+	"FD Name", "%Cus:fd.name:0:R",
+	"Container Name", "%Cus:container.name:0:R",
+	"Arguments", "%Cus:evt.args:0:R",
+	"Info", "%i"
+
