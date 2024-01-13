@@ -167,17 +167,13 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     progress_frame_.enableTaskbarUpdates(true);
 #endif
 
-    connect(mainApp, SIGNAL(appInitialized()), splitter, SLOT(show()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
-    connect(&info_status_, SIGNAL(toggleTemporaryFlash(bool)),
-            this, SLOT(toggleBackground(bool)));
-    connect(mainApp, SIGNAL(profileNameChanged(const gchar *)),
-            this, SLOT(setProfileName()));
-    connect(&profile_status_, SIGNAL(clickedAt(QPoint,Qt::MouseButton)),
-            this, SLOT(showProfileMenu(QPoint,Qt::MouseButton)));
+    connect(mainApp, &MainApplication::appInitialized, splitter, &QSplitter::show);
+    connect(mainApp, &MainApplication::appInitialized, this, &MainStatusBar::appInitialized);
+    connect(&info_status_, &LabelStack::toggleTemporaryFlash, this, &MainStatusBar::toggleBackground);
+    connect(mainApp, &MainApplication::profileNameChanged, this, &MainStatusBar::setProfileName);
+    connect(&profile_status_, &ClickableLabel::clickedAt, this, &MainStatusBar::showProfileMenu);
 
-    connect(&progress_frame_, SIGNAL(stopLoading()),
-            this, SIGNAL(stopLoading()));
+    connect(&progress_frame_, &ProgressFrame::stopLoading, this, &MainStatusBar::stopLoading);
 }
 
 void MainStatusBar::showExpert() {
@@ -235,8 +231,7 @@ void MainStatusBar::setFileName(CaptureFile &cf)
     if (cf.isValid()) {
         popGenericStatus(STATUS_CTX_FILE);
         QString msgtip = QString("%1 (%2)")
-                .arg(cf.capFile()->filename)
-                .arg(file_size_to_qstring(cf.capFile()->f_datalen));
+                .arg(cf.capFile()->filename, file_size_to_qstring(cf.capFile()->f_datalen));
         pushGenericStatus(STATUS_CTX_FILE, cf.fileName(), msgtip);
     }
 }
@@ -264,8 +259,7 @@ void MainStatusBar::setStatusbarForCaptureFile()
     if (cap_file_ && cap_file_->filename && (cap_file_->state != FILE_CLOSED)) {
         popGenericStatus(STATUS_CTX_FILE);
         QString msgtip = QString("%1 (%2)")
-                .arg(cap_file_->filename)
-                .arg(file_size_to_qstring(cap_file_->f_datalen));
+                .arg(cap_file_->filename, file_size_to_qstring(cap_file_->f_datalen));
         pushGenericStatus(STATUS_CTX_FILE,
                 gchar_free_to_qstring(cf_get_display_name(cap_file_)), msgtip);
     }
@@ -312,16 +306,14 @@ void MainStatusBar::highlightedFieldChanged(FieldInformation * finfo)
     if (finfo)
     {
         FieldInformation::Position pos = finfo->position();
-        QString field_str;
 
         if (pos.length < 2) {
-            hint = QString(tr("Byte %1")).arg(pos.start);
+            hint = tr("Byte %1").arg(pos.start);
         } else {
-            hint = QString(tr("Bytes %1-%2")).arg(pos.start).arg(pos.start + pos.length - 1);
+            hint = tr("Bytes %1-%2").arg(pos.start).arg(pos.start + pos.length - 1);
         }
         hint += QString(": %1 (%2)")
-                .arg(finfo->headerInfo().name)
-                .arg(finfo->headerInfo().abbreviation);
+                .arg(finfo->headerInfo().name, finfo->headerInfo().abbreviation);
     }
 
     pushGenericStatus(STATUS_CTX_BYTE, hint);
@@ -390,48 +382,51 @@ void MainStatusBar::showCaptureStatistics()
         }
         if (cs_count_ > 0) {
             if (prefs.gui_show_selected_packet && rows.count() == 1) {
-                packets_str.append(QString(tr("Selected Packet: %1 %2 "))
+                packets_str.append(tr("Selected Packet: %1 %2 ")
                                    .arg(rows.at(0))
                                    .arg(UTF8_MIDDLE_DOT));
             }
-            packets_str.append(QString(tr("Packets: %1 %4 Displayed: %2 (%3%)"))
-                               .arg(cs_count_)
-                               .arg(cap_file_->displayed_count)
-                               .arg((100.0*cap_file_->displayed_count)/cs_count_, 0, 'f', 1)
-                               .arg(UTF8_MIDDLE_DOT));
+            packets_str.append(tr("Packets: %1")
+                                   .arg(cs_count_));
+            if (cap_file_->dfilter) {
+                packets_str.append(tr(" %1 Displayed: %2 (%3%)")
+                                       .arg(UTF8_MIDDLE_DOT)
+                                       .arg(cap_file_->displayed_count)
+                                       .arg((100.0*cap_file_->displayed_count)/cs_count_, 0, 'f', 1));
+            }
             if (rows.count() > 1) {
-                packets_str.append(QString(tr(" %1 Selected: %2 (%3%)"))
+                packets_str.append(tr(" %1 Selected: %2 (%3%)")
                                    .arg(UTF8_MIDDLE_DOT)
                                    .arg(rows.count())
                                    .arg((100.0*rows.count())/cs_count_, 0, 'f', 1));
             }
             if (cap_file_->marked_count > 0) {
-                packets_str.append(QString(tr(" %1 Marked: %2 (%3%)"))
+                packets_str.append(tr(" %1 Marked: %2 (%3%)")
                                    .arg(UTF8_MIDDLE_DOT)
                                    .arg(cap_file_->marked_count)
                                    .arg((100.0*cap_file_->marked_count)/cs_count_, 0, 'f', 1));
             }
             if (cap_file_->drops_known) {
-                packets_str.append(QString(tr(" %1 Dropped: %2 (%3%)"))
+                packets_str.append(tr(" %1 Dropped: %2 (%3%)")
                                    .arg(UTF8_MIDDLE_DOT)
                                    .arg(cap_file_->drops)
                                    .arg((100.0*cap_file_->drops)/cs_count_, 0, 'f', 1));
             }
             if (cap_file_->ignored_count > 0) {
-                packets_str.append(QString(tr(" %1 Ignored: %2 (%3%)"))
+                packets_str.append(tr(" %1 Ignored: %2 (%3%)")
                                    .arg(UTF8_MIDDLE_DOT)
                                    .arg(cap_file_->ignored_count)
                                    .arg((100.0*cap_file_->ignored_count)/cs_count_, 0, 'f', 1));
             }
             if (cap_file_->packet_comment_count > 0) {
-                packets_str.append(QString(tr(" %1 Comments: %2"))
+                packets_str.append(tr(" %1 Comments: %2")
                     .arg(UTF8_MIDDLE_DOT)
                     .arg(cap_file_->packet_comment_count));
             }
             if (prefs.gui_show_file_load_time && !cap_file_->is_tempfile) {
                 /* Loading an existing file */
                 gulong computed_elapsed = cf_get_computed_elapsed(cap_file_);
-                packets_str.append(QString(tr(" %1  Load time: %2:%3.%4"))
+                packets_str.append(tr(" %1  Load time: %2:%3.%4")
                                    .arg(UTF8_MIDDLE_DOT)
                                    .arg(computed_elapsed/60000, 2, 10, QLatin1Char('0'))
                                    .arg(computed_elapsed%60000/1000, 2, 10, QLatin1Char('0'))
@@ -441,11 +436,11 @@ void MainStatusBar::showCaptureStatistics()
     } else if (cs_fixed_ && cs_count_ > 0) {
         /* There shouldn't be any rows without a cap_file_ but this is benign */
         if (prefs.gui_show_selected_packet && rows.count() == 1) {
-            packets_str.append(QString(tr("Selected Packet: %1 %2 "))
+            packets_str.append(tr("Selected Packet: %1 %2 ")
                 .arg(rows.at(0))
                 .arg(UTF8_MIDDLE_DOT));
         }
-        packets_str.append(QString(tr("Packets: %1"))
+        packets_str.append(tr("Packets: %1")
             .arg(cs_count_));
     }
 #endif // HAVE_LIBPCAP
