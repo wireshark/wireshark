@@ -123,6 +123,7 @@ void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath);
 void close_sinsp_capture(sinsp_span_t *sinsp_span);
 bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t *ssi, uint32_t frame_num, sinsp_field_extract_t **sinsp_fields, uint32_t *sinsp_field_len, void** sinp_evt_info);
 sinsp_syscall_category_e get_syscall_parent_category(sinsp_source_info_t *ssi, size_t field_check_idx);
+bool get_extracted_syscall_source_fields(sinsp_span_t *sinsp_span, uint32_t frame_num, sinsp_field_extract_t **sinsp_fields, uint32_t *sinsp_field_len, void** sinp_evt_info);
 
 // Extractor plugin routines.
 // These roughly match common_plugin_info

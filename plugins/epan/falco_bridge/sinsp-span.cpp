@@ -832,6 +832,19 @@ bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t
     return true;
 }
 
+bool get_extracted_syscall_source_fields(sinsp_span_t *sinsp_span, uint32_t frame_num, sinsp_field_extract_t **sinsp_fields, uint32_t *sinsp_field_len, void** sinp_evt_info) {
+    // Shouldn't happen
+    if (frame_num > sinsp_span->sfe_ptrs.size()) {
+        ws_error("Frame number %u exceeds cache size %d", frame_num, (int) sinsp_span->sfe_ptrs.size());
+        return false;
+    }
+
+    *sinsp_fields = sinsp_span->sfe_ptrs[frame_num - 1];
+    *sinsp_field_len = sinsp_span->sfe_lengths[frame_num - 1];
+    *sinp_evt_info = (void*)sinsp_span->sfe_infos[frame_num - 1];
+    return true;
+}
+
 // The code below, falcosecurity/libs, and falcosecurity/plugins need to be in alignment.
 // The Makefile in /plugins defines FALCOSECURITY_LIBS_REVISION and uses that version of
 // plugin_info.h. We need to build against a compatible revision of /libs.

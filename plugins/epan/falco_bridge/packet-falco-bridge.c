@@ -50,6 +50,8 @@
 
 #include "sinsp-span.h"
 
+#define FALCO_PPME_PLUGINEVENT_E 322
+
 typedef enum bridge_field_flags_e {
     BFF_NONE = 0,
     BFF_HIDDEN = 1 << 1, // Unused
@@ -81,6 +83,13 @@ typedef struct bridge_info {
     conv_filter_info *conversation_filters;
 } bridge_info;
 
+typedef struct conversation_filter_fields {
+    const char* container_id;
+    int64_t pid;
+    int64_t tid;
+    int64_t fd;
+}conversation_filter_fields;
+
 static int proto_falco_bridge;
 static int proto_syscalls[NUM_SINSP_SYSCALL_CATEGORIES];
 
@@ -99,6 +108,8 @@ static dissector_table_t ptype_dissector_table;
 static int dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 static int dissect_sinsp_enriched(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *bi_ptr);
 static int dissect_sinsp_plugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *bi_ptr);
+static bridge_info* get_bridge_info(guint32 source_id);
+const char* get_str_value(sinsp_field_extract_t *sinsp_fields, uint32_t sf_idx);
 
 /*
  * Array of plugin bridges
@@ -410,11 +421,137 @@ on_wireshark_exit(void)
     sinsp_span = NULL;
 }
 
+static gboolean
+extract_syscall_conversation_fields (packet_info *pinfo, conversation_filter_fields* args) {
+    args->container_id = NULL;
+    args->pid = -1;
+    args->tid = -1;
+    args->fd = -1;
+
+    // Syscalls are always the bridge with source_id 0.
+    bridge_info* bi = get_bridge_info(0);
+
+    sinsp_field_extract_t *sinsp_fields = NULL;
+    uint32_t sinsp_fields_count = 0;
+    void* sinp_evt_info;
+    bool rc = get_extracted_syscall_source_fields(sinsp_span, pinfo->fd->num, &sinsp_fields, &sinsp_fields_count, &sinp_evt_info);
+
+    if (!rc) {
+        REPORT_DISSECTOR_BUG("cannot extract falco conversation fields for event %" PRIu32, pinfo->fd->num);
+    }
+
+    for (uint32_t hf_idx = 0, sf_idx = 0; hf_idx < bi->visible_fields && sf_idx < sinsp_fields_count; hf_idx++) {
+        if (sinsp_fields[sf_idx].field_idx != hf_idx) {
+            continue;
+        }
+
+        header_field_info* hfinfo = &(bi->hf[hf_idx].hfinfo);
+
+        if (strcmp(hfinfo->abbrev, "container.id") == 0) {
+            args->container_id = get_str_value(sinsp_fields, sf_idx);
+            if (args->container_id == NULL) {
+                REPORT_DISSECTOR_BUG("cannot extract the container ID for event %" PRIu32, pinfo->fd->num);
+            }
+        }
+
+        if (strcmp(hfinfo->abbrev, "proc.pid") == 0) {
+            args->pid = sinsp_fields[sf_idx].res.u64;
+        }
+
+        if (strcmp(hfinfo->abbrev, "thread.tid") == 0) {
+            args->tid = sinsp_fields[sf_idx].res.u64;
+        }
+
+        if (strcmp(hfinfo->abbrev, "fd.num") == 0) {
+            args->fd = sinsp_fields[sf_idx].res.u64;
+        }
+
+        sf_idx++;
+    }
+
+    // args->fd=-1 means that either there's no FD (e.g. a clone syscall), or that the FD is not a valid one (e.g., failed open).
+    if (args->fd == -1) {
+        return false;
+    }
+
+    return true;
+}
+
+static gboolean sysdig_syscall_filter_valid(packet_info *pinfo, void *user_data _U_) {
+    if (!proto_is_frame_protocol(pinfo->layers, "sysdig")) {
+        return false;
+    }
+
+    // This only supports the syscall source.
+    if (pinfo->rec->rec_header.syscall_header.event_type == FALCO_PPME_PLUGINEVENT_E) {
+        return false;
+    }
+
+    return true;
+}
+
+static gboolean sysdig_fd_filter_valid(packet_info *pinfo, void *user_data _U_) {
+    if (!proto_is_frame_protocol(pinfo->layers, "sysdig")) {
+        return false;
+    }
+
+    // This only supports the syscall source.
+    if (pinfo->rec->rec_header.syscall_header.event_type == FALCO_PPME_PLUGINEVENT_E) {
+        return false;
+    }
+
+    conversation_filter_fields cff;
+    return extract_syscall_conversation_fields(pinfo, &cff);
+}
+
+static gchar* sysdig_container_build_filter(packet_info *pinfo, void *user_data _U_) {
+    conversation_filter_fields cff;
+    extract_syscall_conversation_fields(pinfo, &cff);
+    return ws_strdup_printf("container.id==\"%s\"", cff.container_id);
+}
+
+static gchar* sysdig_proc_build_filter(packet_info *pinfo, void *user_data _U_) {
+    conversation_filter_fields cff;
+    extract_syscall_conversation_fields(pinfo, &cff);
+    return ws_strdup_printf("container.id==\"%s\" && proc.pid==%" PRIu64, cff.container_id, cff.pid);
+}
+
+static gchar* sysdig_procdescendants_build_filter(packet_info *pinfo, void *user_data _U_) {
+    conversation_filter_fields cff;
+    extract_syscall_conversation_fields(pinfo, &cff);
+    return ws_strdup_printf("container.id==\"%s\" && (proc.pid==%" PRIu64 " || proc.apid.1==%" PRIu64 " || proc.apid.2==%" PRIu64 " || proc.apid.3==%" PRIu64 " || proc.apid.4==%" PRIu64 ")",
+        cff.container_id,
+        cff.pid,
+        cff.pid,
+        cff.pid,
+        cff.pid,
+        cff.pid);
+}
+
+static gchar* sysdig_thread_build_filter(packet_info *pinfo, void *user_data _U_) {
+    conversation_filter_fields cff;
+    extract_syscall_conversation_fields(pinfo, &cff);
+    return ws_strdup_printf("container.id==\"%s\" && thread.tid==%" PRIu64, cff.container_id, cff.tid);
+}
+
+static gchar* sysdig_fd_build_filter(packet_info *pinfo, void *user_data _U_) {
+    conversation_filter_fields cff;
+    extract_syscall_conversation_fields(pinfo, &cff);
+    return ws_strdup_printf("container.id==\"%s\" && thread.tid==%" PRIu64 " && fd.num==%" PRIu64, cff.container_id, cff.tid, cff.fd);
+}
+
 void
 proto_register_falcoplugin(void)
 {
     // Opening requires a file path, so we do that in dissect_sinsp_enriched.
     register_cleanup_routine(&falco_bridge_cleanup);
+
+    // Register the syscall conversation filters
+    register_log_conversation_filter("falcobridge", "Container", sysdig_syscall_filter_valid, sysdig_container_build_filter, NULL);
+    register_log_conversation_filter("falcobridge", "Process", sysdig_syscall_filter_valid, sysdig_proc_build_filter, NULL);
+    register_log_conversation_filter("falcobridge", "Process and Descendants", sysdig_syscall_filter_valid, sysdig_procdescendants_build_filter, NULL);
+    register_log_conversation_filter("falcobridge", "Thread", sysdig_syscall_filter_valid, sysdig_thread_build_filter, NULL);
+    register_log_conversation_filter("falcobridge", "File Descriptor", sysdig_fd_filter_valid, sysdig_fd_build_filter, NULL);
 
     proto_falco_bridge = proto_register_protocol("Falco Bridge", "Falco Bridge", "falcobridge");
     register_dissector("falcobridge", dissect_falco_bridge, proto_falco_bridge);
@@ -575,7 +712,6 @@ get_bridge_info(guint32 source_id)
     return NULL;
 }
 
-#define FALCO_PPME_PLUGINEVENT_E 322
 static int
 dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
