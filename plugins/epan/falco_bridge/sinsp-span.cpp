@@ -53,6 +53,8 @@ typedef struct sinsp_source_info_t {
     const char *name;
     const char *description;
     char *last_error;
+    uint16_t cpu_id_idx;
+    uint16_t proc_id_idx;
 } sinsp_source_info_t;
 
 static const size_t sfe_slab_prealloc = 250000;
@@ -68,6 +70,7 @@ typedef struct sinsp_span_t {
     std::vector<const ppm_event_info*> sfe_infos;
     // Interned data. Copied from maxmind_db.c.
     wmem_map_t *str_chunk;
+    wmem_map_t *proc_info_chunk;
 } sinsp_span_t;
 
 // #define SS_MEMORY_STATISTICS 1
@@ -79,6 +82,8 @@ static int alloc_sfe;
 static int unused_sfe_bytes;
 static int total_chunked_strings;
 static int unique_chunked_strings;
+static int proc_info_hits;
+static int proc_info_updates;
 static int alloc_chunked_string_bytes;
 static int total_bytes;
 #endif
@@ -133,11 +138,28 @@ void destroy_sinsp_span(sinsp_span_t *sinsp_span) {
     delete(sinsp_span);
 }
 
-static const char *chunkify_string(sinsp_span_t *sinsp_span, const char *key) {
-    char *chunk_string = (char *) wmem_map_lookup(sinsp_span->str_chunk, key);
+static const char *chunkify_string(sinsp_span_t *sinsp_span, const char *key, int64_t cpu_id, int64_t proc_id, uint16_t fc_idx) {
+    int64_t proc_key = 0;
+
 #ifdef SS_MEMORY_STATISTICS
     total_chunked_strings++;
 #endif
+
+    // In order to avoid hashing the same potentially large strings over and over,
+    // we assume that field values will mostly be the same for each CPU,PID combo.
+    if (fc_idx) {
+        proc_key = (cpu_id << 48) | (proc_id << 16) | fc_idx;
+        char *proc_string = (char *) wmem_map_lookup(sinsp_span->proc_info_chunk, &proc_key);
+
+        if (proc_string && strcmp(proc_string, key) == 0) {
+#ifdef SS_MEMORY_STATISTICS
+            proc_info_hits++;
+#endif
+            return proc_string;
+        }
+    }
+
+    char *chunk_string = (char *) wmem_map_lookup(sinsp_span->str_chunk, key);
 
     if (!chunk_string) {
 #ifdef SS_MEMORY_STATISTICS
@@ -146,6 +168,13 @@ static const char *chunkify_string(sinsp_span_t *sinsp_span, const char *key) {
 #endif
         chunk_string = wmem_strdup(wmem_file_scope(), key);
         wmem_map_insert(sinsp_span->str_chunk, chunk_string, chunk_string);
+    }
+
+    if (proc_key) {
+        wmem_map_insert(sinsp_span->proc_info_chunk, &proc_key, chunk_string);
+#ifdef SS_MEMORY_STATISTICS
+        proc_info_updates++;
+#endif
     }
 
     return chunk_string;
@@ -393,6 +422,12 @@ void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t *
                 if (!gefc) {
                     continue;
                 }
+                if (strcmp(ffi->m_name, "evt.cpu") == 0) {
+                    ssi->cpu_id_idx = (uint16_t) ssi->syscall_filter_fields.size();
+                }
+                if (strcmp(ffi->m_name, "proc.pid") == 0) {
+                    ssi->proc_id_idx = (uint16_t) ssi->syscall_filter_fields.size();
+                }
                 gefc->parse_field_name(ffi->m_name, true, false);
                 ssi->field_to_category.push_back(syscall_category);
                 ssi->syscall_event_filter_checks.push_back(gefc);
@@ -612,12 +647,15 @@ void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath)
     sinsp_span->sfe_infos.clear();
     sinsp_span->inspector.open_savefile(filepath);
     sinsp_span->str_chunk = wmem_map_new(wmem_file_scope(), g_str_hash, g_str_equal);
+    sinsp_span->proc_info_chunk = wmem_map_new(wmem_file_scope(), g_int64_hash, g_int64_equal);
 
 #ifdef SS_MEMORY_STATISTICS
     alloc_sfe = 0;
     unused_sfe_bytes = 0;
     total_chunked_strings = 0;
     unique_chunked_strings = 0;
+    proc_info_hits = 0;
+    proc_info_updates = 0;
     alloc_chunked_string_bytes = 0;
     total_bytes = 0;
 #endif
@@ -661,6 +699,8 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
     sinsp_field_extract_t *sfe_block = &sinsp_span->sfe_slab[sinsp_span->sfe_slab_offset];
     std::vector<extract_value_t> values;
     uint16_t sfe_idx = 0;
+    int16_t cpu_id = 0;
+    int64_t proc_id = 0;
 
     for (size_t fc_idx = 0; fc_idx < ssi->syscall_event_filter_checks.size(); fc_idx++) {
         auto gefc = ssi->syscall_event_filter_checks[fc_idx];
@@ -684,12 +724,18 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
                 break;
             case PT_INT16:
                 sfe->res.i32 = *(int16_t*)values[0].ptr;
+                if (fc_idx == ssi->cpu_id_idx) {
+                    cpu_id = *(int16_t*)values[0].ptr;
+                }
                 break;
             case PT_INT32:
                 sfe->res.i32 = *(int32_t*)values[0].ptr;
                 break;
             case PT_INT64:
                 sfe->res.i64 = *(int64_t *)values[0].ptr;
+                if (fc_idx == ssi->proc_id_idx) {
+                    proc_id = *(int64_t*)values[0].ptr;
+                }
                 break;
             case PT_UINT8:
                 sfe->res.u32 = *(uint8_t*)values[0].ptr;
@@ -710,7 +756,7 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
                 if (values[0].len < SFE_SMALL_BUF_SIZE) {
                     g_strlcpy(sfe->res.small_str, (const char *) values[0].ptr, SFE_SMALL_BUF_SIZE);
                 } else {
-                    sfe->res.str = chunkify_string(sinsp_span, (const char *) values[0].ptr);
+                    sfe->res.str = chunkify_string(sinsp_span, (const char *) values[0].ptr, cpu_id, proc_id, fc_idx);
                 }
                 // XXX - Not needed? This sometimes runs into length mismatches.
                 // sfe_value.res.str[values[0].len] = '\0';
@@ -757,6 +803,9 @@ void close_sinsp_capture(sinsp_span_t *sinsp_span)
               format_size(total_chunked_strings, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI),
               format_size(unique_chunked_strings, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI),
               format_size(alloc_chunked_string_bytes, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI));
+    g_warning("Process info string hits: %s, %s updates",
+              format_size(proc_info_hits, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI),
+              format_size(proc_info_updates, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI));
     g_warning("Byte value (I/O) bytes: %s", format_size(total_bytes, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI));
     g_warning("Cache capacity: %s items, sinsp_field_extract_t pointer bytes = %s, length bytes = %s",
               format_size(sinsp_span->sfe_ptrs.capacity(), FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI),
@@ -767,6 +816,8 @@ void close_sinsp_capture(sinsp_span_t *sinsp_span)
     unused_sfe_bytes = 0;
     total_chunked_strings = 0;
     unique_chunked_strings = 0;
+    proc_info_hits = 0;
+    proc_info_updates = 0;
     alloc_chunked_string_bytes = 0;
     total_bytes = 0;
 #endif
@@ -776,6 +827,7 @@ void close_sinsp_capture(sinsp_span_t *sinsp_span)
     sinsp_span->sfe_lengths.clear();
     sinsp_span->sfe_infos.clear();
     sinsp_span->str_chunk = NULL;
+    sinsp_span->proc_info_chunk = NULL;
 }
 
 sinsp_syscall_category_e get_syscall_parent_category(sinsp_source_info_t *ssi, size_t field_check_idx)
