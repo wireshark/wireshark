@@ -1060,7 +1060,7 @@ capture_ipv6_exthdr(const guchar *pd, int offset, int len, capture_packet_info_t
 }
 
 static void
-add_geoip_info_entry(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, const ws_in6_addr *ip6, int isdst)
+add_geoip_info_entry(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, const ws_in6_addr *ip6, gboolean isdst)
 {
     const mmdb_lookup_t *lookup = maxmind_db_lookup_ipv6(ip6);
     if (!lookup->found) return;
@@ -1085,7 +1085,7 @@ add_geoip_info_entry(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint o
         wmem_strbuf_append(summary, lookup->as_org);
     }
 
-    int addr_offset = offset + isdst ? IP6H_DST : IP6H_SRC;
+    int addr_offset = offset + (isdst ? IP6H_DST : IP6H_SRC);
     int dir_hf = isdst ? hf_geoip_dst_summary : hf_geoip_src_summary;
     proto_item *geoip_info_item = proto_tree_add_string(tree, dir_hf, tvb, addr_offset, 16, wmem_strbuf_finalize(summary));
     proto_item_set_generated(geoip_info_item);
