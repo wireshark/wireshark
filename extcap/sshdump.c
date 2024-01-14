@@ -57,6 +57,7 @@ enum {
 	OPT_SSHKEY,
 	OPT_SSHKEY_PASSPHRASE,
 	OPT_PROXYCOMMAND,
+	OPT_SSH_SHA1,
 	OPT_REMOTE_COUNT,
 	OPT_REMOTE_SUDO,	// Deprecated
 	OPT_REMOTE_PRIV,
@@ -346,6 +347,9 @@ static int list_config(char *interface, unsigned int remote_port)
 	printf("arg {number=%u}{call=--proxycommand}{display=ProxyCommand}"
 		"{type=string}{tooltip=The command to use as proxy for the SSH connection}"
 		"{group=Authentication}\n", inc++);
+	printf("arg {number=%u}{call=--ssh-sha1}{display=Support SHA-1 keys (deprecated)}"
+		"{type=boolflag}{tooltip=Support keys and key exchange algorithms using SHA-1 (deprecated)}{group=Authentication}"
+		"\n", inc++);
 	printf("arg {number=%u}{call=--remote-interface}{display=Remote interface}"
 		"{type=string}{tooltip=The remote network interface used for capture"
 		"}{group=Capture}\n", inc++);
@@ -475,6 +479,7 @@ int main(int argc, char *argv[])
 	extcap_help_add_option(extcap_conf, "--sshkey <private key path>", "the path of the SSH key (OpenSSH format)");
 	extcap_help_add_option(extcap_conf, "--sshkey-passphrase <private key passphrase>", "the passphrase to unlock private SSH key");
 	extcap_help_add_option(extcap_conf, "--proxycommand <proxy command>", "the command to use as proxy for the SSH connection");
+	extcap_help_add_option(extcap_conf, "--ssh-sha1", "support keys and key exchange using SHA-1 (deprecated)");
 	extcap_help_add_option(extcap_conf, "--remote-interface <iface>", "the remote capture interface");
 	extcap_help_add_option(extcap_conf, "--remote-capture-command-select <selection>", "dumpcap, tcpdump or other remote capture command");
 	extcap_help_add_option(extcap_conf, "--remote-capture-command <capture command>", "the remote capture command");
@@ -544,6 +549,10 @@ int main(int argc, char *argv[])
 		case OPT_PROXYCOMMAND:
 			g_free(ssh_params->proxycommand);
 			ssh_params->proxycommand = g_strdup(ws_optarg);
+			break;
+
+		case OPT_SSH_SHA1:
+			ssh_params->ssh_sha1 = true;
 			break;
 
 		case OPT_REMOTE_INTERFACE:
