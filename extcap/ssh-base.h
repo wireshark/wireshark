@@ -38,7 +38,8 @@
 	{ "remote-count", ws_required_argument, NULL, OPT_REMOTE_COUNT}, \
 	{ "sshkey", ws_required_argument, NULL, OPT_SSHKEY}, \
 	{ "sshkey-passphrase", ws_required_argument, NULL, OPT_SSHKEY_PASSPHRASE}, \
-	{ "proxycommand", ws_required_argument, NULL, OPT_PROXYCOMMAND}
+	{ "proxycommand", ws_required_argument, NULL, OPT_PROXYCOMMAND}, \
+	{ "ssh-sha1", ws_no_argument, NULL, OPT_SSH_SHA1}
 
 typedef struct _ssh_params {
 	gchar* host;
@@ -48,6 +49,7 @@ typedef struct _ssh_params {
 	gchar* sshkey_path;
 	gchar* sshkey_passphrase;
 	gchar* proxycommand;
+	gboolean ssh_sha1;
 	gboolean debug;
 } ssh_params_t;
 

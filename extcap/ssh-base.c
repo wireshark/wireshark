@@ -21,6 +21,45 @@
 #include <ws_attributes.h>
 #include <wsutil/wslog.h>
 
+/*
+ * The unreleased 0.11.0 version of libssh has the ability to
+ * add algorithms to the default supported list by prepending
+ * "+" to the configuration list. For older versions, we have
+ * to specify all the algorithms we want, but as long as at
+ * least one succeeds the command won't fail. (That means that
+ * it's possible that we won't actually add support for SHA-1,
+ * say if it's running on a system in FIPS mode. We could parse
+ * the returned list to check.)
+ */
+#if LIBSSH_VERSION_INT >= SSH_VERSION_INT(0,11,0)
+#define HOSTKEYS_SHA1 "+ssh-rsa"
+#define KEY_EXCHANGE_SHA1 "+diffie-hellman-group14-sha1,diffie-hellman-group1-sha1,diffie-hellman-group-exchange-sha1"
+#define HMAC_SHA1 "+hmac-sha1-etm@openssh.com,hmac-sha1"
+#else
+#define HOSTKEYS_SHA1 \
+	"ssh-ed25519," \
+	"ecdsa-sha2-nistp521," \
+	"ecdsa-sha2-nistp384," \
+	"ecdsa-sha2-nistp256," \
+	"sk-ssh-ed25519@openssh.com," \
+	"sk-ecdsa-sha2-nistp256@openssh.com," \
+	"rsa-sha2-512," \
+	"rsa-sha2-256," \
+	"ssh-rsa"
+#define KEY_EXCHANGE_SHA1 \
+	"curve25519-sha256,curve25519-sha256@libssh.org," \
+	"ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521," \
+	"diffie-hellman-group18-sha512,diffie-hellman-group16-sha512," \
+	"diffie-hellman-group-exchange-sha256," \
+	"diffie-hellman-group14-sha256," \
+	"diffie-hellman-group-exchange-sha1," \
+	"diffie-hellman-group14-sha1,diffie-hellman-group1-sha1"
+#define HMAC_SHA1 \
+	"hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com," \
+	"hmac-sha2-256,hmac-sha2-512," \
+	"hmac-sha1-etm@openssh.com,hmac-sha1"
+#endif
+
 static void extcap_log(int priority _U_, const char *function, const char *buffer, void *userdata _U_)
 {
 	ws_debug("[%s] %s", function, buffer);
@@ -66,6 +105,29 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
 		int debug_level = SSH_LOG_INFO;
 		ssh_options_set(sshs, SSH_OPTIONS_LOG_VERBOSITY, &debug_level);
 		ssh_set_log_callback(extcap_log);
+	}
+
+	if (ssh_params->ssh_sha1) {
+		if (ssh_options_set(sshs, SSH_OPTIONS_HOSTKEYS, HOSTKEYS_SHA1)) {
+			*err_info = ws_strdup_printf("Can't set host keys to allow SHA-1.");
+			goto failure;
+		}
+		if (ssh_options_set(sshs, SSH_OPTIONS_PUBLICKEY_ACCEPTED_TYPES, HOSTKEYS_SHA1)) {
+			*err_info = ws_strdup_printf("Can't set public key algorithms to allow SSH-RSA (SHA-1).");
+			goto failure;
+		}
+		if (ssh_options_set(sshs, SSH_OPTIONS_KEY_EXCHANGE, KEY_EXCHANGE_SHA1)) {
+			*err_info = ws_strdup_printf("Can't set key exchange methods to allow SHA-1.");
+			goto failure;
+		}
+		if (ssh_options_set(sshs, SSH_OPTIONS_HMAC_C_S, HMAC_SHA1)) {
+			*err_info = ws_strdup_printf("Can't set MAC client to server algorithms to allow SHA-1.");
+			goto failure;
+		}
+		if (ssh_options_set(sshs, SSH_OPTIONS_HMAC_S_C, HMAC_SHA1)) {
+			*err_info = ws_strdup_printf("Can't set MAC server to client algorithms to allow SHA-1.");
+			goto failure;
+		}
 	}
 
 	if (ssh_params->port != 0) {

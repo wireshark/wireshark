@@ -59,6 +59,7 @@ enum {
 	OPT_SSHKEY,
 	OPT_SSHKEY_PASSPHRASE,
 	OPT_PROXYCOMMAND,
+	OPT_SSH_SHA1,
 	OPT_REMOTE_COUNT
 };
 
@@ -456,6 +457,10 @@ static int list_config(char *interface)
 	printf("arg {number=%u}{call=--sshkey-passphrase}{display=SSH key passphrase}"
 		"{type=password}{tooltip=Passphrase to unlock the SSH private key}{group=Authentication}\n",
 		inc++);
+	printf("arg {number=%u}{call=--ssh-sha1}{display=Support SHA-1 keys (deprecated)}"
+	       "{type=boolflag}{tooltip=Support keys and key exchange algorithms using SHA-1 (deprecated)}{group=Authentication}"
+	       "\n", inc++);
+
 
 	// Capture tab
 	printf("arg {number=%u}{call=--remote-interface}{display=Remote interface}"
@@ -579,6 +584,7 @@ int main(int argc, char *argv[])
 	extcap_help_add_option(extcap_conf, "--remote-password <password>", "the remote SSH password. If not specified, ssh-agent and ssh-key are used");
 	extcap_help_add_option(extcap_conf, "--sshkey <public key path>", "the path of the ssh key");
 	extcap_help_add_option(extcap_conf, "--sshkey-passphrase <public key passphrase>", "the passphrase to unlock public ssh");
+	extcap_help_add_option(extcap_conf, "--ssh-sha1", "support keys and key exchange using SHA-1 (deprecated)");
 	extcap_help_add_option(extcap_conf, "--remote-interface <iface>", "the remote capture interface");
 	extcap_help_add_option(extcap_conf, "--remote-channel-frequency <channel_frequency>", "the remote channel frequency in MHz");
 	extcap_help_add_option(extcap_conf, "--remote-channel-width <channel_width>", "the remote channel width in MHz");
@@ -639,6 +645,10 @@ int main(int argc, char *argv[])
 			g_free(ssh_params->sshkey_passphrase);
 			ssh_params->sshkey_passphrase = g_strdup(ws_optarg);
 			memset(ws_optarg, 'X', strlen(ws_optarg));
+			break;
+
+		case OPT_SSH_SHA1:
+			ssh_params->ssh_sha1 = true;
 			break;
 
 		case OPT_REMOTE_INTERFACE:
