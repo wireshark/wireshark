@@ -114,6 +114,10 @@ Wireshark 4.3.0 Release Notes
        removed in a future version. Use `tshark -G fields` to produce
        the same report.
 
+  Removed Dissectors
+
+   The Parlay dissector has been removed.
+
   New Protocol Support
 
    EGNOS Message Server (EMS) file format, MAC NR Framed
@@ -130,6 +134,8 @@ Wireshark 4.3.0 Release Notes
    Too many other protocol updates have been made to list them all here.
 
    EGNOS Messager Server (EMS) files
+
+   u-blox GNSS receivers
 
   Major API Changes
 
