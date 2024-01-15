@@ -3747,6 +3747,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				char *str = wmem_strdup(wmem_file_scope(), value);
 				str += 8;
 				first_range_num = strtoul(str, NULL ,10);
+
 			}
 			/* req_list is used for req/resp matching and the deletion (and freeing) of matching
 			*  requests and any orphans that preceed them. A GSList is used instead of a wmem map
