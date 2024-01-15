@@ -95,6 +95,10 @@ typedef struct _http_conv_t {
 	 */
 	gboolean message_ended;
 
+	/* Used for req/res matching */
+	wmem_map_t *req_table;
+        wmem_map_t *matches_table;
+
 } http_conv_t;
 
 /* Used for HTTP Export Object feature */

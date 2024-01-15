@@ -159,6 +159,7 @@ static expert_field ei_http_excess_data;
 static expert_field ei_http_bad_header_name;
 static expert_field ei_http_decompression_failed;
 static expert_field ei_http_decompression_disabled;
+static expert_field ei_http_range_num_undetermined;
 
 static dissector_handle_t http_handle;
 static dissector_handle_t http_tcp_handle;
@@ -357,6 +358,20 @@ typedef struct {
 	http_streaming_reassembly_data_t* req_streaming_reassembly_data;
 	http_streaming_reassembly_data_t* res_streaming_reassembly_data;
 } http_req_res_private_data_t;
+
+ typedef struct _request_trans_t {
+	guint32 first_range_num;
+	guint32 req_frame;
+	nstime_t abs_time;
+} request_trans_t;
+
+ typedef struct _match_trans_t {
+	guint32 req_frame;
+	guint32 resp_frame;
+	nstime_t delta_time;
+} match_trans_t;
+
+static request_trans_t foreach_hash_func (request_trans_t *key_value);
 
 static gint parse_http_status_code(const guchar *line, const guchar *lineend);
 static int is_http_request_or_reply(packet_info *pinfo, const gchar *data, int linelen,
@@ -935,10 +950,12 @@ determine_http_location_target(wmem_allocator_t *scope, const gchar *base_url, c
 		}
 		/* A leading slash means to put the location after the netloc */
 		else if (g_str_has_prefix(location_url, "/")) {
-			gchar *scheme_end = strstr(base_url_no_query, "://") + 3;
+			gchar *scheme_end;
 			gchar *netloc_end;
 			gint netloc_length;
-			if (scheme_end[0] == '\0') {
+
+			scheme_end = strstr(base_url_no_query, "://") + 3;
+			if (scheme_end == 0) {
 				return NULL;
 			}
 			netloc_end = strstr(scheme_end, "/");
@@ -1072,6 +1089,8 @@ get_http_conversation_data(packet_info *pinfo, conversation_t **conversation)
 		conv_data = wmem_new0(wmem_file_scope(), http_conv_t);
 		conv_data->chunk_offsets_fwd = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 		conv_data->chunk_offsets_rev = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+		conv_data->req_table = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+		conv_data->matches_table = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 
 		conversation_add_proto_data(*conversation, proto_http,
 					    conv_data);
@@ -1792,71 +1811,115 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					    hf_http_response, tvb, 0, 0, 1);
 			proto_item_set_hidden(hidden_item);
 
-			if (curr) {
-				nstime_t delta;
+			/* Range is only present in status=206 packets */
+			if (curr && curr->response_code == 206) {
+				match_trans_t *match_trans = NULL;
 
-				pi = proto_tree_add_uint_format(http_tree, hf_http_response_number, tvb, 0, 0, curr->number, "HTTP response %u/%u", curr->number, conv_data->req_res_num);
+				match_trans = (match_trans_t *)wmem_map_lookup(conv_data->matches_table,
+										GUINT_TO_POINTER(pinfo->num));
+				if (match_trans) {
+					pi = proto_tree_add_uint(http_tree, hf_http_request_in, tvb, 0, 0,
+								 match_trans->req_frame);
+					proto_item_set_generated(pi);
+
+					pi = proto_tree_add_time(http_tree, hf_http_time, tvb, 0, 0,
+								 &match_trans->delta_time);
+					proto_item_set_generated(pi);
+				}
+				if (curr) {
+					if (curr->request_uri) {
+						pi = proto_tree_add_string(http_tree, hf_http_response_for_uri, tvb, 0, 0,
+									   curr->full_uri ? curr->full_uri : curr->request_uri);
+						proto_item_set_generated(pi);
+					}
+					pi = proto_tree_add_uint_format(http_tree, hf_http_response_number, tvb, 0, 0,
+						curr->number, "HTTP response %u/%u", curr->number, conv_data->req_res_num);
+					proto_item_set_generated(pi);
+				}
+			}
+			else if (curr) {
+				pi = proto_tree_add_uint_format(http_tree, hf_http_response_number, tvb, 0, 0, curr->number,
+								"HTTP response %u/%u", curr->number, conv_data->req_res_num);
 				proto_item_set_generated(pi);
 
 				if (! nstime_is_unset(&(curr->req_ts))) {
+					nstime_t delta;
+
 					nstime_delta(&delta, &pinfo->abs_ts, &(curr->req_ts));
 					pi = proto_tree_add_time(http_tree, hf_http_time, tvb, 0, 0, &delta);
 					proto_item_set_generated(pi);
 				}
-			}
-			if (prev && prev->req_framenum) {
-				pi = proto_tree_add_uint(http_tree, hf_http_prev_request_in, tvb, 0, 0, prev->req_framenum);
-				proto_item_set_generated(pi);
-			}
-			if (prev && prev->res_framenum) {
-				pi = proto_tree_add_uint(http_tree, hf_http_prev_response_in, tvb, 0, 0, prev->res_framenum);
-				proto_item_set_generated(pi);
-			}
-			if (curr && curr->req_framenum) {
-				pi = proto_tree_add_uint(http_tree, hf_http_request_in, tvb, 0, 0, curr->req_framenum);
-				proto_item_set_generated(pi);
-			}
-			if (next && next->req_framenum) {
-				pi = proto_tree_add_uint(http_tree, hf_http_next_request_in, tvb, 0, 0, next->req_framenum);
-				proto_item_set_generated(pi);
-			}
-			if (next && next->res_framenum) {
-				pi = proto_tree_add_uint(http_tree, hf_http_next_response_in, tvb, 0, 0, next->res_framenum);
-				proto_item_set_generated(pi);
-			}
+				if (curr->req_framenum) {
+					pi = proto_tree_add_uint(http_tree, hf_http_request_in, tvb, 0, 0, curr->req_framenum);
+					proto_item_set_generated(pi);
+				}
+				/*
+				* Add the request URI to the response to allow for filtering by URI
+				*/
+				if (curr->request_uri) {
+					pi = proto_tree_add_string(http_tree, hf_http_response_for_uri, tvb, 0, 0,
+								   curr->full_uri ? curr->full_uri : curr->request_uri);
+					proto_item_set_generated(pi);
+				}
 
-			/*
-			 * add the request URI to the response to allow filtering responses filtered by URI
-			 */
-			if (curr && curr->request_uri) {
-				pi = proto_tree_add_string(http_tree, hf_http_response_for_uri, tvb, 0, 0, curr->full_uri ? curr->full_uri : curr->request_uri);
-				proto_item_set_generated(pi);
+				/* BEGINNING OF UNCOMMENTED CODE*/
+				//if (prev && prev->req_framenum) {
+				//	pi = proto_tree_add_uint(http_tree, hf_http_prev_request_in, tvb, 0, 0, prev->req_framenum);
+				//	proto_item_set_generated(pi);
+				//}
+				//if (prev && prev->res_framenum) {
+				//	pi = proto_tree_add_uint(http_tree, hf_http_prev_response_in, tvb, 0, 0, prev->res_framenum);
+				//	proto_item_set_generated(pi);
+				//}
+				//if (next && next->req_framenum) {
+				//	pi = proto_tree_add_uint(http_tree, hf_http_next_request_in, tvb, 0, 0, next->req_framenum);
+				//	proto_item_set_generated(pi);
+				//}
+				//if (next && next->res_framenum) {
+				//	pi = proto_tree_add_uint(http_tree, hf_http_next_response_in, tvb, 0, 0, next->res_framenum);
+				//	proto_item_set_generated(pi);
+				//}
+				/* END OF UNCOMMENTED CODE*/
 			}
-
 			break;
 
 		case MEDIA_CONTAINER_HTTP_REQUEST:
-			hidden_item = proto_tree_add_boolean(http_tree,
-					    hf_http_request, tvb, 0, 0, 1);
-			proto_item_set_hidden(hidden_item);
+			/* "Range" is only present in status=206 packets */
+			int size = wmem_map_size(conv_data->matches_table);
 
-			if (curr) {
-				pi = proto_tree_add_uint_format(http_tree, hf_http_request_number, tvb, 0, 0, curr->number, "HTTP request %u/%u", curr->number, conv_data->req_res_num);
-				proto_item_set_generated(pi);
-			}
-			if (prev && prev->req_framenum) {
-				pi = proto_tree_add_uint(http_tree, hf_http_prev_request_in, tvb, 0, 0, prev->req_framenum);
-				proto_item_set_generated(pi);
-			}
-			if (curr && curr->res_framenum) {
-				pi = proto_tree_add_uint(http_tree, hf_http_response_in, tvb, 0, 0, curr->res_framenum);
-				proto_item_set_generated(pi);
-			}
-			if (next && next->req_framenum) {
-				pi = proto_tree_add_uint(http_tree, hf_http_next_request_in, tvb, 0, 0, next->req_framenum);
-				proto_item_set_generated(pi);
-			}
+			if (size > 0) {
+				match_trans_t *match_trans = NULL;
 
+				hidden_item = proto_tree_add_boolean(http_tree,	hf_http_request, tvb, 0, 0, 1);
+				proto_item_set_hidden(hidden_item);
+
+				match_trans = (match_trans_t *)wmem_map_lookup(conv_data->matches_table,
+									GUINT_TO_POINTER(pinfo->num));
+				if (match_trans) {
+					pi = proto_tree_add_uint(http_tree, hf_http_response_in,
+								 tvb, 0, 0, match_trans->resp_frame);
+					proto_item_set_generated(pi);
+				}
+			}
+			else if (curr) {
+				if (curr->res_framenum) {
+					pi = proto_tree_add_uint(http_tree, hf_http_response_in, tvb, 0, 0, curr->res_framenum);
+					proto_item_set_generated(pi);
+				}
+				pi = proto_tree_add_uint_format(http_tree, hf_http_request_number, tvb, 0, 0,
+						curr->number, "HTTP request %u/%u", curr->number, conv_data->req_res_num);
+				proto_item_set_generated(pi);
+
+				/* BEGINNING OF COMMENTED CODE*/
+				//if (prev && prev->req_framenum) {
+				//	pi = proto_tree_add_uint(http_tree, hf_http_prev_request_in, tvb, 0, 0, prev->req_framenum);
+				//	proto_item_set_generated(pi);
+				//}				//if (next && next->req_framenum) {
+				//	pi = proto_tree_add_uint(http_tree, hf_http_next_request_in, tvb, 0, 0, next->req_framenum);
+				//	proto_item_set_generated(pi);
+				//}
+				/* END OF UNCOMMENTED CODE*/
+			}
 			break;
 
 		case MEDIA_CONTAINER_HTTP_OTHERS:
@@ -2398,6 +2461,10 @@ basic_request_dissector(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
 
 	/* Save the request URI for various later uses */
 	request_uri = tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_ASCII);
+
+	if (request_uri == NULL)
+	       request_uri = curr->request_uri;
+
 	stat_info->request_uri = wmem_strdup(pinfo->pool, request_uri);
 	if (!PINFO_FD_VISITED(pinfo) && curr) {
 		curr->request_uri = wmem_strdup(wmem_file_scope(), request_uri);
@@ -3006,6 +3073,8 @@ typedef struct {
 #define HDR_REFERER			12
 #define HDR_LOCATION			13
 #define HDR_HTTP2_SETTINGS		14
+#define HDR_RANGE           		15
+#define HDR_CONTENT_RANGE		16
 
 static const header_info headers[] = {
 	{ "Authorization", &hf_http_authorization, HDR_AUTHORIZATION },
@@ -3019,8 +3088,8 @@ static const header_info headers[] = {
 	{ "Upgrade", &hf_http_upgrade, HDR_UPGRADE },
 	{ "User-Agent",	&hf_http_user_agent, HDR_NO_SPECIAL },
 	{ "Host", &hf_http_host, HDR_HOST },
-	{ "Range", &hf_http_range, HDR_NO_SPECIAL },
-	{ "Content-Range", &hf_http_content_range, HDR_NO_SPECIAL },
+	{ "Range", &hf_http_range, HDR_RANGE },
+	{ "Content-Range", &hf_http_content_range, HDR_CONTENT_RANGE },
 	{ "Connection", &hf_http_connection, HDR_NO_SPECIAL },
 	{ "Cookie", &hf_http_cookie, HDR_COOKIE },
 	{ "Accept", &hf_http_accept, HDR_NO_SPECIAL },
@@ -3383,6 +3452,11 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			}
 		}
 	} else {
+
+
+
+
+
 		/*
 		 * Add it to the protocol tree as a particular field,
 		 * but display the line as is.
@@ -3640,6 +3714,192 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			ENDTRY;
 
 			break;
+		}
+		case HDR_RANGE:
+		{
+			if (!pinfo->fd->visited) {
+			 /*
+			 *  The HTTP protocol (RFC 9110) provides no means to match requests and responses
+			 *  by an identifier because one does not exist. Instead the order in which responses
+			 *  are received is used. HTTP I/O is 'ordered asynchronous' such that, for example,
+			 *  the first of four GETs responses is matched with the earliest outstanding
+			 *  request, the next response with the second oldest request and so on. HTTP
+			 *  captures show that sometimes the server does not return a response on the same
+			 *  TCP connection and there are no TCP errors that would otherwise explain this.
+			 *  While the RFC expressily prohibits matching via byte ranges because the the
+			 *  server may return fewer bytes than requested, the first number of the range
+			 *  does not change. Matching by first range number works unless the server returns
+			 *  multiple ranges. Such behavior is rare but if the following METHOD is employed,
+			 *  matching is	discontinued until a single range response is received. The previous
+			 *  method in service since the Wireshark was created, incorrectly matched
+			 *  responses with the last of several async requests rather than the first, and
+			 *  did not handle a request with no respnsene. Whenever there were multiple
+			 *  outstanding requests, the SRT stats were wrong.
+			 *  METHOD
+			 *  ======
+			 *  Create a reqs_table, keyed by the fist range number or the entire range, and
+			 *  a matches_table. The matches_table contains a list of matching requests and
+			 *  responses keyed by frame_num.
+			 *
+			 *  If a request arrives where the first_range_num does not exist (e.g., "-12345")
+			 *  or the first number in the range is zero, the entire range is hashed and
+			 *  inserted in the reqs_table as if it were a first_range_num.
+			 *
+			 *  When a response arrives with the same first range number or hash in its
+			 *  "Content Range" as that in the req_table, two entries are added to the
+			 *  matches_table: one with "match_trans->match_frame" set to the request's frame
+			 *  number and the second set to the response's frame number.
+			 *
+			 *  If a response arrives that doesn't match any of the requests, it is ignored
+			 *  and matching resumes with the next response.
+			 *
+			 *  If a response arrives with a content range that matches two of the outstanding
+			 *  entries in the req_table, the order of the duplicates are reversed so that the
+			 *  lookup will match the entry containing the lowest frame number in the req_table.
+			 *
+			 *  ALL of the above is done in the first pass.
+			 */
+			 /*
+			 * THIS IS A REQUEST
+			 */
+			guint8  *first_range_num_str = NULL;
+			guint32 first_range_num = 0;
+			request_trans_t *req_trans = NULL;
+
+			/*
+			 * Get the first range number */
+			first_range_num_str = wmem_strdup(wmem_file_scope(), value);
+			first_range_num_str = strtok(value_bytes, "-");
+			first_range_num_str = strtok(value_bytes, "=");
+
+			if (first_range_num_str) {
+				first_range_num_str += 6;  /* Move the pointer past "bytes=" */
+				first_range_num = strtoul(first_range_num_str, NULL ,10);
+			}
+			if (first_range_num == 0) {
+				/* The first number of the range is missing or '0'. Get a hash
+				*  of the entire range field and set it to first_range_num."
+				*/
+				unsigned long hash = 5381;
+				int c;
+				char *str = wmem_strdup(wmem_file_scope(), value);
+				/*
+				 * Isolate the range itself */
+				str += 6;
+
+				if (*str) {
+					while (c = *str++)
+						hash = ((hash << 5) + hash) + c;
+					first_range_num = hash;
+				}
+			}
+			if (first_range_num > 0) {
+				request_trans_t *tmp_req_trans = NULL;
+
+				req_trans = wmem_new0(wmem_file_scope(), request_trans_t);
+				req_trans->first_range_num = first_range_num;
+				req_trans->req_frame = pinfo->num;
+				req_trans->abs_time = pinfo->fd->abs_ts;
+
+				tmp_req_trans = wmem_map_insert(conv_data->req_table,
+							GUINT_TO_POINTER(first_range_num), (void *)req_trans);
+
+				if (tmp_req_trans
+				&& first_range_num == tmp_req_trans->first_range_num) {
+					/*
+					 * We have a duplicate entry. Swap the order of the req_table entries
+					*/
+					request_trans_t *old_req_trans = NULL;
+
+					old_req_trans = wmem_new0(wmem_file_scope(), request_trans_t);
+					old_req_trans->first_range_num = tmp_req_trans->first_range_num;
+					old_req_trans->req_frame = tmp_req_trans->req_frame;
+					old_req_trans->abs_time = tmp_req_trans->abs_time;
+
+					wmem_map_remove(conv_data->req_table, (void *)tmp_req_trans);
+					wmem_map_insert(conv_data->req_table,
+								GUINT_TO_POINTER(first_range_num), (void *)req_trans);
+					wmem_map_insert(conv_data->req_table,
+								GUINT_TO_POINTER(first_range_num), (void *)old_req_trans);
+				}
+				else {
+					wmem_map_remove(conv_data->req_table, (void *)tmp_req_trans);
+					wmem_map_insert(conv_data->req_table,
+								GUINT_TO_POINTER(first_range_num), (void *)req_trans);
+				}
+			}
+			else {
+				expert_add_info(pinfo, tree, &ei_http_range_num_undetermined);
+			}
+			break;
+			}
+		}
+		case HDR_CONTENT_RANGE:
+		{
+			if (!pinfo->fd->visited) {
+			/*
+			 * THIS IS A RESPONSE
+			*/
+			guint8  *first_crange_num_str = NULL;
+			guint8  *no_suffix_str = NULL;
+			guint32 first_crange_num = 0;
+			guint32 highest_matched_frame;
+			request_trans_t *req_trans = NULL;
+			match_trans_t *match_trans = NULL;
+			nstime_t  ns;
+
+			/* Get the first crange number  */
+			first_crange_num_str = wmem_strdup(wmem_file_scope(), value);
+			first_crange_num_str = strtok(value_bytes, "/");
+			no_suffix_str = wmem_strdup(wmem_file_scope(), first_crange_num_str);
+			first_crange_num_str = strtok(value_bytes, "-");
+			first_crange_num_str = strtok(value_bytes, " ");
+
+			if (first_crange_num_str) {
+				first_crange_num_str += 6;  /* Move the pointer past "bytes=" */
+				first_crange_num = strtoul(first_crange_num_str, NULL ,10);
+			}
+			if (first_crange_num == 0) {
+				/* The first number of the range is missing. Get a hash of the entire
+				*  range field and set it to first_range_num_str."
+				*/
+				unsigned long hash = 5381;
+				int c;
+				guint8 *str = wmem_strdup(wmem_file_scope(), no_suffix_str);
+				/*
+				 * Get the entire range sans the last useless number (e.g.,
+				 * "/12345", create a hash of it, and insert it into the req_table. */
+				str += 6;
+
+				if (*str) {
+					while (c = *str++)
+						hash = ((hash << 5) + hash) + c;
+						first_crange_num = hash;
+				}
+			}
+			req_trans = (request_trans_t *)wmem_map_lookup(conv_data->req_table,
+						GUINT_TO_POINTER(first_crange_num));
+
+			if (first_crange_num != 0) {
+				if (req_trans) {
+					match_trans = wmem_new(wmem_file_scope(), match_trans_t);
+					match_trans->req_frame = req_trans->req_frame;
+					match_trans->resp_frame = pinfo->num;
+					nstime_delta(&ns, &pinfo->fd->abs_ts, &req_trans->abs_time);
+					match_trans->delta_time = ns;
+
+					wmem_map_insert(conv_data->matches_table,
+						GUINT_TO_POINTER(match_trans->req_frame), (void *)match_trans);
+					wmem_map_insert(conv_data->matches_table,
+						GUINT_TO_POINTER(match_trans->resp_frame), (void *)match_trans);
+
+					/* Remove this entry (and free its memory) so that it won't be matched
+					*  with duplicate range request. */
+					wmem_map_remove(conv_data->req_table, req_trans);
+				}
+			}
+			break;
+			}
 		}
 		}
 	}
@@ -4506,6 +4766,8 @@ proto_register_http(void)
 		{ &ei_http_bad_header_name, { "http.bad_header_name", PI_PROTOCOL, PI_WARN, "Illegal characters found in header name", EXPFILL }},
 		{ &ei_http_decompression_failed, { "http.decompression_failed", PI_UNDECODED, PI_WARN, "Decompression failed", EXPFILL }},
 		{ &ei_http_decompression_disabled, { "http.decompression_disabled", PI_UNDECODED, PI_CHAT, "Decompression disabled", EXPFILL }},
+		{ &ei_http_range_num_undetermined, { "http.range__num_undetermined", PI_MALFORMED, PI_ERROR, "Range number could not be determined", EXPFILL }},
+
 	};
 
 	/* UAT for header fields */
