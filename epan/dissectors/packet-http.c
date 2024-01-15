@@ -252,25 +252,25 @@ UAT_CSTRING_CB_DEF(header_fields, header_desc, header_field_t)
  * desegmentation of HTTP headers
  * (when we are over TCP or another protocol providing the desegmentation API)
  */
-static bool http_desegment_headers = true;
+static gboolean http_desegment_headers = TRUE;
 
 /*
  * desegmentation of HTTP bodies
  * (when we are over TCP or another protocol providing the desegmentation API)
  * TODO let the user filter on content-type the bodies he wants desegmented
  */
-static bool http_desegment_body = true;
+static gboolean http_desegment_body = TRUE;
 
 /*
  * De-chunking of content-encoding: chunk entity bodies.
  */
-static bool http_dechunk_body = true;
+static gboolean http_dechunk_body = TRUE;
 
 /*
  * Decompression of zlib or brotli encoded entities.
  */
 #if defined(HAVE_ZLIB) || defined(HAVE_BROTLI)
-static bool http_decompress_body = true;
+static gboolean http_decompress_body = TRUE;
 #endif
 
 /*
@@ -3730,6 +3730,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			 */
 			guint8  *first_range_num_str = NULL;
 			unsigned long first_range_num = 0;
+			request_trans_t *req_trans = NULL;
 
 			/* Get the first range number */
 			first_range_num_str = wmem_strdup(wmem_file_scope(), value);
@@ -3747,7 +3748,6 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				char *str = wmem_strdup(wmem_file_scope(), value);
 				str += 8;
 				first_range_num = strtoul(str, NULL ,10);
-
 			}
 			/* req_list is used for req/resp matching and the deletion (and freeing) of matching
 			*  requests and any orphans that preceed them. A GSList is used instead of a wmem map
@@ -3774,7 +3774,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			if (!pinfo->fd->visited) {
 				guint8  *first_crange_num_str = NULL;
 				guint8  *no_filesize = NULL;
-				unsigned long first_crange_num = 0;
+				guint32 first_crange_num = 0;
 				guint   pos;
 				request_trans_t *req_trans;
 				match_trans_t *match_trans = NULL;
@@ -3782,7 +3782,6 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				GSList *iter = NULL;
 
 				/* Get the first content range number  */
-				first_crange_num_str = wmem_alloc(scope, 100);
 				first_crange_num_str = g_strdup(value);
 
 				/* Eliminate the trailing "/12345" file size string */
@@ -3796,6 +3795,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 					first_crange_num = strtoul(first_crange_num_str, NULL ,10);
 				}
 				if (first_crange_num == 0) {
+
 					/* The first number of the range is missing or '0'. So we'll
 					* use the second number in the range instead."
 					*/
