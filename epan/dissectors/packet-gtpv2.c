@@ -8999,6 +8999,11 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
             (*gtpv2_ies[i].decode) (ie_tvb, pinfo , ie_tree, ti, length, message_type, instance, args);
         }
 
+        /* ch8.120 breaks the format described in ch8.2.1 */
+        if (type == GTPV2_IE_MON_EVENT_INF) {
+            offset++;
+        }
+
         offset += length;
     }
 }
