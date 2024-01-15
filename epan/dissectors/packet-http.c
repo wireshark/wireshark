@@ -371,8 +371,6 @@ typedef struct {
 	nstime_t delta_time;
 } match_trans_t;
 
-static request_trans_t foreach_hash_func (request_trans_t *key_value);
-
 static gint parse_http_status_code(const guchar *line, const guchar *lineend);
 static int is_http_request_or_reply(packet_info *pinfo, const gchar *data, int linelen,
 				    media_container_type_t *type, ReqRespDissector
