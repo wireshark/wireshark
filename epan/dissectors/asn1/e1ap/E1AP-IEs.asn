@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V17.6.0 (2023-09)
+-- 3GPP TS 37.483 V17.7.0 (2023-12)
 -- **************************************************************
 --
 -- Information Element Definitions
@@ -78,6 +78,9 @@ IMPORTS
 	id-VersionID,
 	id-MBSAreaSessionID,
 	id-Secondary-PDU-Session-Data-Forwarding-Information,
+	id-MBSSessionResourceNotification,
+	id-MCBearerContextInactivityTimer,
+	id-MCBearerContextStatusChange,
 	maxnoofMBSAreaSessionIDs,
 	maxnoofSharedNG-UTerminations,
 	maxnoofMRBs,
@@ -1898,6 +1901,38 @@ MBS-Support-Info-ToAdd-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 
 MBS-Support-Info-ToRemove-List ::= SEQUENCE (SIZE(1..maxnoofMBSSessionIDs)) OF MBS-Support-Info-ToRemove-Item
 
+MBSSessionResourceNotification ::= CHOICE {
+	mbs-DL-Data-Arrival				MBS-DL-Data-Arrival,
+	inactivity						MCBearerContext-Inactivity,
+	choice-extension				ProtocolIE-SingleContainer	{{ MBSSessionResourceNotification-ExtIEs}}
+}
+
+MBSSessionResourceNotification-ExtIEs E1AP-PROTOCOL-IES ::= {
+	...
+}
+
+MBS-DL-Data-Arrival ::= SEQUENCE {
+	dlDataArrival					ENUMERATED {true, ...},
+	ppi								PPI							OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { MBS-DL-Data-Arrival-ExtIEs} }	OPTIONAL,
+	...
+}
+
+MBS-DL-Data-Arrival-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+MCBearerContext-Inactivity ::= SEQUENCE {
+	mcBearerContext-Inactivity-Indication						ENUMERATED {true, ...},
+	iE-Extensions		ProtocolExtensionContainer { {MCBearerContext-Inactivity-ExtIEs} }	OPTIONAL,
+	...
+}
+
+MCBearerContext-Inactivity-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 MBS-Support-Info-ToRemove-Item ::= SEQUENCE {
 	globalMBSSessionID					GlobalMBSSessionID,
 	iE-Extensions		ProtocolExtensionContainer { { MBS-Support-Info-ToRemove-Item-ExtIEs} }	OPTIONAL,
@@ -1920,7 +1955,9 @@ MCBearerContextToSetup ::= SEQUENCE {
 
 MCBearerContextToSetup-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 	{ID id-MBSSessionAssociatedInfoNonSupportToSupport	CRITICALITY ignore	EXTENSION MBSSessionAssociatedInfoNonSupportToSupport	PRESENCE optional}|
-	{ID id-MBSAreaSessionID	CRITICALITY ignore	EXTENSION MBSAreaSessionID	PRESENCE optional},
+	{ID id-MBSAreaSessionID					CRITICALITY ignore	EXTENSION MBSAreaSessionID					PRESENCE optional}|
+	{ID id-MCBearerContextInactivityTimer		CRITICALITY ignore	EXTENSION Inactivity-Timer					PRESENCE optional}|
+	{ID id-MCBearerContextStatusChange		CRITICALITY ignore	EXTENSION MCBearerContextStatusChange		PRESENCE optional},
 	...
 }
 
@@ -1938,6 +1975,8 @@ MCMRBSetupConfiguration-Item ::= SEQUENCE {
 MCMRBSetupConfiguration-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+MCBearerContextStatusChange	::=	ENUMERATED {suspend, resume, ...}
 
 
 -- MCBearerContextToSetupResponse
@@ -2014,7 +2053,9 @@ MCBearerContextToModify-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 	{ID id-MCForwardingResourceRequest					CRITICALITY ignore	EXTENSION MCForwardingResourceRequest						PRESENCE optional}|
 	{ID id-MCForwardingResourceIndication				CRITICALITY ignore	EXTENSION MCForwardingResourceIndication					PRESENCE optional}|
 	{ID id-MCForwardingResourceRelease					CRITICALITY ignore	EXTENSION MCForwardingResourceRelease						PRESENCE optional}|
-	{ID id-MBSSessionAssociatedInfoNonSupportToSupport	CRITICALITY ignore	EXTENSION MBSSessionAssociatedInfoNonSupportToSupport	PRESENCE optional},
+	{ID id-MBSSessionAssociatedInfoNonSupportToSupport	CRITICALITY ignore	EXTENSION MBSSessionAssociatedInfoNonSupportToSupport	PRESENCE optional}|
+	{ID id-MCBearerContextInactivityTimer					CRITICALITY ignore	EXTENSION Inactivity-Timer										PRESENCE optional}|
+	{ID id-MCBearerContextStatusChange					CRITICALITY ignore	EXTENSION MCBearerContextStatusChange						PRESENCE optional},
 	...
 }
 

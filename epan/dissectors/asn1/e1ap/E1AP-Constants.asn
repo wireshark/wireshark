@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V17.6.0 (2023-09)
+-- 3GPP TS 37.483 V17.7.0 (2023-12)
 -- **************************************************************
 --
 -- Constant definitions
@@ -64,8 +64,8 @@ id-MCBearerContextSetup											ProcedureCode ::= 34
 id-MCBearerContextModification									ProcedureCode ::= 35
 id-MCBearerContextModificationRequired							ProcedureCode ::= 36
 id-MCBearerContextRelease										ProcedureCode ::= 37
-id-MCBearerContextReleaseRequest								ProcedureCode ::= 38
-
+id-MCBearerContextReleaseRequest									ProcedureCode ::= 38
+id-MCBearerNotification											ProcedureCode ::= 39
 
 
 -- **************************************************************
@@ -236,7 +236,7 @@ id-CHOInitiation												ProtocolIE-ID ::= 121
 id-EarlyForwardingCOUNTReq										ProtocolIE-ID ::= 122
 id-EarlyForwardingCOUNTInfo										ProtocolIE-ID ::= 123
 id-AlternativeQoSParaSetList									ProtocolIE-ID ::= 124
-id-ExtendedSliceSupportList								ProtocolIE-ID ::= 125
+id-ExtendedSliceSupportList										ProtocolIE-ID ::= 125
 id-MCG-OfferedGBRQoSFlowInfo									ProtocolIE-ID ::= 126
 id-Number-of-tunnels											ProtocolIE-ID ::= 127
 id-DRB-Measurement-Results-Information-List						ProtocolIE-ID ::= 128
@@ -302,6 +302,10 @@ id-InactivityInformationRequest									ProtocolIE-ID ::= 187
 id-UEInactivityInformation										ProtocolIE-ID ::= 188
 id-MBSAreaSessionID												ProtocolIE-ID ::= 189
 id-Secondary-PDU-Session-Data-Forwarding-Information			ProtocolIE-ID ::= 190
+id-MBSSessionResourceNotification								ProtocolIE-ID ::= 191
+id-MCBearerContextInactivityTimer								ProtocolIE-ID ::= 192
+id-MCBearerContextStatusChange									ProtocolIE-ID ::= 193
+
 
 
 END

@@ -5,7 +5,7 @@
 
 /* packet-e1ap.c
  * Routines for E-UTRAN E1 Application Protocol (E1AP) packet dissection
- * Copyright 2018-2023, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2018-2024, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 37.483 V17.6.0 (2023-09)
+ * References: 3GPP TS 37.483 V17.7.0 (2023-12)
  */
 
 #include "config.h"
@@ -112,7 +112,8 @@ typedef enum _ProcedureCode_enum {
   id_MCBearerContextModification =  35,
   id_MCBearerContextModificationRequired =  36,
   id_MCBearerContextRelease =  37,
-  id_MCBearerContextReleaseRequest =  38
+  id_MCBearerContextReleaseRequest =  38,
+  id_MCBearerNotification =  39
 } ProcedureCode_enum;
 
 typedef enum _ProtocolIE_ID_enum {
@@ -306,7 +307,10 @@ typedef enum _ProtocolIE_ID_enum {
   id_InactivityInformationRequest = 187,
   id_UEInactivityInformation = 188,
   id_MBSAreaSessionID = 189,
-  id_Secondary_PDU_Session_Data_Forwarding_Information = 190
+  id_Secondary_PDU_Session_Data_Forwarding_Information = 190,
+  id_MBSSessionResourceNotification = 191,
+  id_MCBearerContextInactivityTimer = 192,
+  id_MCBearerContextStatusChange = 193
 } ProtocolIE_ID_enum;
 
 /* Initialize the protocol and registered fields */
@@ -404,7 +408,9 @@ static int hf_e1ap_InactivityInformationRequest_PDU;  /* InactivityInformationRe
 static int hf_e1ap_MaxCIDEHCDL_PDU;               /* MaxCIDEHCDL */
 static int hf_e1ap_MBSAreaSessionID_PDU;          /* MBSAreaSessionID */
 static int hf_e1ap_MBSSessionAssociatedInfoNonSupportToSupport_PDU;  /* MBSSessionAssociatedInfoNonSupportToSupport */
+static int hf_e1ap_MBSSessionResourceNotification_PDU;  /* MBSSessionResourceNotification */
 static int hf_e1ap_MCBearerContextToSetup_PDU;    /* MCBearerContextToSetup */
+static int hf_e1ap_MCBearerContextStatusChange_PDU;  /* MCBearerContextStatusChange */
 static int hf_e1ap_MCBearerContextToSetupResponse_PDU;  /* MCBearerContextToSetupResponse */
 static int hf_e1ap_MCBearerContextToModify_PDU;   /* MCBearerContextToModify */
 static int hf_e1ap_MBSMulticastF1UContextDescriptor_PDU;  /* MBSMulticastF1UContextDescriptor */
@@ -581,6 +587,7 @@ static int hf_e1ap_MCBearerContextModificationConfirm_PDU;  /* MCBearerContextMo
 static int hf_e1ap_MCBearerContextReleaseCommand_PDU;  /* MCBearerContextReleaseCommand */
 static int hf_e1ap_MCBearerContextReleaseComplete_PDU;  /* MCBearerContextReleaseComplete */
 static int hf_e1ap_MCBearerContextReleaseRequest_PDU;  /* MCBearerContextReleaseRequest */
+static int hf_e1ap_MCBearerNotification_PDU;      /* MCBearerNotification */
 static int hf_e1ap_E1AP_PDU_PDU;                  /* E1AP_PDU */
 static int hf_e1ap_local;                         /* INTEGER_0_maxPrivateIEs */
 static int hf_e1ap_global;                        /* T_global */
@@ -844,6 +851,11 @@ static int hf_e1ap_associated_unicast_QoS_Flow_Identifier;  /* QoS_Flow_Identifi
 static int hf_e1ap_MBS_Support_Info_ToAdd_List_item;  /* MBS_Support_Info_ToAdd_Item */
 static int hf_e1ap_globalMBSSessionID;            /* GlobalMBSSessionID */
 static int hf_e1ap_MBS_Support_Info_ToRemove_List_item;  /* MBS_Support_Info_ToRemove_Item */
+static int hf_e1ap_mbs_DL_Data_Arrival;           /* MBS_DL_Data_Arrival */
+static int hf_e1ap_inactivity;                    /* MCBearerContext_Inactivity */
+static int hf_e1ap_dlDataArrival;                 /* T_dlDataArrival */
+static int hf_e1ap_ppi;                           /* PPI */
+static int hf_e1ap_mcBearerContext_Inactivity_Indication;  /* T_mcBearerContext_Inactivity_Indication */
 static int hf_e1ap_mcMRBToSetupList;              /* MCMRBSetupConfiguration */
 static int hf_e1ap_MCMRBSetupConfiguration_item;  /* MCMRBSetupConfiguration_Item */
 static int hf_e1ap_mcBearerContextNGU_TNLInfoatNGRAN;  /* MCBearerContextNGU_TNLInfoatNGRAN */
@@ -1285,6 +1297,9 @@ static gint ett_e1ap_MBSSessionAssociatedInformation_Item;
 static gint ett_e1ap_MBS_Support_Info_ToAdd_List;
 static gint ett_e1ap_MBS_Support_Info_ToAdd_Item;
 static gint ett_e1ap_MBS_Support_Info_ToRemove_List;
+static gint ett_e1ap_MBSSessionResourceNotification;
+static gint ett_e1ap_MBS_DL_Data_Arrival;
+static gint ett_e1ap_MCBearerContext_Inactivity;
 static gint ett_e1ap_MBS_Support_Info_ToRemove_Item;
 static gint ett_e1ap_MCBearerContextToSetup;
 static gint ett_e1ap_MCMRBSetupConfiguration;
@@ -1525,6 +1540,7 @@ static gint ett_e1ap_MCBearerContextModificationConfirm;
 static gint ett_e1ap_MCBearerContextReleaseCommand;
 static gint ett_e1ap_MCBearerContextReleaseComplete;
 static gint ett_e1ap_MCBearerContextReleaseRequest;
+static gint ett_e1ap_MCBearerNotification;
 static gint ett_e1ap_E1AP_PDU;
 static gint ett_e1ap_InitiatingMessage;
 static gint ett_e1ap_SuccessfulOutcome;
@@ -1700,6 +1716,7 @@ static const value_string e1ap_ProcedureCode_vals[] = {
   { id_MCBearerContextModificationRequired, "id-MCBearerContextModificationRequired" },
   { id_MCBearerContextRelease, "id-MCBearerContextRelease" },
   { id_MCBearerContextReleaseRequest, "id-MCBearerContextReleaseRequest" },
+  { id_MCBearerNotification, "id-MCBearerNotification" },
   { 0, NULL }
 };
 
@@ -1909,6 +1926,9 @@ static const value_string e1ap_ProtocolIE_ID_vals[] = {
   { id_UEInactivityInformation, "id-UEInactivityInformation" },
   { id_MBSAreaSessionID, "id-MBSAreaSessionID" },
   { id_Secondary_PDU_Session_Data_Forwarding_Information, "id-Secondary-PDU-Session-Data-Forwarding-Information" },
+  { id_MBSSessionResourceNotification, "id-MBSSessionResourceNotification" },
+  { id_MCBearerContextInactivityTimer, "id-MCBearerContextInactivityTimer" },
+  { id_MCBearerContextStatusChange, "id-MCBearerContextStatusChange" },
   { 0, NULL }
 };
 
@@ -7532,6 +7552,101 @@ dissect_e1ap_MBSSessionAssociatedInformation(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 
+static const value_string e1ap_T_dlDataArrival_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_e1ap_T_dlDataArrival(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_e1ap_PPI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 7U, NULL, TRUE);
+
+  return offset;
+}
+
+
+static const per_sequence_t MBS_DL_Data_Arrival_sequence[] = {
+  { &hf_e1ap_dlDataArrival  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_T_dlDataArrival },
+  { &hf_e1ap_ppi            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PPI },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_MBS_DL_Data_Arrival(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_MBS_DL_Data_Arrival, MBS_DL_Data_Arrival_sequence);
+
+  return offset;
+}
+
+
+static const value_string e1ap_T_mcBearerContext_Inactivity_Indication_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_e1ap_T_mcBearerContext_Inactivity_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t MCBearerContext_Inactivity_sequence[] = {
+  { &hf_e1ap_mcBearerContext_Inactivity_Indication, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_T_mcBearerContext_Inactivity_Indication },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_MCBearerContext_Inactivity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_MCBearerContext_Inactivity, MCBearerContext_Inactivity_sequence);
+
+  return offset;
+}
+
+
+static const value_string e1ap_MBSSessionResourceNotification_vals[] = {
+  {   0, "mbs-DL-Data-Arrival" },
+  {   1, "inactivity" },
+  {   2, "choice-extension" },
+  { 0, NULL }
+};
+
+static const per_choice_t MBSSessionResourceNotification_choice[] = {
+  {   0, &hf_e1ap_mbs_DL_Data_Arrival, ASN1_NO_EXTENSIONS     , dissect_e1ap_MBS_DL_Data_Arrival },
+  {   1, &hf_e1ap_inactivity     , ASN1_NO_EXTENSIONS     , dissect_e1ap_MCBearerContext_Inactivity },
+  {   2, &hf_e1ap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_SingleContainer },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_e1ap_MBSSessionResourceNotification(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_e1ap_MBSSessionResourceNotification, MBSSessionResourceNotification_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t MCMRBSetupConfiguration_Item_sequence[] = {
   { &hf_e1ap_mrb_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_MRB_ID },
   { &hf_e1ap_mbs_pdcp_config, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDCP_Configuration },
@@ -7576,6 +7691,22 @@ static int
 dissect_e1ap_MCBearerContextToSetup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e1ap_MCBearerContextToSetup, MCBearerContextToSetup_sequence);
+
+  return offset;
+}
+
+
+static const value_string e1ap_MCBearerContextStatusChange_vals[] = {
+  {   0, "suspend" },
+  {   1, "resume" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_e1ap_MCBearerContextStatusChange(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -9281,16 +9412,6 @@ dissect_e1ap_PDU_Session_To_Notify_List(tvbuff_t *tvb _U_, int offset _U_, asn1_
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_e1ap_PDU_Session_To_Notify_List, PDU_Session_To_Notify_List_sequence_of,
                                                   1, maxnoofPDUSessionResource, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_e1ap_PPI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 7U, NULL, TRUE);
 
   return offset;
 }
@@ -11572,6 +11693,21 @@ dissect_e1ap_MCBearerContextReleaseRequest(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
+static const per_sequence_t MCBearerNotification_sequence[] = {
+  { &hf_e1ap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_MCBearerNotification(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MCBearerNotification");
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_MCBearerNotification, MCBearerNotification_sequence);
+
+  return offset;
+}
+
+
 
 static int
 dissect_e1ap_InitiatingMessage_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -12278,11 +12414,27 @@ static int dissect_MBSSessionAssociatedInfoNonSupportToSupport_PDU(tvbuff_t *tvb
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_MBSSessionResourceNotification_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_MBSSessionResourceNotification(tvb, offset, &asn1_ctx, tree, hf_e1ap_MBSSessionResourceNotification_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_MCBearerContextToSetup_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_e1ap_MCBearerContextToSetup(tvb, offset, &asn1_ctx, tree, hf_e1ap_MCBearerContextToSetup_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_MCBearerContextStatusChange_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_MCBearerContextStatusChange(tvb, offset, &asn1_ctx, tree, hf_e1ap_MCBearerContextStatusChange_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -13694,6 +13846,14 @@ static int dissect_MCBearerContextReleaseRequest_PDU(tvbuff_t *tvb _U_, packet_i
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_MCBearerNotification_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_MCBearerNotification(tvb, offset, &asn1_ctx, tree, hf_e1ap_MCBearerNotification_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_E1AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -14167,9 +14327,17 @@ void proto_register_e1ap(void) {
       { "MBSSessionAssociatedInfoNonSupportToSupport", "e1ap.MBSSessionAssociatedInfoNonSupportToSupport_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_e1ap_MBSSessionResourceNotification_PDU,
+      { "MBSSessionResourceNotification", "e1ap.MBSSessionResourceNotification",
+        FT_UINT32, BASE_DEC, VALS(e1ap_MBSSessionResourceNotification_vals), 0,
+        NULL, HFILL }},
     { &hf_e1ap_MCBearerContextToSetup_PDU,
       { "MCBearerContextToSetup", "e1ap.MCBearerContextToSetup_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_MCBearerContextStatusChange_PDU,
+      { "MCBearerContextStatusChange", "e1ap.MCBearerContextStatusChange",
+        FT_UINT32, BASE_DEC, VALS(e1ap_MCBearerContextStatusChange_vals), 0,
         NULL, HFILL }},
     { &hf_e1ap_MCBearerContextToSetupResponse_PDU,
       { "MCBearerContextToSetupResponse", "e1ap.MCBearerContextToSetupResponse_element",
@@ -14873,6 +15041,10 @@ void proto_register_e1ap(void) {
         NULL, HFILL }},
     { &hf_e1ap_MCBearerContextReleaseRequest_PDU,
       { "MCBearerContextReleaseRequest", "e1ap.MCBearerContextReleaseRequest_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_MCBearerNotification_PDU,
+      { "MCBearerNotification", "e1ap.MCBearerNotification_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_E1AP_PDU_PDU,
@@ -15927,6 +16099,26 @@ void proto_register_e1ap(void) {
       { "MBS-Support-Info-ToRemove-Item", "e1ap.MBS_Support_Info_ToRemove_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_e1ap_mbs_DL_Data_Arrival,
+      { "mbs-DL-Data-Arrival", "e1ap.mbs_DL_Data_Arrival_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_inactivity,
+      { "inactivity", "e1ap.inactivity_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MCBearerContext_Inactivity", HFILL }},
+    { &hf_e1ap_dlDataArrival,
+      { "dlDataArrival", "e1ap.dlDataArrival",
+        FT_UINT32, BASE_DEC, VALS(e1ap_T_dlDataArrival_vals), 0,
+        NULL, HFILL }},
+    { &hf_e1ap_ppi,
+      { "ppi", "e1ap.ppi",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_mcBearerContext_Inactivity_Indication,
+      { "mcBearerContext-Inactivity-Indication", "e1ap.mcBearerContext_Inactivity_Indication",
+        FT_UINT32, BASE_DEC, VALS(e1ap_T_mcBearerContext_Inactivity_Indication_vals), 0,
+        "T_mcBearerContext_Inactivity_Indication", HFILL }},
     { &hf_e1ap_mcMRBToSetupList,
       { "mcMRBToSetupList", "e1ap.mcMRBToSetupList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -17141,6 +17333,9 @@ void proto_register_e1ap(void) {
     &ett_e1ap_MBS_Support_Info_ToAdd_List,
     &ett_e1ap_MBS_Support_Info_ToAdd_Item,
     &ett_e1ap_MBS_Support_Info_ToRemove_List,
+    &ett_e1ap_MBSSessionResourceNotification,
+    &ett_e1ap_MBS_DL_Data_Arrival,
+    &ett_e1ap_MCBearerContext_Inactivity,
     &ett_e1ap_MBS_Support_Info_ToRemove_Item,
     &ett_e1ap_MCBearerContextToSetup,
     &ett_e1ap_MCMRBSetupConfiguration,
@@ -17381,6 +17576,7 @@ void proto_register_e1ap(void) {
     &ett_e1ap_MCBearerContextReleaseCommand,
     &ett_e1ap_MCBearerContextReleaseComplete,
     &ett_e1ap_MCBearerContextReleaseRequest,
+    &ett_e1ap_MCBearerNotification,
     &ett_e1ap_E1AP_PDU,
     &ett_e1ap_InitiatingMessage,
     &ett_e1ap_SuccessfulOutcome,
@@ -17537,6 +17733,7 @@ proto_reg_handoff_e1ap(void)
   dissector_add_uint("e1ap.ies", id_ManagementBasedMDTPLMNModificationList, create_dissector_handle(dissect_MDTPLMNModificationList_PDU, proto_e1ap));
   dissector_add_uint("e1ap.ies", id_InactivityInformationRequest, create_dissector_handle(dissect_InactivityInformationRequest_PDU, proto_e1ap));
   dissector_add_uint("e1ap.ies", id_UEInactivityInformation, create_dissector_handle(dissect_UEInactivityInformation_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_MBSSessionResourceNotification, create_dissector_handle(dissect_MBSSessionResourceNotification_PDU, proto_e1ap));
   dissector_add_uint("e1ap.extension", id_SNSSAI, create_dissector_handle(dissect_SNSSAI_PDU, proto_e1ap));
   dissector_add_uint("e1ap.extension", id_OldQoSFlowMap_ULendmarkerexpected, create_dissector_handle(dissect_QoS_Flow_List_PDU, proto_e1ap));
   dissector_add_uint("e1ap.extension", id_DRB_QoS, create_dissector_handle(dissect_QoSFlowLevelQoSParameters_PDU, proto_e1ap));
@@ -17602,6 +17799,8 @@ proto_reg_handoff_e1ap(void)
   dissector_add_uint("e1ap.extension", id_VersionID, create_dissector_handle(dissect_VersionID_PDU, proto_e1ap));
   dissector_add_uint("e1ap.extension", id_MBSAreaSessionID, create_dissector_handle(dissect_MBSAreaSessionID_PDU, proto_e1ap));
   dissector_add_uint("e1ap.extension", id_Secondary_PDU_Session_Data_Forwarding_Information, create_dissector_handle(dissect_Data_Forwarding_Information_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.extension", id_MCBearerContextInactivityTimer, create_dissector_handle(dissect_Inactivity_Timer_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.extension", id_MCBearerContextStatusChange, create_dissector_handle(dissect_MCBearerContextStatusChange_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.imsg", id_reset, create_dissector_handle(dissect_Reset_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.sout", id_reset, create_dissector_handle(dissect_ResetAcknowledge_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.imsg", id_errorIndication, create_dissector_handle(dissect_ErrorIndication_PDU, proto_e1ap));
@@ -17670,6 +17869,7 @@ proto_reg_handoff_e1ap(void)
   dissector_add_uint("e1ap.proc.uout", id_MCBearerContextModification, create_dissector_handle(dissect_MCBearerContextModificationFailure_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.imsg", id_MCBearerContextModificationRequired, create_dissector_handle(dissect_MCBearerContextModificationRequired_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.sout", id_MCBearerContextModificationRequired, create_dissector_handle(dissect_MCBearerContextModificationConfirm_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.proc.imsg", id_MCBearerNotification, create_dissector_handle(dissect_MCBearerNotification_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.imsg", id_MCBearerContextRelease, create_dissector_handle(dissect_MCBearerContextReleaseCommand_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.sout", id_MCBearerContextRelease, create_dissector_handle(dissect_MCBearerContextReleaseComplete_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.imsg", id_MCBearerContextReleaseRequest, create_dissector_handle(dissect_MCBearerContextReleaseRequest_PDU, proto_e1ap));

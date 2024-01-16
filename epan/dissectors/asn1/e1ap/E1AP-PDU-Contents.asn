@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V17.6.0 (2023-09)
+-- 3GPP TS 37.483 V17.7.0 (2023-12)
 -- **************************************************************
 --
 -- PDU definitions for E1AP
@@ -141,7 +141,8 @@ IMPORTS
 	SDTContinueROHC,
 	MDTPLMNModificationList,
 	InactivityInformationRequest,
-	UEInactivityInformation
+	UEInactivityInformation,
+	MBSSessionResourceNotification
 
 
 FROM E1AP-IEs
@@ -286,6 +287,7 @@ FROM E1AP-Containers
 	id-ManagementBasedMDTPLMNModificationList,
 	id-InactivityInformationRequest,
 	id-UEInactivityInformation,
+	id-MBSSessionResourceNotification,
 	maxnoofErrors,
 	maxnoofSPLMNs,
 	maxnoofDRBs,
@@ -1461,7 +1463,7 @@ ResourceStatusRequestIEs E1AP-PROTOCOL-IES ::= {
 		{ ID id-gNB-CU-UP-Measurement-ID		CRITICALITY ignore		TYPE Measurement-ID		PRESENCE optional}|
 		{ ID id-RegistrationRequest				CRITICALITY reject		TYPE RegistrationRequest			PRESENCE mandatory}|
 		{ ID id-ReportCharacteristics			CRITICALITY reject		TYPE ReportCharacteristics		PRESENCE conditional}|
-		{ ID id-ReportingPeriodicity			CRITICALITY reject		TYPE ReportingPeriodicity			PRESENCE optional},
+		{ ID id-ReportingPeriodicity			CRITICALITY ignore		TYPE ReportingPeriodicity			PRESENCE optional},
 	...
 }
 
@@ -2031,7 +2033,7 @@ MCBearerContextModificationRequired ::= SEQUENCE {
 MCBearerContextModificationRequiredIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID				PRESENCE mandatory	}|
 	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID				PRESENCE mandatory	}|
-	{ ID id-MCBearerContextToModifyRequired	CRITICALITY ignore	TYPE 	MCBearerContextToModifyRequired	PRESENCE mandatory	},
+	{ ID id-MCBearerContextToModifyRequired	CRITICALITY reject	TYPE 	MCBearerContextToModifyRequired	PRESENCE mandatory	},
 	...
 }
 
@@ -2117,6 +2119,24 @@ MCBearerContextReleaseRequestIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID			PRESENCE mandatory }|
 	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID			PRESENCE mandatory }|
 	{ ID id-Cause							CRITICALITY ignore	TYPE 	Cause							PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- MC BEARER NOTIFICATION
+--
+-- **************************************************************
+
+MCBearerNotification ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { MCBearerNotificationIEs } },
+	...
+}
+
+MCBearerNotificationIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID				PRESENCE mandatory }|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID				PRESENCE mandatory }|
+	{ ID id-MBSSessionResourceNotification	CRITICALITY ignore	TYPE	MBSSessionResourceNotification	PRESENCE mandatory },
 	...
 }
 

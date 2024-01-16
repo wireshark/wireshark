@@ -158,6 +158,7 @@ id-MCBearerContextModification            ProcedureCode
 id-MCBearerContextModificationRequired    ProcedureCode
 id-MCBearerContextRelease                 ProcedureCode
 id-MCBearerContextReleaseRequest          ProcedureCode
+id-MCBearerNotification                   ProcedureCode
 
 # ProtocolIE-ID
 id-Cause                                             ProtocolIE-ID
@@ -347,10 +348,14 @@ id-MCForwardingResourceReleaseIndication             ProtocolIE-ID
 id-PDCP-COUNT-Reset                                  ProtocolIE-ID
 id-MBSSessionAssociatedInfoNonSupportToSupport       ProtocolIE-ID
 id-VersionID                                         ProtocolIE-ID
-id-InactivityInformationRequest                      ProtocolIE-ID ::= 187
-id-UEInactivityInformation                           ProtocolIE-ID ::= 188
-id-MBSAreaSessionID                                  ProtocolIE-ID ::= 189
-id-Secondary-PDU-Session-Data-Forwarding-Information ProtocolIE-ID ::= 190
+id-InactivityInformationRequest                      ProtocolIE-ID
+id-UEInactivityInformation                           ProtocolIE-ID
+id-MBSAreaSessionID                                  ProtocolIE-ID
+id-Secondary-PDU-Session-Data-Forwarding-Information ProtocolIE-ID
+id-MBSSessionResourceNotification                    ProtocolIE-ID
+id-MCBearerContextInactivityTimer                    ProtocolIE-ID
+id-MCBearerContextStatusChange                       ProtocolIE-ID
+
 
 #.END
 
@@ -483,6 +488,7 @@ SDTContinueROHC                              N e1ap.ies id-SDTContinueROHC
 MDTPLMNModificationList                      N e1ap.ies id-ManagementBasedMDTPLMNModificationList
 InactivityInformationRequest                 N e1ap.ies id-InactivityInformationRequest
 UEInactivityInformation                      N e1ap.ies id-UEInactivityInformation
+MBSSessionResourceNotification               N e1ap.ies id-MBSSessionResourceNotification
 
 #E1AP-PROTOCOL-EXTENSION
 SNSSAI                                       N e1ap.extension id-SNSSAI
@@ -550,6 +556,8 @@ MBSSessionAssociatedInfoNonSupportToSupport  N e1ap.extension id-MBSSessionAssoc
 VersionID                                    N e1ap.extension id-VersionID
 MBSAreaSessionID                             N e1ap.extension id-MBSAreaSessionID
 Data-Forwarding-Information                  N e1ap.extension id-Secondary-PDU-Session-Data-Forwarding-Information
+Inactivity-Timer                             N e1ap.extension id-MCBearerContextInactivityTimer
+MCBearerContextStatusChange                  N e1ap.extension id-MCBearerContextStatusChange
 
 #E1AP-ELEMENTARY-PROCEDURE
 Reset                                    N e1ap.proc.imsg id-reset
@@ -656,6 +664,8 @@ MCBearerContextModificationFailure       N e1ap.proc.uout id-MCBearerContextModi
 
 MCBearerContextModificationRequired      N e1ap.proc.imsg id-MCBearerContextModificationRequired
 MCBearerContextModificationConfirm       N e1ap.proc.sout id-MCBearerContextModificationRequired
+
+MCBearerNotification                     N e1ap.proc.imsg id-MCBearerNotification
 
 MCBearerContextReleaseCommand            N e1ap.proc.imsg id-MCBearerContextRelease
 MCBearerContextReleaseComplete           N e1ap.proc.sout id-MCBearerContextRelease
@@ -992,6 +1002,8 @@ UEInactivityInformation DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MCBearerContextModificationRequired");
 #.FN_HDR MCBearerContextModificationConfirm
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MCBearerContextModificationConfirm");
+#.FN_HDR MCBearerNotification
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MCBearerNotification");
 #.FN_HDR MCBearerContextReleaseCommand
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MCBearerContextReleaseCommand");
 #.FN_HDR MCBearerContextReleaseComplete
