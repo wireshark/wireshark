@@ -1,6 +1,6 @@
 # lte-rrc.cnf
 # lte-rrc conformation file
-# Copyright 2008 Vincent Helfre, 2009-2023 Pascal Quantin
+# Copyright 2008 Vincent Helfre, 2009-2024 Pascal Quantin
 
 #.OPT
 PER
@@ -3657,6 +3657,15 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
 #.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib1-10-v1700
   private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_1_10);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-17a-v1770
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_17a);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-18a-v1770
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_18a);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-20a-v1770
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_20a);
 
 #.FN_BODY SystemInformationBlockPos-r15/assistanceDataSIB-Element-r15 VAL_PTR = &assist_data_sib_elem_tvb
   tvbuff_t *assist_data_sib_elem_tvb = NULL;

@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V17.6.0 (2023-09)
+-- 3GPP TS 36.331 V17.7.0 (2023-12)
 
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -723,7 +723,7 @@ MasterInformationBlock ::=			SEQUENCE {
 	systemFrameNumber					BIT STRING (SIZE (8)),
 	schedulingInfoSIB1-BR-r13			INTEGER (0..31),
 	systemInfoUnchanged-BR-r15			BOOLEAN,
-	partEARFCN-17					CHOICE {
+	partEARFCN-r17					CHOICE {
 		spare							BIT STRING (SIZE (2)),
 		earfcn-LSB						BIT STRING (SIZE (2))
 	},
@@ -2872,6 +2872,11 @@ PosSystemInformation-r15-IEs ::= SEQUENCE {
 		[[
 		posSib1-9-v1700					SystemInformationBlockPos-r15,
 		posSib1-10-v1700					SystemInformationBlockPos-r15
+		]],
+		[[
+		posSib2-17a-v1770				SystemInformationBlockPos-r15,
+		posSib2-18a-v1770				SystemInformationBlockPos-r15,
+		posSib2-20a-v1770				SystemInformationBlockPos-r15
 		]]
 	},
 	lateNonCriticalExtension		OCTET STRING							OPTIONAL,
@@ -3261,7 +3266,11 @@ PosSIB-Type-r15 ::= SEQUENCE {
 										posSibType4-1-v1610,
 										posSibType5-1-v1610,
 										posSibType1-9-v1700,
-										posSibType1-10-v1700
+										posSibType1-10-v1700,
+										posSibType2-17a-v1770,
+										posSibType2-18a-v1770,
+										posSibType2-20a-v1770
+
 	},
 	...
 }
@@ -5471,7 +5480,7 @@ ServingSatelliteInfo-r17 ::=	SEQUENCE {
 		stateVectors				EphemerisStateVectors-r17,
 		orbitalParameters			EphemerisOrbitalParameters-r17
 	},
-	nta-CommonParameters-17			SEQUENCE {
+	nta-CommonParameters-r17			SEQUENCE {
 		nta-Common-r17					INTEGER (0..8316827)		OPTIONAL,	-- Need OP
 		nta-CommonDrift-r17				INTEGER (-261935..261935)	OPTIONAL,	-- Need OP
 		nta-CommonDriftVariation-r17	INTEGER (0..29479)			OPTIONAL	-- Need OP
@@ -13257,7 +13266,12 @@ UE-EUTRA-Capability-v1720-IEs ::= SEQUENCE {
 
 UE-EUTRA-Capability-v1730-IEs ::= SEQUENCE {
 	phyLayerParameters-v1730					PhyLayerParameters-v1730,
-	nonCriticalExtension						SEQUENCE {}							OPTIONAL
+	nonCriticalExtension						UE-EUTRA-Capability-v1770-IEs		OPTIONAL
+}
+
+UE-EUTRA-Capability-v1770-IEs ::= SEQUENCE {
+	measParameters-v1770				MeasParameters-v1770,
+	nonCriticalExtension				SEQUENCE {}									OPTIONAL
 }
 
 UE-EUTRA-CapabilityAddXDD-Mode-r9 ::=	SEQUENCE {
@@ -14659,6 +14673,10 @@ MeasParameters-v16c0 ::=		SEQUENCE {
 MeasParameters-v1700 ::=		SEQUENCE {
 	sharedSpectrumMeasNR-EN-DC-r17	SEQUENCE (SIZE (1..maxBandsNR-r15)) OF SharedSpectrumMeasNR-r17	OPTIONAL,
 	sharedSpectrumMeasNR-SA-r17		SEQUENCE (SIZE (1..maxBandsNR-r15)) OF SharedSpectrumMeasNR-r17	OPTIONAL
+}
+
+MeasParameters-v1770 ::=			SEQUENCE {
+	gaplessMeas-FR2-maxCC-r17			INTEGER (1..32)				OPTIONAL
 }
 
 SharedSpectrumMeasNR-r17 ::=		SEQUENCE {

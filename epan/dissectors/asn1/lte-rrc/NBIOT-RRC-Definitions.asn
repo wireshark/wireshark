@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V17.6.0 (2023-09)
+-- 3GPP TS 36.331 V17.7.0 (2023-12)
 
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -243,7 +243,7 @@ MasterInformationBlock-NB ::=	SEQUENCE {
 	},
 	additionalTransmissionSIB1-r15	BOOLEAN,
 	ab-Enabled-5GC-r16				BOOLEAN,
-	partEARFCN-17					CHOICE {
+	partEARFCN-r17					CHOICE {
 		spare							BIT STRING (SIZE (2)),
 		earfcn-LSB						BIT STRING (SIZE (2))
 	},
