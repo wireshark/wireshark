@@ -215,6 +215,27 @@ static const value_string rdpudp2_ackvec_rlestates_vals[] = {
 	{ 0x0, NULL }
 };
 
+static bool
+rdpudp_chunk_free_cb(const void *key _U_, void *value, void *userdata _U_)
+{
+	tvbuff_t *tvb = (tvbuff_t*)value;
+
+	tvb_free(tvb);
+	return false;
+}
+
+static bool
+rdpudp_info_free_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
+		void *user_data)
+{
+	rdpudp_conv_info_t *rdpudp_info = (rdpudp_conv_info_t*)user_data;
+
+	wmem_tree_foreach(rdpudp_info->client_chunks, rdpudp_chunk_free_cb, NULL);
+	wmem_tree_foreach(rdpudp_info->server_chunks, rdpudp_chunk_free_cb, NULL);
+
+	return false;
+}
+
 gboolean
 rdp_isServerAddressTarget(packet_info *pinfo)
 {
@@ -658,6 +679,14 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 
 		if (!PINFO_FD_VISITED(pinfo) && pinfo->desegment_len) {
 			gint remaining = tvb_captured_length_remaining(subtvb, pinfo->desegment_offset);
+			/* Something went wrong if seqPtr didn't advance.
+			 * XXX: Should we ignore this or free the old chunk and
+			 * use the new one?
+			 */
+			chunk = (tvbuff_t*)wmem_tree_lookup32(targetTree, (guint32)(*seqPtr + 1));
+			if (chunk) {
+				tvb_free(chunk);
+			}
 			chunk = tvb_clone_offset_len(data_tvb, pinfo->desegment_offset, remaining);
 			wmem_tree_insert32(targetTree, (guint32)(*seqPtr + 1), chunk);
 		}
@@ -685,6 +714,7 @@ dissect_rdpudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void 
 		rdpudp_info->is_lossy = FALSE;
 		rdpudp_info->client_chunks = wmem_tree_new(wmem_file_scope());
 		rdpudp_info->server_chunks = wmem_tree_new(wmem_file_scope());
+		wmem_register_callback(wmem_file_scope(), rdpudp_info_free_cb, rdpudp_info);
 
 		conversation_add_proto_data(conversation, proto_rdpudp, rdpudp_info);
 	}
