@@ -5,7 +5,7 @@
 
 /* packet-lpp.c
  * Routines for 3GPP LTE Positioning Protocol (LPP) packet dissection
- * Copyright 2011-2023 Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2011-2024 Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 37.355 version 17.6.0 Release 17
+ * Ref 3GPP TS 37.355 version 17.7.0 Release 17
  * http://www.3gpp.org
  */
 
@@ -93,6 +93,9 @@ static int hf_lpp_GNSS_SSR_STEC_Correction_r16_PDU;  /* GNSS_SSR_STEC_Correction
 static int hf_lpp_GNSS_SSR_GriddedCorrection_r16_PDU;  /* GNSS_SSR_GriddedCorrection_r16 */
 static int hf_lpp_NavIC_DifferentialCorrections_r16_PDU;  /* NavIC_DifferentialCorrections_r16 */
 static int hf_lpp_NavIC_GridModelParameter_r16_PDU;  /* NavIC_GridModelParameter_r16 */
+static int hf_lpp_GNSS_SSR_OrbitCorrectionsSet2_r17_PDU;  /* GNSS_SSR_OrbitCorrectionsSet2_r17 */
+static int hf_lpp_GNSS_SSR_ClockCorrectionsSet2_r17_PDU;  /* GNSS_SSR_ClockCorrectionsSet2_r17 */
+static int hf_lpp_GNSS_SSR_URA_Set2_r17_PDU;      /* GNSS_SSR_URA_Set2_r17 */
 static int hf_lpp_TBS_AssistanceDataList_r14_PDU;  /* TBS_AssistanceDataList_r14 */
 static int hf_lpp_lpp_Sensor_MeasurementInformation_r13_PDU;  /* Sensor_MeasurementInformation_r13 */
 static int hf_lpp_lpp_Sensor_MotionInformation_r15_PDU;  /* Sensor_MotionInformation_r15 */
@@ -1089,6 +1092,9 @@ static int hf_lpp_gnss_SSR_STEC_Correction_r16;   /* GNSS_SSR_STEC_Correction_r1
 static int hf_lpp_gnss_SSR_GriddedCorrection_r16;  /* GNSS_SSR_GriddedCorrection_r16 */
 static int hf_lpp_navic_DifferentialCorrections_r16;  /* NavIC_DifferentialCorrections_r16 */
 static int hf_lpp_navic_GridModel_r16;            /* NavIC_GridModelParameter_r16 */
+static int hf_lpp_gnss_SSR_OrbitCorrectionsSet2_r17;  /* GNSS_SSR_OrbitCorrectionsSet2_r17 */
+static int hf_lpp_gnss_SSR_ClockCorrectionsSet2_r17;  /* GNSS_SSR_ClockCorrectionsSet2_r17 */
+static int hf_lpp_gnss_SSR_URA_Set2_r17;          /* GNSS_SSR_URA_Set2_r17 */
 static int hf_lpp_gnss_RTK_PeriodicObservations_r15;  /* GNSS_PeriodicControlParam_r15 */
 static int hf_lpp_glo_RTK_PeriodicBiasInformation_r15;  /* GNSS_PeriodicControlParam_r15 */
 static int hf_lpp_gnss_RTK_MAC_PeriodicCorrectionDifferences_r15;  /* GNSS_PeriodicControlParam_r15 */
@@ -1102,6 +1108,9 @@ static int hf_lpp_gnss_SSR_PeriodicPhaseBias_r16;  /* GNSS_PeriodicControlParam_
 static int hf_lpp_gnss_SSR_PeriodicSTEC_Correction_r16;  /* GNSS_PeriodicControlParam_r15 */
 static int hf_lpp_gnss_SSR_PeriodicGriddedCorrection_r16;  /* GNSS_PeriodicControlParam_r15 */
 static int hf_lpp_gnss_Integrity_PeriodicServiceAlert_r17;  /* GNSS_PeriodicControlParam_r15 */
+static int hf_lpp_gnss_SSR_PeriodicOrbitCorrectionsSet2_r17;  /* GNSS_PeriodicControlParam_r15 */
+static int hf_lpp_gnss_SSR_PeriodicClockCorrectionsSet2_r17;  /* GNSS_PeriodicControlParam_r15 */
+static int hf_lpp_gnss_SSR_PeriodicURA_Set2_r17;  /* GNSS_PeriodicControlParam_r15 */
 static int hf_lpp_gnss_SystemTime;                /* GNSS_SystemTime */
 static int hf_lpp_referenceTimeUnc;               /* INTEGER_0_127 */
 static int hf_lpp_gnss_ReferenceTimeForCells;     /* SEQUENCE_SIZE_1_16_OF_GNSS_ReferenceTimeForOneCell */
@@ -1878,6 +1887,12 @@ static int hf_lpp_givei14_r16;                    /* INTEGER_0_15 */
 static int hf_lpp_givd14_r16;                     /* INTEGER_0_511 */
 static int hf_lpp_givei15_r16;                    /* INTEGER_0_15 */
 static int hf_lpp_givd15_r16;                     /* INTEGER_0_511 */
+static int hf_lpp_refEph_r17;                     /* T_refEph_r17 */
+static int hf_lpp_gnss_SSR_OrbitCorrections_r17;  /* GNSS_SSR_OrbitCorrections_r15 */
+static int hf_lpp_refEph_r17_01;                  /* T_refEph_r17_01 */
+static int hf_lpp_gnss_SSR_ClockCorrections_r17;  /* GNSS_SSR_ClockCorrections_r15 */
+static int hf_lpp_refEph_r17_02;                  /* T_refEph_r17_02 */
+static int hf_lpp_gnss_SSR_URA_r17;               /* GNSS_SSR_URA_r16 */
 static int hf_lpp_gnss_CommonAssistDataReq;       /* GNSS_CommonAssistDataReq */
 static int hf_lpp_gnss_GenericAssistDataReq;      /* GNSS_GenericAssistDataReq */
 static int hf_lpp_gnss_PeriodicAssistDataReq_r15;  /* GNSS_PeriodicAssistDataReq_r15 */
@@ -1916,6 +1931,9 @@ static int hf_lpp_gnss_SSR_STEC_CorrectionReq_r16;  /* GNSS_SSR_STEC_CorrectionR
 static int hf_lpp_gnss_SSR_GriddedCorrectionReq_r16;  /* GNSS_SSR_GriddedCorrectionReq_r16 */
 static int hf_lpp_navic_DifferentialCorrectionsReq_r16;  /* NavIC_DifferentialCorrectionsReq_r16 */
 static int hf_lpp_navic_GridModelReq_r16;         /* NavIC_GridModelReq_r16 */
+static int hf_lpp_gnss_SSR_OrbitCorrectionsSet2Req_r17;  /* GNSS_SSR_OrbitCorrectionsSet2Req_r17 */
+static int hf_lpp_gnss_SSR_ClockCorrectionsSet2Req_r17;  /* GNSS_SSR_ClockCorrectionsSet2Req_r17 */
+static int hf_lpp_gnss_SSR_URA_Set2Req_r17;       /* GNSS_SSR_URA_Set2Req_r17 */
 static int hf_lpp_gnss_RTK_PeriodicObservationsReq_r15;  /* GNSS_PeriodicControlParam_r15 */
 static int hf_lpp_glo_RTK_PeriodicBiasInformationReq_r15;  /* GNSS_PeriodicControlParam_r15 */
 static int hf_lpp_gnss_RTK_MAC_PeriodicCorrectionDifferencesReq_r15;  /* GNSS_PeriodicControlParam_r15 */
@@ -1929,6 +1947,9 @@ static int hf_lpp_gnss_SSR_PeriodicPhaseBiasReq_r16;  /* GNSS_PeriodicControlPar
 static int hf_lpp_gnss_SSR_PeriodicSTEC_CorrectionReq_r16;  /* GNSS_PeriodicControlParam_r15 */
 static int hf_lpp_gnss_SSR_PeriodicGriddedCorrectionReq_r16;  /* GNSS_PeriodicControlParam_r15 */
 static int hf_lpp_gnss_Integrity_PeriodicServiceAlertReq_r17;  /* GNSS_PeriodicControlParam_r15 */
+static int hf_lpp_gnss_SSR_PeriodicOrbitCorrectionsSet2Req_r17;  /* GNSS_PeriodicControlParam_r15 */
+static int hf_lpp_gnss_SSR_PeriodicClockCorrectionsSet2Req_r17;  /* GNSS_PeriodicControlParam_r15 */
+static int hf_lpp_gnss_SSR_PeriodicURA_Set2Req_r17;  /* GNSS_PeriodicControlParam_r15 */
 static int hf_lpp_gnss_TimeReqPrefList;           /* SEQUENCE_SIZE_1_8_OF_GNSS_ID */
 static int hf_lpp_gnss_TimeReqPrefList_item;      /* GNSS_ID */
 static int hf_lpp_gps_TOW_assistReq;              /* BOOLEAN */
@@ -1989,6 +2010,11 @@ static int hf_lpp_ssr_IntegrityPhaseBiasBoundsReq_r17;  /* T_ssr_IntegrityPhaseB
 static int hf_lpp_stec_IntegrityReq_r17;          /* T_stec_IntegrityReq_r17 */
 static int hf_lpp_griddedCorrectionIntegrityReq_r17;  /* T_griddedCorrectionIntegrityReq_r17 */
 static int hf_lpp_dgnss_SignalsReq_r16;           /* GNSS_SignalIDs */
+static int hf_lpp_refEphReq_r17;                  /* T_refEphReq_r17 */
+static int hf_lpp_gnss_SSR_OrbitCorrectionsSet2Req_r17_01;  /* GNSS_SSR_OrbitCorrectionsReq_r15 */
+static int hf_lpp_refEphReq_r17_01;               /* T_refEphReq_r17_01 */
+static int hf_lpp_gnss_SSR_ClockCorrectionsSet2Req_r17_01;  /* GNSS_SSR_ClockCorrectionsReq_r15 */
+static int hf_lpp_refEphReq_r17_02;               /* T_refEphReq_r17_02 */
 static int hf_lpp_gnss_SignalMeasurementInformation;  /* GNSS_SignalMeasurementInformation */
 static int hf_lpp_gnss_LocationInformation;       /* GNSS_LocationInformation */
 static int hf_lpp_measurementReferenceTime;       /* MeasurementReferenceTime */
@@ -2103,6 +2129,9 @@ static int hf_lpp_gnss_SSR_STEC_CorrectionSupport_r16;  /* GNSS_SSR_STEC_Correct
 static int hf_lpp_gnss_SSR_GriddedCorrectionSupport_r16;  /* GNSS_SSR_GriddedCorrectionSupport_r16 */
 static int hf_lpp_navic_DifferentialCorrectionsSupport_r16;  /* NavIC_DifferentialCorrectionsSupport_r16 */
 static int hf_lpp_navic_GridModelSupport_r16;     /* NavIC_GridModelSupport_r16 */
+static int hf_lpp_gnss_SSR_OrbitCorrectionsSet2Support_r17;  /* GNSS_SSR_OrbitCorrectionsSet2Support_r17 */
+static int hf_lpp_gnss_SSR_ClockCorrectionsSet2Support_r17;  /* GNSS_SSR_ClockCorrectionsSet2Support_r17 */
+static int hf_lpp_gnss_SSR_URA_Set2Support_r17;   /* GNSS_SSR_URA_Set2Support_r17 */
 static int hf_lpp_gnssSignalIDs;                  /* GNSS_SignalIDs */
 static int hf_lpp_dgnss_ValidityTimeSup;          /* BOOLEAN */
 static int hf_lpp_clockModel;                     /* T_clockModel */
@@ -2509,6 +2538,7 @@ static int hf_lpp_area_validity_r17;              /* INTEGER_1_maxNrOfAreas_r17 
 static int hf_lpp_multiMeasInSameMeasReport_r17;  /* T_multiMeasInSameMeasReport_r17 */
 static int hf_lpp_mg_ActivationRequest_r17;       /* T_mg_ActivationRequest_r17 */
 static int hf_lpp_posMeasGapSupport_r17;          /* T_posMeasGapSupport_r17 */
+static int hf_lpp_multiLocationEstimateInSameMeasReport_r17;  /* T_multiLocationEstimateInSameMeasReport_r17 */
 static int hf_lpp_dl_RSTD_MeasurementPerPairOfTRP_FR1_r16;  /* INTEGER_1_4 */
 static int hf_lpp_dl_RSTD_MeasurementPerPairOfTRP_FR2_r16;  /* INTEGER_1_4 */
 static int hf_lpp_supportOfDL_PRS_RSRP_MeasFR1_r16;  /* T_supportOfDL_PRS_RSRP_MeasFR1_r16 */
@@ -2571,6 +2601,7 @@ static int hf_lpp_nr_dl_prs_AssistanceDataValidity_r17_01;  /* T_nr_dl_prs_Assis
 static int hf_lpp_multiMeasInSameMeasReport_r17_01;  /* T_multiMeasInSameMeasReport_r17_01 */
 static int hf_lpp_mg_ActivationRequest_r17_01;    /* T_mg_ActivationRequest_r17_01 */
 static int hf_lpp_posMeasGapSupport_r17_01;       /* T_posMeasGapSupport_r17_01 */
+static int hf_lpp_multiLocationEstimateInSameMeasReport_r17_01;  /* T_multiLocationEstimateInSameMeasReport_r17_01 */
 static int hf_lpp_maxDL_PRS_RSRP_MeasurementFR1_r16;  /* INTEGER_1_8 */
 static int hf_lpp_maxDL_PRS_RSRP_MeasurementFR2_r16;  /* INTEGER_1_8 */
 static int hf_lpp_dl_AoD_MeasCapabilityBandList_r16;  /* SEQUENCE_SIZE_1_nrMaxBands_r16_OF_DL_AoD_MeasCapabilityPerBand_r16 */
@@ -3371,6 +3402,9 @@ static gint ett_lpp_NavIC_CDC_r16;
 static gint ett_lpp_NavIC_GridModelParameter_r16;
 static gint ett_lpp_RegionIgpList_r16;
 static gint ett_lpp_RegionIgpElement_r16;
+static gint ett_lpp_GNSS_SSR_OrbitCorrectionsSet2_r17;
+static gint ett_lpp_GNSS_SSR_ClockCorrectionsSet2_r17;
+static gint ett_lpp_GNSS_SSR_URA_Set2_r17;
 static gint ett_lpp_A_GNSS_RequestAssistanceData;
 static gint ett_lpp_GNSS_CommonAssistDataReq;
 static gint ett_lpp_GNSS_GenericAssistDataReq;
@@ -3424,6 +3458,9 @@ static gint ett_lpp_T_stec_IntegrityReq_r17;
 static gint ett_lpp_GNSS_SSR_GriddedCorrectionReq_r16;
 static gint ett_lpp_NavIC_DifferentialCorrectionsReq_r16;
 static gint ett_lpp_NavIC_GridModelReq_r16;
+static gint ett_lpp_GNSS_SSR_OrbitCorrectionsSet2Req_r17;
+static gint ett_lpp_GNSS_SSR_ClockCorrectionsSet2Req_r17;
+static gint ett_lpp_GNSS_SSR_URA_Set2Req_r17;
 static gint ett_lpp_A_GNSS_ProvideLocationInformation;
 static gint ett_lpp_GNSS_SignalMeasurementInformation;
 static gint ett_lpp_MeasurementReferenceTime;
@@ -3496,6 +3533,9 @@ static gint ett_lpp_T_stec_IntegritySup_r17;
 static gint ett_lpp_GNSS_SSR_GriddedCorrectionSupport_r16;
 static gint ett_lpp_NavIC_DifferentialCorrectionsSupport_r16;
 static gint ett_lpp_NavIC_GridModelSupport_r16;
+static gint ett_lpp_GNSS_SSR_OrbitCorrectionsSet2Support_r17;
+static gint ett_lpp_GNSS_SSR_ClockCorrectionsSet2Support_r17;
+static gint ett_lpp_GNSS_SSR_URA_Set2Support_r17;
 static gint ett_lpp_A_GNSS_RequestCapabilities;
 static gint ett_lpp_A_GNSS_Error;
 static gint ett_lpp_GNSS_LocationServerErrorCauses;
@@ -3885,6 +3925,9 @@ static int dissect_NR_UEB_TRP_RTD_Info_r16_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_NR_TRP_BeamAntennaInfo_r17_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_NR_DL_PRS_TRP_TEG_Info_r17_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_NR_On_Demand_DL_PRS_Configurations_r17_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_GNSS_SSR_OrbitCorrectionsSet2_r17_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_GNSS_SSR_ClockCorrectionsSet2_r17_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_GNSS_SSR_URA_Set2_r17_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 static void
 lpp_degreesLatitude_fmt(gchar *s, guint32 v)
@@ -7637,6 +7680,60 @@ dissect_lpp_GNSS_GenericAssistDataSupportElement_eag_3(tvbuff_t *tvb _U_, int of
 }
 
 
+static const per_sequence_t GNSS_SSR_OrbitCorrectionsSet2Support_r17_sequence[] = {
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
+};
+
+static int
+dissect_lpp_GNSS_SSR_OrbitCorrectionsSet2Support_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lpp_GNSS_SSR_OrbitCorrectionsSet2Support_r17, GNSS_SSR_OrbitCorrectionsSet2Support_r17_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNSS_SSR_ClockCorrectionsSet2Support_r17_sequence[] = {
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
+};
+
+static int
+dissect_lpp_GNSS_SSR_ClockCorrectionsSet2Support_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lpp_GNSS_SSR_ClockCorrectionsSet2Support_r17, GNSS_SSR_ClockCorrectionsSet2Support_r17_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNSS_SSR_URA_Set2Support_r17_sequence[] = {
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
+};
+
+static int
+dissect_lpp_GNSS_SSR_URA_Set2Support_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lpp_GNSS_SSR_URA_Set2Support_r17, GNSS_SSR_URA_Set2Support_r17_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNSS_GenericAssistDataSupportElement_eag_4_sequence[] = {
+  { &hf_lpp_gnss_SSR_OrbitCorrectionsSet2Support_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_GNSS_SSR_OrbitCorrectionsSet2Support_r17 },
+  { &hf_lpp_gnss_SSR_ClockCorrectionsSet2Support_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_GNSS_SSR_ClockCorrectionsSet2Support_r17 },
+  { &hf_lpp_gnss_SSR_URA_Set2Support_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_GNSS_SSR_URA_Set2Support_r17 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_GNSS_GenericAssistDataSupportElement_eag_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, GNSS_GenericAssistDataSupportElement_eag_4_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t GNSS_GenericAssistDataSupportElement_sequence[] = {
   { &hf_lpp_gnss_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_ID },
   { &hf_lpp_sbas_ID         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_SBAS_ID },
@@ -7652,6 +7749,7 @@ static const per_sequence_t GNSS_GenericAssistDataSupportElement_sequence[] = {
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_GenericAssistDataSupportElement_eag_1 },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_GenericAssistDataSupportElement_eag_2 },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_GenericAssistDataSupportElement_eag_3 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_GenericAssistDataSupportElement_eag_4 },
   { NULL, 0, 0, NULL }
 };
 
@@ -12647,6 +12745,34 @@ dissect_lpp_NR_DL_AoD_ProvideCapabilities_r16_eag_2(tvbuff_t *tvb _U_, int offse
 }
 
 
+static const value_string lpp_T_multiLocationEstimateInSameMeasReport_r17_01_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_multiLocationEstimateInSameMeasReport_r17_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t NR_DL_AoD_ProvideCapabilities_r16_eag_3_sequence[] = {
+  { &hf_lpp_multiLocationEstimateInSameMeasReport_r17_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_multiLocationEstimateInSameMeasReport_r17_01 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_NR_DL_AoD_ProvideCapabilities_r16_eag_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, NR_DL_AoD_ProvideCapabilities_r16_eag_3_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t NR_DL_AoD_ProvideCapabilities_r16_sequence[] = {
   { &hf_lpp_nr_DL_AoD_Mode_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_PositioningModes },
   { &hf_lpp_nr_DL_AoD_PRS_Capability_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_NR_DL_PRS_ResourcesCapability_r16 },
@@ -12656,6 +12782,7 @@ static const per_sequence_t NR_DL_AoD_ProvideCapabilities_r16_sequence[] = {
   { &hf_lpp_periodicalReporting_r16_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_PositioningModes },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_NR_DL_AoD_ProvideCapabilities_r16_eag_1 },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_NR_DL_AoD_ProvideCapabilities_r16_eag_2 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_NR_DL_AoD_ProvideCapabilities_r16_eag_3 },
   { NULL, 0, 0, NULL }
 };
 
@@ -12979,6 +13106,34 @@ dissect_lpp_NR_DL_TDOA_ProvideCapabilities_r16_eag_2(tvbuff_t *tvb _U_, int offs
 }
 
 
+static const value_string lpp_T_multiLocationEstimateInSameMeasReport_r17_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_multiLocationEstimateInSameMeasReport_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t NR_DL_TDOA_ProvideCapabilities_r16_eag_3_sequence[] = {
+  { &hf_lpp_multiLocationEstimateInSameMeasReport_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_multiLocationEstimateInSameMeasReport_r17 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_NR_DL_TDOA_ProvideCapabilities_r16_eag_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, NR_DL_TDOA_ProvideCapabilities_r16_eag_3_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t NR_DL_TDOA_ProvideCapabilities_r16_sequence[] = {
   { &hf_lpp_nr_DL_TDOA_Mode_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_PositioningModes },
   { &hf_lpp_nr_DL_TDOA_PRS_Capability_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_NR_DL_PRS_ResourcesCapability_r16 },
@@ -12989,6 +13144,7 @@ static const per_sequence_t NR_DL_TDOA_ProvideCapabilities_r16_sequence[] = {
   { &hf_lpp_periodicalReporting_r16_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_PositioningModes },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_NR_DL_TDOA_ProvideCapabilities_r16_eag_1 },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_NR_DL_TDOA_ProvideCapabilities_r16_eag_2 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_NR_DL_TDOA_ProvideCapabilities_r16_eag_3 },
   { NULL, 0, 0, NULL }
 };
 
@@ -14617,6 +14773,110 @@ dissect_lpp_GNSS_GenericAssistDataReqElement_eag_3(tvbuff_t *tvb _U_, int offset
 }
 
 
+static const value_string lpp_T_refEphReq_r17_vals[] = {
+  {   0, "b1c" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_refEphReq_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNSS_SSR_OrbitCorrectionsSet2Req_r17_sequence[] = {
+  { &hf_lpp_refEphReq_r17   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_refEphReq_r17 },
+  { &hf_lpp_gnss_SSR_OrbitCorrectionsSet2Req_r17_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_GNSS_SSR_OrbitCorrectionsReq_r15 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_GNSS_SSR_OrbitCorrectionsSet2Req_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lpp_GNSS_SSR_OrbitCorrectionsSet2Req_r17, GNSS_SSR_OrbitCorrectionsSet2Req_r17_sequence);
+
+  return offset;
+}
+
+
+static const value_string lpp_T_refEphReq_r17_01_vals[] = {
+  {   0, "b1c" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_refEphReq_r17_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNSS_SSR_ClockCorrectionsSet2Req_r17_sequence[] = {
+  { &hf_lpp_refEphReq_r17_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_refEphReq_r17_01 },
+  { &hf_lpp_gnss_SSR_ClockCorrectionsSet2Req_r17_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_GNSS_SSR_ClockCorrectionsReq_r15 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_GNSS_SSR_ClockCorrectionsSet2Req_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lpp_GNSS_SSR_ClockCorrectionsSet2Req_r17, GNSS_SSR_ClockCorrectionsSet2Req_r17_sequence);
+
+  return offset;
+}
+
+
+static const value_string lpp_T_refEphReq_r17_02_vals[] = {
+  {   0, "b1c" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_refEphReq_r17_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNSS_SSR_URA_Set2Req_r17_sequence[] = {
+  { &hf_lpp_refEphReq_r17_02, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_refEphReq_r17_02 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_GNSS_SSR_URA_Set2Req_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lpp_GNSS_SSR_URA_Set2Req_r17, GNSS_SSR_URA_Set2Req_r17_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNSS_GenericAssistDataReqElement_eag_4_sequence[] = {
+  { &hf_lpp_gnss_SSR_OrbitCorrectionsSet2Req_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_GNSS_SSR_OrbitCorrectionsSet2Req_r17 },
+  { &hf_lpp_gnss_SSR_ClockCorrectionsSet2Req_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_GNSS_SSR_ClockCorrectionsSet2Req_r17 },
+  { &hf_lpp_gnss_SSR_URA_Set2Req_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_GNSS_SSR_URA_Set2Req_r17 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_GNSS_GenericAssistDataReqElement_eag_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, GNSS_GenericAssistDataReqElement_eag_4_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t GNSS_GenericAssistDataReqElement_sequence[] = {
   { &hf_lpp_gnss_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_ID },
   { &hf_lpp_sbas_ID         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_SBAS_ID },
@@ -14632,6 +14892,7 @@ static const per_sequence_t GNSS_GenericAssistDataReqElement_sequence[] = {
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_GenericAssistDataReqElement_eag_1 },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_GenericAssistDataReqElement_eag_2 },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_GenericAssistDataReqElement_eag_3 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_GenericAssistDataReqElement_eag_4 },
   { NULL, 0, 0, NULL }
 };
 
@@ -14722,6 +14983,21 @@ dissect_lpp_GNSS_PeriodicAssistDataReq_r15_eag_2(tvbuff_t *tvb _U_, int offset _
 }
 
 
+static const per_sequence_t GNSS_PeriodicAssistDataReq_r15_eag_3_sequence[] = {
+  { &hf_lpp_gnss_SSR_PeriodicOrbitCorrectionsSet2Req_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_GNSS_PeriodicControlParam_r15 },
+  { &hf_lpp_gnss_SSR_PeriodicClockCorrectionsSet2Req_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_GNSS_PeriodicControlParam_r15 },
+  { &hf_lpp_gnss_SSR_PeriodicURA_Set2Req_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_GNSS_PeriodicControlParam_r15 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_GNSS_PeriodicAssistDataReq_r15_eag_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, GNSS_PeriodicAssistDataReq_r15_eag_3_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t GNSS_PeriodicAssistDataReq_r15_sequence[] = {
   { &hf_lpp_gnss_RTK_PeriodicObservationsReq_r15, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_GNSS_PeriodicControlParam_r15 },
   { &hf_lpp_glo_RTK_PeriodicBiasInformationReq_r15, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_GNSS_PeriodicControlParam_r15 },
@@ -14733,6 +15009,7 @@ static const per_sequence_t GNSS_PeriodicAssistDataReq_r15_sequence[] = {
   { &hf_lpp_gnss_SSR_PeriodicCodeBiasReq_r15, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_GNSS_PeriodicControlParam_r15 },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_PeriodicAssistDataReq_r15_eag_1 },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_PeriodicAssistDataReq_r15_eag_2 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_PeriodicAssistDataReq_r15_eag_3 },
   { NULL, 0, 0, NULL }
 };
 
@@ -21105,6 +21382,111 @@ dissect_lpp_GNSS_GenericAssistDataElement_eag_3(tvbuff_t *tvb _U_, int offset _U
 }
 
 
+static const value_string lpp_T_refEph_r17_vals[] = {
+  {   0, "b1c" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_refEph_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNSS_SSR_OrbitCorrectionsSet2_r17_sequence[] = {
+  { &hf_lpp_refEph_r17      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_refEph_r17 },
+  { &hf_lpp_gnss_SSR_OrbitCorrections_r17, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_SSR_OrbitCorrections_r15 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_GNSS_SSR_OrbitCorrectionsSet2_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lpp_GNSS_SSR_OrbitCorrectionsSet2_r17, GNSS_SSR_OrbitCorrectionsSet2_r17_sequence);
+
+  return offset;
+}
+
+
+static const value_string lpp_T_refEph_r17_01_vals[] = {
+  {   0, "b1c" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_refEph_r17_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNSS_SSR_ClockCorrectionsSet2_r17_sequence[] = {
+  { &hf_lpp_refEph_r17_01   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_refEph_r17_01 },
+  { &hf_lpp_gnss_SSR_ClockCorrections_r17, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_SSR_ClockCorrections_r15 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_GNSS_SSR_ClockCorrectionsSet2_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lpp_GNSS_SSR_ClockCorrectionsSet2_r17, GNSS_SSR_ClockCorrectionsSet2_r17_sequence);
+
+  return offset;
+}
+
+
+static const value_string lpp_T_refEph_r17_02_vals[] = {
+  {   0, "b1c" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_refEph_r17_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNSS_SSR_URA_Set2_r17_sequence[] = {
+  { &hf_lpp_refEph_r17_02   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_refEph_r17_02 },
+  { &hf_lpp_gnss_SSR_URA_r17, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_SSR_URA_r16 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_GNSS_SSR_URA_Set2_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lpp_GNSS_SSR_URA_Set2_r17, GNSS_SSR_URA_Set2_r17_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNSS_GenericAssistDataElement_eag_4_sequence[] = {
+  { &hf_lpp_gnss_SSR_OrbitCorrectionsSet2_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_GNSS_SSR_OrbitCorrectionsSet2_r17 },
+  { &hf_lpp_gnss_SSR_ClockCorrectionsSet2_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_GNSS_SSR_ClockCorrectionsSet2_r17 },
+  { &hf_lpp_gnss_SSR_URA_Set2_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_GNSS_SSR_URA_Set2_r17 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_GNSS_GenericAssistDataElement_eag_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, GNSS_GenericAssistDataElement_eag_4_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t GNSS_GenericAssistDataElement_sequence[] = {
   { &hf_lpp_gnss_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_ID },
   { &hf_lpp_sbas_ID         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_SBAS_ID },
@@ -21120,6 +21502,7 @@ static const per_sequence_t GNSS_GenericAssistDataElement_sequence[] = {
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_GenericAssistDataElement_eag_1 },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_GenericAssistDataElement_eag_2 },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_GenericAssistDataElement_eag_3 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_GenericAssistDataElement_eag_4 },
   { NULL, 0, 0, NULL }
 };
 
@@ -21268,6 +21651,21 @@ dissect_lpp_GNSS_PeriodicAssistData_r15_eag_2(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
+static const per_sequence_t GNSS_PeriodicAssistData_r15_eag_3_sequence[] = {
+  { &hf_lpp_gnss_SSR_PeriodicOrbitCorrectionsSet2_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_GNSS_PeriodicControlParam_r15 },
+  { &hf_lpp_gnss_SSR_PeriodicClockCorrectionsSet2_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_GNSS_PeriodicControlParam_r15 },
+  { &hf_lpp_gnss_SSR_PeriodicURA_Set2_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_GNSS_PeriodicControlParam_r15 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_GNSS_PeriodicAssistData_r15_eag_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, GNSS_PeriodicAssistData_r15_eag_3_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t GNSS_PeriodicAssistData_r15_sequence[] = {
   { &hf_lpp_gnss_RTK_PeriodicObservations_r15, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_GNSS_PeriodicControlParam_r15 },
   { &hf_lpp_glo_RTK_PeriodicBiasInformation_r15, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_GNSS_PeriodicControlParam_r15 },
@@ -21279,6 +21677,7 @@ static const per_sequence_t GNSS_PeriodicAssistData_r15_sequence[] = {
   { &hf_lpp_gnss_SSR_PeriodicCodeBias_r15, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_GNSS_PeriodicControlParam_r15 },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_PeriodicAssistData_r15_eag_1 },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_PeriodicAssistData_r15_eag_2 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_PeriodicAssistData_r15_eag_3 },
   { NULL, 0, 0, NULL }
 };
 
@@ -32841,14 +33240,23 @@ dissect_lpp_T_assistanceDataElement_r15(tvbuff_t *tvb _U_, int offset _U_, asn1_
     case LPP_POS_SIB_TYPE_2_17:
       dissect_GNSS_SSR_OrbitCorrections_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
       break;
+    case LPP_POS_SIB_TYPE_2_17a:
+      dissect_GNSS_SSR_OrbitCorrectionsSet2_r17_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
     case LPP_POS_SIB_TYPE_2_18:
       dissect_GNSS_SSR_ClockCorrections_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_18a:
+      dissect_GNSS_SSR_ClockCorrectionsSet2_r17_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
       break;
     case LPP_POS_SIB_TYPE_2_19:
       dissect_GNSS_SSR_CodeBias_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
       break;
     case LPP_POS_SIB_TYPE_2_20:
       dissect_GNSS_SSR_URA_r16_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_20a:
+      dissect_GNSS_SSR_URA_Set2_r17_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
       break;
     case LPP_POS_SIB_TYPE_2_21:
       dissect_GNSS_SSR_PhaseBias_r16_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
@@ -33396,6 +33804,30 @@ static int dissect_NavIC_GridModelParameter_r16_PDU(tvbuff_t *tvb _U_, packet_in
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_GNSS_SSR_OrbitCorrectionsSet2_r17_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_lpp_GNSS_SSR_OrbitCorrectionsSet2_r17(tvb, offset, &asn1_ctx, tree, hf_lpp_GNSS_SSR_OrbitCorrectionsSet2_r17_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_GNSS_SSR_ClockCorrectionsSet2_r17_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_lpp_GNSS_SSR_ClockCorrectionsSet2_r17(tvb, offset, &asn1_ctx, tree, hf_lpp_GNSS_SSR_ClockCorrectionsSet2_r17_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_GNSS_SSR_URA_Set2_r17_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_lpp_GNSS_SSR_URA_Set2_r17(tvb, offset, &asn1_ctx, tree, hf_lpp_GNSS_SSR_URA_Set2_r17_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_TBS_AssistanceDataList_r14_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -33705,6 +34137,18 @@ void proto_register_lpp(void) {
         NULL, HFILL }},
     { &hf_lpp_NavIC_GridModelParameter_r16_PDU,
       { "NavIC-GridModelParameter-r16", "lpp.NavIC_GridModelParameter_r16_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lpp_GNSS_SSR_OrbitCorrectionsSet2_r17_PDU,
+      { "GNSS-SSR-OrbitCorrectionsSet2-r17", "lpp.GNSS_SSR_OrbitCorrectionsSet2_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lpp_GNSS_SSR_ClockCorrectionsSet2_r17_PDU,
+      { "GNSS-SSR-ClockCorrectionsSet2-r17", "lpp.GNSS_SSR_ClockCorrectionsSet2_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lpp_GNSS_SSR_URA_Set2_r17_PDU,
+      { "GNSS-SSR-URA-Set2-r17", "lpp.GNSS_SSR_URA_Set2_r17_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lpp_TBS_AssistanceDataList_r14_PDU,
@@ -37691,6 +38135,18 @@ void proto_register_lpp(void) {
       { "navic-GridModel-r16", "lpp.navic_GridModel_r16_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "NavIC_GridModelParameter_r16", HFILL }},
+    { &hf_lpp_gnss_SSR_OrbitCorrectionsSet2_r17,
+      { "gnss-SSR-OrbitCorrectionsSet2-r17", "lpp.gnss_SSR_OrbitCorrectionsSet2_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lpp_gnss_SSR_ClockCorrectionsSet2_r17,
+      { "gnss-SSR-ClockCorrectionsSet2-r17", "lpp.gnss_SSR_ClockCorrectionsSet2_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lpp_gnss_SSR_URA_Set2_r17,
+      { "gnss-SSR-URA-Set2-r17", "lpp.gnss_SSR_URA_Set2_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lpp_gnss_RTK_PeriodicObservations_r15,
       { "gnss-RTK-PeriodicObservations-r15", "lpp.gnss_RTK_PeriodicObservations_r15_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -37741,6 +38197,18 @@ void proto_register_lpp(void) {
         "GNSS_PeriodicControlParam_r15", HFILL }},
     { &hf_lpp_gnss_Integrity_PeriodicServiceAlert_r17,
       { "gnss-Integrity-PeriodicServiceAlert-r17", "lpp.gnss_Integrity_PeriodicServiceAlert_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GNSS_PeriodicControlParam_r15", HFILL }},
+    { &hf_lpp_gnss_SSR_PeriodicOrbitCorrectionsSet2_r17,
+      { "gnss-SSR-PeriodicOrbitCorrectionsSet2-r17", "lpp.gnss_SSR_PeriodicOrbitCorrectionsSet2_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GNSS_PeriodicControlParam_r15", HFILL }},
+    { &hf_lpp_gnss_SSR_PeriodicClockCorrectionsSet2_r17,
+      { "gnss-SSR-PeriodicClockCorrectionsSet2-r17", "lpp.gnss_SSR_PeriodicClockCorrectionsSet2_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GNSS_PeriodicControlParam_r15", HFILL }},
+    { &hf_lpp_gnss_SSR_PeriodicURA_Set2_r17,
+      { "gnss-SSR-PeriodicURA-Set2-r17", "lpp.gnss_SSR_PeriodicURA_Set2_r17_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "GNSS_PeriodicControlParam_r15", HFILL }},
     { &hf_lpp_gnss_SystemTime,
@@ -40847,6 +41315,30 @@ void proto_register_lpp(void) {
       { "givd15-r16", "lpp.givd15_r16",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_511", HFILL }},
+    { &hf_lpp_refEph_r17,
+      { "refEph-r17", "lpp.refEph_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_refEph_r17_vals), 0,
+        NULL, HFILL }},
+    { &hf_lpp_gnss_SSR_OrbitCorrections_r17,
+      { "gnss-SSR-OrbitCorrections-r17", "lpp.gnss_SSR_OrbitCorrections_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GNSS_SSR_OrbitCorrections_r15", HFILL }},
+    { &hf_lpp_refEph_r17_01,
+      { "refEph-r17", "lpp.refEph_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_refEph_r17_01_vals), 0,
+        "T_refEph_r17_01", HFILL }},
+    { &hf_lpp_gnss_SSR_ClockCorrections_r17,
+      { "gnss-SSR-ClockCorrections-r17", "lpp.gnss_SSR_ClockCorrections_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GNSS_SSR_ClockCorrections_r15", HFILL }},
+    { &hf_lpp_refEph_r17_02,
+      { "refEph-r17", "lpp.refEph_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_refEph_r17_02_vals), 0,
+        "T_refEph_r17_02", HFILL }},
+    { &hf_lpp_gnss_SSR_URA_r17,
+      { "gnss-SSR-URA-r17", "lpp.gnss_SSR_URA_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GNSS_SSR_URA_r16", HFILL }},
     { &hf_lpp_gnss_CommonAssistDataReq,
       { "gnss-CommonAssistDataReq", "lpp.gnss_CommonAssistDataReq_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -40999,6 +41491,18 @@ void proto_register_lpp(void) {
       { "navic-GridModelReq-r16", "lpp.navic_GridModelReq_r16_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lpp_gnss_SSR_OrbitCorrectionsSet2Req_r17,
+      { "gnss-SSR-OrbitCorrectionsSet2Req-r17", "lpp.gnss_SSR_OrbitCorrectionsSet2Req_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lpp_gnss_SSR_ClockCorrectionsSet2Req_r17,
+      { "gnss-SSR-ClockCorrectionsSet2Req-r17", "lpp.gnss_SSR_ClockCorrectionsSet2Req_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lpp_gnss_SSR_URA_Set2Req_r17,
+      { "gnss-SSR-URA-Set2Req-r17", "lpp.gnss_SSR_URA_Set2Req_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lpp_gnss_RTK_PeriodicObservationsReq_r15,
       { "gnss-RTK-PeriodicObservationsReq-r15", "lpp.gnss_RTK_PeriodicObservationsReq_r15_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -41049,6 +41553,18 @@ void proto_register_lpp(void) {
         "GNSS_PeriodicControlParam_r15", HFILL }},
     { &hf_lpp_gnss_Integrity_PeriodicServiceAlertReq_r17,
       { "gnss-Integrity-PeriodicServiceAlertReq-r17", "lpp.gnss_Integrity_PeriodicServiceAlertReq_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GNSS_PeriodicControlParam_r15", HFILL }},
+    { &hf_lpp_gnss_SSR_PeriodicOrbitCorrectionsSet2Req_r17,
+      { "gnss-SSR-PeriodicOrbitCorrectionsSet2Req-r17", "lpp.gnss_SSR_PeriodicOrbitCorrectionsSet2Req_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GNSS_PeriodicControlParam_r15", HFILL }},
+    { &hf_lpp_gnss_SSR_PeriodicClockCorrectionsSet2Req_r17,
+      { "gnss-SSR-PeriodicClockCorrectionsSet2Req-r17", "lpp.gnss_SSR_PeriodicClockCorrectionsSet2Req_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GNSS_PeriodicControlParam_r15", HFILL }},
+    { &hf_lpp_gnss_SSR_PeriodicURA_Set2Req_r17,
+      { "gnss-SSR-PeriodicURA-Set2Req-r17", "lpp.gnss_SSR_PeriodicURA_Set2Req_r17_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "GNSS_PeriodicControlParam_r15", HFILL }},
     { &hf_lpp_gnss_TimeReqPrefList,
@@ -41291,6 +41807,26 @@ void proto_register_lpp(void) {
       { "dgnss-SignalsReq-r16", "lpp.dgnss_SignalsReq_r16_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "GNSS_SignalIDs", HFILL }},
+    { &hf_lpp_refEphReq_r17,
+      { "refEphReq-r17", "lpp.refEphReq_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_refEphReq_r17_vals), 0,
+        NULL, HFILL }},
+    { &hf_lpp_gnss_SSR_OrbitCorrectionsSet2Req_r17_01,
+      { "gnss-SSR-OrbitCorrectionsSet2Req-r17", "lpp.gnss_SSR_OrbitCorrectionsSet2Req_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GNSS_SSR_OrbitCorrectionsReq_r15", HFILL }},
+    { &hf_lpp_refEphReq_r17_01,
+      { "refEphReq-r17", "lpp.refEphReq_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_refEphReq_r17_01_vals), 0,
+        "T_refEphReq_r17_01", HFILL }},
+    { &hf_lpp_gnss_SSR_ClockCorrectionsSet2Req_r17_01,
+      { "gnss-SSR-ClockCorrectionsSet2Req-r17", "lpp.gnss_SSR_ClockCorrectionsSet2Req_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GNSS_SSR_ClockCorrectionsReq_r15", HFILL }},
+    { &hf_lpp_refEphReq_r17_02,
+      { "refEphReq-r17", "lpp.refEphReq_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_refEphReq_r17_02_vals), 0,
+        "T_refEphReq_r17_02", HFILL }},
     { &hf_lpp_gnss_SignalMeasurementInformation,
       { "gnss-SignalMeasurementInformation", "lpp.gnss_SignalMeasurementInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -41745,6 +42281,18 @@ void proto_register_lpp(void) {
         NULL, HFILL }},
     { &hf_lpp_navic_GridModelSupport_r16,
       { "navic-GridModelSupport-r16", "lpp.navic_GridModelSupport_r16_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lpp_gnss_SSR_OrbitCorrectionsSet2Support_r17,
+      { "gnss-SSR-OrbitCorrectionsSet2Support-r17", "lpp.gnss_SSR_OrbitCorrectionsSet2Support_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lpp_gnss_SSR_ClockCorrectionsSet2Support_r17,
+      { "gnss-SSR-ClockCorrectionsSet2Support-r17", "lpp.gnss_SSR_ClockCorrectionsSet2Support_r17_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lpp_gnss_SSR_URA_Set2Support_r17,
+      { "gnss-SSR-URA-Set2Support-r17", "lpp.gnss_SSR_URA_Set2Support_r17_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lpp_gnssSignalIDs,
@@ -43371,6 +43919,10 @@ void proto_register_lpp(void) {
       { "posMeasGapSupport-r17", "lpp.posMeasGapSupport_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_T_posMeasGapSupport_r17_vals), 0,
         "T_posMeasGapSupport_r17", HFILL }},
+    { &hf_lpp_multiLocationEstimateInSameMeasReport_r17,
+      { "multiLocationEstimateInSameMeasReport-r17", "lpp.multiLocationEstimateInSameMeasReport_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_multiLocationEstimateInSameMeasReport_r17_vals), 0,
+        "T_multiLocationEstimateInSameMeasReport_r17", HFILL }},
     { &hf_lpp_dl_RSTD_MeasurementPerPairOfTRP_FR1_r16,
       { "dl-RSTD-MeasurementPerPairOfTRP-FR1-r16", "lpp.dl_RSTD_MeasurementPerPairOfTRP_FR1_r16",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -43619,6 +44171,10 @@ void proto_register_lpp(void) {
       { "posMeasGapSupport-r17", "lpp.posMeasGapSupport_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_T_posMeasGapSupport_r17_01_vals), 0,
         "T_posMeasGapSupport_r17_01", HFILL }},
+    { &hf_lpp_multiLocationEstimateInSameMeasReport_r17_01,
+      { "multiLocationEstimateInSameMeasReport-r17", "lpp.multiLocationEstimateInSameMeasReport_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_multiLocationEstimateInSameMeasReport_r17_01_vals), 0,
+        "T_multiLocationEstimateInSameMeasReport_r17_01", HFILL }},
     { &hf_lpp_maxDL_PRS_RSRP_MeasurementFR1_r16,
       { "maxDL-PRS-RSRP-MeasurementFR1-r16", "lpp.maxDL_PRS_RSRP_MeasurementFR1_r16",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -45225,6 +45781,9 @@ void proto_register_lpp(void) {
     &ett_lpp_NavIC_GridModelParameter_r16,
     &ett_lpp_RegionIgpList_r16,
     &ett_lpp_RegionIgpElement_r16,
+    &ett_lpp_GNSS_SSR_OrbitCorrectionsSet2_r17,
+    &ett_lpp_GNSS_SSR_ClockCorrectionsSet2_r17,
+    &ett_lpp_GNSS_SSR_URA_Set2_r17,
     &ett_lpp_A_GNSS_RequestAssistanceData,
     &ett_lpp_GNSS_CommonAssistDataReq,
     &ett_lpp_GNSS_GenericAssistDataReq,
@@ -45278,6 +45837,9 @@ void proto_register_lpp(void) {
     &ett_lpp_GNSS_SSR_GriddedCorrectionReq_r16,
     &ett_lpp_NavIC_DifferentialCorrectionsReq_r16,
     &ett_lpp_NavIC_GridModelReq_r16,
+    &ett_lpp_GNSS_SSR_OrbitCorrectionsSet2Req_r17,
+    &ett_lpp_GNSS_SSR_ClockCorrectionsSet2Req_r17,
+    &ett_lpp_GNSS_SSR_URA_Set2Req_r17,
     &ett_lpp_A_GNSS_ProvideLocationInformation,
     &ett_lpp_GNSS_SignalMeasurementInformation,
     &ett_lpp_MeasurementReferenceTime,
@@ -45350,6 +45912,9 @@ void proto_register_lpp(void) {
     &ett_lpp_GNSS_SSR_GriddedCorrectionSupport_r16,
     &ett_lpp_NavIC_DifferentialCorrectionsSupport_r16,
     &ett_lpp_NavIC_GridModelSupport_r16,
+    &ett_lpp_GNSS_SSR_OrbitCorrectionsSet2Support_r17,
+    &ett_lpp_GNSS_SSR_ClockCorrectionsSet2Support_r17,
+    &ett_lpp_GNSS_SSR_URA_Set2Support_r17,
     &ett_lpp_A_GNSS_RequestCapabilities,
     &ett_lpp_A_GNSS_Error,
     &ett_lpp_GNSS_LocationServerErrorCauses,

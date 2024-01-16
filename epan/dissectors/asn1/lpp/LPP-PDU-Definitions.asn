@@ -1,4 +1,4 @@
--- 3GPP TS 37.355 V17.6.0 (2023-09)
+-- 3GPP TS 37.355 V17.7.0 (2023-12)
 
 LPP-PDU-Definitions
 DEFINITIONS AUTOMATIC TAGS ::=
@@ -2577,6 +2577,13 @@ GNSS-GenericAssistDataElement ::= SEQUENCE {
 																OPTIONAL,	-- Cond	GNSS-ID-NavIC
 		navic-GridModel-r16					NavIC-GridModelParameter-r16
 																OPTIONAL	-- Cond	GNSS-ID-NavIC
+	]],
+	[[
+		gnss-SSR-OrbitCorrectionsSet2-r17
+									GNSS-SSR-OrbitCorrectionsSet2-r17	OPTIONAL,	-- Need ON
+		gnss-SSR-ClockCorrectionsSet2-r17
+									GNSS-SSR-ClockCorrectionsSet2-r17	OPTIONAL,	-- Need ON
+		gnss-SSR-URA-Set2-r17		GNSS-SSR-URA-Set2-r17				OPTIONAL	-- Need ON
 	]]
 }
 
@@ -2602,6 +2609,13 @@ GNSS-PeriodicAssistData-r15 ::= SEQUENCE {
 	]],
 	[[
 	gnss-Integrity-PeriodicServiceAlert-r17	GNSS-PeriodicControlParam-r15	OPTIONAL	-- Need ON
+	]],
+	[[
+	gnss-SSR-PeriodicOrbitCorrectionsSet2-r17
+										GNSS-PeriodicControlParam-r15		OPTIONAL,	-- Need ON
+	gnss-SSR-PeriodicClockCorrectionsSet2-r17
+										GNSS-PeriodicControlParam-r15		OPTIONAL,	-- Need ON
+	gnss-SSR-PeriodicURA-Set2-r17		GNSS-PeriodicControlParam-r15	OPTIONAL	-- Need ON
 	]]
 }
 
@@ -4141,6 +4155,27 @@ RegionIgpElement-r16 ::= SEQUENCE {
 }
 
 
+GNSS-SSR-OrbitCorrectionsSet2-r17 ::= SEQUENCE {
+	refEph-r17									ENUMERATED { b1c,...},
+	gnss-SSR-OrbitCorrections-r17				GNSS-SSR-OrbitCorrections-r15,
+	...
+}
+
+
+GNSS-SSR-ClockCorrectionsSet2-r17 ::= SEQUENCE {
+	refEph-r17							ENUMERATED { b1c,...},
+	gnss-SSR-ClockCorrections-r17		GNSS-SSR-ClockCorrections-r15,
+	...
+}
+
+
+GNSS-SSR-URA-Set2-r17 ::= SEQUENCE {
+	refEph-r17							ENUMERATED { b1c,...},
+	gnss-SSR-URA-r17					GNSS-SSR-URA-r16,
+	...
+}
+
+
 A-GNSS-RequestAssistanceData ::= SEQUENCE {
 	gnss-CommonAssistDataReq		GNSS-CommonAssistDataReq		OPTIONAL, -- Cond CommonADReq
 	gnss-GenericAssistDataReq		GNSS-GenericAssistDataReq		OPTIONAL, -- Cond GenADReq
@@ -4237,6 +4272,15 @@ GNSS-GenericAssistDataReqElement ::= SEQUENCE {
 									NavIC-DifferentialCorrectionsReq-r16
 																OPTIONAL,	-- Cond DNavIC-Req
 		navic-GridModelReq-r16		NavIC-GridModelReq-r16		OPTIONAL	-- Cond NavIC-GridModReq
+	]],
+	[[
+		gnss-SSR-OrbitCorrectionsSet2Req-r17
+									GNSS-SSR-OrbitCorrectionsSet2Req-r17
+																	OPTIONAL,	-- Cond OC2-Req
+		gnss-SSR-ClockCorrectionsSet2Req-r17
+									GNSS-SSR-ClockCorrectionsSet2Req-r17
+																	OPTIONAL,	-- Cond CC2-Req
+		gnss-SSR-URA-Set2Req-r17	GNSS-SSR-URA-Set2Req-r17		OPTIONAL	-- Cond URA2-Req
 	]]
 }
 
@@ -4264,6 +4308,14 @@ GNSS-PeriodicAssistDataReq-r15 ::= SEQUENCE {
 	[[
 	gnss-Integrity-PeriodicServiceAlertReq-r17
 											GNSS-PeriodicControlParam-r15	OPTIONAL  -- Cond pDNU
+	]],
+	[[
+	gnss-SSR-PeriodicOrbitCorrectionsSet2Req-r17
+									GNSS-PeriodicControlParam-r15	OPTIONAL,		-- Cond pOC2
+	gnss-SSR-PeriodicClockCorrectionsSet2Req-r17
+									GNSS-PeriodicControlParam-r15	OPTIONAL,		-- Cond pCC2
+	gnss-SSR-PeriodicURA-Set2Req-r17
+									GNSS-PeriodicControlParam-r15	OPTIONAL		-- Cond pURA2
 	]]
 }
 
@@ -4548,6 +4600,28 @@ NavIC-DifferentialCorrectionsReq-r16 ::=	SEQUENCE {
 
 
 NavIC-GridModelReq-r16 ::=	SEQUENCE {
+	...
+}
+
+
+GNSS-SSR-OrbitCorrectionsSet2Req-r17 ::= SEQUENCE {
+	refEphReq-r17					ENUMERATED { b1c,...},
+	gnss-SSR-OrbitCorrectionsSet2Req-r17
+									GNSS-SSR-OrbitCorrectionsReq-r15	OPTIONAL,	-- Cond OC2-Req
+	...
+}
+
+
+GNSS-SSR-ClockCorrectionsSet2Req-r17 ::= SEQUENCE {
+	refEphReq-r17					ENUMERATED { b1c,...},
+	gnss-SSR-ClockCorrectionsSet2Req-r17
+									GNSS-SSR-ClockCorrectionsReq-r15	OPTIONAL,	-- Cond CC2-Req
+	...
+}
+
+
+GNSS-SSR-URA-Set2Req-r17 ::= SEQUENCE {
+	refEphReq-r17					ENUMERATED { b1c,...},
 	...
 }
 
@@ -4906,6 +4980,16 @@ GNSS-GenericAssistDataSupportElement ::= SEQUENCE {
 																OPTIONAL,	-- Cond DNavIC-Sup
 		navic-GridModelSupport-r16		NavIC-GridModelSupport-r16
 																OPTIONAL	-- Cond NavIC-GridModSup
+	]],
+	[[
+		gnss-SSR-OrbitCorrectionsSet2Support-r17
+											GNSS-SSR-OrbitCorrectionsSet2Support-r17
+																	OPTIONAL,	-- Cond OC2-Sup
+		gnss-SSR-ClockCorrectionsSet2Support-r17
+											GNSS-SSR-ClockCorrectionsSet2Support-r17
+																	OPTIONAL,	-- Cond CC2-Sup
+		gnss-SSR-URA-Set2Support-r17		GNSS-SSR-URA-Set2Support-r17
+																	OPTIONAL	-- Cond URA2-Sup
 	]]
 }
 
@@ -5092,6 +5176,21 @@ NavIC-DifferentialCorrectionsSupport-r16 ::=	SEQUENCE {
 
 
 NavIC-GridModelSupport-r16 ::=	SEQUENCE {
+	...
+}
+
+
+GNSS-SSR-OrbitCorrectionsSet2Support-r17 ::=	SEQUENCE {
+	...
+}
+
+
+GNSS-SSR-ClockCorrectionsSet2Support-r17 ::=	SEQUENCE {
+	...
+}
+
+
+GNSS-SSR-URA-Set2Support-r17 ::= SEQUENCE {
 	...
 }
 
@@ -6308,6 +6407,9 @@ NR-DL-TDOA-ProvideCapabilities-r16 ::= SEQUENCE {
 	]],
 	[[
 	posMeasGapSupport-r17					ENUMERATED { supported }					OPTIONAL
+	]],
+	[[
+	multiLocationEstimateInSameMeasReport-r17	ENUMERATED { supported }			OPTIONAL
 	]]
 }
 
@@ -6573,6 +6675,9 @@ NR-DL-AoD-ProvideCapabilities-r16 ::= SEQUENCE {
 	]],
 	[[
 	posMeasGapSupport-r17					ENUMERATED { supported }					OPTIONAL
+	]],
+	[[
+	multiLocationEstimateInSameMeasReport-r17	ENUMERATED { supported }			OPTIONAL
 	]]
 }
 

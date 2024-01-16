@@ -1,6 +1,6 @@
 # lpp.cnf
 # lpp conformation file
-# Copyright 2011-2023 Pascal Quantin
+# Copyright 2011-2024 Pascal Quantin
 
 #.OPT
 PER
@@ -81,13 +81,16 @@ GNSS-RTK-Observations-r15
 GNSS-RTK-ReferenceStationInfo-r15
 GNSS-RTK-Residuals-r15
 GNSS-SSR-ClockCorrections-r15
+GNSS-SSR-ClockCorrectionsSet2-r17
 GNSS-SSR-CodeBias-r15
 GNSS-SSR-CorrectionPoints-r16
 GNSS-SSR-GriddedCorrection-r16
 GNSS-SSR-OrbitCorrections-r15
+GNSS-SSR-OrbitCorrectionsSet2-r17
 GNSS-SSR-PhaseBias-r16
 GNSS-SSR-STEC-Correction-r16
 GNSS-SSR-URA-r16
+GNSS-SSR-URA-Set2-r17
 GNSS-TimeModelList
 GNSS-UTC-Model
 HorizontalVelocity
@@ -1895,14 +1898,23 @@ BT-MeasurementElement-r13/rssi-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&un
     case LPP_POS_SIB_TYPE_2_17:
       dissect_GNSS_SSR_OrbitCorrections_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
       break;
+    case LPP_POS_SIB_TYPE_2_17a:
+      dissect_GNSS_SSR_OrbitCorrectionsSet2_r17_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
     case LPP_POS_SIB_TYPE_2_18:
       dissect_GNSS_SSR_ClockCorrections_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_18a:
+      dissect_GNSS_SSR_ClockCorrectionsSet2_r17_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
       break;
     case LPP_POS_SIB_TYPE_2_19:
       dissect_GNSS_SSR_CodeBias_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
       break;
     case LPP_POS_SIB_TYPE_2_20:
       dissect_GNSS_SSR_URA_r16_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_20a:
+      dissect_GNSS_SSR_URA_Set2_r17_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
       break;
     case LPP_POS_SIB_TYPE_2_21:
       dissect_GNSS_SSR_PhaseBias_r16_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);

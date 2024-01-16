@@ -5,7 +5,7 @@
 
 /* packet-lpp.h
  * Routines for 3GPP LTE Positioning Protocol (LPP) packet dissection
- * Copyright 2011-2022 Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2011-2024 Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -47,9 +47,12 @@ typedef enum {
     LPP_POS_SIB_TYPE_2_15,
     LPP_POS_SIB_TYPE_2_16,
     LPP_POS_SIB_TYPE_2_17,
+    LPP_POS_SIB_TYPE_2_17a,
     LPP_POS_SIB_TYPE_2_18,
+    LPP_POS_SIB_TYPE_2_18a,
     LPP_POS_SIB_TYPE_2_19,
     LPP_POS_SIB_TYPE_2_20,
+    LPP_POS_SIB_TYPE_2_20a,
     LPP_POS_SIB_TYPE_2_21,
     LPP_POS_SIB_TYPE_2_22,
     LPP_POS_SIB_TYPE_2_23,
