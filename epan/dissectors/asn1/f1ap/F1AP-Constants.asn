@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V17.6.0 (2023-09)
+-- 3GPP TS 38.473 V17.7.0 (2023-12)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -73,7 +73,7 @@ id-resourceStatusReportingInitiation		ProcedureCode ::= 36
 id-resourceStatusReporting					ProcedureCode ::= 37
 id-accessAndMobilityIndication				ProcedureCode ::= 38
 id-accessSuccess							ProcedureCode ::= 39
-id-cellTrafficTrace 							ProcedureCode ::= 40
+id-cellTrafficTrace 						ProcedureCode ::= 40
 id-PositioningMeasurementExchange			ProcedureCode ::= 41
 id-PositioningAssistanceInformationControl	ProcedureCode ::= 42
 id-PositioningAssistanceInformationFeedback	ProcedureCode ::= 43
@@ -423,8 +423,8 @@ id-Broadcast-To-Be-Cancelled-List 					ProtocolIE-ID ::= 148
 id-Broadcast-To-Be-Cancelled-Item 					ProtocolIE-ID ::= 149
 id-Cells-Broadcast-Cancelled-List 					ProtocolIE-ID ::= 150
 id-Cells-Broadcast-Cancelled-Item 					ProtocolIE-ID ::= 151
-id-NR-CGI-List-For-Restart-List 						ProtocolIE-ID ::= 152
-id-NR-CGI-List-For-Restart-Item 						ProtocolIE-ID ::= 153
+id-NR-CGI-List-For-Restart-List 					ProtocolIE-ID ::= 152
+id-NR-CGI-List-For-Restart-Item 					ProtocolIE-ID ::= 153
 id-PWS-Failed-NR-CGI-List 							ProtocolIE-ID ::= 154
 id-PWS-Failed-NR-CGI-Item 							ProtocolIE-ID ::= 155
 id-ConfirmedUEID									ProtocolIE-ID ::= 156
@@ -985,6 +985,11 @@ id-repetitionFactorExtended							ProtocolIE-ID ::= 703
 id-startRBHopping									ProtocolIE-ID ::= 704
 id-startRBIndex										ProtocolIE-ID ::= 705
 id-transmissionCombn8								ProtocolIE-ID ::= 706
-id-ServCellInfoList                                 		ProtocolIE-ID ::= 707
+id-ServCellInfoList									ProtocolIE-ID ::= 707
+id-DedicatedSIDeliveryIndication					ProtocolIE-ID ::= 708
+id-Configured-BWP-List								ProtocolIE-ID ::= 709
+id-Preconfigured-measurement-GAP-Request			ProtocolIE-ID ::= 710
+id-BWP-Id											ProtocolIE-ID ::= 711
+
 
 END

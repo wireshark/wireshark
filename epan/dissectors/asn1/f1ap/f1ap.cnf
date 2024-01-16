@@ -886,6 +886,10 @@ id-startRBHopping                                    ProtocolIE-ID
 id-startRBIndex                                      ProtocolIE-ID
 id-transmissionCombn8                                ProtocolIE-ID
 id-ServCellInfoList                                  ProtocolIE-ID
+id-DedicatedSIDeliveryIndication                     ProtocolIE-ID
+id-Configured-BWP-List                               ProtocolIE-ID
+id-Preconfigured-measurement-GAP-Request             ProtocolIE-ID
+id-BWP-Id                                            ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -1404,6 +1408,8 @@ HashedUEIdentityIndexValue                        N f1ap.ies id-HashedUEIdentity
 UE-MulticastMRBs-Setupnew-List                    N f1ap.ies id-UE-MulticastMRBs-Setupnew-List
 UE-MulticastMRBs-Setupnew-Item                    N f1ap.ies id-UE-MulticastMRBs-Setupnew-Item
 TransmissionCombn8                                N f1ap.ies id-transmissionCombn8
+DedicatedSIDeliveryIndication                     N f1ap.ies id-DedicatedSIDeliveryIndication
+Configured-BWP-List                               N f1ap.ies id-Configured-BWP-List
 
 #F1AP-PROTOCOL-EXTENSION
 GNB-CUSystemInformation                           N f1ap.extension id-gNB-CUSystemInformation
@@ -1581,6 +1587,8 @@ RepetitionFactorExtended                          N f1ap.extension id-repetition
 StartRBHopping                                    N f1ap.extension id-startRBHopping
 StartRBIndex                                      N f1ap.extension id-startRBIndex
 ServCellInfoList                                  N f1ap.extension id-ServCellInfoList
+Preconfigured-measurement-GAP-Request             N f1ap.extension id-Preconfigured-measurement-GAP-Request
+BWP-Id                                            N f1ap.extension id-BWP-Id
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                                    N f1ap.proc.imsg id-Reset

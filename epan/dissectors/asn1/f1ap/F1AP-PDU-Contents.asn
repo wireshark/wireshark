@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V17.6.0 (2023-09)
+-- 3GPP TS 38.473 V17.7.0 (2023-12)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -404,7 +404,9 @@ IMPORTS
 	UlTxDirectCurrentMoreCarrierInformation,
 	CPACMCGInformation,
 	ExtendedUEIdentityIndexValue,
-	HashedUEIdentityIndexValue
+	HashedUEIdentityIndexValue,
+	DedicatedSIDeliveryIndication,
+	Configured-BWP-List
 
 
 
@@ -930,6 +932,8 @@ FROM F1AP-Containers
 	id-CPACMCGInformation,
 	id-ExtendedUEIdentityIndexValue,
 	id-HashedUEIdentityIndexValue,
+	id-DedicatedSIDeliveryIndication,
+	id-Configured-BWP-List,
 	maxCellingNBDU,
 	maxnoofCandidateSpCells,
 	maxnoofDRBs,
@@ -1613,7 +1617,9 @@ UEContextSetupResponseIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-PC5RLCChannelSetupList					CRITICALITY ignore	TYPE PC5RLCChannelSetupList						PRESENCE optional}|
 	{ ID id-PC5RLCChannelFailedToBeSetupList		CRITICALITY ignore	TYPE PC5RLCChannelFailedToBeSetupList			PRESENCE optional}|
 	{ ID id-ServingCellMO-encoded-in-CGC-List		CRITICALITY ignore	TYPE ServingCellMO-encoded-in-CGC-List			PRESENCE optional}|
-	{ ID id-UE-MulticastMRBs-Setupnew-List			CRITICALITY reject	TYPE UE-MulticastMRBs-Setupnew-List				PRESENCE optional},
+	{ ID id-UE-MulticastMRBs-Setupnew-List			CRITICALITY reject	TYPE UE-MulticastMRBs-Setupnew-List				PRESENCE optional}|
+	{ ID id-DedicatedSIDeliveryIndication			CRITICALITY ignore	TYPE DedicatedSIDeliveryIndication				PRESENCE optional}|
+	{ ID id-Configured-BWP-List						CRITICALITY ignore	TYPE Configured-BWP-List								PRESENCE optional},
 	...
 }
 
@@ -2036,7 +2042,8 @@ UEContextModificationResponseIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-PC5RLCChannelFailedToBeModifiedList		CRITICALITY ignore	TYPE PC5RLCChannelFailedToBeModifiedList		PRESENCE optional}|
 	{ ID id-SDTBearerConfigurationInfo				CRITICALITY ignore	TYPE SDTBearerConfigurationInfo					PRESENCE optional}|
 	{ ID id-UE-MulticastMRBs-Setup-List				CRITICALITY reject	TYPE UE-MulticastMRBs-Setup-List				PRESENCE optional}|
-	{ ID id-ServingCellMO-encoded-in-CGC-List		CRITICALITY ignore	TYPE ServingCellMO-encoded-in-CGC-List		PRESENCE optional},
+	{ ID id-ServingCellMO-encoded-in-CGC-List		CRITICALITY ignore	TYPE ServingCellMO-encoded-in-CGC-List		PRESENCE optional}|
+	{ ID id-DedicatedSIDeliveryIndication			CRITICALITY ignore	TYPE DedicatedSIDeliveryIndication			PRESENCE optional}|	{ ID id-Configured-BWP-List						CRITICALITY ignore	TYPE Configured-BWP-List							PRESENCE optional},
 	...
 }
 
@@ -2964,10 +2971,8 @@ CellTrafficTraceIEs F1AP-PROTOCOL-IES ::= {
 	{ID id-TraceID							CRITICALITY ignore	TYPE TraceID						PRESENCE mandatory	}|
 	{ID id-TraceCollectionEntityIPAddress	CRITICALITY ignore	TYPE TransportLayerAddress			PRESENCE mandatory	}|
 	{ID id-PrivacyIndicator					CRITICALITY ignore	TYPE PrivacyIndicator				PRESENCE optional	}|
-
 	{ID id-TraceCollectionEntityURI	CRITICALITY ignore	TYPE URI-address		PRESENCE optional	},
 	...
-
 }
 
 -- **************************************************************
@@ -2988,7 +2993,7 @@ DUCURadioInformationTransfer ::= SEQUENCE {
 }
 
 DUCURadioInformationTransferIEs F1AP-PROTOCOL-IES ::= {
-		{ ID id-TransactionID					CRITICALITY reject	TYPE TransactionID						PRESENCE mandatory	}|
+	{ ID id-TransactionID					CRITICALITY reject	TYPE TransactionID						PRESENCE mandatory	}|
 	{ ID id-DUCURadioInformationType		CRITICALITY ignore	TYPE DUCURadioInformationType				PRESENCE mandatory	},
 	...
 }
@@ -3013,7 +3018,7 @@ CUDURadioInformationTransfer ::= SEQUENCE {
 }
 
 CUDURadioInformationTransferIEs F1AP-PROTOCOL-IES ::= {
-		{ ID id-TransactionID					CRITICALITY reject	TYPE TransactionID						PRESENCE mandatory	}|
+	{ ID id-TransactionID					CRITICALITY reject	TYPE TransactionID						PRESENCE mandatory	}|
 	{ ID id-CUDURadioInformationType	CRITICALITY ignore	TYPE CUDURadioInformationType				PRESENCE mandatory	},
 	...
 }
@@ -3032,6 +3037,7 @@ CUDURadioInformationTransferIEs F1AP-PROTOCOL-IES ::= {
 -- **************************************************************
 --
 -- BAP MAPPING CONFIGURATION
+--
 -- **************************************************************
 
 
@@ -3082,6 +3088,7 @@ BAP-Header-Rewriting-Removed-List-ItemIEs F1AP-PROTOCOL-IES ::= {
 -- **************************************************************
 --
 -- BAP MAPPING CONFIGURATION ACKNOWLEDGE
+--
 -- **************************************************************
 
 BAPMappingConfigurationAcknowledge ::= SEQUENCE {
@@ -3124,6 +3131,7 @@ BAPMappingConfigurationFailureIEs F1AP-PROTOCOL-IES ::= {
 -- **************************************************************
 --
 -- GNB-DU RESOURCE CONFIGURATION
+--
 -- **************************************************************
 
 
@@ -3148,6 +3156,7 @@ GNBDUResourceConfigurationIEs F1AP-PROTOCOL-IES ::= {
 -- **************************************************************
 --
 -- GNB-DU RESOURCE CONFIGURATION ACKNOWLEDGE
+--
 -- **************************************************************
 
 
@@ -3192,6 +3201,7 @@ GNBDUResourceConfigurationFailureIEs F1AP-PROTOCOL-IES ::= {
 -- **************************************************************
 --
 -- IAB TNL ADDRESS REQUEST
+--
 -- **************************************************************
 
 
@@ -3222,6 +3232,7 @@ IAB-TNL-Addresses-To-Remove-ItemIEs	F1AP-PROTOCOL-IES::= {
 -- **************************************************************
 --
 -- IAB TNL ADDRESS RESPONSE
+--
 -- **************************************************************
 
 
@@ -5106,6 +5117,12 @@ PDCMeasurementFailureIndication-IEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	},
 	...
 }
+
+-- **************************************************************
+--
+-- PPS CONFIGURATION PROCEDURE
+--
+-- **************************************************************
 
 -- **************************************************************
 --

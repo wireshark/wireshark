@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V17.6.0 (2023-09)
+-- 3GPP TS 38.473 V17.7.0 (2023-12)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -203,6 +203,8 @@ IMPORTS
 	id-startRBIndex,
 	id-transmissionCombn8,
 	id-ServCellInfoList,
+	id-Preconfigured-measurement-GAP-Request,
+	id-BWP-Id,
 	maxNRARFCN,
 	maxnoofErrors,
 	maxnoofBPLMNs,
@@ -1095,6 +1097,8 @@ BufferSizeThresh ::= INTEGER(0..16777215)
 
 BurstArrivalTime ::= OCTET STRING
 
+BWP-Id ::= INTEGER (0..4)
+
 -- C
 CAGID ::= BIT STRING (SIZE(32))
 
@@ -1525,6 +1529,19 @@ ConfiguredTACIndication ::= ENUMERATED {
 	...
 }
 
+Configured-BWP-List ::= SEQUENCE (SIZE(1.. maxNrofBWPs)) OF Configured-BWP-Item
+
+Configured-BWP-Item ::= SEQUENCE {
+	bWP-Id									BWP-Id,
+	bWP-Location-and-bandwidth				INTEGER (0..37949),
+	iE-Extensions					ProtocolExtensionContainer { { Configured-BWP-Item-ExtIEs } }	OPTIONAL,
+	...
+}
+
+Configured-BWP-Item-ExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 CoordinateID ::= INTEGER (0..511, ...)
 
@@ -1673,7 +1690,8 @@ CUtoDURRCInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-NeedForGapsInfoNR				CRITICALITY ignore	EXTENSION NeedForGapsInfoNR							PRESENCE optional }|
 	{ ID id-NeedForGapNCSGInfoNR			CRITICALITY ignore	EXTENSION NeedForGapNCSGInfoNR						PRESENCE optional }|
 	{ ID id-NeedForGapNCSGInfoEUTRA			CRITICALITY ignore	EXTENSION NeedForGapNCSGInfoEUTRA					PRESENCE optional }|
-	{ ID id-ConfigRestrictInfoDAPS			CRITICALITY ignore	EXTENSION ConfigRestrictInfoDAPS					PRESENCE optional },
+	{ ID id-ConfigRestrictInfoDAPS			CRITICALITY ignore	EXTENSION ConfigRestrictInfoDAPS					PRESENCE optional }|
+	{ ID id-Preconfigured-measurement-GAP-Request			CRITICALITY ignore	EXTENSION Preconfigured-measurement-GAP-Request					PRESENCE optional },
 	...
 }
 
@@ -1694,6 +1712,7 @@ DedicatedSIDeliveryNeededUE-Item-ExtIEs F1AP-PROTOCOL-EXTENSION::={
 	...
 }
 
+DedicatedSIDeliveryIndication::= ENUMERATED{true, ...}
 
 DL-PRS ::= SEQUENCE {
 	prsid 					INTEGER (0..255),
@@ -4379,7 +4398,7 @@ NR-Mode-Info ::= CHOICE {
 }
 
 NR-Mode-Info-ExtIEs F1AP-PROTOCOL-IES ::= {
-	{ ID id-NR-U		CRITICALITY ignore	TYPE NR-U-Channel-Info-List PRESENCE optional },
+	{ ID id-NR-U		CRITICALITY ignore	TYPE NR-U-Channel-Info-List PRESENCE mandatory},
 	...
 }
 
@@ -5143,6 +5162,8 @@ Pre-emptionVulnerability ::= ENUMERATED {
 	pre-emptable
 }
 
+Preconfigured-measurement-GAP-Request ::= ENUMERATED {true, ...}
+
 PriorityLevel	::= INTEGER { spare (0), highest (1), lowest (14), no-priority (15) } (0..15)
 
 ProtectedEUTRAResourceIndication		::= OCTET STRING
@@ -5309,7 +5330,7 @@ PRSResourceSet-Item ::= SEQUENCE {
 	pointA							INTEGER (0..3279165),
 	combSize						ENUMERATED{n2, n4, n6, n12, ...},
 	cPType							ENUMERATED{normal, extended, ...},
-	resourceSetPeriodicity			ENUMERATED{n4,n5,n8,n10,n16,n20,n32,n40,n64,n80,n160,n320,n640,n1280,n2560,n5120,n10240,n20480,n40960, n81920,...},
+	resourceSetPeriodicity			ENUMERATED{n4,n5,n8,n10,n16,n20,n32,n40,n64,n80,n160,n320,n640,n1280,n2560,n5120,n10240,n20480,n40960, n81920,..., n128, n256, n512},
 	resourceSetSlotOffset			INTEGER(0..81919,...),
 	resourceRepetitionFactor		ENUMERATED{rf1,rf2,rf4,rf6,rf8,rf16,rf32,...},
 	resourceTimeGap					ENUMERATED{tg1,tg2,tg4,tg8,tg16,tg32,...},
@@ -5442,7 +5463,7 @@ RequestedDLPRSResourceSet-List ::= SEQUENCE (SIZE (1..maxnoofPRSresourceSets)) O
 RequestedDLPRSResourceSet-Item ::= SEQUENCE {
 	pRSbandwidth					INTEGER(1..63),
 	combSize						ENUMERATED{n2, n4, n6, n12, ...}		OPTIONAL,
-	resourceSetPeriodicity			ENUMERATED{n4,n5,n8,n10,n16,n20,n32,n40,n64,n80,n160,n320,n640,n1280,n2560,n5120,n10240,n20480,n40960, n81920,...}	OPTIONAL,
+	resourceSetPeriodicity			ENUMERATED{n4,n5,n8,n10,n16,n20,n32,n40,n64,n80,n160,n320,n640,n1280,n2560,n5120,n10240,n20480,n40960, n81920,..., n128, n256, n512}	OPTIONAL,
 	resourceRepetitionFactor		ENUMERATED{rf1,rf2,rf4,rf6,rf8,rf16,rf32,...}		OPTIONAL,
 	resourceNumberofSymbols			ENUMERATED{n2,n4,n6,n12,...}						OPTIONAL,
 	requestedDLPRSResource-List		RequestedDLPRSResource-List							OPTIONAL,
@@ -6215,6 +6236,7 @@ ServingCellMO-encoded-in-CGC-Item ::= SEQUENCE {
 }
 
 ServingCellMO-encoded-in-CGC-Item-ExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-BWP-Id	CRITICALITY ignore	EXTENSION BWP-Id	PRESENCE optional },
 	...
 }
 
@@ -6928,10 +6950,10 @@ SRSResource::= SEQUENCE {
 }
 
 SRSResource-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
-{ ID id-nrofSymbolsExtended			CRITICALITY ignore EXTENSION NrofSymbolsExtended			PRESENCE optional}|
-{ ID id-repetitionFactorExtended		CRITICALITY ignore EXTENSION RepetitionFactorExtended 	PRESENCE optional}|
-{ ID id-startRBHopping			CRITICALITY ignore EXTENSION StartRBHopping 			PRESENCE optional}|
-{ ID id-startRBIndex			CRITICALITY ignore EXTENSION StartRBIndex 			PRESENCE optional},
+	{ ID id-nrofSymbolsExtended			CRITICALITY ignore EXTENSION NrofSymbolsExtended			PRESENCE optional}|
+	{ ID id-repetitionFactorExtended		CRITICALITY ignore EXTENSION RepetitionFactorExtended 	PRESENCE optional}|
+	{ ID id-startRBHopping			CRITICALITY ignore EXTENSION StartRBHopping 			PRESENCE optional}|
+	{ ID id-startRBIndex			CRITICALITY ignore EXTENSION StartRBIndex 			PRESENCE optional},
 	...
 }
 
@@ -7656,7 +7678,7 @@ TRPInformationTypeResponseItem ::= CHOICE {
 TRPInformationTypeResponseItem-ExtIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-TRPType						CRITICALITY reject		TYPE TRPType					PRESENCE mandatory }|
 	{ ID id-OnDemandPRS	 				CRITICALITY reject		TYPE OnDemandPRS-Info			PRESENCE mandatory}|
-	{ ID id-TRPTxTEGAssociation			CRITICALITY reject		TYPE TRPTxTEGAssociation		PRESENCE optional }|
+	{ ID id-TRPTxTEGAssociation			CRITICALITY reject		TYPE TRPTxTEGAssociation		PRESENCE mandatory}|
 	{ ID id-TRPBeamAntennaInformation	CRITICALITY reject		TYPE TRPBeamAntennaInformation	PRESENCE mandatory },
 	...
 }
@@ -8043,7 +8065,7 @@ UE-MulticastMRBs-RequiredToBeReleased-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 
 UE-MulticastMRBs-Setup-Item	::= SEQUENCE {
 	mRB-ID							MRB-ID,
-	multicastF1UContextReferenceCU	MulticastF1UContextReferenceCU	OPTIONAL,
+	multicastF1UContextReferenceCU	MulticastF1UContextReferenceCU,
 	iE-Extensions					ProtocolExtensionContainer { { UE-MulticastMRBs-Setup-Item-ExtIEs } } OPTIONAL
 }
 

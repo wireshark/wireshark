@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V17.6.0 (2023-09)
+-- 3GPP TS 38.473 V17.7.0 (2023-12)
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -336,7 +336,7 @@ F1AP-ELEMENTARY-PROCEDURES-CLASS-1 F1AP-ELEMENTARY-PROCEDURE ::= {
 	uEContextModification			|
 	uEContextModificationRequired	|
 	writeReplaceWarning				|
-	pWSCancel					|
+	pWSCancel						|
 	gNBDUResourceCoordination		|
 	f1Removal						|
 	bAPMappingConfiguration			|
@@ -351,9 +351,9 @@ F1AP-ELEMENTARY-PROCEDURES-CLASS-1 F1AP-ELEMENTARY-PROCEDURE ::= {
 	e-CIDMeasurementInitiation		|
 	broadcastContextSetup			|
 	broadcastContextRelease			|
-	broadcastContextModification|
+	broadcastContextModification	|
 	multicastContextSetup			|
-	multicastContextRelease		|
+	multicastContextRelease			|
 	multicastContextModification	|
 	multicastDistributionSetup		|
 	multicastDistributionRelease	|
