@@ -333,17 +333,17 @@ NGAP-ELEMENTARY-PROCEDURES-CLASS-2 NGAP-ELEMENTARY-PROCEDURE ::= {
 	cellTrafficTrace				|
 	connectionEstablishmentIndication	|
 	deactivateTrace					|
-	downlinkNASTransport			|
-	downlinkNonUEAssociatedNRPPaTransport	|
+	downlinkNASTransport						|
+	downlinkNonUEAssociatedNRPPaTransport		|
 	downlinkRANConfigurationTransfer	|
 	downlinkRANEarlyStatusTransfer	|
 	downlinkRANStatusTransfer		|
-	downlinkRIMInformationTransfer	|
-	downlinkUEAssociatedNRPPaTransport	|
+	downlinkRIMInformationTransfer				|
+	downlinkUEAssociatedNRPPaTransport			|
 	errorIndication					|
 	handoverNotification			|
 	handoverSuccess								|
-	initialUEMessage				|
+	initialUEMessage							|
 	locationReport					|
 	locationReportingControl		|
 	locationReportingFailureIndication	|

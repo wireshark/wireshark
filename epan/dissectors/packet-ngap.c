@@ -6,7 +6,7 @@
 /* packet-ngap.c
  * Routines for NG-RAN NG Application Protocol (NGAP) packet dissection
  * Copyright 2018, Anders Broman <anders.broman@ericsson.com>
- * Copyright 2018-2023, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2018-2024, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.413 v17.6.0 (2023-09)
+ * References: 3GPP TS 38.413 v17.7.0 (2023-12)
  */
 
 #include "config.h"
@@ -11915,6 +11915,7 @@ static const value_string ngap_NumberOfMeasurementReportingLevels_vals[] = {
   {   2, "n4" },
   {   3, "n5" },
   {   4, "n10" },
+  {   5, "n0" },
   { 0, NULL }
 };
 
@@ -11922,7 +11923,7 @@ static const value_string ngap_NumberOfMeasurementReportingLevels_vals[] = {
 static int
 dissect_ngap_NumberOfMeasurementReportingLevels(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     5, NULL, TRUE, 0, NULL);
+                                     5, NULL, TRUE, 1, NULL);
 
   return offset;
 }
