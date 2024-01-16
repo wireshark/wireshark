@@ -3787,6 +3787,30 @@ dissector_dump_dissector_tables_display (gpointer key, gpointer user_data _U_)
 	printf("\n");
 }
 
+/** The output format of this function is meant to parallel
+ * that of dissector_dump_dissector_tables_display().
+ * Field 3 is shown as "heuristic".
+ * Field 4 is omitted, as it is for FT_STRING dissector tables above.
+ * Field 6 is omitted since "Decode As" doesn't apply.
+ */
+
+static void
+dissector_dump_heur_dissector_tables_display (gpointer key, gpointer user_data _U_)
+{
+	const char		*list_name = (const char *)key;
+	heur_dissector_list_t	list;
+
+	list = (heur_dissector_list_t)g_hash_table_lookup(heur_dissector_lists, key);
+	printf("%s\t%s\theuristic", list_name, list->ui_name ? list->ui_name : list_name);
+
+	if (list->protocol != NULL) {
+		printf("\t%s",
+		    proto_get_protocol_short_name(list->protocol));
+	} else
+		printf("\t(no protocol)");
+	printf("\n");
+}
+
 static gint
 compare_dissector_key_name(gconstpointer dissector_a, gconstpointer dissector_b)
 {
@@ -3801,6 +3825,11 @@ dissector_dump_dissector_tables(void)
 	list = g_hash_table_get_keys(dissector_tables);
 	list = g_list_sort(list, compare_dissector_key_name);
 	g_list_foreach(list, dissector_dump_dissector_tables_display, NULL);
+	g_list_free(list);
+
+	list = g_hash_table_get_keys(heur_dissector_lists);
+	list = g_list_sort(list, compare_dissector_key_name);
+	g_list_foreach(list, dissector_dump_heur_dissector_tables_display, NULL);
 	g_list_free(list);
 }
 
