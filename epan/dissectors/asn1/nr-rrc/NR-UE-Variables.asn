@@ -1,11 +1,11 @@
--- 3GPP TS 38.331 V17.6.0 (2023-09)
+-- 3GPP TS 38.331 V17.7.0 (2023-12)
 
 NR-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
 IMPORTS
-    AreaConfiguration-v1700,
+    AreaConfiguration-r17,
     ARFCN-ValueNR,
     CellIdentity,
     EUTRA-PhysCellId,
@@ -103,7 +103,7 @@ VarLogMeasConfig-r16-IEs ::= SEQUENCE {
         eventTriggered               LoggedEventTriggerConfig-r16
     },
     earlyMeasIndication-r17      ENUMERATED {true}            OPTIONAL,
-    areaConfiguration-v1700      AreaConfiguration-v1700      OPTIONAL
+    areaConfiguration-r17        AreaConfiguration-r17        OPTIONAL
 }
 -- TAG-VARLOGMEASCONFIG-STOP
 -- TAG-VARLOGMEASREPORT-START
@@ -145,7 +145,7 @@ VarMeasConfigSL-r16 ::=                        SEQUENCE {
     -- NR sidelink measurement objects
     sl-MeasObjectList-r16                          SL-MeasObjectList-r16                      OPTIONAL,
     -- NR sidelink reporting configurations
-    sl-reportConfigList-r16                        SL-ReportConfigList-r16                    OPTIONAL,
+    sl-ReportConfigList-r16                        SL-ReportConfigList-r16                    OPTIONAL,
     -- Other parameters
     sl-QuantityConfig-r16                          SL-QuantityConfig-r16                      OPTIONAL
 }

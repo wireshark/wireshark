@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V17.6.0 (2023-09)
+-- 3GPP TS 38.331 V17.7.0 (2023-12)
 
 PC5-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -104,7 +104,7 @@ MeasurementReportSidelink ::=                   SEQUENCE {
 }
 
 MeasurementReportSidelink-r16-IEs ::=           SEQUENCE {
-    sl-measResults-r16                              SL-MeasResults-r16,
+    sl-MeasResults-r16                              SL-MeasResults-r16,
     lateNonCriticalExtension                        OCTET STRING                                                            OPTIONAL,
     nonCriticalExtension                            SEQUENCE{}                                                              OPTIONAL
 }

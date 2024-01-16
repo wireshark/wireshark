@@ -1,6 +1,6 @@
 # nr-rrc.cnf
 # nr-rrc conformation file
-# Copyright 2018-2023 Pascal Quantin
+# Copyright 2018-2024 Pascal Quantin
 
 #.OPT
 PER
@@ -1939,6 +1939,15 @@ VisitedPSCellInfo-r17/timeSpent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
 
 #.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib6-6-v1700
   nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_6_6;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-17a-v1770
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_17a;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-18a-v1770
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_18a;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-20a-v1770
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_20a;
 
 #.FN_BODY SIBpos-r16/assistanceDataSIB-Element-r16 VAL_PTR = &assist_data_sib_elem_tvb
   tvbuff_t *assist_data_sib_elem_tvb = NULL;
