@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V17.6.0 (2023-09)
+-- 3GPP TS 38.423 V17.7.0 (2023-12)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -57,7 +57,7 @@ id-traceStart													ProcedureCode ::= 28
 id-handoverSuccess												ProcedureCode ::= 29
 id-conditionalHandoverCancel									ProcedureCode ::= 30
 id-earlyStatusTransfer											ProcedureCode ::= 31
-id-failureIndication												ProcedureCode ::= 32
+id-failureIndication											ProcedureCode ::= 32
 id-handoverReport												ProcedureCode ::= 33
 id-resourceStatusReportingInitiation							ProcedureCode ::= 34
 id-resourceStatusReporting										ProcedureCode ::= 35
@@ -104,7 +104,7 @@ maxnoofEUTRABPLMNs							INTEGER ::= 6
 maxnoofEPLMNs								INTEGER ::= 15
 maxnoofExtSliceItems						INTEGER ::= 65535
 maxnoofEPLMNsplus1							INTEGER ::= 16
-maxnoofForbiddenTACs							INTEGER ::= 4096
+maxnoofForbiddenTACs						INTEGER ::= 4096
 maxnoofFreqforMDT							INTEGER ::= 8
 maxnoofMBSFNEUTRA							INTEGER ::= 8
 maxnoofMDTPLMNs								INTEGER ::= 16
@@ -155,7 +155,7 @@ maxnoofUEIDIndicesforMBSPaging				INTEGER ::= 4096
 maxnoofMBSQoSFlows							INTEGER ::= 64
 maxnoofMRBs									INTEGER ::= 32
 maxnoofCellsforMBS							INTEGER ::= 8192
-maxnoofMBSServiceAreaInformation				INTEGER ::= 256
+maxnoofMBSServiceAreaInformation			INTEGER ::= 256
 maxnoofTAIforMBS 							INTEGER ::= 1024
 maxnoofAssociatedMBSSessions				INTEGER ::= 32
 maxnoofMBSSessions							INTEGER ::= 256
@@ -445,7 +445,7 @@ id-QoSFlowsMappedtoDRB-SetupResponse-MNterminated													ProtocolIE-ID ::= 
 id-DL-scheduling-PDCCH-CCE-usage																	ProtocolIE-ID ::= 240
 id-UL-scheduling-PDCCH-CCE-usage																	ProtocolIE-ID ::= 241
 id-SFN-Offset																						ProtocolIE-ID ::= 242
-id-QoSMonitoringDisabled																				ProtocolIE-ID ::= 243
+id-QoSMonitoringDisabled																			ProtocolIE-ID ::= 243
 id-ExtendedUEIdentityIndexValue																		ProtocolIE-ID ::= 244
 id-EUTRAPagingeDRXInformation																		ProtocolIE-ID ::= 245
 id-CHO-MRDC-EarlyDataForwarding																		ProtocolIE-ID ::= 246
@@ -459,7 +459,7 @@ id-DirectForwardingPathAvailability																	ProtocolIE-ID ::= 253
 id-SourceNG-RAN-node-ID																				ProtocolIE-ID ::= 254
 id-SourceDLForwardingIPAddress																		ProtocolIE-ID ::= 255
 id-SourceNodeDLForwardingIPAddress																	ProtocolIE-ID ::= 256
-id-ExtendedReportIntervalMDT																			ProtocolIE-ID ::= 257
+id-ExtendedReportIntervalMDT																		ProtocolIE-ID ::= 257
 id-SecurityIndication																				ProtocolIE-ID ::= 258
 id-RRCConnReestab-Indicator																			ProtocolIE-ID ::= 259
 id-TargetNodeID																						ProtocolIE-ID ::= 260
@@ -542,7 +542,7 @@ id-CPACInformationModRequired																		ProtocolIE-ID ::= 336
 id-QMCConfigInfo																					ProtocolIE-ID ::= 337
 id-ProtocolIE-ID338-NotToBeUsed																		ProtocolIE-ID ::= 338
 id-Additional-Measurement-Timing-Configuration-List													ProtocolIE-ID ::= 339
-id-PDUSession-PairID																					ProtocolIE-ID ::= 340
+id-PDUSession-PairID																				ProtocolIE-ID ::= 340
 id-Local-NG-RAN-Node-Identifier																		ProtocolIE-ID ::= 341
 id-Neighbour-NG-RAN-Node-List																		ProtocolIE-ID ::= 342
 id-Local-NG-RAN-Node-Identifier-Removal																ProtocolIE-ID ::= 343
@@ -551,7 +551,7 @@ id-FiveGProSePC5QoSParameters																		ProtocolIE-ID ::= 345
 id-FiveGProSeUEPC5AggregateMaximumBitRate															ProtocolIE-ID ::= 346
 id-ServedCellSpecificInfoReq-NR																		ProtocolIE-ID ::= 347
 id-NRPagingeDRXInformation																			ProtocolIE-ID ::= 348
-id-NRPagingeDRXInformationforRRCINACTIVE																ProtocolIE-ID ::= 349
+id-NRPagingeDRXInformationforRRCINACTIVE															ProtocolIE-ID ::= 349
 id-Redcap-Bcast-Information																			ProtocolIE-ID ::= 350
 id-SDTSupportRequest																				ProtocolIE-ID ::= 351
 id-SDT-SRB-between-NewNode-OldNode																	ProtocolIE-ID ::= 352
@@ -560,7 +560,7 @@ id-SDTPartialUEContextInfo																			ProtocolIE-ID ::= 354
 id-SDTDataForwardingDRBList																			ProtocolIE-ID ::= 355
 id-PagingCause																						ProtocolIE-ID ::= 356
 id-PEIPSassistanceInformation																		ProtocolIE-ID ::= 357
-id-UESliceMaximumBitRateList																			ProtocolIE-ID ::= 358
+id-UESliceMaximumBitRateList																		ProtocolIE-ID ::= 358
 id-S-NG-RANnodeUE-Slice-MBR																			ProtocolIE-ID ::= 359
 id-PositioningInformation																			ProtocolIE-ID ::= 360
 id-UEAssistantIdentifier																			ProtocolIE-ID ::= 361
@@ -570,14 +570,15 @@ id-TAINSAGSupportList																				ProtocolIE-ID ::= 364
 id-SCGreconfigNotification																			ProtocolIE-ID ::= 365
 id-earlyMeasurement																					ProtocolIE-ID ::= 366
 id-BeamMeasurementsReportConfiguration																ProtocolIE-ID ::= 367
-id-CoverageModificationCause																			ProtocolIE-ID ::= 368
+id-CoverageModificationCause																		ProtocolIE-ID ::= 368
 id-AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated									ProtocolIE-ID ::= 369
 id-UERLFReportContainerLTEExtension																ProtocolIE-ID ::= 370
 id-ExcessPacketDelayThresholdConfiguration															ProtocolIE-ID ::= 371
 id-HashedUEIdentityIndexValue																		ProtocolIE-ID ::= 372
 id-QosFlowMappingIndication																			ProtocolIE-ID ::= 373
 id-Full-and-Short-I-RNTI-Profile-List																ProtocolIE-ID ::= 374
-
+id-MBS-DataForwarding-Indicator																		ProtocolIE-ID ::= 375
+id-IABAuthorizationStatus																			ProtocolIE-ID ::= 376
 
 
 END

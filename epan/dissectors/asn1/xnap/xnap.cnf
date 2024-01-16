@@ -1,6 +1,6 @@
 # xnap.cnf
 # xnap conformation file
-# Copyright 2018-2023 Pascal Quantin
+# Copyright 2018-2024 Pascal Quantin
 
 #.OPT
 PER
@@ -1529,6 +1529,8 @@ id-ExcessPacketDelayThresholdConfiguration                          ProtocolIE-I
 id-HashedUEIdentityIndexValue                                       ProtocolIE-ID
 id-QosFlowMappingIndication                                         ProtocolIE-ID
 id-Full-and-Short-I-RNTI-Profile-List                               ProtocolIE-ID
+id-MBS-DataForwarding-Indicator                                     ProtocolIE-ID
+id-IABAuthorizationStatus                                           ProtocolIE-ID
 
 
 #.REGISTER
@@ -1793,6 +1795,8 @@ SCGreconfigNotification                           N xnap.ies id-SCGreconfigNotif
 UERLFReportContainerLTEExtension                  N xnap.ies id-UERLFReportContainerLTEExtension
 HashedUEIdentityIndexValue                        N xnap.ies id-HashedUEIdentityIndexValue
 Full-and-Short-I-RNTI-Profile-List                N xnap.ies id-Full-and-Short-I-RNTI-Profile-List
+MBS-DataForwarding-Indicator                      N xnap.ies id-MBS-DataForwarding-Indicator
+IABAuthorizationStatus                            N xnap.ies id-IABAuthorizationStatus
 
 #XNAP-PROTOCOL-EXTENSION
 Additional-UL-NG-U-TNLatUPF-List                                 N xnap.extension id-Additional-UL-NG-U-TNLatUPF-List

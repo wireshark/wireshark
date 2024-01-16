@@ -6,7 +6,7 @@
 /* packet-xnap.c
  * Routines for dissecting NG-RAN Xn application protocol (XnAP)
  * 3GPP TS 38.423 packet dissection
- * Copyright 2018-2023, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2018-2024, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 38.423 V17.6.0 (2023-09)
+ * 3GPP TS 38.423 V17.7.0 (2023-12)
  */
 
 #include "config.h"
@@ -592,7 +592,9 @@ typedef enum _ProtocolIE_ID_enum {
   id_ExcessPacketDelayThresholdConfiguration = 371,
   id_HashedUEIdentityIndexValue = 372,
   id_QosFlowMappingIndication = 373,
-  id_Full_and_Short_I_RNTI_Profile_List = 374
+  id_Full_and_Short_I_RNTI_Profile_List = 374,
+  id_MBS_DataForwarding_Indicator = 375,
+  id_IABAuthorizationStatus = 376
 } ProtocolIE_ID_enum;
 
 typedef enum _GlobalNG_RANNode_ID_enum {
@@ -721,6 +723,7 @@ static int hf_xnap_IABTNLAddressException_PDU;    /* IABTNLAddressException */
 static int hf_xnap_InitiatingCondition_FailureIndication_PDU;  /* InitiatingCondition_FailureIndication */
 static int hf_xnap_xnap_IntendedTDD_DL_ULConfiguration_NR_PDU;  /* IntendedTDD_DL_ULConfiguration_NR */
 static int hf_xnap_InterfaceInstanceIndication_PDU;  /* InterfaceInstanceIndication */
+static int hf_xnap_IABAuthorizationStatus_PDU;    /* IABAuthorizationStatus */
 static int hf_xnap_Local_NG_RAN_Node_Identifier_PDU;  /* Local_NG_RAN_Node_Identifier */
 static int hf_xnap_Full_and_Short_I_RNTI_Profile_List_PDU;  /* Full_and_Short_I_RNTI_Profile_List */
 static int hf_xnap_SCGUEHistoryInformation_PDU;   /* SCGUEHistoryInformation */
@@ -735,6 +738,7 @@ static int hf_xnap_M7ReportAmountMDT_PDU;         /* M7ReportAmountMDT */
 static int hf_xnap_MAC_I_PDU;                     /* MAC_I */
 static int hf_xnap_MaskedIMEISV_PDU;              /* MaskedIMEISV */
 static int hf_xnap_MaxIPrate_PDU;                 /* MaxIPrate */
+static int hf_xnap_MBS_DataForwarding_Indicator_PDU;  /* MBS_DataForwarding_Indicator */
 static int hf_xnap_MBS_Session_ID_PDU;            /* MBS_Session_ID */
 static int hf_xnap_MBS_SessionAssociatedInformation_PDU;  /* MBS_SessionAssociatedInformation */
 static int hf_xnap_MBS_SessionInformation_List_PDU;  /* MBS_SessionInformation_List */
@@ -1615,7 +1619,7 @@ static int hf_xnap_e_utra_coordination_assistance_info;  /* E_UTRA_CoordinationA
 static int hf_xnap_nr_coordination_assistance_info;  /* NR_CoordinationAssistanceInfo */
 static int hf_xnap_iAB_MT_Cell_List;              /* IAB_MT_Cell_List */
 static int hf_xnap_NACellResourceConfigurationList_item;  /* NACellResourceConfiguration_Item */
-static int hf_xnap_nAdownlin;                     /* T_nAdownlin */
+static int hf_xnap_nAdownlink;                    /* T_nAdownlink */
 static int hf_xnap_nAuplink;                      /* T_nAuplink */
 static int hf_xnap_nAflexible;                    /* T_nAflexible */
 static int hf_xnap_subframeAssignment;            /* T_subframeAssignment */
@@ -3884,6 +3888,8 @@ static const value_string xnap_ProtocolIE_ID_vals[] = {
   { id_HashedUEIdentityIndexValue, "id-HashedUEIdentityIndexValue" },
   { id_QosFlowMappingIndication, "id-QosFlowMappingIndication" },
   { id_Full_and_Short_I_RNTI_Profile_List, "id-Full-and-Short-I-RNTI-Profile-List" },
+  { id_MBS_DataForwarding_Indicator, "id-MBS-DataForwarding-Indicator" },
+  { id_IABAuthorizationStatus, "id-IABAuthorizationStatus" },
   { 0, NULL }
 };
 
@@ -11833,7 +11839,7 @@ dissect_xnap_RBsetConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
-static const value_string xnap_T_nAdownlin_vals[] = {
+static const value_string xnap_T_nAdownlink_vals[] = {
   {   0, "true" },
   {   1, "false" },
   { 0, NULL }
@@ -11841,7 +11847,7 @@ static const value_string xnap_T_nAdownlin_vals[] = {
 
 
 static int
-dissect_xnap_T_nAdownlin(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_xnap_T_nAdownlink(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      2, NULL, TRUE, 0, NULL);
 
@@ -11882,7 +11888,7 @@ dissect_xnap_T_nAflexible(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
 static const per_sequence_t NACellResourceConfiguration_Item_sequence[] = {
-  { &hf_xnap_nAdownlin      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_nAdownlin },
+  { &hf_xnap_nAdownlink     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_nAdownlink },
   { &hf_xnap_nAuplink       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_nAuplink },
   { &hf_xnap_nAflexible     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_nAflexible },
   { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
@@ -13687,6 +13693,22 @@ dissect_xnap_I_RNTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 }
 
 
+static const value_string xnap_IABAuthorizationStatus_vals[] = {
+  {   0, "authorized" },
+  {   1, "not-authorized" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_xnap_IABAuthorizationStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
 
 static int
 dissect_xnap_BIT_STRING_SIZE_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -14488,6 +14510,21 @@ static int
 dissect_xnap_MBS_FrequencySelectionArea_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 3, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const value_string xnap_MBS_DataForwarding_Indicator_vals[] = {
+  {   0, "mbs-only" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_xnap_MBS_DataForwarding_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -25699,6 +25736,14 @@ static int dissect_InterfaceInstanceIndication_PDU(tvbuff_t *tvb _U_, packet_inf
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_IABAuthorizationStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_xnap_IABAuthorizationStatus(tvb, offset, &asn1_ctx, tree, hf_xnap_IABAuthorizationStatus_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Local_NG_RAN_Node_Identifier_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -25808,6 +25853,14 @@ static int dissect_MaxIPrate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_xnap_MaxIPrate(tvb, offset, &asn1_ctx, tree, hf_xnap_MaxIPrate_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_MBS_DataForwarding_Indicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_xnap_MBS_DataForwarding_Indicator(tvb, offset, &asn1_ctx, tree, hf_xnap_MBS_DataForwarding_Indicator_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -28741,6 +28794,10 @@ void proto_register_xnap(void) {
       { "InterfaceInstanceIndication", "xnap.InterfaceInstanceIndication",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_IABAuthorizationStatus_PDU,
+      { "IABAuthorizationStatus", "xnap.IABAuthorizationStatus",
+        FT_UINT32, BASE_DEC, VALS(xnap_IABAuthorizationStatus_vals), 0,
+        NULL, HFILL }},
     { &hf_xnap_Local_NG_RAN_Node_Identifier_PDU,
       { "Local-NG-RAN-Node-Identifier", "xnap.Local_NG_RAN_Node_Identifier",
         FT_UINT32, BASE_DEC, VALS(xnap_Local_NG_RAN_Node_Identifier_vals), 0,
@@ -28796,6 +28853,10 @@ void proto_register_xnap(void) {
     { &hf_xnap_MaxIPrate_PDU,
       { "MaxIPrate", "xnap.MaxIPrate",
         FT_UINT32, BASE_DEC, VALS(xnap_MaxIPrate_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_MBS_DataForwarding_Indicator_PDU,
+      { "MBS-DataForwarding-Indicator", "xnap.MBS_DataForwarding_Indicator",
+        FT_UINT32, BASE_DEC, VALS(xnap_MBS_DataForwarding_Indicator_vals), 0,
         NULL, HFILL }},
     { &hf_xnap_MBS_Session_ID_PDU,
       { "MBS-Session-ID", "xnap.MBS_Session_ID_element",
@@ -32317,9 +32378,9 @@ void proto_register_xnap(void) {
       { "NACellResourceConfiguration-Item", "xnap.NACellResourceConfiguration_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_xnap_nAdownlin,
-      { "nAdownlin", "xnap.nAdownlin",
-        FT_UINT32, BASE_DEC, VALS(xnap_T_nAdownlin_vals), 0,
+    { &hf_xnap_nAdownlink,
+      { "nAdownlink", "xnap.nAdownlink",
+        FT_UINT32, BASE_DEC, VALS(xnap_T_nAdownlink_vals), 0,
         NULL, HFILL }},
     { &hf_xnap_nAuplink,
       { "nAuplink", "xnap.nAuplink",
@@ -36363,6 +36424,8 @@ proto_reg_handoff_xnap(void)
   dissector_add_uint("xnap.ies", id_UERLFReportContainerLTEExtension, create_dissector_handle(dissect_UERLFReportContainerLTEExtension_PDU, proto_xnap));
   dissector_add_uint("xnap.ies", id_HashedUEIdentityIndexValue, create_dissector_handle(dissect_HashedUEIdentityIndexValue_PDU, proto_xnap));
   dissector_add_uint("xnap.ies", id_Full_and_Short_I_RNTI_Profile_List, create_dissector_handle(dissect_Full_and_Short_I_RNTI_Profile_List_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_MBS_DataForwarding_Indicator, create_dissector_handle(dissect_MBS_DataForwarding_Indicator_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_IABAuthorizationStatus, create_dissector_handle(dissect_IABAuthorizationStatus_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_Additional_UL_NG_U_TNLatUPF_List, create_dissector_handle(dissect_Additional_UL_NG_U_TNLatUPF_List_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_SecondarydataForwardingInfoFromTarget_List, create_dissector_handle(dissect_SecondarydataForwardingInfoFromTarget_List_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_LastE_UTRANPLMNIdentity, create_dissector_handle(dissect_PLMN_Identity_PDU, proto_xnap));
