@@ -228,8 +228,6 @@ void
 proto_reg_handoff_x75(void)
 {
     data_handle = find_dissector("data");
-
-    dissector_add_uint("wtap_encap", WTAP_ENCAP_LAPB, x75_handle);
 }
 
 /*
