@@ -1622,7 +1622,7 @@ proto_register_rtsp(void)
      * this table using the standard heur_dissector_add()
      * function.
      */
-    heur_subdissector_list = register_heur_dissector_list("rtsp", proto_rtsp);
+    heur_subdissector_list = register_heur_dissector_list_with_description("rtsp", "RTSP data", proto_rtsp);
 
     /*
      * Register for tapping

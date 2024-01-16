@@ -1147,7 +1147,7 @@ proto_register_corosync_totemsrp(void)
   proto_register_field_array(proto_corosync_totemsrp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  heur_subdissector_list = register_heur_dissector_list("corosync_totemsrp.mcast", proto_corosync_totemsrp);
+  heur_subdissector_list = register_heur_dissector_list_with_description("corosync_totemsrp.mcast", "COROSYNC/TOTEMSRP multicast data", proto_corosync_totemsrp);
 
   register_dissector( "corosync_totemsrp", dissect_corosync_totemsrp, proto_corosync_totemsrp);
 }

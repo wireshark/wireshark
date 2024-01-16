@@ -4828,7 +4828,7 @@ proto_register_tls(void)
     }
 
     /* heuristic dissectors for any premable e.g. CredSSP before RDP */
-    ssl_heur_subdissector_list = register_heur_dissector_list("tls", proto_tls);
+    ssl_heur_subdissector_list = register_heur_dissector_list_with_description("tls", "TLS data", proto_tls);
 
     ssl_common_register_ssl_alpn_dissector_table("tls.alpn",
         "SSL/TLS Application-Layer Protocol Negotiation (ALPN) Protocol IDs",

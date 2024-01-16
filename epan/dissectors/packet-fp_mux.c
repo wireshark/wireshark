@@ -347,7 +347,7 @@ proto_register_fp_mux(void)
     expert_register_field_array(expert_fp_mux, ei, array_length(ei));
 
     /* Register heuristic table */
-    heur_subdissector_list = register_heur_dissector_list("fp_mux", proto_fp_mux);
+    heur_subdissector_list = register_heur_dissector_list_with_description("fp_mux", "Huawei FP Mux payload", proto_fp_mux);
 
     /* Register configuration preferences */
     fp_mux_module = prefs_register_protocol(proto_fp_mux, NULL);

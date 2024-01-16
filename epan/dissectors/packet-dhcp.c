@@ -10412,8 +10412,8 @@ proto_register_dhcp(void)
 	expert_register_field_array(expert_dhcp, ei, array_length(ei));
 
 	dhcp_option_table = register_dissector_table("dhcp.option", "BOOTP Options", proto_dhcp, FT_UINT8, BASE_DEC);
-	dhcp_vendor_id_subdissector = register_heur_dissector_list("dhcp.vendor_id", proto_dhcp);
-	dhcp_vendor_info_subdissector = register_heur_dissector_list("dhcp.vendor_info", proto_dhcp);
+	dhcp_vendor_id_subdissector = register_heur_dissector_list_with_description("dhcp.vendor_id", "DHCP Vendor ID", proto_dhcp);
+	dhcp_vendor_info_subdissector = register_heur_dissector_list_with_description("dhcp.vendor_info", "DHCP Vendor Info", proto_dhcp);
 	dhcp_enterprise_class_table = register_dissector_table("dhcp.enterprise_class", "V-I Vendor Class Enterprise", proto_dhcp, FT_UINT32, BASE_DEC);
 	dhcp_enterprise_specific_table = register_dissector_table("dhcp.enterprise", "V-I Vendor Specific Enterprise", proto_dhcp, FT_UINT32, BASE_DEC);
 

@@ -4727,7 +4727,7 @@ void proto_register_mq(void)
     expert_mq = expert_register_protocol(proto_mq);
     expert_register_field_array(expert_mq, ei, array_length(ei));
 
-    mq_heur_subdissector_list = register_heur_dissector_list("mq", proto_mq);
+    mq_heur_subdissector_list = register_heur_dissector_list_with_description("mq", "WebSphere MQ data", proto_mq);
 
     reassembly_table_register(&mq_reassembly_table,
         &addresses_reassembly_table_functions);

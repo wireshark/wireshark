@@ -990,7 +990,7 @@ proto_register_vines_ipc(void)
 	vines_ipc_handle = register_dissector("vines_ipc", dissect_vines_ipc,
 	    proto_vines_ipc);
 
-	vines_ipc_heur_subdissector_list = register_heur_dissector_list("vines_ipc", proto_vines_ipc);
+	vines_ipc_heur_subdissector_list = register_heur_dissector_list_with_description("vines_ipc", "Vines IPC Data payload", proto_vines_ipc);
 }
 
 void
@@ -1156,7 +1156,7 @@ proto_register_vines_spp(void)
 	vines_spp_handle = register_dissector("vines_spp", dissect_vines_spp,
 	    proto_vines_spp);
 
-	vines_spp_heur_subdissector_list = register_heur_dissector_list("vines_spp", proto_vines_spp);
+	vines_spp_heur_subdissector_list = register_heur_dissector_list_with_description("vines_spp", "Vines SPP Data payload", proto_vines_spp);
 }
 
 void

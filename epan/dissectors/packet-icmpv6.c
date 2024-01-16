@@ -6425,7 +6425,7 @@ proto_register_icmpv6(void)
 
     register_seq_analysis("icmpv6", "ICMPv6 Flows", proto_icmpv6, NULL, TL_REQUIRES_COLUMNS, icmpv6_seq_analysis_packet);
     icmpv6_handle = register_dissector("icmpv6", dissect_icmpv6, proto_icmpv6);
-    icmpv6_heur_subdissector_list = register_heur_dissector_list("icmpv6", proto_icmpv6);
+    icmpv6_heur_subdissector_list = register_heur_dissector_list_with_description("icmpv6", "ICMPv6 Echo payload", proto_icmpv6);
     icmpv6_tap = register_tap("icmpv6");
 }
 

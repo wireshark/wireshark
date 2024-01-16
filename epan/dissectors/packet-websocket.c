@@ -1019,7 +1019,7 @@ proto_register_websocket(void)
    * this table using the standard heur_dissector_add()
    * function.
    */
-  heur_subdissector_list = register_heur_dissector_list("ws", proto_websocket);
+  heur_subdissector_list = register_heur_dissector_list_with_description("ws", "WebSocket data frame", proto_websocket);
 
   port_subdissector_table = register_dissector_table("ws.port",
       "TCP port for protocols using WebSocket", proto_websocket, FT_UINT16, BASE_DEC);

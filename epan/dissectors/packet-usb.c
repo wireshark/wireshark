@@ -7377,13 +7377,13 @@ proto_register_usb(void)
 
     usb_bulk_dissector_table = register_dissector_table("usb.bulk",
         "USB bulk endpoint", proto_usb, FT_UINT32, BASE_HEX);
-    heur_bulk_subdissector_list = register_heur_dissector_list("usb.bulk", proto_usb);
+    heur_bulk_subdissector_list = register_heur_dissector_list_with_description("usb.bulk", "USB bulk fallback", proto_usb);
     usb_control_dissector_table = register_dissector_table("usb.control",
         "USB control endpoint", proto_usb, FT_UINT32, BASE_HEX);
-    heur_control_subdissector_list = register_heur_dissector_list("usb.control", proto_usb);
+    heur_control_subdissector_list = register_heur_dissector_list_with_description("usb.control", "USB control fallback", proto_usb);
     usb_interrupt_dissector_table = register_dissector_table("usb.interrupt",
         "USB interrupt endpoint", proto_usb, FT_UINT32, BASE_HEX);
-    heur_interrupt_subdissector_list = register_heur_dissector_list("usb.interrupt", proto_usb);
+    heur_interrupt_subdissector_list = register_heur_dissector_list_with_description("usb.interrupt", "USB interrupt fallback", proto_usb);
     usb_descriptor_dissector_table = register_dissector_table("usb.descriptor",
         "USB descriptor", proto_usb, FT_UINT8, BASE_DEC);
 

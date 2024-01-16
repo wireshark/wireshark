@@ -4590,7 +4590,7 @@ proto_register_http(void)
 	 * this table using the standard heur_dissector_add()
 	 * function.
 	 */
-	heur_subdissector_list = register_heur_dissector_list("http", proto_http);
+	heur_subdissector_list = register_heur_dissector_list_with_description("http", "HTTP payload fallback", proto_http);
 
 	/*
 	 * Register for tapping

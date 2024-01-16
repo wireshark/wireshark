@@ -3894,7 +3894,7 @@ proto_register_smb_pipe(void)
 	expert_smb_pipe = expert_register_protocol(proto_smb_pipe);
 	expert_register_field_array(expert_smb_pipe, ei, array_length(ei));
 
-	smb_transact_heur_subdissector_list = register_heur_dissector_list("smb_transact", proto_smb_pipe);
+	smb_transact_heur_subdissector_list = register_heur_dissector_list_with_description("smb_transact", "SMB Pipe DCERPC data", proto_smb_pipe);
 	/*
 	 * XXX - addresses_ports_reassembly_table_functions?
 	 * Probably correct for SMB-over-NBT and SMB-over-TCP,

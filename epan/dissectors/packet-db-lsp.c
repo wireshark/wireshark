@@ -231,7 +231,7 @@ proto_register_db_lsp (void)
   db_lsp_tcp_handle = register_dissector ("db-lsp.tcp", dissect_db_lsp_tcp, proto_db_lsp);
   db_lsp_udp_handle = register_dissector ("db-lsp.udp", dissect_db_lsp_disc, proto_db_lsp_disc);
 
-  heur_subdissector_list = register_heur_dissector_list("db-lsp", proto_db_lsp);
+  heur_subdissector_list = register_heur_dissector_list_with_description("db-lsp", PSNAME_DISC " payload", proto_db_lsp);
 
   proto_register_field_array (proto_db_lsp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));

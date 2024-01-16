@@ -1444,7 +1444,7 @@ proto_register_netbios(void)
 	netbios_handle = register_dissector("netbios", dissect_netbios, proto_netbios);
 	netbios_cap_handle = register_capture_dissector("netbios", capture_netbios, proto_netbios);
 
-	netbios_heur_subdissector_list = register_heur_dissector_list("netbios", proto_netbios);
+	netbios_heur_subdissector_list = register_heur_dissector_list_with_description("netbios", "NetBIOS payload", proto_netbios);
 
 	netbios_module = prefs_register_protocol(proto_netbios, NULL);
 	prefs_register_bool_preference(netbios_module, "defragment",

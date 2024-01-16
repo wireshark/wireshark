@@ -6352,8 +6352,8 @@ proto_register_epl(void)
 	proto_epl = proto_register_protocol("Ethernet POWERLINK", "EPL", "epl");
 
 	/* subdissector code */
-	heur_epl_subdissector_list = register_heur_dissector_list("epl", proto_epl);
-	heur_epl_data_subdissector_list = register_heur_dissector_list("epl_data", proto_epl);
+	heur_epl_subdissector_list = register_heur_dissector_list_with_description("epl", "Data encapsuated in EPL", proto_epl);
+	heur_epl_data_subdissector_list = register_heur_dissector_list_with_description("epl_data", "EPL Data", proto_epl);
 	epl_asnd_dissector_table = register_dissector_table("epl.asnd",
 		"Manufacturer specific ASND service", proto_epl, FT_UINT8, BASE_DEC /*, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE*/);
 

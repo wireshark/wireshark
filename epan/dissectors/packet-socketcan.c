@@ -876,7 +876,7 @@ proto_register_socketcan(void) {
 
     subdissector_table = register_decode_as_next_proto(proto_can, "can.subdissector", "CAN next level dissector", NULL);
 
-    heur_subdissector_list = register_heur_dissector_list("can", proto_can);
+    heur_subdissector_list = register_heur_dissector_list_with_description("can", "CAN heuristic", proto_can);
 
     static uat_field_t can_interface_mapping_uat_fields[] = {
         UAT_FLD_HEX(interface_configs,      interface_id,   "Interface ID",   "ID of the Interface with 0xffffffff = any (hex uint32 without leading 0x)"),

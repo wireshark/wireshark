@@ -3056,7 +3056,7 @@ proto_register_ip(void)
                                                 proto_ip, FT_UINT8, BASE_DEC);
   ip_option_table = register_dissector_table("ip.option", "IP Options",
                                                 proto_ip, FT_UINT8, BASE_DEC);
-  heur_subdissector_list = register_heur_dissector_list("ip", proto_ip);
+  heur_subdissector_list = register_heur_dissector_list_with_description("ip", "IPv4 heuristic", proto_ip);
   register_capture_dissector_table("ip.proto", "IP protocol");
 
   /* Register configuration options */

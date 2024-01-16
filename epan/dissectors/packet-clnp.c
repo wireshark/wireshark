@@ -695,7 +695,7 @@ proto_register_clnp(void)
     expert_clnp = expert_register_protocol(proto_clnp);
     expert_register_field_array(expert_clnp, ei, array_length(ei));
     clnp_handle = register_dissector("clnp", dissect_clnp, proto_clnp);
-    clnp_heur_subdissector_list = register_heur_dissector_list("clnp", proto_clnp);
+    clnp_heur_subdissector_list = register_heur_dissector_list_with_description("clnp", "CLNP DT/MD payload", proto_clnp);
 
     reassembly_table_register(&clnp_reassembly_table,
             &addresses_reassembly_table_functions);

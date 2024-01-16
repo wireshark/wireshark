@@ -14394,7 +14394,7 @@ proto_register_smb2(void)
 				      "A table of Session ID to Session keys mappings used to decrypt traffic.",
 				      seskey_uat);
 
-	smb2_pipe_subdissector_list = register_heur_dissector_list("smb2_pipe_subdissectors", proto_smb2);
+	smb2_pipe_subdissector_list = register_heur_dissector_list_with_description("smb2_pipe_subdissectors", "SMB2 Pipe data", proto_smb2);
 	/*
 	 * XXX - addresses_ports_reassembly_table_functions?
 	 * Probably correct for SMB-over-NBT and SMB-over-TCP,

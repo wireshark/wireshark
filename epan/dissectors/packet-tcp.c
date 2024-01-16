@@ -9895,7 +9895,7 @@ proto_register_tcp(void)
     /* subdissector code */
     subdissector_table = register_dissector_table("tcp.port",
         "TCP port", proto_tcp, FT_UINT16, BASE_DEC);
-    heur_subdissector_list = register_heur_dissector_list("tcp", proto_tcp);
+    heur_subdissector_list = register_heur_dissector_list_with_description("tcp", "TCP heuristic", proto_tcp);
     tcp_option_table = register_dissector_table("tcp.option",
         "TCP Options", proto_tcp, FT_UINT8, BASE_DEC);
 

@@ -2344,7 +2344,7 @@ proto_register_x25(void)
 
     x25_subdissector_table = register_dissector_table("x.25.spi",
         "X.25 secondary protocol identifier", proto_x25, FT_UINT8, BASE_HEX);
-    x25_heur_subdissector_list = register_heur_dissector_list("x.25", proto_x25);
+    x25_heur_subdissector_list = register_heur_dissector_list_with_description("x.25", "X.25 payload", proto_x25);
 
     register_dissector("x.25_dir", dissect_x25_dir, proto_x25);
     x25_handle = register_dissector("x.25", dissect_x25, proto_x25);

@@ -8583,7 +8583,7 @@ proto_register_s7comm (void)
     expert_register_field_array(expert_s7comm, ei, array_length(ei));
 
     register_init_routine(s7comm_defragment_init);
-    s7comm_heur_subdissector_list = register_heur_dissector_list("s7comm-bsend", proto_s7comm);
+    s7comm_heur_subdissector_list = register_heur_dissector_list_with_description("s7comm-bsend", "S7COMM BSEND/BRECV", proto_s7comm);
 }
 
 /* Register this protocol */

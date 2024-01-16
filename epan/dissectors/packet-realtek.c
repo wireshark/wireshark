@@ -419,7 +419,8 @@ proto_register_realtek(void)
                                           "Realtek", "realtek");
   realtek_handle = register_dissector("realtek", dissect_realtek, proto_realtek);
   proto_register_field_array(proto_realtek, hf_realtek, array_length(hf_realtek));
-  realtek_heur_subdissector_list = register_heur_dissector_list("realtek",
+  realtek_heur_subdissector_list = register_heur_dissector_list_with_description("realtek",
+                                                                "Realtek Layer 2 payload",
                                                                 proto_realtek);
 
   proto_rrcp = proto_register_protocol("Realtek Remote Control Protocol",

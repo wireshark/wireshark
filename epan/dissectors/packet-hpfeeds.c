@@ -454,7 +454,7 @@ proto_register_hpfeeds(void)
         "hpfeeds"       /* abbrev     */
         );
 
-    heur_subdissector_list = register_heur_dissector_list("hpfeeds", proto_hpfeeds);
+    heur_subdissector_list = register_heur_dissector_list_with_description("hpfeeds", "HPFEEDS Publish payload", proto_hpfeeds);
 
     proto_register_field_array(proto_hpfeeds, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

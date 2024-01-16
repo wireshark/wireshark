@@ -1166,7 +1166,7 @@ proto_register_pn_rt(void)
                                    &pnio_desegment);
 
     /* register heuristics anchor for payload dissectors */
-    heur_subdissector_list = register_heur_dissector_list("pn_rt", proto_pn_rt);
+    heur_subdissector_list = register_heur_dissector_list_with_description("pn_rt", "PROFINET RT payload", proto_pn_rt);
 
     init_pn (proto_pn_rt);
     register_init_routine(pnio_defragment_init);

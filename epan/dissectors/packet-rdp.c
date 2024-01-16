@@ -5210,7 +5210,7 @@ proto_register_rdp(void) {
             "The TCP ports used by the RDP protocol should be added to the TPKT preference \"TPKT TCP ports\", or by selecting \"TPKT\" as the \"Transport\" protocol in the \"Decode As\" dialog.",
             "RDP TCP Port preference moved information");
 
-  rdp_heur_subdissector_list = register_heur_dissector_list("rdp", proto_rdp);
+  rdp_heur_subdissector_list = register_heur_dissector_list_with_description("rdp", "RDP payload", proto_rdp);
 }
 
 void

@@ -2583,7 +2583,7 @@ void proto_register_atn_ulcs (void)
         proto_atn_ulcs);
 
     /* initiate sub dissector list */
-    atn_ulcs_heur_subdissector_list = register_heur_dissector_list("atn-ulcs", proto_atn_ulcs);
+    atn_ulcs_heur_subdissector_list = register_heur_dissector_list_with_description("atn-ulcs", "ATN-ULCS unhandled data", proto_atn_ulcs);
 
     /* init aare/aare data */
     aarq_data_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());

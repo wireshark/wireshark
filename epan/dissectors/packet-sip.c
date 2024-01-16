@@ -7720,7 +7720,7 @@ void proto_register_sip(void)
 
     register_init_routine(&sip_init_protocol);
     register_cleanup_routine(&sip_cleanup_protocol);
-    heur_subdissector_list = register_heur_dissector_list("sip", proto_sip);
+    heur_subdissector_list = register_heur_dissector_list_with_description("sip", "SIP message fallback", proto_sip);
     /* Register for tapping */
     sip_tap = register_tap("sip");
     sip_follow_tap = register_tap("sip_follow");

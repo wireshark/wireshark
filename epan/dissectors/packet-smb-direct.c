@@ -666,7 +666,7 @@ void proto_register_smb_direct(void)
 
 	smb_direct_handle = register_dissector("smb_direct", dissect_smb_direct_infiniband, proto_smb_direct);
 
-	smb_direct_heur_subdissector_list = register_heur_dissector_list("smb_direct", proto_smb_direct);
+	smb_direct_heur_subdissector_list = register_heur_dissector_list_with_description("smb_direct", "SMB-Direct payload", proto_smb_direct);
 
 	smb_direct_module = prefs_register_protocol(proto_smb_direct, NULL);
 	prefs_register_bool_preference(smb_direct_module,

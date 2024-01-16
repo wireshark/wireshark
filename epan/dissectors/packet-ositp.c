@@ -2373,14 +2373,14 @@ void proto_register_cotp(void)
                                  "settings.", &cotp_decode_atn);
 
   /* For handling protocols hijacking the variable part of CR or CC PDUs */
-  cotp_cr_heur_subdissector_list = register_heur_dissector_list("cotp_cr", proto_cotp);
-  cotp_cc_heur_subdissector_list = register_heur_dissector_list("cotp_cc", proto_cotp);
+  cotp_cr_heur_subdissector_list = register_heur_dissector_list_with_description("cotp_cr", "COTP CR (Connect Request) payload", proto_cotp);
+  cotp_cc_heur_subdissector_list = register_heur_dissector_list_with_description("cotp_cc", "COTP CC (Connect Confirm) payload", proto_cotp);
 
   /* subdissector code in inactive subset */
-  cotp_is_heur_subdissector_list = register_heur_dissector_list("cotp_is", proto_cotp);
+  cotp_is_heur_subdissector_list = register_heur_dissector_list_with_description("cotp_is", "COTP IS (Inactive Subset) payload", proto_cotp);
 
   /* other COTP/ISO 8473 subdissectors */
-  cotp_heur_subdissector_list = register_heur_dissector_list("cotp", proto_cotp);
+  cotp_heur_subdissector_list = register_heur_dissector_list_with_description("cotp", "COTP DT (Data) payload", proto_cotp);
 
   /* XXX - what about CLTP and proto_cltp? */
   ositp_handle = register_dissector("ositp", dissect_ositp, proto_cotp);
@@ -2417,7 +2417,7 @@ void proto_register_cltp(void)
   proto_register_field_array(proto_cltp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  cltp_heur_subdissector_list = register_heur_dissector_list("cltp", proto_cltp);
+  cltp_heur_subdissector_list = register_heur_dissector_list_with_description("cltp", "CLTP data atop CLNP", proto_cltp);
 }
 
 void

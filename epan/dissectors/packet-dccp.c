@@ -1955,7 +1955,7 @@ proto_register_dccp(void)
     dccp_subdissector_table =
         register_dissector_table("dccp.port", "DCCP port", proto_dccp, FT_UINT16,
                                  BASE_DEC);
-    heur_subdissector_list = register_heur_dissector_list("dccp", proto_dccp);
+    heur_subdissector_list = register_heur_dissector_list_with_description("dccp", "DCCP heuristic", proto_dccp);
 
     /* reg preferences */
     dccp_module = prefs_register_protocol(proto_dccp, NULL);

@@ -1382,7 +1382,7 @@ proto_register_pgm(void)
 	pgm_handle = register_dissector("pgm", dissect_pgm, proto_pgm);
 	subdissector_table = register_dissector_table("pgm.port",
 						      "PGM port", proto_pgm, FT_UINT16, BASE_DEC);
-	heur_subdissector_list = register_heur_dissector_list("pgm", proto_pgm);
+	heur_subdissector_list = register_heur_dissector_list_with_description("pgm", "PGM data fallback", proto_pgm);
 
 	/*
 	 * Register configuration preferences for UDP encapsulation

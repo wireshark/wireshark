@@ -1114,7 +1114,7 @@ proto_register_tftp(void)
   expert_tftp = expert_register_protocol(proto_tftp);
   expert_register_field_array(expert_tftp, ei, array_length(ei));
 
-  heur_subdissector_list = register_heur_dissector_list("tftp", proto_tftp);
+  heur_subdissector_list = register_heur_dissector_list_with_description("tftp", "TFTP payload", proto_tftp);
   reassembly_table_register(&tftp_reassembly_table, &addresses_ports_reassembly_table_functions);
 
   tftp_handle = register_dissector("tftp", dissect_tftp, proto_tftp);

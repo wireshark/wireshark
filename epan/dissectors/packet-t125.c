@@ -567,7 +567,7 @@ void proto_register_t125(void) {
   proto_register_field_array(proto_t125, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  t125_heur_subdissector_list= register_heur_dissector_list("t125", proto_t125);
+  t125_heur_subdissector_list= register_heur_dissector_list_with_description("t125", "T.125 User data", proto_t125);
 
   register_dissector("t125", dissect_t125, proto_t125);
 }

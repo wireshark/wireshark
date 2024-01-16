@@ -538,7 +538,7 @@ proto_register_soupbintcp(void)
         "spanning multiple TCP segments.",
         &soupbintcp_desegment);
 
-    heur_subdissector_list = register_heur_dissector_list("soupbintcp", proto_soupbintcp);
+    heur_subdissector_list = register_heur_dissector_list_with_description("soupbintcp", "SoupBinTCP encapsulated data", proto_soupbintcp);
 
     expert_soupbinttcp = expert_register_protocol(proto_soupbintcp);
     expert_register_field_array(expert_soupbinttcp, ei, array_length(ei));

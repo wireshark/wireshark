@@ -1147,8 +1147,8 @@ proto_register_eth(void)
   expert_register_field_array(expert_eth, ei, array_length(ei));
 
   /* subdissector code */
-  heur_subdissector_list = register_heur_dissector_list("eth", proto_eth);
-  eth_trailer_subdissector_list = register_heur_dissector_list("eth.trailer", proto_eth);
+  heur_subdissector_list = register_heur_dissector_list_with_description("eth", "Ethernet framed non-Ethernet data", proto_eth);
+  eth_trailer_subdissector_list = register_heur_dissector_list_with_description("eth.trailer", "Ethernet trailer", proto_eth);
 
   /* Register configuration preferences */
   eth_module = prefs_register_protocol(proto_eth, NULL);

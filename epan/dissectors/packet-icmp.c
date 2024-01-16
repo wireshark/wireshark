@@ -2437,7 +2437,7 @@ void proto_register_icmp(void)
 
 	register_seq_analysis("icmp", "ICMP Flows", proto_icmp, NULL, TL_REQUIRES_COLUMNS, icmp_seq_analysis_packet);
 	icmp_handle = register_dissector("icmp", dissect_icmp, proto_icmp);
-	icmp_heur_subdissector_list = register_heur_dissector_list("icmp", proto_icmp);
+	icmp_heur_subdissector_list = register_heur_dissector_list_with_description("icmp", "ICMP Echo payload", proto_icmp);
 	register_dissector("icmp_extension", dissect_icmp_extension, proto_icmp);
 	icmp_tap = register_tap("icmp");
 }

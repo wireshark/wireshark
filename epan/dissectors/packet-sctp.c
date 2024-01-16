@@ -5281,7 +5281,7 @@ proto_register_sctp(void)
   sctp_ppi_dissector_table  = register_dissector_table("sctp.ppi",  "SCTP payload protocol identifier", proto_sctp, FT_UINT32, BASE_HEX);
 
   sctp_handle = register_dissector("sctp", dissect_sctp, proto_sctp);
-  sctp_heur_subdissector_list = register_heur_dissector_list("sctp", proto_sctp);
+  sctp_heur_subdissector_list = register_heur_dissector_list_with_description("sctp", "SCTP payload", proto_sctp);
 
   register_init_routine(sctp_init);
   register_cleanup_routine(sctp_cleanup);

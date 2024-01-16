@@ -678,7 +678,7 @@ proto_register_tpkt(void)
         &tpkt_desegment);
 
     /* heuristic dissectors for premable CredSSP before RDP and Fast-Path RDP packets */
-    tpkt_heur_subdissector_list = register_heur_dissector_list("tpkt", proto_tpkt);
+    tpkt_heur_subdissector_list = register_heur_dissector_list_with_description("tpkt", "TPKT fragment", proto_tpkt);
 
     proto_tpkt_heur = proto_register_protocol_in_name_only("TPKT Heuristic (for RDP)", "TPKT Heuristic (for RDP)", "tpkt", proto_tpkt, FT_PROTOCOL);
 }

@@ -579,7 +579,7 @@ proto_register_lin(void) {
 
     /* the lin.frame_id subdissector table carries the bus id in the higher 16 bits */
     subdissector_table = register_dissector_table("lin.frame_id", "LIN Frame ID", proto_lin, FT_UINT8, BASE_HEX);
-    heur_subdissector_list = register_heur_dissector_list(LIN_NAME_FILTER, proto_lin);
+    heur_subdissector_list = register_heur_dissector_list_with_description(LIN_NAME_FILTER, "LIN Message data fallback", proto_lin);
 
     static uat_field_t lin_interface_mapping_uat_fields[] = {
         UAT_FLD_HEX(interface_configs,      interface_id,   "Interface ID",   "ID of the Interface with 0xffffffff = any (hex uint32 without leading 0x)"),

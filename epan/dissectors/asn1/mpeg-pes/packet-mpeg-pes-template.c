@@ -736,7 +736,7 @@ proto_register_mpeg_pes(void)
 
 	proto_mpeg = proto_register_protocol("Moving Picture Experts Group", "MPEG", "mpeg");
 	mpeg_handle = register_dissector("mpeg", dissect_mpeg, proto_mpeg);
-	heur_subdissector_list = register_heur_dissector_list("mpeg", proto_mpeg);
+	heur_subdissector_list = register_heur_dissector_list_with_description("mpeg", "MPEG payload", proto_mpeg);
 
 	proto_mpeg_pes = proto_register_protocol("Packetized Elementary Stream", "MPEG PES", "mpeg-pes");
 	proto_register_field_array(proto_mpeg_pes, hf, array_length(hf));

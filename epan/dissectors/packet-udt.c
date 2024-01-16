@@ -589,7 +589,7 @@ void proto_register_udt(void)
 
 	udt_handle = register_dissector("udt", dissect_udt, proto_udt);
 
-	heur_subdissector_list = register_heur_dissector_list("udt", proto_udt);
+	heur_subdissector_list = register_heur_dissector_list_with_description("udt", "UDT data", proto_udt);
 }
 
 void proto_reg_handoff_udt(void)

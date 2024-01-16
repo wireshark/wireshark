@@ -1435,7 +1435,7 @@ void proto_register_dlt(void) {
     expert_module_DLT = expert_register_protocol(proto_dlt);
     expert_register_field_array(expert_module_DLT, ei, array_length(ei));
 
-    heur_subdissector_list = register_heur_dissector_list("dlt", proto_dlt);
+    heur_subdissector_list = register_heur_dissector_list_with_description("dlt", "DLT Log Message payload", proto_dlt);
 }
 
 void proto_reg_handoff_dlt(void) {

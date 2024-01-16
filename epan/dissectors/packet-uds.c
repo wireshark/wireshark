@@ -3838,7 +3838,7 @@ proto_register_uds(void) {
         "Decide how the certificate bytes are decoded",
         &uds_certificate_decoding_config, certificate_decoding_vals, FALSE);
 
-    heur_subdissector_list = register_heur_dissector_list("uds", proto_uds);
+    heur_subdissector_list = register_heur_dissector_list_with_description("uds", "UDS RDBI data", proto_uds);
 }
 
 void

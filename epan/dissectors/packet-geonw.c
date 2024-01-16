@@ -422,7 +422,7 @@ dissect_btpb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     if (dissector_try_uint_new(btpb_subdissector_table, dst_port, next_tvb, pinfo, tree, TRUE, NULL)) {
         return tvb_captured_length(tvb);
     }
-    if (dissector_try_heuristic(btpa_heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
+    if (dissector_try_heuristic(btpb_heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
         return tvb_captured_length(tvb);
     }
 
@@ -2848,7 +2848,7 @@ proto_register_btpa(void)
     btpa_subdissector_table = register_dissector_table("btpa.port",
         "BTP-A port", proto_btpa, FT_UINT16, BASE_HEX);
 
-    btpa_heur_subdissector_list = register_heur_dissector_list("btpa.payload", proto_btpa);
+    btpa_heur_subdissector_list = register_heur_dissector_list_with_description("btpa.payload", "BTP-A payload fallback", proto_btpa);
 
     // Decode as
     static build_valid_func btpa_da_src_values[1] = {btpa_src_value};
@@ -2901,7 +2901,7 @@ proto_register_btpb(void)
     btpb_subdissector_table = register_dissector_table("btpb.port",
         "BTP-B dst port", proto_btpb, FT_UINT16, BASE_HEX);
 
-    btpb_heur_subdissector_list = register_heur_dissector_list("btpb.payload", proto_btpb);
+    btpb_heur_subdissector_list = register_heur_dissector_list_with_description("btpb.payload", "BTP-B payload fallback", proto_btpb);
 
     // Decode as
     static build_valid_func btpb_da_build_value[1] = {btpb_dst_value};

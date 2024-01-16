@@ -197,7 +197,7 @@ proto_register_ap(void)
 
     proto_register_field_array(proto_ap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length (ett));
-    ap_heur_subdissector_list = register_heur_dissector_list("sinecap", proto_ap);
+    ap_heur_subdissector_list = register_heur_dissector_list_with_description("sinecap", "SINEC AP data", proto_ap);
 }
 
 void

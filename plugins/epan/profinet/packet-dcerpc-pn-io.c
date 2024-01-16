@@ -17841,7 +17841,7 @@ proto_register_pn_io (void)
 
     /* subdissector code */
     register_dissector("pn_io", dissect_PNIO_heur, proto_pn_io);
-    heur_pn_subdissector_list = register_heur_dissector_list("pn_io", proto_pn_io);
+    heur_pn_subdissector_list = register_heur_dissector_list_with_description("pn_io", "PROFINET IO payload", proto_pn_io);
 
     /* Initialise RTC1 dissection */
     init_pn_io_rtc1(proto_pn_io);

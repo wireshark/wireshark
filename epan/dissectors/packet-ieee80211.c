@@ -60187,7 +60187,7 @@ proto_register_ieee80211(void)
 
   proto_wlan = proto_register_protocol("IEEE 802.11 wireless LAN", "IEEE 802.11", "wlan");
 
-  heur_subdissector_list = register_heur_dissector_list("wlan_data", proto_wlan);
+  heur_subdissector_list = register_heur_dissector_list_with_description("wlan_data", "IEEE 802.11 WLAN v0 data", proto_wlan);
 
   /* Created to remove Decode As confusion */
   proto_centrino = proto_register_protocol("IEEE 802.11 wireless LAN (Centrino)", "IEEE 802.11 (Centrino)", "wlan_centrino");

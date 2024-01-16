@@ -950,7 +950,7 @@ proto_register_rtitcp(void)
      expert_register_field_array(expert_rtitcp, ei, array_length(ei)); */
 
     register_dissector("rtitcp", dissect_rtitcp, proto_rtitcp);
-    heur_subdissector_list = register_heur_dissector_list("rtitcp", proto_rtitcp);
+    heur_subdissector_list = register_heur_dissector_list_with_description("rtitcp", "RTI TCP signalling message", proto_rtitcp);
 
 }
 

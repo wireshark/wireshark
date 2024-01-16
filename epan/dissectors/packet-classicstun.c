@@ -692,7 +692,7 @@ proto_register_classicstun(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* heuristic subdissectors (used for the DATA field) */
-    heur_subdissector_list = register_heur_dissector_list("classicstun", proto_classicstun);
+    heur_subdissector_list = register_heur_dissector_list_with_description("classicstun", "CLASSICSTUN DATA payload", proto_classicstun);
 
     register_dissector("classicstun", dissect_classicstun, proto_classicstun);
     register_dissector("classicstun-heur", dissect_classicstun_heur, proto_classicstun);

@@ -3097,7 +3097,7 @@ proto_register_tipc(void)
 			"TIPC port name type", proto_tipc, FT_UINT32, BASE_DEC);
 
 	/* make heuristic dissectors possible */
-	tipc_heur_subdissector_list = register_heur_dissector_list("tipc", proto_tipc);
+	tipc_heur_subdissector_list = register_heur_dissector_list_with_description("tipc", "TIPC v2 data", proto_tipc);
 
 	/* Register by name */
 	tipc_handle = register_dissector("tipc", dissect_tipc, proto_tipc);

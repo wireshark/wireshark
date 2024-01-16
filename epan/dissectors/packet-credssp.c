@@ -728,7 +728,7 @@ void proto_register_credssp(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* heuristic dissectors for any premable e.g. CredSSP before RDP */
-  credssp_heur_subdissector_list = register_heur_dissector_list("credssp", proto_credssp);
+  credssp_heur_subdissector_list = register_heur_dissector_list_with_description("credssp", "Unused", proto_credssp);
 
 }
 

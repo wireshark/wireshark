@@ -549,7 +549,7 @@ proto_register_flexray(void) {
 
     subdissector_table = register_decode_as_next_proto(proto_flexray, "flexray.subdissector", "FLEXRAY next level dissector", NULL);
     flexrayid_subdissector_table = register_dissector_table("flexray.combined_id", "FlexRay ID (combined)", proto_flexray, FT_UINT32, BASE_HEX);
-    heur_subdissector_list = register_heur_dissector_list("flexray", proto_flexray);
+    heur_subdissector_list = register_heur_dissector_list_with_description("flexray", "FlexRay info", proto_flexray);
 }
 
 void

@@ -2306,7 +2306,7 @@ proto_register_dtls(void)
   ssl_debug_printf("proto_register_dtls: registered tap %s:%d\n",
                    "dtls", dtls_tap);
 
-  heur_subdissector_list = register_heur_dissector_list("dtls", proto_dtls);
+  heur_subdissector_list = register_heur_dissector_list_with_description("dtls", "DTLS payload fallback", proto_dtls);
 }
 
 

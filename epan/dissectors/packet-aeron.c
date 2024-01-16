@@ -3352,7 +3352,7 @@ void proto_register_aeron(void)
     expert_aeron = expert_register_protocol(proto_aeron);
     expert_register_field_array(expert_aeron, ei, array_length(ei));
     aeron_module = prefs_register_protocol(proto_aeron, NULL);
-    aeron_heuristic_subdissector_list = register_heur_dissector_list("aeron_msg_payload", proto_aeron);
+    aeron_heuristic_subdissector_list = register_heur_dissector_list_with_description("aeron_msg_payload", "Aeron Data payload", proto_aeron);
 
     aeron_dissector_handle = register_dissector("aeron", dissect_aeron, proto_aeron);
 

@@ -8951,7 +8951,7 @@ proto_register_zbee_zcl_tun(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Make heuristic dissectors possible */
-    zbee_zcl_tun_heur_subdissector_list = register_heur_dissector_list(ZBEE_PROTOABBREV_ZCL_TUN, proto_zbee_zcl_tun);
+    zbee_zcl_tun_heur_subdissector_list = register_heur_dissector_list_with_description(ZBEE_PROTOABBREV_ZCL_TUN, "ZigBee Transfer Data", proto_zbee_zcl_tun);
 
     /* Register the ZigBee ZCL Tunneling dissector. */
     register_dissector(ZBEE_PROTOABBREV_ZCL_TUN, dissect_zbee_zcl_tun, proto_zbee_zcl_tun);

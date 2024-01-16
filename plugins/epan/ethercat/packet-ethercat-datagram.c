@@ -3718,7 +3718,7 @@ void proto_register_ecat(void)
    ecat_handle = register_dissector("ecat", dissect_ecat_datagram, proto_ecat_datagram);
 
    /* Sub dissector code */
-   heur_subdissector_list = register_heur_dissector_list("ecat.data", proto_ecat_datagram);
+   heur_subdissector_list = register_heur_dissector_list_with_description("ecat.data", "EtherCAT payload", proto_ecat_datagram);
 }
 
 /* The registration hand-off routing */

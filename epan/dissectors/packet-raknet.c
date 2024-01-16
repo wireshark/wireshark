@@ -1993,7 +1993,7 @@ proto_register_raknet(void)
      * ...and their heuristic dissector to this table.
      */
     raknet_heur_subdissectors =
-        register_heur_dissector_list("raknet", proto_raknet);
+        register_heur_dissector_list_with_description("raknet", "RakNet fallback", proto_raknet);
 }
 
 void

@@ -1199,7 +1199,7 @@ proto_register_iwarp_ddp_rdmap(void)
 	proto_register_field_array(proto_iwarp_ddp_rdmap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	rdmap_heur_subdissector_list = register_heur_dissector_list("iwarp_ddp_rdmap", proto_iwarp_ddp_rdmap);
+	rdmap_heur_subdissector_list = register_heur_dissector_list_with_description("iwarp_ddp_rdmap", "iWARP RDMAP payload", proto_iwarp_ddp_rdmap);
 
 	register_dissector("iwarp_ddp_rdmap", dissect_iwarp_ddp_rdmap,
 			proto_iwarp_ddp_rdmap);
