@@ -238,11 +238,23 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
 WSLUA_CONSTRUCTOR DissectorTable_heuristic_new(lua_State *L) {
     /* Creates a new heuristic `DissectorTable` for your dissector's use. Returns true iff table was created successfully. */
 #define WSLUA_ARG_DissectorTable_heuristic_new_TABLENAME 1 /* The short name of the table. Use lower-case alphanumeric, dot, and/or underscores. */
-#define WSLUA_ARG_DissectorTable_heuristic_new_PROTO 2 /* The <<lua_class_Proto,`Proto`>> object that uses this dissector table. */
+#define WSLUA_OPTARG_DissectorTable_heuristic_new_UINAME 2 /* The name of the table in the user interface.
+                                                    Defaults to the name given in `tablename`, but can be any string. */
+#define WSLUA_ARG_DissectorTable_heuristic_new_PROTO 3 /* The <<lua_class_Proto,`Proto`>> object that uses this dissector table. */
     const gchar* name = (const gchar*)luaL_checkstring(L,WSLUA_ARG_DissectorTable_heuristic_new_TABLENAME);
-    Proto proto = checkProto(L, WSLUA_ARG_DissectorTable_heuristic_new_PROTO);
+    const gchar* ui_name = NULL;
+    Proto proto = NULL;
+    int proto_id = -1;
     heur_dissector_list_t list;
-    int proto_id = proto_get_id_by_short_name(proto->name);
+    int idx = WSLUA_OPTARG_DissectorTable_heuristic_new_UINAME;
+
+    if (lua_isstring(L, idx)) {
+        ui_name = luaL_checkstring(L, idx);
+        idx++;
+    }
+
+    proto = checkProto(L, idx);
+    proto_id = proto_get_id_by_short_name(proto->name);
 
     list = find_heur_dissector_list(name);
     if (list) {
@@ -250,7 +262,7 @@ WSLUA_CONSTRUCTOR DissectorTable_heuristic_new(lua_State *L) {
         return 0;
     }
 
-    register_heur_dissector_list(name, proto_id);
+    register_heur_dissector_list_with_description(name, ui_name, proto_id);
     return 0;
 }
 
