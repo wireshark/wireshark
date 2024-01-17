@@ -339,6 +339,13 @@ static int hf_smb2_fsctl_odx_copy_length;
 static int hf_smb2_fsctl_odx_xfer_length;
 static int hf_smb2_fsctl_odx_token_offset;
 
+static int hf_smb2_fsctl_infoex_enable_integrity;
+static int hf_smb2_fsctl_infoex_keep_integrity_state;
+static int hf_smb2_fsctl_infoex_reserved;
+static int hf_smb2_fsctl_infoex_reserved2;
+static int hf_smb2_fsctl_infoex_flags;
+static int hf_smb2_fsctl_infoex_version;
+
 static int hf_smb2_fsctl_sparse_flag;
 static int hf_smb2_fsctl_range_offset;
 static int hf_smb2_fsctl_range_length;
@@ -668,6 +675,11 @@ static int hf_smb2_tc_cluster_reconnect;
 static int hf_smb2_tc_redirect_to_owner;
 static int hf_smb2_tc_extension_present;
 static int hf_smb2_tc_reserved;
+static int hf_smb2_notification_type;
+static int hf_smb2_query_info_flags;
+static int hf_smb2_query_info_flag_restart_scan;
+static int hf_smb2_query_info_flag_return_single_entry;
+static int hf_smb2_query_info_flag_index_specified;
 
 static gint ett_smb2;
 static gint ett_smb2_olb;
@@ -784,6 +796,8 @@ static gint ett_smb2_transform_flags;
 static gint ett_smb2_fscc_file_attributes;
 static gint ett_smb2_comp_payload;
 static gint ett_smb2_comp_pattern_v1;
+static gint ett_smb2_query_info_flags;
+static gint ett_smb2_server_notification;
 
 static expert_field ei_smb2_invalid_length;
 static expert_field ei_smb2_bad_response;
@@ -888,15 +902,45 @@ static const value_string smb2_share_type_vals[] = {
 #define SMB2_FILE_ATTRIBUTE_TAG_INFO  0x23
 #define SMB2_FILE_NORMALIZED_NAME_INFO 0x30
 #define SMB2_FILE_POSIX_INFO          0x64
+#define SMB2_FILE_ID_INFO	      0x3b
+#define SMB2_FILE_PIPE_LOCAL_INFO     0x18
+#define SMB2_FILE_PIPE_REMOTE_INFO    0x19
+#define SMB2_FILE_BOTH_DIRECTORY_INFO 0x03
+#define SMB2_FILE_DIRECTORY_INFO      0x01
+#define SMB2_FILE_FULL_DIRECTORY_INFO 0x02
+#define SMB2_FILE_FULL_HARD_LINK_INFO 0x2e
+#define SMB2_FILE_ID_BOTH_DIRECTORY_INFO 0x25
+#define SMB2_FILE_ID_EXTD_DIRECTORY_INFO 0x3c
+#define SMB2_FILE_ID_FULL_DIRECTORY_INFO 0x26
+#define SMB2_FILE_ID_GLOBAL_TX_DIRECTORY_INFO 0x32
+#define SMB2_FILE_LINK_INFO	      0x0b
+#define SMB2_FILE_MAIL_SLOT_SET_INFO	0x1b
+#define SMB2_FILE_MOVE_CLUSTER_INFO	0x1f
+#define SMB2_FILE_NAME_INFO		0x09
+#define SMB2_FILE_NAMES_INFO		0x0c
+#define SMB2_FILE_OBJECTID_INFO		0x1d
+#define SMB2_FILE_QUOTA_INFO		0x20
+#define SMB2_FILE_REPARSE_POINT_INFO	0x21
+#define SMB2_FILE_SFIO_RESERVE_INFO	0x2c
+#define SMB2_FILE_SFIO_VOLUME_INFO	0x2d
+#define SMB2_FILE_SHORT_NAME_INFO	0x28
+#define SMB2_FILE_STANDARD_LINK_INFO	0x36
+#define SMB2_FILE_TRACKING_INFO		0x24
+#define SMB2_VALID_DATA_LENGTH_INFO	0x27
 
 static const value_string smb2_file_info_levels[] = {
+	{SMB2_FILE_DIRECTORY_INFO,	"SMB2_FILE_DIRECTORY_INFO"},
+	{SMB2_FILE_FULL_DIRECTORY_INFO,	"SMB2_FILE_FULL_DIRECTORY_INFO"},
+	{SMB2_FILE_BOTH_DIRECTORY_INFO,	"SMB2_FILE_BOTH_DIRECTORY_INFO"},
 	{SMB2_FILE_BASIC_INFO,		"SMB2_FILE_BASIC_INFO" },
 	{SMB2_FILE_STANDARD_INFO,	"SMB2_FILE_STANDARD_INFO" },
 	{SMB2_FILE_INTERNAL_INFO,	"SMB2_FILE_INTERNAL_INFO" },
 	{SMB2_FILE_EA_INFO,		"SMB2_FILE_EA_INFO" },
 	{SMB2_FILE_ACCESS_INFO,		"SMB2_FILE_ACCESS_INFO" },
+	{SMB2_FILE_NAME_INFO,		"SMB2_FILE_NAME_INFO"},
 	{SMB2_FILE_RENAME_INFO,		"SMB2_FILE_RENAME_INFO" },
 	{SMB2_FILE_LINK_INFO,		"SMB2_FILE_LINK_INFO" },
+	{SMB2_FILE_NAMES_INFO,		"SMB2_FILE_NAMES_INFO"},
 	{SMB2_FILE_DISPOSITION_INFO,	"SMB2_FILE_DISPOSITION_INFO" },
 	{SMB2_FILE_POSITION_INFO,	"SMB2_FILE_POSITION_INFO" },
 	{SMB2_FILE_FULL_EA_INFO,	"SMB2_FILE_FULL_EA_INFO" },
@@ -908,10 +952,29 @@ static const value_string smb2_file_info_levels[] = {
 	{SMB2_FILE_ALTERNATE_NAME_INFO,	"SMB2_FILE_ALTERNATE_NAME_INFO" },
 	{SMB2_FILE_STREAM_INFO,		"SMB2_FILE_STREAM_INFO" },
 	{SMB2_FILE_PIPE_INFO,		"SMB2_FILE_PIPE_INFO" },
+	{SMB2_FILE_PIPE_LOCAL_INFO,	"SMB2_FILE_PIPE_LOCAL_INFO"},
+	{SMB2_FILE_PIPE_REMOTE_INFO,	"SMB2_FILE_PIPE_REMOTE_INFO"},
+	{SMB2_FILE_MAIL_SLOT_SET_INFO,	"SMB2_FILE_MAIL_SLOT_SET_INFO"},
 	{SMB2_FILE_COMPRESSION_INFO,	"SMB2_FILE_COMPRESSION_INFO" },
+	{SMB2_FILE_OBJECTID_INFO,	"SMB2_FILE_OBJECTID_INFO"},
+	{SMB2_FILE_MOVE_CLUSTER_INFO,	"SMB2_FILE_MOVE_CLUSTER_INFO"},
+	{SMB2_FILE_QUOTA_INFO,		"SMB2_FILE_QUOTA_INFO"},
+	{SMB2_FILE_REPARSE_POINT_INFO,	"SMB2_FILE_REPARSE_POINT_INFO"},
 	{SMB2_FILE_NETWORK_OPEN_INFO,	"SMB2_FILE_NETWORK_OPEN_INFO" },
 	{SMB2_FILE_ATTRIBUTE_TAG_INFO,	"SMB2_FILE_ATTRIBUTE_TAG_INFO" },
+	{SMB2_FILE_TRACKING_INFO,	"SMB2_FILE_TRACKING_INFO"},
+	{SMB2_FILE_ID_BOTH_DIRECTORY_INFO,"SMB2_FILE_ID_BOTH_DIRECTORY_INFO" },
+	{SMB2_FILE_ID_FULL_DIRECTORY_INFO, "SMB2_FILE_ID_FULL_DIRECTORY_INFO"},
+	{SMB2_VALID_DATA_LENGTH_INFO,	"SMB2_VALID_DATA_LENGTH_INFO"},
+	{SMB2_FILE_SHORT_NAME_INFO,	"SMB2_FILE_SHORT_NAME_INFO"},
+	{SMB2_FILE_SFIO_RESERVE_INFO,	"SMB2_FILE_SFIO_RESERVE_INFO"},
+	{SMB2_FILE_SFIO_VOLUME_INFO,	"SMB2_FILE_SFIO_VOLUME_INFO"},
+	{SMB2_FILE_FULL_HARD_LINK_INFO,	"SMB2_FILE_FULL_HARD_LINK_INFO"},
 	{SMB2_FILE_NORMALIZED_NAME_INFO,"SMB2_FILE_NORMALIZED_NAME_INFO" },
+	{SMB2_FILE_ID_GLOBAL_TX_DIRECTORY_INFO, "SMB2_FILE_ID_GLOBAL_TX_DIRECTORY_INFO"},
+	{SMB2_FILE_STANDARD_LINK_INFO,	"SMB2_FILE_STANDARD_LINK_INFO"},
+	{SMB2_FILE_ID_INFO,		"SMB2_FILE_ID_INFO"},
+	{SMB2_FILE_ID_EXTD_DIRECTORY_INFO,"SMB2_FILE_ID_EXTD_DIRECTORY_INFO"},
 	{SMB2_FILE_POSIX_INFO,		"SMB2_FILE_POSIX_INFO" },
 	{ 0, NULL }
 };
@@ -1163,6 +1226,28 @@ static const value_string smb2_dialect_vals[] = {
 	{ SMB2_DIALECT_302, "SMB 3.0.2" },
 	{ SMB2_DIALECT_310, "SMB 3.1.0 (deprecated; should be 3.1.1)" },
 	{ SMB2_DIALECT_311, "SMB 3.1.1" },
+	{ 0, NULL }
+};
+
+static const value_string smb2_fsctl_infoex_integrity_modes[] = {
+	{ 0x00, "CHECKSUM_TYPE_NONE" },
+	{ 0x01, "CHECKSUM_TYPE_CRC32_OR_CRC64" },
+	{ 0, NULL }
+};
+
+static const value_string smb2_fsctl_infoex_integrity_state[] = {
+	{ 0x00, "Change state" },
+	{ 0x01, "No state change" },
+	{ 0, NULL }
+};
+
+#define SMB2_SL_RESTART_SCAN		0x00000001
+#define SMB2_SL_RETURN_SINGLE_ENTRY	0x00000002
+#define SL_INDEX_SPECIFIED			0x00000004
+
+#define NOTIFY_SESSION_CLOSED		0x0
+static const value_string server_notification_types[] = {
+	{ NOTIFY_SESSION_CLOSED, "SmbNotifySessionClosed" },
 	{ 0, NULL }
 };
 
@@ -2204,6 +2289,7 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x0009031F, "FSCTL_ENUM_OVERLAY"},
 	{0x00090350, "FSCTL_STORAGE_QOS_CONTROL"},                    /* dissector implemented */
 	{0x00090364, "FSCTL_SVHDX_ASYNC_TUNNEL_REQUEST"},             /* dissector implemented */
+	{0x00090380, "FSCTL_SET_INTEGRITY_INFORMATION_EX"},	      	/* dissector implemented */
 	{0x000940B3, "FSCTL_ENUM_USN_DATA"},
 	{0x000940B7, "FSCTL_SECURITY_ID_CHECK"},
 	{0x000940BB, "FSCTL_READ_USN_JOURNAL"},
@@ -5695,6 +5781,13 @@ dissect_additional_information_sec_mask(tvbuff_t *tvb, proto_tree *parent_tree, 
 static int
 dissect_smb2_getinfo_parameters(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si)
 {
+	static int* const flag_entries[] = {
+		&hf_smb2_query_info_flag_restart_scan,
+		&hf_smb2_query_info_flag_return_single_entry,
+		&hf_smb2_query_info_flag_index_specified,
+		NULL
+	};
+
 	/* Additional Info */
 	switch (si->saved->smb2_class) {
 	case SMB2_CLASS_SEC_INFO:
@@ -5706,7 +5799,11 @@ dissect_smb2_getinfo_parameters(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	offset += 4;
 
 	/* Flags */
-	proto_tree_add_item(tree, hf_smb2_getinfo_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	if (si->saved->infolevel == SMB2_FILE_FULL_EA_INFO) {
+		proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_query_info_flags, ett_smb2_query_info_flags, flag_entries, ENC_LITTLE_ENDIAN);
+	} else {
+		proto_tree_add_item(tree, hf_smb2_getinfo_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	}
 	offset += 4;
 
 	return offset;
@@ -7635,6 +7732,39 @@ dissect_smb2_FSCTL_SET_INTEGRITY_INFORMATION(tvbuff_t *tvb, packet_info *pinfo _
 }
 
 static int
+dissect_smb2_FSCTL_SET_INTEGRITY_INFORMATION_EX(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
+{
+	static int * const integrity_flags[] = {
+		&hf_smb2_integrity_flags_enforcement_off,
+		NULL
+	};
+
+	if (!data_in) {
+		return offset;
+	}
+
+	proto_tree_add_item(tree, hf_smb2_fsctl_infoex_enable_integrity, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_smb2_fsctl_infoex_keep_integrity_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_smb2_fsctl_infoex_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_fsctl_infoex_flags, ett_smb2_integrity_flags, integrity_flags, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_smb2_fsctl_infoex_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_smb2_fsctl_infoex_reserved2, tvb, offset, 7, ENC_LITTLE_ENDIAN);
+	offset += 7;
+
+	return offset;
+}
+
+static int
 dissect_smb2_FSCTL_SET_OBJECT_ID(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
 {
 
@@ -8015,6 +8145,9 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 		break;
 	case 0x00090064: /* FSCTL_GET_NTFS_VOLUME_DATA */
 		dissect_smb2_FSCTL_GET_NTFS_VOLUME_DATA(tvb, pinfo, tree, 0, data_in);
+		break;
+	case 0x00090380:
+		dissect_smb2_FSCTL_SET_INTEGRITY_INFORMATION_EX(tvb, pinfo, tree, 0, data_in);
 		break;
 	default:
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, 0, tvb_captured_length(tvb), ENC_NA);
@@ -9704,6 +9837,45 @@ dissect_smb2_break_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return offset;
 }
 
+int
+dissect_smb2_notify_session_closed(tvbuff_t *tvb, proto_tree *parent_tree, packet_info *pinfo _U_, int offset, smb2_info_t *si _U_)
+{
+	proto_tree *sub_tree;
+
+	sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_smb2_server_notification, NULL, "Notification");
+
+	/* reserved */
+	proto_tree_add_item(sub_tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
+	offset += 4;
+
+	return offset;
+}
+
+static int
+dissect_smb2_server_to_client_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
+{
+	guint32 notification_type;
+
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+
+	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
+	offset += 2;
+
+	/* notification type */
+	proto_tree_add_item_ret_uint(tree, hf_smb2_notification_type, tvb, offset, 4, ENC_NA, &notification_type);
+	offset += 4;
+
+	switch(notification_type) {
+		case NOTIFY_SESSION_CLOSED:
+		default:
+			offset = dissect_smb2_notify_session_closed(tvb, tree, pinfo, offset, si);
+			break;
+	}
+
+	return offset;
+}
+
 /* names here are just until we find better names for these functions */
 static const value_string smb2_cmd_vals[] = {
 	{ 0x00, "Negotiate Protocol" },
@@ -9725,7 +9897,7 @@ static const value_string smb2_cmd_vals[] = {
 	{ 0x10, "GetInfo" },
 	{ 0x11, "SetInfo" },
 	{ 0x12, "Break" },
-	{ 0x13, "unknown-0x13" },
+	{ 0x13, "Server notification" },
 	{ 0x14, "unknown-0x14" },
 	{ 0x15, "unknown-0x15" },
 	{ 0x16, "unknown-0x16" },
@@ -10030,7 +10202,9 @@ static smb2_function smb2_dissector[256] = {
   /* 0x12 Break */
   	{dissect_smb2_break_request,
 	 dissect_smb2_break_response},
-  /* 0x13 */  {NULL, NULL},
+  /* 0x13 Server to client notification */
+	{NULL,
+	dissect_smb2_server_to_client_notification},
   /* 0x14 */  {NULL, NULL},
   /* 0x15 */  {NULL, NULL},
   /* 0x16 */  {NULL, NULL},
@@ -14208,6 +14382,50 @@ proto_register_smb2(void)
 		{ &hf_smb2_fscc_file_attr_no_scrub_data,
 			{ "No Scrub Data", "smb2.file_attribute.no_scrub_data", FT_BOOLEAN, 32,
 			TFS(&tfs_fscc_file_attribute_no_scrub_data), SMB2_FSCC_FILE_ATTRIBUTE_NO_SCRUB_DATA, "Is this file configured to be excluded from the data integrity scan?", HFILL } },
+
+		{ &hf_smb2_fsctl_infoex_enable_integrity,
+			{"Enable Integrity", "smb2.fsctl.infoex.enable_integrity", FT_UINT8, BASE_HEX,
+			VALS(smb2_fsctl_infoex_integrity_modes), 0, NULL, HFILL } },
+
+		{ &hf_smb2_fsctl_infoex_keep_integrity_state,
+			{"Integrity State", "smb2.fsctl.infoex.keep_integrity_state", FT_UINT8, BASE_HEX,
+			VALS(smb2_fsctl_infoex_integrity_state), 0, NULL, HFILL } },
+
+		{ &hf_smb2_fsctl_infoex_reserved,
+			{"Reserved", "smb2.fsctl.infoex.reserved", FT_UINT16, BASE_HEX,
+			NULL, 0, NULL, HFILL } },
+
+		{ &hf_smb2_fsctl_infoex_flags,
+			{ "Flags", "smb2.fsctl.infoex.flags", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL } },
+
+		{ &hf_smb2_fsctl_infoex_version,
+			{ "Version", "smb2.fsctl.infoex.version", FT_UINT8, BASE_DEC,
+			NULL, 0, NULL, HFILL } },
+
+		{ &hf_smb2_fsctl_infoex_reserved2,
+			{ "Reserved", "smb2.fsctl.infoex.reserved2", FT_UINT56, BASE_HEX,
+			NULL, 0, NULL, HFILL } },
+
+		{ &hf_smb2_query_info_flags,
+			{"Flags", "smb2.query_info.flags", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_query_info_flag_restart_scan,
+			{"SL Restart Scan", "smb2.query_info.flags.restart_scan", FT_BOOLEAN, 32,
+			NULL, SMB2_SL_RESTART_SCAN, "Restart the scan for EAs from the beginning", HFILL } },
+
+		{ &hf_smb2_query_info_flag_return_single_entry,
+			{"SL Return Single Entry", "smb2.query_info.flags.return_single_entry", FT_BOOLEAN, 32,
+			NULL, SMB2_SL_RETURN_SINGLE_ENTRY, "Return a single EA entry in the response buffer.", HFILL } },
+
+		{ &hf_smb2_query_info_flag_index_specified,
+			{"SL Index Specified", "smb2.query_info.flags.index_specified", FT_BOOLEAN, 32,
+			NULL, SL_INDEX_SPECIFIED, "The caller has specified an EA index.", HFILL } },
+
+		{ &hf_smb2_notification_type,
+			{ "Notification Type", "smb2.notification.type", FT_UINT32, BASE_HEX,
+			VALS(server_notification_types), 0, NULL, HFILL } },
 	};
 
 	static gint *ett[] = {
@@ -14326,6 +14544,8 @@ proto_register_smb2(void)
 		&ett_smb2_fscc_file_attributes,
 		&ett_smb2_comp_pattern_v1,
 		&ett_smb2_comp_payload,
+		&ett_smb2_query_info_flags,
+		&ett_smb2_server_notification,
 	};
 
 	static ei_register_info ei[] = {
