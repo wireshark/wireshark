@@ -92,7 +92,7 @@ static gboolean tls_ignore_mac_failed  = FALSE;
  *********************************************************************/
 
 /* Initialize the protocol and registered fields */
-static gint tls_tap                           = -1;
+static gint tls_follow_tap                    = -1;
 static gint exported_pdu_tap                  = -1;
 static gint proto_tls;
 static gint hf_tls_record;
@@ -807,7 +807,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
           ssl_debug_printf("  need_desegmentation: offset = %d, reported_length_remaining = %d\n",
                            offset, tvb_reported_length_remaining(tvb, offset));
           /* Make data available to ssl_follow_tap_listener */
-          tap_queue_packet(tls_tap, pinfo, p_get_proto_data(wmem_file_scope(), pinfo, proto_tls, curr_layer_num_ssl));
+          tap_queue_packet(tls_follow_tap, pinfo, p_get_proto_data(wmem_file_scope(), pinfo, proto_tls, curr_layer_num_ssl));
           return tvb_captured_length(tvb);
         }
     }
@@ -915,7 +915,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     ssl_debug_flush();
 
     /* Make data available to ssl_follow_tap_listener */
-    tap_queue_packet(tls_tap, pinfo, p_get_proto_data(wmem_file_scope(), pinfo, proto_tls, curr_layer_num_ssl));
+    tap_queue_packet(tls_follow_tap, pinfo, p_get_proto_data(wmem_file_scope(), pinfo, proto_tls, curr_layer_num_ssl));
 
     return ret;
 }
@@ -4847,11 +4847,11 @@ proto_register_tls(void)
     register_decode_as(&ssl_da);
 
     /* XXX: this seems unused due to new "Follow TLS" method, remove? */
-    tls_tap = register_tap("tls");
+    tls_follow_tap = register_tap("tls_follow");
     ssl_debug_printf("proto_register_ssl: registered tap %s:%d\n",
-        "tls", tls_tap);
+        "tls_follow", tls_follow_tap);
 
-    register_follow_stream(proto_tls, "tls", tcp_follow_conv_filter, tcp_follow_index_filter, tcp_follow_address_filter,
+    register_follow_stream(proto_tls, "tls_follow", tcp_follow_conv_filter, tcp_follow_index_filter, tcp_follow_address_filter,
                             tcp_port_to_display, ssl_follow_tap_listener, get_tcp_stream_count, NULL);
     secrets_register_type(SECRETS_TYPE_TLS, tls_secrets_block_callback);
 }
