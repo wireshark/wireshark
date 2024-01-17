@@ -1185,15 +1185,10 @@ void LograyMainWindow::setMenusForSelectedPacket()
 
         if (capture_file_.capFile()->edt && ! multi_selection)
         {
-            bool have_follows = false;
             foreach (FollowStreamAction *follow_action, main_ui_->menuFollow->findChildren<FollowStreamAction *>()) {
                 gboolean is_frame = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, follow_action->filterName());
                 follow_action->setEnabled(is_frame);
-                if (is_frame) {
-                    have_follows = true;
-                }
             }
-            main_ui_->menuFollow->setEnabled(have_follows);
         }
     }
 

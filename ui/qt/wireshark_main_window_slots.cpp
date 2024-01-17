@@ -1261,7 +1261,6 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
                (capture_file_.capFile()->edt->pi.net_dst.type == AT_IPv4 || capture_file_.capFile()->edt->pi.net_dst.type == AT_IPv6)) {
                 is_ip = TRUE;
             }
-            bool have_follows = false;
             foreach (FollowStreamAction *follow_action, main_ui_->menuFollow->findChildren<FollowStreamAction *>()) {
                 /* QUIC has TLS handshakes; don't enabled Follow TLS Stream if
                  * there's QUIC.
@@ -1272,11 +1271,7 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
                 } else {
                     follow_action->setEnabled(is_frame);
                 }
-                if (follow_action->isEnabled()) {
-                    have_follows = true;
-                }
             }
-            main_ui_->menuFollow->setEnabled(have_follows);
         }
     }
 

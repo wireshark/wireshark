@@ -738,16 +738,13 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     if (main_menu_item) {
         submenu = new QMenu(main_menu_item->title(), ctx_menu);
         ctx_menu->addMenu(submenu);
-        bool have_follows = false;
         foreach (FollowStreamAction *follow_action, main_menu_item->findChildren<FollowStreamAction *>()) {
             /* XXX: We could, like the prefs above, walk the protocols/layers
              * and add the follow actions in the order they appear in the packet.
              */
             if (follow_action->isEnabled()) {
                 submenu->addAction(follow_action);
-                have_follows = true;
             }
-            submenu->setEnabled(have_follows);
         }
     }
 
