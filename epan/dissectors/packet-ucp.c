@@ -222,6 +222,8 @@ static gint ett_XSer;
 
 static expert_field ei_ucp_stx_missing;
 static expert_field ei_ucp_intstring_invalid;
+static expert_field ei_ucp_hexstring_invalid;
+static expert_field ei_ucp_short_data;
 
 /* Tap */
 static int ucp_tap;
@@ -509,6 +511,12 @@ static const value_string vals_parm_UM[] = {
 static const value_string vals_parm_RC[] = {
     {  '1', "Reverse charging request" },
     {  0, NULL },
+};
+
+static const value_string vals_parm_OTOA[] = {
+    { 1139, "The OAdC is set to NPI telephone and TON international" },
+    { 5039, "The OAdC contains an alphanumeric address" },
+    { 0, NULL }
 };
 
 static const value_string vals_parm_OTON[] = {
@@ -805,9 +813,10 @@ ucp_mktime(const gint len, const char *datestr)
  *                      of next field.
  *
  */
-static void
+static proto_item*
 ucp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 {
+    proto_item  *ti = NULL;
     gint         idx, len;
 
     idx = tvb_find_guint8(tvb, *offset, -1, '/');
@@ -818,10 +827,11 @@ ucp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
     } else
         len = idx - *offset;
     if (len > 0)
-        proto_tree_add_item(tree, field, tvb, *offset, len, ENC_ASCII|ENC_NA);
+        ti = proto_tree_add_item(tree, field, tvb, *offset, len, ENC_ASCII|ENC_NA);
     *offset += len;
     if (idx != -1)
         *offset += 1;   /* skip terminating '/' */
+    return ti;
 }
 
 static void
@@ -1042,6 +1052,59 @@ ucp_handle_XSer(proto_tree *tree, tvbuff_t *tvb)
         proto_tree_add_item(tree, hf_xser_data,    tvb, offset+4, len*2, ENC_ASCII);
         offset += 4 + (2 * len);
     }
+}
+
+static proto_item*
+ucp_handle_alphanum_OAdC(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int field, int *offset)
+{
+    proto_item    *ti = NULL;
+    GByteArray    *bytes;
+    char          *strval = NULL;
+    int           idx, len;
+    int           tmpoff;
+
+    idx = tvb_find_guint8(tvb, *offset, -1, '/');
+    if (idx == -1) {
+        /* Force the appropriate exception to be thrown. */
+        len = tvb_captured_length_remaining(tvb, *offset);
+        tvb_ensure_bytes_exist(tvb, *offset, len + 1);
+    } else {
+        len = idx - *offset;
+    }
+
+    if (len == 0) {
+        if (idx != -1)
+            *offset += 1;   /* skip terminating '/' */
+        return ti;
+    }
+
+    bytes = g_byte_array_sized_new(len);
+    if (tvb_get_string_bytes(tvb, *offset, len, ENC_ASCII|ENC_STR_HEX|ENC_SEP_NONE, bytes, &tmpoff)) {
+        /* If this returns true, there's at least one byte */
+        unsigned addrlength = bytes->data[0]; // expected number of semi-octets/nibbles
+        unsigned numdigocts = (addrlength + 1) / 2;
+        int no_of_chars = (addrlength << 2) / 7;
+        if (bytes->len + 1 < numdigocts) {
+            // Short data
+            proto_tree_add_expert(tree, pinfo, &ei_ucp_short_data, tvb, *offset, len);
+            no_of_chars = ((bytes->len - 1) << 3) / 7;
+        }
+        strval = get_ts_23_038_7bits_string_packed(pinfo->pool, &bytes->data[1], 0, no_of_chars);
+    }
+    g_byte_array_free(bytes, TRUE);
+    ti = proto_tree_add_string(tree, field, tvb, *offset,
+                          len, strval);
+    if (tmpoff < *offset + len) {
+        /* We didn't consume all the bytes, so either a failed conversion
+         * from ASCII hex bytes, or an odd number of bytes.
+         */
+        expert_add_info(pinfo, ti, &ei_ucp_hexstring_invalid);
+    }
+    *offset += len;
+    if (idx != -1)
+        *offset += 1;   /* skip terminating '/' */
+
+    return ti;
 }
 
 /* Next definitions are just a convenient shorthand to make the coding a
@@ -1627,12 +1690,13 @@ add_5xO(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {                                               /* 50-series operations */
     guint        intval;
     int          offset = 1;
-    int          tmpoff;
-    proto_item  *ti;
+    int          tmpoff, oadc_offset;
+    proto_item  *ti, *oadc_item;
     tvbuff_t    *tmptvb;
 
     UcpHandleString(hf_ucp_parm_AdC);
-    UcpHandleString(hf_ucp_parm_OAdC);
+    oadc_offset = offset;
+    oadc_item = UcpHandleString(hf_ucp_parm_OAdC);
     UcpHandleString(hf_ucp_parm_AC);
     UcpHandleByte(hf_ucp_parm_NRq);
     UcpHandleString(hf_ucp_parm_NAdC);
@@ -1670,7 +1734,14 @@ add_5xO(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
                               "(reserved for Reply type)");
         offset++;
     }
-    UcpHandleString(hf_ucp_parm_OTOA);
+    intval = UcpHandleInt(hf_ucp_parm_OTOA);
+    if (intval == 5039) {
+        ti = ucp_handle_alphanum_OAdC(tree, pinfo, tvb, hf_ucp_parm_OAdC, &oadc_offset);
+        if (ti && oadc_item) {
+            proto_tree_move_item(tree, oadc_item, ti);
+            proto_item_set_hidden(oadc_item);
+        }
+    }
     UcpHandleString(hf_ucp_parm_HPLMN);
     tmpoff = offset;                            /* Extra services       */
     while (tvb_get_guint8(tvb, tmpoff++) != '/')
@@ -2563,7 +2634,7 @@ proto_register_ucp(void)
         },
         { &hf_ucp_parm_OTOA,
           { "OTOA", "ucp.parm.OTOA",
-            FT_STRING, BASE_NONE, NULL, 0x00,
+            FT_UINT16, BASE_DEC, VALS(vals_parm_OTOA), 0x00,
             "Originator Type Of Address.",
             HFILL
           }
@@ -2781,7 +2852,9 @@ proto_register_ucp(void)
 
     static ei_register_info ei[] = {
         { &ei_ucp_stx_missing, { "ucp.stx_missing", PI_MALFORMED, PI_ERROR, "UCP_STX missing, this is not a new packet", EXPFILL }},
-        { &ei_ucp_intstring_invalid, { "ucp.intstring.invalid", PI_MALFORMED, PI_ERROR, "Invalid integer string", EXPFILL }}
+        { &ei_ucp_intstring_invalid, { "ucp.intstring.invalid", PI_MALFORMED, PI_ERROR, "Invalid integer string", EXPFILL }},
+        { &ei_ucp_hexstring_invalid, { "ucp.hexstring.invalid", PI_PROTOCOL, PI_WARN, "Invalid hex string", EXPFILL }},
+        { &ei_ucp_short_data, { "ucp.short_data", PI_PROTOCOL, PI_WARN, "Short Data (?)", EXPFILL }}
     };
 
     module_t *ucp_module;
