@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V17.4.0 (2023-03)
+-- 3GPP TS 38.455 V17.6.0 (2023-12)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -106,7 +106,12 @@ IMPORTS
 	id-NR-TADV,
 	id-pathPower,
 	id-SRSPortIndex,
-	id-UETxTimingErrorMargin
+	id-UETxTimingErrorMargin,
+	id-nrofSymbolsExtended,
+	id-repetitionFactorExtended,
+	id-StartRBHopping,
+	id-StartRBIndex,
+	id-transmissionCombn8
 
 
 
@@ -143,7 +148,7 @@ AbortTransmission-ExtIEs NRPPA-PROTOCOL-IES ::= {
 
 ActiveULBWP  ::= SEQUENCE {
 	locationAndBandwidth		INTEGER (0..37949,...),
-	subcarrierSpacing           ENUMERATED {kHz15, kHz30, kHz60, kHz120,...},
+	subcarrierSpacing           ENUMERATED {kHz15, kHz30, kHz60, kHz120,..., kHz480, kHz960},
 	cyclicPrefix				ENUMERATED {normal, extended},
 	txDirectCurrentLocation		INTEGER (0..3301,...),
 	shift7dot5kHz				ENUMERATED {true, ...} OPTIONAL,
@@ -916,6 +921,8 @@ NR-ARFCN ::= INTEGER (0..3279165)
 
 NRCellIdentifier ::= BIT STRING (SIZE (36))
 
+NrofSymbolsExtended ::=  ENUMERATED {n8, n10, n12, n14, ...}
+
 NR-PCI ::= INTEGER (0..1007)
 
 NR-PRS-Beam-Information ::= SEQUENCE {
@@ -1492,7 +1499,7 @@ PRSResourceSet-Item ::= SEQUENCE {
 	pointA							INTEGER (0..3279165),
 	combSize						ENUMERATED{n2, n4, n6, n12, ...},
 	cPType							ENUMERATED{normal, extended, ...},
-	resourceSetPeriodicity			ENUMERATED{n4,n5,n8,n10,n16,n20,n32,n40,n64,n80,n160,n320,n640,n1280,n2560,n5120,n10240,n20480,n40960, n81920,...},
+	resourceSetPeriodicity			ENUMERATED{n4,n5,n8,n10,n16,n20,n32,n40,n64,n80,n160,n320,n640,n1280,n2560,n5120,n10240,n20480,n40960, n81920,..., n128, n256, n512},
 	resourceSetSlotOffset			INTEGER(0..81919,...),
 	resourceRepetitionFactor		ENUMERATED{rf1,rf2,rf4,rf6,rf8,rf16,rf32,...},
 	resourceTimeGap					ENUMERATED{tg1,tg2,tg4,tg8,tg16,tg32,...},
@@ -1674,6 +1681,8 @@ RelativePathDelay-ExtIEs NRPPA-PROTOCOL-IES ::= {
 	...
 }
 
+RepetitionFactorExtended ::=  ENUMERATED {n3, n5, n6, n7, n8, n10, n12, n14, ...}
+
 ReportCharacteristics ::= ENUMERATED {
 	onDemand,
 	periodic,
@@ -1697,7 +1706,7 @@ RequestedDLPRSResourceSet-List ::= SEQUENCE (SIZE (1..maxnoofPRSresourceSet)) OF
 RequestedDLPRSResourceSet-Item ::= SEQUENCE {
 	pRSbandwidth					INTEGER(1..63)	OPTIONAL,
 	combSize						ENUMERATED{n2, n4, n6, n12, ...}	OPTIONAL,
-	resourceSetPeriodicity			ENUMERATED{n4,n5,n8,n10,n16,n20,n32,n40,n64,n80,n160,n320,n640,n1280,n2560,n5120,n10240,n20480,n40960, n81920,...}	OPTIONAL,
+	resourceSetPeriodicity			ENUMERATED{n4,n5,n8,n10,n16,n20,n32,n40,n64,n80,n160,n320,n640,n1280,n2560,n5120,n10240,n20480,n40960, n81920,..., n128, n256 ,n512}	OPTIONAL,
 	resourceRepetitionFactor		ENUMERATED{rf1,rf2,rf4,rf6,rf8,rf16,rf32,...}		OPTIONAL,
 	resourceNumberofSymbols			ENUMERATED{n2,n4,n6,n12,...}						OPTIONAL,
 	requestedDLPRSResource-List		RequestedDLPRSResource-List			OPTIONAL,
@@ -2123,7 +2132,7 @@ RxTxTimingErrorMargin ::= ENUMERATED {tc0dot5, tc1, tc2, tc4, tc8, tc12, tc16, t
 
 SCS-SpecificCarrier ::= SEQUENCE {
     offsetToCarrier                     INTEGER (0..2199,...),
-    subcarrierSpacing                   ENUMERATED {kHz15, kHz30, kHz60, kHz120,...},
+    subcarrierSpacing                   ENUMERATED {kHz15, kHz30, kHz60, kHz120,..., kHz480, kHz960},
     carrierBandwidth                    INTEGER (1..275,...),
 iE-Extensions					ProtocolExtensionContainer { { SCS-SpecificCarrier-ExtIEs } } OPTIONAL,
 	...
@@ -2287,6 +2296,11 @@ SRSResource::= SEQUENCE {
 }
 
 SRSResource-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	{ ID id-nrofSymbolsExtended			CRITICALITY ignore EXTENSION NrofSymbolsExtended 			PRESENCE optional}|
+	{ ID id-repetitionFactorExtended		CRITICALITY ignore EXTENSION RepetitionFactorExtended 	PRESENCE optional}|
+	{ ID id-StartRBHopping			CRITICALITY ignore EXTENSION StartRBHopping 			PRESENCE optional}|
+	{ ID id-StartRBIndex			CRITICALITY ignore EXTENSION StartRBIndex 			PRESENCE optional},
+
 	...
 }
 
@@ -2405,6 +2419,20 @@ SSB-Index ::= INTEGER(0..63)
 
 SSID ::= OCTET STRING (SIZE(1..32))
 
+
+StartRBIndex  ::= CHOICE{
+	freqScalingFactor2  INTEGER(0..1),
+	freqScalingFactor4  INTEGER(0..3),
+	choice-extension	ProtocolIE-Single-Container { { StartRBIndex-ExtIEs} }
+}
+
+StartRBIndex-ExtIEs NRPPA-PROTOCOL-IES ::= {
+	...
+}
+
+StartRBHopping  ::= ENUMERATED {enable}
+
+
 StartTimeAndDuration ::= SEQUENCE {
 	startTime			RelativeTime1900				OPTIONAL,
 	duration			INTEGER (0..90060, ...)			OPTIONAL,
@@ -2480,7 +2508,8 @@ TimingErrorMargin ::= ENUMERATED {tc0, tc2, tc4, tc6, tc8, tc12, tc16, tc20, tc2
 
 TF-Configuration ::= SEQUENCE {
 	sSB-frequency				INTEGER (0..3279165),
-	sSB-subcarrier-spacing		ENUMERATED {kHz15, kHz30, kHz120, kHz240, ..., kHz60},
+	sSB-subcarrier-spacing		ENUMERATED {kHz15, kHz30, kHz120, kHz240, ..., kHz60, kHz480, kHz960},
+	-- The value kHz60 is not supported in this version of the specification.
 	sSB-Transmit-power			INTEGER (-60..50),
 	sSB-periodicity				ENUMERATED {ms5, ms10, ms20, ms40, ms80, ms160, ...},
 	sSB-half-frame-offset		INTEGER(0..1),
@@ -2538,8 +2567,20 @@ TransmissionComb ::= CHOICE {
 	choice-extension				ProtocolIE-Single-Container { { TransmissionComb-ExtIEs} }
 }
 TransmissionComb-ExtIEs NRPPA-PROTOCOL-IES ::= {
+{ ID id-transmissionCombn8	CRITICALITY reject TYPE TransmissionCombn8 PRESENCE mandatory},
 	...
 }
+
+TransmissionCombn8 ::= SEQUENCE {
+            combOffset-n8              INTEGER (0..7),
+            cyclicShift-n8             INTEGER (0..5),
+	iE-Extensions					ProtocolExtensionContainer { { TransmissionCombn8-ExtIEs } } OPTIONAL
+}
+
+TransmissionCombn8-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 TransmissionCombPos ::= CHOICE {
 	n2    SEQUENCE {

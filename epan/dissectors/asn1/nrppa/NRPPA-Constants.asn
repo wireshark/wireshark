@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V17.4.0 (2023-03)
+-- 3GPP TS 38.455 V17.6.0 (2023-12)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -181,7 +181,7 @@ id-MeasurementPeriodicityExtended								ProtocolIE-ID ::= 64
 id-PRS-Resource-ID												ProtocolIE-ID ::= 65
 id-PRSTRPList													ProtocolIE-ID ::= 66
 id-PRSTransmissionTRPList										ProtocolIE-ID ::= 67
-id-OnDemandPRS												ProtocolIE-ID ::= 68
+id-OnDemandPRS													ProtocolIE-ID ::= 68
 id-AoA-SearchWindow												ProtocolIE-ID ::= 69
 id-TRP-MeasurementUpdateList									ProtocolIE-ID ::= 70
 id-ZoA															ProtocolIE-ID ::= 71
@@ -199,7 +199,7 @@ id-NumberOfTRPRxTEG												ProtocolIE-ID ::= 82
 id-NumberOfTRPRxTxTEG											ProtocolIE-ID ::= 83
 id-TRPTxTEGAssociation											ProtocolIE-ID ::= 84
 id-TRPTEGInformation											ProtocolIE-ID ::= 85
-id-TRP-Rx-TEGInformation													ProtocolIE-ID ::= 86
+id-TRP-Rx-TEGInformation										ProtocolIE-ID ::= 86
 id-TRP-PRS-Information-List										ProtocolIE-ID ::= 87
 id-PRS-Measurements-Info-List									ProtocolIE-ID ::= 88
 id-PRSConfigRequestType											ProtocolIE-ID ::= 89
@@ -220,6 +220,12 @@ id-procedure-code-103-not-to-be-used							ProtocolIE-ID ::= 103
 id-UETxTimingErrorMargin										ProtocolIE-ID ::= 104
 id-MeasurementPeriodicityNR-AoA									ProtocolIE-ID ::= 105
 id-SRSTransmissionStatus										ProtocolIE-ID ::= 106
+id-nrofSymbolsExtended											ProtocolIE-ID ::= 107
+id-repetitionFactorExtended										ProtocolIE-ID ::= 108
+id-StartRBHopping												ProtocolIE-ID ::= 109
+id-StartRBIndex													ProtocolIE-ID ::= 110
+id-transmissionCombn8											ProtocolIE-ID ::= 111
+
 
 
 

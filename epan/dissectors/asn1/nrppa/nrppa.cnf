@@ -213,6 +213,11 @@ id-procedure-code-103-not-to-be-used          ProtocolIE-ID
 id-UETxTimingErrorMargin                      ProtocolIE-ID
 id-MeasurementPeriodicityNR-AoA               ProtocolIE-ID
 id-SRSTransmissionStatus                      ProtocolIE-ID
+id-nrofSymbolsExtended                        ProtocolIE-ID
+id-repetitionFactorExtended                   ProtocolIE-ID
+id-StartRBHopping                             ProtocolIE-ID
+id-StartRBIndex                               ProtocolIE-ID
+id-transmissionCombn8                         ProtocolIE-ID
 
 #.REGISTER
 #NRPPA-PROTOCOL-IES
@@ -319,6 +324,11 @@ TRP-Rx-TEGInformation                      N nrppa.extension id-TRP-Rx-TEGInform
 UL-SRS-RSRPP                               N nrppa.extension id-pathPower
 SRSPortIndex                               N nrppa.extension id-SRSPortIndex
 TimingErrorMargin                          N nrppa.extension id-UETxTimingErrorMargin
+NrofSymbolsExtended                        N nrppa.extension id-nrofSymbolsExtended
+RepetitionFactorExtended                   N nrppa.extension id-repetitionFactorExtended
+StartRBHopping                             N nrppa.extension id-StartRBHopping
+StartRBIndex                               N nrppa.extension id-StartRBIndex
+TransmissionCombn8                         N nrppa.extension id-transmissionCombn8
 
 
 #LPPA-ELEMENTARY-PROCEDURE
