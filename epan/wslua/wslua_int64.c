@@ -656,7 +656,7 @@ guint64 getUInt64(lua_State *L, int i)
         case LUA_TNUMBER:
             return wslua_checkguint64(L,i);
         case LUA_TSTRING:
-            return g_ascii_strtoull(luaL_checkstring(L,i), &end, 10);
+            return g_ascii_strtoull(luaL_checkstring(L,i), &end, 0);
         case LUA_TUSERDATA:
             if (isInt64(L, i)) {
                 return (UInt64) toInt64(L, i);

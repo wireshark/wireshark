@@ -14,7 +14,7 @@ local n_frames = 4
 local taptests = {
     [FRAME]=n_frames,
     [PER_FRAME]=n_frames*8,
-    [OTHER]=50,
+    [OTHER]=52,
 }
 testlib.init(taptests)
 
@@ -67,6 +67,9 @@ testlib.test(OTHER,"ProtoField-new-bool-mask-none", success)
 success = pcall(ProtoField.new, "boolean", "test.boolean6", ftypes.BOOLEAN, nil, base.NONE, nil)
 testlib.test(OTHER,"ProtoField-new-bool-mask-nil", success)
 
+success = pcall(ProtoField.new, "boolean", "test.boolean7", ftypes.BOOLEAN, nil, base.HEX, "0x00FFFFFF00000000")
+testlib.test(OTHER,"ProtoField-new-bool-mask-hex", success)
+
 success = pcall(ProtoField.bool, "test.boolean10", nil, 64, nil, 0x1)
 testlib.test(OTHER,"ProtoField-bool-mask-trivial", success)
 
@@ -108,6 +111,9 @@ testlib.test(OTHER,"ProtoField-new-uint64-mask-none", success)
 
 success = pcall(ProtoField.new, "uint64", "test.uint64_6", ftypes.UINT64, nil, base.NONE, nil)
 testlib.test(OTHER,"ProtoField-new-uint64-mask-nil", success)
+
+success = pcall(ProtoField.new, "uint64", "test.uint64_7", ftypes.UINT64, nil, base.HEX, "0x00FFFFFF00000000")
+testlib.test(OTHER,"ProtoField-new-uint64-mask-hex", success)
 
 success = pcall(ProtoField.uint64, "test.uint64_10", nil, base.HEX, nil, 0x1)
 testlib.test(OTHER,"ProtoField-uint64-mask-trivial", success)
