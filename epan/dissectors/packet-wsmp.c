@@ -215,7 +215,7 @@ static int
 dissect_wsmp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 oct)
 {
     proto_tree *sub_tree, *n_tree, *t_tree, *data_tree;
-    proto_item *item;
+    proto_item *item, *n_tree_item, *t_tree_item;
     int offset = 0, ie_start, len_to_set;
     guint8 header_opt_ind = (oct & 0x08) >> 3;
     guint8 ie;
@@ -231,7 +231,7 @@ dissect_wsmp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 oct)
 
     /* 8.3.2 WSMP Network Header (WSMP-N-Header) */
 
-    n_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_wsmp_n_hdr, &item, "WSMP-N-Header");
+    n_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_wsmp_n_hdr, &n_tree_item, "WSMP-N-Header");
     /* In Version 3
     * B7     B4          B3            B2   B0     | Variable                            | 1 octet
     * Subtype    |WSMP-NHeader      | WSMP Version |  WAVE Information Element Extension | TPID
@@ -277,8 +277,11 @@ dissect_wsmp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 oct)
     proto_tree_add_item_ret_uint(n_tree, hf_wsmp_tpid, tvb, offset, 1, ENC_BIG_ENDIAN, &tpid);
     offset++;
 
+    proto_item_set_end(n_tree_item, tvb, offset);
+
+
     /* WSMP-T-Header */
-    t_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_wsmp_t_hdr, &item, "WSMP-T-Header");
+    t_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_wsmp_t_hdr, &t_tree_item, "WSMP-T-Header");
     switch (tpid) {
         case 0:
             /* The Address Info field contains a PSID and a WAVE Information Element Extension field is not present.*/
@@ -290,6 +293,9 @@ dissect_wsmp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 oct)
 
     /* WSM Length */
     offset = dissect_wsmp_length_and_count(tvb, pinfo, t_tree, offset, hf_wsmp_wave_ie_len, &wsm_len);
+
+    proto_item_set_end(t_tree_item, tvb, offset);
+
 
     /* WSM Data */
     data_tree = proto_tree_add_subtree(tree, tvb, offset, wsm_len, ett_wsmdata, NULL, "Wave Short Message");
