@@ -112,10 +112,12 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
 			*err_info = ws_strdup_printf("Can't set host keys to allow SHA-1.");
 			goto failure;
 		}
+#if LIBSSH_VERSION_INT >= SSH_VERSION_INT(0,8,3)
 		if (ssh_options_set(sshs, SSH_OPTIONS_PUBLICKEY_ACCEPTED_TYPES, HOSTKEYS_SHA1)) {
 			*err_info = ws_strdup_printf("Can't set public key algorithms to allow SSH-RSA (SHA-1).");
 			goto failure;
 		}
+#endif
 		if (ssh_options_set(sshs, SSH_OPTIONS_KEY_EXCHANGE, KEY_EXCHANGE_SHA1)) {
 			*err_info = ws_strdup_printf("Can't set key exchange methods to allow SHA-1.");
 			goto failure;
