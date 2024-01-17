@@ -18,4 +18,4 @@ then
 	echo "Usage: qt-fix-pc-files <top-level Qt directory>" 1>&1
 	exit 1
 fi
-find "$1" -name "*.pc" -exec macosx-support-lib-patches/qt-fix-pc-file {} ";"
+find "$1" -name "*.pc" -exec tools/macos-setup-patches/qt-fix-pc-file {} ";"

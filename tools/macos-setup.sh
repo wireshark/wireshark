@@ -16,7 +16,7 @@ shopt -s extglob
 # Get the major version of Darwin, so we can check the major macOS
 # version.
 #
-DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
+DARWIN_MAJOR_VERSION=$(uname -r | sed 's/\([0-9]*\).*/\1/')
 
 #
 # The minimum supported version of Qt is 5.11, so the minimum supported version
@@ -30,9 +30,9 @@ fi
 #
 # Get the processor architecture of Darwin. Currently supported: arm, i386
 #
-DARWIN_PROCESSOR_ARCH=`uname -p`
+DARWIN_PROCESSOR_ARCH=$(uname -m)
 
-if [ "$DARWIN_PROCESSOR_ARCH" != "arm" -a "$DARWIN_PROCESSOR_ARCH" != "i386" ]; then
+if [ "$DARWIN_PROCESSOR_ARCH" != "arm64" ] && [ "$DARWIN_PROCESSOR_ARCH" != "x86_64" ]; then
     echo "This script does not support this processor architecture" 1>&2
     exit 1
 fi
@@ -48,9 +48,9 @@ fi
 # If the version of curl in the system is older than 7.54.0, download
 # curl and install it.
 #
-current_curl_version=`curl --version | sed -n 's/curl \([0-9.]*\) .*/\1/p'`
-current_curl_major_version="`expr $current_curl_version : '\([0-9][0-9]*\).*'`"
-current_curl_minor_version="`expr $current_curl_version : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+current_curl_version=$( curl --version | sed -n 's/curl \([0-9.]*\) .*/\1/p' )
+current_curl_major_version="$( expr "$current_curl_version" : '\([0-9][0-9]*\).*' )"
+current_curl_minor_version="$(expr "$current_curl_version" : '[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
 if [[ $current_curl_major_version -lt 7 ||
      ($current_curl_major_version -eq 7 &&
       $current_curl_minor_version -lt 54) ]]; then
@@ -94,11 +94,12 @@ NINJA_VERSION=${NINJA_VERSION-1.10.2}
 GETTEXT_VERSION=0.21
 GLIB_VERSION=2.76.6
 if [ "$GLIB_VERSION" ]; then
-    GLIB_MAJOR_VERSION="`expr $GLIB_VERSION : '\([0-9][0-9]*\).*'`"
-    GLIB_MINOR_VERSION="`expr $GLIB_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-    GLIB_DOTDOT_VERSION="`expr $GLIB_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-    GLIB_MAJOR_MINOR_VERSION=$GLIB_MAJOR_VERSION.$GLIB_MINOR_VERSION
-    GLIB_MAJOR_MINOR_DOTDOT_VERSION=$GLIB_MAJOR_VERSION.$GLIB_MINOR_VERSION.$GLIB_DOTDOT_VERSION
+    GLIB_MAJOR_VERSION="$( expr $GLIB_VERSION : '\([0-9][0-9]*\).*' )"
+    GLIB_MINOR_VERSION="$( expr $GLIB_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
+#     Unused?
+#     GLIB_DOTDOT_VERSION="$( expr $GLIB_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
+#     GLIB_MAJOR_MINOR_VERSION=$GLIB_MAJOR_VERSION.$GLIB_MINOR_VERSION
+#     GLIB_MAJOR_MINOR_DOTDOT_VERSION=$GLIB_MAJOR_VERSION.$GLIB_MINOR_VERSION.$GLIB_DOTDOT_VERSION
 fi
 PKG_CONFIG_VERSION=0.29.2
 #
@@ -127,9 +128,9 @@ PCRE2_VERSION=10.39
 QT_VERSION=${QT_VERSION-6.2.4}
 
 if [ "$QT_VERSION" ]; then
-    QT_MAJOR_VERSION="`expr $QT_VERSION : '\([0-9][0-9]*\).*'`"
-    QT_MINOR_VERSION="`expr $QT_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-    QT_DOTDOT_VERSION="`expr $QT_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+    QT_MAJOR_VERSION="$( expr "$QT_VERSION" : '\([0-9][0-9]*\).*' )"
+    QT_MINOR_VERSION="$( expr "$QT_VERSION" : '[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
+    QT_DOTDOT_VERSION="$( expr "$QT_VERSION" : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
     QT_MAJOR_MINOR_VERSION=$QT_MAJOR_VERSION.$QT_MINOR_VERSION
     QT_MAJOR_MINOR_DOTDOT_VERSION=$QT_MAJOR_VERSION.$QT_MINOR_VERSION.$QT_DOTDOT_VERSION
 fi
@@ -147,8 +148,8 @@ if [ "$GNUTLS_VERSION" ]; then
     # We assume GnuTLS can work with Nettle; newer versions *only* use
     # Nettle, not libgcrypt.
     #
-    GNUTLS_MAJOR_VERSION="`expr $GNUTLS_VERSION : '\([0-9][0-9]*\).*'`"
-    GNUTLS_MINOR_VERSION="`expr $GNUTLS_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+    GNUTLS_MAJOR_VERSION="$( expr $GNUTLS_VERSION : '\([0-9][0-9]*\).*' )"
+    GNUTLS_MINOR_VERSION="$( expr $GNUTLS_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
     NETTLE_VERSION=3.9.1
 
     #
@@ -244,7 +245,7 @@ install_curl() {
 }
 
 uninstall_curl() {
-    if [ ! -z "$installed_curl_version" ] ; then
+    if [ -n "$installed_curl_version" ] ; then
         echo "Uninstalling curl:"
         cd curl-$installed_curl_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -285,7 +286,7 @@ install_xz() {
 }
 
 uninstall_xz() {
-    if [ ! -z "$installed_xz_version" ] ; then
+    if [ -n "$installed_xz_version" ] ; then
         echo "Uninstalling xz:"
         cd xz-$installed_xz_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -321,7 +322,7 @@ install_lzip() {
 }
 
 uninstall_lzip() {
-    if [ ! -z "$installed_lzip_version" ] ; then
+    if [ -n "$installed_lzip_version" ] ; then
         echo "Uninstalling lzip:"
         cd lzip-$installed_lzip_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -357,7 +358,7 @@ install_pcre() {
 }
 
 uninstall_pcre() {
-    if [ ! -z "$installed_pcre_version" ] ; then
+    if [ -n "$installed_pcre_version" ] ; then
         echo "Uninstalling pcre:"
         cd pcre-$installed_pcre_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -432,7 +433,7 @@ install_autoconf() {
 }
 
 uninstall_autoconf() {
-    if [ ! -z "$installed_autoconf_version" ] ; then
+    if [ -n "$installed_autoconf_version" ] ; then
         #
         # automake and libtool depend on this, so uninstall them.
         #
@@ -474,7 +475,7 @@ install_automake() {
 }
 
 uninstall_automake() {
-    if [ ! -z "$installed_automake_version" ] ; then
+    if [ -n "$installed_automake_version" ] ; then
         #
         # libtool depends on this(?), so uninstall it.
         #
@@ -515,7 +516,7 @@ install_libtool() {
 }
 
 uninstall_libtool() {
-    if [ ! -z "$installed_libtool_version" ] ; then
+    if [ -n "$installed_libtool_version" ] ; then
         echo "Uninstalling GNU libtool:"
         cd libtool-$installed_libtool_version
         $DO_MV /usr/local/bin/glibtool /usr/local/bin/libtool
@@ -553,7 +554,7 @@ install_ninja() {
 }
 
 uninstall_ninja() {
-    if [ ! -z "$installed_ninja_version" ]; then
+    if [ -n "$installed_ninja_version" ]; then
         echo "Uninstalling Ninja:"
         sudo rm /usr/local/bin/ninja
         rm ninja-$installed_ninja_version-done
@@ -574,7 +575,7 @@ install_asciidoctor() {
 }
 
 uninstall_asciidoctor() {
-    if [ ! -z "$installed_asciidoctor_version" ]; then
+    if [ -n "$installed_asciidoctor_version" ]; then
         echo "Uninstalling Asciidoctor:"
         sudo gem uninstall -V asciidoctor --version "=${installed_asciidoctor_version}"
         rm asciidoctor-$installed_asciidoctor_version-done
@@ -602,7 +603,7 @@ install_asciidoctorpdf() {
 }
 
 uninstall_asciidoctorpdf() {
-    if [ ! -z "$installed_asciidoctorpdf_version" ]; then
+    if [ -n "$installed_asciidoctorpdf_version" ]; then
         echo "Uninstalling Asciidoctor:"
         sudo gem uninstall -V asciidoctor-pdf --version "=${installed_asciidoctorpdf_version}"
         ## XXX uninstall dependencies
@@ -689,7 +690,7 @@ install_cmake() {
 }
 
 uninstall_cmake() {
-    if [ ! -z "$installed_cmake_version" ]; then
+    if [ -n "$installed_cmake_version" ]; then
         echo "Uninstalling CMake:"
         installed_cmake_major_version="`expr $installed_cmake_version : '\([0-9][0-9]*\).*'`"
         case "$installed_cmake_major_version" in
@@ -888,7 +889,7 @@ install_gettext() {
 }
 
 uninstall_gettext() {
-    if [ ! -z "$installed_gettext_version" ] ; then
+    if [ -n "$installed_gettext_version" ] ; then
         #
         # GLib depends on this, so uninstall it.
         #
@@ -929,7 +930,7 @@ install_pkg_config() {
 }
 
 uninstall_pkg_config() {
-    if [ ! -z "$installed_pkg_config_version" ] ; then
+    if [ -n "$installed_pkg_config_version" ] ; then
         echo "Uninstalling pkg-config:"
         cd pkg-config-$installed_pkg_config_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -1001,7 +1002,7 @@ install_glib() {
             # We have a .pc file for libffi; what does it say the
             # include directory is?
             incldir=`pkg-config --variable=includedir libffi`
-            if [ ! -z "$incldir" -a ! -d "$incldir" ] ; then
+            if [ -n "$incldir" -a ! -d "$incldir" ] ; then
                 # Bogus - remove it, assuming
                 $DO_RM /usr/local/lib/pkgconfig/libffi.pc
             fi
@@ -1140,7 +1141,7 @@ EOF
 }
 
 uninstall_glib() {
-    if [ ! -z "$installed_glib_version" ] ; then
+    if [ -n "$installed_glib_version" ] ; then
         echo "Uninstalling GLib:"
         cd glib-$installed_glib_version
         installed_glib_major_version="`expr $installed_glib_version : '\([0-9][0-9]*\).*'`"
@@ -1274,7 +1275,7 @@ install_qt() {
 }
 
 uninstall_qt() {
-    if [ ! -z "$installed_qt_version" ] ; then
+    if [ -n "$installed_qt_version" ] ; then
         echo "Uninstalling Qt:"
         rm -rf $HOME/Qt$installed_qt_version
         rm qt-$installed_qt_version-done
@@ -1333,7 +1334,7 @@ install_libsmi() {
 }
 
 uninstall_libsmi() {
-    if [ ! -z "$installed_libsmi_version" ] ; then
+    if [ -n "$installed_libsmi_version" ] ; then
         echo "Uninstalling libsmi:"
         cd libsmi-$installed_libsmi_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -1369,7 +1370,7 @@ install_libgpg_error() {
 }
 
 uninstall_libgpg_error() {
-    if [ ! -z "$installed_libgpg_error_version" ] ; then
+    if [ -n "$installed_libgpg_error_version" ] ; then
         #
         # libgcrypt depends on this, so uninstall it.
         #
@@ -1433,7 +1434,7 @@ install_libgcrypt() {
 }
 
 uninstall_libgcrypt() {
-    if [ ! -z "$installed_libgcrypt_version" ] ; then
+    if [ -n "$installed_libgcrypt_version" ] ; then
         echo "Uninstalling libgcrypt:"
         cd libgcrypt-$installed_libgcrypt_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -1466,7 +1467,7 @@ install_gmp() {
         # According to
         #
         #   https://www.mail-archive.com/gmp-bugs@gmplib.org/msg01492.html
-        # 
+        #
         # and other pages, the Shiny New Linker in Xcode 15 causes this
         # build to fail with "ld: branch8 out of range 384833 in
         # ___gmpn_add_nc_x86_64"; linking with -ld64 is a workaround.
@@ -1492,7 +1493,7 @@ install_gmp() {
 }
 
 uninstall_gmp() {
-    if [ ! -z "$installed_gmp_version" ] ; then
+    if [ -n "$installed_gmp_version" ] ; then
         #
         # Nettle depends on this, so uninstall it.
         #
@@ -1533,7 +1534,7 @@ install_libtasn1() {
 }
 
 uninstall_libtasn1() {
-    if [ ! -z "$installed_libtasn1_version" ] ; then
+    if [ -n "$installed_libtasn1_version" ] ; then
         #
         # p11-kit depends on this, so uninstall it.
         #
@@ -1589,7 +1590,7 @@ install_p11_kit() {
 }
 
 uninstall_p11_kit() {
-    if [ ! -z "$installed_p11_kit_version" ] ; then
+    if [ -n "$installed_p11_kit_version" ] ; then
         #
         # Nettle depends on this, so uninstall it.
         #
@@ -1630,7 +1631,7 @@ install_nettle() {
 }
 
 uninstall_nettle() {
-    if [ ! -z "$installed_nettle_version" ] ; then
+    if [ -n "$installed_nettle_version" ] ; then
         #
         # GnuTLS depends on this, so uninstall it.
         #
@@ -1691,7 +1692,7 @@ install_gnutls() {
 }
 
 uninstall_gnutls() {
-    if [ ! -z "$installed_gnutls_version" ] ; then
+    if [ -n "$installed_gnutls_version" ] ; then
         echo "Uninstalling GnuTLS:"
         cd gnutls-$installed_gnutls_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -1726,7 +1727,7 @@ install_lua() {
 }
 
 uninstall_lua() {
-    if [ ! -z "$installed_lua_version" ] ; then
+    if [ -n "$installed_lua_version" ] ; then
         echo "Uninstalling Lua:"
         #
         # Lua has no "make uninstall", so just remove stuff manually.
@@ -1763,7 +1764,7 @@ install_snappy() {
         cd snappy-$SNAPPY_VERSION
 	if [ "$SNAPPY_VERSION" = "1.1.10" ] ; then
 	    # This patch corresponds to https://github.com/google/snappy/commit/27f34a580be4a3becf5f8c0cba13433f53c21337
-	    patch -p0 <${topdir}/macosx-support-lib-patches/snappy-signed.patch || exit 1
+	    patch -p0 < "${topdir}/tools/macos-setup-patches/snappy-signed.patch" || exit 1
 	fi
         mkdir build_dir
         cd build_dir
@@ -1783,7 +1784,7 @@ install_snappy() {
 }
 
 uninstall_snappy() {
-    if [ ! -z "$installed_snappy_version" ] ; then
+    if [ -n "$installed_snappy_version" ] ; then
         echo "Uninstalling snappy:"
         cd snappy-$installed_snappy_version
         #
@@ -1842,7 +1843,7 @@ install_zstd() {
 }
 
 uninstall_zstd() {
-    if [ ! -z "$installed_zstd_version" ] ; then
+    if [ -n "$installed_zstd_version" ] ; then
         echo "Uninstalling zstd:"
         cd zstd-$installed_zstd_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -1892,7 +1893,7 @@ install_libxml2() {
 }
 
 uninstall_libxml2() {
-    if [ ! -z "$installed_libxml2_version" ] ; then
+    if [ -n "$installed_libxml2_version" ] ; then
         echo "Uninstalling libxml2:"
         cd libxml2-$installed_libxml2_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -1959,7 +1960,7 @@ install_lz4() {
 }
 
 uninstall_lz4() {
-    if [ ! -z "$installed_lz4_version" ] ; then
+    if [ -n "$installed_lz4_version" ] ; then
         echo "Uninstalling lz4:"
         cd lz4-$installed_lz4_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -1998,7 +1999,7 @@ install_sbc() {
         $no_build && echo "Skipping installation" && return
         gzcat sbc-$SBC_VERSION.tar.gz | tar xf - || exit 1
         cd sbc-$SBC_VERSION
-        if [ "$DARWIN_PROCESSOR_ARCH" = "arm" ] ; then
+        if [ "$DARWIN_PROCESSOR_ARCH" = "arm64" ] ; then
             CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS -U__ARM_NEON__" CXXFLAGS="$CXXFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --disable-tools --disable-tester --disable-shared || exit 1
         else
             CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --disable-tools --disable-tester --disable-shared || exit 1
@@ -2011,7 +2012,7 @@ install_sbc() {
 }
 
 uninstall_sbc() {
-    if [ ! -z "$installed_sbc_version" ] ; then
+    if [ -n "$installed_sbc_version" ] ; then
         echo "Uninstalling sbc:"
         cd sbc-$installed_sbc_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -2047,7 +2048,7 @@ install_maxminddb() {
 }
 
 uninstall_maxminddb() {
-    if [ ! -z "$installed_maxminddb_version" ] ; then
+    if [ -n "$installed_maxminddb_version" ] ; then
         echo "Uninstalling MaxMindDB API:"
         cd libmaxminddb-$installed_maxminddb_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -2083,7 +2084,7 @@ install_c_ares() {
 }
 
 uninstall_c_ares() {
-    if [ ! -z "$installed_cares_version" ] ; then
+    if [ -n "$installed_cares_version" ] ; then
         echo "Uninstalling C-Ares API:"
         cd c-ares-$installed_cares_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -2124,7 +2125,7 @@ install_libssh() {
 }
 
 uninstall_libssh() {
-    if [ ! -z "$installed_libssh_version" ] ; then
+    if [ -n "$installed_libssh_version" ] ; then
         echo "Uninstalling libssh:"
         cd libssh-$installed_libssh_version
         #
@@ -2173,7 +2174,7 @@ install_nghttp2() {
 }
 
 uninstall_nghttp2() {
-    if [ ! -z "$installed_nghttp2_version" ] ; then
+    if [ -n "$installed_nghttp2_version" ] ; then
         echo "Uninstalling nghttp2:"
         cd nghttp2-$installed_nghttp2_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -2209,7 +2210,7 @@ install_nghttp3() {
 }
 
 uninstall_nghttp3() {
-    if [ ! -z "$installed_nghttp3_version" ] ; then
+    if [ -n "$installed_nghttp3_version" ] ; then
         echo "Uninstalling nghttp3:"
         cd nghttp3-$installed_nghttp3_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -2248,7 +2249,7 @@ install_libtiff() {
 }
 
 uninstall_libtiff() {
-    if [ ! -z "$installed_libtiff_version" ] ; then
+    if [ -n "$installed_libtiff_version" ] ; then
         echo "Uninstalling libtiff:"
         cd tiff-$installed_libtiff_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -2280,7 +2281,7 @@ install_spandsp() {
         # by all the gcc versions in the versions of Xcode that we
         # support.
         #
-        patch -p0 <${topdir}/macosx-support-lib-patches/spandsp-configure-patch || exit 1
+        patch -p0 < "${topdir}/tools/macos-setup-patches/spandsp-configure-patch" || exit 1
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS -I/usr/local/include" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS -L/usr/local/lib" ./configure || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
@@ -2290,7 +2291,7 @@ install_spandsp() {
 }
 
 uninstall_spandsp() {
-    if [ ! -z "$installed_spandsp_version" ] ; then
+    if [ -n "$installed_spandsp_version" ] ; then
         echo "Uninstalling SpanDSP:"
         cd spandsp-$installed_spandsp_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -2326,7 +2327,7 @@ install_speexdsp() {
 }
 
 uninstall_speexdsp() {
-    if [ ! -z "$installed_speexdsp_version" ] ; then
+    if [ -n "$installed_speexdsp_version" ] ; then
         echo "Uninstalling SpeexDSP:"
         cd speexdsp-$installed_speexdsp_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -2364,7 +2365,7 @@ install_bcg729() {
 }
 
 uninstall_bcg729() {
-    if [ ! -z "$installed_bcg729_version" ] ; then
+    if [ -n "$installed_bcg729_version" ] ; then
         echo "Uninstalling bcg729:"
         cd bcg729-$installed_bcg729_version
         #
@@ -2449,7 +2450,7 @@ install_opus() {
 }
 
 uninstall_opus() {
-    if [ ! -z "$installed_opus_version" ] ; then
+    if [ -n "$installed_opus_version" ] ; then
         echo "Uninstalling opus:"
         cd opus-$installed_opus_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -2517,7 +2518,7 @@ install_python3() {
 uninstall_python3() {
     # Major version (e.g. "3.7")
     local PYTHON_VERSION=${installed_python3_version%.*}
-    if [ ! -z "$installed_python3_version" ] ; then
+    if [ -n "$installed_python3_version" ] ; then
         echo "Uninstalling python3:"
         frameworkdir="/Library/Frameworks/Python.framework/Versions/$PYTHON_VERSION"
         sudo rm -rf "$frameworkdir"
@@ -2568,7 +2569,7 @@ install_brotli() {
 }
 
 uninstall_brotli() {
-    if [ ! -z "$installed_brotli_version" ] ; then
+    if [ -n "$installed_brotli_version" ] ; then
         echo "Uninstalling brotli:"
         cd brotli-$installed_brotli_version
         #
@@ -2684,7 +2685,7 @@ install_all() {
     # Check whether the versions we have installed are the versions
     # requested; if not, uninstall the installed versions.
     #
-    if [ ! -z "$installed_brotli_version" -a \
+    if [ -n "$installed_brotli_version" -a \
               "$installed_brotli_version" != "$BROTLI_VERSION" ] ; then
         echo "Installed brotli version is $installed_brotli_version"
         if [ -z "$BROTLI_VERSION" ] ; then
@@ -2695,7 +2696,7 @@ install_all() {
         uninstall_brotli -r
     fi
 
-    if [ ! -z "$installed_python3_version" -a \
+    if [ -n "$installed_python3_version" -a \
               "$installed_python3_version" != "$PYTHON3_VERSION" ] ; then
         echo "Installed python3 version is $installed_python3_version"
         if [ -z "$PYTHON3_VERSION" ] ; then
@@ -2706,7 +2707,7 @@ install_all() {
         uninstall_python3 -r
     fi
 
-    if [ ! -z "$installed_bcg729_version" -a \
+    if [ -n "$installed_bcg729_version" -a \
               "$installed_bcg729_version" != "$BCG729_VERSION" ] ; then
         echo "Installed bcg729 version is $installed_bcg729_version"
         if [ -z "$BCG729_VERSION" ] ; then
@@ -2739,7 +2740,7 @@ install_all() {
         uninstall_opus -r
     fi
 
-    if [ ! -z "$installed_spandsp_version" -a \
+    if [ -n "$installed_spandsp_version" -a \
               "$installed_spandsp_version" != "$SPANDSP_VERSION" ] ; then
         echo "Installed SpanDSP version is $installed_spandsp_version"
         if [ -z "$SPANDSP_VERSION" ] ; then
@@ -2750,7 +2751,7 @@ install_all() {
         uninstall_spandsp -r
     fi
 
-    if [ ! -z "$installed_speexdsp_version" -a \
+    if [ -n "$installed_speexdsp_version" -a \
               "$installed_speexdsp_version" != "$SPEEXDSP_VERSION" ] ; then
         echo "Installed SpeexDSP version is $installed_speexdsp_version"
         if [ -z "$SPEEXDSP_VERSION" ] ; then
@@ -2761,7 +2762,7 @@ install_all() {
         uninstall_speexdsp -r
     fi
 
-    if [ ! -z "$installed_libtiff_version" -a \
+    if [ -n "$installed_libtiff_version" -a \
               "$installed_libtiff_version" != "$LIBTIFF_VERSION" ] ; then
         echo "Installed libtiff version is $installed_libtiff_version"
         if [ -z "$LIBTIFF_VERSION" ] ; then
@@ -2772,7 +2773,7 @@ install_all() {
         uninstall_libtiff -r
     fi
 
-    if [ ! -z "$installed_nghttp2_version" -a \
+    if [ -n "$installed_nghttp2_version" -a \
               "$installed_nghttp2_version" != "$NGHTTP2_VERSION" ] ; then
         echo "Installed nghttp2 version is $installed_nghttp2_version"
         if [ -z "$NGHTTP2_VERSION" ] ; then
@@ -2783,7 +2784,7 @@ install_all() {
         uninstall_nghttp2 -r
     fi
 
-    if [ ! -z "$installed_nghttp3_version" -a \
+    if [ -n "$installed_nghttp3_version" -a \
               "$installed_nghttp3_version" != "$NGHTTP3_VERSION" ] ; then
         echo "Installed nghttp3 version is $installed_nghttp3_version"
         if [ -z "$NGHTTP3_VERSION" ] ; then
@@ -2794,7 +2795,7 @@ install_all() {
         uninstall_nghttp3 -r
     fi
 
-    if [ ! -z "$installed_libssh_version" -a \
+    if [ -n "$installed_libssh_version" -a \
               "$installed_libssh_version" != "$LIBSSH_VERSION" ] ; then
         echo "Installed libssh version is $installed_libssh_version"
         if [ -z "$LIBSSH_VERSION" ] ; then
@@ -2805,7 +2806,7 @@ install_all() {
         uninstall_libssh -r
     fi
 
-    if [ ! -z "$installed_cares_version" -a \
+    if [ -n "$installed_cares_version" -a \
               "$installed_cares_version" != "$CARES_VERSION" ] ; then
         echo "Installed C-Ares version is $installed_cares_version"
         if [ -z "$CARES_VERSION" ] ; then
@@ -2816,7 +2817,7 @@ install_all() {
         uninstall_c_ares -r
     fi
 
-    if [ ! -z "$installed_maxminddb_version" -a \
+    if [ -n "$installed_maxminddb_version" -a \
               "$installed_maxminddb_version" != "$MAXMINDDB_VERSION" ] ; then
         echo "Installed MaxMindDB API version is $installed_maxminddb_version"
         if [ -z "$MAXMINDDB_VERSION" ] ; then
@@ -2827,7 +2828,7 @@ install_all() {
         uninstall_maxminddb -r
     fi
 
-    if [ ! -z "$installed_sbc_version" -a \
+    if [ -n "$installed_sbc_version" -a \
               "$installed_sbc_version" != "$SBC_VERSION" ] ; then
         echo "Installed SBC version is $installed_sbc_version"
         if [ -z "$SBC_VERSION" ] ; then
@@ -2838,7 +2839,7 @@ install_all() {
         uninstall_sbc -r
     fi
 
-    if [ ! -z "$installed_lz4_version" -a \
+    if [ -n "$installed_lz4_version" -a \
               "$installed_lz4_version" != "$LZ4_VERSION" ] ; then
         echo "Installed LZ4 version is $installed_lz4_version"
         if [ -z "$LZ4_VERSION" ] ; then
@@ -2849,7 +2850,7 @@ install_all() {
         uninstall_lz4 -r
     fi
 
-    if [ ! -z "$installed_libxml2_version" -a \
+    if [ -n "$installed_libxml2_version" -a \
               "$installed_libxml2_version" != "$LIBXML2_VERSION" ] ; then
         echo "Installed libxml2 version is $installed_libxml2_version"
         if [ -z "$LIBXML2_VERSION" ] ; then
@@ -2860,7 +2861,7 @@ install_all() {
         uninstall_libxml2 -r
     fi
 
-    if [ ! -z "$installed_snappy_version" -a \
+    if [ -n "$installed_snappy_version" -a \
               "$installed_snappy_version" != "$SNAPPY_VERSION" ] ; then
         echo "Installed SNAPPY version is $installed_snappy_version"
         if [ -z "$SNAPPY_VERSION" ] ; then
@@ -2871,7 +2872,17 @@ install_all() {
         uninstall_snappy -r
     fi
 
-    if [ ! -z "$installed_lua_version" -a \
+    if [ -n "$installed_zstd_version" ] && [ "$installed_zstd_version" != "$ZSTD_VERSION" ] ; then
+        echo "Installed zstd version is $installed_zstd_version"
+        if [ -z "$ZSTD_VERSION" ] ; then
+            echo "zstd is not requested"
+        else
+            echo "Requested zstd version is $ZSTD_VERSION"
+        fi
+        uninstall_zstd -r
+    fi
+
+    if [ -n "$installed_lua_version" -a \
               "$installed_lua_version" != "$LUA_VERSION" ] ; then
         echo "Installed Lua version is $installed_lua_version"
         if [ -z "$LUA_VERSION" ] ; then
@@ -2882,7 +2893,7 @@ install_all() {
         uninstall_lua -r
     fi
 
-    if [ ! -z "$installed_gnutls_version" -a \
+    if [ -n "$installed_gnutls_version" -a \
               "$installed_gnutls_version" != "$GNUTLS_VERSION" ] ; then
         echo "Installed GnuTLS version is $installed_gnutls_version"
         if [ -z "$GNUTLS_VERSION" ] ; then
@@ -2893,7 +2904,7 @@ install_all() {
         uninstall_gnutls -r
     fi
 
-    if [ ! -z "$installed_nettle_version" -a \
+    if [ -n "$installed_nettle_version" -a \
               "$installed_nettle_version" != "$NETTLE_VERSION" ] ; then
         echo "Installed Nettle version is $installed_nettle_version"
         if [ -z "$NETTLE_VERSION" ] ; then
@@ -2904,7 +2915,7 @@ install_all() {
         uninstall_nettle -r
     fi
 
-    if [ ! -z "$installed_gmp_version" -a \
+    if [ -n "$installed_gmp_version" -a \
               "$installed_gmp_version" != "$GMP_VERSION" ] ; then
         echo "Installed GMP version is $installed_gmp_version"
         if [ -z "$GMP_VERSION" ] ; then
@@ -2915,7 +2926,7 @@ install_all() {
         uninstall_gmp -r
     fi
 
-    if [ ! -z "$installed_p11_kit_version" -a \
+    if [ -n "$installed_p11_kit_version" -a \
               "$installed_p11_kit_version" != "$P11KIT_VERSION" ] ; then
         echo "Installed p11-kit version is $installed_p11_kit_version"
         if [ -z "$P11KIT_VERSION" ] ; then
@@ -2926,7 +2937,7 @@ install_all() {
         uninstall_p11_kit -r
     fi
 
-    if [ ! -z "$installed_libtasn1_version" -a \
+    if [ -n "$installed_libtasn1_version" -a \
               "$installed_libtasn1_version" != "$LIBTASN1_VERSION" ] ; then
         echo "Installed libtasn1 version is $installed_libtasn1_version"
         if [ -z "$LIBTASN1_VERSION" ] ; then
@@ -2937,7 +2948,7 @@ install_all() {
         uninstall_libtasn1 -r
     fi
 
-    if [ ! -z "$installed_libgcrypt_version" -a \
+    if [ -n "$installed_libgcrypt_version" -a \
               "$installed_libgcrypt_version" != "$LIBGCRYPT_VERSION" ] ; then
         echo "Installed libgcrypt version is $installed_libgcrypt_version"
         if [ -z "$LIBGCRYPT_VERSION" ] ; then
@@ -2948,7 +2959,7 @@ install_all() {
         uninstall_libgcrypt -r
     fi
 
-    if [ ! -z "$installed_libgpg_error_version" -a \
+    if [ -n "$installed_libgpg_error_version" -a \
               "$installed_libgpg_error_version" != "$LIBGPG_ERROR_VERSION" ] ; then
         echo "Installed libgpg-error version is $installed_libgpg_error_version"
         if [ -z "$LIBGPG_ERROR_VERSION" ] ; then
@@ -2959,7 +2970,7 @@ install_all() {
         uninstall_libgpg_error -r
     fi
 
-    if [ ! -z "$installed_libsmi_version" -a \
+    if [ -n "$installed_libsmi_version" -a \
               "$installed_libsmi_version" != "$LIBSMI_VERSION" ] ; then
         echo "Installed libsmi version is $installed_libsmi_version"
         if [ -z "$LIBSMI_VERSION" ] ; then
@@ -2970,7 +2981,7 @@ install_all() {
         uninstall_libsmi -r
     fi
 
-    if [ ! -z "$installed_qt_version" -a \
+    if [ -n "$installed_qt_version" -a \
               "$installed_qt_version" != "$QT_VERSION" ] ; then
         echo "Installed Qt version is $installed_qt_version"
         if [ -z "$QT_VERSION" ] ; then
@@ -2981,7 +2992,7 @@ install_all() {
         uninstall_qt -r
     fi
 
-    if [ ! -z "$installed_glib_version" -a \
+    if [ -n "$installed_glib_version" -a \
               "$installed_glib_version" != "$GLIB_VERSION" ] ; then
         echo "Installed GLib version is $installed_glib_version"
         if [ -z "$GLIB_VERSION" ] ; then
@@ -2992,7 +3003,7 @@ install_all() {
         uninstall_glib -r
     fi
 
-    if [ ! -z "$installed_pkg_config_version" -a \
+    if [ -n "$installed_pkg_config_version" -a \
               "$installed_pkg_config_version" != "$PKG_CONFIG_VERSION" ] ; then
         echo "Installed pkg-config version is $installed_pkg_config_version"
         if [ -z "$PKG_CONFIG_VERSION" ] ; then
@@ -3003,7 +3014,7 @@ install_all() {
         uninstall_pkg_config -r
     fi
 
-    if [ ! -z "$installed_gettext_version" -a \
+    if [ -n "$installed_gettext_version" -a \
               "$installed_gettext_version" != "$GETTEXT_VERSION" ] ; then
         echo "Installed GNU gettext version is $installed_gettext_version"
         if [ -z "$GETTEXT_VERSION" ] ; then
@@ -3014,7 +3025,7 @@ install_all() {
         uninstall_gettext -r
     fi
 
-    if [ ! -z "$installed_ninja_version" -a \
+    if [ -n "$installed_ninja_version" -a \
               "$installed_ninja_version" != "$NINJA_VERSION" ] ; then
         echo "Installed Ninja version is $installed_ninja_version"
         if [ -z "$NINJA_VERSION" ] ; then
@@ -3025,7 +3036,7 @@ install_all() {
         uninstall_ninja -r
     fi
 
-    if [ ! -z "$installed_asciidoctorpdf_version" -a \
+    if [ -n "$installed_asciidoctorpdf_version" -a \
               "$installed_asciidoctorpdf_version" != "$ASCIIDOCTORPDF_VERSION" ] ; then
         echo "Installed Asciidoctor-pdf version is $installed_asciidoctorpdf_version"
         if [ -z "$ASCIIDOCTORPDF_VERSION" ] ; then
@@ -3040,7 +3051,7 @@ install_all() {
         uninstall_asciidoctorpdf -r
     fi
 
-    if [ ! -z "$installed_asciidoctor_version" -a \
+    if [ -n "$installed_asciidoctor_version" -a \
               "$installed_asciidoctor_version" != "$ASCIIDOCTOR_VERSION" ] ; then
         echo "Installed Asciidoctor version is $installed_asciidoctor_version"
         if [ -z "$ASCIIDOCTOR_VERSION" ] ; then
@@ -3055,7 +3066,7 @@ install_all() {
         uninstall_asciidoctor -r
     fi
 
-    if [ ! -z "$installed_cmake_version" -a \
+    if [ -n "$installed_cmake_version" -a \
               "$installed_cmake_version" != "$CMAKE_VERSION" ] ; then
         echo "Installed CMake version is $installed_cmake_version"
         if [ -z "$CMAKE_VERSION" ] ; then
@@ -3066,7 +3077,7 @@ install_all() {
         uninstall_cmake -r
     fi
 
-    if [ ! -z "$installed_libtool_version" -a \
+    if [ -n "$installed_libtool_version" -a \
               "$installed_libtool_version" != "$LIBTOOL_VERSION" ] ; then
         echo "Installed GNU libtool version is $installed_libtool_version"
         if [ -z "$LIBTOOL_VERSION" ] ; then
@@ -3077,7 +3088,7 @@ install_all() {
         uninstall_libtool -r
     fi
 
-    if [ ! -z "$installed_automake_version" -a \
+    if [ -n "$installed_automake_version" -a \
               "$installed_automake_version" != "$AUTOMAKE_VERSION" ] ; then
         echo "Installed GNU automake version is $installed_automake_version"
         if [ -z "$AUTOMAKE_VERSION" ] ; then
@@ -3088,7 +3099,7 @@ install_all() {
         uninstall_automake -r
     fi
 
-    if [ ! -z "$installed_autoconf_version" -a \
+    if [ -n "$installed_autoconf_version" -a \
               "$installed_autoconf_version" != "$AUTOCONF_VERSION" ] ; then
         echo "Installed GNU autoconf version is $installed_autoconf_version"
         if [ -z "$AUTOCONF_VERSION" ] ; then
@@ -3099,7 +3110,7 @@ install_all() {
         uninstall_autoconf -r
     fi
 
-    if [ ! -z "$installed_pcre_version" -a \
+    if [ -n "$installed_pcre_version" -a \
               "$installed_pcre_version" != "$PCRE_VERSION" ] ; then
         echo "Installed pcre version is $installed_pcre_version"
         if [ -z "$PCRE_VERSION" ] ; then
@@ -3121,7 +3132,7 @@ install_all() {
         uninstall_pcre2 -r
     fi
 
-    if [ ! -z "$installed_lzip_version" -a \
+    if [ -n "$installed_lzip_version" -a \
               "$installed_lzip_version" != "$LZIP_VERSION" ] ; then
         echo "Installed lzip version is $installed_lzip_version"
         if [ -z "$LZIP_VERSION" ] ; then
@@ -3132,7 +3143,7 @@ install_all() {
         uninstall_lzip -r
     fi
 
-    if [ ! -z "$installed_xz_version" -a \
+    if [ -n "$installed_xz_version" -a \
               "$installed_xz_version" != "$XZ_VERSION" ] ; then
         echo "Installed xz version is $installed_xz_version"
         if [ -z "$XZ_VERSION" ] ; then
@@ -3143,7 +3154,7 @@ install_all() {
         uninstall_xz -r
     fi
 
-    if [ ! -z "$installed_curl_version" -a \
+    if [ -n "$installed_curl_version" -a \
               "$installed_curl_version" != "$CURL_VERSION" ] ; then
         echo "Installed curl version is $installed_curl_version"
         if [ -z "$CURL_VERSION" ] ; then
@@ -3154,7 +3165,7 @@ install_all() {
         uninstall_curl -r
     fi
 
-    if [ ! -z "$installed_minizip_version" -a \
+    if [ -n "$installed_minizip_version" -a \
               "$installed_minizip_version" != "$ZLIB_VERSION" ] ; then
         echo "Installed minizip (zlib) version is $installed_minizip_version"
         if [ -z "$ZLIB_VERSION" ] ; then
@@ -3165,7 +3176,7 @@ install_all() {
         uninstall_minizip -r
     fi
 
-    if [ ! -z "$installed_sparkle_version" -a \
+    if [ -n "$installed_sparkle_version" -a \
               "$installed_sparkle_version" != "$SPARKLE_VERSION" ] ; then
         echo "Installed Sparkle version is $installed_sparkle_version"
         if [ -z "$SPARKLE_VERSION" ] ; then
@@ -3486,8 +3497,8 @@ DO_CMAKE="cmake -DCMAKE_MACOSX_RPATH=OFF -DCMAKE_INSTALL_NAME_DIR=/usr/local/lib
 # code will attempt to get you there, but is not perfect (particulary
 # if someone copies the script).
 
-topdir=`pwd`/`dirname $0`/..
-cd $topdir
+topdir="$( pwd )/$( dirname $0 )/.."
+cd "$topdir"
 
 # Preference of the support libraries directory:
 #   ${MACOSX_SUPPORT_LIBS}
@@ -3513,7 +3524,7 @@ for i in /Developer/SDKs \
 do
     if [ -d "$i" ]
     then
-        min_osx_target=`sw_vers -productVersion | sed 's/\([0-9]*\)\.\([0-9]*\)\.[0-9]*/\1.\2/'`
+        min_osx_target=$( sw_vers -productVersion | sed 's/\([0-9]*\)\.\([0-9]*\)\.[0-9]*/\1.\2/' )
         break
     fi
 done
@@ -3635,7 +3646,7 @@ fi
 # versions of the same release, or earlier releases if the minimum is
 # earlier.
 #
-if [ ! -z "$min_osx_target" ]
+if [ -n "$min_osx_target" ]
 then
     #
     # Get the major and minor version of the target release.
@@ -3852,7 +3863,7 @@ echo "export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH"
 echo "export PATH=$PATH:$qt_base_path/bin"
 echo
 echo "mkdir build; cd build"
-if [ ! -z "$NINJA_VERSION" ]; then
+if [ -n "$NINJA_VERSION" ]; then
     echo "cmake -G Ninja .."
     echo "ninja wireshark_app_bundle logray_app_bundle # (Modify as needed)"
     echo "ninja install/strip"
