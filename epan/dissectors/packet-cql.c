@@ -387,7 +387,7 @@ static const value_string cql_result_row_type_names[] = {
 	{ CQL_RESULT_ROW_TYPE_MAP, "MAP" },
 	{ CQL_RESULT_ROW_TYPE_SET, "SET" },
 	{ CQL_RESULT_ROW_TYPE_UDT, "UDT" },
-	{ CQL_RESULT_ROW_TYPE_TUPLE, "TUBPLE" },
+	{ CQL_RESULT_ROW_TYPE_TUPLE, "TUPLE" },
 	{ 0x0, NULL }
 };
 
@@ -1112,8 +1112,8 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 		proto_item_set_generated(ti);
 	}
 
-	/* We cannot rely on compression negociation in the STARTUP message because the
-	 * capture can be done at a random time hence missing the negociation.
+	/* We cannot rely on compression negotiation in the STARTUP message because the
+	 * capture can be done at a random time hence missing the negotiation.
 	 * So we will first try to decompress LZ4 then snappy
 	 */
 	if (flags & CQL_HEADER_FLAG_COMPRESSION) {
