@@ -9589,7 +9589,7 @@ proto_register_subtree_array(gint * const *indices, const int num_indices)
 static void
 mark_truncated(char *label_str, gsize name_pos, const size_t size)
 {
-	static const char  trunc_str[] = " [truncated]";
+	static const char  trunc_str[] = " [" UTF8_HORIZONTAL_ELLIPSIS "]";
 	const size_t       trunc_len = sizeof(trunc_str)-1;
 	gchar             *last_char;
 
@@ -9597,7 +9597,7 @@ mark_truncated(char *label_str, gsize name_pos, const size_t size)
 	 *                 |
 	 *                 ^^^^^ name_pos
 	 *
-	 * ..... field_name [truncated]: dataaaaaaaaaaaaa
+	 * ..... field_name […]: dataaaaaaaaaaaaa
 	 *
 	 * name_pos==0 means that we have only data or only a field_name
 	 */

@@ -114,6 +114,8 @@ The following features are new (or have been significantly updated) since versio
 * The binary plugins folder path no longer uses an X.Y version component. Plugins
   are required to add the ABI version to the file name.
 
+* Truncated fields in the detail view are now displayed as "Field name […]: data" instead of "Field name [truncated]: data"
+
 === Removed Features and Support
 
 * The tshark `-G` option with no argument is deprecated and will be removed in
