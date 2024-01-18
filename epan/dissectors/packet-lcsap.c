@@ -495,13 +495,13 @@ dissect_lcsap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
     if (tmp == 0)
       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%sReq",
-                   val_to_str(ProcedureCode, lcsap_ProcedureCode_vals, "unknown message"));
+                   val_to_str_const(ProcedureCode, lcsap_ProcedureCode_vals, "unknown message"));
     else if (tmp == 32)
       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%sResp",
-                   val_to_str(ProcedureCode, lcsap_ProcedureCode_vals, "unknown message"));
+                   val_to_str_const(ProcedureCode, lcsap_ProcedureCode_vals, "unknown message"));
     else
       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s",
-                   val_to_str(ProcedureCode, lcsap_ProcedureCode_vals, "unknown message"));
+                   val_to_str_const(ProcedureCode, lcsap_ProcedureCode_vals, "unknown message"));
   }
 
   return offset;
@@ -563,7 +563,8 @@ dissect_lcsap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                                             0U, 65535U, &ProtocolIE_ID, FALSE);
 
   if (tree) {
-    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(lcsap_ProtocolIE_ID_vals), "unknown (%d)"));
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s",
+                           val_to_str(ProtocolIE_ID, VALS(lcsap_ProtocolIE_ID_vals), "unknown (%d)"));
   }
   return offset;
 }

@@ -39,7 +39,8 @@ ProtocolIE-Single-Container
 #.FN_PARS ProtocolIE-ID  VAL_PTR = &ProtocolIE_ID
 #.FN_FTR ProtocolIE-ID
   if (tree) {
-    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(rua_ProtocolIE_ID_vals), "unknown (%d)"));
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s",
+                           val_to_str(ProtocolIE_ID, VALS(rua_ProtocolIE_ID_vals), "unknown (%d)"));
   }
 #.END
 
@@ -49,7 +50,7 @@ ProtocolIE-Single-Container
 
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
-  if (strcmp(val_to_str(ProcedureCode, rua_ProcedureCode_vals, "Unknown"), "Unknown") == 0) {
+  if (strcmp(val_to_str_const(ProcedureCode, rua_ProcedureCode_vals, "Unknown"), "Unknown") == 0) {
     col_set_str(actx->pinfo->cinfo, COL_INFO,
                       "Unknown Message ");
   } /* Known Procedures should be included below and broken out as ELEMENTARY names to avoid confusion */

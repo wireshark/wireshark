@@ -232,7 +232,7 @@ dissect_rua_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-  if (strcmp(val_to_str(ProcedureCode, rua_ProcedureCode_vals, "Unknown"), "Unknown") == 0) {
+  if (strcmp(val_to_str_const(ProcedureCode, rua_ProcedureCode_vals, "Unknown"), "Unknown") == 0) {
     col_set_str(actx->pinfo->cinfo, COL_INFO,
                       "Unknown Message ");
   } /* Known Procedures should be included below and broken out as ELEMENTARY names to avoid confusion */
@@ -301,7 +301,8 @@ dissect_rua_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
                                                             0U, maxProtocolIEs, &ProtocolIE_ID, FALSE);
 
   if (tree) {
-    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(rua_ProtocolIE_ID_vals), "unknown (%d)"));
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s",
+                           val_to_str(ProtocolIE_ID, VALS(rua_ProtocolIE_ID_vals), "unknown (%d)"));
   }
   return offset;
 }

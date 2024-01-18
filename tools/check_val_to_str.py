@@ -101,7 +101,7 @@ warnings_found = 0
 errors_found = 0
 
 # Check the given dissector file.
-def checkFile(filename):
+def checkFile(filename, generated):
     global warnings_found
     global errors_found
 
@@ -130,20 +130,28 @@ def checkFile(filename):
                 # TODO: I suppose it could be escaped, but haven't seen this...
                 if format_string.find('%') != -1:
                     # This is an error as format specifier would show in app
-                    print('Error:', filename, "  ", m.group(0), '   - should not have specifiers in unknown string')
+                    print('Error:', filename, "  ", m.group(0),
+                          '   - should not have specifiers in unknown string',
+                          '(GENERATED)' if generated else '')
                     errors_found += 1
             else:
                 # These ones need to have a specifier, and it should be suitable for an int
                 count = format_string.count('%')
                 if count == 0:
-                    print('Warning:', filename, "  ", m.group(0), '   - should have suitable format specifier in unknown string (or use _const()?)')
+                    print('Warning:', filename, "  ", m.group(0),
+                          '   - should have suitable format specifier in unknown string (or use _const()?)',
+                          '(GENERATED)' if generated else '')
                     warnings_found += 1
                 elif count > 1:
-                    print('Warning:', filename, "  ", m.group(0), '   - has more than one specifier?')
+                    print('Warning:', filename, "  ", m.group(0),
+                          '   - has more than one specifier?',
+                          '(GENERATED)' if generated else '')
                 # TODO: check allowed specifiers (d, u, x, ?) and modifiers (0-9*) in re ?
                 if format_string.find('%s') != -1:
                     # This is an error as this likely causes a crash
-                    print('Error:', filename, "  ", m.group(0), '    - inappropriate format specifier in unknown string')
+                    print('Error:', filename, "  ", m.group(0),
+                          '    - inappropriate format specifier in unknown string',
+                          '(GENERATED)' if generated else '')
                     errors_found += 1
 
 
@@ -160,6 +168,8 @@ parser.add_argument('--commits', action='store',
                     help='last N commits to check')
 parser.add_argument('--open', action='store_true',
                     help='check open files')
+parser.add_argument('--generated', action='store_true',
+                    help='check generated files')
 
 args = parser.parse_args()
 
@@ -221,8 +231,9 @@ else:
 for f in files:
     if should_exit:
         exit(1)
-    if not isGeneratedFile(f):
-        checkFile(f)
+    generated = isGeneratedFile(f)
+    if args.generated or not generated:
+        checkFile(f, generated)
 
 
 # Show summary.

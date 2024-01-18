@@ -201,7 +201,8 @@ RegistryAllocateHandleResponse/result	AllocateHandleResponseResult
 		/* Do nothing */
 		break;
 	default:
-		col_prepend_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ", val_to_str(domainmcs_value, t124_DomainMCSPDU_vals, "Unknown"));
+                col_prepend_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
+                                 val_to_str_const(domainmcs_value, t124_DomainMCSPDU_vals, "Unknown"));
 		break;
 	}
 

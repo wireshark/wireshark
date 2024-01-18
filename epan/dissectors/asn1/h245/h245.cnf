@@ -381,7 +381,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
     if (strlen(h245_pi->frame_label) == 0)
     {
-      snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(value, h245_RequestMessage_short_vals, "UKN"));
+      snprintf(h245_pi->frame_label, 50, "%%s", val_to_str_const(value, h245_RequestMessage_short_vals, "UKN"));
 
       /* if it is OLC or RM*/
       if ((codec_type != NULL) && (( value == RequestMessage_openLogicalChannel) || ( value == RequestMessage_requestMode)))
@@ -391,7 +391,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
         (void) g_strlcat(h245_pi->frame_label, ")", 50);
       }
     }
-    (void) g_strlcat(h245_pi->comment, val_to_str(value, h245_RequestMessage_vals, "<unknown>"), 50);
+    (void) g_strlcat(h245_pi->comment, val_to_str_const(value, h245_RequestMessage_vals, "<unknown>"), 50);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY ResponseMessage  VAL_PTR = &value
@@ -404,9 +404,9 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 	if (h245_pi != NULL){
 		/* Add to packet info */
 		if ( strlen(h245_pi->frame_label) == 0 ){
-		   snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(value, h245_ResponseMessage_short_vals, "UKN"));
+                   snprintf(h245_pi->frame_label, 50, "%%s", val_to_str_const(value, h245_ResponseMessage_short_vals, "UKN"));
 		}
-		(void) g_strlcat(h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"), 50);
+                (void) g_strlcat(h245_pi->comment, val_to_str_const(value, h245_ResponseMessage_vals, "<unknown>"), 50);
 	}
 
 #.END
@@ -421,9 +421,9 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
     /* Add to packet info */
     if (h245_pi  !=NULL){
       if ( strlen(h245_pi->frame_label) == 0 ){
-	    snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(value, h245_IndicationMessage_short_vals, "UKN"));
+            snprintf(h245_pi->frame_label, 50, "%%s", val_to_str_const(value, h245_IndicationMessage_short_vals, "UKN"));
 	  }
-      (void) g_strlcat(h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"), 50);
+      (void) g_strlcat(h245_pi->comment, val_to_str_const(value, h245_IndicationMessage_vals, "<unknown>"), 50);
 
     }
 
@@ -439,9 +439,9 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
     /* Add to packet info */
     if (h245_pi != NULL){
       if ( strlen(h245_pi->frame_label) == 0 ){
-        snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(value, h245_CommandMessage_short_vals, "UKN"));
+        snprintf(h245_pi->frame_label, 50, "%%s", val_to_str_const(value, h245_CommandMessage_short_vals, "UKN"));
       }
-	  (void) g_strlcat(h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"), 50);
+          (void) g_strlcat(h245_pi->comment, val_to_str_const(value, h245_CommandMessage_vals, "<unknown>"), 50);
     }
 
 #.END
@@ -450,14 +450,14 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   gint32 value;
 
 %(DEFAULT_BODY)s
-        codec_type = val_to_str(value, h245_AudioCapability_short_vals, "<unknown>");
+        codec_type = val_to_str_const(value, h245_AudioCapability_short_vals, "<unknown>");
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY VideoCapability  VAL_PTR = &value
   gint32 value;
 
 %(DEFAULT_BODY)s
-        codec_type = val_to_str(value, h245_VideoCapability_vals, "<unknown>");
+        codec_type = val_to_str_const(value, h245_VideoCapability_vals, "<unknown>");
 
 #.END
 #----------------------------------------------------------------------------------------
@@ -465,28 +465,28 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   gint32 value;
 
 %(DEFAULT_BODY)s
-        codec_type = val_to_str(value, h245_Application_vals, "<unknown>");
+        codec_type = val_to_str_const(value, h245_Application_vals, "<unknown>");
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY AudioMode  VAL_PTR = &value
   gint32 value;
 
 %(DEFAULT_BODY)s
-  codec_type = val_to_str(value, h245_AudioMode_vals, "<unknown>");
+  codec_type = val_to_str_const(value, h245_AudioMode_vals, "<unknown>");
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY VideoMode  VAL_PTR = &value
   gint32 value;
 
 %(DEFAULT_BODY)s
-  codec_type = val_to_str(value, h245_VideoMode_vals, "<unknown>");
+  codec_type = val_to_str_const(value, h245_VideoMode_vals, "<unknown>");
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY DataMode/application  VAL_PTR = &value
   gint32 value;
 
 %(DEFAULT_BODY)s
-  codec_type = val_to_str(value, h245_DataModeApplication_vals, "<unknown>");
+  codec_type = val_to_str_const(value, h245_DataModeApplication_vals, "<unknown>");
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR MasterSlaveDeterminationAck
@@ -599,8 +599,8 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   }
   if (hf_index == hf_h245_subMessageIdentifier_standard)
   {
-    col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(subMessageIdentifier, h245_h239subMessageIdentifier_vals, "<unknown>") );
-    snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(subMessageIdentifier, h245_h239subMessageIdentifier_vals, "<unknown>"));
+    col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str_const(subMessageIdentifier, h245_h239subMessageIdentifier_vals, "<unknown>") );
+    snprintf(h245_pi->frame_label, 50, "%%s", val_to_str_const(subMessageIdentifier, h245_h239subMessageIdentifier_vals, "<unknown>"));
   }
 #.END
 

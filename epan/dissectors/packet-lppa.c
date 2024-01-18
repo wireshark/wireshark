@@ -587,8 +587,8 @@ dissect_lppa_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 
   col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                 val_to_str(lppa_data->procedure_code, lppa_ProcedureCode_vals,
-                            "unknown message"));
+                 val_to_str_const(lppa_data->procedure_code, lppa_ProcedureCode_vals,
+                                  "unknown message"));
 
   return offset;
 }
@@ -636,7 +636,8 @@ dissect_lppa_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 
   if (tree) {
-    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(lppa_data->protocol_ie_id, VALS(lppa_ProtocolIE_ID_vals), "unknown (%d)"));
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s",
+                           val_to_str(lppa_data->protocol_ie_id, VALS(lppa_ProtocolIE_ID_vals), "unknown (%d)"));
   }
   return offset;
 }

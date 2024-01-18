@@ -85,7 +85,8 @@ ProtocolIE-ContainerPairList
 %(DEFAULT_BODY)s
   nbap_get_private_data(actx->pinfo)->protocol_ie_id = protocol_ie_id; /* To carry around the packet */
   if (tree) {
-    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %%s", val_to_str_ext(protocol_ie_id, &nbap_ProtocolIE_ID_vals_ext, "unknown (%%d)"));
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %%s",
+                           val_to_str_ext(protocol_ie_id, &nbap_ProtocolIE_ID_vals_ext, "unknown (%%d)"));
   }
 #.END
 
@@ -98,8 +99,8 @@ ProtocolIE-ContainerPairList
 %(DEFAULT_BODY)s
   nbap_get_private_data(actx->pinfo)->procedure_code = procedure_code;
   col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ",
-                 val_to_str(procedure_code, nbap_ProcedureCode_vals,
-                            "unknown message"));
+               val_to_str_const(procedure_code, nbap_ProcedureCode_vals,
+                                "unknown message"));
 
 #.FN_PARS ProcedureID/ddMode VAL_PTR = &nbap_get_private_data(actx->pinfo)->dd_mode
 

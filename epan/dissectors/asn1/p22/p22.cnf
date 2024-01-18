@@ -284,7 +284,7 @@ VideotexData DISPLAY = BASE_NONE
   %(DEFAULT_BODY)s
 
   if(actx->created_item)
-    proto_item_append_text(actx->created_item, " (%%s)", val_to_str(crs, charsetreg_vals, "unknown"));
+    proto_item_append_text(actx->created_item, " (%%s)", val_to_str_const(crs, charsetreg_vals, "unknown"));
 
 #.FN_BODY Interchange-Data-Element
 /* XXX Not implemented yet */

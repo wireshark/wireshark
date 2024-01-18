@@ -4025,7 +4025,7 @@ dissect_h245_Application(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                                  ett_h245_Application, Application_choice,
                                  &value);
 
-        codec_type = val_to_str(value, h245_Application_vals, "<unknown>");
+        codec_type = val_to_str_const(value, h245_Application_vals, "<unknown>");
 
   return offset;
 }
@@ -5681,7 +5681,7 @@ dissect_h245_VideoCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
                                  ett_h245_VideoCapability, VideoCapability_choice,
                                  &value);
 
-        codec_type = val_to_str(value, h245_VideoCapability_vals, "<unknown>");
+        codec_type = val_to_str_const(value, h245_VideoCapability_vals, "<unknown>");
 
 
   p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
@@ -6005,7 +6005,7 @@ dissect_h245_AudioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
                                  ett_h245_AudioCapability, AudioCapability_choice,
                                  &value);
 
-        codec_type = val_to_str(value, h245_AudioCapability_short_vals, "<unknown>");
+        codec_type = val_to_str_const(value, h245_AudioCapability_short_vals, "<unknown>");
 
   p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
   return offset;
@@ -6599,8 +6599,8 @@ dissect_h245_T_subMessageIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
   }
   if (hf_index == hf_h245_subMessageIdentifier_standard)
   {
-    col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(subMessageIdentifier, h245_h239subMessageIdentifier_vals, "<unknown>") );
-    snprintf(h245_pi->frame_label, 50, "%s", val_to_str(subMessageIdentifier, h245_h239subMessageIdentifier_vals, "<unknown>"));
+    col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str_const(subMessageIdentifier, h245_h239subMessageIdentifier_vals, "<unknown>") );
+    snprintf(h245_pi->frame_label, 50, "%s", val_to_str_const(subMessageIdentifier, h245_h239subMessageIdentifier_vals, "<unknown>"));
   }
 
   return offset;
@@ -9201,7 +9201,7 @@ dissect_h245_VideoMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
                                  ett_h245_VideoMode, VideoMode_choice,
                                  &value);
 
-  codec_type = val_to_str(value, h245_VideoMode_vals, "<unknown>");
+  codec_type = val_to_str_const(value, h245_VideoMode_vals, "<unknown>");
 
   return offset;
 }
@@ -9532,7 +9532,7 @@ dissect_h245_AudioMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
                                  ett_h245_AudioMode, AudioMode_choice,
                                  &value);
 
-  codec_type = val_to_str(value, h245_AudioMode_vals, "<unknown>");
+  codec_type = val_to_str_const(value, h245_AudioMode_vals, "<unknown>");
 
   p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
   return offset;
@@ -9598,7 +9598,7 @@ dissect_h245_DataModeApplication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                  ett_h245_DataModeApplication, DataModeApplication_choice,
                                  &value);
 
-  codec_type = val_to_str(value, h245_DataModeApplication_vals, "<unknown>");
+  codec_type = val_to_str_const(value, h245_DataModeApplication_vals, "<unknown>");
 
   return offset;
 }
@@ -10607,7 +10607,7 @@ dissect_h245_RequestMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
     if (strlen(h245_pi->frame_label) == 0)
     {
-      snprintf(h245_pi->frame_label, 50, "%s", val_to_str(value, h245_RequestMessage_short_vals, "UKN"));
+      snprintf(h245_pi->frame_label, 50, "%s", val_to_str_const(value, h245_RequestMessage_short_vals, "UKN"));
 
       /* if it is OLC or RM*/
       if ((codec_type != NULL) && (( value == RequestMessage_openLogicalChannel) || ( value == RequestMessage_requestMode)))
@@ -10617,7 +10617,7 @@ dissect_h245_RequestMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
         (void) g_strlcat(h245_pi->frame_label, ")", 50);
       }
     }
-    (void) g_strlcat(h245_pi->comment, val_to_str(value, h245_RequestMessage_vals, "<unknown>"), 50);
+    (void) g_strlcat(h245_pi->comment, val_to_str_const(value, h245_RequestMessage_vals, "<unknown>"), 50);
 
   return offset;
 }
@@ -12201,9 +12201,9 @@ dissect_h245_ResponseMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 	if (h245_pi != NULL){
 		/* Add to packet info */
 		if ( strlen(h245_pi->frame_label) == 0 ){
-		   snprintf(h245_pi->frame_label, 50, "%s", val_to_str(value, h245_ResponseMessage_short_vals, "UKN"));
+                   snprintf(h245_pi->frame_label, 50, "%s", val_to_str_const(value, h245_ResponseMessage_short_vals, "UKN"));
 		}
-		(void) g_strlcat(h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"), 50);
+                (void) g_strlcat(h245_pi->comment, val_to_str_const(value, h245_ResponseMessage_vals, "<unknown>"), 50);
 	}
 
 
@@ -13231,9 +13231,9 @@ dissect_h245_CommandMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
     /* Add to packet info */
     if (h245_pi != NULL){
       if ( strlen(h245_pi->frame_label) == 0 ){
-        snprintf(h245_pi->frame_label, 50, "%s", val_to_str(value, h245_CommandMessage_short_vals, "UKN"));
+        snprintf(h245_pi->frame_label, 50, "%s", val_to_str_const(value, h245_CommandMessage_short_vals, "UKN"));
       }
-	  (void) g_strlcat(h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"), 50);
+          (void) g_strlcat(h245_pi->comment, val_to_str_const(value, h245_CommandMessage_vals, "<unknown>"), 50);
     }
 
 
@@ -14282,9 +14282,9 @@ dissect_h245_IndicationMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
     /* Add to packet info */
     if (h245_pi  !=NULL){
       if ( strlen(h245_pi->frame_label) == 0 ){
-	    snprintf(h245_pi->frame_label, 50, "%s", val_to_str(value, h245_IndicationMessage_short_vals, "UKN"));
+            snprintf(h245_pi->frame_label, 50, "%s", val_to_str_const(value, h245_IndicationMessage_short_vals, "UKN"));
 	  }
-      (void) g_strlcat(h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"), 50);
+      (void) g_strlcat(h245_pi->comment, val_to_str_const(value, h245_IndicationMessage_vals, "<unknown>"), 50);
 
     }
 

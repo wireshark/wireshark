@@ -267,7 +267,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   call_id_guid = NULL;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, "CS: %%s ",
-    val_to_str(message_body_val, T_h323_message_body_vals, "<unknown>"));
+    val_to_str_const(message_body_val, T_h323_message_body_vals, "<unknown>"));
 
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
   if (h225_pi != NULL) {
@@ -319,7 +319,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   call_id_guid = NULL;
 %(DEFAULT_BODY)s
   col_add_fstr(actx->pinfo->cinfo, COL_INFO, "RAS: %%s ",
-    val_to_str(rasmessage_value, h225_RasMessage_vals, "<unknown>"));
+    val_to_str_const(rasmessage_value, h225_RasMessage_vals, "<unknown>"));
 
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
   if (h225_pi != NULL) {
@@ -415,7 +415,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
   if (h225_pi != NULL) {
     h225_pi->cs_type = H225_STATUS;
-    snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
+    snprintf(h225_pi->frame_label, 50, "%s", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
 #.END
 #----------------------------------------------------------------------------------------
@@ -428,7 +428,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
   if (h225_pi != NULL) {
     h225_pi->cs_type = H225_INFORMATION;
-    snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
+    snprintf(h225_pi->frame_label, 50, "%s", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
 #.END
 #----------------------------------------------------------------------------------------
@@ -443,10 +443,10 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
     h225_pi->cs_type = H225_PROGRESS;
     if (contains_faststart) {
       char temp[50];
-      snprintf(temp, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
+      snprintf(temp, 50, "%s OLC (%s)", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
       (void) g_strlcpy(h225_pi->frame_label, temp, 50);
     } else
-      snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
+      snprintf(h225_pi->frame_label, 50, "%s", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
 #.END
 #----------------------------------------------------------------------------------------
@@ -459,7 +459,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
   if (h225_pi != NULL) {
     h225_pi->cs_type = H225_SETUP_ACK;
-    snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
+    snprintf(h225_pi->frame_label, 50, "%s", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
 #.END
 #----------------------------------------------------------------------------------------
@@ -472,7 +472,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
   if (h225_pi != NULL) {
     h225_pi->cs_type = H225_FACILITY;
-    snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
+    snprintf(h225_pi->frame_label, 50, "%s", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
 #.END
 #----------------------------------------------------------------------------------------
@@ -500,10 +500,10 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
     h225_pi->cs_type = H225_SETUP;
     if (contains_faststart) {
       char temp[50];
-      snprintf(temp, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
+      snprintf(temp, 50, "%s OLC (%s)", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
       (void) g_strlcpy(h225_pi->frame_label, temp, 50);
     } else
-      snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
+      snprintf(h225_pi->frame_label, 50, "%s", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
 #.END
 #----------------------------------------------------------------------------------------
@@ -518,10 +518,10 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
     h225_pi->cs_type = H225_CALL_PROCEDING;
     if (contains_faststart) {
       char temp[50];
-      snprintf(temp, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
+      snprintf(temp, 50, "%s OLC (%s)", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
       (void) g_strlcpy(h225_pi->frame_label, temp, 50);
     } else
-      snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
+      snprintf(h225_pi->frame_label, 50, "%s", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
 #.END
 #----------------------------------------------------------------------------------------
@@ -536,10 +536,10 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
     h225_pi->cs_type = H225_ALERTING;
     if (contains_faststart) {
       char temp[50];
-      snprintf(temp, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
+      snprintf(temp, 50, "%s OLC (%s)", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
       (void) g_strlcpy(h225_pi->frame_label, temp, 50);
     } else
-      snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
+      snprintf(h225_pi->frame_label, 50, "%s", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
 #.END
 #----------------------------------------------------------------------------------------
@@ -552,7 +552,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
   if (h225_pi != NULL) {
     h225_pi->cs_type = H225_RELEASE_COMPLET;
-    snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
+    snprintf(h225_pi->frame_label, 50, "%s", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
 #.END
 #----------------------------------------------------------------------------------------
@@ -567,10 +567,10 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
     h225_pi->cs_type = H225_CONNECT;
     if (contains_faststart) {
       char temp[50];
-      snprintf(temp, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
+      snprintf(temp, 50, "%s OLC (%s)", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
       (void) g_strlcpy(h225_pi->frame_label, temp, 50);
     } else
-      snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
+      snprintf(h225_pi->frame_label, 50, "%s", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
 #.END
 #----------------------------------------------------------------------------------------

@@ -2668,7 +2668,7 @@ dissect_p22_CharacterSetRegistration(bool implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 
   if(actx->created_item)
-    proto_item_append_text(actx->created_item, " (%s)", val_to_str(crs, charsetreg_vals, "unknown"));
+    proto_item_append_text(actx->created_item, " (%s)", val_to_str_const(crs, charsetreg_vals, "unknown"));
 
 
   return offset;

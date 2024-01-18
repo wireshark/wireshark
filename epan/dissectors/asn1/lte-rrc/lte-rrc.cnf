@@ -3197,7 +3197,7 @@ DRX-Config/setup/shortDRX/drxShortCycleTimer DISPLAY=BASE_DEC|BASE_UNIT_STRING S
   guint32 value;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [cause=%%s]",
-                  val_to_str(value, lte_rrc_ReleaseCause_vals, "Unknown"));
+                  val_to_str_const(value, lte_rrc_ReleaseCause_vals, "Unknown"));
 
 #.TYPE_ATTR
 LWA-Parameters-r13/wlan-MAC-Address-r13 TYPE=FT_ETHER

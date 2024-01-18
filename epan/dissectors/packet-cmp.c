@@ -473,7 +473,7 @@ dissect_cmp_PKIStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
                                                 &value);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Status=%s", val_to_str(value, cmp_PKIStatus_vals, "unknown"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Status=%s", val_to_str_const(value, cmp_PKIStatus_vals, "unknown"));
 
 
   return offset;
@@ -1060,7 +1060,7 @@ dissect_cmp_PKIBody(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
                                  &branch_taken);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Body=%s", val_to_str(branch_taken, cmp_PKIBody_vals, "unknown"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Body=%s", val_to_str_const(branch_taken, cmp_PKIBody_vals, "unknown"));
 
 
   return offset;

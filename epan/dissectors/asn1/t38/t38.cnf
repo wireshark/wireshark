@@ -28,7 +28,7 @@ UDPTLPacket
 #.FN_FTR Type-of-msg/t30-indicator
     if (primary_part){
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, " t30ind: %s",
-         val_to_str(T30ind_value,t38_T30_indicator_vals,"<unknown>"));
+         val_to_str_const(T30ind_value,t38_T30_indicator_vals,"<unknown>"));
     }
 
     /* info for tap */
@@ -40,7 +40,7 @@ UDPTLPacket
 #.FN_FTR Type-of-msg/t30-data
     if (primary_part){
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, " data:%s:",
-         val_to_str(Data_value,t38_T30_data_vals,"<unknown>"));
+         val_to_str_const(Data_value,t38_T30_data_vals,"<unknown>"));
     }
 
 
@@ -60,7 +60,7 @@ VAL_PTR=&Data_Field_field_type_value
 #.FN_FTR Data-Field/_item/field-type
     if (primary_part){
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s",
-         val_to_str(Data_Field_field_type_value,t38_T_field_type_vals,"<unknown>"));
+         val_to_str_const(Data_Field_field_type_value,t38_T_field_type_vals,"<unknown>"));
     }
 
     if (primary_part) {

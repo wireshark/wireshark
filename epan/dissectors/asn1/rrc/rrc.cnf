@@ -1151,7 +1151,8 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 #.FN_BODY CN-DomainIdentity VAL_PTR = &nas_sys_info
   guint32 nas_sys_info;
 %(DEFAULT_BODY)s
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "(%%s)", val_to_str_const(nas_sys_info,rrc_CN_DomainIdentity_vals,"Unknown"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "(%%s)",
+                  val_to_str_const(nas_sys_info,rrc_CN_DomainIdentity_vals, "Unknown"));
   nas_sys_info++; /* CS = 0, PS = 1 but the enum defines 0 as Unknown and CS = 1, PS = 2 */
   private_data_set_cn_domain(actx, (enum nas_sys_info_gsm_map) nas_sys_info);
 
@@ -1599,7 +1600,7 @@ private_data_set_rlc_ciphering_sqn(actx, rlc_ciphering_sqn);
   guint32 value;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [cause=%%s]",
-                  val_to_str(value, rrc_ReleaseCause_vals, "Unknown"));
+                  val_to_str_const(value, rrc_ReleaseCause_vals, "Unknown"));
 
 #.FN_BODY MasterInformationBlock
   col_append_str(actx->pinfo->cinfo, COL_INFO, "MasterInformationBlock");

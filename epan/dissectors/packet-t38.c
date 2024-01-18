@@ -438,7 +438,7 @@ dissect_t38_T30_indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
     if (primary_part){
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, " t30ind: %s",
-         val_to_str(T30ind_value,t38_T30_indicator_vals,"<unknown>"));
+         val_to_str_const(T30ind_value,t38_T30_indicator_vals,"<unknown>"));
     }
 
     /* info for tap */
@@ -475,7 +475,7 @@ dissect_t38_T30_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
     if (primary_part){
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, " data:%s:",
-         val_to_str(Data_value,t38_T30_data_vals,"<unknown>"));
+         val_to_str_const(Data_value,t38_T30_data_vals,"<unknown>"));
     }
 
 
@@ -535,7 +535,7 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
     if (primary_part){
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s",
-         val_to_str(Data_Field_field_type_value,t38_T_field_type_vals,"<unknown>"));
+         val_to_str_const(Data_Field_field_type_value,t38_T_field_type_vals,"<unknown>"));
     }
 
     if (primary_part) {

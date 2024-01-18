@@ -6948,8 +6948,8 @@ dissect_nbap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   nbap_get_private_data(actx->pinfo)->procedure_code = procedure_code;
   col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                 val_to_str(procedure_code, nbap_ProcedureCode_vals,
-                            "unknown message"));
+               val_to_str_const(procedure_code, nbap_ProcedureCode_vals,
+                                "unknown message"));
 
 
   return offset;
@@ -8234,7 +8234,8 @@ dissect_nbap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   nbap_get_private_data(actx->pinfo)->protocol_ie_id = protocol_ie_id; /* To carry around the packet */
   if (tree) {
-    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str_ext(protocol_ie_id, &nbap_ProtocolIE_ID_vals_ext, "unknown (%d)"));
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s",
+                           val_to_str_ext(protocol_ie_id, &nbap_ProtocolIE_ID_vals_ext, "unknown (%d)"));
   }
 
   return offset;

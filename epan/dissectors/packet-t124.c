@@ -2827,7 +2827,8 @@ dissect_t124_DomainMCSPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 		/* Do nothing */
 		break;
 	default:
-		col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str(domainmcs_value, t124_DomainMCSPDU_vals, "Unknown"));
+                col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+                                 val_to_str_const(domainmcs_value, t124_DomainMCSPDU_vals, "Unknown"));
 		break;
 	}
 
