@@ -1790,7 +1790,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offse
     proto_tree_add_item(subtree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_gsm_a_dtap_other_itc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_gsm_a_dtap_other_rate_adaption, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+5, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+5, 3, ENC_BIG_ENDIAN);
     curr_offset++;
 
     NO_MORE_DATA_CHECK(len);
@@ -1811,7 +1811,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offse
     proto_tree_add_item(subtree, hf_gsm_a_dtap_logical_link_identifier_negotiation, tvb, curr_offset, 1, ENC_NA);
     proto_tree_add_item(subtree, hf_gsm_a_dtap_assignor_assignee, tvb, curr_offset, 1, ENC_NA);
     proto_tree_add_item(subtree, hf_gsm_a_dtap_in_out_band, tvb, curr_offset, 1, ENC_NA);
-    proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+7, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+7, 1, ENC_BIG_ENDIAN);
 
     curr_offset++;
 
@@ -2026,7 +2026,7 @@ bc_octet_6:
         proto_tree_add_uint_format_value(subtree, hf_gsm_a_dtap_edge_channel_codings, tvb, curr_offset, 1, oct, "Spare");
     }
 
-    proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+6, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+6, 2, ENC_BIG_ENDIAN);
 
     curr_offset++;
 
