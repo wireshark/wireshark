@@ -5289,6 +5289,9 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                 string_len_long = length = tvb_get_ntohs(tvb, offset+1);
             }
             offset += vstr_len;
+            if (length == 0) {
+                continue;
+            }
             gen_str_offset = offset;
         }
 
