@@ -9837,7 +9837,7 @@ dissect_smb2_break_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return offset;
 }
 
-int
+static int
 dissect_smb2_notify_session_closed(tvbuff_t *tvb, proto_tree *parent_tree, packet_info *pinfo _U_, int offset, smb2_info_t *si _U_)
 {
 	proto_tree *sub_tree;
