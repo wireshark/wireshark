@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref 3GPP TS 38.455 V17.6.0 (2023-12)
- * http://www.3gpp.org
+ * https://www.3gpp.org
  */
 
 #include "config.h"
@@ -1423,9 +1423,9 @@ dissect_nrppa_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                 val_to_str(ProcedureCode, nrppa_ProcedureCode_vals,
-                            "unknown message"));
+  col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+               val_to_str_const(ProcedureCode, nrppa_ProcedureCode_vals,
+                                "unknown message"));
   return offset;
 }
 
@@ -1551,7 +1551,9 @@ dissect_nrppa_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                                             0U, maxProtocolIEs, &ProtocolIE_ID, FALSE);
 
   if (tree) {
-    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(nrppa_ProtocolIE_ID_vals), "unknown (%d)"));
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2),
+                           ": %s",
+                           val_to_str(ProtocolIE_ID, VALS(nrppa_ProtocolIE_ID_vals), "unknown (%d)"));
   }
   return offset;
 }
@@ -11982,7 +11984,6 @@ void proto_register_nrppa(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-
     { &hf_nrppa_NRPPA_PDU_PDU,
       { "NRPPA-PDU", "nrppa.NRPPA_PDU",
         FT_UINT32, BASE_DEC, VALS(nrppa_NRPPA_PDU_vals), 0,
@@ -14935,7 +14936,7 @@ void proto_register_nrppa(void) {
 
   /* List of subtrees */
   static gint *ett[] = {
-	  &ett_nrppa,
+    &ett_nrppa,
     &ett_nrppa_PrivateIE_ID,
     &ett_nrppa_ProtocolIE_Container,
     &ett_nrppa_ProtocolIE_Field,
