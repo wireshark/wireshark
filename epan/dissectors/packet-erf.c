@@ -56,6 +56,7 @@ static int hf_erf_ehdr;
 static int hf_erf_ehdr_t;
 static int hf_erf_flags;
 static int hf_erf_flags_cap;
+static int hf_erf_flags_if_raw;
 static int hf_erf_flags_vlen;
 static int hf_erf_flags_trunc;
 static int hf_erf_flags_rxe;
@@ -294,15 +295,17 @@ static dissector_handle_t atm_untruncated_handle;
 static dissector_handle_t sdh_handle;
 
 /* ERF Header */
-#define ERF_HDR_TYPE_MASK 0x7f
-#define ERF_HDR_EHDR_MASK 0x80
-#define ERF_HDR_FLAGS_MASK 0xff
-#define ERF_HDR_CAP_MASK 0x03
-#define ERF_HDR_VLEN_MASK 0x04
-#define ERF_HDR_TRUNC_MASK 0x08
-#define ERF_HDR_RXE_MASK 0x10
-#define ERF_HDR_DSE_MASK 0x20
-#define ERF_HDR_RES_MASK 0xC0
+#define ERF_HDR_TYPE_MASK   0x7f
+#define ERF_HDR_EHDR_MASK   0x80
+#define ERF_HDR_FLAGS_MASK  0xff
+#define ERF_HDR_CAP_MASK    0x43
+#define ERF_HDR_CAP_LO_MASK 0x03
+#define ERF_HDR_CAP_HI_MASK 0x40
+#define ERF_HDR_VLEN_MASK   0x04
+#define ERF_HDR_TRUNC_MASK  0x08
+#define ERF_HDR_RXE_MASK    0x10
+#define ERF_HDR_DSE_MASK    0x20
+#define ERF_HDR_RES_MASK    0x80
 
 /* ERF Extension Header */
 #define ERF_EHDR_FLOW_ID_HASH_TYPE_TYPE_MASK 0x7f
@@ -2255,6 +2258,7 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *pi;
   proto_item *flags_item, *rectype_item;
   proto_tree *flags_tree, *rectype_tree;
+  int has_flags = 0;
 
   proto_tree_add_uint64(tree, hf_erf_ts, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.ts);
 
@@ -2274,30 +2278,36 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   flags_item=proto_tree_add_uint(tree, hf_erf_flags, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   flags_tree = proto_item_add_subtree(flags_item, ett_erf_flags);
 
-  proto_tree_add_uint(flags_tree, hf_erf_flags_cap, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
-  proto_item_append_text(flags_item, " (Capture Interface: %d", pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_CAP_MASK);
+  proto_tree_add_uint(flags_tree, hf_erf_flags_if_raw, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
 
   proto_tree_add_uint(flags_tree, hf_erf_flags_vlen, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_trunc, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_TRUNC_MASK) {
-    proto_item_append_text(flags_item, "; ERF Truncation Error");
+    proto_item_append_text(flags_item, "(ERF Truncation Error");
     expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF Truncation Error");
+    has_flags++;
   }
 
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_rxe, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_RXE_MASK) {
-    proto_item_append_text(flags_item, "; ERF Rx Error");
+    proto_item_append_text(flags_item, "%sERF Rx Error", has_flags ? "; " : "(");
     expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF Rx Error");
+    has_flags++;
   }
 
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_dse, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_DSE_MASK) {
-    proto_item_append_text(flags_item, "; ERF DS Error");
+    proto_item_append_text(flags_item, "%sERF DS Error", has_flags ? "; " : "(");
     expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF DS Error");
+    has_flags++;
   }
-  proto_item_append_text(flags_item, ")");
+  if (has_flags) {
+    proto_item_append_text(flags_item, ")");
+  }
 
   proto_tree_add_uint(flags_tree, hf_erf_flags_res, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
+
+  proto_tree_add_uint(tree, hf_erf_flags_cap, tvb, 0, 0, (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_CAP_HI_MASK >> 4 ) | (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_CAP_LO_MASK));
 
   proto_tree_add_uint(tree, hf_erf_rlen, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.rlen);
 
@@ -3405,7 +3415,10 @@ proto_register_erf(void)
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_erf_flags_cap,
       { "Capture interface", "erf.flags.cap",
-        FT_UINT8, BASE_DEC, NULL, ERF_HDR_CAP_MASK, NULL, HFILL } },
+        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_erf_flags_if_raw,
+      { "Raw interface", "erf.flags.if_raw",
+        FT_UINT8, BASE_HEX, NULL, ERF_HDR_CAP_MASK, NULL, HFILL } },
     { &hf_erf_flags_vlen,
       { "Varying record length", "erf.flags.vlen",
         FT_UINT8, BASE_DEC, NULL, ERF_HDR_VLEN_MASK, NULL, HFILL } },
@@ -3420,7 +3433,7 @@ proto_register_erf(void)
         FT_UINT8, BASE_DEC, NULL, ERF_HDR_DSE_MASK, NULL, HFILL } },
     { &hf_erf_flags_res,
        { "Reserved", "erf.flags.res",
-         FT_UINT8, BASE_HEX, NULL, ERF_HDR_RES_MASK, NULL, HFILL } },
+         FT_UINT8, BASE_DEC, NULL, ERF_HDR_RES_MASK, NULL, HFILL } },
      { &hf_erf_rlen,
        { "Record length", "erf.rlen",
          FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },

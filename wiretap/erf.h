@@ -21,7 +21,7 @@
 #define ERF_POPULATE_ALREADY_POPULATED 0
 #define ERF_POPULATE_FAILED -1
 
-#define ERF_MAX_INTERFACES 4
+#define ERF_MAX_INTERFACES 8
 
 /*
  * Private data for ERF files and LINKTYPE_ERF packets in pcap and pcapng.

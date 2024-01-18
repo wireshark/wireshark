@@ -138,7 +138,7 @@ struct erf_if_info {
 struct erf_if_mapping {
   guint64 host_id;
   guint8 source_id;
-  struct erf_if_info interfaces[4];
+  struct erf_if_info interfaces[ERF_MAX_INTERFACES];
 
   gchar *module_filter_str;
   /*here because we could have captures from multiple hosts in the file*/
@@ -233,7 +233,7 @@ static void erf_if_mapping_destroy(gpointer key)
   int i = 0;
   struct erf_if_mapping *if_map = (struct erf_if_mapping*) key;
 
-  for (i = 0; i < 4; i++) {
+  for (i = 0; i < ERF_MAX_INTERFACES; i++) {
     g_free(if_map->interfaces[i].name);
     g_free(if_map->interfaces[i].descr);
   }
@@ -252,7 +252,7 @@ static struct erf_if_mapping* erf_if_mapping_create(guint64 host_id, guint8 sour
   if_map->host_id = host_id;
   if_map->source_id = source_id;
 
-  for (i = 0; i < 4; i++) {
+  for (i = 0; i < ERF_MAX_INTERFACES; i++) {
     if_map->interfaces[i].if_index = -1;
     if_map->interfaces[i].stream_num = -1;
   }
@@ -755,7 +755,7 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
       rec->ts.secs += 1;
     }
 
-    if_num = erf_header->flags & 0x03;
+    if_num = (erf_header->flags & 0x03) | ((erf_header->flags & 0x40) >> 4);
   }
 
   /* Copy the ERF pseudo header */
@@ -2136,7 +2136,7 @@ int erf_populate_interface_from_header(erf_t *erf_priv, wtap *wth, union wtap_ps
   if (!pseudo_header)
     return -1;
 
-  if_num = pseudo_header->erf.phdr.flags & 0x03;
+  if_num = (pseudo_header->erf.phdr.flags & 0x03) | ((pseudo_header->erf.phdr.flags & 0x40)>>4);
 
   erf_get_source_from_header(pseudo_header, &host_id, &source_id);
 
@@ -2333,7 +2333,7 @@ static int erf_update_implicit_host_id(erf_t *erf_priv, wtap *wth, guint64 impli
          * Needs a wtap_block_copy() that supports overwriting and/or expose
          * custom option copy and do with wtap_block_foreach_option().
          */
-        for (i = 0; i < 4; i++) {
+        for (i = 0; i < ERF_MAX_INTERFACES; i++) {
           if_info = &if_map->interfaces[i];
 
           if (if_info->if_index >= 0) {
@@ -2364,7 +2364,7 @@ static int erf_update_implicit_host_id(erf_t *erf_priv, wtap *wth, guint64 impli
     do {
       if_map = (struct erf_if_mapping*) item->data;
 
-      for (i = 0; i < 4; i++) {
+      for (i = 0; i < ERF_MAX_INTERFACES; i++) {
         if_info = &if_map->interfaces[i];
 
         if (if_info->if_index >= 0) {
@@ -2452,10 +2452,10 @@ static int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_
     *err_info = ws_strdup_printf("erf: erf_populate_interface called with erf_priv NULL");
     return -1;
   }
-  if (if_num > 3) {
+  if (if_num > ERF_MAX_INTERFACES-1) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = ws_strdup_printf("erf: erf_populate_interface called with if_num %u > 3",
-                                if_num);
+    *err_info = ws_strdup_printf("erf: erf_populate_interface called with if_num %u > %u",
+                                if_num, ERF_MAX_INTERFACES-1);
     return -1;
   }
 
@@ -2808,7 +2808,7 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
    * Get or create the interface (there can be multiple interfaces in
    * a Provenance record).
    */
-  if (if_num < 4) { /* Note: -1u > 4*/
+  if (if_num < ERF_MAX_INTERFACES) { /* Note: -1u > ERF_MAX_INTERFACES */
     if_info = &state->if_map->interfaces[if_num];
     interface_index = if_info->if_index;
 
@@ -2867,7 +2867,7 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
 
   /*
    * Bail if already have interface metadata or no interface to associate with.
-   * We also don't support metadata for >4 interfaces per Host + Source
+   * We also don't support metadata for >ERF_MAX_INTERFACES interfaces per Host + Source
    * as we only use interface ID.
    */
   if (!int_data)
@@ -2909,7 +2909,7 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
         /*
          * XXX: We ignore this as Section ID must match the ERF ifid and
          * that is all we care about/have space for at the moment. if_num
-         * is only really useful with >4 interfaces.
+         * is only really useful with >ERF_MAX_INTERFACES interfaces.
          */
         /* TODO: might want to put this number in description */
         break;
@@ -3050,7 +3050,7 @@ static int populate_stream_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseud
   }
   /* Otherwise assume the stream applies to all interfaces in the record */
 
-  for (if_num = 0; if_num < 4; if_num++) {
+  for (if_num = 0; if_num < ERF_MAX_INTERFACES; if_num++) {
     tag_ptr_tmp = state->tag_ptr;
     remaining_len_tmp = state->remaining_len;
     if_info = &state->if_map->interfaces[if_num];
@@ -3310,7 +3310,7 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_h
          * Currently we only particularly care about updating the capture comment
          * and a few counters anyway.
          */
-        if ((state.if_map->interface_metadata & 0x03)
+        if ((state.if_map->interface_metadata & 0xff)
             && state.gen_time < erf_priv->host_gentime && state.gen_time < erf_priv->capture_gentime
             && (!anchor_mappings_to_update || !anchor_mappings_to_update->len)) {
           return 0;
