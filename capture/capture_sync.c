@@ -21,6 +21,8 @@
 
 #include <signal.h>
 
+#include <ws_exit_codes.h>
+
 #include <wsutil/strtoi.h>
 #include <wsutil/ws_assert.h>
 
@@ -1602,6 +1604,13 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
                  * Child process failed unexpectedly, or wait failed; msg is the
                  * error message.
                  */
+            } else if (ret == WS_EXIT_NO_INTERFACES) {
+                /*
+                    * No interfaces were found.  If that's not the
+                    * result of an error when fetching the local
+                    * interfaces, let the user know.
+                    */
+                *msg = g_strdup(primary_msg_text);
             } else {
                 /*
                  * Child process failed, but returned the expected exit status.

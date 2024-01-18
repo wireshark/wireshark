@@ -19,6 +19,8 @@
 
 #include <glib.h>
 
+#include <ws_exit_codes.h>
+
 #include <epan/packet.h>
 #include <epan/dfilter/dfilter.h>
 #include "extcap.h"
@@ -986,6 +988,14 @@ capture_interface_stat_start(capture_options *capture_opts _U_, GList **if_list)
             sc_item->name = g_strdup(if_info->name);
             sc->cache_list = g_list_prepend(sc->cache_list, sc_item);
         }
+    } else if (status == WS_EXIT_NO_INTERFACES) {
+        /*
+            * No interfaces were found.  If that's not the
+            * result of an error when fetching the local
+            * interfaces, let the user know.
+            */
+        ws_info("%s", msg);
+        g_free(msg); /* XXX: should we display this to the user via the GUI? */
     } else {
         ws_warning("%s", msg);
         g_free(msg); /* XXX: should we display this to the user via the GUI? */
