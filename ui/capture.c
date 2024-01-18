@@ -616,7 +616,12 @@ capture_input_error(capture_session *cap_session _U_, char *error_msg,
     gchar *safe_error_msg;
     gchar *safe_secondary_error_msg;
 
-    ws_message("Error message from child: \"%s\", \"%s\"", error_msg, secondary_error_msg);
+    /* The primary message might be an empty string, e.g. when the error was
+     * from extcap. (The extcap stderr is gathered when the session closes
+     * and printed in capture_input_closed below.) */
+    if (*error_msg != '\0') {
+        ws_message("Error message from child: \"%s\", \"%s\"", error_msg, secondary_error_msg);
+    }
 
     ws_assert(cap_session->state == CAPTURE_PREPARING || cap_session->state == CAPTURE_RUNNING);
 

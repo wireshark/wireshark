@@ -2892,10 +2892,15 @@ capture(void)
 static void
 capture_input_error(capture_session *cap_session _U_, char *error_msg, char *secondary_error_msg)
 {
-    cmdarg_err("%s", error_msg);
-    if (secondary_error_msg != NULL && *secondary_error_msg != '\0') {
-        /* We have both primary and secondary messages. */
-        cmdarg_err_cont("%s", secondary_error_msg);
+    /* The primary message might be an empty string, e.g. when the error was
+     * from extcap. (The extcap stderr is gathered when the session closes
+     * and printed in capture_input_closed below.) */
+    if (*error_msg != '\0') {
+        cmdarg_err("%s", error_msg);
+        if (secondary_error_msg != NULL && *secondary_error_msg != '\0') {
+            /* We have both primary and secondary messages. */
+            cmdarg_err_cont("%s", secondary_error_msg);
+        }
     }
 }
 
