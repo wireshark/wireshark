@@ -53,6 +53,7 @@ typedef struct sinsp_source_info_t {
     const char *name;
     const char *description;
     char *last_error;
+    size_t evt_category_idx;
     uint16_t cpu_id_idx;
     uint16_t proc_id_idx;
 } sinsp_source_info_t;
@@ -422,6 +423,9 @@ void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t *
                 if (!gefc) {
                     continue;
                 }
+                if (strcmp(ffi->m_name, "evt.category") == 0) {
+                    ssi->evt_category_idx = ssi->syscall_filter_fields.size();
+                }
                 if (strcmp(ffi->m_name, "evt.cpu") == 0) {
                     ssi->cpu_id_idx = (uint16_t) ssi->syscall_filter_fields.size();
                 }
@@ -702,8 +706,18 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
     int16_t cpu_id = 0;
     int64_t proc_id = 0;
 
+    // First check for internal events.
+    // XXX We should skip this if "Show internal events" is enabled.
+    auto gefc = ssi->syscall_event_filter_checks[ssi->evt_category_idx];
+    if (!gefc->extract(evt, values, false) || values.size() < 1) {
+        return;
+    }
+    if (strcmp((const char *) values[0].ptr, "internal") == 0) {
+        return;
+    }
+
     for (size_t fc_idx = 0; fc_idx < ssi->syscall_event_filter_checks.size(); fc_idx++) {
-        auto gefc = ssi->syscall_event_filter_checks[fc_idx];
+        gefc = ssi->syscall_event_filter_checks[fc_idx];
         values.clear();
         if (!gefc->extract(evt, values, false) || values.size() < 1) {
             continue;
