@@ -312,6 +312,20 @@ static const value_string UBX_SBAS_TESTBED[] = {
     {0, NULL}
 };
 
+/* UTC standard identifier */
+static const value_string UBX_UTC_STD_ID[] = {
+    {0, "Information not available"},
+    {1, "Communications Research Labratory (CRL), Tokyo, Japan"},
+    {2, "National Institute of Standards and Technology (NIST)"},
+    {3, "U.S. Naval Observatory (USNO)"},
+    {4, "International Bureau of Weights and Measures (BIPM)"},
+    {5, "European laboratories"},
+    {6, "Former Soviet Union (SU)"},
+    {7, "National Time Service Center (NTSC), China"},
+    {15, "Unknown"},
+    {0, NULL}
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_ubx;
 
@@ -504,6 +518,21 @@ static int hf_ubx_nav_timegps_weekvalid;
 static int hf_ubx_nav_timegps_towvalid;
 static int hf_ubx_nav_timegps_tacc;
 
+static int hf_ubx_nav_timeutc;
+static int hf_ubx_nav_timeutc_itow;
+static int hf_ubx_nav_timeutc_tacc;
+static int hf_ubx_nav_timeutc_nano;
+static int hf_ubx_nav_timeutc_year;
+static int hf_ubx_nav_timeutc_month;
+static int hf_ubx_nav_timeutc_day;
+static int hf_ubx_nav_timeutc_hour;
+static int hf_ubx_nav_timeutc_min;
+static int hf_ubx_nav_timeutc_sec;
+static int hf_ubx_nav_timeutc_validtow;
+static int hf_ubx_nav_timeutc_validwkn;
+static int hf_ubx_nav_timeutc_validutc;
+static int hf_ubx_nav_timeutc_utcstandard;
+
 static int hf_ubx_nav_velecef;
 static int hf_ubx_nav_velecef_itow;
 static int hf_ubx_nav_velecef_ecefvx;
@@ -546,6 +575,7 @@ static int ett_ubx_nav_sat;
 static int ett_ubx_nav_sat_sv_info[309];
 static int ett_ubx_nav_timegps;
 static int ett_ubx_nav_timegps_tow;
+static int ett_ubx_nav_timeutc;
 static int ett_ubx_nav_velecef;
 static int ett_ubx_rxm_sfrbx;
 
@@ -1213,6 +1243,45 @@ static int dissect_ubx_nav_timegps(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     return tvb_captured_length(tvb);
 }
 
+/* Dissect UBX-NAV-TIMEUTC message */
+static int dissect_ubx_nav_timeutc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UBX-NAV-TIMEUTC");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    proto_item *ti = proto_tree_add_item(tree, hf_ubx_nav_timeutc,
+            tvb, 0, 20, ENC_NA);
+    proto_tree *ubx_nav_timeutc_tree = proto_item_add_subtree(ti, ett_ubx_nav_timeutc);
+
+    proto_tree_add_item(ubx_nav_timeutc_tree, hf_ubx_nav_timeutc_itow,
+            tvb, 0, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ubx_nav_timeutc_tree, hf_ubx_nav_timeutc_tacc,
+            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ubx_nav_timeutc_tree, hf_ubx_nav_timeutc_nano,
+            tvb, 8, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ubx_nav_timeutc_tree, hf_ubx_nav_timeutc_year,
+            tvb, 12, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ubx_nav_timeutc_tree, hf_ubx_nav_timeutc_month,
+            tvb, 14, 1, ENC_NA);
+    proto_tree_add_item(ubx_nav_timeutc_tree, hf_ubx_nav_timeutc_day,
+            tvb, 15, 1, ENC_NA);
+    proto_tree_add_item(ubx_nav_timeutc_tree, hf_ubx_nav_timeutc_hour,
+            tvb, 16, 1, ENC_NA);
+    proto_tree_add_item(ubx_nav_timeutc_tree, hf_ubx_nav_timeutc_min,
+            tvb, 17, 1, ENC_NA);
+    proto_tree_add_item(ubx_nav_timeutc_tree, hf_ubx_nav_timeutc_sec,
+            tvb, 18, 1, ENC_NA);
+    proto_tree_add_item(ubx_nav_timeutc_tree, hf_ubx_nav_timeutc_validtow,
+            tvb, 19, 1, ENC_NA);
+    proto_tree_add_item(ubx_nav_timeutc_tree, hf_ubx_nav_timeutc_validwkn,
+            tvb, 19, 1, ENC_NA);
+    proto_tree_add_item(ubx_nav_timeutc_tree, hf_ubx_nav_timeutc_validutc,
+            tvb, 19, 1, ENC_NA);
+    proto_tree_add_item(ubx_nav_timeutc_tree, hf_ubx_nav_timeutc_utcstandard,
+            tvb, 19, 1, ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
 /* Dissect UBX-NAV-VELECEF message */
 static int dissect_ubx_nav_velecef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UBX-NAV-VELECEF");
@@ -1871,6 +1940,50 @@ void proto_register_ubx(void) {
             {"Time accuracy estimate", "ubx.nav.timegps.tacc",
                 FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0, NULL, HFILL}},
 
+        // NAV-TIMEUTC
+        {&hf_ubx_nav_timeutc,
+            {"UBX-NAV-TIMEUTC", "ubx.nav.timeutc",
+                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_timeutc_itow,
+            {"iTOW", "ubx.nav.timeutc.itow",
+                FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_timeutc_tacc,
+            {"Time accuracy estimate (UTC)", "ubx.nav.timeutc.tacc",
+                FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_nanoseconds, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_timeutc_nano,
+            {"Fraction of second (UTC)", "ubx.nav.timeutc.nano",
+                FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_nanoseconds, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_timeutc_year,
+            {"Year", "ubx.nav.timeutc.year",
+                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_timeutc_month,
+            {"Month", "ubx.nav.timeutc.month",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_timeutc_day,
+            {"Day", "ubx.nav.timeutc.day",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_timeutc_hour,
+            {"Hour of day", "ubx.nav.timeutc.hour",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_timeutc_min,
+            {"Minute of hour", "ubx.nav.timeutc.min",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_timeutc_sec,
+            {"Seconds of minute", "ubx.nav.timeutc.sec",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_timeutc_validtow,
+            {"Valid Time of Week", "ubx.nav.timeutc.validtow",
+                FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}},
+        {&hf_ubx_nav_timeutc_validwkn,
+            {"Valid Week Number", "ubx.nav.timeutc.validwkn",
+                FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}},
+        {&hf_ubx_nav_timeutc_validutc,
+            {"Valid UTC Time", "ubx.nav.timeutc.validutc",
+                FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL}},
+        {&hf_ubx_nav_timeutc_utcstandard,
+            {"utcStandard", "ubx.nav.timeutc.utcstandard",
+                FT_UINT8, BASE_DEC, VALS(UBX_UTC_STD_ID), 0xf0, NULL, HFILL}},
+
         // NAV-VELECEF
         {&hf_ubx_nav_velecef,
             {"UBX-NAV-VELECEF", "ubx.nav.velecef",
@@ -1952,6 +2065,7 @@ void proto_register_ubx(void) {
         &ett_ubx_nav_sat,
         &ett_ubx_nav_timegps,
         &ett_ubx_nav_timegps_tow,
+        &ett_ubx_nav_timeutc,
         &ett_ubx_nav_velecef,
         &ett_ubx_rxm_sfrbx,
     };
@@ -2004,6 +2118,7 @@ void proto_reg_handoff_ubx(void) {
     UBX_REGISTER_DISSECTOR(dissect_ubx_nav_pvt,     UBX_NAV_PVT);
     UBX_REGISTER_DISSECTOR(dissect_ubx_nav_sat,     UBX_NAV_SAT);
     UBX_REGISTER_DISSECTOR(dissect_ubx_nav_timegps, UBX_NAV_TIMEGPS);
+    UBX_REGISTER_DISSECTOR(dissect_ubx_nav_timeutc, UBX_NAV_TIMEUTC);
     UBX_REGISTER_DISSECTOR(dissect_ubx_nav_velecef, UBX_NAV_VELECEF);
     UBX_REGISTER_DISSECTOR(dissect_ubx_rxm_sfrbx,   UBX_RXM_SFRBX);
 }
