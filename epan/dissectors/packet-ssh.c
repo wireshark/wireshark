@@ -475,6 +475,7 @@ static const gchar *ssh_debug_file_name     = NULL;
 #define SSH_MSG_SERVICE_REQUEST     5
 #define SSH_MSG_SERVICE_ACCEPT      6
 #define SSH_MSG_EXT_INFO            7
+#define SSH_MSG_NEWCOMPRESS         8
 
 /* Transport layer protocol: Algorithm negotiation (20-29) */
 #define SSH_MSG_KEXINIT             20
@@ -549,6 +550,7 @@ static const value_string ssh2_msg_vals[] = {
     { SSH_MSG_SERVICE_REQUEST,           "Service Request" },
     { SSH_MSG_SERVICE_ACCEPT,            "Service Accept" },
     { SSH_MSG_EXT_INFO,                  "Extension Information" },
+    { SSH_MSG_NEWCOMPRESS,               "New Compression" },
     { SSH_MSG_KEXINIT,                   "Key Exchange Init" },
     { SSH_MSG_NEWKEYS,                   "New Keys" },
     { SSH_MSG_USERAUTH_REQUEST,          "User Authentication Request" },
