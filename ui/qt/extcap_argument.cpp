@@ -38,6 +38,7 @@
 #include <epan/prefs-int.h>
 #include <wsutil/wslog.h>
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 
 #include <extcap_parser.h>
 #include <extcap_argument_file.h>
@@ -312,6 +313,11 @@ void ExtArgEditSelector::setDefaultValue()
 
 ExtArgRadio::ExtArgRadio(extcap_arg * argument, QObject * parent) :
         ExtcapArgument(argument, parent), selectorGroup(0), callStrings(0) {}
+
+ExtArgRadio::~ExtArgRadio() {
+    if (callStrings != nullptr)
+        delete callStrings;
+}
 
 QWidget * ExtArgRadio::createEditor(QWidget * parent)
 {
@@ -839,6 +845,7 @@ bool ExtcapArgument::reloadValues()
 }
 
 ExtcapArgument::~ExtcapArgument() {
+    extcap_free_arg(_argument);
 }
 
 QWidget * ExtcapArgument::createLabel(QWidget * parent)
@@ -908,8 +915,8 @@ QString ExtcapArgument::defaultValue()
     if (_argument != 0 && _argument->default_complex != 0)
     {
         gchar * str = extcap_get_complex_as_string(_argument->default_complex);
-        if (str != 0)
-            return QString(str);
+        if (str != nullptr)
+            return gchar_free_to_qstring(str);
     }
     return QString();
 }

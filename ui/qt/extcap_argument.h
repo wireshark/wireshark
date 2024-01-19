@@ -211,6 +211,7 @@ class ExtArgRadio : public ExtcapArgument
 
 public:
     ExtArgRadio(extcap_arg * argument, QObject *parent = Q_NULLPTR);
+    virtual ~ExtArgRadio();
 
     virtual QWidget * createEditor(QWidget * parent);
     virtual QString value();
