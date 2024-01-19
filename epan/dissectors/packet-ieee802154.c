@@ -2810,8 +2810,6 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* Destination Address  */
     if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
-        gchar* dst_addr;
-
         /* Get the address. */
         packet->dst16 = tvb_get_letohs(tvb, offset);
 
@@ -2822,15 +2820,12 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
         set_address_tvb(&pinfo->dl_dst, ieee802_15_4_short_address_type, 2, tvb, offset);
         copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
-        dst_addr = address_to_str(pinfo->pool, &pinfo->dst);
 
         proto_tree_add_uint(ieee802154_tree, hf_ieee802154_dst16, tvb, offset, 2, packet->dst16);
-        proto_item_append_text(proto_root, ", Dst: %s", dst_addr);
         ti = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_addr16, tvb, offset, 2, packet->dst16);
         proto_item_set_generated(ti);
         proto_item_set_hidden(ti);
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", dst_addr);
         offset += 2;
     }
     else if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) {
@@ -2851,12 +2846,11 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
         if (tree) {
             proto_tree_add_item(ieee802154_tree, hf_ieee802154_dst64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(proto_root, ", Dst: %s", eui64_to_display(pinfo->pool, packet->dst64));
             ti = proto_tree_add_item(ieee802154_tree, hf_ieee802154_addr64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             proto_item_set_generated(ti);
             proto_item_set_hidden(ti);
         }
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", eui64_to_display(pinfo->pool, packet->dst64));
+
         offset += 8;
     }
 
@@ -2880,8 +2874,6 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* Source Address */
     if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
-        gchar* src_addr;
-
         /* Get the address. */
         packet->src16 = tvb_get_letohs(tvb, offset);
 
@@ -2900,12 +2892,10 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
         set_address_tvb(&pinfo->dl_src, ieee802_15_4_short_address_type, 2, tvb, offset);
         copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-        src_addr = address_to_str(pinfo->pool, &pinfo->src);
 
         /* Add the addressing info to the tree. */
         if (tree) {
             proto_tree_add_uint(ieee802154_tree, hf_ieee802154_src16, tvb, offset, 2, packet->src16);
-            proto_item_append_text(proto_root, ", Src: %s", src_addr);
             ti = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_addr16, tvb, offset, 2, packet->src16);
             proto_item_set_generated(ti);
             proto_item_set_hidden(ti);
@@ -2931,8 +2921,6 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             }
         }
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", src_addr);
-
         offset += 2;
     }
     else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) {
@@ -2953,14 +2941,31 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         copy_address_shallow(&pinfo->src, &pinfo->dl_src);
         if (tree) {
             proto_tree_add_item(ieee802154_tree, hf_ieee802154_src64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(proto_root, ", Src: %s", eui64_to_display(pinfo->pool, packet->src64));
             ti = proto_tree_add_item(ieee802154_tree, hf_ieee802154_addr64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             proto_item_set_generated(ti);
             proto_item_set_hidden(ti);
         }
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", eui64_to_display(pinfo->pool, packet->src64));
         offset += 8;
+    }
+
+    /* Add the addressing info to the root of the tree. */
+    if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
+        proto_item_append_text(proto_root, ", Src: %s", address_to_str(pinfo->pool, &pinfo->src));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", address_to_str(pinfo->pool, &pinfo->src));
+    }
+    else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) {
+        proto_item_append_text(proto_root, ", Src: %s", eui64_to_display(pinfo->pool, packet->src64));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", eui64_to_display(pinfo->pool, packet->src64));
+    }
+
+    if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
+        proto_item_append_text(proto_root, ", Dst: %s", address_to_str(pinfo->pool, &pinfo->dst));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", address_to_str(pinfo->pool, &pinfo->dst));
+    }
+    else if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) {
+        proto_item_append_text(proto_root, ", Dst: %s", eui64_to_display(pinfo->pool, packet->dst64));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", eui64_to_display(pinfo->pool, packet->dst64));
     }
 
     /* Existence of the Auxiliary Security Header is controlled by the Security Enabled Field */
