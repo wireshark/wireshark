@@ -330,6 +330,11 @@ static int hf_ssh_debug_message_length;
 static int hf_ssh_debug_message;
 static int hf_ssh_service_name_length;
 static int hf_ssh_service_name;
+static int hf_ssh_extension_count;
+static int hf_ssh_extension_name_length;
+static int hf_ssh_extension_name;
+static int hf_ssh_extension_value_length;
+static int hf_ssh_extension_value;
 static int hf_ssh_userauth_user_name_length;
 static int hf_ssh_userauth_user_name;
 static int hf_ssh_userauth_change_password;
@@ -400,6 +405,7 @@ static gint ett_ssh;
 static gint ett_key_exchange;
 static gint ett_key_exchange_host_key;
 static gint ett_key_exchange_host_sig;
+static gint ett_extension;
 static gint ett_userauth_pk_blob;
 static gint ett_userauth_pk_signautre;
 static gint ett_key_init;
@@ -459,6 +465,7 @@ static const gchar *ssh_debug_file_name     = NULL;
 #define SSH_MSG_DEBUG               4
 #define SSH_MSG_SERVICE_REQUEST     5
 #define SSH_MSG_SERVICE_ACCEPT      6
+#define SSH_MSG_EXT_INFO            7
 
 /* Transport layer protocol: Algorithm negotiation (20-29) */
 #define SSH_MSG_KEXINIT             20
@@ -532,6 +539,7 @@ static const value_string ssh2_msg_vals[] = {
     { SSH_MSG_DEBUG,                     "Debug" },
     { SSH_MSG_SERVICE_REQUEST,           "Service Request" },
     { SSH_MSG_SERVICE_ACCEPT,            "Service Accept" },
+    { SSH_MSG_EXT_INFO,                  "Extension Information" },
     { SSH_MSG_KEXINIT,                   "Key Exchange Init" },
     { SSH_MSG_NEWKEYS,                   "New Keys" },
     { SSH_MSG_USERAUTH_REQUEST,          "User Authentication Request" },
@@ -3755,6 +3763,29 @@ ssh_dissect_transport_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_service_name, packet_tvb, offset, nlen, ENC_ASCII);
                 offset += nlen;
+        }else if(msg_code==SSH_MSG_EXT_INFO){
+                guint   ext_cnt;
+                guint   ext_len;
+                guint   ext_name_slen;
+                guint   ext_value_slen;
+                proto_item   *ext_tree;
+                ext_cnt = tvb_get_ntohl(packet_tvb, offset);
+                proto_tree_add_item(msg_type_tree, hf_ssh_extension_count, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                for(guint ext_index = 0; ext_index < ext_cnt; ext_index++) {
+                        ext_name_slen = tvb_get_ntohl(packet_tvb, offset);
+                        ext_value_slen = tvb_get_ntohl(packet_tvb, offset + 4 + ext_name_slen);
+                        ext_len = 8 + ext_name_slen + ext_value_slen;
+                        ext_tree = proto_tree_add_subtree(msg_type_tree, packet_tvb, offset, ext_len, ett_extension, NULL, "Extension");
+                        proto_tree_add_item(ext_tree, hf_ssh_extension_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                        offset += 4;
+                        proto_tree_add_item(ext_tree, hf_ssh_extension_name, packet_tvb, offset, ext_name_slen, ENC_ASCII);
+                        offset += ext_name_slen;
+                        proto_tree_add_item(ext_tree, hf_ssh_extension_value_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                        offset += 4;
+                        proto_tree_add_item(ext_tree, hf_ssh_extension_value, packet_tvb, offset, ext_value_slen, ENC_NA);
+                        offset += ext_value_slen;
+                }
         }
         return offset;
 }
@@ -5359,6 +5390,31 @@ proto_register_ssh(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_ssh_extension_count,
+          { "Extension count", "ssh.extension_count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+        
+        { &hf_ssh_extension_name_length,
+          { "Extension name length", "ssh.extension.name_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_extension_name,
+          { "Extension name", "ssh.extension.name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_extension_value_length,
+          { "Extension value length", "ssh.extension.value_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_extension_value,
+          { "Extension value", "ssh.extension.value",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_ssh_lang_tag_length,
           { "Language tag length", "ssh.lang_tag_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -5662,6 +5718,7 @@ proto_register_ssh(void)
         &ett_key_exchange,
         &ett_key_exchange_host_key,
         &ett_key_exchange_host_sig,
+        &ett_extension,
         &ett_userauth_pk_blob,
         &ett_userauth_pk_signautre,
         &ett_ssh1,
