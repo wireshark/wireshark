@@ -201,7 +201,7 @@ else
     #
     # No - install a Python package.
     #
-    PYTHON3_VERSION=3.9.5
+    PYTHON3_VERSION=3.12.1
 fi
 BROTLI_VERSION=1.0.9
 # minizip
@@ -2450,20 +2450,10 @@ uninstall_opus() {
 }
 
 install_python3() {
-    # The macos11 installer can be deployed to older versions, down to
-    # 10.9 (Mavericks), but is still considered experimental so continue
-    # to use the 64-bit installer (10.9) on earlier releases for now.
-    local macver=x10.9
-    if [[ $DARWIN_MAJOR_VERSION -gt 19 ]]; then
-        # The macos11 installer is required for Arm-based Macs, which require
-        # macOS 11 Big Sur. Note that the package name is "11.0" (no x) for
-        # 3.9.1 but simply "11" for 3.9.2 (and later)
-        if [[ $PYTHON3_VERSION = 3.9.1 ]]; then
-            macver=11.0
-        else
-            macver=11
-        fi
-    fi
+    # The macos11 universal2 installer can be deployed to older versions,
+    # down to 10.9 (Mavericks). The 10.9 installer was deprecated in 3.9.8
+    # and stopped being released after 3.9.13
+    local macver=11
     if [ "$PYTHON3_VERSION" -a ! -f python3-$PYTHON3_VERSION-done ] ; then
         echo "Downloading and installing python3:"
         [ -f python-$PYTHON3_VERSION-macos$macver.pkg ] || curl -L -O https://www.python.org/ftp/python/$PYTHON3_VERSION/python-$PYTHON3_VERSION-macos$macver.pkg || exit 1
