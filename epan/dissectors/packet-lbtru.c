@@ -960,7 +960,7 @@ static int dissect_lbtru_ncf(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     {
         expert_add_info_format(pinfo, ncf_item, &ei_lbtru_analysis_ncf, "NCF %s", val_to_str(LBTRU_NCF_HDR_REASON(reason_format), lbtru_ncf_reason, "Unknown (0x%02x)"));
     }
-    tap_info->ncf_reason = LBTRU_NCF_HDR_REASON(reason_format);;
+    tap_info->ncf_reason = LBTRU_NCF_HDR_REASON(reason_format);
     tap_info->num_sqns = num_ncfs;
     tap_info->sqns = wmem_alloc_array(wmem_packet_scope(), guint32, num_ncfs);
     len_dissected += dissect_lbtru_ncf_list(tvb, offset + L_LBTRU_NCF_HDR_T, pinfo, ncf_tree, num_ncfs, LBTRU_NCF_HDR_REASON(reason_format), tap_info);

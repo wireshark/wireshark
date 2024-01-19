@@ -8747,7 +8747,7 @@ tls_dissect_ocsp_response(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *
         asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
         dissect_ocsp_OCSPResponse(FALSE, tvb, offset, &asn1_ctx, ocsp_resp_tree, -1);
     }
-    offset += response_length;;
+    offset += response_length;
 
     return offset;
 }

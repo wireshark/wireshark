@@ -765,7 +765,7 @@ static const value_string zbee_zcl_dehumidification_control_rel_hum_display_name
 static int
 dissect_zbee_zcl_dehumidification_control(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
 {
-    return tvb_captured_length(tvb);;
+    return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_dehumidification_control*/
 
 

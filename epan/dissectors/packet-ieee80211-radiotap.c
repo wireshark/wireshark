@@ -4423,7 +4423,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 		if (have_rflags) {
 			phdr.phy_info.info_11b.has_short_preamble = TRUE;
 			phdr.phy_info.info_11b.short_preamble =
-			    (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) ? TRUE : FALSE;;
+			    (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) ? TRUE : FALSE;
 		} else
 			phdr.phy_info.info_11b.has_short_preamble = FALSE;
 		break;

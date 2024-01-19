@@ -192,7 +192,7 @@ void proto_reg_handoff_collectd (void);
 static nstime_t
 collectd_time_to_nstime (guint64 t)
 {
-	nstime_t nstime = NSTIME_INIT_ZERO;;
+	nstime_t nstime = NSTIME_INIT_ZERO;
 	nstime.secs = (time_t) (t / 1073741824);
 	nstime.nsecs = (int) (((double) (t % 1073741824)) / 1.073741824);
 

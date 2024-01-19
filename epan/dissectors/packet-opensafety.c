@@ -1812,7 +1812,7 @@ check_scmudid_validity(opensafety_packet_info *packet, tvbuff_t *message_tvb)
         packet->scm_udid_valid = TRUE;
 
         /* Now confirm, that the xor operation was successful. The ID fields of both frames have to be the same */
-        b_ID = tvb_get_guint8(message_tvb, packet->frame.subframe2 + 1) ^ (guint8)(scmUDID->data[OSS_FRAME_POS_ID]);;
+        b_ID = tvb_get_guint8(message_tvb, packet->frame.subframe2 + 1) ^ (guint8)(scmUDID->data[OSS_FRAME_POS_ID]);
         if ( ( OSS_FRAME_ID_T(message_tvb, packet->frame.subframe1) ^ b_ID ) != 0 )
             packet->scm_udid_valid = FALSE;
 

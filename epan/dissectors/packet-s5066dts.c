@@ -945,7 +945,7 @@ static void
 apply_s5066dts_prefs(void)
 {
     /* STANAG 5066 uses the port preference for some heuristics */
-    config_s5066dts_ports = prefs_get_range_value("s5066dts", "tcp.port");;
+    config_s5066dts_ports = prefs_get_range_value("s5066dts", "tcp.port");
 }
 
 void proto_register_s5066dts (void)

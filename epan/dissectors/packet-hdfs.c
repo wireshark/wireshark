@@ -675,7 +675,7 @@ static void
 apply_hdfs_prefs(void)
 {
   /* HDFS uses the port preference to determine request/response */
-  tcp_ports = prefs_get_range_value("hdfs", "tcp.port");;
+  tcp_ports = prefs_get_range_value("hdfs", "tcp.port");
 }
 
 /* registers the protcol with the given names */

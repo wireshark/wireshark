@@ -86,7 +86,7 @@ static int dissect_rtag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	 * as part of the R-TAG protocol
 	 */
       ethertype_data_t ethertype_data;
-      ethertype_data.etype = rtag_protocol;;
+      ethertype_data.etype = rtag_protocol;
       ethertype_data.payload_offset = 6;
       ethertype_data.fh_tree = tree;
       ethertype_data.trailer_id = -1;

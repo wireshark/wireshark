@@ -2764,7 +2764,7 @@ dissect_rsvp_session(packet_info *pinfo, proto_item *ti, proto_tree *rsvp_object
         break;
 
     case RSVP_SESSION_TYPE_IPV4_LSP:
-        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_session, tvb, offset+3, 1, ENC_BIG_ENDIAN);;
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_session, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rsvp_object_tree,
                             hf_rsvp_filter[RSVPF_SESSION_IP],
                             tvb, offset2, 4, ENC_BIG_ENDIAN);
@@ -2834,7 +2834,7 @@ dissect_rsvp_session(packet_info *pinfo, proto_item *ti, proto_tree *rsvp_object
 
 
     case RSVP_SESSION_TYPE_AGGREGATE_IPV4:
-        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_session, tvb, offset+3, 1, ENC_BIG_ENDIAN);;
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_session, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rsvp_object_tree,
                             hf_rsvp_filter[RSVPF_SESSION_IP],
                             tvb, offset2, 4, ENC_BIG_ENDIAN);

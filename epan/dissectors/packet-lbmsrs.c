@@ -846,7 +846,7 @@ static gboolean check_lbmsrs_packet(tvbuff_t *tvb, guint offset)
         }
 
         /*add the rsocket metadata length field*/
-        guint32 rsocket_metadata_len = tvb_get_guint24(tvb, offset, ENC_BIG_ENDIAN);;
+        guint32 rsocket_metadata_len = tvb_get_guint24(tvb, offset, ENC_BIG_ENDIAN);
         offset += 3;
         /*move the offset by the metadata length*/
         offset += rsocket_metadata_len;

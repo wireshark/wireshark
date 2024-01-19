@@ -1119,7 +1119,7 @@ static gchar *fully_qualified_name(GPtrArray *hier, gchar *name, gchar *proto_na
 
     wmem_strbuf_append(s, name);
 
-    return wmem_strbuf_finalize(s);;
+    return wmem_strbuf_finalize(s);
 }
 
 

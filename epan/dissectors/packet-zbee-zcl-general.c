@@ -971,7 +971,7 @@ static const value_string zbee_zcl_device_temperature_configuration_attr_names[]
 static int
 dissect_zbee_zcl_device_temperature_configuration(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
 {
-	return tvb_captured_length(tvb);;
+	return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_device_temperature_configuration*/
 
 

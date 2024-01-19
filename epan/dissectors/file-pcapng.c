@@ -737,7 +737,7 @@ gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 proto_item_append_text(option_item, " = %s/%u",
                     address_to_display(pinfo->pool,  &addr), value_u32);
 
-                break;;
+                break;
             case 6:
                 if (option_length != 6) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);

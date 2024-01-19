@@ -804,7 +804,7 @@ update_spdu_signal_list(void *r, char **err) {
         }
 
         if (rec->multiplexer == TRUE) {
-            *err = ws_strdup_printf("Data types string, stringz, uint_string, utf_string, utf_stringz, and utf_uint_string currently cannot be used as multiplexer (ID: 0x%08x)", rec->id);;
+            *err = ws_strdup_printf("Data types string, stringz, uint_string, utf_string, utf_stringz, and utf_uint_string currently cannot be used as multiplexer (ID: 0x%08x)", rec->id);
             return FALSE;
         }
 
@@ -953,7 +953,7 @@ create_hf_entry(hf_register_info *dynamic_hf, guint i, guint32 id, guint32 pos, 
     case HF_TYPE_NONE:
     default:
         /* we bail out but have set hf_id to -1 before */
-        dynamic_hf[i].hfinfo.name = ws_strdup_printf("%s_none", name);;
+        dynamic_hf[i].hfinfo.name = ws_strdup_printf("%s_none", name);
         dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s_none", SPDU_NAME_FILTER, filter_string);
         return hf_id;
     }

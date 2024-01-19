@@ -1705,7 +1705,7 @@ static guint8 dissect_dib_devinfo( tvbuff_t* tvb, packet_info* pinfo,
         {
           media++;
         }
-        data >>= 1;;
+        data >>= 1;
       }
 
       if( media != 1 )

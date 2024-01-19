@@ -32261,7 +32261,7 @@ ieee80211_tag_measure_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     while (offset < tag_len)
     {
-      guint8 sub_id, sub_length, sub_tag_end;;
+      guint8 sub_id, sub_length, sub_tag_end;
       proto_item *sub_elem_item, *sub_elem_len_item;
       proto_tree *sub_elem_tree;
 
@@ -32380,7 +32380,7 @@ ieee80211_tag_measure_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     while (offset < tag_len)
     {
-      guint8 sub_id, sub_length, sub_tag_end;;
+      guint8 sub_id, sub_length, sub_tag_end;
       proto_item *sub_elem_item, *sub_elem_len_item;
       proto_tree *sub_elem_tree;
 
@@ -32483,7 +32483,7 @@ ieee80211_tag_measure_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     while (offset < tag_len)
     {
-      guint8 sub_id, sub_length, sub_tag_end;;
+      guint8 sub_id, sub_length, sub_tag_end;
       proto_item *sub_elem_item, *sub_elem_len_item;
       proto_tree *sub_elem_tree;
 

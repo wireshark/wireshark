@@ -3599,7 +3599,7 @@ static gint parse_PortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, 
         PortInfo_PortWdthSpeedActive_item = proto_tree_add_item(PortInfo_Link_tree, hf_opa_PortInfo_LinkWidthDowngrade_TxActive, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;
         if (!active && (MAD->Method == METHOD_GET_RESP || MAD->Method == METHOD_GETTABLE_RESP))
-            proto_item_set_text(PortInfo_PortWdthSpeedActive_item, "None");;
+            proto_item_set_text(PortInfo_PortWdthSpeedActive_item, "None");
         active = tvb_get_ntohs(tvb, local_offset);
         PortInfo_PortWdthSpeedActive_item = proto_tree_add_item(PortInfo_Link_tree, hf_opa_PortInfo_LinkWidthDowngrade_RxActive, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;

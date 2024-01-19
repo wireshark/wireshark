@@ -2524,7 +2524,7 @@ dissect_meta_tag_ext_hdrs(proto_item *section_tree, tvbuff_t *tvb, int offset, g
   int i;
   guint32 ext_hdrs[4] = {0, 0, 0, 0};
   int int_offset      = 0;
-  int int_avail       = MIN(taglength / 4, 4);;
+  int int_avail       = MIN(taglength / 4, 4);
   int bit_offset      = 0;
   int ext_hdr_num     = 0;
   gboolean first      = TRUE;

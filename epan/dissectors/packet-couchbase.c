@@ -3115,7 +3115,7 @@ static void dissect_flexible_framing_extras(tvbuff_t* tvb,
     /* this is broken if both len and id are escaped, but we've returned earlier
        for that case (with a warning) */
     offset = offset + 1 + (len_size - 1) + (id_size - 1);
-    bytes_remaining = bytes_remaining - 1 - (len_size - 1) - (id_size - 1);;
+    bytes_remaining = bytes_remaining - 1 - (len_size - 1) - (id_size - 1);
 
     /* lookup a dissector function by id */
     int id_index = 0, found = 0;

@@ -339,7 +339,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     switch (pop_arg_type) {
       case pop_arg_type_username:
         if (!data_val->username && linelen > 0) {
-          data_val->username = tvb_get_string_enc(wmem_file_scope(), tvb, offset, linelen, ENC_NA|ENC_ASCII);;
+          data_val->username = tvb_get_string_enc(wmem_file_scope(), tvb, offset, linelen, ENC_NA|ENC_ASCII);
           data_val->username_num = pinfo->num;
         }
         break;

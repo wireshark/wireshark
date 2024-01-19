@@ -1077,7 +1077,7 @@ static gint8*
 kafka_tvb_get_string(wmem_allocator_t *pool, tvbuff_t *tvb, int offset, int length)
 {
     if (length>=0) {
-        return tvb_get_string_enc(pool, tvb, offset, length, ENC_UTF_8);;
+        return tvb_get_string_enc(pool, tvb, offset, length, ENC_UTF_8);
     } else {
         return "[ Null ]";
     }

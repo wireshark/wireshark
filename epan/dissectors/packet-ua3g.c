@@ -709,7 +709,7 @@ version_3bytes_computer(gchar *result, guint32 hexa_version)
 
     release = (hexa_version >> 16);
     vers    = ((hexa_version >> 8) & 0xff);
-    fix     = (hexa_version & 0xff);;
+    fix     = (hexa_version & 0xff);
     snprintf(result, ITEM_LABEL_LENGTH, "%d.%02d.%02d", release, vers, fix);
 }
 

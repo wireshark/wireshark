@@ -2442,7 +2442,7 @@ guint32
 dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, tvbuff_t **value_tvb)
 {
 	gint val_start = 0, val_length;
-	guint32 length = 0, fragmented_length = 0;;
+	guint32 length = 0, fragmented_length = 0;
 	header_field_info *hfi;
 	gboolean is_fragmented = FALSE;
 	tvbuff_t *out_tvb = NULL, *fragment_tvb = NULL;

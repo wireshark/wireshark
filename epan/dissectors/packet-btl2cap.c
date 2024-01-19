@@ -2476,7 +2476,7 @@ dissect_le_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_set_str(pinfo->cinfo, COL_INFO, "L2CAP LE Fragment");
     proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
 
-    return tvb_captured_length(tvb);;
+    return tvb_captured_length(tvb);
 }
 
 static int
