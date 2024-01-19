@@ -70,12 +70,6 @@ XZ_VERSION=5.2.5
 LZIP_VERSION=1.21
 
 #
-# The version of libPCRE on Catalina is insufficient to build glib due to
-# missing UTF-8 support.
-#
-PCRE_VERSION=8.45
-
-#
 # CMake is required to do the build - and to build some of the
 # dependencies.
 #
@@ -342,24 +336,9 @@ uninstall_lzip() {
     fi
 }
 
-install_pcre() {
-    if [ "$PCRE_VERSION" -a ! -f pcre-$PCRE_VERSION-done ] ; then
-        echo "Downloading, building, and installing pcre:"
-        [ -f pcre-$PCRE_VERSION.tar.bz2 ] || curl -L -O https://sourceforge.net/projects/pcre/files/pcre/$PCRE_VERSION/pcre-$PCRE_VERSION.tar.bz2 || exit 1
-        $no_build && echo "Skipping installation" && return
-        bzcat pcre-$PCRE_VERSION.tar.bz2 | tar xf - || exit 1
-        cd pcre-$PCRE_VERSION
-        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --enable-unicode-properties || exit 1
-        make $MAKE_BUILD_OPTS || exit 1
-        $DO_MAKE_INSTALL || exit 1
-        cd ..
-        touch pcre-$PCRE_VERSION-done
-    fi
-}
-
 uninstall_pcre() {
     if [ -n "$installed_pcre_version" ] ; then
-        echo "Uninstalling pcre:"
+        echo "Uninstalling leftover pcre:"
         cd pcre-$installed_pcre_version
         $DO_MAKE_UNINSTALL || exit 1
         make distclean || exit 1
@@ -3110,14 +3089,9 @@ install_all() {
         uninstall_autoconf -r
     fi
 
-    if [ -n "$installed_pcre_version" -a \
-              "$installed_pcre_version" != "$PCRE_VERSION" ] ; then
-        echo "Installed pcre version is $installed_pcre_version"
-        if [ -z "$PCRE_VERSION" ] ; then
-            echo "pcre is not requested"
-        else
-            echo "Requested pcre version is $PCRE_VERSION"
-        fi
+    if [ -n "$installed_pcre_version" ] ; then
+        echo "Installed pcre1 version is $installed_pcre_version"
+        echo "(We no longer build with pcre1)"
         uninstall_pcre -r
     fi
 
@@ -3198,8 +3172,6 @@ install_all() {
     install_xz
 
     install_lzip
-
-    install_pcre
 
     install_autoconf
 
