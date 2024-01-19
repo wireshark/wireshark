@@ -4647,9 +4647,6 @@ again:
                  *
                  * If "desegment_offset" is 0, then nothing in the reassembled
                  * TCP segments was dissected, so remove the data source.
-                 * XXX: We should also remove any layers that were added to
-                 * keep things consistent, because we won't call the
-                 * subdissector here on subsequent passes.
                  */
                 if (pinfo->desegment_offset == 0) {
                     if (reassemble_ooo && !PINFO_FD_VISITED(pinfo)) {

@@ -1579,6 +1579,11 @@ again:
                  */
                 fragment_set_partial_reassembly(&ssl_reassembly_table,
                                                 pinfo, tls_msp_fragment_id(msp), msp);
+                if (pinfo->desegment_offset == 0) {
+                    /* It didn't dissect anything in the reassembled TLS segment, so
+                     * remove the newly added data source. */
+                    remove_last_data_source(pinfo);
+                }
                 /* Update msp->nxtpdu to point to the new next
                  * pdu boundary.
                  */

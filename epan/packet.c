@@ -897,6 +897,8 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 	int          len;
 	guint        saved_layers_len = 0;
 	guint        saved_tree_count = tree ? tree->tree_data->count : 0;
+	unsigned     saved_desegment_len = pinfo->desegment_len;
+	bool         consumed_none;
 
 	if (handle->protocol != NULL &&
 	    !proto_is_protocol_enabled(handle->protocol)) {
@@ -948,21 +950,35 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 		 */
 		len = call_dissector_through_handle(handle, tvb, pinfo, tree, data);
 	}
+	consumed_none = len == 0 || (pinfo->desegment_len != saved_desegment_len && pinfo->desegment_offset == 0);
+	/* If len == 0, then the dissector didn't accept the packet.
+	 * In the latter case, the dissector accepted the packet, but didn't
+	 * consume any bytes because they all belong in a later segment.
+	 * In the latter case, we probably won't call a dissector here again
+	 * on the next pass, so removing the layer keeps any *further* layers
+	 * past this one the same on subsequent passes.
+	 *
+	 * XXX: DISSECTOR_ASSERT that the tree count didn't change? If the
+	 * dissector didn't consume any bytes but added items to the tree,
+	 * that's improper behavior and needs a rethink. We could also move the
+	 * test that the packet didn't change desegment_offset and desegment_len
+	 * while rejecting the packet from packet-tcp.c decode_tcp_ports to here.
+	 */
 	if (handle->protocol != NULL && !proto_is_pino(handle->protocol) && add_proto_name &&
-		(len == 0 || (tree && saved_tree_count == tree->tree_data->count))) {
+		(consumed_none || (tree && saved_tree_count == tree->tree_data->count))) {
 		/*
 		 * We've added a layer and either the dissector didn't
-		 * accept the packet or we didn't add any items to the
+		 * consume any data or we didn't add any items to the
 		 * tree. Remove it.
 		 */
 		while (wmem_list_count(pinfo->layers) > saved_layers_len) {
 			/*
-			 * Only reduce the layer number if the dissector
-			 * rejected the data. Since tree can be NULL on
+			 * Only reduce the layer number if the dissector didn't
+			 * consume any data. Since tree can be NULL on
 			 * the first pass, we cannot check it or it will
 			 * break dissectors that rely on a stable value.
 			 */
-			remove_last_layer(pinfo, len == 0);
+			remove_last_layer(pinfo, consumed_none);
 		}
 	}
 	pinfo->current_proto = saved_proto;
@@ -2951,6 +2967,8 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 	heur_dtbl_entry_t *hdtbl_entry;
 	int                proto_id;
 	int                len;
+	bool               consumed_none;
+	unsigned           saved_desegment_len;
 	guint              saved_tree_count = tree ? tree->tree_data->count : 0;
 
 	/* can_desegment is set to 2 by anyone which offers this api/service.
@@ -3005,22 +3023,24 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 
 		pinfo->heur_list_name = hdtbl_entry->list_name;
 
+		saved_desegment_len = pinfo->desegment_len;
 		len = (hdtbl_entry->dissector)(tvb, pinfo, tree, data);
+		consumed_none = len == 0 || (pinfo->desegment_len != saved_desegment_len && pinfo->desegment_offset == 0);
 		if (hdtbl_entry->protocol != NULL &&
-			(len == 0 || (tree && saved_tree_count == tree->tree_data->count))) {
+			(consumed_none || (tree && saved_tree_count == tree->tree_data->count))) {
 			/*
 			 * We added a protocol layer above. The dissector
-			 * didn't accept the packet or it didn't add any
+			 * didn't consume any data or it didn't add any
 			 * items to the tree so remove it from the list.
 			 */
 			while (wmem_list_count(pinfo->layers) > saved_layers_len) {
 				/*
 				 * Only reduce the layer number if the dissector
-				 * rejected the data. Since tree can be NULL on
+				 * didn't consume data. Since tree can be NULL on
 				 * the first pass, we cannot check it or it will
 				 * break dissectors that rely on a stable value.
 				 */
-				remove_last_layer(pinfo, len == 0);
+				remove_last_layer(pinfo, consumed_none);
 			}
 		}
 		if (len) {
@@ -3587,8 +3607,6 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 
 	/* call the dissector, in case of failure call data handle (might happen with exported PDUs) */
 	if (!(*heur_dtbl_entry->dissector)(tvb, pinfo, tree, data)) {
-		call_dissector_work(data_handle, tvb, pinfo, tree, TRUE, NULL);
-
 		/*
 		 * We added a protocol layer above. The dissector
 		 * didn't accept the packet or it didn't add any
@@ -3597,7 +3615,14 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 		while (wmem_list_count(pinfo->layers) > saved_layers_len) {
 			remove_last_layer(pinfo, TRUE);
 		}
+
+		call_dissector_work(data_handle, tvb, pinfo, tree, TRUE, NULL);
 	}
+
+	/* XXX: Remove layers if it was accepted but didn't actually consume
+	 * data due to desegmentation? (Currently the only callers of this
+	 * are UDP and exported PDUs, so not yet necessary.)
+	 */
 
 	/* Restore info from caller */
 	pinfo->can_desegment = saved_can_desegment;
