@@ -1504,6 +1504,8 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
         recent.gui_additional_toolbars = prefs_get_string_list(value);
     } else if (strcmp(key, RECENT_GUI_INTERFACE_TOOLBAR_SHOW) == 0) {
         recent.interface_toolbars = prefs_get_string_list(value);
+    } else {
+        return PREFS_SET_NO_SUCH_PREF;
     }
 
     return PREFS_SET_OK;

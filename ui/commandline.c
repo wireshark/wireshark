@@ -454,9 +454,12 @@ void commandline_override_prefs(int argc, char *argv[], gboolean opt_reset)
                         }
                         break;
                     case PREFS_SET_OBSOLETE:
-                        cmdarg_err("-o flag \"%s\" specifies obsolete preference",
-                                   ws_optarg);
-                        exit_application(1);
+                    /* obsolete preference, might be a recent setting */
+                        if (recent_set_arg(ws_optarg) != PREFS_SET_OK) {
+                            cmdarg_err("-o flag \"%s\" specifies obsolete preference",
+                                       ws_optarg);
+                            exit_application(1);
+                        }
                         break;
                     default:
                         ws_assert_not_reached();
