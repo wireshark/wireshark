@@ -174,15 +174,32 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
 		ws_info("Connecting using public key in %s...", ssh_params->sshkey_path);
 		ret = ssh_pki_import_privkey_file(ssh_params->sshkey_path, ssh_params->sshkey_passphrase, NULL, NULL, &pkey);
 
-		if (ret == SSH_OK) {
+		switch (ret) {
+
+		case SSH_OK:
 			if (ssh_userauth_publickey(sshs, NULL, pkey) == SSH_AUTH_SUCCESS) {
 				ws_info("done");
 				ssh_key_free(pkey);
 				return sshs;
 			}
+			ws_info("failed (%s)", ssh_get_error(sshs));
+			break;
+		case SSH_EOF:
+			ws_warning("Error importing key from %s. File doesn't exist or permission denied.",
+				ssh_params->sshkey_path);
+			break;
+		case SSH_ERROR:
+			/* Unfortunately we can't call ssh_get_error() on the
+			 * key to determine why import failed.
+			 */
+			ws_warning("Error importing key from %s. Make sure it is a valid"
+				" private key file and any necessary passphrase is configured.",
+				ssh_params->sshkey_path);
+			break;
+		default:
+			ws_warning("Unknown error from ssh_pki_import_privkey_file");
 		}
 		ssh_key_free(pkey);
-		ws_info("failed (%s)", ssh_get_error(sshs));
 	}
 
 	/* Workaround: it may happen that libssh closes socket in meantime and any next ssh_ call fails so we should detect it in advance */

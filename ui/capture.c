@@ -718,6 +718,14 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
         /*
          * ws_log prefixes log messages with a timestamp delimited by " -- " and possibly
          * a function name delimited by "(): ". Log it to sterr, but omit it in the UI.
+         *
+         * XXX: This should search for the prefix line-by-line.
+         * There can be multiple log messages from a single extcap, message
+         * from multiple extcap interfaces, messages from the dumpcap sync
+         * pipe, etc. and this will only remove the prefix from the first.
+         * There can also be messages that don't have a function name, e.g.
+         * from ws_message or ws_info, or just a error string, before the
+         * first log message that does, and this will skip past them.
          */
         char *plain_msg = strstr(msg, "(): ");
         if (plain_msg != NULL) {
