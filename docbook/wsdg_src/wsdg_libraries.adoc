@@ -21,6 +21,7 @@ See <<ChSetupUNIXBuildEnvironmentSetup>> for details.
 On macOS, you can install pre-built packages using a third party package manager such as Homebrew or MacPorts.
 As with Linux, we provide `tools/macos-setup-brew.sh`, which will install the required Homebrew packages.
 We also provide `tools/macos-setup.sh`, which will download, build, and install required packages.
+Note that `tools/macos-setup.sh` installs into _/usr/local_ by default; you can change this with the `-p` flag.
 
 Windows doesn't have a good library package manager at the present time, so we provide our own pre-built libraries.
 They can be installed using `tools/win-setup.ps1` and are automatically installed when you run CMake.
