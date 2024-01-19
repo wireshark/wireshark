@@ -184,9 +184,7 @@ uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char *
                 /* Invalid log level string. */
                 ret = 0;
             }
-            else if (level <= LOG_LEVEL_DEBUG) {
-                extcap->debug = true;
-            }
+            extcap->debug = level;
             break;
         case EXTCAP_OPT_LOG_FILE:
             extcap_init_log_file(optargument);

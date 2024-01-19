@@ -60,9 +60,41 @@
 	"hmac-sha1-etm@openssh.com,hmac-sha1"
 #endif
 
-static void extcap_log(int priority _U_, const char *function, const char *buffer, void *userdata _U_)
+static void extcap_log(int priority, const char *function, const char *buffer, void *userdata _U_)
 {
-	ws_debug("[%s] %s", function, buffer);
+	enum ws_log_level level = LOG_LEVEL_DEBUG;
+	switch (priority) {
+	case SSH_LOG_TRACE:
+		level = LOG_LEVEL_NOISY;
+		break;
+	case SSH_LOG_DEBUG:
+		level = LOG_LEVEL_DEBUG;
+		break;
+	case SSH_LOG_INFO:
+		level = LOG_LEVEL_INFO;
+		break;
+	case SSH_LOG_WARN:
+	default:
+	/* Prior to 0.11.0 libssh prints far too much at SSH_LOG_WARN,
+	 * including merely informational messages.
+	 * Lower them to LOG_LEVEL_INFO, which won't get shown in the GUI
+	 * and aren't shown by default. (Anything INFO and below goes to
+	 * stdout due to ws_log_console_writer_set_use_stdout in extcap-base.c)
+	 * After the following commit libssh only uses LOG_LEVEL_WARN for
+	 * serious issues:
+	 * https://gitlab.com/libssh/libssh-mirror/-/commit/657d9143d121dfff74f5a63f734d0096c7f37194
+	 */
+#if LIBSSH_VERSION_INT < SSH_VERSION_INT(0,11,0)
+		level = LOG_LEVEL_INFO;
+#else
+		level = LOG_LEVEL_WARNING;
+#endif
+		break;
+	}
+	/* We set the libssh log level to specifically ask for this, so don't
+	 * both checking the log level a second time.
+	 */
+	ws_log_write_always_full("libssh", level, NULL, 0, function, "%s", buffer);
 }
 
 void add_libssh_info(extcap_parameters * extcap_conf)
@@ -101,11 +133,8 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
 		goto failure;
 	}
 
-	if (ssh_params->debug) {
-		int debug_level = SSH_LOG_INFO;
-		ssh_options_set(sshs, SSH_OPTIONS_LOG_VERBOSITY, &debug_level);
-		ssh_set_log_callback(extcap_log);
-	}
+	ssh_options_set(sshs, SSH_OPTIONS_LOG_VERBOSITY, &ssh_params->debug);
+	ssh_set_log_callback(extcap_log);
 
 	if (ssh_params->ssh_sha1) {
 		if (ssh_options_set(sshs, SSH_OPTIONS_HOSTKEYS, HOSTKEYS_SHA1)) {
@@ -289,6 +318,23 @@ void ssh_params_free(ssh_params_t* ssh_params)
 	g_free(ssh_params->sshkey_passphrase);
 	g_free(ssh_params->proxycommand);
 	g_free(ssh_params);
+}
+
+void ssh_params_set_log_level(ssh_params_t* ssh_params, enum ws_log_level level)
+{
+	switch (level) {
+	case LOG_LEVEL_NOISY:
+		ssh_params->debug = SSH_LOG_TRACE;
+		break;
+	case LOG_LEVEL_DEBUG:
+		ssh_params->debug = SSH_LOG_DEBUG;
+		break;
+	case LOG_LEVEL_INFO:
+		ssh_params->debug = SSH_LOG_INFO;
+		break;
+	default:
+		ssh_params->debug = SSH_LOG_WARN;
+	}
 }
 
 /*

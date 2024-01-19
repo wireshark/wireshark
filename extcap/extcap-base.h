@@ -81,7 +81,7 @@ typedef struct _extcap_parameters
     char * help_header;
     GList * help_options;
 
-    bool debug;
+    enum ws_log_level debug;
 } extcap_parameters;
 
 /* used to inform to extcap application that end of application is requested */

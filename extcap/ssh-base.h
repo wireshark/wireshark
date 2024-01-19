@@ -50,7 +50,7 @@ typedef struct _ssh_params {
 	char* sshkey_passphrase;
 	char* proxycommand;
 	bool ssh_sha1;
-	bool debug;
+	int debug;
 } ssh_params_t;
 
 /* Add libssh version information to an extcap_parameters structure */
@@ -70,6 +70,9 @@ ssh_params_t* ssh_params_new(void);
 
 /* Clean the ssh params */
 void ssh_params_free(ssh_params_t* ssh_params);
+
+/* Sets the libssh log level to match the ws log level */
+void ssh_params_set_log_level(ssh_params_t* ssh_params, enum ws_log_level level);
 
 #endif
 

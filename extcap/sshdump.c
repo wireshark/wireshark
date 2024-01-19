@@ -665,7 +665,7 @@ int main(int argc, char *argv[])
 		if (remote_filter == NULL)
 			remote_filter = local_interfaces_to_filter(ssh_params->port);
 		filter = concat_filters(extcap_conf->capture_filter, remote_filter);
-		ssh_params->debug = extcap_conf->debug;
+		ssh_params_set_log_level(ssh_params, extcap_conf->debug);
 		ret = ssh_open_remote_connection(ssh_params, remote_interface,
 			filter, remote_capture_command_select, remote_capture_command,
 			privilege, noprom, count, extcap_conf->fifo);
