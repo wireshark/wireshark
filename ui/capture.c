@@ -718,25 +718,28 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
         /*
          * ws_log prefixes log messages with a timestamp delimited by " -- " and possibly
          * a function name delimited by "(): ". Log it to sterr, but omit it in the UI.
-         *
-         * XXX: This should search for the prefix line-by-line.
-         * There can be multiple log messages from a single extcap, message
-         * from multiple extcap interfaces, messages from the dumpcap sync
-         * pipe, etc. and this will only remove the prefix from the first.
-         * There can also be messages that don't have a function name, e.g.
-         * from ws_message or ws_info, or just a error string, before the
-         * first log message that does, and this will skip past them.
          */
-        char *plain_msg = strstr(msg, "(): ");
-        if (plain_msg != NULL) {
-            plain_msg += strlen("(): ");
-        } else if ((plain_msg = strstr(msg, " -- ")) != NULL) {
-            plain_msg += strlen(" -- ");
-        } else {
-            plain_msg = msg;
+        char **msg_lines = g_strsplit(msg, "\n", 0);
+        GString* gui_msg = g_string_new(NULL);
+
+        for (char **line = msg_lines; *line != NULL; line++) {
+            if (gui_msg->len > 0) {
+                g_string_append(gui_msg, "\n");
+            }
+            char *plain_msg = strstr(*line, "(): ");
+            if (plain_msg != NULL) {
+                plain_msg += strlen("(): ");
+            } else if ((plain_msg = strstr(*line, " -- ")) != NULL) {
+                plain_msg += strlen(" -- ");
+            } else {
+                plain_msg = *line;
+            }
+            g_string_append(gui_msg, plain_msg);
         }
         ws_warning("%s", msg);
-        simple_dialog(dlg_type, ESD_BTN_OK, "%s", plain_msg);
+        simple_dialog(dlg_type, ESD_BTN_OK, "%s", gui_msg->str);
+        g_string_free(gui_msg, TRUE);
+        g_strfreev(msg_lines);
     }
 
     wtap_rec_cleanup(&cap_session->rec);
