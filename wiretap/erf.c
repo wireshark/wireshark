@@ -1818,7 +1818,7 @@ static gboolean erf_dump(
    * support later.
    */
   if (rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_ERF) {
-    unsigned int total_rlen;;
+    unsigned int total_rlen;
     unsigned int total_wlen;
 
     /* Non-ERF encapsulation; generate ERF metadata */

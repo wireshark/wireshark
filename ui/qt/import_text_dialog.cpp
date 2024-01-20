@@ -721,7 +721,7 @@ void ImportTextDialog::on_asciiIdentificationCheckBox_toggled(bool checked)
 
 void ImportTextDialog::on_regexTextEdit_textChanged()
 {
-    gchar* regex_gchar_p = qstring_strdup(ti_ui_->regexTextEdit->toPlainText());;
+    gchar* regex_gchar_p = qstring_strdup(ti_ui_->regexTextEdit->toPlainText());
     GError* gerror = NULL;
     /* TODO: Use GLib's c++ interface or enable C++ int to enum casting
      * because the flags are declared as enum, so we can't pass 0 like

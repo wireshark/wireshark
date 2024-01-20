@@ -72,7 +72,7 @@ WSLUA_API gboolean wslua_checkboolean(lua_State* L, int n) {
         luaL_argerror(L,n,"must be a boolean");
     }
 
-    return lua_toboolean(L,n);;
+    return lua_toboolean(L,n);
 }
 
 WSLUA_API gboolean wslua_optbool(lua_State* L, int n, gboolean def) {

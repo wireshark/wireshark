@@ -64,7 +64,7 @@
 #endif
 
 static char *get_appcast_update_url(software_update_channel_e chan) {
-    GString *update_url_str = g_string_new("");;
+    GString *update_url_str = g_string_new("");
     const char *chan_name;
     const char *su_application = get_configuration_namespace();
     const char *su_version = VERSION;

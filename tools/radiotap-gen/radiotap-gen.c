@@ -121,7 +121,7 @@ static void gen_u_sig_pkts(pcap_dumper_t *dumper)
 	 *                           EHT SIG MCS: 1 (EHT-MCS 1)
 	 */
 	pkt.radiotap.u_sig_hdr.common = PHY_VERSION_ID_KNOWN | BW_KNOWN | \
-					UL_DL_KNOWN | 0x00018000;;
+					UL_DL_KNOWN | 0x00018000;
 	pkt.radiotap.u_sig_hdr.mask =  0x003fbec0;
 	pkt.radiotap.u_sig_hdr.value = 0x0001183F;
 

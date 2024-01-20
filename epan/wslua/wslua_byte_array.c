@@ -245,7 +245,7 @@ WSLUA_METHOD ByteArray_le_int(lua_State* L) {
     }
 
     if ((guint)(offset + len) > ba->len) {
-        luaL_error(L, "range out of bounds");;
+        luaL_error(L, "range out of bounds");
         return 0;
     }
 
@@ -286,7 +286,7 @@ WSLUA_METHOD ByteArray_le_int64(lua_State* L) {
     }
 
     if ((guint)(offset + len) > ba->len) {
-        luaL_error(L, "range out of bounds");;
+        luaL_error(L, "range out of bounds");
         return 0;
     }
 
@@ -327,7 +327,7 @@ WSLUA_METHOD ByteArray_le_uint(lua_State* L) {
     }
 
     if ((guint)(offset + len) > ba->len) {
-        luaL_error(L, "range out of bounds");;
+        luaL_error(L, "range out of bounds");
         return 0;
     }
 
@@ -368,7 +368,7 @@ WSLUA_METHOD ByteArray_le_uint64(lua_State* L) {
     }
 
     if ((guint)(offset + len) > ba->len) {
-        luaL_error(L, "range out of bounds");;
+        luaL_error(L, "range out of bounds");
         return 0;
     }
 
@@ -409,7 +409,7 @@ WSLUA_METHOD ByteArray_int(lua_State* L) {
     }
 
     if ((guint)(offset + len) > ba->len) {
-        luaL_error(L, "range out of bounds");;
+        luaL_error(L, "range out of bounds");
         return 0;
     }
 
@@ -450,7 +450,7 @@ WSLUA_METHOD ByteArray_int64(lua_State* L) {
     }
 
     if ((guint)(offset + len) > ba->len) {
-        luaL_error(L, "range out of bounds");;
+        luaL_error(L, "range out of bounds");
         return 0;
     }
 
@@ -491,7 +491,7 @@ WSLUA_METHOD ByteArray_uint(lua_State* L) {
     }
 
     if ((guint)(offset + len) > ba->len) {
-        luaL_error(L, "range out of bounds");;
+        luaL_error(L, "range out of bounds");
         return 0;
     }
 
@@ -532,7 +532,7 @@ WSLUA_METHOD ByteArray_uint64(lua_State* L) {
     }
 
     if ((guint)(offset + len) > ba->len) {
-        luaL_error(L, "range out of bounds");;
+        luaL_error(L, "range out of bounds");
         return 0;
     }
 

@@ -1964,7 +1964,7 @@ bool LograyMainWindow::testCaptureFileClose(QString before_what, FileCloseContex
              */
             QList<QAbstractButton *> buttons = msg_dialog.buttons();
             for (int i = 0; i < buttons.size(); ++i) {
-                QPushButton *button = static_cast<QPushButton *>(buttons.at(i));;
+                QPushButton *button = static_cast<QPushButton *>(buttons.at(i));
                 button->setAutoDefault(false);
             }
 

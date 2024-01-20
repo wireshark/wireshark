@@ -778,7 +778,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
                     if (saw_flags_and_status) {
                       ieee_802_11.phy_info.info_11b.has_short_preamble = TRUE;
                       ieee_802_11.phy_info.info_11b.short_preamble =
-                          (flags_and_status & STATUS_SHORT_PREAMBLE) ? TRUE : FALSE;;
+                          (flags_and_status & STATUS_SHORT_PREAMBLE) ? TRUE : FALSE;
                     } else
                       ieee_802_11.phy_info.info_11b.has_short_preamble = FALSE;
                   } else if (RATE_IS_OFDM(ieee_802_11.data_rate)) {

@@ -144,13 +144,13 @@ pbw_FieldDescriptor_type(const PbwFieldDescriptor* field) {
 /* like FieldDescriptor::is_repeated() */
 int
 pbw_FieldDescriptor_is_repeated(const PbwFieldDescriptor* field) {
-    return pbl_field_descriptor_is_repeated((const pbl_field_descriptor_t*) field);;
+    return pbl_field_descriptor_is_repeated((const pbl_field_descriptor_t*) field);
 }
 
 /* like FieldDescriptor::is_packed() */
 int
 pbw_FieldDescriptor_is_packed(const PbwFieldDescriptor* field) {
-    return pbl_field_descriptor_is_packed((const pbl_field_descriptor_t*) field);;
+    return pbl_field_descriptor_is_packed((const pbl_field_descriptor_t*) field);
 }
 
 /* like FieldDescriptor::typeName() */
