@@ -62,6 +62,14 @@ void DataPrinter::toClipboard(DataPrinter::DumpType type, IDataPrintable * print
         for (int i = 0; i < printData.length(); i++)
             clipboard_text += QString("%1").arg((uint8_t) printData[i], 2, 16, QChar('0'));
         break;
+    case DP_PrintableText:
+        for (int i = 0; i < printData.length(); i++) {
+            QChar ch(printData[i]);
+            if (ch.isSpace() || ch.isPrint()) {
+                clipboard_text += ch;
+            }
+        }
+        break;
     case DP_Base64:
 #if WS_IS_AT_LEAST_GNUC_VERSION(12,1)
 DIAG_OFF(stringop-overread)
@@ -225,6 +233,11 @@ QActionGroup * DataPrinter::copyActions(QObject * copyClass, QObject * data)
     action = new QAction(tr("…as Hex Dump"), actions);
     action->setToolTip(tr("Copy packet bytes as a hex dump."));
     action->setProperty("printertype", DataPrinter::DP_HexOnly);
+    connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
+
+    action = new QAction(tr("…as Printable Text"), actions);
+    action->setToolTip(tr("Copy only the printable text in the packet."));
+    action->setProperty("printertype", DataPrinter::DP_PrintableText);
     connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
 
     action = new QAction(tr("…as a Hex Stream"), actions);

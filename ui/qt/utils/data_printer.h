@@ -30,6 +30,7 @@ public:
         DP_HexDump,
         DP_HexOnly,
         DP_HexStream,
+        DP_PrintableText,
         DP_CString,
         DP_GoLiteral,
         DP_MimeData,
