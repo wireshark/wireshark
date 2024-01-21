@@ -301,6 +301,12 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 						goto on_error;
 					case ';':
 					case ',':
+						if (arg->len == 0) {
+							/* Null arguments aren't accepted */
+							if (error != NULL)
+								*error = df_error_new_msg("null argument in macro expression");
+							goto on_error;
+						}
 						g_ptr_array_add(args,g_string_free(arg,false));
 
 						arg = g_string_sized_new(32);
@@ -323,10 +329,19 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 							break;
 						}
 
-						g_ptr_array_add(args,g_string_free(arg,false));
-						g_ptr_array_add(args,NULL);
-
-						arg = NULL;
+						if (arg->len == 0) {
+							/* Null arguments aren't accepted... */
+							if (args->len != 0) {
+								/* Except $macro() or ${macro:} means zero args, not one null arg */
+								if (error != NULL)
+									*error = df_error_new_msg("null argument in macro expression");
+								goto on_error;
+							}
+						} else {
+							g_ptr_array_add(args,g_string_free(arg,false));
+							g_ptr_array_add(args,NULL);
+							arg = NULL;
+						}
 
 						resolved = dfilter_macro_resolve(name->str, (char**)args->pdata, error);
 						if (resolved == NULL)

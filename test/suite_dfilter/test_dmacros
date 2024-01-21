@@ -2,3 +2,5 @@
 "private_ipv4" $1 == 192.168.0.0/16 or $1 == 172.16.0.0/12 or $1 == 10.0.0.0/8
 "private_ethernet" $1[0] & 0x0F == 2
 "private_ipv6" ipv6 && $1 == fc00::/7
+"nfs" rpc.program == 100003
+"ip" (ip.src == $1 and (tcp.srcport == $2 or udp.srcport == $2 or sctp.srcport == $2 or dccp.srcport == $2)) or (ip.dst == $1 and (tcp.dstport == $2 or udp.dstport == $2 or sctp.dstport == $2 or dccp.dstport == $2))
