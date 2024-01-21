@@ -202,6 +202,14 @@ void FilterDialog::on_buttonBox_accepted()
             break;
         case DisplayMacro:
             mainApp->reloadDisplayFilterMacros();
+            // The function above emits MainApplication::FieldsChanged, which
+            // takes care of invalidating the current display filter text if
+            // it no longer compiles.
+            // XXX - What if the current display filter means something
+            // different now? Should we force a refilter (not redissection,
+            // the dissection shouldn't have changed) with the current display
+            // filter, or wait for the user to refilter?
+            // The UAT based display macro system did not refilter.
             break;
         default:
             ws_assert_not_reached();

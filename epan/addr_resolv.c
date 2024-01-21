@@ -3779,6 +3779,8 @@ c_ares_ghi_cb(void *arg, int status, int timeouts _U_, struct hostent *hp) {
     /*
      * XXX - If we wanted to be really fancy we could cache results here and
      * look them up in get_host_ipaddr* below.
+     *
+     * XXX - This only gets the first host address if there's more than one.
      */
     async_hostent_t *ahp = (async_hostent_t *)arg;
     if (status == ARES_SUCCESS && hp && ahp && hp->h_length == ahp->addr_size) {
@@ -3811,6 +3813,9 @@ get_host_ipaddr(const char *host, guint32 *addrp)
 
         /* If we're not allowed to do name resolution, don't do name
          * resolution...
+         * XXX - What if we're allowed to do name resolution, and the name
+         * is in a DNS packet we've dissected or in a Name Resolution Block,
+         * or a user-entered manual name resolution?
          */
         if (!gbl_resolv_flags.network_name ||
                 !gbl_resolv_flags.use_external_net_name_resolver) {
@@ -3873,6 +3878,9 @@ get_host_ipaddr6(const char *host, ws_in6_addr *addrp)
 
     /* If we're not allowed to do name resolution, don't do name
      * resolution...
+     * XXX - What if we're allowed to do name resolution, and the name
+     * is in a DNS packet we've dissected or in a Name Resolution Block,
+     * or a user-entered manual name resolution?
      */
     if (!gbl_resolv_flags.network_name ||
             !gbl_resolv_flags.use_external_net_name_resolver) {

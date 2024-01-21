@@ -509,13 +509,31 @@ cf_read(capture_file *cf, gboolean reloading)
     cf->read_lock = TRUE;
 
     /* Compile the current display filter.
+     * The code it compiles to might have changed, e.g. if a display
+     * filter macro used has changed.
+     *
      * We assume this will not fail since cf->dfilter is only set in
      * cf_filter IFF the filter was valid.
+     * XXX - This is not necessarily true, if the filter has a FT_IPv4
+     * or FT_IPv6 field compared to a resolved hostname in it, because
+     * we do a new host lookup, and that *could* timeout this time
+     * (though with the read lock above we shouldn't have many lookups at
+     * once, reducing the chances of that)... (#19612)
      */
     if (cf->dfilter) {
         compiled = dfilter_compile(cf->dfilter, &dfcode, NULL);
         ws_assert(compiled && dfcode);
     }
+
+    dfilter_free(cf->dfcode);
+    cf->dfcode = dfcode;
+
+    /* The compiled dfilter might have a field reference; recompiling it
+     * means that the field references won't match anything. That's what
+     * we want since this is a new sequential read and we don't have
+     * a selected frame with a tree. (Will taps with filters with display
+     * references also have cleared display references?)
+     */
 
     /* Get the union of the flags for all tap listeners. */
     tap_flags = union_of_tap_listener_flags();
@@ -534,7 +552,7 @@ cf_read(capture_file *cf, gboolean reloading)
      *    the first pass.
      */
     create_proto_tree =
-        (dfcode != NULL || have_filtering_tap_listeners() ||
+        (cf->dfcode != NULL || have_filtering_tap_listeners() ||
          (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_hfids());
 
     reset_tap_listeners();
@@ -561,7 +579,7 @@ cf_read(capture_file *cf, gboolean reloading)
     /* If the display filter or any tap listeners require the columns,
      * construct them. */
     cinfo = (tap_listeners_require_columns() ||
-        dfilter_requires_columns(dfcode)) ? &cf->cinfo : NULL;
+        dfilter_requires_columns(cf->dfcode)) ? &cf->cinfo : NULL;
 
     /* Find the size of the file. */
     size = wtap_file_size(cf->provider.wth, NULL);
@@ -647,7 +665,7 @@ cf_read(capture_file *cf, gboolean reloading)
                    hours even on fast machines) just to see that it was the wrong file. */
                 break;
             }
-            read_record(cf, &rec, &buf, dfcode, &edt, cinfo, data_offset, &frame_dup_cache, cksum);
+            read_record(cf, &rec, &buf, cf->dfcode, &edt, cinfo, data_offset, &frame_dup_cache, cksum);
             wtap_rec_reset(&rec);
         }
     }
@@ -683,9 +701,6 @@ cf_read(capture_file *cf, gboolean reloading)
 
     /* Free the display name */
     g_free(name_ptr);
-
-    /* Cleanup and release all dfilter resources */
-    dfilter_free(dfcode);
 
     epan_dissect_cleanup(&edt);
     wtap_rec_cleanup(&rec);
@@ -782,20 +797,36 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
 {
     gchar            *err_info;
     volatile int      newly_displayed_packets = 0;
-    dfilter_t        *dfcode = NULL;
     epan_dissect_t    edt;
     gboolean          create_proto_tree;
     guint             tap_flags;
-    gboolean          compiled _U_;
 
-    /* Compile the current display filter.
-     * We assume this will not fail since cf->dfilter is only set in
-     * cf_filter IFF the filter was valid.
+    /* Don't compile the current display filter. The current display filter
+     * text might compile to different code than when the capture started:
+     *
+     *    If it has a IP address resolved name, calling get_host_ipaddr every
+     *    time new packets arrive can mean a *lot* of gethostbyname calls
+     *    in flight at once, eventually leading to a timeout (#19612).
+     *    addr_resolv.c says that ares_gethostbyname is "usually interactive",
+     *    unlike ares_gethostbyaddr (used in dissection), and violating that
+     *    expectation is bad.
+     *
+     *    If it has a display filter macro, the definition might have changed.
+     *
+     *    If it has a field reference, the selected frame / current proto tree
+     *    might have changed, and we don't have the old one. If we recompile,
+     *    we can't set the field references to the old values.
+     *
+     * For a rescan, redissection, reload, retap, or opening a new file, we
+     * want to compile. What about here, when new frames have arrived in a live
+     * capture? We might be able to cache the host lookup, and a user might want
+     * the new display filter macro definition, but the user almost surely wants
+     * the field references to refer to values from the proto tree when the
+     * filter was applied, not whatever it happens to be now if the user has
+     * clicked on a different packet.
+     *
+     * To get the new compiled filter, the user should refilter.
      */
-    if (cf->dfilter) {
-        compiled = dfilter_compile(cf->dfilter, &dfcode, NULL);
-        ws_assert(compiled && dfcode);
-    }
 
     /* Get the union of the flags for all tap listeners. */
     tap_flags = union_of_tap_listener_flags();
@@ -814,7 +845,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
      *    the first pass.
      */
     create_proto_tree =
-        (dfcode != NULL || have_filtering_tap_listeners() ||
+        (cf->dfcode != NULL || have_filtering_tap_listeners() ||
          (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_hfids());
 
     *err = 0;
@@ -831,7 +862,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
         /* If the display filter or any tap listeners require the columns,
          * construct them. */
         cinfo = (tap_listeners_require_columns() ||
-            dfilter_requires_columns(dfcode)) ? &cf->cinfo : NULL;
+            dfilter_requires_columns(cf->dfcode)) ? &cf->cinfo : NULL;
 
         while (to_read != 0) {
             wtap_cleareof(cf->provider.wth);
@@ -845,7 +876,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
                    aren't any packets left to read) exit. */
                 break;
             }
-            if (read_record(cf, rec, buf, dfcode, &edt, cinfo, data_offset, frame_dup_cache, frame_cksum)) {
+            if (read_record(cf, rec, buf, cf->dfcode, &edt, cinfo, data_offset, frame_dup_cache, frame_cksum)) {
                 newly_displayed_packets++;
             }
             to_read--;
@@ -870,9 +901,6 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
     /* Update the file encapsulation; it might have changed based on the
        packets we've read. */
     cf->lnk_t = wtap_file_encap(cf->provider.wth);
-
-    /* Cleanup and release all dfilter resources */
-    dfilter_free(dfcode);
 
     epan_dissect_cleanup(&edt);
 
@@ -921,21 +949,14 @@ cf_finish_tail(capture_file *cf, wtap_rec *rec, Buffer *buf, int *err,
 {
     gchar     *err_info;
     gint64     data_offset;
-    dfilter_t *dfcode = NULL;
     column_info *cinfo;
     epan_dissect_t edt;
     gboolean   create_proto_tree;
     guint      tap_flags;
-    gboolean   compiled _U_;
 
-    /* Compile the current display filter.
-     * We assume this will not fail since cf->dfilter is only set in
-     * cf_filter IFF the filter was valid.
+    /* All the comments above in cf_continue_tail apply regarding the
+     * current display filter.
      */
-    if (cf->dfilter) {
-        compiled = dfilter_compile(cf->dfilter, &dfcode, NULL);
-        ws_assert(compiled && dfcode);
-    }
 
     /* Get the union of the flags for all tap listeners. */
     tap_flags = union_of_tap_listener_flags();
@@ -943,7 +964,7 @@ cf_finish_tail(capture_file *cf, wtap_rec *rec, Buffer *buf, int *err,
     /* If the display filter or any tap listeners require the columns,
      * construct them. */
     cinfo = (tap_listeners_require_columns() ||
-        dfilter_requires_columns(dfcode)) ? &cf->cinfo : NULL;
+        dfilter_requires_columns(cf->dfcode)) ? &cf->cinfo : NULL;
 
     /*
      * Determine whether we need to create a protocol tree.
@@ -959,7 +980,7 @@ cf_finish_tail(capture_file *cf, wtap_rec *rec, Buffer *buf, int *err,
      *    the first pass.
      */
     create_proto_tree =
-        (dfcode != NULL || have_filtering_tap_listeners() ||
+        (cf->dfcode != NULL || have_filtering_tap_listeners() ||
          (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_hfids());
 
     if (cf->provider.wth == NULL) {
@@ -979,12 +1000,9 @@ cf_finish_tail(capture_file *cf, wtap_rec *rec, Buffer *buf, int *err,
                aren't any packets left to read) exit. */
             break;
         }
-        read_record(cf, rec, buf, dfcode, &edt, cinfo, data_offset, frame_dup_cache, frame_cksum);
+        read_record(cf, rec, buf, cf->dfcode, &edt, cinfo, data_offset, frame_dup_cache, frame_cksum);
         wtap_rec_reset(rec);
     }
-
-    /* Cleanup and release all dfilter resources */
-    dfilter_free(dfcode);
 
     epan_dissect_cleanup(&edt);
 
@@ -1543,6 +1561,9 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
     df_error_t *df_err;
 
     /* if new filter equals old one, do nothing unless told to do so */
+    /* XXX - The text can be the same without compiling to the same code.
+     * (Macros, field references, etc.)
+     */
     if (!force && strcmp(filter_new, filter_old) == 0) {
         return CF_OK;
     }
@@ -1582,6 +1603,10 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
     g_free(cf->dfilter);
     cf->dfilter = dftext;
 
+    /* Cleanup and release all dfilter resources */
+    /* We'll recompile this when the rescan starts, or in cf_read()
+     * if no file is open currently. */
+    dfilter_free(dfcode);
 
     /* Now rescan the packet list, applying the new filter, but not
      * throwing away information constructed on a previous pass.
@@ -1598,9 +1623,6 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
             }
         }
     }
-
-    /* Cleanup and release all dfilter resources */
-    dfilter_free(dfcode);
 
     return CF_OK;
 }
@@ -1714,13 +1736,24 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     ws_buffer_init(&buf, 1514);
 
     /* Compile the current display filter.
+     * The code it compiles to might have changed, e.g. if a display
+     * filter macro used has changed.
+     *
      * We assume this will not fail since cf->dfilter is only set in
      * cf_filter IFF the filter was valid.
+     * XXX - This is not necessarily true, if the filter has a FT_IPv4
+     * or FT_IPv6 field compared to a resolved hostname in it, because
+     * we do a new host lookup, and that *could* timeout this time
+     * (though with the read lock above we shouldn't have many lookups at
+     * once, reducing the chances of that)... (#19612)
      */
     if (cf->dfilter) {
         compiled = dfilter_compile(cf->dfilter, &dfcode, NULL);
         ws_assert(compiled && dfcode);
     }
+
+    dfilter_free(cf->dfcode);
+    cf->dfcode = dfcode;
 
     /* Do we have any tap listeners with filters? */
     filtering_tap_listeners = have_filtering_tap_listeners();
@@ -1728,15 +1761,15 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     /* Update references in filters (if any) for the protocol
      * tree corresponding to the currently selected frame in the GUI. */
     if (cf->edt != NULL && cf->edt->tree != NULL) {
-        if (dfcode)
-            dfilter_load_field_references(dfcode, cf->edt->tree);
+        if (cf->dfcode)
+            dfilter_load_field_references(cf->dfcode, cf->edt->tree);
         if (filtering_tap_listeners)
             tap_listeners_load_field_references(cf->edt);
     }
 
-    if (dfcode != NULL) {
+    if (cf->dfcode != NULL) {
         dfilter_log_full(LOG_DOMAIN_DFILTER, LOG_LEVEL_NOISY, NULL, -1, NULL,
-                        dfcode, "Rescanning packets with display filter");
+                        cf->dfcode, "Rescanning packets with display filter");
     }
 
     /* Get the union of the flags for all tap listeners. */
@@ -1745,7 +1778,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     /* If the display filter or any tap listeners require the columns,
      * construct them. */
     cinfo = (tap_listeners_require_columns() ||
-        dfilter_requires_columns(dfcode)) ? &cf->cinfo : NULL;
+        dfilter_requires_columns(cf->dfcode)) ? &cf->cinfo : NULL;
 
     /*
      * Determine whether we need to create a protocol tree.
@@ -1761,7 +1794,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
      *    values or protocols on the first pass.
      */
     create_proto_tree =
-        (dfcode != NULL || filtering_tap_listeners ||
+        (cf->dfcode != NULL || filtering_tap_listeners ||
          (tap_flags & TL_REQUIRES_PROTO_TREE) ||
          (redissect && postdissectors_want_hfids()));
 
@@ -1954,7 +1987,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
             preceding_frame = prev_frame;
         }
 
-        add_packet_to_packet_list(fdata, cf, &edt, dfcode,
+        add_packet_to_packet_list(fdata, cf, &edt, cf->dfcode,
                 cinfo, &rec, &buf,
                 add_to_packet_list);
 
@@ -2081,9 +2114,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
             }
         }
     }
-
-    /* Cleanup and release all dfilter resources */
-    dfilter_free(dfcode);
 
     /* If another rescan (due to dfilter change) or redissection (due to profile
      * change) was requested, the rescan above is aborted and restarted here. */
@@ -2367,6 +2397,11 @@ cf_retap_packets(capture_file *cf)
 
     /* Update references in filters (if any) for the protocol
      * tree corresponding to the currently selected frame in the GUI. */
+    /* XXX - What if we *don't* have a currently selected frame in the GUI,
+     * but we did the last time we loaded field references? Then they'll
+     * match something instead of nothing (unless they've been recompiled).
+     * Should we have a way to clear the field references even with a NULL tree?
+     */
     if (cf->edt != NULL && cf->edt->tree != NULL) {
         if (filtering_tap_listeners)
             tap_listeners_load_field_references(cf->edt);
