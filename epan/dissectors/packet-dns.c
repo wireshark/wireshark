@@ -512,6 +512,7 @@ static expert_field ei_dns_key_id_buffer_too_short;
 static expert_field ei_dns_retransmit_request;
 static expert_field ei_dns_retransmit_response;
 static expert_field ei_dns_extraneous_data;
+static expert_field ei_dns_response_missing;
 
 static dissector_table_t dns_tsig_dissector_table=NULL;
 
@@ -4582,6 +4583,8 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
       it=proto_tree_add_uint(dns_tree, hf_dns_response_in, tvb, 0, 0, dns_trans->rep_frame);
       proto_item_set_generated(it);
+    } else if PINFO_FD_VISITED(pinfo) {
+      expert_add_info(pinfo, transaction_item, &ei_dns_response_missing);
     }
   } else {
     /* This is a reply */
@@ -6605,6 +6608,7 @@ proto_register_dns(void)
     { &ei_dns_retransmit_request, { "dns.retransmit_request", PI_PROTOCOL, PI_WARN, "DNS query retransmission", EXPFILL }},
     { &ei_dns_retransmit_response, { "dns.retransmit_response", PI_PROTOCOL, PI_WARN, "DNS response retransmission", EXPFILL }},
     { &ei_dns_extraneous_data, { "dns.extraneous", PI_UNDECODED, PI_NOTE, "Extraneous data", EXPFILL }},
+    { &ei_dns_response_missing, { "dns.response_missing", PI_PROTOCOL, PI_WARN, "DNS response missing", EXPFILL }},
   };
 
   static gint *ett[] = {
