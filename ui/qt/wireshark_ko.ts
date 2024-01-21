@@ -7389,11 +7389,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Checking this will show only changed preferences.</source>
-        <translation type="unfinished"></translation>
+        <translation>이 옵션을 사용하면 변경된 설정만 표시합니다.</translation>
     </message>
     <message>
         <source>Show changed values</source>
-        <translation type="unfinished"></translation>
+        <translation>변경된 값 표시</translation>
     </message>
     <message>
         <source>Preferences</source>
