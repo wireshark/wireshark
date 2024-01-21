@@ -1394,11 +1394,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;일반적으로 무선 네트워크 카드는 수신이나 발신 네트워크 주소가 자기 자신인 트래픽만 캡처하며, &lt;em&gt;사용자 데이터&lt;/em&gt; 트래픽에는 &amp;quot;가짜&amp;quot; 이더넷 헤더를 추가하여 캡처합니다. 무선 네트워크 카드가 &amp;quot;볼 수&amp;quot; 있는 모든 트래픽을 캡처하거나, 802.11 관리 및 제어 패킷 또는 라디오 계층 정보를 보려면 이 옵션을 선택하십시오. 무선 네트워크 카드와 드라이버에 따라서 모니터 모드 사용 가능 여부가 달라집니다. Wi-Fi 네트워크에서 패킷을 캡처하는 과정에 대한 자세한 정보를 보려면 위키 페이지를 참조하십시오.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable monitor mode on all 802.11 interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>모든 802.11 인터페이스에서 모니터 모드 활성화</translation>
     </message>
     <message>
         <source>compression</source>
@@ -1411,6 +1411,30 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>gzip</source>
         <translation>gzip</translation>
+    </message>
+    <message>
+        <source>File infix pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;In multiple file mode, the date and time and file index number are inserted between filename template and any suffix. Select their order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>YYYYmmDDHHMMSS_NNNNN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Date and time before the file index number. This causes files to sort in creation time order, and keeps files from the same batch closely ordered.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>NNNNN_YYYYmmDDHHMMSS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;File index number before the date and time. This is the historic Wireshark ordering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1593,11 +1617,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;일반적으로 무선 네트워크 카드는 수신이나 발신 네트워크 주소가 자기 자신인 트래픽만 캡처하며, &lt;em&gt;사용자 데이터&lt;/em&gt; 트래픽에는 &amp;quot;가짜&amp;quot; 이더넷 헤더를 추가하여 캡처합니다. 무선 네트워크 카드가 &amp;quot;볼 수&amp;quot; 있는 모든 트래픽을 캡처하거나, 802.11 관리 및 제어 패킷 또는 라디오 계층 정보를 보려면 이 옵션을 선택하십시오. 무선 네트워크 카드와 드라이버에 따라서 모니터 모드 사용 가능 여부가 달라집니다. Wi-Fi 네트워크에서 패킷을 캡처하는 과정에 대한 자세한 정보를 보려면 위키 페이지를 참조하십시오.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture packets in monitor mode on 802.11 devices</source>
-        <translation type="unfinished"></translation>
+        <translation>802.11 인터페이스에서 모니터 모드 활성화</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture packets in the next-generation capture file format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -6014,7 +6038,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>LteMacStatisticsDialog</name>
     <message>
         <source>LTE/NR Mac Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE/NR MAC 통계</translation>
     </message>
     <message>
         <source>Include SR frames in filter</source>
@@ -6319,11 +6343,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>%1 RLC Graph (UE=%2 chan=%3%4 %5 - %6)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 RLC 그래프 (UE=%2 chan=%3%4 %5 - %6)</translation>
     </message>
     <message>
         <source>3GPP RLC Graph - no channel selected</source>
-        <translation type="unfinished"></translation>
+        <translation>3GPP RLC 그래프 - 선택한 채널 없음</translation>
     </message>
     <message>
         <source>Save As…</source>
@@ -6378,7 +6402,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>LteRlcStatisticsDialog</name>
     <message>
         <source>3GPP RLC Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>3GPP RLC 통계</translation>
     </message>
     <message>
         <source>Include SR frames in filter</source>
@@ -6464,6 +6488,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>프로필: %1</translation>
     </message>
     <message>
+        <source> %1 Displayed: %2 (%3%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Manage Profiles…</source>
         <translation>프로필 관리…</translation>
     </message>
@@ -6539,7 +6567,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
         <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
-        <translation>패킷 수: %1 %4 표시됨: %2(%3%)</translation>
+        <translation type="vanished">패킷 수: %1 %4 표시됨: %2(%3%)</translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
@@ -7111,7 +7139,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Layout:</source>
-        <translation type="unfinished"></translation>
+        <translation>레이아웃:</translation>
     </message>
     <message>
         <source>Packet %1</source>
@@ -7401,15 +7429,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Scope</source>
-        <translation type="unfinished"></translation>
+        <translation>범위</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">설명</translation>
+        <translation>설명</translation>
     </message>
     <message>
         <source>Homepage</source>
-        <translation type="unfinished"></translation>
+        <translation>홈페이지</translation>
     </message>
 </context>
 <context>
@@ -7482,11 +7510,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Checking this will show only changed preferences.</source>
-        <translation type="unfinished"></translation>
+        <translation>이 옵션을 사용하면 변경된 설정만 표시합니다.</translation>
     </message>
     <message>
         <source>Show changed values</source>
-        <translation type="unfinished"></translation>
+        <translation>변경된 값 표시</translation>
     </message>
     <message>
         <source>Preferences</source>
@@ -8305,11 +8333,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>LTE</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE</translation>
     </message>
     <message>
         <source>NR</source>
-        <translation type="unfinished"></translation>
+        <translation>NR</translation>
     </message>
     <message>
         <source>C-RNTI</source>
@@ -8333,7 +8361,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>RAT</source>
-        <translation type="unfinished"></translation>
+        <translation>RAT</translation>
     </message>
     <message>
         <source>UL Frames</source>
@@ -8564,7 +8592,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>QObject::QObject::QObject</name>
     <message>
         <source>CCCH</source>
-        <translation type="unfinished">CCCH</translation>
+        <translation>CCCH</translation>
     </message>
 </context>
 <context>
@@ -8778,11 +8806,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">복사</translation>
+        <translation>복사</translation>
     </message>
     <message>
         <source>Save as…</source>
-        <translation type="unfinished">다른 이름으로 저장…</translation>
+        <translation>다른 이름으로 저장…</translation>
     </message>
     <message>
         <source># Resolved addresses found in %1</source>
@@ -8801,55 +8829,55 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ResolvedAddressesView</name>
     <message>
         <source>as Plain Text</source>
-        <translation type="unfinished"></translation>
+        <translation>일반 텍스트로</translation>
     </message>
     <message>
         <source>Copy selected rows</source>
-        <translation type="unfinished"></translation>
+        <translation>선택한 행 복사</translation>
     </message>
     <message>
         <source>Copy table</source>
-        <translation type="unfinished"></translation>
+        <translation>표 복사</translation>
     </message>
     <message>
         <source>as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSV로</translation>
     </message>
     <message>
         <source>as JSON</source>
-        <translation type="unfinished">JSON</translation>
+        <translation>JSON으로</translation>
     </message>
     <message>
         <source>Save selected rows as…</source>
-        <translation type="unfinished"></translation>
+        <translation>선택한 행을 다른 이름으로 저장…</translation>
     </message>
     <message>
         <source>Save table as…</source>
-        <translation type="unfinished"></translation>
+        <translation>표를 다른 이름으로 저장…</translation>
     </message>
     <message>
         <source>Save Resolved Addresses As…</source>
-        <translation type="unfinished"></translation>
+        <translation>해석된 주소를 다른 이름으로 저장…</translation>
     </message>
     <message>
         <source>Plain text (*.txt)</source>
-        <translation type="unfinished">일반 텍스트 (*.txt)</translation>
+        <translation>일반 텍스트 (*.txt)</translation>
     </message>
     <message>
         <source>CSV Document (*.csv)</source>
-        <translation type="unfinished"></translation>
+        <translation>CSV 문서 (*.csv)</translation>
     </message>
     <message>
         <source>JSON Document (*.json)</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON 문서 (*.json)</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">경고</translation>
+        <translation>경고</translation>
     </message>
     <message>
         <source>Unable to save %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1을(를) 저장할 수 없음: %2</translation>
     </message>
 </context>
 <context>
@@ -13962,7 +13990,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;3GPP Uu</source>
-        <translation type="unfinished"></translation>
+        <translation>3GPP Uu(&amp;3)</translation>
     </message>
     <message>
         <source>&amp;Wireless</source>
@@ -14066,11 +14094,11 @@ a:hover {
     </message>
     <message>
         <source>E2AP</source>
-        <translation type="unfinished"></translation>
+        <translation>E2AP</translation>
     </message>
     <message>
         <source>E2AP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>E2AP 메시지</translation>
     </message>
     <message>
         <source>Decode &amp;As…</source>
@@ -14732,37 +14760,39 @@ a:hover {
     </message>
     <message>
         <source>Install plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>플러그인 설치</translation>
     </message>
     <message>
         <source>Binary plugin (*%1 *%1.[0-9]*)</source>
-        <translation type="unfinished"></translation>
+        <translation>바이너리 플러그인 (*%1 *%1.[0-9]*)</translation>
     </message>
     <message>
         <source>Error removing the old plugin from the personal plugin folder. You may need to close Wireshark first and then manually remove the file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>개인 플러그인 폴더에서 오래된 플러그인을 삭제할 수 없습니다. Wireshark를 먼저 끝낸 다음 &quot;%1&quot; 파일을 수동으로 삭제하십시오.</translation>
     </message>
     <message>
         <source>Plugins can execute arbitrary code as the current user. Make sure you trust it before installing.
 
 Continue installing the file &quot;%1&quot; to the personal plugin folder?</source>
-        <translation type="unfinished"></translation>
+        <translation>플러그인은 현재 사용자 권한으로 임의의 코드를 실행할 수 있습니다. 설치하기 전에 신뢰할 수 있는지 여부를 확인하십시오.
+
+개인 플러그인 폴더에 &quot;%1&quot; 파일 설치를 계속 진행하시겠습니까?</translation>
     </message>
     <message>
         <source>Failed to create the directory: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>디렉터리를 생성할 수 없음: %1</translation>
     </message>
     <message>
         <source>The file already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translation>파일이 이미 존재합니다. 덮어쓰시겠습니까?</translation>
     </message>
     <message>
         <source>Failed to copy the file to the destination: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>파일을 대상으로 복사할 수 없음: %1</translation>
     </message>
     <message>
         <source>Plugin &apos;%1&apos; installed successfully. You must restart the program to be able to use it.</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; 플러그인이 설치되었습니다. 사용하려면 프로그램을 다시 시작하십시오.</translation>
     </message>
     <message>
         <source>Show or hide the toolbar</source>
@@ -14970,7 +15000,7 @@ Continue installing the file &quot;%1&quot; to the personal plugin folder?</sour
     </message>
     <message>
         <source>Install Plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>플러그인 설치</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
