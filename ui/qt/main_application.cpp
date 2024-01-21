@@ -1411,4 +1411,7 @@ void MainApplication::gotoFrame(int frame)
 void MainApplication::reloadDisplayFilterMacros()
 {
     dfilter_macro_reload();
+    // The signal is needed when the display filter grammar changes for
+    // any reason (not just "fields".)
+    mainApp->emitAppSignal(MainApplication::FieldsChanged);
 }
