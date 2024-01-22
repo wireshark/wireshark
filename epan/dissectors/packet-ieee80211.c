@@ -60466,6 +60466,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_handle_t wlan_rsna_eapol_wpa_key_handle, wlan_rsna_eapol_rsn_key_handle;
   capture_dissector_handle_t ieee80211_cap_handle;
 
+  dissector_add_for_decode_as_with_preference("udp.port", ieee80211_handle);
   /*
    * Get handles for the 802.2 (LPD) LLC, EPD LLC, IPX and Ethernet
    * dissectors.
