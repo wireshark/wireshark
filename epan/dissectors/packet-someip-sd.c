@@ -686,10 +686,10 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     offset += 2;
 
-    ti = proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_instanceid, tvb, offset, 2, ENC_BIG_ENDIAN, &instanceid);
+    proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_instanceid, tvb, offset, 2, ENC_BIG_ENDIAN, &instanceid);
     offset += 2;
 
-    ti = proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_majorver, tvb, offset, 1, ENC_BIG_ENDIAN, &majorver);
+    proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_majorver, tvb, offset, 1, ENC_BIG_ENDIAN, &majorver);
     offset += 1;
 
     proto_tree_add_item(tree, hf_someip_sd_entry_ttl, tvb, offset, 3, ENC_BIG_ENDIAN);
@@ -697,7 +697,7 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Add specific fields - i.e. the last line */
     if (category == SD_ENTRY_SERVICE) {
-        ti = proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_minorver, tvb, offset, 4, ENC_BIG_ENDIAN, &minorver);
+        proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_minorver, tvb, offset, 4, ENC_BIG_ENDIAN, &minorver);
         someip_sd_pdu_entry_append_text(*ti_entry, category, serviceid, instanceid, majorver, minorver, 0, buf_opt_ref);
     } else if (category == SD_ENTRY_EVENTGROUP) {
         proto_tree_add_item(tree, hf_someip_sd_entry_reserved, tvb, offset, 1, ENC_NA);
