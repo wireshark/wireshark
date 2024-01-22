@@ -333,6 +333,7 @@ static int hf_ssh_ext_delay_compression_algorithms_server_to_client_length;
 static int hf_ssh_ext_delay_compression_algorithms_server_to_client;
 static int hf_ssh_ext_no_flow_control_value;
 static int hf_ssh_ext_elevation_value;
+static int hf_ssh_ext_prop_publickey_algorithms_algorithms;
 
 /* Miscellaneous */
 static int hf_ssh_mpint_length;
@@ -3832,9 +3833,21 @@ ssh_dissect_rfc8308_extension(tvbuff_t *packet_tvb, packet_info *pinfo,
         // elevation (RFC 8308 Sec 3.4)
         proto_tree_add_item(ext_tree, hf_ssh_ext_elevation_value, packet_tvb, offset, ext_value_slen, ENC_ASCII);
         offset += ext_value_slen;
+    } else if (g_str_equal(ext_name, "publickey-algorithms@roumenpetrov.info")) {
+        // publickey-algorithms@roumenpetrov.info (proprietary)
+        proto_tree_add_item(ext_tree, hf_ssh_ext_prop_publickey_algorithms_algorithms, packet_tvb, offset, ext_value_slen, ENC_ASCII);
+        offset += ext_value_slen;
     } else {
         offset += ext_value_slen;
     }
+
+    // The following primitive extensions do not require custom dissection:
+    //  - global-requests-ok
+    //  - ext-auth-info
+    //  - publickey-hostbound@openssh.com
+    //  - ping@openssh.com
+    //  - ext-info-in-auth@openssh.com
+
     return offset;
 }
 
@@ -5464,7 +5477,7 @@ proto_register_ssh(void)
             NULL, HFILL }},
 
         { &hf_ssh_ext_server_sig_algs_algorithms,
-          { "Accepted public key algorithms", "ssh.extension.server_sig_algs.algorithms",
+          { "Accepted signature algorithms", "ssh.extension.server_sig_algs.algorithms",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
@@ -5495,6 +5508,11 @@ proto_register_ssh(void)
 
         { &hf_ssh_ext_elevation_value,
           { "Elevation flag", "ssh.extension.elevation.value",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_ext_prop_publickey_algorithms_algorithms,
+          { "Public key algorithms", "ssh.extension.prop_publickey_algorithms.algorithms",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
