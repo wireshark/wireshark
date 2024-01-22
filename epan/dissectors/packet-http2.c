@@ -2853,15 +2853,42 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
         tap_queue_packet(http_eo_tap, pinfo, eo_info);
     }
 
+    tvbuff_t *data_tvb = tvb_new_subset_length(tvb, start, length);
     if (content_type != NULL) {
         /* add it to STREAM level */
         proto_tree* ptree = proto_tree_get_parent_tree(tree);
         dissector_try_string((streaming_mode ? streaming_content_type_dissector_table : media_type_dissector_table),
-            content_type, tvb_new_subset_length(tvb, start, length), pinfo,
+            content_type, data_tvb, pinfo,
             ptree, &metadata_used_for_media_type_handle);
     } else {
-        dissector_try_uint_new(stream_id_content_type_dissector_table, stream_id,
-            tvb_new_subset_length(tvb, start, length), pinfo, proto_tree_get_parent_tree(tree), TRUE, &metadata_used_for_media_type_handle);
+        if (!dissector_try_uint_new(stream_id_content_type_dissector_table, stream_id,
+            data_tvb, pinfo, proto_tree_get_parent_tree(tree), TRUE, &metadata_used_for_media_type_handle))
+        {
+            /* Try heuristics */
+            /* Check for possible boundary string */
+            if (tvb_strneql(data_tvb, 0, "--", 2) == 0) {
+                int next_offset;
+                int boundary_len = tvb_find_line_end(data_tvb, 0, -1, &next_offset, TRUE);
+                if ((boundary_len > 4) && (boundary_len < 70)){
+                    boundary_len = boundary_len - 2; /* ignore ending CRLF*/
+                    /* We have a potential boundary string */
+                    guint8 *boundary = tvb_get_string_enc(wmem_packet_scope(), data_tvb, 2, boundary_len, ENC_ASCII | ENC_NA);
+                    if (tvb_strneql(data_tvb, (length - 4) - boundary_len, boundary, boundary_len) == 0) {
+                        /* We have multipart/mixed */
+                        /* Populate the content type so we can dissect the body later */
+                        body_info->content_type = wmem_strndup(wmem_file_scope(), "multipart/mixed", 15);
+                        body_info->content_type_parameters = wmem_strdup_printf(wmem_file_scope(), "boundary=\"%s\"", boundary);
+                        dissector_handle_t handle = dissector_get_string_handle(media_type_dissector_table, body_info->content_type);
+                        metadata_used_for_media_type_handle.media_str = body_info->content_type_parameters;
+                        if (handle) {
+                            dissector_add_uint("http2.streamid", stream_info->stream_id, handle);
+                        }
+                        dissector_try_uint_new(stream_id_content_type_dissector_table, stream_id,
+                            data_tvb, pinfo, proto_tree_get_parent_tree(tree), TRUE, &metadata_used_for_media_type_handle);
+                    }
+                }
+            } /* Not multipart/mixed*/
+        }
     }
 }
 
