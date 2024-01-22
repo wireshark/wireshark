@@ -135,7 +135,7 @@ fi
 # the optional libraries are required by other optional libraries.
 #
 LIBSMI_VERSION=0.4.8
-GNUTLS_VERSION=3.7.8
+GNUTLS_VERSION=3.8.3
 if [ "$GNUTLS_VERSION" ]; then
     #
     # We'll be building GnuTLS, so we may need some additional libraries.
@@ -153,7 +153,7 @@ if [ "$GNUTLS_VERSION" ]; then
 
     #
     # And p11-kit
-    P11KIT_VERSION=0.25.0
+    P11KIT_VERSION=0.25.3
 
     # Which requires libtasn1
     LIBTASN1_VERSION=4.19.0
@@ -1443,12 +1443,12 @@ uninstall_libgcrypt() {
 }
 
 install_gmp() {
-    if [ "$GMP_VERSION" -a ! -f gmp-$GMP_VERSION-done ] ; then
+    if [ "$GMP_VERSION" ] && [ ! -f "gmp-$GMP_VERSION-done" ] ; then
         echo "Downloading, building, and installing GMP:"
-        [ -f gmp-$GMP_VERSION.tar.lz ] || curl -L -O https://gmplib.org/download/gmp/gmp-$GMP_VERSION.tar.lz || exit 1
+        [ -f "gmp-$GMP_VERSION.tar.lz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://gmplib.org/download/gmp/gmp-$GMP_VERSION.tar.lz || exit 1
         $no_build && echo "Skipping installation" && return
-        lzip -c -d gmp-$GMP_VERSION.tar.lz | tar xf - || exit 1
-        cd gmp-$GMP_VERSION
+        lzip -c -d "gmp-$GMP_VERSION.tar.lz" | tar xf - || exit 1
+        cd "gmp-$GMP_VERSION" || exit 1
         #
         # Create a fat binary: https://gmplib.org/manual/Notes-for-Package-Builds.html
         #
@@ -1463,7 +1463,7 @@ install_gmp() {
         # For now, link with -ld64 on Xcode 15 and later.
         #
         XCODE_VERSION=$( xcodebuild -version | sed -n 's;Xcode \(.*\);\1;p' )
-        XCODE_MAJOR_VERSION="$( expr $XCODE_VERSION : '\([0-9][0-9]*\).*' )"
+        XCODE_MAJOR_VERSION="$( expr "$XCODE_VERSION" : '\([0-9][0-9]*\).*' )"
         # XCODE_MINOR_VERSION="$( expr $XCODE_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
         # XCODE_DOTDOT_VERSION="$( expr $XCODE_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
         if [ "$XCODE_MAJOR_VERSION" -ge 15 ]
@@ -1477,7 +1477,7 @@ install_gmp() {
         make "${MAKE_BUILD_OPTS[@]}" || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
-        touch gmp-$GMP_VERSION-done
+        touch "gmp-$GMP_VERSION-done"
     fi
 }
 
@@ -1489,18 +1489,18 @@ uninstall_gmp() {
         uninstall_nettle "$@"
 
         echo "Uninstalling GMP:"
-        cd gmp-$installed_gmp_version
+        cd "gmp-$installed_gmp_version" || exit 1
         $DO_MAKE_UNINSTALL || exit 1
         make distclean || exit 1
         cd ..
-        rm gmp-$installed_gmp_version-done
+        rm "gmp-$installed_gmp_version-done"
 
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
             #
             # Get rid of the previously downloaded and unpacked version.
             #
-            rm -rf gmp-$installed_gmp_version
-            rm -rf gmp-$installed_gmp_version.tar.lz
+            rm -rf "gmp-$installed_gmp_version"
+            rm -rf "gmp-$installed_gmp_version.tar.lz"
         fi
 
         installed_gmp_version=""
@@ -1508,18 +1508,18 @@ uninstall_gmp() {
 }
 
 install_libtasn1() {
-    if [ "$LIBTASN1_VERSION" -a ! -f libtasn1-$LIBTASN1_VERSION-done ] ; then
+    if [ "$LIBTASN1_VERSION" ] && [ ! -f "libtasn1-$LIBTASN1_VERSION-done" ] ; then
         echo "Downloading, building, and installing libtasn1:"
-        [ -f libtasn1-$LIBTASN1_VERSION.tar.gz ] || curl -L -O https://ftpmirror.gnu.org/libtasn1/libtasn1-$LIBTASN1_VERSION.tar.gz || exit 1
+        [ -f "libtasn1-$LIBTASN1_VERSION.tar.gz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://ftpmirror.gnu.org/libtasn1/libtasn1-$LIBTASN1_VERSION.tar.gz" || exit 1
         $no_build && echo "Skipping installation" && return
-        gzcat libtasn1-$LIBTASN1_VERSION.tar.gz | tar xf - || exit 1
-        cd libtasn1-$LIBTASN1_VERSION
+        gzcat "libtasn1-$LIBTASN1_VERSION.tar.gz" | tar xf - || exit 1
+        cd "libtasn1-$LIBTASN1_VERSION" || exit 1
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
             ./configure "${CONFIGURE_OPTS[@]}" || exit 1
         make "${MAKE_BUILD_OPTS[@]}" || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
-        touch libtasn1-$LIBTASN1_VERSION-done
+        touch "libtasn1-$LIBTASN1_VERSION-done"
     fi
 }
 
@@ -1531,18 +1531,18 @@ uninstall_libtasn1() {
         uninstall_p11_kit "$@"
 
         echo "Uninstalling libtasn1:"
-        cd libtasn1-$installed_libtasn1_version
+        cd "libtasn1-$installed_libtasn1_version" || exit 1
         $DO_MAKE_UNINSTALL || exit 1
         make distclean || exit 1
         cd ..
-        rm libtasn1-$installed_libtasn1_version-done
+        rm "libtasn1-$installed_libtasn1_version-done"
 
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
             #
             # Get rid of the previously downloaded and unpacked version.
             #
-            rm -rf libtasn1-$installed_libtasn1_version
-            rm -rf libtasn1-$installed_libtasn1_version.tar.gz
+            rm -rf "libtasn1-$installed_libtasn1_version"
+            rm -rf "libtasn1-$installed_libtasn1_version.tar.gz"
         fi
 
         installed_libtasn1_version=""
@@ -1550,12 +1550,12 @@ uninstall_libtasn1() {
 }
 
 install_p11_kit() {
-    if [ "$P11KIT_VERSION" -a ! -f p11-kit-$P11KIT_VERSION-done ] ; then
+    if [ "$P11KIT_VERSION" ] && [ ! -f "p11-kit-$P11KIT_VERSION-done" ] ; then
         echo "Downloading, building, and installing p11-kit:"
-        [ -f p11-kit-$P11KIT_VERSION.tar.xz ] || curl -L -O https://github.com/p11-glue/p11-kit/releases/download/$P11KIT_VERSION/p11-kit-$P11KIT_VERSION.tar.xz || exit 1
+        [ -f "p11-kit-$P11KIT_VERSION.tar.xz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://github.com/p11-glue/p11-kit/releases/download/$P11KIT_VERSION/p11-kit-$P11KIT_VERSION.tar.xz" || exit 1
         $no_build && echo "Skipping installation" && return
-        xzcat p11-kit-$P11KIT_VERSION.tar.xz | tar xf - || exit 1
-        cd p11-kit-$P11KIT_VERSION
+        xzcat "p11-kit-$P11KIT_VERSION.tar.xz" | tar xf - || exit 1
+        cd "p11-kit-$P11KIT_VERSION" || exit 1
         #
         # Prior to Catalina, the libffi that's supplied with macOS
         # doesn't support ffi_closure_alloc() or ffi_prep_closure_loc(),
@@ -1576,7 +1576,7 @@ install_p11_kit() {
         make "${MAKE_BUILD_OPTS[@]}" || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
-        touch p11-kit-$P11KIT_VERSION-done
+        touch "p11-kit-$P11KIT_VERSION-done"
     fi
 }
 
@@ -1588,18 +1588,18 @@ uninstall_p11_kit() {
         uninstall_nettle "$@"
 
         echo "Uninstalling p11-kit:"
-        cd p11-kit-$installed_p11_kit_version
+        cd "p11-kit-$installed_p11_kit_version" || exit 1
         $DO_MAKE_UNINSTALL || exit 1
         make distclean || exit 1
         cd ..
-        rm p11-kit-$installed_p11_kit_version-done
+        rm "p11-kit-$installed_p11_kit_version-done"
 
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
             #
             # Get rid of the previously downloaded and unpacked version.
             #
-            rm -rf p11-kit-$installed_p11_kit_version
-            rm -rf p11-kit-$installed_p11_kit_version.tar.xz
+            rm -rf "p11-kit-$installed_p11_kit_version"
+            rm -rf "p11-kit-$installed_p11_kit_version.tar.xz"
         fi
 
         installed_p11_kit_version=""
@@ -1607,18 +1607,18 @@ uninstall_p11_kit() {
 }
 
 install_nettle() {
-    if [ "$NETTLE_VERSION" -a ! -f nettle-$NETTLE_VERSION-done ] ; then
+    if [ "$NETTLE_VERSION" ] && [ ! -f "nettle-$NETTLE_VERSION-done" ] ; then
         echo "Downloading, building, and installing Nettle:"
-        [ -f nettle-$NETTLE_VERSION.tar.gz ] || curl -L -O https://ftp.gnu.org/gnu/nettle/nettle-$NETTLE_VERSION.tar.gz || exit 1
+        [ -f "nettle-$NETTLE_VERSION.tar.gz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://ftp.gnu.org/gnu/nettle/nettle-$NETTLE_VERSION.tar.gz" || exit 1
         $no_build && echo "Skipping installation" && return
-        gzcat nettle-$NETTLE_VERSION.tar.gz | tar xf - || exit 1
-        cd nettle-$NETTLE_VERSION
+        gzcat "nettle-$NETTLE_VERSION.tar.gz" | tar xf - || exit 1
+        cd "nettle-$NETTLE_VERSION" || exit 1
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
             ./configure "${CONFIGURE_OPTS[@]}" || exit 1
         make "${MAKE_BUILD_OPTS[@]}" || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
-        touch nettle-$NETTLE_VERSION-done
+        touch "nettle-$NETTLE_VERSION-done"
     fi
 }
 
@@ -1630,18 +1630,18 @@ uninstall_nettle() {
         uninstall_gnutls "$@"
 
         echo "Uninstalling Nettle:"
-        cd nettle-$installed_nettle_version
+        cd "nettle-$installed_nettle_version" || exit 1
         $DO_MAKE_UNINSTALL || exit 1
         make distclean || exit 1
         cd ..
-        rm nettle-$installed_nettle_version-done
+        rm "nettle-$installed_nettle_version-done"
 
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
             #
             # Get rid of the previously downloaded and unpacked version.
             #
-            rm -rf nettle-$installed_nettle_version
-            rm -rf nettle-$installed_nettle_version.tar.gz
+            rm -rf "nettle-$installed_nettle_version"
+            rm -rf "nettle-$installed_nettle_version.tar.gz"
         fi
 
         installed_nettle_version=""
@@ -1649,11 +1649,11 @@ uninstall_nettle() {
 }
 
 install_gnutls() {
-    if [ "$GNUTLS_VERSION" -a ! -f gnutls-$GNUTLS_VERSION-done ] ; then
+    if [ "$GNUTLS_VERSION" ] && [ ! -f "gnutls-$GNUTLS_VERSION-done" ] ; then
         #
         # GnuTLS requires Nettle.
         #
-        if [ -z $NETTLE_VERSION ]
+        if [ -z "$NETTLE_VERSION" ]
         then
             echo "GnuTLS requires Nettle, but you didn't install Nettle" 1>&2
             exit 1
@@ -1666,15 +1666,15 @@ install_gnutls() {
             # Starting with GnuTLS 3.x, the tarballs are compressed with
             # xz rather than bzip2.
             #
-            [ -f gnutls-$GNUTLS_VERSION.tar.xz ] || curl -L -O https://www.gnupg.org/ftp/gcrypt/gnutls/v$GNUTLS_MAJOR_VERSION.$GNUTLS_MINOR_VERSION/gnutls-$GNUTLS_VERSION.tar.xz || exit 1
+            [ -f gnutls-$GNUTLS_VERSION.tar.xz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://www.gnupg.org/ftp/gcrypt/gnutls/v$GNUTLS_MAJOR_VERSION.$GNUTLS_MINOR_VERSION/gnutls-$GNUTLS_VERSION.tar.xz" || exit 1
             $no_build && echo "Skipping installation" && return
             xzcat gnutls-$GNUTLS_VERSION.tar.xz | tar xf - || exit 1
         else
-            [ -f gnutls-$GNUTLS_VERSION.tar.bz2 ] || curl -L -O https://www.gnupg.org/ftp/gcrypt/gnutls/v$GNUTLS_MAJOR_VERSION.$GNUTLS_MINOR_VERSION/gnutls-$GNUTLS_VERSION.tar.bz2 || exit 1
+            [ -f gnutls-$GNUTLS_VERSION.tar.bz2 ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://www.gnupg.org/ftp/gcrypt/gnutls/v$GNUTLS_MAJOR_VERSION.$GNUTLS_MINOR_VERSION/gnutls-$GNUTLS_VERSION.tar.bz2" || exit 1
             $no_build && echo "Skipping installation" && return
             bzcat gnutls-$GNUTLS_VERSION.tar.bz2 | tar xf - || exit 1
         fi
-        cd gnutls-$GNUTLS_VERSION
+        cd gnutls-$GNUTLS_VERSION || exit 1
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
             ./configure "${CONFIGURE_OPTS[@]}" --with-included-unistring --disable-guile || exit 1
         make "${MAKE_BUILD_OPTS[@]}" || exit 1
@@ -1687,18 +1687,18 @@ install_gnutls() {
 uninstall_gnutls() {
     if [ -n "$installed_gnutls_version" ] ; then
         echo "Uninstalling GnuTLS:"
-        cd gnutls-$installed_gnutls_version
+        cd "gnutls-$installed_gnutls_version" || exit 1
         $DO_MAKE_UNINSTALL || exit 1
         make distclean || exit 1
         cd ..
-        rm gnutls-$installed_gnutls_version-done
+        rm "gnutls-$installed_gnutls_version-done" s
 
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
             #
             # Get rid of the previously downloaded and unpacked version.
             #
-            rm -rf gnutls-$installed_gnutls_version
-            rm -rf gnutls-$installed_gnutls_version.tar.bz2
+            rm -rf "gnutls-$installed_gnutls_version"
+            rm -rf "gnutls-$installed_gnutls_version.tar.bz2"
         fi
 
         installed_gnutls_version=""
@@ -2236,8 +2236,8 @@ install_libtiff() {
     if [ "$LIBTIFF_VERSION" -a ! -f tiff-$LIBTIFF_VERSION-done ] ; then
         echo "Downloading, building, and installing libtiff:"
         [ -f tiff-$LIBTIFF_VERSION.tar.gz ] ||
-            curl --fail -L -O https://download.osgeo.org/libtiff/tiff-$LIBTIFF_VERSION.tar.gz     ||
-            curl --fail -L -O https://download.osgeo.org/libtiff/old/tiff-$LIBTIFF_VERSION.tar.gz ||
+            curl "${CURL_REMOTE_NAME_OPTS[@]}" https://download.osgeo.org/libtiff/tiff-$LIBTIFF_VERSION.tar.gz     ||
+            curl "${CURL_REMOTE_NAME_OPTS[@]}" https://download.osgeo.org/libtiff/old/tiff-$LIBTIFF_VERSION.tar.gz ||
             exit 1
         $no_build && echo "Skipping installation" && return
         gzcat tiff-$LIBTIFF_VERSION.tar.gz | tar xf - || exit 1
@@ -2891,8 +2891,7 @@ install_all() {
         uninstall_lua -r
     fi
 
-    if [ -n "$installed_gnutls_version" -a \
-              "$installed_gnutls_version" != "$GNUTLS_VERSION" ] ; then
+    if [ -n "$installed_gnutls_version" ] && [ "$installed_gnutls_version" != "$GNUTLS_VERSION" ] ; then
         echo "Installed GnuTLS version is $installed_gnutls_version"
         if [ -z "$GNUTLS_VERSION" ] ; then
             echo "GnuTLS is not requested"
@@ -3656,6 +3655,8 @@ if [ -z "$MAKE_BUILD_OPTS" ] ; then
     MAKE_BUILD_OPTS=( -j $(( $(sysctl -n hw.logicalcpu) * 3 / 2)) )
 fi
 
+CURL_REMOTE_NAME_OPTS=(--fail --location --remote-name)
+
 #
 # If we have a target release, look for the oldest SDK that's for an
 # OS equal to or later than that one, and build libraries against it
@@ -3833,7 +3834,7 @@ if [ ! -d "${MACOSX_SUPPORT_LIBS}" ]
 then
     mkdir "${MACOSX_SUPPORT_LIBS}" || exit 1
 fi
-cd "${MACOSX_SUPPORT_LIBS}"
+cd "${MACOSX_SUPPORT_LIBS}" || exit 1
 
 install_all
 
@@ -3844,7 +3845,7 @@ echo ""
 #
 if [ "$QT_VERSION" ]; then
     qt_base_path=$HOME/Qt$QT_VERSION/$QT_VERSION/clang_64
-    CMAKE_PREFIX_PATH="$PACKAGE_CONFIG_PATH:$qt_base_path/lib/cmake"
+    # CMAKE_PREFIX_PATH="$PACKAGE_CONFIG_PATH:$qt_base_path/lib/cmake"
 fi
 
 if $no_build; then
@@ -3853,7 +3854,7 @@ if $no_build; then
 fi
 
 if [ "$QT_VERSION" ]; then
-    if [ -f qt-$QT_VERSION-done ]; then
+    if [ -f "qt-$QT_VERSION-done" ]; then
         echo "You are now prepared to build Wireshark."
     else
         echo "Qt was not installed; you will have to install it in order to build the"
@@ -3880,7 +3881,7 @@ if [ -n "$NINJA_VERSION" ]; then
     echo "ninja install/strip"
 else
     echo "cmake .."
-    echo "make $MAKE_BUILD_OPTS wireshark_app_bundle logray_app_bundle # (Modify as needed)"
+    echo "make ${MAKE_BUILD_OPTS[*]} wireshark_app_bundle logray_app_bundle # (Modify as needed)"
     echo "make install/strip"
 fi
 echo
