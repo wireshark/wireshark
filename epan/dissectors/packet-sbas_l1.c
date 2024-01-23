@@ -17,6 +17,7 @@
 #include <epan/packet.h>
 
 #include "packet-ubx.h"
+#include "packet-sbas_l1.h"
 
 /*
  * Dissects navigation messages of the Satellite Based Augmentation System
@@ -30,7 +31,7 @@
 
 // UDREI_i mapping
 // see ICAO Annex 10, Vol I, Table B-29
-static const value_string UDREI_EVALUATION[] = {
+const value_string UDREI_EVALUATION[] = {
     {0,  "0.0520 m^2"},
     {1,  "0.0924 m^2"},
     {2,  "0.1444 m^2"},
