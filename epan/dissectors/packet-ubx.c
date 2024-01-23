@@ -20,6 +20,7 @@
 #include <wsutil/pint.h>
 
 #include "packet-ubx.h"
+#include "packet-sbas_l1.h"
 
 /*
  * Dissects the UBX protocol of u-blox GNSS receivers as defined by the
@@ -304,6 +305,24 @@ static const value_string UBX_CFG_GNSS_GLO_SIGCFGMASK[] = {
     {0, NULL}
 };
 
+/* SBAS mode */
+static const value_string UBX_SBAS_MODE[] = {
+    {0, "Disabled"},
+    {1, "Enabled integrity"},
+    {3, "Enabled test mode"},
+    {0, NULL}
+};
+
+/* SBAS system */
+static const value_string UBX_SBAS_SYSTEM[] = {
+    {-1, "Unknown"},
+    {0, "WAAS"},
+    {1, "EGNOS"},
+    {2, "MSAS"},
+    {3, "GAGAN"},
+    {16, "GPS"},
+    {0, NULL}
+};
 
 /* SBAS testbed description */
 static const value_string UBX_SBAS_TESTBED[] = {
@@ -508,6 +527,28 @@ static int hf_ubx_nav_sat_cr_corr_used;
 static int hf_ubx_nav_sat_do_corr_used;
 static int hf_ubx_nav_sat_clas_corr_used;
 
+static int hf_ubx_nav_sbas;
+static int hf_ubx_nav_sbas_itow;
+static int hf_ubx_nav_sbas_geo;
+static int hf_ubx_nav_sbas_mode;
+static int hf_ubx_nav_sbas_sys;
+static int hf_ubx_nav_sbas_service_ranging;
+static int hf_ubx_nav_sbas_service_corrections;
+static int hf_ubx_nav_sbas_service_integrity;
+static int hf_ubx_nav_sbas_service_testmode;
+static int hf_ubx_nav_sbas_service_bad;
+static int hf_ubx_nav_sbas_cnt;
+static int hf_ubx_nav_sbas_reserved1;
+static int hf_ubx_nav_sbas_sv_id;
+static int hf_ubx_nav_sbas_flags;
+static int hf_ubx_nav_sbas_udre;
+static int hf_ubx_nav_sbas_sv_sys;
+static int hf_ubx_nav_sbas_sv_service;
+static int hf_ubx_nav_sbas_reserved2;
+static int hf_ubx_nav_sbas_prc;
+static int hf_ubx_nav_sbas_reserved3;
+static int hf_ubx_nav_sbas_ic;
+
 static int hf_ubx_nav_timegps;
 static int hf_ubx_nav_timegps_itow;
 static int hf_ubx_nav_timegps_ftow;
@@ -573,6 +614,8 @@ static int ett_ubx_nav_pvt;
 static int ett_ubx_nav_pvt_datetime;
 static int ett_ubx_nav_sat;
 static int ett_ubx_nav_sat_sv_info[255];
+static int ett_ubx_nav_sbas;
+static int ett_ubx_nav_sbas_sv_info[255];
 static int ett_ubx_nav_timegps;
 static int ett_ubx_nav_timegps_tow;
 static int ett_ubx_nav_timeutc;
@@ -1196,6 +1239,73 @@ static int dissect_ubx_nav_sat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             tvb, 16 + 12 * i, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(sv_info_tree, hf_ubx_nav_sat_clas_corr_used,
             tvb, 16 + 12 * i, 4, ENC_LITTLE_ENDIAN);
+    }
+
+    return tvb_captured_length(tvb);
+}
+
+/* Dissect UBX-NAV-SBAS message */
+static int dissect_ubx_nav_sbas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    guint16 i;
+    guint32 num_svs;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UBX-NAV-SBAS");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    num_svs = tvb_get_guint8(tvb, 8);
+
+    proto_item *ti = proto_tree_add_item(tree, hf_ubx_nav_sbas,
+            tvb, 0, 12 + 12 * num_svs, ENC_NA);
+    proto_tree *ubx_nav_sbas_tree = proto_item_add_subtree(ti, ett_ubx_nav_sbas);
+
+    proto_tree_add_item(ubx_nav_sbas_tree, hf_ubx_nav_sbas_itow,
+            tvb, 0, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ubx_nav_sbas_tree, hf_ubx_nav_sbas_geo,
+            tvb, 4, 1, ENC_NA);
+    proto_tree_add_item(ubx_nav_sbas_tree, hf_ubx_nav_sbas_mode,
+            tvb, 5, 1, ENC_NA);
+    proto_tree_add_item(ubx_nav_sbas_tree, hf_ubx_nav_sbas_sys,
+            tvb, 6, 1, ENC_NA);
+    proto_tree_add_item(ubx_nav_sbas_tree, hf_ubx_nav_sbas_service_ranging,
+            tvb, 7, 1, ENC_NA);
+    proto_tree_add_item(ubx_nav_sbas_tree, hf_ubx_nav_sbas_service_corrections,
+            tvb, 7, 1, ENC_NA);
+    proto_tree_add_item(ubx_nav_sbas_tree, hf_ubx_nav_sbas_service_integrity,
+            tvb, 7, 1, ENC_NA);
+    proto_tree_add_item(ubx_nav_sbas_tree, hf_ubx_nav_sbas_service_testmode,
+            tvb, 7, 1, ENC_NA);
+    proto_tree_add_item(ubx_nav_sbas_tree, hf_ubx_nav_sbas_service_bad,
+            tvb, 7, 1, ENC_NA);
+    proto_tree_add_item(ubx_nav_sbas_tree, hf_ubx_nav_sbas_cnt,
+            tvb, 8, 1, ENC_NA);
+    proto_tree_add_item(ubx_nav_sbas_tree, hf_ubx_nav_sbas_reserved1,
+            tvb, 9, 3, ENC_LITTLE_ENDIAN);
+
+    for (i = 0; i < num_svs; i++) {
+        const guint8 sv_id = tvb_get_guint8(tvb, 12 + 12 * i);
+
+        proto_tree *sv_info_tree = proto_tree_add_subtree_format(ubx_nav_sbas_tree,
+                tvb, 12 + 12 * i, 12, ett_ubx_nav_sbas_sv_info[i], NULL,
+                "SV ID %3d", sv_id);
+
+        proto_tree_add_item(sv_info_tree, hf_ubx_nav_sbas_sv_id,
+            tvb,  12 + 12 * i, 1, ENC_NA);
+        proto_tree_add_item(sv_info_tree, hf_ubx_nav_sbas_flags,
+            tvb,  13 + 12 * i, 1, ENC_NA);
+        proto_tree_add_item(sv_info_tree, hf_ubx_nav_sbas_udre,
+            tvb,  14 + 12 * i, 1, ENC_NA);
+        proto_tree_add_item(sv_info_tree, hf_ubx_nav_sbas_sv_sys,
+            tvb,  15 + 12 * i, 1, ENC_NA);
+        proto_tree_add_item(sv_info_tree, hf_ubx_nav_sbas_sv_service,
+            tvb,  16 + 12 * i, 1, ENC_NA);
+        proto_tree_add_item(sv_info_tree, hf_ubx_nav_sbas_reserved2,
+            tvb,  17 + 12 * i, 1, ENC_NA);
+        proto_tree_add_item(sv_info_tree, hf_ubx_nav_sbas_prc,
+            tvb,  18 + 12 * i, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sv_info_tree, hf_ubx_nav_sbas_reserved3,
+            tvb,  20 + 12 * i, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sv_info_tree, hf_ubx_nav_sbas_ic,
+            tvb,  22 + 12 * i, 2, ENC_LITTLE_ENDIAN);
     }
 
     return tvb_captured_length(tvb);
@@ -1913,6 +2023,71 @@ void proto_register_ubx(void) {
             {"CLAS corrections used", "ubx.nav.sat.clas_corr_used",
                 FT_UINT32, BASE_HEX, NULL, 0x00800000, NULL, HFILL}},
 
+        // NAV-SBAS
+        {&hf_ubx_nav_sbas,
+            {"UBX-NAV-SBAS", "ubx.nav.sbas",
+                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_itow,
+            {"iTOW", "ubx.nav.sbas.itow",
+                FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_geo,
+            {"GEO PRN", "ubx.nav.sbas.geo",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_mode,
+            {"SBAS Mode", "ubx.nav.sbas.mode",
+                FT_UINT8, BASE_DEC, VALS(UBX_SBAS_MODE), 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_sys,
+            {"SBAS System", "ubx.nav.sbas.sys",
+                FT_INT8, BASE_DEC, VALS(UBX_SBAS_SYSTEM), 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_service_ranging,
+            {"GEO may be used as ranging source", "ubx.nav.sbas.service.ranging",
+                FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_service_corrections,
+            {"GEO is providing correction data", "ubx.nav.sbas.service.corrections",
+                FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_service_integrity,
+            {"GEO is providing integrity", "ubx.nav.sbas.service.integrity",
+                FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_service_testmode,
+            {"GEO is in test mode", "ubx.nav.sbas.service.testmode",
+                FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_service_bad,
+            {"Problem with signal or broadcast data indicated", "ubx.nav.sbas.service.bad",
+                FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_cnt,
+            {"Number of SV data following", "ubx.nav.sbas.cnt",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_reserved1,
+            {"Reserved", "ubx.nav.sbas.reserved1",
+                FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_sv_id,
+            {"SV ID", "ubx.nav.sbas.sv_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_flags,
+            {"Flags", "ubx.nav.sbas.flags",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_udre,
+            {"Monitoring status", "ubx.nav.sbas.udre",
+                FT_UINT8, BASE_DEC, VALS(UDREI_EVALUATION), 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_sv_sys,
+            {"System", "ubx.nav.sbas.sv_sys",
+                FT_INT8, BASE_DEC, VALS(UBX_SBAS_SYSTEM), 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_sv_service,
+            {"Service", "ubx.nav.sbas.sv_service",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_reserved2,
+            {"Reserved", "ubx.nav.sbas.reserved2",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_prc,
+            {"Pseudo Range correction", "ubx.nav.sbas.prc",
+                FT_INT16, BASE_DEC|BASE_UNIT_STRING, &units_centimeter_centimeters, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_reserved3,
+            {"Reserved", "ubx.nav.sbas.reserved3",
+                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_nav_sbas_ic,
+            {"Ionosphere correction", "ubx.nav.sbas.ic",
+                FT_INT16, BASE_DEC|BASE_UNIT_STRING, &units_centimeter_centimeters, 0x0, NULL, HFILL}},
+
         // NAV-TIMEGPS
         {&hf_ubx_nav_timegps,
             {"UBX-NAV-TIMEGPS", "ubx.nav.timegps",
@@ -2065,6 +2240,7 @@ void proto_register_ubx(void) {
         &ett_ubx_nav_pvt,
         &ett_ubx_nav_pvt_datetime,
         &ett_ubx_nav_sat,
+        &ett_ubx_nav_sbas,
         &ett_ubx_nav_timegps,
         &ett_ubx_nav_timegps_tow,
         &ett_ubx_nav_timeutc,
@@ -2074,7 +2250,8 @@ void proto_register_ubx(void) {
 
     static gint *ett[array_length(ett_part)
         + array_length(ett_ubx_nav_sat_sv_info)
-        + array_length(ett_ubx_cfg_gnss_block)];
+        + array_length(ett_ubx_cfg_gnss_block)
+        + array_length(ett_ubx_nav_sbas_sv_info)];
 
     // fill ett with elements from ett_part,
     // pointers to ett_ubx_nav_sat_sv_info elements, and
@@ -2089,6 +2266,11 @@ void proto_register_ubx(void) {
     for (i = 0; i < array_length(ett_ubx_cfg_gnss_block); i++) {
         ett[i + array_length(ett_part) + array_length(ett_ubx_nav_sat_sv_info)]
             = &ett_ubx_cfg_gnss_block[i];
+    }
+    for (i = 0; i < array_length(ett_ubx_nav_sbas_sv_info); i++) {
+        ett[i + array_length(ett_part) + array_length(ett_ubx_nav_sat_sv_info)
+            + array_length(ett_ubx_cfg_gnss_block)]
+            = &ett_ubx_nav_sbas_sv_info[i];
     }
 
     proto_ubx = proto_register_protocol("UBX Protocol", "UBX", "ubx");
@@ -2119,6 +2301,7 @@ void proto_reg_handoff_ubx(void) {
     UBX_REGISTER_DISSECTOR(dissect_ubx_nav_posecef, UBX_NAV_POSECEF);
     UBX_REGISTER_DISSECTOR(dissect_ubx_nav_pvt,     UBX_NAV_PVT);
     UBX_REGISTER_DISSECTOR(dissect_ubx_nav_sat,     UBX_NAV_SAT);
+    UBX_REGISTER_DISSECTOR(dissect_ubx_nav_sbas,    UBX_NAV_SBAS);
     UBX_REGISTER_DISSECTOR(dissect_ubx_nav_timegps, UBX_NAV_TIMEGPS);
     UBX_REGISTER_DISSECTOR(dissect_ubx_nav_timeutc, UBX_NAV_TIMEUTC);
     UBX_REGISTER_DISSECTOR(dissect_ubx_nav_velecef, UBX_NAV_VELECEF);
