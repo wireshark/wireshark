@@ -599,7 +599,7 @@ static void fmt_correction_125m(gchar *label, gint32 c) {
 
 /* Format velocity corrections with 2^-11 m/s resolution */
 static void fmt_velo_correction(gchar *label, gint32 c) {
-    gint64 temp = c * 48828125;
+    gint64 temp = c * INT64_C(48828125);
     if (c >= 0) {
         snprintf(label, ITEM_LABEL_LENGTH, " %" G_GINT64_FORMAT ".%011" G_GINT64_FORMAT "m/s", temp / 100000000000, temp % 100000000000);
     }
