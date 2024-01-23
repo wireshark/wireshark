@@ -55,6 +55,7 @@
 #include "wsutil/strtoi.h"
 #include "wsutil/str_util.h"
 #include <wsutil/unicode-utils.h>
+#include <wsutil/wsjson.h>
 
 #ifdef HAVE_NGHTTP2
 #define http2_header_repr_type_VALUE_STRING_LIST(XXX)                   \
@@ -2887,7 +2888,43 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
                             data_tvb, pinfo, proto_tree_get_parent_tree(tree), TRUE, &metadata_used_for_media_type_handle);
                     }
                 }
+                return;
             } /* Not multipart/mixed*/
+            /* check for json, from RFC 4627
+             * A JSON text is a serialized object or array.
+             * JSON-text = object / array
+             * These are the six structural characters:
+             * begin-array     = ws %x5B ws  ; [ left square bracket
+             * begin-object    = ws %x7B ws  ; { left curly bracket
+             * :
+             * Insignificant whitespace is allowed before or after any of the six
+             * structural characters.
+             * ws = *(
+             *  %x20 /              ; Space
+             *  %x09 /              ; Horizontal tab
+             *  %x0A /              ; Line feed or New line
+             *  %x0D                ; Carriage return
+             * )
+             */
+            int offset = 0;
+            offset = tvb_skip_wsp(data_tvb, 0, length);
+            guint8 oct = tvb_get_guint8(data_tvb, offset);
+            if ((oct == 0x5b) || (oct == 0x7b)) {
+                /* Potential json */
+                const guint8* buf = tvb_get_string_enc(pinfo->pool, tvb, 0, length, ENC_ASCII);
+
+                if (json_validate(buf, length) == TRUE) {
+                    body_info->content_type = wmem_strndup(wmem_file_scope(), "application/json", 16);
+                    dissector_handle_t handle = dissector_get_string_handle(media_type_dissector_table, body_info->content_type);
+                    metadata_used_for_media_type_handle.media_str = body_info->content_type_parameters;
+                    if (handle) {
+                        dissector_add_uint("http2.streamid", stream_info->stream_id, handle);
+                    }
+                    dissector_try_uint_new(stream_id_content_type_dissector_table, stream_id,
+                        data_tvb, pinfo, proto_tree_get_parent_tree(tree), TRUE, &metadata_used_for_media_type_handle);
+                }
+                return;
+            }
         }
     }
 }
