@@ -166,7 +166,7 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 		open_c = 0; \
 	} while(0)
 
-#define NAME_PARENS_CHAR(c) (g_ascii_isalnum(c) || (c) == '_')
+#define MACRO_NAME_CHAR(c) (g_ascii_isalnum(c) || (c) == '_')
 
 	if (error != NULL)
 		*error = NULL;
@@ -215,7 +215,7 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 
 						goto finish;
 					default:
-						if (NAME_PARENS_CHAR(c)) {
+						if (MACRO_NAME_CHAR(c)) {
 							/* Possible macro of the form $macro_name() */
 							args = g_ptr_array_new();
 							arg = g_string_sized_new(32);
@@ -236,7 +236,7 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 			}
 			case NAME:
 			{
-				if ( g_ascii_isalnum(c) || c == '_' || c == '-' || c == '.' ) {
+				if (MACRO_NAME_CHAR(c)) {
 					g_string_append_c(name,c);
 				} else if ( c == ':') {
 					state = ARGS;
@@ -268,7 +268,7 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 			}
 			case NAME_PARENS:
 			{
-				if (NAME_PARENS_CHAR(c)) {
+				if (MACRO_NAME_CHAR(c)) {
 					g_string_append_c(name,c);
 				} else if ( c == '(' || c == '{') {
 					state = ARGS;
