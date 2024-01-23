@@ -16,3 +16,7 @@ class TestDfilterMacro:
     def test_macro_2(self, checkDFilterCount):
         dfilter = "${private_ipv4:ip.src}"
         checkDFilterCount(dfilter, 1)
+
+    def test_macro_3(self, checkDFilterCount):
+        dfilter = "${private_ipv4;ip.src}"
+        checkDFilterCount(dfilter, 1)

@@ -192,7 +192,7 @@ Arguments in the replacement expression are given using the dollar sign.
 Macros are invoked like function but preceded with a dollar sign
 (sometimes also called a sigil):
 
-    $addplusone(udp.src_port, udp.dst_port)
+    $addplusone(udp.src_port,udp.dst_port)
 
 results in the expression
 
@@ -200,7 +200,11 @@ results in the expression
 
 after argument substitution. There is an older alternative notation to invoke macros:
 
-    ${addplusone: udp.src_port; udp.dst_port}
+    ${addplusone:udp.src_port;udp.dst_port}
+
+or
+
+    ${addplusone;udp.src_port;udp.dst_port}
 
 Both forms are equivalent and can be used interchangibly as a matter of
 preference.

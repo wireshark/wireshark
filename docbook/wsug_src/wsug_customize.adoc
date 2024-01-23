@@ -1100,13 +1100,19 @@ or (ip.src == $2 and ip.dst == $1 and tcp.srcport == $4 and tcp.dstport == $3)
 would allow to use a display filter like
 
 ----
-$tcp_conv(10.1.1.2, 10.1.1.3, 1200, 1400)
+$tcp_conv(10.1.1.2,10.1.1.3,1200,1400)
 ----
 
 or alternatively
 
 ----
 ${tcp_conv:10.1.1.2;10.1.1.3;1200;1400}
+----
+
+or
+
+----
+${tcp_conv;10.1.1.2;10.1.1.3;1200;1400}
 ----
 
 instead of typing the whole filter. Both notations are equivalent. Once defined, a macro can

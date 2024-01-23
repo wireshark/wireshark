@@ -73,9 +73,15 @@ The following features are new (or have been significantly updated) since versio
   ** Added new display filter functions to test various IP address properties.
      Check the wireshark-filter(5) manpage for more information.
 
+  ** Display filter macros can be written with a semicolon after the macro
+     name before the argument list, e.g. `${mymacro;arg1;...;argN}`, instead
+     of `${mymacro:arg1;...;argN}`. The version with semicolons works better
+     with pop-up suggestions when editing the display filter, so the version
+     with the colon might be removed in the future.
+
   ** Display filter macros can be written using a function-like notation.
-     The macro `${mymacro:arg1; ...; argN}` can be written
-     $mymacro(arg1, ..., argN)`.
+     The macro `${mymacro:arg1;...;argN}` can be written
+     `$mymacro(arg1,...,argN)`.
 
 * Display filter functions can be implemented as libwireshark plugins. Plugins are loaded
   during startup from the usual binary plugin configuration directories. See the
