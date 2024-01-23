@@ -2372,7 +2372,10 @@ bool LograyMainWindow::addFollowStreamMenuItem(const void *key _U_, void *value,
      * on the top of the menu list too?
      */
     // XXX - Should we add matches for syscall properties, e.g. file descriptors?
-    // const char *short_name = (const char*)key;
+    const char *short_name = (const char*)key;
+    if (g_strcmp0(short_name, "Falco Bridge") == 0) {
+        follow_action->setText(tr("File Descriptor Stream"));
+    }
     // if (g_strcmp0(short_name, "TCP") == 0) {
     //     follow_action->setShortcut(Qt::CTRL | Qt::ALT | Qt::SHIFT | Qt::Key_T);
     // } else if (g_strcmp0(short_name, "UDP") == 0) {

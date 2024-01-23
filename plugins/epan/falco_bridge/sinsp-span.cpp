@@ -597,6 +597,7 @@ bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, size_t field_num, sin
         break;
     case PT_BYTEBUF:
         field->type = FT_BYTES;
+        break;
     case PT_BOOL:
         field->type = FT_BOOLEAN;
         break;

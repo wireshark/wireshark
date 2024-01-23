@@ -29,6 +29,7 @@
 
 #include "wsutil/file_util.h"
 #include "wsutil/str_util.h"
+#include "wsutil/filesystem.h"
 
 #include "ws_symbol_export.h"
 
@@ -169,17 +170,33 @@ void FollowStreamDialog::fillHintLabel(int pkt)
 {
     QString hint;
 
-    if (pkt > 0) {
-        hint = QString(tr("Packet %1. ")).arg(pkt);
-    }
+    bool is_logray = strcmp(get_configuration_namespace(), "Logray") == 0;
 
-    hint += tr("%Ln <span style=\"color: %1; background-color:%2\">client</span> pkt(s), ", "", client_packet_count_)
-            .arg(ColorUtils::fromColorT(prefs.st_client_fg).name())
-            .arg(ColorUtils::fromColorT(prefs.st_client_bg).name())
-            + tr("%Ln <span style=\"color: %1; background-color:%2\">server</span> pkt(s), ", "", server_packet_count_)
-            .arg(ColorUtils::fromColorT(prefs.st_server_fg).name())
-            .arg(ColorUtils::fromColorT(prefs.st_server_bg).name())
-            + tr("%Ln turn(s).", "", turns_);
+    if (is_logray)  {
+        if (pkt > 0) {
+            hint = QString(tr("Event %1. ")).arg(pkt);
+        }
+
+        hint += tr("%Ln <span style=\"color: %1; background-color:%2\">reads</span>, ", "", client_packet_count_)
+                .arg(ColorUtils::fromColorT(prefs.st_client_fg).name())
+                .arg(ColorUtils::fromColorT(prefs.st_client_bg).name())
+                + tr("%Ln <span style=\"color: %1; background-color:%2\">writes</span>, ", "", server_packet_count_)
+                .arg(ColorUtils::fromColorT(prefs.st_server_fg).name())
+                .arg(ColorUtils::fromColorT(prefs.st_server_bg).name())
+                + tr("%Ln turn(s).", "", turns_);
+    } else {
+        if (pkt > 0) {
+            hint = QString(tr("Packet %1. ")).arg(pkt);
+        }
+
+        hint += tr("%Ln <span style=\"color: %1; background-color:%2\">client</span> pkt(s), ", "", client_packet_count_)
+                .arg(ColorUtils::fromColorT(prefs.st_client_fg).name())
+                .arg(ColorUtils::fromColorT(prefs.st_client_bg).name())
+                + tr("%Ln <span style=\"color: %1; background-color:%2\">server</span> pkt(s), ", "", server_packet_count_)
+                .arg(ColorUtils::fromColorT(prefs.st_server_fg).name())
+                .arg(ColorUtils::fromColorT(prefs.st_server_bg).name())
+                + tr("%Ln turn(s).", "", turns_);
+    }
 
     if (pkt > 0) {
         hint.append(QString(tr(" Click to select.")));
@@ -984,39 +1001,61 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
 
     removeTapListeners();
 
-    hostname0 = address_to_name(&follow_info_.client_ip);
-    hostname1 = address_to_name(&follow_info_.server_ip);
+    bool is_logray = strcmp(get_configuration_namespace(), "Logray") == 0;
 
-    port0 = get_follow_port_to_display(follower_)(NULL, follow_info_.client_port);
-    port1 = get_follow_port_to_display(follower_)(NULL, follow_info_.server_port);
+    if (is_logray)  {
+        server_to_client_string =
+                tr("Read activity(%6)")
+                .arg(gchar_free_to_qstring(format_size(
+                                                follow_info_.bytes_written[0],
+                                            FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
 
-    server_to_client_string =
-            QString("%1:%2 %3 %4:%5 (%6)")
-            .arg(hostname0).arg(port0)
-            .arg(UTF8_RIGHTWARDS_ARROW)
-            .arg(hostname1).arg(port1)
-            .arg(gchar_free_to_qstring(format_size(
-                                            follow_info_.bytes_written[0],
-                                        FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
+        client_to_server_string =
+                tr("Write activity(%6)")
+                .arg(gchar_free_to_qstring(format_size(
+                                                follow_info_.bytes_written[1],
+                                            FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
 
-    client_to_server_string =
-            QString("%1:%2 %3 %4:%5 (%6)")
-            .arg(hostname1).arg(port1)
-            .arg(UTF8_RIGHTWARDS_ARROW)
-            .arg(hostname0).arg(port0)
-            .arg(gchar_free_to_qstring(format_size(
-                                            follow_info_.bytes_written[1],
-                                        FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
+        both_directions_string = tr("Entire I/O activity (%1)")
+                .arg(gchar_free_to_qstring(format_size(
+                                                follow_info_.bytes_written[0] + follow_info_.bytes_written[1],
+                        FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
+    } else {
+        hostname0 = address_to_name(&follow_info_.client_ip);
+        hostname1 = address_to_name(&follow_info_.server_ip);
 
-    wmem_free(NULL, port0);
-    wmem_free(NULL, port1);
+        port0 = get_follow_port_to_display(follower_)(NULL, follow_info_.client_port);
+        port1 = get_follow_port_to_display(follower_)(NULL, follow_info_.server_port);
 
-    both_directions_string = tr("Entire conversation (%1)")
-            .arg(gchar_free_to_qstring(format_size(
-                                            follow_info_.bytes_written[0] + follow_info_.bytes_written[1],
-                    FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
+        server_to_client_string =
+                QString("%1:%2 %3 %4:%5 (%6)")
+                .arg(hostname0).arg(port0)
+                .arg(UTF8_RIGHTWARDS_ARROW)
+                .arg(hostname1).arg(port1)
+                .arg(gchar_free_to_qstring(format_size(
+                                                follow_info_.bytes_written[0],
+                                            FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
+
+        client_to_server_string =
+                QString("%1:%2 %3 %4:%5 (%6)")
+                .arg(hostname1).arg(port1)
+                .arg(UTF8_RIGHTWARDS_ARROW)
+                .arg(hostname0).arg(port0)
+                .arg(gchar_free_to_qstring(format_size(
+                                                follow_info_.bytes_written[1],
+                                            FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
+
+        wmem_free(NULL, port0);
+        wmem_free(NULL, port1);
+
+        both_directions_string = tr("Entire conversation (%1)")
+                .arg(gchar_free_to_qstring(format_size(
+                                                follow_info_.bytes_written[0] + follow_info_.bytes_written[1],
+                        FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
+    }
+
     setWindowSubtitle(tr("Follow %1 Stream (%2)").arg(proto_get_protocol_short_name(find_protocol_by_id(get_follow_proto_id(follower_))))
-                                                 .arg(follow_filter));
+                                                .arg(follow_filter));
 
     ui->cbDirections->blockSignals(true);
     ui->cbDirections->clear();

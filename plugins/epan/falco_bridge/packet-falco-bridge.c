@@ -41,6 +41,7 @@
 #include <epan/conversation_filter.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
+#include <epan/follow.h>
 
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
@@ -83,12 +84,19 @@ typedef struct bridge_info {
     conv_filter_info *conversation_filters;
 } bridge_info;
 
-typedef struct conversation_filter_fields {
+typedef struct falco_conv_filter_fields {
     const char* container_id;
     int64_t pid;
     int64_t tid;
     int64_t fd;
-}conversation_filter_fields;
+    const char* fd_containername;
+}falco_conv_filter_fields;
+
+typedef struct falco_tap_info {
+    const char* data;
+    int32_t datalen;
+    bool is_write;
+}falco_tap_info;
 
 static int proto_falco_bridge;
 static int proto_syscalls[NUM_SINSP_SYSCALL_CATEGORIES];
@@ -104,6 +112,8 @@ static int ett_address;
 static gboolean pref_show_internal = false;
 
 static dissector_table_t ptype_dissector_table;
+
+static int fd_follow_tap;
 
 static int dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 static int dissect_sinsp_enriched(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *bi_ptr);
@@ -422,11 +432,12 @@ on_wireshark_exit(void)
 }
 
 static gboolean
-extract_syscall_conversation_fields (packet_info *pinfo, conversation_filter_fields* args) {
+extract_syscall_conversation_fields (packet_info *pinfo, falco_conv_filter_fields* args) {
     args->container_id = NULL;
     args->pid = -1;
     args->tid = -1;
     args->fd = -1;
+    args->fd_containername = NULL;
 
     // Syscalls are always the bridge with source_id 0.
     bridge_info* bi = get_bridge_info(0);
@@ -466,6 +477,10 @@ extract_syscall_conversation_fields (packet_info *pinfo, conversation_filter_fie
             args->fd = sinsp_fields[sf_idx].res.u64;
         }
 
+        if (strcmp(hfinfo->abbrev, "fd.containername") == 0) {
+            args->fd_containername = get_str_value(sinsp_fields, sf_idx);
+        }
+
         sf_idx++;
     }
 
@@ -500,24 +515,24 @@ static gboolean sysdig_fd_filter_valid(packet_info *pinfo, void *user_data _U_) 
         return false;
     }
 
-    conversation_filter_fields cff;
+    falco_conv_filter_fields cff;
     return extract_syscall_conversation_fields(pinfo, &cff);
 }
 
 static gchar* sysdig_container_build_filter(packet_info *pinfo, void *user_data _U_) {
-    conversation_filter_fields cff;
+    falco_conv_filter_fields cff;
     extract_syscall_conversation_fields(pinfo, &cff);
     return ws_strdup_printf("container.id==\"%s\"", cff.container_id);
 }
 
 static gchar* sysdig_proc_build_filter(packet_info *pinfo, void *user_data _U_) {
-    conversation_filter_fields cff;
+    falco_conv_filter_fields cff;
     extract_syscall_conversation_fields(pinfo, &cff);
     return ws_strdup_printf("container.id==\"%s\" && proc.pid==%" PRIu64, cff.container_id, cff.pid);
 }
 
 static gchar* sysdig_procdescendants_build_filter(packet_info *pinfo, void *user_data _U_) {
-    conversation_filter_fields cff;
+    falco_conv_filter_fields cff;
     extract_syscall_conversation_fields(pinfo, &cff);
     return ws_strdup_printf("container.id==\"%s\" && (proc.pid==%" PRIu64 " || proc.apid.1==%" PRIu64 " || proc.apid.2==%" PRIu64 " || proc.apid.3==%" PRIu64 " || proc.apid.4==%" PRIu64 ")",
         cff.container_id,
@@ -529,15 +544,70 @@ static gchar* sysdig_procdescendants_build_filter(packet_info *pinfo, void *user
 }
 
 static gchar* sysdig_thread_build_filter(packet_info *pinfo, void *user_data _U_) {
-    conversation_filter_fields cff;
+    falco_conv_filter_fields cff;
     extract_syscall_conversation_fields(pinfo, &cff);
     return ws_strdup_printf("container.id==\"%s\" && thread.tid==%" PRIu64, cff.container_id, cff.tid);
 }
 
 static gchar* sysdig_fd_build_filter(packet_info *pinfo, void *user_data _U_) {
-    conversation_filter_fields cff;
+    falco_conv_filter_fields cff;
     extract_syscall_conversation_fields(pinfo, &cff);
-    return ws_strdup_printf("container.id==\"%s\" && thread.tid==%" PRIu64 " && fd.num==%" PRIu64, cff.container_id, cff.tid, cff.fd);
+    return ws_strdup_printf("container.id==\"%s\" && thread.tid==%" PRIu64 " && fd.containername==\"%s\"", 
+        cff.container_id, 
+        cff.tid, 
+        cff.fd_containername);
+}
+
+static gchar *fd_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo _U_, guint *stream _U_, guint *sub_stream _U_)
+{
+    return sysdig_fd_build_filter(pinfo, NULL);
+}
+
+static gchar *fd_follow_index_filter(guint stream _U_, guint sub_stream _U_)
+{
+    return NULL;
+}
+
+static gchar *fd_follow_address_filter(address *src_addr _U_, address *dst_addr _U_, int src_port _U_, int dst_port _U_)
+{
+    return NULL;
+}
+
+gchar *
+fd_port_to_display(wmem_allocator_t *allocator _U_, guint port _U_)
+{
+    return NULL;
+}
+
+tap_packet_status
+fd_tap_listener(void *tapdata _U_, packet_info *pinfo _U_,
+                      epan_dissect_t *edt _U_, const void *data _U_, tap_flags_t flags _U_)
+{
+    follow_record_t *follow_record;
+    follow_info_t *follow_info = (follow_info_t *)tapdata;
+    falco_tap_info *tap_info = (falco_tap_info *)data;
+    gboolean is_server;
+
+    is_server = tap_info->is_write;
+
+    follow_record = g_new0(follow_record_t, 1);
+    follow_record->is_server = is_server;
+    follow_record->packet_num = pinfo->fd->num;
+    follow_record->abs_ts = pinfo->fd->abs_ts;
+    follow_record->data = g_byte_array_append(g_byte_array_new(),
+                                              tap_info->data,
+                                              tap_info->datalen);
+
+    follow_info->bytes_written[is_server] += follow_record->data->len;
+    follow_info->payload = g_list_prepend(follow_info->payload, follow_record);
+
+    return TAP_PACKET_DONT_REDRAW;
+}
+
+guint32 get_fd_stream_count(void)
+{
+    // This effectively desables the "streams" dropdown, which is we don't really care about for the moment in logray.
+    return 1;
 }
 
 void
@@ -555,6 +625,12 @@ proto_register_falcoplugin(void)
 
     proto_falco_bridge = proto_register_protocol("Falco Bridge", "Falco Bridge", "falcobridge");
     register_dissector("falcobridge", dissect_falco_bridge, proto_falco_bridge);
+
+    // Register the "follow" handlers
+    fd_follow_tap = register_tap("fd_follow");
+
+    register_follow_stream(proto_falco_bridge, "fd_follow", fd_follow_conv_filter, fd_follow_index_filter, fd_follow_address_filter,
+                        fd_port_to_display, fd_tap_listener, get_fd_stream_count, NULL);
 
     // Try to have a 1:1 mapping for as many Sysdig / Falco fields as possible.
     // The exceptions are SSC_EVTARGS and SSC_PROCLINEAGE, which exposes the event arguments in a way that is convenient for the user.
@@ -815,6 +891,9 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
 
     proto_tree *parent_trees[NUM_SINSP_SYSCALL_CATEGORIES] = {};
     proto_tree *lineage_trees[N_PROC_LINEAGE_ENTRIES] = {};
+    bool is_io_write = false;
+    const char* io_buffer = NULL;
+    uint32_t io_buffer_len = 0;
 
     for (uint32_t hf_idx = 0, sf_idx = 0; hf_idx < bi->visible_fields && sf_idx < sinsp_fields_count; hf_idx++) {
         if (sinsp_fields[sf_idx].field_idx != hf_idx) {
@@ -863,6 +942,14 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
 #define EVT_ARG_PFX "evt.arg."
         if (! (g_str_has_prefix(hfinfo->abbrev, EVT_ARG_PFX) && ws_strtoi32(hfinfo->abbrev + sizeof(EVT_ARG_PFX) - 1, NULL, &arg_num)) ) {
             arg_num = -1;
+        }
+
+        if (strcmp(hfinfo->abbrev, "evt.is_io_write") == 0) {
+            is_io_write = sinsp_fields[sf_idx].res.boolean;
+        }
+        if (strcmp(hfinfo->abbrev, "evt.buffer") == 0) {
+            io_buffer = sinsp_fields[sf_idx].res.str;
+            io_buffer_len = sinsp_fields[sf_idx].res_len;
         }
 
         switch (hfinfo->type) {
@@ -950,6 +1037,14 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
                 break;
         }
         sf_idx++;
+    }
+
+    if (have_tap_listener(fd_follow_tap) && io_buffer_len > 0) {
+        falco_tap_info tapinfo;
+        tapinfo.data = io_buffer;
+        tapinfo.datalen = io_buffer_len;
+        tapinfo.is_write = is_io_write;
+        tap_queue_packet(fd_follow_tap, pinfo, &tapinfo);
     }
 
     return tvb_captured_length(tvb);
