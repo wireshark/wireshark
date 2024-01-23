@@ -1143,8 +1143,10 @@ static int dissect_ubx_nav_sat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         const guint32 used = (tvb_get_guint32(tvb, 16 + 12 * i, ENC_LITTLE_ENDIAN) & 0x0008) >> 3;
 
         proto_tree *sv_info_tree = proto_tree_add_subtree_format(ubx_nav_sat_tree,
-                tvb, 8 + 12 * i, 9, ett_ubx_nav_sat_sv_info[i], NULL,
-                "GNSS ID %d, SV ID %3d, used %d", gnss_id, sv_id, used);
+                tvb, 8 + 12 * i, 12, ett_ubx_nav_sat_sv_info[i], NULL,
+                "%-7s / SV ID %3d, used %d",
+                val_to_str_const(gnss_id, UBX_GNSS_ID, "Unknown GNSS ID"),
+                sv_id, used);
 
         proto_tree_add_item(sv_info_tree, hf_ubx_nav_sat_gnss_id,
             tvb,  8 + 12 * i, 1, ENC_NA);
