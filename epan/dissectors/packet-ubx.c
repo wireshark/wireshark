@@ -572,7 +572,7 @@ static int ett_ubx_nav_posecef;
 static int ett_ubx_nav_pvt;
 static int ett_ubx_nav_pvt_datetime;
 static int ett_ubx_nav_sat;
-static int ett_ubx_nav_sat_sv_info[309];
+static int ett_ubx_nav_sat_sv_info[255];
 static int ett_ubx_nav_timegps;
 static int ett_ubx_nav_timegps_tow;
 static int ett_ubx_nav_timeutc;
