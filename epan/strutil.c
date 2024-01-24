@@ -131,6 +131,10 @@ is_byte_sep(guint8 c)
 
 /* Turn a string of hex digits with optional separators (defined by
  * is_byte_sep() into a byte array.
+ *
+ * XXX - This function is perhaps too generous in what it accepts.
+ * It allows the separator to change from one character to another,
+ * or to and from no separator if force_separators is false.
  */
 gboolean
 hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separators)
@@ -152,9 +156,19 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
         r = p+2;
         s = p+3;
 
-        if (*q && *r && *s
+        if (*q && *r
                 && g_ascii_isxdigit(*p) && g_ascii_isxdigit(*q) &&
-                g_ascii_isxdigit(*r) && g_ascii_isxdigit(*s)) {
+                g_ascii_isxdigit(*r)) {
+
+            /*
+             * Three hex bytes in a row, followed by a non hex byte
+             * (possibly the end of the string). We don't accept an
+             * odd number of hex digits except for single digits
+             * by themselves or after a separator.
+             */
+            if (!g_ascii_isxdigit(*s)) {
+                return FALSE;
+            }
             four_digits_first_half[0] = *p;
             four_digits_first_half[1] = *q;
             four_digits_first_half[2] = '\0';
@@ -174,7 +188,7 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
             if (*punct) {
                 /*
                  * Make sure the character after
-                 * the forth hex digit is a byte
+                 * the fourth hex digit is a byte
                  * separator, i.e. that we don't have
                  * more than four hex digits, or a
                  * bogus character.
