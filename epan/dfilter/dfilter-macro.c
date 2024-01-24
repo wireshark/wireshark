@@ -92,13 +92,16 @@ static bool start_is_field_reference(const char *start)
 	char saved_c;
 	const header_field_info *hfinfo;
 
-	end = strchr(start, '#');
-	if (end == NULL)
-		end = strchr(start, '}');
+	end = strpbrk(start, "#}:;");
 	if (end == NULL)
 		return false;
 
 	saved_c = *end;
+	if (saved_c == ';' || saved_c == ':') {
+		/* Cannot be a field, looks like macro. */
+		return false;
+	}
+
 	/* This violates constness but we will restore the original string. */
 	*(char *)end = '\0';
 	/* Search for name in registered fields. */
