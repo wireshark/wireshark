@@ -763,7 +763,7 @@ dissect_ipv6_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 	/* Put the BVLC Type in the info column */
 	col_append_fstr(pinfo->cinfo, COL_INFO, " BVLC Function %s ",
-                  val_to_str_const(bvlc_function, bvlc_function_names, "unknown"));
+                  val_to_str_const(bvlc_function, bvlc_ipv6_function_names, "unknown"));
 
 	ti = proto_tree_add_item(tree, proto_bvlc, tvb, 0,
 		bvlc_length, ENC_NA);
