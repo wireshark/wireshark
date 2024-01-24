@@ -924,7 +924,9 @@ class TestDissectCommunityId:
         self.check_baseline(dirs, stdout, 'communityid-filtered.txt')
 
 class TestDecompressMongo:
-    def test_decompress_zstd(self, cmd_tshark, capture_file, test_env):
+    def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
+        if not features.have_zstd:
+            pytest.skip('Requires zstd.')
         stdout = subprocess.check_output((cmd_tshark,
                 '-d', 'tcp.port==27017,mongo',
                 '-r', capture_file('mongo-zstd.pcapng'),
