@@ -272,8 +272,8 @@ ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_acce
         gchar *compress_type, gboolean has_nametimenum)
 {
     unsigned int i;
-    char        *pfx, *last_pathsep;
-    gchar       *save_file;
+    char        *pfx;
+    char        *dir_name, *base_name;
 
     rb_data.files = NULL;
     rb_data.curr_file_num = 0;
@@ -304,32 +304,31 @@ ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_acce
 
     /* set file name prefix/suffix */
 
-    save_file = g_strdup(capfile_name);
-    last_pathsep = strrchr(save_file, G_DIR_SEPARATOR);
-    pfx = strrchr(save_file,'.');
-    if (pfx != NULL && (last_pathsep == NULL || pfx > last_pathsep)) {
-        /* The pathname has a "." in it, and it's in the last component
-           of the pathname (because there is either only one component,
-           i.e. last_pathsep is null as there are no path separators,
-           or the "." is after the path separator before the last
-           component.
+    base_name = g_path_get_basename(capfile_name);
+    dir_name = g_path_get_dirname(capfile_name);
+    pfx = strrchr(base_name, '.');
+    if (pfx != NULL) {
+        /* The basename has a "." in it.
 
            Treat it as a separator between the rest of the file name and
            the file name suffix, and arrange that the names given to the
            ring buffer files have the specified suffix, i.e. put the
-           changing part of the name *before* the suffix. */
+           changing part of the name *before* the suffix.
+
+           XXX - If we ever handle writing compressed files directly
+           (#19159) make sure we deal with any compression suffix
+           appropriately. */
         pfx[0] = '\0';
-        rb_data.fprefix = g_strdup(save_file);
+        rb_data.fprefix = g_build_filename(dir_name, base_name, NULL);
         pfx[0] = '.'; /* restore capfile_name */
         rb_data.fsuffix = g_strdup(pfx);
     } else {
-        /* Either there's no "." in the pathname, or it's in a directory
-           component, so the last component has no suffix. */
-        rb_data.fprefix = g_strdup(save_file);
+        /* The last component has no suffix. */
+        rb_data.fprefix = g_strdup(capfile_name);
         rb_data.fsuffix = NULL;
     }
-    g_free(save_file);
-    save_file = NULL;
+    g_free(dir_name);
+    g_free(base_name);
 
     /* allocate rb_file structures (only one if unlimited since there is no
        need to save all file names in that case) */
