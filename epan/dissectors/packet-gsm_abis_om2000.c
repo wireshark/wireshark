@@ -1375,12 +1375,12 @@ proto_register_abis_om2000(void)
 		},
 		{ &hf_om2k_ext_range,
 		  { "Extended Range", "gsm_abis_om2000.ext_range",
-		    FT_BOOLEAN, 1, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01' ? */
+		    FT_BOOLEAN, BASE_NONE, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_irc,
 		  { "Interference Rejection Combining", "gsm_abis_om2000.irc",
-		    FT_BOOLEAN, 1, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01,' ? */
+		    FT_BOOLEAN, BASE_NONE, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_bs_pa_mfrms,
@@ -1400,12 +1400,12 @@ proto_register_abis_om2000(void)
 		},
 		{ &hf_om2k_cr,
 		  { "CCCH Repeat", "gsm_abis_om2000.ccch_repeat",
-		    FT_BOOLEAN, 1, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01,' ? */
+		    FT_BOOLEAN, BASE_NONE, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_ipt3,
 		  { "Inhibit Paging Request Type 3", "gsm_abis_om2000.ipt3",
-		    FT_BOOLEAN, 2, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x02,' ? */
+		    FT_BOOLEAN, BASE_NONE, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x02,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_aop,
@@ -1425,7 +1425,7 @@ proto_register_abis_om2000(void)
 		},
 		{ &hf_om2k_cbi,
 		  { "CBCH Indicator", "gsm_abis_om2000.cbi",
-		    FT_BOOLEAN, 1, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01,' ? */
+		    FT_BOOLEAN, BASE_NONE, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_tsc,
@@ -1435,7 +1435,7 @@ proto_register_abis_om2000(void)
 		},
 		{ &hf_om2k_icm,
 		  { "Idle Channel Measurement", "gsm_abis_om2000.icm",
-		    FT_BOOLEAN, 1, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01,' ? */
+		    FT_BOOLEAN, BASE_NONE, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_tta,

@@ -24,6 +24,8 @@
  * https://www.3gpp2.org/Public_html/Specs/A.S0017-D%20v3.0_Interoperability%20Specification%20%28IOS%29%20for%20cdma2000%20Access%20Network%20Interfaces%20-%20Part%207%20%28A10%20and%20A11%20Interfaces%29_20110701.pdf
  * https://www.3gpp2.org/Public_html/Specs/A00-20110419-002Er0%20A.S0008-C%20v4.0%20HRPD%20IOS-Pub_20110513.pdf
  * https://www.3gpp2.org/Public_html/Specs/A.S0022-0_v2.0_100426.pdf
+ *
+ * https://web.archive.org/web/20070812071100/http://3gpp2.org:80/Public_html/specs/A.S0017-0_v2.0.pdf
  */
 
 #include "config.h"
@@ -2217,7 +2219,7 @@ proto_register_a11(void)
         },
         { &hf_a11_vse_ehrpd_mode,
           { "eHRPD Mode",           "a11.ext.ehrpd.mode",
-            FT_BOOLEAN, 8, TFS(&a11_tfs_ehrpd_mode), 0,
+            FT_BOOLEAN, BASE_NONE, TFS(&a11_tfs_ehrpd_mode), 0,
             NULL, HFILL }
         },
         { &hf_a11_vse_ehrpd_pmk,

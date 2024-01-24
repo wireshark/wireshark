@@ -7625,7 +7625,7 @@ proto_register_gsm_a_dtap(void)
         },
         { &hf_gsm_a_dtap_epc_ue_tl_gh_ul_loopback_op_mode,
           { "Uplink loopback operation mode","gsm_a.dtap.epc.ue_tl_gh_ul_loopback_op_mode",
-            FT_BOOLEAN, 8, TFS(&epc_ue_tl_gh_communication_value), 0x0,
+            FT_BOOLEAN, BASE_NONE, TFS(&epc_ue_tl_gh_communication_value), 0x0,
             NULL, HFILL }
         },
         { &hf_gsm_a_dtap_epc_ue_tl_gh_repetitions,

@@ -12565,7 +12565,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_meas_valid,
               { "MEAS-VALID","gsm_a.rr.meas_valid",
-                FT_BOOLEAN,8,  TFS(&gsm_a_rr_mv_vals), 0x0,
+                FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_mv_vals), 0x0,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_rxlev_full_serv_cell,

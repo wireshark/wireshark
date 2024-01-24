@@ -8655,22 +8655,22 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_msg_fragment_overlap,
 			{ "Message fragment overlap", "nfapi.fragment.overlap",
-			FT_BOOLEAN, 0, NULL, 0x00,
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 			NULL, HFILL }
 		},
 		{ &hf_msg_fragment_overlap_conflicts,
 			{ "Message fragment overlapping with conflicting data", "nfapi.fragment.overlap.conflicts",
-			FT_BOOLEAN, 0, NULL, 0x00,
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 			NULL, HFILL }
 		},
 		{ &hf_msg_fragment_multiple_tails,
 			{ "Message has multiple tail fragments", "nfapi.fragment.multiple_tails",
-			FT_BOOLEAN, 0, NULL, 0x00,
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 			NULL, HFILL }
 		},
 		{ &hf_msg_fragment_too_long_fragment,
 			{ "Message fragment too long", "nfapi.fragment.too_long_fragment",
-			FT_BOOLEAN, 0, NULL, 0x00,
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 			NULL, HFILL }
 		},
 		{ &hf_msg_fragment_error,
@@ -8936,17 +8936,17 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_mbsfn_capability,
 			{ "MBSFN capability", "nfapi.mbsfn.capability",
-			FT_BOOLEAN, 16, TFS(&support_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&support_strname), 0x0,
 			"Indicates support for MBSFN features", HFILL }
 		},
 		{ &hf_nfapi_laa_capability,
 			{ "LAA Support", "nfapi.laa.support",
-			FT_BOOLEAN, 16, TFS(&support_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&support_strname), 0x0,
 			"Indicates support for LAA features", HFILL }
 		},
 		{ &hf_nfapi_pd_sensing_lbt_support,
 			{ "PD sensing LBT support", "nfapi.pd.sensing.lbt.support",
-			FT_BOOLEAN, 16, TFS(&support_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&support_strname), 0x0,
 			"Indicates support for PD sensing in L1", HFILL }
 		},
 		{ &hf_nfapi_multi_carrier_lbt_support,
@@ -8956,7 +8956,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_partial_sf_support,
 			{ "Partial SF support", "nfapi.partial.sf.support",
-			FT_BOOLEAN, 8, TFS(&partial_sf_support_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&partial_sf_support_strname), 0x0,
 			"Indicates support for Partial SF in L1", HFILL }
 		},
 		{ &hf_nfapi_reference_signal_power,
@@ -8986,7 +8986,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_phich_duration,
 			{ "PHICH Duration", "nfapi.phich.duration",
-			FT_BOOLEAN, 8, TFS(&phich_duration_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&phich_duration_strname), 0x0,
 			"The PHICH duration for MBSFN and non-MBSFN sub-frames", HFILL }
 		},
 		{ &hf_nfapi_phich_power_offset,
@@ -9011,7 +9011,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_high_speed_flag,
 			{ "High Speed Flag", "nfapi.high.speed.flag",
-			FT_BOOLEAN, 8, TFS(&high_speed_flag_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&high_speed_flag_strname), 0x0,
 			"Indicates if unrestricted, or restricted, set of preambles is used", HFILL }
 		},
 		{ &hf_nfapi_frequency_offset,
@@ -9021,7 +9021,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_hopping_mode,
 			{ "Hopping Mode", "nfapi.hopping.mode",
-			FT_BOOLEAN, 8, TFS(&hopping_mode_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&hopping_mode_strname), 0x0,
 			"If hopping is enabled indicates the type of hopping used", HFILL }
 		},
 		{ &hf_nfapi_hopping_offset,
@@ -9106,12 +9106,12 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_multi_carrier_tx,
 			{ "Multi carrier TX", "nfapi.multi.carrier.tx",
-			FT_BOOLEAN, 8, TFS(&nfapi_multi_carrier_tx_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&nfapi_multi_carrier_tx_strname), 0x0,
 			"Indicates multi carrier transmission configuration of L1 (according to type if supporting multi carrier)", HFILL }
 		},
 		{ &hf_nfapi_multi_carrier_freeze,
 			{ "Multi carrier freeze", "nfapi.multi.carrier.freeze",
-			FT_BOOLEAN, 8, TFS(&nfapi_multi_carrier_freeze_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&nfapi_multi_carrier_freeze_strname), 0x0,
 			"Indicates multi carrier freeze, configuration of L1 (applicable only to type A type if supporting multi carrier)", HFILL }
 		},
 		{ &hf_nfapi_tx_antenna_ports_for_drs,
@@ -9126,7 +9126,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_pbch_repetitions_enabled_r13,
 			{ "PBCH Repetitions enable R13", "nfapi.pbch.repetitions.enabled_r13",
-			FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0x0,
 			"Enable / Disable PBCH repetitions", HFILL }
 		},
 		{ &hf_nfapi_prach_cat_m_root_sequence_index,
@@ -9141,12 +9141,12 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_prach_cat_m_high_speed_flag,
 			{ "PRACH CAT-M High speed flag", "nfapi.prach.cat_m.high.speed.flag",
-			FT_BOOLEAN, 8, TFS(&high_speed_flag_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&high_speed_flag_strname), 0x0,
 			"Indicates if unrestricted, or restricted, set of preambles is used", HFILL }
 		},
 		{ &hf_nfapi_prach_ce_level_0_enable,
 			{ "PRACH CE level #0 Enable", "nfapi.prach.ce.level.0.enable",
-			FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0x0,
 			"Enable \\ Disable CE level #0.", HFILL }
 		},
 		{ &hf_nfapi_prach_ce_level_0_configuration_index,
@@ -9171,7 +9171,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_prach_ce_level_0_hopping_enabled,
 			{ "PRACH CE level #0 Hopping Enable", "nfapi.prach.ce.level.0.hopping_enable",
-			FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0x0,
 			"Enable \\ Disable PRACH frequency hopping for each CE level", HFILL }
 		},
 		{ &hf_nfapi_prach_ce_level_0_hopping_offset,
@@ -9181,7 +9181,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_prach_ce_level_1_enable,
 			{ "PRACH CE level #1 Enable", "nfapi.prach.ce.level.0.enable",
-			FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0x0,
 			"Enable \\ Disable CE level #1", HFILL }
 		},
 		{ &hf_nfapi_prach_ce_level_1_configuration_index,
@@ -9206,7 +9206,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_prach_ce_level_1_hopping_enabled,
 			{ "PRACH CE level #1 Hopping Enable", "nfapi.prach.ce.level.1.hopping_enable",
-			FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0x0,
 			"Enable \\ Disable PRACH frequency hopping for each CE level.", HFILL }
 		},
 		{ &hf_nfapi_prach_ce_level_1_hopping_offset,
@@ -9216,7 +9216,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_prach_ce_level_2_enable,
 			{ "PRACH CE level #2 Enable", "nfapi.prach.ce.level.2.enable",
-			FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0x0,
 			"Enable \\ Disable CE level #2", HFILL }
 		},
 		{ &hf_nfapi_prach_ce_level_2_configuration_index,
@@ -9241,7 +9241,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_prach_ce_level_2_hopping_enabled,
 			{ "PRACH CE level #2 Hopping Enable", "nfapi.prach.ce.level.2.hopping_enable",
-			FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0x0,
 			"Enable \\ Disable PRACH frequency hopping for each CE level", HFILL }
 		},
 		{ &hf_nfapi_prach_ce_level_2_hopping_offset,
@@ -9251,7 +9251,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_prach_ce_level_3_enable,
 			{ "PRACH CE level #3 Enable", "nfapi.prach.ce.level.3.enable",
-			FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0x0,
 			"Enable \\ Disable CE level #3.", HFILL }
 		},
 		{ &hf_nfapi_prach_ce_level_3_configuration_index,
@@ -9276,7 +9276,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_prach_ce_level_3_hopping_enabled,
 			{ "PRACH CE level #3 Hopping Enable", "nfapi.prach.ce.level.3.hopping_enable",
-			FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0x0,
 			"Enable \\ Disable PRACH frequency hopping for each CE level.", HFILL }
 		},
 		{ &hf_nfapi_prach_ce_level_3_hopping_offset,
@@ -9296,7 +9296,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_data_report_mode,
 			{ "Data Report Mode", "nfapi.data.report.mode",
-			FT_BOOLEAN, 8, TFS(&data_report_mode_vals), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&data_report_mode_vals), 0x0,
 			"The data report mode for the uplink data", HFILL }
 		},
 		{ &hf_nfapi_sfnsf,
@@ -9306,12 +9306,12 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_max_up_pts,
 			{ "Max UpPTS frames", "nfapi.max.uppts.frame",
-			FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0x0,
 			"Used for TDD only and indicates how SRS operates in UpPTS subframes", HFILL }
 		},
 		{ &hf_nfapi_srs_acknack_srs_simultaneous_transmission,
 			{ "SRS AckNack Simultaneous transmission", "nfapi.srs.acknack.simult.tx",
-			FT_BOOLEAN, 8, TFS(&srs_simult_tx_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&srs_simult_tx_strname), 0x0,
 			"Indicates if SRS and ACK/NACK can be received in the same subframe. Needed if semi-static configuration is held in PHY.", HFILL }
 		},
 		{ &hf_nfapi_pnf_address_ipv4,
@@ -9407,12 +9407,12 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_shared_bands,
 			{ "Shared bands", "nfapi.shared.bands",
-			FT_BOOLEAN, 8, NULL, 0x0,
+			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"Indication that the PNF device shares the list of RF band options available across all available PHYs, so each may only be used with a single PHY.", HFILL }
 		},
 		{ &hf_nfapi_shared_pa,
 			{ "Shared pa", "nfapi.shared.pa",
-			FT_BOOLEAN, 8, NULL, 0x0,
+			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"Indication that the PNF device shares a single RF PA across all available PHYs, so that the maximum Total Power is shared across all available PHYs.", HFILL }
 		},
 		{ &hf_nfapi_maximum_total_power,
@@ -9924,12 +9924,12 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_prs_cyclic_prefix_type,
 			{ "PRS cyclic prefix type", "nfapi.prs.cyclic.prefix.type",
-			FT_BOOLEAN, 8, TFS(&prs_cyclic_prefix_type_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&prs_cyclic_prefix_type_strname), 0x0,
 			"The cyclic prefix used for PRS transmission", HFILL }
 		},
 		{ &hf_prs_muting,
 			{ "PRS muting", "nfapi.prs.muting",
-			FT_BOOLEAN, 8, TFS(&prs_muting_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&prs_muting_strname), 0x0,
 			"PRS muting dictates if PRS REs are vacant (prsMutingInfo-r9 indicates the SF occasions)", HFILL }
 		},
 		{ &hf_nfapi_num_bf_prb_per_subband,
@@ -9969,7 +9969,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_csi_rs_flag,
 			{ "CSI RS Flag", "nfapi.csi.rs.flag",
-			FT_BOOLEAN, 8, TFS(&tfs_valid_not_valid), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_valid_not_valid), 0x0,
 			"Indicates if parameters related to CSI-RS are valid or not.", HFILL }
 		},
 		{ &hf_nfapi_csi_rs_resource_config_r10,
@@ -10170,7 +10170,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_pmi_flag,
 			{ "PMI flag", "nfapi.pmi.flag",
-			FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x0,
 			"Indicates if 'PMI' field is present", HFILL }
 		},
 		{ &hf_nfapi_harq_resource_offset,
@@ -10195,7 +10195,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_antenna_ports_and_scrambling_identity_flag,
 			{ "Antenna ports and scrambling identity flag", "nfapi.antenna.ports.and.scrambling.identity.flag",
-			FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x0,
 			"Indicates if 'Antenna ports and scrambling identity' field is present.", HFILL }
 		},
 		{ &hf_nfapi_antenna_ports_and_scrambling_identity,
@@ -10374,7 +10374,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_cross_carrier_scheduling_flag,
 			{ "Cross Carrier scheduling flag", "nfapi.cross.carrier.scheduling.flag",
-			FT_BOOLEAN, 8, TFS(&cross_carrier_scheduling_flag_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&cross_carrier_scheduling_flag_strname), 0x0,
 			"Indicates if cross carrier scheduling has been enabled for the UE receiving this DCI", HFILL }
 		},
 		{ &hf_nfapi_carrier_indicator,
@@ -10384,12 +10384,12 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_srs_flag,
 			{ "SRS flag", "nfapi.srs.flag",
-			FT_BOOLEAN, 8, TFS(&srs_flag_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&srs_flag_strname), 0x0,
 			"Indicates if the SRS request parameter is valid", HFILL }
 		},
 		{ &hf_nfapi_srs_request,
 			{ "SRS request", "nfapi.srs.request",
-			FT_BOOLEAN, 8, TFS(&srs_request_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&srs_request_strname), 0x0,
 			"SRS request flag", HFILL }
 		},
 		{ &hf_nfapi_antenna_ports_scrambling_and_layers,
@@ -10428,7 +10428,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_ul_dl_configuration_flag,
 			{ "UL/DL configuration flag", "nfapi.ul.dl.configuration.flag",
-			FT_BOOLEAN, 8, TFS(&ul_dl_configuration_flag_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&ul_dl_configuration_flag_strname), 0x0,
 			"Indicates if format 1C is being used to signal UL/DL configuration", HFILL }
 		},
 		{ &hf_nfapi_number_of_ul_dl_configurations,
@@ -10500,7 +10500,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_dai_presence_flag,
 			{ "DAI presence flag", "nfapi.dia.presence.flag",
-			FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x0,
 			"Indicates if DL assignment Index field is present in the DCI", HFILL }
 		},
 		{ &hf_nfapi_total_dci_length_include_padding,
@@ -10785,7 +10785,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_report_type,
 			{ "Report type", "nfapi.report.type",
-			FT_BOOLEAN, 8, TFS(&nfapi_csi_report_type_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&nfapi_csi_report_type_strname), 0x0,
 			"Type of CSI report", HFILL }
 		},
 		{ &hf_nfapi_dl_cqi_ri_pmi_size,
@@ -10795,7 +10795,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_control_type,
 			{ "Control type", "nfapi.control.type",
-			FT_BOOLEAN, 8, TFS(&nfapi_control_type_string_name), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&nfapi_control_type_string_name), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_nfapi_number_of_cc,
@@ -10870,7 +10870,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_crc_flag,
 			{ "CRC flag", "nfapi.crc.flag",
-			FT_BOOLEAN, 8, TFS(&crc_flag_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&crc_flag_strname), 0x0,
 			"A flag indicating if a CRC error was detected", HFILL }
 		},
 		{ &hf_nfapi_number_of_hi_pdus,
@@ -10890,7 +10890,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_hi_value,
 			{ "HI Value", "nfapi.hi_value",
-			FT_BOOLEAN, 8, TFS(&hi_value_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&hi_value_strname), 0x0,
 			"The PHICH value which is sent on the resource", HFILL }
 		},
 		{ &hf_nfapi_i_phich,
@@ -10965,12 +10965,12 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_dl_cyclic_prefix_type,
 			{ "DL Cyclic Prefix type", "nfapi.dl.cyclic.prefix.type",
-			FT_BOOLEAN, 8, TFS(&cyclic_prefix_type_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&cyclic_prefix_type_strname), 0x0,
 			"Cyclic prefix type, used for DL", HFILL }
 		},
 		{ &hf_nfapi_ul_cyclic_prefix_type,
 			{ "UL Cyclic Prefix type", "nfapi.ul.cyclic.prefix.type",
-			FT_BOOLEAN, 8, TFS(&cyclic_prefix_type_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&cyclic_prefix_type_strname), 0x0,
 			"Cyclic prefix type, used for UL", HFILL }
 		},
 		{ &hf_nfapi_downlink_channel_bandwidth,
@@ -11500,7 +11500,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_lbt_mode,
 			{ "LBT Mode", "nfapi.lbt.mode",
-			FT_BOOLEAN, 32, TFS(&lbt_mode_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&lbt_mode_strname), 0x0,
 			"Part of multi-carrier support. Indicates whether full LBT process is carried or partial LBT process is carried (multi carrier mode B according to [9] section 15.1.5.2)", HFILL }
 		},
 		{ &hf_nfapi_lte_txop_sf,
@@ -11525,7 +11525,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_result,
 			{ "result", "nfapi.result",
-			FT_BOOLEAN, 32, TFS(&tfs_fail_success), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_fail_success), 0x0,
 			"Indicates the LBT procedure result of SFN/SF:", HFILL }
 		},
 		{ &hf_nfapi_sfn_sf_end,
