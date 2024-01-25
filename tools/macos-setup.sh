@@ -1823,14 +1823,16 @@ uninstall_snappy() {
 }
 
 install_zstd() {
-    if [ "$ZSTD_VERSION" -a ! -f zstd-$ZSTD_VERSION-done ] ; then
+    if [ "$ZSTD_VERSION" ] && [ ! -f zstd-$ZSTD_VERSION-done ] ; then
         echo "Downloading, building, and installing zstd:"
         [ -f zstd-$ZSTD_VERSION.tar.gz ] || curl -L -O https://github.com/facebook/zstd/releases/download/v$ZSTD_VERSION/zstd-$ZSTD_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat zstd-$ZSTD_VERSION.tar.gz | tar xf - || exit 1
         cd zstd-$ZSTD_VERSION
+        # We shouldn't have to specify DESTDIR.
+        # https://github.com/facebook/zstd/issues/3146
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            make "${MAKE_BUILD_OPTS[@]}" || exit 1
+            make PREFIX="$installation_prefix" DESTDIR="$installation_prefix" "${MAKE_BUILD_OPTS[@]}" || exit 1
         $DO_MAKE PREFIX="$installation_prefix" install || exit 1
         cd ..
         touch zstd-$ZSTD_VERSION-done
@@ -1840,7 +1842,7 @@ install_zstd() {
 uninstall_zstd() {
     if [ -n "$installed_zstd_version" ] ; then
         echo "Uninstalling zstd:"
-        cd zstd-$installed_zstd_version
+        cd "zstd-$installed_zstd_version"
         $DO_MAKE_UNINSTALL || exit 1
         #
         # zstd has no configure script, so there's no need for
@@ -1849,14 +1851,14 @@ uninstall_zstd() {
         #
         make clean || exit 1
         cd ..
-        rm zstd-$installed_zstd_version-done
+        rm "zstd-$installed_zstd_version-done"
 
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
             #
             # Get rid of the previously downloaded and unpacked version.
             #
-            rm -rf zstd-$installed_zstd_version
-            rm -rf zstd-$installed_zstd_version.tar.gz
+            rm -rf "zstd-$installed_zstd_version"
+            rm -rf "zstd-$installed_zstd_version.tar.gz"
         fi
 
         installed_zstd_version=""
@@ -1910,7 +1912,7 @@ uninstall_libxml2() {
 }
 
 install_lz4() {
-    if [ "$LZ4_VERSION" -a ! -f lz4-$LZ4_VERSION-done ] ; then
+    if [ "$LZ4_VERSION" ] && [ ! -f lz4-$LZ4_VERSION-done ] ; then
         echo "Downloading, building, and installing lz4:"
         #
         # lz4 switched from sequentially numbered releases, named rN,
@@ -1948,7 +1950,8 @@ install_lz4() {
         # and CXXFLAGS into FLAGS, which is used when building source
         # files and libraries.
         #
-        MOREFLAGS="-D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" make "${MAKE_BUILD_OPTS[@]}" || exit 1
+        MOREFLAGS="-D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" \
+            make PREFIX="$installation_prefix" "${MAKE_BUILD_OPTS[@]}" || exit 1
         $DO_MAKE PREFIX="$installation_prefix" install || exit 1
         cd ..
         touch lz4-$LZ4_VERSION-done
@@ -1958,7 +1961,7 @@ install_lz4() {
 uninstall_lz4() {
     if [ -n "$installed_lz4_version" ] ; then
         echo "Uninstalling lz4:"
-        cd lz4-$installed_lz4_version
+        cd "lz4-$installed_lz4_version"
         $DO_MAKE_UNINSTALL || exit 1
         #
         # lz4's Makefile doesn't support "make distclean"; just do
@@ -1968,9 +1971,9 @@ uninstall_lz4() {
         # make distclean || exit 1
         make clean || exit 1
         cd ..
-        rm lz4-$installed_lz4_version-done
+        rm "lz4-$installed_lz4_version-done"
 
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
             #
             # Get rid of the previously downloaded and unpacked version.
             #
@@ -1980,8 +1983,8 @@ uninstall_lz4() {
             # tree.  Therefore, we have to remove the build tree
             # as root.
             #
-            sudo rm -rf lz4-$installed_lz4_version
-            rm -rf lz4-$installed_lz4_version.tar.gz
+            sudo rm -rf "lz4-$installed_lz4_version"
+            rm -rf "lz4-$installed_lz4_version.tar.gz"
         fi
 
         installed_lz4_version=""
