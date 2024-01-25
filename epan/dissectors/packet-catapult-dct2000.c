@@ -3824,7 +3824,7 @@ void proto_register_catapult_dct2000(void)
         },
         { &hf_catapult_dct2000_lte_ccpri_status,
             { "Status",
-              "dct2000.lte.ccpri.status", FT_BOOLEAN, 8, TFS(&tfs_error_ok), 0x0,
+              "dct2000.lte.ccpri.status", FT_BOOLEAN, BASE_NONE, TFS(&tfs_error_ok), 0x0,
               NULL, HFILL
             }
         },
@@ -3916,7 +3916,7 @@ void proto_register_catapult_dct2000(void)
         },
         { &hf_catapult_dct2000_tx_priority,
             { "Tx Priority",
-              "dct2000.tx-priority", FT_BOOLEAN, 8, TFS(&tfs_high_normal), 0x0,
+              "dct2000.tx-priority", FT_BOOLEAN, BASE_NONE, TFS(&tfs_high_normal), 0x0,
               NULL, HFILL
             }
         },

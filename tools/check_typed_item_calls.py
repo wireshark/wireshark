@@ -845,7 +845,9 @@ class Item:
                 Item.previousItems.pop()
 
         self.item_type = item_type
+
         self.display = display
+        self.set_display_value(macros)
 
         # Optionally check label (short and long).
         if check_label:
@@ -918,6 +920,8 @@ class Item:
     def set_mask_value(self, macros):
         try:
             self.mask_read = True
+            # PIDL generator adds annoying parenthesis and spaces around mask..
+            self.mask = self.mask.strip('() ')
 
             # Substitute mask if found as a macro..
             if self.mask in macros:
@@ -925,8 +929,8 @@ class Item:
             elif any(not c in '0123456789abcdefABCDEFxX' for c in self.mask):
                 self.mask_read = False
                 self.mask_value = 0
+                #print(self.filename, 'Could not read:', '"' + self.mask + '"')
                 return
-
 
             # Read according to the appropriate base.
             if self.mask.startswith('0x'):
@@ -938,6 +942,35 @@ class Item:
         except:
             self.mask_read = False
             self.mask_value = 0
+
+        #if not self.mask_read:
+        #    print('Could not read:', self.mask)
+
+
+    def set_display_value(self, macros):
+        try:
+            self.display_read = True
+            display = self.display
+
+            # Substitute display if found as a macro..
+            if display in macros:
+                display = macros[display]
+            elif any(not c in '0123456789abcdefABCDEFxX' for c in display):
+                self.display_read = False
+                self.display_value = 0
+                return
+
+            # Read according to the appropriate base.
+            if self.display.startswith('0x'):
+                self.display_value = int(display, 16)
+            elif self.display.startswith('0'):
+                self.display_value = int(display, 8)
+            else:
+                self.display_value = int(display, 10)
+        except:
+            self.display_read = False
+            self.display_value = 0
+
 
     def check_value_string_range(self, vs_min, vs_max):
         item_width = self.get_field_width_in_bits()
@@ -1225,6 +1258,15 @@ class Item:
 
         return True
 
+    def check_boolean_length(self):
+        global errors_found
+        # If mask is 0, display must be BASE_NONE
+        if self.item_type == 'FT_BOOLEAN' and self.mask_read and self.mask_value == 0 and self.display_value != 0:
+            print('Error:', self.filename, self.hf, 'type is FT_BOOLEAN, no mask set (', self.mask, ') - display should be BASE_NONE, is instead', self.display)
+            errors_found += 1
+        # TODO: check for length > 64?
+
+
 
 class CombinedCallsCheck:
     def __init__(self, file, apiChecks):
@@ -1401,13 +1443,15 @@ def isGeneratedFile(filename):
 
 
 def find_macros(filename):
-    macros = {}
+    # Pre-populate with some useful values..
+    macros = { 'BASE_NONE' : 0 }
+
     with open(filename, 'r', encoding="utf8") as f:
         contents = f.read()
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
 
-        matches = re.finditer( r'#define\s*([A-Z0-9_]*)\s*([0-9xa-fA-F]*)\n', contents)
+        matches = re.finditer( r'#define\s*([A-Za-z0-9_]*)\s*([0-9xa-fA-F]*)\s*\n', contents)
         for m in matches:
             # Store this mapping.
             macros[m.group(1)] = m.group(2)
@@ -1640,6 +1684,9 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
             print(filename, ':', matches, 'label-vs-filter matches of out of', len(items_defined), 'so reporting mismatches')
             for hf in items_defined:
                 items_defined[hf].check_label_vs_filter(reportError=True, reportNumericalMismatch=False)
+
+    for hf in items_defined:
+        items_defined[hf].check_boolean_length()
 
 
 

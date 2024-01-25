@@ -3617,7 +3617,7 @@ proto_register_oran(void)
         /* Section 5.4.7.6 */
         {&hf_oran_repetition,
          {"repetition", "oran_fh_cus.repetition",
-          FT_BOOLEAN, 1,
+          FT_BOOLEAN, BASE_NONE,
           NULL, 0x0,
           "Repetition of a highest priority data section inside a C-Plane message",
           HFILL}
@@ -3921,7 +3921,7 @@ proto_register_oran(void)
         /* 7.7.4.2 (1 bit) */
         { &hf_oran_csf,
           { "csf", "oran_fh_cus.csf",
-            FT_BOOLEAN, 1,
+            FT_BOOLEAN, BASE_NONE,
             NULL, 0x0,
             "constellation shift flag",
             HFILL }
@@ -3947,7 +3947,7 @@ proto_register_oran(void)
         /* mcScaleReMask 7.7.5.2 (12 bits) */
         { &hf_oran_mc_scale_re_mask,
           { "mcScaleReMask", "oran_fh_cus.mcscaleremask",
-            FT_BOOLEAN, 12,
+            FT_BOOLEAN, BASE_NONE,
             NULL, 0x0,
             "modulation compression power scale RE mask",
             HFILL }
@@ -3979,7 +3979,7 @@ proto_register_oran(void)
         /* Exttype 14 (7.7.14.2) */
         { &hf_oran_nullLayerInd,
           { "nullLayerInd", "oran_fh_cus.nulllayerind",
-            FT_BOOLEAN, 8,
+            FT_BOOLEAN, BASE_NONE,
             NULL, 0x0,
             "Whether corresponding layer is nulling-layer or not",
             HFILL }

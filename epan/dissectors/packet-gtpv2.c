@@ -10923,7 +10923,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_mm_context_samb_ri,
           {"SAMB RI", "gtpv2.mm_context_samb_ri",
-           FT_BOOLEAN, 8, NULL, 0x0,
+           FT_BOOLEAN, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         { &hf_gtpv2_ue_time_zone_dst,
