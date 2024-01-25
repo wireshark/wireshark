@@ -324,7 +324,7 @@ bool FilterExpressionToolBar::eventFilter(QObject *obj, QEvent *event)
         }
     }
 
-    return QToolBar::eventFilter(obj, event);
+    return DragDropToolBar::eventFilter(obj, event);
 }
 
 void FilterExpressionToolBar::closeMenu(QAction * /*sender*/)
