@@ -10479,6 +10479,10 @@ static const per_sequence_t HandoverCommandTransfer_sequence[] = {
 
 static int
 dissect_ngap_HandoverCommandTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverCommandTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_HandoverCommandTransfer, HandoverCommandTransfer_sequence);
 
@@ -10509,6 +10513,10 @@ static const per_sequence_t HandoverPreparationUnsuccessfulTransfer_sequence[] =
 
 static int
 dissect_ngap_HandoverPreparationUnsuccessfulTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverPreparationUnsuccessfulTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_HandoverPreparationUnsuccessfulTransfer, HandoverPreparationUnsuccessfulTransfer_sequence);
 
@@ -10591,6 +10599,10 @@ static const per_sequence_t HandoverRequestAcknowledgeTransfer_sequence[] = {
 
 static int
 dissect_ngap_HandoverRequestAcknowledgeTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverRequestAcknowledgeTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_HandoverRequestAcknowledgeTransfer, HandoverRequestAcknowledgeTransfer_sequence);
 
@@ -10606,6 +10618,10 @@ static const per_sequence_t HandoverRequiredTransfer_sequence[] = {
 
 static int
 dissect_ngap_HandoverRequiredTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverRequiredTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_HandoverRequiredTransfer, HandoverRequiredTransfer_sequence);
 
@@ -10622,6 +10638,10 @@ static const per_sequence_t HandoverResourceAllocationUnsuccessfulTransfer_seque
 
 static int
 dissect_ngap_HandoverResourceAllocationUnsuccessfulTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverResourceAllocationUnsuccessfulTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_HandoverResourceAllocationUnsuccessfulTransfer, HandoverResourceAllocationUnsuccessfulTransfer_sequence);
 
@@ -13368,6 +13388,10 @@ static const per_sequence_t MBSSessionSetupOrModFailureTransfer_sequence[] = {
 
 static int
 dissect_ngap_MBSSessionSetupOrModFailureTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBSSessionSetupOrModFailureTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_MBSSessionSetupOrModFailureTransfer, MBSSessionSetupOrModFailureTransfer_sequence);
 
@@ -13412,6 +13436,10 @@ static const per_sequence_t MBSSessionSetupOrModRequestTransfer_sequence[] = {
 
 static int
 dissect_ngap_MBSSessionSetupOrModRequestTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBSSessionSetupOrModRequestTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_MBSSessionSetupOrModRequestTransfer, MBSSessionSetupOrModRequestTransfer_sequence);
 
@@ -13505,6 +13533,10 @@ static const per_sequence_t MBSSessionReleaseResponseTransfer_sequence[] = {
 
 static int
 dissect_ngap_MBSSessionReleaseResponseTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBSSessionReleaseResponseTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_MBSSessionReleaseResponseTransfer, MBSSessionReleaseResponseTransfer_sequence);
 
@@ -13520,6 +13552,10 @@ static const per_sequence_t MBSSessionSetupOrModResponseTransfer_sequence[] = {
 
 static int
 dissect_ngap_MBSSessionSetupOrModResponseTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBSSessionSetupOrModResponseTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_MBSSessionSetupOrModResponseTransfer, MBSSessionSetupOrModResponseTransfer_sequence);
 
@@ -15018,6 +15054,10 @@ dissect_ngap_NRMobilityHistoryReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_ngap_NRPPa_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "NRPPa-PDU");
+
 
   tvbuff_t *parameter_tvb=NULL;
 
@@ -15392,6 +15432,10 @@ static const per_sequence_t PathSwitchRequestAcknowledgeTransfer_sequence[] = {
 
 static int
 dissect_ngap_PathSwitchRequestAcknowledgeTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PathSwitchRequestAcknowledgeTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_PathSwitchRequestAcknowledgeTransfer, PathSwitchRequestAcknowledgeTransfer_sequence);
 
@@ -15407,6 +15451,10 @@ static const per_sequence_t PathSwitchRequestSetupFailedTransfer_sequence[] = {
 
 static int
 dissect_ngap_PathSwitchRequestSetupFailedTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PathSwitchRequestSetupFailedTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_PathSwitchRequestSetupFailedTransfer, PathSwitchRequestSetupFailedTransfer_sequence);
 
@@ -15470,6 +15518,10 @@ static const per_sequence_t PathSwitchRequestTransfer_sequence[] = {
 
 static int
 dissect_ngap_PathSwitchRequestTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PathSwitchRequestTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_PathSwitchRequestTransfer, PathSwitchRequestTransfer_sequence);
 
@@ -15485,6 +15537,10 @@ static const per_sequence_t PathSwitchRequestUnsuccessfulTransfer_sequence[] = {
 
 static int
 dissect_ngap_PathSwitchRequestUnsuccessfulTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PathSwitchRequestUnsuccessfulTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_PathSwitchRequestUnsuccessfulTransfer, PathSwitchRequestUnsuccessfulTransfer_sequence);
 
@@ -16266,6 +16322,10 @@ static const per_sequence_t PDUSessionResourceModifyConfirmTransfer_sequence[] =
 
 static int
 dissect_ngap_PDUSessionResourceModifyConfirmTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceModifyConfirmTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_PDUSessionResourceModifyConfirmTransfer, PDUSessionResourceModifyConfirmTransfer_sequence);
 
@@ -16281,6 +16341,10 @@ static const per_sequence_t PDUSessionResourceModifyIndicationUnsuccessfulTransf
 
 static int
 dissect_ngap_PDUSessionResourceModifyIndicationUnsuccessfulTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceModifyIndicationUnsuccessfulTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_PDUSessionResourceModifyIndicationUnsuccessfulTransfer, PDUSessionResourceModifyIndicationUnsuccessfulTransfer_sequence);
 
@@ -16295,6 +16359,10 @@ static const per_sequence_t PDUSessionResourceModifyRequestTransfer_sequence[] =
 
 static int
 dissect_ngap_PDUSessionResourceModifyRequestTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceModifyRequestTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_PDUSessionResourceModifyRequestTransfer, PDUSessionResourceModifyRequestTransfer_sequence);
 
@@ -16388,6 +16456,10 @@ static const per_sequence_t PDUSessionResourceModifyResponseTransfer_sequence[] 
 
 static int
 dissect_ngap_PDUSessionResourceModifyResponseTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceModifyResponseTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_PDUSessionResourceModifyResponseTransfer, PDUSessionResourceModifyResponseTransfer_sequence);
 
@@ -16404,6 +16476,10 @@ static const per_sequence_t PDUSessionResourceModifyIndicationTransfer_sequence[
 
 static int
 dissect_ngap_PDUSessionResourceModifyIndicationTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceModifyIndicationTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_PDUSessionResourceModifyIndicationTransfer, PDUSessionResourceModifyIndicationTransfer_sequence);
 
@@ -16581,6 +16657,10 @@ static const per_sequence_t PDUSessionResourceModifyUnsuccessfulTransfer_sequenc
 
 static int
 dissect_ngap_PDUSessionResourceModifyUnsuccessfulTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceModifyUnsuccessfulTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_PDUSessionResourceModifyUnsuccessfulTransfer, PDUSessionResourceModifyUnsuccessfulTransfer_sequence);
 
@@ -16636,6 +16716,10 @@ static const per_sequence_t PDUSessionResourceNotifyReleasedTransfer_sequence[] 
 
 static int
 dissect_ngap_PDUSessionResourceNotifyReleasedTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceNotifyReleasedTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_PDUSessionResourceNotifyReleasedTransfer, PDUSessionResourceNotifyReleasedTransfer_sequence);
 
@@ -16686,6 +16770,10 @@ static const per_sequence_t PDUSessionResourceNotifyTransfer_sequence[] = {
 
 static int
 dissect_ngap_PDUSessionResourceNotifyTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceNotifyTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_PDUSessionResourceNotifyTransfer, PDUSessionResourceNotifyTransfer_sequence);
 
@@ -16701,6 +16789,10 @@ static const per_sequence_t PDUSessionResourceReleaseCommandTransfer_sequence[] 
 
 static int
 dissect_ngap_PDUSessionResourceReleaseCommandTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceReleaseCommandTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_PDUSessionResourceReleaseCommandTransfer, PDUSessionResourceReleaseCommandTransfer_sequence);
 
@@ -16875,6 +16967,10 @@ static const per_sequence_t PDUSessionResourceReleaseResponseTransfer_sequence[]
 
 static int
 dissect_ngap_PDUSessionResourceReleaseResponseTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceReleaseResponseTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_PDUSessionResourceReleaseResponseTransfer, PDUSessionResourceReleaseResponseTransfer_sequence);
 
@@ -17214,6 +17310,10 @@ static const per_sequence_t PDUSessionResourceSetupRequestTransfer_sequence[] = 
 
 static int
 dissect_ngap_PDUSessionResourceSetupRequestTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceSetupRequestTransfer");
+
   volatile guint32 _offset;
 
   _offset = offset;
@@ -17244,6 +17344,10 @@ static const per_sequence_t PDUSessionResourceSetupResponseTransfer_sequence[] =
 
 static int
 dissect_ngap_PDUSessionResourceSetupResponseTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceSetupResponseTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_PDUSessionResourceSetupResponseTransfer, PDUSessionResourceSetupResponseTransfer_sequence);
 
@@ -17260,6 +17364,10 @@ static const per_sequence_t PDUSessionResourceSetupUnsuccessfulTransfer_sequence
 
 static int
 dissect_ngap_PDUSessionResourceSetupUnsuccessfulTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceSetupUnsuccessfulTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_PDUSessionResourceSetupUnsuccessfulTransfer, PDUSessionResourceSetupUnsuccessfulTransfer_sequence);
 
@@ -18116,6 +18224,10 @@ static const per_sequence_t RANStatusTransfer_TransparentContainer_sequence[] = 
 
 static int
 dissect_ngap_RANStatusTransfer_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RANStatusTransfer-TransparentContainer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_RANStatusTransfer_TransparentContainer, RANStatusTransfer_TransparentContainer_sequence);
 
@@ -18661,6 +18773,10 @@ static const per_sequence_t SecondaryRATDataUsageReportTransfer_sequence[] = {
 
 int
 dissect_ngap_SecondaryRATDataUsageReportTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SecondaryRATDataUsageReportTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_SecondaryRATDataUsageReportTransfer, SecondaryRATDataUsageReportTransfer_sequence);
 
@@ -18908,6 +19024,10 @@ static const per_sequence_t SONConfigurationTransfer_sequence[] = {
 
 static int
 dissect_ngap_SONConfigurationTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SONConfigurationTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_SONConfigurationTransfer, SONConfigurationTransfer_sequence);
 
@@ -19049,6 +19169,10 @@ dissect_ngap_SourceNodeID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ngap_SourceToTarget_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SourceToTarget-TransparentContainer");
+
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -19509,6 +19633,10 @@ dissect_ngap_TargetRNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ngap_TargetToSource_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TargetToSource-TransparentContainer");
+
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -19845,6 +19973,10 @@ static const per_sequence_t UEContextResumeRequestTransfer_sequence[] = {
 
 static int
 dissect_ngap_UEContextResumeRequestTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextResumeRequestTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_UEContextResumeRequestTransfer, UEContextResumeRequestTransfer_sequence);
 
@@ -19860,6 +19992,10 @@ static const per_sequence_t UEContextResumeResponseTransfer_sequence[] = {
 
 static int
 dissect_ngap_UEContextResumeResponseTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextResumeResponseTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_UEContextResumeResponseTransfer, UEContextResumeResponseTransfer_sequence);
 
@@ -19875,6 +20011,10 @@ static const per_sequence_t UEContextSuspendRequestTransfer_sequence[] = {
 
 static int
 dissect_ngap_UEContextSuspendRequestTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextSuspendRequestTransfer");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_UEContextSuspendRequestTransfer, UEContextSuspendRequestTransfer_sequence);
 
@@ -20112,6 +20252,10 @@ dissect_ngap_UEPresenceInAreaOfInterestList(tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_ngap_UERadioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UERadioCapability");
+
   tvbuff_t *parameter_tvb = NULL;
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
 

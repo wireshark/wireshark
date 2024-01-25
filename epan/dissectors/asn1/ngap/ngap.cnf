@@ -2823,6 +2823,187 @@ MBSSessionReleaseResponseTransfer              S ngap.n2_ie_type "MBS_SES_REL_RS
   set_message_label(actx, MTYPE_DOWNLINK_RIM_INFORMATION_TRANSFER);
   set_stats_message_type(actx->pinfo, MTYPE_DOWNLINK_RIM_INFORMATION_TRANSFER);
 
+# SMF related IEs when encapsulated in http2/mime/json
+#.FN_HDR PDUSessionResourceSetupRequestTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceSetupRequestTransfer");
+
+#.FN_HDR PDUSessionResourceSetupResponseTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceSetupResponseTransfer");
+
+#.FN_HDR PDUSessionResourceSetupUnsuccessfulTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceSetupUnsuccessfulTransfer");
+
+#.FN_HDR PDUSessionResourceReleaseCommandTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceReleaseCommandTransfer");
+
+#.FN_HDR PDUSessionResourceReleaseResponseTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceReleaseResponseTransfer");
+
+#.FN_HDR PDUSessionResourceModifyRequestTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceModifyRequestTransfer");
+
+#.FN_HDR PDUSessionResourceModifyResponseTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceModifyResponseTransfer");
+
+#.FN_HDR PDUSessionResourceModifyUnsuccessfulTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceModifyUnsuccessfulTransfer");
+
+#.FN_HDR PDUSessionResourceNotifyTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceNotifyTransfer");
+
+#.FN_HDR PDUSessionResourceNotifyReleasedTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceNotifyReleasedTransfer");
+
+#.FN_HDR PDUSessionResourceModifyIndicationTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceModifyIndicationTransfer");
+
+#.FN_HDR PDUSessionResourceModifyConfirmTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceModifyConfirmTransfer");
+
+#.FN_HDR PathSwitchRequestTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PathSwitchRequestTransfer");
+
+#.FN_HDR PathSwitchRequestSetupFailedTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PathSwitchRequestSetupFailedTransfer");
+
+#.FN_HDR PathSwitchRequestAcknowledgeTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PathSwitchRequestAcknowledgeTransfer");
+
+#.FN_HDR PathSwitchRequestUnsuccessfulTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PathSwitchRequestUnsuccessfulTransfer");
+
+#.FN_HDR HandoverRequiredTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverRequiredTransfer");
+
+#.FN_HDR HandoverCommandTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverCommandTransfer");
+
+#.FN_HDR HandoverPreparationUnsuccessfulTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverPreparationUnsuccessfulTransfer");
+
+#.FN_HDR HandoverRequestAcknowledgeTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverRequestAcknowledgeTransfer");
+
+#.FN_HDR HandoverResourceAllocationUnsuccessfulTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverResourceAllocationUnsuccessfulTransfer");
+
+#.FN_HDR SecondaryRATDataUsageReportTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SecondaryRATDataUsageReportTransfer");
+
+#.FN_HDR PDUSessionResourceModifyIndicationUnsuccessfulTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PDUSessionResourceModifyIndicationUnsuccessfulTransfer");
+
+#.FN_HDR UEContextResumeRequestTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextResumeRequestTransfer");
+
+#.FN_HDR UEContextResumeResponseTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextResumeResponseTransfer");
+
+#.FN_HDR UEContextSuspendRequestTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextSuspendRequestTransfer");
+
+#.FN_HDR SourceToTarget-TransparentContainer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SourceToTarget-TransparentContainer");
+
+#.FN_HDR TargetToSource-TransparentContainer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TargetToSource-TransparentContainer");
+
+#.FN_HDR RANStatusTransfer-TransparentContainer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RANStatusTransfer-TransparentContainer");
+
+#.FN_HDR SONConfigurationTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SONConfigurationTransfer");
+
+#.FN_HDR NRPPa-PDU
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "NRPPa-PDU");
+
+#.FN_HDR UERadioCapability
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UERadioCapability");
+
+#.FN_HDR MBSSessionSetupOrModRequestTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBSSessionSetupOrModRequestTransfer");
+
+#.FN_HDR MBSSessionSetupOrModResponseTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBSSessionSetupOrModResponseTransfer");
+
+#.FN_HDR MBSSessionSetupOrModFailureTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBSSessionSetupOrModFailureTransfer");
+
+#.FN_HDR MBSSessionReleaseResponseTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBSSessionReleaseResponseTransfer");
+
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
