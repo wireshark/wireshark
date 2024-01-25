@@ -852,7 +852,7 @@ _serv_name_lookup(port_type proto, guint port, serv_port_t **value_ret)
     serv_port_t *serv_port_names;
     const char* name = NULL;
     ws_services_proto_t p;
-    ws_services_entry_t *serv;
+    ws_services_entry_t const *serv;
 
     /* Look in the cache */
     serv_port_names = (serv_port_t *)wmem_map_lookup(serv_port_hashtable, GUINT_TO_POINTER(port));

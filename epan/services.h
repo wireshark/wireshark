@@ -22,7 +22,7 @@ typedef struct {
     const char *description;
 } ws_services_entry_t;
 
-ws_services_entry_t *
+ws_services_entry_t const *
 global_services_lookup(uint16_t value, ws_services_proto_t proto);
 
 WS_DLL_PUBLIC void

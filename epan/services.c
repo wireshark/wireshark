@@ -49,12 +49,12 @@ size_t global_dccp_services_table_count(void)
     return G_N_ELEMENTS(global_dccp_services_table);
 }
 
-ws_services_entry_t *
+ws_services_entry_t const *
 global_services_lookup(uint16_t value, ws_services_proto_t proto)
 {
-    ws_services_entry_t *list1 = NULL, *list2 = NULL;
+    ws_services_entry_t const *list1 = NULL, *list2 = NULL;
     size_t list1_size, list2_size;
-    ws_services_entry_t *found;
+    ws_services_entry_t const *found;
 
     switch (proto) {
         case ws_tcp:
@@ -101,7 +101,7 @@ global_services_lookup(uint16_t value, ws_services_proto_t proto)
 void
 global_services_dump(FILE *fp)
 {
-    ws_services_entry_t *ptr;
+    ws_services_entry_t const *ptr;
 
     /* Brute-force approach... */
     for (uint16_t num = 0; num <= _services_max_port && num < UINT16_MAX; num++) {
