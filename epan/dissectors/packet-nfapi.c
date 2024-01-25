@@ -11495,7 +11495,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_initial_partial_sf,
 			{ "Initial Partial SF", "nfapi.initial.partial.sf",
-			FT_BOOLEAN, 32, TFS(&initial_partial_sf_strname), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&initial_partial_sf_strname), 0x0,
 			"Indicates whether the initial SF in the LBT process is full or partial", HFILL }
 		},
 		{ &hf_nfapi_lbt_mode,

@@ -1147,7 +1147,7 @@ proto_register_bthci_vendor_broadcom(void)
         },
         { &hf_broadcom_filter_support,
             { "Filter Support",                            "bthci_vendor.broadcom.filter_support",
-            FT_BOOLEAN, 8, NULL, 0x0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_broadcom_max_filter,
@@ -1157,7 +1157,7 @@ proto_register_bthci_vendor_broadcom(void)
         },
         { &hf_broadcom_energy_support,
             { "Energy Support",                            "bthci_vendor.broadcom.energy_support",
-            FT_BOOLEAN, 8, NULL, 0x0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_broadcom_uart_clock,

@@ -5243,7 +5243,7 @@ proto_register_gryphon(void)
           { "UUDT response extended address", "gryphon.uudt_response_ext", FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_more_filenames,
-          { "More filenames to return", "gryphon.more_filenames", FT_BOOLEAN, 8, TFS(&yes_no), 0x0,
+          { "More filenames to return", "gryphon.more_filenames", FT_BOOLEAN, BASE_NONE, TFS(&yes_no), 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_filenames,
           { "File and directory names", "gryphon.filenames", FT_STRING, BASE_NONE, NULL, 0x0,

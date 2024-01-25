@@ -5460,7 +5460,7 @@ proto_register_qnet6(void)
     /* utime */
     {&hf_qnet6_kif_msg_io_utime_curflag,
      {"curflag", "qnet6.kif.msgsend.msg.utime.curflag",
-      FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0,
+      FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0,
       "whether use current time", HFILL}
     },
     {&hf_qnet6_kif_msg_io_utime_actime,
@@ -5476,7 +5476,7 @@ proto_register_qnet6(void)
     /* fdinfo */
     {&hf_qnet6_kif_msg_io_fdinfo_flags,
      {"flags", "qnet6.kif.msgsend.msg.fdinfo.flags",
-      FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0,
+      FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0,
       "_FDINFO_FLAG_LOCALPATH", HFILL}
     },
     {&hf_qnet6_kif_msg_io_fdinfo_path_len,

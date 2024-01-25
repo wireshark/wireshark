@@ -7599,7 +7599,7 @@ proto_register_nvme(void)
         },
         { &hf_nvme_get_logpage_telemetry_da,
             { "Telemetry Data Available", "nvme.cmd.get_logpage.telemetry.da",
-               FT_BOOLEAN, 8, NULL, 0x0, NULL, HFILL}
+               FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_telemetry_dgn,
             { "Telemetry Data Generation Number", "nvme.cmd.get_logpage.telemetry.dgn",

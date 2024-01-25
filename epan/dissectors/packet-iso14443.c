@@ -1567,11 +1567,11 @@ proto_register_iso14443(void)
                 TFS(&tfs_iso_propr), 0x04, NULL, HFILL }
         },
         { &hf_iso14443_nad_supported,
-            { "NAD", "iso14443.nad_supported", FT_BOOLEAN, 8,
+            { "NAD", "iso14443.nad_supported", FT_BOOLEAN, BASE_NONE,
                 TFS(&tfs_supported_not_supported), 0, NULL, HFILL }
         },
         { &hf_iso14443_cid_supported,
-            { "CID", "iso14443.cid_supported", FT_BOOLEAN, 8,
+            { "CID", "iso14443.cid_supported", FT_BOOLEAN, BASE_NONE,
                 TFS(&tfs_supported_not_supported), 0, NULL, HFILL }
         },
         { &hf_iso14443_hlta,

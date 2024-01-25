@@ -2893,7 +2893,7 @@ proto_register_obex(void)
         },
         { &hf_bip_application_parameter_data_latest_captured_images,
             { "Latest Captured Images",   "obex.parameter.value.latest_captured_images",
-            FT_BOOLEAN, 8, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_bip_application_parameter_data_partial_file_length,
@@ -2913,7 +2913,7 @@ proto_register_obex(void)
         },
         { &hf_bip_application_parameter_data_end_flag,
             { "End Flag",   "obex.parameter.value.end_flag",
-            FT_BOOLEAN, 8, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_bip_application_parameter_data_remote_display,
@@ -2928,7 +2928,7 @@ proto_register_obex(void)
         },
         { &hf_bip_application_parameter_data_store_flag,
             { "Store Flag",   "obex.parameter.value.store_flag",
-            FT_BOOLEAN, 8, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         /* application parameters for PBAP */

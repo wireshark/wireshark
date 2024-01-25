@@ -3836,14 +3836,14 @@ proto_register_nan(void)
             {
             "Type",
             "wifi_nan.availability.entry.entries.type",
-            FT_BOOLEAN, 8, TFS(&availability_entry_entries_type_flags), 0x0, NULL, HFILL
+            FT_BOOLEAN, BASE_NONE, TFS(&availability_entry_entries_type_flags), 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_entries_non_contiguous_bw,
             {
             "Non-contiguous Bandwidth",
             "wifi_nan.availability.entry.entries.non_contiguous_bw",
-            FT_BOOLEAN, 8, NULL, 0x0, NULL, HFILL
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_entries_num_entries,

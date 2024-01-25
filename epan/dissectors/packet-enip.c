@@ -4488,7 +4488,7 @@ proto_register_enip(void)
 
       { &hf_dlr_rsc_ring_supervisor_enable,
         { "Ring Supervisor Enable", "cip.dlr.rscconfig.supervisor_enable",
-          FT_BOOLEAN, 8, NULL, 0,
+          FT_BOOLEAN, BASE_NONE, NULL, 0,
           NULL, HFILL }},
 
       { &hf_dlr_rsc_ring_supervisor_precedence,
@@ -4608,7 +4608,7 @@ proto_register_enip(void)
 
       { &hf_dlr_rgc_red_gateway_enable,
         { "Redundant Gateway Enable", "cip.dlr.rgc.gateway_enable",
-          FT_BOOLEAN, 8, NULL, 0,
+          FT_BOOLEAN, BASE_NONE, NULL, 0,
           NULL, HFILL }},
 
       { &hf_dlr_rgc_gateway_precedence,
@@ -4628,7 +4628,7 @@ proto_register_enip(void)
 
       { &hf_dlr_rgc_learning_update_enable,
         { "Learning Update Enable", "cip.dlr.rgc.learning_update_enable",
-          FT_BOOLEAN, 8, NULL, 0,
+          FT_BOOLEAN, BASE_NONE, NULL, 0,
           NULL, HFILL }},
 
       { &hf_dlr_redundant_gateway_status,
@@ -4660,17 +4660,17 @@ proto_register_enip(void)
 
       { &hf_eip_security_verify_client_cert,
         { "Verify Client Certificate", "cip.eip_security.verify_client_cert",
-          FT_BOOLEAN, 8, NULL, 0,
+          FT_BOOLEAN, BASE_NONE, NULL, 0,
           NULL, HFILL }},
 
       { &hf_eip_security_send_cert_chain,
         { "Send Certificate Chain", "cip.eip_security.send_cert_chain",
-          FT_BOOLEAN, 8, NULL, 0,
+          FT_BOOLEAN, BASE_NONE, NULL, 0,
           NULL, HFILL }},
 
       { &hf_eip_security_check_expiration,
         { "Check Expiration", "cip.eip_security.check_expiration",
-          FT_BOOLEAN, 8, NULL, 0,
+          FT_BOOLEAN, BASE_NONE, NULL, 0,
           NULL, HFILL }},
 
       { &hf_eip_security_capability_flags,

@@ -2696,13 +2696,13 @@ void proto_register_pdcp_nr(void)
         },
         { &hf_pdcp_nr_sdap,
             { "SDAP header",
-              "pdcp-nr.sdap", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x0,
+              "pdcp-nr.sdap", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x0,
               "Indicates whether SDAP appears after PDCP headers", HFILL
             }
         },
         { &hf_pdcp_nr_ciphering_disabled,
             { "Ciphering disabled",
-              "pdcp-nr.ciphering-disabled", FT_BOOLEAN, 8, NULL, 0x0,
+              "pdcp-nr.ciphering-disabled", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
         },

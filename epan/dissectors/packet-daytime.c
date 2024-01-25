@@ -64,7 +64,7 @@ proto_register_daytime(void)
     },
     { &hf_response_request,
       { "Type", "daytime.response_request",
-        FT_BOOLEAN, 8, TFS(&tfs_response_request), 0x0,
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_response_request), 0x0,
         NULL, HFILL }
     },
   };

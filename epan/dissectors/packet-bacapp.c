@@ -16844,7 +16844,7 @@ proto_register_bacapp(void)
         },
         { &hf_bacapp_present_value_bool,
           { "Present Value (bool)", "bacapp.present_value.boolean",
-            FT_BOOLEAN, 8, NULL, 0, NULL, HFILL }
+            FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_bacapp_present_value_unsigned,
           { "Present Value (uint)", "bacapp.present_value.uint",
@@ -16978,7 +16978,7 @@ proto_register_bacapp(void)
         },
         { &hf_bacapp_bit,
           { "bit",           "bacapp.bit",
-            FT_BOOLEAN, 8, NULL, 0, NULL, HFILL }
+            FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_bacapp_complete_bitstring,
           { "Complete bitstring",           "bacapp.complete_bitstring",

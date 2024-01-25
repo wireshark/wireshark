@@ -1111,7 +1111,7 @@ proto_register_xra (void)
     },
     {&hf_xra_tlv_cw_info_rs_decoding_successful,
       {"Reed-Solomon Decoding Successful", "xra.tlv.cw_info.rs_decoding_successful",
-        FT_BOOLEAN, 8, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
         NULL, HFILL}
     },
     {&hf_xra_tlv_cw_info_rs_number_of_corrected_symbols,

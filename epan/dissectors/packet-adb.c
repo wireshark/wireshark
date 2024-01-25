@@ -805,7 +805,7 @@ proto_register_adb(void)
         },
         { &hf_online,
             { "Online",                          "adb.online",
-            FT_BOOLEAN, 32, TFS(&tfs_no_yes), 0x00,
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_no_yes), 0x00,
             NULL, HFILL }
         },
         { &hf_sequence,

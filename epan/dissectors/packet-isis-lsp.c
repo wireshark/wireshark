@@ -6741,7 +6741,7 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_is_virtual,
             { "IsVirtual", "isis.lsp.is_virtual",
-              FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x0,
+              FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
               NULL, HFILL }
         },
         { &hf_isis_lsp_group,

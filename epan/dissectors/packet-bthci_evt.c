@@ -8203,7 +8203,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_fec_required,
           {"FEC Required", "bthci_evt.fec_required",
-           FT_BOOLEAN, 8, NULL, 0x0,
+           FT_BOOLEAN, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         { &hf_bthci_evt_err_data_reporting,
@@ -8384,7 +8384,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_location_domain_aware,
           { "Location Domain Aware", "bthci_evt.location_domain_aware",
-            FT_BOOLEAN, 8, NULL, 0x0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_location_domain,
@@ -8549,7 +8549,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_short_range_mode_state,
           { "Short Range Mode State",        "bthci_evt.short_range_mode_state",
-            FT_BOOLEAN, 8, NULL, 0x0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_transmit_power_level_gfsk,
@@ -8574,12 +8574,12 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_le_supported_host,
           { "LE Supported Host", "bthci_evt.le_supported_host",
-            FT_BOOLEAN, 8, NULL, 0x0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_le_simultaneous_host,
           { "Simultaneous LE Host", "bthci_evt.le_simultaneous_host",
-            FT_BOOLEAN, 8, NULL, 0x0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             "Support for both LE and BR/EDR to same device", HFILL }
         },
         { &hf_bthci_evt_le_acl_data_pkt_len,

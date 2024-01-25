@@ -7379,7 +7379,7 @@ proto_register_bcp_ncp(void)
             { "Bridge Number", "bcp_ncp.lcp.bridge_no", FT_UINT16, BASE_DEC,
                 NULL, 0x000f, NULL, HFILL } },
        { &hf_bcp_ncp_tinygram_comp,
-            { "Tinygram-Compression", "bcp_ncp.lcp.tinygram_comp", FT_BOOLEAN, 8,
+            { "Tinygram-Compression", "bcp_ncp.lcp.tinygram_comp", FT_BOOLEAN, BASE_NONE,
                 TFS(&tfs_enabled_disabled), 0x0, NULL, HFILL } },
        { &hf_bcp_ncp_mac,
             { "MAC Address", "bcp_ncp.lcp.mac_addres", FT_ETHER, BASE_NONE,
@@ -7394,7 +7394,7 @@ proto_register_bcp_ncp(void)
            { "Protocol", "bcp_ncp.lcp.stp_protocol", FT_UINT8, BASE_DEC,
                 VALS(bcp_ncp_stp_prot_vals), 0x0, NULL, HFILL } },
        { &hf_bcp_ncp_ieee_802_tagged_frame,
-           { "IEEE-802-Tagged-Frame", "bcp_ncp.ieee_802_tagged_frame", FT_BOOLEAN, 8,
+           { "IEEE-802-Tagged-Frame", "bcp_ncp.ieee_802_tagged_frame", FT_BOOLEAN, BASE_NONE,
                 TFS(&tfs_enabled_disabled), 0x0, NULL, HFILL } },
 
     };

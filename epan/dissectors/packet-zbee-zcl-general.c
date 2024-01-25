@@ -3099,7 +3099,7 @@ proto_register_zbee_zcl_scenes(void)
             0x00, NULL, HFILL }},
 
         { &hf_zbee_zcl_scenes_extension_set_color_loop_active,
-            { "Color Loop Active", "zbee_zcl_general.scenes.extension_set.color_loop_active", FT_BOOLEAN, 8, NULL,
+            { "Color Loop Active", "zbee_zcl_general.scenes.extension_set.color_loop_active", FT_BOOLEAN, BASE_NONE, NULL,
             0x00, NULL, HFILL }},
 
         { &hf_zbee_zcl_scenes_extension_set_color_loop_direction,
@@ -3484,11 +3484,11 @@ proto_register_zbee_zcl_on_off(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_on_off_attr_onoff,
-            { "On/off Control", "zbee_zcl_general.onoff.attr.onoff", FT_BOOLEAN, 8, TFS(&tfs_on_off),
+            { "On/off Control", "zbee_zcl_general.onoff.attr.onoff", FT_BOOLEAN, BASE_NONE, TFS(&tfs_on_off),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_on_off_attr_globalscenecontrol,
-            { "Global Scene Control", "zbee_zcl_general.onoff.attr.globalscenecontrol", FT_BOOLEAN, 8, NULL,
+            { "Global Scene Control", "zbee_zcl_general.onoff.attr.globalscenecontrol", FT_BOOLEAN, BASE_NONE, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_on_off_attr_ontime,
@@ -6513,7 +6513,7 @@ proto_register_zbee_zcl_analog_output_basic(void)
         /* end Status Flags fields */
 
         { &hf_zbee_zcl_analog_output_basic_priority_array_bool,
-            { "Valid/Invalid", "zbee_zcl_general.analog_output_basic.attr.priority_array.bool", FT_BOOLEAN, 8, TFS(&tfs_invalid_valid),
+            { "Valid/Invalid", "zbee_zcl_general.analog_output_basic.attr.priority_array.bool", FT_BOOLEAN, BASE_NONE, TFS(&tfs_invalid_valid),
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_output_basic_priority_array_sing_prec,
@@ -6796,7 +6796,7 @@ proto_register_zbee_zcl_analog_value_basic(void)
         /* end Status Flags fields */
 
         { &hf_zbee_zcl_analog_value_basic_priority_array_bool,
-            { "Valid/Invalid", "zbee_zcl_general.analog_value_basic.attr.priority_array.bool", FT_BOOLEAN, 8, TFS(&tfs_invalid_valid),
+            { "Valid/Invalid", "zbee_zcl_general.analog_value_basic.attr.priority_array.bool", FT_BOOLEAN, BASE_NONE, TFS(&tfs_invalid_valid),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_value_basic_priority_array_sing_prec,
@@ -7357,7 +7357,7 @@ proto_register_zbee_zcl_binary_output_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_output_basic_priority_array_bool,
-            { "Valid/Invalid", "zbee_zcl_general.binary_output_basic.attr.priority_array.bool", FT_BOOLEAN, 8, TFS(&tfs_invalid_valid),
+            { "Valid/Invalid", "zbee_zcl_general.binary_output_basic.attr.priority_array.bool", FT_BOOLEAN, BASE_NONE, TFS(&tfs_invalid_valid),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_output_basic_priority_array_sing_prec,
@@ -7646,7 +7646,7 @@ proto_register_zbee_zcl_binary_value_basic(void)
         /* end Status Flags fields */
 
         { &hf_zbee_zcl_binary_value_basic_priority_array_bool,
-            { "Valid/Invalid", "zbee_zcl_general.binary_value_basic.attr.priority_array.bool", FT_BOOLEAN, 8,TFS(&tfs_invalid_valid),
+            { "Valid/Invalid", "zbee_zcl_general.binary_value_basic.attr.priority_array.bool", FT_BOOLEAN, BASE_NONE, TFS(&tfs_invalid_valid),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_value_basic_priority_array_sing_prec,
@@ -12961,7 +12961,7 @@ proto_register_zbee_zcl_poll_ctrl(void)
                 VALS(zbee_zcl_poll_ctrl_srv_tx_cmd_names), 0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_poll_ctrl_start_fast_polling,
-            { "Start Fast Polling", "zbee_zcl_general.poll.start", FT_BOOLEAN, 8, NULL, 0x0,
+            { "Start Fast Polling", "zbee_zcl_general.poll.start", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
         { &hf_zbee_zcl_poll_ctrl_fast_poll_timeout,

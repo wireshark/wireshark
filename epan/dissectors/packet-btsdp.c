@@ -4725,7 +4725,7 @@ proto_register_btsdp(void)
         },
         { &hf_data_element_value_boolean,
             { "Value: Boolean",                  "btsdp.data_element.value.boolean",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_data_element_value_string,
@@ -4975,7 +4975,7 @@ proto_register_btsdp(void)
         },
         { &hf_did_primary_record,
             { "Primary Record",                  "btsdp.service.did.primary_record",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_did_version,
@@ -5150,7 +5150,7 @@ proto_register_btsdp(void)
         },
         { &hf_hsp_remote_audio_volume_control,
             { "Remote Audio Volume Control",     "btsdp.service.hsp.remote_audio_volume_control",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_gnss_supported_features,
@@ -5255,7 +5255,7 @@ proto_register_btsdp(void)
         },
         { &hf_dun_support_audio_feedback,
             { "Support: Audio Feedback",         "btsdp.dun.support.audio_feedback",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_dun_escape_sequence,
@@ -5265,22 +5265,22 @@ proto_register_btsdp(void)
         },
         { &hf_fax_support_class_1,
             { "Support: Fax Class 1",            "btsdp.fax.support.class_1",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_fax_support_class_2,
             { "Support: Fax Class 2.0",          "btsdp.fax.support.class_2",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_fax_support_class_2_vendor,
             { "Support: Fax Class 2 Vendor",     "btsdp.fax.support.class_2_vendor",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_fax_support_audio_feedback,
             { "Support: Audio Feedback",         "btsdp.fax.support.audio_feedback",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_ftp_goep_l2cap_psm,
@@ -6136,37 +6136,37 @@ proto_register_btsdp(void)
         },
         { &hf_hid_virtual_cable,
             { "Virtual Cable",                   "btsdp.service.hid.virtual_cable",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_hid_reconnect_initiate,
             { "Reconnect Initiate",              "btsdp.service.hid.reconnect_initiate",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_hid_sdp_disable,
             { "SDP Disable",                     "btsdp.service.hid.sdp_disable",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_hid_battery_power,
             { "Battery Power",                    "btsdp.service.hid.battery_power",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_hid_remote_wake,
             { "Remote Wake",                     "btsdp.service.hid.remote_wake",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_hid_normally_connectable,
             { "Normally Connectable",            "btsdp.service.hid.normally_connectable",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_hid_boot_device,
             { "Boot Device",                     "btsdp.service.hid.boot_device",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_hid_profile_version,
@@ -6426,7 +6426,7 @@ proto_register_btsdp(void)
         },
         { &hf_bpp_color_supported,
             { "Color Supported",                 "btsdp.service.bpp.color_supported",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_bpp_1284_id,
@@ -6446,7 +6446,7 @@ proto_register_btsdp(void)
         },
         { &hf_bpp_duplex_supported,
             { "Duplex Supported",                "btsdp.service.bpp.duplex_supported",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_bpp_media_types_supported,
@@ -6466,7 +6466,7 @@ proto_register_btsdp(void)
         },
         { &hf_bpp_enhanced_layout_supported,
             { "Enhanced Layout Supported",       "btsdp.service.bpp.enhanced_layout_supported",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_bpp_rui_formats_supported,
@@ -6476,12 +6476,12 @@ proto_register_btsdp(void)
         },
         { &hf_bpp_reference_printing_rui_supported,
             { "Reference Printing RUI Supported","btsdp.service.bpp.reference_printing_rui_supported",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_bpp_direct_printing_rui_supported,
             { "Direct Printing RUI Supported",   "btsdp.service.bpp.direct_printing_rui_supported",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_bpp_reference_printing_top_url,

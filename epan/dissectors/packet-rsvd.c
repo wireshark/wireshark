@@ -1218,15 +1218,15 @@ proto_register_rsvd(void)
                     NULL, 0, NULL, HFILL }},
 
                 { &hf_svhdx_tunnel_resize_expand_only_flag,
-                  { "ExpandOnly", "rsvd.svhdx_meta_operation.expand_only", FT_BOOLEAN, 8,
+                  { "ExpandOnly", "rsvd.svhdx_meta_operation.expand_only", FT_BOOLEAN, BASE_NONE,
                     NULL, 0, "Indicates that shared virtual disk size can only expand", HFILL }},
 
                 { &hf_svhdx_tunnel_resize_allow_unsafe_virt_size_flag,
-                  { "AllowUnsafeVirtualSize", "rsvd.svhdx_meta_operation.allow_unsafe_virt_size", FT_BOOLEAN, 8,
+                  { "AllowUnsafeVirtualSize", "rsvd.svhdx_meta_operation.allow_unsafe_virt_size", FT_BOOLEAN, BASE_NONE,
                     NULL, 0, "Indicates that the shared virtual disk size can be less than the data it currently contains", HFILL }},
 
                 { &hf_svhdx_tunnel_resize_shrink_to_minimum_safe_size_flag,
-                  { "ShrinkToMinimumSafeSize", "rsvd.svhdx_meta_operation.shrink_to_minimum_safe_size", FT_BOOLEAN, 8,
+                  { "ShrinkToMinimumSafeSize", "rsvd.svhdx_meta_operation.shrink_to_minimum_safe_size", FT_BOOLEAN, BASE_NONE,
                     NULL, 0, "Indicates that the shared virtual disk size can be shrunk to the data it currently contains", HFILL }},
 
                 { &hf_svhdx_tunnel_meta_operation_start_reserved,
@@ -1286,7 +1286,7 @@ proto_register_rsvd(void)
                     NULL, 0, "Name for the new VHD set be created", HFILL }},
 
                 { &hf_svhdx_tunnel_delete_snapshot_persist_reference,
-                  { "PersistReference", "rsvd.svhdx_delete_snapshot_persist_reference", FT_BOOLEAN, 4,
+                  { "PersistReference", "rsvd.svhdx_delete_snapshot_persist_reference", FT_BOOLEAN, 0,
                     NULL, 0, "Indicate if the snapshot needs to be persisted", HFILL }},
 
                 { &hf_svhdx_tunnel_meta_op_query_progress_current_progress,
@@ -1306,7 +1306,7 @@ proto_register_rsvd(void)
                     NULL, 0, "Time when this object was created", HFILL }},
 
                 { &hf_svhdx_tunnel_vhdset_is_valid_snapshot,
-                  { "IsValidSnapshot", "rsvd.svhdx_vhdset_is_valid_snapshot", FT_BOOLEAN, 4,
+                  { "IsValidSnapshot", "rsvd.svhdx_vhdset_is_valid_snapshot", FT_BOOLEAN, BASE_NONE,
                     NULL, 0, "Set to 1 when the snapshot is valid", HFILL }},
 
                 { &hf_svhdx_tunnel_vhdset_parent_snapshot_id,

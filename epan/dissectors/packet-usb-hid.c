@@ -5876,11 +5876,11 @@ proto_register_usb_hid(void)
                 NULL, 0x00, NULL, HFILL }},
 
         { &hf_usbhid_button,
-            { "Button", "usbhid.data.button", FT_BOOLEAN, 1,
+            { "Button", "usbhid.data.button", FT_BOOLEAN, BASE_NONE,
                 NULL, 0x00, NULL, HFILL }},
 
         { &hf_usbhid_key,
-            { "Key", "usbhid.data.key.variable", FT_BOOLEAN, 1,
+            { "Key", "usbhid.data.key.variable", FT_BOOLEAN, BASE_NONE,
                 NULL, 0x00, NULL, HFILL }},
 
         { &hf_usbhid_array,
@@ -5888,7 +5888,7 @@ proto_register_usb_hid(void)
                 NULL, 0x00, NULL, HFILL }},
 
         { &hf_usbhid_array_usage,
-            { "Usage", "usbhid.data.array.usage", FT_BOOLEAN, 1,
+            { "Usage", "usbhid.data.array.usage", FT_BOOLEAN, BASE_NONE,
             NULL, 0x00, NULL, HFILL }},
     };
 

@@ -1090,8 +1090,6 @@ class Item:
         if self.item_type == 'FT_BOOLEAN':
             if self.display == 'NULL':
                 return 8  # i.e. 1 byte
-            elif self.display == 'BASE_NONE':
-                return 8
             elif self.display == 'SEP_DOT':   # from proto.h, only meant for FT_BYTES
                 return 64
             else:
@@ -1260,7 +1258,7 @@ class Item:
 
     def check_boolean_length(self):
         global errors_found
-        # If mask is 0, display must be BASE_NONE
+        # If mask is 0, display must be BASE_NONE.  TODO: modify test to use self.display != 'BASE_NONE' !
         if self.item_type == 'FT_BOOLEAN' and self.mask_read and self.mask_value == 0 and self.display_value != 0:
             print('Error:', self.filename, self.hf, 'type is FT_BOOLEAN, no mask set (', self.mask, ') - display should be BASE_NONE, is instead', self.display)
             errors_found += 1

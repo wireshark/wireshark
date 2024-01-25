@@ -3683,7 +3683,7 @@ framing signal deasserted.  this is caused by software setting the drain all reg
 
     { &hf_radiotap_l1info_preamble,
         { "Preamble", "ixveriwave.l1info.preamble",
-        FT_BOOLEAN, 12, TFS(&tfs_preamble_type), 0x0,
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_preamble_type), 0x0,
         "Sent/Received with short preamble", HFILL } },
 
     { &hf_radiotap_l1info_rateindex,
@@ -3704,7 +3704,7 @@ framing signal deasserted.  this is caused by software setting the drain all reg
 
     { &hf_radiotap_l1info_transmitted,
         { "Frame direction", "ixveriwave.txframe",
-        FT_BOOLEAN, 16, TFS(&tfs_tx_rx_type), 0x0, NULL, HFILL } },
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_tx_rx_type), 0x0, NULL, HFILL } },
 
     { &hf_radiotap_sigbandwidth,
         { "Signaling Band Width", "ixveriwave.sigbandwidth",

@@ -44605,7 +44605,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_switching_stream_non_qos,
       {"Non-Qos Data Frames", "wlan.switching_stream.non_qos",
-       FT_BOOLEAN, 8, NULL, 0,
+       FT_BOOLEAN, BASE_NONE, NULL, 0,
        NULL, HFILL }},
 
     {&hf_ieee80211_tag_switching_stream_param_num,

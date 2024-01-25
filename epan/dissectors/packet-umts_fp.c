@@ -6102,7 +6102,7 @@ void proto_register_fp(void)
             },
             { &hf_fp_direction,
               { "Direction",
-                "fp.direction", FT_BOOLEAN, 8, TFS(&tfs_uplink_downlink), 0x0,
+                "fp.direction", FT_BOOLEAN, BASE_NONE, TFS(&tfs_uplink_downlink), 0x0,
                 "Link direction", HFILL
               }
             },

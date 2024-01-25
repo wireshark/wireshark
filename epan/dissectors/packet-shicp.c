@@ -474,7 +474,7 @@ proto_register_shicp(void)
         },
         { &hf_shicp_auth_req,
           { "Authentication required", "shicp.authreq",
-            FT_BOOLEAN, 8,
+            FT_BOOLEAN, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL }
         },
@@ -528,7 +528,7 @@ proto_register_shicp(void)
         },
         { &hf_shicp_dhcp,
           { "DHCP", "shicp.dhcp",
-            FT_BOOLEAN, 8,
+            FT_BOOLEAN, BASE_NONE,
             TFS(&tfs_enabled_disabled), 0x0,
             NULL, HFILL }
         },

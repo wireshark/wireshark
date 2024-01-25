@@ -3326,7 +3326,7 @@ void proto_register_edonkey(void) {
       { &hf_edonkey_end_offset_64, { "End Offset", "edonkey.end_offset64", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_edonkey_emule_file_length, { "File Length", "edonkey.emule.file_length", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_edonkey_overnet_peer_type, { "Peer Type", "edonkey.overnet_peer_type", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_edonkey_more_search_file_results, { "More", "edonkey.more_search_file_results", FT_BOOLEAN, 8, NULL, 0x0, NULL, HFILL }},
+      { &hf_edonkey_more_search_file_results, { "More", "edonkey.more_search_file_results", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_edonkey_file_size, { "File size", "edonkey.file_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_edonkey_large_file_size, { "Large file size", "edonkey.large_file_size", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_edonkey_number_of_users, { "Number of Users", "edonkey.number_of_users", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},

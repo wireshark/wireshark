@@ -1495,7 +1495,7 @@ void proto_register_mqtt(void)
     /* Conn-Ack */
     { &hf_mqtt_conack_reserved,
       { "Reserved", "mqtt.conack.flags.reserved",
-        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0,
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0,
         NULL, HFILL }},
     { &hf_mqtt_conack_flags,
       { "Acknowledge Flags", "mqtt.conack.flags",

@@ -5071,7 +5071,7 @@ proto_register_capwap_control(void)
         },
         { &hf_capwap_fortinet_wtp_allow_allow,
             { "Allowed", "capwap.control.fortinet.wtp_allow.allowed",
-              FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x0,
+              FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
               NULL, HFILL }
         },
         { &hf_capwap_fortinet_wbh_sta_rid,

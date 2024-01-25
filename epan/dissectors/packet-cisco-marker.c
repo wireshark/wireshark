@@ -106,7 +106,7 @@ proto_register_erspan_marker(void)
     },
     { &hf_cisco_erspan_info,
       { "Header", "erspan-marker.header",
-        FT_BOOLEAN, 8, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_cisco_erspan_version,

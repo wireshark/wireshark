@@ -3311,7 +3311,7 @@ void proto_register_ecmp (void)
 	{"Existence State", "ecmp.cyclic_setup.exists.state", FT_UINT8, BASE_DEC, VALS(cyclic_setup_link_exists), 0x0, "Cyclic setup exists state", HFILL}},
 
 	{ &hf_ecmp_cyclic_link_req_resp,
-	{"Cyclic Link - Request-Response", "ecmp.cyclic_link.request.response", FT_BOOLEAN, 8, TFS(&tfs_response_request), 0x0, "Cyclic link request - response", HFILL}},
+	{"Cyclic Link - Request-Response", "ecmp.cyclic_link.request.response", FT_BOOLEAN, BASE_NONE, TFS(&tfs_response_request), 0x0, "Cyclic link request - response", HFILL}},
 
 	{ &hf_ecmp_attribute_string,
 	{ "Attribute string", "ecmp.attribute_string", FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},

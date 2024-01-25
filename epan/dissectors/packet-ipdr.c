@@ -575,7 +575,7 @@ proto_register_ipdr(void)
         { &hf_ipdr_request_id, { "Request id", "ipdr.request_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_ipdr_config_id, { "Config id", "ipdr.config_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_ipdr_flags, { "Flags", "ipdr.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-        { &hf_ipdr_primary, { "Primary", "ipdr.primary", FT_BOOLEAN, 8, NULL, 0x0, NULL, HFILL } },
+        { &hf_ipdr_primary, { "Primary", "ipdr.primary", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_ipdr_ack_time_interval, { "ACK time interval", "ipdr.ack_time_interval", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_ipdr_ack_sequence_interval, { "ACK sequence interval", "ipdr.ack_sequence_interval", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_ipdr_template_id, { "Template id", "ipdr.template_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },

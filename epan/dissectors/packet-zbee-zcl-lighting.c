@@ -1367,7 +1367,7 @@ proto_register_zbee_zcl_color_control(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_color_control_attr_color_loop_active,
-            { "Active", "zbee_zcl_lighting.color_control.attr.color_loop_active", FT_BOOLEAN, 8, NULL,
+            { "Active", "zbee_zcl_lighting.color_control.attr.color_loop_active", FT_BOOLEAN, BASE_NONE, NULL,
                 0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_color_control_attr_color_loop_direction,

@@ -1349,7 +1349,7 @@ void proto_register_idrp(void)
                 HFILL}},
         {&hf_idrp_update_path_attr_ext_info,
             {"Path Attribute Value External Info",
-                "idrp.update.path-attr.ext-info",  FT_BOOLEAN, 8,
+                "idrp.update.path-attr.ext-info",  FT_BOOLEAN, BASE_NONE,
                 NULL, 0,"Flag indicates if routes have been discovered by means of IDRP",
                 HFILL}},
         {&hf_idrp_update_path_attr_rd_path_type,

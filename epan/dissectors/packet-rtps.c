@@ -15223,37 +15223,37 @@ void proto_register_rtps(void) {
 
     { &hf_rtps_expects_inline_qos,
       { "Inline QoS", "rtps.expects_inline_qos",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
 
     { &hf_rtps_presentation_coherent_access,
       { "Coherent Access", "rtps.presentation.coherent_access",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
 
     { &hf_rtps_presentation_ordered_access,
       { "Ordered Access", "rtps.presentation.ordered_access",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
 
     { &hf_rtps_direct_communication,
       { "Direct Communication", "rtps.direct_communication",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
 
     { &hf_rtps_expects_ack,
       { "expectsAck", "rtps.expects_ack",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
 
     { &hf_rtps_expects_virtual_heartbeat,
       { "expectsVirtualHB", "rtps.expects_virtual_heartbeat",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
 
@@ -15365,7 +15365,7 @@ void proto_register_rtps(void) {
 
     { &hf_rtps_disable_positive_ack,
       { "disablePositiveAcks", "rtps.disable_positive_ack",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
 
@@ -16333,7 +16333,7 @@ void proto_register_rtps(void) {
     },
     { &hf_rtps_type_object_element_shared,
       { "Element shared", "rtps.type_object.shared",
-          FT_BOOLEAN, 8, NULL, 0,
+          FT_BOOLEAN, BASE_NONE, NULL, 0,
           NULL, HFILL }
     },
     { &hf_rtps_flag_typeflag_final, {
@@ -16630,7 +16630,7 @@ void proto_register_rtps(void) {
     },
     { &hf_rtps_param_enable_authentication,
       { "Authentication enabled", "rtps.secure.enable_authentication",
-        FT_BOOLEAN, 32, NULL, 0, NULL, HFILL }
+        FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }
     },
     { &hf_rtps_param_builtin_endpoint_qos,
       { "Built-in Endpoint QoS", "rtps.param.builtin_endpoint_qos",
@@ -16736,11 +16736,11 @@ void proto_register_rtps(void) {
     },
     { &hf_rtps_pgm, {
        "Participant Generic Message", "rtps.pgm",
-       FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x0, NULL, HFILL }
+       FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0, NULL, HFILL }
     },
     { &hf_rtps_srm, {
        "Service Request Message", "rtps.srm",
-       FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x0, NULL, HFILL }
+       FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0, NULL, HFILL }
     },
     { &hf_rtps_pgm_dst_participant_guid,
       { "Destination Participant GUID", "rtps.pgm.dst_participant_guid",
@@ -16786,7 +16786,7 @@ void proto_register_rtps(void) {
 #endif
     { &hf_rtps_param_topic_query_publication_enable,
       { "Enable", "rtps.param.topic_query_publication_enable",
-        FT_BOOLEAN, 8, NULL, 0, NULL, HFILL }
+        FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }
     },
     { &hf_rtps_param_topic_query_publication_sessions,
       { "Number of sessions", "rtps.param.topic_query_publication_sessions",

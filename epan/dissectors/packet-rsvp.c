@@ -9835,7 +9835,7 @@ proto_register_rsvp(void)
         },
         { &hf_rsvp_3gpp_qos_attribute_verbose,
          { "VERBOSE", "rsvp.3gpp_obj.r_qos_blob.verbose",
-           FT_BOOLEAN, 8, NULL, 0x0,
+           FT_BOOLEAN, BASE_NONE, NULL, 0x0,
            NULL, HFILL }
         },
         { &hf_rsvp_3gpp_qos_attribute_prof_id,

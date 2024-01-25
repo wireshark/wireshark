@@ -1060,7 +1060,7 @@ proto_register_ubt(void)
 
         { &hf_ubt_dt_clusterenabled,/* if cluster enabled or not */
             { "Cluster Enabled", "ubt.node_list.cluster_enabled",
-            FT_BOOLEAN, 8, NULL, 0x0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 
@@ -1247,7 +1247,7 @@ proto_register_ubt(void)
 
         { &hf_ubt_dt_status,/* status of message */
             { "Status", "ubt.status",
-            FT_BOOLEAN, 8, TFS(&tfs_success_fail), 0x0,
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_success_fail), 0x0,
             NULL, HFILL }
         },
 

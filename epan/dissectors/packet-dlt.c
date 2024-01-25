@@ -1300,7 +1300,7 @@ void proto_register_dlt(void) {
 
         { &hf_dlt_data_bool, {
             "(bool)", "dlt.data.bool",
-            FT_BOOLEAN, 1, NULL, 0x0, NULL, HFILL } },
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_dlt_uint8, {
             "(uint8)", "dlt.data.uint8",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },

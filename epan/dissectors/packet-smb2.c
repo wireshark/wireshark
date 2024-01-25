@@ -13876,7 +13876,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_svhdx_open_device_context_has_initiator_id,
-			{ "HasInitiatorId", "smb2.svhdx_open_device_context.initiator_has_id", FT_BOOLEAN, 8,
+			{ "HasInitiatorId", "smb2.svhdx_open_device_context.initiator_has_id", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_smb2_svhdx_has_initiator_id), 0, "Whether the host has an initiator", HFILL }
 		},
 
@@ -13916,7 +13916,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_svhdx_open_device_context_virtual_disk_properties_initialized,
-			{ "VirtualDiskPropertiesInitialized", "smb2.svhdx_open_device_context.virtual_disk_properties_initialized", FT_BOOLEAN, 32,
+			{ "VirtualDiskPropertiesInitialized", "smb2.svhdx_open_device_context.virtual_disk_properties_initialized", FT_BOOLEAN, BASE_NONE,
 			NULL, 0, "Whether VirtualSectorSize, PhysicalSectorSize, and VirtualSize fields are filled", HFILL }
 		},
 

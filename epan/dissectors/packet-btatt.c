@@ -12528,7 +12528,7 @@ proto_register_btatt(void)
         },
         {&hf_btatt_peripheral_privacy_flag,
             {"Peripheral Privacy", "btatt.peripheral_privacy_flag",
-            FT_BOOLEAN, 8, NULL, 0x0,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
         { &hf_btatt_reconnection_address,
