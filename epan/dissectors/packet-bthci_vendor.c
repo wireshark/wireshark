@@ -32,8 +32,9 @@ static int hf_broadcom_le_advertising_filter_subcode;
 static int hf_broadcom_le_scan_condition;
 static int hf_broadcom_le_filter_index;
 static int hf_broadcom_le_number_of_available_filters;
-static int hf_broadcom_firmware;
-static int hf_broadcom_firmware_address;
+static int hf_broadcom_mem_data;
+static int hf_broadcom_mem_address;
+static int hf_broadcom_mem_rdlen;
 static int hf_broadcom_baudrate;
 static int hf_broadcom_status;
 static int hf_broadcom_bd_addr;
@@ -143,11 +144,8 @@ static dissector_handle_t btcommon_ad_handle;
     { (base) | 0x002E,  "Download MiniDriver" }, \
     { (base) | 0x003B,  "Enable USB HID Emulation" }, \
     { (base) | 0x0045,  "Write UART Clock Setting" }, \
-    { (base) | 0x004C,  "Write Firmware" }, /* Unknown name, but it is part of firmware, \
-                                      which is set of this command and one \
-                                      "Launch RAM" at the end of file. \
-                                      Procedure of load firmware seems to be \
-                                      initiated by command "Download MiniDriver" */ \
+    { (base) | 0x004C,  "Write Memory" }, \
+    { (base) | 0x004D,  "Read Memory" }, \
     { (base) | 0x004E,  "Launch RAM" }, \
     { (base) | 0x0057,  "Set ACL Priority" }, \
     { (base) | 0x005A,  "Read VID PID" }, \
@@ -567,15 +565,22 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             offset += 1;
 
             break;
-        case 0x004C: /* Write Firmware*/
-            proto_tree_add_item(main_tree, hf_broadcom_firmware_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        case 0x004C: /* Write Memory */
+            proto_tree_add_item(main_tree, hf_broadcom_mem_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
 
-            proto_tree_add_item(main_tree, hf_broadcom_firmware, tvb, offset, length - 4, ENC_NA);
+            proto_tree_add_item(main_tree, hf_broadcom_mem_data, tvb, offset, length - 4, ENC_NA);
             offset += length - 4;
             break;
+        case 0x004D: /* Read RAM */
+            proto_tree_add_item(main_tree, hf_broadcom_mem_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(main_tree, hf_broadcom_mem_rdlen, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
         case 0x004E: /* Launch RAM */
-            proto_tree_add_item(main_tree, hf_broadcom_firmware_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(main_tree, hf_broadcom_mem_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
 
             break;
@@ -865,6 +870,12 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             offset += 1;
 
             switch (ocf) {
+            case 0x004D: /* Read Memory */
+                if (status == STATUS_SUCCESS) {
+                    proto_tree_add_item(main_tree, hf_broadcom_mem_data, tvb, offset, length, ENC_NA);
+                    offset += length;
+                }
+                break;
             case 0x005A: /* Read VID PID */
                 proto_tree_add_item(main_tree, hf_broadcom_vid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
@@ -981,7 +992,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             case 0x002E: /* Download MiniDriver */
             case 0x003B: /* Enable USB HID Emulation */
             case 0x0045: /* Write UART Clock Setting */
-            case 0x004C: /* Write Firmware*/
+            case 0x004C: /* Write Memory */
             case 0x004E: /* Launch RAM */
             case 0x0057: /* Set ACL Priority */
             case 0x006D: /* Write I2S PCM Interface Parameter */
@@ -1089,14 +1100,19 @@ proto_register_bthci_vendor_broadcom(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_broadcom_firmware_address,
-            { "Address",                                   "bthci_vendor.broadcom.firmware.address",
+        { &hf_broadcom_mem_address,
+            { "Address",                                   "bthci_vendor.broadcom.mem.address",
             FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_broadcom_firmware,
-            { "Firmware",                                  "bthci_vendor.broadcom.firmware.data",
+        { &hf_broadcom_mem_data,
+            { "Firmware",                                  "bthci_vendor.broadcom.mem.data",
             FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_mem_rdlen,
+            { "Length",                                    "bthci_vendor.broadcom.mem.rd_len",
+            FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_broadcom_baudrate,
