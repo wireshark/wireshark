@@ -254,7 +254,9 @@ bool LograyMainWindow::openCaptureFile(QString cf_path, QString read_filter, uns
         break;
     }
 
-    mainApp->setLastOpenDirFromFilename(cf_path);
+    if (!is_tempfile) {
+        mainApp->setLastOpenDirFromFilename(cf_path);
+    }
 
     main_ui_->statusBar->showExpert();
 

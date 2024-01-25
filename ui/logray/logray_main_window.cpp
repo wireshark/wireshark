@@ -1262,6 +1262,8 @@ void LograyMainWindow::mergeCaptureFile()
         cf_close(capture_file_.capFile());
 
         /* Try to open the merged capture file. */
+        // XXX - Just free rfcode and call
+        // openCaptureFile(tmpname, read_filter, WTAP_TYPE_AUTO, TRUE);
         CaptureFile::globalCapFile()->window = this;
         if (cf_open(CaptureFile::globalCapFile(), tmpname, WTAP_TYPE_AUTO, TRUE /* temporary file */, &err) != CF_OK) {
             /* We couldn't open it; fail. */
@@ -1294,8 +1296,7 @@ void LograyMainWindow::mergeCaptureFile()
             return;
         }
 
-        /* Save the name of the containing directory specified in the path name. */
-        mainApp->setLastOpenDirFromFilename(tmpname);
+        /* This is a tempfile; don't change the last open directory. */
         g_free(tmpname);
         main_ui_->statusBar->showExpert();
         return;
@@ -1317,7 +1318,7 @@ void LograyMainWindow::importCaptureFile() {
         return;
     }
 
-    openCaptureFile(import_dlg.capfileName());
+    openCaptureFile(import_dlg.capfileName(), QString(), WTAP_TYPE_AUTO, true);
 }
 
 bool LograyMainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {

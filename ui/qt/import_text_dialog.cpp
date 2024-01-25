@@ -429,6 +429,8 @@ int ImportTextDialog::exec() {
         import_info_.timestamp_format = NULL;
     }
 
+    mainApp->setLastOpenDirFromFilename(QString(import_info_.import_text_filename));
+
     switch (import_info_.mode) {
       default: /* should never happen */
         setResult(QDialog::Rejected);
