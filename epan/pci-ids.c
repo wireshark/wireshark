@@ -6,8 +6,8 @@
  *
  * List of PCI ID's
  *
- * Version: 2023.11.11
- * Date:    2023-11-11 03:15:02
+ * Version: 2024.01.25
+ * Date:    2024-01-25 03:15:01
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -39,7 +39,7 @@ typedef struct
   uint16_t did;
   uint16_t svid;
   uint16_t ssid;
-  char *name;
+  const char *name;
 
 } pci_id_t;
 
@@ -47,20 +47,20 @@ typedef struct
 {
   uint16_t vid;
   uint16_t count;
-  pci_id_t *ids_ptr;
+  pci_id_t const *ids_ptr;
 
 } pci_vid_index_t;
 
-pci_id_t pci_vid_0001[] = {
+static pci_id_t const pci_vid_0001[] = {
 {0x0001, 0xFFFF, 0xFFFF, 0xFFFF, "SafeNet (wrong ID)(0x0001)"},
 }; /* pci_vid_0001[] */
 
-pci_id_t pci_vid_0010[] = {
+static pci_id_t const pci_vid_0010[] = {
 {0x0010, 0xFFFF, 0xFFFF, 0xFFFF, "Allied Telesis, Inc (Wrong ID)(0x0010)"},
 {0x0010, 0x8139, 0xFFFF, 0xFFFF, "AT-2500TX V3 Ethernet(0x8139)"},
 }; /* pci_vid_0010[] */
 
-pci_id_t pci_vid_0014[] = {
+static pci_id_t const pci_vid_0014[] = {
 {0x0014, 0xFFFF, 0xFFFF, 0xFFFF, "Loongson Technology LLC(0x0014)"},
 {0x0014, 0x7A00, 0xFFFF, 0xFFFF, "Hyper Transport Bridge Controller(0x7A00)"},
 {0x0014, 0x7A02, 0xFFFF, 0xFFFF, "APB (Advanced Peripheral Bus) Controller(0x7A02)"},
@@ -79,144 +79,156 @@ pci_id_t pci_vid_0014[] = {
 {0x0014, 0x7A15, 0xFFFF, 0xFFFF, "Vivante GPU (Graphics Processing Unit)(0x7A15)"},
 {0x0014, 0x7A19, 0xFFFF, 0xFFFF, "PCI-to-PCI Bridge(0x7A19)"},
 {0x0014, 0x7A24, 0xFFFF, 0xFFFF, "OHCI USB Controller(0x7A24)"},
+{0x0014, 0x7A25, 0xFFFF, 0xFFFF, "LG100 GPU(0x7A25)"},
 {0x0014, 0x7A29, 0xFFFF, 0xFFFF, "PCI-to-PCI Bridge(0x7A29)"},
+{0x0014, 0x7A36, 0xFFFF, 0xFFFF, "Display Controller(0x7A36)"},
 }; /* pci_vid_0014[] */
 
-pci_id_t pci_vid_0018[] = {
+static pci_id_t const pci_vid_0018[] = {
 {0x0018, 0xFFFF, 0xFFFF, 0xFFFF, "Fn-Link Technology Limited(0x0018)"},
 {0x0018, 0x6252, 0xFFFF, 0xFFFF, "6252CPUB 802.11ax PCIe Wireless Network Adapter(0x6252)"},
 }; /* pci_vid_0018[] */
 
-pci_id_t pci_vid_001C[] = {
+static pci_id_t const pci_vid_001C[] = {
 {0x001C, 0xFFFF, 0xFFFF, 0xFFFF, "PEAK-System Technik GmbH(0x001C)"},
 {0x001C, 0x0001, 0xFFFF, 0xFFFF, "PCAN-PCI CAN-Bus controller(0x0001)"},
 {0x001C, 0x0001, 0x001C, 0x0004, "2 Channel CAN Bus SJC1000(0x001C-0x0004)"},
 {0x001C, 0x0001, 0x001C, 0x0005, "2 Channel CAN Bus SJC1000 (Optically Isolated)(0x001C-0x0005)"},
 }; /* pci_vid_001C[] */
 
-pci_id_t pci_vid_003D[] = {
+static pci_id_t const pci_vid_003D[] = {
 {0x003D, 0xFFFF, 0xFFFF, 0xFFFF, "Lockheed Martin-Marietta Corp(0x003D)"},
 }; /* pci_vid_003D[] */
 
-pci_id_t pci_vid_0059[] = {
+static pci_id_t const pci_vid_0059[] = {
 {0x0059, 0xFFFF, 0xFFFF, 0xFFFF, "Tiger Jet Network Inc. (Wrong ID)(0x0059)"},
 }; /* pci_vid_0059[] */
 
-pci_id_t pci_vid_0070[] = {
+static pci_id_t const pci_vid_0070[] = {
 {0x0070, 0xFFFF, 0xFFFF, 0xFFFF, "Hauppauge computer works Inc.(0x0070)"},
 {0x0070, 0x7801, 0xFFFF, 0xFFFF, "WinTV HVR-1800 MCE(0x7801)"},
 }; /* pci_vid_0070[] */
 
-pci_id_t pci_vid_0071[] = {
+static pci_id_t const pci_vid_0071[] = {
 {0x0071, 0xFFFF, 0xFFFF, 0xFFFF, "Nebula Electronics Ltd.(0x0071)"},
 }; /* pci_vid_0071[] */
 
-pci_id_t pci_vid_0095[] = {
+static pci_id_t const pci_vid_0095[] = {
 {0x0095, 0xFFFF, 0xFFFF, 0xFFFF, "Silicon Image, Inc. (Wrong ID)(0x0095)"},
 {0x0095, 0x0680, 0xFFFF, 0xFFFF, "Ultra ATA/133 IDE RAID CONTROLLER CARD(0x0680)"},
 }; /* pci_vid_0095[] */
 
-pci_id_t pci_vid_00A7[] = {
+static pci_id_t const pci_vid_00A7[] = {
 {0x00A7, 0xFFFF, 0xFFFF, 0xFFFF, "Teles AG (Wrong ID)(0x00A7)"},
 }; /* pci_vid_00A7[] */
 
-pci_id_t pci_vid_0100[] = {
+static pci_id_t const pci_vid_0100[] = {
 {0x0100, 0xFFFF, 0xFFFF, 0xFFFF, "nCipher Security(0x0100)"},
 }; /* pci_vid_0100[] */
 
-pci_id_t pci_vid_0123[] = {
+static pci_id_t const pci_vid_0123[] = {
 {0x0123, 0xFFFF, 0xFFFF, 0xFFFF, "General Dynamics(0x0123)"},
 }; /* pci_vid_0123[] */
 
-pci_id_t pci_vid_0128[] = {
+static pci_id_t const pci_vid_0128[] = {
 {0x0128, 0xFFFF, 0xFFFF, 0xFFFF, "Dell (wrong ID)(0x0128)"},
 }; /* pci_vid_0128[] */
 
-pci_id_t pci_vid_018A[] = {
+static pci_id_t const pci_vid_018A[] = {
 {0x018A, 0xFFFF, 0xFFFF, 0xFFFF, "LevelOne(0x018A)"},
 {0x018A, 0x0106, 0xFFFF, 0xFFFF, "FPC-0106TX misprogrammed [RTL81xx](0x0106)"},
 }; /* pci_vid_018A[] */
 
-pci_id_t pci_vid_01DE[] = {
+static pci_id_t const pci_vid_01DE[] = {
 {0x01DE, 0xFFFF, 0xFFFF, 0xFFFF, "Oxide Computer Company(0x01DE)"},
 {0x01DE, 0x0000, 0xFFFF, 0xFFFF, "Propolis NVMe Controller(0x0000)"},
 {0x01DE, 0x0001, 0xFFFF, 0xFFFF, "Propolis xHCI Controller(0x0001)"},
 {0x01DE, 0x0002, 0xFFFF, 0xFFFF, "Propolis PCI-PCI Bridge(0x0002)"},
 }; /* pci_vid_01DE[] */
 
-pci_id_t pci_vid_0200[] = {
+static pci_id_t const pci_vid_0200[] = {
 {0x0200, 0xFFFF, 0xFFFF, 0xFFFF, "Dell (wrong ID)(0x0200)"},
 }; /* pci_vid_0200[] */
 
-pci_id_t pci_vid_021B[] = {
+static pci_id_t const pci_vid_021B[] = {
 {0x021B, 0xFFFF, 0xFFFF, 0xFFFF, "Compaq Computer Corporation(0x021B)"},
 {0x021B, 0x8139, 0xFFFF, 0xFFFF, "HNE-300 (RealTek RTL8139c) [iPaq Networking](0x8139)"},
 }; /* pci_vid_021B[] */
 
-pci_id_t pci_vid_025E[] = {
+static pci_id_t const pci_vid_025E[] = {
 {0x025E, 0xFFFF, 0xFFFF, 0xFFFF, "Solidigm(0x025E)"},
 {0x025E, 0x0B60, 0xFFFF, 0xFFFF, "NVMe DC SSD [Sentinel Rock Plus controller](0x0B60)"},
+{0x025E, 0x0B60, 0x025E, 0x8008, "NVMe DC SSD U.2 15mm [D7-P5510](0x025E-0x8008)"},
 {0x025E, 0x0B60, 0x025E, 0x8208, "NVMe DC SSD U.2 15mm [D7-P5810](0x025E-0x8208)"},
+{0x025E, 0x0B60, 0x025E, 0x8D1D, "NVMe DC SSD E1.L 9.5mm [D5-P5316](0x025E-0x8D1D)"},
+{0x025E, 0x0B60, 0x025E, 0x9008, "NVMe DC SSD U.2 15mm [D7-P5520](0x025E-0x9008)"},
+{0x025E, 0x0B60, 0x025E, 0x900C, "NVMe DC SSD E1.S 9.5mm [D7-P5520](0x025E-0x900C)"},
+{0x025E, 0x0B60, 0x025E, 0x900D, "NVMe DC SSD E1.S 15mm [D7-P5520](0x025E-0x900D)"},
+{0x025E, 0x0B60, 0x025E, 0x901C, "NVMe DC SSD E1.L 9.5mm [D7-P5520](0x025E-0x901C)"},
+{0x025E, 0x0B60, 0x025E, 0x9108, "NVMe DC SSD U.2 15mm [D7-P5620](0x025E-0x9108)"},
+{0x025E, 0x0B60, 0x025E, 0xC008, "NVMe DC SSD U.2 15mm [D5-P5530](0x025E-0xC008)"},
 {0x025E, 0x0B60, 0x025E, 0xD408, "NVMe DC SSD U.2 15mm [D5-P5430](0x025E-0xD408)"},
 {0x025E, 0x0B60, 0x025E, 0xD40C, "NVMe DC SSD E1.S 9.5mm [D5-P5430](0x025E-0xD40C)"},
 {0x025E, 0x0B60, 0x025E, 0xD419, "NVMe DC SSD E3.S 7.5mm [D5-P5430](0x025E-0xD419)"},
 {0x025E, 0x0B60, 0x025E, 0xD808, "NVMe DC SSD U.2 15mm [D5-P5336](0x025E-0xD808)"},
 {0x025E, 0x0B60, 0x025E, 0xD819, "NVMe DC SSD E3.S 7.5mm [D5-P5336](0x025E-0xD819)"},
+{0x025E, 0x0B60, 0x025E, 0xD81C, "NVMe DC SSD E1.L 18mm [D5-P5336](0x025E-0xD81C)"},
 {0x025E, 0x0B60, 0x025E, 0xD81D, "NVMe DC SSD E1.L 9.5mm [D5-P5336](0x025E-0xD81D)"},
 {0x025E, 0x0B70, 0xFFFF, 0xFFFF, "NVMe DC SSD [Yorktown controller](0x0B70)"},
+{0x025E, 0x2B59, 0xFFFF, 0xFFFF, "NVMe DC SSD [Atomos Prime](0x2B59)"},
 {0x025E, 0xF1AB, 0xFFFF, 0xFFFF, "P41 Plus NVMe SSD (DRAM-less) [Echo Harbor](0xF1AB)"},
 {0x025E, 0xF1AC, 0xFFFF, 0xFFFF, "P44 Pro NVMe SSD [Hollywood Beach](0xF1AC)"},
 }; /* pci_vid_025E[] */
 
-pci_id_t pci_vid_0270[] = {
+static pci_id_t const pci_vid_0270[] = {
 {0x0270, 0xFFFF, 0xFFFF, 0xFFFF, "Hauppauge computer works Inc. (Wrong ID)(0x0270)"},
 }; /* pci_vid_0270[] */
 
-pci_id_t pci_vid_0291[] = {
+static pci_id_t const pci_vid_0291[] = {
 {0x0291, 0xFFFF, 0xFFFF, 0xFFFF, "Davicom Semiconductor, Inc. (Wrong ID)(0x0291)"},
 }; /* pci_vid_0291[] */
 
-pci_id_t pci_vid_02AC[] = {
+static pci_id_t const pci_vid_02AC[] = {
 {0x02AC, 0xFFFF, 0xFFFF, 0xFFFF, "SpeedStream(0x02AC)"},
 {0x02AC, 0x1012, 0xFFFF, 0xFFFF, "1012 PCMCIA 10/100 Ethernet Card [RTL81xx](0x1012)"},
 }; /* pci_vid_02AC[] */
 
-pci_id_t pci_vid_02E0[] = {
+static pci_id_t const pci_vid_02E0[] = {
 {0x02E0, 0xFFFF, 0xFFFF, 0xFFFF, "XFX Pine Group Inc. (Wrong ID)(0x02E0)"},
 }; /* pci_vid_02E0[] */
 
-pci_id_t pci_vid_0303[] = {
+static pci_id_t const pci_vid_0303[] = {
 {0x0303, 0xFFFF, 0xFFFF, 0xFFFF, "Hewlett-Packard Company (Wrong ID)(0x0303)"},
 }; /* pci_vid_0303[] */
 
-pci_id_t pci_vid_0308[] = {
+static pci_id_t const pci_vid_0308[] = {
 {0x0308, 0xFFFF, 0xFFFF, 0xFFFF, "ZyXEL Communications Corporation (Wrong ID)(0x0308)"},
 }; /* pci_vid_0308[] */
 
-pci_id_t pci_vid_0315[] = {
+static pci_id_t const pci_vid_0315[] = {
 {0x0315, 0xFFFF, 0xFFFF, 0xFFFF, "SK-Electronics Co., Ltd.(0x0315)"},
 }; /* pci_vid_0315[] */
 
-pci_id_t pci_vid_0357[] = {
+static pci_id_t const pci_vid_0357[] = {
 {0x0357, 0xFFFF, 0xFFFF, 0xFFFF, "TTTech Computertechnik AG (Wrong ID)(0x0357)"},
 {0x0357, 0x000A, 0xFFFF, 0xFFFF, "TTP-Monitoring Card V2.0(0x000A)"},
 }; /* pci_vid_0357[] */
 
-pci_id_t pci_vid_0432[] = {
+static pci_id_t const pci_vid_0432[] = {
 {0x0432, 0xFFFF, 0xFFFF, 0xFFFF, "SCM Microsystems, Inc.(0x0432)"},
 {0x0432, 0x0001, 0xFFFF, 0xFFFF, "Pluto2 DVB-T Receiver for PCMCIA [EasyWatch MobilSet](0x0001)"},
 }; /* pci_vid_0432[] */
 
-pci_id_t pci_vid_0497[] = {
+static pci_id_t const pci_vid_0497[] = {
 {0x0497, 0xFFFF, 0xFFFF, 0xFFFF, "Dell Inc. (wrong ID)(0x0497)"},
 }; /* pci_vid_0497[] */
 
-pci_id_t pci_vid_060E[] = {
+static pci_id_t const pci_vid_060E[] = {
 {0x060E, 0xFFFF, 0xFFFF, 0xFFFF, "Lightelligence(0x060E)"},
 {0x060E, 0x0001, 0xFFFF, 0xFFFF, "Hummingbird ES(0x0001)"},
 }; /* pci_vid_060E[] */
 
-pci_id_t pci_vid_0675[] = {
+static pci_id_t const pci_vid_0675[] = {
 {0x0675, 0xFFFF, 0xFFFF, 0xFFFF, "Dynalink(0x0675)"},
 {0x0675, 0x1700, 0xFFFF, 0xFFFF, "IS64PH ISDN Adapter(0x1700)"},
 {0x0675, 0x1702, 0xFFFF, 0xFFFF, "IS64PH ISDN Adapter(0x1702)"},
@@ -224,11 +236,11 @@ pci_id_t pci_vid_0675[] = {
 {0x0675, 0x1704, 0xFFFF, 0xFFFF, "ISDN Adapter (PCI Bus, D, C)(0x1704)"},
 }; /* pci_vid_0675[] */
 
-pci_id_t pci_vid_0721[] = {
+static pci_id_t const pci_vid_0721[] = {
 {0x0721, 0xFFFF, 0xFFFF, 0xFFFF, "Sapphire, Inc.(0x0721)"},
 }; /* pci_vid_0721[] */
 
-pci_id_t pci_vid_0731[] = {
+static pci_id_t const pci_vid_0731[] = {
 {0x0731, 0xFFFF, 0xFFFF, 0xFFFF, "Jingjia Microelectronics Co Ltd(0x0731)"},
 {0x0731, 0x7200, 0xFFFF, 0xFFFF, "JM7200 Series GPU(0x7200)"},
 {0x0731, 0x7200, 0x0731, 0x7201, "JM7201(0x0731-0x7201)"},
@@ -269,33 +281,33 @@ pci_id_t pci_vid_0731[] = {
 {0x0731, 0x930B, 0xFFFF, 0xFFFF, "JH930-M(0x930B)"},
 }; /* pci_vid_0731[] */
 
-pci_id_t pci_vid_0777[] = {
+static pci_id_t const pci_vid_0777[] = {
 {0x0777, 0xFFFF, 0xFFFF, 0xFFFF, "Ubiquiti Networks, Inc.(0x0777)"},
 }; /* pci_vid_0777[] */
 
-pci_id_t pci_vid_0795[] = {
+static pci_id_t const pci_vid_0795[] = {
 {0x0795, 0xFFFF, 0xFFFF, 0xFFFF, "Wired Inc.(0x0795)"},
 {0x0795, 0x6663, 0xFFFF, 0xFFFF, "Butane II (MPEG2 encoder board)(0x6663)"},
 {0x0795, 0x6666, 0xFFFF, 0xFFFF, "MediaPress (MPEG2 encoder board)(0x6666)"},
 }; /* pci_vid_0795[] */
 
-pci_id_t pci_vid_07D1[] = {
+static pci_id_t const pci_vid_07D1[] = {
 {0x07D1, 0xFFFF, 0xFFFF, 0xFFFF, "D-Link System Inc(0x07D1)"},
 }; /* pci_vid_07D1[] */
 
-pci_id_t pci_vid_0824[] = {
+static pci_id_t const pci_vid_0824[] = {
 {0x0824, 0xFFFF, 0xFFFF, 0xFFFF, "T1042 [Freescale](0x0824)"},
 }; /* pci_vid_0824[] */
 
-pci_id_t pci_vid_0925[] = {
+static pci_id_t const pci_vid_0925[] = {
 {0x0925, 0xFFFF, 0xFFFF, 0xFFFF, "VIA Technologies, Inc. (Wrong ID)(0x0925)"},
 }; /* pci_vid_0925[] */
 
-pci_id_t pci_vid_0A89[] = {
+static pci_id_t const pci_vid_0A89[] = {
 {0x0A89, 0xFFFF, 0xFFFF, 0xFFFF, "BREA Technologies Inc(0x0A89)"},
 }; /* pci_vid_0A89[] */
 
-pci_id_t pci_vid_0B0B[] = {
+static pci_id_t const pci_vid_0B0B[] = {
 {0x0B0B, 0xFFFF, 0xFFFF, 0xFFFF, "Rhino Equipment Corp.(0x0B0B)"},
 {0x0B0B, 0x0105, 0xFFFF, 0xFFFF, "R1T1(0x0105)"},
 {0x0B0B, 0x0205, 0xFFFF, 0xFFFF, "R4FXO(0x0205)"},
@@ -313,15 +325,21 @@ pci_id_t pci_vid_0B0B[] = {
 {0x0B0B, 0x0A06, 0xFFFF, 0xFFFF, "RCB672FXX 672-channel modular analog telephony card(0x0A06)"},
 }; /* pci_vid_0B0B[] */
 
-pci_id_t pci_vid_0BAE[] = {
+static pci_id_t const pci_vid_0BAE[] = {
 {0x0BAE, 0xFFFF, 0xFFFF, 0xFFFF, "Bachmann electronic GmbH(0x0BAE)"},
 }; /* pci_vid_0BAE[] */
 
-pci_id_t pci_vid_0CCD[] = {
+static pci_id_t const pci_vid_0CCD[] = {
 {0x0CCD, 0xFFFF, 0xFFFF, 0xFFFF, "Preferred Networks, Inc.(0x0CCD)"},
+{0x0CCD, 0x0110, 0xFFFF, 0xFFFF, "MN-Core(0x0110)"},
+{0x0CCD, 0x0120, 0xFFFF, 0xFFFF, "MN-Core 2(0x0120)"},
+{0x0CCD, 0x0120, 0x0CCD, 0x0000, "MN-Core 2 16GB(0x0CCD-0x0000)"},
+{0x0CCD, 0x0120, 0x0CCD, 0x0010, "MN-Core 2 32GB(0x0CCD-0x0010)"},
+{0x0CCD, 0x0200, 0xFFFF, 0xFFFF, "MN-Core Direct Connect(0x0200)"},
+{0x0CCD, 0x0201, 0xFFFF, 0xFFFF, "MN-Core 2 Middle-plane(0x0201)"},
 }; /* pci_vid_0CCD[] */
 
-pci_id_t pci_vid_0E11[] = {
+static pci_id_t const pci_vid_0E11[] = {
 {0x0E11, 0xFFFF, 0xFFFF, 0xFFFF, "Compaq Computer Corporation(0x0E11)"},
 {0x0E11, 0x0001, 0xFFFF, 0xFFFF, "PCI to EISA Bridge(0x0001)"},
 {0x0E11, 0x0002, 0xFFFF, 0xFFFF, "PCI to ISA Bridge(0x0002)"},
@@ -433,20 +451,20 @@ pci_id_t pci_vid_0E11[] = {
 {0x0E11, 0xF150, 0xFFFF, 0xFFFF, "NetFlex-3/P ThunderLAN 2.3(0xF150)"},
 }; /* pci_vid_0E11[] */
 
-pci_id_t pci_vid_0E55[] = {
+static pci_id_t const pci_vid_0E55[] = {
 {0x0E55, 0xFFFF, 0xFFFF, 0xFFFF, "HaSoTec GmbH(0x0E55)"},
 }; /* pci_vid_0E55[] */
 
-pci_id_t pci_vid_0EAC[] = {
+static pci_id_t const pci_vid_0EAC[] = {
 {0x0EAC, 0xFFFF, 0xFFFF, 0xFFFF, "SHF Communication Technologies AG(0x0EAC)"},
 {0x0EAC, 0x0008, 0xFFFF, 0xFFFF, "Ethernet Powerlink Managing Node 01(0x0008)"},
 }; /* pci_vid_0EAC[] */
 
-pci_id_t pci_vid_0F62[] = {
+static pci_id_t const pci_vid_0F62[] = {
 {0x0F62, 0xFFFF, 0xFFFF, 0xFFFF, "Acrox Technologies Co., Ltd.(0x0F62)"},
 }; /* pci_vid_0F62[] */
 
-pci_id_t pci_vid_1000[] = {
+static pci_id_t const pci_vid_1000[] = {
 {0x1000, 0xFFFF, 0xFFFF, 0xFFFF, "Broadcom / LSI(0x1000)"},
 {0x1000, 0x0001, 0xFFFF, 0xFFFF, "53c810(0x0001)"},
 {0x1000, 0x0001, 0x1000, 0x1000, "LSI53C810AE PCI to SCSI I/O Processor(0x1000-0x1000)"},
@@ -964,6 +982,15 @@ pci_id_t pci_vid_1000[] = {
 {0x1000, 0x00B3, 0x1000, 0x5030, "eHBA 9700-16e 24G SAS/PCIe Storage Adapter(0x1000-0x5030)"},
 {0x1000, 0x00B3, 0x1028, 0x22D2, "PERC H975i Front(0x1028-0x22D2)"},
 {0x1000, 0x00B3, 0x1028, 0x22D3, "PERC H975i Adapter(0x1028-0x22D3)"},
+{0x1000, 0x00B3, 0x1D49, 0x020B, "ThinkSystem 460-16e SAS/SATA PCIe Gen5 24Gb HBA(0x1D49-0x020B)"},
+{0x1000, 0x00B5, 0xFFFF, 0xFFFF, "Fusion-MPT 24G SAS/PCIe SAS50xx/SAS51xx(0x00B5)"},
+{0x1000, 0x00B5, 0x1000, 0x5000, "MegaRAID 9760W-32i 24G SAS/PCIe Storage Adapter(0x1000-0x5000)"},
+{0x1000, 0x00B5, 0x1000, 0x5001, "MegaRAID 9760W-16i 24G SAS/PCIe Storage Adapter(0x1000-0x5001)"},
+{0x1000, 0x00B5, 0x1000, 0x5010, "MegaRAID 9760W-16i16e 24G SAS/PCIe Storage Adapter(0x1000-0x5010)"},
+{0x1000, 0x00B5, 0x1000, 0x5020, "eHBA 9700W-32i 24G SAS/PCIe Storage Adapter(0x1000-0x5020)"},
+{0x1000, 0x00B5, 0x1000, 0x5021, "eHBA 9700W-16i 24G SAS/PCIe Storage Adapter(0x1000-0x5021)"},
+{0x1000, 0x00B5, 0x1000, 0x5030, "eHBA 9700-16e 24G SAS/PCIe Storage Adapter(0x1000-0x5030)"},
+{0x1000, 0x00B8, 0xFFFF, 0xFFFF, "Fusion-MPT Switch SAS50xx/SAS51xx(0x00B8)"},
 {0x1000, 0x00BE, 0xFFFF, 0xFFFF, "SAS3504 Fusion-MPT Tri-Mode RAID On Chip (ROC)(0x00BE)"},
 {0x1000, 0x00BF, 0xFFFF, 0xFFFF, "SAS3404 Fusion-MPT Tri-Mode I/O Controller Chip (IOC)(0x00BF)"},
 {0x1000, 0x00C0, 0xFFFF, 0xFFFF, "SAS3324 PCI-Express Fusion-MPT SAS-3(0x00C0)"},
@@ -1173,10 +1200,12 @@ pci_id_t pci_vid_1000[] = {
 {0x1000, 0x10E6, 0x15D9, 0x1C6E, "AOC-SLG4-2H8M2 Storage Adapter(0x15D9-0x1C6E)"},
 {0x1000, 0x10E6, 0x1D49, 0x0505, "ThinkSystem RAID 540-8i PCIe Gen4 12Gb Adapter(0x1D49-0x0505)"},
 {0x1000, 0x10E6, 0x1D49, 0x0506, "ThinkSystem RAID 540-16i PCIe Gen4 12Gb Adapter(0x1D49-0x0506)"},
+{0x1000, 0x10E6, 0x1D49, 0x0507, "ThinkSystem RAID 545-8i PCIe Gen4 12Gb Adapter(0x1D49-0x0507)"},
 {0x1000, 0x10E6, 0x1D49, 0x0700, "ThinkSystem M.2 RAID B540i-2i SATA/NVMe Enablement Kit(0x1D49-0x0700)"},
 {0x1000, 0x10E6, 0x1D49, 0x0701, "ThinkSystem 7mm RAID B540p-2HS SATA/NVMe Enablement Kit(0x1D49-0x0701)"},
 {0x1000, 0x10E6, 0x1D49, 0x0702, "ThinkSystem M.2 RAID B540p-2HS SATA/NVMe Enablement Kit(0x1D49-0x0702)"},
 {0x1000, 0x10E6, 0x1D49, 0x0703, "ThinkSystem M.2 RAID B540d-2HS SATA/NVMe Enablement Kit(0x1D49-0x0703)"},
+{0x1000, 0x10E6, 0x1D49, 0x0704, "ThinkSystem M.2 RAID B545i-2i SATA/NVMe Enablement Kit(0x1D49-0x0704)"},
 {0x1000, 0x10E7, 0xFFFF, 0xFFFF, "MegaRAID 12GSAS/PCIe Unsupported SAS38xx(0x10E7)"},
 {0x1000, 0x1960, 0xFFFF, 0xFFFF, "MegaRAID(0x1960)"},
 {0x1000, 0x1960, 0x1000, 0x0518, "MegaRAID 518 SCSI 320-2 Controller(0x1000-0x0518)"},
@@ -1192,6 +1221,7 @@ pci_id_t pci_vid_1000[] = {
 {0x1000, 0x1960, 0x8086, 0x0520, "MegaRAID RAID Controller SRCU41L(0x8086-0x0520)"},
 {0x1000, 0x1960, 0x8086, 0x0523, "MegaRAID RAID Controller SRCS16(0x8086-0x0523)"},
 {0x1000, 0x3050, 0xFFFF, 0xFFFF, "SAS2008 PCI-Express Fusion-MPT SAS-2(0x3050)"},
+{0x1000, 0x3150, 0xFFFF, 0xFFFF, "1068e(0x3150)"},
 {0x1000, 0x6001, 0xFFFF, 0xFFFF, "DX1 Multiformat Broadcast HD/SD Encoder/Decoder(0x6001)"},
 {0x1000, 0xC010, 0xFFFF, 0xFFFF, "PEX880xx PCIe Gen 4 Switch(0xC010)"},
 {0x1000, 0xC010, 0x1000, 0x100B, "PEX88000 PCIe Gen 4 Virtual Upstream/Downstream Port(0x1000-0x100B)"},
@@ -1234,7 +1264,7 @@ pci_id_t pci_vid_1000[] = {
 {0x1000, 0xC034, 0x1000, 0x2005, "PEX89000 Virtual PCIe gDMA Endpoint(0x1000-0x2005)"},
 }; /* pci_vid_1000[] */
 
-pci_id_t pci_vid_1001[] = {
+static pci_id_t const pci_vid_1001[] = {
 {0x1001, 0xFFFF, 0xFFFF, 0xFFFF, "Kolter Electronic(0x1001)"},
 {0x1001, 0x0010, 0xFFFF, 0xFFFF, "PCI 1616 Measurement card with 32 digital I/O lines(0x0010)"},
 {0x1001, 0x0011, 0xFFFF, 0xFFFF, "OPTO-PCI Opto-Isolated digital I/O board(0x0011)"},
@@ -1247,7 +1277,7 @@ pci_id_t pci_vid_1001[] = {
 {0x1001, 0x9100, 0xFFFF, 0xFFFF, "INI-9100/9100W SCSI Host(0x9100)"},
 }; /* pci_vid_1001[] */
 
-pci_id_t pci_vid_1002[] = {
+static pci_id_t const pci_vid_1002[] = {
 {0x1002, 0xFFFF, 0xFFFF, 0xFFFF, "Advanced Micro Devices, Inc. [AMD/ATI](0x1002)"},
 {0x1002, 0x1304, 0xFFFF, 0xFFFF, "Kaveri(0x1304)"},
 {0x1002, 0x1305, 0xFFFF, 0xFFFF, "Kaveri(0x1305)"},
@@ -1279,6 +1309,7 @@ pci_id_t pci_vid_1002[] = {
 {0x1002, 0x13E9, 0xFFFF, 0xFFFF, "Ariel/Navi10Lite(0x13E9)"},
 {0x1002, 0x13F9, 0xFFFF, 0xFFFF, "Oberon/Navi12Lite(0x13F9)"},
 {0x1002, 0x13FE, 0xFFFF, 0xFFFF, "Cyan Skillfish [BC-250](0x13FE)"},
+{0x1002, 0x1435, 0xFFFF, 0xFFFF, "Sephiroth [AMD Custom GPU 0405](0x1435)"},
 {0x1002, 0x145A, 0xFFFF, 0xFFFF, "Dummy Function (absent graphics controller)(0x145A)"},
 {0x1002, 0x1478, 0xFFFF, 0xFFFF, "Navi 10 XL Upstream Port of PCI Express Switch(0x1478)"},
 {0x1002, 0x1479, 0xFFFF, 0xFFFF, "Navi 10 XL Downstream Port of PCI Express Switch(0x1479)"},
@@ -2828,6 +2859,7 @@ pci_id_t pci_vid_1002[] = {
 {0x1002, 0x6779, 0x1028, 0x2120, "Radeon HD 6450(0x1028-0x2120)"},
 {0x1002, 0x6779, 0x103C, 0x2128, "Radeon HD 6450(0x103C-0x2128)"},
 {0x1002, 0x6779, 0x103C, 0x2AEE, "Radeon HD 7450A(0x103C-0x2AEE)"},
+{0x1002, 0x6779, 0x1043, 0x047B, "EAH6450 SILENT/DI/1GD3(LP)(0x1043-0x047B)"},
 {0x1002, 0x6779, 0x1092, 0x6450, "Radeon HD 6450(0x1092-0x6450)"},
 {0x1002, 0x6779, 0x1462, 0x2125, "Radeon HD 6450(0x1462-0x2125)"},
 {0x1002, 0x6779, 0x1462, 0x2346, "Radeon HD 7450(0x1462-0x2346)"},
@@ -3818,6 +3850,7 @@ pci_id_t pci_vid_1002[] = {
 {0x1002, 0x6980, 0xFFFF, 0xFFFF, "Polaris12(0x6980)"},
 {0x1002, 0x6981, 0xFFFF, 0xFFFF, "Lexa XT [Radeon PRO WX 3200](0x6981)"},
 {0x1002, 0x6985, 0xFFFF, 0xFFFF, "Lexa XT [Radeon PRO WX 3100](0x6985)"},
+{0x1002, 0x6985, 0x103C, 0x83B5, "Radeon PRO WX 3100(0x103C-0x83B5)"},
 {0x1002, 0x6986, 0xFFFF, 0xFFFF, "Polaris12(0x6986)"},
 {0x1002, 0x6987, 0xFFFF, 0xFFFF, "Lexa [Radeon 540X/550X/630 / RX 640 / E9171 MCM](0x6987)"},
 {0x1002, 0x698F, 0xFFFF, 0xFFFF, "Lexa XT [Radeon PRO WX 3100 / Barco MXRT 4700](0x698F)"},
@@ -4008,6 +4041,7 @@ pci_id_t pci_vid_1002[] = {
 {0x1002, 0x73A5, 0xFFFF, 0xFFFF, "Navi 21 [Radeon RX 6950 XT](0x73A5)"},
 {0x1002, 0x73A5, 0x1849, 0x5230, "Navi 21 [ASRock OC Forumla Radeon RX 6950XT](0x1849-0x5230)"},
 {0x1002, 0x73A5, 0x1DA2, 0x441D, "Navi 21 [Sapphire Nitro+ Radeon RX 6950 XT](0x1DA2-0x441D)"},
+{0x1002, 0x73A5, 0x1EAE, 0x6950, "Navi 21 [XFX Speedster MERC319 Radeon RX 6950 XT](0x1EAE-0x6950)"},
 {0x1002, 0x73AB, 0xFFFF, 0xFFFF, "Navi 21 Pro-XLA [Radeon Pro W6800X/Radeon Pro W6800X Duo](0x73AB)"},
 {0x1002, 0x73AE, 0xFFFF, 0xFFFF, "Navi 21 [Radeon Pro V620 MxGPU](0x73AE)"},
 {0x1002, 0x73AF, 0xFFFF, 0xFFFF, "Navi 21 [Radeon RX 6900 XT](0x73AF)"},
@@ -4027,8 +4061,10 @@ pci_id_t pci_vid_1002[] = {
 {0x1002, 0x73DF, 0x1043, 0x16C2, "Radeon RX 6800M(0x1043-0x16C2)"},
 {0x1002, 0x73DF, 0x1458, 0x2408, "Radeon RX 6750 XT GAMING OC 12G(0x1458-0x2408)"},
 {0x1002, 0x73DF, 0x1462, 0x3980, "Radeon RX 6700 XT Mech 2X 12G [MSI](0x1462-0x3980)"},
+{0x1002, 0x73DF, 0x148C, 0x2409, "Red Devil RX 6700 XT(0x148C-0x2409)"},
 {0x1002, 0x73DF, 0x1849, 0x5219, "Radeon RX 6700 XT Challenger D(0x1849-0x5219)"},
 {0x1002, 0x73DF, 0x1849, 0x5222, "RX 6700 XT Challenger D OC(0x1849-0x5222)"},
+{0x1002, 0x73DF, 0x1DA2, 0x445E, "Radeon RX 6700 XT GAMING OC 12G [Sapphire PULSE](0x1DA2-0x445E)"},
 {0x1002, 0x73DF, 0x1DA2, 0x465E, "Radeon RX 6750 XT PULSE OC(0x1DA2-0x465E)"},
 {0x1002, 0x73DF, 0x1DA2, 0xE445, "Sapphire Radeon RX 6700(0x1DA2-0xE445)"},
 {0x1002, 0x73DF, 0x1EAE, 0x6601, "Speedster QICK 319 RX 6700 XT(0x1EAE-0x6601)"},
@@ -4057,17 +4093,20 @@ pci_id_t pci_vid_1002[] = {
 {0x1002, 0x743F, 0x1DA2, 0xE457, "PULSE AMD Radeon RX 6500 XT(0x1DA2-0xE457)"},
 {0x1002, 0x7446, 0xFFFF, 0xFFFF, "Navi 31 USB(0x7446)"},
 {0x1002, 0x7448, 0xFFFF, 0xFFFF, "Navi 31 [Radeon Pro W7900](0x7448)"},
-{0x1002, 0x744C, 0xFFFF, 0xFFFF, "Navi 31 [Radeon RX 7900 XT/7900 XTX](0x744C)"},
+{0x1002, 0x744C, 0xFFFF, 0xFFFF, "Navi 31 [Radeon RX 7900 XT/7900 XTX/7900M](0x744C)"},
 {0x1002, 0x744C, 0x1002, 0x0E3B, "RX 7900 GRE [XFX](0x1002-0x0E3B)"},
 {0x1002, 0x744C, 0x1DA2, 0x471E, "PULSE RX 7900 XTX(0x1DA2-0x471E)"},
 {0x1002, 0x744C, 0x1DA2, 0xE471, "NITRO+ RX 7900 XTX Vapor-X(0x1DA2-0xE471)"},
 {0x1002, 0x744C, 0x1EAE, 0x7901, "RX-79XMERCB9 [SPEEDSTER MERC 310 RX 7900 XTX](0x1EAE-0x7901)"},
 {0x1002, 0x745E, 0xFFFF, 0xFFFF, "Navi 31 [Radeon Pro W7800](0x745E)"},
+{0x1002, 0x7470, 0xFFFF, 0xFFFF, "Navi 32 [Radeon PRO W7700](0x7470)"},
 {0x1002, 0x747E, 0xFFFF, 0xFFFF, "Navi 32 [Radeon RX 7700 XT / 7800 XT](0x747E)"},
 {0x1002, 0x7480, 0xFFFF, 0xFFFF, "Navi 33 [Radeon RX 7700S/7600/7600S/7600M XT/PRO W7600](0x7480)"},
 {0x1002, 0x7480, 0x1849, 0x5313, "RX 7600 Challenger OC(0x1849-0x5313)"},
 {0x1002, 0x7483, 0xFFFF, 0xFFFF, "Navi 33 [Radeon RX 7600M/7600M XT](0x7483)"},
 {0x1002, 0x7489, 0xFFFF, 0xFFFF, "Navi 33 [Radeon Pro W7500](0x7489)"},
+{0x1002, 0x74A0, 0xFFFF, 0xFFFF, "Aqua Vanjaram [Instinct MI300A](0x74A0)"},
+{0x1002, 0x74A1, 0xFFFF, 0xFFFF, "Aqua Vanjaram [Instinct MI300X](0x74A1)"},
 {0x1002, 0x7833, 0xFFFF, 0xFFFF, "RS350 Host Bridge(0x7833)"},
 {0x1002, 0x7834, 0xFFFF, 0xFFFF, "RS350 [Radeon 9100 PRO/XT IGP](0x7834)"},
 {0x1002, 0x7835, 0xFFFF, 0xFFFF, "RS350M [Mobility Radeon 9000 IGP](0x7835)"},
@@ -4442,6 +4481,7 @@ pci_id_t pci_vid_1002[] = {
 {0x1002, 0xAA90, 0xFFFF, 0xFFFF, "Turks HDMI Audio [Radeon HD 6500/6600 / 6700M Series](0xAA90)"},
 {0x1002, 0xAA90, 0x1028, 0x04A3, "Precision M4600(0x1028-0x04A3)"},
 {0x1002, 0xAA98, 0xFFFF, 0xFFFF, "Caicos HDMI Audio [Radeon HD 6450 / 7450/8450/8490 OEM / R5 230/235/235X OEM](0xAA98)"},
+{0x1002, 0xAA98, 0x1043, 0xAA98, "EAH6450 SILENT/DI/1GD3(LP)(0x1043-0xAA98)"},
 {0x1002, 0xAA98, 0x174B, 0xAA98, "Radeon HD 6450 1GB DDR3(0x174B-0xAA98)"},
 {0x1002, 0xAAA0, 0xFFFF, 0xFFFF, "Tahiti HDMI Audio [Radeon HD 7870 XT / 7950/7970](0xAAA0)"},
 {0x1002, 0xAAB0, 0xFFFF, 0xFFFF, "Oland/Hainan/Cape Verde/Pitcairn HDMI Audio [Radeon HD 7000 Series](0xAAB0)"},
@@ -4486,12 +4526,12 @@ pci_id_t pci_vid_1002[] = {
 {0x1002, 0xCBB2, 0xFFFF, 0xFFFF, "RS200 Host Bridge(0xCBB2)"},
 }; /* pci_vid_1002[] */
 
-pci_id_t pci_vid_1003[] = {
+static pci_id_t const pci_vid_1003[] = {
 {0x1003, 0xFFFF, 0xFFFF, 0xFFFF, "ULSI Systems(0x1003)"},
 {0x1003, 0x0201, 0xFFFF, 0xFFFF, "US201(0x0201)"},
 }; /* pci_vid_1003[] */
 
-pci_id_t pci_vid_1004[] = {
+static pci_id_t const pci_vid_1004[] = {
 {0x1004, 0xFFFF, 0xFFFF, 0xFFFF, "VLSI Technology Inc(0x1004)"},
 {0x1004, 0x0005, 0xFFFF, 0xFFFF, "82C592-FC1(0x0005)"},
 {0x1004, 0x0006, 0xFFFF, 0xFFFF, "82C593-FC1(0x0006)"},
@@ -4528,7 +4568,7 @@ pci_id_t pci_vid_1004[] = {
 {0x1004, 0x0703, 0xFFFF, 0xFFFF, "Tollgate(0x0703)"},
 }; /* pci_vid_1004[] */
 
-pci_id_t pci_vid_1005[] = {
+static pci_id_t const pci_vid_1005[] = {
 {0x1005, 0xFFFF, 0xFFFF, 0xFFFF, "Avance Logic Inc. [ALI](0x1005)"},
 {0x1005, 0x2064, 0xFFFF, 0xFFFF, "ALG2032/2064(0x2064)"},
 {0x1005, 0x2128, 0xFFFF, 0xFFFF, "ALG2364A(0x2128)"},
@@ -4539,23 +4579,23 @@ pci_id_t pci_vid_1005[] = {
 {0x1005, 0x2501, 0xFFFF, 0xFFFF, "ALG2564A/25128A(0x2501)"},
 }; /* pci_vid_1005[] */
 
-pci_id_t pci_vid_1006[] = {
+static pci_id_t const pci_vid_1006[] = {
 {0x1006, 0xFFFF, 0xFFFF, 0xFFFF, "Reply Group(0x1006)"},
 }; /* pci_vid_1006[] */
 
-pci_id_t pci_vid_1007[] = {
+static pci_id_t const pci_vid_1007[] = {
 {0x1007, 0xFFFF, 0xFFFF, 0xFFFF, "NetFrame Systems Inc(0x1007)"},
 }; /* pci_vid_1007[] */
 
-pci_id_t pci_vid_1008[] = {
+static pci_id_t const pci_vid_1008[] = {
 {0x1008, 0xFFFF, 0xFFFF, 0xFFFF, "Epson(0x1008)"},
 }; /* pci_vid_1008[] */
 
-pci_id_t pci_vid_100A[] = {
+static pci_id_t const pci_vid_100A[] = {
 {0x100A, 0xFFFF, 0xFFFF, 0xFFFF, "Phoenix Technologies(0x100A)"},
 }; /* pci_vid_100A[] */
 
-pci_id_t pci_vid_100B[] = {
+static pci_id_t const pci_vid_100B[] = {
 {0x100B, 0xFFFF, 0xFFFF, 0xFFFF, "National Semiconductor Corporation(0x100B)"},
 {0x100B, 0x0001, 0xFFFF, 0xFFFF, "DP83810(0x0001)"},
 {0x100B, 0x0002, 0xFFFF, 0xFFFF, "87415/87560 IDE(0x0002)"},
@@ -4598,7 +4638,7 @@ pci_id_t pci_vid_100B[] = {
 {0x100B, 0xD001, 0xFFFF, 0xFFFF, "87410 IDE(0xD001)"},
 }; /* pci_vid_100B[] */
 
-pci_id_t pci_vid_100C[] = {
+static pci_id_t const pci_vid_100C[] = {
 {0x100C, 0xFFFF, 0xFFFF, 0xFFFF, "Tseng Labs Inc(0x100C)"},
 {0x100C, 0x3202, 0xFFFF, 0xFFFF, "ET4000/W32p rev A(0x3202)"},
 {0x100C, 0x3205, 0xFFFF, 0xFFFF, "ET4000/W32p rev B(0x3205)"},
@@ -4608,11 +4648,11 @@ pci_id_t pci_vid_100C[] = {
 {0x100C, 0x4702, 0xFFFF, 0xFFFF, "ET6300(0x4702)"},
 }; /* pci_vid_100C[] */
 
-pci_id_t pci_vid_100D[] = {
+static pci_id_t const pci_vid_100D[] = {
 {0x100D, 0xFFFF, 0xFFFF, 0xFFFF, "AST Research Inc(0x100D)"},
 }; /* pci_vid_100D[] */
 
-pci_id_t pci_vid_100E[] = {
+static pci_id_t const pci_vid_100E[] = {
 {0x100E, 0xFFFF, 0xFFFF, 0xFFFF, "Weitek(0x100E)"},
 {0x100E, 0x9000, 0xFFFF, 0xFFFF, "P9000 Viper(0x9000)"},
 {0x100E, 0x9001, 0xFFFF, 0xFFFF, "P9000 Viper(0x9001)"},
@@ -4620,11 +4660,11 @@ pci_id_t pci_vid_100E[] = {
 {0x100E, 0x9100, 0xFFFF, 0xFFFF, "P9100 Viper Pro/SE(0x9100)"},
 }; /* pci_vid_100E[] */
 
-pci_id_t pci_vid_1010[] = {
+static pci_id_t const pci_vid_1010[] = {
 {0x1010, 0xFFFF, 0xFFFF, 0xFFFF, "Video Logic, Ltd.(0x1010)"},
 }; /* pci_vid_1010[] */
 
-pci_id_t pci_vid_1011[] = {
+static pci_id_t const pci_vid_1011[] = {
 {0x1011, 0xFFFF, 0xFFFF, 0xFFFF, "Digital Equipment Corporation(0x1011)"},
 {0x1011, 0x0001, 0xFFFF, 0xFFFF, "DECchip 21050(0x0001)"},
 {0x1011, 0x0002, 0xFFFF, 0xFFFF, "DECchip 21040 [Tulip](0x0002)"},
@@ -4730,11 +4770,11 @@ pci_id_t pci_vid_1011[] = {
 {0x1011, 0x1065, 0x1069, 0x0020, "DAC960P / DAC1164P(0x1069-0x0020)"},
 }; /* pci_vid_1011[] */
 
-pci_id_t pci_vid_1012[] = {
+static pci_id_t const pci_vid_1012[] = {
 {0x1012, 0xFFFF, 0xFFFF, 0xFFFF, "Micronics Computers Inc(0x1012)"},
 }; /* pci_vid_1012[] */
 
-pci_id_t pci_vid_1013[] = {
+static pci_id_t const pci_vid_1013[] = {
 {0x1013, 0xFFFF, 0xFFFF, 0xFFFF, "Cirrus Logic(0x1013)"},
 {0x1013, 0x0038, 0xFFFF, 0xFFFF, "GD 7548(0x0038)"},
 {0x1013, 0x0040, 0xFFFF, 0xFFFF, "GD 7555 Flat Panel GUI Accelerator(0x0040)"},
@@ -4791,7 +4831,7 @@ pci_id_t pci_vid_1013[] = {
 {0x1013, 0x6005, 0x14C0, 0x000C, "Crystal CS4281 PCI Audio(0x14C0-0x000C)"},
 }; /* pci_vid_1013[] */
 
-pci_id_t pci_vid_1014[] = {
+static pci_id_t const pci_vid_1014[] = {
 {0x1014, 0xFFFF, 0xFFFF, 0xFFFF, "IBM(0x1014)"},
 {0x1014, 0x0002, 0xFFFF, 0xFFFF, "PCI to MCA Bridge(0x0002)"},
 {0x1014, 0x0005, 0xFFFF, 0xFFFF, "Processor to I/O Controller [Alta Lite](0x0005)"},
@@ -4957,28 +4997,29 @@ pci_id_t pci_vid_1014[] = {
 {0x1014, 0xFFFF, 0xFFFF, 0xFFFF, "MPIC-2 interrupt controller(0xFFFF)"},
 }; /* pci_vid_1014[] */
 
-pci_id_t pci_vid_1015[] = {
+static pci_id_t const pci_vid_1015[] = {
 {0x1015, 0xFFFF, 0xFFFF, 0xFFFF, "LSI Logic Corp of Canada(0x1015)"},
 }; /* pci_vid_1015[] */
 
-pci_id_t pci_vid_1016[] = {
+static pci_id_t const pci_vid_1016[] = {
 {0x1016, 0xFFFF, 0xFFFF, 0xFFFF, "ICL Personal Systems(0x1016)"},
 }; /* pci_vid_1016[] */
 
-pci_id_t pci_vid_1017[] = {
+static pci_id_t const pci_vid_1017[] = {
 {0x1017, 0xFFFF, 0xFFFF, 0xFFFF, "SPEA Software AG(0x1017)"},
 {0x1017, 0x5343, 0xFFFF, 0xFFFF, "SPEA 3D Accelerator(0x5343)"},
 }; /* pci_vid_1017[] */
 
-pci_id_t pci_vid_1018[] = {
+static pci_id_t const pci_vid_1018[] = {
 {0x1018, 0xFFFF, 0xFFFF, 0xFFFF, "Unisys Systems(0x1018)"},
 }; /* pci_vid_1018[] */
 
-pci_id_t pci_vid_1019[] = {
+static pci_id_t const pci_vid_1019[] = {
 {0x1019, 0xFFFF, 0xFFFF, 0xFFFF, "Elitegroup Computer Systems(0x1019)"},
+{0x1019, 0x9602, 0xFFFF, 0xFFFF, "RS780/RS880 PCI to PCI bridge (int gfx)(0x9602)"},
 }; /* pci_vid_1019[] */
 
-pci_id_t pci_vid_101A[] = {
+static pci_id_t const pci_vid_101A[] = {
 {0x101A, 0xFFFF, 0xFFFF, 0xFFFF, "AT&T GIS (NCR)(0x101A)"},
 {0x101A, 0x0005, 0xFFFF, 0xFFFF, "100VG ethernet(0x0005)"},
 {0x101A, 0x0007, 0xFFFF, 0xFFFF, "BYNET BIC4G/2C/2G(0x0007)"},
@@ -4998,12 +5039,12 @@ pci_id_t pci_vid_101A[] = {
 {0x101A, 0x1FA8, 0x101A, 0x00C3, "BYNET BIC2SE(0x101A-0x00C3)"},
 }; /* pci_vid_101A[] */
 
-pci_id_t pci_vid_101B[] = {
+static pci_id_t const pci_vid_101B[] = {
 {0x101B, 0xFFFF, 0xFFFF, 0xFFFF, "Vitesse Semiconductor(0x101B)"},
 {0x101B, 0x0452, 0xFFFF, 0xFFFF, "VSC452 [SuperBMC](0x0452)"},
 }; /* pci_vid_101B[] */
 
-pci_id_t pci_vid_101C[] = {
+static pci_id_t const pci_vid_101C[] = {
 {0x101C, 0xFFFF, 0xFFFF, 0xFFFF, "Western Digital(0x101C)"},
 {0x101C, 0x0193, 0xFFFF, 0xFFFF, "33C193A(0x0193)"},
 {0x101C, 0x0196, 0xFFFF, 0xFFFF, "33C196A(0x0196)"},
@@ -5018,11 +5059,11 @@ pci_id_t pci_vid_101C[] = {
 {0x101C, 0xC24A, 0xFFFF, 0xFFFF, "90C(0xC24A)"},
 }; /* pci_vid_101C[] */
 
-pci_id_t pci_vid_101D[] = {
+static pci_id_t const pci_vid_101D[] = {
 {0x101D, 0xFFFF, 0xFFFF, 0xFFFF, "Maxim Integrated Products(0x101D)"},
 }; /* pci_vid_101D[] */
 
-pci_id_t pci_vid_101E[] = {
+static pci_id_t const pci_vid_101E[] = {
 {0x101E, 0xFFFF, 0xFFFF, 0xFFFF, "American Megatrends Inc.(0x101E)"},
 {0x101E, 0x0009, 0xFFFF, 0xFFFF, "MegaRAID 428 Ultra RAID Controller (rev 03)(0x0009)"},
 {0x101E, 0x1960, 0xFFFF, 0xFFFF, "MegaRAID(0x1960)"},
@@ -5051,19 +5092,19 @@ pci_id_t pci_vid_101E[] = {
 {0x101E, 0x9063, 0x101E, 0x0767, "Dell Remote Assistant Card 2(0x101E-0x0767)"},
 }; /* pci_vid_101E[] */
 
-pci_id_t pci_vid_101F[] = {
+static pci_id_t const pci_vid_101F[] = {
 {0x101F, 0xFFFF, 0xFFFF, 0xFFFF, "PictureTel(0x101F)"},
 }; /* pci_vid_101F[] */
 
-pci_id_t pci_vid_1020[] = {
+static pci_id_t const pci_vid_1020[] = {
 {0x1020, 0xFFFF, 0xFFFF, 0xFFFF, "Hitachi Computer Products(0x1020)"},
 }; /* pci_vid_1020[] */
 
-pci_id_t pci_vid_1021[] = {
+static pci_id_t const pci_vid_1021[] = {
 {0x1021, 0xFFFF, 0xFFFF, 0xFFFF, "OKI Electric Industry Co. Ltd.(0x1021)"},
 }; /* pci_vid_1021[] */
 
-pci_id_t pci_vid_1022[] = {
+static pci_id_t const pci_vid_1022[] = {
 {0x1022, 0xFFFF, 0xFFFF, 0xFFFF, "Advanced Micro Devices, Inc. [AMD](0x1022)"},
 {0x1022, 0x1100, 0xFFFF, 0xFFFF, "K8 [Athlon64/Opteron] HyperTransport Technology Configuration(0x1100)"},
 {0x1022, 0x1101, 0xFFFF, 0xFFFF, "K8 [Athlon64/Opteron] Address Map(0x1101)"},
@@ -5510,7 +5551,7 @@ pci_id_t pci_vid_1022[] = {
 {0x1022, 0x1716, 0xFFFF, 0xFFFF, "Family 12h/14h Processor Function 5(0x1716)"},
 {0x1022, 0x1718, 0xFFFF, 0xFFFF, "Family 12h/14h Processor Function 6(0x1718)"},
 {0x1022, 0x1719, 0xFFFF, 0xFFFF, "Family 12h/14h Processor Function 7(0x1719)"},
-{0x1022, 0x2000, 0xFFFF, 0xFFFF, "79c970 [PCnet32 LANCE](0x2000)"},
+{0x1022, 0x2000, 0xFFFF, 0xFFFF, "79C97x [PCnet32 LANCE](0x2000)"},
 {0x1022, 0x2000, 0x1014, 0x2000, "NetFinity 10/100 Fast Ethernet(0x1014-0x2000)"},
 {0x1022, 0x2000, 0x1022, 0x2000, "PCnet - Fast 79C971(0x1022-0x2000)"},
 {0x1022, 0x2000, 0x103C, 0x104C, "Ethernet with LAN remote power Adapter(0x103C-0x104C)"},
@@ -5524,7 +5565,7 @@ pci_id_t pci_vid_1022[] = {
 {0x1022, 0x2000, 0x1259, 0x2454, "AT-2450v4 10Mb Ethernet Adapter(0x1259-0x2454)"},
 {0x1022, 0x2000, 0x1259, 0x2700, "AT-2700TX 10/100 Fast Ethernet(0x1259-0x2700)"},
 {0x1022, 0x2000, 0x1259, 0x2701, "AT-2700FX 100Mb Ethernet(0x1259-0x2701)"},
-{0x1022, 0x2000, 0x1259, 0x2702, "AT-2700FTX 10/100 Mb Fiber/Copper Fast Ethernet(0x1259-0x2702)"},
+{0x1022, 0x2000, 0x1259, 0x2702, "AT-2700FTX (AM79C976KD [PCnet-PRO] chipset) 10/100 Mb Fiber/Copper Fast Ethernet(0x1259-0x2702)"},
 {0x1022, 0x2000, 0x1259, 0x2703, "AT-2701FX(0x1259-0x2703)"},
 {0x1022, 0x2000, 0x1259, 0x2704, "AT-2701FTX 10/100 Mb Fiber/Copper Fast Ethernet(0x1259-0x2704)"},
 {0x1022, 0x2000, 0x4C53, 0x1000, "CC7/CR7/CP7/VC7/VP7/VR7 mainboard(0x4C53-0x1000)"},
@@ -5537,7 +5578,7 @@ pci_id_t pci_vid_1022[] = {
 {0x1022, 0x2001, 0x1092, 0x0A78, "Multimedia Home Network Adapter(0x1092-0x0A78)"},
 {0x1022, 0x2001, 0x1668, 0x0299, "ActionLink Home Network Adapter(0x1668-0x0299)"},
 {0x1022, 0x2003, 0xFFFF, 0xFFFF, "Am 1771 MBW [Alchemy](0x2003)"},
-{0x1022, 0x2020, 0xFFFF, 0xFFFF, "53c974 [PCscsi](0x2020)"},
+{0x1022, 0x2020, 0xFFFF, 0xFFFF, "AM53/79C974 [PC-SCSI](0x2020)"},
 {0x1022, 0x2020, 0x1AF4, 0x1100, "QEMU Virtual Machine(0x1AF4-0x1100)"},
 {0x1022, 0x2040, 0xFFFF, 0xFFFF, "79c974(0x2040)"},
 {0x1022, 0x2080, 0xFFFF, 0xFFFF, "CS5536 [Geode companion] Host Bridge(0x2080)"},
@@ -5580,6 +5621,10 @@ pci_id_t pci_vid_1022[] = {
 {0x1022, 0x43EB, 0x1B21, 0x1062, "ASM1062 Serial ATA Controller(0x1B21-0x1062)"},
 {0x1022, 0x43EE, 0xFFFF, 0xFFFF, "500 Series Chipset USB 3.1 XHCI Controller(0x43EE)"},
 {0x1022, 0x43EE, 0x1B21, 0x1142, "ASM1042A USB 3.0 Host Controller(0x1B21-0x1142)"},
+{0x1022, 0x43F4, 0xFFFF, 0xFFFF, "600 Series Chipset PCIe Switch Upstream Port(0x43F4)"},
+{0x1022, 0x43F5, 0xFFFF, 0xFFFF, "600 Series Chipset PCIe Switch Downstream Port(0x43F5)"},
+{0x1022, 0x43F6, 0xFFFF, 0xFFFF, "600 Series Chipset SATA Controller(0x43F6)"},
+{0x1022, 0x43F7, 0xFFFF, 0xFFFF, "600 Series Chipset USB 3.2 Controller(0x43F7)"},
 {0x1022, 0x57A3, 0xFFFF, 0xFFFF, "Matisse PCIe GPP Bridge(0x57A3)"},
 {0x1022, 0x57A4, 0xFFFF, 0xFFFF, "Matisse PCIe GPP Bridge(0x57A4)"},
 {0x1022, 0x57AD, 0xFFFF, 0xFFFF, "Matisse Switch Upstream(0x57AD)"},
@@ -5750,7 +5795,7 @@ pci_id_t pci_vid_1022[] = {
 {0x1022, 0x960B, 0xFFFF, 0xFFFF, "RS780 PCI to PCI bridge (ext gfx port 1)(0x960B)"},
 }; /* pci_vid_1022[] */
 
-pci_id_t pci_vid_1023[] = {
+static pci_id_t const pci_vid_1023[] = {
 {0x1023, 0xFFFF, 0xFFFF, 0xFFFF, "Trident Microsystems(0x1023)"},
 {0x1023, 0x0194, 0xFFFF, 0xFFFF, "82C194(0x0194)"},
 {0x1023, 0x2000, 0xFFFF, 0xFFFF, "4DWave DX(0x2000)"},
@@ -5809,14 +5854,14 @@ pci_id_t pci_vid_1023[] = {
 {0x1023, 0x9960, 0xFFFF, 0xFFFF, "CyberBlade XP2(0x9960)"},
 }; /* pci_vid_1023[] */
 
-pci_id_t pci_vid_1024[] = {
+static pci_id_t const pci_vid_1024[] = {
 {0x1024, 0xFFFF, 0xFFFF, 0xFFFF, "Beijing Dajia Internet Information Technology Co.(0x1024)"},
 {0x1024, 0x0101, 0xFFFF, 0xFFFF, "StreamLake 200 AI-VPU(0x0101)"},
 {0x1024, 0x0101, 0x1024, 0x0201, "SL200-NP(0x1024-0x0201)"},
 {0x1024, 0x0101, 0x1024, 0x0301, "SL200-P(0x1024-0x0301)"},
 }; /* pci_vid_1024[] */
 
-pci_id_t pci_vid_1025[] = {
+static pci_id_t const pci_vid_1025[] = {
 {0x1025, 0xFFFF, 0xFFFF, 0xFFFF, "Acer Incorporated [ALI](0x1025)"},
 {0x1025, 0x1435, 0xFFFF, 0xFFFF, "M1435(0x1435)"},
 {0x1025, 0x1445, 0xFFFF, 0xFFFF, "M1445(0x1445)"},
@@ -5878,7 +5923,7 @@ pci_id_t pci_vid_1025[] = {
 {0x1025, 0x9602, 0xFFFF, 0xFFFF, "AMD RS780/RS880 PCI to PCI bridge (int gfx)(0x9602)"},
 }; /* pci_vid_1025[] */
 
-pci_id_t pci_vid_1028[] = {
+static pci_id_t const pci_vid_1028[] = {
 {0x1028, 0xFFFF, 0xFFFF, 0xFFFF, "Dell(0x1028)"},
 {0x1028, 0x0001, 0xFFFF, 0xFFFF, "PowerEdge Expandable RAID Controller 2/Si(0x0001)"},
 {0x1028, 0x0001, 0x1028, 0x0001, "PowerEdge 2400(0x1028-0x0001)"},
@@ -5929,11 +5974,11 @@ pci_id_t pci_vid_1028[] = {
 {0x1028, 0x9602, 0xFFFF, 0xFFFF, "RS780/RS880 PCI to PCI bridge (int gfx)(0x9602)"},
 }; /* pci_vid_1028[] */
 
-pci_id_t pci_vid_1029[] = {
+static pci_id_t const pci_vid_1029[] = {
 {0x1029, 0xFFFF, 0xFFFF, 0xFFFF, "Siemens Nixdorf IS(0x1029)"},
 }; /* pci_vid_1029[] */
 
-pci_id_t pci_vid_102A[] = {
+static pci_id_t const pci_vid_102A[] = {
 {0x102A, 0xFFFF, 0xFFFF, 0xFFFF, "LSI Logic(0x102A)"},
 {0x102A, 0x0000, 0xFFFF, 0xFFFF, "HYDRA(0x0000)"},
 {0x102A, 0x0010, 0xFFFF, 0xFFFF, "ASPEN(0x0010)"},
@@ -5948,7 +5993,7 @@ pci_id_t pci_vid_102A[] = {
 {0x102A, 0x00CF, 0x1028, 0x0121, "PowerEdge 2650(0x1028-0x0121)"},
 }; /* pci_vid_102A[] */
 
-pci_id_t pci_vid_102B[] = {
+static pci_id_t const pci_vid_102B[] = {
 {0x102B, 0xFFFF, 0xFFFF, 0xFFFF, "Matrox Electronics Systems Ltd.(0x102B)"},
 {0x102B, 0x0010, 0xFFFF, 0xFFFF, "MGA-I [Impression?-](0x0010)"},
 {0x102B, 0x0100, 0xFFFF, 0xFFFF, "MGA 1064SG [Mystique](0x0100)"},
@@ -6254,7 +6299,7 @@ pci_id_t pci_vid_102B[] = {
 {0x102B, 0x6573, 0xFFFF, 0xFFFF, "Shark 10/100 Multiport SwitchNIC(0x6573)"},
 }; /* pci_vid_102B[] */
 
-pci_id_t pci_vid_102C[] = {
+static pci_id_t const pci_vid_102C[] = {
 {0x102C, 0xFFFF, 0xFFFF, 0xFFFF, "Chips and Technologies(0x102C)"},
 {0x102C, 0x00B8, 0xFFFF, 0xFFFF, "F64310(0x00B8)"},
 {0x102C, 0x00C0, 0xFFFF, 0xFFFF, "F69000 HiQVideo(0x00C0)"},
@@ -6283,16 +6328,16 @@ pci_id_t pci_vid_102C[] = {
 {0x102C, 0x0C30, 0x4C53, 0x1080, "CT8 mainboard(0x4C53-0x1080)"},
 }; /* pci_vid_102C[] */
 
-pci_id_t pci_vid_102D[] = {
+static pci_id_t const pci_vid_102D[] = {
 {0x102D, 0xFFFF, 0xFFFF, 0xFFFF, "Wyse Technology Inc.(0x102D)"},
 {0x102D, 0x50DC, 0xFFFF, 0xFFFF, "3328 Audio(0x50DC)"},
 }; /* pci_vid_102D[] */
 
-pci_id_t pci_vid_102E[] = {
+static pci_id_t const pci_vid_102E[] = {
 {0x102E, 0xFFFF, 0xFFFF, 0xFFFF, "Olivetti Advanced Technology(0x102E)"},
 }; /* pci_vid_102E[] */
 
-pci_id_t pci_vid_102F[] = {
+static pci_id_t const pci_vid_102F[] = {
 {0x102F, 0xFFFF, 0xFFFF, 0xFFFF, "Toshiba America(0x102F)"},
 {0x102F, 0x0009, 0xFFFF, 0xFFFF, "r4x00(0x0009)"},
 {0x102F, 0x000A, 0xFFFF, 0xFFFF, "TX3927 MIPS RISC PCI Controller(0x000A)"},
@@ -6313,11 +6358,11 @@ pci_id_t pci_vid_102F[] = {
 {0x102F, 0x01B6, 0xFFFF, 0xFFFF, "SCC USB 1.1 OHCI controller(0x01B6)"},
 }; /* pci_vid_102F[] */
 
-pci_id_t pci_vid_1030[] = {
+static pci_id_t const pci_vid_1030[] = {
 {0x1030, 0xFFFF, 0xFFFF, 0xFFFF, "TMC Research(0x1030)"},
 }; /* pci_vid_1030[] */
 
-pci_id_t pci_vid_1031[] = {
+static pci_id_t const pci_vid_1031[] = {
 {0x1031, 0xFFFF, 0xFFFF, 0xFFFF, "Miro Computer Products AG(0x1031)"},
 {0x1031, 0x5601, 0xFFFF, 0xFFFF, "DC20 ASIC(0x5601)"},
 {0x1031, 0x5607, 0xFFFF, 0xFFFF, "Video I/O & motion JPEG compressor(0x5607)"},
@@ -6325,11 +6370,11 @@ pci_id_t pci_vid_1031[] = {
 {0x1031, 0x6057, 0xFFFF, 0xFFFF, "MiroVideo DC10/DC30+(0x6057)"},
 }; /* pci_vid_1031[] */
 
-pci_id_t pci_vid_1032[] = {
+static pci_id_t const pci_vid_1032[] = {
 {0x1032, 0xFFFF, 0xFFFF, 0xFFFF, "Compaq(0x1032)"},
 }; /* pci_vid_1032[] */
 
-pci_id_t pci_vid_1033[] = {
+static pci_id_t const pci_vid_1033[] = {
 {0x1033, 0xFFFF, 0xFFFF, 0xFFFF, "NEC Corporation(0x1033)"},
 {0x1033, 0x0000, 0xFFFF, 0xFFFF, "Vr4181A USB Host or Function Control Unit(0x0000)"},
 {0x1033, 0x0001, 0xFFFF, 0xFFFF, "PCI to 486-like bus Bridge(0x0001)"},
@@ -6410,28 +6455,28 @@ pci_id_t pci_vid_1033[] = {
 {0x1033, 0x01F2, 0xFFFF, 0xFFFF, "uPD72874 [Firewarden] IEEE1394a OHCI 1.1 Link/3-port PHY Controller(0x01F2)"},
 }; /* pci_vid_1033[] */
 
-pci_id_t pci_vid_1034[] = {
+static pci_id_t const pci_vid_1034[] = {
 {0x1034, 0xFFFF, 0xFFFF, 0xFFFF, "Framatome Connectors USA Inc.(0x1034)"},
 }; /* pci_vid_1034[] */
 
-pci_id_t pci_vid_1035[] = {
+static pci_id_t const pci_vid_1035[] = {
 {0x1035, 0xFFFF, 0xFFFF, 0xFFFF, "Comp. & Comm. Research Lab(0x1035)"},
 }; /* pci_vid_1035[] */
 
-pci_id_t pci_vid_1036[] = {
+static pci_id_t const pci_vid_1036[] = {
 {0x1036, 0xFFFF, 0xFFFF, 0xFFFF, "Future Domain Corp.(0x1036)"},
 {0x1036, 0x0000, 0xFFFF, 0xFFFF, "TMC-18C30 [36C70](0x0000)"},
 }; /* pci_vid_1036[] */
 
-pci_id_t pci_vid_1037[] = {
+static pci_id_t const pci_vid_1037[] = {
 {0x1037, 0xFFFF, 0xFFFF, 0xFFFF, "Hitachi Micro Systems(0x1037)"},
 }; /* pci_vid_1037[] */
 
-pci_id_t pci_vid_1038[] = {
+static pci_id_t const pci_vid_1038[] = {
 {0x1038, 0xFFFF, 0xFFFF, 0xFFFF, "AMP, Inc(0x1038)"},
 }; /* pci_vid_1038[] */
 
-pci_id_t pci_vid_1039[] = {
+static pci_id_t const pci_vid_1039[] = {
 {0x1039, 0xFFFF, 0xFFFF, 0xFFFF, "Silicon Integrated Systems [SiS](0x1039)"},
 {0x1039, 0x0001, 0xFFFF, 0xFFFF, "AGP Port (virtual PCI-to-PCI bridge)(0x0001)"},
 {0x1039, 0x0002, 0xFFFF, 0xFFFF, "AGP Port (virtual PCI-to-PCI bridge)(0x0002)"},
@@ -6621,18 +6666,19 @@ pci_id_t pci_vid_1039[] = {
 {0x1039, 0x7502, 0x1043, 0x81A1, "P5SD2-FM/S mainboard(0x1043-0x81A1)"},
 }; /* pci_vid_1039[] */
 
-pci_id_t pci_vid_103A[] = {
+static pci_id_t const pci_vid_103A[] = {
 {0x103A, 0xFFFF, 0xFFFF, 0xFFFF, "Seiko Epson Corporation(0x103A)"},
 }; /* pci_vid_103A[] */
 
-pci_id_t pci_vid_103B[] = {
+static pci_id_t const pci_vid_103B[] = {
 {0x103B, 0xFFFF, 0xFFFF, 0xFFFF, "Tatung Corp. Of America(0x103B)"},
 }; /* pci_vid_103B[] */
 
-pci_id_t pci_vid_103C[] = {
+static pci_id_t const pci_vid_103C[] = {
 {0x103C, 0xFFFF, 0xFFFF, 0xFFFF, "Hewlett-Packard Company(0x103C)"},
 {0x103C, 0x1005, 0xFFFF, 0xFFFF, "A4977A Visualize EG(0x1005)"},
 {0x103C, 0x1008, 0xFFFF, 0xFFFF, "Visualize FX(0x1008)"},
+{0x103C, 0x1020, 0xFFFF, 0xFFFF, "548XX Scope Interface(0x1020)"},
 {0x103C, 0x1028, 0xFFFF, 0xFFFF, "Tach TL Fibre Channel Host Adapter(0x1028)"},
 {0x103C, 0x1029, 0xFFFF, 0xFFFF, "Tach XL2 Fibre Channel Host Adapter(0x1029)"},
 {0x103C, 0x1029, 0x107E, 0x000F, "Interphase 5560 Fibre Channel Adapter(0x107E-0x000F)"},
@@ -6778,23 +6824,23 @@ pci_id_t pci_vid_103C[] = {
 {0x103C, 0x9602, 0x103C, 0x1609, "ProLiant MicroServer N36L(0x103C-0x1609)"},
 }; /* pci_vid_103C[] */
 
-pci_id_t pci_vid_103E[] = {
+static pci_id_t const pci_vid_103E[] = {
 {0x103E, 0xFFFF, 0xFFFF, 0xFFFF, "Solliday Engineering(0x103E)"},
 }; /* pci_vid_103E[] */
 
-pci_id_t pci_vid_103F[] = {
+static pci_id_t const pci_vid_103F[] = {
 {0x103F, 0xFFFF, 0xFFFF, 0xFFFF, "Synopsys/Logic Modeling Group(0x103F)"},
 }; /* pci_vid_103F[] */
 
-pci_id_t pci_vid_1040[] = {
+static pci_id_t const pci_vid_1040[] = {
 {0x1040, 0xFFFF, 0xFFFF, 0xFFFF, "Accelgraphics Inc.(0x1040)"},
 }; /* pci_vid_1040[] */
 
-pci_id_t pci_vid_1041[] = {
+static pci_id_t const pci_vid_1041[] = {
 {0x1041, 0xFFFF, 0xFFFF, 0xFFFF, "Computrend(0x1041)"},
 }; /* pci_vid_1041[] */
 
-pci_id_t pci_vid_1042[] = {
+static pci_id_t const pci_vid_1042[] = {
 {0x1042, 0xFFFF, 0xFFFF, 0xFFFF, "Micron(0x1042)"},
 {0x1042, 0x1000, 0xFFFF, 0xFFFF, "PC Tech RZ1000(0x1000)"},
 {0x1042, 0x1001, 0xFFFF, 0xFFFF, "PC Tech RZ1001(0x1001)"},
@@ -6803,10 +6849,8 @@ pci_id_t pci_vid_1042[] = {
 {0x1042, 0x3020, 0xFFFF, 0xFFFF, "Samurai_IDE(0x3020)"},
 }; /* pci_vid_1042[] */
 
-pci_id_t pci_vid_1043[] = {
+static pci_id_t const pci_vid_1043[] = {
 {0x1043, 0xFFFF, 0xFFFF, 0xFFFF, "ASUSTeK Computer Inc.(0x1043)"},
-{0x1043, 0x0464, 0xFFFF, 0xFFFF, "Radeon R9 270x GPU(0x0464)"},
-{0x1043, 0x0521, 0xFFFF, 0xFFFF, "RX580 [RX 580 Dual O8G](0x0521)"},
 {0x1043, 0x0675, 0xFFFF, 0xFFFF, "ISDNLink P-IN100-ST-D(0x0675)"},
 {0x1043, 0x0675, 0x0675, 0x1704, "ISDN Adapter (PCI Bus, D, C)(0x0675-0x1704)"},
 {0x1043, 0x0675, 0x0675, 0x1707, "ISDN Adapter (PCI Bus, DV, W)(0x0675-0x1707)"},
@@ -6815,7 +6859,7 @@ pci_id_t pci_vid_1043[] = {
 {0x1043, 0x9602, 0x1043, 0x83A2, "M4A785TD Motherboard(0x1043-0x83A2)"},
 }; /* pci_vid_1043[] */
 
-pci_id_t pci_vid_1044[] = {
+static pci_id_t const pci_vid_1044[] = {
 {0x1044, 0xFFFF, 0xFFFF, 0xFFFF, "Adaptec (formerly DPT)(0x1044)"},
 {0x1044, 0x1012, 0xFFFF, 0xFFFF, "Domino RAID Engine(0x1012)"},
 {0x1044, 0xA400, 0xFFFF, 0xFFFF, "SmartCache/Raid I-IV Controller(0xA400)"},
@@ -6862,7 +6906,7 @@ pci_id_t pci_vid_1044[] = {
 {0x1044, 0xC066, 0xFFFF, 0xFFFF, "3010S Ultra3 Dual Channel(0xC066)"},
 }; /* pci_vid_1044[] */
 
-pci_id_t pci_vid_1045[] = {
+static pci_id_t const pci_vid_1045[] = {
 {0x1045, 0xFFFF, 0xFFFF, 0xFFFF, "OPTi Inc.(0x1045)"},
 {0x1045, 0xA0F8, 0xFFFF, 0xFFFF, "82C750 [Vendetta] USB Controller(0xA0F8)"},
 {0x1045, 0xC101, 0xFFFF, 0xFFFF, "92C264(0xC101)"},
@@ -6889,15 +6933,15 @@ pci_id_t pci_vid_1045[] = {
 {0x1045, 0xD721, 0xFFFF, 0xFFFF, "IDE [FireStar](0xD721)"},
 }; /* pci_vid_1045[] */
 
-pci_id_t pci_vid_1046[] = {
+static pci_id_t const pci_vid_1046[] = {
 {0x1046, 0xFFFF, 0xFFFF, 0xFFFF, "IPC Corporation, Ltd.(0x1046)"},
 }; /* pci_vid_1046[] */
 
-pci_id_t pci_vid_1047[] = {
+static pci_id_t const pci_vid_1047[] = {
 {0x1047, 0xFFFF, 0xFFFF, 0xFFFF, "Genoa Systems Corp(0x1047)"},
 }; /* pci_vid_1047[] */
 
-pci_id_t pci_vid_1048[] = {
+static pci_id_t const pci_vid_1048[] = {
 {0x1048, 0xFFFF, 0xFFFF, 0xFFFF, "Elsa AG(0x1048)"},
 {0x1048, 0x0C60, 0xFFFF, 0xFFFF, "Gladiac MX(0x0C60)"},
 {0x1048, 0x0D22, 0xFFFF, 0xFFFF, "Quadro4 900XGL [ELSA GLoria4 900XGL](0x0D22)"},
@@ -6907,11 +6951,11 @@ pci_id_t pci_vid_1048[] = {
 {0x1048, 0x8901, 0x1048, 0x0935, "GLoria XL (Virge)(0x1048-0x0935)"},
 }; /* pci_vid_1048[] */
 
-pci_id_t pci_vid_1049[] = {
+static pci_id_t const pci_vid_1049[] = {
 {0x1049, 0xFFFF, 0xFFFF, 0xFFFF, "Fountain Technologies, Inc.(0x1049)"},
 }; /* pci_vid_1049[] */
 
-pci_id_t pci_vid_104A[] = {
+static pci_id_t const pci_vid_104A[] = {
 {0x104A, 0xFFFF, 0xFFFF, 0xFFFF, "STMicroelectronics(0x104A)"},
 {0x104A, 0x0000, 0xFFFF, 0xFFFF, "STLS2F Host Bridge(0x0000)"},
 {0x104A, 0x0008, 0xFFFF, 0xFFFF, "STG 2000X(0x0008)"},
@@ -6944,14 +6988,14 @@ pci_id_t pci_vid_104A[] = {
 {0x104A, 0x55CC, 0xFFFF, 0xFFFF, "STPC Client Southbridge(0x55CC)"},
 }; /* pci_vid_104A[] */
 
-pci_id_t pci_vid_104B[] = {
+static pci_id_t const pci_vid_104B[] = {
 {0x104B, 0xFFFF, 0xFFFF, 0xFFFF, "BusLogic(0x104B)"},
 {0x104B, 0x0140, 0xFFFF, 0xFFFF, "BT-946C (old) [multimaster  01](0x0140)"},
 {0x104B, 0x1040, 0xFFFF, 0xFFFF, "BT-946C (BA80C30) [MultiMaster 10](0x1040)"},
 {0x104B, 0x8130, 0xFFFF, 0xFFFF, "Flashpoint LT(0x8130)"},
 }; /* pci_vid_104B[] */
 
-pci_id_t pci_vid_104C[] = {
+static pci_id_t const pci_vid_104C[] = {
 {0x104C, 0xFFFF, 0xFFFF, 0xFFFF, "Texas Instruments(0x104C)"},
 {0x104C, 0x0500, 0xFFFF, 0xFFFF, "100 MBit LAN Controller(0x0500)"},
 {0x104C, 0x0508, 0xFFFF, 0xFFFF, "TMS380C2X Compressor Interface(0x0508)"},
@@ -7244,7 +7288,7 @@ pci_id_t pci_vid_104C[] = {
 {0x104C, 0xFE03, 0xFFFF, 0xFFFF, "12C01A FireWire Host Controller(0xFE03)"},
 }; /* pci_vid_104C[] */
 
-pci_id_t pci_vid_104D[] = {
+static pci_id_t const pci_vid_104D[] = {
 {0x104D, 0xFFFF, 0xFFFF, 0xFFFF, "Sony Corporation(0x104D)"},
 {0x104D, 0x8004, 0xFFFF, 0xFFFF, "DTL-H2500 [Playstation development board](0x8004)"},
 {0x104D, 0x8009, 0xFFFF, 0xFFFF, "CXD1947Q i.LINK Controller(0x8009)"},
@@ -7290,10 +7334,11 @@ pci_id_t pci_vid_104D[] = {
 {0x104D, 0x90DC, 0xFFFF, 0xFFFF, "Baikal DMA Controller(0x90DC)"},
 {0x104D, 0x90DD, 0xFFFF, 0xFFFF, "Baikal Memory (DDR3/SPM)(0x90DD)"},
 {0x104D, 0x90DE, 0xFFFF, 0xFFFF, "Baikal USB 3.0 xHCI Host Controller(0x90DE)"},
+{0x104D, 0x90EB, 0xFFFF, 0xFFFF, "CXD90062GG(0x90EB)"},
 {0x104D, 0x9121, 0xFFFF, 0xFFFF, "Nextorage NEM-PA NVMe SSD for PlayStation(0x9121)"},
 }; /* pci_vid_104D[] */
 
-pci_id_t pci_vid_104E[] = {
+static pci_id_t const pci_vid_104E[] = {
 {0x104E, 0xFFFF, 0xFFFF, 0xFFFF, "Oak Technology, Inc(0x104E)"},
 {0x104E, 0x0017, 0xFFFF, 0xFFFF, "OTI-64017(0x0017)"},
 {0x104E, 0x0107, 0xFFFF, 0xFFFF, "OTI-107 [Spitfire](0x0107)"},
@@ -7303,11 +7348,11 @@ pci_id_t pci_vid_104E[] = {
 {0x104E, 0x0317, 0xFFFF, 0xFFFF, "OTI-64317(0x0317)"},
 }; /* pci_vid_104E[] */
 
-pci_id_t pci_vid_104F[] = {
+static pci_id_t const pci_vid_104F[] = {
 {0x104F, 0xFFFF, 0xFFFF, 0xFFFF, "Co-time Computer Ltd(0x104F)"},
 }; /* pci_vid_104F[] */
 
-pci_id_t pci_vid_1050[] = {
+static pci_id_t const pci_vid_1050[] = {
 {0x1050, 0xFFFF, 0xFFFF, 0xFFFF, "Winbond Electronics Corp(0x1050)"},
 {0x1050, 0x0000, 0xFFFF, 0xFFFF, "NE2000(0x0000)"},
 {0x1050, 0x0001, 0xFFFF, 0xFFFF, "W83769F(0x0001)"},
@@ -7330,19 +7375,19 @@ pci_id_t pci_vid_1050[] = {
 {0x1050, 0x9970, 0xFFFF, 0xFFFF, "W9970CF(0x9970)"},
 }; /* pci_vid_1050[] */
 
-pci_id_t pci_vid_1051[] = {
+static pci_id_t const pci_vid_1051[] = {
 {0x1051, 0xFFFF, 0xFFFF, 0xFFFF, "Anigma, Inc.(0x1051)"},
 }; /* pci_vid_1051[] */
 
-pci_id_t pci_vid_1052[] = {
+static pci_id_t const pci_vid_1052[] = {
 {0x1052, 0xFFFF, 0xFFFF, 0xFFFF, "?-Young Micro Systems(0x1052)"},
 }; /* pci_vid_1052[] */
 
-pci_id_t pci_vid_1053[] = {
+static pci_id_t const pci_vid_1053[] = {
 {0x1053, 0xFFFF, 0xFFFF, 0xFFFF, "Young Micro Systems(0x1053)"},
 }; /* pci_vid_1053[] */
 
-pci_id_t pci_vid_1054[] = {
+static pci_id_t const pci_vid_1054[] = {
 {0x1054, 0xFFFF, 0xFFFF, 0xFFFF, "Hitachi, Ltd(0x1054)"},
 {0x1054, 0x3009, 0xFFFF, 0xFFFF, "2Gbps Fibre Channel to PCI HBA 3009(0x3009)"},
 {0x1054, 0x300A, 0xFFFF, 0xFFFF, "4Gbps Fibre Channel to PCI-X HBA 300a(0x300A)"},
@@ -7362,7 +7407,7 @@ pci_id_t pci_vid_1054[] = {
 {0x1054, 0x350E, 0xFFFF, 0xFFFF, "SH7751R PCI Controller (PCIC)(0x350E)"},
 }; /* pci_vid_1054[] */
 
-pci_id_t pci_vid_1055[] = {
+static pci_id_t const pci_vid_1055[] = {
 {0x1055, 0xFFFF, 0xFFFF, 0xFFFF, "Microchip Technology / SMSC(0x1055)"},
 {0x1055, 0x7430, 0xFFFF, 0xFFFF, "LAN7430(0x7430)"},
 {0x1055, 0x7431, 0xFFFF, 0xFFFF, "LAN7431(0x7431)"},
@@ -7373,11 +7418,11 @@ pci_id_t pci_vid_1055[] = {
 {0x1055, 0xE420, 0xFFFF, 0xFFFF, "LAN9420/LAN9420i(0xE420)"},
 }; /* pci_vid_1055[] */
 
-pci_id_t pci_vid_1056[] = {
+static pci_id_t const pci_vid_1056[] = {
 {0x1056, 0xFFFF, 0xFFFF, 0xFFFF, "ICL(0x1056)"},
 }; /* pci_vid_1056[] */
 
-pci_id_t pci_vid_1057[] = {
+static pci_id_t const pci_vid_1057[] = {
 {0x1057, 0xFFFF, 0xFFFF, 0xFFFF, "Motorola(0x1057)"},
 {0x1057, 0x0001, 0xFFFF, 0xFFFF, "MPC105 [Eagle](0x0001)"},
 {0x1057, 0x0002, 0xFFFF, 0xFFFF, "MPC106 [Grackle](0x0002)"},
@@ -7465,17 +7510,17 @@ pci_id_t pci_vid_1057[] = {
 {0x1057, 0x6405, 0xFFFF, 0xFFFF, "MPC184 Security Processor (S1 family)(0x6405)"},
 }; /* pci_vid_1057[] */
 
-pci_id_t pci_vid_1058[] = {
+static pci_id_t const pci_vid_1058[] = {
 {0x1058, 0xFFFF, 0xFFFF, 0xFFFF, "Electronics & Telecommunications RSH(0x1058)"},
 }; /* pci_vid_1058[] */
 
-pci_id_t pci_vid_1059[] = {
+static pci_id_t const pci_vid_1059[] = {
 {0x1059, 0xFFFF, 0xFFFF, 0xFFFF, "Kontron(0x1059)"},
 {0x1059, 0x0004, 0xFFFF, 0xFFFF, "FPGA M.2 (K20058)(0x0004)"},
 {0x1059, 0x0004, 0x1059, 0x0000, "FPGA M.2 (K20058)(0x1059-0x0000)"},
 }; /* pci_vid_1059[] */
 
-pci_id_t pci_vid_105A[] = {
+static pci_id_t const pci_vid_105A[] = {
 {0x105A, 0xFFFF, 0xFFFF, 0xFFFF, "Promise Technology, Inc.(0x105A)"},
 {0x105A, 0x0D30, 0xFFFF, 0xFFFF, "PDC20265 (FastTrak100 Lite/Ultra100)(0x0D30)"},
 {0x105A, 0x0D30, 0x1043, 0x8042, "AV7266-E South Bridge Promise RAID(0x1043-0x8042)"},
@@ -7559,16 +7604,17 @@ pci_id_t pci_vid_105A[] = {
 {0x105A, 0xE350, 0xFFFF, 0xFFFF, "80333 [SuperTrak EX24350](0xE350)"},
 }; /* pci_vid_105A[] */
 
-pci_id_t pci_vid_105B[] = {
+static pci_id_t const pci_vid_105B[] = {
 {0x105B, 0xFFFF, 0xFFFF, 0xFFFF, "Foxconn International, Inc.(0x105B)"},
+{0x105B, 0x9602, 0xFFFF, 0xFFFF, "RS780/RS880 PCI to PCI bridge (int gfx)(0x9602)"},
 {0x105B, 0xE0C3, 0xFFFF, 0xFFFF, "T99W175 5G Modem [Snapdragon X55](0xE0C3)"},
 }; /* pci_vid_105B[] */
 
-pci_id_t pci_vid_105C[] = {
+static pci_id_t const pci_vid_105C[] = {
 {0x105C, 0xFFFF, 0xFFFF, 0xFFFF, "Wipro Infotech Limited(0x105C)"},
 }; /* pci_vid_105C[] */
 
-pci_id_t pci_vid_105D[] = {
+static pci_id_t const pci_vid_105D[] = {
 {0x105D, 0xFFFF, 0xFFFF, 0xFFFF, "Number 9 Computer Company(0x105D)"},
 {0x105D, 0x2309, 0xFFFF, 0xFFFF, "Imagine 128(0x2309)"},
 {0x105D, 0x2339, 0xFFFF, 0xFFFF, "Imagine 128-II(0x2339)"},
@@ -7608,15 +7654,15 @@ pci_id_t pci_vid_105D[] = {
 {0x105D, 0x5348, 0x11A4, 0x0038, "PVS5600D(0x11A4-0x0038)"},
 }; /* pci_vid_105D[] */
 
-pci_id_t pci_vid_105E[] = {
+static pci_id_t const pci_vid_105E[] = {
 {0x105E, 0xFFFF, 0xFFFF, 0xFFFF, "Vtech Computers Ltd(0x105E)"},
 }; /* pci_vid_105E[] */
 
-pci_id_t pci_vid_105F[] = {
+static pci_id_t const pci_vid_105F[] = {
 {0x105F, 0xFFFF, 0xFFFF, 0xFFFF, "Infotronic America Inc(0x105F)"},
 }; /* pci_vid_105F[] */
 
-pci_id_t pci_vid_1060[] = {
+static pci_id_t const pci_vid_1060[] = {
 {0x1060, 0xFFFF, 0xFFFF, 0xFFFF, "United Microelectronics [UMC](0x1060)"},
 {0x1060, 0x0001, 0xFFFF, 0xFFFF, "UM82C881(0x0001)"},
 {0x1060, 0x0002, 0xFFFF, 0xFFFF, "UM82C886(0x0002)"},
@@ -7642,30 +7688,30 @@ pci_id_t pci_vid_1060[] = {
 {0x1060, 0xE891, 0xFFFF, 0xFFFF, "UM8891N(0xE891)"},
 }; /* pci_vid_1060[] */
 
-pci_id_t pci_vid_1061[] = {
+static pci_id_t const pci_vid_1061[] = {
 {0x1061, 0xFFFF, 0xFFFF, 0xFFFF, "I.I.T.(0x1061)"},
 {0x1061, 0x0001, 0xFFFF, 0xFFFF, "AGX016(0x0001)"},
 {0x1061, 0x0002, 0xFFFF, 0xFFFF, "IIT3204/3501(0x0002)"},
 }; /* pci_vid_1061[] */
 
-pci_id_t pci_vid_1062[] = {
+static pci_id_t const pci_vid_1062[] = {
 {0x1062, 0xFFFF, 0xFFFF, 0xFFFF, "Maspar Computer Corp(0x1062)"},
 }; /* pci_vid_1062[] */
 
-pci_id_t pci_vid_1063[] = {
+static pci_id_t const pci_vid_1063[] = {
 {0x1063, 0xFFFF, 0xFFFF, 0xFFFF, "Ocean Office Automation(0x1063)"},
 }; /* pci_vid_1063[] */
 
-pci_id_t pci_vid_1064[] = {
+static pci_id_t const pci_vid_1064[] = {
 {0x1064, 0xFFFF, 0xFFFF, 0xFFFF, "Alcatel(0x1064)"},
 {0x1064, 0x1102, 0xFFFF, 0xFFFF, "Dynamite 2840 (ADSL PCI modem)(0x1102)"},
 }; /* pci_vid_1064[] */
 
-pci_id_t pci_vid_1065[] = {
+static pci_id_t const pci_vid_1065[] = {
 {0x1065, 0xFFFF, 0xFFFF, 0xFFFF, "Texas Microsystems(0x1065)"},
 }; /* pci_vid_1065[] */
 
-pci_id_t pci_vid_1066[] = {
+static pci_id_t const pci_vid_1066[] = {
 {0x1066, 0xFFFF, 0xFFFF, 0xFFFF, "PicoPower Technology(0x1066)"},
 {0x1066, 0x0000, 0xFFFF, 0xFFFF, "PT80C826(0x0000)"},
 {0x1066, 0x0001, 0xFFFF, 0xFFFF, "PT86C521 [Vesuvius v1] Host Bridge(0x0001)"},
@@ -7676,7 +7722,7 @@ pci_id_t pci_vid_1066[] = {
 {0x1066, 0x8002, 0xFFFF, 0xFFFF, "PT86C523 [Vesuvius v3] PCI-ISA Bridge Slave(0x8002)"},
 }; /* pci_vid_1066[] */
 
-pci_id_t pci_vid_1067[] = {
+static pci_id_t const pci_vid_1067[] = {
 {0x1067, 0xFFFF, 0xFFFF, 0xFFFF, "Mitsubishi Electric(0x1067)"},
 {0x1067, 0x0301, 0xFFFF, 0xFFFF, "AccelGraphics AccelECLIPSE(0x0301)"},
 {0x1067, 0x0304, 0xFFFF, 0xFFFF, "AccelGALAXY A2100 [OEM Evans & Sutherland](0x0304)"},
@@ -7684,11 +7730,11 @@ pci_id_t pci_vid_1067[] = {
 {0x1067, 0x1002, 0xFFFF, 0xFFFF, "VG500 [VolumePro Volume Rendering Accelerator](0x1002)"},
 }; /* pci_vid_1067[] */
 
-pci_id_t pci_vid_1068[] = {
+static pci_id_t const pci_vid_1068[] = {
 {0x1068, 0xFFFF, 0xFFFF, 0xFFFF, "Diversified Technology(0x1068)"},
 }; /* pci_vid_1068[] */
 
-pci_id_t pci_vid_1069[] = {
+static pci_id_t const pci_vid_1069[] = {
 {0x1069, 0xFFFF, 0xFFFF, 0xFFFF, "Mylex Corporation(0x1069)"},
 {0x1069, 0x0001, 0xFFFF, 0xFFFF, "DAC960P(0x0001)"},
 {0x1069, 0x0002, 0xFFFF, 0xFFFF, "DAC960PD(0x0002)"},
@@ -7716,11 +7762,11 @@ pci_id_t pci_vid_1069[] = {
 {0x1069, 0xBA57, 0x1069, 0x0072, "eXtremeRAID 5000 support Device(0x1069-0x0072)"},
 }; /* pci_vid_1069[] */
 
-pci_id_t pci_vid_106A[] = {
+static pci_id_t const pci_vid_106A[] = {
 {0x106A, 0xFFFF, 0xFFFF, 0xFFFF, "Aten Research Inc(0x106A)"},
 }; /* pci_vid_106A[] */
 
-pci_id_t pci_vid_106B[] = {
+static pci_id_t const pci_vid_106B[] = {
 {0x106B, 0xFFFF, 0xFFFF, 0xFFFF, "Apple Inc.(0x106B)"},
 {0x106B, 0x0001, 0xFFFF, 0xFFFF, "Bandit PowerPC host bridge(0x0001)"},
 {0x106B, 0x0002, 0xFFFF, 0xFFFF, "Grand Central I/O(0x0002)"},
@@ -7803,7 +7849,7 @@ pci_id_t pci_vid_106B[] = {
 {0x106B, 0x2005, 0xFFFF, 0xFFFF, "ANS2 NVMe Controller(0x2005)"},
 }; /* pci_vid_106B[] */
 
-pci_id_t pci_vid_106C[] = {
+static pci_id_t const pci_vid_106C[] = {
 {0x106C, 0xFFFF, 0xFFFF, 0xFFFF, "Hynix Semiconductor(0x106C)"},
 {0x106C, 0x8139, 0xFFFF, 0xFFFF, "8139c 100BaseTX Ethernet Controller(0x8139)"},
 {0x106C, 0x8801, 0xFFFF, 0xFFFF, "Dual Pentium ISA/PCI Motherboard(0x8801)"},
@@ -7813,32 +7859,32 @@ pci_id_t pci_vid_106C[] = {
 {0x106C, 0x8805, 0xFFFF, 0xFFFF, "100-BaseT LAN(0x8805)"},
 }; /* pci_vid_106C[] */
 
-pci_id_t pci_vid_106D[] = {
+static pci_id_t const pci_vid_106D[] = {
 {0x106D, 0xFFFF, 0xFFFF, 0xFFFF, "Sequent Computer Systems(0x106D)"},
 }; /* pci_vid_106D[] */
 
-pci_id_t pci_vid_106E[] = {
+static pci_id_t const pci_vid_106E[] = {
 {0x106E, 0xFFFF, 0xFFFF, 0xFFFF, "DFI, Inc(0x106E)"},
 }; /* pci_vid_106E[] */
 
-pci_id_t pci_vid_106F[] = {
+static pci_id_t const pci_vid_106F[] = {
 {0x106F, 0xFFFF, 0xFFFF, 0xFFFF, "City Gate Development Ltd(0x106F)"},
 }; /* pci_vid_106F[] */
 
-pci_id_t pci_vid_1070[] = {
+static pci_id_t const pci_vid_1070[] = {
 {0x1070, 0xFFFF, 0xFFFF, 0xFFFF, "Daewoo Telecom Ltd(0x1070)"},
 }; /* pci_vid_1070[] */
 
-pci_id_t pci_vid_1071[] = {
+static pci_id_t const pci_vid_1071[] = {
 {0x1071, 0xFFFF, 0xFFFF, 0xFFFF, "Mitac(0x1071)"},
 {0x1071, 0x8160, 0xFFFF, 0xFFFF, "Mitac 8060B Mobile Platform(0x8160)"},
 }; /* pci_vid_1071[] */
 
-pci_id_t pci_vid_1072[] = {
+static pci_id_t const pci_vid_1072[] = {
 {0x1072, 0xFFFF, 0xFFFF, 0xFFFF, "GIT Co Ltd(0x1072)"},
 }; /* pci_vid_1072[] */
 
-pci_id_t pci_vid_1073[] = {
+static pci_id_t const pci_vid_1073[] = {
 {0x1073, 0xFFFF, 0xFFFF, 0xFFFF, "Yamaha Corporation(0x1073)"},
 {0x1073, 0x0001, 0xFFFF, 0xFFFF, "3D GUI Accelerator(0x0001)"},
 {0x1073, 0x0002, 0xFFFF, 0xFFFF, "YGV615 [RPA3 3D-Graphics Controller](0x0002)"},
@@ -7869,23 +7915,23 @@ pci_id_t pci_vid_1073[] = {
 {0x1073, 0x2000, 0x1073, 0x2000, "DS2416 Digital Mixing Card(0x1073-0x2000)"},
 }; /* pci_vid_1073[] */
 
-pci_id_t pci_vid_1074[] = {
+static pci_id_t const pci_vid_1074[] = {
 {0x1074, 0xFFFF, 0xFFFF, 0xFFFF, "NexGen Microsystems(0x1074)"},
 {0x1074, 0x4E78, 0xFFFF, 0xFFFF, "82c500/1(0x4E78)"},
 }; /* pci_vid_1074[] */
 
-pci_id_t pci_vid_1075[] = {
+static pci_id_t const pci_vid_1075[] = {
 {0x1075, 0xFFFF, 0xFFFF, 0xFFFF, "Advanced Integrations Research(0x1075)"},
 }; /* pci_vid_1075[] */
 
-pci_id_t pci_vid_1076[] = {
+static pci_id_t const pci_vid_1076[] = {
 {0x1076, 0xFFFF, 0xFFFF, 0xFFFF, "Chaintech Computer Co. Ltd(0x1076)"},
 }; /* pci_vid_1076[] */
 
-pci_id_t pci_vid_1077[] = {
+static pci_id_t const pci_vid_1077[] = {
 {0x1077, 0xFFFF, 0xFFFF, 0xFFFF, "QLogic Corp.(0x1077)"},
 {0x1077, 0x1016, 0xFFFF, 0xFFFF, "ISP10160 Single Channel Ultra3 SCSI Processor(0x1016)"},
-{0x1077, 0x1020, 0xFFFF, 0xFFFF, "ISP1020 Fast-wide SCSI(0x1020)"},
+{0x1077, 0x1020, 0xFFFF, 0xFFFF, "ISP1020/1040 Fast-wide SCSI(0x1020)"},
 {0x1077, 0x1022, 0xFFFF, 0xFFFF, "ISP1022 Fast-wide SCSI(0x1022)"},
 {0x1077, 0x1080, 0xFFFF, 0xFFFF, "ISP1080 SCSI Host Adapter(0x1080)"},
 {0x1077, 0x1216, 0xFFFF, 0xFFFF, "ISP12160 Dual Channel Ultra3 SCSI Processor(0x1216)"},
@@ -8144,7 +8190,7 @@ pci_id_t pci_vid_1077[] = {
 {0x1077, 0x8432, 0xFFFF, 0xFFFF, "ISP2432M-based 10GbE Converged Network Adapter (CNA)(0x8432)"},
 }; /* pci_vid_1077[] */
 
-pci_id_t pci_vid_1078[] = {
+static pci_id_t const pci_vid_1078[] = {
 {0x1078, 0xFFFF, 0xFFFF, 0xFFFF, "Cyrix Corporation(0x1078)"},
 {0x1078, 0x0000, 0xFFFF, 0xFFFF, "5510 [Grappa](0x0000)"},
 {0x1078, 0x0001, 0xFFFF, 0xFFFF, "PCI Master(0x0001)"},
@@ -8160,28 +8206,28 @@ pci_id_t pci_vid_1078[] = {
 {0x1078, 0x0403, 0xFFFF, 0xFFFF, "ZFMicro Expansion Bus(0x0403)"},
 }; /* pci_vid_1078[] */
 
-pci_id_t pci_vid_1079[] = {
+static pci_id_t const pci_vid_1079[] = {
 {0x1079, 0xFFFF, 0xFFFF, 0xFFFF, "I-Bus(0x1079)"},
 }; /* pci_vid_1079[] */
 
-pci_id_t pci_vid_107A[] = {
+static pci_id_t const pci_vid_107A[] = {
 {0x107A, 0xFFFF, 0xFFFF, 0xFFFF, "NetWorth(0x107A)"},
 }; /* pci_vid_107A[] */
 
-pci_id_t pci_vid_107B[] = {
+static pci_id_t const pci_vid_107B[] = {
 {0x107B, 0xFFFF, 0xFFFF, 0xFFFF, "Gateway, Inc.(0x107B)"},
 }; /* pci_vid_107B[] */
 
-pci_id_t pci_vid_107C[] = {
+static pci_id_t const pci_vid_107C[] = {
 {0x107C, 0xFFFF, 0xFFFF, 0xFFFF, "LG Electronics [Lucky Goldstar Co. Ltd](0x107C)"},
 }; /* pci_vid_107C[] */
 
-pci_id_t pci_vid_107D[] = {
+static pci_id_t const pci_vid_107D[] = {
 {0x107D, 0xFFFF, 0xFFFF, 0xFFFF, "LeadTek Research Inc.(0x107D)"},
 {0x107D, 0x0000, 0xFFFF, 0xFFFF, "P86C850(0x0000)"},
 }; /* pci_vid_107D[] */
 
-pci_id_t pci_vid_107E[] = {
+static pci_id_t const pci_vid_107E[] = {
 {0x107E, 0xFFFF, 0xFFFF, 0xFFFF, "Interphase Corporation(0x107E)"},
 {0x107E, 0x0001, 0xFFFF, 0xFFFF, "5515 ATM Adapter [Flipper](0x0001)"},
 {0x107E, 0x0002, 0xFFFF, 0xFFFF, "100 VG AnyLan Controller(0x0002)"},
@@ -8201,53 +8247,53 @@ pci_id_t pci_vid_107E[] = {
 {0x107E, 0x9033, 0xFFFF, 0xFFFF, "5536-2P-PRI(0x9033)"},
 }; /* pci_vid_107E[] */
 
-pci_id_t pci_vid_107F[] = {
+static pci_id_t const pci_vid_107F[] = {
 {0x107F, 0xFFFF, 0xFFFF, 0xFFFF, "Data Technology Corporation(0x107F)"},
 {0x107F, 0x0802, 0xFFFF, 0xFFFF, "SL82C105(0x0802)"},
 }; /* pci_vid_107F[] */
 
-pci_id_t pci_vid_1080[] = {
+static pci_id_t const pci_vid_1080[] = {
 {0x1080, 0xFFFF, 0xFFFF, 0xFFFF, "Contaq Microsystems(0x1080)"},
 {0x1080, 0x0600, 0xFFFF, 0xFFFF, "82C599(0x0600)"},
 {0x1080, 0xC691, 0xFFFF, 0xFFFF, "Cypress CY82C691(0xC691)"},
 {0x1080, 0xC693, 0xFFFF, 0xFFFF, "82c693(0xC693)"},
 }; /* pci_vid_1080[] */
 
-pci_id_t pci_vid_1081[] = {
+static pci_id_t const pci_vid_1081[] = {
 {0x1081, 0xFFFF, 0xFFFF, 0xFFFF, "Supermac Technology(0x1081)"},
 {0x1081, 0x0D47, 0xFFFF, 0xFFFF, "Radius PCI to NuBUS Bridge(0x0D47)"},
 }; /* pci_vid_1081[] */
 
-pci_id_t pci_vid_1082[] = {
+static pci_id_t const pci_vid_1082[] = {
 {0x1082, 0xFFFF, 0xFFFF, 0xFFFF, "EFA Corporation of America(0x1082)"},
 }; /* pci_vid_1082[] */
 
-pci_id_t pci_vid_1083[] = {
+static pci_id_t const pci_vid_1083[] = {
 {0x1083, 0xFFFF, 0xFFFF, 0xFFFF, "Forex Computer Corporation(0x1083)"},
 {0x1083, 0x0001, 0xFFFF, 0xFFFF, "FR710(0x0001)"},
 }; /* pci_vid_1083[] */
 
-pci_id_t pci_vid_1084[] = {
+static pci_id_t const pci_vid_1084[] = {
 {0x1084, 0xFFFF, 0xFFFF, 0xFFFF, "Parador(0x1084)"},
 }; /* pci_vid_1084[] */
 
-pci_id_t pci_vid_1086[] = {
+static pci_id_t const pci_vid_1086[] = {
 {0x1086, 0xFFFF, 0xFFFF, 0xFFFF, "J. Bond Computer Systems(0x1086)"},
 }; /* pci_vid_1086[] */
 
-pci_id_t pci_vid_1087[] = {
+static pci_id_t const pci_vid_1087[] = {
 {0x1087, 0xFFFF, 0xFFFF, 0xFFFF, "Cache Computer(0x1087)"},
 }; /* pci_vid_1087[] */
 
-pci_id_t pci_vid_1088[] = {
+static pci_id_t const pci_vid_1088[] = {
 {0x1088, 0xFFFF, 0xFFFF, 0xFFFF, "Microcomputer Systems (M) Son(0x1088)"},
 }; /* pci_vid_1088[] */
 
-pci_id_t pci_vid_1089[] = {
+static pci_id_t const pci_vid_1089[] = {
 {0x1089, 0xFFFF, 0xFFFF, 0xFFFF, "Data General Corporation(0x1089)"},
 }; /* pci_vid_1089[] */
 
-pci_id_t pci_vid_108A[] = {
+static pci_id_t const pci_vid_108A[] = {
 {0x108A, 0xFFFF, 0xFFFF, 0xFFFF, "SBS Technologies(0x108A)"},
 {0x108A, 0x0001, 0xFFFF, 0xFFFF, "VME Bridge Model 617(0x0001)"},
 {0x108A, 0x0010, 0xFFFF, 0xFFFF, "VME Bridge Model 618(0x0010)"},
@@ -8255,11 +8301,11 @@ pci_id_t pci_vid_108A[] = {
 {0x108A, 0x3000, 0xFFFF, 0xFFFF, "VME Bridge Model 2706(0x3000)"},
 }; /* pci_vid_108A[] */
 
-pci_id_t pci_vid_108C[] = {
+static pci_id_t const pci_vid_108C[] = {
 {0x108C, 0xFFFF, 0xFFFF, 0xFFFF, "Oakleigh Systems Inc.(0x108C)"},
 }; /* pci_vid_108C[] */
 
-pci_id_t pci_vid_108D[] = {
+static pci_id_t const pci_vid_108D[] = {
 {0x108D, 0xFFFF, 0xFFFF, 0xFFFF, "Olicom(0x108D)"},
 {0x108D, 0x0001, 0xFFFF, 0xFFFF, "Token-Ring 16/4 PCI Adapter (3136/3137)(0x0001)"},
 {0x108D, 0x0002, 0xFFFF, 0xFFFF, "16/4 Token Ring(0x0002)"},
@@ -8282,7 +8328,7 @@ pci_id_t pci_vid_108D[] = {
 {0x108D, 0x0022, 0xFFFF, 0xFFFF, "ATM Adapter(0x0022)"},
 }; /* pci_vid_108D[] */
 
-pci_id_t pci_vid_108E[] = {
+static pci_id_t const pci_vid_108E[] = {
 {0x108E, 0xFFFF, 0xFFFF, 0xFFFF, "Oracle/SUN(0x108E)"},
 {0x108E, 0x0001, 0xFFFF, 0xFFFF, "EBUS(0x0001)"},
 {0x108E, 0x1000, 0xFFFF, 0xFFFF, "STP2003QFP [PCIO] EBUS(0x1000)"},
@@ -8343,17 +8389,17 @@ pci_id_t pci_vid_108E[] = {
 {0x108E, 0xC416, 0xFFFF, 0xFFFF, "Sun Fire System/System Controller Interface chip [sbbc](0xC416)"},
 }; /* pci_vid_108E[] */
 
-pci_id_t pci_vid_108F[] = {
+static pci_id_t const pci_vid_108F[] = {
 {0x108F, 0xFFFF, 0xFFFF, 0xFFFF, "Systemsoft(0x108F)"},
 }; /* pci_vid_108F[] */
 
-pci_id_t pci_vid_1090[] = {
+static pci_id_t const pci_vid_1090[] = {
 {0x1090, 0xFFFF, 0xFFFF, 0xFFFF, "Compro Computer Services, Inc.(0x1090)"},
 {0x1090, 0x4610, 0xFFFF, 0xFFFF, "PCI RTOM(0x4610)"},
 {0x1090, 0x4620, 0xFFFF, 0xFFFF, "GPIO HSD(0x4620)"},
 }; /* pci_vid_1090[] */
 
-pci_id_t pci_vid_1091[] = {
+static pci_id_t const pci_vid_1091[] = {
 {0x1091, 0xFFFF, 0xFFFF, 0xFFFF, "Intergraph Corporation(0x1091)"},
 {0x1091, 0x0020, 0xFFFF, 0xFFFF, "3D graphics processor(0x0020)"},
 {0x1091, 0x0021, 0xFFFF, 0xFFFF, "3D graphics processor w/Texturing(0x0021)"},
@@ -8367,7 +8413,7 @@ pci_id_t pci_vid_1091[] = {
 {0x1091, 0x1091, 0xFFFF, 0xFFFF, "Sun Expert3D Graphics Accelerator(0x1091)"},
 }; /* pci_vid_1091[] */
 
-pci_id_t pci_vid_1092[] = {
+static pci_id_t const pci_vid_1092[] = {
 {0x1092, 0xFFFF, 0xFFFF, 0xFFFF, "Diamond Multimedia Systems(0x1092)"},
 {0x1092, 0x0028, 0xFFFF, 0xFFFF, "Viper V770(0x0028)"},
 {0x1092, 0x0028, 0x1092, 0x4A00, "Viper V770 32MB(0x1092-0x4A00)"},
@@ -8394,7 +8440,7 @@ pci_id_t pci_vid_1092[] = {
 {0x1092, 0x9999, 0xFFFF, 0xFFFF, "DMD-I0928-1 \"Monster sound\" sound chip(0x9999)"},
 }; /* pci_vid_1092[] */
 
-pci_id_t pci_vid_1093[] = {
+static pci_id_t const pci_vid_1093[] = {
 {0x1093, 0xFFFF, 0xFFFF, 0xFFFF, "National Instruments(0x1093)"},
 {0x1093, 0x0160, 0xFFFF, 0xFFFF, "PCI-DIO-96(0x0160)"},
 {0x1093, 0x0162, 0xFFFF, 0xFFFF, "PCI-MIO-16XE-50(0x0162)"},
@@ -9178,11 +9224,11 @@ pci_id_t pci_vid_1093[] = {
 {0x1093, 0xFE70, 0xFFFF, 0xFFFF, "VXIpc-880(0xFE70)"},
 }; /* pci_vid_1093[] */
 
-pci_id_t pci_vid_1094[] = {
+static pci_id_t const pci_vid_1094[] = {
 {0x1094, 0xFFFF, 0xFFFF, 0xFFFF, "First International Computers [FIC](0x1094)"},
 }; /* pci_vid_1094[] */
 
-pci_id_t pci_vid_1095[] = {
+static pci_id_t const pci_vid_1095[] = {
 {0x1095, 0xFFFF, 0xFFFF, 0xFFFF, "Silicon Image, Inc.(0x1095)"},
 {0x1095, 0x0240, 0xFFFF, 0xFFFF, "Adaptec AAR-1210SA SATA HostRAID Controller(0x0240)"},
 {0x1095, 0x0242, 0xFFFF, 0xFFFF, "AAR-1220SA SATA RAID Controller(0x0242)"},
@@ -9221,41 +9267,41 @@ pci_id_t pci_vid_1095[] = {
 {0x1095, 0x3531, 0x17C0, 0x4083, "Medion WIM 2210 Notebook PC [MD96850](0x17C0-0x4083)"},
 }; /* pci_vid_1095[] */
 
-pci_id_t pci_vid_1096[] = {
+static pci_id_t const pci_vid_1096[] = {
 {0x1096, 0xFFFF, 0xFFFF, 0xFFFF, "Alacron(0x1096)"},
 }; /* pci_vid_1096[] */
 
-pci_id_t pci_vid_1097[] = {
+static pci_id_t const pci_vid_1097[] = {
 {0x1097, 0xFFFF, 0xFFFF, 0xFFFF, "Appian Technology(0x1097)"},
 }; /* pci_vid_1097[] */
 
-pci_id_t pci_vid_1098[] = {
+static pci_id_t const pci_vid_1098[] = {
 {0x1098, 0xFFFF, 0xFFFF, 0xFFFF, "Quantum Designs (H.K.) Ltd(0x1098)"},
 {0x1098, 0x0001, 0xFFFF, 0xFFFF, "QD-8500(0x0001)"},
 {0x1098, 0x0002, 0xFFFF, 0xFFFF, "QD-8580(0x0002)"},
 }; /* pci_vid_1098[] */
 
-pci_id_t pci_vid_1099[] = {
+static pci_id_t const pci_vid_1099[] = {
 {0x1099, 0xFFFF, 0xFFFF, 0xFFFF, "Samsung Electronics Co., Ltd(0x1099)"},
 }; /* pci_vid_1099[] */
 
-pci_id_t pci_vid_109A[] = {
+static pci_id_t const pci_vid_109A[] = {
 {0x109A, 0xFFFF, 0xFFFF, 0xFFFF, "Packard Bell(0x109A)"},
 }; /* pci_vid_109A[] */
 
-pci_id_t pci_vid_109B[] = {
+static pci_id_t const pci_vid_109B[] = {
 {0x109B, 0xFFFF, 0xFFFF, 0xFFFF, "Gemlight Computer Ltd.(0x109B)"},
 }; /* pci_vid_109B[] */
 
-pci_id_t pci_vid_109C[] = {
+static pci_id_t const pci_vid_109C[] = {
 {0x109C, 0xFFFF, 0xFFFF, 0xFFFF, "Megachips Corporation(0x109C)"},
 }; /* pci_vid_109C[] */
 
-pci_id_t pci_vid_109D[] = {
+static pci_id_t const pci_vid_109D[] = {
 {0x109D, 0xFFFF, 0xFFFF, 0xFFFF, "Zida Technologies Ltd.(0x109D)"},
 }; /* pci_vid_109D[] */
 
-pci_id_t pci_vid_109E[] = {
+static pci_id_t const pci_vid_109E[] = {
 {0x109E, 0xFFFF, 0xFFFF, 0xFFFF, "Brooktree Corporation(0x109E)"},
 {0x109E, 0x0310, 0xFFFF, 0xFFFF, "Bt848 Video Capture(0x0310)"},
 {0x109E, 0x032E, 0xFFFF, 0xFFFF, "Bt878 Video Capture(0x032E)"},
@@ -9448,50 +9494,50 @@ pci_id_t pci_vid_109E[] = {
 {0x109E, 0x8474, 0xFFFF, 0xFFFF, "Bt8474(0x8474)"},
 }; /* pci_vid_109E[] */
 
-pci_id_t pci_vid_109F[] = {
+static pci_id_t const pci_vid_109F[] = {
 {0x109F, 0xFFFF, 0xFFFF, 0xFFFF, "Trigem Computer Inc.(0x109F)"},
 }; /* pci_vid_109F[] */
 
-pci_id_t pci_vid_10A0[] = {
+static pci_id_t const pci_vid_10A0[] = {
 {0x10A0, 0xFFFF, 0xFFFF, 0xFFFF, "Meidensha Corporation(0x10A0)"},
 }; /* pci_vid_10A0[] */
 
-pci_id_t pci_vid_10A1[] = {
+static pci_id_t const pci_vid_10A1[] = {
 {0x10A1, 0xFFFF, 0xFFFF, 0xFFFF, "Juko Electronics Ind. Co. Ltd(0x10A1)"},
 }; /* pci_vid_10A1[] */
 
-pci_id_t pci_vid_10A2[] = {
+static pci_id_t const pci_vid_10A2[] = {
 {0x10A2, 0xFFFF, 0xFFFF, 0xFFFF, "Quantum Corporation(0x10A2)"},
 }; /* pci_vid_10A2[] */
 
-pci_id_t pci_vid_10A3[] = {
+static pci_id_t const pci_vid_10A3[] = {
 {0x10A3, 0xFFFF, 0xFFFF, 0xFFFF, "Everex Systems Inc(0x10A3)"},
 }; /* pci_vid_10A3[] */
 
-pci_id_t pci_vid_10A4[] = {
+static pci_id_t const pci_vid_10A4[] = {
 {0x10A4, 0xFFFF, 0xFFFF, 0xFFFF, "Globe Manufacturing Sales(0x10A4)"},
 }; /* pci_vid_10A4[] */
 
-pci_id_t pci_vid_10A5[] = {
+static pci_id_t const pci_vid_10A5[] = {
 {0x10A5, 0xFFFF, 0xFFFF, 0xFFFF, "Smart Link Ltd.(0x10A5)"},
 {0x10A5, 0x3052, 0xFFFF, 0xFFFF, "SmartPCI562 56K Modem(0x3052)"},
 {0x10A5, 0x5449, 0xFFFF, 0xFFFF, "SmartPCI561 modem(0x5449)"},
 }; /* pci_vid_10A5[] */
 
-pci_id_t pci_vid_10A6[] = {
+static pci_id_t const pci_vid_10A6[] = {
 {0x10A6, 0xFFFF, 0xFFFF, 0xFFFF, "Informtech Industrial Ltd.(0x10A6)"},
 }; /* pci_vid_10A6[] */
 
-pci_id_t pci_vid_10A7[] = {
+static pci_id_t const pci_vid_10A7[] = {
 {0x10A7, 0xFFFF, 0xFFFF, 0xFFFF, "Benchmarq Microelectronics(0x10A7)"},
 }; /* pci_vid_10A7[] */
 
-pci_id_t pci_vid_10A8[] = {
+static pci_id_t const pci_vid_10A8[] = {
 {0x10A8, 0xFFFF, 0xFFFF, 0xFFFF, "Sierra Semiconductor(0x10A8)"},
 {0x10A8, 0x0000, 0xFFFF, 0xFFFF, "STB Horizon 64(0x0000)"},
 }; /* pci_vid_10A8[] */
 
-pci_id_t pci_vid_10A9[] = {
+static pci_id_t const pci_vid_10A9[] = {
 {0x10A9, 0xFFFF, 0xFFFF, 0xFFFF, "Silicon Graphics Intl. Corp.(0x10A9)"},
 {0x10A9, 0x0001, 0xFFFF, 0xFFFF, "Crosstalk to PCI Bridge(0x0001)"},
 {0x10A9, 0x0002, 0xFFFF, 0xFFFF, "Linc I/O controller(0x0002)"},
@@ -9526,22 +9572,22 @@ pci_id_t pci_vid_10A9[] = {
 {0x10A9, 0x802B, 0xFFFF, 0xFFFF, "REACT external interrupt controller(0x802B)"},
 }; /* pci_vid_10A9[] */
 
-pci_id_t pci_vid_10AA[] = {
+static pci_id_t const pci_vid_10AA[] = {
 {0x10AA, 0xFFFF, 0xFFFF, 0xFFFF, "ACC Microelectronics(0x10AA)"},
 {0x10AA, 0x0000, 0xFFFF, 0xFFFF, "ACCM 2188(0x0000)"},
 {0x10AA, 0x2051, 0xFFFF, 0xFFFF, "2051 CPU bridge(0x2051)"},
 {0x10AA, 0x5842, 0xFFFF, 0xFFFF, "2051 ISA bridge(0x5842)"},
 }; /* pci_vid_10AA[] */
 
-pci_id_t pci_vid_10AB[] = {
+static pci_id_t const pci_vid_10AB[] = {
 {0x10AB, 0xFFFF, 0xFFFF, 0xFFFF, "Digicom(0x10AB)"},
 }; /* pci_vid_10AB[] */
 
-pci_id_t pci_vid_10AC[] = {
+static pci_id_t const pci_vid_10AC[] = {
 {0x10AC, 0xFFFF, 0xFFFF, 0xFFFF, "Honeywell IAC(0x10AC)"},
 }; /* pci_vid_10AC[] */
 
-pci_id_t pci_vid_10AD[] = {
+static pci_id_t const pci_vid_10AD[] = {
 {0x10AD, 0xFFFF, 0xFFFF, 0xFFFF, "Symphony Labs(0x10AD)"},
 {0x10AD, 0x0001, 0xFFFF, 0xFFFF, "W83769F(0x0001)"},
 {0x10AD, 0x0003, 0xFFFF, 0xFFFF, "SL82C103(0x0003)"},
@@ -9551,39 +9597,39 @@ pci_id_t pci_vid_10AD[] = {
 {0x10AD, 0x0565, 0xFFFF, 0xFFFF, "W83C553F/W83C554F(0x0565)"},
 }; /* pci_vid_10AD[] */
 
-pci_id_t pci_vid_10AE[] = {
+static pci_id_t const pci_vid_10AE[] = {
 {0x10AE, 0xFFFF, 0xFFFF, 0xFFFF, "Cornerstone Technology(0x10AE)"},
 }; /* pci_vid_10AE[] */
 
-pci_id_t pci_vid_10AF[] = {
+static pci_id_t const pci_vid_10AF[] = {
 {0x10AF, 0xFFFF, 0xFFFF, 0xFFFF, "Micro Computer Systems Inc(0x10AF)"},
 }; /* pci_vid_10AF[] */
 
-pci_id_t pci_vid_10B0[] = {
+static pci_id_t const pci_vid_10B0[] = {
 {0x10B0, 0xFFFF, 0xFFFF, 0xFFFF, "CardExpert Technology(0x10B0)"},
 }; /* pci_vid_10B0[] */
 
-pci_id_t pci_vid_10B1[] = {
+static pci_id_t const pci_vid_10B1[] = {
 {0x10B1, 0xFFFF, 0xFFFF, 0xFFFF, "Cabletron Systems Inc(0x10B1)"},
 }; /* pci_vid_10B1[] */
 
-pci_id_t pci_vid_10B2[] = {
+static pci_id_t const pci_vid_10B2[] = {
 {0x10B2, 0xFFFF, 0xFFFF, 0xFFFF, "Raytheon Company(0x10B2)"},
 }; /* pci_vid_10B2[] */
 
-pci_id_t pci_vid_10B3[] = {
+static pci_id_t const pci_vid_10B3[] = {
 {0x10B3, 0xFFFF, 0xFFFF, 0xFFFF, "Databook Inc(0x10B3)"},
 {0x10B3, 0x3106, 0xFFFF, 0xFFFF, "DB87144(0x3106)"},
 {0x10B3, 0xB106, 0xFFFF, 0xFFFF, "DB87144(0xB106)"},
 }; /* pci_vid_10B3[] */
 
-pci_id_t pci_vid_10B4[] = {
+static pci_id_t const pci_vid_10B4[] = {
 {0x10B4, 0xFFFF, 0xFFFF, 0xFFFF, "STB Systems Inc(0x10B4)"},
 {0x10B4, 0x1B1D, 0xFFFF, 0xFFFF, "Velocity 128 3D(0x1B1D)"},
 {0x10B4, 0x1B1D, 0x10B4, 0x237E, "Velocity 4400(0x10B4-0x237E)"},
 }; /* pci_vid_10B4[] */
 
-pci_id_t pci_vid_10B5[] = {
+static pci_id_t const pci_vid_10B5[] = {
 {0x10B5, 0xFFFF, 0xFFFF, 0xFFFF, "PLX Technology, Inc.(0x10B5)"},
 {0x10B5, 0x0001, 0xFFFF, 0xFFFF, "i960 PCI bus interface(0x0001)"},
 {0x10B5, 0x0557, 0xFFFF, 0xFFFF, "PCI9030 32-bit 33MHz PCI <-> IOBus Bridge(0x0557)"},
@@ -9845,7 +9891,7 @@ pci_id_t pci_vid_10B5[] = {
 {0x10B5, 0xD44D, 0x10B5, 0x9030, "Tormenta 3 Varion V401PE Quad E1 PCI card(0x10B5-0x9030)"},
 }; /* pci_vid_10B5[] */
 
-pci_id_t pci_vid_10B6[] = {
+static pci_id_t const pci_vid_10B6[] = {
 {0x10B6, 0xFFFF, 0xFFFF, 0xFFFF, "Madge Networks(0x10B6)"},
 {0x10B6, 0x0001, 0xFFFF, 0xFFFF, "Smart 16/4 PCI Ringnode(0x0001)"},
 {0x10B6, 0x0002, 0xFFFF, 0xFFFF, "Smart 16/4 PCI Ringnode Mk2(0x0002)"},
@@ -9873,7 +9919,7 @@ pci_id_t pci_vid_10B6[] = {
 {0x10B6, 0x1001, 0xFFFF, 0xFFFF, "Collage 155 ATM Server Adapter(0x1001)"},
 }; /* pci_vid_10B6[] */
 
-pci_id_t pci_vid_10B7[] = {
+static pci_id_t const pci_vid_10B7[] = {
 {0x10B7, 0xFFFF, 0xFFFF, 0xFFFF, "3Com Corporation(0x10B7)"},
 {0x10B7, 0x0001, 0xFFFF, 0xFFFF, "3c985 1000BaseSX (SX/TX)(0x0001)"},
 {0x10B7, 0x0001, 0x9850, 0x0001, "3c985B-SX(0x9850-0x0001)"},
@@ -10008,7 +10054,7 @@ pci_id_t pci_vid_10B7[] = {
 {0x10B7, 0x990B, 0xFFFF, 0xFFFF, "3C990SVR [Typhoon Server](0x990B)"},
 }; /* pci_vid_10B7[] */
 
-pci_id_t pci_vid_10B8[] = {
+static pci_id_t const pci_vid_10B8[] = {
 {0x10B8, 0xFFFF, 0xFFFF, 0xFFFF, "Standard Microsystems Corp [SMC](0x10B8)"},
 {0x10B8, 0x0005, 0xFFFF, 0xFFFF, "83c170 EPIC/100 Fast Ethernet Adapter(0x0005)"},
 {0x10B8, 0x0005, 0x1055, 0xE000, "LANEPIC 10/100 [EVB171Q-PCI](0x1055-0xE000)"},
@@ -10032,7 +10078,7 @@ pci_id_t pci_vid_10B8[] = {
 {0x10B8, 0xB106, 0xFFFF, 0xFFFF, "SMC34C90(0xB106)"},
 }; /* pci_vid_10B8[] */
 
-pci_id_t pci_vid_10B9[] = {
+static pci_id_t const pci_vid_10B9[] = {
 {0x10B9, 0xFFFF, 0xFFFF, 0xFFFF, "ULi Electronics Inc.(0x10B9)"},
 {0x10B9, 0x0101, 0xFFFF, 0xFFFF, "CMI8338/C3DX PCI Audio Device(0x0101)"},
 {0x10B9, 0x0111, 0xFFFF, 0xFFFF, "C-Media CMI8738/C3DX Audio Device (OEM)(0x0111)"},
@@ -10156,7 +10202,7 @@ pci_id_t pci_vid_10B9[] = {
 {0x10B9, 0x7101, 0x1849, 0x7101, "ASRock 939Dual-SATA2 Motherboard(0x1849-0x7101)"},
 }; /* pci_vid_10B9[] */
 
-pci_id_t pci_vid_10BA[] = {
+static pci_id_t const pci_vid_10BA[] = {
 {0x10BA, 0xFFFF, 0xFFFF, 0xFFFF, "Mitsubishi Electric Corp.(0x10BA)"},
 {0x10BA, 0x0301, 0xFFFF, 0xFFFF, "AccelGraphics AccelECLIPSE(0x0301)"},
 {0x10BA, 0x0304, 0xFFFF, 0xFFFF, "AccelGALAXY A2100 [OEM Evans & Sutherland](0x0304)"},
@@ -10165,61 +10211,61 @@ pci_id_t pci_vid_10BA[] = {
 {0x10BA, 0x1002, 0xFFFF, 0xFFFF, "VG500 [VolumePro Volume Rendering Accelerator](0x1002)"},
 }; /* pci_vid_10BA[] */
 
-pci_id_t pci_vid_10BB[] = {
+static pci_id_t const pci_vid_10BB[] = {
 {0x10BB, 0xFFFF, 0xFFFF, 0xFFFF, "Dapha Electronics Corporation(0x10BB)"},
 }; /* pci_vid_10BB[] */
 
-pci_id_t pci_vid_10BC[] = {
+static pci_id_t const pci_vid_10BC[] = {
 {0x10BC, 0xFFFF, 0xFFFF, 0xFFFF, "Advanced Logic Research(0x10BC)"},
 }; /* pci_vid_10BC[] */
 
-pci_id_t pci_vid_10BD[] = {
+static pci_id_t const pci_vid_10BD[] = {
 {0x10BD, 0xFFFF, 0xFFFF, 0xFFFF, "Surecom Technology(0x10BD)"},
 {0x10BD, 0x0E34, 0xFFFF, 0xFFFF, "NE-34(0x0E34)"},
 }; /* pci_vid_10BD[] */
 
-pci_id_t pci_vid_10BE[] = {
+static pci_id_t const pci_vid_10BE[] = {
 {0x10BE, 0xFFFF, 0xFFFF, 0xFFFF, "Tseng Labs International Co.(0x10BE)"},
 }; /* pci_vid_10BE[] */
 
-pci_id_t pci_vid_10BF[] = {
+static pci_id_t const pci_vid_10BF[] = {
 {0x10BF, 0xFFFF, 0xFFFF, 0xFFFF, "Most Inc(0x10BF)"},
 }; /* pci_vid_10BF[] */
 
-pci_id_t pci_vid_10C0[] = {
+static pci_id_t const pci_vid_10C0[] = {
 {0x10C0, 0xFFFF, 0xFFFF, 0xFFFF, "Boca Research Inc.(0x10C0)"},
 {0x10C0, 0x9135, 0xFFFF, 0xFFFF, "iX3D Ultimate Rez(0x9135)"},
 }; /* pci_vid_10C0[] */
 
-pci_id_t pci_vid_10C1[] = {
+static pci_id_t const pci_vid_10C1[] = {
 {0x10C1, 0xFFFF, 0xFFFF, 0xFFFF, "ICM Co., Ltd.(0x10C1)"},
 }; /* pci_vid_10C1[] */
 
-pci_id_t pci_vid_10C2[] = {
+static pci_id_t const pci_vid_10C2[] = {
 {0x10C2, 0xFFFF, 0xFFFF, 0xFFFF, "Auspex Systems Inc.(0x10C2)"},
 }; /* pci_vid_10C2[] */
 
-pci_id_t pci_vid_10C3[] = {
+static pci_id_t const pci_vid_10C3[] = {
 {0x10C3, 0xFFFF, 0xFFFF, 0xFFFF, "Samsung Semiconductors, Inc.(0x10C3)"},
 }; /* pci_vid_10C3[] */
 
-pci_id_t pci_vid_10C4[] = {
+static pci_id_t const pci_vid_10C4[] = {
 {0x10C4, 0xFFFF, 0xFFFF, 0xFFFF, "Award Software International Inc.(0x10C4)"},
 }; /* pci_vid_10C4[] */
 
-pci_id_t pci_vid_10C5[] = {
+static pci_id_t const pci_vid_10C5[] = {
 {0x10C5, 0xFFFF, 0xFFFF, 0xFFFF, "Xerox Corporation(0x10C5)"},
 }; /* pci_vid_10C5[] */
 
-pci_id_t pci_vid_10C6[] = {
+static pci_id_t const pci_vid_10C6[] = {
 {0x10C6, 0xFFFF, 0xFFFF, 0xFFFF, "Rambus Inc.(0x10C6)"},
 }; /* pci_vid_10C6[] */
 
-pci_id_t pci_vid_10C7[] = {
+static pci_id_t const pci_vid_10C7[] = {
 {0x10C7, 0xFFFF, 0xFFFF, 0xFFFF, "Media Vision(0x10C7)"},
 }; /* pci_vid_10C7[] */
 
-pci_id_t pci_vid_10C8[] = {
+static pci_id_t const pci_vid_10C8[] = {
 {0x10C8, 0xFFFF, 0xFFFF, 0xFFFF, "Neomagic Corporation(0x10C8)"},
 {0x10C8, 0x0001, 0xFFFF, 0xFFFF, "NM2070 [MagicGraph 128](0x0001)"},
 {0x10C8, 0x0002, 0xFFFF, 0xFFFF, "NM2090 [MagicGraph 128V](0x0002)"},
@@ -10269,25 +10315,25 @@ pci_id_t pci_vid_10C8[] = {
 {0x10C8, 0x8016, 0xFFFF, 0xFFFF, "NM2380 [MagicMedia 256XL+ Audio](0x8016)"},
 }; /* pci_vid_10C8[] */
 
-pci_id_t pci_vid_10C9[] = {
+static pci_id_t const pci_vid_10C9[] = {
 {0x10C9, 0xFFFF, 0xFFFF, 0xFFFF, "Dataexpert Corporation(0x10C9)"},
 }; /* pci_vid_10C9[] */
 
-pci_id_t pci_vid_10CA[] = {
+static pci_id_t const pci_vid_10CA[] = {
 {0x10CA, 0xFFFF, 0xFFFF, 0xFFFF, "Fujitsu Microelectr., Inc.(0x10CA)"},
 }; /* pci_vid_10CA[] */
 
-pci_id_t pci_vid_10CB[] = {
+static pci_id_t const pci_vid_10CB[] = {
 {0x10CB, 0xFFFF, 0xFFFF, 0xFFFF, "Omron Corporation(0x10CB)"},
 }; /* pci_vid_10CB[] */
 
-pci_id_t pci_vid_10CC[] = {
+static pci_id_t const pci_vid_10CC[] = {
 {0x10CC, 0xFFFF, 0xFFFF, 0xFFFF, "Mai Logic Incorporated(0x10CC)"},
 {0x10CC, 0x0660, 0xFFFF, 0xFFFF, "Articia S Host Bridge(0x0660)"},
 {0x10CC, 0x0661, 0xFFFF, 0xFFFF, "Articia S PCI Bridge(0x0661)"},
 }; /* pci_vid_10CC[] */
 
-pci_id_t pci_vid_10CD[] = {
+static pci_id_t const pci_vid_10CD[] = {
 {0x10CD, 0xFFFF, 0xFFFF, 0xFFFF, "Advanced System Products, Inc(0x10CD)"},
 {0x10CD, 0x1100, 0xFFFF, 0xFFFF, "ASC1100(0x1100)"},
 {0x10CD, 0x1200, 0xFFFF, 0xFFFF, "ASC1200 [(abp940) Fast SCSI-II](0x1200)"},
@@ -10299,11 +10345,11 @@ pci_id_t pci_vid_10CD[] = {
 {0x10CD, 0x2700, 0xFFFF, 0xFFFF, "ABP3950-U3W(0x2700)"},
 }; /* pci_vid_10CD[] */
 
-pci_id_t pci_vid_10CE[] = {
+static pci_id_t const pci_vid_10CE[] = {
 {0x10CE, 0xFFFF, 0xFFFF, 0xFFFF, "Radius(0x10CE)"},
 }; /* pci_vid_10CE[] */
 
-pci_id_t pci_vid_10CF[] = {
+static pci_id_t const pci_vid_10CF[] = {
 {0x10CF, 0xFFFF, 0xFFFF, 0xFFFF, "Fujitsu Limited.(0x10CF)"},
 {0x10CF, 0x01EF, 0xFFFF, 0xFFFF, "PCEA4 PCI-Express Dual Port ESCON Adapter(0x01EF)"},
 {0x10CF, 0x1414, 0xFFFF, 0xFFFF, "On-board USB 1.1 companion controller(0x1414)"},
@@ -10320,39 +10366,39 @@ pci_id_t pci_vid_10CF[] = {
 {0x10CF, 0x202B, 0xFFFF, 0xFFFF, "MB86297A [Carmine Graphics Controller](0x202B)"},
 }; /* pci_vid_10CF[] */
 
-pci_id_t pci_vid_10D1[] = {
+static pci_id_t const pci_vid_10D1[] = {
 {0x10D1, 0xFFFF, 0xFFFF, 0xFFFF, "FuturePlus Systems Corp.(0x10D1)"},
 }; /* pci_vid_10D1[] */
 
-pci_id_t pci_vid_10D2[] = {
+static pci_id_t const pci_vid_10D2[] = {
 {0x10D2, 0xFFFF, 0xFFFF, 0xFFFF, "Molex Incorporated(0x10D2)"},
 }; /* pci_vid_10D2[] */
 
-pci_id_t pci_vid_10D3[] = {
+static pci_id_t const pci_vid_10D3[] = {
 {0x10D3, 0xFFFF, 0xFFFF, 0xFFFF, "Jabil Circuit Inc(0x10D3)"},
 }; /* pci_vid_10D3[] */
 
-pci_id_t pci_vid_10D4[] = {
+static pci_id_t const pci_vid_10D4[] = {
 {0x10D4, 0xFFFF, 0xFFFF, 0xFFFF, "Hualon Microelectronics(0x10D4)"},
 }; /* pci_vid_10D4[] */
 
-pci_id_t pci_vid_10D5[] = {
+static pci_id_t const pci_vid_10D5[] = {
 {0x10D5, 0xFFFF, 0xFFFF, 0xFFFF, "Autologic Inc.(0x10D5)"},
 }; /* pci_vid_10D5[] */
 
-pci_id_t pci_vid_10D6[] = {
+static pci_id_t const pci_vid_10D6[] = {
 {0x10D6, 0xFFFF, 0xFFFF, 0xFFFF, "Cetia(0x10D6)"},
 }; /* pci_vid_10D6[] */
 
-pci_id_t pci_vid_10D7[] = {
+static pci_id_t const pci_vid_10D7[] = {
 {0x10D7, 0xFFFF, 0xFFFF, 0xFFFF, "BCM Advanced Research(0x10D7)"},
 }; /* pci_vid_10D7[] */
 
-pci_id_t pci_vid_10D8[] = {
+static pci_id_t const pci_vid_10D8[] = {
 {0x10D8, 0xFFFF, 0xFFFF, 0xFFFF, "Advanced Peripherals Labs(0x10D8)"},
 }; /* pci_vid_10D8[] */
 
-pci_id_t pci_vid_10D9[] = {
+static pci_id_t const pci_vid_10D9[] = {
 {0x10D9, 0xFFFF, 0xFFFF, 0xFFFF, "Macronix, Inc. [MXIC](0x10D9)"},
 {0x10D9, 0x0431, 0xFFFF, 0xFFFF, "MX98715(0x0431)"},
 {0x10D9, 0x0512, 0xFFFF, 0xFFFF, "MX98713(0x0512)"},
@@ -10363,17 +10409,17 @@ pci_id_t pci_vid_10D9[] = {
 {0x10D9, 0x8888, 0xFFFF, 0xFFFF, "MX86200(0x8888)"},
 }; /* pci_vid_10D9[] */
 
-pci_id_t pci_vid_10DA[] = {
+static pci_id_t const pci_vid_10DA[] = {
 {0x10DA, 0xFFFF, 0xFFFF, 0xFFFF, "Compaq IPG-Austin(0x10DA)"},
 {0x10DA, 0x0508, 0xFFFF, 0xFFFF, "TC4048 Token Ring 4/16(0x0508)"},
 {0x10DA, 0x3390, 0xFFFF, 0xFFFF, "Tl3c3x9(0x3390)"},
 }; /* pci_vid_10DA[] */
 
-pci_id_t pci_vid_10DB[] = {
+static pci_id_t const pci_vid_10DB[] = {
 {0x10DB, 0xFFFF, 0xFFFF, 0xFFFF, "Rohm LSI Systems, Inc.(0x10DB)"},
 }; /* pci_vid_10DB[] */
 
-pci_id_t pci_vid_10DC[] = {
+static pci_id_t const pci_vid_10DC[] = {
 {0x10DC, 0xFFFF, 0xFFFF, 0xFFFF, "CERN/ECP/EDU(0x10DC)"},
 {0x10DC, 0x0001, 0xFFFF, 0xFFFF, "STAR/RD24 SCI-PCI (PMC)(0x0001)"},
 {0x10DC, 0x0002, 0xFFFF, 0xFFFF, "TAR/RD24 SCI-PCI (PMC)(0x0002)"},
@@ -10382,13 +10428,13 @@ pci_id_t pci_vid_10DC[] = {
 {0x10DC, 0x10DC, 0xFFFF, 0xFFFF, "ATT2C15-3 FPGA(0x10DC)"},
 }; /* pci_vid_10DC[] */
 
-pci_id_t pci_vid_10DD[] = {
+static pci_id_t const pci_vid_10DD[] = {
 {0x10DD, 0xFFFF, 0xFFFF, 0xFFFF, "Evans & Sutherland(0x10DD)"},
 {0x10DD, 0x0100, 0xFFFF, 0xFFFF, "Lightning 1200(0x0100)"},
 {0x10DD, 0x0100, 0x10DD, 0x0023, "Lightning 1200 15+16M(0x10DD-0x0023)"},
 }; /* pci_vid_10DD[] */
 
-pci_id_t pci_vid_10DE[] = {
+static pci_id_t const pci_vid_10DE[] = {
 {0x10DE, 0xFFFF, 0xFFFF, 0xFFFF, "NVIDIA Corporation(0x10DE)"},
 {0x10DE, 0x0008, 0xFFFF, 0xFFFF, "NV1 [STG2000X-B Series](0x0008)"},
 {0x10DE, 0x0009, 0xFFFF, 0xFFFF, "NV1 [NV1 Series](0x0009)"},
@@ -10986,6 +11032,7 @@ pci_id_t pci_vid_10DE[] = {
 {0x10DE, 0x0200, 0x1043, 0x402F, "AGP-V8200 DDR(0x1043-0x402F)"},
 {0x10DE, 0x0200, 0x1048, 0x0C70, "GLADIAC 920(0x1048-0x0C70)"},
 {0x10DE, 0x0201, 0xFFFF, 0xFFFF, "NV20 [GeForce3 Ti 200](0x0201)"},
+{0x10DE, 0x0201, 0x1462, 0x8503, "G3Ti200 Pro VT128(0x1462-0x8503)"},
 {0x10DE, 0x0202, 0xFFFF, 0xFFFF, "NV20 [GeForce3 Ti 500](0x0202)"},
 {0x10DE, 0x0202, 0x1043, 0x405B, "V8200 T5(0x1043-0x405B)"},
 {0x10DE, 0x0202, 0x1545, 0x002F, "Xtasy 6964(0x1545-0x002F)"},
@@ -12280,6 +12327,7 @@ pci_id_t pci_vid_10DE[] = {
 {0x10DE, 0x0DE9, 0x1025, 0x0753, "GeForce GT 620M(0x1025-0x0753)"},
 {0x10DE, 0x0DE9, 0x1025, 0x0754, "GeForce GT 620M(0x1025-0x0754)"},
 {0x10DE, 0x0DE9, 0x17AA, 0x3977, "GeForce GT 640M LE(0x17AA-0x3977)"},
+{0x10DE, 0x0DE9, 0x1B0A, 0x20C6, "GeForce GT 630M(0x1B0A-0x20C6)"},
 {0x10DE, 0x0DE9, 0x1B0A, 0x2210, "GeForce GT 635M(0x1B0A-0x2210)"},
 {0x10DE, 0x0DEA, 0xFFFF, 0xFFFF, "GF108M [GeForce 610M](0x0DEA)"},
 {0x10DE, 0x0DEA, 0x17AA, 0x365A, "GeForce 615(0x17AA-0x365A)"},
@@ -13127,6 +13175,9 @@ pci_id_t pci_vid_10DE[] = {
 {0x10DE, 0x15F7, 0xFFFF, 0xFFFF, "GP100GL [Tesla P100 PCIe 12GB](0x15F7)"},
 {0x10DE, 0x15F8, 0xFFFF, 0xFFFF, "GP100GL [Tesla P100 PCIe 16GB](0x15F8)"},
 {0x10DE, 0x15F9, 0xFFFF, 0xFFFF, "GP100GL [Tesla P100 SXM2 16GB](0x15F9)"},
+{0x10DE, 0x15FA, 0xFFFF, 0xFFFF, "GP100GL [DGX Station / PH402 SKU 200](0x15FA)"},
+{0x10DE, 0x15FB, 0xFFFF, 0xFFFF, "GP100GL [GP100 SKU 200](0x15FB)"},
+{0x10DE, 0x15FF, 0xFFFF, 0xFFFF, "GP100GL [GP100 SKU 15ff](0x15FF)"},
 {0x10DE, 0x1617, 0xFFFF, 0xFFFF, "GM204M [GeForce GTX 980M](0x1617)"},
 {0x10DE, 0x1618, 0xFFFF, 0xFFFF, "GM204M [GeForce GTX 970M](0x1618)"},
 {0x10DE, 0x1619, 0xFFFF, 0xFFFF, "GM204M [GeForce GTX 965M](0x1619)"},
@@ -13296,6 +13347,7 @@ pci_id_t pci_vid_10DE[] = {
 {0x10DE, 0x1DB8, 0x10DE, 0x131D, "Tesla V100-SXM3-32GB-H(0x10DE-0x131D)"},
 {0x10DE, 0x1DBA, 0xFFFF, 0xFFFF, "GV100GL [Quadro GV100](0x1DBA)"},
 {0x10DE, 0x1DBA, 0x10DE, 0x12EB, "TITAN V CEO Edition(0x10DE-0x12EB)"},
+{0x10DE, 0x1DBD, 0xFFFF, 0xFFFF, "GV100GL [Tesla GV100 DGX1-V](0x1DBD)"},
 {0x10DE, 0x1DBE, 0xFFFF, 0xFFFF, "GV100 Engineering Sample(0x1DBE)"},
 {0x10DE, 0x1DC1, 0xFFFF, 0xFFFF, "GV100 [CMP 100-200](0x1DC1)"},
 {0x10DE, 0x1DF0, 0xFFFF, 0xFFFF, "GV100GL [Tesla PG500-216](0x1DF0)"},
@@ -13450,6 +13502,7 @@ pci_id_t pci_vid_10DE[] = {
 {0x10DE, 0x21AE, 0xFFFF, 0xFFFF, "TU116GL(0x21AE)"},
 {0x10DE, 0x21BF, 0xFFFF, 0xFFFF, "TU116GL(0x21BF)"},
 {0x10DE, 0x21C2, 0xFFFF, 0xFFFF, "TU116(0x21C2)"},
+{0x10DE, 0x21C3, 0xFFFF, 0xFFFF, "TU116(0x21C3)"},
 {0x10DE, 0x21C4, 0xFFFF, 0xFFFF, "TU116 [GeForce GTX 1660 SUPER](0x21C4)"},
 {0x10DE, 0x21D1, 0xFFFF, 0xFFFF, "TU116BM [GeForce GTX 1660 Ti Mobile](0x21D1)"},
 {0x10DE, 0x2200, 0xFFFF, 0xFFFF, "GA102(0x2200)"},
@@ -13495,9 +13548,10 @@ pci_id_t pci_vid_10DE[] = {
 {0x10DE, 0x2339, 0xFFFF, 0xFFFF, "GH100 [H100 SXM5 94GB](0x2339)"},
 {0x10DE, 0x233A, 0xFFFF, 0xFFFF, "GH100 [H800L 94GB](0x233A)"},
 {0x10DE, 0x233D, 0xFFFF, 0xFFFF, "GH100 [H100 96GB](0x233D)"},
-{0x10DE, 0x2342, 0xFFFF, 0xFFFF, "GH100 [GH200 120GB](0x2342)"},
+{0x10DE, 0x2342, 0xFFFF, 0xFFFF, "GH100 [GH200 120GB / 480GB](0x2342)"},
 {0x10DE, 0x2343, 0xFFFF, 0xFFFF, "GH100(0x2343)"},
-{0x10DE, 0x2345, 0xFFFF, 0xFFFF, "GH100 [GH200 480GB](0x2345)"},
+{0x10DE, 0x2345, 0xFFFF, 0xFFFF, "GH100 [GH100-88K-A1](0x2345)"},
+{0x10DE, 0x237F, 0xFFFF, 0xFFFF, "GH100 [Skinny Joe](0x237F)"},
 {0x10DE, 0x23B0, 0xFFFF, 0xFFFF, "GH100(0x23B0)"},
 {0x10DE, 0x23F0, 0xFFFF, 0xFFFF, "GH100(0x23F0)"},
 {0x10DE, 0x2414, 0xFFFF, 0xFFFF, "GA103 [GeForce RTX 3060 Ti](0x2414)"},
@@ -13593,25 +13647,33 @@ pci_id_t pci_vid_10DE[] = {
 {0x10DE, 0x25FB, 0xFFFF, 0xFFFF, "GA107 [RTX A500 Embedded GPU](0x25FB)"},
 {0x10DE, 0x2681, 0xFFFF, 0xFFFF, "AD102 [RTX TITAN Ada](0x2681)"},
 {0x10DE, 0x2684, 0xFFFF, 0xFFFF, "AD102 [GeForce RTX 4090](0x2684)"},
+{0x10DE, 0x2685, 0xFFFF, 0xFFFF, "AD102 [GeForce RTX 4090 D](0x2685)"},
 {0x10DE, 0x26B1, 0xFFFF, 0xFFFF, "AD102GL [RTX 6000 Ada Generation](0x26B1)"},
 {0x10DE, 0x26B2, 0xFFFF, 0xFFFF, "AD102GL [RTX 5000 Ada Generation](0x26B2)"},
+{0x10DE, 0x26B3, 0xFFFF, 0xFFFF, "AD102GL [RTX 5880 Ada Generation](0x26B3)"},
 {0x10DE, 0x26B5, 0xFFFF, 0xFFFF, "AD102GL [L40](0x26B5)"},
+{0x10DE, 0x26B7, 0xFFFF, 0xFFFF, "AD102GL [L20](0x26B7)"},
 {0x10DE, 0x26B8, 0xFFFF, 0xFFFF, "AD102GL [L40G](0x26B8)"},
 {0x10DE, 0x26B9, 0xFFFF, 0xFFFF, "AD102GL [L40S](0x26B9)"},
+{0x10DE, 0x26BA, 0xFFFF, 0xFFFF, "AD102GL [L20](0x26BA)"},
 {0x10DE, 0x26F5, 0xFFFF, 0xFFFF, "AD102GL [L40 CNX](0x26F5)"},
+{0x10DE, 0x2702, 0xFFFF, 0xFFFF, "AD103 [GeForce RTX 4080 SUPER](0x2702)"},
 {0x10DE, 0x2703, 0xFFFF, 0xFFFF, "AD103 [GeForce RTX 4080 SUPER](0x2703)"},
 {0x10DE, 0x2704, 0xFFFF, 0xFFFF, "AD103 [GeForce RTX 4080](0x2704)"},
+{0x10DE, 0x2705, 0xFFFF, 0xFFFF, "AD103 [GeForce RTX 4070 Ti SUPER](0x2705)"},
 {0x10DE, 0x2717, 0xFFFF, 0xFFFF, "GN21-X11 [GeForce RTX 4090 Laptop GPU](0x2717)"},
 {0x10DE, 0x2730, 0xFFFF, 0xFFFF, "AD103GLM [RTX 5000 Ada Generation Laptop GPU](0x2730)"},
 {0x10DE, 0x2757, 0xFFFF, 0xFFFF, "GN21-X11(0x2757)"},
 {0x10DE, 0x2770, 0xFFFF, 0xFFFF, "AD103GLM [RTX 5000 Ada Generation Embedded GPU](0x2770)"},
 {0x10DE, 0x2782, 0xFFFF, 0xFFFF, "AD104 [GeForce RTX 4070 Ti](0x2782)"},
+{0x10DE, 0x2783, 0xFFFF, 0xFFFF, "AD104 [GeForce RTX 4070 SUPER](0x2783)"},
 {0x10DE, 0x2785, 0xFFFF, 0xFFFF, "AD104 [AC AD104 20GB](0x2785)"},
 {0x10DE, 0x2786, 0xFFFF, 0xFFFF, "AD104 [GeForce RTX 4070](0x2786)"},
 {0x10DE, 0x27A0, 0xFFFF, 0xFFFF, "AD104M [GeForce RTX 4080 Max-Q / Mobile](0x27A0)"},
 {0x10DE, 0x27B0, 0xFFFF, 0xFFFF, "AD104GL [RTX 4000 SFF Ada Generation](0x27B0)"},
 {0x10DE, 0x27B1, 0xFFFF, 0xFFFF, "AD104GL [RTX 4500 Ada Generation](0x27B1)"},
 {0x10DE, 0x27B2, 0xFFFF, 0xFFFF, "AD104GL [RTX 4000 Ada Generation](0x27B2)"},
+{0x10DE, 0x27B6, 0xFFFF, 0xFFFF, "AD104GL [L2](0x27B6)"},
 {0x10DE, 0x27B7, 0xFFFF, 0xFFFF, "AD104GL [L16](0x27B7)"},
 {0x10DE, 0x27B8, 0xFFFF, 0xFFFF, "AD104GL [L4](0x27B8)"},
 {0x10DE, 0x27BA, 0xFFFF, 0xFFFF, "AD104GLM [RTX 4000 Ada Generation Laptop GPU](0x27BA)"},
@@ -13634,7 +13696,7 @@ pci_id_t pci_vid_10DE[] = {
 {0x10DE, 0x28F8, 0xFFFF, 0xFFFF, "AD107GLM [RTX 2000 Ada Generation Embedded GPU](0x28F8)"},
 }; /* pci_vid_10DE[] */
 
-pci_id_t pci_vid_10DF[] = {
+static pci_id_t const pci_vid_10DF[] = {
 {0x10DF, 0xFFFF, 0xFFFF, 0xFFFF, "Emulex Corporation(0x10DF)"},
 {0x10DF, 0x0720, 0xFFFF, 0xFFFF, "OneConnect NIC (Skyhawk)(0x0720)"},
 {0x10DF, 0x0720, 0x103C, 0x1934, "FlexFabric 20Gb 2-port 650M Adapter(0x103C-0x1934)"},
@@ -13764,7 +13826,7 @@ pci_id_t pci_vid_10DF[] = {
 {0x10DF, 0xFF00, 0xFFFF, 0xFFFF, "Neptune LightPulse Fibre Channel Host Adapter(0xFF00)"},
 }; /* pci_vid_10DF[] */
 
-pci_id_t pci_vid_10E0[] = {
+static pci_id_t const pci_vid_10E0[] = {
 {0x10E0, 0xFFFF, 0xFFFF, 0xFFFF, "Integrated Micro Solutions Inc.(0x10E0)"},
 {0x10E0, 0x5026, 0xFFFF, 0xFFFF, "IMS5026/27/28(0x5026)"},
 {0x10E0, 0x5027, 0xFFFF, 0xFFFF, "IMS5027(0x5027)"},
@@ -13774,7 +13836,7 @@ pci_id_t pci_vid_10E0[] = {
 {0x10E0, 0x9128, 0xFFFF, 0xFFFF, "IMS9128 [Twin turbo 128](0x9128)"},
 }; /* pci_vid_10E0[] */
 
-pci_id_t pci_vid_10E1[] = {
+static pci_id_t const pci_vid_10E1[] = {
 {0x10E1, 0xFFFF, 0xFFFF, 0xFFFF, "Tekram Technology Co.,Ltd.(0x10E1)"},
 {0x10E1, 0x0391, 0xFFFF, 0xFFFF, "TRM-S1040(0x0391)"},
 {0x10E1, 0x0391, 0x10E1, 0x0391, "DC-315U SCSI-3 Host Adapter(0x10E1-0x0391)"},
@@ -13782,11 +13844,11 @@ pci_id_t pci_vid_10E1[] = {
 {0x10E1, 0xDC29, 0xFFFF, 0xFFFF, "DC-290(0xDC29)"},
 }; /* pci_vid_10E1[] */
 
-pci_id_t pci_vid_10E2[] = {
+static pci_id_t const pci_vid_10E2[] = {
 {0x10E2, 0xFFFF, 0xFFFF, 0xFFFF, "Aptix Corporation(0x10E2)"},
 }; /* pci_vid_10E2[] */
 
-pci_id_t pci_vid_10E3[] = {
+static pci_id_t const pci_vid_10E3[] = {
 {0x10E3, 0xFFFF, 0xFFFF, 0xFFFF, "Tundra Semiconductor Corp.(0x10E3)"},
 {0x10E3, 0x0000, 0xFFFF, 0xFFFF, "CA91C042 [Universe](0x0000)"},
 {0x10E3, 0x0108, 0xFFFF, 0xFFFF, "Tsi108 Host Bridge for Single PowerPC(0x0108)"},
@@ -13800,24 +13862,24 @@ pci_id_t pci_vid_10E3[] = {
 {0x10E3, 0xA108, 0xFFFF, 0xFFFF, "Tsi109 Host Bridge for Dual PowerPC(0xA108)"},
 }; /* pci_vid_10E3[] */
 
-pci_id_t pci_vid_10E4[] = {
+static pci_id_t const pci_vid_10E4[] = {
 {0x10E4, 0xFFFF, 0xFFFF, 0xFFFF, "Tandem Computers(0x10E4)"},
 {0x10E4, 0x8029, 0xFFFF, 0xFFFF, "Realtek 8029 Network Card(0x8029)"},
 }; /* pci_vid_10E4[] */
 
-pci_id_t pci_vid_10E5[] = {
+static pci_id_t const pci_vid_10E5[] = {
 {0x10E5, 0xFFFF, 0xFFFF, 0xFFFF, "Micro Industries Corporation(0x10E5)"},
 }; /* pci_vid_10E5[] */
 
-pci_id_t pci_vid_10E6[] = {
+static pci_id_t const pci_vid_10E6[] = {
 {0x10E6, 0xFFFF, 0xFFFF, 0xFFFF, "Gainbery Computer Products Inc.(0x10E6)"},
 }; /* pci_vid_10E6[] */
 
-pci_id_t pci_vid_10E7[] = {
+static pci_id_t const pci_vid_10E7[] = {
 {0x10E7, 0xFFFF, 0xFFFF, 0xFFFF, "Vadem(0x10E7)"},
 }; /* pci_vid_10E7[] */
 
-pci_id_t pci_vid_10E8[] = {
+static pci_id_t const pci_vid_10E8[] = {
 {0x10E8, 0xFFFF, 0xFFFF, 0xFFFF, "Applied Micro Circuits Corp.(0x10E8)"},
 {0x10E8, 0x1072, 0xFFFF, 0xFFFF, "INES GPIB-PCI (AMCC5920 based)(0x1072)"},
 {0x10E8, 0x2011, 0xFFFF, 0xFFFF, "Q-Motion Video Capture/Edit board(0x2011)"},
@@ -13855,11 +13917,11 @@ pci_id_t pci_vid_10E8[] = {
 {0x10E8, 0xE004, 0xFFFF, 0xFFFF, "X-Gene PCIe bridge(0xE004)"},
 }; /* pci_vid_10E8[] */
 
-pci_id_t pci_vid_10E9[] = {
+static pci_id_t const pci_vid_10E9[] = {
 {0x10E9, 0xFFFF, 0xFFFF, 0xFFFF, "Alps Electric Co., Ltd.(0x10E9)"},
 }; /* pci_vid_10E9[] */
 
-pci_id_t pci_vid_10EA[] = {
+static pci_id_t const pci_vid_10EA[] = {
 {0x10EA, 0xFFFF, 0xFFFF, 0xFFFF, "Integraphics(0x10EA)"},
 {0x10EA, 0x1680, 0xFFFF, 0xFFFF, "IGA-1680(0x1680)"},
 {0x10EA, 0x1682, 0xFFFF, 0xFFFF, "IGA-1682(0x1682)"},
@@ -13872,15 +13934,16 @@ pci_id_t pci_vid_10EA[] = {
 {0x10EA, 0x5252, 0xFFFF, 0xFFFF, "CyberPro5252(0x5252)"},
 }; /* pci_vid_10EA[] */
 
-pci_id_t pci_vid_10EB[] = {
+static pci_id_t const pci_vid_10EB[] = {
 {0x10EB, 0xFFFF, 0xFFFF, 0xFFFF, "Artists Graphics(0x10EB)"},
 {0x10EB, 0x0101, 0xFFFF, 0xFFFF, "3GA(0x0101)"},
 {0x10EB, 0x8111, 0xFFFF, 0xFFFF, "Twist3 Frame Grabber(0x8111)"},
 }; /* pci_vid_10EB[] */
 
-pci_id_t pci_vid_10EC[] = {
+static pci_id_t const pci_vid_10EC[] = {
 {0x10EC, 0xFFFF, 0xFFFF, 0xFFFF, "Realtek Semiconductor Co., Ltd.(0x10EC)"},
 {0x10EC, 0x0139, 0xFFFF, 0xFFFF, "RTL-8139/8139C/8139C+ Ethernet Controller(0x0139)"},
+{0x10EC, 0x2600, 0xFFFF, 0xFFFF, "Killer E2600 GbE Controller(0x2600)"},
 {0x10EC, 0x3000, 0xFFFF, 0xFFFF, "Killer E3000 2.5GbE Controller(0x3000)"},
 {0x10EC, 0x4321, 0xFFFF, 0xFFFF, "RTL8852BE 802.11ax PCIe Wireless Network Adapter(0x4321)"},
 {0x10EC, 0x5208, 0xFFFF, 0xFFFF, "RTS5208 PCI Express Card Reader(0x5208)"},
@@ -14002,7 +14065,7 @@ pci_id_t pci_vid_10EC[] = {
 {0x10EC, 0x8167, 0x1458, 0xE000, "GA-MA69G-S3H Motherboard(0x1458-0xE000)"},
 {0x10EC, 0x8167, 0x1462, 0x235C, "P965 Neo MS-7235 mainboard(0x1462-0x235C)"},
 {0x10EC, 0x8167, 0x1462, 0x236C, "945P Neo3-F motherboard(0x1462-0x236C)"},
-{0x10EC, 0x8168, 0xFFFF, 0xFFFF, "RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller(0x8168)"},
+{0x10EC, 0x8168, 0xFFFF, 0xFFFF, "RTL8111/8168/8211/8411 PCI Express Gigabit Ethernet Controller(0x8168)"},
 {0x10EC, 0x8168, 0x1019, 0x8168, "RTL8111/8168 PCI Express Gigabit Ethernet controller(0x1019-0x8168)"},
 {0x10EC, 0x8168, 0x1025, 0x1094, "Acer Aspire E5-575G(0x1025-0x1094)"},
 {0x10EC, 0x8168, 0x1028, 0x0283, "Vostro 220(0x1028-0x0283)"},
@@ -14040,6 +14103,7 @@ pci_id_t pci_vid_10EC[] = {
 {0x10EC, 0x8168, 0x1462, 0x4180, "Wind PC MS-7418(0x1462-0x4180)"},
 {0x10EC, 0x8168, 0x1462, 0x7522, "X58 Pro-E(0x1462-0x7522)"},
 {0x10EC, 0x8168, 0x1462, 0x7C37, "X570-A PRO motherboard(0x1462-0x7C37)"},
+{0x10EC, 0x8168, 0x1734, 0x11C0, "RTL8211DN on Esprimo P510 D3171 motherboard(0x1734-0x11C0)"},
 {0x10EC, 0x8168, 0x1775, 0x11CC, "CC11/CL11(0x1775-0x11CC)"},
 {0x10EC, 0x8168, 0x17AA, 0x3098, "ThinkCentre E73(0x17AA-0x3098)"},
 {0x10EC, 0x8168, 0x17AA, 0x3814, "Z50-75(0x17AA-0x3814)"},
@@ -14118,15 +14182,16 @@ pci_id_t pci_vid_10EC[] = {
 {0x10EC, 0xC821, 0xFFFF, 0xFFFF, "RTL8821CE 802.11ac PCIe Wireless Network Adapter(0xC821)"},
 {0x10EC, 0xC822, 0xFFFF, 0xFFFF, "RTL8822CE 802.11ac PCIe Wireless Network Adapter(0xC822)"},
 {0x10EC, 0xC82F, 0xFFFF, 0xFFFF, "RTL8822CE 802.11ac PCIe Wireless Network Adapter(0xC82F)"},
+{0x10EC, 0xC852, 0xFFFF, 0xFFFF, "RTL8852CE PCIe 802.11ax Wireless Network Controller(0xC852)"},
 {0x10EC, 0xD723, 0xFFFF, 0xFFFF, "RTL8723DE 802.11b/g/n PCIe Adapter(0xD723)"},
 }; /* pci_vid_10EC[] */
 
-pci_id_t pci_vid_10ED[] = {
+static pci_id_t const pci_vid_10ED[] = {
 {0x10ED, 0xFFFF, 0xFFFF, 0xFFFF, "Ascii Corporation(0x10ED)"},
 {0x10ED, 0x7310, 0xFFFF, 0xFFFF, "V7310(0x7310)"},
 }; /* pci_vid_10ED[] */
 
-pci_id_t pci_vid_10EE[] = {
+static pci_id_t const pci_vid_10EE[] = {
 {0x10EE, 0xFFFF, 0xFFFF, 0xFFFF, "Xilinx Corporation(0x10EE)"},
 {0x10EE, 0x0001, 0xFFFF, 0xFFFF, "EUROCOM for PCI (ECOMP)(0x0001)"},
 {0x10EE, 0x0002, 0xFFFF, 0xFFFF, "Octal E1/T1 for PCI ETP Card(0x0002)"},
@@ -14176,87 +14241,87 @@ pci_id_t pci_vid_10EE[] = {
 {0x10EE, 0xEBF3, 0xFFFF, 0xFFFF, "SED Systems PCIe-AXI Bridge(0xEBF3)"},
 }; /* pci_vid_10EE[] */
 
-pci_id_t pci_vid_10EF[] = {
+static pci_id_t const pci_vid_10EF[] = {
 {0x10EF, 0xFFFF, 0xFFFF, 0xFFFF, "Racore Computer Products, Inc.(0x10EF)"},
 {0x10EF, 0x8154, 0xFFFF, 0xFFFF, "M815x Token Ring Adapter(0x8154)"},
 }; /* pci_vid_10EF[] */
 
-pci_id_t pci_vid_10F0[] = {
+static pci_id_t const pci_vid_10F0[] = {
 {0x10F0, 0xFFFF, 0xFFFF, 0xFFFF, "Peritek Corporation(0x10F0)"},
 }; /* pci_vid_10F0[] */
 
-pci_id_t pci_vid_10F1[] = {
+static pci_id_t const pci_vid_10F1[] = {
 {0x10F1, 0xFFFF, 0xFFFF, 0xFFFF, "Tyan Computer(0x10F1)"},
 {0x10F1, 0x2865, 0xFFFF, 0xFFFF, "Tyan Thunder K8E S2865(0x2865)"},
 {0x10F1, 0x5300, 0xFFFF, 0xFFFF, "Tyan S5380 Mainboard(0x5300)"},
 }; /* pci_vid_10F1[] */
 
-pci_id_t pci_vid_10F2[] = {
+static pci_id_t const pci_vid_10F2[] = {
 {0x10F2, 0xFFFF, 0xFFFF, 0xFFFF, "Achme Computer, Inc.(0x10F2)"},
 }; /* pci_vid_10F2[] */
 
-pci_id_t pci_vid_10F3[] = {
+static pci_id_t const pci_vid_10F3[] = {
 {0x10F3, 0xFFFF, 0xFFFF, 0xFFFF, "Alaris, Inc.(0x10F3)"},
 }; /* pci_vid_10F3[] */
 
-pci_id_t pci_vid_10F4[] = {
+static pci_id_t const pci_vid_10F4[] = {
 {0x10F4, 0xFFFF, 0xFFFF, 0xFFFF, "S-MOS Systems, Inc.(0x10F4)"},
 }; /* pci_vid_10F4[] */
 
-pci_id_t pci_vid_10F5[] = {
+static pci_id_t const pci_vid_10F5[] = {
 {0x10F5, 0xFFFF, 0xFFFF, 0xFFFF, "NKK Corporation(0x10F5)"},
 {0x10F5, 0xA001, 0xFFFF, 0xFFFF, "NDR4000 [NR4600 Bridge](0xA001)"},
 }; /* pci_vid_10F5[] */
 
-pci_id_t pci_vid_10F6[] = {
+static pci_id_t const pci_vid_10F6[] = {
 {0x10F6, 0xFFFF, 0xFFFF, 0xFFFF, "Creative Electronic Systems SA(0x10F6)"},
 }; /* pci_vid_10F6[] */
 
-pci_id_t pci_vid_10F7[] = {
+static pci_id_t const pci_vid_10F7[] = {
 {0x10F7, 0xFFFF, 0xFFFF, 0xFFFF, "Matsushita Electric Industrial Co., Ltd.(0x10F7)"},
 }; /* pci_vid_10F7[] */
 
-pci_id_t pci_vid_10F8[] = {
+static pci_id_t const pci_vid_10F8[] = {
 {0x10F8, 0xFFFF, 0xFFFF, 0xFFFF, "Altos India Ltd(0x10F8)"},
 }; /* pci_vid_10F8[] */
 
-pci_id_t pci_vid_10F9[] = {
+static pci_id_t const pci_vid_10F9[] = {
 {0x10F9, 0xFFFF, 0xFFFF, 0xFFFF, "PC Direct(0x10F9)"},
 }; /* pci_vid_10F9[] */
 
-pci_id_t pci_vid_10FA[] = {
+static pci_id_t const pci_vid_10FA[] = {
 {0x10FA, 0xFFFF, 0xFFFF, 0xFFFF, "Truevision(0x10FA)"},
 {0x10FA, 0x000C, 0xFFFF, 0xFFFF, "TARGA 1000(0x000C)"},
 }; /* pci_vid_10FA[] */
 
-pci_id_t pci_vid_10FB[] = {
+static pci_id_t const pci_vid_10FB[] = {
 {0x10FB, 0xFFFF, 0xFFFF, 0xFFFF, "Thesys Gesellschaft fuer Mikroelektronik mbH(0x10FB)"},
 {0x10FB, 0x186F, 0xFFFF, 0xFFFF, "TH 6255(0x186F)"},
 }; /* pci_vid_10FB[] */
 
-pci_id_t pci_vid_10FC[] = {
+static pci_id_t const pci_vid_10FC[] = {
 {0x10FC, 0xFFFF, 0xFFFF, 0xFFFF, "I-O Data Device, Inc.(0x10FC)"},
 {0x10FC, 0x0003, 0xFFFF, 0xFFFF, "Cardbus IDE Controller(0x0003)"},
 {0x10FC, 0x0005, 0xFFFF, 0xFFFF, "Cardbus SCSI CBSC II(0x0005)"},
 }; /* pci_vid_10FC[] */
 
-pci_id_t pci_vid_10FD[] = {
+static pci_id_t const pci_vid_10FD[] = {
 {0x10FD, 0xFFFF, 0xFFFF, 0xFFFF, "Soyo Computer, Inc(0x10FD)"},
 }; /* pci_vid_10FD[] */
 
-pci_id_t pci_vid_10FE[] = {
+static pci_id_t const pci_vid_10FE[] = {
 {0x10FE, 0xFFFF, 0xFFFF, 0xFFFF, "Fast Multimedia AG(0x10FE)"},
 }; /* pci_vid_10FE[] */
 
-pci_id_t pci_vid_10FF[] = {
+static pci_id_t const pci_vid_10FF[] = {
 {0x10FF, 0xFFFF, 0xFFFF, 0xFFFF, "NCube(0x10FF)"},
 }; /* pci_vid_10FF[] */
 
-pci_id_t pci_vid_1100[] = {
+static pci_id_t const pci_vid_1100[] = {
 {0x1100, 0xFFFF, 0xFFFF, 0xFFFF, "Jazz Multimedia(0x1100)"},
 }; /* pci_vid_1100[] */
 
-pci_id_t pci_vid_1101[] = {
+static pci_id_t const pci_vid_1101[] = {
 {0x1101, 0xFFFF, 0xFFFF, 0xFFFF, "Initio Corporation(0x1101)"},
 {0x1101, 0x0002, 0xFFFF, 0xFFFF, "INI-920 Ultra SCSI Adapter(0x0002)"},
 {0x1101, 0x1060, 0xFFFF, 0xFFFF, "INI-A100U2W(0x1060)"},
@@ -14268,7 +14333,7 @@ pci_id_t pci_vid_1101[] = {
 {0x1101, 0x9502, 0xFFFF, 0xFFFF, "INI-950P Ultra Wide SCSI Adapter(0x9502)"},
 }; /* pci_vid_1101[] */
 
-pci_id_t pci_vid_1102[] = {
+static pci_id_t const pci_vid_1102[] = {
 {0x1102, 0xFFFF, 0xFFFF, 0xFFFF, "Creative Labs(0x1102)"},
 {0x1102, 0x0002, 0xFFFF, 0xFFFF, "EMU10k1 [Sound Blaster Live! Series](0x0002)"},
 {0x1102, 0x0002, 0x100A, 0x1102, "SB Live! 5.1 Digital OEM SB0220 EMU10K1-JFF(0x100A-0x1102)"},
@@ -14419,7 +14484,7 @@ pci_id_t pci_vid_1102[] = {
 {0x1102, 0x8938, 0x156D, 0xB797, "G797  (AlphaTop (Taiwan))(0x156D-0xB797)"},
 }; /* pci_vid_1102[] */
 
-pci_id_t pci_vid_1103[] = {
+static pci_id_t const pci_vid_1103[] = {
 {0x1103, 0xFFFF, 0xFFFF, 0xFFFF, "HighPoint Technologies, Inc.(0x1103)"},
 {0x1103, 0x0003, 0xFFFF, 0xFFFF, "HPT343/345/346/363(0x0003)"},
 {0x1103, 0x0004, 0xFFFF, 0xFFFF, "HPT366/368/370/370A/372/372N(0x0004)"},
@@ -14440,6 +14505,8 @@ pci_id_t pci_vid_1103[] = {
 {0x1103, 0x0644, 0xFFFF, 0xFFFF, "RocketRAID 644 4 Port SATA-III Controller (eSATA)(0x0644)"},
 {0x1103, 0x0645, 0xFFFF, 0xFFFF, "RocketRAID 644L 4 Port SATA-III Controller (eSATA)(0x0645)"},
 {0x1103, 0x0646, 0xFFFF, 0xFFFF, "RocketRAID 644LS SATA-III Controller (4 eSATA devices connected by 1 SAS cable)(0x0646)"},
+{0x1103, 0x0750, 0xFFFF, 0xFFFF, "Rocket 750 PCIe Gen2 SATA III Controller(0x0750)"},
+{0x1103, 0x0840, 0xFFFF, 0xFFFF, "RocketRAID 840 PCIe Gen3 SATA III Controller(0x0840)"},
 {0x1103, 0x1720, 0xFFFF, 0xFFFF, "RocketRAID 1720 (2x SATA II RAID Controller)(0x1720)"},
 {0x1103, 0x1740, 0xFFFF, 0xFFFF, "RocketRAID 1740(0x1740)"},
 {0x1103, 0x1742, 0xFFFF, 0xFFFF, "RocketRAID 1742(0x1742)"},
@@ -14451,23 +14518,33 @@ pci_id_t pci_vid_1103[] = {
 {0x1103, 0x2322, 0xFFFF, 0xFFFF, "RocketRAID 2322 SATA-II Controller(0x2322)"},
 {0x1103, 0x2340, 0xFFFF, 0xFFFF, "RocketRAID 2340 16 Port SATA-II Controller(0x2340)"},
 {0x1103, 0x2640, 0xFFFF, 0xFFFF, "RocketRAID 2640 SAS/SATA Controller(0x2640)"},
+{0x1103, 0x2720, 0xFFFF, 0xFFFF, "RocketRAID 2720 PCIe Gen2 6Gb/s SAS/SATA Controller(0x2720)"},
 {0x1103, 0x2722, 0xFFFF, 0xFFFF, "RocketRAID 2722(0x2722)"},
 {0x1103, 0x2740, 0xFFFF, 0xFFFF, "RocketRAID 2740(0x2740)"},
 {0x1103, 0x2744, 0xFFFF, 0xFFFF, "RocketRaid 2744(0x2744)"},
 {0x1103, 0x2782, 0xFFFF, 0xFFFF, "RocketRAID 2782(0x2782)"},
+{0x1103, 0x2840, 0xFFFF, 0xFFFF, "RocketRAID 2840 PCIe Gen3 6Gb/s SAS/SATA Controller(0x2840)"},
 {0x1103, 0x3120, 0xFFFF, 0xFFFF, "RocketRAID 3120(0x3120)"},
 {0x1103, 0x3220, 0xFFFF, 0xFFFF, "RocketRAID 3220(0x3220)"},
 {0x1103, 0x3320, 0xFFFF, 0xFFFF, "RocketRAID 3320(0x3320)"},
+{0x1103, 0x3520, 0xFFFF, 0xFFFF, "RocketRAID 3520 PCIe Gen1 8-Port SATA II Controller(0x3520)"},
+{0x1103, 0x3530, 0xFFFF, 0xFFFF, "RocketRAID 3530 PCIe Gen1 12-Port SATA II Controller(0x3530)"},
+{0x1103, 0x3740, 0xFFFF, 0xFFFF, "RocketRAID 3740 PCIe Gen3 12Gb/s SAS/SATA Controller(0x3740)"},
 {0x1103, 0x4310, 0xFFFF, 0xFFFF, "RocketRaid 4310(0x4310)"},
+{0x1103, 0x4320, 0xFFFF, 0xFFFF, "RocketRAID 4320 SAS Controller(0x4320)"},
+{0x1103, 0x7103, 0xFFFF, 0xFFFF, "SSD7103 PCIe Gen3 x16 4-Port M.2 NVMe RAID Controller(0x7103)"},
+{0x1103, 0x7105, 0xFFFF, 0xFFFF, "SSD7105 PCIe Gen3 x16 4-Port M.2 NVMe RAID Controller(0x7105)"},
+{0x1103, 0x7110, 0xFFFF, 0xFFFF, "SSD7110 PCIe Gen3 x16 NVMe RAID Controller(0x7110)"},
 {0x1103, 0x7505, 0xFFFF, 0xFFFF, "SSD7505 PCIe Gen4 x16 4-Port M.2 NVMe RAID Controller(0x7505)"},
 {0x1103, 0x7540, 0xFFFF, 0xFFFF, "SSD7540 PCIe Gen4 x16 8-Port M.2 NVMe RAID Controller(0x7540)"},
+{0x1103, 0x7580, 0xFFFF, 0xFFFF, "SSD7580 PCIe Gen4 x16 8-Port M.2 NVMe RAID Controller(0x7580)"},
 }; /* pci_vid_1103[] */
 
-pci_id_t pci_vid_1104[] = {
+static pci_id_t const pci_vid_1104[] = {
 {0x1104, 0xFFFF, 0xFFFF, 0xFFFF, "RasterOps Corp.(0x1104)"},
 }; /* pci_vid_1104[] */
 
-pci_id_t pci_vid_1105[] = {
+static pci_id_t const pci_vid_1105[] = {
 {0x1105, 0xFFFF, 0xFFFF, 0xFFFF, "Sigma Designs, Inc.(0x1105)"},
 {0x1105, 0x1105, 0xFFFF, 0xFFFF, "REALmagic Xcard MPEG 1/2/3/4 DVD Decoder(0x1105)"},
 {0x1105, 0x8300, 0xFFFF, 0xFFFF, "REALmagic Hollywood Plus DVD Decoder(0x8300)"},
@@ -14485,7 +14562,7 @@ pci_id_t pci_vid_1105[] = {
 {0x1105, 0xC622, 0xFFFF, 0xFFFF, "EM8622L MPEG-4.10 (H.264) and SMPTE 421M (VC-1) A/V Decoder(0xC622)"},
 }; /* pci_vid_1105[] */
 
-pci_id_t pci_vid_1106[] = {
+static pci_id_t const pci_vid_1106[] = {
 {0x1106, 0xFFFF, 0xFFFF, 0xFFFF, "VIA Technologies, Inc.(0x1106)"},
 {0x1106, 0x0102, 0xFFFF, 0xFFFF, "Embedded VIA Ethernet Controller(0x0102)"},
 {0x1106, 0x0130, 0xFFFF, 0xFFFF, "VT6305 1394.A Controller(0x0130)"},
@@ -14651,6 +14728,7 @@ pci_id_t pci_vid_1106[] = {
 {0x1106, 0x3038, 0x1043, 0x808C, "VT62xx USB1.1 4 port controller(0x1043-0x808C)"},
 {0x1106, 0x3038, 0x1043, 0x80A1, "A7V8X-X motherboard(0x1043-0x80A1)"},
 {0x1106, 0x3038, 0x1043, 0x80ED, "A7V600/K8V-X/A8V Deluxe motherboard(0x1043-0x80ED)"},
+{0x1106, 0x3038, 0x1106, 0x3038, "USB 1.1 UHCI controller(0x1106-0x3038)"},
 {0x1106, 0x3038, 0x1179, 0x0001, "Magnia Z310(0x1179-0x0001)"},
 {0x1106, 0x3038, 0x1234, 0x0925, "MVP3 USB Controller(0x1234-0x0925)"},
 {0x1106, 0x3038, 0x1458, 0x5004, "GA-7VAX Mainboard(0x1458-0x5004)"},
@@ -14682,6 +14760,7 @@ pci_id_t pci_vid_1106[] = {
 {0x1106, 0x3044, 0x1462, 0x590D, "KT6 Delta-FIS2R (MS-6590)(0x1462-0x590D)"},
 {0x1106, 0x3044, 0x1462, 0x702D, "K8T NEO 2 motherboard(0x1462-0x702D)"},
 {0x1106, 0x3044, 0x1462, 0x971D, "MS-6917(0x1462-0x971D)"},
+{0x1106, 0x3044, 0x153B, 0x1146, "Cameo DV Firewire controller(0x153B-0x1146)"},
 {0x1106, 0x3050, 0xFFFF, 0xFFFF, "VT82C596 Power Management(0x3050)"},
 {0x1106, 0x3051, 0xFFFF, 0xFFFF, "VT82C596 Power Management(0x3051)"},
 {0x1106, 0x3053, 0xFFFF, 0xFFFF, "VT6105M [Rhine-III](0x3053)"},
@@ -14774,7 +14853,7 @@ pci_id_t pci_vid_1106[] = {
 {0x1106, 0x3104, 0x1043, 0x808C, "A7V8X motherboard(0x1043-0x808C)"},
 {0x1106, 0x3104, 0x1043, 0x80A1, "A7V8X-X motherboard rev 1.01(0x1043-0x80A1)"},
 {0x1106, 0x3104, 0x1043, 0x80ED, "A7V600/K8V-X/A8V Deluxe motherboard(0x1043-0x80ED)"},
-{0x1106, 0x3104, 0x1106, 0x3104, "USB 2.0 Controller(0x1106-0x3104)"},
+{0x1106, 0x3104, 0x1106, 0x3104, "USB 2.0 EHCI controller(0x1106-0x3104)"},
 {0x1106, 0x3104, 0x1297, 0xF641, "FX41 motherboard(0x1297-0xF641)"},
 {0x1106, 0x3104, 0x1458, 0x5004, "GA-7VAX Mainboard(0x1458-0x5004)"},
 {0x1106, 0x3104, 0x1462, 0x5901, "KT6 Delta-FIS2R (MS-6590)(0x1462-0x5901)"},
@@ -15065,12 +15144,12 @@ pci_id_t pci_vid_1106[] = {
 {0x1106, 0xF410, 0xFFFF, 0xFFFF, "VX900 Series PCI UART Port 0-3(0xF410)"},
 }; /* pci_vid_1106[] */
 
-pci_id_t pci_vid_1107[] = {
+static pci_id_t const pci_vid_1107[] = {
 {0x1107, 0xFFFF, 0xFFFF, 0xFFFF, "Stratus Computers(0x1107)"},
 {0x1107, 0x0576, 0xFFFF, 0xFFFF, "VIA VT82C570MV [Apollo] (Wrong vendor ID!)(0x0576)"},
 }; /* pci_vid_1107[] */
 
-pci_id_t pci_vid_1108[] = {
+static pci_id_t const pci_vid_1108[] = {
 {0x1108, 0xFFFF, 0xFFFF, 0xFFFF, "Proteon, Inc.(0x1108)"},
 {0x1108, 0x0100, 0xFFFF, 0xFFFF, "p1690plus_AA(0x0100)"},
 {0x1108, 0x0101, 0xFFFF, 0xFFFF, "p1690plus_AB(0x0101)"},
@@ -15082,12 +15161,12 @@ pci_id_t pci_vid_1108[] = {
 {0x1108, 0x013D, 0xFFFF, 0xFFFF, "P1690Plus(0x013D)"},
 }; /* pci_vid_1108[] */
 
-pci_id_t pci_vid_1109[] = {
+static pci_id_t const pci_vid_1109[] = {
 {0x1109, 0xFFFF, 0xFFFF, 0xFFFF, "Cogent Data Technologies, Inc.(0x1109)"},
 {0x1109, 0x1400, 0xFFFF, 0xFFFF, "EM110TX [EX110TX](0x1400)"},
 }; /* pci_vid_1109[] */
 
-pci_id_t pci_vid_110A[] = {
+static pci_id_t const pci_vid_110A[] = {
 {0x110A, 0xFFFF, 0xFFFF, 0xFFFF, "Siemens AG(0x110A)"},
 {0x110A, 0x0002, 0xFFFF, 0xFFFF, "Pirahna 2-port(0x0002)"},
 {0x110A, 0x0005, 0xFFFF, 0xFFFF, "Tulip controller, power management, switch extender(0x0005)"},
@@ -15100,6 +15179,7 @@ pci_id_t pci_vid_110A[] = {
 {0x110A, 0x2101, 0xFFFF, 0xFFFF, "HST SAPHIR V Primary PCI (ISDN/PMx)(0x2101)"},
 {0x110A, 0x2102, 0xFFFF, 0xFFFF, "DSCC4 PEB/PEF 20534 DMA Supported Serial Communication Controller with 4 Channels(0x2102)"},
 {0x110A, 0x2104, 0xFFFF, 0xFFFF, "Eicon Diva 2.02 compatible passive ISDN card(0x2104)"},
+{0x110A, 0x3101, 0xFFFF, 0xFFFF, "HiPath 4000 PCI card(0x3101)"},
 {0x110A, 0x3141, 0xFFFF, 0xFFFF, "SIMATIC NET CP 5611 / 5621(0x3141)"},
 {0x110A, 0x3142, 0xFFFF, 0xFFFF, "SIMATIC NET CP 5613 / 5614(0x3142)"},
 {0x110A, 0x3143, 0xFFFF, 0xFFFF, "SIMATIC NET CP 1613(0x3143)"},
@@ -15122,39 +15202,39 @@ pci_id_t pci_vid_110A[] = {
 {0x110A, 0x6120, 0xFFFF, 0xFFFF, "SZB6120(0x6120)"},
 }; /* pci_vid_110A[] */
 
-pci_id_t pci_vid_110B[] = {
+static pci_id_t const pci_vid_110B[] = {
 {0x110B, 0xFFFF, 0xFFFF, 0xFFFF, "Chromatic Research Inc.(0x110B)"},
 {0x110B, 0x0001, 0xFFFF, 0xFFFF, "Mpact Media Processor(0x0001)"},
 {0x110B, 0x0004, 0xFFFF, 0xFFFF, "Mpact 2(0x0004)"},
 }; /* pci_vid_110B[] */
 
-pci_id_t pci_vid_110C[] = {
+static pci_id_t const pci_vid_110C[] = {
 {0x110C, 0xFFFF, 0xFFFF, 0xFFFF, "Mini-Max Technology, Inc.(0x110C)"},
 }; /* pci_vid_110C[] */
 
-pci_id_t pci_vid_110D[] = {
+static pci_id_t const pci_vid_110D[] = {
 {0x110D, 0xFFFF, 0xFFFF, 0xFFFF, "Znyx Advanced Systems(0x110D)"},
 }; /* pci_vid_110D[] */
 
-pci_id_t pci_vid_110E[] = {
+static pci_id_t const pci_vid_110E[] = {
 {0x110E, 0xFFFF, 0xFFFF, 0xFFFF, "CPU Technology(0x110E)"},
 }; /* pci_vid_110E[] */
 
-pci_id_t pci_vid_110F[] = {
+static pci_id_t const pci_vid_110F[] = {
 {0x110F, 0xFFFF, 0xFFFF, 0xFFFF, "Ross Technology(0x110F)"},
 }; /* pci_vid_110F[] */
 
-pci_id_t pci_vid_1110[] = {
+static pci_id_t const pci_vid_1110[] = {
 {0x1110, 0xFFFF, 0xFFFF, 0xFFFF, "Powerhouse Systems(0x1110)"},
 {0x1110, 0x6037, 0xFFFF, 0xFFFF, "Firepower Powerized SMP I/O ASIC(0x6037)"},
 {0x1110, 0x6073, 0xFFFF, 0xFFFF, "Firepower Powerized SMP I/O ASIC(0x6073)"},
 }; /* pci_vid_1110[] */
 
-pci_id_t pci_vid_1111[] = {
+static pci_id_t const pci_vid_1111[] = {
 {0x1111, 0xFFFF, 0xFFFF, 0xFFFF, "Santa Cruz Operation(0x1111)"},
 }; /* pci_vid_1111[] */
 
-pci_id_t pci_vid_1112[] = {
+static pci_id_t const pci_vid_1112[] = {
 {0x1112, 0xFFFF, 0xFFFF, 0xFFFF, "Osicom Technologies Inc(0x1112)"},
 {0x1112, 0x2200, 0xFFFF, 0xFFFF, "FDDI Adapter(0x2200)"},
 {0x1112, 0x2300, 0xFFFF, 0xFFFF, "Fast Ethernet Adapter(0x2300)"},
@@ -15162,7 +15242,7 @@ pci_id_t pci_vid_1112[] = {
 {0x1112, 0x2400, 0xFFFF, 0xFFFF, "ATM Adapter(0x2400)"},
 }; /* pci_vid_1112[] */
 
-pci_id_t pci_vid_1113[] = {
+static pci_id_t const pci_vid_1113[] = {
 {0x1113, 0xFFFF, 0xFFFF, 0xFFFF, "Accton Technology Corporation(0x1113)"},
 {0x1113, 0x1211, 0xFFFF, 0xFFFF, "SMC2-1211TX(0x1211)"},
 {0x1113, 0x1211, 0x103C, 0x1207, "EN-1207D Fast Ethernet Adapter(0x103C-0x1207)"},
@@ -15182,16 +15262,16 @@ pci_id_t pci_vid_1113[] = {
 {0x1113, 0xEE23, 0xFFFF, 0xFFFF, "SMCWPCIT-G 108Mbps Wireless PCI adapter(0xEE23)"},
 }; /* pci_vid_1113[] */
 
-pci_id_t pci_vid_1114[] = {
+static pci_id_t const pci_vid_1114[] = {
 {0x1114, 0xFFFF, 0xFFFF, 0xFFFF, "Atmel Corporation(0x1114)"},
 {0x1114, 0x0506, 0xFFFF, 0xFFFF, "at76c506 802.11b Wireless Network Adaptor(0x0506)"},
 }; /* pci_vid_1114[] */
 
-pci_id_t pci_vid_1115[] = {
+static pci_id_t const pci_vid_1115[] = {
 {0x1115, 0xFFFF, 0xFFFF, 0xFFFF, "3D Labs(0x1115)"},
 }; /* pci_vid_1115[] */
 
-pci_id_t pci_vid_1116[] = {
+static pci_id_t const pci_vid_1116[] = {
 {0x1116, 0xFFFF, 0xFFFF, 0xFFFF, "Data Translation(0x1116)"},
 {0x1116, 0x0022, 0xFFFF, 0xFFFF, "DT3001(0x0022)"},
 {0x1116, 0x0023, 0xFFFF, 0xFFFF, "DT3002(0x0023)"},
@@ -15206,17 +15286,17 @@ pci_id_t pci_vid_1116[] = {
 {0x1116, 0x80C2, 0xFFFF, 0xFFFF, "DT3162(0x80C2)"},
 }; /* pci_vid_1116[] */
 
-pci_id_t pci_vid_1117[] = {
+static pci_id_t const pci_vid_1117[] = {
 {0x1117, 0xFFFF, 0xFFFF, 0xFFFF, "Datacube, Inc(0x1117)"},
 {0x1117, 0x9500, 0xFFFF, 0xFFFF, "Max-1C SVGA card(0x9500)"},
 {0x1117, 0x9501, 0xFFFF, 0xFFFF, "Max-1C image processing(0x9501)"},
 }; /* pci_vid_1117[] */
 
-pci_id_t pci_vid_1118[] = {
+static pci_id_t const pci_vid_1118[] = {
 {0x1118, 0xFFFF, 0xFFFF, 0xFFFF, "Berg Electronics(0x1118)"},
 }; /* pci_vid_1118[] */
 
-pci_id_t pci_vid_1119[] = {
+static pci_id_t const pci_vid_1119[] = {
 {0x1119, 0xFFFF, 0xFFFF, 0xFFFF, "ICP Vortex Computersysteme GmbH(0x1119)"},
 {0x1119, 0x0000, 0xFFFF, 0xFFFF, "GDT 6000/6020/6050(0x0000)"},
 {0x1119, 0x0001, 0xFFFF, 0xFFFF, "GDT 6000B/6010(0x0001)"},
@@ -15291,7 +15371,7 @@ pci_id_t pci_vid_1119[] = {
 {0x1119, 0x0301, 0xFFFF, 0xFFFF, "GDT NEWRX2(0x0301)"},
 }; /* pci_vid_1119[] */
 
-pci_id_t pci_vid_111A[] = {
+static pci_id_t const pci_vid_111A[] = {
 {0x111A, 0xFFFF, 0xFFFF, 0xFFFF, "Efficient Networks, Inc(0x111A)"},
 {0x111A, 0x0000, 0xFFFF, 0xFFFF, "155P-MF1 (FPGA)(0x0000)"},
 {0x111A, 0x0002, 0xFFFF, 0xFFFF, "155P-MF1 (ASIC)(0x0002)"},
@@ -15311,16 +15391,16 @@ pci_id_t pci_vid_111A[] = {
 {0x111A, 0x1203, 0xFFFF, 0xFFFF, "SpeedStream 1023 Wireless PCI Adapter(0x1203)"},
 }; /* pci_vid_111A[] */
 
-pci_id_t pci_vid_111B[] = {
+static pci_id_t const pci_vid_111B[] = {
 {0x111B, 0xFFFF, 0xFFFF, 0xFFFF, "Teledyne Electronic Systems(0x111B)"},
 }; /* pci_vid_111B[] */
 
-pci_id_t pci_vid_111C[] = {
+static pci_id_t const pci_vid_111C[] = {
 {0x111C, 0xFFFF, 0xFFFF, 0xFFFF, "Tricord Systems Inc.(0x111C)"},
 {0x111C, 0x0001, 0xFFFF, 0xFFFF, "Powerbis Bridge(0x0001)"},
 }; /* pci_vid_111C[] */
 
-pci_id_t pci_vid_111D[] = {
+static pci_id_t const pci_vid_111D[] = {
 {0x111D, 0xFFFF, 0xFFFF, 0xFFFF, "Microsemi / PMC / IDT(0x111D)"},
 {0x111D, 0x0001, 0xFFFF, 0xFFFF, "IDT77201/77211 155Mbps ATM SAR Controller [NICStAR](0x0001)"},
 {0x111D, 0x0003, 0xFFFF, 0xFFFF, "IDT77222/77252 155Mbps ATM MICRO ABR SAR Controller(0x0003)"},
@@ -15386,49 +15466,49 @@ pci_id_t pci_vid_111D[] = {
 {0x111D, 0x80D2, 0xFFFF, 0xFFFF, "F32P08xG3 NVMe controller(0x80D2)"},
 }; /* pci_vid_111D[] */
 
-pci_id_t pci_vid_111E[] = {
+static pci_id_t const pci_vid_111E[] = {
 {0x111E, 0xFFFF, 0xFFFF, 0xFFFF, "Eldec(0x111E)"},
 }; /* pci_vid_111E[] */
 
-pci_id_t pci_vid_111F[] = {
+static pci_id_t const pci_vid_111F[] = {
 {0x111F, 0xFFFF, 0xFFFF, 0xFFFF, "Precision Digital Images(0x111F)"},
 {0x111F, 0x4A47, 0xFFFF, 0xFFFF, "Precision MX Video engine interface(0x4A47)"},
 {0x111F, 0x5243, 0xFFFF, 0xFFFF, "Frame capture bus interface(0x5243)"},
 }; /* pci_vid_111F[] */
 
-pci_id_t pci_vid_1120[] = {
+static pci_id_t const pci_vid_1120[] = {
 {0x1120, 0xFFFF, 0xFFFF, 0xFFFF, "Dell EMC(0x1120)"},
 {0x1120, 0x2306, 0xFFFF, 0xFFFF, "Unity Fibre Channel Controller(0x2306)"},
 {0x1120, 0x2501, 0xFFFF, 0xFFFF, "Unity Ethernet Controller(0x2501)"},
 {0x1120, 0x2505, 0xFFFF, 0xFFFF, "Unity Fibre Channel Controller(0x2505)"},
 }; /* pci_vid_1120[] */
 
-pci_id_t pci_vid_1121[] = {
+static pci_id_t const pci_vid_1121[] = {
 {0x1121, 0xFFFF, 0xFFFF, 0xFFFF, "Zilog(0x1121)"},
 }; /* pci_vid_1121[] */
 
-pci_id_t pci_vid_1122[] = {
+static pci_id_t const pci_vid_1122[] = {
 {0x1122, 0xFFFF, 0xFFFF, 0xFFFF, "Multi-tech Systems, Inc.(0x1122)"},
 }; /* pci_vid_1122[] */
 
-pci_id_t pci_vid_1123[] = {
+static pci_id_t const pci_vid_1123[] = {
 {0x1123, 0xFFFF, 0xFFFF, 0xFFFF, "Excellent Design, Inc.(0x1123)"},
 }; /* pci_vid_1123[] */
 
-pci_id_t pci_vid_1124[] = {
+static pci_id_t const pci_vid_1124[] = {
 {0x1124, 0xFFFF, 0xFFFF, 0xFFFF, "Leutron Vision AG(0x1124)"},
 {0x1124, 0x2581, 0xFFFF, 0xFFFF, "Picport Monochrome(0x2581)"},
 }; /* pci_vid_1124[] */
 
-pci_id_t pci_vid_1125[] = {
+static pci_id_t const pci_vid_1125[] = {
 {0x1125, 0xFFFF, 0xFFFF, 0xFFFF, "Eurocore(0x1125)"},
 }; /* pci_vid_1125[] */
 
-pci_id_t pci_vid_1126[] = {
+static pci_id_t const pci_vid_1126[] = {
 {0x1126, 0xFFFF, 0xFFFF, 0xFFFF, "Vigra(0x1126)"},
 }; /* pci_vid_1126[] */
 
-pci_id_t pci_vid_1127[] = {
+static pci_id_t const pci_vid_1127[] = {
 {0x1127, 0xFFFF, 0xFFFF, 0xFFFF, "FORE Systems Inc(0x1127)"},
 {0x1127, 0x0200, 0xFFFF, 0xFFFF, "ForeRunner PCA-200 ATM(0x0200)"},
 {0x1127, 0x0210, 0xFFFF, 0xFFFF, "PCA-200PC(0x0210)"},
@@ -15439,32 +15519,32 @@ pci_id_t pci_vid_1127[] = {
 {0x1127, 0x0400, 0x1127, 0x0400, "ForeRunnerHE ATM(0x1127-0x0400)"},
 }; /* pci_vid_1127[] */
 
-pci_id_t pci_vid_1129[] = {
+static pci_id_t const pci_vid_1129[] = {
 {0x1129, 0xFFFF, 0xFFFF, 0xFFFF, "Firmworks(0x1129)"},
 }; /* pci_vid_1129[] */
 
-pci_id_t pci_vid_112A[] = {
+static pci_id_t const pci_vid_112A[] = {
 {0x112A, 0xFFFF, 0xFFFF, 0xFFFF, "Hermes Electronics Company, Ltd.(0x112A)"},
 }; /* pci_vid_112A[] */
 
-pci_id_t pci_vid_112B[] = {
+static pci_id_t const pci_vid_112B[] = {
 {0x112B, 0xFFFF, 0xFFFF, 0xFFFF, "Heidelberger Druckmaschinen AG(0x112B)"},
 {0x112B, 0x0001, 0xFFFF, 0xFFFF, "SCU5(0x0001)"},
 }; /* pci_vid_112B[] */
 
-pci_id_t pci_vid_112C[] = {
+static pci_id_t const pci_vid_112C[] = {
 {0x112C, 0xFFFF, 0xFFFF, 0xFFFF, "Zenith Data Systems(0x112C)"},
 }; /* pci_vid_112C[] */
 
-pci_id_t pci_vid_112D[] = {
+static pci_id_t const pci_vid_112D[] = {
 {0x112D, 0xFFFF, 0xFFFF, 0xFFFF, "Ravicad(0x112D)"},
 }; /* pci_vid_112D[] */
 
-pci_id_t pci_vid_112E[] = {
+static pci_id_t const pci_vid_112E[] = {
 {0x112E, 0xFFFF, 0xFFFF, 0xFFFF, "Infomedia Microelectronics Inc.(0x112E)"},
 }; /* pci_vid_112E[] */
 
-pci_id_t pci_vid_112F[] = {
+static pci_id_t const pci_vid_112F[] = {
 {0x112F, 0xFFFF, 0xFFFF, 0xFFFF, "Dalsa Inc.(0x112F)"},
 {0x112F, 0x0000, 0xFFFF, 0xFFFF, "MVC IC-PCI(0x0000)"},
 {0x112F, 0x0001, 0xFFFF, 0xFFFF, "MVC IM-PCI Video frame grabber/processor(0x0001)"},
@@ -15472,11 +15552,11 @@ pci_id_t pci_vid_112F[] = {
 {0x112F, 0x0008, 0xFFFF, 0xFFFF, "PC-CamLink PCI framegrabber(0x0008)"},
 }; /* pci_vid_112F[] */
 
-pci_id_t pci_vid_1130[] = {
+static pci_id_t const pci_vid_1130[] = {
 {0x1130, 0xFFFF, 0xFFFF, 0xFFFF, "Computervision(0x1130)"},
 }; /* pci_vid_1130[] */
 
-pci_id_t pci_vid_1131[] = {
+static pci_id_t const pci_vid_1131[] = {
 {0x1131, 0xFFFF, 0xFFFF, 0xFFFF, "Philips Semiconductors(0x1131)"},
 {0x1131, 0x1561, 0xFFFF, 0xFFFF, "USB 1.1 Host Controller(0x1561)"},
 {0x1131, 0x1561, 0x1775, 0xC200, "C2K onboard USB 1.1 host controller(0x1775-0xC200)"},
@@ -15720,11 +15800,11 @@ pci_id_t pci_vid_1131[] = {
 {0x1131, 0x9730, 0x1131, 0x0000, "Integrated Multimedia and Peripheral Controller(0x1131-0x0000)"},
 }; /* pci_vid_1131[] */
 
-pci_id_t pci_vid_1132[] = {
+static pci_id_t const pci_vid_1132[] = {
 {0x1132, 0xFFFF, 0xFFFF, 0xFFFF, "Mitel Corp.(0x1132)"},
 }; /* pci_vid_1132[] */
 
-pci_id_t pci_vid_1133[] = {
+static pci_id_t const pci_vid_1133[] = {
 {0x1133, 0xFFFF, 0xFFFF, 0xFFFF, "Dialogic Corporation(0x1133)"},
 {0x1133, 0x7701, 0xFFFF, 0xFFFF, "Eiconcard C90(0x7701)"},
 {0x1133, 0x7711, 0xFFFF, 0xFFFF, "Eiconcard C91(0x7711)"},
@@ -15819,7 +15899,7 @@ pci_id_t pci_vid_1133[] = {
 {0x1133, 0xE034, 0xFFFF, 0xFFFF, "Diva BRI-CTI PCI v2(0xE034)"},
 }; /* pci_vid_1133[] */
 
-pci_id_t pci_vid_1134[] = {
+static pci_id_t const pci_vid_1134[] = {
 {0x1134, 0xFFFF, 0xFFFF, 0xFFFF, "Mercury Computer Systems(0x1134)"},
 {0x1134, 0x0001, 0xFFFF, 0xFFFF, "Raceway Bridge(0x0001)"},
 {0x1134, 0x0002, 0xFFFF, 0xFFFF, "Dual PCI to RapidIO Bridge(0x0002)"},
@@ -15827,17 +15907,17 @@ pci_id_t pci_vid_1134[] = {
 {0x1134, 0x000D, 0xFFFF, 0xFFFF, "POET PSDMS Device(0x000D)"},
 }; /* pci_vid_1134[] */
 
-pci_id_t pci_vid_1135[] = {
+static pci_id_t const pci_vid_1135[] = {
 {0x1135, 0xFFFF, 0xFFFF, 0xFFFF, "FUJIFILM Business Innovation Corp.(0x1135)"},
 {0x1135, 0x0001, 0xFFFF, 0xFFFF, "Printer controller(0x0001)"},
 }; /* pci_vid_1135[] */
 
-pci_id_t pci_vid_1136[] = {
+static pci_id_t const pci_vid_1136[] = {
 {0x1136, 0xFFFF, 0xFFFF, 0xFFFF, "Momentum Data Systems(0x1136)"},
 {0x1136, 0x0002, 0xFFFF, 0xFFFF, "PCI-JTAG(0x0002)"},
 }; /* pci_vid_1136[] */
 
-pci_id_t pci_vid_1137[] = {
+static pci_id_t const pci_vid_1137[] = {
 {0x1137, 0xFFFF, 0xFFFF, 0xFFFF, "Cisco Systems Inc(0x1137)"},
 {0x1137, 0x0023, 0xFFFF, 0xFFFF, "VIC 81 PCIe Upstream Port(0x0023)"},
 {0x1137, 0x0040, 0xFFFF, 0xFFFF, "VIC PCIe Upstream Port(0x0040)"},
@@ -15931,25 +16011,25 @@ pci_id_t pci_vid_1137[] = {
 {0x1137, 0x023E, 0xFFFF, 0xFFFF, "1GigE I350 LOM(0x023E)"},
 }; /* pci_vid_1137[] */
 
-pci_id_t pci_vid_1138[] = {
+static pci_id_t const pci_vid_1138[] = {
 {0x1138, 0xFFFF, 0xFFFF, 0xFFFF, "Ziatech Corporation(0x1138)"},
 {0x1138, 0x8905, 0xFFFF, 0xFFFF, "8905 [STD 32 Bridge](0x8905)"},
 }; /* pci_vid_1138[] */
 
-pci_id_t pci_vid_1139[] = {
+static pci_id_t const pci_vid_1139[] = {
 {0x1139, 0xFFFF, 0xFFFF, 0xFFFF, "Dynamic Pictures, Inc(0x1139)"},
 {0x1139, 0x0001, 0xFFFF, 0xFFFF, "VGA Compatible 3D Graphics(0x0001)"},
 }; /* pci_vid_1139[] */
 
-pci_id_t pci_vid_113A[] = {
+static pci_id_t const pci_vid_113A[] = {
 {0x113A, 0xFFFF, 0xFFFF, 0xFFFF, "FWB Inc(0x113A)"},
 }; /* pci_vid_113A[] */
 
-pci_id_t pci_vid_113B[] = {
+static pci_id_t const pci_vid_113B[] = {
 {0x113B, 0xFFFF, 0xFFFF, 0xFFFF, "Network Computing Devices(0x113B)"},
 }; /* pci_vid_113B[] */
 
-pci_id_t pci_vid_113C[] = {
+static pci_id_t const pci_vid_113C[] = {
 {0x113C, 0xFFFF, 0xFFFF, 0xFFFF, "Cyclone Microsystems, Inc.(0x113C)"},
 {0x113C, 0x0000, 0xFFFF, 0xFFFF, "PCI-9060 i960 Bridge(0x0000)"},
 {0x113C, 0x0001, 0xFFFF, 0xFFFF, "PCI-SDK [PCI i960 Evaluation Platform](0x0001)"},
@@ -15959,15 +16039,15 @@ pci_id_t pci_vid_113C[] = {
 {0x113C, 0x0914, 0xFFFF, 0xFFFF, "PCI-914 [I/O Controller w/ secondary PCI bus](0x0914)"},
 }; /* pci_vid_113C[] */
 
-pci_id_t pci_vid_113D[] = {
+static pci_id_t const pci_vid_113D[] = {
 {0x113D, 0xFFFF, 0xFFFF, 0xFFFF, "Leading Edge Products Inc(0x113D)"},
 }; /* pci_vid_113D[] */
 
-pci_id_t pci_vid_113E[] = {
+static pci_id_t const pci_vid_113E[] = {
 {0x113E, 0xFFFF, 0xFFFF, 0xFFFF, "Sanyo Electric Co - Computer Engineering Dept(0x113E)"},
 }; /* pci_vid_113E[] */
 
-pci_id_t pci_vid_113F[] = {
+static pci_id_t const pci_vid_113F[] = {
 {0x113F, 0xFFFF, 0xFFFF, 0xFFFF, "Equinox Systems, Inc.(0x113F)"},
 {0x113F, 0x0808, 0xFFFF, 0xFFFF, "SST-64P Adapter(0x0808)"},
 {0x113F, 0x1010, 0xFFFF, 0xFFFF, "SST-128P Adapter(0x1010)"},
@@ -15978,15 +16058,15 @@ pci_id_t pci_vid_113F[] = {
 {0x113F, 0x9090, 0xFFFF, 0xFFFF, "SST-8P Adapter(0x9090)"},
 }; /* pci_vid_113F[] */
 
-pci_id_t pci_vid_1140[] = {
+static pci_id_t const pci_vid_1140[] = {
 {0x1140, 0xFFFF, 0xFFFF, 0xFFFF, "Intervoice Inc(0x1140)"},
 }; /* pci_vid_1140[] */
 
-pci_id_t pci_vid_1141[] = {
+static pci_id_t const pci_vid_1141[] = {
 {0x1141, 0xFFFF, 0xFFFF, 0xFFFF, "Crest Microsystem Inc(0x1141)"},
 }; /* pci_vid_1141[] */
 
-pci_id_t pci_vid_1142[] = {
+static pci_id_t const pci_vid_1142[] = {
 {0x1142, 0xFFFF, 0xFFFF, 0xFFFF, "Alliance Semiconductor Corporation(0x1142)"},
 {0x1142, 0x3210, 0xFFFF, 0xFFFF, "AP6410(0x3210)"},
 {0x1142, 0x6422, 0xFFFF, 0xFFFF, "ProVideo 6422(0x6422)"},
@@ -15995,16 +16075,16 @@ pci_id_t pci_vid_1142[] = {
 {0x1142, 0x643D, 0xFFFF, 0xFFFF, "ProMotion AT3D(0x643D)"},
 }; /* pci_vid_1142[] */
 
-pci_id_t pci_vid_1143[] = {
+static pci_id_t const pci_vid_1143[] = {
 {0x1143, 0xFFFF, 0xFFFF, 0xFFFF, "NetPower, Inc(0x1143)"},
 }; /* pci_vid_1143[] */
 
-pci_id_t pci_vid_1144[] = {
+static pci_id_t const pci_vid_1144[] = {
 {0x1144, 0xFFFF, 0xFFFF, 0xFFFF, "Cincinnati Milacron(0x1144)"},
 {0x1144, 0x0001, 0xFFFF, 0xFFFF, "Noservo controller(0x0001)"},
 }; /* pci_vid_1144[] */
 
-pci_id_t pci_vid_1145[] = {
+static pci_id_t const pci_vid_1145[] = {
 {0x1145, 0xFFFF, 0xFFFF, 0xFFFF, "Workbit Corporation(0x1145)"},
 {0x1145, 0x8007, 0xFFFF, 0xFFFF, "NinjaSCSI-32 Workbit(0x8007)"},
 {0x1145, 0xF007, 0xFFFF, 0xFFFF, "NinjaSCSI-32 KME(0xF007)"},
@@ -16018,15 +16098,15 @@ pci_id_t pci_vid_1145[] = {
 {0x1145, 0xF103, 0xFFFF, 0xFFFF, "NinjaPATA-32 Delkin Cardbus UDMA(0xF103)"},
 }; /* pci_vid_1145[] */
 
-pci_id_t pci_vid_1146[] = {
+static pci_id_t const pci_vid_1146[] = {
 {0x1146, 0xFFFF, 0xFFFF, 0xFFFF, "Force Computers(0x1146)"},
 }; /* pci_vid_1146[] */
 
-pci_id_t pci_vid_1147[] = {
+static pci_id_t const pci_vid_1147[] = {
 {0x1147, 0xFFFF, 0xFFFF, 0xFFFF, "Interface Corp(0x1147)"},
 }; /* pci_vid_1147[] */
 
-pci_id_t pci_vid_1148[] = {
+static pci_id_t const pci_vid_1148[] = {
 {0x1148, 0xFFFF, 0xFFFF, 0xFFFF, "SysKonnect(0x1148)"},
 {0x1148, 0x4000, 0xFFFF, 0xFFFF, "FDDI Adapter(0x4000)"},
 {0x1148, 0x4000, 0x0E11, 0xB03B, "Netelligent 100 FDDI DAS Fibre SC(0x0E11-0xB03B)"},
@@ -16112,11 +16192,11 @@ pci_id_t pci_vid_1148[] = {
 {0x1148, 0x9E01, 0xFFFF, 0xFFFF, "SK-9E21M 10/100/1000Base-T Adapter(0x9E01)"},
 }; /* pci_vid_1148[] */
 
-pci_id_t pci_vid_1149[] = {
+static pci_id_t const pci_vid_1149[] = {
 {0x1149, 0xFFFF, 0xFFFF, 0xFFFF, "Win System Corporation(0x1149)"},
 }; /* pci_vid_1149[] */
 
-pci_id_t pci_vid_114A[] = {
+static pci_id_t const pci_vid_114A[] = {
 {0x114A, 0xFFFF, 0xFFFF, 0xFFFF, "VMIC(0x114A)"},
 {0x114A, 0x5565, 0xFFFF, 0xFFFF, "GE-IP PCI5565,PMC5565 Reflective Memory Node(0x5565)"},
 {0x114A, 0x5579, 0xFFFF, 0xFFFF, "VMIPCI-5579 (Reflective Memory Card)(0x5579)"},
@@ -16125,23 +16205,23 @@ pci_id_t pci_vid_114A[] = {
 {0x114A, 0x7587, 0xFFFF, 0xFFFF, "VMIVME-7587(0x7587)"},
 }; /* pci_vid_114A[] */
 
-pci_id_t pci_vid_114B[] = {
+static pci_id_t const pci_vid_114B[] = {
 {0x114B, 0xFFFF, 0xFFFF, 0xFFFF, "Canopus Co., Ltd(0x114B)"},
 }; /* pci_vid_114B[] */
 
-pci_id_t pci_vid_114C[] = {
+static pci_id_t const pci_vid_114C[] = {
 {0x114C, 0xFFFF, 0xFFFF, 0xFFFF, "Annabooks(0x114C)"},
 }; /* pci_vid_114C[] */
 
-pci_id_t pci_vid_114D[] = {
+static pci_id_t const pci_vid_114D[] = {
 {0x114D, 0xFFFF, 0xFFFF, 0xFFFF, "IC Corporation(0x114D)"},
 }; /* pci_vid_114D[] */
 
-pci_id_t pci_vid_114E[] = {
+static pci_id_t const pci_vid_114E[] = {
 {0x114E, 0xFFFF, 0xFFFF, 0xFFFF, "Nikon Systems Inc(0x114E)"},
 }; /* pci_vid_114E[] */
 
-pci_id_t pci_vid_114F[] = {
+static pci_id_t const pci_vid_114F[] = {
 {0x114F, 0xFFFF, 0xFFFF, 0xFFFF, "Digi International(0x114F)"},
 {0x114F, 0x0002, 0xFFFF, 0xFFFF, "AccelePort EPC(0x0002)"},
 {0x114F, 0x0003, 0xFFFF, 0xFFFF, "RightSwitch SE-6(0x0003)"},
@@ -16208,64 +16288,64 @@ pci_id_t pci_vid_114F[] = {
 {0x114F, 0x6001, 0xFFFF, 0xFFFF, "Avanstar(0x6001)"},
 }; /* pci_vid_114F[] */
 
-pci_id_t pci_vid_1150[] = {
+static pci_id_t const pci_vid_1150[] = {
 {0x1150, 0xFFFF, 0xFFFF, 0xFFFF, "Thinking Machines Corp(0x1150)"},
 }; /* pci_vid_1150[] */
 
-pci_id_t pci_vid_1151[] = {
+static pci_id_t const pci_vid_1151[] = {
 {0x1151, 0xFFFF, 0xFFFF, 0xFFFF, "JAE Electronics Inc.(0x1151)"},
 }; /* pci_vid_1151[] */
 
-pci_id_t pci_vid_1152[] = {
+static pci_id_t const pci_vid_1152[] = {
 {0x1152, 0xFFFF, 0xFFFF, 0xFFFF, "Megatek(0x1152)"},
 }; /* pci_vid_1152[] */
 
-pci_id_t pci_vid_1153[] = {
+static pci_id_t const pci_vid_1153[] = {
 {0x1153, 0xFFFF, 0xFFFF, 0xFFFF, "Land Win Electronic Corp(0x1153)"},
 }; /* pci_vid_1153[] */
 
-pci_id_t pci_vid_1154[] = {
+static pci_id_t const pci_vid_1154[] = {
 {0x1154, 0xFFFF, 0xFFFF, 0xFFFF, "Melco Inc(0x1154)"},
 }; /* pci_vid_1154[] */
 
-pci_id_t pci_vid_1155[] = {
+static pci_id_t const pci_vid_1155[] = {
 {0x1155, 0xFFFF, 0xFFFF, 0xFFFF, "Pine Technology Ltd(0x1155)"},
 }; /* pci_vid_1155[] */
 
-pci_id_t pci_vid_1156[] = {
+static pci_id_t const pci_vid_1156[] = {
 {0x1156, 0xFFFF, 0xFFFF, 0xFFFF, "Periscope Engineering(0x1156)"},
 }; /* pci_vid_1156[] */
 
-pci_id_t pci_vid_1157[] = {
+static pci_id_t const pci_vid_1157[] = {
 {0x1157, 0xFFFF, 0xFFFF, 0xFFFF, "Avsys Corporation(0x1157)"},
 }; /* pci_vid_1157[] */
 
-pci_id_t pci_vid_1158[] = {
+static pci_id_t const pci_vid_1158[] = {
 {0x1158, 0xFFFF, 0xFFFF, 0xFFFF, "Voarx R & D Inc(0x1158)"},
 {0x1158, 0x3011, 0xFFFF, 0xFFFF, "Tokenet/vg 1001/10m anylan(0x3011)"},
 {0x1158, 0x9050, 0xFFFF, 0xFFFF, "Lanfleet/Truevalue(0x9050)"},
 {0x1158, 0x9051, 0xFFFF, 0xFFFF, "Lanfleet/Truevalue(0x9051)"},
 }; /* pci_vid_1158[] */
 
-pci_id_t pci_vid_1159[] = {
+static pci_id_t const pci_vid_1159[] = {
 {0x1159, 0xFFFF, 0xFFFF, 0xFFFF, "MuTech Corporation(0x1159)"},
 {0x1159, 0x0001, 0xFFFF, 0xFFFF, "MV-1000(0x0001)"},
 {0x1159, 0x0002, 0xFFFF, 0xFFFF, "MV-1500(0x0002)"},
 }; /* pci_vid_1159[] */
 
-pci_id_t pci_vid_115A[] = {
+static pci_id_t const pci_vid_115A[] = {
 {0x115A, 0xFFFF, 0xFFFF, 0xFFFF, "Harlequin Ltd(0x115A)"},
 }; /* pci_vid_115A[] */
 
-pci_id_t pci_vid_115B[] = {
+static pci_id_t const pci_vid_115B[] = {
 {0x115B, 0xFFFF, 0xFFFF, 0xFFFF, "Parallax Graphics(0x115B)"},
 }; /* pci_vid_115B[] */
 
-pci_id_t pci_vid_115C[] = {
+static pci_id_t const pci_vid_115C[] = {
 {0x115C, 0xFFFF, 0xFFFF, 0xFFFF, "Photron Ltd.(0x115C)"},
 }; /* pci_vid_115C[] */
 
-pci_id_t pci_vid_115D[] = {
+static pci_id_t const pci_vid_115D[] = {
 {0x115D, 0xFFFF, 0xFFFF, 0xFFFF, "Xircom(0x115D)"},
 {0x115D, 0x0003, 0xFFFF, 0xFFFF, "Cardbus Ethernet 10/100(0x0003)"},
 {0x115D, 0x0003, 0x1014, 0x0181, "10/100 EtherJet Cardbus Adapter(0x1014-0x0181)"},
@@ -16305,43 +16385,43 @@ pci_id_t pci_vid_115D[] = {
 {0x115D, 0x0103, 0x8086, 0x9181, "PRO/100 LAN + Modem56 CardBus(0x8086-0x9181)"},
 }; /* pci_vid_115D[] */
 
-pci_id_t pci_vid_115E[] = {
+static pci_id_t const pci_vid_115E[] = {
 {0x115E, 0xFFFF, 0xFFFF, 0xFFFF, "Peer Protocols Inc(0x115E)"},
 }; /* pci_vid_115E[] */
 
-pci_id_t pci_vid_115F[] = {
+static pci_id_t const pci_vid_115F[] = {
 {0x115F, 0xFFFF, 0xFFFF, 0xFFFF, "Maxtor Corporation(0x115F)"},
 }; /* pci_vid_115F[] */
 
-pci_id_t pci_vid_1160[] = {
+static pci_id_t const pci_vid_1160[] = {
 {0x1160, 0xFFFF, 0xFFFF, 0xFFFF, "Megasoft Inc(0x1160)"},
 }; /* pci_vid_1160[] */
 
-pci_id_t pci_vid_1161[] = {
+static pci_id_t const pci_vid_1161[] = {
 {0x1161, 0xFFFF, 0xFFFF, 0xFFFF, "PFU Limited(0x1161)"},
 }; /* pci_vid_1161[] */
 
-pci_id_t pci_vid_1162[] = {
+static pci_id_t const pci_vid_1162[] = {
 {0x1162, 0xFFFF, 0xFFFF, 0xFFFF, "OA Laboratory Co Ltd(0x1162)"},
 }; /* pci_vid_1162[] */
 
-pci_id_t pci_vid_1163[] = {
+static pci_id_t const pci_vid_1163[] = {
 {0x1163, 0xFFFF, 0xFFFF, 0xFFFF, "Rendition(0x1163)"},
 {0x1163, 0x0001, 0xFFFF, 0xFFFF, "Verite 1000(0x0001)"},
 {0x1163, 0x2000, 0xFFFF, 0xFFFF, "Verite V2000/V2100/V2200(0x2000)"},
 {0x1163, 0x2000, 0x1092, 0x2000, "Stealth II S220(0x1092-0x2000)"},
 }; /* pci_vid_1163[] */
 
-pci_id_t pci_vid_1164[] = {
+static pci_id_t const pci_vid_1164[] = {
 {0x1164, 0xFFFF, 0xFFFF, 0xFFFF, "Advanced Peripherals Technologies(0x1164)"},
 }; /* pci_vid_1164[] */
 
-pci_id_t pci_vid_1165[] = {
+static pci_id_t const pci_vid_1165[] = {
 {0x1165, 0xFFFF, 0xFFFF, 0xFFFF, "Imagraph Corporation(0x1165)"},
 {0x1165, 0x0001, 0xFFFF, 0xFFFF, "Motion TPEG Recorder/Player with audio(0x0001)"},
 }; /* pci_vid_1165[] */
 
-pci_id_t pci_vid_1166[] = {
+static pci_id_t const pci_vid_1166[] = {
 {0x1166, 0xFFFF, 0xFFFF, 0xFFFF, "Broadcom(0x1166)"},
 {0x1166, 0x0000, 0xFFFF, 0xFFFF, "CMIC-LE(0x0000)"},
 {0x1166, 0x0005, 0xFFFF, 0xFFFF, "CNB20-LE Host Bridge(0x0005)"},
@@ -16428,19 +16508,19 @@ pci_id_t pci_vid_1166[] = {
 {0x1166, 0x0422, 0xFFFF, 0xFFFF, "HT1100 PCI-Express Bridge(0x0422)"},
 }; /* pci_vid_1166[] */
 
-pci_id_t pci_vid_1167[] = {
+static pci_id_t const pci_vid_1167[] = {
 {0x1167, 0xFFFF, 0xFFFF, 0xFFFF, "Mutoh Industries Inc(0x1167)"},
 }; /* pci_vid_1167[] */
 
-pci_id_t pci_vid_1168[] = {
+static pci_id_t const pci_vid_1168[] = {
 {0x1168, 0xFFFF, 0xFFFF, 0xFFFF, "Thine Electronics Inc(0x1168)"},
 }; /* pci_vid_1168[] */
 
-pci_id_t pci_vid_1169[] = {
+static pci_id_t const pci_vid_1169[] = {
 {0x1169, 0xFFFF, 0xFFFF, 0xFFFF, "Centre for Development of Advanced Computing(0x1169)"},
 }; /* pci_vid_1169[] */
 
-pci_id_t pci_vid_116A[] = {
+static pci_id_t const pci_vid_116A[] = {
 {0x116A, 0xFFFF, 0xFFFF, 0xFFFF, "Luminex Software, Inc.(0x116A)"},
 {0x116A, 0x6100, 0xFFFF, 0xFFFF, "Bus/Tag Channel(0x6100)"},
 {0x116A, 0x6800, 0xFFFF, 0xFFFF, "Escon Channel(0x6800)"},
@@ -16448,67 +16528,67 @@ pci_id_t pci_vid_116A[] = {
 {0x116A, 0x7800, 0xFFFF, 0xFFFF, "Escon Channel(0x7800)"},
 }; /* pci_vid_116A[] */
 
-pci_id_t pci_vid_116B[] = {
+static pci_id_t const pci_vid_116B[] = {
 {0x116B, 0xFFFF, 0xFFFF, 0xFFFF, "Connectware Inc(0x116B)"},
 }; /* pci_vid_116B[] */
 
-pci_id_t pci_vid_116C[] = {
+static pci_id_t const pci_vid_116C[] = {
 {0x116C, 0xFFFF, 0xFFFF, 0xFFFF, "Intelligent Resources Integrated Systems(0x116C)"},
 }; /* pci_vid_116C[] */
 
-pci_id_t pci_vid_116D[] = {
+static pci_id_t const pci_vid_116D[] = {
 {0x116D, 0xFFFF, 0xFFFF, 0xFFFF, "Martin-Marietta(0x116D)"},
 }; /* pci_vid_116D[] */
 
-pci_id_t pci_vid_116E[] = {
+static pci_id_t const pci_vid_116E[] = {
 {0x116E, 0xFFFF, 0xFFFF, 0xFFFF, "Electronics for Imaging(0x116E)"},
 }; /* pci_vid_116E[] */
 
-pci_id_t pci_vid_116F[] = {
+static pci_id_t const pci_vid_116F[] = {
 {0x116F, 0xFFFF, 0xFFFF, 0xFFFF, "Workstation Technology(0x116F)"},
 }; /* pci_vid_116F[] */
 
-pci_id_t pci_vid_1170[] = {
+static pci_id_t const pci_vid_1170[] = {
 {0x1170, 0xFFFF, 0xFFFF, 0xFFFF, "Inventec Corporation(0x1170)"},
 }; /* pci_vid_1170[] */
 
-pci_id_t pci_vid_1171[] = {
+static pci_id_t const pci_vid_1171[] = {
 {0x1171, 0xFFFF, 0xFFFF, 0xFFFF, "Loughborough Sound Images Plc(0x1171)"},
 }; /* pci_vid_1171[] */
 
-pci_id_t pci_vid_1172[] = {
+static pci_id_t const pci_vid_1172[] = {
 {0x1172, 0xFFFF, 0xFFFF, 0xFFFF, "Altera Corporation(0x1172)"},
 {0x1172, 0x00A7, 0xFFFF, 0xFFFF, "Stratix V(0x00A7)"},
 {0x1172, 0x0530, 0xFFFF, 0xFFFF, "Stratix IV(0x0530)"},
 {0x1172, 0x646C, 0xFFFF, 0xFFFF, "KT-500/KT-521 board(0x646C)"},
 }; /* pci_vid_1172[] */
 
-pci_id_t pci_vid_1173[] = {
+static pci_id_t const pci_vid_1173[] = {
 {0x1173, 0xFFFF, 0xFFFF, 0xFFFF, "Adobe Systems, Inc(0x1173)"},
 }; /* pci_vid_1173[] */
 
-pci_id_t pci_vid_1174[] = {
+static pci_id_t const pci_vid_1174[] = {
 {0x1174, 0xFFFF, 0xFFFF, 0xFFFF, "Bridgeport Machines(0x1174)"},
 }; /* pci_vid_1174[] */
 
-pci_id_t pci_vid_1175[] = {
+static pci_id_t const pci_vid_1175[] = {
 {0x1175, 0xFFFF, 0xFFFF, 0xFFFF, "Mitron Computer Inc.(0x1175)"},
 }; /* pci_vid_1175[] */
 
-pci_id_t pci_vid_1176[] = {
+static pci_id_t const pci_vid_1176[] = {
 {0x1176, 0xFFFF, 0xFFFF, 0xFFFF, "SBE Incorporated(0x1176)"},
 }; /* pci_vid_1176[] */
 
-pci_id_t pci_vid_1177[] = {
+static pci_id_t const pci_vid_1177[] = {
 {0x1177, 0xFFFF, 0xFFFF, 0xFFFF, "Silicon Engineering(0x1177)"},
 }; /* pci_vid_1177[] */
 
-pci_id_t pci_vid_1178[] = {
+static pci_id_t const pci_vid_1178[] = {
 {0x1178, 0xFFFF, 0xFFFF, 0xFFFF, "Alfa, Inc.(0x1178)"},
 {0x1178, 0xAFA1, 0xFFFF, 0xFFFF, "Fast Ethernet Adapter(0xAFA1)"},
 }; /* pci_vid_1178[] */
 
-pci_id_t pci_vid_1179[] = {
+static pci_id_t const pci_vid_1179[] = {
 {0x1179, 0xFFFF, 0xFFFF, 0xFFFF, "Toshiba Corporation(0x1179)"},
 {0x1179, 0x0102, 0xFFFF, 0xFFFF, "Extended IDE Controller(0x0102)"},
 {0x1179, 0x0103, 0xFFFF, 0xFFFF, "EX-IDE Type-B(0x0103)"},
@@ -16549,17 +16629,18 @@ pci_id_t pci_vid_1179[] = {
 {0x1179, 0x0805, 0xFFFF, 0xFFFF, "SD TypA Controller(0x0805)"},
 {0x1179, 0x0D01, 0xFFFF, 0xFFFF, "FIR Port Type-DO(0x0D01)"},
 {0x1179, 0x0D01, 0x1179, 0x0001, "FIR Port Type-DO(0x1179-0x0001)"},
+{0x1179, 0x9602, 0xFFFF, 0xFFFF, "RS780/RS880 PCI to PCI bridge (int gfx)(0x9602)"},
 }; /* pci_vid_1179[] */
 
-pci_id_t pci_vid_117A[] = {
+static pci_id_t const pci_vid_117A[] = {
 {0x117A, 0xFFFF, 0xFFFF, 0xFFFF, "A-Trend Technology(0x117A)"},
 }; /* pci_vid_117A[] */
 
-pci_id_t pci_vid_117B[] = {
+static pci_id_t const pci_vid_117B[] = {
 {0x117B, 0xFFFF, 0xFFFF, 0xFFFF, "L G Electronics, Inc.(0x117B)"},
 }; /* pci_vid_117B[] */
 
-pci_id_t pci_vid_117C[] = {
+static pci_id_t const pci_vid_117C[] = {
 {0x117C, 0xFFFF, 0xFFFF, 0xFFFF, "ATTO Technology, Inc.(0x117C)"},
 {0x117C, 0x002C, 0xFFFF, 0xFFFF, "ExpressSAS R380(0x002C)"},
 {0x117C, 0x002D, 0xFFFF, 0xFFFF, "ExpressSAS R348(0x002D)"},
@@ -16628,19 +16709,19 @@ pci_id_t pci_vid_117C[] = {
 {0x117C, 0x8072, 0x117C, 0x0082, "ExpressSAS H1288(0x117C-0x0082)"},
 }; /* pci_vid_117C[] */
 
-pci_id_t pci_vid_117D[] = {
+static pci_id_t const pci_vid_117D[] = {
 {0x117D, 0xFFFF, 0xFFFF, 0xFFFF, "Becton & Dickinson(0x117D)"},
 }; /* pci_vid_117D[] */
 
-pci_id_t pci_vid_117E[] = {
+static pci_id_t const pci_vid_117E[] = {
 {0x117E, 0xFFFF, 0xFFFF, 0xFFFF, "T/R Systems(0x117E)"},
 }; /* pci_vid_117E[] */
 
-pci_id_t pci_vid_117F[] = {
+static pci_id_t const pci_vid_117F[] = {
 {0x117F, 0xFFFF, 0xFFFF, 0xFFFF, "Integrated Circuit Systems(0x117F)"},
 }; /* pci_vid_117F[] */
 
-pci_id_t pci_vid_1180[] = {
+static pci_id_t const pci_vid_1180[] = {
 {0x1180, 0xFFFF, 0xFFFF, 0xFFFF, "Ricoh Co Ltd(0x1180)"},
 {0x1180, 0x0465, 0xFFFF, 0xFFFF, "RL5c465(0x0465)"},
 {0x1180, 0x0466, 0xFFFF, 0xFFFF, "RL5c466(0x0466)"},
@@ -16783,23 +16864,23 @@ pci_id_t pci_vid_1180[] = {
 {0x1180, 0xE852, 0xFFFF, 0xFFFF, "PCIe xD-Picture Card Controller(0xE852)"},
 }; /* pci_vid_1180[] */
 
-pci_id_t pci_vid_1181[] = {
+static pci_id_t const pci_vid_1181[] = {
 {0x1181, 0xFFFF, 0xFFFF, 0xFFFF, "Telmatics International(0x1181)"},
 }; /* pci_vid_1181[] */
 
-pci_id_t pci_vid_1183[] = {
+static pci_id_t const pci_vid_1183[] = {
 {0x1183, 0xFFFF, 0xFFFF, 0xFFFF, "Fujikura Ltd(0x1183)"},
 }; /* pci_vid_1183[] */
 
-pci_id_t pci_vid_1184[] = {
+static pci_id_t const pci_vid_1184[] = {
 {0x1184, 0xFFFF, 0xFFFF, 0xFFFF, "Forks Inc(0x1184)"},
 }; /* pci_vid_1184[] */
 
-pci_id_t pci_vid_1185[] = {
+static pci_id_t const pci_vid_1185[] = {
 {0x1185, 0xFFFF, 0xFFFF, 0xFFFF, "Dataworld International Ltd(0x1185)"},
 }; /* pci_vid_1185[] */
 
-pci_id_t pci_vid_1186[] = {
+static pci_id_t const pci_vid_1186[] = {
 {0x1186, 0xFFFF, 0xFFFF, 0xFFFF, "D-Link System Inc(0x1186)"},
 {0x1186, 0x1002, 0xFFFF, 0xFFFF, "DL10050 Sundance Ethernet(0x1002)"},
 {0x1186, 0x1002, 0x1186, 0x1002, "DFE-550TX/FX(0x1186-0x1002)"},
@@ -16837,33 +16918,33 @@ pci_id_t pci_vid_1186[] = {
 {0x1186, 0x8400, 0xFFFF, 0xFFFF, "D-Link DWL-650+ CardBus PC Card(0x8400)"},
 }; /* pci_vid_1186[] */
 
-pci_id_t pci_vid_1187[] = {
+static pci_id_t const pci_vid_1187[] = {
 {0x1187, 0xFFFF, 0xFFFF, 0xFFFF, "Advanced Technology Laboratories, Inc.(0x1187)"},
 }; /* pci_vid_1187[] */
 
-pci_id_t pci_vid_1188[] = {
+static pci_id_t const pci_vid_1188[] = {
 {0x1188, 0xFFFF, 0xFFFF, 0xFFFF, "Shima Seiki Manufacturing Ltd.(0x1188)"},
 }; /* pci_vid_1188[] */
 
-pci_id_t pci_vid_1189[] = {
+static pci_id_t const pci_vid_1189[] = {
 {0x1189, 0xFFFF, 0xFFFF, 0xFFFF, "Matsushita Electronics Co Ltd(0x1189)"},
 }; /* pci_vid_1189[] */
 
-pci_id_t pci_vid_118A[] = {
+static pci_id_t const pci_vid_118A[] = {
 {0x118A, 0xFFFF, 0xFFFF, 0xFFFF, "Hilevel Technology(0x118A)"},
 }; /* pci_vid_118A[] */
 
-pci_id_t pci_vid_118B[] = {
+static pci_id_t const pci_vid_118B[] = {
 {0x118B, 0xFFFF, 0xFFFF, 0xFFFF, "Hypertec Pty Limited(0x118B)"},
 }; /* pci_vid_118B[] */
 
-pci_id_t pci_vid_118C[] = {
+static pci_id_t const pci_vid_118C[] = {
 {0x118C, 0xFFFF, 0xFFFF, 0xFFFF, "Corollary, Inc(0x118C)"},
 {0x118C, 0x0014, 0xFFFF, 0xFFFF, "PCIB [C-bus II to PCI bus host bridge chip](0x0014)"},
 {0x118C, 0x1117, 0xFFFF, 0xFFFF, "Intel 8-way XEON Profusion Chipset [Cache Coherency Filter](0x1117)"},
 }; /* pci_vid_118C[] */
 
-pci_id_t pci_vid_118D[] = {
+static pci_id_t const pci_vid_118D[] = {
 {0x118D, 0xFFFF, 0xFFFF, 0xFFFF, "BitFlow Inc(0x118D)"},
 {0x118D, 0x0001, 0xFFFF, 0xFFFF, "Raptor-PCI framegrabber(0x0001)"},
 {0x118D, 0x0012, 0xFFFF, 0xFFFF, "Model 12 Road Runner Frame Grabber(0x0012)"},
@@ -16885,20 +16966,20 @@ pci_id_t pci_vid_118D[] = {
 {0x118D, 0xB04E, 0xFFFF, 0xFFFF, "Claxon CXP4 CoaXPress frame grabber(0xB04E)"},
 }; /* pci_vid_118D[] */
 
-pci_id_t pci_vid_118E[] = {
+static pci_id_t const pci_vid_118E[] = {
 {0x118E, 0xFFFF, 0xFFFF, 0xFFFF, "Hermstedt GmbH(0x118E)"},
 }; /* pci_vid_118E[] */
 
-pci_id_t pci_vid_118F[] = {
+static pci_id_t const pci_vid_118F[] = {
 {0x118F, 0xFFFF, 0xFFFF, 0xFFFF, "Green Logic(0x118F)"},
 }; /* pci_vid_118F[] */
 
-pci_id_t pci_vid_1190[] = {
+static pci_id_t const pci_vid_1190[] = {
 {0x1190, 0xFFFF, 0xFFFF, 0xFFFF, "Tripace(0x1190)"},
 {0x1190, 0xC731, 0xFFFF, 0xFFFF, "TP-910/920/940 PCI Ultra(Wide) SCSI Adapter(0xC731)"},
 }; /* pci_vid_1190[] */
 
-pci_id_t pci_vid_1191[] = {
+static pci_id_t const pci_vid_1191[] = {
 {0x1191, 0xFFFF, 0xFFFF, 0xFFFF, "Artop Electronic Corp(0x1191)"},
 {0x1191, 0x0003, 0xFFFF, 0xFFFF, "SCSI Cache Host Adapter(0x0003)"},
 {0x1191, 0x0004, 0xFFFF, 0xFFFF, "ATP8400(0x0004)"},
@@ -16925,118 +17006,118 @@ pci_id_t pci_vid_1191[] = {
 {0x1191, 0x808A, 0xFFFF, 0xFFFF, "AEC67162 2-ch. LVD SCSI(0x808A)"},
 }; /* pci_vid_1191[] */
 
-pci_id_t pci_vid_1192[] = {
+static pci_id_t const pci_vid_1192[] = {
 {0x1192, 0xFFFF, 0xFFFF, 0xFFFF, "Densan Company Ltd(0x1192)"},
 }; /* pci_vid_1192[] */
 
-pci_id_t pci_vid_1193[] = {
+static pci_id_t const pci_vid_1193[] = {
 {0x1193, 0xFFFF, 0xFFFF, 0xFFFF, "Zeitnet Inc.(0x1193)"},
 {0x1193, 0x0001, 0xFFFF, 0xFFFF, "1221(0x0001)"},
 {0x1193, 0x0002, 0xFFFF, 0xFFFF, "1225(0x0002)"},
 }; /* pci_vid_1193[] */
 
-pci_id_t pci_vid_1194[] = {
+static pci_id_t const pci_vid_1194[] = {
 {0x1194, 0xFFFF, 0xFFFF, 0xFFFF, "Toucan Technology(0x1194)"},
 }; /* pci_vid_1194[] */
 
-pci_id_t pci_vid_1195[] = {
+static pci_id_t const pci_vid_1195[] = {
 {0x1195, 0xFFFF, 0xFFFF, 0xFFFF, "Ratoc System Inc(0x1195)"},
 }; /* pci_vid_1195[] */
 
-pci_id_t pci_vid_1196[] = {
+static pci_id_t const pci_vid_1196[] = {
 {0x1196, 0xFFFF, 0xFFFF, 0xFFFF, "Hytec Electronics Ltd(0x1196)"},
 }; /* pci_vid_1196[] */
 
-pci_id_t pci_vid_1197[] = {
+static pci_id_t const pci_vid_1197[] = {
 {0x1197, 0xFFFF, 0xFFFF, 0xFFFF, "Gage Applied Sciences, Inc.(0x1197)"},
 {0x1197, 0x010C, 0xFFFF, 0xFFFF, "CompuScope 82G 8bit 2GS/s Analog Input Card(0x010C)"},
 }; /* pci_vid_1197[] */
 
-pci_id_t pci_vid_1198[] = {
+static pci_id_t const pci_vid_1198[] = {
 {0x1198, 0xFFFF, 0xFFFF, 0xFFFF, "Lambda Systems Inc(0x1198)"},
 }; /* pci_vid_1198[] */
 
-pci_id_t pci_vid_1199[] = {
+static pci_id_t const pci_vid_1199[] = {
 {0x1199, 0xFFFF, 0xFFFF, 0xFFFF, "Attachmate Corporation(0x1199)"},
 {0x1199, 0x0101, 0xFFFF, 0xFFFF, "Advanced ISCA/PCI Adapter(0x0101)"},
 }; /* pci_vid_1199[] */
 
-pci_id_t pci_vid_119A[] = {
+static pci_id_t const pci_vid_119A[] = {
 {0x119A, 0xFFFF, 0xFFFF, 0xFFFF, "Mind Share, Inc.(0x119A)"},
 }; /* pci_vid_119A[] */
 
-pci_id_t pci_vid_119B[] = {
+static pci_id_t const pci_vid_119B[] = {
 {0x119B, 0xFFFF, 0xFFFF, 0xFFFF, "Omega Micro Inc.(0x119B)"},
 {0x119B, 0x1221, 0xFFFF, 0xFFFF, "82C092G(0x1221)"},
 }; /* pci_vid_119B[] */
 
-pci_id_t pci_vid_119C[] = {
+static pci_id_t const pci_vid_119C[] = {
 {0x119C, 0xFFFF, 0xFFFF, 0xFFFF, "Information Technology Inst.(0x119C)"},
 }; /* pci_vid_119C[] */
 
-pci_id_t pci_vid_119D[] = {
+static pci_id_t const pci_vid_119D[] = {
 {0x119D, 0xFFFF, 0xFFFF, 0xFFFF, "Bug, Inc. Sapporo Japan(0x119D)"},
 }; /* pci_vid_119D[] */
 
-pci_id_t pci_vid_119E[] = {
+static pci_id_t const pci_vid_119E[] = {
 {0x119E, 0xFFFF, 0xFFFF, 0xFFFF, "Fujitsu Microelectronics Ltd.(0x119E)"},
 {0x119E, 0x0001, 0xFFFF, 0xFFFF, "FireStream 155(0x0001)"},
 {0x119E, 0x0003, 0xFFFF, 0xFFFF, "FireStream 50(0x0003)"},
 }; /* pci_vid_119E[] */
 
-pci_id_t pci_vid_119F[] = {
+static pci_id_t const pci_vid_119F[] = {
 {0x119F, 0xFFFF, 0xFFFF, 0xFFFF, "Bull HN Information Systems(0x119F)"},
 {0x119F, 0x1081, 0xFFFF, 0xFFFF, "BXI Host Channel Adapter(0x1081)"},
 {0x119F, 0x1101, 0xFFFF, 0xFFFF, "BXI Host Channel Adapter v1.2(0x1101)"},
 {0x119F, 0x1121, 0xFFFF, 0xFFFF, "BXI Host Channel Adapter v1.3(0x1121)"},
 }; /* pci_vid_119F[] */
 
-pci_id_t pci_vid_11A0[] = {
+static pci_id_t const pci_vid_11A0[] = {
 {0x11A0, 0xFFFF, 0xFFFF, 0xFFFF, "Convex Computer Corporation(0x11A0)"},
 }; /* pci_vid_11A0[] */
 
-pci_id_t pci_vid_11A1[] = {
+static pci_id_t const pci_vid_11A1[] = {
 {0x11A1, 0xFFFF, 0xFFFF, 0xFFFF, "Hamamatsu Photonics K.K.(0x11A1)"},
 }; /* pci_vid_11A1[] */
 
-pci_id_t pci_vid_11A2[] = {
+static pci_id_t const pci_vid_11A2[] = {
 {0x11A2, 0xFFFF, 0xFFFF, 0xFFFF, "Sierra Research and Technology(0x11A2)"},
 }; /* pci_vid_11A2[] */
 
-pci_id_t pci_vid_11A3[] = {
+static pci_id_t const pci_vid_11A3[] = {
 {0x11A3, 0xFFFF, 0xFFFF, 0xFFFF, "Deuretzbacher GmbH & Co. Eng. KG(0x11A3)"},
 }; /* pci_vid_11A3[] */
 
-pci_id_t pci_vid_11A4[] = {
+static pci_id_t const pci_vid_11A4[] = {
 {0x11A4, 0xFFFF, 0xFFFF, 0xFFFF, "Barco Graphics NV(0x11A4)"},
 }; /* pci_vid_11A4[] */
 
-pci_id_t pci_vid_11A5[] = {
+static pci_id_t const pci_vid_11A5[] = {
 {0x11A5, 0xFFFF, 0xFFFF, 0xFFFF, "Microunity Systems Eng. Inc(0x11A5)"},
 }; /* pci_vid_11A5[] */
 
-pci_id_t pci_vid_11A6[] = {
+static pci_id_t const pci_vid_11A6[] = {
 {0x11A6, 0xFFFF, 0xFFFF, 0xFFFF, "Pure Data Ltd.(0x11A6)"},
 }; /* pci_vid_11A6[] */
 
-pci_id_t pci_vid_11A7[] = {
+static pci_id_t const pci_vid_11A7[] = {
 {0x11A7, 0xFFFF, 0xFFFF, 0xFFFF, "Power Computing Corp.(0x11A7)"},
 }; /* pci_vid_11A7[] */
 
-pci_id_t pci_vid_11A8[] = {
+static pci_id_t const pci_vid_11A8[] = {
 {0x11A8, 0xFFFF, 0xFFFF, 0xFFFF, "Systech Corp.(0x11A8)"},
 }; /* pci_vid_11A8[] */
 
-pci_id_t pci_vid_11A9[] = {
+static pci_id_t const pci_vid_11A9[] = {
 {0x11A9, 0xFFFF, 0xFFFF, 0xFFFF, "InnoSys Inc.(0x11A9)"},
 {0x11A9, 0x4240, 0xFFFF, 0xFFFF, "AMCC S933Q Intelligent Serial Card(0x4240)"},
 }; /* pci_vid_11A9[] */
 
-pci_id_t pci_vid_11AA[] = {
+static pci_id_t const pci_vid_11AA[] = {
 {0x11AA, 0xFFFF, 0xFFFF, 0xFFFF, "Actel(0x11AA)"},
 }; /* pci_vid_11AA[] */
 
-pci_id_t pci_vid_11AB[] = {
+static pci_id_t const pci_vid_11AB[] = {
 {0x11AB, 0xFFFF, 0xFFFF, 0xFFFF, "Marvell Technology Group Ltd.(0x11AB)"},
 {0x11AB, 0x0100, 0xFFFF, 0xFFFF, "88F3700 [Armada 3700 Family] ARM SoC(0x0100)"},
 {0x11AB, 0x0110, 0xFFFF, 0xFFFF, "88F60x0/88F70x0/88F80x0/CN913x ARM SoC(0x0110)"},
@@ -17269,11 +17350,11 @@ pci_id_t pci_vid_11AB[] = {
 {0x11AB, 0xF003, 0xFFFF, 0xFFFF, "GT-64010 Primary Image Piranha Image Generator(0xF003)"},
 }; /* pci_vid_11AB[] */
 
-pci_id_t pci_vid_11AC[] = {
+static pci_id_t const pci_vid_11AC[] = {
 {0x11AC, 0xFFFF, 0xFFFF, 0xFFFF, "Canon Information Systems Research Aust.(0x11AC)"},
 }; /* pci_vid_11AC[] */
 
-pci_id_t pci_vid_11AD[] = {
+static pci_id_t const pci_vid_11AD[] = {
 {0x11AD, 0xFFFF, 0xFFFF, 0xFFFF, "Lite-On Communications Inc(0x11AD)"},
 {0x11AD, 0x0002, 0xFFFF, 0xFFFF, "LNE100TX(0x0002)"},
 {0x11AD, 0x0002, 0x11AD, 0x0002, "LNE100TX(0x11AD-0x0002)"},
@@ -17287,17 +17368,17 @@ pci_id_t pci_vid_11AD[] = {
 {0x11AD, 0xC115, 0x2646, 0x000B, "KNE111TX(0x2646-0x000B)"},
 }; /* pci_vid_11AD[] */
 
-pci_id_t pci_vid_11AE[] = {
+static pci_id_t const pci_vid_11AE[] = {
 {0x11AE, 0xFFFF, 0xFFFF, 0xFFFF, "Aztech System Ltd(0x11AE)"},
 }; /* pci_vid_11AE[] */
 
-pci_id_t pci_vid_11AF[] = {
+static pci_id_t const pci_vid_11AF[] = {
 {0x11AF, 0xFFFF, 0xFFFF, 0xFFFF, "Avid Technology Inc.(0x11AF)"},
 {0x11AF, 0x0001, 0xFFFF, 0xFFFF, "Cinema(0x0001)"},
 {0x11AF, 0xEE40, 0xFFFF, 0xFFFF, "Digidesign Audiomedia III(0xEE40)"},
 }; /* pci_vid_11AF[] */
 
-pci_id_t pci_vid_11B0[] = {
+static pci_id_t const pci_vid_11B0[] = {
 {0x11B0, 0xFFFF, 0xFFFF, 0xFFFF, "V3 Semiconductor Inc.(0x11B0)"},
 {0x11B0, 0x0002, 0xFFFF, 0xFFFF, "V300PSC(0x0002)"},
 {0x11B0, 0x0292, 0xFFFF, 0xFFFF, "V292PBC [Am29030/40 Bridge](0x0292)"},
@@ -17306,58 +17387,58 @@ pci_id_t pci_vid_11B0[] = {
 {0x11B0, 0xC960, 0xFFFF, 0xFFFF, "V96DPC(0xC960)"},
 }; /* pci_vid_11B0[] */
 
-pci_id_t pci_vid_11B1[] = {
+static pci_id_t const pci_vid_11B1[] = {
 {0x11B1, 0xFFFF, 0xFFFF, 0xFFFF, "Apricot Computers(0x11B1)"},
 }; /* pci_vid_11B1[] */
 
-pci_id_t pci_vid_11B2[] = {
+static pci_id_t const pci_vid_11B2[] = {
 {0x11B2, 0xFFFF, 0xFFFF, 0xFFFF, "Eastman Kodak(0x11B2)"},
 }; /* pci_vid_11B2[] */
 
-pci_id_t pci_vid_11B3[] = {
+static pci_id_t const pci_vid_11B3[] = {
 {0x11B3, 0xFFFF, 0xFFFF, 0xFFFF, "Barr Systems Inc.(0x11B3)"},
 }; /* pci_vid_11B3[] */
 
-pci_id_t pci_vid_11B4[] = {
+static pci_id_t const pci_vid_11B4[] = {
 {0x11B4, 0xFFFF, 0xFFFF, 0xFFFF, "Leitch Technology International(0x11B4)"},
 }; /* pci_vid_11B4[] */
 
-pci_id_t pci_vid_11B5[] = {
+static pci_id_t const pci_vid_11B5[] = {
 {0x11B5, 0xFFFF, 0xFFFF, 0xFFFF, "Radstone Technology Plc(0x11B5)"},
 }; /* pci_vid_11B5[] */
 
-pci_id_t pci_vid_11B6[] = {
+static pci_id_t const pci_vid_11B6[] = {
 {0x11B6, 0xFFFF, 0xFFFF, 0xFFFF, "United Video Corp(0x11B6)"},
 }; /* pci_vid_11B6[] */
 
-pci_id_t pci_vid_11B7[] = {
+static pci_id_t const pci_vid_11B7[] = {
 {0x11B7, 0xFFFF, 0xFFFF, 0xFFFF, "Motorola(0x11B7)"},
 }; /* pci_vid_11B7[] */
 
-pci_id_t pci_vid_11B8[] = {
+static pci_id_t const pci_vid_11B8[] = {
 {0x11B8, 0xFFFF, 0xFFFF, 0xFFFF, "XPoint Technologies, Inc(0x11B8)"},
 {0x11B8, 0x0001, 0xFFFF, 0xFFFF, "Quad PeerMaster(0x0001)"},
 }; /* pci_vid_11B8[] */
 
-pci_id_t pci_vid_11B9[] = {
+static pci_id_t const pci_vid_11B9[] = {
 {0x11B9, 0xFFFF, 0xFFFF, 0xFFFF, "Pathlight Technology Inc.(0x11B9)"},
 {0x11B9, 0xC0ED, 0xFFFF, 0xFFFF, "SSA Controller(0xC0ED)"},
 }; /* pci_vid_11B9[] */
 
-pci_id_t pci_vid_11BA[] = {
+static pci_id_t const pci_vid_11BA[] = {
 {0x11BA, 0xFFFF, 0xFFFF, 0xFFFF, "Videotron Corp(0x11BA)"},
 }; /* pci_vid_11BA[] */
 
-pci_id_t pci_vid_11BB[] = {
+static pci_id_t const pci_vid_11BB[] = {
 {0x11BB, 0xFFFF, 0xFFFF, 0xFFFF, "Pyramid Technology(0x11BB)"},
 }; /* pci_vid_11BB[] */
 
-pci_id_t pci_vid_11BC[] = {
+static pci_id_t const pci_vid_11BC[] = {
 {0x11BC, 0xFFFF, 0xFFFF, 0xFFFF, "Network Peripherals Inc(0x11BC)"},
 {0x11BC, 0x0001, 0xFFFF, 0xFFFF, "NP-PCI(0x0001)"},
 }; /* pci_vid_11BC[] */
 
-pci_id_t pci_vid_11BD[] = {
+static pci_id_t const pci_vid_11BD[] = {
 {0x11BD, 0xFFFF, 0xFFFF, 0xFFFF, "Pinnacle Systems Inc.(0x11BD)"},
 {0x11BD, 0x002E, 0xFFFF, 0xFFFF, "PCTV 40i(0x002E)"},
 {0x11BD, 0x0040, 0xFFFF, 0xFFFF, "Royal TS Function 1(0x0040)"},
@@ -17373,19 +17454,19 @@ pci_id_t pci_vid_11BD[] = {
 {0x11BD, 0xBEDE, 0xFFFF, 0xFFFF, "AV/DV Studio Capture Card(0xBEDE)"},
 }; /* pci_vid_11BD[] */
 
-pci_id_t pci_vid_11BE[] = {
+static pci_id_t const pci_vid_11BE[] = {
 {0x11BE, 0xFFFF, 0xFFFF, 0xFFFF, "International Microcircuits Inc(0x11BE)"},
 }; /* pci_vid_11BE[] */
 
-pci_id_t pci_vid_11BF[] = {
+static pci_id_t const pci_vid_11BF[] = {
 {0x11BF, 0xFFFF, 0xFFFF, 0xFFFF, "Astrodesign, Inc.(0x11BF)"},
 }; /* pci_vid_11BF[] */
 
-pci_id_t pci_vid_11C0[] = {
+static pci_id_t const pci_vid_11C0[] = {
 {0x11C0, 0xFFFF, 0xFFFF, 0xFFFF, "Hewlett Packard(0x11C0)"},
 }; /* pci_vid_11C0[] */
 
-pci_id_t pci_vid_11C1[] = {
+static pci_id_t const pci_vid_11C1[] = {
 {0x11C1, 0xFFFF, 0xFFFF, 0xFFFF, "LSI Corporation(0x11C1)"},
 {0x11C1, 0x0440, 0xFFFF, 0xFFFF, "56k WinModem(0x0440)"},
 {0x11C1, 0x0440, 0x1033, 0x8015, "LT WinModem 56k Data+Fax+Voice+Dsvd(0x1033-0x8015)"},
@@ -17528,48 +17609,48 @@ pci_id_t pci_vid_11C1[] = {
 {0x11C1, 0xED01, 0xFFFF, 0xFFFF, "ET-131x PCI-E Ethernet Controller(0xED01)"},
 }; /* pci_vid_11C1[] */
 
-pci_id_t pci_vid_11C2[] = {
+static pci_id_t const pci_vid_11C2[] = {
 {0x11C2, 0xFFFF, 0xFFFF, 0xFFFF, "Sand Microelectronics(0x11C2)"},
 }; /* pci_vid_11C2[] */
 
-pci_id_t pci_vid_11C3[] = {
+static pci_id_t const pci_vid_11C3[] = {
 {0x11C3, 0xFFFF, 0xFFFF, 0xFFFF, "NEC Corporation(0x11C3)"},
 }; /* pci_vid_11C3[] */
 
-pci_id_t pci_vid_11C4[] = {
+static pci_id_t const pci_vid_11C4[] = {
 {0x11C4, 0xFFFF, 0xFFFF, 0xFFFF, "Document Technologies, Inc(0x11C4)"},
 }; /* pci_vid_11C4[] */
 
-pci_id_t pci_vid_11C5[] = {
+static pci_id_t const pci_vid_11C5[] = {
 {0x11C5, 0xFFFF, 0xFFFF, 0xFFFF, "Shiva Corporation(0x11C5)"},
 }; /* pci_vid_11C5[] */
 
-pci_id_t pci_vid_11C6[] = {
+static pci_id_t const pci_vid_11C6[] = {
 {0x11C6, 0xFFFF, 0xFFFF, 0xFFFF, "Dainippon Screen Mfg. Co. Ltd(0x11C6)"},
 }; /* pci_vid_11C6[] */
 
-pci_id_t pci_vid_11C7[] = {
+static pci_id_t const pci_vid_11C7[] = {
 {0x11C7, 0xFFFF, 0xFFFF, 0xFFFF, "D.C.M. Data Systems(0x11C7)"},
 }; /* pci_vid_11C7[] */
 
-pci_id_t pci_vid_11C8[] = {
+static pci_id_t const pci_vid_11C8[] = {
 {0x11C8, 0xFFFF, 0xFFFF, 0xFFFF, "Dolphin Interconnect Solutions AS(0x11C8)"},
 {0x11C8, 0x0658, 0xFFFF, 0xFFFF, "PSB32 SCI-Adapter D31x(0x0658)"},
 {0x11C8, 0xD665, 0xFFFF, 0xFFFF, "PSB64 SCI-Adapter D32x(0xD665)"},
 {0x11C8, 0xD667, 0xFFFF, 0xFFFF, "PSB66 SCI-Adapter D33x(0xD667)"},
 }; /* pci_vid_11C8[] */
 
-pci_id_t pci_vid_11C9[] = {
+static pci_id_t const pci_vid_11C9[] = {
 {0x11C9, 0xFFFF, 0xFFFF, 0xFFFF, "Magma(0x11C9)"},
 {0x11C9, 0x0010, 0xFFFF, 0xFFFF, "16-line serial port w/- DMA(0x0010)"},
 {0x11C9, 0x0011, 0xFFFF, 0xFFFF, "4-line serial port w/- DMA(0x0011)"},
 }; /* pci_vid_11C9[] */
 
-pci_id_t pci_vid_11CA[] = {
+static pci_id_t const pci_vid_11CA[] = {
 {0x11CA, 0xFFFF, 0xFFFF, 0xFFFF, "LSI Systems, Inc(0x11CA)"},
 }; /* pci_vid_11CA[] */
 
-pci_id_t pci_vid_11CB[] = {
+static pci_id_t const pci_vid_11CB[] = {
 {0x11CB, 0xFFFF, 0xFFFF, 0xFFFF, "Specialix Research Ltd.(0x11CB)"},
 {0x11CB, 0x2000, 0xFFFF, 0xFFFF, "PCI_9050(0x2000)"},
 {0x11CB, 0x2000, 0x11CB, 0x0200, "SX(0x11CB-0x0200)"},
@@ -17578,85 +17659,85 @@ pci_id_t pci_vid_11CB[] = {
 {0x11CB, 0x8000, 0xFFFF, 0xFFFF, "T225(0x8000)"},
 }; /* pci_vid_11CB[] */
 
-pci_id_t pci_vid_11CC[] = {
+static pci_id_t const pci_vid_11CC[] = {
 {0x11CC, 0xFFFF, 0xFFFF, 0xFFFF, "Michels & Kleberhoff Computer GmbH(0x11CC)"},
 }; /* pci_vid_11CC[] */
 
-pci_id_t pci_vid_11CD[] = {
+static pci_id_t const pci_vid_11CD[] = {
 {0x11CD, 0xFFFF, 0xFFFF, 0xFFFF, "HAL Computer Systems, Inc.(0x11CD)"},
 }; /* pci_vid_11CD[] */
 
-pci_id_t pci_vid_11CE[] = {
+static pci_id_t const pci_vid_11CE[] = {
 {0x11CE, 0xFFFF, 0xFFFF, 0xFFFF, "Netaccess(0x11CE)"},
 }; /* pci_vid_11CE[] */
 
-pci_id_t pci_vid_11CF[] = {
+static pci_id_t const pci_vid_11CF[] = {
 {0x11CF, 0xFFFF, 0xFFFF, 0xFFFF, "Pioneer Electronic Corporation(0x11CF)"},
 }; /* pci_vid_11CF[] */
 
-pci_id_t pci_vid_11D0[] = {
+static pci_id_t const pci_vid_11D0[] = {
 {0x11D0, 0xFFFF, 0xFFFF, 0xFFFF, "Lockheed Martin Federal Systems-Manassas(0x11D0)"},
 }; /* pci_vid_11D0[] */
 
-pci_id_t pci_vid_11D1[] = {
+static pci_id_t const pci_vid_11D1[] = {
 {0x11D1, 0xFFFF, 0xFFFF, 0xFFFF, "Auravision(0x11D1)"},
 {0x11D1, 0x01F7, 0xFFFF, 0xFFFF, "VxP524(0x01F7)"},
 {0x11D1, 0x01F9, 0xFFFF, 0xFFFF, "VxP951(0x01F9)"},
 }; /* pci_vid_11D1[] */
 
-pci_id_t pci_vid_11D2[] = {
+static pci_id_t const pci_vid_11D2[] = {
 {0x11D2, 0xFFFF, 0xFFFF, 0xFFFF, "Intercom Inc.(0x11D2)"},
 }; /* pci_vid_11D2[] */
 
-pci_id_t pci_vid_11D3[] = {
+static pci_id_t const pci_vid_11D3[] = {
 {0x11D3, 0xFFFF, 0xFFFF, 0xFFFF, "Trancell Systems Inc(0x11D3)"},
 }; /* pci_vid_11D3[] */
 
-pci_id_t pci_vid_11D4[] = {
+static pci_id_t const pci_vid_11D4[] = {
 {0x11D4, 0xFFFF, 0xFFFF, 0xFFFF, "Analog Devices(0x11D4)"},
 {0x11D4, 0x1535, 0xFFFF, 0xFFFF, "Blackfin BF535 processor(0x1535)"},
 {0x11D4, 0x1805, 0xFFFF, 0xFFFF, "SM56 PCI modem(0x1805)"},
 }; /* pci_vid_11D4[] */
 
-pci_id_t pci_vid_11D5[] = {
+static pci_id_t const pci_vid_11D5[] = {
 {0x11D5, 0xFFFF, 0xFFFF, 0xFFFF, "Ikon Corporation(0x11D5)"},
 {0x11D5, 0x0115, 0xFFFF, 0xFFFF, "10115(0x0115)"},
 {0x11D5, 0x0117, 0xFFFF, 0xFFFF, "10117(0x0117)"},
 }; /* pci_vid_11D5[] */
 
-pci_id_t pci_vid_11D6[] = {
+static pci_id_t const pci_vid_11D6[] = {
 {0x11D6, 0xFFFF, 0xFFFF, 0xFFFF, "Tekelec Telecom(0x11D6)"},
 }; /* pci_vid_11D6[] */
 
-pci_id_t pci_vid_11D7[] = {
+static pci_id_t const pci_vid_11D7[] = {
 {0x11D7, 0xFFFF, 0xFFFF, 0xFFFF, "Trenton Technology, Inc.(0x11D7)"},
 }; /* pci_vid_11D7[] */
 
-pci_id_t pci_vid_11D8[] = {
+static pci_id_t const pci_vid_11D8[] = {
 {0x11D8, 0xFFFF, 0xFFFF, 0xFFFF, "Image Technologies Development(0x11D8)"},
 }; /* pci_vid_11D8[] */
 
-pci_id_t pci_vid_11D9[] = {
+static pci_id_t const pci_vid_11D9[] = {
 {0x11D9, 0xFFFF, 0xFFFF, 0xFFFF, "TEC Corporation(0x11D9)"},
 }; /* pci_vid_11D9[] */
 
-pci_id_t pci_vid_11DA[] = {
+static pci_id_t const pci_vid_11DA[] = {
 {0x11DA, 0xFFFF, 0xFFFF, 0xFFFF, "Novell(0x11DA)"},
 }; /* pci_vid_11DA[] */
 
-pci_id_t pci_vid_11DB[] = {
+static pci_id_t const pci_vid_11DB[] = {
 {0x11DB, 0xFFFF, 0xFFFF, 0xFFFF, "Sega Enterprises Ltd(0x11DB)"},
 }; /* pci_vid_11DB[] */
 
-pci_id_t pci_vid_11DC[] = {
+static pci_id_t const pci_vid_11DC[] = {
 {0x11DC, 0xFFFF, 0xFFFF, 0xFFFF, "Questra Corporation(0x11DC)"},
 }; /* pci_vid_11DC[] */
 
-pci_id_t pci_vid_11DD[] = {
+static pci_id_t const pci_vid_11DD[] = {
 {0x11DD, 0xFFFF, 0xFFFF, 0xFFFF, "Crosfield Electronics Limited(0x11DD)"},
 }; /* pci_vid_11DD[] */
 
-pci_id_t pci_vid_11DE[] = {
+static pci_id_t const pci_vid_11DE[] = {
 {0x11DE, 0xFFFF, 0xFFFF, 0xFFFF, "Zoran Corporation(0x11DE)"},
 {0x11DE, 0x6017, 0xFFFF, 0xFFFF, "miroVIDEO DC30(0x6017)"},
 {0x11DE, 0x6057, 0xFFFF, 0xFFFF, "ZR36057PQC Video cutting chipset(0x6057)"},
@@ -17670,23 +17751,23 @@ pci_id_t pci_vid_11DE[] = {
 {0x11DE, 0x6120, 0x1DE1, 0x9FFF, "Video Kit C210(0x1DE1-0x9FFF)"},
 }; /* pci_vid_11DE[] */
 
-pci_id_t pci_vid_11DF[] = {
+static pci_id_t const pci_vid_11DF[] = {
 {0x11DF, 0xFFFF, 0xFFFF, 0xFFFF, "New Wave PDG(0x11DF)"},
 }; /* pci_vid_11DF[] */
 
-pci_id_t pci_vid_11E0[] = {
+static pci_id_t const pci_vid_11E0[] = {
 {0x11E0, 0xFFFF, 0xFFFF, 0xFFFF, "Cray Communications A/S(0x11E0)"},
 }; /* pci_vid_11E0[] */
 
-pci_id_t pci_vid_11E1[] = {
+static pci_id_t const pci_vid_11E1[] = {
 {0x11E1, 0xFFFF, 0xFFFF, 0xFFFF, "GEC Plessey Semi Inc.(0x11E1)"},
 }; /* pci_vid_11E1[] */
 
-pci_id_t pci_vid_11E2[] = {
+static pci_id_t const pci_vid_11E2[] = {
 {0x11E2, 0xFFFF, 0xFFFF, 0xFFFF, "Samsung Information Systems America(0x11E2)"},
 }; /* pci_vid_11E2[] */
 
-pci_id_t pci_vid_11E3[] = {
+static pci_id_t const pci_vid_11E3[] = {
 {0x11E3, 0xFFFF, 0xFFFF, 0xFFFF, "Quicklogic Corporation(0x11E3)"},
 {0x11E3, 0x0001, 0xFFFF, 0xFFFF, "COM-ON-AIR Dosch&Amand DECT(0x0001)"},
 {0x11E3, 0x0560, 0xFFFF, 0xFFFF, "QL5064 Companion Design Demo Board(0x0560)"},
@@ -17694,57 +17775,57 @@ pci_id_t pci_vid_11E3[] = {
 {0x11E3, 0x8417, 0xFFFF, 0xFFFF, "QL5064 [QuickPCI] PCI v2.2 bridge for SMT417 Dual TMS320C6416T PMC Module(0x8417)"},
 }; /* pci_vid_11E3[] */
 
-pci_id_t pci_vid_11E4[] = {
+static pci_id_t const pci_vid_11E4[] = {
 {0x11E4, 0xFFFF, 0xFFFF, 0xFFFF, "Second Wave Inc(0x11E4)"},
 }; /* pci_vid_11E4[] */
 
-pci_id_t pci_vid_11E5[] = {
+static pci_id_t const pci_vid_11E5[] = {
 {0x11E5, 0xFFFF, 0xFFFF, 0xFFFF, "IIX Consulting(0x11E5)"},
 }; /* pci_vid_11E5[] */
 
-pci_id_t pci_vid_11E6[] = {
+static pci_id_t const pci_vid_11E6[] = {
 {0x11E6, 0xFFFF, 0xFFFF, 0xFFFF, "Mitsui-Zosen System Research(0x11E6)"},
 }; /* pci_vid_11E6[] */
 
-pci_id_t pci_vid_11E7[] = {
+static pci_id_t const pci_vid_11E7[] = {
 {0x11E7, 0xFFFF, 0xFFFF, 0xFFFF, "Toshiba America, Elec. Company(0x11E7)"},
 }; /* pci_vid_11E7[] */
 
-pci_id_t pci_vid_11E8[] = {
+static pci_id_t const pci_vid_11E8[] = {
 {0x11E8, 0xFFFF, 0xFFFF, 0xFFFF, "Digital Processing Systems Inc.(0x11E8)"},
 }; /* pci_vid_11E8[] */
 
-pci_id_t pci_vid_11E9[] = {
+static pci_id_t const pci_vid_11E9[] = {
 {0x11E9, 0xFFFF, 0xFFFF, 0xFFFF, "Highwater Designs Ltd.(0x11E9)"},
 }; /* pci_vid_11E9[] */
 
-pci_id_t pci_vid_11EA[] = {
+static pci_id_t const pci_vid_11EA[] = {
 {0x11EA, 0xFFFF, 0xFFFF, 0xFFFF, "Elsag Bailey(0x11EA)"},
 }; /* pci_vid_11EA[] */
 
-pci_id_t pci_vid_11EB[] = {
+static pci_id_t const pci_vid_11EB[] = {
 {0x11EB, 0xFFFF, 0xFFFF, 0xFFFF, "Formation Inc.(0x11EB)"},
 }; /* pci_vid_11EB[] */
 
-pci_id_t pci_vid_11EC[] = {
+static pci_id_t const pci_vid_11EC[] = {
 {0x11EC, 0xFFFF, 0xFFFF, 0xFFFF, "Coreco Inc(0x11EC)"},
 {0x11EC, 0x000D, 0xFFFF, 0xFFFF, "Oculus-F/64P(0x000D)"},
 {0x11EC, 0x1800, 0xFFFF, 0xFFFF, "Cobra/C6(0x1800)"},
 }; /* pci_vid_11EC[] */
 
-pci_id_t pci_vid_11ED[] = {
+static pci_id_t const pci_vid_11ED[] = {
 {0x11ED, 0xFFFF, 0xFFFF, 0xFFFF, "Mediamatics(0x11ED)"},
 }; /* pci_vid_11ED[] */
 
-pci_id_t pci_vid_11EE[] = {
+static pci_id_t const pci_vid_11EE[] = {
 {0x11EE, 0xFFFF, 0xFFFF, 0xFFFF, "Dome Imaging Systems Inc(0x11EE)"},
 }; /* pci_vid_11EE[] */
 
-pci_id_t pci_vid_11EF[] = {
+static pci_id_t const pci_vid_11EF[] = {
 {0x11EF, 0xFFFF, 0xFFFF, 0xFFFF, "Nicolet Technologies B.V.(0x11EF)"},
 }; /* pci_vid_11EF[] */
 
-pci_id_t pci_vid_11F0[] = {
+static pci_id_t const pci_vid_11F0[] = {
 {0x11F0, 0xFFFF, 0xFFFF, 0xFFFF, "Compu-Shack(0x11F0)"},
 {0x11F0, 0x4231, 0xFFFF, 0xFFFF, "FDDI(0x4231)"},
 {0x11F0, 0x4232, 0xFFFF, 0xFFFF, "FASTline UTP Quattro(0x4232)"},
@@ -17755,29 +17836,29 @@ pci_id_t pci_vid_11F0[] = {
 {0x11F0, 0x4731, 0xFFFF, 0xFFFF, "GIGAline(0x4731)"},
 }; /* pci_vid_11F0[] */
 
-pci_id_t pci_vid_11F1[] = {
+static pci_id_t const pci_vid_11F1[] = {
 {0x11F1, 0xFFFF, 0xFFFF, 0xFFFF, "Symbios Logic Inc(0x11F1)"},
 }; /* pci_vid_11F1[] */
 
-pci_id_t pci_vid_11F2[] = {
+static pci_id_t const pci_vid_11F2[] = {
 {0x11F2, 0xFFFF, 0xFFFF, 0xFFFF, "Picture Tel Japan K.K.(0x11F2)"},
 }; /* pci_vid_11F2[] */
 
-pci_id_t pci_vid_11F3[] = {
+static pci_id_t const pci_vid_11F3[] = {
 {0x11F3, 0xFFFF, 0xFFFF, 0xFFFF, "Keithley Metrabyte(0x11F3)"},
 {0x11F3, 0x0011, 0xFFFF, 0xFFFF, "KPCI-PIO24(0x0011)"},
 }; /* pci_vid_11F3[] */
 
-pci_id_t pci_vid_11F4[] = {
+static pci_id_t const pci_vid_11F4[] = {
 {0x11F4, 0xFFFF, 0xFFFF, 0xFFFF, "Kinetic Systems Corporation(0x11F4)"},
 {0x11F4, 0x2915, 0xFFFF, 0xFFFF, "CAMAC controller(0x2915)"},
 }; /* pci_vid_11F4[] */
 
-pci_id_t pci_vid_11F5[] = {
+static pci_id_t const pci_vid_11F5[] = {
 {0x11F5, 0xFFFF, 0xFFFF, 0xFFFF, "Computing Devices International(0x11F5)"},
 }; /* pci_vid_11F5[] */
 
-pci_id_t pci_vid_11F6[] = {
+static pci_id_t const pci_vid_11F6[] = {
 {0x11F6, 0xFFFF, 0xFFFF, 0xFFFF, "Compex(0x11F6)"},
 {0x11F6, 0x0112, 0xFFFF, 0xFFFF, "ENet100VG4(0x0112)"},
 {0x11F6, 0x0113, 0xFFFF, 0xFFFF, "FreedomLine 100(0x0113)"},
@@ -17789,11 +17870,11 @@ pci_id_t pci_vid_11F6[] = {
 {0x11F6, 0x9881, 0xFFFF, 0xFFFF, "RL100TX Fast Ethernet(0x9881)"},
 }; /* pci_vid_11F6[] */
 
-pci_id_t pci_vid_11F7[] = {
+static pci_id_t const pci_vid_11F7[] = {
 {0x11F7, 0xFFFF, 0xFFFF, 0xFFFF, "Scientific Atlanta(0x11F7)"},
 }; /* pci_vid_11F7[] */
 
-pci_id_t pci_vid_11F8[] = {
+static pci_id_t const pci_vid_11F8[] = {
 {0x11F8, 0xFFFF, 0xFFFF, 0xFFFF, "PMC-Sierra Inc.(0x11F8)"},
 {0x11F8, 0x5220, 0xFFFF, 0xFFFF, "BR522x [PMC-Sierra maxRAID SAS Controller](0x5220)"},
 {0x11F8, 0x7364, 0xFFFF, 0xFFFF, "PM7364 [FREEDM - 32 Frame Engine & Datalink Mgr](0x7364)"},
@@ -17828,27 +17909,27 @@ pci_id_t pci_vid_11F8[] = {
 {0x11F8, 0x8562, 0xFFFF, 0xFFFF, "PM8562 Switchtec PFX-L 32xG3 Fanout-Lite PCIe Gen3 Switch(0x8562)"},
 }; /* pci_vid_11F8[] */
 
-pci_id_t pci_vid_11F9[] = {
+static pci_id_t const pci_vid_11F9[] = {
 {0x11F9, 0xFFFF, 0xFFFF, 0xFFFF, "I-Cube Inc(0x11F9)"},
 }; /* pci_vid_11F9[] */
 
-pci_id_t pci_vid_11FA[] = {
+static pci_id_t const pci_vid_11FA[] = {
 {0x11FA, 0xFFFF, 0xFFFF, 0xFFFF, "Kasan Electronics Company, Ltd.(0x11FA)"},
 }; /* pci_vid_11FA[] */
 
-pci_id_t pci_vid_11FB[] = {
+static pci_id_t const pci_vid_11FB[] = {
 {0x11FB, 0xFFFF, 0xFFFF, 0xFFFF, "Datel Inc(0x11FB)"},
 }; /* pci_vid_11FB[] */
 
-pci_id_t pci_vid_11FC[] = {
+static pci_id_t const pci_vid_11FC[] = {
 {0x11FC, 0xFFFF, 0xFFFF, 0xFFFF, "Silicon Magic(0x11FC)"},
 }; /* pci_vid_11FC[] */
 
-pci_id_t pci_vid_11FD[] = {
+static pci_id_t const pci_vid_11FD[] = {
 {0x11FD, 0xFFFF, 0xFFFF, 0xFFFF, "High Street Consultants(0x11FD)"},
 }; /* pci_vid_11FD[] */
 
-pci_id_t pci_vid_11FE[] = {
+static pci_id_t const pci_vid_11FE[] = {
 {0x11FE, 0xFFFF, 0xFFFF, 0xFFFF, "Pepperl+Fuchs(0x11FE)"},
 {0x11FE, 0x0001, 0xFFFF, 0xFFFF, "RocketPort PCI 32-port w/external I/F(0x0001)"},
 {0x11FE, 0x0002, 0xFFFF, 0xFFFF, "RocketPort PCI 8-port w/external I/F(0x0002)"},
@@ -17915,20 +17996,20 @@ pci_id_t pci_vid_11FE[] = {
 {0x11FE, 0x8812, 0xFFFF, 0xFFFF, "RocketPort Plus uPCI 4-port RS422 w/Quad Cable(0x8812)"},
 }; /* pci_vid_11FE[] */
 
-pci_id_t pci_vid_11FF[] = {
+static pci_id_t const pci_vid_11FF[] = {
 {0x11FF, 0xFFFF, 0xFFFF, 0xFFFF, "Scion Corporation(0x11FF)"},
 {0x11FF, 0x0003, 0xFFFF, 0xFFFF, "AG-5(0x0003)"},
 }; /* pci_vid_11FF[] */
 
-pci_id_t pci_vid_1200[] = {
+static pci_id_t const pci_vid_1200[] = {
 {0x1200, 0xFFFF, 0xFFFF, 0xFFFF, "CSS Corporation(0x1200)"},
 }; /* pci_vid_1200[] */
 
-pci_id_t pci_vid_1201[] = {
+static pci_id_t const pci_vid_1201[] = {
 {0x1201, 0xFFFF, 0xFFFF, 0xFFFF, "Vista Controls Corp(0x1201)"},
 }; /* pci_vid_1201[] */
 
-pci_id_t pci_vid_1202[] = {
+static pci_id_t const pci_vid_1202[] = {
 {0x1202, 0xFFFF, 0xFFFF, 0xFFFF, "Network General Corp.(0x1202)"},
 {0x1202, 0x4300, 0xFFFF, 0xFFFF, "Gigabit Ethernet Adapter(0x4300)"},
 {0x1202, 0x4300, 0x1202, 0x9841, "SK-9841 LX(0x1202-0x9841)"},
@@ -17937,49 +18018,49 @@ pci_id_t pci_vid_1202[] = {
 {0x1202, 0x4300, 0x1202, 0x9844, "SK-9843 SX dual link(0x1202-0x9844)"},
 }; /* pci_vid_1202[] */
 
-pci_id_t pci_vid_1203[] = {
+static pci_id_t const pci_vid_1203[] = {
 {0x1203, 0xFFFF, 0xFFFF, 0xFFFF, "Bayer Corporation, Agfa Division(0x1203)"},
 }; /* pci_vid_1203[] */
 
-pci_id_t pci_vid_1204[] = {
+static pci_id_t const pci_vid_1204[] = {
 {0x1204, 0xFFFF, 0xFFFF, 0xFFFF, "Lattice Semiconductor Corporation(0x1204)"},
 {0x1204, 0x1965, 0xFFFF, 0xFFFF, "SB6501 802.11ad Wireless Network Adapter(0x1965)"},
 }; /* pci_vid_1204[] */
 
-pci_id_t pci_vid_1205[] = {
+static pci_id_t const pci_vid_1205[] = {
 {0x1205, 0xFFFF, 0xFFFF, 0xFFFF, "Array Corporation(0x1205)"},
 }; /* pci_vid_1205[] */
 
-pci_id_t pci_vid_1206[] = {
+static pci_id_t const pci_vid_1206[] = {
 {0x1206, 0xFFFF, 0xFFFF, 0xFFFF, "Amdahl Corporation(0x1206)"},
 }; /* pci_vid_1206[] */
 
-pci_id_t pci_vid_1208[] = {
+static pci_id_t const pci_vid_1208[] = {
 {0x1208, 0xFFFF, 0xFFFF, 0xFFFF, "Parsytec GmbH(0x1208)"},
 {0x1208, 0x4853, 0xFFFF, 0xFFFF, "HS-Link Device(0x4853)"},
 }; /* pci_vid_1208[] */
 
-pci_id_t pci_vid_1209[] = {
+static pci_id_t const pci_vid_1209[] = {
 {0x1209, 0xFFFF, 0xFFFF, 0xFFFF, "SCI Systems Inc(0x1209)"},
 }; /* pci_vid_1209[] */
 
-pci_id_t pci_vid_120A[] = {
+static pci_id_t const pci_vid_120A[] = {
 {0x120A, 0xFFFF, 0xFFFF, 0xFFFF, "Synaptel(0x120A)"},
 }; /* pci_vid_120A[] */
 
-pci_id_t pci_vid_120B[] = {
+static pci_id_t const pci_vid_120B[] = {
 {0x120B, 0xFFFF, 0xFFFF, 0xFFFF, "Adaptive Solutions(0x120B)"},
 }; /* pci_vid_120B[] */
 
-pci_id_t pci_vid_120C[] = {
+static pci_id_t const pci_vid_120C[] = {
 {0x120C, 0xFFFF, 0xFFFF, 0xFFFF, "Technical Corp.(0x120C)"},
 }; /* pci_vid_120C[] */
 
-pci_id_t pci_vid_120D[] = {
+static pci_id_t const pci_vid_120D[] = {
 {0x120D, 0xFFFF, 0xFFFF, 0xFFFF, "Compression Labs, Inc.(0x120D)"},
 }; /* pci_vid_120D[] */
 
-pci_id_t pci_vid_120E[] = {
+static pci_id_t const pci_vid_120E[] = {
 {0x120E, 0xFFFF, 0xFFFF, 0xFFFF, "Cyclades Corporation(0x120E)"},
 {0x120E, 0x0100, 0xFFFF, 0xFFFF, "Cyclom-Y below first megabyte(0x0100)"},
 {0x120E, 0x0101, 0xFFFF, 0xFFFF, "Cyclom-Y above first megabyte(0x0101)"},
@@ -17998,36 +18079,36 @@ pci_id_t pci_vid_120E[] = {
 {0x120E, 0x0400, 0xFFFF, 0xFFFF, "PC400(0x0400)"},
 }; /* pci_vid_120E[] */
 
-pci_id_t pci_vid_120F[] = {
+static pci_id_t const pci_vid_120F[] = {
 {0x120F, 0xFFFF, 0xFFFF, 0xFFFF, "Essential Communications(0x120F)"},
 {0x120F, 0x0001, 0xFFFF, 0xFFFF, "Roadrunner serial HIPPI(0x0001)"},
 }; /* pci_vid_120F[] */
 
-pci_id_t pci_vid_1210[] = {
+static pci_id_t const pci_vid_1210[] = {
 {0x1210, 0xFFFF, 0xFFFF, 0xFFFF, "Hyperparallel Technologies(0x1210)"},
 }; /* pci_vid_1210[] */
 
-pci_id_t pci_vid_1211[] = {
+static pci_id_t const pci_vid_1211[] = {
 {0x1211, 0xFFFF, 0xFFFF, 0xFFFF, "Braintech Inc(0x1211)"},
 }; /* pci_vid_1211[] */
 
-pci_id_t pci_vid_1213[] = {
+static pci_id_t const pci_vid_1213[] = {
 {0x1213, 0xFFFF, 0xFFFF, 0xFFFF, "Applied Intelligent Systems, Inc.(0x1213)"},
 }; /* pci_vid_1213[] */
 
-pci_id_t pci_vid_1214[] = {
+static pci_id_t const pci_vid_1214[] = {
 {0x1214, 0xFFFF, 0xFFFF, 0xFFFF, "Performance Technologies, Inc.(0x1214)"},
 }; /* pci_vid_1214[] */
 
-pci_id_t pci_vid_1215[] = {
+static pci_id_t const pci_vid_1215[] = {
 {0x1215, 0xFFFF, 0xFFFF, 0xFFFF, "Interware Co., Ltd(0x1215)"},
 }; /* pci_vid_1215[] */
 
-pci_id_t pci_vid_1216[] = {
+static pci_id_t const pci_vid_1216[] = {
 {0x1216, 0xFFFF, 0xFFFF, 0xFFFF, "Purup Prepress A/S(0x1216)"},
 }; /* pci_vid_1216[] */
 
-pci_id_t pci_vid_1217[] = {
+static pci_id_t const pci_vid_1217[] = {
 {0x1217, 0xFFFF, 0xFFFF, 0xFFFF, "O2 Micro, Inc.(0x1217)"},
 {0x1217, 0x00F7, 0xFFFF, 0xFFFF, "Firewire (IEEE 1394)(0x00F7)"},
 {0x1217, 0x00F7, 0x1071, 0x8209, "Medion MIM 2240 Notebook PC [MD98100](0x1071-0x8209)"},
@@ -18088,15 +18169,15 @@ pci_id_t pci_vid_1217[] = {
 {0x1217, 0x8760, 0xFFFF, 0xFFFF, "FORESEE E2M2 NVMe SSD(0x8760)"},
 }; /* pci_vid_1217[] */
 
-pci_id_t pci_vid_1218[] = {
+static pci_id_t const pci_vid_1218[] = {
 {0x1218, 0xFFFF, 0xFFFF, 0xFFFF, "Hybricon Corp.(0x1218)"},
 }; /* pci_vid_1218[] */
 
-pci_id_t pci_vid_1219[] = {
+static pci_id_t const pci_vid_1219[] = {
 {0x1219, 0xFFFF, 0xFFFF, 0xFFFF, "First Virtual Corporation(0x1219)"},
 }; /* pci_vid_1219[] */
 
-pci_id_t pci_vid_121A[] = {
+static pci_id_t const pci_vid_121A[] = {
 {0x121A, 0xFFFF, 0xFFFF, 0xFFFF, "3Dfx Interactive, Inc.(0x121A)"},
 {0x121A, 0x0001, 0xFFFF, 0xFFFF, "Voodoo(0x0001)"},
 {0x121A, 0x0002, 0xFFFF, 0xFFFF, "Voodoo 2(0x0002)"},
@@ -18144,33 +18225,33 @@ pci_id_t pci_vid_121A[] = {
 {0x121A, 0x0057, 0xFFFF, 0xFFFF, "Voodoo 3/3000 [Avenger](0x0057)"},
 }; /* pci_vid_121A[] */
 
-pci_id_t pci_vid_121B[] = {
+static pci_id_t const pci_vid_121B[] = {
 {0x121B, 0xFFFF, 0xFFFF, 0xFFFF, "Advanced Telecommunications Modules(0x121B)"},
 }; /* pci_vid_121B[] */
 
-pci_id_t pci_vid_121C[] = {
+static pci_id_t const pci_vid_121C[] = {
 {0x121C, 0xFFFF, 0xFFFF, 0xFFFF, "Nippon Texaco., Ltd(0x121C)"},
 }; /* pci_vid_121C[] */
 
-pci_id_t pci_vid_121D[] = {
+static pci_id_t const pci_vid_121D[] = {
 {0x121D, 0xFFFF, 0xFFFF, 0xFFFF, "LiPPERT ADLINK Technology GmbH(0x121D)"},
 }; /* pci_vid_121D[] */
 
-pci_id_t pci_vid_121E[] = {
+static pci_id_t const pci_vid_121E[] = {
 {0x121E, 0xFFFF, 0xFFFF, 0xFFFF, "CSPI(0x121E)"},
 {0x121E, 0x0201, 0xFFFF, 0xFFFF, "Myrinet 2000 Scalable Cluster Interconnect(0x0201)"},
 }; /* pci_vid_121E[] */
 
-pci_id_t pci_vid_121F[] = {
+static pci_id_t const pci_vid_121F[] = {
 {0x121F, 0xFFFF, 0xFFFF, 0xFFFF, "Arcus Technology, Inc.(0x121F)"},
 }; /* pci_vid_121F[] */
 
-pci_id_t pci_vid_1220[] = {
+static pci_id_t const pci_vid_1220[] = {
 {0x1220, 0xFFFF, 0xFFFF, 0xFFFF, "Ariel Corporation(0x1220)"},
 {0x1220, 0x1220, 0xFFFF, 0xFFFF, "AMCC 5933 TMS320C80 DSP/Imaging board(0x1220)"},
 }; /* pci_vid_1220[] */
 
-pci_id_t pci_vid_1221[] = {
+static pci_id_t const pci_vid_1221[] = {
 {0x1221, 0xFFFF, 0xFFFF, 0xFFFF, "Contec Co., Ltd(0x1221)"},
 {0x1221, 0x9172, 0xFFFF, 0xFFFF, "PO-64L(PCI)H [Isolated Digital Output Board for PCI](0x9172)"},
 {0x1221, 0x91A2, 0xFFFF, 0xFFFF, "PO-32L(PCI)H [Isolated Digital Output Board for PCI](0x91A2)"},
@@ -18179,11 +18260,11 @@ pci_id_t pci_vid_1221[] = {
 {0x1221, 0xC103, 0xFFFF, 0xFFFF, "ADA16-32/2(PCI)F [High-Speed Analog I/O Board for PCI](0xC103)"},
 }; /* pci_vid_1221[] */
 
-pci_id_t pci_vid_1222[] = {
+static pci_id_t const pci_vid_1222[] = {
 {0x1222, 0xFFFF, 0xFFFF, 0xFFFF, "Ancor Communications, Inc.(0x1222)"},
 }; /* pci_vid_1222[] */
 
-pci_id_t pci_vid_1223[] = {
+static pci_id_t const pci_vid_1223[] = {
 {0x1223, 0xFFFF, 0xFFFF, 0xFFFF, "Artesyn Communication Products(0x1223)"},
 {0x1223, 0x0003, 0xFFFF, 0xFFFF, "PM/Link(0x0003)"},
 {0x1223, 0x0004, 0xFFFF, 0xFFFF, "PM/T1(0x0004)"},
@@ -18197,15 +18278,15 @@ pci_id_t pci_vid_1223[] = {
 {0x1223, 0x000E, 0xFFFF, 0xFFFF, "PM/PPC(0x000E)"},
 }; /* pci_vid_1223[] */
 
-pci_id_t pci_vid_1224[] = {
+static pci_id_t const pci_vid_1224[] = {
 {0x1224, 0xFFFF, 0xFFFF, 0xFFFF, "Interactive Images(0x1224)"},
 }; /* pci_vid_1224[] */
 
-pci_id_t pci_vid_1225[] = {
+static pci_id_t const pci_vid_1225[] = {
 {0x1225, 0xFFFF, 0xFFFF, 0xFFFF, "Power I/O, Inc.(0x1225)"},
 }; /* pci_vid_1225[] */
 
-pci_id_t pci_vid_1227[] = {
+static pci_id_t const pci_vid_1227[] = {
 {0x1227, 0xFFFF, 0xFFFF, 0xFFFF, "EIZO Rugged Solutions(0x1227)"},
 {0x1227, 0x0006, 0xFFFF, 0xFFFF, "Raptor GFX 8P(0x0006)"},
 {0x1227, 0x0023, 0xFFFF, 0xFFFF, "Raptor GFX [1100T](0x0023)"},
@@ -18213,27 +18294,27 @@ pci_id_t pci_vid_1227[] = {
 {0x1227, 0x004A, 0xFFFF, 0xFFFF, "Raptor 4000-LR-L [Linux version](0x004A)"},
 }; /* pci_vid_1227[] */
 
-pci_id_t pci_vid_1228[] = {
+static pci_id_t const pci_vid_1228[] = {
 {0x1228, 0xFFFF, 0xFFFF, 0xFFFF, "Norsk Elektro Optikk A/S(0x1228)"},
 }; /* pci_vid_1228[] */
 
-pci_id_t pci_vid_1229[] = {
+static pci_id_t const pci_vid_1229[] = {
 {0x1229, 0xFFFF, 0xFFFF, 0xFFFF, "Data Kinesis Inc.(0x1229)"},
 }; /* pci_vid_1229[] */
 
-pci_id_t pci_vid_122A[] = {
+static pci_id_t const pci_vid_122A[] = {
 {0x122A, 0xFFFF, 0xFFFF, 0xFFFF, "Integrated Telecom(0x122A)"},
 }; /* pci_vid_122A[] */
 
-pci_id_t pci_vid_122B[] = {
+static pci_id_t const pci_vid_122B[] = {
 {0x122B, 0xFFFF, 0xFFFF, 0xFFFF, "LG Industrial Systems Co., Ltd(0x122B)"},
 }; /* pci_vid_122B[] */
 
-pci_id_t pci_vid_122C[] = {
+static pci_id_t const pci_vid_122C[] = {
 {0x122C, 0xFFFF, 0xFFFF, 0xFFFF, "Sican GmbH(0x122C)"},
 }; /* pci_vid_122C[] */
 
-pci_id_t pci_vid_122D[] = {
+static pci_id_t const pci_vid_122D[] = {
 {0x122D, 0xFFFF, 0xFFFF, 0xFFFF, "Aztech System Ltd(0x122D)"},
 {0x122D, 0x1206, 0xFFFF, 0xFFFF, "368DSP(0x1206)"},
 {0x122D, 0x1400, 0xFFFF, 0xFFFF, "Trident PCI288-Q3DII (NX)(0x1400)"},
@@ -18243,22 +18324,22 @@ pci_id_t pci_vid_122D[] = {
 {0x122D, 0x80DA, 0x122D, 0x0001, "3328 Audio(0x122D-0x0001)"},
 }; /* pci_vid_122D[] */
 
-pci_id_t pci_vid_122E[] = {
+static pci_id_t const pci_vid_122E[] = {
 {0x122E, 0xFFFF, 0xFFFF, 0xFFFF, "Xyratex(0x122E)"},
 {0x122E, 0x7722, 0xFFFF, 0xFFFF, "Napatech XL1(0x7722)"},
 {0x122E, 0x7724, 0xFFFF, 0xFFFF, "Napatech XL2/XA(0x7724)"},
 {0x122E, 0x7729, 0xFFFF, 0xFFFF, "Napatech XD(0x7729)"},
 }; /* pci_vid_122E[] */
 
-pci_id_t pci_vid_122F[] = {
+static pci_id_t const pci_vid_122F[] = {
 {0x122F, 0xFFFF, 0xFFFF, 0xFFFF, "Andrew Corporation(0x122F)"},
 }; /* pci_vid_122F[] */
 
-pci_id_t pci_vid_1230[] = {
+static pci_id_t const pci_vid_1230[] = {
 {0x1230, 0xFFFF, 0xFFFF, 0xFFFF, "Fishcamp Engineering(0x1230)"},
 }; /* pci_vid_1230[] */
 
-pci_id_t pci_vid_1231[] = {
+static pci_id_t const pci_vid_1231[] = {
 {0x1231, 0xFFFF, 0xFFFF, 0xFFFF, "Woodward McCoach, Inc.(0x1231)"},
 {0x1231, 0x04E1, 0xFFFF, 0xFFFF, "Desktop PCI Telephony 4(0x04E1)"},
 {0x1231, 0x05E1, 0xFFFF, 0xFFFF, "Desktop PCI Telephony 5/6(0x05E1)"},
@@ -18267,49 +18348,49 @@ pci_id_t pci_vid_1231[] = {
 {0x1231, 0x0D13, 0xFFFF, 0xFFFF, "Desktop PCI L1/L3 Telephony(0x0D13)"},
 }; /* pci_vid_1231[] */
 
-pci_id_t pci_vid_1232[] = {
+static pci_id_t const pci_vid_1232[] = {
 {0x1232, 0xFFFF, 0xFFFF, 0xFFFF, "GPT Limited(0x1232)"},
 }; /* pci_vid_1232[] */
 
-pci_id_t pci_vid_1233[] = {
+static pci_id_t const pci_vid_1233[] = {
 {0x1233, 0xFFFF, 0xFFFF, 0xFFFF, "Bus-Tech, Inc.(0x1233)"},
 }; /* pci_vid_1233[] */
 
-pci_id_t pci_vid_1235[] = {
+static pci_id_t const pci_vid_1235[] = {
 {0x1235, 0xFFFF, 0xFFFF, 0xFFFF, "SMART Modular Technologies(0x1235)"},
 }; /* pci_vid_1235[] */
 
-pci_id_t pci_vid_1236[] = {
+static pci_id_t const pci_vid_1236[] = {
 {0x1236, 0xFFFF, 0xFFFF, 0xFFFF, "Sigma Designs Corporation(0x1236)"},
 {0x1236, 0x0000, 0xFFFF, 0xFFFF, "RealMagic64/GX(0x0000)"},
 {0x1236, 0x6401, 0xFFFF, 0xFFFF, "REALmagic 64/GX (SD 6425)(0x6401)"},
 }; /* pci_vid_1236[] */
 
-pci_id_t pci_vid_1237[] = {
+static pci_id_t const pci_vid_1237[] = {
 {0x1237, 0xFFFF, 0xFFFF, 0xFFFF, "Alta Technology Corporation(0x1237)"},
 }; /* pci_vid_1237[] */
 
-pci_id_t pci_vid_1238[] = {
+static pci_id_t const pci_vid_1238[] = {
 {0x1238, 0xFFFF, 0xFFFF, 0xFFFF, "Adtran(0x1238)"},
 }; /* pci_vid_1238[] */
 
-pci_id_t pci_vid_1239[] = {
+static pci_id_t const pci_vid_1239[] = {
 {0x1239, 0xFFFF, 0xFFFF, 0xFFFF, "3DO Company(0x1239)"},
 }; /* pci_vid_1239[] */
 
-pci_id_t pci_vid_123A[] = {
+static pci_id_t const pci_vid_123A[] = {
 {0x123A, 0xFFFF, 0xFFFF, 0xFFFF, "Visicom Laboratories, Inc.(0x123A)"},
 }; /* pci_vid_123A[] */
 
-pci_id_t pci_vid_123B[] = {
+static pci_id_t const pci_vid_123B[] = {
 {0x123B, 0xFFFF, 0xFFFF, 0xFFFF, "Seeq Technology, Inc.(0x123B)"},
 }; /* pci_vid_123B[] */
 
-pci_id_t pci_vid_123C[] = {
+static pci_id_t const pci_vid_123C[] = {
 {0x123C, 0xFFFF, 0xFFFF, 0xFFFF, "Century Systems, Inc.(0x123C)"},
 }; /* pci_vid_123C[] */
 
-pci_id_t pci_vid_123D[] = {
+static pci_id_t const pci_vid_123D[] = {
 {0x123D, 0xFFFF, 0xFFFF, 0xFFFF, "Engineering Design Team, Inc.(0x123D)"},
 {0x123D, 0x0000, 0xFFFF, 0xFFFF, "EasyConnect 8/32(0x0000)"},
 {0x123D, 0x0002, 0xFFFF, 0xFFFF, "EasyConnect 8/64(0x0002)"},
@@ -18324,11 +18405,11 @@ pci_id_t pci_vid_123D[] = {
 {0x123D, 0x00B5, 0xFFFF, 0xFFFF, "PCIe8 RFx SDR(0x00B5)"},
 }; /* pci_vid_123D[] */
 
-pci_id_t pci_vid_123E[] = {
+static pci_id_t const pci_vid_123E[] = {
 {0x123E, 0xFFFF, 0xFFFF, 0xFFFF, "Simutech, Inc.(0x123E)"},
 }; /* pci_vid_123E[] */
 
-pci_id_t pci_vid_123F[] = {
+static pci_id_t const pci_vid_123F[] = {
 {0x123F, 0xFFFF, 0xFFFF, 0xFFFF, "LSI Logic(0x123F)"},
 {0x123F, 0x00E4, 0xFFFF, 0xFFFF, "MPEG(0x00E4)"},
 {0x123F, 0x8120, 0xFFFF, 0xFFFF, "DVxplore Codec(0x8120)"},
@@ -18347,15 +18428,15 @@ pci_id_t pci_vid_123F[] = {
 {0x123F, 0x8888, 0x1328, 0x0001, "Cinemaster C 3.0 DVD Decoder(0x1328-0x0001)"},
 }; /* pci_vid_123F[] */
 
-pci_id_t pci_vid_1240[] = {
+static pci_id_t const pci_vid_1240[] = {
 {0x1240, 0xFFFF, 0xFFFF, 0xFFFF, "Marathon Technologies Corp.(0x1240)"},
 }; /* pci_vid_1240[] */
 
-pci_id_t pci_vid_1241[] = {
+static pci_id_t const pci_vid_1241[] = {
 {0x1241, 0xFFFF, 0xFFFF, 0xFFFF, "DSC Communications(0x1241)"},
 }; /* pci_vid_1241[] */
 
-pci_id_t pci_vid_1242[] = {
+static pci_id_t const pci_vid_1242[] = {
 {0x1242, 0xFFFF, 0xFFFF, 0xFFFF, "JNI Corporation(0x1242)"},
 {0x1242, 0x1560, 0xFFFF, 0xFFFF, "JNIC-1560 PCI-X Fibre Channel Controller(0x1560)"},
 {0x1242, 0x1560, 0x1242, 0x6562, "FCX2-6562 Dual Channel PCI-X Fibre Channel Adapter(0x1242-0x6562)"},
@@ -18365,11 +18446,11 @@ pci_id_t pci_vid_1242[] = {
 {0x1242, 0x656A, 0xFFFF, 0xFFFF, "FCX-6562 PCI-X Fibre Channel Adapter(0x656A)"},
 }; /* pci_vid_1242[] */
 
-pci_id_t pci_vid_1243[] = {
+static pci_id_t const pci_vid_1243[] = {
 {0x1243, 0xFFFF, 0xFFFF, 0xFFFF, "Delphax(0x1243)"},
 }; /* pci_vid_1243[] */
 
-pci_id_t pci_vid_1244[] = {
+static pci_id_t const pci_vid_1244[] = {
 {0x1244, 0xFFFF, 0xFFFF, 0xFFFF, "AVM GmbH(0x1244)"},
 {0x1244, 0x0700, 0xFFFF, 0xFFFF, "B1 ISDN(0x0700)"},
 {0x1244, 0x0800, 0xFFFF, 0xFFFF, "C4 ISDN(0x0800)"},
@@ -18384,41 +18465,41 @@ pci_id_t pci_vid_1244[] = {
 {0x1244, 0x2900, 0xFFFF, 0xFFFF, "Fritz!Card DSL v2.0(0x2900)"},
 }; /* pci_vid_1244[] */
 
-pci_id_t pci_vid_1245[] = {
+static pci_id_t const pci_vid_1245[] = {
 {0x1245, 0xFFFF, 0xFFFF, 0xFFFF, "A.P.D., S.A.(0x1245)"},
 }; /* pci_vid_1245[] */
 
-pci_id_t pci_vid_1246[] = {
+static pci_id_t const pci_vid_1246[] = {
 {0x1246, 0xFFFF, 0xFFFF, 0xFFFF, "Dipix Technologies, Inc.(0x1246)"},
 }; /* pci_vid_1246[] */
 
-pci_id_t pci_vid_1247[] = {
+static pci_id_t const pci_vid_1247[] = {
 {0x1247, 0xFFFF, 0xFFFF, 0xFFFF, "Xylon Research, Inc.(0x1247)"},
 }; /* pci_vid_1247[] */
 
-pci_id_t pci_vid_1248[] = {
+static pci_id_t const pci_vid_1248[] = {
 {0x1248, 0xFFFF, 0xFFFF, 0xFFFF, "Central Data Corporation(0x1248)"},
 }; /* pci_vid_1248[] */
 
-pci_id_t pci_vid_1249[] = {
+static pci_id_t const pci_vid_1249[] = {
 {0x1249, 0xFFFF, 0xFFFF, 0xFFFF, "Samsung Electronics Co., Ltd.(0x1249)"},
 }; /* pci_vid_1249[] */
 
-pci_id_t pci_vid_124A[] = {
+static pci_id_t const pci_vid_124A[] = {
 {0x124A, 0xFFFF, 0xFFFF, 0xFFFF, "AEG Electrocom GmbH(0x124A)"},
 }; /* pci_vid_124A[] */
 
-pci_id_t pci_vid_124B[] = {
+static pci_id_t const pci_vid_124B[] = {
 {0x124B, 0xFFFF, 0xFFFF, 0xFFFF, "SBS/Greenspring Modular I/O(0x124B)"},
 {0x124B, 0x0040, 0xFFFF, 0xFFFF, "PCI-40A or cPCI-200 Quad IndustryPack carrier(0x0040)"},
 {0x124B, 0x0040, 0x124B, 0x9080, "PCI9080 Bridge(0x124B-0x9080)"},
 }; /* pci_vid_124B[] */
 
-pci_id_t pci_vid_124C[] = {
+static pci_id_t const pci_vid_124C[] = {
 {0x124C, 0xFFFF, 0xFFFF, 0xFFFF, "Solitron Technologies, Inc.(0x124C)"},
 }; /* pci_vid_124C[] */
 
-pci_id_t pci_vid_124D[] = {
+static pci_id_t const pci_vid_124D[] = {
 {0x124D, 0xFFFF, 0xFFFF, 0xFFFF, "Stallion Technologies, Inc.(0x124D)"},
 {0x124D, 0x0000, 0xFFFF, 0xFFFF, "EasyConnection 8/32(0x0000)"},
 {0x124D, 0x0002, 0xFFFF, 0xFFFF, "EasyConnection 8/64(0x0002)"},
@@ -18426,34 +18507,34 @@ pci_id_t pci_vid_124D[] = {
 {0x124D, 0x0004, 0xFFFF, 0xFFFF, "EasyConnection/RA(0x0004)"},
 }; /* pci_vid_124D[] */
 
-pci_id_t pci_vid_124E[] = {
+static pci_id_t const pci_vid_124E[] = {
 {0x124E, 0xFFFF, 0xFFFF, 0xFFFF, "Cylink(0x124E)"},
 }; /* pci_vid_124E[] */
 
-pci_id_t pci_vid_124F[] = {
+static pci_id_t const pci_vid_124F[] = {
 {0x124F, 0xFFFF, 0xFFFF, 0xFFFF, "Infortrend Technology, Inc.(0x124F)"},
 {0x124F, 0x0041, 0xFFFF, 0xFFFF, "IFT-2000 Series RAID Controller(0x0041)"},
 }; /* pci_vid_124F[] */
 
-pci_id_t pci_vid_1250[] = {
+static pci_id_t const pci_vid_1250[] = {
 {0x1250, 0xFFFF, 0xFFFF, 0xFFFF, "Hitachi Microcomputer System Ltd(0x1250)"},
 }; /* pci_vid_1250[] */
 
-pci_id_t pci_vid_1251[] = {
+static pci_id_t const pci_vid_1251[] = {
 {0x1251, 0xFFFF, 0xFFFF, 0xFFFF, "VLSI Solutions Oy(0x1251)"},
 }; /* pci_vid_1251[] */
 
-pci_id_t pci_vid_1253[] = {
+static pci_id_t const pci_vid_1253[] = {
 {0x1253, 0xFFFF, 0xFFFF, 0xFFFF, "Guzik Technical Enterprises(0x1253)"},
 }; /* pci_vid_1253[] */
 
-pci_id_t pci_vid_1254[] = {
+static pci_id_t const pci_vid_1254[] = {
 {0x1254, 0xFFFF, 0xFFFF, 0xFFFF, "Linear Systems Ltd.(0x1254)"},
 {0x1254, 0x0065, 0xFFFF, 0xFFFF, "DVB Master FD(0x0065)"},
 {0x1254, 0x007C, 0xFFFF, 0xFFFF, "DVB Master Quad/o(0x007C)"},
 }; /* pci_vid_1254[] */
 
-pci_id_t pci_vid_1255[] = {
+static pci_id_t const pci_vid_1255[] = {
 {0x1255, 0xFFFF, 0xFFFF, 0xFFFF, "Optibase Ltd(0x1255)"},
 {0x1255, 0x1110, 0xFFFF, 0xFFFF, "MPEG Forge(0x1110)"},
 {0x1255, 0x1210, 0xFFFF, 0xFFFF, "MPEG Fusion(0x1210)"},
@@ -18462,22 +18543,22 @@ pci_id_t pci_vid_1255[] = {
 {0x1255, 0x2130, 0xFFFF, 0xFFFF, "VideoQuest(0x2130)"},
 }; /* pci_vid_1255[] */
 
-pci_id_t pci_vid_1256[] = {
+static pci_id_t const pci_vid_1256[] = {
 {0x1256, 0xFFFF, 0xFFFF, 0xFFFF, "Perceptive Solutions, Inc.(0x1256)"},
 {0x1256, 0x4201, 0xFFFF, 0xFFFF, "PCI-2220I(0x4201)"},
 {0x1256, 0x4401, 0xFFFF, 0xFFFF, "PCI-2240I(0x4401)"},
 {0x1256, 0x5201, 0xFFFF, 0xFFFF, "PCI-2000(0x5201)"},
 }; /* pci_vid_1256[] */
 
-pci_id_t pci_vid_1257[] = {
+static pci_id_t const pci_vid_1257[] = {
 {0x1257, 0xFFFF, 0xFFFF, 0xFFFF, "Vertex Networks, Inc.(0x1257)"},
 }; /* pci_vid_1257[] */
 
-pci_id_t pci_vid_1258[] = {
+static pci_id_t const pci_vid_1258[] = {
 {0x1258, 0xFFFF, 0xFFFF, 0xFFFF, "Gilbarco, Inc.(0x1258)"},
 }; /* pci_vid_1258[] */
 
-pci_id_t pci_vid_1259[] = {
+static pci_id_t const pci_vid_1259[] = {
 {0x1259, 0xFFFF, 0xFFFF, 0xFFFF, "Allied Telesis(0x1259)"},
 {0x1259, 0x2560, 0xFFFF, 0xFFFF, "AT-2560 Fast Ethernet Adapter (i82557B)(0x2560)"},
 {0x1259, 0x2801, 0xFFFF, 0xFFFF, "AT-2801FX (RTL-8139)(0x2801)"},
@@ -18486,11 +18567,11 @@ pci_id_t pci_vid_1259[] = {
 {0x1259, 0xA120, 0xFFFF, 0xFFFF, "21x4x DEC-Tulip compatible 10/100 Ethernet(0xA120)"},
 }; /* pci_vid_1259[] */
 
-pci_id_t pci_vid_125A[] = {
+static pci_id_t const pci_vid_125A[] = {
 {0x125A, 0xFFFF, 0xFFFF, 0xFFFF, "ABB Power Systems(0x125A)"},
 }; /* pci_vid_125A[] */
 
-pci_id_t pci_vid_125B[] = {
+static pci_id_t const pci_vid_125B[] = {
 {0x125B, 0xFFFF, 0xFFFF, 0xFFFF, "Asix Electronics Corporation(0x125B)"},
 {0x125B, 0x1400, 0xFFFF, 0xFFFF, "AX88141 Fast Ethernet Controller(0x1400)"},
 {0x125B, 0x1400, 0x1186, 0x1100, "AX8814X Based PCI Fast Ethernet Adapter(0x1186-0x1100)"},
@@ -18502,13 +18583,13 @@ pci_id_t pci_vid_125B[] = {
 {0x125B, 0x9100, 0xEA50, 0x1C10, "RXi2-BP(0xEA50-0x1C10)"},
 }; /* pci_vid_125B[] */
 
-pci_id_t pci_vid_125C[] = {
+static pci_id_t const pci_vid_125C[] = {
 {0x125C, 0xFFFF, 0xFFFF, 0xFFFF, "Aurora Technologies, Inc.(0x125C)"},
 {0x125C, 0x0101, 0xFFFF, 0xFFFF, "Saturn 4520P(0x0101)"},
 {0x125C, 0x0640, 0xFFFF, 0xFFFF, "Aries 16000P(0x0640)"},
 }; /* pci_vid_125C[] */
 
-pci_id_t pci_vid_125D[] = {
+static pci_id_t const pci_vid_125D[] = {
 {0x125D, 0xFFFF, 0xFFFF, 0xFFFF, "ESS Technology(0x125D)"},
 {0x125D, 0x0000, 0xFFFF, 0xFFFF, "ES336H Fax Modem (Early Model)(0x0000)"},
 {0x125D, 0x1948, 0xFFFF, 0xFFFF, "ES1948 Maestro-1(0x1948)"},
@@ -18557,18 +18638,18 @@ pci_id_t pci_vid_125D[] = {
 {0x125D, 0x2898, 0x14FE, 0x0429, "ES56-PI Data Fax Modem(0x14FE-0x0429)"},
 }; /* pci_vid_125D[] */
 
-pci_id_t pci_vid_125E[] = {
+static pci_id_t const pci_vid_125E[] = {
 {0x125E, 0xFFFF, 0xFFFF, 0xFFFF, "Specialvideo Engineering SRL(0x125E)"},
 }; /* pci_vid_125E[] */
 
-pci_id_t pci_vid_125F[] = {
+static pci_id_t const pci_vid_125F[] = {
 {0x125F, 0xFFFF, 0xFFFF, 0xFFFF, "Concurrent Technologies, Inc.(0x125F)"},
 {0x125F, 0x2071, 0xFFFF, 0xFFFF, "CC PMC/232(0x2071)"},
 {0x125F, 0x2084, 0xFFFF, 0xFFFF, "CC PMC/23P(0x2084)"},
 {0x125F, 0x2091, 0xFFFF, 0xFFFF, "CC PMC/422(0x2091)"},
 }; /* pci_vid_125F[] */
 
-pci_id_t pci_vid_1260[] = {
+static pci_id_t const pci_vid_1260[] = {
 {0x1260, 0xFFFF, 0xFFFF, 0xFFFF, "Intersil Corporation(0x1260)"},
 {0x1260, 0x3872, 0xFFFF, 0xFFFF, "ISL3872 [Prism 3](0x3872)"},
 {0x1260, 0x3872, 0x1468, 0x0202, "LAN-Express IEEE 802.11b Wireless LAN(0x1468-0x0202)"},
@@ -18609,71 +18690,71 @@ pci_id_t pci_vid_1260[] = {
 {0x1260, 0xFFFF, 0x1260, 0x0000, "Senao 3054MP+ (J) mini-PCI WLAN 802.11g adapter(0x1260-0x0000)"},
 }; /* pci_vid_1260[] */
 
-pci_id_t pci_vid_1261[] = {
+static pci_id_t const pci_vid_1261[] = {
 {0x1261, 0xFFFF, 0xFFFF, 0xFFFF, "Matsushita-Kotobuki Electronics Industries, Ltd.(0x1261)"},
 }; /* pci_vid_1261[] */
 
-pci_id_t pci_vid_1262[] = {
+static pci_id_t const pci_vid_1262[] = {
 {0x1262, 0xFFFF, 0xFFFF, 0xFFFF, "ES Computer Company, Ltd.(0x1262)"},
 }; /* pci_vid_1262[] */
 
-pci_id_t pci_vid_1263[] = {
+static pci_id_t const pci_vid_1263[] = {
 {0x1263, 0xFFFF, 0xFFFF, 0xFFFF, "Sonic Solutions(0x1263)"},
 }; /* pci_vid_1263[] */
 
-pci_id_t pci_vid_1264[] = {
+static pci_id_t const pci_vid_1264[] = {
 {0x1264, 0xFFFF, 0xFFFF, 0xFFFF, "Aval Nagasaki Corporation(0x1264)"},
 }; /* pci_vid_1264[] */
 
-pci_id_t pci_vid_1265[] = {
+static pci_id_t const pci_vid_1265[] = {
 {0x1265, 0xFFFF, 0xFFFF, 0xFFFF, "Casio Computer Co., Ltd.(0x1265)"},
 }; /* pci_vid_1265[] */
 
-pci_id_t pci_vid_1266[] = {
+static pci_id_t const pci_vid_1266[] = {
 {0x1266, 0xFFFF, 0xFFFF, 0xFFFF, "Microdyne Corporation(0x1266)"},
 {0x1266, 0x0001, 0xFFFF, 0xFFFF, "NE10/100 Adapter (i82557B)(0x0001)"},
 {0x1266, 0x1910, 0xFFFF, 0xFFFF, "NE2000Plus (RT8029) Ethernet Adapter(0x1910)"},
 {0x1266, 0x1910, 0x1266, 0x1910, "NE2000Plus Ethernet Adapter(0x1266-0x1910)"},
 }; /* pci_vid_1266[] */
 
-pci_id_t pci_vid_1267[] = {
+static pci_id_t const pci_vid_1267[] = {
 {0x1267, 0xFFFF, 0xFFFF, 0xFFFF, "S. A. Telecommunications(0x1267)"},
 {0x1267, 0x5352, 0xFFFF, 0xFFFF, "PCR2101(0x5352)"},
 {0x1267, 0x5A4B, 0xFFFF, 0xFFFF, "Telsat Turbo(0x5A4B)"},
 }; /* pci_vid_1267[] */
 
-pci_id_t pci_vid_1268[] = {
+static pci_id_t const pci_vid_1268[] = {
 {0x1268, 0xFFFF, 0xFFFF, 0xFFFF, "Tektronix(0x1268)"},
 }; /* pci_vid_1268[] */
 
-pci_id_t pci_vid_1269[] = {
+static pci_id_t const pci_vid_1269[] = {
 {0x1269, 0xFFFF, 0xFFFF, 0xFFFF, "Thales(0x1269)"},
 {0x1269, 0x00B3, 0xFFFF, 0xFFFF, "5G Data Card [Cinterion MV31-W](0x00B3)"},
 }; /* pci_vid_1269[] */
 
-pci_id_t pci_vid_126A[] = {
+static pci_id_t const pci_vid_126A[] = {
 {0x126A, 0xFFFF, 0xFFFF, 0xFFFF, "Lexmark International, Inc.(0x126A)"},
 }; /* pci_vid_126A[] */
 
-pci_id_t pci_vid_126B[] = {
+static pci_id_t const pci_vid_126B[] = {
 {0x126B, 0xFFFF, 0xFFFF, 0xFFFF, "Adax, Inc.(0x126B)"},
 }; /* pci_vid_126B[] */
 
-pci_id_t pci_vid_126C[] = {
+static pci_id_t const pci_vid_126C[] = {
 {0x126C, 0xFFFF, 0xFFFF, 0xFFFF, "Northern Telecom(0x126C)"},
 {0x126C, 0x1211, 0xFFFF, 0xFFFF, "10/100BaseTX [RTL81xx](0x1211)"},
 {0x126C, 0x126C, 0xFFFF, 0xFFFF, "802.11b Wireless Ethernet Adapter(0x126C)"},
 }; /* pci_vid_126C[] */
 
-pci_id_t pci_vid_126D[] = {
+static pci_id_t const pci_vid_126D[] = {
 {0x126D, 0xFFFF, 0xFFFF, 0xFFFF, "Splash Technology, Inc.(0x126D)"},
 }; /* pci_vid_126D[] */
 
-pci_id_t pci_vid_126E[] = {
+static pci_id_t const pci_vid_126E[] = {
 {0x126E, 0xFFFF, 0xFFFF, 0xFFFF, "Sumitomo Metal Industries, Ltd.(0x126E)"},
 }; /* pci_vid_126E[] */
 
-pci_id_t pci_vid_126F[] = {
+static pci_id_t const pci_vid_126F[] = {
 {0x126F, 0xFFFF, 0xFFFF, 0xFFFF, "Silicon Motion, Inc.(0x126F)"},
 {0x126F, 0x0501, 0xFFFF, 0xFFFF, "SM501 VoyagerGX Rev. AA(0x0501)"},
 {0x126F, 0x0510, 0xFFFF, 0xFFFF, "SM501 VoyagerGX Rev. B(0x0510)"},
@@ -18695,24 +18776,24 @@ pci_id_t pci_vid_126F[] = {
 {0x126F, 0x8366, 0xFFFF, 0xFFFF, "SM8366 NVMe SSD Controller [MonTitan](0x8366)"},
 }; /* pci_vid_126F[] */
 
-pci_id_t pci_vid_1270[] = {
+static pci_id_t const pci_vid_1270[] = {
 {0x1270, 0xFFFF, 0xFFFF, 0xFFFF, "Olympus Optical Co., Ltd.(0x1270)"},
 }; /* pci_vid_1270[] */
 
-pci_id_t pci_vid_1271[] = {
+static pci_id_t const pci_vid_1271[] = {
 {0x1271, 0xFFFF, 0xFFFF, 0xFFFF, "GW Instruments(0x1271)"},
 }; /* pci_vid_1271[] */
 
-pci_id_t pci_vid_1272[] = {
+static pci_id_t const pci_vid_1272[] = {
 {0x1272, 0xFFFF, 0xFFFF, 0xFFFF, "Telematics International(0x1272)"},
 }; /* pci_vid_1272[] */
 
-pci_id_t pci_vid_1273[] = {
+static pci_id_t const pci_vid_1273[] = {
 {0x1273, 0xFFFF, 0xFFFF, 0xFFFF, "Hughes Network Systems(0x1273)"},
 {0x1273, 0x0002, 0xFFFF, 0xFFFF, "DirecPC(0x0002)"},
 }; /* pci_vid_1273[] */
 
-pci_id_t pci_vid_1274[] = {
+static pci_id_t const pci_vid_1274[] = {
 {0x1274, 0xFFFF, 0xFFFF, 0xFFFF, "Ensoniq(0x1274)"},
 {0x1274, 0x1171, 0xFFFF, 0xFFFF, "ES1373 / Creative Labs CT5803 [AudioPCI](0x1171)"},
 {0x1274, 0x1371, 0xFFFF, 0xFFFF, "ES1371/ES1373 / Creative Labs CT2518(0x1371)"},
@@ -18776,7 +18857,7 @@ pci_id_t pci_vid_1274[] = {
 {0x1274, 0x5880, 0x1274, 0x2000, "Creative CT4810 [Sound Blaster AudioPCI 128](0x1274-0x2000)"},
 {0x1274, 0x5880, 0x1274, 0x2003, "Creative SoundBlaster AudioPCI 128(0x1274-0x2003)"},
 {0x1274, 0x5880, 0x1274, 0x5880, "Creative CT4750 [Sound Blaster PCI 128](0x1274-0x5880)"},
-{0x1274, 0x5880, 0x1274, 0x8001, "Sound Blaster 16PCI 4.1ch(0x1274-0x8001)"},
+{0x1274, 0x5880, 0x1274, 0x8001, "Creative CT4750 [Sound Blaster 16 PCI/PCI 128/4.1 Digital](0x1274-0x8001)"},
 {0x1274, 0x5880, 0x1458, 0xA000, "5880 AudioPCI On Motherboard 6OXET(0x1458-0xA000)"},
 {0x1274, 0x5880, 0x1462, 0x6880, "5880 AudioPCI On Motherboard MS-6188 1.00(0x1462-0x6880)"},
 {0x1274, 0x5880, 0x270F, 0x2001, "5880 AudioPCI On Motherboard 6CTR(0x270F-0x2001)"},
@@ -18786,19 +18867,19 @@ pci_id_t pci_vid_1274[] = {
 {0x1274, 0x8002, 0xFFFF, 0xFFFF, "5880A [AudioPCI](0x8002)"},
 }; /* pci_vid_1274[] */
 
-pci_id_t pci_vid_1275[] = {
+static pci_id_t const pci_vid_1275[] = {
 {0x1275, 0xFFFF, 0xFFFF, 0xFFFF, "Network Appliance Corporation(0x1275)"},
 }; /* pci_vid_1275[] */
 
-pci_id_t pci_vid_1276[] = {
+static pci_id_t const pci_vid_1276[] = {
 {0x1276, 0xFFFF, 0xFFFF, 0xFFFF, "Switched Network Technologies, Inc.(0x1276)"},
 }; /* pci_vid_1276[] */
 
-pci_id_t pci_vid_1277[] = {
+static pci_id_t const pci_vid_1277[] = {
 {0x1277, 0xFFFF, 0xFFFF, 0xFFFF, "Comstream(0x1277)"},
 }; /* pci_vid_1277[] */
 
-pci_id_t pci_vid_1278[] = {
+static pci_id_t const pci_vid_1278[] = {
 {0x1278, 0xFFFF, 0xFFFF, 0xFFFF, "Transtech Parallel Systems Ltd.(0x1278)"},
 {0x1278, 0x0701, 0xFFFF, 0xFFFF, "TPE3/TM3 PowerPC Node(0x0701)"},
 {0x1278, 0x0710, 0xFFFF, 0xFFFF, "TPE5 PowerPC PCI board(0x0710)"},
@@ -18806,7 +18887,7 @@ pci_id_t pci_vid_1278[] = {
 {0x1278, 0x1101, 0xFFFF, 0xFFFF, "TS-C43 card with 4 ADSP-TS101 processors(0x1101)"},
 }; /* pci_vid_1278[] */
 
-pci_id_t pci_vid_1279[] = {
+static pci_id_t const pci_vid_1279[] = {
 {0x1279, 0xFFFF, 0xFFFF, 0xFFFF, "Transmeta Corporation(0x1279)"},
 {0x1279, 0x0060, 0xFFFF, 0xFFFF, "TM8000 Northbridge(0x0060)"},
 {0x1279, 0x0061, 0xFFFF, 0xFFFF, "TM8000 AGP bridge(0x0061)"},
@@ -18816,7 +18897,7 @@ pci_id_t pci_vid_1279[] = {
 {0x1279, 0x0397, 0xFFFF, 0xFFFF, "BIOS scratchpad(0x0397)"},
 }; /* pci_vid_1279[] */
 
-pci_id_t pci_vid_127A[] = {
+static pci_id_t const pci_vid_127A[] = {
 {0x127A, 0xFFFF, 0xFFFF, 0xFFFF, "Rockwell International(0x127A)"},
 {0x127A, 0x1002, 0xFFFF, 0xFFFF, "HCF 56k Data/Fax Modem(0x1002)"},
 {0x127A, 0x1002, 0x1092, 0x094C, "SupraExpress 56i PRO [Diamond SUP2380](0x1092-0x094C)"},
@@ -18935,36 +19016,36 @@ pci_id_t pci_vid_127A[] = {
 {0x127A, 0x8234, 0x108D, 0x0027, "RapidFire 616X ATM155 Adapter(0x108D-0x0027)"},
 }; /* pci_vid_127A[] */
 
-pci_id_t pci_vid_127B[] = {
+static pci_id_t const pci_vid_127B[] = {
 {0x127B, 0xFFFF, 0xFFFF, 0xFFFF, "Pixera Corporation(0x127B)"},
 }; /* pci_vid_127B[] */
 
-pci_id_t pci_vid_127C[] = {
+static pci_id_t const pci_vid_127C[] = {
 {0x127C, 0xFFFF, 0xFFFF, 0xFFFF, "Crosspoint Solutions, Inc.(0x127C)"},
 }; /* pci_vid_127C[] */
 
-pci_id_t pci_vid_127D[] = {
+static pci_id_t const pci_vid_127D[] = {
 {0x127D, 0xFFFF, 0xFFFF, 0xFFFF, "Vela Research(0x127D)"},
 }; /* pci_vid_127D[] */
 
-pci_id_t pci_vid_127E[] = {
+static pci_id_t const pci_vid_127E[] = {
 {0x127E, 0xFFFF, 0xFFFF, 0xFFFF, "Winnov, L.P.(0x127E)"},
 {0x127E, 0x0010, 0xFFFF, 0xFFFF, "Videum 1000 Plus(0x0010)"},
 }; /* pci_vid_127E[] */
 
-pci_id_t pci_vid_127F[] = {
+static pci_id_t const pci_vid_127F[] = {
 {0x127F, 0xFFFF, 0xFFFF, 0xFFFF, "Fujifilm(0x127F)"},
 }; /* pci_vid_127F[] */
 
-pci_id_t pci_vid_1280[] = {
+static pci_id_t const pci_vid_1280[] = {
 {0x1280, 0xFFFF, 0xFFFF, 0xFFFF, "Photoscript Group Ltd.(0x1280)"},
 }; /* pci_vid_1280[] */
 
-pci_id_t pci_vid_1281[] = {
+static pci_id_t const pci_vid_1281[] = {
 {0x1281, 0xFFFF, 0xFFFF, 0xFFFF, "Yokogawa Electric Corporation(0x1281)"},
 }; /* pci_vid_1281[] */
 
-pci_id_t pci_vid_1282[] = {
+static pci_id_t const pci_vid_1282[] = {
 {0x1282, 0xFFFF, 0xFFFF, 0xFFFF, "Davicom Semiconductor, Inc.(0x1282)"},
 {0x1282, 0x6585, 0xFFFF, 0xFFFF, "DM562P V90 Modem(0x6585)"},
 {0x1282, 0x9009, 0xFFFF, 0xFFFF, "DM9009 Ethernet Controller(0x9009)"},
@@ -18974,7 +19055,7 @@ pci_id_t pci_vid_1282[] = {
 {0x1282, 0x9132, 0xFFFF, 0xFFFF, "Ethernet 100/10 MBit(0x9132)"},
 }; /* pci_vid_1282[] */
 
-pci_id_t pci_vid_1283[] = {
+static pci_id_t const pci_vid_1283[] = {
 {0x1283, 0xFFFF, 0xFFFF, 0xFFFF, "Integrated Technology Express, Inc.(0x1283)"},
 {0x1283, 0x673A, 0xFFFF, 0xFFFF, "IT8330G(0x673A)"},
 {0x1283, 0x8152, 0xFFFF, 0xFFFF, "IT8152F/G Advanced RISC-to-PCI Companion Chip(0x8152)"},
@@ -18994,51 +19075,51 @@ pci_id_t pci_vid_1283[] = {
 {0x1283, 0xE886, 0xFFFF, 0xFFFF, "IT8330G(0xE886)"},
 }; /* pci_vid_1283[] */
 
-pci_id_t pci_vid_1284[] = {
+static pci_id_t const pci_vid_1284[] = {
 {0x1284, 0xFFFF, 0xFFFF, 0xFFFF, "Sahara Networks, Inc.(0x1284)"},
 }; /* pci_vid_1284[] */
 
-pci_id_t pci_vid_1285[] = {
+static pci_id_t const pci_vid_1285[] = {
 {0x1285, 0xFFFF, 0xFFFF, 0xFFFF, "Platform Technologies, Inc.(0x1285)"},
 {0x1285, 0x0100, 0xFFFF, 0xFFFF, "AGOGO sound chip (aka ESS Maestro 1)(0x0100)"},
 }; /* pci_vid_1285[] */
 
-pci_id_t pci_vid_1286[] = {
+static pci_id_t const pci_vid_1286[] = {
 {0x1286, 0xFFFF, 0xFFFF, 0xFFFF, "Mazet GmbH(0x1286)"},
 }; /* pci_vid_1286[] */
 
-pci_id_t pci_vid_1287[] = {
+static pci_id_t const pci_vid_1287[] = {
 {0x1287, 0xFFFF, 0xFFFF, 0xFFFF, "M-Pact, Inc.(0x1287)"},
 {0x1287, 0x001E, 0xFFFF, 0xFFFF, "LS220D DVD Decoder(0x001E)"},
 {0x1287, 0x001F, 0xFFFF, 0xFFFF, "LS220C DVD Decoder(0x001F)"},
 }; /* pci_vid_1287[] */
 
-pci_id_t pci_vid_1288[] = {
+static pci_id_t const pci_vid_1288[] = {
 {0x1288, 0xFFFF, 0xFFFF, 0xFFFF, "Timestep Corporation(0x1288)"},
 }; /* pci_vid_1288[] */
 
-pci_id_t pci_vid_1289[] = {
+static pci_id_t const pci_vid_1289[] = {
 {0x1289, 0xFFFF, 0xFFFF, 0xFFFF, "AVC Technology, Inc.(0x1289)"},
 }; /* pci_vid_1289[] */
 
-pci_id_t pci_vid_128A[] = {
+static pci_id_t const pci_vid_128A[] = {
 {0x128A, 0xFFFF, 0xFFFF, 0xFFFF, "Asante Technologies, Inc.(0x128A)"},
 }; /* pci_vid_128A[] */
 
-pci_id_t pci_vid_128B[] = {
+static pci_id_t const pci_vid_128B[] = {
 {0x128B, 0xFFFF, 0xFFFF, 0xFFFF, "Transwitch Corporation(0x128B)"},
 }; /* pci_vid_128B[] */
 
-pci_id_t pci_vid_128C[] = {
+static pci_id_t const pci_vid_128C[] = {
 {0x128C, 0xFFFF, 0xFFFF, 0xFFFF, "Retix Corporation(0x128C)"},
 }; /* pci_vid_128C[] */
 
-pci_id_t pci_vid_128D[] = {
+static pci_id_t const pci_vid_128D[] = {
 {0x128D, 0xFFFF, 0xFFFF, 0xFFFF, "G2 Networks, Inc.(0x128D)"},
 {0x128D, 0x0021, 0xFFFF, 0xFFFF, "ATM155 Adapter(0x0021)"},
 }; /* pci_vid_128D[] */
 
-pci_id_t pci_vid_128E[] = {
+static pci_id_t const pci_vid_128E[] = {
 {0x128E, 0xFFFF, 0xFFFF, 0xFFFF, "Hoontech Corporation/Samho Multi Tech Ltd.(0x128E)"},
 {0x128E, 0x0008, 0xFFFF, 0xFFFF, "ST128 WSS/SB(0x0008)"},
 {0x128E, 0x0009, 0xFFFF, 0xFFFF, "ST128 SAM9407(0x0009)"},
@@ -19047,54 +19128,55 @@ pci_id_t pci_vid_128E[] = {
 {0x128E, 0x000C, 0xFFFF, 0xFFFF, "ST128 Ctrl Port(0x000C)"},
 }; /* pci_vid_128E[] */
 
-pci_id_t pci_vid_128F[] = {
+static pci_id_t const pci_vid_128F[] = {
 {0x128F, 0xFFFF, 0xFFFF, 0xFFFF, "Tateno Dennou, Inc.(0x128F)"},
 }; /* pci_vid_128F[] */
 
-pci_id_t pci_vid_1290[] = {
+static pci_id_t const pci_vid_1290[] = {
 {0x1290, 0xFFFF, 0xFFFF, 0xFFFF, "Sord Computer Corporation(0x1290)"},
 }; /* pci_vid_1290[] */
 
-pci_id_t pci_vid_1291[] = {
+static pci_id_t const pci_vid_1291[] = {
 {0x1291, 0xFFFF, 0xFFFF, 0xFFFF, "NCS Computer Italia(0x1291)"},
 }; /* pci_vid_1291[] */
 
-pci_id_t pci_vid_1292[] = {
+static pci_id_t const pci_vid_1292[] = {
 {0x1292, 0xFFFF, 0xFFFF, 0xFFFF, "Tritech Microelectronics Inc(0x1292)"},
 {0x1292, 0xFC02, 0xFFFF, 0xFFFF, "Pyramid3D TR25202(0xFC02)"},
 }; /* pci_vid_1292[] */
 
-pci_id_t pci_vid_1293[] = {
+static pci_id_t const pci_vid_1293[] = {
 {0x1293, 0xFFFF, 0xFFFF, 0xFFFF, "Media Reality Technology(0x1293)"},
 }; /* pci_vid_1293[] */
 
-pci_id_t pci_vid_1294[] = {
+static pci_id_t const pci_vid_1294[] = {
 {0x1294, 0xFFFF, 0xFFFF, 0xFFFF, "Rhetorex, Inc.(0x1294)"},
 }; /* pci_vid_1294[] */
 
-pci_id_t pci_vid_1295[] = {
+static pci_id_t const pci_vid_1295[] = {
 {0x1295, 0xFFFF, 0xFFFF, 0xFFFF, "Imagenation Corporation(0x1295)"},
 {0x1295, 0x0800, 0xFFFF, 0xFFFF, "PXR800(0x0800)"},
 {0x1295, 0x1000, 0xFFFF, 0xFFFF, "PXD1000(0x1000)"},
 }; /* pci_vid_1295[] */
 
-pci_id_t pci_vid_1296[] = {
+static pci_id_t const pci_vid_1296[] = {
 {0x1296, 0xFFFF, 0xFFFF, 0xFFFF, "Kofax Image Products(0x1296)"},
 }; /* pci_vid_1296[] */
 
-pci_id_t pci_vid_1297[] = {
+static pci_id_t const pci_vid_1297[] = {
 {0x1297, 0xFFFF, 0xFFFF, 0xFFFF, "Holco Enterprise Co, Ltd/Shuttle Computer(0x1297)"},
+{0x1297, 0x9602, 0xFFFF, 0xFFFF, "RS780/RS880 PCI to PCI bridge (int gfx)(0x9602)"},
 }; /* pci_vid_1297[] */
 
-pci_id_t pci_vid_1298[] = {
+static pci_id_t const pci_vid_1298[] = {
 {0x1298, 0xFFFF, 0xFFFF, 0xFFFF, "Spellcaster Telecommunications Inc.(0x1298)"},
 }; /* pci_vid_1298[] */
 
-pci_id_t pci_vid_1299[] = {
+static pci_id_t const pci_vid_1299[] = {
 {0x1299, 0xFFFF, 0xFFFF, 0xFFFF, "Knowledge Technology Lab.(0x1299)"},
 }; /* pci_vid_1299[] */
 
-pci_id_t pci_vid_129A[] = {
+static pci_id_t const pci_vid_129A[] = {
 {0x129A, 0xFFFF, 0xFFFF, 0xFFFF, "VMetro, inc.(0x129A)"},
 {0x129A, 0x0615, 0xFFFF, 0xFFFF, "PBT-615 PCI-X Bus Analyzer(0x0615)"},
 {0x129A, 0x0715, 0xFFFF, 0xFFFF, "cPCI Bus Analyzer(0x0715)"},
@@ -19105,72 +19187,72 @@ pci_id_t pci_vid_129A[] = {
 {0x129A, 0x1109, 0xFFFF, 0xFFFF, "XMC-FPGA05D, PCIe interface(0x1109)"},
 }; /* pci_vid_129A[] */
 
-pci_id_t pci_vid_129B[] = {
+static pci_id_t const pci_vid_129B[] = {
 {0x129B, 0xFFFF, 0xFFFF, 0xFFFF, "Image Access(0x129B)"},
 }; /* pci_vid_129B[] */
 
-pci_id_t pci_vid_129C[] = {
+static pci_id_t const pci_vid_129C[] = {
 {0x129C, 0xFFFF, 0xFFFF, 0xFFFF, "Jaycor(0x129C)"},
 }; /* pci_vid_129C[] */
 
-pci_id_t pci_vid_129D[] = {
+static pci_id_t const pci_vid_129D[] = {
 {0x129D, 0xFFFF, 0xFFFF, 0xFFFF, "Compcore Multimedia, Inc.(0x129D)"},
 }; /* pci_vid_129D[] */
 
-pci_id_t pci_vid_129E[] = {
+static pci_id_t const pci_vid_129E[] = {
 {0x129E, 0xFFFF, 0xFFFF, 0xFFFF, "Victor Company of Japan, Ltd.(0x129E)"},
 }; /* pci_vid_129E[] */
 
-pci_id_t pci_vid_129F[] = {
+static pci_id_t const pci_vid_129F[] = {
 {0x129F, 0xFFFF, 0xFFFF, 0xFFFF, "OEC Medical Systems, Inc.(0x129F)"},
 }; /* pci_vid_129F[] */
 
-pci_id_t pci_vid_12A0[] = {
+static pci_id_t const pci_vid_12A0[] = {
 {0x12A0, 0xFFFF, 0xFFFF, 0xFFFF, "Allen-Bradley Company(0x12A0)"},
 }; /* pci_vid_12A0[] */
 
-pci_id_t pci_vid_12A1[] = {
+static pci_id_t const pci_vid_12A1[] = {
 {0x12A1, 0xFFFF, 0xFFFF, 0xFFFF, "Simpact Associates, Inc.(0x12A1)"},
 }; /* pci_vid_12A1[] */
 
-pci_id_t pci_vid_12A2[] = {
+static pci_id_t const pci_vid_12A2[] = {
 {0x12A2, 0xFFFF, 0xFFFF, 0xFFFF, "Newgen Systems Corporation(0x12A2)"},
 }; /* pci_vid_12A2[] */
 
-pci_id_t pci_vid_12A3[] = {
+static pci_id_t const pci_vid_12A3[] = {
 {0x12A3, 0xFFFF, 0xFFFF, 0xFFFF, "Lucent Technologies(0x12A3)"},
 {0x12A3, 0x8105, 0xFFFF, 0xFFFF, "T8105 H100 Digital Switch(0x8105)"},
 }; /* pci_vid_12A3[] */
 
-pci_id_t pci_vid_12A4[] = {
+static pci_id_t const pci_vid_12A4[] = {
 {0x12A4, 0xFFFF, 0xFFFF, 0xFFFF, "NTT Innovative Devices Corporation(0x12A4)"},
 }; /* pci_vid_12A4[] */
 
-pci_id_t pci_vid_12A5[] = {
+static pci_id_t const pci_vid_12A5[] = {
 {0x12A5, 0xFFFF, 0xFFFF, 0xFFFF, "Vision Dynamics Ltd.(0x12A5)"},
 }; /* pci_vid_12A5[] */
 
-pci_id_t pci_vid_12A6[] = {
+static pci_id_t const pci_vid_12A6[] = {
 {0x12A6, 0xFFFF, 0xFFFF, 0xFFFF, "Scalable Networks, Inc.(0x12A6)"},
 }; /* pci_vid_12A6[] */
 
-pci_id_t pci_vid_12A7[] = {
+static pci_id_t const pci_vid_12A7[] = {
 {0x12A7, 0xFFFF, 0xFFFF, 0xFFFF, "AMO GmbH(0x12A7)"},
 }; /* pci_vid_12A7[] */
 
-pci_id_t pci_vid_12A8[] = {
+static pci_id_t const pci_vid_12A8[] = {
 {0x12A8, 0xFFFF, 0xFFFF, 0xFFFF, "News Datacom(0x12A8)"},
 }; /* pci_vid_12A8[] */
 
-pci_id_t pci_vid_12A9[] = {
+static pci_id_t const pci_vid_12A9[] = {
 {0x12A9, 0xFFFF, 0xFFFF, 0xFFFF, "Xiotech Corporation(0x12A9)"},
 }; /* pci_vid_12A9[] */
 
-pci_id_t pci_vid_12AA[] = {
+static pci_id_t const pci_vid_12AA[] = {
 {0x12AA, 0xFFFF, 0xFFFF, 0xFFFF, "SDL Communications, Inc.(0x12AA)"},
 }; /* pci_vid_12AA[] */
 
-pci_id_t pci_vid_12AB[] = {
+static pci_id_t const pci_vid_12AB[] = {
 {0x12AB, 0xFFFF, 0xFFFF, 0xFFFF, "YUAN High-Tech Development Co., Ltd.(0x12AB)"},
 {0x12AB, 0x0000, 0xFFFF, 0xFFFF, "MPG160/Kuroutoshikou ITVC15-STVLP(0x0000)"},
 {0x12AB, 0x0002, 0xFFFF, 0xFFFF, "AU8830 [Vortex2] Based Sound Card With A3D Support(0x0002)"},
@@ -19182,15 +19264,15 @@ pci_id_t pci_vid_12AB[] = {
 {0x12AB, 0xFFFF, 0xFFFF, 0xFFFF, "MPG600/Kuroutoshikou ITVC16-STVLP(0xFFFF)"},
 }; /* pci_vid_12AB[] */
 
-pci_id_t pci_vid_12AC[] = {
+static pci_id_t const pci_vid_12AC[] = {
 {0x12AC, 0xFFFF, 0xFFFF, 0xFFFF, "Measurex Corporation(0x12AC)"},
 }; /* pci_vid_12AC[] */
 
-pci_id_t pci_vid_12AD[] = {
+static pci_id_t const pci_vid_12AD[] = {
 {0x12AD, 0xFFFF, 0xFFFF, 0xFFFF, "Multidata GmbH(0x12AD)"},
 }; /* pci_vid_12AD[] */
 
-pci_id_t pci_vid_12AE[] = {
+static pci_id_t const pci_vid_12AE[] = {
 {0x12AE, 0xFFFF, 0xFFFF, 0xFFFF, "Alteon Networks Inc.(0x12AE)"},
 {0x12AE, 0x0001, 0xFFFF, 0xFFFF, "AceNIC Gigabit Ethernet(0x0001)"},
 {0x12AE, 0x0001, 0x1014, 0x0104, "Gigabit Ethernet-SX PCI Adapter(0x1014-0x0104)"},
@@ -19201,47 +19283,47 @@ pci_id_t pci_vid_12AE[] = {
 {0x12AE, 0x00FA, 0xFFFF, 0xFFFF, "Farallon PN9100-T Gigabit Ethernet(0x00FA)"},
 }; /* pci_vid_12AE[] */
 
-pci_id_t pci_vid_12AF[] = {
+static pci_id_t const pci_vid_12AF[] = {
 {0x12AF, 0xFFFF, 0xFFFF, 0xFFFF, "TDK USA Corp(0x12AF)"},
 }; /* pci_vid_12AF[] */
 
-pci_id_t pci_vid_12B0[] = {
+static pci_id_t const pci_vid_12B0[] = {
 {0x12B0, 0xFFFF, 0xFFFF, 0xFFFF, "Jorge Scientific Corp(0x12B0)"},
 }; /* pci_vid_12B0[] */
 
-pci_id_t pci_vid_12B1[] = {
+static pci_id_t const pci_vid_12B1[] = {
 {0x12B1, 0xFFFF, 0xFFFF, 0xFFFF, "GammaLink(0x12B1)"},
 }; /* pci_vid_12B1[] */
 
-pci_id_t pci_vid_12B2[] = {
+static pci_id_t const pci_vid_12B2[] = {
 {0x12B2, 0xFFFF, 0xFFFF, 0xFFFF, "General Signal Networks(0x12B2)"},
 }; /* pci_vid_12B2[] */
 
-pci_id_t pci_vid_12B3[] = {
+static pci_id_t const pci_vid_12B3[] = {
 {0x12B3, 0xFFFF, 0xFFFF, 0xFFFF, "Inter-Face Co Ltd(0x12B3)"},
 }; /* pci_vid_12B3[] */
 
-pci_id_t pci_vid_12B4[] = {
+static pci_id_t const pci_vid_12B4[] = {
 {0x12B4, 0xFFFF, 0xFFFF, 0xFFFF, "FutureTel Inc(0x12B4)"},
 }; /* pci_vid_12B4[] */
 
-pci_id_t pci_vid_12B5[] = {
+static pci_id_t const pci_vid_12B5[] = {
 {0x12B5, 0xFFFF, 0xFFFF, 0xFFFF, "Granite Systems Inc.(0x12B5)"},
 }; /* pci_vid_12B5[] */
 
-pci_id_t pci_vid_12B6[] = {
+static pci_id_t const pci_vid_12B6[] = {
 {0x12B6, 0xFFFF, 0xFFFF, 0xFFFF, "Natural Microsystems(0x12B6)"},
 }; /* pci_vid_12B6[] */
 
-pci_id_t pci_vid_12B7[] = {
+static pci_id_t const pci_vid_12B7[] = {
 {0x12B7, 0xFFFF, 0xFFFF, 0xFFFF, "Cognex Corporation(0x12B7)"},
 }; /* pci_vid_12B7[] */
 
-pci_id_t pci_vid_12B8[] = {
+static pci_id_t const pci_vid_12B8[] = {
 {0x12B8, 0xFFFF, 0xFFFF, 0xFFFF, "Korg(0x12B8)"},
 }; /* pci_vid_12B8[] */
 
-pci_id_t pci_vid_12B9[] = {
+static pci_id_t const pci_vid_12B9[] = {
 {0x12B9, 0xFFFF, 0xFFFF, 0xFFFF, "3Com Corp, Modem Division(0x12B9)"},
 {0x12B9, 0x1006, 0xFFFF, 0xFFFF, "WinModem(0x1006)"},
 {0x12B9, 0x1006, 0x12B9, 0x005C, "USR 56k Internal Voice WinModem (Model 3472)(0x12B9-0x005C)"},
@@ -19266,52 +19348,52 @@ pci_id_t pci_vid_12B9[] = {
 {0x12B9, 0x1008, 0x12B9, 0xBABA, "USR 56K Internal Voice Modem 3CP3298-DEL (Model 5601) [Hawk](0x12B9-0xBABA)"},
 }; /* pci_vid_12B9[] */
 
-pci_id_t pci_vid_12BA[] = {
+static pci_id_t const pci_vid_12BA[] = {
 {0x12BA, 0xFFFF, 0xFFFF, 0xFFFF, "BittWare, Inc.(0x12BA)"},
 }; /* pci_vid_12BA[] */
 
-pci_id_t pci_vid_12BB[] = {
+static pci_id_t const pci_vid_12BB[] = {
 {0x12BB, 0xFFFF, 0xFFFF, 0xFFFF, "Nippon Unisoft Corporation(0x12BB)"},
 }; /* pci_vid_12BB[] */
 
-pci_id_t pci_vid_12BC[] = {
+static pci_id_t const pci_vid_12BC[] = {
 {0x12BC, 0xFFFF, 0xFFFF, 0xFFFF, "Array Microsystems(0x12BC)"},
 }; /* pci_vid_12BC[] */
 
-pci_id_t pci_vid_12BD[] = {
+static pci_id_t const pci_vid_12BD[] = {
 {0x12BD, 0xFFFF, 0xFFFF, 0xFFFF, "Computerm Corp.(0x12BD)"},
 }; /* pci_vid_12BD[] */
 
-pci_id_t pci_vid_12BE[] = {
+static pci_id_t const pci_vid_12BE[] = {
 {0x12BE, 0xFFFF, 0xFFFF, 0xFFFF, "Anchor Chips Inc.(0x12BE)"},
 {0x12BE, 0x3041, 0xFFFF, 0xFFFF, "AN3041Q CO-MEM(0x3041)"},
 {0x12BE, 0x3042, 0xFFFF, 0xFFFF, "AN3042Q CO-MEM Lite(0x3042)"},
 {0x12BE, 0x3042, 0x12BE, 0x3042, "Anchor Chips Lite Evaluation Board(0x12BE-0x3042)"},
 }; /* pci_vid_12BE[] */
 
-pci_id_t pci_vid_12BF[] = {
+static pci_id_t const pci_vid_12BF[] = {
 {0x12BF, 0xFFFF, 0xFFFF, 0xFFFF, "Fujifilm Microdevices(0x12BF)"},
 }; /* pci_vid_12BF[] */
 
-pci_id_t pci_vid_12C0[] = {
+static pci_id_t const pci_vid_12C0[] = {
 {0x12C0, 0xFFFF, 0xFFFF, 0xFFFF, "Infimed(0x12C0)"},
 }; /* pci_vid_12C0[] */
 
-pci_id_t pci_vid_12C1[] = {
+static pci_id_t const pci_vid_12C1[] = {
 {0x12C1, 0xFFFF, 0xFFFF, 0xFFFF, "GMM Research Corp(0x12C1)"},
 }; /* pci_vid_12C1[] */
 
-pci_id_t pci_vid_12C2[] = {
+static pci_id_t const pci_vid_12C2[] = {
 {0x12C2, 0xFFFF, 0xFFFF, 0xFFFF, "Mentec Limited(0x12C2)"},
 }; /* pci_vid_12C2[] */
 
-pci_id_t pci_vid_12C3[] = {
+static pci_id_t const pci_vid_12C3[] = {
 {0x12C3, 0xFFFF, 0xFFFF, 0xFFFF, "Holtek Microelectronics Inc(0x12C3)"},
 {0x12C3, 0x0058, 0xFFFF, 0xFFFF, "PCI NE2K Ethernet(0x0058)"},
 {0x12C3, 0x5598, 0xFFFF, 0xFFFF, "PCI NE2K Ethernet(0x5598)"},
 }; /* pci_vid_12C3[] */
 
-pci_id_t pci_vid_12C4[] = {
+static pci_id_t const pci_vid_12C4[] = {
 {0x12C4, 0xFFFF, 0xFFFF, 0xFFFF, "Connect Tech Inc(0x12C4)"},
 {0x12C4, 0x0001, 0xFFFF, 0xFFFF, "Blue HEAT/PCI 8 (RS232/CL/RJ11)(0x0001)"},
 {0x12C4, 0x0002, 0xFFFF, 0xFFFF, "Blue HEAT/PCI 4 (RS232)(0x0002)"},
@@ -19343,7 +19425,7 @@ pci_id_t pci_vid_12C4[] = {
 {0x12C4, 0x0332, 0xFFFF, 0xFFFF, "CTI PCI UART 8 (RS485)(0x0332)"},
 }; /* pci_vid_12C4[] */
 
-pci_id_t pci_vid_12C5[] = {
+static pci_id_t const pci_vid_12C5[] = {
 {0x12C5, 0xFFFF, 0xFFFF, 0xFFFF, "Picture Elements Incorporated(0x12C5)"},
 {0x12C5, 0x007E, 0xFFFF, 0xFFFF, "Imaging/Scanning Subsystem Engine(0x007E)"},
 {0x12C5, 0x007F, 0xFFFF, 0xFFFF, "Imaging/Scanning Subsystem Engine(0x007F)"},
@@ -19352,11 +19434,11 @@ pci_id_t pci_vid_12C5[] = {
 {0x12C5, 0x0086, 0xFFFF, 0xFFFF, "THR2 Multi-scale Thresholder(0x0086)"},
 }; /* pci_vid_12C5[] */
 
-pci_id_t pci_vid_12C6[] = {
+static pci_id_t const pci_vid_12C6[] = {
 {0x12C6, 0xFFFF, 0xFFFF, 0xFFFF, "Mitani Corporation(0x12C6)"},
 }; /* pci_vid_12C6[] */
 
-pci_id_t pci_vid_12C7[] = {
+static pci_id_t const pci_vid_12C7[] = {
 {0x12C7, 0xFFFF, 0xFFFF, 0xFFFF, "Dialogic Corp(0x12C7)"},
 {0x12C7, 0x0546, 0xFFFF, 0xFFFF, "Springware D/120JCT-LS(0x0546)"},
 {0x12C7, 0x0647, 0xFFFF, 0xFFFF, "Springware D/240JCT-T1(0x0647)"},
@@ -19364,54 +19446,55 @@ pci_id_t pci_vid_12C7[] = {
 {0x12C7, 0x0685, 0xFFFF, 0xFFFF, "Springware D/480JCT-2T1(0x0685)"},
 }; /* pci_vid_12C7[] */
 
-pci_id_t pci_vid_12C8[] = {
+static pci_id_t const pci_vid_12C8[] = {
 {0x12C8, 0xFFFF, 0xFFFF, 0xFFFF, "G Force Co, Ltd(0x12C8)"},
 }; /* pci_vid_12C8[] */
 
-pci_id_t pci_vid_12C9[] = {
+static pci_id_t const pci_vid_12C9[] = {
 {0x12C9, 0xFFFF, 0xFFFF, 0xFFFF, "Gigi Operations(0x12C9)"},
 }; /* pci_vid_12C9[] */
 
-pci_id_t pci_vid_12CA[] = {
+static pci_id_t const pci_vid_12CA[] = {
 {0x12CA, 0xFFFF, 0xFFFF, 0xFFFF, "Integrated Computing Engines(0x12CA)"},
 }; /* pci_vid_12CA[] */
 
-pci_id_t pci_vid_12CB[] = {
+static pci_id_t const pci_vid_12CB[] = {
 {0x12CB, 0xFFFF, 0xFFFF, 0xFFFF, "Antex Electronics Corporation(0x12CB)"},
 {0x12CB, 0x0027, 0xFFFF, 0xFFFF, "SC4 (StudioCard)(0x0027)"},
 {0x12CB, 0x002E, 0xFFFF, 0xFFFF, "StudioCard 2000(0x002E)"},
 }; /* pci_vid_12CB[] */
 
-pci_id_t pci_vid_12CC[] = {
+static pci_id_t const pci_vid_12CC[] = {
 {0x12CC, 0xFFFF, 0xFFFF, 0xFFFF, "Pluto Technologies International(0x12CC)"},
 }; /* pci_vid_12CC[] */
 
-pci_id_t pci_vid_12CD[] = {
+static pci_id_t const pci_vid_12CD[] = {
 {0x12CD, 0xFFFF, 0xFFFF, 0xFFFF, "Aims Lab(0x12CD)"},
 }; /* pci_vid_12CD[] */
 
-pci_id_t pci_vid_12CE[] = {
+static pci_id_t const pci_vid_12CE[] = {
 {0x12CE, 0xFFFF, 0xFFFF, 0xFFFF, "Netspeed Inc.(0x12CE)"},
 }; /* pci_vid_12CE[] */
 
-pci_id_t pci_vid_12CF[] = {
+static pci_id_t const pci_vid_12CF[] = {
 {0x12CF, 0xFFFF, 0xFFFF, 0xFFFF, "Prophet Systems, Inc.(0x12CF)"},
 }; /* pci_vid_12CF[] */
 
-pci_id_t pci_vid_12D0[] = {
+static pci_id_t const pci_vid_12D0[] = {
 {0x12D0, 0xFFFF, 0xFFFF, 0xFFFF, "GDE Systems, Inc.(0x12D0)"},
 }; /* pci_vid_12D0[] */
 
-pci_id_t pci_vid_12D1[] = {
+static pci_id_t const pci_vid_12D1[] = {
 {0x12D1, 0xFFFF, 0xFFFF, 0xFFFF, "PSITech(0x12D1)"},
 }; /* pci_vid_12D1[] */
 
-pci_id_t pci_vid_12D2[] = {
+static pci_id_t const pci_vid_12D2[] = {
 {0x12D2, 0xFFFF, 0xFFFF, 0xFFFF, "NVidia / SGS Thomson (Joint Venture)(0x12D2)"},
 {0x12D2, 0x0008, 0xFFFF, 0xFFFF, "NV1(0x0008)"},
 {0x12D2, 0x0009, 0xFFFF, 0xFFFF, "DAC64(0x0009)"},
 {0x12D2, 0x0018, 0xFFFF, 0xFFFF, "Riva128(0x0018)"},
 {0x12D2, 0x0018, 0x1048, 0x0C10, "VICTORY Erazor(0x1048-0x0C10)"},
+{0x12D2, 0x0018, 0x1048, 0x0C15, "VICTORY Erazor LT-8(0x1048-0x0C15)"},
 {0x12D2, 0x0018, 0x107B, 0x8030, "STB Velocity 128(0x107B-0x8030)"},
 {0x12D2, 0x0018, 0x1092, 0x0350, "Viper V330(0x1092-0x0350)"},
 {0x12D2, 0x0018, 0x1092, 0x1092, "Viper V330(0x1092-0x1092)"},
@@ -19437,42 +19520,43 @@ pci_id_t pci_vid_12D2[] = {
 {0x12D2, 0x00A0, 0xFFFF, 0xFFFF, "ITNT2(0x00A0)"},
 }; /* pci_vid_12D2[] */
 
-pci_id_t pci_vid_12D3[] = {
+static pci_id_t const pci_vid_12D3[] = {
 {0x12D3, 0xFFFF, 0xFFFF, 0xFFFF, "Vingmed Sound A/S(0x12D3)"},
 }; /* pci_vid_12D3[] */
 
-pci_id_t pci_vid_12D4[] = {
+static pci_id_t const pci_vid_12D4[] = {
 {0x12D4, 0xFFFF, 0xFFFF, 0xFFFF, "Ulticom (Formerly DGM&S)(0x12D4)"},
 {0x12D4, 0x0200, 0xFFFF, 0xFFFF, "T1 Card(0x0200)"},
 }; /* pci_vid_12D4[] */
 
-pci_id_t pci_vid_12D5[] = {
+static pci_id_t const pci_vid_12D5[] = {
 {0x12D5, 0xFFFF, 0xFFFF, 0xFFFF, "Equator Technologies Inc(0x12D5)"},
 {0x12D5, 0x0003, 0xFFFF, 0xFFFF, "BSP16(0x0003)"},
 {0x12D5, 0x1000, 0xFFFF, 0xFFFF, "BSP15(0x1000)"},
 }; /* pci_vid_12D5[] */
 
-pci_id_t pci_vid_12D6[] = {
+static pci_id_t const pci_vid_12D6[] = {
 {0x12D6, 0xFFFF, 0xFFFF, 0xFFFF, "Analogic Corp(0x12D6)"},
 }; /* pci_vid_12D6[] */
 
-pci_id_t pci_vid_12D7[] = {
+static pci_id_t const pci_vid_12D7[] = {
 {0x12D7, 0xFFFF, 0xFFFF, 0xFFFF, "Biotronic SRL(0x12D7)"},
 }; /* pci_vid_12D7[] */
 
-pci_id_t pci_vid_12D8[] = {
+static pci_id_t const pci_vid_12D8[] = {
 {0x12D8, 0xFFFF, 0xFFFF, 0xFFFF, "Pericom Semiconductor(0x12D8)"},
 {0x12D8, 0x01A7, 0xFFFF, 0xFFFF, "7C21P100 2-port PCI-X to PCI-X Bridge(0x01A7)"},
 {0x12D8, 0x0303, 0xFFFF, 0xFFFF, "PCI Express Switch 3-3(0x0303)"},
 {0x12D8, 0x0508, 0xFFFF, 0xFFFF, "PI7C9X20508GP PCI Express Switch 5Port-8Lane(0x0508)"},
 {0x12D8, 0x2304, 0xFFFF, 0xFFFF, "PI7C9X2G304 EL/SL PCIe2 3-Port/4-Lane Packet Switch(0x2304)"},
-{0x12D8, 0x2308, 0xFFFF, 0xFFFF, "PI7C9X2G308GP 8-lane PCI Express 2.0 Switch with 3 PCI Express ports(0x2308)"},
+{0x12D8, 0x2308, 0xFFFF, 0xFFFF, "PI7C9X2G308GP 3-Ports/8-lane PCIe 2.0 Switch(0x2308)"},
 {0x12D8, 0x2404, 0xFFFF, 0xFFFF, "PI7C9X2G404 EL/SL PCIe2 4-Port/4-Lane Packet Switch(0x2404)"},
 {0x12D8, 0x2608, 0xFFFF, 0xFFFF, "PI7C9X2G608GP PCIe2 6-Port/8-Lane Packet Switch(0x2608)"},
 {0x12D8, 0x2608, 0xEA50, 0xCC10, "RXi2-BP(0xEA50-0xCC10)"},
-{0x12D8, 0x400A, 0xFFFF, 0xFFFF, "PI7C9X442SL PCI Express Bridge Port(0x400A)"},
-{0x12D8, 0x400E, 0xFFFF, 0xFFFF, "PI7C9X442SL USB OHCI Controller(0x400E)"},
-{0x12D8, 0x400F, 0xFFFF, 0xFFFF, "PI7C9X442SL USB EHCI Controller(0x400F)"},
+{0x12D8, 0x400A, 0xFFFF, 0xFFFF, "PI7C9X442SL PCIe Bridge Port(0x400A)"},
+{0x12D8, 0x400C, 0xFFFF, 0xFFFF, "PI7C9X440SL PCIe Bridge Port(0x400C)"},
+{0x12D8, 0x400E, 0xFFFF, 0xFFFF, "PI7C9X440SL/PI7C9X442SL USB OHCI Controller(0x400E)"},
+{0x12D8, 0x400F, 0xFFFF, 0xFFFF, "PI7C9X440SL/PI7C9X442SL USB EHCI Controller(0x400F)"},
 {0x12D8, 0x71E2, 0xFFFF, 0xFFFF, "PI7C7300A/PI7C7300D PCI-to-PCI Bridge(0x71E2)"},
 {0x12D8, 0x71E3, 0xFFFF, 0xFFFF, "PI7C7300A/PI7C7300D PCI-to-PCI Bridge (Secondary Bus 2)(0x71E3)"},
 {0x12D8, 0x8140, 0xFFFF, 0xFFFF, "PI7C8140A PCI-to-PCI Bridge(0x8140)"},
@@ -19481,13 +19565,15 @@ pci_id_t pci_vid_12D8[] = {
 {0x12D8, 0x8152, 0xFFFF, 0xFFFF, "PI7C8152A/PI7C8152B/PI7C8152BI PCI-to-PCI Bridge(0x8152)"},
 {0x12D8, 0x8154, 0xFFFF, 0xFFFF, "PI7C8154A/PI7C8154B/PI7C8154BI PCI-to-PCI Bridge(0x8154)"},
 {0x12D8, 0x8619, 0xFFFF, 0xFFFF, "PI7C9X2G1616PR PCIe2 16-Port/16-Lane Packet Switch(0x8619)"},
-{0x12D8, 0xE110, 0xFFFF, 0xFFFF, "PI7C9X110 PCI Express to PCI bridge(0xE110)"},
+{0x12D8, 0xE110, 0xFFFF, 0xFFFF, "PI7C9X110 PCIe- to-PCI bridge(0xE110)"},
 {0x12D8, 0xE110, 0x1775, 0x11CC, "CC11/CL11 CompactPCI Bridge(0x1775-0x11CC)"},
 {0x12D8, 0xE111, 0xFFFF, 0xFFFF, "PI7C9X111SL PCIe-to-PCI Reversible Bridge(0xE111)"},
+{0x12D8, 0xE112, 0xFFFF, 0xFFFF, "PI7C9X112SL PCIe-to-PCI Bridge(0xE112)"},
+{0x12D8, 0xE113, 0xFFFF, 0xFFFF, "PI7C9X113SL/PI7C9X118SL PCIe-to-PCI Bridge(0xE113)"},
 {0x12D8, 0xE130, 0xFFFF, 0xFFFF, "PCI Express to PCI-XPI7C9X130 PCI-X Bridge(0xE130)"},
 }; /* pci_vid_12D8[] */
 
-pci_id_t pci_vid_12D9[] = {
+static pci_id_t const pci_vid_12D9[] = {
 {0x12D9, 0xFFFF, 0xFFFF, 0xFFFF, "Aculab PLC(0x12D9)"},
 {0x12D9, 0x0002, 0xFFFF, 0xFFFF, "PCI Prosody(0x0002)"},
 {0x12D9, 0x0004, 0xFFFF, 0xFFFF, "cPCI Prosody(0x0004)"},
@@ -19497,79 +19583,79 @@ pci_id_t pci_vid_12D9[] = {
 {0x12D9, 0x1078, 0x12D9, 0x000E, "Prosody X cPCI(0x12D9-0x000E)"},
 }; /* pci_vid_12D9[] */
 
-pci_id_t pci_vid_12DA[] = {
+static pci_id_t const pci_vid_12DA[] = {
 {0x12DA, 0xFFFF, 0xFFFF, 0xFFFF, "True Time Inc.(0x12DA)"},
 }; /* pci_vid_12DA[] */
 
-pci_id_t pci_vid_12DB[] = {
+static pci_id_t const pci_vid_12DB[] = {
 {0x12DB, 0xFFFF, 0xFFFF, 0xFFFF, "Annapolis Micro Systems, Inc(0x12DB)"},
 }; /* pci_vid_12DB[] */
 
-pci_id_t pci_vid_12DC[] = {
+static pci_id_t const pci_vid_12DC[] = {
 {0x12DC, 0xFFFF, 0xFFFF, 0xFFFF, "Symicron Computer Communication Ltd.(0x12DC)"},
 }; /* pci_vid_12DC[] */
 
-pci_id_t pci_vid_12DD[] = {
+static pci_id_t const pci_vid_12DD[] = {
 {0x12DD, 0xFFFF, 0xFFFF, 0xFFFF, "Management Graphics(0x12DD)"},
 }; /* pci_vid_12DD[] */
 
-pci_id_t pci_vid_12DE[] = {
+static pci_id_t const pci_vid_12DE[] = {
 {0x12DE, 0xFFFF, 0xFFFF, 0xFFFF, "Rainbow Technologies(0x12DE)"},
 {0x12DE, 0x0200, 0xFFFF, 0xFFFF, "CryptoSwift CS200(0x0200)"},
 }; /* pci_vid_12DE[] */
 
-pci_id_t pci_vid_12DF[] = {
+static pci_id_t const pci_vid_12DF[] = {
 {0x12DF, 0xFFFF, 0xFFFF, 0xFFFF, "SBS Technologies Inc(0x12DF)"},
 }; /* pci_vid_12DF[] */
 
-pci_id_t pci_vid_12E0[] = {
+static pci_id_t const pci_vid_12E0[] = {
 {0x12E0, 0xFFFF, 0xFFFF, 0xFFFF, "Chase Research(0x12E0)"},
 {0x12E0, 0x0010, 0xFFFF, 0xFFFF, "ST16C654 Quad UART(0x0010)"},
 {0x12E0, 0x0020, 0xFFFF, 0xFFFF, "ST16C654 Quad UART(0x0020)"},
 {0x12E0, 0x0030, 0xFFFF, 0xFFFF, "ST16C654 Quad UART(0x0030)"},
 }; /* pci_vid_12E0[] */
 
-pci_id_t pci_vid_12E1[] = {
+static pci_id_t const pci_vid_12E1[] = {
 {0x12E1, 0xFFFF, 0xFFFF, 0xFFFF, "Nintendo Co, Ltd(0x12E1)"},
 }; /* pci_vid_12E1[] */
 
-pci_id_t pci_vid_12E2[] = {
+static pci_id_t const pci_vid_12E2[] = {
 {0x12E2, 0xFFFF, 0xFFFF, 0xFFFF, "Datum Inc. Bancomm-Timing Division(0x12E2)"},
 }; /* pci_vid_12E2[] */
 
-pci_id_t pci_vid_12E3[] = {
+static pci_id_t const pci_vid_12E3[] = {
 {0x12E3, 0xFFFF, 0xFFFF, 0xFFFF, "Imation Corp - Medical Imaging Systems(0x12E3)"},
 }; /* pci_vid_12E3[] */
 
-pci_id_t pci_vid_12E4[] = {
+static pci_id_t const pci_vid_12E4[] = {
 {0x12E4, 0xFFFF, 0xFFFF, 0xFFFF, "Brooktrout Technology Inc(0x12E4)"},
 }; /* pci_vid_12E4[] */
 
-pci_id_t pci_vid_12E5[] = {
+static pci_id_t const pci_vid_12E5[] = {
 {0x12E5, 0xFFFF, 0xFFFF, 0xFFFF, "Apex Semiconductor Inc(0x12E5)"},
 }; /* pci_vid_12E5[] */
 
-pci_id_t pci_vid_12E6[] = {
+static pci_id_t const pci_vid_12E6[] = {
 {0x12E6, 0xFFFF, 0xFFFF, 0xFFFF, "Cirel Systems(0x12E6)"},
 }; /* pci_vid_12E6[] */
 
-pci_id_t pci_vid_12E7[] = {
+static pci_id_t const pci_vid_12E7[] = {
 {0x12E7, 0xFFFF, 0xFFFF, 0xFFFF, "Sunsgroup Corporation(0x12E7)"},
 }; /* pci_vid_12E7[] */
 
-pci_id_t pci_vid_12E8[] = {
+static pci_id_t const pci_vid_12E8[] = {
 {0x12E8, 0xFFFF, 0xFFFF, 0xFFFF, "Crisc Corp(0x12E8)"},
 }; /* pci_vid_12E8[] */
 
-pci_id_t pci_vid_12E9[] = {
+static pci_id_t const pci_vid_12E9[] = {
 {0x12E9, 0xFFFF, 0xFFFF, 0xFFFF, "GE Spacenet(0x12E9)"},
 }; /* pci_vid_12E9[] */
 
-pci_id_t pci_vid_12EA[] = {
+static pci_id_t const pci_vid_12EA[] = {
 {0x12EA, 0xFFFF, 0xFFFF, 0xFFFF, "Zuken(0x12EA)"},
 }; /* pci_vid_12EA[] */
 
-pci_id_t pci_vid_12EB[] = {
+static pci_id_t const pci_vid_12EB[] = {
 {0x12EB, 0xFFFF, 0xFFFF, 0xFFFF, "Aureal Semiconductor(0x12EB)"},
 {0x12EB, 0x0001, 0xFFFF, 0xFFFF, "Vortex 1(0x0001)"},
 {0x12EB, 0x0001, 0x0000, 0x0300, "Terasound A3D PCI(0x0000-0x0300)"},
@@ -19608,64 +19694,64 @@ pci_id_t pci_vid_12EB[] = {
 {0x12EB, 0x8803, 0x12EB, 0x8803, "Vortex 56k Software Modem(0x12EB-0x8803)"},
 }; /* pci_vid_12EB[] */
 
-pci_id_t pci_vid_12EC[] = {
+static pci_id_t const pci_vid_12EC[] = {
 {0x12EC, 0xFFFF, 0xFFFF, 0xFFFF, "3A International, Inc.(0x12EC)"},
 }; /* pci_vid_12EC[] */
 
-pci_id_t pci_vid_12ED[] = {
+static pci_id_t const pci_vid_12ED[] = {
 {0x12ED, 0xFFFF, 0xFFFF, 0xFFFF, "Optivision Inc.(0x12ED)"},
 }; /* pci_vid_12ED[] */
 
-pci_id_t pci_vid_12EE[] = {
+static pci_id_t const pci_vid_12EE[] = {
 {0x12EE, 0xFFFF, 0xFFFF, 0xFFFF, "Orange Micro(0x12EE)"},
 }; /* pci_vid_12EE[] */
 
-pci_id_t pci_vid_12EF[] = {
+static pci_id_t const pci_vid_12EF[] = {
 {0x12EF, 0xFFFF, 0xFFFF, 0xFFFF, "Vienna Systems(0x12EF)"},
 }; /* pci_vid_12EF[] */
 
-pci_id_t pci_vid_12F0[] = {
+static pci_id_t const pci_vid_12F0[] = {
 {0x12F0, 0xFFFF, 0xFFFF, 0xFFFF, "Pentek(0x12F0)"},
 }; /* pci_vid_12F0[] */
 
-pci_id_t pci_vid_12F1[] = {
+static pci_id_t const pci_vid_12F1[] = {
 {0x12F1, 0xFFFF, 0xFFFF, 0xFFFF, "Sorenson Vision Inc(0x12F1)"},
 }; /* pci_vid_12F1[] */
 
-pci_id_t pci_vid_12F2[] = {
+static pci_id_t const pci_vid_12F2[] = {
 {0x12F2, 0xFFFF, 0xFFFF, 0xFFFF, "Gammagraphx, Inc.(0x12F2)"},
 }; /* pci_vid_12F2[] */
 
-pci_id_t pci_vid_12F3[] = {
+static pci_id_t const pci_vid_12F3[] = {
 {0x12F3, 0xFFFF, 0xFFFF, 0xFFFF, "Radstone Technology(0x12F3)"},
 }; /* pci_vid_12F3[] */
 
-pci_id_t pci_vid_12F4[] = {
+static pci_id_t const pci_vid_12F4[] = {
 {0x12F4, 0xFFFF, 0xFFFF, 0xFFFF, "Megatel(0x12F4)"},
 }; /* pci_vid_12F4[] */
 
-pci_id_t pci_vid_12F5[] = {
+static pci_id_t const pci_vid_12F5[] = {
 {0x12F5, 0xFFFF, 0xFFFF, 0xFFFF, "Forks(0x12F5)"},
 }; /* pci_vid_12F5[] */
 
-pci_id_t pci_vid_12F6[] = {
+static pci_id_t const pci_vid_12F6[] = {
 {0x12F6, 0xFFFF, 0xFFFF, 0xFFFF, "Dawson France(0x12F6)"},
 }; /* pci_vid_12F6[] */
 
-pci_id_t pci_vid_12F7[] = {
+static pci_id_t const pci_vid_12F7[] = {
 {0x12F7, 0xFFFF, 0xFFFF, 0xFFFF, "Cognex(0x12F7)"},
 }; /* pci_vid_12F7[] */
 
-pci_id_t pci_vid_12F8[] = {
+static pci_id_t const pci_vid_12F8[] = {
 {0x12F8, 0xFFFF, 0xFFFF, 0xFFFF, "Electronic Design GmbH(0x12F8)"},
 {0x12F8, 0x0002, 0xFFFF, 0xFFFF, "VideoMaker(0x0002)"},
 }; /* pci_vid_12F8[] */
 
-pci_id_t pci_vid_12F9[] = {
+static pci_id_t const pci_vid_12F9[] = {
 {0x12F9, 0xFFFF, 0xFFFF, 0xFFFF, "Four Fold Ltd(0x12F9)"},
 }; /* pci_vid_12F9[] */
 
-pci_id_t pci_vid_12FB[] = {
+static pci_id_t const pci_vid_12FB[] = {
 {0x12FB, 0xFFFF, 0xFFFF, 0xFFFF, "Spectrum Signal Processing(0x12FB)"},
 {0x12FB, 0x0001, 0xFFFF, 0xFFFF, "PMC-MAI(0x0001)"},
 {0x12FB, 0x00F5, 0xFFFF, 0xFFFF, "F5 Dakar(0x00F5)"},
@@ -19683,48 +19769,48 @@ pci_id_t pci_vid_12FB[] = {
 {0x12FB, 0xFA01, 0xFFFF, 0xFFFF, "ePMC-FPGA(0xFA01)"},
 }; /* pci_vid_12FB[] */
 
-pci_id_t pci_vid_12FC[] = {
+static pci_id_t const pci_vid_12FC[] = {
 {0x12FC, 0xFFFF, 0xFFFF, 0xFFFF, "Capital Equipment Corp(0x12FC)"},
 }; /* pci_vid_12FC[] */
 
-pci_id_t pci_vid_12FD[] = {
+static pci_id_t const pci_vid_12FD[] = {
 {0x12FD, 0xFFFF, 0xFFFF, 0xFFFF, "I2S(0x12FD)"},
 }; /* pci_vid_12FD[] */
 
-pci_id_t pci_vid_12FE[] = {
+static pci_id_t const pci_vid_12FE[] = {
 {0x12FE, 0xFFFF, 0xFFFF, 0xFFFF, "ESD Electronic System Design GmbH(0x12FE)"},
 }; /* pci_vid_12FE[] */
 
-pci_id_t pci_vid_12FF[] = {
+static pci_id_t const pci_vid_12FF[] = {
 {0x12FF, 0xFFFF, 0xFFFF, 0xFFFF, "Lexicon(0x12FF)"},
 }; /* pci_vid_12FF[] */
 
-pci_id_t pci_vid_1300[] = {
+static pci_id_t const pci_vid_1300[] = {
 {0x1300, 0xFFFF, 0xFFFF, 0xFFFF, "Harman International Industries Inc(0x1300)"},
 }; /* pci_vid_1300[] */
 
-pci_id_t pci_vid_1302[] = {
+static pci_id_t const pci_vid_1302[] = {
 {0x1302, 0xFFFF, 0xFFFF, 0xFFFF, "Computer Sciences Corp(0x1302)"},
 }; /* pci_vid_1302[] */
 
-pci_id_t pci_vid_1303[] = {
+static pci_id_t const pci_vid_1303[] = {
 {0x1303, 0xFFFF, 0xFFFF, 0xFFFF, "Innovative Integration(0x1303)"},
 {0x1303, 0x0030, 0xFFFF, 0xFFFF, "X3-SDF 4-channel XMC acquisition board(0x0030)"},
 }; /* pci_vid_1303[] */
 
-pci_id_t pci_vid_1304[] = {
+static pci_id_t const pci_vid_1304[] = {
 {0x1304, 0xFFFF, 0xFFFF, 0xFFFF, "Juniper Networks(0x1304)"},
 }; /* pci_vid_1304[] */
 
-pci_id_t pci_vid_1305[] = {
+static pci_id_t const pci_vid_1305[] = {
 {0x1305, 0xFFFF, 0xFFFF, 0xFFFF, "Netphone, Inc(0x1305)"},
 }; /* pci_vid_1305[] */
 
-pci_id_t pci_vid_1306[] = {
+static pci_id_t const pci_vid_1306[] = {
 {0x1306, 0xFFFF, 0xFFFF, 0xFFFF, "Duet Technologies(0x1306)"},
 }; /* pci_vid_1306[] */
 
-pci_id_t pci_vid_1307[] = {
+static pci_id_t const pci_vid_1307[] = {
 {0x1307, 0xFFFF, 0xFFFF, 0xFFFF, "Measurement Computing(0x1307)"},
 {0x1307, 0x0001, 0xFFFF, 0xFFFF, "PCI-DAS1602/16(0x0001)"},
 {0x1307, 0x000B, 0xFFFF, 0xFFFF, "PCI-DIO48H(0x000B)"},
@@ -19804,65 +19890,65 @@ pci_id_t pci_vid_1307[] = {
 {0x1307, 0x0115, 0xFFFF, 0xFFFF, "PCIe-DAS1602/16(0x0115)"},
 }; /* pci_vid_1307[] */
 
-pci_id_t pci_vid_1308[] = {
+static pci_id_t const pci_vid_1308[] = {
 {0x1308, 0xFFFF, 0xFFFF, 0xFFFF, "Jato Technologies Inc.(0x1308)"},
 {0x1308, 0x0001, 0xFFFF, 0xFFFF, "NetCelerator Adapter(0x0001)"},
 {0x1308, 0x0001, 0x1308, 0x0001, "NetCelerator Adapter(0x1308-0x0001)"},
 }; /* pci_vid_1308[] */
 
-pci_id_t pci_vid_1309[] = {
+static pci_id_t const pci_vid_1309[] = {
 {0x1309, 0xFFFF, 0xFFFF, 0xFFFF, "AB Semiconductor Ltd(0x1309)"},
 }; /* pci_vid_1309[] */
 
-pci_id_t pci_vid_130A[] = {
+static pci_id_t const pci_vid_130A[] = {
 {0x130A, 0xFFFF, 0xFFFF, 0xFFFF, "Mitsubishi Electric Microcomputer(0x130A)"},
 }; /* pci_vid_130A[] */
 
-pci_id_t pci_vid_130B[] = {
+static pci_id_t const pci_vid_130B[] = {
 {0x130B, 0xFFFF, 0xFFFF, 0xFFFF, "Colorgraphic Communications Corp(0x130B)"},
 }; /* pci_vid_130B[] */
 
-pci_id_t pci_vid_130C[] = {
+static pci_id_t const pci_vid_130C[] = {
 {0x130C, 0xFFFF, 0xFFFF, 0xFFFF, "Ambex Technologies, Inc(0x130C)"},
 }; /* pci_vid_130C[] */
 
-pci_id_t pci_vid_130D[] = {
+static pci_id_t const pci_vid_130D[] = {
 {0x130D, 0xFFFF, 0xFFFF, 0xFFFF, "Accelerix Inc(0x130D)"},
 }; /* pci_vid_130D[] */
 
-pci_id_t pci_vid_130E[] = {
+static pci_id_t const pci_vid_130E[] = {
 {0x130E, 0xFFFF, 0xFFFF, 0xFFFF, "Yamatake-Honeywell Co. Ltd(0x130E)"},
 }; /* pci_vid_130E[] */
 
-pci_id_t pci_vid_130F[] = {
+static pci_id_t const pci_vid_130F[] = {
 {0x130F, 0xFFFF, 0xFFFF, 0xFFFF, "Advanet Inc(0x130F)"},
 }; /* pci_vid_130F[] */
 
-pci_id_t pci_vid_1310[] = {
+static pci_id_t const pci_vid_1310[] = {
 {0x1310, 0xFFFF, 0xFFFF, 0xFFFF, "Gespac(0x1310)"},
 }; /* pci_vid_1310[] */
 
-pci_id_t pci_vid_1311[] = {
+static pci_id_t const pci_vid_1311[] = {
 {0x1311, 0xFFFF, 0xFFFF, 0xFFFF, "Videoserver, Inc(0x1311)"},
 }; /* pci_vid_1311[] */
 
-pci_id_t pci_vid_1312[] = {
+static pci_id_t const pci_vid_1312[] = {
 {0x1312, 0xFFFF, 0xFFFF, 0xFFFF, "Acuity Imaging, Inc(0x1312)"},
 }; /* pci_vid_1312[] */
 
-pci_id_t pci_vid_1313[] = {
+static pci_id_t const pci_vid_1313[] = {
 {0x1313, 0xFFFF, 0xFFFF, 0xFFFF, "Yaskawa Electric Co.(0x1313)"},
 }; /* pci_vid_1313[] */
 
-pci_id_t pci_vid_1315[] = {
+static pci_id_t const pci_vid_1315[] = {
 {0x1315, 0xFFFF, 0xFFFF, 0xFFFF, "Wavesat(0x1315)"},
 }; /* pci_vid_1315[] */
 
-pci_id_t pci_vid_1316[] = {
+static pci_id_t const pci_vid_1316[] = {
 {0x1316, 0xFFFF, 0xFFFF, 0xFFFF, "Teradyne Inc(0x1316)"},
 }; /* pci_vid_1316[] */
 
-pci_id_t pci_vid_1317[] = {
+static pci_id_t const pci_vid_1317[] = {
 {0x1317, 0xFFFF, 0xFFFF, 0xFFFF, "ADMtek(0x1317)"},
 {0x1317, 0x0981, 0xFFFF, 0xFFFF, "21x4x DEC-Tulip compatible 10/100 Ethernet(0x0981)"},
 {0x1317, 0x0985, 0xFFFF, 0xFFFF, "NC100 Network Everywhere Fast Ethernet 10/100(0x0985)"},
@@ -19879,12 +19965,12 @@ pci_id_t pci_vid_1317[] = {
 {0x1317, 0x9511, 0xFFFF, 0xFFFF, "21x4x DEC-Tulip compatible 10/100 Ethernet(0x9511)"},
 }; /* pci_vid_1317[] */
 
-pci_id_t pci_vid_1318[] = {
+static pci_id_t const pci_vid_1318[] = {
 {0x1318, 0xFFFF, 0xFFFF, 0xFFFF, "Packet Engines Inc.(0x1318)"},
 {0x1318, 0x0911, 0xFFFF, 0xFFFF, "GNIC-II PCI Gigabit Ethernet [Hamachi](0x0911)"},
 }; /* pci_vid_1318[] */
 
-pci_id_t pci_vid_1319[] = {
+static pci_id_t const pci_vid_1319[] = {
 {0x1319, 0xFFFF, 0xFFFF, 0xFFFF, "Fortemedia, Inc(0x1319)"},
 {0x1319, 0x0801, 0xFFFF, 0xFFFF, "Xwave QS3000A [FM801](0x0801)"},
 {0x1319, 0x0801, 0x1319, 0x1319, "FM801 PCI Audio(0x1319-0x1319)"},
@@ -19894,23 +19980,23 @@ pci_id_t pci_vid_1319[] = {
 {0x1319, 0x1001, 0xFFFF, 0xFFFF, "FM801 PCI Joystick(0x1001)"},
 }; /* pci_vid_1319[] */
 
-pci_id_t pci_vid_131A[] = {
+static pci_id_t const pci_vid_131A[] = {
 {0x131A, 0xFFFF, 0xFFFF, 0xFFFF, "Finisar Corp.(0x131A)"},
 }; /* pci_vid_131A[] */
 
-pci_id_t pci_vid_131C[] = {
+static pci_id_t const pci_vid_131C[] = {
 {0x131C, 0xFFFF, 0xFFFF, 0xFFFF, "Nippon Electro-Sensory Devices Corp(0x131C)"},
 }; /* pci_vid_131C[] */
 
-pci_id_t pci_vid_131D[] = {
+static pci_id_t const pci_vid_131D[] = {
 {0x131D, 0xFFFF, 0xFFFF, 0xFFFF, "Sysmic, Inc.(0x131D)"},
 }; /* pci_vid_131D[] */
 
-pci_id_t pci_vid_131E[] = {
+static pci_id_t const pci_vid_131E[] = {
 {0x131E, 0xFFFF, 0xFFFF, 0xFFFF, "Xinex Networks Inc(0x131E)"},
 }; /* pci_vid_131E[] */
 
-pci_id_t pci_vid_131F[] = {
+static pci_id_t const pci_vid_131F[] = {
 {0x131F, 0xFFFF, 0xFFFF, 0xFFFF, "Siig Inc(0x131F)"},
 {0x131F, 0x1000, 0xFFFF, 0xFFFF, "CyberSerial (1-port) 16550(0x1000)"},
 {0x131F, 0x1001, 0xFFFF, 0xFFFF, "CyberSerial (1-port) 16650(0x1001)"},
@@ -19953,67 +20039,67 @@ pci_id_t pci_vid_131F[] = {
 {0x131F, 0x2081, 0xFFFF, 0xFFFF, "CyberSerial (8-port) ST16654(0x2081)"},
 }; /* pci_vid_131F[] */
 
-pci_id_t pci_vid_1320[] = {
+static pci_id_t const pci_vid_1320[] = {
 {0x1320, 0xFFFF, 0xFFFF, 0xFFFF, "Crypto AG(0x1320)"},
 }; /* pci_vid_1320[] */
 
-pci_id_t pci_vid_1321[] = {
+static pci_id_t const pci_vid_1321[] = {
 {0x1321, 0xFFFF, 0xFFFF, 0xFFFF, "Arcobel Graphics BV(0x1321)"},
 }; /* pci_vid_1321[] */
 
-pci_id_t pci_vid_1322[] = {
+static pci_id_t const pci_vid_1322[] = {
 {0x1322, 0xFFFF, 0xFFFF, 0xFFFF, "MTT Co., Ltd(0x1322)"},
 }; /* pci_vid_1322[] */
 
-pci_id_t pci_vid_1323[] = {
+static pci_id_t const pci_vid_1323[] = {
 {0x1323, 0xFFFF, 0xFFFF, 0xFFFF, "Dome Inc(0x1323)"},
 }; /* pci_vid_1323[] */
 
-pci_id_t pci_vid_1324[] = {
+static pci_id_t const pci_vid_1324[] = {
 {0x1324, 0xFFFF, 0xFFFF, 0xFFFF, "Sphere Communications(0x1324)"},
 }; /* pci_vid_1324[] */
 
-pci_id_t pci_vid_1325[] = {
+static pci_id_t const pci_vid_1325[] = {
 {0x1325, 0xFFFF, 0xFFFF, 0xFFFF, "Salix Technologies, Inc(0x1325)"},
 }; /* pci_vid_1325[] */
 
-pci_id_t pci_vid_1326[] = {
+static pci_id_t const pci_vid_1326[] = {
 {0x1326, 0xFFFF, 0xFFFF, 0xFFFF, "Seachange international(0x1326)"},
 }; /* pci_vid_1326[] */
 
-pci_id_t pci_vid_1327[] = {
+static pci_id_t const pci_vid_1327[] = {
 {0x1327, 0xFFFF, 0xFFFF, 0xFFFF, "Voss scientific(0x1327)"},
 }; /* pci_vid_1327[] */
 
-pci_id_t pci_vid_1328[] = {
+static pci_id_t const pci_vid_1328[] = {
 {0x1328, 0xFFFF, 0xFFFF, 0xFFFF, "quadrant international(0x1328)"},
 }; /* pci_vid_1328[] */
 
-pci_id_t pci_vid_1329[] = {
+static pci_id_t const pci_vid_1329[] = {
 {0x1329, 0xFFFF, 0xFFFF, 0xFFFF, "Productivity Enhancement(0x1329)"},
 }; /* pci_vid_1329[] */
 
-pci_id_t pci_vid_132A[] = {
+static pci_id_t const pci_vid_132A[] = {
 {0x132A, 0xFFFF, 0xFFFF, 0xFFFF, "Microcom Inc.(0x132A)"},
 }; /* pci_vid_132A[] */
 
-pci_id_t pci_vid_132B[] = {
+static pci_id_t const pci_vid_132B[] = {
 {0x132B, 0xFFFF, 0xFFFF, 0xFFFF, "Broadband Technologies(0x132B)"},
 }; /* pci_vid_132B[] */
 
-pci_id_t pci_vid_132C[] = {
+static pci_id_t const pci_vid_132C[] = {
 {0x132C, 0xFFFF, 0xFFFF, 0xFFFF, "Micrel Inc(0x132C)"},
 }; /* pci_vid_132C[] */
 
-pci_id_t pci_vid_132D[] = {
+static pci_id_t const pci_vid_132D[] = {
 {0x132D, 0xFFFF, 0xFFFF, 0xFFFF, "Integrated Silicon Solution, Inc.(0x132D)"},
 }; /* pci_vid_132D[] */
 
-pci_id_t pci_vid_1330[] = {
+static pci_id_t const pci_vid_1330[] = {
 {0x1330, 0xFFFF, 0xFFFF, 0xFFFF, "MMC Networks(0x1330)"},
 }; /* pci_vid_1330[] */
 
-pci_id_t pci_vid_1331[] = {
+static pci_id_t const pci_vid_1331[] = {
 {0x1331, 0xFFFF, 0xFFFF, 0xFFFF, "RadiSys Corporation(0x1331)"},
 {0x1331, 0x0030, 0xFFFF, 0xFFFF, "ENP-2611(0x0030)"},
 {0x1331, 0x8200, 0xFFFF, 0xFFFF, "82600 Host Bridge(0x8200)"},
@@ -20022,70 +20108,70 @@ pci_id_t pci_vid_1331[] = {
 {0x1331, 0x8210, 0xFFFF, 0xFFFF, "82600 PCI Bridge(0x8210)"},
 }; /* pci_vid_1331[] */
 
-pci_id_t pci_vid_1332[] = {
+static pci_id_t const pci_vid_1332[] = {
 {0x1332, 0xFFFF, 0xFFFF, 0xFFFF, "Micro Memory(0x1332)"},
 {0x1332, 0x5415, 0xFFFF, 0xFFFF, "MM-5415CN PCI Memory Module with Battery Backup(0x5415)"},
 {0x1332, 0x5425, 0xFFFF, 0xFFFF, "MM-5425CN PCI 64/66 Memory Module with Battery Backup(0x5425)"},
 {0x1332, 0x6140, 0xFFFF, 0xFFFF, "MM-6140D(0x6140)"},
 }; /* pci_vid_1332[] */
 
-pci_id_t pci_vid_1334[] = {
+static pci_id_t const pci_vid_1334[] = {
 {0x1334, 0xFFFF, 0xFFFF, 0xFFFF, "Redcreek Communications, Inc(0x1334)"},
 }; /* pci_vid_1334[] */
 
-pci_id_t pci_vid_1335[] = {
+static pci_id_t const pci_vid_1335[] = {
 {0x1335, 0xFFFF, 0xFFFF, 0xFFFF, "Videomail, Inc(0x1335)"},
 }; /* pci_vid_1335[] */
 
-pci_id_t pci_vid_1337[] = {
+static pci_id_t const pci_vid_1337[] = {
 {0x1337, 0xFFFF, 0xFFFF, 0xFFFF, "Third Planet Publishing(0x1337)"},
 }; /* pci_vid_1337[] */
 
-pci_id_t pci_vid_1338[] = {
+static pci_id_t const pci_vid_1338[] = {
 {0x1338, 0xFFFF, 0xFFFF, 0xFFFF, "BT Electronics(0x1338)"},
 }; /* pci_vid_1338[] */
 
-pci_id_t pci_vid_133A[] = {
+static pci_id_t const pci_vid_133A[] = {
 {0x133A, 0xFFFF, 0xFFFF, 0xFFFF, "Vtel Corp(0x133A)"},
 }; /* pci_vid_133A[] */
 
-pci_id_t pci_vid_133B[] = {
+static pci_id_t const pci_vid_133B[] = {
 {0x133B, 0xFFFF, 0xFFFF, 0xFFFF, "Softcom Microsystems(0x133B)"},
 }; /* pci_vid_133B[] */
 
-pci_id_t pci_vid_133C[] = {
+static pci_id_t const pci_vid_133C[] = {
 {0x133C, 0xFFFF, 0xFFFF, 0xFFFF, "Holontech Corp(0x133C)"},
 }; /* pci_vid_133C[] */
 
-pci_id_t pci_vid_133D[] = {
+static pci_id_t const pci_vid_133D[] = {
 {0x133D, 0xFFFF, 0xFFFF, 0xFFFF, "SS Technologies(0x133D)"},
 }; /* pci_vid_133D[] */
 
-pci_id_t pci_vid_133E[] = {
+static pci_id_t const pci_vid_133E[] = {
 {0x133E, 0xFFFF, 0xFFFF, 0xFFFF, "Virtual Computer Corp(0x133E)"},
 }; /* pci_vid_133E[] */
 
-pci_id_t pci_vid_133F[] = {
+static pci_id_t const pci_vid_133F[] = {
 {0x133F, 0xFFFF, 0xFFFF, 0xFFFF, "SCM Microsystems(0x133F)"},
 }; /* pci_vid_133F[] */
 
-pci_id_t pci_vid_1340[] = {
+static pci_id_t const pci_vid_1340[] = {
 {0x1340, 0xFFFF, 0xFFFF, 0xFFFF, "Atalla Corp(0x1340)"},
 }; /* pci_vid_1340[] */
 
-pci_id_t pci_vid_1341[] = {
+static pci_id_t const pci_vid_1341[] = {
 {0x1341, 0xFFFF, 0xFFFF, 0xFFFF, "Kyoto Microcomputer Co(0x1341)"},
 }; /* pci_vid_1341[] */
 
-pci_id_t pci_vid_1342[] = {
+static pci_id_t const pci_vid_1342[] = {
 {0x1342, 0xFFFF, 0xFFFF, 0xFFFF, "Promax Systems Inc(0x1342)"},
 }; /* pci_vid_1342[] */
 
-pci_id_t pci_vid_1343[] = {
+static pci_id_t const pci_vid_1343[] = {
 {0x1343, 0xFFFF, 0xFFFF, 0xFFFF, "Phylon Communications Inc(0x1343)"},
 }; /* pci_vid_1343[] */
 
-pci_id_t pci_vid_1344[] = {
+static pci_id_t const pci_vid_1344[] = {
 {0x1344, 0xFFFF, 0xFFFF, 0xFFFF, "Micron Technology Inc(0x1344)"},
 {0x1344, 0x5150, 0xFFFF, 0xFFFF, "RealSSD P320h(0x5150)"},
 {0x1344, 0x5151, 0xFFFF, 0xFFFF, "RealSSD P320m(0x5151)"},
@@ -20172,37 +20258,38 @@ pci_id_t pci_vid_1344[] = {
 {0x1344, 0x5411, 0xFFFF, 0xFFFF, "2450 NVMe SSD [HendrixV] (DRAM-less)(0x5411)"},
 {0x1344, 0x5413, 0xFFFF, 0xFFFF, "2400 NVMe SSD (DRAM-less)(0x5413)"},
 {0x1344, 0x5414, 0xFFFF, 0xFFFF, "3460 NVMe SSD(0x5414)"},
+{0x1344, 0x5415, 0xFFFF, 0xFFFF, "3500 NVMe SSD(0x5415)"},
 {0x1344, 0x5416, 0xFFFF, 0xFFFF, "2550 NVMe SSD (DRAM-less)(0x5416)"},
 {0x1344, 0x6001, 0xFFFF, 0xFFFF, "2100AI NVMe SSD [Nitro](0x6001)"},
 }; /* pci_vid_1344[] */
 
-pci_id_t pci_vid_1345[] = {
+static pci_id_t const pci_vid_1345[] = {
 {0x1345, 0xFFFF, 0xFFFF, 0xFFFF, "Arescom Inc(0x1345)"},
 }; /* pci_vid_1345[] */
 
-pci_id_t pci_vid_1347[] = {
+static pci_id_t const pci_vid_1347[] = {
 {0x1347, 0xFFFF, 0xFFFF, 0xFFFF, "Odetics(0x1347)"},
 }; /* pci_vid_1347[] */
 
-pci_id_t pci_vid_1349[] = {
+static pci_id_t const pci_vid_1349[] = {
 {0x1349, 0xFFFF, 0xFFFF, 0xFFFF, "Sumitomo Electric Industries, Ltd.(0x1349)"},
 }; /* pci_vid_1349[] */
 
-pci_id_t pci_vid_134A[] = {
+static pci_id_t const pci_vid_134A[] = {
 {0x134A, 0xFFFF, 0xFFFF, 0xFFFF, "DTC Technology Corp.(0x134A)"},
 {0x134A, 0x0001, 0xFFFF, 0xFFFF, "Domex 536(0x0001)"},
 {0x134A, 0x0002, 0xFFFF, 0xFFFF, "Domex DMX3194UP SCSI Adapter(0x0002)"},
 }; /* pci_vid_134A[] */
 
-pci_id_t pci_vid_134B[] = {
+static pci_id_t const pci_vid_134B[] = {
 {0x134B, 0xFFFF, 0xFFFF, 0xFFFF, "ARK Research Corp.(0x134B)"},
 }; /* pci_vid_134B[] */
 
-pci_id_t pci_vid_134C[] = {
+static pci_id_t const pci_vid_134C[] = {
 {0x134C, 0xFFFF, 0xFFFF, 0xFFFF, "Chori Joho System Co. Ltd(0x134C)"},
 }; /* pci_vid_134C[] */
 
-pci_id_t pci_vid_134D[] = {
+static pci_id_t const pci_vid_134D[] = {
 {0x134D, 0xFFFF, 0xFFFF, 0xFFFF, "PCTel Inc(0x134D)"},
 {0x134D, 0x2189, 0xFFFF, 0xFFFF, "HSP56 MicroModem(0x2189)"},
 {0x134D, 0x2486, 0xFFFF, 0xFFFF, "2304WT V.92 MDC Modem(0x2486)"},
@@ -20218,23 +20305,23 @@ pci_id_t pci_vid_134D[] = {
 {0x134D, 0x7897, 0xFFFF, 0xFFFF, "HSP MicroModem 56(0x7897)"},
 }; /* pci_vid_134D[] */
 
-pci_id_t pci_vid_134E[] = {
+static pci_id_t const pci_vid_134E[] = {
 {0x134E, 0xFFFF, 0xFFFF, 0xFFFF, "CSTI(0x134E)"},
 }; /* pci_vid_134E[] */
 
-pci_id_t pci_vid_134F[] = {
+static pci_id_t const pci_vid_134F[] = {
 {0x134F, 0xFFFF, 0xFFFF, 0xFFFF, "Algo System Co Ltd(0x134F)"},
 }; /* pci_vid_134F[] */
 
-pci_id_t pci_vid_1350[] = {
+static pci_id_t const pci_vid_1350[] = {
 {0x1350, 0xFFFF, 0xFFFF, 0xFFFF, "Systec Co. Ltd(0x1350)"},
 }; /* pci_vid_1350[] */
 
-pci_id_t pci_vid_1351[] = {
+static pci_id_t const pci_vid_1351[] = {
 {0x1351, 0xFFFF, 0xFFFF, 0xFFFF, "Sonix Inc(0x1351)"},
 }; /* pci_vid_1351[] */
 
-pci_id_t pci_vid_1353[] = {
+static pci_id_t const pci_vid_1353[] = {
 {0x1353, 0xFFFF, 0xFFFF, 0xFFFF, "dbeeSet Technology(0x1353)"},
 {0x1353, 0x0002, 0xFFFF, 0xFFFF, "Proserver(0x0002)"},
 {0x1353, 0x0003, 0xFFFF, 0xFFFF, "PCI-FUT(0x0003)"},
@@ -20244,23 +20331,23 @@ pci_id_t pci_vid_1353[] = {
 {0x1353, 0x0007, 0xFFFF, 0xFFFF, "OTDU-EX(0x0007)"},
 }; /* pci_vid_1353[] */
 
-pci_id_t pci_vid_1354[] = {
+static pci_id_t const pci_vid_1354[] = {
 {0x1354, 0xFFFF, 0xFFFF, 0xFFFF, "Dwave System Inc(0x1354)"},
 }; /* pci_vid_1354[] */
 
-pci_id_t pci_vid_1355[] = {
+static pci_id_t const pci_vid_1355[] = {
 {0x1355, 0xFFFF, 0xFFFF, 0xFFFF, "Kratos Analytical Ltd(0x1355)"},
 }; /* pci_vid_1355[] */
 
-pci_id_t pci_vid_1356[] = {
+static pci_id_t const pci_vid_1356[] = {
 {0x1356, 0xFFFF, 0xFFFF, 0xFFFF, "The Logical Co(0x1356)"},
 }; /* pci_vid_1356[] */
 
-pci_id_t pci_vid_1359[] = {
+static pci_id_t const pci_vid_1359[] = {
 {0x1359, 0xFFFF, 0xFFFF, 0xFFFF, "Prisa Networks(0x1359)"},
 }; /* pci_vid_1359[] */
 
-pci_id_t pci_vid_135A[] = {
+static pci_id_t const pci_vid_135A[] = {
 {0x135A, 0xFFFF, 0xFFFF, 0xFFFF, "Brainboxes Ltd(0x135A)"},
 {0x135A, 0x0841, 0xFFFF, 0xFFFF, "UC-268 4 port RS-232 card(0x0841)"},
 {0x135A, 0x0861, 0xFFFF, 0xFFFF, "UC-257 2 port RS-232 + LPT card(0x0861)"},
@@ -20354,11 +20441,11 @@ pci_id_t pci_vid_135A[] = {
 {0x135A, 0x4100, 0xFFFF, 0xFFFF, "PX-272 4 + 1 port RS-232 + LPT card(0x4100)"},
 }; /* pci_vid_135A[] */
 
-pci_id_t pci_vid_135B[] = {
+static pci_id_t const pci_vid_135B[] = {
 {0x135B, 0xFFFF, 0xFFFF, 0xFFFF, "Giganet Inc(0x135B)"},
 }; /* pci_vid_135B[] */
 
-pci_id_t pci_vid_135C[] = {
+static pci_id_t const pci_vid_135C[] = {
 {0x135C, 0xFFFF, 0xFFFF, 0xFFFF, "Quatech Inc(0x135C)"},
 {0x135C, 0x0010, 0xFFFF, 0xFFFF, "QSC-100(0x0010)"},
 {0x135C, 0x0020, 0xFFFF, 0xFFFF, "DSC-100(0x0020)"},
@@ -20383,11 +20470,11 @@ pci_id_t pci_vid_135C[] = {
 {0x135C, 0x0258, 0xFFFF, 0xFFFF, "DSPSX-200/300(0x0258)"},
 }; /* pci_vid_135C[] */
 
-pci_id_t pci_vid_135D[] = {
+static pci_id_t const pci_vid_135D[] = {
 {0x135D, 0xFFFF, 0xFFFF, 0xFFFF, "ABB Network Partner AB(0x135D)"},
 }; /* pci_vid_135D[] */
 
-pci_id_t pci_vid_135E[] = {
+static pci_id_t const pci_vid_135E[] = {
 {0x135E, 0xFFFF, 0xFFFF, 0xFFFF, "Sealevel Systems Inc(0x135E)"},
 {0x135E, 0x5101, 0xFFFF, 0xFFFF, "Route 56.PCI - Multi-Protocol Serial Interface (Zilog Z16C32)(0x5101)"},
 {0x135E, 0x7101, 0xFFFF, 0xFFFF, "Single Port RS-232/422/485/530(0x7101)"},
@@ -20400,11 +20487,11 @@ pci_id_t pci_vid_135E[] = {
 {0x135E, 0x8001, 0xFFFF, 0xFFFF, "8001 Digital I/O Adapter(0x8001)"},
 }; /* pci_vid_135E[] */
 
-pci_id_t pci_vid_135F[] = {
+static pci_id_t const pci_vid_135F[] = {
 {0x135F, 0xFFFF, 0xFFFF, 0xFFFF, "I-Data International A-S(0x135F)"},
 }; /* pci_vid_135F[] */
 
-pci_id_t pci_vid_1360[] = {
+static pci_id_t const pci_vid_1360[] = {
 {0x1360, 0xFFFF, 0xFFFF, 0xFFFF, "Meinberg Funkuhren(0x1360)"},
 {0x1360, 0x0101, 0xFFFF, 0xFFFF, "PCI32 DCF77 Radio Clock(0x0101)"},
 {0x1360, 0x0102, 0xFFFF, 0xFFFF, "PCI509 DCF77 Radio Clock(0x0102)"},
@@ -20431,43 +20518,43 @@ pci_id_t pci_vid_1360[] = {
 {0x1360, 0x0601, 0xFFFF, 0xFFFF, "FRC511PEX Free Running Clock (PCI Express)(0x0601)"},
 }; /* pci_vid_1360[] */
 
-pci_id_t pci_vid_1361[] = {
+static pci_id_t const pci_vid_1361[] = {
 {0x1361, 0xFFFF, 0xFFFF, 0xFFFF, "Soliton Systems K.K.(0x1361)"},
 }; /* pci_vid_1361[] */
 
-pci_id_t pci_vid_1362[] = {
+static pci_id_t const pci_vid_1362[] = {
 {0x1362, 0xFFFF, 0xFFFF, 0xFFFF, "Fujifacom Corporation(0x1362)"},
 }; /* pci_vid_1362[] */
 
-pci_id_t pci_vid_1363[] = {
+static pci_id_t const pci_vid_1363[] = {
 {0x1363, 0xFFFF, 0xFFFF, 0xFFFF, "Phoenix Technology Ltd(0x1363)"},
 }; /* pci_vid_1363[] */
 
-pci_id_t pci_vid_1364[] = {
+static pci_id_t const pci_vid_1364[] = {
 {0x1364, 0xFFFF, 0xFFFF, 0xFFFF, "ATM Communications Inc(0x1364)"},
 }; /* pci_vid_1364[] */
 
-pci_id_t pci_vid_1365[] = {
+static pci_id_t const pci_vid_1365[] = {
 {0x1365, 0xFFFF, 0xFFFF, 0xFFFF, "Hypercope GmbH(0x1365)"},
 }; /* pci_vid_1365[] */
 
-pci_id_t pci_vid_1366[] = {
+static pci_id_t const pci_vid_1366[] = {
 {0x1366, 0xFFFF, 0xFFFF, 0xFFFF, "Teijin Seiki Co. Ltd(0x1366)"},
 }; /* pci_vid_1366[] */
 
-pci_id_t pci_vid_1367[] = {
+static pci_id_t const pci_vid_1367[] = {
 {0x1367, 0xFFFF, 0xFFFF, 0xFFFF, "Hitachi Zosen Corporation(0x1367)"},
 }; /* pci_vid_1367[] */
 
-pci_id_t pci_vid_1368[] = {
+static pci_id_t const pci_vid_1368[] = {
 {0x1368, 0xFFFF, 0xFFFF, 0xFFFF, "Skyware Corporation(0x1368)"},
 }; /* pci_vid_1368[] */
 
-pci_id_t pci_vid_1369[] = {
+static pci_id_t const pci_vid_1369[] = {
 {0x1369, 0xFFFF, 0xFFFF, 0xFFFF, "Digigram(0x1369)"},
 }; /* pci_vid_1369[] */
 
-pci_id_t pci_vid_136A[] = {
+static pci_id_t const pci_vid_136A[] = {
 {0x136A, 0xFFFF, 0xFFFF, 0xFFFF, "High Soft Tech(0x136A)"},
 {0x136A, 0x0004, 0xFFFF, 0xFFFF, "HST Saphir VII mini PCI(0x0004)"},
 {0x136A, 0x0007, 0xFFFF, 0xFFFF, "HST Saphir III E MultiLink 4(0x0007)"},
@@ -20475,38 +20562,38 @@ pci_id_t pci_vid_136A[] = {
 {0x136A, 0x000A, 0xFFFF, 0xFFFF, "HST Saphir III E MultiLink 2(0x000A)"},
 }; /* pci_vid_136A[] */
 
-pci_id_t pci_vid_136B[] = {
+static pci_id_t const pci_vid_136B[] = {
 {0x136B, 0xFFFF, 0xFFFF, 0xFFFF, "Kawasaki Steel Corporation(0x136B)"},
 {0x136B, 0xFF01, 0xFFFF, 0xFFFF, "KL5A72002 Motion JPEG(0xFF01)"},
 }; /* pci_vid_136B[] */
 
-pci_id_t pci_vid_136C[] = {
+static pci_id_t const pci_vid_136C[] = {
 {0x136C, 0xFFFF, 0xFFFF, 0xFFFF, "Adtek System Science Co Ltd(0x136C)"},
 }; /* pci_vid_136C[] */
 
-pci_id_t pci_vid_136D[] = {
+static pci_id_t const pci_vid_136D[] = {
 {0x136D, 0xFFFF, 0xFFFF, 0xFFFF, "Gigalabs Inc(0x136D)"},
 }; /* pci_vid_136D[] */
 
-pci_id_t pci_vid_136F[] = {
+static pci_id_t const pci_vid_136F[] = {
 {0x136F, 0xFFFF, 0xFFFF, 0xFFFF, "Applied Magic Inc(0x136F)"},
 }; /* pci_vid_136F[] */
 
-pci_id_t pci_vid_1370[] = {
+static pci_id_t const pci_vid_1370[] = {
 {0x1370, 0xFFFF, 0xFFFF, 0xFFFF, "ATL Products(0x1370)"},
 }; /* pci_vid_1370[] */
 
-pci_id_t pci_vid_1371[] = {
+static pci_id_t const pci_vid_1371[] = {
 {0x1371, 0xFFFF, 0xFFFF, 0xFFFF, "CNet Technology Inc(0x1371)"},
 {0x1371, 0x434E, 0xFFFF, 0xFFFF, "GigaCard Network Adapter(0x434E)"},
 {0x1371, 0x434E, 0x1371, 0x434E, "N-Way PCI-Bus Giga-Card 1000/100/10Mbps(L)(0x1371-0x434E)"},
 }; /* pci_vid_1371[] */
 
-pci_id_t pci_vid_1373[] = {
+static pci_id_t const pci_vid_1373[] = {
 {0x1373, 0xFFFF, 0xFFFF, 0xFFFF, "Silicon Vision Inc(0x1373)"},
 }; /* pci_vid_1373[] */
 
-pci_id_t pci_vid_1374[] = {
+static pci_id_t const pci_vid_1374[] = {
 {0x1374, 0xFFFF, 0xFFFF, 0xFFFF, "Silicom Ltd.(0x1374)"},
 {0x1374, 0x0024, 0xFFFF, 0xFFFF, "Silicom Dual port Giga Ethernet BGE Bypass Server Adapter(0x0024)"},
 {0x1374, 0x0025, 0xFFFF, 0xFFFF, "Silicom Quad port Giga Ethernet BGE Bypass Server Adapter(0x0025)"},
@@ -20552,60 +20639,60 @@ pci_id_t pci_vid_1374[] = {
 {0x1374, 0x0483, 0xFFFF, 0xFFFF, "Dual-port Fiber (LR) 10 Gigabit Ethernet ExpressModule Bypass Server Adapter(0x0483)"},
 }; /* pci_vid_1374[] */
 
-pci_id_t pci_vid_1375[] = {
+static pci_id_t const pci_vid_1375[] = {
 {0x1375, 0xFFFF, 0xFFFF, 0xFFFF, "Argosystems Inc(0x1375)"},
 }; /* pci_vid_1375[] */
 
-pci_id_t pci_vid_1376[] = {
+static pci_id_t const pci_vid_1376[] = {
 {0x1376, 0xFFFF, 0xFFFF, 0xFFFF, "LMC(0x1376)"},
 }; /* pci_vid_1376[] */
 
-pci_id_t pci_vid_1377[] = {
+static pci_id_t const pci_vid_1377[] = {
 {0x1377, 0xFFFF, 0xFFFF, 0xFFFF, "Electronic Equipment Production & Distribution GmbH(0x1377)"},
 }; /* pci_vid_1377[] */
 
-pci_id_t pci_vid_1378[] = {
+static pci_id_t const pci_vid_1378[] = {
 {0x1378, 0xFFFF, 0xFFFF, 0xFFFF, "Telemann Co. Ltd(0x1378)"},
 }; /* pci_vid_1378[] */
 
-pci_id_t pci_vid_1379[] = {
+static pci_id_t const pci_vid_1379[] = {
 {0x1379, 0xFFFF, 0xFFFF, 0xFFFF, "Asahi Kasei Microsystems Co Ltd(0x1379)"},
 }; /* pci_vid_1379[] */
 
-pci_id_t pci_vid_137A[] = {
+static pci_id_t const pci_vid_137A[] = {
 {0x137A, 0xFFFF, 0xFFFF, 0xFFFF, "Mark of the Unicorn Inc(0x137A)"},
 {0x137A, 0x0001, 0xFFFF, 0xFFFF, "PCI-324 Audiowire Interface(0x0001)"},
 }; /* pci_vid_137A[] */
 
-pci_id_t pci_vid_137B[] = {
+static pci_id_t const pci_vid_137B[] = {
 {0x137B, 0xFFFF, 0xFFFF, 0xFFFF, "PPT Vision(0x137B)"},
 }; /* pci_vid_137B[] */
 
-pci_id_t pci_vid_137C[] = {
+static pci_id_t const pci_vid_137C[] = {
 {0x137C, 0xFFFF, 0xFFFF, 0xFFFF, "Iwatsu Electric Co Ltd(0x137C)"},
 }; /* pci_vid_137C[] */
 
-pci_id_t pci_vid_137D[] = {
+static pci_id_t const pci_vid_137D[] = {
 {0x137D, 0xFFFF, 0xFFFF, 0xFFFF, "Dynachip Corporation(0x137D)"},
 }; /* pci_vid_137D[] */
 
-pci_id_t pci_vid_137E[] = {
+static pci_id_t const pci_vid_137E[] = {
 {0x137E, 0xFFFF, 0xFFFF, 0xFFFF, "Patriot Scientific Corporation(0x137E)"},
 }; /* pci_vid_137E[] */
 
-pci_id_t pci_vid_137F[] = {
+static pci_id_t const pci_vid_137F[] = {
 {0x137F, 0xFFFF, 0xFFFF, 0xFFFF, "Japan Satellite Systems Inc(0x137F)"},
 }; /* pci_vid_137F[] */
 
-pci_id_t pci_vid_1380[] = {
+static pci_id_t const pci_vid_1380[] = {
 {0x1380, 0xFFFF, 0xFFFF, 0xFFFF, "Sanritz Automation Co Ltd(0x1380)"},
 }; /* pci_vid_1380[] */
 
-pci_id_t pci_vid_1381[] = {
+static pci_id_t const pci_vid_1381[] = {
 {0x1381, 0xFFFF, 0xFFFF, 0xFFFF, "Brains Co. Ltd(0x1381)"},
 }; /* pci_vid_1381[] */
 
-pci_id_t pci_vid_1382[] = {
+static pci_id_t const pci_vid_1382[] = {
 {0x1382, 0xFFFF, 0xFFFF, 0xFFFF, "Marian - Electronic & Software(0x1382)"},
 {0x1382, 0x0001, 0xFFFF, 0xFFFF, "ARC88 audio recording card(0x0001)"},
 {0x1382, 0x2008, 0xFFFF, 0xFFFF, "Prodif 96 Pro sound system(0x2008)"},
@@ -20620,15 +20707,15 @@ pci_id_t pci_vid_1382[] = {
 {0x1382, 0x4424, 0xFFFF, 0xFFFF, "TRACE D4 Sound System(0x4424)"},
 }; /* pci_vid_1382[] */
 
-pci_id_t pci_vid_1383[] = {
+static pci_id_t const pci_vid_1383[] = {
 {0x1383, 0xFFFF, 0xFFFF, 0xFFFF, "Controlnet Inc(0x1383)"},
 }; /* pci_vid_1383[] */
 
-pci_id_t pci_vid_1384[] = {
+static pci_id_t const pci_vid_1384[] = {
 {0x1384, 0xFFFF, 0xFFFF, 0xFFFF, "Reality Simulation Systems Inc(0x1384)"},
 }; /* pci_vid_1384[] */
 
-pci_id_t pci_vid_1385[] = {
+static pci_id_t const pci_vid_1385[] = {
 {0x1385, 0xFFFF, 0xFFFF, 0xFFFF, "Netgear(0x1385)"},
 {0x1385, 0x006B, 0xFFFF, 0xFFFF, "WA301 802.11b Wireless PCI Adapter(0x006B)"},
 {0x1385, 0x4100, 0xFFFF, 0xFFFF, "MA301 802.11b Wireless PCI Adapter(0x4100)"},
@@ -20637,61 +20724,61 @@ pci_id_t pci_vid_1385[] = {
 {0x1385, 0x630A, 0xFFFF, 0xFFFF, "GA630 Gigabit Ethernet(0x630A)"},
 }; /* pci_vid_1385[] */
 
-pci_id_t pci_vid_1386[] = {
+static pci_id_t const pci_vid_1386[] = {
 {0x1386, 0xFFFF, 0xFFFF, 0xFFFF, "Video Domain Technologies(0x1386)"},
 }; /* pci_vid_1386[] */
 
-pci_id_t pci_vid_1387[] = {
+static pci_id_t const pci_vid_1387[] = {
 {0x1387, 0xFFFF, 0xFFFF, 0xFFFF, "Systran Corp(0x1387)"},
 }; /* pci_vid_1387[] */
 
-pci_id_t pci_vid_1388[] = {
+static pci_id_t const pci_vid_1388[] = {
 {0x1388, 0xFFFF, 0xFFFF, 0xFFFF, "Hitachi Information Technology Co Ltd(0x1388)"},
 }; /* pci_vid_1388[] */
 
-pci_id_t pci_vid_1389[] = {
+static pci_id_t const pci_vid_1389[] = {
 {0x1389, 0xFFFF, 0xFFFF, 0xFFFF, "Applicom International(0x1389)"},
 {0x1389, 0x0001, 0xFFFF, 0xFFFF, "PCI1500PFB [Intelligent fieldbus adaptor](0x0001)"},
 }; /* pci_vid_1389[] */
 
-pci_id_t pci_vid_138A[] = {
+static pci_id_t const pci_vid_138A[] = {
 {0x138A, 0xFFFF, 0xFFFF, 0xFFFF, "Fusion Micromedia Corp(0x138A)"},
 {0x138A, 0x003D, 0xFFFF, 0xFFFF, "VFS491 Validity Sensor(0x003D)"},
 }; /* pci_vid_138A[] */
 
-pci_id_t pci_vid_138B[] = {
+static pci_id_t const pci_vid_138B[] = {
 {0x138B, 0xFFFF, 0xFFFF, 0xFFFF, "Tokimec Inc(0x138B)"},
 }; /* pci_vid_138B[] */
 
-pci_id_t pci_vid_138C[] = {
+static pci_id_t const pci_vid_138C[] = {
 {0x138C, 0xFFFF, 0xFFFF, 0xFFFF, "Silicon Reality(0x138C)"},
 }; /* pci_vid_138C[] */
 
-pci_id_t pci_vid_138D[] = {
+static pci_id_t const pci_vid_138D[] = {
 {0x138D, 0xFFFF, 0xFFFF, 0xFFFF, "Future Techno Designs pte Ltd(0x138D)"},
 }; /* pci_vid_138D[] */
 
-pci_id_t pci_vid_138E[] = {
+static pci_id_t const pci_vid_138E[] = {
 {0x138E, 0xFFFF, 0xFFFF, 0xFFFF, "Basler GmbH(0x138E)"},
 }; /* pci_vid_138E[] */
 
-pci_id_t pci_vid_138F[] = {
+static pci_id_t const pci_vid_138F[] = {
 {0x138F, 0xFFFF, 0xFFFF, 0xFFFF, "Patapsco Designs Inc(0x138F)"},
 }; /* pci_vid_138F[] */
 
-pci_id_t pci_vid_1390[] = {
+static pci_id_t const pci_vid_1390[] = {
 {0x1390, 0xFFFF, 0xFFFF, 0xFFFF, "Concept Development Inc(0x1390)"},
 }; /* pci_vid_1390[] */
 
-pci_id_t pci_vid_1391[] = {
+static pci_id_t const pci_vid_1391[] = {
 {0x1391, 0xFFFF, 0xFFFF, 0xFFFF, "Development Concepts Inc(0x1391)"},
 }; /* pci_vid_1391[] */
 
-pci_id_t pci_vid_1392[] = {
+static pci_id_t const pci_vid_1392[] = {
 {0x1392, 0xFFFF, 0xFFFF, 0xFFFF, "Medialight Inc(0x1392)"},
 }; /* pci_vid_1392[] */
 
-pci_id_t pci_vid_1393[] = {
+static pci_id_t const pci_vid_1393[] = {
 {0x1393, 0xFFFF, 0xFFFF, 0xFFFF, "Moxa Technologies Co Ltd(0x1393)"},
 {0x1393, 0x0001, 0xFFFF, 0xFFFF, "UC7000 Serial(0x0001)"},
 {0x1393, 0x1020, 0xFFFF, 0xFFFF, "CP-102 (2-port RS-232 PCI)(0x1020)"},
@@ -20730,22 +20817,22 @@ pci_id_t pci_vid_1393[] = {
 {0x1393, 0x3200, 0xFFFF, 0xFFFF, "Intellio C320 Turbo PCI(0x3200)"},
 }; /* pci_vid_1393[] */
 
-pci_id_t pci_vid_1394[] = {
+static pci_id_t const pci_vid_1394[] = {
 {0x1394, 0xFFFF, 0xFFFF, 0xFFFF, "Level One Communications(0x1394)"},
 {0x1394, 0x0001, 0xFFFF, 0xFFFF, "LXT1001 Gigabit Ethernet(0x0001)"},
 {0x1394, 0x0001, 0x1186, 0x4800, "DGE-500SX(0x1186-0x4800)"},
 {0x1394, 0x0001, 0x1394, 0x0001, "NetCelerator Adapter(0x1394-0x0001)"},
 }; /* pci_vid_1394[] */
 
-pci_id_t pci_vid_1395[] = {
+static pci_id_t const pci_vid_1395[] = {
 {0x1395, 0xFFFF, 0xFFFF, 0xFFFF, "Ambicom Inc(0x1395)"},
 }; /* pci_vid_1395[] */
 
-pci_id_t pci_vid_1396[] = {
+static pci_id_t const pci_vid_1396[] = {
 {0x1396, 0xFFFF, 0xFFFF, 0xFFFF, "Cipher Systems Inc(0x1396)"},
 }; /* pci_vid_1396[] */
 
-pci_id_t pci_vid_1397[] = {
+static pci_id_t const pci_vid_1397[] = {
 {0x1397, 0xFFFF, 0xFFFF, 0xFFFF, "Cologne Chip Designs GmbH(0x1397)"},
 {0x1397, 0x08B4, 0xFFFF, 0xFFFF, "ISDN network Controller [HFC-4S](0x08B4)"},
 {0x1397, 0x08B4, 0x1397, 0x08B4, "HFC-4S [Cologne Chip HFC-4S Eval. Board](0x1397-0x08B4)"},
@@ -20798,54 +20885,54 @@ pci_id_t pci_vid_1397[] = {
 {0x1397, 0xF001, 0xFFFF, 0xFFFF, "GSM Network Controller [HFC-4GSM](0xF001)"},
 }; /* pci_vid_1397[] */
 
-pci_id_t pci_vid_1398[] = {
+static pci_id_t const pci_vid_1398[] = {
 {0x1398, 0xFFFF, 0xFFFF, 0xFFFF, "Clarion co. Ltd(0x1398)"},
 }; /* pci_vid_1398[] */
 
-pci_id_t pci_vid_1399[] = {
+static pci_id_t const pci_vid_1399[] = {
 {0x1399, 0xFFFF, 0xFFFF, 0xFFFF, "Rios systems Co Ltd(0x1399)"},
 }; /* pci_vid_1399[] */
 
-pci_id_t pci_vid_139A[] = {
+static pci_id_t const pci_vid_139A[] = {
 {0x139A, 0xFFFF, 0xFFFF, 0xFFFF, "Alacritech Inc(0x139A)"},
 {0x139A, 0x0001, 0xFFFF, 0xFFFF, "Quad Port 10/100 Server Accelerator(0x0001)"},
 {0x139A, 0x0003, 0xFFFF, 0xFFFF, "Single Port 10/100 Server Accelerator(0x0003)"},
 {0x139A, 0x0005, 0xFFFF, 0xFFFF, "Single Port Gigabit Server Accelerator(0x0005)"},
 }; /* pci_vid_139A[] */
 
-pci_id_t pci_vid_139B[] = {
+static pci_id_t const pci_vid_139B[] = {
 {0x139B, 0xFFFF, 0xFFFF, 0xFFFF, "Mediasonic Multimedia Systems Ltd(0x139B)"},
 }; /* pci_vid_139B[] */
 
-pci_id_t pci_vid_139C[] = {
+static pci_id_t const pci_vid_139C[] = {
 {0x139C, 0xFFFF, 0xFFFF, 0xFFFF, "Quantum 3d Inc(0x139C)"},
 }; /* pci_vid_139C[] */
 
-pci_id_t pci_vid_139D[] = {
+static pci_id_t const pci_vid_139D[] = {
 {0x139D, 0xFFFF, 0xFFFF, 0xFFFF, "EPL limited(0x139D)"},
 }; /* pci_vid_139D[] */
 
-pci_id_t pci_vid_139E[] = {
+static pci_id_t const pci_vid_139E[] = {
 {0x139E, 0xFFFF, 0xFFFF, 0xFFFF, "Media4(0x139E)"},
 }; /* pci_vid_139E[] */
 
-pci_id_t pci_vid_139F[] = {
+static pci_id_t const pci_vid_139F[] = {
 {0x139F, 0xFFFF, 0xFFFF, 0xFFFF, "Aethra s.r.l.(0x139F)"},
 }; /* pci_vid_139F[] */
 
-pci_id_t pci_vid_13A0[] = {
+static pci_id_t const pci_vid_13A0[] = {
 {0x13A0, 0xFFFF, 0xFFFF, 0xFFFF, "Crystal Group Inc(0x13A0)"},
 }; /* pci_vid_13A0[] */
 
-pci_id_t pci_vid_13A1[] = {
+static pci_id_t const pci_vid_13A1[] = {
 {0x13A1, 0xFFFF, 0xFFFF, 0xFFFF, "Kawasaki Heavy Industries Ltd(0x13A1)"},
 }; /* pci_vid_13A1[] */
 
-pci_id_t pci_vid_13A2[] = {
+static pci_id_t const pci_vid_13A2[] = {
 {0x13A2, 0xFFFF, 0xFFFF, 0xFFFF, "Ositech Communications Inc(0x13A2)"},
 }; /* pci_vid_13A2[] */
 
-pci_id_t pci_vid_13A3[] = {
+static pci_id_t const pci_vid_13A3[] = {
 {0x13A3, 0xFFFF, 0xFFFF, 0xFFFF, "Hifn Inc.(0x13A3)"},
 {0x13A3, 0x0005, 0xFFFF, 0xFFFF, "7751 Security Processor(0x0005)"},
 {0x13A3, 0x0006, 0xFFFF, 0xFFFF, "6500 Public Key Processor(0x0006)"},
@@ -20879,23 +20966,23 @@ pci_id_t pci_vid_13A3[] = {
 {0x13A3, 0x9240, 0x13A3, 0x9200, "DX2040 Compression and Security Acceleration Card [Panther II](0x13A3-0x9200)"},
 }; /* pci_vid_13A3[] */
 
-pci_id_t pci_vid_13A4[] = {
+static pci_id_t const pci_vid_13A4[] = {
 {0x13A4, 0xFFFF, 0xFFFF, 0xFFFF, "Rascom Inc(0x13A4)"},
 }; /* pci_vid_13A4[] */
 
-pci_id_t pci_vid_13A5[] = {
+static pci_id_t const pci_vid_13A5[] = {
 {0x13A5, 0xFFFF, 0xFFFF, 0xFFFF, "Audio Digital Imaging Inc(0x13A5)"},
 }; /* pci_vid_13A5[] */
 
-pci_id_t pci_vid_13A6[] = {
+static pci_id_t const pci_vid_13A6[] = {
 {0x13A6, 0xFFFF, 0xFFFF, 0xFFFF, "Videonics Inc(0x13A6)"},
 }; /* pci_vid_13A6[] */
 
-pci_id_t pci_vid_13A7[] = {
+static pci_id_t const pci_vid_13A7[] = {
 {0x13A7, 0xFFFF, 0xFFFF, 0xFFFF, "Teles AG(0x13A7)"},
 }; /* pci_vid_13A7[] */
 
-pci_id_t pci_vid_13A8[] = {
+static pci_id_t const pci_vid_13A8[] = {
 {0x13A8, 0xFFFF, 0xFFFF, 0xFFFF, "Exar Corp.(0x13A8)"},
 {0x13A8, 0x0152, 0xFFFF, 0xFFFF, "XR17C/D152 Dual PCI UART(0x0152)"},
 {0x13A8, 0x0154, 0xFFFF, 0xFFFF, "XR17C154 Quad UART(0x0154)"},
@@ -20906,99 +20993,99 @@ pci_id_t pci_vid_13A8[] = {
 {0x13A8, 0x0352, 0xFFFF, 0xFFFF, "XR17V3521 Dual PCIe UART(0x0352)"},
 }; /* pci_vid_13A8[] */
 
-pci_id_t pci_vid_13A9[] = {
+static pci_id_t const pci_vid_13A9[] = {
 {0x13A9, 0xFFFF, 0xFFFF, 0xFFFF, "Siemens Medical Systems, Ultrasound Group(0x13A9)"},
 }; /* pci_vid_13A9[] */
 
-pci_id_t pci_vid_13AA[] = {
+static pci_id_t const pci_vid_13AA[] = {
 {0x13AA, 0xFFFF, 0xFFFF, 0xFFFF, "Broadband Networks Inc(0x13AA)"},
 }; /* pci_vid_13AA[] */
 
-pci_id_t pci_vid_13AB[] = {
+static pci_id_t const pci_vid_13AB[] = {
 {0x13AB, 0xFFFF, 0xFFFF, 0xFFFF, "Arcom Control Systems Ltd(0x13AB)"},
 }; /* pci_vid_13AB[] */
 
-pci_id_t pci_vid_13AC[] = {
+static pci_id_t const pci_vid_13AC[] = {
 {0x13AC, 0xFFFF, 0xFFFF, 0xFFFF, "Motion Media Technology Ltd(0x13AC)"},
 }; /* pci_vid_13AC[] */
 
-pci_id_t pci_vid_13AD[] = {
+static pci_id_t const pci_vid_13AD[] = {
 {0x13AD, 0xFFFF, 0xFFFF, 0xFFFF, "Nexus Inc(0x13AD)"},
 }; /* pci_vid_13AD[] */
 
-pci_id_t pci_vid_13AE[] = {
+static pci_id_t const pci_vid_13AE[] = {
 {0x13AE, 0xFFFF, 0xFFFF, 0xFFFF, "ALD Technology Ltd(0x13AE)"},
 }; /* pci_vid_13AE[] */
 
-pci_id_t pci_vid_13AF[] = {
+static pci_id_t const pci_vid_13AF[] = {
 {0x13AF, 0xFFFF, 0xFFFF, 0xFFFF, "T.Sqware(0x13AF)"},
 }; /* pci_vid_13AF[] */
 
-pci_id_t pci_vid_13B0[] = {
+static pci_id_t const pci_vid_13B0[] = {
 {0x13B0, 0xFFFF, 0xFFFF, 0xFFFF, "Maxspeed Corp(0x13B0)"},
 }; /* pci_vid_13B0[] */
 
-pci_id_t pci_vid_13B1[] = {
+static pci_id_t const pci_vid_13B1[] = {
 {0x13B1, 0xFFFF, 0xFFFF, 0xFFFF, "Tamura corporation(0x13B1)"},
 }; /* pci_vid_13B1[] */
 
-pci_id_t pci_vid_13B2[] = {
+static pci_id_t const pci_vid_13B2[] = {
 {0x13B2, 0xFFFF, 0xFFFF, 0xFFFF, "Techno Chips Co. Ltd(0x13B2)"},
 }; /* pci_vid_13B2[] */
 
-pci_id_t pci_vid_13B3[] = {
+static pci_id_t const pci_vid_13B3[] = {
 {0x13B3, 0xFFFF, 0xFFFF, 0xFFFF, "Lanart Corporation(0x13B3)"},
 }; /* pci_vid_13B3[] */
 
-pci_id_t pci_vid_13B4[] = {
+static pci_id_t const pci_vid_13B4[] = {
 {0x13B4, 0xFFFF, 0xFFFF, 0xFFFF, "Wellbean Co Inc(0x13B4)"},
 }; /* pci_vid_13B4[] */
 
-pci_id_t pci_vid_13B5[] = {
+static pci_id_t const pci_vid_13B5[] = {
 {0x13B5, 0xFFFF, 0xFFFF, 0xFFFF, "ARM(0x13B5)"},
 }; /* pci_vid_13B5[] */
 
-pci_id_t pci_vid_13B6[] = {
+static pci_id_t const pci_vid_13B6[] = {
 {0x13B6, 0xFFFF, 0xFFFF, 0xFFFF, "Dlog GmbH(0x13B6)"},
 }; /* pci_vid_13B6[] */
 
-pci_id_t pci_vid_13B7[] = {
+static pci_id_t const pci_vid_13B7[] = {
 {0x13B7, 0xFFFF, 0xFFFF, 0xFFFF, "Logic Devices Inc(0x13B7)"},
 }; /* pci_vid_13B7[] */
 
-pci_id_t pci_vid_13B8[] = {
+static pci_id_t const pci_vid_13B8[] = {
 {0x13B8, 0xFFFF, 0xFFFF, 0xFFFF, "Nokia Telecommunications oy(0x13B8)"},
 }; /* pci_vid_13B8[] */
 
-pci_id_t pci_vid_13B9[] = {
+static pci_id_t const pci_vid_13B9[] = {
 {0x13B9, 0xFFFF, 0xFFFF, 0xFFFF, "Elecom Co Ltd(0x13B9)"},
 }; /* pci_vid_13B9[] */
 
-pci_id_t pci_vid_13BA[] = {
+static pci_id_t const pci_vid_13BA[] = {
 {0x13BA, 0xFFFF, 0xFFFF, 0xFFFF, "Oxford Instruments(0x13BA)"},
 }; /* pci_vid_13BA[] */
 
-pci_id_t pci_vid_13BB[] = {
+static pci_id_t const pci_vid_13BB[] = {
 {0x13BB, 0xFFFF, 0xFFFF, 0xFFFF, "Sanyo Technosound Co Ltd(0x13BB)"},
 }; /* pci_vid_13BB[] */
 
-pci_id_t pci_vid_13BC[] = {
+static pci_id_t const pci_vid_13BC[] = {
 {0x13BC, 0xFFFF, 0xFFFF, 0xFFFF, "Bitran Corporation(0x13BC)"},
 }; /* pci_vid_13BC[] */
 
-pci_id_t pci_vid_13BD[] = {
+static pci_id_t const pci_vid_13BD[] = {
 {0x13BD, 0xFFFF, 0xFFFF, 0xFFFF, "Sharp corporation(0x13BD)"},
 }; /* pci_vid_13BD[] */
 
-pci_id_t pci_vid_13BE[] = {
+static pci_id_t const pci_vid_13BE[] = {
 {0x13BE, 0xFFFF, 0xFFFF, 0xFFFF, "Miroku Jyoho Service Co. Ltd(0x13BE)"},
 }; /* pci_vid_13BE[] */
 
-pci_id_t pci_vid_13BF[] = {
+static pci_id_t const pci_vid_13BF[] = {
 {0x13BF, 0xFFFF, 0xFFFF, 0xFFFF, "Sharewave Inc(0x13BF)"},
 }; /* pci_vid_13BF[] */
 
-pci_id_t pci_vid_13C0[] = {
+static pci_id_t const pci_vid_13C0[] = {
 {0x13C0, 0xFFFF, 0xFFFF, 0xFFFF, "Microgate Corporation(0x13C0)"},
 {0x13C0, 0x0010, 0xFFFF, 0xFFFF, "SyncLink Adapter v1(0x0010)"},
 {0x13C0, 0x0020, 0xFFFF, 0xFFFF, "SyncLink SCC Adapter(0x0020)"},
@@ -21009,7 +21096,7 @@ pci_id_t pci_vid_13C0[] = {
 {0x13C0, 0x0210, 0xFFFF, 0xFFFF, "SyncLink Adapter v2(0x0210)"},
 }; /* pci_vid_13C0[] */
 
-pci_id_t pci_vid_13C1[] = {
+static pci_id_t const pci_vid_13C1[] = {
 {0x13C1, 0xFFFF, 0xFFFF, 0xFFFF, "3ware Inc(0x13C1)"},
 {0x13C1, 0x1000, 0xFFFF, 0xFFFF, "5xxx/6xxx-series PATA-RAID(0x1000)"},
 {0x13C1, 0x1001, 0xFFFF, 0xFFFF, "7xxx/8xxx-series PATA/SATA-RAID(0x1001)"},
@@ -21021,25 +21108,25 @@ pci_id_t pci_vid_13C1[] = {
 {0x13C1, 0x1010, 0xFFFF, 0xFFFF, "9750 SAS2/SATA-II RAID PCIe(0x1010)"},
 }; /* pci_vid_13C1[] */
 
-pci_id_t pci_vid_13C2[] = {
+static pci_id_t const pci_vid_13C2[] = {
 {0x13C2, 0xFFFF, 0xFFFF, 0xFFFF, "Technotrend Systemtechnik GmbH(0x13C2)"},
 {0x13C2, 0x000E, 0xFFFF, 0xFFFF, "Technotrend/Hauppauge DVB card rev2.3(0x000E)"},
 {0x13C2, 0x1019, 0xFFFF, 0xFFFF, "TTechnoTrend-budget DVB S2-3200(0x1019)"},
 }; /* pci_vid_13C2[] */
 
-pci_id_t pci_vid_13C3[] = {
+static pci_id_t const pci_vid_13C3[] = {
 {0x13C3, 0xFFFF, 0xFFFF, 0xFFFF, "Janz Computer AG(0x13C3)"},
 }; /* pci_vid_13C3[] */
 
-pci_id_t pci_vid_13C4[] = {
+static pci_id_t const pci_vid_13C4[] = {
 {0x13C4, 0xFFFF, 0xFFFF, 0xFFFF, "Phase Metrics(0x13C4)"},
 }; /* pci_vid_13C4[] */
 
-pci_id_t pci_vid_13C5[] = {
+static pci_id_t const pci_vid_13C5[] = {
 {0x13C5, 0xFFFF, 0xFFFF, 0xFFFF, "Alphi Technology Corp(0x13C5)"},
 }; /* pci_vid_13C5[] */
 
-pci_id_t pci_vid_13C6[] = {
+static pci_id_t const pci_vid_13C6[] = {
 {0x13C6, 0xFFFF, 0xFFFF, 0xFFFF, "Condor Engineering Inc(0x13C6)"},
 {0x13C6, 0x0520, 0xFFFF, 0xFFFF, "CEI-520 A429 Card(0x0520)"},
 {0x13C6, 0x0620, 0xFFFF, 0xFFFF, "CEI-620 A429 Card(0x0620)"},
@@ -21048,7 +21135,7 @@ pci_id_t pci_vid_13C6[] = {
 {0x13C6, 0x1004, 0xFFFF, 0xFFFF, "P-SER Multi-channel PMC to RS-485/422/232 adapter(0x1004)"},
 }; /* pci_vid_13C6[] */
 
-pci_id_t pci_vid_13C7[] = {
+static pci_id_t const pci_vid_13C7[] = {
 {0x13C7, 0xFFFF, 0xFFFF, 0xFFFF, "Blue Chip Technology Ltd(0x13C7)"},
 {0x13C7, 0x0ADC, 0xFFFF, 0xFFFF, "PCI-ADC(0x0ADC)"},
 {0x13C7, 0x0B10, 0xFFFF, 0xFFFF, "PCI-PIO(0x0B10)"},
@@ -21057,46 +21144,46 @@ pci_id_t pci_vid_13C7[] = {
 {0x13C7, 0x5744, 0xFFFF, 0xFFFF, "PCI-WDT(0x5744)"},
 }; /* pci_vid_13C7[] */
 
-pci_id_t pci_vid_13C8[] = {
+static pci_id_t const pci_vid_13C8[] = {
 {0x13C8, 0xFFFF, 0xFFFF, 0xFFFF, "Apptech Inc(0x13C8)"},
 }; /* pci_vid_13C8[] */
 
-pci_id_t pci_vid_13C9[] = {
+static pci_id_t const pci_vid_13C9[] = {
 {0x13C9, 0xFFFF, 0xFFFF, 0xFFFF, "Eaton Corporation(0x13C9)"},
 }; /* pci_vid_13C9[] */
 
-pci_id_t pci_vid_13CA[] = {
+static pci_id_t const pci_vid_13CA[] = {
 {0x13CA, 0xFFFF, 0xFFFF, 0xFFFF, "Iomega Corporation(0x13CA)"},
 }; /* pci_vid_13CA[] */
 
-pci_id_t pci_vid_13CB[] = {
+static pci_id_t const pci_vid_13CB[] = {
 {0x13CB, 0xFFFF, 0xFFFF, 0xFFFF, "Yano Electric Co Ltd(0x13CB)"},
 }; /* pci_vid_13CB[] */
 
-pci_id_t pci_vid_13CC[] = {
+static pci_id_t const pci_vid_13CC[] = {
 {0x13CC, 0xFFFF, 0xFFFF, 0xFFFF, "BARCO(0x13CC)"},
 }; /* pci_vid_13CC[] */
 
-pci_id_t pci_vid_13CD[] = {
+static pci_id_t const pci_vid_13CD[] = {
 {0x13CD, 0xFFFF, 0xFFFF, 0xFFFF, "Compatible Systems Corporation(0x13CD)"},
 }; /* pci_vid_13CD[] */
 
-pci_id_t pci_vid_13CE[] = {
+static pci_id_t const pci_vid_13CE[] = {
 {0x13CE, 0xFFFF, 0xFFFF, 0xFFFF, "Cocom A/S(0x13CE)"},
 }; /* pci_vid_13CE[] */
 
-pci_id_t pci_vid_13CF[] = {
+static pci_id_t const pci_vid_13CF[] = {
 {0x13CF, 0xFFFF, 0xFFFF, 0xFFFF, "Studio Audio & Video Ltd(0x13CF)"},
 }; /* pci_vid_13CF[] */
 
-pci_id_t pci_vid_13D0[] = {
+static pci_id_t const pci_vid_13D0[] = {
 {0x13D0, 0xFFFF, 0xFFFF, 0xFFFF, "Techsan Electronics Co Ltd(0x13D0)"},
 {0x13D0, 0x2103, 0xFFFF, 0xFFFF, "B2C2 FlexCopII DVB chip / Technisat SkyStar2 DVB card(0x2103)"},
 {0x13D0, 0x2104, 0xFFFF, 0xFFFF, "B2C2 FlexCopIII DVB chip / Technisat SkyStar2 DVB card (rev 01)(0x2104)"},
 {0x13D0, 0x2200, 0xFFFF, 0xFFFF, "B2C2 FlexCopIII DVB chip / Technisat SkyStar2 DVB card(0x2200)"},
 }; /* pci_vid_13D0[] */
 
-pci_id_t pci_vid_13D1[] = {
+static pci_id_t const pci_vid_13D1[] = {
 {0x13D1, 0xFFFF, 0xFFFF, 0xFFFF, "Abocom Systems Inc(0x13D1)"},
 {0x13D1, 0xAB02, 0xFFFF, 0xFFFF, "ADMtek Centaur-C rev 17 [D-Link DFE-680TX] CardBus Fast Ethernet Adapter(0xAB02)"},
 {0x13D1, 0xAB03, 0xFFFF, 0xFFFF, "21x4x DEC-Tulip compatible 10/100 Ethernet(0xAB03)"},
@@ -21104,126 +21191,126 @@ pci_id_t pci_vid_13D1[] = {
 {0x13D1, 0xAB08, 0xFFFF, 0xFFFF, "21x4x DEC-Tulip compatible 10/100 Ethernet(0xAB08)"},
 }; /* pci_vid_13D1[] */
 
-pci_id_t pci_vid_13D2[] = {
+static pci_id_t const pci_vid_13D2[] = {
 {0x13D2, 0xFFFF, 0xFFFF, 0xFFFF, "Shark Multimedia Inc(0x13D2)"},
 }; /* pci_vid_13D2[] */
 
-pci_id_t pci_vid_13D4[] = {
+static pci_id_t const pci_vid_13D4[] = {
 {0x13D4, 0xFFFF, 0xFFFF, 0xFFFF, "Graphics Microsystems Inc(0x13D4)"},
 }; /* pci_vid_13D4[] */
 
-pci_id_t pci_vid_13D5[] = {
+static pci_id_t const pci_vid_13D5[] = {
 {0x13D5, 0xFFFF, 0xFFFF, 0xFFFF, "Media 100 Inc(0x13D5)"},
 }; /* pci_vid_13D5[] */
 
-pci_id_t pci_vid_13D6[] = {
+static pci_id_t const pci_vid_13D6[] = {
 {0x13D6, 0xFFFF, 0xFFFF, 0xFFFF, "K.I. Technology Co Ltd(0x13D6)"},
 }; /* pci_vid_13D6[] */
 
-pci_id_t pci_vid_13D7[] = {
+static pci_id_t const pci_vid_13D7[] = {
 {0x13D7, 0xFFFF, 0xFFFF, 0xFFFF, "Toshiba Engineering Corporation(0x13D7)"},
 }; /* pci_vid_13D7[] */
 
-pci_id_t pci_vid_13D8[] = {
+static pci_id_t const pci_vid_13D8[] = {
 {0x13D8, 0xFFFF, 0xFFFF, 0xFFFF, "Phobos corporation(0x13D8)"},
 }; /* pci_vid_13D8[] */
 
-pci_id_t pci_vid_13D9[] = {
+static pci_id_t const pci_vid_13D9[] = {
 {0x13D9, 0xFFFF, 0xFFFF, 0xFFFF, "Apex PC Solutions Inc(0x13D9)"},
 }; /* pci_vid_13D9[] */
 
-pci_id_t pci_vid_13DA[] = {
+static pci_id_t const pci_vid_13DA[] = {
 {0x13DA, 0xFFFF, 0xFFFF, 0xFFFF, "Intresource Systems pte Ltd(0x13DA)"},
 }; /* pci_vid_13DA[] */
 
-pci_id_t pci_vid_13DB[] = {
+static pci_id_t const pci_vid_13DB[] = {
 {0x13DB, 0xFFFF, 0xFFFF, 0xFFFF, "Janich & Klass Computertechnik GmbH(0x13DB)"},
 }; /* pci_vid_13DB[] */
 
-pci_id_t pci_vid_13DC[] = {
+static pci_id_t const pci_vid_13DC[] = {
 {0x13DC, 0xFFFF, 0xFFFF, 0xFFFF, "Netboost Corporation(0x13DC)"},
 }; /* pci_vid_13DC[] */
 
-pci_id_t pci_vid_13DD[] = {
+static pci_id_t const pci_vid_13DD[] = {
 {0x13DD, 0xFFFF, 0xFFFF, 0xFFFF, "Multimedia Bundle Inc(0x13DD)"},
 }; /* pci_vid_13DD[] */
 
-pci_id_t pci_vid_13DE[] = {
+static pci_id_t const pci_vid_13DE[] = {
 {0x13DE, 0xFFFF, 0xFFFF, 0xFFFF, "ABB Robotics Products AB(0x13DE)"},
 }; /* pci_vid_13DE[] */
 
-pci_id_t pci_vid_13DF[] = {
+static pci_id_t const pci_vid_13DF[] = {
 {0x13DF, 0xFFFF, 0xFFFF, 0xFFFF, "E-Tech Inc(0x13DF)"},
 {0x13DF, 0x0001, 0xFFFF, 0xFFFF, "PCI56RVP Modem(0x0001)"},
 {0x13DF, 0x0001, 0x13DF, 0x0001, "PCI56RVP Modem(0x13DF-0x0001)"},
 }; /* pci_vid_13DF[] */
 
-pci_id_t pci_vid_13E0[] = {
+static pci_id_t const pci_vid_13E0[] = {
 {0x13E0, 0xFFFF, 0xFFFF, 0xFFFF, "GVC Corporation(0x13E0)"},
 }; /* pci_vid_13E0[] */
 
-pci_id_t pci_vid_13E1[] = {
+static pci_id_t const pci_vid_13E1[] = {
 {0x13E1, 0xFFFF, 0xFFFF, 0xFFFF, "Silicom Multimedia Systems Inc(0x13E1)"},
 }; /* pci_vid_13E1[] */
 
-pci_id_t pci_vid_13E2[] = {
+static pci_id_t const pci_vid_13E2[] = {
 {0x13E2, 0xFFFF, 0xFFFF, 0xFFFF, "Dynamics Research Corporation(0x13E2)"},
 }; /* pci_vid_13E2[] */
 
-pci_id_t pci_vid_13E3[] = {
+static pci_id_t const pci_vid_13E3[] = {
 {0x13E3, 0xFFFF, 0xFFFF, 0xFFFF, "Nest Inc(0x13E3)"},
 }; /* pci_vid_13E3[] */
 
-pci_id_t pci_vid_13E4[] = {
+static pci_id_t const pci_vid_13E4[] = {
 {0x13E4, 0xFFFF, 0xFFFF, 0xFFFF, "Calculex Inc(0x13E4)"},
 }; /* pci_vid_13E4[] */
 
-pci_id_t pci_vid_13E5[] = {
+static pci_id_t const pci_vid_13E5[] = {
 {0x13E5, 0xFFFF, 0xFFFF, 0xFFFF, "Telesoft Design Ltd(0x13E5)"},
 }; /* pci_vid_13E5[] */
 
-pci_id_t pci_vid_13E6[] = {
+static pci_id_t const pci_vid_13E6[] = {
 {0x13E6, 0xFFFF, 0xFFFF, 0xFFFF, "Argosy research Inc(0x13E6)"},
 }; /* pci_vid_13E6[] */
 
-pci_id_t pci_vid_13E7[] = {
+static pci_id_t const pci_vid_13E7[] = {
 {0x13E7, 0xFFFF, 0xFFFF, 0xFFFF, "NAC Incorporated(0x13E7)"},
 }; /* pci_vid_13E7[] */
 
-pci_id_t pci_vid_13E8[] = {
+static pci_id_t const pci_vid_13E8[] = {
 {0x13E8, 0xFFFF, 0xFFFF, 0xFFFF, "Chip Express Corporation(0x13E8)"},
 }; /* pci_vid_13E8[] */
 
-pci_id_t pci_vid_13E9[] = {
+static pci_id_t const pci_vid_13E9[] = {
 {0x13E9, 0xFFFF, 0xFFFF, 0xFFFF, "Intraserver Technology Inc(0x13E9)"},
 }; /* pci_vid_13E9[] */
 
-pci_id_t pci_vid_13EA[] = {
+static pci_id_t const pci_vid_13EA[] = {
 {0x13EA, 0xFFFF, 0xFFFF, 0xFFFF, "Dallas Semiconductor(0x13EA)"},
 }; /* pci_vid_13EA[] */
 
-pci_id_t pci_vid_13EB[] = {
+static pci_id_t const pci_vid_13EB[] = {
 {0x13EB, 0xFFFF, 0xFFFF, 0xFFFF, "Hauppauge Computer Works Inc(0x13EB)"},
 }; /* pci_vid_13EB[] */
 
-pci_id_t pci_vid_13EC[] = {
+static pci_id_t const pci_vid_13EC[] = {
 {0x13EC, 0xFFFF, 0xFFFF, 0xFFFF, "Zydacron Inc(0x13EC)"},
 {0x13EC, 0x000A, 0xFFFF, 0xFFFF, "NPC-RC01 Remote control receiver(0x000A)"},
 }; /* pci_vid_13EC[] */
 
-pci_id_t pci_vid_13ED[] = {
+static pci_id_t const pci_vid_13ED[] = {
 {0x13ED, 0xFFFF, 0xFFFF, 0xFFFF, "Raytheion E-Systems(0x13ED)"},
 }; /* pci_vid_13ED[] */
 
-pci_id_t pci_vid_13EE[] = {
+static pci_id_t const pci_vid_13EE[] = {
 {0x13EE, 0xFFFF, 0xFFFF, 0xFFFF, "Hayes Microcomputer Products Inc(0x13EE)"},
 }; /* pci_vid_13EE[] */
 
-pci_id_t pci_vid_13EF[] = {
+static pci_id_t const pci_vid_13EF[] = {
 {0x13EF, 0xFFFF, 0xFFFF, 0xFFFF, "Coppercom Inc(0x13EF)"},
 }; /* pci_vid_13EF[] */
 
-pci_id_t pci_vid_13F0[] = {
+static pci_id_t const pci_vid_13F0[] = {
 {0x13F0, 0xFFFF, 0xFFFF, 0xFFFF, "Sundance Technology Inc / IC Plus Corp(0x13F0)"},
 {0x13F0, 0x0200, 0xFFFF, 0xFFFF, "IC Plus IP100A Integrated 10/100 Ethernet MAC + PHY(0x0200)"},
 {0x13F0, 0x0200, 0x1043, 0x8213, "NX1001(0x1043-0x8213)"},
@@ -21233,28 +21320,28 @@ pci_id_t pci_vid_13F0[] = {
 {0x13F0, 0x1023, 0x1043, 0x8180, "NX1101(0x1043-0x8180)"},
 }; /* pci_vid_13F0[] */
 
-pci_id_t pci_vid_13F1[] = {
+static pci_id_t const pci_vid_13F1[] = {
 {0x13F1, 0xFFFF, 0xFFFF, 0xFFFF, "Oce' - Technologies B.V.(0x13F1)"},
 }; /* pci_vid_13F1[] */
 
-pci_id_t pci_vid_13F2[] = {
+static pci_id_t const pci_vid_13F2[] = {
 {0x13F2, 0xFFFF, 0xFFFF, 0xFFFF, "Ford Microelectronics Inc(0x13F2)"},
 }; /* pci_vid_13F2[] */
 
-pci_id_t pci_vid_13F3[] = {
+static pci_id_t const pci_vid_13F3[] = {
 {0x13F3, 0xFFFF, 0xFFFF, 0xFFFF, "Brocade Communications Systems, Inc.(0x13F3)"},
 }; /* pci_vid_13F3[] */
 
-pci_id_t pci_vid_13F4[] = {
+static pci_id_t const pci_vid_13F4[] = {
 {0x13F4, 0xFFFF, 0xFFFF, 0xFFFF, "Troika Networks, Inc.(0x13F4)"},
 {0x13F4, 0x1401, 0xFFFF, 0xFFFF, "Zentai Fibre Channel Adapter(0x1401)"},
 }; /* pci_vid_13F4[] */
 
-pci_id_t pci_vid_13F5[] = {
+static pci_id_t const pci_vid_13F5[] = {
 {0x13F5, 0xFFFF, 0xFFFF, 0xFFFF, "Kansai Electric Co. Ltd(0x13F5)"},
 }; /* pci_vid_13F5[] */
 
-pci_id_t pci_vid_13F6[] = {
+static pci_id_t const pci_vid_13F6[] = {
 {0x13F6, 0xFFFF, 0xFFFF, 0xFFFF, "C-Media Electronics Inc(0x13F6)"},
 {0x13F6, 0x0011, 0xFFFF, 0xFFFF, "CMI8738(0x0011)"},
 {0x13F6, 0x0100, 0xFFFF, 0xFFFF, "CM8338A(0x0100)"},
@@ -21316,35 +21403,35 @@ pci_id_t pci_vid_13F6[] = {
 {0x13F6, 0x8788, 0x7284, 0x9787, "CLARO II(0x7284-0x9787)"},
 }; /* pci_vid_13F6[] */
 
-pci_id_t pci_vid_13F7[] = {
+static pci_id_t const pci_vid_13F7[] = {
 {0x13F7, 0xFFFF, 0xFFFF, 0xFFFF, "Wildfire Communications(0x13F7)"},
 }; /* pci_vid_13F7[] */
 
-pci_id_t pci_vid_13F8[] = {
+static pci_id_t const pci_vid_13F8[] = {
 {0x13F8, 0xFFFF, 0xFFFF, 0xFFFF, "Ad Lib Multimedia Inc(0x13F8)"},
 }; /* pci_vid_13F8[] */
 
-pci_id_t pci_vid_13F9[] = {
+static pci_id_t const pci_vid_13F9[] = {
 {0x13F9, 0xFFFF, 0xFFFF, 0xFFFF, "NTT Advanced Technology Corp.(0x13F9)"},
 }; /* pci_vid_13F9[] */
 
-pci_id_t pci_vid_13FA[] = {
+static pci_id_t const pci_vid_13FA[] = {
 {0x13FA, 0xFFFF, 0xFFFF, 0xFFFF, "Pentland Systems Ltd(0x13FA)"},
 }; /* pci_vid_13FA[] */
 
-pci_id_t pci_vid_13FB[] = {
+static pci_id_t const pci_vid_13FB[] = {
 {0x13FB, 0xFFFF, 0xFFFF, 0xFFFF, "Aydin Corp(0x13FB)"},
 }; /* pci_vid_13FB[] */
 
-pci_id_t pci_vid_13FC[] = {
+static pci_id_t const pci_vid_13FC[] = {
 {0x13FC, 0xFFFF, 0xFFFF, 0xFFFF, "Computer Peripherals International(0x13FC)"},
 }; /* pci_vid_13FC[] */
 
-pci_id_t pci_vid_13FD[] = {
+static pci_id_t const pci_vid_13FD[] = {
 {0x13FD, 0xFFFF, 0xFFFF, 0xFFFF, "Micro Science Inc(0x13FD)"},
 }; /* pci_vid_13FD[] */
 
-pci_id_t pci_vid_13FE[] = {
+static pci_id_t const pci_vid_13FE[] = {
 {0x13FE, 0xFFFF, 0xFFFF, 0xFFFF, "Advantech Co. Ltd(0x13FE)"},
 {0x13FE, 0x0071, 0xFFFF, 0xFFFF, "PCIE-1761H, 8-ch Relay and 8-ch Isolated Digital Input Card(0x0071)"},
 {0x13FE, 0x1240, 0xFFFF, 0xFFFF, "PCI-1240 4-channel stepper motor controller card(0x1240)"},
@@ -21370,20 +21457,20 @@ pci_id_t pci_vid_13FE[] = {
 {0x13FE, 0xC302, 0xFFFF, 0xFFFF, "MIOe-3680 2-Port CAN-Bus MIOe Module with Isolation Protection(0xC302)"},
 }; /* pci_vid_13FE[] */
 
-pci_id_t pci_vid_13FF[] = {
+static pci_id_t const pci_vid_13FF[] = {
 {0x13FF, 0xFFFF, 0xFFFF, 0xFFFF, "Silicon Spice Inc(0x13FF)"},
 }; /* pci_vid_13FF[] */
 
-pci_id_t pci_vid_1400[] = {
+static pci_id_t const pci_vid_1400[] = {
 {0x1400, 0xFFFF, 0xFFFF, 0xFFFF, "Artx Inc(0x1400)"},
 {0x1400, 0x1401, 0xFFFF, 0xFFFF, "9432 TX(0x1401)"},
 }; /* pci_vid_1400[] */
 
-pci_id_t pci_vid_1401[] = {
+static pci_id_t const pci_vid_1401[] = {
 {0x1401, 0xFFFF, 0xFFFF, 0xFFFF, "CR-Systems A/S(0x1401)"},
 }; /* pci_vid_1401[] */
 
-pci_id_t pci_vid_1402[] = {
+static pci_id_t const pci_vid_1402[] = {
 {0x1402, 0xFFFF, 0xFFFF, 0xFFFF, "Meilhaus Electronic GmbH(0x1402)"},
 {0x1402, 0x0630, 0xFFFF, 0xFFFF, "ME-630(0x0630)"},
 {0x1402, 0x0940, 0xFFFF, 0xFFFF, "ME-94(0x0940)"},
@@ -21463,23 +21550,23 @@ pci_id_t pci_vid_1402[] = {
 {0x1402, 0x820B, 0xFFFF, 0xFFFF, "ME-8200B(0x820B)"},
 }; /* pci_vid_1402[] */
 
-pci_id_t pci_vid_1403[] = {
+static pci_id_t const pci_vid_1403[] = {
 {0x1403, 0xFFFF, 0xFFFF, 0xFFFF, "Ascor Inc(0x1403)"},
 }; /* pci_vid_1403[] */
 
-pci_id_t pci_vid_1404[] = {
+static pci_id_t const pci_vid_1404[] = {
 {0x1404, 0xFFFF, 0xFFFF, 0xFFFF, "Fundamental Software Inc(0x1404)"},
 }; /* pci_vid_1404[] */
 
-pci_id_t pci_vid_1405[] = {
+static pci_id_t const pci_vid_1405[] = {
 {0x1405, 0xFFFF, 0xFFFF, 0xFFFF, "Excalibur Systems Inc(0x1405)"},
 }; /* pci_vid_1405[] */
 
-pci_id_t pci_vid_1406[] = {
+static pci_id_t const pci_vid_1406[] = {
 {0x1406, 0xFFFF, 0xFFFF, 0xFFFF, "Oce' Printing Systems GmbH(0x1406)"},
 }; /* pci_vid_1406[] */
 
-pci_id_t pci_vid_1407[] = {
+static pci_id_t const pci_vid_1407[] = {
 {0x1407, 0xFFFF, 0xFFFF, 0xFFFF, "Lava Computer mfg Inc(0x1407)"},
 {0x1407, 0x0100, 0xFFFF, 0xFFFF, "Lava Dual Serial(0x0100)"},
 {0x1407, 0x0101, 0xFFFF, 0xFFFF, "Lava Quatro A(0x0101)"},
@@ -21506,11 +21593,11 @@ pci_id_t pci_vid_1407[] = {
 {0x1407, 0x8800, 0xFFFF, 0xFFFF, "BOCA Research IOPPAR(0x8800)"},
 }; /* pci_vid_1407[] */
 
-pci_id_t pci_vid_1408[] = {
+static pci_id_t const pci_vid_1408[] = {
 {0x1408, 0xFFFF, 0xFFFF, 0xFFFF, "Aloka Co. Ltd(0x1408)"},
 }; /* pci_vid_1408[] */
 
-pci_id_t pci_vid_1409[] = {
+static pci_id_t const pci_vid_1409[] = {
 {0x1409, 0xFFFF, 0xFFFF, 0xFFFF, "Timedia Technology Co Ltd(0x1409)"},
 {0x1409, 0x7168, 0xFFFF, 0xFFFF, "PCI2S550 (Dual 16550 UART)(0x7168)"},
 {0x1409, 0x7168, 0x1409, 0x0002, "SER4036A3V (2x RS232 port)(0x1409-0x0002)"},
@@ -21526,39 +21613,39 @@ pci_id_t pci_vid_1409[] = {
 {0x1409, 0x7268, 0x1409, 0x0104, "PAR4018A(0x1409-0x0104)"},
 }; /* pci_vid_1409[] */
 
-pci_id_t pci_vid_140A[] = {
+static pci_id_t const pci_vid_140A[] = {
 {0x140A, 0xFFFF, 0xFFFF, 0xFFFF, "DSP Research Inc(0x140A)"},
 }; /* pci_vid_140A[] */
 
-pci_id_t pci_vid_140B[] = {
+static pci_id_t const pci_vid_140B[] = {
 {0x140B, 0xFFFF, 0xFFFF, 0xFFFF, "Abaco Systems, Inc.(0x140B)"},
 }; /* pci_vid_140B[] */
 
-pci_id_t pci_vid_140C[] = {
+static pci_id_t const pci_vid_140C[] = {
 {0x140C, 0xFFFF, 0xFFFF, 0xFFFF, "Elmic Systems Inc(0x140C)"},
 }; /* pci_vid_140C[] */
 
-pci_id_t pci_vid_140D[] = {
+static pci_id_t const pci_vid_140D[] = {
 {0x140D, 0xFFFF, 0xFFFF, 0xFFFF, "Matsushita Electric Works Ltd(0x140D)"},
 }; /* pci_vid_140D[] */
 
-pci_id_t pci_vid_140E[] = {
+static pci_id_t const pci_vid_140E[] = {
 {0x140E, 0xFFFF, 0xFFFF, 0xFFFF, "Goepel Electronic GmbH(0x140E)"},
 }; /* pci_vid_140E[] */
 
-pci_id_t pci_vid_140F[] = {
+static pci_id_t const pci_vid_140F[] = {
 {0x140F, 0xFFFF, 0xFFFF, 0xFFFF, "Salient Systems Corp(0x140F)"},
 }; /* pci_vid_140F[] */
 
-pci_id_t pci_vid_1410[] = {
+static pci_id_t const pci_vid_1410[] = {
 {0x1410, 0xFFFF, 0xFFFF, 0xFFFF, "Midas lab Inc(0x1410)"},
 }; /* pci_vid_1410[] */
 
-pci_id_t pci_vid_1411[] = {
+static pci_id_t const pci_vid_1411[] = {
 {0x1411, 0xFFFF, 0xFFFF, 0xFFFF, "Ikos Systems Inc(0x1411)"},
 }; /* pci_vid_1411[] */
 
-pci_id_t pci_vid_1412[] = {
+static pci_id_t const pci_vid_1412[] = {
 {0x1412, 0xFFFF, 0xFFFF, 0xFFFF, "VIA Technologies Inc.(0x1412)"},
 {0x1412, 0x1712, 0xFFFF, 0xFFFF, "ICE1712 [Envy24] PCI Multi-Channel I/O Controller(0x1712)"},
 {0x1412, 0x1712, 0x1412, 0x1712, "Hoontech ST Audio DSP 24(0x1412-0x1712)"},
@@ -21597,11 +21684,11 @@ pci_id_t pci_vid_1412[] = {
 {0x1412, 0x1724, 0x3130, 0x4154, "MAYA 44 MKII(0x3130-0x4154)"},
 }; /* pci_vid_1412[] */
 
-pci_id_t pci_vid_1413[] = {
+static pci_id_t const pci_vid_1413[] = {
 {0x1413, 0xFFFF, 0xFFFF, 0xFFFF, "Addonics(0x1413)"},
 }; /* pci_vid_1413[] */
 
-pci_id_t pci_vid_1414[] = {
+static pci_id_t const pci_vid_1414[] = {
 {0x1414, 0xFFFF, 0xFFFF, 0xFFFF, "Microsoft Corporation(0x1414)"},
 {0x1414, 0x0001, 0xFFFF, 0xFFFF, "MN-120 (ADMtek Centaur-C based)(0x0001)"},
 {0x1414, 0x0002, 0xFFFF, 0xFFFF, "MN-130 (ADMtek Centaur-P based)(0x0002)"},
@@ -21621,7 +21708,7 @@ pci_id_t pci_vid_1414[] = {
 {0x1414, 0x5811, 0xFFFF, 0xFFFF, "Xenos GPU (Xenon)(0x5811)"},
 }; /* pci_vid_1414[] */
 
-pci_id_t pci_vid_1415[] = {
+static pci_id_t const pci_vid_1415[] = {
 {0x1415, 0xFFFF, 0xFFFF, 0xFFFF, "Oxford Semiconductor Ltd(0x1415)"},
 {0x1415, 0x8401, 0xFFFF, 0xFFFF, "OX9162 Mode 1 (8-bit bus)(0x8401)"},
 {0x1415, 0x8403, 0xFFFF, 0xFFFF, "OX9162 Mode 0 (parallel port)(0x8403)"},
@@ -21790,65 +21877,65 @@ pci_id_t pci_vid_1415[] = {
 {0x1415, 0xC5CF, 0xFFFF, 0xFFFF, "OXPCIe200 Native 950 UART(0xC5CF)"},
 }; /* pci_vid_1415[] */
 
-pci_id_t pci_vid_1416[] = {
+static pci_id_t const pci_vid_1416[] = {
 {0x1416, 0xFFFF, 0xFFFF, 0xFFFF, "Multiwave Innovation pte Ltd(0x1416)"},
 }; /* pci_vid_1416[] */
 
-pci_id_t pci_vid_1417[] = {
+static pci_id_t const pci_vid_1417[] = {
 {0x1417, 0xFFFF, 0xFFFF, 0xFFFF, "Convergenet Technologies Inc(0x1417)"},
 }; /* pci_vid_1417[] */
 
-pci_id_t pci_vid_1418[] = {
+static pci_id_t const pci_vid_1418[] = {
 {0x1418, 0xFFFF, 0xFFFF, 0xFFFF, "Kyushu electronics systems Inc(0x1418)"},
 }; /* pci_vid_1418[] */
 
-pci_id_t pci_vid_1419[] = {
+static pci_id_t const pci_vid_1419[] = {
 {0x1419, 0xFFFF, 0xFFFF, 0xFFFF, "Excel Switching Corp(0x1419)"},
 }; /* pci_vid_1419[] */
 
-pci_id_t pci_vid_141A[] = {
+static pci_id_t const pci_vid_141A[] = {
 {0x141A, 0xFFFF, 0xFFFF, 0xFFFF, "Apache Micro Peripherals Inc(0x141A)"},
 }; /* pci_vid_141A[] */
 
-pci_id_t pci_vid_141B[] = {
+static pci_id_t const pci_vid_141B[] = {
 {0x141B, 0xFFFF, 0xFFFF, 0xFFFF, "Zoom Telephonics Inc(0x141B)"},
 }; /* pci_vid_141B[] */
 
-pci_id_t pci_vid_141D[] = {
+static pci_id_t const pci_vid_141D[] = {
 {0x141D, 0xFFFF, 0xFFFF, 0xFFFF, "Digitan Systems Inc(0x141D)"},
 }; /* pci_vid_141D[] */
 
-pci_id_t pci_vid_141E[] = {
+static pci_id_t const pci_vid_141E[] = {
 {0x141E, 0xFFFF, 0xFFFF, 0xFFFF, "Fanuc Ltd(0x141E)"},
 }; /* pci_vid_141E[] */
 
-pci_id_t pci_vid_141F[] = {
+static pci_id_t const pci_vid_141F[] = {
 {0x141F, 0xFFFF, 0xFFFF, 0xFFFF, "Visiontech Ltd(0x141F)"},
 }; /* pci_vid_141F[] */
 
-pci_id_t pci_vid_1420[] = {
+static pci_id_t const pci_vid_1420[] = {
 {0x1420, 0xFFFF, 0xFFFF, 0xFFFF, "Psion Dacom plc(0x1420)"},
 {0x1420, 0x8002, 0xFFFF, 0xFFFF, "Gold Card NetGlobal 56k+10/100Mb CardBus (Ethernet part)(0x8002)"},
 {0x1420, 0x8003, 0xFFFF, 0xFFFF, "Gold Card NetGlobal 56k+10/100Mb CardBus (Modem part)(0x8003)"},
 }; /* pci_vid_1420[] */
 
-pci_id_t pci_vid_1421[] = {
+static pci_id_t const pci_vid_1421[] = {
 {0x1421, 0xFFFF, 0xFFFF, 0xFFFF, "Ads Technologies Inc(0x1421)"},
 }; /* pci_vid_1421[] */
 
-pci_id_t pci_vid_1422[] = {
+static pci_id_t const pci_vid_1422[] = {
 {0x1422, 0xFFFF, 0xFFFF, 0xFFFF, "Ygrec Systems Co Ltd(0x1422)"},
 }; /* pci_vid_1422[] */
 
-pci_id_t pci_vid_1423[] = {
+static pci_id_t const pci_vid_1423[] = {
 {0x1423, 0xFFFF, 0xFFFF, 0xFFFF, "Custom Technology Corp.(0x1423)"},
 }; /* pci_vid_1423[] */
 
-pci_id_t pci_vid_1424[] = {
+static pci_id_t const pci_vid_1424[] = {
 {0x1424, 0xFFFF, 0xFFFF, 0xFFFF, "Videoserver Connections(0x1424)"},
 }; /* pci_vid_1424[] */
 
-pci_id_t pci_vid_1425[] = {
+static pci_id_t const pci_vid_1425[] = {
 {0x1425, 0xFFFF, 0xFFFF, 0xFFFF, "Chelsio Communications Inc(0x1425)"},
 {0x1425, 0x000B, 0xFFFF, 0xFFFF, "T210 Protocol Engine(0x000B)"},
 {0x1425, 0x000C, 0xFFFF, 0xFFFF, "T204 Protocol Engine(0x000C)"},
@@ -22525,66 +22612,66 @@ pci_id_t pci_vid_1425[] = {
 {0x1425, 0xA000, 0xFFFF, 0xFFFF, "PE10K Unified Wire Ethernet Controller(0xA000)"},
 }; /* pci_vid_1425[] */
 
-pci_id_t pci_vid_1426[] = {
+static pci_id_t const pci_vid_1426[] = {
 {0x1426, 0xFFFF, 0xFFFF, 0xFFFF, "Storage Technology Corp.(0x1426)"},
 }; /* pci_vid_1426[] */
 
-pci_id_t pci_vid_1427[] = {
+static pci_id_t const pci_vid_1427[] = {
 {0x1427, 0xFFFF, 0xFFFF, 0xFFFF, "Better On-Line Solutions(0x1427)"},
 }; /* pci_vid_1427[] */
 
-pci_id_t pci_vid_1428[] = {
+static pci_id_t const pci_vid_1428[] = {
 {0x1428, 0xFFFF, 0xFFFF, 0xFFFF, "Edec Co Ltd(0x1428)"},
 }; /* pci_vid_1428[] */
 
-pci_id_t pci_vid_1429[] = {
+static pci_id_t const pci_vid_1429[] = {
 {0x1429, 0xFFFF, 0xFFFF, 0xFFFF, "Unex Technology Corp.(0x1429)"},
 }; /* pci_vid_1429[] */
 
-pci_id_t pci_vid_142A[] = {
+static pci_id_t const pci_vid_142A[] = {
 {0x142A, 0xFFFF, 0xFFFF, 0xFFFF, "Kingmax Technology Inc(0x142A)"},
 }; /* pci_vid_142A[] */
 
-pci_id_t pci_vid_142B[] = {
+static pci_id_t const pci_vid_142B[] = {
 {0x142B, 0xFFFF, 0xFFFF, 0xFFFF, "Radiolan(0x142B)"},
 }; /* pci_vid_142B[] */
 
-pci_id_t pci_vid_142C[] = {
+static pci_id_t const pci_vid_142C[] = {
 {0x142C, 0xFFFF, 0xFFFF, 0xFFFF, "Minton Optic Industry Co Ltd(0x142C)"},
 }; /* pci_vid_142C[] */
 
-pci_id_t pci_vid_142D[] = {
+static pci_id_t const pci_vid_142D[] = {
 {0x142D, 0xFFFF, 0xFFFF, 0xFFFF, "Pix stream Inc(0x142D)"},
 }; /* pci_vid_142D[] */
 
-pci_id_t pci_vid_142E[] = {
+static pci_id_t const pci_vid_142E[] = {
 {0x142E, 0xFFFF, 0xFFFF, 0xFFFF, "Vitec Multimedia(0x142E)"},
 {0x142E, 0x4020, 0xFFFF, 0xFFFF, "VM2-2 [Video Maker 2] MPEG1/2 Encoder(0x4020)"},
 {0x142E, 0x4337, 0xFFFF, 0xFFFF, "VM2-2-C7 [Video Maker 2 rev. C7] MPEG1/2 Encoder(0x4337)"},
 }; /* pci_vid_142E[] */
 
-pci_id_t pci_vid_142F[] = {
+static pci_id_t const pci_vid_142F[] = {
 {0x142F, 0xFFFF, 0xFFFF, 0xFFFF, "Radicom Research Inc(0x142F)"},
 }; /* pci_vid_142F[] */
 
-pci_id_t pci_vid_1430[] = {
+static pci_id_t const pci_vid_1430[] = {
 {0x1430, 0xFFFF, 0xFFFF, 0xFFFF, "ITT Aerospace/Communications Division(0x1430)"},
 }; /* pci_vid_1430[] */
 
-pci_id_t pci_vid_1431[] = {
+static pci_id_t const pci_vid_1431[] = {
 {0x1431, 0xFFFF, 0xFFFF, 0xFFFF, "Gilat Satellite Networks(0x1431)"},
 }; /* pci_vid_1431[] */
 
-pci_id_t pci_vid_1432[] = {
+static pci_id_t const pci_vid_1432[] = {
 {0x1432, 0xFFFF, 0xFFFF, 0xFFFF, "Edimax Computer Co.(0x1432)"},
 {0x1432, 0x9130, 0xFFFF, 0xFFFF, "RTL81xx Fast Ethernet(0x9130)"},
 }; /* pci_vid_1432[] */
 
-pci_id_t pci_vid_1433[] = {
+static pci_id_t const pci_vid_1433[] = {
 {0x1433, 0xFFFF, 0xFFFF, 0xFFFF, "Eltec Elektronik GmbH(0x1433)"},
 }; /* pci_vid_1433[] */
 
-pci_id_t pci_vid_1435[] = {
+static pci_id_t const pci_vid_1435[] = {
 {0x1435, 0xFFFF, 0xFFFF, 0xFFFF, "RTD Embedded Technologies, Inc.(0x1435)"},
 {0x1435, 0x4520, 0xFFFF, 0xFFFF, "PCI4520(0x4520)"},
 {0x1435, 0x6020, 0xFFFF, 0xFFFF, "SPM6020(0x6020)"},
@@ -22597,87 +22684,87 @@ pci_id_t pci_vid_1435[] = {
 {0x1435, 0x7820, 0xFFFF, 0xFFFF, "DM7820(0x7820)"},
 }; /* pci_vid_1435[] */
 
-pci_id_t pci_vid_1436[] = {
+static pci_id_t const pci_vid_1436[] = {
 {0x1436, 0xFFFF, 0xFFFF, 0xFFFF, "CIS Technology Inc(0x1436)"},
 }; /* pci_vid_1436[] */
 
-pci_id_t pci_vid_1437[] = {
+static pci_id_t const pci_vid_1437[] = {
 {0x1437, 0xFFFF, 0xFFFF, 0xFFFF, "Nissin Inc Co(0x1437)"},
 }; /* pci_vid_1437[] */
 
-pci_id_t pci_vid_1438[] = {
+static pci_id_t const pci_vid_1438[] = {
 {0x1438, 0xFFFF, 0xFFFF, 0xFFFF, "Atmel-dream(0x1438)"},
 }; /* pci_vid_1438[] */
 
-pci_id_t pci_vid_1439[] = {
+static pci_id_t const pci_vid_1439[] = {
 {0x1439, 0xFFFF, 0xFFFF, 0xFFFF, "Outsource Engineering & Mfg. Inc(0x1439)"},
 }; /* pci_vid_1439[] */
 
-pci_id_t pci_vid_143A[] = {
+static pci_id_t const pci_vid_143A[] = {
 {0x143A, 0xFFFF, 0xFFFF, 0xFFFF, "Stargate Solutions Inc(0x143A)"},
 }; /* pci_vid_143A[] */
 
-pci_id_t pci_vid_143B[] = {
+static pci_id_t const pci_vid_143B[] = {
 {0x143B, 0xFFFF, 0xFFFF, 0xFFFF, "Canon Research Center, America(0x143B)"},
 }; /* pci_vid_143B[] */
 
-pci_id_t pci_vid_143C[] = {
+static pci_id_t const pci_vid_143C[] = {
 {0x143C, 0xFFFF, 0xFFFF, 0xFFFF, "Amlogic Inc(0x143C)"},
 }; /* pci_vid_143C[] */
 
-pci_id_t pci_vid_143D[] = {
+static pci_id_t const pci_vid_143D[] = {
 {0x143D, 0xFFFF, 0xFFFF, 0xFFFF, "Tamarack Microelectronics Inc(0x143D)"},
 }; /* pci_vid_143D[] */
 
-pci_id_t pci_vid_143E[] = {
+static pci_id_t const pci_vid_143E[] = {
 {0x143E, 0xFFFF, 0xFFFF, 0xFFFF, "Jones Futurex Inc(0x143E)"},
 }; /* pci_vid_143E[] */
 
-pci_id_t pci_vid_143F[] = {
+static pci_id_t const pci_vid_143F[] = {
 {0x143F, 0xFFFF, 0xFFFF, 0xFFFF, "Lightwell Co Ltd - Zax Division(0x143F)"},
 }; /* pci_vid_143F[] */
 
-pci_id_t pci_vid_1440[] = {
+static pci_id_t const pci_vid_1440[] = {
 {0x1440, 0xFFFF, 0xFFFF, 0xFFFF, "ALGOL Corp.(0x1440)"},
 }; /* pci_vid_1440[] */
 
-pci_id_t pci_vid_1441[] = {
+static pci_id_t const pci_vid_1441[] = {
 {0x1441, 0xFFFF, 0xFFFF, 0xFFFF, "AGIE Ltd(0x1441)"},
 }; /* pci_vid_1441[] */
 
-pci_id_t pci_vid_1442[] = {
+static pci_id_t const pci_vid_1442[] = {
 {0x1442, 0xFFFF, 0xFFFF, 0xFFFF, "Phoenix Contact GmbH & Co.(0x1442)"},
 }; /* pci_vid_1442[] */
 
-pci_id_t pci_vid_1443[] = {
+static pci_id_t const pci_vid_1443[] = {
 {0x1443, 0xFFFF, 0xFFFF, 0xFFFF, "Unibrain S.A.(0x1443)"},
 }; /* pci_vid_1443[] */
 
-pci_id_t pci_vid_1444[] = {
+static pci_id_t const pci_vid_1444[] = {
 {0x1444, 0xFFFF, 0xFFFF, 0xFFFF, "TRW(0x1444)"},
 }; /* pci_vid_1444[] */
 
-pci_id_t pci_vid_1445[] = {
+static pci_id_t const pci_vid_1445[] = {
 {0x1445, 0xFFFF, 0xFFFF, 0xFFFF, "Logical DO Ltd(0x1445)"},
 }; /* pci_vid_1445[] */
 
-pci_id_t pci_vid_1446[] = {
+static pci_id_t const pci_vid_1446[] = {
 {0x1446, 0xFFFF, 0xFFFF, 0xFFFF, "Graphin Co Ltd(0x1446)"},
 }; /* pci_vid_1446[] */
 
-pci_id_t pci_vid_1447[] = {
+static pci_id_t const pci_vid_1447[] = {
 {0x1447, 0xFFFF, 0xFFFF, 0xFFFF, "AIM GmBH(0x1447)"},
 }; /* pci_vid_1447[] */
 
-pci_id_t pci_vid_1448[] = {
+static pci_id_t const pci_vid_1448[] = {
 {0x1448, 0xFFFF, 0xFFFF, 0xFFFF, "Alesis Studio Electronics(0x1448)"},
 }; /* pci_vid_1448[] */
 
-pci_id_t pci_vid_1449[] = {
+static pci_id_t const pci_vid_1449[] = {
 {0x1449, 0xFFFF, 0xFFFF, 0xFFFF, "TUT Systems Inc(0x1449)"},
 }; /* pci_vid_1449[] */
 
-pci_id_t pci_vid_144A[] = {
+static pci_id_t const pci_vid_144A[] = {
 {0x144A, 0xFFFF, 0xFFFF, 0xFFFF, "Adlink Technology(0x144A)"},
 {0x144A, 0x6208, 0xFFFF, 0xFFFF, "PCI-6208V(0x6208)"},
 {0x144A, 0x7250, 0xFFFF, 0xFFFF, "PCI-7250(0x7250)"},
@@ -22695,15 +22782,15 @@ pci_id_t pci_vid_144A[] = {
 {0x144A, 0xA001, 0xFFFF, 0xFFFF, "ADi-BSEC(0xA001)"},
 }; /* pci_vid_144A[] */
 
-pci_id_t pci_vid_144B[] = {
+static pci_id_t const pci_vid_144B[] = {
 {0x144B, 0xFFFF, 0xFFFF, 0xFFFF, "Verint Systems Inc.(0x144B)"},
 }; /* pci_vid_144B[] */
 
-pci_id_t pci_vid_144C[] = {
+static pci_id_t const pci_vid_144C[] = {
 {0x144C, 0xFFFF, 0xFFFF, 0xFFFF, "Catalina Research Inc(0x144C)"},
 }; /* pci_vid_144C[] */
 
-pci_id_t pci_vid_144D[] = {
+static pci_id_t const pci_vid_144D[] = {
 {0x144D, 0xFFFF, 0xFFFF, 0xFFFF, "Samsung Electronics Co Ltd(0x144D)"},
 {0x144D, 0x1600, 0xFFFF, 0xFFFF, "S4LN053X01 AHCI SSD Controller(Apple slot)(0x1600)"},
 {0x144D, 0x9602, 0xFFFF, 0xFFFF, "RS780/RS880 PCI to PCI bridge (int gfx)(0x9602)"},
@@ -22870,83 +22957,83 @@ pci_id_t pci_vid_144D[] = {
 {0x144D, 0xECEC, 0xFFFF, 0xFFFF, "Exynos 8895 PCIe Root Complex(0xECEC)"},
 }; /* pci_vid_144D[] */
 
-pci_id_t pci_vid_144E[] = {
+static pci_id_t const pci_vid_144E[] = {
 {0x144E, 0xFFFF, 0xFFFF, 0xFFFF, "OLITEC(0x144E)"},
 }; /* pci_vid_144E[] */
 
-pci_id_t pci_vid_144F[] = {
+static pci_id_t const pci_vid_144F[] = {
 {0x144F, 0xFFFF, 0xFFFF, 0xFFFF, "Askey Computer Corp.(0x144F)"},
 }; /* pci_vid_144F[] */
 
-pci_id_t pci_vid_1450[] = {
+static pci_id_t const pci_vid_1450[] = {
 {0x1450, 0xFFFF, 0xFFFF, 0xFFFF, "Octave Communications Ind.(0x1450)"},
 }; /* pci_vid_1450[] */
 
-pci_id_t pci_vid_1451[] = {
+static pci_id_t const pci_vid_1451[] = {
 {0x1451, 0xFFFF, 0xFFFF, 0xFFFF, "SP3D Chip Design GmBH(0x1451)"},
 }; /* pci_vid_1451[] */
 
-pci_id_t pci_vid_1453[] = {
+static pci_id_t const pci_vid_1453[] = {
 {0x1453, 0xFFFF, 0xFFFF, 0xFFFF, "MYCOM Inc(0x1453)"},
 }; /* pci_vid_1453[] */
 
-pci_id_t pci_vid_1454[] = {
+static pci_id_t const pci_vid_1454[] = {
 {0x1454, 0xFFFF, 0xFFFF, 0xFFFF, "Altiga Networks(0x1454)"},
 }; /* pci_vid_1454[] */
 
-pci_id_t pci_vid_1455[] = {
+static pci_id_t const pci_vid_1455[] = {
 {0x1455, 0xFFFF, 0xFFFF, 0xFFFF, "Logic Plus Plus Inc(0x1455)"},
 }; /* pci_vid_1455[] */
 
-pci_id_t pci_vid_1456[] = {
+static pci_id_t const pci_vid_1456[] = {
 {0x1456, 0xFFFF, 0xFFFF, 0xFFFF, "Advanced Hardware Architectures(0x1456)"},
 }; /* pci_vid_1456[] */
 
-pci_id_t pci_vid_1457[] = {
+static pci_id_t const pci_vid_1457[] = {
 {0x1457, 0xFFFF, 0xFFFF, 0xFFFF, "Nuera Communications Inc(0x1457)"},
 }; /* pci_vid_1457[] */
 
-pci_id_t pci_vid_1458[] = {
+static pci_id_t const pci_vid_1458[] = {
 {0x1458, 0xFFFF, 0xFFFF, 0xFFFF, "Gigabyte Technology Co., Ltd(0x1458)"},
 {0x1458, 0x1002, 0xFFFF, 0xFFFF, "Aourus Radeon RX6900XT Xtreme Waterforce WB 16G(0x1002)"},
 {0x1458, 0x22E8, 0xFFFF, 0xFFFF, "Ellesmere [Radeon RX 480](0x22E8)"},
 {0x1458, 0x3483, 0xFFFF, 0xFFFF, "USB 3.0 Controller (VIA VL80x-based xHCI Controller)(0x3483)"},
 }; /* pci_vid_1458[] */
 
-pci_id_t pci_vid_1459[] = {
+static pci_id_t const pci_vid_1459[] = {
 {0x1459, 0xFFFF, 0xFFFF, 0xFFFF, "DOOIN Electronics(0x1459)"},
 }; /* pci_vid_1459[] */
 
-pci_id_t pci_vid_145A[] = {
+static pci_id_t const pci_vid_145A[] = {
 {0x145A, 0xFFFF, 0xFFFF, 0xFFFF, "Escalate Networks Inc(0x145A)"},
 }; /* pci_vid_145A[] */
 
-pci_id_t pci_vid_145B[] = {
+static pci_id_t const pci_vid_145B[] = {
 {0x145B, 0xFFFF, 0xFFFF, 0xFFFF, "PRAIM SRL(0x145B)"},
 }; /* pci_vid_145B[] */
 
-pci_id_t pci_vid_145C[] = {
+static pci_id_t const pci_vid_145C[] = {
 {0x145C, 0xFFFF, 0xFFFF, 0xFFFF, "Cryptek(0x145C)"},
 }; /* pci_vid_145C[] */
 
-pci_id_t pci_vid_145D[] = {
+static pci_id_t const pci_vid_145D[] = {
 {0x145D, 0xFFFF, 0xFFFF, 0xFFFF, "Gallant Computer Inc(0x145D)"},
 }; /* pci_vid_145D[] */
 
-pci_id_t pci_vid_145E[] = {
+static pci_id_t const pci_vid_145E[] = {
 {0x145E, 0xFFFF, 0xFFFF, 0xFFFF, "Aashima Technology B.V.(0x145E)"},
 }; /* pci_vid_145E[] */
 
-pci_id_t pci_vid_145F[] = {
+static pci_id_t const pci_vid_145F[] = {
 {0x145F, 0xFFFF, 0xFFFF, 0xFFFF, "Baldor Electric Company(0x145F)"},
 {0x145F, 0x0001, 0xFFFF, 0xFFFF, "NextMove PCI(0x0001)"},
 }; /* pci_vid_145F[] */
 
-pci_id_t pci_vid_1460[] = {
+static pci_id_t const pci_vid_1460[] = {
 {0x1460, 0xFFFF, 0xFFFF, 0xFFFF, "DYNARC INC(0x1460)"},
 }; /* pci_vid_1460[] */
 
-pci_id_t pci_vid_1461[] = {
+static pci_id_t const pci_vid_1461[] = {
 {0x1461, 0xFFFF, 0xFFFF, 0xFFFF, "Avermedia Technologies Inc(0x1461)"},
 {0x1461, 0xA3CE, 0xFFFF, 0xFFFF, "M179(0xA3CE)"},
 {0x1461, 0xA3CF, 0xFFFF, 0xFFFF, "M179(0xA3CF)"},
@@ -22955,231 +23042,231 @@ pci_id_t pci_vid_1461[] = {
 {0x1461, 0xF436, 0xFFFF, 0xFFFF, "AVerTV Hybrid+FM(0xF436)"},
 }; /* pci_vid_1461[] */
 
-pci_id_t pci_vid_1462[] = {
+static pci_id_t const pci_vid_1462[] = {
 {0x1462, 0xFFFF, 0xFFFF, 0xFFFF, "Micro-Star International Co., Ltd. [MSI](0x1462)"},
 {0x1462, 0x3483, 0xFFFF, 0xFFFF, "MSI USB 3.0 (VIA VL80x-based xHCI USB Controller)(0x3483)"},
 {0x1462, 0x7C56, 0xFFFF, 0xFFFF, "Realtek Ethernet controller RTL8111H(0x7C56)"},
 {0x1462, 0xAAF0, 0xFFFF, 0xFFFF, "Radeon RX 580 Gaming X 8G(0xAAF0)"},
 }; /* pci_vid_1462[] */
 
-pci_id_t pci_vid_1463[] = {
+static pci_id_t const pci_vid_1463[] = {
 {0x1463, 0xFFFF, 0xFFFF, 0xFFFF, "Fast Corporation(0x1463)"},
 }; /* pci_vid_1463[] */
 
-pci_id_t pci_vid_1464[] = {
+static pci_id_t const pci_vid_1464[] = {
 {0x1464, 0xFFFF, 0xFFFF, 0xFFFF, "Interactive Circuits & Systems Ltd(0x1464)"},
 }; /* pci_vid_1464[] */
 
-pci_id_t pci_vid_1465[] = {
+static pci_id_t const pci_vid_1465[] = {
 {0x1465, 0xFFFF, 0xFFFF, 0xFFFF, "GN NETTEST Telecom DIV.(0x1465)"},
 }; /* pci_vid_1465[] */
 
-pci_id_t pci_vid_1466[] = {
+static pci_id_t const pci_vid_1466[] = {
 {0x1466, 0xFFFF, 0xFFFF, 0xFFFF, "Designpro Inc.(0x1466)"},
 }; /* pci_vid_1466[] */
 
-pci_id_t pci_vid_1467[] = {
+static pci_id_t const pci_vid_1467[] = {
 {0x1467, 0xFFFF, 0xFFFF, 0xFFFF, "DIGICOM SPA(0x1467)"},
 }; /* pci_vid_1467[] */
 
-pci_id_t pci_vid_1468[] = {
+static pci_id_t const pci_vid_1468[] = {
 {0x1468, 0xFFFF, 0xFFFF, 0xFFFF, "AMBIT Microsystem Corp.(0x1468)"},
 }; /* pci_vid_1468[] */
 
-pci_id_t pci_vid_1469[] = {
+static pci_id_t const pci_vid_1469[] = {
 {0x1469, 0xFFFF, 0xFFFF, 0xFFFF, "Cleveland Motion Controls(0x1469)"},
 }; /* pci_vid_1469[] */
 
-pci_id_t pci_vid_146A[] = {
+static pci_id_t const pci_vid_146A[] = {
 {0x146A, 0xFFFF, 0xFFFF, 0xFFFF, "Aeroflex(0x146A)"},
 {0x146A, 0x3010, 0xFFFF, 0xFFFF, "3010 RF Synthesizer(0x3010)"},
 {0x146A, 0x3A11, 0xFFFF, 0xFFFF, "3011A PXI RF Synthesizer(0x3A11)"},
 }; /* pci_vid_146A[] */
 
-pci_id_t pci_vid_146B[] = {
+static pci_id_t const pci_vid_146B[] = {
 {0x146B, 0xFFFF, 0xFFFF, 0xFFFF, "Parascan Technologies Ltd(0x146B)"},
 }; /* pci_vid_146B[] */
 
-pci_id_t pci_vid_146C[] = {
+static pci_id_t const pci_vid_146C[] = {
 {0x146C, 0xFFFF, 0xFFFF, 0xFFFF, "Ruby Tech Corp.(0x146C)"},
 {0x146C, 0x1430, 0xFFFF, 0xFFFF, "FE-1430TX Fast Ethernet PCI Adapter(0x1430)"},
 }; /* pci_vid_146C[] */
 
-pci_id_t pci_vid_146D[] = {
+static pci_id_t const pci_vid_146D[] = {
 {0x146D, 0xFFFF, 0xFFFF, 0xFFFF, "Tachyon, INC.(0x146D)"},
 }; /* pci_vid_146D[] */
 
-pci_id_t pci_vid_146E[] = {
+static pci_id_t const pci_vid_146E[] = {
 {0x146E, 0xFFFF, 0xFFFF, 0xFFFF, "Williams Electronics Games, Inc.(0x146E)"},
 }; /* pci_vid_146E[] */
 
-pci_id_t pci_vid_146F[] = {
+static pci_id_t const pci_vid_146F[] = {
 {0x146F, 0xFFFF, 0xFFFF, 0xFFFF, "Multi Dimensional Consulting Inc(0x146F)"},
 }; /* pci_vid_146F[] */
 
-pci_id_t pci_vid_1470[] = {
+static pci_id_t const pci_vid_1470[] = {
 {0x1470, 0xFFFF, 0xFFFF, 0xFFFF, "Bay Networks(0x1470)"},
 }; /* pci_vid_1470[] */
 
-pci_id_t pci_vid_1471[] = {
+static pci_id_t const pci_vid_1471[] = {
 {0x1471, 0xFFFF, 0xFFFF, 0xFFFF, "Integrated Telecom Express Inc(0x1471)"},
 }; /* pci_vid_1471[] */
 
-pci_id_t pci_vid_1472[] = {
+static pci_id_t const pci_vid_1472[] = {
 {0x1472, 0xFFFF, 0xFFFF, 0xFFFF, "DAIKIN Industries, Ltd(0x1472)"},
 }; /* pci_vid_1472[] */
 
-pci_id_t pci_vid_1473[] = {
+static pci_id_t const pci_vid_1473[] = {
 {0x1473, 0xFFFF, 0xFFFF, 0xFFFF, "ZAPEX Technologies Inc(0x1473)"},
 }; /* pci_vid_1473[] */
 
-pci_id_t pci_vid_1474[] = {
+static pci_id_t const pci_vid_1474[] = {
 {0x1474, 0xFFFF, 0xFFFF, 0xFFFF, "Doug Carson & Associates(0x1474)"},
 }; /* pci_vid_1474[] */
 
-pci_id_t pci_vid_1475[] = {
+static pci_id_t const pci_vid_1475[] = {
 {0x1475, 0xFFFF, 0xFFFF, 0xFFFF, "PICAZO Communications(0x1475)"},
 }; /* pci_vid_1475[] */
 
-pci_id_t pci_vid_1476[] = {
+static pci_id_t const pci_vid_1476[] = {
 {0x1476, 0xFFFF, 0xFFFF, 0xFFFF, "MORTARA Instrument Inc(0x1476)"},
 }; /* pci_vid_1476[] */
 
-pci_id_t pci_vid_1477[] = {
+static pci_id_t const pci_vid_1477[] = {
 {0x1477, 0xFFFF, 0xFFFF, 0xFFFF, "Net Insight(0x1477)"},
 }; /* pci_vid_1477[] */
 
-pci_id_t pci_vid_1478[] = {
+static pci_id_t const pci_vid_1478[] = {
 {0x1478, 0xFFFF, 0xFFFF, 0xFFFF, "DIATREND Corporation(0x1478)"},
 }; /* pci_vid_1478[] */
 
-pci_id_t pci_vid_1479[] = {
+static pci_id_t const pci_vid_1479[] = {
 {0x1479, 0xFFFF, 0xFFFF, 0xFFFF, "TORAY Industries Inc(0x1479)"},
 }; /* pci_vid_1479[] */
 
-pci_id_t pci_vid_147A[] = {
+static pci_id_t const pci_vid_147A[] = {
 {0x147A, 0xFFFF, 0xFFFF, 0xFFFF, "FORMOSA Industrial Computing(0x147A)"},
 }; /* pci_vid_147A[] */
 
-pci_id_t pci_vid_147B[] = {
+static pci_id_t const pci_vid_147B[] = {
 {0x147B, 0xFFFF, 0xFFFF, 0xFFFF, "ABIT Computer Corp.(0x147B)"},
 {0x147B, 0x1084, 0xFFFF, 0xFFFF, "IP35 [Dark Raider](0x1084)"},
 }; /* pci_vid_147B[] */
 
-pci_id_t pci_vid_147C[] = {
+static pci_id_t const pci_vid_147C[] = {
 {0x147C, 0xFFFF, 0xFFFF, 0xFFFF, "AWARE, Inc.(0x147C)"},
 }; /* pci_vid_147C[] */
 
-pci_id_t pci_vid_147D[] = {
+static pci_id_t const pci_vid_147D[] = {
 {0x147D, 0xFFFF, 0xFFFF, 0xFFFF, "Interworks Computer Products(0x147D)"},
 }; /* pci_vid_147D[] */
 
-pci_id_t pci_vid_147E[] = {
+static pci_id_t const pci_vid_147E[] = {
 {0x147E, 0xFFFF, 0xFFFF, 0xFFFF, "Matsushita Graphic Communication Systems, Inc.(0x147E)"},
 }; /* pci_vid_147E[] */
 
-pci_id_t pci_vid_147F[] = {
+static pci_id_t const pci_vid_147F[] = {
 {0x147F, 0xFFFF, 0xFFFF, 0xFFFF, "NIHON UNISYS, Ltd.(0x147F)"},
 }; /* pci_vid_147F[] */
 
-pci_id_t pci_vid_1480[] = {
+static pci_id_t const pci_vid_1480[] = {
 {0x1480, 0xFFFF, 0xFFFF, 0xFFFF, "SCII Telecom(0x1480)"},
 }; /* pci_vid_1480[] */
 
-pci_id_t pci_vid_1481[] = {
+static pci_id_t const pci_vid_1481[] = {
 {0x1481, 0xFFFF, 0xFFFF, 0xFFFF, "BIOPAC Systems Inc(0x1481)"},
 }; /* pci_vid_1481[] */
 
-pci_id_t pci_vid_1482[] = {
+static pci_id_t const pci_vid_1482[] = {
 {0x1482, 0xFFFF, 0xFFFF, 0xFFFF, "ISYTEC - Integrierte Systemtechnik GmBH(0x1482)"},
 {0x1482, 0x0001, 0xFFFF, 0xFFFF, "PCI-16 Host Interface for ITC-16(0x0001)"},
 }; /* pci_vid_1482[] */
 
-pci_id_t pci_vid_1483[] = {
+static pci_id_t const pci_vid_1483[] = {
 {0x1483, 0xFFFF, 0xFFFF, 0xFFFF, "LABWAY Corporation(0x1483)"},
 }; /* pci_vid_1483[] */
 
-pci_id_t pci_vid_1484[] = {
+static pci_id_t const pci_vid_1484[] = {
 {0x1484, 0xFFFF, 0xFFFF, 0xFFFF, "Logic Corporation(0x1484)"},
 }; /* pci_vid_1484[] */
 
-pci_id_t pci_vid_1485[] = {
+static pci_id_t const pci_vid_1485[] = {
 {0x1485, 0xFFFF, 0xFFFF, 0xFFFF, "ERMA - Electronic GmBH(0x1485)"},
 }; /* pci_vid_1485[] */
 
-pci_id_t pci_vid_1486[] = {
+static pci_id_t const pci_vid_1486[] = {
 {0x1486, 0xFFFF, 0xFFFF, 0xFFFF, "L3 Communications Telemetry & Instrumentation(0x1486)"},
 }; /* pci_vid_1486[] */
 
-pci_id_t pci_vid_1487[] = {
+static pci_id_t const pci_vid_1487[] = {
 {0x1487, 0xFFFF, 0xFFFF, 0xFFFF, "MARQUETTE Medical Systems(0x1487)"},
 }; /* pci_vid_1487[] */
 
-pci_id_t pci_vid_1489[] = {
+static pci_id_t const pci_vid_1489[] = {
 {0x1489, 0xFFFF, 0xFFFF, 0xFFFF, "KYE Systems Corporation(0x1489)"},
 }; /* pci_vid_1489[] */
 
-pci_id_t pci_vid_148A[] = {
+static pci_id_t const pci_vid_148A[] = {
 {0x148A, 0xFFFF, 0xFFFF, 0xFFFF, "OPTO(0x148A)"},
 }; /* pci_vid_148A[] */
 
-pci_id_t pci_vid_148B[] = {
+static pci_id_t const pci_vid_148B[] = {
 {0x148B, 0xFFFF, 0xFFFF, 0xFFFF, "INNOMEDIALOGIC Inc.(0x148B)"},
 }; /* pci_vid_148B[] */
 
-pci_id_t pci_vid_148C[] = {
+static pci_id_t const pci_vid_148C[] = {
 {0x148C, 0xFFFF, 0xFFFF, 0xFFFF, "Tul Corporation / PowerColor(0x148C)"},
 {0x148C, 0x2391, 0xFFFF, 0xFFFF, "Radeon RX 590 [Red Devil](0x2391)"},
 {0x148C, 0x2398, 0xFFFF, 0xFFFF, "AXRX 5700 XT 8GBD6-3DHE/OC [PowerColor Red Devil Radeon RX 5700 XT](0x2398)"},
 }; /* pci_vid_148C[] */
 
-pci_id_t pci_vid_148D[] = {
+static pci_id_t const pci_vid_148D[] = {
 {0x148D, 0xFFFF, 0xFFFF, 0xFFFF, "DIGICOM Systems, Inc.(0x148D)"},
 {0x148D, 0x1003, 0xFFFF, 0xFFFF, "HCF 56k Data/Fax Modem(0x1003)"},
 }; /* pci_vid_148D[] */
 
-pci_id_t pci_vid_148E[] = {
+static pci_id_t const pci_vid_148E[] = {
 {0x148E, 0xFFFF, 0xFFFF, 0xFFFF, "OSI Plus Corporation(0x148E)"},
 }; /* pci_vid_148E[] */
 
-pci_id_t pci_vid_148F[] = {
+static pci_id_t const pci_vid_148F[] = {
 {0x148F, 0xFFFF, 0xFFFF, 0xFFFF, "Plant Equipment, Inc.(0x148F)"},
 }; /* pci_vid_148F[] */
 
-pci_id_t pci_vid_1490[] = {
+static pci_id_t const pci_vid_1490[] = {
 {0x1490, 0xFFFF, 0xFFFF, 0xFFFF, "Stone Microsystems PTY Ltd.(0x1490)"},
 }; /* pci_vid_1490[] */
 
-pci_id_t pci_vid_1491[] = {
+static pci_id_t const pci_vid_1491[] = {
 {0x1491, 0xFFFF, 0xFFFF, 0xFFFF, "ZEAL Corporation(0x1491)"},
 }; /* pci_vid_1491[] */
 
-pci_id_t pci_vid_1492[] = {
+static pci_id_t const pci_vid_1492[] = {
 {0x1492, 0xFFFF, 0xFFFF, 0xFFFF, "Time Logic Corporation(0x1492)"},
 }; /* pci_vid_1492[] */
 
-pci_id_t pci_vid_1493[] = {
+static pci_id_t const pci_vid_1493[] = {
 {0x1493, 0xFFFF, 0xFFFF, 0xFFFF, "MAKER Communications(0x1493)"},
 }; /* pci_vid_1493[] */
 
-pci_id_t pci_vid_1494[] = {
+static pci_id_t const pci_vid_1494[] = {
 {0x1494, 0xFFFF, 0xFFFF, 0xFFFF, "WINTOP Technology, Inc.(0x1494)"},
 }; /* pci_vid_1494[] */
 
-pci_id_t pci_vid_1495[] = {
+static pci_id_t const pci_vid_1495[] = {
 {0x1495, 0xFFFF, 0xFFFF, 0xFFFF, "TOKAI Communications Industry Co. Ltd(0x1495)"},
 }; /* pci_vid_1495[] */
 
-pci_id_t pci_vid_1496[] = {
+static pci_id_t const pci_vid_1496[] = {
 {0x1496, 0xFFFF, 0xFFFF, 0xFFFF, "JOYTECH Computer Co., Ltd.(0x1496)"},
 }; /* pci_vid_1496[] */
 
-pci_id_t pci_vid_1497[] = {
+static pci_id_t const pci_vid_1497[] = {
 {0x1497, 0xFFFF, 0xFFFF, 0xFFFF, "SMA Regelsysteme GmBH(0x1497)"},
 {0x1497, 0x1497, 0xFFFF, 0xFFFF, "SMA Technologie AG(0x1497)"},
 }; /* pci_vid_1497[] */
 
-pci_id_t pci_vid_1498[] = {
+static pci_id_t const pci_vid_1498[] = {
 {0x1498, 0xFFFF, 0xFFFF, 0xFFFF, "TEWS Technologies GmbH(0x1498)"},
 {0x1498, 0x0330, 0xFFFF, 0xFFFF, "TPMC816 2 Channel CAN bus controller.(0x0330)"},
 {0x1498, 0x035D, 0xFFFF, 0xFFFF, "TPMC861 4-Channel Isolated Serial Interface RS422/RS485(0x035D)"},
@@ -23192,53 +23279,53 @@ pci_id_t pci_vid_1498[] = {
 {0x1498, 0x9177, 0xFFFF, 0xFFFF, "TXMC375 8 channel RS232/RS422/RS485 programmable serial interface(0x9177)"},
 }; /* pci_vid_1498[] */
 
-pci_id_t pci_vid_1499[] = {
+static pci_id_t const pci_vid_1499[] = {
 {0x1499, 0xFFFF, 0xFFFF, 0xFFFF, "EMTEC CO., Ltd(0x1499)"},
 }; /* pci_vid_1499[] */
 
-pci_id_t pci_vid_149A[] = {
+static pci_id_t const pci_vid_149A[] = {
 {0x149A, 0xFFFF, 0xFFFF, 0xFFFF, "ANDOR Technology Ltd(0x149A)"},
 }; /* pci_vid_149A[] */
 
-pci_id_t pci_vid_149B[] = {
+static pci_id_t const pci_vid_149B[] = {
 {0x149B, 0xFFFF, 0xFFFF, 0xFFFF, "SEIKO Instruments Inc(0x149B)"},
 }; /* pci_vid_149B[] */
 
-pci_id_t pci_vid_149C[] = {
+static pci_id_t const pci_vid_149C[] = {
 {0x149C, 0xFFFF, 0xFFFF, 0xFFFF, "OVISLINK Corp.(0x149C)"},
 }; /* pci_vid_149C[] */
 
-pci_id_t pci_vid_149D[] = {
+static pci_id_t const pci_vid_149D[] = {
 {0x149D, 0xFFFF, 0xFFFF, 0xFFFF, "NEWTEK Inc(0x149D)"},
 {0x149D, 0x0001, 0xFFFF, 0xFFFF, "Video Toaster for PC(0x0001)"},
 }; /* pci_vid_149D[] */
 
-pci_id_t pci_vid_149E[] = {
+static pci_id_t const pci_vid_149E[] = {
 {0x149E, 0xFFFF, 0xFFFF, 0xFFFF, "Mapletree Networks Inc.(0x149E)"},
 }; /* pci_vid_149E[] */
 
-pci_id_t pci_vid_149F[] = {
+static pci_id_t const pci_vid_149F[] = {
 {0x149F, 0xFFFF, 0xFFFF, 0xFFFF, "LECTRON Co Ltd(0x149F)"},
 }; /* pci_vid_149F[] */
 
-pci_id_t pci_vid_14A0[] = {
+static pci_id_t const pci_vid_14A0[] = {
 {0x14A0, 0xFFFF, 0xFFFF, 0xFFFF, "SOFTING GmBH(0x14A0)"},
 }; /* pci_vid_14A0[] */
 
-pci_id_t pci_vid_14A1[] = {
+static pci_id_t const pci_vid_14A1[] = {
 {0x14A1, 0xFFFF, 0xFFFF, 0xFFFF, "Systembase Co Ltd(0x14A1)"},
 {0x14A1, 0x4D02, 0xFFFF, 0xFFFF, "SB16C1052PCI [Multi-2/PCIe RS232](0x4D02)"},
 }; /* pci_vid_14A1[] */
 
-pci_id_t pci_vid_14A2[] = {
+static pci_id_t const pci_vid_14A2[] = {
 {0x14A2, 0xFFFF, 0xFFFF, 0xFFFF, "Millennium Engineering Inc(0x14A2)"},
 }; /* pci_vid_14A2[] */
 
-pci_id_t pci_vid_14A3[] = {
+static pci_id_t const pci_vid_14A3[] = {
 {0x14A3, 0xFFFF, 0xFFFF, 0xFFFF, "Maverick Networks(0x14A3)"},
 }; /* pci_vid_14A3[] */
 
-pci_id_t pci_vid_14A4[] = {
+static pci_id_t const pci_vid_14A4[] = {
 {0x14A4, 0xFFFF, 0xFFFF, 0xFFFF, "Lite-On Technology Corporation(0x14A4)"},
 {0x14A4, 0x2100, 0xFFFF, 0xFFFF, "CA1-8D128 NVMe SSD(0x2100)"},
 {0x14A4, 0x2200, 0xFFFF, 0xFFFF, "CX2-8B256, CX2-8B512 NVMe SSD(0x2200)"},
@@ -23253,73 +23340,73 @@ pci_id_t pci_vid_14A4[] = {
 {0x14A4, 0x9100, 0xFFFF, 0xFFFF, "CL1-3D256, CL1-8D512 NVMe SSD (DRAM-less)(0x9100)"},
 }; /* pci_vid_14A4[] */
 
-pci_id_t pci_vid_14A5[] = {
+static pci_id_t const pci_vid_14A5[] = {
 {0x14A5, 0xFFFF, 0xFFFF, 0xFFFF, "XIONICS Document Technologies Inc(0x14A5)"},
 }; /* pci_vid_14A5[] */
 
-pci_id_t pci_vid_14A6[] = {
+static pci_id_t const pci_vid_14A6[] = {
 {0x14A6, 0xFFFF, 0xFFFF, 0xFFFF, "INOVA Computers GmBH & Co KG(0x14A6)"},
 }; /* pci_vid_14A6[] */
 
-pci_id_t pci_vid_14A7[] = {
+static pci_id_t const pci_vid_14A7[] = {
 {0x14A7, 0xFFFF, 0xFFFF, 0xFFFF, "MYTHOS Systems Inc(0x14A7)"},
 }; /* pci_vid_14A7[] */
 
-pci_id_t pci_vid_14A8[] = {
+static pci_id_t const pci_vid_14A8[] = {
 {0x14A8, 0xFFFF, 0xFFFF, 0xFFFF, "FEATRON Technologies Corporation(0x14A8)"},
 }; /* pci_vid_14A8[] */
 
-pci_id_t pci_vid_14A9[] = {
+static pci_id_t const pci_vid_14A9[] = {
 {0x14A9, 0xFFFF, 0xFFFF, 0xFFFF, "HIVERTEC Inc(0x14A9)"},
 }; /* pci_vid_14A9[] */
 
-pci_id_t pci_vid_14AA[] = {
+static pci_id_t const pci_vid_14AA[] = {
 {0x14AA, 0xFFFF, 0xFFFF, 0xFFFF, "Advanced MOS Technology Inc(0x14AA)"},
 }; /* pci_vid_14AA[] */
 
-pci_id_t pci_vid_14AB[] = {
+static pci_id_t const pci_vid_14AB[] = {
 {0x14AB, 0xFFFF, 0xFFFF, 0xFFFF, "Siemens Industry Software Inc.(0x14AB)"},
 }; /* pci_vid_14AB[] */
 
-pci_id_t pci_vid_14AC[] = {
+static pci_id_t const pci_vid_14AC[] = {
 {0x14AC, 0xFFFF, 0xFFFF, 0xFFFF, "Novaweb Technologies Inc(0x14AC)"},
 }; /* pci_vid_14AC[] */
 
-pci_id_t pci_vid_14AD[] = {
+static pci_id_t const pci_vid_14AD[] = {
 {0x14AD, 0xFFFF, 0xFFFF, 0xFFFF, "Time Space Radio AB(0x14AD)"},
 }; /* pci_vid_14AD[] */
 
-pci_id_t pci_vid_14AE[] = {
+static pci_id_t const pci_vid_14AE[] = {
 {0x14AE, 0xFFFF, 0xFFFF, 0xFFFF, "CTI, Inc(0x14AE)"},
 }; /* pci_vid_14AE[] */
 
-pci_id_t pci_vid_14AF[] = {
+static pci_id_t const pci_vid_14AF[] = {
 {0x14AF, 0xFFFF, 0xFFFF, 0xFFFF, "Guillemot Corporation(0x14AF)"},
 {0x14AF, 0x7102, 0xFFFF, 0xFFFF, "3D Prophet II MX(0x7102)"},
 }; /* pci_vid_14AF[] */
 
-pci_id_t pci_vid_14B0[] = {
+static pci_id_t const pci_vid_14B0[] = {
 {0x14B0, 0xFFFF, 0xFFFF, 0xFFFF, "BST Communication Technology Ltd(0x14B0)"},
 }; /* pci_vid_14B0[] */
 
-pci_id_t pci_vid_14B1[] = {
+static pci_id_t const pci_vid_14B1[] = {
 {0x14B1, 0xFFFF, 0xFFFF, 0xFFFF, "Nextcom K.K.(0x14B1)"},
 }; /* pci_vid_14B1[] */
 
-pci_id_t pci_vid_14B2[] = {
+static pci_id_t const pci_vid_14B2[] = {
 {0x14B2, 0xFFFF, 0xFFFF, 0xFFFF, "ENNOVATE Networks Inc(0x14B2)"},
 }; /* pci_vid_14B2[] */
 
-pci_id_t pci_vid_14B3[] = {
+static pci_id_t const pci_vid_14B3[] = {
 {0x14B3, 0xFFFF, 0xFFFF, 0xFFFF, "XPEED Inc(0x14B3)"},
 {0x14B3, 0x0000, 0xFFFF, 0xFFFF, "DSL NIC(0x0000)"},
 }; /* pci_vid_14B3[] */
 
-pci_id_t pci_vid_14B4[] = {
+static pci_id_t const pci_vid_14B4[] = {
 {0x14B4, 0xFFFF, 0xFFFF, 0xFFFF, "PHILIPS Business Electronics B.V.(0x14B4)"},
 }; /* pci_vid_14B4[] */
 
-pci_id_t pci_vid_14B5[] = {
+static pci_id_t const pci_vid_14B5[] = {
 {0x14B5, 0xFFFF, 0xFFFF, 0xFFFF, "Creamware GmBH(0x14B5)"},
 {0x14B5, 0x0200, 0xFFFF, 0xFFFF, "Scope(0x0200)"},
 {0x14B5, 0x0300, 0xFFFF, 0xFFFF, "Pulsar(0x0300)"},
@@ -23331,20 +23418,20 @@ pci_id_t pci_vid_14B5[] = {
 {0x14B5, 0x0B00, 0xFFFF, 0xFFFF, "DSP-Board(0x0B00)"},
 }; /* pci_vid_14B5[] */
 
-pci_id_t pci_vid_14B6[] = {
+static pci_id_t const pci_vid_14B6[] = {
 {0x14B6, 0xFFFF, 0xFFFF, 0xFFFF, "Quantum Data Corp.(0x14B6)"},
 }; /* pci_vid_14B6[] */
 
-pci_id_t pci_vid_14B7[] = {
+static pci_id_t const pci_vid_14B7[] = {
 {0x14B7, 0xFFFF, 0xFFFF, 0xFFFF, "PROXIM Inc(0x14B7)"},
 {0x14B7, 0x0001, 0xFFFF, 0xFFFF, "Symphony 4110(0x0001)"},
 }; /* pci_vid_14B7[] */
 
-pci_id_t pci_vid_14B8[] = {
+static pci_id_t const pci_vid_14B8[] = {
 {0x14B8, 0xFFFF, 0xFFFF, 0xFFFF, "Techsoft Technology Co Ltd(0x14B8)"},
 }; /* pci_vid_14B8[] */
 
-pci_id_t pci_vid_14B9[] = {
+static pci_id_t const pci_vid_14B9[] = {
 {0x14B9, 0xFFFF, 0xFFFF, 0xFFFF, "Cisco Aironet Wireless Communications(0x14B9)"},
 {0x14B9, 0x0001, 0xFFFF, 0xFFFF, "PC4800(0x0001)"},
 {0x14B9, 0x0340, 0xFFFF, 0xFFFF, "PC4800(0x0340)"},
@@ -23356,39 +23443,39 @@ pci_id_t pci_vid_14B9[] = {
 {0x14B9, 0xA506, 0xFFFF, 0xFFFF, "Cisco Aironet Mini PCI b/g(0xA506)"},
 }; /* pci_vid_14B9[] */
 
-pci_id_t pci_vid_14BA[] = {
+static pci_id_t const pci_vid_14BA[] = {
 {0x14BA, 0xFFFF, 0xFFFF, 0xFFFF, "INTERNIX Inc.(0x14BA)"},
 {0x14BA, 0x0600, 0xFFFF, 0xFFFF, "ARC-PCI/22(0x0600)"},
 }; /* pci_vid_14BA[] */
 
-pci_id_t pci_vid_14BB[] = {
+static pci_id_t const pci_vid_14BB[] = {
 {0x14BB, 0xFFFF, 0xFFFF, 0xFFFF, "SEMTECH Corporation(0x14BB)"},
 }; /* pci_vid_14BB[] */
 
-pci_id_t pci_vid_14BC[] = {
+static pci_id_t const pci_vid_14BC[] = {
 {0x14BC, 0xFFFF, 0xFFFF, 0xFFFF, "Globespan Semiconductor Inc.(0x14BC)"},
 {0x14BC, 0xD002, 0xFFFF, 0xFFFF, "Pulsar [PCI ADSL Card](0xD002)"},
 {0x14BC, 0xD00F, 0xFFFF, 0xFFFF, "Pulsar [PCI ADSL Card](0xD00F)"},
 }; /* pci_vid_14BC[] */
 
-pci_id_t pci_vid_14BD[] = {
+static pci_id_t const pci_vid_14BD[] = {
 {0x14BD, 0xFFFF, 0xFFFF, 0xFFFF, "CARDIO Control N.V.(0x14BD)"},
 }; /* pci_vid_14BD[] */
 
-pci_id_t pci_vid_14BE[] = {
+static pci_id_t const pci_vid_14BE[] = {
 {0x14BE, 0xFFFF, 0xFFFF, 0xFFFF, "L3 Communications(0x14BE)"},
 }; /* pci_vid_14BE[] */
 
-pci_id_t pci_vid_14BF[] = {
+static pci_id_t const pci_vid_14BF[] = {
 {0x14BF, 0xFFFF, 0xFFFF, 0xFFFF, "SPIDER Communications Inc.(0x14BF)"},
 }; /* pci_vid_14BF[] */
 
-pci_id_t pci_vid_14C0[] = {
+static pci_id_t const pci_vid_14C0[] = {
 {0x14C0, 0xFFFF, 0xFFFF, 0xFFFF, "COMPAL Electronics Inc(0x14C0)"},
 {0x14C0, 0x1201, 0xFFFF, 0xFFFF, "X550 10Gb 2P RJ45 OCP Mezz(0x1201)"},
 }; /* pci_vid_14C0[] */
 
-pci_id_t pci_vid_14C1[] = {
+static pci_id_t const pci_vid_14C1[] = {
 {0x14C1, 0xFFFF, 0xFFFF, 0xFFFF, "MYRICOM Inc.(0x14C1)"},
 {0x14C1, 0x0008, 0xFFFF, 0xFFFF, "Myri-10G Dual-Protocol NIC(0x0008)"},
 {0x14C1, 0x0008, 0x14C1, 0x0008, "10G-PCIE-8A(0x14C1-0x0008)"},
@@ -23398,14 +23485,15 @@ pci_id_t pci_vid_14C1[] = {
 {0x14C1, 0x8043, 0x103C, 0x1240, "Myrinet M2L-PCI64/2-3.0 LANai 7.4 (HP OEM)(0x103C-0x1240)"},
 }; /* pci_vid_14C1[] */
 
-pci_id_t pci_vid_14C2[] = {
+static pci_id_t const pci_vid_14C2[] = {
 {0x14C2, 0xFFFF, 0xFFFF, 0xFFFF, "DTK Computer(0x14C2)"},
 }; /* pci_vid_14C2[] */
 
-pci_id_t pci_vid_14C3[] = {
+static pci_id_t const pci_vid_14C3[] = {
 {0x14C3, 0xFFFF, 0xFFFF, 0xFFFF, "MEDIATEK Corp.(0x14C3)"},
 {0x14C3, 0x0608, 0xFFFF, 0xFFFF, "MT7921K (RZ608) Wi-Fi 6E 80MHz(0x0608)"},
 {0x14C3, 0x0616, 0xFFFF, 0xFFFF, "MT7922 802.11ax PCI Express Wireless Network Adapter(0x0616)"},
+{0x14C3, 0x7603, 0xFFFF, 0xFFFF, "MT7603E 802.11bgn PCI Express Wireless Network Adapter(0x7603)"},
 {0x14C3, 0x7612, 0xFFFF, 0xFFFF, "MT7612E 802.11acbgn PCI Express Wireless Network Adapter(0x7612)"},
 {0x14C3, 0x7615, 0xFFFF, 0xFFFF, "MT7615E 802.11ac PCI Express Wireless Network Adapter(0x7615)"},
 {0x14C3, 0x7630, 0xFFFF, 0xFFFF, "MT7630e 802.11bgn Wireless Network Adapter(0x7630)"},
@@ -23416,68 +23504,69 @@ pci_id_t pci_vid_14C3[] = {
 {0x14C3, 0x7922, 0xFFFF, 0xFFFF, "MT7922 802.11ax PCI Express Wireless Network Adapter(0x7922)"},
 {0x14C3, 0x7922, 0x1A3B, 0x5300, "ASUS PCE-AXE59BT(0x1A3B-0x5300)"},
 {0x14C3, 0x7961, 0xFFFF, 0xFFFF, "MT7921 802.11ax PCI Express Wireless Network Adapter(0x7961)"},
+{0x14C3, 0x8650, 0xFFFF, 0xFFFF, "MT7650 Bluetooth(0x8650)"},
 }; /* pci_vid_14C3[] */
 
-pci_id_t pci_vid_14C4[] = {
+static pci_id_t const pci_vid_14C4[] = {
 {0x14C4, 0xFFFF, 0xFFFF, 0xFFFF, "IWASAKI Information Systems Co Ltd(0x14C4)"},
 }; /* pci_vid_14C4[] */
 
-pci_id_t pci_vid_14C5[] = {
+static pci_id_t const pci_vid_14C5[] = {
 {0x14C5, 0xFFFF, 0xFFFF, 0xFFFF, "Automation Products AB(0x14C5)"},
 }; /* pci_vid_14C5[] */
 
-pci_id_t pci_vid_14C6[] = {
+static pci_id_t const pci_vid_14C6[] = {
 {0x14C6, 0xFFFF, 0xFFFF, 0xFFFF, "Data Race Inc(0x14C6)"},
 }; /* pci_vid_14C6[] */
 
-pci_id_t pci_vid_14C7[] = {
+static pci_id_t const pci_vid_14C7[] = {
 {0x14C7, 0xFFFF, 0xFFFF, 0xFFFF, "Modular Technology Holdings Ltd(0x14C7)"},
 }; /* pci_vid_14C7[] */
 
-pci_id_t pci_vid_14C8[] = {
+static pci_id_t const pci_vid_14C8[] = {
 {0x14C8, 0xFFFF, 0xFFFF, 0xFFFF, "Turbocomm Tech. Inc.(0x14C8)"},
 }; /* pci_vid_14C8[] */
 
-pci_id_t pci_vid_14C9[] = {
+static pci_id_t const pci_vid_14C9[] = {
 {0x14C9, 0xFFFF, 0xFFFF, 0xFFFF, "ODIN Telesystems Inc(0x14C9)"},
 }; /* pci_vid_14C9[] */
 
-pci_id_t pci_vid_14CA[] = {
+static pci_id_t const pci_vid_14CA[] = {
 {0x14CA, 0xFFFF, 0xFFFF, 0xFFFF, "PE Logic Corp.(0x14CA)"},
 }; /* pci_vid_14CA[] */
 
-pci_id_t pci_vid_14CB[] = {
+static pci_id_t const pci_vid_14CB[] = {
 {0x14CB, 0xFFFF, 0xFFFF, 0xFFFF, "Billionton Systems Inc(0x14CB)"},
 }; /* pci_vid_14CB[] */
 
-pci_id_t pci_vid_14CC[] = {
+static pci_id_t const pci_vid_14CC[] = {
 {0x14CC, 0xFFFF, 0xFFFF, 0xFFFF, "NAKAYO Telecommunications Inc(0x14CC)"},
 }; /* pci_vid_14CC[] */
 
-pci_id_t pci_vid_14CD[] = {
+static pci_id_t const pci_vid_14CD[] = {
 {0x14CD, 0xFFFF, 0xFFFF, 0xFFFF, "Universal Global Scientific Industrial Co.,Ltd(0x14CD)"},
 {0x14CD, 0x0001, 0xFFFF, 0xFFFF, "USI-1514-1GbaseT [OCP1](0x0001)"},
 {0x14CD, 0x0002, 0xFFFF, 0xFFFF, "USI-4227-SFP [OCP2](0x0002)"},
 {0x14CD, 0x0003, 0xFFFF, 0xFFFF, "USI-X557-10GbaseT [OCP3](0x0003)"},
 }; /* pci_vid_14CD[] */
 
-pci_id_t pci_vid_14CE[] = {
+static pci_id_t const pci_vid_14CE[] = {
 {0x14CE, 0xFFFF, 0xFFFF, 0xFFFF, "Whistle Communications(0x14CE)"},
 }; /* pci_vid_14CE[] */
 
-pci_id_t pci_vid_14CF[] = {
+static pci_id_t const pci_vid_14CF[] = {
 {0x14CF, 0xFFFF, 0xFFFF, 0xFFFF, "TEK Microsystems Inc.(0x14CF)"},
 }; /* pci_vid_14CF[] */
 
-pci_id_t pci_vid_14D0[] = {
+static pci_id_t const pci_vid_14D0[] = {
 {0x14D0, 0xFFFF, 0xFFFF, 0xFFFF, "Ericsson Axe R & D(0x14D0)"},
 }; /* pci_vid_14D0[] */
 
-pci_id_t pci_vid_14D1[] = {
+static pci_id_t const pci_vid_14D1[] = {
 {0x14D1, 0xFFFF, 0xFFFF, 0xFFFF, "Computer Hi-Tech Co Ltd(0x14D1)"},
 }; /* pci_vid_14D1[] */
 
-pci_id_t pci_vid_14D2[] = {
+static pci_id_t const pci_vid_14D2[] = {
 {0x14D2, 0xFFFF, 0xFFFF, 0xFFFF, "Titan Electronics Inc(0x14D2)"},
 {0x14D2, 0x8001, 0xFFFF, 0xFFFF, "VScom 010L 1 port parallel adaptor(0x8001)"},
 {0x14D2, 0x8002, 0xFFFF, 0xFFFF, "VScom 020L 2 port parallel adaptor(0x8002)"},
@@ -23504,52 +23593,52 @@ pci_id_t pci_vid_14D2[] = {
 {0x14D2, 0xE020, 0xFFFF, 0xFFFF, "VScom 200HV2 2 port serial adaptor(0xE020)"},
 }; /* pci_vid_14D2[] */
 
-pci_id_t pci_vid_14D3[] = {
+static pci_id_t const pci_vid_14D3[] = {
 {0x14D3, 0xFFFF, 0xFFFF, 0xFFFF, "CIRTECH (UK) Ltd(0x14D3)"},
 {0x14D3, 0x0002, 0xFFFF, 0xFFFF, "DTL-T14000 Rev. 1 [PS2 TOOL CD/DVD Emulator](0x0002)"},
 {0x14D3, 0x0003, 0xFFFF, 0xFFFF, "DTL-T14000 Rev. 2 [PS2 TOOL CD/DVD Emulator](0x0003)"},
 {0x14D3, 0x0004, 0xFFFF, 0xFFFF, "DTL-T14000 Rev. 3 [PS2 TOOL CD/DVD Emulator](0x0004)"},
 }; /* pci_vid_14D3[] */
 
-pci_id_t pci_vid_14D4[] = {
+static pci_id_t const pci_vid_14D4[] = {
 {0x14D4, 0xFFFF, 0xFFFF, 0xFFFF, "Panacom Technology Corp(0x14D4)"},
 }; /* pci_vid_14D4[] */
 
-pci_id_t pci_vid_14D5[] = {
+static pci_id_t const pci_vid_14D5[] = {
 {0x14D5, 0xFFFF, 0xFFFF, 0xFFFF, "Nitsuko Corporation(0x14D5)"},
 }; /* pci_vid_14D5[] */
 
-pci_id_t pci_vid_14D6[] = {
+static pci_id_t const pci_vid_14D6[] = {
 {0x14D6, 0xFFFF, 0xFFFF, 0xFFFF, "Accusys Inc(0x14D6)"},
 {0x14D6, 0x6101, 0xFFFF, 0xFFFF, "ACS-61xxx, PCIe to SAS/SATA RAID HBA(0x6101)"},
 {0x14D6, 0x6201, 0xFFFF, 0xFFFF, "ACS-62xxx, External PCIe to SAS/SATA RAID controller(0x6201)"},
 }; /* pci_vid_14D6[] */
 
-pci_id_t pci_vid_14D7[] = {
+static pci_id_t const pci_vid_14D7[] = {
 {0x14D7, 0xFFFF, 0xFFFF, 0xFFFF, "Hirakawa Hewtech Corp(0x14D7)"},
 }; /* pci_vid_14D7[] */
 
-pci_id_t pci_vid_14D8[] = {
+static pci_id_t const pci_vid_14D8[] = {
 {0x14D8, 0xFFFF, 0xFFFF, 0xFFFF, "HOPF Elektronik GmBH(0x14D8)"},
 }; /* pci_vid_14D8[] */
 
-pci_id_t pci_vid_14D9[] = {
+static pci_id_t const pci_vid_14D9[] = {
 {0x14D9, 0xFFFF, 0xFFFF, 0xFFFF, "Alliance Semiconductor Corporation(0x14D9)"},
 {0x14D9, 0x0010, 0xFFFF, 0xFFFF, "AP1011/SP1011 HyperTransport-PCI Bridge [Sturgeon](0x0010)"},
 {0x14D9, 0x9000, 0xFFFF, 0xFFFF, "AS90L10204/10208 HyperTransport to PCI-X Bridge(0x9000)"},
 }; /* pci_vid_14D9[] */
 
-pci_id_t pci_vid_14DA[] = {
+static pci_id_t const pci_vid_14DA[] = {
 {0x14DA, 0xFFFF, 0xFFFF, 0xFFFF, "National Aerospace Laboratories(0x14DA)"},
 }; /* pci_vid_14DA[] */
 
-pci_id_t pci_vid_14DB[] = {
+static pci_id_t const pci_vid_14DB[] = {
 {0x14DB, 0xFFFF, 0xFFFF, 0xFFFF, "AFAVLAB Technology Inc(0x14DB)"},
 {0x14DB, 0x2120, 0xFFFF, 0xFFFF, "TK9902(0x2120)"},
 {0x14DB, 0x2182, 0xFFFF, 0xFFFF, "AFAVLAB Technology Inc. 8-port serial card(0x2182)"},
 }; /* pci_vid_14DB[] */
 
-pci_id_t pci_vid_14DC[] = {
+static pci_id_t const pci_vid_14DC[] = {
 {0x14DC, 0xFFFF, 0xFFFF, 0xFFFF, "Amplicon Liveline Ltd(0x14DC)"},
 {0x14DC, 0x0000, 0xFFFF, 0xFFFF, "PCI230(0x0000)"},
 {0x14DC, 0x0001, 0xFFFF, 0xFFFF, "PCI242(0x0001)"},
@@ -23565,31 +23654,31 @@ pci_id_t pci_vid_14DC[] = {
 {0x14DC, 0x000B, 0xFFFF, 0xFFFF, "PCI215(0x000B)"},
 }; /* pci_vid_14DC[] */
 
-pci_id_t pci_vid_14DD[] = {
+static pci_id_t const pci_vid_14DD[] = {
 {0x14DD, 0xFFFF, 0xFFFF, 0xFFFF, "Boulder Design Labs Inc(0x14DD)"},
 }; /* pci_vid_14DD[] */
 
-pci_id_t pci_vid_14DE[] = {
+static pci_id_t const pci_vid_14DE[] = {
 {0x14DE, 0xFFFF, 0xFFFF, 0xFFFF, "Applied Integration Corporation(0x14DE)"},
 }; /* pci_vid_14DE[] */
 
-pci_id_t pci_vid_14DF[] = {
+static pci_id_t const pci_vid_14DF[] = {
 {0x14DF, 0xFFFF, 0xFFFF, 0xFFFF, "ASIC Communications Corp(0x14DF)"},
 }; /* pci_vid_14DF[] */
 
-pci_id_t pci_vid_14E1[] = {
+static pci_id_t const pci_vid_14E1[] = {
 {0x14E1, 0xFFFF, 0xFFFF, 0xFFFF, "INVERTEX(0x14E1)"},
 }; /* pci_vid_14E1[] */
 
-pci_id_t pci_vid_14E2[] = {
+static pci_id_t const pci_vid_14E2[] = {
 {0x14E2, 0xFFFF, 0xFFFF, 0xFFFF, "INFOLIBRIA(0x14E2)"},
 }; /* pci_vid_14E2[] */
 
-pci_id_t pci_vid_14E3[] = {
+static pci_id_t const pci_vid_14E3[] = {
 {0x14E3, 0xFFFF, 0xFFFF, 0xFFFF, "AMTELCO(0x14E3)"},
 }; /* pci_vid_14E3[] */
 
-pci_id_t pci_vid_14E4[] = {
+static pci_id_t const pci_vid_14E4[] = {
 {0x14E4, 0xFFFF, 0xFFFF, 0xFFFF, "Broadcom Inc. and subsidiaries(0x14E4)"},
 {0x14E4, 0x0576, 0xFFFF, 0xFFFF, "BCM43224 802.11a/b/g/n(0x0576)"},
 {0x14E4, 0x0800, 0xFFFF, 0xFFFF, "Sentry5 Chipcommon I/O Controller(0x0800)"},
@@ -23758,6 +23847,7 @@ pci_id_t pci_vid_14E4[] = {
 {0x14E4, 0x1657, 0x14E4, 0xD166, "BCM95719-P41 4x1GBT Ethernet NIC(0x14E4-0xD166)"},
 {0x14E4, 0x1657, 0x14E4, 0xD366, "BCM95719-N41 4x1GBT Ethernet NIC(0x14E4-0xD366)"},
 {0x14E4, 0x1657, 0x193D, 0x1025, "NIC-ETH330T-LP-4P(0x193D-0x1025)"},
+{0x14E4, 0x1657, 0x193D, 0x1086, "NIC-ETH330T-3S-4P(0x193D-0x1086)"},
 {0x14E4, 0x1659, 0xFFFF, 0xFFFF, "NetXtreme BCM5721 Gigabit Ethernet PCI Express(0x1659)"},
 {0x14E4, 0x1659, 0x1014, 0x02C6, "eServer xSeries server mainboard(0x1014-0x02C6)"},
 {0x14E4, 0x1659, 0x1028, 0x01E6, "PowerEdge 860(0x1028-0x01E6)"},
@@ -24030,6 +24120,7 @@ pci_id_t pci_vid_14E4[] = {
 {0x14E4, 0x16D6, 0x152D, 0x8B20, "BCM57412 NetXtreme-E 10Gb RDMA Ethernet Controller(0x152D-0x8B20)"},
 {0x14E4, 0x16D6, 0x152D, 0x8B22, "BCM57412 NetXtreme-E 25Gb RDMA Ethernet Controller(0x152D-0x8B22)"},
 {0x14E4, 0x16D6, 0x193D, 0x1024, "NIC-ETH531F-LP-2P(0x193D-0x1024)"},
+{0x14E4, 0x16D6, 0x193D, 0x1087, "NIC-ETH531F-3S-2P(0x193D-0x1087)"},
 {0x14E4, 0x16D7, 0xFFFF, 0xFFFF, "BCM57414 NetXtreme-E 10Gb/25Gb RDMA Ethernet Controller(0x16D7)"},
 {0x14E4, 0x16D7, 0x117C, 0x00CC, "FastFrame N422 Dual-port 25Gb Ethernet Adapter(0x117C-0x00CC)"},
 {0x14E4, 0x16D7, 0x14E4, 0x1402, "BCM957414A4142CC 10Gb/25Gb Ethernet PCIe(0x14E4-0x1402)"},
@@ -24117,6 +24208,8 @@ pci_id_t pci_vid_14E4[] = {
 {0x14E4, 0x1751, 0x14E4, 0x5425, "NetXtreme-E Quad-port 25G SFP28 Ethernet OCP 3.0 Adapter (BCM957504-N425G)(0x14E4-0x5425)"},
 {0x14E4, 0x1751, 0x14E4, 0xD142, "NetXtreme-E P425D BCM57504 4x25G SFP28 PCIE(0x14E4-0xD142)"},
 {0x14E4, 0x1752, 0xFFFF, 0xFFFF, "BCM57502 NetXtreme-E 10Gb/25Gb/40Gb/50Gb Ethernet(0x1752)"},
+{0x14E4, 0x1760, 0xFFFF, 0xFFFF, "BCM57608 NetXtreme-E 10Gb/25Gb/50Gb/100Gb/200Gb/400Gb Ethernet(0x1760)"},
+{0x14E4, 0x1760, 0x14E4, 0xD125, "BCM57608 2x200G PCIe Ethernet NIC(0x14E4-0xD125)"},
 {0x14E4, 0x1800, 0xFFFF, 0xFFFF, "BCM57502 NetXtreme-E Ethernet Partition(0x1800)"},
 {0x14E4, 0x1801, 0xFFFF, 0xFFFF, "BCM57504 NetXtreme-E Ethernet Partition(0x1801)"},
 {0x14E4, 0x1802, 0xFFFF, 0xFFFF, "BCM57508 NetXtreme-E Ethernet Partition(0x1802)"},
@@ -24134,6 +24227,7 @@ pci_id_t pci_vid_14E4[] = {
 {0x14E4, 0x1809, 0xFFFF, 0xFFFF, "BCM5750X NetXtreme-E RDMA Virtual Function(0x1809)"},
 {0x14E4, 0x1809, 0x14E4, 0xDF24, "BCM57508 NetXtreme-E NGM2100D 2x100G KR Mezz RDMA Virtual Function(0x14E4-0xDF24)"},
 {0x14E4, 0x2711, 0xFFFF, 0xFFFF, "BCM2711 PCIe Bridge(0x2711)"},
+{0x14E4, 0x2712, 0xFFFF, 0xFFFF, "BCM2712 PCIe Bridge(0x2712)"},
 {0x14E4, 0x3352, 0xFFFF, 0xFFFF, "BCM3352(0x3352)"},
 {0x14E4, 0x3360, 0xFFFF, 0xFFFF, "BCM3360(0x3360)"},
 {0x14E4, 0x4210, 0xFFFF, 0xFFFF, "BCM4210 iLine10 HomePNA 2.0(0x4210)"},
@@ -24445,59 +24539,59 @@ pci_id_t pci_vid_14E4[] = {
 {0x14E4, 0xF917, 0xFFFF, 0xFFFF, "BCM78917 Switch ASIC [Tomahawk6](0xF917)"},
 }; /* pci_vid_14E4[] */
 
-pci_id_t pci_vid_14E5[] = {
+static pci_id_t const pci_vid_14E5[] = {
 {0x14E5, 0xFFFF, 0xFFFF, 0xFFFF, "Pixelfusion Ltd(0x14E5)"},
 }; /* pci_vid_14E5[] */
 
-pci_id_t pci_vid_14E6[] = {
+static pci_id_t const pci_vid_14E6[] = {
 {0x14E6, 0xFFFF, 0xFFFF, 0xFFFF, "SHINING Technology Inc(0x14E6)"},
 }; /* pci_vid_14E6[] */
 
-pci_id_t pci_vid_14E7[] = {
+static pci_id_t const pci_vid_14E7[] = {
 {0x14E7, 0xFFFF, 0xFFFF, 0xFFFF, "3CX(0x14E7)"},
 }; /* pci_vid_14E7[] */
 
-pci_id_t pci_vid_14E8[] = {
+static pci_id_t const pci_vid_14E8[] = {
 {0x14E8, 0xFFFF, 0xFFFF, 0xFFFF, "RAYCER Inc(0x14E8)"},
 }; /* pci_vid_14E8[] */
 
-pci_id_t pci_vid_14E9[] = {
+static pci_id_t const pci_vid_14E9[] = {
 {0x14E9, 0xFFFF, 0xFFFF, 0xFFFF, "GARNETS System CO Ltd(0x14E9)"},
 }; /* pci_vid_14E9[] */
 
-pci_id_t pci_vid_14EA[] = {
+static pci_id_t const pci_vid_14EA[] = {
 {0x14EA, 0xFFFF, 0xFFFF, 0xFFFF, "Planex Communications, Inc(0x14EA)"},
 {0x14EA, 0xAB06, 0xFFFF, 0xFFFF, "FNW-3603-TX CardBus Fast Ethernet(0xAB06)"},
 {0x14EA, 0xAB07, 0xFFFF, 0xFFFF, "RTL81xx RealTek Ethernet(0xAB07)"},
 {0x14EA, 0xAB08, 0xFFFF, 0xFFFF, "FNW-3602-TX CardBus Fast Ethernet(0xAB08)"},
 }; /* pci_vid_14EA[] */
 
-pci_id_t pci_vid_14EB[] = {
+static pci_id_t const pci_vid_14EB[] = {
 {0x14EB, 0xFFFF, 0xFFFF, 0xFFFF, "SEIKO EPSON Corp(0x14EB)"},
 }; /* pci_vid_14EB[] */
 
-pci_id_t pci_vid_14EC[] = {
+static pci_id_t const pci_vid_14EC[] = {
 {0x14EC, 0xFFFF, 0xFFFF, 0xFFFF, "Agilent Technologies(0x14EC)"},
 {0x14EC, 0x0000, 0xFFFF, 0xFFFF, "Aciris Digitizer (malformed ID)(0x0000)"},
 }; /* pci_vid_14EC[] */
 
-pci_id_t pci_vid_14ED[] = {
+static pci_id_t const pci_vid_14ED[] = {
 {0x14ED, 0xFFFF, 0xFFFF, 0xFFFF, "DATAKINETICS Ltd(0x14ED)"},
 }; /* pci_vid_14ED[] */
 
-pci_id_t pci_vid_14EE[] = {
+static pci_id_t const pci_vid_14EE[] = {
 {0x14EE, 0xFFFF, 0xFFFF, 0xFFFF, "MASPRO KENKOH Corp(0x14EE)"},
 }; /* pci_vid_14EE[] */
 
-pci_id_t pci_vid_14EF[] = {
+static pci_id_t const pci_vid_14EF[] = {
 {0x14EF, 0xFFFF, 0xFFFF, 0xFFFF, "CARRY Computer ENG. CO Ltd(0x14EF)"},
 }; /* pci_vid_14EF[] */
 
-pci_id_t pci_vid_14F0[] = {
+static pci_id_t const pci_vid_14F0[] = {
 {0x14F0, 0xFFFF, 0xFFFF, 0xFFFF, "CANON RESEACH CENTRE FRANCE(0x14F0)"},
 }; /* pci_vid_14F0[] */
 
-pci_id_t pci_vid_14F1[] = {
+static pci_id_t const pci_vid_14F1[] = {
 {0x14F1, 0xFFFF, 0xFFFF, 0xFFFF, "Conexant Systems, Inc.(0x14F1)"},
 {0x14F1, 0x1002, 0xFFFF, 0xFFFF, "HCF 56k Modem(0x1002)"},
 {0x14F1, 0x1003, 0xFFFF, 0xFFFF, "HCF 56k Modem(0x1003)"},
@@ -24784,7 +24878,7 @@ pci_id_t pci_vid_14F1[] = {
 {0x14F1, 0x8880, 0x5654, 0x2390, "GoTView X5 3D HYBRID PCI-E(0x5654-0x2390)"},
 }; /* pci_vid_14F1[] */
 
-pci_id_t pci_vid_14F2[] = {
+static pci_id_t const pci_vid_14F2[] = {
 {0x14F2, 0xFFFF, 0xFFFF, 0xFFFF, "MOBILITY Electronics(0x14F2)"},
 {0x14F2, 0x0120, 0xFFFF, 0xFFFF, "EV1000 bridge(0x0120)"},
 {0x14F2, 0x0121, 0xFFFF, 0xFFFF, "EV1000 Parallel port(0x0121)"},
@@ -24793,7 +24887,7 @@ pci_id_t pci_vid_14F2[] = {
 {0x14F2, 0x0124, 0xFFFF, 0xFFFF, "EV1000 Mouse controller(0x0124)"},
 }; /* pci_vid_14F2[] */
 
-pci_id_t pci_vid_14F3[] = {
+static pci_id_t const pci_vid_14F3[] = {
 {0x14F3, 0xFFFF, 0xFFFF, 0xFFFF, "BroadLogic(0x14F3)"},
 {0x14F3, 0x2030, 0xFFFF, 0xFFFF, "2030 DVB-S Satellite Receiver(0x2030)"},
 {0x14F3, 0x2035, 0xFFFF, 0xFFFF, "2035 DVB-S Satellite Receiver(0x2035)"},
@@ -24801,88 +24895,88 @@ pci_id_t pci_vid_14F3[] = {
 {0x14F3, 0x2060, 0xFFFF, 0xFFFF, "2060 ATSC Terrestrial (Cable) Receiver(0x2060)"},
 }; /* pci_vid_14F3[] */
 
-pci_id_t pci_vid_14F4[] = {
+static pci_id_t const pci_vid_14F4[] = {
 {0x14F4, 0xFFFF, 0xFFFF, 0xFFFF, "TOKYO Electronic Industry CO Ltd(0x14F4)"},
 }; /* pci_vid_14F4[] */
 
-pci_id_t pci_vid_14F5[] = {
+static pci_id_t const pci_vid_14F5[] = {
 {0x14F5, 0xFFFF, 0xFFFF, 0xFFFF, "SOPAC Ltd(0x14F5)"},
 }; /* pci_vid_14F5[] */
 
-pci_id_t pci_vid_14F6[] = {
+static pci_id_t const pci_vid_14F6[] = {
 {0x14F6, 0xFFFF, 0xFFFF, 0xFFFF, "COYOTE Technologies LLC(0x14F6)"},
 }; /* pci_vid_14F6[] */
 
-pci_id_t pci_vid_14F7[] = {
+static pci_id_t const pci_vid_14F7[] = {
 {0x14F7, 0xFFFF, 0xFFFF, 0xFFFF, "WOLF Technology Inc(0x14F7)"},
 }; /* pci_vid_14F7[] */
 
-pci_id_t pci_vid_14F8[] = {
+static pci_id_t const pci_vid_14F8[] = {
 {0x14F8, 0xFFFF, 0xFFFF, 0xFFFF, "AUDIOCODES Inc(0x14F8)"},
 {0x14F8, 0x2077, 0xFFFF, 0xFFFF, "TP-240 dual span E1 VoIP PCI card(0x2077)"},
 }; /* pci_vid_14F8[] */
 
-pci_id_t pci_vid_14F9[] = {
+static pci_id_t const pci_vid_14F9[] = {
 {0x14F9, 0xFFFF, 0xFFFF, 0xFFFF, "AG COMMUNICATIONS(0x14F9)"},
 }; /* pci_vid_14F9[] */
 
-pci_id_t pci_vid_14FA[] = {
+static pci_id_t const pci_vid_14FA[] = {
 {0x14FA, 0xFFFF, 0xFFFF, 0xFFFF, "WANDEL & GOLTERMANN(0x14FA)"},
 }; /* pci_vid_14FA[] */
 
-pci_id_t pci_vid_14FB[] = {
+static pci_id_t const pci_vid_14FB[] = {
 {0x14FB, 0xFFFF, 0xFFFF, 0xFFFF, "TRANSAS MARINE (UK) Ltd(0x14FB)"},
 }; /* pci_vid_14FB[] */
 
-pci_id_t pci_vid_14FC[] = {
+static pci_id_t const pci_vid_14FC[] = {
 {0x14FC, 0xFFFF, 0xFFFF, 0xFFFF, "Quadrics Ltd(0x14FC)"},
 {0x14FC, 0x0000, 0xFFFF, 0xFFFF, "QsNet Elan3 Network Adapter(0x0000)"},
 {0x14FC, 0x0001, 0xFFFF, 0xFFFF, "QsNetII Elan4 Network Adapter(0x0001)"},
 {0x14FC, 0x0002, 0xFFFF, 0xFFFF, "QsNetIII Elan5 Network Adapter(0x0002)"},
 }; /* pci_vid_14FC[] */
 
-pci_id_t pci_vid_14FD[] = {
+static pci_id_t const pci_vid_14FD[] = {
 {0x14FD, 0xFFFF, 0xFFFF, 0xFFFF, "JAPAN Computer Industry Inc(0x14FD)"},
 }; /* pci_vid_14FD[] */
 
-pci_id_t pci_vid_14FE[] = {
+static pci_id_t const pci_vid_14FE[] = {
 {0x14FE, 0xFFFF, 0xFFFF, 0xFFFF, "ARCHTEK TELECOM Corp(0x14FE)"},
 }; /* pci_vid_14FE[] */
 
-pci_id_t pci_vid_14FF[] = {
+static pci_id_t const pci_vid_14FF[] = {
 {0x14FF, 0xFFFF, 0xFFFF, 0xFFFF, "TWINHEAD INTERNATIONAL Corp(0x14FF)"},
 }; /* pci_vid_14FF[] */
 
-pci_id_t pci_vid_1500[] = {
+static pci_id_t const pci_vid_1500[] = {
 {0x1500, 0xFFFF, 0xFFFF, 0xFFFF, "DELTA Electronics, Inc(0x1500)"},
 {0x1500, 0x1360, 0xFFFF, 0xFFFF, "RTL81xx RealTek Ethernet(0x1360)"},
 }; /* pci_vid_1500[] */
 
-pci_id_t pci_vid_1501[] = {
+static pci_id_t const pci_vid_1501[] = {
 {0x1501, 0xFFFF, 0xFFFF, 0xFFFF, "BANKSOFT CANADA Ltd(0x1501)"},
 }; /* pci_vid_1501[] */
 
-pci_id_t pci_vid_1502[] = {
+static pci_id_t const pci_vid_1502[] = {
 {0x1502, 0xFFFF, 0xFFFF, 0xFFFF, "MITSUBISHI ELECTRIC LOGISTICS SUPPORT Co Ltd(0x1502)"},
 }; /* pci_vid_1502[] */
 
-pci_id_t pci_vid_1503[] = {
+static pci_id_t const pci_vid_1503[] = {
 {0x1503, 0xFFFF, 0xFFFF, 0xFFFF, "KAWASAKI LSI USA Inc(0x1503)"},
 }; /* pci_vid_1503[] */
 
-pci_id_t pci_vid_1504[] = {
+static pci_id_t const pci_vid_1504[] = {
 {0x1504, 0xFFFF, 0xFFFF, 0xFFFF, "KAISER Electronics(0x1504)"},
 }; /* pci_vid_1504[] */
 
-pci_id_t pci_vid_1505[] = {
+static pci_id_t const pci_vid_1505[] = {
 {0x1505, 0xFFFF, 0xFFFF, 0xFFFF, "ITA INGENIEURBURO FUR TESTAUFGABEN GmbH(0x1505)"},
 }; /* pci_vid_1505[] */
 
-pci_id_t pci_vid_1506[] = {
+static pci_id_t const pci_vid_1506[] = {
 {0x1506, 0xFFFF, 0xFFFF, 0xFFFF, "CHAMELEON Systems Inc(0x1506)"},
 }; /* pci_vid_1506[] */
 
-pci_id_t pci_vid_1507[] = {
+static pci_id_t const pci_vid_1507[] = {
 {0x1507, 0xFFFF, 0xFFFF, 0xFFFF, "Motorola ?-?- / HTEC(0x1507)"},
 {0x1507, 0x0001, 0xFFFF, 0xFFFF, "MPC105 [Eagle](0x0001)"},
 {0x1507, 0x0002, 0xFFFF, 0xFFFF, "MPC106 [Grackle](0x0002)"},
@@ -24895,63 +24989,63 @@ pci_id_t pci_vid_1507[] = {
 {0x1507, 0x4806, 0xFFFF, 0xFFFF, "CPX8216(0x4806)"},
 }; /* pci_vid_1507[] */
 
-pci_id_t pci_vid_1508[] = {
+static pci_id_t const pci_vid_1508[] = {
 {0x1508, 0xFFFF, 0xFFFF, 0xFFFF, "HONDA CONNECTORS/MHOTRONICS Inc(0x1508)"},
 }; /* pci_vid_1508[] */
 
-pci_id_t pci_vid_1509[] = {
+static pci_id_t const pci_vid_1509[] = {
 {0x1509, 0xFFFF, 0xFFFF, 0xFFFF, "FIRST INTERNATIONAL Computer Inc(0x1509)"},
 }; /* pci_vid_1509[] */
 
-pci_id_t pci_vid_150A[] = {
+static pci_id_t const pci_vid_150A[] = {
 {0x150A, 0xFFFF, 0xFFFF, 0xFFFF, "FORVUS RESEARCH Inc(0x150A)"},
 }; /* pci_vid_150A[] */
 
-pci_id_t pci_vid_150B[] = {
+static pci_id_t const pci_vid_150B[] = {
 {0x150B, 0xFFFF, 0xFFFF, 0xFFFF, "YAMASHITA Systems Corp(0x150B)"},
 }; /* pci_vid_150B[] */
 
-pci_id_t pci_vid_150C[] = {
+static pci_id_t const pci_vid_150C[] = {
 {0x150C, 0xFFFF, 0xFFFF, 0xFFFF, "KYOPAL CO Ltd(0x150C)"},
 }; /* pci_vid_150C[] */
 
-pci_id_t pci_vid_150D[] = {
+static pci_id_t const pci_vid_150D[] = {
 {0x150D, 0xFFFF, 0xFFFF, 0xFFFF, "WARPSPPED Inc(0x150D)"},
 }; /* pci_vid_150D[] */
 
-pci_id_t pci_vid_150E[] = {
+static pci_id_t const pci_vid_150E[] = {
 {0x150E, 0xFFFF, 0xFFFF, 0xFFFF, "C-PORT Corp(0x150E)"},
 }; /* pci_vid_150E[] */
 
-pci_id_t pci_vid_150F[] = {
+static pci_id_t const pci_vid_150F[] = {
 {0x150F, 0xFFFF, 0xFFFF, 0xFFFF, "INTEC GmbH(0x150F)"},
 }; /* pci_vid_150F[] */
 
-pci_id_t pci_vid_1510[] = {
+static pci_id_t const pci_vid_1510[] = {
 {0x1510, 0xFFFF, 0xFFFF, 0xFFFF, "BEHAVIOR TECH Computer Corp(0x1510)"},
 }; /* pci_vid_1510[] */
 
-pci_id_t pci_vid_1511[] = {
+static pci_id_t const pci_vid_1511[] = {
 {0x1511, 0xFFFF, 0xFFFF, 0xFFFF, "CENTILLIUM Technology Corp(0x1511)"},
 }; /* pci_vid_1511[] */
 
-pci_id_t pci_vid_1512[] = {
+static pci_id_t const pci_vid_1512[] = {
 {0x1512, 0xFFFF, 0xFFFF, 0xFFFF, "ROSUN Technologies Inc(0x1512)"},
 }; /* pci_vid_1512[] */
 
-pci_id_t pci_vid_1513[] = {
+static pci_id_t const pci_vid_1513[] = {
 {0x1513, 0xFFFF, 0xFFFF, 0xFFFF, "Raychem(0x1513)"},
 }; /* pci_vid_1513[] */
 
-pci_id_t pci_vid_1514[] = {
+static pci_id_t const pci_vid_1514[] = {
 {0x1514, 0xFFFF, 0xFFFF, 0xFFFF, "TFL LAN Inc(0x1514)"},
 }; /* pci_vid_1514[] */
 
-pci_id_t pci_vid_1515[] = {
+static pci_id_t const pci_vid_1515[] = {
 {0x1515, 0xFFFF, 0xFFFF, 0xFFFF, "Advent design(0x1515)"},
 }; /* pci_vid_1515[] */
 
-pci_id_t pci_vid_1516[] = {
+static pci_id_t const pci_vid_1516[] = {
 {0x1516, 0xFFFF, 0xFFFF, 0xFFFF, "MYSON Technology Inc(0x1516)"},
 {0x1516, 0x0800, 0xFFFF, 0xFFFF, "MTD-8xx 100/10M Ethernet PCI Adapter(0x0800)"},
 {0x1516, 0x0803, 0xFFFF, 0xFFFF, "SURECOM EP-320X-S 100/10M Ethernet PCI Adapter(0x0803)"},
@@ -24959,57 +25053,57 @@ pci_id_t pci_vid_1516[] = {
 {0x1516, 0x0891, 0xFFFF, 0xFFFF, "MTD-8xx 100/10M Ethernet PCI Adapter(0x0891)"},
 }; /* pci_vid_1516[] */
 
-pci_id_t pci_vid_1517[] = {
+static pci_id_t const pci_vid_1517[] = {
 {0x1517, 0xFFFF, 0xFFFF, 0xFFFF, "ECHOTEK Corp(0x1517)"},
 }; /* pci_vid_1517[] */
 
-pci_id_t pci_vid_1518[] = {
+static pci_id_t const pci_vid_1518[] = {
 {0x1518, 0xFFFF, 0xFFFF, 0xFFFF, "Kontron(0x1518)"},
 }; /* pci_vid_1518[] */
 
-pci_id_t pci_vid_1519[] = {
+static pci_id_t const pci_vid_1519[] = {
 {0x1519, 0xFFFF, 0xFFFF, 0xFFFF, "TELEFON AKTIEBOLAGET LM Ericsson(0x1519)"},
 }; /* pci_vid_1519[] */
 
-pci_id_t pci_vid_151A[] = {
+static pci_id_t const pci_vid_151A[] = {
 {0x151A, 0xFFFF, 0xFFFF, 0xFFFF, "Globetek(0x151A)"},
 {0x151A, 0x1002, 0xFFFF, 0xFFFF, "PCI-1002(0x1002)"},
 {0x151A, 0x1004, 0xFFFF, 0xFFFF, "PCI-1004(0x1004)"},
 {0x151A, 0x1008, 0xFFFF, 0xFFFF, "PCI-1008(0x1008)"},
 }; /* pci_vid_151A[] */
 
-pci_id_t pci_vid_151B[] = {
+static pci_id_t const pci_vid_151B[] = {
 {0x151B, 0xFFFF, 0xFFFF, 0xFFFF, "COMBOX Ltd(0x151B)"},
 }; /* pci_vid_151B[] */
 
-pci_id_t pci_vid_151C[] = {
+static pci_id_t const pci_vid_151C[] = {
 {0x151C, 0xFFFF, 0xFFFF, 0xFFFF, "DIGITAL AUDIO LABS Inc(0x151C)"},
 {0x151C, 0x0003, 0xFFFF, 0xFFFF, "Prodif T 2496(0x0003)"},
 {0x151C, 0x4000, 0xFFFF, 0xFFFF, "Prodif 88(0x4000)"},
 }; /* pci_vid_151C[] */
 
-pci_id_t pci_vid_151D[] = {
+static pci_id_t const pci_vid_151D[] = {
 {0x151D, 0xFFFF, 0xFFFF, 0xFFFF, "Fujitsu Computer Products Of America(0x151D)"},
 }; /* pci_vid_151D[] */
 
-pci_id_t pci_vid_151E[] = {
+static pci_id_t const pci_vid_151E[] = {
 {0x151E, 0xFFFF, 0xFFFF, 0xFFFF, "MATRIX Corp(0x151E)"},
 }; /* pci_vid_151E[] */
 
-pci_id_t pci_vid_151F[] = {
+static pci_id_t const pci_vid_151F[] = {
 {0x151F, 0xFFFF, 0xFFFF, 0xFFFF, "TOPIC SEMICONDUCTOR Corp(0x151F)"},
 {0x151F, 0x0000, 0xFFFF, 0xFFFF, "TP560 Data/Fax/Voice 56k modem(0x0000)"},
 }; /* pci_vid_151F[] */
 
-pci_id_t pci_vid_1520[] = {
+static pci_id_t const pci_vid_1520[] = {
 {0x1520, 0xFFFF, 0xFFFF, 0xFFFF, "CHAPLET System Inc(0x1520)"},
 }; /* pci_vid_1520[] */
 
-pci_id_t pci_vid_1521[] = {
+static pci_id_t const pci_vid_1521[] = {
 {0x1521, 0xFFFF, 0xFFFF, 0xFFFF, "BELL Corp(0x1521)"},
 }; /* pci_vid_1521[] */
 
-pci_id_t pci_vid_1522[] = {
+static pci_id_t const pci_vid_1522[] = {
 {0x1522, 0xFFFF, 0xFFFF, 0xFFFF, "MainPine Ltd(0x1522)"},
 {0x1522, 0x0100, 0xFFFF, 0xFFFF, "PCI <-> IOBus Bridge(0x0100)"},
 {0x1522, 0x0100, 0x1522, 0x0200, "RockForceDUO 2 Port V.92/V.44 Data/Fax/Voice Modem(0x1522-0x0200)"},
@@ -25046,11 +25140,11 @@ pci_id_t pci_vid_1522[] = {
 {0x1522, 0x4000, 0x1522, 0x4100, "IQ Express SideBand(0x1522-0x4100)"},
 }; /* pci_vid_1522[] */
 
-pci_id_t pci_vid_1523[] = {
+static pci_id_t const pci_vid_1523[] = {
 {0x1523, 0xFFFF, 0xFFFF, 0xFFFF, "MUSIC Semiconductors(0x1523)"},
 }; /* pci_vid_1523[] */
 
-pci_id_t pci_vid_1524[] = {
+static pci_id_t const pci_vid_1524[] = {
 {0x1524, 0xFFFF, 0xFFFF, 0xFFFF, "ENE Technology Inc(0x1524)"},
 {0x1524, 0x0510, 0xFFFF, 0xFFFF, "CB710 Memory Card Reader Controller(0x0510)"},
 {0x1524, 0x0510, 0x103C, 0x006A, "NX9500(0x103C-0x006A)"},
@@ -25077,129 +25171,129 @@ pci_id_t pci_vid_1524[] = {
 {0x1524, 0x1422, 0xFFFF, 0xFFFF, "CB-722/4 Cardbus Controller(0x1422)"},
 }; /* pci_vid_1524[] */
 
-pci_id_t pci_vid_1525[] = {
+static pci_id_t const pci_vid_1525[] = {
 {0x1525, 0xFFFF, 0xFFFF, 0xFFFF, "IMPACT Technologies(0x1525)"},
 }; /* pci_vid_1525[] */
 
-pci_id_t pci_vid_1526[] = {
+static pci_id_t const pci_vid_1526[] = {
 {0x1526, 0xFFFF, 0xFFFF, 0xFFFF, "ISS, Inc(0x1526)"},
 }; /* pci_vid_1526[] */
 
-pci_id_t pci_vid_1527[] = {
+static pci_id_t const pci_vid_1527[] = {
 {0x1527, 0xFFFF, 0xFFFF, 0xFFFF, "SOLECTRON(0x1527)"},
 }; /* pci_vid_1527[] */
 
-pci_id_t pci_vid_1528[] = {
+static pci_id_t const pci_vid_1528[] = {
 {0x1528, 0xFFFF, 0xFFFF, 0xFFFF, "ACKSYS(0x1528)"},
 }; /* pci_vid_1528[] */
 
-pci_id_t pci_vid_1529[] = {
+static pci_id_t const pci_vid_1529[] = {
 {0x1529, 0xFFFF, 0xFFFF, 0xFFFF, "ON Semiconductor(0x1529)"},
 }; /* pci_vid_1529[] */
 
-pci_id_t pci_vid_152A[] = {
+static pci_id_t const pci_vid_152A[] = {
 {0x152A, 0xFFFF, 0xFFFF, 0xFFFF, "QUICKTURN DESIGN Systems(0x152A)"},
 }; /* pci_vid_152A[] */
 
-pci_id_t pci_vid_152B[] = {
+static pci_id_t const pci_vid_152B[] = {
 {0x152B, 0xFFFF, 0xFFFF, 0xFFFF, "FLYTECH Technology CO Ltd(0x152B)"},
 }; /* pci_vid_152B[] */
 
-pci_id_t pci_vid_152C[] = {
+static pci_id_t const pci_vid_152C[] = {
 {0x152C, 0xFFFF, 0xFFFF, 0xFFFF, "MACRAIGOR Systems LLC(0x152C)"},
 }; /* pci_vid_152C[] */
 
-pci_id_t pci_vid_152D[] = {
+static pci_id_t const pci_vid_152D[] = {
 {0x152D, 0xFFFF, 0xFFFF, 0xFFFF, "QUANTA Computer Inc(0x152D)"},
 }; /* pci_vid_152D[] */
 
-pci_id_t pci_vid_152E[] = {
+static pci_id_t const pci_vid_152E[] = {
 {0x152E, 0xFFFF, 0xFFFF, 0xFFFF, "MELEC Inc(0x152E)"},
 }; /* pci_vid_152E[] */
 
-pci_id_t pci_vid_152F[] = {
+static pci_id_t const pci_vid_152F[] = {
 {0x152F, 0xFFFF, 0xFFFF, 0xFFFF, "PHILIPS - CRYPTO(0x152F)"},
 }; /* pci_vid_152F[] */
 
-pci_id_t pci_vid_1530[] = {
+static pci_id_t const pci_vid_1530[] = {
 {0x1530, 0xFFFF, 0xFFFF, 0xFFFF, "ACQIS Technology Inc(0x1530)"},
 }; /* pci_vid_1530[] */
 
-pci_id_t pci_vid_1531[] = {
+static pci_id_t const pci_vid_1531[] = {
 {0x1531, 0xFFFF, 0xFFFF, 0xFFFF, "CHRYON Corp(0x1531)"},
 }; /* pci_vid_1531[] */
 
-pci_id_t pci_vid_1532[] = {
+static pci_id_t const pci_vid_1532[] = {
 {0x1532, 0xFFFF, 0xFFFF, 0xFFFF, "ECHELON Corp(0x1532)"},
 {0x1532, 0x0020, 0xFFFF, 0xFFFF, "LonWorks PCLTA-20 PCI LonTalk Adapter(0x0020)"},
 }; /* pci_vid_1532[] */
 
-pci_id_t pci_vid_1533[] = {
+static pci_id_t const pci_vid_1533[] = {
 {0x1533, 0xFFFF, 0xFFFF, 0xFFFF, "BALTIMORE(0x1533)"},
 }; /* pci_vid_1533[] */
 
-pci_id_t pci_vid_1534[] = {
+static pci_id_t const pci_vid_1534[] = {
 {0x1534, 0xFFFF, 0xFFFF, 0xFFFF, "ROAD Corp(0x1534)"},
 }; /* pci_vid_1534[] */
 
-pci_id_t pci_vid_1535[] = {
+static pci_id_t const pci_vid_1535[] = {
 {0x1535, 0xFFFF, 0xFFFF, 0xFFFF, "EVERGREEN Technologies Inc(0x1535)"},
 }; /* pci_vid_1535[] */
 
-pci_id_t pci_vid_1536[] = {
+static pci_id_t const pci_vid_1536[] = {
 {0x1536, 0xFFFF, 0xFFFF, 0xFFFF, "ACTIS Computer(0x1536)"},
 }; /* pci_vid_1536[] */
 
-pci_id_t pci_vid_1537[] = {
+static pci_id_t const pci_vid_1537[] = {
 {0x1537, 0xFFFF, 0xFFFF, 0xFFFF, "DATALEX COMMUNCATIONS(0x1537)"},
 }; /* pci_vid_1537[] */
 
-pci_id_t pci_vid_1538[] = {
+static pci_id_t const pci_vid_1538[] = {
 {0x1538, 0xFFFF, 0xFFFF, 0xFFFF, "ARALION Inc(0x1538)"},
 {0x1538, 0x0303, 0xFFFF, 0xFFFF, "ARS106S Ultra ATA 133/100/66 Host Controller(0x0303)"},
 }; /* pci_vid_1538[] */
 
-pci_id_t pci_vid_1539[] = {
+static pci_id_t const pci_vid_1539[] = {
 {0x1539, 0xFFFF, 0xFFFF, 0xFFFF, "ATELIER INFORMATIQUES et ELECTRONIQUE ETUDES S.A.(0x1539)"},
 }; /* pci_vid_1539[] */
 
-pci_id_t pci_vid_153A[] = {
+static pci_id_t const pci_vid_153A[] = {
 {0x153A, 0xFFFF, 0xFFFF, 0xFFFF, "ONO SOKKI(0x153A)"},
 }; /* pci_vid_153A[] */
 
-pci_id_t pci_vid_153B[] = {
+static pci_id_t const pci_vid_153B[] = {
 {0x153B, 0xFFFF, 0xFFFF, 0xFFFF, "TERRATEC Electronic GmbH(0x153B)"},
 {0x153B, 0x1144, 0xFFFF, 0xFFFF, "Aureon 5.1(0x1144)"},
 {0x153B, 0x1147, 0xFFFF, 0xFFFF, "Aureon 5.1 Sky(0x1147)"},
 {0x153B, 0x1158, 0xFFFF, 0xFFFF, "Philips Semiconductors SAA7134 (rev 01) [Terratec Cinergy 600 TV](0x1158)"},
 }; /* pci_vid_153B[] */
 
-pci_id_t pci_vid_153C[] = {
+static pci_id_t const pci_vid_153C[] = {
 {0x153C, 0xFFFF, 0xFFFF, 0xFFFF, "ANTAL Electronic(0x153C)"},
 }; /* pci_vid_153C[] */
 
-pci_id_t pci_vid_153D[] = {
+static pci_id_t const pci_vid_153D[] = {
 {0x153D, 0xFFFF, 0xFFFF, 0xFFFF, "FILANET Corp(0x153D)"},
 }; /* pci_vid_153D[] */
 
-pci_id_t pci_vid_153E[] = {
+static pci_id_t const pci_vid_153E[] = {
 {0x153E, 0xFFFF, 0xFFFF, 0xFFFF, "TECHWELL Inc(0x153E)"},
 }; /* pci_vid_153E[] */
 
-pci_id_t pci_vid_153F[] = {
+static pci_id_t const pci_vid_153F[] = {
 {0x153F, 0xFFFF, 0xFFFF, 0xFFFF, "MIPS Technologies, Inc.(0x153F)"},
 {0x153F, 0x0001, 0xFFFF, 0xFFFF, "SOC-it 101 System Controller(0x0001)"},
 }; /* pci_vid_153F[] */
 
-pci_id_t pci_vid_1540[] = {
+static pci_id_t const pci_vid_1540[] = {
 {0x1540, 0xFFFF, 0xFFFF, 0xFFFF, "PROVIDEO MULTIMEDIA Co Ltd(0x1540)"},
 }; /* pci_vid_1540[] */
 
-pci_id_t pci_vid_1541[] = {
+static pci_id_t const pci_vid_1541[] = {
 {0x1541, 0xFFFF, 0xFFFF, 0xFFFF, "MACHONE Communications(0x1541)"},
 }; /* pci_vid_1541[] */
 
-pci_id_t pci_vid_1542[] = {
+static pci_id_t const pci_vid_1542[] = {
 {0x1542, 0xFFFF, 0xFFFF, 0xFFFF, "Concurrent Real-Time(0x1542)"},
 {0x1542, 0x9260, 0xFFFF, 0xFFFF, "RCIM-II Real-Time Clock & Interrupt Module(0x9260)"},
 {0x1542, 0x9271, 0xFFFF, 0xFFFF, "RCIM-III Real-Time Clock & Interrupt Module (PCIe)(0x9271)"},
@@ -25214,85 +25308,85 @@ pci_id_t pci_vid_1542[] = {
 {0x1542, 0x9350, 0xFFFF, 0xFFFF, "Analog Input Card(0x9350)"},
 }; /* pci_vid_1542[] */
 
-pci_id_t pci_vid_1543[] = {
+static pci_id_t const pci_vid_1543[] = {
 {0x1543, 0xFFFF, 0xFFFF, 0xFFFF, "SILICON Laboratories(0x1543)"},
 {0x1543, 0x3052, 0xFFFF, 0xFFFF, "Intel 537 [Winmodem](0x3052)"},
 {0x1543, 0x4C22, 0xFFFF, 0xFFFF, "Si3036 MC'97 DAA(0x4C22)"},
 }; /* pci_vid_1543[] */
 
-pci_id_t pci_vid_1544[] = {
+static pci_id_t const pci_vid_1544[] = {
 {0x1544, 0xFFFF, 0xFFFF, 0xFFFF, "DCM DATA Systems(0x1544)"},
 }; /* pci_vid_1544[] */
 
-pci_id_t pci_vid_1545[] = {
+static pci_id_t const pci_vid_1545[] = {
 {0x1545, 0xFFFF, 0xFFFF, 0xFFFF, "VISIONTEK(0x1545)"},
 }; /* pci_vid_1545[] */
 
-pci_id_t pci_vid_1546[] = {
+static pci_id_t const pci_vid_1546[] = {
 {0x1546, 0xFFFF, 0xFFFF, 0xFFFF, "IOI Technology Corp(0x1546)"},
 }; /* pci_vid_1546[] */
 
-pci_id_t pci_vid_1547[] = {
+static pci_id_t const pci_vid_1547[] = {
 {0x1547, 0xFFFF, 0xFFFF, 0xFFFF, "MITUTOYO Corp(0x1547)"},
 }; /* pci_vid_1547[] */
 
-pci_id_t pci_vid_1548[] = {
+static pci_id_t const pci_vid_1548[] = {
 {0x1548, 0xFFFF, 0xFFFF, 0xFFFF, "JET PROPULSION Laboratory(0x1548)"},
 }; /* pci_vid_1548[] */
 
-pci_id_t pci_vid_1549[] = {
+static pci_id_t const pci_vid_1549[] = {
 {0x1549, 0xFFFF, 0xFFFF, 0xFFFF, "INTERCONNECT Systems Solutions(0x1549)"},
 }; /* pci_vid_1549[] */
 
-pci_id_t pci_vid_154A[] = {
+static pci_id_t const pci_vid_154A[] = {
 {0x154A, 0xFFFF, 0xFFFF, 0xFFFF, "MAX Technologies Inc(0x154A)"},
 }; /* pci_vid_154A[] */
 
-pci_id_t pci_vid_154B[] = {
+static pci_id_t const pci_vid_154B[] = {
 {0x154B, 0xFFFF, 0xFFFF, 0xFFFF, "COMPUTEX Co Ltd(0x154B)"},
 }; /* pci_vid_154B[] */
 
-pci_id_t pci_vid_154C[] = {
+static pci_id_t const pci_vid_154C[] = {
 {0x154C, 0xFFFF, 0xFFFF, 0xFFFF, "VISUAL Technology Inc(0x154C)"},
 }; /* pci_vid_154C[] */
 
-pci_id_t pci_vid_154D[] = {
+static pci_id_t const pci_vid_154D[] = {
 {0x154D, 0xFFFF, 0xFFFF, 0xFFFF, "PAN INTERNATIONAL Industrial Corp(0x154D)"},
 }; /* pci_vid_154D[] */
 
-pci_id_t pci_vid_154E[] = {
+static pci_id_t const pci_vid_154E[] = {
 {0x154E, 0xFFFF, 0xFFFF, 0xFFFF, "SERVOTEST Ltd(0x154E)"},
 }; /* pci_vid_154E[] */
 
-pci_id_t pci_vid_154F[] = {
+static pci_id_t const pci_vid_154F[] = {
 {0x154F, 0xFFFF, 0xFFFF, 0xFFFF, "STRATABEAM Technology(0x154F)"},
 }; /* pci_vid_154F[] */
 
-pci_id_t pci_vid_1550[] = {
+static pci_id_t const pci_vid_1550[] = {
 {0x1550, 0xFFFF, 0xFFFF, 0xFFFF, "OPEN NETWORK Co Ltd(0x1550)"},
 }; /* pci_vid_1550[] */
 
-pci_id_t pci_vid_1551[] = {
+static pci_id_t const pci_vid_1551[] = {
 {0x1551, 0xFFFF, 0xFFFF, 0xFFFF, "SMART Electronic DEVELOPMENT GmBH(0x1551)"},
 }; /* pci_vid_1551[] */
 
-pci_id_t pci_vid_1552[] = {
+static pci_id_t const pci_vid_1552[] = {
 {0x1552, 0xFFFF, 0xFFFF, 0xFFFF, "RACAL AIRTECH Ltd(0x1552)"},
 }; /* pci_vid_1552[] */
 
-pci_id_t pci_vid_1553[] = {
+static pci_id_t const pci_vid_1553[] = {
 {0x1553, 0xFFFF, 0xFFFF, 0xFFFF, "CHICONY Electronics Co Ltd(0x1553)"},
 }; /* pci_vid_1553[] */
 
-pci_id_t pci_vid_1554[] = {
+static pci_id_t const pci_vid_1554[] = {
 {0x1554, 0xFFFF, 0xFFFF, 0xFFFF, "PROLINK Microsystems Corp(0x1554)"},
 }; /* pci_vid_1554[] */
 
-pci_id_t pci_vid_1555[] = {
+static pci_id_t const pci_vid_1555[] = {
 {0x1555, 0xFFFF, 0xFFFF, 0xFFFF, "GESYTEC GmBH(0x1555)"},
 }; /* pci_vid_1555[] */
 
-pci_id_t pci_vid_1556[] = {
+static pci_id_t const pci_vid_1556[] = {
 {0x1556, 0xFFFF, 0xFFFF, 0xFFFF, "PLDA(0x1556)"},
 {0x1556, 0x1100, 0xFFFF, 0xFFFF, "PCI Express Core Reference Design(0x1100)"},
 {0x1556, 0x110F, 0xFFFF, 0xFFFF, "PCI Express Core Reference Design Virtual Function(0x110F)"},
@@ -25306,111 +25400,112 @@ pci_id_t pci_vid_1556[] = {
 {0x1556, 0xBE00, 0xFFFF, 0xFFFF, "PCI Express Bridge(0xBE00)"},
 }; /* pci_vid_1556[] */
 
-pci_id_t pci_vid_1557[] = {
+static pci_id_t const pci_vid_1557[] = {
 {0x1557, 0xFFFF, 0xFFFF, 0xFFFF, "MEDIASTAR Co Ltd(0x1557)"},
 }; /* pci_vid_1557[] */
 
-pci_id_t pci_vid_1558[] = {
+static pci_id_t const pci_vid_1558[] = {
 {0x1558, 0xFFFF, 0xFFFF, 0xFFFF, "CLEVO/KAPOK Computer(0x1558)"},
+{0x1558, 0x9602, 0xFFFF, 0xFFFF, "RS780/RS880 PCI to PCI bridge (int gfx)(0x9602)"},
 }; /* pci_vid_1558[] */
 
-pci_id_t pci_vid_1559[] = {
+static pci_id_t const pci_vid_1559[] = {
 {0x1559, 0xFFFF, 0xFFFF, 0xFFFF, "SI LOGIC Ltd(0x1559)"},
 }; /* pci_vid_1559[] */
 
-pci_id_t pci_vid_155A[] = {
+static pci_id_t const pci_vid_155A[] = {
 {0x155A, 0xFFFF, 0xFFFF, 0xFFFF, "INNOMEDIA Inc(0x155A)"},
 }; /* pci_vid_155A[] */
 
-pci_id_t pci_vid_155B[] = {
+static pci_id_t const pci_vid_155B[] = {
 {0x155B, 0xFFFF, 0xFFFF, 0xFFFF, "PROTAC INTERNATIONAL Corp(0x155B)"},
 }; /* pci_vid_155B[] */
 
-pci_id_t pci_vid_155C[] = {
+static pci_id_t const pci_vid_155C[] = {
 {0x155C, 0xFFFF, 0xFFFF, 0xFFFF, "Cemax-Icon Inc(0x155C)"},
 }; /* pci_vid_155C[] */
 
-pci_id_t pci_vid_155D[] = {
+static pci_id_t const pci_vid_155D[] = {
 {0x155D, 0xFFFF, 0xFFFF, 0xFFFF, "Mac System Co Ltd(0x155D)"},
 }; /* pci_vid_155D[] */
 
-pci_id_t pci_vid_155E[] = {
+static pci_id_t const pci_vid_155E[] = {
 {0x155E, 0xFFFF, 0xFFFF, 0xFFFF, "LP Elektronik GmbH(0x155E)"},
 }; /* pci_vid_155E[] */
 
-pci_id_t pci_vid_155F[] = {
+static pci_id_t const pci_vid_155F[] = {
 {0x155F, 0xFFFF, 0xFFFF, 0xFFFF, "Perle Systems Ltd(0x155F)"},
 }; /* pci_vid_155F[] */
 
-pci_id_t pci_vid_1560[] = {
+static pci_id_t const pci_vid_1560[] = {
 {0x1560, 0xFFFF, 0xFFFF, 0xFFFF, "Terayon Communications Systems(0x1560)"},
 }; /* pci_vid_1560[] */
 
-pci_id_t pci_vid_1561[] = {
+static pci_id_t const pci_vid_1561[] = {
 {0x1561, 0xFFFF, 0xFFFF, 0xFFFF, "Viewgraphics Inc(0x1561)"},
 }; /* pci_vid_1561[] */
 
-pci_id_t pci_vid_1562[] = {
+static pci_id_t const pci_vid_1562[] = {
 {0x1562, 0xFFFF, 0xFFFF, 0xFFFF, "Symbol Technologies(0x1562)"},
 }; /* pci_vid_1562[] */
 
-pci_id_t pci_vid_1563[] = {
+static pci_id_t const pci_vid_1563[] = {
 {0x1563, 0xFFFF, 0xFFFF, 0xFFFF, "A-Trend Technology Co Ltd(0x1563)"},
 }; /* pci_vid_1563[] */
 
-pci_id_t pci_vid_1564[] = {
+static pci_id_t const pci_vid_1564[] = {
 {0x1564, 0xFFFF, 0xFFFF, 0xFFFF, "Yamakatsu Electronics Industry Co Ltd(0x1564)"},
 }; /* pci_vid_1564[] */
 
-pci_id_t pci_vid_1565[] = {
+static pci_id_t const pci_vid_1565[] = {
 {0x1565, 0xFFFF, 0xFFFF, 0xFFFF, "Biostar Microtech Int'l Corp(0x1565)"},
 }; /* pci_vid_1565[] */
 
-pci_id_t pci_vid_1566[] = {
+static pci_id_t const pci_vid_1566[] = {
 {0x1566, 0xFFFF, 0xFFFF, 0xFFFF, "Ardent Technologies Inc(0x1566)"},
 }; /* pci_vid_1566[] */
 
-pci_id_t pci_vid_1567[] = {
+static pci_id_t const pci_vid_1567[] = {
 {0x1567, 0xFFFF, 0xFFFF, 0xFFFF, "Jungsoft(0x1567)"},
 }; /* pci_vid_1567[] */
 
-pci_id_t pci_vid_1568[] = {
+static pci_id_t const pci_vid_1568[] = {
 {0x1568, 0xFFFF, 0xFFFF, 0xFFFF, "DDK Electronics Inc(0x1568)"},
 }; /* pci_vid_1568[] */
 
-pci_id_t pci_vid_1569[] = {
+static pci_id_t const pci_vid_1569[] = {
 {0x1569, 0xFFFF, 0xFFFF, 0xFFFF, "Palit Microsystems Inc.(0x1569)"},
 }; /* pci_vid_1569[] */
 
-pci_id_t pci_vid_156A[] = {
+static pci_id_t const pci_vid_156A[] = {
 {0x156A, 0xFFFF, 0xFFFF, 0xFFFF, "Avtec Systems(0x156A)"},
 }; /* pci_vid_156A[] */
 
-pci_id_t pci_vid_156B[] = {
+static pci_id_t const pci_vid_156B[] = {
 {0x156B, 0xFFFF, 0xFFFF, 0xFFFF, "2wire Inc(0x156B)"},
 }; /* pci_vid_156B[] */
 
-pci_id_t pci_vid_156C[] = {
+static pci_id_t const pci_vid_156C[] = {
 {0x156C, 0xFFFF, 0xFFFF, 0xFFFF, "Vidac Electronics GmbH(0x156C)"},
 }; /* pci_vid_156C[] */
 
-pci_id_t pci_vid_156D[] = {
+static pci_id_t const pci_vid_156D[] = {
 {0x156D, 0xFFFF, 0xFFFF, 0xFFFF, "Alpha-Top Corp(0x156D)"},
 }; /* pci_vid_156D[] */
 
-pci_id_t pci_vid_156E[] = {
+static pci_id_t const pci_vid_156E[] = {
 {0x156E, 0xFFFF, 0xFFFF, 0xFFFF, "Alfa Inc(0x156E)"},
 }; /* pci_vid_156E[] */
 
-pci_id_t pci_vid_156F[] = {
+static pci_id_t const pci_vid_156F[] = {
 {0x156F, 0xFFFF, 0xFFFF, 0xFFFF, "M-Systems Flash Disk Pioneers Ltd(0x156F)"},
 }; /* pci_vid_156F[] */
 
-pci_id_t pci_vid_1570[] = {
+static pci_id_t const pci_vid_1570[] = {
 {0x1570, 0xFFFF, 0xFFFF, 0xFFFF, "Teledyne Lecroy(0x1570)"},
 }; /* pci_vid_1570[] */
 
-pci_id_t pci_vid_1571[] = {
+static pci_id_t const pci_vid_1571[] = {
 {0x1571, 0xFFFF, 0xFFFF, 0xFFFF, "Contemporary Controls(0x1571)"},
 {0x1571, 0xA001, 0xFFFF, 0xFFFF, "CCSI PCI20-485 ARCnet(0xA001)"},
 {0x1571, 0xA002, 0xFFFF, 0xFFFF, "CCSI PCI20-485D ARCnet(0xA002)"},
@@ -25433,128 +25528,128 @@ pci_id_t pci_vid_1571[] = {
 {0x1571, 0xA206, 0xFFFF, 0xFFFF, "CCSI PCI22-THB 10Mbit ARCnet(0xA206)"},
 }; /* pci_vid_1571[] */
 
-pci_id_t pci_vid_1572[] = {
+static pci_id_t const pci_vid_1572[] = {
 {0x1572, 0xFFFF, 0xFFFF, 0xFFFF, "Otis Elevator Company(0x1572)"},
 }; /* pci_vid_1572[] */
 
-pci_id_t pci_vid_1573[] = {
+static pci_id_t const pci_vid_1573[] = {
 {0x1573, 0xFFFF, 0xFFFF, 0xFFFF, "Lattice - Vantis(0x1573)"},
 }; /* pci_vid_1573[] */
 
-pci_id_t pci_vid_1574[] = {
+static pci_id_t const pci_vid_1574[] = {
 {0x1574, 0xFFFF, 0xFFFF, 0xFFFF, "Fairchild Semiconductor(0x1574)"},
 }; /* pci_vid_1574[] */
 
-pci_id_t pci_vid_1575[] = {
+static pci_id_t const pci_vid_1575[] = {
 {0x1575, 0xFFFF, 0xFFFF, 0xFFFF, "Voltaire Advanced Data Security Ltd(0x1575)"},
 }; /* pci_vid_1575[] */
 
-pci_id_t pci_vid_1576[] = {
+static pci_id_t const pci_vid_1576[] = {
 {0x1576, 0xFFFF, 0xFFFF, 0xFFFF, "Viewcast COM(0x1576)"},
 }; /* pci_vid_1576[] */
 
-pci_id_t pci_vid_1578[] = {
+static pci_id_t const pci_vid_1578[] = {
 {0x1578, 0xFFFF, 0xFFFF, 0xFFFF, "HITT(0x1578)"},
 {0x1578, 0x4D34, 0xFFFF, 0xFFFF, "VPMK4 [Video Processor Mk IV](0x4D34)"},
 {0x1578, 0x5615, 0xFFFF, 0xFFFF, "VPMK3 [Video Processor Mk III](0x5615)"},
 }; /* pci_vid_1578[] */
 
-pci_id_t pci_vid_1579[] = {
+static pci_id_t const pci_vid_1579[] = {
 {0x1579, 0xFFFF, 0xFFFF, 0xFFFF, "Dual Technology Corp(0x1579)"},
 }; /* pci_vid_1579[] */
 
-pci_id_t pci_vid_157A[] = {
+static pci_id_t const pci_vid_157A[] = {
 {0x157A, 0xFFFF, 0xFFFF, 0xFFFF, "Japan Elecronics Ind Inc(0x157A)"},
 }; /* pci_vid_157A[] */
 
-pci_id_t pci_vid_157B[] = {
+static pci_id_t const pci_vid_157B[] = {
 {0x157B, 0xFFFF, 0xFFFF, 0xFFFF, "Star Multimedia Corp(0x157B)"},
 }; /* pci_vid_157B[] */
 
-pci_id_t pci_vid_157C[] = {
+static pci_id_t const pci_vid_157C[] = {
 {0x157C, 0xFFFF, 0xFFFF, 0xFFFF, "Eurosoft (UK)(0x157C)"},
 {0x157C, 0x8001, 0xFFFF, 0xFFFF, "Fix2000 PCI Y2K Compliance Card(0x8001)"},
 }; /* pci_vid_157C[] */
 
-pci_id_t pci_vid_157D[] = {
+static pci_id_t const pci_vid_157D[] = {
 {0x157D, 0xFFFF, 0xFFFF, 0xFFFF, "Gemflex Networks(0x157D)"},
 }; /* pci_vid_157D[] */
 
-pci_id_t pci_vid_157E[] = {
+static pci_id_t const pci_vid_157E[] = {
 {0x157E, 0xFFFF, 0xFFFF, 0xFFFF, "Transition Networks(0x157E)"},
 }; /* pci_vid_157E[] */
 
-pci_id_t pci_vid_157F[] = {
+static pci_id_t const pci_vid_157F[] = {
 {0x157F, 0xFFFF, 0xFFFF, 0xFFFF, "PX Instruments Technology Ltd(0x157F)"},
 }; /* pci_vid_157F[] */
 
-pci_id_t pci_vid_1580[] = {
+static pci_id_t const pci_vid_1580[] = {
 {0x1580, 0xFFFF, 0xFFFF, 0xFFFF, "Primex Aerospace Co(0x1580)"},
 }; /* pci_vid_1580[] */
 
-pci_id_t pci_vid_1581[] = {
+static pci_id_t const pci_vid_1581[] = {
 {0x1581, 0xFFFF, 0xFFFF, 0xFFFF, "SEH Computertechnik GmbH(0x1581)"},
 }; /* pci_vid_1581[] */
 
-pci_id_t pci_vid_1582[] = {
+static pci_id_t const pci_vid_1582[] = {
 {0x1582, 0xFFFF, 0xFFFF, 0xFFFF, "Cytec Corp(0x1582)"},
 }; /* pci_vid_1582[] */
 
-pci_id_t pci_vid_1583[] = {
+static pci_id_t const pci_vid_1583[] = {
 {0x1583, 0xFFFF, 0xFFFF, 0xFFFF, "Inet Technologies Inc(0x1583)"},
 }; /* pci_vid_1583[] */
 
-pci_id_t pci_vid_1584[] = {
+static pci_id_t const pci_vid_1584[] = {
 {0x1584, 0xFFFF, 0xFFFF, 0xFFFF, "Uniwill Computer Corp(0x1584)"},
 }; /* pci_vid_1584[] */
 
-pci_id_t pci_vid_1585[] = {
+static pci_id_t const pci_vid_1585[] = {
 {0x1585, 0xFFFF, 0xFFFF, 0xFFFF, "Logitron(0x1585)"},
 }; /* pci_vid_1585[] */
 
-pci_id_t pci_vid_1586[] = {
+static pci_id_t const pci_vid_1586[] = {
 {0x1586, 0xFFFF, 0xFFFF, 0xFFFF, "Lancast Inc(0x1586)"},
 }; /* pci_vid_1586[] */
 
-pci_id_t pci_vid_1587[] = {
+static pci_id_t const pci_vid_1587[] = {
 {0x1587, 0xFFFF, 0xFFFF, 0xFFFF, "Konica Corp(0x1587)"},
 }; /* pci_vid_1587[] */
 
-pci_id_t pci_vid_1588[] = {
+static pci_id_t const pci_vid_1588[] = {
 {0x1588, 0xFFFF, 0xFFFF, 0xFFFF, "Solidum Systems Corp(0x1588)"},
 }; /* pci_vid_1588[] */
 
-pci_id_t pci_vid_1589[] = {
+static pci_id_t const pci_vid_1589[] = {
 {0x1589, 0xFFFF, 0xFFFF, 0xFFFF, "Atlantek Microsystems Pty Ltd(0x1589)"},
 {0x1589, 0x0008, 0xFFFF, 0xFFFF, "Leutron Vision PicPortExpress CL(0x0008)"},
 {0x1589, 0x0009, 0xFFFF, 0xFFFF, "Leutron Vision PicPortExpress CL Stereo(0x0009)"},
 }; /* pci_vid_1589[] */
 
-pci_id_t pci_vid_158A[] = {
+static pci_id_t const pci_vid_158A[] = {
 {0x158A, 0xFFFF, 0xFFFF, 0xFFFF, "Digalog Systems Inc(0x158A)"},
 }; /* pci_vid_158A[] */
 
-pci_id_t pci_vid_158B[] = {
+static pci_id_t const pci_vid_158B[] = {
 {0x158B, 0xFFFF, 0xFFFF, 0xFFFF, "Allied Data Technologies(0x158B)"},
 }; /* pci_vid_158B[] */
 
-pci_id_t pci_vid_158C[] = {
+static pci_id_t const pci_vid_158C[] = {
 {0x158C, 0xFFFF, 0xFFFF, 0xFFFF, "Hitachi Semiconductor & Devices Sales Co Ltd(0x158C)"},
 }; /* pci_vid_158C[] */
 
-pci_id_t pci_vid_158D[] = {
+static pci_id_t const pci_vid_158D[] = {
 {0x158D, 0xFFFF, 0xFFFF, 0xFFFF, "Point Multimedia Systems(0x158D)"},
 }; /* pci_vid_158D[] */
 
-pci_id_t pci_vid_158E[] = {
+static pci_id_t const pci_vid_158E[] = {
 {0x158E, 0xFFFF, 0xFFFF, 0xFFFF, "Lara Technology Inc(0x158E)"},
 }; /* pci_vid_158E[] */
 
-pci_id_t pci_vid_158F[] = {
+static pci_id_t const pci_vid_158F[] = {
 {0x158F, 0xFFFF, 0xFFFF, 0xFFFF, "Ditect Coop(0x158F)"},
 }; /* pci_vid_158F[] */
 
-pci_id_t pci_vid_1590[] = {
+static pci_id_t const pci_vid_1590[] = {
 {0x1590, 0xFFFF, 0xFFFF, 0xFFFF, "Hewlett Packard Enterprise(0x1590)"},
 {0x1590, 0x0001, 0xFFFF, 0xFFFF, "Eagle Cluster Manager(0x0001)"},
 {0x1590, 0x0002, 0xFFFF, 0xFFFF, "Osprey Cluster Manager(0x0002)"},
@@ -25564,11 +25659,11 @@ pci_id_t pci_vid_1590[] = {
 {0x1590, 0xA01D, 0xFFFF, 0xFFFF, "FC044X Fibre Channel HBA(0xA01D)"},
 }; /* pci_vid_1590[] */
 
-pci_id_t pci_vid_1591[] = {
+static pci_id_t const pci_vid_1591[] = {
 {0x1591, 0xFFFF, 0xFFFF, 0xFFFF, "ARN(0x1591)"},
 }; /* pci_vid_1591[] */
 
-pci_id_t pci_vid_1592[] = {
+static pci_id_t const pci_vid_1592[] = {
 {0x1592, 0xFFFF, 0xFFFF, 0xFFFF, "Syba Tech Ltd(0x1592)"},
 {0x1592, 0x0781, 0xFFFF, 0xFFFF, "Multi-IO Card(0x0781)"},
 {0x1592, 0x0782, 0xFFFF, 0xFFFF, "Parallel Port Card 2xEPP(0x0782)"},
@@ -25580,110 +25675,110 @@ pci_id_t pci_vid_1592[] = {
 {0x1592, 0x078A, 0xFFFF, 0xFFFF, "Multi-IO Card(0x078A)"},
 }; /* pci_vid_1592[] */
 
-pci_id_t pci_vid_1593[] = {
+static pci_id_t const pci_vid_1593[] = {
 {0x1593, 0xFFFF, 0xFFFF, 0xFFFF, "Bops Inc(0x1593)"},
 }; /* pci_vid_1593[] */
 
-pci_id_t pci_vid_1594[] = {
+static pci_id_t const pci_vid_1594[] = {
 {0x1594, 0xFFFF, 0xFFFF, 0xFFFF, "Netgame Ltd(0x1594)"},
 }; /* pci_vid_1594[] */
 
-pci_id_t pci_vid_1595[] = {
+static pci_id_t const pci_vid_1595[] = {
 {0x1595, 0xFFFF, 0xFFFF, 0xFFFF, "Diva Systems Corp(0x1595)"},
 }; /* pci_vid_1595[] */
 
-pci_id_t pci_vid_1596[] = {
+static pci_id_t const pci_vid_1596[] = {
 {0x1596, 0xFFFF, 0xFFFF, 0xFFFF, "Folsom Research Inc(0x1596)"},
 }; /* pci_vid_1596[] */
 
-pci_id_t pci_vid_1597[] = {
+static pci_id_t const pci_vid_1597[] = {
 {0x1597, 0xFFFF, 0xFFFF, 0xFFFF, "Memec Design Services(0x1597)"},
 }; /* pci_vid_1597[] */
 
-pci_id_t pci_vid_1598[] = {
+static pci_id_t const pci_vid_1598[] = {
 {0x1598, 0xFFFF, 0xFFFF, 0xFFFF, "Granite Microsystems(0x1598)"},
 }; /* pci_vid_1598[] */
 
-pci_id_t pci_vid_1599[] = {
+static pci_id_t const pci_vid_1599[] = {
 {0x1599, 0xFFFF, 0xFFFF, 0xFFFF, "Delta Electronics Inc(0x1599)"},
 }; /* pci_vid_1599[] */
 
-pci_id_t pci_vid_159A[] = {
+static pci_id_t const pci_vid_159A[] = {
 {0x159A, 0xFFFF, 0xFFFF, 0xFFFF, "General Instrument(0x159A)"},
 }; /* pci_vid_159A[] */
 
-pci_id_t pci_vid_159B[] = {
+static pci_id_t const pci_vid_159B[] = {
 {0x159B, 0xFFFF, 0xFFFF, 0xFFFF, "Faraday Technology Corp(0x159B)"},
 {0x159B, 0x4321, 0xFFFF, 0xFFFF, "StorLink SL3516 (Gemini) Host Bridge(0x4321)"},
 }; /* pci_vid_159B[] */
 
-pci_id_t pci_vid_159C[] = {
+static pci_id_t const pci_vid_159C[] = {
 {0x159C, 0xFFFF, 0xFFFF, 0xFFFF, "Stratus Computer Systems(0x159C)"},
 }; /* pci_vid_159C[] */
 
-pci_id_t pci_vid_159D[] = {
+static pci_id_t const pci_vid_159D[] = {
 {0x159D, 0xFFFF, 0xFFFF, 0xFFFF, "Ningbo Harrison Electronics Co Ltd(0x159D)"},
 }; /* pci_vid_159D[] */
 
-pci_id_t pci_vid_159E[] = {
+static pci_id_t const pci_vid_159E[] = {
 {0x159E, 0xFFFF, 0xFFFF, 0xFFFF, "A-Max Technology Co Ltd(0x159E)"},
 }; /* pci_vid_159E[] */
 
-pci_id_t pci_vid_159F[] = {
+static pci_id_t const pci_vid_159F[] = {
 {0x159F, 0xFFFF, 0xFFFF, 0xFFFF, "Galea Network Security(0x159F)"},
 }; /* pci_vid_159F[] */
 
-pci_id_t pci_vid_15A0[] = {
+static pci_id_t const pci_vid_15A0[] = {
 {0x15A0, 0xFFFF, 0xFFFF, 0xFFFF, "Compumaster SRL(0x15A0)"},
 }; /* pci_vid_15A0[] */
 
-pci_id_t pci_vid_15A1[] = {
+static pci_id_t const pci_vid_15A1[] = {
 {0x15A1, 0xFFFF, 0xFFFF, 0xFFFF, "Geocast Network Systems(0x15A1)"},
 }; /* pci_vid_15A1[] */
 
-pci_id_t pci_vid_15A2[] = {
+static pci_id_t const pci_vid_15A2[] = {
 {0x15A2, 0xFFFF, 0xFFFF, 0xFFFF, "Catalyst Enterprises Inc(0x15A2)"},
 {0x15A2, 0x0001, 0xFFFF, 0xFFFF, "TA700 PCI Bus Analyzer/Exerciser(0x0001)"},
 }; /* pci_vid_15A2[] */
 
-pci_id_t pci_vid_15A3[] = {
+static pci_id_t const pci_vid_15A3[] = {
 {0x15A3, 0xFFFF, 0xFFFF, 0xFFFF, "Italtel(0x15A3)"},
 }; /* pci_vid_15A3[] */
 
-pci_id_t pci_vid_15A4[] = {
+static pci_id_t const pci_vid_15A4[] = {
 {0x15A4, 0xFFFF, 0xFFFF, 0xFFFF, "X-Net OY(0x15A4)"},
 }; /* pci_vid_15A4[] */
 
-pci_id_t pci_vid_15A5[] = {
+static pci_id_t const pci_vid_15A5[] = {
 {0x15A5, 0xFFFF, 0xFFFF, 0xFFFF, "Toyota Macs Inc(0x15A5)"},
 }; /* pci_vid_15A5[] */
 
-pci_id_t pci_vid_15A6[] = {
+static pci_id_t const pci_vid_15A6[] = {
 {0x15A6, 0xFFFF, 0xFFFF, 0xFFFF, "Sunlight Ultrasound Technologies Ltd(0x15A6)"},
 }; /* pci_vid_15A6[] */
 
-pci_id_t pci_vid_15A7[] = {
+static pci_id_t const pci_vid_15A7[] = {
 {0x15A7, 0xFFFF, 0xFFFF, 0xFFFF, "SSE Telecom Inc(0x15A7)"},
 }; /* pci_vid_15A7[] */
 
-pci_id_t pci_vid_15A8[] = {
+static pci_id_t const pci_vid_15A8[] = {
 {0x15A8, 0xFFFF, 0xFFFF, 0xFFFF, "Shanghai Communications Technologies Center(0x15A8)"},
 }; /* pci_vid_15A8[] */
 
-pci_id_t pci_vid_15AA[] = {
+static pci_id_t const pci_vid_15AA[] = {
 {0x15AA, 0xFFFF, 0xFFFF, 0xFFFF, "Moreton Bay(0x15AA)"},
 }; /* pci_vid_15AA[] */
 
-pci_id_t pci_vid_15AB[] = {
+static pci_id_t const pci_vid_15AB[] = {
 {0x15AB, 0xFFFF, 0xFFFF, 0xFFFF, "Bluesteel Networks Inc(0x15AB)"},
 }; /* pci_vid_15AB[] */
 
-pci_id_t pci_vid_15AC[] = {
+static pci_id_t const pci_vid_15AC[] = {
 {0x15AC, 0xFFFF, 0xFFFF, 0xFFFF, "North Atlantic Instruments(0x15AC)"},
 {0x15AC, 0x6893, 0xFFFF, 0xFFFF, "3U OpenVPX Multi-function I/O Board [Model 68C3](0x6893)"},
 }; /* pci_vid_15AC[] */
 
-pci_id_t pci_vid_15AD[] = {
+static pci_id_t const pci_vid_15AD[] = {
 {0x15AD, 0xFFFF, 0xFFFF, 0xFFFF, "VMware(0x15AD)"},
 {0x15AD, 0x0405, 0xFFFF, 0xFFFF, "SVGA II Adapter(0x0405)"},
 {0x15AD, 0x0710, 0xFFFF, 0xFFFF, "SVGA Adapter(0x0710)"},
@@ -25705,23 +25800,23 @@ pci_id_t pci_vid_15AD[] = {
 {0x15AD, 0x1977, 0xFFFF, 0xFFFF, "HD Audio Controller(0x1977)"},
 }; /* pci_vid_15AD[] */
 
-pci_id_t pci_vid_15AE[] = {
+static pci_id_t const pci_vid_15AE[] = {
 {0x15AE, 0xFFFF, 0xFFFF, 0xFFFF, "Amersham Pharmacia Biotech(0x15AE)"},
 }; /* pci_vid_15AE[] */
 
-pci_id_t pci_vid_15B0[] = {
+static pci_id_t const pci_vid_15B0[] = {
 {0x15B0, 0xFFFF, 0xFFFF, 0xFFFF, "Zoltrix International Ltd(0x15B0)"},
 }; /* pci_vid_15B0[] */
 
-pci_id_t pci_vid_15B1[] = {
+static pci_id_t const pci_vid_15B1[] = {
 {0x15B1, 0xFFFF, 0xFFFF, 0xFFFF, "Source Technology Inc(0x15B1)"},
 }; /* pci_vid_15B1[] */
 
-pci_id_t pci_vid_15B2[] = {
+static pci_id_t const pci_vid_15B2[] = {
 {0x15B2, 0xFFFF, 0xFFFF, 0xFFFF, "Mosaid Technologies Inc(0x15B2)"},
 }; /* pci_vid_15B2[] */
 
-pci_id_t pci_vid_15B3[] = {
+static pci_id_t const pci_vid_15B3[] = {
 {0x15B3, 0xFFFF, 0xFFFF, 0xFFFF, "Mellanox Technologies(0x15B3)"},
 {0x15B3, 0x0191, 0xFFFF, 0xFFFF, "MT25408 [ConnectX IB Flash Recovery](0x0191)"},
 {0x15B3, 0x01F6, 0xFFFF, 0xFFFF, "MT27500 Family [ConnectX-3 Flash Recovery](0x01F6)"},
@@ -25778,6 +25873,8 @@ pci_id_t pci_vid_15B3[] = {
 {0x15B3, 0x0283, 0xFFFF, 0xFFFF, "ArcusE RMA(0x0283)"},
 {0x15B3, 0x0284, 0xFFFF, 0xFFFF, "Sagitta(0x0284)"},
 {0x15B3, 0x0285, 0xFFFF, 0xFFFF, "Sagitta RMA(0x0285)"},
+{0x15B3, 0x0286, 0xFFFF, 0xFFFF, "LibraE Flash Recovery(0x0286)"},
+{0x15B3, 0x0287, 0xFFFF, 0xFFFF, "LibraE RMA(0x0287)"},
 {0x15B3, 0x1002, 0xFFFF, 0xFFFF, "MT25400 Family [ConnectX-2 Virtual Function](0x1002)"},
 {0x15B3, 0x1003, 0xFFFF, 0xFFFF, "MT27500 Family [ConnectX-3](0x1003)"},
 {0x15B3, 0x1003, 0x1014, 0x04B5, "PCIe3 40GbE RoCE Converged Host Bus Adapter for Power(0x1014-0x04B5)"},
@@ -25952,6 +26049,7 @@ pci_id_t pci_vid_15B3[] = {
 {0x15B3, 0xA2DE, 0xFFFF, 0xFFFF, "BF4 Family Crypto disabled [BlueField-4 SoC Crypto disabled](0xA2DE)"},
 {0x15B3, 0xA2DF, 0xFFFF, 0xFFFF, "BF4 Family integrated network controller [BlueField-4 integrated network controller](0xA2DF)"},
 {0x15B3, 0xB200, 0xFFFF, 0xFFFF, "ArcusE(0xB200)"},
+{0x15B3, 0xB201, 0xFFFF, 0xFFFF, "LibraE(0xB201)"},
 {0x15B3, 0xC2D1, 0xFFFF, 0xFFFF, "BlueField DPU Family Auxiliary Communication Channel [BlueField Family](0xC2D1)"},
 {0x15B3, 0xC2D2, 0xFFFF, 0xFFFF, "MT416842 BlueField SoC management interfac(0xC2D2)"},
 {0x15B3, 0xC2D3, 0xFFFF, 0xFFFF, "MT42822 BlueField-2 SoC Management Interface(0xC2D3)"},
@@ -25976,15 +26074,15 @@ pci_id_t pci_vid_15B3[] = {
 {0x15B3, 0xD2F6, 0xFFFF, 0xFFFF, "Quantum-3CPO(0xD2F6)"},
 }; /* pci_vid_15B3[] */
 
-pci_id_t pci_vid_15B4[] = {
+static pci_id_t const pci_vid_15B4[] = {
 {0x15B4, 0xFFFF, 0xFFFF, 0xFFFF, "CCI/TRIAD(0x15B4)"},
 }; /* pci_vid_15B4[] */
 
-pci_id_t pci_vid_15B5[] = {
+static pci_id_t const pci_vid_15B5[] = {
 {0x15B5, 0xFFFF, 0xFFFF, 0xFFFF, "Cimetrics Inc(0x15B5)"},
 }; /* pci_vid_15B5[] */
 
-pci_id_t pci_vid_15B6[] = {
+static pci_id_t const pci_vid_15B6[] = {
 {0x15B6, 0xFFFF, 0xFFFF, 0xFFFF, "Texas Memory Systems Inc(0x15B6)"},
 {0x15B6, 0x0001, 0xFFFF, 0xFFFF, "XP15 DSP Accelerator(0x0001)"},
 {0x15B6, 0x0002, 0xFFFF, 0xFFFF, "XP30 DSP Accelerator(0x0002)"},
@@ -26004,7 +26102,7 @@ pci_id_t pci_vid_15B6[] = {
 {0x15B6, 0x0015, 0xFFFF, 0xFFFF, "ZBox(0x0015)"},
 }; /* pci_vid_15B6[] */
 
-pci_id_t pci_vid_15B7[] = {
+static pci_id_t const pci_vid_15B7[] = {
 {0x15B7, 0xFFFF, 0xFFFF, 0xFFFF, "Sandisk Corp(0x15B7)"},
 {0x15B7, 0x2001, 0xFFFF, 0xFFFF, "Skyhawk Series NVME SSD(0x2001)"},
 {0x15B7, 0x5001, 0xFFFF, 0xFFFF, "WD Black NVMe SSD(0x5001)"},
@@ -26035,9 +26133,10 @@ pci_id_t pci_vid_15B7[] = {
 {0x15B7, 0x5028, 0xFFFF, 0xFFFF, "WD CH SN560 NVMe SSD(0x5028)"},
 {0x15B7, 0x5030, 0xFFFF, 0xFFFF, "WD Black SN850X NVMe SSD(0x5030)"},
 {0x15B7, 0x5041, 0xFFFF, 0xFFFF, "WD Blue SN580 NVMe SSD (DRAM-less)(0x5041)"},
+{0x15B7, 0x5042, 0xFFFF, 0xFFFF, "WD Black SN770M NVMe SSD (DRAM-less)(0x5042)"},
 }; /* pci_vid_15B7[] */
 
-pci_id_t pci_vid_15B8[] = {
+static pci_id_t const pci_vid_15B8[] = {
 {0x15B8, 0xFFFF, 0xFFFF, 0xFFFF, "ADDI-DATA GmbH(0x15B8)"},
 {0x15B8, 0x1001, 0xFFFF, 0xFFFF, "APCI1516 SP controller (16 digi outputs)(0x1001)"},
 {0x15B8, 0x1003, 0xFFFF, 0xFFFF, "APCI1032 SP controller (32 digi inputs w/ opto coupler)(0x1003)"},
@@ -26051,19 +26150,19 @@ pci_id_t pci_vid_15B8[] = {
 {0x15B8, 0x7002, 0xFFFF, 0xFFFF, "APCI7300 Serial Controller(0x7002)"},
 }; /* pci_vid_15B8[] */
 
-pci_id_t pci_vid_15B9[] = {
+static pci_id_t const pci_vid_15B9[] = {
 {0x15B9, 0xFFFF, 0xFFFF, 0xFFFF, "Maestro Digital Communications(0x15B9)"},
 }; /* pci_vid_15B9[] */
 
-pci_id_t pci_vid_15BA[] = {
+static pci_id_t const pci_vid_15BA[] = {
 {0x15BA, 0xFFFF, 0xFFFF, 0xFFFF, "Impacct Technology Corp(0x15BA)"},
 }; /* pci_vid_15BA[] */
 
-pci_id_t pci_vid_15BB[] = {
+static pci_id_t const pci_vid_15BB[] = {
 {0x15BB, 0xFFFF, 0xFFFF, 0xFFFF, "Portwell Inc(0x15BB)"},
 }; /* pci_vid_15BB[] */
 
-pci_id_t pci_vid_15BC[] = {
+static pci_id_t const pci_vid_15BC[] = {
 {0x15BC, 0xFFFF, 0xFFFF, 0xFFFF, "Agilent Technologies(0x15BC)"},
 {0x15BC, 0x0100, 0xFFFF, 0xFFFF, "HPFC-5600 Tachyon DX2+ FC(0x0100)"},
 {0x15BC, 0x0103, 0xFFFF, 0xFFFF, "QX4 PCI Express quad 4-gigabit Fibre Channel controller(0x0103)"},
@@ -26071,6 +26170,10 @@ pci_id_t pci_vid_15BC[] = {
 {0x15BC, 0x0105, 0x117C, 0x0022, "Celerity FC-42XS Fibre Channel Adapter(0x117C-0x0022)"},
 {0x15BC, 0x0105, 0x117C, 0x0025, "Celerity FC-44ES Fibre Channel Adapter(0x117C-0x0025)"},
 {0x15BC, 0x0105, 0x117C, 0x0026, "Celerity FC-42ES Fibre Channel Adapter(0x117C-0x0026)"},
+{0x15BC, 0x0500, 0xFFFF, 0xFFFF, "Infiniium Memory Controller Interface(0x0500)"},
+{0x15BC, 0x0501, 0xFFFF, 0xFFFF, "Infiniium Acquisition System Interface(0x0501)"},
+{0x15BC, 0x0507, 0xFFFF, 0xFFFF, "Infiniium Acquisition System (80000 series)(0x0507)"},
+{0x15BC, 0x0508, 0xFFFF, 0xFFFF, "Infiniium Acquisition Support(0x0508)"},
 {0x15BC, 0x0B01, 0xFFFF, 0xFFFF, "82350B PCI GPIB(0x0B01)"},
 {0x15BC, 0x1100, 0xFFFF, 0xFFFF, "E8001-66442 PCI Express CIC(0x1100)"},
 {0x15BC, 0x1218, 0xFFFF, 0xFFFF, "82351A PCI Express GPIB(0x1218)"},
@@ -26081,329 +26184,328 @@ pci_id_t pci_vid_15BC[] = {
 {0x15BC, 0x2929, 0xFFFF, 0xFFFF, "64 Bit, 133MHz PCI-X Analyzer & Exerciser(0x2929)"},
 }; /* pci_vid_15BC[] */
 
-pci_id_t pci_vid_15BD[] = {
+static pci_id_t const pci_vid_15BD[] = {
 {0x15BD, 0xFFFF, 0xFFFF, 0xFFFF, "DFI Inc(0x15BD)"},
 }; /* pci_vid_15BD[] */
 
-pci_id_t pci_vid_15BE[] = {
+static pci_id_t const pci_vid_15BE[] = {
 {0x15BE, 0xFFFF, 0xFFFF, 0xFFFF, "Sola Electronics(0x15BE)"},
 }; /* pci_vid_15BE[] */
 
-pci_id_t pci_vid_15BF[] = {
+static pci_id_t const pci_vid_15BF[] = {
 {0x15BF, 0xFFFF, 0xFFFF, 0xFFFF, "High Tech Computer Corp (HTC)(0x15BF)"},
 }; /* pci_vid_15BF[] */
 
-pci_id_t pci_vid_15C0[] = {
+static pci_id_t const pci_vid_15C0[] = {
 {0x15C0, 0xFFFF, 0xFFFF, 0xFFFF, "BVM Ltd(0x15C0)"},
 }; /* pci_vid_15C0[] */
 
-pci_id_t pci_vid_15C1[] = {
+static pci_id_t const pci_vid_15C1[] = {
 {0x15C1, 0xFFFF, 0xFFFF, 0xFFFF, "Quantel(0x15C1)"},
 }; /* pci_vid_15C1[] */
 
-pci_id_t pci_vid_15C2[] = {
+static pci_id_t const pci_vid_15C2[] = {
 {0x15C2, 0xFFFF, 0xFFFF, 0xFFFF, "Newer Technology Inc(0x15C2)"},
 }; /* pci_vid_15C2[] */
 
-pci_id_t pci_vid_15C3[] = {
+static pci_id_t const pci_vid_15C3[] = {
 {0x15C3, 0xFFFF, 0xFFFF, 0xFFFF, "Taiwan Mycomp Co Ltd(0x15C3)"},
 }; /* pci_vid_15C3[] */
 
-pci_id_t pci_vid_15C4[] = {
+static pci_id_t const pci_vid_15C4[] = {
 {0x15C4, 0xFFFF, 0xFFFF, 0xFFFF, "EVSX Inc(0x15C4)"},
 }; /* pci_vid_15C4[] */
 
-pci_id_t pci_vid_15C5[] = {
+static pci_id_t const pci_vid_15C5[] = {
 {0x15C5, 0xFFFF, 0xFFFF, 0xFFFF, "Procomp Informatics Ltd(0x15C5)"},
 {0x15C5, 0x8010, 0xFFFF, 0xFFFF, "1394b - 1394 Firewire 3-Port Host Adapter Card(0x8010)"},
 }; /* pci_vid_15C5[] */
 
-pci_id_t pci_vid_15C6[] = {
+static pci_id_t const pci_vid_15C6[] = {
 {0x15C6, 0xFFFF, 0xFFFF, 0xFFFF, "Technical University of Budapest(0x15C6)"},
 }; /* pci_vid_15C6[] */
 
-pci_id_t pci_vid_15C7[] = {
+static pci_id_t const pci_vid_15C7[] = {
 {0x15C7, 0xFFFF, 0xFFFF, 0xFFFF, "Tateyama System Laboratory Co Ltd(0x15C7)"},
 {0x15C7, 0x0349, 0xFFFF, 0xFFFF, "Tateyama C-PCI PLC/NC card Rev.01A(0x0349)"},
 }; /* pci_vid_15C7[] */
 
-pci_id_t pci_vid_15C8[] = {
+static pci_id_t const pci_vid_15C8[] = {
 {0x15C8, 0xFFFF, 0xFFFF, 0xFFFF, "Penta Media Co Ltd(0x15C8)"},
 }; /* pci_vid_15C8[] */
 
-pci_id_t pci_vid_15C9[] = {
+static pci_id_t const pci_vid_15C9[] = {
 {0x15C9, 0xFFFF, 0xFFFF, 0xFFFF, "Serome Technology Inc(0x15C9)"},
 }; /* pci_vid_15C9[] */
 
-pci_id_t pci_vid_15CA[] = {
+static pci_id_t const pci_vid_15CA[] = {
 {0x15CA, 0xFFFF, 0xFFFF, 0xFFFF, "Bitboys OY(0x15CA)"},
 }; /* pci_vid_15CA[] */
 
-pci_id_t pci_vid_15CB[] = {
+static pci_id_t const pci_vid_15CB[] = {
 {0x15CB, 0xFFFF, 0xFFFF, 0xFFFF, "AG Electronics Ltd(0x15CB)"},
 }; /* pci_vid_15CB[] */
 
-pci_id_t pci_vid_15CC[] = {
+static pci_id_t const pci_vid_15CC[] = {
 {0x15CC, 0xFFFF, 0xFFFF, 0xFFFF, "Hotrail Inc(0x15CC)"},
 }; /* pci_vid_15CC[] */
 
-pci_id_t pci_vid_15CD[] = {
+static pci_id_t const pci_vid_15CD[] = {
 {0x15CD, 0xFFFF, 0xFFFF, 0xFFFF, "Dreamtech Co Ltd(0x15CD)"},
 }; /* pci_vid_15CD[] */
 
-pci_id_t pci_vid_15CE[] = {
+static pci_id_t const pci_vid_15CE[] = {
 {0x15CE, 0xFFFF, 0xFFFF, 0xFFFF, "Genrad Inc(0x15CE)"},
 }; /* pci_vid_15CE[] */
 
-pci_id_t pci_vid_15CF[] = {
+static pci_id_t const pci_vid_15CF[] = {
 {0x15CF, 0xFFFF, 0xFFFF, 0xFFFF, "Hilscher Gesellschaft für Systemautomation mbH(0x15CF)"},
 {0x15CF, 0x0000, 0xFFFF, 0xFFFF, "CIFX PCI/PCIe(0x0000)"},
 }; /* pci_vid_15CF[] */
 
-pci_id_t pci_vid_15D1[] = {
+static pci_id_t const pci_vid_15D1[] = {
 {0x15D1, 0xFFFF, 0xFFFF, 0xFFFF, "Infineon Technologies AG(0x15D1)"},
 }; /* pci_vid_15D1[] */
 
-pci_id_t pci_vid_15D2[] = {
+static pci_id_t const pci_vid_15D2[] = {
 {0x15D2, 0xFFFF, 0xFFFF, 0xFFFF, "FIC (First International Computer Inc)(0x15D2)"},
 }; /* pci_vid_15D2[] */
 
-pci_id_t pci_vid_15D3[] = {
+static pci_id_t const pci_vid_15D3[] = {
 {0x15D3, 0xFFFF, 0xFFFF, 0xFFFF, "NDS Technologies Israel Ltd(0x15D3)"},
 }; /* pci_vid_15D3[] */
 
-pci_id_t pci_vid_15D4[] = {
+static pci_id_t const pci_vid_15D4[] = {
 {0x15D4, 0xFFFF, 0xFFFF, 0xFFFF, "Iwill Corp(0x15D4)"},
 }; /* pci_vid_15D4[] */
 
-pci_id_t pci_vid_15D5[] = {
+static pci_id_t const pci_vid_15D5[] = {
 {0x15D5, 0xFFFF, 0xFFFF, 0xFFFF, "Tatung Co(0x15D5)"},
 }; /* pci_vid_15D5[] */
 
-pci_id_t pci_vid_15D6[] = {
+static pci_id_t const pci_vid_15D6[] = {
 {0x15D6, 0xFFFF, 0xFFFF, 0xFFFF, "Entridia Corp(0x15D6)"},
 }; /* pci_vid_15D6[] */
 
-pci_id_t pci_vid_15D7[] = {
+static pci_id_t const pci_vid_15D7[] = {
 {0x15D7, 0xFFFF, 0xFFFF, 0xFFFF, "Rockwell-Collins Inc(0x15D7)"},
 }; /* pci_vid_15D7[] */
 
-pci_id_t pci_vid_15D8[] = {
+static pci_id_t const pci_vid_15D8[] = {
 {0x15D8, 0xFFFF, 0xFFFF, 0xFFFF, "Cybernetics Technology Co Ltd(0x15D8)"},
 }; /* pci_vid_15D8[] */
 
-pci_id_t pci_vid_15D9[] = {
+static pci_id_t const pci_vid_15D9[] = {
 {0x15D9, 0xFFFF, 0xFFFF, 0xFFFF, "Super Micro Computer Inc(0x15D9)"},
 {0x15D9, 0x1B64, 0xFFFF, 0xFFFF, "SCC-B8SB80-B1(0x1B64)"},
-{0x15D9, 0x1B67, 0xFFFF, 0xFFFF, "AOC-S3916L-H16iR-32DD(0x1B67)"},
 {0x15D9, 0x1B9D, 0xFFFF, 0xFFFF, "Supermicro AOC-S3816L-L16IR(0x1B9D)"},
 {0x15D9, 0x1C6E, 0xFFFF, 0xFFFF, "Supermicro AOC-SLG4-2H8M2(0x1C6E)"},
 }; /* pci_vid_15D9[] */
 
-pci_id_t pci_vid_15DA[] = {
+static pci_id_t const pci_vid_15DA[] = {
 {0x15DA, 0xFFFF, 0xFFFF, 0xFFFF, "Cyberfirm Inc(0x15DA)"},
 }; /* pci_vid_15DA[] */
 
-pci_id_t pci_vid_15DB[] = {
+static pci_id_t const pci_vid_15DB[] = {
 {0x15DB, 0xFFFF, 0xFFFF, 0xFFFF, "Applied Computing Systems Inc(0x15DB)"},
 }; /* pci_vid_15DB[] */
 
-pci_id_t pci_vid_15DC[] = {
+static pci_id_t const pci_vid_15DC[] = {
 {0x15DC, 0xFFFF, 0xFFFF, 0xFFFF, "Litronic Inc(0x15DC)"},
 {0x15DC, 0x0001, 0xFFFF, 0xFFFF, "Argus 300 PCI Cryptography Module(0x0001)"},
 }; /* pci_vid_15DC[] */
 
-pci_id_t pci_vid_15DD[] = {
+static pci_id_t const pci_vid_15DD[] = {
 {0x15DD, 0xFFFF, 0xFFFF, 0xFFFF, "Sigmatel Inc(0x15DD)"},
 }; /* pci_vid_15DD[] */
 
-pci_id_t pci_vid_15DE[] = {
+static pci_id_t const pci_vid_15DE[] = {
 {0x15DE, 0xFFFF, 0xFFFF, 0xFFFF, "Malleable Technologies Inc(0x15DE)"},
 }; /* pci_vid_15DE[] */
 
-pci_id_t pci_vid_15DF[] = {
+static pci_id_t const pci_vid_15DF[] = {
 {0x15DF, 0xFFFF, 0xFFFF, 0xFFFF, "Infinilink Corp(0x15DF)"},
 }; /* pci_vid_15DF[] */
 
-pci_id_t pci_vid_15E0[] = {
+static pci_id_t const pci_vid_15E0[] = {
 {0x15E0, 0xFFFF, 0xFFFF, 0xFFFF, "Cacheflow Inc(0x15E0)"},
 }; /* pci_vid_15E0[] */
 
-pci_id_t pci_vid_15E1[] = {
+static pci_id_t const pci_vid_15E1[] = {
 {0x15E1, 0xFFFF, 0xFFFF, 0xFFFF, "Voice Technologies Group Inc(0x15E1)"},
 }; /* pci_vid_15E1[] */
 
-pci_id_t pci_vid_15E2[] = {
+static pci_id_t const pci_vid_15E2[] = {
 {0x15E2, 0xFFFF, 0xFFFF, 0xFFFF, "Quicknet Technologies Inc(0x15E2)"},
 {0x15E2, 0x0500, 0xFFFF, 0xFFFF, "PhoneJack-PCI(0x0500)"},
 }; /* pci_vid_15E2[] */
 
-pci_id_t pci_vid_15E3[] = {
+static pci_id_t const pci_vid_15E3[] = {
 {0x15E3, 0xFFFF, 0xFFFF, 0xFFFF, "Networth Technologies Inc(0x15E3)"},
 }; /* pci_vid_15E3[] */
 
-pci_id_t pci_vid_15E4[] = {
+static pci_id_t const pci_vid_15E4[] = {
 {0x15E4, 0xFFFF, 0xFFFF, 0xFFFF, "VSN Systemen BV(0x15E4)"},
 }; /* pci_vid_15E4[] */
 
-pci_id_t pci_vid_15E5[] = {
+static pci_id_t const pci_vid_15E5[] = {
 {0x15E5, 0xFFFF, 0xFFFF, 0xFFFF, "Valley technologies Inc(0x15E5)"},
 }; /* pci_vid_15E5[] */
 
-pci_id_t pci_vid_15E6[] = {
+static pci_id_t const pci_vid_15E6[] = {
 {0x15E6, 0xFFFF, 0xFFFF, 0xFFFF, "Agere Inc(0x15E6)"},
 }; /* pci_vid_15E6[] */
 
-pci_id_t pci_vid_15E7[] = {
+static pci_id_t const pci_vid_15E7[] = {
 {0x15E7, 0xFFFF, 0xFFFF, 0xFFFF, "Get Engineering Corp(0x15E7)"},
 }; /* pci_vid_15E7[] */
 
-pci_id_t pci_vid_15E8[] = {
+static pci_id_t const pci_vid_15E8[] = {
 {0x15E8, 0xFFFF, 0xFFFF, 0xFFFF, "National Datacomm Corp(0x15E8)"},
 {0x15E8, 0x0130, 0xFFFF, 0xFFFF, "Wireless PCI Card(0x0130)"},
 {0x15E8, 0x0131, 0xFFFF, 0xFFFF, "NCP130A2 Wireless NIC(0x0131)"},
 }; /* pci_vid_15E8[] */
 
-pci_id_t pci_vid_15E9[] = {
+static pci_id_t const pci_vid_15E9[] = {
 {0x15E9, 0xFFFF, 0xFFFF, 0xFFFF, "Pacific Digital Corp(0x15E9)"},
 {0x15E9, 0x1841, 0xFFFF, 0xFFFF, "ADMA-100 DiscStaQ ATA Controller(0x1841)"},
 }; /* pci_vid_15E9[] */
 
-pci_id_t pci_vid_15EA[] = {
+static pci_id_t const pci_vid_15EA[] = {
 {0x15EA, 0xFFFF, 0xFFFF, 0xFFFF, "Tokyo Denshi Sekei K.K.(0x15EA)"},
 }; /* pci_vid_15EA[] */
 
-pci_id_t pci_vid_15EB[] = {
+static pci_id_t const pci_vid_15EB[] = {
 {0x15EB, 0xFFFF, 0xFFFF, 0xFFFF, "DResearch Digital Media Systems GmbH(0x15EB)"},
 }; /* pci_vid_15EB[] */
 
-pci_id_t pci_vid_15EC[] = {
+static pci_id_t const pci_vid_15EC[] = {
 {0x15EC, 0xFFFF, 0xFFFF, 0xFFFF, "Beckhoff GmbH(0x15EC)"},
 {0x15EC, 0x3101, 0xFFFF, 0xFFFF, "FC3101 Profibus DP 1 Channel PCI(0x3101)"},
 {0x15EC, 0x5102, 0xFFFF, 0xFFFF, "FC5102(0x5102)"},
 }; /* pci_vid_15EC[] */
 
-pci_id_t pci_vid_15ED[] = {
+static pci_id_t const pci_vid_15ED[] = {
 {0x15ED, 0xFFFF, 0xFFFF, 0xFFFF, "Macrolink Inc(0x15ED)"},
 }; /* pci_vid_15ED[] */
 
-pci_id_t pci_vid_15EE[] = {
+static pci_id_t const pci_vid_15EE[] = {
 {0x15EE, 0xFFFF, 0xFFFF, 0xFFFF, "In Win Development Inc(0x15EE)"},
 }; /* pci_vid_15EE[] */
 
-pci_id_t pci_vid_15EF[] = {
+static pci_id_t const pci_vid_15EF[] = {
 {0x15EF, 0xFFFF, 0xFFFF, 0xFFFF, "Intelligent Paradigm Inc(0x15EF)"},
 }; /* pci_vid_15EF[] */
 
-pci_id_t pci_vid_15F0[] = {
+static pci_id_t const pci_vid_15F0[] = {
 {0x15F0, 0xFFFF, 0xFFFF, 0xFFFF, "B-Tree Systems Inc(0x15F0)"},
 }; /* pci_vid_15F0[] */
 
-pci_id_t pci_vid_15F1[] = {
+static pci_id_t const pci_vid_15F1[] = {
 {0x15F1, 0xFFFF, 0xFFFF, 0xFFFF, "Times N Systems Inc(0x15F1)"},
 }; /* pci_vid_15F1[] */
 
-pci_id_t pci_vid_15F2[] = {
+static pci_id_t const pci_vid_15F2[] = {
 {0x15F2, 0xFFFF, 0xFFFF, 0xFFFF, "Diagnostic Instruments Inc(0x15F2)"},
 }; /* pci_vid_15F2[] */
 
-pci_id_t pci_vid_15F3[] = {
+static pci_id_t const pci_vid_15F3[] = {
 {0x15F3, 0xFFFF, 0xFFFF, 0xFFFF, "Digitmedia Corp(0x15F3)"},
 }; /* pci_vid_15F3[] */
 
-pci_id_t pci_vid_15F4[] = {
+static pci_id_t const pci_vid_15F4[] = {
 {0x15F4, 0xFFFF, 0xFFFF, 0xFFFF, "Valuesoft(0x15F4)"},
 }; /* pci_vid_15F4[] */
 
-pci_id_t pci_vid_15F5[] = {
+static pci_id_t const pci_vid_15F5[] = {
 {0x15F5, 0xFFFF, 0xFFFF, 0xFFFF, "Power Micro Research(0x15F5)"},
 }; /* pci_vid_15F5[] */
 
-pci_id_t pci_vid_15F6[] = {
+static pci_id_t const pci_vid_15F6[] = {
 {0x15F6, 0xFFFF, 0xFFFF, 0xFFFF, "Extreme Packet Device Inc(0x15F6)"},
 }; /* pci_vid_15F6[] */
 
-pci_id_t pci_vid_15F7[] = {
+static pci_id_t const pci_vid_15F7[] = {
 {0x15F7, 0xFFFF, 0xFFFF, 0xFFFF, "Banctec(0x15F7)"},
 }; /* pci_vid_15F7[] */
 
-pci_id_t pci_vid_15F8[] = {
+static pci_id_t const pci_vid_15F8[] = {
 {0x15F8, 0xFFFF, 0xFFFF, 0xFFFF, "Koga Electronics Co(0x15F8)"},
 }; /* pci_vid_15F8[] */
 
-pci_id_t pci_vid_15F9[] = {
+static pci_id_t const pci_vid_15F9[] = {
 {0x15F9, 0xFFFF, 0xFFFF, 0xFFFF, "Zenith Electronics Corp(0x15F9)"},
 }; /* pci_vid_15F9[] */
 
-pci_id_t pci_vid_15FA[] = {
+static pci_id_t const pci_vid_15FA[] = {
 {0x15FA, 0xFFFF, 0xFFFF, 0xFFFF, "J.P. Axzam Corp(0x15FA)"},
 }; /* pci_vid_15FA[] */
 
-pci_id_t pci_vid_15FB[] = {
+static pci_id_t const pci_vid_15FB[] = {
 {0x15FB, 0xFFFF, 0xFFFF, 0xFFFF, "Zilog Inc(0x15FB)"},
 }; /* pci_vid_15FB[] */
 
-pci_id_t pci_vid_15FC[] = {
+static pci_id_t const pci_vid_15FC[] = {
 {0x15FC, 0xFFFF, 0xFFFF, 0xFFFF, "Techsan Electronics Co Ltd(0x15FC)"},
 }; /* pci_vid_15FC[] */
 
-pci_id_t pci_vid_15FD[] = {
+static pci_id_t const pci_vid_15FD[] = {
 {0x15FD, 0xFFFF, 0xFFFF, 0xFFFF, "N-CUBED.NET(0x15FD)"},
 }; /* pci_vid_15FD[] */
 
-pci_id_t pci_vid_15FE[] = {
+static pci_id_t const pci_vid_15FE[] = {
 {0x15FE, 0xFFFF, 0xFFFF, 0xFFFF, "Kinpo Electronics Inc(0x15FE)"},
 }; /* pci_vid_15FE[] */
 
-pci_id_t pci_vid_15FF[] = {
+static pci_id_t const pci_vid_15FF[] = {
 {0x15FF, 0xFFFF, 0xFFFF, 0xFFFF, "Fastpoint Technologies Inc(0x15FF)"},
 }; /* pci_vid_15FF[] */
 
-pci_id_t pci_vid_1600[] = {
+static pci_id_t const pci_vid_1600[] = {
 {0x1600, 0xFFFF, 0xFFFF, 0xFFFF, "Northrop Grumman - Canada Ltd(0x1600)"},
 }; /* pci_vid_1600[] */
 
-pci_id_t pci_vid_1601[] = {
+static pci_id_t const pci_vid_1601[] = {
 {0x1601, 0xFFFF, 0xFFFF, 0xFFFF, "Tenta Technology(0x1601)"},
 }; /* pci_vid_1601[] */
 
-pci_id_t pci_vid_1602[] = {
+static pci_id_t const pci_vid_1602[] = {
 {0x1602, 0xFFFF, 0xFFFF, 0xFFFF, "Prosys-tec Inc(0x1602)"},
 }; /* pci_vid_1602[] */
 
-pci_id_t pci_vid_1603[] = {
+static pci_id_t const pci_vid_1603[] = {
 {0x1603, 0xFFFF, 0xFFFF, 0xFFFF, "Nokia Wireless Communications(0x1603)"},
 }; /* pci_vid_1603[] */
 
-pci_id_t pci_vid_1604[] = {
+static pci_id_t const pci_vid_1604[] = {
 {0x1604, 0xFFFF, 0xFFFF, 0xFFFF, "Central System Research Co Ltd(0x1604)"},
 }; /* pci_vid_1604[] */
 
-pci_id_t pci_vid_1605[] = {
+static pci_id_t const pci_vid_1605[] = {
 {0x1605, 0xFFFF, 0xFFFF, 0xFFFF, "Pairgain Technologies(0x1605)"},
 }; /* pci_vid_1605[] */
 
-pci_id_t pci_vid_1606[] = {
+static pci_id_t const pci_vid_1606[] = {
 {0x1606, 0xFFFF, 0xFFFF, 0xFFFF, "Europop AG(0x1606)"},
 }; /* pci_vid_1606[] */
 
-pci_id_t pci_vid_1607[] = {
+static pci_id_t const pci_vid_1607[] = {
 {0x1607, 0xFFFF, 0xFFFF, 0xFFFF, "Lava Semiconductor Manufacturing Inc(0x1607)"},
 }; /* pci_vid_1607[] */
 
-pci_id_t pci_vid_1608[] = {
+static pci_id_t const pci_vid_1608[] = {
 {0x1608, 0xFFFF, 0xFFFF, 0xFFFF, "Automated Wagering International(0x1608)"},
 }; /* pci_vid_1608[] */
 
-pci_id_t pci_vid_1609[] = {
+static pci_id_t const pci_vid_1609[] = {
 {0x1609, 0xFFFF, 0xFFFF, 0xFFFF, "Scimetric Instruments Inc(0x1609)"},
 }; /* pci_vid_1609[] */
 
-pci_id_t pci_vid_1612[] = {
+static pci_id_t const pci_vid_1612[] = {
 {0x1612, 0xFFFF, 0xFFFF, 0xFFFF, "Telesynergy Research Inc.(0x1612)"},
 }; /* pci_vid_1612[] */
 
-pci_id_t pci_vid_1618[] = {
+static pci_id_t const pci_vid_1618[] = {
 {0x1618, 0xFFFF, 0xFFFF, 0xFFFF, "Stone Ridge Technology(0x1618)"},
 {0x1618, 0x0001, 0xFFFF, 0xFFFF, "RDX 11(0x0001)"},
 {0x1618, 0x0002, 0xFFFF, 0xFFFF, "HFT-01(0x0002)"},
@@ -26419,7 +26521,7 @@ pci_id_t pci_vid_1618[] = {
 {0x1618, 0x4640, 0xFFFF, 0xFFFF, "FarSync T4Ue PCI Express (4-port X.21/V.35/V.24)(0x4640)"},
 }; /* pci_vid_1618[] */
 
-pci_id_t pci_vid_1619[] = {
+static pci_id_t const pci_vid_1619[] = {
 {0x1619, 0xFFFF, 0xFFFF, 0xFFFF, "FarSite Communications Ltd(0x1619)"},
 {0x1619, 0x0400, 0xFFFF, 0xFFFF, "FarSync T2P (2 port X.21/V.35/V.24)(0x0400)"},
 {0x1619, 0x0440, 0xFFFF, 0xFFFF, "FarSync T4P (4 port X.21/V.35/V.24)(0x0440)"},
@@ -26437,11 +26539,11 @@ pci_id_t pci_vid_1619[] = {
 {0x1619, 0x6620, 0xFFFF, 0xFFFF, "FarSync T2U-PMC PCI Express (2 port X.21/V.35/V.24)(0x6620)"},
 }; /* pci_vid_1619[] */
 
-pci_id_t pci_vid_161F[] = {
+static pci_id_t const pci_vid_161F[] = {
 {0x161F, 0xFFFF, 0xFFFF, 0xFFFF, "Rioworks(0x161F)"},
 }; /* pci_vid_161F[] */
 
-pci_id_t pci_vid_1621[] = {
+static pci_id_t const pci_vid_1621[] = {
 {0x1621, 0xFFFF, 0xFFFF, 0xFFFF, "Lynx Studio Technology, Inc.(0x1621)"},
 {0x1621, 0x0020, 0xFFFF, 0xFFFF, "LynxTWO-A(0x0020)"},
 {0x1621, 0x0021, 0xFFFF, 0xFFFF, "LynxTWO-B(0x0021)"},
@@ -26452,12 +26554,12 @@ pci_id_t pci_vid_1621[] = {
 {0x1621, 0x0028, 0xFFFF, 0xFFFF, "Lynx AES16e(0x0028)"},
 }; /* pci_vid_1621[] */
 
-pci_id_t pci_vid_1626[] = {
+static pci_id_t const pci_vid_1626[] = {
 {0x1626, 0xFFFF, 0xFFFF, 0xFFFF, "TDK Semiconductor Corp.(0x1626)"},
 {0x1626, 0x8410, 0xFFFF, 0xFFFF, "RTL81xx Fast Ethernet(0x8410)"},
 }; /* pci_vid_1626[] */
 
-pci_id_t pci_vid_1629[] = {
+static pci_id_t const pci_vid_1629[] = {
 {0x1629, 0xFFFF, 0xFFFF, 0xFFFF, "Kongsberg Spacetec AS(0x1629)"},
 {0x1629, 0x1003, 0xFFFF, 0xFFFF, "Format synchronizer v3.0(0x1003)"},
 {0x1629, 0x1006, 0xFFFF, 0xFFFF, "Format synchronizer, model 10500(0x1006)"},
@@ -26470,30 +26572,30 @@ pci_id_t pci_vid_1629[] = {
 {0x1629, 0x6001, 0xFFFF, 0xFFFF, "High Rate Demodulator and FEC(0x6001)"},
 }; /* pci_vid_1629[] */
 
-pci_id_t pci_vid_1631[] = {
+static pci_id_t const pci_vid_1631[] = {
 {0x1631, 0xFFFF, 0xFFFF, 0xFFFF, "Packard Bell B.V.(0x1631)"},
 }; /* pci_vid_1631[] */
 
-pci_id_t pci_vid_1638[] = {
+static pci_id_t const pci_vid_1638[] = {
 {0x1638, 0xFFFF, 0xFFFF, 0xFFFF, "Standard Microsystems Corp [SMC](0x1638)"},
 {0x1638, 0x1100, 0xFFFF, 0xFFFF, "SMC2602W EZConnect / Addtron AWA-100 / Eumitcom PCI WL11000(0x1100)"},
 }; /* pci_vid_1638[] */
 
-pci_id_t pci_vid_163C[] = {
+static pci_id_t const pci_vid_163C[] = {
 {0x163C, 0xFFFF, 0xFFFF, 0xFFFF, "Smart Link Ltd.(0x163C)"},
 {0x163C, 0x3052, 0xFFFF, 0xFFFF, "SmartLink SmartPCI562 56K Modem(0x3052)"},
 {0x163C, 0x5449, 0xFFFF, 0xFFFF, "SmartPCI561 Modem(0x5449)"},
 }; /* pci_vid_163C[] */
 
-pci_id_t pci_vid_1641[] = {
+static pci_id_t const pci_vid_1641[] = {
 {0x1641, 0xFFFF, 0xFFFF, 0xFFFF, "MKNet Corp.(0x1641)"},
 }; /* pci_vid_1641[] */
 
-pci_id_t pci_vid_1642[] = {
+static pci_id_t const pci_vid_1642[] = {
 {0x1642, 0xFFFF, 0xFFFF, 0xFFFF, "Bitland(ShenZhen) Information Technology Co., Ltd.(0x1642)"},
 }; /* pci_vid_1642[] */
 
-pci_id_t pci_vid_1657[] = {
+static pci_id_t const pci_vid_1657[] = {
 {0x1657, 0xFFFF, 0xFFFF, 0xFFFF, "Cavium QLogic(0x1657)"},
 {0x1657, 0x0013, 0xFFFF, 0xFFFF, "425/825/42B/82B 4Gbps/8Gbps PCIe dual port FC HBA(0x0013)"},
 {0x1657, 0x0013, 0x103C, 0x1742, "82B 8Gbps dual port FC HBA(0x103C-0x1742)"},
@@ -26515,7 +26617,7 @@ pci_id_t pci_vid_1657[] = {
 {0x1657, 0x0646, 0xFFFF, 0xFFFF, "400 4Gbps PCIe FC HBA(0x0646)"},
 }; /* pci_vid_1657[] */
 
-pci_id_t pci_vid_165A[] = {
+static pci_id_t const pci_vid_165A[] = {
 {0x165A, 0xFFFF, 0xFFFF, 0xFFFF, "Epix Inc(0x165A)"},
 {0x165A, 0xC100, 0xFFFF, 0xFFFF, "PIXCI(R) CL1 Camera Link Video Capture Board [custom QL5232](0xC100)"},
 {0x165A, 0xD200, 0xFFFF, 0xFFFF, "PIXCI(R) D2X Digital Video Capture Board [custom QL5232](0xD200)"},
@@ -26523,7 +26625,7 @@ pci_id_t pci_vid_165A[] = {
 {0x165A, 0xEB01, 0xFFFF, 0xFFFF, "PIXCI(R) EB1 PCI Camera Link Video Capture Board(0xEB01)"},
 }; /* pci_vid_165A[] */
 
-pci_id_t pci_vid_165C[] = {
+static pci_id_t const pci_vid_165C[] = {
 {0x165C, 0xFFFF, 0xFFFF, 0xFFFF, "Gidel Ltd.(0x165C)"},
 {0x165C, 0x5361, 0xFFFF, 0xFFFF, "PROCStarII60-1(0x5361)"},
 {0x165C, 0x5362, 0xFFFF, 0xFFFF, "PROCStarII60-2(0x5362)"},
@@ -26596,31 +26698,31 @@ pci_id_t pci_vid_165C[] = {
 {0x165C, 0x73B1, 0xFFFF, 0xFFFF, "Proc10s(0x73B1)"},
 }; /* pci_vid_165C[] */
 
-pci_id_t pci_vid_165D[] = {
+static pci_id_t const pci_vid_165D[] = {
 {0x165D, 0xFFFF, 0xFFFF, 0xFFFF, "Hsing Tech. Enterprise Co., Ltd.(0x165D)"},
 }; /* pci_vid_165D[] */
 
-pci_id_t pci_vid_165F[] = {
+static pci_id_t const pci_vid_165F[] = {
 {0x165F, 0xFFFF, 0xFFFF, 0xFFFF, "Linux Media Labs, LLC(0x165F)"},
 {0x165F, 0x1020, 0xFFFF, 0xFFFF, "LMLM4 MPEG-4 encoder(0x1020)"},
 }; /* pci_vid_165F[] */
 
-pci_id_t pci_vid_1661[] = {
+static pci_id_t const pci_vid_1661[] = {
 {0x1661, 0xFFFF, 0xFFFF, 0xFFFF, "Worldspace Corp.(0x1661)"},
 }; /* pci_vid_1661[] */
 
-pci_id_t pci_vid_1665[] = {
+static pci_id_t const pci_vid_1665[] = {
 {0x1665, 0xFFFF, 0xFFFF, 0xFFFF, "EDAX Inc(0x1665)"},
 {0x1665, 0x1973, 0xFFFF, 0xFFFF, "DPP-II FR2 Board(0x1973)"},
 {0x1665, 0x2000, 0xFFFF, 0xFFFF, "SG-IIP Board(0x2000)"},
 }; /* pci_vid_1665[] */
 
-pci_id_t pci_vid_1668[] = {
+static pci_id_t const pci_vid_1668[] = {
 {0x1668, 0xFFFF, 0xFFFF, 0xFFFF, "Actiontec Electronics Inc(0x1668)"},
 {0x1668, 0x0100, 0xFFFF, 0xFFFF, "Mini-PCI bridge(0x0100)"},
 }; /* pci_vid_1668[] */
 
-pci_id_t pci_vid_166D[] = {
+static pci_id_t const pci_vid_166D[] = {
 {0x166D, 0xFFFF, 0xFFFF, 0xFFFF, "Broadcom Corporation(0x166D)"},
 {0x166D, 0x0001, 0xFFFF, 0xFFFF, "SiByte BCM1125/1125H/1250 System-on-a-Chip PCI(0x0001)"},
 {0x166D, 0x0002, 0xFFFF, 0xFFFF, "SiByte BCM1125H/1250 System-on-a-Chip HyperTransport(0x0002)"},
@@ -26628,24 +26730,24 @@ pci_id_t pci_vid_166D[] = {
 {0x166D, 0x0014, 0xFFFF, 0xFFFF, "Sibyte BCM1280/BCM1480 System-on-a-Chip HyperTransport(0x0014)"},
 }; /* pci_vid_166D[] */
 
-pci_id_t pci_vid_1677[] = {
+static pci_id_t const pci_vid_1677[] = {
 {0x1677, 0xFFFF, 0xFFFF, 0xFFFF, "B&R Industrial Automation GmbH(0x1677)"},
 {0x1677, 0x104E, 0xFFFF, 0xFFFF, "5LS172.6 B&R Dual CAN Interface Card(0x104E)"},
 {0x1677, 0x12D7, 0xFFFF, 0xFFFF, "5LS172.61 B&R Dual CAN Interface Card(0x12D7)"},
 {0x1677, 0x20AD, 0xFFFF, 0xFFFF, "5ACPCI.MFIO-K01 Profibus DP / K-Feldbus / COM(0x20AD)"},
 }; /* pci_vid_1677[] */
 
-pci_id_t pci_vid_1678[] = {
+static pci_id_t const pci_vid_1678[] = {
 {0x1678, 0xFFFF, 0xFFFF, 0xFFFF, "NetEffect(0x1678)"},
 {0x1678, 0x0100, 0xFFFF, 0xFFFF, "NE020 10Gb Accelerated Ethernet Adapter (iWARP RNIC)(0x0100)"},
 }; /* pci_vid_1678[] */
 
-pci_id_t pci_vid_1679[] = {
+static pci_id_t const pci_vid_1679[] = {
 {0x1679, 0xFFFF, 0xFFFF, 0xFFFF, "Tokyo Electron Device Ltd.(0x1679)"},
 {0x1679, 0x3000, 0xFFFF, 0xFFFF, "SD Standard host controller [Ellen](0x3000)"},
 }; /* pci_vid_1679[] */
 
-pci_id_t pci_vid_167B[] = {
+static pci_id_t const pci_vid_167B[] = {
 {0x167B, 0xFFFF, 0xFFFF, 0xFFFF, "ZyDAS Technology Corp.(0x167B)"},
 {0x167B, 0x2102, 0xFFFF, 0xFFFF, "ZyDAS ZD1202(0x2102)"},
 {0x167B, 0x2102, 0x187E, 0x3406, "ZyAIR B-122 CardBus 11Mbs Wireless LAN Card(0x187E-0x3406)"},
@@ -26653,31 +26755,31 @@ pci_id_t pci_vid_167B[] = {
 {0x167B, 0x2116, 0xFFFF, 0xFFFF, "ZD1212B Wireless Adapter(0x2116)"},
 }; /* pci_vid_167B[] */
 
-pci_id_t pci_vid_167D[] = {
+static pci_id_t const pci_vid_167D[] = {
 {0x167D, 0xFFFF, 0xFFFF, 0xFFFF, "Samsung Electro-Mechanics Co., Ltd.(0x167D)"},
 {0x167D, 0xA000, 0xFFFF, 0xFFFF, "MagicLAN SWL-2210P 802.11b [Intersil ISL3874](0xA000)"},
 }; /* pci_vid_167D[] */
 
-pci_id_t pci_vid_167E[] = {
+static pci_id_t const pci_vid_167E[] = {
 {0x167E, 0xFFFF, 0xFFFF, 0xFFFF, "ONNTO Corp.(0x167E)"},
 }; /* pci_vid_167E[] */
 
-pci_id_t pci_vid_1681[] = {
+static pci_id_t const pci_vid_1681[] = {
 {0x1681, 0xFFFF, 0xFFFF, 0xFFFF, "Hercules(0x1681)"},
 }; /* pci_vid_1681[] */
 
-pci_id_t pci_vid_1682[] = {
+static pci_id_t const pci_vid_1682[] = {
 {0x1682, 0xFFFF, 0xFFFF, 0xFFFF, "XFX Pine Group Inc.(0x1682)"},
 {0x1682, 0x5701, 0xFFFF, 0xFFFF, "Radeon 5700 XT Thicc III Ultra(0x5701)"},
 {0x1682, 0xC580, 0xFFFF, 0xFFFF, "Radeon RX 580(0xC580)"},
 }; /* pci_vid_1682[] */
 
-pci_id_t pci_vid_1688[] = {
+static pci_id_t const pci_vid_1688[] = {
 {0x1688, 0xFFFF, 0xFFFF, 0xFFFF, "CastleNet Technology Inc.(0x1688)"},
 {0x1688, 0x1170, 0xFFFF, 0xFFFF, "WLAN 802.11b card(0x1170)"},
 }; /* pci_vid_1688[] */
 
-pci_id_t pci_vid_168A[] = {
+static pci_id_t const pci_vid_168A[] = {
 {0x168A, 0xFFFF, 0xFFFF, 0xFFFF, "Utimaco IS GmbH(0x168A)"},
 {0x168A, 0x2086, 0xFFFF, 0xFFFF, "CryptoServer Se-Series Hardware Security Module(0x2086)"},
 {0x168A, 0xC040, 0xFFFF, 0xFFFF, "CryptoServer CSe-Series Hardware Security Module(0xC040)"},
@@ -26687,7 +26789,7 @@ pci_id_t pci_vid_168A[] = {
 {0x168A, 0xC072, 0xFFFF, 0xFFFF, "u.trust Anchor Hardware Security Module cs7.3 Series Virtual Function(0xC072)"},
 }; /* pci_vid_168A[] */
 
-pci_id_t pci_vid_168C[] = {
+static pci_id_t const pci_vid_168C[] = {
 {0x168C, 0xFFFF, 0xFFFF, 0xFFFF, "Qualcomm Atheros(0x168C)"},
 {0x168C, 0x0007, 0xFFFF, 0xFFFF, "AR5210 Wireless Network Adapter [AR5000 802.11a](0x0007)"},
 {0x168C, 0x0007, 0x1737, 0x0007, "WPC54A Wireless PC Card(0x1737-0x0007)"},
@@ -26936,24 +27038,24 @@ pci_id_t pci_vid_168C[] = {
 {0x168C, 0xFF1D, 0x168C, 0xEE1C, "AR9220-AC1A [AVM Fritz!Box FON WLAN 7270 v3](0x168C-0xEE1C)"},
 }; /* pci_vid_168C[] */
 
-pci_id_t pci_vid_1695[] = {
+static pci_id_t const pci_vid_1695[] = {
 {0x1695, 0xFFFF, 0xFFFF, 0xFFFF, "EPoX Computer Co., Ltd.(0x1695)"},
 }; /* pci_vid_1695[] */
 
-pci_id_t pci_vid_169C[] = {
+static pci_id_t const pci_vid_169C[] = {
 {0x169C, 0xFFFF, 0xFFFF, 0xFFFF, "Netcell Corporation(0x169C)"},
 {0x169C, 0x0044, 0xFFFF, 0xFFFF, "Revolution Storage Processing Card(0x0044)"},
 }; /* pci_vid_169C[] */
 
-pci_id_t pci_vid_169D[] = {
+static pci_id_t const pci_vid_169D[] = {
 {0x169D, 0xFFFF, 0xFFFF, 0xFFFF, "Club-3D VB (Wrong ID)(0x169D)"},
 }; /* pci_vid_169D[] */
 
-pci_id_t pci_vid_16A5[] = {
+static pci_id_t const pci_vid_16A5[] = {
 {0x16A5, 0xFFFF, 0xFFFF, 0xFFFF, "Tekram Technology Co.,Ltd.(0x16A5)"},
 }; /* pci_vid_16A5[] */
 
-pci_id_t pci_vid_16AB[] = {
+static pci_id_t const pci_vid_16AB[] = {
 {0x16AB, 0xFFFF, 0xFFFF, 0xFFFF, "Global Sun Technology Inc(0x16AB)"},
 {0x16AB, 0x1100, 0xFFFF, 0xFFFF, "GL24110P(0x1100)"},
 {0x16AB, 0x1101, 0xFFFF, 0xFFFF, "PLX9052 PCMCIA-to-PCI Wireless LAN(0x1101)"},
@@ -26961,7 +27063,7 @@ pci_id_t pci_vid_16AB[] = {
 {0x16AB, 0x8501, 0xFFFF, 0xFFFF, "WL-8305 Wireless LAN PCI Adapter(0x8501)"},
 }; /* pci_vid_16AB[] */
 
-pci_id_t pci_vid_16AE[] = {
+static pci_id_t const pci_vid_16AE[] = {
 {0x16AE, 0xFFFF, 0xFFFF, 0xFFFF, "SafeNet Inc(0x16AE)"},
 {0x16AE, 0x0001, 0xFFFF, 0xFFFF, "SafeXcel 1140(0x0001)"},
 {0x16AE, 0x000A, 0xFFFF, 0xFFFF, "SafeXcel 1841(0x000A)"},
@@ -26970,23 +27072,23 @@ pci_id_t pci_vid_16AE[] = {
 {0x16AE, 0x1841, 0xFFFF, 0xFFFF, "SafeXcel 1842(0x1841)"},
 }; /* pci_vid_16AE[] */
 
-pci_id_t pci_vid_16AF[] = {
+static pci_id_t const pci_vid_16AF[] = {
 {0x16AF, 0xFFFF, 0xFFFF, 0xFFFF, "SparkLAN Communications, Inc.(0x16AF)"},
 }; /* pci_vid_16AF[] */
 
-pci_id_t pci_vid_16B4[] = {
+static pci_id_t const pci_vid_16B4[] = {
 {0x16B4, 0xFFFF, 0xFFFF, 0xFFFF, "Aspex Semiconductor Ltd(0x16B4)"},
 }; /* pci_vid_16B4[] */
 
-pci_id_t pci_vid_16B8[] = {
+static pci_id_t const pci_vid_16B8[] = {
 {0x16B8, 0xFFFF, 0xFFFF, 0xFFFF, "Sonnet Technologies, Inc.(0x16B8)"},
 }; /* pci_vid_16B8[] */
 
-pci_id_t pci_vid_16BE[] = {
+static pci_id_t const pci_vid_16BE[] = {
 {0x16BE, 0xFFFF, 0xFFFF, 0xFFFF, "Creatix Polymedia GmbH(0x16BE)"},
 }; /* pci_vid_16BE[] */
 
-pci_id_t pci_vid_16C3[] = {
+static pci_id_t const pci_vid_16C3[] = {
 {0x16C3, 0xFFFF, 0xFFFF, 0xFFFF, "Synopsys, Inc.(0x16C3)"},
 {0x16C3, 0xABCD, 0xFFFF, 0xFFFF, "DWC_usb3 / PCIe bridge(0xABCD)"},
 {0x16C3, 0xABCE, 0xFFFF, 0xFFFF, "DWC_usb3(0xABCE)"},
@@ -26994,26 +27096,26 @@ pci_id_t pci_vid_16C3[] = {
 {0x16C3, 0xEDDA, 0xFFFF, 0xFFFF, "EPMockUp(0xEDDA)"},
 }; /* pci_vid_16C3[] */
 
-pci_id_t pci_vid_16C6[] = {
+static pci_id_t const pci_vid_16C6[] = {
 {0x16C6, 0xFFFF, 0xFFFF, 0xFFFF, "Micrel-Kendin(0x16C6)"},
 {0x16C6, 0x8695, 0xFFFF, 0xFFFF, "Centaur KS8695 ARM processor(0x8695)"},
 {0x16C6, 0x8842, 0xFFFF, 0xFFFF, "KSZ8842-PMQL 2-Port Ethernet Switch(0x8842)"},
 }; /* pci_vid_16C6[] */
 
-pci_id_t pci_vid_16C8[] = {
+static pci_id_t const pci_vid_16C8[] = {
 {0x16C8, 0xFFFF, 0xFFFF, 0xFFFF, "Octasic Inc.(0x16C8)"},
 }; /* pci_vid_16C8[] */
 
-pci_id_t pci_vid_16C9[] = {
+static pci_id_t const pci_vid_16C9[] = {
 {0x16C9, 0xFFFF, 0xFFFF, 0xFFFF, "EONIC B.V. The Netherlands(0x16C9)"},
 }; /* pci_vid_16C9[] */
 
-pci_id_t pci_vid_16CA[] = {
+static pci_id_t const pci_vid_16CA[] = {
 {0x16CA, 0xFFFF, 0xFFFF, 0xFFFF, "CENATEK Inc(0x16CA)"},
 {0x16CA, 0x0001, 0xFFFF, 0xFFFF, "Rocket Drive DL(0x0001)"},
 }; /* pci_vid_16CA[] */
 
-pci_id_t pci_vid_16CD[] = {
+static pci_id_t const pci_vid_16CD[] = {
 {0x16CD, 0xFFFF, 0xFFFF, 0xFFFF, "Advantech Co. Ltd(0x16CD)"},
 {0x16CD, 0x0101, 0xFFFF, 0xFFFF, "DirectPCI SRAM for DPX-11x series(0x0101)"},
 {0x16CD, 0x0102, 0xFFFF, 0xFFFF, "DirectPCI SRAM for DPX-S/C/E-series(0x0102)"},
@@ -27028,11 +27130,11 @@ pci_id_t pci_vid_16CD[] = {
 {0x16CD, 0x010B, 0xFFFF, 0xFFFF, "DirectPCI I/O for DPX-S series(0x010B)"},
 }; /* pci_vid_16CD[] */
 
-pci_id_t pci_vid_16CE[] = {
+static pci_id_t const pci_vid_16CE[] = {
 {0x16CE, 0xFFFF, 0xFFFF, 0xFFFF, "Roland Corp.(0x16CE)"},
 }; /* pci_vid_16CE[] */
 
-pci_id_t pci_vid_16D5[] = {
+static pci_id_t const pci_vid_16D5[] = {
 {0x16D5, 0xFFFF, 0xFFFF, 0xFFFF, "Acromag, Inc.(0x16D5)"},
 {0x16D5, 0x0504, 0xFFFF, 0xFFFF, "PMC-DX504 Reconfigurable FPGA with LVDS I/O(0x0504)"},
 {0x16D5, 0x0520, 0xFFFF, 0xFFFF, "PMC520 Serial Communication, 232 Octal(0x0520)"},
@@ -27132,18 +27234,21 @@ pci_id_t pci_vid_16D5[] = {
 {0x16D5, 0x7054, 0xFFFF, 0xFFFF, "APA7-504 Reconfigurable Artix-7 52,160 Cell FPGA module 24 LVDS channels(0x7054)"},
 {0x16D5, 0x7072, 0xFFFF, 0xFFFF, "AP731 Multi-function I/O Module with 12-bit DAC(0x7072)"},
 {0x16D5, 0x7073, 0xFFFF, 0xFFFF, "AP730 Multi-function I/O Module 16 Digital I/O 8 Differential Analog In 4 Analog Out(0x7073)"},
+{0x16D5, 0x7731, 0xFFFF, 0xFFFF, "APZU-301 Zynq Ultrascale+ Module 28 TTL channels(0x7731)"},
+{0x16D5, 0x7733, 0xFFFF, 0xFFFF, "APZU-303 Zynq Ultrascale+ Module 20 TTL & 3 RS485/422 channels(0x7733)"},
+{0x16D5, 0x7734, 0xFFFF, 0xFFFF, "APZU-304 Zynq Ultrascale+ Module 14 LVDS channels(0x7734)"},
 }; /* pci_vid_16D5[] */
 
-pci_id_t pci_vid_16DA[] = {
+static pci_id_t const pci_vid_16DA[] = {
 {0x16DA, 0xFFFF, 0xFFFF, 0xFFFF, "Advantech Co., Ltd.(0x16DA)"},
 {0x16DA, 0x0011, 0xFFFF, 0xFFFF, "INES GPIB-PCI(0x0011)"},
 }; /* pci_vid_16DA[] */
 
-pci_id_t pci_vid_16DF[] = {
+static pci_id_t const pci_vid_16DF[] = {
 {0x16DF, 0xFFFF, 0xFFFF, 0xFFFF, "PIKA Technologies Inc.(0x16DF)"},
 }; /* pci_vid_16DF[] */
 
-pci_id_t pci_vid_16E2[] = {
+static pci_id_t const pci_vid_16E2[] = {
 {0x16E2, 0xFFFF, 0xFFFF, 0xFFFF, "Marvin Test Solutions(0x16E2)"},
 {0x16E2, 0x1034, 0xFFFF, 0xFFFF, "GX1034 Certification and Verification Module PXI Board(0x1034)"},
 {0x16E2, 0x1100, 0xFFFF, 0xFFFF, "GX1100 Arbitrary Waveform and Function Generator PXI Board(0x1100)"},
@@ -27207,18 +27312,18 @@ pci_id_t pci_vid_16E2[] = {
 {0x16E2, 0x7779, 0xFFFF, 0xFFFF, "GX7779 Backplane Tester PXI Board(0x7779)"},
 }; /* pci_vid_16E2[] */
 
-pci_id_t pci_vid_16E3[] = {
+static pci_id_t const pci_vid_16E3[] = {
 {0x16E3, 0xFFFF, 0xFFFF, 0xFFFF, "European Space Agency(0x16E3)"},
 {0x16E3, 0x1E0F, 0xFFFF, 0xFFFF, "LEON2FT Processor(0x1E0F)"},
 }; /* pci_vid_16E3[] */
 
-pci_id_t pci_vid_16E5[] = {
+static pci_id_t const pci_vid_16E5[] = {
 {0x16E5, 0xFFFF, 0xFFFF, 0xFFFF, "Intellon Corp.(0x16E5)"},
 {0x16E5, 0x6000, 0xFFFF, 0xFFFF, "INT6000 Ethernet-to-Powerline Bridge [HomePlug AV](0x6000)"},
 {0x16E5, 0x6300, 0xFFFF, 0xFFFF, "INT6300 Ethernet-to-Powerline Bridge [HomePlug AV](0x6300)"},
 }; /* pci_vid_16E5[] */
 
-pci_id_t pci_vid_16EC[] = {
+static pci_id_t const pci_vid_16EC[] = {
 {0x16EC, 0xFFFF, 0xFFFF, 0xFFFF, "U.S. Robotics(0x16EC)"},
 {0x16EC, 0x00ED, 0xFFFF, 0xFFFF, "USR997900(0x00ED)"},
 {0x16EC, 0x0116, 0xFFFF, 0xFFFF, "USR997902 10/100/1000 Mbps PCI Network Card(0x0116)"},
@@ -27228,71 +27333,72 @@ pci_id_t pci_vid_16EC[] = {
 {0x16EC, 0xAB06, 0xFFFF, 0xFFFF, "USR997901A 10/100 Cardbus NIC(0xAB06)"},
 }; /* pci_vid_16EC[] */
 
-pci_id_t pci_vid_16ED[] = {
+static pci_id_t const pci_vid_16ED[] = {
 {0x16ED, 0xFFFF, 0xFFFF, 0xFFFF, "Sycron N. V.(0x16ED)"},
 {0x16ED, 0x1001, 0xFFFF, 0xFFFF, "UMIO communication card(0x1001)"},
 }; /* pci_vid_16ED[] */
 
-pci_id_t pci_vid_16F2[] = {
+static pci_id_t const pci_vid_16F2[] = {
 {0x16F2, 0xFFFF, 0xFFFF, 0xFFFF, "ETAS GmbH(0x16F2)"},
 {0x16F2, 0x0200, 0xFFFF, 0xFFFF, "I/O board(0x0200)"},
 {0x16F2, 0x0200, 0x16F2, 0x0010, "ES53xx I/O board(0x16F2-0x0010)"},
 }; /* pci_vid_16F2[] */
 
-pci_id_t pci_vid_16F3[] = {
+static pci_id_t const pci_vid_16F3[] = {
 {0x16F3, 0xFFFF, 0xFFFF, 0xFFFF, "Jetway Information Co., Ltd.(0x16F3)"},
 }; /* pci_vid_16F3[] */
 
-pci_id_t pci_vid_16F4[] = {
+static pci_id_t const pci_vid_16F4[] = {
 {0x16F4, 0xFFFF, 0xFFFF, 0xFFFF, "Vweb Corp(0x16F4)"},
 {0x16F4, 0x8000, 0xFFFF, 0xFFFF, "VW2010(0x8000)"},
 }; /* pci_vid_16F4[] */
 
-pci_id_t pci_vid_16F6[] = {
+static pci_id_t const pci_vid_16F6[] = {
 {0x16F6, 0xFFFF, 0xFFFF, 0xFFFF, "VideoTele.com, Inc.(0x16F6)"},
 }; /* pci_vid_16F6[] */
 
-pci_id_t pci_vid_1702[] = {
+static pci_id_t const pci_vid_1702[] = {
 {0x1702, 0xFFFF, 0xFFFF, 0xFFFF, "Internet Machines Corporation (IMC)(0x1702)"},
 }; /* pci_vid_1702[] */
 
-pci_id_t pci_vid_1705[] = {
+static pci_id_t const pci_vid_1705[] = {
 {0x1705, 0xFFFF, 0xFFFF, 0xFFFF, "Digital First, Inc.(0x1705)"},
 }; /* pci_vid_1705[] */
 
-pci_id_t pci_vid_170B[] = {
+static pci_id_t const pci_vid_170B[] = {
 {0x170B, 0xFFFF, 0xFFFF, 0xFFFF, "NetOctave(0x170B)"},
 {0x170B, 0x0100, 0xFFFF, 0xFFFF, "NSP2000-SSL crypto accelerator(0x0100)"},
 }; /* pci_vid_170B[] */
 
-pci_id_t pci_vid_170C[] = {
+static pci_id_t const pci_vid_170C[] = {
 {0x170C, 0xFFFF, 0xFFFF, 0xFFFF, "YottaYotta Inc.(0x170C)"},
 }; /* pci_vid_170C[] */
 
-pci_id_t pci_vid_1719[] = {
+static pci_id_t const pci_vid_1719[] = {
 {0x1719, 0xFFFF, 0xFFFF, 0xFFFF, "EZChip Technologies(0x1719)"},
 {0x1719, 0x1000, 0xFFFF, 0xFFFF, "NPA Access Network Processor Family(0x1000)"},
 }; /* pci_vid_1719[] */
 
-pci_id_t pci_vid_1725[] = {
+static pci_id_t const pci_vid_1725[] = {
 {0x1725, 0xFFFF, 0xFFFF, 0xFFFF, "Vitesse Semiconductor(0x1725)"},
 {0x1725, 0x7174, 0xFFFF, 0xFFFF, "VSC7174 PCI/PCI-X Serial ATA Host Bus Controller(0x7174)"},
 }; /* pci_vid_1725[] */
 
-pci_id_t pci_vid_172A[] = {
+static pci_id_t const pci_vid_172A[] = {
 {0x172A, 0xFFFF, 0xFFFF, 0xFFFF, "Accelerated Encryption(0x172A)"},
 {0x172A, 0x13C8, 0xFFFF, 0xFFFF, "AEP SureWare Runner 1000V3(0x13C8)"},
 }; /* pci_vid_172A[] */
 
-pci_id_t pci_vid_1734[] = {
+static pci_id_t const pci_vid_1734[] = {
 {0x1734, 0xFFFF, 0xFFFF, 0xFFFF, "Fujitsu Technology Solutions(0x1734)"},
+{0x1734, 0x9602, 0xFFFF, 0xFFFF, "RS780/RS880 PCI to PCI bridge (int gfx)(0x9602)"},
 }; /* pci_vid_1734[] */
 
-pci_id_t pci_vid_1735[] = {
+static pci_id_t const pci_vid_1735[] = {
 {0x1735, 0xFFFF, 0xFFFF, 0xFFFF, "Aten International Co. Ltd.(0x1735)"},
 }; /* pci_vid_1735[] */
 
-pci_id_t pci_vid_1737[] = {
+static pci_id_t const pci_vid_1737[] = {
 {0x1737, 0xFFFF, 0xFFFF, 0xFFFF, "Linksys(0x1737)"},
 {0x1737, 0x0029, 0xFFFF, 0xFFFF, "WPG54G ver. 4 PCI Card(0x0029)"},
 {0x1737, 0x1032, 0xFFFF, 0xFFFF, "Gigabit Network Adapter(0x1032)"},
@@ -27304,7 +27410,7 @@ pci_id_t pci_vid_1737[] = {
 {0x1737, 0xAB09, 0xFFFF, 0xFFFF, "21x4x DEC-Tulip compatible 10/100 Ethernet(0xAB09)"},
 }; /* pci_vid_1737[] */
 
-pci_id_t pci_vid_173B[] = {
+static pci_id_t const pci_vid_173B[] = {
 {0x173B, 0xFFFF, 0xFFFF, 0xFFFF, "Altima (nee Broadcom)(0x173B)"},
 {0x173B, 0x0001, 0xFFFF, 0xFFFF, "AC1002 PCI Gigabit Ethernet controller(0x0001)"},
 {0x173B, 0x03E8, 0xFFFF, 0xFFFF, "AC1000 Gigabit Ethernet(0x03E8)"},
@@ -27314,38 +27420,39 @@ pci_id_t pci_vid_173B[] = {
 {0x173B, 0x03EB, 0xFFFF, 0xFFFF, "AC1003 Gigabit Ethernet(0x03EB)"},
 }; /* pci_vid_173B[] */
 
-pci_id_t pci_vid_1743[] = {
+static pci_id_t const pci_vid_1743[] = {
 {0x1743, 0xFFFF, 0xFFFF, 0xFFFF, "Peppercon AG(0x1743)"},
 {0x1743, 0x8139, 0xFFFF, 0xFFFF, "ROL/F-100 Fast Ethernet Adapter with ROL(0x8139)"},
 }; /* pci_vid_1743[] */
 
-pci_id_t pci_vid_1745[] = {
+static pci_id_t const pci_vid_1745[] = {
 {0x1745, 0xFFFF, 0xFFFF, 0xFFFF, "ViXS Systems, Inc.(0x1745)"},
 {0x1745, 0x2020, 0xFFFF, 0xFFFF, "XCode II Series(0x2020)"},
 {0x1745, 0x2100, 0xFFFF, 0xFFFF, "XCode 2100 Series(0x2100)"},
+{0x1745, 0x2100, 0x1043, 0x48C9, "My Cinema PE6200 Analoog(0x1043-0x48C9)"},
 }; /* pci_vid_1745[] */
 
-pci_id_t pci_vid_1749[] = {
+static pci_id_t const pci_vid_1749[] = {
 {0x1749, 0xFFFF, 0xFFFF, 0xFFFF, "RLX Technologies(0x1749)"},
 }; /* pci_vid_1749[] */
 
-pci_id_t pci_vid_174B[] = {
+static pci_id_t const pci_vid_174B[] = {
 {0x174B, 0xFFFF, 0xFFFF, 0xFFFF, "PC Partner Limited / Sapphire Technology(0x174B)"},
 }; /* pci_vid_174B[] */
 
-pci_id_t pci_vid_174D[] = {
+static pci_id_t const pci_vid_174D[] = {
 {0x174D, 0xFFFF, 0xFFFF, 0xFFFF, "WellX Telecom SA(0x174D)"},
 }; /* pci_vid_174D[] */
 
-pci_id_t pci_vid_175C[] = {
+static pci_id_t const pci_vid_175C[] = {
 {0x175C, 0xFFFF, 0xFFFF, 0xFFFF, "AudioScience Inc(0x175C)"},
 }; /* pci_vid_175C[] */
 
-pci_id_t pci_vid_175E[] = {
+static pci_id_t const pci_vid_175E[] = {
 {0x175E, 0xFFFF, 0xFFFF, 0xFFFF, "Sanera Systems, Inc.(0x175E)"},
 }; /* pci_vid_175E[] */
 
-pci_id_t pci_vid_1760[] = {
+static pci_id_t const pci_vid_1760[] = {
 {0x1760, 0xFFFF, 0xFFFF, 0xFFFF, "TEDIA spol. s r. o.(0x1760)"},
 {0x1760, 0x0101, 0xFFFF, 0xFFFF, "PCD-7004 Digital Bi-Directional Ports PCI Card(0x0101)"},
 {0x1760, 0x0102, 0xFFFF, 0xFFFF, "PCD-7104 Digital Input & Output PCI Card(0x0102)"},
@@ -27385,19 +27492,19 @@ pci_id_t pci_vid_1760[] = {
 {0x1760, 0xFF00, 0xFFFF, 0xFFFF, "CTU CAN FD PCIe Card(0xFF00)"},
 }; /* pci_vid_1760[] */
 
-pci_id_t pci_vid_1761[] = {
+static pci_id_t const pci_vid_1761[] = {
 {0x1761, 0xFFFF, 0xFFFF, 0xFFFF, "Pickering Interfaces Ltd(0x1761)"},
 }; /* pci_vid_1761[] */
 
-pci_id_t pci_vid_1771[] = {
+static pci_id_t const pci_vid_1771[] = {
 {0x1771, 0xFFFF, 0xFFFF, 0xFFFF, "InnoVISION Multimedia Ltd.(0x1771)"},
 }; /* pci_vid_1771[] */
 
-pci_id_t pci_vid_1775[] = {
+static pci_id_t const pci_vid_1775[] = {
 {0x1775, 0xFFFF, 0xFFFF, 0xFFFF, "General Electric(0x1775)"},
 }; /* pci_vid_1775[] */
 
-pci_id_t pci_vid_177D[] = {
+static pci_id_t const pci_vid_177D[] = {
 {0x177D, 0xFFFF, 0xFFFF, 0xFFFF, "Cavium, Inc.(0x177D)"},
 {0x177D, 0x0001, 0xFFFF, 0xFFFF, "Nitrox XL N1(0x0001)"},
 {0x177D, 0x0003, 0xFFFF, 0xFFFF, "Nitrox XL N1 Lite(0x0003)"},
@@ -27514,15 +27621,15 @@ pci_id_t pci_vid_177D[] = {
 {0x177D, 0xAF84, 0xFFFF, 0xFFFF, "CN99xx [ThunderX2] Integrated PCI Express RP Bridge(0xAF84)"},
 }; /* pci_vid_177D[] */
 
-pci_id_t pci_vid_1787[] = {
+static pci_id_t const pci_vid_1787[] = {
 {0x1787, 0xFFFF, 0xFFFF, 0xFFFF, "Hightech Information System Ltd.(0x1787)"},
 }; /* pci_vid_1787[] */
 
-pci_id_t pci_vid_1789[] = {
+static pci_id_t const pci_vid_1789[] = {
 {0x1789, 0xFFFF, 0xFFFF, 0xFFFF, "Ennyah Technologies Corp.(0x1789)"},
 }; /* pci_vid_1789[] */
 
-pci_id_t pci_vid_1796[] = {
+static pci_id_t const pci_vid_1796[] = {
 {0x1796, 0xFFFF, 0xFFFF, 0xFFFF, "Research Centre Juelich(0x1796)"},
 {0x1796, 0x0001, 0xFFFF, 0xFFFF, "SIS1100 [Gigabit link](0x0001)"},
 {0x1796, 0x0002, 0xFFFF, 0xFFFF, "HOTlink(0x0002)"},
@@ -27554,7 +27661,7 @@ pci_id_t pci_vid_1796[] = {
 {0x1796, 0x0031, 0xFFFF, 0xFFFF, "200MHz 64bit Sequence Generator based on Spartan7(0x0031)"},
 }; /* pci_vid_1796[] */
 
-pci_id_t pci_vid_1797[] = {
+static pci_id_t const pci_vid_1797[] = {
 {0x1797, 0xFFFF, 0xFFFF, 0xFFFF, "Intersil Techwell(0x1797)"},
 {0x1797, 0x5864, 0xFFFF, 0xFFFF, "TW5864 multimedia video controller(0x5864)"},
 {0x1797, 0x6801, 0xFFFF, 0xFFFF, "TW6802 multimedia video card(0x6801)"},
@@ -27570,7 +27677,7 @@ pci_id_t pci_vid_1797[] = {
 {0x1797, 0x6864, 0xFFFF, 0xFFFF, "TW6864 multimedia video controller(0x6864)"},
 }; /* pci_vid_1797[] */
 
-pci_id_t pci_vid_1799[] = {
+static pci_id_t const pci_vid_1799[] = {
 {0x1799, 0xFFFF, 0xFFFF, 0xFFFF, "Belkin(0x1799)"},
 {0x1799, 0x6001, 0xFFFF, 0xFFFF, "F5D6001 Wireless PCI Card [Realtek RTL8180](0x6001)"},
 {0x1799, 0x6020, 0xFFFF, 0xFFFF, "F5D6020 v3000 Wireless PCMCIA Card [Realtek RTL8180](0x6020)"},
@@ -27579,12 +27686,12 @@ pci_id_t pci_vid_1799[] = {
 {0x1799, 0x701F, 0xFFFF, 0xFFFF, "F5D7010 v7000 Wireless G Notebook Card [Realtek RTL8185](0x701F)"},
 }; /* pci_vid_1799[] */
 
-pci_id_t pci_vid_179A[] = {
+static pci_id_t const pci_vid_179A[] = {
 {0x179A, 0xFFFF, 0xFFFF, 0xFFFF, "id Quantique(0x179A)"},
 {0x179A, 0x0001, 0xFFFF, 0xFFFF, "Quantis PCI 16Mbps(0x0001)"},
 }; /* pci_vid_179A[] */
 
-pci_id_t pci_vid_179C[] = {
+static pci_id_t const pci_vid_179C[] = {
 {0x179C, 0xFFFF, 0xFFFF, 0xFFFF, "Data Patterns(0x179C)"},
 {0x179C, 0x0557, 0xFFFF, 0xFFFF, "DP-PCI-557 [PCI 1553B](0x0557)"},
 {0x179C, 0x0566, 0xFFFF, 0xFFFF, "DP-PCI-566 [Intelligent PCI 1553B](0x0566)"},
@@ -27596,7 +27703,7 @@ pci_id_t pci_vid_179C[] = {
 {0x179C, 0x5679, 0xFFFF, 0xFFFF, "AGE Display Module(0x5679)"},
 }; /* pci_vid_179C[] */
 
-pci_id_t pci_vid_17A0[] = {
+static pci_id_t const pci_vid_17A0[] = {
 {0x17A0, 0xFFFF, 0xFFFF, 0xFFFF, "Genesys Logic, Inc(0x17A0)"},
 {0x17A0, 0x7163, 0xFFFF, 0xFFFF, "GL9701 PCIe to PCI Bridge(0x7163)"},
 {0x17A0, 0x8083, 0xFFFF, 0xFFFF, "GL880 USB 1.1 UHCI controller(0x8083)"},
@@ -27606,7 +27713,7 @@ pci_id_t pci_vid_17A0[] = {
 {0x17A0, 0xE763, 0xFFFF, 0xFFFF, "GL9763E eMMC Controller(0xE763)"},
 }; /* pci_vid_17A0[] */
 
-pci_id_t pci_vid_17AA[] = {
+static pci_id_t const pci_vid_17AA[] = {
 {0x17AA, 0xFFFF, 0xFFFF, 0xFFFF, "Lenovo(0x17AA)"},
 {0x17AA, 0x0003, 0xFFFF, 0xFFFF, "LENSE20256GMSP34MEAT2TA(0x0003)"},
 {0x17AA, 0x0004, 0xFFFF, 0xFFFF, "LENSE20512GMSP34MEAT2TA(0x0004)"},
@@ -27614,22 +27721,23 @@ pci_id_t pci_vid_17AA[] = {
 {0x17AA, 0x0006, 0xFFFF, 0xFFFF, "LENSE30512GMSP34MEAT3TA(0x0006)"},
 {0x17AA, 0x3181, 0xFFFF, 0xFFFF, "ThinkCentre M75n IoT(0x3181)"},
 {0x17AA, 0x402B, 0xFFFF, 0xFFFF, "Intel 82599ES 10Gb 2-port Server Adapter X520-2(0x402B)"},
+{0x17AA, 0x9602, 0xFFFF, 0xFFFF, "RS780/RS880 PCI to PCI bridge (int gfx)(0x9602)"},
 }; /* pci_vid_17AA[] */
 
-pci_id_t pci_vid_17AB[] = {
+static pci_id_t const pci_vid_17AB[] = {
 {0x17AB, 0xFFFF, 0xFFFF, 0xFFFF, "Phillips Components(0x17AB)"},
 }; /* pci_vid_17AB[] */
 
-pci_id_t pci_vid_17AF[] = {
+static pci_id_t const pci_vid_17AF[] = {
 {0x17AF, 0xFFFF, 0xFFFF, 0xFFFF, "Hightech Information System Ltd.(0x17AF)"},
 }; /* pci_vid_17AF[] */
 
-pci_id_t pci_vid_17B3[] = {
+static pci_id_t const pci_vid_17B3[] = {
 {0x17B3, 0xFFFF, 0xFFFF, 0xFFFF, "Hawking Technologies(0x17B3)"},
 {0x17B3, 0xAB08, 0xFFFF, 0xFFFF, "PN672TX 10/100 Ethernet(0xAB08)"},
 }; /* pci_vid_17B3[] */
 
-pci_id_t pci_vid_17B4[] = {
+static pci_id_t const pci_vid_17B4[] = {
 {0x17B4, 0xFFFF, 0xFFFF, 0xFFFF, "Indra Networks, Inc.(0x17B4)"},
 {0x17B4, 0x0011, 0xFFFF, 0xFFFF, "WebEnhance 100 GZIP Compression Card(0x0011)"},
 {0x17B4, 0x0012, 0xFFFF, 0xFFFF, "WebEnhance 200 GZIP Compression Card(0x0012)"},
@@ -27638,19 +27746,19 @@ pci_id_t pci_vid_17B4[] = {
 {0x17B4, 0x0017, 0xFFFF, 0xFFFF, "StorSecure 300 GZIP Compression and AES Encryption Card(0x0017)"},
 }; /* pci_vid_17B4[] */
 
-pci_id_t pci_vid_17C0[] = {
+static pci_id_t const pci_vid_17C0[] = {
 {0x17C0, 0xFFFF, 0xFFFF, 0xFFFF, "Wistron Corp.(0x17C0)"},
 }; /* pci_vid_17C0[] */
 
-pci_id_t pci_vid_17C2[] = {
+static pci_id_t const pci_vid_17C2[] = {
 {0x17C2, 0xFFFF, 0xFFFF, 0xFFFF, "Newisys, Inc.(0x17C2)"},
 }; /* pci_vid_17C2[] */
 
-pci_id_t pci_vid_17C3[] = {
+static pci_id_t const pci_vid_17C3[] = {
 {0x17C3, 0xFFFF, 0xFFFF, 0xFFFF, "Protogate, Inc.(0x17C3)"},
 }; /* pci_vid_17C3[] */
 
-pci_id_t pci_vid_17CB[] = {
+static pci_id_t const pci_vid_17CB[] = {
 {0x17CB, 0xFFFF, 0xFFFF, 0xFFFF, "Qualcomm Technologies, Inc(0x17CB)"},
 {0x17CB, 0x0001, 0xFFFF, 0xFFFF, "AGN100 802.11 a/b/g True MIMO Wireless Card(0x0001)"},
 {0x17CB, 0x0001, 0x1385, 0x5C00, "WGM511 Pre-N 802.11g Wireless CardBus Adapter(0x1385-0x5C00)"},
@@ -27658,37 +27766,47 @@ pci_id_t pci_vid_17CB[] = {
 {0x17CB, 0x0002, 0xFFFF, 0xFFFF, "AGN300 802.11 a/b/g True MIMO Wireless Card(0x0002)"},
 {0x17CB, 0x0002, 0x1385, 0x6D00, "WPNT511 RangeMax 240 Mbps Wireless CardBus Adapter(0x1385-0x6D00)"},
 {0x17CB, 0x0002, 0x1737, 0x0054, "WPC54GX4 v1 802.11g Wireless-G Notebook Adapter with SRX400(0x1737-0x0054)"},
+{0x17CB, 0x0104, 0xFFFF, 0xFFFF, "APQ8096 PCIe Root Complex [Snapdragon 820](0x0104)"},
 {0x17CB, 0x0105, 0xFFFF, 0xFFFF, "MSM8998 PCIe Root Complex(0x0105)"},
+{0x17CB, 0x0106, 0xFFFF, 0xFFFF, "SDM850 PCIe Root Complex [Snapdragon 850](0x0106)"},
+{0x17CB, 0x0107, 0xFFFF, 0xFFFF, "SDM850 PCIe Root Port [Snapdragon 850](0x0107)"},
 {0x17CB, 0x0108, 0xFFFF, 0xFFFF, "SM8150 PCIe Root Complex(0x0108)"},
 {0x17CB, 0x0109, 0xFFFF, 0xFFFF, "SA8195P PCIe Root Complex(0x0109)"},
+{0x17CB, 0x010B, 0xFFFF, 0xFFFF, "SM8250 PCIe Root Complex [Snapdragon 865/870 5G](0x010B)"},
+{0x17CB, 0x010C, 0xFFFF, 0xFFFF, "SM8350 PCIe Root Complex [Snapdragon 888](0x010C)"},
 {0x17CB, 0x010E, 0xFFFF, 0xFFFF, "SC8280XP PCI Express Root Port(0x010E)"},
+{0x17CB, 0x0110, 0xFFFF, 0xFFFF, "SM8475 PCIe Root Complex [Snapdragon 8+ Gen 1](0x0110)"},
 {0x17CB, 0x0300, 0xFFFF, 0xFFFF, "MDM9x35 LTE Modem [Snapdragon X7](0x0300)"},
 {0x17CB, 0x0301, 0xFFFF, 0xFFFF, "MDM9x45 LTE Modem [Snapdragon X12](0x0301)"},
 {0x17CB, 0x0302, 0xFFFF, 0xFFFF, "MDM9x55 LTE Modem [Snapdragon X16](0x0302)"},
+{0x17CB, 0x0304, 0xFFFF, 0xFFFF, "SDX24 [Snapdragon X24 4G](0x0304)"},
+{0x17CB, 0x0306, 0xFFFF, 0xFFFF, "SDX55 [Snapdragon X55 5G](0x0306)"},
 {0x17CB, 0x0400, 0xFFFF, 0xFFFF, "Datacenter Technologies QDF2432 PCI Express Root Port(0x0400)"},
 {0x17CB, 0x0401, 0xFFFF, 0xFFFF, "Datacenter Technologies QDF2400 PCI Express Root Port(0x0401)"},
 {0x17CB, 0x1000, 0xFFFF, 0xFFFF, "QCS405 PCIe Root Complex(0x1000)"},
 {0x17CB, 0x1101, 0xFFFF, 0xFFFF, "QCA6390 Wireless Network Adapter(0x1101)"},
 {0x17CB, 0x1103, 0xFFFF, 0xFFFF, "QCNFA765 Wireless Network Adapter(0x1103)"},
 {0x17CB, 0x1104, 0xFFFF, 0xFFFF, "QCN6024/9024/9074 Wireless Network Adapter(0x1104)"},
-{0x17CB, 0x1108, 0xFFFF, 0xFFFF, "IPQ95xx/97xx PCI Express Root Port(0x1108)"},
+{0x17CB, 0x1107, 0xFFFF, 0xFFFF, "WCN785x Wi-Fi 7(802.11be) 320MHz 2x2 [FastConnect 7800](0x1107)"},
+{0x17CB, 0x1107, 0x105B, 0xE0F7, "High Band Simultaneous Wireless Network Adapter(0x105B-0xE0F7)"},
+{0x17CB, 0x1108, 0xFFFF, 0xFFFF, "IPQ95xx/97xx PCIe Root Port(0x1108)"},
 {0x17CB, 0x1109, 0xFFFF, 0xFFFF, "QCN62xx/92xx Wireless Network Adapter(0x1109)"},
 }; /* pci_vid_17CB[] */
 
-pci_id_t pci_vid_17CC[] = {
+static pci_id_t const pci_vid_17CC[] = {
 {0x17CC, 0xFFFF, 0xFFFF, 0xFFFF, "NetChip Technology, Inc(0x17CC)"},
 {0x17CC, 0x2280, 0xFFFF, 0xFFFF, "USB 2.0(0x2280)"},
 }; /* pci_vid_17CC[] */
 
-pci_id_t pci_vid_17CD[] = {
+static pci_id_t const pci_vid_17CD[] = {
 {0x17CD, 0xFFFF, 0xFFFF, 0xFFFF, "Cadence Design Systems, Inc.(0x17CD)"},
 }; /* pci_vid_17CD[] */
 
-pci_id_t pci_vid_17CF[] = {
+static pci_id_t const pci_vid_17CF[] = {
 {0x17CF, 0xFFFF, 0xFFFF, 0xFFFF, "Z-Com, Inc.(0x17CF)"},
 }; /* pci_vid_17CF[] */
 
-pci_id_t pci_vid_17D3[] = {
+static pci_id_t const pci_vid_17D3[] = {
 {0x17D3, 0xFFFF, 0xFFFF, 0xFFFF, "Areca Technology Corp.(0x17D3)"},
 {0x17D3, 0x1110, 0xFFFF, 0xFFFF, "ARC-1110 4-Port PCI-X to SATA RAID Controller(0x1110)"},
 {0x17D3, 0x1120, 0xFFFF, 0xFFFF, "ARC-1120 8-Port PCI-X to SATA RAID Controller(0x1120)"},
@@ -27738,7 +27856,7 @@ pci_id_t pci_vid_17D3[] = {
 {0x17D3, 0x188A, 0x17D3, 0x1886, "ARC-1886 PCIe 4.0 to NVMe/SAS/SATA 16/12/6Gb RAID Controller(0x17D3-0x1886)"},
 }; /* pci_vid_17D3[] */
 
-pci_id_t pci_vid_17D5[] = {
+static pci_id_t const pci_vid_17D5[] = {
 {0x17D5, 0xFFFF, 0xFFFF, 0xFFFF, "Exar Corp.(0x17D5)"},
 {0x17D5, 0x5731, 0xFFFF, 0xFFFF, "Xframe 10-Gigabit Ethernet PCI-X(0x5731)"},
 {0x17D5, 0x5732, 0xFFFF, 0xFFFF, "Xframe II 10-Gigabit Ethernet PCI-X 2.0(0x5732)"},
@@ -27771,17 +27889,17 @@ pci_id_t pci_vid_17D5[] = {
 {0x17D5, 0x5833, 0x17D5, 0x7831, "X3120 Dual Port 10GBase-CR(0x17D5-0x7831)"},
 }; /* pci_vid_17D5[] */
 
-pci_id_t pci_vid_17DB[] = {
+static pci_id_t const pci_vid_17DB[] = {
 {0x17DB, 0xFFFF, 0xFFFF, 0xFFFF, "Cray Inc(0x17DB)"},
 {0x17DB, 0x0101, 0xFFFF, 0xFFFF, "XT Series [Seastar] 3D Toroidal Router(0x0101)"},
 {0x17DB, 0x0501, 0xFFFF, 0xFFFF, "Cassini 1 [Slingshot 200Gb](0x0501)"},
 }; /* pci_vid_17DB[] */
 
-pci_id_t pci_vid_17DE[] = {
+static pci_id_t const pci_vid_17DE[] = {
 {0x17DE, 0xFFFF, 0xFFFF, 0xFFFF, "KWorld Computer Co. Ltd.(0x17DE)"},
 }; /* pci_vid_17DE[] */
 
-pci_id_t pci_vid_17DF[] = {
+static pci_id_t const pci_vid_17DF[] = {
 {0x17DF, 0xFFFF, 0xFFFF, 0xFFFF, "Dini Group(0x17DF)"},
 {0x17DF, 0x1864, 0xFFFF, 0xFFFF, "Virtex4 PCI Board w/ QL5064 Bridge [DN7000K10PCI/DN8000K10PCI/DN8000K10PSX/NOTUS](0x1864)"},
 {0x17DF, 0x1865, 0xFFFF, 0xFFFF, "Virtex4 ASIC Emulator [DN8000K10PCIe](0x1865)"},
@@ -27830,13 +27948,13 @@ pci_id_t pci_vid_17DF[] = {
 {0x17DF, 0x1A0E, 0xFFFF, 0xFFFF, "UltrascalePlus PCIe Darklite Design [DNPCIe_400G_VUP_HBM_LL](0x1A0E)"},
 }; /* pci_vid_17DF[] */
 
-pci_id_t pci_vid_17E4[] = {
+static pci_id_t const pci_vid_17E4[] = {
 {0x17E4, 0xFFFF, 0xFFFF, 0xFFFF, "Sectra AB(0x17E4)"},
 {0x17E4, 0x0001, 0xFFFF, 0xFFFF, "KK671 Cardbus encryption board(0x0001)"},
 {0x17E4, 0x0002, 0xFFFF, 0xFFFF, "KK672 Cardbus encryption board(0x0002)"},
 }; /* pci_vid_17E4[] */
 
-pci_id_t pci_vid_17E6[] = {
+static pci_id_t const pci_vid_17E6[] = {
 {0x17E6, 0xFFFF, 0xFFFF, 0xFFFF, "MaxLinear(0x17E6)"},
 {0x17E6, 0x0010, 0xFFFF, 0xFFFF, "EN2010 [c.Link] MoCA Network Controller (Coax, PCI interface)(0x0010)"},
 {0x17E6, 0x0011, 0xFFFF, 0xFFFF, "EN2010 [c.Link] MoCA Network Controller (Coax, MPEG interface)(0x0011)"},
@@ -27847,15 +27965,15 @@ pci_id_t pci_vid_17E6[] = {
 {0x17E6, 0x3710, 0xFFFF, 0xFFFF, "MoCA 2.5 Network Controller (Coax, PCIe interface)(0x3710)"},
 }; /* pci_vid_17E6[] */
 
-pci_id_t pci_vid_17EE[] = {
+static pci_id_t const pci_vid_17EE[] = {
 {0x17EE, 0xFFFF, 0xFFFF, 0xFFFF, "Connect Components Ltd(0x17EE)"},
 }; /* pci_vid_17EE[] */
 
-pci_id_t pci_vid_17F2[] = {
+static pci_id_t const pci_vid_17F2[] = {
 {0x17F2, 0xFFFF, 0xFFFF, 0xFFFF, "Albatron Corp.(0x17F2)"},
 }; /* pci_vid_17F2[] */
 
-pci_id_t pci_vid_17F3[] = {
+static pci_id_t const pci_vid_17F3[] = {
 {0x17F3, 0xFFFF, 0xFFFF, 0xFFFF, "RDC Semiconductor, Inc.(0x17F3)"},
 {0x17F3, 0x1010, 0xFFFF, 0xFFFF, "R1010 IDE Controller(0x1010)"},
 {0x17F3, 0x1011, 0xFFFF, 0xFFFF, "R1011 IDE Controller(0x1011)"},
@@ -27885,19 +28003,19 @@ pci_id_t pci_vid_17F3[] = {
 {0x17F3, 0x6061, 0xFFFF, 0xFFFF, "R6061 USB 2.0 Controller(0x6061)"},
 }; /* pci_vid_17F3[] */
 
-pci_id_t pci_vid_17F7[] = {
+static pci_id_t const pci_vid_17F7[] = {
 {0x17F7, 0xFFFF, 0xFFFF, 0xFFFF, "Topdek Semiconductor Inc.(0x17F7)"},
 }; /* pci_vid_17F7[] */
 
-pci_id_t pci_vid_17F9[] = {
+static pci_id_t const pci_vid_17F9[] = {
 {0x17F9, 0xFFFF, 0xFFFF, 0xFFFF, "Gemtek Technology Co., Ltd(0x17F9)"},
 }; /* pci_vid_17F9[] */
 
-pci_id_t pci_vid_17FC[] = {
+static pci_id_t const pci_vid_17FC[] = {
 {0x17FC, 0xFFFF, 0xFFFF, 0xFFFF, "IOGEAR, Inc.(0x17FC)"},
 }; /* pci_vid_17FC[] */
 
-pci_id_t pci_vid_17FE[] = {
+static pci_id_t const pci_vid_17FE[] = {
 {0x17FE, 0xFFFF, 0xFFFF, 0xFFFF, "InProComm Inc.(0x17FE)"},
 {0x17FE, 0x2120, 0xFFFF, 0xFFFF, "IPN 2120 802.11b(0x2120)"},
 {0x17FE, 0x2120, 0x1737, 0x0020, "WMP11 v4 802.11b Wireless-B PCI Adapter(0x1737-0x0020)"},
@@ -27906,25 +28024,25 @@ pci_id_t pci_vid_17FE[] = {
 {0x17FE, 0x2220, 0x1737, 0x0029, "WPC54G v4 802.11g Wireless-G Notebook Adapter(0x1737-0x0029)"},
 }; /* pci_vid_17FE[] */
 
-pci_id_t pci_vid_17FF[] = {
+static pci_id_t const pci_vid_17FF[] = {
 {0x17FF, 0xFFFF, 0xFFFF, 0xFFFF, "Benq Corporation(0x17FF)"},
 }; /* pci_vid_17FF[] */
 
-pci_id_t pci_vid_1800[] = {
+static pci_id_t const pci_vid_1800[] = {
 {0x1800, 0xFFFF, 0xFFFF, 0xFFFF, "Qualcore Logic Inc.(0x1800)"},
 {0x1800, 0x1100, 0xFFFF, 0xFFFF, "Nanospeed Trading Gateway(0x1100)"},
 }; /* pci_vid_1800[] */
 
-pci_id_t pci_vid_1803[] = {
+static pci_id_t const pci_vid_1803[] = {
 {0x1803, 0xFFFF, 0xFFFF, 0xFFFF, "ProdaSafe GmbH(0x1803)"},
 }; /* pci_vid_1803[] */
 
-pci_id_t pci_vid_1804[] = {
+static pci_id_t const pci_vid_1804[] = {
 {0x1804, 0xFFFF, 0xFFFF, 0xFFFF, "Ralink corp. (wrong ID)(0x1804)"},
 {0x1804, 0x3060, 0xFFFF, 0xFFFF, "RT3060 Wireless 802.11n 1T/1R(0x3060)"},
 }; /* pci_vid_1804[] */
 
-pci_id_t pci_vid_1805[] = {
+static pci_id_t const pci_vid_1805[] = {
 {0x1805, 0xFFFF, 0xFFFF, 0xFFFF, "Euresys S.A.(0x1805)"},
 {0x1805, 0x0201, 0xFFFF, 0xFFFF, "PICOLO Alert PCI(0x0201)"},
 {0x1805, 0x0202, 0xFFFF, 0xFFFF, "PICOLO Diligent(0x0202)"},
@@ -27957,15 +28075,15 @@ pci_id_t pci_vid_1805[] = {
 {0x1805, 0x0408, 0xFFFF, 0xFFFF, "DOMINO Symphony PCIe(0x0408)"},
 }; /* pci_vid_1805[] */
 
-pci_id_t pci_vid_1809[] = {
+static pci_id_t const pci_vid_1809[] = {
 {0x1809, 0xFFFF, 0xFFFF, 0xFFFF, "Lumanate, Inc.(0x1809)"},
 }; /* pci_vid_1809[] */
 
-pci_id_t pci_vid_180C[] = {
+static pci_id_t const pci_vid_180C[] = {
 {0x180C, 0xFFFF, 0xFFFF, 0xFFFF, "IEI Integration Corp(0x180C)"},
 }; /* pci_vid_180C[] */
 
-pci_id_t pci_vid_1813[] = {
+static pci_id_t const pci_vid_1813[] = {
 {0x1813, 0xFFFF, 0xFFFF, 0xFFFF, "Ambient Technologies Inc(0x1813)"},
 {0x1813, 0x4000, 0xFFFF, 0xFFFF, "HaM controllerless modem(0x4000)"},
 {0x1813, 0x4000, 0x16BE, 0x0001, "V9x HAM Data Fax Modem(0x16BE-0x0001)"},
@@ -27973,7 +28091,7 @@ pci_id_t pci_vid_1813[] = {
 {0x1813, 0x4100, 0x16BE, 0x0002, "V9x HAM 1394(0x16BE-0x0002)"},
 }; /* pci_vid_1813[] */
 
-pci_id_t pci_vid_1814[] = {
+static pci_id_t const pci_vid_1814[] = {
 {0x1814, 0xFFFF, 0xFFFF, 0xFFFF, "Ralink corp.(0x1814)"},
 {0x1814, 0x0101, 0xFFFF, 0xFFFF, "Wireless PCI Adapter RT2400 / RT2460(0x0101)"},
 {0x1814, 0x0101, 0x1043, 0x0127, "WiFi-b add-on Card(0x1043-0x0127)"},
@@ -28031,6 +28149,7 @@ pci_id_t pci_vid_1814[] = {
 {0x1814, 0x0701, 0xFFFF, 0xFFFF, "RT2760 Wireless 802.11n 1T/2R(0x0701)"},
 {0x1814, 0x0701, 0x1737, 0x0074, "WMP110 v2 802.11n RangePlus Wireless PCI Adapter(0x1737-0x0074)"},
 {0x1814, 0x0781, 0xFFFF, 0xFFFF, "RT2790 Wireless 802.11n 1T/2R PCIe(0x0781)"},
+{0x1814, 0x0781, 0x11AD, 0x7600, "HP WN7600R(0x11AD-0x7600)"},
 {0x1814, 0x0781, 0x1814, 0x2790, "RT2790 Wireless 802.11n 1T/2R PCIe(0x1814-0x2790)"},
 {0x1814, 0x3060, 0xFFFF, 0xFFFF, "RT3060 Wireless 802.11n 1T/1R(0x3060)"},
 {0x1814, 0x3060, 0x1186, 0x3C04, "DWA-525 Wireless N 150 Desktop Adapter (rev.A1)(0x1186-0x3C04)"},
@@ -28059,36 +28178,36 @@ pci_id_t pci_vid_1814[] = {
 {0x1814, 0xE932, 0xFFFF, 0xFFFF, "RT2560F 802.11 b/g PCI(0xE932)"},
 }; /* pci_vid_1814[] */
 
-pci_id_t pci_vid_1815[] = {
+static pci_id_t const pci_vid_1815[] = {
 {0x1815, 0xFFFF, 0xFFFF, 0xFFFF, "Devolo AG(0x1815)"},
 }; /* pci_vid_1815[] */
 
-pci_id_t pci_vid_1820[] = {
+static pci_id_t const pci_vid_1820[] = {
 {0x1820, 0xFFFF, 0xFFFF, 0xFFFF, "InfiniCon Systems Inc.(0x1820)"},
 }; /* pci_vid_1820[] */
 
-pci_id_t pci_vid_1822[] = {
+static pci_id_t const pci_vid_1822[] = {
 {0x1822, 0xFFFF, 0xFFFF, 0xFFFF, "Twinhan Technology Co. Ltd(0x1822)"},
 {0x1822, 0x4E35, 0xFFFF, 0xFFFF, "Mantis DTV PCI Bridge Controller [Ver 1.0](0x4E35)"},
 }; /* pci_vid_1822[] */
 
-pci_id_t pci_vid_182D[] = {
+static pci_id_t const pci_vid_182D[] = {
 {0x182D, 0xFFFF, 0xFFFF, 0xFFFF, "SiteCom Europe BV(0x182D)"},
 {0x182D, 0x3069, 0xFFFF, 0xFFFF, "ISDN PCI DC-105V2(0x3069)"},
 {0x182D, 0x9790, 0xFFFF, 0xFFFF, "WL-121 Wireless Network Adapter 100g+ [Ver.3](0x9790)"},
 }; /* pci_vid_182D[] */
 
-pci_id_t pci_vid_182E[] = {
+static pci_id_t const pci_vid_182E[] = {
 {0x182E, 0xFFFF, 0xFFFF, 0xFFFF, "Raza Microelectronics, Inc.(0x182E)"},
 {0x182E, 0x0008, 0xFFFF, 0xFFFF, "XLR516 Processor(0x0008)"},
 }; /* pci_vid_182E[] */
 
-pci_id_t pci_vid_182F[] = {
+static pci_id_t const pci_vid_182F[] = {
 {0x182F, 0xFFFF, 0xFFFF, 0xFFFF, "Broadcom(0x182F)"},
 {0x182F, 0x000B, 0xFFFF, 0xFFFF, "BCM5785 [HT1000] SATA (RAID Mode)(0x000B)"},
 }; /* pci_vid_182F[] */
 
-pci_id_t pci_vid_1830[] = {
+static pci_id_t const pci_vid_1830[] = {
 {0x1830, 0xFFFF, 0xFFFF, 0xFFFF, "Credence Systems Corporation(0x1830)"},
 {0x1830, 0x8000, 0xFFFF, 0xFFFF, "CPIn(0x8000)"},
 {0x1830, 0x8001, 0xFFFF, 0xFFFF, "CPId(0x8001)"},
@@ -28096,7 +28215,7 @@ pci_id_t pci_vid_1830[] = {
 {0x1830, 0x8003, 0xFFFF, 0xFFFF, "CPIq(0x8003)"},
 }; /* pci_vid_1830[] */
 
-pci_id_t pci_vid_183B[] = {
+static pci_id_t const pci_vid_183B[] = {
 {0x183B, 0xFFFF, 0xFFFF, 0xFFFF, "MikroM GmbH(0x183B)"},
 {0x183B, 0x08A7, 0xFFFF, 0xFFFF, "MVC100 DVI(0x08A7)"},
 {0x183B, 0x08A8, 0xFFFF, 0xFFFF, "MVC101 SDI(0x08A8)"},
@@ -28104,55 +28223,56 @@ pci_id_t pci_vid_183B[] = {
 {0x183B, 0x08B0, 0xFFFF, 0xFFFF, "MVC200-DC(0x08B0)"},
 }; /* pci_vid_183B[] */
 
-pci_id_t pci_vid_1846[] = {
+static pci_id_t const pci_vid_1846[] = {
 {0x1846, 0xFFFF, 0xFFFF, 0xFFFF, "Alcatel-Lucent(0x1846)"},
 }; /* pci_vid_1846[] */
 
-pci_id_t pci_vid_1849[] = {
+static pci_id_t const pci_vid_1849[] = {
 {0x1849, 0xFFFF, 0xFFFF, 0xFFFF, "ASRock Incorporation(0x1849)"},
+{0x1849, 0x9602, 0xFFFF, 0xFFFF, "RS780/RS880 PCI to PCI bridge (int gfx)(0x9602)"},
 }; /* pci_vid_1849[] */
 
-pci_id_t pci_vid_184A[] = {
+static pci_id_t const pci_vid_184A[] = {
 {0x184A, 0xFFFF, 0xFFFF, 0xFFFF, "Thales Computers(0x184A)"},
 {0x184A, 0x1100, 0xFFFF, 0xFFFF, "MAX II cPLD(0x1100)"},
 }; /* pci_vid_184A[] */
 
-pci_id_t pci_vid_1850[] = {
+static pci_id_t const pci_vid_1850[] = {
 {0x1850, 0xFFFF, 0xFFFF, 0xFFFF, "Advantest Corporation(0x1850)"},
 {0x1850, 0x0048, 0xFFFF, 0xFFFF, "EK220-66401 Computer Interface Card(0x0048)"},
 }; /* pci_vid_1850[] */
 
-pci_id_t pci_vid_1851[] = {
+static pci_id_t const pci_vid_1851[] = {
 {0x1851, 0xFFFF, 0xFFFF, 0xFFFF, "Microtune, Inc.(0x1851)"},
 }; /* pci_vid_1851[] */
 
-pci_id_t pci_vid_1852[] = {
+static pci_id_t const pci_vid_1852[] = {
 {0x1852, 0xFFFF, 0xFFFF, 0xFFFF, "Anritsu Corp.(0x1852)"},
 }; /* pci_vid_1852[] */
 
-pci_id_t pci_vid_1853[] = {
+static pci_id_t const pci_vid_1853[] = {
 {0x1853, 0xFFFF, 0xFFFF, 0xFFFF, "SMSC Automotive Infotainment System Group(0x1853)"},
 }; /* pci_vid_1853[] */
 
-pci_id_t pci_vid_1854[] = {
+static pci_id_t const pci_vid_1854[] = {
 {0x1854, 0xFFFF, 0xFFFF, 0xFFFF, "LG Electronics, Inc.(0x1854)"},
 }; /* pci_vid_1854[] */
 
-pci_id_t pci_vid_185B[] = {
+static pci_id_t const pci_vid_185B[] = {
 {0x185B, 0xFFFF, 0xFFFF, 0xFFFF, "Compro Technology, Inc.(0x185B)"},
 {0x185B, 0x1489, 0xFFFF, 0xFFFF, "VideoMate Vista T100(0x1489)"},
 }; /* pci_vid_185B[] */
 
-pci_id_t pci_vid_185F[] = {
+static pci_id_t const pci_vid_185F[] = {
 {0x185F, 0xFFFF, 0xFFFF, 0xFFFF, "Wistron NeWeb Corp.(0x185F)"},
 }; /* pci_vid_185F[] */
 
-pci_id_t pci_vid_1864[] = {
+static pci_id_t const pci_vid_1864[] = {
 {0x1864, 0xFFFF, 0xFFFF, 0xFFFF, "SilverBack(0x1864)"},
 {0x1864, 0x2110, 0xFFFF, 0xFFFF, "ISNAP 2110(0x2110)"},
 }; /* pci_vid_1864[] */
 
-pci_id_t pci_vid_1867[] = {
+static pci_id_t const pci_vid_1867[] = {
 {0x1867, 0xFFFF, 0xFFFF, 0xFFFF, "Topspin Communications(0x1867)"},
 {0x1867, 0x5A44, 0xFFFF, 0xFFFF, "MT23108 InfiniHost HCA(0x5A44)"},
 {0x1867, 0x5A45, 0xFFFF, 0xFFFF, "MT23108 InfiniHost HCA flash recovery(0x5A45)"},
@@ -28161,7 +28281,7 @@ pci_id_t pci_vid_1867[] = {
 {0x1867, 0x6282, 0xFFFF, 0xFFFF, "MT25208 InfiniHost III Ex(0x6282)"},
 }; /* pci_vid_1867[] */
 
-pci_id_t pci_vid_186C[] = {
+static pci_id_t const pci_vid_186C[] = {
 {0x186C, 0xFFFF, 0xFFFF, 0xFFFF, "Humusoft, s.r.o.(0x186C)"},
 {0x186C, 0x0612, 0xFFFF, 0xFFFF, "AD612 Data Acquisition Device(0x0612)"},
 {0x186C, 0x0614, 0xFFFF, 0xFFFF, "MF614 Multifunction I/O Card(0x0614)"},
@@ -28172,28 +28292,28 @@ pci_id_t pci_vid_186C[] = {
 {0x186C, 0x0644, 0xFFFF, 0xFFFF, "MF644 Multifunction I/O Thb Card(0x0644)"},
 }; /* pci_vid_186C[] */
 
-pci_id_t pci_vid_186F[] = {
+static pci_id_t const pci_vid_186F[] = {
 {0x186F, 0xFFFF, 0xFFFF, 0xFFFF, "WiNRADiO Communications(0x186F)"},
 }; /* pci_vid_186F[] */
 
-pci_id_t pci_vid_1876[] = {
+static pci_id_t const pci_vid_1876[] = {
 {0x1876, 0xFFFF, 0xFFFF, 0xFFFF, "L-3 Communications(0x1876)"},
 {0x1876, 0xA101, 0xFFFF, 0xFFFF, "VigraWATCH PCI(0xA101)"},
 {0x1876, 0xA102, 0xFFFF, 0xFFFF, "VigraWATCH PMC(0xA102)"},
 {0x1876, 0xA103, 0xFFFF, 0xFFFF, "Vigra I/O(0xA103)"},
 }; /* pci_vid_1876[] */
 
-pci_id_t pci_vid_187E[] = {
+static pci_id_t const pci_vid_187E[] = {
 {0x187E, 0xFFFF, 0xFFFF, 0xFFFF, "ZyXEL Communications Corporation(0x187E)"},
 {0x187E, 0x3403, 0xFFFF, 0xFFFF, "ZyAir G-110 802.11g(0x3403)"},
 {0x187E, 0x340E, 0xFFFF, 0xFFFF, "M-302 802.11g XtremeMIMO(0x340E)"},
 }; /* pci_vid_187E[] */
 
-pci_id_t pci_vid_1885[] = {
+static pci_id_t const pci_vid_1885[] = {
 {0x1885, 0xFFFF, 0xFFFF, 0xFFFF, "Avvida Systems Inc.(0x1885)"},
 }; /* pci_vid_1885[] */
 
-pci_id_t pci_vid_1888[] = {
+static pci_id_t const pci_vid_1888[] = {
 {0x1888, 0xFFFF, 0xFFFF, 0xFFFF, "Varisys Ltd(0x1888)"},
 {0x1888, 0x0301, 0xFFFF, 0xFFFF, "VMFX1 FPGA PMC module(0x0301)"},
 {0x1888, 0x0601, 0xFFFF, 0xFFFF, "VSM2 dual PMC carrier(0x0601)"},
@@ -28201,19 +28321,19 @@ pci_id_t pci_vid_1888[] = {
 {0x1888, 0x0720, 0xFFFF, 0xFFFF, "VS24x series PowerPC PCI board(0x0720)"},
 }; /* pci_vid_1888[] */
 
-pci_id_t pci_vid_188A[] = {
+static pci_id_t const pci_vid_188A[] = {
 {0x188A, 0xFFFF, 0xFFFF, 0xFFFF, "Ample Communications, Inc(0x188A)"},
 }; /* pci_vid_188A[] */
 
-pci_id_t pci_vid_1890[] = {
+static pci_id_t const pci_vid_1890[] = {
 {0x1890, 0xFFFF, 0xFFFF, 0xFFFF, "Egenera, Inc.(0x1890)"},
 }; /* pci_vid_1890[] */
 
-pci_id_t pci_vid_1894[] = {
+static pci_id_t const pci_vid_1894[] = {
 {0x1894, 0xFFFF, 0xFFFF, 0xFFFF, "KNC One(0x1894)"},
 }; /* pci_vid_1894[] */
 
-pci_id_t pci_vid_1896[] = {
+static pci_id_t const pci_vid_1896[] = {
 {0x1896, 0xFFFF, 0xFFFF, 0xFFFF, "B&B Electronics Manufacturing Company, Inc.(0x1896)"},
 {0x1896, 0x4202, 0xFFFF, 0xFFFF, "MIport 3PCIU2 2-port Serial(0x4202)"},
 {0x1896, 0x4204, 0xFFFF, 0xFFFF, "MIport 3PCIU4 4-port Serial(0x4204)"},
@@ -28225,24 +28345,24 @@ pci_id_t pci_vid_1896[] = {
 {0x1896, 0xBB11, 0xFFFF, 0xFFFF, "3PCIO1 1-Port Isolated Serial(0xBB11)"},
 }; /* pci_vid_1896[] */
 
-pci_id_t pci_vid_1897[] = {
+static pci_id_t const pci_vid_1897[] = {
 {0x1897, 0xFFFF, 0xFFFF, 0xFFFF, "AMtek(0x1897)"},
 }; /* pci_vid_1897[] */
 
-pci_id_t pci_vid_18A1[] = {
+static pci_id_t const pci_vid_18A1[] = {
 {0x18A1, 0xFFFF, 0xFFFF, 0xFFFF, "Astute Networks Inc.(0x18A1)"},
 }; /* pci_vid_18A1[] */
 
-pci_id_t pci_vid_18A2[] = {
+static pci_id_t const pci_vid_18A2[] = {
 {0x18A2, 0xFFFF, 0xFFFF, 0xFFFF, "Stretch Inc.(0x18A2)"},
 {0x18A2, 0x0002, 0xFFFF, 0xFFFF, "VRC6016 16-Channel PCIe DVR Card(0x0002)"},
 }; /* pci_vid_18A2[] */
 
-pci_id_t pci_vid_18A3[] = {
+static pci_id_t const pci_vid_18A3[] = {
 {0x18A3, 0xFFFF, 0xFFFF, 0xFFFF, "AT&T(0x18A3)"},
 }; /* pci_vid_18A3[] */
 
-pci_id_t pci_vid_18AC[] = {
+static pci_id_t const pci_vid_18AC[] = {
 {0x18AC, 0xFFFF, 0xFFFF, 0xFFFF, "DViCO Corporation(0x18AC)"},
 {0x18AC, 0xD500, 0xFFFF, 0xFFFF, "FusionHDTV 5(0xD500)"},
 {0x18AC, 0xD800, 0xFFFF, 0xFFFF, "FusionHDTV 3 Gold(0xD800)"},
@@ -28253,30 +28373,30 @@ pci_id_t pci_vid_18AC[] = {
 {0x18AC, 0xDB78, 0xFFFF, 0xFFFF, "FusionHDTV DVB-T Dual Express(0xDB78)"},
 }; /* pci_vid_18AC[] */
 
-pci_id_t pci_vid_18B8[] = {
+static pci_id_t const pci_vid_18B8[] = {
 {0x18B8, 0xFFFF, 0xFFFF, 0xFFFF, "Ammasso(0x18B8)"},
 {0x18B8, 0xB001, 0xFFFF, 0xFFFF, "AMSO 1100 iWARP/RDMA Gigabit Ethernet Coprocessor(0xB001)"},
 }; /* pci_vid_18B8[] */
 
-pci_id_t pci_vid_18BC[] = {
+static pci_id_t const pci_vid_18BC[] = {
 {0x18BC, 0xFFFF, 0xFFFF, 0xFFFF, "GeCube Technologies, Inc.(0x18BC)"},
 }; /* pci_vid_18BC[] */
 
-pci_id_t pci_vid_18C3[] = {
+static pci_id_t const pci_vid_18C3[] = {
 {0x18C3, 0xFFFF, 0xFFFF, 0xFFFF, "Micronas Semiconductor Holding AG(0x18C3)"},
 {0x18C3, 0x0720, 0xFFFF, 0xFFFF, "nGene PCI-Express Multimedia Controller(0x0720)"},
 {0x18C3, 0x0720, 0x1461, 0x032E, "Hybrid M779 PCI-E(0x1461-0x032E)"},
 }; /* pci_vid_18C3[] */
 
-pci_id_t pci_vid_18C8[] = {
+static pci_id_t const pci_vid_18C8[] = {
 {0x18C8, 0xFFFF, 0xFFFF, 0xFFFF, "Cray Inc(0x18C8)"},
 }; /* pci_vid_18C8[] */
 
-pci_id_t pci_vid_18C9[] = {
+static pci_id_t const pci_vid_18C9[] = {
 {0x18C9, 0xFFFF, 0xFFFF, 0xFFFF, "ARVOO Engineering BV(0x18C9)"},
 }; /* pci_vid_18C9[] */
 
-pci_id_t pci_vid_18CA[] = {
+static pci_id_t const pci_vid_18CA[] = {
 {0x18CA, 0xFFFF, 0xFFFF, 0xFFFF, "XGI Technology Inc. (eXtreme Graphics Innovation)(0x18CA)"},
 {0x18CA, 0x0020, 0xFFFF, 0xFFFF, "Z7/Z9 (XG20 core)(0x0020)"},
 {0x18CA, 0x0021, 0xFFFF, 0xFFFF, "Z9s/Z9m (XG21 core)(0x0021)"},
@@ -28285,38 +28405,38 @@ pci_id_t pci_vid_18CA[] = {
 {0x18CA, 0x0047, 0xFFFF, 0xFFFF, "Volari 8300 (chip: XP10, codename: XG47)(0x0047)"},
 }; /* pci_vid_18CA[] */
 
-pci_id_t pci_vid_18D2[] = {
+static pci_id_t const pci_vid_18D2[] = {
 {0x18D2, 0xFFFF, 0xFFFF, 0xFFFF, "Sitecom Europe BV (Wrong ID)(0x18D2)"},
 {0x18D2, 0x3069, 0xFFFF, 0xFFFF, "DC-105v2 ISDN controller(0x3069)"},
 }; /* pci_vid_18D2[] */
 
-pci_id_t pci_vid_18D4[] = {
+static pci_id_t const pci_vid_18D4[] = {
 {0x18D4, 0xFFFF, 0xFFFF, 0xFFFF, "Celestica(0x18D4)"},
 }; /* pci_vid_18D4[] */
 
-pci_id_t pci_vid_18D8[] = {
+static pci_id_t const pci_vid_18D8[] = {
 {0x18D8, 0xFFFF, 0xFFFF, 0xFFFF, "Dialogue Technology Corp.(0x18D8)"},
 }; /* pci_vid_18D8[] */
 
-pci_id_t pci_vid_18DD[] = {
+static pci_id_t const pci_vid_18DD[] = {
 {0x18DD, 0xFFFF, 0xFFFF, 0xFFFF, "Artimi Inc(0x18DD)"},
 {0x18DD, 0x4C6F, 0xFFFF, 0xFFFF, "Artimi RTMI-100 UWB adapter(0x4C6F)"},
 }; /* pci_vid_18DD[] */
 
-pci_id_t pci_vid_18DF[] = {
+static pci_id_t const pci_vid_18DF[] = {
 {0x18DF, 0xFFFF, 0xFFFF, 0xFFFF, "LeWiz Communications(0x18DF)"},
 }; /* pci_vid_18DF[] */
 
-pci_id_t pci_vid_18E6[] = {
+static pci_id_t const pci_vid_18E6[] = {
 {0x18E6, 0xFFFF, 0xFFFF, 0xFFFF, "MPL AG(0x18E6)"},
 {0x18E6, 0x0001, 0xFFFF, 0xFFFF, "OSCI [Octal Serial Communication Interface](0x0001)"},
 }; /* pci_vid_18E6[] */
 
-pci_id_t pci_vid_18EB[] = {
+static pci_id_t const pci_vid_18EB[] = {
 {0x18EB, 0xFFFF, 0xFFFF, 0xFFFF, "Advance Multimedia Internet Technology, Inc.(0x18EB)"},
 }; /* pci_vid_18EB[] */
 
-pci_id_t pci_vid_18EC[] = {
+static pci_id_t const pci_vid_18EC[] = {
 {0x18EC, 0xFFFF, 0xFFFF, 0xFFFF, "Cesnet, z.s.p.o.(0x18EC)"},
 {0x18EC, 0x6D05, 0xFFFF, 0xFFFF, "ML555(0x6D05)"},
 {0x18EC, 0x6D05, 0x18EC, 0x0100, "NIC (ethernet interfaces)(0x18EC-0x0100)"},
@@ -28369,15 +28489,15 @@ pci_id_t pci_vid_18EC[] = {
 {0x18EC, 0xC400, 0xFFFF, 0xFFFF, "COMBO-400G1(0xC400)"},
 }; /* pci_vid_18EC[] */
 
-pci_id_t pci_vid_18EE[] = {
+static pci_id_t const pci_vid_18EE[] = {
 {0x18EE, 0xFFFF, 0xFFFF, 0xFFFF, "Chenming Mold Ind. Corp.(0x18EE)"},
 }; /* pci_vid_18EE[] */
 
-pci_id_t pci_vid_18F1[] = {
+static pci_id_t const pci_vid_18F1[] = {
 {0x18F1, 0xFFFF, 0xFFFF, 0xFFFF, "Spectrum GmbH(0x18F1)"},
 }; /* pci_vid_18F1[] */
 
-pci_id_t pci_vid_18F4[] = {
+static pci_id_t const pci_vid_18F4[] = {
 {0x18F4, 0xFFFF, 0xFFFF, 0xFFFF, "Napatech A/S(0x18F4)"},
 {0x18F4, 0x0031, 0xFFFF, 0xFFFF, "NT20X Network Adapter(0x0031)"},
 {0x18F4, 0x0051, 0xFFFF, 0xFFFF, "NT20X Capture Card(0x0051)"},
@@ -28411,7 +28531,7 @@ pci_id_t pci_vid_18F4[] = {
 {0x18F4, 0x0225, 0xFFFF, 0xFFFF, "NT40A11 Network Adapter(0x0225)"},
 }; /* pci_vid_18F4[] */
 
-pci_id_t pci_vid_18F6[] = {
+static pci_id_t const pci_vid_18F6[] = {
 {0x18F6, 0xFFFF, 0xFFFF, 0xFFFF, "NextIO(0x18F6)"},
 {0x18F6, 0x1000, 0xFFFF, 0xFFFF, "[Nexsis] Switch Virtual P2P PCIe Bridge(0x1000)"},
 {0x18F6, 0x1001, 0xFFFF, 0xFFFF, "[Texsis] Switch Virtual P2P PCIe Bridge(0x1001)"},
@@ -28421,7 +28541,7 @@ pci_id_t pci_vid_18F6[] = {
 {0x18F6, 0x2001, 0xFFFF, 0xFFFF, "[Texsis] Switch Integrated Mgmt. Endpoint(0x2001)"},
 }; /* pci_vid_18F6[] */
 
-pci_id_t pci_vid_18F7[] = {
+static pci_id_t const pci_vid_18F7[] = {
 {0x18F7, 0xFFFF, 0xFFFF, 0xFFFF, "Commtech, Inc.(0x18F7)"},
 {0x18F7, 0x0001, 0xFFFF, 0xFFFF, "ESCC-PCI-335 Serial PCI Adapter [Fastcom](0x0001)"},
 {0x18F7, 0x0002, 0xFFFF, 0xFFFF, "422/4-PCI-335 Serial PCI Adapter [Fastcom](0x0002)"},
@@ -28454,21 +28574,21 @@ pci_id_t pci_vid_18F7[] = {
 {0x18F7, 0x0027, 0xFFFF, 0xFFFF, "FSCC/4 Serial PCIe Adapter [Fastcom](0x0027)"},
 }; /* pci_vid_18F7[] */
 
-pci_id_t pci_vid_18FB[] = {
+static pci_id_t const pci_vid_18FB[] = {
 {0x18FB, 0xFFFF, 0xFFFF, 0xFFFF, "Resilience Corporation(0x18FB)"},
 }; /* pci_vid_18FB[] */
 
-pci_id_t pci_vid_1904[] = {
+static pci_id_t const pci_vid_1904[] = {
 {0x1904, 0xFFFF, 0xFFFF, 0xFFFF, "Hangzhou Silan Microelectronics Co., Ltd.(0x1904)"},
 {0x1904, 0x2031, 0xFFFF, 0xFFFF, "SC92031 PCI Fast Ethernet Adapter(0x2031)"},
 {0x1904, 0x8139, 0xFFFF, 0xFFFF, "RTL8139D [Realtek] PCI 10/100BaseTX ethernet adaptor(0x8139)"},
 }; /* pci_vid_1904[] */
 
-pci_id_t pci_vid_1905[] = {
+static pci_id_t const pci_vid_1905[] = {
 {0x1905, 0xFFFF, 0xFFFF, 0xFFFF, "Micronas USA, Inc.(0x1905)"},
 }; /* pci_vid_1905[] */
 
-pci_id_t pci_vid_1912[] = {
+static pci_id_t const pci_vid_1912[] = {
 {0x1912, 0xFFFF, 0xFFFF, 0xFFFF, "Renesas Technology Corp.(0x1912)"},
 {0x1912, 0x0002, 0xFFFF, 0xFFFF, "SH7780 PCI Controller (PCIC)(0x0002)"},
 {0x1912, 0x0011, 0xFFFF, 0xFFFF, "SH7757 PCIe End-Point [PBI](0x0011)"},
@@ -28481,11 +28601,11 @@ pci_id_t pci_vid_1912[] = {
 {0x1912, 0x001D, 0xFFFF, 0xFFFF, "SH7758 PCIe Switch [PS](0x001D)"},
 }; /* pci_vid_1912[] */
 
-pci_id_t pci_vid_1919[] = {
+static pci_id_t const pci_vid_1919[] = {
 {0x1919, 0xFFFF, 0xFFFF, 0xFFFF, "Soltek Computer Inc.(0x1919)"},
 }; /* pci_vid_1919[] */
 
-pci_id_t pci_vid_1923[] = {
+static pci_id_t const pci_vid_1923[] = {
 {0x1923, 0xFFFF, 0xFFFF, 0xFFFF, "Sangoma Technologies Corp.(0x1923)"},
 {0x1923, 0x0040, 0xFFFF, 0xFFFF, "A200/Remora FXO/FXS Analog AFT card(0x0040)"},
 {0x1923, 0x0100, 0xFFFF, 0xFFFF, "A104d QUAD T1/E1 AFT card(0x0100)"},
@@ -28493,7 +28613,7 @@ pci_id_t pci_vid_1923[] = {
 {0x1923, 0x0400, 0xFFFF, 0xFFFF, "A104u Quad T1/E1 AFT(0x0400)"},
 }; /* pci_vid_1923[] */
 
-pci_id_t pci_vid_1924[] = {
+static pci_id_t const pci_vid_1924[] = {
 {0x1924, 0xFFFF, 0xFFFF, 0xFFFF, "Solarflare Communications(0x1924)"},
 {0x1924, 0x0703, 0xFFFF, 0xFFFF, "SFC4000 rev A net [Solarstorm](0x0703)"},
 {0x1924, 0x0703, 0x10B8, 0x0102, "SMC10GPCIe-10BT (A2) [TigerCard](0x10B8-0x0102)"},
@@ -28625,33 +28745,33 @@ pci_id_t pci_vid_1924[] = {
 {0x1924, 0xC101, 0xFFFF, 0xFFFF, "EF1-21022T [EtherFabric](0xC101)"},
 }; /* pci_vid_1924[] */
 
-pci_id_t pci_vid_192A[] = {
+static pci_id_t const pci_vid_192A[] = {
 {0x192A, 0xFFFF, 0xFFFF, 0xFFFF, "BiTMICRO Networks Inc.(0x192A)"},
 {0x192A, 0x0008, 0xFFFF, 0xFFFF, "RAMPART(0x0008)"},
 }; /* pci_vid_192A[] */
 
-pci_id_t pci_vid_192E[] = {
+static pci_id_t const pci_vid_192E[] = {
 {0x192E, 0xFFFF, 0xFFFF, 0xFFFF, "TransDimension(0x192E)"},
 }; /* pci_vid_192E[] */
 
-pci_id_t pci_vid_1931[] = {
+static pci_id_t const pci_vid_1931[] = {
 {0x1931, 0xFFFF, 0xFFFF, 0xFFFF, "Option N.V.(0x1931)"},
 {0x1931, 0x000C, 0xFFFF, 0xFFFF, "Qualcomm MSM6275 UMTS chip(0x000C)"},
 }; /* pci_vid_1931[] */
 
-pci_id_t pci_vid_1932[] = {
+static pci_id_t const pci_vid_1932[] = {
 {0x1932, 0xFFFF, 0xFFFF, 0xFFFF, "DiBcom(0x1932)"},
 }; /* pci_vid_1932[] */
 
-pci_id_t pci_vid_193C[] = {
+static pci_id_t const pci_vid_193C[] = {
 {0x193C, 0xFFFF, 0xFFFF, 0xFFFF, "MAXIM Integrated Products(0x193C)"},
 }; /* pci_vid_193C[] */
 
-pci_id_t pci_vid_193D[] = {
+static pci_id_t const pci_vid_193D[] = {
 {0x193D, 0xFFFF, 0xFFFF, 0xFFFF, "New H3C Technologies Co., Ltd.(0x193D)"},
 }; /* pci_vid_193D[] */
 
-pci_id_t pci_vid_193F[] = {
+static pci_id_t const pci_vid_193F[] = {
 {0x193F, 0xFFFF, 0xFFFF, 0xFFFF, "AHA Products Group(0x193F)"},
 {0x193F, 0x0001, 0xFFFF, 0xFFFF, "AHA36x-PCIX(0x0001)"},
 {0x193F, 0x0360, 0xFFFF, 0xFFFF, "AHA360-PCIe(0x0360)"},
@@ -28667,22 +28787,22 @@ pci_id_t pci_vid_193F[] = {
 {0x193F, 0x6102, 0xFFFF, 0xFFFF, "AHA6102(0x6102)"},
 }; /* pci_vid_193F[] */
 
-pci_id_t pci_vid_1942[] = {
+static pci_id_t const pci_vid_1942[] = {
 {0x1942, 0xFFFF, 0xFFFF, 0xFFFF, "ClearSpeed Technology plc(0x1942)"},
 {0x1942, 0xE511, 0xFFFF, 0xFFFF, "Advance X620 accelerator card(0xE511)"},
 {0x1942, 0xE521, 0xFFFF, 0xFFFF, "Advance e620 accelerator card(0xE521)"},
 }; /* pci_vid_1942[] */
 
-pci_id_t pci_vid_1947[] = {
+static pci_id_t const pci_vid_1947[] = {
 {0x1947, 0xFFFF, 0xFFFF, 0xFFFF, "C-guys, Inc.(0x1947)"},
 {0x1947, 0x4743, 0xFFFF, 0xFFFF, "CG200 Dual SD/SDIO Host controller device(0x4743)"},
 }; /* pci_vid_1947[] */
 
-pci_id_t pci_vid_1948[] = {
+static pci_id_t const pci_vid_1948[] = {
 {0x1948, 0xFFFF, 0xFFFF, 0xFFFF, "Alpha Networks Inc.(0x1948)"},
 }; /* pci_vid_1948[] */
 
-pci_id_t pci_vid_194A[] = {
+static pci_id_t const pci_vid_194A[] = {
 {0x194A, 0xFFFF, 0xFFFF, 0xFFFF, "DapTechnology B.V.(0x194A)"},
 {0x194A, 0x1111, 0xFFFF, 0xFFFF, "FireSpy3850(0x1111)"},
 {0x194A, 0x1112, 0xFFFF, 0xFFFF, "FireSpy450b(0x1112)"},
@@ -28695,11 +28815,11 @@ pci_id_t pci_vid_194A[] = {
 {0x194A, 0x1203, 0xFFFF, 0xFFFF, "FireTrac 3460bT (fallback firmware)(0x1203)"},
 }; /* pci_vid_194A[] */
 
-pci_id_t pci_vid_1954[] = {
+static pci_id_t const pci_vid_1954[] = {
 {0x1954, 0xFFFF, 0xFFFF, 0xFFFF, "One Stop Systems, Inc.(0x1954)"},
 }; /* pci_vid_1954[] */
 
-pci_id_t pci_vid_1957[] = {
+static pci_id_t const pci_vid_1957[] = {
 {0x1957, 0xFFFF, 0xFFFF, 0xFFFF, "Freescale Semiconductor Inc(0x1957)"},
 {0x1957, 0x0012, 0xFFFF, 0xFFFF, "MPC8548E(0x0012)"},
 {0x1957, 0x0013, 0xFFFF, 0xFFFF, "MPC8548(0x0013)"},
@@ -28788,11 +28908,11 @@ pci_id_t pci_vid_1957[] = {
 {0x1957, 0xFC03, 0xFFFF, 0xFFFF, "CFI(0xFC03)"},
 }; /* pci_vid_1957[] */
 
-pci_id_t pci_vid_1958[] = {
+static pci_id_t const pci_vid_1958[] = {
 {0x1958, 0xFFFF, 0xFFFF, 0xFFFF, "Faster Technology, LLC.(0x1958)"},
 }; /* pci_vid_1958[] */
 
-pci_id_t pci_vid_1959[] = {
+static pci_id_t const pci_vid_1959[] = {
 {0x1959, 0xFFFF, 0xFFFF, 0xFFFF, "PA Semi, Inc(0x1959)"},
 {0x1959, 0xA000, 0xFFFF, 0xFFFF, "PA6T Core(0xA000)"},
 {0x1959, 0xA001, 0xFFFF, 0xFFFF, "PWRficient Host Bridge(0xA001)"},
@@ -28810,7 +28930,7 @@ pci_id_t pci_vid_1959[] = {
 {0x1959, 0xA00D, 0xFFFF, 0xFFFF, "PWRficient PCI-Express Internal Endpoint(0xA00D)"},
 }; /* pci_vid_1959[] */
 
-pci_id_t pci_vid_1966[] = {
+static pci_id_t const pci_vid_1966[] = {
 {0x1966, 0xFFFF, 0xFFFF, 0xFFFF, "Orad Hi-Tec Systems(0x1966)"},
 {0x1966, 0x1975, 0xFFFF, 0xFFFF, "DVG64 family(0x1975)"},
 {0x1966, 0x1977, 0xFFFF, 0xFFFF, "DVG128 family(0x1977)"},
@@ -28821,7 +28941,7 @@ pci_id_t pci_vid_1966[] = {
 {0x1966, 0x1980, 0x1234, 0x3410, "UHD2(0x1234-0x3410)"},
 }; /* pci_vid_1966[] */
 
-pci_id_t pci_vid_1969[] = {
+static pci_id_t const pci_vid_1969[] = {
 {0x1969, 0xFFFF, 0xFFFF, 0xFFFF, "Qualcomm Atheros(0x1969)"},
 {0x1969, 0x1026, 0xFFFF, 0xFFFF, "AR8121/AR8113/AR8114 Gigabit or Fast Ethernet(0x1026)"},
 {0x1969, 0x1026, 0x1043, 0x8304, "P5KPL-CM Motherboard(0x1043-0x8304)"},
@@ -28841,37 +28961,39 @@ pci_id_t pci_vid_1969[] = {
 {0x1969, 0x1091, 0x1043, 0x1477, "N56VZ(0x1043-0x1477)"},
 {0x1969, 0x10A0, 0xFFFF, 0xFFFF, "QCA8172 Fast Ethernet(0x10A0)"},
 {0x1969, 0x10A1, 0xFFFF, 0xFFFF, "QCA8171 Gigabit Ethernet(0x10A1)"},
+{0x1969, 0x2010, 0xFFFF, 0xFFFF, "QCA8175 card reader controller(0x2010)"},
 {0x1969, 0x2048, 0xFFFF, 0xFFFF, "Attansic L2 Fast Ethernet(0x2048)"},
 {0x1969, 0x2060, 0xFFFF, 0xFFFF, "AR8152 v1.1 Fast Ethernet(0x2060)"},
 {0x1969, 0x2062, 0xFFFF, 0xFFFF, "AR8152 v2.0 Fast Ethernet(0x2062)"},
 {0x1969, 0x2062, 0x1043, 0x8468, "Eee PC 1015PX(0x1043-0x8468)"},
+{0x1969, 0x3010, 0xFFFF, 0xFFFF, "QCA8175 SD controller(0x3010)"},
 {0x1969, 0xE091, 0xFFFF, 0xFFFF, "Killer E220x Gigabit Ethernet Controller(0xE091)"},
 {0x1969, 0xE0A1, 0xFFFF, 0xFFFF, "Killer E2400 Gigabit Ethernet Controller(0xE0A1)"},
 {0x1969, 0xE0B1, 0xFFFF, 0xFFFF, "Killer E2500 Gigabit Ethernet Controller(0xE0B1)"},
 }; /* pci_vid_1969[] */
 
-pci_id_t pci_vid_196A[] = {
+static pci_id_t const pci_vid_196A[] = {
 {0x196A, 0xFFFF, 0xFFFF, 0xFFFF, "Sensory Networks Inc.(0x196A)"},
 {0x196A, 0x0101, 0xFFFF, 0xFFFF, "NodalCore C-1000 Content Classification Accelerator(0x0101)"},
 {0x196A, 0x0102, 0xFFFF, 0xFFFF, "NodalCore C-2000 Content Classification Accelerator(0x0102)"},
 {0x196A, 0x0105, 0xFFFF, 0xFFFF, "NodalCore C-3000 Content Classification Accelerator(0x0105)"},
 }; /* pci_vid_196A[] */
 
-pci_id_t pci_vid_196D[] = {
+static pci_id_t const pci_vid_196D[] = {
 {0x196D, 0xFFFF, 0xFFFF, 0xFFFF, "Club-3D BV(0x196D)"},
 }; /* pci_vid_196D[] */
 
-pci_id_t pci_vid_196E[] = {
+static pci_id_t const pci_vid_196E[] = {
 {0x196E, 0xFFFF, 0xFFFF, 0xFFFF, "PNY(0x196E)"},
 }; /* pci_vid_196E[] */
 
-pci_id_t pci_vid_1971[] = {
+static pci_id_t const pci_vid_1971[] = {
 {0x1971, 0xFFFF, 0xFFFF, 0xFFFF, "AGEIA Technologies, Inc.(0x1971)"},
 {0x1971, 0x1011, 0xFFFF, 0xFFFF, "Physics Processing Unit [PhysX](0x1011)"},
 {0x1971, 0x1011, 0x1043, 0x0001, "PhysX P1(0x1043-0x0001)"},
 }; /* pci_vid_1971[] */
 
-pci_id_t pci_vid_1974[] = {
+static pci_id_t const pci_vid_1974[] = {
 {0x1974, 0xFFFF, 0xFFFF, 0xFFFF, "Star Electronics GmbH & Co. KG(0x1974)"},
 {0x1974, 0x0009, 0xFFFF, 0xFFFF, "FlexCard PMC-II(0x0009)"},
 {0x1974, 0x0011, 0xFFFF, 0xFFFF, "FlexCard PMC-II Ethernet(0x0011)"},
@@ -28881,15 +29003,15 @@ pci_id_t pci_vid_1974[] = {
 {0x1974, 0x001B, 0xFFFF, 0xFFFF, "FlexCard PCIe Ethernet(0x001B)"},
 }; /* pci_vid_1974[] */
 
-pci_id_t pci_vid_1976[] = {
+static pci_id_t const pci_vid_1976[] = {
 {0x1976, 0xFFFF, 0xFFFF, 0xFFFF, "TRENDnet(0x1976)"},
 }; /* pci_vid_1976[] */
 
-pci_id_t pci_vid_1977[] = {
+static pci_id_t const pci_vid_1977[] = {
 {0x1977, 0xFFFF, 0xFFFF, 0xFFFF, "Parsec(0x1977)"},
 }; /* pci_vid_1977[] */
 
-pci_id_t pci_vid_197B[] = {
+static pci_id_t const pci_vid_197B[] = {
 {0x197B, 0xFFFF, 0xFFFF, 0xFFFF, "JMicron Technology Corp.(0x197B)"},
 {0x197B, 0x0250, 0xFFFF, 0xFFFF, "JMC250 PCI Express Gigabit Ethernet Controller(0x0250)"},
 {0x197B, 0x0260, 0xFFFF, 0xFFFF, "JMC260 PCI Express Fast Ethernet Controller(0x0260)"},
@@ -28924,16 +29046,16 @@ pci_id_t pci_vid_197B[] = {
 {0x197B, 0x2394, 0xFFFF, 0xFFFF, "xD Host Controller(0x2394)"},
 }; /* pci_vid_197B[] */
 
-pci_id_t pci_vid_1982[] = {
+static pci_id_t const pci_vid_1982[] = {
 {0x1982, 0xFFFF, 0xFFFF, 0xFFFF, "Distant Early Warning Communications Inc(0x1982)"},
 {0x1982, 0x1600, 0xFFFF, 0xFFFF, "OX16C954 HOST-A(0x1600)"},
 {0x1982, 0x16FF, 0xFFFF, 0xFFFF, "OX16C954 HOST-B(0x16FF)"},
 }; /* pci_vid_1982[] */
 
-pci_id_t pci_vid_1987[] = {
+static pci_id_t const pci_vid_1987[] = {
 {0x1987, 0xFFFF, 0xFFFF, 0xFFFF, "Phison Electronics Corporation(0x1987)"},
 {0x1987, 0x5007, 0xFFFF, 0xFFFF, "E7 NVMe Controller(0x5007)"},
-{0x1987, 0x5008, 0xFFFF, 0xFFFF, "E8 PCIe3 NVMe Controller(0x5008)"},
+{0x1987, 0x5008, 0xFFFF, 0xFFFF, "E8 PCIe3 x2 NVMe Controller(0x5008)"},
 {0x1987, 0x5012, 0xFFFF, 0xFFFF, "E12 NVMe Controller(0x5012)"},
 {0x1987, 0x5013, 0xFFFF, 0xFFFF, "PS5013-E13 PCIe3 NVMe Controller (DRAM-less)(0x5013)"},
 {0x1987, 0x5015, 0xFFFF, 0xFFFF, "PS5015-E15 PCIe3 NVMe Controller (DRAM-less)(0x5015)"},
@@ -28942,44 +29064,45 @@ pci_id_t pci_vid_1987[] = {
 {0x1987, 0x5019, 0xFFFF, 0xFFFF, "PS5019-E19 PCIe4 NVMe Controller (DRAM-less)(0x5019)"},
 {0x1987, 0x5021, 0xFFFF, 0xFFFF, "PS5021-E21 PCIe4 NVMe Controller (DRAM-less)(0x5021)"},
 {0x1987, 0x5026, 0xFFFF, 0xFFFF, "PS5026-E26 PCIe5 NVMe Controller(0x5026)"},
+{0x1987, 0x5027, 0xFFFF, 0xFFFF, "PS5027-E27T PCIe4 NVMe Controller (DRAM-less)(0x5027)"},
 }; /* pci_vid_1987[] */
 
-pci_id_t pci_vid_1989[] = {
+static pci_id_t const pci_vid_1989[] = {
 {0x1989, 0xFFFF, 0xFFFF, 0xFFFF, "Montilio Inc.(0x1989)"},
 {0x1989, 0x0001, 0xFFFF, 0xFFFF, "RapidFile Bridge(0x0001)"},
 {0x1989, 0x8001, 0xFFFF, 0xFFFF, "RapidFile(0x8001)"},
 }; /* pci_vid_1989[] */
 
-pci_id_t pci_vid_198A[] = {
+static pci_id_t const pci_vid_198A[] = {
 {0x198A, 0xFFFF, 0xFFFF, 0xFFFF, "Nallatech Ltd.(0x198A)"},
 }; /* pci_vid_198A[] */
 
-pci_id_t pci_vid_1993[] = {
+static pci_id_t const pci_vid_1993[] = {
 {0x1993, 0xFFFF, 0xFFFF, 0xFFFF, "Innominate Security Technologies AG(0x1993)"},
 }; /* pci_vid_1993[] */
 
-pci_id_t pci_vid_1999[] = {
+static pci_id_t const pci_vid_1999[] = {
 {0x1999, 0xFFFF, 0xFFFF, 0xFFFF, "A-Logics(0x1999)"},
 {0x1999, 0xA900, 0xFFFF, 0xFFFF, "AM-7209 Video Processor(0xA900)"},
 }; /* pci_vid_1999[] */
 
-pci_id_t pci_vid_199A[] = {
+static pci_id_t const pci_vid_199A[] = {
 {0x199A, 0xFFFF, 0xFFFF, 0xFFFF, "Pulse-LINK, Inc.(0x199A)"},
 }; /* pci_vid_199A[] */
 
-pci_id_t pci_vid_199D[] = {
+static pci_id_t const pci_vid_199D[] = {
 {0x199D, 0xFFFF, 0xFFFF, 0xFFFF, "Xsigo Systems(0x199D)"},
 {0x199D, 0x8209, 0xFFFF, 0xFFFF, "Virtual NIC Device(0x8209)"},
 {0x199D, 0x890A, 0xFFFF, 0xFFFF, "Virtual HBA Device(0x890A)"},
 }; /* pci_vid_199D[] */
 
-pci_id_t pci_vid_199F[] = {
+static pci_id_t const pci_vid_199F[] = {
 {0x199F, 0xFFFF, 0xFFFF, 0xFFFF, "Auvitek(0x199F)"},
 {0x199F, 0x8501, 0xFFFF, 0xFFFF, "AU85X1 PCI REV1.1(0x8501)"},
 {0x199F, 0x8521, 0xFFFF, 0xFFFF, "AU8521 TV card(0x8521)"},
 }; /* pci_vid_199F[] */
 
-pci_id_t pci_vid_19A2[] = {
+static pci_id_t const pci_vid_19A2[] = {
 {0x19A2, 0xFFFF, 0xFFFF, 0xFFFF, "Emulex Corporation(0x19A2)"},
 {0x19A2, 0x0120, 0xFFFF, 0xFFFF, "x1 PCIe Gen2 Bridge[Pilot4](0x0120)"},
 {0x19A2, 0x0200, 0xFFFF, 0xFFFF, "BladeEngine 10Gb PCI-E iSCSI adapter(0x0200)"},
@@ -29016,62 +29139,62 @@ pci_id_t pci_vid_19A2[] = {
 {0x19A2, 0x0800, 0xFFFF, 0xFFFF, "ServerView iRMC HTI(0x0800)"},
 }; /* pci_vid_19A2[] */
 
-pci_id_t pci_vid_19A4[] = {
+static pci_id_t const pci_vid_19A4[] = {
 {0x19A4, 0xFFFF, 0xFFFF, 0xFFFF, "Owl Cyber Defense Solutions(0x19A4)"},
 }; /* pci_vid_19A4[] */
 
-pci_id_t pci_vid_19A8[] = {
+static pci_id_t const pci_vid_19A8[] = {
 {0x19A8, 0xFFFF, 0xFFFF, 0xFFFF, "DAQDATA GmbH(0x19A8)"},
 }; /* pci_vid_19A8[] */
 
-pci_id_t pci_vid_19AC[] = {
+static pci_id_t const pci_vid_19AC[] = {
 {0x19AC, 0xFFFF, 0xFFFF, 0xFFFF, "Kasten Chase Applied Research(0x19AC)"},
 {0x19AC, 0x0001, 0xFFFF, 0xFFFF, "ACA2400 Crypto Accelerator(0x0001)"},
 }; /* pci_vid_19AC[] */
 
-pci_id_t pci_vid_19AE[] = {
+static pci_id_t const pci_vid_19AE[] = {
 {0x19AE, 0xFFFF, 0xFFFF, 0xFFFF, "Progeny Systems Corporation(0x19AE)"},
 {0x19AE, 0x0520, 0xFFFF, 0xFFFF, "4135 HFT Interface Controller(0x0520)"},
 {0x19AE, 0x0521, 0xFFFF, 0xFFFF, "Decimator(0x0521)"},
 }; /* pci_vid_19AE[] */
 
-pci_id_t pci_vid_19BA[] = {
+static pci_id_t const pci_vid_19BA[] = {
 {0x19BA, 0xFFFF, 0xFFFF, 0xFFFF, "ZyXEL Communications Corp.(0x19BA)"},
 {0x19BA, 0x2330, 0xFFFF, 0xFFFF, "ZyWALL Turbo Card(0x2330)"},
 }; /* pci_vid_19BA[] */
 
-pci_id_t pci_vid_19C1[] = {
+static pci_id_t const pci_vid_19C1[] = {
 {0x19C1, 0xFFFF, 0xFFFF, 0xFFFF, "Exegy Inc.(0x19C1)"},
 }; /* pci_vid_19C1[] */
 
-pci_id_t pci_vid_19D1[] = {
+static pci_id_t const pci_vid_19D1[] = {
 {0x19D1, 0xFFFF, 0xFFFF, 0xFFFF, "Motorola Expedience(0x19D1)"},
 }; /* pci_vid_19D1[] */
 
-pci_id_t pci_vid_19D4[] = {
+static pci_id_t const pci_vid_19D4[] = {
 {0x19D4, 0xFFFF, 0xFFFF, 0xFFFF, "Quixant Limited(0x19D4)"},
 }; /* pci_vid_19D4[] */
 
-pci_id_t pci_vid_19DA[] = {
+static pci_id_t const pci_vid_19DA[] = {
 {0x19DA, 0xFFFF, 0xFFFF, 0xFFFF, "ZOTAC International (MCO) Ltd.(0x19DA)"},
 }; /* pci_vid_19DA[] */
 
-pci_id_t pci_vid_19DE[] = {
+static pci_id_t const pci_vid_19DE[] = {
 {0x19DE, 0xFFFF, 0xFFFF, 0xFFFF, "Pico Computing(0x19DE)"},
 }; /* pci_vid_19DE[] */
 
-pci_id_t pci_vid_19E2[] = {
+static pci_id_t const pci_vid_19E2[] = {
 {0x19E2, 0xFFFF, 0xFFFF, 0xFFFF, "Vector Informatik GmbH(0x19E2)"},
 }; /* pci_vid_19E2[] */
 
-pci_id_t pci_vid_19E3[] = {
+static pci_id_t const pci_vid_19E3[] = {
 {0x19E3, 0xFFFF, 0xFFFF, 0xFFFF, "DDRdrive LLC(0x19E3)"},
 {0x19E3, 0x5801, 0xFFFF, 0xFFFF, "DDRdrive X1(0x5801)"},
 {0x19E3, 0x5808, 0xFFFF, 0xFFFF, "DDRdrive X8(0x5808)"},
 {0x19E3, 0xDD52, 0xFFFF, 0xFFFF, "DDRdrive X1-30(0xDD52)"},
 }; /* pci_vid_19E3[] */
 
-pci_id_t pci_vid_19E5[] = {
+static pci_id_t const pci_vid_19E5[] = {
 {0x19E5, 0xFFFF, 0xFFFF, 0xFFFF, "Huawei Technologies Co., Ltd.(0x19E5)"},
 {0x19E5, 0x0123, 0xFFFF, 0xFFFF, "ES3000 V3 NVMe PCIe SSD(0x0123)"},
 {0x19E5, 0x0123, 0x19E5, 0x3022, "NVMe SSD ES3600P V3 800GB 2.5\" U.2(0x19E5-0x3022)"},
@@ -29173,7 +29296,7 @@ pci_id_t pci_vid_19E5[] = {
 {0x19E5, 0xA25B, 0xFFFF, 0xFFFF, "HiSilicon RDE Engine(Virtual Function)(0xA25B)"},
 }; /* pci_vid_19E5[] */
 
-pci_id_t pci_vid_19E7[] = {
+static pci_id_t const pci_vid_19E7[] = {
 {0x19E7, 0xFFFF, 0xFFFF, 0xFFFF, "NET (Network Equipment Technologies)(0x19E7)"},
 {0x19E7, 0x1001, 0xFFFF, 0xFFFF, "STIX DSP Card(0x1001)"},
 {0x19E7, 0x1002, 0xFFFF, 0xFFFF, "STIX - 1 Port T1/E1 Card(0x1002)"},
@@ -29182,19 +29305,19 @@ pci_id_t pci_vid_19E7[] = {
 {0x19E7, 0x1005, 0xFFFF, 0xFFFF, "STIX - 4 Port FXS Card(0x1005)"},
 }; /* pci_vid_19E7[] */
 
-pci_id_t pci_vid_19EE[] = {
+static pci_id_t const pci_vid_19EE[] = {
 {0x19EE, 0xFFFF, 0xFFFF, 0xFFFF, "Netronome Systems, Inc.(0x19EE)"},
 }; /* pci_vid_19EE[] */
 
-pci_id_t pci_vid_19F1[] = {
+static pci_id_t const pci_vid_19F1[] = {
 {0x19F1, 0xFFFF, 0xFFFF, 0xFFFF, "BFG Tech(0x19F1)"},
 }; /* pci_vid_19F1[] */
 
-pci_id_t pci_vid_19FF[] = {
+static pci_id_t const pci_vid_19FF[] = {
 {0x19FF, 0xFFFF, 0xFFFF, 0xFFFF, "Eclipse Electronic Systems, Inc.(0x19FF)"},
 }; /* pci_vid_19FF[] */
 
-pci_id_t pci_vid_1A03[] = {
+static pci_id_t const pci_vid_1A03[] = {
 {0x1A03, 0xFFFF, 0xFFFF, 0xFFFF, "ASPEED Technology, Inc.(0x1A03)"},
 {0x1A03, 0x1150, 0xFFFF, 0xFFFF, "AST1150 PCI-to-PCI Bridge(0x1150)"},
 {0x1A03, 0x2000, 0xFFFF, 0xFFFF, "ASPEED Graphics Family(0x2000)"},
@@ -29202,11 +29325,11 @@ pci_id_t pci_vid_1A03[] = {
 {0x1A03, 0x2000, 0x15D9, 0x1B95, "H12SSL-i(0x15D9-0x1B95)"},
 }; /* pci_vid_1A03[] */
 
-pci_id_t pci_vid_1A05[] = {
+static pci_id_t const pci_vid_1A05[] = {
 {0x1A05, 0xFFFF, 0xFFFF, 0xFFFF, "deltaww(0x1A05)"},
 }; /* pci_vid_1A05[] */
 
-pci_id_t pci_vid_1A07[] = {
+static pci_id_t const pci_vid_1A07[] = {
 {0x1A07, 0xFFFF, 0xFFFF, 0xFFFF, "Kvaser AB(0x1A07)"},
 {0x1A07, 0x0006, 0xFFFF, 0xFFFF, "CAN interface PC104+ HS/HS(0x0006)"},
 {0x1A07, 0x0007, 0xFFFF, 0xFFFF, "CAN interface PCIcanx II HS or HS/HS(0x0007)"},
@@ -29214,16 +29337,16 @@ pci_id_t pci_vid_1A07[] = {
 {0x1A07, 0x0009, 0xFFFF, 0xFFFF, "CAN interface PCI104 HS/HS(0x0009)"},
 }; /* pci_vid_1A07[] */
 
-pci_id_t pci_vid_1A08[] = {
+static pci_id_t const pci_vid_1A08[] = {
 {0x1A08, 0xFFFF, 0xFFFF, 0xFFFF, "Sierra semiconductor(0x1A08)"},
 {0x1A08, 0x0000, 0xFFFF, 0xFFFF, "SC15064(0x0000)"},
 }; /* pci_vid_1A08[] */
 
-pci_id_t pci_vid_1A0D[] = {
+static pci_id_t const pci_vid_1A0D[] = {
 {0x1A0D, 0xFFFF, 0xFFFF, 0xFFFF, "SEAKR Engineering(0x1A0D)"},
 }; /* pci_vid_1A0D[] */
 
-pci_id_t pci_vid_1A0E[] = {
+static pci_id_t const pci_vid_1A0E[] = {
 {0x1A0E, 0xFFFF, 0xFFFF, 0xFFFF, "DekTec Digital Video B.V.(0x1A0E)"},
 {0x1A0E, 0x083F, 0xFFFF, 0xFFFF, "DTA-2111 VHF/UHF Modulator(0x083F)"},
 {0x1A0E, 0x0860, 0xFFFF, 0xFFFF, "DTA-2144(B) Quad ASI/SDI in+out(0x0860)"},
@@ -29236,25 +29359,25 @@ pci_id_t pci_vid_1A0E[] = {
 {0x1A0E, 0xB87E, 0xFFFF, 0xFFFF, "DTA-2174B Quad 3G-SDI/ASI ports (1x12G) with genlock(0xB87E)"},
 }; /* pci_vid_1A0E[] */
 
-pci_id_t pci_vid_1A17[] = {
+static pci_id_t const pci_vid_1A17[] = {
 {0x1A17, 0xFFFF, 0xFFFF, 0xFFFF, "Force10 Networks, Inc.(0x1A17)"},
 {0x1A17, 0x8002, 0xFFFF, 0xFFFF, "PB-10GE-2P 10GbE Security Card(0x8002)"},
 }; /* pci_vid_1A17[] */
 
-pci_id_t pci_vid_1A1D[] = {
+static pci_id_t const pci_vid_1A1D[] = {
 {0x1A1D, 0xFFFF, 0xFFFF, 0xFFFF, "GFaI e.V.(0x1A1D)"},
 {0x1A1D, 0x1A17, 0xFFFF, 0xFFFF, "Meta Networks MTP-1G IDPS NIC(0x1A17)"},
 }; /* pci_vid_1A1D[] */
 
-pci_id_t pci_vid_1A1E[] = {
+static pci_id_t const pci_vid_1A1E[] = {
 {0x1A1E, 0xFFFF, 0xFFFF, 0xFFFF, "3Leaf Systems, Inc.(0x1A1E)"},
 }; /* pci_vid_1A1E[] */
 
-pci_id_t pci_vid_1A22[] = {
+static pci_id_t const pci_vid_1A22[] = {
 {0x1A22, 0xFFFF, 0xFFFF, 0xFFFF, "Ambric Inc.(0x1A22)"},
 }; /* pci_vid_1A22[] */
 
-pci_id_t pci_vid_1A29[] = {
+static pci_id_t const pci_vid_1A29[] = {
 {0x1A29, 0xFFFF, 0xFFFF, 0xFFFF, "Fortinet, Inc.(0x1A29)"},
 {0x1A29, 0x4338, 0xFFFF, 0xFFFF, "CP8 Content Processor ASIC(0x4338)"},
 {0x1A29, 0x43A0, 0xFFFF, 0xFFFF, "CP9 Content Processor ASIC(0x43A0)"},
@@ -29262,7 +29385,7 @@ pci_id_t pci_vid_1A29[] = {
 {0x1A29, 0x4E37, 0xFFFF, 0xFFFF, "NP7 Network Processor(0x4E37)"},
 }; /* pci_vid_1A29[] */
 
-pci_id_t pci_vid_1A2B[] = {
+static pci_id_t const pci_vid_1A2B[] = {
 {0x1A2B, 0xFFFF, 0xFFFF, 0xFFFF, "Ascom AG(0x1A2B)"},
 {0x1A2B, 0x0000, 0xFFFF, 0xFFFF, "GESP v1.2(0x0000)"},
 {0x1A2B, 0x0001, 0xFFFF, 0xFFFF, "GESP v1.3(0x0001)"},
@@ -29272,23 +29395,23 @@ pci_id_t pci_vid_1A2B[] = {
 {0x1A2B, 0x000E, 0xFFFF, 0xFFFF, "DSLP-104 v1.1(0x000E)"},
 }; /* pci_vid_1A2B[] */
 
-pci_id_t pci_vid_1A30[] = {
+static pci_id_t const pci_vid_1A30[] = {
 {0x1A30, 0xFFFF, 0xFFFF, 0xFFFF, "Lantiq(0x1A30)"},
 {0x1A30, 0x0680, 0xFFFF, 0xFFFF, "MtW8171 [Hyperion II](0x0680)"},
 {0x1A30, 0x0700, 0xFFFF, 0xFFFF, "Wave300 PSB8224 [Hyperion III](0x0700)"},
 {0x1A30, 0x0710, 0xFFFF, 0xFFFF, "Wave300 PSB8231 [Hyperion III](0x0710)"},
 }; /* pci_vid_1A30[] */
 
-pci_id_t pci_vid_1A32[] = {
+static pci_id_t const pci_vid_1A32[] = {
 {0x1A32, 0xFFFF, 0xFFFF, 0xFFFF, "Quanta Microsystems, Inc(0x1A32)"},
 }; /* pci_vid_1A32[] */
 
-pci_id_t pci_vid_1A3B[] = {
+static pci_id_t const pci_vid_1A3B[] = {
 {0x1A3B, 0xFFFF, 0xFFFF, 0xFFFF, "AzureWave(0x1A3B)"},
 {0x1A3B, 0x1112, 0xFFFF, 0xFFFF, "AR9285 Wireless Network Adapter (PCI-Express)(0x1112)"},
 }; /* pci_vid_1A3B[] */
 
-pci_id_t pci_vid_1A41[] = {
+static pci_id_t const pci_vid_1A41[] = {
 {0x1A41, 0xFFFF, 0xFFFF, 0xFFFF, "Tilera Corp.(0x1A41)"},
 {0x1A41, 0x0001, 0xFFFF, 0xFFFF, "TILE64 processor(0x0001)"},
 {0x1A41, 0x0002, 0xFFFF, 0xFFFF, "TILEPro processor(0x0002)"},
@@ -29297,7 +29420,7 @@ pci_id_t pci_vid_1A41[] = {
 {0x1A41, 0x2000, 0xFFFF, 0xFFFF, "TILE-Gx PCI Express Root Port(0x2000)"},
 }; /* pci_vid_1A41[] */
 
-pci_id_t pci_vid_1A4A[] = {
+static pci_id_t const pci_vid_1A4A[] = {
 {0x1A4A, 0xFFFF, 0xFFFF, 0xFFFF, "SLAC National Accelerator Lab TID-AIR(0x1A4A)"},
 {0x1A4A, 0x1000, 0xFFFF, 0xFFFF, "MCOR Power Supply Controller(0x1000)"},
 {0x1A4A, 0x1010, 0xFFFF, 0xFFFF, "AMC EVR - Stockholm Timing Board(0x1010)"},
@@ -29314,11 +29437,11 @@ pci_id_t pci_vid_1A4A[] = {
 {0x1A4A, 0x3001, 0xFFFF, 0xFFFF, "COB DTM V2(0x3001)"},
 }; /* pci_vid_1A4A[] */
 
-pci_id_t pci_vid_1A51[] = {
+static pci_id_t const pci_vid_1A51[] = {
 {0x1A51, 0xFFFF, 0xFFFF, 0xFFFF, "Hectronic AB(0x1A51)"},
 }; /* pci_vid_1A51[] */
 
-pci_id_t pci_vid_1A55[] = {
+static pci_id_t const pci_vid_1A55[] = {
 {0x1A55, 0xFFFF, 0xFFFF, 0xFFFF, "Rohde & Schwarz DVS GmbH(0x1A55)"},
 {0x1A55, 0x0010, 0xFFFF, 0xFFFF, "SDStationOEM(0x0010)"},
 {0x1A55, 0x0011, 0xFFFF, 0xFFFF, "SDStationOEM II(0x0011)"},
@@ -29338,52 +29461,52 @@ pci_id_t pci_vid_1A55[] = {
 {0x1A55, 0x0090, 0xFFFF, 0xFFFF, "CinePlay(0x0090)"},
 }; /* pci_vid_1A55[] */
 
-pci_id_t pci_vid_1A56[] = {
+static pci_id_t const pci_vid_1A56[] = {
 {0x1A56, 0xFFFF, 0xFFFF, 0xFFFF, "Rivet Networks(0x1A56)"},
 }; /* pci_vid_1A56[] */
 
-pci_id_t pci_vid_1A57[] = {
+static pci_id_t const pci_vid_1A57[] = {
 {0x1A57, 0xFFFF, 0xFFFF, 0xFFFF, "Highly Reliable Systems(0x1A57)"},
 }; /* pci_vid_1A57[] */
 
-pci_id_t pci_vid_1A58[] = {
+static pci_id_t const pci_vid_1A58[] = {
 {0x1A58, 0xFFFF, 0xFFFF, 0xFFFF, "Razer USA Ltd.(0x1A58)"},
 }; /* pci_vid_1A58[] */
 
-pci_id_t pci_vid_1A5D[] = {
+static pci_id_t const pci_vid_1A5D[] = {
 {0x1A5D, 0xFFFF, 0xFFFF, 0xFFFF, "Celoxica(0x1A5D)"},
 }; /* pci_vid_1A5D[] */
 
-pci_id_t pci_vid_1A5E[] = {
+static pci_id_t const pci_vid_1A5E[] = {
 {0x1A5E, 0xFFFF, 0xFFFF, 0xFFFF, "Aprius Inc.(0x1A5E)"},
 }; /* pci_vid_1A5E[] */
 
-pci_id_t pci_vid_1A5F[] = {
+static pci_id_t const pci_vid_1A5F[] = {
 {0x1A5F, 0xFFFF, 0xFFFF, 0xFFFF, "System TALKS Inc.(0x1A5F)"},
 }; /* pci_vid_1A5F[] */
 
-pci_id_t pci_vid_1A68[] = {
+static pci_id_t const pci_vid_1A68[] = {
 {0x1A68, 0xFFFF, 0xFFFF, 0xFFFF, "VirtenSys Limited(0x1A68)"},
 }; /* pci_vid_1A68[] */
 
-pci_id_t pci_vid_1A71[] = {
+static pci_id_t const pci_vid_1A71[] = {
 {0x1A71, 0xFFFF, 0xFFFF, 0xFFFF, "XenSource, Inc.(0x1A71)"},
 }; /* pci_vid_1A71[] */
 
-pci_id_t pci_vid_1A73[] = {
+static pci_id_t const pci_vid_1A73[] = {
 {0x1A73, 0xFFFF, 0xFFFF, 0xFFFF, "Violin Memory, Inc(0x1A73)"},
 {0x1A73, 0x0001, 0xFFFF, 0xFFFF, "Mozart [Memory Appliance 1010](0x0001)"},
 }; /* pci_vid_1A73[] */
 
-pci_id_t pci_vid_1A76[] = {
+static pci_id_t const pci_vid_1A76[] = {
 {0x1A76, 0xFFFF, 0xFFFF, 0xFFFF, "Wavesat(0x1A76)"},
 }; /* pci_vid_1A76[] */
 
-pci_id_t pci_vid_1A77[] = {
+static pci_id_t const pci_vid_1A77[] = {
 {0x1A77, 0xFFFF, 0xFFFF, 0xFFFF, "Lightfleet Corporation(0x1A77)"},
 }; /* pci_vid_1A77[] */
 
-pci_id_t pci_vid_1A78[] = {
+static pci_id_t const pci_vid_1A78[] = {
 {0x1A78, 0xFFFF, 0xFFFF, 0xFFFF, "Virident Systems Inc.(0x1A78)"},
 {0x1A78, 0x0031, 0xFFFF, 0xFFFF, "FlashMAX Drive(0x0031)"},
 {0x1A78, 0x0031, 0x1A78, 0x0034, "FlashMAX PCIe SSD [rev 3](0x1A78-0x0034)"},
@@ -29396,37 +29519,37 @@ pci_id_t pci_vid_1A78[] = {
 {0x1A78, 0x0050, 0xFFFF, 0xFFFF, "FlashMAX III(0x0050)"},
 }; /* pci_vid_1A78[] */
 
-pci_id_t pci_vid_1A84[] = {
+static pci_id_t const pci_vid_1A84[] = {
 {0x1A84, 0xFFFF, 0xFFFF, 0xFFFF, "Commex Technologies(0x1A84)"},
 {0x1A84, 0x0001, 0xFFFF, 0xFFFF, "Vulcan SP HT6210 10-Gigabit Ethernet (rev 02)(0x0001)"},
 }; /* pci_vid_1A84[] */
 
-pci_id_t pci_vid_1A88[] = {
+static pci_id_t const pci_vid_1A88[] = {
 {0x1A88, 0xFFFF, 0xFFFF, 0xFFFF, "Duagon AG(0x1A88)"},
 {0x1A88, 0x4D45, 0xFFFF, 0xFFFF, "Multifunction IP core(0x4D45)"},
 }; /* pci_vid_1A88[] */
 
-pci_id_t pci_vid_1A8A[] = {
+static pci_id_t const pci_vid_1A8A[] = {
 {0x1A8A, 0xFFFF, 0xFFFF, 0xFFFF, "StarBridge, Inc.(0x1A8A)"},
 }; /* pci_vid_1A8A[] */
 
-pci_id_t pci_vid_1A8C[] = {
+static pci_id_t const pci_vid_1A8C[] = {
 {0x1A8C, 0xFFFF, 0xFFFF, 0xFFFF, "Verigy Pte. Ltd.(0x1A8C)"},
 {0x1A8C, 0x1100, 0xFFFF, 0xFFFF, "E8001-66443 PCI Express CIC(0x1100)"},
 }; /* pci_vid_1A8C[] */
 
-pci_id_t pci_vid_1A8E[] = {
+static pci_id_t const pci_vid_1A8E[] = {
 {0x1A8E, 0xFFFF, 0xFFFF, 0xFFFF, "DRS Technologies(0x1A8E)"},
 {0x1A8E, 0x2090, 0xFFFF, 0xFFFF, "Model 2090 PCI Express(0x2090)"},
 }; /* pci_vid_1A8E[] */
 
-pci_id_t pci_vid_1AA8[] = {
+static pci_id_t const pci_vid_1AA8[] = {
 {0x1AA8, 0xFFFF, 0xFFFF, 0xFFFF, "Ciprico, Inc.(0x1AA8)"},
 {0x1AA8, 0x0009, 0xFFFF, 0xFFFF, "RAIDCore Controller(0x0009)"},
 {0x1AA8, 0x000A, 0xFFFF, 0xFFFF, "RAIDCore Controller(0x000A)"},
 }; /* pci_vid_1AA8[] */
 
-pci_id_t pci_vid_1AA9[] = {
+static pci_id_t const pci_vid_1AA9[] = {
 {0x1AA9, 0xFFFF, 0xFFFF, 0xFFFF, "Schweitzer Engineering Laboratories(0x1AA9)"},
 {0x1AA9, 0x000D, 0xFFFF, 0xFFFF, "SEL-3390S8 Serial Adapter(0x000D)"},
 {0x1AA9, 0x000E, 0xFFFF, 0xFFFF, "SEL-3390E4 Ethernet Adapter(0x000E)"},
@@ -29438,55 +29561,55 @@ pci_id_t pci_vid_1AA9[] = {
 {0x1AA9, 0x001C, 0xFFFF, 0xFFFF, "SEL-3390E4 Ethernet Adapter(0x001C)"},
 }; /* pci_vid_1AA9[] */
 
-pci_id_t pci_vid_1AAB[] = {
+static pci_id_t const pci_vid_1AAB[] = {
 {0x1AAB, 0xFFFF, 0xFFFF, 0xFFFF, "Silver Creations AG(0x1AAB)"},
 {0x1AAB, 0x7750, 0xFFFF, 0xFFFF, "Sceye 10L(0x7750)"},
 }; /* pci_vid_1AAB[] */
 
-pci_id_t pci_vid_1AAE[] = {
+static pci_id_t const pci_vid_1AAE[] = {
 {0x1AAE, 0xFFFF, 0xFFFF, 0xFFFF, "Global Velocity, Inc.(0x1AAE)"},
 }; /* pci_vid_1AAE[] */
 
-pci_id_t pci_vid_1AB4[] = {
+static pci_id_t const pci_vid_1AB4[] = {
 {0x1AB4, 0xFFFF, 0xFFFF, 0xFFFF, "Distributed Management Task Force, Inc. (DMTF)(0x1AB4)"},
 }; /* pci_vid_1AB4[] */
 
-pci_id_t pci_vid_1AB6[] = {
+static pci_id_t const pci_vid_1AB6[] = {
 {0x1AB6, 0xFFFF, 0xFFFF, 0xFFFF, "CalDigit, Inc.(0x1AB6)"},
 {0x1AB6, 0x6201, 0xFFFF, 0xFFFF, "RAID Card(0x6201)"},
 }; /* pci_vid_1AB6[] */
 
-pci_id_t pci_vid_1AB8[] = {
+static pci_id_t const pci_vid_1AB8[] = {
 {0x1AB8, 0xFFFF, 0xFFFF, 0xFFFF, "Parallels, Inc.(0x1AB8)"},
 {0x1AB8, 0x4000, 0xFFFF, 0xFFFF, "Virtual Machine Communication Interface(0x4000)"},
 {0x1AB8, 0x4005, 0xFFFF, 0xFFFF, "Accelerated Virtual Video Adapter(0x4005)"},
 {0x1AB8, 0x4006, 0xFFFF, 0xFFFF, "Memory Ballooning Controller(0x4006)"},
 }; /* pci_vid_1AB8[] */
 
-pci_id_t pci_vid_1AB9[] = {
+static pci_id_t const pci_vid_1AB9[] = {
 {0x1AB9, 0xFFFF, 0xFFFF, 0xFFFF, "Espia Srl(0x1AB9)"},
 }; /* pci_vid_1AB9[] */
 
-pci_id_t pci_vid_1AC1[] = {
+static pci_id_t const pci_vid_1AC1[] = {
 {0x1AC1, 0xFFFF, 0xFFFF, 0xFFFF, "Global Unichip Corp.(0x1AC1)"},
 {0x1AC1, 0x089A, 0xFFFF, 0xFFFF, "Coral Edge TPU(0x089A)"},
 }; /* pci_vid_1AC1[] */
 
-pci_id_t pci_vid_1AC8[] = {
+static pci_id_t const pci_vid_1AC8[] = {
 {0x1AC8, 0xFFFF, 0xFFFF, 0xFFFF, "Aeroflex Gaisler(0x1AC8)"},
 }; /* pci_vid_1AC8[] */
 
-pci_id_t pci_vid_1ACC[] = {
+static pci_id_t const pci_vid_1ACC[] = {
 {0x1ACC, 0xFFFF, 0xFFFF, 0xFFFF, "Point of View BV(0x1ACC)"},
 }; /* pci_vid_1ACC[] */
 
-pci_id_t pci_vid_1AD7[] = {
+static pci_id_t const pci_vid_1AD7[] = {
 {0x1AD7, 0xFFFF, 0xFFFF, 0xFFFF, "Spectracom Corporation(0x1AD7)"},
 {0x1AD7, 0x8000, 0xFFFF, 0xFFFF, "TSync-PCIe Time Code Processor(0x8000)"},
 {0x1AD7, 0x9100, 0xFFFF, 0xFFFF, "TPRO-PCI-66U Timecode Reader/Generator(0x9100)"},
 }; /* pci_vid_1AD7[] */
 
-pci_id_t pci_vid_1ADE[] = {
+static pci_id_t const pci_vid_1ADE[] = {
 {0x1ADE, 0xFFFF, 0xFFFF, 0xFFFF, "Spin Master Ltd.(0x1ADE)"},
 {0x1ADE, 0x1501, 0xFFFF, 0xFFFF, "Swipetech barcode scanner(0x1501)"},
 {0x1ADE, 0x3038, 0xFFFF, 0xFFFF, "PCIe Video Bridge(0x3038)"},
@@ -29494,23 +29617,23 @@ pci_id_t pci_vid_1ADE[] = {
 {0x1ADE, 0x3038, 0x4254, 0x0552, "S952 v3(0x4254-0x0552)"},
 }; /* pci_vid_1ADE[] */
 
-pci_id_t pci_vid_1AE0[] = {
+static pci_id_t const pci_vid_1AE0[] = {
 {0x1AE0, 0xFFFF, 0xFFFF, 0xFFFF, "Google, Inc.(0x1AE0)"},
 {0x1AE0, 0x001F, 0xFFFF, 0xFFFF, "NVMe device(0x001F)"},
 {0x1AE0, 0x0042, 0xFFFF, 0xFFFF, "Compute Engine Virtual Ethernet [gVNIC](0x0042)"},
 {0x1AE0, 0xABCD, 0xFFFF, 0xFFFF, "Airbrush Combined Paintbox IPU/Oscar Edge TPU [Pixel Neural Core](0xABCD)"},
 }; /* pci_vid_1AE0[] */
 
-pci_id_t pci_vid_1AE3[] = {
+static pci_id_t const pci_vid_1AE3[] = {
 {0x1AE3, 0xFFFF, 0xFFFF, 0xFFFF, "SANBlaze Technology, Inc.(0x1AE3)"},
 }; /* pci_vid_1AE3[] */
 
-pci_id_t pci_vid_1AE7[] = {
+static pci_id_t const pci_vid_1AE7[] = {
 {0x1AE7, 0xFFFF, 0xFFFF, 0xFFFF, "First Wise Media GmbH(0x1AE7)"},
 {0x1AE7, 0x0520, 0xFFFF, 0xFFFF, "HFC-S PCI A [X-TENSIONS XC-520](0x0520)"},
 }; /* pci_vid_1AE7[] */
 
-pci_id_t pci_vid_1AE8[] = {
+static pci_id_t const pci_vid_1AE8[] = {
 {0x1AE8, 0xFFFF, 0xFFFF, 0xFFFF, "Basler AG(0x1AE8)"},
 {0x1AE8, 0x0751, 0xFFFF, 0xFFFF, "mE5 marathon VCL(0x0751)"},
 {0x1AE8, 0x0752, 0xFFFF, 0xFFFF, "mE5 marathon AF2(0x0752)"},
@@ -29544,7 +29667,7 @@ pci_id_t pci_vid_1AE8[] = {
 {0x1AE8, 0x0E44, 0xFFFF, 0xFFFF, "microEnable IV VQ4-GE(0x0E44)"},
 }; /* pci_vid_1AE8[] */
 
-pci_id_t pci_vid_1AE9[] = {
+static pci_id_t const pci_vid_1AE9[] = {
 {0x1AE9, 0xFFFF, 0xFFFF, 0xFFFF, "Wilocity Ltd.(0x1AE9)"},
 {0x1AE9, 0x0101, 0xFFFF, 0xFFFF, "Wil6200 PCI Express Upstream Port(0x0101)"},
 {0x1AE9, 0x0200, 0xFFFF, 0xFFFF, "Wil6200 PCI Express Port(0x0200)"},
@@ -29554,18 +29677,18 @@ pci_id_t pci_vid_1AE9[] = {
 {0x1AE9, 0x0310, 0xFFFF, 0xFFFF, "Wil6200 802.11ad Wireless Network Adapter(0x0310)"},
 }; /* pci_vid_1AE9[] */
 
-pci_id_t pci_vid_1AEA[] = {
+static pci_id_t const pci_vid_1AEA[] = {
 {0x1AEA, 0xFFFF, 0xFFFF, 0xFFFF, "Alcor Micro(0x1AEA)"},
 {0x1AEA, 0x6601, 0xFFFF, 0xFFFF, "AU6601 PCI-E Flash card reader controller(0x6601)"},
 {0x1AEA, 0x6621, 0xFFFF, 0xFFFF, "AU6621 PCI-E Flash card reader controller(0x6621)"},
 {0x1AEA, 0x6625, 0xFFFF, 0xFFFF, "AU6625 PCI-E Flash card reader controller(0x6625)"},
 }; /* pci_vid_1AEA[] */
 
-pci_id_t pci_vid_1AEC[] = {
+static pci_id_t const pci_vid_1AEC[] = {
 {0x1AEC, 0xFFFF, 0xFFFF, 0xFFFF, "Wolfson Microelectronics(0x1AEC)"},
 }; /* pci_vid_1AEC[] */
 
-pci_id_t pci_vid_1AED[] = {
+static pci_id_t const pci_vid_1AED[] = {
 {0x1AED, 0xFFFF, 0xFFFF, 0xFFFF, "SanDisk(0x1AED)"},
 {0x1AED, 0x1003, 0xFFFF, 0xFFFF, "ioDimm3 (v1.2)(0x1003)"},
 {0x1AED, 0x1005, 0xFFFF, 0xFFFF, "ioDimm3(0x1005)"},
@@ -29585,11 +29708,11 @@ pci_id_t pci_vid_1AED[] = {
 {0x1AED, 0x3003, 0xFFFF, 0xFFFF, "ioMemory Mezzanine(0x3003)"},
 }; /* pci_vid_1AED[] */
 
-pci_id_t pci_vid_1AEE[] = {
+static pci_id_t const pci_vid_1AEE[] = {
 {0x1AEE, 0xFFFF, 0xFFFF, 0xFFFF, "Caustic Graphics Inc.(0x1AEE)"},
 }; /* pci_vid_1AEE[] */
 
-pci_id_t pci_vid_1AF4[] = {
+static pci_id_t const pci_vid_1AF4[] = {
 {0x1AF4, 0xFFFF, 0xFFFF, 0xFFFF, "Red Hat, Inc.(0x1AF4)"},
 {0x1AF4, 0x1000, 0xFFFF, 0xFFFF, "Virtio network device(0x1000)"},
 {0x1AF4, 0x1000, 0x01DE, 0xFFFB, "Propolis Virtio network device(0x01DE-0xFFFB)"},
@@ -29615,76 +29738,92 @@ pci_id_t pci_vid_1AF4[] = {
 {0x1AF4, 0x1110, 0x1AF4, 0x1100, "QEMU Virtual Machine(0x1AF4-0x1100)"},
 }; /* pci_vid_1AF4[] */
 
-pci_id_t pci_vid_1AF5[] = {
+static pci_id_t const pci_vid_1AF5[] = {
 {0x1AF5, 0xFFFF, 0xFFFF, 0xFFFF, "Netezza Corp.(0x1AF5)"},
 }; /* pci_vid_1AF5[] */
 
-pci_id_t pci_vid_1AFA[] = {
+static pci_id_t const pci_vid_1AFA[] = {
 {0x1AFA, 0xFFFF, 0xFFFF, 0xFFFF, "J & W Electronics Co., Ltd.(0x1AFA)"},
 }; /* pci_vid_1AFA[] */
 
-pci_id_t pci_vid_1B00[] = {
+static pci_id_t const pci_vid_1B00[] = {
 {0x1B00, 0xFFFF, 0xFFFF, 0xFFFF, "Montage Technology Co., Ltd.(0x1B00)"},
+{0x1B00, 0xC001, 0xFFFF, 0xFFFF, "CXL Memory Expander Controller M88MX5891(0xC001)"},
+{0x1B00, 0xC001, 0x1FF9, 0x00A2, "CXL Memory Expander(0x1FF9-0x00A2)"},
+{0x1B00, 0xC001, 0x1FF9, 0x00A4, "CXL Memory Expander(0x1FF9-0x00A4)"},
 }; /* pci_vid_1B00[] */
 
-pci_id_t pci_vid_1B03[] = {
+static pci_id_t const pci_vid_1B03[] = {
 {0x1B03, 0xFFFF, 0xFFFF, 0xFFFF, "Magnum Semiconductor, Inc,(0x1B03)"},
 {0x1B03, 0x6100, 0xFFFF, 0xFFFF, "DXT/DXTPro Multiformat Broadcast HD/SD Encoder/Decoder/Transcoder(0x6100)"},
 {0x1B03, 0x7000, 0xFFFF, 0xFFFF, "D7 Multiformat Broadcast HD/SD Encoder/Decoder/Transcoder(0x7000)"},
 }; /* pci_vid_1B03[] */
 
-pci_id_t pci_vid_1B08[] = {
+static pci_id_t const pci_vid_1B08[] = {
 {0x1B08, 0xFFFF, 0xFFFF, 0xFFFF, "MSC Technologies GmbH(0x1B08)"},
 }; /* pci_vid_1B08[] */
 
-pci_id_t pci_vid_1B0A[] = {
+static pci_id_t const pci_vid_1B0A[] = {
 {0x1B0A, 0xFFFF, 0xFFFF, 0xFFFF, "Pegatron(0x1B0A)"},
+{0x1B0A, 0x9602, 0xFFFF, 0xFFFF, "RS780/RS880 PCI to PCI bridge (int gfx)(0x9602)"},
 }; /* pci_vid_1B0A[] */
 
-pci_id_t pci_vid_1B13[] = {
+static pci_id_t const pci_vid_1B13[] = {
 {0x1B13, 0xFFFF, 0xFFFF, 0xFFFF, "Jaton Corp(0x1B13)"},
 }; /* pci_vid_1B13[] */
 
-pci_id_t pci_vid_1B1A[] = {
+static pci_id_t const pci_vid_1B1A[] = {
 {0x1B1A, 0xFFFF, 0xFFFF, 0xFFFF, "K&F Computing Research Co.(0x1B1A)"},
 {0x1B1A, 0x0E70, 0xFFFF, 0xFFFF, "GRAPE(0x0E70)"},
 }; /* pci_vid_1B1A[] */
 
-pci_id_t pci_vid_1B1C[] = {
+static pci_id_t const pci_vid_1B1C[] = {
 {0x1B1C, 0xFFFF, 0xFFFF, 0xFFFF, "Corsair(0x1B1C)"},
 }; /* pci_vid_1B1C[] */
 
-pci_id_t pci_vid_1B21[] = {
+static pci_id_t const pci_vid_1B21[] = {
 {0x1B21, 0xFFFF, 0xFFFF, 0xFFFF, "ASMedia Technology Inc.(0x1B21)"},
-{0x1B21, 0x0611, 0xFFFF, 0xFFFF, "ASM1061 SATA IDE Controller(0x0611)"},
-{0x1B21, 0x0612, 0xFFFF, 0xFFFF, "ASM1062 Serial ATA Controller(0x0612)"},
+{0x1B21, 0x0611, 0xFFFF, 0xFFFF, "ASM1061 Serial ATA Controller(0x0611)"},
+{0x1B21, 0x0612, 0xFFFF, 0xFFFF, "ASM1061/ASM1062 Serial ATA Controller(0x0612)"},
 {0x1B21, 0x0612, 0x1849, 0x0612, "Motherboard(0x1849-0x0612)"},
+{0x1B21, 0x0622, 0xFFFF, 0xFFFF, "ASM106x Serial ATA AHCI Controller(0x0622)"},
+{0x1B21, 0x0624, 0xFFFF, 0xFFFF, "ASM106x SATA/RAID Controller(0x0624)"},
 {0x1B21, 0x0625, 0xFFFF, 0xFFFF, "106x SATA/RAID Controller(0x0625)"},
-{0x1B21, 0x1040, 0xFFFF, 0xFFFF, "ASM1040 XHCI Controller(0x1040)"},
+{0x1B21, 0x1040, 0xFFFF, 0xFFFF, "ASM1040 SuperSpeed USB Host Controller(0x1040)"},
+{0x1B21, 0x1041, 0xFFFF, 0xFFFF, "ASM1041 SuperSpeed USB Host Controller(0x1041)"},
 {0x1B21, 0x1042, 0xFFFF, 0xFFFF, "ASM1042 SuperSpeed USB Host Controller(0x1042)"},
 {0x1B21, 0x1042, 0x1043, 0x1059, "K53SM motherboard(0x1043-0x1059)"},
 {0x1B21, 0x1042, 0x1043, 0x8488, "P8B WS Motherboard(0x1043-0x8488)"},
 {0x1B21, 0x1042, 0x1849, 0x1042, "Motherboard(0x1849-0x1042)"},
+{0x1B21, 0x1064, 0xFFFF, 0xFFFF, "ASM1064 Serial ATA Controller(0x1064)"},
 {0x1B21, 0x1080, 0xFFFF, 0xFFFF, "ASM1083/1085 PCIe to PCI Bridge(0x1080)"},
 {0x1B21, 0x1080, 0x1849, 0x1080, "Motherboard(0x1849-0x1080)"},
 {0x1B21, 0x1142, 0xFFFF, 0xFFFF, "ASM1042A USB 3.0 Host Controller(0x1142)"},
+{0x1B21, 0x1164, 0xFFFF, 0xFFFF, "ASM1164 Serial ATA AHCI Controller(0x1164)"},
 {0x1B21, 0x1166, 0xFFFF, 0xFFFF, "ASM1166 Serial ATA Controller(0x1166)"},
 {0x1B21, 0x1182, 0xFFFF, 0xFFFF, "ASM1182e 2-Port PCIe x1 Gen2 Packet Switch(0x1182)"},
 {0x1B21, 0x1182, 0x1B21, 0x118F, "ASM1182e 2-Port PCIe x1 Gen2 Packet Switch(0x1B21-0x118F)"},
 {0x1B21, 0x1184, 0xFFFF, 0xFFFF, "ASM1184e 4-Port PCIe x1 Gen2 Packet Switch(0x1184)"},
 {0x1B21, 0x1184, 0x1849, 0x1184, "ASM1184e 4-Port PCIe x1 Gen2 Packet Switch(0x1849-0x1184)"},
 {0x1B21, 0x1187, 0xFFFF, 0xFFFF, "ASM1187e 7-Port PCIe x1 Gen2 Packet Switch(0x1187)"},
+{0x1B21, 0x118F, 0xFFFF, 0xFFFF, "ASM1187e 7-Port PCIe x1 Gen2 Packet Switch(0x118F)"},
 {0x1B21, 0x1242, 0xFFFF, 0xFFFF, "ASM1142 USB 3.1 Host Controller(0x1242)"},
 {0x1B21, 0x1343, 0xFFFF, 0xFFFF, "ASM1143 USB 3.1 Host Controller(0x1343)"},
+{0x1B21, 0x1806, 0xFFFF, 0xFFFF, "ASM1806 4-Port PCIe x2 Gen2 Packet Switch(0x1806)"},
 {0x1B21, 0x1812, 0xFFFF, 0xFFFF, "ASM1812 6-Port PCIe x4 Gen2 Packet Switch(0x1812)"},
+{0x1B21, 0x1824, 0xFFFF, 0xFFFF, "ASM1824 12-Port PCIe x8 Gen2 Packet Switch(0x1824)"},
 {0x1B21, 0x2142, 0xFFFF, 0xFFFF, "ASM2142/ASM3142 USB 3.1 Host Controller(0x2142)"},
 {0x1B21, 0x2142, 0x1462, 0x7A72, "H270 PC MATE(0x1462-0x7A72)"},
+{0x1B21, 0x2806, 0xFFFF, 0xFFFF, "ASM2806 4-Port PCIe x2 Gen3 Packet Switch(0x2806)"},
+{0x1B21, 0x2812, 0xFFFF, 0xFFFF, "ASM2812 6-Port PCIe x4 Gen3 Packet Switch(0x2812)"},
 {0x1B21, 0x2824, 0xFFFF, 0xFFFF, "ASM2824 PCIe Gen3 Packet Switch(0x2824)"},
 {0x1B21, 0x3042, 0xFFFF, 0xFFFF, "ASM3042 USB 3.2 Gen 1 xHCI Controller(0x3042)"},
+{0x1B21, 0x3142, 0xFFFF, 0xFFFF, "ASM3142 USB 3.2 Gen 2x1 xHCI Controller(0x3142)"},
+{0x1B21, 0x3241, 0xFFFF, 0xFFFF, "ASM3241 USB 3.2 Gen 2 Host Controller(0x3241)"},
 {0x1B21, 0x3242, 0xFFFF, 0xFFFF, "ASM3242 USB 3.2 Host Controller(0x3242)"},
 }; /* pci_vid_1B21[] */
 
-pci_id_t pci_vid_1B26[] = {
+static pci_id_t const pci_vid_1B26[] = {
 {0x1B26, 0xFFFF, 0xFFFF, 0xFFFF, "Netcope Technologies, a.s.(0x1B26)"},
 {0x1B26, 0xC132, 0xFFFF, 0xFFFF, "COMBO-LXT155(0xC132)"},
 {0x1B26, 0xC1C0, 0xFFFF, 0xFFFF, "NFB-100G1-e0(0xC1C0)"},
@@ -29698,11 +29837,11 @@ pci_id_t pci_vid_1B26[] = {
 {0x1B26, 0xCB80, 0xFFFF, 0xFFFF, "NFB-40G2(0xCB80)"},
 }; /* pci_vid_1B26[] */
 
-pci_id_t pci_vid_1B2C[] = {
+static pci_id_t const pci_vid_1B2C[] = {
 {0x1B2C, 0xFFFF, 0xFFFF, 0xFFFF, "Opal-RT Technologies Inc.(0x1B2C)"},
 }; /* pci_vid_1B2C[] */
 
-pci_id_t pci_vid_1B36[] = {
+static pci_id_t const pci_vid_1B36[] = {
 {0x1B36, 0xFFFF, 0xFFFF, 0xFFFF, "Red Hat, Inc.(0x1B36)"},
 {0x1B36, 0x0001, 0xFFFF, 0xFFFF, "QEMU PCI-PCI bridge(0x0001)"},
 {0x1B36, 0x0002, 0xFFFF, 0xFFFF, "QEMU PCI 16550A Adapter(0x0002)"},
@@ -29728,7 +29867,7 @@ pci_id_t pci_vid_1B36[] = {
 {0x1B36, 0x0100, 0x1AF4, 0x1100, "QEMU Virtual Machine(0x1AF4-0x1100)"},
 }; /* pci_vid_1B36[] */
 
-pci_id_t pci_vid_1B37[] = {
+static pci_id_t const pci_vid_1B37[] = {
 {0x1B37, 0xFFFF, 0xFFFF, 0xFFFF, "Signal Processing Devices Sweden AB(0x1B37)"},
 {0x1B37, 0x0001, 0xFFFF, 0xFFFF, "ADQ214(0x0001)"},
 {0x1B37, 0x0003, 0xFFFF, 0xFFFF, "ADQ114(0x0003)"},
@@ -29749,34 +29888,34 @@ pci_id_t pci_vid_1B37[] = {
 {0x1B37, 0x2019, 0xFFFF, 0xFFFF, "S6000(0x2019)"},
 }; /* pci_vid_1B37[] */
 
-pci_id_t pci_vid_1B39[] = {
+static pci_id_t const pci_vid_1B39[] = {
 {0x1B39, 0xFFFF, 0xFFFF, 0xFFFF, "sTec, Inc.(0x1B39)"},
 {0x1B39, 0x0001, 0xFFFF, 0xFFFF, "S1120 PCIe Accelerator SSD(0x0001)"},
 }; /* pci_vid_1B39[] */
 
-pci_id_t pci_vid_1B3A[] = {
+static pci_id_t const pci_vid_1B3A[] = {
 {0x1B3A, 0xFFFF, 0xFFFF, 0xFFFF, "Westar Display Technologies(0x1B3A)"},
 {0x1B3A, 0x7589, 0xFFFF, 0xFFFF, "HRED J2000 - JPEG 2000 Video Codec Device(0x7589)"},
 }; /* pci_vid_1B3A[] */
 
-pci_id_t pci_vid_1B3E[] = {
+static pci_id_t const pci_vid_1B3E[] = {
 {0x1B3E, 0xFFFF, 0xFFFF, 0xFFFF, "Teradata Corp.(0x1B3E)"},
 {0x1B3E, 0x1FA8, 0xFFFF, 0xFFFF, "BYNET BIC2SE/X(0x1FA8)"},
 {0x1B3E, 0x1FA8, 0x1B3E, 0x00A3, "BYNET BIC2SX(0x1B3E-0x00A3)"},
 {0x1B3E, 0x1FA8, 0x1B3E, 0x00C3, "BYNET BIC2SE(0x1B3E-0x00C3)"},
 }; /* pci_vid_1B3E[] */
 
-pci_id_t pci_vid_1B40[] = {
+static pci_id_t const pci_vid_1B40[] = {
 {0x1B40, 0xFFFF, 0xFFFF, 0xFFFF, "Schooner Information Technology, Inc.(0x1B40)"},
 }; /* pci_vid_1B40[] */
 
-pci_id_t pci_vid_1B47[] = {
+static pci_id_t const pci_vid_1B47[] = {
 {0x1B47, 0xFFFF, 0xFFFF, 0xFFFF, "Numascale AS(0x1B47)"},
 {0x1B47, 0x0601, 0xFFFF, 0xFFFF, "NumaChip N601(0x0601)"},
 {0x1B47, 0x0602, 0xFFFF, 0xFFFF, "NumaChip N602(0x0602)"},
 }; /* pci_vid_1B47[] */
 
-pci_id_t pci_vid_1B4B[] = {
+static pci_id_t const pci_vid_1B4B[] = {
 {0x1B4B, 0xFFFF, 0xFFFF, 0xFFFF, "Marvell Technology Group Ltd.(0x1B4B)"},
 {0x1B4B, 0x0100, 0xFFFF, 0xFFFF, "88F3700 [Armada 3700 Family] ARM SoC(0x0100)"},
 {0x1B4B, 0x0640, 0xFFFF, 0xFFFF, "88SE9128 SATA III 6Gb/s RAID Controller(0x0640)"},
@@ -29830,11 +29969,11 @@ pci_id_t pci_vid_1B4B[] = {
 {0x1B4B, 0x9485, 0xFFFF, 0xFFFF, "88SE9485 SAS/SATA 6Gb/s controller(0x9485)"},
 }; /* pci_vid_1B4B[] */
 
-pci_id_t pci_vid_1B4C[] = {
+static pci_id_t const pci_vid_1B4C[] = {
 {0x1B4C, 0xFFFF, 0xFFFF, 0xFFFF, "GALAX(0x1B4C)"},
 }; /* pci_vid_1B4C[] */
 
-pci_id_t pci_vid_1B55[] = {
+static pci_id_t const pci_vid_1B55[] = {
 {0x1B55, 0xFFFF, 0xFFFF, 0xFFFF, "NetUP Inc.(0x1B55)"},
 {0x1B55, 0x18F6, 0xFFFF, 0xFFFF, "Dual DVB Universal CI card(0x18F6)"},
 {0x1B55, 0x18F7, 0xFFFF, 0xFFFF, "Dual DVB Universal CI card rev 1.4(0x18F7)"},
@@ -29844,12 +29983,12 @@ pci_id_t pci_vid_1B55[] = {
 {0x1B55, 0xF1C4, 0xFFFF, 0xFFFF, "Dual ASI-RX/TX-CI card(0xF1C4)"},
 }; /* pci_vid_1B55[] */
 
-pci_id_t pci_vid_1B66[] = {
+static pci_id_t const pci_vid_1B66[] = {
 {0x1B66, 0xFFFF, 0xFFFF, 0xFFFF, "DELTACAST(0x1B66)"},
 {0x1B66, 0x0007, 0xFFFF, 0xFFFF, "DELTA-3G-elp-d(0x0007)"},
 }; /* pci_vid_1B66[] */
 
-pci_id_t pci_vid_1B6F[] = {
+static pci_id_t const pci_vid_1B6F[] = {
 {0x1B6F, 0xFFFF, 0xFFFF, 0xFFFF, "Etron Technology, Inc.(0x1B6F)"},
 {0x1B6F, 0x7023, 0xFFFF, 0xFFFF, "EJ168 USB 3.0 Host Controller(0x7023)"},
 {0x1B6F, 0x7023, 0x1458, 0x5007, "GA-880GMA-USB3(0x1458-0x5007)"},
@@ -29857,7 +29996,7 @@ pci_id_t pci_vid_1B6F[] = {
 {0x1B6F, 0x7052, 0x1849, 0x7052, "QC5000-ITX/PH(0x1849-0x7052)"},
 }; /* pci_vid_1B6F[] */
 
-pci_id_t pci_vid_1B73[] = {
+static pci_id_t const pci_vid_1B73[] = {
 {0x1B73, 0xFFFF, 0xFFFF, 0xFFFF, "Fresco Logic(0x1B73)"},
 {0x1B73, 0x1000, 0xFFFF, 0xFFFF, "FL1000G USB 3.0 Host Controller(0x1000)"},
 {0x1B73, 0x1000, 0x1D5C, 0x1000, "Anker USB 3.0 Express Card(0x1D5C-0x1000)"},
@@ -29866,7 +30005,7 @@ pci_id_t pci_vid_1B73[] = {
 {0x1B73, 0x1100, 0x16B8, 0x6E31, "Allegro Pro USB 3.0 PCIe(0x16B8-0x6E31)"},
 }; /* pci_vid_1B73[] */
 
-pci_id_t pci_vid_1B74[] = {
+static pci_id_t const pci_vid_1B74[] = {
 {0x1B74, 0xFFFF, 0xFFFF, 0xFFFF, "OpenVox Communication Co. Ltd.(0x1B74)"},
 {0x1B74, 0x0115, 0xFFFF, 0xFFFF, "D115P/D115E Single-port E1/T1 card(0x0115)"},
 {0x1B74, 0xD130, 0xFFFF, 0xFFFF, "D130P/D130E Single-port E1/T1 card (3rd GEN)(0xD130)"},
@@ -29876,11 +30015,11 @@ pci_id_t pci_vid_1B74[] = {
 {0x1B74, 0xD430, 0xFFFF, 0xFFFF, "D410/430 Quad-port E1/T1 card(0xD430)"},
 }; /* pci_vid_1B74[] */
 
-pci_id_t pci_vid_1B79[] = {
+static pci_id_t const pci_vid_1B79[] = {
 {0x1B79, 0xFFFF, 0xFFFF, 0xFFFF, "Absolute Analysis(0x1B79)"},
 }; /* pci_vid_1B79[] */
 
-pci_id_t pci_vid_1B85[] = {
+static pci_id_t const pci_vid_1B85[] = {
 {0x1B85, 0xFFFF, 0xFFFF, 0xFFFF, "OCZ Technology Group, Inc.(0x1B85)"},
 {0x1B85, 0x1021, 0xFFFF, 0xFFFF, "RevoDrive 3 X2 PCIe SSD 240 GB (Marvell SAS Controller)(0x1021)"},
 {0x1B85, 0x1041, 0xFFFF, 0xFFFF, "RevoDrive 3 X2 PCIe SSD 240 GB (Marvell SAS Controller)(0x1041)"},
@@ -29889,12 +30028,12 @@ pci_id_t pci_vid_1B85[] = {
 {0x1B85, 0x8788, 0xFFFF, 0xFFFF, "RevoDrive Hybrid(0x8788)"},
 }; /* pci_vid_1B85[] */
 
-pci_id_t pci_vid_1B94[] = {
+static pci_id_t const pci_vid_1B94[] = {
 {0x1B94, 0xFFFF, 0xFFFF, 0xFFFF, "Signatec / Dynamic Signals Corp(0x1B94)"},
 {0x1B94, 0xE400, 0xFFFF, 0xFFFF, "PX14400 Dual Xilinx Virtex5 based Digitizer(0xE400)"},
 }; /* pci_vid_1B94[] */
 
-pci_id_t pci_vid_1B96[] = {
+static pci_id_t const pci_vid_1B96[] = {
 {0x1B96, 0xFFFF, 0xFFFF, 0xFFFF, "Western Digital(0x1B96)"},
 {0x1B96, 0x2200, 0xFFFF, 0xFFFF, "Ultrastar DC SN630 NVMe SSD(0x2200)"},
 {0x1B96, 0x2201, 0xFFFF, 0xFFFF, "Ultrastar DC SN630 NVMe SSD(0x2201)"},
@@ -29916,27 +30055,27 @@ pci_id_t pci_vid_1B96[] = {
 {0x1B96, 0x3734, 0xFFFF, 0xFFFF, "PC SN730 NVMe SSD(0x3734)"},
 }; /* pci_vid_1B96[] */
 
-pci_id_t pci_vid_1B9A[] = {
+static pci_id_t const pci_vid_1B9A[] = {
 {0x1B9A, 0xFFFF, 0xFFFF, 0xFFFF, "XAVi Technologies Corp.(0x1B9A)"},
 }; /* pci_vid_1B9A[] */
 
-pci_id_t pci_vid_1BAA[] = {
+static pci_id_t const pci_vid_1BAA[] = {
 {0x1BAA, 0xFFFF, 0xFFFF, 0xFFFF, "QNAP Systems, Inc.(0x1BAA)"},
 }; /* pci_vid_1BAA[] */
 
-pci_id_t pci_vid_1BAD[] = {
+static pci_id_t const pci_vid_1BAD[] = {
 {0x1BAD, 0xFFFF, 0xFFFF, 0xFFFF, "ReFLEX CES(0x1BAD)"},
 {0x1BAD, 0xC001, 0xFFFF, 0xFFFF, "XpressGXA10-LP1150(0xC001)"},
 {0x1BAD, 0xC002, 0xFFFF, 0xFFFF, "XpressGXA10-LP1151(0xC002)"},
 }; /* pci_vid_1BAD[] */
 
-pci_id_t pci_vid_1BB0[] = {
+static pci_id_t const pci_vid_1BB0[] = {
 {0x1BB0, 0xFFFF, 0xFFFF, 0xFFFF, "SimpliVity Corporation(0x1BB0)"},
 {0x1BB0, 0x0002, 0xFFFF, 0xFFFF, "OmniCube Accelerator OA-3000(0x0002)"},
 {0x1BB0, 0x0010, 0xFFFF, 0xFFFF, "OmniCube Accelerator OA-3000-2(0x0010)"},
 }; /* pci_vid_1BB0[] */
 
-pci_id_t pci_vid_1BB1[] = {
+static pci_id_t const pci_vid_1BB1[] = {
 {0x1BB1, 0xFFFF, 0xFFFF, 0xFFFF, "Seagate Technology PLC(0x1BB1)"},
 {0x1BB1, 0x005D, 0xFFFF, 0xFFFF, "Nytro PCIe Flash Storage(0x005D)"},
 {0x1BB1, 0x005D, 0x1BB1, 0x6501, "Nytro XP6500-8A1536 1.5TB(0x1BB1-0x6501)"},
@@ -30003,7 +30142,7 @@ pci_id_t pci_vid_1BB1[] = {
 {0x1BB1, 0x5026, 0xFFFF, 0xFFFF, "FireCuda 540 SSD(0x5026)"},
 }; /* pci_vid_1BB1[] */
 
-pci_id_t pci_vid_1BB3[] = {
+static pci_id_t const pci_vid_1BB3[] = {
 {0x1BB3, 0xFFFF, 0xFFFF, 0xFFFF, "Bluecherry(0x1BB3)"},
 {0x1BB3, 0x4304, 0xFFFF, 0xFFFF, "BC-04120A MPEG4 4 port video encoder / decoder(0x4304)"},
 {0x1BB3, 0x4309, 0xFFFF, 0xFFFF, "BC-08240A MPEG4 4 port video encoder / decoder(0x4309)"},
@@ -30016,17 +30155,17 @@ pci_id_t pci_vid_1BB3[] = {
 {0x1BB3, 0x5310, 0xFFFF, 0xFFFF, "BC-H16480A 16 port H.264 video and audio encoder / decoder(0x5310)"},
 }; /* pci_vid_1BB3[] */
 
-pci_id_t pci_vid_1BB5[] = {
+static pci_id_t const pci_vid_1BB5[] = {
 {0x1BB5, 0xFFFF, 0xFFFF, 0xFFFF, "Quantenna Communications, Inc.(0x1BB5)"},
 }; /* pci_vid_1BB5[] */
 
-pci_id_t pci_vid_1BBF[] = {
+static pci_id_t const pci_vid_1BBF[] = {
 {0x1BBF, 0xFFFF, 0xFFFF, 0xFFFF, "Maxeler Technologies Ltd.(0x1BBF)"},
 {0x1BBF, 0x0003, 0xFFFF, 0xFFFF, "MAX3(0x0003)"},
 {0x1BBF, 0x0004, 0xFFFF, 0xFFFF, "MAX4(0x0004)"},
 }; /* pci_vid_1BBF[] */
 
-pci_id_t pci_vid_1BC0[] = {
+static pci_id_t const pci_vid_1BC0[] = {
 {0x1BC0, 0xFFFF, 0xFFFF, 0xFFFF, "Innodisk Corporation(0x1BC0)"},
 {0x1BC0, 0x1001, 0xFFFF, 0xFFFF, "PCIe 3TG6-P Controller(0x1001)"},
 {0x1BC0, 0x1002, 0xFFFF, 0xFFFF, "PCIe 3TE6 Controller (DRAM-less)(0x1002)"},
@@ -30039,17 +30178,17 @@ pci_id_t pci_vid_1BC0[] = {
 {0x1BC0, 0x5236, 0xFFFF, 0xFFFF, "PCIe 4TG2-P Controller(0x5236)"},
 }; /* pci_vid_1BC0[] */
 
-pci_id_t pci_vid_1BCD[] = {
+static pci_id_t const pci_vid_1BCD[] = {
 {0x1BCD, 0xFFFF, 0xFFFF, 0xFFFF, "Apacer Technology(0x1BCD)"},
 {0x1BCD, 0x0120, 0xFFFF, 0xFFFF, "NVMe SSD Drive 960GB(0x0120)"},
 }; /* pci_vid_1BCD[] */
 
-pci_id_t pci_vid_1BCF[] = {
+static pci_id_t const pci_vid_1BCF[] = {
 {0x1BCF, 0xFFFF, 0xFFFF, 0xFFFF, "NEC Corporation(0x1BCF)"},
 {0x1BCF, 0x001C, 0xFFFF, 0xFFFF, "Vector Engine 1.0(0x001C)"},
 }; /* pci_vid_1BCF[] */
 
-pci_id_t pci_vid_1BD0[] = {
+static pci_id_t const pci_vid_1BD0[] = {
 {0x1BD0, 0xFFFF, 0xFFFF, 0xFFFF, "Astronics Corporation(0x1BD0)"},
 {0x1BD0, 0x1001, 0xFFFF, 0xFFFF, "Mx5 PMC/XMC Databus Interface Card(0x1001)"},
 {0x1BD0, 0x1002, 0xFFFF, 0xFFFF, "PM1553-5 (PC/104+ MIL-STD-1553 Interface Card)(0x1002)"},
@@ -30070,7 +30209,7 @@ pci_id_t pci_vid_1BD0[] = {
 {0x1BD0, 0x1203, 0xFFFF, 0xFFFF, "NG3 Series Avionics Discrete Interface(0x1203)"},
 }; /* pci_vid_1BD0[] */
 
-pci_id_t pci_vid_1BD4[] = {
+static pci_id_t const pci_vid_1BD4[] = {
 {0x1BD4, 0xFFFF, 0xFFFF, 0xFFFF, "Inspur Electronic Information Industry Co., Ltd.(0x1BD4)"},
 {0x1BD4, 0x0911, 0xFFFF, 0xFFFF, "Arria10_PCIe_F10A1150(0x0911)"},
 {0x1BD4, 0x1000, 0xFFFF, 0xFFFF, "NS8600G1U160 NVME SSD(0x1000)"},
@@ -30085,42 +30224,47 @@ pci_id_t pci_vid_1BD4[] = {
 {0x1BD4, 0x100E, 0xFFFF, 0xFFFF, "NS8500G2Uxxxx, NS8600G2Uxxxx NVME SSD(0x100E)"},
 }; /* pci_vid_1BD4[] */
 
-pci_id_t pci_vid_1BEE[] = {
+static pci_id_t const pci_vid_1BEE[] = {
 {0x1BEE, 0xFFFF, 0xFFFF, 0xFFFF, "IXXAT Automation GmbH(0x1BEE)"},
 {0x1BEE, 0x0002, 0xFFFF, 0xFFFF, "CAN-IB100/PCIe(0x0002)"},
 {0x1BEE, 0x0003, 0xFFFF, 0xFFFF, "CAN-IB200/PCIe(0x0003)"},
 }; /* pci_vid_1BEE[] */
 
-pci_id_t pci_vid_1BEF[] = {
+static pci_id_t const pci_vid_1BEF[] = {
 {0x1BEF, 0xFFFF, 0xFFFF, 0xFFFF, "Lantiq(0x1BEF)"},
 {0x1BEF, 0x0011, 0xFFFF, 0xFFFF, "MIPS SoC PCI Express Port(0x0011)"},
 }; /* pci_vid_1BEF[] */
 
-pci_id_t pci_vid_1BF4[] = {
+static pci_id_t const pci_vid_1BF4[] = {
 {0x1BF4, 0xFFFF, 0xFFFF, 0xFFFF, "VTI Instruments Corporation(0x1BF4)"},
 {0x1BF4, 0x0001, 0xFFFF, 0xFFFF, "SentinelEX(0x0001)"},
 {0x1BF4, 0x7011, 0xFFFF, 0xFFFF, "RX0xxx(0x7011)"},
 }; /* pci_vid_1BF4[] */
 
-pci_id_t pci_vid_1BF5[] = {
+static pci_id_t const pci_vid_1BF5[] = {
 {0x1BF5, 0xFFFF, 0xFFFF, 0xFFFF, "Greenliant(0x1BF5)"},
 {0x1BF5, 0x1000, 0xFFFF, 0xFFFF, "G7200 series U.2 NVMe SSD(0x1000)"},
 }; /* pci_vid_1BF5[] */
 
-pci_id_t pci_vid_1BFC[] = {
+static pci_id_t const pci_vid_1BFC[] = {
 {0x1BFC, 0xFFFF, 0xFFFF, 0xFFFF, "Duagon AG(0x1BFC)"},
 }; /* pci_vid_1BFC[] */
 
-pci_id_t pci_vid_1BFD[] = {
+static pci_id_t const pci_vid_1BFD[] = {
 {0x1BFD, 0xFFFF, 0xFFFF, 0xFFFF, "EeeTOP(0x1BFD)"},
 }; /* pci_vid_1BFD[] */
 
-pci_id_t pci_vid_1C00[] = {
+static pci_id_t const pci_vid_1C00[] = {
 {0x1C00, 0xFFFF, 0xFFFF, 0xFFFF, "Nanjing Qinheng Microelectronics Co., Ltd.(0x1C00)"},
+{0x1C00, 0x2170, 0xFFFF, 0xFFFF, "CH351 PCIe Parallel Port Adapter(0x2170)"},
+{0x1C00, 0x2273, 0xFFFF, 0xFFFF, "CH351 PCIe Dual Port Serial Adapter(0x2273)"},
+{0x1C00, 0x3050, 0xFFFF, 0xFFFF, "CH382L PCIe Parallel Port Adapter(0x3050)"},
+{0x1C00, 0x3250, 0xFFFF, 0xFFFF, "CH384 Dual Port Serial and Parallel Port Adapter(0x3250)"},
 {0x1C00, 0x3252, 0xFFFF, 0xFFFF, "CH382 PCIe Dual Port Serial Adapter(0x3252)"},
+{0x1C00, 0x3253, 0xFFFF, 0xFFFF, "CH352/CH382 PCI/PCIe Dual Port Serial Adapter(0x3253)"},
 }; /* pci_vid_1C00[] */
 
-pci_id_t pci_vid_1C09[] = {
+static pci_id_t const pci_vid_1C09[] = {
 {0x1C09, 0xFFFF, 0xFFFF, 0xFFFF, "CSP, Inc.(0x1C09)"},
 {0x1C09, 0x4254, 0xFFFF, 0xFFFF, "10G-PCIE3-8D-2S(0x4254)"},
 {0x1C09, 0x4255, 0xFFFF, 0xFFFF, "10G-PCIE3-8D-Q(0x4255)"},
@@ -30136,12 +30280,12 @@ pci_id_t pci_vid_1C09[] = {
 {0x1C09, 0x5001, 0xFFFF, 0xFFFF, "25G-PCIE3-8B-2S Security Intelligent Adapter(0x5001)"},
 }; /* pci_vid_1C09[] */
 
-pci_id_t pci_vid_1C1C[] = {
+static pci_id_t const pci_vid_1C1C[] = {
 {0x1C1C, 0xFFFF, 0xFFFF, 0xFFFF, "Symphony(0x1C1C)"},
 {0x1C1C, 0x0001, 0xFFFF, 0xFFFF, "82C101(0x0001)"},
 }; /* pci_vid_1C1C[] */
 
-pci_id_t pci_vid_1C1F[] = {
+static pci_id_t const pci_vid_1C1F[] = {
 {0x1C1F, 0xFFFF, 0xFFFF, 0xFFFF, "SoftLab-NSK(0x1C1F)"},
 {0x1C1F, 0x0015, 0xFFFF, 0xFFFF, "FD842(0x0015)"},
 {0x1C1F, 0x0019, 0xFFFF, 0xFFFF, "FD722(0x0019)"},
@@ -30153,14 +30297,15 @@ pci_id_t pci_vid_1C1F[] = {
 {0x1C1F, 0x0020, 0xFFFF, 0xFFFF, "FD2110(0x0020)"},
 {0x1C1F, 0x0021, 0xFFFF, 0xFFFF, "FD722(0x0021)"},
 {0x1C1F, 0x0022, 0xFFFF, 0xFFFF, "FD788(0x0022)"},
+{0x1C1F, 0x0023, 0xFFFF, 0xFFFF, "FD722-M2(0x0023)"},
 }; /* pci_vid_1C1F[] */
 
-pci_id_t pci_vid_1C28[] = {
+static pci_id_t const pci_vid_1C28[] = {
 {0x1C28, 0xFFFF, 0xFFFF, 0xFFFF, "Lite-On IT Corp. / Plextor(0x1C28)"},
 {0x1C28, 0x0122, 0xFFFF, 0xFFFF, "M6e PCI Express SSD [Marvell 88SS9183](0x0122)"},
 }; /* pci_vid_1C28[] */
 
-pci_id_t pci_vid_1C2C[] = {
+static pci_id_t const pci_vid_1C2C[] = {
 {0x1C2C, 0xFFFF, 0xFFFF, 0xFFFF, "Silicom Denmark(0x1C2C)"},
 {0x1C2C, 0x000A, 0xFFFF, 0xFFFF, "Capture(0x000A)"},
 {0x1C2C, 0x000F, 0xFFFF, 0xFFFF, "SmartNIC(0x000F)"},
@@ -30186,6 +30331,7 @@ pci_id_t pci_vid_1C2C[] = {
 {0x1C2C, 0xA000, 0xFFFF, 0xFFFF, "FBC2CGG3 Capture 2x40Gb [Mango_02](0xA000)"},
 {0x1C2C, 0xA001, 0xFFFF, 0xFFFF, "FBC2CGG3 Capture 2x100Gb [Mango_02](0xA001)"},
 {0x1C2C, 0xA003, 0xFFFF, 0xFFFF, "FBC2CGG3 Capture 16x10Gb [Mango](0xA003)"},
+{0x1C2C, 0xA006, 0xFFFF, 0xFFFF, "FBC2CGG3 Capture 2x100Gb [Mango](0xA006)"},
 {0x1C2C, 0xA007, 0xFFFF, 0xFFFF, "FBC2CGG3 Capture 2x40Gb [Mango](0xA007)"},
 {0x1C2C, 0xA008, 0xFFFF, 0xFFFF, "FBC2CGG3 Capture 2x25Gb [Mango](0xA008)"},
 {0x1C2C, 0xA009, 0xFFFF, 0xFFFF, "FBC2CGG3 Capture 16x10Gb [Mango](0xA009)"},
@@ -30198,35 +30344,37 @@ pci_id_t pci_vid_1C2C[] = {
 {0x1C2C, 0xA013, 0xFFFF, 0xFFFF, "FB2CGHH Capture 2x25Gb [Tivoli](0xA013)"},
 {0x1C2C, 0xA014, 0xFFFF, 0xFFFF, "FB2CGHH Capture 8x10Gb [Tivoli](0xA014)"},
 {0x1C2C, 0xA015, 0xFFFF, 0xFFFF, "FB2CGHH Capture 2x100Gb [Tivoli](0xA015)"},
+{0x1C2C, 0xA016, 0xFFFF, 0xFFFF, "FB2CG Capture 8x25Gb [Savona](0xA016)"},
+{0x1C2C, 0xA017, 0xFFFF, 0xFFFF, "FB2CGHH Capture 8x25Gb [Tivoli] a017(0xA017)"},
 }; /* pci_vid_1C2C[] */
 
-pci_id_t pci_vid_1C32[] = {
+static pci_id_t const pci_vid_1C32[] = {
 {0x1C32, 0xFFFF, 0xFFFF, 0xFFFF, "Highland Technology, Inc.(0x1C32)"},
 }; /* pci_vid_1C32[] */
 
-pci_id_t pci_vid_1C33[] = {
+static pci_id_t const pci_vid_1C33[] = {
 {0x1C33, 0xFFFF, 0xFFFF, 0xFFFF, "Daktronics, Inc(0x1C33)"},
 }; /* pci_vid_1C33[] */
 
-pci_id_t pci_vid_1C36[] = {
+static pci_id_t const pci_vid_1C36[] = {
 {0x1C36, 0xFFFF, 0xFFFF, 0xFFFF, "Annapurna Labs Ltd.(0x1C36)"},
 {0x1C36, 0x0001, 0xFFFF, 0xFFFF, "Gigabit Ethernet Adapter(0x0001)"},
 {0x1C36, 0x0002, 0xFFFF, 0xFFFF, "SFP+ 10G Ethernet Adapter(0x0002)"},
 }; /* pci_vid_1C36[] */
 
-pci_id_t pci_vid_1C3B[] = {
+static pci_id_t const pci_vid_1C3B[] = {
 {0x1C3B, 0xFFFF, 0xFFFF, 0xFFFF, "Accensus, LLC(0x1C3B)"},
 {0x1C3B, 0x0200, 0xFFFF, 0xFFFF, "Telas2(0x0200)"},
 {0x1C3B, 0x0300, 0xFFFF, 0xFFFF, "Telas 2.V(0x0300)"},
 }; /* pci_vid_1C3B[] */
 
-pci_id_t pci_vid_1C44[] = {
+static pci_id_t const pci_vid_1C44[] = {
 {0x1C44, 0xFFFF, 0xFFFF, 0xFFFF, "Enmotus Inc(0x1C44)"},
 {0x1C44, 0x1100, 0xFFFF, 0xFFFF, "Fuzedrive NVMe SSD(0x1100)"},
 {0x1C44, 0x8000, 0xFFFF, 0xFFFF, "8000 Storage IO Controller(0x8000)"},
 }; /* pci_vid_1C44[] */
 
-pci_id_t pci_vid_1C58[] = {
+static pci_id_t const pci_vid_1C58[] = {
 {0x1C58, 0xFFFF, 0xFFFF, 0xFFFF, "HGST, Inc.(0x1C58)"},
 {0x1C58, 0x0003, 0xFFFF, 0xFFFF, "Ultrastar SN100 Series NVMe SSD(0x0003)"},
 {0x1C58, 0x0003, 0x1014, 0x04F5, "PCIe3 1.6TB NVMe Flash Adapter(0x1014-0x04F5)"},
@@ -30236,7 +30384,7 @@ pci_id_t pci_vid_1C58[] = {
 {0x1C58, 0x0023, 0x1C58, 0x8823, "Ultrastar Memory (ME200)(0x1C58-0x8823)"},
 }; /* pci_vid_1C58[] */
 
-pci_id_t pci_vid_1C5C[] = {
+static pci_id_t const pci_vid_1C5C[] = {
 {0x1C5C, 0xFFFF, 0xFFFF, 0xFFFF, "SK hynix(0x1C5C)"},
 {0x1C5C, 0x1282, 0xFFFF, 0xFFFF, "PC300 NVMe Solid State Drive 128GB(0x1282)"},
 {0x1C5C, 0x1283, 0xFFFF, 0xFFFF, "PC300 NVMe Solid State Drive 256GB(0x1283)"},
@@ -30283,7 +30431,7 @@ pci_id_t pci_vid_1C5C[] = {
 {0x1C5C, 0x2B59, 0xFFFF, 0xFFFF, "PS10x0 Series NVMe Solid State Drives(0x2B59)"},
 }; /* pci_vid_1C5C[] */
 
-pci_id_t pci_vid_1C5F[] = {
+static pci_id_t const pci_vid_1C5F[] = {
 {0x1C5F, 0xFFFF, 0xFFFF, 0xFFFF, "Beijing Memblaze Technology Co. Ltd.(0x1C5F)"},
 {0x1C5F, 0x000D, 0xFFFF, 0xFFFF, "PBlaze5 520/526(0x000D)"},
 {0x1C5F, 0x000D, 0x1C5F, 0x0220, "NVMe SSD PBlaze5 520 1920G AIC(0x1C5F-0x0220)"},
@@ -30392,31 +30540,31 @@ pci_id_t pci_vid_1C5F[] = {
 {0x1C5F, 0x0557, 0xFFFF, 0xFFFF, "PBlaze5 910/916(0x0557)"},
 }; /* pci_vid_1C5F[] */
 
-pci_id_t pci_vid_1C63[] = {
+static pci_id_t const pci_vid_1C63[] = {
 {0x1C63, 0xFFFF, 0xFFFF, 0xFFFF, "Science and Research Centre of Computer Technology (JSC \"NICEVT\")(0x1C63)"},
 {0x1C63, 0x0008, 0xFFFF, 0xFFFF, "K1927BB1Ya [EC8430] Angara Interconnection Network Adapter(0x0008)"},
 }; /* pci_vid_1C63[] */
 
-pci_id_t pci_vid_1C7E[] = {
+static pci_id_t const pci_vid_1C7E[] = {
 {0x1C7E, 0xFFFF, 0xFFFF, 0xFFFF, "TTTech Computertechnik AG(0x1C7E)"},
 {0x1C7E, 0x0200, 0xFFFF, 0xFFFF, "zFAS Debug Port(0x0200)"},
 }; /* pci_vid_1C7E[] */
 
-pci_id_t pci_vid_1C7F[] = {
+static pci_id_t const pci_vid_1C7F[] = {
 {0x1C7F, 0xFFFF, 0xFFFF, 0xFFFF, "Elektrobit Austria GmbH(0x1C7F)"},
 {0x1C7F, 0x5100, 0xFFFF, 0xFFFF, "EB5100(0x5100)"},
 }; /* pci_vid_1C7F[] */
 
-pci_id_t pci_vid_1C8A[] = {
+static pci_id_t const pci_vid_1C8A[] = {
 {0x1C8A, 0xFFFF, 0xFFFF, 0xFFFF, "TSF5 Corporation(0x1C8A)"},
 {0x1C8A, 0x0001, 0xFFFF, 0xFFFF, "Hunter PCI Express(0x0001)"},
 }; /* pci_vid_1C8A[] */
 
-pci_id_t pci_vid_1C8C[] = {
+static pci_id_t const pci_vid_1C8C[] = {
 {0x1C8C, 0xFFFF, 0xFFFF, 0xFFFF, "Mobiveil, Inc.(0x1C8C)"},
 }; /* pci_vid_1C8C[] */
 
-pci_id_t pci_vid_1CB0[] = {
+static pci_id_t const pci_vid_1CB0[] = {
 {0x1CB0, 0xFFFF, 0xFFFF, 0xFFFF, "Shannon Systems(0x1CB0)"},
 {0x1CB0, 0x8266, 0xFFFF, 0xFFFF, "SP4 Series SSD(0x8266)"},
 {0x1CB0, 0x8266, 0x1CB0, 0x2021, "SP4 Series OCS U.2 SSD(0x1CB0-0x2021)"},
@@ -30436,20 +30584,20 @@ pci_id_t pci_vid_1CB0[] = {
 {0x1CB0, 0xD000, 0x1CB0, 0xAF12, "Venice-X Series NVMe AIC(0x1CB0-0xAF12)"},
 }; /* pci_vid_1CB0[] */
 
-pci_id_t pci_vid_1CB1[] = {
+static pci_id_t const pci_vid_1CB1[] = {
 {0x1CB1, 0xFFFF, 0xFFFF, 0xFFFF, "Collion UG & Co.KG(0x1CB1)"},
 }; /* pci_vid_1CB1[] */
 
-pci_id_t pci_vid_1CB5[] = {
+static pci_id_t const pci_vid_1CB5[] = {
 {0x1CB5, 0xFFFF, 0xFFFF, 0xFFFF, "Focusrite Audio Engineering Ltd(0x1CB5)"},
 {0x1CB5, 0x0002, 0xFFFF, 0xFFFF, "Clarett(0x0002)"},
 }; /* pci_vid_1CB5[] */
 
-pci_id_t pci_vid_1CB8[] = {
+static pci_id_t const pci_vid_1CB8[] = {
 {0x1CB8, 0xFFFF, 0xFFFF, 0xFFFF, "Dawning Information Industry Co., Ltd.(0x1CB8)"},
 }; /* pci_vid_1CB8[] */
 
-pci_id_t pci_vid_1CC1[] = {
+static pci_id_t const pci_vid_1CC1[] = {
 {0x1CC1, 0xFFFF, 0xFFFF, 0xFFFF, "ADATA Technology Co., Ltd.(0x1CC1)"},
 {0x1CC1, 0x1202, 0xFFFF, 0xFFFF, "IM2P32A8 NVMe SSD (DRAM-less)(0x1202)"},
 {0x1CC1, 0x2263, 0xFFFF, 0xFFFF, "XPG SX6000 Lite NVMe SSD (DRAM-less)(0x2263)"},
@@ -30458,22 +30606,24 @@ pci_id_t pci_vid_1CC1[] = {
 {0x1CC1, 0x33F4, 0xFFFF, 0xFFFF, "IM2P33F4 NVMe SSD (DRAM-less)(0x33F4)"},
 {0x1CC1, 0x33F8, 0xFFFF, 0xFFFF, "IM2P33F8 series NVMe SSD (DRAM-less)(0x33F8)"},
 {0x1CC1, 0x41C3, 0xFFFF, 0xFFFF, "SM2P41C3 NVMe SSD (DRAM-less)(0x41C3)"},
+{0x1CC1, 0x41C8, 0xFFFF, 0xFFFF, "SM2P41C8 NVMe SSD (DRAM-less)(0x41C8)"},
 {0x1CC1, 0x5236, 0xFFFF, 0xFFFF, "XPG GAMMIX S70 BLADE NVMe SSD(0x5236)"},
-{0x1CC1, 0x5350, 0xFFFF, 0xFFFF, "XPG GAMMIX S50 NVMe SSD(0x5350)"},
-{0x1CC1, 0x5762, 0xFFFF, 0xFFFF, "FALCON NVMe SSD(0x5762)"},
+{0x1CC1, 0x5350, 0xFFFF, 0xFFFF, "XPG GAMMIX S50, S50 Lite NVMe SSD(0x5350)"},
+{0x1CC1, 0x5370, 0xFFFF, 0xFFFF, "GAMMIX S70 BLADE, PS5 PREMIUM NVMe SSD(0x5370)"},
+{0x1CC1, 0x5762, 0xFFFF, 0xFFFF, "FALCON, GAMMIX S41, SPECTRIX S40G NVMe SSD (DRAM-less)(0x5762)"},
 {0x1CC1, 0x5763, 0xFFFF, 0xFFFF, "XPG GAMMIX S5 NVMe SSD (DRAM-less)(0x5763)"},
-{0x1CC1, 0x5766, 0xFFFF, 0xFFFF, "ADATA XPG GAMMIXS1 1L Media (256 GB SSD)(0x5766)"},
+{0x1CC1, 0x5766, 0xFFFF, 0xFFFF, "XPG GAMMIXS1 1L, XPG GAMMIX S5, LEGEND 710 / 740, SWORDFISH NVMe SSD (DRAM-less)(0x5766)"},
 {0x1CC1, 0x612A, 0xFFFF, 0xFFFF, "LEGEND 750 NVMe SSD (DRAM-less)(0x612A)"},
-{0x1CC1, 0x613A, 0xFFFF, 0xFFFF, "LEGEND 840 NVMe SSD (DRAM-less)(0x613A)"},
+{0x1CC1, 0x613A, 0xFFFF, 0xFFFF, "ATOM 50, LEGEND 840 NVMe SSD (DRAM-less)(0x613A)"},
 {0x1CC1, 0x621A, 0xFFFF, 0xFFFF, "LEGEND 850 NVMe SSD (DRAM-less)(0x621A)"},
 {0x1CC1, 0x622A, 0xFFFF, 0xFFFF, "LEGEND 960 NVMe SSD(0x622A)"},
-{0x1CC1, 0x624A, 0xFFFF, 0xFFFF, "LEGEND 700 NVMe SSD (DRAM-less)(0x624A)"},
+{0x1CC1, 0x624A, 0xFFFF, 0xFFFF, "LEGEND 700, XPG GAMMIX S20 NVMe SSD (DRAM-less)(0x624A)"},
 {0x1CC1, 0x627A, 0xFFFF, 0xFFFF, "LEGEND 800 NVMe SSD (DRAM-less)(0x627A)"},
 {0x1CC1, 0x628A, 0xFFFF, 0xFFFF, "LEGEND 800 NVMe SSD (DRAM-less)(0x628A)"},
 {0x1CC1, 0x8201, 0xFFFF, 0xFFFF, "XPG SX8200 Pro PCIe Gen3x4 M.2 2280 Solid State Drive(0x8201)"},
 }; /* pci_vid_1CC1[] */
 
-pci_id_t pci_vid_1CC4[] = {
+static pci_id_t const pci_vid_1CC4[] = {
 {0x1CC4, 0xFFFF, 0xFFFF, 0xFFFF, "Shenzhen Unionmemory Information System Ltd.(0x1CC4)"},
 {0x1CC4, 0x1203, 0xFFFF, 0xFFFF, "NVMe SSD Controller UHXXXa series(0x1203)"},
 {0x1CC4, 0x1203, 0x1CC4, 0xA121, "NVMe SSD UHXXXa series U.2 960GB(0x1CC4-0xA121)"},
@@ -30524,24 +30674,24 @@ pci_id_t pci_vid_1CC4[] = {
 {0x1CC4, 0x8030, 0x1CC4, 0x2215, "NVMe SSD UH832a E3.S 12.8TB(0x1CC4-0x2215)"},
 }; /* pci_vid_1CC4[] */
 
-pci_id_t pci_vid_1CC5[] = {
+static pci_id_t const pci_vid_1CC5[] = {
 {0x1CC5, 0xFFFF, 0xFFFF, 0xFFFF, "Embedded Intelligence, Inc.(0x1CC5)"},
 {0x1CC5, 0x0100, 0xFFFF, 0xFFFF, "PCIe-CAN-02 Dual CAN bus (9-pin male). PCI Express x1.(0x0100)"},
 {0x1CC5, 0x0101, 0xFFFF, 0xFFFF, "PCIe-CAN-01 Single CAN bus (9-pin male). PCI Express x1.(0x0101)"},
 }; /* pci_vid_1CC5[] */
 
-pci_id_t pci_vid_1CC7[] = {
+static pci_id_t const pci_vid_1CC7[] = {
 {0x1CC7, 0xFFFF, 0xFFFF, 0xFFFF, "Radian Memory Systems Inc.(0x1CC7)"},
 {0x1CC7, 0x0200, 0xFFFF, 0xFFFF, "RMS-200 PCIe NVMe SSD(0x0200)"},
 {0x1CC7, 0x0250, 0xFFFF, 0xFFFF, "RMS-250 U.2 NVMe SSD(0x0250)"},
 }; /* pci_vid_1CC7[] */
 
-pci_id_t pci_vid_1CCF[] = {
+static pci_id_t const pci_vid_1CCF[] = {
 {0x1CCF, 0xFFFF, 0xFFFF, 0xFFFF, "Zoom Corporation(0x1CCF)"},
 {0x1CCF, 0x0001, 0xFFFF, 0xFFFF, "TAC-2 Thunderbolt Audio Converter(0x0001)"},
 }; /* pci_vid_1CCF[] */
 
-pci_id_t pci_vid_1CD2[] = {
+static pci_id_t const pci_vid_1CD2[] = {
 {0x1CD2, 0xFFFF, 0xFFFF, 0xFFFF, "SesKion GmbH(0x1CD2)"},
 {0x1CD2, 0x0301, 0xFFFF, 0xFFFF, "Simulyzer-RT CompactPCI Serial DIO-1 card(0x0301)"},
 {0x1CD2, 0x0302, 0xFFFF, 0xFFFF, "Simulyzer-RT CompactPCI Serial PSI5-ECU-1 card(0x0302)"},
@@ -30552,7 +30702,7 @@ pci_id_t pci_vid_1CD2[] = {
 {0x1CD2, 0x0307, 0xFFFF, 0xFFFF, "Simulyzer-RT CompactPCI Serial DIO-2 card [Xilinx Zynq UltraScale+](0x0307)"},
 }; /* pci_vid_1CD2[] */
 
-pci_id_t pci_vid_1CD7[] = {
+static pci_id_t const pci_vid_1CD7[] = {
 {0x1CD7, 0xFFFF, 0xFFFF, 0xFFFF, "Nanjing Magewell Electronics Co., Ltd.(0x1CD7)"},
 {0x1CD7, 0x0002, 0xFFFF, 0xFFFF, "Pro Capture AIO(0x0002)"},
 {0x1CD7, 0x0010, 0xFFFF, 0xFFFF, "Pro Capture Endpoint(0x0010)"},
@@ -30564,11 +30714,11 @@ pci_id_t pci_vid_1CD7[] = {
 {0x1CD7, 0x0054, 0xFFFF, 0xFFFF, "Eco Capture Quad SDI M.2(0x0054)"},
 }; /* pci_vid_1CD7[] */
 
-pci_id_t pci_vid_1CDD[] = {
+static pci_id_t const pci_vid_1CDD[] = {
 {0x1CDD, 0xFFFF, 0xFFFF, 0xFFFF, "secunet Security Networks AG(0x1CDD)"},
 }; /* pci_vid_1CDD[] */
 
-pci_id_t pci_vid_1CE4[] = {
+static pci_id_t const pci_vid_1CE4[] = {
 {0x1CE4, 0xFFFF, 0xFFFF, 0xFFFF, "Exablaze(0x1CE4)"},
 {0x1CE4, 0x0001, 0xFFFF, 0xFFFF, "ExaNIC X4(0x0001)"},
 {0x1CE4, 0x0002, 0xFFFF, 0xFFFF, "ExaNIC X2(0x0002)"},
@@ -30585,37 +30735,38 @@ pci_id_t pci_vid_1CE4[] = {
 {0x1CE4, 0x0100, 0xFFFF, 0xFFFF, "ExaDISK FX1(0x0100)"},
 }; /* pci_vid_1CE4[] */
 
-pci_id_t pci_vid_1CF0[] = {
+static pci_id_t const pci_vid_1CF0[] = {
 {0x1CF0, 0xFFFF, 0xFFFF, 0xFFFF, "Akitio(0x1CF0)"},
 }; /* pci_vid_1CF0[] */
 
-pci_id_t pci_vid_1CF7[] = {
+static pci_id_t const pci_vid_1CF7[] = {
 {0x1CF7, 0xFFFF, 0xFFFF, 0xFFFF, "Subspace Dynamics(0x1CF7)"},
 }; /* pci_vid_1CF7[] */
 
-pci_id_t pci_vid_1CFA[] = {
+static pci_id_t const pci_vid_1CFA[] = {
 {0x1CFA, 0xFFFF, 0xFFFF, 0xFFFF, "Corsair Memory, Inc(0x1CFA)"},
 }; /* pci_vid_1CFA[] */
 
-pci_id_t pci_vid_1CFD[] = {
+static pci_id_t const pci_vid_1CFD[] = {
 {0x1CFD, 0xFFFF, 0xFFFF, 0xFFFF, "Mangstor(0x1CFD)"},
 {0x1CFD, 0x6300, 0xFFFF, 0xFFFF, "MX6300 series PCIe x8 NVMe SSD(0x6300)"},
 }; /* pci_vid_1CFD[] */
 
-pci_id_t pci_vid_1D00[] = {
+static pci_id_t const pci_vid_1D00[] = {
 {0x1D00, 0xFFFF, 0xFFFF, 0xFFFF, "Pure Storage(0x1D00)"},
 }; /* pci_vid_1D00[] */
 
-pci_id_t pci_vid_1D05[] = {
+static pci_id_t const pci_vid_1D05[] = {
 {0x1D05, 0xFFFF, 0xFFFF, 0xFFFF, "Tongfang Hongkong Limited(0x1D05)"},
 }; /* pci_vid_1D05[] */
 
-pci_id_t pci_vid_1D0F[] = {
+static pci_id_t const pci_vid_1D0F[] = {
 {0x1D0F, 0xFFFF, 0xFFFF, 0xFFFF, "Amazon.com, Inc.(0x1D0F)"},
 {0x1D0F, 0x7064, 0xFFFF, 0xFFFF, "NeuronDevice (Inferentia)(0x7064)"},
 {0x1D0F, 0x7164, 0xFFFF, 0xFFFF, "NeuronDevice (Trainium)(0x7164)"},
 {0x1D0F, 0x7164, 0x1D0F, 0x0000, "Trainium(0x1D0F-0x0000)"},
 {0x1D0F, 0x7264, 0xFFFF, 0xFFFF, "NeuronDevice (Inferentia2)(0x7264)"},
+{0x1D0F, 0x7364, 0xFFFF, 0xFFFF, "NeuronDevice (Trainium2)(0x7364)"},
 {0x1D0F, 0x8061, 0xFFFF, 0xFFFF, "NVMe EBS Controller(0x8061)"},
 {0x1D0F, 0xCD01, 0xFFFF, 0xFFFF, "NVMe SSD Controller(0xCD01)"},
 {0x1D0F, 0xEC20, 0xFFFF, 0xFFFF, "Elastic Network Adapter (ENA)(0xEC20)"},
@@ -30624,7 +30775,7 @@ pci_id_t pci_vid_1D0F[] = {
 {0x1D0F, 0xEFA2, 0xFFFF, 0xFFFF, "Elastic Fabric Adapter (EFA)(0xEFA2)"},
 }; /* pci_vid_1D0F[] */
 
-pci_id_t pci_vid_1D17[] = {
+static pci_id_t const pci_vid_1D17[] = {
 {0x1D17, 0xFFFF, 0xFFFF, 0xFFFF, "Zhaoxin(0x1D17)"},
 {0x1D17, 0x070F, 0xFFFF, 0xFFFF, "ZX-100 PCI Express Root Port(0x070F)"},
 {0x1D17, 0x0710, 0xFFFF, 0xFFFF, "ZX-100/ZX-200 PCI Express Root Port(0x0710)"},
@@ -30634,55 +30785,67 @@ pci_id_t pci_vid_1D17[] = {
 {0x1D17, 0x0714, 0xFFFF, 0xFFFF, "ZX-100/ZX-200 PCI Express Root Port(0x0714)"},
 {0x1D17, 0x0715, 0xFFFF, 0xFFFF, "ZX-100/ZX-200 PCI Express Root Port(0x0715)"},
 {0x1D17, 0x0716, 0xFFFF, 0xFFFF, "ZX-D PCI Express Root Port(0x0716)"},
-{0x1D17, 0x0717, 0xFFFF, 0xFFFF, "KX-5000/KX-6000/KX-6000G/KH-40000 PCI Express Root Port(0x0717)"},
-{0x1D17, 0x0718, 0xFFFF, 0xFFFF, "KX-5000/KX-6000/KX-6000G/KH-40000 PCI Express Root Port(0x0718)"},
-{0x1D17, 0x0719, 0xFFFF, 0xFFFF, "KX-5000/KX-6000/KX-6000G/KH-40000 PCI Express Root Port(0x0719)"},
+{0x1D17, 0x0717, 0xFFFF, 0xFFFF, "KX-5000/KX-6000/KX-6000G/KH-40000/KX-7000 PCI Express Root Port(0x0717)"},
+{0x1D17, 0x0718, 0xFFFF, 0xFFFF, "KX-5000/KX-6000/KX-6000G/KH-40000/KX-7000 PCI Express Root Port(0x0718)"},
+{0x1D17, 0x0719, 0xFFFF, 0xFFFF, "KX-5000/KX-6000/KX-6000G/KH-40000/KX-7000 PCI Express Root Port(0x0719)"},
 {0x1D17, 0x071A, 0xFFFF, 0xFFFF, "KX-5000/KX-6000/KX-6000G/KH-40000 PCI Express Root Port(0x071A)"},
-{0x1D17, 0x071B, 0xFFFF, 0xFFFF, "KX-5000/KX-6000/KX-6000G/KH-40000 PCI Express Root Port(0x071B)"},
-{0x1D17, 0x071C, 0xFFFF, 0xFFFF, "KX-5000/KX-6000/KX-6000G/KH-40000 PCI Express Root Port(0x071C)"},
+{0x1D17, 0x071B, 0xFFFF, 0xFFFF, "KX-5000/KX-6000/KX-6000G/KH-40000/KX-7000 PCI Express Root Port(0x071B)"},
+{0x1D17, 0x071C, 0xFFFF, 0xFFFF, "KX-5000/KX-6000/KX-6000G/KH-40000/KX-7000 PCI Express Root Port(0x071C)"},
 {0x1D17, 0x071D, 0xFFFF, 0xFFFF, "KX-5000/KX-6000/KX-6000G/KH-40000 PCI Express Root Port(0x071D)"},
-{0x1D17, 0x071E, 0xFFFF, 0xFFFF, "KX-5000/KX-6000/KX-6000G/KH-40000 PCI Express Root Port(0x071E)"},
+{0x1D17, 0x071E, 0xFFFF, 0xFFFF, "KX-5000/KX-6000/KX-6000G/KH-40000/KX-7000 PCI Express Root Port(0x071E)"},
 {0x1D17, 0x071F, 0xFFFF, 0xFFFF, "ZX-200 Upstream Port of PCI Express Switch(0x071F)"},
 {0x1D17, 0x0720, 0xFFFF, 0xFFFF, "ZX-200 PCIE RC6 controller(0x0720)"},
 {0x1D17, 0x0721, 0xFFFF, 0xFFFF, "ZX-200 Downstream Port of PCI Express Switch(0x0721)"},
 {0x1D17, 0x0722, 0xFFFF, 0xFFFF, "ZX-200 PCIE P2C bridge(0x0722)"},
 {0x1D17, 0x0731, 0xFFFF, 0xFFFF, "KH-40000 PCI Express Root Port(0x0731)"},
-{0x1D17, 0x0732, 0xFFFF, 0xFFFF, "KH-40000 PCI Express Root Port(0x0732)"},
+{0x1D17, 0x0732, 0xFFFF, 0xFFFF, "KH-40000/KX-7000 PCI Express Root Port(0x0732)"},
+{0x1D17, 0x0733, 0xFFFF, 0xFFFF, "KX-7000 PCIE Express Root Port(0x0733)"},
+{0x1D17, 0x0734, 0xFFFF, 0xFFFF, "KX-7000 PCIE Express Root Port(0x0734)"},
+{0x1D17, 0x0735, 0xFFFF, 0xFFFF, "KX-7000 PCIE Express Root Port(0x0735)"},
+{0x1D17, 0x0736, 0xFFFF, 0xFFFF, "KX-7000 PCIE Express Root Port(0x0736)"},
+{0x1D17, 0x0737, 0xFFFF, 0xFFFF, "KX-7000 PCIE Express Root Port(0x0737)"},
+{0x1D17, 0x0738, 0xFFFF, 0xFFFF, "KX-7000 PCIE Express Root Port(0x0738)"},
+{0x1D17, 0x0739, 0xFFFF, 0xFFFF, "KX-7000 PCIE Express Root Port(0x0739)"},
+{0x1D17, 0x073A, 0xFFFF, 0xFFFF, "KX-7000 PCIE Express Root Port(0x073A)"},
+{0x1D17, 0x073B, 0xFFFF, 0xFFFF, "KX-7000 PCIE Express Root Port(0x073B)"},
 {0x1D17, 0x1000, 0xFFFF, 0xFFFF, "ZX-D Standard Host Bridge(0x1000)"},
-{0x1D17, 0x1001, 0xFFFF, 0xFFFF, "ZX-D/ZX-E/KH-40000 Miscellaneous Bus(0x1001)"},
+{0x1D17, 0x1001, 0xFFFF, 0xFFFF, "ZX-D/ZX-E/KH-40000/KX-7000 Miscellaneous Bus(0x1001)"},
 {0x1D17, 0x1003, 0xFFFF, 0xFFFF, "ZX-E Standard Host Bridge(0x1003)"},
 {0x1D17, 0x1005, 0xFFFF, 0xFFFF, "KH-40000 Standard Host Bridge(0x1005)"},
 {0x1D17, 0x1006, 0xFFFF, 0xFFFF, "KX-6000G Standard Host Bridge(0x1006)"},
+{0x1D17, 0x1007, 0xFFFF, 0xFFFF, "KX-7000 Standard Host Bridge(0x1007)"},
 {0x1D17, 0x3001, 0xFFFF, 0xFFFF, "ZX-100 Standard Host Bridge(0x3001)"},
 {0x1D17, 0x300A, 0xFFFF, 0xFFFF, "ZX-100 Miscellaneous Bus(0x300A)"},
-{0x1D17, 0x3038, 0xFFFF, 0xFFFF, "ZX-100/ZX-200/KX-6000/KX-6000G/KH-40000 Standard Universal PCI to USB Host Controller(0x3038)"},
-{0x1D17, 0x3104, 0xFFFF, 0xFFFF, "ZX-100/ZX-200/KX-6000/KX-6000G/KH-40000 Standard Enhanced PCI to USB Host Controller(0x3104)"},
-{0x1D17, 0x31B0, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000 Standard Host Bridge(0x31B0)"},
-{0x1D17, 0x31B1, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000 Standard Host Bridge(0x31B1)"},
-{0x1D17, 0x31B2, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000 DRAM Controller(0x31B2)"},
-{0x1D17, 0x31B3, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000 Power Management Controller(0x31B3)"},
-{0x1D17, 0x31B4, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000 I/O APIC(0x31B4)"},
-{0x1D17, 0x31B5, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000 Scratch Device(0x31B5)"},
-{0x1D17, 0x31B7, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000 Standard Host Bridge(0x31B7)"},
+{0x1D17, 0x3038, 0xFFFF, 0xFFFF, "ZX-100/ZX-200/KX-6000/KX-6000G/KH-40000/KX-7000 Standard Universal PCI to USB Host Controller(0x3038)"},
+{0x1D17, 0x3104, 0xFFFF, 0xFFFF, "ZX-100/ZX-200/KX-6000/KX-6000G/KH-40000/KX-7000 Standard Enhanced PCI to USB Host Controller(0x3104)"},
+{0x1D17, 0x31B0, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000/KX-7000 Standard Host Bridge(0x31B0)"},
+{0x1D17, 0x31B1, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000/KX-7000 Standard Host Bridge(0x31B1)"},
+{0x1D17, 0x31B2, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000/KX-7000 DRAM Controller(0x31B2)"},
+{0x1D17, 0x31B3, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000/KX-7000 Power Management Controller(0x31B3)"},
+{0x1D17, 0x31B4, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000/KX-7000 I/O APIC(0x31B4)"},
+{0x1D17, 0x31B5, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000/KX-7000 Scratch Device(0x31B5)"},
+{0x1D17, 0x31B7, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000/KX-7000 Standard Host Bridge(0x31B7)"},
 {0x1D17, 0x31B8, 0xFFFF, 0xFFFF, "ZX-100/ZX-D PCI to PCI Bridge(0x31B8)"},
-{0x1D17, 0x3288, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000 High Definition Audio Controller(0x3288)"},
+{0x1D17, 0x3200, 0xFFFF, 0xFFFF, "KX-7000 Host Bridge(0x3200)"},
+{0x1D17, 0x3288, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000/KX-7000 High Definition Audio Controller(0x3288)"},
 {0x1D17, 0x345B, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000 Miscellaneous Bus(0x345B)"},
 {0x1D17, 0x3A02, 0xFFFF, 0xFFFF, "ZX-100 C-320 GPU(0x3A02)"},
 {0x1D17, 0x3A03, 0xFFFF, 0xFFFF, "ZX-D C-860 GPU(0x3A03)"},
-{0x1D17, 0x3A04, 0xFFFF, 0xFFFF, "ZX-E C-960 GPU(0x3A04)"},
+{0x1D17, 0x3A04, 0xFFFF, 0xFFFF, "KX-6000 C-960 GPU(0x3A04)"},
+{0x1D17, 0x3A05, 0xFFFF, 0xFFFF, "KX-7000 C-1190 GPU(0x3A05)"},
 {0x1D17, 0x3B01, 0xFFFF, 0xFFFF, "KH-40000 OPI Controller(0x3B01)"},
 {0x1D17, 0x3B02, 0xFFFF, 0xFFFF, "KH-40000 OPI Controller(0x3B02)"},
 {0x1D17, 0x3B03, 0xFFFF, 0xFFFF, "KH-40000 OPI Controller(0x3B03)"},
 {0x1D17, 0x3B04, 0xFFFF, 0xFFFF, "KH-40000 OPI Controller(0x3B04)"},
-{0x1D17, 0x3C00, 0xFFFF, 0xFFFF, "KH-40000 DRAM Controller(0x3C00)"},
+{0x1D17, 0x3C00, 0xFFFF, 0xFFFF, "KH-40000/KX-7000 DRAM Controller(0x3C00)"},
 {0x1D17, 0x3C02, 0xFFFF, 0xFFFF, "KX-6000G DRAM Controller(0x3C02)"},
 {0x1D17, 0x3D01, 0xFFFF, 0xFFFF, "KX-6000G C-1080 GPU(0x3D01)"},
-{0x1D17, 0x9002, 0xFFFF, 0xFFFF, "ZX-100/ZX-200/KH-40000 EIDE Controller(0x9002)"},
+{0x1D17, 0x9002, 0xFFFF, 0xFFFF, "ZX-100/ZX-200/KH-40000/KX-7000 EIDE Controller(0x9002)"},
 {0x1D17, 0x9003, 0xFFFF, 0xFFFF, "ZX-100/KX-6000/KX-6000G EIDE Controller(0x9003)"},
-{0x1D17, 0x9043, 0xFFFF, 0xFFFF, "KX-6000G/KH-40000 RAID Controller(0x9043)"},
+{0x1D17, 0x9043, 0xFFFF, 0xFFFF, "KX-6000G/KH-40000/KX-7000 RAID Controller(0x9043)"},
 {0x1D17, 0x9045, 0xFFFF, 0xFFFF, "ZX-100/ZX-D/ZX-E RAID Accelerator 0(0x9045)"},
 {0x1D17, 0x9046, 0xFFFF, 0xFFFF, "ZX-D/ZX-E RAID Accelerator 1(0x9046)"},
-{0x1D17, 0x9083, 0xFFFF, 0xFFFF, "ZX-100/ZX-200/KX-6000/KX-6000G/KH-40000 StorX AHCI Controller(0x9083)"},
+{0x1D17, 0x9083, 0xFFFF, 0xFFFF, "ZX-100/ZX-200/KX-6000/KX-6000G/KH-40000/KX-7000 StorX AHCI Controller(0x9083)"},
 {0x1D17, 0x9084, 0xFFFF, 0xFFFF, "ZX-100 StorX AHCI Controller(0x9084)"},
 {0x1D17, 0x9100, 0xFFFF, 0xFFFF, "ZX-200 Cross bus(0x9100)"},
 {0x1D17, 0x9101, 0xFFFF, 0xFFFF, "ZX-200 Traffic Controller(0x9101)"},
@@ -30690,25 +30853,29 @@ pci_id_t pci_vid_1D17[] = {
 {0x1D17, 0x9142, 0xFFFF, 0xFFFF, "ZX-D High Definition Audio Controller(0x9142)"},
 {0x1D17, 0x9144, 0xFFFF, 0xFFFF, "ZX-E High Definition Audio Controller(0x9144)"},
 {0x1D17, 0x9145, 0xFFFF, 0xFFFF, "KX-6000G High Definition Audio Controller(0x9145)"},
+{0x1D17, 0x9146, 0xFFFF, 0xFFFF, "KX-7000 High Definition Audio Controller(0x9146)"},
 {0x1D17, 0x9180, 0xFFFF, 0xFFFF, "ZX-200 Networking Gigabit Ethernet Adapter(0x9180)"},
 {0x1D17, 0x91C1, 0xFFFF, 0xFFFF, "KH-40000 ZPI Controller(0x91C1)"},
 {0x1D17, 0x91C2, 0xFFFF, 0xFFFF, "KH-40000 ZPI Controller(0x91C2)"},
 {0x1D17, 0x9202, 0xFFFF, 0xFFFF, "ZX-100 USB eXtensible Host Controller(0x9202)"},
 {0x1D17, 0x9203, 0xFFFF, 0xFFFF, "ZX-200 USB eXtensible Host Controller(0x9203)"},
-{0x1D17, 0x9204, 0xFFFF, 0xFFFF, "KX-6000/KX-6000G USB eXtensible Host Controller(0x9204)"},
+{0x1D17, 0x9204, 0xFFFF, 0xFFFF, "KX-6000/KX-6000G/KX-7000 USB3 xHCI Host Controller(0x9204)"},
 {0x1D17, 0x9205, 0xFFFF, 0xFFFF, "KH-40000 USB eXtensible Host Controller(0x9205)"},
+{0x1D17, 0x9206, 0xFFFF, 0xFFFF, "KX-7000 USB4 Contoller(0x9206)"},
 {0x1D17, 0x9286, 0xFFFF, 0xFFFF, "ZX-D eMMC Host Controller(0x9286)"},
-{0x1D17, 0x9300, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000 eSPI Host Controller(0x9300)"},
+{0x1D17, 0x9300, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000/KX-7000 eSPI Host Controller(0x9300)"},
+{0x1D17, 0x9500, 0xFFFF, 0xFFFF, "KX-7000 I2S Controller(0x9500)"},
+{0x1D17, 0x9501, 0xFFFF, 0xFFFF, "KX-7000 I2S Controller(0x9501)"},
 {0x1D17, 0x95D0, 0xFFFF, 0xFFFF, "ZX-100 Universal SD Host Controller(0x95D0)"},
-{0x1D17, 0xF410, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000 PCI Com Port(0xF410)"},
+{0x1D17, 0xF410, 0xFFFF, 0xFFFF, "ZX-100/KX-5000/KX-6000/KX-6000G/KH-40000/KX-7000 PCI Com Port(0xF410)"},
 }; /* pci_vid_1D17[] */
 
-pci_id_t pci_vid_1D18[] = {
+static pci_id_t const pci_vid_1D18[] = {
 {0x1D18, 0xFFFF, 0xFFFF, 0xFFFF, "RME(0x1D18)"},
 {0x1D18, 0x0001, 0xFFFF, 0xFFFF, "Fireface UFX+(0x0001)"},
 }; /* pci_vid_1D18[] */
 
-pci_id_t pci_vid_1D1C[] = {
+static pci_id_t const pci_vid_1D1C[] = {
 {0x1D1C, 0xFFFF, 0xFFFF, 0xFFFF, "Barefoot Networks, Inc.(0x1D1C)"},
 {0x1D1C, 0x0001, 0xFFFF, 0xFFFF, "Tofino 1(0x0001)"},
 {0x1D1C, 0x0010, 0xFFFF, 0xFFFF, "Tofino 1(0x0010)"},
@@ -30716,24 +30883,24 @@ pci_id_t pci_vid_1D1C[] = {
 {0x1D1C, 0x0110, 0xFFFF, 0xFFFF, "Tofino 2(0x0110)"},
 }; /* pci_vid_1D1C[] */
 
-pci_id_t pci_vid_1D1D[] = {
+static pci_id_t const pci_vid_1D1D[] = {
 {0x1D1D, 0xFFFF, 0xFFFF, 0xFFFF, "CNEX Labs(0x1D1D)"},
 {0x1D1D, 0x1F1F, 0xFFFF, 0xFFFF, "QEMU NVM Express LightNVM Controller(0x1F1F)"},
 {0x1D1D, 0x2807, 0xFFFF, 0xFFFF, "8800 series NVMe SSD(0x2807)"},
 }; /* pci_vid_1D1D[] */
 
-pci_id_t pci_vid_1D21[] = {
+static pci_id_t const pci_vid_1D21[] = {
 {0x1D21, 0xFFFF, 0xFFFF, 0xFFFF, "Allo(0x1D21)"},
 }; /* pci_vid_1D21[] */
 
-pci_id_t pci_vid_1D22[] = {
+static pci_id_t const pci_vid_1D22[] = {
 {0x1D22, 0xFFFF, 0xFFFF, 0xFFFF, "Baidu Technology(0x1D22)"},
 {0x1D22, 0x1380, 0xFFFF, 0xFFFF, "Cloud Storage Device(0x1380)"},
 {0x1D22, 0x3684, 0xFFFF, 0xFFFF, "Kunlun AI Accelerator(0x3684)"},
 {0x1D22, 0x3685, 0xFFFF, 0xFFFF, "Kunlun2 AI Accelerator [VF](0x3685)"},
 }; /* pci_vid_1D22[] */
 
-pci_id_t pci_vid_1D26[] = {
+static pci_id_t const pci_vid_1D26[] = {
 {0x1D26, 0xFFFF, 0xFFFF, 0xFFFF, "Kalray Inc.(0x1D26)"},
 {0x1D26, 0x0040, 0xFFFF, 0xFFFF, "Turbocard2 Accelerator(0x0040)"},
 {0x1D26, 0x0080, 0xFFFF, 0xFFFF, "Open Network Interface Card 80G(0x0080)"},
@@ -30742,7 +30909,7 @@ pci_id_t pci_vid_1D26[] = {
 {0x1D26, 0xE004, 0xFFFF, 0xFFFF, "AB01/EMB01 Development Board(0xE004)"},
 }; /* pci_vid_1D26[] */
 
-pci_id_t pci_vid_1D37[] = {
+static pci_id_t const pci_vid_1D37[] = {
 {0x1D37, 0xFFFF, 0xFFFF, 0xFFFF, "NovaSparks(0x1D37)"},
 {0x1D37, 0x0013, 0xFFFF, 0xFFFF, "PM3(0x0013)"},
 {0x1D37, 0x0014, 0xFFFF, 0xFFFF, "PM4(0x0014)"},
@@ -30750,70 +30917,74 @@ pci_id_t pci_vid_1D37[] = {
 {0x1D37, 0x0016, 0xFFFF, 0xFFFF, "PM4edge User Device(0x0016)"},
 }; /* pci_vid_1D37[] */
 
-pci_id_t pci_vid_1D40[] = {
+static pci_id_t const pci_vid_1D40[] = {
 {0x1D40, 0xFFFF, 0xFFFF, 0xFFFF, "Techman Electronics (Changshu) Co., Ltd.(0x1D40)"},
 {0x1D40, 0x5501, 0xFFFF, 0xFFFF, "XC100C55-xxxx NVME SSD(0x5501)"},
 {0x1D40, 0x5C01, 0xFFFF, 0xFFFF, "XC100C5C-xxxx, XC100E5C-xxxx NVME SSD(0x5C01)"},
 {0x1D40, 0xB100, 0xFFFF, 0xFFFF, "PV100C55-xxxx NVME SSD(0xB100)"},
 }; /* pci_vid_1D40[] */
 
-pci_id_t pci_vid_1D44[] = {
+static pci_id_t const pci_vid_1D44[] = {
 {0x1D44, 0xFFFF, 0xFFFF, 0xFFFF, "DPT(0x1D44)"},
 {0x1D44, 0xA400, 0xFFFF, 0xFFFF, "PM2x24/PM3224(0xA400)"},
 }; /* pci_vid_1D44[] */
 
-pci_id_t pci_vid_1D49[] = {
+static pci_id_t const pci_vid_1D49[] = {
 {0x1D49, 0xFFFF, 0xFFFF, 0xFFFF, "Lenovo(0x1D49)"},
-{0x1D49, 0x0522, 0xFFFF, 0xFFFF, "ThinkSystem RAID 5350-8i PCIe 12Gb Internal Adapter(0x0522)"},
 }; /* pci_vid_1D49[] */
 
-pci_id_t pci_vid_1D4C[] = {
+static pci_id_t const pci_vid_1D4C[] = {
 {0x1D4C, 0xFFFF, 0xFFFF, 0xFFFF, "Diamanti, Inc.(0x1D4C)"},
 }; /* pci_vid_1D4C[] */
 
-pci_id_t pci_vid_1D5C[] = {
+static pci_id_t const pci_vid_1D5C[] = {
 {0x1D5C, 0xFFFF, 0xFFFF, 0xFFFF, "Fantasia Trading LLC(0x1D5C)"},
 }; /* pci_vid_1D5C[] */
 
-pci_id_t pci_vid_1D61[] = {
+static pci_id_t const pci_vid_1D61[] = {
 {0x1D61, 0xFFFF, 0xFFFF, 0xFFFF, "Technobox, Inc.(0x1D61)"},
 }; /* pci_vid_1D61[] */
 
-pci_id_t pci_vid_1D62[] = {
+static pci_id_t const pci_vid_1D62[] = {
 {0x1D62, 0xFFFF, 0xFFFF, 0xFFFF, "Nebbiolo Technologies(0x1D62)"},
 }; /* pci_vid_1D62[] */
 
-pci_id_t pci_vid_1D65[] = {
+static pci_id_t const pci_vid_1D65[] = {
 {0x1D65, 0xFFFF, 0xFFFF, 0xFFFF, "Imagine Communications Corp.(0x1D65)"},
 {0x1D65, 0x04DE, 0xFFFF, 0xFFFF, "Taurus/McKinley(0x04DE)"},
 }; /* pci_vid_1D65[] */
 
-pci_id_t pci_vid_1D69[] = {
+static pci_id_t const pci_vid_1D69[] = {
 {0x1D69, 0xFFFF, 0xFFFF, 0xFFFF, "Celeno Communications(0x1D69)"},
 {0x1D69, 0x2432, 0xFFFF, 0xFFFF, "CL2432(0x2432)"},
 {0x1D69, 0x2440, 0xFFFF, 0xFFFF, "CL2440(0x2440)"},
 }; /* pci_vid_1D69[] */
 
-pci_id_t pci_vid_1D6A[] = {
+static pci_id_t const pci_vid_1D6A[] = {
 {0x1D6A, 0xFFFF, 0xFFFF, 0xFFFF, "Aquantia Corp.(0x1D6A)"},
 {0x1D6A, 0x0001, 0xFFFF, 0xFFFF, "AQC107 NBase-T/IEEE 802.3bz Ethernet Controller [AQtion](0x0001)"},
-{0x1D6A, 0x00B1, 0xFFFF, 0xFFFF, "AQC100 10G Ethernet MAC controller [AQtion](0x00B1)"},
-{0x1D6A, 0x07B1, 0xFFFF, 0xFFFF, "AQC107 NBase-T/IEEE 802.3bz Ethernet Controller [AQtion](0x07B1)"},
+{0x1D6A, 0x00B1, 0xFFFF, 0xFFFF, "AQtion AQC100 NBase-T/IEEE 802.3an Ethernet Controller [Atlantic 10G](0x00B1)"},
+{0x1D6A, 0x00C0, 0xFFFF, 0xFFFF, "Antigua NBase-T/IEEE 802.3an Ethernet Controller - Engineering Sample(0x00C0)"},
+{0x1D6A, 0x04C0, 0xFFFF, 0xFFFF, "AQtion AQC113 NBase-T/IEEE 802.3an Ethernet Controller [Antigua 10G](0x04C0)"},
+{0x1D6A, 0x07B1, 0xFFFF, 0xFFFF, "AQtion AQC107 NBase-T/IEEE 802.3an Ethernet Controller [Atlantic 10G](0x07B1)"},
 {0x1D6A, 0x07B1, 0x1BAA, 0x07B1, "QM2-2P10G1TA [QXG 10GbE Network Adapter](0x1BAA-0x07B1)"},
 {0x1D6A, 0x07B1, 0x1BAA, 0x07B2, "QM2-2P10G1TA [QM2 Expansion Adapter](0x1BAA-0x07B2)"},
 {0x1D6A, 0x08B1, 0xFFFF, 0xFFFF, "AQC108 NBase-T/IEEE 802.3bz Ethernet Controller [AQtion](0x08B1)"},
 {0x1D6A, 0x11B1, 0xFFFF, 0xFFFF, "AQC111 NBase-T/IEEE 802.3bz Ethernet Controller [AQtion](0x11B1)"},
 {0x1D6A, 0x12B1, 0xFFFF, 0xFFFF, "AQC112 NBase-T/IEEE 802.3bz Ethernet Controller [AQtion](0x12B1)"},
-{0x1D6A, 0x14C0, 0xFFFF, 0xFFFF, "AQC113C NBase-T/IEEE 802.3bz Ethernet Controller [AQtion](0x14C0)"},
-{0x1D6A, 0x87B1, 0xFFFF, 0xFFFF, "AQC107 NBase-T/IEEE 802.3bz Ethernet Controller [AQtion](0x87B1)"},
-{0x1D6A, 0x94C0, 0xFFFF, 0xFFFF, "AQC113CS NBase-T/IEEE 802.3bz Ethernet Controller [AQtion](0x94C0)"},
+{0x1D6A, 0x12C0, 0xFFFF, 0xFFFF, "AQtion AQC115C NBase-T/IEEE 802.3bz Ethernet Controller [Antigua 2.5G](0x12C0)"},
+{0x1D6A, 0x14C0, 0xFFFF, 0xFFFF, "AQC113C NBase-T/IEEE 802.3an Ethernet Controller [Marvell Scalable mGig](0x14C0)"},
+{0x1D6A, 0x80B1, 0xFFFF, 0xFFFF, "AQtion AQC100S NBase-T/IEEE 802.3an Ethernet Controller [Atlantic 10G](0x80B1)"},
+{0x1D6A, 0x87B1, 0xFFFF, 0xFFFF, "AQtion AQC107S NBase-T/IEEE 802.3an Ethernet Controller [Atlantic 10G](0x87B1)"},
+{0x1D6A, 0x93C0, 0xFFFF, 0xFFFF, "AQtion AQC114CS NBase-T/IEEE 802.3bz Ethernet Controller [Antigua 5G](0x93C0)"},
+{0x1D6A, 0x94C0, 0xFFFF, 0xFFFF, "AQtion AQC113CS NBase-T/IEEE 802.3an Ethernet Controller [Antigua 10G](0x94C0)"},
 {0x1D6A, 0x94C0, 0x1043, 0x87F5, "ProArt X570-CREATOR WIFI(0x1043-0x87F5)"},
-{0x1D6A, 0xD107, 0xFFFF, 0xFFFF, "AQC107 NBase-T/IEEE 802.3bz Ethernet Controller [AQtion](0xD107)"},
+{0x1D6A, 0xD107, 0xFFFF, 0xFFFF, "AQtion AQC107 NBase-T/IEEE 802.3an Ethernet Controller [Atlantic 10G](0xD107)"},
 {0x1D6A, 0xD107, 0x1043, 0x8741, "XG-C100C(0x1043-0x8741)"},
 {0x1D6A, 0xD108, 0xFFFF, 0xFFFF, "AQC108 NBase-T/IEEE 802.3bz Ethernet Controller [AQtion](0xD108)"},
 }; /* pci_vid_1D6A[] */
 
-pci_id_t pci_vid_1D6C[] = {
+static pci_id_t const pci_vid_1D6C[] = {
 {0x1D6C, 0xFFFF, 0xFFFF, 0xFFFF, "Atomic Rules LLC(0x1D6C)"},
 {0x1D6C, 0x1001, 0xFFFF, 0xFFFF, "A5PL-E1(0x1001)"},
 {0x1D6C, 0x1002, 0xFFFF, 0xFFFF, "A5PL-E7(0x1002)"},
@@ -30852,14 +31023,17 @@ pci_id_t pci_vid_1D6C[] = {
 {0x1D6C, 0x1021, 0xFFFF, 0xFFFF, "AR-MGMT-PF [Board-Generic Management Physical Function](0x1021)"},
 {0x1D6C, 0x1022, 0xFFFF, 0xFFFF, "AR-ARKA-FX2 [Arkville 128B DPDK Data Mover for Agilex](0x1022)"},
 {0x1D6C, 0x1023, 0xFFFF, 0xFFFF, "AR-BD-FX1 [BufferDirect Zero-Bounce Data Motion Endpoint](0x1023)"},
+{0x1D6C, 0x1024, 0xFFFF, 0xFFFF, "AR-TK242 [2x10GbE Packet Capture Device](0x1024)"},
+{0x1D6C, 0x1025, 0xFFFF, 0xFFFF, "AR-TK242-FX2 [2x100GbE Gen5 Packet Capture Device](0x1025)"},
+{0x1D6C, 0x1026, 0xFFFF, 0xFFFF, "AR-TK242-FX2 [1x200GbE Gen5 Packet Capture Device](0x1026)"},
 {0x1D6C, 0x4200, 0xFFFF, 0xFFFF, "A5PL-E1-10GETI [10 GbE Ethernet Traffic Instrument](0x4200)"},
 }; /* pci_vid_1D6C[] */
 
-pci_id_t pci_vid_1D72[] = {
+static pci_id_t const pci_vid_1D72[] = {
 {0x1D72, 0xFFFF, 0xFFFF, 0xFFFF, "Xiaomi(0x1D72)"},
 }; /* pci_vid_1D72[] */
 
-pci_id_t pci_vid_1D78[] = {
+static pci_id_t const pci_vid_1D78[] = {
 {0x1D78, 0xFFFF, 0xFFFF, 0xFFFF, "DERA Storage(0x1D78)"},
 {0x1D78, 0x1512, 0xFFFF, 0xFFFF, "TAI NVMe Controller(0x1512)"},
 {0x1D78, 0x1512, 0x1D78, 0x2004, "D5437 HHHL 2TB NVMe SSD(0x1D78-0x2004)"},
@@ -30924,7 +31098,7 @@ pci_id_t pci_vid_1D78[] = {
 {0x1D78, 0x1515, 0x1D78, 0x7208, "Aliflash V2 U.2 15mm 7.68TB NVMe SSD(0x1D78-0x7208)"},
 }; /* pci_vid_1D78[] */
 
-pci_id_t pci_vid_1D79[] = {
+static pci_id_t const pci_vid_1D79[] = {
 {0x1D79, 0xFFFF, 0xFFFF, 0xFFFF, "Transcend Information, Inc.(0x1D79)"},
 {0x1D79, 0x2262, 0xFFFF, 0xFFFF, "NVMe PCIe SSD 220S/MTE662T2(0x2262)"},
 {0x1D79, 0x2263, 0xFFFF, 0xFFFF, "NVMe PCIe SSD 110S/112S/120S/MTE300S/MTE400S/MTE652T2 (DRAM-less)(0x2263)"},
@@ -30933,12 +31107,12 @@ pci_id_t pci_vid_1D79[] = {
 {0x1D79, 0x5766, 0xFFFF, 0xFFFF, "NVMe PCIe SSD 110Q (DRAM-less)(0x5766)"},
 }; /* pci_vid_1D79[] */
 
-pci_id_t pci_vid_1D7C[] = {
+static pci_id_t const pci_vid_1D7C[] = {
 {0x1D7C, 0xFFFF, 0xFFFF, 0xFFFF, "Aerotech, Inc.(0x1D7C)"},
 {0x1D7C, 0x0001, 0xFFFF, 0xFFFF, "HyperWire Adapter(0x0001)"},
 }; /* pci_vid_1D7C[] */
 
-pci_id_t pci_vid_1D82[] = {
+static pci_id_t const pci_vid_1D82[] = {
 {0x1D82, 0xFFFF, 0xFFFF, 0xFFFF, "NETINT Technologies Inc.(0x1D82)"},
 {0x1D82, 0x0101, 0xFFFF, 0xFFFF, "Codensity D400 SSD(0x0101)"},
 {0x1D82, 0x0102, 0xFFFF, 0xFFFF, "Codensity D408 PCIe Gen4 NVMe SSD(0x0102)"},
@@ -30946,7 +31120,7 @@ pci_id_t pci_vid_1D82[] = {
 {0x1D82, 0x0401, 0xFFFF, 0xFFFF, "Quadra Video Processing Unit (VPU)(0x0401)"},
 }; /* pci_vid_1D82[] */
 
-pci_id_t pci_vid_1D87[] = {
+static pci_id_t const pci_vid_1D87[] = {
 {0x1D87, 0xFFFF, 0xFFFF, 0xFFFF, "Rockchip Electronics Co., Ltd(0x1D87)"},
 {0x1D87, 0x0100, 0xFFFF, 0xFFFF, "RK3399 PCI Express Root Port(0x0100)"},
 {0x1D87, 0x1808, 0xFFFF, 0xFFFF, "RK1808 Neural Network Processor Card(0x1808)"},
@@ -30956,24 +31130,24 @@ pci_id_t pci_vid_1D87[] = {
 {0x1D87, 0x3588, 0xFFFF, 0xFFFF, "RK3588(0x3588)"},
 }; /* pci_vid_1D87[] */
 
-pci_id_t pci_vid_1D89[] = {
+static pci_id_t const pci_vid_1D89[] = {
 {0x1D89, 0xFFFF, 0xFFFF, 0xFFFF, "YEESTOR Microelectronics Co., Ltd(0x1D89)"},
 {0x1D89, 0x0280, 0xFFFF, 0xFFFF, "PCIe NVMe SSD(0x0280)"},
 }; /* pci_vid_1D89[] */
 
-pci_id_t pci_vid_1D8F[] = {
+static pci_id_t const pci_vid_1D8F[] = {
 {0x1D8F, 0xFFFF, 0xFFFF, 0xFFFF, "Enyx(0x1D8F)"},
 }; /* pci_vid_1D8F[] */
 
-pci_id_t pci_vid_1D92[] = {
+static pci_id_t const pci_vid_1D92[] = {
 {0x1D92, 0xFFFF, 0xFFFF, 0xFFFF, "Abaco Systems Inc.(0x1D92)"},
 }; /* pci_vid_1D92[] */
 
-pci_id_t pci_vid_1D93[] = {
+static pci_id_t const pci_vid_1D93[] = {
 {0x1D93, 0xFFFF, 0xFFFF, 0xFFFF, "YADRO(0x1D93)"},
 }; /* pci_vid_1D93[] */
 
-pci_id_t pci_vid_1D94[] = {
+static pci_id_t const pci_vid_1D94[] = {
 {0x1D94, 0xFFFF, 0xFFFF, 0xFFFF, "Chengdu Haiguang IC Design Co., Ltd.(0x1D94)"},
 {0x1D94, 0x1450, 0xFFFF, 0xFFFF, "Root Complex(0x1450)"},
 {0x1D94, 0x1451, 0xFFFF, 0xFFFF, "I/O Memory Management Unit(0x1451)"},
@@ -31006,41 +31180,43 @@ pci_id_t pci_vid_1D94[] = {
 {0x1D94, 0x790E, 0xFFFF, 0xFFFF, "FCH LPC Bridge(0x790E)"},
 }; /* pci_vid_1D94[] */
 
-pci_id_t pci_vid_1D95[] = {
+static pci_id_t const pci_vid_1D95[] = {
 {0x1D95, 0xFFFF, 0xFFFF, 0xFFFF, "Graphcore Ltd(0x1D95)"},
 {0x1D95, 0x0001, 0xFFFF, 0xFFFF, "Colossus GC2 [C2](0x0001)"},
 {0x1D95, 0x0002, 0xFFFF, 0xFFFF, "Colossus GC1 [S1](0x0002)"},
 }; /* pci_vid_1D95[] */
 
-pci_id_t pci_vid_1D97[] = {
+static pci_id_t const pci_vid_1D97[] = {
 {0x1D97, 0xFFFF, 0xFFFF, 0xFFFF, "Shenzhen Longsys Electronics Co., Ltd.(0x1D97)"},
 {0x1D97, 0x1062, 0xFFFF, 0xFFFF, "Lexar NM710 NVME SSD(0x1062)"},
 {0x1D97, 0x1160, 0xFFFF, 0xFFFF, "FORESEE P900 BGA NVMe SSD (DRAM-less)(0x1160)"},
 {0x1D97, 0x1202, 0xFFFF, 0xFFFF, "Lexar NM610 PRO NVME SSD (DRAM-less)(0x1202)"},
+{0x1D97, 0x1602, 0xFFFF, 0xFFFF, "Lexar NM790 NVME SSD (DRAM-less)(0x1602)"},
 {0x1D97, 0x1D97, 0xFFFF, 0xFFFF, "Lexar NM620 NVME SSD (DRAM-less)(0x1D97)"},
 {0x1D97, 0x2263, 0xFFFF, 0xFFFF, "SM2263EN/SM2263XT-based OEM NVME SSD (DRAM-less)(0x2263)"},
-{0x1D97, 0x2269, 0xFFFF, 0xFFFF, "Lexar NM760 NVME SSD (DRAM-less)(0x2269)"},
-{0x1D97, 0x5216, 0xFFFF, 0xFFFF, "Lexar NM620 NVME SSD (DRAM-less)(0x5216)"},
+{0x1D97, 0x2269, 0xFFFF, 0xFFFF, "FORESEE XP2000, Lexar NM760 NVME SSD (DRAM-less)(0x2269)"},
+{0x1D97, 0x5216, 0xFFFF, 0xFFFF, "FORESEE XP1000 / Lexar Professional CFexpress Type B Gold series, NM620 PCIe NVME SSD (DRAM-less)(0x5216)"},
+{0x1D97, 0x5220, 0xFFFF, 0xFFFF, "FORESEE XP2100 NVMe SSD (DRAM-less)(0x5220)"},
 {0x1D97, 0x5236, 0xFFFF, 0xFFFF, "Lexar NM800 PRO NVME SSD(0x5236)"},
 }; /* pci_vid_1D97[] */
 
-pci_id_t pci_vid_1D9B[] = {
+static pci_id_t const pci_vid_1D9B[] = {
 {0x1D9B, 0xFFFF, 0xFFFF, 0xFFFF, "Meta Platforms, Inc.(0x1D9B)"},
 {0x1D9B, 0x0010, 0xFFFF, 0xFFFF, "Networking DOM Engine(0x0010)"},
 {0x1D9B, 0x0011, 0xFFFF, 0xFFFF, "IO Bridge(0x0011)"},
 }; /* pci_vid_1D9B[] */
 
-pci_id_t pci_vid_1DA1[] = {
+static pci_id_t const pci_vid_1DA1[] = {
 {0x1DA1, 0xFFFF, 0xFFFF, 0xFFFF, "Teko Telecom S.r.l.(0x1DA1)"},
 }; /* pci_vid_1DA1[] */
 
-pci_id_t pci_vid_1DA2[] = {
+static pci_id_t const pci_vid_1DA2[] = {
 {0x1DA2, 0xFFFF, 0xFFFF, 0xFFFF, "Sapphire Technology Limited(0x1DA2)"},
 {0x1DA2, 0xE26A, 0xFFFF, 0xFFFF, "Radeon R7 250(0xE26A)"},
 {0x1DA2, 0xE445, 0xFFFF, 0xFFFF, "Sapphire Radeon RX 6700(0xE445)"},
 }; /* pci_vid_1DA2[] */
 
-pci_id_t pci_vid_1DA3[] = {
+static pci_id_t const pci_vid_1DA3[] = {
 {0x1DA3, 0xFFFF, 0xFFFF, 0xFFFF, "Habana Labs Ltd.(0x1DA3)"},
 {0x1DA3, 0x0001, 0xFFFF, 0xFFFF, "HL-1000 AI Inference Accelerator [Goya](0x0001)"},
 {0x1DA3, 0x0030, 0xFFFF, 0xFFFF, "Greco AI Inference Accelerator(0x0030)"},
@@ -31049,21 +31225,22 @@ pci_id_t pci_vid_1DA3[] = {
 {0x1DA3, 0x1020, 0xFFFF, 0xFFFF, "Gaudi2 AI Training Accelerator(0x1020)"},
 }; /* pci_vid_1DA3[] */
 
-pci_id_t pci_vid_1DA8[] = {
+static pci_id_t const pci_vid_1DA8[] = {
 {0x1DA8, 0xFFFF, 0xFFFF, 0xFFFF, "Corigine, Inc.(0x1DA8)"},
 {0x1DA8, 0x3800, 0xFFFF, 0xFFFF, "Network Flow Processor 3800(0x3800)"},
 {0x1DA8, 0x3803, 0xFFFF, 0xFFFF, "Network Flow Processor 3800 Virtual Function(0x3803)"},
 }; /* pci_vid_1DA8[] */
 
-pci_id_t pci_vid_1DAD[] = {
+static pci_id_t const pci_vid_1DAD[] = {
 {0x1DAD, 0xFFFF, 0xFFFF, 0xFFFF, "Fungible(0x1DAD)"},
+{0x1DAD, 0x0108, 0xFFFF, 0xFFFF, "FC50, FC100, FC200 DPU NVMeoF Adapters(0x0108)"},
 }; /* pci_vid_1DAD[] */
 
-pci_id_t pci_vid_1DB2[] = {
+static pci_id_t const pci_vid_1DB2[] = {
 {0x1DB2, 0xFFFF, 0xFFFF, 0xFFFF, "ATP ELECTRONICS INC(0x1DB2)"},
 }; /* pci_vid_1DB2[] */
 
-pci_id_t pci_vid_1DB7[] = {
+static pci_id_t const pci_vid_1DB7[] = {
 {0x1DB7, 0xFFFF, 0xFFFF, 0xFFFF, "Phytium Technology Co., Ltd.(0x1DB7)"},
 {0x1DB7, 0xDC20, 0xFFFF, 0xFFFF, "[X100 Series](0xDC20)"},
 {0x1DB7, 0xDC21, 0xFFFF, 0xFFFF, "VPU Controller [X100 Series](0xDC21)"},
@@ -31089,15 +31266,17 @@ pci_id_t pci_vid_1DB7[] = {
 {0x1DB7, 0xDC3C, 0xFFFF, 0xFFFF, "GPU_DMA Controller [X100 Series](0xDC3C)"},
 }; /* pci_vid_1DB7[] */
 
-pci_id_t pci_vid_1DBB[] = {
+static pci_id_t const pci_vid_1DBB[] = {
 {0x1DBB, 0xFFFF, 0xFFFF, 0xFFFF, "NGD Systems, Inc.(0x1DBB)"},
 }; /* pci_vid_1DBB[] */
 
-pci_id_t pci_vid_1DBE[] = {
+static pci_id_t const pci_vid_1DBE[] = {
 {0x1DBE, 0xFFFF, 0xFFFF, 0xFFFF, "INNOGRIT Corporation(0x1DBE)"},
 {0x1DBE, 0x5216, 0xFFFF, 0xFFFF, "NVMe SSD Controller IG5216 (DRAM-less)(0x5216)"},
 {0x1DBE, 0x5220, 0xFFFF, 0xFFFF, "NVMe SSD Controller IG5220 (DRAM-less)(0x5220)"},
 {0x1DBE, 0x5236, 0xFFFF, 0xFFFF, "NVMe SSD Controller IG5236(0x5236)"},
+{0x1DBE, 0x5236, 0x1DBE, 0x4001, "Dongting-B1 DC SSD M.2 480GB(0x1DBE-0x4001)"},
+{0x1DBE, 0x5236, 0x1DBE, 0x4002, "Dongting-B1 DC SSD M.2 960GB(0x1DBE-0x4002)"},
 {0x1DBE, 0x5636, 0xFFFF, 0xFFFF, "NVMe DC SSD IG5636(0x5636)"},
 {0x1DBE, 0x5636, 0x1DBE, 0x0001, "Dongting-N1 DC SSD U.2 1600GB(0x1DBE-0x0001)"},
 {0x1DBE, 0x5636, 0x1DBE, 0x0002, "Dongting-N1 DC SSD U.2 1920GB(0x1DBE-0x0002)"},
@@ -31118,41 +31297,41 @@ pci_id_t pci_vid_1DBE[] = {
 {0x1DBE, 0x5638, 0x1DBE, 0x3002, "Donghu-Z2 DC ZNS SSD U.2 8000GB(0x1DBE-0x3002)"},
 }; /* pci_vid_1DBE[] */
 
-pci_id_t pci_vid_1DBF[] = {
+static pci_id_t const pci_vid_1DBF[] = {
 {0x1DBF, 0xFFFF, 0xFFFF, 0xFFFF, "Guizhou Huaxintong Semiconductor Technology Co., Ltd(0x1DBF)"},
 {0x1DBF, 0x0401, 0xFFFF, 0xFFFF, "StarDragon4800 PCI Express Root Port(0x0401)"},
 }; /* pci_vid_1DBF[] */
 
-pci_id_t pci_vid_1DC2[] = {
+static pci_id_t const pci_vid_1DC2[] = {
 {0x1DC2, 0xFFFF, 0xFFFF, 0xFFFF, "Alco Digital Devices Limited(0x1DC2)"},
 }; /* pci_vid_1DC2[] */
 
-pci_id_t pci_vid_1DC5[] = {
+static pci_id_t const pci_vid_1DC5[] = {
 {0x1DC5, 0xFFFF, 0xFFFF, 0xFFFF, "FADU Inc.(0x1DC5)"},
 {0x1DC5, 0x4081, 0xFFFF, 0xFFFF, "FC4121 PCIe 4.0 NVMe controller [DELTA](0x4081)"},
 {0x1DC5, 0x6150, 0xFFFF, 0xFFFF, "FC3081 PCIe 3.0 NVMe controller [BRAVO](0x6150)"},
 }; /* pci_vid_1DC5[] */
 
-pci_id_t pci_vid_1DCD[] = {
+static pci_id_t const pci_vid_1DCD[] = {
 {0x1DCD, 0xFFFF, 0xFFFF, 0xFFFF, "Liqid Inc.(0x1DCD)"},
 }; /* pci_vid_1DCD[] */
 
-pci_id_t pci_vid_1DCF[] = {
+static pci_id_t const pci_vid_1DCF[] = {
 {0x1DCF, 0xFFFF, 0xFFFF, 0xFFFF, "Beijing Sinead Technology Co., Ltd.(0x1DCF)"},
 }; /* pci_vid_1DCF[] */
 
-pci_id_t pci_vid_1DD3[] = {
+static pci_id_t const pci_vid_1DD3[] = {
 {0x1DD3, 0xFFFF, 0xFFFF, 0xFFFF, "Sage Microelectronics Corp.(0x1DD3)"},
 }; /* pci_vid_1DD3[] */
 
-pci_id_t pci_vid_1DD4[] = {
+static pci_id_t const pci_vid_1DD4[] = {
 {0x1DD4, 0xFFFF, 0xFFFF, 0xFFFF, "Swissbit AG(0x1DD4)"},
 {0x1DD4, 0x0010, 0xFFFF, 0xFFFF, "N-10m2 NVMe SSD(0x0010)"},
 {0x1DD4, 0x0016, 0xFFFF, 0xFFFF, "N-16(0x0016)"},
 {0x1DD4, 0x0020, 0xFFFF, 0xFFFF, "EN-20 BGA NVMe SSD (DRAM-less)(0x0020)"},
 }; /* pci_vid_1DD4[] */
 
-pci_id_t pci_vid_1DD8[] = {
+static pci_id_t const pci_vid_1DD8[] = {
 {0x1DD8, 0xFFFF, 0xFFFF, 0xFFFF, "AMD Pensando Systems(0x1DD8)"},
 {0x1DD8, 0x0002, 0xFFFF, 0xFFFF, "DSC2 Elba Upstream Port(0x0002)"},
 {0x1DD8, 0x0002, 0x1DD8, 0x100E, "Distributed Services Card(0x1DD8-0x100E)"},
@@ -31373,11 +31552,11 @@ pci_id_t pci_vid_1DD8[] = {
 {0x1DD8, 0x100D, 0x1DD8, 0x500F, "DSC2-200 50/100/200G 2-port 32G RAM 64G eMMC G2 DPU R4-T(0x1DD8-0x500F)"},
 }; /* pci_vid_1DD8[] */
 
-pci_id_t pci_vid_1DDD[] = {
+static pci_id_t const pci_vid_1DDD[] = {
 {0x1DDD, 0xFFFF, 0xFFFF, 0xFFFF, "Thorlabs(0x1DDD)"},
 }; /* pci_vid_1DDD[] */
 
-pci_id_t pci_vid_1DE0[] = {
+static pci_id_t const pci_vid_1DE0[] = {
 {0x1DE0, 0xFFFF, 0xFFFF, 0xFFFF, "Groq(0x1DE0)"},
 {0x1DE0, 0x0000, 0xFFFF, 0xFFFF, "TSP [GroqChip](0x0000)"},
 {0x1DE0, 0x0000, 0x1DE0, 0x0000, "GC1-010X-ES [GroqCard](0x1DE0-0x0000)"},
@@ -31386,7 +31565,7 @@ pci_id_t pci_vid_1DE0[] = {
 {0x1DE0, 0x0000, 0x1DE0, 0xC007, "GC1-0100 [GroqCard](0x1DE0-0xC007)"},
 }; /* pci_vid_1DE0[] */
 
-pci_id_t pci_vid_1DE1[] = {
+static pci_id_t const pci_vid_1DE1[] = {
 {0x1DE1, 0xFFFF, 0xFFFF, 0xFFFF, "Tekram Technology Co.,Ltd.(0x1DE1)"},
 {0x1DE1, 0x0391, 0xFFFF, 0xFFFF, "TRM-S1040 [DC-315 / DC-395 series](0x0391)"},
 {0x1DE1, 0x2020, 0xFFFF, 0xFFFF, "DC-390 Series SCSI Adapter [AMD Am53C974](0x2020)"},
@@ -31394,14 +31573,19 @@ pci_id_t pci_vid_1DE1[] = {
 {0x1DE1, 0xDC29, 0xFFFF, 0xFFFF, "DC290(0xDC29)"},
 }; /* pci_vid_1DE1[] */
 
-pci_id_t pci_vid_1DE5[] = {
+static pci_id_t const pci_vid_1DE4[] = {
+{0x1DE4, 0xFFFF, 0xFFFF, 0xFFFF, "Raspberry Pi Ltd(0x1DE4)"},
+{0x1DE4, 0x0001, 0xFFFF, 0xFFFF, "RP1 PCIe 2.0 South Bridge(0x0001)"},
+}; /* pci_vid_1DE4[] */
+
+static pci_id_t const pci_vid_1DE5[] = {
 {0x1DE5, 0xFFFF, 0xFFFF, 0xFFFF, "Eideticom, Inc(0x1DE5)"},
 {0x1DE5, 0x1000, 0xFFFF, 0xFFFF, "IO Memory Controller(0x1000)"},
 {0x1DE5, 0x2000, 0xFFFF, 0xFFFF, "NoLoad Hardware Development Kit(0x2000)"},
 {0x1DE5, 0x3000, 0xFFFF, 0xFFFF, "eBPF-based PCIe Accelerator(0x3000)"},
 }; /* pci_vid_1DE5[] */
 
-pci_id_t pci_vid_1DED[] = {
+static pci_id_t const pci_vid_1DED[] = {
 {0x1DED, 0xFFFF, 0xFFFF, 0xFFFF, "Alibaba (China) Co., Ltd.(0x1DED)"},
 {0x1DED, 0x107F, 0xFFFF, 0xFFFF, "Elastic RDMA Adapter(0x107F)"},
 {0x1DED, 0x5007, 0xFFFF, 0xFFFF, "Elastic RDMA Adapter(0x5007)"},
@@ -31412,13 +31596,14 @@ pci_id_t pci_vid_1DED[] = {
 {0x1DED, 0x8004, 0xFFFF, 0xFFFF, "RCEC VF(0x8004)"},
 }; /* pci_vid_1DED[] */
 
-pci_id_t pci_vid_1DEE[] = {
+static pci_id_t const pci_vid_1DEE[] = {
 {0x1DEE, 0xFFFF, 0xFFFF, 0xFFFF, "Biwin Storage Technology Co., Ltd.(0x1DEE)"},
 {0x1DEE, 0x2262, 0xFFFF, 0xFFFF, "HP EX950 NVMe SSD(0x2262)"},
 {0x1DEE, 0x2263, 0xFFFF, 0xFFFF, "HP EX900 NVMe SSD (DRAM-less)(0x2263)"},
+{0x1DEE, 0x5216, 0xFFFF, 0xFFFF, "KingSpec NX series NVMe SSD (DRAM-less)(0x5216)"},
 }; /* pci_vid_1DEE[] */
 
-pci_id_t pci_vid_1DEF[] = {
+static pci_id_t const pci_vid_1DEF[] = {
 {0x1DEF, 0xFFFF, 0xFFFF, 0xFFFF, "Ampere Computing, LLC(0x1DEF)"},
 {0x1DEF, 0xE005, 0xFFFF, 0xFFFF, "eMAG PCI Express Root Port 0(0xE005)"},
 {0x1DEF, 0xE006, 0xFFFF, 0xFFFF, "eMAG PCI Express Root Port 1(0xE006)"},
@@ -31448,7 +31633,7 @@ pci_id_t pci_vid_1DEF[] = {
 {0x1DEF, 0xE118, 0xFFFF, 0xFFFF, "Altra PCI Express Root Port b7(0xE118)"},
 }; /* pci_vid_1DEF[] */
 
-pci_id_t pci_vid_1DF3[] = {
+static pci_id_t const pci_vid_1DF3[] = {
 {0x1DF3, 0xFFFF, 0xFFFF, 0xFFFF, "Ethernity Networks(0x1DF3)"},
 {0x1DF3, 0x0201, 0xFFFF, 0xFFFF, "ACE-NIC40 Programmable Network Accelerator(0x0201)"},
 {0x1DF3, 0x0201, 0x1DF3, 0x0001, "ENA1040(0x1DF3-0x0001)"},
@@ -31480,19 +31665,19 @@ pci_id_t pci_vid_1DF3[] = {
 {0x1DF3, 0x0208, 0x1DF3, 0x0001, "ENA2100RN(0x1DF3-0x0001)"},
 }; /* pci_vid_1DF3[] */
 
-pci_id_t pci_vid_1DF5[] = {
+static pci_id_t const pci_vid_1DF5[] = {
 {0x1DF5, 0xFFFF, 0xFFFF, 0xFFFF, "Shenzhen TIGO Semiconductor(0x1DF5)"},
 {0x1DF5, 0x1202, 0xFFFF, 0xFFFF, "kimtigo NVMe SSD (DRAM-less)(0x1202)"},
 }; /* pci_vid_1DF5[] */
 
-pci_id_t pci_vid_1DF7[] = {
+static pci_id_t const pci_vid_1DF7[] = {
 {0x1DF7, 0xFFFF, 0xFFFF, 0xFFFF, "opencpi.org(0x1DF7)"},
 {0x1DF7, 0x0001, 0xFFFF, 0xFFFF, "ml605(0x0001)"},
 {0x1DF7, 0x0002, 0xFFFF, 0xFFFF, "alst4(0x0002)"},
 {0x1DF7, 0x0003, 0xFFFF, 0xFFFF, "alst4x(0x0003)"},
 }; /* pci_vid_1DF7[] */
 
-pci_id_t pci_vid_1DF8[] = {
+static pci_id_t const pci_vid_1DF8[] = {
 {0x1DF8, 0xFFFF, 0xFFFF, 0xFFFF, "V&G Information System Co.,Ltd(0x1DF8)"},
 {0x1DF8, 0x3000, 0xFFFF, 0xFFFF, "PC NVMe SSD(0x3000)"},
 {0x1DF8, 0x3000, 0x1DF8, 0x3100, "M.2 NVMe Gen3*4 SSD(0x1DF8-0x3100)"},
@@ -31504,16 +31689,16 @@ pci_id_t pci_vid_1DF8[] = {
 {0x1DF8, 0xD000, 0x1DF8, 0xD600, "M.2 NVMe SSD(0x1DF8-0xD600)"},
 }; /* pci_vid_1DF8[] */
 
-pci_id_t pci_vid_1DFC[] = {
+static pci_id_t const pci_vid_1DFC[] = {
 {0x1DFC, 0xFFFF, 0xFFFF, 0xFFFF, "JSC NT-COM(0x1DFC)"},
 {0x1DFC, 0x1181, 0xFFFF, 0xFFFF, "TDM 8 Port E1/T1/J1 Adapter(0x1181)"},
 }; /* pci_vid_1DFC[] */
 
-pci_id_t pci_vid_1E0D[] = {
+static pci_id_t const pci_vid_1E0D[] = {
 {0x1E0D, 0xFFFF, 0xFFFF, 0xFFFF, "SambaNova Systems, Inc(0x1E0D)"},
 }; /* pci_vid_1E0D[] */
 
-pci_id_t pci_vid_1E0F[] = {
+static pci_id_t const pci_vid_1E0F[] = {
 {0x1E0F, 0xFFFF, 0xFFFF, 0xFFFF, "KIOXIA Corporation(0x1E0F)"},
 {0x1E0F, 0x0001, 0xFFFF, 0xFFFF, "NVMe SSD Controller BG4 (DRAM-less)(0x0001)"},
 {0x1E0F, 0x0007, 0xFFFF, 0xFFFF, "NVMe SSD Controller Cx6(0x0007)"},
@@ -31606,17 +31791,26 @@ pci_id_t pci_vid_1E0F[] = {
 {0x1E0F, 0x0025, 0x1028, 0x223C, "Ent NVMe CM7 U.2 MU 6.4TB(0x1028-0x223C)"},
 {0x1E0F, 0x0025, 0x1028, 0x223D, "Ent NVMe CM7 U.2 MU 3.2TB(0x1028-0x223D)"},
 {0x1E0F, 0x0025, 0x1028, 0x223E, "Ent NVMe CM7 U.2 MU 1.6TB(0x1028-0x223E)"},
+{0x1E0F, 0x002C, 0xFFFF, 0xFFFF, "NVMe SSD Controller CD8P EDSFF(0x002C)"},
+{0x1E0F, 0x002C, 0x1028, 0x22BF, "DC NVMe CD8P E3.S 15.36TB(0x1028-0x22BF)"},
+{0x1E0F, 0x002C, 0x1028, 0x22C0, "DC NVMe CD8P E3.S 7.68TB(0x1028-0x22C0)"},
+{0x1E0F, 0x002C, 0x1028, 0x22C1, "DC NVMe CD8P E3.S 3.84TB(0x1028-0x22C1)"},
+{0x1E0F, 0x002C, 0x1028, 0x22C2, "DC NVMe CD8P E3.S 1.92TB(0x1028-0x22C2)"},
+{0x1E0F, 0x002C, 0x1028, 0x22C7, "DC NVMe CD8P E3.S MU 12.8TB(0x1028-0x22C7)"},
+{0x1E0F, 0x002C, 0x1028, 0x22C8, "DC NVMe CD8P E3.S MU 6.4TB(0x1028-0x22C8)"},
+{0x1E0F, 0x002C, 0x1028, 0x22C9, "DC NVMe CD8P E3.S MU 3.2TB(0x1028-0x22C9)"},
+{0x1E0F, 0x002C, 0x1028, 0x22CA, "DC NVMe CD8P E3.S MU 1.6TB(0x1028-0x22CA)"},
 }; /* pci_vid_1E0F[] */
 
-pci_id_t pci_vid_1E17[] = {
+static pci_id_t const pci_vid_1E17[] = {
 {0x1E17, 0xFFFF, 0xFFFF, 0xFFFF, "Arnold & Richter Cine Technik GmbH & Co. Betriebs KG(0x1E17)"},
 }; /* pci_vid_1E17[] */
 
-pci_id_t pci_vid_1E18[] = {
+static pci_id_t const pci_vid_1E18[] = {
 {0x1E18, 0xFFFF, 0xFFFF, 0xFFFF, "Beijing GuangRunTong Technology Development Co.,Ltd(0x1E18)"},
 }; /* pci_vid_1E18[] */
 
-pci_id_t pci_vid_1E24[] = {
+static pci_id_t const pci_vid_1E24[] = {
 {0x1E24, 0xFFFF, 0xFFFF, 0xFFFF, "Squirrels Research Labs(0x1E24)"},
 {0x1E24, 0x0101, 0xFFFF, 0xFFFF, "Acorn CLE-101(0x0101)"},
 {0x1E24, 0x0215, 0xFFFF, 0xFFFF, "Acorn CLE-215(0x0215)"},
@@ -31627,11 +31821,11 @@ pci_id_t pci_vid_1E24[] = {
 {0x1E24, 0x1635, 0xFFFF, 0xFFFF, "JCM35(0x1635)"},
 }; /* pci_vid_1E24[] */
 
-pci_id_t pci_vid_1E26[] = {
+static pci_id_t const pci_vid_1E26[] = {
 {0x1E26, 0xFFFF, 0xFFFF, 0xFFFF, "Fujitsu Client Computing Limited(0x1E26)"},
 }; /* pci_vid_1E26[] */
 
-pci_id_t pci_vid_1E36[] = {
+static pci_id_t const pci_vid_1E36[] = {
 {0x1E36, 0xFFFF, 0xFFFF, 0xFFFF, "Shanghai Enflame Technology Co. Ltd(0x1E36)"},
 {0x1E36, 0x0001, 0xFFFF, 0xFFFF, "T10 [CloudBlazer](0x0001)"},
 {0x1E36, 0x0002, 0xFFFF, 0xFFFF, "T11 [CloudBlazer](0x0002)"},
@@ -31650,22 +31844,24 @@ pci_id_t pci_vid_1E36[] = {
 {0x1E36, 0xC033, 0xFFFF, 0xFFFF, "S60 [Enflame](0xC033)"},
 }; /* pci_vid_1E36[] */
 
-pci_id_t pci_vid_1E38[] = {
+static pci_id_t const pci_vid_1E38[] = {
 {0x1E38, 0xFFFF, 0xFFFF, 0xFFFF, "Blaize, Inc(0x1E38)"},
 {0x1E38, 0x0102, 0xFFFF, 0xFFFF, "Xplorer X1600(0x0102)"},
 }; /* pci_vid_1E38[] */
 
-pci_id_t pci_vid_1E39[] = {
+static pci_id_t const pci_vid_1E39[] = {
 {0x1E39, 0xFFFF, 0xFFFF, 0xFFFF, "MEDION AG(0x1E39)"},
 }; /* pci_vid_1E39[] */
 
-pci_id_t pci_vid_1E3A[] = {
+static pci_id_t const pci_vid_1E3A[] = {
 {0x1E3A, 0xFFFF, 0xFFFF, 0xFFFF, "Cactus Technologies Limited(0x1E3A)"},
+{0x1E3A, 0x2263, 0xFFFF, 0xFFFF, "270PM6, 270PM7 series NVMe SSD(0x2263)"},
 }; /* pci_vid_1E3A[] */
 
-pci_id_t pci_vid_1E3B[] = {
+static pci_id_t const pci_vid_1E3B[] = {
 {0x1E3B, 0xFFFF, 0xFFFF, 0xFFFF, "DapuStor Corporation(0x1E3B)"},
 {0x1E3B, 0x0600, 0xFFFF, 0xFFFF, "NVMe SSD Controller DP600(0x0600)"},
+{0x1E3B, 0x0600, 0x1E3B, 0x0006, "Enterprise NVMe SSD U.2 QDP 7.68TB (J5000)(0x1E3B-0x0006)"},
 {0x1E3B, 0x0600, 0x1E3B, 0x0010, "Enterprise NVMe SSD U.2 3.84TB (R5102)(0x1E3B-0x0010)"},
 {0x1E3B, 0x0600, 0x1E3B, 0x0013, "Enterprise NVMe SSD U.2 3.20TB (R5302)(0x1E3B-0x0013)"},
 {0x1E3B, 0x0600, 0x1E3B, 0x0030, "Enterprise NVMe SSD U.2 3.84TB (J5100)(0x1E3B-0x0030)"},
@@ -31700,6 +31896,21 @@ pci_id_t pci_vid_1E3B[] = {
 {0x1E3B, 0x0600, 0x1E3B, 0x0069, "Enterprise NVMe SSD U.2 3.20TB (R5301D)(0x1E3B-0x0069)"},
 {0x1E3B, 0x0600, 0x1E3B, 0x006C, "Enterprise NVMe SSD U.2 1.92TB (R5101)(0x1E3B-0x006C)"},
 {0x1E3B, 0x0600, 0x1E3B, 0x006D, "Enterprise NVMe SSD U.2 1.60TB (J5301)(0x1E3B-0x006D)"},
+{0x1E3B, 0x0600, 0x1E3B, 0x00B9, "Enterprise NVMe SSD U.2 QDP 25.60TB (R5300)(0x1E3B-0x00B9)"},
+{0x1E3B, 0x0600, 0x1E3B, 0x00BE, "Enterprise NVMe SSD U.2 QDP 30.72TB (R5100)(0x1E3B-0x00BE)"},
+{0x1E3B, 0x0600, 0x1E3B, 0x00C1, "Enterprise NVMe SSD U.2 QDP 25.60TB (R5300D)(0x1E3B-0x00C1)"},
+{0x1E3B, 0x0600, 0x1E3B, 0x00C4, "Enterprise NVMe SSD U.2 QDP 30.72TB (R5100D)(0x1E3B-0x00C4)"},
+{0x1E3B, 0x0600, 0x1E3B, 0x00C9, "Enterprise NVMe SSD U.2 15.36TB (J5000)(0x1E3B-0x00C9)"},
+{0x1E3B, 0x0600, 0x1E3B, 0x00CA, "Enterprise NVMe SSD U.2 3.84TB (J5102)(0x1E3B-0x00CA)"},
+{0x1E3B, 0x0600, 0x1E3B, 0x00CB, "Enterprise NVMe SSD U.2 7.68TB (J5102)(0x1E3B-0x00CB)"},
+{0x1E3B, 0x0600, 0x1E3B, 0x00CC, "Enterprise NVMe SSD U.2 3.84TB (J5101)(0x1E3B-0x00CC)"},
+{0x1E3B, 0x0600, 0x1E3B, 0x00CD, "Enterprise NVMe SSD U.2 7.68TB (J5101)(0x1E3B-0x00CD)"},
+{0x1E3B, 0x0600, 0x1E3B, 0x00CE, "Enterprise NVMe SSD U.2 3.84TB (J5101D)(0x1E3B-0x00CE)"},
+{0x1E3B, 0x0600, 0x1E3B, 0x00CF, "Enterprise NVMe SSD U.2 7.68TB (J5101D)(0x1E3B-0x00CF)"},
+{0x1E3B, 0x0600, 0x1E3B, 0x00E8, "Enterprise NVMe SSD U.2 3.20TB (J5301)(0x1E3B-0x00E8)"},
+{0x1E3B, 0x0600, 0x1E3B, 0x00E9, "Enterprise NVMe SSD U.2 6.40TB (J5301)(0x1E3B-0x00E9)"},
+{0x1E3B, 0x0600, 0x1E3B, 0x00EA, "Enterprise NVMe SSD U.2 3.20TB (J5301D)(0x1E3B-0x00EA)"},
+{0x1E3B, 0x0600, 0x1E3B, 0x00EB, "Enterprise NVMe SSD U.2 6.40TB (J5301D)(0x1E3B-0x00EB)"},
 {0x1E3B, 0x0600, 0x1E3B, 0x00F0, "Enterprise NVMe SSD U.2 0.40TB (X2900)(0x1E3B-0x00F0)"},
 {0x1E3B, 0x0600, 0x1E3B, 0x00F1, "Enterprise NVMe SSD U.2 0.80TB (X2900)(0x1E3B-0x00F1)"},
 {0x1E3B, 0x0600, 0x1E3B, 0x00F2, "Enterprise NVMe SSD U.2 1.60TB (X2900)(0x1E3B-0x00F2)"},
@@ -31744,22 +31955,22 @@ pci_id_t pci_vid_1E3B[] = {
 {0x1E3B, 0x1333, 0x1E3B, 0x0085, "Enterprise NVMe SSD U.2 6.4TB (H5300)(0x1E3B-0x0085)"},
 }; /* pci_vid_1E3B[] */
 
-pci_id_t pci_vid_1E3D[] = {
+static pci_id_t const pci_vid_1E3D[] = {
 {0x1E3D, 0xFFFF, 0xFFFF, 0xFFFF, "Burlywood, Inc(0x1E3D)"},
 }; /* pci_vid_1E3D[] */
 
-pci_id_t pci_vid_1E43[] = {
+static pci_id_t const pci_vid_1E43[] = {
 {0x1E43, 0xFFFF, 0xFFFF, 0xFFFF, "MaxLinear Inc(0x1E43)"},
 {0x1E43, 0x8904, 0xFFFF, 0xFFFF, "MxL8904(0x8904)"},
 {0x1E43, 0x8906, 0xFFFF, 0xFFFF, "MxL8906(0x8906)"},
 {0x1E43, 0x8908, 0xFFFF, 0xFFFF, "MxL8908(0x8908)"},
 }; /* pci_vid_1E43[] */
 
-pci_id_t pci_vid_1E44[] = {
+static pci_id_t const pci_vid_1E44[] = {
 {0x1E44, 0xFFFF, 0xFFFF, 0xFFFF, "Valve Software(0x1E44)"},
 }; /* pci_vid_1E44[] */
 
-pci_id_t pci_vid_1E49[] = {
+static pci_id_t const pci_vid_1E49[] = {
 {0x1E49, 0xFFFF, 0xFFFF, 0xFFFF, "Yangtze Memory Technologies Co.,Ltd(0x1E49)"},
 {0x1E49, 0x0001, 0xFFFF, 0xFFFF, "ZHITAI PC005 NVMe SSD(0x0001)"},
 {0x1E49, 0x0021, 0xFFFF, 0xFFFF, "ZHITAI TiPro5000 NVMe SSD(0x0021)"},
@@ -31771,91 +31982,92 @@ pci_id_t pci_vid_1E49[] = {
 {0x1E49, 0x1031, 0xFFFF, 0xFFFF, "PC300 NVMe SSD (DRAM-less)(0x1031)"},
 }; /* pci_vid_1E49[] */
 
-pci_id_t pci_vid_1E4B[] = {
+static pci_id_t const pci_vid_1E4B[] = {
 {0x1E4B, 0xFFFF, 0xFFFF, 0xFFFF, "MAXIO Technology (Hangzhou) Ltd.(0x1E4B)"},
 {0x1E4B, 0x1001, 0xFFFF, 0xFFFF, "NVMe SSD Controller MAP1001(0x1001)"},
-{0x1E4B, 0x1002, 0xFFFF, 0xFFFF, "NVMe SSD Controller MAP1002(0x1002)"},
+{0x1E4B, 0x1002, 0xFFFF, 0xFFFF, "NVMe SSD Controller MAP1002 (DRAM-less)(0x1002)"},
 {0x1E4B, 0x1003, 0xFFFF, 0xFFFF, "NVMe SSD Controller MAP1003(0x1003)"},
 {0x1E4B, 0x1201, 0xFFFF, 0xFFFF, "NVMe SSD Controller MAP1201(0x1201)"},
-{0x1E4B, 0x1202, 0xFFFF, 0xFFFF, "NVMe SSD Controller MAP1202(0x1202)"},
+{0x1E4B, 0x1202, 0xFFFF, 0xFFFF, "NVMe SSD Controller MAP1202 (DRAM-less)(0x1202)"},
 {0x1E4B, 0x1601, 0xFFFF, 0xFFFF, "NVMe SSD Controller MAP1601(0x1601)"},
-{0x1E4B, 0x1602, 0xFFFF, 0xFFFF, "NVMe SSD Controller MAP1602(0x1602)"},
+{0x1E4B, 0x1602, 0xFFFF, 0xFFFF, "NVMe SSD Controller MAP1602 (DRAM-less)(0x1602)"},
+{0x1E4B, 0x1608, 0xFFFF, 0xFFFF, "NVMe SSD Controller MAP1608 (DRAM-less)(0x1608)"},
 }; /* pci_vid_1E4B[] */
 
-pci_id_t pci_vid_1E4C[] = {
+static pci_id_t const pci_vid_1E4C[] = {
 {0x1E4C, 0xFFFF, 0xFFFF, 0xFFFF, "GSI Technology(0x1E4C)"},
 {0x1E4C, 0x0010, 0xFFFF, 0xFFFF, "Associative Processing Unit [Leda](0x0010)"},
 {0x1E4C, 0x0010, 0x1E4C, 0x0120, "SE120(0x1E4C-0x0120)"},
 }; /* pci_vid_1E4C[] */
 
-pci_id_t pci_vid_1E50[] = {
+static pci_id_t const pci_vid_1E50[] = {
 {0x1E50, 0xFFFF, 0xFFFF, 0xFFFF, "IP3 Tech (HK) Limited(0x1E50)"},
 }; /* pci_vid_1E50[] */
 
-pci_id_t pci_vid_1E52[] = {
+static pci_id_t const pci_vid_1E52[] = {
 {0x1E52, 0xFFFF, 0xFFFF, 0xFFFF, "Tenstorrent Inc(0x1E52)"},
 {0x1E52, 0x401E, 0xFFFF, 0xFFFF, "Wormhole(0x401E)"},
 {0x1E52, 0xB140, 0xFFFF, 0xFFFF, "Blackhole(0xB140)"},
 {0x1E52, 0xFACA, 0xFFFF, 0xFFFF, "Grayskull(0xFACA)"},
 }; /* pci_vid_1E52[] */
 
-pci_id_t pci_vid_1E57[] = {
+static pci_id_t const pci_vid_1E57[] = {
 {0x1E57, 0xFFFF, 0xFFFF, 0xFFFF, "Beijing Panyi Technology Co., Ltd(0x1E57)"},
 {0x1E57, 0x0100, 0xFFFF, 0xFFFF, "The device has already been deleted.(0x0100)"},
 {0x1E57, 0x0100, 0x0000, 0x0100, "PY8800 64GB Accelerator(0x0000-0x0100)"},
 }; /* pci_vid_1E57[] */
 
-pci_id_t pci_vid_1E59[] = {
+static pci_id_t const pci_vid_1E59[] = {
 {0x1E59, 0xFFFF, 0xFFFF, 0xFFFF, "Oxford Nanopore Technologies(0x1E59)"},
 {0x1E59, 0x0001, 0xFFFF, 0xFFFF, "MinION Mk1C(0x0001)"},
 }; /* pci_vid_1E59[] */
 
-pci_id_t pci_vid_1E5D[] = {
+static pci_id_t const pci_vid_1E5D[] = {
 {0x1E5D, 0xFFFF, 0xFFFF, 0xFFFF, "ASR Microelectronics(0x1E5D)"},
 {0x1E5D, 0x7000, 0xFFFF, 0xFFFF, "AI controller A7000(0x7000)"},
 {0x1E5D, 0x7010, 0xFFFF, 0xFFFF, "AI controller A7010(0x7010)"},
 }; /* pci_vid_1E5D[] */
 
-pci_id_t pci_vid_1E60[] = {
+static pci_id_t const pci_vid_1E60[] = {
 {0x1E60, 0xFFFF, 0xFFFF, 0xFFFF, "Hailo Technologies Ltd.(0x1E60)"},
 {0x1E60, 0x2864, 0xFFFF, 0xFFFF, "Hailo-8 AI Processor(0x2864)"},
 }; /* pci_vid_1E60[] */
 
-pci_id_t pci_vid_1E67[] = {
+static pci_id_t const pci_vid_1E67[] = {
 {0x1E67, 0xFFFF, 0xFFFF, 0xFFFF, "Untether AI(0x1E67)"},
 {0x1E67, 0x0002, 0xFFFF, 0xFFFF, "runAI200 AI Inference Accelerator(0x0002)"},
 }; /* pci_vid_1E67[] */
 
-pci_id_t pci_vid_1E68[] = {
+static pci_id_t const pci_vid_1E68[] = {
 {0x1E68, 0xFFFF, 0xFFFF, 0xFFFF, "Jiangsu Xinsheng Intelligent Technology Co., Ltd(0x1E68)"},
 {0x1E68, 0x8111, 0xFFFF, 0xFFFF, "EP2000Pro PCIe 3 NVMe SSD (DRAM-less)(0x8111)"},
 }; /* pci_vid_1E68[] */
 
-pci_id_t pci_vid_1E6B[] = {
+static pci_id_t const pci_vid_1E6B[] = {
 {0x1E6B, 0xFFFF, 0xFFFF, 0xFFFF, "Axiado Corp.(0x1E6B)"},
 }; /* pci_vid_1E6B[] */
 
-pci_id_t pci_vid_1E7B[] = {
+static pci_id_t const pci_vid_1E7B[] = {
 {0x1E7B, 0xFFFF, 0xFFFF, 0xFFFF, "Dataland(0x1E7B)"},
 }; /* pci_vid_1E7B[] */
 
-pci_id_t pci_vid_1E7C[] = {
+static pci_id_t const pci_vid_1E7C[] = {
 {0x1E7C, 0xFFFF, 0xFFFF, 0xFFFF, "Brainchip Inc(0x1E7C)"},
 {0x1E7C, 0xBCA1, 0xFFFF, 0xFFFF, "AKD1000 Neural Network Coprocessor [Akida](0xBCA1)"},
 }; /* pci_vid_1E7C[] */
 
-pci_id_t pci_vid_1E7E[] = {
+static pci_id_t const pci_vid_1E7E[] = {
 {0x1E7E, 0xFFFF, 0xFFFF, 0xFFFF, "Pliops(0x1E7E)"},
 {0x1E7E, 0x9034, 0xFFFF, 0xFFFF, "Pliops Extreme Data Processor [XDP1.0](0x9034)"},
 }; /* pci_vid_1E7E[] */
 
-pci_id_t pci_vid_1E7F[] = {
+static pci_id_t const pci_vid_1E7F[] = {
 {0x1E7F, 0xFFFF, 0xFFFF, 0xFFFF, "Jiangsu Huacun Elec. Tech. Co., Ltd.(0x1E7F)"},
 {0x1E7F, 0x6002, 0xFFFF, 0xFFFF, "MMY MMSP350 PCIe 3 NVMe SSD (DRAM-less)(0x6002)"},
 {0x1E7F, 0x6003, 0xFFFF, 0xFFFF, "MMY HC512GP3KH2T PCIe 3 NVMe SSD (DRAM-less)(0x6003)"},
 }; /* pci_vid_1E7F[] */
 
-pci_id_t pci_vid_1E81[] = {
+static pci_id_t const pci_vid_1E81[] = {
 {0x1E81, 0xFFFF, 0xFFFF, 0xFFFF, "Ramaxel Technology(Shenzhen) Limited(0x1E81)"},
 {0x1E81, 0x1203, 0xFFFF, 0xFFFF, "NVMe SSD Controller UHXXXa series(0x1203)"},
 {0x1E81, 0x1203, 0x1E81, 0xA121, "NVMe SSD UHXXXa series U.2 960GB(0x1E81-0xA121)"},
@@ -31871,91 +32083,102 @@ pci_id_t pci_vid_1E81[] = {
 {0x1E81, 0x6206, 0xFFFF, 0xFFFF, "AM620 NVMe SSD(0x6206)"},
 }; /* pci_vid_1E81[] */
 
-pci_id_t pci_vid_1E83[] = {
+static pci_id_t const pci_vid_1E83[] = {
 {0x1E83, 0xFFFF, 0xFFFF, 0xFFFF, "Huaqin Technology Co.Ltd(0x1E83)"},
 }; /* pci_vid_1E83[] */
 
-pci_id_t pci_vid_1E85[] = {
+static pci_id_t const pci_vid_1E85[] = {
 {0x1E85, 0xFFFF, 0xFFFF, 0xFFFF, "Heitec AG(0x1E85)"},
 }; /* pci_vid_1E85[] */
 
-pci_id_t pci_vid_1E89[] = {
+static pci_id_t const pci_vid_1E89[] = {
 {0x1E89, 0xFFFF, 0xFFFF, 0xFFFF, "ID Quantique SA(0x1E89)"},
 {0x1E89, 0x0002, 0xFFFF, 0xFFFF, "Quantis-PCIe-40M(0x0002)"},
 {0x1E89, 0x0003, 0xFFFF, 0xFFFF, "Quantis-PCIe-240M(0x0003)"},
 }; /* pci_vid_1E89[] */
 
-pci_id_t pci_vid_1E93[] = {
+static pci_id_t const pci_vid_1E93[] = {
 {0x1E93, 0xFFFF, 0xFFFF, 0xFFFF, "Beijing Bytedance Network Technology Co., Ltd.(0x1E93)"},
 }; /* pci_vid_1E93[] */
 
-pci_id_t pci_vid_1E94[] = {
+static pci_id_t const pci_vid_1E94[] = {
 {0x1E94, 0xFFFF, 0xFFFF, 0xFFFF, "Calian SED(0x1E94)"},
 }; /* pci_vid_1E94[] */
 
-pci_id_t pci_vid_1E95[] = {
+static pci_id_t const pci_vid_1E95[] = {
 {0x1E95, 0xFFFF, 0xFFFF, 0xFFFF, "Solid State Storage Technology Corporation(0x1E95)"},
+{0x1E95, 0x1000, 0xFFFF, 0xFFFF, "XA1-311024 NVMe SSD M.2(0x1000)"},
+{0x1E95, 0x1001, 0xFFFF, 0xFFFF, "CA6-8D512 NVMe SSD M.2(0x1001)"},
 {0x1E95, 0x1002, 0xFFFF, 0xFFFF, "NVMe SSD [3DNAND] 2.5\" U.2 (LJ1)(0x1002)"},
 {0x1E95, 0x1002, 0x1E95, 0x1101, "NVMe SSD [3DNAND] 2.5\" U.2 (LJ1)(0x1E95-0x1101)"},
 {0x1E95, 0x1002, 0x1EA0, 0x5636, "TP1500 Series U.2 NVMe Datacenter SSD(0x1EA0-0x5636)"},
 {0x1E95, 0x1003, 0xFFFF, 0xFFFF, "CLR-8W512 NVMe SSD M.2 (DRAM-less)(0x1003)"},
+{0x1E95, 0x1005, 0xFFFF, 0xFFFF, "PLEXTOR M10P(GN) NVMe SSD M.2(0x1005)"},
 {0x1E95, 0x1007, 0xFFFF, 0xFFFF, "CL4-8D512 NVMe SSD M.2 (DRAM-less)(0x1007)"},
+{0x1E95, 0x1008, 0xFFFF, 0xFFFF, "CL5-8D512 NVMe SSD M.2 (DRAM-less)(0x1008)"},
+{0x1E95, 0x3500, 0xFFFF, 0xFFFF, "CA5-8D256 NVMe SSD M.2(0x3500)"},
+{0x1E95, 0x35F1, 0xFFFF, 0xFFFF, "PLEXTOR M9PGN Plus NVMe SSD M.2(0x35F1)"},
 {0x1E95, 0x9100, 0xFFFF, 0xFFFF, "CL1-3D256-Q11 NVMe SSD M.2(0x9100)"},
 }; /* pci_vid_1E95[] */
 
-pci_id_t pci_vid_1E96[] = {
+static pci_id_t const pci_vid_1E96[] = {
 {0x1E96, 0xFFFF, 0xFFFF, 0xFFFF, "Drut Technologies Inc.(0x1E96)"},
 }; /* pci_vid_1E96[] */
 
-pci_id_t pci_vid_1E9F[] = {
+static pci_id_t const pci_vid_1E9F[] = {
 {0x1E9F, 0xFFFF, 0xFFFF, 0xFFFF, "Lynxi Technologies Co., Ltd.(0x1E9F)"},
 }; /* pci_vid_1E9F[] */
 
-pci_id_t pci_vid_1EA0[] = {
+static pci_id_t const pci_vid_1EA0[] = {
 {0x1EA0, 0xFFFF, 0xFFFF, 0xFFFF, "Tencent Technology (Shenzhen) Company Limited(0x1EA0)"},
 {0x1EA0, 0x2A16, 0xFFFF, 0xFFFF, "Cloud Intelligent Inference Controller(0x2A16)"},
 {0x1EA0, 0x2A18, 0xFFFF, 0xFFFF, "Video Transcode Controller(0x2A18)"},
 {0x1EA0, 0x2A20, 0xFFFF, 0xFFFF, "Cloud Intelligent Inference and Training Controller(0x2A20)"},
 }; /* pci_vid_1EA0[] */
 
-pci_id_t pci_vid_1EA7[] = {
+static pci_id_t const pci_vid_1EA7[] = {
 {0x1EA7, 0xFFFF, 0xFFFF, 0xFFFF, "Intelliprop, Inc(0x1EA7)"},
 {0x1EA7, 0x223A, 0xFFFF, 0xFFFF, "Typhon+ PCIe to Gen-Z Bridge(0x223A)"},
 {0x1EA7, 0x224A, 0xFFFF, 0xFFFF, "IPA-PE224A CXL to Gen-Z Bridge [Sphinx](0x224A)"},
 }; /* pci_vid_1EA7[] */
 
-pci_id_t pci_vid_1EAB[] = {
+static pci_id_t const pci_vid_1EAB[] = {
 {0x1EAB, 0xFFFF, 0xFFFF, 0xFFFF, "Hefei DATANG Storage Technology Co.,LTD.(0x1EAB)"},
 {0x1EAB, 0x300A, 0xFFFF, 0xFFFF, "NVMe SSD Controller 300A(0x300A)"},
 {0x1EAB, 0x300B, 0xFFFF, 0xFFFF, "NVMe SSD Controller 300B (DRAM-less)(0x300B)"},
 }; /* pci_vid_1EAB[] */
 
-pci_id_t pci_vid_1EAC[] = {
+static pci_id_t const pci_vid_1EAC[] = {
 {0x1EAC, 0xFFFF, 0xFFFF, 0xFFFF, "Quectel Wireless Solutions Co., Ltd.(0x1EAC)"},
 {0x1EAC, 0x1001, 0xFFFF, 0xFFFF, "EM120R-GL LTE Modem(0x1001)"},
 {0x1EAC, 0x1002, 0xFFFF, 0xFFFF, "EM160R-GL LTE Modem(0x1002)"},
 }; /* pci_vid_1EAC[] */
 
-pci_id_t pci_vid_1EAE[] = {
+static pci_id_t const pci_vid_1EAE[] = {
 {0x1EAE, 0xFFFF, 0xFFFF, 0xFFFF, "XFX Limited(0x1EAE)"},
 }; /* pci_vid_1EAE[] */
 
-pci_id_t pci_vid_1EB1[] = {
+static pci_id_t const pci_vid_1EB1[] = {
 {0x1EB1, 0xFFFF, 0xFFFF, 0xFFFF, "VeriSilicon Inc(0x1EB1)"},
 {0x1EB1, 0x1001, 0xFFFF, 0xFFFF, "Video Accelerator(0x1001)"},
 }; /* pci_vid_1EB1[] */
 
-pci_id_t pci_vid_1EB4[] = {
+static pci_id_t const pci_vid_1EB4[] = {
 {0x1EB4, 0xFFFF, 0xFFFF, 0xFFFF, "Quantum Nebula Microelectronics Technology Co.,Ltd.(0x1EB4)"},
 {0x1EB4, 0x3401, 0xFFFF, 0xFFFF, "SSD Contoller(0x3401)"},
 }; /* pci_vid_1EB4[] */
 
-pci_id_t pci_vid_1EBD[] = {
+static pci_id_t const pci_vid_1EB9[] = {
+{0x1EB9, 0xFFFF, 0xFFFF, 0xFFFF, "Senscomm Semiconductor, Inc(0x1EB9)"},
+{0x1EB9, 0x2020, 0xFFFF, 0xFFFF, "SCM2625 Wi-Fi6 Network Adapter(0x2020)"},
+}; /* pci_vid_1EB9[] */
+
+static pci_id_t const pci_vid_1EBD[] = {
 {0x1EBD, 0xFFFF, 0xFFFF, 0xFFFF, "EMERGETECH Company Ltd.(0x1EBD)"},
 {0x1EBD, 0x0101, 0xFFFF, 0xFFFF, "Seirios 2063 Video Codec(0x0101)"},
 }; /* pci_vid_1EBD[] */
 
-pci_id_t pci_vid_1EC6[] = {
+static pci_id_t const pci_vid_1EC6[] = {
 {0x1EC6, 0xFFFF, 0xFFFF, 0xFFFF, "Vastai Technologies(0x1EC6)"},
 {0x1EC6, 0x0100, 0xFFFF, 0xFFFF, "SV100(0x0100)"},
 {0x1EC6, 0x0100, 0x1EC6, 0x0010, "VA1V(0x1EC6-0x0010)"},
@@ -31980,7 +32203,7 @@ pci_id_t pci_vid_1EC6[] = {
 {0x1EC6, 0x020F, 0xFFFF, 0xFFFF, "SG100 vGPU(0x020F)"},
 }; /* pci_vid_1EC6[] */
 
-pci_id_t pci_vid_1EC8[] = {
+static pci_id_t const pci_vid_1EC8[] = {
 {0x1EC8, 0xFFFF, 0xFFFF, 0xFFFF, "Innosilicon Co Ltd(0x1EC8)"},
 {0x1EC8, 0x8800, 0xFFFF, 0xFFFF, "Fantasy I(0x8800)"},
 {0x1EC8, 0x8800, 0x1EC8, 0x12A2, "Fantasy I Device(0x1EC8-0x12A2)"},
@@ -31996,25 +32219,29 @@ pci_id_t pci_vid_1EC8[] = {
 {0x1EC8, 0x9810, 0x1EC8, 0x12A2, "Fantasy II Device(0x1EC8-0x12A2)"},
 }; /* pci_vid_1EC8[] */
 
-pci_id_t pci_vid_1EC9[] = {
+static pci_id_t const pci_vid_1EC9[] = {
 {0x1EC9, 0xFFFF, 0xFFFF, 0xFFFF, "Wingtech Group(HongKong)Limited(0x1EC9)"},
 }; /* pci_vid_1EC9[] */
 
-pci_id_t pci_vid_1ECA[] = {
+static pci_id_t const pci_vid_1ECA[] = {
 {0x1ECA, 0xFFFF, 0xFFFF, 0xFFFF, "Lightmatter(0x1ECA)"},
 {0x1ECA, 0x0000, 0xFFFF, 0xFFFF, "Envise-B(0x0000)"},
 }; /* pci_vid_1ECA[] */
 
-pci_id_t pci_vid_1ED2[] = {
+static pci_id_t const pci_vid_1ED0[] = {
+{0x1ED0, 0xFFFF, 0xFFFF, 0xFFFF, "Hosin Global Electronics(0x1ED0)"},
+}; /* pci_vid_1ED0[] */
+
+static pci_id_t const pci_vid_1ED2[] = {
 {0x1ED2, 0xFFFF, 0xFFFF, 0xFFFF, "FuriosaAI, Inc.(0x1ED2)"},
 {0x1ED2, 0x0000, 0xFFFF, 0xFFFF, "Warboy(0x0000)"},
 }; /* pci_vid_1ED2[] */
 
-pci_id_t pci_vid_1ED3[] = {
+static pci_id_t const pci_vid_1ED3[] = {
 {0x1ED3, 0xFFFF, 0xFFFF, 0xFFFF, "Yeston(0x1ED3)"},
 }; /* pci_vid_1ED3[] */
 
-pci_id_t pci_vid_1ED5[] = {
+static pci_id_t const pci_vid_1ED5[] = {
 {0x1ED5, 0xFFFF, 0xFFFF, 0xFFFF, "Moore Threads Technology Co.,Ltd(0x1ED5)"},
 {0x1ED5, 0x0100, 0xFFFF, 0xFFFF, "MTT S10(0x0100)"},
 {0x1ED5, 0x0101, 0xFFFF, 0xFFFF, "MTT S10(0x0101)"},
@@ -32030,7 +32257,7 @@ pci_id_t pci_vid_1ED5[] = {
 {0x1ED5, 0x0201, 0xFFFF, 0xFFFF, "MTT S80(0x0201)"},
 {0x1ED5, 0x0202, 0xFFFF, 0xFFFF, "MTT S70(0x0202)"},
 {0x1ED5, 0x0203, 0xFFFF, 0xFFFF, "MTT S60(0x0203)"},
-{0x1ED5, 0x0211, 0xFFFF, 0xFFFF, "MTT X200(0x0211)"},
+{0x1ED5, 0x0211, 0xFFFF, 0xFFFF, "MTT X300(0x0211)"},
 {0x1ED5, 0x0221, 0xFFFF, 0xFFFF, "G2S80(0x0221)"},
 {0x1ED5, 0x0222, 0xFFFF, 0xFFFF, "MTT S3000(0x0222)"},
 {0x1ED5, 0x0223, 0xFFFF, 0xFFFF, "G2S4(0x0223)"},
@@ -32043,16 +32270,17 @@ pci_id_t pci_vid_1ED5[] = {
 {0x1ED5, 0x03FF, 0xFFFF, 0xFFFF, "MTT HDMI/DP Audio(0x03FF)"},
 }; /* pci_vid_1ED5[] */
 
-pci_id_t pci_vid_1ED8[] = {
+static pci_id_t const pci_vid_1ED8[] = {
 {0x1ED8, 0xFFFF, 0xFFFF, 0xFFFF, "Digiteq Automotive(0x1ED8)"},
-{0x1ED8, 0x0101, 0xFFFF, 0xFFFF, "FG4 PCIe Frame Grabber(0x0101)"},
+{0x1ED8, 0x0101, 0xFFFF, 0xFFFF, "FG4 PCIe Frame Grabber (T100)(0x0101)"},
+{0x1ED8, 0x0201, 0xFFFF, 0xFFFF, "FG4 PCIe Frame Grabber (T200)(0x0201)"},
 }; /* pci_vid_1ED8[] */
 
-pci_id_t pci_vid_1ED9[] = {
+static pci_id_t const pci_vid_1ED9[] = {
 {0x1ED9, 0xFFFF, 0xFFFF, 0xFFFF, "Myrtle.ai(0x1ED9)"},
 }; /* pci_vid_1ED9[] */
 
-pci_id_t pci_vid_1EE1[] = {
+static pci_id_t const pci_vid_1EE1[] = {
 {0x1EE1, 0xFFFF, 0xFFFF, 0xFFFF, "Suzhou Kuhan Information Technologies(0x1EE1)"},
 {0x1EE1, 0x0050, 0xFFFF, 0xFFFF, "Aurora NVMe SSD Controller(0x0050)"},
 {0x1EE1, 0x0050, 0x1EE1, 0x0009, "Airglow A430 NVMe SSD U.2 1.6TB(0x1EE1-0x0009)"},
@@ -32061,22 +32289,22 @@ pci_id_t pci_vid_1EE1[] = {
 {0x1EE1, 0x0050, 0x1EE1, 0x0012, "Airglow Z400 NVMe ZNS SSD U.2 5.76TB(0x1EE1-0x0012)"},
 }; /* pci_vid_1EE1[] */
 
-pci_id_t pci_vid_1EE4[] = {
+static pci_id_t const pci_vid_1EE4[] = {
 {0x1EE4, 0xFFFF, 0xFFFF, 0xFFFF, "PETAIO INC(0x1EE4)"},
 {0x1EE4, 0x1180, 0xFFFF, 0xFFFF, "P8118 U.2 Single Port SSD(0x1180)"},
 }; /* pci_vid_1EE4[] */
 
-pci_id_t pci_vid_1EE9[] = {
+static pci_id_t const pci_vid_1EE9[] = {
 {0x1EE9, 0xFFFF, 0xFFFF, 0xFFFF, "SUSE LLC(0x1EE9)"},
 }; /* pci_vid_1EE9[] */
 
-pci_id_t pci_vid_1EEC[] = {
+static pci_id_t const pci_vid_1EEC[] = {
 {0x1EEC, 0xFFFF, 0xFFFF, 0xFFFF, "Viscore Technologies Ltd(0x1EEC)"},
 {0x1EEC, 0x0102, 0xFFFF, 0xFFFF, "VSE250231S Dual-port 10Gb/25Gb Ethernet PCIe(0x0102)"},
 {0x1EEC, 0x1EEC, 0xFFFF, 0xFFFF, "VSE250231S Dual-port 10Gb/25Gb Ethernet PCIe(0x1EEC)"},
 }; /* pci_vid_1EEC[] */
 
-pci_id_t pci_vid_1EED[] = {
+static pci_id_t const pci_vid_1EED[] = {
 {0x1EED, 0xFFFF, 0xFFFF, 0xFFFF, "XDX Computing Technology Ltd.(0x1EED)"},
 {0x1EED, 0x10A0, 0xFFFF, 0xFFFF, "XDX110 Graphic/VGA Controller(0x10A0)"},
 {0x1EED, 0x10A1, 0xFFFF, 0xFFFF, "XDX110 Audio Controller(0x10A1)"},
@@ -32115,23 +32343,23 @@ pci_id_t pci_vid_1EED[] = {
 {0x1EED, 0x1830, 0xFFFF, 0xFFFF, "XDX TJ03 Audio(0x1830)"},
 }; /* pci_vid_1EED[] */
 
-pci_id_t pci_vid_1EF6[] = {
+static pci_id_t const pci_vid_1EF6[] = {
 {0x1EF6, 0xFFFF, 0xFFFF, 0xFFFF, "GrAI Matter Labs(0x1EF6)"},
 }; /* pci_vid_1EF6[] */
 
-pci_id_t pci_vid_1EF7[] = {
+static pci_id_t const pci_vid_1EF7[] = {
 {0x1EF7, 0xFFFF, 0xFFFF, 0xFFFF, "Shenzhen Gunnir Technology Development Co., Ltd(0x1EF7)"},
 }; /* pci_vid_1EF7[] */
 
-pci_id_t pci_vid_1EFB[] = {
+static pci_id_t const pci_vid_1EFB[] = {
 {0x1EFB, 0xFFFF, 0xFFFF, 0xFFFF, "Flexxon Pte Ltd(0x1EFB)"},
 }; /* pci_vid_1EFB[] */
 
-pci_id_t pci_vid_1F02[] = {
+static pci_id_t const pci_vid_1F02[] = {
 {0x1F02, 0xFFFF, 0xFFFF, 0xFFFF, "Beijing Dayu Technology(0x1F02)"},
 }; /* pci_vid_1F02[] */
 
-pci_id_t pci_vid_1F03[] = {
+static pci_id_t const pci_vid_1F03[] = {
 {0x1F03, 0xFFFF, 0xFFFF, 0xFFFF, "Shenzhen Shichuangyi Electronics Co., Ltd(0x1F03)"},
 {0x1F03, 0x1202, 0xFFFF, 0xFFFF, "MAP1202-Based NVMe SSD (DRAM-less)(0x1202)"},
 {0x1F03, 0x2262, 0xFFFF, 0xFFFF, "SM2262EN-based OEM SSD(0x2262)"},
@@ -32142,12 +32370,12 @@ pci_id_t pci_vid_1F03[] = {
 {0x1F03, 0x5636, 0xFFFF, 0xFFFF, "IG5636-Based NVMe SSD(0x5636)"},
 }; /* pci_vid_1F03[] */
 
-pci_id_t pci_vid_1F0A[] = {
+static pci_id_t const pci_vid_1F0A[] = {
 {0x1F0A, 0xFFFF, 0xFFFF, 0xFFFF, "Motorcomm Microelectronics.(0x1F0A)"},
 {0x1F0A, 0x6801, 0xFFFF, 0xFFFF, "YT6801 Gigabit Ethernet Controller(0x6801)"},
 }; /* pci_vid_1F0A[] */
 
-pci_id_t pci_vid_1F0F[] = {
+static pci_id_t const pci_vid_1F0F[] = {
 {0x1F0F, 0xFFFF, 0xFFFF, 0xFFFF, "NebulaMatrix Technology(0x1F0F)"},
 {0x1F0F, 0x1041, 0xFFFF, 0xFFFF, "D1055AS vDPA Ethernet Controller(0x1041)"},
 {0x1F0F, 0x1041, 0x1F0F, 0x0001, "D1055AS vDPA Ethernet Controller(0x1F0F-0x0001)"},
@@ -32169,18 +32397,18 @@ pci_id_t pci_vid_1F0F[] = {
 {0x1F0F, 0x9088, 0xFFFF, 0xFFFF, "D1055AS PCI Express Switch Downstream Port(0x9088)"},
 }; /* pci_vid_1F0F[] */
 
-pci_id_t pci_vid_1F17[] = {
+static pci_id_t const pci_vid_1F17[] = {
 {0x1F17, 0xFFFF, 0xFFFF, 0xFFFF, "Zettastone Technology(0x1F17)"},
 }; /* pci_vid_1F17[] */
 
-pci_id_t pci_vid_1F24[] = {
+static pci_id_t const pci_vid_1F24[] = {
 {0x1F24, 0xFFFF, 0xFFFF, 0xFFFF, "xFusion Digital Technologies Co., Ltd.(0x1F24)"},
 {0x1F24, 0x1058, 0xFFFF, 0xFFFF, "EP500/EP600 NVMe SSD(0x1058)"},
 {0x1F24, 0x1058, 0x1F24, 0x1114, "EP500 NVMe SSD(RI)(0x1F24-0x1114)"},
 {0x1F24, 0x1058, 0x1F24, 0x1115, "EP600 NVMe SSD(MU)(0x1F24-0x1115)"},
 }; /* pci_vid_1F24[] */
 
-pci_id_t pci_vid_1F2F[] = {
+static pci_id_t const pci_vid_1F2F[] = {
 {0x1F2F, 0xFFFF, 0xFFFF, 0xFFFF, "China Mobile (Hangzhou) Information Technology Co.Ltd.(0x1F2F)"},
 {0x1F2F, 0x1513, 0xFFFF, 0xFFFF, "DERA MENG NVMe Controller(0x1513)"},
 {0x1F2F, 0x1513, 0x1F2F, 0x6113, "KM660 U.2 1.6TB NVMe SSD(0x1F2F-0x6113)"},
@@ -32190,12 +32418,12 @@ pci_id_t pci_vid_1F2F[] = {
 {0x1F2F, 0x1513, 0x1F2F, 0x6118, "KM560 U.2 7.68TB NVMe SSD(0x1F2F-0x6118)"},
 }; /* pci_vid_1F2F[] */
 
-pci_id_t pci_vid_1F31[] = {
+static pci_id_t const pci_vid_1F31[] = {
 {0x1F31, 0xFFFF, 0xFFFF, 0xFFFF, "Nextorage(0x1F31)"},
 {0x1F31, 0x4512, 0xFFFF, 0xFFFF, "Nextorage NE1N NVMe SSD(0x4512)"},
 }; /* pci_vid_1F31[] */
 
-pci_id_t pci_vid_1F3F[] = {
+static pci_id_t const pci_vid_1F3F[] = {
 {0x1F3F, 0xFFFF, 0xFFFF, 0xFFFF, "3SNIC Ltd(0x1F3F)"},
 {0x1F3F, 0x2100, 0xFFFF, 0xFFFF, "SSSHBA SAS/SATA HBA(0x2100)"},
 {0x1F3F, 0x2100, 0x1F3F, 0x0120, "HBA 32 Ports(0x1F3F-0x0120)"},
@@ -32236,7 +32464,7 @@ pci_id_t pci_vid_1F3F[] = {
 {0x1F3F, 0x9032, 0x1F3F, 0x00A1, "Dual Port 100GE SDI5.1(0x1F3F-0x00A1)"},
 }; /* pci_vid_1F3F[] */
 
-pci_id_t pci_vid_1F40[] = {
+static pci_id_t const pci_vid_1F40[] = {
 {0x1F40, 0xFFFF, 0xFFFF, 0xFFFF, "Netac Technology Co.,Ltd(0x1F40)"},
 {0x1F40, 0x0001, 0xFFFF, 0xFFFF, "PCIe 4 NVMe SSD (DRAM-less)(0x0001)"},
 {0x1F40, 0x1202, 0xFFFF, 0xFFFF, "PCIe 3 NVMe SSD (DRAM-less)(0x1202)"},
@@ -32248,33 +32476,35 @@ pci_id_t pci_vid_1F40[] = {
 {0x1F40, 0x5765, 0xFFFF, 0xFFFF, "PCIe 3 NVMe SSD (DRAM-less)(0x5765)"},
 }; /* pci_vid_1F40[] */
 
-pci_id_t pci_vid_1F44[] = {
+static pci_id_t const pci_vid_1F44[] = {
 {0x1F44, 0xFFFF, 0xFFFF, 0xFFFF, "VVDN Technologies Private Limited(0x1F44)"},
 }; /* pci_vid_1F44[] */
 
-pci_id_t pci_vid_1F47[] = {
+static pci_id_t const pci_vid_1F47[] = {
 {0x1F47, 0xFFFF, 0xFFFF, 0xFFFF, "YUSUR Tech(0x1F47)"},
+{0x1F47, 0x2018, 0xFFFF, 0xFFFF, "DPU Card(0x2018)"},
+{0x1F47, 0x2020, 0xFFFF, 0xFFFF, "DPU(0x2020)"},
 }; /* pci_vid_1F47[] */
 
-pci_id_t pci_vid_1F4B[] = {
+static pci_id_t const pci_vid_1F4B[] = {
 {0x1F4B, 0xFFFF, 0xFFFF, 0xFFFF, "Axera Semiconductor Co., Ltd(0x1F4B)"},
 }; /* pci_vid_1F4B[] */
 
-pci_id_t pci_vid_1F52[] = {
+static pci_id_t const pci_vid_1F52[] = {
 {0x1F52, 0xFFFF, 0xFFFF, 0xFFFF, "MangoBoost Inc.(0x1F52)"},
 }; /* pci_vid_1F52[] */
 
-pci_id_t pci_vid_1F56[] = {
+static pci_id_t const pci_vid_1F56[] = {
 {0x1F56, 0xFFFF, 0xFFFF, 0xFFFF, "SAPEON Inc.(0x1F56)"},
 }; /* pci_vid_1F56[] */
 
-pci_id_t pci_vid_1F60[] = {
+static pci_id_t const pci_vid_1F60[] = {
 {0x1F60, 0xFFFF, 0xFFFF, 0xFFFF, "Accelecom(0x1F60)"},
 {0x1F60, 0x0001, 0xFFFF, 0xFFFF, "XELE-NIC 25K5(0x0001)"},
 {0x1F60, 0x0054, 0xFFFF, 0xFFFF, "XELE-NIC 25K5(0x0054)"},
 }; /* pci_vid_1F60[] */
 
-pci_id_t pci_vid_1F67[] = {
+static pci_id_t const pci_vid_1F67[] = {
 {0x1F67, 0xFFFF, 0xFFFF, 0xFFFF, "Yunsilicon Technology(0x1F67)"},
 {0x1F67, 0x1011, 0xFFFF, 0xFFFF, "metaConnect SmartNIC Physical Function(0x1011)"},
 {0x1F67, 0x1012, 0xFFFF, 0xFFFF, "metaConnect SmartNIC Virtual Function(0x1012)"},
@@ -32287,21 +32517,23 @@ pci_id_t pci_vid_1F67[] = {
 {0x1F67, 0x1152, 0xFFFF, 0xFFFF, "metaVisor DPU Virtual Function(0x1152)"},
 }; /* pci_vid_1F67[] */
 
-pci_id_t pci_vid_1FAA[] = {
+static pci_id_t const pci_vid_1FAA[] = {
 {0x1FAA, 0xFFFF, 0xFFFF, 0xFFFF, "Hexaflake (Shanghai) Information Technology Co., Ltd.(0x1FAA)"},
 {0x1FAA, 0x0C10, 0xFFFF, 0xFFFF, "Compass C10 PF(0x0C10)"},
 {0x1FAA, 0x0C11, 0xFFFF, 0xFFFF, "Compass C10 VF(0x0C11)"},
 }; /* pci_vid_1FAA[] */
 
-pci_id_t pci_vid_1FAB[] = {
+static pci_id_t const pci_vid_1FAB[] = {
 {0x1FAB, 0xFFFF, 0xFFFF, 0xFFFF, "Unifabrix Ltd.(0x1FAB)"},
 {0x1FAB, 0x0000, 0xFFFF, 0xFFFF, "Nexus Alpha IVPU(0x0000)"},
 {0x1FAB, 0x0100, 0xFFFF, 0xFFFF, "NoX Gamma(0x0100)"},
+{0x1FAB, 0x01FD, 0xFFFF, 0xFFFF, "Smart Memory Node Generic CXL Port (T1)(0x01FD)"},
 {0x1FAB, 0x01FE, 0xFFFF, 0xFFFF, "Smart Memory Node Generic CXL Port (T2)(0x01FE)"},
 {0x1FAB, 0x01FF, 0xFFFF, 0xFFFF, "Smart Memory Node Generic CXL Port (T3)(0x01FF)"},
+{0x1FAB, 0x1B00, 0xFFFF, 0xFFFF, "MAX Host Device(0x1B00)"},
 }; /* pci_vid_1FAB[] */
 
-pci_id_t pci_vid_1FB0[] = {
+static pci_id_t const pci_vid_1FB0[] = {
 {0x1FB0, 0xFFFF, 0xFFFF, 0xFFFF, "ICube Corporation Limited(0x1FB0)"},
 {0x1FB0, 0x1000, 0xFFFF, 0xFFFF, "NF1000 Series GPU(0x1000)"},
 {0x1FB0, 0x1000, 0x1FB0, 0x1001, "NF1001(0x1FB0-0x1001)"},
@@ -32329,19 +32561,19 @@ pci_id_t pci_vid_1FB0[] = {
 {0x1FB0, 0x5000, 0x1FB0, 0x5003, "NF5003(0x1FB0-0x5003)"},
 }; /* pci_vid_1FB0[] */
 
-pci_id_t pci_vid_1FC0[] = {
+static pci_id_t const pci_vid_1FC0[] = {
 {0x1FC0, 0xFFFF, 0xFFFF, 0xFFFF, "Ascom (Finland) Oy(0x1FC0)"},
 {0x1FC0, 0x0300, 0xFFFF, 0xFFFF, "E2200 Dual E1/Rawpipe Card(0x0300)"},
 {0x1FC0, 0x0301, 0xFFFF, 0xFFFF, "C5400 SHDSL/E1 Card(0x0301)"},
 }; /* pci_vid_1FC0[] */
 
-pci_id_t pci_vid_1FC1[] = {
+static pci_id_t const pci_vid_1FC1[] = {
 {0x1FC1, 0xFFFF, 0xFFFF, 0xFFFF, "QLogic, Corp.(0x1FC1)"},
 {0x1FC1, 0x000D, 0xFFFF, 0xFFFF, "IBA6110 InfiniBand HCA(0x000D)"},
 {0x1FC1, 0x0010, 0xFFFF, 0xFFFF, "IBA6120 InfiniBand HCA(0x0010)"},
 }; /* pci_vid_1FC1[] */
 
-pci_id_t pci_vid_1FC9[] = {
+static pci_id_t const pci_vid_1FC9[] = {
 {0x1FC9, 0xFFFF, 0xFFFF, 0xFFFF, "Tehuti Networks Ltd.(0x1FC9)"},
 {0x1FC9, 0x3009, 0xFFFF, 0xFFFF, "10-Giga TOE SmartNIC(0x3009)"},
 {0x1FC9, 0x3010, 0xFFFF, 0xFFFF, "10-Giga TOE SmartNIC(0x3010)"},
@@ -32392,37 +32624,37 @@ pci_id_t pci_vid_1FC9[] = {
 {0x1FC9, 0x4527, 0xFFFF, 0xFFFF, "TN9710Q 5GBase-T/NBASE-T Ethernet Adapter(0x4527)"},
 }; /* pci_vid_1FC9[] */
 
-pci_id_t pci_vid_1FCC[] = {
+static pci_id_t const pci_vid_1FCC[] = {
 {0x1FCC, 0xFFFF, 0xFFFF, 0xFFFF, "StreamLabs(0x1FCC)"},
 {0x1FCC, 0xF416, 0xFFFF, 0xFFFF, "MS416(0xF416)"},
 {0x1FCC, 0xFB01, 0xFFFF, 0xFFFF, "MH4LM(0xFB01)"},
 }; /* pci_vid_1FCC[] */
 
-pci_id_t pci_vid_1FCE[] = {
+static pci_id_t const pci_vid_1FCE[] = {
 {0x1FCE, 0xFFFF, 0xFFFF, 0xFFFF, "Cognio Inc.(0x1FCE)"},
 {0x1FCE, 0x0001, 0xFFFF, 0xFFFF, "Spectrum Analyzer PC Card (SAgE)(0x0001)"},
 }; /* pci_vid_1FCE[] */
 
-pci_id_t pci_vid_1FD4[] = {
+static pci_id_t const pci_vid_1FD4[] = {
 {0x1FD4, 0xFFFF, 0xFFFF, 0xFFFF, "SUNIX Co., Ltd.(0x1FD4)"},
 {0x1FD4, 0x0001, 0xFFFF, 0xFFFF, "Matrix multiport serial adapter(0x0001)"},
 {0x1FD4, 0x1999, 0xFFFF, 0xFFFF, "Multiport serial controller(0x1999)"},
 }; /* pci_vid_1FD4[] */
 
-pci_id_t pci_vid_1FDE[] = {
+static pci_id_t const pci_vid_1FDE[] = {
 {0x1FDE, 0xFFFF, 0xFFFF, 0xFFFF, "Kratos Defense & Security Solutions, Inc.(0x1FDE)"},
 {0x1FDE, 0x1125, 0xFFFF, 0xFFFF, "OpenEdge 1125P(0x1125)"},
 {0x1FDE, 0x2500, 0xFFFF, 0xFFFF, "OpenEdge 2500P(0x2500)"},
 }; /* pci_vid_1FDE[] */
 
-pci_id_t pci_vid_1FE0[] = {
+static pci_id_t const pci_vid_1FE0[] = {
 {0x1FE0, 0xFFFF, 0xFFFF, 0xFFFF, "Allwinmeta Co., Ltd.(0x1FE0)"},
 {0x1FE0, 0x1010, 0xFFFF, 0xFFFF, "AWM 1(0x1010)"},
 {0x1FE0, 0x2000, 0xFFFF, 0xFFFF, "AWM 2(0x2000)"},
 {0x1FE0, 0x2010, 0xFFFF, 0xFFFF, "AWM 2-M(0x2010)"},
 }; /* pci_vid_1FE0[] */
 
-pci_id_t pci_vid_1FE4[] = {
+static pci_id_t const pci_vid_1FE4[] = {
 {0x1FE4, 0xFFFF, 0xFFFF, 0xFFFF, "HippStor Technology(0x1FE4)"},
 {0x1FE4, 0x1600, 0xFFFF, 0xFFFF, "HP600 Series NVMe SSD(0x1600)"},
 {0x1FE4, 0x1600, 0x1FE4, 0x0075, "Enterprise NVMe SSD U.2 3.84TB(HP610)(0x1FE4-0x0075)"},
@@ -32431,70 +32663,93 @@ pci_id_t pci_vid_1FE4[] = {
 {0x1FE4, 0x1600, 0x1FE4, 0x0078, "Enterprise NVMe SSD U.2 3.20TB(HP630)(0x1FE4-0x0078)"},
 }; /* pci_vid_1FE4[] */
 
-pci_id_t pci_vid_1FF4[] = {
+static pci_id_t const pci_vid_1FF4[] = {
 {0x1FF4, 0xFFFF, 0xFFFF, 0xFFFF, "DEEPX Co., Ltd.(0x1FF4)"},
 {0x1FF4, 0x0000, 0xFFFF, 0xFFFF, "DX_M1(0x0000)"},
 {0x1FF4, 0x0001, 0xFFFF, 0xFFFF, "DX_M1A(0x0001)"},
 {0x1FF4, 0x1000, 0xFFFF, 0xFFFF, "DX_H1(0x1000)"},
 }; /* pci_vid_1FF4[] */
 
-pci_id_t pci_vid_2000[] = {
+static pci_id_t const pci_vid_1FF8[] = {
+{0x1FF8, 0xFFFF, 0xFFFF, 0xFFFF, "Beijing Gengtu Technology Co.Ltd(0x1FF8)"},
+{0x1FF8, 0x2000, 0xFFFF, 0xFFFF, "GT6910(0x2000)"},
+{0x1FF8, 0x2010, 0xFFFF, 0xFFFF, "GT6908(0x2010)"},
+}; /* pci_vid_1FF8[] */
+
+static pci_id_t const pci_vid_1FF9[] = {
+{0x1FF9, 0xFFFF, 0xFFFF, 0xFFFF, "Inagile Electronic Technology Co., LTD(0x1FF9)"},
+}; /* pci_vid_1FF9[] */
+
+static pci_id_t const pci_vid_2000[] = {
 {0x2000, 0xFFFF, 0xFFFF, 0xFFFF, "Smart Link Ltd.(0x2000)"},
 {0x2000, 0x2800, 0xFFFF, 0xFFFF, "SmartPCI2800 V.92 PCI Soft DFT(0x2800)"},
 }; /* pci_vid_2000[] */
 
-pci_id_t pci_vid_2001[] = {
+static pci_id_t const pci_vid_2001[] = {
 {0x2001, 0xFFFF, 0xFFFF, 0xFFFF, "Temporal Research Ltd(0x2001)"},
 }; /* pci_vid_2001[] */
 
-pci_id_t pci_vid_2003[] = {
+static pci_id_t const pci_vid_2003[] = {
 {0x2003, 0xFFFF, 0xFFFF, 0xFFFF, "Smart Link Ltd.(0x2003)"},
 {0x2003, 0x8800, 0xFFFF, 0xFFFF, "LM-I56N(0x8800)"},
 }; /* pci_vid_2003[] */
 
-pci_id_t pci_vid_2004[] = {
+static pci_id_t const pci_vid_2004[] = {
 {0x2004, 0xFFFF, 0xFFFF, 0xFFFF, "Smart Link Ltd.(0x2004)"},
 }; /* pci_vid_2004[] */
 
-pci_id_t pci_vid_2048[] = {
+static pci_id_t const pci_vid_2046[] = {
+{0x2046, 0xFFFF, 0xFFFF, 0xFFFF, "Shenzhen Inovance Technology Co., Ltd.(0x2046)"},
+}; /* pci_vid_2046[] */
+
+static pci_id_t const pci_vid_2048[] = {
 {0x2048, 0xFFFF, 0xFFFF, 0xFFFF, "Beijing SpaceControl Technology Co.Ltd(0x2048)"},
 }; /* pci_vid_2048[] */
 
-pci_id_t pci_vid_20F4[] = {
+static pci_id_t const pci_vid_20F4[] = {
 {0x20F4, 0xFFFF, 0xFFFF, 0xFFFF, "TRENDnet(0x20F4)"},
 }; /* pci_vid_20F4[] */
 
-pci_id_t pci_vid_2116[] = {
+static pci_id_t const pci_vid_2116[] = {
 {0x2116, 0xFFFF, 0xFFFF, 0xFFFF, "ZyDAS Technology Corp.(0x2116)"},
 }; /* pci_vid_2116[] */
 
-pci_id_t pci_vid_21B4[] = {
+static pci_id_t const pci_vid_21B4[] = {
 {0x21B4, 0xFFFF, 0xFFFF, 0xFFFF, "Hunan Goke Microelectronics Co., Ltd(0x21B4)"},
 }; /* pci_vid_21B4[] */
 
-pci_id_t pci_vid_21C3[] = {
+static pci_id_t const pci_vid_21C3[] = {
 {0x21C3, 0xFFFF, 0xFFFF, 0xFFFF, "21st Century Computer Corp.(0x21C3)"},
 }; /* pci_vid_21C3[] */
 
-pci_id_t pci_vid_22B8[] = {
+static pci_id_t const pci_vid_22B8[] = {
 {0x22B8, 0xFFFF, 0xFFFF, 0xFFFF, "Flex-Logix Technologies(0x22B8)"},
 {0x22B8, 0x22A0, 0xFFFF, 0xFFFF, "Flex Logix InferX X1 Inference Accelerator(0x22A0)"},
 }; /* pci_vid_22B8[] */
 
-pci_id_t pci_vid_22DB[] = {
+static pci_id_t const pci_vid_22DB[] = {
 {0x22DB, 0xFFFF, 0xFFFF, 0xFFFF, "Missing Link Electronics, Inc.(0x22DB)"},
 }; /* pci_vid_22DB[] */
 
-pci_id_t pci_vid_2304[] = {
+static pci_id_t const pci_vid_2304[] = {
 {0x2304, 0xFFFF, 0xFFFF, 0xFFFF, "Colorgraphic Communications Corp.(0x2304)"},
 }; /* pci_vid_2304[] */
 
-pci_id_t pci_vid_2348[] = {
+static pci_id_t const pci_vid_2321[] = {
+{0x2321, 0xFFFF, 0xFFFF, 0xFFFF, "Bruker AXS Inc.(0x2321)"},
+}; /* pci_vid_2321[] */
+
+static pci_id_t const pci_vid_2348[] = {
 {0x2348, 0xFFFF, 0xFFFF, 0xFFFF, "Racore(0x2348)"},
 {0x2348, 0x2010, 0xFFFF, 0xFFFF, "8142 100VG/AnyLAN(0x2010)"},
 }; /* pci_vid_2348[] */
 
-pci_id_t pci_vid_2646[] = {
+static pci_id_t const pci_vid_256C[] = {
+{0x256C, 0xFFFF, 0xFFFF, 0xFFFF, "Graphics Technology (HK) Co., Ltd.(0x256C)"},
+{0x256C, 0x006D, 0xFFFF, 0xFFFF, "HS610(0x006D)"},
+}; /* pci_vid_256C[] */
+
+static pci_id_t const pci_vid_2646[] = {
 {0x2646, 0xFFFF, 0xFFFF, 0xFFFF, "Kingston Technology Company, Inc.(0x2646)"},
 {0x2646, 0x0010, 0xFFFF, 0xFFFF, "HyperX Predator PCIe AHCI SSD(0x0010)"},
 {0x2646, 0x2262, 0xFFFF, 0xFFFF, "KC2000/KC2500 NVMe SSD SM2262EN(0x2262)"},
@@ -32504,87 +32759,89 @@ pci_id_t pci_vid_2646[] = {
 {0x2646, 0x500B, 0xFFFF, 0xFFFF, "DC1000M NVMe SSD SM2270(0x500B)"},
 {0x2646, 0x500C, 0xFFFF, 0xFFFF, "OM8PCP Design-In PCIe 3 NVMe SSD (DRAM-less)(0x500C)"},
 {0x2646, 0x500D, 0xFFFF, 0xFFFF, "OM3PDP3 NVMe SSD(0x500D)"},
-{0x2646, 0x500E, 0xFFFF, 0xFFFF, "NV1 NVMe SSD E13T(0x500E)"},
-{0x2646, 0x500F, 0xFFFF, 0xFFFF, "NV1 NVMe SSD SM2263XT(0x500F)"},
+{0x2646, 0x500E, 0xFFFF, 0xFFFF, "NV1 NVMe SSD E13T (DRAM-less)(0x500E)"},
+{0x2646, 0x500F, 0xFFFF, 0xFFFF, "NV1 NVMe SSD SM2263XT (DRAM-less)(0x500F)"},
 {0x2646, 0x5010, 0xFFFF, 0xFFFF, "OM8SBP NVMe PCIe SSD (DRAM-less)(0x5010)"},
 {0x2646, 0x5012, 0xFFFF, 0xFFFF, "DC1500M NVMe SSD SM2270(0x5012)"},
 {0x2646, 0x5013, 0xFFFF, 0xFFFF, "KC3000/FURY Renegade NVMe SSD E18(0x5013)"},
-{0x2646, 0x5014, 0xFFFF, 0xFFFF, "Design-In PCIe 4 NVMe SSD (TLC)(0x5014)"},
+{0x2646, 0x5014, 0xFFFF, 0xFFFF, "OM8SEP4 Design-In PCIe 4 NVMe SSD (TLC) (DRAM-less)(0x5014)"},
 {0x2646, 0x5016, 0xFFFF, 0xFFFF, "OM3PGP4 NVMe SSD(0x5016)"},
-{0x2646, 0x5017, 0xFFFF, 0xFFFF, "NV2 NVMe SSD SM2267XT(0x5017)"},
-{0x2646, 0x5019, 0xFFFF, 0xFFFF, "NV2 NVMe SSD E21T(0x5019)"},
+{0x2646, 0x5017, 0xFFFF, 0xFFFF, "NV2 NVMe SSD SM2267XT (DRAM-less)(0x5017)"},
+{0x2646, 0x5019, 0xFFFF, 0xFFFF, "NV2 NVMe SSD E21T (DRAM-less)(0x5019)"},
+{0x2646, 0x501A, 0xFFFF, 0xFFFF, "OM8PGP4 Design-In PCIe 4 NVMe SSD (TLC) (DRAM-less)(0x501A)"},
 {0x2646, 0x501B, 0xFFFF, 0xFFFF, "OM8PGP4 NVMe PCIe SSD (DRAM-less)(0x501B)"},
 {0x2646, 0x501C, 0xFFFF, 0xFFFF, "NV2 NVMe SSD E19T(0x501C)"},
-{0x2646, 0x501D, 0xFFFF, 0xFFFF, "NV2 NVMe SSD TC2200(0x501D)"},
+{0x2646, 0x501D, 0xFFFF, 0xFFFF, "NV2 NVMe SSD TC2200 (DRAM-less)(0x501D)"},
 {0x2646, 0x501F, 0xFFFF, 0xFFFF, "FURY Renegade NVMe SSD with heatsink(0x501F)"},
-{0x2646, 0x5021, 0xFFFF, 0xFFFF, "Design-In PCIe 4 NVMe SSD (QLC)(0x5021)"},
+{0x2646, 0x5021, 0xFFFF, 0xFFFF, "OM8SEP4 Design-In PCIe 4 NVMe SSD (QLC) (DRAM-less)(0x5021)"},
 {0x2646, 0x5023, 0xFFFF, 0xFFFF, "NV2 NVMe SSD SM2269XT(0x5023)"},
 }; /* pci_vid_2646[] */
 
-pci_id_t pci_vid_270B[] = {
+static pci_id_t const pci_vid_270B[] = {
 {0x270B, 0xFFFF, 0xFFFF, 0xFFFF, "Xantel Corporation(0x270B)"},
 }; /* pci_vid_270B[] */
 
-pci_id_t pci_vid_270F[] = {
+static pci_id_t const pci_vid_270F[] = {
 {0x270F, 0xFFFF, 0xFFFF, 0xFFFF, "Chaintech Computer Co. Ltd(0x270F)"},
 }; /* pci_vid_270F[] */
 
-pci_id_t pci_vid_2711[] = {
+static pci_id_t const pci_vid_2711[] = {
 {0x2711, 0xFFFF, 0xFFFF, 0xFFFF, "AVID Technology Inc.(0x2711)"},
 }; /* pci_vid_2711[] */
 
-pci_id_t pci_vid_2782[] = {
+static pci_id_t const pci_vid_2782[] = {
 {0x2782, 0xFFFF, 0xFFFF, 0xFFFF, "Emdoor Digital Technology Co., Ltd(0x2782)"},
 }; /* pci_vid_2782[] */
 
-pci_id_t pci_vid_2955[] = {
+static pci_id_t const pci_vid_2955[] = {
 {0x2955, 0xFFFF, 0xFFFF, 0xFFFF, "Connectix Virtual PC(0x2955)"},
 {0x2955, 0x6E61, 0xFFFF, 0xFFFF, "OHCI USB 1.1 controller(0x6E61)"},
 }; /* pci_vid_2955[] */
 
-pci_id_t pci_vid_2A15[] = {
+static pci_id_t const pci_vid_2A15[] = {
 {0x2A15, 0xFFFF, 0xFFFF, 0xFFFF, "3D Vision(?-?-?-)(0x2A15)"},
 }; /* pci_vid_2A15[] */
 
-pci_id_t pci_vid_2A18[] = {
+static pci_id_t const pci_vid_2A18[] = {
 {0x2A18, 0xFFFF, 0xFFFF, 0xFFFF, "Video Transcode Controller(0x2A18)"},
 }; /* pci_vid_2A18[] */
 
-pci_id_t pci_vid_2BD8[] = {
+static pci_id_t const pci_vid_2BD8[] = {
 {0x2BD8, 0xFFFF, 0xFFFF, 0xFFFF, "ROPEX Industrie-Elektronik GmbH(0x2BD8)"},
 }; /* pci_vid_2BD8[] */
 
-pci_id_t pci_vid_3000[] = {
+static pci_id_t const pci_vid_3000[] = {
 {0x3000, 0xFFFF, 0xFFFF, 0xFFFF, "Hansol Electronics Inc.(0x3000)"},
 }; /* pci_vid_3000[] */
 
-pci_id_t pci_vid_3100[] = {
+static pci_id_t const pci_vid_3100[] = {
 {0x3100, 0xFFFF, 0xFFFF, 0xFFFF, "Dynabook Inc.(0x3100)"},
 }; /* pci_vid_3100[] */
 
-pci_id_t pci_vid_3112[] = {
+static pci_id_t const pci_vid_3112[] = {
 {0x3112, 0xFFFF, 0xFFFF, 0xFFFF, "Satelco Ingenieria S.A.(0x3112)"},
 }; /* pci_vid_3112[] */
 
-pci_id_t pci_vid_3130[] = {
+static pci_id_t const pci_vid_3130[] = {
 {0x3130, 0xFFFF, 0xFFFF, 0xFFFF, "AUDIOTRAK(0x3130)"},
 }; /* pci_vid_3130[] */
 
-pci_id_t pci_vid_3142[] = {
+static pci_id_t const pci_vid_3142[] = {
 {0x3142, 0xFFFF, 0xFFFF, 0xFFFF, "Post Impression Systems.(0x3142)"},
 }; /* pci_vid_3142[] */
 
-pci_id_t pci_vid_31AB[] = {
+static pci_id_t const pci_vid_31AB[] = {
 {0x31AB, 0xFFFF, 0xFFFF, 0xFFFF, "Zonet(0x31AB)"},
 {0x31AB, 0x1FAA, 0xFFFF, 0xFFFF, "ZEW1602 802.11b/g Wireless Adapter(0x1FAA)"},
 }; /* pci_vid_31AB[] */
 
-pci_id_t pci_vid_328F[] = {
+static pci_id_t const pci_vid_328F[] = {
 {0x328F, 0xFFFF, 0xFFFF, 0xFFFF, "Shenzhen EMEET Technology Co., Ltd.(0x328F)"},
 {0x328F, 0x004C, 0xFFFF, 0xFFFF, "OfficeCore M1A(0x004C)"},
+{0x328F, 0x2019, 0xFFFF, 0xFFFF, "REC 600 HD Webcam(0x2019)"},
 }; /* pci_vid_328F[] */
 
-pci_id_t pci_vid_3388[] = {
+static pci_id_t const pci_vid_3388[] = {
 {0x3388, 0xFFFF, 0xFFFF, 0xFFFF, "Hint Corp(0x3388)"},
 {0x3388, 0x0013, 0xFFFF, 0xFFFF, "HiNT HC4 PCI to ISDN bridge, Multimedia audio controller(0x0013)"},
 {0x3388, 0x0014, 0xFFFF, 0xFFFF, "HiNT HC4 PCI to ISDN bridge, Network controller(0x0014)"},
@@ -32615,29 +32872,33 @@ pci_id_t pci_vid_3388[] = {
 {0x3388, 0xA103, 0xFFFF, 0xFFFF, "Blackmagic Design DeckLink HD Pro(0xA103)"},
 }; /* pci_vid_3388[] */
 
-pci_id_t pci_vid_3411[] = {
+static pci_id_t const pci_vid_3411[] = {
 {0x3411, 0xFFFF, 0xFFFF, 0xFFFF, "Quantum Designs (H.K.) Inc(0x3411)"},
 }; /* pci_vid_3411[] */
 
-pci_id_t pci_vid_3442[] = {
+static pci_id_t const pci_vid_3442[] = {
 {0x3442, 0xFFFF, 0xFFFF, 0xFFFF, "Bihl+Wiedemann GmbH(0x3442)"},
 {0x3442, 0x1783, 0xFFFF, 0xFFFF, "AS-i 3.0 cPCI Master(0x1783)"},
 {0x3442, 0x1922, 0xFFFF, 0xFFFF, "AS-i 3.0 PCI Master(0x1922)"},
 }; /* pci_vid_3442[] */
 
-pci_id_t pci_vid_3475[] = {
+static pci_id_t const pci_vid_3475[] = {
 {0x3475, 0xFFFF, 0xFFFF, 0xFFFF, "Arista Networks, Inc.(0x3475)"},
 }; /* pci_vid_3475[] */
 
-pci_id_t pci_vid_34BA[] = {
+static pci_id_t const pci_vid_34BA[] = {
 {0x34BA, 0xFFFF, 0xFFFF, 0xFFFF, "Ice Lake-LP PCI Express Root Port #3(0x34BA)"},
 }; /* pci_vid_34BA[] */
 
-pci_id_t pci_vid_3513[] = {
+static pci_id_t const pci_vid_3513[] = {
 {0x3513, 0xFFFF, 0xFFFF, 0xFFFF, "ARCOM Control Systems Ltd(0x3513)"},
 }; /* pci_vid_3513[] */
 
-pci_id_t pci_vid_37D9[] = {
+static pci_id_t const pci_vid_369A[] = {
+{0x369A, 0xFFFF, 0xFFFF, 0xFFFF, "HighSecLabs, Ltd.(0x369A)"},
+}; /* pci_vid_369A[] */
+
+static pci_id_t const pci_vid_37D9[] = {
 {0x37D9, 0xFFFF, 0xFFFF, 0xFFFF, "ITD Firm ltd.(0x37D9)"},
 {0x37D9, 0x1138, 0xFFFF, 0xFFFF, "SCHD-PH-8 Phase detector(0x1138)"},
 {0x37D9, 0x1140, 0xFFFF, 0xFFFF, "VR-12-PCI 12-ch Relay Actuator Card(0x1140)"},
@@ -32645,15 +32906,19 @@ pci_id_t pci_vid_37D9[] = {
 {0x37D9, 0x1142, 0xFFFF, 0xFFFF, "PCI-CAN2(0x1142)"},
 }; /* pci_vid_37D9[] */
 
-pci_id_t pci_vid_3842[] = {
+static pci_id_t const pci_vid_3842[] = {
 {0x3842, 0xFFFF, 0xFFFF, 0xFFFF, "eVga.com. Corp.(0x3842)"},
 }; /* pci_vid_3842[] */
 
-pci_id_t pci_vid_38EF[] = {
+static pci_id_t const pci_vid_38EF[] = {
 {0x38EF, 0xFFFF, 0xFFFF, 0xFFFF, "4Links(0x38EF)"},
 }; /* pci_vid_38EF[] */
 
-pci_id_t pci_vid_3D3D[] = {
+static pci_id_t const pci_vid_393E[] = {
+{0x393E, 0xFFFF, 0xFFFF, 0xFFFF, "Lenovo (wrong ID)(0x393E)"},
+}; /* pci_vid_393E[] */
+
+static pci_id_t const pci_vid_3D3D[] = {
 {0x3D3D, 0xFFFF, 0xFFFF, 0xFFFF, "3DLabs(0x3D3D)"},
 {0x3D3D, 0x0001, 0xFFFF, 0xFFFF, "GLINT 300SX(0x0001)"},
 {0x3D3D, 0x0002, 0xFFFF, 0xFFFF, "GLINT 500TX(0x0002)"},
@@ -32705,7 +32970,7 @@ pci_id_t pci_vid_3D3D[] = {
 {0x3D3D, 0xFFFF, 0xFFFF, 0xFFFF, "Glint VGA(0xFFFF)"},
 }; /* pci_vid_3D3D[] */
 
-pci_id_t pci_vid_4005[] = {
+static pci_id_t const pci_vid_4005[] = {
 {0x4005, 0xFFFF, 0xFFFF, 0xFFFF, "Avance Logic Inc.(0x4005)"},
 {0x4005, 0x0300, 0xFFFF, 0xFFFF, "ALS300 PCI Audio Device(0x0300)"},
 {0x4005, 0x0308, 0xFFFF, 0xFFFF, "ALS300+ PCI Audio Device(0x0308)"},
@@ -32724,12 +32989,12 @@ pci_id_t pci_vid_4005[] = {
 {0x4005, 0x4710, 0xFFFF, 0xFFFF, "ALC200/200P(0x4710)"},
 }; /* pci_vid_4005[] */
 
-pci_id_t pci_vid_4033[] = {
+static pci_id_t const pci_vid_4033[] = {
 {0x4033, 0xFFFF, 0xFFFF, 0xFFFF, "Addtron Technology Co, Inc.(0x4033)"},
 {0x4033, 0x1360, 0xFFFF, 0xFFFF, "RTL8139 Ethernet(0x1360)"},
 }; /* pci_vid_4033[] */
 
-pci_id_t pci_vid_4040[] = {
+static pci_id_t const pci_vid_4040[] = {
 {0x4040, 0xFFFF, 0xFFFF, 0xFFFF, "NetXen Incorporated(0x4040)"},
 {0x4040, 0x0001, 0xFFFF, 0xFFFF, "NXB-10GXSR 10-Gigabit Ethernet PCIe Adapter with SR-XFP optical interface(0x0001)"},
 {0x4040, 0x0001, 0x103C, 0x7047, "NC510F PCIe 10-Gigabit Server Adapter(0x103C-0x7047)"},
@@ -32752,45 +33017,45 @@ pci_id_t pci_vid_4040[] = {
 {0x4040, 0x0100, 0x4040, 0x0126, "Dual Port SFP+ 10GbE Server Adapter(0x4040-0x0126)"},
 }; /* pci_vid_4040[] */
 
-pci_id_t pci_vid_4143[] = {
+static pci_id_t const pci_vid_4143[] = {
 {0x4143, 0xFFFF, 0xFFFF, 0xFFFF, "Digital Equipment Corp(0x4143)"},
 }; /* pci_vid_4143[] */
 
-pci_id_t pci_vid_4144[] = {
+static pci_id_t const pci_vid_4144[] = {
 {0x4144, 0xFFFF, 0xFFFF, 0xFFFF, "Alpha Data(0x4144)"},
 {0x4144, 0x0044, 0xFFFF, 0xFFFF, "ADM-XRCIIPro(0x0044)"},
 }; /* pci_vid_4144[] */
 
-pci_id_t pci_vid_4150[] = {
+static pci_id_t const pci_vid_4150[] = {
 {0x4150, 0xFFFF, 0xFFFF, 0xFFFF, "ONA Electroerosion(0x4150)"},
 {0x4150, 0x0001, 0xFFFF, 0xFFFF, "PCI32TLITE FILSTRUP1 PCI to VME Bridge Controller(0x0001)"},
 {0x4150, 0x0006, 0xFFFF, 0xFFFF, "PCI32TLITE UART 16550 Opencores(0x0006)"},
 {0x4150, 0x0007, 0xFFFF, 0xFFFF, "PCI32TLITE CAN Controller Opencores(0x0007)"},
 }; /* pci_vid_4150[] */
 
-pci_id_t pci_vid_415A[] = {
+static pci_id_t const pci_vid_415A[] = {
 {0x415A, 0xFFFF, 0xFFFF, 0xFFFF, "Auzentech, Inc.(0x415A)"},
 }; /* pci_vid_415A[] */
 
-pci_id_t pci_vid_416C[] = {
+static pci_id_t const pci_vid_416C[] = {
 {0x416C, 0xFFFF, 0xFFFF, 0xFFFF, "Aladdin Knowledge Systems(0x416C)"},
 {0x416C, 0x0100, 0xFFFF, 0xFFFF, "AladdinCARD(0x0100)"},
 {0x416C, 0x0200, 0xFFFF, 0xFFFF, "CPC(0x0200)"},
 }; /* pci_vid_416C[] */
 
-pci_id_t pci_vid_4242[] = {
+static pci_id_t const pci_vid_4242[] = {
 {0x4242, 0xFFFF, 0xFFFF, 0xFFFF, "Universall Answer Generators(0x4242)"},
 }; /* pci_vid_4242[] */
 
-pci_id_t pci_vid_4254[] = {
+static pci_id_t const pci_vid_4254[] = {
 {0x4254, 0xFFFF, 0xFFFF, 0xFFFF, "DVBSky(0x4254)"},
 }; /* pci_vid_4254[] */
 
-pci_id_t pci_vid_4321[] = {
+static pci_id_t const pci_vid_4321[] = {
 {0x4321, 0xFFFF, 0xFFFF, 0xFFFF, "Tata Power Strategic Electronics Division(0x4321)"},
 }; /* pci_vid_4321[] */
 
-pci_id_t pci_vid_4348[] = {
+static pci_id_t const pci_vid_4348[] = {
 {0x4348, 0xFFFF, 0xFFFF, 0xFFFF, "WCH.CN(0x4348)"},
 {0x4348, 0x2273, 0xFFFF, 0xFFFF, "CH351 PCI Dual Serial Port Controller(0x2273)"},
 {0x4348, 0x3253, 0xFFFF, 0xFFFF, "CH352 PCI Dual Serial Port Controller(0x3253)"},
@@ -32801,11 +33066,11 @@ pci_id_t pci_vid_4348[] = {
 {0x4348, 0x7173, 0xFFFF, 0xFFFF, "CH355 PCI Quad Serial Port Controller(0x7173)"},
 }; /* pci_vid_4348[] */
 
-pci_id_t pci_vid_434E[] = {
+static pci_id_t const pci_vid_434E[] = {
 {0x434E, 0xFFFF, 0xFFFF, 0xFFFF, "Cornelis Networks(0x434E)"},
 }; /* pci_vid_434E[] */
 
-pci_id_t pci_vid_4444[] = {
+static pci_id_t const pci_vid_4444[] = {
 {0x4444, 0xFFFF, 0xFFFF, 0xFFFF, "Internext Compression Inc(0x4444)"},
 {0x4444, 0x0016, 0xFFFF, 0xFFFF, "iTVC16 (CX23416) Video Decoder(0x0016)"},
 {0x4444, 0x0016, 0x0070, 0x0003, "WinTV PVR 250(0x0070-0x0003)"},
@@ -32872,47 +33137,47 @@ pci_id_t pci_vid_4444[] = {
 {0x4444, 0x0803, 0x1461, 0xA3CF, "M179(0x1461-0xA3CF)"},
 }; /* pci_vid_4444[] */
 
-pci_id_t pci_vid_4468[] = {
+static pci_id_t const pci_vid_4468[] = {
 {0x4468, 0xFFFF, 0xFFFF, 0xFFFF, "Bridgeport machines(0x4468)"},
 }; /* pci_vid_4468[] */
 
-pci_id_t pci_vid_4594[] = {
+static pci_id_t const pci_vid_4594[] = {
 {0x4594, 0xFFFF, 0xFFFF, 0xFFFF, "Cogetec Informatique Inc(0x4594)"},
 }; /* pci_vid_4594[] */
 
-pci_id_t pci_vid_45FB[] = {
+static pci_id_t const pci_vid_45FB[] = {
 {0x45FB, 0xFFFF, 0xFFFF, 0xFFFF, "Baldor Electric Company(0x45FB)"},
 }; /* pci_vid_45FB[] */
 
-pci_id_t pci_vid_4624[] = {
+static pci_id_t const pci_vid_4624[] = {
 {0x4624, 0xFFFF, 0xFFFF, 0xFFFF, "Budker Institute of Nuclear Physics(0x4624)"},
 {0x4624, 0xADC1, 0xFFFF, 0xFFFF, "ADC200ME High speed ADC(0xADC1)"},
 {0x4624, 0xDE01, 0xFFFF, 0xFFFF, "DL200ME High resolution delay line PCI based card(0xDE01)"},
 {0x4624, 0xDE02, 0xFFFF, 0xFFFF, "DL200ME Middle resolution delay line PCI based card(0xDE02)"},
 }; /* pci_vid_4624[] */
 
-pci_id_t pci_vid_4651[] = {
+static pci_id_t const pci_vid_4651[] = {
 {0x4651, 0xFFFF, 0xFFFF, 0xFFFF, "TXIC(0x4651)"},
 }; /* pci_vid_4651[] */
 
-pci_id_t pci_vid_4680[] = {
+static pci_id_t const pci_vid_4680[] = {
 {0x4680, 0xFFFF, 0xFFFF, 0xFFFF, "Umax Computer Corp(0x4680)"},
 }; /* pci_vid_4680[] */
 
-pci_id_t pci_vid_4843[] = {
+static pci_id_t const pci_vid_4843[] = {
 {0x4843, 0xFFFF, 0xFFFF, 0xFFFF, "Hercules Computer Technology Inc(0x4843)"},
 }; /* pci_vid_4843[] */
 
-pci_id_t pci_vid_4916[] = {
+static pci_id_t const pci_vid_4916[] = {
 {0x4916, 0xFFFF, 0xFFFF, 0xFFFF, "RedCreek Communications Inc(0x4916)"},
 {0x4916, 0x1960, 0xFFFF, 0xFFFF, "RedCreek PCI adapter(0x1960)"},
 }; /* pci_vid_4916[] */
 
-pci_id_t pci_vid_4943[] = {
+static pci_id_t const pci_vid_4943[] = {
 {0x4943, 0xFFFF, 0xFFFF, 0xFFFF, "Growth Networks(0x4943)"},
 }; /* pci_vid_4943[] */
 
-pci_id_t pci_vid_494F[] = {
+static pci_id_t const pci_vid_494F[] = {
 {0x494F, 0xFFFF, 0xFFFF, 0xFFFF, "ACCES I/O Products, Inc.(0x494F)"},
 {0x494F, 0x0508, 0xFFFF, 0xFFFF, "PCI-IDO-16A FET Output Card(0x0508)"},
 {0x494F, 0x0518, 0xFFFF, 0xFFFF, "PCI-IDO-32A FET Output Card(0x0518)"},
@@ -33038,33 +33303,47 @@ pci_id_t pci_vid_494F[] = {
 {0x494F, 0xECE9, 0xFFFF, 0xFFFF, "LPCI-AIO16A 16-bit 500kHz Analog Input low-profile Card(0xECE9)"},
 }; /* pci_vid_494F[] */
 
-pci_id_t pci_vid_4978[] = {
+static pci_id_t const pci_vid_4978[] = {
 {0x4978, 0xFFFF, 0xFFFF, 0xFFFF, "Axil Computer Inc(0x4978)"},
 }; /* pci_vid_4978[] */
 
-pci_id_t pci_vid_4A14[] = {
+static pci_id_t const pci_vid_4A14[] = {
 {0x4A14, 0xFFFF, 0xFFFF, 0xFFFF, "NetVin(0x4A14)"},
 {0x4A14, 0x5000, 0xFFFF, 0xFFFF, "NV5000SC(0x5000)"},
 {0x4A14, 0x5000, 0x4A14, 0x5000, "RT8029-Based Ethernet Adapter(0x4A14-0x5000)"},
 }; /* pci_vid_4A14[] */
 
-pci_id_t pci_vid_4B10[] = {
+static pci_id_t const pci_vid_4B10[] = {
 {0x4B10, 0xFFFF, 0xFFFF, 0xFFFF, "Buslogic Inc.(0x4B10)"},
 }; /* pci_vid_4B10[] */
 
-pci_id_t pci_vid_4C48[] = {
+static pci_id_t const pci_vid_4B43[] = {
+{0x4B43, 0xFFFF, 0xFFFF, 0xFFFF, "KonteX Inc.(0x4B43)"},
+}; /* pci_vid_4B43[] */
+
+static pci_id_t const pci_vid_4C48[] = {
 {0x4C48, 0xFFFF, 0xFFFF, 0xFFFF, "LUNG HWA Electronics(0x4C48)"},
 }; /* pci_vid_4C48[] */
 
-pci_id_t pci_vid_4C4D[] = {
+static pci_id_t const pci_vid_4C4D[] = {
 {0x4C4D, 0xFFFF, 0xFFFF, 0xFFFF, "Liquid-Markets GmbH(0x4C4D)"},
+{0x4C4D, 0x9998, 0xFFFF, 0xFFFF, "TaSR(0x9998)"},
+{0x4C4D, 0x9999, 0xFFFF, 0xFFFF, "UberNIC PoC/testing/dev(0x9999)"},
 }; /* pci_vid_4C4D[] */
 
-pci_id_t pci_vid_4C52[] = {
-{0x4C52, 0xFFFF, 0xFFFF, 0xFFFF, "LR-Link(0x4C52)"},
+static pci_id_t const pci_vid_4C52[] = {
+{0x4C52, 0xFFFF, 0xFFFF, 0xFFFF, "LR-LINK(0x4C52)"},
+{0x4C52, 0x1001, 0xFFFF, 0xFFFF, "Smart Network Adapter(0x1001)"},
+{0x4C52, 0x1001, 0x4C52, 0xA006, "LREG1006PT Single-port 1.2Gb Network Security Isolation Adapter(0x4C52-0xA006)"},
+{0x4C52, 0x1001, 0x4C52, 0xA008, "LREG1008PT Single-port 1Gb Smart Ethernet Network Adapter(0x4C52-0xA008)"},
+{0x4C52, 0x1001, 0x4C52, 0xA009, "LREG1009PT Single-port 2.5Gb Smart Ethernet Network Adapter(0x4C52-0xA009)"},
+{0x4C52, 0x1002, 0xFFFF, 0xFFFF, "Smart Network Adapter(0x1002)"},
+{0x4C52, 0x1002, 0x4C52, 0xA007, "LREG1007PT Quad-port 10Gb Smart Ethernet Network Adapter(0x4C52-0xA007)"},
+{0x4C52, 0x1003, 0xFFFF, 0xFFFF, "Smart Network Adapter(0x1003)"},
+{0x4C52, 0x1003, 0x4C52, 0xB010, "LREG1010PF Single-port 10Gb FPGA Network Security Isolation Adapter(0x4C52-0xB010)"},
 }; /* pci_vid_4C52[] */
 
-pci_id_t pci_vid_4C53[] = {
+static pci_id_t const pci_vid_4C53[] = {
 {0x4C53, 0xFFFF, 0xFFFF, 0xFFFF, "SBS Technologies(0x4C53)"},
 {0x4C53, 0x0000, 0xFFFF, 0xFFFF, "PLUSTEST device(0x0000)"},
 {0x4C53, 0x0000, 0x4C53, 0x3000, "PLUSTEST card (PC104+)(0x4C53-0x3000)"},
@@ -33073,20 +33352,20 @@ pci_id_t pci_vid_4C53[] = {
 {0x4C53, 0x0001, 0x4C53, 0x3002, "PLUSTEST-MM card (PMC)(0x4C53-0x3002)"},
 }; /* pci_vid_4C53[] */
 
-pci_id_t pci_vid_4CA1[] = {
+static pci_id_t const pci_vid_4CA1[] = {
 {0x4CA1, 0xFFFF, 0xFFFF, 0xFFFF, "Seanix Technology Inc(0x4CA1)"},
 }; /* pci_vid_4CA1[] */
 
-pci_id_t pci_vid_4D51[] = {
+static pci_id_t const pci_vid_4D51[] = {
 {0x4D51, 0xFFFF, 0xFFFF, 0xFFFF, "MediaQ Inc.(0x4D51)"},
 {0x4D51, 0x0200, 0xFFFF, 0xFFFF, "MQ-200(0x0200)"},
 }; /* pci_vid_4D51[] */
 
-pci_id_t pci_vid_4D54[] = {
+static pci_id_t const pci_vid_4D54[] = {
 {0x4D54, 0xFFFF, 0xFFFF, 0xFFFF, "Microtechnica Co Ltd(0x4D54)"},
 }; /* pci_vid_4D54[] */
 
-pci_id_t pci_vid_4D56[] = {
+static pci_id_t const pci_vid_4D56[] = {
 {0x4D56, 0xFFFF, 0xFFFF, 0xFFFF, "Balluff MV GmbH(0x4D56)"},
 {0x4D56, 0x0000, 0xFFFF, 0xFFFF, "[mvHYPERION-CLe/CLb] CameraLink PCI Express x1 Frame Grabber(0x0000)"},
 {0x4D56, 0x0001, 0xFFFF, 0xFFFF, "[mvHYPERION-CLf/CLm] CameraLink PCI Express x4 Frame Grabber(0x0001)"},
@@ -33099,7 +33378,7 @@ pci_id_t pci_vid_4D56[] = {
 {0x4D56, 0x7024, 0xFFFF, 0xFFFF, "[mvBlueNAOS BVS CA-BN] PCIe Gen2 x4 Camera(0x7024)"},
 }; /* pci_vid_4D56[] */
 
-pci_id_t pci_vid_4DDC[] = {
+static pci_id_t const pci_vid_4DDC[] = {
 {0x4DDC, 0xFFFF, 0xFFFF, 0xFFFF, "ILC Data Device Corp(0x4DDC)"},
 {0x4DDC, 0x0100, 0xFFFF, 0xFFFF, "DD-42924I5-300 (ARINC 429 Data Bus)(0x0100)"},
 {0x4DDC, 0x0300, 0xFFFF, 0xFFFF, "SB-3620 Motion Feedback Device(0x0300)"},
@@ -33129,60 +33408,64 @@ pci_id_t pci_vid_4DDC[] = {
 {0x4DDC, 0x3000, 0xFFFF, 0xFFFF, "SB-3644 Motion Feedback Device(0x3000)"},
 }; /* pci_vid_4DDC[] */
 
-pci_id_t pci_vid_4E58[] = {
+static pci_id_t const pci_vid_4E4C[] = {
+{0x4E4C, 0xFFFF, 0xFFFF, 0xFFFF, "NieL TechSolution(0x4E4C)"},
+}; /* pci_vid_4E4C[] */
+
+static pci_id_t const pci_vid_4E58[] = {
 {0x4E58, 0xFFFF, 0xFFFF, 0xFFFF, "Nutanix, Inc.(0x4E58)"},
 {0x4E58, 0x0001, 0xFFFF, 0xFFFF, "Virtual NVMe Controller(0x0001)"},
 }; /* pci_vid_4E58[] */
 
-pci_id_t pci_vid_5045[] = {
+static pci_id_t const pci_vid_5045[] = {
 {0x5045, 0xFFFF, 0xFFFF, 0xFFFF, "University of Toronto(0x5045)"},
 {0x5045, 0x4243, 0xFFFF, 0xFFFF, "BLASTbus PCI Interface Card v1(0x4243)"},
 }; /* pci_vid_5045[] */
 
-pci_id_t pci_vid_5046[] = {
+static pci_id_t const pci_vid_5046[] = {
 {0x5046, 0xFFFF, 0xFFFF, 0xFFFF, "GemTek Technology Corporation(0x5046)"},
 {0x5046, 0x1001, 0xFFFF, 0xFFFF, "PCI Radio(0x1001)"},
 }; /* pci_vid_5046[] */
 
-pci_id_t pci_vid_5053[] = {
+static pci_id_t const pci_vid_5053[] = {
 {0x5053, 0xFFFF, 0xFFFF, 0xFFFF, "Voyetra Technologies(0x5053)"},
 {0x5053, 0x2010, 0xFFFF, 0xFFFF, "Daytona Audio Adapter(0x2010)"},
 }; /* pci_vid_5053[] */
 
-pci_id_t pci_vid_50B2[] = {
+static pci_id_t const pci_vid_50B2[] = {
 {0x50B2, 0xFFFF, 0xFFFF, 0xFFFF, "TerraTec Electronic GmbH(0x50B2)"},
 }; /* pci_vid_50B2[] */
 
-pci_id_t pci_vid_50CE[] = {
+static pci_id_t const pci_vid_50CE[] = {
 {0x50CE, 0xFFFF, 0xFFFF, 0xFFFF, "System-on-Chip Engineering S.L.(0x50CE)"},
 {0x50CE, 0x0001, 0xFFFF, 0xFFFF, "RELY-MIL-XMC-TSN-SWITCH(0x0001)"},
 }; /* pci_vid_50CE[] */
 
-pci_id_t pci_vid_5136[] = {
+static pci_id_t const pci_vid_5136[] = {
 {0x5136, 0xFFFF, 0xFFFF, 0xFFFF, "S S Technologies(0x5136)"},
 }; /* pci_vid_5136[] */
 
-pci_id_t pci_vid_5143[] = {
+static pci_id_t const pci_vid_5143[] = {
 {0x5143, 0xFFFF, 0xFFFF, 0xFFFF, "Qualcomm Inc(0x5143)"},
 }; /* pci_vid_5143[] */
 
-pci_id_t pci_vid_5145[] = {
+static pci_id_t const pci_vid_5145[] = {
 {0x5145, 0xFFFF, 0xFFFF, 0xFFFF, "Ensoniq (Old)(0x5145)"},
 {0x5145, 0x3031, 0xFFFF, 0xFFFF, "Concert AudioPCI(0x3031)"},
 }; /* pci_vid_5145[] */
 
-pci_id_t pci_vid_5168[] = {
+static pci_id_t const pci_vid_5168[] = {
 {0x5168, 0xFFFF, 0xFFFF, 0xFFFF, "Animation Technologies Inc.(0x5168)"},
 {0x5168, 0x0300, 0xFFFF, 0xFFFF, "FlyDVB-S(0x0300)"},
 {0x5168, 0x0301, 0xFFFF, 0xFFFF, "FlyDVB-T(0x0301)"},
 }; /* pci_vid_5168[] */
 
-pci_id_t pci_vid_5301[] = {
+static pci_id_t const pci_vid_5301[] = {
 {0x5301, 0xFFFF, 0xFFFF, 0xFFFF, "Alliance Semiconductor Corp.(0x5301)"},
 {0x5301, 0x0001, 0xFFFF, 0xFFFF, "ProMotion aT3D(0x0001)"},
 }; /* pci_vid_5301[] */
 
-pci_id_t pci_vid_5333[] = {
+static pci_id_t const pci_vid_5333[] = {
 {0x5333, 0xFFFF, 0xFFFF, 0xFFFF, "S3 Graphics Ltd.(0x5333)"},
 {0x5333, 0x0551, 0xFFFF, 0xFFFF, "Plato/PX (system)(0x0551)"},
 {0x5333, 0x5631, 0xFFFF, 0xFFFF, "86c325 [ViRGE](0x5631)"},
@@ -33331,16 +33614,16 @@ pci_id_t pci_vid_5333[] = {
 {0x5333, 0xCA00, 0xFFFF, 0xFFFF, "SonicVibes(0xCA00)"},
 }; /* pci_vid_5333[] */
 
-pci_id_t pci_vid_5431[] = {
+static pci_id_t const pci_vid_5431[] = {
 {0x5431, 0xFFFF, 0xFFFF, 0xFFFF, "AuzenTech, Inc.(0x5431)"},
 }; /* pci_vid_5431[] */
 
-pci_id_t pci_vid_544C[] = {
+static pci_id_t const pci_vid_544C[] = {
 {0x544C, 0xFFFF, 0xFFFF, 0xFFFF, "Teralogic Inc(0x544C)"},
 {0x544C, 0x0350, 0xFFFF, 0xFFFF, "TL880-based HDTV/ATSC tuner(0x0350)"},
 }; /* pci_vid_544C[] */
 
-pci_id_t pci_vid_544D[] = {
+static pci_id_t const pci_vid_544D[] = {
 {0x544D, 0xFFFF, 0xFFFF, 0xFFFF, "TBS Technologies(0x544D)"},
 {0x544D, 0x6178, 0xFFFF, 0xFFFF, "DVB Tuner PCIe Card(0x6178)"},
 {0x544D, 0x6178, 0x544D, 0x6904, "TBS6904 DVB-S2 Quad Tuner PCIe Card(0x544D-0x6904)"},
@@ -33360,67 +33643,68 @@ pci_id_t pci_vid_544D[] = {
 {0x544D, 0x6178, 0x6910, 0x0002, "TBS6910SE DVB-S/S2/S2x + 2xCI(0x6910-0x0002)"},
 }; /* pci_vid_544D[] */
 
-pci_id_t pci_vid_5452[] = {
+static pci_id_t const pci_vid_5452[] = {
 {0x5452, 0xFFFF, 0xFFFF, 0xFFFF, "SCANLAB AG(0x5452)"},
 {0x5452, 0x3443, 0xFFFF, 0xFFFF, "RTC4(0x3443)"},
 }; /* pci_vid_5452[] */
 
-pci_id_t pci_vid_5455[] = {
+static pci_id_t const pci_vid_5455[] = {
 {0x5455, 0xFFFF, 0xFFFF, 0xFFFF, "Technische Universitaet Berlin(0x5455)"},
 {0x5455, 0x4458, 0xFFFF, 0xFFFF, "S5933(0x4458)"},
 }; /* pci_vid_5455[] */
 
-pci_id_t pci_vid_5456[] = {
+static pci_id_t const pci_vid_5456[] = {
 {0x5456, 0xFFFF, 0xFFFF, 0xFFFF, "GoTView(0x5456)"},
 }; /* pci_vid_5456[] */
 
-pci_id_t pci_vid_5519[] = {
+static pci_id_t const pci_vid_5519[] = {
 {0x5519, 0xFFFF, 0xFFFF, 0xFFFF, "Cnet Technologies, Inc.(0x5519)"},
 }; /* pci_vid_5519[] */
 
-pci_id_t pci_vid_5544[] = {
+static pci_id_t const pci_vid_5544[] = {
 {0x5544, 0xFFFF, 0xFFFF, 0xFFFF, "Dunord Technologies(0x5544)"},
 {0x5544, 0x0001, 0xFFFF, 0xFFFF, "I-30xx Scanner Interface(0x0001)"},
 }; /* pci_vid_5544[] */
 
-pci_id_t pci_vid_5555[] = {
+static pci_id_t const pci_vid_5555[] = {
 {0x5555, 0xFFFF, 0xFFFF, 0xFFFF, "Genroco, Inc(0x5555)"},
 {0x5555, 0x0003, 0xFFFF, 0xFFFF, "TURBOstor HFP-832 [HiPPI NIC](0x0003)"},
+{0x5555, 0x0004, 0xFFFF, 0xFFFF, "Torrent QN16e [16-128 Channel MPEG QAM Modulator for DVB-C](0x0004)"},
 {0x5555, 0x3B00, 0xFFFF, 0xFFFF, "Epiphan DVI2PCIe video capture card(0x3B00)"},
 }; /* pci_vid_5555[] */
 
-pci_id_t pci_vid_5646[] = {
+static pci_id_t const pci_vid_5646[] = {
 {0x5646, 0xFFFF, 0xFFFF, 0xFFFF, "Vector Fabrics BV(0x5646)"},
 }; /* pci_vid_5646[] */
 
-pci_id_t pci_vid_5654[] = {
+static pci_id_t const pci_vid_5654[] = {
 {0x5654, 0xFFFF, 0xFFFF, 0xFFFF, "VoiceTronix Pty Ltd(0x5654)"},
 }; /* pci_vid_5654[] */
 
-pci_id_t pci_vid_5678[] = {
+static pci_id_t const pci_vid_5678[] = {
 {0x5678, 0xFFFF, 0xFFFF, 0xFFFF, "Dawicontrol Computersysteme GmbH(0x5678)"},
 }; /* pci_vid_5678[] */
 
-pci_id_t pci_vid_5700[] = {
+static pci_id_t const pci_vid_5700[] = {
 {0x5700, 0xFFFF, 0xFFFF, 0xFFFF, "Netpower(0x5700)"},
 }; /* pci_vid_5700[] */
 
-pci_id_t pci_vid_5845[] = {
+static pci_id_t const pci_vid_5845[] = {
 {0x5845, 0xFFFF, 0xFFFF, 0xFFFF, "X-ES, Inc.(0x5845)"},
 }; /* pci_vid_5845[] */
 
-pci_id_t pci_vid_584D[] = {
+static pci_id_t const pci_vid_584D[] = {
 {0x584D, 0xFFFF, 0xFFFF, 0xFFFF, "AuzenTech Co., Ltd.(0x584D)"},
 }; /* pci_vid_584D[] */
 
-pci_id_t pci_vid_5851[] = {
+static pci_id_t const pci_vid_5851[] = {
 {0x5851, 0xFFFF, 0xFFFF, 0xFFFF, "Exacq Technologies(0x5851)"},
 {0x5851, 0x8008, 0xFFFF, 0xFFFF, "tDVR8008 8-port video capture card(0x8008)"},
 {0x5851, 0x8016, 0xFFFF, 0xFFFF, "tDVR8016 16-chan video capture card(0x8016)"},
 {0x5851, 0x8032, 0xFFFF, 0xFFFF, "tDVR8032 32-chan video capture card(0x8032)"},
 }; /* pci_vid_5851[] */
 
-pci_id_t pci_vid_5853[] = {
+static pci_id_t const pci_vid_5853[] = {
 {0x5853, 0xFFFF, 0xFFFF, 0xFFFF, "XenSource, Inc.(0x5853)"},
 {0x5853, 0x0001, 0xFFFF, 0xFFFF, "Xen Platform Device(0x0001)"},
 {0x5853, 0xC000, 0xFFFF, 0xFFFF, "Citrix XenServer PCI Device for Windows Update(0xC000)"},
@@ -33429,51 +33713,51 @@ pci_id_t pci_vid_5853[] = {
 {0x5853, 0xC200, 0xFFFF, 0xFFFF, "XCP-ng Project PCI Device for Windows Update(0xC200)"},
 }; /* pci_vid_5853[] */
 
-pci_id_t pci_vid_5854[] = {
+static pci_id_t const pci_vid_5854[] = {
 {0x5854, 0xFFFF, 0xFFFF, 0xFFFF, "GoTView(0x5854)"},
 }; /* pci_vid_5854[] */
 
-pci_id_t pci_vid_5ACE[] = {
+static pci_id_t const pci_vid_5ACE[] = {
 {0x5ACE, 0xFFFF, 0xFFFF, 0xFFFF, "Beholder International Ltd.(0x5ACE)"},
 }; /* pci_vid_5ACE[] */
 
-pci_id_t pci_vid_6205[] = {
+static pci_id_t const pci_vid_6205[] = {
 {0x6205, 0xFFFF, 0xFFFF, 0xFFFF, "TBS Technologies (wrong ID)(0x6205)"},
 }; /* pci_vid_6205[] */
 
-pci_id_t pci_vid_6209[] = {
+static pci_id_t const pci_vid_6209[] = {
 {0x6209, 0xFFFF, 0xFFFF, 0xFFFF, "TBS Technologies (wrong ID)(0x6209)"},
 }; /* pci_vid_6209[] */
 
-pci_id_t pci_vid_631C[] = {
+static pci_id_t const pci_vid_631C[] = {
 {0x631C, 0xFFFF, 0xFFFF, 0xFFFF, "SmartInfra Ltd(0x631C)"},
 {0x631C, 0x1652, 0xFFFF, 0xFFFF, "PXI-1652 Signal Generator(0x1652)"},
 {0x631C, 0x2504, 0xFFFF, 0xFFFF, "PXI-2504 Signal Interrogator(0x2504)"},
 }; /* pci_vid_631C[] */
 
-pci_id_t pci_vid_6356[] = {
+static pci_id_t const pci_vid_6356[] = {
 {0x6356, 0xFFFF, 0xFFFF, 0xFFFF, "UltraStor(0x6356)"},
 }; /* pci_vid_6356[] */
 
-pci_id_t pci_vid_6374[] = {
+static pci_id_t const pci_vid_6374[] = {
 {0x6374, 0xFFFF, 0xFFFF, 0xFFFF, "c't Magazin fuer Computertechnik(0x6374)"},
 {0x6374, 0x6773, 0xFFFF, 0xFFFF, "GPPCI(0x6773)"},
 }; /* pci_vid_6374[] */
 
-pci_id_t pci_vid_6409[] = {
+static pci_id_t const pci_vid_6409[] = {
 {0x6409, 0xFFFF, 0xFFFF, 0xFFFF, "Logitec Corp.(0x6409)"},
 }; /* pci_vid_6409[] */
 
-pci_id_t pci_vid_6549[] = {
+static pci_id_t const pci_vid_6549[] = {
 {0x6549, 0xFFFF, 0xFFFF, 0xFFFF, "Teradici Corp.(0x6549)"},
 {0x6549, 0x1200, 0xFFFF, 0xFFFF, "TERA1200 PC-over-IP Host(0x1200)"},
 }; /* pci_vid_6549[] */
 
-pci_id_t pci_vid_6590[] = {
+static pci_id_t const pci_vid_6590[] = {
 {0x6590, 0xFFFF, 0xFFFF, 0xFFFF, "TBS Technologies (wrong ID)(0x6590)"},
 }; /* pci_vid_6590[] */
 
-pci_id_t pci_vid_6666[] = {
+static pci_id_t const pci_vid_6666[] = {
 {0x6666, 0xFFFF, 0xFFFF, 0xFFFF, "Decision Computer International Co.(0x6666)"},
 {0x6666, 0x0001, 0xFFFF, 0xFFFF, "PCCOM4(0x0001)"},
 {0x6666, 0x0002, 0xFFFF, 0xFFFF, "PCCOM8(0x0002)"},
@@ -33488,7 +33772,7 @@ pci_id_t pci_vid_6666[] = {
 {0x6666, 0x4000, 0xFFFF, 0xFFFF, "WatchDog Card(0x4000)"},
 }; /* pci_vid_6666[] */
 
-pci_id_t pci_vid_6688[] = {
+static pci_id_t const pci_vid_6688[] = {
 {0x6688, 0xFFFF, 0xFFFF, 0xFFFF, "Zycoo Co., Ltd(0x6688)"},
 {0x6688, 0x1200, 0xFFFF, 0xFFFF, "CooVox TDM Analog Module(0x1200)"},
 {0x6688, 0x1400, 0xFFFF, 0xFFFF, "CooVOX TDM GSM Module(0x1400)"},
@@ -33496,11 +33780,11 @@ pci_id_t pci_vid_6688[] = {
 {0x6688, 0x1800, 0xFFFF, 0xFFFF, "CooVOX TDM BRI Module(0x1800)"},
 }; /* pci_vid_6688[] */
 
-pci_id_t pci_vid_6704[] = {
+static pci_id_t const pci_vid_6704[] = {
 {0x6704, 0xFFFF, 0xFFFF, 0xFFFF, "TBS Technologies (wrong ID)(0x6704)"},
 }; /* pci_vid_6704[] */
 
-pci_id_t pci_vid_6766[] = {
+static pci_id_t const pci_vid_6766[] = {
 {0x6766, 0xFFFF, 0xFFFF, 0xFFFF, "Glenfly Tech Co., Ltd.(0x6766)"},
 {0x6766, 0x3D00, 0xFFFF, 0xFFFF, "Arise-GT-10C0(0x3D00)"},
 {0x6766, 0x3D02, 0xFFFF, 0xFFFF, "Arise1020(0x3D02)"},
@@ -33514,91 +33798,95 @@ pci_id_t pci_vid_6766[] = {
 {0x6766, 0x3D43, 0xFFFF, 0xFFFF, "GLF HDMI/DP Audio(0x3D43)"},
 }; /* pci_vid_6766[] */
 
-pci_id_t pci_vid_6899[] = {
+static pci_id_t const pci_vid_6899[] = {
 {0x6899, 0xFFFF, 0xFFFF, 0xFFFF, "ZT Systems(0x6899)"},
 }; /* pci_vid_6899[] */
 
-pci_id_t pci_vid_6900[] = {
+static pci_id_t const pci_vid_6900[] = {
 {0x6900, 0xFFFF, 0xFFFF, 0xFFFF, "Red Hat, Inc.(0x6900)"},
 }; /* pci_vid_6900[] */
 
-pci_id_t pci_vid_6903[] = {
+static pci_id_t const pci_vid_6903[] = {
 {0x6903, 0xFFFF, 0xFFFF, 0xFFFF, "TBS Technologies (wrong ID)(0x6903)"},
 }; /* pci_vid_6903[] */
 
-pci_id_t pci_vid_6909[] = {
+static pci_id_t const pci_vid_6909[] = {
 {0x6909, 0xFFFF, 0xFFFF, 0xFFFF, "TBS Technologies (wrong ID)(0x6909)"},
 }; /* pci_vid_6909[] */
 
-pci_id_t pci_vid_6910[] = {
+static pci_id_t const pci_vid_6910[] = {
 {0x6910, 0xFFFF, 0xFFFF, 0xFFFF, "TBS Technologies (wrong ID)(0x6910)"},
 }; /* pci_vid_6910[] */
 
-pci_id_t pci_vid_7063[] = {
+static pci_id_t const pci_vid_6F67[] = {
+{0x6F67, 0xFFFF, 0xFFFF, 0xFFFF, "NOVAIUM Technology(0x6F67)"},
+}; /* pci_vid_6F67[] */
+
+static pci_id_t const pci_vid_7063[] = {
 {0x7063, 0xFFFF, 0xFFFF, 0xFFFF, "pcHDTV(0x7063)"},
 {0x7063, 0x2000, 0xFFFF, 0xFFFF, "HD-2000(0x2000)"},
 {0x7063, 0x3000, 0xFFFF, 0xFFFF, "HD-3000(0x3000)"},
 {0x7063, 0x5500, 0xFFFF, 0xFFFF, "HD5500 HDTV(0x5500)"},
 }; /* pci_vid_7063[] */
 
-pci_id_t pci_vid_7284[] = {
+static pci_id_t const pci_vid_7284[] = {
 {0x7284, 0xFFFF, 0xFFFF, 0xFFFF, "HT OMEGA Inc.(0x7284)"},
 }; /* pci_vid_7284[] */
 
-pci_id_t pci_vid_7357[] = {
+static pci_id_t const pci_vid_7357[] = {
 {0x7357, 0xFFFF, 0xFFFF, 0xFFFF, "IOxOS Technologies SA(0x7357)"},
 {0x7357, 0x7910, 0xFFFF, 0xFFFF, "7910 [Althea](0x7910)"},
 }; /* pci_vid_7357[] */
 
-pci_id_t pci_vid_7377[] = {
+static pci_id_t const pci_vid_7377[] = {
 {0x7377, 0xFFFF, 0xFFFF, 0xFFFF, "Shenzhen Colorful Yugong Technology and Development Co.(0x7377)"},
 }; /* pci_vid_7377[] */
 
-pci_id_t pci_vid_7401[] = {
+static pci_id_t const pci_vid_7401[] = {
 {0x7401, 0xFFFF, 0xFFFF, 0xFFFF, "EndRun Technologies(0x7401)"},
 {0x7401, 0xE100, 0xFFFF, 0xFFFF, "PTP3100 PCIe PTP Slave Clock(0xE100)"},
 }; /* pci_vid_7401[] */
 
-pci_id_t pci_vid_7470[] = {
+static pci_id_t const pci_vid_7470[] = {
 {0x7470, 0xFFFF, 0xFFFF, 0xFFFF, "TP-LINK Technologies Co., Ltd.(0x7470)"},
 }; /* pci_vid_7470[] */
 
-pci_id_t pci_vid_7526[] = {
+static pci_id_t const pci_vid_7526[] = {
 {0x7526, 0xFFFF, 0xFFFF, 0xFFFF, "HongQin (Beijing) Technology Co., Ltd.(0x7526)"},
-{0x7526, 0x0082, 0xFFFF, 0xFFFF, "HQ SSD 1TB(0x0082)"},
+{0x7526, 0x0082, 0xFFFF, 0xFFFF, "HQ SSD M.2(0x0082)"},
 {0x7526, 0x0083, 0xFFFF, 0xFFFF, "HQ SSD 2TB M.2 NVMe(0x0083)"},
 }; /* pci_vid_7526[] */
 
-pci_id_t pci_vid_7604[] = {
+static pci_id_t const pci_vid_7604[] = {
 {0x7604, 0xFFFF, 0xFFFF, 0xFFFF, "O.N. Electronic Co Ltd.(0x7604)"},
 }; /* pci_vid_7604[] */
 
-pci_id_t pci_vid_78C0[] = {
+static pci_id_t const pci_vid_78C0[] = {
 {0x78C0, 0xFFFF, 0xFFFF, 0xFFFF, "Herrick Technology Laboratories, Inc. [HTL](0x78C0)"},
 {0x78C0, 0x0000, 0xFFFF, 0xFFFF, "HTLv-1 / HTLv-2 / HTLv-13 / HTLv-23(0x0000)"},
 {0x78C0, 0x0011, 0xFFFF, 0xFFFF, "HTLv-53(0x0011)"},
 }; /* pci_vid_78C0[] */
 
-pci_id_t pci_vid_7BDE[] = {
+static pci_id_t const pci_vid_7BDE[] = {
 {0x7BDE, 0xFFFF, 0xFFFF, 0xFFFF, "MIDAC Corporation(0x7BDE)"},
 }; /* pci_vid_7BDE[] */
 
-pci_id_t pci_vid_7FED[] = {
+static pci_id_t const pci_vid_7FED[] = {
 {0x7FED, 0xFFFF, 0xFFFF, 0xFFFF, "PowerTV(0x7FED)"},
 }; /* pci_vid_7FED[] */
 
-pci_id_t pci_vid_8008[] = {
+static pci_id_t const pci_vid_8008[] = {
 {0x8008, 0xFFFF, 0xFFFF, 0xFFFF, "Quancom Electronic GmbH(0x8008)"},
 {0x8008, 0x0010, 0xFFFF, 0xFFFF, "WDOG1 [PCI-Watchdog 1](0x0010)"},
 {0x8008, 0x0011, 0xFFFF, 0xFFFF, "PWDOG2 [PCI-Watchdog 2](0x0011)"},
 {0x8008, 0x0015, 0xFFFF, 0xFFFF, "Clock77/PCI & Clock77/PCIe (DCF-77 receiver)(0x0015)"},
 }; /* pci_vid_8008[] */
 
-pci_id_t pci_vid_807D[] = {
+static pci_id_t const pci_vid_807D[] = {
 {0x807D, 0xFFFF, 0xFFFF, 0xFFFF, "Asustek Computer, Inc.(0x807D)"},
 }; /* pci_vid_807D[] */
 
-pci_id_t pci_vid_8086[] = {
+static pci_id_t const pci_vid_8086[] = {
 {0x8086, 0xFFFF, 0xFFFF, 0xFFFF, "Intel Corporation(0x8086)"},
 {0x8086, 0x0007, 0xFFFF, 0xFFFF, "82379AB(0x0007)"},
 {0x8086, 0x0008, 0xFFFF, 0xFFFF, "Extended Express System Support Controller(0x0008)"},
@@ -33682,6 +33970,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x0100, 0xFFFF, 0xFFFF, "2nd Generation Core Processor Family DRAM Controller(0x0100)"},
 {0x8086, 0x0100, 0x1028, 0x04AA, "XPS 8300(0x1028-0x04AA)"},
 {0x8086, 0x0100, 0x1043, 0x844D, "P8P67/P8H67 Series Motherboard(0x1043-0x844D)"},
+{0x8086, 0x0100, 0x1734, 0x11B9, "Esprimo P510 D3171 motherboard(0x1734-0x11B9)"},
 {0x8086, 0x0100, 0x8086, 0x200D, "DH61CR motherboard(0x8086-0x200D)"},
 {0x8086, 0x0101, 0xFFFF, 0xFFFF, "Xeon E3-1200/2nd Generation Core Processor Family PCI Express Root Port(0x0101)"},
 {0x8086, 0x0101, 0x1028, 0x04B2, "Vostro 3350(0x1028-0x04B2)"},
@@ -33690,6 +33979,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x0102, 0xFFFF, 0xFFFF, "2nd Generation Core Processor Family Integrated Graphics Controller(0x0102)"},
 {0x8086, 0x0102, 0x1028, 0x04AA, "XPS 8300(0x1028-0x04AA)"},
 {0x8086, 0x0102, 0x1043, 0x0102, "P8H67 Series Motherboard(0x1043-0x0102)"},
+{0x8086, 0x0102, 0x1734, 0x11B9, "G640 [Sandy Bridge, HD Graphics] on Esprimo P510 D3171 motherboard(0x1734-0x11B9)"},
 {0x8086, 0x0104, 0xFFFF, 0xFFFF, "2nd Generation Core Processor Family DRAM Controller(0x0104)"},
 {0x8086, 0x0104, 0x1028, 0x04A3, "Precision M4600(0x1028-0x04A3)"},
 {0x8086, 0x0104, 0x1028, 0x04B2, "Vostro 3350(0x1028-0x04B2)"},
@@ -33774,6 +34064,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x02B1, 0xFFFF, 0xFFFF, "Comet Lake PCI Express Root Port #10(0x02B1)"},
 {0x8086, 0x02B3, 0xFFFF, 0xFFFF, "Comet Lake PCI Express Root Port #12(0x02B3)"},
 {0x8086, 0x02B4, 0xFFFF, 0xFFFF, "Comet Lake PCI Express Root Port #13(0x02B4)"},
+{0x8086, 0x02B5, 0xFFFF, 0xFFFF, "Comet Lake PCI Express Root Port #14(0x02B5)"},
 {0x8086, 0x02B8, 0xFFFF, 0xFFFF, "Comet Lake PCI Express Root Port #1(0x02B8)"},
 {0x8086, 0x02BC, 0xFFFF, 0xFFFF, "Comet Lake PCI Express Root Port #5(0x02BC)"},
 {0x8086, 0x02BF, 0xFFFF, 0xFFFF, "Comet Lake PCI Express Root Port #8(0x02BF)"},
@@ -33796,10 +34087,13 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x02EF, 0xFFFF, 0xFFFF, "Comet Lake PCH-LP Shared SRAM(0x02EF)"},
 {0x8086, 0x02EF, 0x1028, 0x09BE, "Latitude 7410(0x1028-0x09BE)"},
 {0x8086, 0x02F0, 0xFFFF, 0xFFFF, "Comet Lake PCH-LP CNVi WiFi(0x02F0)"},
-{0x8086, 0x02F0, 0x8086, 0x0034, "Wireless-AC 9560 160MHz(0x8086-0x0034)"},
-{0x8086, 0x02F0, 0x8086, 0x0070, "Wi-Fi 6 AX201 160MHz(0x8086-0x0070)"},
-{0x8086, 0x02F0, 0x8086, 0x0074, "Wi-Fi 6 AX201 160MHz(0x8086-0x0074)"},
-{0x8086, 0x02F0, 0x8086, 0x4070, "Wi-Fi 6 AX201 160MHz(0x8086-0x4070)"},
+{0x8086, 0x02F0, 0x8086, 0x0034, "Dual Band Wi-Fi 5(802.11ac) Wireless-AC 9560 160MHz 2x2 [Jefferson Peak](0x8086-0x0034)"},
+{0x8086, 0x02F0, 0x8086, 0x0070, "Dual Band Wi-Fi 6(802.11ax) AX201 160MHz 2x2 [Harrison Peak](0x8086-0x0070)"},
+{0x8086, 0x02F0, 0x8086, 0x0074, "Dual Band Wi-Fi 6(802.11ax) AX201 160MHz 2x2 [Harrison Peak](0x8086-0x0074)"},
+{0x8086, 0x02F0, 0x8086, 0x0234, "Dual Band Wi-Fi 5(802.11ac) Wireless-AC 9560 80MHz 2x2 [Jefferson Peak](0x8086-0x0234)"},
+{0x8086, 0x02F0, 0x8086, 0x0264, "Dual Band Wi-Fi 5(802.11ac) Wireless-AC 9461 80MHz 1x1 [Jefferson Peak](0x8086-0x0264)"},
+{0x8086, 0x02F0, 0x8086, 0x02A4, "Dual Band Wi-Fi 5(802.11ac) Wireless-AC 9462 80MHz 1x1 [Jefferson Peak](0x8086-0x02A4)"},
+{0x8086, 0x02F0, 0x8086, 0x4070, "Dual Band Wi-Fi 6(802.11ax) AX201 160MHz 2x2 [Harrison Peak](0x8086-0x4070)"},
 {0x8086, 0x02F5, 0xFFFF, 0xFFFF, "Comet Lake PCH-LP SCS3(0x02F5)"},
 {0x8086, 0x02F9, 0xFFFF, 0xFFFF, "Comet Lake Thermal Subsytem(0x02F9)"},
 {0x8086, 0x02F9, 0x1028, 0x09BE, "Latitude 7410(0x1028-0x09BE)"},
@@ -33912,10 +34206,12 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x06ED, 0xFFFF, 0xFFFF, "Comet Lake USB 3.1 xHCI Host Controller(0x06ED)"},
 {0x8086, 0x06EF, 0xFFFF, 0xFFFF, "Comet Lake PCH Shared SRAM(0x06EF)"},
 {0x8086, 0x06F0, 0xFFFF, 0xFFFF, "Comet Lake PCH CNVi WiFi(0x06F0)"},
-{0x8086, 0x06F0, 0x1A56, 0x1651, "Wi-Fi 6 AX1650s 160MHz (201D2W) [Killer](0x1A56-0x1651)"},
-{0x8086, 0x06F0, 0x8086, 0x0034, "Wireless-AC 9560(0x8086-0x0034)"},
-{0x8086, 0x06F0, 0x8086, 0x0074, "Wi-Fi 6 AX201 160MHz(0x8086-0x0074)"},
-{0x8086, 0x06F0, 0x8086, 0x02A4, "Wireless-AC 9462(0x8086-0x02A4)"},
+{0x8086, 0x06F0, 0x1A56, 0x1651, "Dual Band Wi-Fi 6(802.11ax) Killer AX1650s 160MHz 2x2 [Cyclone Peak](0x1A56-0x1651)"},
+{0x8086, 0x06F0, 0x1A56, 0x1652, "Dual Band Wi-Fi 6(802.11ax) Killer AX1650i 160MHz 2x2 [Cyclone Peak](0x1A56-0x1652)"},
+{0x8086, 0x06F0, 0x8086, 0x0034, "Dual Band Wi-Fi 5(802.11ac) Wireless-AC 9560 160MHz 2x2 [Jefferson Peak](0x8086-0x0034)"},
+{0x8086, 0x06F0, 0x8086, 0x0074, "Dual Band Wi-Fi 6(802.11ax) AX201 160MHz 2x2 [Harrison Peak](0x8086-0x0074)"},
+{0x8086, 0x06F0, 0x8086, 0x02A4, "Dual Band Wi-Fi 5(802.11ac) Wireless-AC 9462 80MHz 1x1 [Jefferson Peak](0x8086-0x02A4)"},
+{0x8086, 0x06F0, 0x8086, 0x42A4, "Dual Band Wi-Fi 5(802.11ac) Wireless-AC 9462 80MHz 1x1 [Jefferson Peak](0x8086-0x42A4)"},
 {0x8086, 0x06F9, 0xFFFF, 0xFFFF, "Comet Lake PCH Thermal Controller(0x06F9)"},
 {0x8086, 0x06FB, 0xFFFF, 0xFFFF, "Comet Lake PCH Serial IO SPI Controller #2(0x06FB)"},
 {0x8086, 0x0700, 0xFFFF, 0xFFFF, "CE Media Processor A/V Bridge(0x0700)"},
@@ -35110,6 +35406,10 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x10FB, 0x1BD4, 0x002F, "10G SFP+ DP EP102Fi4A Adapter(0x1BD4-0x002F)"},
 {0x8086, 0x10FB, 0x1BD4, 0x0032, "10G SFP+ DP EP102Fi4 Adapter(0x1BD4-0x0032)"},
 {0x8086, 0x10FB, 0x1BD4, 0x0067, "F102I82599(0x1BD4-0x0067)"},
+{0x8086, 0x10FB, 0x4C52, 0x3002, "LRES3002PF Dual-port 10Gb Ethernet Server Adapter for OCP(0x4C52-0x3002)"},
+{0x8086, 0x10FB, 0x4C52, 0x3012, "LRES3012PF Dual-port 10Gb Ethernet Server Adapter for OCP(0x4C52-0x3012)"},
+{0x8086, 0x10FB, 0x4C52, 0x9801, "LREC9801BF Single-port 10Gb Ethernet Server Adapter(0x4C52-0x9801)"},
+{0x8086, 0x10FB, 0x4C52, 0x9802, "LREC9802BF Dual-port 10Gb Ethernet Server Adapter(0x4C52-0x9802)"},
 {0x8086, 0x10FB, 0x8086, 0x0002, "Ethernet Server Adapter X520-DA2(0x8086-0x0002)"},
 {0x8086, 0x10FB, 0x8086, 0x0003, "Ethernet Server Adapter X520-2(0x8086-0x0003)"},
 {0x8086, 0x10FB, 0x8086, 0x0006, "Ethernet Server Adapter X520-1(0x8086-0x0006)"},
@@ -35359,10 +35659,16 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x125B, 0xFFFF, 0xFFFF, "Ethernet Controller I226-LM(0x125B)"},
 {0x8086, 0x125C, 0xFFFF, 0xFFFF, "Ethernet Controller I226-V(0x125C)"},
 {0x8086, 0x125D, 0xFFFF, 0xFFFF, "Ethernet Controller I226-IT(0x125D)"},
+{0x8086, 0x12D1, 0xFFFF, 0xFFFF, "Ethernet Controller E830-CC for backplane(0x12D1)"},
+{0x8086, 0x12D2, 0xFFFF, 0xFFFF, "Ethernet Controller E830-CC for QSFP(0x12D2)"},
+{0x8086, 0x12D3, 0xFFFF, 0xFFFF, "Ethernet Controller E830-CC for SFP(0x12D3)"},
+{0x8086, 0x12D4, 0xFFFF, 0xFFFF, "Ethernet Controller E830-CC for SFP-DD(0x12D4)"},
 {0x8086, 0x1360, 0xFFFF, 0xFFFF, "82806AA PCI64 Hub PCI Bridge(0x1360)"},
 {0x8086, 0x1361, 0xFFFF, 0xFFFF, "82806AA PCI64 Hub Controller (HRes)(0x1361)"},
 {0x8086, 0x1361, 0x8086, 0x1361, "82806AA PCI64 Hub Controller (HRes)(0x8086-0x1361)"},
 {0x8086, 0x1361, 0x8086, 0x8000, "82806AA PCI64 Hub Controller (HRes)(0x8086-0x8000)"},
+{0x8086, 0x1452, 0xFFFF, 0xFFFF, "Infrastructure Data Path Function(0x1452)"},
+{0x8086, 0x145C, 0xFFFF, 0xFFFF, "Infrastructure Data Path Function(0x145C)"},
 {0x8086, 0x1460, 0xFFFF, 0xFFFF, "82870P2 P64H2 Hub PCI Bridge(0x1460)"},
 {0x8086, 0x1461, 0xFFFF, 0xFFFF, "82870P2 P64H2 I/OxAPIC(0x1461)"},
 {0x8086, 0x1461, 0x15D9, 0x3480, "P4DP6(0x15D9-0x3480)"},
@@ -35452,6 +35758,12 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x1521, 0x1BD4, 0x0066, "F014I350(0x1BD4-0x0066)"},
 {0x8086, 0x1521, 0x1BD4, 0x008A, "F012I350(0x1BD4-0x008A)"},
 {0x8086, 0x1521, 0x1BD4, 0x008D, "ENFI1100-T4(0x1BD4-0x008D)"},
+{0x8086, 0x1521, 0x4C52, 0x0350, "I350 1Gb 2-port Ethernet Network Adapter(0x4C52-0x0350)"},
+{0x8086, 0x1521, 0x4C52, 0x1350, "LREC9222HT Dual-port 1Gb Ethernet Network Adapter(0x4C52-0x1350)"},
+{0x8086, 0x1521, 0x4C52, 0x3010, "LRES3010PF Dual-port 1Gb Ethernet Server Adapter for OCP(0x4C52-0x3010)"},
+{0x8086, 0x1521, 0x4C52, 0x3023, "LRES3023PT Quad-port 1Gb Ethernet Server Adapter for OCP(0x4C52-0x3023)"},
+{0x8086, 0x1521, 0x4C52, 0x3041, "LRES3041PT Dual-port 1Gb Ethernet Server Adapter for OCP(0x4C52-0x3041)"},
+{0x8086, 0x1521, 0x4C52, 0x4006, "LRES4006MT Quad-port 1Gb Ethernet Netwaork Adapter(0x4C52-0x4006)"},
 {0x8086, 0x1521, 0x8086, 0x0001, "Ethernet Server Adapter I350-T4(0x8086-0x0001)"},
 {0x8086, 0x1521, 0x8086, 0x0002, "Ethernet Server Adapter I350-T2(0x8086-0x0002)"},
 {0x8086, 0x1521, 0x8086, 0x0003, "Ethernet Network Adapter I350-T4 for OCP NIC 3.0(0x8086-0x0003)"},
@@ -35530,6 +35842,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x1533, 0x17AA, 0x1509, "I210 Gigabit Network Connection(0x17AA-0x1509)"},
 {0x8086, 0x1533, 0x17AA, 0x404D, "I210 PCIe 1Gb 1-Port RJ45 LOM(0x17AA-0x404D)"},
 {0x8086, 0x1533, 0x17AA, 0x407A, "I210 PCIe 1Gb 1-Port RJ45 LOM(0x17AA-0x407A)"},
+{0x8086, 0x1533, 0x4C52, 0x1210, "LREC9204CT Single-port 1Gb Ethernet Network Adapter(0x4C52-0x1210)"},
 {0x8086, 0x1533, 0x8086, 0x0001, "Ethernet Server Adapter I210-T1(0x8086-0x0001)"},
 {0x8086, 0x1533, 0x8086, 0x0002, "Ethernet Server Adapter I210-T1(0x8086-0x0002)"},
 {0x8086, 0x1536, 0xFFFF, 0xFFFF, "I210 Gigabit Fiber Network Connection(0x1536)"},
@@ -35636,12 +35949,15 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x1572, 0x1BD4, 0x0065, "F102IX710(0x1BD4-0x0065)"},
 {0x8086, 0x1572, 0x1BD4, 0x0074, "Ethernet Network Adapter X710-BM2 for lldp(0x1BD4-0x0074)"},
 {0x8086, 0x1572, 0x1BD4, 0x008B, "F102IX710(0x1BD4-0x008B)"},
+{0x8086, 0x1572, 0x4C52, 0x3003, "LRES3003PF Quad-port 10Gb Ethernet Server Adapter for OCP(0x4C52-0x3003)"},
+{0x8086, 0x1572, 0x4C52, 0x3007, "LRES3007PF Quad-port 10Gb Ethernet Server Adapter for OCP(0x4C52-0x3007)"},
+{0x8086, 0x1572, 0x4C52, 0x3039, "LRES3039PF Dual-port 10Gb Ethernet Server Adapter for OCP(0x4C52-0x3039)"},
 {0x8086, 0x1572, 0x8086, 0x0000, "Ethernet Converged Network Adapter X710(0x8086-0x0000)"},
 {0x8086, 0x1572, 0x8086, 0x0001, "Ethernet Converged Network Adapter X710-4(0x8086-0x0001)"},
 {0x8086, 0x1572, 0x8086, 0x0002, "Ethernet Converged Network Adapter X710-4(0x8086-0x0002)"},
 {0x8086, 0x1572, 0x8086, 0x0004, "Ethernet Converged Network Adapter X710-4(0x8086-0x0004)"},
-{0x8086, 0x1572, 0x8086, 0x0005, "Ethernet 10G 4P X710 Adapter(0x8086-0x0005)"},
-{0x8086, 0x1572, 0x8086, 0x0006, "Ethernet 10G 2P X710 Adapter(0x8086-0x0006)"},
+{0x8086, 0x1572, 0x8086, 0x0005, "Ethernet Converged Network Adapter X710(0x8086-0x0005)"},
+{0x8086, 0x1572, 0x8086, 0x0006, "Ethernet Converged Network Adapter X710(0x8086-0x0006)"},
 {0x8086, 0x1572, 0x8086, 0x0007, "Ethernet Converged Network Adapter X710-2(0x8086-0x0007)"},
 {0x8086, 0x1572, 0x8086, 0x0008, "Ethernet Converged Network Adapter X710-2(0x8086-0x0008)"},
 {0x8086, 0x1572, 0x8086, 0x0009, "Ethernet Controller X710 for 10GbE SFP+(0x8086-0x0009)"},
@@ -35690,6 +36006,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x1583, 0x108E, 0x7B1D, "10Gb/40Gb Ethernet Adapter(0x108E-0x7B1D)"},
 {0x8086, 0x1583, 0x1137, 0x0000, "Ethernet Converged NIC XL710-QDA2(0x1137-0x0000)"},
 {0x8086, 0x1583, 0x1137, 0x013C, "Ethernet Converged NIC XL710-QDA2(0x1137-0x013C)"},
+{0x8086, 0x1583, 0x4C52, 0x3042, "LRES3042PF Dual-port 40Gb Ethernet Server Adapter for OCP(0x4C52-0x3042)"},
 {0x8086, 0x1583, 0x8086, 0x0000, "Ethernet Converged Network Adapter XL710-Q2(0x8086-0x0000)"},
 {0x8086, 0x1583, 0x8086, 0x0001, "Ethernet Converged Network Adapter XL710-Q2(0x8086-0x0001)"},
 {0x8086, 0x1583, 0x8086, 0x0002, "Ethernet Converged Network Adapter XL710-Q2(0x8086-0x0002)"},
@@ -35742,6 +36059,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x158B, 0x1374, 0x023B, "Quad Port 25 Gigabit Ethernet PCI Express Server Adapter (PE31625G4I71LEU)(0x1374-0x023B)"},
 {0x8086, 0x158B, 0x1590, 0x0000, "Ethernet Network Adapter XXV710-2(0x1590-0x0000)"},
 {0x8086, 0x158B, 0x1590, 0x0253, "Ethernet 10/25/Gb 2-port 661SFP28 Adapter(0x1590-0x0253)"},
+{0x8086, 0x158B, 0x4C52, 0x3017, "LRES3017PF Dual-port 25Gb Ethernet Server Adapter for OCP(0x4C52-0x3017)"},
 {0x8086, 0x158B, 0x8086, 0x0000, "Ethernet Network Adapter XXV710(0x8086-0x0000)"},
 {0x8086, 0x158B, 0x8086, 0x0001, "Ethernet Network Adapter XXV710-2(0x8086-0x0001)"},
 {0x8086, 0x158B, 0x8086, 0x0002, "Ethernet Network Adapter XXV710-2(0x8086-0x0002)"},
@@ -35761,6 +36079,8 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x1592, 0xFFFF, 0xFFFF, "Ethernet Controller E810-C for QSFP(0x1592)"},
 {0x8086, 0x1592, 0x1137, 0x02BF, "E810CQDA2 2x100 GbE QSFP28 PCIe NIC(0x1137-0x02BF)"},
 {0x8086, 0x1592, 0x193D, 0x1050, "NIC-ETH1060F-LP-2P 2x100GbE Ethernet PCIe Card(0x193D-0x1050)"},
+{0x8086, 0x1592, 0x4C52, 0x1014, "LRES1014PF Dual-port 100Gb Ethernet Server Adapter(0x4C52-0x1014)"},
+{0x8086, 0x1592, 0x4C52, 0x3026, "LRES3026PF Dual-port 100Gb Ethernet Server Adapter for OCP(0x4C52-0x3026)"},
 {0x8086, 0x1592, 0x8086, 0x0001, "Ethernet Network Adapter E810-C-Q1(0x8086-0x0001)"},
 {0x8086, 0x1592, 0x8086, 0x0002, "Ethernet Network Adapter E810-C-Q2(0x8086-0x0002)"},
 {0x8086, 0x1592, 0x8086, 0x0004, "Ethernet Network Adapter E810-C-Q2(0x8086-0x0004)"},
@@ -35782,6 +36102,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x1593, 0x1137, 0x02C3, "E810XXVDA4 4x25/10 GbE SFP28 PCIe NIC(0x1137-0x02C3)"},
 {0x8086, 0x1593, 0x1137, 0x02E9, "E810XXVDA4TG 4x25/10 GbE SFP28 PCIe NIC(0x1137-0x02E9)"},
 {0x8086, 0x1593, 0x1137, 0x02EA, "E810XXVDA4T 4x25/10 GbE SFP28 PCIe NIC(0x1137-0x02EA)"},
+{0x8086, 0x1593, 0x4C52, 0x3027, "LRES3027PF Quad-port 25Gb Ethernet Server Adapter for OCP(0x4C52-0x3027)"},
 {0x8086, 0x1593, 0x8086, 0x0002, "Ethernet Network Adapter E810-L-2(0x8086-0x0002)"},
 {0x8086, 0x1593, 0x8086, 0x0005, "Ethernet Network Adapter E810-XXV-4(0x8086-0x0005)"},
 {0x8086, 0x1593, 0x8086, 0x0006, "Ethernet Network Adapter E810-XXV-4(0x8086-0x0006)"},
@@ -35796,6 +36117,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x1593, 0x8086, 0x0010, "Ethernet 25G 4P E810-XXV-st Adapter(0x8086-0x0010)"},
 {0x8086, 0x1593, 0x8086, 0x4010, "Ethernet Network Adapter E810-XXV-4(0x8086-0x4010)"},
 {0x8086, 0x1593, 0x8086, 0x4013, "Ethernet Network Adapter E810-XXV-4 for OCP 3.0(0x8086-0x4013)"},
+{0x8086, 0x1593, 0x8086, 0x401C, "Ethernet Network Adapter E810-XXV-4 for OCP 3.0(0x8086-0x401C)"},
 {0x8086, 0x1599, 0xFFFF, 0xFFFF, "Ethernet Controller E810-XXV for backplane(0x1599)"},
 {0x8086, 0x1599, 0x8086, 0x0001, "Ethernet 25G 2P E810-XXV-k Mezz(0x8086-0x0001)"},
 {0x8086, 0x159A, 0xFFFF, 0xFFFF, "Ethernet Controller E810-XXV for QSFP(0x159A)"},
@@ -35808,6 +36130,8 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x159B, 0x1BD4, 0x0083, "Ethernet Network Adapter E810-XXVAM2 for lldp(0x1BD4-0x0083)"},
 {0x8086, 0x159B, 0x1BD4, 0x00A0, "S252IE810(0x1BD4-0x00A0)"},
 {0x8086, 0x159B, 0x1EEC, 0x0102, "VSE-225-41E Dual-port 10Gb/25Gb Etherent PCIe(0x1EEC-0x0102)"},
+{0x8086, 0x159B, 0x4C52, 0x0003, "LRES1021PF Dual-port 25Gb Ethernet Server Adapter(0x4C52-0x0003)"},
+{0x8086, 0x159B, 0x4C52, 0x3029, "LRES3029PF Dual-port 25Gb Ethernet Server Adapter for OCP(0x4C52-0x3029)"},
 {0x8086, 0x159B, 0x8086, 0x0001, "Ethernet 25G 2P E810-XXV OCP(0x8086-0x0001)"},
 {0x8086, 0x159B, 0x8086, 0x0002, "Ethernet 25G 2P E810-XXV Adapter(0x8086-0x0002)"},
 {0x8086, 0x159B, 0x8086, 0x0003, "Ethernet Network Adapter E810-XXV-2(0x8086-0x0003)"},
@@ -35915,6 +36239,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x15FF, 0x1137, 0x02D9, "Ethernet Network Adapter X710-T2L OCP 3.0(0x1137-0x02D9)"},
 {0x8086, 0x15FF, 0x1137, 0x02DA, "Ethernet Network Adapter X710-T4L OCP 3.0(0x1137-0x02DA)"},
 {0x8086, 0x15FF, 0x193D, 0x1082, "NIC-ETH565T-3S-2P(0x193D-0x1082)"},
+{0x8086, 0x15FF, 0x4C52, 0x3021, "LRES3021PT Dual-port 10Gb Ethernet Server Adapter for OCP(0x4C52-0x3021)"},
 {0x8086, 0x15FF, 0x8086, 0x0000, "Ethernet Network Adapter X710-TL(0x8086-0x0000)"},
 {0x8086, 0x15FF, 0x8086, 0x0001, "Ethernet Network Adapter X710-T4L(0x8086-0x0001)"},
 {0x8086, 0x15FF, 0x8086, 0x0002, "Ethernet Network Adapter X710-T4L(0x8086-0x0002)"},
@@ -36391,10 +36716,12 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x1D74, 0xFFFF, 0xFFFF, "C608/C606/X79 series chipset PCI Express Upstream Port(0x1D74)"},
 {0x8086, 0x1D76, 0xFFFF, 0xFFFF, "C600/X79 series chipset Multi-Function Glue(0x1D76)"},
 {0x8086, 0x1E00, 0xFFFF, 0xFFFF, "7 Series/C210 Series Chipset Family 4-port SATA Controller [IDE mode](0x1E00)"},
+{0x8086, 0x1E00, 0x1734, 0x11D6, "B75 [Ivy Bridge] chipset on Esprimo P510 D3171 motherboard(0x1734-0x11D6)"},
 {0x8086, 0x1E01, 0xFFFF, 0xFFFF, "7 Series Chipset Family 4-port SATA Controller [IDE mode](0x1E01)"},
 {0x8086, 0x1E01, 0x144D, 0xC652, "NP300E5C series laptop(0x144D-0xC652)"},
 {0x8086, 0x1E02, 0xFFFF, 0xFFFF, "7 Series/C210 Series Chipset Family 6-port SATA Controller [AHCI mode](0x1E02)"},
 {0x8086, 0x1E02, 0x1043, 0x84CA, "P8 series motherboard(0x1043-0x84CA)"},
+{0x8086, 0x1E02, 0x1734, 0x11D6, "B75 [Ivy Bridge] chipset on Esprimo P510 D3171 motherboard(0x1734-0x11D6)"},
 {0x8086, 0x1E02, 0x1849, 0x1E02, "Motherboard(0x1849-0x1E02)"},
 {0x8086, 0x1E03, 0xFFFF, 0xFFFF, "7 Series Chipset Family 6-port SATA Controller [AHCI mode](0x1E03)"},
 {0x8086, 0x1E03, 0x1043, 0x108D, "VivoBook X202EV(0x1043-0x108D)"},
@@ -36417,6 +36744,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x1E10, 0x1043, 0x84CA, "P8H77-I Motherboard(0x1043-0x84CA)"},
 {0x8086, 0x1E10, 0x10CF, 0x16E9, "LIFEBOOK E752(0x10CF-0x16E9)"},
 {0x8086, 0x1E10, 0x144D, 0xC652, "NP300E5C series laptop(0x144D-0xC652)"},
+{0x8086, 0x1E10, 0x1734, 0x11D6, "B75 [Ivy Bridge] chipset on Esprimo P510 D3171 motherboard(0x1734-0x11D6)"},
 {0x8086, 0x1E10, 0x1849, 0x1E10, "Motherboard(0x1849-0x1E10)"},
 {0x8086, 0x1E12, 0xFFFF, 0xFFFF, "7 Series/C210 Series Chipset Family PCI Express Root Port 2(0x1E12)"},
 {0x8086, 0x1E12, 0x1043, 0x108D, "VivoBook X202EV(0x1043-0x108D)"},
@@ -36433,6 +36761,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x1E18, 0x1043, 0x84CA, "P8H77-I Motherboard(0x1043-0x84CA)"},
 {0x8086, 0x1E18, 0x1849, 0x1E18, "Motherboard(0x1849-0x1E18)"},
 {0x8086, 0x1E1A, 0xFFFF, 0xFFFF, "7 Series/C210 Series Chipset Family PCI Express Root Port 6(0x1E1A)"},
+{0x8086, 0x1E1A, 0x1734, 0x11D6, "B75 [Ivy Bridge] chipset on Esprimo P510 D3171 motherboard(0x1734-0x11D6)"},
 {0x8086, 0x1E1A, 0x1849, 0x1E1A, "Motherboard(0x1849-0x1E1A)"},
 {0x8086, 0x1E1C, 0xFFFF, 0xFFFF, "7 Series/C210 Series Chipset Family PCI Express Root Port 7(0x1E1C)"},
 {0x8086, 0x1E1E, 0xFFFF, 0xFFFF, "7 Series/C210 Series Chipset Family PCI Express Root Port 8(0x1E1E)"},
@@ -36447,6 +36776,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x1E20, 0x1043, 0x8445, "P8Z77-V LX Motherboard(0x1043-0x8445)"},
 {0x8086, 0x1E20, 0x10CF, 0x1757, "LIFEBOOK E752(0x10CF-0x1757)"},
 {0x8086, 0x1E20, 0x144D, 0xC652, "NP300E5C series laptop(0x144D-0xC652)"},
+{0x8086, 0x1E20, 0x1734, 0x11D8, "B75 [Ivy Bridge] chipset CX20642 audio controller on Esprimo P510 D3171 motherboard(0x1734-0x11D8)"},
 {0x8086, 0x1E20, 0x1849, 0x1898, "Z77 Extreme4 motherboard(0x1849-0x1898)"},
 {0x8086, 0x1E22, 0xFFFF, 0xFFFF, "7 Series/C216 Chipset Family SMBus Controller(0x1E22)"},
 {0x8086, 0x1E22, 0x1043, 0x108D, "VivoBook X202EV(0x1043-0x108D)"},
@@ -36455,6 +36785,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x1E22, 0x1043, 0x84CA, "P8 series motherboard(0x1043-0x84CA)"},
 {0x8086, 0x1E22, 0x10CF, 0x16E6, "LIFEBOOK E752(0x10CF-0x16E6)"},
 {0x8086, 0x1E22, 0x144D, 0xC652, "NP300E5C series laptop(0x144D-0xC652)"},
+{0x8086, 0x1E22, 0x1734, 0x11D6, "B75 [Ivy Bridge] chipset on Esprimo P510 D3171 motherboard(0x1734-0x11D6)"},
 {0x8086, 0x1E22, 0x1849, 0x1E22, "Motherboard(0x1849-0x1E22)"},
 {0x8086, 0x1E24, 0xFFFF, 0xFFFF, "7 Series/C210 Series Chipset Family Thermal Management Controller(0x1E24)"},
 {0x8086, 0x1E24, 0x1043, 0x1517, "Zenbook Prime UX31A(0x1043-0x1517)"},
@@ -36466,6 +36797,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x1E26, 0x1043, 0x84CA, "P8 series motherboard(0x1043-0x84CA)"},
 {0x8086, 0x1E26, 0x10CF, 0x16E8, "LIFEBOOK E752(0x10CF-0x16E8)"},
 {0x8086, 0x1E26, 0x144D, 0xC652, "NP300E5C series laptop(0x144D-0xC652)"},
+{0x8086, 0x1E26, 0x1734, 0x11D6, "B75 [Ivy Bridge] chipset USB 2.0 controller on Esprimo P510 D3171 motherboard(0x1734-0x11D6)"},
 {0x8086, 0x1E26, 0x1849, 0x1E26, "Motherboard(0x1849-0x1E26)"},
 {0x8086, 0x1E2D, 0xFFFF, 0xFFFF, "7 Series/C216 Chipset Family USB Enhanced Host Controller #2(0x1E2D)"},
 {0x8086, 0x1E2D, 0x1043, 0x108D, "VivoBook X202EV(0x1043-0x108D)"},
@@ -36474,6 +36806,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x1E2D, 0x1043, 0x84CA, "P8 series motherboard(0x1043-0x84CA)"},
 {0x8086, 0x1E2D, 0x10CF, 0x16E8, "LIFEBOOK E752(0x10CF-0x16E8)"},
 {0x8086, 0x1E2D, 0x144D, 0xC652, "NP300E5C series laptop(0x144D-0xC652)"},
+{0x8086, 0x1E2D, 0x1734, 0x11D6, "B75 [Ivy Bridge] chipset USB 2.0 controller on Esprimo P510 D3171 motherboard(0x1734-0x11D6)"},
 {0x8086, 0x1E2D, 0x1849, 0x1E2D, "Motherboard(0x1849-0x1E2D)"},
 {0x8086, 0x1E31, 0xFFFF, 0xFFFF, "7 Series/C210 Series Chipset Family USB xHCI Host Controller(0x1E31)"},
 {0x8086, 0x1E31, 0x103C, 0x179B, "Elitebook 8470p(0x103C-0x179B)"},
@@ -36483,6 +36816,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x1E31, 0x1043, 0x1517, "Zenbook Prime UX31A(0x1043-0x1517)"},
 {0x8086, 0x1E31, 0x1043, 0x84CA, "P8 series motherboard(0x1043-0x84CA)"},
 {0x8086, 0x1E31, 0x10CF, 0x16EE, "LIFEBOOK E752(0x10CF-0x16EE)"},
+{0x8086, 0x1E31, 0x1734, 0x11D6, "B75 [Ivy Bridge] chipset USB 3.0 controller on Esprimo P510 D3171 motherboard(0x1734-0x11D6)"},
 {0x8086, 0x1E31, 0x17AA, 0x21F3, "ThinkPad T430(0x17AA-0x21F3)"},
 {0x8086, 0x1E31, 0x1849, 0x1E31, "Motherboard(0x1849-0x1E31)"},
 {0x8086, 0x1E33, 0xFFFF, 0xFFFF, "7 Series/C210 Series Chipset Family LAN Controller(0x1E33)"},
@@ -36493,6 +36827,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x1E3A, 0x1043, 0x84CA, "P8 series motherboard(0x1043-0x84CA)"},
 {0x8086, 0x1E3A, 0x10CF, 0x16EA, "LIFEBOOK E752(0x10CF-0x16EA)"},
 {0x8086, 0x1E3A, 0x144D, 0xC652, "NP300E5C series laptop(0x144D-0xC652)"},
+{0x8086, 0x1E3A, 0x1734, 0x11D6, "B75 [Ivy Bridge] chipset on Esprimo P510 D3171 motherboard(0x1734-0x11D6)"},
 {0x8086, 0x1E3A, 0x1849, 0x1E3A, "Motherboard(0x1849-0x1E3A)"},
 {0x8086, 0x1E3B, 0xFFFF, 0xFFFF, "7 Series/C210 Series Chipset Family MEI Controller #2(0x1E3B)"},
 {0x8086, 0x1E3C, 0xFFFF, 0xFFFF, "7 Series/C210 Series Chipset Family IDE-r Controller(0x1E3C)"},
@@ -36508,6 +36843,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x1E47, 0xFFFF, 0xFFFF, "Q77 Express Chipset LPC Controller(0x1E47)"},
 {0x8086, 0x1E48, 0xFFFF, 0xFFFF, "Q75 Express Chipset LPC Controller(0x1E48)"},
 {0x8086, 0x1E49, 0xFFFF, 0xFFFF, "B75 Express Chipset LPC Controller(0x1E49)"},
+{0x8086, 0x1E49, 0x1734, 0x11D6, "Esprimo P510 D3171 motherboard(0x1734-0x11D6)"},
 {0x8086, 0x1E4A, 0xFFFF, 0xFFFF, "H77 Express Chipset LPC Controller(0x1E4A)"},
 {0x8086, 0x1E4A, 0x1043, 0x84CA, "P8H77-I Motherboard(0x1043-0x84CA)"},
 {0x8086, 0x1E4B, 0xFFFF, 0xFFFF, "7 Series Chipset Family LPC Controller(0x1E4B)"},
@@ -36900,6 +37236,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x244E, 0x103C, 0x2A6F, "Asus IPIBL-LB Motherboard(0x103C-0x2A6F)"},
 {0x8086, 0x244E, 0x103C, 0x31FE, "ProLiant DL140 G3(0x103C-0x31FE)"},
 {0x8086, 0x244E, 0x103C, 0x330B, "ProLiant ML150 G6 Server(0x103C-0x330B)"},
+{0x8086, 0x244E, 0x1043, 0x81EC, "P5B Motherboard(0x1043-0x81EC)"},
 {0x8086, 0x244E, 0x1043, 0x8277, "P5K PRO Motherboard(0x1043-0x8277)"},
 {0x8086, 0x244E, 0x1043, 0x844D, "P8 series motherboard(0x1043-0x844D)"},
 {0x8086, 0x244E, 0x1043, 0x8534, "ASUS B85-PLUS(0x1043-0x8534)"},
@@ -36908,6 +37245,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x244E, 0x1462, 0x7418, "Wind PC MS-7418(0x1462-0x7418)"},
 {0x8086, 0x244E, 0x15D9, 0x060D, "C7SIM-Q Motherboard(0x15D9-0x060D)"},
 {0x8086, 0x244E, 0x15D9, 0x9680, "X7DBN Motherboard(0x15D9-0x9680)"},
+{0x8086, 0x244E, 0x1734, 0x11D6, "B75 [Ivy Bridge] chipset on Esprimo P510 D3171 motherboard(0x1734-0x11D6)"},
 {0x8086, 0x244E, 0x1775, 0x11CC, "CC11/CL11(0x1775-0x11CC)"},
 {0x8086, 0x244E, 0x8086, 0x7270, "Server Board S1200BTS(0x8086-0x7270)"},
 {0x8086, 0x2450, 0xFFFF, 0xFFFF, "82801E ISA Bridge (LPC)(0x2450)"},
@@ -37419,7 +37757,18 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x2522, 0x8086, 0x3806, "Optane Memory 16GB(0x8086-0x3806)"},
 {0x8086, 0x2522, 0x8086, 0x3810, "Optane Memory M10 16GB(0x8086-0x3810)"},
 {0x8086, 0x2525, 0xFFFF, 0xFFFF, "Optane NVME SSD P1600X Series(0x2525)"},
-{0x8086, 0x2526, 0xFFFF, 0xFFFF, "Wireless-AC 9260(0x2526)"},
+{0x8086, 0x2526, 0xFFFF, 0xFFFF, "Wi-Fi 5(802.11ac) Wireless-AC 9x6x [Thunder Peak](0x2526)"},
+{0x8086, 0x2526, 0x8086, 0x0014, "Dual Band Wi-Fi 5 Wireless-AC 9260 160MHz 2x2(0x8086-0x0014)"},
+{0x8086, 0x2526, 0x8086, 0x0210, "Dual Band Wi-Fi 5 Wireless-AC 9260 80MHz 2x2(0x8086-0x0210)"},
+{0x8086, 0x2526, 0x8086, 0x0214, "Dual Band Wi-Fi 5 Wireless-AC 9260 80MHz 2x2(0x8086-0x0214)"},
+{0x8086, 0x2526, 0x8086, 0x0230, "Dual Band Wi-Fi 5 Wireless-AC 9560 80MHz 2x2(0x8086-0x0230)"},
+{0x8086, 0x2526, 0x8086, 0x0234, "Dual Band Wi-Fi 5 Wireless-AC 9560 80MHz 2x2(0x8086-0x0234)"},
+{0x8086, 0x2526, 0x8086, 0x0238, "Dual Band Wi-Fi 5 Wireless-AC 9560 80MHz 2x2(0x8086-0x0238)"},
+{0x8086, 0x2526, 0x8086, 0x023C, "Dual Band Wi-Fi 5 Wireless-AC 9560 80MHz 2x2(0x8086-0x023C)"},
+{0x8086, 0x2526, 0x8086, 0x0260, "Dual Band Wi-Fi 5 Wireless-AC 9461 80MHz 1x1(0x8086-0x0260)"},
+{0x8086, 0x2526, 0x8086, 0x0264, "Dual Band Wi-Fi 5 Wireless-AC 9461 80MHz 1x1(0x8086-0x0264)"},
+{0x8086, 0x2526, 0x8086, 0x02A0, "Dual Band Wi-Fi 5 Wireless-AC 9462 80MHz 1x1(0x8086-0x02A0)"},
+{0x8086, 0x2526, 0x8086, 0x02A4, "Dual Band Wi-Fi 5 Wireless-AC 9462 80MHz 1x1(0x8086-0x02A4)"},
 {0x8086, 0x2530, 0xFFFF, 0xFFFF, "82850 850 (Tehama) Chipset Host Bridge (MCH)(0x2530)"},
 {0x8086, 0x2530, 0x1028, 0x00C7, "Dimension 8100(0x1028-0x00C7)"},
 {0x8086, 0x2530, 0x147B, 0x0507, "TH7II-RAID(0x147B-0x0507)"},
@@ -37928,11 +38277,11 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x2723, 0xFFFF, 0xFFFF, "Wi-Fi 6 AX200(0x2723)"},
 {0x8086, 0x2723, 0x1A56, 0x1654, "Killer Wi-Fi 6 AX1650x (AX200NGW)(0x1A56-0x1654)"},
 {0x8086, 0x2723, 0x8086, 0x0084, "Wi-Fi 6 AX200NGW(0x8086-0x0084)"},
-{0x8086, 0x2725, 0xFFFF, 0xFFFF, "Wi-Fi 6 AX210/AX211/AX411 160MHz(0x2725)"},
+{0x8086, 0x2725, 0xFFFF, 0xFFFF, "Wi-Fi 6E(802.11ax) AX210/AX1675* 2x2 [Typhoon Peak](0x2725)"},
+{0x8086, 0x2725, 0x1A56, 0x1673, "Killer AX1675w 160MHz(0x1A56-0x1673)"},
+{0x8086, 0x2725, 0x1A56, 0x1674, "Killer Wi-Fi 6E AX1675x 160MHz(0x1A56-0x1674)"},
 {0x8086, 0x2725, 0x8086, 0x0020, "Wi-Fi 6 AX210 160MHz(0x8086-0x0020)"},
 {0x8086, 0x2725, 0x8086, 0x0024, "Wi-Fi 6 AX210 160MHz(0x8086-0x0024)"},
-{0x8086, 0x2725, 0x8086, 0x0090, "Wi-Fi 6 AX211 160MHz(0x8086-0x0090)"},
-{0x8086, 0x2725, 0x8086, 0x00B0, "Wi-Fi 6 AX411 160MHz(0x8086-0x00B0)"},
 {0x8086, 0x2725, 0x8086, 0x0310, "Wi-Fi 6 AX210 160MHz(0x8086-0x0310)"},
 {0x8086, 0x2725, 0x8086, 0x0510, "Wi-Fi 6 AX210 160MHz(0x8086-0x0510)"},
 {0x8086, 0x2725, 0x8086, 0x0A10, "Wi-Fi 6 AX210 160MHz(0x8086-0x0A10)"},
@@ -37942,6 +38291,13 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x2725, 0x8086, 0x6024, "Wi-Fi 6 AX210 160MHz(0x8086-0x6024)"},
 {0x8086, 0x2725, 0x8086, 0xE020, "Wi-Fi 6 AX210 160MHz(0x8086-0xE020)"},
 {0x8086, 0x2725, 0x8086, 0xE024, "Wi-Fi 6 AX210 160MHz(0x8086-0xE024)"},
+{0x8086, 0x272B, 0xFFFF, 0xFFFF, "Wi-Fi 7(802.11be) AX1775*/AX1790*/BE20*/BE401/BE1750* 2x2(0x272B)"},
+{0x8086, 0x272B, 0x8086, 0x00F0, "BE200 320MHz [Gale Peak](0x8086-0x00F0)"},
+{0x8086, 0x272B, 0x8086, 0x00F4, "BE200 320MHz [Gale Peak](0x8086-0x00F4)"},
+{0x8086, 0x272B, 0x8086, 0x02F4, "BE202 160MHz [Misty Peak](0x8086-0x02F4)"},
+{0x8086, 0x272B, 0x8086, 0x40F0, "BE200 320MHz [Gale Peak](0x8086-0x40F0)"},
+{0x8086, 0x272B, 0x8086, 0x42F4, "BE202 160MHz [Misty Peak](0x8086-0x42F4)"},
+{0x8086, 0x272B, 0x8086, 0xE0F4, "BE200 320MHz [Gale Peak](0x8086-0xE0F4)"},
 {0x8086, 0x2770, 0xFFFF, 0xFFFF, "82945G/GZ/P/PL Memory Controller Hub(0x2770)"},
 {0x8086, 0x2770, 0x1028, 0x01AD, "OptiPlex GX620(0x1028-0x01AD)"},
 {0x8086, 0x2770, 0x103C, 0x2A3B, "Pavilion A1512X(0x103C-0x2A3B)"},
@@ -38347,20 +38703,20 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x2822, 0x103C, 0x2A6F, "Asus IPIBL-LB Motherboard(0x103C-0x2A6F)"},
 {0x8086, 0x2822, 0x1043, 0x8277, "P5K PRO Motherboard: 82801IR [ICH9R](0x1043-0x8277)"},
 {0x8086, 0x2822, 0x1462, 0x7345, "MS-7345 Motherboard: Intel 82801I/IR [ICH9/ICH9R](0x1462-0x7345)"},
-{0x8086, 0x2823, 0xFFFF, 0xFFFF, "C610/X99 series chipset sSATA Controller [RAID mode](0x2823)"},
+{0x8086, 0x2823, 0xFFFF, 0xFFFF, "sSATA Controller [RAID Mode](0x2823)"},
 {0x8086, 0x2824, 0xFFFF, 0xFFFF, "82801HB (ICH8) 4 port SATA Controller [AHCI mode](0x2824)"},
 {0x8086, 0x2824, 0x1043, 0x81EC, "P5B(0x1043-0x81EC)"},
 {0x8086, 0x2825, 0xFFFF, 0xFFFF, "82801HR/HO/HH (ICH8R/DO/DH) 2 port SATA Controller [IDE mode](0x2825)"},
 {0x8086, 0x2825, 0x1028, 0x01DA, "OptiPlex 745(0x1028-0x01DA)"},
 {0x8086, 0x2825, 0x1462, 0x7235, "P965 Neo MS-7235 mainboard(0x1462-0x7235)"},
-{0x8086, 0x2826, 0xFFFF, 0xFFFF, "C600/X79 series chipset SATA RAID Controller(0x2826)"},
+{0x8086, 0x2826, 0xFFFF, 0xFFFF, "SATA Controller [RAID Mode](0x2826)"},
 {0x8086, 0x2826, 0x1D49, 0x0100, "Intel RSTe SATA Software RAID(0x1D49-0x0100)"},
 {0x8086, 0x2826, 0x1D49, 0x0101, "Intel RSTe SATA Software RAID(0x1D49-0x0101)"},
 {0x8086, 0x2826, 0x1D49, 0x0102, "Intel RSTe SATA Software RAID(0x1D49-0x0102)"},
 {0x8086, 0x2826, 0x1D49, 0x0103, "Intel RSTe SATA Software RAID(0x1D49-0x0103)"},
 {0x8086, 0x2826, 0x1D49, 0x0104, "Intel RSTe SATA Software RAID(0x1D49-0x0104)"},
 {0x8086, 0x2826, 0x1D49, 0x0105, "Intel RSTe SATA Software RAID(0x1D49-0x0105)"},
-{0x8086, 0x2827, 0xFFFF, 0xFFFF, "C610/X99 series chipset sSATA Controller [RAID mode](0x2827)"},
+{0x8086, 0x2827, 0xFFFF, 0xFFFF, "sSATA Controller [RAID Mode](0x2827)"},
 {0x8086, 0x2828, 0xFFFF, 0xFFFF, "82801HM/HEM (ICH8M/ICH8M-E) SATA Controller [IDE mode](0x2828)"},
 {0x8086, 0x2828, 0x1028, 0x01F3, "Inspiron 1420(0x1028-0x01F3)"},
 {0x8086, 0x2828, 0x103C, 0x30C0, "Compaq 6710b(0x103C-0x30C0)"},
@@ -38382,6 +38738,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x282A, 0xFFFF, 0xFFFF, "82801 Mobile SATA Controller [RAID mode](0x282A)"},
 {0x8086, 0x282A, 0x1028, 0x040B, "Latitude E6510(0x1028-0x040B)"},
 {0x8086, 0x282A, 0xE4BF, 0x50C1, "PC1-GROOVE(0xE4BF-0x50C1)"},
+{0x8086, 0x282F, 0xFFFF, 0xFFFF, "tSATA Controller [RAID Mode](0x282F)"},
 {0x8086, 0x2830, 0xFFFF, 0xFFFF, "82801H (ICH8 Family) USB UHCI Controller #1(0x2830)"},
 {0x8086, 0x2830, 0x1025, 0x0121, "Aspire 5920G(0x1025-0x0121)"},
 {0x8086, 0x2830, 0x1028, 0x01DA, "OptiPlex 745(0x1028-0x01DA)"},
@@ -38516,27 +38873,32 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x283F, 0x1028, 0x01DA, "OptiPlex 745(0x1028-0x01DA)"},
 {0x8086, 0x283F, 0x103C, 0x30C1, "Compaq 6910p(0x103C-0x30C1)"},
 {0x8086, 0x283F, 0x1043, 0x1017, "X58LE(0x1043-0x1017)"},
+{0x8086, 0x283F, 0x1043, 0x81EC, "P5B(0x1043-0x81EC)"},
 {0x8086, 0x283F, 0x104D, 0x902D, "VAIO VGN-NR120E(0x104D-0x902D)"},
 {0x8086, 0x283F, 0x17AA, 0x20AD, "ThinkPad T61/R61(0x17AA-0x20AD)"},
 {0x8086, 0x283F, 0x17C0, 0x4083, "Medion WIM 2210 Notebook PC [MD96850](0x17C0-0x4083)"},
 {0x8086, 0x2841, 0xFFFF, 0xFFFF, "82801H (ICH8 Family) PCI Express Port 2(0x2841)"},
 {0x8086, 0x2841, 0x103C, 0x30C1, "Compaq 6910p(0x103C-0x30C1)"},
 {0x8086, 0x2841, 0x1043, 0x1017, "X58LE(0x1043-0x1017)"},
+{0x8086, 0x2841, 0x1043, 0x81EC, "P5B(0x1043-0x81EC)"},
 {0x8086, 0x2841, 0x104D, 0x902D, "VAIO VGN-NR120E(0x104D-0x902D)"},
 {0x8086, 0x2841, 0x17AA, 0x20AD, "ThinkPad T61/R61(0x17AA-0x20AD)"},
 {0x8086, 0x2841, 0x17C0, 0x4083, "Medion WIM 2210 Notebook PC [MD96850](0x17C0-0x4083)"},
 {0x8086, 0x2843, 0xFFFF, 0xFFFF, "82801H (ICH8 Family) PCI Express Port 3(0x2843)"},
 {0x8086, 0x2843, 0x1043, 0x1017, "X58LE(0x1043-0x1017)"},
+{0x8086, 0x2843, 0x1043, 0x81EC, "P5B(0x1043-0x81EC)"},
 {0x8086, 0x2843, 0x104D, 0x902D, "VAIO VGN-NR120E(0x104D-0x902D)"},
 {0x8086, 0x2843, 0x17AA, 0x20AD, "ThinkPad T61/R61(0x17AA-0x20AD)"},
 {0x8086, 0x2843, 0x17C0, 0x4083, "Medion WIM 2210 Notebook PC [MD96850](0x17C0-0x4083)"},
 {0x8086, 0x2845, 0xFFFF, 0xFFFF, "82801H (ICH8 Family) PCI Express Port 4(0x2845)"},
 {0x8086, 0x2845, 0x1043, 0x1017, "X58LE(0x1043-0x1017)"},
+{0x8086, 0x2845, 0x1043, 0x81EC, "P5B(0x1043-0x81EC)"},
 {0x8086, 0x2845, 0x17AA, 0x20AD, "ThinkPad T61/R61(0x17AA-0x20AD)"},
 {0x8086, 0x2845, 0x17C0, 0x4083, "Medion WIM 2210 Notebook PC [MD96850](0x17C0-0x4083)"},
 {0x8086, 0x2847, 0xFFFF, 0xFFFF, "82801H (ICH8 Family) PCI Express Port 5(0x2847)"},
 {0x8086, 0x2847, 0x1028, 0x01DA, "OptiPlex 745(0x1028-0x01DA)"},
 {0x8086, 0x2847, 0x103C, 0x30C1, "Compaq 6910p(0x103C-0x30C1)"},
+{0x8086, 0x2847, 0x1043, 0x81EC, "P5B(0x1043-0x81EC)"},
 {0x8086, 0x2847, 0x17AA, 0x20AD, "ThinkPad T61/R61(0x17AA-0x20AD)"},
 {0x8086, 0x2847, 0x17C0, 0x4083, "Medion WIM 2210 Notebook PC [MD96850](0x17C0-0x4083)"},
 {0x8086, 0x2849, 0xFFFF, 0xFFFF, "82801H (ICH8 Family) PCI Express Port 6(0x2849)"},
@@ -39401,6 +39763,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x2FFC, 0xFFFF, 0xFFFF, "Xeon E7 v3/Xeon E5 v3/Core i7 System Address Decoder & Broadcast Registers(0x2FFC)"},
 {0x8086, 0x2FFD, 0xFFFF, 0xFFFF, "Xeon E7 v3/Xeon E5 v3/Core i7 System Address Decoder & Broadcast Registers(0x2FFD)"},
 {0x8086, 0x2FFE, 0xFFFF, 0xFFFF, "Xeon E7 v3/Xeon E5 v3/Core i7 System Address Decoder & Broadcast Registers(0x2FFE)"},
+{0x8086, 0x3101, 0xFFFF, 0xFFFF, "Killer E3100X 2.5 Gigabit Ethernet Controller(0x3101)"},
 {0x8086, 0x3140, 0xFFFF, 0xFFFF, "Easel/Monette Hill Image Processor [Pixel Visual Core](0x3140)"},
 {0x8086, 0x3165, 0xFFFF, 0xFFFF, "Wireless 3165(0x3165)"},
 {0x8086, 0x3165, 0x8086, 0x4010, "Dual Band Wireless AC 3165 [Stone Peak 1x1](0x8086-0x4010)"},
@@ -40402,6 +40765,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x464D, 0xFFFF, 0xFFFF, "12th Gen Core Processor PCI Express x4 Controller #0(0x464D)"},
 {0x8086, 0x464F, 0xFFFF, 0xFFFF, "12th Gen Core Processor Gaussian & Neural Accelerator(0x464F)"},
 {0x8086, 0x464F, 0x1028, 0x0B10, "Precision 3571(0x1028-0x0B10)"},
+{0x8086, 0x4650, 0xFFFF, 0xFFFF, "12th Gen Core Processor Host Bridge(0x4650)"},
 {0x8086, 0x465D, 0xFFFF, 0xFFFF, "Alder Lake Imaging Signal Processor(0x465D)"},
 {0x8086, 0x4660, 0xFFFF, 0xFFFF, "12th Gen Core Processor Host Bridge/DRAM Registers(0x4660)"},
 {0x8086, 0x4668, 0xFFFF, 0xFFFF, "12th Gen Core Processor Host Bridge/DRAM Registers(0x4668)"},
@@ -40463,21 +40827,45 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x4C8B, 0xFFFF, 0xFFFF, "RocketLake-S GT1 [UHD Graphics 730](0x4C8B)"},
 {0x8086, 0x4C90, 0xFFFF, 0xFFFF, "RocketLake-S GT1 [UHD Graphics P750](0x4C90)"},
 {0x8086, 0x4C9A, 0xFFFF, 0xFFFF, "RocketLake-S [UHD Graphics](0x4C9A)"},
+{0x8086, 0x4D87, 0xFFFF, 0xFFFF, "Jasper Lake eSPI Controller(0x4D87)"},
 {0x8086, 0x4DA3, 0xFFFF, 0xFFFF, "Jasper Lake SMBus(0x4DA3)"},
 {0x8086, 0x4DA4, 0xFFFF, 0xFFFF, "Jasper Lake SPI Controller(0x4DA4)"},
+{0x8086, 0x4DA8, 0xFFFF, 0xFFFF, "Jasper Lake Serial IO UART Controller #0(0x4DA8)"},
+{0x8086, 0x4DAB, 0xFFFF, 0xFFFF, "Jasper Lake Serial IO SPI Controller #1(0x4DAB)"},
+{0x8086, 0x4DB8, 0xFFFF, 0xFFFF, "Jasper Lake PCIe Root Port #1(0x4DB8)"},
+{0x8086, 0x4DB9, 0xFFFF, 0xFFFF, "Jasper Lake PCIe Root Port #2(0x4DB9)"},
+{0x8086, 0x4DBC, 0xFFFF, 0xFFFF, "Jasper Lake PCIe Root Port #5(0x4DBC)"},
+{0x8086, 0x4DBE, 0xFFFF, 0xFFFF, "Jasper Lake PCIe Root Port #7(0x4DBE)"},
+{0x8086, 0x4DC4, 0xFFFF, 0xFFFF, "Jasper Lake eMMC Controller(0x4DC4)"},
+{0x8086, 0x4DC5, 0xFFFF, 0xFFFF, "Jasper Lake Serial IO I2C Host Controller #4(0x4DC5)"},
+{0x8086, 0x4DC6, 0xFFFF, 0xFFFF, "Jasper Lake Serial IO I2C Host Controller #5(0x4DC6)"},
 {0x8086, 0x4DC8, 0xFFFF, 0xFFFF, "Jasper Lake HD Audio(0x4DC8)"},
+{0x8086, 0x4DD3, 0xFFFF, 0xFFFF, "Jasper Lake SATA AHCI Controller(0x4DD3)"},
 {0x8086, 0x4DE0, 0xFFFF, 0xFFFF, "Management Engine Interface(0x4DE0)"},
-{0x8086, 0x4DE8, 0xFFFF, 0xFFFF, "Serial IO I2C Host Controller(0x4DE8)"},
-{0x8086, 0x4DE9, 0xFFFF, 0xFFFF, "Serial IO I2C Host Controller(0x4DE9)"},
+{0x8086, 0x4DE8, 0xFFFF, 0xFFFF, "Jasper Lake Serial IO I2C Host Controller #0(0x4DE8)"},
+{0x8086, 0x4DE9, 0xFFFF, 0xFFFF, "Jasper Lake Serial IO I2C Host Controller #1(0x4DE9)"},
+{0x8086, 0x4DEA, 0xFFFF, 0xFFFF, "Jasper Lake Serial IO I2C Host Controller #2(0x4DEA)"},
+{0x8086, 0x4DEB, 0xFFFF, 0xFFFF, "Jasper Lake Serial IO I2C Host Controller #3(0x4DEB)"},
+{0x8086, 0x4DED, 0xFFFF, 0xFFFF, "Jasper Lake USB 3.1 xHCI Host Controller(0x4DED)"},
+{0x8086, 0x4DEF, 0xFFFF, 0xFFFF, "Jasper Lake Shared SRAM(0x4DEF)"},
 {0x8086, 0x4DF0, 0xFFFF, 0xFFFF, "Wi-Fi 6 AX201 160MHz(0x4DF0)"},
+{0x8086, 0x4DF8, 0xFFFF, 0xFFFF, "Jasper Lake SD Controller(0x4DF8)"},
 {0x8086, 0x4E03, 0xFFFF, 0xFFFF, "Dynamic Tuning service(0x4E03)"},
 {0x8086, 0x4E19, 0xFFFF, 0xFFFF, "JasperLake IPU(0x4E19)"},
 {0x8086, 0x4E55, 0xFFFF, 0xFFFF, "JasperLake [UHD Graphics](0x4E55)"},
 {0x8086, 0x4E61, 0xFFFF, 0xFFFF, "JasperLake [UHD Graphics](0x4E61)"},
 {0x8086, 0x4E71, 0xFFFF, 0xFFFF, "JasperLake [UHD Graphics](0x4E71)"},
-{0x8086, 0x4F80, 0xFFFF, 0xFFFF, "DG2(0x4F80)"},
-{0x8086, 0x4F81, 0xFFFF, 0xFFFF, "DG2(0x4F81)"},
-{0x8086, 0x4F82, 0xFFFF, 0xFFFF, "DG2(0x4F82)"},
+{0x8086, 0x4F80, 0xFFFF, 0xFFFF, "DG2 [Intel Xe Graphics](0x4F80)"},
+{0x8086, 0x4F81, 0xFFFF, 0xFFFF, "DG2 [Intel Xe Graphics](0x4F81)"},
+{0x8086, 0x4F82, 0xFFFF, 0xFFFF, "DG2 [Intel Xe Graphics](0x4F82)"},
+{0x8086, 0x4F83, 0xFFFF, 0xFFFF, "DG2 [Intel Xe Graphics](0x4F83)"},
+{0x8086, 0x4F84, 0xFFFF, 0xFFFF, "DG2 [Intel Xe Graphics](0x4F84)"},
+{0x8086, 0x4F85, 0xFFFF, 0xFFFF, "DG2 [Intel Xe Graphics](0x4F85)"},
+{0x8086, 0x4F86, 0xFFFF, 0xFFFF, "DG2 [Intel Xe Graphics](0x4F86)"},
+{0x8086, 0x4F87, 0xFFFF, 0xFFFF, "DG2 [Intel Xe Graphics](0x4F87)"},
+{0x8086, 0x4F88, 0xFFFF, 0xFFFF, "DG2 [Intel Xe Graphics](0x4F88)"},
+{0x8086, 0x4F89, 0xFFFF, 0xFFFF, "ACMP [Xe Graphics](0x4F89)"},
+{0x8086, 0x4F8C, 0xFFFF, 0xFFFF, "ACMP [Xe Graphics](0x4F8C)"},
 {0x8086, 0x4F90, 0xFFFF, 0xFFFF, "DG2 Audio Controller(0x4F90)"},
 {0x8086, 0x4F91, 0xFFFF, 0xFFFF, "DG2 Audio Controller(0x4F91)"},
 {0x8086, 0x4F92, 0xFFFF, 0xFFFF, "DG2 Audio Controller(0x4F92)"},
@@ -40533,10 +40921,13 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x5182, 0x1028, 0x0B10, "Precision 3571(0x1028-0x0B10)"},
 {0x8086, 0x5187, 0xFFFF, 0xFFFF, "Alder Lake LPC Controller(0x5187)"},
 {0x8086, 0x519D, 0xFFFF, 0xFFFF, "Raptor Lake LPC/eSPI Controller(0x519D)"},
+{0x8086, 0x519D, 0x1028, 0x0C06, "Precision 3580(0x1028-0x0C06)"},
 {0x8086, 0x51A3, 0xFFFF, 0xFFFF, "Alder Lake PCH-P SMBus Host Controller(0x51A3)"},
 {0x8086, 0x51A3, 0x1028, 0x0B10, "Precision 3571(0x1028-0x0B10)"},
+{0x8086, 0x51A3, 0x1028, 0x0C06, "Precision 3580(0x1028-0x0C06)"},
 {0x8086, 0x51A4, 0xFFFF, 0xFFFF, "Alder Lake-P PCH SPI Controller(0x51A4)"},
 {0x8086, 0x51A4, 0x1028, 0x0B10, "Precision 3571(0x1028-0x0B10)"},
+{0x8086, 0x51A4, 0x1028, 0x0C06, "Precision 3580(0x1028-0x0C06)"},
 {0x8086, 0x51A8, 0xFFFF, 0xFFFF, "Alder Lake PCH UART #0(0x51A8)"},
 {0x8086, 0x51A9, 0xFFFF, 0xFFFF, "Alder Lake PCH UART #1(0x51A9)"},
 {0x8086, 0x51AA, 0xFFFF, 0xFFFF, "Alder Lake SPI Controller(0x51AA)"},
@@ -40550,6 +40941,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x51C8, 0xFFFF, 0xFFFF, "Alder Lake PCH-P High Definition Audio Controller(0x51C8)"},
 {0x8086, 0x51C8, 0x1028, 0x0B10, "Precision 3571(0x1028-0x0B10)"},
 {0x8086, 0x51CA, 0xFFFF, 0xFFFF, "Raptor Lake-P/U/H cAVS(0x51CA)"},
+{0x8086, 0x51CA, 0x1028, 0x0C06, "Precision 3580(0x1028-0x0C06)"},
 {0x8086, 0x51CC, 0xFFFF, 0xFFFF, "Alder Lake Smart Sound Technology Audio Controller(0x51CC)"},
 {0x8086, 0x51D3, 0xFFFF, 0xFFFF, "Alder Lake-P SATA AHCI Controller(0x51D3)"},
 {0x8086, 0x51D3, 0x1028, 0x0B10, "Precision 3571(0x1028-0x0B10)"},
@@ -40557,33 +40949,57 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x51D9, 0xFFFF, 0xFFFF, "Alder Lake-P Serial IO I2C Controller #3(0x51D9)"},
 {0x8086, 0x51E0, 0xFFFF, 0xFFFF, "Alder Lake PCH HECI Controller(0x51E0)"},
 {0x8086, 0x51E0, 0x1028, 0x0B10, "Precision 3571(0x1028-0x0B10)"},
+{0x8086, 0x51E0, 0x1028, 0x0C06, "Precision 3580(0x1028-0x0C06)"},
 {0x8086, 0x51E3, 0xFFFF, 0xFFFF, "Alder Lake AMT SOL Redirection(0x51E3)"},
 {0x8086, 0x51E3, 0x1028, 0x0B10, "Precision 3571(0x1028-0x0B10)"},
 {0x8086, 0x51E8, 0xFFFF, 0xFFFF, "Alder Lake PCH Serial IO I2C Controller #0(0x51E8)"},
 {0x8086, 0x51E8, 0x1028, 0x0B10, "Precision 3571(0x1028-0x0B10)"},
+{0x8086, 0x51E8, 0x1028, 0x0C06, "Precision 3580(0x1028-0x0C06)"},
 {0x8086, 0x51E9, 0xFFFF, 0xFFFF, "Alder Lake PCH Serial IO I2C Controller #1(0x51E9)"},
 {0x8086, 0x51E9, 0x1028, 0x0B10, "Precision 3571(0x1028-0x0B10)"},
+{0x8086, 0x51E9, 0x1028, 0x0C06, "Precision 3580(0x1028-0x0C06)"},
 {0x8086, 0x51EA, 0xFFFF, 0xFFFF, "Alder Lake PCH Serial IO I2C Controller #2(0x51EA)"},
 {0x8086, 0x51EB, 0xFFFF, 0xFFFF, "Alder Lake PCH Serial IO I2C Controller #3(0x51EB)"},
 {0x8086, 0x51ED, 0xFFFF, 0xFFFF, "Alder Lake PCH USB 3.2 xHCI Host Controller(0x51ED)"},
 {0x8086, 0x51ED, 0x1028, 0x0B10, "Precision 3571(0x1028-0x0B10)"},
+{0x8086, 0x51ED, 0x1028, 0x0C06, "Precision 3580(0x1028-0x0C06)"},
 {0x8086, 0x51EF, 0xFFFF, 0xFFFF, "Alder Lake PCH Shared SRAM(0x51EF)"},
 {0x8086, 0x51EF, 0x1028, 0x0B10, "Precision 3571(0x1028-0x0B10)"},
+{0x8086, 0x51EF, 0x1028, 0x0C06, "Precision 3580(0x1028-0x0C06)"},
 {0x8086, 0x51F0, 0xFFFF, 0xFFFF, "Alder Lake-P PCH CNVi WiFi(0x51F0)"},
-{0x8086, 0x51F0, 0x8086, 0x0034, "Wireless-AC 9560 160MHz(0x8086-0x0034)"},
-{0x8086, 0x51F0, 0x8086, 0x0070, "Wi-Fi 6 AX201 160MHz(0x8086-0x0070)"},
-{0x8086, 0x51F0, 0x8086, 0x0074, "Wi-Fi 6 AX201 160MHz(0x8086-0x0074)"},
-{0x8086, 0x51F0, 0x8086, 0x0094, "Wi-Fi 6E AX211 160MHz(0x8086-0x0094)"},
-{0x8086, 0x51F0, 0x8086, 0x4070, "Wi-Fi 6 AX201 160MHz(0x8086-0x4070)"},
-{0x8086, 0x51F0, 0x8086, 0x4090, "Wi-Fi 6E AX211 160MHz(0x8086-0x4090)"},
+{0x8086, 0x51F0, 0x1A56, 0x1652, "Dual Band Wi-Fi 6(802.11ax) Killer AX1650i 160MHz 2x2 [Cyclone Peak](0x1A56-0x1652)"},
+{0x8086, 0x51F0, 0x1A56, 0x1671, "Dual Band Wi-Fi 6E(802.11ax) AX1675s 160MHz 2x2 [Garfield Peak](0x1A56-0x1671)"},
+{0x8086, 0x51F0, 0x1A56, 0x1672, "Dual Band Wi-Fi 6E(802.11ax) AX1675i 160MHz 2x2 [Garfield Peak](0x1A56-0x1672)"},
+{0x8086, 0x51F0, 0x1A56, 0x1692, "Simultaneous Dual Band(Double Connect) Wi-Fi 6E AX1690i 160MHz 2x2 [Garfield Peak](0x1A56-0x1692)"},
+{0x8086, 0x51F0, 0x8086, 0x0034, "Dual Band Wi-Fi 5(802.11ac) Wireless-AC 9560 160MHz 2x2 [Jefferson Peak](0x8086-0x0034)"},
+{0x8086, 0x51F0, 0x8086, 0x0070, "Dual Band Wi-Fi 6(802.11ax) AX201 160MHz 2x2 [Harrison Peak](0x8086-0x0070)"},
+{0x8086, 0x51F0, 0x8086, 0x0074, "Dual Band Wi-Fi 6(802.11ax) AX201 160MHz 2x2 [Harrison Peak](0x8086-0x0074)"},
+{0x8086, 0x51F0, 0x8086, 0x0094, "Dual Band Wi-Fi 6E(802.11ax) AX211 160MHz 2x2 [Garfield Peak](0x8086-0x0094)"},
+{0x8086, 0x51F0, 0x8086, 0x00B4, "Simultaneous Dual Band(Double Connect) Wi-Fi 6E AX411 160MHz 2x2 [Garfield Peak](0x8086-0x00B4)"},
+{0x8086, 0x51F0, 0x8086, 0x0234, "Dual Band Wi-Fi 5(802.11ac) Wireless-AC 9560 80MHz 2x2 [Jefferson Peak](0x8086-0x0234)"},
+{0x8086, 0x51F0, 0x8086, 0x0244, "Single Band Wi-Fi 6(802.11ax) AX101 80MHz 1x1 [Harrison Peak](0x8086-0x0244)"},
+{0x8086, 0x51F0, 0x8086, 0x0264, "Dual Band Wi-Fi 5(802.11ac) Wireless-AC 9461 80MHz 1x1 [Jefferson Peak](0x8086-0x0264)"},
+{0x8086, 0x51F0, 0x8086, 0x0274, "Dual Band Wi-Fi E(802.11ax) AX203 80MHz 2x2 [Johnson Peak](0x8086-0x0274)"},
+{0x8086, 0x51F0, 0x8086, 0x02A4, "Dual Band Wi-Fi 5(802.11ac) Wireless-AC 9462 80MHz 1x1 [Jefferson Peak](0x8086-0x02A4)"},
+{0x8086, 0x51F0, 0x8086, 0x4070, "Dual Band Wi-Fi 6(802.11ax) AX201 160MHz 2x2 [Harrison Peak](0x8086-0x4070)"},
+{0x8086, 0x51F0, 0x8086, 0x4090, "Dual Band Wi-Fi 6E(802.11ax) AX211 160MHz 2x2 [Garfield Peak](0x8086-0x4090)"},
+{0x8086, 0x51F0, 0x8086, 0x42A4, "Dual Band Wi-Fi 5(802.11ac) Wireless-AC 9462 80MHz 1x1 [Jefferson Peak](0x8086-0x42A4)"},
 {0x8086, 0x51F1, 0xFFFF, 0xFFFF, "Raptor Lake PCH CNVi WiFi(0x51F1)"},
+{0x8086, 0x51F1, 0x8086, 0x4090, "Wi-Fi 6E AX211 160MHz(0x8086-0x4090)"},
 {0x8086, 0x51FC, 0xFFFF, 0xFFFF, "Alder Lake-P Integrated Sensor Hub(0x51FC)"},
 {0x8086, 0x51FC, 0x1028, 0x0B10, "Precision 3571(0x1028-0x0B10)"},
+{0x8086, 0x51FC, 0x1028, 0x0C06, "Precision 3580(0x1028-0x0C06)"},
 {0x8086, 0x5200, 0xFFFF, 0xFFFF, "EtherExpress PRO/100 Intelligent Server PCI Bridge(0x5200)"},
 {0x8086, 0x5201, 0xFFFF, 0xFFFF, "EtherExpress PRO/100 Intelligent Server Fast Ethernet Controller(0x5201)"},
 {0x8086, 0x5201, 0x8086, 0x0001, "EtherExpress PRO/100 Server Ethernet Adapter(0x8086-0x0001)"},
 {0x8086, 0x530D, 0xFFFF, 0xFFFF, "80310 (IOP) IO Processor(0x530D)"},
+{0x8086, 0x5481, 0xFFFF, 0xFFFF, "Alder Lake-N PCH eSPI Controller(0x5481)"},
+{0x8086, 0x54C8, 0xFFFF, 0xFFFF, "Alder Lake-N PCH High Definition Audio Controller(0x54C8)"},
+{0x8086, 0x54E0, 0xFFFF, 0xFFFF, "Alder Lake-N PCH HECI Controller(0x54E0)"},
+{0x8086, 0x54ED, 0xFFFF, 0xFFFF, "Alder Lake-N PCH USB 3.2 xHCI Host Controller(0x54ED)"},
+{0x8086, 0x54EF, 0xFFFF, 0xFFFF, "Alder Lake-N PCH Shared SRAM(0x54EF)"},
 {0x8086, 0x54F0, 0xFFFF, 0xFFFF, "CNVi: Wi-Fi(0x54F0)"},
+{0x8086, 0x54F0, 0x8086, 0x0244, "Wi-Fi 6 AX101NGW(0x8086-0x0244)"},
 {0x8086, 0x5502, 0xFFFF, 0xFFFF, "Ethernet Controller (2) I225-LMvP(0x5502)"},
 {0x8086, 0x5502, 0x1AB6, 0x0225, "TS4 On-Board 2.5GbE Ethernet Adaptor(0x1AB6-0x0225)"},
 {0x8086, 0x5690, 0xFFFF, 0xFFFF, "DG2 [Arc A770M](0x5690)"},
@@ -40609,6 +41025,10 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x56B1, 0xFFFF, 0xFFFF, "DG2 [Arc Pro A40/A50](0x56B1)"},
 {0x8086, 0x56B2, 0xFFFF, 0xFFFF, "DG2 [Arc Pro A60M](0x56B2)"},
 {0x8086, 0x56B3, 0xFFFF, 0xFFFF, "DG2 [Arc Pro A60](0x56B3)"},
+{0x8086, 0x56BA, 0xFFFF, 0xFFFF, "DG2 [Intel Graphics](0x56BA)"},
+{0x8086, 0x56BB, 0xFFFF, 0xFFFF, "DG2 [Intel Graphics](0x56BB)"},
+{0x8086, 0x56BC, 0xFFFF, 0xFFFF, "DG2 [Intel Graphics](0x56BC)"},
+{0x8086, 0x56BD, 0xFFFF, 0xFFFF, "DG2 [Intel Graphics](0x56BD)"},
 {0x8086, 0x56C0, 0xFFFF, 0xFFFF, "ATS-M [Data Center GPU Flex 170](0x56C0)"},
 {0x8086, 0x56C1, 0xFFFF, 0xFFFF, "ATS-M [Data Center GPU Flex 140](0x56C1)"},
 {0x8086, 0x5780, 0xFFFF, 0xFFFF, "Thunderbolt 80/120G Bridge [Barlow Ridge Host 80G 2023](0x5780)"},
@@ -40701,6 +41121,10 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x5AE8, 0xFFFF, 0xFFFF, "Celeron N3350/Pentium N4200/Atom E3900 Series Low Pin Count Interface(0x5AE8)"},
 {0x8086, 0x5AEE, 0xFFFF, 0xFFFF, "Celeron N3350/Pentium N4200/Atom E3900 Series HSUART Controller #4(0x5AEE)"},
 {0x8086, 0x5AF0, 0xFFFF, 0xFFFF, "Celeron N3350/Pentium N4200/Atom E3900 Series Host Bridge(0x5AF0)"},
+{0x8086, 0x6420, 0xFFFF, 0xFFFF, "Lunar Lake [Intel Graphics](0x6420)"},
+{0x8086, 0x643E, 0xFFFF, 0xFFFF, "Lunar Lake NPU(0x643E)"},
+{0x8086, 0x64A0, 0xFFFF, 0xFFFF, "Lunar Lake [Intel Graphics](0x64A0)"},
+{0x8086, 0x64B0, 0xFFFF, 0xFFFF, "Lunar Lake [Intel Graphics](0x64B0)"},
 {0x8086, 0x65C0, 0xFFFF, 0xFFFF, "5100 Chipset Memory Controller Hub(0x65C0)"},
 {0x8086, 0x65E2, 0xFFFF, 0xFFFF, "5100 Chipset PCI Express x4 Port 2(0x65E2)"},
 {0x8086, 0x65E3, 0xFFFF, 0xFFFF, "5100 Chipset PCI Express x4 Port 3(0x65E3)"},
@@ -40990,7 +41414,28 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x7800, 0x10B4, 0x202F, "Lightspeed 740(0x10B4-0x202F)"},
 {0x8086, 0x7800, 0x8086, 0x0000, "Terminator 2x/i(0x8086-0x0000)"},
 {0x8086, 0x7800, 0x8086, 0x0100, "Intel740 Graphics Accelerator(0x8086-0x0100)"},
+{0x8086, 0x7A04, 0xFFFF, 0xFFFF, "Raptor Lake LPC/eSPI Controller(0x7A04)"},
+{0x8086, 0x7A23, 0xFFFF, 0xFFFF, "Raptor Lake-S PCH SMBus Controller(0x7A23)"},
+{0x8086, 0x7A24, 0xFFFF, 0xFFFF, "Raptor Lake SPI (flash) Controller(0x7A24)"},
+{0x8086, 0x7A27, 0xFFFF, 0xFFFF, "Raptor Lake-S PCH Shared SRAM(0x7A27)"},
+{0x8086, 0x7A30, 0xFFFF, 0xFFFF, "Raptor Lake PCI Express Root Port #9(0x7A30)"},
+{0x8086, 0x7A38, 0xFFFF, 0xFFFF, "Raptor Lake PCI Express Root Port #1(0x7A38)"},
+{0x8086, 0x7A3B, 0xFFFF, 0xFFFF, "Raptor Lake PCI Express Root Port #4(0x7A3B)"},
+{0x8086, 0x7A40, 0xFFFF, 0xFFFF, "Raptor Lake PCI Express Root Port #17(0x7A40)"},
+{0x8086, 0x7A44, 0xFFFF, 0xFFFF, "Raptor Lake PCI Express Root Port #21(0x7A44)"},
+{0x8086, 0x7A48, 0xFFFF, 0xFFFF, "Raptor Lake PCI Express Root Port #25(0x7A48)"},
+{0x8086, 0x7A4C, 0xFFFF, 0xFFFF, "Raptor Lake Serial IO I2C Host Controller #0(0x7A4C)"},
+{0x8086, 0x7A4D, 0xFFFF, 0xFFFF, "Raptor Lake Serial IO I2C Host Controller #1(0x7A4D)"},
+{0x8086, 0x7A4E, 0xFFFF, 0xFFFF, "Raptor Lake Serial IO I2C Host Controller #2(0x7A4E)"},
+{0x8086, 0x7A50, 0xFFFF, 0xFFFF, "Raptor Lake High Definition Audio Controller(0x7A50)"},
+{0x8086, 0x7A60, 0xFFFF, 0xFFFF, "Raptor Lake USB 3.2 Gen 2x2 (20 Gb/s) XHCI Host Controller(0x7A60)"},
+{0x8086, 0x7A62, 0xFFFF, 0xFFFF, "Raptor Lake SATA AHCI Controller(0x7A62)"},
+{0x8086, 0x7A68, 0xFFFF, 0xFFFF, "Raptor Lake CSME HECI #1(0x7A68)"},
+{0x8086, 0x7A69, 0xFFFF, 0xFFFF, "Raptor Lake CSME HECI #2(0x7A69)"},
+{0x8086, 0x7A70, 0xFFFF, 0xFFFF, "Raptor Lake-S PCH CNVi WiFi(0x7A70)"},
+{0x8086, 0x7A70, 0x8086, 0x0090, "WiFi 6E AX211 160MHz(0x8086-0x0090)"},
 {0x8086, 0x7A84, 0xFFFF, 0xFFFF, "Z690 Chipset LPC/eSPI Controller(0x7A84)"},
+{0x8086, 0x7A85, 0xFFFF, 0xFFFF, "Alder Lake-S PCH PCI Express Root Port #?-?-?-?-?-(0x7A85)"},
 {0x8086, 0x7AA3, 0xFFFF, 0xFFFF, "Alder Lake-S PCH SMBus Controller(0x7AA3)"},
 {0x8086, 0x7AA4, 0xFFFF, 0xFFFF, "Alder Lake-S PCH SPI Controller(0x7AA4)"},
 {0x8086, 0x7AA7, 0xFFFF, 0xFFFF, "Alder Lake-S PCH Shared SRAM(0x7AA7)"},
@@ -41000,9 +41445,11 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x7AB4, 0xFFFF, 0xFFFF, "Alder Lake-S PCH PCI Express Root Port #13(0x7AB4)"},
 {0x8086, 0x7AB8, 0xFFFF, 0xFFFF, "Alder Lake-S PCH PCI Express Root Port #1(0x7AB8)"},
 {0x8086, 0x7AB9, 0xFFFF, 0xFFFF, "Alder Lake-S PCH PCI Express Root Port #2(0x7AB9)"},
+{0x8086, 0x7ABA, 0xFFFF, 0xFFFF, "Alder Lake-S PCH PCI Express Root Port #?-?-?-?-(0x7ABA)"},
 {0x8086, 0x7ABC, 0xFFFF, 0xFFFF, "Alder Lake-S PCH PCI Express Root Port #5(0x7ABC)"},
 {0x8086, 0x7ABD, 0xFFFF, 0xFFFF, "Alder Lake-S PCH PCI Express Root Port #6(0x7ABD)"},
 {0x8086, 0x7ABF, 0xFFFF, 0xFFFF, "Alder Lake-S PCH PCI Express Root Port #8(0x7ABF)"},
+{0x8086, 0x7AC4, 0xFFFF, 0xFFFF, "Alder Lake-S PCH PCI Express Root Port #?-?-?-?-(0x7AC4)"},
 {0x8086, 0x7AC8, 0xFFFF, 0xFFFF, "Alder Lake-S PCH PCI Express Root Port #25(0x7AC8)"},
 {0x8086, 0x7ACC, 0xFFFF, 0xFFFF, "Alder Lake-S PCH Serial IO I2C Controller #0(0x7ACC)"},
 {0x8086, 0x7ACD, 0xFFFF, 0xFFFF, "Alder Lake-S PCH Serial IO I2C Controller #1(0x7ACD)"},
@@ -41019,10 +41466,14 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x7AFC, 0xFFFF, 0xFFFF, "Alder Lake-S PCH Serial IO I2C Controller #4(0x7AFC)"},
 {0x8086, 0x7AFD, 0xFFFF, 0xFFFF, "Alder Lake-S PCH Serial IO I2C Controller #5(0x7AFD)"},
 {0x8086, 0x7D0B, 0xFFFF, 0xFFFF, "Volume Management Device NVMe RAID Controller Intel Corporation(0x7D0B)"},
+{0x8086, 0x7D1D, 0xFFFF, 0xFFFF, "Meteor Lake NPU(0x7D1D)"},
 {0x8086, 0x7D40, 0xFFFF, 0xFFFF, "Meteor Lake-M [Intel Graphics](0x7D40)"},
 {0x8086, 0x7D45, 0xFFFF, 0xFFFF, "Meteor Lake-P [Intel Graphics](0x7D45)"},
+{0x8086, 0x7D51, 0xFFFF, 0xFFFF, "Arrow Lake-P [Intel Graphics](0x7D51)"},
 {0x8086, 0x7D55, 0xFFFF, 0xFFFF, "Meteor Lake-P [Intel Arc Graphics](0x7D55)"},
 {0x8086, 0x7D60, 0xFFFF, 0xFFFF, "Meteor Lake-M [Intel Graphics](0x7D60)"},
+{0x8086, 0x7D67, 0xFFFF, 0xFFFF, "Arrow Lake [Intel Graphics](0x7D67)"},
+{0x8086, 0x7DD1, 0xFFFF, 0xFFFF, "Arrow Lake-P [Intel Graphics](0x7DD1)"},
 {0x8086, 0x7DD5, 0xFFFF, 0xFFFF, "Meteor Lake-P [Intel Graphics](0x7DD5)"},
 {0x8086, 0x7E01, 0xFFFF, 0xFFFF, "Meteor Lake-P LPC/eSPI Controller(0x7E01)"},
 {0x8086, 0x7E22, 0xFFFF, 0xFFFF, "Meteor Lake-P SMBus Controller(0x7E22)"},
@@ -41425,6 +41876,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x9B41, 0x1028, 0x09BE, "Latitude 7410(0x1028-0x09BE)"},
 {0x8086, 0x9B43, 0xFFFF, 0xFFFF, "10th Gen Core Processor Host Bridge/DRAM Registers(0x9B43)"},
 {0x8086, 0x9B44, 0xFFFF, 0xFFFF, "10th Gen Core Processor Host Bridge/DRAM Registers(0x9B44)"},
+{0x8086, 0x9B51, 0xFFFF, 0xFFFF, "10th Gen Core Processor Host Bridge/DRAM Registers(0x9B51)"},
 {0x8086, 0x9B53, 0xFFFF, 0xFFFF, "Comet Lake-S 6c Host Bridge/DRAM Controller(0x9B53)"},
 {0x8086, 0x9B54, 0xFFFF, 0xFFFF, "10th Gen Core Processor Host Bridge/DRAM Registers(0x9B54)"},
 {0x8086, 0x9B61, 0xFFFF, 0xFFFF, "Comet Lake-U v1 4c Host Bridge/DRAM Controller(0x9B61)"},
@@ -41985,6 +42437,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0xA2BA, 0xFFFF, 0xFFFF, "200 Series PCH CSME HECI #1(0xA2BA)"},
 {0x8086, 0xA2BA, 0x1462, 0x7A72, "H270 PC MATE(0x1462-0x7A72)"},
 {0x8086, 0xA2BB, 0xFFFF, 0xFFFF, "200 Series PCH CSME HECI #2(0xA2BB)"},
+{0x8086, 0xA2BD, 0xFFFF, 0xFFFF, "200 Series Chipset Family KT Redirection(0xA2BD)"},
 {0x8086, 0xA2C4, 0xFFFF, 0xFFFF, "200 Series PCH LPC Controller (H270)(0xA2C4)"},
 {0x8086, 0xA2C4, 0x1462, 0x7A72, "H270 PC MATE(0x1462-0x7A72)"},
 {0x8086, 0xA2C5, 0xFFFF, 0xFFFF, "200 Series PCH LPC Controller (Z270)(0xA2C5)"},
@@ -42085,19 +42538,26 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0xA3EB, 0xFFFF, 0xFFFF, "Comet Lake PCI Express Root Port #21(0xA3EB)"},
 {0x8086, 0xA3F0, 0xFFFF, 0xFFFF, "Comet Lake PCH-V cAVS(0xA3F0)"},
 {0x8086, 0xA620, 0xFFFF, 0xFFFF, "6400/6402 Advanced Memory Buffer (AMB)(0xA620)"},
+{0x8086, 0xA706, 0xFFFF, 0xFFFF, "Raptor Lake-P 6p+8e cores Host Bridge/DRAM Controller(0xA706)"},
+{0x8086, 0xA706, 0x1028, 0x0C06, "Precision 3580(0x1028-0x0C06)"},
 {0x8086, 0xA707, 0xFFFF, 0xFFFF, "Raptor Lake-P/U 4p+8e cores Host Bridge/DRAM Controller(0xA707)"},
 {0x8086, 0xA708, 0xFFFF, 0xFFFF, "Raptor Lake-P/U 2p+8e cores Host Bridge/DRAM Controller(0xA708)"},
 {0x8086, 0xA71D, 0xFFFF, 0xFFFF, "Raptor Lake Dynamic Platform and Thermal Framework Processor Participant(0xA71D)"},
+{0x8086, 0xA71D, 0x1028, 0x0C06, "Precision 3580(0x1028-0x0C06)"},
 {0x8086, 0xA71E, 0xFFFF, 0xFFFF, "Raptor Lake-P Thunderbolt 4 USB Controller(0xA71E)"},
+{0x8086, 0xA71E, 0x1028, 0x0C06, "Precision 3580(0x1028-0x0C06)"},
 {0x8086, 0xA720, 0xFFFF, 0xFFFF, "Raptor Lake-P [UHD Graphics](0xA720)"},
 {0x8086, 0xA721, 0xFFFF, 0xFFFF, "Raptor Lake-P [UHD Graphics](0xA721)"},
 {0x8086, 0xA72F, 0xFFFF, 0xFFFF, "Raptor Lake-P Thunderbolt 4 PCI Express Root Port #2(0xA72F)"},
 {0x8086, 0xA73E, 0xFFFF, 0xFFFF, "Raptor Lake-P Thunderbolt 4 NHI #0(0xA73E)"},
+{0x8086, 0xA73E, 0x1028, 0x0C06, "Precision 3580(0x1028-0x0C06)"},
 {0x8086, 0xA74D, 0xFFFF, 0xFFFF, "Raptor Lake PCIe 4.0 Graphics Port(0xA74D)"},
 {0x8086, 0xA74F, 0xFFFF, 0xFFFF, "GNA Scoring Accelerator module(0xA74F)"},
+{0x8086, 0xA74F, 0x1028, 0x0C06, "Precision 3580(0x1028-0x0C06)"},
 {0x8086, 0xA76D, 0xFFFF, 0xFFFF, "Raptor Lake-P Thunderbolt 4 NHI #1(0xA76D)"},
 {0x8086, 0xA76E, 0xFFFF, 0xFFFF, "Raptor Lake-P Thunderbolt 4 PCI Express Root Port #0(0xA76E)"},
 {0x8086, 0xA77D, 0xFFFF, 0xFFFF, "Raptor Lake Crashlog and Telemetry(0xA77D)"},
+{0x8086, 0xA77D, 0x1028, 0x0C06, "Precision 3580(0x1028-0x0C06)"},
 {0x8086, 0xA77F, 0xFFFF, 0xFFFF, "Volume Management Device NVMe RAID Controller Intel Corporation(0xA77F)"},
 {0x8086, 0xA780, 0xFFFF, 0xFFFF, "Raptor Lake-S GT1 [UHD Graphics 770](0xA780)"},
 {0x8086, 0xA781, 0xFFFF, 0xFFFF, "Raptor Lake-S UHD Graphics(0xA781)"},
@@ -42108,6 +42568,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0xA78A, 0xFFFF, 0xFFFF, "Raptor Lake-S UHD Graphics(0xA78A)"},
 {0x8086, 0xA78B, 0xFFFF, 0xFFFF, "Raptor Lake-S UHD Graphics(0xA78B)"},
 {0x8086, 0xA7A0, 0xFFFF, 0xFFFF, "Raptor Lake-P [Iris Xe Graphics](0xA7A0)"},
+{0x8086, 0xA7A0, 0x1028, 0x0C06, "Precision 3580(0x1028-0x0C06)"},
 {0x8086, 0xA7A1, 0xFFFF, 0xFFFF, "Raptor Lake-P [Iris Xe Graphics](0xA7A1)"},
 {0x8086, 0xA7A8, 0xFFFF, 0xFFFF, "Raptor Lake-P [UHD Graphics](0xA7A8)"},
 {0x8086, 0xA7A9, 0xFFFF, 0xFFFF, "Raptor Lake-P [UHD Graphics](0xA7A9)"},
@@ -42115,8 +42576,37 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0xA7AB, 0xFFFF, 0xFFFF, "Raptor Lake-P [Intel Graphics](0xA7AB)"},
 {0x8086, 0xA7AC, 0xFFFF, 0xFFFF, "Raptor Lake-U [Intel Graphics](0xA7AC)"},
 {0x8086, 0xA7AD, 0xFFFF, 0xFFFF, "Raptor Lake-U [Intel Graphics](0xA7AD)"},
+{0x8086, 0xA806, 0xFFFF, 0xFFFF, "Lunar Lake-M LPC/eSPI Controller(0xA806)"},
+{0x8086, 0xA822, 0xFFFF, 0xFFFF, "Lunar Lake-M SMbus Controller(0xA822)"},
+{0x8086, 0xA823, 0xFFFF, 0xFFFF, "Lunar Lake-M SPI Controller(0xA823)"},
+{0x8086, 0xA824, 0xFFFF, 0xFFFF, "Lunar Lake-M Trace Hub(0xA824)"},
+{0x8086, 0xA825, 0xFFFF, 0xFFFF, "Lunar Lake-M Serial IO UART Controller #0(0xA825)"},
+{0x8086, 0xA826, 0xFFFF, 0xFFFF, "Lunar Lake-M Serial IO UART Controller #1(0xA826)"},
+{0x8086, 0xA827, 0xFFFF, 0xFFFF, "Lunar Lake-M Serial IO SPI Controller #0(0xA827)"},
+{0x8086, 0xA828, 0xFFFF, 0xFFFF, "Lunar Lake-M HD Audio Controller(0xA828)"},
+{0x8086, 0xA830, 0xFFFF, 0xFFFF, "Lunar Lake-M Serial IO SPI Controller #1(0xA830)"},
+{0x8086, 0xA831, 0xFFFF, 0xFFFF, "Lunar Lake-M Thunderbolt 4 USB Controller(0xA831)"},
+{0x8086, 0xA833, 0xFFFF, 0xFFFF, "Lunar Lake-M Thunderbolt 4 NHI #0(0xA833)"},
+{0x8086, 0xA834, 0xFFFF, 0xFFFF, "Lunar Lake-M Thunderbolt 4 NHI #1(0xA834)"},
+{0x8086, 0xA838, 0xFFFF, 0xFFFF, "Lunar Lake-M PCI Express Root Port #1(0xA838)"},
+{0x8086, 0xA839, 0xFFFF, 0xFFFF, "Lunar Lake-M PCI Express Root Port #2(0xA839)"},
+{0x8086, 0xA83A, 0xFFFF, 0xFFFF, "Lunar Lake-M PCI Express Root Port #3(0xA83A)"},
+{0x8086, 0xA83B, 0xFFFF, 0xFFFF, "Lunar Lake-M PCI Express Root Port #4(0xA83B)"},
+{0x8086, 0xA83C, 0xFFFF, 0xFFFF, "Lunar Lake-M PCI Express Root Port #5(0xA83C)"},
+{0x8086, 0xA83D, 0xFFFF, 0xFFFF, "Lunar Lake-M PCI Express Root Port #6(0xA83D)"},
+{0x8086, 0xA845, 0xFFFF, 0xFFFF, "Lunar Lake-M Integrated Sensor Hub(0xA845)"},
+{0x8086, 0xA847, 0xFFFF, 0xFFFF, "Lunar Lake-M UFS Controller(0xA847)"},
+{0x8086, 0xA84E, 0xFFFF, 0xFFFF, "Lunar Lake-M Thunderbolt 4 PCI Express Root Port #0(0xA84E)"},
+{0x8086, 0xA84F, 0xFFFF, 0xFFFF, "Lunar Lake-M Thunderbolt 4 PCI Express Root Port #1(0xA84F)"},
+{0x8086, 0xA860, 0xFFFF, 0xFFFF, "Lunar Lake-M Thunderbolt 4 PCI Express Root Port #2(0xA860)"},
+{0x8086, 0xA878, 0xFFFF, 0xFFFF, "Lunar Lake-M Serial IO I2C Controller #0(0xA878)"},
+{0x8086, 0xA879, 0xFFFF, 0xFFFF, "Lunar Lake-M Serial IO I2C Controller #1(0xA879)"},
+{0x8086, 0xA87A, 0xFFFF, 0xFFFF, "Lunar Lake-M Serial IO I2C Controller #2(0xA87A)"},
+{0x8086, 0xA87B, 0xFFFF, 0xFFFF, "Lunar Lake-M Serial IO I2C Controller #3(0xA87B)"},
+{0x8086, 0xA87D, 0xFFFF, 0xFFFF, "Lunar Lake-M USB 3.2 Gen 2x1 xHCI Host Controller(0xA87D)"},
 {0x8086, 0xABC0, 0xFFFF, 0xFFFF, "Omni-Path Fabric Switch Silicon 100 Series(0xABC0)"},
 {0x8086, 0xAD0B, 0xFFFF, 0xFFFF, "Volume Management Device NVMe RAID Controller Intel Corporation(0xAD0B)"},
+{0x8086, 0xAD1D, 0xFFFF, 0xFFFF, "Arrow Lake NPU(0xAD1D)"},
 {0x8086, 0xB152, 0xFFFF, 0xFFFF, "21152 PCI-to-PCI Bridge(0xB152)"},
 {0x8086, 0xB152, 0x8086, 0xB152, "21152 PCI-to-PCI Bridge(0x8086-0xB152)"},
 {0x8086, 0xB154, 0xFFFF, 0xFFFF, "21154 PCI-to-PCI Bridge(0xB154)"},
@@ -42162,11 +42652,18 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0xFAF0, 0xFFFF, 0xFFFF, "SSD 665p Series [Neptune Harbor Refresh](0xFAF0)"},
 }; /* pci_vid_8086[] */
 
-pci_id_t pci_vid_8088[] = {
+static pci_id_t const pci_vid_8088[] = {
 {0x8088, 0xFFFF, 0xFFFF, 0xFFFF, "Beijing Wangxun Technology Co., Ltd.(0x8088)"},
 {0x8088, 0x0100, 0xFFFF, 0xFFFF, "WX1860AL-W Gigabit Ethernet Controller(0x0100)"},
 {0x8088, 0x0101, 0xFFFF, 0xFFFF, "WX1860A2 Gigabit Ethernet Controller(0x0101)"},
+{0x8088, 0x0101, 0x4C52, 0x2024, "LRES2024PT Dual-port 1Gb Ethernet Network Adapter(0x4C52-0x2024)"},
+{0x8088, 0x0101, 0x4C52, 0x2025, "LRES2025PT Quad-port 1Gb Ethernet Network Adapter(0x4C52-0x2025)"},
+{0x8088, 0x0101, 0x4C52, 0x2027, "LRES2027PF Dual-port 1Gb Ethernet Server Adapter(0x4C52-0x2027)"},
+{0x8088, 0x0101, 0x4C52, 0x3018, "LRES3018PT Dual-port 1Gb Ethernet Server Adapter for OCP(0x4C52-0x3018)"},
 {0x8088, 0x0101, 0x8088, 0x0201, "Dual-Port Ethernet Network Adaptor SF200T(0x8088-0x0201)"},
+{0x8088, 0x0101, 0x8088, 0x0501, "Dual-Port Ethernet Network Adapter SF200T-C101(0x8088-0x0501)"},
+{0x8088, 0x0101, 0x8088, 0x0901, "Dual-Port Ethernet Network Adapter SF200T-B401(0x8088-0x0901)"},
+{0x8088, 0x0101, 0x8088, 0x0B01, "Dual-Port Ethernet Network Adapter SF200T-B402(0x8088-0x0B01)"},
 {0x8088, 0x0101, 0x8088, 0x4201, "Dual-Port Ethernet Network Adaptor SF200T (WOL)(0x8088-0x4201)"},
 {0x8088, 0x0101, 0x8088, 0x8201, "Dual-Port Ethernet Network Adaptor SF200T (NCSI)(0x8088-0x8201)"},
 {0x8088, 0x0101, 0x8088, 0xC201, "Dual-Port Ethernet Network Adaptor SF200T (WOL, NCSI)(0x8088-0xC201)"},
@@ -42174,8 +42671,12 @@ pci_id_t pci_vid_8088[] = {
 {0x8088, 0x0102, 0x8088, 0x0210, "Dual-Port Ethernet Network Adaptor SF200T-S(0x8088-0x0210)"},
 {0x8088, 0x0103, 0xFFFF, 0xFFFF, "WX1860A4 Gigabit Ethernet Controller(0x0103)"},
 {0x8088, 0x0103, 0x1BD4, 0x009E, "ENPW2100-T4(0x1BD4-0x009E)"},
+{0x8088, 0x0103, 0x4C52, 0x2028, "LRES2028PF Quad-port 1Gb Ethernet Server Adapter(0x4C52-0x2028)"},
+{0x8088, 0x0103, 0x4C52, 0x3019, "LRES3019PT Quad-port 1Gb Ethernet Server Adapter for OCP(0x4C52-0x3019)"},
 {0x8088, 0x0103, 0x8088, 0x0401, "Qual-Port Ethernet Network Adaptor SF400T(0x8088-0x0401)"},
 {0x8088, 0x0103, 0x8088, 0x0440, "Qual-Port Ethernet Network Adaptor SF400-OCP(0x8088-0x0440)"},
+{0x8088, 0x0103, 0x8088, 0x0A01, "Quad-Port Ethernet Network Adapter SF400T-B401(0x8088-0x0A01)"},
+{0x8088, 0x0103, 0x8088, 0x0C01, "Quad-Port Ethernet Network Adapter SF400T-B402(0x8088-0x0C01)"},
 {0x8088, 0x0103, 0x8088, 0x4401, "Quad-Port Ethernet Network Adapter SF400T (WOL)(0x8088-0x4401)"},
 {0x8088, 0x0103, 0x8088, 0x8103, "Quad-Port Ethernet Network Adaptor SF400T (NCSI)(0x8088-0x8103)"},
 {0x8088, 0x0103, 0x8088, 0x8401, "Quad-Port Ethernet Network Adapter SF400T (NCSI)(0x8088-0x8401)"},
@@ -42199,6 +42700,8 @@ pci_id_t pci_vid_8088[] = {
 {0x8088, 0x0108, 0x8088, 0x0420, "Qual-Port Ethernet Network Adaptor SF400HT-S(0x8088-0x0420)"},
 {0x8088, 0x0109, 0xFFFF, 0xFFFF, "WX1860-LC Gigabit Ethernet Controller(0x0109)"},
 {0x8088, 0x010A, 0xFFFF, 0xFFFF, "WX1860A1 Gigabit Ethernet Controller(0x010A)"},
+{0x8088, 0x010A, 0x4C52, 0x2023, "LRES2034PT Single-port 1Gb Ethernet Network Adapter(0x4C52-0x2023)"},
+{0x8088, 0x010A, 0x4C52, 0x2026, "LRES2026PF Single-port 1Gb Ethernet Network Adapter(0x4C52-0x2026)"},
 {0x8088, 0x010B, 0xFFFF, 0xFFFF, "WX1860AL1 Gigabit Ethernet Controller(0x010B)"},
 {0x8088, 0x010B, 0x8088, 0x0102, "Single-Port Ethernet Network Adaptor SF100HT(0x8088-0x0102)"},
 {0x8088, 0x010B, 0x8088, 0x4102, "Single-Port Ethernet Network Adaptor SF100HT (WOL)(0x8088-0x4102)"},
@@ -42215,6 +42718,9 @@ pci_id_t pci_vid_8088[] = {
 {0x8088, 0x1001, 0xFFFF, 0xFFFF, "Ethernet Controller RP1000 for 10GbE SFP+(0x1001)"},
 {0x8088, 0x1001, 0x1BD4, 0x0084, "Ethernet Controller SP1000A for 10GbE SFP+(lldp)(0x1BD4-0x0084)"},
 {0x8088, 0x1001, 0x1BD4, 0x0085, "Ethernet Controller SP1000A for 10GBASE-T(0x1BD4-0x0085)"},
+{0x8088, 0x1001, 0x4C52, 0x1002, "LRES1002PF Dual-port 10Gb Ethernet Server Adapter(0x4C52-0x1002)"},
+{0x8088, 0x1001, 0x4C52, 0x1003, "LRES1003PF Single-port 10Gb Ethernet Server Adapter(0x4C52-0x1003)"},
+{0x8088, 0x1001, 0x4C52, 0x3001, "LRES3001PF Dual-port 10Gb Ethernet Server Adapter for OCP(0x4C52-0x3001)"},
 {0x8088, 0x1001, 0x8088, 0x0000, "Ethernet Network Adaptor RP1000 for 10GbE SFP+(0x8088-0x0000)"},
 {0x8088, 0x1001, 0x8088, 0x0300, "Ethernet Network Adaptor RP1000-A03 for 10GbE SFP+(0x8088-0x0300)"},
 {0x8088, 0x1001, 0x8088, 0x0400, "Ethernet Network Adaptor RP1000-A04 for 10GbE SFP+(0x8088-0x0400)"},
@@ -42225,90 +42731,98 @@ pci_id_t pci_vid_8088[] = {
 {0x8088, 0x2001, 0x8088, 0x2400, "Ethernet Network Adaptor RP2000-A04 for 10GbE SFP+(0x8088-0x2400)"},
 }; /* pci_vid_8088[] */
 
-pci_id_t pci_vid_80EE[] = {
+static pci_id_t const pci_vid_80EE[] = {
 {0x80EE, 0xFFFF, 0xFFFF, 0xFFFF, "InnoTek Systemberatung GmbH(0x80EE)"},
 {0x80EE, 0xBEEF, 0xFFFF, 0xFFFF, "VirtualBox Graphics Adapter(0xBEEF)"},
 {0x80EE, 0xCAFE, 0xFFFF, 0xFFFF, "VirtualBox Guest Service(0xCAFE)"},
 }; /* pci_vid_80EE[] */
 
-pci_id_t pci_vid_8322[] = {
+static pci_id_t const pci_vid_8322[] = {
 {0x8322, 0xFFFF, 0xFFFF, 0xFFFF, "Sodick America Corp.(0x8322)"},
 }; /* pci_vid_8322[] */
 
-pci_id_t pci_vid_8384[] = {
+static pci_id_t const pci_vid_8384[] = {
 {0x8384, 0xFFFF, 0xFFFF, 0xFFFF, "SigmaTel(0x8384)"},
 }; /* pci_vid_8384[] */
 
-pci_id_t pci_vid_8401[] = {
+static pci_id_t const pci_vid_8401[] = {
 {0x8401, 0xFFFF, 0xFFFF, 0xFFFF, "TRENDware International Inc.(0x8401)"},
 }; /* pci_vid_8401[] */
 
-pci_id_t pci_vid_8510[] = {
+static pci_id_t const pci_vid_8510[] = {
 {0x8510, 0xFFFF, 0xFFFF, 0xFFFF, "Sietium Semiconductor Co., Ltd.(0x8510)"},
 {0x8510, 0x0201, 0xFFFF, 0xFFFF, "GenBu02 [GB2062-PCIe-C0](0x0201)"},
 }; /* pci_vid_8510[] */
 
-pci_id_t pci_vid_8686[] = {
+static pci_id_t const pci_vid_8686[] = {
 {0x8686, 0xFFFF, 0xFFFF, 0xFFFF, "SAP(0x8686)"},
 {0x8686, 0x1010, 0xFFFF, 0xFFFF, "vSMP Foundation controller [vSMP CTL](0x1010)"},
 {0x8686, 0x1011, 0xFFFF, 0xFFFF, "vSMP Foundation MEX/FLX controller [vSMP CTL](0x1011)"},
 }; /* pci_vid_8686[] */
 
-pci_id_t pci_vid_8800[] = {
+static pci_id_t const pci_vid_8800[] = {
 {0x8800, 0xFFFF, 0xFFFF, 0xFFFF, "Trigem Computer Inc.(0x8800)"},
 {0x8800, 0x2008, 0xFFFF, 0xFFFF, "Video assistant component(0x2008)"},
 }; /* pci_vid_8800[] */
 
-pci_id_t pci_vid_8820[] = {
+static pci_id_t const pci_vid_8820[] = {
 {0x8820, 0xFFFF, 0xFFFF, 0xFFFF, "Stryker Corporation(0x8820)"},
 {0x8820, 0x2724, 0xFFFF, 0xFFFF, "Mako Front Side Motor Controller [cPCI](0x2724)"},
 }; /* pci_vid_8820[] */
 
-pci_id_t pci_vid_8848[] = {
+static pci_id_t const pci_vid_8848[] = {
 {0x8848, 0xFFFF, 0xFFFF, 0xFFFF, "MUCSE(0x8848)"},
 {0x8848, 0x1000, 0xFFFF, 0xFFFF, "Ethernet Controller N10 Series for 10GbE or 40GbE (Dual-port)(0x1000)"},
 {0x8848, 0x1000, 0x8848, 0x8410, "Ethernet Network Adapter N10G-X2-DC for 10GbE SFP+ 2-port(0x8848-0x8410)"},
 {0x8848, 0x1001, 0xFFFF, 0xFFFF, "Ethernet Controller N400 Series for 1GbE (Dual-port)(0x1001)"},
 {0x8848, 0x1003, 0xFFFF, 0xFFFF, "Ethernet Controller N400 Series for 10GbE (Single-port)(0x1003)"},
+{0x8848, 0x1003, 0x4C52, 0x1050, "LRES1050PF Single-port 10Gb Ethernet Network Adapter(0x4C52-0x1050)"},
 {0x8848, 0x1020, 0xFFFF, 0xFFFF, "Ethernet Controller N10 Series for 10GbE (Quad-port)(0x1020)"},
+{0x8848, 0x1020, 0x4C52, 0x1030, "LRES1030PF Quad-port 10Gb Ethernet Server Adapter(0x4C52-0x1030)"},
+{0x8848, 0x1020, 0x4C52, 0x1031, "LRES1031PF Dual-port 10Gb Ethernet Server Adapter(0x4C52-0x1031)"},
+{0x8848, 0x1020, 0x4C52, 0x3031, "LRES3031PF Quad-port 10Gb Ethernet Server Adapter for OCP(0x4C52-0x3031)"},
 {0x8848, 0x1020, 0x8848, 0x8451, "Ethernet Network Adapter N10G-X4-QC for 10GbE SFP+ 4-port(0x8848-0x8451)"},
 {0x8848, 0x1021, 0xFFFF, 0xFFFF, "Ethernet Controller N400 Series for 1GbE (Quad-port)(0x1021)"},
+{0x8848, 0x1021, 0x4C52, 0x1032, "LRES1032PF Quad-port 1Gb Ethernet Network Adapter(0x4C52-0x1032)"},
+{0x8848, 0x1021, 0x4C52, 0x1039, "LRES1039PT Quad-port 1Gb Ethernet Network Adapter(0x4C52-0x1039)"},
 {0x8848, 0x1060, 0xFFFF, 0xFFFF, "Ethernet Controller N10 Series for 1GbE or 10GbE (8-port)(0x1060)"},
 {0x8848, 0x1080, 0xFFFF, 0xFFFF, "Ethernet Controller N10 Series Virtual Function(0x1080)"},
 {0x8848, 0x1081, 0xFFFF, 0xFFFF, "Ethernet Controller N400 Series Virtual Function(0x1081)"},
 {0x8848, 0x1083, 0xFFFF, 0xFFFF, "Ethernet Controller N400 Series Virtual Function(0x1083)"},
 {0x8848, 0x8308, 0xFFFF, 0xFFFF, "Ethernet Controller N500 Series for 1GbE (Quad-port, Copper RJ45)(0x8308)"},
+{0x8848, 0x8308, 0x4C52, 0x1048, "LRES1048PT Quad-port 1Gb Ethernet Network Adapter(0x4C52-0x1048)"},
 {0x8848, 0x8309, 0xFFFF, 0xFFFF, "Ethernet Controller N500 Series Virtual Function(0x8309)"},
 {0x8848, 0x8318, 0xFFFF, 0xFFFF, "Ethernet Controller N500 Series for 1GbE (Dual-port, Copper RJ45)(0x8318)"},
+{0x8848, 0x8318, 0x4C52, 0x1049, "LRES1049PT Dual-port 1Gb Ethernet Network Adapter(0x4C52-0x1049)"},
 }; /* pci_vid_8848[] */
 
-pci_id_t pci_vid_8866[] = {
+static pci_id_t const pci_vid_8866[] = {
 {0x8866, 0xFFFF, 0xFFFF, 0xFFFF, "T-Square Design Inc.(0x8866)"},
 }; /* pci_vid_8866[] */
 
-pci_id_t pci_vid_8888[] = {
+static pci_id_t const pci_vid_8888[] = {
 {0x8888, 0xFFFF, 0xFFFF, 0xFFFF, "Silicon Magic(0x8888)"},
 }; /* pci_vid_8888[] */
 
-pci_id_t pci_vid_8912[] = {
+static pci_id_t const pci_vid_8912[] = {
 {0x8912, 0xFFFF, 0xFFFF, 0xFFFF, "TRX(0x8912)"},
 }; /* pci_vid_8912[] */
 
-pci_id_t pci_vid_8C4A[] = {
+static pci_id_t const pci_vid_8C4A[] = {
 {0x8C4A, 0xFFFF, 0xFFFF, 0xFFFF, "Winbond(0x8C4A)"},
 {0x8C4A, 0x1980, 0xFFFF, 0xFFFF, "W89C940 misprogrammed [ne2k](0x1980)"},
 }; /* pci_vid_8C4A[] */
 
-pci_id_t pci_vid_8E0E[] = {
+static pci_id_t const pci_vid_8E0E[] = {
 {0x8E0E, 0xFFFF, 0xFFFF, 0xFFFF, "Computone Corporation(0x8E0E)"},
 }; /* pci_vid_8E0E[] */
 
-pci_id_t pci_vid_8E2E[] = {
+static pci_id_t const pci_vid_8E2E[] = {
 {0x8E2E, 0xFFFF, 0xFFFF, 0xFFFF, "KTI(0x8E2E)"},
 {0x8E2E, 0x3000, 0xFFFF, 0xFFFF, "ET32P2(0x3000)"},
 }; /* pci_vid_8E2E[] */
 
-pci_id_t pci_vid_9004[] = {
+static pci_id_t const pci_vid_9004[] = {
 {0x9004, 0xFFFF, 0xFFFF, 0xFFFF, "Adaptec(0x9004)"},
 {0x9004, 0x0078, 0xFFFF, 0xFFFF, "AHA-2940U_CN(0x0078)"},
 {0x9004, 0x1078, 0xFFFF, 0xFFFF, "AIC-7810(0x1078)"},
@@ -42421,7 +42935,7 @@ pci_id_t pci_vid_9004[] = {
 {0x9004, 0xEC78, 0xFFFF, 0xFFFF, "AHA-4944W/UW(0xEC78)"},
 }; /* pci_vid_9004[] */
 
-pci_id_t pci_vid_9005[] = {
+static pci_id_t const pci_vid_9005[] = {
 {0x9005, 0xFFFF, 0xFFFF, 0xFFFF, "Adaptec(0x9005)"},
 {0x9005, 0x0010, 0xFFFF, 0xFFFF, "AHA-2940U2/U2W(0x0010)"},
 {0x9005, 0x0010, 0x9005, 0x2180, "AHA-2940U2 SCSI Controller(0x9005-0x2180)"},
@@ -42685,6 +43199,7 @@ pci_id_t pci_vid_9005[] = {
 {0x9005, 0x028F, 0x1D49, 0x0220, "ThinkSystem 4350-8i SAS/SATA 12Gb HBA(0x1D49-0x0220)"},
 {0x9005, 0x028F, 0x1D49, 0x0221, "ThinkSystem 4350-16i SAS/SATA 12Gb HBA(0x1D49-0x0221)"},
 {0x9005, 0x028F, 0x1D49, 0x0520, "ThinkSystem RAID 5350-8i PCIe 12Gb Adapter(0x1D49-0x0520)"},
+{0x9005, 0x028F, 0x1D49, 0x0522, "ThinkSystem RAID 5350-8i PCIe 12Gb Internal Adapter(0x1D49-0x0522)"},
 {0x9005, 0x028F, 0x1D49, 0x0620, "ThinkSystem RAID 9350-8i 2GB Flash PCIe 12Gb Adapter(0x1D49-0x0620)"},
 {0x9005, 0x028F, 0x1D49, 0x0621, "ThinkSystem RAID 9350-8i 2GB Flash PCIe 12Gb Internal Adapter(0x1D49-0x0621)"},
 {0x9005, 0x028F, 0x1D49, 0x0622, "ThinkSystem RAID 9350-16i 4GB Flash PCIe 12Gb Adapter(0x1D49-0x0622)"},
@@ -42791,7 +43306,13 @@ pci_id_t pci_vid_9005[] = {
 {0x9005, 0x801F, 0x1734, 0x1011, "PRIMERGY RX300 onboard SCSI(0x1734-0x1011)"},
 {0x9005, 0x8080, 0xFFFF, 0xFFFF, "ASC-29320A U320 w/HostRAID(0x8080)"},
 {0x9005, 0x8081, 0xFFFF, 0xFFFF, "PMC-Sierra PM8001 SAS HBA [Series 6H](0x8081)"},
+{0x9005, 0x8081, 0x9005, 0x0400, "Adaptec SAS HBA 6405H(0x9005-0x0400)"},
+{0x9005, 0x8081, 0x9005, 0x0800, "Adaptec SAS HBA 6805H(0x9005-0x0800)"},
 {0x9005, 0x8088, 0xFFFF, 0xFFFF, "PMC-Sierra PM8018 SAS HBA [Series 7H](0x8088)"},
+{0x9005, 0x8088, 0x9005, 0x0008, "Adaptec SAS HBA 7085H(0x9005-0x0008)"},
+{0x9005, 0x8088, 0x9005, 0x0016, "Adaptec SAS HBA 70165H(0x9005-0x0016)"},
+{0x9005, 0x8088, 0x9005, 0x0800, "Adaptec SAS HBA 7805H(0x9005-0x0800)"},
+{0x9005, 0x8088, 0x9005, 0x1600, "Adaptec SAS HBA 71605H(0x9005-0x1600)"},
 {0x9005, 0x8089, 0xFFFF, 0xFFFF, "PMC-Sierra PM8019 SAS encryption HBA [Series 7He](0x8089)"},
 {0x9005, 0x808F, 0xFFFF, 0xFFFF, "AIC-7901 U320 w/HostRAID(0x808F)"},
 {0x9005, 0x808F, 0x1028, 0x0168, "Precision Workstation 670 Mainboard(0x1028-0x0168)"},
@@ -42810,37 +43331,37 @@ pci_id_t pci_vid_9005[] = {
 {0x9005, 0x809F, 0xFFFF, 0xFFFF, "AIC-7902 U320 w/HostRAID(0x809F)"},
 }; /* pci_vid_9005[] */
 
-pci_id_t pci_vid_907F[] = {
+static pci_id_t const pci_vid_907F[] = {
 {0x907F, 0xFFFF, 0xFFFF, 0xFFFF, "Atronics(0x907F)"},
 {0x907F, 0x2015, 0xFFFF, 0xFFFF, "IDE-2015PL(0x2015)"},
 }; /* pci_vid_907F[] */
 
-pci_id_t pci_vid_919A[] = {
+static pci_id_t const pci_vid_919A[] = {
 {0x919A, 0xFFFF, 0xFFFF, 0xFFFF, "Gigapixel Corp(0x919A)"},
 }; /* pci_vid_919A[] */
 
-pci_id_t pci_vid_9412[] = {
+static pci_id_t const pci_vid_9412[] = {
 {0x9412, 0xFFFF, 0xFFFF, 0xFFFF, "Holtek(0x9412)"},
 {0x9412, 0x6565, 0xFFFF, 0xFFFF, "6565(0x6565)"},
 }; /* pci_vid_9412[] */
 
-pci_id_t pci_vid_9413[] = {
+static pci_id_t const pci_vid_9413[] = {
 {0x9413, 0xFFFF, 0xFFFF, 0xFFFF, "Softlogic Co., Ltd.(0x9413)"},
 {0x9413, 0x6010, 0xFFFF, 0xFFFF, "SOLO6010 MPEG-4 Video encoder/decoder(0x6010)"},
 {0x9413, 0x6110, 0xFFFF, 0xFFFF, "SOLO6110 H.264 Video encoder/decoder(0x6110)"},
 }; /* pci_vid_9413[] */
 
-pci_id_t pci_vid_9618[] = {
+static pci_id_t const pci_vid_9618[] = {
 {0x9618, 0xFFFF, 0xFFFF, 0xFFFF, "JusonTech Corporation(0x9618)"},
 {0x9618, 0x0001, 0xFFFF, 0xFFFF, "JusonTech Gigabit Ethernet Controller(0x0001)"},
 }; /* pci_vid_9618[] */
 
-pci_id_t pci_vid_9699[] = {
+static pci_id_t const pci_vid_9699[] = {
 {0x9699, 0xFFFF, 0xFFFF, 0xFFFF, "Omni Media Technology Inc(0x9699)"},
 {0x9699, 0x6565, 0xFFFF, 0xFFFF, "6565(0x6565)"},
 }; /* pci_vid_9699[] */
 
-pci_id_t pci_vid_9710[] = {
+static pci_id_t const pci_vid_9710[] = {
 {0x9710, 0xFFFF, 0xFFFF, 0xFFFF, "MosChip Semiconductor Technology Ltd.(0x9710)"},
 {0x9710, 0x9250, 0xFFFF, 0xFFFF, "PCI-to-PCI bridge [MCS9250](0x9250)"},
 {0x9710, 0x9805, 0xFFFF, 0xFFFF, "PCI 1 port parallel adapter(0x9805)"},
@@ -42866,22 +43387,22 @@ pci_id_t pci_vid_9710[] = {
 {0x9710, 0x9990, 0xFFFF, 0xFFFF, "MCS9990 PCIe to 4-Port USB 2.0 Host Controller(0x9990)"},
 }; /* pci_vid_9710[] */
 
-pci_id_t pci_vid_9850[] = {
+static pci_id_t const pci_vid_9850[] = {
 {0x9850, 0xFFFF, 0xFFFF, 0xFFFF, "3Com (wrong ID)(0x9850)"},
 }; /* pci_vid_9850[] */
 
-pci_id_t pci_vid_9902[] = {
+static pci_id_t const pci_vid_9902[] = {
 {0x9902, 0xFFFF, 0xFFFF, 0xFFFF, "Stargen Inc.(0x9902)"},
 {0x9902, 0x0001, 0xFFFF, 0xFFFF, "SG2010 PCI over Starfabric Bridge(0x0001)"},
 {0x9902, 0x0002, 0xFFFF, 0xFFFF, "SG2010 PCI to Starfabric Gateway(0x0002)"},
 {0x9902, 0x0003, 0xFFFF, 0xFFFF, "SG1010 Starfabric Switch and PCI Bridge(0x0003)"},
 }; /* pci_vid_9902[] */
 
-pci_id_t pci_vid_9A11[] = {
+static pci_id_t const pci_vid_9A11[] = {
 {0x9A11, 0xFFFF, 0xFFFF, 0xFFFF, "Tiger Lake-H Gaussian & Neural Accelerator(0x9A11)"},
 }; /* pci_vid_9A11[] */
 
-pci_id_t pci_vid_9D32[] = {
+static pci_id_t const pci_vid_9D32[] = {
 {0x9D32, 0xFFFF, 0xFFFF, 0xFFFF, "Beijing Starblaze Technology Co. Ltd.(0x9D32)"},
 {0x9D32, 0x0000, 0xFFFF, 0xFFFF, "STAR1000 PCIe NVMe SSD Controller(0x0000)"},
 {0x9D32, 0x1000, 0xFFFF, 0xFFFF, "STAR1000 PCIe NVMe SSD Controller(0x1000)"},
@@ -42902,140 +43423,140 @@ pci_id_t pci_vid_9D32[] = {
 {0x9D32, 0xFC22, 0xFFFF, 0xFFFF, "Asgard AN3+ NVMe SSD(0xFC22)"},
 }; /* pci_vid_9D32[] */
 
-pci_id_t pci_vid_A000[] = {
+static pci_id_t const pci_vid_A000[] = {
 {0xA000, 0xFFFF, 0xFFFF, 0xFFFF, "Asix Electronics Corporation (Wrong ID)(0xA000)"},
 }; /* pci_vid_A000[] */
 
-pci_id_t pci_vid_A0A0[] = {
+static pci_id_t const pci_vid_A0A0[] = {
 {0xA0A0, 0xFFFF, 0xFFFF, 0xFFFF, "AOPEN Inc.(0xA0A0)"},
 }; /* pci_vid_A0A0[] */
 
-pci_id_t pci_vid_A0F1[] = {
+static pci_id_t const pci_vid_A0F1[] = {
 {0xA0F1, 0xFFFF, 0xFFFF, 0xFFFF, "UNISYS Corporation(0xA0F1)"},
 }; /* pci_vid_A0F1[] */
 
-pci_id_t pci_vid_A200[] = {
+static pci_id_t const pci_vid_A200[] = {
 {0xA200, 0xFFFF, 0xFFFF, 0xFFFF, "NEC Corporation(0xA200)"},
 }; /* pci_vid_A200[] */
 
-pci_id_t pci_vid_A259[] = {
+static pci_id_t const pci_vid_A259[] = {
 {0xA259, 0xFFFF, 0xFFFF, 0xFFFF, "Hewlett Packard(0xA259)"},
 }; /* pci_vid_A259[] */
 
-pci_id_t pci_vid_A25B[] = {
+static pci_id_t const pci_vid_A25B[] = {
 {0xA25B, 0xFFFF, 0xFFFF, 0xFFFF, "Hewlett Packard GmbH PL24-MKT(0xA25B)"},
 }; /* pci_vid_A25B[] */
 
-pci_id_t pci_vid_A304[] = {
+static pci_id_t const pci_vid_A304[] = {
 {0xA304, 0xFFFF, 0xFFFF, 0xFFFF, "Sony(0xA304)"},
 }; /* pci_vid_A304[] */
 
-pci_id_t pci_vid_A727[] = {
+static pci_id_t const pci_vid_A727[] = {
 {0xA727, 0xFFFF, 0xFFFF, 0xFFFF, "3Com Corporation(0xA727)"},
 {0xA727, 0x0013, 0xFFFF, 0xFFFF, "3CRPAG175 Wireless PC Card(0x0013)"},
 {0xA727, 0x6803, 0xFFFF, 0xFFFF, "3CRDAG675B Wireless 11a/b/g Adapter(0x6803)"},
 }; /* pci_vid_A727[] */
 
-pci_id_t pci_vid_AA00[] = {
+static pci_id_t const pci_vid_AA00[] = {
 {0xAA00, 0xFFFF, 0xFFFF, 0xFFFF, "iTuner(0xAA00)"},
 }; /* pci_vid_AA00[] */
 
-pci_id_t pci_vid_AA01[] = {
+static pci_id_t const pci_vid_AA01[] = {
 {0xAA01, 0xFFFF, 0xFFFF, 0xFFFF, "iTuner(0xAA01)"},
 }; /* pci_vid_AA01[] */
 
-pci_id_t pci_vid_AA02[] = {
+static pci_id_t const pci_vid_AA02[] = {
 {0xAA02, 0xFFFF, 0xFFFF, 0xFFFF, "iTuner(0xAA02)"},
 }; /* pci_vid_AA02[] */
 
-pci_id_t pci_vid_AA03[] = {
+static pci_id_t const pci_vid_AA03[] = {
 {0xAA03, 0xFFFF, 0xFFFF, 0xFFFF, "iTuner(0xAA03)"},
 }; /* pci_vid_AA03[] */
 
-pci_id_t pci_vid_AA04[] = {
+static pci_id_t const pci_vid_AA04[] = {
 {0xAA04, 0xFFFF, 0xFFFF, 0xFFFF, "iTuner(0xAA04)"},
 }; /* pci_vid_AA04[] */
 
-pci_id_t pci_vid_AA05[] = {
+static pci_id_t const pci_vid_AA05[] = {
 {0xAA05, 0xFFFF, 0xFFFF, 0xFFFF, "iTuner(0xAA05)"},
 }; /* pci_vid_AA05[] */
 
-pci_id_t pci_vid_AA06[] = {
+static pci_id_t const pci_vid_AA06[] = {
 {0xAA06, 0xFFFF, 0xFFFF, 0xFFFF, "iTuner(0xAA06)"},
 }; /* pci_vid_AA06[] */
 
-pci_id_t pci_vid_AA07[] = {
+static pci_id_t const pci_vid_AA07[] = {
 {0xAA07, 0xFFFF, 0xFFFF, 0xFFFF, "iTuner(0xAA07)"},
 }; /* pci_vid_AA07[] */
 
-pci_id_t pci_vid_AA08[] = {
+static pci_id_t const pci_vid_AA08[] = {
 {0xAA08, 0xFFFF, 0xFFFF, 0xFFFF, "iTuner(0xAA08)"},
 }; /* pci_vid_AA08[] */
 
-pci_id_t pci_vid_AA09[] = {
+static pci_id_t const pci_vid_AA09[] = {
 {0xAA09, 0xFFFF, 0xFFFF, 0xFFFF, "iTuner(0xAA09)"},
 }; /* pci_vid_AA09[] */
 
-pci_id_t pci_vid_AA0A[] = {
+static pci_id_t const pci_vid_AA0A[] = {
 {0xAA0A, 0xFFFF, 0xFFFF, 0xFFFF, "iTuner(0xAA0A)"},
 }; /* pci_vid_AA0A[] */
 
-pci_id_t pci_vid_AA0B[] = {
+static pci_id_t const pci_vid_AA0B[] = {
 {0xAA0B, 0xFFFF, 0xFFFF, 0xFFFF, "iTuner(0xAA0B)"},
 }; /* pci_vid_AA0B[] */
 
-pci_id_t pci_vid_AA0C[] = {
+static pci_id_t const pci_vid_AA0C[] = {
 {0xAA0C, 0xFFFF, 0xFFFF, 0xFFFF, "iTuner(0xAA0C)"},
 }; /* pci_vid_AA0C[] */
 
-pci_id_t pci_vid_AA0D[] = {
+static pci_id_t const pci_vid_AA0D[] = {
 {0xAA0D, 0xFFFF, 0xFFFF, 0xFFFF, "iTuner(0xAA0D)"},
 }; /* pci_vid_AA0D[] */
 
-pci_id_t pci_vid_AA0E[] = {
+static pci_id_t const pci_vid_AA0E[] = {
 {0xAA0E, 0xFFFF, 0xFFFF, 0xFFFF, "iTuner(0xAA0E)"},
 }; /* pci_vid_AA0E[] */
 
-pci_id_t pci_vid_AA0F[] = {
+static pci_id_t const pci_vid_AA0F[] = {
 {0xAA0F, 0xFFFF, 0xFFFF, 0xFFFF, "iTuner(0xAA0F)"},
 }; /* pci_vid_AA0F[] */
 
-pci_id_t pci_vid_AA42[] = {
+static pci_id_t const pci_vid_AA42[] = {
 {0xAA42, 0xFFFF, 0xFFFF, 0xFFFF, "Scitex Digital Video(0xAA42)"},
 }; /* pci_vid_AA42[] */
 
-pci_id_t pci_vid_AA55[] = {
+static pci_id_t const pci_vid_AA55[] = {
 {0xAA55, 0xFFFF, 0xFFFF, 0xFFFF, "Ncomputing X300 PCI-Engine(0xAA55)"},
 }; /* pci_vid_AA55[] */
 
-pci_id_t pci_vid_AAAA[] = {
+static pci_id_t const pci_vid_AAAA[] = {
 {0xAAAA, 0xFFFF, 0xFFFF, 0xFFFF, "Adnaco Technology Inc.(0xAAAA)"},
 {0xAAAA, 0x0001, 0xFFFF, 0xFFFF, "H1 PCIe over fiber optic host controller(0x0001)"},
 {0xAAAA, 0x0002, 0xFFFF, 0xFFFF, "R1BP1 PCIe over fiber optic expansion chassis(0x0002)"},
 }; /* pci_vid_AAAA[] */
 
-pci_id_t pci_vid_ABCD[] = {
+static pci_id_t const pci_vid_ABCD[] = {
 {0xABCD, 0xFFFF, 0xFFFF, 0xFFFF, "Vadatech Inc.(0xABCD)"},
 }; /* pci_vid_ABCD[] */
 
-pci_id_t pci_vid_AC1E[] = {
+static pci_id_t const pci_vid_AC1E[] = {
 {0xAC1E, 0xFFFF, 0xFFFF, 0xFFFF, "Digital Receiver Technology Inc(0xAC1E)"},
 }; /* pci_vid_AC1E[] */
 
-pci_id_t pci_vid_AC3D[] = {
+static pci_id_t const pci_vid_AC3D[] = {
 {0xAC3D, 0xFFFF, 0xFFFF, 0xFFFF, "Actuality Systems(0xAC3D)"},
 }; /* pci_vid_AC3D[] */
 
-pci_id_t pci_vid_AD00[] = {
+static pci_id_t const pci_vid_AD00[] = {
 {0xAD00, 0xFFFF, 0xFFFF, 0xFFFF, "Alta Data Technologies LLC(0xAD00)"},
 }; /* pci_vid_AD00[] */
 
-pci_id_t pci_vid_AECB[] = {
+static pci_id_t const pci_vid_AECB[] = {
 {0xAECB, 0xFFFF, 0xFFFF, 0xFFFF, "Adrienne Electronics Corporation(0xAECB)"},
 {0xAECB, 0x6250, 0xFFFF, 0xFFFF, "VITC/LTC Timecode Reader card [PCI-VLTC/RDR](0x6250)"},
 }; /* pci_vid_AECB[] */
 
-pci_id_t pci_vid_AFFE[] = {
+static pci_id_t const pci_vid_AFFE[] = {
 {0xAFFE, 0xFFFF, 0xFFFF, 0xFFFF, "Sirrix AG security technologies(0xAFFE)"},
 {0xAFFE, 0x01E1, 0xFFFF, 0xFFFF, "PCI1E1 1-port ISDN E1 interface(0x01E1)"},
 {0xAFFE, 0x02E1, 0xFFFF, 0xFFFF, "PCI2E1 2-port ISDN E1 interface(0x02E1)"},
@@ -43043,27 +43564,27 @@ pci_id_t pci_vid_AFFE[] = {
 {0xAFFE, 0xDEAD, 0xFFFF, 0xFFFF, "Sirrix.PCI4S0 4-port ISDN S0 interface(0xDEAD)"},
 }; /* pci_vid_AFFE[] */
 
-pci_id_t pci_vid_B100[] = {
+static pci_id_t const pci_vid_B100[] = {
 {0xB100, 0xFFFF, 0xFFFF, 0xFFFF, "OpenVox Communication Co. Ltd.(0xB100)"},
 }; /* pci_vid_B100[] */
 
-pci_id_t pci_vid_B10B[] = {
+static pci_id_t const pci_vid_B10B[] = {
 {0xB10B, 0xFFFF, 0xFFFF, 0xFFFF, "Uakron PCI Project(0xB10B)"},
 }; /* pci_vid_B10B[] */
 
-pci_id_t pci_vid_B1B3[] = {
+static pci_id_t const pci_vid_B1B3[] = {
 {0xB1B3, 0xFFFF, 0xFFFF, 0xFFFF, "Shiva Europe Limited(0xB1B3)"},
 }; /* pci_vid_B1B3[] */
 
-pci_id_t pci_vid_B1D9[] = {
+static pci_id_t const pci_vid_B1D9[] = {
 {0xB1D9, 0xFFFF, 0xFFFF, 0xFFFF, "ATCOM Technology co., LTD.(0xB1D9)"},
 }; /* pci_vid_B1D9[] */
 
-pci_id_t pci_vid_BD11[] = {
+static pci_id_t const pci_vid_BD11[] = {
 {0xBD11, 0xFFFF, 0xFFFF, 0xFFFF, "Pinnacle Systems, Inc. (Wrong ID)(0xBD11)"},
 }; /* pci_vid_BD11[] */
 
-pci_id_t pci_vid_BDBD[] = {
+static pci_id_t const pci_vid_BDBD[] = {
 {0xBDBD, 0xFFFF, 0xFFFF, 0xFFFF, "Blackmagic Design(0xBDBD)"},
 {0xBDBD, 0xA106, 0xFFFF, 0xFFFF, "Multibridge Extreme(0xA106)"},
 {0xBDBD, 0xA117, 0xFFFF, 0xFFFF, "Intensity Pro(0xA117)"},
@@ -43103,57 +43624,59 @@ pci_id_t pci_vid_BDBD[] = {
 {0xBDBD, 0xA1FF, 0xFFFF, 0xFFFF, "eGPU RX580(0xA1FF)"},
 }; /* pci_vid_BDBD[] */
 
-pci_id_t pci_vid_C001[] = {
+static pci_id_t const pci_vid_C001[] = {
 {0xC001, 0xFFFF, 0xFFFF, 0xFFFF, "TSI Telsys(0xC001)"},
 }; /* pci_vid_C001[] */
 
-pci_id_t pci_vid_C0A9[] = {
+static pci_id_t const pci_vid_C0A9[] = {
 {0xC0A9, 0xFFFF, 0xFFFF, 0xFFFF, "Micron/Crucial Technology(0xC0A9)"},
 {0xC0A9, 0x2263, 0xFFFF, 0xFFFF, "P1 NVMe PCIe SSD[Frampton](0x2263)"},
 {0xC0A9, 0x5403, 0xFFFF, 0xFFFF, "P1 NVMe PCIe SSD[Frampton2](0x5403)"},
 {0xC0A9, 0x5407, 0xFFFF, 0xFFFF, "P5 Plus NVMe PCIe SSD(0x5407)"},
 {0xC0A9, 0x540A, 0xFFFF, 0xFFFF, "P2 [Nick P2] / P3 / P3 Plus NVMe PCIe SSD (DRAM-less)(0x540A)"},
 {0xC0A9, 0x5412, 0xFFFF, 0xFFFF, "P5 NVMe PCIe SSD[SlashP5](0x5412)"},
+{0xC0A9, 0x5415, 0xFFFF, 0xFFFF, "T500 NVMe PCIe SSD(0x5415)"},
+{0xC0A9, 0x5419, 0xFFFF, 0xFFFF, "T700 NVMe PCIe SSD(0x5419)"},
 }; /* pci_vid_C0A9[] */
 
-pci_id_t pci_vid_C0DE[] = {
+static pci_id_t const pci_vid_C0DE[] = {
 {0xC0DE, 0xFFFF, 0xFFFF, 0xFFFF, "Motorola(0xC0DE)"},
 }; /* pci_vid_C0DE[] */
 
-pci_id_t pci_vid_C0FE[] = {
+static pci_id_t const pci_vid_C0FE[] = {
 {0xC0FE, 0xFFFF, 0xFFFF, 0xFFFF, "Motion Engineering, Inc.(0xC0FE)"},
 }; /* pci_vid_C0FE[] */
 
-pci_id_t pci_vid_CA01[] = {
+static pci_id_t const pci_vid_CA01[] = {
 {0xCA01, 0xFFFF, 0xFFFF, 0xFFFF, "I-TEK OptoElectronics Co., LTD.(0xCA01)"},
 {0xCA01, 0x0212, 0xFFFF, 0xFFFF, "Vulcan-CL CameraLink Frame Grabber(0x0212)"},
 }; /* pci_vid_CA01[] */
 
-pci_id_t pci_vid_CA02[] = {
+static pci_id_t const pci_vid_CA02[] = {
 {0xCA02, 0xFFFF, 0xFFFF, 0xFFFF, "I-TEK OptoElectronics Co., LTD.(0xCA02)"},
 {0xCA02, 0x0213, 0xFFFF, 0xFFFF, "Vulcan-CXP Frame Grabber(0x0213)"},
 }; /* pci_vid_CA02[] */
 
-pci_id_t pci_vid_CA3B[] = {
+static pci_id_t const pci_vid_CA3B[] = {
 {0xCA3B, 0xFFFF, 0xFFFF, 0xFFFF, "Cambrionix Ltd.(0xCA3B)"},
 }; /* pci_vid_CA3B[] */
 
-pci_id_t pci_vid_CA50[] = {
+static pci_id_t const pci_vid_CA50[] = {
 {0xCA50, 0xFFFF, 0xFFFF, 0xFFFF, "Varian Australia Pty Ltd(0xCA50)"},
 }; /* pci_vid_CA50[] */
 
-pci_id_t pci_vid_CACE[] = {
+static pci_id_t const pci_vid_CACE[] = {
 {0xCACE, 0xFFFF, 0xFFFF, 0xFFFF, "CACE Technologies, Inc.(0xCACE)"},
 {0xCACE, 0x0001, 0xFFFF, 0xFFFF, "TurboCap Port A(0x0001)"},
 {0xCACE, 0x0002, 0xFFFF, 0xFFFF, "TurboCap Port B(0x0002)"},
 {0xCACE, 0x0023, 0xFFFF, 0xFFFF, "AirPcap N(0x0023)"},
 }; /* pci_vid_CACE[] */
 
-pci_id_t pci_vid_CAED[] = {
+static pci_id_t const pci_vid_CAED[] = {
 {0xCAED, 0xFFFF, 0xFFFF, 0xFFFF, "Canny Edge(0xCAED)"},
 }; /* pci_vid_CAED[] */
 
-pci_id_t pci_vid_CAFE[] = {
+static pci_id_t const pci_vid_CAFE[] = {
 {0xCAFE, 0xFFFF, 0xFFFF, 0xFFFF, "Chrysalis-ITS(0xCAFE)"},
 {0xCAFE, 0x0003, 0xFFFF, 0xFFFF, "Luna K3 Hardware Security Module(0x0003)"},
 {0xCAFE, 0x0006, 0xFFFF, 0xFFFF, "Luna PCI-e 3000 Hardware Security Module(0x0006)"},
@@ -43161,47 +43684,47 @@ pci_id_t pci_vid_CAFE[] = {
 {0xCAFE, 0x0008, 0xFFFF, 0xFFFF, "Luna K7 Hardware Security Module(0x0008)"},
 }; /* pci_vid_CAFE[] */
 
-pci_id_t pci_vid_CC53[] = {
+static pci_id_t const pci_vid_CC53[] = {
 {0xCC53, 0xFFFF, 0xFFFF, 0xFFFF, "ScaleFlux Inc.(0xCC53)"},
 {0xCC53, 0x0001, 0xFFFF, 0xFFFF, "CSS 1000(0x0001)"},
 {0xCC53, 0x0010, 0xFFFF, 0xFFFF, "CSD 3310(0x0010)"},
 }; /* pci_vid_CC53[] */
 
-pci_id_t pci_vid_CCCC[] = {
+static pci_id_t const pci_vid_CCCC[] = {
 {0xCCCC, 0xFFFF, 0xFFFF, 0xFFFF, "Catapult Communications(0xCCCC)"},
 }; /* pci_vid_CCCC[] */
 
-pci_id_t pci_vid_CCEC[] = {
+static pci_id_t const pci_vid_CCEC[] = {
 {0xCCEC, 0xFFFF, 0xFFFF, 0xFFFF, "Curtiss-Wright Controls Embedded Computing(0xCCEC)"},
 }; /* pci_vid_CCEC[] */
 
-pci_id_t pci_vid_CDDD[] = {
+static pci_id_t const pci_vid_CDDD[] = {
 {0xCDDD, 0xFFFF, 0xFFFF, 0xFFFF, "Tyzx, Inc.(0xCDDD)"},
 {0xCDDD, 0x0101, 0xFFFF, 0xFFFF, "DeepSea 1 High Speed Stereo Vision Frame Grabber(0x0101)"},
 {0xCDDD, 0x0200, 0xFFFF, 0xFFFF, "DeepSea 2 High Speed Stereo Vision Frame Grabber(0x0200)"},
 }; /* pci_vid_CDDD[] */
 
-pci_id_t pci_vid_CDFA[] = {
+static pci_id_t const pci_vid_CDFA[] = {
 {0xCDFA, 0xFFFF, 0xFFFF, 0xFFFF, "NextSilicon Ltd(0xCDFA)"},
 {0xCDFA, 0x0007, 0xFFFF, 0xFFFF, "Maverick(0x0007)"},
 }; /* pci_vid_CDFA[] */
 
-pci_id_t pci_vid_CEBA[] = {
+static pci_id_t const pci_vid_CEBA[] = {
 {0xCEBA, 0xFFFF, 0xFFFF, 0xFFFF, "KEBA AG(0xCEBA)"},
 }; /* pci_vid_CEBA[] */
 
-pci_id_t pci_vid_CF86[] = {
+static pci_id_t const pci_vid_CF86[] = {
 {0xCF86, 0xFFFF, 0xFFFF, 0xFFFF, "Spectrum-4TOR(0xCF86)"},
 {0xCF86, 0x0276, 0xFFFF, 0xFFFF, "Spectrum-4TOR in Flash Recovery Mode(0x0276)"},
 }; /* pci_vid_CF86[] */
 
-pci_id_t pci_vid_D063[] = {
+static pci_id_t const pci_vid_D063[] = {
 {0xD063, 0xFFFF, 0xFFFF, 0xFFFF, "SolidRun(0xD063)"},
 {0xD063, 0x1000, 0xFFFF, 0xFFFF, "SolidNET DPU(0x1000)"},
 {0xD063, 0x1500, 0xFFFF, 0xFFFF, "Emulated NVMe(0x1500)"},
 }; /* pci_vid_D063[] */
 
-pci_id_t pci_vid_D161[] = {
+static pci_id_t const pci_vid_D161[] = {
 {0xD161, 0xFFFF, 0xFFFF, 0xFFFF, "Digium, Inc.(0xD161)"},
 {0xD161, 0x0120, 0xFFFF, 0xFFFF, "Wildcard TE120P single-span T1/E1/J1 card(0x0120)"},
 {0xD161, 0x0205, 0xFFFF, 0xFFFF, "Wildcard TE205P/TE207P dual-span T1/E1/J1 card 5.0V(0x0205)"},
@@ -43239,14 +43762,14 @@ pci_id_t pci_vid_D161[] = {
 {0xD161, 0xB410, 0xFFFF, 0xFFFF, "Wildcard B410 quad-BRI card(0xB410)"},
 }; /* pci_vid_D161[] */
 
-pci_id_t pci_vid_D209[] = {
+static pci_id_t const pci_vid_D209[] = {
 {0xD209, 0xFFFF, 0xFFFF, 0xFFFF, "Ultimarc(0xD209)"},
 {0xD209, 0x1500, 0xFFFF, 0xFFFF, "PAC Drive(0x1500)"},
 {0xD209, 0x15A2, 0xFFFF, 0xFFFF, "SpinTrak(0x15A2)"},
 {0xD209, 0x1601, 0xFFFF, 0xFFFF, "AimTrak(0x1601)"},
 }; /* pci_vid_D209[] */
 
-pci_id_t pci_vid_D20C[] = {
+static pci_id_t const pci_vid_D20C[] = {
 {0xD20C, 0xFFFF, 0xFFFF, 0xFFFF, "Chengdu BeiZhongWangXin Technology Co., Ltd.(0xD20C)"},
 {0xD20C, 0x5010, 0xFFFF, 0xFFFF, "NE5000 Ethernet Controller(0x5010)"},
 {0xD20C, 0x5011, 0xFFFF, 0xFFFF, "NE5000 Ethernet Controller(0x5011)"},
@@ -43269,20 +43792,20 @@ pci_id_t pci_vid_D20C[] = {
 {0xD20C, 0x6011, 0xD20C, 0xEA2D, "N6S Series 2-port 100GbE Network Adapter for OCP(0xD20C-0xEA2D)"},
 }; /* pci_vid_D20C[] */
 
-pci_id_t pci_vid_D4D4[] = {
+static pci_id_t const pci_vid_D4D4[] = {
 {0xD4D4, 0xFFFF, 0xFFFF, 0xFFFF, "Dy4 Systems Inc(0xD4D4)"},
 {0xD4D4, 0x0601, 0xFFFF, 0xFFFF, "PCI Mezzanine Card(0x0601)"},
 }; /* pci_vid_D4D4[] */
 
-pci_id_t pci_vid_D531[] = {
+static pci_id_t const pci_vid_D531[] = {
 {0xD531, 0xFFFF, 0xFFFF, 0xFFFF, "I+ME ACTIA GmbH(0xD531)"},
 }; /* pci_vid_D531[] */
 
-pci_id_t pci_vid_D84D[] = {
+static pci_id_t const pci_vid_D84D[] = {
 {0xD84D, 0xFFFF, 0xFFFF, 0xFFFF, "Exsys(0xD84D)"},
 }; /* pci_vid_D84D[] */
 
-pci_id_t pci_vid_DADA[] = {
+static pci_id_t const pci_vid_DADA[] = {
 {0xDADA, 0xFFFF, 0xFFFF, 0xFFFF, "Datapath Limited(0xDADA)"},
 {0xDADA, 0x0133, 0xFFFF, 0xFFFF, "VisionRGB-X2(0x0133)"},
 {0xDADA, 0x0139, 0xFFFF, 0xFFFF, "VisionRGB-E1(0x0139)"},
@@ -43301,15 +43824,15 @@ pci_id_t pci_vid_DADA[] = {
 {0xDADA, 0x1154, 0xFFFF, 0xFFFF, "VisionSDI2(0x1154)"},
 }; /* pci_vid_DADA[] */
 
-pci_id_t pci_vid_DB10[] = {
+static pci_id_t const pci_vid_DB10[] = {
 {0xDB10, 0xFFFF, 0xFFFF, 0xFFFF, "Diablo Technologies(0xDB10)"},
 }; /* pci_vid_DB10[] */
 
-pci_id_t pci_vid_DC93[] = {
+static pci_id_t const pci_vid_DC93[] = {
 {0xDC93, 0xFFFF, 0xFFFF, 0xFFFF, "Dawicontrol GmbH(0xDC93)"},
 }; /* pci_vid_DC93[] */
 
-pci_id_t pci_vid_DCBA[] = {
+static pci_id_t const pci_vid_DCBA[] = {
 {0xDCBA, 0xFFFF, 0xFFFF, 0xFFFF, "Dynamic Engineering(0xDCBA)"},
 {0xDCBA, 0x0046, 0xFFFF, 0xFFFF, "PCIe Altera Cyclone IV(0x0046)"},
 {0xDCBA, 0x0047, 0xFFFF, 0xFFFF, "VPX-RCB(0x0047)"},
@@ -43320,7 +43843,7 @@ pci_id_t pci_vid_DCBA[] = {
 {0xDCBA, 0x0066, 0xFFFF, 0xFFFF, "PMC-OctalUART-232(0x0066)"},
 }; /* pci_vid_DCBA[] */
 
-pci_id_t pci_vid_DD01[] = {
+static pci_id_t const pci_vid_DD01[] = {
 {0xDD01, 0xFFFF, 0xFFFF, 0xFFFF, "Digital Devices GmbH(0xDD01)"},
 {0xDD01, 0x0003, 0xFFFF, 0xFFFF, "Octopus DVB Adapter(0x0003)"},
 {0xDD01, 0x0003, 0xDD01, 0x0001, "Octopus DVB adapter(0xDD01-0x0001)"},
@@ -43342,29 +43865,29 @@ pci_id_t pci_vid_DD01[] = {
 {0xDD01, 0x0201, 0xDD01, 0x0001, "Resi DVB-C Modulator(0xDD01-0x0001)"},
 }; /* pci_vid_DD01[] */
 
-pci_id_t pci_vid_DEAD[] = {
+static pci_id_t const pci_vid_DEAD[] = {
 {0xDEAD, 0xFFFF, 0xFFFF, 0xFFFF, "Indigita Corporation(0xDEAD)"},
 }; /* pci_vid_DEAD[] */
 
-pci_id_t pci_vid_DEAF[] = {
+static pci_id_t const pci_vid_DEAF[] = {
 {0xDEAF, 0xFFFF, 0xFFFF, 0xFFFF, "Middle Digital Inc.(0xDEAF)"},
 {0xDEAF, 0x9050, 0xFFFF, 0xFFFF, "PC Weasel Virtual VGA(0x9050)"},
 {0xDEAF, 0x9051, 0xFFFF, 0xFFFF, "PC Weasel Serial Port(0x9051)"},
 {0xDEAF, 0x9052, 0xFFFF, 0xFFFF, "PC Weasel Watchdog Timer(0x9052)"},
 }; /* pci_vid_DEAF[] */
 
-pci_id_t pci_vid_DEDA[] = {
+static pci_id_t const pci_vid_DEDA[] = {
 {0xDEDA, 0xFFFF, 0xFFFF, 0xFFFF, "XIMEA(0xDEDA)"},
 {0xDEDA, 0x4001, 0xFFFF, 0xFFFF, "CB or MX camera(0x4001)"},
 {0xDEDA, 0x4021, 0xFFFF, 0xFFFF, "MT camera(0x4021)"},
 }; /* pci_vid_DEDA[] */
 
-pci_id_t pci_vid_E000[] = {
+static pci_id_t const pci_vid_E000[] = {
 {0xE000, 0xFFFF, 0xFFFF, 0xFFFF, "Winbond(0xE000)"},
 {0xE000, 0xE000, 0xFFFF, 0xFFFF, "W89C940(0xE000)"},
 }; /* pci_vid_E000[] */
 
-pci_id_t pci_vid_E159[] = {
+static pci_id_t const pci_vid_E159[] = {
 {0xE159, 0xFFFF, 0xFFFF, 0xFFFF, "Tiger Jet Network Inc. / ICP DAS(0xE159)"},
 {0xE159, 0x0001, 0xFFFF, 0xFFFF, "Tiger3XX Modem/ISDN interface(0x0001)"},
 {0xE159, 0x0001, 0x0059, 0x0001, "128k ISDN-S/T Adapter(0x0059-0x0001)"},
@@ -43376,11 +43899,11 @@ pci_id_t pci_vid_E159[] = {
 {0xE159, 0x0002, 0xFFFF, 0xFFFF, "Tiger100APC ISDN chipset(0x0002)"},
 }; /* pci_vid_E159[] */
 
-pci_id_t pci_vid_E1C5[] = {
+static pci_id_t const pci_vid_E1C5[] = {
 {0xE1C5, 0xFFFF, 0xFFFF, 0xFFFF, "Elcus(0xE1C5)"},
 }; /* pci_vid_E1C5[] */
 
-pci_id_t pci_vid_E4BF[] = {
+static pci_id_t const pci_vid_E4BF[] = {
 {0xE4BF, 0xFFFF, 0xFFFF, 0xFFFF, "EKF Elektronik GmbH(0xE4BF)"},
 {0xE4BF, 0x0CCD, 0xFFFF, 0xFFFF, "CCD-CALYPSO(0x0CCD)"},
 {0xE4BF, 0x0CD1, 0xFFFF, 0xFFFF, "CD1-OPERA(0x0CD1)"},
@@ -43393,15 +43916,15 @@ pci_id_t pci_vid_E4BF[] = {
 {0xE4BF, 0xCC4D, 0xFFFF, 0xFFFF, "CCM-BOOGIE(0xCC4D)"},
 }; /* pci_vid_E4BF[] */
 
-pci_id_t pci_vid_E4E4[] = {
+static pci_id_t const pci_vid_E4E4[] = {
 {0xE4E4, 0xFFFF, 0xFFFF, 0xFFFF, "Xorcom(0xE4E4)"},
 }; /* pci_vid_E4E4[] */
 
-pci_id_t pci_vid_E55E[] = {
+static pci_id_t const pci_vid_E55E[] = {
 {0xE55E, 0xFFFF, 0xFFFF, 0xFFFF, "Essence Technology, Inc.(0xE55E)"},
 }; /* pci_vid_E55E[] */
 
-pci_id_t pci_vid_EA01[] = {
+static pci_id_t const pci_vid_EA01[] = {
 {0xEA01, 0xFFFF, 0xFFFF, 0xFFFF, "Eagle Technology(0xEA01)"},
 {0xEA01, 0x000A, 0xFFFF, 0xFFFF, "PCI-773 Temperature Card(0x000A)"},
 {0xEA01, 0x0032, 0xFFFF, 0xFFFF, "PCI-730 & PC104P-30 Card(0x0032)"},
@@ -43413,22 +43936,22 @@ pci_id_t pci_vid_EA01[] = {
 {0xEA01, 0x0800, 0xFFFF, 0xFFFF, "PCI-800 Digital I/O Card(0x0800)"},
 }; /* pci_vid_EA01[] */
 
-pci_id_t pci_vid_EA50[] = {
+static pci_id_t const pci_vid_EA50[] = {
 {0xEA50, 0xFFFF, 0xFFFF, 0xFFFF, "Emerson Automation Solutions(0xEA50)"},
 }; /* pci_vid_EA50[] */
 
-pci_id_t pci_vid_EA60[] = {
+static pci_id_t const pci_vid_EA60[] = {
 {0xEA60, 0xFFFF, 0xFFFF, 0xFFFF, "RME(0xEA60)"},
 {0xEA60, 0x9896, 0xFFFF, 0xFFFF, "Digi32(0x9896)"},
 {0xEA60, 0x9897, 0xFFFF, 0xFFFF, "Digi32 Pro(0x9897)"},
 {0xEA60, 0x9898, 0xFFFF, 0xFFFF, "Digi32/8(0x9898)"},
 }; /* pci_vid_EA60[] */
 
-pci_id_t pci_vid_EABB[] = {
+static pci_id_t const pci_vid_EABB[] = {
 {0xEABB, 0xFFFF, 0xFFFF, 0xFFFF, "Aashima Technology B.V.(0xEABB)"},
 }; /* pci_vid_EABB[] */
 
-pci_id_t pci_vid_EACE[] = {
+static pci_id_t const pci_vid_EACE[] = {
 {0xEACE, 0xFFFF, 0xFFFF, 0xFFFF, "Endace Measurement Systems, Ltd(0xEACE)"},
 {0xEACE, 0x3100, 0xFFFF, 0xFFFF, "DAG 3.10 OC-3/OC-12(0x3100)"},
 {0xEACE, 0x3200, 0xFFFF, 0xFFFF, "DAG 3.2x OC-3/OC-12(0x3200)"},
@@ -43489,16 +44012,16 @@ pci_id_t pci_vid_EACE[] = {
 {0xEACE, 0xEACE, 0xFFFF, 0xFFFF, "vDAG virtual device(0xEACE)"},
 }; /* pci_vid_EACE[] */
 
-pci_id_t pci_vid_EC80[] = {
+static pci_id_t const pci_vid_EC80[] = {
 {0xEC80, 0xFFFF, 0xFFFF, 0xFFFF, "Belkin Corporation(0xEC80)"},
 {0xEC80, 0xEC00, 0xFFFF, 0xFFFF, "F5D6000(0xEC00)"},
 }; /* pci_vid_EC80[] */
 
-pci_id_t pci_vid_ECC0[] = {
+static pci_id_t const pci_vid_ECC0[] = {
 {0xECC0, 0xFFFF, 0xFFFF, 0xFFFF, "Echo Digital Audio Corporation(0xECC0)"},
 }; /* pci_vid_ECC0[] */
 
-pci_id_t pci_vid_EDD8[] = {
+static pci_id_t const pci_vid_EDD8[] = {
 {0xEDD8, 0xFFFF, 0xFFFF, 0xFFFF, "ARK Logic Inc(0xEDD8)"},
 {0xEDD8, 0xA091, 0xFFFF, 0xFFFF, "1000PV [Stingray](0xA091)"},
 {0xEDD8, 0xA099, 0xFFFF, 0xFFFF, "2000PV [Stingray](0xA099)"},
@@ -43506,24 +44029,24 @@ pci_id_t pci_vid_EDD8[] = {
 {0xEDD8, 0xA0A9, 0xFFFF, 0xFFFF, "2000MI(0xA0A9)"},
 }; /* pci_vid_EDD8[] */
 
-pci_id_t pci_vid_F043[] = {
+static pci_id_t const pci_vid_F043[] = {
 {0xF043, 0xFFFF, 0xFFFF, 0xFFFF, "ASUSTeK Computer Inc. (Wrong ID)(0xF043)"},
 }; /* pci_vid_F043[] */
 
-pci_id_t pci_vid_F05B[] = {
+static pci_id_t const pci_vid_F05B[] = {
 {0xF05B, 0xFFFF, 0xFFFF, 0xFFFF, "Foxconn International, Inc. (Wrong ID)(0xF05B)"},
 }; /* pci_vid_F05B[] */
 
-pci_id_t pci_vid_F111[] = {
+static pci_id_t const pci_vid_F111[] = {
 {0xF111, 0xFFFF, 0xFFFF, 0xFFFF, "Framework Computer Inc.(0xF111)"},
 }; /* pci_vid_F111[] */
 
-pci_id_t pci_vid_F15E[] = {
+static pci_id_t const pci_vid_F15E[] = {
 {0xF15E, 0xFFFF, 0xFFFF, 0xFFFF, "SiFive, Inc.(0xF15E)"},
 {0xF15E, 0x0000, 0xFFFF, 0xFFFF, "FU740-C000 RISC-V SoC PCI Express x8 to AXI4 Bridge(0x0000)"},
 }; /* pci_vid_F15E[] */
 
-pci_id_t pci_vid_F1D0[] = {
+static pci_id_t const pci_vid_F1D0[] = {
 {0xF1D0, 0xFFFF, 0xFFFF, 0xFFFF, "AJA Video(0xF1D0)"},
 {0xF1D0, 0xC0FE, 0xFFFF, 0xFFFF, "Xena HS/HD-R(0xC0FE)"},
 {0xF1D0, 0xC0FF, 0xFFFF, 0xFFFF, "Kona/Xena 2(0xC0FF)"},
@@ -43567,66 +44090,66 @@ pci_id_t pci_vid_F1D0[] = {
 {0xF1D0, 0xFACD, 0xFFFF, 0xFFFF, "Xena HD-MM(0xFACD)"},
 }; /* pci_vid_F1D0[] */
 
-pci_id_t pci_vid_F5F5[] = {
+static pci_id_t const pci_vid_F5F5[] = {
 {0xF5F5, 0xFFFF, 0xFFFF, 0xFFFF, "F5 Networks, Inc.(0xF5F5)"},
 }; /* pci_vid_F5F5[] */
 
-pci_id_t pci_vid_F849[] = {
+static pci_id_t const pci_vid_F849[] = {
 {0xF849, 0xFFFF, 0xFFFF, 0xFFFF, "ASRock Incorporation (Wrong ID)(0xF849)"},
 }; /* pci_vid_F849[] */
 
-pci_id_t pci_vid_FA57[] = {
+static pci_id_t const pci_vid_FA57[] = {
 {0xFA57, 0xFFFF, 0xFFFF, 0xFFFF, "Interagon AS(0xFA57)"},
 {0xFA57, 0x0001, 0xFFFF, 0xFFFF, "PMC [Pattern Matching Chip](0x0001)"},
 }; /* pci_vid_FA57[] */
 
-pci_id_t pci_vid_FAB7[] = {
+static pci_id_t const pci_vid_FAB7[] = {
 {0xFAB7, 0xFFFF, 0xFFFF, 0xFFFF, "Fabric7 Systems, Inc.(0xFAB7)"},
 }; /* pci_vid_FAB7[] */
 
-pci_id_t pci_vid_FE19[] = {
+static pci_id_t const pci_vid_FE19[] = {
 {0xFE19, 0xFFFF, 0xFFFF, 0xFFFF, "TenaFe, Inc.(0xFE19)"},
 {0xFE19, 0x0001, 0xFFFF, 0xFFFF, "TC2200/TC2201 NVMe Controller (DRAM-less)(0x0001)"},
 }; /* pci_vid_FE19[] */
 
-pci_id_t pci_vid_FEBD[] = {
+static pci_id_t const pci_vid_FEBD[] = {
 {0xFEBD, 0xFFFF, 0xFFFF, 0xFFFF, "Ultraview Corp.(0xFEBD)"},
 }; /* pci_vid_FEBD[] */
 
-pci_id_t pci_vid_FEDA[] = {
+static pci_id_t const pci_vid_FEDA[] = {
 {0xFEDA, 0xFFFF, 0xFFFF, 0xFFFF, "Broadcom Inc(0xFEDA)"},
 {0xFEDA, 0xA0FA, 0xFFFF, 0xFFFF, "BCM4210 iLine10 HomePNA 2.0(0xA0FA)"},
 {0xFEDA, 0xA10E, 0xFFFF, 0xFFFF, "BCM4230 iLine10 HomePNA 2.0(0xA10E)"},
 }; /* pci_vid_FEDA[] */
 
-pci_id_t pci_vid_FEDE[] = {
+static pci_id_t const pci_vid_FEDE[] = {
 {0xFEDE, 0xFFFF, 0xFFFF, 0xFFFF, "Fedetec Inc.(0xFEDE)"},
 {0xFEDE, 0x0003, 0xFFFF, 0xFFFF, "TABIC PCI v3(0x0003)"},
 }; /* pci_vid_FEDE[] */
 
-pci_id_t pci_vid_FFE1[] = {
+static pci_id_t const pci_vid_FFE1[] = {
 {0xFFE1, 0xFFFF, 0xFFFF, 0xFFFF, "Suzhou XiongLi Technology Inc.(0xFFE1)"},
 {0xFFE1, 0xD200, 0xFFFF, 0xFFFF, "XL82101/82102 PCI Express Gigabit Ethernet Controller(0xD200)"},
 }; /* pci_vid_FFE1[] */
 
-pci_id_t pci_vid_FFFD[] = {
+static pci_id_t const pci_vid_FFFD[] = {
 {0xFFFD, 0xFFFF, 0xFFFF, 0xFFFF, "XenSource, Inc.(0xFFFD)"},
 {0xFFFD, 0x0101, 0xFFFF, 0xFFFF, "PCI Event Channel Controller(0x0101)"},
 }; /* pci_vid_FFFD[] */
 
-pci_id_t pci_vid_FFFE[] = {
+static pci_id_t const pci_vid_FFFE[] = {
 {0xFFFE, 0xFFFF, 0xFFFF, 0xFFFF, "VMWare Inc (temporary ID)(0xFFFE)"},
 {0xFFFE, 0x0710, 0xFFFF, 0xFFFF, "Virtual SVGA(0x0710)"},
 }; /* pci_vid_FFFE[] */
 
-pci_id_t pci_vid_FFFF[] = {
+static pci_id_t const pci_vid_FFFF[] = {
 {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, "Illegal Vendor ID(0xFFFF)"},
 }; /* pci_vid_FFFF[] */
 
-pci_vid_index_t pci_vid_index[] = {
+static pci_vid_index_t const pci_vid_index[] = {
 {0x0001, 1, pci_vid_0001 },
 {0x0010, 2, pci_vid_0010 },
-{0x0014, 19, pci_vid_0014 },
+{0x0014, 21, pci_vid_0014 },
 {0x0018, 2, pci_vid_0018 },
 {0x001C, 4, pci_vid_001C },
 {0x003D, 1, pci_vid_003D },
@@ -43642,7 +44165,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x01DE, 4, pci_vid_01DE },
 {0x0200, 1, pci_vid_0200 },
 {0x021B, 2, pci_vid_021B },
-{0x025E, 12, pci_vid_025E },
+{0x025E, 22, pci_vid_025E },
 {0x0270, 1, pci_vid_0270 },
 {0x0291, 1, pci_vid_0291 },
 {0x02AC, 2, pci_vid_02AC },
@@ -43665,14 +44188,14 @@ pci_vid_index_t pci_vid_index[] = {
 {0x0A89, 1, pci_vid_0A89 },
 {0x0B0B, 15, pci_vid_0B0B },
 {0x0BAE, 1, pci_vid_0BAE },
-{0x0CCD, 1, pci_vid_0CCD },
+{0x0CCD, 7, pci_vid_0CCD },
 {0x0E11, 109, pci_vid_0E11 },
 {0x0E55, 1, pci_vid_0E55 },
 {0x0EAC, 2, pci_vid_0EAC },
 {0x0F62, 1, pci_vid_0F62 },
-{0x1000, 785, pci_vid_1000 },
+{0x1000, 797, pci_vid_1000 },
 {0x1001, 10, pci_vid_1001 },
-{0x1002, 3236, pci_vid_1002 },
+{0x1002, 3246, pci_vid_1002 },
 {0x1003, 2, pci_vid_1003 },
 {0x1004, 34, pci_vid_1004 },
 {0x1005, 8, pci_vid_1005 },
@@ -43693,7 +44216,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1016, 1, pci_vid_1016 },
 {0x1017, 2, pci_vid_1017 },
 {0x1018, 1, pci_vid_1018 },
-{0x1019, 1, pci_vid_1019 },
+{0x1019, 2, pci_vid_1019 },
 {0x101A, 17, pci_vid_101A },
 {0x101B, 2, pci_vid_101B },
 {0x101C, 12, pci_vid_101C },
@@ -43702,7 +44225,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x101F, 1, pci_vid_101F },
 {0x1020, 1, pci_vid_1020 },
 {0x1021, 1, pci_vid_1021 },
-{0x1022, 684, pci_vid_1022 },
+{0x1022, 688, pci_vid_1022 },
 {0x1023, 56, pci_vid_1023 },
 {0x1024, 4, pci_vid_1024 },
 {0x1025, 59, pci_vid_1025 },
@@ -43726,13 +44249,13 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1039, 187, pci_vid_1039 },
 {0x103A, 1, pci_vid_103A },
 {0x103B, 1, pci_vid_103B },
-{0x103C, 146, pci_vid_103C },
+{0x103C, 147, pci_vid_103C },
 {0x103E, 1, pci_vid_103E },
 {0x103F, 1, pci_vid_103F },
 {0x1040, 1, pci_vid_1040 },
 {0x1041, 1, pci_vid_1041 },
 {0x1042, 6, pci_vid_1042 },
-{0x1043, 9, pci_vid_1043 },
+{0x1043, 7, pci_vid_1043 },
 {0x1044, 44, pci_vid_1044 },
 {0x1045, 24, pci_vid_1045 },
 {0x1046, 1, pci_vid_1046 },
@@ -43742,7 +44265,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x104A, 30, pci_vid_104A },
 {0x104B, 4, pci_vid_104B },
 {0x104C, 290, pci_vid_104C },
-{0x104D, 46, pci_vid_104D },
+{0x104D, 47, pci_vid_104D },
 {0x104E, 7, pci_vid_104E },
 {0x104F, 1, pci_vid_104F },
 {0x1050, 20, pci_vid_1050 },
@@ -43756,7 +44279,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1058, 1, pci_vid_1058 },
 {0x1059, 3, pci_vid_1059 },
 {0x105A, 81, pci_vid_105A },
-{0x105B, 2, pci_vid_105B },
+{0x105B, 3, pci_vid_105B },
 {0x105C, 1, pci_vid_105C },
 {0x105D, 37, pci_vid_105D },
 {0x105E, 1, pci_vid_105E },
@@ -43884,7 +44407,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x10DB, 1, pci_vid_10DB },
 {0x10DC, 6, pci_vid_10DC },
 {0x10DD, 3, pci_vid_10DD },
-{0x10DE, 3243, pci_vid_10DE },
+{0x10DE, 3259, pci_vid_10DE },
 {0x10DF, 127, pci_vid_10DF },
 {0x10E0, 7, pci_vid_10E0 },
 {0x10E1, 5, pci_vid_10E1 },
@@ -43898,7 +44421,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x10E9, 1, pci_vid_10E9 },
 {0x10EA, 10, pci_vid_10EA },
 {0x10EB, 3, pci_vid_10EB },
-{0x10EC, 240, pci_vid_10EC },
+{0x10EC, 243, pci_vid_10EC },
 {0x10ED, 2, pci_vid_10ED },
 {0x10EE, 47, pci_vid_10EE },
 {0x10EF, 2, pci_vid_10EF },
@@ -43921,14 +44444,14 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1100, 1, pci_vid_1100 },
 {0x1101, 9, pci_vid_1101 },
 {0x1102, 148, pci_vid_1102 },
-{0x1103, 41, pci_vid_1103 },
+{0x1103, 53, pci_vid_1103 },
 {0x1104, 1, pci_vid_1104 },
 {0x1105, 15, pci_vid_1105 },
-{0x1106, 577, pci_vid_1106 },
+{0x1106, 579, pci_vid_1106 },
 {0x1107, 2, pci_vid_1107 },
 {0x1108, 9, pci_vid_1108 },
 {0x1109, 2, pci_vid_1109 },
-{0x110A, 32, pci_vid_110A },
+{0x110A, 33, pci_vid_110A },
 {0x110B, 3, pci_vid_110B },
 {0x110C, 1, pci_vid_110C },
 {0x110D, 1, pci_vid_110D },
@@ -44038,7 +44561,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1176, 1, pci_vid_1176 },
 {0x1177, 1, pci_vid_1177 },
 {0x1178, 2, pci_vid_1178 },
-{0x1179, 40, pci_vid_1179 },
+{0x1179, 41, pci_vid_1179 },
 {0x117A, 1, pci_vid_117A },
 {0x117B, 1, pci_vid_117B },
 {0x117C, 66, pci_vid_117C },
@@ -44318,7 +44841,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1294, 1, pci_vid_1294 },
 {0x1295, 3, pci_vid_1295 },
 {0x1296, 1, pci_vid_1296 },
-{0x1297, 1, pci_vid_1297 },
+{0x1297, 2, pci_vid_1297 },
 {0x1298, 1, pci_vid_1298 },
 {0x1299, 1, pci_vid_1299 },
 {0x129A, 8, pci_vid_129A },
@@ -44377,13 +44900,13 @@ pci_vid_index_t pci_vid_index[] = {
 {0x12CF, 1, pci_vid_12CF },
 {0x12D0, 1, pci_vid_12D0 },
 {0x12D1, 1, pci_vid_12D1 },
-{0x12D2, 28, pci_vid_12D2 },
+{0x12D2, 29, pci_vid_12D2 },
 {0x12D3, 1, pci_vid_12D3 },
 {0x12D4, 2, pci_vid_12D4 },
 {0x12D5, 3, pci_vid_12D5 },
 {0x12D6, 1, pci_vid_12D6 },
 {0x12D7, 1, pci_vid_12D7 },
-{0x12D8, 24, pci_vid_12D8 },
+{0x12D8, 27, pci_vid_12D8 },
 {0x12D9, 7, pci_vid_12D9 },
 {0x12DA, 1, pci_vid_12DA },
 {0x12DB, 1, pci_vid_12DB },
@@ -44482,7 +45005,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1341, 1, pci_vid_1341 },
 {0x1342, 1, pci_vid_1342 },
 {0x1343, 1, pci_vid_1343 },
-{0x1344, 88, pci_vid_1344 },
+{0x1344, 89, pci_vid_1344 },
 {0x1345, 1, pci_vid_1345 },
 {0x1347, 1, pci_vid_1347 },
 {0x1349, 1, pci_vid_1349 },
@@ -44853,7 +45376,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x14C0, 2, pci_vid_14C0 },
 {0x14C1, 7, pci_vid_14C1 },
 {0x14C2, 1, pci_vid_14C2 },
-{0x14C3, 13, pci_vid_14C3 },
+{0x14C3, 15, pci_vid_14C3 },
 {0x14C4, 1, pci_vid_14C4 },
 {0x14C5, 1, pci_vid_14C5 },
 {0x14C6, 1, pci_vid_14C6 },
@@ -44885,7 +45408,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x14E1, 1, pci_vid_14E1 },
 {0x14E2, 1, pci_vid_14E2 },
 {0x14E3, 1, pci_vid_14E3 },
-{0x14E4, 853, pci_vid_14E4 },
+{0x14E4, 858, pci_vid_14E4 },
 {0x14E5, 1, pci_vid_14E5 },
 {0x14E6, 1, pci_vid_14E6 },
 {0x14E7, 1, pci_vid_14E7 },
@@ -45001,7 +45524,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1555, 1, pci_vid_1555 },
 {0x1556, 11, pci_vid_1556 },
 {0x1557, 1, pci_vid_1557 },
-{0x1558, 1, pci_vid_1558 },
+{0x1558, 2, pci_vid_1558 },
 {0x1559, 1, pci_vid_1559 },
 {0x155A, 1, pci_vid_155A },
 {0x155B, 1, pci_vid_155B },
@@ -45089,16 +45612,16 @@ pci_vid_index_t pci_vid_index[] = {
 {0x15B0, 1, pci_vid_15B0 },
 {0x15B1, 1, pci_vid_15B1 },
 {0x15B2, 1, pci_vid_15B2 },
-{0x15B3, 252, pci_vid_15B3 },
+{0x15B3, 255, pci_vid_15B3 },
 {0x15B4, 1, pci_vid_15B4 },
 {0x15B5, 1, pci_vid_15B5 },
 {0x15B6, 17, pci_vid_15B6 },
-{0x15B7, 30, pci_vid_15B7 },
+{0x15B7, 31, pci_vid_15B7 },
 {0x15B8, 11, pci_vid_15B8 },
 {0x15B9, 1, pci_vid_15B9 },
 {0x15BA, 1, pci_vid_15BA },
 {0x15BB, 1, pci_vid_15BB },
-{0x15BC, 15, pci_vid_15BC },
+{0x15BC, 19, pci_vid_15BC },
 {0x15BD, 1, pci_vid_15BD },
 {0x15BE, 1, pci_vid_15BE },
 {0x15BF, 1, pci_vid_15BF },
@@ -45126,7 +45649,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x15D6, 1, pci_vid_15D6 },
 {0x15D7, 1, pci_vid_15D7 },
 {0x15D8, 1, pci_vid_15D8 },
-{0x15D9, 5, pci_vid_15D9 },
+{0x15D9, 4, pci_vid_15D9 },
 {0x15DA, 1, pci_vid_15DA },
 {0x15DB, 1, pci_vid_15DB },
 {0x15DC, 2, pci_vid_15DC },
@@ -45224,7 +45747,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x16CA, 2, pci_vid_16CA },
 {0x16CD, 12, pci_vid_16CD },
 {0x16CE, 1, pci_vid_16CE },
-{0x16D5, 99, pci_vid_16D5 },
+{0x16D5, 102, pci_vid_16D5 },
 {0x16DA, 2, pci_vid_16DA },
 {0x16DF, 1, pci_vid_16DF },
 {0x16E2, 61, pci_vid_16E2 },
@@ -45243,12 +45766,12 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1719, 2, pci_vid_1719 },
 {0x1725, 2, pci_vid_1725 },
 {0x172A, 2, pci_vid_172A },
-{0x1734, 1, pci_vid_1734 },
+{0x1734, 2, pci_vid_1734 },
 {0x1735, 1, pci_vid_1735 },
 {0x1737, 9, pci_vid_1737 },
 {0x173B, 7, pci_vid_173B },
 {0x1743, 2, pci_vid_1743 },
-{0x1745, 3, pci_vid_1745 },
+{0x1745, 4, pci_vid_1745 },
 {0x1749, 1, pci_vid_1749 },
 {0x174B, 1, pci_vid_174B },
 {0x174D, 1, pci_vid_174D },
@@ -45267,7 +45790,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x179A, 2, pci_vid_179A },
 {0x179C, 9, pci_vid_179C },
 {0x17A0, 7, pci_vid_17A0 },
-{0x17AA, 7, pci_vid_17AA },
+{0x17AA, 8, pci_vid_17AA },
 {0x17AB, 1, pci_vid_17AB },
 {0x17AF, 1, pci_vid_17AF },
 {0x17B3, 2, pci_vid_17B3 },
@@ -45275,7 +45798,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x17C0, 1, pci_vid_17C0 },
 {0x17C2, 1, pci_vid_17C2 },
 {0x17C3, 1, pci_vid_17C3 },
-{0x17CB, 22, pci_vid_17CB },
+{0x17CB, 32, pci_vid_17CB },
 {0x17CC, 2, pci_vid_17CC },
 {0x17CD, 1, pci_vid_17CD },
 {0x17CF, 1, pci_vid_17CF },
@@ -45301,7 +45824,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1809, 1, pci_vid_1809 },
 {0x180C, 1, pci_vid_180C },
 {0x1813, 5, pci_vid_1813 },
-{0x1814, 83, pci_vid_1814 },
+{0x1814, 84, pci_vid_1814 },
 {0x1815, 1, pci_vid_1815 },
 {0x1820, 1, pci_vid_1820 },
 {0x1822, 2, pci_vid_1822 },
@@ -45311,7 +45834,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1830, 5, pci_vid_1830 },
 {0x183B, 5, pci_vid_183B },
 {0x1846, 1, pci_vid_1846 },
-{0x1849, 1, pci_vid_1849 },
+{0x1849, 2, pci_vid_1849 },
 {0x184A, 2, pci_vid_184A },
 {0x1850, 2, pci_vid_1850 },
 {0x1851, 1, pci_vid_1851 },
@@ -45379,7 +45902,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1958, 1, pci_vid_1958 },
 {0x1959, 15, pci_vid_1959 },
 {0x1966, 8, pci_vid_1966 },
-{0x1969, 26, pci_vid_1969 },
+{0x1969, 28, pci_vid_1969 },
 {0x196A, 4, pci_vid_196A },
 {0x196D, 1, pci_vid_196D },
 {0x196E, 1, pci_vid_196E },
@@ -45389,7 +45912,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1977, 1, pci_vid_1977 },
 {0x197B, 32, pci_vid_197B },
 {0x1982, 3, pci_vid_1982 },
-{0x1987, 11, pci_vid_1987 },
+{0x1987, 12, pci_vid_1987 },
 {0x1989, 3, pci_vid_1989 },
 {0x198A, 1, pci_vid_198A },
 {0x1993, 1, pci_vid_1993 },
@@ -45476,14 +45999,14 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1AF4, 23, pci_vid_1AF4 },
 {0x1AF5, 1, pci_vid_1AF5 },
 {0x1AFA, 1, pci_vid_1AFA },
-{0x1B00, 1, pci_vid_1B00 },
+{0x1B00, 4, pci_vid_1B00 },
 {0x1B03, 3, pci_vid_1B03 },
 {0x1B08, 1, pci_vid_1B08 },
-{0x1B0A, 1, pci_vid_1B0A },
+{0x1B0A, 2, pci_vid_1B0A },
 {0x1B13, 1, pci_vid_1B13 },
 {0x1B1A, 2, pci_vid_1B1A },
 {0x1B1C, 1, pci_vid_1B1C },
-{0x1B21, 27, pci_vid_1B21 },
+{0x1B21, 39, pci_vid_1B21 },
 {0x1B26, 11, pci_vid_1B26 },
 {0x1B2C, 1, pci_vid_1B2C },
 {0x1B36, 23, pci_vid_1B36 },
@@ -45523,12 +46046,12 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1BF5, 2, pci_vid_1BF5 },
 {0x1BFC, 1, pci_vid_1BFC },
 {0x1BFD, 1, pci_vid_1BFD },
-{0x1C00, 2, pci_vid_1C00 },
+{0x1C00, 7, pci_vid_1C00 },
 {0x1C09, 13, pci_vid_1C09 },
 {0x1C1C, 2, pci_vid_1C1C },
-{0x1C1F, 11, pci_vid_1C1F },
+{0x1C1F, 12, pci_vid_1C1F },
 {0x1C28, 2, pci_vid_1C28 },
-{0x1C2C, 37, pci_vid_1C2C },
+{0x1C2C, 40, pci_vid_1C2C },
 {0x1C32, 1, pci_vid_1C32 },
 {0x1C33, 1, pci_vid_1C33 },
 {0x1C36, 3, pci_vid_1C36 },
@@ -45546,7 +46069,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1CB1, 1, pci_vid_1CB1 },
 {0x1CB5, 2, pci_vid_1CB5 },
 {0x1CB8, 1, pci_vid_1CB8 },
-{0x1CC1, 21, pci_vid_1CC1 },
+{0x1CC1, 23, pci_vid_1CC1 },
 {0x1CC4, 48, pci_vid_1CC4 },
 {0x1CC5, 3, pci_vid_1CC5 },
 {0x1CC7, 3, pci_vid_1CC7 },
@@ -45561,8 +46084,8 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1CFD, 2, pci_vid_1CFD },
 {0x1D00, 1, pci_vid_1D00 },
 {0x1D05, 1, pci_vid_1D05 },
-{0x1D0F, 11, pci_vid_1D0F },
-{0x1D17, 76, pci_vid_1D17 },
+{0x1D0F, 12, pci_vid_1D0F },
+{0x1D17, 92, pci_vid_1D17 },
 {0x1D18, 2, pci_vid_1D18 },
 {0x1D1C, 5, pci_vid_1D1C },
 {0x1D1D, 3, pci_vid_1D1D },
@@ -45572,15 +46095,15 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1D37, 5, pci_vid_1D37 },
 {0x1D40, 4, pci_vid_1D40 },
 {0x1D44, 2, pci_vid_1D44 },
-{0x1D49, 2, pci_vid_1D49 },
+{0x1D49, 1, pci_vid_1D49 },
 {0x1D4C, 1, pci_vid_1D4C },
 {0x1D5C, 1, pci_vid_1D5C },
 {0x1D61, 1, pci_vid_1D61 },
 {0x1D62, 1, pci_vid_1D62 },
 {0x1D65, 2, pci_vid_1D65 },
 {0x1D69, 3, pci_vid_1D69 },
-{0x1D6A, 16, pci_vid_1D6A },
-{0x1D6C, 39, pci_vid_1D6C },
+{0x1D6A, 21, pci_vid_1D6A },
+{0x1D6C, 42, pci_vid_1D6C },
 {0x1D72, 1, pci_vid_1D72 },
 {0x1D78, 62, pci_vid_1D78 },
 {0x1D79, 6, pci_vid_1D79 },
@@ -45593,17 +46116,17 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1D93, 1, pci_vid_1D93 },
 {0x1D94, 30, pci_vid_1D94 },
 {0x1D95, 3, pci_vid_1D95 },
-{0x1D97, 9, pci_vid_1D97 },
+{0x1D97, 11, pci_vid_1D97 },
 {0x1D9B, 3, pci_vid_1D9B },
 {0x1DA1, 1, pci_vid_1DA1 },
 {0x1DA2, 3, pci_vid_1DA2 },
 {0x1DA3, 6, pci_vid_1DA3 },
 {0x1DA8, 3, pci_vid_1DA8 },
-{0x1DAD, 1, pci_vid_1DAD },
+{0x1DAD, 2, pci_vid_1DAD },
 {0x1DB2, 1, pci_vid_1DB2 },
 {0x1DB7, 23, pci_vid_1DB7 },
 {0x1DBB, 1, pci_vid_1DBB },
-{0x1DBE, 22, pci_vid_1DBE },
+{0x1DBE, 24, pci_vid_1DBE },
 {0x1DBF, 2, pci_vid_1DBF },
 {0x1DC2, 1, pci_vid_1DC2 },
 {0x1DC5, 3, pci_vid_1DC5 },
@@ -45615,9 +46138,10 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1DDD, 1, pci_vid_1DDD },
 {0x1DE0, 6, pci_vid_1DE0 },
 {0x1DE1, 5, pci_vid_1DE1 },
+{0x1DE4, 2, pci_vid_1DE4 },
 {0x1DE5, 4, pci_vid_1DE5 },
 {0x1DED, 8, pci_vid_1DED },
-{0x1DEE, 3, pci_vid_1DEE },
+{0x1DEE, 4, pci_vid_1DEE },
 {0x1DEF, 27, pci_vid_1DEF },
 {0x1DF3, 29, pci_vid_1DF3 },
 {0x1DF5, 2, pci_vid_1DF5 },
@@ -45625,7 +46149,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1DF8, 9, pci_vid_1DF8 },
 {0x1DFC, 2, pci_vid_1DFC },
 {0x1E0D, 1, pci_vid_1E0D },
-{0x1E0F, 92, pci_vid_1E0F },
+{0x1E0F, 101, pci_vid_1E0F },
 {0x1E17, 1, pci_vid_1E17 },
 {0x1E18, 1, pci_vid_1E18 },
 {0x1E24, 8, pci_vid_1E24 },
@@ -45633,13 +46157,13 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1E36, 16, pci_vid_1E36 },
 {0x1E38, 2, pci_vid_1E38 },
 {0x1E39, 1, pci_vid_1E39 },
-{0x1E3A, 1, pci_vid_1E3A },
-{0x1E3B, 78, pci_vid_1E3B },
+{0x1E3A, 2, pci_vid_1E3A },
+{0x1E3B, 94, pci_vid_1E3B },
 {0x1E3D, 1, pci_vid_1E3D },
 {0x1E43, 4, pci_vid_1E43 },
 {0x1E44, 1, pci_vid_1E44 },
 {0x1E49, 9, pci_vid_1E49 },
-{0x1E4B, 8, pci_vid_1E4B },
+{0x1E4B, 9, pci_vid_1E4B },
 {0x1E4C, 3, pci_vid_1E4C },
 {0x1E50, 1, pci_vid_1E50 },
 {0x1E52, 4, pci_vid_1E52 },
@@ -45660,7 +46184,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1E89, 3, pci_vid_1E89 },
 {0x1E93, 1, pci_vid_1E93 },
 {0x1E94, 1, pci_vid_1E94 },
-{0x1E95, 7, pci_vid_1E95 },
+{0x1E95, 13, pci_vid_1E95 },
 {0x1E96, 1, pci_vid_1E96 },
 {0x1E9F, 1, pci_vid_1E9F },
 {0x1EA0, 4, pci_vid_1EA0 },
@@ -45670,15 +46194,17 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1EAE, 1, pci_vid_1EAE },
 {0x1EB1, 2, pci_vid_1EB1 },
 {0x1EB4, 2, pci_vid_1EB4 },
+{0x1EB9, 2, pci_vid_1EB9 },
 {0x1EBD, 2, pci_vid_1EBD },
 {0x1EC6, 22, pci_vid_1EC6 },
 {0x1EC8, 13, pci_vid_1EC8 },
 {0x1EC9, 1, pci_vid_1EC9 },
 {0x1ECA, 2, pci_vid_1ECA },
+{0x1ED0, 1, pci_vid_1ED0 },
 {0x1ED2, 2, pci_vid_1ED2 },
 {0x1ED3, 1, pci_vid_1ED3 },
 {0x1ED5, 26, pci_vid_1ED5 },
-{0x1ED8, 2, pci_vid_1ED8 },
+{0x1ED8, 3, pci_vid_1ED8 },
 {0x1ED9, 1, pci_vid_1ED9 },
 {0x1EE1, 6, pci_vid_1EE1 },
 {0x1EE4, 2, pci_vid_1EE4 },
@@ -45699,14 +46225,14 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1F3F, 38, pci_vid_1F3F },
 {0x1F40, 9, pci_vid_1F40 },
 {0x1F44, 1, pci_vid_1F44 },
-{0x1F47, 1, pci_vid_1F47 },
+{0x1F47, 3, pci_vid_1F47 },
 {0x1F4B, 1, pci_vid_1F4B },
 {0x1F52, 1, pci_vid_1F52 },
 {0x1F56, 1, pci_vid_1F56 },
 {0x1F60, 3, pci_vid_1F60 },
 {0x1F67, 10, pci_vid_1F67 },
 {0x1FAA, 3, pci_vid_1FAA },
-{0x1FAB, 5, pci_vid_1FAB },
+{0x1FAB, 7, pci_vid_1FAB },
 {0x1FB0, 25, pci_vid_1FB0 },
 {0x1FC0, 3, pci_vid_1FC0 },
 {0x1FC1, 3, pci_vid_1FC1 },
@@ -45718,10 +46244,13 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1FE0, 4, pci_vid_1FE0 },
 {0x1FE4, 6, pci_vid_1FE4 },
 {0x1FF4, 4, pci_vid_1FF4 },
+{0x1FF8, 3, pci_vid_1FF8 },
+{0x1FF9, 1, pci_vid_1FF9 },
 {0x2000, 2, pci_vid_2000 },
 {0x2001, 1, pci_vid_2001 },
 {0x2003, 2, pci_vid_2003 },
 {0x2004, 1, pci_vid_2004 },
+{0x2046, 1, pci_vid_2046 },
 {0x2048, 1, pci_vid_2048 },
 {0x20F4, 1, pci_vid_20F4 },
 {0x2116, 1, pci_vid_2116 },
@@ -45730,8 +46259,10 @@ pci_vid_index_t pci_vid_index[] = {
 {0x22B8, 2, pci_vid_22B8 },
 {0x22DB, 1, pci_vid_22DB },
 {0x2304, 1, pci_vid_2304 },
+{0x2321, 1, pci_vid_2321 },
 {0x2348, 2, pci_vid_2348 },
-{0x2646, 24, pci_vid_2646 },
+{0x256C, 2, pci_vid_256C },
+{0x2646, 25, pci_vid_2646 },
 {0x270B, 1, pci_vid_270B },
 {0x270F, 1, pci_vid_270F },
 {0x2711, 1, pci_vid_2711 },
@@ -45746,16 +46277,18 @@ pci_vid_index_t pci_vid_index[] = {
 {0x3130, 1, pci_vid_3130 },
 {0x3142, 1, pci_vid_3142 },
 {0x31AB, 2, pci_vid_31AB },
-{0x328F, 2, pci_vid_328F },
+{0x328F, 3, pci_vid_328F },
 {0x3388, 28, pci_vid_3388 },
 {0x3411, 1, pci_vid_3411 },
 {0x3442, 3, pci_vid_3442 },
 {0x3475, 1, pci_vid_3475 },
 {0x34BA, 1, pci_vid_34BA },
 {0x3513, 1, pci_vid_3513 },
+{0x369A, 1, pci_vid_369A },
 {0x37D9, 5, pci_vid_37D9 },
 {0x3842, 1, pci_vid_3842 },
 {0x38EF, 1, pci_vid_38EF },
+{0x393E, 1, pci_vid_393E },
 {0x3D3D, 49, pci_vid_3D3D },
 {0x4005, 16, pci_vid_4005 },
 {0x4033, 2, pci_vid_4033 },
@@ -45784,15 +46317,17 @@ pci_vid_index_t pci_vid_index[] = {
 {0x4978, 1, pci_vid_4978 },
 {0x4A14, 3, pci_vid_4A14 },
 {0x4B10, 1, pci_vid_4B10 },
+{0x4B43, 1, pci_vid_4B43 },
 {0x4C48, 1, pci_vid_4C48 },
-{0x4C4D, 1, pci_vid_4C4D },
-{0x4C52, 1, pci_vid_4C52 },
+{0x4C4D, 3, pci_vid_4C4D },
+{0x4C52, 9, pci_vid_4C52 },
 {0x4C53, 6, pci_vid_4C53 },
 {0x4CA1, 1, pci_vid_4CA1 },
 {0x4D51, 2, pci_vid_4D51 },
 {0x4D54, 1, pci_vid_4D54 },
 {0x4D56, 10, pci_vid_4D56 },
 {0x4DDC, 27, pci_vid_4DDC },
+{0x4E4C, 1, pci_vid_4E4C },
 {0x4E58, 2, pci_vid_4E58 },
 {0x5045, 2, pci_vid_5045 },
 {0x5046, 2, pci_vid_5046 },
@@ -45813,7 +46348,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x5456, 1, pci_vid_5456 },
 {0x5519, 1, pci_vid_5519 },
 {0x5544, 2, pci_vid_5544 },
-{0x5555, 3, pci_vid_5555 },
+{0x5555, 4, pci_vid_5555 },
 {0x5646, 1, pci_vid_5646 },
 {0x5654, 1, pci_vid_5654 },
 {0x5678, 1, pci_vid_5678 },
@@ -45841,6 +46376,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x6903, 1, pci_vid_6903 },
 {0x6909, 1, pci_vid_6909 },
 {0x6910, 1, pci_vid_6910 },
+{0x6F67, 1, pci_vid_6F67 },
 {0x7063, 4, pci_vid_7063 },
 {0x7284, 1, pci_vid_7284 },
 {0x7357, 2, pci_vid_7357 },
@@ -45854,8 +46390,8 @@ pci_vid_index_t pci_vid_index[] = {
 {0x7FED, 1, pci_vid_7FED },
 {0x8008, 4, pci_vid_8008 },
 {0x807D, 1, pci_vid_807D },
-{0x8086, 8561, pci_vid_8086 },
-{0x8088, 60, pci_vid_8088 },
+{0x8086, 8763, pci_vid_8086 },
+{0x8088, 76, pci_vid_8088 },
 {0x80EE, 3, pci_vid_80EE },
 {0x8322, 1, pci_vid_8322 },
 {0x8384, 1, pci_vid_8384 },
@@ -45864,7 +46400,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x8686, 3, pci_vid_8686 },
 {0x8800, 2, pci_vid_8800 },
 {0x8820, 2, pci_vid_8820 },
-{0x8848, 15, pci_vid_8848 },
+{0x8848, 23, pci_vid_8848 },
 {0x8866, 1, pci_vid_8866 },
 {0x8888, 1, pci_vid_8888 },
 {0x8912, 1, pci_vid_8912 },
@@ -45872,7 +46408,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x8E0E, 1, pci_vid_8E0E },
 {0x8E2E, 2, pci_vid_8E2E },
 {0x9004, 110, pci_vid_9004 },
-{0x9005, 386, pci_vid_9005 },
+{0x9005, 393, pci_vid_9005 },
 {0x907F, 2, pci_vid_907F },
 {0x919A, 1, pci_vid_919A },
 {0x9412, 2, pci_vid_9412 },
@@ -45924,7 +46460,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0xBD11, 1, pci_vid_BD11 },
 {0xBDBD, 37, pci_vid_BDBD },
 {0xC001, 1, pci_vid_C001 },
-{0xC0A9, 6, pci_vid_C0A9 },
+{0xC0A9, 8, pci_vid_C0A9 },
 {0xC0DE, 1, pci_vid_C0DE },
 {0xC0FE, 1, pci_vid_C0FE },
 {0xCA01, 2, pci_vid_CA01 },
@@ -45987,9 +46523,9 @@ pci_vid_index_t pci_vid_index[] = {
 {0xFFFD, 2, pci_vid_FFFD },
 {0xFFFE, 2, pci_vid_FFFE },
 {0xFFFF, 1, pci_vid_FFFF },
-}; /* We have 2363 VIDs */
+}; /* We have 2376 VIDs */
 
-static pci_vid_index_t *get_vid_index(uint16_t vid)
+static pci_vid_index_t const *get_vid_index(uint16_t vid)
 {
     uint32_t start_index = 0;
     uint32_t end_index = 0;
@@ -46026,9 +46562,9 @@ static pci_vid_index_t *get_vid_index(uint16_t vid)
 const char *pci_id_str(uint16_t vid, uint16_t did, uint16_t svid, uint16_t ssid)
 {
     unsigned int i;
-    static char *not_found = "Not found";
-    pci_vid_index_t *index_ptr;
-    pci_id_t *ids_ptr;
+    static const char *not_found = "Not found";
+    pci_vid_index_t const *index_ptr;
+    pci_id_t const *ids_ptr;
 
     index_ptr = get_vid_index(vid);
 
