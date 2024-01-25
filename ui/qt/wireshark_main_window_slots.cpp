@@ -2387,7 +2387,7 @@ void WiresharkMainWindow::injectSecrets()
 
         if (ret != QMessageBox::Yes) return;
 
-        QUrl wiki_url = QString(WS_WIKI_URL("TLS/#tls-decryption"));
+        QUrl wiki_url = QString(WS_WIKI_URL("TLS#tls-decryption"));
         QDesktopServices::openUrl(wiki_url);
         return;
     }

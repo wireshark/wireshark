@@ -35,7 +35,6 @@ typedef enum {
     ONLINEPAGE_NETWORK_MEDIA,
     ONLINEPAGE_SAMPLE_CAPTURES,
     ONLINEPAGE_SECURITY,
-    ONLINEPAGE_CHIMNEY,
     ONLINEPAGE_ASK,
 
     /* local manual pages */
