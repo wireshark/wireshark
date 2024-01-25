@@ -1774,8 +1774,10 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
                 iBodyRemain = tvb_reported_length_remaining(tvb, iBodyOffset);
 
                 if (tp->cmd == RTMPT_TYPE_CHUNK_SIZE && tp->len >= 4 && iBodyRemain >= 4) {
-                        guint32 newchunksize = tvb_get_ntohl(tvb, iBodyOffset);
-                        wmem_tree_insert32(rconv->chunksize[cdir], tp->lastseq, GINT_TO_POINTER(newchunksize));
+                        gint32 newchunksize = tvb_get_ntohl(tvb, iBodyOffset);
+                        if (newchunksize > 0) {
+                                wmem_tree_insert32(rconv->chunksize[cdir], tp->lastseq, GINT_TO_POINTER(newchunksize));
+                        }
                 }
 
                 if (tp->cmd == RTMPT_TYPE_COMMAND_AMF0 || tp->cmd == RTMPT_TYPE_COMMAND_AMF3 ||
@@ -2167,7 +2169,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                 } else {
                         chunk_size = GPOINTER_TO_INT(wmem_tree_lookup32_le(rconv->chunksize[cdir], seq+offset-1));
                         if (!chunk_size) {
-                                chunk_size = rtmpt_default_chunk_size;
+                                chunk_size = ((int)rtmpt_default_chunk_size > 0) ? rtmpt_default_chunk_size : INT_MAX;
                         }
 
                         if (header_type < 2)
