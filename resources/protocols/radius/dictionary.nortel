@@ -1,5 +1,5 @@
 # -*- text -*-
-# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
 ##############################################################################
 #
 #	Nortel Passport 8600 VSA's.
@@ -17,6 +17,17 @@ ATTRIBUTE	Nortel-User-Role			110	string
 
 ATTRIBUTE	Nortel-Privilege-Level			166	integer
 
+ATTRIBUTE	FA-VLAN-Create				170	integer
+ATTRIBUTE	FA-VLAN-ISID				171	string
+ATTRIBUTE	FA-VLAN-PVID				172	integer
+ATTRIBUTE	FA-Switch-Mode				180	integer
+ATTRIBUTE	FA-Client-Id				181	string
+ATTRIBUTE	FA-Client-Type				182	string
+ATTRIBUTE	FA-Client-PSK				183	integer
+ATTRIBUTE	FA-Client-Trust				184	integer
+ATTRIBUTE	FA-Client-Trusted-Binding		185	string
+ATTRIBUTE	FA-Service-Request			186	string
+
 ATTRIBUTE	Passport-Command-Scope			200	integer
 ATTRIBUTE	Passport-Command-Impact			201	integer
 ATTRIBUTE	Passport-Customer-Identifier		202	integer
@@ -25,6 +36,13 @@ ATTRIBUTE	Passport-AllowedOut-Access		204	integer
 ATTRIBUTE	Passport-Login-Directory		205	string
 ATTRIBUTE	Passport-Timeout-Protocol		206	integer
 ATTRIBUTE	Passport-Role				207	string
+
+VALUE	FA-VLAN-Create		FA-VLAN-Create-Disabled		0
+VALUE	FA-VLAN-Create		FA-VLAN-Create-Enabled		1
+
+VALUE	FA-Client-Trust		FA-Switch-Trust-None		0
+VALUE	FA-Client-Trust		FA-Switch-Trust-All		1
+VALUE	FA-Client-Trust		FA-Switch-Trust-Restricted	2
 
 VALUE	Nortel-Privilege-Level		VoiceMailAdmin		0
 VALUE	Nortel-Privilege-Level		ContactCenter		1

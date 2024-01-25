@@ -28,6 +28,8 @@ ATTRIBUTE	Extreme-Login-Service				100		integer
 #
 ATTRIBUTE	Extreme-NAS-IP-Address				101		ipaddr
 
+# ERS Attributes
+ATTRIBUTE	ERS-CoA-Reauthenticate				190		integer
 
 # XOS Attributes
 ATTRIBUTE	Extreme-CLI-Authorization			201		integer
@@ -38,17 +40,22 @@ ATTRIBUTE	Extreme-Netlogin-Url-Desc			205		string
 ATTRIBUTE	Extreme-Netlogin-Only				206		integer
 ATTRIBUTE	Extreme-User-Location				208		string
 ATTRIBUTE	Extreme-Netlogin-Vlan-Tag			209		integer
-ATTRIBUTE	Extreme-Netlogin-Extended-Vlan			211		string
+ATTRIBUTE	Extreme-Netlogin-Extended-Vlan		211		string
 ATTRIBUTE	Extreme-Security-Profile			212		string
 ATTRIBUTE	Extreme-VM-Name					213		string
 ATTRIBUTE	Extreme-VM-VPP-Name				214		string
 ATTRIBUTE	Extreme-VM-IP-Addr				215		ipaddr
 ATTRIBUTE	Extreme-VM-VLAN-ID				216		integer
 ATTRIBUTE	Extreme-VM-VR-Name				217		string
-ATTRIBUTE	Extreme-Netlogin-VR-Name			218		string
+ATTRIBUTE	Extreme-Netlogin-VR-Name		218		string
 ATTRIBUTE	Extreme-NSI-Type				230		integer		has_tag
 ATTRIBUTE	Extreme-NSI-ID					231		string		has_tag
-ATTRIBUTE   Extreme-Email-Address           233     string
+ATTRIBUTE	Extreme-Policy-ACL				232		string
+ATTRIBUTE	Extreme-Email-Address			233		string
+ATTRIBUTE	Extreme-Dynamic-MHSA			250		integer
+ATTRIBUTE	Extreme-Dynamic-ACL				251		string
+ATTRIBUTE	Extreme-Dynamic-Config			252		string
+ATTRIBUTE	Extreme-Dynamic-Client-Assignments	253		string
 
 VALUE	Extreme-Service-Type			Monitor			1
 VALUE	Extreme-Service-Type			Help-Desk-Manager	2
@@ -70,5 +77,8 @@ VALUE	Extreme-Netlogin-Only			Disabled		0
 VALUE	Extreme-Netlogin-Only			Enabled			1
 
 VALUE	Extreme-NSI-Type			VNI-OR-ISID		1
+
+VALUE	Extreme-Dynamic-MHSA			Disabled		0
+VALUE	Extreme-Dynamic-MHSA			Enabled			1
 
 END-VENDOR      Extreme
