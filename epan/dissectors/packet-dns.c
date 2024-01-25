@@ -87,6 +87,7 @@ struct DnsTap {
     guint payload_size;
     guint qname_len;
     guint qname_labels;
+    gchar* qname;
     guint nquestions;
     guint nanswers;
     guint nauthorities;
@@ -101,6 +102,7 @@ static int dns_tap;
 static const gchar* st_str_packets = "Total Packets";
 static const gchar* st_str_packet_qr = "Query/Response";
 static const gchar* st_str_packet_qtypes = "Query Type";
+static const gchar* st_str_packet_qnames = "Query Name";
 static const gchar* st_str_packet_qclasses = "Class";
 static const gchar* st_str_packet_rcodes = "rcode";
 static const gchar* st_str_packet_opcodes = "opcodes";
@@ -125,6 +127,7 @@ static const gchar* st_str_service_rrt = "request-response time (msec)";
 static int st_node_packets = -1;
 static int st_node_packet_qr = -1;
 static int st_node_packet_qtypes = -1;
+static int st_node_packet_qnames = -1;
 static int st_node_packet_qclasses = -1;
 static int st_node_packet_rcodes = -1;
 static int st_node_packet_opcodes = -1;
@@ -524,6 +527,8 @@ static dissector_handle_t doq_handle;
 
 /* desegmentation of DNS over TCP */
 static gboolean dns_desegment = TRUE;
+
+static gboolean dns_qname_stats = FALSE;
 
 /* Maximum number of elapsed seconds between messages with the same
  * transaction ID to be considered as a retransmission
@@ -4658,6 +4663,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (quest > 0) {
       dns_stats->qname_len = name_len;
       dns_stats->qname_labels = qname_labels_count(name, name_len);
+      dns_stats->qname = format_text(pinfo->pool, (const guchar *)name, name_len);
     }
     if (flags & F_RESPONSE) {
       if (dns_trans->req_frame == 0) {
@@ -4840,6 +4846,7 @@ static void dns_stats_tree_init(stats_tree* st)
   st_node_packets = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, TRUE);
   st_node_packet_qr = stats_tree_create_pivot(st, st_str_packet_qr, st_node_packets);
   st_node_packet_qtypes = stats_tree_create_pivot(st, st_str_packet_qtypes, st_node_packets);
+  st_node_packet_qnames = stats_tree_create_pivot(st, st_str_packet_qnames, st_node_packets);
   st_node_packet_qclasses = stats_tree_create_pivot(st, st_str_packet_qclasses, st_node_packets);
   st_node_packet_rcodes = stats_tree_create_pivot(st, st_str_packet_rcodes, st_node_packets);
   st_node_packet_opcodes = stats_tree_create_pivot(st, st_str_packet_opcodes, st_node_packets);
@@ -4874,6 +4881,9 @@ static tap_packet_status dns_stats_tree_packet(stats_tree* st, packet_info* pinf
           val_to_str(pi->packet_qr, dns_qr_vals, "Unknown qr (%d)"));
   stats_tree_tick_pivot(st, st_node_packet_qtypes,
           val_to_str(pi->packet_qtype, dns_types_vals, "Unknown packet type (%d)"));
+  if (dns_qname_stats) {
+        stats_tree_tick_pivot(st, st_node_packet_qnames, pi->qname);
+  }
   stats_tree_tick_pivot(st, st_node_packet_qclasses,
           val_to_str(pi->packet_qclass, dns_classes, "Unknown class (%d)"));
   stats_tree_tick_pivot(st, st_node_packet_rcodes,
@@ -6662,6 +6672,12 @@ proto_register_dns(void)
   prefs_register_static_text_preference(dns_module, "text_use_for_addr_resolution",
                                         "DNS address resolution settings can be changed in the Name Resolution preferences",
                                         "DNS address resolution settings can be changed in the Name Resolution preferences");
+
+  prefs_register_bool_preference(dns_module, "enable_qname_stats",
+    "Add queried names to DNS statistics",
+    "Whether the DNS dissector should add queried names to DNS statistics.",
+    &dns_qname_stats);
+
 
   dns_tsig_dissector_table = register_dissector_table("dns.tsig.mac", "DNS TSIG MAC", proto_dns, FT_STRING, STRING_CASE_SENSITIVE);
 
