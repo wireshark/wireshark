@@ -74,7 +74,7 @@ typedef struct _tap_reg {
  * XXX - should probably be handled by epan_init(), as the tap mechanism
  * is part of libwireshark.
  */
-WS_DLL_PUBLIC void register_all_tap_listeners(tap_reg_t *tap_reg_listeners);
+WS_DLL_PUBLIC void register_all_tap_listeners(tap_reg_t const *tap_reg_listeners);
 
 extern void tap_init(void);
 

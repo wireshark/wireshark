@@ -64,11 +64,11 @@ const unsigned long dissector_reg_handoff_count = {1};
 
     output += gen_prototypes(protos)
     output += "\n"
-    output += gen_array(protos, "dissector_reg_t dissector_reg_proto")
+    output += gen_array(protos, "dissector_reg_t const dissector_reg_proto")
     output += "\n"
     output += gen_prototypes(handoffs)
     output += "\n"
-    output += gen_array(handoffs, "dissector_reg_t dissector_reg_handoff")
+    output += gen_array(handoffs, "dissector_reg_t const dissector_reg_handoff")
 
     with open(outfile, "w") as f:
         f.write(output)
@@ -96,7 +96,7 @@ const unsigned wtap_module_count = {0};
 
     output += gen_prototypes(wtap_modules)
     output += "\n"
-    output += gen_array(wtap_modules, "wtap_module_reg_t wtap_module_reg")
+    output += gen_array(wtap_modules, "wtap_module_reg_t const wtap_module_reg")
 
     with open(outfile, "w") as f:
         f.write(output)
@@ -124,7 +124,7 @@ const unsigned long tap_reg_listener_count = {0};
 
     output += gen_prototypes(taps)
     output += "\n"
-    output += gen_array(taps, "tap_reg_t tap_reg_listener")
+    output += gen_array(taps, "tap_reg_t const tap_reg_listener")
 
     with open(outfile, "w") as f:
         f.write(output)

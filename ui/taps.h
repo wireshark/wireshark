@@ -20,7 +20,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-extern tap_reg_t tap_reg_listener[];
+extern tap_reg_t const tap_reg_listener[];
 
 extern const gulong tap_reg_listener_count;
 

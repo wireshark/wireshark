@@ -128,7 +128,7 @@ call_plugin_register_tap_listener(gpointer data, gpointer user_data _U_)
  * part of libwireshark, so it must be passed to us as an argument.
  */
 void
-register_all_tap_listeners(tap_reg_t *tap_reg_listeners)
+register_all_tap_listeners(tap_reg_t const *tap_reg_listeners)
 {
 	/* we register the plugin taps before the other taps because
          * stats_tree taps plugins will be registered as tap listeners
@@ -136,7 +136,7 @@ register_all_tap_listeners(tap_reg_t *tap_reg_listeners)
 	g_slist_foreach(tap_plugins, call_plugin_register_tap_listener, NULL);
 
 	/* Register all builtin listeners. */
-	for (tap_reg_t *t = &tap_reg_listeners[0]; t->cb_func != NULL; t++) {
+	for (tap_reg_t const *t = &tap_reg_listeners[0]; t->cb_func != NULL; t++) {
 		t->cb_func();
 	}
 }

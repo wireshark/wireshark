@@ -22,8 +22,8 @@ typedef struct _dissector_reg {
     void (*cb_func)(void);
 } dissector_reg_t;
 
-extern dissector_reg_t dissector_reg_proto[];
-extern dissector_reg_t dissector_reg_handoff[];
+extern dissector_reg_t const dissector_reg_proto[];
+extern dissector_reg_t const dissector_reg_handoff[];
 
 extern const gulong dissector_reg_proto_count;
 extern const gulong dissector_reg_handoff_count;
