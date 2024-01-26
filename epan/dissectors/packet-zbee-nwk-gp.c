@@ -1502,8 +1502,11 @@ static guint
 dissect_zbee_nwk_gp_cmd_move_up_down(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     zbee_nwk_green_power_packet *packet _U_, guint offset)
 {
-    proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_move_up_down_rate, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset += 1;
+    /* Optional rate field. */
+    if (tvb_reported_length(tvb) - offset >= 1) {
+        proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_move_up_down_rate, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+    }
     return offset;
 } /* dissect_zbee_nwk_gp_cmd_move_up_down */
 
@@ -1549,8 +1552,11 @@ dissect_zbee_nwk_gp_cmd_step_up_down(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 {
     proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_step_up_down_step_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
-    proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_step_up_down_transition_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset += 2;
+    /* Optional time field. */
+    if (tvb_reported_length(tvb) - offset >= 2) {
+        proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_step_up_down_transition_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+    }
     return offset;
 } /* dissect_zbee_nwk_gp_cmd_step_up_down */
 
