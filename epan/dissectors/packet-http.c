@@ -36,7 +36,7 @@
 #include <epan/export_object.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
-
+#include <glib.h>
 #include "packet-http.h"
 #include "packet-http2.h"
 #include "packet-tcp.h"
@@ -251,6 +251,8 @@ header_fields_free_cb(void*r)
 
 UAT_CSTRING_CB_DEF(header_fields, header_name, header_field_t)
 UAT_CSTRING_CB_DEF(header_fields, header_desc, header_field_t)
+
+GSList *req_list = NULL;
 
 /*
  * desegmentation of HTTP headers
@@ -518,6 +520,8 @@ static int st_node_reqs = -1;
 static int st_node_reqs_by_srv_addr = -1;
 static int st_node_reqs_by_http_host = -1;
 static int st_node_resps_by_srv_addr = -1;
+
+static GSList *top_of_list = NULL;
 
 /* Parse HTTP path sub components RFC3986 Ch 3.3, 3.4 */
 void
@@ -1087,11 +1091,12 @@ get_http_conversation_data(packet_info *pinfo, conversation_t **conversation)
 		conv_data = wmem_new0(wmem_file_scope(), http_conv_t);
 		conv_data->chunk_offsets_fwd = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 		conv_data->chunk_offsets_rev = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
-		conv_data->req_table = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+		conv_data->req_list = NULL;
 		conv_data->matches_table = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 
 		conversation_add_proto_data(*conversation, proto_http,
 					    conv_data);
+		top_of_list = NULL;
 	}
 
 	return conv_data;
@@ -1860,7 +1865,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					proto_item_set_generated(pi);
 				}
 
-				/* BEGINNING OF UNCOMMENTED CODE*/
+				/* There is no use case for previous and next request and response frame numbers.
+				*  As such, they needlessly clutter up the Detail list.
+				*/
 				//if (prev && prev->req_framenum) {
 				//	pi = proto_tree_add_uint(http_tree, hf_http_prev_request_in, tvb, 0, 0, prev->req_framenum);
 				//	proto_item_set_generated(pi);
@@ -1877,7 +1884,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				//	pi = proto_tree_add_uint(http_tree, hf_http_next_response_in, tvb, 0, 0, next->res_framenum);
 				//	proto_item_set_generated(pi);
 				//}
-				/* END OF UNCOMMENTED CODE*/
 			}
 			break;
 
@@ -3715,47 +3721,30 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 		}
 		case HDR_RANGE:
 		{
-			if (!pinfo->fd->visited) {
+			if (! pinfo->fd->visited) {
 			 /*
-			 *  The HTTP protocol (RFC 9110) provides no means to match requests and responses
-			 *  by an identifier because one does not exist. Instead the order in which responses
-			 *  are received is used. HTTP I/O is 'ordered asynchronous' such that, for example,
-			 *  the first of four GETs responses is matched with the earliest outstanding
-			 *  request, the next response with the second oldest request and so on. HTTP
-			 *  captures show that sometimes the server does not return a response on the same
-			 *  TCP connection and there are no TCP errors that would otherwise explain this.
-			 *  While the RFC expressily prohibits matching via byte ranges because the the
+			 *  Unlike protocols such as NFS and SMB, the HTTP protocol (RFC 9110) does not
+			 *  provide an identifier with which to match requests and responses. Instead
+			 *  matching is solely based upon the order in which responses are received.
+			 *  HTTP I/O is asynchronously ordered such that, for example, the first of four
+			 *  GET responses are matched with the oldest outstanding  request, the next
+			 *  response with the second oldest request and so on (FIFO). The previous method,
+			 *  in use since Wireshark was created, incorrectly matched responses with the
+			 *  last of several async requests rather than the first (LIFO), and did not
+			 *  handle a requests with no response. Whenever there were multiple outstanding
+			 *  requests, the SRT stats were wrong, in some cases massively incorrect.
+			 *
+			 *  While the RFC expressly prohibits matching via byte ranges because the
 			 *  server may return fewer bytes than requested, the first number of the range
-			 *  does not change. Matching by first range number works unless the server returns
-			 *  multiple ranges. Such behavior is rare but if the following METHOD is employed,
-			 *  matching is	discontinued until a single range response is received. The previous
-			 *  method in service since the Wireshark was created, incorrectly matched
-			 *  responses with the last of several async requests rather than the first, and
-			 *  did not handle a request with no respnsene. Whenever there were multiple
-			 *  outstanding requests, the SRT stats were wrong.
-			 *  METHOD
-			 *  ======
-			 *  Create a reqs_table, keyed by the fist range number or the entire range, and
-			 *  a matches_table. The matches_table contains a list of matching requests and
-			 *  responses keyed by frame_num.
+			 *  does not change. Matching by first range number works unless the server
+			 *  returns multiple ranges. Such behavior is rare but with the following method
+			 *  matching is	discontinued until a single range request is received.
 			 *
-			 *  If a request arrives where the first_range_num does not exist (e.g., "-12345")
-			 *  or the first number in the range is zero, the entire range is hashed and
-			 *  inserted in the reqs_table as if it were a first_range_num.
+			 *  The method of matching used herein is able to recover from packet loss
+			 *  and duplicate range requests for different URIs.
 			 *
-			 *  When a response arrives with the same first range number or hash in its
-			 *  "Content Range" as that in the req_table, two entries are added to the
-			 *  matches_table: one with "match_trans->match_frame" set to the request's frame
-			 *  number and the second set to the response's frame number.
-			 *
-			 *  If a response arrives that doesn't match any of the requests, it is ignored
-			 *  and matching resumes with the next response.
-			 *
-			 *  If a response arrives with a content range that matches two of the outstanding
-			 *  entries in the req_table, the order of the duplicates are reversed so that the
-			 *  lookup will match the entry containing the lowest frame number in the req_table.
-			 *
-			 *  ALL of the above is done in the first pass.
+			 *  All request/response matching is performed in the first pass. The second pass
+			 *  is only used to display the results.
 			 */
 			 /*
 			 * THIS IS A REQUEST
@@ -3792,111 +3781,109 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				}
 			}
 			if (first_range_num > 0) {
-				request_trans_t *tmp_req_trans = NULL;
 
-				req_trans = wmem_new0(wmem_file_scope(), request_trans_t);
+				request_trans_t* req_trans = g_new(request_trans_t, 1);
 				req_trans->first_range_num = first_range_num;
 				req_trans->req_frame = pinfo->num;
 				req_trans->abs_time = pinfo->fd->abs_ts;
 
-				tmp_req_trans = wmem_map_insert(conv_data->req_table,
-							GUINT_TO_POINTER(first_range_num), (void *)req_trans);
-
-				if (tmp_req_trans
-				&& first_range_num == tmp_req_trans->first_range_num) {
-					/*
-					 * We have a duplicate entry. Swap the order of the req_table entries
-					*/
-					request_trans_t *old_req_trans = NULL;
-
-					old_req_trans = wmem_new0(wmem_file_scope(), request_trans_t);
-					old_req_trans->first_range_num = tmp_req_trans->first_range_num;
-					old_req_trans->req_frame = tmp_req_trans->req_frame;
-					old_req_trans->abs_time = tmp_req_trans->abs_time;
-
-					wmem_map_remove(conv_data->req_table, (void *)tmp_req_trans);
-					wmem_map_insert(conv_data->req_table,
-								GUINT_TO_POINTER(first_range_num), (void *)req_trans);
-					wmem_map_insert(conv_data->req_table,
-								GUINT_TO_POINTER(first_range_num), (void *)old_req_trans);
-				}
-				else {
-					wmem_map_remove(conv_data->req_table, (void *)tmp_req_trans);
-					wmem_map_insert(conv_data->req_table,
-								GUINT_TO_POINTER(first_range_num), (void *)req_trans);
-				}
-			}
+				conv_data->req_list = g_slist_append(top_of_list, GUINT_TO_POINTER(req_trans));
+				if (top_of_list	== NULL)
+					top_of_list = conv_data->req_list;
 			else {
 				expert_add_info(pinfo, tree, &ei_http_range_num_undetermined);
 			}
 			break;
 			}
+			}
 		}
 		case HDR_CONTENT_RANGE:
 		{
-			if (!pinfo->fd->visited) {
-			/*
-			 * THIS IS A RESPONSE
-			*/
-			guint8  *first_crange_num_str = NULL;
-			guint8  *no_suffix_str = NULL;
-			guint32 first_crange_num = 0;
-			guint32 highest_matched_frame;
-			request_trans_t *req_trans = NULL;
-			match_trans_t *match_trans = NULL;
-			nstime_t  ns;
-
-			/* Get the first crange number  */
-			first_crange_num_str = wmem_strdup(wmem_file_scope(), value);
-			first_crange_num_str = strtok(value_bytes, "/");
-			no_suffix_str = wmem_strdup(wmem_file_scope(), first_crange_num_str);
-			first_crange_num_str = strtok(value_bytes, "-");
-			first_crange_num_str = strtok(value_bytes, " ");
-
-			if (first_crange_num_str) {
-				first_crange_num_str += 6;  /* Move the pointer past "bytes=" */
-				first_crange_num = strtoul(first_crange_num_str, NULL ,10);
-			}
-			if (first_crange_num == 0) {
-				/* The first number of the range is missing. Get a hash of the entire
-				*  range field and set it to first_range_num_str."
-				*/
-				unsigned long hash = 5381;
-				int c;
-				guint8 *str = wmem_strdup(wmem_file_scope(), no_suffix_str);
+			if (! pinfo->fd->visited) {
 				/*
-				 * Get the entire range sans the last useless number (e.g.,
-				 * "/12345", create a hash of it, and insert it into the req_table. */
-				str += 6;
+				 * THIS IS A RESPONSE
+				*/
+				guint8  *first_crange_num_str = NULL;
+				guint8  *no_suffix_str = NULL;
+				guint32 first_crange_num = 0;
+				guint   pos;
+				request_trans_t *req_trans;
+				match_trans_t *match_trans = NULL;
+				nstime_t  ns;
+				GSList *iter = NULL;
 
-				if (*str) {
-					while (c = *str++)
-						hash = ((hash << 5) + hash) + c;
-						first_crange_num = hash;
+				/* Get the first content range number  */
+				first_crange_num_str = wmem_alloc(scope, 100);
+				first_crange_num_str = g_strdup(value);
+
+				first_crange_num_str = strtok(value_bytes, "/");
+				no_suffix_str = wmem_strdup(wmem_file_scope(), first_crange_num_str);
+				first_crange_num_str = strtok(value_bytes, "-");
+				first_crange_num_str = strtok(value_bytes, " ");
+
+				if (first_crange_num_str) {
+					first_crange_num_str += 6;  /* Move the pointer past "bytes=" */
+					first_crange_num = strtoul(first_crange_num_str, NULL ,10);
 				}
-			}
-			req_trans = (request_trans_t *)wmem_map_lookup(conv_data->req_table,
-						GUINT_TO_POINTER(first_crange_num));
+				if (first_crange_num == 0) {
+					/* The first number of the range is missing. Get a hash of the entire
+					*  range field and set it to first_range_num_str."
+					*/
+					unsigned long hash = 5381;
+					int c;
+					guint8 *str = wmem_strdup(wmem_file_scope(), no_suffix_str);
+					/*
+					 * Get the entire range sans the last useless number (e.g.,
+					 * "/12345", create a hash of it, and insert it into the req_list. */
+					str += 6;
 
-			if (first_crange_num != 0) {
-				if (req_trans) {
-					match_trans = wmem_new(wmem_file_scope(), match_trans_t);
-					match_trans->req_frame = req_trans->req_frame;
-					match_trans->resp_frame = pinfo->num;
-					nstime_delta(&ns, &pinfo->fd->abs_ts, &req_trans->abs_time);
-					match_trans->delta_time = ns;
-
-					wmem_map_insert(conv_data->matches_table,
-						GUINT_TO_POINTER(match_trans->req_frame), (void *)match_trans);
-					wmem_map_insert(conv_data->matches_table,
-						GUINT_TO_POINTER(match_trans->resp_frame), (void *)match_trans);
-
-					/* Remove this entry (and free its memory) so that it won't be matched
-					*  with duplicate range request. */
-					wmem_map_remove(conv_data->req_table, req_trans);
+					if (*str) {
+						while (c = *str++)
+							hash = ((hash << 5) + hash) + c;
+							first_crange_num = hash;
+					}
 				}
-			}
-			break;
+
+				/* Get the position of the matching request if any. This is used to remove and
+				 * free the matching request from reqs_table *and all those above it*. */
+				req_trans = NULL;
+				pos = 0;
+
+				for (iter = conv_data->req_list = top_of_list; iter; iter = iter->next) {
+					if (((request_trans_t*)iter->data)->first_range_num == first_crange_num) {
+						req_trans = iter->data;
+						break;
+					}
+					else {
+						pos++;
+					}
+				}
+
+				if (first_crange_num != 0) {
+					if (req_trans) {
+						match_trans = wmem_new(wmem_file_scope(), match_trans_t);
+						match_trans->req_frame = req_trans->req_frame;
+						match_trans->resp_frame = pinfo->num;
+						nstime_delta(&ns, &pinfo->fd->abs_ts, &req_trans->abs_time);
+						match_trans->delta_time = ns;
+
+						wmem_map_insert(conv_data->matches_table,
+							GUINT_TO_POINTER(match_trans->req_frame), (void *)match_trans);
+						wmem_map_insert(conv_data->matches_table,
+							GUINT_TO_POINTER(match_trans->resp_frame), (void *)match_trans);
+
+						/* Remove and free all of the list entries up to and including the
+						 * matching one from req_table. */
+						GSList *next;
+						pos++;
+						for (guint i = 0; i < pos; i++) {
+							next = top_of_list->next;
+							g_slist_delete_link(top_of_list, top_of_list);
+							top_of_list = next;
+						}
+					}
+				}
+				break;
 			}
 		}
 		}
