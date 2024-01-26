@@ -104,6 +104,12 @@ static int hf_srt_km_klen;
 static int hf_srt_km_salt;
 static int hf_srt_km_wrap;
 
+/* HS Extension: Group */
+static int hf_srt_hs_ext_group_id;
+static int hf_srt_hs_ext_group_type;
+static int hf_srt_hs_ext_group_flags;
+static int hf_srt_hs_ext_group_weight;
+
 static int hf_srt_srths_blocktype;
 static int hf_srt_srths_blocklen;
 static int hf_srt_srths_agent_latency; // TSBPD delay
@@ -120,6 +126,7 @@ static gint ett_srt_handshake_ext_field_flags;
 static expert_field ei_srt_nak_seqno;
 static expert_field ei_srt_hs_ext_hsreq_len;
 static expert_field ei_srt_hs_ext_type;
+static expert_field ei_srt_hs_ext_group_len;
 
 static dissector_handle_t srt_udp_handle;
 
@@ -221,6 +228,8 @@ enum UDTMessageType
 #define SRT_CMD_KMRSP       4
 #define SRT_CMD_SID         5
 #define SRT_CMD_CONGESTCTRL 6
+#define SRT_CMD_FILTER      7
+#define SRT_CMD_GROUP       8
 
 enum SrtDataStruct
 {
@@ -275,8 +284,18 @@ static const value_string srt_ctrlmsg_exttypes[] = {
     {SRT_CMD_KMRSP,       "SRT_CMD_KMRSP"},
     {SRT_CMD_SID,         "SRT_CMD_SID"},
     {SRT_CMD_CONGESTCTRL, "SRT_CMD_CONGESTCTRL"},
+    {SRT_CMD_FILTER,      "SRT_CMD_FILTER"},
+    {SRT_CMD_GROUP,       "SRT_CMD_GROUP"},
 
     { 0, NULL },
+};
+
+static const value_string srt_hs_ext_group_type[] = {
+        { 0, "Undefined" },
+        { 1, "Broadcast" },
+        { 2, "Main/Backup" },
+        { 3, "Balancing"},
+        { 0, NULL }
 };
 
 static const value_string srt_hsv4_socket_types[] = {
@@ -517,6 +536,34 @@ static void srt_format_kmx(proto_tree* tree, tvbuff_t* tvb, int baseoff, int blo
     else
     {
         srt_format_km(tree, tvb, baseoff, blocklen);
+    }
+}
+
+static void srt_format_hs_ext_group(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int baseoff, int blocklen)
+{
+    //  0                   1                   2                   3
+    //  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // |                           Group ID                            |
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // |     Type    |     Flags     |             Weight              |
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    if (blocklen < 8)
+    {
+        proto_tree_add_expert_format(tree, pinfo, &ei_srt_hs_ext_hsreq_len,
+            tvb, baseoff, blocklen, "Actual length is %u", blocklen);
+        return;
+    }
+
+    proto_tree_add_item(tree, hf_srt_hs_ext_group_id,     tvb, baseoff,     4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_srt_hs_ext_group_type,   tvb, baseoff + 4, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_srt_hs_ext_group_flags,  tvb, baseoff + 5, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_srt_hs_ext_group_weight, tvb, baseoff + 6, 2, ENC_BIG_ENDIAN);
+
+    if (blocklen > 8)
+    {
+        proto_tree_add_expert_format(tree, pinfo, &ei_srt_hs_ext_hsreq_len,
+            tvb, baseoff, blocklen, "Actual length is %u", blocklen);
     }
 }
 
@@ -820,6 +867,10 @@ dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
 
                     case SRT_CMD_CONGESTCTRL:
                         format_text_reorder_32(tree, tvb, pinfo, hf_srt_srths_congestcontrol, begin, 4 * blocklen);
+                        break;
+
+                    case SRT_CMD_GROUP:
+                        srt_format_hs_ext_group(tree, tvb, pinfo, begin, blocklen * 4);
                         break;
 
                     default:
@@ -1464,7 +1515,28 @@ void proto_register_srt(void)
         {&hf_srt_km_wrap, {
             "Key wrap", "srt.km.wrap",
             FT_BYTES, BASE_NONE,
+            NULL, 0, NULL, HFILL}},
+
+        {&hf_srt_hs_ext_group_id, {
+            "Group ID", "srt.hs_ext_group.id",
+            FT_UINT8, BASE_DEC,
+            NULL, 0, NULL, HFILL}},
+
+        { &hf_srt_hs_ext_group_type, {
+            "Group Type", "srt.hs_ext_group.type",
+            FT_UINT8, BASE_DEC,
+            VALS(srt_hs_ext_group_type), 0, NULL, HFILL}},
+
+        { &hf_srt_hs_ext_group_flags, {
+            "Group Flags", "srt.hs_ext_group.flags",
+            FT_UINT8, BASE_DEC,
+            NULL, 0, NULL, HFILL}},
+
+        { &hf_srt_hs_ext_group_weight, {
+            "Member Weight", "srt.hs_ext_group.member_weight",
+            FT_UINT16, BASE_DEC,
             NULL, 0, NULL, HFILL}}
+
     };
 
     static gint *ett[] = {
@@ -1485,6 +1557,10 @@ void proto_register_srt(void)
         { &ei_srt_hs_ext_type,
             { "srt.hs.ext.type", PI_PROTOCOL, PI_WARN,
               "Unknown HS Ext Type", EXPFILL }},
+
+        { &ei_srt_hs_ext_group_len,
+            { "srt.hs.ext.group", PI_PROTOCOL, PI_WARN,
+              "Wrong HS Ext Group length", EXPFILL }},
     };
 
     proto_srt = proto_register_protocol("SRT Protocol", "SRT", "srt");
