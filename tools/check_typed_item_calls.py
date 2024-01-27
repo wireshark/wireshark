@@ -1264,6 +1264,14 @@ class Item:
             errors_found += 1
         # TODO: check for length > 64?
 
+    def check_string_display(self):
+        global warnings_found
+        if self.item_type in { 'FT_STRING', 'FT_STRINGZ', 'FT_UINT_STRING'}:
+            if self.display != 'BASE_NONE':
+                print('Warning:', self.filename, self.hf, 'type is', self.item_type, 'display must be BASE_NONE, is instead', self.display)
+                warnings_found += 1
+
+
 
 
 class CombinedCallsCheck:
@@ -1685,6 +1693,8 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
 
     for hf in items_defined:
         items_defined[hf].check_boolean_length()
+        items_defined[hf].check_string_display()
+
 
 
 

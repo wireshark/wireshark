@@ -1261,17 +1261,17 @@ void proto_register_waveagent(void)
 
         { &hf_waveagent_id,
         { "ID", "waveagent.id",
-        FT_STRING, 0, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL } },
 
         { &hf_waveagent_bindtag,
         { "Binding Tag", "waveagent.bindtag",
-        FT_STRING, 0, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL } },
 
         { &hf_waveagent_version,
         { "Version", "waveagent.version",
-        FT_STRING, 0, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL } },
 
         { &hf_waveagent_brokerip,
@@ -1330,7 +1330,7 @@ void proto_register_waveagent(void)
 
         { &hf_waveagent_statusstring,
         { "Status Message", "waveagent.statmsg",
-        FT_STRING, 0, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL } },
     /* END: Command response message fields */
 
@@ -1617,7 +1617,7 @@ void proto_register_waveagent(void)
 
         { &hf_waveagent_ifwlanssid,
         { "WLAN Interface Connected to SSID", "waveagent.ifwlanssid",
-        FT_STRING, 0, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL } },
 
         { &hf_waveagent_ifwlanrssi,
@@ -1670,7 +1670,7 @@ void proto_register_waveagent(void)
 
         { &hf_waveagent_ifdescription,
         { "Name/Description of the adapter", "waveagent.ifdescription",
-        FT_STRING, 0, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL } },
 
         { &hf_waveagent_ifmacaddr,
@@ -1753,7 +1753,7 @@ void proto_register_waveagent(void)
 
         { &hf_waveagent_scanssid,
         { "SSID", "waveagent.scanssid",
-        FT_STRING, 0, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL } },
 
         { &hf_waveagent_ifwlansupprates,
@@ -1790,7 +1790,7 @@ void proto_register_waveagent(void)
 
         { &hf_waveagent_oidvalue,
         { "OID Value", "waveagent.oidvalue",
-        FT_STRING, 0, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL } },
     /* END: OID fields */
 

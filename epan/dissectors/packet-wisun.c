@@ -2323,7 +2323,7 @@ void proto_register_wisun(void)
         },
 
         { &hf_wisun_netnameie_name,
-          { "Network Name", "wisun.netnameie.name", FT_STRING, ENC_ASCII, NULL, 0x0,
+          { "Network Name", "wisun.netnameie.name", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 

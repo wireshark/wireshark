@@ -1391,7 +1391,7 @@ proto_register_scte35(void)
              FT_UINT8, BASE_HEX, NULL, 0x1F, NULL, HFILL}},
         {&hf_descriptor_dtmf,
          {"DTMF", "scte35.splice_descriptor.dtmf",
-             FT_STRING, 0, NULL, 0, NULL, HFILL}},
+             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL}},
 
         /* segmentation_descriptor */
         {&hf_descriptor_event_id,
@@ -1452,7 +1452,7 @@ proto_register_scte35(void)
              FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}},
         {&hf_descriptor_segmentation_upid,
          {"UPID", "scte35.splice_descriptor.upid",
-             FT_STRING, 0, NULL, 0, NULL, HFILL}},
+             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL}},
         {&hf_descriptor_segmentation_type_id,
          {"Segmentation Type", "scte35.splice_descriptor.segmentation_type_id",
              FT_UINT8, BASE_HEX | BASE_RANGE_STRING,

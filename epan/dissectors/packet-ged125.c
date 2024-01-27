@@ -1510,7 +1510,7 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_floating_payload_strg,
 		  { "Floating Payload", "ged125.floating_payload.strg",
-		  FT_STRING, FT_NONE, NULL, 0x0, NULL, HFILL }},
+		  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_ged125_floating_payload_uint,
 		  { "Floating Payload", "ged125.floating_payload.uint",

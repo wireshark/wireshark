@@ -4035,7 +4035,7 @@ proto_register_oran(void)
         /* Puncturing patters as appears in SE 20 */
         {&hf_oran_puncPattern,
          {"puncPattern", "oran_fh_cus.puncPattern",
-          FT_STRING, FT_NONE,
+          FT_STRING, BASE_NONE,
           NULL, 0x0,
           NULL,
           HFILL}

@@ -330,12 +330,12 @@ void proto_register_syslog(void)
   static hf_register_info hf[] = {
     { &hf_syslog_facility,
       { "Facility",           "syslog.facility",
-        FT_UINT8, BASE_DEC, VALS(syslog_facility_vals), FACILITY_MASK,
+        FT_UINT16, BASE_DEC, VALS(syslog_facility_vals), FACILITY_MASK,
         "Message facility", HFILL }
     },
     { &hf_syslog_level,
       { "Level",              "syslog.level",
-        FT_UINT8, BASE_DEC, VALS(syslog_level_vals), PRIORITY_MASK,
+        FT_UINT16, BASE_DEC, VALS(syslog_level_vals), PRIORITY_MASK,
         "Message level", HFILL }
     },
     { &hf_syslog_msg,
@@ -363,31 +363,31 @@ void proto_register_syslog(void)
     },
     { &hf_syslog_timestamp_old,
       { "Syslog timestamp (RFC3164)", "syslog.timestamp_rfc3164",
-        FT_STRING, ENC_ASCII, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL,
         HFILL }
     },
     { &hf_syslog_hostname,
       { "Syslog hostname", "syslog.hostname",
-        FT_STRING, ENC_ASCII, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL,
         HFILL }
     },
     { &hf_syslog_appname,
       { "Syslog app name", "syslog.appname",
-        FT_STRING, ENC_ASCII, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "The name of the app that generated this message",
         HFILL }
     },
     { &hf_syslog_procid,
       { "Syslog process id", "syslog.procid",
-        FT_STRING, ENC_ASCII, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL,
         HFILL }
     },
     { &hf_syslog_msgid,
       { "Syslog message id", "syslog.msgid",
-        FT_STRING, ENC_ASCII, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL,
         HFILL }
     },

@@ -1279,7 +1279,7 @@ void proto_register_idn(void) {
 		},
 		{ &hf_idn_name,
 			{ "Name", "idn.name",
-			FT_STRING, ENC_ASCII,
+			FT_STRING, BASE_NONE,
 			NULL, 0x0,
 			NULL, HFILL }
 		},
