@@ -660,7 +660,7 @@ proto_register_pathport(void)
         {&hf_pp_arp_class,          {"Device Class", "pathport.arp.class", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         {&hf_pp_arp_type,           {"Device Type", "pathport.arp.type", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         {&hf_pp_arp_numdmx,         {"Subcomponents", "pathport.arp.numdmx", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        {&hf_pp_arp_ip,             {"IP", "pathport.arp.ip", FT_IPv4, 0, NULL, 0x0, NULL, HFILL }}
+        {&hf_pp_arp_ip,             {"IP", "pathport.arp.ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }}
     };
 
     /* Setup protocol subtree array */

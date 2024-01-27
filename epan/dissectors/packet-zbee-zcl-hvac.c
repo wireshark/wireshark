@@ -349,39 +349,39 @@ proto_register_zbee_zcl_pump_config_control(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_status_device_fault,
-            { "Device Fault", "zbee_zcl_hvac.pump_config_control.attr.status.device_fault", FT_BOOLEAN, 8, TFS(&tfs_no_yes),
+            { "Device Fault", "zbee_zcl_hvac.pump_config_control.attr.status.device_fault", FT_BOOLEAN, 16, TFS(&tfs_no_yes),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_STATUS_DEVICE_FAULT, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_status_supply_fault,
-            { "Supply Fault", "zbee_zcl_hvac.pump_config_control.attr.status.supply_fault", FT_BOOLEAN, 8, TFS(&tfs_no_yes),
+            { "Supply Fault", "zbee_zcl_hvac.pump_config_control.attr.status.supply_fault", FT_BOOLEAN, 16, TFS(&tfs_no_yes),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_STATUS_SUPPLY_FAULT, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_status_speed_low,
-            { "Speed Low", "zbee_zcl_hvac.pump_config_control.attr.status.speed_low", FT_BOOLEAN, 8, TFS(&tfs_no_yes),
+            { "Speed Low", "zbee_zcl_hvac.pump_config_control.attr.status.speed_low", FT_BOOLEAN, 16, TFS(&tfs_no_yes),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_STATUS_SPEED_LOW, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_status_speed_high,
-            { "Speed High", "zbee_zcl_hvac.pump_config_control.attr.status.speed_high", FT_BOOLEAN, 8, TFS(&tfs_no_yes),
+            { "Speed High", "zbee_zcl_hvac.pump_config_control.attr.status.speed_high", FT_BOOLEAN, 16, TFS(&tfs_no_yes),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_STATUS_SPEED_HIGH, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_status_local_override,
-            { "Local Override", "zbee_zcl_hvac.pump_config_control.attr.status.local_override", FT_BOOLEAN, 8, TFS(&tfs_no_yes),
+            { "Local Override", "zbee_zcl_hvac.pump_config_control.attr.status.local_override", FT_BOOLEAN, 16, TFS(&tfs_no_yes),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_STATUS_LOCAL_OVERRIDE, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_status_running,
-            { "Running", "zbee_zcl_hvac.pump_config_control.attr.status.running", FT_BOOLEAN, 8, TFS(&tfs_no_yes),
+            { "Running", "zbee_zcl_hvac.pump_config_control.attr.status.running", FT_BOOLEAN, 16, TFS(&tfs_no_yes),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_STATUS_RUNNING, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_status_rem_pressure,
-            { "Remote Pressure", "zbee_zcl_hvac.pump_config_control.attr.status.rem_pressure", FT_BOOLEAN, 8, TFS(&tfs_no_yes),
+            { "Remote Pressure", "zbee_zcl_hvac.pump_config_control.attr.status.rem_pressure", FT_BOOLEAN, 16, TFS(&tfs_no_yes),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_STATUS_REMOTE_PRESSURE, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_status_rem_flow,
-            { "Remote Flow", "zbee_zcl_hvac.pump_config_control.attr.status.rem_flow", FT_BOOLEAN, 8, TFS(&tfs_no_yes),
+            { "Remote Flow", "zbee_zcl_hvac.pump_config_control.attr.status.rem_flow", FT_BOOLEAN, 16, TFS(&tfs_no_yes),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_STATUS_REMOTE_FLOW, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_status_rem_temp,
-            { "Remote Temperature", "zbee_zcl_hvac.pump_config_control.attr.status.rem_temp", FT_BOOLEAN, 8, TFS(&tfs_no_yes),
+            { "Remote Temperature", "zbee_zcl_hvac.pump_config_control.attr.status.rem_temp", FT_BOOLEAN, 16, TFS(&tfs_no_yes),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_STATUS_REMOTE_TEMP, NULL, HFILL } },
         /* end Pump Status fields */
 
@@ -391,59 +391,59 @@ proto_register_zbee_zcl_pump_config_control(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_alarm_volt_too_low,
-            { "Supply voltage too low", "zbee_zcl_hvac.pump_config_control.attr.alarm.volt_too_low", FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled),
+            { "Supply voltage too low", "zbee_zcl_hvac.pump_config_control.attr.alarm.volt_too_low", FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_VOLTAGE_TOO_LOW, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_alarm_volt_too_high,
-            { "Supply voltage too high", "zbee_zcl_hvac.pump_config_control.attr.alarm.volt_too_high", FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled),
+            { "Supply voltage too high", "zbee_zcl_hvac.pump_config_control.attr.alarm.volt_too_high", FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_VOLTAGE_TOO_HIGH, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_alarm_pwr_missing_phase,
-            { "Power missing phase", "zbee_zcl_hvac.pump_config_control.attr.alarm.pwr_missing_phase", FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled),
+            { "Power missing phase", "zbee_zcl_hvac.pump_config_control.attr.alarm.pwr_missing_phase", FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_PWR_MISSING_PHASE, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_alarm_press_too_low,
-            { "System pressure too low", "zbee_zcl_hvac.pump_config_control.attr.alarm.press_too_low", FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled),
+            { "System pressure too low", "zbee_zcl_hvac.pump_config_control.attr.alarm.press_too_low", FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_PRESSURE_TOO_LOW, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_alarm_press_too_high,
-            { "System pressure too high", "zbee_zcl_hvac.pump_config_control.attr.alarm.press_too_high", FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled),
+            { "System pressure too high", "zbee_zcl_hvac.pump_config_control.attr.alarm.press_too_high", FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_PRESSURE_TOO_HIGH, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_alarm_dry_running,
-            { "Dry running", "zbee_zcl_hvac.pump_config_control.attr.alarm.dry_running", FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled),
+            { "Dry running", "zbee_zcl_hvac.pump_config_control.attr.alarm.dry_running", FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_DRY_RUNNING, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_alarm_mtr_temp_too_high,
-            { "Motor temperature too high", "zbee_zcl_hvac.pump_config_control.attr.alarm.mtr_temp_too_high", FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled),
+            { "Motor temperature too high", "zbee_zcl_hvac.pump_config_control.attr.alarm.mtr_temp_too_high", FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_MTR_TEMP_TOO_HIGH, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_alarm_pump_mtr_fatal_fail,
-            { "Pump motor has fatal failure", "zbee_zcl_hvac.pump_config_control.attr.alarm.mtr_fatal_fail", FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled),
+            { "Pump motor has fatal failure", "zbee_zcl_hvac.pump_config_control.attr.alarm.mtr_fatal_fail", FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_PUMP_MTR_FATAL_FAILURE, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_alarm_elec_temp_too_high,
-            { "Electronic temperature too high", "zbee_zcl_hvac.pump_config_control.attr.alarm.elec_temp_too_high", FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled),
+            { "Electronic temperature too high", "zbee_zcl_hvac.pump_config_control.attr.alarm.elec_temp_too_high", FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_ELEC_TEMP_TOO_HIGH, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_alarm_pump_block,
-            { "Pump blocked", "zbee_zcl_hvac.pump_config_control.attr.alarm.pump_block", FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled),
+            { "Pump blocked", "zbee_zcl_hvac.pump_config_control.attr.alarm.pump_block", FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_PUMP_BLOCK, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_alarm_sensor_fail,
-            { "Sensor failure", "zbee_zcl_hvac.pump_config_control.attr.alarm.sensor_fail", FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled),
+            { "Sensor failure", "zbee_zcl_hvac.pump_config_control.attr.alarm.sensor_fail", FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_SENSOR_FAILURE, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_alarm_elec_non_fatal_fail,
-            { "Electronic non-fatal failure", "zbee_zcl_hvac.pump_config_control.attr.alarm.elec_non_fatal_fail", FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled),
+            { "Electronic non-fatal failure", "zbee_zcl_hvac.pump_config_control.attr.alarm.elec_non_fatal_fail", FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_ELEC_NON_FATAL_FAILURE, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_alarm_fatal_fail,
-            { "Electronic fatal failure", "zbee_zcl_hvac.pump_config_control.attr.alarm.elec_fatal_fail", FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled),
+            { "Electronic fatal failure", "zbee_zcl_hvac.pump_config_control.attr.alarm.elec_fatal_fail", FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_ELEC_FATAL_FAILURE, NULL, HFILL } },
 
         { &hf_zbee_zcl_pump_config_control_alarm_gen_fault,
-            { "General fault", "zbee_zcl_hvac.pump_config_control.attr.alarm.gen_fault", FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled),
+            { "General fault", "zbee_zcl_hvac.pump_config_control.attr.alarm.gen_fault", FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled),
             ZBEE_ZCL_PUMP_CONFIG_CONTROL_ALARM_GENERAL_FAULT, NULL, HFILL } }
         /* end Alarm Mask fields */
     };

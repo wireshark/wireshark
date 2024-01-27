@@ -1274,6 +1274,13 @@ class Item:
 
 
 
+    def check_ipv4_display(self):
+        global errors_found
+        if self.item_type == 'FT_IPv4' and self.display not in { 'BASE_NETMASK', 'BASE_NONE' }:
+            print('Error:', self.filename, self.hf, 'type is FT_IPv4, should be BASE_NETMASK or BASE_NONE, is instead', self.display)
+            errors_found += 1
+
+
 class CombinedCallsCheck:
     def __init__(self, file, apiChecks):
         self.file = file
@@ -1694,7 +1701,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     for hf in items_defined:
         items_defined[hf].check_boolean_length()
         items_defined[hf].check_string_display()
-
+        items_defined[hf].check_ipv4_display()
 
 
 
