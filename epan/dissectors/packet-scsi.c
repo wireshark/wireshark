@@ -960,7 +960,8 @@ scsistat_init(struct register_srt* srt, GArray* srt_array)
     scsi_srt_table = init_srt_table(tap_data->prog, NULL, srt_array, SCSI_NUM_PROCEDURES, NULL, tap_data->hf_name, tap_data);
     for (i = 0; i < SCSI_NUM_PROCEDURES; i++)
     {
-        init_srt_table_row(scsi_srt_table, i, val_to_str_ext(i, tap_data->cdbnames_ext, "Unknown-0x%02x"));
+        init_srt_table_row(scsi_srt_table, i,
+                           val_to_str_ext_const(i, tap_data->cdbnames_ext, "Unknown"));
     }
 }
 
