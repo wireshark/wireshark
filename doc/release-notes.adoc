@@ -122,6 +122,13 @@ The following features are new (or have been significantly updated) since versio
 
 * Truncated fields in the detail view are now displayed as "Field name […]: data" instead of "Field name [truncated]: data"
 
+* When capturing files in multiple file mode, a pattern that places the date and time
+  before the index number can be used (e.g., foo_20240714110102_00001.pcap instead of
+  foo_00001_20240714110102.pcap). This causes filenames to sort in chronological order
+  across file sets from different captures. The File Set dialog has been updated to
+  handle the new pattern, which has been capable of being produced by tshark since
+  version 3.6.0
+
 === Removed Features and Support
 
 * The tshark `-G` option with no argument is deprecated and will be removed in

@@ -23,6 +23,8 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/ws_assert.h>
 
+#include <wiretap/wtap.h>
+
 #include <epan/strutil.h>
 
 #include "fileset.h"
@@ -58,104 +60,141 @@ static fileset set = { NULL, NULL};
 #endif /* _WIN32 */
 
 /* is this a probable file of a file set (does the naming pattern match)? */
-gboolean
-fileset_filename_match_pattern(const char *fname)
+fileset_match_t
+fileset_filename_match_pattern(const char *fname, char **prefix, char **suffix, char **time)
 {
-    char        *pfx;
-    size_t       baselen;
-    size_t      minlen = strlen("_00001_20050418010750");
+    char        *sfx;
     char        *filename;
+    fileset_match_t ret = FILESET_NO_MATCH;
+    static char *pattern = "(?P<prefix>.*)_\\d{5}_(?P<time>\\d{14})$";
+    static char *pattern2 = "(?P<prefix>.*)_(?P<time>\\d{14})_\\d{5}$";
+    static GRegex *regex = NULL;
+    static GRegex *regex2 = NULL;
 
+    if (regex == NULL) {
+        GError *gerr = NULL;
+        regex = g_regex_new(pattern,
+                        (GRegexCompileFlags)(G_REGEX_OPTIMIZE | G_REGEX_ANCHORED),
+                        G_REGEX_MATCH_ANCHORED, NULL);
+        if (gerr) {
+                ws_warning("failed to compile regex: %s", gerr->message);
+                g_error_free(gerr);
+                regex = NULL;
+                return ret;
+        }
+    }
+
+    if (regex2 == NULL) {
+        GError *gerr = NULL;
+        regex2 = g_regex_new(pattern2,
+                        (GRegexCompileFlags)(G_REGEX_OPTIMIZE | G_REGEX_ANCHORED),
+                        G_REGEX_MATCH_ANCHORED, NULL);
+        if (gerr) {
+                ws_warning("failed to compile regex: %s", gerr->message);
+                g_error_free(gerr);
+                regex2 = NULL;
+                return ret;
+        }
+    }
 
     /* d:\dir1\test_00001_20050418010750.cap */
-    filename = g_strdup(get_basename(fname));
+    filename = g_path_get_basename(fname);
 
     /* test_00001_20050418010750.cap */
-    pfx = strrchr(filename, '.');
-    if(pfx == NULL) {  /* suffix is optional */
-        pfx = filename + strlen(filename);
-    }
-    /* test_00001_20050418010750 */
-    *pfx = '\0';
-
-    /* filename long enough? */
-    baselen = strlen(filename);
-    if(baselen < minlen) {
-        g_free(filename);
-        return FALSE;
-    }
-
-    /* there must be two underscores at special places */
-    if(filename[baselen-minlen] != '_' || filename[baselen-minlen+6] != '_') {
-        g_free(filename);
-        return FALSE;
-    }
-
-    /* replace the two underscores by digits */
-    filename[baselen-minlen] = '0';
-    filename[baselen-minlen+6] = '0';
-
-    /* we should have only digits now */
-    while(minlen--) {
-        baselen--;
-
-        if(!g_ascii_isdigit( filename[baselen])) {
-            g_free(filename);
-            return FALSE;
+    sfx = strrchr(filename, '.');
+    if (sfx != NULL) {
+        *sfx = '\0';
+        GSList *compression_type_extensions = wtap_get_all_compression_type_extensions_list();
+        char *ext = g_ascii_strdown(sfx + 1, -1);
+        for (GSList *compression_extension = compression_type_extensions;
+                compression_extension != NULL;
+                compression_extension = g_slist_next(compression_extension)) {
+            if (g_strcmp0(ext, (const char*)compression_extension->data) == 0) {
+                sfx = strrchr(filename, '.');
+                if (sfx != NULL) {
+                    *sfx = '\0';
+                }
+                break;
+            }
         }
+        g_free(ext);
+        g_slist_free(compression_type_extensions);
+    } else { /* suffix is optional */
+        sfx = filename + strlen(filename);
+    }
+
+    /* test_00001_20050418010750 */
+
+    GMatchInfo *match_info;
+    g_regex_match(regex, filename, 0, &match_info);
+    if (g_match_info_matches(match_info)) {
+        if (prefix) {
+            *prefix = g_match_info_fetch_named(match_info, "prefix");
+        }
+        if (time) {
+            *time = g_match_info_fetch_named(match_info, "time");
+        }
+        if (suffix) {
+            *suffix = g_strdup(sfx);
+        }
+        ret = FILESET_NUM_TIME;
+    }
+    g_match_info_free(match_info);
+
+    if (ret == FILESET_NO_MATCH) {
+        g_regex_match(regex2, filename, 0, &match_info);
+        if (g_match_info_matches(match_info)) {
+            if (prefix) {
+                *prefix = g_match_info_fetch_named(match_info, "prefix");
+            }
+            if (time) {
+                *time = g_match_info_fetch_named(match_info, "time");
+            }
+            if (suffix) {
+                *suffix = g_strdup(sfx);
+            }
+            ret = FILESET_TIME_NUM;
+        }
+        g_match_info_free(match_info);
     }
 
     g_free(filename);
 
-    /* ok, seems to be good */
-    return TRUE;
+    return ret;
 }
 
 
-/* test, if both files could be in the same file set */
-/* (the filenames must already be in correct shape) */
+/* test if both files could be in the same file set */
+/* (fname2 must already be in correct shape) */
 static gboolean
 fileset_is_file_in_set(const char *fname1, const char *fname2)
 {
     char        *pfx1;
     char        *pfx2;
-    char        *dup_f1;
-    char        *dup_f2;
-    size_t       minlen = strlen("_00001_20050418010750");
+    char        *sfx1;
+    char        *sfx2;
+    fileset_match_t match1;
+    fileset_match_t match2;
+    gboolean    ret = FALSE;
 
+    match1 = fileset_filename_match_pattern(fname1, &pfx1, &sfx1, NULL);
+    if (match1 == FILESET_NO_MATCH) {
+        return FALSE;
+    }
 
+    match2 = fileset_filename_match_pattern(fname2, &pfx2, &sfx2, NULL);
     /* just to be sure ... */
-    ws_assert(fileset_filename_match_pattern(fname1));
-    ws_assert(fileset_filename_match_pattern(fname2));
-
-    dup_f1 = g_strdup(fname1);
-    dup_f2 = g_strdup(fname2);
-
-    pfx1 = strrchr(dup_f1, '.');
-    pfx2 = strrchr(dup_f2, '.');
-    /* suffix is optional */
-    if (!pfx1) pfx1 = dup_f1 + strlen(dup_f1);
-    if (!pfx2) pfx2 = dup_f2 + strlen(dup_f2);
-
-    /* the optional suffix (file extension) must be equal */
-    if(strcmp(pfx1, pfx2) != 0) {
-        g_free(dup_f1);
-        g_free(dup_f2);
-        return FALSE;
+    ws_assert(match2 != FILESET_NO_MATCH);
+    if (match1 == match2 && g_strcmp0(pfx1, pfx2) == 0 && g_strcmp0(sfx1, sfx2) == 0) {
+        ret = TRUE;
     }
 
-    *(pfx1-minlen) = '\0';
-    *(pfx2-minlen) = '\0';
+    g_free(pfx1);
+    g_free(pfx2);
+    g_free(sfx1);
+    g_free(sfx2);
 
-    if(strcmp(dup_f1, dup_f2) != 0) {
-        g_free(dup_f1);
-        g_free(dup_f2);
-        return FALSE;
-    }
-
-    g_free(dup_f1);
-    g_free(dup_f2);
-    return TRUE;
+    return ret;
 }
 
 /* GCompareFunc helper for g_list_find_custom() */
@@ -292,12 +331,12 @@ fileset_add_dir(const char *fname, void *window)
     dirname = g_string_append_c(dirname, G_DIR_SEPARATOR);
 
     /* is the current file probably a part of any fileset? */
-    if(fileset_filename_match_pattern(fname)) {
+    if(fileset_filename_match_pattern(fname, NULL, NULL, NULL)) {
         /* yes, go through the files in the directory and check if the file in question is part of the current file set */
         if ((dir = ws_dir_open(dirname->str, 0, NULL)) != NULL) {
             while ((file = ws_dir_read_name(dir)) != NULL) {
                 name = ws_dir_get_name(file);
-                if(fileset_filename_match_pattern(name) && fileset_is_file_in_set(name, get_basename(fname))) {
+                if(fileset_is_file_in_set(name, get_basename(fname))) {
                     fileset_add_file(dirname->str, name, strcmp(name, get_basename(fname))== 0 /* current */);
                 }
             } /* while */

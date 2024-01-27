@@ -121,14 +121,13 @@ void FilesetEntryModel::clear()
 }
 
 QString FilesetEntryModel::nameToDate(const char *name) const {
+    char *date;
     QString dn;
 
-    if (!fileset_filename_match_pattern(name))
+    if (fileset_filename_match_pattern(name, NULL, NULL, &date) == FILESET_NO_MATCH)
         return NULL;
 
-    dn = name;
-    dn.remove(QRegularExpression(".*_"));
-    dn.truncate(14);
+    dn = gchar_free_to_qstring(date);
     dn.insert(4, '-');
     dn.insert(7, '-');
     dn.insert(10, ' ');

@@ -703,10 +703,13 @@ some features to handle these file sets in a convenient way.
 
 .How does Wireshark detect the files of a file set?
 ****
-A filename in a file set uses the format Prefix_Number_DateTimeSuffix which
-might look something like `test_00001_20240714183910.pcap`. All files of a file
+A filename in a file set uses the format Prefix_Number_DateTimeSuffix (or,
+in Wireshark 4.4.0 and later, Prefix_DateTime_NumberSuffix) which might
+look something like `test_00001_20240714183910.pcap`. All files of a file
 set share the same prefix (e.g., “test”) and suffix (e.g., “.pcap”) and a
-varying middle part.
+varying middle part. Files are also allowed to have a second compression
+suffix of types that Wireshark can open; the compression suffix does not
+have to match for all files in a set.
 
 To find the files of a file set, Wireshark scans the directory where the
 currently loaded file resides and checks for files matching the filename pattern
