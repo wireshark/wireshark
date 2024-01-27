@@ -2094,7 +2094,7 @@ pfcp_stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const v
     if (idx == 0) {
         idx = g_hash_table_size(pfcp_stat_msg_idx_hash);
         g_hash_table_insert(pfcp_stat_msg_idx_hash, GUINT_TO_POINTER(pcrp->msgtype), GUINT_TO_POINTER(idx + 1));
-        init_srt_table_row(pfcp_srt_table, idx, val_to_str_ext(pcrp->msgtype, &pfcp_message_type_ext, "Unknown (%d)"));
+        init_srt_table_row(pfcp_srt_table, idx, val_to_str_ext_const(pcrp->msgtype, &pfcp_message_type_ext, "Unknown"));
     } else {
         idx -= 1;
     }

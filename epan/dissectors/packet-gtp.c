@@ -2467,7 +2467,7 @@ gtpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
     if (idx == 0) {
         idx = wmem_map_size(gtpstat_msg_idx_hash);
         wmem_map_insert(gtpstat_msg_idx_hash, GUINT_TO_POINTER(gtp->msgtype), GUINT_TO_POINTER(idx + 1));
-        init_srt_table_row(gtp_srt_table, idx, val_to_str_ext(gtp->msgtype, &gtp_message_type_ext, "Unknown (%d)"));
+        init_srt_table_row(gtp_srt_table, idx, val_to_str_ext_const(gtp->msgtype, &gtp_message_type_ext, "Unknown"));
     } else {
         idx -= 1;
     }

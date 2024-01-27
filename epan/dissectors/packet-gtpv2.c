@@ -1609,7 +1609,7 @@ gtpv2_stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const 
     if (idx == 0) {
         idx = wmem_map_size(gtpv2_stat_msg_idx_hash);
         wmem_map_insert(gtpv2_stat_msg_idx_hash, GUINT_TO_POINTER(gcrp->msgtype), GUINT_TO_POINTER(idx + 1));
-        init_srt_table_row(gtpv2_srt_table, idx, val_to_str_ext(gcrp->msgtype, &gtpv2_message_type_vals_ext, "Unknown (%d)"));
+        init_srt_table_row(gtpv2_srt_table, idx, val_to_str_ext_const(gcrp->msgtype, &gtpv2_message_type_vals_ext, "Unknown"));
     } else {
         idx -= 1;
     }
