@@ -1568,12 +1568,15 @@ gtpv2_sn_equal_unmatched(gconstpointer k1, gconstpointer k2)
     return key1->seq_nr == key2->seq_nr;
 }
 
-static wmem_map_t *gtpv2_stat_msg_idx_hash = NULL;
+static GHashTable *gtpv2_stat_msg_idx_hash = NULL;
 
 static void
 gtpv2_stat_init(struct register_srt* srt _U_, GArray*srt_array)
 {
-    gtpv2_stat_msg_idx_hash = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+    if (gtpv2_stat_msg_idx_hash != NULL) {
+        g_hash_table_destroy(gtpv2_stat_msg_idx_hash);
+    }
+    gtpv2_stat_msg_idx_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
 
     init_srt_table("GTPv2 Requests", NULL, srt_array, 0, NULL, NULL, NULL);
 }
@@ -1603,12 +1606,12 @@ gtpv2_stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const 
      * (requests and responses have different message types, and we
      * only use the request value.)
      */
-    idx = GPOINTER_TO_UINT(wmem_map_lookup(gtpv2_stat_msg_idx_hash, GUINT_TO_POINTER(gcrp->msgtype)));
+    idx = GPOINTER_TO_UINT(g_hash_table_lookup(gtpv2_stat_msg_idx_hash, GUINT_TO_POINTER(gcrp->msgtype)));
 
     /* Store the row value incremented by 1 to distinguish 0 from NULL */
     if (idx == 0) {
-        idx = wmem_map_size(gtpv2_stat_msg_idx_hash);
-        wmem_map_insert(gtpv2_stat_msg_idx_hash, GUINT_TO_POINTER(gcrp->msgtype), GUINT_TO_POINTER(idx + 1));
+        idx = g_hash_table_size(gtpv2_stat_msg_idx_hash);
+        g_hash_table_insert(gtpv2_stat_msg_idx_hash, GUINT_TO_POINTER(gcrp->msgtype), GUINT_TO_POINTER(idx + 1));
         init_srt_table_row(gtpv2_srt_table, idx, val_to_str_ext_const(gcrp->msgtype, &gtpv2_message_type_vals_ext, "Unknown"));
     } else {
         idx -= 1;
