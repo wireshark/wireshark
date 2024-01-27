@@ -16724,7 +16724,7 @@ void proto_register_rtps(void) {
     },
     { &hf_rtps_data_session_intermediate,
       { "Data Session Intermediate Packet", "rtps.data_session.intermediate",
-        FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+        FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
     },
     { &hf_rtps_secure_secure_data_length,
       { "Secure Data Length", "rtps.secure.secure_data_length",
@@ -16835,19 +16835,19 @@ void proto_register_rtps(void) {
     },
     { &hf_rtps_fragment_overlap,
         { "Message fragment overlap", "rtps.fragment.overlap",
-        FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+        FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
     },
     { &hf_rtps_fragment_overlap_conflict,
         { "Message fragment overlapping with conflicting data", "rtps.fragment.overlap.conflicts",
-        FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+        FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
     },
     { &hf_rtps_fragment_multiple_tails,
         { "Message has multiple tail fragments", "rtps.fragment.multiple_tails",
-        FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+        FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
     },
     { &hf_rtps_fragment_too_long_fragment,
         { "Message fragment too long", "rtps.fragment.too_long_fragment",
-        FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+        FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
     },
     { &hf_rtps_fragment_error,
         { "Message defragmentation error", "rtps.fragment.error",
@@ -16897,7 +16897,7 @@ void proto_register_rtps(void) {
 
     { &hf_rtps_dissection_boolean,
       {"BOOLEAN", "rtps.dissection.boolean",
-        FT_BOOLEAN, BASE_DEC, NULL, 0, NULL, HFILL }
+        FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }
     },
 
     { &hf_rtps_dissection_byte,

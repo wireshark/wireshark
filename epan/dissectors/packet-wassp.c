@@ -6629,7 +6629,7 @@ void proto_register_wassp(void)
 		{
 			&hf_wassp_tlv_eid_rustate,
 			{
-				"RU State", "wassp.tlv.eid.rustate", FT_BOOLEAN, FT_UINT8, TFS(&wassp_eid_rustate_types),
+				"RU State", "wassp.tlv.eid.rustate", FT_BOOLEAN, BASE_NONE, TFS(&wassp_eid_rustate_types),
 				0x0, "Remote Unit State", HFILL
 			}
 		},

@@ -799,13 +799,13 @@ proto_register_isobus(void) {
         { &hf_msg_fragment, {
             "Message fragment", "isobus.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_msg_fragment_overlap, {
-            "Message fragment overlap", "isobus.fragment.overlap", FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+            "Message fragment overlap", "isobus.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_msg_fragment_overlap_conflicts, {
-            "Message fragment overlapping with conflicting data", "isobus.fragment.overlap.conflicts", FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+            "Message fragment overlapping with conflicting data", "isobus.fragment.overlap.conflicts", FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_msg_fragment_multiple_tails, {
-            "Message has multiple tail fragments", "isobus.fragment.multiple_tails", FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+            "Message has multiple tail fragments", "isobus.fragment.multiple_tails", FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_msg_fragment_too_long_fragment, {
-            "Message fragment too long", "isobus.fragment.too_long_fragment", FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+            "Message fragment too long", "isobus.fragment.too_long_fragment", FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_msg_fragment_error, {
             "Message defragmentation error", "isobus.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_msg_fragment_count, {

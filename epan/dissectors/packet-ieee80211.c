@@ -51098,7 +51098,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_measure_request_beacon_sub_last_report_indication_request,
      {"Request Indication", "wlan.measure.req.beacon.sub.last_report_ind_req",
-      FT_BOOLEAN, BASE_DEC, TFS(&tfs_yes_no), 0,
+      FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_request_beacon_unknown,

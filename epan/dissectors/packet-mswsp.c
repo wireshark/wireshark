@@ -6407,7 +6407,7 @@ proto_register_mswsp(void)
 			&hf_mswsp_msg_ConnectIn_ClientIsRemote,
 			{
 				"Remote", "mswsp.ConnectIn.isRemote",
-				FT_BOOLEAN, BASE_HEX, NULL, 0,
+				FT_BOOLEAN, BASE_NONE, NULL, 0,
 				"Client is remote",HFILL
 			}
 		},

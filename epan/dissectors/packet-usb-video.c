@@ -2864,7 +2864,7 @@ proto_register_usb_vid(void)
 
             { &hf_usb_vid_variable_size,
                     { "Variable size", "usbvideo.format.variableSize",
-                            FT_BOOLEAN, BASE_DEC, NULL, 0,
+                            FT_BOOLEAN, BASE_NONE, NULL, 0,
                             NULL, HFILL }
             },
 
@@ -3086,7 +3086,7 @@ proto_register_usb_vid(void)
 
             { &hf_usb_vid_streaming_trigger_support,
                     { "HW Triggering", "usbvideo.streaming.triggerSupport",
-                            FT_BOOLEAN, BASE_DEC, TFS(&tfs_supported_not_supported), 0,
+                            FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
                             "Is HW triggering supported", HFILL }
             },
 

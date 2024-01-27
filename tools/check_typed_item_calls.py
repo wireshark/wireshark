@@ -1258,8 +1258,8 @@ class Item:
 
     def check_boolean_length(self):
         global errors_found
-        # If mask is 0, display must be BASE_NONE.  TODO: modify test to use self.display != 'BASE_NONE' !
-        if self.item_type == 'FT_BOOLEAN' and self.mask_read and self.mask_value == 0 and self.display_value != 0:
+        # If mask is 0, display must be BASE_NONE.
+        if self.item_type == 'FT_BOOLEAN' and self.mask_read and self.mask_value == 0 and self.display != 'BASE_NONE':
             print('Error:', self.filename, self.hf, 'type is FT_BOOLEAN, no mask set (', self.mask, ') - display should be BASE_NONE, is instead', self.display)
             errors_found += 1
         # TODO: check for length > 64?
@@ -1442,7 +1442,7 @@ def isGeneratedFile(filename):
 
 def find_macros(filename):
     # Pre-populate with some useful values..
-    macros = { 'BASE_NONE' : 0 }
+    macros = { 'BASE_NONE' : 0,  'BASE_DEC' : 1 }
 
     with open(filename, 'r', encoding="utf8") as f:
         contents = f.read()

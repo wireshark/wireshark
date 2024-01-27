@@ -1785,7 +1785,7 @@ proto_register_frame(void)
 
 		{ &hf_frame_cb_copy_allowed,
 		  { "Copying", "frame.cb_copy",
-		    FT_BOOLEAN, BASE_DEC, TFS(&tfs_allowed_not_allowed), 0x0,
+		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_allowed_not_allowed), 0x0,
 		    "Whether the custom block will be written or not", HFILL }},
 
 		{ &hf_frame_bblog,

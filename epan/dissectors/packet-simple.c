@@ -523,7 +523,7 @@ void proto_register_simple(void)
           { "Subtype", "simple.link16.subtype", FT_UINT8, BASE_DEC, VALS(Link16_Subtype_Strings), 0x0,
             NULL, HFILL }},
         { &hf_simple_link16_rc,
-          { "R/C Flag", "simple.link16.rc", FT_BOOLEAN, BASE_DEC, TFS(&tfs_required_not_required), 0x0,
+          { "R/C Flag", "simple.link16.rc", FT_BOOLEAN, BASE_NONE, TFS(&tfs_required_not_required), 0x0,
             NULL, HFILL }},
         { &hf_simple_link16_network,
           { "Network", "simple.link16.network", FT_UINT8, BASE_DEC, NULL, 0x0,

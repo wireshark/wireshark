@@ -2470,7 +2470,7 @@ proto_register_tecmp_payload(void) {
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_tecmp_payload_status_dev_vendor_technica_buffer_overflow,
             { "Buffer Overflow", "tecmp.payload.status_dev.vendor_technica.buffer_overflow",
-            FT_BOOLEAN, BASE_DEC, TFS(&tfs_tecmp_technica_bufferoverflow), 0x0, NULL, HFILL }},
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_tecmp_technica_bufferoverflow), 0x0, NULL, HFILL }},
         { &hf_tecmp_payload_status_dev_vendor_technica_buffer_size,
             { "Buffer Size", "tecmp.payload.status_dev.vendor_technica.buffer_size",
             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},

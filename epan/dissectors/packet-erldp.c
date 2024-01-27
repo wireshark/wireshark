@@ -1247,21 +1247,21 @@ void proto_register_erldp(void) {
                         NULL, HFILL }},
 
     { &hf_etf_fragment_overlap, { "Message fragment overlap", "erldp.dist.fragment.overlap",
-                        FT_BOOLEAN, 0, NULL, 0x0,
+                        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                         NULL, HFILL }},
 
     { &hf_etf_fragment_overlap_conflicts, { "Message fragment overlapping with conflicting data",
                                                             "erldp.dist.fragment.overlap.conflicts",
-                        FT_BOOLEAN, 0, NULL, 0x0,
+                        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                         NULL, HFILL }},
 
     { &hf_etf_fragment_multiple_tails, { "Message has multiple tail fragments",
                                                          "erldp.dist.fragment.multiple_tails",
-                        FT_BOOLEAN, 0, NULL, 0x0,
+                        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                         NULL, HFILL }},
 
     { &hf_etf_fragment_too_long_fragment, { "Message fragment too long", "erldp.dist.fragment.too_long_fragment",
-                        FT_BOOLEAN, 0, NULL, 0x0,
+                        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                         NULL, HFILL }},
 
     { &hf_etf_fragment_error, { "Message defragmentation error", "erldp.dist.fragment.error",

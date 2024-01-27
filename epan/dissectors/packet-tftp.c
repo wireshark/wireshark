@@ -1044,23 +1044,23 @@ proto_register_tftp(void)
 
     { &hf_tftp_fragment_overlap,
       { "Fragment overlap",        "tftp.fragment.overlap",
-        FT_BOOLEAN, 0, NULL, 0x00,
+        FT_BOOLEAN, BASE_NONE, NULL, 0x00,
         "Fragment overlaps with other fragments", HFILL }},
 
     { &hf_tftp_fragment_overlap_conflicts,
       { "Conflicting data in fragment overlap",
         "tftp.fragment.overlap.conflicts",
-        FT_BOOLEAN, 0, NULL, 0x00,
+        FT_BOOLEAN, BASE_NONE, NULL, 0x00,
         "Overlapping fragments contained conflicting data", HFILL }},
 
     { &hf_tftp_fragment_multiple_tails,
       { "Multiple tail fragments found",        "tftp.fragment.multipletails",
-        FT_BOOLEAN, 0, NULL, 0x00,
+        FT_BOOLEAN, BASE_NONE, NULL, 0x00,
         "Several tails were found when defragmenting the packet", HFILL }},
 
     { &hf_tftp_fragment_too_long_fragment,
       { "Fragment too long",        "tftp.fragment.toolongfragment",
-        FT_BOOLEAN, 0, NULL, 0x00,
+        FT_BOOLEAN, BASE_NONE, NULL, 0x00,
         "Fragment contained data past end of packet", HFILL }},
 
     { &hf_tftp_fragment_error,

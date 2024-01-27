@@ -1873,7 +1873,7 @@ proto_register_isi(void)
 		{ &hf_isi_sim_auth_protection_req,
 		  { "Protection Request", "isi.sim.auth.request.protection", FT_UINT8, BASE_HEX, VALS(isi_sim_auth_protection_req), 0x0, NULL, HFILL }},
 		{ &hf_isi_sim_auth_protection_rsp,
-		  { "Protection Response", "isi.sim.auth.response.protection", FT_BOOLEAN, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		  { "Protection Response", "isi.sim.auth.response.protection", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_isi_sim_auth_status_rsp,
 		  { "Status Response", "isi.sim.auth.response.status", FT_UINT8, BASE_HEX, VALS(isi_sim_auth_resp), 0x0, NULL, HFILL }},
 		{ &hf_isi_sim_auth_indication,

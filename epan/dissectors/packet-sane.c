@@ -1641,7 +1641,7 @@ void proto_register_sane(void) {
                             "Is last image data frame",
                             "sane.scan.last_frame",
                             FT_BOOLEAN,
-                            BASE_DEC,
+                            BASE_NONE,
                             NULL,
                             0,
                             NULL,

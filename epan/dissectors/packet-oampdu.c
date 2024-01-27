@@ -2750,7 +2750,7 @@ proto_register_oampdu(void)
 
         { &hf_oampdu_vendor_specific_dpoe_evt_raised,
             { "Raised", "oampdu.vendor.specific.dpoe.evt.raised",
-                FT_BOOLEAN, BASE_HEX, NULL,
+                FT_BOOLEAN, BASE_NONE, NULL,
                 0x0, NULL, HFILL }},
 
         { &hf_oampdu_vendor_specific_dpoe_evt_object_type,
@@ -2946,7 +2946,7 @@ proto_register_oampdu(void)
 
         { &hf_oam_dpoe_ll_fwd_state,
             { "Link State", "oampdu.link_state",
-                FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_s1_autoneg,

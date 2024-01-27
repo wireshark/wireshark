@@ -2092,7 +2092,7 @@ proto_register_protobuf(void)
         },
         { &hf_protobuf_value_bool,
             { "Bool", "protobuf.field.value.bool",
-               FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+               FT_BOOLEAN, BASE_NONE, NULL, 0x0,
               "Dissect value as bool", HFILL }
         },
         { &hf_protobuf_value_string,

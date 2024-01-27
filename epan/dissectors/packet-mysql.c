@@ -5678,22 +5678,22 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_fragment_overlap,
 		{ "Fragment overlap", "mysql.fragment.overlap",
-		FT_BOOLEAN, 0, NULL, 0x0,
+		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_fragment_overlap_conflicts,
 		{ "Conflicting data in fragment overlap", "mysql.fragment.overlap.conflicts",
-		FT_BOOLEAN, 0, NULL, 0x0,
+		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_fragment_multiple_tails,
 		{ "Multiple tail fragments found", "mysql.fragment.multiple_tails",
-		FT_BOOLEAN, 0, NULL, 0x00,
+		FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 		NULL, HFILL }},
 
 		{ &hf_mysql_fragment_too_long_fragment,
 		{ "Fragment too long", "mysql.fragment.too_long_fragment",
-		FT_BOOLEAN, 0, NULL, 0x0,
+		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_fragment_error,

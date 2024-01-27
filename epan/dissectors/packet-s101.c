@@ -576,19 +576,19 @@ proto_register_S101(void)
 
         {&hf_msg_fragment_overlap,
             { "Message fragment overlap", "s101.msg.fragment.overlap",
-              FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }},
+              FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }},
 
         {&hf_msg_fragment_overlap_conflicts,
             { "Message fragment overlapping with conflicting data", "s101.msg.fragment.overlap.conflicts",
-              FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }},
+              FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }},
 
         {&hf_msg_fragment_multiple_tails,
             { "Message has multiple tail fragments", "s101.msg.fragment.multiple_tails",
-              FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }},
+              FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }},
 
         {&hf_msg_fragment_too_long_fragment,
             { "Message fragment too long", "s101.msg.fragment.too_long_fragment",
-              FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }},
+              FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }},
 
         {&hf_msg_fragment_error,
             { "Message defragmentation error", "s101.msg.fragment.error",

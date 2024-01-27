@@ -7336,7 +7336,7 @@ proto_register_nas_eps(void)
     },
     { &hf_nas_eps_tsc,
         { "Type of security context flag (TSC)","nas-eps.emm.tsc",
-        FT_BOOLEAN,BASE_DEC, TFS(&nas_eps_tsc_value), 0x0,
+        FT_BOOLEAN, BASE_NONE, TFS(&nas_eps_tsc_value), 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_nas_key_set_id,

@@ -1286,7 +1286,7 @@ proto_register_rsvd(void)
                     NULL, 0, "Name for the new VHD set be created", HFILL }},
 
                 { &hf_svhdx_tunnel_delete_snapshot_persist_reference,
-                  { "PersistReference", "rsvd.svhdx_delete_snapshot_persist_reference", FT_BOOLEAN, 0,
+                  { "PersistReference", "rsvd.svhdx_delete_snapshot_persist_reference", FT_BOOLEAN, BASE_NONE,
                     NULL, 0, "Indicate if the snapshot needs to be persisted", HFILL }},
 
                 { &hf_svhdx_tunnel_meta_op_query_progress_current_progress,

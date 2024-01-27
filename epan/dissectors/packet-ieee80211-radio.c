@@ -1583,7 +1583,7 @@ void proto_register_ieee80211_radio(void)
       NULL, HFILL }},
 
     {&hf_wlan_radio_11n_short_gi,
-     {"Short GI", "wlan_radio.11n.short_gi", FT_BOOLEAN, 0, NULL, 0,
+     {"Short GI", "wlan_radio.11n.short_gi", FT_BOOLEAN, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_11n_greenfield,
@@ -1603,27 +1603,27 @@ void proto_register_ieee80211_radio(void)
       NULL, HFILL }},
 
     {&hf_wlan_radio_11ac_stbc,
-     {"STBC", "wlan_radio.11ac.stbc", FT_BOOLEAN, 0, TFS(&tfs_on_off), 0x0,
+     {"STBC", "wlan_radio.11ac.stbc", FT_BOOLEAN, BASE_NONE, TFS(&tfs_on_off), 0x0,
       "Space Time Block Coding flag", HFILL }},
 
     {&hf_wlan_radio_11ac_txop_ps_not_allowed,
-     {"TXOP_PS_NOT_ALLOWED", "wlan_radio_11ac.txop_ps_not_allowed", FT_BOOLEAN, 0, NULL, 0x0,
+     {"TXOP_PS_NOT_ALLOWED", "wlan_radio_11ac.txop_ps_not_allowed", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       "Flag indicating whether STAs may doze during TXOP", HFILL }},
 
     {&hf_wlan_radio_11ac_short_gi,
-     {"Short GI", "wlan_radio.11ac.short_gi", FT_BOOLEAN, 0, NULL, 0,
+     {"Short GI", "wlan_radio.11ac.short_gi", FT_BOOLEAN, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_11ac_short_gi_nsym_disambig,
-     {"Short GI Nsym disambiguation", "wlan_radio.11ac.short_gi_nsym_disambig", FT_BOOLEAN, 0, NULL, 0x0,
+     {"Short GI Nsym disambiguation", "wlan_radio.11ac.short_gi_nsym_disambig", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       "Short Guard Interval Nsym disambiguation", HFILL }},
 
     {&hf_wlan_radio_11ac_ldpc_extra_ofdm_symbol,
-     {"LDPC extra OFDM symbol", "wlan_radio.11ac.ldpc_extra_ofdm_symbol", FT_BOOLEAN, 0, NULL, 0x0,
+     {"LDPC extra OFDM symbol", "wlan_radio.11ac.ldpc_extra_ofdm_symbol", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_11ac_beamformed,
-     {"Beamformed", "wlan_radio.11ac.beamformed", FT_BOOLEAN, 0, NULL, 0x0,
+     {"Beamformed", "wlan_radio.11ac.beamformed", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_11ac_bandwidth,

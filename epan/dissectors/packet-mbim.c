@@ -13020,7 +13020,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_ms_sar_config_sar_backoff_status,
             { "SAR Backoff Status", "mbim.control.ms_sar_config.sar_backoff_status",
-               FT_BOOLEAN, BASE_DEC, TFS(&tfs_enabled_disabled), 0,
+               FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0,
               NULL, HFILL }
         },
         { &hf_mbim_ms_sar_config_sar_wifi_Integration,
@@ -13055,12 +13055,12 @@ proto_register_mbim(void)
         },
         { &hf_mbim_ms_transmission_status_channel_notification,
             { "Transmission Channel Notification", "mbim.control.ms_transmission_status.channel_notification",
-               FT_BOOLEAN, BASE_DEC, TFS(&tfs_enabled_disabled), 0,
+               FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0,
               NULL, HFILL }
         },
         { &hf_mbim_ms_transmission_status_transmission_status,
             { "Transmission Status", "mbim.control.ms_transmission_status.transmission_status",
-               FT_BOOLEAN, BASE_DEC, TFS(&tfs_active_inactive), 0,
+               FT_BOOLEAN, BASE_NONE, TFS(&tfs_active_inactive), 0,
               NULL, HFILL }
         },
         { &hf_mbim_ms_transmission_status_hysteresis_timer,

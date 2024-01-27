@@ -268,7 +268,7 @@ void proto_register_alc(void)
           { "Version", "alc.version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_atsc3,
-          { "Decode as ATSC3", "alc.atsc3", FT_BOOLEAN, 0, NULL, 0x0, NULL, HFILL }},
+          { "Decode as ATSC3", "alc.atsc3", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_object_start_offset,
           { "Object Start Offset", "alc.object_start_offset", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},

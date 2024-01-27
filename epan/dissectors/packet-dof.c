@@ -10740,13 +10740,13 @@ static void dof_register(void)
             { "DPS Frame", "dof.frame", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
         },
         { &hf_2008_1_dof_is_2_node,
-            { "DPS Is 2 Node", "dof.is_2_node", FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            { "DPS Is 2 Node", "dof.is_2_node", FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_2008_1_dof_is_streaming,
-            { "DPS Is Streaming", "dof.is_streaming", FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            { "DPS Is Streaming", "dof.is_streaming", FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_2008_1_dof_is_from_client,
-            { "DPS Is From Client", "dof.is_from_client", FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+            { "DPS Is From Client", "dof.is_from_client", FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
         }
     };
 

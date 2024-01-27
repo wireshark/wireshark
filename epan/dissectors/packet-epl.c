@@ -5299,31 +5299,31 @@ proto_register_epl(void)
 		/* hotfields for all available EPL message types (depends on EPL MessageType) */
 		{ &hf_epl_soc,
 			{ "SoC", "epl.soc",
-				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+				FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_preq,
 			{ "PReq", "epl.preq",
-				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+				FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_pres,
 			{ "PRes", "epl.pres",
-				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+				FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_soa,
 			{ "SoA", "epl.soa",
-				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+				FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_asnd,
 			{ "ASnd", "epl.asnd",
-				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+				FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_amni,
 			{ "AMNI", "epl.amni",
-				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+				FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_ainv,
 			{ "AInv", "epl.ainv",
-				FT_BOOLEAN, BASE_DEC, NULL, 0x00, NULL, HFILL }
+				FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 
 		/* SoC data fields*/
@@ -6164,20 +6164,20 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_fragment_overlap,
 			{ "Message fragment overlap", "epl.asnd.sdo.cmd.fragment.overlap",
-				FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+				FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_fragment_overlap_conflicts,
 			{ "Message fragment overlapping with conflicting data",
 			"epl.asnd.sdo.cmd.fragment.overlap.conflicts",
-				FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+				FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_fragment_multiple_tails,
 			{ "Message has multiple tail fragments", "epl.asnd.sdo.cmd.fragment.multiple_tails",
-				FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+				FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_fragment_too_long_fragment,
 			{ "Message fragment too long", "epl.asnd.sdo.cmd.fragment.too_long_fragment",
-				FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+				FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_fragment_error,
 			{ "Message defragmentation error", "epl.asnd.sdo.cmd.fragment.error",

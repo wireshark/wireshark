@@ -1989,19 +1989,19 @@ proto_register_rpcordma(void)
         },
         { &hf_rpcordma_fragment_overlap,
           { "Fragment overlap", "rpcordma.fragment.overlap",
-            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL}
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL}
         },
         { &hf_rpcordma_fragment_overlap_conflicts,
           { "Fragment overlapping with conflicting data", "rpcordma.fragment.overlap.conflicts",
-            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL}
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL}
         },
         { &hf_rpcordma_fragment_multiple_tails,
           { "Multiple tail fragments found", "rpcordma.fragment.multiple_tails",
-            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL}
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL}
         },
         { &hf_rpcordma_fragment_too_long_fragment,
           { "Fragment too long", "rpcordma.fragment.too_long_fragment",
-            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL}
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL}
         },
         { &hf_rpcordma_fragment_error,
           { "Defragmentation error", "rpcordma.fragment.error",

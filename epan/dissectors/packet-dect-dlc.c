@@ -386,24 +386,24 @@ void proto_register_dect_dlc(void)
 		},
 		{ &hf_dect_dlc_fragment_overlap,
 			{ "Message fragment overlap", "dect_dlc.fragment.overlap",
-				FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL
+				FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{ &hf_dect_dlc_fragment_overlap_conflicts,
 			{ "Message fragment overlapping with conflicting data",
 				"dect_dlc.fragment.overlap.conflicts",
-				FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL
+				FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{ &hf_dect_dlc_fragment_multiple_tails,
 			{ "Message has multiple tail fragments",
 				"dect_dlc.fragment.multiple_tails",
-				FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL
+				FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{ &hf_dect_dlc_fragment_too_long_fragment,
 			{ "Message fragment too long", "dect_dlc.fragment.too_long_fragment",
-				FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL
+				FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{ &hf_dect_dlc_fragment_error,

@@ -1779,7 +1779,7 @@ proto_register_pw_atm_ata(void)
 		  { "Number of good N:1 no CW encapsulated cells", "pw.atm.n1_nocw.cells", FT_INT32,
 		    BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_pw_type_n1_nocw,
-		  { "N:1 noCW", "pw.type.atm.n1nocw", FT_BOOLEAN, 0, NULL, 0x0,
+		  { "N:1 noCW", "pw.type.atm.n1nocw", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }}
 	};
 
@@ -1788,7 +1788,7 @@ proto_register_pw_atm_ata(void)
 		  { "Number of good N:1 CW encapsulated cells", "pw.atm.n1_cw.cells", FT_INT32,
 		    BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_pw_type_n1_cw,
-		  { "N:1 CW", "pw.type.atm.n1cw", FT_BOOLEAN, 0, NULL, 0x0,
+		  { "N:1 CW", "pw.type.atm.n1cw", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }}
 	};
 
@@ -1797,19 +1797,19 @@ proto_register_pw_atm_ata(void)
 		  { "Number of good 1:1 encapsulated cells", "pw.atm.11.cells", FT_INT32,
 		    BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_pw_type_11_vcc,
-		  { "1:1 VCC", "pw.type.atm.11vcc", FT_BOOLEAN, 0, NULL, 0x0,
+		  { "1:1 VCC", "pw.type.atm.11vcc", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 		{ &hf_pw_type_11_vpc,
-		  { "1:1 VPC", "pw.type.atm.11vpc", FT_BOOLEAN, 0, NULL, 0x0,
+		  { "1:1 VPC", "pw.type.atm.11vpc", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 		{ &hf_pw_type_aal5_pdu,
-		  { "AAL5 PDU", "pw.type.atm.aal5pdu", FT_BOOLEAN, 0, NULL, 0x0,
+		  { "AAL5 PDU", "pw.type.atm.aal5pdu", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }}
 	};
 
 	static hf_register_info hfa_aal5_sdu[] = {
 		{ &hf_pw_type_aal5_sdu,
-		  { "AAL5 SDU", "pw.type.atm.aal5sdu", FT_BOOLEAN, 0, NULL, 0x0,
+		  { "AAL5 SDU", "pw.type.atm.aal5sdu", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }}
 	};
 

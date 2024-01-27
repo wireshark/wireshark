@@ -2634,19 +2634,19 @@ void proto_register_wisun(void)
         },
         { &hf_wisun_netricity_scr_segment_overlap,
           { "Message segment overlap", "wisun.netricity.scr.segment.overlap",
-            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_wisun_netricity_scr_segment_overlap_conflicts,
           { "Message segment overlapping with conflicting data", "wisun.netricity.scr.segment.overlap.conflicts",
-            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_wisun_netricity_scr_segment_multiple_tails,
           { "Message has multiple tail segments", "wisun.netricity.scr.segment.multiple_tails",
-            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_wisun_netricity_scr_segment_too_long_segment,
           { "Message segment too long", "wisun.netricity.scr.segment.too_long_segment",
-            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_wisun_netricity_scr_segment_error,
           { "Message segment reassembly error", "wisun.netricity.scr.segment.error",

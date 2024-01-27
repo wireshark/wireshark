@@ -463,13 +463,13 @@ proto_register_iso10681(void) {
         { &hf_iso10681_fragment, {
             "Message fragment", "iso10681.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_iso10681_fragment_overlap, {
-            "Message fragment overlap", "iso10681.fragment.overlap", FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+            "Message fragment overlap", "iso10681.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_iso10681_fragment_overlap_conflicts, {
-            "Message fragment overlapping with conflicting data", "iso10681.fragment.overlap.conflicts", FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+            "Message fragment overlapping with conflicting data", "iso10681.fragment.overlap.conflicts", FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_iso10681_fragment_multiple_tails, {
-            "Message has multiple tail fragments", "iso10681.fragment.multiple_tails", FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+            "Message has multiple tail fragments", "iso10681.fragment.multiple_tails", FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_iso10681_fragment_too_long_fragment, {
-            "Message fragment too long", "iso10681.fragment.too_long_fragment", FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+            "Message fragment too long", "iso10681.fragment.too_long_fragment", FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_iso10681_fragment_error, {
             "Message defragmentation error", "iso10681.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_iso10681_fragment_count, {

@@ -636,7 +636,7 @@ proto_register_bluecom(void)
             BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
         { &hf_bcp_sync_identify, {
             "Identify", "bluecom.sync.identify", FT_BOOLEAN,
-            BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
+            BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_bcp_sync_vlantag, {
             "VlanTag", "bluecom.sync.vlantag", FT_UINT16,
             BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
