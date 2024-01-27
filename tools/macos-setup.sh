@@ -190,6 +190,15 @@ BCG729_VERSION=1.1.1
 ILBC_VERSION=2.0.2
 OPUS_VERSION=1.4
 
+# Falco libs (libsinsp and libscap) and their dependencies. Unset for now.
+#FALCO_LIBS_VERSION=0.14.1
+if [ "$FALCO_LIBS_VERSION" ] ; then
+    JSONCPP_VERSION=1.9.5
+    ONETBB_VERSION=2021.11.0
+    # 2023-06-01 and later require Abseil.
+    RE2_VERSION=2022-06-01
+fi
+
 #
 # Is /usr/bin/python3 a working version of Python?  It may be, as it
 # might be a wrapper that runs the Python 3 that's part of Xcode.
@@ -2489,6 +2498,155 @@ uninstall_opus() {
     fi
 }
 
+install_jsoncpp() {
+    if [ "$JSONCPP_VERSION" ] && [ ! -f "jsoncpp-$JSONCPP_VERSION-done" ] ; then
+        echo "Downloading, building, and installing JsonCpp:"
+        [ -f "jsoncpp-$JSONCPP_VERSION.tar.gz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" --remote-header-name "https://github.com/open-source-parsers/jsoncpp/archive/refs/tags/$JSONCPP_VERSION.tar.gz"
+        $no_build && echo "Skipping installation" && return
+        tar -xf "jsoncpp-$JSONCPP_VERSION.tar.gz"
+        cd "jsoncpp-$JSONCPP_VERSION"
+        mkdir build_dir
+        cd build_dir
+        "${DO_CMAKE[@]}" -DBUILD_OBJECT_LIBS=OFF -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=OFF -DJSONCPP_WITH_POST_BUILD_UNITTEST=OFF ..
+        make "${MAKE_BUILD_OPTS[@]}"
+        $DO_MAKE_INSTALL
+        cd ../..
+        touch "jsoncpp-$JSONCPP_VERSION-done"
+    fi
+}
+
+uninstall_jsoncpp() {
+    if [ "$installed_jsoncpp_version" ] && [ -s "jsoncpp-$installed_jsoncpp_version/build_dir/install_manifest.txt" ] ; then
+        echo "Uninstalling JsonCpp:"
+        while read -r ; do $DO_RM -v "$REPLY" ; done < <(cat "jsoncpp-$installed_jsoncpp_version/build_dir/install_manifest.txt"; echo)
+        rm "jsoncpp-$JSONCPP_VERSION-done"
+
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf "jsoncpp-$installed_jsoncpp_version"
+            rm -rf "jsoncpp-$installed_jsoncpp_version.tar.gz"
+        fi
+
+        installed_jsoncpp_version=""
+    fi
+}
+
+install_onetbb() {
+    if [ "$ONETBB_VERSION" ] && [ ! -f "onetbb-$ONETBB_VERSION-done" ] ; then
+        echo "Downloading, building, and installing oneTBB:"
+        [ -f "oneTBB-$ONETBB_VERSION.tar.gz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" --remote-header-name "https://github.com/oneapi-src/oneTBB/archive/refs/tags/v$ONETBB_VERSION.tar.gz"
+        $no_build && echo "Skipping installation" && return
+        tar -xf "oneTBB-$ONETBB_VERSION.tar.gz"
+        cd "oneTBB-$ONETBB_VERSION"
+        mkdir build_dir
+        cd build_dir
+        "${DO_CMAKE[@]}" -DBUILD_SHARED_LIBS=ON -DTBB_TEST=OFF ..
+        make "${MAKE_BUILD_OPTS[@]}" tbb
+        $DO_MAKE_INSTALL
+        cd ../..
+        touch "onetbb-$ONETBB_VERSION-done"
+    fi
+}
+
+uninstall_onetbb() {
+    if [ "$installed_onetbb_version" ] && [ -s "oneTBB-$installed_onetbb_version/build_dir/install_manifest.txt" ] ; then
+        echo "Uninstalling oneTBB:"
+        while read -r ; do $DO_RM -v "$REPLY" ; done < <(cat "oneTBB-$installed_onetbb_version/build_dir/install_manifest.txt"; echo)
+        rm "onetbb-$installed_onetbb_version-done"
+
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf "oneTBB-$installed_onetbb_version"
+            rm -rf "oneTBB-$installed_onetbb_version.tar.gz"
+        fi
+
+        installed_onetbb_version=""
+    fi
+}
+
+install_re2() {
+    if [ "$RE2_VERSION" ] && [ ! -f "re2-$RE2_VERSION-done" ] ; then
+        echo "Downloading, building, and installing RE2:"
+        [ -f "re2-$RE2_VERSION.tar.gz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" --remote-header-name "https://github.com/google/re2/archive/refs/tags/$RE2_VERSION.tar.gz"
+        $no_build && echo "Skipping installation" && return
+        tar -xf "re2-$RE2_VERSION.tar.gz"
+        cd "re2-$RE2_VERSION"
+        mkdir build_dir
+        cd build_dir
+        "${DO_CMAKE[@]}" -DBUILD_SHARED_LIBS=ON -DRE2_BUILD_TESTING=OFF ..
+        make "${MAKE_BUILD_OPTS[@]}"
+        $DO_MAKE_INSTALL
+        cd ../..
+        touch "re2-$RE2_VERSION-done"
+    fi
+}
+
+uninstall_re2() {
+    if [ -n "$installed_re2_version" ] && [ -s "re2-$installed_re2_version/build_dir/install_manifest.txt" ] ; then
+        echo "Uninstalling RE2:"
+        while read -r ; do $DO_RM -v "$REPLY" ; done < <(cat "re2-$installed_re2_version/build_dir/install_manifest.txt"; echo)
+        rm "re2-$installed_re2_version-done"
+
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf "re2-$installed_re2_version"
+            rm -rf "re2-$installed_re2_version.tar.gz"
+        fi
+
+        installed_re2_version=""
+    fi
+}
+
+install_falco_libs() {
+    if [ "$FALCO_LIBS_VERSION" ] && [ ! -f "falco-libs-$FALCO_LIBS_VERSION-done" ] ; then
+        echo "Downloading, building, and installing libsinsp and libscap:"
+        [ -f "falco-libs-$FALCO_LIBS_VERSION.tar.gz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" --remote-header-name "https://github.com/falcosecurity/libs/archive/refs/tags/$FALCO_LIBS_VERSION.tar.gz"
+        $no_build && echo "Skipping installation" && return
+        mv "libs-$FALCO_LIBS_VERSION.tar.gz" "falco-libs-$FALCO_LIBS_VERSION.tar.gz"
+        tar -xf "falco-libs-$FALCO_LIBS_VERSION.tar.gz"
+        mv "libs-$FALCO_LIBS_VERSION" "falco-libs-$FALCO_LIBS_VERSION"
+        cd "falco-libs-$FALCO_LIBS_VERSION"
+        mkdir build_dir
+        cd build_dir
+        "${DO_CMAKE[@]}" -DBUILD_SHARED_LIBS=ON -DMINIMAL_BUILD=ON -DCREATE_TEST_TARGETS=OFF \
+            -DUSE_BUNDLED_DEPS=ON -DUSE_BUNDLED_CARES=OFF -DUSE_BUNDLED_ZLIB=OFF \
+            -DUSE_BUNDLED_JSONCPP=OFF -DUSE_BUNDLED_TBB=OFF -DUSE_BUNDLED_RE2=OFF \
+            ..
+        make "${MAKE_BUILD_OPTS[@]}"
+        $DO_MAKE_INSTALL
+        # Falco libs doesn't install uthash.
+        curl "${CURL_REMOTE_NAME_OPTS[@]}" https://raw.githubusercontent.com/troydhanson/uthash/v1.9.8/src/uthash.h
+        $DO_MV uthash.h "$installation_prefix"/include/falcosecurity/
+        cd ../..
+        touch "falco-libs-$FALCO_LIBS_VERSION-done"
+    fi
+}
+
+uninstall_falco_libs() {
+    if [ -n "$installed_falco_libs_version" ] && [ -s "falco-libs-$installed_falco_libs_version/build_dir/install_manifest.txt" ] ; then
+        echo "Uninstalling Falco libs:"
+        $DO_RM "$installation_prefix"/include/falcosecurity/uthash.h
+        while read -r ; do $DO_RM -v "$REPLY" ; done < <(cat "falco-libs-$installed_falco_libs_version/build_dir/install_manifest.txt"; echo)
+        rm "falco-libs-$installed_falco_libs_version-done"
+
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf "falco-libs-$installed_falco_libs_version"
+            rm -rf "falco-libs-$installed_falco_libs_version.tar.gz"
+        fi
+
+        installed_falco_libs_version=""
+    fi
+}
+
 install_python3() {
     # The macos11 universal2 installer can be deployed to older versions,
     # down to 10.9 (Mavericks). The 10.9 installer was deprecated in 3.9.8
@@ -3191,6 +3349,46 @@ install_all() {
         uninstall_sparkle -r
     fi
 
+    if [ "$installed_falco_libs_version" ] && [ "$installed_falco_libs_version" != "$FALCO_LIBS_VERSION" ] ; then
+        echo "Installed Falco libs (libsinsp and libscap) version is $installed_falco_libs_version"
+        if [ -z "$FALCO_LIBS_VERSION" ] ; then
+            echo "Falco libs is not requested"
+        else
+            echo "Requested Falco libs version is $FALCO_LIBS_VERSION"
+        fi
+        uninstall_falco_libs -r
+    fi
+
+    if [ "$installed_jsoncpp_version" ] && [ "$installed_jsoncpp_version" != "$JSONCPP_VERSION" ] ; then
+        echo "Installed JsonCpp version is $installed_jsoncpp_version"
+        if [ -z "$JSONCPP_VERSION" ] ; then
+            echo "JsonCpp is not requested"
+        else
+            echo "Requested JsonCpp version is $JSONCPP_VERSION"
+        fi
+        uninstall_jsoncpp -r
+    fi
+
+    if [ "$installed_onetbb_version" ] && [ "$installed_onetbb_version" != "$ONETBB_VERSION" ] ; then
+        echo "Installed oneTBB version is $installed_onetbb_version"
+        if [ -z "$ONETBB_VERSION" ] ; then
+            echo "oneTBB is not requested"
+        else
+            echo "Requested oneTBB version is $ONETBB_VERSION"
+        fi
+        uninstall_onetbb -r
+    fi
+
+    if [ "$installed_re2_version" ] && [ "$installed_re2_version" != "$RE2_VERSION" ] ; then
+        echo "Installed RE2 version is $installed_re2_version"
+        if [ -z "$RE2_VERSION" ] ; then
+            echo "RE2 is not requested"
+        else
+            echo "Requested RE2 version is $RE2_VERSION"
+        fi
+        uninstall_re2 -r
+    fi
+
     #
     # Start with curl: we may need it to download and install xz.
     #
@@ -3326,6 +3524,14 @@ install_all() {
     install_minizip
 
     install_sparkle
+
+    install_re2
+
+    install_onetbb
+
+    install_jsoncpp
+
+    install_falco_libs
 }
 
 uninstall_all() {
@@ -3342,6 +3548,14 @@ uninstall_all() {
         # We also do a "make distclean", so that we don't have leftovers from
         # old configurations.
         #
+        uninstall_falco_libs
+
+        uninstall_jsoncpp
+
+        uninstall_onetbb
+
+        uninstall_re2
+
         uninstall_sparkle
 
         uninstall_minizip
