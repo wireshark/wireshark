@@ -129,6 +129,7 @@ static const mimetype_and_clock mimetype_and_clock_map[] = {
     {"MP2P",            90000}, /* [RFC2250],[RFC3555] */
     {"MP4V-ES",         90000}, /* [RFC3016] */
     {"mpa-robust",      90000}, /* [RFC3119] */
+    {"opus",            48000}, /* [RFC7587] */
     {"pointer",         90000}, /* [RFC2862] */
     {"raw",             90000}, /* [RFC4175] */
     {"red",              1000}, /* [RFC4102] */
