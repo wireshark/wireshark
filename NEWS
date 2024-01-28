@@ -61,9 +61,16 @@ Wireshark 4.3.0 Release Notes
        properties. Check the wireshark-filter(5) manpage for more
        information.
 
+        • Display filter macros can be written with a semicolon after
+       the macro name before the argument list, e.g.
+       `${mymacro;arg1;…​;argN}`, instead of `${mymacro:arg1;…​;argN}`.
+       The version with semicolons works better with pop-up suggestions
+       when editing the display filter, so the version with the colon
+       might be removed in the future.
+
         • Display filter macros can be written using a function-like
-       notation. The macro `${mymacro:arg1; …​; argN}` can be written
-       $mymacro(arg1, …​, argN)`.
+       notation. The macro `${mymacro:arg1;…​;argN}` can be written
+       `$mymacro(arg1,…​,argN)`.
 
      • Display filter functions can be implemented as libwireshark
        plugins. Plugins are loaded during startup from the usual binary
@@ -107,6 +114,9 @@ Wireshark 4.3.0 Release Notes
      • The binary plugins folder path no longer uses an X.Y version
        component. Plugins are required to add the ABI version to the
        file name.
+
+     • Truncated fields in the detail view are now displayed as "Field
+       name […]: data" instead of "Field name [truncated]: data"
 
   Removed Features and Support
 
