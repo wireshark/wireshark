@@ -381,12 +381,12 @@ static dissector_handle_t bgp_handle;
 #define BGP_EXT_COM_EVPN_MMAC_STICKY        0x01    /* Bitmask: Set for sticky/static MAC address */
 
 /* RFC 8214 Flags EVPN L2 Attributes */
-#define BGP_EXT_COM_EVPN_L2ATTR_FLAG_B         0x01    /* Backup PE */
-#define BGP_EXT_COM_EVPN_L2ATTR_FLAG_P         0x02    /* Primary PE */
-#define BGP_EXT_COM_EVPN_L2ATTR_FLAG_C         0x04    /* Control word required */
+#define BGP_EXT_COM_EVPN_L2ATTR_FLAG_B         0x0001  /* Backup PE */
+#define BGP_EXT_COM_EVPN_L2ATTR_FLAG_P         0x0002  /* Primary PE */
+#define BGP_EXT_COM_EVPN_L2ATTR_FLAG_C         0x0004  /* Control word required */
 /* draft-yu-bess-evpn-l2-attributes-04 */
-#define BGP_EXT_COM_EVPN_L2ATTR_FLAG_F         0x08    /* Send and receive flow label */
-#define BGP_EXT_COM_EVPN_L2ATTR_FLAG_CI        0x10    /* CWI extended community can be included */
+#define BGP_EXT_COM_EVPN_L2ATTR_FLAG_F         0x0008  /* Send and receive flow label */
+#define BGP_EXT_COM_EVPN_L2ATTR_FLAG_CI        0x0010  /* CWI extended community can be included */
 #define BGP_EXT_COM_EVPN_L2ATTR_FLAG_RESERVED  0xFFE0  /* Reserved */
 
 /* RFC 8317 Flags EVPN E-Tree Attributes */

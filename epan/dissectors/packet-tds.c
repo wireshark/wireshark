@@ -1532,7 +1532,7 @@ static const value_string token_names[] = {
     {TDS_ROW_TOKEN,             "Row"},
     {TDS_CAPABILITY_TOKEN,      "Capabilities"},
     {TDS_ENVCHG_TOKEN,          "Environment Change"},
-    {TDS5_EED_TOKEN,             "Extended Error"},
+    {TDS5_EED_TOKEN,            "Extended Error"},
     {TDS_AUTH_TOKEN,            "Authentication"},
     {TDS5_ROWFMT_TOKEN,         "Rowfmt"},
     {TDS_DONE_TOKEN,            "Done"},

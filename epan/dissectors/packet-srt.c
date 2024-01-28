@@ -1519,7 +1519,7 @@ void proto_register_srt(void)
 
         {&hf_srt_hs_ext_group_id, {
             "Group ID", "srt.hs_ext_group.id",
-            FT_UINT8, BASE_DEC,
+            FT_UINT32, BASE_DEC,
             NULL, 0, NULL, HFILL}},
 
         { &hf_srt_hs_ext_group_type, {

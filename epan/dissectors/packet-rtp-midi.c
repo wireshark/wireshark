@@ -1093,8 +1093,8 @@ void proto_register_rtp_midi(void);
 #define RTP_MIDI_SJ_CHAPTER_X_FLAG_D			0x08
 #define RTP_MIDI_SJ_CHAPTER_X_FLAG_L			0x04
 #define RTP_MIDI_SJ_CHAPTER_X_MASK_STA			0x03
-#define RTP_MIDI_SJ_CHAPTER_X_MASK_TCOUNT		0xff
-#define RTP_MIDI_SJ_CHAPTER_X_MASK_COUNT		0xff
+#define RTP_MIDI_SJ_CHAPTER_X_MASK_TCOUNT		0x0
+#define RTP_MIDI_SJ_CHAPTER_X_MASK_COUNT		0x0
 
 #define RTP_MIDI_CJ_FLAG_S				0x800000
 #define RTP_MIDI_CJ_FLAG_H				0x040000
@@ -6472,7 +6472,7 @@ proto_register_rtp_midi( void )
 				FT_UINT8,
 				BASE_HEX,
 				VALS(rtp_midi_common_status),
-				0xff,
+				0x0,
 				NULL, HFILL
 			}
 		},

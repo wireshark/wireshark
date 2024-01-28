@@ -5777,10 +5777,10 @@ dissect_nfs3_fsstat_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 }
 
 
-#define FSF3_LINK        0x0001
-#define FSF3_SYMLINK     0x0002
-#define FSF3_HOMOGENEOUS 0x0008
-#define FSF3_CANSETTIME  0x0010
+#define FSF3_LINK        0x00000001
+#define FSF3_SYMLINK     0x00000002
+#define FSF3_HOMOGENEOUS 0x00000008
+#define FSF3_CANSETTIME  0x00000010
 
 static const true_false_string tfs_nfs_pathconf =
 	{ "is valid for all files", "should be get for every single file" };
@@ -7565,13 +7565,13 @@ static const value_string names_open4_share_access[] = {
 	{ OPEN4_SHARE_ACCESS_WANT_NO_DELEG, "OPEN4_SHARE_ACCESS_WANT_NO_DELEG" },
 #define  OPEN4_SHARE_ACCESS_WANT_CANCEL            0x0500
 	{ OPEN4_SHARE_ACCESS_WANT_CANCEL, "OPEN4_SHARE_ACCESS_WANT_CANCEL" },
-#define OPEN4_SHARE_ACCESS_WANT_SIGNAL_DELEG_WHEN_RESRC_AVAIL 0x10000
+#define OPEN4_SHARE_ACCESS_WANT_SIGNAL_DELEG_WHEN_RESRC_AVAIL 0x00010000
 	{ OPEN4_SHARE_ACCESS_WANT_SIGNAL_DELEG_WHEN_RESRC_AVAIL,
 	  "OPEN4_SHARE_ACCESS_WANT_SIGNAL_DELEG_WHEN_RESRC_AVAIL"},
-#define OPEN4_SHARE_ACCESS_WANT_PUSH_DELEG_WHEN_UNCONTENDED  0x20000
+#define OPEN4_SHARE_ACCESS_WANT_PUSH_DELEG_WHEN_UNCONTENDED  0x00020000
 	{ OPEN4_SHARE_ACCESS_WANT_PUSH_DELEG_WHEN_UNCONTENDED,
 	 "OPEN4_SHARE_ACCESS_WANT_PUSH_DELEG_WHEN_UNCONTENDED"},
-#define OPEN4_SHARE_ACCESS_WANT_DELEG_TIMESTAMPS 0x100000
+#define OPEN4_SHARE_ACCESS_WANT_DELEG_TIMESTAMPS 0x00100000
 	{OPEN4_SHARE_ACCESS_WANT_DELEG_TIMESTAMPS,
 	 "OPEN4_SHARE_ACCESS_WANT_DELEG_TIMESTAMPS"},
 	{ 0, NULL }
@@ -13666,19 +13666,19 @@ proto_register_nfs(void)
 
 		{ &hf_nfs_access_check,
 			{ "Check access", "nfs.access_check",
-			FT_UINT8, BASE_HEX,
+			FT_UINT32, BASE_HEX,
 			NULL, 0x0,
 			"Access type(s) to be checked", HFILL }
 		},
 		{ &hf_nfs_access_supported,
 			{ "Supported types (of requested)", "nfs.access_supported",
-			FT_UINT8, BASE_HEX,
+			FT_UINT32, BASE_HEX,
 			NULL, 0x0,
 			"Access types (of those requested) that the server can reliably verify", HFILL }
 		},
 		{ &hf_nfs_access_rights,
 			{ "Access rights (of requested)", "nfs.access_rights",
-			FT_UINT8, BASE_HEX,
+			FT_UINT32, BASE_HEX,
 			NULL, 0x0,
 			"Access rights for the types requested", HFILL }
 		},

@@ -44,12 +44,12 @@ static dissector_handle_t devicenet_handle;
 
 #define MESSAGE_GROUP_3_ID              0x07BF
 #define MESSAGE_GROUP_3_MSG_MASK        0x01C0
-#define MESSAGE_GROUP_3_MAC_ID_MASK     0x003F
-#define MESSAGE_GROUP_3_FRAG_MASK       0x0080
-#define MESSAGE_GROUP_3_XID_MASK        0x0040
+#define MESSAGE_GROUP_3_MAC_ID_MASK     0x3F
+#define MESSAGE_GROUP_3_FRAG_MASK       0x80
+#define MESSAGE_GROUP_3_XID_MASK        0x40
 
 #define MESSAGE_GROUP_4_ID              0x07EF
-#define MESSAGE_GROUP_4_MSG_MASK        0x003F
+#define MESSAGE_GROUP_4_MSG_MASK        0x3F
 
 static int proto_devicenet;
 

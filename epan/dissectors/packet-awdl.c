@@ -1825,63 +1825,63 @@ void proto_register_awdl(void)
     },
     { &hf_awdl_datastate_extflags_0,
       { "Logtrigger ID", "awdl.datastate.extflags.0",
-        FT_BOOLEAN, 16, NULL, 0x1, NULL, HFILL
+        FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_extflags_1,
       { "Ranging Discovery", "awdl.datastate.extflags.1",
-        FT_BOOLEAN, 16, NULL, 0x2, NULL, HFILL
+        FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_extflags_2,
       { "RLFC", "awdl.datastate.extflags.2",
-        FT_BOOLEAN, 16, NULL, 0x4, NULL, HFILL
+        FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_extflags_3,
       { "Is Social Channel Map Supported", "awdl.datastate.extflags.3",
-        FT_BOOLEAN, 16, NULL, 0x8, NULL, HFILL
+        FT_BOOLEAN, 16, NULL, 0x0008, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_extflags_4,
       { "Dynamic SDB Support", "awdl.datastate.extflags.4",
-        FT_BOOLEAN, 16, NULL, 0x10, NULL, HFILL
+        FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_extflags_5,
       { "Misc", "awdl.datastate.extflags.5",
-        FT_BOOLEAN, 16, NULL, 0x20,
+        FT_BOOLEAN, 16, NULL, 0x0020,
         "Indicates the presence of the rlfc, active_time and update_counter fields.", HFILL
       }
     },
     { &hf_awdl_datastate_extflags_6,
       { "DFS Proxy Support", "awdl.datastate.extflags.6",
-        FT_BOOLEAN, 16, NULL, 0x40, NULL, HFILL
+        FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_extflags_7,
       { "Unknown", "awdl.datastate.extflags.7",
-        FT_BOOLEAN, 16, NULL, 0x80, NULL, HFILL
+        FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_extflags_8,
       { "High Efficiency Support", "awdl.datastate.extflags.8",
-        FT_BOOLEAN, 16, NULL, 0x100, NULL, HFILL
+        FT_BOOLEAN, 16, NULL, 0x0100, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_extflags_9,
       { "Sidekick Hub", "awdl.datastate.extflags.9",
-        FT_BOOLEAN, 16, NULL, 0x200, NULL, HFILL
+        FT_BOOLEAN, 16, NULL, 0x0200, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_extflags_10,
       { "Fast Discovery Enabled", "awdl.datastate.extflags.10",
-        FT_BOOLEAN, 16, NULL, 0x400, NULL, HFILL
+        FT_BOOLEAN, 16, NULL, 0x0400, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_extflags_11,
       { "WiFi 6E Support", "awdl.datastate.extflags.11",
-        FT_BOOLEAN, 16, NULL, 0x800, NULL, HFILL
+        FT_BOOLEAN, 16, NULL, 0x0800, NULL, HFILL
       }
     },
     { &hf_awdl_datastate_extflags_12,

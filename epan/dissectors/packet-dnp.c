@@ -328,14 +328,14 @@
 #define AL_OBJ_2BIC_RTIME  0x0403   /* 04 03 Double-bit Input Change With Relative Time */
 
 /* Binary Input Quality Flags */
-#define AL_OBJ_BI_FLAG0    0x0001   /* Point Online (0=Offline; 1=Online) */
-#define AL_OBJ_BI_FLAG1    0x0002   /* Restart (0=Normal; 1=Restart) */
-#define AL_OBJ_BI_FLAG2    0x0004   /* Comms Lost (0=Normal; 1=Lost) */
-#define AL_OBJ_BI_FLAG3    0x0008   /* Remote Force (0=Normal; 1=Forced) */
-#define AL_OBJ_BI_FLAG4    0x0010   /* Local Force (0=Normal; 1=Forced) */
-#define AL_OBJ_BI_FLAG5    0x0020   /* Chatter Filter (0=Normal; 1=Filter On) */
-#define AL_OBJ_BI_FLAG6    0x0040   /* Double-bit LSB (0=Off; 1=On) */
-#define AL_OBJ_BI_FLAG7    0x0080   /* Point State (0=Off; 1=On) or Double-bit MSB */
+#define AL_OBJ_BI_FLAG0    0x01     /* Point Online (0=Offline; 1=Online) */
+#define AL_OBJ_BI_FLAG1    0x02     /* Restart (0=Normal; 1=Restart) */
+#define AL_OBJ_BI_FLAG2    0x04     /* Comms Lost (0=Normal; 1=Lost) */
+#define AL_OBJ_BI_FLAG3    0x08     /* Remote Force (0=Normal; 1=Forced) */
+#define AL_OBJ_BI_FLAG4    0x10     /* Local Force (0=Normal; 1=Forced) */
+#define AL_OBJ_BI_FLAG5    0x20     /* Chatter Filter (0=Normal; 1=Filter On) */
+#define AL_OBJ_BI_FLAG6    0x40     /* Double-bit LSB (0=Off; 1=On) */
+#define AL_OBJ_BI_FLAG7    0x80     /* Point State (0=Off; 1=On) or Double-bit MSB */
 
 /***************************************************************************/
 /* Binary Output Objects */
@@ -391,14 +391,14 @@
 #define AL_OBJCTL_STATUS_MASK 0x7F
 
 /* Binary Output Quality Flags */
-#define AL_OBJ_BO_FLAG0    0x0001   /* Point Online (0=Offline; 1=Online) */
-#define AL_OBJ_BO_FLAG1    0x0002   /* Restart (0=Normal; 1=Restart) */
-#define AL_OBJ_BO_FLAG2    0x0004   /* Comms Lost (0=Normal; 1=Lost) */
-#define AL_OBJ_BO_FLAG3    0x0008   /* Remote Force (0=Normal; 1=Forced) */
-#define AL_OBJ_BO_FLAG4    0x0010   /* Local Force (0=Normal; 1=Forced) */
-#define AL_OBJ_BO_FLAG5    0x0020   /* Reserved */
-#define AL_OBJ_BO_FLAG6    0x0040   /* Reserved */
-#define AL_OBJ_BO_FLAG7    0x0080   /* Point State (0=Off; 1=On) */
+#define AL_OBJ_BO_FLAG0    0x01     /* Point Online (0=Offline; 1=Online) */
+#define AL_OBJ_BO_FLAG1    0x02     /* Restart (0=Normal; 1=Restart) */
+#define AL_OBJ_BO_FLAG2    0x04     /* Comms Lost (0=Normal; 1=Lost) */
+#define AL_OBJ_BO_FLAG3    0x08     /* Remote Force (0=Normal; 1=Forced) */
+#define AL_OBJ_BO_FLAG4    0x10     /* Local Force (0=Normal; 1=Forced) */
+#define AL_OBJ_BO_FLAG5    0x20     /* Reserved */
+#define AL_OBJ_BO_FLAG6    0x40     /* Reserved */
+#define AL_OBJ_BO_FLAG7    0x80     /* Point State (0=Off; 1=On) */
 
 /***************************************************************************/
 /* Counter Objects */
@@ -444,14 +444,14 @@
 #define AL_OBJ_FDCTRC_16T  0x1708   /* 23 08 16-Bit Frozen Delta Counter Change Event w/ Time of Freeze */
 
 /* Counter Quality Flags */
-#define AL_OBJ_CTR_FLAG0   0x0001   /* Point Online (0=Offline; 1=Online) */
-#define AL_OBJ_CTR_FLAG1   0x0002   /* Restart (0=Normal; 1=Restart) */
-#define AL_OBJ_CTR_FLAG2   0x0004   /* Comms Lost (0=Normal; 1=Lost) */
-#define AL_OBJ_CTR_FLAG3   0x0008   /* Remote Force (0=Normal; 1=Forced) */
-#define AL_OBJ_CTR_FLAG4   0x0010   /* Local Force (0=Normal; 1=Forced) */
-#define AL_OBJ_CTR_FLAG5   0x0020   /* Roll-over (0=Normal; 1=Roll-Over) */
-#define AL_OBJ_CTR_FLAG6   0x0040   /* Discontinuity (0=Normal; 1=Discontinuity) */
-#define AL_OBJ_CTR_FLAG7   0x0080   /* Reserved */
+#define AL_OBJ_CTR_FLAG0   0x01     /* Point Online (0=Offline; 1=Online) */
+#define AL_OBJ_CTR_FLAG1   0x02     /* Restart (0=Normal; 1=Restart) */
+#define AL_OBJ_CTR_FLAG2   0x04     /* Comms Lost (0=Normal; 1=Lost) */
+#define AL_OBJ_CTR_FLAG3   0x08     /* Remote Force (0=Normal; 1=Forced) */
+#define AL_OBJ_CTR_FLAG4   0x10     /* Local Force (0=Normal; 1=Forced) */
+#define AL_OBJ_CTR_FLAG5   0x20     /* Roll-over (0=Normal; 1=Roll-Over) */
+#define AL_OBJ_CTR_FLAG6   0x40     /* Discontinuity (0=Normal; 1=Discontinuity) */
+#define AL_OBJ_CTR_FLAG7   0x80     /* Reserved */
 
 /***************************************************************************/
 /* Analog Input Objects */
@@ -489,14 +489,14 @@
 #define AL_OBJ_AIFC_DBLT   0x2108   /* 33 08 64-Bit Floating Point Frozen Change Event w/ Time*/
 
 /* Analog Input Quality Flags */
-#define AL_OBJ_AI_FLAG0    0x0001   /* Point Online (0=Offline; 1=Online) */
-#define AL_OBJ_AI_FLAG1    0x0002   /* Restart (0=Normal; 1=Restart) */
-#define AL_OBJ_AI_FLAG2    0x0004   /* Comms Lost (0=Normal; 1=Lost) */
-#define AL_OBJ_AI_FLAG3    0x0008   /* Remote Force (0=Normal; 1=Forced) */
-#define AL_OBJ_AI_FLAG4    0x0010   /* Local Force (0=Normal; 1=Forced) */
-#define AL_OBJ_AI_FLAG5    0x0020   /* Over-Range (0=Normal; 1=Over-Range) */
-#define AL_OBJ_AI_FLAG6    0x0040   /* Reference Check (0=Normal; 1=Error) */
-#define AL_OBJ_AI_FLAG7    0x0080   /* Reserved */
+#define AL_OBJ_AI_FLAG0    0x01     /* Point Online (0=Offline; 1=Online) */
+#define AL_OBJ_AI_FLAG1    0x02     /* Restart (0=Normal; 1=Restart) */
+#define AL_OBJ_AI_FLAG2    0x04     /* Comms Lost (0=Normal; 1=Lost) */
+#define AL_OBJ_AI_FLAG3    0x08     /* Remote Force (0=Normal; 1=Forced) */
+#define AL_OBJ_AI_FLAG4    0x10     /* Local Force (0=Normal; 1=Forced) */
+#define AL_OBJ_AI_FLAG5    0x20     /* Over-Range (0=Normal; 1=Over-Range) */
+#define AL_OBJ_AI_FLAG6    0x40     /* Reference Check (0=Normal; 1=Error) */
+#define AL_OBJ_AI_FLAG7    0x80     /* Reserved */
 
 #define AL_OBJ_AIDB_ALL    0x2200   /* 34 00 Analog Input Deadband Default Variation */
 #define AL_OBJ_AIDB_16     0x2201   /* 34 01 16-Bit Analog Input Deadband */
@@ -533,14 +533,14 @@
 #define AL_OBJ_AOC_DBLEVTT 0x2B08   /* 43 08 64-Bit Floating PointAnalog Output Command Event w/ Time */
 
 /* Analog Output Quality Flags */
-#define AL_OBJ_AO_FLAG0    0x0001   /* Point Online (0=Offline; 1=Online) */
-#define AL_OBJ_AO_FLAG1    0x0002   /* Restart (0=Normal; 1=Restart) */
-#define AL_OBJ_AO_FLAG2    0x0004   /* Comms Lost (0=Normal; 1=Lost) */
-#define AL_OBJ_AO_FLAG3    0x0008   /* Remote Force (0=Normal; 1=Forced) */
-#define AL_OBJ_AO_FLAG4    0x0010   /* Local Force (0=Normal; 1=Forced) */
-#define AL_OBJ_AO_FLAG5    0x0020   /* Reserved */
-#define AL_OBJ_AO_FLAG6    0x0040   /* Reserved */
-#define AL_OBJ_AO_FLAG7    0x0080   /* Reserved */
+#define AL_OBJ_AO_FLAG0    0x01     /* Point Online (0=Offline; 1=Online) */
+#define AL_OBJ_AO_FLAG1    0x02     /* Restart (0=Normal; 1=Restart) */
+#define AL_OBJ_AO_FLAG2    0x04     /* Comms Lost (0=Normal; 1=Lost) */
+#define AL_OBJ_AO_FLAG3    0x08     /* Remote Force (0=Normal; 1=Forced) */
+#define AL_OBJ_AO_FLAG4    0x10     /* Local Force (0=Normal; 1=Forced) */
+#define AL_OBJ_AO_FLAG5    0x20     /* Reserved */
+#define AL_OBJ_AO_FLAG6    0x40     /* Reserved */
+#define AL_OBJ_AO_FLAG7    0x80     /* Reserved */
 
 /***************************************************************************/
 /* Time Objects */
