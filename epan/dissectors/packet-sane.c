@@ -1,11 +1,13 @@
-
-#include <epan/packet.h>
-
-#include "packet-tcp.h"
-
-#define SANE_WORD_LENGTH 4
-#define SANE_MODULE_NAME "sane"
-#define SANE_PORT "6566"
+/* packet-sane.c
+ * Routines for SANE dissection
+ * Copyright 2024, James Ring <sjr@jdns.org>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 /**
  * A dissector for the SANE protocol (https://sane-project.gitlab.io/standard/net.html).
@@ -25,24 +27,28 @@
  * For these reasons, the get_sane_pdu_len function has to pretty much do all
  * the work of the dissector itself. There is probably a more elegant way to do
  * this without the duplication that exists between get_sane_pdu_len and
- * dissect_sane_internal.
- *
- * James Ring <sjr@jdns.org>
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * dissect_sane_pdu.
  */
 
-static range_t *sane_server_ports = NULL;
+/* TODO
+ * - Setup proper request / response tracking, with
+ *   - references to related packets,
+ *   - response time indications.
+ */
 
-static int proto_sane;
-static int sane_tree_type;
-static int sane_version_tree_type;
-static int sane_string_tree_type;
-static int sane_option_tree_type;
-static int sane_option_value_tree_type;
-static int sane_option_capabilities_tree_type;
-static int sane_option_constraints_tree_type;
-static int sane_control_option_info_tree_type;
-static int sane_device_descriptor_tree_type;
+#include "config.h"
+
+#include <wireshark.h>
+#include <epan/packet.h>
+#include <epan/prefs.h>
+
+#include "packet-tcp.h"
+
+#define SANE_WORD_LENGTH 4
+#define SANE_MODULE_NAME "sane"
+#define SANE_PORT "6566"
+
+static range_t *sane_server_ports = NULL;
 
 static dissector_handle_t sane_handle;
 
@@ -125,36 +131,35 @@ static int hf_sane_control_option_reload_options;
 static int hf_sane_control_option_reload_params;
 
 static int* const sane_cap_bits[] = {
-        &hf_sane_option_capability_soft_select,
-        &hf_sane_option_capability_hard_select,
-        &hf_sane_option_capability_soft_detect,
-        &hf_sane_option_capability_emulated,
-        &hf_sane_option_capability_automatic,
-        &hf_sane_option_capability_inactive,
-        &hf_sane_option_capability_advanced,
-        NULL,
+    &hf_sane_option_capability_soft_select,
+    &hf_sane_option_capability_hard_select,
+    &hf_sane_option_capability_soft_detect,
+    &hf_sane_option_capability_emulated,
+    &hf_sane_option_capability_automatic,
+    &hf_sane_option_capability_inactive,
+    &hf_sane_option_capability_advanced,
+    NULL,
 };
 
 static int* const sane_control_option_info_bits[] = {
-        &hf_sane_control_option_inexact,
-        &hf_sane_control_option_reload_options,
-        &hf_sane_control_option_reload_params,
-        NULL,
+    &hf_sane_control_option_inexact,
+    &hf_sane_control_option_reload_options,
+    &hf_sane_control_option_reload_params,
+    NULL,
 };
 
-static gint *trees[] = {
-        &sane_tree_type,
-        &sane_version_tree_type,
-        &sane_string_tree_type,
-        &sane_option_tree_type,
-        &sane_option_value_tree_type,
-        &sane_option_capabilities_tree_type,
-        &sane_option_constraints_tree_type,
-        &sane_control_option_info_tree_type,
-        &sane_device_descriptor_tree_type,
-};
+static int proto_sane;
+static int ett_sane;
+static int ett_sane_version;
+static int ett_sane_string;
+static int ett_sane_option;
+static int ett_sane_option_value;
+static int ett_sane_option_capabilities;
+static int ett_sane_option_constraints;
+static int ett_sane_control_option_info;
+static int ett_sane_device_descriptor;
 
-typedef enum sane_rpc_code {
+typedef enum {
     SANE_NET_UNKNOWN = -1,
     SANE_NET_INIT = 0,
     SANE_NET_GET_DEVICES = 1,
@@ -169,7 +174,22 @@ typedef enum sane_rpc_code {
     SANE_NET_EXIT = 10,
 } sane_rpc_code;
 
-typedef enum sane_constraint_type {
+static const value_string opcode_vals[] = {
+    {SANE_NET_INIT,                   "SANE_NET_INIT"},
+    {SANE_NET_GET_DEVICES,            "SANE_NET_GET_DEVICES"},
+    {SANE_NET_OPEN,                   "SANE_NET_OPEN"},
+    {SANE_NET_CLOSE,                  "SANE_NET_CLOSE"},
+    {SANE_NET_GET_OPTION_DESCRIPTORS, "SANE_NET_GET_OPTION_DESCRIPTORS"},
+    {SANE_NET_CONTROL_OPTION,         "SANE_NET_CONTROL_OPTION"},
+    {SANE_NET_GET_PARAMETERS,         "SANE_NET_GET_PARAMETERS"},
+    {SANE_NET_START,                  "SANE_NET_START"},
+    {SANE_NET_CANCEL,                 "SANE_NET_CANCEL"},
+    {SANE_NET_AUTHORIZE,              "SANE_NET_AUTHORIZE"},
+    {SANE_NET_EXIT,                   "SANE_NET_EXIT"},
+    {0, NULL},
+};
+
+typedef enum {
     SANE_NO_CONSTRAINT = 0,
     SANE_CONSTRAINT_RANGE = 1,
     SANE_CONSTRAINT_WORD_LIST = 2,
@@ -177,26 +197,11 @@ typedef enum sane_constraint_type {
 } sane_constraint_type;
 
 static const value_string sane_constraint_type_names[] = {
-        {SANE_NO_CONSTRAINT, "SANE_NO_CONSTRAINT"},
-        {SANE_CONSTRAINT_RANGE, "SANE_CONSTRAINT_RANGE"},
-        {SANE_CONSTRAINT_WORD_LIST, "SANE_CONSTRAINT_WORD_LIST"},
-        {SANE_CONSTRAINT_STRING_LIST, "SANE_CONSTRAINT_STRING_LIST"},
-        {0, NULL},
-};
-
-static const value_string opcode_vals[] = {
-        {SANE_NET_INIT,                   "SANE_NET_INIT"},
-        {SANE_NET_GET_DEVICES,            "SANE_NET_GET_DEVICES"},
-        {SANE_NET_OPEN,                   "SANE_NET_OPEN"},
-        {SANE_NET_CLOSE,                  "SANE_NET_CLOSE"},
-        {SANE_NET_GET_OPTION_DESCRIPTORS, "SANE_NET_GET_OPTION_DESCRIPTORS"},
-        {SANE_NET_CONTROL_OPTION,         "SANE_NET_CONTROL_OPTION"},
-        {SANE_NET_GET_PARAMETERS,         "SANE_NET_GET_PARAMETERS"},
-        {SANE_NET_START,                  "SANE_NET_START"},
-        {SANE_NET_CANCEL,                 "SANE_NET_CANCEL"},
-        {SANE_NET_AUTHORIZE,              "SANE_NET_AUTHORIZE"},
-        {SANE_NET_EXIT,                   "SANE_NET_EXIT"},
-        {0, NULL},
+    {SANE_NO_CONSTRAINT,          "SANE_NO_CONSTRAINT"},
+    {SANE_CONSTRAINT_RANGE,       "SANE_CONSTRAINT_RANGE"},
+    {SANE_CONSTRAINT_WORD_LIST,   "SANE_CONSTRAINT_WORD_LIST"},
+    {SANE_CONSTRAINT_STRING_LIST, "SANE_CONSTRAINT_STRING_LIST"},
+    {0, NULL},
 };
 
 typedef enum {
@@ -209,20 +214,20 @@ typedef enum {
 } sane_value_type;
 
 static const value_string sane_value_types[] = {
-        {0, "SANE_TYPE_BOOL"},
-        {1, "SANE_TYPE_INT"},
-        {2, "SANE_TYPE_FIXED"},
-        {3, "SANE_TYPE_STRING"},
-        {4, "SANE_TYPE_BUTTON"},
-        {5, "SANE_TYPE_GROUP"},
-        {0, NULL},
+    {SANE_TYPE_BOOL,   "SANE_TYPE_BOOL"},
+    {SANE_TYPE_INT,    "SANE_TYPE_INT"},
+    {SANE_TYPE_FIXED,  "SANE_TYPE_FIXED"},
+    {SANE_TYPE_STRING, "SANE_TYPE_STRING"},
+    {SANE_TYPE_BUTTON, "SANE_TYPE_BUTTON"},
+    {SANE_TYPE_GROUP,  "SANE_TYPE_GROUP"},
+    {0, NULL},
 };
 
 static const value_string control_types[] = {
-        {0, "SANE_ACTION_GET_VALUE"},
-        {1, "SANE_ACTION_SET_VALUE"},
-        {2, "SANE_ACTION_SET_AUTO"},
-        {0, NULL},
+    {0, "SANE_ACTION_GET_VALUE"},
+    {1, "SANE_ACTION_SET_VALUE"},
+    {2, "SANE_ACTION_SET_AUTO"},
+    {0, NULL},
 };
 
 typedef enum {
@@ -236,72 +241,72 @@ typedef enum {
 } sane_option_unit;
 
 static const value_string sane_option_units[] = {
-        {0, "SANE_UNIT_NONE"},
-        {1, "SANE_UNIT_PIXEL"},
-        {2, "SANE_UNIT_BIT"},
-        {3, "SANE_UNIT_MM"},
-        {4, "SANE_UNIT_DPI"},
-        {5, "SANE_UNIT_PERCENT"},
-        {6, "SANE_UNIT_MICROSECOND"},
-        {0, NULL},
+    {SANE_UNIT_NONE,        "SANE_UNIT_NONE"},
+    {SANE_UNIT_PIXEL,       "SANE_UNIT_PIXEL"},
+    {SANE_UNIT_BIT,         "SANE_UNIT_BIT"},
+    {SANE_UNIT_MM,          "SANE_UNIT_MM"},
+    {SANE_UNIT_DPI,         "SANE_UNIT_DPI"},
+    {SANE_UNIT_PERCENT,     "SANE_UNIT_PERCENT"},
+    {SANE_UNIT_MICROSECOND, "SANE_UNIT_MICROSECOND"},
+    {0, NULL},
 };
 
 static const value_string sane_option_unit_suffixes[] = {
-        {0, ""},
-        {1, "px"},
-        {2, "bits"},
-        {3, "mm"},
-        {4, "dpi"},
-        {5, "%"},
-        {6, "ms"},
-        {0, NULL},
+    {1, "px"},
+    {2, "bits"},
+    {3, "mm"},
+    {4, "dpi"},
+    {5, "%"},
+    {6, "ms"},
+    {0, NULL},
 };
 
-typedef enum sane_status {
+typedef enum {
     SANE_STATUS_UNKNOWN = -1,
     SANE_STATUS_OK = 0,
 } sane_status;
 
 static const value_string status_values[] = {
-        {0,  "SANE_STATUS_GOOD"},
-        {1,  "SANE_STATUS_UNSUPPORTED"},
-        {2,  "SANE_STATUS_CANCELLED"},
-        {3,  "SANE_STATUS_DEVICE_BUSY"},
-        {4,  "SANE_STATUS_INVAL"},
-        {5,  "SANE_STATUS_EOF"},
-        {6,  "SANE_STATUS_JAMMED"},
-        {7,  "SANE_STATUS_NO_DOCS"},
-        {8,  "SANE_STATUS_COVER_OPEN"},
-        {9,  "SANE_STATUS_IO_ERROR"},
-        {10, "SANE_STATUS_NO_MEM"},
-        {11, "SANE_STATUS_ACCESS_DENIED"},
-        {0, NULL},
+    {0,  "SANE_STATUS_GOOD"},
+    {1,  "SANE_STATUS_UNSUPPORTED"},
+    {2,  "SANE_STATUS_CANCELLED"},
+    {3,  "SANE_STATUS_DEVICE_BUSY"},
+    {4,  "SANE_STATUS_INVAL"},
+    {5,  "SANE_STATUS_EOF"},
+    {6,  "SANE_STATUS_JAMMED"},
+    {7,  "SANE_STATUS_NO_DOCS"},
+    {8,  "SANE_STATUS_COVER_OPEN"},
+    {9,  "SANE_STATUS_IO_ERROR"},
+    {10, "SANE_STATUS_NO_MEM"},
+    {11, "SANE_STATUS_ACCESS_DENIED"},
+    {0, NULL},
 };
 
 static const value_string sane_frame_format_names[] = {
-        {0, "SANE_FRAME_GRAY"},
-        {1, "SANE_FRAME_RGB"},
-        {2, "SANE_FRAME_RED"},
-        {3, "SANE_FRAME_GREEN"},
-        {4, "SANE_FRAME_BLUE"},
-        {0, NULL},
+    {0, "SANE_FRAME_GRAY"},
+    {1, "SANE_FRAME_RGB"},
+    {2, "SANE_FRAME_RED"},
+    {3, "SANE_FRAME_GREEN"},
+    {4, "SANE_FRAME_BLUE"},
+    {0, NULL},
 };
 
-typedef struct sane_pdu {
-    gboolean is_request;
+typedef struct {
+    bool is_request;
     sane_rpc_code opcode;
     uint32_t packet_num;
 } sane_pdu;
 
-typedef struct sane_session {
+typedef struct {
     wmem_array_t *pdus_seen;
 } sane_session;
 
-typedef struct tvb_sane_reader {
+typedef struct {
     tvbuff_t *tvb;
     gint offset;
     gint bytes_read;
 } tvb_sane_reader;
+
 
 static gint
 tvb_read_sane_word(tvb_sane_reader *r, guint32 *dest) {
@@ -367,13 +372,14 @@ tvb_skip_bytes(tvb_sane_reader *r, gint len) {
  * In this case, if the expected response type of PDU 5 is SANE_NET_OPEN,
  * because the server is responding to the request sent in PDU 2.
  */
-static sane_rpc_code get_sane_expected_response_type(sane_session *sess, packet_info *pinfo) {
+static sane_rpc_code
+get_sane_expected_response_type(sane_session *sess, packet_info *pinfo) {
     unsigned n = wmem_array_get_count(sess->pdus_seen);
     if (n == 0) {
         return SANE_NET_UNKNOWN;
     }
 
-    gboolean expecting_auth_req = FALSE;
+    bool expecting_auth_req = false;
     for (unsigned i = n; i--;) {
         sane_pdu *pdu = wmem_array_index(sess->pdus_seen, i);
         if (pdu->packet_num >= pinfo->num) {
@@ -385,9 +391,9 @@ static sane_rpc_code get_sane_expected_response_type(sane_session *sess, packet_
                 return pdu->opcode;
             }
 
-            expecting_auth_req = FALSE;
+            expecting_auth_req = false;
         } else if (pdu->opcode == SANE_NET_AUTHORIZE) {
-            expecting_auth_req = TRUE;
+            expecting_auth_req = true;
         }
     }
 
@@ -418,7 +424,7 @@ dissect_sane_string(tvb_sane_reader *r, packet_info *pinfo, proto_tree *tree, in
     int len = tvb_read_sane_string(r, pinfo->pool, &str);
 
     proto_item *str_item = proto_tree_add_item(tree, hf_sane_string, r->tvb, offset, len, ENC_NA);
-    proto_tree *str_tree = proto_item_add_subtree(str_item, sane_string_tree_type);
+    proto_tree *str_tree = proto_item_add_subtree(str_item, ett_sane_string);
 
     proto_item_set_text(str_item, format, str);
     proto_tree_add_item(str_tree, hf_sane_string_length, r->tvb, offset, SANE_WORD_LENGTH, ENC_BIG_ENDIAN);
@@ -431,7 +437,7 @@ dissect_sane_net_init_request(tvb_sane_reader *r, packet_info *pinfo, proto_tree
     gint version = 0;
     int offset = r->offset;
     proto_item *version_item = dissect_sane_word(r, tree, hf_sane_version, &version);
-    proto_item *version_tree = proto_item_add_subtree(version_item, sane_version_tree_type);
+    proto_item *version_tree = proto_item_add_subtree(version_item, ett_sane_version);
 
     proto_item_append_text(version_item, " (major: %d, minor: %d, build: %d)", version >> 24,
                            (version >> 16) & 0xff, version & 0xffff);
@@ -454,7 +460,7 @@ dissect_control_option_value(tvb_sane_reader *r, packet_info *pinfo, proto_tree 
     dissect_sane_word(r, tree, hf_sane_option_value_type, &value_type);
 
     proto_item *value_item = proto_tree_add_item(tree, hf_sane_option_value, r->tvb, r->offset, -1, ENC_NA);
-    proto_tree *value_tree = proto_item_add_subtree(value_item, sane_option_value_tree_type);
+    proto_tree *value_tree = proto_item_add_subtree(value_item, ett_sane_option_value);
 
     gint array_length = 0;
     proto_item *length_item = dissect_sane_word(r, value_tree, hf_sane_option_length, &array_length);
@@ -502,7 +508,8 @@ dissect_sane_device_handle_request(tvb_sane_reader *r, proto_tree *tree) {
     dissect_sane_word(r, tree, hf_sane_device_handle, NULL);
 }
 
-static int dissect_sane_request(tvb_sane_reader *r, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_sane_request(tvb_sane_reader *r, packet_info *pinfo, proto_tree *tree) {
     guint opcode = SANE_NET_UNKNOWN;
     dissect_sane_word(r, tree, hf_sane_opcode, &opcode);
     proto_item_append_text(tree, ": %s request", val_to_str(opcode, opcode_vals, "Unknown opcode (%u)"));
@@ -528,7 +535,7 @@ static int dissect_sane_request(tvb_sane_reader *r, packet_info *pinfo, proto_tr
         case SANE_NET_GET_OPTION_DESCRIPTORS:
             dissect_sane_device_handle_request(r, tree);
             break;
-      case SANE_NET_AUTHORIZE:
+        case SANE_NET_AUTHORIZE:
             dissect_sane_net_authorize_request(r, pinfo, tree);
             break;
     }
@@ -565,7 +572,7 @@ dissect_sane_net_init_response(tvb_sane_reader *r, packet_info *pinfo, proto_tre
 
     gint version = 0;
     proto_item *version_item = dissect_sane_word(r, tree, hf_sane_version, &version);
-    proto_item *version_tree = proto_item_add_subtree(version_item, sane_version_tree_type);
+    proto_item *version_tree = proto_item_add_subtree(version_item, ett_sane_version);
 
     proto_item_append_text(version_item, " (major: %d, minor: %d, build: %d)", version >> 24,
                            (version >> 16) & 0xff, version & 0xffff);
@@ -585,17 +592,31 @@ dissect_sane_net_open_response(tvb_sane_reader *r, packet_info *pinfo, proto_tre
 
 static void
 append_option_value(proto_item *item, gint value, guint units, guint type) {
-    if (type == SANE_TYPE_FIXED) {
-        double fixed_val = ((double) value) / (1 << 16);
-        proto_item_append_text(item, " (%f %s)", fixed_val,
-                               val_to_str_const(units, sane_option_unit_suffixes, " (unknown unit)"));
+    switch (type) {
+        case SANE_TYPE_INT:
+            if (units) {
+                proto_item_append_text(item, " (%d %s)", value,
+                                    val_to_str_const(units, sane_option_unit_suffixes, "(unknown unit)"));
+            } else {
+                proto_item_append_text(item, " (%d)", value);
+            }
+            break;
+        case SANE_TYPE_FIXED: {
+            double fixed_val = ((double) value) / (1 << 16);
+            if (units) {
+                proto_item_append_text(item, " (%f %s)", fixed_val,
+                                    val_to_str_const(units, sane_option_unit_suffixes, "(unknown unit)"));
+            } else {
+                proto_item_append_text(item, " (%f)", fixed_val);
+            }
+            break;
+        }
+        case SANE_TYPE_BOOL:
+            proto_item_append_text(item, " (%s)", (value == 1) ? "True" : ((value == 0) ? "False" : "Invalid"));
+            break;
+        default:
+            break;
     }
-
-    if (type == SANE_TYPE_INT) {
-        proto_item_append_text(item, " (%d %s)", value,
-                               val_to_str_const(units, sane_option_unit_suffixes, " (unknown unit)"));
-    }
-
 }
 
 static void
@@ -608,28 +629,35 @@ dissect_sane_net_get_option_descriptors_response(tvb_sane_reader *r, packet_info
         gint type = 0;
         int start_offset = r->offset;
         proto_item *option_item = proto_tree_add_item(tree, hf_sane_option_descriptor, r->tvb, start_offset, 0, ENC_NA);
-        proto_tree *option_tree = proto_item_add_subtree(option_item, sane_option_tree_type);
-        proto_item_set_text(option_tree, "Option descriptor %d", i);
+        proto_tree *option_tree = proto_item_add_subtree(option_item, ett_sane_option);
+        proto_item_set_text(option_item, "Option descriptor %d", i);
 
         dissect_sane_word(r, option_tree, hf_sane_pointer_value, NULL);
         char *option_name = dissect_sane_string(r, pinfo, option_tree, hf_sane_option_name, "Option name: %s");
         if (option_name && *option_name) {
             proto_item_append_text(option_item, " (%s)", option_name);
         }
-        dissect_sane_string(r, pinfo, option_tree, hf_sane_option_title, "Option title: %s");
+        char *option_title = dissect_sane_string(r, pinfo, option_tree, hf_sane_option_title, "Option title: %s");
+        if (!(option_name && *option_name) && (option_title && *option_title)) {
+            proto_item_append_text(option_item, " (%s)", option_title);
+        }
         dissect_sane_string(r, pinfo, option_tree, hf_sane_option_description, "Option description: %s");
         dissect_sane_word(r, option_tree, hf_sane_option_value_type, &type);
         dissect_sane_word(r, option_tree, hf_sane_option_unit, &unit);
         dissect_sane_word(r, option_tree, hf_sane_option_size, NULL);
 
         proto_tree_add_bitmask(option_tree, r->tvb, r->offset, hf_sane_option_capabilities,
-                               sane_option_capabilities_tree_type,
+                               ett_sane_option_capabilities,
                                sane_cap_bits, ENC_BIG_ENDIAN);
+        /* XXX - Add consistency checks (expert items):
+         * SANE_CAP_SOFT_SELECT set and SANE_CAP_HARD_SELECT set
+         * SANE_CAP_SOFT_SELECT set and SANE_CAP_SOFT_DETECT not set
+         */
         tvb_skip_bytes(r, SANE_WORD_LENGTH);
 
         int constraint_start = r->offset;
         proto_item *constraint_item = proto_tree_add_item(option_tree, hf_sane_option_constraints, r->tvb, constraint_start, 0, ENC_NA);
-        proto_tree *constraint_tree = proto_item_add_subtree(constraint_item, sane_option_constraints_tree_type);
+        proto_tree *constraint_tree = proto_item_add_subtree(constraint_item, ett_sane_option_constraints);
 
         gint constraint_type = SANE_NO_CONSTRAINT;
         dissect_sane_word(r, constraint_tree, hf_sane_option_constraint_type, &constraint_type);
@@ -698,7 +726,7 @@ static void
 dissect_sane_net_control_option_response(tvb_sane_reader *r, packet_info *pinfo, proto_tree *tree) {
     dissect_sane_status(r, pinfo, tree, NULL);
     proto_tree_add_bitmask(tree, r->tvb, r->offset, hf_sane_control_option_info,
-                           sane_control_option_info_tree_type,
+                           ett_sane_control_option_info,
                            sane_control_option_info_bits, ENC_BIG_ENDIAN);
     tvb_skip_bytes(r, SANE_WORD_LENGTH);
     dissect_control_option_value(r, pinfo, tree);
@@ -719,7 +747,7 @@ dissect_sane_net_get_devices_response(tvb_sane_reader *r, packet_info *pinfo, pr
     for (int i = 0; i < array_len - 1; i++) {
         gint offset = r->offset;
         proto_item *device_item = proto_tree_add_item(tree, hf_sane_device_descriptor, r->tvb, r->offset, -1, ENC_NA);
-        proto_tree *device_tree = proto_item_add_subtree(device_item, sane_device_descriptor_tree_type);
+        proto_tree *device_tree = proto_item_add_subtree(device_item, ett_sane_device_descriptor);
         proto_item_set_text(device_item, "Device[%d] descriptor", i);
 
         dissect_sane_word(r, device_tree, hf_sane_pointer_value, NULL);
@@ -773,7 +801,7 @@ dissect_sane_response(tvb_sane_reader *r, sane_session *sess, packet_info *pinfo
 }
 
 static int
-dissect_sane_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+dissect_sane_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     tvb_sane_reader r = {.tvb = tvb, .bytes_read = 0, .offset = 0};
 
     conversation_t *conv = find_or_create_conversation(pinfo);
@@ -788,7 +816,7 @@ dissect_sane_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     col_clear(pinfo->cinfo, COL_INFO);
 
     proto_item *sane_item = proto_tree_add_item(tree, proto_sane, r.tvb, 0, -1, ENC_NA);
-    proto_item *sane_tree = proto_item_add_subtree(sane_item, sane_tree_type);
+    proto_tree *sane_tree = proto_item_add_subtree(sane_item, ett_sane);
 
     if (value_is_in_range(sane_server_ports, pinfo->destport)) {
         dissect_sane_request(&r, pinfo, sane_tree);
@@ -834,7 +862,9 @@ get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) 
             .packet_num = pinfo->num
         };
 
-        wmem_array_append_one(sess->pdus_seen, pdu);
+        if (!PINFO_FD_VISITED(pinfo)) {
+            wmem_array_append_one(sess->pdus_seen, pdu);
+        }
 
         switch (opcode) {
             case SANE_NET_INIT:
@@ -1003,17 +1033,23 @@ get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) 
 
         /* If we got all the way here, we have an apparently well-formed
          * response of the expected type. */
-        wmem_array_append_one(sess->pdus_seen, pdu);
+        if (!PINFO_FD_VISITED(pinfo)) {
+            wmem_array_append_one(sess->pdus_seen, pdu);
+        }
     }
 
     return r.bytes_read;
 }
 
 static int
-dissect_sane(tvbuff_t *tvb, packet_info *pinfo,
-             proto_tree *tree, void *data _U_) {
-    tcp_dissect_pdus(tvb, pinfo, tree, true, SANE_WORD_LENGTH, get_sane_pdu_len, dissect_sane_internal, data);
+dissect_sane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+    tcp_dissect_pdus(tvb, pinfo, tree, true, SANE_WORD_LENGTH, get_sane_pdu_len, dissect_sane_pdu, data);
     return (int) tvb_reported_length(tvb);
+}
+
+static void
+apply_sane_prefs(void) {
+    sane_server_ports = prefs_get_range_value(SANE_MODULE_NAME, "tcp.port");
 }
 
 void proto_register_sane(void) {
@@ -1057,7 +1093,7 @@ void proto_register_sane(void) {
                             "sane.version.minor",
                             FT_UINT8,
                             BASE_HEX,
-                    NULL,
+                            NULL,
                             0,
                             NULL,
                             HFILL,
@@ -1385,7 +1421,7 @@ void proto_register_sane(void) {
                     }},
             {&hf_sane_option_capability_soft_detect,
                     {
-                            "Can detected by software",
+                            "Can be detected by software",
                             "sane.option.soft_detect",
                             FT_BOOLEAN,
                             32,
@@ -1704,16 +1740,51 @@ void proto_register_sane(void) {
                     }},
     };
 
+
+    static gint *ett[] = {
+        &ett_sane,
+        &ett_sane_version,
+        &ett_sane_string,
+        &ett_sane_option,
+        &ett_sane_option_value,
+        &ett_sane_option_capabilities,
+        &ett_sane_option_constraints,
+        &ett_sane_control_option_info,
+        &ett_sane_device_descriptor,
+    };
+
+    module_t *sane_module;
+
     proto_sane = proto_register_protocol("Scanner Access Now Easy", "SANE", "sane");
     proto_register_field_array(proto_sane, hf, array_length(hf));
-    proto_register_subtree_array(trees, array_length(trees));
+    proto_register_subtree_array(ett, array_length(ett));
 
     register_dissector(SANE_MODULE_NAME, dissect_sane, proto_sane);
+
+    /*
+     * XXX - Required to be notified of server port changes,
+     * while no other preferences are registered.
+     */
+    sane_module = prefs_register_protocol(proto_sane, apply_sane_prefs);
+    (void)sane_module;
 }
 
 void
 proto_reg_handoff_sane(void) {
     sane_handle = create_dissector_handle(dissect_sane, proto_sane);
     dissector_add_uint_range_with_preference("tcp.port", SANE_PORT, sane_handle);
-    sane_server_ports = prefs_get_range_value(SANE_MODULE_NAME, "tcp.port");
+    apply_sane_prefs();
 }
+
+/*
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
