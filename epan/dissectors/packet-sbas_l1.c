@@ -16,6 +16,8 @@
 #include <epan/expert.h>
 #include <epan/packet.h>
 
+#include <wsutil/utf8_entities.h>
+
 #include "packet-ubx.h"
 #include "packet-sbas_l1.h"
 
@@ -32,20 +34,20 @@
 // UDREI_i mapping
 // see ICAO Annex 10, Vol I, Table B-29
 const value_string UDREI_EVALUATION[] = {
-    {0,  "0.0520 m^2"},
-    {1,  "0.0924 m^2"},
-    {2,  "0.1444 m^2"},
-    {3,  "0.2830 m^2"},
-    {4,  "0.4678 m^2"},
-    {5,  "0.8313 m^2"},
-    {6,  "1.2992 m^2"},
-    {7,  "1.8709 m^2"},
-    {8,  "2.5465 m^2"},
-    {9,  "3.3260 m^2"},
-    {10, "5.1968 m^2"},
-    {11, "20.7870 m^2"},
-    {12, "230.9661 m^2"},
-    {13, "2078.695 m^2"},
+    {0,  "0.0520 m" UTF8_SUPERSCRIPT_TWO},
+    {1,  "0.0924 m" UTF8_SUPERSCRIPT_TWO},
+    {2,  "0.1444 m" UTF8_SUPERSCRIPT_TWO},
+    {3,  "0.2830 m" UTF8_SUPERSCRIPT_TWO},
+    {4,  "0.4678 m" UTF8_SUPERSCRIPT_TWO},
+    {5,  "0.8313 m" UTF8_SUPERSCRIPT_TWO},
+    {6,  "1.2992 m" UTF8_SUPERSCRIPT_TWO},
+    {7,  "1.8709 m" UTF8_SUPERSCRIPT_TWO},
+    {8,  "2.5465 m" UTF8_SUPERSCRIPT_TWO},
+    {9,  "3.3260 m" UTF8_SUPERSCRIPT_TWO},
+    {10, "5.1968 m" UTF8_SUPERSCRIPT_TWO},
+    {11, "20.7870 m" UTF8_SUPERSCRIPT_TWO},
+    {12, "230.9661 m" UTF8_SUPERSCRIPT_TWO},
+    {13, "2078.695 m" UTF8_SUPERSCRIPT_TWO},
     {14, "Not Monitored"},
     {15, "Do Not Use"},
     {0,  NULL}
@@ -54,21 +56,21 @@ const value_string UDREI_EVALUATION[] = {
 // GIVEI_i mapping
 // see ICAO Annex 10, Vol I, Table B-33
 static const value_string GIVEI_EVALUATION[] = {
-    {0,  "0.0084 m^2"},
-    {1,  "0.0333 m^2"},
-    {2,  "0.0749 m^2"},
-    {3,  "0.1331 m^2"},
-    {4,  "0.2079 m^2"},
-    {5,  "0.2994 m^2"},
-    {6,  "0.4075 m^2"},
-    {7,  "0.5322 m^2"},
-    {8,  "0.6735 m^2"},
-    {9,  "0.8315 m^2"},
-    {10, "1.1974 m^2"},
-    {11, "1.8709 m^2"},
-    {12, "3.3260 m^2"},
-    {13, "20.787 m^2"},
-    {14, "187.0826 m^2"},
+    {0,  "0.0084 m" UTF8_SUPERSCRIPT_TWO},
+    {1,  "0.0333 m" UTF8_SUPERSCRIPT_TWO},
+    {2,  "0.0749 m" UTF8_SUPERSCRIPT_TWO},
+    {3,  "0.1331 m" UTF8_SUPERSCRIPT_TWO},
+    {4,  "0.2079 m" UTF8_SUPERSCRIPT_TWO},
+    {5,  "0.2994 m" UTF8_SUPERSCRIPT_TWO},
+    {6,  "0.4075 m" UTF8_SUPERSCRIPT_TWO},
+    {7,  "0.5322 m" UTF8_SUPERSCRIPT_TWO},
+    {8,  "0.6735 m" UTF8_SUPERSCRIPT_TWO},
+    {9,  "0.8315 m" UTF8_SUPERSCRIPT_TWO},
+    {10, "1.1974 m" UTF8_SUPERSCRIPT_TWO},
+    {11, "1.8709 m" UTF8_SUPERSCRIPT_TWO},
+    {12, "3.3260 m" UTF8_SUPERSCRIPT_TWO},
+    {13, "20.787 m" UTF8_SUPERSCRIPT_TWO},
+    {14, "187.0826 m" UTF8_SUPERSCRIPT_TWO},
     {15, "Not Monitored"},
     {0,  NULL}
 };
@@ -76,22 +78,22 @@ static const value_string GIVEI_EVALUATION[] = {
 // Mapping for fast correction degradation factor
 // see ICAO Annex 10, Vol I, Table B-34
 static const value_string DEGRADATION_FACTOR_INDICATOR[] = {
-    {0,  "0.0 mm/s^2"},
-    {1,  "0.05 mm/s^2"},
-    {2,  "0.09 mm/s^2"},
-    {3,  "0.12 mm/s^2"},
-    {4,  "0.15 mm/s^2"},
-    {5,  "0.20 mm/s^2"},
-    {6,  "0.30 mm/s^2"},
-    {7,  "0.45 mm/s^2"},
-    {8,  "0.60 mm/s^2"},
-    {9,  "0.90 mm/s^2"},
-    {10, "1.50 mm/s^2"},
-    {11, "2.10 mm/s^2"},
-    {12, "2.70 mm/s^2"},
-    {13, "3.30 mm/s^2"},
-    {14, "4.60 mm/s^2"},
-    {15, "5.80 mm/s^2"},
+    {0,  "0.0 mm/s" UTF8_SUPERSCRIPT_TWO},
+    {1,  "0.05 mm/s" UTF8_SUPERSCRIPT_TWO},
+    {2,  "0.09 mm/s" UTF8_SUPERSCRIPT_TWO},
+    {3,  "0.12 mm/s" UTF8_SUPERSCRIPT_TWO},
+    {4,  "0.15 mm/s" UTF8_SUPERSCRIPT_TWO},
+    {5,  "0.20 mm/s" UTF8_SUPERSCRIPT_TWO},
+    {6,  "0.30 mm/s" UTF8_SUPERSCRIPT_TWO},
+    {7,  "0.45 mm/s" UTF8_SUPERSCRIPT_TWO},
+    {8,  "0.60 mm/s" UTF8_SUPERSCRIPT_TWO},
+    {9,  "0.90 mm/s" UTF8_SUPERSCRIPT_TWO},
+    {10, "1.50 mm/s" UTF8_SUPERSCRIPT_TWO},
+    {11, "2.10 mm/s" UTF8_SUPERSCRIPT_TWO},
+    {12, "2.70 mm/s" UTF8_SUPERSCRIPT_TWO},
+    {13, "3.30 mm/s" UTF8_SUPERSCRIPT_TWO},
+    {14, "4.60 mm/s" UTF8_SUPERSCRIPT_TWO},
+    {15, "5.80 mm/s" UTF8_SUPERSCRIPT_TWO},
     {0,  NULL}
 };
 
