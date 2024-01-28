@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2024-01-19)
+# (last updated 2024-01-26)
 
 0	Reserved
 1	NxNetworks
@@ -3001,7 +3001,7 @@
 2995	AcuComm, Inc.
 2996	SpectraWorks Inc.
 2997	RedTitan
-2998	Anderson Consulting
+2998	Wire-Tap, Inc.
 2999	American Family Insurance
 3000	IDB Systems, a Division of WorldCom Inc.
 3001	BAILO
@@ -3348,7 +3348,7 @@
 3342	MachOne Communications Inc.
 3343	Philips Digital Video Systems Harry
 3344	Helsinki Televisio Oy
-3345	Nemetschek AG
+3345	Nemetschek SE
 3346	Vocom
 3347	Hitachi Kokusai Electric Inc.
 3348	Reliable Network Solutions
@@ -48447,7 +48447,7 @@
 48499	inovex GmbH
 48500	Ventilatorenfabrik Oelde GmbH
 48501	Wilmers Messtechnik GmbH
-48502	Startups, Inc.
+48502	Startups Venture
 48503	Magrathea Laboratories e.V.
 48504	Pulselight Inc
 48505	AI2Co
@@ -50563,7 +50563,7 @@
 50621	Golage Inc
 50622	EQS Group AG
 50623	South Jersey Industries
-50624	Hill-Rom, Inc.
+50624	Baxter Healthcare Products
 50625	Agari Data, Inc.
 50626	Concentric Media Sdn Bhd
 50627	Rosenberger Hochfrequenztechnik GmbH & Co KG
@@ -61328,3 +61328,38 @@
 61409	Bavarian Centre for Families and Social Affairs (ZBFS)
 61410	Name Start
 61411	GVTel Co. Ltd.
+61412	John Dowling
+61413	EPRI
+61414	Innspark Solutions Private Limited
+61415	ZASP
+61416	SINET
+61417	Emerald
+61418	Emerald.local
+61419	The Based Department
+61420	Capricorn Identity Services Private Limited.
+61421	Plantynet
+61422	OPSWAT INC.
+61423	BioComputing UP
+61424	D&D Nilsson AB
+61425	Xtend Technologies Pvt. Ltd.
+61426	Salzburger Sand- und Kieswerk GmbH
+61427	Synthesis Health Intelligence Inc.
+61428	AGILTECH
+61429	Xi'an THRN Technology Co., Ltd
+61430	Powerex Corp.
+61431	Woolworths Group
+61432	Selectronic Australia Pty Ltd
+61433	HydroExceed GmbH
+61434	Product Marketing Service LLC
+61435	BY Kalim
+61436	Tessenderlo Kerley Inc.
+61437	State of Nevada
+61438	Sierra Vista Hospital
+61439	Meade's PC Repair Shop, Inc.
+61440	Basalt AB
+61441	TELETECNICA s.r.l.
+61442	Netgroot Infotech Private Limited
+61443	CommuniGate Software Development & Licensing SA
+61444	IMESO-IT GmbH
+61445	Siemens SI GSW IT GC RAIL
+61446	PT Bank Jago Tbk

@@ -705,8 +705,8 @@ kink		910/tcp/udp	# Kerberized Internet Negotiation of Keys (KINK)
 xact-backup	911/tcp/udp
 apex-mesh	912/tcp/udp	# APEX relay-relay service
 apex-edge	913/tcp/udp	# APEX endpoint-relay service
-rift-lies	914/udp		# Routing in Fat Trees Link Information Elements (TEMPORARY - registered 2023-02-17, expires 2024-02-17)
-rift-ties	915/udp		# Routing in Fat Trees Topology Information Elements (TEMPORARY - registered 2023-02-17, expires 2024-02-17)
+rift-lies	914/udp		# Routing in Fat Trees Link Information Elements (TEMPORARY - registered 2023-02-17, extension registered 2024-01-12, expires 2025-02-17)
+rift-ties	915/udp		# Routing in Fat Trees Topology Information Elements (TEMPORARY - registered 2023-02-17, extension registered 2024-01-12, expires 2025-02-17)
 rndc		953/tcp		# BIND9 remote name daemon controller
 ftps-data	989/tcp/udp	# ftp protocol, data, over TLS/SSL
 ftps		990/tcp/udp	# ftp protocol, control, over TLS/SSL
@@ -4524,6 +4524,7 @@ checkoutdb	5505/tcp/udp	# Checkout Database
 amc		5506/tcp/udp	# Amcom Mobile Connect
 psl-management	5507/tcp	# PowerSysLab Electrical Management
 matter		5540/tcp/udp	# Matter Operational Discovery and Communi
+qftest-licserve	5543/tcp	# QF-Test License Server
 cbus		5550/tcp	# Model Railway control using the CBUS message protocol
 sgi-eventmond	5553/tcp/udp	# SGI Eventmond Port
 sgi-esphttp	5554/tcp/udp	# SGI ESP HTTP
@@ -5216,7 +5217,6 @@ toad-bi-appsrvr	8066/tcp	# Toad BI Application Server
 infi-async	8067/tcp	# Infinidat async replication
 ucs-isc		8070/tcp	# Oracle Unified Communication Suite's Indexed Search Converter
 gadugadu	8074/tcp/udp	# Gadu-Gadu
-mles		8077/tcp	# Mles is a client-server data distribution protocol targeted to serve as a lightweight and reliable distributed publish/subscribe database service.
 http-alt	8080/tcp/udp	# HTTP Alternate (see port 80)
 sunproxyadmin	8081/tcp/udp	# Sun Proxy Admin Service
 us-cli		8082/tcp/udp	# Utilistor (Client)
