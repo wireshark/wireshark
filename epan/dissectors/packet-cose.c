@@ -789,6 +789,9 @@ static void dissect_value_alg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             gint64 *val = wscbor_require_int64(pinfo->pool, chunk);
             proto_tree_add_cbor_int64(tree, hf_hdr_alg_int, pinfo, tvb, chunk, val);
             if (value && val) {
+                if (*value) {
+                    g_variant_unref(*value);
+                }
                 *value = g_variant_new_int64(*val);
             }
             break;
@@ -797,6 +800,9 @@ static void dissect_value_alg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             const char *val = wscbor_require_tstr(pinfo->pool, chunk);
             proto_tree_add_cbor_tstr(tree, hf_hdr_alg_tstr, pinfo, tvb, chunk);
             if (value && val) {
+                if (*value) {
+                    g_variant_unref(*value);
+                }
                 *value = g_variant_new_string(val);
             }
             break;
