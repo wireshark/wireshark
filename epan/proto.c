@@ -114,20 +114,26 @@ struct ptvcursor {
  @param free_block a code block to call to free resources if this returns
  @return the header field matching 'hfinfo' */
 #define TRY_TO_FAKE_THIS_ITEM_OR_FREE(tree, hfindex, hfinfo, free_block) \
-	/* If this item is not referenced we don't have to do much work	\
-	   at all but we should still return a node so that field items	\
-	   below this node (think proto_item_add_subtree()) will still	\
-	   have somewhere to attach to or else filtering will not work	\
-	   (they would be ignored since tree would be NULL).		\
+	/* If the tree is not visible and this item is not referenced	\
+	   we don't have to do much work at all but we should still	\
+	   return a node so that referenced field items below this node	\
+	   (think proto_item_add_subtree()) will still have somewhere	\
+	   to attach to or else filtering will not work (they would be	\
+	   ignored since tree would be NULL).				\
 	   DON'T try to fake a node where PTREE_FINFO(tree) is NULL	\
 	   since dissectors that want to do proto_item_set_len() or	\
 	   other operations that dereference this would crash.		\
+	   DON'T try to fake a node where PTREE_FINFO(tree) is visible	\
+	   because that means we can change its length or repr, and we	\
+	   don't want to do so with calls intended for this faked new	\
+	   item, so this item needs a new (hidden) child node.		\
+	   (PROTO_ITEM_IS_HIDDEN(tree) checks both conditions.)		\
 	   We fake FT_PROTOCOL unless some clients have requested us	\
 	   not to do so.						\
 	*/								\
 	PTREE_DATA(tree)->count++;					\
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);			\
-	if (PTREE_DATA(tree)->count > prefs.gui_max_tree_items) {			\
+	if (PTREE_DATA(tree)->count > prefs.gui_max_tree_items) {	\
 		free_block;						\
 		if (wireshark_abort_on_too_many_items) \
 			ws_error("Adding %s would put more than %d items in the tree -- possible infinite loop (max number of items can be increased in advanced preferences)", \
@@ -140,7 +146,7 @@ struct ptvcursor {
 			    hfinfo->abbrev, prefs.gui_max_tree_items));	\
 	}								\
 	if (!(PTREE_DATA(tree)->visible)) {				\
-		if (PTREE_FINFO(tree)) {				\
+		if (PROTO_ITEM_IS_HIDDEN(tree)) {			\
 			if ((hfinfo->ref_type != HF_REF_TYPE_DIRECT)	\
 			    && (hfinfo->ref_type != HF_REF_TYPE_PRINT)	\
 			    && (hfinfo->type != FT_PROTOCOL ||		\
@@ -6713,8 +6719,14 @@ new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 	fi->length     = item_length;
 	fi->tree_type  = -1;
 	fi->flags      = 0;
-	if (!PTREE_DATA(tree)->visible && hfinfo->ref_type != HF_REF_TYPE_PRINT)
-		FI_SET_FLAG(fi, FI_HIDDEN);
+	if (!PTREE_DATA(tree)->visible) {
+		/* If the tree is not visible, set the item hidden, unless we
+		 * need the representation or length and can't fake them.
+		 */
+		if (hfinfo->ref_type != HF_REF_TYPE_PRINT && (hfinfo->type != FT_PROTOCOL || PTREE_DATA(tree)->fake_protocols)) {
+			FI_SET_FLAG(fi, FI_HIDDEN);
+		}
+	}
 	fi->value = fvalue_new(fi->hfinfo->type);
 	fi->rep        = NULL;
 
@@ -7552,12 +7564,9 @@ proto_item_set_len(proto_item *pi, const gint length)
 {
 	field_info *fi;
 
-	/* XXX: We actually want to set the length of non visible proto_items
-	 * that are protocols, if we're not faking protocols, so that
-	 * ui/proto_hier_stats can work correctly. (#17877) But we don't
-	 * want to set the length of the protocol accidentally when intending
-	 * to set the length of a faked child. However, we can't tell whether
-	 * this is called by the original item or the child when faking items.
+	/* If the item is not visible, we can't set the length because
+	 * we can't distinguish which proto item this is being called
+	 * on, since faked items share proto items. (#17877)
 	 */
 	TRY_TO_FAKE_THIS_REPR_VOID(pi);
 
@@ -7581,6 +7590,7 @@ proto_item_set_end(proto_item *pi, tvbuff_t *tvb, gint end)
 	field_info *fi;
 	gint length;
 
+	/* As with proto_item_set_len() above */
 	TRY_TO_FAKE_THIS_REPR_VOID(pi);
 
 	fi = PITEM_FINFO(pi);
