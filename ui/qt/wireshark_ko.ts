@@ -2004,6 +2004,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>16진수 덤프 형식으로 패킷 바이트를 복사합니다.</translation>
     </message>
     <message>
+        <source>…as Printable Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy only the printable text in the packet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>…as MIME Data</source>
         <translation>MIME 데이터로 복사</translation>
     </message>

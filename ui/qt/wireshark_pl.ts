@@ -1989,6 +1989,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Kopiuj bajty pakietu jako Hex.</translation>
     </message>
     <message>
+        <source>…as Printable Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy only the printable text in the packet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>…as MIME Data</source>
         <translation type="unfinished"></translation>
     </message>
