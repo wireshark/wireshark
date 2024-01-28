@@ -254,6 +254,13 @@ xmpp_unknown(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
 }
 
 static void
+cleanup_glist_cb(void *user_data) {
+    GList *li = (GList*)user_data;
+
+    g_list_free(li);
+}
+
+static void
 xmpp_unknown_attrs(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, xmpp_element_t *element, gboolean displ_short_list)
 {
     proto_item *item = proto_tree_get_parent(tree);
@@ -262,6 +269,9 @@ xmpp_unknown_attrs(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, xmpp
     GList *values = g_hash_table_get_values(element->attrs);
 
     GList *keys_head = keys, *values_head = values;
+
+    CLEANUP_PUSH_PFX(k, cleanup_glist_cb, keys_head);
+    CLEANUP_PUSH_PFX(v, cleanup_glist_cb, values_head);
 
     gboolean short_list_started = FALSE;
 
@@ -305,8 +315,8 @@ xmpp_unknown_attrs(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, xmpp
     if(short_list_started && displ_short_list)
         proto_item_append_text(item, "]");
 
-    g_list_free(keys_head);
-    g_list_free(values_head);
+    CLEANUP_CALL_AND_POP_PFX(v);
+    CLEANUP_CALL_AND_POP_PFX(k);
 }
 
 void
