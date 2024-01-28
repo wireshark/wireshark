@@ -460,7 +460,6 @@ parse_logon_reconnect_challenge_server_to_client(tvbuff_t *tvb, proto_tree *wow_
 static void
 parse_logon_challenge_client_to_server(packet_info *pinfo, tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset) {
 	guint8 srp_i_len;
-	char   buffer[5];
 	gchar *string;
 
 	proto_tree_add_item(wow_tree, hf_wow_protocol_version, tvb,
@@ -471,10 +470,16 @@ parse_logon_challenge_client_to_server(packet_info *pinfo, tvbuff_t *tvb, proto_
 			tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
-	tvb_get_raw_bytes_as_string(tvb, offset, buffer, 5);
-	string = get_ascii_string(pinfo->pool, g_strreverse(buffer), 4);
+	string = tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
+	/* g_utf8_strreverse handles the REPLACMENT CHARACTERs.
+	 * It would handle embedded NULs correctly if we passed in the
+	 * byte length after conversion, but we need to change the API
+	 * to use counted strings in more places.
+	 */
+	string = g_utf8_strreverse(string, -1);
 	proto_tree_add_string(wow_tree, hf_wow_gamename,
 			tvb, offset, 4, string);
+	g_free(string);
 	offset += 4;
 
 
@@ -498,22 +503,25 @@ parse_logon_challenge_client_to_server(packet_info *pinfo, tvbuff_t *tvb, proto_
 			offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
-	tvb_get_raw_bytes_as_string(tvb, offset, buffer, 5);
-	string = get_ascii_string(pinfo->pool, g_strreverse(buffer), 4);
+	string = tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
+	string = g_utf8_strreverse(string, -1);
 	proto_tree_add_string(wow_tree, hf_wow_platform,
 			tvb, offset, 4, string);
+	g_free(string);
 	offset += 4;
 
-	tvb_get_raw_bytes_as_string(tvb, offset, buffer, 5);
-	string = get_ascii_string(pinfo->pool, g_strreverse(buffer), 4);
+	string = tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
+	string = g_utf8_strreverse(string, -1);
 	proto_tree_add_string(wow_tree, hf_wow_os, tvb,
 			offset, 4, string);
+	g_free(string);
 	offset += 4;
 
-	tvb_get_raw_bytes_as_string(tvb, offset, buffer, 5);
-	string = get_ascii_string(pinfo->pool, g_strreverse(buffer), 4);
+	string = tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
+	string = g_utf8_strreverse(string, -1);
 	proto_tree_add_string(wow_tree, hf_wow_country,
 			tvb, offset, 4, string);
+	g_free(string);
 	offset += 4;
 
 	proto_tree_add_item(wow_tree,
