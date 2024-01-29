@@ -41,6 +41,7 @@ static int hf_x509ce_id_ce_baseUpdateTime;
 static int hf_x509ce_object_identifier_id;
 static int hf_x509ce_IPAddress_ipv4;
 static int hf_x509ce_IPAddress_ipv6;
+static int hf_x509ce_IPAddress_unknown;
 static int hf_x509ce_AuthorityKeyIdentifier_PDU;  /* AuthorityKeyIdentifier */
 static int hf_x509ce_SubjectKeyIdentifier_PDU;    /* SubjectKeyIdentifier */
 static int hf_x509ce_KeyUsage_PDU;                /* KeyUsage */
@@ -399,7 +400,8 @@ dissect_x509ce_T_uniformResourceIdentifier(bool implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_x509ce_T_iPAddress(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  switch (tvb_reported_length(tvb)) {
+  guint32 len = tvb_reported_length(tvb);
+  switch (len) {
   case 4: /* IPv4 */
     proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -407,6 +409,10 @@ dissect_x509ce_T_iPAddress(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   case 16: /* IPv6 */
     proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv6, tvb, offset, 16, ENC_NA);
     offset += 16;
+    break;
+  default: /* Unknown */
+    proto_tree_add_item(tree, hf_x509ce_IPAddress_unknown, tvb, offset, len, ENC_NA);
+    offset += len;
     break;
   }
 
@@ -2120,6 +2126,9 @@ void proto_register_x509ce(void) {
     { &hf_x509ce_IPAddress_ipv6,
       { "iPAddress", "x509ce.IPAddress.ipv6", FT_IPv6, BASE_NONE, NULL, 0,
         "IPv6 address", HFILL }},
+    { &hf_x509ce_IPAddress_unknown,
+      { "iPAddress", "x509ce.IPAddress.unknown", FT_BYTES, BASE_NONE, NULL, 0,
+        "Unknown Address", HFILL }},
 
     { &hf_x509ce_AuthorityKeyIdentifier_PDU,
       { "AuthorityKeyIdentifier", "x509ce.AuthorityKeyIdentifier_element",
