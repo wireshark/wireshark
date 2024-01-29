@@ -184,8 +184,20 @@ EnhancedCertificateAssertion/pathToName                 enhancedPathToName
     proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     break;
+  case 8: /* IPv4 + Mask*/
+    proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv4_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    break;
   case 16: /* IPv6 */
     proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv6, tvb, offset, 16, ENC_NA);
+    offset += 16;
+    break;
+  case 32: /* IPv6 + Mask */
+    proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv6, tvb, offset, 16, ENC_NA);
+    offset += 16;
+    proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv6_mask, tvb, offset, 16, ENC_NA);
     offset += 16;
     break;
   default: /* Unknown */

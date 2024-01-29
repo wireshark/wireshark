@@ -40,7 +40,9 @@ static int hf_x509ce_id_ce_invalidityDate;
 static int hf_x509ce_id_ce_baseUpdateTime;
 static int hf_x509ce_object_identifier_id;
 static int hf_x509ce_IPAddress_ipv4;
+static int hf_x509ce_IPAddress_ipv4_mask;
 static int hf_x509ce_IPAddress_ipv6;
+static int hf_x509ce_IPAddress_ipv6_mask;
 static int hf_x509ce_IPAddress_unknown;
 static int hf_x509ce_AuthorityKeyIdentifier_PDU;  /* AuthorityKeyIdentifier */
 static int hf_x509ce_SubjectKeyIdentifier_PDU;    /* SubjectKeyIdentifier */
@@ -406,8 +408,20 @@ dissect_x509ce_T_iPAddress(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
     proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     break;
+  case 8: /* IPv4 + Mask*/
+    proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv4_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    break;
   case 16: /* IPv6 */
     proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv6, tvb, offset, 16, ENC_NA);
+    offset += 16;
+    break;
+  case 32: /* IPv6 + Mask */
+    proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv6, tvb, offset, 16, ENC_NA);
+    offset += 16;
+    proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv6_mask, tvb, offset, 16, ENC_NA);
     offset += 16;
     break;
   default: /* Unknown */
@@ -2123,9 +2137,15 @@ void proto_register_x509ce(void) {
     { &hf_x509ce_IPAddress_ipv4,
       { "iPAddress", "x509ce.IPAddress.ipv4", FT_IPv4, BASE_NONE, NULL, 0,
         "IPv4 address", HFILL }},
+    { &hf_x509ce_IPAddress_ipv4_mask,
+      { "iPAddress Mask", "x509ce.IPAddress.ipv4_mask", FT_IPv4, BASE_NONE, NULL, 0,
+        "IPv4 address Mask", HFILL }},
     { &hf_x509ce_IPAddress_ipv6,
       { "iPAddress", "x509ce.IPAddress.ipv6", FT_IPv6, BASE_NONE, NULL, 0,
         "IPv6 address", HFILL }},
+    { &hf_x509ce_IPAddress_ipv6_mask,
+      { "iPAddress Mask", "x509ce.IPAddress.ipv6_mask", FT_IPv6, BASE_NONE, NULL, 0,
+        "IPv6 address Mask", HFILL }},
     { &hf_x509ce_IPAddress_unknown,
       { "iPAddress", "x509ce.IPAddress.unknown", FT_BYTES, BASE_NONE, NULL, 0,
         "Unknown Address", HFILL }},
