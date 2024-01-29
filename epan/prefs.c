@@ -4148,16 +4148,19 @@ pre_init_prefs(void)
 
     if (!is_packet_configuration_namespace()) {
         static const char *col_fmt_logs[] = {
-            "No.",             "%m", "Time",        "%t",
-            "Source",          "%s", "Destination", "%d",
-            "Length",          "%L",
-            "Service",         "%Cus:ct.shortsrc:0:R",
-            "Region",          "%Cus:ct.region:0:R",
-            "Bucket/Instance", "%Cus:s3.bucket || ec2.name:0:R",
-            "User Name",       "%Cus:ct.user:0:R",
-            "Event Name",      "%Cus:ct.name:0:R",
-            "User IP",         "%Cus:ct.srcip:0:R",
-            "Info",            "%i" };
+            "No.",              "%m",
+            "Time",             "%t",
+            "Event name",       "%Cus:sysdig.event_name:0:R",
+            "Dir",              "%Cus:evt.dir:0:R",
+            "Proc Name",        "%Cus:proc.name:0:R",
+            "PID",              "%Cus:proc.pid:0:R",
+            "TID",              "%Cus:thread.tid:0:R",
+            "FD",               "%Cus:fd.num:0:R",
+            "FD Name",          "%Cus:fd.name:0:R",
+            "Container Name",   "%Cus:container.name:0:R",
+            "Arguments",        "%Cus:evt.args:0:R",
+            "Info",             "%i"
+            };
         col_fmt = col_fmt_logs;
         num_cols = 12;
     }
