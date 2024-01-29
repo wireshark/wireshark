@@ -815,7 +815,7 @@ ssl_is_valid_content_type(guint8 type);
 extern gboolean
 ssl_is_valid_handshake_type(guint8 hs_type, gboolean is_dtls);
 
-extern void
+extern bool
 tls_scan_server_hello(tvbuff_t *tvb, guint32 offset, guint32 offset_end,
                       guint16 *server_version, gboolean *is_hrr);
 
@@ -1159,6 +1159,8 @@ typedef struct ssl_common_dissect {
     struct {
         /* Generic expert info for malformed packets. */
         expert_field client_version_error;
+        expert_field server_version_error;
+        expert_field legacy_version;
         expert_field malformed_vector_length;
         expert_field malformed_buffer_too_small;
         expert_field malformed_trailing_data;
@@ -1962,12 +1964,12 @@ ssl_common_dissect_t name;
     { & name .hf.hs_client_version,                                     \
       { "Version", prefix ".handshake.version",                         \
         FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,                   \
-        "Maximum version supported by client", HFILL }                  \
+        "Maximum version supported by client [legacy_version if supported_versions ext is present]", HFILL } \
     },                                                                  \
     { & name .hf.hs_server_version,                                     \
       { "Version", prefix ".handshake.version",                         \
         FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,                   \
-        "Version selected by server", HFILL }                           \
+        "Version selected by server [legacy_version if supported_versions ext is present]", HFILL } \
     },                                                                  \
     { & name .hf.hs_cipher_suites_len,                                  \
       { "Cipher Suites Length", prefix ".handshake.cipher_suites_length", \
@@ -2750,6 +2752,14 @@ ssl_common_dissect_t name;
     { & name .ei.client_version_error, \
         { prefix ".handshake.client_version_error", PI_PROTOCOL, PI_WARN, \
         "Client Hello legacy version field specifies version 1.3, not version 1.2; some servers may not be able to handle that.", EXPFILL } \
+    }, \
+    { & name .ei.server_version_error, \
+        { prefix ".handshake.server_version_error", PI_PROTOCOL, PI_WARN, \
+        "Server Hello legacy version field specifies version 1.3, not version 1.2; some middleboxes may not be able to handle that.", EXPFILL } \
+    }, \
+    { & name .ei.legacy_version, \
+        { prefix ".handshake.legacy_version", PI_DEPRECATED, PI_CHAT, \
+        "This legacy_version field MUST be ignored. The supported_versions extension is present and MUST be used instead.", EXPFILL } \
     }, \
     { & name .ei.malformed_vector_length, \
         { prefix ".malformed.vector_length", PI_PROTOCOL, PI_WARN, \

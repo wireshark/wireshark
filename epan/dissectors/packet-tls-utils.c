@@ -9458,8 +9458,9 @@ ssl_is_authoritative_version_message(guint8 content_type, guint8 handshake_type,
 /**
  * Scan a Server Hello handshake message for the negotiated version. For TLS 1.3
  * draft 22 and newer, it also checks whether it is a HelloRetryRequest.
+ * Returns true if the supported_versions extension was found, false if not.
  */
-void
+bool
 tls_scan_server_hello(tvbuff_t *tvb, guint32 offset, guint32 offset_end,
                       guint16 *server_version, gboolean *is_hrr)
 {
@@ -9477,15 +9478,20 @@ tls_scan_server_hello(tvbuff_t *tvb, guint32 offset, guint32 offset_end,
      * 2 + 32 + 1 = 35 (version, random, session id length)
      * 2 + 1 + 2 = 5 (cipher suite, compression method, extensions length)
      * 2 + 2 + 2 = 6 (ext type, ext len, version)
+     *
+     * We only check for the [legacy_]version field to be [D]TLS 1.2; if it's 1.3,
+     * there's a separate expert info warning for that.
      */
-    if (*server_version == TLSV1DOT2_VERSION && offset_end - offset >= 46) {
+    if ((*server_version == TLSV1DOT2_VERSION || *server_version == DTLSV1DOT2_VERSION) && offset_end - offset >= 46) {
         offset += 2;
-        *is_hrr = tvb_memeql(tvb, offset, tls13_hrr_random_magic, sizeof(tls13_hrr_random_magic)) == 0;
+        if (is_hrr) {
+            *is_hrr = tvb_memeql(tvb, offset, tls13_hrr_random_magic, sizeof(tls13_hrr_random_magic)) == 0;
+        }
         offset += 32;
         session_id_length = tvb_get_guint8(tvb, offset);
         offset++;
         if (offset_end - offset < session_id_length + 5u) {
-            return;
+            return false;
         }
         offset += session_id_length + 5;
 
@@ -9495,17 +9501,85 @@ tls_scan_server_hello(tvbuff_t *tvb, guint32 offset, guint32 offset_end,
             if (offset_end - offset < 4u + ext_len) {
                 break;  /* not enough data for type, length and data */
             }
-            if (ext_type == SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS && ext_len == 2) {
-                *server_version = tvb_get_ntohs(tvb, offset + 4);
-                return;
+            if (ext_type == SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS) {
+                if (ext_len == 2) {
+                    *server_version = tvb_get_ntohs(tvb, offset + 4);
+                }
+                return true;
             }
             offset += 4 + ext_len;
         }
     } else {
-        *is_hrr = FALSE;
+        if (is_hrr) {
+            *is_hrr = FALSE;
+        }
     }
+    return false;
 }
 
+/**
+ * Scan a Client Hello handshake message to see if the supported_versions
+ * extension is found, in which case the version field is legacy_version.
+ */
+static bool
+tls_scan_client_hello(tvbuff_t *tvb, guint32 offset, guint32 offset_end)
+{
+    guint8  session_id_length;
+
+    uint16_t client_version = tvb_get_ntohs(tvb, offset);
+
+    /*
+     * Try to look for supported_versions extension. Minimum length:
+     * 2 + 32 + 1 = 35 (version, random, session id length)
+     * 2 + 2 + 1 + 2 = 5 (cipher suite, compression method, extensions length)
+     * 2 + 2 + 2 = 6 (ext type, ext len, version)
+     *
+     * We only check for the [legacy_]version field to be [D]TLS 1.2; if it's 1.3,
+     * there's a separate expert info warning for that.
+     */
+    if ((client_version == TLSV1DOT2_VERSION || client_version == DTLSV1DOT2_VERSION) && offset_end - offset >= 46) {
+        offset += 2;
+        offset += 32;
+        session_id_length = tvb_get_guint8(tvb, offset);
+        offset++;
+        if (offset_end - offset < session_id_length + 2u) {
+            return false;
+        }
+        offset += session_id_length;
+        if (client_version == DTLSV1DOT2_VERSION) {
+            uint8_t cookie_length = tvb_get_guint8(tvb, offset);
+            offset++;
+            if (offset_end - offset < cookie_length + 2u) {
+                return false;
+            }
+        }
+        uint16_t cipher_suites_length = tvb_get_ntohs(tvb, offset);
+        offset += 2;
+        if (offset_end - offset < cipher_suites_length + 1u) {
+            return false;
+        }
+        offset += cipher_suites_length;
+        uint8_t compression_methods_length = tvb_get_guint8(tvb, offset);
+        offset++;
+        if (offset_end - offset < compression_methods_length + 2u) {
+            return false;
+        }
+        offset += compression_methods_length + 2;
+
+        while (offset_end - offset >= 6) {
+            guint16 ext_type = tvb_get_ntohs(tvb, offset);
+            guint16 ext_len = tvb_get_ntohs(tvb, offset + 2);
+            if (offset_end - offset < 4u + ext_len) {
+                break;  /* not enough data for type, length and data */
+            }
+            if (ext_type == SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS) {
+                return true;
+            }
+            offset += 4 + ext_len;
+        }
+    }
+    return false;
+}
 void
 ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
                     guint8 content_type, guint8 handshake_type,
@@ -9652,6 +9726,9 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     ti = proto_tree_add_item_ret_uint(tree, hf->hf.hs_client_version, tvb,
                                       offset, 2, ENC_BIG_ENDIAN,
                                       &client_version);
+    if (tls_scan_client_hello(tvb, offset, offset_end)) {
+        expert_add_info(pinfo, ti, &hf->ei.legacy_version);
+    }
     offset += 2;
     wmem_strbuf_append_printf(ja3, "%i,", client_version);
 
@@ -9876,8 +9953,32 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     session->is_session_resumed = TRUE;
 
     /* show the server version */
-    proto_tree_add_item_ret_uint(tree, hf->hf.hs_server_version, tvb,
+    ti = proto_tree_add_item_ret_uint(tree, hf->hf.hs_server_version, tvb,
                         offset, 2, ENC_BIG_ENDIAN, &server_version);
+
+    uint16_t supported_server_version;
+    if (tls_scan_server_hello(tvb, offset, offset_end, &supported_server_version, NULL)) {
+        expert_add_info(pinfo, ti, &hf->ei.legacy_version);
+    }
+    /*
+     * Is it version 1.3?
+     * If so, that's an error; TLS and DTLS 1.3 Server Hellos claim
+     * to be TLS 1.2, and mention 1.3 in an extension.  See RFC 8446
+     * section 4.1.3 "Server Hello" and RFC 9147 Section 5.4 "Server
+     * Hello".
+     */
+    if (is_dtls) {
+        if (server_version  == DTLSV1DOT3_VERSION) {
+            /* Don't do that. */
+            expert_add_info(pinfo, ti, &hf->ei.server_version_error);
+        }
+    } else {
+        if (server_version == TLSV1DOT3_VERSION) {
+            /* Don't do that. */
+            expert_add_info(pinfo, ti, &hf->ei.server_version_error);
+        }
+    }
+
     offset += 2;
     wmem_strbuf_append_printf(ja3, "%i", server_version);
 
