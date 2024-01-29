@@ -672,6 +672,7 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree,
 }
 
 
+static
 int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree,
 		void *data) {
 	struct packet_data *d = (struct packet_data *)data;
