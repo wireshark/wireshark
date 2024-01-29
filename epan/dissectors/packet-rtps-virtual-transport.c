@@ -1001,133 +1001,133 @@ proto_register_rtps_virtual_transport(void)
             &hf_rtpsvt_version,
             {
                 "Version", "rtpsvt.version",
-                FT_UINT16, BASE_HEX, NULL, 0, 0, HFILL
+                FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
             }
         },
         {
             &hf_rtpsvt_version_major,
             {
                 "Major", "rtpsvt.version.major",
-                FT_INT8, BASE_DEC, NULL, 0, 0, HFILL
+                FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL
             }
         },
         {
             &hf_rtpsvt_version_minor,
             {
                 "Minor", "rtpsvt.version.minor",
-                FT_INT8, BASE_DEC, NULL, 0, 0, HFILL
+                FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL
             }
         },
         {
             &hf_rtpsvt_content_kind,
             {
                 "Content kind", "rtpsvt.content.kind",
-                FT_INT8, BASE_DEC, NULL, 0, 0, HFILL
+                FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL
             }
         },
         {
             &hf_rtpsvt_param_id,
             {
                 "Parameter Identifier", "rtpsvt.param.id",
-                FT_UINT16, BASE_DEC, NULL, 0, 0, HFILL
+                FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
             },
         },
         {
             &hf_rtpsvt_param_length,
             {
                 "Parameter Length", "rtpsvt.param.length",
-                FT_UINT16, BASE_DEC, NULL, 0, 0, HFILL
+                FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
             }
         },
         {
             &hf_rtpsvt_direction,
             {
                 "Traffic Direction", "rtpsvt.direction",
-                FT_STRING, BASE_NONE, NULL, 0x0, 0, HFILL
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL
             }
         },
         {
             &hf_rtpsvt_packet_identifier,
             {
                 "Packet identifier", "rtpsvt.identifier",
-                FT_NONE, BASE_NONE, NULL, 0, 0, HFILL
+                FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL
             }
         },
         {
             &hf_rtpsvt_monitoring_guid,
             {
                 "GUID", "rtpsvt.monitoring_guid",
-                FT_BYTES, BASE_NONE, NULL, 0, 0, HFILL
+                FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
             }
         },
         {
             &hf_rtpsvt_monitoring_seqNr,
             {
                 "SeqNum", "rtpsvt.seqNr",
-                FT_UINT64, BASE_DEC, NULL, 0x0, 0, HFILL
+                FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         {
             &hf_rtpsvt_information,
             {
                 "Transport Information", "rtpsvt.information",
-                FT_NONE, BASE_NONE, NULL, 0x0, 0, HFILL
+                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL
             }
         },
         {
             &hf_rtpsvt_source_port,
             {
                 "Source Port", "rtpsvt.source_port",
-                FT_UINT32, BASE_DEC, NULL, 0x0, 0, HFILL
+                FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         {
             &hf_rtpsvt_source_address,
             {
                 "Source address", "rtpsvt.source_address",
-                FT_STRING, BASE_NONE, NULL, 0, 0, HFILL
+                FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
             }
         },
         {
             &hf_rtpsvt_source_pid,
             {
                 "Source process ID", "rtpsvt.source_pid",
-                FT_STRING, BASE_NONE, NULL, 0, 0, HFILL
+                FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
             }
         },
         {
             &hf_rtpsvt_destination_port,
             {
                 "Destination Port", "rtpsvt.port",
-                FT_UINT32, BASE_DEC, NULL, 0x0, 0, HFILL
+                FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         {
             &hf_rtpsvt_destination_rtps_port,
             {
                 "Destination RTPS Port", "rtpsvt.rtps_port",
-                FT_UINT32, BASE_DEC, NULL, 0x0, 0, HFILL
+                FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         {
             &hf_rtpsvt_destination_address,
             {
                 "Destination address", "rtpsvt.destination_address",
-                FT_STRING, BASE_NONE, NULL, 0, 0, HFILL
+                FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
             }
         },
         {
             &hf_rtpsvt_destination_pid,
             {
                 "Destination process ID", "rtpsvt.destination_pid",
-                FT_STRING, BASE_NONE, NULL, 0, 0, HFILL
+                FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
             }
         },
         {
             &hf_rtpsvt_class,
             {
                 "Transport class", "rtpsvt.class",
-                FT_STRING, BASE_NONE, NULL, 0, 0, HFILL
+                FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
             }
         },
         {
@@ -1135,7 +1135,7 @@ proto_register_rtps_virtual_transport(void)
             &hf_rtpsvt_missing_messages,
             {
                 "Packets lost", "rtpsvt.missing_messages",
-                FT_UINT64, BASE_DEC, NULL, 0x0, 0, HFILL
+                FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         }
     };

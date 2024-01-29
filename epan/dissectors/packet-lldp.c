@@ -5038,39 +5038,39 @@ proto_register_lldp(void)
 		},
 		{ &hf_dcbx_feature_pgid_reserved,
 			{ "Reserved", "lldp.dcbx.feature.pg.reserved", FT_UINT8, BASE_HEX,
-			NULL, 0xFE, 0, HFILL }
+			NULL, 0xFE, NULL, HFILL }
 		},
 		{ &hf_dcbx_feature_pgid_prio_0,
 			{ "PGID for Prio 0", "lldp.dcbx.feature.pg.pgid_prio0", FT_UINT16, BASE_DEC,
-			NULL, 0xF000, 0, HFILL }
+			NULL, 0xF000, NULL, HFILL }
 		},
 		{ &hf_dcbx_feature_pgid_prio_1,
 			{ "PGID for Prio 1", "lldp.dcbx.feature.pg.pgid_prio1", FT_UINT16, BASE_DEC,
-			NULL, 0x0F00, 0, HFILL }
+			NULL, 0x0F00, NULL, HFILL }
 		},
 		{ &hf_dcbx_feature_pgid_prio_2,
 			{ "PGID for Prio 2", "lldp.dcbx.feature.pg.pgid_prio2", FT_UINT16, BASE_DEC,
-			NULL, 0x00F0, 0, HFILL }
+			NULL, 0x00F0, NULL, HFILL }
 		},
 		{ &hf_dcbx_feature_pgid_prio_3,
 			{ "PGID for Prio 3", "lldp.dcbx.feature.pg.pgid_prio3", FT_UINT16, BASE_DEC,
-			NULL, 0x000F, 0, HFILL }
+			NULL, 0x000F, NULL, HFILL }
 		},
 		{ &hf_dcbx_feature_pgid_prio_4,
 			{ "PGID for Prio 4", "lldp.dcbx.feature.pg.pgid_prio4", FT_UINT16, BASE_DEC,
-			NULL, 0xF000, 0, HFILL }
+			NULL, 0xF000, NULL, HFILL }
 		},
 		{ &hf_dcbx_feature_pgid_prio_5,
 			{ "PGID for Prio 5", "lldp.dcbx.feature.pg.pgid_prio5", FT_UINT16, BASE_DEC,
-			NULL, 0x0F00, 0, HFILL }
+			NULL, 0x0F00, NULL, HFILL }
 		},
 		{ &hf_dcbx_feature_pgid_prio_6,
 			{ "PGID for Prio 6", "lldp.dcbx.feature.pg.pgid_prio6", FT_UINT16, BASE_DEC,
-			NULL, 0x00F0, 0, HFILL }
+			NULL, 0x00F0, NULL, HFILL }
 		},
 		{ &hf_dcbx_feature_pgid_prio_7,
 			{ "PGID for Prio 7", "lldp.dcbx.feature.pg.pgid_prio7", FT_UINT16, BASE_DEC,
-			NULL, 0x000F, 0, HFILL }
+			NULL, 0x000F, NULL, HFILL }
 		},
 		{ &hf_dcbx_feature_pg_per_0,
 			{ "Bandwidth for PGID 0", "lldp.dcbx.feature.pg.per0", FT_UINT8, BASE_DEC,

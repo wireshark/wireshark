@@ -781,25 +781,25 @@ proto_register_rtitcp(void)
         { &hf_rtitcp_header_control_byte, {
             "Control Byte", "rtitcp.header.control_byte",
             FT_UINT16, BASE_HEX, NULL, 0,
-            0, HFILL }
+            NULL, HFILL }
         },
 
         { &hf_rtitcp_header_message_length, {
             "Message Length", "rtitcp.header.message_length",
             FT_UINT16, BASE_DEC, NULL, 0,
-            0, HFILL }
+            NULL, HFILL }
         },
 
         { &hf_rtitcp_header_magic_number, {
             "Magic Cookie", "rtitcp.header.magic_cookie",
             FT_UINT32, BASE_HEX, NULL, 0,
-            0, HFILL }
+            NULL, HFILL }
         },
 
         { &hf_rtitcp_crc_magic_cookie, {
             "CRC Magic Cookie", "rtitcp.header.crc_magic_cookie",
             FT_UINT32, BASE_HEX, NULL, 0,
-            0, HFILL }
+            NULL, HFILL }
         },
 
         { &hf_rtitcp_control_kind,
@@ -811,19 +811,19 @@ proto_register_rtitcp(void)
         { &hf_rtitcp_control_magic_cookie, {
             "Control Magic Cookie", "rtitcp.control.magic_cookie",
             FT_UINT32, BASE_HEX, NULL, 0,
-            0, HFILL }
+            NULL, HFILL }
         },
 
         { &hf_rtitcp_control_transaction_id, {
             "Transaction ID", "rtitcp.control.transaction_id",
             FT_BYTES, BASE_NONE, NULL, 0,
-            0, HFILL }
+            NULL, HFILL }
         },
 
         { &hf_rtitcp_control_attribute_session_id, {
             "Session ID", "rtitcp.control.attribute.session_id",
             FT_BYTES, BASE_NONE, NULL, 0,
-            0, HFILL }
+            NULL, HFILL }
         },
 
         { &hf_rtitcp_control_attribute_type,
@@ -841,38 +841,37 @@ proto_register_rtitcp(void)
         { &hf_rtitcp_control_attribute_error_code_description, {
             "Description", "rtitcp.control.attribute.error_code.description",
             FT_STRING, BASE_NONE, NULL, 0,
-            0, HFILL }
+            NULL, HFILL }
         },
 
         { &hf_rtitcp_control_attribute_connection_cookie, {
             "Connection Cookie", "rtitcp.control.attribute.connection_cookie",
             FT_BYTES, BASE_NONE, NULL, 0,
-            0, HFILL }
+            NULL, HFILL }
         },
 
         { &hf_rtitcp_control_attribute_connection_type, {
             "Class ID", "rtitcp.control_attribute.connection_type",
             FT_UINT8, BASE_HEX, VALS(rtitcp_attribute_connection_type_vals), 0,
-            0, HFILL }
+            NULL, HFILL }
         },
 
         { &hf_rtitcp_attributes_list_length, {
             "Attributes list length", "rtitcp.attributes_list_length",
             FT_UINT16, BASE_DEC, NULL, 0,
-            0,
-            HFILL }
+            NULL, HFILL }
         },
 
         { &hf_rtitcp_control_attribute_length, {
             "Attribute Length", "rtitcp.control.attribute.length",
             FT_UINT16, BASE_DEC, NULL, 0,
-            0, HFILL }
+            NULL, HFILL }
         },
 
         { &hf_rtitcp_control_attribute_port, {
             "Port", "rtitcp.control.attribute_port",
             FT_UINT32, BASE_DEC, NULL, 0,
-            0, HFILL }
+            NULL, HFILL }
         },
 
         { &hf_rtitcp_locator_kind,
@@ -899,30 +898,29 @@ proto_register_rtitcp(void)
             NULL, HFILL }
         },
 
-        { &hf_rtitcp_control_crc_value, {
-         "CRC", "rtitcp.control.crc",
-         FT_UINT32, BASE_HEX, NULL, 0,
-         0, HFILL }
+        { &hf_rtitcp_control_crc_value,
+          { "CRC", "rtitcp.control.crc",
+            FT_UINT32, BASE_HEX, NULL, 0,
+            NULL, HFILL }
         },
 
-        { &hf_rtitcp_response_in, {
-         "Response In", "rtitcp.response_in",
-         FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-         "The response to this RTITCP request is in this frame", HFILL }
+        { &hf_rtitcp_response_in,
+          { "Response In", "rtitcp.response_in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "The response to this RTITCP request is in this frame", HFILL }
         },
 
-        { &hf_rtitcp_response_to, {
-         "Request In", "rtitcp.response_to",
-         FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-         "This is a response to the RTITCP request in this frame", HFILL }
+        { &hf_rtitcp_response_to,
+          { "Request In", "rtitcp.response_to",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "This is a response to the RTITCP request in this frame", HFILL }
         },
 
-        { &hf_rtitcp_response_time, {
-         "Response Time", "rtitcp.response_time",
-         FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-         "The time between the Request and the Reply", HFILL }
-        },
-
+        { &hf_rtitcp_response_time,
+          { "Response Time", "rtitcp.response_time",
+            FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+            "The time between the Request and the Reply", HFILL }
+        }
     };
 
     static gint *ett[] = {

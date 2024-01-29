@@ -401,14 +401,14 @@ proto_register_rtps_processed(void)
             &hf_rtpsproc_param_id,
             {
                 "Parameter Identifier", "rtpsproc.param.id",
-                FT_UINT16, BASE_DEC, NULL, 0, 0, HFILL
+                FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
             },
         },
         {
             &hf_rtpsproc_param_length,
             {
                 "Parameter Length", "rtpsproc.param.length",
-                FT_UINT16, BASE_DEC, NULL, 0, 0, HFILL
+                FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
             }
         },
     };

@@ -824,7 +824,12 @@ class Item:
         self.strings = strings
         self.mask_exact_width = mask_exact_width
 
-        global warnings_found
+        global warnings_found, errors_found
+
+        if blurb == '0':
+            print('Error:', filename, hf, ': - filter "' + filter +
+                '" has blurb of 0 - if no string, please set NULL instead')
+            errors_found += 1
 
         self.set_mask_value(macros)
 

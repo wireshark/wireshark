@@ -7835,14 +7835,14 @@ proto_register_mswsp(void)
 			&hf_mswsp_msg_cpmgetrowsetnotify_changeditemstate,
 			{
 				"changedItemState", "mswsp.msg.cpmgetrowsetnotify.changeditemState",
-				FT_UINT8, BASE_DEC, NULL, 0, 0, HFILL
+				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_mswsp_msg_cpmgetrowsetnotify_rowsetevent,
 			{
 				"rowSetEvent", "mswsp.msg.cpmgetrowsetnotify.rowsetevent",
-				FT_UINT8, BASE_DEC, NULL, 0, 0, HFILL
+				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 			}
 		},
 		{
