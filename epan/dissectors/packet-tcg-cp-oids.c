@@ -998,7 +998,7 @@ void proto_reg_handoff_tcg_cp_oids(void) {
   oid_add_from_string("tcg-ce","2.23.133.6");
   oid_add_from_string("tcg-kp","2.23.133.8");
   /* TCG Spec Version OIDs */
-  oid_add_from_string("tcg-sv-tpm12","2.23.133.1.1");
+  oid_add_from_string("tcg-sv-tpm12","2.23.133.1.0");
   oid_add_from_string("tcg-sv-tpm20","2.23.133.1.2");
   /* TCG Attribute OIDs */
   oid_add_from_string("tcg-at-securityQualities","2.23.133.2.10");
