@@ -871,8 +871,11 @@ bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t
             case SCAP_FILTERED_EVENT:
                 break;
             case SCAP_EOF:
-                ws_warning("Unexpected EOF");
-                return false;
+                ws_debug("Filling syscall EOF gap from %d to %u", (int) sinsp_span->sfe_ptrs.size(), frame_num);
+                sinsp_span->sfe_ptrs.resize(frame_num);
+                sinsp_span->sfe_lengths.resize(frame_num);
+                sinsp_span->sfe_infos.resize(frame_num);
+                break;
             case SCAP_SUCCESS:
                 add_syscall_event_to_cache(sinsp_span, ssi, evt);
                 break;
