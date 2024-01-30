@@ -2628,9 +2628,8 @@ multipart_number_of_fragments(char *buf, guint32 value)
     snprintf(buf, ITEM_LABEL_LENGTH, "%u (Actual Number of Fragments: %u)", value, value + 1);
 }
 
+/* table with an ID consisting of MMM Type as MSB and 3 type-specific LSB */
 static reassembly_table docsis_tlv_reassembly_table;
-static reassembly_table docsis_opt_tlv_reassembly_table;
-static reassembly_table docsis_rngrsp_tlv_reassembly_table;
 
 static const fragment_items docsis_tlv_frag_items = {
   &ett_docsis_tlv_fragment,
@@ -2649,6 +2648,45 @@ static const fragment_items docsis_tlv_frag_items = {
   "TLV fragments"
 };
 
+static tvbuff_t *
+dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_,
+                  const guint32 mmm_type, guint32 id, const gint fixed_byte_count)
+{
+  /* Multipart MMM messages from version 5 onwards */
+  guint version, multipart = 0, fragment, last_fragment, tlv_byte_count;
+  address save_src, save_dst;
+
+  version = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_docsis_mgmt, KEY_MGMT_VERSION));
+  if (version > 4)
+    multipart = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_docsis_mgmt, KEY_MGMT_MULTIPART));
+  if (!multipart)
+    return tvb_new_subset_remaining(tvb, fixed_byte_count);
+
+  id += mmm_type << 24;
+  fragment = multipart & 0x0F;
+  last_fragment = multipart >> 4;
+  tlv_byte_count = tvb_reported_length_remaining(tvb, fixed_byte_count);
+
+  /* DOCSIS MAC management messages do not have network (IP) address. Use link (MAC) address instead. Same workflow as in wimax. */
+  /* Save address pointers. */
+  copy_address_shallow(&save_src, &pinfo->src);
+  copy_address_shallow(&save_dst, &pinfo->dst);
+  /* Use dl_src and dl_dst in defragmentation. */
+  copy_address_shallow(&pinfo->src, &pinfo->dl_src);
+  copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
+
+  fragment_head *fh = fragment_add_seq_check(&docsis_tlv_reassembly_table, tvb, fixed_byte_count, pinfo, id, NULL,
+                                             fragment, tlv_byte_count, (fragment != last_fragment));
+
+  /* Restore address pointers. */
+  copy_address_shallow(&pinfo->src, &save_src);
+  copy_address_shallow(&pinfo->dst, &save_dst);
+
+  if (fh)
+    return process_reassembled_data(tvb, fixed_byte_count, pinfo, "Reassembled TLVs", fh, &docsis_tlv_frag_items,
+                                    NULL, tree);
+  return NULL;
+}
 
 static int
 dissect_sync (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
@@ -3680,10 +3718,7 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_item *it;
   proto_tree *rngrsp_tree;
   tvbuff_t *tlv_tvb = NULL;
-  guint32 sid, upchid;
-  address save_src, save_dst;
-  guint version, multipart, number_of_fragments, fragment_sequence_number;
-
+  guint32 sid, upchid, id;
 
   it = proto_tree_add_item(tree, proto_docsis_rngrsp, tvb, 0, -1, ENC_NA);
   rngrsp_tree = proto_item_add_subtree (it, ett_docsis_rngrsp);
@@ -3700,51 +3735,10 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
                   "Ranging Response: SID = %u, Telephony Return", sid);
 
 
-  version = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_docsis_mgmt, KEY_MGMT_VERSION));
-  if (version > 4) {
-    multipart = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_docsis_mgmt, KEY_MGMT_MULTIPART));
-  } else {
-    multipart = 0;
-  }
-
-  /* Reassemble TLVs */
-  if (tvb_reported_length_remaining(tvb, 3) > 0) {
-    if (version > 4 && multipart) {
-      /* Fragmented data */
-      number_of_fragments = (multipart >> 4);
-      fragment_sequence_number = (multipart & 0x0F);
-
-      /* DOCSIS MAC management messages do not have network (IP) address. Use link (MAC) address instead. Same workflow as in wimax. */
-      /* Save address pointers. */
-      copy_address_shallow(&save_src, &pinfo->src);
-      copy_address_shallow(&save_dst, &pinfo->dst);
-      /* Use dl_src and dl_dst in defragmentation. */
-      copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-      copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
-
-      fragment_head* fh = fragment_add_seq_check(&docsis_rngrsp_tlv_reassembly_table, tvb, 3, pinfo, sid, NULL,
-                                                fragment_sequence_number,
-                                                tvb_reported_length_remaining(tvb, 3),
-                                                (fragment_sequence_number != number_of_fragments));
-
-      /* Restore address pointers. */
-      copy_address_shallow(&pinfo->src, &save_src);
-      copy_address_shallow(&pinfo->dst, &save_dst);
-
-      if (fh) {
-        tlv_tvb = process_reassembled_data(tvb, 3, pinfo, "Reassembled RNGRSP TLV", fh, &docsis_tlv_frag_items,
-                                           NULL, rngrsp_tree);
-
-        if (tlv_tvb && tvb_reported_length(tlv_tvb) > 0) {
-          dissect_rngrsp_tlv(tlv_tvb, pinfo, rngrsp_tree);
-        }
-      }
-    } else { /* version > 4 && multipart */
-      tlv_tvb = tvb_new_subset_remaining (tvb, 3);
-      dissect_rngrsp_tlv(tlv_tvb, pinfo, rngrsp_tree);
-    }
-  }
-
+  id = (upchid << 16) + sid;
+  tlv_tvb = dissect_multipart(tvb, pinfo, rngrsp_tree, data, MGT_RNG_RSP, id, 3);
+  if (tlv_tvb != NULL && tvb_captured_length(tlv_tvb))
+    dissect_rngrsp_tlv(tlv_tvb, pinfo, rngrsp_tree);
   return tvb_captured_length(tvb);
 }
 
@@ -5930,7 +5924,7 @@ dissect_dbcreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 {
   proto_item *dbcreq_item, *reassembled_item;
   proto_tree *dbcreq_tree, *reassembled_tree;
-  guint32 transid, number_of_fragments, fragment_sequence_number;
+  guint32 transid, number_of_fragments, fragment_sequence_number, id;
   tvbuff_t *next_tvb;
 
   dbcreq_item = proto_tree_add_item(tree, proto_docsis_dbcreq, tvb, 0, -1, ENC_NA);
@@ -5946,11 +5940,12 @@ dissect_dbcreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   if(number_of_fragments > 1) {
      pinfo->fragmented = TRUE;
 
+     id = (MGT_DBC_REQ << 24) + transid;
      fragment_head* reassembled_tlv = NULL;
      reassembled_tlv = fragment_add_seq_check(&docsis_tlv_reassembly_table,
                                   tvb, 4, pinfo,
-                                  transid, NULL, /* ID for fragments belonging together */
-                                  fragment_sequence_number -1, /* Sequence number starts at 0 */
+                                  id, NULL, /* ID for fragments belonging together */
+                                  fragment_sequence_number - 1, /* Sequence number starts at 0 */
                                   tvb_reported_length_remaining(tvb, 4), /* fragment length - to the end */
                                   (fragment_sequence_number != number_of_fragments)); /* More fragments? */
 
@@ -6639,7 +6634,7 @@ dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
 {
   proto_item *it, *reassembled_item;
   proto_tree *regrspmp_tree, *reassembled_tree;
-  guint sid, number_of_fragments, fragment_sequence_number;
+  guint sid, number_of_fragments, fragment_sequence_number, id;
 
   tvbuff_t *next_tvb;
 
@@ -6662,11 +6657,12 @@ dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
   if(number_of_fragments > 1) {
      pinfo->fragmented = TRUE;
 
+     id = (MGT_REG_RSP << 24) + sid;
      fragment_head* reassembled_tlv = NULL;
      reassembled_tlv = fragment_add_seq_check(&docsis_tlv_reassembly_table,
                                   tvb, 5, pinfo,
-                                  sid, NULL, /* ID for fragments belonging together */
-                                  fragment_sequence_number -1, /* Sequence number starts at 0 */
+                                  id, NULL, /* ID for fragments belonging together */
+                                  fragment_sequence_number - 1, /* Sequence number starts at 0 */
                                   tvb_reported_length_remaining(tvb, 5), /* fragment length - to the end */
                                   (fragment_sequence_number != number_of_fragments)); /* More fragments? */
 
@@ -7477,11 +7473,9 @@ dissect_optrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 {
   proto_item *it;
   proto_tree *opt_tree;
-  address save_src, save_dst;
-  guint version, multipart, number_of_fragments, fragment_sequence_number;
   tvbuff_t *tlv_tvb = NULL;
 
-  guint32 downstream_channel_id, profile_identifier, status;
+  guint32 downstream_channel_id, profile_identifier, status, id;
 
   it = proto_tree_add_item(tree, proto_docsis_optrsp, tvb, 0, -1, ENC_NA);
   opt_tree = proto_item_add_subtree (it, ett_docsis_optrsp);
@@ -7494,52 +7488,11 @@ dissect_optrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
                               val_to_str(profile_identifier, profile_id_vals, "Unknown Profile ID (%u)"), profile_identifier,
                               val_to_str(status, opt_status_vals, "Unknown status (%u)"), status);
 
-  version = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_docsis_mgmt, KEY_MGMT_VERSION));
-  if (version > 4) {
-    multipart = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_docsis_mgmt, KEY_MGMT_MULTIPART));
-  } else {
-    multipart = 0;
-  }
-
-  /* Reassemble TLVs */
-  if (tvb_reported_length_remaining(tvb, 5) > 0) {
-    if (version > 4 && multipart) {
-      /* Fragmented data */
-      number_of_fragments = (multipart >> 4);
-      fragment_sequence_number = (multipart & 0x0F);
-
-      /* DOCSIS MAC management messages do not have network (IP) address. Use link (MAC) address instead. Same workflow as in wimax. */
-      /* Save address pointers. */
-      copy_address_shallow(&save_src, &pinfo->src);
-      copy_address_shallow(&save_dst, &pinfo->dst);
-      /* Use dl_src and dl_dst in defragmentation. */
-      copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-      copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
-
-      fragment_head* fh = fragment_add_seq_check(&docsis_opt_tlv_reassembly_table, tvb, 5, pinfo, downstream_channel_id, NULL,
-                                                fragment_sequence_number,
-                                                tvb_reported_length_remaining(tvb, 5),
-                                                (fragment_sequence_number != number_of_fragments));
-
-      /* Restore address pointers. */
-      copy_address_shallow(&pinfo->src, &save_src);
-      copy_address_shallow(&pinfo->dst, &save_dst);
-
-      if (fh) {
-        tlv_tvb = process_reassembled_data(tvb, 5, pinfo, "Reassembled OPT TLV", fh, &docsis_tlv_frag_items,
-                                           NULL, opt_tree);
-
-        if (tlv_tvb && tvb_reported_length(tlv_tvb) > 0) {
-          dissect_optrsp_tlv(tlv_tvb, pinfo, opt_tree);
-        }
-      }
-    } else { /* version > 4 && multipart */
-      tlv_tvb = tvb_new_subset_remaining (tvb, 5);
-      dissect_optrsp_tlv(tlv_tvb, pinfo, opt_tree);
-    }
-  }
-
-  return tvb_reported_length(tvb);
+  id = (downstream_channel_id << 16) + profile_identifier;
+  tlv_tvb = dissect_multipart(tvb, pinfo, opt_tree, data, MGT_OPT_RSP, id, 5);
+  if (tlv_tvb != NULL && tvb_captured_length(tlv_tvb))
+    dissect_optrsp_tlv(tlv_tvb, pinfo, opt_tree);
+  return tvb_captured_length(tvb);
 }
 
 static int
@@ -11007,9 +10960,6 @@ proto_reg_handoff_docsis_mgmt (void)
   docsis_tlv_handle = find_dissector ("docsis_tlv");
 
   reassembly_table_register(&docsis_tlv_reassembly_table, &addresses_reassembly_table_functions);
-  reassembly_table_register(&docsis_opt_tlv_reassembly_table, &addresses_reassembly_table_functions);
-  reassembly_table_register(&docsis_rngrsp_tlv_reassembly_table, &addresses_reassembly_table_functions);
-
 }
 
 /*

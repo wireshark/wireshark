@@ -711,19 +711,15 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
       dissect_exthdr_length_field (tvb, pinfo, docsis_tree, exthdr, mac_parm, len_sid, &payload_length, &is_encrypted);
       /* Dissect Header Check Sequence field for a PDU */
       fcs_correct = dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
-      if (fcs_correct)
-      {
-        if (fcparm == FCPARM_MAC_MGMT_HDR && exthdr == EXT_HDR_OFF)
-        {
-            /* Pass off to the DOCSIS Management dissector/s */
-            mgt_tvb = tvb_new_subset_remaining(tvb, hdrlen);
-            if (is_encrypted && !docsis_dissect_encrypted_frames)
-              dissect_encrypted_frame (mgt_tvb, pinfo, docsis_tree, fctype, fcparm);
-            else
-              call_dissector (docsis_mgmt_handle, mgt_tvb, pinfo, docsis_tree);
-        }
-        else
-        {
+      if (fcs_correct) {
+        if (fcparm == FCPARM_MAC_MGMT_HDR && exthdr == EXT_HDR_OFF) {
+          /* Pass off to the DOCSIS Management dissector/s */
+          mgt_tvb = tvb_new_subset_remaining(tvb, hdrlen);
+          if (is_encrypted && !docsis_dissect_encrypted_frames)
+            dissect_encrypted_frame (mgt_tvb, pinfo, docsis_tree, fctype, fcparm);
+          else
+            call_dissector (docsis_mgmt_handle, mgt_tvb, pinfo, docsis_tree);
+        } else {
           /* Don't do anything for a Reserved Frame */
           next_tvb =  tvb_new_subset_remaining(tvb, hdrlen);
           call_data_dissector(next_tvb, pinfo, tree);
