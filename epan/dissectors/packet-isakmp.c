@@ -222,6 +222,7 @@ static int hf_isakmp_num_spis;
 static int hf_isakmp_hash;
 static int hf_isakmp_sig;
 static int hf_isakmp_nonce;
+static int hf_isakmp_symmetric_key;
 
 static int hf_isakmp_notify_data_3gpp_backoff_timer_len;
 
@@ -274,6 +275,7 @@ static attribute_common_fields hf_isakmp_ike_attr;
 static int hf_isakmp_ike_attr_encryption_algorithm;
 static int hf_isakmp_ike_attr_hash_algorithm;
 static int hf_isakmp_ike_attr_authentication_method;
+static int hf_isakmp_ike_attr_authentication_method_china;
 static int hf_isakmp_ike_attr_group_description;
 static int hf_isakmp_ike_attr_group_type;
 static int hf_isakmp_ike_attr_group_prime;
@@ -623,6 +625,7 @@ static const fragment_items isakmp_frag_items = {
 #define PLOAD_IKE2_GSA                  51
 #define PLOAD_IKE2_KD                   52
 #define PLOAD_IKE2_SKF                  53
+#define PLOAD_IKE_SK                    128
 #define PLOAD_IKE_NAT_D13               130
 #define PLOAD_IKE_NAT_OA14              131
 #define PLOAD_IKE_CISCO_FRAG            132
@@ -734,7 +737,8 @@ static const range_string payload_type[] = {
   { PLOAD_IKE2_KD,PLOAD_IKE2_KD,               "Key Download"},
   { PLOAD_IKE2_SKF,PLOAD_IKE2_SKF,             "Encrypted and Authenticated Fragment"},
   { 54,127,                                    "Unassigned"     },
-  { 128,129,                                   "Private Use"   },
+  { PLOAD_IKE_SK,PLOAD_IKE_SK,                 "Symmetric-key"},
+  { 129,129,                                   "Private Use"   },
   { PLOAD_IKE_NAT_D13,PLOAD_IKE_NAT_D13,       "NAT-D (draft-ietf-ipsec-nat-t-ike-01 to 03)"},
   { PLOAD_IKE_NAT_OA14,PLOAD_IKE_NAT_OA14,     "NAT-OA (draft-ietf-ipsec-nat-t-ike-01 to 03)"},
   { PLOAD_IKE_CISCO_FRAG,PLOAD_IKE_CISCO_FRAG, "Cisco-Fragmentation"},
@@ -1090,6 +1094,14 @@ static const value_string ike_attr_authmeth[] = {
   { 65009, "XAUTHInitRSARevisedEncryption" },
   { 65010, "XAUTHRespRSARevisedEncryption" },
   { 0,  NULL },
+};
+
+/* For GM/T 0022 IPSec VPN specification
+   This specification only define one value for authmeth
+*/
+static const value_string ike_attr_authmeth_china[] = {
+  { 10,    "Digital Envelope" },
+  { 0,     NULL },
 };
 
 static const value_string dh_group[] = {
@@ -2434,6 +2446,7 @@ static void dissect_ts_payload(tvbuff_t *, int, int, proto_tree *);
 static tvbuff_t * dissect_enc(tvbuff_t *, int, int, proto_tree *, packet_info *, guint8, gboolean, void*, gboolean);
 static void dissect_eap(tvbuff_t *, int, int, proto_tree *, packet_info *);
 static void dissect_gspm(tvbuff_t *, int, int, proto_tree *);
+static void dissect_symmetric_key(tvbuff_t *, int, int, proto_tree *);
 static void dissect_cisco_fragmentation(tvbuff_t *, int, int, proto_tree *, packet_info *);
 
 /* State of current fragmentation within a conversation */
@@ -3278,6 +3291,9 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
               dissect_ikev2_fragmentation(tvb, offset + 4, ntree, pinfo, message_id, next_payload, is_request, decr_data );
             }
             break;
+          case PLOAD_IKE_SK:
+            dissect_symmetric_key(tvb, offset + 4, payload_length - 4, ntree);
+            break;
           default:
             proto_tree_add_item(ntree, hf_isakmp_datapayload, tvb, offset + 4, payload_length-4, ENC_NA);
             break;
@@ -4048,8 +4064,18 @@ dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
       if (decr) decr->ike_hash_alg = tvb_get_ntohs(tvb, offset);
       break;
     case IKE_ATTR_AUTHENTICATION_METHOD:
-      proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_authentication_method, tvb, offset, value_len, ENC_BIG_ENDIAN);
-      proto_item_append_text(attr_item, ": %s", val_to_str(tvb_get_ntohs(tvb, offset), ike_attr_authmeth, "Unknown %d"));
+      /* for GM/T 0022 IPSec VPN specification */
+      if(decr && (decr->ike_hash_alg == HMAC_SM3 || decr->ike_encr_alg == ENC_SM1_CBC || decr->ike_encr_alg == ENC_SM4_CBC))
+      {
+        proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_authentication_method_china, tvb, offset, value_len, ENC_BIG_ENDIAN);
+        proto_item_append_text(attr_item, ": %s", val_to_str(tvb_get_ntohs(tvb, offset), ike_attr_authmeth_china, "Unknown %d"));
+
+      }
+      else
+      {
+        proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_authentication_method, tvb, offset, value_len, ENC_BIG_ENDIAN);
+        proto_item_append_text(attr_item, ": %s", val_to_str(tvb_get_ntohs(tvb, offset), ike_attr_authmeth, "Unknown %d"));
+      }
       if (decr) decr->is_psk = tvb_get_ntohs(tvb, offset) == 0x01 ? TRUE : FALSE;
       break;
     case IKE_ATTR_GROUP_DESCRIPTION:
@@ -4578,6 +4604,11 @@ static void
 dissect_nonce(tvbuff_t *tvb, int offset, int length, proto_tree *ntree)
 {
   proto_tree_add_item(ntree, hf_isakmp_nonce, tvb, offset, length, ENC_NA);
+}
+
+static void dissect_symmetric_key(tvbuff_t *tvb, int offset, int length, proto_tree *ntree)
+{
+  proto_tree_add_item(ntree, hf_isakmp_symmetric_key, tvb, offset, length, ENC_NA);
 }
 
 static void
@@ -7127,7 +7158,10 @@ proto_register_isakmp(void)
       { "Nonce DATA", "isakmp.nonce",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
-
+    { &hf_isakmp_symmetric_key,
+      { "symmetric key", "isakmp.symmetric_key",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_isakmp_ike2_fragment_number,
       { "Fragment Number", "isakmp.frag.number",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -7392,6 +7426,10 @@ proto_register_isakmp(void)
     { &hf_isakmp_ike_attr_authentication_method,
       { "Authentication Method", "isakmp.ike.attr.authentication_method",
         FT_UINT16, BASE_DEC, VALS(ike_attr_authmeth), 0x00,
+        NULL, HFILL }},
+    { &hf_isakmp_ike_attr_authentication_method_china,
+      { "Authentication Method for China IPSsec VPN specification", "isakmp.ike.attr.authentication_method_china",
+        FT_UINT16, BASE_DEC, VALS(ike_attr_authmeth_china), 0x00,
         NULL, HFILL }},
     { &hf_isakmp_ike_attr_group_description,
       { "Group Description", "isakmp.ike.attr.group_description",
