@@ -659,6 +659,11 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
         return TRUE;
     }
 
+    if (container->real_length == 0) {
+        ws_info("blf_pull_logcontainer_into_memory: found container with 0 length");
+        return TRUE;
+    }
+
     /* pull compressed data into buffer */
     if (container->infile_start_pos < 0) {
         /*
