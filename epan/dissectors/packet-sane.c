@@ -40,6 +40,7 @@
 
 #include <wireshark.h>
 #include <epan/packet.h>
+#include <epan/proto_data.h>
 #include <epan/prefs.h>
 
 #include "packet-tcp.h"
@@ -297,9 +298,17 @@ typedef struct {
     uint32_t packet_num;
 } sane_pdu;
 
+/* Keep track of current request status during first pass.
+   N.B. opcode is stored in per-frame data and read during subsequent passes.
+   Could if necessary be expanded to include frame numbers and timestamps for
+   more complete request/response tracking.
+*/
 typedef struct {
-    wmem_array_t *pdus_seen;
+    bool     seen_request;
+    sane_pdu last_request;
+    bool     auth;
 } sane_session;
+
 
 typedef struct {
     tvbuff_t *tvb;
@@ -374,30 +383,29 @@ tvb_skip_bytes(tvb_sane_reader *r, gint len) {
  */
 static sane_rpc_code
 get_sane_expected_response_type(sane_session *sess, packet_info *pinfo) {
-    unsigned n = wmem_array_get_count(sess->pdus_seen);
-    if (n == 0) {
-        return SANE_NET_UNKNOWN;
+
+    /* Look up any previous result. N.B. as called for length *and* dissecting,
+       there may already be a value stored on first pass! */
+    if (PINFO_FD_VISITED(pinfo) || p_get_proto_data(wmem_file_scope(), pinfo, proto_sane, 0)) {
+        return (sane_rpc_code)GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_sane, 0));
     }
 
-    bool expecting_auth_req = false;
-    for (unsigned i = n; i--;) {
-        sane_pdu *pdu = wmem_array_index(sess->pdus_seen, i);
-        if (pdu->packet_num >= pinfo->num) {
-            continue;
+    /* First pass. Will be response to last_request if set, or AUTH request if flag set. */
+    sane_rpc_code code = SANE_NET_UNKNOWN;
+    if (sess->seen_request) {
+        if (sess->auth) {
+            code = SANE_NET_AUTHORIZE;
+            sess->auth = false;
         }
-
-        if (pdu->is_request) {
-            if (!expecting_auth_req) {
-                return pdu->opcode;
-            }
-
-            expecting_auth_req = false;
-        } else if (pdu->opcode == SANE_NET_AUTHORIZE) {
-            expecting_auth_req = true;
+        else {
+            code = sess->last_request.opcode;
         }
     }
 
-    return SANE_NET_UNKNOWN;
+    /* Remember this code for later queries. */
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_sane, 0, GUINT_TO_POINTER(code));
+
+    return code;
 }
 
 static proto_item *
@@ -848,11 +856,11 @@ get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) 
 
     if (!sess) {
         sess = wmem_new0(wmem_file_scope(), sane_session);
-        sess->pdus_seen = wmem_array_new(wmem_file_scope(), sizeof(sane_pdu));
         conversation_add_proto_data(conv, proto_sane, sess);
     }
 
     if (value_is_in_range(sane_server_ports, pinfo->destport)) {
+        /* REQUEST */
         guint opcode;
         WORD_OR_RETURN(&r, &opcode);
 
@@ -863,7 +871,16 @@ get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) 
         };
 
         if (!PINFO_FD_VISITED(pinfo)) {
-            wmem_array_append_one(sess->pdus_seen, pdu);
+            sess->seen_request = true;
+            if (opcode == SANE_NET_AUTHORIZE) {
+                /* Just set this flag, so can remember op being authorised */
+                sess->auth = true;
+            }
+            else {
+                /* Remember normal request */
+                sess->last_request = pdu;
+                sess->auth = false;
+            }
         }
 
         switch (opcode) {
@@ -904,14 +921,9 @@ get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) 
                 break;
         }
     } else {
+        /* RESPONSE */
         sane_rpc_code opcode = get_sane_expected_response_type(sess, pinfo);
         gint array_len;
-
-        sane_pdu pdu = {
-            .opcode = opcode,
-            .is_request = FALSE,
-            .packet_num = pinfo->num,
-        };
 
         switch (opcode) {
             case SANE_NET_INIT:
@@ -1029,12 +1041,6 @@ get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) 
                 break;
             default:
                 break;
-        }
-
-        /* If we got all the way here, we have an apparently well-formed
-         * response of the expected type. */
-        if (!PINFO_FD_VISITED(pinfo)) {
-            wmem_array_append_one(sess->pdus_seen, pdu);
         }
     }
 
