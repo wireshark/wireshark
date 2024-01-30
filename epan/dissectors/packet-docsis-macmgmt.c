@@ -134,6 +134,7 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define MGT_DPT_ACK 59
 #define MGT_DPT_INFO 60
 #define MGT_RBA_SW 61
+#define MGT_RBA_HW 62
 #define MGT_EXT_RNG_REQ 67
 
 #define UCD_SYMBOL_RATE 1
@@ -1589,7 +1590,8 @@ static const value_string mgmt_type_vals[] = {
   {MGT_DPT_RSP,        "DOCSIS Time Protocol Response"},
   {MGT_DPT_ACK,        "DOCSIS Time Protocol Acknowledge"},
   {MGT_DPT_INFO,       "DOCSIS Time Protocol Information"},
-  {MGT_RBA_SW,         "DOCSIS Resource Block Assignment"},
+  {MGT_RBA_SW,         "DOCSIS SW-Friendly Resource Block Assignment"},
+  {MGT_RBA_HW,         "DOCSIS HW-Friendly Resource Block Assignment"},
   {MGT_EXT_RNG_REQ,    "Extended Upstream Range Request"},
   {0, NULL}
 };
@@ -10999,6 +11001,7 @@ proto_reg_handoff_docsis_mgmt (void)
   dissector_add_uint ("docsis_mgmt", MGT_OPT_RSP, create_dissector_handle( dissect_optrsp, proto_docsis_optrsp ));
   dissector_add_uint ("docsis_mgmt", MGT_OPT_ACK, create_dissector_handle( dissect_optack, proto_docsis_optack ));
   dissector_add_uint ("docsis_mgmt", MGT_RBA_SW, docsis_rba_handle);
+  dissector_add_uint ("docsis_mgmt", MGT_RBA_HW, docsis_rba_handle);
   dissector_add_uint ("docsis_mgmt", MGT_EXT_RNG_REQ, create_dissector_handle( dissect_ext_rngreq, proto_docsis_ext_rngreq ));
 
   docsis_tlv_handle = find_dissector ("docsis_tlv");
