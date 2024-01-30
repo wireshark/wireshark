@@ -29,14 +29,9 @@
 #include <epan/wslua/init_wslua.h>
 #endif
 
-#include "ui/alert_box.h"
 #include "ui/util.h"
-#include "ui/help_url.h"
 #include <wsutil/utf8_entities.h>
 
-#include "file.h"
-#include "wsutil/file_util.h"
-#include "wsutil/tempfile.h"
 #include "wsutil/plugins.h"
 #include "wsutil/version_info.h"
 #include "ui/capture_globals.h"
@@ -339,6 +334,11 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->tblAuthors->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->tblAuthors, &QTreeView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
     connect(ui->searchAuthors, &QLineEdit::textChanged, proxyAuthorModel, &AStringListListSortFilterProxyModel::setFilter);
+
+    if (!is_packet_configuration_namespace()) {
+        setWindowTitle(tr("About Logray"));
+        ui->tabWidget->setTabText(ui->tabWidget->indexOf(ui->tab_wireshark), tr("Logray"));
+    }
 
     /* Wireshark tab */
     updateWiresharkText();
