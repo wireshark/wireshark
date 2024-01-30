@@ -55,7 +55,7 @@
 */
 
 #include "config.h"
-
+#define WS_LOG_DOMAIN "RTMPT"
 
 #include <epan/packet.h>
 #include <wsutil/pint.h>
@@ -64,8 +64,6 @@
 #include <epan/to_str.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
-
-/* #define DEBUG_RTMPT 1 */
 
 #define MAX_AMF_ITERATIONS 1000
 
@@ -562,20 +560,6 @@ rtmpt_packet_mark_depended(gpointer data, gpointer user_data)
     mark_frame_as_depended_upon(fd, frame_num);
 }
 
-#ifdef DEBUG_RTMPT
-static void rtmpt_debug(const char *fmt, ...)
-{
-        va_list args;
-        va_start(args, fmt);
-        vprintf(fmt, args);
-        va_end(args);
-}
-#define RTMPT_DEBUG rtmpt_debug
-#else
-static void rtmpt_debug(const char *fmt, ...){ (void)fmt; }
-#define RTMPT_DEBUG 1 ? (void)0 : rtmpt_debug
-#endif
-
 /* Header length helpers */
 
 static gint rtmpt_basic_header_length(gint id)
@@ -836,7 +820,7 @@ rtmpt_get_packet_desc(tvbuff_t *tvb, guint32 offset, proto_item* pi, guint32 rem
                 }
                 if (slen > 0) {
                         sFunc = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+3+soff, slen, ENC_ASCII);
-                        RTMPT_DEBUG("got function call '%s'\n", sFunc);
+                        ws_debug("got function call '%s'", sFunc);
 
                         if (strcmp(sFunc, "connect") == 0) {
                                 sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 2, "app");
@@ -869,7 +853,7 @@ rtmpt_get_packet_desc(tvbuff_t *tvb, guint32 offset, proto_item* pi, guint32 rem
                         if (tp->txid != 0 && tp->otherframe == 0) {
                                 tp->otherframe = GPOINTER_TO_INT(wmem_tree_lookup32(rconv->txids[cdir^1], tp->txid));
                                 if (tp->otherframe) {
-                                        RTMPT_DEBUG("got otherframe=%d\n", tp->otherframe);
+                                        ws_debug("got otherframe=%d", tp->otherframe);
                                 }
                         }
                 }
@@ -1754,9 +1738,9 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
 
-        RTMPT_DEBUG("Dissect: frame=%u visited=%d len=%d tree=%p\n",
-                    pinfo->num, pinfo->fd->visited,
-                    tvb_reported_length_remaining(tvb, offset), tree);
+        ws_debug("Dissect: frame=%u visited=%d len=%d tree=%p",
+                 pinfo->num, pinfo->fd->visited,
+                 tvb_reported_length_remaining(tvb, offset), tree);
 
         /* Clear any previous data in Info column (RTMP packets are protected by a "fence") */
         col_clear(pinfo->cinfo, COL_INFO);
@@ -1788,7 +1772,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
                         }
                         tp->txid = rtmpt_get_amf_txid(tvb, iBodyOffset+soff, tree);
                         if (tp->txid != 0 && !PINFO_FD_VISITED(pinfo)) {
-                                RTMPT_DEBUG("got txid=%d\n", tp->txid);
+                                ws_debug("got txid=%d", tp->txid);
                                 wmem_tree_insert32(rconv->txids[cdir], tp->txid, GINT_TO_POINTER(pinfo->num));
                         }
                 }
@@ -1957,7 +1941,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
         if (!remain)
                 return;
 
-        RTMPT_DEBUG("Segment: cdir=%d seq=%d-%d\n", cdir, seq, seq+remain-1);
+        ws_debug("Segment: cdir=%d seq=%d-%d", cdir, seq, seq+remain-1);
 
         if (pinfo->fd->visited) {
                 /* Already done the work, so just dump the existing state */
@@ -2032,7 +2016,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
 
                         if (tf) {
                                 /* May need to reassemble cross-TCP-segment fragments */
-                                RTMPT_DEBUG("  tf seq=%d lseq=%d h=%d l=%d\n", tf->seq, tf->lastseq, tf->have, tf->len);
+                                ws_noisy("  tf seq=%d lseq=%d h=%d l=%d", tf->seq, tf->lastseq, tf->have, tf->len);
                                 if (tf->have >= tf->len || seq+offset < tf->seq || seq+offset > tf->lastseq+tf->len-tf->have) {
                                         tf = NULL;
                                 } else if (!tf->ishdr) {
@@ -2187,7 +2171,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                          *   previous packet with same id was complete
                          *   previous incomplete chunk not handled by fragment handler
                          */
-                        RTMPT_DEBUG("New packet cdir=%d seq=%d ti=%p tp=%p header_type=%d header_len=%d id=%d tph=%d tpw=%d len=%d cs=%d\n",
+                        ws_noisy("New packet cdir=%d seq=%d ti=%p tp=%p header_type=%d header_len=%d id=%d tph=%d tpw=%d len=%d cs=%d",
                                     cdir, seq+offset,
                                     ti, tp, header_type, basic_hlen+message_hlen, id, tp?tp->have:0, tp?tp->want:0, body_len, chunk_size);
 
@@ -2315,9 +2299,9 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                                  */
                                 message_hlen += 4;
                         }
-                        RTMPT_DEBUG("Old packet cdir=%d seq=%d ti=%p tp=%p header_len=%d id=%d tph=%d tpw=%d len=%d cs=%d\n",
-                                    cdir, seq+offset,
-                                    ti, tp, basic_hlen+message_hlen, id, tp?tp->have:0, tp?tp->want:0, body_len, chunk_size);
+                        ws_noisy("Old packet cdir=%d seq=%d ti=%p tp=%p header_len=%d id=%d tph=%d tpw=%d len=%d cs=%d",
+                                 cdir, seq+offset,
+                                 ti, tp, basic_hlen+message_hlen, id, tp?tp->have:0, tp?tp->want:0, body_len, chunk_size);
 
                         tp->chunkwant = chunk_size;
                         if (tp->chunkwant > tp->want-tp->have)
@@ -2334,7 +2318,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                 want = tp->chunkwant - tp->chunkhave;
                 if (want > remain)
                         want = remain;
-                RTMPT_DEBUG("  cw=%d ch=%d r=%d w=%d\n", tp->chunkwant, tp->chunkhave, remain, want);
+                ws_noisy("  cw=%d ch=%d r=%d w=%d", tp->chunkwant, tp->chunkhave, remain, want);
 
                 /* message length is a 3 byte number, never overflows an int */
                 if (tp->alloc < tp->have + want) {
@@ -2381,7 +2365,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                         tf2->have     = tp->chunkhave;
                         tf2->len      = tp->chunkwant;
                         tf2->saved.id = tp->id;
-                        RTMPT_DEBUG("  inserting tf @ %d\n", seq+offset-want-1);
+                        ws_noisy("  inserting tf @ %d", seq+offset-want-1);
                         wmem_tree_insert32(rconv->frags[cdir], seq+offset-want-1, tf2);
                 }
         }
@@ -2492,13 +2476,13 @@ dissect_rtmpt_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         if (cdir) {
                 conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->src, conversation_pt_to_conversation_type(pinfo->ptype), 0, pinfo->srcport, 0);
                 if (!conv) {
-                        RTMPT_DEBUG("RTMPT new conversation\n");
+                        ws_debug("RTMPT new conversation");
                         conv = conversation_new(pinfo->num, &pinfo->dst, &pinfo->src, conversation_pt_to_conversation_type(pinfo->ptype), 0, pinfo->srcport, 0);
                 }
         } else {
                 conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), 0, pinfo->destport, 0);
                 if (!conv) {
-                        RTMPT_DEBUG("RTMPT new conversation\n");
+                        ws_debug("RTMPT new conversation");
                         conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), 0, pinfo->destport, 0);
                 }
         }
@@ -2543,7 +2527,7 @@ dissect_rtmpt_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
         seq -= remain-1;
 
-        RTMPT_DEBUG("RTMPT f=%d cdir=%d seq=%d lastackseq=%d len=%d\n", pinfo->num, cdir, seq, lastackseq, remain);
+        ws_debug("RTMPT f=%d cdir=%d seq=%d lastackseq=%d len=%d", pinfo->num, cdir, seq, lastackseq, remain);
 
         if (remain < 1)
                 return offset;
