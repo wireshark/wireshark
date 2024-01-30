@@ -294,19 +294,6 @@ static dissector_handle_t atm_untruncated_handle;
 
 static dissector_handle_t sdh_handle;
 
-/* ERF Header */
-#define ERF_HDR_TYPE_MASK   0x7f
-#define ERF_HDR_EHDR_MASK   0x80
-#define ERF_HDR_FLAGS_MASK  0xff
-#define ERF_HDR_CAP_MASK    0x43
-#define ERF_HDR_CAP_LO_MASK 0x03
-#define ERF_HDR_CAP_HI_MASK 0x40
-#define ERF_HDR_VLEN_MASK   0x04
-#define ERF_HDR_TRUNC_MASK  0x08
-#define ERF_HDR_RXE_MASK    0x10
-#define ERF_HDR_DSE_MASK    0x20
-#define ERF_HDR_RES_MASK    0x80
-
 /* ERF Extension Header */
 #define ERF_EHDR_FLOW_ID_HASH_TYPE_TYPE_MASK 0x7f
 #define ERF_EHDR_FLOW_ID_HASH_TYPE_INNER_MASK 0x80
@@ -932,8 +919,8 @@ static const erf_meta_hf_template_t erf_meta_tags[] = {
   { ERF_META_TAG_responder_retx,    { "Responder Retransmissions",          "responder_retx",    FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_initiator_zwin,    { "Initiator Zero Window Count",        "initiator_zwin",    FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_responder_zwin,    { "Responder Zero Window Count",        "responder_zwin",    FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
-  { ERF_META_TAG_initiator_tcp_flags, { "Initiator TCP Flags",              "initiator_zwin",    FT_BYTES,         BASE_NONE,          NULL, 0x0, NULL, HFILL } },
-  { ERF_META_TAG_responder_tcp_flags, { "Responder TCP Flags",              "responder_zwin",    FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_initiator_tcp_flags, { "Initiator TCP Flags",              "initiator_flags",   FT_BYTES,         BASE_NONE,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_responder_tcp_flags, { "Responder TCP Flags",              "responder_flags",   FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_tcp_irtt,          { "TCP Initial Round Trip Time",        "tcp_irtt",          FT_RELATIVE_TIME, BASE_NONE,         NULL, 0x0, NULL, HFILL } },
 
   { ERF_META_TAG_start_time,        { "Start Time",                         "start_time",        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL } },
@@ -964,7 +951,7 @@ static const erf_meta_hf_template_t erf_meta_tags[] = {
   { ERF_META_TAG_pkt_drop,          { "Packet Drop",                        "packet_drop",       FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_record_drop,       { "Record Drop",                        "record_drop",       FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_bandwidth,         { "Bandwidth",                          "bandwidth",         FT_UINT64,        BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0x0, NULL, HFILL } },
-  { ERF_META_TAG_duration,          { "Duration",                           "packet_drop",       FT_RELATIVE_TIME, BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_duration,          { "Duration",                           "duration",          FT_RELATIVE_TIME, BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_top_index,         { "Top N Index",                        "top_index",         FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_concurrent_flows,  { "Concurrent Flows",                   "concurrent_flows",  FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_active_flows,      { "Active Flows",                       "active_flows",      FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
@@ -2258,7 +2245,7 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *pi;
   proto_item *flags_item, *rectype_item;
   proto_tree *flags_tree, *rectype_tree;
-  int has_flags = 0;
+  gboolean has_flags = FALSE;
 
   proto_tree_add_uint64(tree, hf_erf_ts, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.ts);
 
@@ -2285,21 +2272,21 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_TRUNC_MASK) {
     proto_item_append_text(flags_item, "(ERF Truncation Error");
     expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF Truncation Error");
-    has_flags++;
+    has_flags = TRUE;
   }
 
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_rxe, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_RXE_MASK) {
     proto_item_append_text(flags_item, "%sERF Rx Error", has_flags ? "; " : "(");
     expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF Rx Error");
-    has_flags++;
+    has_flags = TRUE;
   }
 
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_dse, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_DSE_MASK) {
     proto_item_append_text(flags_item, "%sERF DS Error", has_flags ? "; " : "(");
     expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF DS Error");
-    has_flags++;
+    has_flags = TRUE;
   }
   if (has_flags) {
     proto_item_append_text(flags_item, ")");
@@ -2307,7 +2294,7 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   proto_tree_add_uint(flags_tree, hf_erf_flags_res, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
 
-  proto_tree_add_uint(tree, hf_erf_flags_cap, tvb, 0, 0, (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_CAP_HI_MASK >> 4 ) | (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_CAP_LO_MASK));
+  proto_tree_add_uint(tree, hf_erf_flags_cap, tvb, 0, 0, erf_interface_id_from_flags(pinfo->pseudo_header->erf.phdr.flags));
 
   proto_tree_add_uint(tree, hf_erf_rlen, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.rlen);
 

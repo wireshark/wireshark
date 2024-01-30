@@ -755,7 +755,7 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
       rec->ts.secs += 1;
     }
 
-    if_num = (erf_header->flags & 0x03) | ((erf_header->flags & 0x40) >> 4);
+    if_num = erf_interface_id_from_flags(erf_header->flags);
   }
 
   /* Copy the ERF pseudo header */

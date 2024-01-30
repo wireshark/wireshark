@@ -87,6 +87,24 @@
 #define ERF_EXT_HDR_TYPE_ANCHOR_ID      18
 #define ERF_EXT_HDR_TYPE_ENTROPY        19
 
+/* ERF Header */
+#define ERF_HDR_TYPE_MASK   0x7f
+#define ERF_HDR_EHDR_MASK   0x80
+#define ERF_HDR_FLAGS_MASK  0xff
+#define ERF_HDR_CAP_MASK    0x43
+#define ERF_HDR_CAP_LO_MASK 0x03
+#define ERF_HDR_CAP_HI_MASK 0x40
+#define ERF_HDR_VLEN_MASK   0x04
+#define ERF_HDR_TRUNC_MASK  0x08
+#define ERF_HDR_RXE_MASK    0x10
+#define ERF_HDR_DSE_MASK    0x20
+#define ERF_HDR_RES_MASK    0x80
+
+/*
+ * Calculate 3-bit ERF InterfaceID value from ERF Header flags byte
+ */
+#define erf_interface_id_from_flags(flags) ((((guint8)flags) & ERF_HDR_CAP_HI_MASK >> 4 ) | (((guint8)flags) & ERF_HDR_CAP_LO_MASK))
+
 /* Host ID and Anchor ID*/
 #define ERF_EHDR_HOST_ID_MASK G_GUINT64_CONSTANT(0xffffffffffff)
 #define ERF_EHDR_ANCHOR_ID_MASK G_GUINT64_CONSTANT(0xffffffffffff)
