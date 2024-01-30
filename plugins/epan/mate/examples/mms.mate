@@ -1,40 +1,57 @@
-# mms.mate
+Transform rm_client_from_http_resp1 {
+        Match (http_rq);
+        Match Every (addr) Insert (not_rq);
+};
 
-# MMSE over HTTP
-Action=PduDef;   Name=mmse_over_http_pdu; Proto=http; Transport=tcp/ip; Payload=mmse; addr=ip.addr; port=tcp.port; http_rq=http.request; content=http.content_type;
-Action=PduExtra; For=mmse_over_http_pdu;  resp=http.response.code; method=http.request.method; host=http.host; content=http.content_type; 
-Action=PduExtra; For=mmse_over_http_pdu;  method=http.request.method; host=http.host; 
-Action=PduExtra; For=mmse_over_http_pdu;  trx=mmse.transaction_id; msg_type=mmse.message_type; notify_status=mmse.status; send_status=mmse.response_status;
+Transform rm_client_from_http_resp2 {
+        Match (not_rq,ue) Replace ();
+};
 
-Action=Transform; Name=rm_client_from_http_resp1; Mode=Insert; Match=Strict; http_rq;
-Action=Transform; Name=rm_client_from_http_resp1; Mode=Insert; Match=Every; addr; .not_rq;
+Pdu mmse_over_http_pdu Proto http Transport tcp/ip {
+        Payload mmse;
+        Extract addr From ip.addr;
+        Extract port From tcp.port;
+        Extract http_rq From http.request;
+        Extract content From http.content_type;
+        Extract resp From http.response.code;
+        Extract method From http.request.method;
+        Extract host From http.host;
+        Extract content From http.content_type;
+        Extract trx From mmse.transaction_id;
+        Extract msg_type From mmse.message_type;
+        Extract notify_status From mmse.status;
+        Extract send_status From mmse.response_status;
+        Transform rm_client_from_http_resp1, rm_client_from_http_resp2;
+};
 
-Action=Transform; Name=rm_client_from_http_resp2; Mode=Replace; Match=Strict; not_rq; ue;
+Gop mmse_over_http On mmse_over_http_pdu Match (addr, addr, port, port) {
+        Start (http_rq);
+        Stop (http_rs);
+        Extra (host, ue, resp, notify_status, send_status, trx);
+};
 
-Action=PduTransform; For=mmse_over_http_pdu; Name=rm_client_from_http_resp1;
-Action=PduTransform; For=mmse_over_http_pdu; Name=rm_client_from_http_resp2;
+Transform mms_start {
+        Match Loose() Insert (mms_start);
+};
 
-Action=GopDef; Name=mmse_over_http; On=mmse_over_http_pdu; addr; addr; port; port;
-Action=GopStart; For=mmse_over_http; http_rq;
-Action=GopStop; For=mmse_over_http; http_rs;
+Pdu mmse_over_wsp_pdu Proto wsp Transport ip {
+        Payload mmse;
+        Extract trx From mmse.transaction_id;
+        Extract msg_type From mmse.message_type;
+        Extract notify_status From mmse.status;
+        Extract send_status From mmse.response_status;
+        Transform mms_start;
+};
 
-Action=GopExtra; For=mmse_over_http; host; ue; resp; notify_status; send_status; trx;
+Gop mmse_over_wsp On mmse_over_wsp_pdu Match (trx) {
+        Start (mms_start);
+        Stop (never);
+        Extra (ue, notify_status, send_status);
+};
 
-# MMSE over WSP
-Action=PduDef; Name=mmse_over_wsp_pdu; Proto=wsp; Payload=mmse; Transport=ip; trx=mmse.transaction_id; msg_type=mmse.message_type; notify_status=mmse.status; send_status=mmse.response_status;
-
-Action=Transform; Name=mms_start; Match=Loose; .mms_start;
-
-Action=PduTransform;  Name=mms_start; For=mmse_over_wsp_pdu;
-
-Action=GopDef; Name=mmse_over_wsp; On=mmse_over_wsp_pdu; trx;
-Action=GopStart; For=mmse_over_wsp; mms_start; 
-Action=GopStop; For=mmse_over_wsp; never;
-
-Action=GopExtra; For=mmse_over_wsp; ue; notify_status; send_status;
-
-# the MMS GoG
-Action=GogDef; Name=mms; GogExpiration=60.0;
-Action=GogKey; For=mms; On=mmse_over_http; trx;
-Action=GogKey; For=mms; On=mmse_over_wsp; trx;
-Action=GogExtra; For=mms; ue; notify_status; send_status; resp; host; trx;
+Gog mms {
+        Member mmse_over_http (trx);
+        Member mmse_over_wsp (trx);
+        Extra (ue, notify_status, send_status, resp, host, trx);
+        Expiration 60.0;
+};

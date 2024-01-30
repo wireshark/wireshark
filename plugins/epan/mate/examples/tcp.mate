@@ -1,7 +1,14 @@
-# tcp.mate
+Pdu tcp_pdu Proto tcp Transport ip {
+    Extract addr From ip.addr;
+    Extract port From tcp.port;
+    Extract tcp_start From tcp.flags.syn;
+    Extract tcp_stop From tcp.flags.reset;
+    Extract tcp_stop From tcp.flags.fin;
+};
 
-   Action=PduDef; Name=tcp_pdu; Proto=tcp; Transport=ip; addr=ip.addr; port=tcp.port; tcp_start=tcp.flags.syn; tcp_stop=tcp.flags.fin; tcp_stop=tcp.flags.reset;
-   Action=GopDef; Name=tcp_session; On=tcp_pdu; addr; addr; port; port;
-   Action=GopStart; For=tcp_session; tcp_start=1;
-   Action=GopStop; For=tcp_session; tcp_stop=1;
+Gop tcp_ses On tcp_pdu Match (addr, addr, port, port) {
+    Start (tcp_start=1);
+    Stop (tcp_stop=1);
+};
 
+Done;

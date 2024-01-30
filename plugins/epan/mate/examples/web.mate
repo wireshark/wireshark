@@ -1,27 +1,52 @@
-# web.mate
+Transform rm_client_from_dns_resp {
+  Match (dns_resp=1, client) Replace (dns_resp=1);
+};
 
-Action=PduDef; Name=dns_pdu; Proto=dns; Transport=ip; addr=ip.addr; dns_resp=dns.flags.response; host=dns.qry.name; client_addr=ip.src; dns_id=dns.id; 
-Action=PduDef; Name=http_pdu; Proto=http; Transport=tcp/ip; addr=ip.addr; port=tcp.port; http_rq=http.request.method; http_rs=http.response; host=http.host; client_addr=ip.src;
+Pdu dns_pdu Proto dns Transport ip {
+  Extract addr From ip.addr;
+  Extract dns_id From dns.id;
+  Extract dns_resp From dns.flags.response;
+  Extract host From dns.qry.name;
+  Extract client From ip.src;
+  Transform rm_client_from_dns_resp;
+};
 
-Action=GopDef; Name=dns_req; On=dns_pdu; addr; addr; dns_id;
-Action=GopStart; For=dns_req; dns_resp=0;
-Action=GopStop; For=dns_req; dns_resp=1;
+Gop dns_req On dns_pdu Match (addr,addr,dns_id) {
+  Start (dns_resp=0);
+  Stop (dns_resp=1);
+  Extra (host, client);
+};
 
-Action=GopDef; Name=http_req; On=http_pdu; addr; addr; port; port;
-Action=GopStart; For=http_req; http_rq;
-Action=GopStop; For=http_req; http_rs;
+Transform rm_client_from_http_resp1 {
+  Match (http_rq);
+  Match Every (addr) Insert (not_rq);
+};
 
-Action=Transform; Name=rm_client_from_dns_resp; Mode=Replace; Match=Every; dns_resp=1; client_addr; .dns_resp=1;
-Action=PduTransform; For=dns_pdu; Name=rm_client_from_dns_resp;
+Transform rm_client_from_http_resp2 {
+  Match (not_rq, client) Replace ();
+};
 
-Action=Transform; Name=rm_client_from_http_resp; Mode=Replace; Match=Every; http_rs; client_addr; .http_rs=;
-Action=PduTransform; For=http_pdu; Name=rm_client_from_http_resp;
+Pdu http_pdu Proto http Transport tcp/ip {
+  Extract addr From ip.addr;
+  Extract port From tcp.port;
+  Extract http_rq From http.request.method;
+  Extract http_rs From http.response;
+  Extract host From http.host;
+  Extract client From ip.src;
+  Transform rm_client_from_http_resp1, rm_client_from_http_resp2;
+  DiscardPduData true;
+};
 
-Action=GopExtra; For=http_req; host; client_addr;
-Action=GopExtra; For=dns_req; host; client_addr;
+Gop http_req On http_pdu Match (addr, addr, port, port) {
+  Start (http_rq);
+  Stop (http_rs);
+  Extra (host, client);
+};
 
-Action=GogDef; Name=http_use; GogExpiration=0.75;
-Action=GogKey; For=http_use; On=http_req; host; client_addr;
-Action=GogKey; For=http_use; On=dns_req; host;client_addr; 
+Gog http_use {
+  Member http_req (host, client);
+  Member dns_req (host, client);
+  Expiration 0.75;
+};
 
-Action=GogExtra; For=http_use; host; client_addr;
+Done;

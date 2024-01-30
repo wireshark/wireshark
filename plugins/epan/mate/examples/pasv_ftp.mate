@@ -1,18 +1,33 @@
-# pasv_ftp.mate
+Pdu ftp_pdu Proto ftp Transport tcp/ip {
+        Extract ftp_addr From ip.addr;
+        Extract ftp_port From tcp.port;
+        Extract ftp_resp From ftp.response.code;
+        Extract ftp_req From ftp.request.command;
+        Extract server_addr From ftp.passive.ip;
+        Extract server_port From ftp.passive.port;
 
-Action=PduDef; Name=ftp_pdu; Proto=ftp; Transport=tcp/ip; Stop=TRUE; ftp_addr=ip.addr; ftp_port=tcp.port; ftp_resp=ftp.response.code; ftp_req=ftp.request.command; server_addr=ftp.passive.ip; server_port=ftp.passive.port;
+        LastPdu true;
+};
 
-Action=PduDef; Name=ftp_data_pdu; Proto=ftp-data; Transport=tcp/ip; server_addr=ip.src; server_port=tcp.srcport; 
+Pdu ftp_data_pdu Proto ftp-data Transport tcp/ip{
+        Extract server_addr From ip.src;
+        Extract server_port From tcp.srcport;
 
-Action=GopDef; Name=ftp_data; On=ftp_data_pdu; server_addr; server_port;
-Action=GopStart; For=ftp_data; server_addr;
+};
 
-Action=GopDef; Name=ftp_ctl; On=ftp_pdu; ftp_addr; ftp_addr; ftp_port; ftp_port;
-Action=GopStart; For=ftp_ctl; ftp_resp=220;
-Action=GopStop; For=ftp_ctl; ftp_resp=221;
-Action=GopExtra; For=ftp_ctl; server_addr; server_port;
+Gop ftp_data On ftp_data_pdu Match (server_addr, server_port) {
+        Start (server_addr);
+};
 
-Action=GogDef; Name=ftp_ses;
-Action=GogKey; For=ftp_ses; On=ftp_ctl; ftp_addr; ftp_addr; ftp_port; ftp_port;
-Action=GogKey; For=ftp_ses; On=ftp_data; server_addr; server_port;
+Gop ftp_ctl On ftp_pdu Match (ftp_addr, ftp_addr, ftp_port, ftp_port) {
+        Start (ftp_resp=220);
+        Stop (ftp_resp=221);
+        Extra (server_addr, server_port);
+};
 
+Gog ftp_ses {
+        Member ftp_ctl (ftp_addr, ftp_addr, ftp_port, ftp_port);
+        Member ftp_data (server_addr, server_port);
+};
+
+Done;
