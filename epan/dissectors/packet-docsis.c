@@ -58,7 +58,7 @@ static gboolean docsis_dissect_encrypted_frames = FALSE;
 #define DOCSIS_MIN_HEADER_LEN   6
 
 #define FCTYPE_PACKET   0x00
-#define FCTYPE_RESERVED 0x01
+#define FCTYPE_SPECIAL  0x01
 #define FCTYPE_ISOLAT   0x02
 #define FCTYPE_MACSPC   0x03
 
@@ -182,7 +182,7 @@ static gint ett_addr;
 
 static const value_string fctype_vals[] = {
   {FCTYPE_PACKET,   "Packet PDU"},
-  {FCTYPE_RESERVED, "Reserved"},
+  {FCTYPE_SPECIAL,  "Special Use"},
   {FCTYPE_ISOLAT,   "Isolation PDU"},
   {FCTYPE_MACSPC,   "MAC Specific"},
   {0, NULL}
@@ -651,8 +651,8 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
     case FCTYPE_PACKET:
       col_set_str (pinfo->cinfo, COL_INFO, "Packet PDU");
       break;
-    case FCTYPE_RESERVED:
-      col_set_str (pinfo->cinfo, COL_INFO, "Reserved PDU");
+    case FCTYPE_SPECIAL:
+      col_set_str (pinfo->cinfo, COL_INFO, "Special Use");
       break;
     case FCTYPE_ISOLAT:
       col_set_str (pinfo->cinfo, COL_INFO, "Isolation PDU");
@@ -702,10 +702,10 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
       }
       break;
     }
-    case FCTYPE_RESERVED:
+    case FCTYPE_SPECIAL:
     {
-      proto_item_append_text (ti, " Reserved PDU");
-      proto_tree_add_item (docsis_tree, hf_docsis_fcparm, tvb, 0, 1, ENC_BIG_ENDIAN);
+      proto_item_append_text (ti, " Special Use PDU");
+      proto_tree_add_item (docsis_tree, hf_docsis_machdr_fcparm, tvb, 0, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item (docsis_tree, hf_docsis_exthdr, tvb, 0, 1, ENC_BIG_ENDIAN);
       /* Dissect Length field for a PDU */
       dissect_exthdr_length_field (tvb, pinfo, docsis_tree, exthdr, mac_parm, len_sid, &payload_length, &is_encrypted);
@@ -713,9 +713,21 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
       fcs_correct = dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
       if (fcs_correct)
       {
-        /* Don't do anything for a Reserved Frame */
-        next_tvb =  tvb_new_subset_remaining(tvb, hdrlen);
-        call_data_dissector(next_tvb, pinfo, tree);
+        if (fcparm == FCPARM_MAC_MGMT_HDR && exthdr == EXT_HDR_OFF)
+        {
+            /* Pass off to the DOCSIS Management dissector/s */
+            mgt_tvb = tvb_new_subset_remaining(tvb, hdrlen);
+            if (is_encrypted && !docsis_dissect_encrypted_frames)
+              dissect_encrypted_frame (mgt_tvb, pinfo, docsis_tree, fctype, fcparm);
+            else
+              call_dissector (docsis_mgmt_handle, mgt_tvb, pinfo, docsis_tree);
+        }
+        else
+        {
+          /* Don't do anything for a Reserved Frame */
+          next_tvb =  tvb_new_subset_remaining(tvb, hdrlen);
+          call_data_dissector(next_tvb, pinfo, tree);
+        }
       }
       break;
     }
