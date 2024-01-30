@@ -62,8 +62,6 @@
 /*! Maximum number of octets encoding MSISDN in BCD format */
 #define OSMO_GSUP_MAX_MSISDN_LEN		9
 
-#define OSMO_GSUP_PDP_TYPE_SIZE			2
-
 /*! Information Element Identifiers for GSUP IEs */
 enum osmo_gsup_iei {
 	OSMO_GSUP_IMSI_IE			= 0x01,
@@ -77,7 +75,7 @@ enum osmo_gsup_iei {
 	OSMO_GSUP_HLR_NUMBER_IE			= 0x09,
 	OSMO_GSUP_MESSAGE_CLASS_IE		= 0x0a,
 	OSMO_GSUP_PDP_CONTEXT_ID_IE		= 0x10,
-	OSMO_GSUP_PDP_TYPE_IE			= 0x11,
+	OSMO_GSUP_PDP_ADDRESS_IE			= 0x11,
 	OSMO_GSUP_ACCESS_POINT_NAME_IE		= 0x12,
 	OSMO_GSUP_PDP_QOS_IE			= 0x13,
 	OSMO_GSUP_CHARG_CHAR_IE			= 0x14,
@@ -306,6 +304,11 @@ static int hf_gsup_destination_name;
 static int hf_gsup_destination_name_text;
 static int hf_gsup_supported_rat_type;
 static int hf_gsup_current_rat_type;
+static int hf_gsup_pdp_addr_type_org;
+static int hf_gsup_spare_bits;
+static int hf_gsup_pdp_addr_type_nr;
+static int hf_gsup_pdp_addr_v4;
+static int hf_gsup_pdp_addr_v6;
 
 static gint ett_gsup;
 static gint ett_gsup_ie;
@@ -332,7 +335,7 @@ static const value_string gsup_iei_types[] = {
 	{ OSMO_GSUP_MSISDN_IE,		"MSISDN" },
 	{ OSMO_GSUP_HLR_NUMBER_IE,	"HLR Number" },
 	{ OSMO_GSUP_PDP_CONTEXT_ID_IE,	"PDP Context ID" },
-	{ OSMO_GSUP_PDP_TYPE_IE,	"PDP Type" },
+	{ OSMO_GSUP_PDP_ADDRESS_IE,	"PDP Address" },
 	{ OSMO_GSUP_ACCESS_POINT_NAME_IE, "Access Point Name (APN)" },
 	{ OSMO_GSUP_PDP_QOS_IE,		"PDP Quality of Service (QoS)" },
 	{ OSMO_GSUP_CHARG_CHAR_IE,	"Charging Character" },
@@ -875,9 +878,34 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 		case OSMO_GSUP_CAUSE_SM_IE:
 			de_sm_cause(tvb, att_tree, pinfo, offset, len, NULL, 0);
 			break;
-
+		case OSMO_GSUP_PDP_ADDRESS_IE:
+			proto_tree_add_bits_item(att_tree, hf_gsup_spare_bits, tvb, (offset << 3), 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(att_tree, hf_gsup_pdp_addr_type_org, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(att_tree, hf_gsup_pdp_addr_type_nr, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+			if (len > 2) {
+				switch (tvb_get_guint8(tvb, offset) & 0x0f) {
+				case 0x01: /* IETF */
+					switch (tvb_get_guint8(tvb, offset + 1)) {
+					case 0x21:
+						proto_tree_add_item(att_tree, hf_gsup_pdp_addr_v4, tvb, offset + 3, 4, ENC_BIG_ENDIAN);
+						break;
+					case 0x57:
+						proto_tree_add_item(att_tree, hf_gsup_pdp_addr_v6, tvb, offset + 3, 16, ENC_NA);
+						break;
+					case 0x8d:
+						proto_tree_add_item(att_tree, hf_gsup_pdp_addr_v4, tvb, offset + 3, 4, ENC_BIG_ENDIAN);
+						proto_tree_add_item(att_tree, hf_gsup_pdp_addr_v6, tvb, offset + 7, 16, ENC_NA);
+						break;
+					default:
+						break;
+					}
+					break;
+				default:
+					break;
+				}
+			}
+			break;
 		case OSMO_GSUP_HLR_NUMBER_IE:
-		case OSMO_GSUP_PDP_TYPE_IE:
 		case OSMO_GSUP_PDP_QOS_IE:
 		default:
 			/* Unknown/unsupported IE: Print raw payload in addition to IEI + Length printed above */
@@ -926,6 +954,22 @@ dissect_gsup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 void
 proto_register_gsup(void)
 {
+	static const value_string pdp_type[] = {
+		{0x00, "X.25"},
+		{0x01, "PPP"},
+		{0x02, "OSP:IHOSS"},
+		{0x21, "IPv4"},
+		{0x57, "IPv6"},
+		{0x8d, "IPv4v6"},
+		{0, NULL}
+	};
+
+	static const value_string pdp_org_type[] = {
+		{0, "ETSI"},
+		{1, "IETF"},
+		{0, NULL}
+	};
+
 	static hf_register_info hf[] = {
 		{ &hf_gsup_msg_type, { "Message Type", "gsup.msg_type",
 		  FT_UINT8, BASE_DEC, VALS(gsup_msg_types), 0, NULL, HFILL } },
@@ -1005,6 +1049,16 @@ proto_register_gsup(void)
 		  FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_gsup_destination_name_text, { "Destination Name (Text)", "gsup.dest_name.text",
 		  FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+		{ &hf_gsup_spare_bits, { "Spare bit(s)", "gsup.spare_bits",
+		  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_gsup_pdp_addr_type_org, { "PDP organization", "gsup.pdp_organization",
+		  FT_UINT8, BASE_DEC, VALS(pdp_org_type), 0x0F, NULL, HFILL }},
+		{ &hf_gsup_pdp_addr_type_nr, { "PDP type", "gsup.pdp_type",
+		  FT_UINT8, BASE_DEC, VALS(pdp_type), 0x0, NULL, HFILL }},
+		{ &hf_gsup_pdp_addr_v4, { "PDP address", "gsup.pdp_address.ipv4",
+		  FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_gsup_pdp_addr_v6, { "PDP address", "gsup.pdp_address.ipv6",
+		  FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_gsup,
