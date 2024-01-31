@@ -852,7 +852,7 @@ dissect_mbrtu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         return 0;
 
     /* For Modbus RTU mode, confirm that the first byte is a valid address (non-zero), */
-    /* so we can eliminate false-posititves on Modbus TCP messages loaded as RTU       */
+    /* so we can eliminate false-positives on Modbus TCP messages loaded as RTU       */
     if(tvb_get_guint8(tvb, 0) == 0 )
         return 0;
 

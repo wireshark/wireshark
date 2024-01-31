@@ -1817,7 +1817,7 @@ guint32 get_aircraft_24_bit_address_from_nsap(
     if((adr_prefix == 0x470027c1) ||
         (adr_prefix == 0x47002741)) {
       /* ICAO doc9507 Ed2 SV5 5.4.3.8.4.4 */
-      /* states that the ARS subfield containes */
+      /* states that the ARS subfield contains */
       /* the  24-bitaddress of the aircraft */
         ars = ((addr[8])<<16) |
             ((addr[9])<<8) |
@@ -1842,7 +1842,7 @@ guint32 get_aircraft_24_bit_address_from_nsap(
     if((adr_prefix == 0x470027c1) ||
         (adr_prefix == 0x47002741)) {
       /* ICAO doc9507 Ed2 SV5 5.4.3.8.4.4 */
-      /* states that the ARS subfield containes */
+      /* states that the ARS subfield contains */
       /* the  24-bitaddress of the aircraft */
       ars = ((addr[8])<<16) |
             ((addr[9])<<8) |
@@ -1852,7 +1852,7 @@ guint32 get_aircraft_24_bit_address_from_nsap(
 }
 
 /* determine whether a PDU is uplink or downlink */
-/* by checking for known aircraft  address prefices*/
+/* by checking for known aircraft address prefixes*/
 int check_heur_msg_type(packet_info *pinfo  _U_)
 {
     int t = no_msg;

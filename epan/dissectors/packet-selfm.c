@@ -333,7 +333,7 @@ static dissector_handle_t selfm_handle;
 /* Globals for SEL Protocol Preferences */
 static gboolean selfm_desegment = TRUE;
 static gboolean selfm_telnet_clean = TRUE;
-static gboolean selfm_crc16 = FALSE;             /* Default CRC16 valdiation to false */
+static gboolean selfm_crc16 = FALSE;             /* Default CRC16 validation to false */
 static const char *selfm_ser_list = NULL;
 
 /***************************************************************************************/
@@ -2351,7 +2351,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
         case FAST_MSG_BITLABEL_RESP: /* 0xB3 (resp to 0x33) - Bit Label Response */
 
             /* The data in this response is a variable length string containing the names of 8 digital bits. */
-            /* Each name is max 8 chars and each is null-seperated */
+            /* Each name is max 8 chars and each is null-separated */
             cnt=1;
 
             /* find the null separators and add the bit label text strings to the tree */

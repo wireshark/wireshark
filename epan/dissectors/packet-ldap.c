@@ -519,7 +519,7 @@ ldapstat_packet(void *pldap, packet_info *pinfo, epan_dissect_t *edt _U_, const 
   if(ldap->is_request){
     return TAP_PACKET_DONT_REDRAW;
   }
-  /* if we havnt seen the request, just ignore it */
+  /* if we haven't seen the request, just ignore it */
   if(!ldap->req_frame){
     return TAP_PACKET_DONT_REDRAW;
   }
@@ -4377,7 +4377,7 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
          *  This section may need to be updated if the base Windows APIs
          *  are changed to support ipv6, which currently is not the case.
          *
-         *  The desector assumes the length is based on ipv4 and
+         *  The dissector assumes the length is based on ipv4 and
          *  ignores the length
          */
 
@@ -4385,7 +4385,7 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
         offset +=1;
 
-        /* add IP address and desect the sockaddr_in structure */
+        /* add IP address and dissect the sockaddr_in structure */
 
         old_offset = offset + 4;
         item = proto_tree_add_item(tree, hf_mscldap_netlogon_ipaddress, tvb, old_offset, 4, ENC_BIG_ENDIAN);
@@ -4417,7 +4417,7 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
   offset = len - 8;
 
-  /* NETLOGON_NT_VERISON Options (MS-ADTS 6.3.1.1) */
+  /* NETLOGON_NT_VERSION Options (MS-ADTS 6.3.1.1) */
   offset = dissect_mscldap_ntver_flags(tree, tvb, offset);
 
   /* LM Token */

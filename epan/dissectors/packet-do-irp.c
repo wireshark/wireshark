@@ -1340,7 +1340,7 @@ dissect_do_irp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
      * to be able to generate expert info when protocol specs are violated.
      */
 
-    guint32 msg_len = tvb_get_guint32(tvb, 16, ENC_BIG_ENDIAN); /* Length of over-all message, excluding enevlope */
+    guint32 msg_len = tvb_get_guint32(tvb, 16, ENC_BIG_ENDIAN); /* Length of over-all message, excluding envelope */
     guint8 env_flags = tvb_get_guint8(tvb, 2);
 
     /* Envelope is always present */

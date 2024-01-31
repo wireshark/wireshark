@@ -124,7 +124,7 @@ dissect_lsd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
   if (linelen < 0)
       return offset+linelen;
-  /* Cookie is optionnal */
+  /* Cookie is optional */
   if (tvb_strncaseeql(tvb, offset, "cookie", strlen("cookie")) == 0)
   {
     if (!parse_string_field(lsd_tree, hf_lsd_cookie, pinfo, tvb, offset, &next_offset, &linelen))

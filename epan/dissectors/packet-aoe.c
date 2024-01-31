@@ -112,7 +112,7 @@ static const value_string ata_cmd_vals[] = {
   { 0x90, "Execute device diagnostics" },
   { 0x91, "Initialize device parameters" },
   { 0x92, "Download microcode" },
-  { 0x94, "Standy immediate" },
+  { 0x94, "Standby immediate" },
   { 0x95, "Idle immediate" },
   { 0x96, "Standby" },
   { 0x97, "Idle" },

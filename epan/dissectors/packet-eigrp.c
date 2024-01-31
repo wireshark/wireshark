@@ -138,7 +138,7 @@
 #define NULL_PROTID     0       /*!< unknown protocol */
 #define IGRP1_PROTID    1       /*!< IGRP.. who's your daddy! */
 #define IGRP2_PROTID    2       /*!< EIGRP - Just flat out the best */
-#define STATIC_PROTID   3       /*!< Staticly configured source */
+#define STATIC_PROTID   3       /*!< Statically configured source */
 #define RIP_PROTID      4       /*!< Routing Information Protocol */
 #define HELLO_PROTID    5       /*!< Hello? RFC-891 you there? */
 #define OSPF_PROTID     6       /*!< OSPF - Open Shortest Path First */

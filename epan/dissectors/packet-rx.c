@@ -143,7 +143,7 @@ dissect_rx_response_encrypted(tvbuff_t *tvb, proto_tree *parent_tree, int offset
 	/*FIXME don't know how to handle this checksum, skipping it */
 	offset += 4;
 
-	/* sequrityindex : 1 byte */
+	/* securityindex : 1 byte */
 	proto_tree_add_item(tree, hf_rx_securityindex, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 4;
 
@@ -487,7 +487,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *dat
 	proto_tree_add_item(tree, hf_rx_userstatus, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	/* sequrityindex : 1 byte */
+	/* securityindex : 1 byte */
 	proto_tree_add_item(tree, hf_rx_securityindex, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 

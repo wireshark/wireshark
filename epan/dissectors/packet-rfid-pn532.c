@@ -776,7 +776,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (command_data && command_data->command == DIAGNOSE_REQ)
             test_number = command_data->data.test_number;
         else
-            test_number = -1; /* Force unknown test_numer */
+            test_number = -1; /* Force unknown test_number */
 
         if (tvb_reported_length_remaining(tvb, offset) >= 1) {
             proto_tree_add_item(pn532_tree, hf_pn532_parameters_length, tvb, offset, 1, ENC_NA);
@@ -1139,7 +1139,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
 
     case RF_REGULATION_TEST_RSP:
-        /* This should never happend */
+        /* This should never happened */
         break;
 
     case IN_JUMP_FOR_DEP_REQ:

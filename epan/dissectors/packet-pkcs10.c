@@ -295,5 +295,5 @@ void proto_reg_handoff_pkcs10(void) {
 
   dissector_add_string("media_type", "application/pkcs10", csr_handle); /* RFC 5967 */
   dissector_add_string("rfc7468.preeb_label", "CERTIFICATE REQUEST", csr_handle); /* RFC 7468 */
-  dissector_add_string("rfc7468.preeb_label", "NEW CERTIFICATE REQUEST", csr_handle); /* RFC 7468 Appendix A. Non-conforming expample*/
+  dissector_add_string("rfc7468.preeb_label", "NEW CERTIFICATE REQUEST", csr_handle); /* RFC 7468 Appendix A. Non-conforming example*/
 }

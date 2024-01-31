@@ -4665,7 +4665,7 @@ dissect_struct_llog_log_hdr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
     /*      * llh_tail should only be refered by LLOG_HDR_TAIL(). */
     /*      * But this structure is also used by client/server llog interface */
     /*      * (see llog_client.c), it will be kept in its original way to avoid */
-    /*      * compatiblity issue. *\/ */
+    /*      * compatibility issue. *\/ */
     /*     __u32            llh_bitmap[LLOG_BITMAP_BYTES / sizeof(__u32)]; */
     /*     struct llog_rec_tail    llh_tail; */
     /* } */

@@ -249,7 +249,7 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, int hf_type, int ett_tree, int 
 				proto_tree_add_item(attr_tree, hf_netlink_attr_data, tvb, offset, rta_len - 4, ENC_NA);
 			}
 
-			/* Restore the originaly established encoding. */
+			/* Restore the originally established encoding. */
 			if (rta_type & NLA_F_NET_BYTEORDER)
 				nl_data->encoding = encoding;
 		} else {

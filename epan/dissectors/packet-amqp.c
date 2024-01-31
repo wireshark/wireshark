@@ -9816,7 +9816,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                             tvb, 7, length, ENC_NA);
         col_append_str(pinfo->cinfo, COL_INFO, "Content-Body ");
 
-        /* try to find disscector for content */
+        /* try to find dissector for content */
         amqp_channel_t *channel;
         tvbuff_t       *body_tvb;
         amqp_content_params  *content_params;

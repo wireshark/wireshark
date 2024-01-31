@@ -829,7 +829,7 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
             field->p_next = NULL;
         }
 
-        /* Register specific fields of hf_register_info struture. */
+        /* Register specific fields of hf_register_info structure. */
         if (strcmp(tmp, "primitive")) {
             enum_val = get_enum_name_val(tmp);
             if (enum_val == -1) {

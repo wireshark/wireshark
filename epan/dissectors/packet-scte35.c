@@ -324,7 +324,7 @@ dissect_scte35_time_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     col_add_fstr(pinfo->cinfo, COL_INFO, "Time Signal (%s)",
                  time_specified_flag ? "Future" : "Immediate");
 
-    /* Create a subtee for the time_signal */
+    /* Create a subtree for the time_signal */
     ti = proto_tree_add_item(tree, proto_scte35_time, tvb, 0, -1, ENC_NA);
     time_tree = proto_item_add_subtree(ti, ett_scte35_time_signal);
 
@@ -1082,7 +1082,7 @@ dissect_scte35_segmentation_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_
             }
         }
 
-        /* Parse segementation duration if present. */
+        /* Parse segmentation duration if present. */
         if (sdf) {
             proto_tree_add_item(tree, hf_descriptor_segmentation_duration, tvb,
                                 offset, 5, ENC_BIG_ENDIAN);

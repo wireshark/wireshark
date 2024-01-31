@@ -240,7 +240,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     }
 
     if (is_http_header(first_linelen, first_line) && last == TAG_END_OF_ATTRIBUTES && status_code != PRINT_JOB && status_code != SEND_DOCUMENT) {
-        /* An indiviual ippusb packet with http header */
+        /* An individual ippusb packet with http header */
 
         proto_tree_add_item(tree, proto_ippusb, tvb, offset, -1, ENC_NA);
 
@@ -296,7 +296,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                         /* If this segment is not the last chunk in a chunked transfer */
 
                         if (captured_length < reported_length && (new_msp->document & MSP_HAS_DOCUMENT)) {
-                            /* The attached document segment is smaller than it says it should be and cannot be reaseembled properly */
+                            /* The attached document segment is smaller than it says it should be and cannot be reassembled properly */
 
                             tvbuff_t *new_tvb = tvb_new_subset_length(tvb, 0, captured_length);
 
@@ -367,7 +367,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                     pinfo->fd->visited = FALSE;
 
                     if (captured_length < reported_length && (current_msp->document & MSP_HAS_DOCUMENT)) {
-                        /* The attached document segment is smaller than it says it should be and cannot be reaseembled properly */
+                        /* The attached document segment is smaller than it says it should be and cannot be reassembled properly */
 
                         tvbuff_t *new_tvb = tvb_new_subset_length(tvb, 0, captured_length);
 

@@ -33,7 +33,7 @@
  * Operation Family = ProvideInstruction, Reply Required (131) 0x83
  * Operation Specifier = Start (1)
  */
-/* Exluding H bit */
+/* Excluding H bit */
 #define LNPDQP_ANSI_TCAP_OPCODE_PI 0x0301
 
 void proto_reg_handoff_lnpdqp(void);

@@ -1486,7 +1486,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
                 offset++;
                 feedback_data_len--;
 
-                /* optiona data */
+                /* optional data */
                 switch (opt) {
                     case 1:
                         /* CRC */

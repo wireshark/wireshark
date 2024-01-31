@@ -2896,7 +2896,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         macinf->lchid[macd_idx] = lchid;
                         rlcinf->mode[macd_idx] = lchId_rlc_map[lchid]; /* Set RLC mode by lchid to RLC_MODE map in nbap.h */
 
-                        /* Set UE ID to U-RNTI or NBAP Communcation Context*/
+                        /* Set UE ID to U-RNTI or NBAP Communication Context*/
                         rlcinf->ueid[macd_idx] = user_identity;
                         rlcinf->rbid[macd_idx] = lchid;
                         rlcinf->li_size[macd_idx] = RLC_LI_7BITS;

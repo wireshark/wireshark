@@ -426,7 +426,7 @@ static const value_string rr_req_ref_est_cause_vals[] = {
 
 GMR1_IE_FUNC(gmr1_ie_rr_req_ref)
 {
-	/* Establishement Cause + RA */
+	/* Establishment Cause + RA */
 	proto_tree_add_item(tree, hf_rr_req_ref_est_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_rr_req_ref_ra, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
@@ -615,7 +615,7 @@ static const value_string rr_page_info_chan_needed_vals[] = {
 
 GMR1_IE_FUNC(gmr1_ie_rr_page_info)
 {
-	/* MSC ID & Channe needed */
+	/* MSC ID & Channel needed */
 	proto_tree_add_item(tree, hf_rr_page_info_msc_id,
 	                    tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_rr_page_info_chan_needed,
@@ -900,7 +900,7 @@ GMR1_IE_FUNC(gmr1_ie_rr_pkt_imm_ass_3_prm)
 	proto_tree_add_item(tree, hf_rr_pkt_imm_ass_3_prm_spare,
 	                    tvb, offset, 1, ENC_BIG_ENDIAN);
 
-	/* Downlink Tempory Flow Identifier (TFI) */
+	/* Downlink Temporary Flow Identifier (TFI) */
 	proto_tree_add_split_bits_item_ret_val(
 		tree, hf_rr_pkt_imm_ass_3_prm_dl_tfi,
 		tvb, offset << 3,
@@ -1865,7 +1865,7 @@ dissect_gmr1_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
 	col_append_str(pinfo->cinfo, COL_INFO, "(CCCH) ");
 
-	/* First octed with pseudo len */
+	/* First octet with pseudo len */
 	oct[0] = tvb_get_guint8(tvb, offset++);
 
 	/* Check protocol descriptor */

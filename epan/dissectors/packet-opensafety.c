@@ -43,7 +43,7 @@
 
 /* General definitions */
 
-/* Used to clasify incoming traffic and presort the heuristic */
+/* Used to classify incoming traffic and presort the heuristic */
 #define OPENSAFETY_ANY_TRANSPORT 0x00
 #define OPENSAFETY_CYCLIC_DATA   0x01
 #define OPENSAFETY_ACYCLIC_DATA  0x02
@@ -1237,7 +1237,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
                 val_to_str_ext_const(((guint32) (ssdoIndex << 16)), &opensafety_sod_idx_names_ext, "Unknown") );
         col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str_ext_const(((guint32) (ssdoIndex << 16)), &opensafety_sod_idx_names_ext, "Unknown"));
 
-        /* Some SOD downloads (0x101A for instance) don't have sub-indeces */
+        /* Some SOD downloads (0x101A for instance) don't have sub-indices */
         if ( ssdoSubIndex != 0x0 )
         {
             proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_sod_subindex, message_tvb, db0Offset + 3, 1,

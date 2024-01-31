@@ -1413,7 +1413,7 @@ static const value_string inap_general_problem_strings[] = {
 };
 #endif
 
-/* Forvard declarations */
+/* Forward declarations */
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);
 static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);
 static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);

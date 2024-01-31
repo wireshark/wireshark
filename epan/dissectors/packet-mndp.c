@@ -170,7 +170,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mndp_tree,
 
 	tlv_end = offset + tlv_length;
 
-	/* Make hf_ handling independent of specialfuncion */
+	/* Make hf_ handling independent of specialfunction */
 	/* FIXME: Properly handle encoding info */
 	if ( type_index != -1
 		 && !value_array[type_index].specialfunction

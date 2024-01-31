@@ -2360,7 +2360,7 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
             proto_tree_add_time_format(tree, hf_zbee_zcl_attr_utc, tvb, *offset, 4, &attr_time,
                 "UTC Time: %s (%u)", attr_string, utc_time);
 
-            /* The raw integer value is sometimes needed independant of the formatted time */
+            /* The raw integer value is sometimes needed independent of the formatted time */
             attr_utc_item = proto_tree_add_item(tree, hf_zbee_zcl_attr_utc_raw, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
             proto_item_set_hidden(attr_utc_item);
             *offset += 4;

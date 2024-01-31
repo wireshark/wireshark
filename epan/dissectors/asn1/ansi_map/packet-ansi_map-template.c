@@ -395,7 +395,7 @@ update_saved_invokedata(packet_info *pinfo, struct ansi_tcap_private_t *p_privat
     /* Data from the TCAP dissector */
     if ((!pinfo->fd->visited)&&(p_private_tcap->TransactionID_str)){
         /* Only do this once XXX I hope it's the right thing to do */
-        /* The hash string needs to contain src and dest to distiguish differnt flows */
+        /* The hash string needs to contain src and dest to distinguish different flows */
         switch(ansi_map_response_matching_type){
             case ANSI_MAP_TID_ONLY:
                 buf = wmem_strdup(pinfo->pool, p_private_tcap->TransactionID_str);
@@ -895,7 +895,7 @@ static const value_string ansi_map_AlertResult_result_vals[]  = {
     {   0, NULL }
 };
 
-/* 6.5.2.5 AnnouncementCode Updatef from NS0018Re*/
+/* 6.5.2.5 AnnouncementCode Updated from NS0018Re*/
 /* Tone (octet 1) */
 static const value_string ansi_map_AnnouncementCode_tone_vals[]  = {
     {   0, "DialTone"},
@@ -4299,7 +4299,7 @@ find_saved_invokedata(asn1_ctx_t *actx, struct ansi_tcap_private_t *p_private_tc
     buf=(char *)wmem_alloc(actx->pinfo->pool, 1024);
 
     /* Data from the TCAP dissector */
-    /* The hash string needs to contain src and dest to distiguish differnt flows */
+    /* The hash string needs to contain src and dest to distinguish different flows */
     src_str = address_to_str(actx->pinfo->pool, src);
     dst_str = address_to_str(actx->pinfo->pool, dst);
     /* Reverse order to invoke */

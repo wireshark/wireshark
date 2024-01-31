@@ -2801,7 +2801,7 @@ static dissector_handle_t       bssap_handle;
 static dissector_table_t        map_prop_arg_opcode_table; /* prorietary operation codes */
 static dissector_table_t        map_prop_res_opcode_table; /* prorietary operation codes */
 static dissector_table_t        map_prop_err_opcode_table; /* prorietary operation codes */
-/* Preferenc settings default */
+/* Preference settings default */
 #define MAX_SSN 254
 static range_t *global_ssn_range;
 #define APPLICATON_CONTEXT_FROM_TRACE 0
@@ -22711,7 +22711,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   case 71: /*anyTimeInterrogation*/
     offset=dissect_gsm_map_ms_AnyTimeInterrogationArg(FALSE, tvb, offset, actx, tree, -1);
     break;
-  case 72: /*ss-InvocationNotificatio*/
+  case 72: /*ss-InvocationNotification*/
     offset=dissect_gsm_map_ss_SS_InvocationNotificationArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 73: /*setReportingState*/
@@ -23033,7 +23033,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
   case 71: /*anyTimeInterrogation*/
     offset=dissect_gsm_map_ms_AnyTimeInterrogationRes(FALSE, tvb, offset, actx, tree, -1);
     break;
-  case 72: /*ss-InvocationNotificatio*/
+  case 72: /*ss-InvocationNotification*/
     offset=dissect_gsm_map_ss_SS_InvocationNotificationRes(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 73: /*setReportingState*/

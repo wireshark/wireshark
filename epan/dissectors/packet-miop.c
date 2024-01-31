@@ -237,7 +237,7 @@ dissect_miop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
 
   dissect_miop (tvb, pinfo, tree, data);
 
-  /* TODO: make reasembly */
+  /* TODO: make reassembly */
   return TRUE;
 
 }

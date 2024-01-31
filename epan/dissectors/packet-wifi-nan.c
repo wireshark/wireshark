@@ -2676,7 +2676,7 @@ dissect_nan_beacon(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
     // field value be provided to it by the calling dissector, so we can't
     // just ask for "wlan.fixed.beacon".
     //
-    // Fortunaely, we are currently putting the Discovery vs. Sync information
+    // Fortunately, we are currently putting the Discovery vs. Sync information
     // only in the Info column, and the beacon interval is put at the end
     // of the Info column, as "BI={interval}", by the 802.11 dissector, so
     // we can just fetch the Info column string and, if it's present, extract

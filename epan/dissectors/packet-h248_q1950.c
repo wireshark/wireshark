@@ -55,7 +55,7 @@ static h248_pkg_param_t h248_pkg_BCP_props[] = {
     { 0, NULL, NULL, NULL}
 };
 
-/* Packet defenitions */
+/* Packet definitions */
 static h248_package_t h248_pkg_BCP = {
     0x001e,
     &hf_h248_pkg_BCP,
@@ -102,7 +102,7 @@ static const h248_pkg_param_t h248_pkg_BNCCT_props[] = {
     { 0, NULL, NULL, NULL}
 };
 
-/* Packet defenitions */
+/* Packet definitions */
 static h248_package_t h248_pkg_BNCCT = {
     0x001f,
     &hf_h248_pkg_BNCCT,
@@ -142,7 +142,7 @@ static h248_pkg_param_t h248_pkg_RI_props[] = {
     { 0, NULL, NULL, NULL}
 };
 
-/* Packet defenitions */
+/* Packet definitions */
 static h248_package_t h248_pkg_RI = {
     0x0020,
     &hf_h248_pkg_RI,
@@ -355,7 +355,7 @@ static const h248_pkg_sig_t h248_pkg_bt_signals[] = {
     { 0, NULL, NULL, NULL, NULL}
 };
 
-/* Packet defenitions */
+/* Packet definitions */
 static h248_package_t h248_pkg_bct = {
     0x0022,
     &hf_h248_pkg_bt,
@@ -433,7 +433,7 @@ static const value_string h248_pkg_bcg_props_vals[] = {
     { 0, NULL }
 };
 
-/* Packet defenitions */
+/* Packet definitions */
 static h248_package_t h248_pkg_bcg = {
     0x0023,
     &hf_h248_pkg_bcg,

@@ -112,7 +112,7 @@ static gint
 dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset,  gboolean is_client_message)
 {
-    /* flow: reqests: only client -> server; responses: only server ->  */
+    /* flow: requests: only client -> server; responses: only server ->  */
     proto_item   *pitem;
     guint16       control_pdu_id;
     guint         credits;

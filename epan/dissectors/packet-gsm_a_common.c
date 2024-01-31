@@ -1013,7 +1013,7 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         proto_item *ti;
 
         proto_tree_add_item_ret_uint(tree, hf_gsm_a_geo_loc_no_of_points, tvb, 0, 1, ENC_BIG_ENDIAN, &no_of_points);
-        /* offset increased with 1 after reading of shape abowe*/
+        /* offset increased with 1 after reading of shape above */
         while (no_of_points > 0) {
             point_no++;
             sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 6,
@@ -1131,7 +1131,7 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         }
         offset++;
 
-        /* High accuracy uncertenty altitude */
+        /* High accuracy uncertainty altitude */
         value = tvb_get_guint8(tvb, offset) & 0x7f;
         alt_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_high_acc_uncertainty_alt, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_item_append_text(alt_item, " (%.1f m)", 45 * (pow(1.025, (double)value) - 1));

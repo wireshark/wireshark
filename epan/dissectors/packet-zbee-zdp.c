@@ -35,17 +35,17 @@ static guint16 zdp_convert_2003cluster     (guint8 cluster);
 
 
 /**************************************
- * Field Indicies
+ * Field indices
  **************************************
  */
-/* Global field indicies. */
+/* Global field indices. */
 static int proto_zbee_zdp;
 static int hf_zbee_zdp_seqno;
 #if 0
 static int hf_zbee_zdp_length; /* Deprecates since ZigBee 2006. */
 #endif
 
-/* General indicies. */
+/* General indices. */
        int hf_zbee_zdp_ext_addr;
        int hf_zbee_zdp_nwk_addr;
        int hf_zbee_zdp_req_type;
@@ -66,7 +66,7 @@ static int hf_zbee_zdp_status;
        int hf_zbee_zdp_assoc_device;
        int hf_zbee_zdp_cache_address;
 
-/* Capability information indicies. */
+/* Capability information indices. */
 static int hf_zbee_zdp_cinfo;
 static int hf_zbee_zdp_cinfo_alloc;
 static int hf_zbee_zdp_cinfo_security;
@@ -75,7 +75,7 @@ static int hf_zbee_zdp_cinfo_power;
 static int hf_zbee_zdp_cinfo_ffd;
 static int hf_zbee_zdp_cinfo_alt_coord;
 
-/* Server mode flag indicies. */
+/* Server mode flag indices. */
 static int hf_zbee_zdp_server;
 static int hf_zbee_zdp_server_pri_trust;
 static int hf_zbee_zdp_server_bak_trust;
@@ -86,7 +86,7 @@ static int hf_zbee_zdp_server_bak_disc;
 static int hf_zbee_zdp_server_network_manager;
 static int hf_zbee_zdp_server_stk_compl_rev;
 
-/* Node descriptor indicies. */
+/* Node descriptor indices. */
 static int hf_zbee_zdp_node_type;
 static int hf_zbee_zdp_node_complex;
 static int hf_zbee_zdp_node_user;
@@ -103,7 +103,7 @@ static int hf_zbee_zdp_dcf;
 static int hf_zbee_zdp_dcf_eaela;
 static int hf_zbee_zdp_dcf_esdla;
 
-/* Power descriptor indicies. */
+/* Power descriptor indices. */
 static int hf_zbee_zdp_power;
 static int hf_zbee_zdp_power_mode;
 static int hf_zbee_zdp_power_avail_ac;
@@ -114,22 +114,22 @@ static int hf_zbee_zdp_power_source_recharge;
 static int hf_zbee_zdp_power_source_dispose;
 static int hf_zbee_zdp_power_level;
 
-/* Simple descriptor indicies. */
+/* Simple descriptor indices. */
 static int hf_zbee_zdp_simple_app_device;
 static int hf_zbee_zdp_simple_zll_app_device;
 static int hf_zbee_zdp_simple_ha_app_device;
 static int hf_zbee_zdp_simple_app_version;
        int hf_zbee_zdp_simple_length;
 
-/* Complex descriptor indicies. */
+/* Complex descriptor indices. */
        int hf_zbee_zdp_complex_length;
 static int hf_zbee_zdp_complex;
 
-/* User descriptor indicies. */
+/* User descriptor indices. */
        int hf_zbee_zdp_user;
        int hf_zbee_zdp_user_length;
 
-/* Discovery indicies. */
+/* Discovery indices. */
        int hf_zbee_zdp_cache;
        int hf_zbee_zdp_disc_node_size;
        int hf_zbee_zdp_disc_power_size;
@@ -137,7 +137,7 @@ static int hf_zbee_zdp_complex;
        int hf_zbee_zdp_disc_simple_count;
        int hf_zbee_zdp_disc_simple_size;
 
-/* Binding indicies. */
+/* Binding indices. */
        int hf_zbee_zdp_target;
        int hf_zbee_zdp_replacement;
        int hf_zbee_zdp_replacement_ep;
@@ -148,7 +148,7 @@ static int hf_zbee_zdp_complex;
        int hf_zbee_zdp_bind_dst64;
        int hf_zbee_zdp_bind_dst_ep;
 
-/* Network Management indicies. */
+/* Network Management indices. */
        int hf_zbee_zdp_duration;
        int hf_zbee_zdp_leave_children;
        int hf_zbee_zdp_leave_rejoin;
@@ -212,7 +212,7 @@ static int hf_zbee_zdp_scan_channel;
        int hf_zbee_zdp_rtg_status;
 
 
-/* Subtree indicies. */
+/* Subtree indices. */
 static gint ett_zbee_zdp;
        gint ett_zbee_zdp_endpoint;
        gint ett_zbee_zdp_match_in;

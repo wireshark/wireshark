@@ -2350,7 +2350,7 @@ dissect_AllJoyn_ardp(tvbuff_t    *tvb,
 
     ardp_parse_header(tvb, pinfo, &tree_data);
 
-    /* Is desegmention needed? */
+    /* Is desegmentation needed? */
     if(pinfo->desegment_len != 0) {
         return tree_data.offset;
     }

@@ -876,7 +876,7 @@ static const value_string zb_nwk_state[] =
     {ZBNCP_NWK_STATUS_ROUTE_DISCOVERY_FAILED, "ROUTE_DISCOVERY_FAILED"},
     {ZBNCP_NWK_STATUS_ROUTE_ERROR, "ROUTE_ERROR"},
     {ZBNCP_NWK_STATUS_BT_TABLE_FULL, "BT_TABLE_FULL"},
-    {ZBNCP_NWK_STATUS_FRAME_NOT_BUFFERED, "FRAME_NOT_BUFFERE"},
+    {ZBNCP_NWK_STATUS_FRAME_NOT_BUFFERED, "FRAME_NOT_BUFFERED"},
     {ZBNCP_NWK_STATUS_INVALID_INTERFACE, "INVALID_INTERFACE"},
     {0, NULL}
 };
@@ -5755,7 +5755,7 @@ void proto_register_zbncp(void)
          {"Link key", "zbncp.data.zgp_link_key", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}},
 
         {&hf_zbncp_data_prod_conf_hdr_crc,
-         {"Production confgi crc", "zbncp.data.prod_conf.hdr.crc", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}},
+         {"Production config crc", "zbncp.data.prod_conf.hdr.crc", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}},
 
         {&hf_zbncp_data_prod_conf_hdr_len,
          {"Length (with application section)", "zbncp.data.prod_conf.hdr.len", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}},

@@ -52,6 +52,7 @@ airpcap
 airtel
 alcap
 alcatel
+aliased
 alljoyn
 alloc
 allocator
@@ -66,6 +67,7 @@ analyzers
 analyzes
 annexc
 annotation
+annotations
 annunc
 annunciation
 anonsvn
@@ -443,6 +445,7 @@ depassivated
 dependencies
 deprecate
 deprecated
+deprecates
 deprotection
 dequeue
 dequeued
@@ -525,6 +528,7 @@ dstport
 dtwin
 dumpcap
 duple
+durations
 dword
 dwords
 eapol
@@ -703,6 +707,7 @@ gigpod
 github
 gitlab
 givei
+globals
 gluster
 gmail
 gmprs
@@ -1030,6 +1035,7 @@ modepage
 modespecificinfo
 modifier
 modifiers
+modulations
 modulo
 modulus
 motorola
@@ -1244,6 +1250,7 @@ parlay
 parms
 parsed
 parser
+parsers
 parses
 passcode
 passivated
@@ -1625,6 +1632,7 @@ sha512
 sharkd
 shenzhen
 shomiti
+shortstr
 siapp
 sidelink
 signaal

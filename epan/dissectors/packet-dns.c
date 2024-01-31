@@ -2231,7 +2231,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_MF: /* Mail Forwader  (4) */
+    case T_MF: /* Mail Forwarder  (4) */
     {
       int           hostname_len;
       const gchar  *hostname_str;
