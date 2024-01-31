@@ -1417,7 +1417,7 @@ static dissector_handle_t lookup_rrc_dissector_handle(struct pdcp_lte_info  *p_p
 }
 
 
-/* Forwad declarations */
+/* Forward declarations */
 static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 
 static void report_heur_error(proto_tree *tree, packet_info *pinfo, expert_field *eiindex,

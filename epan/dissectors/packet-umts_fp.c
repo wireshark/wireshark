@@ -447,7 +447,7 @@ static const value_string common_control_frame_type_vals[] = {
 static const guint8 hsdsch_macdflow_id_rlc_map[] = {
     RLC_UM,                   /*0 SRB */
     RLC_AM,                   /*1 Interactive PS*/
-    RLC_AM,                   /*2 Interatcive PS*/
+    RLC_AM,                   /*2 Interactive PS*/
     RLC_UNKNOWN_MODE,         /*3 ???*/
     RLC_AM,                   /*4 Streaming PS*/
     RLC_UNKNOWN_MODE,
@@ -460,7 +460,7 @@ static const guint8 hsdsch_macdflow_id_rlc_map[] = {
 static const guint8 hsdsch_macdflow_id_mac_content_map[] = {
     MAC_CONTENT_DCCH,    /*1 SRB */
     MAC_CONTENT_PS_DTCH, /*2 Interactive PS*/
-    MAC_CONTENT_PS_DTCH, /*3 Interatcive PS*/
+    MAC_CONTENT_PS_DTCH, /*3 Interactive PS*/
     RLC_UNKNOWN_MODE,    /*4 ???*/
     MAC_CONTENT_PS_DTCH, /*5 Streaming PS*/
     RLC_UNKNOWN_MODE,
@@ -2896,7 +2896,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         macinf->lchid[macd_idx] = lchid;
                         rlcinf->mode[macd_idx] = lchId_rlc_map[lchid]; /* Set RLC mode by lchid to RLC_MODE map in nbap.h */
 
-                        /* Set UE ID to U-RNTI or NBAP Comuncation Context*/
+                        /* Set UE ID to U-RNTI or NBAP Communcation Context*/
                         rlcinf->ueid[macd_idx] = user_identity;
                         rlcinf->rbid[macd_idx] = lchid;
                         rlcinf->li_size[macd_idx] = RLC_LI_7BITS;
@@ -3278,7 +3278,7 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             } else if (p_fp_info->hsdsch_macflowd_id == 0) {              /*MACd-flow = 0 is often SRB */
                 expert_add_info(pinfo, NULL, &ei_fp_maybe_srb);
             } else {
-                    macinf->ctmux[i] = FALSE;    /*Either it's multiplexed and not signled or it's not MUX*/
+                    macinf->ctmux[i] = FALSE;    /*Either it's multiplexed and not signalled or it's not MUX*/
             }
 
             /* Figure out RLC mode */
@@ -4103,7 +4103,7 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 return TRUE;
             }
             else if (umts_fp_conversation_info->channel != CHANNEL_UNKNOWN){
-                /* This conversation was successfuly framed as ANOTHER type */
+                /* This conversation was successfully framed as ANOTHER type */
                 return FALSE;
             }
         }
@@ -4238,7 +4238,7 @@ heur_dissect_fp_fach1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                 return TRUE;
             }
             else if (umts_fp_conversation_info->channel != CHANNEL_UNKNOWN){
-                /* This conversation was successfuly framed as ANOTHER type */
+                /* This conversation was successfully framed as ANOTHER type */
                 return FALSE;
             }
         }
@@ -4348,7 +4348,7 @@ heur_dissect_fp_fach2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                 return TRUE;
             }
             else if (umts_fp_conversation_info->channel != CHANNEL_UNKNOWN){
-                /* This conversation was successfuly framed as ANOTHER type */
+                /* This conversation was successfully framed as ANOTHER type */
                 return FALSE;
             }
         }
@@ -4463,7 +4463,7 @@ heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 return TRUE;
             }
             else if (umts_fp_conversation_info->channel != CHANNEL_UNKNOWN){
-                /* This conversation was successfuly framed as ANOTHER type */
+                /* This conversation was successfully framed as ANOTHER type */
                 return FALSE;
             }
         }
@@ -4596,7 +4596,7 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 }
             }
             else if (umts_fp_conversation_info->channel != CHANNEL_UNKNOWN){
-                /* This conversation was successfuly framed as ANOTHER type */
+                /* This conversation was successfully framed as ANOTHER type */
                 return FALSE;
             }
             else {
@@ -4794,7 +4794,7 @@ heur_dissect_fp_hsdsch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 return TRUE;
             }
             else if (umts_fp_conversation_info->channel != CHANNEL_UNKNOWN){
-                /* This conversation was successfuly framed as ANOTHER type */
+                /* This conversation was successfully framed as ANOTHER type */
                 return FALSE;
             }
         }
@@ -4925,7 +4925,7 @@ heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 return TRUE;
             }
             else if (umts_fp_conversation_info->channel != CHANNEL_UNKNOWN){
-                /* This conversation was successfuly framed as ANOTHER type */
+                /* This conversation was successfully framed as ANOTHER type */
                 return FALSE;
             }
         }
@@ -5005,7 +5005,7 @@ heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         else {
             total_header_length += 2;
         }
-        /* Adding this header's paylod's size to expected length*/
+        /* Adding this header's payload's size to expected length*/
         expected_payload_length += (pdu_block_header_pdu_length * pdu_block_header_pdus_count);
 
         /* Checking padding after lchid */
@@ -5095,7 +5095,7 @@ heur_dissect_fp_edch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 return TRUE;
             }
             else if (umts_fp_conversation_info->channel != CHANNEL_UNKNOWN){
-                /* This conversation was successfuly framed as ANOTHER type */
+                /* This conversation was successfully framed as ANOTHER type */
                 return FALSE;
             }
         }
@@ -5156,7 +5156,7 @@ heur_dissect_fp_edch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         bit_offset = 4;
 
-        /* Making sure enough bytes are presesnt for all sub-header */
+        /* Making sure enough bytes are present for all sub-header */
         total_sub_headers_len = ((int)((((1.5 + (number_of_mac_es_pdus * 1.5))*8+7)/8)));
         if ((offset + total_sub_headers_len) >= captured_length) {
             return FALSE;
@@ -5555,7 +5555,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                 /* control frame, we're done */
                 return fpi;
             }
-            /* Inesrting Paging Indication Info extracted from the previous packet */
+            /* Inserting Paging Indication Info extracted from the previous packet */
             fpi->relevant_paging_indications = fp_pch_channel_info->last_paging_indication_info;
             fp_pch_channel_info->last_paging_indication_info = NULL;
 

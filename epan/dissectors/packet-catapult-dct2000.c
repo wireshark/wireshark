@@ -4048,7 +4048,7 @@ void proto_register_catapult_dct2000(void)
                                    "they may be matched with wireshark dissectors.",
                                    &catapult_dct2000_dissect_old_protocol_names);
 
-    /* Determines if the protocol field in the DCT2000 shall be used to lookup for disector*/
+    /* Determines if the protocol field in the DCT2000 shall be used to lookup for dissector */
     prefs_register_bool_preference(catapult_dct2000_module, "use_protocol_name_as_dissector_name",
                                    "Look for a dissector using the protocol name in the "
                                    "DCT2000 record",

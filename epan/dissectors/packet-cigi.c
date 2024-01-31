@@ -188,7 +188,7 @@ static gint cigi4_add_collision_detection_volume_notification(tvbuff_t*, proto_t
 static gint cigi4_add_animation_stop_notification(tvbuff_t*, proto_tree*, gint);
 static gint cigi4_add_event_notification(tvbuff_t*, proto_tree*, gint);
 static gint cigi4_add_image_generator_message(tvbuff_t*, proto_tree*, gint);
-static gint cigi_add_localy_defined(tvbuff_t*, proto_tree*, gint);
+static gint cigi_add_locally_defined(tvbuff_t*, proto_tree*, gint);
 static gint cigi_add_registered(tvbuff_t*, proto_tree*, gint);
 
 /* CIGI Handle */
@@ -3482,8 +3482,8 @@ static int hf_cigi4_image_generator_message_message;
 /* CIGI3 User-Defined Packets */
 static int hf_cigi3_user_defined;
 
-/* CIGI4 Localy Defined Packets */
-static int hf_cigi4_localy_defined;
+/* CIGI4 Locally Defined Packets */
+static int hf_cigi4_locally_defined;
 
 /* CIGI4 Registered Packets */
 static int hf_cigi4_registered;
@@ -9615,9 +9615,9 @@ cigi4_add_image_generator_message(tvbuff_t* tvb, proto_tree* tree, gint offset)
     return offset;
 }
 
-/* CIGI4 Localy Defined Message */
+/* CIGI4 locally Defined Message */
 static gint
-cigi_add_localy_defined(tvbuff_t* tvb, proto_tree* tree, gint offset) {
+cigi_add_locally_defined(tvbuff_t* tvb, proto_tree* tree, gint offset) {
     guint8 packet_size = 0;
 
     packet_size = tvb_get_guint8(tvb, offset - 4);
@@ -9868,7 +9868,7 @@ cigi4_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
             hf_cigi4_packet = hf_cigi4_image_generator_message;
             packet_length = packet_size;
         } else if ( packet_id >= CIGI4_PACKET_ID_LOCALLY_DEFINED_MIN && packet_id <=  CIGI4_PACKET_ID_LOCALLY_DEFINED_MAX) {
-            hf_cigi4_packet = hf_cigi4_localy_defined;
+            hf_cigi4_packet = hf_cigi4_locally_defined;
             packet_length = packet_size;
         } else if ( packet_id >= CIGI4_PACKET_ID_REGISTERED_MIN && packet_id <= CIGI4_PACKET_ID_REGISTERED_MAX) {
             hf_cigi4_packet = hf_cigi4_registered;
@@ -10006,7 +10006,7 @@ cigi4_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
         } else if ( packet_id == CIGI4_PACKET_ID_IMAGE_GENERATOR_MESSAGE ) {
             offset = cigi4_add_image_generator_message(tvb, cigi_packet_tree, offset);
         } else if (packet_id >= CIGI4_PACKET_ID_LOCALLY_DEFINED_MIN && packet_id <= CIGI4_PACKET_ID_LOCALLY_DEFINED_MAX) {
-            offset = cigi_add_localy_defined(tvb, cigi_packet_tree, offset);
+            offset = cigi_add_locally_defined(tvb, cigi_packet_tree, offset);
         } else if (packet_id >= CIGI4_PACKET_ID_REGISTERED_MIN && packet_id <= CIGI4_PACKET_ID_REGISTERED_MAX) {
             offset = cigi_add_registered(tvb, cigi_packet_tree, offset);
         } else {
@@ -20446,11 +20446,11 @@ proto_register_cigi(void)
                 "User-Defined Packet", HFILL }
         },
 
-        /* CIGI4 Localy Defined Packets */
-        { &hf_cigi4_localy_defined,
-            { "Localy-Defined", "cigi.localy_defined",
+        /* CIGI4 locally Defined Packets */
+        { &hf_cigi4_locally_defined,
+            { "locally-Defined", "cigi.locally_defined",
                 FT_NONE, BASE_NONE, NULL, 0x0,
-                "Localy-Defined Packet", HFILL }
+                "locally-Defined Packet", HFILL }
         },
 
         /* CIGI4 Registered Packets */

@@ -591,7 +591,7 @@ static guint32 get_reassembly_start_frame(packet_info *pinfo, guint32 seg_info,
                              p_rlc_nr_info->bearerType,
                              p_rlc_nr_info->bearerId,
                              sn,
-                             pinfo->num          /* N.B. only used for subsquent/_stored table */
+                             pinfo->num
                            };
 
     /* Is this the first segment of SN? */

@@ -4444,7 +4444,7 @@ proto_register_nan(void)
         { &hf_nan_attr_pairing_bootstrapping_method_pin_code_display,
             {
                 "Pin Code (Display)",
-                "wifi_nan.nan_pairing_bootstrapping.bootstrapping_methods.pin_code_dsiplay",
+                "wifi_nan.nan_pairing_bootstrapping.bootstrapping_methods.pin_code_display",
                 FT_UINT16, BASE_HEX, NULL, 0x0002, NULL, HFILL
             }
         },

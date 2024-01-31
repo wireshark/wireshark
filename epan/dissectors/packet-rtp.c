@@ -199,7 +199,7 @@ static dissector_table_t rtp_dyn_pt_dissector_table;
 static dissector_table_t rtp_hdr_ext_dissector_table;
 static dissector_table_t rtp_hdr_ext_rfc5285_dissector_table;
 
-/* Used for storing data to be retreived by the SDP dissector*/
+/* Used for storing data to be retrieved by the SDP dissector*/
 static int proto_sdp;
 
 /* RTP header fields             */

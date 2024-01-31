@@ -11,6 +11,7 @@
 80211n
 80mhz
 abbrev
+accelerations
 accelerometer
 acceptor
 accessor
@@ -73,6 +74,7 @@ antsel
 aperiodic
 appdata
 append
+apphdr
 appid
 appkey
 applicability
@@ -244,6 +246,7 @@ changelog
 channelisation
 channelized
 channelmap
+channelseq
 chars
 charset
 charsets
@@ -363,6 +366,7 @@ crypto
 cryptographic
 csapi
 ctime
+ctrlstat
 ctxinfo
 ctype
 cumulated
@@ -476,6 +480,7 @@ dgotyp
 dgram
 dhaka
 dhcpv
+diagdata
 dialed
 dialup
 diffie
@@ -531,6 +536,7 @@ ecdsa
 ecpri
 editcap
 eeprom
+effecter
 egprs
 egroup
 eigrp
@@ -570,6 +576,7 @@ enumerates
 enumeration
 enumerations
 enumerator
+enums
 envchange
 epasv
 epdcch
@@ -590,6 +597,7 @@ erspan
 España
 esperanto
 essar
+estonia
 etheraddr
 ethercat
 ethers
@@ -614,6 +622,7 @@ extensible
 extern
 exthdr
 extlen
+extopt
 extpfx
 extractors
 extrainformation
@@ -932,6 +941,7 @@ lnpdqp
 locamation
 logcat
 loghans
+loginack
 loglocal
 logoff
 logon
@@ -1292,6 +1302,7 @@ portno
 portnumber
 portset
 portstatus
+positioner
 posix
 postfix
 powercontrol
@@ -1431,6 +1442,7 @@ redir
 redirection
 redirector
 redirects
+redissecting
 redist
 redistributable
 redistributables
@@ -1479,6 +1491,7 @@ resampled
 resampler
 rescan
 resegment
+resegmented
 resend
 resequencing
 reservable
@@ -2104,6 +2117,8 @@ xcode
 xdist
 xetra
 xferext
+xferflags
+xferstatus
 xmlns
 xsltproc
 xtreme

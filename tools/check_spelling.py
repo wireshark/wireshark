@@ -268,6 +268,21 @@ def removeComments(code_string):
     code_string = re.sub(re.compile(r"(?<!:)(?<!/)(?<!\")(?<!\"\s\s)(?<!file:/)(?<!\,\s)//.*?\n" ) ,"" , code_string)             # C++-style comment
     return code_string
 
+def getCommentWords(code_string):
+    words = []
+
+    # C++ comments
+    matches = re.finditer(r'//\s(.*?)\n', code_string)
+    for m in matches:
+        words += m.group(1).split()
+
+    # C comments
+    matches = re.finditer(r'/\*(.*?)\*/', code_string)
+    for m in matches:
+        words += m.group(1).split()
+
+    return words
+
 def removeSingleQuotes(code_string):
     code_string = code_string.replace('\\\\', " ")        # Separate at \\
     code_string = code_string.replace('\"\\\\\"', "")
@@ -291,7 +306,7 @@ def removeHexSpecifiers(code_string):
 
 
 # Create a File object that knows about all of the strings in the given file.
-def findStrings(filename):
+def findStrings(filename, check_comments=False):
     with open(filename, 'r', encoding="utf8") as f:
         contents = f.read()
 
@@ -306,7 +321,14 @@ def findStrings(filename):
 
         # What we check depends upon file type.
         if file.code_file:
+            # May want to check comments for selected dissectors
+            if check_comments:
+                comment_words = getCommentWords(contents)
+                for w in comment_words:
+                    file.add(w)
+
             contents = removeComments(contents)
+
             # Code so only checking strings.
             matches = re.finditer(r'\"([^\"]*)\"', contents)
             for m in matches:
@@ -386,13 +408,13 @@ def findFilesInFolder(folder, recursive=True):
 
 
 # Check the given file.
-def checkFile(filename):
+def checkFile(filename, check_comments=False):
     # Check file exists - e.g. may have been deleted in a recent commit.
     if not os.path.exists(filename):
         print(filename, 'does not exist!')
         return
 
-    file = findStrings(filename)
+    file = findStrings(filename, check_comments)
     file.spellCheck()
 
 
@@ -413,6 +435,9 @@ parser.add_argument('--commits', action='store',
                     help='last N commits to check')
 parser.add_argument('--open', action='store_true',
                     help='check open files')
+parser.add_argument('--comments', action='store_true',
+                    help='check comments in source files')
+
 
 args = parser.parse_args()
 
@@ -479,7 +504,7 @@ else:
 # Now check the chosen files.
 for f in files:
     # Check this file.
-    checkFile(f)
+    checkFile(f, check_comments=args.comments)
     # But get out if control-C has been pressed.
     if should_exit:
         exit(1)

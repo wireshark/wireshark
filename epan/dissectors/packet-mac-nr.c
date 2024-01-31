@@ -1789,7 +1789,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     tvbuff_t            *rb_tvb = tvb_new_subset_length(tvb, offset, data_length);
     struct rlc_nr_info *p_rlc_nr_info;
 
-    /* Resuse or create RLC info */
+    /* Reuse or create RLC info */
     p_rlc_nr_info = (rlc_nr_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc_nr, 0);
     if (p_rlc_nr_info == NULL) {
         p_rlc_nr_info = wmem_new0(wmem_file_scope(), struct rlc_nr_info);

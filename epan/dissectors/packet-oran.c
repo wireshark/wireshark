@@ -1847,7 +1847,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                              tvb, offset, 1, ENC_BIG_ENDIAN, &numPortc);
                 offset++;
 
-                /* TODO: any generated fields or expert info should be added, due to enties in table 5-35 ? */
+                /* TODO: any generated fields or expert info should be added, due to entries in table 5-35 ? */
 
                 /* Will append all beamId values to extension_ti, regardless of beamGroupType */
                 proto_item_append_text(extension_ti, "(");
