@@ -1487,7 +1487,7 @@ bool LograyMainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_com
 
             msg_dialog.setIcon(QMessageBox::Critical);
             msg_dialog.setText(tr("Unknown file type returned by merge dialog."));
-            msg_dialog.setInformativeText(tr("Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues."));
+            msg_dialog.setInformativeText(tr("Please report this as a Logray issue at https://gitlab.com/wireshark/wireshark/-/issues."));
             msg_dialog.exec();
             return false;
 	}
@@ -1643,7 +1643,7 @@ void LograyMainWindow::exportSelectedPackets() {
 
             msg_box.setIcon(QMessageBox::Critical);
             msg_box.setText(tr("Unknown file type returned by export dialog."));
-            msg_box.setInformativeText(tr("Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues."));
+            msg_box.setInformativeText(tr("Please report this as a Logray issue at https://gitlab.com/wireshark/wireshark/-/issues."));
             msg_box.exec();
             goto cleanup;
 	}
@@ -1856,7 +1856,7 @@ bool LograyMainWindow::testCaptureFileClose(QString before_what, FileCloseContex
                 // We're being called from the software update window;
                 // don't spawn yet another dialog. Just try again later.
                 // XXX: The WinSparkle dialogs *aren't* modal, and a user
-                // can bring Wireshark to the foreground, close/save the
+                // can bring Logray to the foreground, close/save the
                 // file, and then click "Install Update" again, but it
                 // seems like many users don't expect that (and also don't
                 // know that Help->Check for Updates... exist, only knowing
@@ -2473,7 +2473,7 @@ QString LograyMainWindow::replaceWindowTitleVariables(QString title)
 void LograyMainWindow::setWSWindowTitle(QString title)
 {
     if (title.isEmpty()) {
-        title = tr("The Logray System Log Analyzer");
+        title = tr("The Logray System Call and Log Analyzer");
     }
 
     if (prefs.gui_prepend_window_title && prefs.gui_prepend_window_title[0]) {

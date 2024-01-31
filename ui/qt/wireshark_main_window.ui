@@ -913,7 +913,7 @@
   </action>
   <action name="actionHelpMPWireshark_Filter">
    <property name="text">
-    <string>Wireshark Filter</string>
+    <string>Display Filters</string>
    </property>
   </action>
   <action name="actionHelpMPTShark">

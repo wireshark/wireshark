@@ -133,7 +133,7 @@ void exit_application(int status) {
 /*
  * Report an error in command-line arguments.
  *
- * On Windows, Wireshark is built for the Windows subsystem, and runs
+ * On Windows, Logray is built for the Windows subsystem, and runs
  * without a console, so we create a console on Windows to receive the
  * output.
  *
@@ -142,25 +142,25 @@ void exit_application(int status) {
  *
  * On UN*Xes:
  *
- *  If Wireshark is run from the command line, its output either goes
+ *  If Logray is run from the command line, its output either goes
  *  to the terminal or to wherever the standard error was redirected.
  *
- *  If Wireshark is run by executing it as a remote command, e.g. with
+ *  If Logray is run by executing it as a remote command, e.g. with
  *  ssh, its output either goes to whatever socket was set up for the
  *  remote command's standard error or to wherever the standard error
  *  was redirected.
  *
- *  If Wireshark was run from the GUI, e.g. by double-clicking on its
+ *  If Logray was run from the GUI, e.g. by double-clicking on its
  *  icon or on a file that it opens, there are no guarantees as to
  *  where the standard error went.  It could be going to /dev/null
  *  (current macOS), or to a socket to systemd for the journal, or
  *  to a log file in the user's home directory, or to the "console
  *  device" ("workstation console"), or....
  *
- *  Part of determining that, at least for locally-run Wireshark,
+ *  Part of determining that, at least for locally-run Logray,
  *  is to try to open /dev/tty to determine whether the process
  *  has a controlling terminal.  (It fails, at a minimum, for
- *  Wireshark launched from the GUI under macOS, Ubuntu with GNOME,
+ *  Logray launched from the GUI under macOS, Ubuntu with GNOME,
  *  and Ubuntu with KDE; in all cases, an attempt to open /dev/tty
  *  fails with ENXIO.)  If it does have a controlling terminal,
  *  write to the standard error, otherwise assume that the standard
@@ -311,7 +311,7 @@ check_and_warn_user_startup()
         simple_message_box(ESD_TYPE_WARN, &recent.privs_warn_if_elevated,
         "Running as user \"%s\" and group \"%s\".\n"
         "This could be dangerous.\n\n"
-        "If you're running Wireshark this way in order to perform live capture, "
+        "If you're running Logray this way in order to perform live capture, "
         "you may want to be aware that there is a better way documented at\n"
         WS_WIKI_URL("CaptureSetup/CapturePrivileges"), cur_user, cur_group);
         g_free(cur_user);
@@ -330,7 +330,7 @@ check_and_warn_user_startup()
 //
 // and
 //
-// - You install Wireshark that was built on a machine with Qt version
+// - You install Logray that was built on a machine with Qt version
 //   5.x.z installed in the default location.
 //
 // Qt5Core.dll will load qwindows.dll from your local C:\Qt\5.x\...\plugins
@@ -668,7 +668,7 @@ int main(int argc, char *qt_argv[])
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
 
-    /* Create The Wireshark app */
+    /* Create The Logray app */
     LograyApplication ls_app(argc, qt_argv);
 
     /* initialize the funnel mini-api */

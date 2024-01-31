@@ -1640,7 +1640,7 @@ void LograyMainWindow::setFeaturesEnabled(bool enabled)
     }
     else
     {
-        main_ui_->statusBar->showMessage(tr("Please wait while Wireshark is initializing…"));
+        main_ui_->statusBar->showMessage(tr("Please wait while Logray is initializing…"));
     }
 }
 
