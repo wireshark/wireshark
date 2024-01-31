@@ -374,14 +374,41 @@ static int hf_gtp_dummy_octets;
 static int hf_pdcp_cont;
 
 static int hf_gtp_ext_hdr_pdu_ses_cont_pdu_type;
+static int hf_gtp_ext_hdr_pdu_ses_cont_qmp;
+static int hf_gtp_ext_hdr_pdu_ses_cont_snp_dl;
+static int hf_gtp_ext_hdr_pdu_ses_cont_msnp;
 static int hf_gtp_ext_hdr_pdu_ses_cont_ppp;
 static int hf_gtp_ext_hdr_pdu_ses_cont_rqi;
 static int hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id;
 static int hf_gtp_ext_hdr_pdu_ses_cont_ppi;
+static int hf_gtp_ext_hdr_pdu_ses_cont_dl_send_time_stamp;
+static int hf_gtp_ext_hdr_pdu_ses_cont_dl_qfi_sn;
+static int hf_gtp_ext_hdr_pdu_ses_cont_dl_mbs_qfi_sn;
+static int hf_gtp_ext_hdr_pdu_ses_cont_dl_delay_ind;
+static int hf_gtp_ext_hdr_pdu_ses_cont_ul_delay_ind;
+static int hf_gtp_ext_hdr_pdu_ses_cont_snp_ul;
+static int hf_gtp_ext_hdr_pdu_ses_cont_n3_n9_delay_ind;
+static int hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag;
+static int hf_gtp_ext_hdr_pdu_ses_cont_dl_send_time_stamp_repeat;
+static int hf_gtp_ext_hdr_pdu_ses_cont_dl_recv_time_stamp;
+static int hf_gtp_ext_hdr_pdu_ses_cont_ul_send_time_stamp;
+static int hf_gtp_ext_hdr_pdu_ses_cont_dl_delay_result;
+static int hf_gtp_ext_hdr_pdu_ses_cont_ul_delay_result;
+static int hf_gtp_ext_hdr_pdu_ses_cont_ul_qfi_sn;
+static int hf_gtp_ext_hdr_pdu_ses_cont_n3_n9_delay_result;
+static int hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_7;
+static int hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_6;
+static int hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_5;
+static int hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_4;
+static int hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_3;
+static int hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_2;
+static int hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_1;
+static int hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_0;
+static int hf_gtp_ext_hdr_pdu_ses_cont_d1_ul_pdcp_delay_result_ind;
 
+static int hf_gtp_spare_b0;
 static int hf_gtp_spare_b4b0;
-static int hf_gtp_spare_b7b6;
-static int hf_gtp_spare_h1;
+static int hf_gtp_spare_b7b1;
 static int hf_gtp_rnc_ip_addr_v4;
 static int hf_gtp_rnc_ip_addr_v6;
 static int hf_gtp_ms_cm_2_len;
@@ -10605,62 +10632,143 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                             break;
 
                         case GTP_EXT_HDR_PDU_SESSION_CONT:
-                        {
-                            /* PDU Session Container
-                             * 3GPP 29.281 v15.2.0, 5.2.2.7 PDU Session Container
-                             * This extension header may be transmitted in a G-PDU
-                             * over the N3 and N9 user plane interfaces, between
-                             * NG-RAN and UPF, or between two UPFs. The PDU Session
-                             * Container has a variable length and its content is
-                             * specified in 3GPP TS 38.415 [31].
-                             */
-                            static int * const flags1[] = {
-                                &hf_gtp_ext_hdr_pdu_ses_cont_ppp,
-                                &hf_gtp_ext_hdr_pdu_ses_cont_rqi,
-                                &hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id,
-                                NULL
-                            };
-                            static int * const flags2[] = {
-                                &hf_gtp_ext_hdr_pdu_ses_cont_ppi,
-                                &hf_gtp_spare_b4b0,
-                                NULL
-                            };
-                            static int * const flags3[] = {
-                                &hf_gtp_spare_b7b6,
-                                &hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id,
-                                NULL
-                            };
+                            {
+                                /* PDU Session Container
+                                 * 3GPP 29.281 v15.2.0, 5.2.2.7 PDU Session Container
+                                 * This extension header may be transmitted in a G-PDU
+                                 * over the N3 and N9 user plane interfaces, between
+                                 * NG-RAN and UPF, or between two UPFs. The PDU Session
+                                 * Container has a variable length and its content is
+                                 * specified in 3GPP TS 38.415 [31].
+                                 */
+                                static int * const flags1_dl[] = {
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_qmp,
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_snp_dl,
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_msnp,
+                                    &hf_gtp_spare_b0,
+                                    NULL
+                                };
+                                static int * const flags1_ul[] = {
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_qmp,
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_dl_delay_ind,
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_ul_delay_ind,
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_snp_ul,
+                                    NULL
+                                };
+                                static int * const flags2[] = {
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_ppp,
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_rqi,
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id,
+                                    NULL
+                                };
+                                static int * const flags3[] = {
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_ppi,
+                                    &hf_gtp_spare_b4b0,
+                                    NULL
+                                };
+                                static int * const flags4[] = {
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_n3_n9_delay_ind,
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag,
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id,
+                                    NULL
+                                };
+                                static int * const flags5[] = {
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_7,
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_6,
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_5,
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_4,
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_3,
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_2,
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_1,
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_0,
+                                    NULL
+                                };
+                                static int * const flags6[] = {
+                                    &hf_gtp_spare_b7b1,
+                                    &hf_gtp_ext_hdr_pdu_ses_cont_d1_ul_pdcp_delay_result_ind,
+                                    NULL
+                                };
 
-                            proto_tree *pdu_ses_cont_tree;
-                            guint32 pdu_type;
-                            guint8 value;
+                                proto_tree *pdu_ses_cont_tree;
+                                guint32 pdu_type;
+                                guint64 flags1_val, flags2_val, flags4_val, flags5_val;
+                                int curr_offset = offset;
 
-                            pdu_ses_cont_tree = proto_tree_add_subtree(ext_tree, tvb, offset, (ext_hdr_length * 4) - 1, ett_pdu_session_cont, NULL, "PDU Session Container");
-                            /* PDU Type    Spare */
-                            proto_tree_add_item_ret_uint(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN, &pdu_type);
-                            proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_spare_h1, tvb, offset, 1, ENC_BIG_ENDIAN);
-                            switch (pdu_type) {
-                            case 0:
-                                /* PDU Type: DL PDU SESSION INFORMATION (0) */
-                                /* Octet 1: PPP    RQI    QoS Flow Identifier  */
-                                value = tvb_get_guint8(tvb, offset + 1);
-                                proto_tree_add_bitmask_list_value(pdu_ses_cont_tree, tvb, offset + 1, 1, flags1, value);
-                                if (value & 0x80)
-                                {
-                                    /* Octet 2 PPI    Spare*/
-                                    proto_tree_add_bitmask_list(pdu_ses_cont_tree, tvb, offset + 2, 1, flags2, ENC_BIG_ENDIAN);
+                                pdu_ses_cont_tree = proto_tree_add_subtree(ext_tree, tvb, curr_offset, (ext_hdr_length * 4) - 1, ett_pdu_session_cont, NULL, "PDU Session Container");
+                                proto_tree_add_item_ret_uint(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_pdu_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &pdu_type);
+                                switch (pdu_type) {
+                                case 0:
+                                    /* PDU Type: DL PDU SESSION INFORMATION (0) */
+                                    /* PDU Type    QMP    SNP    MSNP    Spare */
+                                    proto_tree_add_bitmask_list_ret_uint64(pdu_ses_cont_tree, tvb, curr_offset, 1, flags1_dl, ENC_BIG_ENDIAN, &flags1_val);
+                                    curr_offset++;
+                                    /* PPP    RQI    QoS Flow Identifier */
+                                    proto_tree_add_bitmask_list_ret_uint64(pdu_ses_cont_tree, tvb, curr_offset, 1, flags2, ENC_BIG_ENDIAN, &flags2_val);
+                                    curr_offset++;
+                                    if (flags2_val & 0x80) {
+                                        /* PPI    Spare */
+                                        proto_tree_add_bitmask_list(pdu_ses_cont_tree, tvb, curr_offset, 1, flags3, ENC_BIG_ENDIAN);
+                                        curr_offset++;
+                                    }
+                                    if (flags1_val & 0x08) {
+                                        proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_dl_send_time_stamp, tvb, curr_offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+                                        curr_offset += 8;
+                                    }
+                                    if (flags1_val & 0x04) {
+                                        proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_dl_qfi_sn, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+                                        curr_offset += 3;
+                                    }
+                                    if (flags1_val & 0x02) {
+                                        proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_dl_mbs_qfi_sn, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+                                        //curr_offset += 4;
+                                    }
+                                    break;
+                                case 1:
+                                    /* PDU Type: UL PDU SESSION INFORMATION (1)*/
+                                    /* PDU Type    QMP    DL Delay Ind    UL Delay Ind    SNP */
+                                    proto_tree_add_bitmask_list_ret_uint64(pdu_ses_cont_tree, tvb, curr_offset, 1, flags1_ul, ENC_BIG_ENDIAN, &flags1_val);
+                                    curr_offset++;
+                                    /* N3/N9 Delay ind    New IE Flag    QoS Flow Identifier */
+                                    proto_tree_add_bitmask_list_ret_uint64(pdu_ses_cont_tree, tvb, curr_offset, 1, flags4, ENC_BIG_ENDIAN, &flags4_val);
+                                    curr_offset++;
+                                    if (flags1_val & 0x08) {
+                                        proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_dl_send_time_stamp_repeat, tvb, curr_offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+                                        curr_offset += 8;
+                                        proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_dl_recv_time_stamp, tvb, curr_offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+                                        curr_offset += 8;
+                                        proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_ul_send_time_stamp, tvb, curr_offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+                                        curr_offset += 8;
+                                    }
+                                    if (flags1_val & 0x04) {
+                                        proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_dl_delay_result, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+                                        curr_offset += 4;
+                                    }
+                                    if (flags1_val & 0x02) {
+                                        proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_ul_delay_result, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+                                        curr_offset += 4;
+                                    }
+                                    if (flags1_val & 0x01) {
+                                        proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_ul_qfi_sn, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+                                        curr_offset += 3;
+                                    }
+                                    if (flags4_val & 0x80) {
+                                        proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_n3_n9_delay_result, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+                                        curr_offset += 4;
+                                    }
+                                    if (flags4_val & 0x40) {
+                                        proto_tree_add_bitmask_list_ret_uint64(pdu_ses_cont_tree, tvb, curr_offset, 1, flags5, ENC_BIG_ENDIAN, &flags5_val);
+                                        curr_offset++;
+                                        if (flags5_val & 0x01) {
+                                            proto_tree_add_bitmask_list(pdu_ses_cont_tree, tvb, curr_offset, 1, flags6, ENC_BIG_ENDIAN);
+                                            //curr_offset++;
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    proto_tree_add_expert(pdu_ses_cont_tree, pinfo, &ei_gtp_unknown_pdu_type, tvb, offset, (ext_hdr_length * 4) - 1);
+                                    break;
                                 }
-                                break;
-                            case 1:
-                                /* PDU Type: UL PDU SESSION INFORMATION (1)*/
-                                /* Spare    QoS Flow Identifier */
-                                proto_tree_add_bitmask_list(pdu_ses_cont_tree, tvb, offset + 1, 1, flags3, ENC_BIG_ENDIAN);
-                                break;
-                            default:
-                                proto_tree_add_expert(pdu_ses_cont_tree, pinfo, &ei_gtp_unknown_pdu_type, tvb, offset, 1);
-                                break;
                             }
-                        }
                             break;
 
                         case GTP_EXT_HDR_PDCP_SN:
@@ -11088,6 +11196,21 @@ proto_register_gtp(void)
            FT_UINT8, BASE_DEC, VALS(gtp_ext_hdr_pdu_ses_cont_pdu_type_vals), 0xf0,
            NULL, HFILL}
         },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_qmp,
+         { "QoS Monitoring Packet", "gtp.ext_hdr.pdu_ses_con.qmp",
+           FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x08,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_snp_dl,
+         { "Sequence Number Presence", "gtp.ext_hdr.pdu_ses_con.snp",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_msnp,
+         { "MBS Sequence Number Presence", "gtp.ext_hdr.pdu_ses_con.msnp",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+           NULL, HFILL}
+        },
         { &hf_gtp_ext_hdr_pdu_ses_cont_ppp,
          { "Paging Policy Presence (PPP)", "gtp.ext_hdr.pdu_ses_cont.ppp",
            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
@@ -11106,6 +11229,126 @@ proto_register_gtp(void)
         { &hf_gtp_ext_hdr_pdu_ses_cont_ppi,
          { "Paging Policy Indicator (PPI)", "gtp.ext_hdr.pdu_ses_cont.ppi",
            FT_UINT8, BASE_DEC, NULL, 0xe0,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_dl_send_time_stamp,
+         { "DL Sending Time Stamp", "gtp.ext_hdr.pdu_ses_cont.dl_send_time_stamp",
+           FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_dl_qfi_sn,
+         { "DL QFI Sequence Number", "gtp.ext_hdr.pdu_ses_cont.dl_qfi_sn",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_dl_mbs_qfi_sn,
+         { "DL MBS QFI Sequence Number", "gtp.ext_hdr.pdu_ses_cont.dl_mbs_qfi_sn",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_dl_delay_ind,
+         { "DL Delay Ind", "gtp.ext_hdr.pdu_ses_con.dl_delay_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_ul_delay_ind,
+         { "UL Delay Ind", "gtp.ext_hdr.pdu_ses_con.ul_delay_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_snp_ul,
+         { "Sequence Number Presence", "gtp.ext_hdr.pdu_ses_con.snp",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_n3_n9_delay_ind,
+         { "N3/N9 Delay Ind", "gtp.ext_hdr.pdu_ses_con.n3_n9_delay_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag,
+         { "New IE Flag", "gtp.ext_hdr.pdu_ses_con.new_ie_flag",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_dl_send_time_stamp_repeat,
+         { "DL Sending Time Stamp Repeated", "gtp.ext_hdr.pdu_ses_cont.dl_send_time_stamp_repeat",
+           FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_dl_recv_time_stamp,
+         { "DL Received Time Stamp", "gtp.ext_hdr.pdu_ses_cont.dl_recv_time_stamp",
+           FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_ul_send_time_stamp,
+         { "UL Sending Time Stamp", "gtp.ext_hdr.pdu_ses_cont.ul_send_time_stamp",
+           FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_dl_delay_result,
+         { "DL Delay Result", "gtp.ext_hdr.pdu_ses_cont.dl_delay_result",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_ul_delay_result,
+         { "UL Delay Result", "gtp.ext_hdr.pdu_ses_cont.ul_delay_result",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_ul_qfi_sn,
+         { "UL QFI Sequence Number", "gtp.ext_hdr.pdu_ses_cont.ul_qfi_sn",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_n3_n9_delay_result,
+         { "N3/N9 Delay Result", "gtp.ext_hdr.pdu_ses_cont.n3_n9_delay_result",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_7,
+         { "New IE Flag 7", "gtp.ext_hdr.pdu_ses_cont.new_ie_flag_7",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_6,
+         { "New IE Flag 6", "gtp.ext_hdr.pdu_ses_cont.new_ie_flag_6",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_5,
+         { "New IE Flag 5", "gtp.ext_hdr.pdu_ses_cont.new_ie_flag_5",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_4,
+         { "New IE Flag 4", "gtp.ext_hdr.pdu_ses_cont.new_ie_flag_4",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_3,
+         { "New IE Flag 3", "gtp.ext_hdr.pdu_ses_cont.new_ie_flag_3",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_2,
+         { "New IE Flag 2", "gtp.ext_hdr.pdu_ses_cont.new_ie_flag_2",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_1,
+         { "New IE Flag 1", "gtp.ext_hdr.pdu_ses_cont.new_ie_flag_1",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_new_ie_flag_0,
+         { "New IE Flag 0", "gtp.ext_hdr.pdu_ses_cont.new_ie_flag_0",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_d1_ul_pdcp_delay_result_ind,
+         { "D1 UL PDCP Delay Result Ind", "gtp.ext_hdr.pdu_ses_cont.d1_ul_pdcp_delay_result_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_included_not_included), 0x01,
            NULL, HFILL}
         },
 
@@ -12359,19 +12602,19 @@ proto_register_gtp(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
       },
+      { &hf_gtp_spare_b0,
+      { "Spare", "gtp.spare",
+      FT_UINT8, BASE_HEX, NULL, 0x01,
+      NULL, HFILL }
+      },
       { &hf_gtp_spare_b4b0,
-      { "Spare", "gtp.spare.b4b0",
+      { "Spare", "gtp.spare",
       FT_UINT8, BASE_HEX, NULL, 0x1f,
       NULL, HFILL }
       },
-      { &hf_gtp_spare_b7b6,
-      { "Spare", "gtp.spare.b7b6",
-      FT_UINT8, BASE_HEX, NULL, 0xc0,
-      NULL, HFILL }
-      },
-      { &hf_gtp_spare_h1,
-      { "Spare", "gtp.spare.h1",
-      FT_UINT8, BASE_HEX, NULL, 0xf,
+      { &hf_gtp_spare_b7b1,
+      { "Spare", "gtp.spare",
+      FT_UINT8, BASE_HEX, NULL, 0xfe,
       NULL, HFILL }
       },
       { &hf_gtp_rnc_ip_addr_v4,
