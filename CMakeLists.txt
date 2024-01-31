@@ -3365,7 +3365,6 @@ if(WIN32)
 
 	if(MAKENSIS_EXECUTABLE)
 		add_subdirectory( packaging/nsis EXCLUDE_FROM_ALL )
-		ADD_NSIS_UNINSTALLER_TARGETS()
 		ADD_NSIS_PACKAGE_TARGETS()
 	endif()
 
