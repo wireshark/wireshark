@@ -580,8 +580,8 @@ fd_port_to_display(wmem_allocator_t *allocator _U_, guint port _U_)
 }
 
 tap_packet_status
-fd_tap_listener(void *tapdata _U_, packet_info *pinfo _U_,
-                      epan_dissect_t *edt _U_, const void *data _U_, tap_flags_t flags _U_)
+fd_tap_listener(void *tapdata, packet_info *pinfo,
+                      epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
 {
     follow_record_t *follow_record;
     follow_info_t *follow_info = (follow_info_t *)tapdata;
@@ -1040,11 +1040,11 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
     }
 
     if (have_tap_listener(fd_follow_tap) && io_buffer_len > 0) {
-        falco_tap_info tapinfo;
-        tapinfo.data = io_buffer;
-        tapinfo.datalen = io_buffer_len;
-        tapinfo.is_write = is_io_write;
-        tap_queue_packet(fd_follow_tap, pinfo, &tapinfo);
+        falco_tap_info *tap_info = wmem_new(pinfo->pool, falco_tap_info);
+        tap_info->data = io_buffer;
+        tap_info->datalen = io_buffer_len;
+        tap_info->is_write = is_io_write;
+        tap_queue_packet(fd_follow_tap, pinfo, tap_info);
     }
 
     return tvb_captured_length(tvb);
