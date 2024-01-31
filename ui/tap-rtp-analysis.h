@@ -48,9 +48,8 @@ typedef struct _tap_rtp_stat_t {
      */
     guint32         flags;      /* see STAT_FLAG-defines below */
     guint16         seq_num;
-    guint32         timestamp;
-    guint32         seq_timestamp;
-    guint32         first_timestamp;
+    uint64_t        timestamp;     /* The generated "extended" timestamp */
+    uint64_t        seq_timestamp; /* The last in-sequence extended timestamp */
     double          bandwidth;
     bw_history_item bw_history[BUFF_BW];
     guint16         bw_start_index;

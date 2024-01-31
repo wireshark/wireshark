@@ -184,9 +184,8 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
         statinfo->stop_seq_nr = rtpinfo->info_seq_num;
         statinfo->seq_num = rtpinfo->info_seq_num;
         statinfo->start_time = current_time;
-        statinfo->timestamp = rtpinfo->info_timestamp;
-        statinfo->seq_timestamp = rtpinfo->info_timestamp;
-        statinfo->first_timestamp = rtpinfo->info_timestamp;
+        statinfo->timestamp = rtpinfo->info_extended_timestamp;
+        statinfo->seq_timestamp = rtpinfo->info_extended_timestamp;
         statinfo->time = current_time;
         statinfo->lastnominaltime = 0;
         statinfo->lastarrivaltime = 0;
@@ -242,18 +241,13 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
      * where below code won't work correctly - statistic may be wrong then.
      */
 
-    /* Check if time sequence of packets is in order. We check whether
-     * timestamp difference is below 1/2 of timestamp range (hours or days).
-     * Packets can be in pure sequence or sequence can be wrapped around
-     * 0xFFFFFFFF.
+    /* Check if time sequence of packets is in order. Use the extended
+     * timestamp that the RTP dissector has already calculated.
+     *
+     * XXX - We should probably use the extended sequence number as well.
      */
-    if ((statinfo->first_timestamp <= rtpinfo->info_timestamp) &&
-        TIMESTAMP_DIFFERENCE(statinfo->first_timestamp, rtpinfo->info_timestamp) < 0x80000000) {
+    if (statinfo->seq_timestamp <= rtpinfo->info_extended_timestamp) {
         // Normal timestamp sequence
-        in_time_sequence = TRUE;
-    } else if ((statinfo->first_timestamp > rtpinfo->info_timestamp) &&
-        (TIMESTAMP_DIFFERENCE(statinfo->first_timestamp, 0xFFFFFFFF) + TIMESTAMP_DIFFERENCE(0x00000000, rtpinfo->info_timestamp)) < 0x80000000) {
-        // Normal timestamp sequence with wraparound
         in_time_sequence = TRUE;
     } else {
         // New packet is not in sequence (is in past)
@@ -372,9 +366,9 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
     if ( in_time_sequence || TRUE ) {
         /* XXX: We try to handle clock rate changes, but if the clock rate
          * changed during a dropped packet (or if we go backwards because
-         * a packet is reorderd), it won't be quite right.
+         * a packet is reordered), it won't be quite right.
          */
-        nominaltime_diff = (double)(TIMESTAMP_DIFFERENCE(statinfo->seq_timestamp, rtpinfo->info_timestamp));
+        nominaltime_diff = (double)(TIMESTAMP_DIFFERENCE(statinfo->seq_timestamp, rtpinfo->info_extended_timestamp));
 
         /* Can only analyze defined sampling rates */
         if (clock_rate != 0) {
@@ -535,9 +529,9 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
          * therefore diff calculations are correct for it
          */
         statinfo->time = current_time;
-        statinfo->seq_timestamp = rtpinfo->info_timestamp;
+        statinfo->seq_timestamp = rtpinfo->info_extended_timestamp;
     }
-    statinfo->timestamp = rtpinfo->info_timestamp;
+    statinfo->timestamp = rtpinfo->info_extended_timestamp;
     statinfo->stop_seq_nr = rtpinfo->info_seq_num;
     statinfo->total_nr++;
     statinfo->last_payload_len = rtpinfo->info_payload_len;
