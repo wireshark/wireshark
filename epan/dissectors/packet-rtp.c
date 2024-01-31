@@ -214,6 +214,7 @@ static int hf_rtp_payload_type;
 static int hf_rtp_seq_nr;
 static int hf_rtp_ext_seq_nr;
 static int hf_rtp_timestamp;
+static int hf_rtp_ext_timestamp;
 static int hf_rtp_ssrc;
 static int hf_rtp_csrc_items;
 static int hf_rtp_csrc_item;
@@ -2436,6 +2437,10 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
         /* Timestamp 32 bits (4 octets) */
         proto_tree_add_uint( rtp_tree, hf_rtp_timestamp, tvb, offset, 4, timestamp );
+        if(p_packet_data != NULL) {
+            item = proto_tree_add_uint64(rtp_tree, hf_rtp_ext_timestamp, tvb, offset, 4, p_packet_data->extended_timestamp);
+            proto_item_set_generated(item);
+        }
         offset += 4;
 
         /* Synchronization source identifier 32 bits (4 octets) */
@@ -3228,6 +3233,18 @@ proto_register_rtp(void)
                 "Timestamp",
                 "rtp.timestamp",
                 FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtp_ext_timestamp,
+            {
+                "Extended timestamp",
+                "rtp.timestamp_ext",
+                FT_UINT64,
                 BASE_DEC,
                 NULL,
                 0x0,
