@@ -1,7 +1,7 @@
 /* packet-asam-cmp.c
  * ASAM Capture Module Protocol dissector.
  * Copyright 2021-2023 Alicia Mediano Schikarski, Technica Engineering GmbH
- * Copyright 2021-2023 Dr. Lars Voelker, Technica Engineering GmbH
+ * Copyright 2021-2024 Dr. Lars Voelker, Technica Engineering GmbH
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -1938,7 +1938,6 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_
         offset += 2;
 
         if ((asam_cmp_status_msg_vendor_data_length) > 0) {
-            asam_cmp_status_msg_vendor_data_length += (asam_cmp_status_msg_vendor_data_length % 2); /* padding to 16bit */
             proto_tree_add_item(asam_cmp_status_msg_payload_tree, hf_cmp_status_vendor_data, tvb, offset, asam_cmp_status_msg_vendor_data_length, ENC_NA);
             offset += (gint)asam_cmp_status_msg_vendor_data_length;
         }
@@ -2016,7 +2015,6 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_
             offset += 2;
 
             if ((asam_cmp_status_msg_vendor_data_length) > 0) {
-                asam_cmp_status_msg_vendor_data_length += (asam_cmp_status_msg_vendor_data_length % 2); /* padding to 16bit */
                 proto_tree_add_item(subtree, hf_cmp_iface_vendor_data, tvb, offset, asam_cmp_status_msg_vendor_data_length, ENC_NA);
                 offset += (gint)asam_cmp_status_msg_vendor_data_length;
             }
@@ -2660,6 +2658,7 @@ proto_reg_handoff_asam_cmp(void) {
     eth_handle = find_dissector("eth_maybefcs");
 
     dissector_add_for_decode_as("ethertype", asam_cmp_handle);
+    dissector_add_for_decode_as_with_preference("udp.port", asam_cmp_handle);
 
     lin_subdissector_table = find_dissector_table("lin.frame_id");
 }
