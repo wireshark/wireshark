@@ -82,25 +82,48 @@ macro(set_extcap_executable_properties _executable)
 endmacro()
 
 macro(set_extlog_executable_properties _executable)
-	set_extcap_executable_properties(${_executable})
-	if(ENABLE_APPLICATION_BUNDLE)
-		if(NOT CMAKE_CFG_INTDIR STREQUAL ".")
-			# Xcode
-			set_target_properties(${_executable} PROPERTIES
-				RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/$<CONFIG>/Logray.app/Contents/MacOS/extcap
-			)
-		else()
-			set_target_properties(${_executable} PROPERTIES
-				RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/Logray.app/Contents/MacOS/extcap
-			)
-			# Create a convenience link from run/<name> to its respective
-			# target in the application bundle.
-			add_custom_target(${_executable}-symlink
-				COMMAND ln -s -f
-					Logray.app/Contents/MacOS/extcap/${_executable}
-					${CMAKE_BINARY_DIR}/run/${_executable}
-			)
-			add_dependencies(${_executable} ${_executable}-symlink)
+	set_target_properties(${_executable} PROPERTIES
+		LINK_FLAGS "${WS_LINK_FLAGS}"
+		FOLDER "Executables/Extcaps"
+		INSTALL_RPATH "${EXTCAP_INSTALL_RPATH}"
+	)
+	if(MSVC)
+		set_target_properties(${_executable} PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
+	endif()
+
+	set(PROGLIST ${PROGLIST} ${_executable})
+
+	if(CMAKE_CONFIGURATION_TYPES)
+		set_target_properties(${_executable} PROPERTIES
+			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
+			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/run/Debug/extcap
+			RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/run/Release/extcap
+			RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/run/MinSizeRel/extcap
+			RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/run/RelWithDebInfo/extcap
+		)
+	else()
+		set_target_properties(${_executable} PROPERTIES
+			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
+		)
+		if(ENABLE_APPLICATION_BUNDLE)
+			if(NOT CMAKE_CFG_INTDIR STREQUAL ".")
+				# Xcode
+				set_target_properties(${_executable} PROPERTIES
+					RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/$<CONFIG>/Logray.app/Contents/MacOS/extcap
+				)
+			else()
+				set_target_properties(${_executable} PROPERTIES
+					RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/Logray.app/Contents/MacOS/extcap
+				)
+				# Create a convenience link from run/<name> to its respective
+				# target in the application bundle.
+				add_custom_target(${_executable}-symlink
+					COMMAND ln -s -f
+						Logray.app/Contents/MacOS/extcap/${_executable}
+						${CMAKE_BINARY_DIR}/run/${_executable}
+				)
+				add_dependencies(${_executable} ${_executable}-symlink)
+			endif()
 		endif()
 	endif()
 endmacro()
