@@ -5470,7 +5470,7 @@ proto_tree_set_ether_tvb(field_info *fi, tvbuff_t *tvb, gint start)
 /* Add a FT_BOOLEAN to a proto_tree */
 proto_item *
 proto_tree_add_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-		       gint length, guint32 value)
+		       gint length, guint64 value)
 {
 	proto_item	  *pi;
 	header_field_info *hfinfo;
@@ -5490,7 +5490,7 @@ proto_tree_add_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 proto_item *
 proto_tree_add_boolean_format_value(proto_tree *tree, int hfindex,
 				    tvbuff_t *tvb, gint start, gint length,
-				    guint32 value, const char *format, ...)
+				    guint64 value, const char *format, ...)
 {
 	proto_item	  *pi;
 	va_list		   ap;
@@ -5507,7 +5507,7 @@ proto_tree_add_boolean_format_value(proto_tree *tree, int hfindex,
 
 proto_item *
 proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-			      gint start, gint length, guint32 value,
+			      gint start, gint length, guint64 value,
 			      const char *format, ...)
 {
 	proto_item	  *pi;
@@ -5521,25 +5521,6 @@ proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		proto_tree_set_representation(pi, format, ap);
 		va_end(ap);
 	}
-
-	return pi;
-}
-
-static proto_item *
-proto_tree_add_boolean64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-		         gint length, guint64 value)
-{
-	proto_item	  *pi;
-	header_field_info *hfinfo;
-
-	CHECK_FOR_NULL_TREE(tree);
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
-
-	DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, FT_BOOLEAN);
-
-	pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length);
-	proto_tree_set_boolean(PNODE_FINFO(pi), value);
 
 	return pi;
 }
@@ -12274,7 +12255,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			break;
 
 		case FT_BOOLEAN:
-			proto_tree_add_boolean64(tree, **fields, tvb, offset, len, value);
+			proto_tree_add_boolean(tree, **fields, tvb, offset, len, value);
 			break;
 
 		default:
@@ -12945,7 +12926,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 	switch (hf_field->type) {
 	case FT_BOOLEAN:
 		/* Boolean field */
-		return proto_tree_add_boolean_format(tree, hfindex, tvb, offset, length, (guint32)value,
+		return proto_tree_add_boolean_format(tree, hfindex, tvb, offset, length, value,
 			"%s = %s: %s",
 			bf_str, hf_field->name, tfs_get_string(!!value, hf_field->strings));
 		break;
@@ -13135,7 +13116,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbu
 	case FT_BOOLEAN: /* it is a bit odd to have a boolean encoded as split-bits, but possible, I suppose? */
 		/* Boolean field */
 		return proto_tree_add_boolean_format(tree, hfindex,
-						     tvb, octet_offset, octet_length, (guint32)value,
+						     tvb, octet_offset, octet_length, value,
 						     "%s = %s: %s",
 						     bf_str, hf_field->name, tfs_get_string(!!value, hf_field->strings));
 		break;
@@ -13299,7 +13280,7 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hfindex,
 	 */
 	switch (hf_field->type) {
 	case FT_BOOLEAN:
-		return proto_tree_add_boolean_format(tree, hfindex, tvb, offset, length, *(guint32 *)value_ptr,
+		return proto_tree_add_boolean_format(tree, hfindex, tvb, offset, length, *(guint64 *)value_ptr,
 						     "%s: %s", str, value_str);
 		break;
 
@@ -13533,28 +13514,6 @@ proto_tree_add_int64_bits_format_value(proto_tree *tree, const int hfindex,
 
 proto_item *
 proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hfindex,
-					 tvbuff_t *tvb, const guint bit_offset,
-					 const gint no_of_bits, guint32 value,
-				         const guint encoding,
-					 const char *format, ...)
-{
-	va_list ap;
-	gchar  *dst;
-	header_field_info *hf_field;
-
-	CHECK_FOR_NULL_TREE(tree);
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hf_field);
-
-	DISSECTOR_ASSERT_FIELD_TYPE(hf_field, FT_BOOLEAN);
-
-	CREATE_VALUE_STRING(tree, dst, format, ap);
-
-	return proto_tree_add_bits_format_value(tree, hfindex, tvb, bit_offset, no_of_bits, &value, encoding, dst);
-}
-
-proto_item *
-proto_tree_add_boolean_bits_format_value64(proto_tree *tree, const int hfindex,
 					 tvbuff_t *tvb, const guint bit_offset,
 					 const gint no_of_bits, guint64 value,
 				         const guint encoding,

@@ -3250,7 +3250,7 @@ ieee802154_dissect_fcs(tvbuff_t *tvb, proto_tree *ieee802154_tree, guint fcs_len
                 proto_item_append_text(ti, " (Incorrect, expected FCS=0x%04x)", ieee802154_crc_tvb(tvb, offset));
             }
             /* To Help with filtering, add the fcs_ok field to the tree.  */
-            ti = proto_tree_add_boolean(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, offset, 2, (guint32) fcs_ok);
+            ti = proto_tree_add_boolean(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, offset, 2, (guint64) fcs_ok);
             proto_item_set_hidden(ti);
         }
         else {
@@ -3264,7 +3264,7 @@ ieee802154_dissect_fcs(tvbuff_t *tvb, proto_tree *ieee802154_tree, guint fcs_len
                 proto_item_append_text(ti, " (Incorrect, expected FCS=0x%08x)", ieee802154_crc32_tvb(tvb, offset));
             }
             /* To Help with filtering, add the fcs_ok field to the tree.  */
-            ti = proto_tree_add_boolean(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, offset, 2, (guint32) fcs_ok);
+            ti = proto_tree_add_boolean(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, offset, 2, (guint64) fcs_ok);
             proto_item_set_hidden(ti);
         }
     }
@@ -3296,7 +3296,7 @@ ieee802154_dissect_cc24xx_metadata(tvbuff_t *tvb, proto_tree *ieee802154_tree, g
         field_tree = proto_tree_add_subtree_format(ieee802154_tree, tvb, offset, 2, ett_ieee802154_fcs, NULL,
                      "TI CC24xx-format metadata: FCS %s", (fcs_ok) ? "OK" : "Bad");
         /* Display metadata contents.  */
-        proto_tree_add_boolean(field_tree, hf_ieee802154_fcs_ok, tvb, offset, 1, (guint32) (metadata & IEEE802154_CC24xx_CRC_OK));
+        proto_tree_add_boolean(field_tree, hf_ieee802154_fcs_ok, tvb, offset, 1, (guint64) (metadata & IEEE802154_CC24xx_CRC_OK));
         proto_tree_add_int(field_tree, hf_ieee802154_rssi, tvb, offset++, 1, (gint8) (metadata & IEEE802154_CC24xx_RSSI));
         proto_tree_add_uint(field_tree, hf_ieee802154_correlation, tvb, offset, 1, (guint8) ((metadata & IEEE802154_CC24xx_CORRELATION) >> 8));
     }

@@ -1374,7 +1374,6 @@ apiChecks.append(APICheck('proto_tree_add_item_ret_varint', { 'FT_INT8', 'FT_INT
                                                               'FT_CHAR', 'FT_UINT8', 'FT_UINT16', 'FT_UINT24', 'FT_UINT32', 'FT_FRAMENUM',
                                                               'FT_UINT40', 'FT_UINT48', 'FT_UINT56', 'FT_UINT64',}))
 apiChecks.append(APICheck('proto_tree_add_boolean_bits_format_value', { 'FT_BOOLEAN'}))
-apiChecks.append(APICheck('proto_tree_add_boolean_bits_format_value64', { 'FT_BOOLEAN'}))
 apiChecks.append(APICheck('proto_tree_add_ascii_7bits_item', { 'FT_STRING'}))
 # TODO: positions are different, and takes 2 hf_fields..
 #apiChecks.append(APICheck('proto_tree_add_checksum', { 'FT_UINT8', 'FT_UINT16', 'FT_UINT24', 'FT_UINT32'}))

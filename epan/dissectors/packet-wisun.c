@@ -1709,7 +1709,7 @@ static int dissect_wisun_eapol_relay(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     } else {
         up = (tvb_get_guint8(tvb, offset+6) & 0x80) == 0;  // Key Info ACK==0
     }
-    proto_item* diritem = proto_tree_add_boolean(subtree, hf_wisun_eapol_relay_direction, tvb, offset, 0, (guint32) up);
+    proto_item* diritem = proto_tree_add_boolean(subtree, hf_wisun_eapol_relay_direction, tvb, offset, 0, (guint64) up);
     proto_item_set_generated(diritem);
 
     int r = call_dissector(eapol_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
