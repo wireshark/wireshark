@@ -302,6 +302,10 @@ e_addr_resolve gbl_resolv_flags = {
     FALSE,  /* ss7 point code names */
     TRUE,   /* maxmind_geoip */
 };
+
+/* XXX - ares_init_options(3) says:
+ * "The recommended concurrent query limit is about 32k queries"
+ */
 static guint name_resolve_concurrency = 500;
 static gboolean resolve_synchronously = FALSE;
 
@@ -347,6 +351,9 @@ typedef struct _async_hostent {
     int   copied;
     void *addrp;
 } async_hostent_t;
+
+static void
+c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *he);
 
 /*
  * Submitted synchronous queries trigger a callback (c_ares_ghba_sync_cb()).
@@ -492,6 +499,9 @@ wait_for_sync_resolv(gboolean *completed) {
          * calling ares_timeout() to figure out when to next call
          * ares_process().", although we should have only one request
          * outstanding.
+         * As of C-ARES 1.20.0, the ares_timeout() function is now O(1),
+         * but we don't require that minimum version.
+         * https://github.com/c-ares/c-ares/commit/cf99c025cfb3e21295b59923876a31a68ea2cb4b
          *
          * And, yes, we have to reset it each time, as select(), in
          * some OSes modifies the timeout to reflect the time remaining
@@ -515,6 +525,83 @@ wait_for_sync_resolv(gboolean *completed) {
             ares_process(ghba_chan, &rfds, &wfds);
         }
     }
+}
+
+static void
+process_async_dns_queue(void)
+{
+    wmem_list_frame_t* head;
+    async_dns_queue_msg_t *caqm;
+
+    if (async_dns_queue_head == NULL)
+        return;
+
+    head = wmem_list_head(async_dns_queue_head);
+
+    while (head != NULL && async_dns_in_flight <= name_resolve_concurrency) {
+        caqm = (async_dns_queue_msg_t *)wmem_list_frame_data(head);
+        wmem_list_remove_frame(async_dns_queue_head, head);
+        if (caqm->family == AF_INET) {
+            ares_gethostbyaddr(ghba_chan, &caqm->addr.ip4, sizeof(guint32), AF_INET,
+                    c_ares_ghba_cb, caqm);
+            async_dns_in_flight++;
+        } else if (caqm->family == AF_INET6) {
+            ares_gethostbyaddr(ghba_chan, &caqm->addr.ip6, sizeof(ws_in6_addr),
+                    AF_INET6, c_ares_ghba_cb, caqm);
+            async_dns_in_flight++;
+        }
+
+        head = wmem_list_head(async_dns_queue_head);
+    }
+}
+
+static void
+wait_for_async_queue(void)
+{
+    struct timeval tv = { 0, 0 };
+    int nfds;
+    fd_set rfds, wfds;
+
+    new_resolved_objects = FALSE;
+
+    if (!async_dns_initialized) {
+        maxmind_db_lookup_process();
+        return;
+    }
+
+    while (1) {
+        /* We're switching to synchronous lookups, so process anything in
+         * the asynchronous queue. There might be more in the queue than
+         * name_resolve_concurrency allows, so check each cycle.
+         */
+        process_async_dns_queue();
+
+        FD_ZERO(&rfds);
+        FD_ZERO(&wfds);
+        nfds = ares_fds(ghba_chan, &rfds, &wfds);
+        if (nfds == 0) {
+            /* No more requests waiting for reply; we're done here. */
+            break;
+        }
+
+        /* See comment in wait_for_sync_resolv() about ares_timeout() being
+         * O(N) in the number of outstanding requests until c-ares 1.20, and
+         * why we might as well just set a 1 second to select().
+         */
+        tv.tv_sec = 1;
+        tv.tv_usec = 0;
+
+        if (select(nfds, &rfds, &wfds, NULL, &tv) == -1) { /* call to select() failed */
+            /* If it's interrupted by a signal, no need to put out a message */
+            if (errno != EINTR)
+                fprintf(stderr, "Warning: call to select() failed, error is %s\n", g_strerror(errno));
+            return;
+        }
+        ares_process(ghba_chan, &rfds, &wfds);
+    }
+
+    maxmind_db_lookup_process();
+    return;
 }
 
 static void
@@ -580,6 +667,10 @@ set_resolution_synchrony(gboolean synchronous)
 {
     resolve_synchronously = synchronous;
     maxmind_db_set_synchrony(synchronous);
+
+    if (synchronous) {
+        wait_for_async_queue();
+    }
 }
 
 static void
@@ -3184,12 +3275,10 @@ disable_name_resolution(void) {
 
 gboolean
 host_name_lookup_process(void) {
-    async_dns_queue_msg_t *caqm;
     struct timeval tv = { 0, 0 };
     int nfds;
     fd_set rfds, wfds;
     gboolean nro = new_resolved_objects;
-    wmem_list_frame_t* head;
 
     new_resolved_objects = FALSE;
     nro |= maxmind_db_lookup_process();
@@ -3198,23 +3287,7 @@ host_name_lookup_process(void) {
         /* c-ares not initialized. Bail out and cancel timers. */
         return nro;
 
-    head = wmem_list_head(async_dns_queue_head);
-
-    while (head != NULL && async_dns_in_flight <= name_resolve_concurrency) {
-        caqm = (async_dns_queue_msg_t *)wmem_list_frame_data(head);
-        wmem_list_remove_frame(async_dns_queue_head, head);
-        if (caqm->family == AF_INET) {
-            ares_gethostbyaddr(ghba_chan, &caqm->addr.ip4, sizeof(guint32), AF_INET,
-                    c_ares_ghba_cb, caqm);
-            async_dns_in_flight++;
-        } else if (caqm->family == AF_INET6) {
-            ares_gethostbyaddr(ghba_chan, &caqm->addr.ip6, sizeof(ws_in6_addr),
-                    AF_INET6, c_ares_ghba_cb, caqm);
-            async_dns_in_flight++;
-        }
-
-        head = wmem_list_head(async_dns_queue_head);
-    }
+    process_async_dns_queue();
 
     FD_ZERO(&rfds);
     FD_ZERO(&wfds);
