@@ -548,12 +548,14 @@ This information is available for many protocols, including the following:
 * Diameter
 * Fibre Channel
 * GTP
+* GTPv2
 * H.225 RAS
 * LDAP
 * MEGACO
 * MGCP
 * NCP
 * ONC-RPC
+* PFCP
 * RADIUS
 * SCSI
 * SMB
