@@ -121,14 +121,14 @@ Wireshark as a DLL, you're probably doing it wrong.
 
 // While we try to make sure that Wireshark is as easy as possible to obtain and use, please keep in mind that it’s developed by a team of volunteers and that filling out compliance forms is pretty far beyond the scope of what those volunteers do.
 
-Please contact the https://sharkfestfoundation.org[Wireshark Foundation] and they will be able to help you for a nominal fee.
+Please contact the https://wiresharkfoundation.org[Wireshark Foundation] and they will be able to help you for a nominal fee.
 
 === Can you sign this legal agreement so that I can use Wireshark?
 
 // As with the previous question, Wireshark is developed by a team of volunteers.
 // Even if they were inclined to do so, they aren’t authorized to sign agreements on behalf of the project.
 
-Please contact the https://sharkfestfoundation.org[Wireshark Foundation] and they will be able to help you for a somewhat less nominal fee.
+Please contact the https://wiresharkfoundation.org[Wireshark Foundation] and they will be able to help you for a somewhat less nominal fee.
 
 === What protocols are currently supported?
 
