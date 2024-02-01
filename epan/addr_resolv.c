@@ -376,6 +376,7 @@ static ares_channel ghbn_chan; /* ares_gethostbyname -- Usually interactive, tim
 static  gboolean  async_dns_initialized = FALSE;
 static  guint       async_dns_in_flight = 0;
 static  wmem_list_t *async_dns_queue_head = NULL;
+static  GMutex async_dns_queue_mtx;
 
 //UAT for providing a list of DNS servers to C-ARES for name resolution
 gboolean use_custom_dns_server_list = FALSE;
@@ -536,6 +537,9 @@ process_async_dns_queue(void)
     if (async_dns_queue_head == NULL)
         return;
 
+    if (!g_mutex_trylock(&async_dns_queue_mtx))
+        return;
+
     head = wmem_list_head(async_dns_queue_head);
 
     while (head != NULL && async_dns_in_flight <= name_resolve_concurrency) {
@@ -553,6 +557,8 @@ process_async_dns_queue(void)
 
         head = wmem_list_head(async_dns_queue_head);
     }
+
+    g_mutex_unlock(&async_dns_queue_mtx);
 }
 
 static void

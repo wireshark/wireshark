@@ -192,7 +192,7 @@ WS_DLL_PUBLIC void disable_name_resolution(void);
 
 /** If we're using c-ares process outstanding host name lookups.
  *  This is called from a GLIB timeout in Wireshark and before processing
- *  each packet in TShark.
+ *  each packet in the first pass of two-pass TShark.
  *
  * @return True if any new objects have been resolved since the previous
  * call. This can be used to trigger a display update, e.g. in Wireshark.

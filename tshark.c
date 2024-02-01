@@ -3273,6 +3273,24 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
        from the dissection or running taps on the packet; if we're doing
        any of that, we'll do it in the second pass.) */
     if (edt) {
+        if (gbl_resolv_flags.network_name || gbl_resolv_flags.maxmind_geoip) {
+            /* If we're doing async lookups, send any that are queued and
+             * retrieve results.
+             *
+             * Ideally we'd force any lookups that need to happen on the second pass
+             * to be sent asynchronously on this pass so the results would be ready.
+             * That will happen if they're involved in a filter (because we prime the
+             * tree below), but not currently for taps, if we're printing packet
+             * summaries or details, etc.
+             *
+             * XXX - If we're running a read filter that depends on a resolved
+             * name, we should be doing synchronous lookups in that case. Also
+             * marking the dependent frames below might not work with a display
+             * filter that depends on a resolved name.
+             */
+            host_name_lookup_process();
+        }
+
         column_info *cinfo = NULL;
 
         /* If we're running a read filter, prime the epan_dissect_t with that
