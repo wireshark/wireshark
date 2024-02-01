@@ -2917,10 +2917,12 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     syscall_tree = proto_item_add_subtree(ti, ett_sysdig_syscall);
 
-    for (cur_tree_info = event_tree_info; cur_tree_info->hf_indexes; cur_tree_info++) {
-        if (cur_tree_info->event_type == event_type) {
-            dissect_event_params(tvb, pinfo, &event_name, &pinfo->rec->rec_header.syscall_header, 0, syscall_tree, encoding, cur_tree_info->hf_indexes);
-            break;
+    if (pinfo->rec->rec_header.syscall_header.nparams > 0) {
+        for (cur_tree_info = event_tree_info; cur_tree_info->hf_indexes; cur_tree_info++) {
+            if (cur_tree_info->event_type == event_type) {
+                dissect_event_params(tvb, pinfo, &event_name, &pinfo->rec->rec_header.syscall_header, 0, syscall_tree, encoding, cur_tree_info->hf_indexes);
+                break;
+            }
         }
     }
 
