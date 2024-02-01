@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>609</width>
+    <width>750</width>
     <height>600</height>
    </rect>
   </property>
@@ -41,7 +41,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,1,0,0,0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,1,0,0,0,0">
      <item>
       <widget class="QComboBox" name="cbDirections">
        <property name="sizeAdjustPolicy">
@@ -50,7 +50,7 @@
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer">
+      <spacer name="charsetSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -65,7 +65,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Show data as</string>
+        <string>Show as</string>
        </property>
       </widget>
      </item>
@@ -74,6 +74,38 @@
        <property name="currentIndex">
         <number>-1</number>
        </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="deltaSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QComboBox" name="deltaComboBox">
+       <item>
+        <property name="text">
+         <string>No delta times</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Turn delta times</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>All delta times</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>

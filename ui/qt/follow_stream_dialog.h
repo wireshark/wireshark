@@ -52,10 +52,11 @@ protected:
     void captureFileClosed();
 
 private slots:
-    void on_cbCharset_currentIndexChanged(int idx);
-    void on_cbDirections_currentIndexChanged(int idx);
-    void on_bFind_clicked();
-    void on_leFind_returnPressed();
+    void cbCharsetCurrentIndexChanged(int idx);
+    void deltaComboBoxCurrentIndexChanged(int idx);
+    void cbDirectionsCurrentIndexChanged(int idx);
+    void bFindClicked();
+    void leFindReturnPressed();
 
     void helpButton();
     void backButton();
@@ -68,10 +69,10 @@ private slots:
     void fillHintLabel(int pkt = 0);
     void goToPacketForTextPos(int pkt = 0);
 
-    void on_streamNumberSpinBox_valueChanged(int stream_num);
-    void on_subStreamNumberSpinBox_valueChanged(int sub_stream_num);
+    void streamNumberSpinBoxValueChanged(int stream_num);
+    void subStreamNumberSpinBoxValueChanged(int sub_stream_num);
 
-    void on_buttonBox_rejected();
+    void buttonBoxRejected();
 
 signals:
     void updateFilter(QString filter, bool force);
@@ -115,6 +116,7 @@ private:
     int                     server_packet_count_;
     guint32                 last_packet_;
     gboolean                last_from_server_;
+    nstime_t                last_ts_;
     int                     turns_;
 
     bool                    use_regex_find_;

@@ -102,6 +102,12 @@ typedef enum {
 } bytes_show_type;
 
 typedef enum {
+    FOLLOW_DELTA_NONE,
+    FOLLOW_DELTA_TURN,
+    FOLLOW_DELTA_ALL
+} follow_delta_type;
+
+typedef enum {
     DecodeAsNone,
     DecodeAsBASE64,
     DecodeAsCompressed,
@@ -139,6 +145,7 @@ typedef struct recent_settings_tag {
     gboolean    gui_search_multiple_occurs;
     search_type_type gui_search_type;
     bytes_show_type gui_follow_show;
+    follow_delta_type gui_follow_delta;
     bytes_decode_type gui_show_bytes_decode;
     bytes_show_type gui_show_bytes_show;
 

@@ -129,6 +129,8 @@ The following features are new (or have been significantly updated) since versio
   handle the new pattern, which has been capable of being produced by tshark since
   version 3.6.0
 
+* The "Follow Stream" dialog can now show delta times between turns and all packets and events.
+
 === Removed Features and Support
 
 * The tshark `-G` option with no argument is deprecated and will be removed in

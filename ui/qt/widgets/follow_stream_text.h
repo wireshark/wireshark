@@ -19,6 +19,7 @@ public:
     explicit FollowStreamText(QWidget *parent = 0);
     bool isTruncated() const { return truncated_; }
     void addText(QString text, bool is_from_server, uint32_t packet_num, bool colorize);
+    void addDeltaTime(double delta);
     int currentPacket() const;
 
 protected:
@@ -35,10 +36,12 @@ public slots:
 
 private:
     int textPosToPacket(int text_pos) const;
+    void addTruncated(int cur_pos);
 
     static const int        max_document_length_;
     bool                    truncated_;
     QMap<int, uint32_t>     text_pos_to_packet_;
+    QColor                  metainfo_fg_;
 };
 
 #endif // FOLLOW_STREAM_TEXT_H

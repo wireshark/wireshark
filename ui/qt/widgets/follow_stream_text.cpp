@@ -32,9 +32,24 @@ FollowStreamText::FollowStreamText(QWidget *parent) :
 //    setMaximumBlockCount(1);
     QTextDocument *text_doc = document();
     text_doc->setDefaultFont(mainApp->monospaceFont());
+
+    metainfo_fg_ = ColorUtils::alphaBlend(palette().windowText(), palette().window(), 0.35);
 }
 
 const int FollowStreamText::max_document_length_ = 500 * 1000 * 1000; // Just a guess
+
+void FollowStreamText::addTruncated(int cur_pos)
+{
+    if (truncated_) {
+        QTextCharFormat tcf = currentCharFormat();
+        tcf.setBackground(palette().base().color());
+        tcf.setForeground(metainfo_fg_);
+        insertPlainText("\n" + tr("[Stream output truncated]"));
+        moveCursor(QTextCursor::End);
+    } else {
+        verticalScrollBar()->setValue(cur_pos);
+    }
+}
 
 void FollowStreamText::addText(QString text, bool is_from_server, uint32_t packet_num, bool colorize)
 {
@@ -54,8 +69,8 @@ void FollowStreamText::addText(QString text, bool is_from_server, uint32_t packe
 
     QTextCharFormat tcf = currentCharFormat();
     if (!colorize) {
-        tcf.setBackground(palette().window().color());
-        tcf.setForeground(palette().windowText().color());
+        tcf.setBackground(palette().base().color());
+        tcf.setForeground(palette().text().color());
     } else if (is_from_server) {
         tcf.setForeground(ColorUtils::fromColorT(prefs.st_server_fg));
         tcf.setBackground(ColorUtils::fromColorT(prefs.st_server_bg));
@@ -68,15 +83,33 @@ void FollowStreamText::addText(QString text, bool is_from_server, uint32_t packe
     insertPlainText(text);
     text_pos_to_packet_[textCursor().anchor()] = packet_num;
 
+    addTruncated(cur_pos);
+    setUpdatesEnabled(true);
+}
+
+void FollowStreamText::addDeltaTime(double delta)
+{
+    QString delta_str = QString("\n%1s").arg(QString::number(delta, 'f', 6));
     if (truncated_) {
-        tcf = currentCharFormat();
-        tcf.setBackground(palette().window().color());
-        tcf.setForeground(palette().windowText().color());
-        insertPlainText("\n" + tr("[Stream output truncated]"));
-        moveCursor(QTextCursor::End);
-    } else {
-        verticalScrollBar()->setValue(cur_pos);
+        return;
     }
+
+    if (document()->characterCount() + delta_str.length() > max_document_length_) {
+        truncated_ = true;
+    }
+
+    setUpdatesEnabled(false);
+    int cur_pos = verticalScrollBar()->value();
+    moveCursor(QTextCursor::End);
+
+    QTextCharFormat tcf = currentCharFormat();
+    tcf.setBackground(palette().base().color());
+    tcf.setForeground(metainfo_fg_);
+    setCurrentCharFormat(tcf);
+
+    insertPlainText(delta_str);
+
+    addTruncated(cur_pos);
     setUpdatesEnabled(true);
 }
 

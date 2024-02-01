@@ -147,7 +147,7 @@ peer1_0: !!binary |
 How the old format data can be found in the new format:
 [options="header"]
 |===
-|New YAML format |Old YAML format | 
+|New YAML format |Old YAML format |
 a|
 ----
 ...
@@ -175,6 +175,8 @@ menu:Raw[]:: This allows you to load the unaltered stream data into a different
   program for further examination. The display will show the data as strings
   of hex characters with each frame on a separate line, but “Save As”
   will result in a binary file without any added line separators.
+
+You can optionally show the delta time each time the direction changes (turns) or for every packet or event.
 
 You can switch between streams using the “Stream” selector.
 
@@ -915,7 +917,7 @@ represent time internally as UTC.  When Wireshark is capturing, no
 conversion is necessary.  However, if the system time zone is not set
 correctly, the system’s UTC time might not be correctly set even if
 the system clock appears to display correct local time.  When capturing,
-Npcap has to convert the time to UTC before supplying it to Wireshark. 
+Npcap has to convert the time to UTC before supplying it to Wireshark.
 If the system’s time zone is not set correctly, that conversion will
 not be done correctly.
 

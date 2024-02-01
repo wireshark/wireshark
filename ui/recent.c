@@ -80,6 +80,7 @@
 #define RECENT_GUI_SEARCH_MULTIPLE_OCCURS       "gui.search_multiple_occurs"
 #define RECENT_GUI_SEARCH_TYPE                  "gui.search_type"
 #define RECENT_GUI_FOLLOW_SHOW                  "gui.follow_show"
+#define RECENT_GUI_FOLLOW_DELTA                 "gui.follow_delta"
 #define RECENT_GUI_SHOW_BYTES_DECODE            "gui.show_bytes_decode"
 #define RECENT_GUI_SHOW_BYTES_SHOW              "gui.show_bytes_show"
 
@@ -185,6 +186,13 @@ static const value_string bytes_show_values[] = {
     { SHOW_CODEC,         "UTF-8" },
     // Other codecs are generated at runtime
     { SHOW_YAML,          "YAML"},
+    { 0, NULL }
+};
+
+static const value_string follow_delta_values[] = {
+    { FOLLOW_DELTA_NONE,    "NONE" },
+    { FOLLOW_DELTA_TURN,    "TURN" },
+    { FOLLOW_DELTA_ALL,     "ALL" },
     { 0, NULL }
 };
 
@@ -1118,6 +1126,10 @@ write_profile_recent(void)
             RECENT_GUI_FOLLOW_SHOW, bytes_show_values,
             recent.gui_follow_show);
 
+    write_recent_enum(rf, "Follow stream delta times",
+                      RECENT_GUI_FOLLOW_DELTA, follow_delta_values,
+                      recent.gui_follow_delta);
+
     write_recent_enum(rf, "Show packet bytes decode as",
             RECENT_GUI_SHOW_BYTES_DECODE, show_bytes_decode_values,
             recent.gui_show_bytes_decode);
@@ -1370,6 +1382,8 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
         parse_recent_boolean(value, &recent.gui_allow_hover_selection);
     } else if (strcmp(key, RECENT_GUI_FOLLOW_SHOW) == 0) {
         recent.gui_follow_show = (bytes_show_type)str_to_val(value, bytes_show_values, SHOW_ASCII);
+    } else if (strcmp(key, RECENT_GUI_FOLLOW_DELTA) == 0) {
+        recent.gui_follow_delta = (follow_delta_type)str_to_val(value, follow_delta_values, FOLLOW_DELTA_NONE);
     } else if (strcmp(key, RECENT_GUI_SHOW_BYTES_DECODE) == 0) {
         recent.gui_show_bytes_decode = (bytes_decode_type)str_to_val(value, show_bytes_decode_values, DecodeAsNone);
     } else if (strcmp(key, RECENT_GUI_SHOW_BYTES_SHOW) == 0) {
@@ -1659,6 +1673,7 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
     recent.gui_bytes_encoding        = BYTES_ENC_FROM_PACKET;
     recent.gui_allow_hover_selection = TRUE;
     recent.gui_follow_show           = SHOW_ASCII;
+    recent.gui_follow_delta          = FOLLOW_DELTA_NONE;
     recent.gui_show_bytes_decode     = DecodeAsNone;
     recent.gui_show_bytes_show       = SHOW_ASCII;
 

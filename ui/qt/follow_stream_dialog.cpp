@@ -46,6 +46,7 @@
 #include <QMutex>
 #include <QPrintDialog>
 #include <QPrinter>
+#include <QScrollBar>
 #include <QTextCodec>
 
 // To do:
@@ -98,6 +99,8 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, int pro
     follow_info_.show_stream = BOTH_HOSTS;
     follow_info_.substream_id = SUBSTREAM_UNUSED;
 
+    nstime_set_zero(&last_ts_);
+
     ui->teStreamContent->installEventFilter(this);
 
     connect(ui->leFind, SIGNAL(useRegexFind(bool)), this, SLOT(useRegexFind(bool)));
@@ -115,25 +118,44 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, int pro
     cbcs->setCurrentIndex(cbcs->findData(recent.gui_follow_show));
     cbcs->blockSignals(false);
 
+    ui->deltaComboBox->setCurrentIndex(recent.gui_follow_delta);
+
     b_filter_out_ = ui->buttonBox->addButton(tr("Filter Out This Stream"), QDialogButtonBox::ActionRole);
-    connect(b_filter_out_, SIGNAL(clicked()), this, SLOT(filterOut()));
+    connect(b_filter_out_, &QPushButton::clicked, this, &FollowStreamDialog::filterOut);
 
     b_print_ = ui->buttonBox->addButton(tr("Print"), QDialogButtonBox::ActionRole);
-    connect(b_print_, SIGNAL(clicked()), this, SLOT(printStream()));
+    connect(b_print_, &QPushButton::clicked, this, &FollowStreamDialog::printStream);
 
     b_save_ = ui->buttonBox->addButton(tr("Save as…"), QDialogButtonBox::ActionRole);
-    connect(b_save_, SIGNAL(clicked()), this, SLOT(saveAs()));
+    connect(b_save_, &QPushButton::clicked, this, &FollowStreamDialog::saveAs);
 
     b_back_ = ui->buttonBox->addButton(tr("Back"), QDialogButtonBox::ActionRole);
-    connect(b_back_, SIGNAL(clicked()), this, SLOT(backButton()));
+    connect(b_back_, &QPushButton::clicked, this, &FollowStreamDialog::backButton);
 
     ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
 
-    connect(ui->buttonBox, SIGNAL(helpRequested()), this, SLOT(helpButton()));
+    connect(ui->cbDirections, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &FollowStreamDialog::cbDirectionsCurrentIndexChanged);
+    connect(ui->cbCharset, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &FollowStreamDialog::cbCharsetCurrentIndexChanged);
+    connect(ui->deltaComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &FollowStreamDialog::deltaComboBoxCurrentIndexChanged);
+
+    connect(ui->streamNumberSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, &FollowStreamDialog::streamNumberSpinBoxValueChanged);
+    connect(ui->subStreamNumberSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, &FollowStreamDialog::subStreamNumberSpinBoxValueChanged);
+
+    connect(ui->buttonBox, &QDialogButtonBox::helpRequested, this, &FollowStreamDialog::helpButton);
     connect(ui->teStreamContent, &FollowStreamText::mouseMovedToPacket,
             this, &FollowStreamDialog::fillHintLabel);
     connect(ui->teStreamContent, &FollowStreamText::mouseClickedOnPacket,
             this, &FollowStreamDialog::goToPacketForTextPos);
+
+    connect(ui->bFind, &QPushButton::clicked, this, &FollowStreamDialog::bFindClicked);
+    connect(ui->leFind, &FindLineEdit::returnPressed, this, &FollowStreamDialog::leFindReturnPressed);
+
+    connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &FollowStreamDialog::buttonBoxRejected);
 
     fillHintLabel();
 }
@@ -178,11 +200,11 @@ void FollowStreamDialog::fillHintLabel(int pkt)
         }
 
         hint += tr("%Ln <span style=\"color: %1; background-color:%2\">reads</span>, ", "", client_packet_count_)
-                .arg(ColorUtils::fromColorT(prefs.st_client_fg).name())
-                .arg(ColorUtils::fromColorT(prefs.st_client_bg).name())
+                .arg(ColorUtils::fromColorT(prefs.st_client_fg).name(),
+                ColorUtils::fromColorT(prefs.st_client_bg).name())
                 + tr("%Ln <span style=\"color: %1; background-color:%2\">writes</span>, ", "", server_packet_count_)
-                .arg(ColorUtils::fromColorT(prefs.st_server_fg).name())
-                .arg(ColorUtils::fromColorT(prefs.st_server_bg).name())
+                .arg(ColorUtils::fromColorT(prefs.st_server_fg).name(),
+                ColorUtils::fromColorT(prefs.st_server_bg).name())
                 + tr("%Ln turn(s).", "", turns_);
     } else {
         if (pkt > 0) {
@@ -190,11 +212,11 @@ void FollowStreamDialog::fillHintLabel(int pkt)
         }
 
         hint += tr("%Ln <span style=\"color: %1; background-color:%2\">client</span> pkt(s), ", "", client_packet_count_)
-                .arg(ColorUtils::fromColorT(prefs.st_client_fg).name())
-                .arg(ColorUtils::fromColorT(prefs.st_client_bg).name())
+                .arg(ColorUtils::fromColorT(prefs.st_client_fg).name(),
+                ColorUtils::fromColorT(prefs.st_client_bg).name())
                 + tr("%Ln <span style=\"color: %1; background-color:%2\">server</span> pkt(s), ", "", server_packet_count_)
-                .arg(ColorUtils::fromColorT(prefs.st_server_fg).name())
-                .arg(ColorUtils::fromColorT(prefs.st_server_bg).name())
+                .arg(ColorUtils::fromColorT(prefs.st_server_fg).name(),
+                ColorUtils::fromColorT(prefs.st_server_bg).name())
                 + tr("%Ln turn(s).", "", turns_);
     }
 
@@ -341,7 +363,7 @@ void FollowStreamDialog::close()
     WiresharkDialog::close();
 }
 
-void FollowStreamDialog::on_cbDirections_currentIndexChanged(int idx)
+void FollowStreamDialog::cbDirectionsCurrentIndexChanged(int idx)
 {
     switch(idx)
     {
@@ -361,24 +383,43 @@ void FollowStreamDialog::on_cbDirections_currentIndexChanged(int idx)
     readStream();
 }
 
-void FollowStreamDialog::on_cbCharset_currentIndexChanged(int idx)
+void FollowStreamDialog::cbCharsetCurrentIndexChanged(int idx)
 {
     if (idx < 0) return;
     recent.gui_follow_show = ui->cbCharset->currentData().value<bytes_show_type>();
+
+    switch (recent.gui_follow_show) {
+    case SHOW_EBCDIC:
+    case SHOW_ASCII:
+    case SHOW_CODEC:
+        ui->deltaComboBox->setEnabled(true);
+        break;
+    default:
+        ui->deltaComboBox->setEnabled(false);
+    }
+
     readStream();
 }
 
-void FollowStreamDialog::on_bFind_clicked()
+void FollowStreamDialog::deltaComboBoxCurrentIndexChanged(int idx)
+{
+    if (idx < 0) return;
+    recent.gui_follow_delta = static_cast<follow_delta_type>(ui->deltaComboBox->currentIndex());
+
+    readStream();
+}
+
+void FollowStreamDialog::bFindClicked()
 {
     findText();
 }
 
-void FollowStreamDialog::on_leFind_returnPressed()
+void FollowStreamDialog::leFindReturnPressed()
 {
     findText();
 }
 
-void FollowStreamDialog::on_streamNumberSpinBox_valueChanged(int stream_num)
+void FollowStreamDialog::streamNumberSpinBoxValueChanged(int stream_num)
 {
     if (file_closed_) return;
 
@@ -433,7 +474,7 @@ void FollowStreamDialog::on_streamNumberSpinBox_valueChanged(int stream_num)
 }
 
 
-void FollowStreamDialog::on_subStreamNumberSpinBox_valueChanged(int sub_stream_num)
+void FollowStreamDialog::subStreamNumberSpinBoxValueChanged(int sub_stream_num)
 {
     if (file_closed_) return;
 
@@ -471,7 +512,7 @@ void FollowStreamDialog::on_subStreamNumberSpinBox_valueChanged(int sub_stream_n
     }
 }
 
-void FollowStreamDialog::on_buttonBox_rejected()
+void FollowStreamDialog::buttonBoxRejected()
 {
     // Ignore the close button if FollowStreamDialog::close() is running.
     if (terminating_)
@@ -511,6 +552,12 @@ FollowStreamDialog::readStream()
     isReadRunning = FALSE;
     loop_break_mutex.unlock();
 
+    double scroll_ratio = 0.0;
+    int doc_length = ui->teStreamContent->verticalScrollBar()->maximum() + ui->teStreamContent->verticalScrollBar()->pageStep();
+    if (doc_length > 0) {
+        scroll_ratio = static_cast<double>(ui->teStreamContent->verticalScrollBar()->value()) / doc_length;
+    }
+
     ui->teStreamContent->clear();
     switch (recent.gui_follow_show) {
 
@@ -546,6 +593,9 @@ FollowStreamDialog::readStream()
     }
 
     ui->teStreamContent->moveCursor(QTextCursor::Start);
+
+    doc_length = ui->teStreamContent->verticalScrollBar()->maximum() + ui->teStreamContent->verticalScrollBar()->pageStep();
+    ui->teStreamContent->verticalScrollBar()->setValue(doc_length * scroll_ratio);
 
     return ret;
 }
@@ -633,6 +683,26 @@ FollowStreamDialog::showBuffer(QByteArray &buffer, size_t nchars, gboolean is_fr
     gchar initbuf[256];
     guint32 current_pos;
     static const gchar hexchars[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+    bool show_delta = false;
+
+    if (last_packet_ == 0) {
+        last_from_server_ = is_from_server;
+    } else {
+        if (recent.gui_follow_delta == FOLLOW_DELTA_ALL ||
+            (recent.gui_follow_delta == FOLLOW_DELTA_TURN && last_from_server_ != is_from_server)) {
+                show_delta = true;
+        }
+    }
+
+    double delta = 0.0;
+    if (!nstime_is_zero(&abs_ts)) {
+        // packet-tcp.c and possibly other dissectors can return a zero abs_ts when
+        // a fragment is missing.
+        nstime_t delta_ts;
+        nstime_delta(&delta_ts, &abs_ts, &last_ts_);
+        delta = nstime_to_sec(&delta_ts);
+        last_ts_ = abs_ts;
+    }
 
     switch (recent.gui_follow_show) {
 
@@ -640,6 +710,12 @@ FollowStreamDialog::showBuffer(QByteArray &buffer, size_t nchars, gboolean is_fr
     {
         /* If our native arch is ASCII, call: */
         EBCDIC_to_ASCII((uint8_t*)buffer.data(), (guint) nchars);
+        if (show_delta) {
+            ui->teStreamContent->addDeltaTime(delta);
+        }
+        if (show_delta || last_from_server_ != is_from_server) {
+            addText("\n", is_from_server, packet_num);
+        }
         sanitize_buffer(buffer, nchars);
         addText(buffer, is_from_server, packet_num);
         break;
@@ -650,6 +726,12 @@ FollowStreamDialog::showBuffer(QByteArray &buffer, size_t nchars, gboolean is_fr
         /* If our native arch is EBCDIC, call:
          * ASCII_TO_EBCDIC(buffer, nchars);
          */
+        if (show_delta) {
+            ui->teStreamContent->addDeltaTime(delta);
+        }
+        if (show_delta || last_from_server_ != is_from_server) {
+            addText("\n", is_from_server, packet_num);
+        }
         sanitize_buffer(buffer, nchars);
         addText(buffer, is_from_server, packet_num);
         break;
@@ -657,6 +739,12 @@ FollowStreamDialog::showBuffer(QByteArray &buffer, size_t nchars, gboolean is_fr
 
     case SHOW_CODEC:
     {
+        if (show_delta) {
+            ui->teStreamContent->addDeltaTime(delta);
+        }
+        if (show_delta || last_from_server_ != is_from_server) {
+            addText("\n", is_from_server, packet_num);
+        }
         // This assumes that multibyte characters don't span packets in the
         // stream. To handle that case properly (which might occur with fixed
         // block sizes, e.g. transferring over TFTP, we would need to create
@@ -779,15 +867,13 @@ FollowStreamDialog::showBuffer(QByteArray &buffer, size_t nchars, gboolean is_fr
                 "  - peer: 0\n"
                 "    host: %1\n"
                 "    port: %2\n")
-                .arg(hostname0)
-                .arg(port0), false, 0);
+                .arg(hostname0, port0), false, 0);
 
             addText(QString(
                 "  - peer: 1\n"
                 "    host: %1\n"
                 "    port: %2\n")
-                .arg(hostname1)
-                .arg(port1), true, 0);
+                .arg(hostname1, port1), true, 0);
 
             wmem_free(NULL, port0);
             wmem_free(NULL, port1);
@@ -841,10 +927,6 @@ DIAG_ON(stringop-overread)
          * not here in Follow. (XXX: Maybe some could be added?)
          */
         ws_assert_not_reached();
-    }
-
-    if (last_packet_ == 0) {
-        last_from_server_ = is_from_server;
     }
 
     if (packet_num != last_packet_) {
@@ -917,7 +999,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     /* append the negation */
     if (!previous_filter.isEmpty()) {
         filter_out_filter_ = QString("%1 and !(%2)")
-                .arg(previous_filter).arg(follow_filter);
+                .arg(previous_filter, follow_filter);
     }
     else
     {
@@ -1029,18 +1111,18 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
 
         server_to_client_string =
                 QString("%1:%2 %3 %4:%5 (%6)")
-                .arg(hostname0).arg(port0)
+                .arg(hostname0, port0)
                 .arg(UTF8_RIGHTWARDS_ARROW)
-                .arg(hostname1).arg(port1)
+                .arg(hostname1, port1)
                 .arg(gchar_free_to_qstring(format_size(
                                                 follow_info_.bytes_written[0],
                                             FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
 
         client_to_server_string =
                 QString("%1:%2 %3 %4:%5 (%6)")
-                .arg(hostname1).arg(port1)
+                .arg(hostname1, port1)
                 .arg(UTF8_RIGHTWARDS_ARROW)
-                .arg(hostname0).arg(port0)
+                .arg(hostname0, port0)
                 .arg(gchar_free_to_qstring(format_size(
                                                 follow_info_.bytes_written[1],
                                             FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
@@ -1054,8 +1136,8 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
                         FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
     }
 
-    setWindowSubtitle(tr("Follow %1 Stream (%2)").arg(proto_get_protocol_short_name(find_protocol_by_id(get_follow_proto_id(follower_))))
-                                                .arg(follow_filter));
+    setWindowSubtitle(tr("Follow %1 Stream (%2)").arg(proto_get_protocol_short_name(find_protocol_by_id(get_follow_proto_id(follower_))),
+                                                follow_filter));
 
     ui->cbDirections->blockSignals(true);
     ui->cbDirections->clear();
@@ -1148,3 +1230,4 @@ FollowStreamDialog::readFollowStream()
 
     return FRS_OK;
 }
+
