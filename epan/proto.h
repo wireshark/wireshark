@@ -959,6 +959,10 @@ typedef proto_node proto_item;
 #define PI_ASSUMPTION           0x0d000000
 /** The protocol field has been deprecated, usually PI_NOTE severity */
 #define PI_DEPRECATED           0x0e000000
+/** Something happened as part of the receive process (CRC error, short/long frame, etc.) */
+#define PI_RECEIVE              0x0f000000
+/** Something happened at the interface layer (out of buffers, hardware error, etc.) */
+#define PI_INTERFACE            0x10000000
 
 /*
  * add more, see

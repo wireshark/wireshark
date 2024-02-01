@@ -60,6 +60,8 @@ my %EXPERT_GROUPS = ('PI_CHECKSUM' => "PI_CHECKSUM",
    					   'PI_DECRYPTION' => "PI_DECRYPTION",
    					   'PI_ASSUMPTION' => "PI_ASSUMPTION",						  
 					   'PI_DEPRECATED' => "PI_DEPRECATED");			   
+					   'PI_RECEIVE' => "PI_RECEIVE");			   
+					   'PI_INTERFACE' => "PI_INTERFACE");			   
 
 my @expert_list;
 my $protabbrev = "";

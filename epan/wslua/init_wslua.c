@@ -149,6 +149,18 @@ static expert_field ei_lua_proto_deprecated_note;
 static expert_field ei_lua_proto_deprecated_warn;
 static expert_field ei_lua_proto_deprecated_error;
 
+static expert_field ei_lua_proto_receive_comment;
+static expert_field ei_lua_proto_receive_chat;
+static expert_field ei_lua_proto_receive_note;
+static expert_field ei_lua_proto_receive_warn;
+static expert_field ei_lua_proto_receive_error;
+
+static expert_field ei_lua_proto_interface_comment;
+static expert_field ei_lua_proto_interface_chat;
+static expert_field ei_lua_proto_interface_note;
+static expert_field ei_lua_proto_interface_warn;
+static expert_field ei_lua_proto_interface_error;
+
 static gint ett_wslua_traceback;
 
 static bool
@@ -1519,6 +1531,18 @@ void wslua_init(register_cb cb, gpointer client_data) {
         { &ei_lua_proto_deprecated_note,    { "_ws.lua.proto.note",    PI_DEPRECATED, PI_NOTE    ,"Protocol Note",    EXPFILL }},
         { &ei_lua_proto_deprecated_warn,    { "_ws.lua.proto.warning", PI_DEPRECATED, PI_WARN    ,"Protocol Warning", EXPFILL }},
         { &ei_lua_proto_deprecated_error,   { "_ws.lua.proto.error",   PI_DEPRECATED, PI_ERROR   ,"Protocol Error",   EXPFILL }},
+
+        { &ei_lua_proto_receive_comment,    { "_ws.lua.proto.comment", PI_RECEIVE, PI_COMMENT    ,"Protocol Comment", EXPFILL }},
+        { &ei_lua_proto_receive_chat,       { "_ws.lua.proto.chat",    PI_RECEIVE, PI_CHAT       ,"Protocol Chat",    EXPFILL }},
+        { &ei_lua_proto_receive_note,       { "_ws.lua.proto.note",    PI_RECEIVE, PI_NOTE       ,"Protocol Note",    EXPFILL }},
+        { &ei_lua_proto_receive_warn,       { "_ws.lua.proto.warning", PI_RECEIVE, PI_WARN       ,"Protocol Warning", EXPFILL }},
+        { &ei_lua_proto_receive_error,      { "_ws.lua.proto.error",   PI_RECEIVE, PI_ERROR      ,"Protocol Error",   EXPFILL }},
+
+        { &ei_lua_proto_interface_comment,  { "_ws.lua.proto.comment", PI_INTERFACE, PI_COMMENT  ,"Protocol Comment", EXPFILL }},
+        { &ei_lua_proto_interface_chat,     { "_ws.lua.proto.chat",    PI_INTERFACE, PI_CHAT     ,"Protocol Chat",    EXPFILL }},
+        { &ei_lua_proto_interface_note,     { "_ws.lua.proto.note",    PI_INTERFACE, PI_NOTE     ,"Protocol Note",    EXPFILL }},
+        { &ei_lua_proto_interface_warn,     { "_ws.lua.proto.warning", PI_INTERFACE, PI_WARN     ,"Protocol Warning", EXPFILL }},
+        { &ei_lua_proto_interface_error,    { "_ws.lua.proto.error",   PI_INTERFACE, PI_ERROR    ,"Protocol Error",   EXPFILL }},
 
         /* this one is for reporting errors executing Lua code */
         { &ei_lua_error, { "_ws.lua.error", PI_UNDECODED, PI_ERROR ,"Lua Error", EXPFILL }},

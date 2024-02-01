@@ -832,12 +832,29 @@ WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
        be used in new Lua code. It may be removed in the future. You should only
        use `TreeItem.add_proto_expert_info()`.
      */
-#define WSLUA_OPTARG_TreeItem_add_expert_info_GROUP 2 /* One of `PI_CHECKSUM`, `PI_SEQUENCE`,
-                                                         `PI_RESPONSE_CODE`, `PI_REQUEST_CODE`,
-                                                         `PI_UNDECODED`, `PI_REASSEMBLE`,
-                                                         `PI_MALFORMED` or `PI_DEBUG`. */
-#define WSLUA_OPTARG_TreeItem_add_expert_info_SEVERITY 3 /* One of `PI_CHAT`, `PI_NOTE`,
-                                                            `PI_WARN`, or `PI_ERROR`. */
+#define WSLUA_OPTARG_TreeItem_add_expert_info_GROUP 2 /* One of:
+                                                         `PI_CHECKSUM`,
+                                                         `PI_SEQUENCE`,
+                                                         `PI_RESPONSE_CODE`,
+                                                         `PI_REQUEST_CODE`,
+                                                         `PI_UNDECODED`,
+                                                         `PI_REASSEMBLE`,
+                                                         `PI_MALFORMED`,
+                                                         `PI_DEBUG`,
+                                                         `PI_PROTOCOL`,
+                                                         `PI_SECURITY`,
+                                                         `PI_COMMENTS_GROUP`,
+                                                         `PI_DECRYPTION`,
+                                                         `PI_ASSUMPTION`,
+                                                         `PI_DEPRECATED`,
+                                                         `PI_RECEIVE`,
+                                                         or `PI_INTERFACE`. */
+#define WSLUA_OPTARG_TreeItem_add_expert_info_SEVERITY 3 /* One of:
+                                                            `PI_COMMENT`,
+                                                            `PI_CHAT`,
+                                                            `PI_NOTE`,
+                                                            `PI_WARN`,
+                                                            or `PI_ERROR`. */
 #define WSLUA_OPTARG_TreeItem_add_expert_info_TEXT 4 /* The text for the expert info display. */
     TreeItem ti           = checkTreeItem(L,1);
     int group             = (int)luaL_optinteger(L,WSLUA_OPTARG_TreeItem_add_expert_info_GROUP,PI_DEBUG);

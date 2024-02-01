@@ -37,17 +37,28 @@ WSLUA_CONSTRUCTOR ProtoExpert_new(lua_State* L) {
 #define WSLUA_ARG_ProtoExpert_new_ABBR 1 /* Filter name of the expert info field (the string that
                                             is used in filters). */
 #define WSLUA_ARG_ProtoExpert_new_TEXT 2 /* The default text of the expert field. */
-#define WSLUA_ARG_ProtoExpert_new_GROUP 3 /* Expert group type: one of: `expert.group.CHECKSUM`,
-                                             `expert.group.SEQUENCE`, `expert.group.RESPONSE_CODE`,
-                                             `expert.group.REQUEST_CODE`, `expert.group.UNDECODED`,
-                                             `expert.group.REASSEMBLE`, `expert.group.MALFORMED`,
-                                             `expert.group.DEBUG`, `expert.group.PROTOCOL`,
-                                             `expert.group.SECURITY`, `expert.group.COMMENTS_GROUP`,
-                                             `expert.group.DECRYPTION`, `expert.group.ASSUMPTION`
-                                             or `expert.group.DEPRECATED`. */
+#define WSLUA_ARG_ProtoExpert_new_GROUP 3 /* Expert group type: one of:
+                                             `expert.group.CHECKSUM`,
+                                             `expert.group.SEQUENCE`,
+                                             `expert.group.RESPONSE_CODE`,
+                                             `expert.group.REQUEST_CODE`,
+                                             `expert.group.UNDECODED`,
+                                             `expert.group.REASSEMBLE`,
+                                             `expert.group.MALFORMED`,
+                                             `expert.group.DEBUG`,
+                                             `expert.group.PROTOCOL`,
+                                             `expert.group.SECURITY`,
+                                             `expert.group.COMMENTS_GROUP`,
+                                             `expert.group.DECRYPTION`,
+                                             `expert.group.ASSUMPTION`,
+                                             `expert.group.DEPRECATED`,
+                                             `expert.group.RECEIVE`,
+                                             or `expert.group.INTERFACE`. */
 #define WSLUA_ARG_ProtoExpert_new_SEVERITY 4 /* Expert severity type: one of:
-                                                `expert.severity.COMMENT`, `expert.severity.CHAT`,
-                                                `expert.severity.NOTE`, `expert.severity.WARN`,
+                                                `expert.severity.COMMENT`,
+                                                `expert.severity.CHAT`,
+                                                `expert.severity.NOTE`,
+                                                `expert.severity.WARN`,
                                                 or `expert.severity.ERROR`. */
 
     ProtoExpert pe    = NULL;
@@ -91,6 +102,8 @@ WSLUA_CONSTRUCTOR ProtoExpert_new(lua_State* L) {
     case PI_DECRYPTION:
     case PI_ASSUMPTION:
     case PI_DEPRECATED:
+    case PI_RECEIVE:
+    case PI_INTERFACE:
         break;
     default:
         luaL_argerror(L, WSLUA_ARG_ProtoExpert_new_GROUP, "Group must be one of expert.group.*");
