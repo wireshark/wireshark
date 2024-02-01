@@ -23,7 +23,7 @@ ManifestDPIAware true
 !define DISPLAY_NAME "${PROGRAM_NAME} ${VERSION} ${WIRESHARK_TARGET_PLATFORM}"
 Name "${DISPLAY_NAME}"
 
-!define PROGRAM_FULL_NAME "The ${PROGRAM_NAME} Log Analyzer"
+!define PROGRAM_FULL_NAME "The ${PROGRAM_NAME} System Call and Log Analyzer"
 !define PROGRAM_NAME_PATH "${PROGRAM_NAME}.exe"
 
 !define UNINSTALLER_NAME "uninstall-logray.exe"

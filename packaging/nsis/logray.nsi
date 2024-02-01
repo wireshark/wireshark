@@ -439,7 +439,7 @@ Section "-Required"
 SetShellVarContext all
 
 SetOutPath $INSTDIR
-WriteUninstaller "${STAGING_DIR}\${UNINSTALLER_NAME}"
+WriteUninstaller "$INSTDIR\${UNINSTALLER_NAME}"
 File "${STAGING_DIR}\libwiretap.dll"
 File "${STAGING_DIR}\libwireshark.dll"
 File "${STAGING_DIR}\libwsutil.dll"
