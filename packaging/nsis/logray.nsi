@@ -493,19 +493,11 @@ ${EndSwitch}
 Delete "$INSTDIR\${VCREDIST_EXE}"
 
 
-; global config files - don't overwrite if already existing
-;IfFileExists cfilters dont_overwrite_cfilters
-File "${STAGING_DIR}\cfilters"
-;dont_overwrite_cfilters:
-;IfFileExists colorfilters dont_overwrite_colorfilters
-File "${STAGING_DIR}\colorfilters"
-;dont_overwrite_colorfilters:
-;IfFileExists dfilters dont_overwrite_dfilters
-File "${STAGING_DIR}\dfilters"
-;dont_overwrite_dfilters:
-;IfFileExists smi_modules dont_overwrite_smi_modules
+; Global config files
+File "${TOP_SRC_DIR}\resources\share\logray\colorfilters"
+File "${TOP_SRC_DIR}\resources\share\logray\dfilter_buttons"
+;File "${TOP_SRC_DIR}\resources\share\logray\dfilters"
 File "${STAGING_DIR}\smi_modules"
-;dont_overwrite_smi_modules:
 
 
 ;
@@ -903,13 +895,13 @@ File "${STAGING_DIR}\plugins\epan\mate.dll.${ABI_VERSION_EPAN}"
 
 ;-------------------------------------------
 ; This should be a function or macro
-SetOutPath '$INSTDIR\profiles\Bluetooth'
-File "${STAGING_DIR}\profiles\Bluetooth\colorfilters"
-File "${STAGING_DIR}\profiles\Bluetooth\preferences"
-SetOutPath '$INSTDIR\profiles\Classic'
-File "${STAGING_DIR}\profiles\Classic\colorfilters"
-SetOutPath '$INSTDIR\profiles\No Reassembly'
-File "${STAGING_DIR}\profiles\No Reassembly\preferences"
+SetOutPath '$INSTDIR\profiles\CloudTrail'
+File "${TOP_SRC_DIR}\resources\share\logray\profiles\CloudTrail\colorfilters"
+; File "${TOP_SRC_DIR}\resources\share\logray\profiles\CloudTrail\preferences"
+; SetOutPath '$INSTDIR\profiles\Classic'
+; File "${TOP_SRC_DIR}\resources\share\logray\profiles\Classic\colorfilters"
+; SetOutPath '$INSTDIR\profiles\No Reassembly'
+; File "${TOP_SRC_DIR}\resources\share\logray\profiles\No Reassembly\preferences"
 
 
 !ifdef SMI_DIR
@@ -1210,8 +1202,8 @@ SectionEnd
 Section "Un.Global Settings" un.SecGlobalSettings
 ;-------------------------------------------
 SectionIn 1 2
-Delete "$INSTDIR\cfilters"
 Delete "$INSTDIR\colorfilters"
+Delete "$INSTDIR\dfilter_buttons"
 Delete "$INSTDIR\dfilters"
 Delete "$INSTDIR\smi_modules"
 RMDir "$INSTDIR"
@@ -1262,7 +1254,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUinstall} "Uninstall all ${PROGRAM_NAME} components."
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPlugins} "Uninstall all Plugins (even from previous ${PROGRAM_NAME} versions)."
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecProfiles} "Uninstall all global configuration profiles."
-  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecGlobalSettings} "Uninstall global settings like: $INSTDIR\cfilters"
+  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecGlobalSettings} "Uninstall global settings like: $INSTDIR\colorfilters"
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPersonalSettings} "Uninstall personal settings like your preferences file from your profile: $PROFILE."
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_END
 
