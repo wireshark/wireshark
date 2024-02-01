@@ -6715,7 +6715,7 @@ dissect_gtpv2_epc_timer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         proto_item_append_text(item, "DL Buffering Duration");
         break;
     }
-    /* XXX Todo: use code from packaet-gsm_a_gm.c ?  10.5.7.4a GPRS TIMER 3*/
+    /* XXX Todo: use code from packet-gsm_a_gm.c ?  10.5.7.4a GPRS TIMER 3*/
     proto_tree_add_item(tree, hf_gtpv2_timer_unit, tvb, 0, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_timer_value, tvb, 0, 1, ENC_BIG_ENDIAN);
 
@@ -8536,8 +8536,8 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_TGT_GLOGAL_CELL_ID, dissect_gtpv2_tgt_global_cell_id},       /* 58 Target Global Cell ID */
     {GTPV2_IE_TEID_C, dissect_gtpv2_teid_c},                               /* 59 TEID-C */
     {GTPV2_IE_SV_FLAGS, dissect_gtpv2_sv_flags},                           /* 60 Sv Flags */
-    {GTPV2_IE_SAI, dissect_gtpv2_sai},                                     /* 61 Service Area Identifie */
-    {GTPV2_IE_MM_CTX_FOR_CS_TO_PS_SRVCC, dissect_gtpv2_mm_ctx_for_cs_to_ps_srvcc },  /* 62 Service Area Identifie */
+    {GTPV2_IE_SAI, dissect_gtpv2_sai},                                     /* 61 Service Area Identifier */
+    {GTPV2_IE_MM_CTX_FOR_CS_TO_PS_SRVCC, dissect_gtpv2_mm_ctx_for_cs_to_ps_srvcc },  /* 62 Service Area Identifier */
                                                                            /* 61-70 Reserved for Sv interface Extendable / See 3GPP TS 29.280 [15] */
     {GTPV2_APN, dissect_gtpv2_apn},                                        /* 71, Access Point Name (APN) 8.6 */
     {GTPV2_AMBR, dissect_gtpv2_ambr},                                      /* 72, Aggregate Maximum Bit Rate (AMBR) */

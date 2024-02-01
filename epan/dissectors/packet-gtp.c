@@ -666,7 +666,7 @@ pdcp_uat_fld_teid_chk_cb(void* r _U_, const char* teid, guint len _U_, const voi
             *err = NULL;
             return TRUE;
         }
-        /* Check if it is a valid 32bits unsinged integer */
+        /* Check if it is a valid 32bits unsigned integer */
         if (ws_basestrtou32(teid, NULL, &val, 0)) {
             *err = NULL;
             return TRUE;
@@ -3480,7 +3480,7 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_PROTO_CONF, GTP_OPTIONAL, NULL},
             {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL, decode_gtp_ggsn_addr_for_control_plane},
             {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL, decode_gtp_ggsn_addr_for_user_plane},
-            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL, NULL}, /* Alternative GGSN Addreses for Control Plane 7.7.32 */
+            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL, NULL}, /* Alternative GGSN Addresses for Control Plane 7.7.32 */
             {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL, NULL}, /* Alternative GGSN Address for user traffic 7.7.32 */
             {GTP_EXT_QOS_UMTS, GTP_CONDITIONAL, NULL},
             {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL, NULL},
@@ -9706,7 +9706,7 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
                     dissect_gprscdr_GPRSRecord_PDU(next_tvb, pinfo, cdr_dr_tree, NULL);
                 }
             } else {
-                /* Do we have a dissector regestering for this data format? */
+                /* Do we have a dissector registering for this data format? */
                 dissector_try_uint(gtp_cdr_fmt_dissector_table, format, next_tvb, pinfo, cdr_dr_tree);
             }
 
@@ -10819,7 +10819,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                                 gtp_hdr_ext_info_t gtp_hdr_ext_info;
 
                                 gtp_hdr_ext_info.hdr_ext_item = hdr_ext_item;
-                                /* NOTE Type and lenght included in the call*/
+                                /* NOTE Type and length included in the call */
                                 ext_hdr_tvb = tvb_new_subset_remaining(tvb, offset - 2);
                                 dissector_try_uint_new(gtp_hdr_ext_dissector_table, next_hdr, ext_hdr_tvb, pinfo, ext_tree, FALSE, &gtp_hdr_ext_info);
                                 break;
