@@ -97,8 +97,9 @@ indent_size = tab
 [type_util.[ch]]
 indent_size = 2
 
-[u3.[ch]]
-indent_size = 2
+[version_info.[ch]]
+indent_style = tab
+indent_size = tab
 
 [ws_getopt.[ch]]
 indent_style = tab

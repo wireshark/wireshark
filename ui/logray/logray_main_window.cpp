@@ -2418,7 +2418,7 @@ void LograyMainWindow::setTitlebarForCaptureFile()
 QString LograyMainWindow::replaceWindowTitleVariables(QString title)
 {
     title.replace("%P", get_profile_name());
-    title.replace("%V", get_ws_vcs_version_info());
+    title.replace("%V", get_lr_vcs_version_info());
 
 #ifdef HAVE_LIBPCAP
     if (global_commandline_info.capture_comments) {

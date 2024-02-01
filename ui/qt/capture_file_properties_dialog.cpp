@@ -17,6 +17,7 @@
 
 #include "wiretap/secrets-types.h"
 
+#include "wsutil/filesystem.h"
 #include "wsutil/str_util.h"
 #include "wsutil/utf8_entities.h"
 #include "wsutil/version_info.h"
@@ -631,7 +632,12 @@ void CaptureFilePropertiesDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
     if (button == ui->buttonBox->button(QDialogButtonBox::Apply)) {
         QClipboard *clipboard = QApplication::clipboard();
-        QString details = tr("Created by Wireshark %1\n\n").arg(get_ws_vcs_version_info());
+        QString details;
+        if (is_packet_configuration_namespace()) {
+            details = tr("Created by Wireshark %1\n\n").arg(get_ws_vcs_version_info());
+        } else {
+            details = tr("Created by Logray %1\n\n").arg(get_lr_vcs_version_info());
+        }
         details.append(ui->detailsTextEdit->toPlainText());
         clipboard->setText(details);
     } else if (button == ui->buttonBox->button(QDialogButtonBox::Reset)) {

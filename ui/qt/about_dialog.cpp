@@ -30,10 +30,11 @@
 #endif
 
 #include "ui/util.h"
-#include <wsutil/utf8_entities.h>
 
+#include "wsutil/filesystem.h"
 #include "wsutil/plugins.h"
 #include "wsutil/version_info.h"
+
 #include "ui/capture_globals.h"
 
 #include "extcap.h"
@@ -503,7 +504,7 @@ void AboutDialog::showEvent(QShowEvent * event)
 
 void AboutDialog::updateWiresharkText()
 {
-    QString vcs_version_info_str = get_ws_vcs_version_info();
+    QString vcs_version_info_str = is_packet_configuration_namespace() ? get_ws_vcs_version_info() : get_lr_vcs_version_info();
     QString copyright_info_str = get_copyright_info();
     QString license_info_str = get_license_info();
     QString comp_info_str = gstring_free_to_qbytearray(get_compiled_version_info(gather_wireshark_qt_compiled_info));

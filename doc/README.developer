@@ -973,7 +973,7 @@ not toLocal8Bit() or toLatin1().
 
 8. Miscellaneous notes
 
-Each commit in your branch corresponds to a different VCSVERSION string
+Each commit in your branch corresponds to a different VCS_VERSION string
 automatically defined in the header 'vcs_version.h' during the build. If you happen
 to find it convenient to disable this feature it can be done using:
 

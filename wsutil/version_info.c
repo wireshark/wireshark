@@ -513,18 +513,28 @@ get_runtime_version_info(gather_feature_func gather_runtime)
 const char *
 get_ws_vcs_version_info(void)
 {
-#ifdef VCSVERSION
-	return VERSION " (" VCSVERSION ")";
+#ifdef VCS_VERSION
+	return VERSION " (" VCS_VERSION ")";
 #else
 	return VERSION;
 #endif
 }
 
 const char *
+get_lr_vcs_version_info(void)
+{
+#ifdef VCS_COMMIT_ID
+	return LOG_VERSION " (" VCS_NUM_COMMITS "-" VCS_COMMIT_ID ")";
+#else
+	return LOG_VERSION;
+#endif
+}
+
+const char *
 get_ws_vcs_version_info_short(void)
 {
-#ifdef VCSVERSION
-	return VCSVERSION;
+#ifdef VCS_VERSION
+	return VCS_VERSION;
 #else
 	return VERSION;
 #endif

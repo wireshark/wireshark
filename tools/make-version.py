@@ -184,33 +184,44 @@ def update_versioned_files(src_dir, set_version, repo_data):
 def generate_version_h(repo_data):
     # Generate new contents of version.h from repository data
 
+    num_commits_line = '#define VCS_NUM_COMMITS "0"\n'
+
+    commit_id_line = '/* #undef VCS_COMMIT_ID */\n'
+
     if not repo_data.get('enable_vcsversion'):
-        return "/* #undef VCSVERSION */\n"
+        return '/* #undef VCS_VERSION */\n' + num_commits_line + commit_id_line
+
+    if repo_data.get('num_commits'):
+        num_commits_line = f'#define VCS_NUM_COMMITS "{int(repo_data["num_commits"])}"\n'
+
+    if repo_data.get('commit_id'):
+        commit_id_line = f'#define VCS_COMMIT_ID "{repo_data["commit_id"]}"'
 
     if repo_data.get('git_description'):
         # Do not bother adding the git branch, the git describe output
         # normally contains the base tag and commit ID which is more
         # than sufficient to determine the actual source tree.
-        return f'#define VCSVERSION "{repo_data["git_description"]}"\n'
+        return f'#define VCS_VERSION "{repo_data["git_description"]}"\n' + num_commits_line + commit_id_line
 
     if repo_data.get('last_change') and repo_data.get('num_commits'):
         version_string = f"v{repo_data['version_major']}.{repo_data['version_minor']}.{repo_data['version_patch']}"
-        vcs_line = f'#define VCSVERSION "{version_string}-Git-{repo_data["num_commits"]}"\n'
-        return vcs_line
+        vcs_line = f'#define VCS_VERSION "{version_string}-Git-{repo_data["num_commits"]}"\n'
+        return vcs_line + num_commits_line + commit_id_line
 
     if repo_data.get('commit_id'):
-        vcs_line = f'#define VCSVERSION "Git commit {repo_data["commit_id"]}"\n'
-        return vcs_line
+        vcs_line = f'#define VCS_VERSION "Git commit {repo_data["commit_id"]}"\n'
+        return vcs_line + num_commits_line + commit_id_line
 
-    vcs_line = '#define VCSVERSION "Git Rev Unknown from unknown"\n'
-    return vcs_line
+    vcs_line = '#define VCS_VERSION "Git Rev Unknown from unknown"\n'
+
+    return vcs_line + num_commits_line + commit_id_line
 
 
 def print_VCS_REVISION(version_file, repo_data, set_vcs):
     # Write the version control system's version to $version_file.
     # Don't change the file if it is not needed.
     #
-    # XXX - We might want to add VCSVERSION to CMakeLists.txt so that it can
+    # XXX - We might want to add VCS_VERSION to CMakeLists.txt so that it can
     # generate vcs_version.h independently.
 
     new_version_h = generate_version_h(repo_data)
