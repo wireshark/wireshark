@@ -507,8 +507,17 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
                     break;
                 case FT_BOOLEAN:
                     {
-                        /* this needs to use checkinteger so that it can accept a Lua boolean and coerce it to an int */
-                        guint32 val = (guint32) (wslua_tointeger(L,1));
+                        uint64_t val;
+                        switch(lua_type(L, 1)) {
+
+                        case LUA_TUSERDATA:
+                            val = checkUInt64(L, 1);
+                            break;
+
+                        default:
+                            /* this needs to use checkinteger so that it can accept a Lua boolean and coerce it to an int */
+                            val = (uint64_t) (wslua_tointeger(L,1));
+                        }
                         item = proto_tree_add_boolean(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,val);
                     }
                     break;
