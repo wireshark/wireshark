@@ -564,7 +564,7 @@ void ExtcapOptionsDialog::resetValues()
 
 GHashTable *ExtcapOptionsDialog::getArgumentSettings(bool useCallsAsKey, bool includeEmptyValues)
 {
-    GHashTable * entries = g_hash_table_new(g_str_hash, g_str_equal);
+    GHashTable * entries = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
     ExtcapArgumentList::const_iterator iter;
 
     QString value;
@@ -642,6 +642,8 @@ void ExtcapOptionsDialog::storeValues()
             mainApp->emitAppSignal(MainApplication::PreferencesChanged);
 
     }
+
+    g_hash_table_unref(entries);
 }
 
 ExtcapValueList ExtcapOptionsDialog::loadValuesFor(int argNum, QString argumentName, QString parent)

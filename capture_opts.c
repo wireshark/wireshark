@@ -1563,6 +1563,9 @@ capture_opts_free_interface_t(interface_t *device)
         if (device->if_info.caps) {
                 free_if_capabilities(device->if_info.caps);
         }
+        if (device->external_cap_args_settings) {
+                g_hash_table_unref(device->external_cap_args_settings);
+        }
     }
 }
 
