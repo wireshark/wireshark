@@ -51,7 +51,7 @@ def parse_files(infiles, outfile):
     source += """
 #define ENUM(arg) { #arg, arg }
 
-static ws_enum_t all_enums[] = {
+static ws_enum_t const all_enums[] = {
 """
 
     definitions = parser.defs['values']

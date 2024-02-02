@@ -17,7 +17,7 @@
 
 #define ENUM(arg) { #arg, arg }
 
-static ws_enum_t all_enums[] = {
+static ws_enum_t const all_enums[] = {
     ENUM(AAL_1),
     ENUM(AAL_2),
     ENUM(AAL_3_4),

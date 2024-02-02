@@ -21,7 +21,7 @@
 
 #define ENUM(arg) { #arg, arg }
 
-static ws_enum_t all_enums[] = {
+static ws_enum_t const all_enums[] = {
     ENUM(ABSOLUTE_TIME_DOY_UTC),
     ENUM(ABSOLUTE_TIME_LOCAL),
     ENUM(ABSOLUTE_TIME_NTP_UTC),
