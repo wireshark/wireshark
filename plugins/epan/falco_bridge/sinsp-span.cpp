@@ -131,6 +131,7 @@ sinsp_span_t *create_sinsp_span()
 {
     sinsp_span_t *span = new(sinsp_span_t);
     span->inspector.set_internal_events_mode(true);
+    span->inspector.set_buffer_format(sinsp_evt::PF_EOLS_COMPACT);
 
     return span;
 }
