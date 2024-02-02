@@ -34,6 +34,7 @@
 	<!ENTITY Siemens		SYSTEM "Siemens.xml">
 	<!ENTITY Microsoft		SYSTEM "Microsoft.xml">
 	<!ENTITY Metaswitch		SYSTEM "Metaswitch.xml">
+	<!ENTITY Travelping		SYSTEM "Travelping.xml">
 	<!ENTITY Custom			SYSTEM "Custom.xml">
 ]>
 <dictionary>
@@ -9125,5 +9126,6 @@
 	&Siemens;
 	&Microsoft;
 	&Metaswitch;
+	&Travelping;
 	&Custom;
 </dictionary>

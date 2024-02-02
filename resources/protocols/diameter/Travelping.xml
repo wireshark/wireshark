@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Travelping vendor-specific AVPs. -->
+
+<vendor vendor-id="Travelping" code="18681" name="Travelping">
+  <avp name="TP-NAT-IP-Address" code="16" vendor-id="Travelping" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+    <type type-name="OctetString"/>
+  </avp>
+
+  <avp name="TP-NAT-Pool-Id" code="27" vendor-id="Travelping" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="TP-NAT-Port-End" code="29" vendor-id="Travelping" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+    <type type-name="Unsigned32"/>
+  </avp>
+
+  <avp name="TP-NAT-Port-Start" code="28" vendor-id="Travelping" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+    <type type-name="Unsigned32"/>
+  </avp>
+
+  <avp name="TP-Previous-PS-Information" code="64" vendor-id="Travelping" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+    <grouped>
+      <gavp name="QoS-Information"/>
+      <gavp name="SGSN-Address"/>
+      <gavp name="3GPP-SGSN-MCC-MNC"/>
+      <gavp name="3GPP-MS-TimeZone"/>
+      <gavp name="3GPP-User-Location-Info"/>
+      <gavp name="3GPP-RAT-Type"/>
+    </grouped>
+  </avp>
+</vendor>
