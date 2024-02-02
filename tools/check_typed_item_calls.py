@@ -370,7 +370,8 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'hf_hiqnet_flags',
                                 'hf_hiqnet_flagmask',
                                 'hf_h223_mux_mpl',
-                                'rdp.flags.pkt'
+                                'rdp.flags.pkt',
+                                'erf.flags.if_raw'  # confirmed by Stephen Donnelly
                               }
 ##################################################################################################
 
@@ -1459,6 +1460,7 @@ def isGeneratedFile(filename):
     return False
 
 
+# TODO: could also look for macros in header file(s)
 def find_macros(filename):
     # Pre-populate with some useful values..
     macros = { 'BASE_NONE' : 0,  'BASE_DEC' : 1 }

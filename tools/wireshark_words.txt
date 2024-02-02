@@ -2136,3 +2136,5 @@ zeroes
 zigbee
 zugtyp
 zürich
+channelised
+uncorrected

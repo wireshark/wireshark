@@ -455,7 +455,7 @@ static const value_string ehdr_type_vals[] = {
   { 0, NULL }
 };
 
-/* Used for Provenance ext_hdrs_added/remvoed, should match the field abbreviation */
+/* Used for Provenance ext_hdrs_added/removed, should match the field abbreviation */
 static const value_string ehdr_type_vals_short[] = {
   { ERF_EXT_HDR_TYPE_CLASSIFICATION , "class"},
   { ERF_EXT_HDR_TYPE_INTERCEPTID    , "int"},
@@ -1047,7 +1047,7 @@ static const erf_meta_hf_template_t erf_meta_tags[] = {
   { ERF_META_TAG_ntp_peer_refid,         { "NTP Peer Refid",                "ntp_peer_refid",         FT_STRING,   BASE_NONE,         NULL, 0x0, NULL, HFILL } }
 };
 
-/* Sections are also tags, but enumerate them seperately to make logic simpler */
+/* Sections are also tags, but enumerate them separately to make logic simpler */
 static const erf_meta_hf_template_t erf_meta_sections[] = {
   /*
    * Some tags (such as generation time) can appear before the first section,
