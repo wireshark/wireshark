@@ -262,7 +262,15 @@ static gint ett_erf_entropy_value;
 
 static expert_field ei_erf_extension_headers_not_shown;
 static expert_field ei_erf_packet_loss;
-static expert_field ei_erf_checksum_error;
+static expert_field ei_erf_mc_hdlc_checksum_error;
+static expert_field ei_erf_mc_hdlc_short_error;
+static expert_field ei_erf_mc_hdlc_long_error;
+static expert_field ei_erf_mc_hdlc_abort_error;
+static expert_field ei_erf_mc_hdlc_octet_error;
+static expert_field ei_erf_mc_hdlc_lost_byte_error;
+static expert_field ei_erf_rx_error;
+static expert_field ei_erf_ds_error;
+static expert_field ei_erf_truncation_error;
 static expert_field ei_erf_meta_section_len_error;
 static expert_field ei_erf_meta_truncated_record;
 static expert_field ei_erf_meta_truncated_tag;
@@ -1593,62 +1601,54 @@ erf_atm_guess_traffic_type(tvbuff_t *tvb, int offset, guint len,
 static void
 dissect_classification_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int idx)
 {
-  if (tree) {
-    proto_item *flags_item;
-    proto_tree *flags_tree;
-    guint64     hdr   = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
-    guint32     value = ((guint32)(hdr >> 32)) & EHDR_CLASS_FLAGS_MASK;
+  proto_item *flags_item;
+  proto_tree *flags_tree;
+  guint64     hdr   = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  guint32     value = ((guint32)(hdr >> 32)) & EHDR_CLASS_FLAGS_MASK;
 
-    flags_item = proto_tree_add_uint(tree, hf_erf_ehdr_class_flags, tvb, 0, 0, value);
-    flags_tree = proto_item_add_subtree(flags_item, ett_erf_flags);
+  flags_item = proto_tree_add_uint(tree, hf_erf_ehdr_class_flags, tvb, 0, 0, value);
+  flags_tree = proto_item_add_subtree(flags_item, ett_erf_flags);
 
-    proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_sh,   tvb, 0, 0, value);
-    proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_shm,  tvb, 0, 0, value);
-    proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_res1, tvb, 0, 0, value);
-    proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_user, tvb, 0, 0, value);
-    proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_res2, tvb, 0, 0, value);
-    proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_drop, tvb, 0, 0, value);
-    proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_str,  tvb, 0, 0, value);
+  proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_sh,   tvb, 0, 0, value);
+  proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_shm,  tvb, 0, 0, value);
+  proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_res1, tvb, 0, 0, value);
+  proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_user, tvb, 0, 0, value);
+  proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_res2, tvb, 0, 0, value);
+  proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_drop, tvb, 0, 0, value);
+  proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_str,  tvb, 0, 0, value);
 
-    proto_tree_add_uint(tree, hf_erf_ehdr_class_seqnum, tvb, 0, 0, (guint32)hdr);
-  }
+  proto_tree_add_uint(tree, hf_erf_ehdr_class_seqnum, tvb, 0, 0, (guint32)hdr);
 }
 
 static void
 dissect_intercept_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int idx)
 {
-  if (tree) {
-    guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
 
-    proto_tree_add_uint(tree, hf_erf_ehdr_int_res1, tvb, 0, 0, (guint8)((hdr >> 48) & 0xFF));
-    proto_tree_add_uint(tree, hf_erf_ehdr_int_id, tvb, 0, 0, (guint16)((hdr >> 32 ) & 0xFFFF));
-    proto_tree_add_uint(tree, hf_erf_ehdr_int_res2, tvb, 0, 0, (guint32)hdr);
-  }
+  proto_tree_add_uint(tree, hf_erf_ehdr_int_res1, tvb, 0, 0, (guint8)((hdr >> 48) & 0xFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_int_id, tvb, 0, 0, (guint16)((hdr >> 32 ) & 0xFFFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_int_res2, tvb, 0, 0, (guint32)hdr);
 }
 
 static void
 dissect_raw_link_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int idx)
 {
-  if (tree) {
-    guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
 
-    proto_tree_add_uint(tree, hf_erf_ehdr_raw_link_res ,    tvb, 0, 0, (guint32)((hdr >> 32) & 0xFFFFFF));
-    proto_tree_add_uint(tree, hf_erf_ehdr_raw_link_seqnum , tvb, 0, 0, (guint32)((hdr >> 16) & 0xffff));
-    proto_tree_add_uint(tree, hf_erf_ehdr_raw_link_rate,    tvb, 0, 0, (guint32)((hdr >> 8) & 0x00ff));
-    proto_tree_add_uint(tree, hf_erf_ehdr_raw_link_type,    tvb, 0, 0, (guint32)(hdr & 0x00ff));
-  }
+  proto_tree_add_uint(tree, hf_erf_ehdr_raw_link_res ,    tvb, 0, 0, (guint32)((hdr >> 32) & 0xFFFFFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_raw_link_seqnum , tvb, 0, 0, (guint32)((hdr >> 16) & 0xffff));
+  proto_tree_add_uint(tree, hf_erf_ehdr_raw_link_rate,    tvb, 0, 0, (guint32)((hdr >> 8) & 0x00ff));
+  proto_tree_add_uint(tree, hf_erf_ehdr_raw_link_type,    tvb, 0, 0, (guint32)(hdr & 0x00ff));
 }
 
 static void
 dissect_bfs_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int idx)
 {
-  if (tree) {
-    guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
 
-    proto_tree_add_uint(tree, hf_erf_ehdr_bfs_hash, tvb, 0, 0, (guint32)((hdr >> 48) & 0xFF));
-    proto_tree_add_uint(tree, hf_erf_ehdr_bfs_color, tvb, 0, 0, (guint32)((hdr >> 32) & 0xFFFF));
-    proto_tree_add_uint(tree, hf_erf_ehdr_bfs_raw_hash, tvb, 0, 0, (guint32)(hdr & 0xFFFFFFFF));
-  }
+  proto_tree_add_uint(tree, hf_erf_ehdr_bfs_hash, tvb, 0, 0, (guint32)((hdr >> 48) & 0xFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_bfs_color, tvb, 0, 0, (guint32)((hdr >> 32) & 0xFFFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_bfs_raw_hash, tvb, 0, 0, (guint32)(hdr & 0xFFFFFFFF));
 }
 
 static int
@@ -1770,40 +1770,34 @@ dissect_channelised_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tr
   channelised_fill_sdh_g707_format(&g707_format, vc_id, vc_size, line_rate);
   channelised_fill_vc_id_string(vc_id_string, &g707_format);
 
-  if (tree) {
-    proto_tree_add_boolean(tree, hf_erf_ehdr_chan_morebits, tvb, 0, 0, (guint8)((hdr >> 63) & 0x1));
-    proto_tree_add_boolean(tree, hf_erf_ehdr_chan_morefrag, tvb, 0, 0, (guint8)((hdr >> 55) & 0x1));
-    proto_tree_add_uint(tree, hf_erf_ehdr_chan_seqnum, tvb, 0, 0, (guint16)((hdr >> 40) & 0x7FFF));
-    proto_tree_add_uint(tree, hf_erf_ehdr_chan_res, tvb, 0, 0, (guint8)((hdr >> 32) & 0xFF));
-    proto_tree_add_uint_format_value(tree, hf_erf_ehdr_chan_virt_container_id, tvb, 0, 0, vc_id,
-                                     "0x%.2x (g.707: %s)", vc_id, wmem_strbuf_get_str(vc_id_string));
-    proto_tree_add_uint(tree, hf_erf_ehdr_chan_assoc_virt_container_size, tvb, 0, 0, vc_size);
-    proto_tree_add_uint(tree, hf_erf_ehdr_chan_rate, tvb, 0, 0, line_rate);
-    proto_tree_add_uint(tree, hf_erf_ehdr_chan_type, tvb, 0, 0, (guint8)((hdr >> 0) & 0xFF));
-  }
+  proto_tree_add_boolean(tree, hf_erf_ehdr_chan_morebits, tvb, 0, 0, (guint8)((hdr >> 63) & 0x1));
+  proto_tree_add_boolean(tree, hf_erf_ehdr_chan_morefrag, tvb, 0, 0, (guint8)((hdr >> 55) & 0x1));
+  proto_tree_add_uint(tree, hf_erf_ehdr_chan_seqnum, tvb, 0, 0, (guint16)((hdr >> 40) & 0x7FFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_chan_res, tvb, 0, 0, (guint8)((hdr >> 32) & 0xFF));
+  proto_tree_add_uint_format_value(tree, hf_erf_ehdr_chan_virt_container_id, tvb, 0, 0, vc_id,
+                                   "0x%.2x (g.707: %s)", vc_id, wmem_strbuf_get_str(vc_id_string));
+  proto_tree_add_uint(tree, hf_erf_ehdr_chan_assoc_virt_container_size, tvb, 0, 0, vc_size);
+  proto_tree_add_uint(tree, hf_erf_ehdr_chan_rate, tvb, 0, 0, line_rate);
+  proto_tree_add_uint(tree, hf_erf_ehdr_chan_type, tvb, 0, 0, (guint8)((hdr >> 0) & 0xFF));
 }
 
 static void
 dissect_signature_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int idx)
 {
-  if(tree) {
-    guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
 
-    proto_tree_add_uint(tree, hf_erf_ehdr_signature_payload_hash, tvb, 0, 0, (guint32)((hdr >> 32) & 0xFFFFFF));
-    proto_tree_add_uint(tree, hf_erf_ehdr_signature_color,        tvb, 0, 0, (guint8)((hdr >> 24) & 0xFF));
-    proto_tree_add_uint(tree, hf_erf_ehdr_signature_flow_hash,    tvb, 0, 0, (guint32)(hdr & 0xFFFFFF));
-  }
+  proto_tree_add_uint(tree, hf_erf_ehdr_signature_payload_hash, tvb, 0, 0, (guint32)((hdr >> 32) & 0xFFFFFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_signature_color,        tvb, 0, 0, (guint8)((hdr >> 24) & 0xFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_signature_flow_hash,    tvb, 0, 0, (guint32)(hdr & 0xFFFFFF));
 }
 
 static void
 dissect_host_id_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int idx)
 {
-  if(tree) {
-    guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
 
-    proto_tree_add_uint(tree, hf_erf_ehdr_host_id_sourceid, tvb, 0, 0, (guint8)((hdr >> 48) & 0xFF));
-    proto_tree_add_uint64(tree, hf_erf_ehdr_host_id_hostid, tvb, 0, 0, (hdr & ERF_EHDR_HOST_ID_MASK));
-  }
+  proto_tree_add_uint(tree, hf_erf_ehdr_host_id_sourceid, tvb, 0, 0, (guint8)((hdr >> 48) & 0xFF));
+  proto_tree_add_uint64(tree, hf_erf_ehdr_host_id_hostid, tvb, 0, 0, (hdr & ERF_EHDR_HOST_ID_MASK));
 }
 
 static void
@@ -1816,42 +1810,38 @@ dissect_anchor_id_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     NULL
   };
 
-  if(tree) {
-    guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
 
-    proto_tree_add_bitmask_value(tree, tvb, 0, hf_erf_ehdr_anchor_id_flags, ett_erf_anchor_flags, anchor_flags, (guint8)(hdr >> 48) & 0xff);
-    proto_tree_add_uint64(tree, hf_erf_ehdr_anchor_id_anchorid, tvb, 0, 0, (hdr & ERF_EHDR_ANCHOR_ID_MASK));
-  }
+  proto_tree_add_bitmask_value(tree, tvb, 0, hf_erf_ehdr_anchor_id_flags, ett_erf_anchor_flags, anchor_flags, (guint8)(hdr >> 48) & 0xff);
+  proto_tree_add_uint64(tree, hf_erf_ehdr_anchor_id_anchorid, tvb, 0, 0, (hdr & ERF_EHDR_ANCHOR_ID_MASK));
 }
 
 
 static void
 dissect_flow_id_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int idx)
 {
-  if(tree) {
-    guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
-    guint8      hash_type = (guint8)((hdr >> 40) & 0xFF);
-    proto_item *hash_type_item;
-    proto_tree *hash_type_tree;
+  guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  guint8      hash_type = (guint8)((hdr >> 40) & 0xFF);
+  proto_item *hash_type_item;
+  proto_tree *hash_type_tree;
 
-    proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_source_id,  tvb, 0, 0, (guint8)((hdr >> 48) & 0xFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_source_id,  tvb, 0, 0, (guint8)((hdr >> 48) & 0xFF));
 
-    hash_type_item = proto_tree_add_uint_format_value(tree, hf_erf_ehdr_flow_id_hash_type, tvb, 0, 0, hash_type,
-                                                    "0x%02x (%s%s)",
-                                                    hash_type,
-                                                    (hash_type & ERF_EHDR_FLOW_ID_HASH_TYPE_INNER_MASK) ? "Inner " : "",
-                                                    val_to_str_const(
-                                                      (hash_type & ERF_EHDR_FLOW_ID_HASH_TYPE_TYPE_MASK),
-                                                      erf_hash_type,
-                                                      "Unknown Type"));
+  hash_type_item = proto_tree_add_uint_format_value(tree, hf_erf_ehdr_flow_id_hash_type, tvb, 0, 0, hash_type,
+                                                  "0x%02x (%s%s)",
+                                                  hash_type,
+                                                  (hash_type & ERF_EHDR_FLOW_ID_HASH_TYPE_INNER_MASK) ? "Inner " : "",
+                                                  val_to_str_const(
+                                                    (hash_type & ERF_EHDR_FLOW_ID_HASH_TYPE_TYPE_MASK),
+                                                    erf_hash_type,
+                                                    "Unknown Type"));
 
-    hash_type_tree = proto_item_add_subtree(hash_type_item, ett_erf_hash_type);
-    proto_tree_add_uint(hash_type_tree, hf_erf_ehdr_flow_id_hash_type_type,  tvb, 0, 0, hash_type);
-    proto_tree_add_uint(hash_type_tree, hf_erf_ehdr_flow_id_hash_type_inner, tvb, 0, 0, hash_type);
+  hash_type_tree = proto_item_add_subtree(hash_type_item, ett_erf_hash_type);
+  proto_tree_add_uint(hash_type_tree, hf_erf_ehdr_flow_id_hash_type_type,  tvb, 0, 0, hash_type);
+  proto_tree_add_uint(hash_type_tree, hf_erf_ehdr_flow_id_hash_type_inner, tvb, 0, 0, hash_type);
 
-    proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_stack_type, tvb, 0, 0, (guint8)((hdr >> 32) & 0xFF));
-    proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_flow_hash,  tvb, 0, 0, (guint32)(hdr & 0xFFFFFFFF));
-  }
+  proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_stack_type, tvb, 0, 0, (guint8)((hdr >> 32) & 0xFF));
+  proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_flow_hash,  tvb, 0, 0, (guint32)(hdr & 0xFFFFFFFF));
 }
 
 static float
@@ -1867,22 +1857,20 @@ entropy_from_entropy_header_value(guint8 entropy_hdr_value)
 static void
 dissect_entropy_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int idx)
 {
-  if(tree) {
-    guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
-    guint8      entropy_hdr_value = (guint8)((hdr >> 48) & 0xFF);
-    float      entropy;
-    proto_item *pi;
-    proto_tree *entropy_value_tree;
+  guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  guint8      entropy_hdr_value = (guint8)((hdr >> 48) & 0xFF);
+  float      entropy;
+  proto_item *pi;
+  proto_tree *entropy_value_tree;
 
-    entropy = entropy_from_entropy_header_value(entropy_hdr_value);
+  entropy = entropy_from_entropy_header_value(entropy_hdr_value);
 
-    pi = proto_tree_add_float_format_value(tree, hf_erf_ehdr_entropy_entropy, tvb, 0, 0, entropy,
-      "%.2f %s", (double) entropy, entropy == 0.0f ? "(not calculated)":"bits");
-    entropy_value_tree = proto_item_add_subtree(pi, ett_erf_entropy_value);
-    proto_tree_add_uint(entropy_value_tree, hf_erf_ehdr_entropy_entropy_raw, tvb, 0, 0, entropy_hdr_value);
+  pi = proto_tree_add_float_format_value(tree, hf_erf_ehdr_entropy_entropy, tvb, 0, 0, entropy,
+    "%.2f %s", (double) entropy, entropy == 0.0f ? "(not calculated)":"bits");
+  entropy_value_tree = proto_item_add_subtree(pi, ett_erf_entropy_value);
+  proto_tree_add_uint(entropy_value_tree, hf_erf_ehdr_entropy_entropy_raw, tvb, 0, 0, entropy_hdr_value);
 
-    proto_tree_add_uint64(tree, hf_erf_ehdr_entropy_reserved, tvb, 0, 0, (hdr & 0xFFFFFFFFFFFF));
-  }
+  proto_tree_add_uint64(tree, hf_erf_ehdr_entropy_reserved, tvb, 0, 0, (hdr & 0xFFFFFFFFFFFF));
 }
 
 static guint64
@@ -1920,323 +1908,301 @@ find_host_id(packet_info *pinfo, gboolean *has_anchor_definition) {
 
 static void dissect_host_anchor_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint64 host_id, guint64 anchor_id, guint8 anchor _U_) {
 
-  if(tree) {
-    erf_anchor_key_t key = {host_id, anchor_id};
-    erf_host_anchor_info_t *anchor_info;
-    erf_anchored_info_t *anchored_info;
-    wmem_list_frame_t *frame;
-    wmem_list_t *frame_list;
-    proto_item *pi = NULL;
-    proto_tree *subtree;
+  erf_anchor_key_t key = {host_id, anchor_id};
+  erf_host_anchor_info_t *anchor_info;
+  erf_anchored_info_t *anchored_info;
+  wmem_list_frame_t *frame;
+  wmem_list_t *frame_list;
+  proto_item *pi = NULL;
+  proto_tree *subtree;
 
-    /* TODO: top level linking to most recent frame like we have for Host ID? */
-    subtree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_erf_anchor, &pi, "Host ID: 0x%012" PRIx64 ", Anchor ID: 0x%012" PRIx64, host_id & ERF_EHDR_HOST_ID_MASK, anchor_id & ERF_EHDR_ANCHOR_ID_MASK);
-    proto_item_set_generated(pi);
+  /* TODO: top level linking to most recent frame like we have for Host ID? */
+  subtree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_erf_anchor, &pi, "Host ID: 0x%012" PRIx64 ", Anchor ID: 0x%012" PRIx64, host_id & ERF_EHDR_HOST_ID_MASK, anchor_id & ERF_EHDR_ANCHOR_ID_MASK);
+  proto_item_set_generated(pi);
 
-    pi = proto_tree_add_uint64(subtree, hf_erf_anchor_hostid, tvb, 0, 0, host_id & ERF_EHDR_HOST_ID_MASK);
-    proto_item_set_generated(pi);
-    pi = proto_tree_add_uint64(subtree, hf_erf_anchor_anchorid, tvb, 0, 0, anchor_id & ERF_EHDR_ANCHOR_ID_MASK);
-    proto_item_set_generated(pi);
+  pi = proto_tree_add_uint64(subtree, hf_erf_anchor_hostid, tvb, 0, 0, host_id & ERF_EHDR_HOST_ID_MASK);
+  proto_item_set_generated(pi);
+  pi = proto_tree_add_uint64(subtree, hf_erf_anchor_anchorid, tvb, 0, 0, anchor_id & ERF_EHDR_ANCHOR_ID_MASK);
+  proto_item_set_generated(pi);
 
-    anchor_info = (erf_host_anchor_info_t*)wmem_map_lookup(erf_state.host_anchor_map, &key);
+  anchor_info = (erf_host_anchor_info_t*)wmem_map_lookup(erf_state.host_anchor_map, &key);
 
-    if(!anchor_info) {
-      return;
+  if(!anchor_info) {
+    return;
+  }
+
+  frame_list = anchor_info->anchored_list;
+
+  /* Try to link frames */
+  frame = wmem_list_head(frame_list);
+  while(frame != NULL) {
+    anchored_info = (erf_anchored_info_t*)wmem_list_frame_data(frame);
+    if(pinfo->num != anchored_info->frame_num) {
+      /* Don't list the frame itself */
+      pi = proto_tree_add_uint(subtree, hf_erf_anchor_linked, tvb, 0, 0, anchored_info->frame_num);
+      proto_item_set_generated(pi);
+      /* XXX: Need to do this each time because pinfo is discarded. Filtering does not reset visited as it does not do a full redissect.
+      We also might not catch all frames in the first pass (e.g. comment after record). */
+      mark_frame_as_depended_upon(pinfo->fd, anchored_info->frame_num);
     }
-
-    frame_list = anchor_info->anchored_list;
-
-    /* Try to link frames */
-    frame = wmem_list_head(frame_list);
-    while(frame != NULL) {
-      anchored_info = (erf_anchored_info_t*)wmem_list_frame_data(frame);
-      if(pinfo->num != anchored_info->frame_num) {
-        /* Don't list the frame itself */
-        pi = proto_tree_add_uint(subtree, hf_erf_anchor_linked, tvb, 0, 0, anchored_info->frame_num);
-        proto_item_set_generated(pi);
-        /* XXX: Need to do this each time because pinfo is discarded. Filtering does not reset visited as it does not do a full redissect.
-        We also might not catch all frames in the first pass (e.g. comment after record). */
-        mark_frame_as_depended_upon(pinfo->fd, anchored_info->frame_num);
-      }
-      frame = wmem_list_frame_next(frame);
-    }
+    frame = wmem_list_frame_next(frame);
   }
 }
 
 static void
 dissect_host_id_source_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint64 host_id, guint8 source_id)
 {
-  if (tree) {
-    proto_tree *hostid_tree;
-    proto_item *pi           = NULL;
-    guint32     fnum_current = G_MAXUINT32;
-    guint32     fnum         = G_MAXUINT32;
-    guint32     fnum_next    = G_MAXUINT32;
+  proto_tree *hostid_tree;
+  proto_item *pi           = NULL;
+  guint32     fnum_current = G_MAXUINT32;
+  guint32     fnum         = G_MAXUINT32;
+  guint32     fnum_next    = G_MAXUINT32;
 
-    fnum = erf_source_find_closest(host_id, source_id, pinfo->num, &fnum_next);
+  fnum = erf_source_find_closest(host_id, source_id, pinfo->num, &fnum_next);
 
-    if (fnum != G_MAXUINT32) {
-      fnum_current = fnum;
-    } else {
-      /* XXX: Possibly undesireable side effect: first metadata record links to next */
-      fnum_current = fnum_next;
-    }
+  if (fnum != G_MAXUINT32) {
+    fnum_current = fnum;
+  } else {
+    /* XXX: Possibly undesireable side effect: first metadata record links to next */
+    fnum_current = fnum_next;
+  }
 
-    if (fnum_current != G_MAXUINT32) {
-      pi = proto_tree_add_uint_format(tree, hf_erf_source_current, tvb, 0, 0, fnum_current,
-          "Host ID: 0x%012" PRIx64 ", Source ID: %u", host_id, source_id&0xFF);
-      hostid_tree = proto_item_add_subtree(pi, ett_erf_source);
-    } else {
-      /* If we have no frame number to link against, just add a static subtree */
-      hostid_tree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_erf_source, &pi,
-          "Host ID: 0x%012" PRIx64 ", Source ID: %u", host_id, source_id&0xFF);
-    }
+  if (fnum_current != G_MAXUINT32) {
+    pi = proto_tree_add_uint_format(tree, hf_erf_source_current, tvb, 0, 0, fnum_current,
+        "Host ID: 0x%012" PRIx64 ", Source ID: %u", host_id, source_id&0xFF);
+    hostid_tree = proto_item_add_subtree(pi, ett_erf_source);
+  } else {
+    /* If we have no frame number to link against, just add a static subtree */
+    hostid_tree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_erf_source, &pi,
+        "Host ID: 0x%012" PRIx64 ", Source ID: %u", host_id, source_id&0xFF);
+  }
+  proto_item_set_generated(pi);
+
+  pi = proto_tree_add_uint64(hostid_tree, hf_erf_hostid, tvb, 0, 0, host_id);
+  proto_item_set_generated(pi);
+  pi = proto_tree_add_uint(hostid_tree, hf_erf_sourceid, tvb, 0, 0, source_id);
+  proto_item_set_generated(pi);
+
+  if (fnum_next != G_MAXUINT32) {
+    pi = proto_tree_add_uint(hostid_tree, hf_erf_source_next, tvb, 0, 0, fnum_next);
     proto_item_set_generated(pi);
-
-    pi = proto_tree_add_uint64(hostid_tree, hf_erf_hostid, tvb, 0, 0, host_id);
+    /* XXX: Save the surrounding nearest periodic records when we do a filtered save so we keep native ERF metadata */
+    mark_frame_as_depended_upon(pinfo->fd, fnum_next);
+  }
+  if (fnum != G_MAXUINT32) {
+    pi = proto_tree_add_uint(hostid_tree, hf_erf_source_prev, tvb, 0, 0, fnum);
     proto_item_set_generated(pi);
-    pi = proto_tree_add_uint(hostid_tree, hf_erf_sourceid, tvb, 0, 0, source_id);
-    proto_item_set_generated(pi);
-
-    if (fnum_next != G_MAXUINT32) {
-      pi = proto_tree_add_uint(hostid_tree, hf_erf_source_next, tvb, 0, 0, fnum_next);
-      proto_item_set_generated(pi);
-      /* XXX: Save the surrounding nearest periodic records when we do a filtered save so we keep native ERF metadata */
-      mark_frame_as_depended_upon(pinfo->fd, fnum_next);
-    }
-    if (fnum != G_MAXUINT32) {
-      pi = proto_tree_add_uint(hostid_tree, hf_erf_source_prev, tvb, 0, 0, fnum);
-      proto_item_set_generated(pi);
-      mark_frame_as_depended_upon(pinfo->fd, fnum);
-    }
+    mark_frame_as_depended_upon(pinfo->fd, fnum);
   }
 }
 
 static void
 dissect_unknown_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int idx)
 {
-  if (tree) {
-    guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
 
-    proto_tree_add_uint64(tree, hf_erf_ehdr_unk, tvb, 0, 0, hdr);
-  }
+  proto_tree_add_uint64(tree, hf_erf_ehdr_unk, tvb, 0, 0, hdr);
 }
 
 static void
 dissect_mc_hdlc_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree)
 {
-  if (tree) {
-    proto_item *mc_hdlc_item;
-    proto_tree *mc_hdlc_tree;
-    guint32     mc_hdlc;
-    proto_item *pi;
+  proto_item *mc_hdlc_item;
+  proto_tree *mc_hdlc_tree;
+  guint32     mc_hdlc;
+  proto_item *pi;
 
-    /* Multi Channel HDLC Header */
-    mc_hdlc_item = proto_tree_add_uint(tree, hf_erf_mc_hdlc, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
-    mc_hdlc_tree = proto_item_add_subtree(mc_hdlc_item, ett_erf_mc_hdlc);
-    mc_hdlc = pinfo->pseudo_header->erf.subhdr.mc_hdr;
+  /* Multi Channel HDLC Header */
+  mc_hdlc_item = proto_tree_add_uint(tree, hf_erf_mc_hdlc, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
+  mc_hdlc_tree = proto_item_add_subtree(mc_hdlc_item, ett_erf_mc_hdlc);
+  mc_hdlc = pinfo->pseudo_header->erf.subhdr.mc_hdr;
 
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_cn, tvb, 0, 0,  mc_hdlc);
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res1, tvb, 0, 0,  mc_hdlc);
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res2, tvb, 0, 0,  mc_hdlc);
-    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_fcse, tvb, 0, 0,  mc_hdlc);
-    if (mc_hdlc & MC_HDLC_FCSE_MASK)
-      expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF MC FCS Error");
+  proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_cn, tvb, 0, 0,  mc_hdlc);
+  proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res1, tvb, 0, 0,  mc_hdlc);
+  proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res2, tvb, 0, 0,  mc_hdlc);
+  pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_fcse, tvb, 0, 0,  mc_hdlc);
+  if (mc_hdlc & MC_HDLC_FCSE_MASK)
+    expert_add_info(pinfo, pi, &ei_erf_mc_hdlc_checksum_error);
 
-    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_sre,  tvb, 0, 0,  mc_hdlc);
-    if (mc_hdlc & MC_HDLC_SRE_MASK)
-      expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF MC Short Record Error, <5 bytes");
+  pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_sre,  tvb, 0, 0,  mc_hdlc);
+  if (mc_hdlc & MC_HDLC_SRE_MASK)
+    expert_add_info(pinfo, pi, &ei_erf_mc_hdlc_short_error);
 
-    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_lre,  tvb, 0, 0,  mc_hdlc);
-    if (mc_hdlc & MC_HDLC_LRE_MASK)
-      expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF MC Long Record Error, >2047 bytes");
+  pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_lre,  tvb, 0, 0,  mc_hdlc);
+  if (mc_hdlc & MC_HDLC_LRE_MASK)
+    expert_add_info(pinfo, pi, &ei_erf_mc_hdlc_long_error);
 
-    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_afe,  tvb, 0, 0,  mc_hdlc);
-    if (mc_hdlc & MC_HDLC_AFE_MASK)
-      expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF MC Aborted Frame Error");
+  pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_afe,  tvb, 0, 0,  mc_hdlc);
+  if (mc_hdlc & MC_HDLC_AFE_MASK)
+    expert_add_info(pinfo, pi, &ei_erf_mc_hdlc_abort_error);
 
-    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_oe,   tvb, 0, 0,  mc_hdlc);
-    if (mc_hdlc & MC_HDLC_OE_MASK)
-      expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF MC Octet Error, the closing flag was not octet aligned after bit unstuffing");
+  pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_oe,   tvb, 0, 0,  mc_hdlc);
+  if (mc_hdlc & MC_HDLC_OE_MASK)
+    expert_add_info(pinfo, pi, &ei_erf_mc_hdlc_octet_error);
 
-    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_lbe,  tvb, 0, 0,  mc_hdlc);
-    if (mc_hdlc & MC_HDLC_LBE_MASK)
-      expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF MC Lost Byte Error");
+  pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_lbe,  tvb, 0, 0,  mc_hdlc);
+  if (mc_hdlc & MC_HDLC_LBE_MASK)
+    expert_add_info(pinfo, pi, &ei_erf_mc_hdlc_lost_byte_error);
 
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_first, tvb, 0, 0,  mc_hdlc);
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res3,  tvb, 0, 0,  mc_hdlc);
-  }
+  proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_first, tvb, 0, 0,  mc_hdlc);
+  proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res3,  tvb, 0, 0,  mc_hdlc);
 }
 
 static void
 dissect_mc_raw_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree)
 {
-  if (tree) {
-    proto_item *mc_raw_item;
-    proto_tree *mc_raw_tree;
-    guint32     mc_raw;
+  proto_item *mc_raw_item;
+  proto_tree *mc_raw_tree;
+  guint32     mc_raw;
 
-    /* Multi Channel RAW Header */
-    mc_raw_item = proto_tree_add_uint(tree, hf_erf_mc_raw, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
-    mc_raw_tree = proto_item_add_subtree(mc_raw_item, ett_erf_mc_raw);
-    mc_raw = pinfo->pseudo_header->erf.subhdr.mc_hdr;
+  /* Multi Channel RAW Header */
+  mc_raw_item = proto_tree_add_uint(tree, hf_erf_mc_raw, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
+  mc_raw_tree = proto_item_add_subtree(mc_raw_item, ett_erf_mc_raw);
+  mc_raw = pinfo->pseudo_header->erf.subhdr.mc_hdr;
 
-    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_int,   tvb, 0, 0, mc_raw);
-    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_res1,  tvb, 0, 0, mc_raw);
-    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_sre,   tvb, 0, 0, mc_raw);
-    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_lre,   tvb, 0, 0, mc_raw);
-    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_res2,  tvb, 0, 0, mc_raw);
-    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_lbe,   tvb, 0, 0, mc_raw);
-    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_first, tvb, 0, 0, mc_raw);
-    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_res3,  tvb, 0, 0, mc_raw);
-  }
+  proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_int,   tvb, 0, 0, mc_raw);
+  proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_res1,  tvb, 0, 0, mc_raw);
+  proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_sre,   tvb, 0, 0, mc_raw);
+  proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_lre,   tvb, 0, 0, mc_raw);
+  proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_res2,  tvb, 0, 0, mc_raw);
+  proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_lbe,   tvb, 0, 0, mc_raw);
+  proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_first, tvb, 0, 0, mc_raw);
+  proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_res3,  tvb, 0, 0, mc_raw);
 }
 
 static void
 dissect_mc_atm_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree)
 {
-  if (tree) {
-    proto_item *mc_atm_item;
-    proto_tree *mc_atm_tree;
-    guint32     mc_atm;
+  proto_item *mc_atm_item;
+  proto_tree *mc_atm_tree;
+  guint32     mc_atm;
 
-    /*"Multi Channel ATM Header"*/
-    mc_atm_item = proto_tree_add_uint(tree, hf_erf_mc_atm, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
-    mc_atm_tree = proto_item_add_subtree(mc_atm_item, ett_erf_mc_atm);
-    mc_atm = pinfo->pseudo_header->erf.subhdr.mc_hdr;
+  /*"Multi Channel ATM Header"*/
+  mc_atm_item = proto_tree_add_uint(tree, hf_erf_mc_atm, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
+  mc_atm_tree = proto_item_add_subtree(mc_atm_item, ett_erf_mc_atm);
+  mc_atm = pinfo->pseudo_header->erf.subhdr.mc_hdr;
 
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_cn,      tvb, 0, 0, mc_atm);
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_res1,    tvb, 0, 0, mc_atm);
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_mul,     tvb, 0, 0, mc_atm);
+  proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_cn,      tvb, 0, 0, mc_atm);
+  proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_res1,    tvb, 0, 0, mc_atm);
+  proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_mul,     tvb, 0, 0, mc_atm);
 
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_port,    tvb, 0, 0, mc_atm);
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_res2,    tvb, 0, 0, mc_atm);
+  proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_port,    tvb, 0, 0, mc_atm);
+  proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_res2,    tvb, 0, 0, mc_atm);
 
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_lbe,     tvb, 0, 0, mc_atm);
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_hec,     tvb, 0, 0, mc_atm);
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_crc10,   tvb, 0, 0, mc_atm);
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_oamcell, tvb, 0, 0, mc_atm);
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_first,   tvb, 0, 0, mc_atm);
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_res3,    tvb, 0, 0, mc_atm);
-  }
+  proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_lbe,     tvb, 0, 0, mc_atm);
+  proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_hec,     tvb, 0, 0, mc_atm);
+  proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_crc10,   tvb, 0, 0, mc_atm);
+  proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_oamcell, tvb, 0, 0, mc_atm);
+  proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_first,   tvb, 0, 0, mc_atm);
+  proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_res3,    tvb, 0, 0, mc_atm);
 }
 
 static void
 dissect_mc_rawlink_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  if (tree) {
-    proto_item *mc_rawl_item;
-    proto_tree *mc_rawl_tree;
-    guint32     mc_rawl;
+  proto_item *mc_rawl_item;
+  proto_tree *mc_rawl_tree;
+  guint32     mc_rawl;
 
-    /* Multi Channel RAW Link Header */
-    mc_rawl_item = proto_tree_add_uint(tree, hf_erf_mc_rawl, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
-    mc_rawl_tree = proto_item_add_subtree(mc_rawl_item, ett_erf_mc_rawlink);
-    mc_rawl = pinfo->pseudo_header->erf.subhdr.mc_hdr;
+  /* Multi Channel RAW Link Header */
+  mc_rawl_item = proto_tree_add_uint(tree, hf_erf_mc_rawl, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
+  mc_rawl_tree = proto_item_add_subtree(mc_rawl_item, ett_erf_mc_rawlink);
+  mc_rawl = pinfo->pseudo_header->erf.subhdr.mc_hdr;
 
-    proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_cn,    tvb, 0, 0, mc_rawl);
-    proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_res1,  tvb, 0, 0, mc_rawl);
-    proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_lbe,   tvb, 0, 0, mc_rawl);
-    proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_first, tvb, 0, 0, mc_rawl);
-    proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_res2,  tvb, 0, 0, mc_rawl);
-  }
+  proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_cn,    tvb, 0, 0, mc_rawl);
+  proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_res1,  tvb, 0, 0, mc_rawl);
+  proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_lbe,   tvb, 0, 0, mc_rawl);
+  proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_first, tvb, 0, 0, mc_rawl);
+  proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_res2,  tvb, 0, 0, mc_rawl);
 }
 
 static void
 dissect_mc_aal5_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  if (tree) {
-    proto_item *mc_aal5_item;
-    proto_tree *mc_aal5_tree;
-    guint32     mc_aal5;
+  proto_item *mc_aal5_item;
+  proto_tree *mc_aal5_tree;
+  guint32     mc_aal5;
 
-    /* Multi Channel AAL5 Header */
-    mc_aal5_item = proto_tree_add_uint(tree, hf_erf_mc_aal5, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
-    mc_aal5_tree = proto_item_add_subtree(mc_aal5_item, ett_erf_mc_aal5);
-    mc_aal5 = pinfo->pseudo_header->erf.subhdr.mc_hdr;
+  /* Multi Channel AAL5 Header */
+  mc_aal5_item = proto_tree_add_uint(tree, hf_erf_mc_aal5, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
+  mc_aal5_tree = proto_item_add_subtree(mc_aal5_item, ett_erf_mc_aal5);
+  mc_aal5 = pinfo->pseudo_header->erf.subhdr.mc_hdr;
 
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_cn,    tvb, 0, 0, mc_aal5);
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_res1,  tvb, 0, 0, mc_aal5);
+  proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_cn,    tvb, 0, 0, mc_aal5);
+  proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_res1,  tvb, 0, 0, mc_aal5);
 
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_port,  tvb, 0, 0, mc_aal5);
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_crcck, tvb, 0, 0, mc_aal5);
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_crce,  tvb, 0, 0, mc_aal5);
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_lenck, tvb, 0, 0, mc_aal5);
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_lene,  tvb, 0, 0, mc_aal5);
+  proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_port,  tvb, 0, 0, mc_aal5);
+  proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_crcck, tvb, 0, 0, mc_aal5);
+  proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_crce,  tvb, 0, 0, mc_aal5);
+  proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_lenck, tvb, 0, 0, mc_aal5);
+  proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_lene,  tvb, 0, 0, mc_aal5);
 
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_res2,  tvb, 0, 0, mc_aal5);
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_first, tvb, 0, 0, mc_aal5);
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_res3,  tvb, 0, 0, mc_aal5);
-  }
+  proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_res2,  tvb, 0, 0, mc_aal5);
+  proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_first, tvb, 0, 0, mc_aal5);
+  proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_res3,  tvb, 0, 0, mc_aal5);
 }
 
 static void
 dissect_mc_aal2_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  if (tree) {
-    proto_item *mc_aal2_item;
-    proto_tree *mc_aal2_tree;
-    guint32     mc_aal2;
+  proto_item *mc_aal2_item;
+  proto_tree *mc_aal2_tree;
+  guint32     mc_aal2;
 
-    /* Multi Channel AAL2 Header */
-    mc_aal2_item = proto_tree_add_uint(tree, hf_erf_mc_aal2, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
-    mc_aal2_tree = proto_item_add_subtree(mc_aal2_item, ett_erf_mc_aal2);
-    mc_aal2 = pinfo->pseudo_header->erf.subhdr.mc_hdr;
+  /* Multi Channel AAL2 Header */
+  mc_aal2_item = proto_tree_add_uint(tree, hf_erf_mc_aal2, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
+  mc_aal2_tree = proto_item_add_subtree(mc_aal2_item, ett_erf_mc_aal2);
+  mc_aal2 = pinfo->pseudo_header->erf.subhdr.mc_hdr;
 
-    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_cn,    tvb, 0, 0, mc_aal2);
-    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_res1,  tvb, 0, 0, mc_aal2);
-    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_res2,  tvb, 0, 0, mc_aal2);
+  proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_cn,    tvb, 0, 0, mc_aal2);
+  proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_res1,  tvb, 0, 0, mc_aal2);
+  proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_res2,  tvb, 0, 0, mc_aal2);
 
-    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_port,  tvb, 0, 0, mc_aal2);
-    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_res3,  tvb, 0, 0, mc_aal2);
-    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_first, tvb, 0, 0, mc_aal2);
-    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_maale, tvb, 0, 0, mc_aal2);
-    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_lene,  tvb, 0, 0, mc_aal2);
+  proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_port,  tvb, 0, 0, mc_aal2);
+  proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_res3,  tvb, 0, 0, mc_aal2);
+  proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_first, tvb, 0, 0, mc_aal2);
+  proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_maale, tvb, 0, 0, mc_aal2);
+  proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_lene,  tvb, 0, 0, mc_aal2);
 
-    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_cid,   tvb, 0, 0, mc_aal2);
-  }
+  proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_cid,   tvb, 0, 0, mc_aal2);
 }
 
 static void
 dissect_aal2_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  if (tree) {
-    proto_item *aal2_item;
-    proto_tree *aal2_tree;
-    guint32     aal2;
+  proto_item *aal2_item;
+  proto_tree *aal2_tree;
+  guint32     aal2;
 
-    /* AAL2 Header */
-    aal2_item = proto_tree_add_uint(tree, hf_erf_aal2, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
-    aal2_tree = proto_item_add_subtree(aal2_item, ett_erf_aal2);
-    aal2 = pinfo->pseudo_header->erf.subhdr.aal2_hdr;
+  /* AAL2 Header */
+  aal2_item = proto_tree_add_uint(tree, hf_erf_aal2, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
+  aal2_tree = proto_item_add_subtree(aal2_item, ett_erf_aal2);
+  aal2 = pinfo->pseudo_header->erf.subhdr.aal2_hdr;
 
-    proto_tree_add_uint(aal2_tree, hf_erf_aal2_cid,    tvb, 0, 0, aal2);
+  proto_tree_add_uint(aal2_tree, hf_erf_aal2_cid,    tvb, 0, 0, aal2);
 
-    proto_tree_add_uint(aal2_tree, hf_erf_aal2_maale,  tvb, 0, 0, aal2);
+  proto_tree_add_uint(aal2_tree, hf_erf_aal2_maale,  tvb, 0, 0, aal2);
 
-    proto_tree_add_uint(aal2_tree, hf_erf_aal2_maalei, tvb, 0, 0, aal2);
-    proto_tree_add_uint(aal2_tree, hf_erf_aal2_first,  tvb, 0, 0, aal2);
-    proto_tree_add_uint(aal2_tree, hf_erf_aal2_res1,   tvb, 0, 0, aal2);
-  }
+  proto_tree_add_uint(aal2_tree, hf_erf_aal2_maalei, tvb, 0, 0, aal2);
+  proto_tree_add_uint(aal2_tree, hf_erf_aal2_first,  tvb, 0, 0, aal2);
+  proto_tree_add_uint(aal2_tree, hf_erf_aal2_res1,   tvb, 0, 0, aal2);
 }
 
 static void
 dissect_eth_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  if (tree) {
-    proto_item          *eth_item;
-    proto_tree          *eth_tree;
-    guint8               eth_offset, eth_pad;
+  proto_item          *eth_item;
+  proto_tree          *eth_tree;
+  guint8               eth_offset, eth_pad;
 
-    eth_item = proto_tree_add_item(tree, hf_erf_eth, tvb, 0, 0, ENC_NA);
+  eth_item = proto_tree_add_item(tree, hf_erf_eth, tvb, 0, 0, ENC_NA);
 
-    eth_tree = proto_item_add_subtree(eth_item, ett_erf_eth);
-    eth_offset = pinfo->pseudo_header->erf.subhdr.eth_hdr.offset;
-    eth_pad = pinfo->pseudo_header->erf.subhdr.eth_hdr.pad;
+  eth_tree = proto_item_add_subtree(eth_item, ett_erf_eth);
+  eth_offset = pinfo->pseudo_header->erf.subhdr.eth_hdr.offset;
+  eth_pad = pinfo->pseudo_header->erf.subhdr.eth_hdr.pad;
 
-    proto_tree_add_uint(eth_tree, hf_erf_eth_off, tvb, 0, 0, eth_offset);
-    proto_tree_add_uint(eth_tree, hf_erf_eth_pad, tvb, 0, 0, eth_pad);
-  }
+  proto_tree_add_uint(eth_tree, hf_erf_eth_off, tvb, 0, 0, eth_offset);
+  proto_tree_add_uint(eth_tree, hf_erf_eth_pad, tvb, 0, 0, eth_pad);
 }
 
 static void
@@ -2271,21 +2237,21 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_trunc, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_TRUNC_MASK) {
     proto_item_append_text(flags_item, "(ERF Truncation Error");
-    expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF Truncation Error");
+    expert_add_info(pinfo, pi, &ei_erf_truncation_error);
     has_flags = TRUE;
   }
 
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_rxe, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_RXE_MASK) {
     proto_item_append_text(flags_item, "%sERF Rx Error", has_flags ? "; " : "(");
-    expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF Rx Error");
+    expert_add_info(pinfo, pi, &ei_erf_rx_error);
     has_flags = TRUE;
   }
 
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_dse, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_DSE_MASK) {
     proto_item_append_text(flags_item, "%sERF DS Error", has_flags ? "; " : "(");
-    expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF DS Error");
+    expert_add_info(pinfo, pi, &ei_erf_ds_error);
     has_flags = TRUE;
   }
   if (has_flags) {
@@ -3899,7 +3865,15 @@ proto_register_erf(void)
   };
 
   static ei_register_info ei[] = {
-      { &ei_erf_checksum_error, { "erf.checksum.error", PI_CHECKSUM, PI_ERROR, "ERF MC FCS Error", EXPFILL }},
+      { &ei_erf_mc_hdlc_checksum_error, { "erf.mchdlc.checksum.error", PI_CHECKSUM, PI_ERROR, "ERF MC HDLC FCS Error", EXPFILL }},
+      { &ei_erf_mc_hdlc_short_error, { "erf.mchdlc.short.error", PI_PROTOCOL, PI_ERROR, "ERF MC HDLC Short Record Error, <5 bytes", EXPFILL }},
+      { &ei_erf_mc_hdlc_long_error, { "erf.mchdlc.long.error", PI_PROTOCOL, PI_ERROR, "ERF MC HDLC Long Record Error, >2047 bytes", EXPFILL }},
+      { &ei_erf_mc_hdlc_abort_error, { "erf.mchdlc.abort.error", PI_PROTOCOL, PI_ERROR, "ERF MC HDLC Aborted Frame Error", EXPFILL }},
+      { &ei_erf_mc_hdlc_octet_error, { "erf.mchdlc.octet.error", PI_PROTOCOL, PI_ERROR, "ERF MC HDLC Octet Error, the closing flag was not octet aligned after bit unstuffing", EXPFILL }},
+      { &ei_erf_mc_hdlc_lost_byte_error, { "erf.mchdlc.lost_byte.error", PI_PROTOCOL, PI_ERROR, "ERF MC HDLC Lost Byte Error", EXPFILL }},
+      { &ei_erf_rx_error, { "erf.rx.error", PI_CHECKSUM, PI_ERROR, "ERF RX Error", EXPFILL }},
+      { &ei_erf_ds_error, { "erf.ds.error", PI_PROTOCOL, PI_ERROR, "ERF DS Error", EXPFILL }},
+      { &ei_erf_truncation_error, { "erf.truncation.error", PI_PROTOCOL, PI_ERROR, "ERF Truncation Error", EXPFILL }},
       { &ei_erf_packet_loss, { "erf.packet_loss", PI_SEQUENCE, PI_WARN, "Packet loss occurred between previous and current packet", EXPFILL }},
       { &ei_erf_extension_headers_not_shown, { "erf.ehdr.more_not_shown", PI_SEQUENCE, PI_WARN, "More extension headers were present, not shown", EXPFILL }},
       { &ei_erf_meta_section_len_error, { "erf.meta.section_len.error", PI_PROTOCOL, PI_ERROR, "Provenance Section Length incorrect", EXPFILL }},
