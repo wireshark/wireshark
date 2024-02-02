@@ -3035,7 +3035,7 @@ typedef struct {
 /* ---------------------
  * GPRS messages
  * ---------------------*/
-static _gtp_mess_items gprs_mess_items[] = {
+static const _gtp_mess_items gprs_mess_items[] = {
 
     {
         GTP_MSG_ECHO_REQ, {
@@ -3367,7 +3367,7 @@ static _gtp_mess_items gprs_mess_items[] = {
 /* -----------------------------
  * UMTS messages
  * -----------------------------*/
-static _gtp_mess_items umts_mess_items[] = {
+static const _gtp_mess_items umts_mess_items[] = {
     /* 7.2 Path Management Messages */
     {
         GTP_MSG_ECHO_REQ, {
@@ -4439,7 +4439,7 @@ check_field_presence_and_decoder(guint8 message, guint8 field, int *position, ie
 {
 
     guint i = 0;
-    _gtp_mess_items *mess_items;
+    const _gtp_mess_items *mess_items;
 
     switch (gtp_version) {
     case 0:
