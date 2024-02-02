@@ -459,6 +459,7 @@ typedef struct {
   const char *obj_id;
   guint32 sib_type;
   guint32 srb_id;
+  guint32 gdb_cu_ue_f1ap_id;
   e212_number_type_t number_type;
   struct f1ap_tap_t  *stats_tap;
 } f1ap_private_data_t;
@@ -534,6 +535,7 @@ f1ap_get_private_data(packet_info *pinfo)
   if (!f1ap_data) {
     f1ap_data = wmem_new0(wmem_file_scope(), f1ap_private_data_t);
     f1ap_data->srb_id = -1;
+    f1ap_data->gdb_cu_ue_f1ap_id = 1;
     p_add_proto_data(wmem_file_scope(), pinfo, proto_f1ap, 0, f1ap_data);
   }
   return f1ap_data;
@@ -549,8 +551,11 @@ add_nr_pdcp_meta_data(packet_info *pinfo, guint8 direction, guint8 srb_id)
       return;
   }
 
+  f1ap_private_data_t *f1ap_data = f1ap_get_private_data(pinfo);
+
   p_pdcp_nr_info = wmem_new0(wmem_file_scope(), pdcp_nr_info);
   p_pdcp_nr_info->direction = direction;
+  p_pdcp_nr_info->ueid = f1ap_data->gdb_cu_ue_f1ap_id;
   p_pdcp_nr_info->bearerType = Bearer_DCCH;
   p_pdcp_nr_info->bearerId = srb_id;
   p_pdcp_nr_info->plane = NR_SIGNALING_PLANE;

@@ -2904,6 +2904,12 @@ SurvivalTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
     actx->created_item = proto_tree_add_item(tree, hf_index, param_tvb, 0, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
   }
 
+#.FN_BODY GNB-CU-UE-F1AP-ID VAL_PTR=&id
+  guint32 id;
+%(DEFAULT_BODY)s
+  f1ap_private_data_t *f1ap_data = f1ap_get_private_data(actx->pinfo);
+  f1ap_data->gdb_cu_ue_f1ap_id = id;
+
 #.FN_HDR Reset
   set_message_label(actx, MTYPE_RESET);
   set_stats_message_type(actx->pinfo, MTYPE_RESET);
