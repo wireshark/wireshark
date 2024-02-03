@@ -1603,10 +1603,12 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
     g_free(cf->dfilter);
     cf->dfilter = dftext;
 
-    /* Cleanup and release all dfilter resources */
     /* We'll recompile this when the rescan starts, or in cf_read()
-     * if no file is open currently. */
-    dfilter_free(dfcode);
+     * if no file is open currently. However, if no file is open and
+     * we start a new capture, we want to use this rather than
+     * recompiling in cf_continue_tail() */
+    dfilter_free(cf->dfcode);
+    cf->dfcode = dfcode;
 
     /* Now rescan the packet list, applying the new filter, but not
      * throwing away information constructed on a previous pass.
