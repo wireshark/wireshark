@@ -67,7 +67,8 @@ extern gint ett_opcua_array_Variant;
 extern gint ett_opcua_returnDiagnostics;
 
 enum ua_message_mode {
-    UA_MessageMode_None = 0,
+    UA_MessageMode_Unknown = 0,
+    UA_MessageMode_None,
     UA_MessageMode_Sign,
     UA_MessageMode_SignAndEncrypt,
     UA_MessageMode_MaybeEncrypted

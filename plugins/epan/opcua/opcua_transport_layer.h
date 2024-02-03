@@ -19,6 +19,8 @@ struct ua_metadata {
     bool encrypted; /* true if payload is encrypted, false if no encryption was used or it was successfully decrypted. */
 };
 
+extern int g_opcua_default_sig_len;
+
 /* Transport Layer: message parsers */
 int parseHello(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, struct ua_metadata *data);
 int parseAcknowledge(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, struct ua_metadata *data);

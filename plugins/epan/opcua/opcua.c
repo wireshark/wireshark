@@ -42,6 +42,7 @@ void proto_register_opcua(void);
 extern const value_string g_requesttypes[];
 extern const int g_NumServices;
 static const gchar *g_opcua_debug_file_name = NULL;
+int g_opcua_default_sig_len = 0;
 
 /* forward reference */
 void proto_reg_handoff_opcua(void);
@@ -139,6 +140,13 @@ static const char* g_szMessageTypes[] =
     "OpenSecureChannel message",
     "CloseSecureChannel message",
     "Invalid message"
+};
+
+static const enum_val_t opcua_sig_len_enum[] = {
+    { "None",    "Unsigned",        0 },
+    { "20",      "20 Bytes",       20 },
+    { "32",      "32 Bytes",       32 },
+    { NULL, NULL, 0 }
 };
 
 #ifdef _MSC_VER
@@ -912,6 +920,10 @@ void proto_register_opcua(void)
     prefs_register_filename_preference(opcua_module, "debug_file", "OPCUA debug file",
             "Redirect OPC UA Secure Conversion session keys to the file specified to enable decryption.",
             &g_opcua_debug_file_name, FALSE);
+
+    prefs_register_enum_preference(opcua_module, "signature_length", "Default signature length",
+            "Default signature length to use if the OpenSecureChannel message is missing.",
+            &g_opcua_default_sig_len, opcua_sig_len_enum, FALSE);
 
     registerTransportLayerTypes(proto_opcua);
     registerSecurityLayerTypes(proto_opcua);
