@@ -80,6 +80,14 @@
         <translation>라이선스</translation>
     </message>
     <message>
+        <source>About Logray</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Logray</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The directory does not exist</source>
         <translation>디렉터리가 존재하지 않음</translation>
     </message>
@@ -1165,6 +1173,12 @@
         <translation>Wireshark %1에서 생성됨
 
 </translation>
+    </message>
+    <message>
+        <source>Created by Logray %1
+
+</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12697,8 +12711,16 @@ a:hover {
         <translation>Wireshark를 사용하여 인터넷을 고정하는 접착제의 냄새를 맡고(스니핑) 있습니다 </translation>
     </message>
     <message>
+        <source>You are sniffing the glue that holds your system together using Logray </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>You are running Wireshark </source>
         <translation>실행 중인 Wireshark 버전: </translation>
+    </message>
+    <message>
+        <source>You are running Logray </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -12981,8 +13003,9 @@ a:hover {
         <translation>내용(&amp;C)</translation>
     </message>
     <message>
-        <source>Wireshark Filter</source>
-        <translation>Wireshark 필터</translation>
+        <source>Display Filters</source>
+        <oldsource>Wireshark Filter</oldsource>
+        <translation type="unfinished">Wireshark 필터</translation>
     </message>
     <message>
         <source>TShark</source>

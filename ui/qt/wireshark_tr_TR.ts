@@ -80,6 +80,14 @@
         <translation>Lisans</translation>
     </message>
     <message>
+        <source>About Logray</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Logray</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The directory does not exist</source>
         <translation>Dizin mevcut değil</translation>
     </message>
@@ -1165,6 +1173,12 @@
         <translation>Wireshark tarafından oluşturuldu %1
 
 </translation>
+    </message>
+    <message>
+        <source>Created by Logray %1
+
+</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12697,8 +12711,16 @@ a:üzerine gelin{
         <translation>Wireshark kullanarak interneti bir arada tutan yapıştırıcıyı kokluyorsunuz </translation>
     </message>
     <message>
+        <source>You are sniffing the glue that holds your system together using Logray </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>You are running Wireshark </source>
         <translation>Wireshark&apos;ı çalıştırıyorsunuz </translation>
+    </message>
+    <message>
+        <source>You are running Logray </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -12981,8 +13003,9 @@ a:üzerine gelin{
         <translation>&amp;İçerik</translation>
     </message>
     <message>
-        <source>Wireshark Filter</source>
-        <translation>Wireshark Filtresi</translation>
+        <source>Display Filters</source>
+        <oldsource>Wireshark Filter</oldsource>
+        <translation type="unfinished">Wireshark Filtresi</translation>
     </message>
     <message>
         <source>TShark</source>

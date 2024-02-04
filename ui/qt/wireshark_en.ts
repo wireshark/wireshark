@@ -80,6 +80,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>About Logray</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Logray</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The directory does not exist</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1167,6 +1175,12 @@
     </message>
     <message>
         <source>Created by Wireshark %1
+
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Created by Logray %1
 
 </source>
         <translation type="unfinished"></translation>
@@ -12560,7 +12574,15 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>You are sniffing the glue that holds your system together using Logray </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>You are running Wireshark </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You are running Logray </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12841,10 +12863,6 @@ a:hover {
     </message>
     <message>
         <source>&amp;Contents</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Wireshark Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13888,6 +13906,10 @@ a:hover {
     </message>
     <message>
         <source>&amp;Wireless</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -80,6 +80,14 @@
         <translation>Лицензия</translation>
     </message>
     <message>
+        <source>About Logray</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Logray</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The directory does not exist</source>
         <translation>Каталог отсутствует</translation>
     </message>
@@ -1179,6 +1187,12 @@
         <translation>Создано в Wireshark %1
 
 </translation>
+    </message>
+    <message>
+        <source>Created by Logray %1
+
+</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12765,8 +12779,16 @@ a:hover {
         <translation>Все составные звенья Интернета анализировать поможет Wireshark </translation>
     </message>
     <message>
+        <source>You are sniffing the glue that holds your system together using Logray </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>You are running Wireshark </source>
         <translation>Работа производится в Wireshark </translation>
+    </message>
+    <message>
+        <source>You are running Logray </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -13049,8 +13071,9 @@ a:hover {
         <translation>&amp;Содержание</translation>
     </message>
     <message>
-        <source>Wireshark Filter</source>
-        <translation>Фильтр Wireshark</translation>
+        <source>Display Filters</source>
+        <oldsource>Wireshark Filter</oldsource>
+        <translation type="unfinished">Фильтр Wireshark</translation>
     </message>
     <message>
         <source>TShark</source>

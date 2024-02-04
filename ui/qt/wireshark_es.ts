@@ -80,6 +80,14 @@
         <translation>Licencia</translation>
     </message>
     <message>
+        <source>About Logray</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Logray</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The directory does not exist</source>
         <translation>El directorio no existe</translation>
     </message>
@@ -1144,6 +1152,12 @@
     </message>
     <message>
         <source>Created by Wireshark %1
+
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Created by Logray %1
 
 </source>
         <translation type="unfinished"></translation>
@@ -12592,8 +12606,16 @@ a:hover {
         <translation>Está absorbiendo el pegamento que mantiene unido internet usando Wireshark</translation>
     </message>
     <message>
+        <source>You are sniffing the glue that holds your system together using Logray </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>You are running Wireshark </source>
         <translation>Está ejecutando Wireshark</translation>
+    </message>
+    <message>
+        <source>You are running Logray </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -12876,8 +12898,9 @@ a:hover {
         <translation>&amp;Contenidos</translation>
     </message>
     <message>
-        <source>Wireshark Filter</source>
-        <translation>Filtro de Wireshark</translation>
+        <source>Display Filters</source>
+        <oldsource>Wireshark Filter</oldsource>
+        <translation type="unfinished">Filtro de Wireshark</translation>
     </message>
     <message>
         <source>TShark</source>

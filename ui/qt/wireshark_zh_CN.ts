@@ -80,6 +80,14 @@
         <translation>许可</translation>
     </message>
     <message>
+        <source>About Logray</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Logray</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The directory does not exist</source>
         <translation>该目录不存在</translation>
     </message>
@@ -1163,6 +1171,12 @@
 
 </source>
         <translation>通过 Wireshark 创建 %1</translation>
+    </message>
+    <message>
+        <source>Created by Logray %1
+
+</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12634,8 +12648,16 @@ a:hover {
         <translation>你正在使用 Wireshark 嗅探互联网的联机</translation>
     </message>
     <message>
+        <source>You are sniffing the glue that holds your system together using Logray </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>You are running Wireshark </source>
         <translation>正在运行 Wireshark</translation>
+    </message>
+    <message>
+        <source>You are running Logray </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -12918,8 +12940,9 @@ a:hover {
         <translation>内容(&amp;C)</translation>
     </message>
     <message>
-        <source>Wireshark Filter</source>
-        <translation>Wireshark 过滤器</translation>
+        <source>Display Filters</source>
+        <oldsource>Wireshark Filter</oldsource>
+        <translation type="unfinished">Wireshark 过滤器</translation>
     </message>
     <message>
         <source>TShark</source>
