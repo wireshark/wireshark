@@ -6,8 +6,8 @@
  *
  * List of PCI ID's
  *
- * Version: 2024.01.25
- * Date:    2024-01-25 03:15:01
+ * Version: 2024.02.02
+ * Date:    2024-02-02 14:41:33
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
