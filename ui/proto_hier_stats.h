@@ -22,7 +22,7 @@ extern "C" {
  */
 
 typedef struct {
-    header_field_info	*hfinfo;
+    const header_field_info	*hfinfo;
     unsigned		num_pkts_total;
     unsigned		num_pdus_total;
     unsigned		num_pkts_last;

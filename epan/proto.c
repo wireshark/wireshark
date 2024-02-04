@@ -5834,7 +5834,7 @@ proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 static void
 proto_tree_set_uint(field_info *fi, guint32 value)
 {
-	header_field_info *hfinfo;
+	const header_field_info *hfinfo;
 	guint32		   integer;
 
 	hfinfo = fi->hfinfo;
@@ -5926,7 +5926,7 @@ proto_tree_add_uint64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 static void
 proto_tree_set_uint64(field_info *fi, guint64 value)
 {
-	header_field_info *hfinfo;
+	const header_field_info *hfinfo;
 	guint64		   integer;
 
 	hfinfo = fi->hfinfo;
@@ -6017,7 +6017,7 @@ proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 static void
 proto_tree_set_int(field_info *fi, gint32 value)
 {
-	header_field_info *hfinfo;
+	const header_field_info *hfinfo;
 	guint32		   integer;
 	gint		   no_of_bits;
 
@@ -6092,7 +6092,7 @@ proto_tree_add_int64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 static void
 proto_tree_set_int64(field_info *fi, gint64 value)
 {
-	header_field_info *hfinfo;
+	const header_field_info *hfinfo;
 	guint64		   integer;
 	gint		   no_of_bits;
 
@@ -6741,7 +6741,7 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 		gsize             name_pos, ret = 0;
 		char              *str;
 		field_info        *fi = PITEM_FINFO(pi);
-		header_field_info *hf;
+		const header_field_info *hf;
 
 		DISSECTOR_ASSERT(fi);
 
@@ -6861,7 +6861,7 @@ hfinfo_remove_from_gpa_name_map(const header_field_info *hfinfo)
 int
 proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const int label_str_size)
 {
-	header_field_info *hfinfo = finfo->hfinfo;
+	const header_field_info *hfinfo = finfo->hfinfo;
 	int label_len = 0;
 	char *tmp_str;
 	const char *str;
@@ -9801,7 +9801,7 @@ label_fill_descr(char *label_str, gsize pos, const header_field_info *hfinfo, co
 void
 proto_item_fill_label(field_info *fi, gchar *label_str)
 {
-	header_field_info  *hfinfo;
+	const header_field_info  *hfinfo;
 	const char	   *str;
 	const guint8	   *bytes;
 	guint32		    integer;
@@ -10091,7 +10091,7 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 	guint64  unshifted_value;
 	guint64  value;
 
-	header_field_info	*hfinfo   = fi->hfinfo;
+	const header_field_info	*hfinfo   = fi->hfinfo;
 
 	value = fvalue_get_uinteger64(fi->value);
 	if (hfinfo->bitmask) {
@@ -10202,7 +10202,7 @@ fill_label_bitfield_char(field_info *fi, gchar *label_str)
 	char        buf[32];
 	const char *out;
 
-	header_field_info *hfinfo = fi->hfinfo;
+	const header_field_info *hfinfo = fi->hfinfo;
 
 	/* Figure out the bit width */
 	bitwidth = hfinfo_container_bitwidth(hfinfo);
@@ -10254,7 +10254,7 @@ fill_label_bitfield(field_info *fi, gchar *label_str, gboolean is_signed)
 	char        buf[NUMBER_LABEL_LENGTH];
 	const char *out;
 
-	header_field_info *hfinfo = fi->hfinfo;
+	const header_field_info *hfinfo = fi->hfinfo;
 
 	/* Figure out the bit width */
 	if (fi->flags & FI_VARINT)
@@ -10329,7 +10329,7 @@ fill_label_bitfield64(field_info *fi, gchar *label_str, gboolean is_signed)
 	char        buf[NUMBER_LABEL_LENGTH];
 	const char *out;
 
-	header_field_info *hfinfo = fi->hfinfo;
+	const header_field_info *hfinfo = fi->hfinfo;
 
 	/* Figure out the bit width */
 	if (fi->flags & FI_VARINT)
@@ -10398,7 +10398,7 @@ fill_label_bitfield64(field_info *fi, gchar *label_str, gboolean is_signed)
 static void
 fill_label_char(field_info *fi, gchar *label_str)
 {
-	header_field_info *hfinfo = fi->hfinfo;
+	const header_field_info *hfinfo = fi->hfinfo;
 	guint32            value;
 
 	char               buf[32];
@@ -10431,7 +10431,7 @@ fill_label_char(field_info *fi, gchar *label_str)
 static void
 fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed)
 {
-	header_field_info *hfinfo = fi->hfinfo;
+	const header_field_info *hfinfo = fi->hfinfo;
 	guint32            value;
 
 	char               buf[NUMBER_LABEL_LENGTH];
@@ -10497,7 +10497,7 @@ fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed)
 static void
 fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed)
 {
-	header_field_info *hfinfo = fi->hfinfo;
+	const header_field_info *hfinfo = fi->hfinfo;
 	guint64            value;
 
 	char               buf[NUMBER_LABEL_LENGTH];
@@ -12121,7 +12121,7 @@ static gboolean
 construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 				char **filter)
 {
-	header_field_info *hfinfo;
+	const header_field_info *hfinfo;
 	char		  *ptr;
 	int		   buf_len;
 	int		   i;

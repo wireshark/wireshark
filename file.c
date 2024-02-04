@@ -4907,7 +4907,7 @@ cf_goto_frame(capture_file *cf, guint fnumber, gboolean exact)
 gboolean
 cf_goto_framenum(capture_file *cf)
 {
-    header_field_info *hfinfo;
+    const header_field_info *hfinfo;
     guint32            framenum;
 
     if (cf->finfo_selected) {

@@ -808,7 +808,7 @@ typedef struct _item_label_t {
 
 /** Contains the field information for the proto_item. */
 typedef struct field_info {
-    header_field_info   *hfinfo;          /**< pointer to registered field information */
+    const header_field_info *hfinfo;      /**< pointer to registered field information */
     gint                 start;           /**< current start of data in field_info.ds_tvb */
     gint                 length;          /**< current data length of item in field_info.ds_tvb */
     gint                 appendix_start;  /**< start of appendix data */

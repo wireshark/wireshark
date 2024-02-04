@@ -657,7 +657,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
 
         for (unsigned i = 0; i < finfo_array->len; i++) {
             field_info *fi = (field_info *)g_ptr_array_index (finfo_array, i);
-            header_field_info *hfinfo =  fi->hfinfo;
+            const header_field_info *hfinfo =  fi->hfinfo;
 
             if (prefs_is_registered_protocol(hfinfo->abbrev)) {
                 if (hfinfo->parent == -1) {

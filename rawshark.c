@@ -1115,7 +1115,7 @@ static void field_display_to_string(header_field_info *hfi, char* buf, int size)
 #define cVALS(x) (const value_string*)(x)
 static gboolean print_field_value(field_info *finfo, int cmd_line_index)
 {
-    header_field_info   *hfinfo;
+    const header_field_info *hfinfo;
     char                *fs_buf;
     char                *fs_ptr = NULL;
     static GString     *label_s = NULL;

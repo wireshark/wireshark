@@ -1391,7 +1391,7 @@ void WiresharkMainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
     }
 
     if (capture_file_.capFile() != NULL && fi != NULL) {
-        header_field_info *hfinfo = fi->hfinfo;
+        const header_field_info *hfinfo = fi->hfinfo;
         int linked_frame = -1;
 
         can_match_selected = proto_can_match_selected(capture_file_.capFile()->finfo_selected, capture_file_.capFile()->edt);
@@ -3236,7 +3236,7 @@ void WiresharkMainWindow::matchFieldFilter(FilterAction::Action action, FilterAc
 void WiresharkMainWindow::applyFieldAsColumn()
 {
     if (capture_file_.capFile() != 0 && capture_file_.capFile()->finfo_selected != 0) {
-        header_field_info *hfinfo = capture_file_.capFile()->finfo_selected->hfinfo;
+        const header_field_info *hfinfo = capture_file_.capFile()->finfo_selected->hfinfo;
         int col = column_prefs_has_custom(hfinfo->abbrev);
         if (col == -1) {
             insertColumn(hfinfo->name, hfinfo->abbrev);

@@ -29,10 +29,10 @@
 static int pc_proto_id = -1;
 
     static GNode*
-find_stat_node(GNode *parent_stat_node, header_field_info *needle_hfinfo)
+find_stat_node(GNode *parent_stat_node, const header_field_info *needle_hfinfo)
 {
     GNode		*needle_stat_node, *up_parent_stat_node;
-    header_field_info	*hfinfo;
+    const header_field_info	*hfinfo;
     ph_stats_node_t	*stats;
 
     /* Look down the tree */
