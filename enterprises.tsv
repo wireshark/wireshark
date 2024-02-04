@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2024-01-26)
+# (last updated 2024-02-02)
 
 0	Reserved
 1	NxNetworks
@@ -3399,7 +3399,7 @@
 3393	SandS International
 3394	NeTrue Communications
 3395	Certicom Corp.
-3396	DICOS GmbH Kommunikationssysteme Stephan
+3396	DICOS GmbH Kommunikationssysteme
 3397	Border Blues Productions
 3398	Fieldbus Foundation
 3399	Olencom Electronics Ltd.
@@ -23754,7 +23754,7 @@
 23780	Prose Consulting Ltd.	# formerly 'Freedomware UK'
 23781	Albertslund Ungdomsboliger
 23782	ASN
-23783	iTellus Holdings, Inc.	# formerly 'Tellurian Networks, Inc.'
+23783	Planet Networks, Inc.
 23784	StrataLight Communications
 23785	CIC/CAFMICRO
 23786	DS DATA SYSTEMS GmbH
@@ -48506,7 +48506,7 @@
 48558	Trinity Grammar School
 48559	Rosenberger Technologies Co., Ltd.
 48560	Almnäs Bruk AB
-48561	Ahlstrom-Munksjö AB
+48561	Ahlstrom Group
 48562	KENDRIS AG
 48563	ANEXIA Internetdienstleistungs GmbH
 48564	Autoland Deutschland Inh. Wilfried Wilhelm Anclam, e. K.
@@ -54437,7 +54437,7 @@
 54504	Warsaw University of Technology
 54505	Transcelestial Technologies PTE LTD
 54506	Intereuropa d.d.
-54507	IdeaData
+54507	CySight
 54508	Deutsche Telekom - Access 4.0
 54509	iCE - Intelligent Controlled Environments
 54510	Noscendo GmbH
@@ -61363,3 +61363,30 @@
 61444	IMESO-IT GmbH
 61445	Siemens SI GSW IT GC RAIL
 61446	PT Bank Jago Tbk
+61447	Shenzhen Beilai Technology Co.,Ltd.
+61448	Ooredoo Oman
+61449	Zesp
+61450	AGENCE FRANCAISE DE DEVELOPPEMENT (AFD)
+61451	Schloss Tempelhof eG
+61452	Paul Hagedorn
+61453	Cybernop, LLC
+61454	Shawna Odom-Burgower
+61455	Leonardo (Digital Platform)
+61456	Inferno Communications
+61457	Marcelo Augusto Garbuli
+61458	Northern Schools Trust
+61459	天磊卫士（深圳）科技有限公司 (Tianlei Guardian (Shenzhen) Technology Co., Ltd.)
+61460	PT Sentra Vidya Utama
+61461	Excellent Entertainment AG
+61462	4Links
+61463	Zühlke Engineering AG
+61464	De Vaere Solutions
+61465	Armstrong Equipment, Inc
+61466	Connecticut Criminal Justice Information System Governing Board
+61467	Roland Rechtsschutz Versicherungs AG
+61468	Mobius Networks Limited
+61469	Lagardere Travel Retail sp. z o.o.
+61470	LXDEV Technologies
+61471	Conexys S.R.L.
+61472	Swistec GmbH
+61473	Alliance Transport Bois
