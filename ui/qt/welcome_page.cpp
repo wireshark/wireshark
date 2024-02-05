@@ -286,7 +286,7 @@ void WelcomePage::updateRecentCaptures() {
         selectedFilename = rfItem->data(Qt::UserRole).toString();
     }
 
-    if (mainApp->recentItems().count() == 0) {
+    if (mainApp->recentItems().count() == 0 || prefs.gui_welcome_page_show_recent) {
        // Recent menu has been cleared, remove all recent files.
        while (recent_files_->count()) {
           delete recent_files_->item(0);
@@ -294,39 +294,41 @@ void WelcomePage::updateRecentCaptures() {
     }
 
     int rfRow = 0;
-    foreach (recent_item_status *ri, mainApp->recentItems()) {
-        itemLabel = ri->filename;
+    if(prefs.gui_welcome_page_show_recent) {
+        foreach (recent_item_status *ri, mainApp->recentItems()) {
+            itemLabel = ri->filename;
 
-        if (rfRow >= recent_files_->count()) {
-            recent_files_->addItem(itemLabel);
-        }
-
-        itemLabel.append(" (");
-        if (ri->accessible) {
-            if (ri->size/1024/1024/1024 > 10) {
-                itemLabel.append(QString("%1 GB").arg(ri->size/1024/1024/1024));
-            } else if (ri->size/1024/1024 > 10) {
-                itemLabel.append(QString("%1 MB").arg(ri->size/1024/1024));
-            } else if (ri->size/1024 > 10) {
-                itemLabel.append(QString("%1 KB").arg(ri->size/1024));
-            } else {
-                itemLabel.append(QString("%1 Bytes").arg(ri->size));
+            if (rfRow >= recent_files_->count()) {
+                recent_files_->addItem(itemLabel);
             }
-        } else {
-            itemLabel.append(tr("not found"));
+
+            itemLabel.append(" (");
+            if (ri->accessible) {
+                if (ri->size/1024/1024/1024 > 10) {
+                    itemLabel.append(QString("%1 GB").arg(ri->size/1024/1024/1024));
+                } else if (ri->size/1024/1024 > 10) {
+                    itemLabel.append(QString("%1 MB").arg(ri->size/1024/1024));
+                } else if (ri->size/1024 > 10) {
+                    itemLabel.append(QString("%1 KB").arg(ri->size/1024));
+                } else {
+                    itemLabel.append(QString("%1 Bytes").arg(ri->size));
+                }
+            } else {
+                itemLabel.append(tr("not found"));
+            }
+            itemLabel.append(")");
+            rfFont.setItalic(!ri->accessible);
+            rfItem = recent_files_->item(rfRow);
+            rfItem->setText(itemLabel);
+            rfItem->setData(Qt::AccessibleTextRole, itemLabel);
+            rfItem->setData(Qt::UserRole, ri->filename);
+            rfItem->setFlags(ri->accessible ? Qt::ItemIsSelectable | Qt::ItemIsEnabled : Qt::NoItemFlags);
+            rfItem->setFont(rfFont);
+            if (ri->filename == selectedFilename) {
+                rfItem->setSelected(true);
+            }
+            rfRow++;
         }
-        itemLabel.append(")");
-        rfFont.setItalic(!ri->accessible);
-        rfItem = recent_files_->item(rfRow);
-        rfItem->setText(itemLabel);
-        rfItem->setData(Qt::AccessibleTextRole, itemLabel);
-        rfItem->setData(Qt::UserRole, ri->filename);
-        rfItem->setFlags(ri->accessible ? Qt::ItemIsSelectable | Qt::ItemIsEnabled : Qt::NoItemFlags);
-        rfItem->setFont(rfFont);
-        if (ri->filename == selectedFilename) {
-            rfItem->setSelected(true);
-        }
-        rfRow++;
     }
 
     int row = recent_files_->count();

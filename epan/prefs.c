@@ -3480,6 +3480,10 @@ prefs_register_modules(void)
                                    10,
                                    &prefs.gui_max_tree_depth);
 
+    prefs_register_bool_preference(gui_module, "welcome_page.show_recent",
+                                   "Show recent files on the welcome page",
+                                   "This will enable or disable the 'Open' list on the welcome page.",
+                                   &prefs.gui_welcome_page_show_recent);
 
     /* User Interface : Layout */
     gui_layout_module = prefs_register_subtree(gui_module, "Layout", "Layout", gui_layout_callback);
@@ -4262,6 +4266,7 @@ pre_init_prefs(void)
     g_free(prefs.gui_start_title);
     prefs.gui_start_title            = g_strdup("The World's Most Popular Network Protocol Analyzer");
     prefs.gui_version_placement      = version_both;
+    prefs.gui_welcome_page_show_recent = TRUE;
     prefs.gui_layout_type            = layout_type_2;
     prefs.gui_layout_content_1       = layout_pane_content_plist;
     prefs.gui_layout_content_2       = layout_pane_content_pdetails;
