@@ -460,9 +460,9 @@ extract_syscall_conversation_fields (packet_info *pinfo, falco_conv_filter_field
 
         if (strcmp(hfinfo->abbrev, "container.id") == 0) {
             args->container_id = get_str_value(sinsp_fields, sf_idx);
-            if (args->container_id == NULL) {
-                REPORT_DISSECTOR_BUG("cannot extract the container ID for event %" PRIu32, pinfo->fd->num);
-            }
+            // if (args->container_id == NULL) {
+            //     REPORT_DISSECTOR_BUG("cannot extract the container ID for event %" PRIu32, pinfo->fd->num);
+            // }
         }
 
         if (strcmp(hfinfo->abbrev, "proc.pid") == 0) {
@@ -505,13 +505,21 @@ static gboolean sysdig_syscall_filter_valid(packet_info *pinfo, void *user_data 
     return true;
 }
 
-static gboolean sysdig_fd_filter_valid(packet_info *pinfo, void *user_data _U_) {
-    if (!proto_is_frame_protocol(pinfo->layers, "sysdig")) {
+static gboolean sysdig_syscall_container_filter_valid(packet_info *pinfo, void *user_data) {
+    if (!sysdig_syscall_filter_valid(pinfo, user_data)) {
         return false;
     }
 
-    // This only supports the syscall source.
-    if (pinfo->rec->rec_header.syscall_header.event_type == FALCO_PPME_PLUGINEVENT_E) {
+    falco_conv_filter_fields cff;
+    if (!extract_syscall_conversation_fields(pinfo, &cff)) {
+        return false;
+    }
+
+    return cff.container_id != NULL;
+}
+
+static gboolean sysdig_syscall_fd_filter_valid(packet_info *pinfo, void *user_data) {
+    if (!sysdig_syscall_filter_valid(pinfo, user_data)) {
         return false;
     }
 
@@ -528,34 +536,56 @@ static gchar* sysdig_container_build_filter(packet_info *pinfo, void *user_data 
 static gchar* sysdig_proc_build_filter(packet_info *pinfo, void *user_data _U_) {
     falco_conv_filter_fields cff;
     extract_syscall_conversation_fields(pinfo, &cff);
-    return ws_strdup_printf("container.id==\"%s\" && proc.pid==%" PRIu64, cff.container_id, cff.pid);
+    if (cff.container_id) {
+        return ws_strdup_printf("container.id==\"%s\" && proc.pid==%" PRId64, cff.container_id, cff.pid);
+    } else {
+        return ws_strdup_printf("proc.pid==%" PRId64, cff.pid);
+    }
 }
 
 static gchar* sysdig_procdescendants_build_filter(packet_info *pinfo, void *user_data _U_) {
     falco_conv_filter_fields cff;
     extract_syscall_conversation_fields(pinfo, &cff);
-    return ws_strdup_printf("container.id==\"%s\" && (proc.pid==%" PRIu64 " || proc.apid.1==%" PRIu64 " || proc.apid.2==%" PRIu64 " || proc.apid.3==%" PRIu64 " || proc.apid.4==%" PRIu64 ")",
-        cff.container_id,
-        cff.pid,
-        cff.pid,
-        cff.pid,
-        cff.pid,
-        cff.pid);
+
+    if (cff.container_id) {
+        return ws_strdup_printf("container.id==\"%s\" && (proc.pid==%" PRId64 " || proc.apid.1==%" PRId64 " || proc.apid.2==%" PRId64 " || proc.apid.3==%" PRId64 " || proc.apid.4==%" PRId64 ")",
+            cff.container_id,
+            cff.pid,
+            cff.pid,
+            cff.pid,
+            cff.pid,
+            cff.pid);
+    } else {
+        return ws_strdup_printf("proc.pid==%" PRId64 " || proc.apid.1==%" PRId64 " || proc.apid.2==%" PRId64 " || proc.apid.3==%" PRId64 " || proc.apid.4==%" PRId64,
+            cff.pid,
+            cff.pid,
+            cff.pid,
+            cff.pid,
+            cff.pid);
+    }
 }
 
 static gchar* sysdig_thread_build_filter(packet_info *pinfo, void *user_data _U_) {
     falco_conv_filter_fields cff;
     extract_syscall_conversation_fields(pinfo, &cff);
-    return ws_strdup_printf("container.id==\"%s\" && thread.tid==%" PRIu64, cff.container_id, cff.tid);
+    if (cff.container_id) {
+        return ws_strdup_printf("container.id==\"%s\" && thread.tid==%" PRIu64, cff.container_id, cff.tid);
+    } else {
+        return ws_strdup_printf("thread.tid==%" PRId64, cff.tid);
+    }
 }
 
 static gchar* sysdig_fd_build_filter(packet_info *pinfo, void *user_data _U_) {
     falco_conv_filter_fields cff;
     extract_syscall_conversation_fields(pinfo, &cff);
-    return ws_strdup_printf("container.id==\"%s\" && thread.tid==%" PRIu64 " && fd.containername==\"%s\"",
-        cff.container_id,
-        cff.tid,
-        cff.fd_containername);
+    if (cff.container_id) {
+        return ws_strdup_printf("container.id==\"%s\" && thread.tid==%" PRId64 " && fd.containername==\"%s\"",
+            cff.container_id,
+            cff.tid,
+            cff.fd_containername);
+    } else {
+        return ws_strdup_printf("thread.tid==%" PRId64, cff.tid);
+    }
 }
 
 static gchar *fd_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo _U_, guint *stream _U_, guint *sub_stream _U_)
@@ -616,15 +646,18 @@ proto_register_falcoplugin(void)
     // Opening requires a file path, so we do that in dissect_sinsp_enriched.
     register_cleanup_routine(&falco_bridge_cleanup);
 
-    // Register the syscall conversation filters
-    register_log_conversation_filter("falcobridge", "Container", sysdig_syscall_filter_valid, sysdig_container_build_filter, NULL);
-    register_log_conversation_filter("falcobridge", "Process", sysdig_syscall_filter_valid, sysdig_proc_build_filter, NULL);
-    register_log_conversation_filter("falcobridge", "Process and Descendants", sysdig_syscall_filter_valid, sysdig_procdescendants_build_filter, NULL);
-    register_log_conversation_filter("falcobridge", "Thread", sysdig_syscall_filter_valid, sysdig_thread_build_filter, NULL);
-    register_log_conversation_filter("falcobridge", "File Descriptor", sysdig_fd_filter_valid, sysdig_fd_build_filter, NULL);
-
     proto_falco_bridge = proto_register_protocol("Falco Bridge", "Falco Bridge", "falcobridge");
     register_dissector("falcobridge", dissect_falco_bridge, proto_falco_bridge);
+
+    // Register the syscall conversation filters.
+    // These show up in the "Conversation Filter" and "Colorize Conversation" context menus.
+    // The first match is also used for "Go" menu navigation.
+    register_log_conversation_filter("falcobridge", "Thread", sysdig_syscall_filter_valid, sysdig_thread_build_filter, NULL);
+    register_log_conversation_filter("falcobridge", "Process", sysdig_syscall_filter_valid, sysdig_proc_build_filter, NULL);
+    register_log_conversation_filter("falcobridge", "Container", sysdig_syscall_container_filter_valid, sysdig_container_build_filter, NULL);
+    register_log_conversation_filter("falcobridge", "Process and Descendants", sysdig_syscall_filter_valid, sysdig_procdescendants_build_filter, NULL);
+    register_log_conversation_filter("falcobridge", "File Descriptor", sysdig_syscall_fd_filter_valid, sysdig_fd_build_filter, NULL);
+    add_conversation_filter_protocol("falcobridge");
 
     // Register the "follow" handlers
     fd_follow_tap = register_tap("fd_follow");
@@ -895,6 +928,11 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
     const char* io_buffer = NULL;
     uint32_t io_buffer_len = 0;
 
+    // Conversation discoverable through conversation_filter_from_pinfo.
+    // Used for related event indicators in the packet list.
+    // Fields should match sysdig_proc_build_filter.
+    conversation_element_t *pinfo_conv_els = NULL; // thread.tid hfid + thread.tid + container.id hfid + container.id + CONVERSATION_LOG
+
     for (uint32_t hf_idx = 0, sf_idx = 0; hf_idx < bi->visible_fields && sf_idx < sinsp_fields_count; hf_idx++) {
         if (sinsp_fields[sf_idx].field_idx != hf_idx) {
             continue;
@@ -960,6 +998,17 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
             break;
         case FT_INT64:
             proto_tree_add_int64(parent_tree, bi->hf_ids[hf_idx], tvb, 0, 0, sinsp_fields[sf_idx].res.i64);
+            if (strcmp(hfinfo->abbrev, "thread.tid") == 0) {
+                if (!pinfo_conv_els) {
+                    pinfo_conv_els = wmem_alloc0(pinfo->pool, sizeof(conversation_element_t) * 5);
+                    pinfo_conv_els[0].type = CE_INT;
+                    pinfo_conv_els[1].type = CE_INT64;
+                    pinfo_conv_els[2].type = CE_INT;
+                    pinfo_conv_els[3].type = CE_STRING;
+                }
+                pinfo_conv_els[0].int_val = hfinfo->id;
+                pinfo_conv_els[1].int64_val = sinsp_fields[sf_idx].res.i64;
+            }
             break;
         case FT_UINT8:
         case FT_UINT16:
@@ -991,6 +1040,11 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
                 // Mark it hidden, otherwise we end up with a bunch of empty "Info" tree items.
                 proto_item_set_hidden(ti);
             }
+
+            if (strcmp(hfinfo->abbrev, "container.id") == 0 && pinfo_conv_els) {
+                pinfo_conv_els[2].int_val = hfinfo->id;
+                pinfo_conv_els[3].str_val = res_str;
+            }
         }
             break;
             case FT_BOOLEAN:
@@ -1020,16 +1074,6 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
                         ws_warning("Invalid length %u for address field %u", sinsp_fields[sf_idx].res_len, sf_idx);
                     }
                     // XXX Add conversation support.
-#if 0
-                    if (cur_conv_filter) {
-                        wmem_strbuf_append(cur_conv_filter->strbuf, sfe->res.str);
-                        cur_conv_filter->is_present = true;
-                    }
-                    if (cur_conv_els) {
-                        cur_conv_els[1].type = CE_ADDRESS;
-                        copy_address(&cur_conv_els[1].addr_val, &pinfo->net_src);
-                    }
-#endif
                 }
                 break;
             }
@@ -1037,6 +1081,16 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
                 break;
         }
         sf_idx++;
+    }
+
+    if (pinfo_conv_els) {
+        if (!pinfo_conv_els[3].str_val) { // No container ID
+            pinfo_conv_els[3].str_val = "<none>";
+        }
+        pinfo_conv_els[4].type = CE_CONVERSATION_TYPE;
+        pinfo_conv_els[4].conversation_type_val = CONVERSATION_LOG;
+        pinfo->conv_elements = pinfo_conv_els;
+        find_or_create_conversation(pinfo);
     }
 
     if (have_tap_listener(fd_follow_tap) && io_buffer_len > 0) {
