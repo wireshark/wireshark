@@ -129,6 +129,7 @@ WS_DLL_PUBLIC const unit_name_string units_watthour;
 WS_DLL_PUBLIC const unit_name_string units_watt;
 WS_DLL_PUBLIC const unit_name_string units_bpm;
 WS_DLL_PUBLIC const unit_name_string units_calorie;
+WS_DLL_PUBLIC const unit_name_string units_cycle_cycles;
 
 #ifdef __cplusplus
 }

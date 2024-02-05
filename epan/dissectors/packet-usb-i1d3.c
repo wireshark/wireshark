@@ -170,7 +170,6 @@ typedef struct _usb_i1d3_conversation_t {
     guint32 previous_packet;
 } usb_i1d3_conversation_t;
 
-static const unit_name_string units_cycle_cycles = { " cycle", " cycles" };
 static const unit_name_string units_edge_edges = { " edge", " edges" };
 static const unit_name_string units_pulse_pulses = { " pulse", " pulses" };
 
