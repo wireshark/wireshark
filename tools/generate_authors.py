@@ -29,7 +29,7 @@ def get_git_authors():
     '''
     GIT_LINE_REGEX = r"^\s*\d+\s+([^<]*)\s*<([^>]*)>"
     cmd = "git --no-pager shortlog --email --summary HEAD".split(' ')
-    # check_output is used for Python 3.4 compatability
+    # check_output is used for Python 3.4 compatibility
     git_cmd_output = subprocess.check_output(cmd, universal_newlines=True, encoding='utf-8')
 
     git_authors = []
@@ -107,7 +107,7 @@ def generate_git_contributors_text(contributors_emails, git_authors_emails):
     return "\n".join(output_lines)
 
 
-# Read authos file until we find gitlog entries, then stop
+# Read authors file until we find gitlog entries, then stop
 def read_authors(parsed_args):
     lines = []
     with open(parsed_args.authors[0], 'r', encoding='utf-8') as fh:

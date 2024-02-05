@@ -4451,7 +4451,7 @@ void
 proto_register_nvme(void)
 {
     static hf_register_info hf[] = {
-        /* NVMeOF Fabric Command Fileds */
+        /* NVMeOF Fabric Command Fields */
         { &hf_nvmeof_cmd,
             { "Cmd", "nvme.fabrics.cmd",
                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
@@ -6639,7 +6639,7 @@ proto_register_nvme(void)
                FT_BOOLEAN, 16, NULL, 0x8, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_oncs[5],
-            { "Supports non-zero Save Filed in Set/Get Features", "nvme.cmd.identify.ctrl.oncs.nzfs",
+            { "Supports non-zero Save Field in Set/Get Features", "nvme.cmd.identify.ctrl.oncs.nzfs",
                FT_BOOLEAN, 16, NULL, 0x10, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_oncs[6],
@@ -7521,7 +7521,7 @@ proto_register_nvme(void)
                FT_BOOLEAN, 8, NULL, 0x2, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_selftest_res_vdi[3],
-            { "Status Code Type (SCT) Filed Valid", "nvme.cmd.get_logpage.selftest.res.vdi.sct",
+            { "Status Code Type (SCT) Field Valid", "nvme.cmd.get_logpage.selftest.res.vdi.sct",
                FT_BOOLEAN, 8, NULL, 0x4, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_selftest_res_vdi[4],

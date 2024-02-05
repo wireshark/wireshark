@@ -28,7 +28,7 @@ from scapy import all as scapy
 class AnonymizedField:
     '''
     The Anonymization field object specifying anonymization
-    :filed arg: field name
+    :field arg: field name
     :type arg: anonymization type [0 masking 0xff, 1 anonymization shake_256]
     :start arg: If specified, the anonymization starts at given byte number
     :end arg: If specified, the anonymization ends at given byte number

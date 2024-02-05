@@ -173,7 +173,7 @@ typedef struct
     guint32 unValue;                                        // Register address
     guint32 unSize;                                         // Register size (in bytes)
     const char *name;                                       // Register name
-    const char *abbrev;                                     // Abreviation for header fill
+    const char *abbrev;                                     // Abbreviation for header fill
     const enum ftenum ft;                                   // Field type
     gint nsWsHeaderID;                                      // Wireshark ID for header fill
     const void *pFct;                                       // Conversion function

@@ -96,7 +96,7 @@ index_get_optional_name(const oer_sequence_t *sequence, int idx)
         if ((sequence[i].extension != ASN1_NOT_EXTENSION_ROOT) && (sequence[i].optional == ASN1_OPTIONAL)) {
             if (idx == 0) {
                 hfi = proto_registrar_get_nth(*sequence[i].p_id);
-                return (hfi) ? hfi->name : "<unknown filed>";
+                return (hfi) ? hfi->name : "<unknown field>";
             }
             idx--;
         }
@@ -111,7 +111,7 @@ index_get_field_name(const oer_sequence_t *sequence, int idx)
     header_field_info *hfi;
 
     hfi = proto_registrar_get_nth(*sequence[idx].p_id);
-    return (hfi) ? hfi->name : "<unknown filed>";
+    return (hfi) ? hfi->name : "<unknown field>";
 }
 
 

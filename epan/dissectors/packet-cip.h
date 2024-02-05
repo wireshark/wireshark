@@ -151,7 +151,7 @@
 #define PCCC_GS_ADDRESSING_ERROR           0x50
 #define PCCC_GS_CMD_PROTECTION             0x60
 #define PCCC_GS_PROGRAM_MODE               0x70
-#define PCCC_GS_MISSING_COMPATABILITY_FILE 0x80
+#define PCCC_GS_MISSING_COMPATIBILITY_FILE 0x80
 #define PCCC_GS_BUFFER_FULL_1              0x90
 #define PCCC_GS_WAIT_ACK                   0xA0
 #define PCCC_GS_REMOTE_DOWNLOAD_ERROR      0xB0

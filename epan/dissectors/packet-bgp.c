@@ -2037,7 +2037,7 @@ static int proto_bgp;
 
 /* BGP header field initialisation */
 
-/* global BGP header filed */
+/* global BGP header field */
 
 static int hf_bgp_marker;
 static int hf_bgp_length;
@@ -2063,7 +2063,7 @@ static int hf_bgp_vplsbgp_labelblock_base;
 static int hf_bgp_wildcard_route_target;
 static int hf_bgp_type;
 
-/* BGP open message header filed */
+/* BGP open message header field */
 
 static int hf_bgp_open_version;
 static int hf_bgp_open_myas;

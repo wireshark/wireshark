@@ -1031,7 +1031,7 @@ class Item:
     def check_bit(self, value, n):
         return (value & (0x1 << n)) != 0
 
-    # Output a warning if non-contigous bits are found in the mask (guint64).
+    # Output a warning if non-contiguous bits are found in the mask (guint64).
     # Note that this legimately happens in several dissectors where multiple reserved/unassigned
     # bits are conflated into one field.
     # - there is probably a cool/efficient way to check this (+1 => 1-bit set?)

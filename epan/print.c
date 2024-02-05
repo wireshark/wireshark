@@ -424,7 +424,7 @@ write_fields_proto_tree(output_fields_t* fields, epan_dissect_t *edt, column_inf
 /* Indent to the correct level */
 static void print_indent(int level, FILE *fh)
 {
-    /* Use a buffer pre-filed with spaces */
+    /* Use a buffer pre-filled with spaces */
 #define MAX_INDENT 2048
     static char spaces[MAX_INDENT];
     static gboolean inited = FALSE;

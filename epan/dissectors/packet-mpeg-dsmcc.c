@@ -279,7 +279,7 @@ static int hf_dsmcc_un_sess_rsrc_client_ca_info_data;
 static int hf_dsmcc_un_sess_rsrc_service_group;
 /* user defined 0xf001-0xf007 - end */
 
-/* table 6-1 compatabilityDescriptor - start */
+/* table 6-1 compatibilityDescriptor - start */
 static int hf_compat_desc_length;
 static int hf_compat_desc_count;
 static int hf_desc_type;
@@ -291,7 +291,7 @@ static int hf_desc_version;
 static int hf_desc_sub_desc_count;
 static int hf_desc_sub_desc_type;
 static int hf_desc_sub_desc_len;
-/* table 6-1 compatabilityDescriptor - end */
+/* table 6-1 compatibilityDescriptor - end */
 
 /* table 7-3 dsmccDownloadDataHeader - start */
 static int hf_dsmcc_dd_download_id;
@@ -2990,7 +2990,7 @@ proto_register_dsmcc(void)
         } },
         /* User defined 0xf001-0xf007 - end */
 
-        /* table 6-1 compatabilityDescriptor - start */
+        /* table 6-1 compatibilityDescriptor - start */
         { &hf_compat_desc_length, {
             "Compatibility Descriptor Length", "mpeg_dsmcc.dii.compat_desc_len",
             FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
@@ -3045,7 +3045,7 @@ proto_register_dsmcc(void)
             "Length", "mpeg_dsmcc.dii.compat.sub_len",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
         } },
-        /* table 6-1 compatabilityDescriptor - end */
+        /* table 6-1 compatibilityDescriptor - end */
 
         /* table 7-3 dsmccDownloadDataHeader - start */
         { &hf_dsmcc_dd_download_id, {

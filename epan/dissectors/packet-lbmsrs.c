@@ -1137,7 +1137,7 @@ static guint dissect_lbmsrs_sir_ser(tvbuff_t * tvb, proto_tree * tree, guint off
     guint total_payload_len = tvb_captured_length(tvb);
     guint start_offset = offset;
 
-    /*first filed is OTID, check if that many bytes are left to process*/
+    /*first field is OTID, check if that many bytes are left to process*/
     if ((total_payload_len - offset) < L_LBM_SRS_SRC_INFO_INFO_T_OTID)
     {
         /*stop processing in case not available*/
@@ -1372,7 +1372,7 @@ static guint dissect_lbmsrs_sdr(tvbuff_t * tvb, proto_tree * tree, guint offset,
     guint total_payload_len = tvb_captured_length(tvb);
     guint start_offset = offset;
 
-    /*first filed is OTID, check if that many bytes are left to process*/
+    /*first field is OTID, check if that many bytes are left to process*/
     if ((total_payload_len - offset) < L_LBM_SRS_SRC_INFO_INFO_T_OTID)
     {
         /*stop processing in case not available*/
@@ -1387,7 +1387,7 @@ static guint dissect_lbmsrs_sdr(tvbuff_t * tvb, proto_tree * tree, guint offset,
     proto_tree_add_item(sdr_tree, hf_lbmsrs_message_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    /*first filed is OTID, check if that many bytes are left to process*/
+    /*first field is OTID, check if that many bytes are left to process*/
     if ((total_payload_len - offset) < L_LBM_SRS_SRC_INFO_INFO_T_OTID)
     {
         /*stop processing in case not available*/
@@ -2073,7 +2073,7 @@ static guint dissect_lbmsrs_sli(tvbuff_t * tvb,  proto_tree * tree, guint offset
     guint total_payload_len = tvb_captured_length(tvb);
     guint start_offset = offset;
 
-    /*first filed is OTID, check if that many bytes are left to process*/
+    /*first field is OTID, check if that many bytes are left to process*/
     if ((total_payload_len - offset) < L_LBM_SRS_SRC_LEAVE_INFO_T_OTID)
     {
         /*stop processing in case not available*/

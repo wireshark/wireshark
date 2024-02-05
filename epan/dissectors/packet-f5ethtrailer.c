@@ -2451,7 +2451,7 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             tfs_get_string(ingress, &f5tfs_ing));
     if (ver > 2) {
         /* The old ingress field is now a flag field.  Leave the old ingress field
-         * for backward compatability for users that are accustomed to using
+         * for backward compatibility for users that are accustomed to using
          * "f5ethtrailer.ingress" but mark it as generated to indicate that that
          * field no longer really exists. */
         proto_item_set_generated(pi);

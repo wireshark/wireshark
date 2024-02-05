@@ -1872,7 +1872,7 @@ index_get_optional_name(const per_sequence_t *sequence, int idx)
 		if((sequence[i].extension!=ASN1_NOT_EXTENSION_ROOT)&&(sequence[i].optional==ASN1_OPTIONAL)){
 			if (idx == 0) {
 				hfi = proto_registrar_get_nth(*sequence[i].p_id);
-				return (hfi) ? hfi->name : "<unknown filed>";
+				return (hfi) ? hfi->name : "<unknown field>";
 			}
 			idx--;
 		}
@@ -1891,7 +1891,7 @@ index_get_extension_name(const per_sequence_t *sequence, int idx)
 			if (idx == 0) {
 				if (*sequence[i].p_id == -1 || *sequence[i].p_id == 0) return "extension addition group";
 				hfi = proto_registrar_get_nth(*sequence[i].p_id);
-				return (hfi) ? hfi->name : "<unknown filed>";
+				return (hfi) ? hfi->name : "<unknown field>";
 			}
 			idx--;
 		}

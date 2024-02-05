@@ -64,7 +64,7 @@ static const char *type1_subtype_abbrv[TYPE_I_SUBTYPE_MAX] =
 
 #define WIMAX_MAC_HEADER_TYPE_1_SUB_TYPE_MASK 0x38
 
-/* WIMAX MAC HEADER TYPE I FILEDS */
+/* WIMAX MAC HEADER TYPE I FIELDS */
 /* 1st to 3rd bytes */
 /* Common Fields */
 #define WIMAX_MAC_HEADER_TYPE_1_HT           0x800000
@@ -260,7 +260,7 @@ static int dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 			proto_tree_add_item(ti_tree, hf_mac_header_type_1_ultxpwr, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the UL Headroom */
 			proto_tree_add_item(ti_tree, hf_mac_header_type_1_ulhdrm, tvb, offset, 3, ENC_BIG_ENDIAN);
-			/* Decode and display the reserved filed */
+			/* Decode and display the reserved field */
 			proto_tree_add_item(ti_tree, hf_mac_header_type_1_rsv_2, tvb, offset, 3, ENC_BIG_ENDIAN);
 		break;
 		case BR_WITH_UL_TX_POWER_REPORT:
@@ -284,7 +284,7 @@ static int dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 			proto_tree_add_item(ti_tree, hf_mac_header_type_1_pscid, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the Operation */
 			proto_tree_add_item(ti_tree, hf_mac_header_type_1_op, tvb, offset, 3, ENC_BIG_ENDIAN);
-			/* Decode and display the reserved filed */
+			/* Decode and display the reserved field */
 			proto_tree_add_item(ti_tree, hf_mac_header_type_1_rsv_5, tvb, offset, 3, ENC_BIG_ENDIAN);
 		break;
 		case SN_REPORT:
@@ -304,7 +304,7 @@ static int dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 			proto_tree_add_item(ti_tree, hf_mac_header_type_1_fbssi, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the Prreferred-period */
 			proto_tree_add_item(ti_tree, hf_mac_header_type_1_period, tvb, offset, 3, ENC_BIG_ENDIAN);
-			/* Decode and display the reserved filed */
+			/* Decode and display the reserved field */
 			proto_tree_add_item(ti_tree, hf_mac_header_type_1_rsv_7, tvb, offset, 3, ENC_BIG_ENDIAN);
 		break;
 		}

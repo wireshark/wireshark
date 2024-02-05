@@ -1433,7 +1433,7 @@ static int
 dissect_hartip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                    void *data)
 {
-  /* Simple hueristic check*/
+  /* Simple heuristic check*/
   const gchar * msg_str = try_val_to_str(tvb_get_guint8(tvb, 1), hartip_message_type_values);
   if (!msg_str) {
     return 0;
@@ -1455,7 +1455,7 @@ dissect_hartip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
   gint offset = 0;
 
-  /* Simple hueristic check*/
+  /* Simple heuristic check*/
   const gchar * msg_str = try_val_to_str(tvb_get_guint8(tvb, 1), hartip_message_type_values);
   if (!msg_str) {
     return 0;
@@ -2004,7 +2004,7 @@ proto_register_hartip(void)
 
     /* command 14 */
     { &hf_hartip_pt_rsp_transducer_serial_number,
-      { "Transducer Serail Number",              "hart_ip.pt.rsp.transducer_serail_number",
+      { "Transducer Serial Number",              "hart_ip.pt.rsp.transducer_serial_number",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },

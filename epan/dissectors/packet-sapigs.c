@@ -36,9 +36,9 @@
 /* IGS Functions values */
 static const value_string sapigs_function_lst[] = {
 	{ 1, "ADM:REGPW"},		/* Register a PortWatcher */
-	{ 2, "ADM:UNREGPW"},		/* Unregsiter a PortWatcher */
+	{ 2, "ADM:UNREGPW"},		/* Unregister a PortWatcher */
 	{ 3, "ADM:REGIP"},		/* Register an Interpreter */
-	{ 4, "ADM:UNREGIP"},		/* Unregsiter an Interpreter */
+	{ 4, "ADM:UNREGIP"},		/* Unregister an Interpreter */
 	{ 5, "ADM:FREEIP"},		/* Inform than Interpreter is free */
 	{ 6, "ADM:ILLBEBACK"},		/* Call back function */
 	{ 7, "ADM:ABORT"},		/* Abort Interpreter work */

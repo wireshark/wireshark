@@ -479,7 +479,7 @@ wmem_block_pop_master(wmem_block_allocator_t *allocator)
 /* CHUNK HELPERS */
 
 /* Takes a free chunk and checks the chunks to its immediate right and left in
- * the block. If they are also free, the contigous free chunks are merged into
+ * the block. If they are also free, the contiguous free chunks are merged into
  * a single free chunk. The resulting chunk ends up in either the master list or
  * the recycler, depending on where the merged chunks were originally.
  */

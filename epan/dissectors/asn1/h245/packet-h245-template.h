@@ -34,7 +34,7 @@ typedef enum _h245_msg_type {
 
 typedef struct _h245_packet_info {
         h245_msg_type msg_type;         /* type of message */
-        gchar frame_label[50];          /* the Frame label used by graph_analysis, what is a abreviation of cinfo */
+        gchar frame_label[50];          /* the Frame label used by graph_analysis, what is an abbreviation of cinfo */
         gchar comment[50];                      /* the Frame Comment used by graph_analysis, what is a message desc */
 } h245_packet_info;
 

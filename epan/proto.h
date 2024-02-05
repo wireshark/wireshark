@@ -3418,7 +3418,7 @@ WS_DLL_PUBLIC proto_item *
 proto_tree_add_ascii_7bits_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
     const guint bit_offset, const gint no_of_chars);
 
-/** Add a checksum filed to a proto_tree.
+/** Add a checksum field to a proto_tree.
  This standardizes the display of a checksum field as well as any
  status and expert info supporting it.
  @param tree the tree to append this item to
@@ -3440,7 +3440,7 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const guint offset,
         const int hf_checksum, const int hf_checksum_status, struct expert_field* bad_checksum_expert,
         packet_info *pinfo, guint32 computed_checksum, const guint encoding, const guint flags);
 
-/** Add a checksum bytes arry filed to a proto_tree.
+/** Add a checksum bytes array field to a proto_tree.
  This standardizes the display of a checksum field as well as any
  status and expert info supporting it.
  @param tree the tree to append this item to

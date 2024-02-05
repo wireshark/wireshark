@@ -1432,7 +1432,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 Disconnect), and the maximum size is 256MB.  Hence minimum fixed
 length should be 2 bytes for tcp_dissect_pdu.
 
-If the length filed is spread across two TCP segments, then we have a
+If the length field is spread across two TCP segments, then we have a
 problem, because exception will be raised.  So long as MQTT length
 field(although spread over 4 bytes) is present within single TCP
 segment we shouldn't have any issue by calling tcp_dissect_pdu with

@@ -1384,7 +1384,7 @@ static const value_string cip_pccc_gs_st_vals[] = {
    { PCCC_GS_ADDRESSING_ERROR,                "Addressing problem or memory protect rungs" },
    { PCCC_GS_CMD_PROTECTION,                  "Function not allowed due to command protection selection" },
    { PCCC_GS_PROGRAM_MODE,                    "Processor is in Program mode" },
-   { PCCC_GS_MISSING_COMPATABILITY_FILE,      "Compatibility mode file missing or communication zone problem" },
+   { PCCC_GS_MISSING_COMPATIBILITY_FILE,      "Compatibility mode file missing or communication zone problem" },
    { PCCC_GS_BUFFER_FULL_1,                   "Remote node cannot buffer command" },
    { PCCC_GS_WAIT_ACK,                        "Wait ACK (1775-KA buffer full)" },
    { PCCC_GS_REMOTE_DOWNLOAD_ERROR,           "Remote node problem due to download" },

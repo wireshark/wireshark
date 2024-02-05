@@ -66,7 +66,7 @@ typedef struct _fragment_head {
 	struct _fragment_item *first_gap;	/**< pointer to last fragment before first gap.
 					 * NULL if there is no fragment starting at offset 0 */
 	guint ref_count; 		/**< reference count in reassembled_table */
-	guint32 contiguous_len;	/**< contigous length from head up to first gap */
+	guint32 contiguous_len;	/**< contiguous length from head up to first gap */
 	guint32 frame;			/**< maximum of all frame numbers added to reassembly */
 	guint32	len;			/**< When flags&FD_BLOCKSEQUENCE and FD_DEFRAGMENTED
 					 * are set, the number of bytes of the full datagram.

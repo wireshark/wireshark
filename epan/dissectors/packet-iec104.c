@@ -114,7 +114,7 @@ static const value_string apci_types [] = {
 	{ 0, NULL }
 };
 
-/* Constants relative to the filed, independent of the field position in the byte */
+/* Constants relative to the field, independent of the field position in the byte */
 /* U (Unnumbered) constants */
 #define U_STARTDT_ACT 		0x01
 #define U_STARTDT_CON	 	0x02

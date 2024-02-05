@@ -2781,7 +2781,7 @@ static const value_string usb_hid_medical_instrument_usage_page_vals[] = {
     {0xA1, "Soft Control Adjust"},
     {0, NULL}
 };
-static const value_string usb_hid_braille_dispaly_usage_page_vals[] = {
+static const value_string usb_hid_braille_display_usage_page_vals[] = {
     {0x000, "Undefined"},
     {0x001, "Braille Display"},
     {0x002, "Braille Row"},
@@ -4044,7 +4044,7 @@ get_usage_page_item_string(wmem_allocator_t *pool, guint32 usage_page, guint32 i
         str = try_val_to_str(id, usb_hid_medical_instrument_usage_page_vals);
         break;
     case BRAILLE_DISPLAY_PAGE:
-        str = try_val_to_str(id, usb_hid_braille_dispaly_usage_page_vals);
+        str = try_val_to_str(id, usb_hid_braille_display_usage_page_vals);
         break;
     case LIGHTING_AND_ILLUMINATION_PAGE:
         str = try_val_to_str(id, usb_hid_lighting_and_illumination_usage_page_vals);

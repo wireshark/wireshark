@@ -151,10 +151,10 @@ typedef struct
     const guint32 reg_size;                                 // Register size (in bytes)
     const guint32 reg_type;                                 // Register type (register, function)
     const char *name;                                       // Register name
-    const char *abbrev;                                     // Abreviation base for header fill
+    const char *abbrev;                                     // Abbreviation base for header fill
     const enum ftenum ft;                                   // Field type
     const gint32 base;                                      // Base display type
-    const guint encoding;                                   // Filed encoding
+    const guint encoding;                                   // Field encoding
     gint hf_id_w;                                           // Wireshark ID for header fill in write mode
     gint hf_id_r_a;                                         // Wireshark ID for header fill in read answer mode
     const void *cf_func;                                    // Conversion function
