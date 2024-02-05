@@ -557,6 +557,7 @@ static int hf_dhcp_option_civic_location_ca_length;		/* 99 */
 static int hf_dhcp_option_civic_location_ca_value;			/* 99 */
 static int hf_dhcp_option_tz_pcode;				/* 100 */
 static int hf_dhcp_option_tz_tcode;				/* 101 */
+static int hf_dhcp_option_ipv6_only_preferred_wait_time;		/* 108 */
 static int hf_dhcp_option_netinfo_parent_server_address;		/* 112 */
 static int hf_dhcp_option_netinfo_parent_server_tag;		/* 113 */
 static int hf_dhcp_option_captive_portal;				/* 114 (ex 160) */
@@ -1416,7 +1417,7 @@ static const string_string option242_avaya_static_vals[] = {
 #define DHCP_OPT_NUM	256
 
 /* All of the options that have a "basic" type that can be handled by dissect_dhcpopt_basic_type() */
-#define DHCP_OPTION_BASICTYPE_RANGE "1-20,22-32,34-42,44-51,53-54,56-59,64-76,86-87,91-92,100-101,112-113,116,118,136-138,142,150,153,156-157,161,209-210,252"
+#define DHCP_OPTION_BASICTYPE_RANGE "1-20,22-32,34-42,44-51,53-54,56-59,64-76,86-87,91-92,100-101,108,112-113,116,118,136-138,142,150,153,156-157,161,209-210,252"
 
 /* Re-define structure.	 Values to be updated by dhcp_init_protocol */
 static struct opt_info dhcp_opt[DHCP_OPT_NUM];
@@ -1530,7 +1531,7 @@ static struct opt_info default_dhcp_opt[DHCP_OPT_NUM] = {
 /* 105 */ { "Removed/unassigned",			opaque, NULL },
 /* 106 */ { "Removed/unassigned",			opaque, NULL },
 /* 107 */ { "Removed/unassigned",			opaque, NULL },
-/* 108 */ { "IPv6-Only Preferred",			opaque, NULL },
+/* 108 */ { "IPv6-Only Preferred",			time_in_u_secs, &hf_dhcp_option_ipv6_only_preferred_wait_time },
 /* 109 */ { "Unassigned",				opaque, NULL },
 /* 110 */ { "Removed/Unassigned",			opaque, NULL },
 /* 111 */ { "Unassigned",				opaque, NULL },
@@ -9651,6 +9652,11 @@ proto_register_dhcp(void)
 		  { "TZ TCode", "dhcp.option.tz_tcode",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "Option 101: TZ TCode", HFILL  }},
+
+		{ &hf_dhcp_option_ipv6_only_preferred_wait_time,
+		  { "IPv6-Only Preferred wait time", "dhcp.option.ipv6only_preferred_wait_time",
+		    FT_UINT32, BASE_CUSTOM, CF_FUNC(dhcp_time_in_u_secs_fmt), 0x0,
+		    "Option 108: IPv6-Only Preferred wait time", HFILL }},
 
 		{ &hf_dhcp_option_netinfo_parent_server_address,
 		  { "NetInfo Parent Server Address", "dhcp.option.netinfo_parent_server_address",
