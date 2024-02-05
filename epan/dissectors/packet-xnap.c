@@ -2335,7 +2335,7 @@ static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia3_128;
 /* Initialize the subtree pointers */
 static gint ett_xnap;
 static gint ett_xnap_RRC_Context;
-static gint ett_nxap_container;
+static gint ett_xnap_container;
 static gint ett_xnap_PLMN_Identity;
 static gint ett_xnap_measurementTimingConfiguration;
 static gint ett_xnap_TransportLayerAddress;
@@ -8747,7 +8747,7 @@ dissect_xnap_T_sN_to_MN_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
   if (parameter_tvb) {
     proto_tree *subtree;
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_nxap_container);
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_container);
     dissect_nr_rrc_CG_ConfigInfo_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
@@ -22054,7 +22054,7 @@ dissect_xnap_Target2SourceNG_RANnodeTranspContainer(tvbuff_t *tvb _U_, int offse
     proto_tree *subtree;
     GlobalNG_RANNode_ID_enum source_ranmode_id = xnap_get_ranmode_id(&actx->pinfo->src, actx->pinfo->srcport, actx->pinfo);
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_nxap_container);
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_container);
     if ((xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_AUTOMATIC &&
          source_ranmode_id == GlobalNG_RANNode_ID_gNB) ||
         (xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_GNB)) {
@@ -22358,7 +22358,7 @@ dissect_xnap_MN_to_SN_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
     struct xnap_private_data *xnap_data = xnap_get_private_data(actx->pinfo);
     GlobalNG_RANNode_ID_enum target_ranmode_id = xnap_get_ranmode_id(&actx->pinfo->dst, actx->pinfo->destport, actx->pinfo);
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_nxap_container);
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_container);
     if ((xnap_data->procedure_code == id_sNGRANnodeAdditionPreparation &&
          xnap_data->message_type == INITIATING_MESSAGE) ||
         (xnap_data->procedure_code == id_mNGRANnodeinitiatedSNGRANnodeModificationPreparation &&
@@ -22464,7 +22464,7 @@ dissect_xnap_SN_to_MN_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
   if (parameter_tvb) {
     proto_tree *subtree;
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_nxap_container);
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_container);
     dissect_nr_rrc_CG_Config_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
@@ -22577,7 +22577,7 @@ dissect_xnap_T_m_NG_RANNode_to_S_NG_RANNode_Container(tvbuff_t *tvb _U_, int off
     proto_tree *subtree;
     GlobalNG_RANNode_ID_enum target_ranmode_id = xnap_get_ranmode_id(&actx->pinfo->dst, actx->pinfo->destport, actx->pinfo);
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_nxap_container);
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_container);
     if ((xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_AUTOMATIC &&
          target_ranmode_id == GlobalNG_RANNode_ID_gNB) ||
         (xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_GNB)) {
@@ -22620,7 +22620,7 @@ dissect_xnap_T_m_NG_RANNode_to_S_NG_RANNode_Container_01(tvbuff_t *tvb _U_, int 
   if (parameter_tvb) {
     proto_tree *subtree;
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_nxap_container);
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_container);
     dissect_nr_rrc_CG_ConfigInfo_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
@@ -35228,7 +35228,7 @@ void proto_register_xnap(void) {
   static gint *ett[] = {
     &ett_xnap,
     &ett_xnap_RRC_Context,
-    &ett_nxap_container,
+    &ett_xnap_container,
     &ett_xnap_PLMN_Identity,
     &ett_xnap_measurementTimingConfiguration,
     &ett_xnap_TransportLayerAddress,

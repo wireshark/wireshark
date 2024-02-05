@@ -132,7 +132,7 @@ ProtocolExtensionID TYPE = FT_UINT8 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS =
     proto_tree *subtree;
     GlobalNG_RANNode_ID_enum source_ranmode_id = xnap_get_ranmode_id(&actx->pinfo->src, actx->pinfo->srcport, actx->pinfo);
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_nxap_container);
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_container);
     if ((xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_AUTOMATIC &&
          source_ranmode_id == GlobalNG_RANNode_ID_gNB) ||
         (xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_GNB)) {
@@ -153,7 +153,7 @@ ProtocolExtensionID TYPE = FT_UINT8 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS =
     struct xnap_private_data *xnap_data = xnap_get_private_data(actx->pinfo);
     GlobalNG_RANNode_ID_enum target_ranmode_id = xnap_get_ranmode_id(&actx->pinfo->dst, actx->pinfo->destport, actx->pinfo);
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_nxap_container);
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_container);
     if ((xnap_data->procedure_code == id_sNGRANnodeAdditionPreparation &&
          xnap_data->message_type == INITIATING_MESSAGE) ||
         (xnap_data->procedure_code == id_mNGRANnodeinitiatedSNGRANnodeModificationPreparation &&
@@ -187,7 +187,7 @@ ProtocolExtensionID TYPE = FT_UINT8 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS =
   if (parameter_tvb) {
     proto_tree *subtree;
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_nxap_container);
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_container);
     dissect_nr_rrc_CG_Config_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
@@ -199,7 +199,7 @@ ProtocolExtensionID TYPE = FT_UINT8 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS =
     proto_tree *subtree;
     GlobalNG_RANNode_ID_enum target_ranmode_id = xnap_get_ranmode_id(&actx->pinfo->dst, actx->pinfo->destport, actx->pinfo);
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_nxap_container);
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_container);
     if ((xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_AUTOMATIC &&
          target_ranmode_id == GlobalNG_RANNode_ID_gNB) ||
         (xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_GNB)) {
@@ -218,7 +218,7 @@ ProtocolExtensionID TYPE = FT_UINT8 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS =
   if (parameter_tvb) {
     proto_tree *subtree;
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_nxap_container);
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_container);
     dissect_nr_rrc_CG_ConfigInfo_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
@@ -229,7 +229,7 @@ ProtocolExtensionID TYPE = FT_UINT8 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS =
   if (parameter_tvb) {
     proto_tree *subtree;
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_nxap_container);
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_container);
     dissect_nr_rrc_CG_ConfigInfo_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 

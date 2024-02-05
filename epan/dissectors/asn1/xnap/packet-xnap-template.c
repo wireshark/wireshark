@@ -86,7 +86,7 @@ static int hf_xnap_ReportCharacteristics_Reserved;
 /* Initialize the subtree pointers */
 static gint ett_xnap;
 static gint ett_xnap_RRC_Context;
-static gint ett_nxap_container;
+static gint ett_xnap_container;
 static gint ett_xnap_PLMN_Identity;
 static gint ett_xnap_measurementTimingConfiguration;
 static gint ett_xnap_TransportLayerAddress;
@@ -488,7 +488,7 @@ void proto_register_xnap(void) {
   static gint *ett[] = {
     &ett_xnap,
     &ett_xnap_RRC_Context,
-    &ett_nxap_container,
+    &ett_xnap_container,
     &ett_xnap_PLMN_Identity,
     &ett_xnap_measurementTimingConfiguration,
     &ett_xnap_TransportLayerAddress,
