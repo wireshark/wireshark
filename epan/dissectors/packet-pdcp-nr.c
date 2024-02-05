@@ -112,6 +112,8 @@ static int hf_pdcp_nr_security_cipher_key_setup_frame;
 static int hf_pdcp_nr_security_integrity_key_setup_frame;
 static int hf_pdcp_nr_security_deciphered_data;
 
+static int hf_pdcp_nr_security_integrity_data;
+
 
 /* Protocol subtree. */
 static int ett_pdcp;
@@ -1710,7 +1712,7 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
 }
 
 /* Try to calculate digest to compare with that found in frame. */
-static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, tvbuff_t *header_tvb _U_,
+static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, proto_tree *security_tree, tvbuff_t *header_tvb _U_,
                                 tvbuff_t *tvb _U_, gint offset _U_, guint sdap_length _U_, gboolean *calculated)
 {
     *calculated = FALSE;
@@ -1748,6 +1750,12 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 tvb_memcpy(header_tvb, message_data, 0, header_length);
                 /* Followed by the decrypted message (but not the digest bytes) */
                 tvb_memcpy(tvb, message_data+header_length, offset+sdap_length, message_length-sdap_length);
+
+                /* Show message data in security tree */
+                proto_item *integ_data_ti = proto_tree_add_bytes_with_length(security_tree, hf_pdcp_nr_security_integrity_data,
+                                                                             tvb, 0, 0, message_data,
+                                                                             message_length+1);
+                proto_item_set_generated(integ_data_ti);
 
                 mac = (u8*)snow3g_f9(pdu_security_settings->integrityKey,
                                      pdu_security_settings->count,
@@ -1804,6 +1812,12 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 /* Followed by the decrypted message (but not the digest bytes or any SDAP bytes) */
                 tvb_memcpy(tvb, message_data+8+header_length, offset+sdap_length, message_length-sdap_length);
 
+                /* Show message data in security tree */
+                proto_item *integ_data_ti = proto_tree_add_bytes_with_length(security_tree, hf_pdcp_nr_security_integrity_data,
+                                                                             tvb, 0, 0, message_data,
+                                                                             8+header_length+message_length-sdap_length);
+                proto_item_set_generated(integ_data_ti);
+
                 /* Pass in the message */
                 gcrypt_err = gcry_mac_write(mac_hd, message_data, 8+header_length+message_length-sdap_length);
                 if (gcrypt_err != 0) {
@@ -1837,6 +1851,12 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 tvb_memcpy(header_tvb, message_data, 0, header_length);
                 /* Followed by the decrypted message (but not the digest bytes) */
                 tvb_memcpy(tvb, message_data+header_length, offset+sdap_length, message_length-sdap_length);
+
+                /* Show message data in security tree */
+                proto_item *integ_data_ti = proto_tree_add_bytes_with_length(security_tree, hf_pdcp_nr_security_integrity_data,
+                                                                             tvb, 0, 0, message_data,
+                                                                             message_length+header_length);
+                proto_item_set_generated(integ_data_ti);
 
                 zuc_f9(pdu_security_settings->integrityKey,
                        pdu_security_settings->count,
@@ -2456,7 +2476,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     /* Try to calculate digest so we can check it */
     if (global_pdcp_check_integrity && p_pdcp_info->maci_present) {
-        calculated_digest = calculate_digest(&pdu_security_settings,
+        calculated_digest = calculate_digest(&pdu_security_settings, security_tree,
                                              tvb_new_subset_length(tvb, 0, header_length),
                                              payload_tvb,
                                              offset, sdap_length, &digest_was_calculated);
@@ -2949,6 +2969,12 @@ void proto_register_pdcp_nr(void)
         { &hf_pdcp_nr_security_deciphered_data,
             { "Deciphered Data",
               "pdcp-nr.deciphered-data", FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_pdcp_nr_security_integrity_data,
+            { "Integrity Data",
+              "pdcp-nr.integrity-data", FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
         },
