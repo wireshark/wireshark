@@ -16,6 +16,7 @@
 
 #include <ui/qt/models/atap_data_model.h>
 #include <ui/qt/filter_action.h>
+#include <ui/qt/widgets/traffic_tree.h>
 #include <ui/qt/widgets/detachable_tabwidget.h>
 #include <ui/qt/widgets/traffic_types_list.h>
 
@@ -227,14 +228,16 @@ private:
     bool _nameResolution;
 
     QTreeView * createTree(int protoId);
-    ATapDataModel * modelForTabIndex(int tabIdx = -1);
-    ATapDataModel * modelForWidget(QWidget * widget);
+    TrafficDataFilterProxy * modelForTabIndex(int tabIdx = -1);
+    TrafficDataFilterProxy * modelForWidget(QWidget * widget);
+    ATapDataModel * dataModelForTabIndex(int tabIdx = -1);
+    ATapDataModel * dataModelForWidget(QWidget * widget);
 
     void insertProtoTab(int protoId, bool emitSignals = true);
     void removeProtoTab(int protoId, bool emitSignals = true);
 
 #ifdef HAVE_MAXMINDDB
-    bool writeGeoIPMapFile(QFile * fp, bool json_only, ATapDataModel * dataModel);
+    bool writeGeoIPMapFile(QFile * fp, bool json_only, TrafficDataFilterProxy * model);
 #endif
 
 private slots:

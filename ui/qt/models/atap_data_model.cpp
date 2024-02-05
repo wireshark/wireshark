@@ -90,10 +90,12 @@ bool ATapDataModel::hasGeoIPData()
     while (!coordsFound && row < count)
     {
         QModelIndex idx = index(row, 0);
-        if (_type == ATapDataModel::DATAMODEL_ENDPOINT)
-            coordsFound = qobject_cast<EndpointDataModel *>(this)->data(idx, ATapDataModel::GEODATA_AVAILABLE).toBool();
-        else if (_type == ATapDataModel::DATAMODEL_CONVERSATION)
-            coordsFound = qobject_cast<ConversationDataModel *>(this)->data(idx, ATapDataModel::GEODATA_AVAILABLE).toBool();
+        if (!data(idx, ATapDataModel::ROW_IS_FILTERED).toBool()) {
+            if (_type == ATapDataModel::DATAMODEL_ENDPOINT)
+                coordsFound = qobject_cast<EndpointDataModel *>(this)->data(idx, ATapDataModel::GEODATA_AVAILABLE).toBool();
+            else if (_type == ATapDataModel::DATAMODEL_CONVERSATION)
+                coordsFound = qobject_cast<ConversationDataModel *>(this)->data(idx, ATapDataModel::GEODATA_AVAILABLE).toBool();
+        }
         row++;
     }
 
