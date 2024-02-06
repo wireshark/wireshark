@@ -273,6 +273,7 @@ static gint hf_krb_pa_supported_enctypes_claims_supported;
 static gint hf_krb_pa_supported_enctypes_resource_sid_compression_disabled;
 static gint hf_krb_ad_ap_options;
 static gint hf_krb_ad_ap_options_cbt;
+static gint hf_krb_ad_ap_options_unverified_target_name;
 static gint hf_krb_ad_target_principal;
 static gint hf_krb_key_hidden_item;
 static gint hf_kerberos_KERB_TICKET_LOGON;
@@ -3595,6 +3596,7 @@ dissect_kerberos_PA_SUPPORTED_ENCTYPES(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int * const hf_krb_ad_ap_options_fields[] = {
 	&hf_krb_ad_ap_options_cbt,
+	&hf_krb_ad_ap_options_unverified_target_name,
 	NULL,
 };
 
@@ -5140,6 +5142,9 @@ void proto_register_kerberos(void) {
 	{ &hf_krb_ad_ap_options_cbt,
 	  { "ChannelBindings", "kerberos.ad_ap_options.cbt",
 		FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00004000, NULL, HFILL }},
+	{ &hf_krb_ad_ap_options_unverified_target_name,
+	  { "UnverifiedTargetName", "kerberos.ad_ap_options.unverified_target_name",
+		FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00008000, NULL, HFILL }},
 	{ &hf_krb_ad_target_principal,
 	  { "Target Principal", "kerberos.ad_target_principal",
 	    FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
