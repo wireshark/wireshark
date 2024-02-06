@@ -892,6 +892,7 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
     gfloat data_float, modfloat;
     proto_tree    *bit_tree = NULL;
     proto_item    *bitnum_ti = NULL;
+    proto_item    *regnum_ti = NULL;
     proto_item    *register_item = NULL;
     proto_tree    *register_tree = NULL;
     tvbuff_t *next_tvb;
@@ -935,7 +936,7 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
                     data_bool = (data8 & (1 << ii)) > 0;
                     bit_tree = proto_tree_add_subtree_format(tree, next_tvb, data_offset, 1,
                         ett_bit, NULL, "Bit %u : %u", reg_num, data_bool);
-                    bitnum_ti = proto_tree_add_uint(bit_tree, hf_modbus_bitnum, next_tvb, data_offset, 1, reg_num);
+                    bitnum_ti = proto_tree_add_uint(bit_tree, hf_modbus_bitnum, next_tvb, 0, 0, reg_num);
                     proto_item_set_generated(bitnum_ti);
                     proto_tree_add_boolean_bits_format_value(bit_tree, hf_modbus_bitval, next_tvb, 7 - ii, 1, data8, ENC_NA, "%s", tfs_get_true_false(data_bool));
                     reg_num++;
@@ -963,7 +964,8 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
                         register_tree = proto_tree_add_subtree_format( tree, next_tvb, data_offset, 2,
                             ett_register, NULL, "Register %u (UINT16): %u", reg_num, data16);
 
-                        proto_tree_add_uint(register_tree, hf_modbus_regnum16, next_tvb, data_offset, 2, reg_num);
+                        regnum_ti = proto_tree_add_uint(register_tree, hf_modbus_regnum16, next_tvb, 0, 0, reg_num);
+                        proto_item_set_generated(regnum_ti);
                         proto_tree_add_uint(register_tree, hf_modbus_regval_uint16, next_tvb, data_offset, 2, data16);
 
                         data_offset += 2;
@@ -974,7 +976,8 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
                         register_tree = proto_tree_add_subtree_format( tree, next_tvb, data_offset, 2,
                             ett_register, NULL, "Register %u (INT16): %d", reg_num, data16s);
 
-                        proto_tree_add_uint(register_tree, hf_modbus_regnum16, next_tvb, data_offset, 2, reg_num);
+                        regnum_ti = proto_tree_add_uint(register_tree, hf_modbus_regnum16, next_tvb, 0, 0, reg_num);
+                        proto_item_set_generated(regnum_ti);
                         proto_tree_add_int(register_tree, hf_modbus_regval_int16, next_tvb, data_offset, 2, data16s);
 
                         data_offset += 2;
@@ -985,7 +988,8 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
                         register_tree = proto_tree_add_subtree_format( tree, next_tvb, data_offset, 4,
                             ett_register, NULL, "Register %u (UINT32): %u", reg_num, data32);
 
-                        proto_tree_add_uint(register_tree, hf_modbus_regnum32, next_tvb, data_offset, 4, reg_num);
+                        regnum_ti = proto_tree_add_uint(register_tree, hf_modbus_regnum32, next_tvb, 0, 0, reg_num);
+                        proto_item_set_generated(regnum_ti);
                         proto_tree_add_uint(register_tree, hf_modbus_regval_uint32, next_tvb, data_offset, 4, data32);
 
                         data_offset += 4;
@@ -996,7 +1000,8 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
                         register_tree = proto_tree_add_subtree_format( tree, next_tvb, data_offset, 4,
                             ett_register, NULL, "Register %u (INT32): %d", reg_num, data32s);
 
-                        proto_tree_add_uint(register_tree, hf_modbus_regnum32, next_tvb, data_offset, 4, reg_num);
+                        regnum_ti = proto_tree_add_uint(register_tree, hf_modbus_regnum32, next_tvb, 0, 0, reg_num);
+                        proto_item_set_generated(regnum_ti);
                         proto_tree_add_int(register_tree, hf_modbus_regval_int32, next_tvb, data_offset, 4, data32s);
 
                         data_offset += 4;
@@ -1008,7 +1013,8 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
                         register_tree = proto_tree_add_subtree_format( tree, next_tvb, data_offset, 4,
                             ett_register, NULL, "Register %u (IEEE Float): %f", reg_num, data_float);
 
-                        proto_tree_add_uint(register_tree, hf_modbus_regnum32, next_tvb, data_offset, 4, reg_num);
+                        regnum_ti = proto_tree_add_uint(register_tree, hf_modbus_regnum32, next_tvb, 0, 0, reg_num);
+                        proto_item_set_generated(regnum_ti);
                         proto_tree_add_float(register_tree, hf_modbus_regval_ieee_float, next_tvb, data_offset, 4, data_float);
 
                         data_offset += 4;
@@ -1032,7 +1038,8 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
                         register_tree = proto_tree_add_subtree_format( tree, next_tvb, data_offset, 4,
                             ett_register, NULL, "Register %u (Modicon Float): %f", reg_num, modfloat);
 
-                        proto_tree_add_uint(register_tree, hf_modbus_regnum32, next_tvb, data_offset, 4, reg_num);
+                        regnum_ti = proto_tree_add_uint(register_tree, hf_modbus_regnum32, next_tvb, 0, 0, reg_num);
+                        proto_item_set_generated(regnum_ti);
                         proto_tree_add_float(register_tree, hf_modbus_regval_modicon_float, next_tvb, data_offset, 4, modfloat);
 
                         data_offset += 4;
