@@ -40,7 +40,6 @@ DIAG_ON(frame-larger-than=)
 #include "ui/urls.h"
 
 #include "epan/color_filters.h"
-#include "epan/export_object.h"
 
 #include "wsutil/file_util.h"
 #include "wsutil/filesystem.h"
@@ -105,9 +104,6 @@ DIAG_ON(frame-larger-than=)
 #include "dissector_tables_dialog.h"
 #include "endpoint_dialog.h"
 #include "expert_info_dialog.h"
-#include "export_object_action.h"
-#include "export_object_dialog.h"
-#include "export_pdu_dialog.h"
 #include "extcap_options_dialog.h"
 #include "file_set_dialog.h"
 #include "filter_action.h"
@@ -120,7 +116,6 @@ DIAG_ON(frame-larger-than=)
 #include <ui/qt/widgets/additional_toolbar.h>
 #include "main_application.h"
 #include "packet_comment_dialog.h"
-#include "packet_diagram.h"
 #include "packet_dialog.h"
 #include "packet_list.h"
 #include "preferences_dialog.h"
@@ -340,7 +335,6 @@ void LograyMainWindow::updatePreferenceActions()
     main_ui_->actionViewPacketList->setEnabled(prefs_has_layout_pane_content(layout_pane_content_plist));
     main_ui_->actionViewPacketDetails->setEnabled(prefs_has_layout_pane_content(layout_pane_content_pdetails));
     main_ui_->actionViewPacketBytes->setEnabled(prefs_has_layout_pane_content(layout_pane_content_pbytes));
-    main_ui_->actionViewPacketDiagram->setEnabled(prefs_has_layout_pane_content(layout_pane_content_pdiagram));
 
     main_ui_->actionViewNameResolutionPhysical->setChecked(gbl_resolv_flags.mac_name);
     main_ui_->actionViewNameResolutionNetwork->setChecked(gbl_resolv_flags.network_name);
@@ -355,7 +349,6 @@ void LograyMainWindow::updateRecentActions()
     main_ui_->actionViewPacketList->setChecked(recent.packet_list_show && prefs_has_layout_pane_content(layout_pane_content_plist));
     main_ui_->actionViewPacketDetails->setChecked(recent.tree_view_show && prefs_has_layout_pane_content(layout_pane_content_pdetails));
     main_ui_->actionViewPacketBytes->setChecked(recent.byte_view_show && prefs_has_layout_pane_content(layout_pane_content_pbytes));
-    main_ui_->actionViewPacketDiagram->setChecked(recent.packet_diagram_show && prefs_has_layout_pane_content(layout_pane_content_pdiagram));
 
     foreach(QAction *action, main_ui_->menuInterfaceToolbars->actions()) {
         if (g_list_find_custom(recent.interface_toolbars, action->text().toUtf8(), (GCompareFunc)strcmp)) {
@@ -1095,7 +1088,7 @@ void LograyMainWindow::setEditCommentsMenu()
             for (guint i = 0; i < nComments; i++) {
                 QString comment = packet_list_->getPacketComment(i);
                 comment = this->commentToMenuText(comment);
-                action = main_ui_->menuPacketComment->addAction(tr("Edit \"%1\"", "edit packet comment").arg(comment));
+                action = main_ui_->menuPacketComment->addAction(tr("Edit \"%1\"", "edit event comment").arg(comment));
                 connect(action, &QAction::triggered, this, &LograyMainWindow::editPacketComment);
                 action->setData(i);
             }
@@ -1104,19 +1097,19 @@ void LograyMainWindow::setEditCommentsMenu()
             for (guint i = 0; i < nComments; i++) {
                 QString comment = packet_list_->getPacketComment(i);
                 comment = this->commentToMenuText(comment);
-                action = main_ui_->menuPacketComment->addAction(tr("Delete \"%1\"", "delete packet comment").arg(comment));
+                action = main_ui_->menuPacketComment->addAction(tr("Delete \"%1\"", "delete event comment").arg(comment));
                 connect(action, &QAction::triggered, this, &LograyMainWindow::deletePacketComment);
                 action->setData(i);
             }
             main_ui_->menuPacketComment->addSeparator();
-            action = main_ui_->menuPacketComment->addAction(tr("Delete packet comments"));
+            action = main_ui_->menuPacketComment->addAction(tr("Delete event comments"));
             connect(action, &QAction::triggered, this, &LograyMainWindow::deleteCommentsFromPackets);
         }
         wtap_block_unref(pkt_block);
     }
     if (selectedRows().count() > 1) {
         main_ui_->menuPacketComment->addSeparator();
-        action = main_ui_->menuPacketComment->addAction(tr("Delete comments from %n packet(s)", nullptr, static_cast<int>(selectedRows().count())));
+        action = main_ui_->menuPacketComment->addAction(tr("Delete comments from %n event(s)", nullptr, static_cast<int>(selectedRows().count())));
         connect(action, &QAction::triggered, this, &LograyMainWindow::deleteCommentsFromPackets);
     }
 }
@@ -1194,14 +1187,11 @@ void LograyMainWindow::setMenusForSelectedPacket()
         }
     }
 
-    main_ui_->actionEditMarkPacket->setText(tr("&Mark/Unmark Packet(s)", "", static_cast<int>(selectedRows().count())));
-    main_ui_->actionEditIgnorePacket->setText(tr("&Ignore/Unignore Packet(s)", "", static_cast<int>(selectedRows().count())));
-
     main_ui_->actionCopyListAsText->setEnabled(selectedRows().count() > 0);
     main_ui_->actionCopyListAsCSV->setEnabled(selectedRows().count() > 0);
     main_ui_->actionCopyListAsYAML->setEnabled(selectedRows().count() > 0);
 
-    main_ui_->actionEditMarkPacket->setEnabled(frame_selected || multi_selection);
+    main_ui_->actionEditMarkSelected->setEnabled(frame_selected || multi_selection);
     main_ui_->actionEditMarkAllDisplayed->setEnabled(have_frames);
     /* Unlike un-ignore, do not allow unmark of all frames when no frames are displayed  */
     main_ui_->actionEditUnmarkAllDisplayed->setEnabled(have_marked);
@@ -1216,7 +1206,7 @@ void LograyMainWindow::setMenusForSelectedPacket()
     main_ui_->menuPacketComment->setEnabled(enableEditComments && selectedRows().count() > 0);
     main_ui_->actionDeleteAllPacketComments->setEnabled(enableEditComments);
 
-    main_ui_->actionEditIgnorePacket->setEnabled(frame_selected || multi_selection);
+    main_ui_->actionEditIgnoreSelected->setEnabled(frame_selected || multi_selection);
     main_ui_->actionEditIgnoreAllDisplayed->setEnabled(have_filtered);
     /* Allow un-ignore of all frames even with no frames currently displayed */
     main_ui_->actionEditUnignoreAllDisplayed->setEnabled(have_ignored);
@@ -1336,7 +1326,6 @@ void LograyMainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
     main_ui_->actionEditCopyAsFilter->setEnabled(can_match_selected);
 
     main_ui_->actionAnalyzeShowPacketBytes->setEnabled(have_packet_bytes);
-    main_ui_->actionFileExportPacketBytes->setEnabled(have_packet_bytes);
 
     main_ui_->actionViewExpandSubtrees->setEnabled(have_subtree);
     main_ui_->actionViewCollapseSubtrees->setEnabled(have_subtree);
@@ -1778,55 +1767,8 @@ void LograyMainWindow::connectFileMenuActions()
     connect(main_ui_->actionFileExportAsJSON, &QAction::triggered, this,
         [this]() { exportDissections(export_type_json); });
 
-    connect(main_ui_->actionFileExportPacketBytes, &QAction::triggered, this,
-        [this]() { exportPacketBytes(); }, Qt::QueuedConnection);
-
-    connect(main_ui_->actionFileExportPDU, &QAction::triggered, this,
-        [this]() { exportPDU(); });
-
     connect(main_ui_->actionFilePrint, &QAction::triggered, this,
         [this]() { printFile(); });
-}
-
-void LograyMainWindow::exportPacketBytes()
-{
-    QString file_name;
-
-    if (!capture_file_.capFile() || !capture_file_.capFile()->finfo_selected) return;
-
-    file_name = WiresharkFileDialog::getSaveFileName(this,
-                                            mainApp->windowTitleString(tr("Export Selected Packet Bytes")),
-                                            mainApp->openDialogInitialDir().canonicalPath(),
-                                            tr("Raw data (*.bin *.dat *.raw);;All Files (" ALL_FILES_WILDCARD ")")
-                                            );
-
-    if (file_name.length() > 0) {
-        const guint8 *data_p;
-
-        data_p = tvb_get_ptr(capture_file_.capFile()->finfo_selected->ds_tvb, 0, -1) +
-                capture_file_.capFile()->finfo_selected->start;
-        write_file_binary_mode(qUtf8Printable(file_name), data_p, capture_file_.capFile()->finfo_selected->length);
-
-        /* Save the directory name for future file dialogs. */
-        mainApp->setLastOpenDirFromFilename(file_name);
-    }
-}
-
-void LograyMainWindow::exportPDU()
-{
-    ExportPDUDialog *exportpdu_dialog = new ExportPDUDialog(this);
-
-    if (exportpdu_dialog->isMinimized() == true)
-    {
-        exportpdu_dialog->showNormal();
-    }
-    else
-    {
-        exportpdu_dialog->show();
-    }
-
-    exportpdu_dialog->raise();
-    exportpdu_dialog->activateWindow();
 }
 
 void LograyMainWindow::printFile()
@@ -1889,7 +1831,7 @@ void LograyMainWindow::connectEditMenuActions()
     // The items below are used in the packet list and detail context menus.
     // Use QueuedConnections so that the context menus aren't destroyed
     // prematurely.
-    connect(main_ui_->actionEditMarkPacket, &QAction::triggered, this, [this]() {
+    connect(main_ui_->actionEditMarkSelected, &QAction::triggered, this, [this]() {
         freeze();
         packet_list_->markFrame();
         thaw();
@@ -1922,7 +1864,7 @@ void LograyMainWindow::connectEditMenuActions()
         }
     }, Qt::QueuedConnection);
 
-    connect(main_ui_->actionEditIgnorePacket, &QAction::triggered, this, [this]() {
+    connect(main_ui_->actionEditIgnoreSelected, &QAction::triggered, this, [this]() {
         freeze();
         packet_list_->ignoreFrame();
         thaw();
@@ -2376,9 +2318,6 @@ void LograyMainWindow::showHideMainWidgets(QAction *action)
     } else if (widget == byte_view_tab_) {
         recent.byte_view_show = show;
         main_ui_->actionViewPacketBytes->setChecked(show);
-    } else if (widget == packet_diagram_) {
-        recent.packet_diagram_show = show;
-        main_ui_->actionViewPacketDiagram->setChecked(show);
     } else {
         foreach(QAction *action, main_ui_->menuInterfaceToolbars->actions()) {
             QToolBar *toolbar = action->data().value<QToolBar *>();
@@ -2927,18 +2866,6 @@ void LograyMainWindow::connectAnalyzeMenuActions()
         enable_proto_dialog->show();
     });
 
-    connect(main_ui_->actionAnalyzeDecodeAs, &QAction::triggered, this, [=]() {
-        QAction *da_action = qobject_cast<QAction*>(sender());
-        bool create_new = da_action && da_action->property("create_new").toBool();
-
-        DecodeAsDialog *da_dialog = new DecodeAsDialog(this, capture_file_.capFile(), create_new);
-        connect(da_dialog, SIGNAL(destroyed(QObject*)), mainApp, SLOT(flushAppSignals()));
-
-        da_dialog->setWindowModality(Qt::ApplicationModal);
-        da_dialog->setAttribute(Qt::WA_DeleteOnClose);
-        da_dialog->show();
-    });
-
     connect(main_ui_->actionAnalyzeReloadLuaPlugins, &QAction::triggered, this, &LograyMainWindow::reloadLuaPlugins);
 
     connect(main_ui_->actionAnalyzeShowPacketBytes, &QAction::triggered, this, [=]() {
@@ -3035,18 +2962,6 @@ void LograyMainWindow::applyConversationFilter()
         df_combo_box_->lineEdit()->setText(conv_filter);
         df_combo_box_->applyDisplayFilter();
     }
-}
-
-void LograyMainWindow::applyExportObject()
-{
-    ExportObjectAction *export_action = qobject_cast<ExportObjectAction*>(sender());
-    if (!export_action)
-        return;
-
-    ExportObjectDialog* export_dialog = new ExportObjectDialog(*this, capture_file_, export_action->exportObject());
-    export_dialog->setWindowModality(Qt::ApplicationModal);
-    export_dialog->setAttribute(Qt::WA_DeleteOnClose);
-    export_dialog->show();
 }
 
 void LograyMainWindow::openFollowStreamDialog(int proto_id, guint stream_num, guint sub_stream_num, bool use_stream_index) {

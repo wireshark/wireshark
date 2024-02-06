@@ -320,7 +320,7 @@ Packet...”.
 This menu item tries to find the previous packet matching the settings from
 “Find Packet...”.
 
-|menu:Mark/Unmark Packet[]                    |kbd:[Ctrl+M]      |
+|menu:Mark/Unmark Selected[]                  |kbd:[Ctrl+M]      |
 This menu item marks the currently selected packet. See
 <<ChWorkMarkPacketSection>> for details.
 
@@ -336,7 +336,7 @@ Find the next marked packet.
 |menu:Previous Mark[]                         |kbd:[Ctrl+Shift+B] |
 Find the previous marked packet.
 
-|menu:Ignore/Unignore Packet[]                |kbd:[Ctrl+D]      |
+|menu:Ignore/Unignore Selected[]              |kbd:[Ctrl+D]      |
 This menu item marks the currently selected packet as ignored. See
 <<ChWorkIgnorePacketSection>> for details.
 

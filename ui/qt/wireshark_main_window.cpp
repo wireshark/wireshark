@@ -2316,10 +2316,10 @@ void WiresharkMainWindow::initFreezeActions()
     QList<QAction *> freeze_actions = QList<QAction *>()
             << main_ui_->actionFileClose
             << main_ui_->actionViewReload
-            << main_ui_->actionEditMarkPacket
+            << main_ui_->actionEditMarkSelected
             << main_ui_->actionEditMarkAllDisplayed
             << main_ui_->actionEditUnmarkAllDisplayed
-            << main_ui_->actionEditIgnorePacket
+            << main_ui_->actionEditIgnoreSelected
             << main_ui_->actionEditIgnoreAllDisplayed
             << main_ui_->actionEditUnignoreAllDisplayed
             << main_ui_->actionEditSetTimeReference

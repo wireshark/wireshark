@@ -1321,7 +1321,7 @@ see <<ChIOPacketRangeSection>>.
 There are several ways to mark and unmark packets. From the menu:Edit[] menu
 you can select from the following:
 
-* menu:Mark/Unmark Packet[] toggles the marked state of a single packet.
+* menu:Mark/Unmark Selected[] toggles the marked state of the current selection.
   This option is also available in the packet list context menu.
 
 * menu:Mark All Displayed[] set the mark state of all displayed packets.
@@ -1346,8 +1346,8 @@ else. It will be lost when the capture file is closed.
 There are several ways to ignore and unignore packets. From the
 menu:Edit[] menu you can select from the following:
 
-* menu:Ignore/Unignore Packet[] toggles the ignored state of a single
-  packet. This option is also available in the packet list context menu.
+* menu:Ignore/Unignore Selected[] toggles the ignored state of the current selection.
+  This option is also available in the packet list context menu.
 
 * menu:Ignore All Displayed[] set the ignored state of all displayed packets.
 

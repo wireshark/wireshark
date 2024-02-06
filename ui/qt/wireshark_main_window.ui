@@ -671,13 +671,13 @@
     <addaction name="actionEditFindNext"/>
     <addaction name="actionEditFindPrevious"/>
     <addaction name="separator"/>
-    <addaction name="actionEditMarkPacket"/>
+    <addaction name="actionEditMarkSelected"/>
     <addaction name="actionEditMarkAllDisplayed"/>
     <addaction name="actionEditUnmarkAllDisplayed"/>
     <addaction name="actionEditNextMark"/>
     <addaction name="actionEditPreviousMark"/>
     <addaction name="separator"/>
-    <addaction name="actionEditIgnorePacket"/>
+    <addaction name="actionEditIgnoreSelected"/>
     <addaction name="actionEditIgnoreAllDisplayed"/>
     <addaction name="actionEditUnignoreAllDisplayed"/>
     <addaction name="separator"/>
@@ -1464,9 +1464,9 @@
     <string notr="true">Ctrl+B</string>
    </property>
   </action>
-  <action name="actionEditMarkPacket">
+  <action name="actionEditMarkSelected">
    <property name="text">
-    <string>&amp;Mark/Unmark Packet(s)</string>
+    <string>&amp;Mark/Unmark Selected</string>
    </property>
    <property name="toolTip">
     <string>Mark or unmark each selected packet</string>
@@ -1519,9 +1519,9 @@
     <string notr="true">Ctrl+Shift+B</string>
    </property>
   </action>
-  <action name="actionEditIgnorePacket">
+  <action name="actionEditIgnoreSelected">
    <property name="text">
-    <string>&amp;Ignore/Unignore Packet(s)</string>
+    <string>&amp;Ignore/Unignore Selected</string>
    </property>
    <property name="toolTip">
     <string>Ignore or unignore each selected packet</string>

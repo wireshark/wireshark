@@ -28,7 +28,6 @@ DIAG_ON(frame-larger-than=)
 #include <epan/prefs.h>
 #include <epan/stats_tree_priv.h>
 #include <epan/plugin_if.h>
-#include <epan/export_object.h>
 #include <frame_tvbuff.h>
 
 #include "ui/iface_toolbar.h"
@@ -56,14 +55,12 @@ DIAG_ON(frame-larger-than=)
 #endif
 #include "conversation_colorize_action.h"
 #include "export_dissection_dialog.h"
-#include "export_object_action.h"
 #include "file_set_dialog.h"
 #include "filter_dialog.h"
 #include "follow_stream_action.h"
 #include "funnel_statistics.h"
 #include "import_text_dialog.h"
 #include "interface_toolbar.h"
-#include "packet_diagram.h"
 #include "packet_list.h"
 #include "proto_tree.h"
 #include "simple_dialog.h"
@@ -387,7 +384,6 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
     connect(mainApp, SIGNAL(appInitialized()), this, SLOT(addDynamicMenus()));
     connect(mainApp, SIGNAL(appInitialized()), this, SLOT(addPluginIFStructures()));
     connect(mainApp, SIGNAL(appInitialized()), this, SLOT(initConversationMenus()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(initExportObjectsMenus()));
     connect(mainApp, SIGNAL(appInitialized()), this, SLOT(initFollowStreamMenus()));
 
     connect(mainApp, SIGNAL(profileChanging()), this, SLOT(saveWindowGeometry()));
@@ -513,8 +509,6 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
 
     packet_list_->setProtoTree(proto_tree_);
     packet_list_->installEventFilter(this);
-
-    packet_diagram_ = new PacketDiagram(&master_split_);
 
     main_stack_ = main_ui_->mainStack;
     welcome_page_ = main_ui_->welcomePage;
@@ -758,7 +752,6 @@ QMenu *LograyMainWindow::createPopupMenu()
     menu->addAction(main_ui_->actionViewPacketList);
     menu->addAction(main_ui_->actionViewPacketDetails);
     menu->addAction(main_ui_->actionViewPacketBytes);
-    menu->addAction(main_ui_->actionViewPacketDiagram);
     return menu;
 }
 
@@ -2177,7 +2170,6 @@ void LograyMainWindow::initShowHideMainWidgets()
     shmw_actions[main_ui_->actionViewPacketList] = packet_list_;
     shmw_actions[main_ui_->actionViewPacketDetails] = proto_tree_;
     shmw_actions[main_ui_->actionViewPacketBytes] = byte_view_tab_;
-    shmw_actions[main_ui_->actionViewPacketDiagram] = packet_diagram_;
 
     foreach(QAction *shmwa, shmw_actions.keys()) {
         shmwa->setData(QVariant::fromValue(shmw_actions[shmwa]));
@@ -2255,10 +2247,10 @@ void LograyMainWindow::initFreezeActions()
     QList<QAction *> freeze_actions = QList<QAction *>()
             << main_ui_->actionFileClose
             << main_ui_->actionViewReload
-            << main_ui_->actionEditMarkPacket
+            << main_ui_->actionEditMarkSelected
             << main_ui_->actionEditMarkAllDisplayed
             << main_ui_->actionEditUnmarkAllDisplayed
-            << main_ui_->actionEditIgnorePacket
+            << main_ui_->actionEditIgnoreSelected
             << main_ui_->actionEditIgnoreAllDisplayed
             << main_ui_->actionEditUnignoreAllDisplayed
             << main_ui_->actionEditSetTimeReference
@@ -2333,27 +2325,6 @@ void LograyMainWindow::initConversationMenus()
     proto_tree_->colorizeMenu()->addAction(colorize_action);
     connect(this, SIGNAL(fieldFilterChanged(QByteArray)), colorize_action, SLOT(setFieldFilter(QByteArray)));
     connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizeActionTriggered()));
-}
-
-bool LograyMainWindow::addExportObjectsMenuItem(const void *, void *value, void *userdata)
-{
-    register_eo_t *eo = (register_eo_t*)value;
-    LograyMainWindow *window = (LograyMainWindow*)userdata;
-
-    ExportObjectAction *export_action = new ExportObjectAction(window->main_ui_->menuFileExportObjects, eo);
-    window->main_ui_->menuFileExportObjects->addAction(export_action);
-
-    //initially disable until a file is loaded (then file signals will take over)
-    export_action->setEnabled(false);
-
-    connect(&window->capture_file_, SIGNAL(captureEvent(CaptureEvent)), export_action, SLOT(captureFileEvent(CaptureEvent)));
-    connect(export_action, SIGNAL(triggered()), window, SLOT(applyExportObject()));
-    return FALSE;
-}
-
-void LograyMainWindow::initExportObjectsMenus()
-{
-    eo_iterate_tables(addExportObjectsMenuItem, this);
 }
 
 bool LograyMainWindow::addFollowStreamMenuItem(const void *key _U_, void *value, void *userdata)
@@ -2570,12 +2541,6 @@ void LograyMainWindow::setMenusForCaptureFile(bool force_disable)
     main_ui_->actionFileExportAsPSML->setEnabled(enable);
     main_ui_->actionFileExportAsJSON->setEnabled(enable);
 
-    main_ui_->actionFileExportPDU->setEnabled(enable);
-
-    foreach(QAction *eo_action, main_ui_->menuFileExportObjects->actions()) {
-        eo_action->setEnabled(enable);
-    }
-
     main_ui_->actionViewReload->setEnabled(enable);
 
 #ifdef HAVE_SOFTWARE_UPDATE
@@ -2597,12 +2562,6 @@ void LograyMainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
     main_ui_->actionFileExportAsPlainText->setEnabled(capture_in_progress);
     main_ui_->actionFileExportAsPSML->setEnabled(capture_in_progress);
     main_ui_->actionFileExportAsJSON->setEnabled(capture_in_progress);
-
-    main_ui_->actionFileExportPDU->setEnabled(!capture_in_progress);
-
-    foreach(QAction *eo_action, main_ui_->menuFileExportObjects->actions()) {
-        eo_action->setEnabled(capture_in_progress);
-    }
 
     main_ui_->menuFileSet->setEnabled(!capture_in_progress);
     main_ui_->actionFileQuit->setEnabled(true);

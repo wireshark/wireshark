@@ -36,6 +36,7 @@
 #include "ui/util.h"
 
 #include "wiretap/wtap_opttypes.h"
+#include "wsutil/filesystem.h"
 #include "wsutil/str_util.h"
 #include <wsutil/wslog.h>
 
@@ -678,8 +679,8 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     ctx_menu->setAttribute(Qt::WA_DeleteOnClose);
     // XXX We might want to reimplement setParent() and fill in the context
     // menu there.
-    ctx_menu->addAction(window()->findChild<QAction *>("actionEditMarkPacket"));
-    ctx_menu->addAction(window()->findChild<QAction *>("actionEditIgnorePacket"));
+    ctx_menu->addAction(window()->findChild<QAction *>("actionEditMarkSelected"));
+    ctx_menu->addAction(window()->findChild<QAction *>("actionEditIgnoreSelected"));
     ctx_menu->addAction(window()->findChild<QAction *>("actionEditSetTimeReference"));
     ctx_menu->addAction(window()->findChild<QAction *>("actionEditTimeShift"));
     ctx_menu->addMenu(window()->findChild<QMenu *>("menuPacketComment"));
@@ -773,15 +774,16 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     copyEntries->setParent(submenu);
     frameData->setParent(submenu);
 
-    ctx_menu->addSeparator();
-    ctx_menu->addMenu(&proto_prefs_menus_);
-    action = ctx_menu->addAction(tr("Decode As…"));
-    action->setProperty("create_new", QVariant(true));
-    connect(action, &QAction::triggered, this, &PacketList::ctxDecodeAsDialog);
-    // "Print" not ported intentionally
-    action = window()->findChild<QAction *>("actionViewShowPacketInNewWindow");
-    ctx_menu->addAction(action);
-
+    if (is_packet_configuration_namespace()) {
+        ctx_menu->addSeparator();
+        ctx_menu->addMenu(&proto_prefs_menus_);
+        action = ctx_menu->addAction(tr("Decode As…"));
+        action->setProperty("create_new", QVariant(true));
+        connect(action, &QAction::triggered, this, &PacketList::ctxDecodeAsDialog);
+        // "Print" not ported intentionally
+        action = window()->findChild<QAction *>("actionViewShowPacketInNewWindow");
+        ctx_menu->addAction(action);
+    }
 
     // Set menu sensitivity for the current column and set action data.
     if (frameData)

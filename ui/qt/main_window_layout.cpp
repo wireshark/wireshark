@@ -88,7 +88,9 @@ void MainWindow::layoutPanes()
     packet_list_->setParent(main_stack_);
     proto_tree_->setParent(main_stack_);
     byte_view_tab_->setParent(main_stack_);
-    packet_diagram_->setParent(main_stack_);
+    if (packet_diagram_) {
+        packet_diagram_->setParent(main_stack_);
+    }
     empty_pane_.setParent(main_stack_);
     extra_split_.setParent(main_stack_);
 
@@ -163,7 +165,9 @@ void MainWindow::layoutPanes()
     packet_list_->setVisible(ms_children.contains(packet_list_) && recent.packet_list_show);
     proto_tree_->setVisible(ms_children.contains(proto_tree_) && recent.tree_view_show);
     byte_view_tab_->setVisible(ms_children.contains(byte_view_tab_) && recent.byte_view_show);
-    packet_diagram_->setVisible(ms_children.contains(packet_diagram_) && recent.packet_diagram_show);
+    if (packet_diagram_) {
+        packet_diagram_->setVisible(ms_children.contains(packet_diagram_) && recent.packet_diagram_show);
+    }
 
     if (frozen) {
         packet_list_->thaw(true);

@@ -67,7 +67,7 @@
        <item>
         <widget class="QLabel" name="goToPacketLabel">
          <property name="text">
-          <string>Packet:</string>
+          <string>Event:</string>
          </property>
         </widget>
        </item>
@@ -84,7 +84,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Go to packet</string>
+          <string>Go to event</string>
          </property>
          <property name="default">
           <bool>true</bool>
@@ -161,7 +161,7 @@
     </widget>
     <widget class="QMenu" name="menuFileExportPacketDissections">
      <property name="title">
-      <string>Export Packet Dissections</string>
+      <string>Export Event Dissections</string>
      </property>
      <addaction name="actionFileExportAsPlainText"/>
      <addaction name="actionFileExportAsCSV"/>
@@ -170,11 +170,6 @@
      <addaction name="actionFileExportAsPSML"/>
      <addaction name="actionFileExportAsPDML"/>
      <addaction name="actionFileExportAsJSON"/>
-    </widget>
-    <widget class="QMenu" name="menuFileExportObjects">
-     <property name="title">
-      <string>Export Objects</string>
-     </property>
     </widget>
     <addaction name="actionFileOpen"/>
     <addaction name="menuOpenRecentCaptureFile"/>
@@ -189,9 +184,6 @@
     <addaction name="separator"/>
     <addaction name="actionFileExportPackets"/>
     <addaction name="menuFileExportPacketDissections"/>
-    <addaction name="actionFileExportPacketBytes"/>
-    <addaction name="actionFileExportPDU"/>
-    <addaction name="menuFileExportObjects"/>
     <addaction name="separator"/>
     <addaction name="actionFilePrint"/>
     <addaction name="separator"/>
@@ -364,7 +356,6 @@
     <addaction name="actionViewPacketList"/>
     <addaction name="actionViewPacketDetails"/>
     <addaction name="actionViewPacketBytes"/>
-    <addaction name="actionViewPacketDiagram"/>
     <addaction name="separator"/>
     <addaction name="menuTime_Display_Format"/>
     <addaction name="menuName_Resolution"/>
@@ -423,7 +414,6 @@
     <addaction name="menuConversationFilter"/>
     <addaction name="separator"/>
     <addaction name="actionAnalyzeEnabledProtocols"/>
-    <addaction name="actionAnalyzeDecodeAs"/>
     <addaction name="actionAnalyzeReloadLuaPlugins"/>
     <addaction name="separator"/>
     <addaction name="menuFollow"/>
@@ -471,7 +461,7 @@
     </widget>
     <widget class="QMenu" name="menuPacketComment">
      <property name="title">
-      <string>Packet Comments</string>
+      <string>Event Comments</string>
      </property>
     </widget>
     <addaction name="menuEditCopy"/>
@@ -479,13 +469,13 @@
     <addaction name="actionEditFindNext"/>
     <addaction name="actionEditFindPrevious"/>
     <addaction name="separator"/>
-    <addaction name="actionEditMarkPacket"/>
+    <addaction name="actionEditMarkSelected"/>
     <addaction name="actionEditMarkAllDisplayed"/>
     <addaction name="actionEditUnmarkAllDisplayed"/>
     <addaction name="actionEditNextMark"/>
     <addaction name="actionEditPreviousMark"/>
     <addaction name="separator"/>
-    <addaction name="actionEditIgnorePacket"/>
+    <addaction name="actionEditIgnoreSelected"/>
     <addaction name="actionEditIgnoreAllDisplayed"/>
     <addaction name="actionEditUnignoreAllDisplayed"/>
     <addaction name="separator"/>
@@ -628,7 +618,7 @@
     <string>&amp;Start</string>
    </property>
    <property name="toolTip">
-    <string>Start capturing packets</string>
+    <string>Start capturing events</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+E</string>
@@ -639,7 +629,7 @@
     <string>S&amp;top</string>
    </property>
    <property name="toolTip">
-    <string>Stop capturing packets</string>
+    <string>Stop capturing events</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+E</string>
@@ -779,10 +769,10 @@
   </action>
   <action name="actionGoNextPacket">
    <property name="text">
-    <string>Next Packet</string>
+    <string>Next Event</string>
    </property>
    <property name="toolTip">
-    <string>Go to the next packet</string>
+    <string>Go to the next event</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Down</string>
@@ -790,10 +780,10 @@
   </action>
   <action name="actionGoPreviousPacket">
    <property name="text">
-    <string>Previous Packet</string>
+    <string>Previous Event</string>
    </property>
    <property name="toolTip">
-    <string>Go to the previous packet</string>
+    <string>Go to the previous event</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Up</string>
@@ -801,10 +791,10 @@
   </action>
   <action name="actionGoNextConversationPacket">
    <property name="text">
-    <string>Next Packet in Conversation</string>
+    <string>Next Event in Conversation</string>
    </property>
    <property name="toolTip">
-    <string>Go to the next packet in this conversation</string>
+    <string>Go to the next event in this conversation</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+.</string>
@@ -812,10 +802,10 @@
   </action>
   <action name="actionGoPreviousConversationPacket">
    <property name="text">
-    <string>Previous Packet in Conversation</string>
+    <string>Previous Event in Conversation</string>
    </property>
    <property name="toolTip">
-    <string>Go to the previous packet in this conversation</string>
+    <string>Go to the previous event in this conversation</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+,</string>
@@ -823,10 +813,10 @@
   </action>
   <action name="actionGoNextHistoryPacket">
    <property name="text">
-    <string>Next Packet In History</string>
+    <string>Next Event In History</string>
    </property>
    <property name="toolTip">
-    <string>Go to the next packet in your selection history</string>
+    <string>Go to the next event in your selection history</string>
    </property>
    <property name="shortcut">
     <string notr="true">Alt+Right</string>
@@ -834,10 +824,10 @@
   </action>
   <action name="actionGoPreviousHistoryPacket">
    <property name="text">
-    <string>Previous Packet In History</string>
+    <string>Previous Event In History</string>
    </property>
    <property name="toolTip">
-    <string>Go to the previous packet in your selection history</string>
+    <string>Go to the previous event in your selection history</string>
    </property>
    <property name="shortcut">
     <string notr="true">Alt+Left</string>
@@ -845,10 +835,10 @@
   </action>
   <action name="actionGoFirstPacket">
    <property name="text">
-    <string>First Packet</string>
+    <string>First Event</string>
    </property>
    <property name="toolTip">
-    <string>Go to the first packet</string>
+    <string>Go to the first event</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Home</string>
@@ -856,10 +846,10 @@
   </action>
   <action name="actionGoLastPacket">
    <property name="text">
-    <string>Last Packet</string>
+    <string>Last Event</string>
    </property>
    <property name="toolTip">
-    <string>Go to the last packet</string>
+    <string>Go to the last event</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+End</string>
@@ -873,7 +863,7 @@
     <string>E&amp;xpand Subtrees</string>
    </property>
    <property name="toolTip">
-    <string>Expand the current packet detail</string>
+    <string>Expand the current event detail</string>
    </property>
    <property name="shortcut">
     <string notr="true">Shift+Right</string>
@@ -887,7 +877,7 @@
     <string>Collapse Subtrees</string>
    </property>
    <property name="toolTip">
-    <string>Collapse the current packet detail</string>
+    <string>Collapse the current event detail</string>
    </property>
    <property name="shortcut">
     <string notr="true">Shift+Left</string>
@@ -898,7 +888,7 @@
     <string>&amp;Expand All</string>
    </property>
    <property name="toolTip">
-    <string>Expand packet details</string>
+    <string>Expand event details</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Right</string>
@@ -909,7 +899,7 @@
     <string>Collapse &amp;All</string>
    </property>
    <property name="toolTip">
-    <string>Collapse all packet details</string>
+    <string>Collapse all event details</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Left</string>
@@ -920,10 +910,10 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Go to Packet…</string>
+    <string>Go to Event…</string>
    </property>
    <property name="toolTip">
-    <string>Go to specified packet</string>
+    <string>Go to specified event</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+G</string>
@@ -972,18 +962,10 @@
   </action>
   <action name="actionFileExportPackets">
    <property name="text">
-    <string>Export Specified Packets…</string>
+    <string>Export Specified Events…</string>
    </property>
    <property name="toolTip">
-    <string>Export specified packets</string>
-   </property>
-  </action>
-  <action name="actionFileExportPacketBytes">
-   <property name="text">
-    <string>Export Packet &amp;Bytes…</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true">Ctrl+Shift+X</string>
+    <string>Export specified events</string>
    </property>
   </action>
   <action name="actionFilePrint">
@@ -1195,7 +1177,7 @@
     <string>Apply as Column</string>
    </property>
    <property name="toolTip">
-    <string>Create a packet list column from the selected field.</string>
+    <string>Create an event list column from the selected field.</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+I</string>
@@ -1203,10 +1185,10 @@
   </action>
   <action name="actionEditFindPacket">
    <property name="text">
-    <string>&amp;Find Packet…</string>
+    <string>&amp;Find Event…</string>
    </property>
    <property name="toolTip">
-    <string>Find a packet</string>
+    <string>Find an event</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+F</string>
@@ -1217,7 +1199,7 @@
     <string>Find Ne&amp;xt</string>
    </property>
    <property name="toolTip">
-    <string>Find the next packet</string>
+    <string>Find the next event</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+N</string>
@@ -1228,18 +1210,18 @@
     <string>Find Pre&amp;vious</string>
    </property>
    <property name="toolTip">
-    <string>Find the previous packet</string>
+    <string>Find the previous event</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+B</string>
    </property>
   </action>
-  <action name="actionEditMarkPacket">
+  <action name="actionEditMarkSelected">
    <property name="text">
-    <string>&amp;Mark/Unmark Packet(s)</string>
+    <string>&amp;Mark/Unmark Selected</string>
    </property>
    <property name="toolTip">
-    <string>Mark or unmark each selected packet</string>
+    <string>Mark or unmark each selected event</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+M</string>
@@ -1250,7 +1232,7 @@
     <string>Mark All Displayed</string>
    </property>
    <property name="toolTip">
-    <string>Mark all displayed packets</string>
+    <string>Mark all displayed events</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+M</string>
@@ -1261,7 +1243,7 @@
     <string>&amp;Unmark All Displayed</string>
    </property>
    <property name="toolTip">
-    <string>Unmark all displayed packets</string>
+    <string>Unmark all displayed events</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+M</string>
@@ -1272,7 +1254,7 @@
     <string>Next Mark</string>
    </property>
    <property name="toolTip">
-    <string>Go to the next marked packet</string>
+    <string>Go to the next marked event</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+N</string>
@@ -1283,18 +1265,18 @@
     <string>Previous Mark</string>
    </property>
    <property name="toolTip">
-    <string>Go to the previous marked packet</string>
+    <string>Go to the previous marked event</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+B</string>
    </property>
   </action>
-  <action name="actionEditIgnorePacket">
+  <action name="actionEditIgnoreSelected">
    <property name="text">
-    <string>&amp;Ignore/Unignore Packet(s)</string>
+    <string>&amp;Ignore/Unignore Selected</string>
    </property>
    <property name="toolTip">
-    <string>Ignore or unignore each selected packet</string>
+    <string>Ignore or unignore each selected event</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+D</string>
@@ -1305,7 +1287,7 @@
     <string>Ignore All Displayed</string>
    </property>
    <property name="toolTip">
-    <string>Ignore all displayed packets</string>
+    <string>Ignore all displayed events</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+D</string>
@@ -1316,7 +1298,7 @@
     <string>U&amp;nignore All Displayed</string>
    </property>
    <property name="toolTip">
-    <string>Unignore all displayed packets</string>
+    <string>Unignore all displayed events</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+D</string>
@@ -1327,7 +1309,7 @@
     <string>Set/Unset Time Reference</string>
    </property>
    <property name="toolTip">
-    <string>Set or unset a time reference for this packet</string>
+    <string>Set or unset a time reference for this event</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+T</string>
@@ -1371,7 +1353,7 @@
     <string>Time Shift…</string>
    </property>
    <property name="toolTip">
-    <string>Shift or change packet timestamps</string>
+    <string>Shift or change event timestamps</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+T</string>
@@ -1379,10 +1361,10 @@
   </action>
   <action name="actionDeleteAllPacketComments">
    <property name="text">
-    <string>Delete All Packet Comments</string>
+    <string>Delete All Event Comments</string>
    </property>
    <property name="toolTip">
-    <string>Remove all packet comments in the capture file</string>
+    <string>Remove all event comments in the capture file</string>
    </property>
   </action>
   <action name="actionEditConfigurationProfiles">
@@ -1464,21 +1446,10 @@
   </action>
   <action name="actionStatisticsPacketLengths">
    <property name="text">
-    <string>Packet Lengths</string>
+    <string>Event Lengths</string>
    </property>
    <property name="toolTip">
-    <string>Packet length statistics</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeDecodeAs">
-   <property name="text">
-    <string>Decode &amp;As…</string>
-   </property>
-   <property name="toolTip">
-    <string>Change the way packets are dissected</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true">Ctrl+Shift+U</string>
+    <string>Event length statistics</string>
    </property>
   </action>
   <action name="actionAnalyzeReloadLuaPlugins">
@@ -1490,11 +1461,6 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+L</string>
-   </property>
-  </action>
-  <action name="actionFileExportPDU">
-   <property name="text">
-    <string>Export PDUs to File…</string>
    </property>
   </action>
   <action name="actionStatisticsIOGraph">
@@ -1554,10 +1520,10 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Colorize Packet List</string>
+    <string>Colorize Event List</string>
    </property>
    <property name="toolTip">
-    <string>Draw packets using your coloring rules</string>
+    <string>Draw events using your coloring rules</string>
    </property>
   </action>
   <action name="actionViewZoomIn">
@@ -1609,7 +1575,7 @@
     <string>Resize Columns</string>
    </property>
    <property name="toolTip">
-    <string>Resize packet list columns to fit contents</string>
+    <string>Resize event list columns to fit contents</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+R</string>
@@ -1623,7 +1589,7 @@
     <string>Date and Time of Day (1970-01-01 01:02:03.123456)</string>
    </property>
    <property name="toolTip">
-    <string>Show packet times as the date and time of day.</string>
+    <string>Show event times as the date and time of day.</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+1</string>
@@ -1637,7 +1603,7 @@
     <string>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</string>
    </property>
    <property name="toolTip">
-    <string>Show packet times as the year, day of the year and time of day.</string>
+    <string>Show event times as the year, day of the year and time of day.</string>
    </property>
   </action>
   <action name="actionViewTimeDisplayFormatTimeOfDay">
@@ -1648,7 +1614,7 @@
     <string>Time of Day (01:02:03.123456)</string>
    </property>
    <property name="toolTip">
-    <string>Show packet times as the date and time of day.</string>
+    <string>Show event times as the date and time of day.</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+2</string>
@@ -1662,7 +1628,7 @@
     <string>Seconds Since 1970-01-01</string>
    </property>
    <property name="toolTip">
-    <string>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</string>
+    <string>Show event times as the seconds since the UNIX / POSIX epoch (1970-01-01).</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+3</string>
@@ -1676,7 +1642,7 @@
     <string>Seconds Since Beginning of Capture</string>
    </property>
    <property name="toolTip">
-    <string>Show packet times as the date and time of day.</string>
+    <string>Show event times as the date and time of day.</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+4</string>
@@ -1687,10 +1653,10 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Seconds Since Previous Captured Packet</string>
+    <string>Seconds Since Previous Captured Event</string>
    </property>
    <property name="toolTip">
-    <string>Show packet times as the seconds since the previous captured packet.</string>
+    <string>Show event times as the seconds since the previous captured event.</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+5</string>
@@ -1701,10 +1667,10 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Seconds Since Previous Displayed Packet</string>
+    <string>Seconds Since Previous Displayed Event</string>
    </property>
    <property name="toolTip">
-    <string>Show packet times as the seconds since the previous displayed packet.</string>
+    <string>Show event times as the seconds since the previous displayed event.</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+6</string>
@@ -1718,7 +1684,7 @@
     <string>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</string>
    </property>
    <property name="toolTip">
-    <string>Show packet times as the UTC date and time of day.</string>
+    <string>Show event times as the UTC date and time of day.</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+7</string>
@@ -1732,7 +1698,7 @@
     <string>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</string>
    </property>
    <property name="toolTip">
-    <string>Show packet times as the UTC year, day of the year and time of day.</string>
+    <string>Show event times as the UTC year, day of the year and time of day.</string>
    </property>
   </action>
   <action name="actionViewTimeDisplayFormatUTCTimeOfDay">
@@ -1743,7 +1709,7 @@
     <string>UTC Time of Day (01:02:03.123456)</string>
    </property>
    <property name="toolTip">
-    <string>Show packet times as the UTC time of day.</string>
+    <string>Show event times as the UTC time of day.</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+8</string>
@@ -1906,10 +1872,10 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Packet &amp;List</string>
+    <string>Event &amp;List</string>
    </property>
    <property name="toolTip">
-    <string>Show or hide the packet list</string>
+    <string>Show or hide the event list</string>
    </property>
   </action>
   <action name="actionViewPacketDetails">
@@ -1920,10 +1886,10 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Packet &amp;Details</string>
+    <string>Event &amp;Details</string>
    </property>
    <property name="toolTip">
-    <string>Show or hide the packet details</string>
+    <string>Show or hide the event details</string>
    </property>
   </action>
   <action name="actionViewPacketBytes">
@@ -1934,24 +1900,10 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Packet &amp;Bytes</string>
+    <string>Event &amp;Bytes</string>
    </property>
    <property name="toolTip">
-    <string>Show or hide the packet bytes</string>
-   </property>
-  </action>
-  <action name="actionViewPacketDiagram">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Packet &amp;Diagram</string>
-   </property>
-   <property name="toolTip">
-    <string>Show or hide the packet diagram</string>
+    <string>Show or hide the event bytes</string>
    </property>
   </action>
   <action name="actionViewInternalsConversationHashTables">
@@ -1983,23 +1935,23 @@
     <string>&amp;Coloring Rules…</string>
    </property>
    <property name="toolTip">
-    <string>Edit the packet list coloring rules.</string>
+    <string>Edit the event list coloring rules.</string>
    </property>
   </action>
   <action name="actionViewShowPacketInNewWindow">
    <property name="text">
-    <string>Show Packet in New &amp;Window</string>
+    <string>Show Event in New &amp;Window</string>
    </property>
    <property name="toolTip">
-    <string>Show this packet in a separate window.</string>
+    <string>Show this event in a separate window.</string>
    </property>
   </action>
   <action name="actionContextShowLinkedPacketInNewWindow">
    <property name="text">
-    <string>Show Linked Packet in New Window</string>
+    <string>Show Linked Event in New Window</string>
    </property>
    <property name="toolTip">
-    <string>Show the linked packet in a separate window.</string>
+    <string>Show the linked event in a separate window.</string>
    </property>
   </action>
   <action name="actionGoAutoScroll">
@@ -2010,7 +1962,7 @@
     <string>Auto Scroll in Li&amp;ve Capture</string>
    </property>
    <property name="toolTip">
-    <string>Automatically scroll to the last packet during a live capture.</string>
+    <string>Automatically scroll to the last event during a live capture.</string>
    </property>
   </action>
   <action name="actionAnalyzeExpertInfo">
@@ -2201,7 +2153,7 @@
   </action>
   <action name="actionAnalyzeShowPacketBytes">
    <property name="text">
-    <string>Show Packet Bytes…</string>
+    <string>Show Event Bytes…</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+O</string>
@@ -2225,10 +2177,10 @@
   </action>
   <action name="actionGoGoToLinkedPacket">
    <property name="text">
-    <string>Go to &amp;Linked Packet</string>
+    <string>Go to &amp;Linked Event</string>
    </property>
    <property name="toolTip">
-    <string>Go to the packet referenced by the selected field.</string>
+    <string>Go to the event referenced by the selected field.</string>
    </property>
   </action>
   <action name="actionNewDisplayFilterExpression">

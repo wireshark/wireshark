@@ -1277,14 +1277,11 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
         }
     }
 
-    main_ui_->actionEditMarkPacket->setText(tr("&Mark/Unmark Packet(s)", "", static_cast<int>(selectedRows().count())));
-    main_ui_->actionEditIgnorePacket->setText(tr("&Ignore/Unignore Packet(s)", "", static_cast<int>(selectedRows().count())));
-
     main_ui_->actionCopyListAsText->setEnabled(selectedRows().count() > 0);
     main_ui_->actionCopyListAsCSV->setEnabled(selectedRows().count() > 0);
     main_ui_->actionCopyListAsYAML->setEnabled(selectedRows().count() > 0);
 
-    main_ui_->actionEditMarkPacket->setEnabled(frame_selected || multi_selection);
+    main_ui_->actionEditMarkSelected->setEnabled(frame_selected || multi_selection);
     main_ui_->actionEditMarkAllDisplayed->setEnabled(have_frames);
     /* Unlike un-ignore, do not allow unmark of all frames when no frames are displayed  */
     main_ui_->actionEditUnmarkAllDisplayed->setEnabled(have_marked);
@@ -1299,7 +1296,7 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
     main_ui_->menuPacketComment->setEnabled(enableEditComments && selectedRows().count() > 0);
     main_ui_->actionDeleteAllPacketComments->setEnabled(enableEditComments);
 
-    main_ui_->actionEditIgnorePacket->setEnabled(frame_selected || multi_selection);
+    main_ui_->actionEditIgnoreSelected->setEnabled(frame_selected || multi_selection);
     main_ui_->actionEditIgnoreAllDisplayed->setEnabled(have_filtered);
     /* Allow un-ignore of all frames even with no frames currently displayed */
     main_ui_->actionEditUnignoreAllDisplayed->setEnabled(have_ignored);
@@ -2051,7 +2048,7 @@ void WiresharkMainWindow::connectEditMenuActions()
     // The items below are used in the packet list and detail context menus.
     // Use QueuedConnections so that the context menus aren't destroyed
     // prematurely.
-    connect(main_ui_->actionEditMarkPacket, &QAction::triggered, this, [this]() {
+    connect(main_ui_->actionEditMarkSelected, &QAction::triggered, this, [this]() {
         freeze();
         packet_list_->markFrame();
         thaw();
@@ -2084,7 +2081,7 @@ void WiresharkMainWindow::connectEditMenuActions()
         }
     }, Qt::QueuedConnection);
 
-    connect(main_ui_->actionEditIgnorePacket, &QAction::triggered, this, [this]() {
+    connect(main_ui_->actionEditIgnoreSelected, &QAction::triggered, this, [this]() {
         freeze();
         packet_list_->ignoreFrame();
         thaw();

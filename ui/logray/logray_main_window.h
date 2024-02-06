@@ -81,7 +81,6 @@ class FilterDialog;
 class FunnelStatistics;
 class WelcomePage;
 class PacketCommentDialog;
-class PacketDiagram;
 class PacketList;
 class ProtoTree;
 class FilterExpressionToolBar;
@@ -294,8 +293,6 @@ private slots:
 
     void initViewColorizeMenu();
     void initConversationMenus();
-    static bool addExportObjectsMenuItem(const void *key, void *value, void *userdata);
-    void initExportObjectsMenus();
     static bool addFollowStreamMenuItem(const void *key, void *value, void *userdata);
     void initFollowStreamMenus();
 
@@ -386,8 +383,6 @@ private slots:
     // gtk/main_menubar.c
 
     void connectFileMenuActions();
-    void exportPacketBytes();
-    void exportPDU();
     void printFile();
 
     void connectEditMenuActions();
@@ -433,7 +428,6 @@ private slots:
     void filterMenuAboutToShow();
 
     void applyConversationFilter();
-    void applyExportObject();
 
     void openFollowStreamDialog(int proto_id, guint stream_num, guint sub_stream_num, bool use_stream_index = true);
     void openFollowStreamDialog(int proto_id);
