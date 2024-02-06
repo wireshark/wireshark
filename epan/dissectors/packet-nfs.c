@@ -601,8 +601,8 @@ static int hf_nfs4_cachethis;
 /* static int hf_nfs4_first_stripe_idx; */
 /* static int hf_nfs4_layout_count; */
 /* static int hf_nfs4_pattern_offset; */
-static int hf_nfs4_notification_mask;
-static int hf_nfs4_notification_type;
+static int hf_nfs4_notify_deviceid_mask;
+static int hf_nfs4_notify_deviceid_type;
 static int hf_nfs4_lrs_present;
 static int hf_nfs4_nfl_mirrors;
 static int hf_nfs4_nfl_util;
@@ -9036,12 +9036,12 @@ static value_string_ext notify_deviceid_type4_ext = VALUE_STRING_EXT_INIT(notify
 
 
 static int
-dissect_nfs4_notification_bitmap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
+dissect_nfs4_notify_deviceid_bitmap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
 	static nfs4_bitmap_info_t bitmap_info = {
 		.vse_names_ext = &notify_deviceid_type4_ext,
-		.hf_mask_label = &hf_nfs4_notification_mask,
-		.hf_item_label = &hf_nfs4_notification_type,
+		.hf_mask_label = &hf_nfs4_notify_deviceid_mask,
+		.hf_item_label = &hf_nfs4_notify_deviceid_type,
 	};
 
 	return dissect_nfs4_bitmap(tvb, offset, pinfo, tree, NULL, &bitmap_info, NFS4_BITMAP_MASK, NULL);
@@ -10360,7 +10360,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			offset = dissect_nfs4_deviceid(tvb, offset, newftree);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_layout_type, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_count_maxcount, offset);
-			offset = dissect_nfs4_notification_bitmap(tvb, newftree, pinfo, offset);
+			offset = dissect_nfs4_notify_deviceid_bitmap(tvb, newftree, pinfo, offset);
 			break;
 
 		case NFS4_OP_GETDEVLIST:
@@ -10985,7 +10985,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 		case NFS4_OP_GETDEVINFO:
 			offset = dissect_nfs4_deviceaddr(tvb, offset, newftree);
-			offset = dissect_nfs4_notification_bitmap(tvb, newftree, pinfo, offset);
+			offset = dissect_nfs4_notify_deviceid_bitmap(tvb, newftree, pinfo, offset);
 			break;
 
 		case NFS4_OP_GETDEVLIST:
@@ -13410,13 +13410,13 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 #endif
 
-		{ &hf_nfs4_notification_mask, {
-			"notify_mask", "nfs.notify_mask", FT_UINT32, BASE_HEX,
+		{ &hf_nfs4_notify_deviceid_mask, {
+			"notify_deviceid_mask", "nfs.notify_deviceid_mask", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 
-		{ &hf_nfs4_notification_type, {
-			"notify_type", "nfs.notify_type", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
-			&notify_deviceid_type4_ext, 0, NULL, HFILL }},
+		{ &hf_nfs4_notify_deviceid_type, {
+			"notify_deviceid_type", "nfs.notify_deviceid_type", FT_UINT32,
+			BASE_DEC | BASE_EXT_STRING, &notify_deviceid_type4_ext, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_newtime, {
 			"new time?", "nfs.newtime", FT_BOOLEAN, BASE_NONE,
