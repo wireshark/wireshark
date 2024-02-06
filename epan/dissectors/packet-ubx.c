@@ -662,6 +662,49 @@ static int hf_ubx_nav_velecef_ecefvy;
 static int hf_ubx_nav_velecef_ecefvz;
 static int hf_ubx_nav_velecef_sacc;
 
+static int hf_ubx_rxm_rawx;
+static int hf_ubx_rxm_rawx_rcvtow;
+static int hf_ubx_rxm_rawx_week;
+static int hf_ubx_rxm_rawx_leaps;
+static int hf_ubx_rxm_rawx_nummeas;
+static int hf_ubx_rxm_rawx_recstat;
+static int hf_ubx_rxm_rawx_recstat_leapsec;
+static int hf_ubx_rxm_rawx_recstat_clkreset;
+static int hf_ubx_rxm_rawx_version;
+static int hf_ubx_rxm_rawx_reserved1;
+static int hf_ubx_rxm_rawx_prmes;
+static int hf_ubx_rxm_rawx_cpmes;
+static int hf_ubx_rxm_rawx_domes;
+static int hf_ubx_rxm_rawx_gnssid;
+static int hf_ubx_rxm_rawx_svid;
+static int hf_ubx_rxm_rawx_sigid;
+static int hf_ubx_rxm_rawx_freqid;
+static int hf_ubx_rxm_rawx_locktime;
+static int hf_ubx_rxm_rawx_cn0;
+static int hf_ubx_rxm_rawx_prstdev;
+static int hf_ubx_rxm_rawx_cpstdev;
+static int hf_ubx_rxm_rawx_dostdev;
+static int hf_ubx_rxm_rawx_trkstat;
+static int hf_ubx_rxm_rawx_trkstat_prvalid;
+static int hf_ubx_rxm_rawx_trkstat_cpvalid;
+static int hf_ubx_rxm_rawx_trkstat_halfcyc;
+static int hf_ubx_rxm_rawx_trkstat_subhalfcyc;
+static int hf_ubx_rxm_rawx_reserved2;
+
+static int * const ubx_rxm_rawx_recstat_fields[] = {
+    &hf_ubx_rxm_rawx_recstat_leapsec,
+    &hf_ubx_rxm_rawx_recstat_clkreset,
+    NULL
+};
+
+static int * const ubx_rxm_rawx_trkstat_fields[] = {
+    &hf_ubx_rxm_rawx_trkstat_prvalid,
+    &hf_ubx_rxm_rawx_trkstat_cpvalid,
+    &hf_ubx_rxm_rawx_trkstat_halfcyc,
+    &hf_ubx_rxm_rawx_trkstat_subhalfcyc,
+    NULL
+};
+
 static int hf_ubx_rxm_sfrbx;
 static int hf_ubx_rxm_sfrbx_gnssid;
 static int hf_ubx_rxm_sfrbx_svid;
@@ -709,6 +752,10 @@ static int ett_ubx_nav_timegps_valid;
 static int ett_ubx_nav_timeutc;
 static int ett_ubx_nav_timeutc_valid;
 static int ett_ubx_nav_velecef;
+static int ett_ubx_rxm_rawx;
+static int ett_ubx_rxm_rawx_recstat;
+static int ett_ubx_rxm_rawx_trkstat;
+static int ett_ubx_rxm_rawx_meas[255];
 static int ett_ubx_rxm_sfrbx;
 
 static dissector_handle_t ubx_handle;
@@ -724,6 +771,11 @@ static guint16 chksum_fletcher_8(const guint8 *data, const gint len) {
     }
 
     return (ck_b << 8) | ck_a;
+}
+
+/* Format carrier phase standard deviation */
+static void fmt_cpstdev(gchar *label, guint32 p) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%d.%03d cycles", (p * 4) / 1000, (p * 4) % 1000);
 }
 
 /* Format magnetic declination */
@@ -747,6 +799,11 @@ static void fmt_decl_acc(gchar *label, guint32 a) {
 /* Format Dillution of Precision */
 static void fmt_dop(gchar *label, guint32 dop) {
     snprintf(label, ITEM_LABEL_LENGTH, "%i.%02i", dop / 100, dop % 100);
+}
+
+/* Format Doppler standard deviation */
+static void fmt_dostdev(gchar *label, guint32 p) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%d.%03d Hz", (1 << p) * 2 / 1000, ((1 << p) * 2) % 1000);
 }
 
 /* Format heading */
@@ -787,6 +844,11 @@ static void fmt_pr_res(gchar *label, gint32 p) {
     else {
         snprintf(label, ITEM_LABEL_LENGTH, "-%d.%01dm", -p / 10, -p % 10);
     }
+}
+
+/* Format pseudo-range standard deviation */
+static void fmt_prstdev(gchar *label, guint32 p) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%d.%02dm", (1 << p) / 100, (1 << p) % 100);
 }
 
 /* Dissect UBX message */
@@ -1436,6 +1498,80 @@ static int dissect_ubx_nav_velecef(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             tvb, 12, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(ubx_nav_velecef_tree, hf_ubx_nav_velecef_sacc,
             tvb, 16, 4, ENC_LITTLE_ENDIAN);
+
+    return tvb_captured_length(tvb);
+}
+
+/* Dissect UBX-RXM-RAWX message */
+static int dissect_ubx_rxm_rawx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    guint32 i, nummeas;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UBX-RXM-RAWX");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    nummeas = tvb_get_guint8(tvb, 11);
+
+    proto_item *ti = proto_tree_add_item(tree, hf_ubx_rxm_rawx,
+            tvb, 0, 16 + nummeas * 32, ENC_NA);
+    proto_tree *ubx_rxm_rawx_tree = proto_item_add_subtree(ti, ett_ubx_rxm_rawx);
+
+    proto_tree_add_item(ubx_rxm_rawx_tree, hf_ubx_rxm_rawx_rcvtow,
+            tvb, 0, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ubx_rxm_rawx_tree, hf_ubx_rxm_rawx_week,
+            tvb, 8, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ubx_rxm_rawx_tree, hf_ubx_rxm_rawx_leaps,
+            tvb, 10, 1, ENC_NA);
+    proto_tree_add_item(ubx_rxm_rawx_tree, hf_ubx_rxm_rawx_nummeas,
+            tvb, 11, 1, ENC_NA);
+    proto_tree_add_bitmask(ubx_rxm_rawx_tree, tvb, 12,
+            hf_ubx_rxm_rawx_recstat, ett_ubx_rxm_rawx_recstat,
+            ubx_rxm_rawx_recstat_fields, ENC_NA);
+    proto_tree_add_item(ubx_rxm_rawx_tree, hf_ubx_rxm_rawx_version,
+            tvb, 13, 1, ENC_NA);
+    proto_tree_add_item(ubx_rxm_rawx_tree, hf_ubx_rxm_rawx_reserved1,
+            tvb, 14, 2, ENC_LITTLE_ENDIAN);
+
+    for (i = 0; i < nummeas; i++) {
+        const guint8 gnss_id = tvb_get_guint8(tvb, 36 + 32 * i);
+        const guint8 sv_id = tvb_get_guint8(tvb, 37 + 32 * i);
+        const guint8 cn0 = tvb_get_guint8(tvb, 42 + 32 * i);
+
+        proto_tree *meas_tree = proto_tree_add_subtree_format(ubx_rxm_rawx_tree,
+                tvb, 16 + 32 * i, 32, ett_ubx_rxm_rawx_meas[i], NULL,
+                "%-7s / SV ID %3d / C/N0 %d dB-Hz",
+                val_to_str_const(gnss_id, UBX_GNSS_ID, "Unknown GNSS ID"),
+                sv_id, cn0);
+
+        proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_prmes,
+                tvb, 16 + 32 * i, 8, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_cpmes,
+                tvb, 24 + 32 * i, 8, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_domes,
+                tvb, 32 + 32 * i, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_gnssid,
+                tvb, 36 + 32 * i, 1, ENC_NA);
+        proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_svid,
+                tvb, 37 + 32 * i, 1, ENC_NA);
+        proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_sigid,
+                tvb, 38 + 32 * i, 1, ENC_NA);
+        proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_freqid,
+                tvb, 39 + 32 * i, 1, ENC_NA);
+        proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_locktime,
+                tvb, 40 + 32 * i, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_cn0,
+                tvb, 42 + 32 * i, 1, ENC_NA);
+        proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_prstdev,
+                tvb, 43 + 32 * i, 1, ENC_NA);
+        proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_cpstdev,
+                tvb, 44 + 32 * i, 1, ENC_NA);
+        proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_dostdev,
+                tvb, 45 + 32 * i, 1, ENC_NA);
+        proto_tree_add_bitmask(meas_tree, tvb, 46,
+                hf_ubx_rxm_rawx_trkstat, ett_ubx_rxm_rawx_trkstat,
+                ubx_rxm_rawx_trkstat_fields, ENC_NA);
+        proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_reserved2,
+                tvb, 47 + 32 * i, 1, ENC_NA);
+    }
 
     return tvb_captured_length(tvb);
 }
@@ -2224,6 +2360,92 @@ void proto_register_ubx(void) {
             {"Speed accuracy estimate", "ubx.nav.velecef.sacc",
                 FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_cm_s, 0x0, NULL, HFILL}},
 
+        // RXM-RAWX
+        {&hf_ubx_rxm_rawx,
+            {"UBX-RXM-RAWX", "ubx.rxm.rawx",
+                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_rcvtow,
+            {"Measurement time of week in receiver local time", "ubx.rxm.rawx.rcvtow",
+                FT_DOUBLE, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_week,
+            {"GPS week number in receiver local time", "ubx.rxm.rawx.week",
+                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_leaps,
+            {"GPS leap seconds", "ubx.rxm.rawx.leaps",
+                FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_nummeas,
+            {"Number of measurements to follow", "ubx.rxm.rawx.nummeas",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_recstat,
+            {"Receiver tracking status bitfield", "ubx.rxm.rawx.recstat",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_recstat_leapsec,
+            {"Leap seconds have been determined", "ubx.rxm.rawx.recstat.leapsec",
+                FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_recstat_clkreset,
+            {"Clock reset applied", "ubx.rxm.rawx.recstat.clkreset",
+                FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_version,
+            {"Message version", "ubx.rxm.rawx.version",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_reserved1,
+            {"Reserved", "ubx.rxm.rawx.reserved1",
+                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_prmes,
+            {"Pseudorange measurement", "ubx.rxm.rawx.prmes",
+                FT_DOUBLE, BASE_DEC|BASE_UNIT_STRING, &units_meter_meters, 0x0, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_cpmes,
+            {"Carrier phase measurement", "ubx.rxm.rawx.cpmes",
+                FT_DOUBLE, BASE_DEC|BASE_UNIT_STRING, &units_cycle_cycles, 0x0, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_domes,
+            {"Doppler measurement", "ubx.rxm.rawx.domes",
+                FT_FLOAT, BASE_DEC|BASE_UNIT_STRING, &units_hz, 0x0, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_gnssid,
+            {"GNSS ID", "ubx.rxm.rawx.gnssid",
+                FT_UINT8, BASE_DEC, VALS(UBX_GNSS_ID), 0x0, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_svid,
+            {"Satellite ID", "ubx.rxm.rawx.svid",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_sigid,
+            {"Signal ID", "ubx.rxm.rawx.sigid",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_freqid,
+            {"Frequency ID", "ubx.rxm.rawx.freqid",
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_locktime,
+            {"Carrier phase locktime counter", "ubx.rxm.rawx.locktime",
+                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_cn0,
+            {"C/N0", "ubx.rxm.rawx.cn0",
+                FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_dbhz, 0x0, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_prstdev,
+            {"Estimated pseudorange measurement standard deviation", "ubx.rxm.rawx.prstdev",
+                FT_UINT8, BASE_CUSTOM, CF_FUNC(&fmt_prstdev), 0x0f, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_cpstdev,
+            {"Estimated carrier phase measurement standard deviation", "ubx.rxm.rawx.cpstdev",
+                FT_UINT8, BASE_CUSTOM, CF_FUNC(&fmt_cpstdev), 0x0f, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_dostdev,
+            {"Estimated Doppler measurement standard deviation", "ubx.rxm.rawx.dostdev",
+                FT_UINT8, BASE_CUSTOM, CF_FUNC(&fmt_dostdev), 0x0f, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_trkstat,
+            {"Tracking status bitfield", "ubx.rxm.rawx.trkstat",
+                FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_trkstat_prvalid,
+            {"Pseudorange valid", "ubx.rxm.rawx.trkstat.prvalid",
+                FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_trkstat_cpvalid,
+            {"Carrier phase valid", "ubx.rxm.rawx.trkstat.cpvalid",
+                FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_trkstat_halfcyc,
+            {"Half cycle valid", "ubx.rxm.rawx.trkstat.halfcyc",
+                FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_trkstat_subhalfcyc,
+            {"Half cycle subtracted from phase", "ubx.rxm.rawx.trkstat.subhalfcyc",
+                FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}},
+        {&hf_ubx_rxm_rawx_reserved2,
+            {"Reserved", "ubx.rxm.rawx.reserved2",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
         // RXM-SFRBX
         {&hf_ubx_rxm_sfrbx,
             {"UBX-RXM-SFRBX", "ubx.rxm.sfrbx",
@@ -2296,13 +2518,17 @@ void proto_register_ubx(void) {
         &ett_ubx_nav_timeutc,
         &ett_ubx_nav_timeutc_valid,
         &ett_ubx_nav_velecef,
+        &ett_ubx_rxm_rawx,
+        &ett_ubx_rxm_rawx_recstat,
+        &ett_ubx_rxm_rawx_trkstat,
         &ett_ubx_rxm_sfrbx,
     };
 
     static gint *ett[array_length(ett_part)
         + array_length(ett_ubx_nav_sat_sv_info)
         + array_length(ett_ubx_cfg_gnss_block)
-        + array_length(ett_ubx_nav_sbas_sv_info)];
+        + array_length(ett_ubx_nav_sbas_sv_info)
+        + array_length(ett_ubx_rxm_rawx_meas)];
 
     // fill ett with elements from ett_part,
     // pointers to ett_ubx_nav_sat_sv_info elements, and
@@ -2322,6 +2548,12 @@ void proto_register_ubx(void) {
         ett[i + array_length(ett_part) + array_length(ett_ubx_nav_sat_sv_info)
             + array_length(ett_ubx_cfg_gnss_block)]
             = &ett_ubx_nav_sbas_sv_info[i];
+    }
+    for (i = 0; i < array_length(ett_ubx_rxm_rawx_meas); i++) {
+        ett[i + array_length(ett_part) + array_length(ett_ubx_nav_sat_sv_info)
+            + array_length(ett_ubx_cfg_gnss_block)
+            + array_length(ett_ubx_nav_sbas_sv_info)]
+            = &ett_ubx_rxm_rawx_meas[i];
     }
 
     proto_ubx = proto_register_protocol("UBX Protocol", "UBX", "ubx");
@@ -2356,5 +2588,6 @@ void proto_reg_handoff_ubx(void) {
     UBX_REGISTER_DISSECTOR(dissect_ubx_nav_timegps, UBX_NAV_TIMEGPS);
     UBX_REGISTER_DISSECTOR(dissect_ubx_nav_timeutc, UBX_NAV_TIMEUTC);
     UBX_REGISTER_DISSECTOR(dissect_ubx_nav_velecef, UBX_NAV_VELECEF);
+    UBX_REGISTER_DISSECTOR(dissect_ubx_rxm_rawx,    UBX_RXM_RAWX);
     UBX_REGISTER_DISSECTOR(dissect_ubx_rxm_sfrbx,   UBX_RXM_SFRBX);
 }
