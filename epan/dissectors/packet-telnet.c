@@ -89,6 +89,7 @@ static int hf_telnet_vmware_cmd;
 static int hf_telnet_vmware_known_suboption_code;
 static int hf_telnet_vmware_unknown_subopt_code;
 static int hf_telnet_vmware_vmotion_sequence;
+static int hf_telnet_vmware_vmotion_secret;
 static int hf_telnet_vmware_proxy_direction;
 static int hf_telnet_vmware_proxy_serviceUri;
 static int hf_telnet_vmware_vm_vc_uuid;
@@ -224,6 +225,7 @@ typedef struct tn_opt {
 typedef struct _telnet_conv_info {
   guint32   starttls_requested_in;  /* Frame of first sender of START_TLS FOLLOWS */
   guint32   starttls_port;          /* Source port for first sender */
+  gssize    vmotion_sequence_len;   /* Length of "sequence" field for VMware vSPC vMotion. */
 } telnet_conv_info_t;
 
 static void
@@ -272,6 +274,7 @@ telnet_get_session(packet_info *pinfo)
   telnet_info = (telnet_conv_info_t*)conversation_get_proto_data(conversation, proto_telnet);
   if (!telnet_info) {
     telnet_info = wmem_new0(wmem_file_scope(), telnet_conv_info_t);
+    telnet_info->vmotion_sequence_len = -1;
     conversation_add_proto_data(conversation, proto_telnet, telnet_info);
   }
   return telnet_info;
@@ -1428,24 +1431,65 @@ dissect_vmware_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t 
   case VMWARE_VMOTION_BEGIN:
   case VMWARE_VMOTION_NOTNOW:
   case VMWARE_VMOTION_PEER_OK:
-  case VMWARE_VMOTION_COMPLETE:
+  case VMWARE_VMOTION_COMPLETE: {
     /* Data: sequence */
+    telnet_conv_info_t *session = telnet_get_session(pinfo);
+    if (session->vmotion_sequence_len < 0) {
+      /*
+       * There is nothing which _requires_ that the sequence length be constant
+       * throughout a Telnet conversation, but all implementations currently
+       * behave that way and here we assume it will be so.  If that changes,
+       * subsequent VMOTION-GOAHEAD/VMOTION-PEER messages might be incorrectly
+       * dissected, with bytes incorrectly assigned to the sequence or secret
+       * fields.  This should not be a big deal.
+       */
+      session->vmotion_sequence_len = len;
+    }
     proto_tree_add_item(tree, hf_telnet_vmware_vmotion_sequence, tvb, offset, len, ENC_NA);
     offset += len;
     len = 0;
+  }
     break;
 
   case VMWARE_VMOTION_GOAHEAD:
-  case VMWARE_VMOTION_PEER:
+  case VMWARE_VMOTION_PEER: {
     /* Data: sequence secret */
+    telnet_conv_info_t *session = telnet_get_session(pinfo);
+
     /*
-     * TODO: With no delimiter between "sequence" and "secret", nor any other
-     *       way of determining the lengths of those fields, dissecting them
-     *       will require tracking the vMotion conversation.  For now, ignore
-     *       all data.
+     * The lack of delimiter between "sequence" and "secret" makes dissection
+     * challenging.  We need to track the "vMotion conversation", which spans
+     * two Telnet conversations with different endpoints.
      */
-    offset += len;
-    len = 0;
+    if (vmwcmd == VMWARE_VMOTION_GOAHEAD && session->vmotion_sequence_len >= 0) {
+      /*
+       * TODO: We have the full sequence and secret and we know the length of
+       * the "sequence" field.  Stash this info somewhere we can find it later.
+       */
+    } else if (vmwcmd == VMWARE_VMOTION_PEER && session->vmotion_sequence_len < 0) {
+      /*
+       * TODO: Try to find the length of the "sequence" field by looking up the
+       * conversation containing the VMOTION-GOAHEAD.
+       */
+    }
+    if (session->vmotion_sequence_len >= 0 && session->vmotion_sequence_len <= len) {
+      proto_tree_add_item(tree, hf_telnet_vmware_vmotion_sequence, tvb, offset, (int)session->vmotion_sequence_len, ENC_NA);
+      offset += session->vmotion_sequence_len;
+      len -= session->vmotion_sequence_len;
+
+      proto_tree_add_item(tree, hf_telnet_vmware_vmotion_secret, tvb, offset, len, ENC_NA);
+      offset += len;
+      len = 0;
+    } else {
+      /*
+       * With no delimiter between "sequence" and "secret", nor any other way
+       * of determining the lengths of those fields, we lack the information to
+       * be able to dissect this.  Skip it.
+       */
+      offset += len;
+      len = 0;
+    }
+  }
     break;
 
   case VMWARE_VMOTION_ABORT:
@@ -2439,6 +2483,10 @@ proto_register_telnet(void)
     },
     { &hf_telnet_vmware_vmotion_sequence,
       { "vMotion sequence", "telnet.vmware.vmotion.sequence", FT_BYTES, BASE_NONE,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_telnet_vmware_vmotion_secret,
+      { "vMotion secret", "telnet.vmware.vmotion.secret", FT_BYTES, BASE_NONE,
         NULL, 0, NULL, HFILL }
     },
     { &hf_telnet_vmware_proxy_direction,
