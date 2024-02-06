@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003, 2011 by Erwin Rol <erwin@erwinrol.com>
  * Copyright (c) 2014 by Claudius Zingerli <czingerl@gmail.com>
- * Copyright (c) 2022-2023 by Martin Mayer <martin.mayer@m2-it-solutions.de>
+ * Copyright (c) 2022-2024 by Martin Mayer <martin.mayer@m2-it-solutions.de>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -63,6 +63,9 @@ static dissector_handle_t artnet_handle;
 #define ARTNET_OP_DIAG_DATA          0x2300
 #define ARTNET_OP_COMMAND            0x2400
 
+#define ARTNET_OP_DATA_REQUEST       0x2700
+#define ARTNET_OP_DATA_REPLY         0x2800
+
 #define ARTNET_OP_OUTPUT             0x5000
 #define ARTNET_OP_NZS                0x5100
 #define ARTNET_OP_SYNC               0x5200
@@ -110,6 +113,8 @@ static const value_string artnet_opcode_vals[] = {
   { ARTNET_OP_POLL_FP_REPLY,      "ArtPollFpReply" },
   { ARTNET_OP_DIAG_DATA,          "ArtDiagData" },
   { ARTNET_OP_COMMAND,            "ArtCommand" },
+  { ARTNET_OP_DATA_REQUEST,       "ArtDataRequest" },
+  { ARTNET_OP_DATA_REPLY,         "ArtDataReply" },
   { ARTNET_OP_OUTPUT,             "ArtDMX" },
   { ARTNET_OP_NZS,                "ArtNzs" },
   { ARTNET_OP_SYNC,               "ArtSync" },
@@ -146,20 +151,10 @@ static const value_string artnet_opcode_vals[] = {
 static value_string_ext artnet_opcode_vals_ext = VALUE_STRING_EXT_INIT(artnet_opcode_vals);
 
 /*
- * OEM code database date: 2023-08-05
+ * OEM code database date: 2024-01-24
  *
  * String format:
  * <MANUFACTURER>: <PRODUCT>
- *
- * Note:
- * Recent database has replaced any non-alphanumeric character with whitespace.
- * e.g.: "ACME Co.,LTD." -> "ACME Co  LTD "
- *
- * To improve readability:
- * - Multiple, leading and trailing whitespaces were removed ("ACME Co  LTD " -> "ACME Co LTD")
- * - Manufacturer-only entries are truncated to the manufacturer name ("ACME Co LTD: " -> "ACME Co LTD")
- * - Product-only entries are truncated to the product name (": My Product" -> "My Product")
- *
  */
 static const value_string artnet_oem_code_vals[] = {
   { 0x0000, "Artistic Licence Engineering Ltd: Dmx Hub" },
@@ -1540,7 +1535,7 @@ static const value_string artnet_oem_code_vals[] = {
   { 0x2A1B, "Tristan Leonid Zoltan Thiltges: Lightsculptures" },
   { 0x2A1C, "Elation Lighting: RDM 6XL" },
   { 0x2A1D, "Elation Lighting: RDM 645" },
-  { 0x2A1E, "Elation Lighting: RMD 10" },
+  { 0x2A1E, "Elation Lighting: RDM 10" },
   { 0x2A1F, "Elation Lighting: EP4" },
   { 0x2A20, "Elation Lighting: EN4" },
   { 0x2A21, "Elation Lighting: EN12" },
@@ -1978,7 +1973,7 @@ static const value_string artnet_oem_code_vals[] = {
   { 0x2BD1, "edelkrone: LightONE" },
   { 0x2BD2, "JPK Systems Limited: LeDMX4 MAX" },
   { 0x2BD3, "JPK Systems Limited: LeDMX2 MAX" },
-  { 0x2BD4, "JPK Systems Limited: eDMX4 MAX ISODIN" },
+  { 0x2BD4, "JPK Systems Limited: eDMX4 MAX ISODIN11" },
   { 0x2BD5, "JPK Systems Limited: eDMX4 MAX DIN" },
   { 0x2BD6, "JPK Systems Limited: ultraDMX MAX" },
   { 0x2BD7, "MLH Electronics: LEDstrip controller" },
@@ -2048,7 +2043,7 @@ static const value_string artnet_oem_code_vals[] = {
   { 0x2C17, "Synthesis LED: Synthesis Pro" },
   { 0x2C18, "AULIOS GmbH: AULIOS" },
   { 0x2C19, "St Andrews: Dot 2" },
-  { 0x2C1A, "Digipet: Win-Digipet" },
+  { 0x2C1A, "Digipet: Win Digipet" },
   { 0x2C1B, "Chauvet Professional: Maverick Storm 3 BeamWash" },
   { 0x2C1C, "Chauvet Professional: Maverick Force 3 Profile" },
   { 0x2C1D, "Chauvet Professional: Maverick Force 2 Beam" },
@@ -2062,9 +2057,9 @@ static const value_string artnet_oem_code_vals[] = {
   { 0x2C25, "CLAYPAKY: AROLLA AQUA" },
   { 0x2C26, "CLAYPAKY: K15 AQUA" },
   { 0x2C27, "CLAYPAKY: ACTORIS PROFILE FC" },
-  { 0x2C28, "CLAYPAKY: MINI-B AQUA" },
+  { 0x2C28, "CLAYPAKY: MINI B AQUA" },
   { 0x2C29, "Steinigke Showtechnic GmbH: DXT Pixel Node IV" },
-  { 0x2C2A, "Vivalyte B.V: LEDLogix" },
+  { 0x2C2A, "Vivalyte BV: LEDLogix" },
   { 0x2C2B, "PXL Lighting: B1" },
   { 0x2C2C, "Pyrodigy Production: DAC" },
   { 0x2C2D, "Chauvet Professional: Strike Array 2 FC" },
@@ -2113,11 +2108,75 @@ static const value_string artnet_oem_code_vals[] = {
   { 0x2C58, "GLP German Light Products INC: Drixl" },
   { 0x2C59, "GLP German Light Products INC: Scenex PixiPower" },
   { 0x2C5A, "Synthesis LED: Synthesis Assistant tool" },
-  { 0x2C5B, "SmartShow UK Ltd: Pro-ONE" },
+  { 0x2C5B, "SmartShow UK Ltd: Pro ONE" },
   { 0x2C5C, "Bulldog Lighting and Events: Armani Cobra 4" },
   { 0x2C5D, "Bulldog Lighting and Events: Diesel 12" },
   { 0x2C5E, "Bulldog Lighting and Events: Diesel 24" },
-  { 0x2C5F, "Singularity (UK) Ltd: rdmInspect" },
+  { 0x2C5F, "Singularity UK Ltd: rdmInspect" },
+  { 0x2C60, "ARCTOS Showlasertechnik GmbH: Orbit" },
+  { 0x2C61, "CLAYPAKY: RHAPSODY" },
+  { 0x2C62, "ChamSys Ltd: QuickQ" },
+  { 0x2C63, "PIXILAB Technologies AB: PIXILAB Blocks" },
+  { 0x2C64, "JPK Systems Limited: eDMX4 MAX ISODIN" },
+  { 0x2C65, "JPK Systems Limited: eDMX8 MAX" },
+  { 0x2C66, "CLAYPAKY: SINFONYA PROFILE HP" },
+  { 0x2C67, "CLAYPAKY: SINFONYA PROFILE 600EX" },
+  { 0x2C68, "CLAYPAKY: RHAPSODYA" },
+  { 0x2C69, "CLAYPAKY: SKYLOS NV" },
+  { 0x2C6A, "Onderweg Software: Onderweg DMX Library" },
+  { 0x2C6B, "ChromaQ: 2inspire 300" },
+  { 0x2C6C, "ChromaQ: 2inspire 200" },
+  { 0x2C6D, "ChromaQ: 2inspire 100" },
+  { 0x2C6E, "DTS Illuminazione srl: SYNERGY 6 PROFILE" },
+  { 0x2C6F, "TELMIC Neo: Recoller" },
+  { 0x2C70, "CB Electronics: TC 5 Midi Timecode Interface" },
+  { 0x2C71, "BRITEQ Beglec NV: BTX SKYRAN" },
+  { 0x2C72, "JPK Systems Limited: eDMX8 MAX DIN" },
+  { 0x2C73, "Chauvet Professional: onAir B6" },
+  { 0x2C74, "Chauvet Professional: onAir B4" },
+  { 0x2C75, "Chauvet Professional: onAir B1" },
+  { 0x2C76, "Swisson AG: XMT 500" },
+  { 0x2C77, "Kino Flo Lighting Systems: Celeb Ikon 12" },
+  { 0x2C78, "Kino Flo Lighting Systems: Celeb Ikon 6" },
+  { 0x2C79, "Kino Flo Lighting Systems: Diva Lux 4" },
+  { 0x2C7A, "Kino Flo Lighting Systems: Diva Lux 2" },
+  { 0x2C7B, "Kino Flo Lighting Systems: Diva Lux 1" },
+  { 0x2C7C, "Kino Flo Lighting Systems: FreeFrame Control 2" },
+  { 0x2C7D, "Kino Flo Lighting Systems: FreeFrame P3" },
+  { 0x2C7E, "Kino Flo Lighting Systems: FreeFrame P2" },
+  { 0x2C7F, "Kino Flo Lighting Systems: FreeFrame P1" },
+  { 0x2C80, "Kino Flo Lighting Systems: LED Fixture" },
+  { 0x2C81, "Chauvet Professional: Epix Drive 4000X IP" },
+  { 0x2C82, "Briteq Beglec NV: BT NODE24 Mk2" },
+  { 0x2C83, "Briteq Beglec NV: BTI LIGHTSTRIKE IP66" },
+  { 0x2C84, "ChamSys Ltd: MagicHD" },
+  { 0x2C85, "ChamSys Ltd: MagicVis" },
+  { 0x2C86, "Lighting Infusion LLC: Streaming Toolkit" },
+  { 0x2C87, "Shenzhen Lumi Lime Technology Limited: LA01" },
+  { 0x2C88, "Steinigke Showtechnic GmbH: eurolite Light Captain" },
+  { 0x2C89, "ADJ Products: Wifi Net 2" },
+  { 0x2C8A, "ADJ Products: Net 8" },
+  { 0x2C8B, "ADJ Products: Net 4" },
+  { 0x2C8C, "Martin Professional: ERA 700 Performance IP" },
+  { 0x2C8D, "White WIng Logic: PoE LED controller MW10P" },
+  { 0x2C8E, "DALCERO ENGINEERING: OemDalceroGateway04" },
+  { 0x2C8F, "DALCERO ENGINEERING: OemDalceroGateway01" },
+  { 0x2C90, "Chauvet Professional: Maverick Silens 2X Profile" },
+  { 0x2C91, "Chauvet Professional: Maverick Silens 1X Profile" },
+  { 0x2C92, "Elation Lighting: EN6 IP" },
+  { 0x2C93, "Elation Lighting: EN12i" },
+  { 0x2C94, "Elation Lighting: EP1" },
+  { 0x2C95, "CLAYPAKY: ORKIS CYC" },
+  { 0x2C96, "Emilio Karas: Fixture Visualizer unreleased" },
+  { 0x2C97, "Steinigke Showtechnic GmbH: LED Pixel Matrix Panel 5x5 RGBWW" },
+  { 0x2C98, "MODUS: MODUS Max08" },
+  { 0x2C99, "IQ COMPANY Ltd: DOTIMAGE" },
+  { 0x2C9A, "Chauvet Professional: Maverick Storm 4 SoloWash" },
+  { 0x2C9B, "CLAYPAKY: Orkis Cyc" },
+  { 0x2C9C, "Thomas Neumann Licht und Tontechnik: Levelcheck" },
+  { 0x2C9D, "LaserAV: DistroNode" },
+  { 0x2C9E, "LumenRadio AB: CRMX Galileo MAX" },
+  { 0x2C9F, "Martin Professional: MAC One" },
   { 0x8000, "Artistic Licence Engineering Ltd: Netgate XT" },
   { 0x8001, "Artistic Licence Engineering Ltd: Net Patch" },
   { 0x8002, "Artistic Licence Engineering Ltd: DMX Hub XT" },
@@ -2368,6 +2427,7 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x025B, "Imlight-Showtechnic" },
   { 0x026F, "Acuity Brands Lighting Inc." },
   { 0x0280, "Arrigo Lighting" },
+  { 0x0286, "RMLX" },
   { 0x028F, "GRE Alpha Electronics Ltd." },
   { 0x02A0, "LLC Likhoslavl Plant of Lighting Engineering (Svetotehnika)" },
   { 0x02A1, "LLC Moscow Experimental Lighting Plant (TeleMechanic)" },
@@ -2422,8 +2482,11 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x03A2, "licht.team" },
   { 0x03A8, "ARTFOX" },
   { 0x03AA, "AIGA Electronic (GuangZhou) Co., Ltd." },
+  { 0x03AB, "ABMICROLONDON" },
   { 0x03D5, "eX Systems" },
   { 0x03D6, "i-Lumen" },
+  { 0x03DA, "QST LED" },
+  { 0x03F0, "jpbaye.de" },
   { 0x03FA, "ART-DMX" },
   { 0x0402, "Exato" },
   { 0x0404, "Luminxa" },
@@ -2436,6 +2499,7 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x044F, "B2 Co., Ltd." },
   { 0x0455, "Lamp & Pencil" },
   { 0x047C, "LedsGo" },
+  { 0x0480, "ASUSTeK Computer Inc." },
   { 0x048E, "Krisledz Pte. Ltd." },
   { 0x048F, "Grand Canyon LED Lighting System (Suzhou) Co., Ltd." },
   { 0x04A6, "MEB Veranstaltungstechnik GmbH" },
@@ -2451,7 +2515,9 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x04DD, "Topstriving Photoelectricity Technology Co., Ltd." },
   { 0x04EE, "Tivoli Lighting" },
   { 0x04F0, "SIGMA NET" },
+  { 0x04F4, "Zeraus" },
   { 0x04FC, "Syncrolite LLC" },
+  { 0x0504, "MYHP Limited" },
   { 0x050A, "ChamSys Ltd." },
   { 0x051C, "Ambitsel, Inc." },
   { 0x0520, "ANLC Ltd" },
@@ -2468,8 +2534,10 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x0586, "K 5600, Inc." },
   { 0x0588, "GuangZhou XiangMing Light Limited" },
   { 0x0592, "MIRAGE B.V." },
+  { 0x0596, "ReveLux" },
   { 0x05A0, "Stage Smarts AB" },
   { 0x05A4, "IMMOLAS" },
+  { 0x05A8, "Owl Labs" },
   { 0x05AB, "Shenzhen Lesan Lighting Co., Ltd." },
   { 0x05B5, "Turkowski GmbH" },
   { 0x05BC, "CantoUSA" },
@@ -2500,6 +2568,7 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x063C, "LaserNet" },
   { 0x0644, "COLEDER DISPLAY CO., LTD." },
   { 0x0645, "MATSUMURA ELECTRIC MFG. CO. , LTD." },
+  { 0x064D, "KXD LIGHTING CO., LIMITED" },
   { 0x0650, "RDC, Inc. d.b.a. LynTec" },
   { 0x0653, "USAI, LLC" },
   { 0x0654, "HUNAN XIANG CAIXU FILM AND TELEVISION CULTURE CO.LTD" },
@@ -2515,8 +2584,10 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x0684, "LEDART LLC" },
   { 0x0685, "IBL/ESD-Datentechnik GmbH" },
   { 0x0687, "INSMARINE LLC" },
+  { 0x0689, "GUANGDONG DONE POWER TECHNOLOGY CO" },
   { 0x068C, "Hitmusic SAS" },
   { 0x068E, "GUANGZHOU TEANMA STAGE LIGHTING FACTORY" },
+  { 0x068F, "LEDEC GROUP LIMITED" },
   { 0x0696, "SHENZHEN HOION LIGHTING CO.,LTD" },
   { 0x0697, "Shenzhen LED Innovator Technology Co., Ltd" },
   { 0x0698, "Techni-Lux" },
@@ -2524,11 +2595,13 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x06A1, "ProTec GmbH" },
   { 0x06A3, "RODLIGHT ALBRECHT SILBERBERGER" },
   { 0x06AC, "GOLVER PROJECTS S.L." },
+  { 0x06AD, "LEDMAN OPTOELECTRONIC CO.,LTD." },
   { 0x06AE, "CANARA LIGHTING INDUSTRIES PVT LTD" },
   { 0x06AF, "ZHEJIANG JINGRI TECHNOLOGY CO.,LTD" },
   { 0x06B3, "NANOLUMENS, INC." },
   { 0x06B6, "GUANGDONG VSHINE LIGHTING TECHNOLOGY CO.,LTD" },
   { 0x06B9, "GUANGZHOU DASEN LIGHTING CORPORATION LIMITED" },
+  { 0x06BB, "IQ COMPANY Ltd." },
   { 0x06C4, "RHENAC Systems GmbH" },
   { 0x06C7, "L&L Luce&Light" },
   { 0x06CE, "American-Pro International" },
@@ -2545,13 +2618,16 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x06F8, "CHONGQING XINYUANHUI OPTOELECTRONIC TECHNOLOGY CO.,LTD" },
   { 0x0700, "OXYGEN SMD Ltd" },
   { 0x0702, "Drinelec" },
+  { 0x0706, "LINEAR TECHNOLOGIE" },
   { 0x0707, "Conceptinetics Technologies and Consultancy Ltd." },
   { 0x0708, "AK-LIGHT" },
   { 0x070C, "Pixout SIA" },
   { 0x070D, "Lumenwerx ULC" },
+  { 0x070E, "PragmaLab" },
   { 0x070F, "Theatrelight New Zealand" },
   { 0x0710, "D.T.S. Illuminazione srl" },
   { 0x0712, "Laser Imagineering GmbH" },
+  { 0x071A, "YHX Visual" },
   { 0x071F, "Moss LED Inc" },
   { 0x0724, "PHC Lighting & BMS Sp. z o.o." },
   { 0x072B, "NEWSUBSTANCE Ltd." },
@@ -2562,6 +2638,7 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x0734, "CPOINT" },
   { 0x073B, "Corsair Technology Ltd." },
   { 0x0740, "Arkalumen" },
+  { 0x0744, "DMX Pro Sales, LLC" },
   { 0x0745, "Guangzhou Wingo Stage Light Co., Ltd" },
   { 0x074F, "Panasonic Corporation" },
   { 0x0753, "F&V Europe B.V." },
@@ -2586,6 +2663,8 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x07B1, "TBF-PyroTec GmbH" },
   { 0x07B3, "Shenzhen Fabulux Technology Co., Ltd" },
   { 0x07B5, "ARM Automation, Inc" },
+  { 0x07B6, "Minleon USA" },
+  { 0x07B8, "Zhuhai Demi Technology Co., Ltd." },
   { 0x07BB, "Shenzhen SOSEN Electronics Co., Ltd." },
   { 0x07BE, "Sanko Device Co.Ltd." },
   { 0x07C0, "Code Mercenaries GmbH" },
@@ -2603,6 +2682,8 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x07E9, "TechLink Co., Ltd." },
   { 0x07EA, "Le Maitre Ltd" },
   { 0x07EF, "Guangzhou V-Show Pro Lighting Co., Ltd." },
+  { 0x07F0, "Lifud Technology Co., Ltd" },
+  { 0x07F2, "CB Electronics" },
   { 0x07F3, "Sam Light" },
   { 0x07F4, "LED Flex Ltd." },
   { 0x07F5, "Shenzhen ATENTI Technologies Co., Ltd" },
@@ -2610,12 +2691,17 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x07F7, "Dakco Technologies Co., Ltd." },
   { 0x07F8, "Ultimate Technology Solutions GmbH" },
   { 0x07F9, "Bion Technologies GmbH" },
+  { 0x07FA, "Shenzhen Pony Systems Tech Co., Ltd." },
   { 0x07FD, "THELIGHT Luminary for Cine and TV S.L." },
   { 0x07FE, "Shenzhen Apexls Optoelectronic Co., Ltd." },
   { 0x07FF, "Guangzhou HOMEI LIGHT Manufacturer" },
   { 0x0800, "Hongyeah Light" },
   { 0x0801, "Guangzhou Favolite Stage Lighting Co., Ltd." },
   { 0x0802, "AstralPool" },
+  { 0x0803, "Guangzhou FutureColor Electronic Technology Co., Ltd." },
+  { 0x0804, "K&G Visual Technology" },
+  { 0x0805, "T.C.M. Light-Solutions" },
+  { 0x0806, "Air Giants Limited" },
   { 0x0807, "Event Lighting Pty, Ltd." },
   { 0x0808, "Cooper Lighting - Zero 88" },
   { 0x0809, "mumoco GmbH" },
@@ -2633,11 +2719,13 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x0824, "Almotechnos CO.,LTD." },
   { 0x0827, "PIXREAL" },
   { 0x0832, "Shenzhen EXC-LED Technology Co.,Ltd" },
+  { 0x0838, "LaserAV" },
   { 0x083A, "Bright Ideas Custom Electronics Inc." },
   { 0x083C, "TDT Productions" },
   { 0x083E, "Guangdong Hua Chen Film & Television Stage Project Co., Ltd." },
   { 0x083F, "Shenzhen LeiFei Lighting Technologies Co.,Ltd." },
   { 0x0840, "Shenzhen Zwich Science and Technology Co.Ltd." },
+  { 0x0841, "Guangzhou ICON Lighting Co.,Ltd" },
   { 0x0845, "Cush Light LLC" },
   { 0x0846, "LDR - Luci della Ribalta Srl" },
   { 0x084B, "Neon Circus Ltd" },
@@ -2647,6 +2735,7 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x0851, "Junction Inc. Ltd" },
   { 0x0854, "Sharp / NEC Display Solutions, Ltd." },
   { 0x0855, "GODOX Photo Equipment Co., Ltd." },
+  { 0x0856, "Ctrl Element ehf" },
   { 0x0858, "Juno Lighting Group" },
   { 0x085A, "Guangzhou Ming Jing Stage Light Equipment Co., Ltd." },
   { 0x085B, "Tolifo (Dongguan) Photographic Equipment Co. Ltd" },
@@ -2664,6 +2753,7 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x086E, "Guangzhou Hi-LTTE Electronics Technology Co.,Ltd" },
   { 0x086F, "MARTINI RUS LLC" },
   { 0x0870, "Hunan YESTECH Optoelectronic Co., Ltd" },
+  { 0x0871, "Changsha Maya Special Effects Equipment Co., Ltd" },
   { 0x0873, "Guangzhou BKLite Stage Lighting Equipment Co.,LTD" },
   { 0x0874, "Snow Professional Lighting" },
   { 0x0875, "ARC Solid-State Lighting Corp." },
@@ -2692,14 +2782,17 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x0892, "DongGuan Ruishen Technology Co.,Ltd" },
   { 0x0893, "Brighten LED Lighting Limited" },
   { 0x0894, "Dongguan HCP Technology Co., Ltd." },
+  { 0x0896, "CSD Design and Fabrication" },
   { 0x089A, "ADL Electronics Ltd." },
   { 0x089D, "gobo.ws" },
   { 0x08A1, "Shenzhen Gloshine Technology Co., Ltd" },
   { 0x08A2, "Guangzhou Gesida Light Equipment Co., Ltd." },
   { 0x08A3, "Redot Visual Effect Technologies (Shenzhen) Co., Ltd" },
   { 0x08A4, "Adam Hall GmbH" },
+  { 0x08A5, "White Wing Logic" },
   { 0x08A6, "impulswerk.de" },
   { 0x08A7, "GuangZhou Deliya Opto-electronic Tech Co., Ltd" },
+  { 0x08A8, "Guangzhou Yunpeng Lighting Equipment Co. Ltd." },
   { 0x08AA, "PiXL Factory" },
   { 0x08AB, "Qdot Lighting Limited" },
   { 0x08AC, "Bushveld Labs" },
@@ -2719,6 +2812,7 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x08BD, "Lug Light Factory Sp. z o. o." },
   { 0x08BE, "Shenzhen FloatStone Technology Co., Ltd." },
   { 0x08BF, "Times Square Stage Lighting Inc." },
+  { 0x08C0, "Real Tech International LTD." },
   { 0x08C1, "Project SSSHH Incorporated" },
   { 0x08C3, "Guangzhou Spark Stage Equipment Co. Ltd" },
   { 0x08C4, "Jacek Wagner" },
@@ -2726,7 +2820,9 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x08C6, "Guangzhou Ever Famous Electronic Co.,Ltd" },
   { 0x08C9, "LEDitgo Videowall Germany GmbH" },
   { 0x08CA, "Foshan City Xuandao Optoelectronics Equipment Co., Ltd" },
+  { 0x08CB, "Practical LEDs.com" },
   { 0x08CC, "Guangzhou Santu Stage Lighting Equipment Co.Ltd" },
+  { 0x08D0, "Image Engineering" },
   { 0x08D1, "Shenzhen Leqi Network Technology Co., Ltd." },
   { 0x08D3, "SVI Public Company Limited" },
   { 0x08D4, "Sensa-Lite Ltd." },
@@ -2743,7 +2839,9 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x08E4, "LMP Lichttechnik Vertriebsgesellschaft GmbH & Co KG" },
   { 0x08E6, "Shenzhen VisionMax Technology Co., Ltd" },
   { 0x08E7, "3A Guangzhou Electronics Co., Ltd" },
+  { 0x08E8, "North Engineering" },
   { 0x08EA, "Changchun Cedar Electronic Technology Co.,Ltd." },
+  { 0x08EB, "Guangzhou Lixin Lighting Co., Ltd." },
   { 0x08EC, "Marvin Nadrowski" },
   { 0x08ED, "ShowLED" },
   { 0x08EE, "Spacelights" },
@@ -2775,6 +2873,7 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x090B, "StarLighting" },
   { 0x090C, "GRE Alpha" },
   { 0x090E, "Sichuan esRadio Technology Co., Ltd" },
+  { 0x090F, "Shenzhen Dingli Display Technology Co., Ltd" },
   { 0x0910, "Shenzhen Tecnon EXCO-Vision Technology Co., Ltd." },
   { 0x0911, "Guangzhou Aceda Professional Lighting Co., Ltd." },
   { 0x0912, "ags - Wissenschaftliche Arbeitsgemeinschaft fur Studio- und Senderfragen" },
@@ -2834,6 +2933,7 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x0959, "Urbs Lighting, LLC" },
   { 0x095A, "kLabs Research UK" },
   { 0x095B, "Wuhan Zhongtian Jiaye Mechanical and Electrical Engineering Co. LTD" },
+  { 0x095C, "Thomas Neumann Licht und Tontechnik" },
   { 0x095E, "Hondel Lighting Limited" },
   { 0x095F, "Elaborated Networks GmbH" },
   { 0x0960, "Fineline Solutions Ltd." },
@@ -2874,6 +2974,7 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x099A, "Aixz International (S)" },
   { 0x099E, "LLC Lighting Technologies production" },
   { 0x09A0, "Rnet Lighting Technology Limited" },
+  { 0x09A1, "Veranstaltungstechnik König" },
   { 0x09A2, "Fountain People" },
   { 0x09A3, "Shenzhen Lightlink Display Technology Co., Ltd" },
   { 0x09A5, "Prolight Concepts Ltd." },
@@ -2881,6 +2982,7 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x09AD, "Dongguan Ensure Electronic Technology Co., LTD" },
   { 0x09AE, "Robert Juliat" },
   { 0x09AF, "Autotech Co." },
+  { 0x09B0, "Luminii" },
   { 0x09B2, "Guangzhou Hedong Electronics Co., LTD" },
   { 0x09B3, "Aquatique Show Int." },
   { 0x09B4, "Brompton Technology Ltd." },
@@ -2899,12 +3001,14 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x09C8, "Crystal Fountains Inc." },
   { 0x09CC, "Motomuto Aps" },
   { 0x09D1, "Environmental Lights" },
+  { 0x09D2, "Shenzhen Siwelo Technology Co., LTD" },
   { 0x09D3, "WLPS Wodielite Production Services" },
   { 0x09D4, "Guangzhou Yilaiming Photoelectric Technology Co., Ltd" },
   { 0x09D5, "Shenzhen ImagineVision Technology Limited" },
   { 0x09D6, "Mittomakers" },
   { 0x09D7, "Unilumin Group" },
   { 0x09D8, "Pioneer Lighting Solutions India Pvt Ltd" },
+  { 0x09DD, "Planet Innovation Products Inc" },
   { 0x09DE, "Matthias Bauch Software" },
   { 0x09E9, "Starway" },
   { 0x09EE, "Suzhou Pinzong Electronic Technology, CO.,Ltd" },
@@ -2928,6 +3032,7 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x120A, "Bulldog Lighting and Events, Inc." },
   { 0x120B, "Brilliant Stages Ltd." },
   { 0x120C, "Shanxi Tian Gong Sheng Optoelectronic Equipment Technology Co." },
+  { 0x1211, "Recrealab" },
   { 0x1212, "HPL Light Company" },
   { 0x1221, "SAGITTER-SDJ-Proel" },
   { 0x1222, "SM International" },
@@ -2948,6 +3053,7 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x1490, "Grid Show Systems Inc." },
   { 0x14A0, "Intense Lighting, LLC" },
   { 0x14AC, "Zaklad Elektroniczny AGAT s.c." },
+  { 0x1501, "Artixium France SAS" },
   { 0x1506, "v2 Lighting Group, Inc." },
   { 0x1507, "LC Handels GmbH" },
   { 0x1508, "TommyDMX" },
@@ -3021,6 +3127,7 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x20C0, "KappaStyle Productions." },
   { 0x20C1, "BrightBeats, LLC" },
   { 0x20C2, "Demilight" },
+  { 0x20C3, "PIXILAB Technologies AB" },
   { 0x2121, "Brother,Brother & Sons Aps" },
   { 0x2122, "BEGLEC NV" },
   { 0x2130, "Bart van Stiphout Electronics & Software" },
@@ -3126,6 +3233,8 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x37D0, "Boogy Brothers Showequipment" },
   { 0x37D7, "Lichttechnik & Sonderbau" },
   { 0x37DD, "Sehr gute GmbH" },
+  { 0x3800, "OndeLight LTD" },
+  { 0x3801, "SFX Controllers Sweden AB" },
   { 0x3805, "Yifeng Lighting Co., Ltd." },
   { 0x3806, "ACME EFFECTS LTD." },
   { 0x3868, "LanBolight Technology Co., LTD." },
@@ -3213,6 +3322,7 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x464C, "Flashlight/Ampco Holding" },
   { 0x4653, "IT & Eventtechnik Fabian Stumpf" },
   { 0x4656, "Flexvisual" },
+  { 0x4657, "The Fountain Workshop Ltd." },
   { 0x4658, "MAGIC FX B.V." },
   { 0x4678, "Global Special Effects" },
   { 0x4744, "Goddard Design Co." },
@@ -3220,6 +3330,7 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x4747, "G&G LED Lighting" },
   { 0x474C, "G-LEC Europe GmbH" },
   { 0x4750, "DES" },
+  { 0x4752, "Greenlite" },
   { 0x4753, "Guangzhou Haoyang Electronic Co., Ltd." },
   { 0x476C, "General Luminaire (Shanghai) Ltd." },
   { 0x4800, "VOD VISUAL.CO. (UK) Ltd." },
@@ -3908,6 +4019,8 @@ static int hf_artnet_poll_talktome_targeted;
 static int hf_artnet_poll_diag_priority;
 static int hf_artnet_poll_target_port_top;
 static int hf_artnet_poll_target_port_bottom;
+static int hf_artnet_poll_esta_man;
+static int hf_artnet_poll_oem;
 
 static gint ett_artnet_poll_talktome;
 
@@ -4074,6 +4187,9 @@ static int hf_artnet_poll_reply_swremote_5;
 static int hf_artnet_poll_reply_swremote_6;
 static int hf_artnet_poll_reply_swremote_7;
 static int hf_artnet_poll_reply_swremote_8;
+
+static int hf_artnet_poll_reply_user;
+static int hf_artnet_poll_reply_refreshrate;
 
 static int * const artnet_poll_reply_status_fields[] = {
   &hf_artnet_poll_reply_status_ubea_present,
@@ -4377,6 +4493,41 @@ static int hf_artnet_command_esta_man;
 static int hf_artnet_command_length;
 static int hf_artnet_command_data;
 
+/* ArtDataRequest */
+static int hf_artnet_data_request;
+static int hf_artnet_data_request_esta_man;
+static int hf_artnet_data_request_oem;
+static int hf_artnet_data_request_request;
+static int hf_artnet_data_request_spare;
+
+#define ARTNET_DR_POLL          0x0000
+#define ARTNET_DR_URL_PRODUCT   0x0001
+#define ARTNET_DR_URL_USERGUIDE 0x0002
+#define ARTNET_DR_URL_SUPPORT   0x0003
+#define ARTNET_DR_URL_PERS_UDR  0x0004
+#define ARTNET_DR_URL_PERS_GDTF 0x0005
+#define ARTNET_DR_MAN_SPEC_LOW  0x8000
+#define ARTNET_DR_MAN_SPEC_HIGH 0xFFFF
+
+static const range_string artnet_data_request_vals[] = {
+  { ARTNET_DR_POLL,          ARTNET_DR_POLL,          "DrPoll" },
+  { ARTNET_DR_URL_PRODUCT,   ARTNET_DR_URL_PRODUCT,   "DrUrlProduct" },
+  { ARTNET_DR_URL_USERGUIDE, ARTNET_DR_URL_USERGUIDE, "DrUrlUserGuide" },
+  { ARTNET_DR_URL_SUPPORT,   ARTNET_DR_URL_SUPPORT,   "DrUrlSupport" },
+  { ARTNET_DR_URL_PERS_UDR,  ARTNET_DR_URL_PERS_UDR,  "DrPersUdr" },
+  { ARTNET_DR_URL_PERS_GDTF, ARTNET_DR_URL_PERS_GDTF, "DrPersGdtf" },
+  { ARTNET_DR_MAN_SPEC_LOW,  ARTNET_DR_MAN_SPEC_HIGH, "DrManSpec" },
+  { 0,                       0,                       NULL }
+};
+
+/* ArtDataReply */
+static int hf_artnet_data_reply;
+static int hf_artnet_data_reply_esta_man;
+static int hf_artnet_data_reply_oem;
+static int hf_artnet_data_reply_request;
+static int hf_artnet_data_reply_payload_length;
+static int hf_artnet_data_reply_payload;
+
 /* ArtMedia */
 static int hf_artnet_media;
 
@@ -4412,7 +4563,7 @@ static int hf_artnet_time_sync;
 #define ARTNET_TRIGGER_NOT_OEM_SPECIFIC 0xFFFF
 
 static int hf_artnet_trigger;
-static int hf_artnet_trigger_oemcode;
+static int hf_artnet_trigger_oem;
 static int hf_artnet_trigger_key;
 static int hf_artnet_trigger_key_unspecific;
 static int hf_artnet_trigger_subkey;
@@ -4540,7 +4691,6 @@ static dissector_handle_t dmx_chan_handle;
 static guint
 dissect_artnet_poll(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *pinfo)
 {
-  guint size;
 
   proto_tree_add_bitmask(tree, tvb, offset, hf_artnet_poll_talktome,
                          ett_artnet_poll_talktome,
@@ -4554,21 +4704,35 @@ dissect_artnet_poll(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  size = tvb_reported_length_remaining(tvb, offset);
-
-  if (size >= 4) {
-    proto_tree_add_item(tree, hf_artnet_poll_target_port_top, tvb,
-                      offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    proto_tree_add_item(tree, hf_artnet_poll_target_port_bottom, tvb,
-                      offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    col_append_fstr(pinfo->cinfo, COL_INFO, " (%d-%d)",
-      tvb_get_guint16(tvb, offset-2, ENC_BIG_ENDIAN),
-      tvb_get_guint16(tvb, offset-4, ENC_BIG_ENDIAN));
+  /* TargetPort Top/Bottom not present (compatibility, >= Rev. DE) */
+  if(tvb_reported_length_remaining(tvb, offset) < 4) {
+    return offset;
   }
+
+  proto_tree_add_item(tree, hf_artnet_poll_target_port_top, tvb,
+                    offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_artnet_poll_target_port_bottom, tvb,
+                    offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+
+  col_append_fstr(pinfo->cinfo, COL_INFO, " (%d-%d)",
+    tvb_get_guint16(tvb, offset-2, ENC_BIG_ENDIAN),
+    tvb_get_guint16(tvb, offset-4, ENC_BIG_ENDIAN));
+
+  /* EstaMan/OEM not present (compatibility, >= Rev. DE) */
+  if(tvb_reported_length_remaining(tvb, offset) < 4) {
+    return offset;
+  }
+
+  proto_tree_add_item(tree, hf_artnet_poll_esta_man, tvb,
+                      offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_artnet_poll_oem, tvb,
+                      offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
 
   return offset;
 }
@@ -4635,37 +4799,39 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_
   proto_tree_add_item(tree, hf_artnet_poll_reply_node_report,
                       tvb, offset, 64, ENC_ASCII);
 
-  /* Try to extract node report regex data as generated fields */
-  regex = g_regex_new(artnet_poll_reply_node_report_regex, (GRegexCompileFlags) G_REGEX_OPTIMIZE, (GRegexMatchFlags) 0, NULL);
-  DISSECTOR_ASSERT(regex != NULL);
-  g_regex_match(
-    regex,
-    (const gchar*)tvb_get_string_enc(pinfo->pool, tvb, offset, 64, ENC_ASCII),
-    (GRegexMatchFlags) 0,
-    &match_info);
+  /* Try to extract node report regex data as generated fields (only if data contained) */
+  if(tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN) > 0) {
+    regex = g_regex_new(artnet_poll_reply_node_report_regex, (GRegexCompileFlags) G_REGEX_OPTIMIZE, (GRegexMatchFlags) 0, NULL);
+    DISSECTOR_ASSERT(regex != NULL);
+    g_regex_match(
+      regex,
+      (const gchar*)tvb_get_string_enc(pinfo->pool, tvb, offset, 64, ENC_ASCII),
+      (GRegexMatchFlags) 0,
+      &match_info);
 
-  if(g_match_info_matches(match_info) && g_match_info_get_match_count(match_info) == 4) {
-    gchar *status_code = g_match_info_fetch(match_info, 1);
-    gchar *counter = g_match_info_fetch(match_info, 2);
-    gchar *status_string = g_match_info_fetch(match_info, 3);
+    if(g_match_info_matches(match_info) && g_match_info_get_match_count(match_info) == 4) {
+      gchar *status_code = g_match_info_fetch(match_info, 1);
+      gchar *counter = g_match_info_fetch(match_info, 2);
+      gchar *status_string = g_match_info_fetch(match_info, 3);
 
-    tf = proto_tree_add_uint(tree, hf_artnet_poll_reply_node_report_status_code, tvb, 0, 0, (guint16)strtol(status_code, NULL, 16));
-    proto_item_set_generated(tf);
+      tf = proto_tree_add_uint(tree, hf_artnet_poll_reply_node_report_status_code, tvb, 0, 0, (guint16)strtol(status_code, NULL, 16));
+      proto_item_set_generated(tf);
 
-    tf = proto_tree_add_uint(tree, hf_artnet_poll_reply_node_report_response_counter, tvb, 0, 0, (guint32)strtoul(counter, NULL, 10));
-    proto_item_set_generated(tf);
+      tf = proto_tree_add_uint(tree, hf_artnet_poll_reply_node_report_response_counter, tvb, 0, 0, (guint32)strtoul(counter, NULL, 10));
+      proto_item_set_generated(tf);
 
-    tf = proto_tree_add_string(tree, hf_artnet_poll_reply_node_report_status_string, tvb, 0, 0, status_string);
-    proto_item_set_generated(tf);
+      tf = proto_tree_add_string(tree, hf_artnet_poll_reply_node_report_status_string, tvb, 0, 0, status_string);
+      proto_item_set_generated(tf);
 
-    g_free(status_code);
-    g_free(counter);
-    g_free(status_string);
-  } else {
-    expert_add_info(pinfo, tree, &ei_artnet_poll_reply_node_report_invalid_format);
+      g_free(status_code);
+      g_free(counter);
+      g_free(status_string);
+    } else {
+      expert_add_info(pinfo, tree, &ei_artnet_poll_reply_node_report_invalid_format);
+    }
+    g_regex_unref(regex);
+    g_match_info_free(match_info);
   }
-  g_regex_unref(regex);
-  g_match_info_free(match_info);
   offset += 64;
 
 
@@ -4954,7 +5120,13 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_
   proto_tree_add_item(tree, hf_artnet_poll_reply_default_responder_uid, tvb, offset, 6, ENC_NA);
   offset += 6;
 
-  /* There are additional 15 bytes filler reserved for future use */
+  proto_tree_add_item(tree, hf_artnet_poll_reply_user, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_artnet_poll_reply_refreshrate, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+
+  /* There are additional 11 bytes filler reserved for future use */
   if (offset < tvb_reported_length(tvb))
   {
     proto_tree_add_item(tree, hf_artnet_filler, tvb, offset, -1, ENC_NA);
@@ -5856,7 +6028,7 @@ dissect_artnet_diag_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
 /* ArtCommand */
 static guint
-dissect_artnet_command(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
+dissect_artnet_command(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
   guint16 length;
 
@@ -5872,6 +6044,64 @@ dissect_artnet_command(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
   proto_tree_add_item(tree, hf_artnet_command_data, tvb,
                       offset, length, ENC_ASCII);
   offset += length;
+
+  return offset;
+}
+
+/* ArtDataRequest */
+static guint
+dissect_artnet_data_request(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
+  proto_tree_add_item(tree, hf_artnet_data_request_esta_man, tvb,
+                      offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_artnet_data_request_oem, tvb,
+                      offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_artnet_data_request_request, tvb,
+                      offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_artnet_data_request_spare, tvb,
+                      offset, 22, ENC_NA);
+  offset += 22;
+
+  return offset;
+}
+
+/* ArtDataReply */
+static guint
+dissect_artnet_data_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
+  guint16 payload_length;
+
+  proto_tree_add_item(tree, hf_artnet_data_reply_esta_man, tvb,
+                      offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_artnet_data_reply_oem, tvb,
+                      offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_artnet_data_reply_request, tvb,
+                      offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+
+  payload_length = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_artnet_data_reply_payload_length, tvb,
+                      offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+
+  if(payload_length == 0) {
+    return offset;
+  }
+
+  proto_tree_add_item(tree, hf_artnet_data_reply_payload, tvb,
+                      offset, payload_length, ENC_ASCII);
+
+  offset += payload_length;
 
   return offset;
 }
@@ -5906,7 +6136,7 @@ dissect_artnet_media_control_reply(tvbuff_t *tvb _U_, guint offset, proto_tree *
 
 /* ArtTimeCode */
 static guint
-dissect_artnet_time_code(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
+dissect_artnet_time_code(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 2, ENC_NA);
@@ -5944,7 +6174,7 @@ dissect_artnet_time_sync(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
 
 /* ArtTrigger */
 static guint
-dissect_artnet_trigger(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
+dissect_artnet_trigger(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
   guint16 oem;
   proto_item *pi;
@@ -5954,7 +6184,7 @@ dissect_artnet_trigger(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
   offset += 2;
 
   oem = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
-  proto_tree_add_item(tree, hf_artnet_trigger_oemcode, tvb,
+  proto_tree_add_item(tree, hf_artnet_trigger_oem, tvb,
                       offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
@@ -6231,6 +6461,42 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
       si = proto_item_add_subtree(hi, ett_artnet );
 
       size  = dissect_artnet_command( tvb, offset, si );
+      size -= offset;
+
+      proto_item_set_len(si, size );
+      offset += size;
+
+      break;
+
+    case ARTNET_OP_DATA_REQUEST:
+
+      hi = proto_tree_add_item(artnet_tree,
+                                hf_artnet_data_request,
+                                tvb,
+                                offset,
+                                0,
+                                ENC_NA );
+      si = proto_item_add_subtree(hi, ett_artnet );
+
+      size  = dissect_artnet_data_request( tvb, offset, si );
+      size -= offset;
+
+      proto_item_set_len(si, size );
+      offset += size;
+
+      break;
+
+    case ARTNET_OP_DATA_REPLY:
+
+      hi = proto_tree_add_item(artnet_tree,
+                                hf_artnet_data_reply,
+                                tvb,
+                                offset,
+                                0,
+                                ENC_NA );
+      si = proto_item_add_subtree(hi, ett_artnet );
+
+      size  = dissect_artnet_data_reply( tvb, offset, si );
       size -= offset;
 
       proto_item_set_len(si, size );
@@ -6847,6 +7113,7 @@ proto_register_artnet(void) {
   static hf_register_info hf[] = {
 
     /* General */
+
     { &hf_artnet_excess_bytes,
       { "Excess Bytes",
         "artnet.excess_bytes",
@@ -6871,7 +7138,8 @@ proto_register_artnet(void) {
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
-    /* header */
+    /* Header */
+
     { &hf_artnet_header,
       { "Descriptor Header",
         "artnet.header",
@@ -6881,7 +7149,7 @@ proto_register_artnet(void) {
     { &hf_artnet_header_id,
       { "ID",
         "artnet.header.id",
-        FT_STRING, BASE_NONE, NULL, 0x0,
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "ArtNET ID", HFILL }},
 
     { &hf_artnet_header_opcode,
@@ -6958,6 +7226,18 @@ proto_register_artnet(void) {
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Bottom of the port range", HFILL }},
 
+    { &hf_artnet_poll_esta_man,
+      { "ESTA Code",
+        "artnet.poll.esta_man",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &artnet_esta_man_vals_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_artnet_poll_oem,
+      { "OEM",
+        "artnet.poll.oem",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &artnet_oem_code_vals_ext, 0x0,
+        NULL, HFILL }},
+
 
     /* ArtPollReply */
 
@@ -6998,7 +7278,7 @@ proto_register_artnet(void) {
         "Bits 7-4 of port address", HFILL }},
 
     { &hf_artnet_poll_reply_oem,
-      { "Oem",
+      { "OEM",
         "artnet.poll_reply.oem",
         FT_UINT16, BASE_HEX|BASE_EXT_STRING, &artnet_oem_code_vals_ext, 0x0,
         NULL, HFILL }},
@@ -7016,7 +7296,7 @@ proto_register_artnet(void) {
         NULL, HFILL }},
 
     { &hf_artnet_poll_reply_status_ubea_present,
-      { "Ubea Present",
+      { "UBEA Present",
         "artnet.poll_reply.ubea_present",
         FT_BOOLEAN, 8, TFS(&tfs_present_absent), 0x01,
         NULL, HFILL }},
@@ -7054,13 +7334,13 @@ proto_register_artnet(void) {
     { &hf_artnet_poll_reply_short_name,
       { "Short Name",
         "artnet.poll_reply.short_name",
-        FT_STRING, BASE_NONE, NULL, 0x0,
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_artnet_poll_reply_long_name,
       { "Long Name",
         "artnet.poll_reply.long_name",
-        FT_STRING, BASE_NONE, NULL, 0x0,
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_artnet_poll_reply_node_report,
@@ -7645,6 +7925,17 @@ proto_register_artnet(void) {
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
+    { &hf_artnet_poll_reply_user,
+      { "User specific data",
+        "artnet.poll_reply.user",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_artnet_poll_reply_refreshrate,
+      { "Refresh rate",
+        "artnet.poll_reply.refreshrate",
+        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_hz, 0,
+        NULL, HFILL }},
 
     /* ArtOutput */
 
@@ -7680,6 +7971,7 @@ proto_register_artnet(void) {
 
 
     /* ArtSync */
+
     { &hf_artnet_sync,
       { "ArtSync packet",
         "artnet.sync",
@@ -7694,6 +7986,7 @@ proto_register_artnet(void) {
 
 
     /* ArtNzs */
+
     { &hf_artnet_nzs,
       { "ArtNZS packet",
         "artnet.nzs",
@@ -8171,6 +8464,7 @@ proto_register_artnet(void) {
         NULL, HFILL }},
 
     /* ArtTodRequest */
+
     { &hf_artnet_tod_request,
       { "ArtTodRequest packet",
         "artnet.tod_request",
@@ -8202,6 +8496,7 @@ proto_register_artnet(void) {
         NULL, HFILL }},
 
     /* ArtTodData */
+
     { &hf_artnet_tod_data,
       { "ArtTodData packet",
         "artnet.tod_data",
@@ -8269,6 +8564,7 @@ proto_register_artnet(void) {
         NULL, HFILL }},
 
     /* ArtTodControl */
+
     { &hf_artnet_tod_control,
       { "ArtTodControl packet",
         "artnet.tod_control",
@@ -8300,6 +8596,7 @@ proto_register_artnet(void) {
         NULL, HFILL }},
 
     /* ArtRdm */
+
     { &hf_artnet_rdm,
       { "ArtRdm packet",
         "artnet.rdm",
@@ -8337,6 +8634,7 @@ proto_register_artnet(void) {
         NULL, HFILL }},
 
     /* ArtRdmSub */
+
     { &hf_artnet_rdm_sub,
       { "ArtRdmSub packet",
         "artnet.rdm_sub",
@@ -8380,6 +8678,7 @@ proto_register_artnet(void) {
         NULL, HFILL }},
 
     /* ArtIpProg */
+
     { &hf_artnet_ip_prog,
       { "ArtIpProg packet",
         "artnet.ip_prog",
@@ -8466,6 +8765,7 @@ proto_register_artnet(void) {
 
 
     /* ArtIpProgReply */
+
     { &hf_artnet_ip_prog_reply,
       { "ArtIpProgReply packet",
         "artnet.ip_prog_reply",
@@ -8515,6 +8815,7 @@ proto_register_artnet(void) {
         NULL, HFILL }},
 
     /* ArtPollServerReply */
+
     { &hf_artnet_poll_fp_reply,
       { "ArtPollFpReply packet",
         "artnet.poll_fp_reply",
@@ -8522,6 +8823,7 @@ proto_register_artnet(void) {
         "Art-Net ArtPollFpReply packet", HFILL }},
 
     /* ArtDiagData */
+
     { &hf_artnet_diag_data,
       { "ArtDiagData packet",
         "artnet.diag_data",
@@ -8553,6 +8855,7 @@ proto_register_artnet(void) {
         NULL, HFILL }},
 
     /* ArtCommand */
+
     { &hf_artnet_command,
       { "ArtCommand packet",
         "artnet.command",
@@ -8574,6 +8877,76 @@ proto_register_artnet(void) {
     { &hf_artnet_command_data,
       { "Data",
         "artnet.command_data.data",
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    /* ArtDataRequest */
+
+    { &hf_artnet_data_request,
+      { "ArtDataRequest packet",
+        "artnet.data_request",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Art-Net ArtDataRequest packet", HFILL }},
+
+    { &hf_artnet_data_request_esta_man,
+      { "ESTA Code",
+        "artnet.data_request.esta_man",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &artnet_esta_man_vals_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_artnet_data_request_oem,
+      { "OEM",
+        "artnet.data_request.oem",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &artnet_oem_code_vals_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_artnet_data_request_request,
+      { "Request",
+        "artnet.data_request.request",
+        FT_UINT16, BASE_HEX|BASE_RANGE_STRING, RVALS(artnet_data_request_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_artnet_data_request_spare,
+      { "Spare",
+        "artnet.data_request.spare",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    /* ArtDataReply */
+
+    { &hf_artnet_data_reply,
+      { "ArtDataReply packet",
+        "artnet.data_reply",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Art-Net ArtDataReply packet", HFILL }},
+
+    { &hf_artnet_data_reply_esta_man,
+      { "ESTA Code",
+        "artnet.data_reply.esta_man",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &artnet_esta_man_vals_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_artnet_data_reply_oem,
+      { "OEM",
+        "artnet.data_reply.oem",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &artnet_oem_code_vals_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_artnet_data_reply_request,
+      { "Request",
+        "artnet.data_reply.request",
+        FT_UINT16, BASE_HEX|BASE_RANGE_STRING, RVALS(artnet_data_request_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_artnet_data_reply_payload_length,
+      { "Payload length",
+        "artnet.data_reply.payload_length",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_artnet_data_reply_payload,
+      { "Payload",
+        "artnet.data_reply.payload",
         FT_STRINGZ, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
@@ -8656,10 +9029,10 @@ proto_register_artnet(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "Art-Net ArtTrigger packet", HFILL }},
 
-    { &hf_artnet_trigger_oemcode,
-      { "OEM Code",
-        "artnet.trigger.oemcode",
-        FT_UINT16, BASE_HEX, 0, 0x0,
+    { &hf_artnet_trigger_oem,
+      { "OEM",
+        "artnet.trigger.oem",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &artnet_oem_code_vals_ext, 0x0,
         NULL, HFILL }},
 
     { &hf_artnet_trigger_key,
