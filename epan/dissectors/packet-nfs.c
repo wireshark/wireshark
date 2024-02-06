@@ -601,6 +601,8 @@ static int hf_nfs4_cachethis;
 /* static int hf_nfs4_first_stripe_idx; */
 /* static int hf_nfs4_layout_count; */
 /* static int hf_nfs4_pattern_offset; */
+static int hf_nfs4_notify_mask;
+static int hf_nfs4_notify_type;
 static int hf_nfs4_notify_deviceid_mask;
 static int hf_nfs4_notify_deviceid_type;
 static int hf_nfs4_lrs_present;
@@ -709,6 +711,12 @@ static int hf_nfs4_listxattr_cookie;
 static int hf_nfs4_listxattr_names_len;
 static int hf_nfs4_xattrkey;
 static int hf_nfs4_listxattr_eof;
+static int hf_nfs4_gdd_signal_deleg_avail;
+static int hf_nfs4_gdd_non_fatal_status;
+static int hf_nfs4_gdd_child_attr_delay;
+static int hf_nfs4_gdd_dir_attr_delay;
+static int hf_nfs4_gdd_child_attrs;
+static int hf_nfs4_gdd_dir_attrs;
 
 static gint ett_nfs;
 static gint ett_nfs_fh_encoding;
@@ -858,6 +866,7 @@ static gint ett_nfs4_exchange_id;
 static gint ett_nfs4_create_session;
 static gint ett_nfs4_destroy_session;
 static gint ett_nfs4_free_stateid;
+static gint ett_nfs4_get_dir_delegation;
 static gint ett_nfs4_secinfo_no_name;
 static gint ett_nfs4_sequence;
 static gint ett_nfs4_slotid;
@@ -925,6 +934,8 @@ static gint ett_nfs4_read_plus;
 static gint ett_nfs4_read_plus_content_sub;
 static gint ett_nfs4_write_same;
 static gint ett_nfs4_listxattr_names;
+static gint ett_nfs4_notify_delay;
+static gint ett_nfs4_notify_attrs;
 
 static expert_field ei_nfs_too_many_ops;
 static expert_field ei_nfs_not_vnx_file;
@@ -6621,7 +6632,6 @@ dissect_nfs4_nfstime(tvbuff_t *tvb, int offset, proto_tree *tree)
 	return offset;
 }
 
-
 static const value_string names_time_how4[] = {
 #define SET_TO_SERVER_TIME4 0
 	{	SET_TO_SERVER_TIME4,	"SET_TO_SERVER_TIME4"	},
@@ -6644,7 +6654,6 @@ dissect_nfs4_settime(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
-
 
 static int
 dissect_nfs4_fsid(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
@@ -7927,6 +7936,32 @@ dissect_nfs4_listxattr_names(tvbuff_t *tvb, int offset, proto_tree *tree)
 	return offset;
 }
 
+static int
+dissect_nfs4_gdd_time(tvbuff_t *tvb, int offset, proto_tree *tree, int hfindex)
+{
+	proto_item *item;
+	proto_tree *subtree;
+
+	item = proto_tree_add_item(tree, hfindex, tvb, offset, 12, ENC_NA);
+	subtree = proto_item_add_subtree(item, ett_nfs4_notify_delay);
+	return dissect_nfs4_nfstime(tvb, offset, subtree);
+}
+
+static int
+dissect_nfs4_gdd_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int type,
+			rpc_call_info_value *civ, int hfindex)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	int len;
+
+	len = tvb_get_ntohl(tvb, offset);
+
+	item = proto_tree_add_item(tree, hfindex, tvb, offset, len * 4, ENC_NA);
+	subtree = proto_item_add_subtree(item, ett_nfs4_notify_attrs);
+	return dissect_nfs4_fattrs(tvb, offset, pinfo, subtree, type, civ);
+}
+
 /* NFSv4 Operations  */
 static const value_string names_nfs4_operation[] = {
 	{	NFS4_OP_ACCESS,                "ACCESS"  },
@@ -8055,7 +8090,7 @@ static gint *nfs4_operation_ett[] =
 	 &ett_nfs4_create_session,
 	 &ett_nfs4_destroy_session,
 	 &ett_nfs4_free_stateid,
-	 NULL, /* get dir delegation */
+	 &ett_nfs4_get_dir_delegation,
 	 &ett_nfs4_getdevinfo,
 	 &ett_nfs4_getdevlist,
 	 &ett_nfs4_layoutcommit,
@@ -9024,6 +9059,35 @@ dissect_nfs_layoutreturn_stateid(tvbuff_t *tvb, proto_tree *tree, int offset)
 	return offset;
 }
 
+static const value_string notify_type4[] = {
+#define NOTIFY4_CHANGE_CHILD_ATTRS	0
+	{	NOTIFY4_CHANGE_CHILD_ATTRS, "Change Child Attrs" },
+#define NOTIFY4_CHANGE_DIR_ATTRS	1
+	{	NOTIFY4_CHANGE_DIR_ATTRS, "Change Dir Attrs" },
+#define	NOTIFY4_REMOVE_ENTRY		2
+	{	NOTIFY4_REMOVE_ENTRY, "Remove Entry" },
+#define NOTIFY4_ADD_ENTRY		3
+	{	NOTIFY4_ADD_ENTRY, "Add Entry" },
+#define NOTIFY4_RENAME_ENTRY		4
+	{	NOTIFY4_RENAME_ENTRY, "Rename Entry" },
+#define NOTIFY4_CHANGE_COOKIE_VERIFIER	5
+	{	NOTIFY4_CHANGE_COOKIE_VERIFIER, "Change Cookie Verifier" },
+	{	0,	NULL	}
+};
+static value_string_ext notify_type4_ext = VALUE_STRING_EXT_INIT(notify_type4);
+
+static int
+dissect_nfs4_notify_type4_bitmap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
+{
+	static nfs4_bitmap_info_t bitmap_info = {
+		.vse_names_ext = &notify_type4_ext,
+		.hf_mask_label = &hf_nfs4_notify_mask,
+		.hf_item_label = &hf_nfs4_notify_type,
+	};
+
+	return dissect_nfs4_bitmap(tvb, offset, pinfo, tree, NULL, &bitmap_info, NFS4_BITMAP_MASK,
+				   NULL);
+}
 
 static const value_string notify_deviceid_type4[] = {
 #define NOTIFY_DEVICEID4_CHANGE      1
@@ -10328,6 +10392,17 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			wmem_strbuf_append_printf(op_summary[ops_counter].optext, " StateID: 0x%04x", sid_hash);
 			break;
 
+		case NFS4_OP_GET_DIR_DELEGATION:
+			offset = dissect_rpc_bool(tvb, newftree, hf_nfs4_gdd_signal_deleg_avail, offset);
+			offset = dissect_nfs4_notify_type4_bitmap(tvb, newftree, pinfo, offset);
+			offset = dissect_nfs4_gdd_time(tvb, offset, newftree, hf_nfs4_gdd_child_attr_delay);
+			offset = dissect_nfs4_gdd_time(tvb, offset, newftree, hf_nfs4_gdd_dir_attr_delay);
+			offset = dissect_nfs4_gdd_fattrs(tvb, offset, pinfo, newftree,
+							 FATTR4_BITMAP_ONLY, civ, hf_nfs4_gdd_child_attrs);
+			offset = dissect_nfs4_gdd_fattrs(tvb, offset, pinfo, newftree,
+							 FATTR4_BITMAP_ONLY, civ, hf_nfs4_gdd_dir_attrs);
+			break;
+
 			/* pNFS */
 		case NFS4_OP_LAYOUTGET:
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs4_layout_avail, offset);
@@ -10725,7 +10800,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	guint32	    last_fh_hash    = 0;
 	guint32	    ops, ops_counter;
 	guint32	    summary_counter;
-	guint32	    opcode, status;
+	guint32	    opcode, status, nfstatus;
 	const char *opname;
 	proto_item *fitem, *ti;
 	proto_tree *ftree	    = NULL;
@@ -10966,6 +11041,22 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 			break;
 		case NFS4_OP_TEST_STATEID:
 			offset = dissect_rpc_array(tvb, pinfo, newftree, offset, dissect_nfs4_test_stateid_res, hf_nfs4_test_stateid_res);
+			break;
+
+		case NFS4_OP_GET_DIR_DELEGATION:
+			nfstatus = tvb_get_ntohl(tvb, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_gdd_non_fatal_status, offset);
+			if (nfstatus == GDD4_OK) {
+				offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_verifier, offset);
+				offset = dissect_nfs4_stateid(tvb, offset, newftree, &sid_hash);
+				offset = dissect_nfs4_notify_type4_bitmap(tvb, newftree, pinfo, offset);
+				offset = dissect_nfs4_gdd_fattrs(tvb, offset, pinfo, newftree,
+							 FATTR4_BITMAP_ONLY, civ, hf_nfs4_gdd_child_attrs);
+				offset = dissect_nfs4_gdd_fattrs(tvb, offset, pinfo, newftree,
+							 FATTR4_BITMAP_ONLY, civ, hf_nfs4_gdd_dir_attrs);
+			} else if (nfstatus == GDD4_UNAVAIL) {
+				offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_gdd_signal_deleg_avail, offset);
+			}
 			break;
 
 		case NFS4_OP_LAYOUTGET:
@@ -11459,6 +11550,12 @@ static const value_string layoutreturn_names[] = {
 	{ 2, "RETURN_FSID" },
 	{ 3, "RETURN_ALL"  },
 	{ 0, NULL }
+};
+
+static const value_string gdd_non_fatal_status_names[] = {
+	{	0,	"GDD4_OK"  },
+	{	1,	"GDD4_UNAVAIL"  },
+	{	0, NULL }
 };
 
 static const value_string nfs_fh_obj_id[] = {
@@ -13410,6 +13507,14 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 #endif
 
+		{ &hf_nfs4_notify_mask, {
+			"notify_mask", "nfs.notify_mask", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_notify_type, {
+			"notify_type", "nfs.notify_type", FT_UINT32,
+			BASE_DEC | BASE_EXT_STRING, &notify_type4_ext, 0, NULL, HFILL }},
+
 		{ &hf_nfs4_notify_deviceid_mask, {
 			"notify_deviceid_mask", "nfs.notify_deviceid_mask", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
@@ -14309,6 +14414,31 @@ proto_register_nfs(void)
 			"eof", "nfs.lisxtattr.eof", FT_UINT32, BASE_DEC,
 			NULL, 0, "Lixtxattr eof", HFILL }},
 
+		{ &hf_nfs4_gdd_non_fatal_status, {
+			"Non-fatal status", "nfs.gdd.non_fatal_status", FT_UINT32, BASE_DEC,
+			VALS(gdd_non_fatal_status_names), 0,
+			"GET_DIR_DELEGATION non-fatal status code", HFILL }},
+
+		{ &hf_nfs4_gdd_signal_deleg_avail, {
+			"Signal delegation available", "nfs.gdd.signal_deleg_avail", FT_BOOLEAN, BASE_NONE,
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
+
+		{ &hf_nfs4_gdd_child_attr_delay, {
+			"Child attr notification delay", "nfs.gdd.child_attr_delay",
+			FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}},
+
+		{ &hf_nfs4_gdd_dir_attr_delay, {
+			"Dir attr notification delay", "nfs.gdd.dir_attr_delay",
+			FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}},
+
+		{ &hf_nfs4_gdd_child_attrs, {
+			"Child notification attrs", "nfs.gdd.child_attrs",
+			FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}},
+
+		{ &hf_nfs4_gdd_dir_attrs, {
+			"Dir notification attrs", "nfs.gdd.dir_attrs",
+			FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}},
+
 		{ &hf_nfs4_ff_local, {
 			"client used cache?", "nfs.ff.local", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
@@ -14495,6 +14625,7 @@ proto_register_nfs(void)
 		&ett_nfs4_create_session,
 		&ett_nfs4_destroy_session,
 		&ett_nfs4_free_stateid,
+		&ett_nfs4_get_dir_delegation,
 		&ett_nfs4_secinfo_no_name,
 		&ett_nfs4_sequence,
 		&ett_nfs4_layoutget,
@@ -14619,8 +14750,9 @@ proto_register_nfs(void)
 		&ett_nfs4_fh_pd_flags,
 		&ett_nfs4_fh_pd_sites,
 		&ett_nfs4_fh_pd_spaces,
-		&ett_nfs4_listxattr_names
-
+		&ett_nfs4_listxattr_names,
+		&ett_nfs4_notify_delay,
+		&ett_nfs4_notify_attrs,
 	};
 
 	static ei_register_info ei[] = {

@@ -192,6 +192,10 @@
 #define NFL4_UFLG_COMMIT_THRU_MDS        0x00000002
 #define NFL4_UFLG_STRIPE_UNIT_SIZE_MASK  0xFFFFFFC0
 
+/* GET_DIR_DELEGATION non-fatal status */
+#define GDD4_OK		0
+#define GDD4_UNAVAIL	1
+
 /* NFSv4.2 */
 
 /* netloc types */
