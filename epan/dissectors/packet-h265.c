@@ -1937,7 +1937,7 @@ dissect_h265_profile_tier_level(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
 
 /* 7.3.6 Slice segment header syntax */
 /* Just parse a few bits same as in H.264 */
-/* TODO: if need more info from slice hedaer , do more parsing */
+/* TODO: if need more info from slice header, do more parsing */
 static int
 dissect_h265_slice_segment_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint bit_offset, guint8 nal_unit_type)
 {

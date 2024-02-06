@@ -761,7 +761,7 @@ enum {
 	OML_DIALECT_ERICSSON
 };
 
-/* which A-bis OML dialect to use (prefrence) */
+/* which A-bis OML dialect to use (preference) */
 static gint global_oml_dialect = OML_DIALECT_ETSI;
 
 static proto_tree *top_tree;

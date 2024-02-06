@@ -164,7 +164,7 @@ typedef enum {
     /* 30000 - 65535: Private types */
     INTEL_CORP_PRIVATE           = 30000,
     MOHAMED_THAGA_PRIVATE        = 30001,
-    PPI_GPS_INFO                 = 30002, /* 30002 - 30005 described in PPI-GEOLOCATION specifcation */
+    PPI_GPS_INFO                 = 30002, /* 30002 - 30005 described in PPI-GEOLOCATION specification */
     PPI_VECTOR_INFO              = 30003, /* currently available in draft from. jellch@harris.com */
     PPI_SENSOR_INFO              = 30004,
     PPI_ANTENNA_INFO             = 30005,
@@ -920,7 +920,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             }
             else /* we found a suitable dissector */
             {
-                /* skip over the ppi_fieldheader, and pass it off to the dedicated GPS dissetor */
+                /* skip over the ppi_fieldheader, and pass it off to the dedicated GPS dissector */
                 next_tvb = tvb_new_subset_length_caplen(tvb, offset + 4, data_len - 4 , -1);
                 call_dissector(ppi_gps_handle, next_tvb, pinfo, ppi_tree);
             }
@@ -933,7 +933,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             }
             else /* we found a suitable dissector */
             {
-                /* skip over the ppi_fieldheader, and pass it off to the dedicated VECTOR dissetor */
+                /* skip over the ppi_fieldheader, and pass it off to the dedicated VECTOR dissector */
                 next_tvb = tvb_new_subset_length_caplen(tvb, offset + 4, data_len - 4 , -1);
                 call_dissector(ppi_vector_handle, next_tvb, pinfo, ppi_tree);
             }
@@ -946,7 +946,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             }
             else /* we found a suitable dissector */
             {
-                /* skip over the ppi_fieldheader, and pass it off to the dedicated SENSOR dissetor */
+                /* skip over the ppi_fieldheader, and pass it off to the dedicated SENSOR dissector */
                 next_tvb = tvb_new_subset_length_caplen(tvb, offset + 4, data_len - 4 , -1);
                 call_dissector(ppi_sensor_handle, next_tvb, pinfo, ppi_tree);
             }
@@ -959,7 +959,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             }
             else /* we found a suitable dissector */
             {
-                /* skip over the ppi_fieldheader, and pass it off to the dedicated ANTENNA dissetor */
+                /* skip over the ppi_fieldheader, and pass it off to the dedicated ANTENNA dissector */
                 next_tvb = tvb_new_subset_length_caplen(tvb, offset + 4, data_len - 4 , -1);
                 call_dissector(ppi_antenna_handle, next_tvb, pinfo, ppi_tree);
             }
@@ -972,7 +972,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             }
             else /* we found a suitable dissector */
             {
-                /* skip over the ppi_fieldheader, and pass it off to the dedicated FNET dissetor */
+                /* skip over the ppi_fieldheader, and pass it off to the dedicated FNET dissector */
                 next_tvb = tvb_new_subset_length_caplen(tvb, offset + 4, data_len - 4 , -1);
                 call_dissector(ppi_fnet_handle, next_tvb, pinfo, ppi_tree);
             }
@@ -1480,7 +1480,7 @@ proto_register_ppi(void)
        { "Capture information", "ppi.cap-info",
             FT_BYTES, BASE_NONE, NULL, 0x0, "PPI Capture information", HFILL } },
 
-    /* Aggregtion Extension */
+    /* Aggregation Extension */
     { &hf_aggregation_extension_interface_id,
        { "Interface ID", "ppi.aggregation_extension.interface_id",
             FT_UINT32, BASE_DEC, NULL, 0x0, "Zero-based index of the physical interface the packet was captured from", HFILL } },

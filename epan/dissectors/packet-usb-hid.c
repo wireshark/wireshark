@@ -225,7 +225,7 @@ static wmem_tree_t *report_descriptors = NULL;
 #define HID_MAIN_NON_LINEAR     (1 << 4) /* linear / non linear             */
 #define HID_MAIN_NO_PREFERRED   (1 << 5) /* preferred state / no preferred  */
 #define HID_MAIN_NULL_STATE     (1 << 6) /* no null position / null state   */
-#define HID_MAIN_BUFFERED_BYTES (1 << 8) /* bit field / buferred bytes      */
+#define HID_MAIN_BUFFERED_BYTES (1 << 8) /* bit field / buffered bytes      */
 
 
 #define HID_MAIN_ARRAY          (0 << 1)

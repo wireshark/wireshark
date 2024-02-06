@@ -86,7 +86,7 @@ static int hf_zb_direct_char_tunneling;
 /* Expert items */
 static expert_field ei_zb_direct_crypt_error;
 
-/* Trees entitties */
+/* Trees entities */
 static gint ett_zb_direct;
 
 static const guint8 serv_secur_uuid[]           = { 0xe3, 0x29, 0xb4, 0x99, 0x02, 0x6d, 0xe9, 0xbf,
@@ -1876,7 +1876,7 @@ void proto_reg_handoff_zb_direct(void)
     {
         { "29144af4-00ff-4481-bfe9-6d0299b429e3", dissect_zb_direct_dump_info },
 
-        /* 6.5.1. Zigbee Direct Security Service characterisitc */
+        /* 6.5.1. Zigbee Direct Security Service characteristic */
         { "29144af4-0001-4481-bfe9-6d0299b429e3", dissect_zb_direct_secur_c25519_aesmmo },
         { "29144af4-0002-4481-bfe9-6d0299b429e3", dissect_zb_direct_secur_c25519_sha256 },
         { "29144af4-0003-4481-bfe9-6d0299b429e3", dissect_zb_direct_secur_p256 },

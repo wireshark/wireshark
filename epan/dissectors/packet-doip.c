@@ -383,7 +383,7 @@ static int hf_response_code;
 static int hf_logical_address;
 static int hf_logical_address_name;
 static int hf_gid;
-static int hf_futher_action;
+static int hf_further_action;
 static int hf_sync_status;
 
 
@@ -712,7 +712,7 @@ add_vehicle_announcement_message_fields(proto_tree *doip_tree, tvbuff_t *tvb)
     doip_prototree_add_with_resolv(doip_tree, hf_logical_address, hf_logical_address_name, tvb, DOIP_VEHICLE_ANNOUNCEMENT_ADDRESS_OFFSET, DOIP_VEHICLE_ANNOUNCEMENT_ADDRESS_LEN, ENC_BIG_ENDIAN, NULL);
     proto_tree_add_item(doip_tree, hf_eid, tvb, DOIP_VEHICLE_ANNOUNCEMENT_EID_OFFSET, DOIP_COMMON_EID_LEN, ENC_NA);
     proto_tree_add_item(doip_tree, hf_gid, tvb, DOIP_VEHICLE_ANNOUNCEMENT_GID_OFFSET, DOIP_VEHICLE_ANNOUNCEMENT_GID_LEN, ENC_NA);
-    proto_tree_add_item(doip_tree, hf_futher_action, tvb, DOIP_VEHICLE_ANNOUNCEMENT_ACTION_OFFSET, DOIP_VEHICLE_ANNOUNCEMENT_ACTION_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item(doip_tree, hf_further_action, tvb, DOIP_VEHICLE_ANNOUNCEMENT_ACTION_OFFSET, DOIP_VEHICLE_ANNOUNCEMENT_ACTION_LEN, ENC_BIG_ENDIAN);
 
     if ( tvb_bytes_exist(tvb, DOIP_VEHICLE_ANNOUNCEMENT_SYNC_OFFSET, DOIP_VEHICLE_ANNOUNCEMENT_SYNC_LEN) ) {
         /* Not part of version 1 and optional in version 2. */
@@ -1031,9 +1031,9 @@ proto_register_doip(void)
             }
         },
         {
-            &hf_futher_action,
+            &hf_further_action,
             {
-                "Further action required", "doip.futher_action",
+                "Further action required", "doip.further_action",
                 FT_UINT8, BASE_HEX,
                 VALS(action_codes), 0x00,
                 NULL, HFILL

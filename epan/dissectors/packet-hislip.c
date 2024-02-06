@@ -789,7 +789,7 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             proto_item_set_generated(it);
         }
 
-        /*Retransmisson*/
+        /*Retransmission*/
         if((frame_number = search_for_retransmission(hislip_info->pdus, &hislip_data , pinfo->num))!=0)
         {
             it = proto_tree_add_uint( hislip_tree, hf_hislip_retransmission, tvb, 0, 0, frame_number);

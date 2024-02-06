@@ -185,7 +185,7 @@ int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint of
     proto_tree *hec_tree, *ext_tree;
     double      cc_loss;
 
-    /* Figure out the extention count */
+    /* Figure out the extension count */
     while (tmp_offset < offset_max)
     {
         het = tvb_get_guint8(tvb, tmp_offset);

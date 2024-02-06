@@ -145,7 +145,7 @@ dissect_variable_length_long (tvbuff_t *tvb, proto_tree *hdfsdata_tree, int* off
 static void
 dissect_variable_int_string(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int *offset)
 {
-  /* Get the variable length int that represents the length of the next feild */
+  /* Get the variable length int that represents the length of the next field */
   int len = dissect_variable_length_long (tvb, hdfsdata_tree, offset);
 
   /* client id = amount of bytes in previous */
@@ -298,7 +298,7 @@ dissect_write_request_end(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int *offset)
   proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_currentpipeline, tvb, *offset, 4, ENC_BIG_ENDIAN);
   *offset += 4;
 
-  /* varible length sequence of node objects */
+  /* variable length sequence of node objects */
   for (i = 0; i < len; i++) {
     proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_node, tvb, *offset, 4, ENC_BIG_ENDIAN);
     *offset += 4;
@@ -511,7 +511,7 @@ dissect_hdfsdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
   return tvb_captured_length(tvb);
 }
 
-/* registers the protcol with the given names */
+/* registers the protocol with the given names */
 void
 proto_register_hdfsdata(void)
 {
@@ -583,7 +583,7 @@ proto_register_hdfsdata(void)
       NULL, HFILL }
   },
   { &hf_hdfsdata_currentpipeline,
-    { "HDFSDATA current number of nodes in the pipeline", "hdfsdata.currentpipline",
+    { "HDFSDATA current number of nodes in the pipeline", "hdfsdata.currentpipeline",
       FT_UINT32, BASE_DEC,
       NULL, 0x0,
       NULL, HFILL }

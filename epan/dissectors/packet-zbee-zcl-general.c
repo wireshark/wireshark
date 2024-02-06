@@ -60,7 +60,7 @@
 #define ZBEE_ZCL_BASIC_PWR_SRC_BATTERY                  0x03    /* Battery */
 #define ZBEE_ZCL_BASIC_PWR_SRC_DC_SRC                   0x04    /* DC source */
 #define ZBEE_ZCL_BASIC_PWR_SRC_EMERGENCY_1              0x05    /* Emergency mains constantly powered */
-#define ZBEE_ZCL_BASIC_PWR_SRC_EMERGENCY_2              0x06    /* Emergency mains and tranfer switch */
+#define ZBEE_ZCL_BASIC_PWR_SRC_EMERGENCY_2              0x06    /* Emergency mains and transfer switch */
 
 /* Device Enable Values */
 #define ZBEE_ZCL_BASIC_DISABLED                         0x00    /* Disabled */
@@ -418,7 +418,7 @@ proto_reg_handoff_zbee_zcl_basic(void)
 
 /* Attributes */
 #define ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_VOLTAGE           0x0000  /* Mains voltage */
-#define ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_FREQUENCY         0x0001  /* Mains frerquency */
+#define ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_FREQUENCY         0x0001  /* Mains frequency */
 #define ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_ALARM_MASK        0x0010  /* Mains Alarm Mask */
 #define ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_VOLTAGE_MIN_THR   0x0011  /* Mains Voltage Min Threshold */
 #define ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_VOLTAGE_MAX_THR   0x0012  /* Mains Voltage Max Threshold */
@@ -9770,7 +9770,7 @@ void proto_reg_handoff_zbee_zcl_part(void)
 #define ZBEE_ZCL_OTA_TIME_NOW                           0x00000000  /* Now */
 #define ZBEE_ZCL_OTA_TIME_UTC_LO                        0x00000001  /* UTC Low Boundary */
 #define ZBEE_ZCL_OTA_TIME_UTC_HI                        0xfffffffe  /* UTC High Boundary */
-#define ZBEE_ZCL_OTA_TIME_WAIT                          0xffffffff  /* Wait for a Upgrade command (not used for RequesTime) */
+#define ZBEE_ZCL_OTA_TIME_WAIT                          0xffffffff  /* Wait for a Upgrade command (not used for RequestTime) */
 
 /*************************/
 /* Function Declarations */

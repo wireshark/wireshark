@@ -3025,7 +3025,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			       tvb_new_subset_remaining(tvb, offset), pinfo, ptree);
 	}
 
-	/* XXX this should really loop over all fhandles registred for the frame */
+	/* XXX this should really loop over all fhandles registered for the frame */
 	if(nfs_fhandle_reqrep_matching){
 		switch (msg_type) {
 		case RPC_CALL:

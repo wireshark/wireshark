@@ -40,7 +40,7 @@ static const value_string sapenqueue_dest_vals[] = {
 	{  2, "ASYNC_ENQUEUE" },
 	{  3, "SERVER_ADMIN" },
 	{  5, "STAT_QUERY" },
-	{  6, "CONECTION_ADMIN" },
+	{  6, "CONNECTION_ADMIN" },
 	{  7, "ENQ_TO_REP" },
 	{  8, "REP_TO_ENQ" },
 	/* NULL */

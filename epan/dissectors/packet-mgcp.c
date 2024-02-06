@@ -2267,7 +2267,7 @@ static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset, gint len, gint* next_o
 			/* Are the characters that follow the dot a newline or carriage return ? */
 			if (tempchar == '\r' || tempchar == '\n')
 			{
-				/* Do we have any charaters that proceed the . ? */
+				/* Do we have any characters that proceed the . ? */
 				if (tvb_current_offset == 0)
 				{
 					break;

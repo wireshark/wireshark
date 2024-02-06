@@ -142,7 +142,7 @@ dissect_vp9(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data 
         }
         else
         {
-            //  Malformated packet
+            //  Malformed packet
         }
     }
     else
@@ -165,7 +165,7 @@ dissect_vp9(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data 
         }
         else
         {
-            //  Malformated packet
+            //  Malformed packet
         }
     }
 
@@ -217,7 +217,7 @@ dissect_vp9(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data 
             idx++;
             if (n && idx == max_p_diff)
             {
-                //  Malformated packet
+                //  Malformed packet
             }
         }
     }

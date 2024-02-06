@@ -529,7 +529,7 @@ get_lisp_tcp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 {
     guint16 mlen;
 
-    /* Get length of memebership message */
+    /* Get length of membership message */
     mlen = tvb_get_ntohs(tvb, offset + 2);
 
     return mlen;

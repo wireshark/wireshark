@@ -464,7 +464,7 @@ dissect_mojito_store_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
 		if (tvb_reported_length_remaining(tvb, offset+3) > 0)
 		{
-			/* Must be a secondard KUID */
+			/* Must be a secondary KUID */
 			proto_tree_add_item(sc_tree, hf_mojito_storestatuscode_secondary_kuid, tvb, offset, 20, ENC_NA);
 			offset += 20;
 		}

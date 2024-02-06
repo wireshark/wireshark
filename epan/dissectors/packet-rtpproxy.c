@@ -170,7 +170,7 @@ static const value_string paramtypenames[] = {
     {'W', "Weak connection (allows roaming)"},
     {'z', "repacketiZe"},
     {'Z', "repacketiZe"},
-    /* Unofficial command parameters / expensions */
+    /* Unofficial command parameters / extensions */
     {'d', "DTMF payload ID (unofficial extension)"},
     {'D', "DTMF payload ID (unofficial extension)"},
     {'m', "codec Mapping (unofficial extension)"},

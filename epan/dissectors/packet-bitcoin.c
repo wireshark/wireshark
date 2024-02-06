@@ -809,7 +809,7 @@ dissect_bitcoin_msg_getblocks(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
   ti   = proto_tree_add_item(tree, hf_bitcoin_msg_getblocks, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
 
-  /* why the protcol version is sent here nobody knows */
+  /* why the protocol version is sent here nobody knows */
   proto_tree_add_item(tree, hf_msg_version_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
 

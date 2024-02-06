@@ -121,7 +121,7 @@ enum cbsp_category {
 	CBSP_CATEG_NORMAL		= 0x02,
 };
 
-/* 8.2.9 Number of Brodacast Info */
+/* 8.2.9 Number of Broadcast Info */
 enum cbsp_num_bcast_info {
 	CBSP_NUM_BCAST_INFO_VALID	= 0x0,
 	CBSP_NUM_BCAST_INFO_OVERFLOW	= 0x1,

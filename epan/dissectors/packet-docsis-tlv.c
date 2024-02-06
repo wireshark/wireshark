@@ -6633,7 +6633,7 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_mcap_low_latency_sup,
      {".76 Low Latency Support",
-      "docsis_tlv.mcap.low_latancy_sup",
+      "docsis_tlv.mcap.low_latency_sup",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Low Latency Support", HFILL}
     },

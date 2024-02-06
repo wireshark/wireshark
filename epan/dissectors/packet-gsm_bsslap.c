@@ -45,7 +45,7 @@ static int ett_bsslap_cell_list;
 static expert_field ei_gsm_bsslap_missing_mandatory_element;
 static expert_field ei_gsm_bsslap_not_decoded_yet;
 
-/* Table 5.1: Element Indentifier codes */
+/* Table 5.1: Element Identifier codes */
 #define BSSLAP_PARAM_TIMING_ADVANCE                  0x01
 #define BSSLAP_PARAM_RESERVED_01                     0x08
 #define BSSLAP_PARAM_CELL_IDENTITY                   0x09
@@ -311,7 +311,7 @@ de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
         }
         curr_offset += consumed;
         len-=consumed;
-        /* lengt is "cell id" + discriminator */
+        /* length is "cell id" + discriminator */
         proto_item_set_len(item, consumed+1);
     }
 
@@ -730,7 +730,7 @@ dissect_gsm_bsslap_u_tdoa_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 
     /* Delta Timer IE 5.22 O (note 1) TV 2 */
     ELEM_OPT_TV(BSSLAP_PARAM_DELTA_TIMER, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_DELTA_TIME, NULL);
-    /*  Polling Repitition IE 5.28 (note) C (note 2) TV 2 */
+    /*  Polling Repetition IE 5.28 (note) C (note 2) TV 2 */
     ELEM_OPT_TV(BSSLAP_PARAM_POLLING_REPETITION, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_POLL_REP, NULL);
 
     return;

@@ -7057,7 +7057,7 @@ dissect_pfcp_number_of_reports(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 {
     guint value;
 
-    /* Number of Reports, an Unigned16 binary integer value excluding the first value "0". */
+    /* Number of Reports, an Unsigned16 binary integer value excluding the first value "0". */
     proto_tree_add_item_ret_uint(tree, hf_pfcp_number_of_reports, tvb, 0, length, ENC_BIG_ENDIAN, &value);
     proto_item_append_text(item, "%u", value);
 }
@@ -8951,7 +8951,7 @@ dissect_pfcp_multicast_transport_information(tvbuff_t *tvb, packet_info *pinfo, 
     proto_tree_add_item(tree, hf_pfcp_spare_oct, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    /* Oct 6 to 9 Common Tunnel Endpoint Identifer */
+    /* Oct 6 to 9 Common Tunnel Endpoint Identifier */
     proto_tree_add_item(tree, hf_pfcp_multicast_transport_information_endpoint_identifier, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
@@ -10343,7 +10343,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    270 */    { dissect_pfcp_grouped_ie },                                    /* Redundant Transmission Forward Parameters       Variable Length / Clause 8.2.184  */
 /*    271 */    { dissect_pfcp_grouped_ie },                                    /* Transport Delay Reporting IE in Create PDR IE   Extendable / Table 7.5.2.2-6 */
 /*    272 */    { dissect_pfcp_grouped_ie },                                    /* Partial Failure Information within PFCP Session Establishment Response      Extendable / Table 7.5.3.1-2 */
-/*    273 */    { dissect_pfcp_grouped_ie },                                    /* Partial Failure Information within PFCP Session Modificaton Response      Extendable / Table 7.5.5.1-2 */
+/*    273 */    { dissect_pfcp_grouped_ie },                                    /* Partial Failure Information within PFCP Session Modification Response      Extendable / Table 7.5.5.1-2 */
 /*    274 */    { dissect_pfcp_offending_ie_information },                      /* Offending IE Information                        Variable Length / Clause 8.2.185 */
 /*    275 */    { dissect_pfcp_rattype },                                       /* RAT Type                                        Variable Length / Clause 8.2.186 */
 /*    276 */    { dissect_pfcp_grouped_ie },                                    /* L2TP Tunnel Information                         Extendable / Table 7.5.2.1-2  */
@@ -10384,7 +10384,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    311 */    { dissect_pfcp_grouped_ie },                                    /* MBS Session N4 Control Information IE within PFCP Session Establishment Response      Extendable / Table 7.5.3.1-5 */
 /*    312 */    { dissect_pfcp_mbsn4resp_flags },                               /* MBSN4Resp-Flags                                 Extendable / Clause 8.2.211 */
 /*    313 */    { dissect_pfcp_tunnel_password },                               /* Tunnel Password                                 Variable Length / Clause 8.2.212 */
-/*    314 */    { dissect_pfcp_area_session_id },                               /* Area Sesson ID                                  Fixed / Clause 8.2.213 */
+/*    314 */    { dissect_pfcp_area_session_id },                               /* Area Session ID                                 Fixed / Clause 8.2.213 */
 /*    315 */    { dissect_pfcp_grouped_ie },                                    /* Peer UP Restart Report IE within PFCP Node Report Request      Extendable / Table 7.4.5.1-7 */
 /*    316 */    { dissect_pfcp_grouped_ie },                                    /* DSCP to PPI Control Information IE within PFCP Session Establishment Request      Extendable / Table 7.5.2.1-6 */
 /*    317 */    { dissect_pfcp_dscp_to_ppi_mapping_information },               /* DSCP to PPI Mapping Information                 Extendable / Clause 8.2.214 */

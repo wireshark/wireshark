@@ -2574,9 +2574,9 @@ dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                       const guint16 version)
 {
     // Handshake fragment processing:
-    // 1. (First pass:) If a previous handshake message needed reasembly, add
+    // 1. (First pass:) If a previous handshake message needed reassembly, add
     //    (a subset of) the new data for reassembly.
-    // 2. Did this fragment complete reasembly in the previous step?
+    // 2. Did this fragment complete reassembly in the previous step?
     //    - Yes: dissect message and continue.
     //    - No: show details and stop.
     // 3. Not part of a reassembly, so this is a new handshake message. Does it
@@ -2596,7 +2596,7 @@ dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
     guint          *hs_reassembly_id_p = is_from_server ? &session->server_hs_reassembly_id : &session->client_hs_reassembly_id;
 
     if (!PINFO_FD_VISITED(pinfo)) {
-        // 1. (First pass:) If a previous handshake message needed reasembly.
+        // 1. (First pass:) If a previous handshake message needed reassembly.
         if (*hs_reassembly_id_p) {
             // Continuation, so a previous fragment *must* exist.
             fh = fragment_get(&tls_hs_reassembly_table, pinfo, *hs_reassembly_id_p, NULL);
@@ -2660,7 +2660,7 @@ dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
 
-    // 2. Did this fragment complete reasembly in the previous step?
+    // 2. Did this fragment complete reassembly in the previous step?
     if (frag_info && frag_info->offset != 0) {
         fh = fragment_get_reassembled_id(&tls_hs_reassembly_table, pinfo, frag_info->reassembly_id);
         if (frag_info->is_last) {

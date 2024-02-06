@@ -655,7 +655,7 @@ static const value_string dpoe_evt_code_vals[] = {
 #define DPOE_OBJ_CTX_MCAST_LOGICAL_LINK    0x0006
 #define DPOE_OBJ_CTX_RESERVED              0x0007
 
-/* As messages get implmented and verified, replace with defined codes from above. */
+/* As messages get implemented and verified, replace with defined codes from above. */
 static const value_string dpoe_variable_descriptor_vals[] = {
     { DPOE_LB_ONU_OBJ,                  "DPoE ONU Object" },
     { DPOE_LB_NETWORK_PORT_OBJ,         "Network Port Object" },

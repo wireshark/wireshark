@@ -54,7 +54,7 @@ static const value_string cl3_protocols[] = {
 };
 
 
-/* called for each incomming framing matching the CL3 ethertype with a version number of 1: */
+/* called for each incoming framing matching the CL3 ethertype with a version number of 1: */
 static void
 dissect_cl3_v1(
   tvbuff_t    *tvb,
@@ -93,7 +93,7 @@ dissect_cl3_v1(
   }
 }
 
-/* called for each incomming framing matching the CL3 ethertype: */
+/* called for each incoming framing matching the CL3 ethertype: */
 static int
 dissect_cl3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
 
@@ -131,7 +131,7 @@ dissect_cl3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     expert_add_info(pinfo, ti, &ei_cl3_badheaderlen);
   }
 
-  /* version-specific disscection... */
+  /* version-specific dissection... */
   switch (version) {
   case 1:
     dissect_cl3_v1(tvb, pinfo, tree, ti, cl3_tree, header_length);

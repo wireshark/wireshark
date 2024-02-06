@@ -175,8 +175,8 @@ static int hf_a11_fqui_updated_qoslen;
 static int hf_a11_fqui_updated_qos;
 static int hf_a11_rqui_updated_qoslen;
 static int hf_a11_rqui_updated_qos;
-static int hf_a11_subsciber_profile;
-/* static int hf_a11_subsciber_profile_len; */
+static int hf_a11_subscriber_profile;
+/* static int hf_a11_subscriber_profile_len; */
 
 /* Initialize the subtree pointers */
 static gint ett_a11;
@@ -1198,7 +1198,7 @@ dissect_subscriber_qos_profile(tvbuff_t *tvb, packet_info *pinfo, int offset, in
     /* Subscriber QoS profile */
     if (qos_profile_len) {
         proto_tree_add_item
-            (exts_tree,  hf_a11_subsciber_profile, tvb, offset,
+            (exts_tree,  hf_a11_subscriber_profile, tvb, offset,
              qos_profile_len, ENC_NA);
 
         dissect_attribute_value_pairs(exts_tree, pinfo, tvb, offset, qos_profile_len, NULL);
@@ -2532,13 +2532,13 @@ proto_register_a11(void)
             NULL, HFILL }
         },
 #if 0
-        { &hf_a11_subsciber_profile_len,
+        { &hf_a11_subscriber_profile_len,
           { "Subscriber QoS Profile Length",   "a11.ext.sqp.profilelen",
             FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
 #endif
-        { &hf_a11_subsciber_profile,
+        { &hf_a11_subscriber_profile,
           { "Subscriber QoS Profile",   "a11.ext.sqp.profile",
             FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL }

@@ -253,7 +253,7 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			offset, 2, ENC_BIG_ENDIAN, &subheader);
 		offset += 2;
 
-		/* Platform Sepcific SubHeader, 8 octets, optional */
+		/* Platform Specific SubHeader, 8 octets, optional */
 		if (subheader) {
 			gint32 platform_id = tvb_get_ntohl(tvb, offset) >> 26;
 

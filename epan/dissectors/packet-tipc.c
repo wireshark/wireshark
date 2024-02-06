@@ -1096,7 +1096,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			if ((message_type == TIPCv2_RESET_MSG)
 					|| ((message_type == TIPCv2_STATE_MSG) && ((msg_size-(orig_hdr_size*4)) != 0))){ /* is allowed */
 				proto_tree_add_item(tipc_tree, hf_tipcv2_bearer_instance, tipc_tvb, offset, -1, ENC_ASCII);
-				/* the bearer instance string is padded with \0 to the next word boundry */
+				/* the bearer instance string is padded with \0 to the next word boundary */
 				b_inst_strlen = tvb_strsize(tipc_tvb, offset);
 				offset += b_inst_strlen;
 				if ((padlen = (4-b_inst_strlen%4)) > 0) {

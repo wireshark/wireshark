@@ -923,7 +923,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 offset += 1;
 
                 break;
-            case 0x0154: /* LE Multi Adveritising */
+            case 0x0154: /* LE Multi Advertising */
                 proto_tree_add_item(main_tree, hf_broadcom_le_multi_advertising_subcode, tvb, offset, 1, ENC_NA);
                 offset += 1;
 

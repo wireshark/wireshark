@@ -11,11 +11,13 @@
 80211n
 80mhz
 abbrev
+aborts
 accelerations
 accelerometer
 acceptor
 accessor
 accessors
+accomodate
 accuracies
 acked
 acknack
@@ -43,6 +45,7 @@ aes128
 aes256
 aethra
 aggregated
+aggregates
 aggregations
 aggregator
 agnss
@@ -104,6 +107,7 @@ asynchronous
 asynchronously
 asyncmap
 atheros
+atime
 atomically
 atsss
 attendee
@@ -223,6 +227,7 @@ carrierfreq
 carrierid
 casio
 categorizes
+cattp
 cblock
 ccache
 cccid
@@ -300,6 +305,7 @@ codepoint
 codeset
 codingrate
 codute
+collation
 collectd
 collimation
 colocated
@@ -320,6 +326,7 @@ compilable
 compilers
 compr
 computable
+comunicaciones
 concatenate
 concatenated
 concatenates
@@ -353,6 +360,7 @@ corosync
 corrigendum
 couchbase
 coverity
+cp56time2a
 cpdlc
 cpich
 cppcheck
@@ -425,6 +433,7 @@ dedup
 deduplicate
 deenabled
 deenablement
+deferral
 defragment
 defragmentation
 defragmented
@@ -465,6 +474,7 @@ descriptor
 descriptors
 desegment
 desegmentation
+desegmented
 desegmenting
 deselect
 designator
@@ -531,8 +541,10 @@ dumpcap
 duple
 duplications
 durations
+düsseldorf
 dword
 dwords
+e2node
 eapol
 earcfn
 earfcn
@@ -540,6 +552,7 @@ ebcdic
 ecdhe
 ecdsa
 ecpri
+ed137a
 editcap
 eeprom
 effecter
@@ -588,6 +601,7 @@ envchange
 epasv
 epdcch
 eperm
+ephemeris
 epoll
 epsem
 equinf
@@ -609,6 +623,7 @@ etheraddr
 ethercat
 ethers
 ethertype
+etisalat
 etlfile
 ettarr
 etwdump
@@ -837,8 +852,10 @@ inspiron
 installers
 instantiate
 instantiated
+instantiation
 instdir
 instrumented
+intensities
 interferer
 interleaving
 interop
@@ -979,9 +996,11 @@ manuf
 mappable
 mariadb
 marvell
+masterkey
 mathieson
 matrixes
 maxlen
+maxnoof
 maybefcs
 mbits
 mbsfn
@@ -1043,6 +1062,7 @@ modulo
 modulus
 motorola
 mozilla
+mp4ves
 mpeg4
 mplstp
 mpsse
@@ -1199,6 +1219,7 @@ ofpgmfc
 ofpmf
 ofpmmfc
 ofpmp
+ofppc
 ofppf
 ofprr
 ofptfpt
@@ -1235,6 +1256,7 @@ osmocom
 osmux
 ospf6
 outhdr
+overridable
 pacch
 packetcable
 packetization
@@ -1255,6 +1277,7 @@ parsed
 parser
 parsers
 parses
+partitioning
 passcode
 passivated
 passkey
@@ -1283,6 +1306,7 @@ pgpool
 pharos
 phaser
 phasor
+phasors
 phich
 phonebook
 physcellid
@@ -1397,6 +1421,7 @@ radiotap
 radix
 ralink
 ranap
+randomisation
 randomization
 randomize
 randomizer
@@ -1481,6 +1506,7 @@ rekeying
 relocatable
 remapping
 remediation
+removability
 renegotiation
 renumbering
 reoptimization
@@ -1523,6 +1549,7 @@ resub
 resubmission
 resynchronization
 resynchronize
+resynchronized
 retarder
 retrans
 retransmission
@@ -1591,6 +1618,7 @@ scdma
 scell
 sched
 schema
+schemas
 scoped
 scrollbar
 sdcch
@@ -1614,6 +1642,7 @@ seqpkt
 sequenceno
 sercos
 sercosiii
+serialisation
 serialised
 serialization
 serialize
@@ -1793,11 +1822,13 @@ tdd768
 technica
 Tektronix
 telco
+télécom
 Telecomunicaciones
 telefonica
 Telefónica
 Teléfonos
 telekom
+telematic
 telenor
 teletex
 telfonica
@@ -1942,6 +1973,7 @@ unencrypted
 unescaped
 unescaping
 unexported
+unfeasible
 unformatted
 unfragmented
 unframed
@@ -2014,6 +2046,7 @@ unspec
 unspecific
 unsubscribe
 unsubscribed
+unsupportable
 unsynchronized
 untagged
 unterminated
@@ -2082,6 +2115,7 @@ vlans
 vmware
 vnode
 vocoder
+vodacom
 vodafone
 voipmetrics
 volerr

@@ -6628,7 +6628,7 @@ static void (*nas_msg_emm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     nas_emm_trac_area_upd_rej,  /* Tracking area update reject */
 
     nas_emm_ext_serv_req,       /* Extended service request */
-    nas_emm_ctrl_plane_serv_req,/* Control plane servire request */
+    nas_emm_ctrl_plane_serv_req,/* Control plane service request */
     nas_emm_serv_rej,           /* Service reject */
     nas_emm_serv_accept,        /* Service accept */
 

@@ -4636,7 +4636,7 @@ dissect_zbncp_ll_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     proto_tree_add_item(ncp_ll_hdr_tree, hf_zbncp_hdr_sign, tvb, offset, 2, ENC_ASCII);
     offset += 2;
 
-    /* pkt lenght without sign */
+    /* pkt length without sign */
     proto_tree_add_item(ncp_ll_hdr_tree, hf_zbncp_packet_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 

@@ -391,7 +391,7 @@ static void get_new_colinfo_w_submessages(
 }
 
 /* ========================================================================== */
-/*                            Protocol egistration                            */
+/*                            Protocol registration                           */
 /* ========================================================================== */
 void
 proto_register_rtps_processed(void)

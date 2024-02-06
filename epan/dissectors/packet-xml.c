@@ -1273,7 +1273,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
         root_name = wmem_strdup(wmem_epan_scope(), dtd_data->proto_root);
     }
 
-    /* we use a stack with the names to avoid recurring infinitelly */
+    /* we use a stack with the names to avoid recurring infinitely */
     hier = g_ptr_array_new();
 
     /*

@@ -213,7 +213,7 @@ dissect_cesoeth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             ((heuristic_rtp_header) &&
                 /* Check for RTP version 2, the other fields must be zero */
                 (tvb_get_guint8(tvb, offset) == 0x80) &&
-                /* Check the marker is zero. Unfortnately PT is not always from the dynamic range */
+                /* Check the marker is zero. Unfortunately PT is not always from the dynamic range */
                 ((tvb_get_guint8(tvb, offset + 1) & 0x80) == 0) &&
                 /* The sequence numbers from cw and RTP header must match */
                 (tvb_get_ntohs(tvb, offset + 2) == sn)))

@@ -35,7 +35,7 @@ void proto_reg_handoff_sstp(void);
 #define SSTP_CERT_HASH_PROTOCOL_SHA256 0x02
 #define SSTP_ENCAPSULATED_PPP 0x0001
 
-/* bytewise offsets inside the paket buffer */
+/* bytewise offsets inside the packet buffer */
 #define SSTP_OFFSET_ATTRIBUTES    8
 #define SSTP_OFFSET_DATA          4
 #define SSTP_OFFSET_RESERVED      1

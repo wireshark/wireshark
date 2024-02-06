@@ -254,7 +254,7 @@ find_s101_packet_header(tvbuff_t *tvb, int* offset, guint8 *start, guint8 *slot,
         }
     }
     else if (*start != S101_BOF) {
-        // IF NOT Begining of Frame - variant 1 - escaped data
+        // IF NOT Beginning of Frame - variant 1 - escaped data
         return 0;
     }
     else {
@@ -558,7 +558,7 @@ proto_register_S101(void)
                 NULL, HFILL }},
 
         { &hf_S101_eof,
-            { "End of Frane", "s101.eof",
+            { "End of Frame", "s101.eof",
               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         { &hf_S101_error, {

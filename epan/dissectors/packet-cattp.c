@@ -108,7 +108,7 @@ static const value_string cattp_reset_reason[] = {
 
 static const unit_name_string units_pdu = { "PDU", "PDUs" };
 
-/* Forward declartion due to use of heuristic dissection preference. */
+/* Forward declaration due to use of heuristic dissection preference. */
 void proto_reg_handoff_cattp(void);
 void proto_register_cattp(void);
 

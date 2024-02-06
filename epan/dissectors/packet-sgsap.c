@@ -134,7 +134,7 @@ de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
      * Octet 3 - Octet n
      * Erroneous message including the message type.
      */
-     /* Messge type IE*/
+     /* Message type IE*/
     oct = tvb_get_guint8(tvb, offset);
     msg_fcn_p = NULL;
     ett_tree = -1;
@@ -1525,7 +1525,7 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     item = proto_tree_add_item(tree, proto_sgsap, tvb, 0, -1, ENC_NA);
     sgsap_tree = proto_item_add_subtree(item, ett_sgsap);
 
-    /* Messge type IE*/
+    /* Message type IE*/
     oct       = tvb_get_guint8(tvb, offset);
     msg_fcn_p = NULL;
     ett_tree  = -1;

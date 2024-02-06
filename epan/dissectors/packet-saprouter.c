@@ -706,7 +706,7 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 			}
 		}
 
-	/* Uknown Message Type */
+	/* Unknown Message Type */
 	} else {
 
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Routed message");
