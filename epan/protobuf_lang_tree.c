@@ -109,7 +109,7 @@ pbl_reinit_descriptor_pool(pbl_descriptor_pool_t** ppool, const char** directori
     *ppool = p;
 }
 
-/* free all memory used by this protocol buffers languange pool */
+/* free all memory used by this protocol buffers language pool */
 void
 pbl_free_pool(pbl_descriptor_pool_t* pool)
 {

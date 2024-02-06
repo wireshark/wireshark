@@ -341,11 +341,11 @@ static int fc_len(void)
  ******************************************************************************/
 /* FC Network Header Network Address Authority Identifiers */
 #define FC_NH_NAA_IEEE          1   /* IEEE 802.1a */
-#define FC_NH_NAA_IEEE_E        2   /* IEEE Exteneded */
+#define FC_NH_NAA_IEEE_E        2   /* IEEE Extended */
 #define FC_NH_NAA_LOCAL         3
 #define FC_NH_NAA_IP            4   /* 32-bit IP address */
 #define FC_NH_NAA_IEEE_R        5   /* IEEE Registered */
-#define FC_NH_NAA_IEEE_R_E      6   /* IEEE Registered Exteneded */
+#define FC_NH_NAA_IEEE_R_E      6   /* IEEE Registered Extended */
 /* according to FC-PH 3 draft these are now reclaimed and reserved */
 #define FC_NH_NAA_CCITT_INDV    12  /* CCITT 60 bit individual address */
 #define FC_NH_NAA_CCITT_GRP     14  /* CCITT 60 bit group address */

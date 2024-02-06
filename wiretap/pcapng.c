@@ -6799,7 +6799,7 @@ static const struct supported_option_type packet_block_options_supported[] = {
     { OPT_CUSTOM_BIN_NO_COPY, MULTIPLE_OPTIONS_SUPPORTED }
 };
 
-/* Options for file-type-sepcific reports. */
+/* Options for file-type-specific reports. */
 static const struct supported_option_type ft_specific_report_block_options_supported[] = {
     { OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED },
     { OPT_CUSTOM_STR_COPY, MULTIPLE_OPTIONS_SUPPORTED },
@@ -6808,7 +6808,7 @@ static const struct supported_option_type ft_specific_report_block_options_suppo
     { OPT_CUSTOM_BIN_NO_COPY, MULTIPLE_OPTIONS_SUPPORTED }
 };
 
-/* Options for file-type-sepcific event. */
+/* Options for file-type-specific event. */
 static const struct supported_option_type ft_specific_event_block_options_supported[] = {
     { OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED },
     { OPT_CUSTOM_STR_COPY, MULTIPLE_OPTIONS_SUPPORTED },

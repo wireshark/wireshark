@@ -43,7 +43,7 @@ typedef struct {
  */
 typedef struct {
   char *name;		/* heuristic short name */
-  gboolean enabled;	/* heuristc enabled */
+  gboolean enabled;	/* heuristic enabled */
 } heur_protocol_def;
 
 /*

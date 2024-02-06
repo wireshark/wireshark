@@ -624,7 +624,7 @@ static int dissect_mac_header_type_2_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 				/* Decode and display the Long-term precoding feedback */
 				/* Feedback of index */
 				proto_tree_add_item(ti_tree, hf_mac_header_type_2_lt_id_fb, tvb, offset, 2, ENC_BIG_ENDIAN);
-				/* rank of prrecoding codebook */
+				/* rank of precoding codebook */
 				proto_tree_add_item(ti_tree, hf_mac_header_type_2_lt_rank, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* EFC and QAM feedback */
 				proto_tree_add_item(ti_tree, hf_mac_header_type_2_lt_fec_qam, tvb, offset, 2, ENC_BIG_ENDIAN);

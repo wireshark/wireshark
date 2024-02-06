@@ -1435,7 +1435,7 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-/* dissect the "deviceinitaitve" suboption */
+/* dissect the "deviceinitiatve" suboption */
 static int
 dissect_PNDCP_Suboption_DeviceInitiative(tvbuff_t *tvb, int offset, packet_info *pinfo,
                             proto_tree *tree, proto_item *block_item, proto_item *dcp_item,

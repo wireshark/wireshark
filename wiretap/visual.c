@@ -96,7 +96,7 @@ struct visual_atm_hdr
    guint8  category;      /* indicates type of traffic. 4 bits of status + 4 bits of type */
    guint16 cell_count;    /* number of cells that make up this pdu */
    guint32 data_length;   /* PDU data length for AAL-5 PDUs, all others - cellcount * 48 */
-   guint32 ts_secs;       /* seonds value of sysUpTime when the last cell of this PDU was captured */
+   guint32 ts_secs;       /* seconds value of sysUpTime when the last cell of this PDU was captured */
    guint32 ts_nsec;       /* nanoseonds value of sysUpTime when the last cell of this PDU was captured */
 
 };

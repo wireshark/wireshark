@@ -432,7 +432,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
 {
     proto_tree  *data_tree = NULL;
 
-    /* Count & offset for comparation of the arrays */
+    /* Count & offset for comparison of the arrays */
     guint16     frameOffset;
     guint32     objectCounter;
     gboolean    inputFlag;

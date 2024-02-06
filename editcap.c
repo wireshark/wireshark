@@ -1477,7 +1477,7 @@ main(int argc, char *argv[])
             int choplen = 0, chopoff = 0;
 
             switch (sscanf(ws_optarg, "%d:%d", &chopoff, &choplen)) {
-            case 1: /* only the chop length was specififed */
+            case 1: /* only the chop length was specified */
                 choplen = chopoff;
                 chopoff = 0;
                 break;

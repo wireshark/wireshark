@@ -101,7 +101,7 @@ static expert_field ei_wimaxasncp_length_bad;
 /* Header size, up to, but not including, the TLV fields. */
 #define WIMAXASNCP_HEADER_SIZE       20
 
-/* Offset to end of the length field in the headder. */
+/* Offset to end of the length field in the header. */
 #define WIMAXASNCP_HEADER_LENGTH_END 6
 
 #define WIMAXASNCP_BIT32(n) (1U << (31 - (n)))
@@ -402,7 +402,7 @@ static const ver_value_string wimaxasncp_ms_state_msg_vals[] =
 
 /* ------------------------------------------------------------------------- */
 
-/* note - function type 10-im_operation, was once used for re-authrntication */
+/* note - function type 10-im_operation, was once used for re-authentication */
 static const ver_value_string wimaxasncp_im_operations_msg_vals[] =
 {
     {0,                          { 1,  "AR_EAP_Start"}},

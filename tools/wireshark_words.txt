@@ -246,6 +246,7 @@ chan1
 chan2
 changelog
 channelisation
+channelised
 channelized
 channelmap
 channelseq
@@ -528,6 +529,7 @@ dstport
 dtwin
 dumpcap
 duple
+duplications
 durations
 dword
 dwords
@@ -550,6 +552,7 @@ elided
 elink
 ellipsoid
 emlsr
+emulates
 encap
 encaps
 encapsulating
@@ -1442,6 +1445,7 @@ reconfigures
 reconfirm
 reconfrqst
 reconnection
+recurse
 recursively
 redelivered
 redelivery
@@ -1487,6 +1491,7 @@ representable
 reproducible
 reprogrammable
 reprogramming
+republish
 requester
 requestor
 requeue
@@ -1918,6 +1923,7 @@ unconfirm
 unconstrained
 uncontended
 uncorrectable
+uncorrected
 undecidable
 undecipherable
 undecodable
@@ -1931,6 +1937,7 @@ underrun
 undisposed
 undissected
 unduplicated
+unencoded
 unencrypted
 unescaped
 unescaping
@@ -2136,5 +2143,3 @@ zeroes
 zigbee
 zugtyp
 zürich
-channelised
-uncorrected

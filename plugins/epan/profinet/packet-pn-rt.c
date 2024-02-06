@@ -280,7 +280,7 @@ IsDFP_Frame(tvbuff_t *tvb, packet_info *pinfo, guint16 u16FrameID)
     gint          tvb_len          = 0;
     unsigned char virtualFramebuffer[16];
 
-    /* try to build a temporaray buffer for generating this CRC */
+    /* try to build a temporary buffer for generating this CRC */
     if (!pinfo->src.data || !pinfo->dst.data ||
             pinfo->dst.type != AT_ETHER || pinfo->src.type != AT_ETHER) {
         /* if we don't have src/dst mac addresses then we assume it's not
@@ -447,11 +447,11 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 }
 
-/* for reasemble processing we need some inits.. */
+/* for reassemble processing we need some inits.. */
 /* Register PNIO defrag table init routine.      */
 
 static reassembly_table pdu_reassembly_table;
-static GHashTable *reasembled_frag_table = NULL;
+static GHashTable *reassembled_frag_table = NULL;
 
 static dissector_table_t ethertype_subdissector_table;
 
@@ -464,13 +464,13 @@ pnio_defragment_init(void)
     guint32 i;
     for (i=0; i < 16; i++)    /* init  the reasemble help array */
         start_frag_OR_ID[i] = 0;
-    reasembled_frag_table = g_hash_table_new(NULL, NULL);
+    reassembled_frag_table = g_hash_table_new(NULL, NULL);
 }
 
 static void
 pnio_defragment_cleanup(void)
 {
-    g_hash_table_destroy(reasembled_frag_table);
+    g_hash_table_destroy(reassembled_frag_table);
 }
 
 /* possibly dissect a FRAG_PDU related PN-RT packet */
@@ -547,12 +547,12 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
             if (pdu_frag && !bMoreFollows) /* PDU is complete! and last fragment */
             {   /* store this fragment as the completed fragment in hash table */
-                g_hash_table_insert(reasembled_frag_table, GUINT_TO_POINTER(pinfo->num), pdu_frag);
+                g_hash_table_insert(reassembled_frag_table, GUINT_TO_POINTER(pinfo->num), pdu_frag);
                 start_frag_OR_ID[u32FragID] = 0; /* reset the starting frame counter */
             }
             if (!bMoreFollows) /* last fragment */
             {
-                pdu_frag = (fragment_head *)g_hash_table_lookup(reasembled_frag_table, GUINT_TO_POINTER(pinfo->num));
+                pdu_frag = (fragment_head *)g_hash_table_lookup(reassembled_frag_table, GUINT_TO_POINTER(pinfo->num));
                 if (pdu_frag)    /* found a matching fragment; dissect it */
                 {
                     guint16   type;

@@ -825,7 +825,7 @@ extern void merge_avpl(AVPL* dst, AVPL* src, gboolean copy_avps) {
 		}
 	}
 
-	// if there are remaing source AVPs while there are no more destination
+	// if there are remaining source AVPs while there are no more destination
 	// AVPs (cd now represents the NULL item, after the last item), append
 	// all remaining source AVPs to the end
 	while (cs->avp) {

@@ -678,7 +678,7 @@ fragment_add_seq_offset(reassembly_table *table, const packet_info *pinfo, const
 	if (!fd_head)
 		return;
 
-	/* Reseting the offset is not allowed */
+	/* Resetting the offset is not allowed */
 	if ( fd_head->fragment_nr_offset != 0 )
 		return;
 
@@ -3309,7 +3309,7 @@ reassemble_streaming_data_and_call_subdissector(
 			}
 			frame_ptr = (guint64*)wmem_memdup(wmem_file_scope(), &cur_frame_num, sizeof(guint64));
 			wmem_map_insert(reassembly_info->frame_num_frag_offset_map, frame_ptr, GUINT_TO_POINTER(frag_offset));
-			/* This payload contains the data of previous msp, so we point to it. That may be overriden late. */
+			/* This payload contains the data of previous msp, so we point to it. That may be overridden late. */
 			wmem_map_insert(reassembly_info->multisegment_pdus, frame_ptr, reassembly_info->last_msp);
 		}
 	} else {
@@ -3399,7 +3399,7 @@ reassemble_streaming_data_and_call_subdissector(
 						"Subdissector MUST NOT set pinfo->desegment_offset(%d) in previous or next part of MSP, must between (%d, %d).",
 						pinfo->desegment_offset, reassembly_info->last_msp->length, reassembly_info->last_msp->length + bytes_belong_to_prev_msp));
 
-				/* shorten the bytes_belong_to_prev_msp and just truncate the ressembled tvb */
+				/* shorten the bytes_belong_to_prev_msp and just truncate the reassembled tvb */
 				bytes_belong_to_prev_msp = pinfo->desegment_offset - reassembly_info->last_msp->length;
 				fragment_truncate(&streaming_reassembly_table, pinfo, reassembly_id, NULL, pinfo->desegment_offset);
 				found_BoMSP = TRUE;

@@ -479,7 +479,7 @@
 #define vVW510021_W_PREAMBLE_OFF        vVW510021_W_L1P_1_OFF
 #define vVW510021_W_RSSI_TXPOWER_OFF     2          /* RSSI (NOTE: RSSI must be negated!) */
 #define vVW510021_W_MSDU_LENGTH_OFF      3          /* 7:0 of length, next byte 11:8 in top 4 bits */
-#define vVW510021_W_BVCV_VALID_OFF       4          /* BV,CV Determine validaity of bssid and txpower */
+#define vVW510021_W_BVCV_VALID_OFF       4          /* BV,CV Determine validity of bssid and txpower */
 #define vVW510021_W_VCID_OFF             6          /* offset of VC (client) ID */
 #define vVW510021_W_PLCP_LENGTH_OFF     12          /* LENGTH field in the plcp header */
 

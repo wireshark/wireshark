@@ -348,7 +348,7 @@ dissect_pn_rta_remaining_user_data_bytes(tvbuff_t *tvb, int offset, packet_info 
 
     /* reassembling completed? */
     if (fd_reass != NULL) {
-        /* is this the packet to show the reassembed payload in? */
+        /* is this the packet to show the reassembled payload in? */
         if (pinfo->fd->num == fd_reass->reassembled_in) {
             next_tvb = process_reassembled_data(tvb, 0, pinfo,
                 "Reassembled PN IO RSI packet", fd_reass, &pn_rsi_frag_items, &update_col_info, tree);

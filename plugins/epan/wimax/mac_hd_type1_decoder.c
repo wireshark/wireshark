@@ -302,7 +302,7 @@ static int dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 			proto_tree_add_item(ti_tree, hf_mac_header_type_1_fb_type, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the FBSSI */
 			proto_tree_add_item(ti_tree, hf_mac_header_type_1_fbssi, tvb, offset, 3, ENC_BIG_ENDIAN);
-			/* Decode and display the Prreferred-period */
+			/* Decode and display the Preferred-period */
 			proto_tree_add_item(ti_tree, hf_mac_header_type_1_period, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the reserved field */
 			proto_tree_add_item(ti_tree, hf_mac_header_type_1_rsv_7, tvb, offset, 3, ENC_BIG_ENDIAN);

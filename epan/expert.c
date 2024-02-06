@@ -578,7 +578,7 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
          * to write.
          */
         if (pos >= ITEM_LABEL_LENGTH) {
-		/* Truncation occured. It might have split a UTF-8 character. */
+		/* Truncation occurred. It might have split a UTF-8 character. */
 		ws_utf8_truncate(formatted, ITEM_LABEL_LENGTH - 1);
 	}
 

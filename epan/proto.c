@@ -7190,7 +7190,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 				continue;
 			}
 
-			/* Calculate single index or set outer bounderies */
+			/* Calculate single index or set outer boundaries */
 			if (occurrence < 0) {
 				i = occurrence + len + prev_len;
 				last = i;
@@ -7339,7 +7339,7 @@ proto_custom_get_filter(epan_dissect_t* edt, GSList *field_ids, gint occurrence)
 				continue;
 			}
 
-			/* Calculate single index or set outer bounderies */
+			/* Calculate single index or set outer boundaries */
 			if (occurrence < 0) {
 				i = occurrence + len + prev_len;
 				last = i;

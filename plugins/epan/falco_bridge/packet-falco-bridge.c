@@ -606,7 +606,7 @@ fd_tap_listener(void *tapdata, packet_info *pinfo,
 
 guint32 get_fd_stream_count(void)
 {
-    // This effectively desables the "streams" dropdown, which is we don't really care about for the moment in logray.
+    // This effectively disables the "streams" dropdown, which is we don't really care about for the moment in logray.
     return 1;
 }
 

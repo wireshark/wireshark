@@ -1356,7 +1356,7 @@ void dissector_add_uint_range_with_preference(const char *name, const char* rang
    with a particular pattern. */
 
 /* NOTE: this doesn't use the dissector call variable. It is included to */
-/*	be consistant with the dissector_add_uint and more importantly to be used */
+/*	be consistent with the dissector_add_uint and more importantly to be used */
 /*	if the technique of adding a temporary dissector is implemented.  */
 /*	If temporary dissectors are deleted, then the original dissector must */
 /*	be available. */
@@ -1766,7 +1766,7 @@ dissector_add_string(const char *name, const gchar *pattern,
    with a particular pattern. */
 
 /* NOTE: this doesn't use the dissector call variable. It is included to */
-/*	be consistant with the dissector_add_string and more importantly to */
+/*	be consistent with the dissector_add_string and more importantly to */
 /*      be used if the technique of adding a temporary dissector is */
 /*      implemented.  */
 /*	If temporary dissectors are deleted, then the original dissector must */
@@ -3317,7 +3317,7 @@ find_dissector(const char *name)
 	return (dissector_handle_t)g_hash_table_lookup(registered_dissectors, name);
 }
 
-/** Find a dissector by name and add parent protocol as a depedency*/
+/** Find a dissector by name and add parent protocol as a dependency*/
 dissector_handle_t find_dissector_add_dependency(const char *name, const int parent_proto)
 {
 	dissector_handle_t handle = (dissector_handle_t)g_hash_table_lookup(registered_dissectors, name);

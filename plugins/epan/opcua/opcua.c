@@ -499,7 +499,7 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     guint16 src_port = pinfo->srcport;
     range_t *port_range;
     bool from_server = false;
-    bool decrypted = false; /* succesfully decrypted secure message */
+    bool decrypted = false; /* successfully decrypted secure message */
     enum ua_message_mode mode = UA_MessageMode_None;
     uint8_t sig_len = 0;
     struct ua_metadata metadata;

@@ -3511,7 +3511,7 @@ void proto_register_ecat(void)
            FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x10, NULL, HFILL }
          },
          { &hf_ecat_reg_dc_activation_stimecheck,
-           {"Start time chheck", "ecat.reg.dc.activation.stimecheck",
+           {"Start time check", "ecat.reg.dc.activation.stimecheck",
            FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x20, NULL, HFILL }
          },
          { &hf_ecat_reg_dc_activation_hlfrange,

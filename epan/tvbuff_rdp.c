@@ -109,7 +109,7 @@ typedef struct {
 	guint32 valueBase;
 } zgfx_token_t;
 
-static const zgfx_token_t ZGFX_LITTERAL_TABLE[] = {
+static const zgfx_token_t ZGFX_LITERAL_TABLE[] = {
 	// prefixLength prefixCode valueBits valueBase
 	{ 5,  24, 0, 0x00 },   // 11000
 	{ 5,  25, 0, 0x01 },   // 11001
@@ -173,7 +173,7 @@ zgfx_context_t *zgfx_context_new(wmem_allocator_t *allocator) {
 }
 
 static void
-zgfx_write_history_litteral(zgfx_context_t *zgfx, guint8 c)
+zgfx_write_history_literal(zgfx_context_t *zgfx, guint8 c)
 {
 	zgfx->historyBuffer[zgfx->historyIndex] = c;
 	zgfx->historyIndex = (zgfx->historyIndex + 1) % zgfx->historyBufferSize;
@@ -234,14 +234,14 @@ zgfx_write_history_buffer(zgfx_context_t *zgfx, const guint8 *src, guint32 count
 
 
 static gboolean
-zgfx_write_litteral(zgfx_context_t *zgfx, guint8 c)
+zgfx_write_literal(zgfx_context_t *zgfx, guint8 c)
 {
 	if (zgfx->outputCount == 65535)
 		return FALSE;
 
 	zgfx->outputSegment[zgfx->outputCount++] = c;
 
-	zgfx_write_history_litteral(zgfx, c);
+	zgfx_write_history_literal(zgfx, c);
 	return TRUE;
 }
 
@@ -362,16 +362,16 @@ rdp8_decompress_segment(zgfx_context_t *zgfx, tvbuff_t *tvb)
 		if (!ok)
 			return FALSE;
 
-		// 0 - litteral
+		// 0 - literal
 		if (bits_val == 0) {
 
 			bits_val = bitstream_getbits(&bitstream, 8, &ok);
-			if (!zgfx_write_litteral(zgfx, bits_val))
+			if (!zgfx_write_literal(zgfx, bits_val))
 				return FALSE;
 			continue;
 		}
 
-		// 1x - match or litteral branch
+		// 1x - match or literal branch
 		bits_val = bitstream_getbits(&bitstream, 1, &ok);
 		if (bits_val == 0) {
 			// 10 - match
@@ -380,10 +380,10 @@ rdp8_decompress_segment(zgfx_context_t *zgfx, tvbuff_t *tvb)
 			ntokens = sizeof(ZGFX_MATCH_TABLE) / sizeof(ZGFX_MATCH_TABLE[0]);
 			inPrefix = 2;
 		} else {
-			// 11 - litteral
+			// 11 - literal
 			ismatch = false;
-			tokens = ZGFX_LITTERAL_TABLE;
-			ntokens = sizeof(ZGFX_LITTERAL_TABLE) / sizeof(ZGFX_LITTERAL_TABLE[0]);
+			tokens = ZGFX_LITERAL_TABLE;
+			ntokens = sizeof(ZGFX_LITERAL_TABLE) / sizeof(ZGFX_LITERAL_TABLE[0]);
 			inPrefix = 3;
 		}
 
@@ -460,9 +460,9 @@ rdp8_decompress_segment(zgfx_context_t *zgfx, tvbuff_t *tvb)
 					return FALSE;
 			}
 		} else {
-			/* Litteral */
+			/* literal */
 			bits_val = tokens[i].valueBase;
-			if (!zgfx_write_litteral(zgfx, bits_val))
+			if (!zgfx_write_literal(zgfx, bits_val))
 				return FALSE;
 		}
 	}
