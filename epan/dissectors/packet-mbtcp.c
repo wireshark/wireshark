@@ -927,6 +927,7 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
     switch ( function_code ) {
         case READ_COILS:
         case READ_DISCRETE_INPUTS:
+        case WRITE_MULT_COILS:
             /* The bit data is packed, 8 bits per byte of data, loop over each bit */
             while (data_offset < payload_len) {
                 data8 = tvb_get_guint8(next_tvb, data_offset);
@@ -936,7 +937,7 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
                         ett_bit, NULL, "Bit %u : %u", reg_num, data_bool);
                     bitnum_ti = proto_tree_add_uint(bit_tree, hf_modbus_bitnum, next_tvb, data_offset, 1, reg_num);
                     proto_item_set_generated(bitnum_ti);
-                    proto_tree_add_boolean(bit_tree, hf_modbus_bitval, next_tvb, data_offset, 1, data_bool);
+                    proto_tree_add_boolean_bits_format_value(bit_tree, hf_modbus_bitval, next_tvb, 7 - ii, 1, data8, ENC_NA, "%s", tfs_get_true_false(data_bool));
                     reg_num++;
 
                     /* If all the requested bits have been read, stop now */
@@ -950,6 +951,7 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
 
         case READ_HOLDING_REGS:
         case READ_INPUT_REGS:
+        case WRITE_SINGLE_REG:
         case WRITE_MULT_REGS:
             while (data_offset < payload_len) {
                 /* Use "Preferences" options to determine decoding format of register data, as no format is implied by the protocol itself. */
@@ -1058,7 +1060,7 @@ static int
 dissect_modbus_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tree, guint8 function_code, gint payload_start, gint payload_len, modbus_pkt_info_t *pkt_info)
 {
     proto_tree    *group_tree;
-    gint          byte_cnt, group_offset, ii;
+    gint          byte_cnt, num_reg, group_offset, ii;
     guint8        mei_code;
     guint16       reg_base=0, diagnostic_code;
     guint32       group_byte_cnt, group_word_cnt;
@@ -1088,6 +1090,7 @@ dissect_modbus_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tre
             break;
 
         case WRITE_SINGLE_REG:
+            reg_base = tvb_get_ntohs(tvb, payload_start);
             proto_tree_add_item(modbus_tree, hf_modbus_reference, tvb, payload_start, 2, ENC_BIG_ENDIAN);
             dissect_modbus_data(tvb, pinfo, modbus_tree, function_code, payload_start + 2, 2, pkt_info->register_format, reg_base, 0);
             break;
@@ -1130,11 +1133,13 @@ dissect_modbus_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tre
             }
             break;
         case WRITE_MULT_COILS:
+            reg_base = tvb_get_ntohs(tvb, payload_start);
+            num_reg = tvb_get_ntohs(tvb, payload_start + 2);
             proto_tree_add_item(modbus_tree, hf_modbus_reference, tvb, payload_start, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(modbus_tree, hf_modbus_bitcnt, tvb, payload_start + 2, 2, ENC_BIG_ENDIAN);
             byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start + 4);
             proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start + 4, 1, byte_cnt);
-            dissect_modbus_data(tvb, pinfo, modbus_tree, function_code, payload_start + 5, byte_cnt, pkt_info->register_format, reg_base, 0);
+            dissect_modbus_data(tvb, pinfo, modbus_tree, function_code, payload_start + 5, byte_cnt, pkt_info->register_format, reg_base, num_reg);
             break;
 
         case WRITE_MULT_REGS:
@@ -2083,7 +2088,7 @@ proto_register_modbus(void)
         },
         { &hf_modbus_bitval,
             { "Bit Value", "modbus.bitval",
-            FT_BOOLEAN, 8, NULL, 0x01,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_regnum16,
