@@ -29,6 +29,7 @@
 #include "packet-mtp3.h"
 #include "packet-sccp.h"
 #include "packet-frame.h"
+#include "packet-tcp.h"
 #include "packet-q708.h"
 #include <epan/tap.h>
 
@@ -38,6 +39,7 @@ void proto_reg_handoff_m3ua(void);
 static gint m3ua_pref_mtp3_standard;
 
 #define SCTP_PORT_M3UA         2905
+#define TCP_PORT_M3UA          2905
 
 #define VERSION_LENGTH         1
 #define RESERVED_LENGTH        1
@@ -300,8 +302,11 @@ static gint ett_q708_dpc;
 
 static module_t *m3ua_module;
 static dissector_handle_t mtp3_handle;
-static dissector_handle_t m3ua_handle;
+static dissector_handle_t m3ua_sctp_handle;
+static dissector_handle_t m3ua_tcp_handle;
 static dissector_table_t si_dissector_table;
+
+static gboolean m3ua_tcp_desegment = TRUE;
 
 static int ss7pc_address_type = -1;
 
@@ -2023,6 +2028,21 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void* 
   return tvb_captured_length(message_tvb);
 }
 
+static guint
+get_dissect_m3ua_tcp_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                         int offset, void *data _U_)
+{
+  return tvb_get_ntohl(tvb, offset + 4);
+}
+
+static int
+dissect_m3ua_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  tcp_dissect_pdus(tvb, pinfo, tree, m3ua_tcp_desegment, COMMON_HEADER_LENGTH,
+                   get_dissect_m3ua_tcp_len, dissect_m3ua, data);
+  return tvb_reported_length(tvb);
+}
+
 /* Register the protocol with Wireshark */
 void
 proto_register_m3ua(void)
@@ -2124,11 +2144,16 @@ proto_register_m3ua(void)
 
   /* Register the protocol name and description */
   proto_m3ua = proto_register_protocol("MTP 3 User Adaptation Layer", "M3UA",  "m3ua");
-  m3ua_handle = register_dissector("m3ua", dissect_m3ua, proto_m3ua);
+  m3ua_sctp_handle = register_dissector_with_description("m3ua", "M3UA over SCTP", dissect_m3ua, proto_m3ua);
+  m3ua_tcp_handle = register_dissector_with_description("m3ua.tcp", "M3UA over TCP", dissect_m3ua_tcp, proto_m3ua);
 
   m3ua_module = prefs_register_protocol(proto_m3ua, NULL);
   prefs_register_enum_preference(m3ua_module, "version", "M3UA Version", "Version used by Wireshark", &version, options, FALSE);
   prefs_register_static_text_preference(m3ua_module, "text_mtp3_standard", "The SS7 standard used can be changed in the MTP3 preferences", "The SS7 standard used can be changed in the MTP3 preferences");
+  prefs_register_bool_preference(m3ua_module, "desegment",
+                                 "Desegment all M3UA messages spanning multiple TCP segments",
+                                 "Whether the M3UA dissector should desegment all messages spanning multiple TCP segments",
+                                 &m3ua_tcp_desegment);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_m3ua, hf, array_length(hf));
@@ -2146,8 +2171,9 @@ proto_reg_handoff_m3ua(void)
    * Get a handle for the MTP3 dissector.
    */
   mtp3_handle = find_dissector_add_dependency("mtp3", proto_m3ua);
-  dissector_add_uint("sctp.ppi",  M3UA_PAYLOAD_PROTOCOL_ID, m3ua_handle);
-  dissector_add_uint("sctp.port", SCTP_PORT_M3UA, m3ua_handle);
+  dissector_add_uint("sctp.ppi",  M3UA_PAYLOAD_PROTOCOL_ID, m3ua_sctp_handle);
+  dissector_add_uint("sctp.port", SCTP_PORT_M3UA, m3ua_sctp_handle);
+  dissector_add_uint("tcp.port", TCP_PORT_M3UA, m3ua_tcp_handle);
 
   si_dissector_table = find_dissector_table("mtp3.service_indicator");
 
