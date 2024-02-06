@@ -593,7 +593,25 @@ foreach(_file ${LOGRAY_QT_TS})
 	set(_qresource_qm "${_qresource}.qm")
 	set(i18n_qresource "${i18n_qresource}\n    <file>${_qresource_qm}</file>")
 endforeach()
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/i18n.qrc.in ${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc)
+configure_file(i18n.qrc.in ${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc)
+
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/authors.qrc"
+"<RCC>\n"
+"    <qresource prefix=\"/about\">\n"
+"        <file compress-algo=\"zstd\">authors.csv</file>\n"
+"    </qresource>\n"
+"</RCC>\n"
+)
+
+add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/authors.csv
+	COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/make-authors-csv.py
+			< ${CMAKE_SOURCE_DIR}/AUTHORS
+			> ${CMAKE_CURRENT_BINARY_DIR}/authors.csv
+	DEPENDS
+		${CMAKE_SOURCE_DIR}/tools/make-authors-csv.py
+		${CMAKE_SOURCE_DIR}/AUTHORS
+)
 
 set(LOGRAY_QT_QRC
 	../../resources/about.qrc
@@ -602,6 +620,8 @@ set(LOGRAY_QT_QRC
 	../../resources/lricon.qrc
 	../../resources/stock_icons.qrc
 	${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
+	${CMAKE_CURRENT_BINARY_DIR}/authors.qrc
+	${CMAKE_CURRENT_BINARY_DIR}/authors.csv
 )
 
 if(NOT Qt${qtver}Widgets_VERSION VERSION_LESS "5.9")
