@@ -177,10 +177,12 @@ df_func_compare(GSList *stack, uint32_t arg_count, df_cell_t *retval,
 
     for (args = stack, i = 0; i < arg_count; args = args->next, i++) {
         arg1 = args->data;
-        for (unsigned j = 0; j < arg1->len; j++) {
-            arg_fvalue = arg1->pdata[j];
-            if (fv_ret == NULL || fv_cmp(arg_fvalue, fv_ret)) {
-                fv_ret = arg_fvalue;
+        if (arg1 != NULL) {
+            for (unsigned j = 0; j < arg1->len; j++) {
+                arg_fvalue = arg1->pdata[j];
+                if (fv_ret == NULL || fv_cmp(arg_fvalue, fv_ret)) {
+                    fv_ret = arg_fvalue;
+                }
             }
         }
     }

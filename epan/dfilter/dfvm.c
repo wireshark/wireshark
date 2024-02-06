@@ -1545,7 +1545,9 @@ stack_pop(dfilter_t *df, dfvm_value_t *arg1)
 
 	for (unsigned i = 0; i < count; i++) {
 		/* Free top of stack data. */
-		g_ptr_array_unref(df->function_stack->data);
+		if (df->function_stack->data) {
+			g_ptr_array_unref(df->function_stack->data);
+		}
 		/* Remove top of stack. */
 		df->function_stack = g_slist_delete_link(df->function_stack, df->function_stack);
 	}
