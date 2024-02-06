@@ -1459,18 +1459,50 @@ dissect_vmware_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t 
     /*
      * The lack of delimiter between "sequence" and "secret" makes dissection
      * challenging.  We need to track the "vMotion conversation", which spans
-     * two Telnet conversations with different endpoints.
+     * two Telnet conversations with different endpoints.  The vMotion
+     * conversation is identified by a blob containing the concatenation of the
+     * sequence and secret.
      */
-    if (vmwcmd == VMWARE_VMOTION_GOAHEAD && session->vmotion_sequence_len >= 0) {
-      /*
-       * TODO: We have the full sequence and secret and we know the length of
-       * the "sequence" field.  Stash this info somewhere we can find it later.
-       */
-    } else if (vmwcmd == VMWARE_VMOTION_PEER && session->vmotion_sequence_len < 0) {
-      /*
-       * TODO: Try to find the length of the "sequence" field by looking up the
-       * conversation containing the VMOTION-GOAHEAD.
-       */
+    if ((vmwcmd == VMWARE_VMOTION_GOAHEAD && session->vmotion_sequence_len >= 0) ||
+        (vmwcmd == VMWARE_VMOTION_PEER && session->vmotion_sequence_len < 0)) {
+      conversation_element_t conv_key[2] = {
+        {
+          .type = CE_BLOB,
+          .blob = {
+             .val = tvb_memdup(pinfo->pool, tvb, offset, len),
+             .len = len,
+          },
+        },
+        {
+          .type = CE_CONVERSATION_TYPE,
+          .conversation_type_val = CONVERSATION_VSPC_VMOTION,
+        }
+      };
+      conversation_t *vmotion_conv = find_conversation_full(pinfo->num, conv_key);
+
+      if (vmwcmd == VMWARE_VMOTION_GOAHEAD && vmotion_conv == NULL) {
+        /*
+         * We have the full sequence and secret and we know the length of the
+         * "sequence" field.  Stash it (or, really, its session) where we can
+         * find it later.
+         */
+        vmotion_conv = conversation_new_full(pinfo->num, conv_key);
+        conversation_add_proto_data(vmotion_conv, proto_telnet, session);
+      } else if (vmwcmd == VMWARE_VMOTION_PEER && vmotion_conv != NULL) {
+        /*
+         * Try to find the length of the "sequence" field from the conversation
+         * containing the VMOTION-GOAHEAD message.
+         */
+        telnet_conv_info_t const *source_session =
+          (telnet_conv_info_t const *)conversation_get_proto_data(vmotion_conv, proto_telnet);
+
+        if (source_session != NULL) {
+          session->vmotion_sequence_len = source_session->vmotion_sequence_len;
+        }
+        /* The secret is only used once, so the vMotion conversation ends here. */
+        vmotion_conv->last_frame = pinfo->num;
+      }
+      wmem_free(pinfo->pool, (void *)conv_key[0].blob.val);
     }
     if (session->vmotion_sequence_len >= 0 && session->vmotion_sequence_len <= len) {
       proto_tree_add_item(tree, hf_telnet_vmware_vmotion_sequence, tvb, offset, (int)session->vmotion_sequence_len, ENC_NA);

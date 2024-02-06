@@ -103,7 +103,8 @@ typedef enum {
     CONVERSATION_IDN,
     CONVERSATION_IP,		/* IP */
     CONVERSATION_IPV6,		/* IPv6 */
-    CONVERSATION_ETH     	/* ETHERNET */
+    CONVERSATION_ETH,		/* ETHERNET */
+    CONVERSATION_VSPC_VMOTION,	/* VMware vSPC vMotion (Telnet) */
 } conversation_type;
 
 /*
