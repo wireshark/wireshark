@@ -85,3 +85,11 @@ class TestFunctionNested:
     def test_function_nested_1(self, checkDFilterCount):
         dfilter = 'abs(min(tcp.srcport, tcp.dstport)) == 80'
         checkDFilterCount(dfilter, 1)
+
+    def test_function_nested_2(self, checkDFilterCount):
+        dfilter = 'min(tcp.srcport * 10, tcp.dstport * 10, udp.srcport * 10, udp.dstport * 10) == 800'
+        checkDFilterCount(dfilter, 1)
+
+    def test_function_nested_3(self, checkDFilterCount):
+        dfilter = 'min(len(tcp.payload), len(udp.payload)) == 153'
+        checkDFilterCount(dfilter, 1)
