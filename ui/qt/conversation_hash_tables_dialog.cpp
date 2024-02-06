@@ -37,6 +37,7 @@ fill_named_table(void *key, void *value _U_, void *user_data)
         int uint64_count = 1;
         int int_count = 1;
         int int64_count = 1;
+        int blob_count = 1;
         for (const conversation_element_t *cur_el = elements; ; cur_el++) {
             QString title;
             switch (cur_el->type) {
@@ -60,6 +61,9 @@ fill_named_table(void *key, void *value _U_, void *user_data)
                 break;
             case CE_INT64:
                 title = QString("Int64 %1").arg(int64_count++);
+                break;
+            case CE_BLOB:
+                title = QString("Blob %1").arg(blob_count++);
                 break;
             case CE_CONVERSATION_TYPE:
                 html_table->append(QString("<th>Endpoint</th>"));
@@ -97,6 +101,9 @@ title_done:
             break;
         case CE_INT64:
             val = QString::number(cur_el->int64_val);
+            break;
+        case CE_BLOB:
+            val = QString(QByteArray::fromRawData((const char *)cur_el->blob.val, (int)cur_el->blob.len).toHex());
             break;
         case CE_CONVERSATION_TYPE:
             html_table->append(QString("<td>%1</td>").arg(QString::number(cur_el->conversation_type_val)));

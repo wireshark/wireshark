@@ -80,6 +80,7 @@ static const char *type_names[] = {
     "uint64",
     "int",
     "int64",
+    "blob",
 };
 
 /*
@@ -204,6 +205,14 @@ static char* conversation_element_list_values(conversation_element_t *elements) 
             break;
         case CE_INT64:
             g_string_append_printf(value_str, "%" PRId64, cur_el->int64_val);
+            break;
+        case CE_BLOB:
+        {
+            size_t l;
+            uint8_t const *p;
+            for (l = cur_el->blob.len, p = cur_el->blob.val; l > 0; l--, p++)
+                g_string_append_printf(value_str, "%02x", *p);
+        }
             break;
         }
     }
@@ -388,6 +397,11 @@ conversation_hash_element_list(gconstpointer v)
             tmp_addr.data = &element->int64_val;
             hash_val = add_address_to_hash(hash_val, &tmp_addr);
             break;
+        case CE_BLOB:
+            tmp_addr.len = (int) element->blob.len;
+            tmp_addr.data = element->blob.val;
+            hash_val = add_address_to_hash(hash_val, &tmp_addr);
+            break;
         case CE_CONVERSATION_TYPE:
             tmp_addr.len = (int) sizeof(element->conversation_type_val);
             tmp_addr.data = &element->conversation_type_val;
@@ -453,6 +467,12 @@ conversation_match_element_list(gconstpointer v1, gconstpointer v2)
             break;
         case CE_INT64:
             if (element1->int64_val != element2->int64_val) {
+                return FALSE;
+            }
+            break;
+        case CE_BLOB:
+            if (element1->blob.len != element2->blob.len ||
+                (element1->blob.len > 0 && memcmp(element1->blob.val, element2->blob.val, element1->blob.len) != 0)) {
                 return FALSE;
             }
             break;
@@ -714,6 +734,8 @@ conversation_t *conversation_new_full(const guint32 setup_frame, conversation_el
             copy_address_wmem(wmem_file_scope(), &conv_key[i].addr_val, &elements[i].addr_val);
         } else if (conv_key[i].type == CE_STRING) {
             conv_key[i].str_val = wmem_strdup(wmem_file_scope(), elements[i].str_val);
+        } else if (conv_key[i].type == CE_BLOB) {
+            conv_key[i].blob.val = wmem_memdup(wmem_file_scope(), elements[i].blob.val, elements[i].blob.len);
         }
     }
 
