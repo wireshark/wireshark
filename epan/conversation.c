@@ -70,6 +70,18 @@ enum {
     ENDP_NO_PORTS_IDX = ADDR2_IDX
 };
 
+/* Names for conversation_element_type values. */
+static const char *type_names[] = {
+    "endpoint",
+    "address",
+    "port",
+    "string",
+    "uint",
+    "uint64",
+    "int",
+    "int64",
+};
+
 /*
  * Hash table of hash tables for conversations identified by element lists.
  */
@@ -143,21 +155,12 @@ conversation_get_key_type(conversation_element_t *elements)
 /* Create a string based on element types. */
 static char*
 conversation_element_list_name(wmem_allocator_t *allocator, conversation_element_t *elements) {
-    const char *type_names[] = {
-        "endpoint",
-        "address",
-        "port",
-        "string",
-        "uint",
-        "uint64",
-        "int",
-        "int64",
-    };
     char *sep = "";
     wmem_strbuf_t *conv_hash_group = wmem_strbuf_new(allocator, "");
     size_t element_count = conversation_element_count(elements);
     for (size_t i = 0; i < element_count; i++) {
         conversation_element_t *cur_el = &elements[i];
+        DISSECTOR_ASSERT(cur_el->type < array_length(type_names));
         wmem_strbuf_append_printf(conv_hash_group, "%s%s", sep, type_names[cur_el->type]);
         sep = ",";
     }
@@ -166,14 +169,6 @@ conversation_element_list_name(wmem_allocator_t *allocator, conversation_element
 
 #if 0 // debugging
 static char* conversation_element_list_values(conversation_element_t *elements) {
-    const char *type_names[] = {
-        "endpoint",
-        "address",
-        "port",
-        "string",
-        "uint",
-        "uint64",
-    };
     char *sep = "";
     GString *value_str = g_string_new("");
     size_t element_count = conversation_element_count(elements);
@@ -207,10 +202,10 @@ static char* conversation_element_list_values(conversation_element_t *elements) 
         case CE_INT:
             g_string_append_printf(value_str, "%d", cur_el->int_val);
             break;
-        }
         case CE_INT64:
             g_string_append_printf(value_str, "%" PRId64, cur_el->int64_val);
             break;
+        }
     }
     return g_string_free(value_str, FALSE);
 }
