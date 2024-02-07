@@ -11,41 +11,41 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-const char *bigreq_errors[] = {
+static const char *bigreq_errors[] = {
   NULL
 };
 
-const char *composite_errors[] = {
+static const char *composite_errors[] = {
   NULL
 };
 
-const char *damage_errors[] = {
+static const char *damage_errors[] = {
   "damage-BadDamage",
   NULL
 };
 
-const char *dbe_errors[] = {
+static const char *dbe_errors[] = {
   "dbe-BadBuffer",
   NULL
 };
 
-const char *dpms_errors[] = {
+static const char *dpms_errors[] = {
   NULL
 };
 
-const char *dri2_errors[] = {
+static const char *dri2_errors[] = {
   NULL
 };
 
-const char *dri3_errors[] = {
+static const char *dri3_errors[] = {
   NULL
 };
 
-const char *ge_errors[] = {
+static const char *ge_errors[] = {
   NULL
 };
 
-const char *glx_errors[] = {
+static const char *glx_errors[] = {
   "glx-BadContext",
   "glx-BadContextState",
   "glx-BadDrawable",
@@ -63,11 +63,11 @@ const char *glx_errors[] = {
   NULL
 };
 
-const char *present_errors[] = {
+static const char *present_errors[] = {
   NULL
 };
 
-const char *randr_errors[] = {
+static const char *randr_errors[] = {
   "randr-BadOutput",
   "randr-BadCrtc",
   "randr-BadMode",
@@ -75,12 +75,12 @@ const char *randr_errors[] = {
   NULL
 };
 
-const char *record_errors[] = {
+static const char *record_errors[] = {
   "record-BadContext",
   NULL
 };
 
-const char *render_errors[] = {
+static const char *render_errors[] = {
   "render-PictFormat",
   "render-Picture",
   "render-PictOp",
@@ -89,42 +89,42 @@ const char *render_errors[] = {
   NULL
 };
 
-const char *res_errors[] = {
+static const char *res_errors[] = {
   NULL
 };
 
-const char *screensaver_errors[] = {
+static const char *screensaver_errors[] = {
   NULL
 };
 
-const char *shape_errors[] = {
+static const char *shape_errors[] = {
   NULL
 };
 
-const char *shm_errors[] = {
+static const char *shm_errors[] = {
   "shm-BadSeg",
   NULL
 };
 
-const char *sync_errors[] = {
+static const char *sync_errors[] = {
   "sync-Counter",
   "sync-Alarm",
   NULL
 };
 
-const char *xc_misc_errors[] = {
+static const char *xc_misc_errors[] = {
   NULL
 };
 
-const char *xevie_errors[] = {
+static const char *xevie_errors[] = {
   NULL
 };
 
-const char *xf86dri_errors[] = {
+static const char *xf86dri_errors[] = {
   NULL
 };
 
-const char *xf86vidmode_errors[] = {
+static const char *xf86vidmode_errors[] = {
   "xf86vidmode-BadClock",
   "xf86vidmode-BadHTimings",
   "xf86vidmode-BadVTimings",
@@ -135,16 +135,16 @@ const char *xf86vidmode_errors[] = {
   NULL
 };
 
-const char *xfixes_errors[] = {
+static const char *xfixes_errors[] = {
   "xfixes-BadRegion",
   NULL
 };
 
-const char *xinerama_errors[] = {
+static const char *xinerama_errors[] = {
   NULL
 };
 
-const char *xinput_errors[] = {
+static const char *xinput_errors[] = {
   "xinput-Device",
   "xinput-Event",
   "xinput-Mode",
@@ -153,33 +153,33 @@ const char *xinput_errors[] = {
   NULL
 };
 
-const char *xkb_errors[] = {
+static const char *xkb_errors[] = {
   "xkb-Keyboard",
   NULL
 };
 
-const char *xprint_errors[] = {
+static const char *xprint_errors[] = {
   "xprint-BadContext",
   "xprint-BadSequence",
   NULL
 };
 
-const char *xselinux_errors[] = {
+static const char *xselinux_errors[] = {
   NULL
 };
 
-const char *xtest_errors[] = {
+static const char *xtest_errors[] = {
   NULL
 };
 
-const char *xv_errors[] = {
+static const char *xv_errors[] = {
   "xv-BadPort",
   "xv-BadEncoding",
   "xv-BadControl",
   NULL
 };
 
-const char *xvmc_errors[] = {
+static const char *xvmc_errors[] = {
   NULL
 };
 

@@ -805,7 +805,7 @@ sub dissect_element($$$$$;$$)
                     }
                     my $bitmask_field = $fieldname . "_bits";
                     say $impl $indent."{";
-                    say $impl $indent."    int* const $bitmask_field [] = {";
+                    say $impl $indent."    static int* const $bitmask_field [] = {";
                     my $bit = $enum{$enum_name{$e->att('mask')}}{bit};
                     for my $val (sort { $a <=> $b } keys %$bit) {
                         my $item = $regname . '_mask_' . $$bit{$val};
@@ -1651,7 +1651,7 @@ sub xcb_start {
     %enum_name = ();
     %type_name = ();
 
-    print $error "const char *$header"."_errors[] = {\n";
+    print $error "static const char *$header"."_errors[] = {\n";
 }
 
 sub xcb {
@@ -1673,7 +1673,7 @@ sub xcb {
     print $impl "    { 0, NULL }\n";
     print $impl "};\n";
 
-    say $impl "const x11_event_info $event_name".'[] = {';
+    say $impl "static const x11_event_info $event_name".'[] = {';
     foreach my $e (sort {$a <=> $b} keys %event) {
         say $impl "    { \"$header-$event{$e}\", $header$event{$e} },";
     }

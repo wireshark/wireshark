@@ -4891,7 +4891,7 @@ static const value_string bigreq_extension_minor[] = {
     { 0, "Enable" },
     { 0, NULL }
 };
-const x11_event_info bigreq_events[] = {
+static const x11_event_info bigreq_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info bigreq_replies[] = {
@@ -5430,7 +5430,7 @@ static const value_string composite_extension_minor[] = {
     { 8, "ReleaseOverlayWindow" },
     { 0, NULL }
 };
-const x11_event_info composite_events[] = {
+static const x11_event_info composite_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info composite_replies[] = {
@@ -5556,7 +5556,7 @@ static const value_string damage_extension_minor[] = {
     { 4, "Add" },
     { 0, NULL }
 };
-const x11_event_info damage_events[] = {
+static const x11_event_info damage_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info damage_replies[] = {
@@ -5812,7 +5812,7 @@ static const value_string dbe_extension_minor[] = {
     { 7, "GetBackBufferAttributes" },
     { 0, NULL }
 };
-const x11_event_info dbe_events[] = {
+static const x11_event_info dbe_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info dbe_replies[] = {
@@ -5997,7 +5997,7 @@ static void dpmsInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
 static void dpmsSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     {
-        int* const event_mask_bits [] = {
+        static int* const event_mask_bits [] = {
         &hf_x11_dpms_SelectInput_event_mask_mask_InfoNotify,
         NULL
         };
@@ -6017,7 +6017,7 @@ static const value_string dpms_extension_minor[] = {
     { 8, "SelectInput" },
     { 0, NULL }
 };
-const x11_event_info dpms_events[] = {
+static const x11_event_info dpms_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info dpms_replies[] = {
@@ -6531,7 +6531,7 @@ static const value_string dri2_extension_minor[] = {
     { 13, "GetParam" },
     { 0, NULL }
 };
-const x11_event_info dri2_events[] = {
+static const x11_event_info dri2_events[] = {
     { "dri2-InvalidateBuffers", dri2InvalidateBuffers },
     { NULL, NULL }
 };
@@ -6905,7 +6905,7 @@ static const value_string dri3_extension_minor[] = {
     { 9, "SetDRMDeviceInUse" },
     { 0, NULL }
 };
-const x11_event_info dri3_events[] = {
+static const x11_event_info dri3_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info dri3_replies[] = {
@@ -7001,7 +7001,7 @@ static const value_string ge_extension_minor[] = {
     { 0, "QueryVersion" },
     { 0, NULL }
 };
-const x11_event_info ge_events[] = {
+static const x11_event_info ge_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info ge_replies[] = {
@@ -9864,7 +9864,7 @@ static const value_string glx_extension_minor[] = {
     { 166, "GetQueryObjectuivARB" },
     { 0, NULL }
 };
-const x11_event_info glx_events[] = {
+static const x11_event_info glx_events[] = {
     { "glx-BufferSwapComplete", glxBufferSwapComplete },
     { NULL, NULL }
 };
@@ -10342,7 +10342,7 @@ static void struct_randr_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_name_len, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         {
-            int* const mode_flags_bits [] = {
+            static int* const mode_flags_bits [] = {
                 &hf_x11_struct_randr_ModeInfo_mode_flags_mask_HsyncPositive,
                 &hf_x11_struct_randr_ModeInfo_mode_flags_mask_HsyncNegative,
                 &hf_x11_struct_randr_ModeInfo_mode_flags_mask_VsyncPositive,
@@ -10383,7 +10383,7 @@ static void struct_randr_CrtcChange(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_mode, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         {
-            int* const rotation_bits [] = {
+            static int* const rotation_bits [] = {
                 &hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_0,
                 &hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_90,
                 &hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_180,
@@ -10430,7 +10430,7 @@ static void struct_randr_OutputChange(tvbuff_t *tvb, int *offsetp, proto_tree *r
         proto_tree_add_item(t, hf_x11_struct_randr_OutputChange_mode, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         {
-            int* const rotation_bits [] = {
+            static int* const rotation_bits [] = {
                 &hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_0,
                 &hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_90,
                 &hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_180,
@@ -10781,7 +10781,7 @@ static void presentSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     proto_tree_add_item(t, hf_x11_present_SelectInput_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        int* const event_mask_bits [] = {
+        static int* const event_mask_bits [] = {
         &hf_x11_present_SelectInput_event_mask_mask_ConfigureNotify,
         &hf_x11_present_SelectInput_event_mask_mask_CompleteNotify,
         &hf_x11_present_SelectInput_event_mask_mask_IdleNotify,
@@ -10910,7 +10910,7 @@ static const value_string present_extension_minor[] = {
     { 4, "QueryCapabilities" },
     { 0, NULL }
 };
-const x11_event_info present_events[] = {
+static const x11_event_info present_events[] = {
     { NULL, NULL }
 };
 static const x11_generic_event_info present_generic_events[] = {
@@ -11002,7 +11002,7 @@ static void randrSetScreenConfig(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     proto_tree_add_item(t, hf_x11_randr_SetScreenConfig_sizeID, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        int* const rotation_bits [] = {
+        static int* const rotation_bits [] = {
         &hf_x11_randr_SetScreenConfig_rotation_mask_Rotate_0,
         &hf_x11_randr_SetScreenConfig_rotation_mask_Rotate_90,
         &hf_x11_randr_SetScreenConfig_rotation_mask_Rotate_180,
@@ -11049,7 +11049,7 @@ static void randrSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     proto_tree_add_item(t, hf_x11_randr_SelectInput_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        int* const enable_bits [] = {
+        static int* const enable_bits [] = {
         &hf_x11_randr_SelectInput_enable_mask_ScreenChange,
         &hf_x11_randr_SelectInput_enable_mask_CrtcChange,
         &hf_x11_randr_SelectInput_enable_mask_OutputChange,
@@ -11082,7 +11082,7 @@ static void randrGetScreenInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
 
     REPLY(reply);
     {
-        int* const rotations_bits [] = {
+        static int* const rotations_bits [] = {
         &hf_x11_randr_GetScreenInfo_reply_rotations_mask_Rotate_0,
         &hf_x11_randr_GetScreenInfo_reply_rotations_mask_Rotate_90,
         &hf_x11_randr_GetScreenInfo_reply_rotations_mask_Rotate_180,
@@ -11112,7 +11112,7 @@ static void randrGetScreenInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     proto_tree_add_item(t, hf_x11_randr_GetScreenInfo_reply_sizeID, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        int* const rotation_bits [] = {
+        static int* const rotation_bits [] = {
         &hf_x11_randr_GetScreenInfo_reply_rotation_mask_Rotate_0,
         &hf_x11_randr_GetScreenInfo_reply_rotation_mask_Rotate_90,
         &hf_x11_randr_GetScreenInfo_reply_rotation_mask_Rotate_180,
@@ -11527,7 +11527,7 @@ static void randrGetCrtcInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     proto_tree_add_item(t, hf_x11_randr_GetCrtcInfo_reply_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        int* const rotation_bits [] = {
+        static int* const rotation_bits [] = {
         &hf_x11_randr_GetCrtcInfo_reply_rotation_mask_Rotate_0,
         &hf_x11_randr_GetCrtcInfo_reply_rotation_mask_Rotate_90,
         &hf_x11_randr_GetCrtcInfo_reply_rotation_mask_Rotate_180,
@@ -11540,7 +11540,7 @@ static void randrGetCrtcInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     }
     *offsetp += 2;
     {
-        int* const rotations_bits [] = {
+        static int* const rotations_bits [] = {
         &hf_x11_randr_GetCrtcInfo_reply_rotations_mask_Rotate_0,
         &hf_x11_randr_GetCrtcInfo_reply_rotations_mask_Rotate_90,
         &hf_x11_randr_GetCrtcInfo_reply_rotations_mask_Rotate_180,
@@ -11577,7 +11577,7 @@ static void randrSetCrtcConfig(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     proto_tree_add_item(t, hf_x11_randr_SetCrtcConfig_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        int* const rotation_bits [] = {
+        static int* const rotation_bits [] = {
         &hf_x11_randr_SetCrtcConfig_rotation_mask_Rotate_0,
         &hf_x11_randr_SetCrtcConfig_rotation_mask_Rotate_90,
         &hf_x11_randr_SetCrtcConfig_rotation_mask_Rotate_180,
@@ -12003,7 +12003,7 @@ static void randrGetProviderInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     proto_tree_add_item(t, hf_x11_randr_GetProviderInfo_reply_timestamp, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        int* const capabilities_bits [] = {
+        static int* const capabilities_bits [] = {
         &hf_x11_randr_GetProviderInfo_reply_capabilities_mask_SourceOutput,
         &hf_x11_randr_GetProviderInfo_reply_capabilities_mask_SinkOutput,
         &hf_x11_randr_GetProviderInfo_reply_capabilities_mask_SourceOffload,
@@ -12394,7 +12394,7 @@ static const value_string randr_extension_minor[] = {
     { 46, "FreeLease" },
     { 0, NULL }
 };
-const x11_event_info randr_events[] = {
+static const x11_event_info randr_events[] = {
     { "randr-Notify", randrNotify },
     { NULL, NULL }
 };
@@ -12858,7 +12858,7 @@ static const value_string record_extension_minor[] = {
     { 7, "FreeContext" },
     { 0, NULL }
 };
-const x11_event_info record_events[] = {
+static const x11_event_info record_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info record_replies[] = {
@@ -13023,7 +13023,7 @@ static void renderCreatePicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     *offsetp += 4;
     f_value_mask = tvb_get_guint32(tvb, *offsetp, byte_order);
     {
-        int* const value_mask_bits [] = {
+        static int* const value_mask_bits [] = {
         &hf_x11_render_CreatePicture_value_mask_mask_Repeat,
         &hf_x11_render_CreatePicture_value_mask_mask_AlphaMap,
         &hf_x11_render_CreatePicture_value_mask_mask_AlphaXOrigin,
@@ -13099,7 +13099,7 @@ static void renderChangePicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     *offsetp += 4;
     f_value_mask = tvb_get_guint32(tvb, *offsetp, byte_order);
     {
-        int* const value_mask_bits [] = {
+        static int* const value_mask_bits [] = {
         &hf_x11_render_ChangePicture_value_mask_mask_Repeat,
         &hf_x11_render_ChangePicture_value_mask_mask_AlphaMap,
         &hf_x11_render_ChangePicture_value_mask_mask_AlphaXOrigin,
@@ -13584,7 +13584,7 @@ static const value_string render_extension_minor[] = {
     { 36, "CreateConicalGradient" },
     { 0, NULL }
 };
-const x11_event_info render_events[] = {
+static const x11_event_info render_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info render_replies[] = {
@@ -13752,7 +13752,7 @@ static void struct_res_ClientIdSpec(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         proto_tree_add_item(t, hf_x11_struct_res_ClientIdSpec_client, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         {
-            int* const mask_bits [] = {
+            static int* const mask_bits [] = {
                 &hf_x11_struct_res_ClientIdSpec_mask_mask_ClientXID,
                 &hf_x11_struct_res_ClientIdSpec_mask_mask_LocalClientPID,
                 NULL
@@ -14038,7 +14038,7 @@ static const value_string res_extension_minor[] = {
     { 5, "QueryResourceBytes" },
     { 0, NULL }
 };
-const x11_event_info res_events[] = {
+static const x11_event_info res_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info res_replies[] = {
@@ -14159,7 +14159,7 @@ static void screensaverSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     proto_tree_add_item(t, hf_x11_screensaver_SelectInput_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        int* const event_mask_bits [] = {
+        static int* const event_mask_bits [] = {
         &hf_x11_screensaver_SelectInput_event_mask_mask_NotifyMask,
         &hf_x11_screensaver_SelectInput_event_mask_mask_CycleMask,
         NULL
@@ -14191,7 +14191,7 @@ static void screensaverSetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     *offsetp += 4;
     f_value_mask = tvb_get_guint32(tvb, *offsetp, byte_order);
     {
-        int* const value_mask_bits [] = {
+        static int* const value_mask_bits [] = {
         &hf_x11_screensaver_SetAttributes_value_mask_mask_BackPixmap,
         &hf_x11_screensaver_SetAttributes_value_mask_mask_BackPixel,
         &hf_x11_screensaver_SetAttributes_value_mask_mask_BorderPixmap,
@@ -14253,7 +14253,7 @@ static void screensaverSetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     }
     if (f_value_mask & (1U << 11)) {
         {
-            int* const event_mask_bits [] = {
+            static int* const event_mask_bits [] = {
                 &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_KeyPress,
                 &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_KeyRelease,
                 &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_ButtonPress,
@@ -14287,7 +14287,7 @@ static void screensaverSetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     }
     if (f_value_mask & (1U << 12)) {
         {
-            int* const do_not_propogate_mask_bits [] = {
+            static int* const do_not_propogate_mask_bits [] = {
                 &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_KeyPress,
                 &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_KeyRelease,
                 &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_ButtonPress,
@@ -14347,7 +14347,7 @@ static const value_string screensaver_extension_minor[] = {
     { 5, "Suspend" },
     { 0, NULL }
 };
-const x11_event_info screensaver_events[] = {
+static const x11_event_info screensaver_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info screensaver_replies[] = {
@@ -14597,7 +14597,7 @@ static const value_string shape_extension_minor[] = {
     { 8, "GetRectangles" },
     { 0, NULL }
 };
-const x11_event_info shape_events[] = {
+static const x11_event_info shape_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info shape_replies[] = {
@@ -14855,7 +14855,7 @@ static const value_string shm_extension_minor[] = {
     { 7, "CreateSegment" },
     { 0, NULL }
 };
-const x11_event_info shm_events[] = {
+static const x11_event_info shm_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info shm_replies[] = {
@@ -15028,7 +15028,7 @@ static void syncCreateAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 4;
     f_value_mask = tvb_get_guint32(tvb, *offsetp, byte_order);
     {
-        int* const value_mask_bits [] = {
+        static int* const value_mask_bits [] = {
         &hf_x11_sync_CreateAlarm_value_mask_mask_Counter,
         &hf_x11_sync_CreateAlarm_value_mask_mask_ValueType,
         &hf_x11_sync_CreateAlarm_value_mask_mask_Value,
@@ -15069,7 +15069,7 @@ static void syncChangeAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 4;
     f_value_mask = tvb_get_guint32(tvb, *offsetp, byte_order);
     {
-        int* const value_mask_bits [] = {
+        static int* const value_mask_bits [] = {
         &hf_x11_sync_ChangeAlarm_value_mask_mask_Counter,
         &hf_x11_sync_ChangeAlarm_value_mask_mask_ValueType,
         &hf_x11_sync_ChangeAlarm_value_mask_mask_Value,
@@ -15268,7 +15268,7 @@ static const value_string sync_extension_minor[] = {
     { 19, "AwaitFence" },
     { 0, NULL }
 };
-const x11_event_info sync_events[] = {
+static const x11_event_info sync_events[] = {
     { "sync-AlarmNotify", syncAlarmNotify },
     { NULL, NULL }
 };
@@ -15448,7 +15448,7 @@ static const value_string xc_misc_extension_minor[] = {
     { 2, "GetXIDList" },
     { 0, NULL }
 };
-const x11_event_info xc_misc_events[] = {
+static const x11_event_info xc_misc_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info xc_misc_replies[] = {
@@ -15637,7 +15637,7 @@ static const value_string xevie_extension_minor[] = {
     { 4, "SelectInput" },
     { 0, NULL }
 };
-const x11_event_info xevie_events[] = {
+static const x11_event_info xevie_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info xevie_replies[] = {
@@ -16025,7 +16025,7 @@ static const value_string xf86dri_extension_minor[] = {
     { 11, "AuthConnection" },
     { 0, NULL }
 };
-const x11_event_info xf86dri_events[] = {
+static const x11_event_info xf86dri_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info xf86dri_replies[] = {
@@ -16129,7 +16129,7 @@ static void struct_xf86vidmode_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree 
         proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
         *offsetp += 4;
         {
-            int* const flags_bits [] = {
+            static int* const flags_bits [] = {
                 &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Positive_HSync,
                 &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Negative_HSync,
                 &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Positive_VSync,
@@ -16225,7 +16225,7 @@ static void xf86vidmodeGetModeLine_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
     {
-        int* const flags_bits [] = {
+        static int* const flags_bits [] = {
         &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Positive_HSync,
         &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Negative_HSync,
         &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Positive_VSync,
@@ -16278,7 +16278,7 @@ static void xf86vidmodeModModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
     {
-        int* const flags_bits [] = {
+        static int* const flags_bits [] = {
         &hf_x11_xf86vidmode_ModModeLine_flags_mask_Positive_HSync,
         &hf_x11_xf86vidmode_ModModeLine_flags_mask_Negative_HSync,
         &hf_x11_xf86vidmode_ModModeLine_flags_mask_Positive_VSync,
@@ -16428,7 +16428,7 @@ static void xf86vidmodeAddModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
     {
-        int* const flags_bits [] = {
+        static int* const flags_bits [] = {
         &hf_x11_xf86vidmode_AddModeLine_flags_mask_Positive_HSync,
         &hf_x11_xf86vidmode_AddModeLine_flags_mask_Negative_HSync,
         &hf_x11_xf86vidmode_AddModeLine_flags_mask_Positive_VSync,
@@ -16475,7 +16475,7 @@ static void xf86vidmodeAddModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
     {
-        int* const after_flags_bits [] = {
+        static int* const after_flags_bits [] = {
         &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Positive_HSync,
         &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Negative_HSync,
         &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Positive_VSync,
@@ -16528,7 +16528,7 @@ static void xf86vidmodeDeleteModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
     {
-        int* const flags_bits [] = {
+        static int* const flags_bits [] = {
         &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Positive_HSync,
         &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Negative_HSync,
         &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Positive_VSync,
@@ -16584,7 +16584,7 @@ static void xf86vidmodeValidateModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, i
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
     {
-        int* const flags_bits [] = {
+        static int* const flags_bits [] = {
         &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Positive_HSync,
         &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Negative_HSync,
         &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Positive_VSync,
@@ -16660,7 +16660,7 @@ static void xf86vidmodeSwitchToMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
     {
-        int* const flags_bits [] = {
+        static int* const flags_bits [] = {
         &hf_x11_xf86vidmode_SwitchToMode_flags_mask_Positive_HSync,
         &hf_x11_xf86vidmode_SwitchToMode_flags_mask_Negative_HSync,
         &hf_x11_xf86vidmode_SwitchToMode_flags_mask_Positive_VSync,
@@ -16756,7 +16756,7 @@ static void xf86vidmodeGetDotClocks_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     *offsetp += 4;
     f_flags = tvb_get_guint32(tvb, *offsetp, byte_order);
     {
-        int* const flags_bits [] = {
+        static int* const flags_bits [] = {
         &hf_x11_xf86vidmode_GetDotClocks_reply_flags_mask_Programable,
         NULL
         };
@@ -16929,7 +16929,7 @@ static void xf86vidmodeGetPermissions_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        int* const permissions_bits [] = {
+        static int* const permissions_bits [] = {
         &hf_x11_xf86vidmode_GetPermissions_reply_permissions_mask_Read,
         &hf_x11_xf86vidmode_GetPermissions_reply_permissions_mask_Write,
         NULL
@@ -16964,7 +16964,7 @@ static const value_string xf86vidmode_extension_minor[] = {
     { 20, "GetPermissions" },
     { 0, NULL }
 };
-const x11_event_info xf86vidmode_events[] = {
+static const x11_event_info xf86vidmode_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info xf86vidmode_replies[] = {
@@ -17113,7 +17113,7 @@ static void xfixesSelectSelectionInput(tvbuff_t *tvb, packet_info *pinfo _U_, in
     proto_tree_add_item(t, hf_x11_xfixes_SelectSelectionInput_selection, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        int* const event_mask_bits [] = {
+        static int* const event_mask_bits [] = {
         &hf_x11_xfixes_SelectSelectionInput_event_mask_mask_SetSelectionOwner,
         &hf_x11_xfixes_SelectSelectionInput_event_mask_mask_SelectionWindowDestroy,
         &hf_x11_xfixes_SelectSelectionInput_event_mask_mask_SelectionClientClose,
@@ -17145,7 +17145,7 @@ static void xfixesSelectCursorInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     proto_tree_add_item(t, hf_x11_xfixes_SelectCursorInput_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        int* const event_mask_bits [] = {
+        static int* const event_mask_bits [] = {
         &hf_x11_xfixes_SelectCursorInput_event_mask_mask_DisplayCursor,
         NULL
         };
@@ -17536,7 +17536,7 @@ static void xfixesCreatePointerBarrier(tvbuff_t *tvb, packet_info *pinfo _U_, in
     proto_tree_add_item(t, hf_x11_xfixes_CreatePointerBarrier_y2, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        int* const directions_bits [] = {
+        static int* const directions_bits [] = {
         &hf_x11_xfixes_CreatePointerBarrier_directions_mask_PositiveX,
         &hf_x11_xfixes_CreatePointerBarrier_directions_mask_PositiveY,
         &hf_x11_xfixes_CreatePointerBarrier_directions_mask_NegativeX,
@@ -17564,7 +17564,7 @@ static void xfixesDeletePointerBarrier(tvbuff_t *tvb, packet_info *pinfo _U_, in
 static void xfixesSetClientDisconnectMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     {
-        int* const disconnect_mode_bits [] = {
+        static int* const disconnect_mode_bits [] = {
         &hf_x11_xfixes_SetClientDisconnectMode_disconnect_mode_mask_Terminate,
         NULL
         };
@@ -17592,7 +17592,7 @@ static void xfixesGetClientDisconnectMode_Reply(tvbuff_t *tvb, packet_info *pinf
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        int* const disconnect_mode_bits [] = {
+        static int* const disconnect_mode_bits [] = {
         &hf_x11_xfixes_GetClientDisconnectMode_reply_disconnect_mode_mask_Terminate,
         NULL
         };
@@ -17640,7 +17640,7 @@ static const value_string xfixes_extension_minor[] = {
     { 34, "GetClientDisconnectMode" },
     { 0, NULL }
 };
-const x11_event_info xfixes_events[] = {
+static const x11_event_info xfixes_events[] = {
     { "xfixes-CursorNotify", xfixesCursorNotify },
     { NULL, NULL }
 };
@@ -17964,7 +17964,7 @@ static const value_string xinerama_extension_minor[] = {
     { 5, "QueryScreens" },
     { 0, NULL }
 };
-const x11_event_info xinerama_events[] = {
+static const x11_event_info xinerama_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info xinerama_replies[] = {
@@ -18541,7 +18541,7 @@ static void xinputGrabDeviceKey(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     proto_tree_add_item(t, hf_x11_xinput_GrabDeviceKey_num_classes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        int* const modifiers_bits [] = {
+        static int* const modifiers_bits [] = {
         &hf_x11_xinput_GrabDeviceKey_modifiers_mask_Shift,
         &hf_x11_xinput_GrabDeviceKey_modifiers_mask_Lock,
         &hf_x11_xinput_GrabDeviceKey_modifiers_mask_Control,
@@ -18575,7 +18575,7 @@ static void xinputUngrabDeviceKey(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     proto_tree_add_item(t, hf_x11_xinput_UngrabDeviceKey_grabWindow, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        int* const modifiers_bits [] = {
+        static int* const modifiers_bits [] = {
         &hf_x11_xinput_UngrabDeviceKey_modifiers_mask_Shift,
         &hf_x11_xinput_UngrabDeviceKey_modifiers_mask_Lock,
         &hf_x11_xinput_UngrabDeviceKey_modifiers_mask_Control,
@@ -18608,7 +18608,7 @@ static void xinputGrabDeviceButton(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     proto_tree_add_item(t, hf_x11_xinput_GrabDeviceButton_num_classes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        int* const modifiers_bits [] = {
+        static int* const modifiers_bits [] = {
         &hf_x11_xinput_GrabDeviceButton_modifiers_mask_Shift,
         &hf_x11_xinput_GrabDeviceButton_modifiers_mask_Lock,
         &hf_x11_xinput_GrabDeviceButton_modifiers_mask_Control,
@@ -18639,7 +18639,7 @@ static void xinputUngrabDeviceButton(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     proto_tree_add_item(t, hf_x11_xinput_UngrabDeviceButton_grab_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        int* const modifiers_bits [] = {
+        static int* const modifiers_bits [] = {
         &hf_x11_xinput_UngrabDeviceButton_modifiers_mask_Shift,
         &hf_x11_xinput_UngrabDeviceButton_modifiers_mask_Lock,
         &hf_x11_xinput_UngrabDeviceButton_modifiers_mask_Control,
@@ -18914,7 +18914,7 @@ static void struct_xinput_FeedbackCtl(tvbuff_t *tvb, int *offsetp, proto_tree *r
 static void xinputChangeFeedbackControl(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     {
-        int* const mask_bits [] = {
+        static int* const mask_bits [] = {
         &hf_x11_xinput_ChangeFeedbackControl_mask_mask_AccelNum,
         &hf_x11_xinput_ChangeFeedbackControl_mask_mask_AccelDenom,
         &hf_x11_xinput_ChangeFeedbackControl_mask_mask_Threshold,
@@ -19161,7 +19161,7 @@ static void struct_xinput_InputState(tvbuff_t *tvb, int *offsetp, proto_tree *ro
             proto_tree_add_item(t, hf_x11_struct_xinput_InputState_Valuator_num_valuators, tvb, *offsetp, 1, byte_order);
             *offsetp += 1;
             {
-                int* const mode_bits [] = {
+                static int* const mode_bits [] = {
                         &hf_x11_struct_xinput_InputState_Valuator_mode_mask_DeviceModeAbsolute,
                         &hf_x11_struct_xinput_InputState_Valuator_mode_mask_OutOfProximity,
                         NULL
@@ -19965,7 +19965,7 @@ static void struct_xinput_DeviceClass(tvbuff_t *tvb, int *offsetp, proto_tree *r
             proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
             *offsetp += 2;
             {
-                int* const flags_bits [] = {
+                static int* const flags_bits [] = {
                         &hf_x11_struct_xinput_DeviceClass_Scroll_flags_mask_NoEmulation,
                         &hf_x11_struct_xinput_DeviceClass_Scroll_flags_mask_Preferred,
                         NULL
@@ -20473,7 +20473,7 @@ static void xinputDeviceKeyPress(tvbuff_t *tvb, int *offsetp, proto_tree *t, gui
     proto_tree_add_item(t, hf_x11_xinput_DeviceKeyPress_event_y, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        int* const state_bits [] = {
+        static int* const state_bits [] = {
         &hf_x11_xinput_DeviceKeyPress_state_mask_Shift,
         &hf_x11_xinput_DeviceKeyPress_state_mask_Lock,
         &hf_x11_xinput_DeviceKeyPress_state_mask_Control,
@@ -20529,7 +20529,7 @@ static void xinputDeviceStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     proto_tree_add_item(t, hf_x11_xinput_DeviceStateNotify_num_valuators, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        int* const classes_reported_bits [] = {
+        static int* const classes_reported_bits [] = {
         &hf_x11_xinput_DeviceStateNotify_classes_reported_mask_ReportingKeys,
         &hf_x11_xinput_DeviceStateNotify_classes_reported_mask_ReportingButtons,
         &hf_x11_xinput_DeviceStateNotify_classes_reported_mask_ReportingValuators,
@@ -20681,7 +20681,7 @@ static void xinputKeyPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tr
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
     {
-        int* const flags_bits [] = {
+        static int* const flags_bits [] = {
         &hf_x11_xinput_KeyPress_flags_mask_KeyRepeat,
         NULL
         };
@@ -20737,7 +20737,7 @@ static void xinputButtonPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
     {
-        int* const flags_bits [] = {
+        static int* const flags_bits [] = {
         &hf_x11_xinput_ButtonPress_flags_mask_PointerEmulated,
         NULL
         };
@@ -20812,7 +20812,7 @@ static void struct_xinput_HierarchyInfo(tvbuff_t *tvb, int *offsetp, proto_tree 
         proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
         *offsetp += 2;
         {
-            int* const flags_bits [] = {
+            static int* const flags_bits [] = {
                 &hf_x11_struct_xinput_HierarchyInfo_flags_mask_MasterAdded,
                 &hf_x11_struct_xinput_HierarchyInfo_flags_mask_MasterRemoved,
                 &hf_x11_struct_xinput_HierarchyInfo_flags_mask_SlaveAdded,
@@ -20837,7 +20837,7 @@ static void xinputHierarchy(tvbuff_t *tvb, int length _U_, int *offsetp, proto_t
     field16(tvb, offsetp, t, hf_x11_xinput_Hierarchy_deviceid, byte_order);
     field32(tvb, offsetp, t, hf_x11_xinput_Hierarchy_time, byte_order);
     {
-        int* const flags_bits [] = {
+        static int* const flags_bits [] = {
         &hf_x11_xinput_Hierarchy_flags_mask_MasterAdded,
         &hf_x11_xinput_Hierarchy_flags_mask_MasterRemoved,
         &hf_x11_xinput_Hierarchy_flags_mask_SlaveAdded,
@@ -20890,7 +20890,7 @@ static void xinputRawKeyPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto
     proto_tree_add_item(t, hf_x11_xinput_RawKeyPress_valuators_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        int* const flags_bits [] = {
+        static int* const flags_bits [] = {
         &hf_x11_xinput_RawKeyPress_flags_mask_KeyRepeat,
         NULL
         };
@@ -20927,7 +20927,7 @@ static void xinputRawButtonPress(tvbuff_t *tvb, int length _U_, int *offsetp, pr
     proto_tree_add_item(t, hf_x11_xinput_RawButtonPress_valuators_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        int* const flags_bits [] = {
+        static int* const flags_bits [] = {
         &hf_x11_xinput_RawButtonPress_flags_mask_PointerEmulated,
         NULL
         };
@@ -20983,7 +20983,7 @@ static void xinputTouchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, proto_
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
     {
-        int* const flags_bits [] = {
+        static int* const flags_bits [] = {
         &hf_x11_xinput_TouchBegin_flags_mask_TouchPendingEnd,
         &hf_x11_xinput_TouchBegin_flags_mask_TouchEmulatingPointer,
         NULL
@@ -21044,7 +21044,7 @@ static void xinputRawTouchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, pro
     proto_tree_add_item(t, hf_x11_xinput_RawTouchBegin_valuators_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        int* const flags_bits [] = {
+        static int* const flags_bits [] = {
         &hf_x11_xinput_RawTouchBegin_flags_mask_TouchPendingEnd,
         &hf_x11_xinput_RawTouchBegin_flags_mask_TouchEmulatingPointer,
         NULL
@@ -21083,7 +21083,7 @@ static void xinputBarrierHit(tvbuff_t *tvb, int length _U_, int *offsetp, proto_
     proto_tree_add_item(t, hf_x11_xinput_BarrierHit_dtime, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        int* const flags_bits [] = {
+        static int* const flags_bits [] = {
         &hf_x11_xinput_BarrierHit_flags_mask_PointerReleased,
         &hf_x11_xinput_BarrierHit_flags_mask_DeviceIsGrabbed,
         NULL
@@ -21143,7 +21143,7 @@ static void xinputGesturePinchBegin(tvbuff_t *tvb, int length _U_, int *offsetp,
     struct_xinput_ModifierInfo(tvb, offsetp, t, byte_order, 1);
     struct_xinput_GroupInfo(tvb, offsetp, t, byte_order, 1);
     {
-        int* const flags_bits [] = {
+        static int* const flags_bits [] = {
         &hf_x11_xinput_GesturePinchBegin_flags_mask_GesturePinchCancelled,
         NULL
         };
@@ -21189,7 +21189,7 @@ static void xinputGestureSwipeBegin(tvbuff_t *tvb, int length _U_, int *offsetp,
     struct_xinput_ModifierInfo(tvb, offsetp, t, byte_order, 1);
     struct_xinput_GroupInfo(tvb, offsetp, t, byte_order, 1);
     {
-        int* const flags_bits [] = {
+        static int* const flags_bits [] = {
         &hf_x11_xinput_GestureSwipeBegin_flags_mask_GestureSwipeCancelled,
         NULL
         };
@@ -21285,7 +21285,7 @@ static const value_string xinput_extension_minor[] = {
     { 61, "XIBarrierReleasePointer" },
     { 0, NULL }
 };
-const x11_event_info xinput_events[] = {
+static const x11_event_info xinput_events[] = {
     { "xinput-DeviceKeyPress", xinputDeviceKeyPress },
     { "xinput-DeviceFocusIn", xinputDeviceFocusIn },
     { "xinput-DeviceStateNotify", xinputDeviceStateNotify },
@@ -21569,7 +21569,7 @@ static void struct_xkb_IndicatorMap(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         field8(tvb, offsetp, t, hf_x11_struct_xkb_IndicatorMap_groups, byte_order);
         field8(tvb, offsetp, t, hf_x11_struct_xkb_IndicatorMap_whichMods, byte_order);
         {
-            int* const mods_bits [] = {
+            static int* const mods_bits [] = {
                 &hf_x11_struct_xkb_IndicatorMap_mods_mask_Shift,
                 &hf_x11_struct_xkb_IndicatorMap_mods_mask_Lock,
                 &hf_x11_struct_xkb_IndicatorMap_mods_mask_Control,
@@ -21585,7 +21585,7 @@ static void struct_xkb_IndicatorMap(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         }
         *offsetp += 1;
         {
-            int* const realMods_bits [] = {
+            static int* const realMods_bits [] = {
                 &hf_x11_struct_xkb_IndicatorMap_realMods_mask_Shift,
                 &hf_x11_struct_xkb_IndicatorMap_realMods_mask_Lock,
                 &hf_x11_struct_xkb_IndicatorMap_realMods_mask_Control,
@@ -21601,7 +21601,7 @@ static void struct_xkb_IndicatorMap(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         }
         *offsetp += 1;
         {
-            int* const vmods_bits [] = {
+            static int* const vmods_bits [] = {
                 &hf_x11_struct_xkb_IndicatorMap_vmods_mask_0,
                 &hf_x11_struct_xkb_IndicatorMap_vmods_mask_1,
                 &hf_x11_struct_xkb_IndicatorMap_vmods_mask_2,
@@ -21624,7 +21624,7 @@ static void struct_xkb_IndicatorMap(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         }
         *offsetp += 2;
         {
-            int* const ctrls_bits [] = {
+            static int* const ctrls_bits [] = {
                 &hf_x11_struct_xkb_IndicatorMap_ctrls_mask_RepeatKeys,
                 &hf_x11_struct_xkb_IndicatorMap_ctrls_mask_SlowKeys,
                 &hf_x11_struct_xkb_IndicatorMap_ctrls_mask_BounceKeys,
@@ -21656,7 +21656,7 @@ static void struct_xkb_ModDef(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
         item = proto_tree_add_item(root, hf_x11_struct_xkb_ModDef, tvb, *offsetp, 4, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         {
-            int* const mask_bits [] = {
+            static int* const mask_bits [] = {
                 &hf_x11_struct_xkb_ModDef_mask_mask_Shift,
                 &hf_x11_struct_xkb_ModDef_mask_mask_Lock,
                 &hf_x11_struct_xkb_ModDef_mask_mask_Control,
@@ -21672,7 +21672,7 @@ static void struct_xkb_ModDef(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
         }
         *offsetp += 1;
         {
-            int* const realMods_bits [] = {
+            static int* const realMods_bits [] = {
                 &hf_x11_struct_xkb_ModDef_realMods_mask_Shift,
                 &hf_x11_struct_xkb_ModDef_realMods_mask_Lock,
                 &hf_x11_struct_xkb_ModDef_realMods_mask_Control,
@@ -21688,7 +21688,7 @@ static void struct_xkb_ModDef(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
         }
         *offsetp += 1;
         {
-            int* const vmods_bits [] = {
+            static int* const vmods_bits [] = {
                 &hf_x11_struct_xkb_ModDef_vmods_mask_0,
                 &hf_x11_struct_xkb_ModDef_vmods_mask_1,
                 &hf_x11_struct_xkb_ModDef_vmods_mask_2,
@@ -21780,7 +21780,7 @@ static void struct_xkb_KTMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         proto_tree_add_item(t, hf_x11_struct_xkb_KTMapEntry_active, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         {
-            int* const mods_mask_bits [] = {
+            static int* const mods_mask_bits [] = {
                 &hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Shift,
                 &hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Lock,
                 &hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Control,
@@ -21798,7 +21798,7 @@ static void struct_xkb_KTMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         proto_tree_add_item(t, hf_x11_struct_xkb_KTMapEntry_level, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         {
-            int* const mods_mods_bits [] = {
+            static int* const mods_mods_bits [] = {
                 &hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Shift,
                 &hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Lock,
                 &hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Control,
@@ -21814,7 +21814,7 @@ static void struct_xkb_KTMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         }
         *offsetp += 1;
         {
-            int* const mods_vmods_bits [] = {
+            static int* const mods_vmods_bits [] = {
                 &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_0,
                 &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_1,
                 &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_2,
@@ -21865,7 +21865,7 @@ static void struct_xkb_KeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
         item = proto_tree_add_item(root, hf_x11_struct_xkb_KeyType, tvb, *offsetp, struct_size_xkb_KeyType(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         {
-            int* const mods_mask_bits [] = {
+            static int* const mods_mask_bits [] = {
                 &hf_x11_struct_xkb_KeyType_mods_mask_mask_Shift,
                 &hf_x11_struct_xkb_KeyType_mods_mask_mask_Lock,
                 &hf_x11_struct_xkb_KeyType_mods_mask_mask_Control,
@@ -21881,7 +21881,7 @@ static void struct_xkb_KeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
         }
         *offsetp += 1;
         {
-            int* const mods_mods_bits [] = {
+            static int* const mods_mods_bits [] = {
                 &hf_x11_struct_xkb_KeyType_mods_mods_mask_Shift,
                 &hf_x11_struct_xkb_KeyType_mods_mods_mask_Lock,
                 &hf_x11_struct_xkb_KeyType_mods_mods_mask_Control,
@@ -21897,7 +21897,7 @@ static void struct_xkb_KeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
         }
         *offsetp += 1;
         {
-            int* const mods_vmods_bits [] = {
+            static int* const mods_vmods_bits [] = {
                 &hf_x11_struct_xkb_KeyType_mods_vmods_mask_0,
                 &hf_x11_struct_xkb_KeyType_mods_vmods_mask_1,
                 &hf_x11_struct_xkb_KeyType_mods_vmods_mask_2,
@@ -22096,7 +22096,7 @@ static void struct_xkb_SetExplicit(tvbuff_t *tvb, int *offsetp, proto_tree *root
         proto_tree_add_item(t, hf_x11_struct_xkb_SetExplicit_keycode, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         {
-            int* const explicit_bits [] = {
+            static int* const explicit_bits [] = {
                 &hf_x11_struct_xkb_SetExplicit_explicit_mask_KeyType1,
                 &hf_x11_struct_xkb_SetExplicit_explicit_mask_KeyType2,
                 &hf_x11_struct_xkb_SetExplicit_explicit_mask_KeyType3,
@@ -22125,7 +22125,7 @@ static void struct_xkb_KeyModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
         proto_tree_add_item(t, hf_x11_struct_xkb_KeyModMap_keycode, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         {
-            int* const mods_bits [] = {
+            static int* const mods_bits [] = {
                 &hf_x11_struct_xkb_KeyModMap_mods_mask_Shift,
                 &hf_x11_struct_xkb_KeyModMap_mods_mask_Lock,
                 &hf_x11_struct_xkb_KeyModMap_mods_mask_Control,
@@ -22157,7 +22157,7 @@ static void struct_xkb_KeyVModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
         *offsetp += 1;
         {
-            int* const vmods_bits [] = {
+            static int* const vmods_bits [] = {
                 &hf_x11_struct_xkb_KeyVModMap_vmods_mask_0,
                 &hf_x11_struct_xkb_KeyVModMap_vmods_mask_1,
                 &hf_x11_struct_xkb_KeyVModMap_vmods_mask_2,
@@ -22194,7 +22194,7 @@ static void struct_xkb_KTSetMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         proto_tree_add_item(t, hf_x11_struct_xkb_KTSetMapEntry_level, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         {
-            int* const realMods_bits [] = {
+            static int* const realMods_bits [] = {
                 &hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Shift,
                 &hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Lock,
                 &hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Control,
@@ -22210,7 +22210,7 @@ static void struct_xkb_KTSetMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         }
         *offsetp += 1;
         {
-            int* const virtualMods_bits [] = {
+            static int* const virtualMods_bits [] = {
                 &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_0,
                 &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_1,
                 &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_2,
@@ -22259,7 +22259,7 @@ static void struct_xkb_SetKeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SetKeyType, tvb, *offsetp, struct_size_xkb_SetKeyType(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         {
-            int* const mask_bits [] = {
+            static int* const mask_bits [] = {
                 &hf_x11_struct_xkb_SetKeyType_mask_mask_Shift,
                 &hf_x11_struct_xkb_SetKeyType_mask_mask_Lock,
                 &hf_x11_struct_xkb_SetKeyType_mask_mask_Control,
@@ -22275,7 +22275,7 @@ static void struct_xkb_SetKeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         }
         *offsetp += 1;
         {
-            int* const realMods_bits [] = {
+            static int* const realMods_bits [] = {
                 &hf_x11_struct_xkb_SetKeyType_realMods_mask_Shift,
                 &hf_x11_struct_xkb_SetKeyType_realMods_mask_Lock,
                 &hf_x11_struct_xkb_SetKeyType_realMods_mask_Control,
@@ -22291,7 +22291,7 @@ static void struct_xkb_SetKeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         }
         *offsetp += 1;
         {
-            int* const virtualMods_bits [] = {
+            static int* const virtualMods_bits [] = {
                 &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_0,
                 &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_1,
                 &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_2,
@@ -22427,7 +22427,7 @@ static void struct_xkb_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetMods_type, byte_order);
         {
-            int* const flags_bits [] = {
+            static int* const flags_bits [] = {
                 &hf_x11_struct_xkb_SASetMods_flags_mask_ClearLocks,
                 &hf_x11_struct_xkb_SASetMods_flags_mask_LatchToLock,
                 &hf_x11_struct_xkb_SASetMods_flags_mask_GroupAbsolute,
@@ -22437,7 +22437,7 @@ static void struct_xkb_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
         }
         *offsetp += 1;
         {
-            int* const mask_bits [] = {
+            static int* const mask_bits [] = {
                 &hf_x11_struct_xkb_SASetMods_mask_mask_Shift,
                 &hf_x11_struct_xkb_SASetMods_mask_mask_Lock,
                 &hf_x11_struct_xkb_SASetMods_mask_mask_Control,
@@ -22453,7 +22453,7 @@ static void struct_xkb_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
         }
         *offsetp += 1;
         {
-            int* const realMods_bits [] = {
+            static int* const realMods_bits [] = {
                 &hf_x11_struct_xkb_SASetMods_realMods_mask_Shift,
                 &hf_x11_struct_xkb_SASetMods_realMods_mask_Lock,
                 &hf_x11_struct_xkb_SASetMods_realMods_mask_Control,
@@ -22469,7 +22469,7 @@ static void struct_xkb_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
         }
         *offsetp += 1;
         {
-            int* const vmodsHigh_bits [] = {
+            static int* const vmodsHigh_bits [] = {
                 &hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_8,
                 &hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_9,
                 &hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_10,
@@ -22484,7 +22484,7 @@ static void struct_xkb_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
         }
         *offsetp += 1;
         {
-            int* const vmodsLow_bits [] = {
+            static int* const vmodsLow_bits [] = {
                 &hf_x11_struct_xkb_SASetMods_vmodsLow_mask_0,
                 &hf_x11_struct_xkb_SASetMods_vmodsLow_mask_1,
                 &hf_x11_struct_xkb_SASetMods_vmodsLow_mask_2,
@@ -22514,7 +22514,7 @@ static void struct_xkb_SASetGroup(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetGroup_type, byte_order);
         {
-            int* const flags_bits [] = {
+            static int* const flags_bits [] = {
                 &hf_x11_struct_xkb_SASetGroup_flags_mask_ClearLocks,
                 &hf_x11_struct_xkb_SASetGroup_flags_mask_LatchToLock,
                 &hf_x11_struct_xkb_SASetGroup_flags_mask_GroupAbsolute,
@@ -22541,7 +22541,7 @@ static void struct_xkb_SAMovePtr(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SAMovePtr_type, byte_order);
         {
-            int* const flags_bits [] = {
+            static int* const flags_bits [] = {
                 &hf_x11_struct_xkb_SAMovePtr_flags_mask_NoAcceleration,
                 &hf_x11_struct_xkb_SAMovePtr_flags_mask_MoveAbsoluteX,
                 &hf_x11_struct_xkb_SAMovePtr_flags_mask_MoveAbsoluteY,
@@ -22616,7 +22616,7 @@ static void struct_xkb_SASetPtrDflt(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetPtrDflt_type, byte_order);
         {
-            int* const flags_bits [] = {
+            static int* const flags_bits [] = {
                 &hf_x11_struct_xkb_SASetPtrDflt_flags_mask_AffectDfltButton,
                 &hf_x11_struct_xkb_SASetPtrDflt_flags_mask_DfltBtnAbsolute,
                 NULL
@@ -22625,7 +22625,7 @@ static void struct_xkb_SASetPtrDflt(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         }
         *offsetp += 1;
         {
-            int* const affect_bits [] = {
+            static int* const affect_bits [] = {
                 &hf_x11_struct_xkb_SASetPtrDflt_affect_mask_AffectDfltButton,
                 &hf_x11_struct_xkb_SASetPtrDflt_affect_mask_DfltBtnAbsolute,
                 NULL
@@ -22651,7 +22651,7 @@ static void struct_xkb_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SAIsoLock_type, byte_order);
         {
-            int* const flags_bits [] = {
+            static int* const flags_bits [] = {
                 &hf_x11_struct_xkb_SAIsoLock_flags_mask_NoLock,
                 &hf_x11_struct_xkb_SAIsoLock_flags_mask_NoUnlock,
                 &hf_x11_struct_xkb_SAIsoLock_flags_mask_GroupAbsolute,
@@ -22662,7 +22662,7 @@ static void struct_xkb_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
         }
         *offsetp += 1;
         {
-            int* const mask_bits [] = {
+            static int* const mask_bits [] = {
                 &hf_x11_struct_xkb_SAIsoLock_mask_mask_Shift,
                 &hf_x11_struct_xkb_SAIsoLock_mask_mask_Lock,
                 &hf_x11_struct_xkb_SAIsoLock_mask_mask_Control,
@@ -22678,7 +22678,7 @@ static void struct_xkb_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
         }
         *offsetp += 1;
         {
-            int* const realMods_bits [] = {
+            static int* const realMods_bits [] = {
                 &hf_x11_struct_xkb_SAIsoLock_realMods_mask_Shift,
                 &hf_x11_struct_xkb_SAIsoLock_realMods_mask_Lock,
                 &hf_x11_struct_xkb_SAIsoLock_realMods_mask_Control,
@@ -22696,7 +22696,7 @@ static void struct_xkb_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
         proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_group, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         {
-            int* const affect_bits [] = {
+            static int* const affect_bits [] = {
                 &hf_x11_struct_xkb_SAIsoLock_affect_mask_Ctrls,
                 &hf_x11_struct_xkb_SAIsoLock_affect_mask_Ptr,
                 &hf_x11_struct_xkb_SAIsoLock_affect_mask_Group,
@@ -22707,7 +22707,7 @@ static void struct_xkb_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
         }
         *offsetp += 1;
         {
-            int* const vmodsHigh_bits [] = {
+            static int* const vmodsHigh_bits [] = {
                 &hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_8,
                 &hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_9,
                 &hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_10,
@@ -22722,7 +22722,7 @@ static void struct_xkb_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
         }
         *offsetp += 1;
         {
-            int* const vmodsLow_bits [] = {
+            static int* const vmodsLow_bits [] = {
                 &hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_0,
                 &hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_1,
                 &hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_2,
@@ -22786,7 +22786,7 @@ static void struct_xkb_SASetControls(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
         *offsetp += 3;
         {
-            int* const boolCtrlsHigh_bits [] = {
+            static int* const boolCtrlsHigh_bits [] = {
                 &hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_AccessXFeedback,
                 &hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_AudibleBell,
                 &hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_Overlay1,
@@ -22798,7 +22798,7 @@ static void struct_xkb_SASetControls(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         }
         *offsetp += 1;
         {
-            int* const boolCtrlsLow_bits [] = {
+            static int* const boolCtrlsLow_bits [] = {
                 &hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_RepeatKeys,
                 &hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_SlowKeys,
                 &hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_BounceKeys,
@@ -22828,7 +22828,7 @@ static void struct_xkb_SAActionMessage(tvbuff_t *tvb, int *offsetp, proto_tree *
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SAActionMessage_type, byte_order);
         {
-            int* const flags_bits [] = {
+            static int* const flags_bits [] = {
                 &hf_x11_struct_xkb_SAActionMessage_flags_mask_OnPress,
                 &hf_x11_struct_xkb_SAActionMessage_flags_mask_OnRelease,
                 &hf_x11_struct_xkb_SAActionMessage_flags_mask_GenKeyEvent,
@@ -22854,7 +22854,7 @@ static void struct_xkb_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_newkey, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         {
-            int* const mask_bits [] = {
+            static int* const mask_bits [] = {
                 &hf_x11_struct_xkb_SARedirectKey_mask_mask_Shift,
                 &hf_x11_struct_xkb_SARedirectKey_mask_mask_Lock,
                 &hf_x11_struct_xkb_SARedirectKey_mask_mask_Control,
@@ -22870,7 +22870,7 @@ static void struct_xkb_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         }
         *offsetp += 1;
         {
-            int* const realModifiers_bits [] = {
+            static int* const realModifiers_bits [] = {
                 &hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Shift,
                 &hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Lock,
                 &hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Control,
@@ -22886,7 +22886,7 @@ static void struct_xkb_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         }
         *offsetp += 1;
         {
-            int* const vmodsMaskHigh_bits [] = {
+            static int* const vmodsMaskHigh_bits [] = {
                 &hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_8,
                 &hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_9,
                 &hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_10,
@@ -22901,7 +22901,7 @@ static void struct_xkb_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         }
         *offsetp += 1;
         {
-            int* const vmodsMaskLow_bits [] = {
+            static int* const vmodsMaskLow_bits [] = {
                 &hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_0,
                 &hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_1,
                 &hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_2,
@@ -22916,7 +22916,7 @@ static void struct_xkb_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         }
         *offsetp += 1;
         {
-            int* const vmodsHigh_bits [] = {
+            static int* const vmodsHigh_bits [] = {
                 &hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_8,
                 &hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_9,
                 &hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_10,
@@ -22931,7 +22931,7 @@ static void struct_xkb_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         }
         *offsetp += 1;
         {
-            int* const vmodsLow_bits [] = {
+            static int* const vmodsLow_bits [] = {
                 &hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_0,
                 &hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_1,
                 &hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_2,
@@ -22982,7 +22982,7 @@ static void struct_xkb_SALockDeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SALockDeviceBtn_type, byte_order);
         {
-            int* const flags_bits [] = {
+            static int* const flags_bits [] = {
                 &hf_x11_struct_xkb_SALockDeviceBtn_flags_mask_NoLock,
                 &hf_x11_struct_xkb_SALockDeviceBtn_flags_mask_NoUnlock,
                 NULL
@@ -23052,7 +23052,7 @@ static void struct_xkb_SymInterpret(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         proto_tree_add_item(t, hf_x11_struct_xkb_SymInterpret_sym, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         {
-            int* const mods_bits [] = {
+            static int* const mods_bits [] = {
                 &hf_x11_struct_xkb_SymInterpret_mods_mask_Shift,
                 &hf_x11_struct_xkb_SymInterpret_mods_mask_Lock,
                 &hf_x11_struct_xkb_SymInterpret_mods_mask_Control,
@@ -23069,7 +23069,7 @@ static void struct_xkb_SymInterpret(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         *offsetp += 1;
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SymInterpret_match, byte_order);
         {
-            int* const virtualMod_bits [] = {
+            static int* const virtualMod_bits [] = {
                 &hf_x11_struct_xkb_SymInterpret_virtualMod_mask_0,
                 &hf_x11_struct_xkb_SymInterpret_virtualMod_mask_1,
                 &hf_x11_struct_xkb_SymInterpret_virtualMod_mask_2,
@@ -23187,7 +23187,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 2;
     f_affectWhich = tvb_get_guint16(tvb, *offsetp, byte_order);
     {
-        int* const affectWhich_bits [] = {
+        static int* const affectWhich_bits [] = {
         &hf_x11_xkb_SelectEvents_affectWhich_mask_NewKeyboardNotify,
         &hf_x11_xkb_SelectEvents_affectWhich_mask_MapNotify,
         &hf_x11_xkb_SelectEvents_affectWhich_mask_StateNotify,
@@ -23207,7 +23207,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 2;
     f_clear = tvb_get_guint16(tvb, *offsetp, byte_order);
     {
-        int* const clear_bits [] = {
+        static int* const clear_bits [] = {
         &hf_x11_xkb_SelectEvents_clear_mask_NewKeyboardNotify,
         &hf_x11_xkb_SelectEvents_clear_mask_MapNotify,
         &hf_x11_xkb_SelectEvents_clear_mask_StateNotify,
@@ -23227,7 +23227,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 2;
     f_selectAll = tvb_get_guint16(tvb, *offsetp, byte_order);
     {
-        int* const selectAll_bits [] = {
+        static int* const selectAll_bits [] = {
         &hf_x11_xkb_SelectEvents_selectAll_mask_NewKeyboardNotify,
         &hf_x11_xkb_SelectEvents_selectAll_mask_MapNotify,
         &hf_x11_xkb_SelectEvents_selectAll_mask_StateNotify,
@@ -23246,7 +23246,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     }
     *offsetp += 2;
     {
-        int* const affectMap_bits [] = {
+        static int* const affectMap_bits [] = {
         &hf_x11_xkb_SelectEvents_affectMap_mask_KeyTypes,
         &hf_x11_xkb_SelectEvents_affectMap_mask_KeySyms,
         &hf_x11_xkb_SelectEvents_affectMap_mask_ModifierMap,
@@ -23261,7 +23261,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     }
     *offsetp += 2;
     {
-        int* const map_bits [] = {
+        static int* const map_bits [] = {
         &hf_x11_xkb_SelectEvents_map_mask_KeyTypes,
         &hf_x11_xkb_SelectEvents_map_mask_KeySyms,
         &hf_x11_xkb_SelectEvents_map_mask_ModifierMap,
@@ -23277,7 +23277,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 2;
     if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 0)) {
         {
-            int* const affectNewKeyboard_bits [] = {
+            static int* const affectNewKeyboard_bits [] = {
                 &hf_x11_xkb_SelectEvents_NewKeyboardNotify_affectNewKeyboard_mask_Keycodes,
                 &hf_x11_xkb_SelectEvents_NewKeyboardNotify_affectNewKeyboard_mask_Geometry,
                 &hf_x11_xkb_SelectEvents_NewKeyboardNotify_affectNewKeyboard_mask_DeviceID,
@@ -23287,7 +23287,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         }
         *offsetp += 2;
         {
-            int* const newKeyboardDetails_bits [] = {
+            static int* const newKeyboardDetails_bits [] = {
                 &hf_x11_xkb_SelectEvents_NewKeyboardNotify_newKeyboardDetails_mask_Keycodes,
                 &hf_x11_xkb_SelectEvents_NewKeyboardNotify_newKeyboardDetails_mask_Geometry,
                 &hf_x11_xkb_SelectEvents_NewKeyboardNotify_newKeyboardDetails_mask_DeviceID,
@@ -23299,7 +23299,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     }
     if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 2)) {
         {
-            int* const affectState_bits [] = {
+            static int* const affectState_bits [] = {
                 &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_ModifierState,
                 &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_ModifierBase,
                 &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_ModifierLatch,
@@ -23320,7 +23320,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         }
         *offsetp += 2;
         {
-            int* const stateDetails_bits [] = {
+            static int* const stateDetails_bits [] = {
                 &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_ModifierState,
                 &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_ModifierBase,
                 &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_ModifierLatch,
@@ -23343,7 +23343,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     }
     if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 3)) {
         {
-            int* const affectCtrls_bits [] = {
+            static int* const affectCtrls_bits [] = {
                 &hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls_mask_GroupsWrap,
                 &hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls_mask_InternalMods,
                 &hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls_mask_IgnoreLockMods,
@@ -23355,7 +23355,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         }
         *offsetp += 4;
         {
-            int* const ctrlDetails_bits [] = {
+            static int* const ctrlDetails_bits [] = {
                 &hf_x11_xkb_SelectEvents_ControlsNotify_ctrlDetails_mask_GroupsWrap,
                 &hf_x11_xkb_SelectEvents_ControlsNotify_ctrlDetails_mask_InternalMods,
                 &hf_x11_xkb_SelectEvents_ControlsNotify_ctrlDetails_mask_IgnoreLockMods,
@@ -23381,7 +23381,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     }
     if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 6)) {
         {
-            int* const affectNames_bits [] = {
+            static int* const affectNames_bits [] = {
                 &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_Keycodes,
                 &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_Geometry,
                 &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_Symbols,
@@ -23402,7 +23402,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         }
         *offsetp += 2;
         {
-            int* const namesDetails_bits [] = {
+            static int* const namesDetails_bits [] = {
                 &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_Keycodes,
                 &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_Geometry,
                 &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_Symbols,
@@ -23425,7 +23425,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     }
     if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 7)) {
         {
-            int* const affectCompat_bits [] = {
+            static int* const affectCompat_bits [] = {
                 &hf_x11_xkb_SelectEvents_CompatMapNotify_affectCompat_mask_SymInterp,
                 &hf_x11_xkb_SelectEvents_CompatMapNotify_affectCompat_mask_GroupCompat,
                 NULL
@@ -23434,7 +23434,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         }
         *offsetp += 1;
         {
-            int* const compatDetails_bits [] = {
+            static int* const compatDetails_bits [] = {
                 &hf_x11_xkb_SelectEvents_CompatMapNotify_compatDetails_mask_SymInterp,
                 &hf_x11_xkb_SelectEvents_CompatMapNotify_compatDetails_mask_GroupCompat,
                 NULL
@@ -23457,7 +23457,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     }
     if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 10)) {
         {
-            int* const affectAccessX_bits [] = {
+            static int* const affectAccessX_bits [] = {
                 &hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_SKPress,
                 &hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_SKAccept,
                 &hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_SKReject,
@@ -23471,7 +23471,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         }
         *offsetp += 2;
         {
-            int* const accessXDetails_bits [] = {
+            static int* const accessXDetails_bits [] = {
                 &hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_SKPress,
                 &hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_SKAccept,
                 &hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_SKReject,
@@ -23487,7 +23487,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     }
     if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 11)) {
         {
-            int* const affectExtDev_bits [] = {
+            static int* const affectExtDev_bits [] = {
                 &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev_mask_Keyboards,
                 &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev_mask_ButtonActions,
                 &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev_mask_IndicatorNames,
@@ -23499,7 +23499,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         }
         *offsetp += 2;
         {
-            int* const extdevDetails_bits [] = {
+            static int* const extdevDetails_bits [] = {
                 &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_extdevDetails_mask_Keyboards,
                 &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_extdevDetails_mask_ButtonActions,
                 &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_extdevDetails_mask_IndicatorNames,
@@ -23564,7 +23564,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        int* const mods_bits [] = {
+        static int* const mods_bits [] = {
         &hf_x11_xkb_GetState_reply_mods_mask_Shift,
         &hf_x11_xkb_GetState_reply_mods_mask_Lock,
         &hf_x11_xkb_GetState_reply_mods_mask_Control,
@@ -23580,7 +23580,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     }
     *offsetp += 1;
     {
-        int* const baseMods_bits [] = {
+        static int* const baseMods_bits [] = {
         &hf_x11_xkb_GetState_reply_baseMods_mask_Shift,
         &hf_x11_xkb_GetState_reply_baseMods_mask_Lock,
         &hf_x11_xkb_GetState_reply_baseMods_mask_Control,
@@ -23596,7 +23596,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     }
     *offsetp += 1;
     {
-        int* const latchedMods_bits [] = {
+        static int* const latchedMods_bits [] = {
         &hf_x11_xkb_GetState_reply_latchedMods_mask_Shift,
         &hf_x11_xkb_GetState_reply_latchedMods_mask_Lock,
         &hf_x11_xkb_GetState_reply_latchedMods_mask_Control,
@@ -23612,7 +23612,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     }
     *offsetp += 1;
     {
-        int* const lockedMods_bits [] = {
+        static int* const lockedMods_bits [] = {
         &hf_x11_xkb_GetState_reply_lockedMods_mask_Shift,
         &hf_x11_xkb_GetState_reply_lockedMods_mask_Lock,
         &hf_x11_xkb_GetState_reply_lockedMods_mask_Control,
@@ -23634,7 +23634,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     proto_tree_add_item(t, hf_x11_xkb_GetState_reply_latchedGroup, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        int* const compatState_bits [] = {
+        static int* const compatState_bits [] = {
         &hf_x11_xkb_GetState_reply_compatState_mask_Shift,
         &hf_x11_xkb_GetState_reply_compatState_mask_Lock,
         &hf_x11_xkb_GetState_reply_compatState_mask_Control,
@@ -23650,7 +23650,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     }
     *offsetp += 1;
     {
-        int* const grabMods_bits [] = {
+        static int* const grabMods_bits [] = {
         &hf_x11_xkb_GetState_reply_grabMods_mask_Shift,
         &hf_x11_xkb_GetState_reply_grabMods_mask_Lock,
         &hf_x11_xkb_GetState_reply_grabMods_mask_Control,
@@ -23666,7 +23666,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     }
     *offsetp += 1;
     {
-        int* const compatGrabMods_bits [] = {
+        static int* const compatGrabMods_bits [] = {
         &hf_x11_xkb_GetState_reply_compatGrabMods_mask_Shift,
         &hf_x11_xkb_GetState_reply_compatGrabMods_mask_Lock,
         &hf_x11_xkb_GetState_reply_compatGrabMods_mask_Control,
@@ -23682,7 +23682,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     }
     *offsetp += 1;
     {
-        int* const lookupMods_bits [] = {
+        static int* const lookupMods_bits [] = {
         &hf_x11_xkb_GetState_reply_lookupMods_mask_Shift,
         &hf_x11_xkb_GetState_reply_lookupMods_mask_Lock,
         &hf_x11_xkb_GetState_reply_lookupMods_mask_Control,
@@ -23698,7 +23698,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     }
     *offsetp += 1;
     {
-        int* const compatLookupMods_bits [] = {
+        static int* const compatLookupMods_bits [] = {
         &hf_x11_xkb_GetState_reply_compatLookupMods_mask_Shift,
         &hf_x11_xkb_GetState_reply_compatLookupMods_mask_Lock,
         &hf_x11_xkb_GetState_reply_compatLookupMods_mask_Control,
@@ -23716,7 +23716,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
     {
-        int* const ptrBtnState_bits [] = {
+        static int* const ptrBtnState_bits [] = {
         &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Shift,
         &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Lock,
         &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Control,
@@ -23744,7 +23744,7 @@ static void xkbLatchLockState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     proto_tree_add_item(t, hf_x11_xkb_LatchLockState_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        int* const affectModLocks_bits [] = {
+        static int* const affectModLocks_bits [] = {
         &hf_x11_xkb_LatchLockState_affectModLocks_mask_Shift,
         &hf_x11_xkb_LatchLockState_affectModLocks_mask_Lock,
         &hf_x11_xkb_LatchLockState_affectModLocks_mask_Control,
@@ -23760,7 +23760,7 @@ static void xkbLatchLockState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     }
     *offsetp += 1;
     {
-        int* const modLocks_bits [] = {
+        static int* const modLocks_bits [] = {
         &hf_x11_xkb_LatchLockState_modLocks_mask_Shift,
         &hf_x11_xkb_LatchLockState_modLocks_mask_Lock,
         &hf_x11_xkb_LatchLockState_modLocks_mask_Control,
@@ -23779,7 +23779,7 @@ static void xkbLatchLockState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     *offsetp += 1;
     field8(tvb, offsetp, t, hf_x11_xkb_LatchLockState_groupLock, byte_order);
     {
-        int* const affectModLatches_bits [] = {
+        static int* const affectModLatches_bits [] = {
         &hf_x11_xkb_LatchLockState_affectModLatches_mask_Shift,
         &hf_x11_xkb_LatchLockState_affectModLatches_mask_Lock,
         &hf_x11_xkb_LatchLockState_affectModLatches_mask_Control,
@@ -23833,7 +23833,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_groupsWrap, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        int* const internalModsMask_bits [] = {
+        static int* const internalModsMask_bits [] = {
         &hf_x11_xkb_GetControls_reply_internalModsMask_mask_Shift,
         &hf_x11_xkb_GetControls_reply_internalModsMask_mask_Lock,
         &hf_x11_xkb_GetControls_reply_internalModsMask_mask_Control,
@@ -23849,7 +23849,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     }
     *offsetp += 1;
     {
-        int* const ignoreLockModsMask_bits [] = {
+        static int* const ignoreLockModsMask_bits [] = {
         &hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_Shift,
         &hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_Lock,
         &hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_Control,
@@ -23865,7 +23865,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     }
     *offsetp += 1;
     {
-        int* const internalModsRealMods_bits [] = {
+        static int* const internalModsRealMods_bits [] = {
         &hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_Shift,
         &hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_Lock,
         &hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_Control,
@@ -23881,7 +23881,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     }
     *offsetp += 1;
     {
-        int* const ignoreLockModsRealMods_bits [] = {
+        static int* const ignoreLockModsRealMods_bits [] = {
         &hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_Shift,
         &hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_Lock,
         &hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_Control,
@@ -23899,7 +23899,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
     {
-        int* const internalModsVmods_bits [] = {
+        static int* const internalModsVmods_bits [] = {
         &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_0,
         &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_1,
         &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_2,
@@ -23922,7 +23922,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     }
     *offsetp += 2;
     {
-        int* const ignoreLockModsVmods_bits [] = {
+        static int* const ignoreLockModsVmods_bits [] = {
         &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_0,
         &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_1,
         &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_2,
@@ -23963,7 +23963,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_mouseKeysCurve, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        int* const accessXOption_bits [] = {
+        static int* const accessXOption_bits [] = {
         &hf_x11_xkb_GetControls_reply_accessXOption_mask_SKPressFB,
         &hf_x11_xkb_GetControls_reply_accessXOption_mask_SKAcceptFB,
         &hf_x11_xkb_GetControls_reply_accessXOption_mask_FeatureFB,
@@ -23984,7 +23984,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_accessXTimeout, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        int* const accessXTimeoutOptionsMask_bits [] = {
+        static int* const accessXTimeoutOptionsMask_bits [] = {
         &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_SKPressFB,
         &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_SKAcceptFB,
         &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_FeatureFB,
@@ -24003,7 +24003,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     }
     *offsetp += 2;
     {
-        int* const accessXTimeoutOptionsValues_bits [] = {
+        static int* const accessXTimeoutOptionsValues_bits [] = {
         &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_SKPressFB,
         &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_SKAcceptFB,
         &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_FeatureFB,
@@ -24024,7 +24024,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
     {
-        int* const accessXTimeoutMask_bits [] = {
+        static int* const accessXTimeoutMask_bits [] = {
         &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_RepeatKeys,
         &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_SlowKeys,
         &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_BounceKeys,
@@ -24044,7 +24044,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     }
     *offsetp += 4;
     {
-        int* const accessXTimeoutValues_bits [] = {
+        static int* const accessXTimeoutValues_bits [] = {
         &hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_RepeatKeys,
         &hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_SlowKeys,
         &hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_BounceKeys,
@@ -24064,7 +24064,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     }
     *offsetp += 4;
     {
-        int* const enabledControls_bits [] = {
+        static int* const enabledControls_bits [] = {
         &hf_x11_xkb_GetControls_reply_enabledControls_mask_RepeatKeys,
         &hf_x11_xkb_GetControls_reply_enabledControls_mask_SlowKeys,
         &hf_x11_xkb_GetControls_reply_enabledControls_mask_BounceKeys,
@@ -24091,7 +24091,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     proto_tree_add_item(t, hf_x11_xkb_SetControls_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        int* const affectInternalRealMods_bits [] = {
+        static int* const affectInternalRealMods_bits [] = {
         &hf_x11_xkb_SetControls_affectInternalRealMods_mask_Shift,
         &hf_x11_xkb_SetControls_affectInternalRealMods_mask_Lock,
         &hf_x11_xkb_SetControls_affectInternalRealMods_mask_Control,
@@ -24107,7 +24107,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     }
     *offsetp += 1;
     {
-        int* const internalRealMods_bits [] = {
+        static int* const internalRealMods_bits [] = {
         &hf_x11_xkb_SetControls_internalRealMods_mask_Shift,
         &hf_x11_xkb_SetControls_internalRealMods_mask_Lock,
         &hf_x11_xkb_SetControls_internalRealMods_mask_Control,
@@ -24123,7 +24123,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     }
     *offsetp += 1;
     {
-        int* const affectIgnoreLockRealMods_bits [] = {
+        static int* const affectIgnoreLockRealMods_bits [] = {
         &hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_Shift,
         &hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_Lock,
         &hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_Control,
@@ -24139,7 +24139,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     }
     *offsetp += 1;
     {
-        int* const ignoreLockRealMods_bits [] = {
+        static int* const ignoreLockRealMods_bits [] = {
         &hf_x11_xkb_SetControls_ignoreLockRealMods_mask_Shift,
         &hf_x11_xkb_SetControls_ignoreLockRealMods_mask_Lock,
         &hf_x11_xkb_SetControls_ignoreLockRealMods_mask_Control,
@@ -24155,7 +24155,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     }
     *offsetp += 1;
     {
-        int* const affectInternalVirtualMods_bits [] = {
+        static int* const affectInternalVirtualMods_bits [] = {
         &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_0,
         &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_1,
         &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_2,
@@ -24178,7 +24178,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     }
     *offsetp += 2;
     {
-        int* const internalVirtualMods_bits [] = {
+        static int* const internalVirtualMods_bits [] = {
         &hf_x11_xkb_SetControls_internalVirtualMods_mask_0,
         &hf_x11_xkb_SetControls_internalVirtualMods_mask_1,
         &hf_x11_xkb_SetControls_internalVirtualMods_mask_2,
@@ -24201,7 +24201,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     }
     *offsetp += 2;
     {
-        int* const affectIgnoreLockVirtualMods_bits [] = {
+        static int* const affectIgnoreLockVirtualMods_bits [] = {
         &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_0,
         &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_1,
         &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_2,
@@ -24224,7 +24224,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     }
     *offsetp += 2;
     {
-        int* const ignoreLockVirtualMods_bits [] = {
+        static int* const ignoreLockVirtualMods_bits [] = {
         &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_0,
         &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_1,
         &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_2,
@@ -24251,7 +24251,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     proto_tree_add_item(t, hf_x11_xkb_SetControls_groupsWrap, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        int* const accessXOptions_bits [] = {
+        static int* const accessXOptions_bits [] = {
         &hf_x11_xkb_SetControls_accessXOptions_mask_SKPressFB,
         &hf_x11_xkb_SetControls_accessXOptions_mask_SKAcceptFB,
         &hf_x11_xkb_SetControls_accessXOptions_mask_FeatureFB,
@@ -24272,7 +24272,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
     {
-        int* const affectEnabledControls_bits [] = {
+        static int* const affectEnabledControls_bits [] = {
         &hf_x11_xkb_SetControls_affectEnabledControls_mask_RepeatKeys,
         &hf_x11_xkb_SetControls_affectEnabledControls_mask_SlowKeys,
         &hf_x11_xkb_SetControls_affectEnabledControls_mask_BounceKeys,
@@ -24292,7 +24292,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     }
     *offsetp += 4;
     {
-        int* const enabledControls_bits [] = {
+        static int* const enabledControls_bits [] = {
         &hf_x11_xkb_SetControls_enabledControls_mask_RepeatKeys,
         &hf_x11_xkb_SetControls_enabledControls_mask_SlowKeys,
         &hf_x11_xkb_SetControls_enabledControls_mask_BounceKeys,
@@ -24312,7 +24312,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     }
     *offsetp += 4;
     {
-        int* const changeControls_bits [] = {
+        static int* const changeControls_bits [] = {
         &hf_x11_xkb_SetControls_changeControls_mask_GroupsWrap,
         &hf_x11_xkb_SetControls_changeControls_mask_InternalMods,
         &hf_x11_xkb_SetControls_changeControls_mask_IgnoreLockMods,
@@ -24344,7 +24344,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     proto_tree_add_item(t, hf_x11_xkb_SetControls_accessXTimeout, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        int* const accessXTimeoutMask_bits [] = {
+        static int* const accessXTimeoutMask_bits [] = {
         &hf_x11_xkb_SetControls_accessXTimeoutMask_mask_RepeatKeys,
         &hf_x11_xkb_SetControls_accessXTimeoutMask_mask_SlowKeys,
         &hf_x11_xkb_SetControls_accessXTimeoutMask_mask_BounceKeys,
@@ -24364,7 +24364,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     }
     *offsetp += 4;
     {
-        int* const accessXTimeoutValues_bits [] = {
+        static int* const accessXTimeoutValues_bits [] = {
         &hf_x11_xkb_SetControls_accessXTimeoutValues_mask_RepeatKeys,
         &hf_x11_xkb_SetControls_accessXTimeoutValues_mask_SlowKeys,
         &hf_x11_xkb_SetControls_accessXTimeoutValues_mask_BounceKeys,
@@ -24384,7 +24384,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     }
     *offsetp += 4;
     {
-        int* const accessXTimeoutOptionsMask_bits [] = {
+        static int* const accessXTimeoutOptionsMask_bits [] = {
         &hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_SKPressFB,
         &hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_SKAcceptFB,
         &hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_FeatureFB,
@@ -24403,7 +24403,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     }
     *offsetp += 2;
     {
-        int* const accessXTimeoutOptionsValues_bits [] = {
+        static int* const accessXTimeoutOptionsValues_bits [] = {
         &hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_SKPressFB,
         &hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_SKAcceptFB,
         &hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_FeatureFB,
@@ -24430,7 +24430,7 @@ static void xkbGetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     proto_tree_add_item(t, hf_x11_xkb_GetMap_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        int* const full_bits [] = {
+        static int* const full_bits [] = {
         &hf_x11_xkb_GetMap_full_mask_KeyTypes,
         &hf_x11_xkb_GetMap_full_mask_KeySyms,
         &hf_x11_xkb_GetMap_full_mask_ModifierMap,
@@ -24445,7 +24445,7 @@ static void xkbGetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     }
     *offsetp += 2;
     {
-        int* const partial_bits [] = {
+        static int* const partial_bits [] = {
         &hf_x11_xkb_GetMap_partial_mask_KeyTypes,
         &hf_x11_xkb_GetMap_partial_mask_KeySyms,
         &hf_x11_xkb_GetMap_partial_mask_ModifierMap,
@@ -24476,7 +24476,7 @@ static void xkbGetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     proto_tree_add_item(t, hf_x11_xkb_GetMap_nKeyBehaviors, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        int* const virtualMods_bits [] = {
+        static int* const virtualMods_bits [] = {
         &hf_x11_xkb_GetMap_virtualMods_mask_0,
         &hf_x11_xkb_GetMap_virtualMods_mask_1,
         &hf_x11_xkb_GetMap_virtualMods_mask_2,
@@ -24546,7 +24546,7 @@ static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     *offsetp += 1;
     f_present = tvb_get_guint16(tvb, *offsetp, byte_order);
     {
-        int* const present_bits [] = {
+        static int* const present_bits [] = {
         &hf_x11_xkb_GetMap_reply_present_mask_KeyTypes,
         &hf_x11_xkb_GetMap_reply_present_mask_KeySyms,
         &hf_x11_xkb_GetMap_reply_present_mask_ModifierMap,
@@ -24614,7 +24614,7 @@ static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     *offsetp += 1;
     f_virtualMods = tvb_get_guint16(tvb, *offsetp, byte_order);
     {
-        int* const virtualMods_bits [] = {
+        static int* const virtualMods_bits [] = {
         &hf_x11_xkb_GetMap_reply_virtualMods_mask_0,
         &hf_x11_xkb_GetMap_reply_virtualMods_mask_1,
         &hf_x11_xkb_GetMap_reply_virtualMods_mask_2,
@@ -24695,7 +24695,7 @@ static void xkbSetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     *offsetp += 2;
     f_present = tvb_get_guint16(tvb, *offsetp, byte_order);
     {
-        int* const present_bits [] = {
+        static int* const present_bits [] = {
         &hf_x11_xkb_SetMap_present_mask_KeyTypes,
         &hf_x11_xkb_SetMap_present_mask_KeySyms,
         &hf_x11_xkb_SetMap_present_mask_ModifierMap,
@@ -24710,7 +24710,7 @@ static void xkbSetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     }
     *offsetp += 2;
     {
-        int* const flags_bits [] = {
+        static int* const flags_bits [] = {
         &hf_x11_xkb_SetMap_flags_mask_ResizeTypes,
         &hf_x11_xkb_SetMap_flags_mask_RecomputeActions,
         NULL
@@ -24772,7 +24772,7 @@ static void xkbSetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     *offsetp += 1;
     f_virtualMods = tvb_get_guint16(tvb, *offsetp, byte_order);
     {
-        int* const virtualMods_bits [] = {
+        static int* const virtualMods_bits [] = {
         &hf_x11_xkb_SetMap_virtualMods_mask_0,
         &hf_x11_xkb_SetMap_virtualMods_mask_1,
         &hf_x11_xkb_SetMap_virtualMods_mask_2,
@@ -24845,7 +24845,7 @@ static void xkbGetCompatMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     proto_tree_add_item(t, hf_x11_xkb_GetCompatMap_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        int* const groups_bits [] = {
+        static int* const groups_bits [] = {
         &hf_x11_xkb_GetCompatMap_groups_mask_Group1,
         &hf_x11_xkb_GetCompatMap_groups_mask_Group2,
         &hf_x11_xkb_GetCompatMap_groups_mask_Group3,
@@ -24881,7 +24881,7 @@ static void xkbGetCompatMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 4;
     f_groupsRtrn = tvb_get_guint8(tvb, *offsetp);
     {
-        int* const groupsRtrn_bits [] = {
+        static int* const groupsRtrn_bits [] = {
         &hf_x11_xkb_GetCompatMap_reply_groupsRtrn_mask_Group1,
         &hf_x11_xkb_GetCompatMap_reply_groupsRtrn_mask_Group2,
         &hf_x11_xkb_GetCompatMap_reply_groupsRtrn_mask_Group3,
@@ -24920,7 +24920,7 @@ static void xkbSetCompatMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 1;
     f_groups = tvb_get_guint8(tvb, *offsetp);
     {
-        int* const groups_bits [] = {
+        static int* const groups_bits [] = {
         &hf_x11_xkb_SetCompatMap_groups_mask_Group1,
         &hf_x11_xkb_SetCompatMap_groups_mask_Group2,
         &hf_x11_xkb_SetCompatMap_groups_mask_Group3,
@@ -25059,7 +25059,7 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     proto_tree_add_item(t, hf_x11_xkb_GetNamedIndicator_reply_ndx, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        int* const map_flags_bits [] = {
+        static int* const map_flags_bits [] = {
         &hf_x11_xkb_GetNamedIndicator_reply_map_flags_mask_LEDDrivesKB,
         &hf_x11_xkb_GetNamedIndicator_reply_map_flags_mask_NoAutomatic,
         &hf_x11_xkb_GetNamedIndicator_reply_map_flags_mask_NoExplicit,
@@ -25069,7 +25069,7 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     }
     *offsetp += 1;
     {
-        int* const map_whichGroups_bits [] = {
+        static int* const map_whichGroups_bits [] = {
         &hf_x11_xkb_GetNamedIndicator_reply_map_whichGroups_mask_UseBase,
         &hf_x11_xkb_GetNamedIndicator_reply_map_whichGroups_mask_UseLatched,
         &hf_x11_xkb_GetNamedIndicator_reply_map_whichGroups_mask_UseLocked,
@@ -25081,7 +25081,7 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     }
     *offsetp += 1;
     {
-        int* const map_groups_bits [] = {
+        static int* const map_groups_bits [] = {
         &hf_x11_xkb_GetNamedIndicator_reply_map_groups_mask_Any,
         NULL
         };
@@ -25089,7 +25089,7 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     }
     *offsetp += 1;
     {
-        int* const map_whichMods_bits [] = {
+        static int* const map_whichMods_bits [] = {
         &hf_x11_xkb_GetNamedIndicator_reply_map_whichMods_mask_UseBase,
         &hf_x11_xkb_GetNamedIndicator_reply_map_whichMods_mask_UseLatched,
         &hf_x11_xkb_GetNamedIndicator_reply_map_whichMods_mask_UseLocked,
@@ -25101,7 +25101,7 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     }
     *offsetp += 1;
     {
-        int* const map_mods_bits [] = {
+        static int* const map_mods_bits [] = {
         &hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_Shift,
         &hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_Lock,
         &hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_Control,
@@ -25117,7 +25117,7 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     }
     *offsetp += 1;
     {
-        int* const map_realMods_bits [] = {
+        static int* const map_realMods_bits [] = {
         &hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_Shift,
         &hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_Lock,
         &hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_Control,
@@ -25133,7 +25133,7 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     }
     *offsetp += 1;
     {
-        int* const map_vmod_bits [] = {
+        static int* const map_vmod_bits [] = {
         &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_0,
         &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_1,
         &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_2,
@@ -25156,7 +25156,7 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     }
     *offsetp += 2;
     {
-        int* const map_ctrls_bits [] = {
+        static int* const map_ctrls_bits [] = {
         &hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_RepeatKeys,
         &hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_SlowKeys,
         &hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_BounceKeys,
@@ -25202,7 +25202,7 @@ static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
     {
-        int* const map_flags_bits [] = {
+        static int* const map_flags_bits [] = {
         &hf_x11_xkb_SetNamedIndicator_map_flags_mask_LEDDrivesKB,
         &hf_x11_xkb_SetNamedIndicator_map_flags_mask_NoAutomatic,
         &hf_x11_xkb_SetNamedIndicator_map_flags_mask_NoExplicit,
@@ -25212,7 +25212,7 @@ static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     }
     *offsetp += 1;
     {
-        int* const map_whichGroups_bits [] = {
+        static int* const map_whichGroups_bits [] = {
         &hf_x11_xkb_SetNamedIndicator_map_whichGroups_mask_UseBase,
         &hf_x11_xkb_SetNamedIndicator_map_whichGroups_mask_UseLatched,
         &hf_x11_xkb_SetNamedIndicator_map_whichGroups_mask_UseLocked,
@@ -25224,7 +25224,7 @@ static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     }
     *offsetp += 1;
     {
-        int* const map_groups_bits [] = {
+        static int* const map_groups_bits [] = {
         &hf_x11_xkb_SetNamedIndicator_map_groups_mask_Any,
         NULL
         };
@@ -25232,7 +25232,7 @@ static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     }
     *offsetp += 1;
     {
-        int* const map_whichMods_bits [] = {
+        static int* const map_whichMods_bits [] = {
         &hf_x11_xkb_SetNamedIndicator_map_whichMods_mask_UseBase,
         &hf_x11_xkb_SetNamedIndicator_map_whichMods_mask_UseLatched,
         &hf_x11_xkb_SetNamedIndicator_map_whichMods_mask_UseLocked,
@@ -25244,7 +25244,7 @@ static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     }
     *offsetp += 1;
     {
-        int* const map_realMods_bits [] = {
+        static int* const map_realMods_bits [] = {
         &hf_x11_xkb_SetNamedIndicator_map_realMods_mask_Shift,
         &hf_x11_xkb_SetNamedIndicator_map_realMods_mask_Lock,
         &hf_x11_xkb_SetNamedIndicator_map_realMods_mask_Control,
@@ -25260,7 +25260,7 @@ static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     }
     *offsetp += 1;
     {
-        int* const map_vmods_bits [] = {
+        static int* const map_vmods_bits [] = {
         &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_0,
         &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_1,
         &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_2,
@@ -25283,7 +25283,7 @@ static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     }
     *offsetp += 2;
     {
-        int* const map_ctrls_bits [] = {
+        static int* const map_ctrls_bits [] = {
         &hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_RepeatKeys,
         &hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_SlowKeys,
         &hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_BounceKeys,
@@ -25311,7 +25311,7 @@ static void xkbGetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
     {
-        int* const which_bits [] = {
+        static int* const which_bits [] = {
         &hf_x11_xkb_GetNames_which_mask_Keycodes,
         &hf_x11_xkb_GetNames_which_mask_Geometry,
         &hf_x11_xkb_GetNames_which_mask_Symbols,
@@ -25357,7 +25357,7 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 4;
     f_which = tvb_get_guint32(tvb, *offsetp, byte_order);
     {
-        int* const which_bits [] = {
+        static int* const which_bits [] = {
         &hf_x11_xkb_GetNames_reply_which_mask_Keycodes,
         &hf_x11_xkb_GetNames_reply_which_mask_Geometry,
         &hf_x11_xkb_GetNames_reply_which_mask_Symbols,
@@ -25386,7 +25386,7 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 1;
     f_groupNames = tvb_get_guint8(tvb, *offsetp);
     {
-        int* const groupNames_bits [] = {
+        static int* const groupNames_bits [] = {
         &hf_x11_xkb_GetNames_reply_groupNames_mask_Group1,
         &hf_x11_xkb_GetNames_reply_groupNames_mask_Group2,
         &hf_x11_xkb_GetNames_reply_groupNames_mask_Group3,
@@ -25398,7 +25398,7 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 1;
     f_virtualMods = tvb_get_guint16(tvb, *offsetp, byte_order);
     {
-        int* const virtualMods_bits [] = {
+        static int* const virtualMods_bits [] = {
         &hf_x11_xkb_GetNames_reply_virtualMods_mask_0,
         &hf_x11_xkb_GetNames_reply_virtualMods_mask_1,
         &hf_x11_xkb_GetNames_reply_virtualMods_mask_2,
@@ -25514,7 +25514,7 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     *offsetp += 2;
     f_virtualMods = tvb_get_guint16(tvb, *offsetp, byte_order);
     {
-        int* const virtualMods_bits [] = {
+        static int* const virtualMods_bits [] = {
         &hf_x11_xkb_SetNames_virtualMods_mask_0,
         &hf_x11_xkb_SetNames_virtualMods_mask_1,
         &hf_x11_xkb_SetNames_virtualMods_mask_2,
@@ -25538,7 +25538,7 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     *offsetp += 2;
     f_which = tvb_get_guint32(tvb, *offsetp, byte_order);
     {
-        int* const which_bits [] = {
+        static int* const which_bits [] = {
         &hf_x11_xkb_SetNames_which_mask_Keycodes,
         &hf_x11_xkb_SetNames_which_mask_Geometry,
         &hf_x11_xkb_SetNames_which_mask_Symbols,
@@ -25572,7 +25572,7 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     *offsetp += 4;
     f_groupNames = tvb_get_guint8(tvb, *offsetp);
     {
-        int* const groupNames_bits [] = {
+        static int* const groupNames_bits [] = {
         &hf_x11_xkb_SetNames_groupNames_mask_Group1,
         &hf_x11_xkb_SetNames_groupNames_mask_Group2,
         &hf_x11_xkb_SetNames_groupNames_mask_Group3,
@@ -25676,7 +25676,7 @@ static void xkbPerClientFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
     {
-        int* const change_bits [] = {
+        static int* const change_bits [] = {
         &hf_x11_xkb_PerClientFlags_change_mask_DetectableAutoRepeat,
         &hf_x11_xkb_PerClientFlags_change_mask_GrabsUseXKBState,
         &hf_x11_xkb_PerClientFlags_change_mask_AutoResetControls,
@@ -25688,7 +25688,7 @@ static void xkbPerClientFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     }
     *offsetp += 4;
     {
-        int* const value_bits [] = {
+        static int* const value_bits [] = {
         &hf_x11_xkb_PerClientFlags_value_mask_DetectableAutoRepeat,
         &hf_x11_xkb_PerClientFlags_value_mask_GrabsUseXKBState,
         &hf_x11_xkb_PerClientFlags_value_mask_AutoResetControls,
@@ -25700,7 +25700,7 @@ static void xkbPerClientFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     }
     *offsetp += 4;
     {
-        int* const ctrlsToChange_bits [] = {
+        static int* const ctrlsToChange_bits [] = {
         &hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_RepeatKeys,
         &hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_SlowKeys,
         &hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_BounceKeys,
@@ -25720,7 +25720,7 @@ static void xkbPerClientFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     }
     *offsetp += 4;
     {
-        int* const autoCtrls_bits [] = {
+        static int* const autoCtrls_bits [] = {
         &hf_x11_xkb_PerClientFlags_autoCtrls_mask_RepeatKeys,
         &hf_x11_xkb_PerClientFlags_autoCtrls_mask_SlowKeys,
         &hf_x11_xkb_PerClientFlags_autoCtrls_mask_BounceKeys,
@@ -25740,7 +25740,7 @@ static void xkbPerClientFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     }
     *offsetp += 4;
     {
-        int* const autoCtrlsValues_bits [] = {
+        static int* const autoCtrlsValues_bits [] = {
         &hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_RepeatKeys,
         &hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_SlowKeys,
         &hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_BounceKeys,
@@ -25776,7 +25776,7 @@ static void xkbPerClientFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        int* const supported_bits [] = {
+        static int* const supported_bits [] = {
         &hf_x11_xkb_PerClientFlags_reply_supported_mask_DetectableAutoRepeat,
         &hf_x11_xkb_PerClientFlags_reply_supported_mask_GrabsUseXKBState,
         &hf_x11_xkb_PerClientFlags_reply_supported_mask_AutoResetControls,
@@ -25788,7 +25788,7 @@ static void xkbPerClientFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     }
     *offsetp += 4;
     {
-        int* const value_bits [] = {
+        static int* const value_bits [] = {
         &hf_x11_xkb_PerClientFlags_reply_value_mask_DetectableAutoRepeat,
         &hf_x11_xkb_PerClientFlags_reply_value_mask_GrabsUseXKBState,
         &hf_x11_xkb_PerClientFlags_reply_value_mask_AutoResetControls,
@@ -25800,7 +25800,7 @@ static void xkbPerClientFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     }
     *offsetp += 4;
     {
-        int* const autoCtrls_bits [] = {
+        static int* const autoCtrls_bits [] = {
         &hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_RepeatKeys,
         &hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_SlowKeys,
         &hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_BounceKeys,
@@ -25820,7 +25820,7 @@ static void xkbPerClientFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     }
     *offsetp += 4;
     {
-        int* const autoCtrlsValues_bits [] = {
+        static int* const autoCtrlsValues_bits [] = {
         &hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_RepeatKeys,
         &hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_SlowKeys,
         &hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_BounceKeys,
@@ -25906,7 +25906,7 @@ static void xkbGetKbdByName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        int* const need_bits [] = {
+        static int* const need_bits [] = {
         &hf_x11_xkb_GetKbdByName_need_mask_Types,
         &hf_x11_xkb_GetKbdByName_need_mask_CompatMap,
         &hf_x11_xkb_GetKbdByName_need_mask_ClientSymbols,
@@ -25921,7 +25921,7 @@ static void xkbGetKbdByName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     }
     *offsetp += 2;
     {
-        int* const want_bits [] = {
+        static int* const want_bits [] = {
         &hf_x11_xkb_GetKbdByName_want_mask_Types,
         &hf_x11_xkb_GetKbdByName_want_mask_CompatMap,
         &hf_x11_xkb_GetKbdByName_want_mask_ClientSymbols,
@@ -25965,7 +25965,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_newKeyboard, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        int* const found_bits [] = {
+        static int* const found_bits [] = {
         &hf_x11_xkb_GetKbdByName_reply_found_mask_Types,
         &hf_x11_xkb_GetKbdByName_reply_found_mask_CompatMap,
         &hf_x11_xkb_GetKbdByName_reply_found_mask_ClientSymbols,
@@ -25981,7 +25981,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 2;
     f_reported = tvb_get_guint16(tvb, *offsetp, byte_order);
     {
-        int* const reported_bits [] = {
+        static int* const reported_bits [] = {
         &hf_x11_xkb_GetKbdByName_reply_reported_mask_Types,
         &hf_x11_xkb_GetKbdByName_reply_reported_mask_CompatMap,
         &hf_x11_xkb_GetKbdByName_reply_reported_mask_ClientSymbols,
@@ -26024,7 +26024,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 1;
         f_present = tvb_get_guint16(tvb, *offsetp, byte_order);
         {
-            int* const present_bits [] = {
+            static int* const present_bits [] = {
                 &hf_x11_xkb_GetKbdByName_reply_Types_present_mask_KeyTypes,
                 &hf_x11_xkb_GetKbdByName_reply_Types_present_mask_KeySyms,
                 &hf_x11_xkb_GetKbdByName_reply_Types_present_mask_ModifierMap,
@@ -26092,7 +26092,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 1;
         f_virtualMods = tvb_get_guint16(tvb, *offsetp, byte_order);
         {
-            int* const virtualMods_bits [] = {
+            static int* const virtualMods_bits [] = {
                 &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_0,
                 &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_1,
                 &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_2,
@@ -26169,7 +26169,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 4;
         f_groupsRtrn = tvb_get_guint8(tvb, *offsetp);
         {
-            int* const groupsRtrn_bits [] = {
+            static int* const groupsRtrn_bits [] = {
                 &hf_x11_xkb_GetKbdByName_reply_CompatMap_groupsRtrn_mask_Group1,
                 &hf_x11_xkb_GetKbdByName_reply_CompatMap_groupsRtrn_mask_Group2,
                 &hf_x11_xkb_GetKbdByName_reply_CompatMap_groupsRtrn_mask_Group3,
@@ -26233,7 +26233,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 4;
         f_which = tvb_get_guint32(tvb, *offsetp, byte_order);
         {
-            int* const which_bits [] = {
+            static int* const which_bits [] = {
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_Keycodes,
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_Geometry,
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_Symbols,
@@ -26262,7 +26262,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 1;
         f_groupNames = tvb_get_guint8(tvb, *offsetp);
         {
-            int* const groupNames_bits [] = {
+            static int* const groupNames_bits [] = {
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_groupNames_mask_Group1,
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_groupNames_mask_Group2,
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_groupNames_mask_Group3,
@@ -26274,7 +26274,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 1;
         f_virtualMods = tvb_get_guint16(tvb, *offsetp, byte_order);
         {
-            int* const virtualMods_bits [] = {
+            static int* const virtualMods_bits [] = {
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_0,
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_1,
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_2,
@@ -26419,7 +26419,7 @@ static void xkbGetDeviceInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     proto_tree_add_item(t, hf_x11_xkb_GetDeviceInfo_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        int* const wanted_bits [] = {
+        static int* const wanted_bits [] = {
         &hf_x11_xkb_GetDeviceInfo_wanted_mask_Keyboards,
         &hf_x11_xkb_GetDeviceInfo_wanted_mask_ButtonActions,
         &hf_x11_xkb_GetDeviceInfo_wanted_mask_IndicatorNames,
@@ -26460,7 +26460,7 @@ static void xkbGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        int* const present_bits [] = {
+        static int* const present_bits [] = {
         &hf_x11_xkb_GetDeviceInfo_reply_present_mask_Keyboards,
         &hf_x11_xkb_GetDeviceInfo_reply_present_mask_ButtonActions,
         &hf_x11_xkb_GetDeviceInfo_reply_present_mask_IndicatorNames,
@@ -26472,7 +26472,7 @@ static void xkbGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     }
     *offsetp += 2;
     {
-        int* const supported_bits [] = {
+        static int* const supported_bits [] = {
         &hf_x11_xkb_GetDeviceInfo_reply_supported_mask_Keyboards,
         &hf_x11_xkb_GetDeviceInfo_reply_supported_mask_ButtonActions,
         &hf_x11_xkb_GetDeviceInfo_reply_supported_mask_IndicatorNames,
@@ -26484,7 +26484,7 @@ static void xkbGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     }
     *offsetp += 2;
     {
-        int* const unsupported_bits [] = {
+        static int* const unsupported_bits [] = {
         &hf_x11_xkb_GetDeviceInfo_reply_unsupported_mask_Keyboards,
         &hf_x11_xkb_GetDeviceInfo_reply_unsupported_mask_ButtonActions,
         &hf_x11_xkb_GetDeviceInfo_reply_unsupported_mask_IndicatorNames,
@@ -26541,7 +26541,7 @@ static void xkbSetDeviceInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     proto_tree_add_item(t, hf_x11_xkb_SetDeviceInfo_nBtns, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        int* const change_bits [] = {
+        static int* const change_bits [] = {
         &hf_x11_xkb_SetDeviceInfo_change_mask_Keyboards,
         &hf_x11_xkb_SetDeviceInfo_change_mask_ButtonActions,
         &hf_x11_xkb_SetDeviceInfo_change_mask_IndicatorNames,
@@ -26619,7 +26619,7 @@ static void xkbMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
     proto_tree_add_item(t, hf_x11_xkb_MapNotify_ptrBtnActions, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        int* const changed_bits [] = {
+        static int* const changed_bits [] = {
         &hf_x11_xkb_MapNotify_changed_mask_KeyTypes,
         &hf_x11_xkb_MapNotify_changed_mask_KeySyms,
         &hf_x11_xkb_MapNotify_changed_mask_ModifierMap,
@@ -26666,7 +26666,7 @@ static void xkbMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
     proto_tree_add_item(t, hf_x11_xkb_MapNotify_nVModMapKeys, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        int* const virtualMods_bits [] = {
+        static int* const virtualMods_bits [] = {
         &hf_x11_xkb_MapNotify_virtualMods_mask_0,
         &hf_x11_xkb_MapNotify_virtualMods_mask_1,
         &hf_x11_xkb_MapNotify_virtualMods_mask_2,
@@ -26703,7 +26703,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     proto_tree_add_item(t, hf_x11_xkb_StateNotify_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        int* const mods_bits [] = {
+        static int* const mods_bits [] = {
         &hf_x11_xkb_StateNotify_mods_mask_Shift,
         &hf_x11_xkb_StateNotify_mods_mask_Lock,
         &hf_x11_xkb_StateNotify_mods_mask_Control,
@@ -26719,7 +26719,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     }
     *offsetp += 1;
     {
-        int* const baseMods_bits [] = {
+        static int* const baseMods_bits [] = {
         &hf_x11_xkb_StateNotify_baseMods_mask_Shift,
         &hf_x11_xkb_StateNotify_baseMods_mask_Lock,
         &hf_x11_xkb_StateNotify_baseMods_mask_Control,
@@ -26735,7 +26735,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     }
     *offsetp += 1;
     {
-        int* const latchedMods_bits [] = {
+        static int* const latchedMods_bits [] = {
         &hf_x11_xkb_StateNotify_latchedMods_mask_Shift,
         &hf_x11_xkb_StateNotify_latchedMods_mask_Lock,
         &hf_x11_xkb_StateNotify_latchedMods_mask_Control,
@@ -26751,7 +26751,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     }
     *offsetp += 1;
     {
-        int* const lockedMods_bits [] = {
+        static int* const lockedMods_bits [] = {
         &hf_x11_xkb_StateNotify_lockedMods_mask_Shift,
         &hf_x11_xkb_StateNotify_lockedMods_mask_Lock,
         &hf_x11_xkb_StateNotify_lockedMods_mask_Control,
@@ -26773,7 +26773,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 2;
     field8(tvb, offsetp, t, hf_x11_xkb_StateNotify_lockedGroup, byte_order);
     {
-        int* const compatState_bits [] = {
+        static int* const compatState_bits [] = {
         &hf_x11_xkb_StateNotify_compatState_mask_Shift,
         &hf_x11_xkb_StateNotify_compatState_mask_Lock,
         &hf_x11_xkb_StateNotify_compatState_mask_Control,
@@ -26789,7 +26789,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     }
     *offsetp += 1;
     {
-        int* const grabMods_bits [] = {
+        static int* const grabMods_bits [] = {
         &hf_x11_xkb_StateNotify_grabMods_mask_Shift,
         &hf_x11_xkb_StateNotify_grabMods_mask_Lock,
         &hf_x11_xkb_StateNotify_grabMods_mask_Control,
@@ -26805,7 +26805,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     }
     *offsetp += 1;
     {
-        int* const compatGrabMods_bits [] = {
+        static int* const compatGrabMods_bits [] = {
         &hf_x11_xkb_StateNotify_compatGrabMods_mask_Shift,
         &hf_x11_xkb_StateNotify_compatGrabMods_mask_Lock,
         &hf_x11_xkb_StateNotify_compatGrabMods_mask_Control,
@@ -26821,7 +26821,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     }
     *offsetp += 1;
     {
-        int* const lookupMods_bits [] = {
+        static int* const lookupMods_bits [] = {
         &hf_x11_xkb_StateNotify_lookupMods_mask_Shift,
         &hf_x11_xkb_StateNotify_lookupMods_mask_Lock,
         &hf_x11_xkb_StateNotify_lookupMods_mask_Control,
@@ -26837,7 +26837,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     }
     *offsetp += 1;
     {
-        int* const compatLoockupMods_bits [] = {
+        static int* const compatLoockupMods_bits [] = {
         &hf_x11_xkb_StateNotify_compatLoockupMods_mask_Shift,
         &hf_x11_xkb_StateNotify_compatLoockupMods_mask_Lock,
         &hf_x11_xkb_StateNotify_compatLoockupMods_mask_Control,
@@ -26853,7 +26853,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     }
     *offsetp += 1;
     {
-        int* const ptrBtnState_bits [] = {
+        static int* const ptrBtnState_bits [] = {
         &hf_x11_xkb_StateNotify_ptrBtnState_mask_Shift,
         &hf_x11_xkb_StateNotify_ptrBtnState_mask_Lock,
         &hf_x11_xkb_StateNotify_ptrBtnState_mask_Control,
@@ -26873,7 +26873,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     }
     *offsetp += 2;
     {
-        int* const changed_bits [] = {
+        static int* const changed_bits [] = {
         &hf_x11_xkb_StateNotify_changed_mask_ModifierState,
         &hf_x11_xkb_StateNotify_changed_mask_ModifierBase,
         &hf_x11_xkb_StateNotify_changed_mask_ModifierLatch,
@@ -26918,7 +26918,7 @@ static void xkbControlsNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint 
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
     {
-        int* const changedControls_bits [] = {
+        static int* const changedControls_bits [] = {
         &hf_x11_xkb_ControlsNotify_changedControls_mask_GroupsWrap,
         &hf_x11_xkb_ControlsNotify_changedControls_mask_InternalMods,
         &hf_x11_xkb_ControlsNotify_changedControls_mask_IgnoreLockMods,
@@ -26930,7 +26930,7 @@ static void xkbControlsNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint 
     }
     *offsetp += 4;
     {
-        int* const enabledControls_bits [] = {
+        static int* const enabledControls_bits [] = {
         &hf_x11_xkb_ControlsNotify_enabledControls_mask_RepeatKeys,
         &hf_x11_xkb_ControlsNotify_enabledControls_mask_SlowKeys,
         &hf_x11_xkb_ControlsNotify_enabledControls_mask_BounceKeys,
@@ -26950,7 +26950,7 @@ static void xkbControlsNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint 
     }
     *offsetp += 4;
     {
-        int* const enabledControlChanges_bits [] = {
+        static int* const enabledControlChanges_bits [] = {
         &hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_RepeatKeys,
         &hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_SlowKeys,
         &hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_BounceKeys,
@@ -27034,7 +27034,7 @@ static void xkbNamesNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
     {
-        int* const changed_bits [] = {
+        static int* const changed_bits [] = {
         &hf_x11_xkb_NamesNotify_changed_mask_Keycodes,
         &hf_x11_xkb_NamesNotify_changed_mask_Geometry,
         &hf_x11_xkb_NamesNotify_changed_mask_Symbols,
@@ -27069,7 +27069,7 @@ static void xkbNamesNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     proto_tree_add_item(t, hf_x11_xkb_NamesNotify_nKeyAliases, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        int* const changedGroupNames_bits [] = {
+        static int* const changedGroupNames_bits [] = {
         &hf_x11_xkb_NamesNotify_changedGroupNames_mask_Group1,
         &hf_x11_xkb_NamesNotify_changedGroupNames_mask_Group2,
         &hf_x11_xkb_NamesNotify_changedGroupNames_mask_Group3,
@@ -27080,7 +27080,7 @@ static void xkbNamesNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     }
     *offsetp += 1;
     {
-        int* const changedVirtualMods_bits [] = {
+        static int* const changedVirtualMods_bits [] = {
         &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_0,
         &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_1,
         &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_2,
@@ -27123,7 +27123,7 @@ static void xkbCompatMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
     proto_tree_add_item(t, hf_x11_xkb_CompatMapNotify_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        int* const changedGroups_bits [] = {
+        static int* const changedGroups_bits [] = {
         &hf_x11_xkb_CompatMapNotify_changedGroups_mask_Group1,
         &hf_x11_xkb_CompatMapNotify_changedGroups_mask_Group2,
         &hf_x11_xkb_CompatMapNotify_changedGroups_mask_Group3,
@@ -27189,7 +27189,7 @@ static void xkbActionMessage(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
     proto_tree_add_item(t, hf_x11_xkb_ActionMessage_keyEventFollows, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        int* const mods_bits [] = {
+        static int* const mods_bits [] = {
         &hf_x11_xkb_ActionMessage_mods_mask_Shift,
         &hf_x11_xkb_ActionMessage_mods_mask_Lock,
         &hf_x11_xkb_ActionMessage_mods_mask_Control,
@@ -27223,7 +27223,7 @@ static void xkbAccessXNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
     proto_tree_add_item(t, hf_x11_xkb_AccessXNotify_keycode, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        int* const detailt_bits [] = {
+        static int* const detailt_bits [] = {
         &hf_x11_xkb_AccessXNotify_detailt_mask_SKPress,
         &hf_x11_xkb_AccessXNotify_detailt_mask_SKAccept,
         &hf_x11_xkb_AccessXNotify_detailt_mask_SKReject,
@@ -27257,7 +27257,7 @@ static void xkbExtensionDeviceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t,
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
     {
-        int* const reason_bits [] = {
+        static int* const reason_bits [] = {
         &hf_x11_xkb_ExtensionDeviceNotify_reason_mask_Keyboards,
         &hf_x11_xkb_ExtensionDeviceNotify_reason_mask_ButtonActions,
         &hf_x11_xkb_ExtensionDeviceNotify_reason_mask_IndicatorNames,
@@ -27280,7 +27280,7 @@ static void xkbExtensionDeviceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t,
     proto_tree_add_item(t, hf_x11_xkb_ExtensionDeviceNotify_nButtons, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        int* const supported_bits [] = {
+        static int* const supported_bits [] = {
         &hf_x11_xkb_ExtensionDeviceNotify_supported_mask_Keyboards,
         &hf_x11_xkb_ExtensionDeviceNotify_supported_mask_ButtonActions,
         &hf_x11_xkb_ExtensionDeviceNotify_supported_mask_IndicatorNames,
@@ -27292,7 +27292,7 @@ static void xkbExtensionDeviceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t,
     }
     *offsetp += 2;
     {
-        int* const unsupported_bits [] = {
+        static int* const unsupported_bits [] = {
         &hf_x11_xkb_ExtensionDeviceNotify_unsupported_mask_Keyboards,
         &hf_x11_xkb_ExtensionDeviceNotify_unsupported_mask_ButtonActions,
         &hf_x11_xkb_ExtensionDeviceNotify_unsupported_mask_IndicatorNames,
@@ -27334,7 +27334,7 @@ static const value_string xkb_extension_minor[] = {
     { 101, "SetDebuggingFlags" },
     { 0, NULL }
 };
-const x11_event_info xkb_events[] = {
+static const x11_event_info xkb_events[] = {
     { "xkb-MapNotify", xkbMapNotify },
     { "xkb-StateNotify", xkbStateNotify },
     { "xkb-ControlsNotify", xkbControlsNotify },
@@ -28029,7 +28029,7 @@ static const value_string xprint_extension_minor[] = {
     { 24, "PrintGetImageResolution" },
     { 0, NULL }
 };
-const x11_event_info xprint_events[] = {
+static const x11_event_info xprint_events[] = {
     { "xprint-AttributNotify", xprintAttributNotify },
     { NULL, NULL }
 };
@@ -28740,7 +28740,7 @@ static const value_string xselinux_extension_minor[] = {
     { 22, "GetClientContext" },
     { 0, NULL }
 };
-const x11_event_info xselinux_events[] = {
+static const x11_event_info xselinux_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info xselinux_replies[] = {
@@ -28942,7 +28942,7 @@ static const value_string xtest_extension_minor[] = {
     { 3, "GrabControl" },
     { 0, NULL }
 };
-const x11_event_info xtest_events[] = {
+static const x11_event_info xtest_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info xtest_replies[] = {
@@ -29052,7 +29052,7 @@ static void struct_xv_AdaptorInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         proto_tree_add_item(t, hf_x11_struct_xv_AdaptorInfo_num_formats, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         {
-            int* const type_bits [] = {
+            static int* const type_bits [] = {
                 &hf_x11_struct_xv_AdaptorInfo_type_mask_InputMask,
                 &hf_x11_struct_xv_AdaptorInfo_type_mask_OutputMask,
                 &hf_x11_struct_xv_AdaptorInfo_type_mask_VideoMask,
@@ -29135,7 +29135,7 @@ static void struct_xv_AttributeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         item = proto_tree_add_item(root, hf_x11_struct_xv_AttributeInfo, tvb, *offsetp, struct_size_xv_AttributeInfo(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         {
-            int* const flags_bits [] = {
+            static int* const flags_bits [] = {
                 &hf_x11_struct_xv_AttributeInfo_flags_mask_Gettable,
                 &hf_x11_struct_xv_AttributeInfo_flags_mask_Settable,
                 NULL
@@ -29748,7 +29748,7 @@ static const value_string xv_extension_minor[] = {
     { 19, "ShmPutImage" },
     { 0, NULL }
 };
-const x11_event_info xv_events[] = {
+static const x11_event_info xv_events[] = {
     { "xv-PortNotify", xvPortNotify },
     { NULL, NULL }
 };
@@ -30104,7 +30104,7 @@ static const value_string xvmc_extension_minor[] = {
     { 8, "ListSubpictureTypes" },
     { 0, NULL }
 };
-const x11_event_info xvmc_events[] = {
+static const x11_event_info xvmc_events[] = {
     { NULL, NULL }
 };
 static x11_reply_info xvmc_replies[] = {
