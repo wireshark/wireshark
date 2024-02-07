@@ -7,9 +7,9 @@
  *
  * Generated automatically by make-packet-dcm.py from the following sources:
  *
- * DICOM PS3.5 2021b - Data Structures and Encoding
- * DICOM PS3.6 2021b - Data Dictionary
- * DICOM PS3.7 2021b - Message Exchange
+ * DICOM PS3.5 2024a - Data Structures and Encoding
+ * DICOM PS3.6 2024a - Data Dictionary
+ * DICOM PS3.7 2024a - Message Exchange
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -154,7 +154,9 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00080014, "Instance Creator UID", "UI", "1", 0, 0},
     { 0x00080015, "Instance Coercion DateTime", "DT", "1", 0, 0},
     { 0x00080016, "SOP Class UID", "UI", "1", 0, 0},
+    { 0x00080017, "Acquisition UID", "UI", "1", 0, 0},
     { 0x00080018, "SOP Instance UID", "UI", "1", 0, 0},
+    { 0x00080019, "Pyramid UID", "UI", "1", 0, 0},
     { 0x0008001A, "Related General SOP Class UID", "UI", "1-n", 0, 0},
     { 0x0008001B, "Original Specialized SOP Class UID", "UI", "1", 0, 0},
     { 0x00080020, "Study Date", "DA", "1", 0, 0},
@@ -248,6 +250,48 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x0008030E, "Private Data Element Description", "UT", "1", 0, 0},
     { 0x0008030F, "Private Data Element Encoding", "UT", "1", 0, 0},
     { 0x00080310, "Private Data Element Definition Sequence", "SQ", "1", 0, 0},
+    { 0x00080400, "Scope of Inventory Sequence", "SQ", "1", 0, 0},
+    { 0x00080401, "Inventory Purpose", "LT", "1", 0, 0},
+    { 0x00080402, "Inventory Instance Description", "LT", "1", 0, 0},
+    { 0x00080403, "Inventory Level", "CS", "1", 0, 0},
+    { 0x00080404, "Item Inventory DateTime", "DT", "1", 0, 0},
+    { 0x00080405, "Removed from Operational Use", "CS", "1", 0, 0},
+    { 0x00080406, "Reason for Removal Code Sequence", "SQ", "1", 0, 0},
+    { 0x00080407, "Stored Instance Base URI", "UR", "1", 0, 0},
+    { 0x00080408, "Folder Access URI", "UR", "1", 0, 0},
+    { 0x00080409, "File Access URI", "UR", "1", 0, 0},
+    { 0x0008040A, "Container File Type", "CS", "1", 0, 0},
+    { 0x0008040B, "Filename in Container", "UR", "1", 0, 0},
+    { 0x0008040C, "File Offset in Container", "UV", "1", 0, 0},
+    { 0x0008040D, "File Length in Container", "UV", "1", 0, 0},
+    { 0x0008040E, "Stored Instance Transfer Syntax UID", "UI", "1", 0, 0},
+    { 0x0008040F, "Extended Matching Mechanisms", "CS", "1-n", 0, 0},
+    { 0x00080410, "Range Matching Sequence", "SQ", "1", 0, 0},
+    { 0x00080411, "List of UID Matching Sequence", "SQ", "1", 0, 0},
+    { 0x00080412, "Empty Value Matching Sequence", "SQ", "1", 0, 0},
+    { 0x00080413, "General Matching Sequence", "SQ", "1", 0, 0},
+    { 0x00080414, "Requested Status Interval", "US", "1", 0, 0},
+    { 0x00080415, "Retain Instances", "CS", "1", 0, 0},
+    { 0x00080416, "Expiration DateTime", "DT", "1", 0, 0},
+    { 0x00080417, "Transaction Status", "CS", "1", 0, 0},
+    { 0x00080418, "Transaction Status Comment", "LT", "1", 0, 0},
+    { 0x00080419, "File Set Access Sequence", "SQ", "1", 0, 0},
+    { 0x0008041A, "File Access Sequence", "SQ", "1", 0, 0},
+    { 0x0008041B, "Record Key", "OB", "1", 0, 0},
+    { 0x0008041C, "Prior Record Key", "OB", "1", 0, 0},
+    { 0x0008041D, "Metadata Sequence", "SQ", "1", 0, 0},
+    { 0x0008041E, "Updated Metadata Sequence", "SQ", "1", 0, 0},
+    { 0x0008041F, "Study Update DateTime", "DT", "1", 0, 0},
+    { 0x00080420, "Inventory Access End Points Sequence", "SQ", "1", 0, 0},
+    { 0x00080421, "Study Access End Points Sequence", "SQ", "1", 0, 0},
+    { 0x00080422, "Incorporated Inventory Instance Sequence", "SQ", "1", 0, 0},
+    { 0x00080423, "Inventoried Studies Sequence", "SQ", "1", 0, 0},
+    { 0x00080424, "Inventoried Series Sequence", "SQ", "1", 0, 0},
+    { 0x00080425, "Inventoried Instances Sequence", "SQ", "1", 0, 0},
+    { 0x00080426, "Inventory Completion Status", "CS", "1", 0, 0},
+    { 0x00080427, "Number of Study Records in Instance", "UL", "1", 0, 0},
+    { 0x00080428, "Total Number of Study Records", "UV", "1", 0, 0},
+    { 0x00080429, "Maximum Number of Records", "UV", "1", 0, 0},
     { 0x00081000, "Network ID", "AE", "1", -1, 0},
     { 0x00081010, "Station Name", "SH", "1", 0, 0},
     { 0x00081030, "Study Description", "LO", "1", 0, 0},
@@ -266,10 +310,12 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00081072, "Operator Identification Sequence", "SQ", "1", 0, 0},
     { 0x00081080, "Admitting Diagnoses Description", "LO", "1-n", 0, 0},
     { 0x00081084, "Admitting Diagnoses Code Sequence", "SQ", "1", 0, 0},
+    { 0x00081088, "Pyramid Description", "LO", "1", 0, 0},
     { 0x00081090, "Manufacturer's Model Name", "LO", "1", 0, 0},
     { 0x00081100, "Referenced Results Sequence", "SQ", "1", -1, 0},
     { 0x00081110, "Referenced Study Sequence", "SQ", "1", 0, 0},
     { 0x00081111, "Referenced Performed Procedure Step Sequence", "SQ", "1", 0, 0},
+    { 0x00081112, "Referenced Instances by SOP Class Sequence", "SQ", "1", 0, 0},
     { 0x00081115, "Referenced Series Sequence", "SQ", "1", 0, 0},
     { 0x00081120, "Referenced Patient Sequence", "SQ", "1", 0, 0},
     { 0x00081125, "Referenced Visit Sequence", "SQ", "1", 0, 0},
@@ -297,6 +343,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00081198, "Failed SOP Sequence", "SQ", "1", 0, 0},
     { 0x00081199, "Referenced SOP Sequence", "SQ", "1", 0, 0},
     { 0x0008119A, "Other Failures Sequence", "SQ", "1", 0, 0},
+    { 0x0008119B, "Failed Study Sequence", "SQ", "1", 0, 0},
     { 0x00081200, "Studies Containing Other Referenced Instances Sequence", "SQ", "1", 0, 0},
     { 0x00081250, "Related Series Sequence", "SQ", "1", 0, 0},
     { 0x00082110, "Lossy Image Compression (Retired)", "CS", "1", -1, 0},
@@ -344,7 +391,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00083011, "Source Irradiation Event Sequence", "SQ", "1", 0, 0},
     { 0x00083012, "Radiopharmaceutical Administration Event UID", "UI", "1", 0, 0},
     { 0x00084000, "Identifying Comments", "LT", "1", -1, 0},
-    { 0x00089007, "Frame Type", "CS", "4", 0, 0},
+    { 0x00089007, "Frame Type", "CS", "4-5", 0, 0},
     { 0x00089092, "Referenced Image Evidence Sequence", "SQ", "1", 0, 0},
     { 0x00089121, "Referenced Raw Data Sequence", "SQ", "1", 0, 0},
     { 0x00089123, "Creator-Version UID", "UI", "1", 0, 0},
@@ -448,6 +495,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00120051, "Clinical Trial Time Point Description", "ST", "1", 0, 0},
     { 0x00120052, "Longitudinal Temporal Offset from Event", "FD", "1", 0, 0},
     { 0x00120053, "Longitudinal Temporal Event Type", "CS", "1", 0, 0},
+    { 0x00120054, "Clinical Trial Time Point Type Code Sequence", "SQ", "1", 0, 0},
     { 0x00120060, "Clinical Trial Coordinating Center Name", "LO", "1", 0, 0},
     { 0x00120062, "Patient Identity Removed", "CS", "1", 0, 0},
     { 0x00120063, "De-identification Method", "LO", "1-n", 0, 0},
@@ -485,6 +533,14 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00140106, "Multiple Component Approval Sequence", "SQ", "1", 0, 0},
     { 0x00140107, "Other Approval Status", "CS", "1-n", 0, 0},
     { 0x00140108, "Other Secondary Approval Status", "CS", "1-n", 0, 0},
+    { 0x00140200, "Data Element Label Sequence", "SQ", "1", 0, 0},
+    { 0x00140201, "Data Element Label Item Sequence", "SQ", "1", 0, 0},
+    { 0x00140202, "Data Element", "AT", "1", 0, 0},
+    { 0x00140203, "Data Element Name", "LO", "1", 0, 0},
+    { 0x00140204, "Data Element Description", "LO", "1", 0, 0},
+    { 0x00140205, "Data Element Conditionality", "CS", "1", 0, 0},
+    { 0x00140206, "Data Element Minimum Characters", "IS", "1", 0, 0},
+    { 0x00140207, "Data Element Maximum Characters", "IS", "1", 0, 0},
     { 0x00141010, "Actual Environmental Conditions", "ST", "1", 0, 0},
     { 0x00141020, "Expiry Date", "DA", "1", 0, 0},
     { 0x00141040, "Environmental Conditions", "ST", "1", 0, 0},
@@ -536,6 +592,8 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00143077, "Time of Gain Calibration", "TM", "1", 0, 0},
     { 0x00143080, "Bad Pixel Image", "OB", "1", 0, 0},
     { 0x00143099, "Calibration Notes", "LT", "1", 0, 0},
+    { 0x00143100, "Linearity Correction Technique", "LT", "1", 0, 0},
+    { 0x00143101, "Beam Hardening Correction Technique", "LT", "1", 0, 0},
     { 0x00144002, "Pulser Equipment Sequence", "SQ", "1", 0, 0},
     { 0x00144004, "Pulser Type", "CS", "1", 0, 0},
     { 0x00144006, "Pulser Notes", "LT", "1", 0, 0},
@@ -616,9 +674,9 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x0014409C, "Translation Rate X", "DS", "1", 0, 0},
     { 0x0014409D, "Translation Rate Y", "DS", "1", 0, 0},
     { 0x0014409F, "Channel Overlap", "DS", "1", 0, 0},
-    { 0x001440A0, "Image Quality Indicator Type", "LO", "1", 0, 0},
-    { 0x001440A1, "Image Quality Indicator Material", "LO", "1", 0, 0},
-    { 0x001440A2, "Image Quality Indicator Size", "LO", "1", 0, 0},
+    { 0x001440A0, "Image Quality Indicator Type", "LO", "1-n", 0, 0},
+    { 0x001440A1, "Image Quality Indicator Material", "LO", "1-n", 0, 0},
+    { 0x001440A2, "Image Quality Indicator Size", "LO", "1-n", 0, 0},
     { 0x00145002, "LINAC Energy", "IS", "1", 0, 0},
     { 0x00145004, "LINAC Output", "IS", "1", 0, 0},
     { 0x00145100, "Active Aperture", "US", "1", 0, 0},
@@ -956,6 +1014,9 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00181200, "Date of Last Calibration", "DA", "1-n", 0, 0},
     { 0x00181201, "Time of Last Calibration", "TM", "1-n", 0, 0},
     { 0x00181202, "DateTime of Last Calibration", "DT", "1", 0, 0},
+    { 0x00181203, "Calibration DateTime", "DT", "1", 0, 0},
+    { 0x00181204, "Date of Manufacture", "DA", "1", 0, 0},
+    { 0x00181205, "Date of Installation", "DA", "1", 0, 0},
     { 0x00181210, "Convolution Kernel", "SH", "1-n", 0, 0},
     { 0x00181240, "Upper/Lower Pixel Values", "IS", "1-n", -1, 0},
     { 0x00181242, "Actual Frame Duration", "IS", "1", 0, 0},
@@ -1574,6 +1635,27 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x0018980E, "Transducer Beam Steering Code Sequence", "SQ", "1", 0, 0},
     { 0x0018980F, "Transducer Application Code Sequence", "SQ", "1", 0, 0},
     { 0x00189810, "Zero Velocity Pixel Value", "US or SS", "1", 0, 0},
+    { 0x00189821, "Photoacoustic Excitation Characteristics Sequence", "SQ", "1", 0, 0},
+    { 0x00189822, "Excitation Spectral Width", "FD", "1", 0, 0},
+    { 0x00189823, "Excitation Energy", "FD", "1", 0, 0},
+    { 0x00189824, "Excitation Pulse Duration", "FD", "1", 0, 0},
+    { 0x00189825, "Excitation Wavelength Sequence", "SQ", "1", 0, 0},
+    { 0x00189826, "Excitation Wavelength", "FD", "1", 0, 0},
+    { 0x00189828, "Illumination Translation Flag", "CS", "1", 0, 0},
+    { 0x00189829, "Acoustic Coupling Medium Flag", "CS", "1", 0, 0},
+    { 0x0018982A, "Acoustic Coupling Medium Code Sequence", "SQ", "1", 0, 0},
+    { 0x0018982B, "Acoustic Coupling Medium Temperature", "FD", "1", 0, 0},
+    { 0x0018982C, "Transducer Response Sequence", "SQ", "1", 0, 0},
+    { 0x0018982D, "Center Frequency", "FD", "1", 0, 0},
+    { 0x0018982E, "Fractional Bandwidth", "FD", "1", 0, 0},
+    { 0x0018982F, "Lower Cutoff Frequency", "FD", "1", 0, 0},
+    { 0x00189830, "Upper Cutoff Frequency", "FD", "1", 0, 0},
+    { 0x00189831, "Transducer Technology Sequence", "SQ", "1", 0, 0},
+    { 0x00189832, "Sound Speed Correction Mechanism Code Sequence", "SQ", "1", 0, 0},
+    { 0x00189833, "Object Sound Speed", "FD", "1", 0, 0},
+    { 0x00189834, "Acoustic Coupling Medium Sound Speed", "FD", "1", 0, 0},
+    { 0x00189835, "Photoacoustic Image Frame Type Sequence", "SQ", "1", 0, 0},
+    { 0x00189836, "Image Data Type Code Sequence", "SQ", "1", 0, 0},
     { 0x00189900, "Reference Location Label", "LO", "1", 0, 0},
     { 0x00189901, "Reference Location Description", "UT", "1", 0, 0},
     { 0x00189902, "Reference Basis Code Sequence", "SQ", "1", 0, 0},
@@ -1652,6 +1734,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00200022, "Overlay Number", "IS", "1", -1, 0},
     { 0x00200024, "Curve Number", "IS", "1", -1, 0},
     { 0x00200026, "LUT Number", "IS", "1", -1, 0},
+    { 0x00200027, "Pyramid Label", "LO", "1", 0, 0},
     { 0x00200030, "Image Position", "DS", "3", -1, 0},
     { 0x00200032, "Image Position (Patient)", "DS", "3", 0, 0},
     { 0x00200035, "Image Orientation", "DS", "6", -1, 0},
@@ -2182,6 +2265,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00282112, "Lossy Image Compression Ratio", "DS", "1-n", 0, 0},
     { 0x00282114, "Lossy Image Compression Method", "CS", "1-n", 0, 0},
     { 0x00283000, "Modality LUT Sequence", "SQ", "1", 0, 0},
+    { 0x00283001, "Variable Modality LUT Sequence", "SQ", "1", 0, 0},
     { 0x00283002, "LUT Descriptor", "US or SS", "3", 0, 0},
     { 0x00283003, "LUT Explanation", "LO", "1", 0, 0},
     { 0x00283004, "Modality LUT Type", "LO", "1", 0, 0},
@@ -2305,6 +2389,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00321055, "Study Component Status ID", "CS", "1", -1, 0},
     { 0x00321060, "Requested Procedure Description", "LO", "1", 0, 0},
     { 0x00321064, "Requested Procedure Code Sequence", "SQ", "1", 0, 0},
+    { 0x00321065, "Requested Laterality Code Sequence", "SQ", "1", 0, 0},
     { 0x00321066, "Reason for Visit", "UT", "1", 0, 0},
     { 0x00321067, "Reason for Visit Code Sequence", "SQ", "1", 0, 0},
     { 0x00321070, "Requested Contrast Agent", "LO", "1", 0, 0},
@@ -2321,7 +2406,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x0034000B, "Camera Position Group Sequence", "SQ", "1", 0, 0},
     { 0x0034000C, "Includes Information", "CS", "1", 0, 0},
     { 0x0034000D, "Time of Frame Group Sequence", "SQ", "1", 0, 0},
-    { 0x00380004, "Referenced Patient Alias Sequence", "SQ", "1", 0, 0},
+    { 0x00380004, "Referenced Patient Alias Sequence", "SQ", "1", -1, 0},
     { 0x00380008, "Visit Status ID", "CS", "1", 0, 0},
     { 0x00380010, "Admission ID", "LO", "1", 0, 0},
     { 0x00380011, "Issuer of Admission ID", "LO", "1", -1, 0},
@@ -2396,6 +2481,24 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x003A0314, "Impedance Measurement DateTime", "DT", "1", 0, 0},
     { 0x003A0315, "Impedance Measurement Frequency", "DS", "1", 0, 0},
     { 0x003A0316, "Impedance Measurement Current Type", "CS", "1", 0, 0},
+    { 0x003A0317, "Waveform Amplifier Type", "CS", "1", 0, 0},
+    { 0x003A0318, "Filter Low Frequency Characteristics Sequence", "SQ", "1", 0, 0},
+    { 0x003A0319, "Filter High Frequency Characteristics Sequence", "SQ", "1", 0, 0},
+    { 0x003A0320, "Summarized Filter Lookup Table Sequence", "SQ", "1", 0, 0},
+    { 0x003A0321, "Notch Filter Characteristics Sequence", "SQ", "1", 0, 0},
+    { 0x003A0322, "Waveform Filter Type", "CS", "1", 0, 0},
+    { 0x003A0323, "Analog Filter Characteristics Sequence", "SQ", "1", 0, 0},
+    { 0x003A0324, "Analog Filter Roll Off", "DS", "1", 0, 0},
+    { 0x003A0325, "Analog Filter Type Code Sequence", "SQ", "1", 0, 0},
+    { 0x003A0326, "Digital Filter Characteristics Sequence", "SQ", "1", 0, 0},
+    { 0x003A0327, "Digital Filter Order", "IS", "1", 0, 0},
+    { 0x003A0328, "Digital Filter Type Code Sequence", "SQ", "1", 0, 0},
+    { 0x003A0329, "Waveform Filter Description", "ST", "1", 0, 0},
+    { 0x003A032A, "Filter Lookup Table Sequence", "SQ", "1", 0, 0},
+    { 0x003A032B, "Filter Lookup Table Description", "ST", "1", 0, 0},
+    { 0x003A032C, "Frequency Encoding Code Sequence", "SQ", "1", 0, 0},
+    { 0x003A032D, "Magnitude Encoding Code Sequence", "SQ", "1", 0, 0},
+    { 0x003A032E, "Filter Lookup Table Data", "OD", "1", 0, 0},
     { 0x00400001, "Scheduled Station AE Title", "AE", "1-n", 0, 0},
     { 0x00400002, "Scheduled Procedure Step Start Date", "DA", "1", 0, 0},
     { 0x00400003, "Scheduled Procedure Step Start Time", "TM", "1", 0, 0},
@@ -2866,10 +2969,14 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00480111, "Condenser Lens Power", "DS", "1", 0, 0},
     { 0x00480112, "Objective Lens Power", "DS", "1", 0, 0},
     { 0x00480113, "Objective Lens Numerical Aperture", "DS", "1", 0, 0},
+    { 0x00480114, "Confocal Mode", "CS", "1", 0, 0},
+    { 0x00480115, "Tissue Location", "CS", "1", 0, 0},
+    { 0x00480116, "Confocal Microscopy Image Frame Type Sequence", "SQ", "1", 0, 0},
+    { 0x00480117, "Image Acquisition Depth", "FD", "1", 0, 0},
     { 0x00480120, "Palette Color Lookup Table Sequence", "SQ", "1", 0, 0},
-    { 0x00480200, "Referenced Image Navigation Sequence", "SQ", "1", 0, 0},
-    { 0x00480201, "Top Left Hand Corner of Localizer Area", "US", "2", 0, 0},
-    { 0x00480202, "Bottom Right Hand Corner of Localizer Area", "US", "2", 0, 0},
+    { 0x00480200, "Referenced Image Navigation Sequence", "SQ", "1", -1, 0},
+    { 0x00480201, "Top Left Hand Corner of Localizer Area", "US", "2", -1, 0},
+    { 0x00480202, "Bottom Right Hand Corner of Localizer Area", "US", "2", -1, 0},
     { 0x00480207, "Optical Path Identification Sequence", "SQ", "1", 0, 0},
     { 0x0048021A, "Plane Position (Slide) Sequence", "SQ", "1", 0, 0},
     { 0x0048021E, "Column Position In Total Image Pixel Matrix", "SL", "1", 0, 0},
@@ -3016,7 +3123,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00620006, "Segment Description", "ST", "1", 0, 0},
     { 0x00620007, "Segmentation Algorithm Identification Sequence", "SQ", "1", 0, 0},
     { 0x00620008, "Segment Algorithm Type", "CS", "1", 0, 0},
-    { 0x00620009, "Segment Algorithm Name", "LO", "1", 0, 0},
+    { 0x00620009, "Segment Algorithm Name", "LO", "1-n", 0, 0},
     { 0x0062000A, "Segment Identification Sequence", "SQ", "1", 0, 0},
     { 0x0062000B, "Referenced Segment Number", "US", "1-n", 0, 0},
     { 0x0062000C, "Recommended Display Grayscale Value", "US", "1", 0, 0},
@@ -3063,6 +3170,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x0066001F, "Vector Dimensionality", "US", "1", 0, 0},
     { 0x00660020, "Vector Accuracy", "FL", "1-n", 0, 0},
     { 0x00660021, "Vector Coordinate Data", "OF", "1", 0, 0},
+    { 0x00660022, "Double Point Coordinates Data", "OD", "1", 0, 0},
     { 0x00660023, "Triangle Point Index List", "OW", "1", -1, 0},
     { 0x00660024, "Edge Point Index List", "OW", "1", -1, 0},
     { 0x00660025, "Vertex Point Index List", "OW", "1", -1, 0},
@@ -3179,6 +3287,22 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00687003, "Model Usage Code Sequence", "SQ", "1", 0, 0},
     { 0x00687004, "Model Group UID", "UI", "1", 0, 0},
     { 0x00687005, "Relative URI Reference Within Encapsulated Document", "UR", "1", 0, 0},
+    { 0x006A0001, "Annotation Coordinate Type", "CS", "1", 0, 0},
+    { 0x006A0002, "Annotation Group Sequence", "SQ", "1", 0, 0},
+    { 0x006A0003, "Annotation Group UID", "UI", "1", 0, 0},
+    { 0x006A0005, "Annotation Group Label", "LO", "1", 0, 0},
+    { 0x006A0006, "Annotation Group Description", "UT", "1", 0, 0},
+    { 0x006A0007, "Annotation Group Generation Type", "CS", "1", 0, 0},
+    { 0x006A0008, "Annotation Group Algorithm Identification Sequence", "SQ", "1", 0, 0},
+    { 0x006A0009, "Annotation Property Category Code Sequence", "SQ", "1", 0, 0},
+    { 0x006A000A, "Annotation Property Type Code Sequence", "SQ", "1", 0, 0},
+    { 0x006A000B, "Annotation Property Type Modifier Code Sequence", "SQ", "1", 0, 0},
+    { 0x006A000C, "Number of Annotations", "UL", "1", 0, 0},
+    { 0x006A000D, "Annotation Applies to All Optical Paths", "CS", "1", 0, 0},
+    { 0x006A000E, "Referenced Optical Path Identifier", "SH", "1-n", 0, 0},
+    { 0x006A000F, "Annotation Applies to All Z Planes", "CS", "1", 0, 0},
+    { 0x006A0010, "Common Z Coordinate Value", "FD", "1-n", 0, 0},
+    { 0x006A0011, "Annotation Index List", "OL", "1", 0, 0},
     { 0x00700001, "Graphic Annotation Sequence", "SQ", "1", 0, 0},
     { 0x00700002, "Graphic Layer", "CS", "1", 0, 0},
     { 0x00700003, "Bounding Box Annotation Units", "CS", "1", 0, 0},
@@ -3277,6 +3401,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00700311, "Fiducial Identifier Code Sequence", "SQ", "1", 0, 0},
     { 0x00700312, "Contour Uncertainty Radius", "FD", "1", 0, 0},
     { 0x00700314, "Used Fiducials Sequence", "SQ", "1", 0, 0},
+    { 0x00700315, "Used RT Structure Set ROI Sequence", "SQ", "1", 0, 0},
     { 0x00700318, "Graphic Coordinates Data Sequence", "SQ", "1", 0, 0},
     { 0x0070031A, "Fiducial UID", "UI", "1", 0, 0},
     { 0x0070031B, "Referenced Fiducial UID", "UI", "1", 0, 0},
@@ -3787,8 +3912,8 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x21300050, "Annotation Content Sequence", "SQ", "1", -1, 0},
     { 0x21300060, "Image Overlay Box Content Sequence", "SQ", "1", -1, 0},
     { 0x21300080, "Presentation LUT Content Sequence", "SQ", "1", -1, 0},
-    { 0x213000A0, "Proposed Study Sequence", "SQ", "1", -1, 0},
-    { 0x213000C0, "Original Image Sequence", "SQ", "1", -1, 0},
+    { 0x213000A0, "Proposed Study Sequence", "SQ", "1", 0, 0},
+    { 0x213000C0, "Original Image Sequence", "SQ", "1", 0, 0},
     { 0x22000001, "Label Using Information Extracted From Instances", "CS", "1", 0, 0},
     { 0x22000002, "Label Text", "UT", "1", 0, 0},
     { 0x22000003, "Label Style Selection", "CS", "1", 0, 0},
@@ -3830,6 +3955,60 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x30020050, "Primary Fluence Mode Sequence", "SQ", "1", 0, 0},
     { 0x30020051, "Fluence Mode", "CS", "1", 0, 0},
     { 0x30020052, "Fluence Mode ID", "SH", "1", 0, 0},
+    { 0x30020100, "Selected Frame Number", "IS", "1", 0, 0},
+    { 0x30020101, "Selected Frame Functional Groups Sequence", "SQ", "1", 0, 0},
+    { 0x30020102, "RT Image Frame General Content Sequence", "SQ", "1", 0, 0},
+    { 0x30020103, "RT Image Frame Context Sequence", "SQ", "1", 0, 0},
+    { 0x30020104, "RT Image Scope Sequence", "SQ", "1", 0, 0},
+    { 0x30020105, "Beam Modifier Coordinates Presence Flag", "CS", "1", 0, 0},
+    { 0x30020106, "Start Cumulative Meterset", "FD", "1", 0, 0},
+    { 0x30020107, "Stop Cumulative Meterset", "FD", "1", 0, 0},
+    { 0x30020108, "RT Acquisition Patient Position Sequence", "SQ", "1", 0, 0},
+    { 0x30020109, "RT Image Frame Imaging Device Position Sequence", "SQ", "1", 0, 0},
+    { 0x3002010A, "RT Image Frame kV Radiation Acquisition Sequence", "SQ", "1", 0, 0},
+    { 0x3002010B, "RT Image Frame MV Radiation Acquisition Sequence", "SQ", "1", 0, 0},
+    { 0x3002010C, "RT Image Frame Radiation Acquisition Sequence", "SQ", "1", 0, 0},
+    { 0x3002010D, "Imaging Source Position Sequence", "SQ", "1", 0, 0},
+    { 0x3002010E, "Image Receptor Position Sequence", "SQ", "1", 0, 0},
+    { 0x3002010F, "Device Position to Equipment Mapping Matrix", "FD", "16", 0, 0},
+    { 0x30020110, "Device Position Parameter Sequence", "SQ", "1", 0, 0},
+    { 0x30020111, "Imaging Source Location Specification Type", "CS", "1", 0, 0},
+    { 0x30020112, "Imaging Device Location Matrix Sequence", "SQ", "1", 0, 0},
+    { 0x30020113, "Imaging Device Location Parameter Sequence", "SQ", "1", 0, 0},
+    { 0x30020114, "Imaging Aperture Sequence", "SQ", "1", 0, 0},
+    { 0x30020115, "Imaging Aperture Specification Type", "CS", "1", 0, 0},
+    { 0x30020116, "Number of Acquisition Devices", "US", "1", 0, 0},
+    { 0x30020117, "Acquisition Device Sequence", "SQ", "1", 0, 0},
+    { 0x30020118, "Acquisition Task Sequence", "SQ", "1", 0, 0},
+    { 0x30020119, "Acquisition Task Workitem Code Sequence", "SQ", "1", 0, 0},
+    { 0x3002011A, "Acquisition Subtask Sequence", "SQ", "1", 0, 0},
+    { 0x3002011B, "Subtask Workitem Code Sequence", "SQ", "1", 0, 0},
+    { 0x3002011C, "Acquisition Task Index", "US", "1", 0, 0},
+    { 0x3002011D, "Acquisition Subtask Index", "US", "1", 0, 0},
+    { 0x3002011E, "Referenced Baseline Parameters RT Radiation Instance Sequence", "SQ", "1", 0, 0},
+    { 0x3002011F, "Position Acquisition Template Identification Sequence", "SQ", "1", 0, 0},
+    { 0x30020120, "Position Acquisition Template ID", "ST", "1", 0, 0},
+    { 0x30020121, "Position Acquisition Template Name", "LO", "1", 0, 0},
+    { 0x30020122, "Position Acquisition Template Code Sequence", "SQ", "1", 0, 0},
+    { 0x30020123, "Position Acquisition Template Description", "LT", "1", 0, 0},
+    { 0x30020124, "Acquisition Task Applicability Sequence", "SQ", "1", 0, 0},
+    { 0x30020125, "Projection Imaging Acquisition Parameter Sequence", "SQ", "1", 0, 0},
+    { 0x30020126, "CT Imaging Acquisition Parameter Sequence", "SQ", "1", 0, 0},
+    { 0x30020127, "KV Imaging Generation Parameters Sequence", "SQ", "1", 0, 0},
+    { 0x30020128, "MV Imaging Generation Parameters Sequence", "SQ", "1", 0, 0},
+    { 0x30020129, "Acquisition Signal Type", "CS", "1", 0, 0},
+    { 0x3002012A, "Acquisition Method", "CS", "1", 0, 0},
+    { 0x3002012B, "Scan Start Position Sequence", "SQ", "1", 0, 0},
+    { 0x3002012C, "Scan Stop Position Sequence", "SQ", "1", 0, 0},
+    { 0x3002012D, "Imaging Source to Beam Modifier Definition Plane Distance", "FD", "1", 0, 0},
+    { 0x3002012E, "Scan Arc Type", "CS", "1", 0, 0},
+    { 0x3002012F, "Detector Positioning Type", "CS", "1", 0, 0},
+    { 0x30020130, "Additional RT Accessory Device Sequence", "SQ", "1", 0, 0},
+    { 0x30020131, "Device-Specific Acquisition Parameter Sequence", "SQ", "1", 0, 0},
+    { 0x30020132, "Referenced Position Reference Instance Sequence", "SQ", "1", 0, 0},
+    { 0x30020133, "Energy Derivation Code Sequence", "SQ", "1", 0, 0},
+    { 0x30020134, "Maximum Cumulative Meterset Exposure", "FD", "1", 0, 0},
+    { 0x30020135, "Acquisition Initiation Sequence", "SQ", "1", 0, 0},
     { 0x30040001, "DVH Type", "CS", "1", 0, 0},
     { 0x30040002, "Dose Units", "CS", "1", 0, 0},
     { 0x30040004, "Dose Type", "CS", "1", 0, 0},
@@ -3839,8 +4018,8 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x3004000A, "Dose Summation Type", "CS", "1", 0, 0},
     { 0x3004000C, "Grid Frame Offset Vector", "DS", "2-n", 0, 0},
     { 0x3004000E, "Dose Grid Scaling", "DS", "1", 0, 0},
-    { 0x30040010, "RT Dose ROI Sequence", "SQ", "1", 0, 0},
-    { 0x30040012, "Dose Value", "DS", "1", 0, 0},
+    { 0x30040010, "RT Dose ROI Sequence", "SQ", "1", -1, 0},
+    { 0x30040012, "Dose Value", "DS", "1", -1, 0},
     { 0x30040014, "Tissue Heterogeneity Correction", "CS", "1-3", 0, 0},
     { 0x30040040, "DVH Normalization Point", "DS", "3", 0, 0},
     { 0x30040042, "DVH Normalization Dose Value", "DS", "1", 0, 0},
@@ -3871,6 +4050,8 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x30060028, "ROI Description", "ST", "1", 0, 0},
     { 0x3006002A, "ROI Display Color", "IS", "3", 0, 0},
     { 0x3006002C, "ROI Volume", "DS", "1", 0, 0},
+    { 0x3006002D, "ROI DateTime", "DT", "1", 0, 0},
+    { 0x3006002E, "ROI Observation DateTime", "DT", "1", 0, 0},
     { 0x30060030, "RT Related ROI Sequence", "SQ", "1", 0, 0},
     { 0x30060033, "RT ROI Relationship", "CS", "1", 0, 0},
     { 0x30060036, "ROI Generation Algorithm", "CS", "1", 0, 0},
@@ -3885,13 +4066,18 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x30060048, "Contour Number", "IS", "1", 0, 0},
     { 0x30060049, "Attached Contours", "IS", "1-n", -1, 0},
     { 0x3006004A, "Source Pixel Planes Characteristics Sequence", "SQ", "1", 0, 0},
+    { 0x3006004B, "Source Series Sequence", "SQ", "1", 0, 0},
+    { 0x3006004C, "Source Series Information Sequence", "SQ", "1", 0, 0},
+    { 0x3006004D, "ROI Creator Sequence", "SQ", "1", 0, 0},
+    { 0x3006004E, "ROI Interpreter Sequence", "SQ", "1", 0, 0},
+    { 0x3006004F, "ROI Observation Context Code Sequence", "SQ", "1", 0, 0},
     { 0x30060050, "Contour Data", "DS", "3-3n", 0, 0},
     { 0x30060080, "RT ROI Observations Sequence", "SQ", "1", 0, 0},
     { 0x30060082, "Observation Number", "IS", "1", 0, -1},
     { 0x30060084, "Referenced ROI Number", "IS", "1", 0, 0},
-    { 0x30060085, "ROI Observation Label", "SH", "1", 0, -1},
+    { 0x30060085, "ROI Observation Label", "SH", "1", -1, -1},
     { 0x30060086, "RT ROI Identification Code Sequence", "SQ", "1", 0, 0},
-    { 0x30060088, "ROI Observation Description", "ST", "1", 0, 0},
+    { 0x30060088, "ROI Observation Description", "ST", "1", -1, 0},
     { 0x300600A0, "Related RT ROI Observations Sequence", "SQ", "1", 0, 0},
     { 0x300600A4, "RT ROI Interpreted Type", "CS", "1", 0, -1},
     { 0x300600A6, "ROI Interpreter", "PN", "1", 0, 0},
@@ -3920,7 +4106,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x30080024, "Treatment Control Point Date", "DA", "1", 0, 0},
     { 0x30080025, "Treatment Control Point Time", "TM", "1", 0, 0},
     { 0x3008002A, "Treatment Termination Status", "CS", "1", 0, 0},
-    { 0x3008002B, "Treatment Termination Code", "SH", "1", 0, 0},
+    { 0x3008002B, "Treatment Termination Code", "SH", "1", -1, 0},
     { 0x3008002C, "Treatment Verification Status", "CS", "1", 0, 0},
     { 0x30080030, "Referenced Treatment Record Sequence", "SQ", "1", 0, 0},
     { 0x30080032, "Specified Primary Meterset", "DS", "1", 0, 0},
@@ -3963,9 +4149,14 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x30080090, "Referenced Calculated Dose Reference Sequence", "SQ", "1", 0, 0},
     { 0x30080092, "Referenced Calculated Dose Reference Number", "IS", "1", 0, 0},
     { 0x300800A0, "Beam Limiting Device Leaf Pairs Sequence", "SQ", "1", 0, 0},
+    { 0x300800A1, "Enhanced RT Beam Limiting Device Sequence", "SQ", "1", 0, 0},
+    { 0x300800A2, "Enhanced RT Beam Limiting Opening Sequence", "SQ", "1", 0, 0},
+    { 0x300800A3, "Enhanced RT Beam Limiting Device Definition Flag", "CS", "1", 0, 0},
+    { 0x300800A4, "Parallel RT Beam Delimiter Opening Extents", "FD", "2-2n", 0, 0},
     { 0x300800B0, "Recorded Wedge Sequence", "SQ", "1", 0, 0},
     { 0x300800C0, "Recorded Compensator Sequence", "SQ", "1", 0, 0},
     { 0x300800D0, "Recorded Block Sequence", "SQ", "1", 0, 0},
+    { 0x300800D1, "Recorded Block Slab Sequence", "SQ", "1", 0, 0},
     { 0x300800E0, "Treatment Summary Measured Dose Reference Sequence", "SQ", "1", 0, 0},
     { 0x300800F0, "Recorded Snout Sequence", "SQ", "1", 0, 0},
     { 0x300800F2, "Recorded Range Shifter Sequence", "SQ", "1", 0, 0},
@@ -4012,7 +4203,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x300A0007, "RT Plan Time", "TM", "1", 0, 0},
     { 0x300A0009, "Treatment Protocols", "LO", "1-n", 0, 0},
     { 0x300A000A, "Plan Intent", "CS", "1", 0, 0},
-    { 0x300A000B, "Treatment Sites", "LO", "1-n", 0, 0},
+    { 0x300A000B, "Treatment Sites", "LO", "1-n", -1, 0},
     { 0x300A000C, "RT Plan Geometry", "CS", "1", 0, 0},
     { 0x300A000E, "Prescription Description", "ST", "1", 0, 0},
     { 0x300A0010, "Dose Reference Sequence", "SQ", "1", 0, 0},
@@ -4279,6 +4470,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x300A029C, "Source Applicator Wall Nominal Thickness", "DS", "1", 0, 0},
     { 0x300A029E, "Source Applicator Wall Nominal Transmission", "DS", "1", 0, 0},
     { 0x300A02A0, "Source Applicator Step Size", "DS", "1", 0, 0},
+    { 0x300A02A1, "Applicator Shape Referenced ROI Number", "IS", "1", 0, 0},
     { 0x300A02A2, "Transfer Tube Number", "IS", "1", 0, 0},
     { 0x300A02A4, "Transfer Tube Length", "DS", "1", 0, 0},
     { 0x300A02B0, "Channel Shield Sequence", "SQ", "1", 0, 0},
@@ -4457,7 +4649,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x300A062F, "C-Arm Photon-Electron Control Point Sequence", "SQ", "1", 0, 0},
     { 0x300A0630, "Referenced RT Radiation Sequence", "SQ", "1", 0, 0},
     { 0x300A0631, "Referenced RT Instance Sequence", "SQ", "1", 0, 0},
-    { 0x300A0632, "Referenced RT Patient Setup Sequence", "SQ", "1", 0, 0},
+    { 0x300A0632, "Referenced RT Patient Setup Sequence", "SQ", "1", -1, 0},
     { 0x300A0634, "Source to Patient Surface Distance", "FD", "1", 0, 0},
     { 0x300A0635, "Treatment Machine Special Mode Code Sequence", "SQ", "1", 0, 0},
     { 0x300A0636, "Intended Number of Fractions", "US", "1", 0, 0},
@@ -4486,7 +4678,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x300A064D, "RT Beam Limiting Device Definition Sequence", "SQ", "1", 0, 0},
     { 0x300A064E, "Parallel RT Beam Delimiter Opening Mode", "CS", "1", 0, 0},
     { 0x300A064F, "Parallel RT Beam Delimiter Leaf Mounting Side", "CS", "1-n", 0, 0},
-    { 0x300A0650, "Patient Setup UID", "UI", "1", 0, 0},
+    { 0x300A0650, "Patient Setup UID", "UI", "1", -1, 0},
     { 0x300A0651, "Wedge Definition Sequence", "SQ", "1", 0, 0},
     { 0x300A0652, "Radiation Beam Wedge Angle", "FD", "1", 0, 0},
     { 0x300A0653, "Radiation Beam Wedge Thin Edge Distance", "FD", "1", 0, 0},
@@ -4545,6 +4737,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x300A0688, "RT Beam Modifier Definition Distance", "FD", "1", 0, 0},
     { 0x300A0689, "Beam Area Limit Sequence", "SQ", "1", 0, 0},
     { 0x300A068A, "Referenced RT Prescription Sequence", "SQ", "1", 0, 0},
+    { 0x300A068B, "Dose Value Interpretation", "CS", "1", 0, 0},
     { 0x300A0700, "Treatment Session UID", "UI", "1", 0, 0},
     { 0x300A0701, "RT Radiation Usage", "CS", "1", 0, 0},
     { 0x300A0702, "Referenced RT Radiation Set Sequence", "SQ", "1", 0, 0},
@@ -4587,6 +4780,33 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x300A0780, "Additional Parameter Recording Instance Sequence", "SQ", "1", 0, 0},
     { 0x300A0782, "", "US", "1", -1, 0},
     { 0x300A0783, "Interlock Origin Description", "ST", "1", 0, 0},
+    { 0x300A0784, "RT Patient Position Scope Sequence", "SQ", "1", 0, 0},
+    { 0x300A0785, "Referenced Treatment Position Group UID", "UI", "1", 0, 0},
+    { 0x300A0786, "Radiation Order Index", "US", "1", 0, 0},
+    { 0x300A0787, "Omitted Radiation Sequence", "SQ", "1", 0, 0},
+    { 0x300A0788, "Reason for Omission Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A0789, "RT Delivery Start Patient Position Sequence", "SQ", "1", 0, 0},
+    { 0x300A078A, "RT Treatment Preparation Patient Position Sequence", "SQ", "1", 0, 0},
+    { 0x300A078B, "Referenced RT Treatment Preparation Sequence", "SQ", "1", 0, 0},
+    { 0x300A078C, "Referenced Patient Setup Photo Sequence", "SQ", "1", 0, 0},
+    { 0x300A078D, "Patient Treatment Preparation Method Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A078E, "Patient Treatment Preparation Procedure Parameter Description", "LT", "1", 0, 0},
+    { 0x300A078F, "Patient Treatment Preparation Device Sequence", "SQ", "1", 0, 0},
+    { 0x300A0790, "Patient Treatment Preparation Procedure Sequence", "SQ", "1", 0, 0},
+    { 0x300A0791, "Patient Treatment Preparation Procedure Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A0792, "Patient Treatment Preparation Method Description", "LT", "1", 0, 0},
+    { 0x300A0793, "Patient Treatment Preparation Procedure Parameter Sequence", "SQ", "1", 0, 0},
+    { 0x300A0794, "Patient Setup Photo Description", "LT", "1", 0, 0},
+    { 0x300A0795, "Patient Treatment Preparation Procedure Index", "US", "1", 0, 0},
+    { 0x300A0796, "Referenced Patient Setup Procedure Index", "US", "1", 0, 0},
+    { 0x300A0797, "RT Radiation Task Sequence", "SQ", "1", 0, 0},
+    { 0x300A0798, "RT Patient Position Displacement Sequence", "SQ", "1", 0, 0},
+    { 0x300A0799, "RT Patient Position Sequence", "SQ", "1", 0, 0},
+    { 0x300A079A, "Displacement Reference Label", "LO", "1", 0, 0},
+    { 0x300A079B, "Displacement Matrix", "FD", "16", 0, 0},
+    { 0x300A079C, "Patient Support Displacement Sequence", "SQ", "1", 0, 0},
+    { 0x300A079D, "Displacement Reference Location Code Sequence", "SQ", "1", 0, 0},
+    { 0x300A079E, "RT Radiation Set Delivery Usage", "CS", "1", 0, 0},
     { 0x300C0002, "Referenced RT Plan Sequence", "SQ", "1", 0, 0},
     { 0x300C0004, "Referenced Beam Sequence", "SQ", "1", 0, 0},
     { 0x300C0006, "Referenced Beam Number", "IS", "1", 0, 0},
@@ -4621,6 +4841,22 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x300C0111, "Omitted Beam Task Sequence", "SQ", "1", 0, 0},
     { 0x300C0112, "Reason for Omission", "CS", "1", 0, 0},
     { 0x300C0113, "Reason for Omission Description", "LO", "1", 0, 0},
+    { 0x300C0114, "Prescription Overview Sequence", "SQ", "1", 0, 0},
+    { 0x300C0115, "Total Prescription Dose", "FL", "1", 0, 0},
+    { 0x300C0116, "Plan Overview Sequence", "SQ", "1", 0, 0},
+    { 0x300C0117, "Plan Overview Index", "US", "1", 0, 0},
+    { 0x300C0118, "Referenced Plan Overview Index", "US", "1", 0, 0},
+    { 0x300C0119, "Number of Fractions Included", "US", "1", 0, 0},
+    { 0x300C0120, "Dose Calibration Conditions Sequence", "SQ", "1", 0, 0},
+    { 0x300C0121, "Absorbed Dose to Meterset Ratio", "FD", "1", 0, 0},
+    { 0x300C0122, "Delineated Radiation Field Size", "FD", "2", 0, 0},
+    { 0x300C0123, "Dose Calibration Conditions Verified Flag", "CS", "1", 0, 0},
+    { 0x300C0124, "Calibration Reference Point Depth", "FD", "1", 0, 0},
+    { 0x300C0125, "Gating Beam Hold Transition Sequence", "SQ", "1", 0, 0},
+    { 0x300C0126, "Beam Hold Transition", "CS", "1", 0, 0},
+    { 0x300C0127, "Beam Hold Transition DateTime", "DT", "1", 0, 0},
+    { 0x300C0128, "Beam Hold Originating Device Sequence", "SQ", "1", 0, 0},
+    { 0x300C0129, "Beam Hold Transition Trigger Source", "CS", "1", 0, 0},
     { 0x300E0002, "Approval Status", "CS", "1", 0, 0},
     { 0x300E0004, "Review Date", "DA", "1", 0, 0},
     { 0x300E0005, "Review Time", "TM", "1", 0, 0},
@@ -4761,7 +4997,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x30100087, "Weekday Fraction Pattern Sequence", "SQ", "1", 0, 0},
     { 0x30100088, "Delivery Time Structure Code Sequence", "SQ", "1", 0, 0},
     { 0x30100089, "Treatment Site Modifier Code Sequence", "SQ", "1", 0, 0},
-    { 0x30100090, "Robotic Base Location Indicator", "CS", "1", 0, 0},
+    { 0x30100090, "Robotic Base Location Indicator", "CS", "1", -1, 0},
     { 0x30100091, "Robotic Path Node Set Code Sequence", "SQ", "1", 0, 0},
     { 0x30100092, "Robotic Node Identifier", "UL", "1", 0, 0},
     { 0x30100093, "RT Treatment Source Coordinates", "FD", "3", 0, 0},
@@ -4772,6 +5008,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x30100098, "Tomotherapeutic Control Point Sequence", "SQ", "1", 0, 0},
     { 0x30100099, "Tomotherapeutic Leaf Open Durations", "FD", "1-n", 0, 0},
     { 0x3010009A, "Tomotherapeutic Leaf Initial Closed Durations", "FD", "1-n", 0, 0},
+    { 0x301000A0, "Conceptual Volume Identification Sequence", "SQ", "1", 0, 0},
     { 0x40000010, "Arbitrary", "LT", "1", -1, 0},
     { 0x40004000, "Text Comments", "LT", "1", -1, 0},
     { 0x40080040, "Results ID", "SH", "1", -1, 0},
@@ -4916,7 +5153,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x50002610, "Curve Referenced Overlay Group", "US", "1", -1, 0},
     { 0x50003000, "Curve Data", "OB or OW", "1", -1, 0},
     { 0x52009229, "Shared Functional Groups Sequence", "SQ", "1", 0, 0},
-    { 0x52009230, "Per-frame Functional Groups Sequence", "SQ", "1", 0, 0},
+    { 0x52009230, "Per-Frame Functional Groups Sequence", "SQ", "1", 0, 0},
     { 0x54000100, "Waveform Sequence", "SQ", "1", 0, 0},
     { 0x54000110, "Channel Minimum Value", "OB or OW", "1", 0, 0},
     { 0x54000112, "Channel Maximum Value", "OB or OW", "1", 0, 0},
@@ -4968,6 +5205,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x60004000, "Overlay Comments", "LT", "1", -1, 0},
     { 0x7FE00001, "Extended Offset Table", "OV", "1", 0, 0},
     { 0x7FE00002, "Extended Offset Table Lengths", "OV", "1", 0, 0},
+    { 0x7FE00003, "Encapsulated Pixel Data Value Total Length", "UV", "1", 0, 0},
     { 0x7FE00008, "Float Pixel Data", "OF", "1", 0, 0},
     { 0x7FE00009, "Double Float Pixel Data", "OD", "1", 0, 0},
     { 0x7FE00010, "Pixel Data", "OB or OW", "1", 0, 0},
@@ -5055,6 +5293,7 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_VERIFICATION "1.2.840.10008.1.1"
 #define DCM_UID_TRANSFER_SYNTAX_IMPLICIT_VR_LITTLE_ENDIAN "1.2.840.10008.1.2"
 #define DCM_UID_TRANSFER_SYNTAX_EXPLICIT_VR_LITTLE_ENDIAN "1.2.840.10008.1.2.1"
+#define DCM_UID_TRANSFER_SYNTAX_ENCAPSULATED_UNCOMPRESSED_EXPLICIT_VR_LITTLE_ENDIAN "1.2.840.10008.1.2.1.98"
 #define DCM_UID_TRANSFER_SYNTAX_DEFLATED_EXPLICIT_VR_LITTLE_ENDIAN "1.2.840.10008.1.2.1.99"
 #define DCM_UID_TRANSFER_SYNTAX_EXPLICIT_VR_BIG_ENDIAN_RETIRED "1.2.840.10008.1.2.2"
 #define DCM_UID_TRANSFER_SYNTAX_JPEG_BASELINE_PROCESS_1 "1.2.840.10008.1.2.4.50"
@@ -5084,14 +5323,26 @@ typedef struct dcm_uid {
 #define DCM_UID_TRANSFER_SYNTAX_JPIP_REFERENCED "1.2.840.10008.1.2.4.94"
 #define DCM_UID_TRANSFER_SYNTAX_JPIP_REFERENCED_DEFLATE "1.2.840.10008.1.2.4.95"
 #define DCM_UID_TRANSFER_SYNTAX_MPEG2_MAIN_PROFILE_MAIN_LEVEL "1.2.840.10008.1.2.4.100"
+#define DCM_UID_TRANSFER_SYNTAX_FRAGMENTABLE_MPEG2_MAIN_PROFILE_MAIN_LEVEL "1.2.840.10008.1.2.4.100.1"
 #define DCM_UID_TRANSFER_SYNTAX_MPEG2_MAIN_PROFILE_HIGH_LEVEL "1.2.840.10008.1.2.4.101"
+#define DCM_UID_TRANSFER_SYNTAX_FRAGMENTABLE_MPEG2_MAIN_PROFILE_HIGH_LEVEL "1.2.840.10008.1.2.4.101.1"
 #define DCM_UID_TRANSFER_SYNTAX_MPEG_4_AVCH264_HIGH_PROFILE_LEVEL_41 "1.2.840.10008.1.2.4.102"
+#define DCM_UID_TRANSFER_SYNTAX_FRAGMENTABLE_MPEG_4_AVCH264_HIGH_PROFILE_LEVEL_41 "1.2.840.10008.1.2.4.102.1"
 #define DCM_UID_TRANSFER_SYNTAX_MPEG_4_AVCH264_BD_COMPATIBLE_HIGH_PROFILE_LEVEL_41 "1.2.840.10008.1.2.4.103"
+#define DCM_UID_TRANSFER_SYNTAX_FRAGMENTABLE_MPEG_4_AVCH264_BD_COMPATIBLE_HIGH_PROFILE_LEVEL_41 "1.2.840.10008.1.2.4.103.1"
 #define DCM_UID_TRANSFER_SYNTAX_MPEG_4_AVCH264_HIGH_PROFILE_LEVEL_42_FOR_2D_VIDEO "1.2.840.10008.1.2.4.104"
+#define DCM_UID_TRANSFER_SYNTAX_FRAGMENTABLE_MPEG_4_AVCH264_HIGH_PROFILE_LEVEL_42_FOR_2D_VIDEO "1.2.840.10008.1.2.4.104.1"
 #define DCM_UID_TRANSFER_SYNTAX_MPEG_4_AVCH264_HIGH_PROFILE_LEVEL_42_FOR_3D_VIDEO "1.2.840.10008.1.2.4.105"
+#define DCM_UID_TRANSFER_SYNTAX_FRAGMENTABLE_MPEG_4_AVCH264_HIGH_PROFILE_LEVEL_42_FOR_3D_VIDEO "1.2.840.10008.1.2.4.105.1"
 #define DCM_UID_TRANSFER_SYNTAX_MPEG_4_AVCH264_STEREO_HIGH_PROFILE_LEVEL_42 "1.2.840.10008.1.2.4.106"
+#define DCM_UID_TRANSFER_SYNTAX_FRAGMENTABLE_MPEG_4_AVCH264_STEREO_HIGH_PROFILE_LEVEL_42 "1.2.840.10008.1.2.4.106.1"
 #define DCM_UID_TRANSFER_SYNTAX_HEVCH265_MAIN_PROFILE_LEVEL_51 "1.2.840.10008.1.2.4.107"
 #define DCM_UID_TRANSFER_SYNTAX_HEVCH265_MAIN_10_PROFILE_LEVEL_51 "1.2.840.10008.1.2.4.108"
+#define DCM_UID_TRANSFER_SYNTAX_HIGH_THROUGHPUT_JPEG_2000_IMAGE_COMPRESSION_LOSSLESS_ONLY "1.2.840.10008.1.2.4.201"
+#define DCM_UID_TRANSFER_SYNTAX_HIGH_THROUGHPUT_JPEG_2000_WITH_RPCL_OPTIONS_IMAGE_COMPRESSION_LOSSLESS_ONLY "1.2.840.10008.1.2.4.202"
+#define DCM_UID_TRANSFER_SYNTAX_HIGH_THROUGHPUT_JPEG_2000_IMAGE_COMPRESSION "1.2.840.10008.1.2.4.203"
+#define DCM_UID_TRANSFER_SYNTAX_JPIP_HTJ2K_REFERENCED "1.2.840.10008.1.2.4.204"
+#define DCM_UID_TRANSFER_SYNTAX_JPIP_HTJ2K_REFERENCED_DEFLATE "1.2.840.10008.1.2.4.205"
 #define DCM_UID_TRANSFER_SYNTAX_RLE_LOSSLESS "1.2.840.10008.1.2.5"
 #define DCM_UID_TRANSFER_SYNTAX_RFC_2557_MIME_ENCAPSULATION_RETIRED "1.2.840.10008.1.2.6.1"
 #define DCM_UID_TRANSFER_SYNTAX_XML_ENCODING_RETIRED "1.2.840.10008.1.2.6.2"
@@ -5121,6 +5372,7 @@ typedef struct dcm_uid {
 #define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_ICBM_SINGLE_SUBJECT_MRI_FRAME_OF_REFERENCE "1.2.840.10008.1.4.2.2"
 #define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_IEC_61217_FIXED_COORDINATE_SYSTEM_FRAME_OF_REFERENCE "1.2.840.10008.1.4.3.1"
 #define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_STANDARD_ROBOTIC_ARM_COORDINATE_SYSTEM_FRAME_OF_REFERENCE "1.2.840.10008.1.4.3.2"
+#define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_IEC_61217_TABLE_TOP_COORDINATE_SYSTEM_FRAME_OF_REFERENCE "1.2.840.10008.1.4.3.3"
 #define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_SRI24_FRAME_OF_REFERENCE "1.2.840.10008.1.4.4.1"
 #define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_COLIN27_FRAME_OF_REFERENCE "1.2.840.10008.1.4.5.1"
 #define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_LPBA40AIR_FRAME_OF_REFERENCE "1.2.840.10008.1.4.6.1"
@@ -5158,6 +5410,8 @@ typedef struct dcm_uid {
 #define DCM_UID_CODING_SCHEME_RADIOMICS_ONTOLOGY "1.2.840.10008.2.16.14"
 #define DCM_UID_CODING_SCHEME_RADELEMENT "1.2.840.10008.2.16.15"
 #define DCM_UID_CODING_SCHEME_ICD_11 "1.2.840.10008.2.16.16"
+#define DCM_UID_CODING_SCHEME_UNIFIED_NUMBERING_SYSTEM_UNS_FOR_METALS_AND_ALLOYS "1.2.840.10008.2.16.17"
+#define DCM_UID_CODING_SCHEME_RESEARCH_RESOURCE_IDENTIFICATION "1.2.840.10008.2.16.18"
 #define DCM_UID_APPLICATION_CONTEXT_NAME_DICOM "1.2.840.10008.3.1.1.1"
 #define DCM_UID_SOP_CLASS_DETACHED_PATIENT_MANAGEMENT_SOP_CLASS_RETIRED "1.2.840.10008.3.1.2.1.1"
 #define DCM_UID_META_SOP_CLASS_DETACHED_PATIENT_MANAGEMENT_META_SOP_CLASS_RETIRED "1.2.840.10008.3.1.2.1.4"
@@ -5183,15 +5437,15 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_BASIC_ANNOTATION_BOX "1.2.840.10008.5.1.1.15"
 #define DCM_UID_SOP_CLASS_PRINTER "1.2.840.10008.5.1.1.16"
 #define DCM_UID_SOP_CLASS_PRINTER_CONFIGURATION_RETRIEVAL "1.2.840.10008.5.1.1.16.376"
-#define DCM_UID_WELL_KNOWN_PRINTER_SOP_INSTANCE_PRINTER_SOP_INSTANCE "1.2.840.10008.5.1.1.17"
-#define DCM_UID_WELL_KNOWN_PRINTER_SOP_INSTANCE_PRINTER_CONFIGURATION_RETRIEVAL_SOP_INSTANCE "1.2.840.10008.5.1.1.17.376"
+#define DCM_UID_WELL_KNOWN_SOP_INSTANCE_PRINTER_SOP_INSTANCE "1.2.840.10008.5.1.1.17"
+#define DCM_UID_WELL_KNOWN_SOP_INSTANCE_PRINTER_CONFIGURATION_RETRIEVAL_SOP_INSTANCE "1.2.840.10008.5.1.1.17.376"
 #define DCM_UID_META_SOP_CLASS_BASIC_COLOR_PRINT_MANAGEMENT "1.2.840.10008.5.1.1.18"
 #define DCM_UID_META_SOP_CLASS_REFERENCED_COLOR_PRINT_MANAGEMENT_META_SOP_CLASS_RETIRED "1.2.840.10008.5.1.1.18.1"
 #define DCM_UID_SOP_CLASS_VOI_LUT_BOX "1.2.840.10008.5.1.1.22"
 #define DCM_UID_SOP_CLASS_PRESENTATION_LUT "1.2.840.10008.5.1.1.23"
 #define DCM_UID_SOP_CLASS_IMAGE_OVERLAY_BOX_SOP_CLASS_RETIRED "1.2.840.10008.5.1.1.24"
 #define DCM_UID_SOP_CLASS_BASIC_PRINT_IMAGE_OVERLAY_BOX_SOP_CLASS_RETIRED "1.2.840.10008.5.1.1.24.1"
-#define DCM_UID_WELL_KNOWN_PRINT_QUEUE_SOP_INSTANCE_PRINT_QUEUE_SOP_INSTANCE_RETIRED "1.2.840.10008.5.1.1.25"
+#define DCM_UID_WELL_KNOWN_SOP_INSTANCE_PRINT_QUEUE_SOP_INSTANCE_RETIRED "1.2.840.10008.5.1.1.25"
 #define DCM_UID_SOP_CLASS_PRINT_QUEUE_MANAGEMENT_SOP_CLASS_RETIRED "1.2.840.10008.5.1.1.26"
 #define DCM_UID_SOP_CLASS_STORED_PRINT_STORAGE_SOP_CLASS_RETIRED "1.2.840.10008.5.1.1.27"
 #define DCM_UID_SOP_CLASS_HARDCOPY_GRAYSCALE_IMAGE_STORAGE_SOP_CLASS_RETIRED "1.2.840.10008.5.1.1.29"
@@ -5222,6 +5476,7 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_ULTRASOUND_IMAGE_STORAGE_RETIRED "1.2.840.10008.5.1.4.1.1.6"
 #define DCM_UID_SOP_CLASS_ULTRASOUND_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.6.1"
 #define DCM_UID_SOP_CLASS_ENHANCED_US_VOLUME_STORAGE "1.2.840.10008.5.1.4.1.1.6.2"
+#define DCM_UID_SOP_CLASS_PHOTOACOUSTIC_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.6.3"
 #define DCM_UID_SOP_CLASS_SECONDARY_CAPTURE_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.7"
 #define DCM_UID_SOP_CLASS_MULTI_FRAME_SINGLE_BIT_SECONDARY_CAPTURE_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.7.1"
 #define DCM_UID_SOP_CLASS_MULTI_FRAME_GRAYSCALE_BYTE_SECONDARY_CAPTURE_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.7.2"
@@ -5233,6 +5488,7 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_12_LEAD_ECG_WAVEFORM_STORAGE "1.2.840.10008.5.1.4.1.1.9.1.1"
 #define DCM_UID_SOP_CLASS_GENERAL_ECG_WAVEFORM_STORAGE "1.2.840.10008.5.1.4.1.1.9.1.2"
 #define DCM_UID_SOP_CLASS_AMBULATORY_ECG_WAVEFORM_STORAGE "1.2.840.10008.5.1.4.1.1.9.1.3"
+#define DCM_UID_SOP_CLASS_GENERAL_32_BIT_ECG_WAVEFORM_STORAGE "1.2.840.10008.5.1.4.1.1.9.1.4"
 #define DCM_UID_SOP_CLASS_HEMODYNAMIC_WAVEFORM_STORAGE "1.2.840.10008.5.1.4.1.1.9.2.1"
 #define DCM_UID_SOP_CLASS_CARDIAC_ELECTROPHYSIOLOGY_WAVEFORM_STORAGE "1.2.840.10008.5.1.4.1.1.9.3.1"
 #define DCM_UID_SOP_CLASS_BASIC_VOICE_AUDIO_WAVEFORM_STORAGE "1.2.840.10008.5.1.4.1.1.9.4.1"
@@ -5258,6 +5514,7 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_VOLUME_RENDERING_VOLUMETRIC_PRESENTATION_STATE_STORAGE "1.2.840.10008.5.1.4.1.1.11.9"
 #define DCM_UID_SOP_CLASS_SEGMENTED_VOLUME_RENDERING_VOLUMETRIC_PRESENTATION_STATE_STORAGE "1.2.840.10008.5.1.4.1.1.11.10"
 #define DCM_UID_SOP_CLASS_MULTIPLE_VOLUME_RENDERING_VOLUMETRIC_PRESENTATION_STATE_STORAGE "1.2.840.10008.5.1.4.1.1.11.11"
+#define DCM_UID_SOP_CLASS_VARIABLE_MODALITY_LUT_SOFTCOPY_PRESENTATION_STATE_STORAGE "1.2.840.10008.5.1.4.1.1.11.12"
 #define DCM_UID_SOP_CLASS_X_RAY_ANGIOGRAPHIC_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.12.1"
 #define DCM_UID_SOP_CLASS_ENHANCED_XA_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.12.1.1"
 #define DCM_UID_SOP_CLASS_X_RAY_RADIOFLUOROSCOPIC_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.12.2"
@@ -5300,6 +5557,8 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_OPHTHALMIC_OPTICAL_COHERENCE_TOMOGRAPHY_B_SCAN_VOLUME_ANALYSIS_STORAGE "1.2.840.10008.5.1.4.1.1.77.1.5.8"
 #define DCM_UID_SOP_CLASS_VL_WHOLE_SLIDE_MICROSCOPY_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.77.1.6"
 #define DCM_UID_SOP_CLASS_DERMOSCOPIC_PHOTOGRAPHY_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.77.1.7"
+#define DCM_UID_SOP_CLASS_CONFOCAL_MICROSCOPY_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.77.1.8"
+#define DCM_UID_SOP_CLASS_CONFOCAL_MICROSCOPY_TILED_PYRAMIDAL_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.77.1.9"
 #define DCM_UID_SOP_CLASS_VL_MULTI_FRAME_IMAGE_STORAGE_TRIAL_RETIRED "1.2.840.10008.5.1.4.1.1.77.2"
 #define DCM_UID_SOP_CLASS_LENSOMETRY_MEASUREMENTS_STORAGE "1.2.840.10008.5.1.4.1.1.78.1"
 #define DCM_UID_SOP_CLASS_AUTOREFRACTION_MEASUREMENTS_STORAGE "1.2.840.10008.5.1.4.1.1.78.2"
@@ -5337,6 +5596,7 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_PERFORMED_IMAGING_AGENT_ADMINISTRATION_SR_STORAGE "1.2.840.10008.5.1.4.1.1.88.75"
 #define DCM_UID_SOP_CLASS_ENHANCED_X_RAY_RADIATION_DOSE_SR_STORAGE "1.2.840.10008.5.1.4.1.1.88.76"
 #define DCM_UID_SOP_CLASS_CONTENT_ASSESSMENT_RESULTS_STORAGE "1.2.840.10008.5.1.4.1.1.90.1"
+#define DCM_UID_SOP_CLASS_MICROSCOPY_BULK_SIMPLE_ANNOTATIONS_STORAGE "1.2.840.10008.5.1.4.1.1.91.1"
 #define DCM_UID_SOP_CLASS_ENCAPSULATED_PDF_STORAGE "1.2.840.10008.5.1.4.1.1.104.1"
 #define DCM_UID_SOP_CLASS_ENCAPSULATED_CDA_STORAGE "1.2.840.10008.5.1.4.1.1.104.2"
 #define DCM_UID_SOP_CLASS_ENCAPSULATED_STL_STORAGE "1.2.840.10008.5.1.4.1.1.104.3"
@@ -5355,6 +5615,13 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_PROTOCOL_APPROVAL_INFORMATION_MODEL_GET "1.2.840.10008.5.1.4.1.1.200.6"
 #define DCM_UID_SOP_CLASS_XA_DEFINED_PROCEDURE_PROTOCOL_STORAGE "1.2.840.10008.5.1.4.1.1.200.7"
 #define DCM_UID_SOP_CLASS_XA_PERFORMED_PROCEDURE_PROTOCOL_STORAGE "1.2.840.10008.5.1.4.1.1.200.8"
+#define DCM_UID_SOP_CLASS_INVENTORY_STORAGE "1.2.840.10008.5.1.4.1.1.201.1"
+#define DCM_UID_WELL_KNOWN_SOP_INSTANCE_STORAGE_MANAGEMENT_SOP_INSTANCE "1.2.840.10008.5.1.4.1.1.201.1.1"
+#define DCM_UID_SOP_CLASS_INVENTORY_FIND "1.2.840.10008.5.1.4.1.1.201.2"
+#define DCM_UID_SOP_CLASS_INVENTORY_MOVE "1.2.840.10008.5.1.4.1.1.201.3"
+#define DCM_UID_SOP_CLASS_INVENTORY_GET "1.2.840.10008.5.1.4.1.1.201.4"
+#define DCM_UID_SOP_CLASS_INVENTORY_CREATION "1.2.840.10008.5.1.4.1.1.201.5"
+#define DCM_UID_SOP_CLASS_REPOSITORY_QUERY "1.2.840.10008.5.1.4.1.1.201.6"
 #define DCM_UID_SOP_CLASS_RT_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.481.1"
 #define DCM_UID_SOP_CLASS_RT_DOSE_STORAGE "1.2.840.10008.5.1.4.1.1.481.2"
 #define DCM_UID_SOP_CLASS_RT_STRUCTURE_SET_STORAGE "1.2.840.10008.5.1.4.1.1.481.3"
@@ -5375,6 +5642,11 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_TOMOTHERAPEUTIC_RADIATION_RECORD_STORAGE "1.2.840.10008.5.1.4.1.1.481.18"
 #define DCM_UID_SOP_CLASS_C_ARM_PHOTON_ELECTRON_RADIATION_RECORD_STORAGE "1.2.840.10008.5.1.4.1.1.481.19"
 #define DCM_UID_SOP_CLASS_ROBOTIC_RADIATION_RECORD_STORAGE "1.2.840.10008.5.1.4.1.1.481.20"
+#define DCM_UID_SOP_CLASS_RT_RADIATION_SET_DELIVERY_INSTRUCTION_STORAGE "1.2.840.10008.5.1.4.1.1.481.21"
+#define DCM_UID_SOP_CLASS_RT_TREATMENT_PREPARATION_STORAGE "1.2.840.10008.5.1.4.1.1.481.22"
+#define DCM_UID_SOP_CLASS_ENHANCED_RT_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.481.23"
+#define DCM_UID_SOP_CLASS_ENHANCED_CONTINUOUS_RT_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.481.24"
+#define DCM_UID_SOP_CLASS_RT_PATIENT_POSITION_ACQUISITION_INSTRUCTION_STORAGE "1.2.840.10008.5.1.4.1.1.481.25"
 #define DCM_UID_SOP_CLASS_DICOS_CT_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.501.1"
 #define DCM_UID_SOP_CLASS_DICOS_DIGITAL_X_RAY_IMAGE_STORAGE_FOR_PRESENTATION "1.2.840.10008.5.1.4.1.1.501.2.1"
 #define DCM_UID_SOP_CLASS_DICOS_DIGITAL_X_RAY_IMAGE_STORAGE_FOR_PROCESSING "1.2.840.10008.5.1.4.1.1.501.2.2"
@@ -5502,6 +5774,7 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_VERIFICATION, "Verification SOP Class", "SOP Class"},
     { DCM_UID_TRANSFER_SYNTAX_IMPLICIT_VR_LITTLE_ENDIAN, "Implicit VR Little Endian: Default Transfer Syntax for DICOM", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_EXPLICIT_VR_LITTLE_ENDIAN, "Explicit VR Little Endian", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_ENCAPSULATED_UNCOMPRESSED_EXPLICIT_VR_LITTLE_ENDIAN, "Encapsulated Uncompressed Explicit VR Little Endian", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_DEFLATED_EXPLICIT_VR_LITTLE_ENDIAN, "Deflated Explicit VR Little Endian", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_EXPLICIT_VR_BIG_ENDIAN_RETIRED, "Explicit VR Big Endian (Retired)", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_JPEG_BASELINE_PROCESS_1, "JPEG Baseline (Process 1): Default Transfer Syntax for Lossy JPEG 8 Bit Image Compression", "Transfer Syntax"},
@@ -5531,14 +5804,26 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_TRANSFER_SYNTAX_JPIP_REFERENCED, "JPIP Referenced", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_JPIP_REFERENCED_DEFLATE, "JPIP Referenced Deflate", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_MPEG2_MAIN_PROFILE_MAIN_LEVEL, "MPEG2 Main Profile / Main Level", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_FRAGMENTABLE_MPEG2_MAIN_PROFILE_MAIN_LEVEL, "Fragmentable MPEG2 Main Profile / Main Level", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_MPEG2_MAIN_PROFILE_HIGH_LEVEL, "MPEG2 Main Profile / High Level", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_FRAGMENTABLE_MPEG2_MAIN_PROFILE_HIGH_LEVEL, "Fragmentable MPEG2 Main Profile / High Level", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_MPEG_4_AVCH264_HIGH_PROFILE_LEVEL_41, "MPEG-4 AVC/H.264 High Profile / Level 4.1", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_FRAGMENTABLE_MPEG_4_AVCH264_HIGH_PROFILE_LEVEL_41, "Fragmentable MPEG-4 AVC/H.264 High Profile / Level 4.1", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_MPEG_4_AVCH264_BD_COMPATIBLE_HIGH_PROFILE_LEVEL_41, "MPEG-4 AVC/H.264 BD-compatible High Profile / Level 4.1", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_FRAGMENTABLE_MPEG_4_AVCH264_BD_COMPATIBLE_HIGH_PROFILE_LEVEL_41, "Fragmentable MPEG-4 AVC/H.264 BD-compatible High Profile / Level 4.1", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_MPEG_4_AVCH264_HIGH_PROFILE_LEVEL_42_FOR_2D_VIDEO, "MPEG-4 AVC/H.264 High Profile / Level 4.2 For 2D Video", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_FRAGMENTABLE_MPEG_4_AVCH264_HIGH_PROFILE_LEVEL_42_FOR_2D_VIDEO, "Fragmentable MPEG-4 AVC/H.264 High Profile / Level 4.2 For 2D Video", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_MPEG_4_AVCH264_HIGH_PROFILE_LEVEL_42_FOR_3D_VIDEO, "MPEG-4 AVC/H.264 High Profile / Level 4.2 For 3D Video", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_FRAGMENTABLE_MPEG_4_AVCH264_HIGH_PROFILE_LEVEL_42_FOR_3D_VIDEO, "Fragmentable MPEG-4 AVC/H.264 High Profile / Level 4.2 For 3D Video", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_MPEG_4_AVCH264_STEREO_HIGH_PROFILE_LEVEL_42, "MPEG-4 AVC/H.264 Stereo High Profile / Level 4.2", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_FRAGMENTABLE_MPEG_4_AVCH264_STEREO_HIGH_PROFILE_LEVEL_42, "Fragmentable MPEG-4 AVC/H.264 Stereo High Profile / Level 4.2", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_HEVCH265_MAIN_PROFILE_LEVEL_51, "HEVC/H.265 Main Profile / Level 5.1", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_HEVCH265_MAIN_10_PROFILE_LEVEL_51, "HEVC/H.265 Main 10 Profile / Level 5.1", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_HIGH_THROUGHPUT_JPEG_2000_IMAGE_COMPRESSION_LOSSLESS_ONLY, "High-Throughput JPEG 2000 Image Compression (Lossless Only)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_HIGH_THROUGHPUT_JPEG_2000_WITH_RPCL_OPTIONS_IMAGE_COMPRESSION_LOSSLESS_ONLY, "High-Throughput JPEG 2000 with RPCL Options Image Compression (Lossless Only)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_HIGH_THROUGHPUT_JPEG_2000_IMAGE_COMPRESSION, "High-Throughput JPEG 2000 Image Compression", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPIP_HTJ2K_REFERENCED, "JPIP HTJ2K Referenced", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPIP_HTJ2K_REFERENCED_DEFLATE, "JPIP HTJ2K Referenced Deflate", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_RLE_LOSSLESS, "RLE Lossless", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_RFC_2557_MIME_ENCAPSULATION_RETIRED, "RFC 2557 MIME encapsulation (Retired)", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_XML_ENCODING_RETIRED, "XML Encoding (Retired)", "Transfer Syntax"},
@@ -5568,6 +5853,7 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_ICBM_SINGLE_SUBJECT_MRI_FRAME_OF_REFERENCE, "ICBM Single Subject MRI Frame of Reference", "Well-known frame of reference"},
     { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_IEC_61217_FIXED_COORDINATE_SYSTEM_FRAME_OF_REFERENCE, "IEC 61217 Fixed Coordinate System Frame of Reference", "Well-known frame of reference"},
     { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_STANDARD_ROBOTIC_ARM_COORDINATE_SYSTEM_FRAME_OF_REFERENCE, "Standard Robotic-Arm Coordinate System Frame of Reference", "Well-known frame of reference"},
+    { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_IEC_61217_TABLE_TOP_COORDINATE_SYSTEM_FRAME_OF_REFERENCE, "IEC 61217 Table Top Coordinate System Frame of Reference", "Well-known frame of reference"},
     { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_SRI24_FRAME_OF_REFERENCE, "SRI24 Frame of Reference", "Well-known frame of reference"},
     { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_COLIN27_FRAME_OF_REFERENCE, "Colin27 Frame of Reference", "Well-known frame of reference"},
     { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_LPBA40AIR_FRAME_OF_REFERENCE, "LPBA40/AIR Frame of Reference", "Well-known frame of reference"},
@@ -5605,6 +5891,8 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_CODING_SCHEME_RADIOMICS_ONTOLOGY, "Radiomics Ontology", "Coding Scheme"},
     { DCM_UID_CODING_SCHEME_RADELEMENT, "RadElement", "Coding Scheme"},
     { DCM_UID_CODING_SCHEME_ICD_11, "ICD-11", "Coding Scheme"},
+    { DCM_UID_CODING_SCHEME_UNIFIED_NUMBERING_SYSTEM_UNS_FOR_METALS_AND_ALLOYS, "Unified numbering system (UNS) for metals and alloys", "Coding Scheme"},
+    { DCM_UID_CODING_SCHEME_RESEARCH_RESOURCE_IDENTIFICATION, "Research Resource Identification", "Coding Scheme"},
     { DCM_UID_APPLICATION_CONTEXT_NAME_DICOM, "DICOM Application Context Name", "Application Context Name"},
     { DCM_UID_SOP_CLASS_DETACHED_PATIENT_MANAGEMENT_SOP_CLASS_RETIRED, "Detached Patient Management SOP Class (Retired)", "SOP Class"},
     { DCM_UID_META_SOP_CLASS_DETACHED_PATIENT_MANAGEMENT_META_SOP_CLASS_RETIRED, "Detached Patient Management Meta SOP Class (Retired)", "Meta SOP Class"},
@@ -5630,15 +5918,15 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_BASIC_ANNOTATION_BOX, "Basic Annotation Box SOP Class", "SOP Class"},
     { DCM_UID_SOP_CLASS_PRINTER, "Printer SOP Class", "SOP Class"},
     { DCM_UID_SOP_CLASS_PRINTER_CONFIGURATION_RETRIEVAL, "Printer Configuration Retrieval SOP Class", "SOP Class"},
-    { DCM_UID_WELL_KNOWN_PRINTER_SOP_INSTANCE_PRINTER_SOP_INSTANCE, "Printer SOP Instance", "Well-known Printer SOP Instance"},
-    { DCM_UID_WELL_KNOWN_PRINTER_SOP_INSTANCE_PRINTER_CONFIGURATION_RETRIEVAL_SOP_INSTANCE, "Printer Configuration Retrieval SOP Instance", "Well-known Printer SOP Instance"},
+    { DCM_UID_WELL_KNOWN_SOP_INSTANCE_PRINTER_SOP_INSTANCE, "Printer SOP Instance", "Well-known SOP Instance"},
+    { DCM_UID_WELL_KNOWN_SOP_INSTANCE_PRINTER_CONFIGURATION_RETRIEVAL_SOP_INSTANCE, "Printer Configuration Retrieval SOP Instance", "Well-known SOP Instance"},
     { DCM_UID_META_SOP_CLASS_BASIC_COLOR_PRINT_MANAGEMENT, "Basic Color Print Management Meta SOP Class", "Meta SOP Class"},
     { DCM_UID_META_SOP_CLASS_REFERENCED_COLOR_PRINT_MANAGEMENT_META_SOP_CLASS_RETIRED, "Referenced Color Print Management Meta SOP Class (Retired)", "Meta SOP Class"},
     { DCM_UID_SOP_CLASS_VOI_LUT_BOX, "VOI LUT Box SOP Class", "SOP Class"},
     { DCM_UID_SOP_CLASS_PRESENTATION_LUT, "Presentation LUT SOP Class", "SOP Class"},
     { DCM_UID_SOP_CLASS_IMAGE_OVERLAY_BOX_SOP_CLASS_RETIRED, "Image Overlay Box SOP Class (Retired)", "SOP Class"},
     { DCM_UID_SOP_CLASS_BASIC_PRINT_IMAGE_OVERLAY_BOX_SOP_CLASS_RETIRED, "Basic Print Image Overlay Box SOP Class (Retired)", "SOP Class"},
-    { DCM_UID_WELL_KNOWN_PRINT_QUEUE_SOP_INSTANCE_PRINT_QUEUE_SOP_INSTANCE_RETIRED, "Print Queue SOP Instance (Retired)", "Well-known Print Queue SOP Instance"},
+    { DCM_UID_WELL_KNOWN_SOP_INSTANCE_PRINT_QUEUE_SOP_INSTANCE_RETIRED, "Print Queue SOP Instance (Retired)", "Well-known SOP Instance"},
     { DCM_UID_SOP_CLASS_PRINT_QUEUE_MANAGEMENT_SOP_CLASS_RETIRED, "Print Queue Management SOP Class (Retired)", "SOP Class"},
     { DCM_UID_SOP_CLASS_STORED_PRINT_STORAGE_SOP_CLASS_RETIRED, "Stored Print Storage SOP Class (Retired)", "SOP Class"},
     { DCM_UID_SOP_CLASS_HARDCOPY_GRAYSCALE_IMAGE_STORAGE_SOP_CLASS_RETIRED, "Hardcopy Grayscale Image Storage SOP Class (Retired)", "SOP Class"},
@@ -5669,6 +5957,7 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_ULTRASOUND_IMAGE_STORAGE_RETIRED, "Ultrasound Image Storage (Retired)", "SOP Class"},
     { DCM_UID_SOP_CLASS_ULTRASOUND_IMAGE_STORAGE, "Ultrasound Image Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_ENHANCED_US_VOLUME_STORAGE, "Enhanced US Volume Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_PHOTOACOUSTIC_IMAGE_STORAGE, "Photoacoustic Image Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_SECONDARY_CAPTURE_IMAGE_STORAGE, "Secondary Capture Image Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_MULTI_FRAME_SINGLE_BIT_SECONDARY_CAPTURE_IMAGE_STORAGE, "Multi-frame Single Bit Secondary Capture Image Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_MULTI_FRAME_GRAYSCALE_BYTE_SECONDARY_CAPTURE_IMAGE_STORAGE, "Multi-frame Grayscale Byte Secondary Capture Image Storage", "SOP Class"},
@@ -5680,6 +5969,7 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_12_LEAD_ECG_WAVEFORM_STORAGE, "12-lead ECG Waveform Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_GENERAL_ECG_WAVEFORM_STORAGE, "General ECG Waveform Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_AMBULATORY_ECG_WAVEFORM_STORAGE, "Ambulatory ECG Waveform Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_GENERAL_32_BIT_ECG_WAVEFORM_STORAGE, "General 32-bit ECG Waveform Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_HEMODYNAMIC_WAVEFORM_STORAGE, "Hemodynamic Waveform Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_CARDIAC_ELECTROPHYSIOLOGY_WAVEFORM_STORAGE, "Cardiac Electrophysiology Waveform Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_BASIC_VOICE_AUDIO_WAVEFORM_STORAGE, "Basic Voice Audio Waveform Storage", "SOP Class"},
@@ -5705,6 +5995,7 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_VOLUME_RENDERING_VOLUMETRIC_PRESENTATION_STATE_STORAGE, "Volume Rendering Volumetric Presentation State Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_SEGMENTED_VOLUME_RENDERING_VOLUMETRIC_PRESENTATION_STATE_STORAGE, "Segmented Volume Rendering Volumetric Presentation State Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_MULTIPLE_VOLUME_RENDERING_VOLUMETRIC_PRESENTATION_STATE_STORAGE, "Multiple Volume Rendering Volumetric Presentation State Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_VARIABLE_MODALITY_LUT_SOFTCOPY_PRESENTATION_STATE_STORAGE, "Variable Modality LUT Softcopy Presentation State Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_X_RAY_ANGIOGRAPHIC_IMAGE_STORAGE, "X-Ray Angiographic Image Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_ENHANCED_XA_IMAGE_STORAGE, "Enhanced XA Image Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_X_RAY_RADIOFLUOROSCOPIC_IMAGE_STORAGE, "X-Ray Radiofluoroscopic Image Storage", "SOP Class"},
@@ -5749,6 +6040,8 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_OPHTHALMIC_OPTICAL_COHERENCE_TOMOGRAPHY_B_SCAN_VOLUME_ANALYSIS_STORAGE, "Ophthalmic Optical Coherence Tomography B-scan Volume Analysis Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_VL_WHOLE_SLIDE_MICROSCOPY_IMAGE_STORAGE, "VL Whole Slide Microscopy Image Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_DERMOSCOPIC_PHOTOGRAPHY_IMAGE_STORAGE, "Dermoscopic Photography Image Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_CONFOCAL_MICROSCOPY_IMAGE_STORAGE, "Confocal Microscopy Image Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_CONFOCAL_MICROSCOPY_TILED_PYRAMIDAL_IMAGE_STORAGE, "Confocal Microscopy Tiled Pyramidal Image Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_VL_MULTI_FRAME_IMAGE_STORAGE_TRIAL_RETIRED, "VL Multi-frame Image Storage - Trial (Retired)", "SOP Class"},
     { DCM_UID_SOP_CLASS_LENSOMETRY_MEASUREMENTS_STORAGE, "Lensometry Measurements Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_AUTOREFRACTION_MEASUREMENTS_STORAGE, "Autorefraction Measurements Storage", "SOP Class"},
@@ -5786,6 +6079,7 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_PERFORMED_IMAGING_AGENT_ADMINISTRATION_SR_STORAGE, "Performed Imaging Agent Administration SR Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_ENHANCED_X_RAY_RADIATION_DOSE_SR_STORAGE, "Enhanced X-Ray Radiation Dose SR Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_CONTENT_ASSESSMENT_RESULTS_STORAGE, "Content Assessment Results Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_MICROSCOPY_BULK_SIMPLE_ANNOTATIONS_STORAGE, "Microscopy Bulk Simple Annotations Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_ENCAPSULATED_PDF_STORAGE, "Encapsulated PDF Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_ENCAPSULATED_CDA_STORAGE, "Encapsulated CDA Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_ENCAPSULATED_STL_STORAGE, "Encapsulated STL Storage", "SOP Class"},
@@ -5804,6 +6098,13 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_PROTOCOL_APPROVAL_INFORMATION_MODEL_GET, "Protocol Approval Information Model - GET", "SOP Class"},
     { DCM_UID_SOP_CLASS_XA_DEFINED_PROCEDURE_PROTOCOL_STORAGE, "XA Defined Procedure Protocol Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_XA_PERFORMED_PROCEDURE_PROTOCOL_STORAGE, "XA Performed Procedure Protocol Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_INVENTORY_STORAGE, "Inventory Storage", "SOP Class"},
+    { DCM_UID_WELL_KNOWN_SOP_INSTANCE_STORAGE_MANAGEMENT_SOP_INSTANCE, "Storage Management SOP Instance", "Well-known SOP Instance"},
+    { DCM_UID_SOP_CLASS_INVENTORY_FIND, "Inventory - FIND", "SOP Class"},
+    { DCM_UID_SOP_CLASS_INVENTORY_MOVE, "Inventory - MOVE", "SOP Class"},
+    { DCM_UID_SOP_CLASS_INVENTORY_GET, "Inventory - GET", "SOP Class"},
+    { DCM_UID_SOP_CLASS_INVENTORY_CREATION, "Inventory Creation", "SOP Class"},
+    { DCM_UID_SOP_CLASS_REPOSITORY_QUERY, "Repository Query", "SOP Class"},
     { DCM_UID_SOP_CLASS_RT_IMAGE_STORAGE, "RT Image Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_RT_DOSE_STORAGE, "RT Dose Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_RT_STRUCTURE_SET_STORAGE, "RT Structure Set Storage", "SOP Class"},
@@ -5824,6 +6125,11 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_TOMOTHERAPEUTIC_RADIATION_RECORD_STORAGE, "Tomotherapeutic Radiation Record Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_C_ARM_PHOTON_ELECTRON_RADIATION_RECORD_STORAGE, "C-Arm Photon-Electron Radiation Record Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_ROBOTIC_RADIATION_RECORD_STORAGE, "Robotic Radiation Record Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_RT_RADIATION_SET_DELIVERY_INSTRUCTION_STORAGE, "RT Radiation Set Delivery Instruction Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_RT_TREATMENT_PREPARATION_STORAGE, "RT Treatment Preparation Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_ENHANCED_RT_IMAGE_STORAGE, "Enhanced RT Image Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_ENHANCED_CONTINUOUS_RT_IMAGE_STORAGE, "Enhanced Continuous RT Image Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_RT_PATIENT_POSITION_ACQUISITION_INSTRUCTION_STORAGE, "RT Patient Position Acquisition Instruction Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_DICOS_CT_IMAGE_STORAGE, "DICOS CT Image Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_DICOS_DIGITAL_X_RAY_IMAGE_STORAGE_FOR_PRESENTATION, "DICOS Digital X-Ray Image Storage - For Presentation", "SOP Class"},
     { DCM_UID_SOP_CLASS_DICOS_DIGITAL_X_RAY_IMAGE_STORAGE_FOR_PROCESSING, "DICOS Digital X-Ray Image Storage - For Processing", "SOP Class"},

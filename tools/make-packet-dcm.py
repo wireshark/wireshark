@@ -123,6 +123,10 @@ vrs = {i+1: get_texts_in_row(x)[0].split(maxsplit=1) for i,x in enumerate(get_tr
 uid_trs = get_trs(part06, "table_A-1")
 uid_rows = [get_texts_in_row(x) for x in uid_trs]
 
+wkfr_trs = get_trs(part06, "table_A-2")
+wkfr_rows = [get_texts_in_row(x) for x in wkfr_trs]
+uid_rows += [x[:3] + ['Well-known frame of reference'] + x[3:] for x in wkfr_rows]
+
 def uid_define_name(uid):
     if uid[1] == "(Retired)":
         return f'"{uid[0]}"'
