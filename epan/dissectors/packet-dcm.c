@@ -664,7 +664,7 @@ typedef struct dcm_status {
     const gchar *description;
 } dcm_status_t;
 
-static dcm_status_t dcm_status_data[] = {
+static dcm_status_t const dcm_status_data[] = {
 
     /* From PS 3.7 */
 
@@ -1010,11 +1010,11 @@ static const gchar *
 dcm_rsp2str(guint16 status_value)
 {
 
-    dcm_status_t    *status = NULL;
+    dcm_status_t const *status = NULL;
     const gchar *s;
 
     /* Use specific text first */
-    status = (dcm_status_t*) wmem_map_lookup(dcm_status_table, GUINT_TO_POINTER((guint32)status_value));
+    status = (dcm_status_t const *)wmem_map_lookup(dcm_status_table, GUINT_TO_POINTER((guint32)status_value));
 
     if (status) {
          s = status->description;
@@ -1657,7 +1657,7 @@ dissect_dcm_assoc_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 
     proto_tree *assoc_item_ptree;       /* Tree for item details */
     proto_item *assoc_item_pitem;
-    dcm_uid_t  *uid = NULL;
+    dcm_uid_t const *uid = NULL;
 
     guint32 item_number = 0;
 
@@ -1681,7 +1681,7 @@ dissect_dcm_assoc_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
     case DCM_ITEM_VALUE_TYPE_UID:
         *item_value = (gchar *)tvb_get_string_enc(pinfo->pool, tvb, offset+4, item_len, ENC_ASCII);
 
-        uid = (dcm_uid_t *)wmem_map_lookup(dcm_uid_table, (gpointer) *item_value);
+        uid = (dcm_uid_t const *)wmem_map_lookup(dcm_uid_table, (gpointer) *item_value);
         if (uid) {
             *item_description = uid->name;
             buf_desc = wmem_strdup_printf(pinfo->pool, "%s (%s)", *item_description, *item_value);
@@ -1733,7 +1733,7 @@ dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     gint32 cnt = 0;
 
     gchar *buf_desc = NULL;             /* Used for item text */
-    dcm_uid_t *sopclassuid=NULL;
+    dcm_uid_t const *sopclassuid=NULL;
     gchar *sopclassuid_str = NULL;
 
     item_len  = tvb_get_ntohs(tvb, offset+2);
@@ -1748,7 +1748,7 @@ dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_info_extneg_sopclassuid_len, tvb, offset+4, 2, ENC_BIG_ENDIAN);
 
     sopclassuid_str = (gchar *)tvb_get_string_enc(pinfo->pool, tvb, offset+6, sop_class_uid_len, ENC_ASCII);
-    sopclassuid = (dcm_uid_t *)wmem_map_lookup(dcm_uid_table, (gpointer) sopclassuid_str);
+    sopclassuid = (dcm_uid_t const *)wmem_map_lookup(dcm_uid_table, (gpointer) sopclassuid_str);
 
     if (sopclassuid) {
         buf_desc = wmem_strdup_printf(pinfo->pool, "%s (%s)", sopclassuid->name, sopclassuid->value);
@@ -1907,7 +1907,7 @@ dissect_dcm_assoc_role_selection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     guint8 scp_role, scu_role;
 
     gchar *buf_desc;     /* Used for item text */
-    dcm_uid_t *sopclassuid;
+    dcm_uid_t const *sopclassuid;
     gchar *sopclassuid_str;
 
     item_len  = tvb_get_ntohs(tvb, offset+2);
@@ -1922,7 +1922,7 @@ dissect_dcm_assoc_role_selection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     proto_tree_add_item(assoc_item_rolesel_tree, hf_dcm_info_rolesel_sopclassuid_len, tvb, offset+4, 2, ENC_BIG_ENDIAN);
 
     sopclassuid_str = (gchar *)tvb_get_string_enc(pinfo->pool, tvb, offset+6, sop_class_uid_len, ENC_ASCII);
-    sopclassuid = (dcm_uid_t *)wmem_map_lookup(dcm_uid_table, (gpointer) sopclassuid_str);
+    sopclassuid = (dcm_uid_t const *)wmem_map_lookup(dcm_uid_table, (gpointer) sopclassuid_str);
 
     scu_role = tvb_get_guint8(tvb, offset+6+sop_class_uid_len);
     scp_role = tvb_get_guint8(tvb, offset+7+sop_class_uid_len);
@@ -2574,7 +2574,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
         */
 
         gchar   *vals;
-        dcm_uid_t *uid = NULL;
+        dcm_uid_t const *uid = NULL;
         guint8 val8;
 
         val8 = tvb_get_guint8(tvb, offset + vl_max - 1);
@@ -2594,7 +2594,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
         if ((strncmp(vr, "UI", 2) == 0)) {
             /* This is a UID. Attempt a lookup. Will only return something for classes of course */
 
-            uid = (dcm_uid_t *)wmem_map_lookup(dcm_uid_table, (gpointer) vals);
+            uid = (dcm_uid_t const *)wmem_map_lookup(dcm_uid_table, (gpointer) vals);
             if (uid) {
                 *tag_value = wmem_strdup_printf(pinfo->pool, "%s (%s)", vals, uid->name);
             }
@@ -2828,19 +2828,19 @@ dcm_tag_is_open(dcm_state_pdv_t *pdv, guint32 startpos, guint32 offset, guint32 
     }
 }
 
-static dcm_tag_t*
+static dcm_tag_t const *
 dcm_tag_lookup(guint16 grp, guint16 elm)
 {
 
-    static dcm_tag_t *tag_def = NULL;
+    static dcm_tag_t const *tag_def = NULL;
 
-    static dcm_tag_t tag_unknown         = { 0x00000000, "(unknown)", "UN", "1", 0, 0};
-    static dcm_tag_t tag_private         = { 0x00000000, "Private Tag", "UN", "1", 0, 0 };
-    static dcm_tag_t tag_private_grp_len = { 0x00000000, "Private Tag Group Length", "UL", "1", 0, 0 };
-    static dcm_tag_t tag_grp_length      = { 0x00000000, "Group Length", "UL", "1", 0, 0 };
+    static dcm_tag_t const tag_unknown         = { 0x00000000, "(unknown)", "UN", "1", 0, 0};
+    static dcm_tag_t const tag_private         = { 0x00000000, "Private Tag", "UN", "1", 0, 0 };
+    static dcm_tag_t const tag_private_grp_len = { 0x00000000, "Private Tag Group Length", "UL", "1", 0, 0 };
+    static dcm_tag_t const tag_grp_length      = { 0x00000000, "Group Length", "UL", "1", 0, 0 };
 
     /* Try a direct hit first before doing a masked search */
-    tag_def = (dcm_tag_t *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | elm));
+    tag_def = (dcm_tag_t const *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | elm));
 
     if (tag_def == NULL) {
 
@@ -2858,23 +2858,23 @@ dcm_tag_lookup(guint16 grp, guint16 elm)
         /* There are a few tags that require a mask to be found */
         else if (((grp & 0xFF00) == 0x5000) || ((grp & 0xFF00) == 0x6000) || ((grp & 0xFF00) == 0x7F00)) {
             /* Do a special for groups 0x50xx, 0x60xx and 0x7Fxx */
-            tag_def = (dcm_tag_t *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER((((guint32)grp & 0xFF00) << 16) | elm));
+            tag_def = (dcm_tag_t const *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER((((guint32)grp & 0xFF00) << 16) | elm));
         }
         else if ((grp == 0x0020) && ((elm & 0xFF00) == 0x3100)) {
-            tag_def = (dcm_tag_t *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0xFF00)));
+            tag_def = (dcm_tag_t const *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0xFF00)));
         }
         else if ((grp == 0x0028) && ((elm & 0xFF00) == 0x0400)) {
             /* This map was done to 0x041x */
-            tag_def = (dcm_tag_t *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0xFF0F) | 0x0010));
+            tag_def = (dcm_tag_t const *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0xFF0F) | 0x0010));
         }
         else if ((grp == 0x0028) && ((elm & 0xFF00) == 0x0800)) {
-            tag_def = (dcm_tag_t *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0xFF0F)));
+            tag_def = (dcm_tag_t const *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0xFF0F)));
         }
         else if (grp == 0x1000) {
-            tag_def = (dcm_tag_t *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0x000F)));
+            tag_def = (dcm_tag_t const *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0x000F)));
         }
         else if (grp == 0x1010) {
-            tag_def = (dcm_tag_t *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0x0000)));
+            tag_def = (dcm_tag_t const *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0x0000)));
         }
 
         if (tag_def == NULL) {
@@ -2927,11 +2927,11 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 
 
-    proto_tree  *tag_ptree = NULL;      /* Tree for decoded tag details */
-    proto_tree  *seq_ptree = NULL;      /* Possible subtree for sequences and items */
+    proto_tree      *tag_ptree = NULL;      /* Tree for decoded tag details */
+    proto_tree      *seq_ptree = NULL;      /* Possible subtree for sequences and items */
 
-    proto_item  *tag_pitem = NULL;
-    dcm_tag_t   *tag_def   = NULL;
+    proto_item      *tag_pitem = NULL;
+    dcm_tag_t const *tag_def   = NULL;
 
     gint ett;
 
