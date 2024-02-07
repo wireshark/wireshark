@@ -185,7 +185,7 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         dissect_li5g(tvb_new_subset_remaining(tvb, offset+payloadLen), pinfo, tree, NULL);
 
     /* set these info at the end*/
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "5GLI");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LI5G");
     col_clear_fence(pinfo->cinfo, COL_INFO);
     col_clear(pinfo->cinfo, COL_INFO);
     info = try_val_to_str(pduType, pdu_type_vals);
@@ -289,7 +289,7 @@ proto_register_li5g(void)
         &ett_attrContents[22],
     };
 
-    proto_li5g = proto_register_protocol("5G Lawful Interception", "5GLI", "5gli");
+    proto_li5g = proto_register_protocol("Lawful Interception 5G", "LI5G", "li5g");
 
     li5g_handle = register_dissector("li5g", dissect_li5g, proto_li5g);
 
