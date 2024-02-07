@@ -356,7 +356,9 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         action = window()->findChild<QAction *>("actionAnalyzeShowPacketBytes");
         ctx_menu->addAction(action);
         action = window()->findChild<QAction *>("actionFileExportPacketBytes");
-        ctx_menu->addAction(action);
+        if (action) {
+            ctx_menu->addAction(action);
+        }
 
         ctx_menu->addSeparator();
     }
@@ -395,12 +397,14 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 
     if (! buildForDialog)
     {
-        QAction *decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
-        ctx_menu->addAction(decode_as_);
-        decode_as_->setProperty("create_new", QVariant::fromValue(true));
+        QAction *decode_as = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
+        if (decode_as) {
+            ctx_menu->addAction(decode_as);
+            decode_as->setProperty("create_new", QVariant::fromValue(true));
 
-        ctx_menu->addAction(window()->findChild<QAction *>("actionGoGoToLinkedPacket"));
-        ctx_menu->addAction(window()->findChild<QAction *>("actionContextShowLinkedPacketInNewWindow"));
+            ctx_menu->addAction(window()->findChild<QAction *>("actionGoGoToLinkedPacket"));
+            ctx_menu->addAction(window()->findChild<QAction *>("actionContextShowLinkedPacketInNewWindow"));
+        }
     }
 
     // The "text only" header field will not give preferences for the selected protocol.
