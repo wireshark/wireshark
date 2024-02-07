@@ -124,6 +124,7 @@ my %struct =  # Not reset; contains structures already defined.
     'xinput:ButtonClass' => 1,
     'xinput:KeyClass' => 1,
     'xinput:ScrollClass' => 1,
+    'xinput:GestureClass' => 1,
     'xinput:TouchClass' => 1,
     'xinput:ValuatorClass' => 1,
 
