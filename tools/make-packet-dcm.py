@@ -196,7 +196,7 @@ typedef struct dcm_tag {
     const gboolean add_to_summary;          /* Add to parent's item description */
 } dcm_tag_t;
 
-static dcm_tag_t dcm_tag_data[] = {
+static dcm_tag_t const dcm_tag_data[] = {
 
     /* Command Tags */
 """ + text_for_rows(cmd_rows) + """
@@ -233,7 +233,7 @@ typedef struct dcm_uid {
 """ + "\n".join(f'#define {uid_define_name(uid)} "{uid[0]}"'
                 for uid in uid_rows if uid[1] != '(Retired)') + """
 
-static dcm_uid_t dcm_uid_data[] = {
+static dcm_uid_t const dcm_uid_data[] = {
 """ + "\n".join(f'    {{ {uid_define_name(uid)}, "{uid[1]}", "{uid[3]}"}},'
                             for uid in uid_rows)+ """
 };

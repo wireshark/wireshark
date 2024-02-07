@@ -93,7 +93,7 @@ typedef struct dcm_tag {
     const gboolean add_to_summary;          /* Add to parent's item description */
 } dcm_tag_t;
 
-static dcm_tag_t dcm_tag_data[] = {
+static dcm_tag_t const dcm_tag_data[] = {
 
     /* Command Tags */
     { 0x00000000, "Command Group Length", "UL", "1", 0, 0},
@@ -5498,7 +5498,7 @@ typedef struct dcm_uid {
 #define DCM_UID_LDAP_OID_DICOMTRANSFERCAPABILITY "1.2.840.10008.15.0.4.8"
 #define DCM_UID_SYNCHRONIZATION_FRAME_OF_REFERENCE_UNIVERSAL_COORDINATED_TIME "1.2.840.10008.15.1.1"
 
-static dcm_uid_t dcm_uid_data[] = {
+static dcm_uid_t const dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_VERIFICATION, "Verification SOP Class", "SOP Class"},
     { DCM_UID_TRANSFER_SYNTAX_IMPLICIT_VR_LITTLE_ENDIAN, "Implicit VR Little Endian: Default Transfer Syntax for DICOM", "Transfer Syntax"},
     { DCM_UID_TRANSFER_SYNTAX_EXPLICIT_VR_LITTLE_ENDIAN, "Explicit VR Little Endian", "Transfer Syntax"},
