@@ -33,8 +33,11 @@
 
 #include <config.h>
 
+#include <epan/exceptions.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
+
+#include <packet-sysdig-event.h>
 
 #include <wiretap/wtap.h>
 #include <wiretap/pcapng_module.h>
@@ -295,6 +298,7 @@ static gint ett_sysdig_syscall;
 
 /* Initialize the pointer to the child plugin dissector */
 static dissector_handle_t sinsp_dissector_handle = NULL;
+static dissector_handle_t elf_dissector_handle = NULL;
 
 #define SYSDIG_EVENT_MIN_LENGTH 8 /* XXX Fix */
 
@@ -2718,7 +2722,7 @@ static inline const gchar *format_param_str(tvbuff_t *tvb, int offset, int len) 
 /* Code to actually dissect the packets */
 
 static int
-dissect_header_lens_v1(tvbuff_t *tvb, int offset, proto_tree *tree, int encoding, int * const *hf_indexes)
+dissect_header_lens_v1(tvbuff_t *tvb, proto_tree *tree, int encoding, int * const *hf_indexes)
 {
     int param_count;
     proto_item *ti;
@@ -2726,11 +2730,11 @@ dissect_header_lens_v1(tvbuff_t *tvb, int offset, proto_tree *tree, int encoding
 
     for (param_count = 0; hf_indexes[param_count]; param_count++);
 
-    ti = proto_tree_add_item(tree, hf_se_param_lens, tvb, offset, param_count * SYSDIG_PARAM_SIZE, ENC_NA);
+    ti = proto_tree_add_item(tree, hf_se_param_lens, tvb, 0, param_count * SYSDIG_PARAM_SIZE, ENC_NA);
     len_tree = proto_item_add_subtree(ti, ett_sysdig_parm_lens);
 
     for (param_count = 0; hf_indexes[param_count]; param_count++) {
-        proto_tree_add_item(len_tree, hf_se_param_len, tvb, offset + (param_count * SYSDIG_PARAM_SIZE), SYSDIG_PARAM_SIZE, encoding);
+        proto_tree_add_item(len_tree, hf_se_param_len, tvb, param_count * SYSDIG_PARAM_SIZE, SYSDIG_PARAM_SIZE, encoding);
     }
 
     proto_item_set_len(ti, param_count * SYSDIG_PARAM_SIZE);
@@ -2738,17 +2742,17 @@ dissect_header_lens_v1(tvbuff_t *tvb, int offset, proto_tree *tree, int encoding
 }
 
 static int
-dissect_header_lens_v2(tvbuff_t *tvb, wtap_syscall_header* syscall_header, int offset, proto_tree *tree, int encoding)
+dissect_header_lens_v2(tvbuff_t *tvb, wtap_syscall_header* syscall_header, proto_tree *tree, int encoding)
 {
     guint32 param_count;
     proto_item *ti;
     proto_tree *len_tree;
 
-    ti = proto_tree_add_item(tree, hf_se_param_lens, tvb, offset, syscall_header->nparams * SYSDIG_PARAM_SIZE_V2, ENC_NA);
+    ti = proto_tree_add_item(tree, hf_se_param_lens, tvb, 0, syscall_header->nparams * SYSDIG_PARAM_SIZE_V2, ENC_NA);
     len_tree = proto_item_add_subtree(ti, ett_sysdig_parm_lens);
 
     for (param_count = 0; param_count < syscall_header->nparams; param_count++) {
-        proto_tree_add_item(len_tree, hf_se_param_len, tvb, offset + (param_count * SYSDIG_PARAM_SIZE_V2), SYSDIG_PARAM_SIZE_V2, encoding);
+        proto_tree_add_item(len_tree, hf_se_param_len, tvb, param_count * SYSDIG_PARAM_SIZE_V2, SYSDIG_PARAM_SIZE_V2, encoding);
     }
 
     proto_item_set_len(ti, syscall_header->nparams * SYSDIG_PARAM_SIZE_V2);
@@ -2756,17 +2760,17 @@ dissect_header_lens_v2(tvbuff_t *tvb, wtap_syscall_header* syscall_header, int o
 }
 
 static int
-dissect_header_lens_v2_large(tvbuff_t *tvb, wtap_syscall_header* syscall_header, int offset, proto_tree *tree, int encoding)
+dissect_header_lens_v2_large(tvbuff_t *tvb, wtap_syscall_header* syscall_header, proto_tree *tree, int encoding)
 {
     guint32 param_count;
     proto_item *ti;
     proto_tree *len_tree;
 
-    ti = proto_tree_add_item(tree, hf_se_param_lens, tvb, offset, syscall_header->nparams * SYSDIG_PARAM_SIZE_V2_LARGE, ENC_NA);
+    ti = proto_tree_add_item(tree, hf_se_param_lens, tvb, 0, syscall_header->nparams * SYSDIG_PARAM_SIZE_V2_LARGE, ENC_NA);
     len_tree = proto_item_add_subtree(ti, ett_sysdig_parm_lens);
 
     for (param_count = 0; param_count < syscall_header->nparams; param_count++) {
-        proto_tree_add_item(len_tree, hf_se_param_len, tvb, offset + (param_count * SYSDIG_PARAM_SIZE_V2_LARGE), SYSDIG_PARAM_SIZE_V2_LARGE, encoding);
+        proto_tree_add_item(len_tree, hf_se_param_len, tvb, param_count * SYSDIG_PARAM_SIZE_V2_LARGE, SYSDIG_PARAM_SIZE_V2_LARGE, encoding);
     }
 
     proto_item_set_len(ti, syscall_header->nparams * SYSDIG_PARAM_SIZE_V2_LARGE);
@@ -2776,24 +2780,24 @@ dissect_header_lens_v2_large(tvbuff_t *tvb, wtap_syscall_header* syscall_header,
 /* Dissect events */
 
 static int
-dissect_event_params(tvbuff_t *tvb, packet_info *pinfo, const char **event_name, wtap_syscall_header* syscall_header, int offset, proto_tree *tree, int encoding, int * const *hf_indexes)
+dissect_event_params(tvbuff_t *tvb, packet_info *pinfo, const char **event_name, wtap_syscall_header* syscall_header, proto_tree *tree, int encoding, int * const *hf_indexes, sysdig_event_param_data *event_param_data)
 {
-    int len_offset = offset;
+    int len_offset = 0;
     int param_offset;
     int len_size;
     guint32 cur_param;
 
     switch (syscall_header->record_type) {
         case BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE:
-            param_offset = offset + dissect_header_lens_v2_large(tvb, syscall_header, offset, tree, encoding);
+            param_offset = dissect_header_lens_v2_large(tvb, syscall_header, tree, encoding);
             len_size = SYSDIG_PARAM_SIZE_V2_LARGE;
             break;
         case BLOCK_TYPE_SYSDIG_EVENT_V2:
-            param_offset = offset + dissect_header_lens_v2(tvb, syscall_header, offset, tree, encoding);
+            param_offset = dissect_header_lens_v2(tvb, syscall_header, tree, encoding);
             len_size = SYSDIG_PARAM_SIZE_V2;
             break;
         default:
-            param_offset = offset + dissect_header_lens_v1(tvb, offset, tree, encoding, hf_indexes);
+            param_offset = dissect_header_lens_v1(tvb, tree, encoding, hf_indexes);
             len_size = SYSDIG_PARAM_SIZE;
             break;
     }
@@ -2806,7 +2810,7 @@ dissect_event_params(tvbuff_t *tvb, packet_info *pinfo, const char **event_name,
             break;
         }
 
-        guint32 param_len;
+        uint32_t param_len;
         if (syscall_header->record_type == BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE) {
             param_len = tvb_get_guint32(tvb, len_offset, encoding);
         } else {
@@ -2818,6 +2822,10 @@ dissect_event_params(tvbuff_t *tvb, packet_info *pinfo, const char **event_name,
                                   format_param_str(tvb, param_offset, param_len));
         } else {
             proto_tree_add_item(tree, hf_index, tvb, param_offset, param_len, encoding);
+            if (hf_index == hf_param_data_bytes) {
+                event_param_data->data_bytes_offset = param_offset;
+                event_param_data->data_bytes_length = param_len;
+            }
         }
 
         if (hf_index == hf_param_ID_uint16) {
@@ -2828,12 +2836,12 @@ dissect_event_params(tvbuff_t *tvb, packet_info *pinfo, const char **event_name,
         param_offset += param_len;
         len_offset += len_size;
     }
-    return param_offset - offset;
+    return param_offset;
 }
 
 static int
 dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        void *data)
+        void *data _U_)
 {
     proto_item *ti;
     proto_tree *se_tree, *syscall_tree;
@@ -2854,10 +2862,11 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * If this is a plugin event, handle it appropriately and return
      */
     if (event_type == EVT_PLUGINEVENT_E && sinsp_dissector_handle) {
-        return call_dissector_with_data(sinsp_dissector_handle, tvb, pinfo, tree, data);
+        return call_dissector(sinsp_dissector_handle, tvb, pinfo, tree);
     }
 
     const char *event_name = val_to_str(event_type, event_type_vals, "Unknown syscall %u");
+    sysdig_event_param_data event_param_data = {0};
 
     /*
      * Sysdig uses the term "event" internally. So far every event has been
@@ -2920,7 +2929,7 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (pinfo->rec->rec_header.syscall_header.nparams > 0) {
         for (cur_tree_info = event_tree_info; cur_tree_info->hf_indexes; cur_tree_info++) {
             if (cur_tree_info->event_type == event_type) {
-                dissect_event_params(tvb, pinfo, &event_name, &pinfo->rec->rec_header.syscall_header, 0, syscall_tree, encoding, cur_tree_info->hf_indexes);
+                dissect_event_params(tvb, pinfo, &event_name, &pinfo->rec->rec_header.syscall_header, syscall_tree, encoding, cur_tree_info->hf_indexes, &event_param_data);
                 break;
             }
         }
@@ -2928,13 +2937,25 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     proto_tree_add_string(se_tree, hf_se_event_name, tvb, 0, 0, event_name);
 
-    if (sinsp_dissector_handle) {
-        return call_dissector_with_data(sinsp_dissector_handle, tvb, pinfo, tree, data);
+    if (!sinsp_dissector_handle) {
+        return tvb_reported_length(tvb);
     }
 
-    /* XXX */
-    /* return offset; */
-    return pinfo->rec->rec_header.syscall_header.event_len;
+    int ret = call_dissector_with_data(sinsp_dissector_handle, tvb, pinfo, tree, &event_param_data);
+
+    if (event_param_data.data_bytes_offset > 0 && event_param_data.data_bytes_length > 0) {
+#define ELF_MAGIC 0x7f454c46 // 7f 'E' 'L' 'F'
+        if (tvb_get_guint32(tvb, event_param_data.data_bytes_offset, ENC_BIG_ENDIAN) == ELF_MAGIC) {
+            tvbuff_t *elf_tvb = tvb_new_subset_length(tvb, event_param_data.data_bytes_offset, event_param_data.data_bytes_length);
+            TRY {
+                call_dissector(elf_dissector_handle, elf_tvb, pinfo, tree);
+            } CATCH_NONFATAL_ERRORS {
+                // Partial dissection is OK.
+            } ENDTRY;
+        }
+    }
+
+    return ret;
 }
 
 /* Register the protocol with Wireshark.
@@ -3229,6 +3250,7 @@ proto_reg_handoff_sysdig_event(void)
     dissector_add_uint("pcapng.block_type", BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE, sysdig_event_handle);
 
     sinsp_dissector_handle = find_dissector("falcobridge");
+    elf_dissector_handle = find_dissector("elf");
 }
 
 /*

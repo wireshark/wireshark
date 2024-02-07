@@ -43,6 +43,8 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/follow.h>
 
+#include <epan/dissectors/packet-sysdig-event.h>
+
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/inet_addr.h>
@@ -115,8 +117,8 @@ static dissector_table_t ptype_dissector_table;
 
 static int fd_follow_tap;
 
-static int dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
-static int dissect_sinsp_enriched(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *bi_ptr);
+static int dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *epd_p);
+static int dissect_sinsp_enriched(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *bi_ptr, sysdig_event_param_data *event_param_data);
 static int dissect_sinsp_plugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *bi_ptr);
 static bridge_info* get_bridge_info(guint32 source_id);
 const char* get_str_value(sinsp_field_extract_t *sinsp_fields, uint32_t sf_idx);
@@ -822,7 +824,7 @@ get_bridge_info(guint32 source_id)
 }
 
 static int
-dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *epd_p)
 {
     int encoding = pinfo->rec->rec_header.syscall_header.byte_order == G_BIG_ENDIAN ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN;
 
@@ -838,7 +840,8 @@ dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     bridge_info* bi = get_bridge_info(source_id);
 
     if (bi && bi->source_id == 0) {
-        dissect_sinsp_enriched(tvb, pinfo, tree, bi);
+        sysdig_event_param_data *event_param_data = (sysdig_event_param_data *) epd_p;
+        dissect_sinsp_enriched(tvb, pinfo, tree, bi, event_param_data);
     } else {
         proto_item *ti = proto_tree_add_item(tree, proto_falco_bridge, tvb, 0, 12, ENC_NA);
         proto_tree *fb_tree = proto_item_add_subtree(ti, ett_falco_bridge);
@@ -892,7 +895,7 @@ const char* get_str_value(sinsp_field_extract_t *sinsp_fields, uint32_t sf_idx) 
 
 
 static int
-dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* bi_ptr)
+dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* bi_ptr, sysdig_event_param_data *event_param_data)
 {
     bridge_info* bi = (bridge_info *) bi_ptr;
 
@@ -951,7 +954,13 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
 
         sinsp_syscall_category_e parent_category = get_syscall_parent_category(bi->ssi, sinsp_fields[sf_idx].field_idx);
         if (!parent_trees[parent_category]) {
-            ti = proto_tree_add_item(tree, proto_syscalls[parent_category], tvb, 0, 0, BASE_NONE);
+            int bytes_offset = 0;
+            uint32_t bytes_length = 0;
+            if (parent_category == SSC_FD) {
+                bytes_offset = event_param_data->data_bytes_offset;
+                bytes_length = event_param_data->data_bytes_length;
+            }
+            ti = proto_tree_add_item(tree, proto_syscalls[parent_category], tvb, bytes_offset, bytes_length, BASE_NONE);
             parent_trees[parent_category] = proto_item_add_subtree(ti, ett_syscalls[parent_category]);
         }
         proto_tree *parent_tree = parent_trees[parent_category];
@@ -1057,7 +1066,13 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
             {
                 int addr_fld_idx = bi->hf_id_to_addr_id[hf_idx];
                 if (addr_fld_idx < 0) {
-                    proto_tree_add_bytes_with_length(parent_tree, bi->hf_ids[hf_idx], tvb, 0, 0, sinsp_fields[sf_idx].res.str, sinsp_fields[sf_idx].res_len);
+                    int bytes_offset = 0;
+                    uint32_t bytes_length = 0;
+                    if (io_buffer) { // evt.buffer
+                        bytes_offset = event_param_data->data_bytes_offset;
+                        bytes_length = event_param_data->data_bytes_length;
+                    }
+                    proto_tree_add_bytes_with_length(parent_tree, bi->hf_ids[hf_idx], tvb, bytes_offset, bytes_length, sinsp_fields[sf_idx].res.str, sinsp_fields[sf_idx].res_len);
                 } else {
                     // XXX Need to differentiate between src and dest. Falco libs supply client vs server and local vs remote.
                     if (sinsp_fields[sf_idx].res_len == 4) {

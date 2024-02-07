@@ -605,6 +605,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-stat.h
 	packet-stat-notify.h
 	packet-sv.h
+	packet-sysdig-event.h
 	packet-syslog.h
 	packet-t124.h
 	packet-t30.h
