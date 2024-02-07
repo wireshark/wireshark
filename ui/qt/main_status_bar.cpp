@@ -382,12 +382,23 @@ void MainStatusBar::showCaptureStatistics()
         }
         if (cs_count_ > 0) {
             if (prefs.gui_show_selected_packet && rows.count() == 1) {
-                packets_str.append(tr("Selected Packet: %1 %2 ")
-                                   .arg(rows.at(0))
-                                   .arg(UTF8_MIDDLE_DOT));
+                if (is_packet_configuration_namespace()) {
+                    packets_str.append(tr("Selected Packet: %1 %2 ")
+                                       .arg(rows.at(0))
+                                       .arg(UTF8_MIDDLE_DOT));
+                } else {
+                    packets_str.append(tr("Selected Event: %1 %2 ")
+                                           .arg(rows.at(0))
+                                           .arg(UTF8_MIDDLE_DOT));
+                }
             }
-            packets_str.append(tr("Packets: %1")
-                                   .arg(cs_count_));
+            if (is_packet_configuration_namespace()) {
+                packets_str.append(tr("Packets: %1")
+                                       .arg(cs_count_));
+            } else {
+                packets_str.append(tr("Events: %1")
+                                       .arg(cs_count_));
+            }
             if (cap_file_->dfilter) {
                 packets_str.append(tr(" %1 Displayed: %2 (%3%)")
                                        .arg(UTF8_MIDDLE_DOT)
@@ -435,18 +446,32 @@ void MainStatusBar::showCaptureStatistics()
         }
     } else if (cs_fixed_ && cs_count_ > 0) {
         /* There shouldn't be any rows without a cap_file_ but this is benign */
-        if (prefs.gui_show_selected_packet && rows.count() == 1) {
-            packets_str.append(tr("Selected Packet: %1 %2 ")
-                .arg(rows.at(0))
-                .arg(UTF8_MIDDLE_DOT));
+        if (is_packet_configuration_namespace()) {
+            if (prefs.gui_show_selected_packet && rows.count() == 1) {
+                packets_str.append(tr("Selected Packet: %1 %2 ")
+                    .arg(rows.at(0))
+                    .arg(UTF8_MIDDLE_DOT));
+            }
+            packets_str.append(tr("Packets: %1")
+                .arg(cs_count_));
+        } else {
+            if (prefs.gui_show_selected_packet && rows.count() == 1) {
+                packets_str.append(tr("Selected Event: %1 %2 ")
+                                       .arg(rows.at(0))
+                                       .arg(UTF8_MIDDLE_DOT));
+            }
+            packets_str.append(tr("Events: %1")
+                                   .arg(cs_count_));
         }
-        packets_str.append(tr("Packets: %1")
-            .arg(cs_count_));
     }
 #endif // HAVE_LIBPCAP
 
     if (packets_str.isEmpty()) {
-        packets_str = tr("No Packets");
+        if (is_packet_configuration_namespace()) {
+            packets_str = tr("No Packets");
+        } else {
+            packets_str = tr("No Events");
+        }
     }
 
     popGenericStatus(STATUS_CTX_MAIN);
