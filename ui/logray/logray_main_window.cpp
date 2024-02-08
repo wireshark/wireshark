@@ -26,7 +26,6 @@ DIAG_ON(frame-larger-than=)
 #include <wsutil/ws_assert.h>
 #include <wsutil/version_info.h>
 #include <epan/prefs.h>
-#include <epan/stats_tree_priv.h>
 #include <epan/plugin_if.h>
 #include <frame_tvbuff.h>
 
