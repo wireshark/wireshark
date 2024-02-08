@@ -1264,6 +1264,7 @@ if(BUILD_wireshark OR BUILD_logray)
 				Widgets
 				Concurrent
 				Core5Compat
+				DBus
 			OPTIONAL_COMPONENTS
 				Multimedia
 		)
@@ -1296,6 +1297,10 @@ if(BUILD_wireshark OR BUILD_logray)
 		)
 		if(WIN32)
 			list(APPEND QT5_PACKAGELIST Qt5WinExtras)
+		endif()
+		if(NOT WIN32 AND NOT APPLE)
+			# DBus is a core component of Qt6, but was an add-on in Qt5.
+			list(APPEND QT5_OPTIONAL_PACKAGELIST Qt5DBus)
 		endif()
 		foreach(_qt5_package IN LISTS QT5_PACKAGELIST)
 			find_package(${_qt5_package} REQUIRED ${QT5_FIND_PACKAGE_OPTIONS})
@@ -1334,6 +1339,9 @@ if(BUILD_wireshark OR BUILD_logray)
 	endif()
 	if(Qt6Multimedia_FOUND OR Qt5Multimedia_FOUND)
 		set(QT_MULTIMEDIA_LIB 1)
+	endif()
+	if(Qt6DBus_FOUND OR Qt5DBus_FOUND)
+		set(QT_DBUS_LIB 1)
 	endif()
 	if(NOT DEFINED MOC_OPTIONS)
 		# Squelch moc verbose "nothing to do" output

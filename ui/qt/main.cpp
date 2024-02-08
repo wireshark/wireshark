@@ -212,6 +212,13 @@ gather_wireshark_qt_compiled_info(feature_list l)
 #else
     without_feature(l, "QtMultimedia");
 #endif
+#if !defined(Q_OS_WIN) && !defined(Q_OS_MAC)
+#ifdef QT_DBUS_LIB
+    with_feature(l, "QtDBus");
+#else
+    without_feature(l, "QtDBus");
+#endif
+#endif /* !Q_OS_WIN && !Q_OS_MAC */
 
     const char *update_info = software_update_info();
     if (update_info) {
