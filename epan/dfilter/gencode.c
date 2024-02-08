@@ -22,7 +22,7 @@
 static void
 fixup_jumps(void *data, void *user_data);
 
-static void
+static dfvm_value_t *
 gencode(dfwork_t *dfw, stnode_t *st_node);
 
 static dfvm_value_t *
@@ -657,7 +657,7 @@ gen_exists(dfwork_t *dfw, stnode_t *st_node)
 	}
 }
 
-static void
+static dfvm_value_t*
 gen_notzero(dfwork_t *dfw, stnode_t *st_node)
 {
 	dfvm_insn_t	*insn;
@@ -670,9 +670,10 @@ gen_notzero(dfwork_t *dfw, stnode_t *st_node)
 	dfw_append_insn(dfw, insn);
 	g_slist_foreach(jumps, fixup_jumps, dfw);
 	g_slist_free(jumps);
+	return val1;
 }
 
-static void
+static dfvm_value_t*
 gen_notzero_slice(dfwork_t *dfw, stnode_t *st_node)
 {
 	dfvm_insn_t	*insn;
@@ -693,6 +694,7 @@ gen_notzero_slice(dfwork_t *dfw, stnode_t *st_node)
 	/* Fixup jumps. */
 	g_slist_foreach(jumps, fixup_jumps, dfw);
 	g_slist_free(jumps);
+	return val1;
 }
 
 static void
@@ -799,9 +801,10 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 	}
 }
 
-static void
+static dfvm_value_t*
 gencode(dfwork_t *dfw, stnode_t *st_node)
 {
+	dfvm_value_t* val = NULL;
 	switch (stnode_type_id(st_node)) {
 		case STTYPE_TEST:
 			gen_test(dfw, st_node);
@@ -811,14 +814,15 @@ gencode(dfwork_t *dfw, stnode_t *st_node)
 			break;
 		case STTYPE_ARITHMETIC:
 		case STTYPE_FUNCTION:
-			gen_notzero(dfw, st_node);
+			val = gen_notzero(dfw, st_node);
 			break;
 		case STTYPE_SLICE:
-			gen_notzero_slice(dfw, st_node);
+			val = gen_notzero_slice(dfw, st_node);
 			break;
 		default:
 			ASSERT_STTYPE_NOT_REACHED(stnode_type_id(st_node));
 	}
+	return val;
 }
 
 
@@ -882,8 +886,9 @@ dfw_gencode(dfwork_t *dfw)
 	dfw->loaded_fields = g_hash_table_new(g_direct_hash, g_direct_equal);
 	dfw->loaded_raw_fields = g_hash_table_new(g_direct_hash, g_direct_equal);
 	dfw->interesting_fields = g_hash_table_new(g_int_hash, g_int_equal);
-	gencode(dfw, dfw->st_root);
-	dfw_append_insn(dfw, dfvm_insn_new(DFVM_RETURN));
+	dfvm_insn_t *insn = dfvm_insn_new(DFVM_RETURN);
+	insn->arg1 = dfvm_value_ref(gencode(dfw, dfw->st_root));
+	dfw_append_insn(dfw, insn);
 	if (dfw->flags & DF_OPTIMIZE) {
 		optimize(dfw);
 	}

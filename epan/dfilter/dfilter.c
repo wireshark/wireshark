@@ -659,6 +659,11 @@ dfilter_apply_edt(dfilter_t *df, epan_dissect_t* edt)
 	return dfvm_apply(df, edt->tree);
 }
 
+bool
+dfilter_apply_full(dfilter_t *df, proto_tree *tree, GPtrArray **fvals)
+{
+	return dfvm_apply_full(df, tree, fvals);
+}
 
 void
 dfilter_prime_proto_tree(const dfilter_t *df, proto_tree *tree)

@@ -617,8 +617,13 @@ append_op_args(wmem_strbuf_t *buf, dfvm_insn_t *insn, GSList **stack_print,
 			wmem_strbuf_append_printf(buf, "%u", arg1->value.numeric);
 			break;
 
-		case DFVM_NOT:
 		case DFVM_RETURN:
+			if (arg1_str) {
+				wmem_strbuf_append_printf(buf, "%s%s", arg1_str, arg1_str_type);
+			}
+			break;
+
+		case DFVM_NOT:
 		case DFVM_SET_CLEAR:
 		case DFVM_NULL:
 		case DFVM_NO_OP:
@@ -707,7 +712,6 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, uint16_t flags)
 
 		switch (insn->op) {
 			case DFVM_NOT:
-			case DFVM_RETURN:
 			case DFVM_SET_CLEAR:
 			case DFVM_NO_OP:
 				/* Nothing here */
@@ -1631,7 +1635,7 @@ check_exists(proto_tree *tree, dfvm_value_t *arg1, dfvm_value_t *arg2)
 }
 
 bool
-dfvm_apply(dfilter_t *df, proto_tree *tree)
+dfvm_apply_full(dfilter_t *df, proto_tree *tree, GPtrArray **fvals)
 {
 	int		id, length;
 	bool	accum = true;
@@ -1834,6 +1838,12 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 				break;
 
 			case DFVM_RETURN:
+				if (fvals && arg1) {
+					*fvals = df_cell_ref(&df->registers[arg1->value.numeric]);
+					if (*fvals == NULL) {
+						*fvals = g_ptr_array_new();
+					}
+				}
 				free_register_overhead(df);
 				return accum;
 
@@ -1860,6 +1870,12 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 	}
 
 	ws_assert_not_reached();
+}
+
+bool
+dfvm_apply(dfilter_t *df, proto_tree *tree)
+{
+	return dfvm_apply_full(df, tree, NULL);
 }
 
 /*

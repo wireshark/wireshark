@@ -162,6 +162,9 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df,  uint16_t flags);
 bool
 dfvm_apply(dfilter_t *df, proto_tree *tree);
 
+bool
+dfvm_apply_full(dfilter_t *df, proto_tree *tree, GPtrArray **fvals);
+
 fvalue_t *
 dfvm_get_raw_fvalue(const field_info *fi);
 

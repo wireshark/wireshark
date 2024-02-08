@@ -114,6 +114,11 @@ dfilter_apply_edt(dfilter_t *df, struct epan_dissect *edt);
 bool
 dfilter_apply(dfilter_t *df, proto_tree *tree);
 
+/* Apply compiled dfilter and return final set of fvalues (if they
+ * exist) in addition to true/false determination. */
+bool
+dfilter_apply_full(dfilter_t *df, proto_tree *tree, GPtrArray **fvals);
+
 /* Prime a proto_tree using the fields/protocols used in a dfilter. */
 void
 dfilter_prime_proto_tree(const dfilter_t *df, proto_tree *tree);
