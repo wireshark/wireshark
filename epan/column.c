@@ -284,7 +284,7 @@ parse_column_format(fmt_data *cfmt, const char *fmt)
 {
     const gchar *cust_format = col_format_to_string(COL_CUSTOM);
     size_t cust_format_len = strlen(cust_format);
-    gchar **cust_format_info;
+    GPtrArray *cust_format_info;
     char *p;
     int col_fmt;
     gchar *col_custom_fields = NULL;
@@ -298,21 +298,41 @@ parse_column_format(fmt_data *cfmt, const char *fmt)
         strncmp(fmt, cust_format, cust_format_len) == 0) {
         /* Yes. */
         col_fmt = COL_CUSTOM;
-        cust_format_info = g_strsplit(&fmt[cust_format_len+1], ":", 3); /* add 1 for ':' */
-        col_custom_fields = g_strdup(cust_format_info[0]);
-        if (col_custom_fields && cust_format_info[1]) {
-            col_custom_occurrence = strtol(cust_format_info[1], &p, 10);
-            if (p == cust_format_info[1] || *p != '\0') {
+        cust_format_info = g_ptr_array_new();
+        char *fmt_copy = g_strdup(&fmt[cust_format_len + 1]);
+        p = strrchr(fmt_copy, ':');
+        /* Pull off the two right most tokens for occurrences and
+         * "show resolved". We do it this way because the filter might
+         * have a ':' in it, e.g. for slices.
+         */
+        for (int token = 2; token > 0 && p != NULL; token--) {
+            g_ptr_array_insert(cust_format_info, 0, &p[1]);
+            *p = '\0';
+            p = strrchr(fmt_copy, ':');
+        }
+        g_ptr_array_insert(cust_format_info, 0, fmt_copy);
+        /* XXX - The last two tokens have been written since at least 1.6.x
+         * (commit f5ab6c1930d588f9f0be453a7be279150922b347). We could
+         * just fail at this point if cust_format_info->len < 3
+         */
+        if (cust_format_info->len > 0) {
+            col_custom_fields = g_strdup(cust_format_info->pdata[0]);
+        }
+        if (cust_format_info->len > 1) {
+            col_custom_occurrence = strtol(cust_format_info->pdata[1], &p, 10);
+            if (p == cust_format_info->pdata[1] || *p != '\0') {
                 /* Not a valid number. */
-                g_free(col_custom_fields);
-                g_strfreev(cust_format_info);
+                g_free(fmt_copy);
+                g_ptr_array_unref(cust_format_info);
                 return FALSE;
             }
         }
-        if (col_custom_fields && cust_format_info[1] && cust_format_info[2]) {
-            col_resolved = (cust_format_info[2][0] == 'U') ? false : true;
+        if (cust_format_info->len > 2) {
+            p = cust_format_info->pdata[2];
+            col_resolved = (p[0] == 'U') ? false : true;
         }
-        g_strfreev(cust_format_info);
+        g_free(fmt_copy);
+        g_ptr_array_unref(cust_format_info);
     } else {
         col_fmt = get_column_format_from_str(fmt);
         if (col_fmt == -1)
