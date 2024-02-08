@@ -989,8 +989,8 @@ get_column_tooltip(const gint col)
     }
 
     fields = g_regex_split_simple(COL_CUSTOM_PRIME_REGEX, cfmt->custom_fields,
-                                  (GRegexCompileFlags) (G_REGEX_ANCHORED | G_REGEX_RAW),
-                                  G_REGEX_MATCH_ANCHORED);
+                                  (GRegexCompileFlags) (G_REGEX_RAW),
+                                  0);
     column_tooltip = g_string_new("");
 
     for (i = 0; i < g_strv_length(fields); i++) {
@@ -1043,7 +1043,7 @@ col_finalize(column_info *cinfo)
       }
       if (col_item->col_custom_fields) {
         gchar **fields = g_regex_split(cinfo->prime_regex, col_item->col_custom_fields,
-                                       G_REGEX_MATCH_ANCHORED);
+                                       0);
         guint i_field;
 
         for (i_field = 0; i_field < g_strv_length(fields); i_field++) {

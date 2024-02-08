@@ -235,8 +235,8 @@ column_prefs_custom_resolve(const gchar* custom_field)
     bool resolve = false;
 
     fields = g_regex_split_simple(COL_CUSTOM_PRIME_REGEX, custom_field,
-                                  (GRegexCompileFlags) (G_REGEX_ANCHORED | G_REGEX_RAW),
-                                  G_REGEX_MATCH_ANCHORED);
+                                  (GRegexCompileFlags) (G_REGEX_RAW),
+                                  0);
 
     for (guint i = 0; i < g_strv_length(fields); i++) {
         if (fields[i] && *fields[i]) {

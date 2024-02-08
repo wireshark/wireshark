@@ -23,7 +23,25 @@ extern "C" {
 
 #define COL_MAX_LEN 2048
 #define COL_MAX_INFO_LEN 4096
-#define COL_CUSTOM_PRIME_REGEX " *([^ \\|]+) *(?:(?:\\|\\|)|(?:or)| *$){1}"
+
+/* A regex to split possibly multifield custom columns into components
+ *
+ * Split on operator "||" (with optional space around it) and on "or"
+ * (which must have space around it to avoid matching in the middle of
+ * a word, field in the "synphasor" protocol, etc. This is somewhat too
+ * strict, as "or" adjacent to parentheses ought to be fine so long
+ * as the filter matches the grammar, like "(tcp.port)or(udp.port)",
+ * but that's the cost of using regex instead of the real parser.)
+ * Also split on space at the beginning or end of the expression (in
+ * lieu of always stripping whitespace at the beginning and end, but it
+ * does mean that we have to ignore any empty tokens in the result.)
+ *
+ * Use negative lookahead to avoid matching "||" or "or" that are contained
+ * within parentheses. Don't match if a close parenthesis comes before an
+ * open parenthesis. The regex doesn't help with unmatched parentheses, but
+ * such an expression already won't satisfy the grammar and won't compile.
+ */
+#define COL_CUSTOM_PRIME_REGEX "(?:^ *| *\\|\\| *| +or +| *$)(?![^(]*\\))"
 
 struct epan_dissect;
 

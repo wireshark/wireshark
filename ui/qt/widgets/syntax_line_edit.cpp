@@ -268,7 +268,8 @@ void SyntaxLineEdit::checkCustomColumn(QString fields)
     }
 
     gchar **splitted_fields = g_regex_split_simple(COL_CUSTOM_PRIME_REGEX,
-                fields.toUtf8().constData(), G_REGEX_ANCHORED, G_REGEX_MATCH_ANCHORED);
+                fields.toUtf8().constData(), (GRegexCompileFlags) G_REGEX_RAW,
+                (GRegexMatchFlags) 0);
 
     for (guint i = 0; i < g_strv_length(splitted_fields); i++) {
         if (splitted_fields[i] && *splitted_fields[i]) {
