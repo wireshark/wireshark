@@ -758,10 +758,10 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
                 break;
             case PT_UINT16:
             case PT_PORT:
-                sfe->res.u32 = *(int16_t*)values[0].ptr;
+                sfe->res.u32 = *(uint16_t*)values[0].ptr;
                 break;
             case PT_UINT32:
-                sfe->res.u32 = *(int32_t*)values[0].ptr;
+                sfe->res.u32 = *(uint32_t*)values[0].ptr;
                 break;
             case PT_UINT64:
             case PT_RELTIME:
