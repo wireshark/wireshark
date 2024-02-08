@@ -38,6 +38,7 @@
 #include "oids.h"
 #include "proto.h"
 #include "epan_dissect.h"
+#include "dfilter/dfilter.h"
 #include "tvbuff.h"
 #include <epan/wmem_scopes.h>
 #include "charsets.h"
@@ -7145,13 +7146,83 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 
 	const char *hf_str_val;
 	char *str;
-	int *field_idx;
+	col_custom_t *field_idx;
 	int field_id;
 	int ii = 0;
 
 	ws_assert(field_ids != NULL);
-	while ((field_idx = (int *) g_slist_nth_data(field_ids, ii++))) {
-		field_id = *field_idx;
+	while ((field_idx = (col_custom_t *) g_slist_nth_data(field_ids, ii++))) {
+		field_id = field_idx->field_id;
+		if (field_id == 0) {
+			GPtrArray *fvals = NULL;
+			bool passed = dfilter_apply_full(field_idx->dfilter, tree, &fvals);
+			if (fvals != NULL) {
+
+				// XXX - Handling occurrences is unusual when more
+				// than one field is involved, e.g. there's four
+				// results for tcp.port + tcp.port. We may really
+				// want to apply it to the operands, not the output.
+				// Note that occurrences are not quite the same as
+				// the layer operator (should the grammar support
+				// both?)
+				/* Calculate single index or set outer boundaries */
+				len = g_ptr_array_len(fvals);
+				if (occurrence < 0) {
+					i = occurrence + len;
+					last = i;
+				} else if (occurrence > 0) {
+					i = occurrence - 1;
+					last = i;
+				} else {
+					i = 0;
+					last = len - 1;
+				}
+				if (i < 0 || i >= len) {
+					g_ptr_array_unref(fvals);
+					continue;
+				}
+				for (; i <= last; i++) {
+					/* XXX - We could have a "resolved" result
+					 * for types where the value depends only
+					 * on the type, e.g. FT_IPv4, and not on
+					 * hfinfo->strings. Supporting the latter
+					 * requires knowing which hfinfo matched
+					 * if there are multiple with the same
+					 * abbreviation. In any case, we need to
+					 * know the expected return type of the
+					 * field expression.
+					 */
+					str = fvalue_to_string_repr(NULL, fvals->pdata[i], FTREPR_DISPLAY, BASE_NONE);
+					if (offset_r && (offset_r < (size - 1)))
+						result[offset_r++] = ',';
+					if (offset_e && (offset_e < (size - 1)))
+						expr[offset_e++] = ',';
+					offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
+					offset_e += protoo_strlcpy(expr+offset_e, str, size-offset_e);
+					g_free(str);
+				}
+				g_ptr_array_unref(fvals);
+			} else if (passed) {
+				// XXX - Occurrence doesn't make sense for a test
+				// output, it should be applied to the operands.
+				if (offset_r && (offset_r < (size - 1)))
+					result[offset_r++] = ',';
+				if (offset_e && (offset_e < (size - 1)))
+					expr[offset_e++] = ',';
+				/* Prevent multiple check marks */
+				if (strstr(result, UTF8_CHECK_MARK ",") == NULL) {
+					offset_r += protoo_strlcpy(result+offset_r, UTF8_CHECK_MARK, size-offset_r);
+				} else {
+					result[--offset_r] = '\0'; /* Remove the added trailing ',' */
+				}
+				if (strstr(expr, UTF8_CHECK_MARK ",") == NULL) {
+					offset_e += protoo_strlcpy(expr+offset_r, UTF8_CHECK_MARK, size-offset_e);
+				} else {
+					expr[--offset_e] = '\0'; /* Remove the added trailing ',' */
+				}
+			}
+			continue;
+		}
 		PROTO_REGISTRAR_GET_NTH((guint)field_id, hfinfo);
 
 		/* do we need to rewind ? */
@@ -7295,12 +7366,64 @@ proto_custom_get_filter(epan_dissect_t* edt, GSList *field_ids, gint occurrence)
 	char *filter = NULL;
 	GPtrArray *filter_array;
 
+	col_custom_t *col_custom;
 	int field_id;
 
 	ws_assert(field_ids != NULL);
 	filter_array = g_ptr_array_new_full(g_slist_length(field_ids), g_free);
 	for (GSList *iter = field_ids; iter; iter = iter->next) {
-		field_id = *(int *)iter->data;
+		col_custom = (col_custom_t*)iter->data;
+		field_id = col_custom->field_id;
+		if (field_id == 0) {
+			GPtrArray *fvals = NULL;
+			bool passed = dfilter_apply_full(col_custom->dfilter, edt->tree, &fvals);
+			if (fvals != NULL) {
+				// XXX - Handling occurrences is unusual when more
+				// than one field is involved, e.g. there's four
+				// results for tcp.port + tcp.port. We really
+				// want to apply it to the operands, not the output.
+				/* Calculate single index or set outer boundaries */
+				len = g_ptr_array_len(fvals);
+				if (occurrence < 0) {
+					i = occurrence + len;
+					last = i;
+				} else if (occurrence > 0) {
+					i = occurrence - 1;
+					last = i;
+				} else {
+					i = 0;
+					last = len - 1;
+				}
+				if (i < 0 || i >= len) {
+					g_ptr_array_unref(fvals);
+					continue;
+				}
+				for (; i <= last; i++) {
+					/* XXX - Should multiple values for one
+					 * field use set membership to reduce
+					 * verbosity, here and below? */
+					char *str = fvalue_to_string_repr(NULL, fvals->pdata[i], FTREPR_DFILTER, BASE_NONE);
+					filter = wmem_strdup_printf(NULL, "%s == %s", col_custom->dftext, str);
+					wmem_free(NULL, str);
+					if (!g_ptr_array_find_with_equal_func(filter_array, filter, g_str_equal, NULL)) {
+						g_ptr_array_add(filter_array, filter);
+					}
+				}
+				g_ptr_array_unref(fvals);
+			} else if (passed) {
+				filter = wmem_strdup(NULL, col_custom->dftext);
+				if (!g_ptr_array_find_with_equal_func(filter_array, filter, g_str_equal, NULL)) {
+					g_ptr_array_add(filter_array, filter);
+				}
+			} else {
+				filter = wmem_strdup_printf(NULL, "!(%s)", col_custom->dftext);
+				if (!g_ptr_array_find_with_equal_func(filter_array, filter, g_str_equal, NULL)) {
+					g_ptr_array_add(filter_array, filter);
+				}
+			}
+			continue;
+		}
+
 		PROTO_REGISTRAR_GET_NTH((guint)field_id, hfinfo);
 
 		/* do we need to rewind ? */

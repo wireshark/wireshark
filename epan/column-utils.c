@@ -83,10 +83,19 @@ col_setup(column_info *cinfo, const gint num_cols)
 }
 
 static void
+col_custom_free_cb(void *data)
+{
+  col_custom_t *col_custom = (col_custom_t*)data;
+  dfilter_free(col_custom->dfilter);
+  g_free(col_custom->dftext);
+  g_free(col_custom);
+}
+
+static void
 col_custom_fields_ids_free(GSList** custom_fields_id)
 {
   if (*custom_fields_id != NULL) {
-    g_slist_free_full(*custom_fields_id, g_free);
+    g_slist_free_full(*custom_fields_id, col_custom_free_cb);
   }
   *custom_fields_id = NULL;
 }

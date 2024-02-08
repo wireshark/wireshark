@@ -20,7 +20,8 @@ right_justify_column (gint col, capture_file *cf)
 {
     header_field_info *hfi;
     gboolean right_justify = FALSE;
-    guint num_fields, *field_idx, ii;
+    guint num_fields, ii;
+    col_custom_t *col_custom;
     guint right_justify_count = 0;
 
     if (!cf) return FALSE;
@@ -43,10 +44,17 @@ right_justify_column (gint col, capture_file *cf)
         case COL_CUSTOM:
             num_fields = g_slist_length(cf->cinfo.columns[col].col_custom_fields_ids);
             for (ii = 0; ii < num_fields; ii++) {
-                field_idx = (guint *) g_slist_nth_data(cf->cinfo.columns[col].col_custom_fields_ids, ii);
-                hfi = proto_registrar_get_nth(*field_idx);
+                col_custom = (col_custom_t *) g_slist_nth_data(cf->cinfo.columns[col].col_custom_fields_ids, ii);
+                if (col_custom->field_id == 0) {
+                    /* XXX - If there were some way to check the compiled dfilter's
+                     * expected return type, we could use that.
+                     */
+                    return FALSE;
+                }
+                hfi = proto_registrar_get_nth(col_custom->field_id);
 
                 /* Check if this is a valid field and we have no strings lookup table */
+                /* XXX - We should check every hfi with the same abbreviation */
                 if ((hfi != NULL) && ((hfi->strings == NULL) || !get_column_resolved(col))) {
                     /* Check for bool, framenum, double, float, relative time and decimal/octal integer types */
                     if ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) || (hfi->type == FT_DOUBLE) ||
@@ -77,7 +85,8 @@ resolve_column (gint col, capture_file *cf)
 {
     header_field_info *hfi;
     gboolean resolve = FALSE;
-    guint num_fields, *field_idx, ii;
+    guint num_fields, ii;
+    col_custom_t *col_custom;
 
     if (!cf) return FALSE;
 
@@ -86,8 +95,17 @@ resolve_column (gint col, capture_file *cf)
         case COL_CUSTOM:
             num_fields = g_slist_length(cf->cinfo.columns[col].col_custom_fields_ids);
             for (ii = 0; ii < num_fields; ii++) {
-                field_idx = (guint *) g_slist_nth_data(cf->cinfo.columns[col].col_custom_fields_ids, ii);
-                hfi = proto_registrar_get_nth(*field_idx);
+                col_custom = (col_custom_t *) g_slist_nth_data(cf->cinfo.columns[col].col_custom_fields_ids, ii);
+                if (col_custom->field_id == 0) {
+                    /* XXX - A "resolved" string might be conceivable for certain
+                     * expressions, but would require being able to know which
+                     * hfinfo produced each value, if there are multiple hfi with
+                     * the same abbreviation.
+                     */
+                    continue;
+                }
+                hfi = proto_registrar_get_nth(col_custom->field_id);
+                /* XXX - We should check every hfi with the same abbreviation */
 
                 /* Check if we have an OID, a (potentially) resolvable network
                  * address, a Boolean, or a strings table with integer values */

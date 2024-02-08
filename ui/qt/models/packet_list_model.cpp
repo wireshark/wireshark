@@ -617,6 +617,9 @@ void PacketListModel::stopSorting()
 
 bool PacketListModel::isNumericColumn(int column)
 {
+    /* XXX - Should this and ui/packet_list_utils.c right_justify_column()
+     * be the same list of columns?
+     */
     if (column < 0) {
         return false;
     }
@@ -652,9 +655,18 @@ bool PacketListModel::isNumericColumn(int column)
     }
 
     guint num_fields = g_slist_length(sort_cap_file_->cinfo.columns[column].col_custom_fields_ids);
+    col_custom_t *col_custom;
     for (guint i = 0; i < num_fields; i++) {
-        guint *field_idx = (guint *) g_slist_nth_data(sort_cap_file_->cinfo.columns[column].col_custom_fields_ids, i);
-        header_field_info *hfi = proto_registrar_get_nth(*field_idx);
+        col_custom = (col_custom_t *) g_slist_nth_data(sort_cap_file_->cinfo.columns[column].col_custom_fields_ids, i);
+        if (col_custom->field_id == 0) {
+            /* XXX - We need some way to check the compiled dfilter's expected
+             * return type. Best would be to use the actual field values return
+             * and sort on those (we could skip expensive string conversions
+             * in the numeric case, see below)
+             */
+            return false;
+        }
+        header_field_info *hfi = proto_registrar_get_nth(col_custom->field_id);
 
         /*
          * Reject a field when there is no numeric field type or when:

@@ -267,6 +267,18 @@ void SyntaxLineEdit::checkCustomColumn(QString fields)
         return;
     }
 
+#if 0
+    // XXX - Eventually, if the operator we split on is something not supported
+    // in the filter expression syntax (so that we can distinguish multifield
+    // concatenation of column strings from a logical OR), we would split and
+    // then check each split result as a valid display filter.
+    // For now, any expression that is a valid display filter should work.
+    //
+    // We also, for the custom columns, want some of the extra completion
+    // information from DisplayFilterEdit (like the display filter functions),
+    // without all of its integration into the main app, but not every user
+    // of FieldFilterEdit wants that, so perhaps we eventually should have
+    // another class.
     gchar **splitted_fields = g_regex_split_simple(COL_CUSTOM_PRIME_REGEX,
                 fields.toUtf8().constData(), (GRegexCompileFlags) G_REGEX_RAW,
                 (GRegexMatchFlags) 0);
@@ -281,6 +293,7 @@ void SyntaxLineEdit::checkCustomColumn(QString fields)
         }
     }
     g_strfreev(splitted_fields);
+#endif
 
     checkDisplayFilter(fields);
 }

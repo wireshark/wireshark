@@ -951,6 +951,11 @@ get_custom_field_tooltip (gchar *custom_field, gint occurrence)
     header_field_info *hfi = proto_registrar_get_byname(custom_field);
     if (hfi == NULL) {
         /* Not a valid field */
+        dfilter_t *dfilter;
+        if (dfilter_compile(custom_field, &dfilter, NULL)) {
+            dfilter_free(dfilter);
+            return ws_strdup_printf("Expression: %s", custom_field);
+        }
         return ws_strdup_printf("Unknown Field: %s", custom_field);
     }
 
@@ -1029,6 +1034,7 @@ col_finalize(column_info *cinfo)
 {
   int i;
   col_item_t* col_item;
+  dfilter_t *dfilter;
 
   for (i = 0; i < cinfo->num_cols; i++) {
     col_item = &cinfo->columns[i];
@@ -1048,11 +1054,15 @@ col_finalize(column_info *cinfo)
 
         for (i_field = 0; i_field < g_strv_length(fields); i_field++) {
           if (fields[i_field] && *fields[i_field]) {
-            header_field_info *hfinfo = proto_registrar_get_byname(fields[i_field]);
-            if (hfinfo) {
-              int *idx = g_new(int, 1);
-              *idx = hfinfo->id;
-              col_item->col_custom_fields_ids = g_slist_append(col_item->col_custom_fields_ids, idx);
+            if (dfilter_compile_full(fields[i_field], &dfilter, NULL, DF_EXPAND_MACROS|DF_OPTIMIZE|DF_RETURN_VALUES, __func__)) {
+              col_custom_t *custom_info = g_new0(col_custom_t, 1);
+              custom_info->dftext = g_strdup(fields[i_field]);
+              custom_info->dfilter = dfilter;
+              header_field_info *hfinfo = proto_registrar_get_byname(fields[i_field]);
+              if (hfinfo) {
+                custom_info->field_id = hfinfo->id;
+              }
+              col_item->col_custom_fields_ids = g_slist_append(col_item->col_custom_fields_ids, custom_info);
             }
           }
         }

@@ -27,6 +27,10 @@ Display filter functions can be implemented as runtime-loadable C plugins.
 Plugin registration API was refactored. Plugin authors must update their
 plugins as described below.
 
+Custom columns can be defined using any valid field expression, such as
+display filter functions, slices, arithmetic calculations, logical tests,
+raw byte addressing, and the layer modifier.
+
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 
@@ -96,6 +100,42 @@ The following features are new (or have been significantly updated) since versio
   GUI dialog has been updated. There is some basic migration logic implemented
   but it is advisable to check that the "dfilter_macros" (old) and
   "dmacros" (new) files in the profile directory are consistent.
+
+* Custom columns can be defined using any valid field expression:
+
+  ** Display filter functions, like `len(tcp.payload)`, including nested functions
+     like `min(len(tcp.payload), len(udp.payload)` and newly defined functions
+     using the plugin system mentioned above. wsbuglink:15990[] wsbuglink:16181[]
+
+  ** Arithmetic calculations, like `ip.len * 8` or `tcp.srcport + tcp.dstport`.
+     wsbuglink:7752[]
+
+  ** Slices, like `tcp.payload[4:4]`. wsbuglink:10154[]
+
+  ** The layer operator, like `ip.proto#1` to return the proto field in the
+     first IPv4 layer if there is tunneling. wsbuglink:18588[]
+
+  ** Raw byte addressing, like `@ip`, useful to return the bytes of a protocol
+     or FT_NONE field, among others. wsbuglink:19076[]
+
+  ** Logical tests, like `tcp.port == 443`, which produce a check mark if
+     the test matches (similar to protocol and none fields without `@`.)
+     This works with all logical operators, including e.g. regular expression
+     matching (`matches` or `~`.)
+
+  ** Defined display filter macros.
+
+  ** Any combination of the above also works.
+
+  ** Multifield columns are still available. For backwards compatiblity,
+     `X or Y` is interpreted as a multifield column as before. To represent a
+     logical test for the presence of multiple fields instead of concatenating
+     values, use parenthesis, like `(tcp.options.timestamp or tcp.options.nop`.
+
+  ** Field references are not implemented, because there's no sense of a
+     currently selected frame. "Resolved" column values (such as host name
+     resolution or value string lookup) are not supported for any of the new
+     expressions yet.
 
 * When selecting "Manage Interfaces" from "Capture Options", Wireshark only
   attempts to reconnect to rpcap (remote) hosts that were connected to in the

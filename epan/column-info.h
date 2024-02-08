@@ -34,6 +34,15 @@ typedef struct {
   gchar      **col_expr_val;  /**< Value for filter expression */
 } col_expr_t;
 
+/** Custom column filter expression information used in the GSList below.
+ * One for each expression in a multifield column.
+ */
+typedef struct {
+  char                *dftext;         /**< Filter expression */
+  struct epan_dfilter *dfilter;        /**< Compiled filter expression */
+  int                  field_id;       /**< ID for a single field expression, or 0 */
+} col_custom_t;
+
 /** Individual column info */
 typedef struct {
   gint                col_fmt;              /**< Format of column */
