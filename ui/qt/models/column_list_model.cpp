@@ -18,6 +18,7 @@
 #include <epan/prefs.h>
 #include <epan/proto.h>
 #include <ui/preference_utils.h>
+#include <ui/recent.h>
 
 #include <QLineEdit>
 #include <QStringList>
@@ -31,6 +32,8 @@ struct ListElement
     int type;
     int originalType;
     int occurrence;
+    int width;
+    char xalign;
     bool displayed;
     bool resolved;
 };
@@ -65,6 +68,22 @@ ColumnTypeDelegate::ColumnTypeDelegate(QObject * parent) :
     QStyledItemDelegate(parent)
 {}
 
+QString ColumnTypeDelegate::alignDesc(char xalign)
+{
+    switch (xalign) {
+    case COLUMN_XALIGN_DEFAULT:
+        return tr("Default");
+    case COLUMN_XALIGN_LEFT:
+        return tr("Left");
+    case COLUMN_XALIGN_CENTER:
+        return tr("Center");
+    case COLUMN_XALIGN_RIGHT:
+        return tr("Right");
+    default:
+        return tr("Unknown");
+    }
+}
+
 QWidget *ColumnTypeDelegate::createEditor(QWidget *parent,
                                        const QStyleOptionViewItem &option,
                                        const QModelIndex &index) const
@@ -92,12 +111,25 @@ QWidget *ColumnTypeDelegate::createEditor(QWidget *parent,
         ff_editor->setText(index.data().toString());
         editor = ff_editor;
     }
-    else if (index.column() == ColumnListModel::COL_OCCURRENCE)
+    else if (index.column() == ColumnListModel::COL_OCCURRENCE ||
+        index.column() == ColumnListModel::COL_WIDTH)
     {
         SyntaxLineEdit * sl_editor = new SyntaxLineEdit(parent);
         connect(sl_editor, &SyntaxLineEdit::textChanged, sl_editor, &SyntaxLineEdit::checkInteger);
         sl_editor->setText(index.data().toString());
         editor = sl_editor;
+    }
+    else if (index.column() == ColumnListModel::COL_XALIGN)
+    {
+        QComboBox *cb_editor = new QComboBox(parent);
+
+        cb_editor->addItem(alignDesc(COLUMN_XALIGN_DEFAULT), QVariant(COLUMN_XALIGN_DEFAULT));
+        cb_editor->addItem(alignDesc(COLUMN_XALIGN_LEFT), QVariant(COLUMN_XALIGN_LEFT));
+        cb_editor->addItem(alignDesc(COLUMN_XALIGN_CENTER), QVariant(COLUMN_XALIGN_CENTER));
+        cb_editor->addItem(alignDesc(COLUMN_XALIGN_RIGHT), QVariant(COLUMN_XALIGN_RIGHT));
+        cb_editor->setCurrentIndex(cb_editor->findText(index.data().toString()));
+        cb_editor->setFrame(false);
+        editor = cb_editor;
     }
 
     if (!editor) {
@@ -111,7 +143,8 @@ void ColumnTypeDelegate::setEditorData(QWidget *editor,
                                     const QModelIndex &index) const
 {
     QVariant data = index.model()->data(index);
-    if (index.column() == ColumnListModel::COL_TYPE)
+    if (index.column() == ColumnListModel::COL_TYPE ||
+        index.column() == ColumnListModel::COL_XALIGN)
     {
         QComboBox *comboBox = static_cast<QComboBox*>(editor);
         comboBox->setCurrentText(data.toString());
@@ -121,7 +154,8 @@ void ColumnTypeDelegate::setEditorData(QWidget *editor,
         if (qobject_cast<FieldFilterEdit *>(editor))
             qobject_cast<FieldFilterEdit *>(editor)->setText(data.toString());
     }
-    else if (index.column() == ColumnListModel::COL_OCCURRENCE)
+    else if (index.column() == ColumnListModel::COL_OCCURRENCE ||
+        index.column() == ColumnListModel::COL_WIDTH)
     {
         if (qobject_cast<SyntaxLineEdit *>(editor))
             qobject_cast<SyntaxLineEdit *>(editor)->setText(data.toString());
@@ -136,7 +170,8 @@ void ColumnTypeDelegate::setEditorData(QWidget *editor,
 void ColumnTypeDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
                                    const QModelIndex &index) const
 {
-    if (index.column() == ColumnListModel::COL_TYPE)
+    if (index.column() == ColumnListModel::COL_TYPE ||
+        index.column() == ColumnListModel::COL_XALIGN)
     {
         QComboBox *comboBox = static_cast<QComboBox*>(editor);
         bool ok = false;
@@ -197,6 +232,22 @@ void ColumnTypeDelegate::setModelData(QWidget *editor, QAbstractItemModel *model
 
         }
     }
+    else if (index.column() == ColumnListModel::COL_WIDTH)
+    {
+        SyntaxLineEdit * sle = qobject_cast<SyntaxLineEdit *>(editor);
+        bool ok = false;
+        if (sle)
+        {
+            sle->checkInteger(index.data().toString());
+            if (sle->syntaxState() == SyntaxLineEdit::Valid)
+                ok = true;
+        }
+
+        if (ok)
+        {
+            model->setData(index, sle->text(), Qt::EditRole);
+        }
+    }
     else
         QStyledItemDelegate::setModelData(editor, model, index);
 }
@@ -216,7 +267,7 @@ ColumnListModel::ColumnListModel(QObject * parent):
 
 QVariant ColumnListModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (section > ColumnListModel::COL_RESOLVED || orientation != Qt::Horizontal ||
+    if (section > ColumnListModel::COL_XALIGN || orientation != Qt::Horizontal ||
         role != Qt::DisplayRole)
         return QVariant();
 
@@ -230,7 +281,7 @@ int ColumnListModel::rowCount(const QModelIndex &/*parent*/) const
 
 int ColumnListModel::columnCount(const QModelIndex &/*parent*/) const
 {
-    return ColumnListModel::COL_RESOLVED + 1;
+    return ColumnListModel::COL_XALIGN + 1;
 }
 
 QString ColumnListModel::headerTitle(int section) const
@@ -249,6 +300,10 @@ QString ColumnListModel::headerTitle(int section) const
             return tr("Field Occurrence");
         case ColumnListModel::COL_RESOLVED:
             return tr("Resolved");
+        case ColumnListModel::COL_WIDTH:
+            return tr("Width");
+        case ColumnListModel::COL_XALIGN:
+            return tr("Alignment");
     }
 
     return QString();
@@ -270,6 +325,9 @@ void ColumnListModel::populate()
         ne.customFields = cfmt->custom_fields;
         ne.occurrence = cfmt->custom_occurrence;
         ne.resolved = cfmt->resolved;
+
+        ne.width = recent_get_column_width(nr);
+        ne.xalign = recent_get_column_xalign(nr);
 
         nr++;
         store_ << ne;
@@ -298,6 +356,10 @@ QVariant ColumnListModel::data(const QModelIndex &index, int role) const
                 return ne.customFields;
             case ColumnListModel::COL_OCCURRENCE:
                 return ne.customFields.length() > 0 ? QVariant::fromValue(ne.occurrence) : QVariant();
+            case ColumnListModel::COL_WIDTH:
+                return ne.width;
+            case ColumnListModel::COL_XALIGN:
+                return ColumnTypeDelegate::alignDesc(ne.xalign);
         }
     }
     else if (role == Qt::CheckStateRole)
@@ -452,6 +514,20 @@ bool ColumnListModel::setData(const QModelIndex &index, const QVariant &value, i
     {
         store_[index.row()].resolved = value.toInt() == Qt::Checked ? true : false;
     }
+    else if (index.column() == ColumnListModel::COL_WIDTH)
+    {
+        bool ok = false;
+        int val = value.toInt(&ok);
+        if (ok)
+            store_[index.row()].width = val;
+    }
+    else if (index.column() == ColumnListModel::COL_XALIGN)
+    {
+        bool ok = false;
+        int val = value.toInt(&ok);
+        if (ok)
+            store_[index.row()].xalign = static_cast<char>(val);
+    }
 
     if (change)
         emit dataChanged(index, index);
@@ -486,6 +562,14 @@ void ColumnListModel::saveColumns()
         column_prefs_remove_link(prefs.col_list);
 
     prefs.col_list = new_col_list;
+
+    for (int row = 0; row < store_.count(); row++)
+    {
+        ListElement elem = store_.at(row);
+
+        recent_set_column_width(row, elem.width);
+        recent_set_column_xalign(row, elem.xalign);
+    }
 }
 
 void ColumnListModel::addEntry()
@@ -499,6 +583,8 @@ void ColumnListModel::addEntry()
     elem.occurrence = 0;
     elem.customFields = QString();
     elem.resolved = true;
+    elem.width = -1;
+    elem.xalign = COLUMN_XALIGN_DEFAULT;
     store_ << elem;
     endInsertRows();
 }
