@@ -305,8 +305,10 @@ bool FilterExpressionToolBar::eventFilter(QObject *obj, QEvent *event)
             QContextMenuEvent *ctx = static_cast<QContextMenuEvent *>(event);
             QAction * filterAction = qm->actionAt(ctx->pos());
 
-            if (filterAction)
-                customMenu(this, filterAction, ctx->pos());
+            if (filterAction) {
+                QPoint tb_pos = this->mapFromGlobal(ctx->globalPos());
+                customMenu(this, filterAction, tb_pos);
+            }
             return true;
         }
         else if (event->type() == QEvent::ToolTip)
