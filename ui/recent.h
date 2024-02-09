@@ -41,8 +41,6 @@ extern "C" {
 #define RECENT_KEY_REMOTE_HOST          "recent.remote_host"
 
 typedef struct _col_width_data {
-    gint   cfmt;
-    gchar *cfield;
     gint   width;
     gchar  xalign;
 } col_width_data;
