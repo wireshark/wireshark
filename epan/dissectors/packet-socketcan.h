@@ -14,16 +14,48 @@
 #include <epan/packet_info.h>
 #include <epan/proto.h>
 
-/* Flags for CAN FD frames. */
+/*
+ * Flags for CAN FD frames.
+ * They are in the FD Flags field of a CAN FD frame.
+ *
+ * CANFD_FDF is in that field. and always set, as well as being present
+ * but *never* set in what's at the location corresponding to that field
+ * in a CAN classic frame, so we can distingish between CAN classic and
+ * CAN FD frames by testing that bit.
+ */
 #define CANFD_BRS 0x01 /* Bit Rate Switch (second bitrate for payload data) */
 #define CANFD_ESI 0x02 /* Error State Indicator of the transmitting node */
 #define CANFD_FDF 0x04 /* FD flag - if set, this is an FD frame */
+
+/*
+ * Flags for CAN XL frames.
+ * They are in the Flags field of a CAN XL frame.
+ *
+ * CANXL_XLF is in that field, and always set. as well as being present
+ * but *never* set in what's the location corresponding to that field
+ * in a CAN classic or CAN FD frame, so we can distinguish between CAN
+ * XL and CAN classic/CAN FD frames by testing that bit.
+ */
+#define CANXL_XLF 0x80 /* XL flag - if set, this is an XL frame */
+#define CANXL_SEC 0x01 /* Simple Extended Content */
+
+/*
+ * CAN frame type.
+ *
+ * CAN_TYPE_CAN_CLASSIC is 0, and CAN_TYPE_CAN_FD is 1, so that the
+ * fd field behaves, for CAN classic and CAN FD frames, the same way
+ * that it did when it was a gboolean field that was FALSE for CAN classic
+ * frames and TRUE for CAN FD frames.
+ */
+#define CAN_TYPE_CAN_CLASSIC 0
+#define CAN_TYPE_CAN_FD      1
+#define CAN_TYPE_CAN_XL      2
 
 /* Structure that gets passed between dissectors. */
 typedef struct can_info {
     guint32 id;
     guint32 len;
-    gboolean fd;
+    guint fd;
     guint16 bus_id;
 } can_info_t;
 
