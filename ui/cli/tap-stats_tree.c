@@ -94,7 +94,7 @@ init_stats_tree(const char *opt_arg, void *userdata _U_)
 					     NULL);
 
 	if (error_string) {
-		report_failure("stats_tree for: %s failed to attach to the tap: %s", cfg->name, error_string->str);
+		report_failure("stats_tree for: %s failed to attach to the tap: %s", cfg->path, error_string->str);
 		return;
 	}
 

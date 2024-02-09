@@ -135,7 +135,8 @@ struct _stats_tree {
 
 struct _stats_tree_cfg {
 	char			*abbr;
-	char			*name;
+	char			*path;
+	char			*title;
 	char			*tapname;
 	char			*first_column_name;
 	register_stat_group_t	stat_group;

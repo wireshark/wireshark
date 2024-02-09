@@ -7037,13 +7037,13 @@ bacapp_stats_tree_instanceid(stats_tree* st, packet_info* pinfo, epan_dissect_t*
 static void
 register_bacapp_stat_trees(void)
 {
-    stats_tree_register("bacapp", "bacapp_ip", "BACnet/Packets sorted by IP", 0,
+    stats_tree_register("bacapp", "bacapp_ip", "BACnet" STATS_TREE_MENU_SEPARATOR "Packets sorted by IP", 0,
         bacapp_stats_tree_packet, bacapp_packet_stats_tree_init, NULL);
-    stats_tree_register("bacapp", "bacapp_service", "BACnet/Packets sorted by Service", 0,
+    stats_tree_register("bacapp", "bacapp_service", "BACnet" STATS_TREE_MENU_SEPARATOR "Packets sorted by Service", 0,
         bacapp_stats_tree_service, bacapp_service_stats_tree_init, NULL);
-    stats_tree_register("bacapp", "bacapp_objectid", "BACnet/Packets sorted by Object Type", 0,
+    stats_tree_register("bacapp", "bacapp_objectid", "BACnet" STATS_TREE_MENU_SEPARATOR "Packets sorted by Object Type", 0,
         bacapp_stats_tree_objectid, bacapp_objectid_stats_tree_init, NULL);
-    stats_tree_register("bacapp", "bacapp_instanceid", "BACnet/Packets sorted by Instance ID", 0,
+    stats_tree_register("bacapp", "bacapp_instanceid", "BACnet" STATS_TREE_MENU_SEPARATOR "Packets sorted by Instance ID", 0,
         bacapp_stats_tree_instanceid, bacapp_instanceid_stats_tree_init, NULL);
 }
 

@@ -1644,7 +1644,7 @@ proto_reg_handoff_rtsp(void)
     dissector_add_uint_range_with_preference("tcp.port", RTSP_TCP_PORT_RANGE, rtsp_handle);
 
     /* XXX: Do the following only once ?? */
-    stats_tree_register("rtsp","rtsp","RTSP/Packet Counter", 0, rtsp_stats_tree_packet, rtsp_stats_tree_init, NULL );
+    stats_tree_register("rtsp","rtsp","RTSP" STATS_TREE_MENU_SEPARATOR "Packet Counter", 0, rtsp_stats_tree_packet, rtsp_stats_tree_init, NULL );
 
 }
 

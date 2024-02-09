@@ -103,11 +103,9 @@ void StatsTreeDialog::fillTree()
 {
     if (!st_cfg_ || file_closed_) return;
 
-    QString display_name = gchar_free_to_qstring(stats_tree_get_displayname(st_cfg_->name));
-
-    // The GTK+ UI appends "Stats Tree" to the window title. If we do the same
+    // The GTK+ UI appended "Stats Tree" to the window title. If we do the same
     // here we should expand the name completely, e.g. to "Statistics Tree".
-    setWindowSubtitle(display_name);
+    setWindowSubtitle(st_cfg_->title);
 
     st_cfg_->pr = &cfg_pr_;
     cfg_pr_.st_dlg = this;

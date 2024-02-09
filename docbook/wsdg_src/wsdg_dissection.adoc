@@ -1223,7 +1223,7 @@ Here is a mechanism to produce statistics from the above TAP interface.
 
 /* register all http trees */
 static void register_foo_stat_trees(void) {
-    stats_tree_register_plugin("foo", "foo", "Foo/Packet Types", 0,
+    stats_tree_register_plugin("foo", "foo", "Foo" STATS_TREE_MENU_SEPARATOR "Packet Types", 0,
         foo_stats_tree_packet, foo_stats_tree_init, NULL);
 }
 

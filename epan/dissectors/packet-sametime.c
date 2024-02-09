@@ -901,7 +901,7 @@ proto_reg_handoff_sametime(void)
 {
    dissector_add_uint_with_preference("tcp.port", DEFAULT_SAMETIME_PORT, sametime_handle);
 
-   stats_tree_register("sametime", "sametime", "Sametime/Messages", 0,
+   stats_tree_register("sametime", "sametime", "Sametime" STATS_TREE_MENU_SEPARATOR "Messages", 0,
         sametime_stats_tree_packet,
         sametime_stats_tree_init, NULL );
 

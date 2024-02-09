@@ -1058,7 +1058,7 @@ sharkd_session_process_info(void)
             stats_tree_cfg *cfg = (stats_tree_cfg *) l->data;
 
             json_dumper_begin_object(&dumper);
-            sharkd_json_value_string("name", cfg->name);
+            sharkd_json_value_string("name", cfg->title);
             sharkd_json_value_stringf("tap", "stat:%s", cfg->abbr);
             json_dumper_end_object(&dumper);
         }
@@ -1775,7 +1775,7 @@ sharkd_session_process_tap_stats_cb(void *psp)
 
     sharkd_json_value_stringf("tap", "stats:%s", st->cfg->abbr);
     sharkd_json_value_string("type", "stats");
-    sharkd_json_value_string("name", st->cfg->name);
+    sharkd_json_value_string("name", st->cfg->path);
 
     sharkd_session_process_tap_stats_node_cb("stats", &st->root);
 

@@ -23,6 +23,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 #define STAT_TREE_ROOT "root"
+#define STATS_TREE_MENU_SEPARATOR "//"
 
 #define ST_FLG_AVERAGE      0x10000000  /* Calculate averages for nodes, rather than totals */
 #define ST_FLG_ROOTCHILD    0x20000000  /* This node is a direct child of the root node */
@@ -68,7 +69,7 @@ typedef struct _stats_tree_cfg stats_tree_cfg;
 /**
  * Registers a new stats tree with default group REGISTER_STAT_GROUP_UNSORTED.
  * @param abbr tree abbr (used for tshark -z option)
- * @param name tree display name in GUI menu and window (use "/" for sub menus)
+ * @param path tree display name in GUI menu and window (use "//" for submenus)
  * @param flags tap listener flags for per-packet callback
  * @param packet per packet callback
  * @param init tree initialization callback
@@ -77,7 +78,7 @@ typedef struct _stats_tree_cfg stats_tree_cfg;
  */
 WS_DLL_PUBLIC stats_tree_cfg *stats_tree_register(const gchar *tapname,
                                        const gchar *abbr,
-                                       const gchar *name,
+                                       const gchar *path,
                                        guint flags,
                                        stat_tree_packet_cb packet,
                                        stat_tree_init_cb init,
@@ -86,7 +87,7 @@ WS_DLL_PUBLIC stats_tree_cfg *stats_tree_register(const gchar *tapname,
 /**
  * Registers a new stats tree with default group REGISTER_STAT_GROUP_UNSORTED from a plugin.
  * @param abbr tree abbr (used for tshark -z option)
- * @param name tree display name in GUI menu and window (use "/" for sub menus)
+ * @param path tree display name in GUI menu and window (use "//" for submenus)
  * @param flags tap listener flags for per-packet callback
  * @param packet per packet callback
  * @param init tree initialization callback
@@ -95,7 +96,7 @@ WS_DLL_PUBLIC stats_tree_cfg *stats_tree_register(const gchar *tapname,
  */
 WS_DLL_PUBLIC stats_tree_cfg *stats_tree_register_plugin(const gchar *tapname,
                                               const gchar *abbr,
-                                              const gchar *name,
+                                              const gchar *path,
                                               guint flags,
                                               stat_tree_packet_cb packet,
                                               stat_tree_init_cb init,

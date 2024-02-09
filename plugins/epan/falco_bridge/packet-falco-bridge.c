@@ -1166,7 +1166,7 @@ void
 proto_reg_handoff_falcoplugin(void)
 {
     // Register statistics trees
-    stats_tree_cfg *st_config = stats_tree_register_plugin("container_io", "container_io", "Container IO", 0, container_io_stats_tree_event, container_io_stats_tree_init, NULL);
+    stats_tree_cfg *st_config = stats_tree_register_plugin("container_io", "container_io", "Container I/O", 0, container_io_stats_tree_event, container_io_stats_tree_init, NULL);
     stats_tree_set_group(st_config, REGISTER_LOG_STAT_GROUP_UNSORTED);
     stats_tree_set_first_column_name(st_config, "Container, process, and FD I/O");
 

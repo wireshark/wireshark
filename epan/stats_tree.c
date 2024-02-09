@@ -247,7 +247,7 @@ stats_tree_reinit(void *p)
     /* Do not update st_flags for the tree (sorting) - leave as was */
     st->num_columns = N_COLUMNS;
     g_free(st->display_name);
-    st->display_name = stats_tree_get_displayname(st->cfg->name);
+    st->display_name = stats_tree_get_displayname(st->cfg->path);
 
     if (st->cfg->init) {
         st->cfg->init(st);
@@ -260,14 +260,15 @@ stats_tree_free_configuration(gpointer p)
     stats_tree_cfg* cfg = (stats_tree_cfg*)p;
     g_free(cfg->tapname);
     g_free(cfg->abbr);
-    g_free(cfg->name);
+    g_free(cfg->path);
+    g_free(cfg->title);
     g_free(cfg->first_column_name);
     g_free(cfg);
 }
 
 /* register a new stats_tree */
 extern stats_tree_cfg *
-stats_tree_register(const char *tapname, const char *abbr, const char *name,
+stats_tree_register(const char *tapname, const char *abbr, const char *path,
             guint flags,
             stat_tree_packet_cb packet, stat_tree_init_cb init,
             stat_tree_cleanup_cb cleanup)
@@ -279,8 +280,17 @@ stats_tree_register(const char *tapname, const char *abbr, const char *name,
 
     cfg->tapname = g_strdup(tapname);
     cfg->abbr = g_strdup(abbr);
-    cfg->name = name ? g_strdup(name) : g_strdup(abbr);
+    cfg->path = path ? g_strdup(path) : g_strdup(abbr);
     cfg->stat_group = REGISTER_PACKET_STAT_GROUP_UNSORTED;
+
+    GString *title_str = g_string_new("");
+    char **split = g_strsplit(path, STATS_TREE_MENU_SEPARATOR, 0);
+    const char *sep = "";
+    for (size_t idx = 0; split[idx]; idx++) {
+        g_string_append_printf(title_str, "%s%s", sep, g_strstrip(split[idx]));
+        sep = " / ";
+    }
+    cfg->title = g_string_free(title_str, false);
 
     cfg->packet = packet;
     cfg->init = init;
@@ -298,12 +308,12 @@ stats_tree_register(const char *tapname, const char *abbr, const char *name,
 
 /* register a new stat_tree with default group REGISTER_PACKET_STAT_GROUP_UNSORTED from a plugin */
 extern stats_tree_cfg *
-stats_tree_register_plugin(const char *tapname, const char *abbr, const char *name,
+stats_tree_register_plugin(const char *tapname, const char *abbr, const char *path,
             guint flags,
             stat_tree_packet_cb packet, stat_tree_init_cb init,
             stat_tree_cleanup_cb cleanup)
 {
-    stats_tree_cfg *cfg = stats_tree_register(tapname, abbr, name,
+    stats_tree_cfg *cfg = stats_tree_register(tapname, abbr, path,
             flags, packet, init, cleanup);
     cfg->plugin = TRUE;
 
@@ -355,7 +365,7 @@ stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter)
     st->root.bt = st->root.bh;
     st->root.burst_time = -1.0;
 
-    st->root.name = stats_tree_get_displayname(cfg->name);
+    st->root.name = stats_tree_get_displayname(cfg->path);
     st->root.st = st;
 
     st->st_flags = st->cfg->st_flags;
@@ -368,7 +378,7 @@ stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter)
         }
     }
     st->num_columns = N_COLUMNS;
-    st->display_name = stats_tree_get_displayname(st->cfg->name);
+    st->display_name = stats_tree_get_displayname(st->cfg->path);
 
     g_ptr_array_add(st->parents,&st->root);
 
@@ -405,7 +415,7 @@ compare_stat_menu_item(gconstpointer stat_a, gconstpointer stat_b)
     const stats_tree_cfg* stat_cfg_a = (const stats_tree_cfg*)stat_a;
     const stats_tree_cfg* stat_cfg_b = (const stats_tree_cfg*)stat_b;
 
-    return strcmp(stat_cfg_a->name, stat_cfg_b->name);
+    return strcmp(stat_cfg_a->path, stat_cfg_b->path);
 }
 
 extern GList*
@@ -1336,7 +1346,7 @@ stats_tree_format_as_str(const stats_tree* st, st_format_type format_type,
 
             s = g_string_new("\n");
             g_string_append(s,separator);
-            g_string_append_printf(s,"\n%s:\n",st->cfg->name);
+            g_string_append_printf(s,"\n%s:\n",st->cfg->title);
             snprintf (fmt,sizeof(fmt),"%%-%us",maxnamelen);
             g_string_append_printf(s,fmt,stats_tree_get_column_name(st->cfg, 0));
             for (count = 1; count<st->num_columns; count++) {
