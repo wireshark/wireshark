@@ -208,18 +208,17 @@ static const value_string show_bytes_decode_values[] = {
 };
 
 static void
-free_col_width_data(gpointer data, gpointer user_data _U_)
+free_col_width_data(gpointer data)
 {
     col_width_data *cfmt = (col_width_data *)data;
     g_free(cfmt->cfield);
     g_free(cfmt);
 }
 
-static void
-free_col_width_info(recent_settings_t *rs)
+void
+recent_free_column_width_info(recent_settings_t *rs)
 {
-    g_list_foreach(rs->col_width_list, free_col_width_data, NULL);
-    g_list_free(rs->col_width_list);
+    g_list_free_full(rs->col_width_list, free_col_width_data);
     rs->col_width_list = NULL;
 }
 
@@ -1473,7 +1472,7 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
             /* Go past the width.  */
             col_l_elt = col_l_elt->next;
         }
-        free_col_width_info(&recent);
+        recent_free_column_width_info(&recent);
         recent.col_width_list = NULL;
         col_l_elt = g_list_first(col_l);
         while (col_l_elt) {
@@ -1696,7 +1695,7 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
     }
 
     if (recent.col_width_list) {
-        free_col_width_info(&recent);
+        recent_free_column_width_info(&recent);
     }
 
     if (recent.gui_fileopen_remembered_dir) {
@@ -1799,6 +1798,43 @@ recent_read_dynamic(char **rf_path_return, int *rf_errno_return)
     }
     g_free(rf_path);
     return TRUE;
+}
+
+void
+recent_insert_column(int col)
+{
+    col_width_data *col_w;
+    int cfmt;
+    const char *cfield = NULL;
+
+    cfmt = get_column_format(col);
+    if (cfmt == COL_CUSTOM) {
+        cfield = get_column_custom_fields(col);
+    }
+
+    col_w = g_new(col_width_data, 1);
+    col_w->cfmt = cfmt;
+    col_w->cfield = g_strdup(cfield);
+    col_w->width = -1;
+    col_w->xalign = COLUMN_XALIGN_DEFAULT;
+    recent.col_width_list = g_list_insert(recent.col_width_list, col_w, col);
+}
+
+void
+recent_remove_column(int col)
+{
+    GList *col_l = g_list_nth(recent.col_width_list, col);
+    col_width_data *col_w;
+
+    if (!col_l) return;
+
+    col_w = (col_width_data*)col_l->data;
+
+    if (col_w) {
+        free_col_width_data(col_w);
+    }
+
+    recent.col_width_list = g_list_delete_link(recent.col_width_list, col_l);
 }
 
 gint
@@ -1942,7 +1978,7 @@ recent_init(void)
 void
 recent_cleanup(void)
 {
-    free_col_width_info(&recent);
+    recent_free_column_width_info(&recent);
     g_free(recent.gui_geometry_main);
     g_free(recent.gui_geometry_main_master_split);
     g_free(recent.gui_geometry_main_extra_split);

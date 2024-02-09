@@ -232,6 +232,28 @@ extern gboolean recent_read_dynamic(char **rf_path_return, int *rf_errno_return)
  */
 extern int recent_set_arg(char *prefarg);
 
+/** Free the recent settings list of column width information
+ *
+ * @param rs the recent settings (currently a global)
+ */
+extern void recent_free_column_width_info(recent_settings_t *rs);
+
+/** Insert an entry in the recent column width setting for
+ * the given column, which should have been just added to
+ * the column list preference. (This keeps them in sync.)
+ *
+ * @param col column number
+ */
+extern void recent_insert_column(int col);
+
+/** Remove an entry in the recent column width setting for
+ * the given column, which should have been just removed to
+ * the column list preference. (This keeps them in sync.)
+ *
+ * @param col column number
+ */
+extern void recent_remove_column(int col);
+
 /** Get the column width for the given column
  *
  * @param col column number

@@ -187,7 +187,8 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_fields
         last_cfmt = (fmt_data *) clp->data;
         if (position > 0 && position <= colnr) {
             /* Custom fields may be added at any position, depending on the given argument */
-            prefs.col_list = g_list_insert(prefs.col_list, cfmt, position);
+            colnr = position;
+            prefs.col_list = g_list_insert(prefs.col_list, cfmt, colnr);
         } else if (last_cfmt->fmt == COL_INFO) {
             /* Last column is COL_INFO, add custom column before this */
             colnr -= 1;
@@ -199,6 +200,7 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_fields
         cfmt->visible = FALSE;  /* Will be set to TRUE in visible_toggled() when added to list */
         prefs.col_list = g_list_append(prefs.col_list, cfmt);
     }
+    recent_insert_column(colnr);
 
     return colnr;
 }
@@ -274,6 +276,7 @@ void
 column_prefs_remove_nth(gint col)
 {
     column_prefs_remove_link(g_list_nth(prefs.col_list, col));
+    recent_remove_column(col);
 }
 
 void save_migrated_uat(const char *uat_name, gboolean *old_pref)

@@ -563,10 +563,12 @@ void ColumnListModel::saveColumns()
 
     prefs.col_list = new_col_list;
 
+    recent_free_column_width_info(&recent);
     for (int row = 0; row < store_.count(); row++)
     {
         ListElement elem = store_.at(row);
 
+        recent_insert_column(row);
         recent_set_column_width(row, elem.width);
         recent_set_column_xalign(row, elem.xalign);
     }

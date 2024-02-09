@@ -1823,6 +1823,7 @@ void PacketList::sectionResized(int col, int, int new_width)
 void PacketList::sectionMoved(int logicalIndex, int oldVisualIndex, int newVisualIndex)
 {
     GList *new_col_list = NULL;
+    GList *new_recent_col_list = NULL;
     QList<int> saved_sizes;
     int sort_idx;
 
@@ -1847,9 +1848,14 @@ void PacketList::sectionMoved(int logicalIndex, int oldVisualIndex, int newVisua
         saved_sizes << header()->sectionSize(log_idx);
 
         void *pref_data = g_list_nth_data(prefs.col_list, log_idx);
-        if (!pref_data) continue;
+        if (pref_data) {
+            new_col_list = g_list_append(new_col_list, pref_data);
+        }
 
-        new_col_list = g_list_append(new_col_list, pref_data);
+        pref_data = g_list_nth_data(recent.col_width_list, log_idx);
+        if (pref_data) {
+            new_recent_col_list = g_list_append(new_recent_col_list, pref_data);
+        }
     }
 
     // Undo move to ensure that the logical indices map to the visual indices,
@@ -1867,6 +1873,8 @@ void PacketList::sectionMoved(int logicalIndex, int oldVisualIndex, int newVisua
 
     g_list_free(prefs.col_list);
     prefs.col_list = new_col_list;
+    g_list_free(recent.col_width_list);
+    recent.col_width_list = new_recent_col_list;
 
     thaw(true);
 
