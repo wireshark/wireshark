@@ -56,17 +56,15 @@ typedef struct _http_req_res_t {
 	gchar   *http_host;
 	gchar   *request_uri;
 	gchar   *full_uri;
-	/** pointer to the next element in the linked list, NULL for the tail node */
-	struct _http_req_res_t *next;
-	/** pointer to the previous element in the linked list, NULL for the head node */
-	struct _http_req_res_t *prev;
+	gboolean req_has_range;
+	gboolean resp_has_range;
+
 	/** private data used by http dissector */
 	void* private_data;
 } http_req_res_t;
 
 /** Conversation data of a HTTP connection. */
 typedef struct _http_conv_t {
-	guint32  req_res_num;	/**< The number of requests in the conversation. */
 
         /* Used to speed up desegmenting of chunked Transfer-Encoding. */
 	wmem_map_t *chunk_offsets_fwd;
