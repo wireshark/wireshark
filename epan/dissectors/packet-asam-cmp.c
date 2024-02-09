@@ -1218,7 +1218,7 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
                 can_id = can_id | CAN_ERR_FLAG;
             }
 
-            struct can_info can_info = { .id = can_id, .len = msg_payload_type_length, .fd = false, .bus_id = ht_interface_config_to_bus_id(interface_id) };
+            struct can_info can_info = { .id = can_id, .len = msg_payload_type_length, .fd = CAN_TYPE_CAN_CLASSIC, .bus_id = ht_interface_config_to_bus_id(interface_id) };
             if (!socketcan_call_subdissectors(sub_tvb, pinfo, tree, &can_info, heuristic_first)) {
                 call_data_dissector(sub_tvb, pinfo, tree);
             }
@@ -1326,7 +1326,7 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
                 can_id = can_id | CAN_ERR_FLAG;
             }
 
-            struct can_info can_info = { .id = can_id, .len = msg_payload_type_length, .fd = true, .bus_id = ht_interface_config_to_bus_id(interface_id) };
+            struct can_info can_info = { .id = can_id, .len = msg_payload_type_length, .fd = CAN_TYPE_CAN_FD, .bus_id = ht_interface_config_to_bus_id(interface_id) };
             if (!socketcan_call_subdissectors(sub_tvb, pinfo, tree, &can_info, heuristic_first)) {
                 call_data_dissector(sub_tvb, pinfo, tree);
             }

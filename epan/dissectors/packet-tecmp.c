@@ -1878,7 +1878,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     payload_tvb = tvb_new_subset_length(sub_tvb, offset2, length2);
                     offset2 += length2;
 
-                    can_info.fd = (data_type == TECMP_DATA_TYPE_CAN_FD_DATA);
+                    can_info.fd = (data_type == TECMP_DATA_TYPE_CAN_FD_DATA) ? CAN_TYPE_CAN_FD : CAN_TYPE_CAN_CLASSIC;
                     can_info.len = length2;
                     can_info.bus_id = ht_interface_config_to_bus_id(interface_id);
 

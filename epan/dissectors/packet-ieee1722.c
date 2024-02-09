@@ -2652,7 +2652,7 @@ static int dissect_1722_acf_can_common(tvbuff_t *tvb, packet_info *pinfo, proto_
     }
 
     can_info.len = (guint32)parsed.datalen;
-    can_info.fd = parsed.is_fd;
+    can_info.fd = parsed.is_fd ? CAN_TYPE_CAN_FD : CAN_TYPE_CAN_CLASSIC;
 
     /* for practical reasons a remapping might be needed in the future */
     can_info.bus_id = (guint16)parsed.bus_id;

@@ -938,10 +938,17 @@ dissect_iso15765_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         return 0;
     }
 
-    if (can_info.fd) {
+    switch (can_info.fd) {
+
+    case CAN_TYPE_CAN_FD:
         return dissect_iso15765(tvb, pinfo, tree, ISO15765_TYPE_CAN_FD, can_info.id, can_info.len);
-    } else {
+
+    case CAN_TYPE_CAN_CLASSIC:
         return dissect_iso15765(tvb, pinfo, tree, ISO15765_TYPE_CAN, can_info.id, can_info.len);
+
+    default:
+        DISSECTOR_ASSERT_NOT_REACHED();
+        return tvb_captured_length(tvb);
     }
 }
 
