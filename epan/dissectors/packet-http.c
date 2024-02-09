@@ -4679,10 +4679,15 @@ proto_reg_handoff_http(void)
 	gssapi_handle = find_dissector_add_dependency("gssapi", proto_http);
 	sstp_handle = find_dissector_add_dependency("sstp", proto_http);
 
-	stats_tree_register("http", "http",     "HTTP/Packet Counter",   0, http_stats_tree_packet,      http_stats_tree_init, NULL );
-	stats_tree_register("http", "http_req", "HTTP/Requests",         0, http_req_stats_tree_packet,  http_req_stats_tree_init, NULL );
-	stats_tree_register("http", "http_srv", "HTTP/Load Distribution",0, http_reqs_stats_tree_packet, http_reqs_stats_tree_init, NULL );
-	stats_tree_register("http", "http_seq", "HTTP/Request Sequences",0, http_seq_stats_tree_packet,  http_seq_stats_tree_init, NULL );
+	stats_tree_cfg *st_config;
+	st_config = stats_tree_register("http", "http",     "HTTP/Packet Counter",   0, http_stats_tree_packet,      http_stats_tree_init, NULL );
+	stats_tree_set_first_column_name(st_config, "Packet Type");
+	st_config = stats_tree_register("http", "http_req", "HTTP/Requests",         0, http_req_stats_tree_packet,  http_req_stats_tree_init, NULL );
+	stats_tree_set_first_column_name(st_config, "Request Type");
+	st_config = stats_tree_register("http", "http_srv", "HTTP/Load Distribution",0, http_reqs_stats_tree_packet, http_reqs_stats_tree_init, NULL );
+	stats_tree_set_first_column_name(st_config, "Packet Type");
+	st_config = stats_tree_register("http", "http_seq", "HTTP/Request Sequences",0, http_seq_stats_tree_packet,  http_seq_stats_tree_init, NULL );
+	stats_tree_set_first_column_name(st_config, "Sequence Type");
 
 	dissector_add_uint("acdr.tls_application_port", 443, http_handle);
 	dissector_add_uint("acdr.tls_application", TLS_APP_HTTP, http_handle);

@@ -3859,9 +3859,9 @@ proto_reg_handoff_smpp(void)
     DISSECTOR_ASSERT(gsm_sms_handle);
 
     /* Tapping setup */
-    stats_tree_register_with_group("smpp","smpp_commands", "SM_PP Operations", 0,
-                                   smpp_stats_tree_per_packet, smpp_stats_tree_init,
-                                   NULL, REGISTER_STAT_GROUP_TELEPHONY);
+    stats_tree_cfg *st_config = stats_tree_register("smpp","smpp_commands", "SM_PP Operations", 0,
+                                   smpp_stats_tree_per_packet, smpp_stats_tree_init, NULL);
+    stats_tree_set_group(st_config, REGISTER_STAT_GROUP_TELEPHONY);
 
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 }

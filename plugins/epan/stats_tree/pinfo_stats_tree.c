@@ -334,7 +334,8 @@ void register_tap_listener_pinfo_stat_tree(void)
 	stats_tree_register_plugin("ipv6", "ipv6_hop", st_str_ipv6_src_ttls, 0, ipv6_src_ttl_stats_tree_packet, ipv6_src_ttl_stats_tree_init, NULL);
 
 
-	stats_tree_register_with_group("frame", "plen", st_str_plen, 0, plen_stats_tree_packet, plen_stats_tree_init, NULL, REGISTER_STAT_GROUP_GENERIC);
+	stats_tree_cfg *st_config = stats_tree_register("frame", "plen", st_str_plen, 0, plen_stats_tree_packet, plen_stats_tree_init, NULL);
+	stats_tree_set_group(st_config, REGISTER_STAT_GROUP_GENERIC);
 
 	stat_module = prefs_register_stat("stat_tree", "Stats Tree", "Stats Tree", NULL);
 

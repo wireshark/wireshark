@@ -2903,9 +2903,9 @@ proto_reg_handoff_ucp(void)
     dissector_add_for_decode_as_with_preference("tcp.port", ucp_handle);
 
     /* Tapping setup */
-    stats_tree_register_with_group("ucp", "ucp_messages", "_UCP Messages", 0,
-                        ucp_stats_tree_per_packet, ucp_stats_tree_init,
-                        NULL, REGISTER_STAT_GROUP_TELEPHONY);
+    stats_tree_cfg *st_config = stats_tree_register("ucp", "ucp_messages", "_UCP Messages", 0,
+                        ucp_stats_tree_per_packet, ucp_stats_tree_init, NULL);
+    stats_tree_set_group(st_config, REGISTER_STAT_GROUP_TELEPHONY);
 }
 
 /*

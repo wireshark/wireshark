@@ -116,6 +116,10 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
+[stats_tree_priv.h]
+indent_style = tab
+indent_size = tab
+
 [t35.[ch]]
 indent_style = tab
 indent_size = tab

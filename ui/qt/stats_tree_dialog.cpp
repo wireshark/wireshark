@@ -121,7 +121,7 @@ void StatsTreeDialog::fillTree()
     // Add number of columns for this stats_tree
     QStringList header_labels;
     for (int count = 0; count<st_->num_columns; count++) {
-        header_labels.push_back(stats_tree_get_column_name(count));
+        header_labels.push_back(stats_tree_get_column_name(st_cfg_, count));
     }
     statsTreeWidget()->setColumnCount(static_cast<int>(header_labels.count()));
     statsTreeWidget()->setHeaderLabels(header_labels);

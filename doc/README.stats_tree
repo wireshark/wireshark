@@ -116,10 +116,10 @@ stats_tree_register(tapname, abbr, name, flags, packet_cb, init_cb, cleanup_cb);
  registers a new stats tree with default group REGISTER_STAT_GROUP_UNSORTED
 
 stats_tree_register_plugin(tapname, abbr, name, flags, packet_cb, init_cb, cleanup_cb);
- registers a new stats tree from a plugin with the default group
+ registers a new stats tree from a plugin with the default group REGISTER_STAT_GROUP_UNSORTED
 
-stats_tree_register_with_group(tapname, abbr, name, flags, packet_cb, init_cb, cleanup_cb, stat_group);
- registers a new stats tree under a particular stat group
+stats_tree_set_group(st_config, stat_group);
+ changes the menu statistics group for a stats tree
 
 stats_tree_parent_id_by_name( st, parent_name)
   returns the id of a candidate parent node given its name

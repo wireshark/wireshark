@@ -12288,9 +12288,9 @@ proto_register_isup(void)
                                  &isup_apm_desegment);
 
   /* Register the stats_tree */
-  stats_tree_register_with_group("isup", "isup_msg", "_ISUP Messages",
-                                 0, msg_stats_tree_packet, msg_stats_tree_init,
-                                 NULL, REGISTER_STAT_GROUP_TELEPHONY);
+  stats_tree_cfg *st_config = stats_tree_register("isup", "isup_msg", "_ISUP Messages",
+                                 0, msg_stats_tree_packet, msg_stats_tree_init, NULL);
+  stats_tree_set_group(st_config, REGISTER_STAT_GROUP_TELEPHONY);
 }
 
 

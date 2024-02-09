@@ -255,21 +255,22 @@ stats_tree_reinit(void *p)
 }
 
 static void
-stats_tree_cfg_free(gpointer p)
+stats_tree_free_configuration(gpointer p)
 {
     stats_tree_cfg* cfg = (stats_tree_cfg*)p;
     g_free(cfg->tapname);
     g_free(cfg->abbr);
     g_free(cfg->name);
+    g_free(cfg->first_column_name);
     g_free(cfg);
 }
 
 /* register a new stats_tree */
-extern void
-stats_tree_register_with_group(const char *tapname, const char *abbr, const char *name,
+extern stats_tree_cfg *
+stats_tree_register(const char *tapname, const char *abbr, const char *name,
             guint flags,
             stat_tree_packet_cb packet, stat_tree_init_cb init,
-            stat_tree_cleanup_cb cleanup, register_stat_group_t stat_group)
+            stat_tree_cleanup_cb cleanup)
 {
     stats_tree_cfg *cfg = g_new0(stats_tree_cfg, 1);
 
@@ -279,7 +280,7 @@ stats_tree_register_with_group(const char *tapname, const char *abbr, const char
     cfg->tapname = g_strdup(tapname);
     cfg->abbr = g_strdup(abbr);
     cfg->name = name ? g_strdup(name) : g_strdup(abbr);
-    cfg->stat_group = stat_group;
+    cfg->stat_group = REGISTER_PACKET_STAT_GROUP_UNSORTED;
 
     cfg->packet = packet;
     cfg->init = init;
@@ -288,39 +289,39 @@ stats_tree_register_with_group(const char *tapname, const char *abbr, const char
     cfg->flags = flags&~ST_FLG_MASK;
     cfg->st_flags = flags&ST_FLG_MASK;
 
-    if (!registry) registry = g_hash_table_new_full(g_str_hash,g_str_equal,NULL,stats_tree_cfg_free);
+    if (!registry) registry = g_hash_table_new_full(g_str_hash,g_str_equal,NULL,stats_tree_free_configuration);
 
     g_hash_table_insert(registry,cfg->abbr,cfg);
-}
 
-/* register a new stats_tree with default group REGISTER_PACKET_STAT_GROUP_UNSORTED */
-extern void
-stats_tree_register(const char *tapname, const char *abbr, const char *name,
-            guint flags,
-            stat_tree_packet_cb packet, stat_tree_init_cb init,
-            stat_tree_cleanup_cb cleanup)
-{
-    stats_tree_register_with_group(tapname, abbr, name,
-            flags,
-            packet, init,
-            cleanup, REGISTER_PACKET_STAT_GROUP_UNSORTED);
+    return cfg;
 }
 
 /* register a new stat_tree with default group REGISTER_PACKET_STAT_GROUP_UNSORTED from a plugin */
-extern void
+extern stats_tree_cfg *
 stats_tree_register_plugin(const char *tapname, const char *abbr, const char *name,
             guint flags,
             stat_tree_packet_cb packet, stat_tree_init_cb init,
             stat_tree_cleanup_cb cleanup)
 {
-    stats_tree_cfg *cfg;
-
-    stats_tree_register(tapname, abbr, name,
-            flags,
-            packet, init,
-            cleanup);
-    cfg = stats_tree_get_cfg_by_abbr(abbr);
+    stats_tree_cfg *cfg = stats_tree_register(tapname, abbr, name,
+            flags, packet, init, cleanup);
     cfg->plugin = TRUE;
+
+    return cfg;
+}
+
+extern void
+stats_tree_set_group(stats_tree_cfg *st_config, register_stat_group_t stat_group) {
+    if (st_config) {
+        st_config->stat_group = stat_group;
+    }
+}
+
+extern void
+stats_tree_set_first_column_name(stats_tree_cfg *st_config, const char *column_name) {
+    if (st_config) {
+        st_config->first_column_name = g_strdup(column_name);
+    }
 }
 
 extern stats_tree*
@@ -1057,10 +1058,13 @@ stats_tree_is_default_sort_DESC (stats_tree *st)
 }
 
 extern const gchar*
-stats_tree_get_column_name (gint col_index)
+stats_tree_get_column_name (stats_tree_cfg *st_config, gint col_index)
 {
     switch (col_index) {
         case COL_NAME:
+            if (st_config->first_column_name) {
+                return st_config->first_column_name;
+            }
             return "Topic / Item";
         case COL_COUNT:
             return "Count";
@@ -1313,7 +1317,7 @@ stats_tree_format_as_str(const stats_tree* st, st_format_type format_type,
         case ST_FORMAT_CSV:
             s = g_string_new("\"level\",\"parent\",");
             for (count = 0; count<st->num_columns; count++) {
-                g_string_append_printf(s,"\"%s\",",stats_tree_get_column_name(count));
+                g_string_append_printf(s,"\"%s\",",stats_tree_get_column_name(st->cfg, count));
             }
             g_string_append (s,"\n");
             break;
@@ -1334,10 +1338,10 @@ stats_tree_format_as_str(const stats_tree* st, st_format_type format_type,
             g_string_append(s,separator);
             g_string_append_printf(s,"\n%s:\n",st->cfg->name);
             snprintf (fmt,sizeof(fmt),"%%-%us",maxnamelen);
-            g_string_append_printf(s,fmt,stats_tree_get_column_name(0));
+            g_string_append_printf(s,fmt,stats_tree_get_column_name(st->cfg, 0));
             for (count = 1; count<st->num_columns; count++) {
                 snprintf (fmt,sizeof(fmt)," %%-%us",stats_tree_get_column_size(count)+1);
-                g_string_append_printf(s,fmt,stats_tree_get_column_name(count));
+                g_string_append_printf(s,fmt,stats_tree_get_column_name(st->cfg, count));
             }
             memset (separator, '-', sep_length);
             g_string_append_printf(s,"\n%s\n",separator);
@@ -1414,7 +1418,7 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
             for (count = 1; count<num_columns; count++) {
                 if (*values[count]) {
                     g_string_append_printf(s, fmt, "", indent?"  ":"",
-                                            stats_tree_get_column_name(count));
+                                            stats_tree_get_column_name(node->st->cfg, count));
                     g_string_append_printf(s, ": %s\n", values[count]);
                 }
             }
@@ -1429,7 +1433,7 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
                     node->rng?" isrange=\"true\"":"");
             g_free(itemname);
             for (count = 1; count<num_columns; count++) {
-                gchar *colname = g_strdup(stats_tree_get_column_name(count));
+                gchar *colname = g_strdup(stats_tree_get_column_name(node->st->cfg, count));
                 g_string_append_printf(s,"<%s>",clean_for_xml_tag(colname));
                 g_string_append_printf(s,"%s</%s>\n",values[count],colname);
                 g_free(colname);

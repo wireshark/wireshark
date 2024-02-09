@@ -63,15 +63,19 @@ typedef enum _stat_node_datatype {
     STAT_DT_FLOAT
 } stat_node_datatype;
 
-/* registers a new stats tree with default group REGISTER_STAT_GROUP_UNSORTED
- * abbr: tree abbr (used for tshark -z option)
- * name: tree display name in GUI menu and window (use "/" for sub menus)
- * flags: tap listener flags for per-packet callback
- * packet: per packet callback
- * init: tree initialization callback
- * cleanup: cleanup callback
+typedef struct _stats_tree_cfg stats_tree_cfg;
+
+/**
+ * Registers a new stats tree with default group REGISTER_STAT_GROUP_UNSORTED.
+ * @param abbr tree abbr (used for tshark -z option)
+ * @param name tree display name in GUI menu and window (use "/" for sub menus)
+ * @param flags tap listener flags for per-packet callback
+ * @param packet per packet callback
+ * @param init tree initialization callback
+ * @param cleanup cleanup callback
+ * @return A stats tree configuration pointer.
  */
-WS_DLL_PUBLIC void stats_tree_register(const gchar *tapname,
+WS_DLL_PUBLIC stats_tree_cfg *stats_tree_register(const gchar *tapname,
                                        const gchar *abbr,
                                        const gchar *name,
                                        guint flags,
@@ -79,15 +83,17 @@ WS_DLL_PUBLIC void stats_tree_register(const gchar *tapname,
                                        stat_tree_init_cb init,
                                        stat_tree_cleanup_cb cleanup);
 
-/* registers a new stats tree with default group REGISTER_STAT_GROUP_UNSORTED from a plugin
- * abbr: tree abbr (used for tshark -z option)
- * name: tree display name in GUI menu and window (use "/" for sub menus)
- * flags: tap listener flags for per-packet callback
- * packet: per packet callback
- * init: tree initialization callback
- * cleanup: cleanup callback
+/**
+ * Registers a new stats tree with default group REGISTER_STAT_GROUP_UNSORTED from a plugin.
+ * @param abbr tree abbr (used for tshark -z option)
+ * @param name tree display name in GUI menu and window (use "/" for sub menus)
+ * @param flags tap listener flags for per-packet callback
+ * @param packet per packet callback
+ * @param init tree initialization callback
+ * @param cleanup cleanup callback
+ * @return A stats tree configuration pointer.
  */
-WS_DLL_PUBLIC void stats_tree_register_plugin(const gchar *tapname,
+WS_DLL_PUBLIC stats_tree_cfg *stats_tree_register_plugin(const gchar *tapname,
                                               const gchar *abbr,
                                               const gchar *name,
                                               guint flags,
@@ -95,23 +101,19 @@ WS_DLL_PUBLIC void stats_tree_register_plugin(const gchar *tapname,
                                               stat_tree_init_cb init,
                                               stat_tree_cleanup_cb cleanup);
 
-/* registers a new stats tree
- * abbr: tree abbr (used for tshark -z option)
- * name: tree display name in GUI menu and window (use "/" for sub menus)
- * flags: tap listener flags for per-packet callback
- * packet: per packet callback
- * init: tree initialization callback
- * cleanup: cleanup callback
- * stat_group: the group this stat belongs to
+/**
+ * Set the menu statistics group for a stats tree.
+ * @param stat_group A menu group.
  */
-WS_DLL_PUBLIC void stats_tree_register_with_group(const gchar *tapname,
-                                                  const gchar *abbr,
-                                                  const gchar *name,
-                                                  guint flags,
-                                                  stat_tree_packet_cb packet,
-                                                  stat_tree_init_cb init,
-                                                  stat_tree_cleanup_cb cleanup,
-                                                  register_stat_group_t stat_group);
+WS_DLL_PUBLIC void stats_tree_set_group(stats_tree_cfg *st_config, register_stat_group_t stat_group);
+
+/**
+ * Set the name a stats tree's first column.
+ * Default is "Topic / Item".
+ * @param column_name The new column name.
+ */
+WS_DLL_PUBLIC void stats_tree_set_first_column_name(stats_tree_cfg *st_config, const char *column_name);
+
 
 WS_DLL_PUBLIC int stats_tree_parent_id_by_name(stats_tree *st, const gchar *parent_name);
 

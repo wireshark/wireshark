@@ -4944,7 +4944,8 @@ proto_reg_handoff_dns(void)
 #if 0
   dissector_add_uint("sctp.ppi",  DNS_PAYLOAD_PROTOCOL_ID, dns_handle);
 #endif
-  stats_tree_register("dns", "dns", "DNS", 0, dns_stats_tree_packet, dns_stats_tree_init, NULL);
+  stats_tree_cfg *st_config = stats_tree_register("dns", "dns", "DNS", 0, dns_stats_tree_packet, dns_stats_tree_init, NULL);
+  stats_tree_set_first_column_name(st_config, "Packet Type");
   gssapi_handle  = find_dissector_add_dependency("gssapi", proto_dns);
   ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_dns);
   tls_echconfig_handle = find_dissector("tls-echconfig");
