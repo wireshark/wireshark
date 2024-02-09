@@ -113,6 +113,12 @@ std::set<std::string> g_fields_to_skip = {
     "evt.is_async",
     "evt.is_syslog",
     "evt.count",
+    "proc.exeline",
+    "proc.cmdnargs",
+    "proc.pexe",
+    "proc.pexepath",
+    "proc.pcmdline",
+    "proc.ppid",
     "proc.aexe",
     "proc.aexepath",
     "proc.aname",
@@ -125,6 +131,11 @@ std::set<std::string> g_fields_to_skip = {
     "thread.totexetime",
     "thread.vmsize",
     "thread.vmrss",
+    "fd.nameraw",
+    "fd.cproto",
+    "fd.sproto",
+    "fd.lproto",
+    "fd.rproto",
 };
 
 sinsp_span_t *create_sinsp_span()
