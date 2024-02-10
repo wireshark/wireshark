@@ -19,6 +19,8 @@
 
 #include <epan/wmem_scopes.h>
 
+#include <wsutil/unicode-utils.h>
+
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable:4100)
@@ -151,7 +153,7 @@ void destroy_sinsp_span(sinsp_span_t *sinsp_span) {
     delete(sinsp_span);
 }
 
-static const char *chunkify_string(sinsp_span_t *sinsp_span, const char *key, int64_t cpu_id, int64_t proc_id, uint16_t fc_idx) {
+static const char *chunkify_string(sinsp_span_t *sinsp_span, const uint8_t *key, uint32_t key_len, int64_t cpu_id, int64_t proc_id, uint16_t fc_idx) {
     int64_t proc_key = 0;
 
 #ifdef SS_MEMORY_STATISTICS
@@ -164,7 +166,7 @@ static const char *chunkify_string(sinsp_span_t *sinsp_span, const char *key, in
         proc_key = (cpu_id << 48) | (proc_id << 16) | fc_idx;
         char *proc_string = (char *) wmem_map_lookup(sinsp_span->proc_info_chunk, &proc_key);
 
-        if (proc_string && strcmp(proc_string, key) == 0) {
+        if (proc_string && strcmp(proc_string, (const char *)key) == 0) {
 #ifdef SS_MEMORY_STATISTICS
             proc_info_hits++;
 #endif
@@ -175,12 +177,16 @@ static const char *chunkify_string(sinsp_span_t *sinsp_span, const char *key, in
     char *chunk_string = (char *) wmem_map_lookup(sinsp_span->str_chunk, key);
 
     if (!chunk_string) {
+        chunk_string = (char *) ws_utf8_make_valid(wmem_file_scope(), key, (ssize_t)key_len);
+        char *key_string = chunk_string;
+        if (strcmp((const char *) key, chunk_string)) {
+            key_string = (char *) wmem_memdup(wmem_file_scope(), key, key_len);
+        }
+        wmem_map_insert(sinsp_span->str_chunk, key_string, chunk_string);
 #ifdef SS_MEMORY_STATISTICS
         unique_chunked_strings++;
-        alloc_chunked_string_bytes += (int) strlen(key);
+        alloc_chunked_string_bytes += (int) strlen(chunk_string);
 #endif
-        chunk_string = wmem_strdup(wmem_file_scope(), key);
-        wmem_map_insert(sinsp_span->str_chunk, chunk_string, chunk_string);
     }
 
     if (proc_key) {
@@ -781,12 +787,11 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
                 break;
             case PT_CHARBUF:
                 if (values[0].len < SFE_SMALL_BUF_SIZE) {
+                    // XXX We need to convert this to valid UTF-8
                     g_strlcpy(sfe->res.small_str, (const char *) values[0].ptr, SFE_SMALL_BUF_SIZE);
                 } else {
-                    sfe->res.str = chunkify_string(sinsp_span, (const char *) values[0].ptr, cpu_id, proc_id, fc_idx);
+                    sfe->res.str = chunkify_string(sinsp_span, values[0].ptr, values[0].len, cpu_id, proc_id, fc_idx);
                 }
-                // XXX - Not needed? This sometimes runs into length mismatches.
-                // sfe_value.res.str[values[0].len] = '\0';
                 break;
             case PT_BOOL:
                 sfe->res.boolean = (bool)(uint32_t) *(uint32_t*)values[0].ptr;
