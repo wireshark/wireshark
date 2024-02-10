@@ -1,7 +1,7 @@
 /* packet-thrift.h
  *
  * Copyright 2015, Anders Broman <anders.broman[at]ericsson.com>
- * Copyright 2019-2021, Triton Circonflexe <triton[at]kumal.info>
+ * Copyright 2019-2024, Triton Circonflexe <triton[at]kumal.info>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -88,9 +88,11 @@ typedef struct _thrift_option_data_t {
     gint32 reassembly_offset;           /* Where the incomplete data starts. */
     gint32 reassembly_length;           /* Expected size of the data. */
     guint32 nested_type_depth;          /* Number of nested types allowed below the parameter or result type. */
+    gboolean use_std_dissector;         /* Allow the raw dissector to reactivate the standard dissector. */
+    void *data;                         /* Pointer to the sub-dissector data. */
 } thrift_option_data_t;
 
-#define TMFILL NULL, { .m = { NULL, NULL } }
+#define TMFILL NULL, { .m = { NULL, NULL } }, NULL
 
 typedef struct _thrift_member_t thrift_member_t;
 struct _thrift_member_t {
@@ -111,6 +113,7 @@ struct _thrift_member_t {
             const thrift_member_t *value;   /* Description of the value elements of a map. */
         } m;
     } u;
+    const dissector_t raw_dissector;        /* Specific dissector for the field's raw data. */
 };
 
 /* These functions are to be used by dissectors dissecting Thrift based protocols similar to packet-ber.c
@@ -126,6 +129,7 @@ struct _thrift_member_t {
  * param[in] hf_id          Header field info that describes the field to display (display name, filter name, FT_TYPE, ...).
  *
  * param[in] encoding       Encoding used for string display. (Only for dissect_thrift_t_string_enc)
+ * param[in] raw_dissector  Specific dissector for the field's raw data.
  *
  * return                   Offset of the first non-dissected byte in case of success,
  *                          THRIFT_REQUEST_REASSEMBLY (-1) in case reassembly is required, or
@@ -146,6 +150,7 @@ WS_DLL_PUBLIC int dissect_thrift_t_uuid      (tvbuff_t* tvb, packet_info* pinfo,
 WS_DLL_PUBLIC int dissect_thrift_t_binary    (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id);
 WS_DLL_PUBLIC int dissect_thrift_t_string    (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id);
 WS_DLL_PUBLIC int dissect_thrift_t_string_enc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, guint encoding);
+WS_DLL_PUBLIC int dissect_thrift_t_raw_data  (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, thrift_type_enum_t type, dissector_t field_dissector);
 
 /* Dissect a Thrift struct
  * Dissect a Thrift struct by calling the struct member dissector in turn from the thrift_member_t array

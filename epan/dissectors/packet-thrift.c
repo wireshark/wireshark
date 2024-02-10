@@ -7,7 +7,7 @@
  *
  * Copyright 2015, Anders Broman <anders.broman[at]ericsson.com>
  * Copyright 2021, Richard van der Hoff <richard[at]matrix.org>
- * Copyright 2019-2021, Triton Circonflexe <triton[at]kumal.info>
+ * Copyright 2019-2024, Triton Circonflexe <triton[at]kumal.info>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -194,7 +194,7 @@ static expert_field ei_thrift_protocol_exception;
 static expert_field ei_thrift_too_many_subtypes;
 
 static const thrift_member_t thrift_exception[] = {
-    { &hf_thrift_exception_message, 1, TRUE, DE_THRIFT_T_BINARY, NULL, { .encoding = ENC_UTF_8|ENC_NA } },
+    { &hf_thrift_exception_message, 1, TRUE, DE_THRIFT_T_BINARY, NULL, { .encoding = ENC_UTF_8 }, NULL },
     { &hf_thrift_exception_type, 2, FALSE, DE_THRIFT_T_I32, TMFILL },
     { NULL, 0, FALSE, DE_THRIFT_T_STOP, TMFILL }
 };
@@ -617,6 +617,10 @@ dissect_thrift_field_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_item *bool_item = proto_tree_add_boolean(tree, hf_thrift_bool, tvb, header->type_offset, TBP_THRIFT_TYPE_LEN, 2 - header->type.compact);
                 proto_item_set_generated(bool_item);
             }
+            if (gen_bool && is_thrift_compact_bool_type(header->type.compact)) {
+                proto_item *bool_item = proto_tree_add_boolean(tree, hf_thrift_bool, tvb, header->type_offset, TBP_THRIFT_TYPE_LEN, 2 - header->type.compact);
+                proto_item_set_generated(bool_item);
+            }
         } else {
             header->type_pi = proto_tree_add_item(header->fh_tree, hf_thrift_type, tvb, header->type_offset, TBP_THRIFT_TYPE_LEN, ENC_BIG_ENDIAN);
         }
@@ -693,11 +697,12 @@ dissect_thrift_field_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  * @param[in] hf_id:        The hf_id that needs to be used for the display.
  *                          If the found integer is larger that the expected integer size (driven by max_length parameter),
  *                          the integer will always be displayed as a generic T_I64 and an expert info will be added.
+ * @param[in] raw_dissector Dissector for raw integer (we need to create a tvbuff_t with the flatten integer.
  *
  * @return                  See "GENERIC DISSECTION PARAMETERS DOCUMENTATION".
  */
 static int
-dissect_thrift_varint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt, int max_length, int hf_id)
+dissect_thrift_varint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt, int max_length, int hf_id, dissector_t raw_dissector)
 {
     gint64 varint;
     proto_item *pi;
@@ -718,7 +723,17 @@ dissect_thrift_varint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *
                 expert_add_info(pinfo, pi, &ei_thrift_varint_too_large);
                 /* We continue anyway as the varint was indeed decoded. */
             } else {
-                proto_tree_add_int(tree, hf_id, tvb, *offset, length, (gint16)varint);
+                if (raw_dissector != NULL) {
+                    guint8 *data = wmem_alloc(wmem_packet_scope(), TBP_THRIFT_I16_LEN);
+                    data[0] = (varint >> 8) & 0xFF;
+                    data[1] =  varint       & 0xFF;
+                    tvbuff_t* sub_tvb = tvb_new_child_real_data(tvb, data, TBP_THRIFT_I16_LEN, TBP_THRIFT_I16_LEN);
+                    thrift_opt->use_std_dissector = FALSE;
+                    raw_dissector(sub_tvb, pinfo, tree, thrift_opt);
+                }
+                if (thrift_opt->use_std_dissector) {
+                    proto_tree_add_int(tree, hf_id, tvb, *offset, length, (gint16)varint);
+                }
             }
             break;
         case TCP_THRIFT_MAX_I32_LEN:
@@ -727,12 +742,40 @@ dissect_thrift_varint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *
                 expert_add_info(pinfo, pi, &ei_thrift_varint_too_large);
                 /* We continue anyway as the varint was indeed decoded. */
             } else {
-                proto_tree_add_int(tree, hf_id, tvb, *offset, length, (gint32)varint);
+                if (raw_dissector != NULL) {
+                    guint8 *data = wmem_alloc(wmem_packet_scope(), TBP_THRIFT_I32_LEN);
+                    data[0] = (varint >> 24) & 0xFF;
+                    data[1] = (varint >> 16) & 0xFF;
+                    data[2] = (varint >>  8) & 0xFF;
+                    data[3] =  varint        & 0xFF;
+                    tvbuff_t* sub_tvb = tvb_new_child_real_data(tvb, data, TBP_THRIFT_I32_LEN, TBP_THRIFT_I32_LEN);
+                    thrift_opt->use_std_dissector = FALSE;
+                    raw_dissector(sub_tvb, pinfo, tree, thrift_opt);
+                }
+                if (thrift_opt->use_std_dissector) {
+                    proto_tree_add_int(tree, hf_id, tvb, *offset, length, (gint32)varint);
+                }
             }
             break;
         case TCP_THRIFT_MAX_I64_LEN:
         default:
-            proto_tree_add_int64(tree, hf_id, tvb, *offset, length, varint);
+            if (raw_dissector != NULL) {
+                guint8 *data = wmem_alloc(wmem_packet_scope(), TBP_THRIFT_I64_LEN);
+                data[0] = (varint >> 56) & 0xFF;
+                data[1] = (varint >> 48) & 0xFF;
+                data[2] = (varint >> 40) & 0xFF;
+                data[3] = (varint >> 32) & 0xFF;
+                data[4] = (varint >> 24) & 0xFF;
+                data[5] = (varint >> 16) & 0xFF;
+                data[6] = (varint >>  8) & 0xFF;
+                data[7] =  varint        & 0xFF;
+                tvbuff_t* sub_tvb = tvb_new_child_real_data(tvb, data, TBP_THRIFT_I64_LEN, TBP_THRIFT_I64_LEN);
+                thrift_opt->use_std_dissector = FALSE;
+                raw_dissector(sub_tvb, pinfo, tree, thrift_opt);
+            }
+            if (thrift_opt->use_std_dissector) {
+                proto_tree_add_int64(tree, hf_id, tvb, *offset, length, varint);
+            }
             break;
         }
         *offset += length;
@@ -940,8 +983,8 @@ dissect_thrift_t_field_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return offset;
 }
 
-int
-dissect_thrift_t_bool(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id)
+static int
+dissect_thrift_raw_bool(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, dissector_t raw_dissector)
 {
     int dt_offset = offset;
     gboolean bool_val = FALSE;
@@ -950,6 +993,7 @@ dissect_thrift_t_bool(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     DISSECTOR_ASSERT(thrift_opt->canary == THRIFT_OPTION_DATA_CANARY);
 
     ABORT_SUBDISSECTION_ON_ISSUE(offset);
+    thrift_opt->use_std_dissector = TRUE;
     if (is_field) {
         /* In case of Compact protocol struct field (or command parameter / return value),
          * the boolean type also indicates the boolean value. */
@@ -967,9 +1011,17 @@ dissect_thrift_t_bool(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         offset = dissect_thrift_t_field_header(tvb, pinfo, tree, offset, thrift_opt, DE_THRIFT_T_BOOL, field_id, NULL);
         ABORT_SUBDISSECTION_ON_ISSUE(offset);
         if (thrift_opt->tprotocol & PROTO_THRIFT_COMPACT) {
-            /* The value must be in the top-level tree, /after/ the field header tree. */
-            proto_item *pi = proto_tree_add_boolean(tree, hf_id, tvb, dt_offset, TBP_THRIFT_TYPE_LEN, bool_val);
-            proto_item_set_generated(pi);
+            /* It is the responsibility of the sub-dissector to only use the least significant bit. */
+            if (raw_dissector != NULL) {
+                tvbuff_t* sub_tvb = tvb_new_subset_length(tvb, offset, TBP_THRIFT_BOOL_LEN);
+                thrift_opt->use_std_dissector = FALSE;
+                raw_dissector(sub_tvb, pinfo, tree, thrift_opt);
+            }
+            if (thrift_opt->use_std_dissector) {
+                /* The value must be in the top-level tree, /after/ the field header tree. */
+                proto_item *pi = proto_tree_add_boolean(tree, hf_id, tvb, dt_offset, TBP_THRIFT_TYPE_LEN, bool_val);
+                proto_item_set_generated(pi);
+            }
             return offset;
         }
     }
@@ -978,7 +1030,14 @@ dissect_thrift_t_bool(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     }
 
     /* Either in a list/set/map or in a Binary protocol encoding. */
-    proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_BOOL_LEN, ENC_BIG_ENDIAN);
+    if (raw_dissector != NULL) {
+        tvbuff_t* sub_tvb = tvb_new_subset_length(tvb, offset, TBP_THRIFT_BOOL_LEN);
+        thrift_opt->use_std_dissector = FALSE;
+        raw_dissector(sub_tvb, pinfo, tree, thrift_opt);
+    }
+    if (thrift_opt->use_std_dissector) {
+        proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_BOOL_LEN, ENC_BIG_ENDIAN);
+    }
     offset += TBP_THRIFT_BOOL_LEN;
 
     if (is_field) {
@@ -988,7 +1047,15 @@ dissect_thrift_t_bool(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 }
 
 int
-dissect_thrift_t_i8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id)
+dissect_thrift_t_bool(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id)
+{
+    DISSECTOR_ASSERT(thrift_opt);
+    DISSECTOR_ASSERT(thrift_opt->canary == THRIFT_OPTION_DATA_CANARY);
+    return dissect_thrift_raw_bool(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, NULL);
+}
+
+int
+dissect_thrift_raw_i8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, dissector_t raw_dissector)
 {
     /* Get the current state of dissection. */
     DISSECTOR_ASSERT(thrift_opt);
@@ -1002,8 +1069,16 @@ dissect_thrift_t_i8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
         return THRIFT_REQUEST_REASSEMBLY;
     }
 
+    thrift_opt->use_std_dissector = TRUE;
     /* Compact protocol does not use varint for T_I8 as it would be counter-productive. */
-    proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_I8_LEN, ENC_BIG_ENDIAN);
+    if (raw_dissector != NULL) {
+        tvbuff_t* sub_tvb = tvb_new_subset_length(tvb, offset, TBP_THRIFT_I8_LEN);
+        thrift_opt->use_std_dissector = FALSE;
+        raw_dissector(sub_tvb, pinfo, tree, thrift_opt);
+    }
+    if (thrift_opt->use_std_dissector) {
+        proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_I8_LEN, ENC_BIG_ENDIAN);
+    }
     offset += TBP_THRIFT_I8_LEN;
 
     if (is_field) {
@@ -1013,7 +1088,15 @@ dissect_thrift_t_i8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 }
 
 int
-dissect_thrift_t_i16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id)
+dissect_thrift_t_i8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id)
+{
+    DISSECTOR_ASSERT(thrift_opt);
+    DISSECTOR_ASSERT(thrift_opt->canary == THRIFT_OPTION_DATA_CANARY);
+    return dissect_thrift_raw_i8(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, NULL);
+}
+
+int
+dissect_thrift_raw_i16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, dissector_t raw_dissector)
 {
     /* Get the current state of dissection. */
     DISSECTOR_ASSERT(thrift_opt);
@@ -1023,8 +1106,9 @@ dissect_thrift_t_i16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
         offset = dissect_thrift_t_field_header(tvb, pinfo, tree, offset, thrift_opt, DE_THRIFT_T_I16, field_id, NULL);
     }
     ABORT_SUBDISSECTION_ON_ISSUE(offset);
+    thrift_opt->use_std_dissector = TRUE;
     if (thrift_opt->tprotocol & PROTO_THRIFT_COMPACT) {
-        int result = dissect_thrift_varint(tvb, pinfo, tree, &offset, thrift_opt, TCP_THRIFT_MAX_I16_LEN, hf_id);
+        int result = dissect_thrift_varint(tvb, pinfo, tree, &offset, thrift_opt, TCP_THRIFT_MAX_I16_LEN, hf_id, raw_dissector);
         if (result == THRIFT_REQUEST_REASSEMBLY) {
             if (offset == THRIFT_REQUEST_REASSEMBLY) {
                 return THRIFT_REQUEST_REASSEMBLY;
@@ -1035,8 +1119,64 @@ dissect_thrift_t_i16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     } else if (tvb_reported_length_remaining(tvb, offset) < TBP_THRIFT_I16_LEN) {
         return THRIFT_REQUEST_REASSEMBLY;
     } else {
-        proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_I16_LEN, ENC_BIG_ENDIAN);
+        if (raw_dissector != NULL) {
+            tvbuff_t* sub_tvb = tvb_new_subset_length(tvb, offset, TBP_THRIFT_I16_LEN);
+            thrift_opt->use_std_dissector = FALSE;
+            raw_dissector(sub_tvb, pinfo, tree, thrift_opt);
+        }
+        if (thrift_opt->use_std_dissector) {
+            proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_I16_LEN, ENC_BIG_ENDIAN);
+        }
         offset += TBP_THRIFT_I16_LEN;
+    }
+
+    if (is_field) {
+        thrift_opt->previous_field_id = field_id;
+    }
+    return offset;
+}
+
+int
+dissect_thrift_t_i16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id)
+{
+    DISSECTOR_ASSERT(thrift_opt);
+    DISSECTOR_ASSERT(thrift_opt->canary == THRIFT_OPTION_DATA_CANARY);
+    return dissect_thrift_raw_i16(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, NULL);
+}
+
+int
+dissect_thrift_raw_i32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, dissector_t raw_dissector)
+{
+    /* Get the current state of dissection. */
+    DISSECTOR_ASSERT(thrift_opt);
+    DISSECTOR_ASSERT(thrift_opt->canary == THRIFT_OPTION_DATA_CANARY);
+
+    if (is_field) {
+        offset = dissect_thrift_t_field_header(tvb, pinfo, tree, offset, thrift_opt, DE_THRIFT_T_I32, field_id, NULL);
+    }
+    ABORT_SUBDISSECTION_ON_ISSUE(offset);
+    thrift_opt->use_std_dissector = TRUE;
+    if (thrift_opt->tprotocol & PROTO_THRIFT_COMPACT) {
+        int result = dissect_thrift_varint(tvb, pinfo, tree, &offset, thrift_opt, TCP_THRIFT_MAX_I32_LEN, hf_id, raw_dissector);
+        if (result == THRIFT_REQUEST_REASSEMBLY) {
+            if (offset == THRIFT_REQUEST_REASSEMBLY) {
+                return THRIFT_REQUEST_REASSEMBLY;
+            } else {
+                return THRIFT_SUBDISSECTOR_ERROR;
+            }
+        }
+    } else if (tvb_reported_length_remaining(tvb, offset) < TBP_THRIFT_I32_LEN) {
+        return THRIFT_REQUEST_REASSEMBLY;
+    } else {
+        if (raw_dissector != NULL) {
+            tvbuff_t* sub_tvb = tvb_new_subset_length(tvb, offset, TBP_THRIFT_I32_LEN);
+            thrift_opt->use_std_dissector = FALSE;
+            raw_dissector(sub_tvb, pinfo, tree, thrift_opt);
+        }
+        if (thrift_opt->use_std_dissector) {
+            proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_I32_LEN, ENC_BIG_ENDIAN);
+        }
+        offset += TBP_THRIFT_I32_LEN;
     }
 
     if (is_field) {
@@ -1048,16 +1188,25 @@ dissect_thrift_t_i16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 int
 dissect_thrift_t_i32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id)
 {
+    DISSECTOR_ASSERT(thrift_opt);
+    DISSECTOR_ASSERT(thrift_opt->canary == THRIFT_OPTION_DATA_CANARY);
+    return dissect_thrift_raw_i32(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, NULL);
+}
+
+int
+dissect_thrift_raw_i64(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, dissector_t raw_dissector)
+{
     /* Get the current state of dissection. */
     DISSECTOR_ASSERT(thrift_opt);
     DISSECTOR_ASSERT(thrift_opt->canary == THRIFT_OPTION_DATA_CANARY);
 
     if (is_field) {
-        offset = dissect_thrift_t_field_header(tvb, pinfo, tree, offset, thrift_opt, DE_THRIFT_T_I32, field_id, NULL);
+        offset = dissect_thrift_t_field_header(tvb, pinfo, tree, offset, thrift_opt, DE_THRIFT_T_I64, field_id, NULL);
     }
     ABORT_SUBDISSECTION_ON_ISSUE(offset);
+    thrift_opt->use_std_dissector = TRUE;
     if (thrift_opt->tprotocol & PROTO_THRIFT_COMPACT) {
-        int result = dissect_thrift_varint(tvb, pinfo, tree, &offset, thrift_opt, TCP_THRIFT_MAX_I32_LEN, hf_id);
+        int result = dissect_thrift_varint(tvb, pinfo, tree, &offset, thrift_opt, TCP_THRIFT_MAX_I64_LEN, hf_id, raw_dissector);
         if (result == THRIFT_REQUEST_REASSEMBLY) {
             if (offset == THRIFT_REQUEST_REASSEMBLY) {
                 return THRIFT_REQUEST_REASSEMBLY;
@@ -1065,11 +1214,18 @@ dissect_thrift_t_i32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
                 return THRIFT_SUBDISSECTOR_ERROR;
             }
         }
-    } else if (tvb_reported_length_remaining(tvb, offset) < TBP_THRIFT_I32_LEN) {
+    } else if (tvb_reported_length_remaining(tvb, offset) < TBP_THRIFT_I64_LEN) {
         return THRIFT_REQUEST_REASSEMBLY;
     } else {
-        proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_I32_LEN, ENC_BIG_ENDIAN);
-        offset += TBP_THRIFT_I32_LEN;
+        if (raw_dissector != NULL) {
+            tvbuff_t* sub_tvb = tvb_new_subset_length(tvb, offset, TBP_THRIFT_I64_LEN);
+            thrift_opt->use_std_dissector = FALSE;
+            raw_dissector(sub_tvb, pinfo, tree, thrift_opt);
+        }
+        if (thrift_opt->use_std_dissector) {
+            proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_I64_LEN, ENC_BIG_ENDIAN);
+        }
+        offset += TBP_THRIFT_I64_LEN;
     }
 
     if (is_field) {
@@ -1081,38 +1237,13 @@ dissect_thrift_t_i32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 int
 dissect_thrift_t_i64(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id)
 {
-    /* Get the current state of dissection. */
     DISSECTOR_ASSERT(thrift_opt);
     DISSECTOR_ASSERT(thrift_opt->canary == THRIFT_OPTION_DATA_CANARY);
-
-    if (is_field) {
-        offset = dissect_thrift_t_field_header(tvb, pinfo, tree, offset, thrift_opt, DE_THRIFT_T_I64, field_id, NULL);
-    }
-    ABORT_SUBDISSECTION_ON_ISSUE(offset);
-    if (thrift_opt->tprotocol & PROTO_THRIFT_COMPACT) {
-        int result = dissect_thrift_varint(tvb, pinfo, tree, &offset, thrift_opt, TCP_THRIFT_MAX_I64_LEN, hf_id);
-        if (result == THRIFT_REQUEST_REASSEMBLY) {
-            if (offset == THRIFT_REQUEST_REASSEMBLY) {
-                return THRIFT_REQUEST_REASSEMBLY;
-            } else {
-                return THRIFT_SUBDISSECTOR_ERROR;
-            }
-        }
-    } else if (tvb_reported_length_remaining(tvb, offset) < TBP_THRIFT_I64_LEN) {
-        return THRIFT_REQUEST_REASSEMBLY;
-    } else {
-        proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_I64_LEN, ENC_BIG_ENDIAN);
-        offset += TBP_THRIFT_I64_LEN;
-    }
-
-    if (is_field) {
-        thrift_opt->previous_field_id = field_id;
-    }
-    return offset;
+    return dissect_thrift_raw_i64(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, NULL);
 }
 
 int
-dissect_thrift_t_double(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id)
+dissect_thrift_raw_double(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, dissector_t raw_dissector)
 {
     /* Get the current state of dissection. */
     DISSECTOR_ASSERT(thrift_opt);
@@ -1126,10 +1257,18 @@ dissect_thrift_t_double(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
         return THRIFT_REQUEST_REASSEMBLY;
     }
 
-    if (thrift_opt->tprotocol & PROTO_THRIFT_COMPACT) {
-        proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_DOUBLE_LEN, ENC_LITTLE_ENDIAN);
-    } else {
-        proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_DOUBLE_LEN, ENC_BIG_ENDIAN);
+    thrift_opt->use_std_dissector = TRUE;
+    if (raw_dissector != NULL) {
+        tvbuff_t* sub_tvb = tvb_new_subset_length(tvb, offset, TBP_THRIFT_DOUBLE_LEN);
+        thrift_opt->use_std_dissector = FALSE;
+        raw_dissector(sub_tvb, pinfo, tree, thrift_opt);
+    }
+    if (thrift_opt->use_std_dissector) {
+        if (thrift_opt->tprotocol & PROTO_THRIFT_COMPACT) {
+            proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_DOUBLE_LEN, ENC_LITTLE_ENDIAN);
+        } else {
+            proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_DOUBLE_LEN, ENC_BIG_ENDIAN);
+        }
     }
     offset += TBP_THRIFT_DOUBLE_LEN;
 
@@ -1140,7 +1279,15 @@ dissect_thrift_t_double(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 }
 
 int
-dissect_thrift_t_uuid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id)
+dissect_thrift_t_double(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id)
+{
+    DISSECTOR_ASSERT(thrift_opt);
+    DISSECTOR_ASSERT(thrift_opt->canary == THRIFT_OPTION_DATA_CANARY);
+    return dissect_thrift_raw_double(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, NULL);
+}
+
+int
+dissect_thrift_raw_uuid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, dissector_t raw_dissector)
 {
     /* Get the current state of dissection. */
     DISSECTOR_ASSERT(thrift_opt);
@@ -1156,7 +1303,15 @@ dissect_thrift_t_uuid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         return THRIFT_REQUEST_REASSEMBLY;
     }
 
-    proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_UUID_LEN, ENC_BIG_ENDIAN);
+    thrift_opt->use_std_dissector = TRUE;
+    if (raw_dissector != NULL) {
+        tvbuff_t* sub_tvb = tvb_new_subset_length(tvb, offset, TBP_THRIFT_UUID_LEN);
+        thrift_opt->use_std_dissector = FALSE;
+        raw_dissector(sub_tvb, pinfo, tree, thrift_opt);
+    }
+    if (thrift_opt->use_std_dissector) {
+        proto_tree_add_item(tree, hf_id, tvb, offset, TBP_THRIFT_UUID_LEN, ENC_BIG_ENDIAN);
+    }
     offset += TBP_THRIFT_UUID_LEN;
 
     if (is_field) {
@@ -1166,19 +1321,15 @@ dissect_thrift_t_uuid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 }
 
 int
-dissect_thrift_t_binary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id)
+dissect_thrift_t_uuid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id)
 {
-    return dissect_thrift_t_string_enc(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, ENC_NA);
+    DISSECTOR_ASSERT(thrift_opt);
+    DISSECTOR_ASSERT(thrift_opt->canary == THRIFT_OPTION_DATA_CANARY);
+    return dissect_thrift_raw_uuid(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, NULL);
 }
 
 int
-dissect_thrift_t_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id)
-{
-    return dissect_thrift_t_string_enc(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, ENC_UTF_8|ENC_NA);
-}
-
-int
-dissect_thrift_t_string_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, guint encoding)
+dissect_thrift_raw_binary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, guint encoding, dissector_t raw_dissector)
 {
     /* Get the current state of dissection. */
     DISSECTOR_ASSERT(thrift_opt);
@@ -1243,11 +1394,82 @@ dissect_thrift_t_string_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return THRIFT_REQUEST_REASSEMBLY;
     }
 
-    proto_tree_add_item(tree, hf_id, tvb, offset, str_len, encoding);
+    thrift_opt->use_std_dissector = TRUE;
+    if (raw_dissector != NULL) {
+        tvbuff_t* sub_tvb = tvb_new_subset_length(tvb, offset, str_len);
+        thrift_opt->use_std_dissector = FALSE;
+        raw_dissector(sub_tvb, pinfo, tree, thrift_opt);
+    }
+    if (thrift_opt->use_std_dissector) {
+        proto_tree_add_item(tree, hf_id, tvb, offset, str_len, encoding);
+    }
     offset = offset + str_len;
 
     if (is_field) {
         thrift_opt->previous_field_id = field_id;
+    }
+    return offset;
+}
+
+int
+dissect_thrift_t_binary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id)
+{
+    DISSECTOR_ASSERT(thrift_opt);
+    DISSECTOR_ASSERT(thrift_opt->canary == THRIFT_OPTION_DATA_CANARY);
+    return dissect_thrift_raw_binary(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, ENC_NA, NULL);
+}
+
+int
+dissect_thrift_t_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id)
+{
+    DISSECTOR_ASSERT(thrift_opt);
+    DISSECTOR_ASSERT(thrift_opt->canary == THRIFT_OPTION_DATA_CANARY);
+    return dissect_thrift_raw_binary(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, ENC_UTF_8, NULL);
+}
+
+int
+dissect_thrift_t_string_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, guint encoding)
+{
+    DISSECTOR_ASSERT(thrift_opt);
+    DISSECTOR_ASSERT(thrift_opt->canary == THRIFT_OPTION_DATA_CANARY);
+    return dissect_thrift_raw_binary(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, encoding, NULL);
+}
+
+int
+dissect_thrift_t_raw_data(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t* thrift_opt, gboolean is_field, int field_id, gint hf_id, thrift_type_enum_t type, dissector_t raw_dissector)
+{
+    /* Get the current state of dissection. */
+    DISSECTOR_ASSERT(thrift_opt);
+    DISSECTOR_ASSERT(thrift_opt->canary == THRIFT_OPTION_DATA_CANARY);
+
+    switch (type) {
+    case DE_THRIFT_T_BOOL:
+        offset = dissect_thrift_raw_bool(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, raw_dissector);
+        break;
+    case DE_THRIFT_T_I8:
+        offset = dissect_thrift_raw_i8(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, raw_dissector);
+        break;
+    case DE_THRIFT_T_I16:
+        offset = dissect_thrift_raw_i16(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, raw_dissector);
+        break;
+    case DE_THRIFT_T_I32:
+        offset = dissect_thrift_raw_i32(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, raw_dissector);
+        break;
+    case DE_THRIFT_T_I64:
+        offset = dissect_thrift_raw_i64(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, raw_dissector);
+        break;
+    case DE_THRIFT_T_DOUBLE:
+        offset = dissect_thrift_raw_double(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, raw_dissector);
+        break;
+    case DE_THRIFT_T_BINARY:
+        offset = dissect_thrift_raw_binary(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, ENC_NA, raw_dissector);
+        break;
+    case DE_THRIFT_T_UUID:
+        offset = dissect_thrift_raw_uuid(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, raw_dissector);
+        break;
+    default:
+        REPORT_DISSECTOR_BUG("Only simple data types support raw dissection.");
+        break;
     }
     return offset;
 }
@@ -1261,25 +1483,25 @@ dissect_thrift_t_member(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
         offset = dissect_thrift_t_stop(tvb, pinfo, tree, offset);
         break;
     case DE_THRIFT_T_BOOL:
-        offset = dissect_thrift_t_bool(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id);
+        offset = dissect_thrift_raw_bool(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id, elt->raw_dissector);
         break;
     case DE_THRIFT_T_I8:
-        offset = dissect_thrift_t_i8(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id);
+        offset = dissect_thrift_raw_i8(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id, elt->raw_dissector);
         break;
     case DE_THRIFT_T_I16:
-        offset = dissect_thrift_t_i16(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id);
+        offset = dissect_thrift_raw_i16(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id, elt->raw_dissector);
         break;
     case DE_THRIFT_T_I32:
-        offset = dissect_thrift_t_i32(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id);
+        offset = dissect_thrift_raw_i32(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id, elt->raw_dissector);
         break;
     case DE_THRIFT_T_I64:
-        offset = dissect_thrift_t_i64(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id);
+        offset = dissect_thrift_raw_i64(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id, elt->raw_dissector);
         break;
     case DE_THRIFT_T_DOUBLE:
-        offset = dissect_thrift_t_double(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id);
+        offset = dissect_thrift_raw_double(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id, elt->raw_dissector);
         break;
     case DE_THRIFT_T_BINARY:
-        offset = dissect_thrift_t_string(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id);
+        offset = dissect_thrift_raw_binary(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id, elt->u.encoding, elt->raw_dissector);
         break;
     case DE_THRIFT_T_LIST:
         offset = dissect_thrift_t_list(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id, *elt->p_ett_id, elt->u.element);
@@ -1294,7 +1516,7 @@ dissect_thrift_t_member(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
         offset = dissect_thrift_t_struct_expert(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id, *elt->p_ett_id, elt->u.s.members, elt->u.s.expert_info);
         break;
     case DE_THRIFT_T_UUID:
-        offset = dissect_thrift_t_uuid(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id);
+        offset = dissect_thrift_raw_uuid(tvb, pinfo, tree, offset, thrift_opt, is_field, elt->fid, *elt->p_hf_id, elt->raw_dissector);
         break;
     default:
         REPORT_DISSECTOR_BUG("Unexpected Thrift type dissection requested.");
@@ -2460,17 +2682,17 @@ dissect_thrift_compact_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         *offset += TBP_THRIFT_I8_LEN;
         break;
     case DE_THRIFT_C_I16:
-        if (dissect_thrift_varint(tvb, pinfo, tree, offset, thrift_opt, TCP_THRIFT_MAX_I16_LEN, hf_thrift_i16) == THRIFT_REQUEST_REASSEMBLY) {
+        if (dissect_thrift_varint(tvb, pinfo, tree, offset, thrift_opt, TCP_THRIFT_MAX_I16_LEN, hf_thrift_i16, NULL) == THRIFT_REQUEST_REASSEMBLY) {
             return THRIFT_REQUEST_REASSEMBLY;
         }
         break;
     case DE_THRIFT_C_I32:
-        if (dissect_thrift_varint(tvb, pinfo, tree, offset, thrift_opt, TCP_THRIFT_MAX_I32_LEN, hf_thrift_i32) == THRIFT_REQUEST_REASSEMBLY) {
+        if (dissect_thrift_varint(tvb, pinfo, tree, offset, thrift_opt, TCP_THRIFT_MAX_I32_LEN, hf_thrift_i32, NULL) == THRIFT_REQUEST_REASSEMBLY) {
             return THRIFT_REQUEST_REASSEMBLY;
         }
         break;
     case DE_THRIFT_C_I64:
-        if (dissect_thrift_varint(tvb, pinfo, tree, offset, thrift_opt, TCP_THRIFT_MAX_I64_LEN, hf_thrift_i64) == THRIFT_REQUEST_REASSEMBLY) {
+        if (dissect_thrift_varint(tvb, pinfo, tree, offset, thrift_opt, TCP_THRIFT_MAX_I64_LEN, hf_thrift_i64, NULL) == THRIFT_REQUEST_REASSEMBLY) {
             return THRIFT_REQUEST_REASSEMBLY;
         }
         break;
@@ -2713,7 +2935,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         if (tvb_reported_length_remaining(tvb, offset) < str_len) {
             goto add_expert_and_reassemble;
         }
-        method_str = tvb_get_string_enc(pinfo->pool, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
+        method_str = tvb_get_string_enc(pinfo->pool, tvb, offset, str_len, ENC_UTF_8);
         offset += str_len;
     } else if (thrift_opt->tprotocol & PROTO_THRIFT_STRICT) {
         if (remaining < TBP_THRIFT_STRICT_MIN_MESSAGE_LEN) {
@@ -2730,7 +2952,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             goto add_expert_and_reassemble;
         }
         offset += TBP_THRIFT_VERSION_LEN + TBP_THRIFT_LENGTH_LEN;
-        method_str = tvb_get_string_enc(pinfo->pool, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
+        method_str = tvb_get_string_enc(pinfo->pool, tvb, offset, str_len, ENC_UTF_8);
         offset += str_len;
 
         seq_id = tvb_get_ntohil(tvb, offset);
@@ -2749,7 +2971,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             goto add_expert_and_reassemble;
         }
         offset += TBP_THRIFT_LENGTH_LEN;
-        method_str = tvb_get_string_enc(pinfo->pool, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
+        method_str = tvb_get_string_enc(pinfo->pool, tvb, offset, str_len, ENC_UTF_8);
         offset += str_len;
         mtype = tvb_get_guint8(tvb, offset + TBP_THRIFT_LENGTH_LEN + str_len) & THRIFT_BINARY_MESSAGE_MASK;
         offset += TBP_THRIFT_TYPE_LEN;
