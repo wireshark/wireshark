@@ -664,7 +664,7 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
         guint32 effective_can_id = 0; /* Again, XXX */
 
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %d (0x%" PRIx32 "), Length: %d", "ID", effective_can_id, effective_can_id, can_info.len);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %d (0x%08x), Length: %d", "ID", effective_can_id, effective_can_id, can_info.len);
 
         socketcan_set_source_and_destination_columns(pinfo, &can_info);
 
@@ -673,7 +673,7 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         ti = proto_tree_add_item(tree, proto_canxl, tvb, 0, -1, ENC_NA);
         can_tree = proto_item_add_subtree(ti, ett_can_xl);
 
-        proto_item_append_text(can_tree, ", %s: %d (0x%" PRIx32 "), Length: %d", "ID", effective_can_id, effective_can_id, can_info.len);
+        proto_item_append_text(can_tree, ", %s: %d (0x%08x), Length: %u", "ID", effective_can_id, effective_can_id, can_info.len);
 
         proto_tree_add_bitmask_list(can_tree, tvb, 0, 4, canxl_prio_vcid_fields, xl_encoding);
         proto_tree_add_bitmask_list(can_tree, tvb, 4, 1, canxl_flag_fields, xl_encoding);
@@ -708,9 +708,6 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         }
         col_clear(pinfo->cinfo, COL_INFO);
 
-        guint32 effective_can_id = (can_info.id & CAN_EFF_FLAG) ? can_info.id & CAN_EFF_MASK : can_info.id & CAN_SFF_MASK;
-        char *id_name = (can_info.id & CAN_EFF_FLAG) ? "Ext. ID" : "ID";
-
         /* Error Message Frames are only encapsulated in Classic CAN frames */
         if (can_packet_type == PACKET_TYPE_CAN && (can_info.id & CAN_ERR_FLAG)) {
             frame_type = LINUX_CAN_ERR;
@@ -724,7 +721,6 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
             can_info.id &= (CAN_SFF_MASK | CAN_FLAG_MASK);
             can_flags_id  = (can_packet_type == PACKET_TYPE_CAN_FD) ? canfd_std_flags_id : can_std_flags_id;
         }
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %d (0x%" PRIx32 "), Length: %d", id_name, effective_can_id, effective_can_id, can_info.len);
 
         socketcan_set_source_and_destination_columns(pinfo, &can_info);
 
@@ -735,7 +731,13 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         }
         can_tree = proto_item_add_subtree(ti, (can_packet_type == PACKET_TYPE_CAN_FD) ? ett_can_fd : ett_can);
 
-        proto_item_append_text(can_tree, ", %s: %d (0x%" PRIx32 "), Length: %d", id_name, effective_can_id, effective_can_id, can_info.len);
+        if (can_info.id & CAN_EFF_FLAG) {
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Ext. ID: %d (0x%08x), Length: %u", can_info.id & CAN_EFF_MASK, can_info.id & CAN_EFF_MASK, can_info.len);
+            proto_item_append_text(can_tree, ", Ext. ID: %d (0x%08x), Length: %u", can_info.id & CAN_EFF_MASK, can_info.id & CAN_EFF_MASK, can_info.len);
+        } else {
+            col_add_fstr(pinfo->cinfo, COL_INFO, "ID: %d (0x%03x), Length: %u", can_info.id & CAN_SFF_MASK, can_info.id & CAN_SFF_MASK, can_info.len);
+            proto_item_append_text(can_tree, ", ID: %d (0x%03x), Length: %u", can_info.id & CAN_SFF_MASK, can_info.id & CAN_SFF_MASK, can_info.len);
+        }
 
         proto_tree_add_bitmask_list(can_tree, tvb, 0, 4, can_flags_id, encoding);
         proto_tree_add_item(can_tree, hf_can_len, tvb, CAN_LEN_OFFSET, 1, ENC_NA);
