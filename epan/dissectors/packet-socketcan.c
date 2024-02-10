@@ -118,6 +118,7 @@ static heur_dtbl_entry_t *heur_dtbl_entry;
 static dissector_table_t can_id_dissector_table = NULL;
 static dissector_table_t can_extended_id_dissector_table = NULL;
 static dissector_table_t subdissector_table = NULL;
+static dissector_table_t canxl_sdu_type_dissector_table = NULL;
 static dissector_handle_t socketcan_classic_handle;
 static dissector_handle_t socketcan_fd_handle;
 static dissector_handle_t socketcan_xl_handle;
@@ -169,13 +170,13 @@ static const value_string can_err_trx_canl_vals[] = {
 
 static const value_string canxl_sdu_type_vals[] = {
     { 0x00, "Reserved" },
-    { 0x01, "Content-based Addressing" },
+    { CANXL_SDU_TYPE_CONTENT_BASED_ADDRESSING, "Content-based Addressing" },
     { 0x02, "Reserved for future use" },
-    { 0x03, "Classical CAN/CAN FD mapped tunneling" },
-    { 0x04, "IEEE 802.3 (MAC frame) tunneling" },
-    { 0x05, "IEEE 802.3 (MAC frame) mapped tunneling" },
-    { 0x06, "Classical CAN mapped tunneling" },
-    { 0x07, "CAN FD mapped tunneling" },
+    { CANXL_SDU_TYPE_CLASSICAL_CAN_AND_CAN_FD_MAPPED_TUNNELING, "Classical CAN/CAN FD mapped tunneling" },
+    { CANXL_SDU_TYPE_IEEE_802_3_MAC_FRAME_TUNNELLING, "IEEE 802.3 (MAC frame) tunneling" },
+    { CANXL_SDU_TYPE_IEEE_802_3_MAC_FRAME_MAPPED_TUNNELING, "IEEE 802.3 (MAC frame) mapped tunneling" },
+    { CANXL_SDU_TYPE_CLASSICAL_CAN_MAPPED_TUNNELING, "Classical CAN mapped tunneling" },
+    { CANXL_SDU_TYPE_CAN_FD_MAPPED_TUNNELING, "CAN FD mapped tunneling" },
     { 0xFF, "Reserved" },
     { 0, NULL }
 };
@@ -676,7 +677,10 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
         proto_tree_add_bitmask_list(can_tree, tvb, 0, 4, canxl_prio_vcid_fields, xl_encoding);
         proto_tree_add_bitmask_list(can_tree, tvb, 4, 1, canxl_flag_fields, xl_encoding);
-        proto_tree_add_item(can_tree, hf_canxl_sdu_type, tvb, 5, 1, ENC_NA);
+
+        guint32 sdu_type;
+
+        proto_tree_add_item_ret_uint(can_tree, hf_canxl_sdu_type, tvb, 5, 1, ENC_NA, &sdu_type);
         proto_tree_add_item(can_tree, hf_canxl_len, tvb, CANXL_LEN_OFFSET, 2, xl_encoding);
         proto_tree_add_item(can_tree, hf_canxl_acceptance_field, tvb, CANXL_LEN_OFFSET+2, 4, xl_encoding);
 
@@ -684,7 +688,7 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
         next_tvb = tvb_new_subset_length(tvb, CANXL_DATA_OFFSET, can_info.len);
 
-        if (!socketcan_call_subdissectors(next_tvb, pinfo, tree, &can_info, heuristic_first)) {
+        if (!dissector_try_uint_new(canxl_sdu_type_dissector_table, sdu_type, next_tvb, pinfo, tree, TRUE, &can_info)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
 
@@ -1022,6 +1026,8 @@ proto_register_socketcan(void) {
     can_extended_id_dissector_table = register_dissector_table("can.extended_id", "CAN Extended ID", proto_can, FT_UINT32, BASE_DEC);
 
     subdissector_table = register_decode_as_next_proto(proto_can, "can.subdissector", "CAN next level dissector", NULL);
+
+    canxl_sdu_type_dissector_table = register_dissector_table("canxl.sdu_type", "CAN XL SDU type",  proto_canxl, FT_UINT8, BASE_HEX);
 
     heur_subdissector_list = register_heur_dissector_list("can", proto_can);
 

@@ -124,6 +124,16 @@ typedef struct can_info {
 gboolean socketcan_call_subdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, struct can_info *can_info, const gboolean use_heuristics_first);
 gboolean socketcan_set_source_and_destination_columns(packet_info* pinfo, can_info_t *caninfo);
 
+/*
+ * CAN XL SDU types.
+ */
+#define CANXL_SDU_TYPE_CONTENT_BASED_ADDRESSING	                 0x01
+#define CANXL_SDU_TYPE_CLASSICAL_CAN_AND_CAN_FD_MAPPED_TUNNELING 0x03
+#define CANXL_SDU_TYPE_IEEE_802_3_MAC_FRAME_TUNNELLING           0x04
+#define CANXL_SDU_TYPE_IEEE_802_3_MAC_FRAME_MAPPED_TUNNELING     0x05
+#define CANXL_SDU_TYPE_CLASSICAL_CAN_MAPPED_TUNNELING            0x06
+#define CANXL_SDU_TYPE_CAN_FD_MAPPED_TUNNELING                   0x07
+
 #endif /* __PACKET_SOCKETCAN_H__ */
 
 /*
