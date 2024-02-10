@@ -492,11 +492,6 @@ static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 
-static const true_false_string f1ap_tfs_interfacesToTrace = {
-  "Should be traced",
-  "Should not be traced"
-};
-
 
 static proto_tree *top_tree = NULL;
 
@@ -700,23 +695,23 @@ void proto_register_f1ap(void) {
         NULL, HFILL }},
     { &hf_f1ap_interfacesToTrace_NG_C,
       { "NG-C", "f1ap.interfacesToTrace.NG_C",
-        FT_BOOLEAN, 8, TFS(&f1ap_tfs_interfacesToTrace), 0x80,
+        FT_BOOLEAN, 8, TFS(&tfs_should_be_traced_should_not_be_traced), 0x80,
         NULL, HFILL }},
     { &hf_f1ap_interfacesToTrace_Xn_C,
       { "Xn-C", "f1ap.interfacesToTrace.Xn_C",
-        FT_BOOLEAN, 8, TFS(&f1ap_tfs_interfacesToTrace), 0x40,
+        FT_BOOLEAN, 8, TFS(&tfs_should_be_traced_should_not_be_traced), 0x40,
         NULL, HFILL }},
     { &hf_f1ap_interfacesToTrace_Uu,
       { "Uu", "f1ap.interfacesToTrace.Uu",
-        FT_BOOLEAN, 8, TFS(&f1ap_tfs_interfacesToTrace), 0x20,
+        FT_BOOLEAN, 8, TFS(&tfs_should_be_traced_should_not_be_traced), 0x20,
         NULL, HFILL }},
     { &hf_f1ap_interfacesToTrace_F1_C,
       { "F1-C", "f1ap.interfacesToTrace.F1_C",
-        FT_BOOLEAN, 8, TFS(&f1ap_tfs_interfacesToTrace), 0x10,
+        FT_BOOLEAN, 8, TFS(&tfs_should_be_traced_should_not_be_traced), 0x10,
         NULL, HFILL }},
     { &hf_f1ap_interfacesToTrace_E1,
       { "E1", "f1ap.interfacesToTrace.E1",
-        FT_BOOLEAN, 8, TFS(&f1ap_tfs_interfacesToTrace), 0x08,
+        FT_BOOLEAN, 8, TFS(&tfs_should_be_traced_should_not_be_traced), 0x08,
         NULL, HFILL }},
     { &hf_f1ap_interfacesToTrace_Reserved,
       { "Reserved", "f1ap.interfacesToTrace.Reserved",

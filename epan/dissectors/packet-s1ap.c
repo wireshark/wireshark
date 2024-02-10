@@ -2123,11 +2123,6 @@ s1ap_Hysteresis_fmt(gchar *s, guint32 v)
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", (float)v/2, v);
 }
 
-static const true_false_string s1ap_tfs_interfacesToTrace = {
-  "Should be traced",
-  "Should not be traced"
-};
-
 static void
 s1ap_Time_UE_StayedInCell_EnhancedGranularity_fmt(gchar *s, guint32 v)
 {
@@ -18685,23 +18680,23 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
     { &hf_s1ap_interfacesToTrace_S1_MME,
       { "S1-MME", "s1ap.interfacesToTrace.S1_MME",
-        FT_BOOLEAN, 8, TFS(&s1ap_tfs_interfacesToTrace), 0x80,
+        FT_BOOLEAN, 8, TFS(&tfs_should_be_traced_should_not_be_traced), 0x80,
         NULL, HFILL }},
     { &hf_s1ap_interfacesToTrace_X2,
       { "X2", "s1ap.interfacesToTrace.X2",
-        FT_BOOLEAN, 8, TFS(&s1ap_tfs_interfacesToTrace), 0x40,
+        FT_BOOLEAN, 8, TFS(&tfs_should_be_traced_should_not_be_traced), 0x40,
         NULL, HFILL }},
     { &hf_s1ap_interfacesToTrace_Uu,
       { "Uu", "s1ap.interfacesToTrace.Uu",
-        FT_BOOLEAN, 8, TFS(&s1ap_tfs_interfacesToTrace), 0x20,
+        FT_BOOLEAN, 8, TFS(&tfs_should_be_traced_should_not_be_traced), 0x20,
         NULL, HFILL }},
     { &hf_s1ap_interfacesToTrace_F1_C,
       { "F1-C", "s1ap.interfacesToTrace.F1_C",
-        FT_BOOLEAN, 8, TFS(&s1ap_tfs_interfacesToTrace), 0x10,
+        FT_BOOLEAN, 8, TFS(&tfs_should_be_traced_should_not_be_traced), 0x10,
         NULL, HFILL }},
     { &hf_s1ap_interfacesToTrace_E1,
       { "E1", "s1ap.interfacesToTrace.E1",
-        FT_BOOLEAN, 8, TFS(&s1ap_tfs_interfacesToTrace), 0x08,
+        FT_BOOLEAN, 8, TFS(&tfs_should_be_traced_should_not_be_traced), 0x08,
         NULL, HFILL }},
     { &hf_s1ap_interfacesToTrace_Reserved,
       { "Reserved", "s1ap.interfacesToTrace.Reserved",

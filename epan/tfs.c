@@ -115,6 +115,7 @@ const true_false_string tfs_no_extension_extension = { "No Extension", "Extensio
 const true_false_string tfs_user_provider = { "User", "Provider" };
 const true_false_string tfs_applicable_not_applicable = { "Applicable", "Not Applicable" };
 const true_false_string tfs_current_not_yet = { "Currently Applicable", "Not yet Applicable" };
+const true_false_string tfs_should_be_traced_should_not_be_traced = { "Should be traced", "Should not be traced" };
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

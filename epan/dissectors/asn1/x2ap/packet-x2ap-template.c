@@ -250,11 +250,6 @@ static const true_false_string x2ap_tfs_failed_succeeded = {
   "Succeeded"
 };
 
-static const true_false_string x2ap_tfs_interfacesToTrace = {
-  "Should be traced",
-  "Should not be traced"
-};
-
 static const true_false_string x2ap_tfs_activate_do_not_activate = {
   "Activate",
   "Do not activate"
@@ -447,23 +442,23 @@ void proto_register_x2ap(void) {
         NULL, HFILL }},
     { &hf_x2ap_interfacesToTrace_S1_MME,
       { "S1-MME", "x2ap.interfacesToTrace.S1_MME",
-        FT_BOOLEAN, 8, TFS(&x2ap_tfs_interfacesToTrace), 0x80,
+        FT_BOOLEAN, 8, TFS(&tfs_should_be_traced_should_not_be_traced), 0x80,
         NULL, HFILL }},
     { &hf_x2ap_interfacesToTrace_X2,
       { "X2", "x2ap.interfacesToTrace.X2",
-        FT_BOOLEAN, 8, TFS(&x2ap_tfs_interfacesToTrace), 0x40,
+        FT_BOOLEAN, 8, TFS(&tfs_should_be_traced_should_not_be_traced), 0x40,
         NULL, HFILL }},
     { &hf_x2ap_interfacesToTrace_Uu,
       { "Uu", "x2ap.interfacesToTrace.Uu",
-        FT_BOOLEAN, 8, TFS(&x2ap_tfs_interfacesToTrace), 0x20,
+        FT_BOOLEAN, 8, TFS(&tfs_should_be_traced_should_not_be_traced), 0x20,
         NULL, HFILL }},
     { &hf_x2ap_interfacesToTrace_F1_C,
       { "F1-C", "x2ap.interfacesToTrace.F1_C",
-        FT_BOOLEAN, 8, TFS(&x2ap_tfs_interfacesToTrace), 0x10,
+        FT_BOOLEAN, 8, TFS(&tfs_should_be_traced_should_not_be_traced), 0x10,
         NULL, HFILL }},
     { &hf_x2ap_interfacesToTrace_E1,
       { "E1", "x2ap.interfacesToTrace.E1",
-        FT_BOOLEAN, 8, TFS(&x2ap_tfs_interfacesToTrace), 0x08,
+        FT_BOOLEAN, 8, TFS(&tfs_should_be_traced_should_not_be_traced), 0x08,
         NULL, HFILL }},
     { &hf_x2ap_interfacesToTrace_Reserved,
       { "Reserved", "x2ap.interfacesToTrace.Reserved",
