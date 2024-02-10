@@ -305,7 +305,8 @@ class ProtoTreeAddItemCheck(APICheck):
                                             'seq_info->txt_enc | ENC_NA',
                                             'BASE_SHOW_UTF_8_PRINTABLE',
                                             'dhcp_secs_endian',
-                                            'is_mdns ? ENC_UTF_8|ENC_NA : ENC_ASCII|ENC_NA'
+                                            'is_mdns ? ENC_UTF_8|ENC_NA : ENC_ASCII|ENC_NA',
+                                            'xl_encoding'
                                           }:
                                 global warnings_found
 

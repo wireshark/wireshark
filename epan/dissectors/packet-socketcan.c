@@ -169,7 +169,7 @@ static const value_string can_err_trx_canl_vals[] = {
 
 static const value_string canxl_sdu_type_vals[] = {
     { 0x00, "Reserved" },
-    { 0x01, "Contend-based Adressing" },
+    { 0x01, "Content-based Addressing" },
     { 0x02, "Reserved for future use" },
     { 0x03, "Classical CAN/CAN FD mapped tunneling" },
     { 0x04, "IEEE 802.3 (MAC frame) tunneling" },
@@ -678,7 +678,7 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         proto_tree_add_bitmask_list(can_tree, tvb, 0, 4, canxl_prio_vcid_fields, xl_encoding);
         proto_tree_add_bitmask_list(can_tree, tvb, 4, 1, canxl_flag_fields, xl_encoding);
         proto_tree_add_item(can_tree, hf_canxl_sdu_type, tvb, 5, 1, ENC_NA);
-        proto_tree_add_item(can_tree, hf_can_len, tvb, CANXL_LEN_OFFSET, 2, xl_encoding);
+        proto_tree_add_item(can_tree, hf_canxl_len, tvb, CANXL_LEN_OFFSET, 2, xl_encoding);
         proto_tree_add_item(can_tree, hf_canxl_acceptance_field, tvb, CANXL_LEN_OFFSET+2, 4, xl_encoding);
 
         tvbuff_t   *next_tvb;
