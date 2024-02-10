@@ -97,7 +97,6 @@ void StatsTreeDialog::setupNode(stat_node* node)
     } else {
         st_dlg->statsTreeWidget()->addTopLevelItem(ti);
     }
-    st_dlg->statsTreeWidget()->resizeColumnToContents(item_col_);
 }
 
 void StatsTreeDialog::fillTree()
@@ -142,10 +141,11 @@ void StatsTreeDialog::fillTree()
     cap_file_.retapPackets();
     drawTreeItems(st_);
 
-    statsTreeWidget()->setSortingEnabled(true);
     removeTapListeners();
-
     st_cfg_->pr = NULL;
+
+    statsTreeWidget()->setSortingEnabled(true);
+    statsTreeWidget()->resizeColumnToContents(item_col_);
 }
 
 void StatsTreeDialog::resetTap(void *st_ptr)
