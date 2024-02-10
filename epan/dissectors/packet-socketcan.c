@@ -535,28 +535,28 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     proto_item     *ti;
     guint8          frame_type;
     can_info_t      can_info;
-    int * const    *can_flags;
+    int * const    *can_flags_id;
 
-    static int * const can_std_flags[] = {
+    static int * const can_std_flags_id[] = {
         &hf_can_infoent_std,
         &hf_can_extflag,
         &hf_can_rtrflag,
         &hf_can_errflag,
         NULL,
     };
-    static int * const can_ext_flags[] = {
+    static int * const can_ext_flags_id[] = {
         &hf_can_infoent_ext,
         &hf_can_extflag,
         &hf_can_rtrflag,
         &hf_can_errflag,
         NULL,
     };
-    static int * const can_std_flags_fd[] = {
+    static int * const canfd_std_flags_id[] = {
         &hf_can_infoent_std,
         &hf_can_extflag,
         NULL,
     };
-    static int * const can_ext_flags_fd[] = {
+    static int * const canfd_ext_flags_id[] = {
         &hf_can_infoent_ext,
         &hf_can_extflag,
         NULL,
@@ -714,15 +714,15 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         /* Error Message Frames are only encapsulated in Classic CAN frames */
         if (can_packet_type == PACKET_TYPE_CAN && (can_info.id & CAN_ERR_FLAG)) {
             frame_type = LINUX_CAN_ERR;
-            can_flags  = can_err_flags;
+            can_flags_id  = can_err_flags;
         } else if (can_info.id & CAN_EFF_FLAG) {
             frame_type = LINUX_CAN_EXT;
             can_info.id &= (CAN_EFF_MASK | CAN_FLAG_MASK);
-            can_flags  = (can_packet_type == PACKET_TYPE_CAN_FD) ? can_ext_flags_fd : can_ext_flags;
+            can_flags_id  = (can_packet_type == PACKET_TYPE_CAN_FD) ? canfd_ext_flags_id : can_ext_flags_id;
         } else {
             frame_type = LINUX_CAN_STD;
             can_info.id &= (CAN_SFF_MASK | CAN_FLAG_MASK);
-            can_flags  = (can_packet_type == PACKET_TYPE_CAN_FD) ? can_std_flags_fd : can_std_flags;
+            can_flags_id  = (can_packet_type == PACKET_TYPE_CAN_FD) ? canfd_std_flags_id : can_std_flags_id;
         }
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %d (0x%" PRIx32 "), Length: %d", id_name, effective_can_id, effective_can_id, can_info.len);
 
@@ -737,7 +737,7 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
         proto_item_append_text(can_tree, ", %s: %d (0x%" PRIx32 "), Length: %d", id_name, effective_can_id, effective_can_id, can_info.len);
 
-        proto_tree_add_bitmask_list(can_tree, tvb, 0, 4, can_flags, encoding);
+        proto_tree_add_bitmask_list(can_tree, tvb, 0, 4, can_flags_id, encoding);
         proto_tree_add_item(can_tree, hf_can_len, tvb, CAN_LEN_OFFSET, 1, ENC_NA);
 
         if (frame_type == LINUX_CAN_ERR && can_info.len != CAN_ERR_DLC) {
