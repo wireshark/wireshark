@@ -206,12 +206,32 @@ void desktop_show_in_folder(const QString file_path)
     // https://stackoverflow.com/questions/3490336/how-to-reveal-in-finder-or-show-in-explorer-with-qt
 
 #if defined(Q_OS_WIN)
+    //
+    // See
+    //
+    //    https://stackoverflow.com/questions/13680415/how-to-open-explorer-with-a-specific-file-selected
+    //
+    // for a way to do this using Windows Shell APIs, rather than having
+    // to fire up a separate instance of Windows Explorer.
+    //
     QString command = "explorer.exe";
     QStringList arguments;
     QString path = QDir::toNativeSeparators(file_path);
     arguments << "/select," << path + "";
     success = QProcess::startDetached(command, arguments);
 #elif defined(Q_OS_MAC)
+    //
+    // See
+    //
+    //    https://stackoverflow.com/questions/10722740/implementing-show-in-finder-button-in-objective-c
+    //
+    // and
+    //
+    //    https://stackoverflow.com/questions/7652928/launch-finder-window-with-specific-files-selected
+    //
+    // for a way to do this using Cocoa APIs, rather than running the
+    // osascript program to get it to do this with AppleScript.
+    //
     QStringList script_args;
     QString escaped_path = file_path;
 
