@@ -524,6 +524,8 @@ static int st_node_reqs_by_http_host = -1;
 static int st_node_resps_by_srv_addr = -1;
 
 static GSList *top_of_list = NULL;
+static gboolean req_has_range = FALSE;
+static gboolean resp_has_range = FALSE;
 
 /* Parse HTTP path sub components RFC3986 Ch 3.3, 3.4 */
 void
@@ -1819,8 +1821,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 			match_trans_t *match_trans = NULL;
 
-			if (curr && curr->response_code == 206) {
-				/* The conv_data->matches_table is ONLY USED FOR STATUS 206 RESPONSES TO GET REQUESTS.*/
+			if (curr && curr->response_code == 206 && curr->resp_has_range) {
+				/* The conv_data->matches_table is only used for GET requests with ranges and
+				*  response_codes of 206 (Partial Content).
+				*/
 				match_trans = (match_trans_t *)wmem_map_lookup(conv_data->matches_table,
 								GUINT_TO_POINTER(pinfo->num));
 				if (match_trans) {
@@ -1836,7 +1840,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if (! match_trans
 			&& curr
 			&& curr->req_framenum) {
-				if (! curr->has_range) {
+				if (!(curr && curr->resp_has_range)) {
 					pi = proto_tree_add_uint(http_tree, hf_http_request_in, tvb, 0, 0, curr->req_framenum);
 					proto_item_set_generated(pi);
 
@@ -1851,7 +1855,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			}
 
 			/* There is no use case for previous and next request and response frame numbers.
-			*  As such, they bloat the Detail list.
+			*  As such, they bloat the Packet Detail.
 			*
 			if (prev && prev->req_framenum) {
 				pi = proto_tree_add_uint(http_tree, hf_http_prev_request_in, tvb, 0, 0, prev->req_framenum);
@@ -1882,12 +1886,13 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 								match_trans->request_uri);
 				proto_item_set_generated(pi);
 			}
-			else if (curr->request_uri && !curr->has_range) {
+			else if (curr->request_uri && !curr->req_has_range) {
 				pi = proto_tree_add_string(http_tree, hf_http_request_uri, tvb, 0, 0,
 								curr->request_uri);
 				proto_item_set_generated(pi);
 			}
-			if (curr->full_uri && !curr->has_range) {
+
+			if (curr->full_uri) {
 				pi = proto_tree_add_string(http_tree, hf_http_request_full_uri, tvb, 0, 0,
 								curr->full_uri);
 				proto_item_set_url(pi);
@@ -1898,7 +1903,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			hidden_item = proto_tree_add_boolean(http_tree,	hf_http_request, tvb, 0, 0, 1);
 			proto_item_set_hidden(hidden_item);
 
-			if (curr->has_range) {
+			match_trans = NULL;
+
+			if (curr->req_has_range) {
 				int size = wmem_map_size(conv_data->matches_table);
 
 				if (size > 0) {
@@ -1911,7 +1918,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					}
 				}
 			}
-			else if (curr && curr->res_framenum) {
+			if (! match_trans
+			&& curr
+			&& curr->res_framenum) {
 				pi = proto_tree_add_uint(http_tree, hf_http_response_in, tvb, 0, 0, curr->res_framenum);
 				proto_item_set_generated(pi);
 			}
@@ -1935,7 +1944,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			}
 
 			/* There is no use case for previous and next request frame numbers and as such
-			*  needlessly bloat the Detail list.
+			*  they bloat the Packet Detail.
 			/*
 			if (prev && prev->req_framenum) {
 				pi = proto_tree_add_uint(http_tree, hf_http_prev_request_in, tvb, 0, 0, prev->req_framenum);
@@ -3742,7 +3751,6 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			break;
 		}
 		case HDR_RANGE:
-		{
 			/* THIS IS A GET REQUEST
 			*  GET is the only method that employs ranges.
 			*/
@@ -3761,11 +3769,11 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			 *  (RTT) stats were incorrect, in some cases massively so.
 			 *
 			 *  While RFC 9110 expressly prohibits matching via byte ranges because, among
-			 *  other things, the server may return fewer bytes than requested, the first
-			 *  number of the range	does not change. Unlike HTTP implementations, Wireshark
-			 *  has the problem of requests/responses missing from the capture file.
-			 *  In such cases resumption of correct matching was virtually impossible. In
-			 *  addition, all matching was incorrect from that point on.
+			 *  other things, the server may return fewer bytes than requested; however,
+			 *  the first number of the range does not change. Unlike HTTP implementations,
+			 *  Wireshark has the problem of requests/responses missing from the capture
+			 *  file. In such cases resumption of correct matching was virtually impossible.
+			 *  In addition, all matching was incorrect from that point on.
 			 *
 			 *  The method of matching used herein is able to recover from packet loss,
 			 *  any nummber of missing frames, and duplicate range requests. The
@@ -3775,7 +3783,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			guint32 first_range_num = 0;
 			request_trans_t *req_trans = NULL;
 
-			 /* Get the first range number */
+			/* Get the first range number */
 			first_range_num_str = wmem_strdup(wmem_file_scope(), value);
 			first_range_num_str = strtok(value_bytes, "-");
 			first_range_num_str = strtok(value_bytes, "=");
@@ -3812,16 +3820,15 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				conv_data->req_list = g_slist_append(top_of_list, GUINT_TO_POINTER(req_trans));
 				if (top_of_list	== NULL)
 					top_of_list = conv_data->req_list;
-			else {
-				expert_add_info(pinfo, tree, &ei_http_range_num_undetermined);
+				else {
+					expert_add_info(pinfo, tree, &ei_http_range_num_undetermined);
+				}
 			}
-				curr->has_range = TRUE;
+			}
+			curr->req_has_range = TRUE;
 			break;
-			}
-			}
-		}
 		case HDR_CONTENT_RANGE:
-		{	/*
+			/*
 			*  THIS IS A GET RESPONSE
 			*  GET is the only method that employs ranges. */
 			if (!pinfo->fd->visited) {
@@ -3833,8 +3840,6 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				match_trans_t *match_trans = NULL;
 				nstime_t  ns;
 				GSList *iter = NULL;
-
-				curr->has_range = TRUE;
 
 				/* Get the first content range number  */
 				first_crange_num_str = wmem_alloc(scope, 100);
@@ -3907,9 +3912,9 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 						}
 					}
 				}
-				break;
 			}
-		}
+			curr->resp_has_range = TRUE;
+			break;
 		}
 	}
 	return TRUE;
