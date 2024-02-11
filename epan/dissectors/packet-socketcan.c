@@ -696,9 +696,6 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
             proto_tree_add_item(can_tree, hf_can_padding, tvb, CANXL_DATA_OFFSET+can_info.len, -1, ENC_NA);
         }
     } else {
-        can_info.id = tvb_get_guint32(tvb, 0, encoding);
-        can_info.len = tvb_get_guint8(tvb, CAN_LEN_OFFSET);
-
         if (can_packet_type == PACKET_TYPE_CAN_FD) {
             can_info.fd = CAN_TYPE_CAN_FD;
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "CANFD");
@@ -707,6 +704,16 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAN");
         }
         col_clear(pinfo->cinfo, COL_INFO);
+
+        ti = proto_tree_add_item(tree, proto_can, tvb, 0, -1, ENC_NA);
+        if (can_packet_type == PACKET_TYPE_CAN_FD) {
+            proto_item_set_hidden(ti);
+            ti = proto_tree_add_item(tree, proto_canfd, tvb, 0, -1, ENC_NA);
+        }
+        can_tree = proto_item_add_subtree(ti, (can_packet_type == PACKET_TYPE_CAN_FD) ? ett_can_fd : ett_can);
+
+        /* Get the ID and flags field */
+        can_info.id = tvb_get_guint32(tvb, 0, encoding);
 
         /* Error Message Frames are only encapsulated in Classic CAN frames */
         if (can_packet_type == PACKET_TYPE_CAN && (can_info.id & CAN_ERR_FLAG)) {
@@ -724,23 +731,17 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
         socketcan_set_source_and_destination_columns(pinfo, &can_info);
 
-        ti = proto_tree_add_item(tree, proto_can, tvb, 0, -1, ENC_NA);
-        if (can_packet_type == PACKET_TYPE_CAN_FD) {
-            proto_item_set_hidden(ti);
-            ti = proto_tree_add_item(tree, proto_canfd, tvb, 0, -1, ENC_NA);
-        }
-        can_tree = proto_item_add_subtree(ti, (can_packet_type == PACKET_TYPE_CAN_FD) ? ett_can_fd : ett_can);
-
-        if (can_info.id & CAN_EFF_FLAG) {
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Ext. ID: %u (0x%08x), Length: %u", can_info.id & CAN_EFF_MASK, can_info.id & CAN_EFF_MASK, can_info.len);
-            proto_item_append_text(can_tree, ", Ext. ID: %u (0x%08x), Length: %u", can_info.id & CAN_EFF_MASK, can_info.id & CAN_EFF_MASK, can_info.len);
-        } else {
-            col_add_fstr(pinfo->cinfo, COL_INFO, "ID: %u (0x%03x), Length: %u", can_info.id & CAN_SFF_MASK, can_info.id & CAN_SFF_MASK, can_info.len);
-            proto_item_append_text(can_tree, ", ID: %u (0x%03x), Length: %u", can_info.id & CAN_SFF_MASK, can_info.id & CAN_SFF_MASK, can_info.len);
-        }
-
         proto_tree_add_bitmask_list(can_tree, tvb, 0, 4, can_flags_id, encoding);
-        proto_tree_add_item(can_tree, hf_can_len, tvb, CAN_LEN_OFFSET, 1, ENC_NA);
+        if (can_info.id & CAN_EFF_FLAG) {
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Ext. ID: %u (0x%08x)", can_info.id & CAN_EFF_MASK, can_info.id & CAN_EFF_MASK);
+            proto_item_append_text(can_tree, ", Ext. ID: %u (0x%08x)", can_info.id & CAN_EFF_MASK, can_info.id & CAN_EFF_MASK);
+        } else {
+            col_add_fstr(pinfo->cinfo, COL_INFO, "ID: %u (0x%03x)", can_info.id & CAN_SFF_MASK, can_info.id & CAN_SFF_MASK);
+            proto_item_append_text(can_tree, ", ID: %u (0x%03x)", can_info.id & CAN_SFF_MASK, can_info.id & CAN_SFF_MASK);
+        }
+        proto_tree_add_item_ret_uint(can_tree, hf_can_len, tvb, CAN_LEN_OFFSET, 1, ENC_NA, &can_info.len);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Length: %u", can_info.len);
+        proto_item_append_text(can_tree, ", Length: %u", can_info.len);
 
         if (frame_type == LINUX_CAN_ERR && can_info.len != CAN_ERR_DLC) {
             proto_tree_add_expert(tree, pinfo, &ei_can_err_dlc_mismatch, tvb, CAN_LEN_OFFSET, 1);
