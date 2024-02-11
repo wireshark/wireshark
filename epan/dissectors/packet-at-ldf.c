@@ -1,7 +1,7 @@
 /* packet-at-ldf.c
  * Dissector for Allied Telesis Loop Detection Frames
  *
- * Copyright (c) 2021 by Martin Mayer <martin.mayer@m2-it-solutions.de>
+ * Copyright (c) 2021-2024 by Martin Mayer <martin.mayer@m2-it-solutions.de>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -14,6 +14,8 @@
 #include <epan/packet.h>
 
 #define AT_LDF_LLC_CTRL 0xE3
+
+#define AT_LDF_FRAME_LEN 79
 
 void proto_register_at_ldf(void);
 void proto_reg_handoff_at_ldf(void);
@@ -47,29 +49,24 @@ dissect_at_ldf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
      */
 
 
-    /* Check if packet is destined to AT test address */
-    if(pinfo->dl_dst.type == AT_ETHER) {
-        const guint8 *dstaddr;
-        dstaddr = (const guint8 *)pinfo->dl_dst.data;
-        if(
-            dstaddr[0] != 0x00 ||
-            dstaddr[1] != 0x00 ||
-            dstaddr[2] != 0xF4 ||
-            dstaddr[3] != 0x27 ||
-            dstaddr[4] != 0x71 ||
-            dstaddr[5] != 0x01
-        ) return 0;
-    } else {
-        return 0;
-    }
+    /* Check if packet is destined to the Allied Telesis test address (00:00:F4:27:71:01) */
+    guint8 dst_mac[6] = {0x00, 0x00, 0xF4, 0x27, 0x71, 0x01};
+    address dst_addr = ADDRESS_INIT_NONE;
+    set_address(&dst_addr, AT_ETHER, sizeof(dst_mac), &dst_mac);
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATLDF");
+    if(!addresses_equal(&pinfo->dl_dst, &dst_addr))
+        return 0;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "AT LDF");
     col_clear(pinfo->cinfo,COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Source VLAN: %u, Port: %u",
                     tvb_get_guint16(tvb, 1, ENC_BIG_ENDIAN),
                     tvb_get_guint16(tvb, 5, ENC_BIG_ENDIAN));
 
-    proto_item *ti = proto_tree_add_item(tree, proto_at_ldf, tvb, 0, -1, ENC_NA);
+    /* Frame has fixed length, so we can directly set tree and reported length */
+    tvb_set_reported_length(tvb, AT_LDF_FRAME_LEN);
+
+    proto_item *ti = proto_tree_add_item(tree, proto_at_ldf, tvb, 0, AT_LDF_FRAME_LEN, ENC_NA);
     proto_tree *at_ldf_tree = proto_item_add_subtree(ti, ett_at_ldf);
 
     gint offset = 0;
@@ -81,11 +78,11 @@ dissect_at_ldf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     offset += 4;
     proto_tree_add_item(at_ldf_tree, hf_at_ldf_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    proto_tree_add_item(at_ldf_tree, hf_at_ldf_id, tvb, offset, 7, ENC_BIG_ENDIAN);
+    proto_tree_add_item(at_ldf_tree, hf_at_ldf_id, tvb, offset, 7, ENC_NA);
     offset += 7;
-    proto_tree_add_item(at_ldf_tree, hf_at_ldf_text, tvb, offset, -1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(at_ldf_tree, hf_at_ldf_text, tvb, offset, 64, ENC_ASCII);
 
-    return tvb_captured_length(tvb);
+    return AT_LDF_FRAME_LEN;
 }
 
 void
