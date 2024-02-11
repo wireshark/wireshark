@@ -10049,7 +10049,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;For complete analysis check SCTP preference Enable Association indexing&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Zur vollständigen Analyse Association indexing in den Protokolleinstellungen aktivieren&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Complete List of IP addresses from INIT Chunk:</source>
@@ -11756,23 +11756,23 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Command line</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommandozeile</translation>
     </message>
     <message>
         <source>Run an application with the SSLKEYLOGFILE environment variable set to the file specified by the TLS key log filename preference. This enables TLS decryption in Wireshark. Set the key log file and start the capture before launching the application to ensure that the initial TLS handshakes are captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Applikation mit gesetzter SSLKEYLOGFILE-Umgebungsvariable starten, deren Dateipfad in der TLS-Key-Log-Einstellung festgelegt wurde. Dies ermöglicht die TLS-Entschlüsselung mit Wireshark. Legen Sie den Dateipfad fest und starten Sie den Mitschnitt bevor Sie die Applikation starten, um sicher zu gehen, dass der initiale TLS-Handshake erfasst wird.</translation>
     </message>
     <message>
         <source>&lt;span style=&quot; font-size:small;&quot;&gt;Firefox and Chrome are known to work. If your desired browser is currently running, close it first before launching it below. Command line options are supported.&lt;/span&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;span style=&quot; font-size:small;&quot;&gt;Funktioniert mit Firefox und Chrome. Falls der Browser bereits läuft, diesen vor dem Starten schließen. Kommandozeilen-Optionen werden unterstützt.&lt;/span&gt;</translation>
     </message>
     <message>
         <source>TLS (Pre)-Master-Secret log file path (tls.keylog_file)</source>
-        <translation type="unfinished"></translation>
+        <translation>TLS (Pre)-Master-Secret Logdatei-Pfad (tls.keylog_file)</translation>
     </message>
     <message>
         <source>&lt;span style=&quot; font-size:small;&quot;&gt;TLS session secrets will be logged to this file. If you change this field, hit the Save button to update the TLS protocol preferences.&lt;/span&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;span style=&quot; font-size:small;&quot;&gt;TLS-Sitzungsschlüssel werden in diese Datei geschrieben. Wenn das Feld geändert wird, Speichern-Button drücken, um TLS-Protokolleigenschaften zu aktualisieren.&lt;/span&gt;</translation>
     </message>
     <message>
         <source>Launch application with SSLKEYLOGFILE</source>
@@ -13814,7 +13814,7 @@ a:hover {
     </message>
     <message>
         <source>TLS Keylog Launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>TLS Keylog Launcher</translation>
     </message>
     <message>
         <source>Release Notes</source>
