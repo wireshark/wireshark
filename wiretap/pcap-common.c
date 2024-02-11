@@ -1931,12 +1931,20 @@ struct usb_device_setup_hdr {
 		PBSWAP64((guint8 *)fieldp); \
 	}
 
-struct can_socketcan_hdr {
+struct can_canfd_socketcan_hdr {
 	guint32 can_id;			/* CAN ID and flags */
 	guint8 payload_length;		/* Frame payload length */
 	guint8 padding;
 	guint8 reserved1;
 	guint8 reserved2;
+};
+
+struct canxl_socketcan_hdr {
+	guint32 priority_vcid;		/* Priority and VCID */
+	guint8 flags;
+	guint8 sdu_type;
+	guint16 payload_length;		/* Frame payload length */
+	guint32 acceptance_field;
 };
 
 /*
@@ -1951,15 +1959,71 @@ struct can_socketcan_hdr {
 /*
  * The protocols we have to check for.
  */
-#define LINUX_SLL_P_CAN			0x000C	/* Controller Area Network */
+#define LINUX_SLL_P_CAN			0x000C	/* Controller Area Network classic */
 #define LINUX_SLL_P_CANFD		0x000D	/* Controller Area Network flexible data rate */
+#define LINUX_SLL_P_CANXL		0x000E	/* Controller Area Network extended length */
+
+static void
+pcap_byteswap_can_socketcan_pseudoheader(guint packet_size, guint16 protocol,
+    guint8 *pd)
+{
+	struct can_canfd_socketcan_hdr *can_canfd_socketcan_phdr;
+	struct canxl_socketcan_hdr *canxl_socketcan_phdr;
+
+	switch (protocol) {
+
+	case LINUX_SLL_P_CAN:
+	case LINUX_SLL_P_CANFD:
+		/*
+		 * CAN classic or CAN FD; byte-swap the ID/flags field
+		 * into our host byte order.
+		 *
+		 * This is a greasy hack, but we never directly dereference
+		 * any of the fields in *can_canfd_socketcan_phdr, we just get
+		 * offsets of and addresses of its members and byte-swap it
+		 * with a byte-at-a-time macro, so it's alignment-safe.
+		 */
+		can_canfd_socketcan_phdr = (struct can_canfd_socketcan_hdr *)(void *)pd;
+
+		if (packet_size < sizeof(can_canfd_socketcan_phdr->can_id)) {
+			/* Not enough data to have the full CAN ID */
+			return;
+		}
+
+		PBSWAP32((guint8 *)&can_canfd_socketcan_phdr->can_id);
+		break;
+
+	case LINUX_SLL_P_CANXL:
+		/*
+		 * CAN classic or CAN FD; byte-swap the priority-and-VCID
+		 * field, the payload length, ad the acceptance field
+		 * into our host byte order.
+		 *
+		 * Again, a greasy hack, but alignment-safe.
+		 */
+		canxl_socketcan_phdr = (struct canxl_socketcan_hdr *)(void *)pd;
+
+		if (packet_size < sizeof(*canxl_socketcan_phdr)) {
+			/* Not enough data to have the full CAN XL header */
+			return;
+		}
+
+		PBSWAP32((guint8 *)&canxl_socketcan_phdr->priority_vcid);
+		PBSWAP16((guint8 *)&canxl_socketcan_phdr->payload_length);
+		PBSWAP32((guint8 *)&canxl_socketcan_phdr->acceptance_field);
+		break;
+
+	default:
+		/* Not a CAN packet; nothing to fix */
+		return;
+	}
+}
 
 static void
 pcap_byteswap_linux_sll_pseudoheader(wtap_rec *rec, guint8 *pd)
 {
 	guint packet_size;
 	guint16 protocol;
-	struct can_socketcan_hdr *can_socketcan_phdr;
 
 	/*
 	 * Minimum of captured and actual length (just in case the
@@ -1975,26 +2039,12 @@ pcap_byteswap_linux_sll_pseudoheader(wtap_rec *rec, guint8 *pd)
 		return;
 	}
 
-	protocol = pntoh16(&pd[LINUX_SLL_PROTOCOL_OFFSET]);
-	if (protocol != LINUX_SLL_P_CAN && protocol != LINUX_SLL_P_CANFD) {
-		/* Not a CAN packet; nothing to fix */
-		return;
-	}
-
 	/*
-	 * Greasy hack, but we never directly dereference any of
-	 * the fields in *can_socketcan_phdr, we just get offsets
-	 * of and addresses of its members and byte-swap it with a
-	 * byte-at-a-time macro, so it's alignment-safe.
+	 * Byte-swap the SocketCAN pseudoheader, if we have one.
 	 */
-	can_socketcan_phdr = (struct can_socketcan_hdr *)(void *)(pd + LINUX_SLL_LEN);
-
-	if (packet_size < LINUX_SLL_LEN + sizeof(can_socketcan_phdr->can_id)) {
-		/* Not enough data to have the full CAN ID */
-		return;
-	}
-
-	PBSWAP32((guint8 *)&can_socketcan_phdr->can_id);
+	protocol = pntoh16(&pd[LINUX_SLL_PROTOCOL_OFFSET]);
+	pcap_byteswap_can_socketcan_pseudoheader(packet_size - LINUX_SLL_LEN,
+	    protocol, pd + LINUX_SLL_LEN);
 }
 
 static void
@@ -2002,7 +2052,6 @@ pcap_byteswap_linux_sll2_pseudoheader(wtap_rec *rec, guint8 *pd)
 {
 	guint packet_size;
 	guint16 protocol;
-	struct can_socketcan_hdr *can_socketcan_phdr;
 
 	/*
 	 * Minimum of captured and actual length (just in case the
@@ -2018,26 +2067,12 @@ pcap_byteswap_linux_sll2_pseudoheader(wtap_rec *rec, guint8 *pd)
 		return;
 	}
 
-	protocol = pntoh16(&pd[LINUX_SLL2_PROTOCOL_OFFSET]);
-	if (protocol != LINUX_SLL_P_CAN && protocol != LINUX_SLL_P_CANFD) {
-		/* Not a CAN packet; nothing to fix */
-		return;
-	}
-
 	/*
-	 * Greasy hack, but we never directly dereference any of
-	 * the fields in *can_socketcan_phdr, we just get offsets
-	 * of and addresses of its members and byte-swap it with a
-	 * byte-at-a-time macro, so it's alignment-safe.
+	 * Byte-swap the SocketCAN pseudoheader, if we have one.
 	 */
-	can_socketcan_phdr = (struct can_socketcan_hdr *)(void *)(pd + LINUX_SLL2_LEN);
-
-	if (packet_size < LINUX_SLL2_LEN + sizeof(can_socketcan_phdr->can_id)) {
-		/* Not enough data to have the full CAN ID */
-		return;
-	}
-
-	PBSWAP32((guint8 *)&can_socketcan_phdr->can_id);
+	protocol = pntoh16(&pd[LINUX_SLL2_PROTOCOL_OFFSET]);
+	pcap_byteswap_can_socketcan_pseudoheader(packet_size - LINUX_SLL2_LEN,
+	    protocol, pd + LINUX_SLL2_LEN);
 }
 
 static void
