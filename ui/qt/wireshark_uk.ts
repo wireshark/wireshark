@@ -1852,6 +1852,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alignment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1881,6 +1889,29 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Reset all changes</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ColumnTypeDelegate</name>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished">Вліво</translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished">Вправо</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation type="unfinished">Невідомо</translation>
     </message>
 </context>
 <context>
@@ -3086,7 +3117,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display Filters</source>
-        <translation type="unfinished">Фільтр Wireshark’а</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Display Filter Macros</source>
@@ -3604,8 +3635,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Підказка.</translation>
     </message>
     <message>
-        <source>Show data as</source>
-        <oldsource>Show and save data as</oldsource>
+        <source>Show as</source>
+        <oldsource>Show data as</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No delta times</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Turn delta times</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All delta times</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6572,6 +6615,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Selected Event: %1 %2 </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Events: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1 Selected: %2 (%3%)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6599,6 +6650,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>No Packets</source>
         <translation>Пакети відсутні</translation>
+    </message>
+    <message>
+        <source>No Events</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>From Zip File...</source>
@@ -12860,11 +12915,6 @@ a:hover {
         <translation>&amp;Зміст</translation>
     </message>
     <message>
-        <source>Display Filters</source>
-        <oldsource>Wireshark Filter</oldsource>
-        <translation type="unfinished">Фільтр Wireshark’а</translation>
-    </message>
-    <message>
         <source>TShark</source>
         <translation>TShark</translation>
     </message>
@@ -13254,8 +13304,8 @@ a:hover {
         <translation>Знайти попередній пакет</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Packet(s)</source>
-        <oldsource>&amp;Mark/Unmark Packet</oldsource>
+        <source>&amp;Mark/Unmark Selected</source>
+        <oldsource>&amp;Mark/Unmark Packet(s)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13287,8 +13337,8 @@ a:hover {
         <translation>Перейти до попереднього позначеного пакету</translation>
     </message>
     <message>
-        <source>&amp;Ignore/Unignore Packet(s)</source>
-        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
+        <source>&amp;Ignore/Unignore Selected</source>
+        <oldsource>&amp;Ignore/Unignore Packet(s)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13905,6 +13955,10 @@ a:hover {
     </message>
     <message>
         <source>&amp;Wireless</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

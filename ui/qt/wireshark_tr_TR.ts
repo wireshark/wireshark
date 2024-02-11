@@ -1865,6 +1865,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Çözüldü</translation>
     </message>
     <message>
+        <source>Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alignment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
         <translation>&lt;html&gt;Alanlar için ham değerler yerine insan tarafından okunabilir dizeleri gösterin. Yalnızca değer dizeleri olan alanlara sahip özel sütunlar için geçerlidir.&lt;/html&gt;</translation>
     </message>
@@ -1894,6 +1902,29 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Reset all changes</source>
         <translation>Tüm değişiklikleri sıfırla</translation>
+    </message>
+</context>
+<context>
+    <name>ColumnTypeDelegate</name>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished">Ön tanımlı</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished">Sol</translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished">Sağa</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation type="unfinished">Bilinmiyor</translation>
     </message>
 </context>
 <context>
@@ -3599,9 +3630,21 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>İpucu.</translation>
     </message>
     <message>
-        <source>Show data as</source>
-        <oldsource>Show and save data as</oldsource>
-        <translation>Verileri şu şekilde göster</translation>
+        <source>Show as</source>
+        <oldsource>Show data as</oldsource>
+        <translation type="unfinished">Verileri şu şekilde göster</translation>
+    </message>
+    <message>
+        <source>No delta times</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Turn delta times</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All delta times</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Stream</source>
@@ -6615,6 +6658,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Seçilen Paket: %1 %2 </translation>
     </message>
     <message>
+        <source>Selected Event: %1 %2 </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Events: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1 Selected: %2 (%3%)</source>
         <translation> %1 Seçildi: %2 (%3)</translation>
     </message>
@@ -6642,6 +6693,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>No Packets</source>
         <translation>Paket Yok</translation>
+    </message>
+    <message>
+        <source>No Events</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>From Zip File...</source>
@@ -13003,11 +13058,6 @@ a:üzerine gelin{
         <translation>&amp;İçerik</translation>
     </message>
     <message>
-        <source>Display Filters</source>
-        <oldsource>Wireshark Filter</oldsource>
-        <translation type="unfinished">Wireshark Filtresi</translation>
-    </message>
-    <message>
         <source>TShark</source>
         <translation>TShark</translation>
     </message>
@@ -13397,9 +13447,9 @@ a:üzerine gelin{
         <translation>Önceki paketi bul</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Packet(s)</source>
-        <oldsource>&amp;Mark/Unmark Packet</oldsource>
-        <translation>&amp;Paketi İşaretle/İşaretini Kaldır</translation>
+        <source>&amp;Mark/Unmark Selected</source>
+        <oldsource>&amp;Mark/Unmark Packet(s)</oldsource>
+        <translation type="unfinished">&amp;Paketi İşaretle/İşaretini Kaldır</translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -13430,9 +13480,9 @@ a:üzerine gelin{
         <translation>Önceki işaretli pakete git</translation>
     </message>
     <message>
-        <source>&amp;Ignore/Unignore Packet(s)</source>
-        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
-        <translation>&amp;Paketi Yoksay/Yoksaymaktan vazgeç</translation>
+        <source>&amp;Ignore/Unignore Selected</source>
+        <oldsource>&amp;Ignore/Unignore Packet(s)</oldsource>
+        <translation type="unfinished">&amp;Paketi Yoksay/Yoksaymaktan vazgeç</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -14049,6 +14099,10 @@ a:üzerine gelin{
     <message>
         <source>&amp;Wireless</source>
         <translation>&amp;Kablosuz</translation>
+    </message>
+    <message>
+        <source>Display Filters</source>
+        <translation type="unfinished">Ekran Filtreleri</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>

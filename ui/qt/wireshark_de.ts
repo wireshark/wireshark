@@ -81,11 +81,11 @@
     </message>
     <message>
         <source>About Logray</source>
-        <translation type="unfinished"></translation>
+        <translation>Über Logray</translation>
     </message>
     <message>
         <source>Logray</source>
-        <translation type="unfinished"></translation>
+        <translation>Logray</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -1107,7 +1107,7 @@
     </message>
     <message>
         <source>Decryption Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>Entschlüsselungs-Secrets</translation>
     </message>
     <message>
         <source>Type</source>
@@ -1185,7 +1185,9 @@
         <source>Created by Logray %1
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt von Logray %1
+
+</translation>
     </message>
 </context>
 <context>
@@ -1415,7 +1417,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Normalerweise erfasst eine WLAN-Netzwerkkarte nur Verkehr, der zu oder von ihrer Netzwerkadresse gesendet wird. Zudem wird nur &lt;em&gt;user data&lt;/em&gt;-Verkehr mit &amp;quot;fake&amp;quot; Ethernet-Headern aufgezeichnet. Wenn Sie den gesamten Datenverkehr, den die Netzwerkkarte &amp;quot;sehen&amp;quot; kann, aufzeichnen möchten, an 802.11 Management-/Kontrollpaketen oder Radio-Layer-Infos interessiert sind, wählen Sie diese Option an. Monitor-Mode-Verfügbarkeit hängt von der Netzwerkkarte und den Treibern ab. Schauen Sie für mehr Informationen zum Mitschneiden in WLAN-Netzwerken ins Wiki.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable monitor mode on all 802.11 interfaces</source>
@@ -1435,27 +1437,27 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>File infix pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei Infix Muster</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;In multiple file mode, the date and time and file index number are inserted between filename template and any suffix. Select their order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Beim Erzeugen mehrerer Dateien werden Datum und Uhrzeit sowie die Datei-Indexnummer zwischen dem Dateinamen und Suffix eingefügt. Wählen Sie deren Sortierungsart.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>YYYYmmDDHHMMSS_NNNNN</source>
-        <translation type="unfinished"></translation>
+        <translation>YYYYmmDDHHMMSS_NNNNN</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Date and time before the file index number. This causes files to sort in creation time order, and keeps files from the same batch closely ordered.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Datum und Uhrzeit vor der Datei-Indexnummer. Dies führt zur Sortierung nach Erstellungszeit und hält Dateien vom gleichen Stapel in der Sortierung eng zusammen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>NNNNN_YYYYmmDDHHMMSS</source>
-        <translation type="unfinished"></translation>
+        <translation>NNNNN_YYYYmmDDHHMMSS</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;File index number before the date and time. This is the historic Wireshark ordering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Datei-Indexnummer vor Datum und Uhrzeit. Dies ist die alte Wireshark Sortierung.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1638,7 +1640,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Normalerweise erfasst eine WLAN-Netzwerkkarte nur Verkehr, der zu oder von ihrer Netzwerkadresse gesendet wird. Zudem wird nur &lt;em&gt;user data&lt;/em&gt; -Verkehr mit &amp;quot;fake&amp;quot; Ethernet-Headern aufgezeichnet. Wenn Sie den gesamten Datenverkehr, den die Netzwerkkarte &amp;quot;sehen&amp;quot; kann, aufzeichnen möchten, an 802.11 Management-/Kontrollpaketen oder Radio-Layer-Infos interessiert sind, wählen Sie diese Option an. Monitor-Mode-Verfügbarkeit hängt von der Netzwerkkarte und den Treibern ab. Schauen Sie für mehr Informationen zum Mitschneiden in WLAN-Netzwerken ins Wiki.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture packets in monitor mode on 802.11 devices</source>
@@ -1872,6 +1874,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Aufgelöst</translation>
     </message>
     <message>
+        <source>Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alignment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
         <translation>&lt;html&gt;In Feldern menschenleserliche Zeichenketten anstatt Rohwerte anzeigen. Nur auf benutzerdefinierte Spalten mit Zeichenketten anwendbar.&lt;/html&gt;</translation>
     </message>
@@ -1901,6 +1911,29 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Reset all changes</source>
         <translation>Alle Änderungen zurücksetzen</translation>
+    </message>
+</context>
+<context>
+    <name>ColumnTypeDelegate</name>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished">Standard</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished">Links</translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished">Rechts</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation type="unfinished">Unbekannt</translation>
     </message>
 </context>
 <context>
@@ -3517,16 +3550,16 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;Lesevorgang&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;Lesevorgänge&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;Schreibvorgang&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;Schreibvorgänge&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message>
@@ -3563,11 +3596,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Read activity(%6)</source>
-        <translation type="unfinished"></translation>
+        <translation>Leseaktivität(%6)</translation>
     </message>
     <message>
         <source>Write activity(%6)</source>
-        <translation type="unfinished"></translation>
+        <translation>Schreibaktivität(%6)</translation>
     </message>
     <message>
         <source>Entire I/O activity (%1)</source>
@@ -3616,9 +3649,21 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Hinweis.</translation>
     </message>
     <message>
-        <source>Show data as</source>
-        <oldsource>Show and save data as</oldsource>
-        <translation>Daten anzeigen als</translation>
+        <source>Show as</source>
+        <oldsource>Show data as</oldsource>
+        <translation type="unfinished">Daten anzeigen als</translation>
+    </message>
+    <message>
+        <source>No delta times</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Turn delta times</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All delta times</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Stream</source>
@@ -6412,11 +6457,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>%1 RLC Graph (UE=%2 chan=%3%4 %5 - %6)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 RLC Graph (UE=%2 Kanal=%3%4 %5 - %6)</translation>
     </message>
     <message>
         <source>3GPP RLC Graph - no channel selected</source>
-        <translation type="unfinished"></translation>
+        <translation>3GPP RLC Graph - kein Kanal ausgewählt</translation>
     </message>
     <message>
         <source>Save As…</source>
@@ -6471,7 +6516,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>LteRlcStatisticsDialog</name>
     <message>
         <source>3GPP RLC Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>3GPP RLC Statistiken</translation>
     </message>
     <message>
         <source>Include SR frames in filter</source>
@@ -6558,7 +6603,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source> %1 Displayed: %2 (%3%)</source>
-        <translation type="unfinished"></translation>
+        <translation> %1 Angezeigt: %2 (%3%)</translation>
     </message>
     <message>
         <source>Manage Profiles…</source>
@@ -6635,6 +6680,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Ausgewähltes Paket: %1 %2</translation>
     </message>
     <message>
+        <source>Selected Event: %1 %2 </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Events: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1 Selected: %2 (%3%)</source>
         <translation>%1 Ausgewählt: %2 (%3%)</translation>
     </message>
@@ -6662,6 +6715,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>No Packets</source>
         <translation>Keine Pakete</translation>
+    </message>
+    <message>
+        <source>No Events</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>From Zip File...</source>
@@ -7496,7 +7553,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Scope</source>
-        <translation type="unfinished"></translation>
+        <translation>Anwendungsbereich</translation>
     </message>
     <message>
         <source>Description</source>
@@ -8951,7 +9008,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Unable to save %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichern von %1 nicht möglich: %2</translation>
     </message>
 </context>
 <context>
@@ -10284,7 +10341,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;For complete analysis check SCTP preference Enable Association indexing&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Zur vollständigen Analyse Association indexing in den Protokolleinstellungen aktivieren&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Complete List of IP addresses from INIT Chunk:</source>
@@ -10658,11 +10715,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for a subsequent occurrence in the current packet before advancing to the next packet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Nach weiterem Vorkommen im aktuellen Paket suchen bevor mit dem nächsten Paket fortgefahren wird.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Multiple occurrences</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehreres Vorkommen</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5), a plain string (e.g. My String) or a regular expression (e.g. colou?r).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -11999,7 +12056,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>TLSKeylogDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialog</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>Browse…</source>
@@ -12007,27 +12064,27 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Command line</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommandozeile</translation>
     </message>
     <message>
         <source>Run an application with the SSLKEYLOGFILE environment variable set to the file specified by the TLS key log filename preference. This enables TLS decryption in Wireshark. Set the key log file and start the capture before launching the application to ensure that the initial TLS handshakes are captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Applikation mit gesetzter SSLKEYLOGFILE-Umgebungsvariable starten, deren Dateipfad in der TLS-Key-Log-Einstellung festgelegt wurde. Dies ermöglicht die TLS-Entschlüsselung mit Wireshark. Legen Sie den Dateipfad fest und starten Sie den Mitschnitt bevor Sie die Applikation starten, um sicher zu gehen, dass der initiale TLS-Handshake erfasst wird.</translation>
     </message>
     <message>
         <source>&lt;span style=&quot; font-size:small;&quot;&gt;Firefox and Chrome are known to work. If your desired browser is currently running, close it first before launching it below. Command line options are supported.&lt;/span&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;span style=&quot; font-size:small;&quot;&gt;Funktioniert mit Firefox und Chrome. Falls der Browser bereits läuft, diesen vor dem Starten schließen. Kommandozeilen-Optionen werden unterstützt.&lt;/span&gt;</translation>
     </message>
     <message>
         <source>TLS (Pre)-Master-Secret log file path (tls.keylog_file)</source>
-        <translation type="unfinished"></translation>
+        <translation>TLS (Pre)-Master-Secret Logdatei-Pfad (tls.keylog_file)</translation>
     </message>
     <message>
         <source>&lt;span style=&quot; font-size:small;&quot;&gt;TLS session secrets will be logged to this file. If you change this field, hit the Save button to update the TLS protocol preferences.&lt;/span&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;span style=&quot; font-size:small;&quot;&gt;TLS-Sitzungsschlüssel werden in diese Datei geschrieben. Wenn das Feld geändert wird, Speichern-Button drücken, um TLS-Protokolleigenschaften zu aktualisieren.&lt;/span&gt;</translation>
     </message>
     <message>
         <source>Launch application with SSLKEYLOGFILE</source>
-        <translation type="unfinished"></translation>
+        <translation>Applikation mit SSLKEYLOGFILE starten</translation>
     </message>
     <message>
         <source>Launch</source>
@@ -12746,7 +12803,7 @@ a:hover {
     </message>
     <message>
         <source>You are sniffing the glue that holds your system together using Logray </source>
-        <translation type="unfinished"></translation>
+        <translation>Mit Logray den Kleber schnüffeln, der Ihr System zusammenhält.</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -12754,7 +12811,7 @@ a:hover {
     </message>
     <message>
         <source>You are running Logray </source>
-        <translation type="unfinished"></translation>
+        <translation>Sie nutzen Logray</translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -13035,11 +13092,6 @@ a:hover {
     <message>
         <source>&amp;Contents</source>
         <translation>&amp;Inhalt</translation>
-    </message>
-    <message>
-        <source>Display Filters</source>
-        <oldsource>Wireshark Filter</oldsource>
-        <translation type="unfinished">Wireshark Filter</translation>
     </message>
     <message>
         <source>TShark</source>
@@ -13431,9 +13483,9 @@ a:hover {
         <translation>Vorheriges Paket finden</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Packet(s)</source>
-        <oldsource>&amp;Mark/Unmark Packet</oldsource>
-        <translation>Paket &amp;markieren</translation>
+        <source>&amp;Mark/Unmark Selected</source>
+        <oldsource>&amp;Mark/Unmark Packet(s)</oldsource>
+        <translation type="unfinished">Paket &amp;markieren</translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -13464,9 +13516,9 @@ a:hover {
         <translation>Zum vorherigen markierten Paket gehen</translation>
     </message>
     <message>
-        <source>&amp;Ignore/Unignore Packet(s)</source>
-        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
-        <translation>Paket &amp;ignorieren bzw. zurücksetzen</translation>
+        <source>&amp;Ignore/Unignore Selected</source>
+        <oldsource>&amp;Ignore/Unignore Packet(s)</oldsource>
+        <translation type="unfinished">Paket &amp;ignorieren bzw. zurücksetzen</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -14078,11 +14130,15 @@ a:hover {
     </message>
     <message>
         <source>&amp;3GPP Uu</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;3GPP Uu</translation>
     </message>
     <message>
         <source>&amp;Wireless</source>
         <translation>&amp;Wireless</translation>
+    </message>
+    <message>
+        <source>Display Filters</source>
+        <translation>Anzeigefilter</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
@@ -14182,11 +14238,11 @@ a:hover {
     </message>
     <message>
         <source>E2AP</source>
-        <translation type="unfinished"></translation>
+        <translation>E2AP</translation>
     </message>
     <message>
         <source>E2AP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>E2AP Nachrichten</translation>
     </message>
     <message>
         <source>Decode &amp;As…</source>
@@ -14508,7 +14564,7 @@ a:hover {
     </message>
     <message>
         <source>TLS Keylog Launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>TLS Keylog Launcher</translation>
     </message>
     <message>
         <source>Release Notes</source>
@@ -14852,21 +14908,23 @@ a:hover {
     </message>
     <message>
         <source>Binary plugin (*%1 *%1.[0-9]*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Binary Plugin (*%1 *%1.[0-9]*)</translation>
     </message>
     <message>
         <source>Error removing the old plugin from the personal plugin folder. You may need to close Wireshark first and then manually remove the file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Entfernen des alten Plugins vom persönlichen Plugin-Ordner. Eventuell müssen Sie Wireshark erst schließen und die Datei danach manuell entfernen: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Plugins can execute arbitrary code as the current user. Make sure you trust it before installing.
 
 Continue installing the file &quot;%1&quot; to the personal plugin folder?</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugins können jeglichen Code unter dem aktuellen Benutzer ausführen. Stellen Sie vor dem Installieren die Vertrauenswürdigkeit sicher.
+
+Mit der Installation von &quot;%1&quot; in den persönlichen Plugin-Ordner fortfahren?</translation>
     </message>
     <message>
         <source>Failed to create the directory: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen des Ordners fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>The file already exists. Do you want to overwrite it?</source>

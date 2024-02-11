@@ -81,11 +81,11 @@
     </message>
     <message>
         <source>About Logray</source>
-        <translation type="unfinished"></translation>
+        <translation>Informazioni su Logray</translation>
     </message>
     <message>
         <source>Logray</source>
-        <translation type="unfinished"></translation>
+        <translation>Logray</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -1185,7 +1185,9 @@
         <source>Created by Logray %1
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Creato da Logray %1
+
+</translation>
     </message>
 </context>
 <context>
@@ -1872,6 +1874,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Risolto</translation>
     </message>
     <message>
+        <source>Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alignment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
         <translation>&lt;html&gt;Mostra stringhe comprensibili invece che i valori grezzi dei campi. Applicabile solo alle colonne personalizzate con campi che hanno stringhe con valori.&lt;/html&gt;</translation>
     </message>
@@ -1901,6 +1911,29 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Reset all changes</source>
         <translation>Ripristina tutte le modifiche</translation>
+    </message>
+</context>
+<context>
+    <name>ColumnTypeDelegate</name>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished">Predefinito</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished">Sinistra</translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished">Destra</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation type="unfinished">Sconosciuto</translation>
     </message>
 </context>
 <context>
@@ -3616,9 +3649,21 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Suggerimento.</translation>
     </message>
     <message>
-        <source>Show data as</source>
-        <oldsource>Show and save data as</oldsource>
-        <translation>Mostra dati come</translation>
+        <source>Show as</source>
+        <oldsource>Show data as</oldsource>
+        <translation type="unfinished">Mostra dati come</translation>
+    </message>
+    <message>
+        <source>No delta times</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Turn delta times</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All delta times</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Stream</source>
@@ -6635,6 +6680,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Pacchetto selezionato: %1 %2 </translation>
     </message>
     <message>
+        <source>Selected Event: %1 %2 </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Events: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1 Selected: %2 (%3%)</source>
         <translation> %1 selezionati: %2 (%3%)</translation>
     </message>
@@ -6662,6 +6715,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>No Packets</source>
         <translation>Nessun pacchetto</translation>
+    </message>
+    <message>
+        <source>No Events</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>From Zip File...</source>
@@ -12741,7 +12798,7 @@ a:hover {
     </message>
     <message>
         <source>You are sniffing the glue that holds your system together using Logray </source>
-        <translation type="unfinished"></translation>
+        <translation>Questo è il collante che tiene insieme il tuo sistema usando Logray</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -12749,7 +12806,7 @@ a:hover {
     </message>
     <message>
         <source>You are running Logray </source>
-        <translation type="unfinished"></translation>
+        <translation>Stai eseguendo Logray</translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -13030,11 +13087,6 @@ a:hover {
     <message>
         <source>&amp;Contents</source>
         <translation>&amp;Contenuti</translation>
-    </message>
-    <message>
-        <source>Display Filters</source>
-        <oldsource>Wireshark Filter</oldsource>
-        <translation type="unfinished">Filtro di Wireshark</translation>
     </message>
     <message>
         <source>TShark</source>
@@ -13426,9 +13478,9 @@ a:hover {
         <translation>Vai al pacchetto precedente</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Packet(s)</source>
-        <oldsource>&amp;Mark/Unmark Packet</oldsource>
-        <translation>&amp;Marca/Deseleziona pacchetto</translation>
+        <source>&amp;Mark/Unmark Selected</source>
+        <oldsource>&amp;Mark/Unmark Packet(s)</oldsource>
+        <translation type="unfinished">&amp;Marca/Deseleziona pacchetto</translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -13459,9 +13511,9 @@ a:hover {
         <translation>Val al prossimo pacchetto marchiato</translation>
     </message>
     <message>
-        <source>&amp;Ignore/Unignore Packet(s)</source>
-        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
-        <translation>&amp;Ignora/Considera pacchetto</translation>
+        <source>&amp;Ignore/Unignore Selected</source>
+        <oldsource>&amp;Ignore/Unignore Packet(s)</oldsource>
+        <translation type="unfinished">&amp;Ignora/Considera pacchetto</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -14078,6 +14130,10 @@ a:hover {
     <message>
         <source>&amp;Wireless</source>
         <translation>&amp;Wireless</translation>
+    </message>
+    <message>
+        <source>Display Filters</source>
+        <translation>Filtri di visualizzazione</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>

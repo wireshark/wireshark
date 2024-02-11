@@ -1865,6 +1865,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>해석됨</translation>
     </message>
     <message>
+        <source>Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alignment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
         <translation>&lt;html&gt;필드의 원시값 대신 사람이 읽을 수 있는 문자열로 보여 줍니다. 문자열 값을 갖는 필드를 가진 사용자 지정 칼럼에 대해서만 적용 가능합니다.&lt;/html&gt;</translation>
     </message>
@@ -1894,6 +1902,29 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Reset all changes</source>
         <translation>모든 변경 사항 초기화</translation>
+    </message>
+</context>
+<context>
+    <name>ColumnTypeDelegate</name>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished">기본값</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished">왼쪽</translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished">오른쪽</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation type="unfinished">알 수 없음</translation>
     </message>
 </context>
 <context>
@@ -3599,9 +3630,21 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>필터 힌트.</translation>
     </message>
     <message>
-        <source>Show data as</source>
-        <oldsource>Show and save data as</oldsource>
-        <translation>다음 형식으로 표시:</translation>
+        <source>Show as</source>
+        <oldsource>Show data as</oldsource>
+        <translation type="unfinished">다음 형식으로 표시:</translation>
+    </message>
+    <message>
+        <source>No delta times</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Turn delta times</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All delta times</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Stream</source>
@@ -6615,6 +6658,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>선택된 패킷: %1 %2 </translation>
     </message>
     <message>
+        <source>Selected Event: %1 %2 </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Events: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1 Selected: %2 (%3%)</source>
         <translation> %1 선택됨: %2(%3%)</translation>
     </message>
@@ -6642,6 +6693,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>No Packets</source>
         <translation>패킷 없음</translation>
+    </message>
+    <message>
+        <source>No Events</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>From Zip File...</source>
@@ -13003,11 +13058,6 @@ a:hover {
         <translation>내용(&amp;C)</translation>
     </message>
     <message>
-        <source>Display Filters</source>
-        <oldsource>Wireshark Filter</oldsource>
-        <translation type="unfinished">Wireshark 필터</translation>
-    </message>
-    <message>
         <source>TShark</source>
         <translation>TShark</translation>
     </message>
@@ -13397,9 +13447,9 @@ a:hover {
         <translation>이전 패킷 찾기</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Packet(s)</source>
-        <oldsource>&amp;Mark/Unmark Packet</oldsource>
-        <translation>패킷 마크/해제(&amp;M)</translation>
+        <source>&amp;Mark/Unmark Selected</source>
+        <oldsource>&amp;Mark/Unmark Packet(s)</oldsource>
+        <translation type="unfinished">패킷 마크/해제(&amp;M)</translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -13430,9 +13480,9 @@ a:hover {
         <translation>이전 마크한 패킷으로 이동</translation>
     </message>
     <message>
-        <source>&amp;Ignore/Unignore Packet(s)</source>
-        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
-        <translation>패킷 무시/해제(&amp;I)</translation>
+        <source>&amp;Ignore/Unignore Selected</source>
+        <oldsource>&amp;Ignore/Unignore Packet(s)</oldsource>
+        <translation type="unfinished">패킷 무시/해제(&amp;I)</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -14049,6 +14099,10 @@ a:hover {
     <message>
         <source>&amp;Wireless</source>
         <translation>무선(&amp;W)</translation>
+    </message>
+    <message>
+        <source>Display Filters</source>
+        <translation type="unfinished">표시 필터</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>

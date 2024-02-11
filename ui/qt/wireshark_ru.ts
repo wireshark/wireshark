@@ -1879,6 +1879,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Разрешено</translation>
     </message>
     <message>
+        <source>Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alignment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
         <translation>&lt;html&gt;Показывать человекочитаемые строки вместо необработанных значений полей. Может применяться только к дополнительным столбцам с полями, содержащими строки значений.&lt;/html&gt;</translation>
     </message>
@@ -1908,6 +1916,29 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Reset all changes</source>
         <translation>Сбросить все изменения</translation>
+    </message>
+</context>
+<context>
+    <name>ColumnTypeDelegate</name>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished">По умолчанию</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished">Влево</translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished">Вправо</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation type="unfinished">Неизвестно</translation>
     </message>
 </context>
 <context>
@@ -3633,9 +3664,21 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Подсказка.</translation>
     </message>
     <message>
-        <source>Show data as</source>
-        <oldsource>Show and save data as</oldsource>
-        <translation>Отобразить данные в виде</translation>
+        <source>Show as</source>
+        <oldsource>Show data as</oldsource>
+        <translation type="unfinished">Отобразить данные в виде</translation>
+    </message>
+    <message>
+        <source>No delta times</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Turn delta times</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All delta times</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Stream</source>
@@ -6655,6 +6698,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Выбран пакет: %1 %2 </translation>
     </message>
     <message>
+        <source>Selected Event: %1 %2 </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Events: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> %1 Selected: %2 (%3%)</source>
         <translation> %1 Выбрано: %2 (%3%)</translation>
     </message>
@@ -6682,6 +6733,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>No Packets</source>
         <translation>Пакеты отсутствуют</translation>
+    </message>
+    <message>
+        <source>No Events</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>From Zip File...</source>
@@ -13071,11 +13126,6 @@ a:hover {
         <translation>&amp;Содержание</translation>
     </message>
     <message>
-        <source>Display Filters</source>
-        <oldsource>Wireshark Filter</oldsource>
-        <translation type="unfinished">Фильтр Wireshark</translation>
-    </message>
-    <message>
         <source>TShark</source>
         <translation>TShark</translation>
     </message>
@@ -13465,9 +13515,9 @@ a:hover {
         <translation>Найти предыдущий пакет</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Packet(s)</source>
-        <oldsource>&amp;Mark/Unmark Packet</oldsource>
-        <translation>&amp;Установить/снять отметку пакета (пакетов)</translation>
+        <source>&amp;Mark/Unmark Selected</source>
+        <oldsource>&amp;Mark/Unmark Packet(s)</oldsource>
+        <translation type="unfinished">&amp;Установить/снять отметку пакета (пакетов)</translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -13498,9 +13548,9 @@ a:hover {
         <translation>Перейти к предыдущему отмеченному пакету</translation>
     </message>
     <message>
-        <source>&amp;Ignore/Unignore Packet(s)</source>
-        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
-        <translation>&amp;Игнорировать/отменить игнорирование пакета</translation>
+        <source>&amp;Ignore/Unignore Selected</source>
+        <oldsource>&amp;Ignore/Unignore Packet(s)</oldsource>
+        <translation type="unfinished">&amp;Игнорировать/отменить игнорирование пакета</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -14117,6 +14167,10 @@ a:hover {
     <message>
         <source>&amp;Wireless</source>
         <translation>&amp;Беспроводная связь</translation>
+    </message>
+    <message>
+        <source>Display Filters</source>
+        <translation type="unfinished">Фильтры отображения</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
