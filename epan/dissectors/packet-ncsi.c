@@ -405,7 +405,7 @@ static const value_string ncsi_partner_flow_vals[] = {
     { 0x00, "Not pause capable" },
     { 0x01, "Symmetric pause" },
     { 0x02, "Asymmetric pause" },
-    { 0x03, "Symmetric & Assymetric pause" },
+    { 0x03, "Symmetric & Asymmetric pause" },
     { 0, NULL },
 };
 

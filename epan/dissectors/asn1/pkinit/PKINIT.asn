@@ -1,8 +1,8 @@
---NOTE: we have to accomodate BOTH existing users of early drafts, such as
+--NOTE: we have to accommodate BOTH existing users of early drafts, such as
 --packetcable as well as new users once the protocol is standardized.
 --
 --This asn1 file is based on draft-ietf-cat-kerberos-pk-init-20.txt
---but has been modified to acocmodate the Wireshark asn2wrs compiler
+--but has been modified to accommodate the Wireshark asn2wrs compiler
 --and our environment
 --
 --new structures are uncommented and added on demand as they are required
@@ -18,13 +18,13 @@
 --ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED,
 --INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
 --INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
---WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. 
+--WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 --
 
 KerberosV5-PK-INIT-SPEC {
            iso(1) identified-organization(3) dod(6) internet(1)
-           security(5) kerberosV5(2) modules(4) pkinit(5) } 
-DEFINITIONS EXPLICIT TAGS ::= 
+           security(5) kerberosV5(2) modules(4) pkinit(5) }
+DEFINITIONS EXPLICIT TAGS ::=
 BEGIN
 
 

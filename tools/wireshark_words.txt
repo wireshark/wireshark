@@ -17,7 +17,6 @@ accelerometer
 acceptor
 accessor
 accessors
-accomodate
 accuracies
 acked
 acknack
@@ -101,7 +100,6 @@ assembler
 assignee
 assignor
 assoc
-assymetric
 async
 asynchronous
 asynchronously

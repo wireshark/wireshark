@@ -32,18 +32,18 @@
 --
 --
 --NOTE: This ASN1 definition have been significantly modified from the original
---version in RFC2459 in order to accomodate the featuresets available
+--version in RFC2459 in order to accommodate the feature sets available
 --in the Wireshark projects asn2wrs compiler.
 --It has also been modified and structures have been commented out that
 --are already implemented in the X509 dissectors.
---Dissectors present already in the X509 dissectors should be implemented in 
+--Dissectors present already in the X509 dissectors should be implemented in
 --the template by hand as stubs that will just call the original
 --dissector functions in X509 in order not to duplicate code.
 --
---Structures and constructs in this definition are uncommented and 
+--Structures and constructs in this definition are uncommented and
 --implemented on-demand when someone needs them.
 --
---If you export new types from this file, make sure to update the 
+--If you export new types from this file, make sure to update the
 --pkix1implicit_exp.cnf file with the proper definitions
 
 
@@ -172,7 +172,7 @@ Dummy ::= NULL
 --        issuerDomainPolicy           CertPolicyId,
 --        subjectDomainPolicy          CertPolicyId }
 --
--- Certificate subject and certificate issuer attributes extensions 
+-- Certificate subject and certificate issuer attributes extensions
 --
 --subjectAltName EXTENSION ::= {
 --        SYNTAX  GeneralNames
@@ -190,7 +190,7 @@ Dummy ::= NULL
 --        ediPartyName                [5] EDIPartyName,
 --        uniformResourceIdentifier   [6] IA5String,
 --        iPAddress                   [7] OCTET STRING,
---        registeredID                [8] OBJECT IDENTIFIER 
+--        registeredID                [8] OBJECT IDENTIFIER
 --}
 
 --OTHER-NAME ::= TYPE-IDENTIFIER
@@ -209,7 +209,7 @@ EDIPartyName ::= SEQUENCE {
 --
 --AttributesSyntax ::= SEQUENCE SIZE (1..MAX) OF Attribute
 --
--- Certification path constraints extensions 
+-- Certification path constraints extensions
 --
 --basicConstraints EXTENSION ::= {
 --        SYNTAX  BasicConstraintsSyntax
@@ -247,7 +247,7 @@ EDIPartyName ::= SEQUENCE {
 --
 --SkipCerts ::= INTEGER (0..MAX)
 --
--- Basic CRL extensions 
+-- Basic CRL extensions
 --
 --cRLNumber EXTENSION ::= {
 --        SYNTAX  CRLNumber
@@ -290,7 +290,7 @@ EDIPartyName ::= SEQUENCE {
 --        SYNTAX  GeneralizedTime
 --        IDENTIFIED BY id-ce-invalidityDate }
 --
--- CRL distribution points and delta-CRL extensions 
+-- CRL distribution points and delta-CRL extensions
 --
 --cRLDistributionPoints EXTENSION ::= {
 --
@@ -338,7 +338,7 @@ EDIPartyName ::= SEQUENCE {
 --
 --BaseCRLNumber ::= CRLNumber
 --
--- Object identifier assignments for ISO certificate extensions 
+-- Object identifier assignments for ISO certificate extensions
 --id-ce   OBJECT IDENTIFIER       ::=     {joint-iso-ccitt(2) ds(5) 29}
 --
 --id-ce-subjectDirectoryAttributes   OBJECT IDENTIFIER ::= {id-ce 9}

@@ -2681,7 +2681,7 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         /* Check if additional data is actually selfm PDU data */
         if (tvb_get_guint8(selfm_tvb, selfm_PDU_len) == 0xA5) {
             new_selfm_PDU_len = tvb_get_guint8(selfm_tvb, selfm_PDU_len+2);
-            /* If we still don't have enough data to accomodate the 2 PDUs... */
+            /* If we still don't have enough data to accommodate the 2 PDUs... */
             if (selfm_tvb_len < (selfm_PDU_len + new_selfm_PDU_len)) {
 #if 0
                 fprintf(stderr, "On Packet: %d, continuing to desegment. PDU: %d NewPDU: %d  Still need %d bytes.. \n", pinfo->fd->num, selfm_PDU_len, new_selfm_PDU_len, (selfm_PDU_len + new_selfm_PDU_len) - selfm_tvb_len);

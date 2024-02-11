@@ -2409,7 +2409,7 @@ guint16 blf_get_xml_channel_number(const char* start, const char* end) {
     }
 
     len = (gsize)(end - start);
-    text = g_try_malloc(len + 1);  /* Accomodate '\0' */
+    text = g_try_malloc(len + 1);  /* Accommodate '\0' */
     if (text == NULL) {
         ws_debug("cannot allocate memory");
         return UINT16_MAX;
@@ -2434,7 +2434,7 @@ char* blf_get_xml_channel_name(const char* start, const char* end) {
     }
 
     len = (gsize)(end - start);
-    text = g_try_malloc(len + 1);  /* Accomodate '\0' */
+    text = g_try_malloc(len + 1);  /* Accommodate '\0' */
     if (text == NULL) {
         ws_debug("cannot allocate memory");
         return NULL;
@@ -2460,7 +2460,7 @@ gboolean blf_parse_xml_port(const char* start, const char* end, char** name, gui
     }
 
     len = (gsize)(end - start);
-    text = g_try_malloc(len + 1);  /* Accomodate '\0' */
+    text = g_try_malloc(len + 1);  /* Accommodate '\0' */
     if (text == NULL) {
         ws_debug("cannot allocate memory");
         return FALSE;

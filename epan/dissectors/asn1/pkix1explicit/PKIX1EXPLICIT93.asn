@@ -32,18 +32,18 @@
 --
 --
 --NOTE: This ASN1 definition have been significantly modified from the original
---version in RFC2459 in order to accomodate the featuresets available
+--version in RFC2459 in order to accommodate the feature sets available
 --in the Wireshark projects asn2wrs compiler.
 --It has also been modified and structures have been commented out that
 --are already implemented in the X509 dissectors.
---Dissectors present already in the X509 dissectors should be implemented in 
+--Dissectors present already in the X509 dissectors should be implemented in
 --the template by hand as stubs that will just call the original
 --dissector functions in X509 in order not to duplicate code.
 --
---Structures and constructs in this definition are uncommented and 
+--Structures and constructs in this definition are uncommented and
 --implemented on-demand when someone needs them.
 --
---If you export new types from this file, make sure to update the 
+--If you export new types from this file, make sure to update the
 --pkix1explicit_exp.cnf file with the proper definitions
 
 
@@ -151,7 +151,7 @@ Extensions        ::=   SEQUENCE OF Extension
 Extension         ::=   SEQUENCE {
    extnId            OBJECT IDENTIFIER,
    critical          BOOLEAN DEFAULT FALSE,
-   extnValue         OCTET STRING 
+   extnValue         OCTET STRING
 }
 
 --                contains a DER encoding of a value of type
@@ -187,7 +187,7 @@ Extension         ::=   SEQUENCE {
 --                  Certificate Revocation List
 --
 --CertificateList ::=    SIGNED { SEQUENCE {
---   version                Version  OPTIONAL, 
+--   version                Version  OPTIONAL,
 --                                     if present, shall be v2
 --   signature              AlgorithmIdentifier,
 --   issuer                 Name,
@@ -207,7 +207,7 @@ Extension         ::=   SEQUENCE {
 --   extnValue         OCTET STRING }
 --                 contains a DER encoding of a value of type
 --                 &ExtnType for the
---                 extension object identified by extnId 
+--                 extension object identified by extnId
 --
 -- The following information object set is defined to constrain the
 -- set of legal CRL extensions.
@@ -228,7 +228,7 @@ Extension         ::=   SEQUENCE {
 --   extnValue         OCTET STRING }
 --                 contains a DER encoding of a value of type
 --                 &ExtnType for the
---                 extension object identified by extnId 
+--                 extension object identified by extnId
 --
 -- The following information object set is defined to constrain the
 -- set of legal CRL entry extensions.
@@ -238,10 +238,10 @@ Extension         ::=   SEQUENCE {
 --                                                invalidityDate |
 --                                                certificateIssuer }
 --
---          information object classes used in the defintion 
---                     of certificates and CRLs 
+--          information object classes used in the defintion
+--                     of certificates and CRLs
 --
--- Parameterized Type SIGNED 
+-- Parameterized Type SIGNED
 --
 --  SIGNED { ToBeSigned } ::= SEQUENCE {
 --     toBeSigned  ToBeSigned,
@@ -257,7 +257,7 @@ Extension         ::=   SEQUENCE {
 --AlgorithmIdentifier     ::=  SEQUENCE {
 --   algorithm          ALGORITHM.&id({SupportedAlgorithms}),
 --   parameters         ALGORITHM.&Type({SupportedAlgorithms}
---                                         { @algorithm}) OPTIONAL 
+--                                         { @algorithm}) OPTIONAL
 --}
 
 -- Definition of ALGORITHM
@@ -284,7 +284,7 @@ Extension         ::=   SEQUENCE {
 -- the set is specified as extensible, since additional algorithms
 -- may be supported
 --
---SupportedAlgorithms     ALGORITHM-ID  ::=       { ..., 
+--SupportedAlgorithms     ALGORITHM-ID  ::=       { ...,
 --                                            rsaPublicKey |
 --                                            rsaSHA-1  |
 --                                            rsaMD5 |
@@ -334,9 +334,9 @@ dhpublicnumber OBJECT IDENTIFIER ::= {
      iso(1) member-body(2) us(840) ansi-x942(10046) number-type(2) 1 }
 
 DomainParameters ::= SEQUENCE {
-     p       INTEGER, 
-     g       INTEGER, 
-     q       INTEGER, 
+     p       INTEGER,
+     g       INTEGER,
+     q       INTEGER,
      j       INTEGER OPTIONAL,
      validationParms  ValidationParms OPTIONAL }
 
@@ -355,7 +355,7 @@ ValidationParms ::= SEQUENCE {
 --      The ASN.1 in this section supports the Name type
 --      and the directoryAttribute extension
 --
--- attribute data types 
+-- attribute data types
 --
 --Attribute       ::=     SEQUENCE {
 --        type            ATTRIBUTE.&id ({SupportedAttributes}),
@@ -378,8 +378,8 @@ AttributeTypeAndValue           ::=     SEQUENCE {
 
           -- This one is implemented in the template as just a call to the
           -- corresponding function in x509
---Name            ::=     CHOICE { 
---                                          rdnSequence  RDNSequence 
+--Name            ::=     CHOICE {
+--                                          rdnSequence  RDNSequence
 --}
 
 
@@ -478,11 +478,11 @@ RelativeDistinguishedName       ::= SET OF AttributeTypeAndValue
 --
 --     object identifiers for Name type and directory attribute support
 --
--- Object identifier assignments 
+-- Object identifier assignments
 --
 --id-at   OBJECT IDENTIFIER       ::=     {joint-iso-ccitt(2) ds(5) 4}
 --
--- Attributes 
+-- Attributes
 --
 --id-at-commonName        OBJECT IDENTIFIER       ::=     {id-at 3}
 --id-at-surname           OBJECT IDENTIFIER       ::=     {id-at 4}
@@ -498,7 +498,7 @@ RelativeDistinguishedName       ::= SET OF AttributeTypeAndValue
 --id-at-generationQualifier   OBJECT IDENTIFIER   ::=     {id-at 44}
 --id-at-dnQualifier       OBJECT IDENTIFIER       ::=     {id-at 46}
 --
--- Directory string type, used extensively in Name types 
+-- Directory string type, used extensively in Name types
 --Make it a PrintableString  will amke it look prettier
 DirectoryString ::= PrintableString
 --DirectoryString { INTEGER:maxSize } ::= CHOICE {
@@ -509,11 +509,11 @@ DirectoryString ::= PrintableString
 --        utf8String              UTF8String (SIZE(1..maxSize))
 --                            }
 --
---      End of ASN.1 for Name type and directory attribute support 
+--      End of ASN.1 for Name type and directory attribute support
 --
---      The ASN.1 in this section supports X.400 style names   
---      for implementations that use the x400Address component 
---      of GeneralName.                                        
+--      The ASN.1 in this section supports X.400 style names
+--      for implementations that use the x400Address component
+--      of GeneralName.
 --
 --ORAddress ::= SEQUENCE {
 --   built-in-standard-attributes BuiltInStandardAttributes,
@@ -542,7 +542,7 @@ DirectoryString ::= PrintableString
 --   personal-name        [5] PersonalName OPTIONAL,
 --      see also teletex-personal-name
 --   organizational-unit-names    [6] OrganizationalUnitNames OPTIONAL
---      see also teletex-organizational-unit-names 
+--      see also teletex-organizational-unit-names
 -- }
 --
 --CountryName ::= [APPLICATION 1] CHOICE {

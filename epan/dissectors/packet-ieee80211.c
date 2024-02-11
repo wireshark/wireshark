@@ -40575,7 +40575,7 @@ dissect_ieee80211_withoutfcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  *    - Packets that are supposed to be received by another computer have
  *      the 802.11/LLC headers. ... Also I noticed that when WEP is enabled,
  *      the 802.11 header has the flag "WEP" set to true, but the packet
- *      is already decrypted. I added a test in the code to accomodate this.
+ *      is already decrypted. I added a test in the code to accommodate this.
  *      For TKIP it seems to stay encrypted.
  */
 static int

@@ -324,7 +324,7 @@ static int hf_sprt_payload_msg_init_all_fields;
 static int hf_sprt_payload_msg_init_necrxch;
 static int hf_sprt_payload_msg_init_ecrxch;
 static int hf_sprt_payload_msg_init_xid_prof_exch;
-static int hf_sprt_payload_msg_init_assym_data_types;
+static int hf_sprt_payload_msg_init_asymm_data_types;
 static int hf_sprt_payload_msg_init_opt_moip_types_i_raw_bit;
 static int hf_sprt_payload_msg_init_opt_moip_types_i_frame;
 static int hf_sprt_payload_msg_init_opt_moip_types_i_char_stat;
@@ -894,7 +894,7 @@ dissect_sprt_data(tvbuff_t *tvb,
             proto_tree_add_item(field_subtree, hf_sprt_payload_msg_init_necrxch, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(field_subtree, hf_sprt_payload_msg_init_ecrxch, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(field_subtree, hf_sprt_payload_msg_init_xid_prof_exch, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(field_subtree, hf_sprt_payload_msg_init_assym_data_types, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(field_subtree, hf_sprt_payload_msg_init_asymm_data_types, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(field_subtree, hf_sprt_payload_msg_init_opt_moip_types_i_raw_bit, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(field_subtree, hf_sprt_payload_msg_init_opt_moip_types_i_frame, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(field_subtree, hf_sprt_payload_msg_init_opt_moip_types_i_char_stat, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1776,10 +1776,10 @@ proto_register_sprt(void)
             }
         },
         {
-            &hf_sprt_payload_msg_init_assym_data_types,
+            &hf_sprt_payload_msg_init_asymm_data_types,
             {
                 "Asymmetrical data types",
-                "sprt.payload.msg_init.assym_data_types",
+                "sprt.payload.msg_init.asymm_data_types",
                 FT_BOOLEAN,
                 16,
                 TFS(&tfs_supported_not_supported),

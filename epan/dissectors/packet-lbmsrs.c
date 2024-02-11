@@ -2465,8 +2465,8 @@ static int dissect_lbmsrs_pdus(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
 
     /*get the rsocket frame length*/
     guint32 rsocket_frame_len = tvb_get_guint24(tvb, offset, ENC_BIG_ENDIAN);
-    /*adjust the rscoket tree size correctly so as to accomodate
-    only the available data, its always possible that the rsocket length reported
+    /*adjust the rsocket tree size correctly so as to accommodate
+    only the available data. It's always possible that the rsocket length reported
     in the rsocket PDU is more than the data captured in this packet or vice-versa*/
     guint32 rsocket_tree_length = rsocket_frame_len;
     if (tvb_length < (rsocket_frame_len + rsocket_frame_len_field_size))

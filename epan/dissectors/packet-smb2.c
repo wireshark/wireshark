@@ -492,7 +492,7 @@ static int hf_smb2_share_caps_dfs;
 static int hf_smb2_share_caps_continuous_availability;
 static int hf_smb2_share_caps_scaleout;
 static int hf_smb2_share_caps_cluster;
-static int hf_smb2_share_caps_assymetric;
+static int hf_smb2_share_caps_asymmetric;
 static int hf_smb2_share_caps_redirect_to_owner;
 static int hf_smb2_create_flags;
 static int hf_smb2_lock_count;
@@ -3718,7 +3718,7 @@ dissect_smb2_share_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 #define SHARE_CAPS_CONTINUOUS_AVAILABILITY	0x00000010
 #define SHARE_CAPS_SCALEOUT			0x00000020
 #define SHARE_CAPS_CLUSTER			0x00000040
-#define SHARE_CAPS_ASSYMETRIC			0x00000080
+#define SHARE_CAPS_ASYMMETRIC			0x00000080
 #define SHARE_CAPS_REDIRECT_TO_OWNER		0x00000100
 
 static int
@@ -3729,7 +3729,7 @@ dissect_smb2_share_caps(proto_tree *tree, tvbuff_t *tvb, int offset)
 		&hf_smb2_share_caps_continuous_availability,
 		&hf_smb2_share_caps_scaleout,
 		&hf_smb2_share_caps_cluster,
-		&hf_smb2_share_caps_assymetric,
+		&hf_smb2_share_caps_asymmetric,
 		&hf_smb2_share_caps_redirect_to_owner,
 		NULL
 	};
@@ -13554,9 +13554,9 @@ proto_register_smb2(void)
 			NULL, SHARE_CAPS_CLUSTER, "The specified share is a cluster share", HFILL }
 		},
 
-		{ &hf_smb2_share_caps_assymetric,
-			{ "ASSYMETRIC", "smb2.share_caps.assymetric", FT_BOOLEAN, 32,
-			NULL, SHARE_CAPS_ASSYMETRIC, "The specified share allows dynamic changes in ownership of the share", HFILL }
+		{ &hf_smb2_share_caps_asymmetric,
+			{ "ASYMMETRIC", "smb2.share_caps.asymmetric", FT_BOOLEAN, 32,
+			NULL, SHARE_CAPS_ASYMMETRIC, "The specified share allows dynamic changes in ownership of the share", HFILL }
 		},
 
 		{ &hf_smb2_share_caps_redirect_to_owner,
