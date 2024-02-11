@@ -1934,21 +1934,26 @@ struct usb_device_setup_hdr {
 		PBSWAP64((guint8 *)fieldp); \
 	}
 
-struct can_canfd_socketcan_hdr {
-	guint32 can_id;			/* CAN ID and flags */
-	guint8 payload_length;		/* Frame payload length */
-	guint8 padding;
-	guint8 reserved1;
-	guint8 reserved2;
-};
+/*
+ * Offset and length of the CAN ID field in the CAN classic/CAN FD
+ * SocketCAN header.
+ */
+#define CAN_CANFD_CAN_ID_OFFSET		0
+#define CAN_CANFD_CAN_ID_LEN		4
 
-struct canxl_socketcan_hdr {
-	guint32 priority_vcid;		/* Priority and VCID */
-	guint8 flags;
-	guint8 sdu_type;
-	guint16 payload_length;		/* Frame payload length */
-	guint32 acceptance_field;
-};
+/*
+ * Offsets and lengths of fields in the CAN XL SocketCAN header.
+ */
+#define CANXL_PRIORITY_VCID_OFFSET	0
+#define CANXL_PRIORITY_VCID_LEN		4
+#define CANXL_FLAGS_OFFSET		(CANXL_PRIORITY_VCID_OFFSET + CANXL_PRIORITY_VCID_LEN)
+#define CANXL_FLAGS_LEN			1
+#define CANXL_SDU_TYPE_OFFSET		(CANXL_FLAGS_OFFSET + CANXL_FLAGS_LEN)
+#define CANXL_SDU_TYPE_LEN		1
+#define CANXL_PAYLOAD_LENGTH_OFFSET	(CANXL_SDU_TYPE_OFFSET + CANXL_SDU_TYPE_LEN)
+#define CANXL_PAYLOAD_LENGTH_LEN	2
+#define CANXL_ACCEPTANCE_FIELD_OFFSET	(CANXL_PAYLOAD_LENGTH_OFFSET + CANXL_PAYLOAD_LENGTH_LEN)
+#define CANXL_ACCEPTANCE_FIELD_LEN	4
 
 /*
  * CAN fake link-layer headers in Linux cooked packets.
@@ -1970,9 +1975,6 @@ static void
 pcap_byteswap_can_socketcan_pseudoheader(guint packet_size, guint16 protocol,
     guint8 *pd)
 {
-	struct can_canfd_socketcan_hdr *can_canfd_socketcan_phdr;
-	struct canxl_socketcan_hdr *canxl_socketcan_phdr;
-
 	switch (protocol) {
 
 	case LINUX_SLL_P_CAN:
@@ -1981,19 +1983,13 @@ pcap_byteswap_can_socketcan_pseudoheader(guint packet_size, guint16 protocol,
 		 * CAN classic or CAN FD; byte-swap the ID/flags field
 		 * into our host byte order.
 		 *
-		 * This is a greasy hack, but we never directly dereference
-		 * any of the fields in *can_canfd_socketcan_phdr, we just get
-		 * offsets of and addresses of its members and byte-swap it
-		 * with a byte-at-a-time macro, so it's alignment-safe.
+		 * Make sure we have the entire field.
 		 */
-		can_canfd_socketcan_phdr = (struct can_canfd_socketcan_hdr *)(void *)pd;
-
-		if (packet_size < sizeof(can_canfd_socketcan_phdr->can_id)) {
+		if (packet_size < (CAN_CANFD_CAN_ID_OFFSET + CAN_CANFD_CAN_ID_LEN)) {
 			/* Not enough data to have the full CAN ID */
 			return;
 		}
-
-		PBSWAP32((guint8 *)&can_canfd_socketcan_phdr->can_id);
+		PBSWAP32(&pd[CAN_CANFD_CAN_ID_OFFSET]);
 		break;
 
 	case LINUX_SLL_P_CANXL:
@@ -2001,19 +1997,22 @@ pcap_byteswap_can_socketcan_pseudoheader(guint packet_size, guint16 protocol,
 		 * CAN classic or CAN FD; byte-swap the priority-and-VCID
 		 * field, the payload length, ad the acceptance field
 		 * into our host byte order.
-		 *
-		 * Again, a greasy hack, but alignment-safe.
 		 */
-		canxl_socketcan_phdr = (struct canxl_socketcan_hdr *)(void *)pd;
-
-		if (packet_size < sizeof(*canxl_socketcan_phdr)) {
-			/* Not enough data to have the full CAN XL header */
+		if (packet_size < (CANXL_PRIORITY_VCID_OFFSET + CANXL_PRIORITY_VCID_LEN)) {
+			/* Not enough data to have the full priority/VCID field */
 			return;
 		}
-
-		PBSWAP32((guint8 *)&canxl_socketcan_phdr->priority_vcid);
-		PBSWAP16((guint8 *)&canxl_socketcan_phdr->payload_length);
-		PBSWAP32((guint8 *)&canxl_socketcan_phdr->acceptance_field);
+		PBSWAP32(&pd[CANXL_PRIORITY_VCID_OFFSET]);
+		if (packet_size < (CANXL_PAYLOAD_LENGTH_OFFSET + CANXL_PAYLOAD_LENGTH_LEN)) {
+			/* Not enough data to have the full payload length field */
+			return;
+		}
+		PBSWAP16(&pd[CANXL_PAYLOAD_LENGTH_OFFSET]);
+		if (packet_size < (CANXL_ACCEPTANCE_FIELD_OFFSET + CANXL_ACCEPTANCE_FIELD_LEN)) {
+			/* Not enough data to have the full payload length field */
+			return;
+		}
+		PBSWAP32(&pd[CANXL_ACCEPTANCE_FIELD_OFFSET]);
 		break;
 
 	default:
