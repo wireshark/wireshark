@@ -661,28 +661,28 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         col_clear(pinfo->cinfo, COL_INFO);
 
         can_info.id = 0; /* XXX - is there an "ID" for XL frames? */
-        can_info.len = tvb_get_guint16(tvb, CANXL_LEN_OFFSET, xl_encoding);
-
-        guint32 effective_can_id = 0; /* Again, XXX */
-
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %u (0x%08x), Length: %u", "ID", effective_can_id, effective_can_id, can_info.len);
-
-        socketcan_set_source_and_destination_columns(pinfo, &can_info);
 
         ti = proto_tree_add_item(tree, proto_can, tvb, 0, -1, ENC_NA);
         proto_item_set_hidden(ti);
         ti = proto_tree_add_item(tree, proto_canxl, tvb, 0, -1, ENC_NA);
         can_tree = proto_item_add_subtree(ti, ett_can_xl);
 
-        proto_item_append_text(can_tree, ", %s: %u (0x%08x), Length: %u", "ID", effective_can_id, effective_can_id, can_info.len);
+        guint32 proto_vcid;
 
         proto_tree_add_bitmask_list(can_tree, tvb, 0, 4, canxl_prio_vcid_fields, xl_encoding);
+        proto_vcid = tvb_get_ntohl(tvb, 0);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Priority: %u (0x%03x), VCID: %u (0x%02X)", proto_vcid & 0x7FF, proto_vcid & 0x7FF, (proto_vcid >> 16) & 0xFF, (proto_vcid >> 16) & 0xFF);
+        proto_item_append_text(can_tree, ", Priority: %u (0x%03x), VCID: %u (0x%02X)", proto_vcid & 0x7FF, proto_vcid & 0x7FF, (proto_vcid >> 16) & 0xFF, (proto_vcid >> 16) & 0xFF);
         proto_tree_add_bitmask_list(can_tree, tvb, 4, 1, canxl_flag_fields, xl_encoding);
+
+        socketcan_set_source_and_destination_columns(pinfo, &can_info);
 
         guint32 sdu_type;
 
         proto_tree_add_item_ret_uint(can_tree, hf_canxl_sdu_type, tvb, 5, 1, ENC_NA, &sdu_type);
-        proto_tree_add_item(can_tree, hf_canxl_len, tvb, CANXL_LEN_OFFSET, 2, xl_encoding);
+        proto_tree_add_item_ret_uint(can_tree, hf_canxl_len, tvb, CANXL_LEN_OFFSET, 2, xl_encoding, &can_info.len);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Length: %u", can_info.len);
+        proto_item_append_text(can_tree, ", Length: %u", can_info.len);
         proto_tree_add_item(can_tree, hf_canxl_acceptance_field, tvb, CANXL_LEN_OFFSET+2, 4, xl_encoding);
 
         tvbuff_t   *next_tvb;
