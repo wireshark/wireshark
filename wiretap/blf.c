@@ -1036,6 +1036,11 @@ blf_pull_next_logcontainer(blf_params_t* params, int* err, gchar** err_info) {
     if (!blf_find_next_logcontainer(params, err, err_info)) {
         return FALSE;
     }
+    /* Is there a next log container to pull? */
+    if (params->blf_data->log_containers->len == 0) {
+        /* No. */
+        return FALSE;
+    }
     container = &g_array_index(params->blf_data->log_containers, blf_log_container_t, params->blf_data->log_containers->len - 1);
     if (!blf_pull_logcontainer_into_memory(params, container, err, err_info)) {
         return FALSE;
