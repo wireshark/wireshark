@@ -5687,7 +5687,7 @@ static gboolean tcp_ignore_timestamps = FALSE;
 static int
 dissect_tcpopt_timestamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_item *ti;
+    proto_item *ti, *tsval_ti;
     proto_tree *ts_tree;
     proto_item *length_item;
     int offset = 0;
@@ -5706,7 +5706,7 @@ dissect_tcpopt_timestamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     if (!tcp_option_len_check(length_item, pinfo, len, TCPOLEN_TIMESTAMP))
         return tvb_captured_length(tvb);
 
-    ti = proto_tree_add_item_ret_uint(ts_tree, hf_tcp_option_timestamp_tsval, tvb, offset,
+    tsval_ti = proto_tree_add_item_ret_uint(ts_tree, hf_tcp_option_timestamp_tsval, tvb, offset,
                         4, ENC_BIG_ENDIAN, &ts_val);
 
     proto_tree_add_item_ret_uint(ts_tree, hf_tcp_option_timestamp_tsecr, tvb, offset + 4,
@@ -5720,7 +5720,7 @@ dissect_tcpopt_timestamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
     if (read_seq_as_syn_cookie) {
       proto_item_append_text(ti, " (syn cookie)");
-      proto_item* syncookie_ti = proto_item_add_subtree(ti, ett_tcp_syncookie_option);
+      proto_item* syncookie_ti = proto_item_add_subtree(tsval_ti, ett_tcp_syncookie_option);
       guint32 timestamp = tvb_get_bits32(tvb, offset * 8, 26, ENC_NA) << 6;
       proto_tree_add_uint_bits_format_value(syncookie_ti, hf_tcp_syncookie_option_timestamp, tvb, offset * 8,
         26, timestamp, ENC_TIME_SECS, "%s", abs_time_secs_to_str(pinfo->pool, timestamp, ABSOLUTE_TIME_LOCAL, TRUE));
