@@ -669,8 +669,13 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
         guint32 proto_vcid;
 
-        proto_tree_add_bitmask_list(can_tree, tvb, 0, 4, canxl_prio_vcid_fields, xl_encoding);
-        proto_vcid = tvb_get_guint32(tvb, 0, xl_encoding);
+	/*
+	 * The priority/VCID field is big-endian in LINKTYPE_CAN_SOCKETCAN
+	 * captures, for historical reasons.  It's host-endian in
+	 * Linux cooked captures.  This means we use the non-XL encoding.
+	 */
+        proto_tree_add_bitmask_list(can_tree, tvb, 0, 4, canxl_prio_vcid_fields, encoding);
+        proto_vcid = tvb_get_guint32(tvb, 0, encoding);
         col_add_fstr(pinfo->cinfo, COL_INFO, "Priority: %u (0x%03x), VCID: %u (0x%02X)", proto_vcid & 0x7FF, proto_vcid & 0x7FF, (proto_vcid >> 16) & 0xFF, (proto_vcid >> 16) & 0xFF);
         proto_item_append_text(can_tree, ", Priority: %u (0x%03x), VCID: %u (0x%02X)", proto_vcid & 0x7FF, proto_vcid & 0x7FF, (proto_vcid >> 16) & 0xFF, (proto_vcid >> 16) & 0xFF);
         proto_tree_add_bitmask_list(can_tree, tvb, 4, 1, canxl_flag_fields, xl_encoding);
@@ -679,6 +684,10 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
         guint32 sdu_type;
 
+	/*
+	 * These fields are, if multi-byte, little-endian in
+	 * LINKTYPE_CAN_SOCKETCAN captures, so use xl_encoding.
+	 */
         proto_tree_add_item_ret_uint(can_tree, hf_canxl_sdu_type, tvb, 5, 1, ENC_NA, &sdu_type);
         proto_tree_add_item_ret_uint(can_tree, hf_canxl_len, tvb, CANXL_LEN_OFFSET, 2, xl_encoding, &can_info.len);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Length: %u", can_info.len);
