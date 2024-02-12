@@ -69,26 +69,16 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
         return FALSE;
     }
 
-    /* Generate Exported PDU tags for the packet info */
     ws_buffer_clean(buf);
-    if (is_fd)
-    {
-        wtap_buffer_append_epdu_string(buf, EXP_PDU_TAG_DISSECTOR_NAME, "canfd");
-    }
-    else
-    {
-        wtap_buffer_append_epdu_string(buf, EXP_PDU_TAG_DISSECTOR_NAME, "can-hostendian");
-    }
-    wtap_buffer_append_epdu_end(buf);
 
     if (is_fd)
     {
         canfd_frame_t canfd_frame = {0};
 
-        canfd_frame.can_id = (msg->id & (is_eff ? CAN_EFF_MASK : CAN_SFF_MASK)) |
+        canfd_frame.can_id = g_ntohl((msg->id & (is_eff ? CAN_EFF_MASK : CAN_SFF_MASK)) |
             (is_eff ? CAN_EFF_FLAG : 0) |
-            (is_err ? CAN_ERR_FLAG : 0);
-        canfd_frame.flags  = 0;
+            (is_err ? CAN_ERR_FLAG : 0));
+        canfd_frame.flags  = CANFD_FDF;
         canfd_frame.len    = msg->data.length;
 
         memcpy(canfd_frame.data,
@@ -103,10 +93,10 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
     {
         can_frame_t can_frame = {0};
 
-        can_frame.can_id  = (msg->id & (is_eff ? CAN_EFF_MASK : CAN_SFF_MASK)) |
+        can_frame.can_id  = g_ntohl((msg->id & (is_eff ? CAN_EFF_MASK : CAN_SFF_MASK)) |
             (is_rtr ? CAN_RTR_FLAG : 0) |
             (is_eff ? CAN_EFF_FLAG : 0) |
-            (is_err ? CAN_ERR_FLAG : 0);
+            (is_err ? CAN_ERR_FLAG : 0));
         can_frame.can_dlc = msg->data.length;
 
         memcpy(can_frame.data,
@@ -251,7 +241,7 @@ busmaster_open(wtap *wth, int *err, char **err_info)
     wth->subtype_read      = busmaster_read;
     wth->subtype_seek_read = busmaster_seek_read;
     wth->file_type_subtype = busmaster_file_type_subtype;
-    wth->file_encap        = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
+    wth->file_encap        = WTAP_ENCAP_SOCKETCAN;
     wth->file_tsprec       = WTAP_TSPREC_USEC;
 
     return WTAP_OPEN_MINE;
