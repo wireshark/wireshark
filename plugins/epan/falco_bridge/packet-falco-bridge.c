@@ -1141,6 +1141,8 @@ const char *st_str_container_total_io = "Total";
 static void container_io_stats_tree_init(stats_tree* st _U_)
 {
     stats_tree_create_node(st, st_str_container_total_io, 0, STAT_DT_INT, TRUE);
+    stat_node_set_flags(st, st_str_container_total_io, 0, FALSE, ST_FLG_SORT_TOP);
+
 }
 
 static tap_packet_status container_io_stats_tree_event(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* tap_info_p, tap_flags_t flags _U_)
