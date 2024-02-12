@@ -779,7 +779,7 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
     const char* io_buffer = NULL;
     uint32_t io_buffer_len = 0;
 
-    const char *container_id = "<host>";
+    const char *container_id = "host";
     const char *proc_name = NULL;
     const char *fd_name = NULL;
 
