@@ -124,7 +124,6 @@ static const gchar* st_str_service_unsolicited = "no. of unsolicited responses";
 static const gchar* st_str_service_retransmission = "no. of retransmissions";
 static const gchar* st_str_service_rrt = "request-response time (msec)";
 
-static int st_node_packets = -1;
 static int st_node_packet_qr = -1;
 static int st_node_packet_qtypes = -1;
 static int st_node_packet_qnames = -1;
@@ -4843,13 +4842,14 @@ dissect_dns_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 static void dns_stats_tree_init(stats_tree* st)
 {
-  st_node_packets = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, TRUE);
-  st_node_packet_qr = stats_tree_create_pivot(st, st_str_packet_qr, st_node_packets);
-  st_node_packet_qtypes = stats_tree_create_pivot(st, st_str_packet_qtypes, st_node_packets);
-  st_node_packet_qnames = stats_tree_create_pivot(st, st_str_packet_qnames, st_node_packets);
-  st_node_packet_qclasses = stats_tree_create_pivot(st, st_str_packet_qclasses, st_node_packets);
-  st_node_packet_rcodes = stats_tree_create_pivot(st, st_str_packet_rcodes, st_node_packets);
-  st_node_packet_opcodes = stats_tree_create_pivot(st, st_str_packet_opcodes, st_node_packets);
+  stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, TRUE);
+  stat_node_set_flags(st, st_str_packets, 0, FALSE, ST_FLG_SORT_TOP);
+  st_node_packet_qr = stats_tree_create_pivot(st, st_str_packet_qr, 0);
+  st_node_packet_qtypes = stats_tree_create_pivot(st, st_str_packet_qtypes, 0);
+  st_node_packet_qnames = stats_tree_create_pivot(st, st_str_packet_qnames, 0);
+  st_node_packet_qclasses = stats_tree_create_pivot(st, st_str_packet_qclasses, 0);
+  st_node_packet_rcodes = stats_tree_create_pivot(st, st_str_packet_rcodes, 0);
+  st_node_packet_opcodes = stats_tree_create_pivot(st, st_str_packet_opcodes, 0);
   st_node_packets_avg_size = stats_tree_create_node(st, st_str_packets_avg_size, 0, STAT_DT_INT, FALSE);
   st_node_query_stats = stats_tree_create_node(st, st_str_query_stats, 0, STAT_DT_INT, TRUE);
   st_node_query_qname_len = stats_tree_create_node(st, st_str_query_qname_len, st_node_query_stats, STAT_DT_INT, FALSE);
