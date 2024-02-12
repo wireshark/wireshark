@@ -7104,10 +7104,10 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 					offset_e = (int)strlen(expr);
 				} else if (hfinfo->type == FT_NONE || hfinfo->type == FT_PROTOCOL) {
 					/* Prevent multiple check marks */
-					if (strstr(result, UTF8_CHECK_MARK ",") == NULL) {
-						offset_e += proto_item_fill_display_label(finfo, result+offset_e, size-offset_e);
+					if (strstr(expr, UTF8_CHECK_MARK ",") == NULL) {
+						offset_e += proto_item_fill_display_label(finfo, expr+offset_e, size-offset_e);
 					} else {
-						result[--offset_e] = '\0'; /* Remove the added trailing ',' again */
+						expr[--offset_e] = '\0'; /* Remove the added trailing ',' again */
 					}
 				} else {
 					str = fvalue_to_string_repr(NULL, finfo->value, FTREPR_DISPLAY, finfo->hfinfo->display);
