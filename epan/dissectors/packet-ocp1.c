@@ -1,7 +1,7 @@
 /* packet-ocp1.c
  * Dissector for Open Control Protocol OCP.1/AES70
  *
- * Copyright (c) 2021-2022 by Martin Mayer <martin.mayer@m2-it-solutions.de>
+ * Copyright (c) 2021-2024 by Martin Mayer <martin.mayer@m2-it-solutions.de>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,6 +19,7 @@
 #define OCP1_SYNC_VAL                0x3B
 #define OCP1_PROTO_VER             0x0001
 #define OCP1_FRAME_HEADER_LEN          10
+#define OCP1_MESSAGE_SIZE_LEN           4
 
 /* PDU Types */
 #define OCP1_PDU_TYPE_OCA_CMD        0x00
@@ -158,6 +159,7 @@ static int hf_ocp1_params_media_coding_scheme_id;
 /* Expert fields */
 static expert_field ei_ocp1_handle_fail;
 static expert_field ei_ocp1_bad_status_code;
+static expert_field ei_ocp1_invalid_length;
 
 /* Trees */
 static gint ett_ocp1;
@@ -2316,8 +2318,8 @@ dissect_ocp1_msg_command(tvbuff_t *tvb, gint offset, gint length, packet_info *p
 
     gint offset_m = offset;
 
-    proto_tree_add_item(message_tree, hf_ocp1_message_size, tvb, offset_m, 4, ENC_BIG_ENDIAN);
-    offset_m += 4;
+    proto_tree_add_item(message_tree, hf_ocp1_message_size, tvb, offset_m, OCP1_MESSAGE_SIZE_LEN, ENC_BIG_ENDIAN);
+    offset_m += OCP1_MESSAGE_SIZE_LEN;
 
     proto_tree_add_item(message_tree, hf_ocp1_message_handle, tvb, offset_m, 4, ENC_BIG_ENDIAN);
     offset_m += 4;
@@ -2390,8 +2392,8 @@ dissect_ocp1_msg_notification(tvbuff_t *tvb, gint offset, gint length, proto_tre
 
     gint offset_m = offset;
 
-    proto_tree_add_item(message_tree, hf_ocp1_message_size, tvb, offset_m, 4, ENC_BIG_ENDIAN);
-    offset_m += 4;
+    proto_tree_add_item(message_tree, hf_ocp1_message_size, tvb, offset_m, OCP1_MESSAGE_SIZE_LEN, ENC_BIG_ENDIAN);
+    offset_m += OCP1_MESSAGE_SIZE_LEN;
 
     t_occ = proto_tree_add_item(message_tree, hf_ocp1_message_occ, tvb, offset_m, 8, ENC_BIG_ENDIAN);
     proto_item_set_generated(t_occ);
@@ -2452,8 +2454,8 @@ dissect_ocp1_msg_response(tvbuff_t *tvb, gint offset, gint length, packet_info *
 
     gint offset_m = offset;
 
-    proto_tree_add_item(message_tree, hf_ocp1_message_size, tvb, offset_m, 4, ENC_BIG_ENDIAN);
-    offset_m += 4;
+    proto_tree_add_item(message_tree, hf_ocp1_message_size, tvb, offset_m, OCP1_MESSAGE_SIZE_LEN, ENC_BIG_ENDIAN);
+    offset_m += OCP1_MESSAGE_SIZE_LEN;
 
     proto_tree_add_item(message_tree, hf_ocp1_message_handle, tvb, offset_m, 4, ENC_BIG_ENDIAN);
     offset_m += 4;
@@ -2512,6 +2514,7 @@ dissect_ocp1_pdu(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *tre
 
     guint offset_d = offset;                         /* Increment counter for dissection */
     guint offset_m = offset + OCP1_FRAME_HEADER_LEN; /* Set offset to start of first message, will increment to next message later */
+    guint message_size;                              /* Message size (per iteration) */
 
     if (tvb_captured_length_remaining(tvb, offset) < OCP1_FRAME_HEADER_LEN)
         return offset;
@@ -2578,8 +2581,14 @@ dissect_ocp1_pdu(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *tre
 
             while (offset_m < (offset + header_pdu_size + 1)) {
                 /* first 4 byte of message is command size (incl. these 4 bytes) */
+                message_size = tvb_get_guint32(tvb, offset_m, ENC_BIG_ENDIAN);
+                if(message_size < OCP1_MESSAGE_SIZE_LEN) {
+                    expert_add_info(pinfo, pdu_tree, &ei_ocp1_invalid_length);
+                    return 0;
+                }
+
                 dissect_ocp1_msg_command(tvb, offset_m, tvb_get_guint32(tvb, offset_m, ENC_BIG_ENDIAN), pinfo, pdu_tree, msg_counter);
-                offset_m += tvb_get_guint32(tvb, offset_m, ENC_BIG_ENDIAN);
+                offset_m += message_size;
                 msg_counter++;
             }
 
@@ -2588,8 +2597,14 @@ dissect_ocp1_pdu(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *tre
 
             while (offset_m < (offset + header_pdu_size + 1)) {
                 /* first 4 byte of message is command size (incl. these 4 bytes) */
+                message_size = tvb_get_guint32(tvb, offset_m, ENC_BIG_ENDIAN);
+                if(message_size < OCP1_MESSAGE_SIZE_LEN) {
+                    expert_add_info(pinfo, pdu_tree, &ei_ocp1_invalid_length);
+                    return 0;
+                }
+
                 dissect_ocp1_msg_notification(tvb, offset_m, tvb_get_guint32(tvb, offset_m, ENC_BIG_ENDIAN), pdu_tree, msg_counter);
-                offset_m += tvb_get_guint32(tvb, offset_m, ENC_BIG_ENDIAN);
+                offset_m += message_size;
                 msg_counter++;
             }
 
@@ -2598,8 +2613,13 @@ dissect_ocp1_pdu(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *tre
 
             while (offset_m < (offset + header_pdu_size + 1)) {
                 /* first 4 byte of message is response size (incl. these 4 bytes) */
+                message_size = tvb_get_guint32(tvb, offset_m, ENC_BIG_ENDIAN);
+                if(message_size < OCP1_MESSAGE_SIZE_LEN) {
+                    expert_add_info(pinfo, pdu_tree, &ei_ocp1_invalid_length);
+                    return 0;
+                }
                 dissect_ocp1_msg_response(tvb, offset_m, tvb_get_guint32(tvb, offset_m, ENC_BIG_ENDIAN), pinfo, pdu_tree, msg_counter);
-                offset_m += tvb_get_guint32(tvb, offset_m, ENC_BIG_ENDIAN);
+                offset_m += message_size;
                 msg_counter++;
             }
 
@@ -3288,6 +3308,10 @@ proto_register_ocp1(void)
         { &ei_ocp1_bad_status_code,
             { "ocp1.bad_status_code", PI_RESPONSE_CODE, PI_ERROR,
                 "Status code indicates failed command", EXPFILL }
+        },
+        { &ei_ocp1_invalid_length,
+            { "ocp1.invalid_length", PI_MALFORMED, PI_ERROR,
+                "Size or length field has invalid value", EXPFILL }
         }
     };
 
