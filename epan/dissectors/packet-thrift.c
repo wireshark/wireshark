@@ -651,10 +651,27 @@ dissect_thrift_field_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 expert_add_info(pinfo, header->fid_pi, &ei_thrift_unordered_field_id);
             }
         }
-    } else if (header->fid_length <= 0) {
-        /* Varint for field id was too long to decode, handle the error without the sub-tree. */
-        proto_tree_add_expert(tree, pinfo, &ei_thrift_varint_too_large, tvb, header->fid_offset, TCP_THRIFT_MAX_I16_LEN);
-        return THRIFT_REQUEST_REASSEMBLY;
+    } else {
+        /* The fid_pi value (proto_item for field_id) is required for sub-dissectors.
+         * Create it even in the absence of tree. */
+        if (delta == TCP_THRIFT_DELTA_NOT_SET) {
+            if (header->fid_length > 0) {
+                header->fid_pi = proto_tree_add_item(header->fh_tree, hf_thrift_fid, tvb, header->fid_offset, header->fid_length, ENC_BIG_ENDIAN);
+            } else {
+                /* Varint for field id was too long to decode, handle the error without the sub-tree. */
+                proto_tree_add_expert(tree, pinfo, &ei_thrift_varint_too_large, tvb, header->fid_offset, TCP_THRIFT_MAX_I16_LEN);
+                return THRIFT_REQUEST_REASSEMBLY;
+            }
+        } else {
+            if ((gint64)INT16_MIN > header->field_id || header->field_id > (gint64)INT16_MAX) {
+                header->fid_pi = proto_tree_add_int64(header->fh_tree, hf_thrift_i64, tvb, header->fid_offset, header->fid_length, header->field_id);
+                expert_add_info(pinfo, header->fid_pi, &ei_thrift_varint_too_large);
+                /* We continue anyway as the field id was displayed successfully. */
+            } else {
+                header->fid_pi = proto_tree_add_int(header->fh_tree, hf_thrift_fid, tvb, header->fid_offset, header->fid_length, (gint16)header->field_id);
+            }
+            proto_item_set_generated(header->fid_pi);
+        }
     }
 
     return *offset;
