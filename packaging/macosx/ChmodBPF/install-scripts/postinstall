@@ -33,4 +33,9 @@ chown root:wheel "$CHMOD_BPF_PLIST"
 # Clean up our legacy startup item if it's still around.
 rm -rf /Library/StartupItems/ChmodBPF
 
+# Try to bootout first, otherwise bootstrap will fail with
+#   "Bootstrap failed: 5: Input/output error"
+# if org.wireshark.ChmodBPF is already loaded.
+launchctl bootout system "$CHMOD_BPF_PLIST" > /dev/null 2>&1
+
 launchctl bootstrap system "$CHMOD_BPF_PLIST"
