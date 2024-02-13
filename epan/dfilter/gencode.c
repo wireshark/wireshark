@@ -658,6 +658,18 @@ gen_exists(dfwork_t *dfw, stnode_t *st_node)
 }
 
 static dfvm_value_t*
+gen_field(dfwork_t *dfw, stnode_t *st_node)
+{
+	dfvm_value_t	*val1;
+	GSList		*jumps = NULL;
+
+	val1 = gen_entity(dfw, st_node, &jumps);
+	g_slist_foreach(jumps, fixup_jumps, dfw);
+	g_slist_free(jumps);
+	return val1;
+}
+
+static dfvm_value_t*
 gen_notzero(dfwork_t *dfw, stnode_t *st_node)
 {
 	dfvm_insn_t	*insn;
@@ -805,12 +817,22 @@ static dfvm_value_t*
 gencode(dfwork_t *dfw, stnode_t *st_node)
 {
 	dfvm_value_t* val = NULL;
+	/* If the root of the tree is a field, load and return the
+	 * values if we were asked to do so. If not, or anywhere
+	 * other than the root, just test for existence.
+	 */
+	bool return_val = dfw->flags & DF_RETURN_VALUES;
+	dfw->flags &= ~DF_RETURN_VALUES;
 	switch (stnode_type_id(st_node)) {
 		case STTYPE_TEST:
 			gen_test(dfw, st_node);
 			break;
 		case STTYPE_FIELD:
-			gen_exists(dfw, st_node);
+			if (return_val) {
+				val = gen_field(dfw, st_node);
+			} else {
+				gen_exists(dfw, st_node);
+			}
 			break;
 		case STTYPE_ARITHMETIC:
 		case STTYPE_FUNCTION:

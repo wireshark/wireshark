@@ -49,6 +49,7 @@ static int opt_debug_level = 0; /* currently up to 2 */
 static int opt_flex = 0;
 static int opt_lemon = 0;
 static int opt_syntax_tree = 0;
+static int opt_return_vals = 0;
 static int opt_timer = 0;
 static long opt_optimize = 1;
 static int opt_show_types = 0;
@@ -108,6 +109,7 @@ print_usage(int status)
     fprintf(fp, "  -s, --syntax        print syntax tree\n");
     fprintf(fp, "  -m  --macros        print saved macros\n");
     fprintf(fp, "  -t, --timer         print elapsed compilation time\n");
+    fprintf(fp, "  -r  --return-vals   return field values for the tree root\n");
     fprintf(fp, "  -0, --optimize=0    do not optimize (check syntax)\n");
     fprintf(fp, "      --types         show field value types\n");
     /* NOTE: References are loaded during runtime and dftest only does compilation.
@@ -216,6 +218,8 @@ compile_filter(const char *text, dfilter_t **dfp)
         df_flags |= DF_DEBUG_FLEX;
     if (opt_lemon)
         df_flags |= DF_DEBUG_LEMON;
+    if (opt_return_vals)
+        df_flags |= DF_RETURN_VALUES;
 
     start = g_get_monotonic_time();
     ok = dfilter_compile_full(text, dfp, &df_err, df_flags, "dftest");
@@ -278,7 +282,7 @@ main(int argc, char **argv)
 
     ws_init_version_info("DFTest", NULL, NULL);
 
-    const char *optstring = "hvdDflsmtV0";
+    const char *optstring = "hvdDflsmrtV0";
     static struct ws_option long_options[] = {
         { "help",     ws_no_argument,   0,  'h' },
         { "version",  ws_no_argument,   0,  'v' },
@@ -289,6 +293,7 @@ main(int argc, char **argv)
         { "macros",   ws_no_argument,   0,  'm' },
         { "timer",    ws_no_argument,   0,  't' },
         { "verbose",  ws_no_argument,   0,  'V' },
+        { "return-vals", ws_no_argument,   0,  'r' },
         { "optimize", ws_required_argument, 0, 1000 },
         { "types",    ws_no_argument,   0, 2000 },
         { "refs",     ws_no_argument,   0, 3000 },
@@ -334,6 +339,9 @@ main(int argc, char **argv)
                 break;
             case 't':
                 opt_timer = 1;
+                break;
+            case 'r':
+                opt_return_vals = 1;
                 break;
             case '0':
                 opt_optimize = 0;

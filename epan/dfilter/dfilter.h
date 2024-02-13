@@ -73,6 +73,9 @@ dfilter_expand(const char *expr, df_error_t **err_ret);
 #define DF_DEBUG_FLEX		(1U << 3)
 /* Enable debug trace for lemon. */
 #define DF_DEBUG_LEMON		(1U << 4)
+/* If the root of the syntax tree is a field, load and return the field values.
+ * By default the field is only checked for existence. */
+#define DF_RETURN_VALUES        (1U << 5)
 
 /* Compiles a string to a dfilter_t.
  * On success, sets the dfilter* pointed to by dfp
