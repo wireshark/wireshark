@@ -75,7 +75,7 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
     {
         canfd_frame_t canfd_frame = {0};
 
-        canfd_frame.can_id = g_ntohl((msg->id & (is_eff ? CAN_EFF_MASK : CAN_SFF_MASK)) |
+        canfd_frame.can_id = g_htonl((msg->id & (is_eff ? CAN_EFF_MASK : CAN_SFF_MASK)) |
             (is_eff ? CAN_EFF_FLAG : 0) |
             (is_err ? CAN_ERR_FLAG : 0));
         canfd_frame.flags  = CANFD_FDF;
@@ -93,7 +93,7 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
     {
         can_frame_t can_frame = {0};
 
-        can_frame.can_id  = g_ntohl((msg->id & (is_eff ? CAN_EFF_MASK : CAN_SFF_MASK)) |
+        can_frame.can_id  = g_htonl((msg->id & (is_eff ? CAN_EFF_MASK : CAN_SFF_MASK)) |
             (is_rtr ? CAN_RTR_FLAG : 0) |
             (is_eff ? CAN_EFF_FLAG : 0) |
             (is_err ? CAN_ERR_FLAG : 0));
