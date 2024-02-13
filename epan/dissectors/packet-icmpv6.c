@@ -235,6 +235,7 @@ static int hf_icmpv6_opt_dnssl;
 static int hf_icmpv6_opt_aro_status;
 static int hf_icmpv6_opt_earo_opaque;
 static int hf_icmpv6_opt_earo_flag;
+static int hf_icmpv6_opt_earo_flag_p;
 static int hf_icmpv6_opt_earo_flag_i;
 static int hf_icmpv6_opt_earo_flag_t;
 static int hf_icmpv6_opt_earo_flag_r;
@@ -1097,9 +1098,17 @@ static const value_string nd_opt_earo_status_val[] = {
     { 0,  NULL }
 };
 
+#define ND_OPT_EARO_FLAG_P 0x30
 #define ND_OPT_EARO_FLAG_I 0x0C
 #define ND_OPT_EARO_FLAG_R 0x02
 #define ND_OPT_EARO_FLAG_T 0x01
+
+static const value_string nd_opt_earo_p_val[] = {
+    { 0, "Unicast" },
+    { 1, "Multicast" },
+    { 2, "Anycast" },
+    { 0, NULL }
+};
 
 static const value_string nd_opt_earo_i_val[] = {
     { 0, "Default" },
@@ -2533,6 +2542,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 /* 6lowpan-ND */
                 guint8 status;
                 static int * const earo_flags[] = {
+                    &hf_icmpv6_opt_earo_flag_p,
                     &hf_icmpv6_opt_earo_flag_i,
                     &hf_icmpv6_opt_earo_flag_r,
                     &hf_icmpv6_opt_earo_flag_t,
@@ -5385,6 +5395,9 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_opt_earo_flag,
           { "Flags", "icmpv6.opt.earo.flag", FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
+        { &hf_icmpv6_opt_earo_flag_p,
+          { "P", "icmpv6.opt.earo.flag.p", FT_UINT8, BASE_DEC, VALS(nd_opt_earo_p_val), ND_OPT_EARO_FLAG_P,
+            "Registered address type", HFILL }},
         { &hf_icmpv6_opt_earo_flag_i,
           { "I", "icmpv6.opt.earo.flag.i", FT_UINT8, BASE_DEC, VALS(nd_opt_earo_i_val), ND_OPT_EARO_FLAG_I,
             "Indicates the contents of the Opaque field", HFILL }},
