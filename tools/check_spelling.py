@@ -11,6 +11,7 @@ import re
 import subprocess
 import argparse
 import signal
+import glob
 from collections import Counter
 
 # Looks for spelling errors among strings found in source or documentation files.
@@ -427,8 +428,10 @@ def checkFile(filename, check_comments=False):
 parser = argparse.ArgumentParser(description='Check spellings in specified files')
 parser.add_argument('--file', action='append',
                     help='specify individual file to test')
-parser.add_argument('--folder', action='store', default='',
+parser.add_argument('--folder', action='append',
                     help='specify folder to test')
+parser.add_argument('--glob', action='store', default='',
+                    help='specify glob to test - should give in "quotes"')
 parser.add_argument('--no-recurse', action='store_true', default='',
                     help='do not recurse inside chosen folder')
 parser.add_argument('--commits', action='store',
@@ -452,14 +455,15 @@ if args.file:
             exit(1)
         else:
             files.append(f)
-elif args.commits:
+if args.commits:
     # Get files affected by specified number of commits.
     command = ['git', 'diff', '--name-only', 'HEAD~' + args.commits]
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
     # Filter files
     files = list(filter(lambda f : os.path.exists(f) and isAppropriateFile(f) and not isGeneratedFile(f), files))
-elif args.open:
+
+if args.open:
     # Unstaged changes.
     command = ['git', 'diff', '--name-only']
     files = [f.decode('utf-8')
@@ -475,24 +479,39 @@ elif args.open:
     for f in files_staged:
         if not f in files:
             files.append(f)
-else:
-    # By default, scan dissectors directory
-    folder = os.path.join('epan', 'dissectors')
-    # But overwrite with any folder entry.
-    if args.folder:
-        folder = args.folder
+
+if args.glob:
+    # Add specified file(s)
+    for f in glob.glob(args.glob):
+        if not os.path.isfile(f):
+            print('Chosen file', f, 'does not exist.')
+            exit(1)
+        else:
+            files.append(f)
+
+if args.folder:
+    for folder in args.folder:
         if not os.path.isdir(folder):
             print('Folder', folder, 'not found!')
             exit(1)
 
+        # Find files from folder.
+        print('Looking for files in', folder)
+        files += findFilesInFolder(folder, not args.no_recurse)
+
+# By default, scan dissector files.
+if not args.file and not args.open and not args.commits and not args.glob and not args.folder:
+    # By default, scan dissectors directory
+    folder = os.path.join('epan', 'dissectors')
     # Find files from folder.
     print('Looking for files in', folder)
     files = findFilesInFolder(folder, not args.no_recurse)
 
 
+
 # If scanning a subset of files, list them here.
 print('Examining:')
-if args.file or args.folder or args.commits or args.open:
+if args.file or args.folder or args.commits or args.open or args.glob:
     if files:
         print(' '.join(files), '\n')
     else:

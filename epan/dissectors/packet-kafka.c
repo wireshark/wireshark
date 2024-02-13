@@ -4938,7 +4938,7 @@ dissect_kafka_sync_group_request_group_assignment(tvbuff_t *tvb, packet_info *pi
     offset = dissect_kafka_string(subtree, hf_kafka_member_id, tvb, pinfo, offset, api_version >= 4,
                                   &member_start, &member_len);
 
-    /* member_assigment */
+    /* member_assignment */
     offset = dissect_kafka_bytes(subtree, hf_kafka_member_assignment, tvb, pinfo, offset, api_version >= 4, NULL, NULL);
 
     if (api_version >= 4) {

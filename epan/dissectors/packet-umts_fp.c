@@ -2799,7 +2799,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree *subframe_tree;
             guint bits_in_subframe = 0;
             guint mac_d_pdus_in_subframe = 0;
-            guint    lchid=0;    /*Logcial channel id*/
+            guint    lchid=0;    /*Logical channel id*/
             guint32 user_identity;
             umts_mac_info *macinf;
             bit_offset = 0;
@@ -4171,7 +4171,7 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
 
     /* Checking if the 4th byte in the frame is zeroed. In this case the CRC checks aren't */
-    /* deterministic enough to gurantee this is a DCH since this packet could also be a PCH frame */
+    /* deterministic enough to guarantee this is a DCH since this packet could also be a PCH frame */
     /* with PI Bitmap of 18 bytes + 0 TBs (Both CRCs will match for both formats) */
     pch_collisions_byte = tvb_get_guint8(tvb, 3);
     if (pch_collisions_byte == 0) {
@@ -4686,7 +4686,7 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 cfn_lowest_bits = tvb_get_guint8(tvb, 2) & 0xF0;
                 if(cfn_lowest_bits == 0) {
                     /* Checking if the 4th byte in the frame is zeroed. In this case the CRC checks aren't */
-                    /* deterministic enough to gurantee this is a PCH since this packet could also be a DCH frame */
+                    /* deterministic enough to guarantee this is a PCH since this packet could also be a DCH frame */
                     /* with MAC's C/T is 0 and 4 leftmost bits of RLC are 0 */
                     dch_collisions_byte = tvb_get_guint8(tvb, 3);
                     if (dch_collisions_byte == 0) {
