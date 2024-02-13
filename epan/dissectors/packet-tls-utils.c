@@ -3726,7 +3726,7 @@ tls_prf(StringInfo* secret, const gchar *usage,
     usage_len = strlen(usage);
     rnd2_len = rnd2 ? rnd2->data_len : 0;
 
-    /* initalize buffer for sha, md5 random seed*/
+    /* initialize buffer for sha, md5 random seed*/
     if (ssl_data_alloc(&sha_out, MAX(out_len, 20)) < 0) {
         ssl_debug_printf("tls_prf: can't allocate sha out\n");
         return FALSE;
@@ -3751,7 +3751,7 @@ tls_prf(StringInfo* secret, const gchar *usage,
         /*ptr+=rnd2->data_len;*/
     }
 
-    /* initalize buffer for client/server seeds*/
+    /* initialize buffer for client/server seeds*/
     s_l=secret->data_len/2 + secret->data_len%2;
     if (ssl_data_alloc(&s1, s_l) < 0) {
         ssl_debug_printf("tls_prf: can't allocate secret %d\n", s_l);
@@ -4493,7 +4493,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
         }
         ssl_print_string("master secret",&ssl_session->master_secret);
 
-        /* the pre-master secret has been 'consumend' so we must clear it now */
+        /* the pre-master secret has been 'consumed' so we must clear it now */
         ssl_session->state &= ~SSL_PRE_MASTER_SECRET;
         ssl_session->state |= SSL_MASTER_SECRET;
     }
@@ -4937,7 +4937,7 @@ ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
 
     pad_ct=(decoder->cipher_suite->dig==DIG_SHA)?40:48;
 
-    /* get cipher used for digest comptuation */
+    /* get cipher used for digest computation */
     md=ssl_get_digest_by_name(ssl_cipher_suite_dig(decoder->cipher_suite)->name);
     if (ssl_md_init(&mc,md) !=0)
         return -1;

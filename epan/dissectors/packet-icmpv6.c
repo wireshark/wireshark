@@ -4161,7 +4161,7 @@ dissect_mpl_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
     }
 
     if (remaining != 0) {
-        /* Invalid length; there is remaining data after dissectin MPL Control Message */
+        /* Invalid length; there is remaining data after dissecting MPL Control Message */
         ti = proto_tree_add_item(tree, hf_icmpv6_unknown_data, tvb, body_offset, body_offset - offset, ENC_NA);
         expert_add_info_format(pinfo, ti, &ei_icmpv6_unknown_data,
                                "%u bytes data is left after dissecting MPL Control Message", remaining);

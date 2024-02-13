@@ -818,7 +818,7 @@ dissect_oer_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *
         choice++;
     }
     /* None of the known choice options matched, parse the contents as an extension */
-    // XXX : should check if the extensions are present in the CHOICE defintion
+    // XXX : should check if the extensions are present in the CHOICE definition
     offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index, NO_BOUND, NO_BOUND, FALSE, NULL);
 
     return offset;

@@ -759,7 +759,7 @@ static int zb_direct_decrypt(tvbuff_t    **tvb,
             }
         }
 
-        /* Retrieve all pan-speciefic nwk keyrings from the hash table */
+        /* Retrieve all pan-specific nwk keyrings from the hash table */
         if (!success && zbee_table_nwk_keyring)
         {
             pan_keyring = (GList*)g_hash_table_get_values(zbee_table_nwk_keyring);

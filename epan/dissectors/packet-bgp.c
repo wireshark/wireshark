@@ -12389,7 +12389,7 @@ proto_register_bgp(void)
         { "Policy name", "bgp.update.encaps_tunnel_tlv_subtlv.policy_name.name", FT_STRING,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
-      /* BGP update path attribut SSA SAFI (deprecated IETF draft) */
+      /* BGP update path attribute SSA SAFI (deprecated IETF draft) */
       { &hf_bgp_ssa_t,
         { "Transitive bit", "bgp.ssa_t", FT_BOOLEAN, 8,
           NULL, 0x80, "SSA Transitive bit", HFILL}},

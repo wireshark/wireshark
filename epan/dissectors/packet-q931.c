@@ -80,7 +80,7 @@ static int hf_q931_redirecting_number;
 static int hf_q931_screening_ind;
 static int hf_q931_presentation_ind;
 
-/* fields for Channel Indentification IE */
+/* fields for Channel Identification IE */
 static int hf_q931_channel_interface_explicit;
 static int hf_q931_channel_interface_type;
 static int hf_q931_channel_exclusive;

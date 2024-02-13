@@ -94,7 +94,7 @@ static int hf_ppcap_remote_port;
 static int hf_ppcap_transport_prot;
 static int hf_ppcap_sctp_assoc;
 
-/* Initiliaze the subtree pointers*/
+/* Initialize the subtree pointers */
 
 void proto_reg_handoff_ppcap(void);
 

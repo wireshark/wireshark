@@ -494,7 +494,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
        */
       set_mime_hdr_flags(more, request_val, beep_frame_data, pinfo);
     }
-    else {  /* Protocol violation, so dissect rest as undisectable */
+    else {  /* Protocol violation, so dissect rest as undissectable */
       if (tree && (tvb_reported_length_remaining(tvb, offset) > 0)) {
         proto_tree_add_item(tree, hf_beep_payload_undissected, tvb, offset,
                             tvb_reported_length_remaining(tvb, offset), ENC_NA|ENC_ASCII);

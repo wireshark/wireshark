@@ -347,7 +347,7 @@ enum ws_ipset_cadt_attr {
 	WS_IPSET_ATTR_MEMSIZE           = 26,
 };
 
-/* ADT-specific attrivutes */
+/* ADT-specific attributes */
 enum ws_ipset_adt_attr {
 	WS_IPSET_ATTR_ETHER             = 17,
 	WS_IPSET_ATTR_NAME              = 18,

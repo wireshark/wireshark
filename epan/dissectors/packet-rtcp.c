@@ -3458,7 +3458,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_plc, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbadaptive, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbrate, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 2; /* skip over reseved bit */
+            offset += 2; /* skip over reserved bit */
 
             /* JB Nominal */
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbnominal, tvb, offset, 2, ENC_BIG_ENDIAN);

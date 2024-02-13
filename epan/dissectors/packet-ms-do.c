@@ -477,7 +477,7 @@ dissect_do_message(tvbuff_t* tvb, packet_info* pinfo, proto_tree* do_tree, guint
 
     buffer_size = tvb_reported_length_remaining(tvb, *offset_ptr);
 
-    // Request more bytes if neccecary
+    // Request more bytes if necessary
     if (buffer_size < 4)
     {
         *desegment_len_ptr = 4 - buffer_size;
