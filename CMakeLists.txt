@@ -1515,13 +1515,13 @@ if (QT_FOUND)
 		# https://doc.qt.io/qt-5.11/supported-platforms-and-configurations.html
 		# https://doc.qt.io/qt-5.15/supported-platforms.html
 		# https://doc-snapshots.qt.io/qt6-dev/supported-platforms.html
-		if(Qt${qtver}Widgets_VERSION VERSION_GREATER_EQUAL "6.5.0")
+		if(Qt${qtver}Widgets_VERSION VERSION_GREATER_EQUAL "6.5.0" AND MIN_MACOS_VERSION VERSION_LESS "11.0")
 			set(MIN_MACOS_VERSION 11.0)
-		elseif(Qt${qtver}Widgets_VERSION VERSION_GREATER_EQUAL "6.0.0")
+		elseif(Qt${qtver}Widgets_VERSION VERSION_GREATER_EQUAL "6.0.0" AND MIN_MACOS_VERSION VERSION_LESS "10.14")
 			set(MIN_MACOS_VERSION 10.14)
-		elseif(Qt5Widgets_VERSION VERSION_GREATER_EQUAL "5.14.0")
+		elseif(Qt5Widgets_VERSION VERSION_GREATER_EQUAL "5.14.0" AND MIN_MACOS_VERSION VERSION_LESS "10.13")
 			set(MIN_MACOS_VERSION 10.13)
-		elseif(Qt5Widgets_VERSION VERSION_GREATER_EQUAL "5.12.0")
+		elseif(Qt5Widgets_VERSION VERSION_GREATER_EQUAL "5.12.0" AND MIN_MACOS_VERSION VERSION_LESS "10.12")
 			set(MIN_MACOS_VERSION 10.12)
 		endif()
 		if(CMAKE_OSX_DEPLOYMENT_TARGET AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS MIN_MACOS_VERSION)
