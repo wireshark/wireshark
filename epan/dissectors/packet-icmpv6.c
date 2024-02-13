@@ -1095,6 +1095,8 @@ static const value_string nd_opt_earo_status_val[] = {
     { 8,  "Registered Address Topologically Incorrect" },
     { 9,  "6LBR Registry Saturated" },
     { 10, "Validation Failed" },
+    { 11, "Registration Refresh Request" },
+    { 12, "Invalid Registration" },
     { 0,  NULL }
 };
 
