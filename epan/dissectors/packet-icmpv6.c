@@ -1101,7 +1101,7 @@ static const value_string nd_opt_earo_status_val[] = {
 #define ND_OPT_EARO_FLAG_R 0x02
 #define ND_OPT_EARO_FLAG_T 0x01
 
-static const value_string nd_opt_earo_flag_val[] = {
+static const value_string nd_opt_earo_i_val[] = {
     { 0, "Default" },
     { 0, NULL }
 };
@@ -5386,7 +5386,7 @@ proto_register_icmpv6(void)
           { "Flags", "icmpv6.opt.earo.flag", FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_earo_flag_i,
-          { "I", "icmpv6.opt.earo.flag.i", FT_UINT8, BASE_DEC, VALS(nd_opt_earo_flag_val), ND_OPT_EARO_FLAG_I,
+          { "I", "icmpv6.opt.earo.flag.i", FT_UINT8, BASE_DEC, VALS(nd_opt_earo_i_val), ND_OPT_EARO_FLAG_I,
             "Indicates the contents of the Opaque field", HFILL }},
         { &hf_icmpv6_opt_earo_flag_r,
           { "R", "icmpv6.opt.earo.flag.r", FT_BOOLEAN, 8, TFS(&tfs_set_notset), ND_OPT_EARO_FLAG_R,
