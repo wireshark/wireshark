@@ -35,20 +35,11 @@ void register_candump(void);
  */
 
 static gboolean
-candump_write_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg, int *err,
+candump_gen_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg, int *err,
                      gchar **err_info)
 {
     /* Generate Exported PDU tags for the packet info */
     ws_buffer_clean(buf);
-    if (msg->is_fd)
-    {
-        wtap_buffer_append_epdu_string(buf, EXP_PDU_TAG_DISSECTOR_NAME, "canfd");
-    }
-    else
-    {
-        wtap_buffer_append_epdu_string(buf, EXP_PDU_TAG_DISSECTOR_NAME, "can-hostendian");
-    }
-    wtap_buffer_append_epdu_end(buf);
 
     if (msg->is_fd)
     {
@@ -66,8 +57,8 @@ candump_write_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg, int *err,
             return FALSE;
         }
 
-        canfd_frame.can_id = msg->id;
-        canfd_frame.flags  = msg->flags;
+        canfd_frame.can_id = g_htonl(msg->id);
+        canfd_frame.flags  = msg->flags | CANFD_FDF;
         canfd_frame.len    = msg->data.length;
         memcpy(canfd_frame.data, msg->data.data, msg->data.length);
 
@@ -89,7 +80,7 @@ candump_write_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg, int *err,
             return FALSE;
         }
 
-        can_frame.can_id  = msg->id;
+        can_frame.can_id  = g_htonl(msg->id);
         can_frame.can_dlc = msg->data.length;
         memcpy(can_frame.data, msg->data.data, msg->data.length);
 
@@ -187,7 +178,7 @@ candump_open(wtap *wth, int *err, char **err_info)
 
     wth->priv              = NULL;
     wth->file_type_subtype = candump_file_type_subtype;
-    wth->file_encap        = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
+    wth->file_encap        = WTAP_ENCAP_SOCKETCAN;
     wth->file_tsprec       = WTAP_TSPREC_USEC;
     wth->subtype_read      = candump_read;
     wth->subtype_seek_read = candump_seek_read;
@@ -212,7 +203,7 @@ candump_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info,
     candump_debug_printf("%s: Stopped at offset %" PRIi64 "\n", G_STRFUNC, file_tell(wth->fh));
 #endif
 
-    return candump_write_packet(rec, buf, &msg, err, err_info);
+    return candump_gen_packet(rec, buf, &msg, err, err_info);
 }
 
 static gboolean
@@ -236,7 +227,7 @@ candump_seek_read(wtap *wth , gint64 seek_off, wtap_rec *rec,
     if (!candump_parse(wth->random_fh, &msg, NULL, err, err_info))
         return FALSE;
 
-    return candump_write_packet(rec, buf, &msg, err, err_info);
+    return candump_gen_packet(rec, buf, &msg, err, err_info);
 }
 
 static const struct supported_block_type candump_blocks_supported[] = {
