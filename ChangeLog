@@ -1,0 +1,959 @@
+commit 2a0fa8798d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Feb 13 13:52:43 2024 -0800
+
+    Prep for 4.2.3
+
+commit 77049c9428
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Feb 12 19:16:34 2024 -0800
+
+    macOS: Try to keep launchctl from failing in ChmodBPF
+
+    Run `launchctl bootout` prior to running `launchctl bootstrap`. This
+    should hopefully avoid the error
+
+    Bootstrap failed: 5: Input/output error
+
+    if we're already bootstrapped and keep the postinstall script from
+    failing.
+
+    Fixes #19527
+
+    (cherry picked from commit b7b7a6ce96554905dea094b4f151bf9b962da193)
+
+    [skip ci]
+
+commit 1f9d561ddf
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Feb 12 17:09:03 2024 -0800
+
+    CMake: Fix some version checks
+
+    Make sure we check our minimum macOS version when we check our Qt version
+    so that we don't clobber the value set by CMAKE_OSX_DEPLOYMENT_TARGET.
+
+    (cherry picked from commit 098462e70340c0388ca58a18849063867db830b1)
+
+commit b763663904
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Feb 12 13:47:51 2024 -0800
+
+    socketcan: the priority/VCID field in the CAN XL header is big-endian.
+
+    The joys of dealing with history....
+
+    (cherry picked from commit 38a29e82cc96f727aeab7f10e751fa6e8d5e45b6)
+
+commit a3e6269b02
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Feb 12 09:02:25 2024 -0500
+
+    epan: custom column FT_NONE and FT_PROTOCOL check marks
+
+    Fix a (cut and paste?) error adding check marks to the wrong
+    expression for FT_NONE and FT_PROTOCOL in resolved vs unresolved
+
+    (cherry picked from commit 7161168838cfc5f4907b01286dca5da5cfbaebaf)
+
+commit 6acdef30d2
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Feb 12 00:57:09 2024 -0800
+
+    socketcan: use the right byte order when manually fetching a field.
+
+    Use tvb_get_guint32() with xl_encoding, so that if the byte order is
+    ENC_LITTLE_ENDIAN, as it is for LINKTYPE_CAN_SOCKETCAN, it fetches the
+    field in little-endian order, while if it's ENC_HOST_ENDIAN, as it is
+    for Linux cooked captures, it' fetched in the host's byte order.
+
+    (cherry picked from commit 0cdbb03d9543e4e6a679e10cc43a8127214be271)
+
+commit 4b940ca852
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Feb 11 22:33:22 2024 -0800
+
+    socketcan: fetch the protocol/VCID field in the right byte order.
+
+    proto_tree_add_bitmask_list() is a bit of a pain if you want the values
+    of the field, so you have to fetch it yourself.  It's little-endian, so
+    tvb_get_letohl(), not tvb_get_ntohl(), is the write routine to call.
+
+    (cherry picked from commit fdf4ecdb4aea61f6e557d75172d27ca0ffea79d7)
+
+commit f7868d65de
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Feb 11 13:14:39 2024 -0800
+
+    Fix checks for SocketCAN field availability.
+
+    For each field in the SocketCAN CAN XL pseudo-header, check if we have
+    all of the field and, if so, swap it, rather than just checking for the
+    availability of the complete header, just in case some packet is sliced
+    in the middle of the header.
+
+    Do this all with a bunch of offset/length #definitions, which also
+    means we don't have to worry about alignment or structure layout.
+
+    (cherry picked from commit a201387e326df15dd02babdd9de4266ec796d736)
+
+commit 1580d10697
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Feb 11 11:56:57 2024 -0800
+
+    Byte-swap CAN XL headers in LINKTYPE_LINUX_SLL/LINKTYPE_LINUX_SLL2 packets.
+
+    Pull the CAN byte-swapping into a separate routine, used both for
+    LINKTYPE_LINUX_SLL and LINKTYPE_LINUX_SLL2, and add CAN XL support to
+    it.
+
+    (cherry picked from commit 8143babe21fdeec24225bb2140db6929e76041d8)
+
+commit 6aaf4876ca
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Feb 11 11:01:02 2024 -0800
+
+    socketcan: don't use the byte-swapping preference for CAN XL.
+
+    For WTAP_ENCAP_SOCKETCAN(LINKTYPE_CAN_SOCKETCAN), the only time any CAN
+    XL header would need byte-swapping would be with captures fom a
+    big-endian machine with current (but not upcoming) versions of libpcap.
+    Most captures are *probably* going to be on little-endian machines, so
+    that's probably not very likey - and the current byte-swapping
+    preference means "the ID/flags field is in *little-endian* byte order
+    and was done with a libpcap that didn't put it in big-endian byte
+    order", which means that, if it's necessary, it would be a separate
+    preferece.  We'll add such a proference if it's ever necessary.
+
+    For dissect_socketcan_classic() and dissect_socketcan_fd(), those
+    dissectors probably shouldn't need to exist; the libwiretap modules that
+    use them should be changed to use WTAP_ENCAP_SOCKETCAN.  In any case,
+    they're not used for CAN XL, so the CAN XL encapsulation argument they
+    pass is irrelevant.
+
+    For dissect_socketcan_sll(), the SocketCAN header is in *host* byte
+    order, with libpcap and libwireshark doing the usual byte-swapping dance
+    when reading a pcap or pcapng packet from a file or file section in the
+    opposite byte order from the machine reading the file (that needs to be
+    updated to handle CAN XL, and that's both a libpcap issue and a
+    libwiretap issue, each of which I'll address).
+
+    So, for now, don't use the byte-swapping preference to control the
+    encapsulatio for CAN XL.
+
+    Rename the prefrence to indicate what it does, namely control whether
+    the ID/flags field in the CAN classic/CAN FD header willl be
+    byte-swapped (and, by implication, what it *doesn't* do, namely control
+    whether fields in the CAN XL are byte-swapped).
+
+    (cherry picked from commit a57b564f819619f3c3c8153f83c6c81cd5788a9c)
+
+commit b77ae89a47
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Feb 10 20:53:41 2024 -0500
+
+    TCP: Fix location of Timestamp Option values
+
+    When syn cookie support was added, a new tree was added under
+    the TCP timestamp option TSVal. Unfortunately, it was done
+    so by reusing the proto_item pointer that was pointing to the
+    tree item for the top level of the option, before it was done
+    having text appended to it.
+
+    Add a new proto_item pointer so that the text gets appended
+    to the original place.
+
+    Fixup acc0260c84fccb4049ac569e72aaf6a6899ef77a
+
+    (cherry picked from commit 938192ca9c9167f76a96b0f41f4105cc389a847a)
+
+commit e0de71ac39
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 11 09:25:41 2024 +0000
+
+    [Automatic update for 2024-02-11]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit aba16d7fa0
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Feb 10 18:21:51 2024 -0800
+
+    socketcan: provide more information in the Info column for CAN XL.
+
+    Put the priority and VCID into the Info column - and the top-level
+    protocol item.
+
+    And, again, don't fetch values in advance and set the Info column and
+    top-level protocol item text early.  Instead, add each field to the Info
+    column and top-level protocol item when we add the field to the protocol
+    tree, so that if the frame is cut short, we dissect as much of it as we
+    can and put as much of it as we can into the Info column and top-level
+    protocol item.
+
+    (cherry picked from commit e5c519ba450292094e1c588eb376845a729ed7b3)
+
+commit e5aee0a89e
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Feb 10 17:47:52 2024 -0800
+
+    socketcan: append text only after putting the value into the tree.
+
+    Don't fetch values in advance and set the Info column and top-level
+    protocol item text early.  Instead, add each field to the Info column
+    and top-level protocol item when we add the field to the protocol tree,
+    so that if the frame is cut short, we dissect as much of it as we can
+    and put as much of it as we can into the Info column and top-level
+    protocol item.
+
+    (cherry picked from commit 825f27723c5c5f4b8aca1ab981d6c8aa69c289c7)
+
+commit 24fba971bd
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Feb 10 15:49:12 2024 -0800
+
+    socketcan: show more unsigned values with %u.
+
+    (cherry picked from commit b96747823d8d82a66fe2ad79804d7196ec162c5f)
+
+commit 415d0a94c1
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Feb 10 15:12:59 2024 -0800
+
+    socketcan: show all relevant digits in Info column and top-level item.
+
+    Show all 8 hex digits for extended IDs, show all 3 hex digits for
+    standard IDs.
+
+    Also, show the length with %u, not %d, as it's unsigned (it won't be
+    bigger than 2^32-1, so that doesn't affect the output, but it's a better
+    type match.
+
+    (cherry picked from commit c713f7260a8e9e1d7b40b5b63d610aaf9b38e64e)
+
+commit 6aa83ff837
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Feb 10 14:45:11 2024 -0800
+
+    socketcan: clean up some variable names.
+
+    The "flags" field in CAN classic and CAN FD is relly a "flags and ID"
+    field; rename appropriatey.
+
+    Rename can_..._flags_id_fd fields to canfd_..._flags_id, so as not to
+    mix up "flags_id" and "fd" - the latter refers to CAN FD, the former
+    refers to the two values in the item.
+
+    (cherry picked from commit 7d6f2b182bf06a8a0d8970c02dc393ce4750be8c)
+
+commit 283cb0c8cc
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Feb 10 12:10:04 2024 -0800
+
+    socketcan: add a CAN XL SDU type subdissector table.
+
+    Allow subdissectors to register for particular CAN XL SDU types, e.g.
+    some Ethernet dissector (which one - the "always with FCS" one or the
+    "never with FCS done" - would depends on whether the FCS is included in
+    the tunneled frame; lacking access to the spec, I don't know which is
+    the case) would register in that table with the two tunneling types.
+
+    Provide SDU type #defines in packet-socketcan.h.
+
+    (cherry picked from commit 2c40e6c903cf032d6f491c90dd0de2368717da9d)
+
+commit b979e51d38
+Author: Martin Mathieson <martin.r.mathieson@googlemail.com>
+Date:   Sat Feb 10 19:54:20 2024 +0000
+
+    SOCKETCAN: Fix a couple of spellings and use XL length field
+
+    (cherry picked from commit bb495a512c211fc1b8e506f376b100ba6a389f6d)
+
+    916f85b7 SOCKETCAN: Fix a couple of spellings and widen length to cover XL
+
+commit a9c9f983e3
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Feb 8 18:21:34 2024 -0800
+
+    Qt: Fix the FilterExpressionToolBar context menu position
+
+    When we open a FilterExpressionToolBar menu and right click on it, make
+    sure we open our context menu using coordinates relative to the toolbar.
+
+    (cherry picked from commit eebe0a38be66b153112aee1fda36c267684f77a8)
+
+commit 7c508242e4
+Author: Darius Davis <darius-wireshark@free-range.com.au>
+Date:   Fri Feb 2 19:26:55 2024 +1000
+
+    GTP: const-ify some big data structures.
+
+    This moves about 76 kBytes of data to a read-only section.
+
+    (cherry picked from commit 4aa91006d034be562080fec7edb59e0fa02da4f2)
+
+commit b8ebb7ef01
+Author: Darius Davis <darius-wireshark@free-range.com.au>
+Date:   Wed Feb 7 12:25:30 2024 +1000
+
+    DCM: const-ify some big data structures.
+
+    The DCM tag/status/uid lookup tables are only ever read.  const-ifying them
+    moves about 220 kBytes of data to a read-only data section.
+
+    packet-dcm.h was regenerated using the make-packet-dcm.py script.
+
+    (cherry picked from commit b571c553b40feb1040d2e546ae80017746c7261e)
+
+commit 4e7c0c1573
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Feb 10 14:13:48 2024 +0100
+
+    Tools: const-ify pci-ids data.
+
+    This moves ~620 kBytes of data into the read-only data section.
+
+    (back ported from commit f5f8a574)
+
+commit d8392a3ead
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Feb 9 10:58:06 2024 -0800
+
+    socketcan: work around libpcap bug, add CAN XL support.
+
+    Change the "fd" gboolean in can_info_t to a guint, and give it a value
+    of 2 for CAN XL.  That preserves source and binary compatiility, at
+    least in the case where a plugin would never be handed a CAN XL frame.
+    Update code to treat it as such, to make it clearer what that code is
+    doing.
+
+    Add CAN XL support to the SocketCAN dissector - and to the
+    LINKTYPE_LINUX_SLL detector.  Note that the fields in the
+    LINKTYPE_CAN_SOCKETCAN header for CAN XL frames are *little-endian*, as
+    most if not all existing captures were probably done on little-endian
+    machines - libpcap does that so that LINKTYPE_CAN_SOCKETCAN doesn't
+    become one of those annoying link-layer types with *host-endian* (as in
+    "the byte order of the host that last processed this file") fields
+    (which require special processing in pcap/pcapng file readers *and* in
+    rpcap clients).
+
+    If the CANFD_FDF flag isn't set, treat the frame as CAN FD if it's
+    exactly 72 bytes long; this works around a libpcap 1.10.{2,3,4} bug
+    (which should be fixed in the next libpcap release) that inadvertantly
+    cleared that flag for CAN FD frames.
+
+    (backported from commit 6f0c9d4f0bcd99ce6a62afd36918bde38ba65798)
+
+commit eda75c4a3f
+Author: Giovanni Musto <giovanni.musto@partner.italdesign.it>
+Date:   Fri Dec 15 09:30:49 2023 +0100
+
+    SocketCAN: Add hidden CAN item to protocol tree in case of CANFD
+
+    (cherry picked from commit 25fb6c316c8fe10d78aadeefd3077a7bce33e921)
+
+commit 659eaeb6d8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Feb 8 09:39:41 2024 -0800
+
+    wsutil: Add null checks to wmem_map
+
+    Check for a valid wmem_map pointer in each of our lookup routines. This
+    keeps us from having to do so in various dissectors.
+
+    Fixes #19642
+
+    (cherry picked from commit 4ec1ae4523281fea10728afa60d8fb14c628ec86)
+
+commit 0b72cc2342
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Feb 6 07:17:10 2024 -0500
+
+    dfilter: Handle null arguments to min, max
+
+    min and max need to handle null arguments where the GPtrArray
+    is null, generated when there have been other opcodes between
+    the field loading and the function. (They are ignored, not
+    treated as zero, so they don't change the minimum.)
+
+    Prevents crashes with filters where a field does not exist in the tree:
+
+    min(tcp.srcport * 10, tcp.dstport * 10) == 800
+    min(len(tcp.payload), len(udp.payload)) == 153
+    min(len(tcp.payload[2:]) + 2, len(udp.payload[2:]) + 2) == 153
+
+    where a register is loaded where it has not had its GPtrArray created:
+
+    ./run/dftest 'min(len(tcp.payload), len(udp.payload))'
+    Filter:
+     min(len(tcp.payload), len(udp.payload))
+
+    Instructions:
+     0000 READ_TREE        tcp.payload      -> R1
+     0001 IF_FALSE_GOTO    3
+     0002 LENGTH           R1               -> R2
+     0003 STACK_PUSH       R2
+     0004 READ_TREE        udp.payload      -> R3
+     0005 IF_FALSE_GOTO    7
+     0006 LENGTH           R3               -> R4
+     0007 STACK_PUSH       R4
+     0008 CALL_FUNCTION    min(R2, R4)      -> R0
+     0009 STACK_POP        [2]
+     0010 IF_FALSE_GOTO    12
+     0011 NOT_ALL_ZERO     R0
+     0012 RETURN
+
+    Related to fcb6bb576388e8a8ef4b657d794a80f008a99ff7
+    (Prior to that commit, this worked because a NULL pointer is a
+    valid, empty GSList.)
+
+    (backported from commit e972a755d2d0f25f6b51d4ac3932ebe652cba4f0)
+    One of the tests used doesn't work on 4.2 where the grammar is
+    more restrictive.
+
+commit fc343eb8fd
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 4 09:25:26 2024 +0000
+
+    [Automatic update for 2024-02-04]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 4d89ef6cda
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Wed Jan 31 18:08:49 2024 +0100
+
+    ASAM CMP: Fix Vendor Data limit and missing UDP Encapsulation
+
+    Vendor Data for the Status Message CM and the Status Message Interface
+    are not required to have a multiple of 2 as length.
+
+    Also ASAM CMP UDP encapsulation was missing.
+
+    Closes: #19626
+
+    (cherry picked from commit 6cc1ff055aca0fa5c65034862bb231596e2c9c8e)
+
+commit d726538163
+Author: Sebastian Reimers <hallo@studio-link.de>
+Date:   Sat Jan 27 13:14:58 2024 +0100
+
+    RTP: Add OPUS dynamic clockrate
+
+    The RTP timestamp is incremented with a 48000 Hz clock rate for all modes of
+    Opus and all sampling rates. This fixes jitter calculations.
+
+    https://datatracker.ietf.org/doc/html/rfc7587#section-4.1
+
+    (cherry picked from commit f3216e8c4a82deb887b9d56b7aaf2f49d7abb5d2)
+
+commit a9607a6141
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Jan 4 19:08:07 2024 -0800
+
+    Windows: Update our minimum version
+
+    Update our minimum Windows version in various places, including the NSIS
+    and WiX installers.
+
+    Add back and comment out some Windows 7, 8, and 8.1 code in case anyone
+    needs to do a custom build for those platforms.
+
+    Fixes #19569
+    Ping #18476
+
+    (cherry picked from commit 7afb54035fe475a346db21a7de577224741b8943)
+
+commit 71bc65baa7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 28 09:25:07 2024 +0000
+
+    [Automatic update for 2024-01-28]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit f2d484a483
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jan 27 19:13:52 2024 -0500
+
+    WOW: Fix use of unitialized memory
+
+    tvb_get_raw_bytes_as_string doesn't check lengths, because it's
+    used elsewhere when the length is unknown. If we use
+    tvb_get_string_enc, that checks the offsets and throws an
+    exception as appropriate, but then we have to use g_utf8_strreverse
+    due to the possibility of UTF-8 REPLACEMENT CHARACTERs.
+
+    To handle embedded nulls properly, we need to be using counted
+    strings (like wmem_strbuf_t) in more places.
+
+    Fix #19621
+
+    (cherry picked from commit 859e70fbb3141012cdba07a99bb3098ebb3b75f0)
+
+commit 4ca3166fe7
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jan 27 13:32:03 2024 -0500
+
+    GTP, GTPv2: stat taps can't be wmem_file_scope
+
+    Stat tap windows can be opened by the GUI (e.g., a
+    ServiceResponseTimeDialog) when no file is open, and persist
+    past a file being closed, i.e. outside of wmem_file_scope().
+
+    Items concerning the taps should not be created in wmem_file_scope().
+    This fails an assert, which crashes when built for a Debug target.
+
+    To use wmem, we would need to create a scope appropriate for the lifetime
+    of the ServiceReponseTimeDialog or other Tap dialog (or else add a
+    callback mechanism to srt table to free items created in epan scope.)
+
+    Partially revert 47b310da470c6dc527a63f2ee2b4bbafafd5e290
+    (the part where the stat taps are concerned.)
+
+    Related to #19620
+
+    (cherry picked from commit c77448d793b6301e100549097616dee3800393cd)
+
+commit 3162fe87a0
+Author: Martin Mathieson <martin.r.mathieson@googlemail.com>
+Date:   Sat Jan 27 15:21:25 2024 +0000
+
+    Be careful with scope of strings used for columns in SRT table
+
+    (backported from commit 25f86957713766166c90b306568922874370b4c4)
+
+commit 8bdd62fcdb
+Author: Sergio de Paula <sergio.paula@dsr-corporation.com>
+Date:   Fri Jan 26 17:00:31 2024 -0300
+
+    [Zigbee GP] Fixed move and step cmd dissectors
+
+    * Move up/down command should not consider the rate field mandatory
+    * Step up/down command should not consider the transition time field mandatory
+
+    (cherry picked from commit dd846520f44d68ae6cf30044509d1cb33ce3b483)
+
+commit 386c43760b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jan 25 18:38:38 2024 -0500
+
+    Qt: Restore drag and drop filter buttons
+
+    Commit 9c75c1dc18199ea6b282177e21fe1d445af5bbb3 introduced
+    a new eventFilter function for FilterExpressionToolBar but
+    called the wrong base class function in it, removing the
+    drag and drop buttons.
+
+    Fix #19447
+
+    (cherry picked from commit cb259891f7da0a98a39dd0ff2ba37fef9650844e)
+
+commit 735a7d099f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jan 24 09:05:25 2024 -0500
+
+    ringbuffer: Use g_path_get_basename to find the last component
+
+    On Windows, the path separator can be either G_DIR_SEPARATOR
+    or '/' (G_DIR_SEPARATOR_S).
+
+    Just use g_path_get_basename and g_path_get_dirname rather
+    than reinventing them, or worrying about which directory
+    separator we've passed to the function.
+
+    Fix #14614
+
+    (cherry picked from commit 70e78cd390f0e82c69899fb80d3bee39d4432c1b)
+
+commit 99339d82c5
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jan 24 09:55:12 2024 -0500
+
+    test: Skip mongo zstd test if we don't have zstd
+
+    Fix the macOS Intel build (but we should find out why zstd
+    isn't installed right now.)
+
+    (cherry picked from commit 26c6e3af12a5faff23355d8d9fc4d6f4d0f758a1)
+
+commit 012f2e0dde
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jan 23 20:34:15 2024 -0500
+
+    epan: Make hex_str_to_bytes reject an odd # of hex characters >= 3
+
+    hex_str_to_bytes currently allows an odd number of hex characters
+    after a separator (including no separator). It parses them in an
+    entirely unexpected way; taking two characters at a time to form
+    one byte and then using the last leftover character by itself,
+    thus adding a missing lead zero to the last hex character instead
+    of the first.
+
+    E.g., 3.109.209.43 is parsed as 0x03 0x10 0x09 0x20 0x09 0x43
+
+    Since this interpretation has never been correct, just disallow any
+    odd number of hex characters 3 or greater. Continue to support a
+    single hex character after a separator (or by itself.)
+
+    It's still probably too accepting, as it allows the separator to
+    change back and forth, including back and forth from no separator
+    when force_separators is false (thus allowing the number of hex
+    digits between separators to vary.)
+
+    Fix #19449. Fix #19604.
+
+    (cherry picked from commit ffcf580230a6526d48a1c6e9e25474fe36925407)
+
+commit 57f94e3f01
+Author: Christian Krump <christian.krump@br-automation.com>
+Date:   Tue Jan 23 16:32:24 2024 +0100
+
+    openSAFETY: adapted verification of ID fields in sub frames
+
+    The verification of the ID fields fails if the address field in sub frame 2 takes more than 8 bit
+
+commit e6345409e3
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jan 22 12:07:21 2024 -0800
+
+    Windows: Updgrade GnuTLS to 3.8.3
+
+    (cherry picked from commit 34c703f7de27e8ddc0f7d98706c5787653e5ca41)
+
+commit 71821fd0e9
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 21 15:38:57 2024 -0800
+
+    Qt: Add back "Copy as Printable Text"
+
+    As it turns out, "Copy as Printable Text" is useful for copying
+    text-based protocol data.
+
+    Paritally revert 2a96b3e1d1 and add it back to DataPrinter::copyActions.
+
+    Fixes #19607
+
+    (cherry picked from commit 7b43059f1d3c6a0b428523e87a865317a76fc1f8)
+
+commit 940442408d
+Author: Stephen Donnelly <stephen.donnelly@endace.com>
+Date:   Fri Jan 19 14:53:34 2024 +1300
+
+    Fix -o capture.auto_scroll: setting
+
+    Gitlab Bug #19597
+
+    The preference capture.auto_scroll was moved to a 'recent' value and marked obsolete.
+
+    It was not possible to set the recent value with -o because values marked as obsolete preferences were not checked to see if they were valid 'recent' values.
+
+    Garbage values passed to -o were not reported as unknown preferences because the 'recent' code returned PREFS_SET_OK for any value.
+
+    Changed commandline handling of -o to pass obsolete prefs to 'recent' in case they were moved there.
+
+    Return PREFS_SET_NO_SUCH_PREF for unmatched 'recent' values.
+
+    (cherry picked from commit 94c2f1892409e9b5c429cbcdf930539fd8d515e7)
+
+commit ff67f8828f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Jun 11 19:22:10 2023 -0400
+
+    http2: Use our own process_reassembled_data
+
+    This avoids a problem with the layer number being unstable
+
+    Fix #19609
+
+    (cherry picked from commit c3e98efd5ba4c687ba0609d8211d09cc1a44658b)
+
+commit 4d309578c6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 21 09:25:01 2024 +0000
+
+    [Automatic update for 2024-01-21]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit c6530d9437
+Author: Chloe Pelling <cpelling@google.com>
+Date:   Thu Jan 18 17:28:15 2024 +1100
+
+    X11: ConfigureWindow: Fix 'window' and bitmask fields.
+
+    Only 1 of the 4 bytes comprising the window field was actually
+    being read, causing the value to be incorrect. The offset pointer
+    was correctly increased by 4 on the following line, so this is
+    clearly just an oversight.
+
+    The configure-window-mask field was being dissected using the
+    "window value mask" bitmasks. It was interpreted correctly when
+    dissecting the actual fields, though, so this is clearly just
+    another minor oversight.
+
+    Before:
+
+      window: 0x00000001
+      configure-window-mask: 0x0003, background-pixmap, background-pixel
+      x: 448
+      y: 156
+
+    After:
+
+      window: 0x03800001
+      configure-window-mask: 0x0003, x, y
+      x: 448
+      y: 156
+
+    (cherry picked from commit 1058293e787783f33537e8e5749a8d39e2aa25b6)
+
+commit a9bc739822
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jan 18 06:46:30 2024 -0500
+
+    netflow: Handle variable length fields with zero length
+
+    If a variable length field has length zero, skip to the next field.
+
+    Fix #19605
+
+    (cherry picked from commit 87f06bfd583525eaec51c94d4643f6b9366b80e3)
+
+commit e75d42aca8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 7 19:51:22 2024 -0800
+
+    ISUP: Add recursion checks
+
+    (cherry picked from commit f67b74550b32b23b0f8d036295688655ff0fb590)
+
+commit 83b7de255d
+Author: Joakim Karlsson <oakimk@gmail.com>
+Date:   Wed Jan 17 16:16:38 2024 +0100
+
+    extcap: fix build with older libssh
+
+    (cherry picked from commit 80a3890dababac2627bfcdd69ee7ba88ca2b8717)
+
+commit 3ab6e00049
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jan 13 19:05:48 2024 -0500
+
+    extcap: Add ability to enable SHA-1 algorithms
+
+    libssh 0.10.0 removed SHA-1 based keys and algorithms from its
+    default configuration, though they are still supported. We
+    ship with 0.10.5 in Windows and macOS now, and many Linux
+    distributions are on 0.10.x as well.
+
+    Add the ability to re-enable SHA-1 RSA keys, MAC, and KEX algorithms
+    with a preference to ciscodump, sshdump, and wifidump.
+
+    This will be a little easier in 0.11.0, where it's possible to
+    just specify the algorithms you want to add to the default list,
+    instead of having to specify the entire list.
+
+    Fix #19510. Fix #19594
+
+    (cherry picked from commit 5c8c379b69907fb1fd5cdf4bb42c249aa8fc3c7b)
+
+commit bd0cdcde66
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Jan 15 16:37:05 2024 -0800
+
+    x75: don't register for WTAP_ENCAP_LAPB.
+
+    X.75 is not the same thing as LAPB, and we already *have* a LAPB
+    dissector that registers for WTAP_ENCAP_LAPB.  Two dissectors
+    registering for a value in the wtap_encap table means one of them will
+    lose, so it does not work; in this case, the LAPB dissector loses.
+
+    Fixes #19595.
+
+    (cherry picked from commit e0811c1aa046fe8d7dbcd1af5b5babb385908147)
+
+commit 7e0f03de61
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jan 12 20:07:48 2024 -0500
+
+    NBSS: Handle short packets
+
+    If we have a packet that isn't long enough to fit an entire header,
+    but the first byte does look like a message type, and we can do
+    reassembly, ask for reassembly.
+
+    Fix #19593
+
+    (cherry picked from commit 91e75f3e468fdce516436fb58a91e16c94003c5f)
+
+commit c39f476c74
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun Jan 14 15:00:11 2024 +0000
+
+    IPv4/v6: fix field offset calculation for GeoIP entries
+
+    (cherry picked from commit f5615dd9f9b7d958296a68c28ec141b7b66c0a5e)
+
+commit 3fba19a8d5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 14 09:24:25 2024 +0000
+
+    [Automatic update for 2024-01-14]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 1e91d3f8d9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jan 12 21:51:05 2024 -0500
+
+    RTP: Use the same extended seqno / timestamp cycle for a new setup msg
+
+    Some systems repeatedly send out SDP setup information for the same
+    RTP conversation. We end up setting up multiple conversations
+    (it's not clear we need to, since most of the information we copy
+    to per-packet info for subsequent passes.)
+
+    When doing so, copy the per-SSRC number space information that
+    determines what cycle number we're on for extended sequence numbers
+    and timestamps (since those fields can and do wrap.)
+
+    This doesn't hurt at all if the setup information is for different
+    conversations, even ones using the same SSRC; it aligns the cycle
+    number but that's fine. It helps a lot in cases where the RTP
+    sequence number has already overflowed and then we get a duplicate
+    SETUP message; we need to stay on the same cycle.
+
+    Fix #19592
+
+    (cherry picked from commit 2c9b66d14a7adf1ea3b0cb9233be4d9553351c74)
+
+commit 1680273abe
+Author: Zackhardtoname <zack.hardtoname@gmail.com>
+Date:   Thu Jan 11 17:27:07 2024 -0500
+
+    Fix uintptr_t not found error
+
+    (cherry picked from commit 6c26a3c7dc0d47ac95e9a8c2e304cb92c34d73c4)
+
+commit 7459051a0b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jan 8 10:20:19 2024 -0800
+
+    Parlay: Add a recursion check
+
+    (cherry picked from commit 10a77d7b46158512eacc476e0e8a7328a5a7bcfb)
+
+commit 1315e91260
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Jan 11 23:29:42 2024 -0800
+
+    tftp: fix a typo.
+
+    The mode string for a Net-ASCII transfer is "netascii", not "netscii".
+
+    Fixes #19589.
+
+    (cherry picked from commit 2d04c107418eb504c6d338a107483f266f38e5f1)
+
+commit 5924584a9e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jan 11 10:05:51 2024 -0500
+
+    opcua: Fix defragmentation on 4.2
+
+    Backport a small part of adaacddc48d49bd894621eb6cdb0cfabc7300b4b
+    to account for the changes to fragment head and fragment items
+    from commit 4f3b028d941d7270710841f19800c33301baf18e
+
+    Fix #19581  in 4.2
+
+commit 11e37f3f98
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Jan 10 09:50:22 2024 +0000
+
+    Epan: Cleanup plugins only after all possible calls are made
+
+commit ca7eb693f4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jan 8 09:52:35 2024 -0800
+
+    asn2wrs: Fix our recursion checks
+
+    Don't subtract our cycle size when resetting our proto depth.
+
+    Fixes #19580
+
+    (cherry picked from commit 218db319559a9f18d4ae105442799b9a8a3c75e1)
+
+commit a0f1d821d4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 7 09:26:10 2024 +0000
+
+    [Automatic update for 2024-01-07]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 53d27ced59
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Sun Jan 7 01:53:11 2024 +0100
+
+    SOME/IP: Do not ignore messages with empty payload
+
+    Before stats would only get informed about SOME/IP messages only if a
+    payload would be present. This is fixed now.
+
+    (cherry picked from commit ec232d03d3f62d00ea4ad1ab7f79d791140a349b)
+
+commit 627d1fe568
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jan 6 19:43:43 2024 -0500
+
+    T38: Fully initialize t38_conv struct, part 2
+
+    Same as d44e171cee882b06ec3acf64789723f404c854d7 but in
+    a different location.
+
+    Fix #19578
+
+    (cherry picked from commit d3b5f367e940b1a1525379cd5af85c8c96d3abfe)
+
+commit 3d452f89bc
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jan 6 08:49:11 2024 -0500
+
+    rtmpt: Fix iteration check
+
+    This check should be for when the maximum number of iterations
+    reaches zero, rather than declaring a loop the first time it is reached.
+    AMF dissection is being aborted and never succeeding.
+
+    Fixup 24403a9a35cd7fbe5ea6e596b1c6deb9d8633566
+
+    (cherry picked from commit 822a95d15665cfc8a209ad9b10e27784ef84ad5d)
+
+commit bae02abc0d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jan 5 08:57:10 2024 -0500
+
+    NTLMSSP: Zero out the session key at the start of creating a v1 key
+
+    A zeroed sessionkey is the failure state that is checked, but we
+    can return early from the function if there are problems with
+    the challenge response. Move the memset to the top of the function,
+    as is already done with v2.
+
+    Fix #19570
+
+    (cherry picked from commit 4f3b03b72a2bbd88f7081130dd8aaf83b5f2becb)
+
+commit 2248146a64
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Jan 4 17:20:32 2024 -0800
+
+    Version: 4.2.2 → 4.2.3
+
+    [skip ci]
