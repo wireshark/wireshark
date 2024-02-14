@@ -42,27 +42,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark grabs your ID at 3 am, goes to Waffle House, and insults people.
 
-* Capture start fails when file set enabled and file extension not supplied if directory contains a period. wsbuglink:14614[].
-* Cannot drag and move custom filter buttons in toolbar. wsbuglink:19447[].
-* Not equal won't work when used with wlan.addr. wsbuglink:19449[].
-* sshdump fails to connect with private key (ssh-rsa) wsbuglink:19510[].
-* ChmodBPF installation fails on macOS Sonoma 14.1.2. wsbuglink:19527[].
-* Windows installers should check for Windows 8.1. wsbuglink:19569[].
-* Fuzz job crash output: fuzz-2024-01-05-7725.pcap. wsbuglink:19570[].
-* Fuzz job crash output: fuzz-2024-01-06-7734.pcap. wsbuglink:19578[].
-* Incorrect recursion depth assert failure when dissecting a legitimate GOOSE message. wsbuglink:19580[].
-* OPC UA - large read request is reported as malformed in 4.2.1 but not in 4.0.12. wsbuglink:19581[].
-* TFTP dissector bug type listed as netscii instead of netascii doesn't show all TFTP packets including TFTP blocks. wsbuglink:19589[].
-* SMB1 replies from LAN Drive app only show up as NBSS Continuation Message. wsbuglink:19593[].
-* ciscodump - older SSH key exchange algorithms not supported. wsbuglink:19594[].
-* Problem decoding LAPB/X.25/FTAM after adding X.75 decoding. wsbuglink:19595[].
-* Wireshark Filter not working. wsbuglink:19604[].
-* CFLOW: failure to decode 0 length data fields of IPFIX variable length data types. wsbuglink:19605[].
-* Copy ...as Printable Text Feature Missing in 4.1/4.2. wsbuglink:19607[].
-* Export Objects - HTTP is missing some HTTP/2 files in a two-pass analysis. wsbuglink:19609[].
-* ASAM-CMP Plugin: Malformed message, length mismatch if vendor defined data of status messages has odd length. wsbuglink:19626[].
-* OSS-Fuzz 66561: wireshark:fuzzshark_ip_proto-udp: Null-dereference READ in wmem_map_lookup. wsbuglink:19642[].
-
 === New and Updated Features
 
 There are no new or updated features in this release.
@@ -84,54 +63,6 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.2.2.. | ag packet- | sort -u)
 [commaize]
 --
-ASAM CMP
-CAN
-CFLOW
-CMIP
-CMP
-DAP
-DICOM
-DISP
-E2AP
-GLOW
-GOOSE
-GTP
-GTPv2
-H.225
-H.245
-H.248
-HTTP2
-IEEE 1609.2
-IEEE 1722
-IPv4
-IPv6
-ISO 15765
-ISUP
-ITS
-Kerberos
-LDAP
-MMS
-NBT
-openSAFETY
-NRUP
-P22
-P7
-PARLAY
-RTMPT
-RTP
-SCSI
-SOME/IP
-T.38
-TCP
-TECMP
-TFTP
-WOW
-X11
-X.509if
-X.509sat
-X.75
-Z39.50
-ZigBee Green Power
 --
 
 === New and Updated Capture File Support
@@ -155,6 +86,7 @@ pcapng
 This document only describes the changes introduced in Wireshark {wireshark-version}.
 You can find release notes for prior versions at the following locations:
 
+* https://www.wireshark.org/docs/relnotes/wireshark-4.2.2.html[Wireshark 4.2.3]
 * https://www.wireshark.org/docs/relnotes/wireshark-4.2.2.html[Wireshark 4.2.2]
 * https://www.wireshark.org/docs/relnotes/wireshark-4.2.1.html[Wireshark 4.2.1]
 * https://www.wireshark.org/docs/relnotes/wireshark-4.2.0.html[Wireshark 4.2.0]
