@@ -298,6 +298,8 @@ Source Package:
   artifacts:
     paths:
       - wireshark-*.tar.*
+      - release-notes-*.html
+      - release-notes-*.txt
 
 # Job to generate packages for Debian stable
 Debian Stable APT Package:
