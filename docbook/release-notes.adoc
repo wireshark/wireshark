@@ -52,19 +52,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
 
-* Cannot drag and move custom filter buttons in toolbar wsbuglink:19447[].
-
-* Can't open a snoop file from the Open dialog box unless I select "All files" as the file type wsbuglink:19565[].
-
-* Incorrect recursion depth assert failure when dissecting a legitimate GOOSE message wsbuglink:19580[].
-
-* TFTP dissector bug type listed as netscii instead of netascii doesn't show all TFTP packets including TFTP blocks wsbuglink:19589[].
-
-* CFLOW: failure to decode 0 length data fields of IPFIX variable length data types. wsbuglink:19605[].
-
-* OSS-Fuzz 66561: wireshark:fuzzshark_ip_proto-udp: Null-dereference READ in wmem_map_lookup wsbuglink:19642[].
-
-
 === New and Updated Features
 
 There are no new or updated features in this release.
@@ -84,35 +71,6 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.6.19.. | ag packet- | sort -u)
 [commaize]
 --
-CFLOW
-CMIP
-CMP
-DAP
-DISP
-GLOW
-GOOSE
-H.225
-H.245
-H.248
-IEEE 1609.2
-IPv4
-IPv6
-ISUP
-ITS
-Kerberos
-LDAP
-MMS
-P22
-P7
-PARLAY
-RSVP
-RTMPT
-TFTP
-X11
-X.509if
-X.509sat
-Z39.50
-ZigBee Green Power
 --
 
 === New and Updated Capture File Support
@@ -141,6 +99,7 @@ There is no new or updated file format support in this release.
 This document only describes the changes introduced in Wireshark {wireshark-version}.
 You can find release notes for prior versions at the following locations:
 
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.20.html[Wireshark 3.6.21]
 * https://www.wireshark.org/docs/relnotes/wireshark-3.6.20.html[Wireshark 3.6.20]
 * https://www.wireshark.org/docs/relnotes/wireshark-3.6.19.html[Wireshark 3.6.19]
 * https://www.wireshark.org/docs/relnotes/wireshark-3.6.18.html[Wireshark 3.6.18]
