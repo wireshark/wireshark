@@ -194,6 +194,8 @@ Source Package:
   artifacts:
     paths:
       - wireshark-*.tar.*
+      - release-notes-*.html
+      - release-notes-*.txt
 
 CentOS 7 RPM Package:
   extends: .build-rpm
