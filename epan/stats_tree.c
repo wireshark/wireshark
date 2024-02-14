@@ -290,6 +290,7 @@ stats_tree_register(const char *tapname, const char *abbr, const char *path,
         g_string_append_printf(title_str, "%s%s", sep, g_strstrip(split[idx]));
         sep = " / ";
     }
+    g_strfreev(split);
     cfg->title = g_string_free(title_str, false);
 
     cfg->packet = packet;
