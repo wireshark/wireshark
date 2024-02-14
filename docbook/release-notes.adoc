@@ -46,16 +46,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark insists on subscribing to two dozen streaming services but only watches three.
 
-* Capture start fails when file set enabled and file extension not supplied if directory contains a period. wsbuglink:14614[].
-* Cannot drag and move custom filter buttons in toolbar. wsbuglink:19447[].
-* sshdump fails to connect with private key (ssh-rsa) wsbuglink:19510[].
-* Can't open a snoop file from the Open dialog box unless I select "All files" as the file type. wsbuglink:19565[].
-* Updater for 4.2.1 hangs. wsbuglink:19568[].
-* Incorrect recursion depth assert failure when dissecting a legitimate GOOSE message. wsbuglink:19580[].
-* TFTP dissector bug type listed as netscii instead of netascii doesn't show all TFTP packets including TFTP blocks. wsbuglink:19589[].
-* ciscodump - older SSH key exchange algorithms not supported. wsbuglink:19594[].
-* CFLOW: failure to decode 0 length data fields of IPFIX variable length data types. wsbuglink:19605[].
-
 === New and Updated Features
 
 There are no new or updated features in this release.
@@ -72,36 +62,6 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.11.. | ag packet- | sort -u)
 [commaize]
 --
-CFLOW
-CMIP
-DAP
-DISP
-GLOW
-GOOSE
-H.225
-H.245
-H.248
-IEEE 1609.2
-IPv4
-IPv6
-ISUP
-ITS
-Kerberos
-LDAP
-MMS
-P22
-P7
-PARLAY
-RSVP
-RTMPT
-SOME/IP
-TCP
-TFTP
-X11
-X.509if
-X.509sat
-Z39.50
-ZigBee Green Power
 --
 
 === New and Updated Capture File Support
@@ -135,6 +95,7 @@ There is no new or updated file format support in this release.
 This document only describes the changes introduced in Wireshark {wireshark-version}.
 You can find release notes for prior versions at the following locations:
 
+* https://www.wireshark.org/docs/relnotes/wireshark-4.0.12.html[Wireshark 4.0.13]
 * https://www.wireshark.org/docs/relnotes/wireshark-4.0.12.html[Wireshark 4.0.12]
 * https://www.wireshark.org/docs/relnotes/wireshark-4.0.11.html[Wireshark 4.0.11]
 * https://www.wireshark.org/docs/relnotes/wireshark-4.0.10.html[Wireshark 4.0.10]
