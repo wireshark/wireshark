@@ -70,6 +70,7 @@ static prefs_set_pref_e set_pref(gchar*, const gchar*, void *, gboolean);
 static void free_col_info(GList *);
 static void pre_init_prefs(void);
 static gboolean prefs_is_column_visible(const gchar *cols_hidden, int col);
+static gboolean prefs_is_column_fmt_visible(const gchar *cols_hidden, fmt_data *cfmt);
 static guint prefs_module_list_foreach(wmem_tree_t *module_list, module_cb callback,
                           gpointer user_data, gboolean skip_obsolete);
 static gint find_val_for_string(const char *needle, const enum_val_t *haystack, gint default_value);
@@ -84,6 +85,7 @@ static gint find_val_for_string(const char *needle, const enum_val_t *haystack, 
 static gboolean prefs_initialized = FALSE;
 static gchar *gpf_path = NULL;
 static gchar *cols_hidden_list = NULL;
+static gchar *cols_hidden_fmt_list = NULL;
 static gboolean gui_theme_is_dark = FALSE;
 
 /*
@@ -2796,6 +2798,9 @@ column_format_set_cb(pref_t* pref, const gchar* value, unsigned int* changed_fla
       col_l_elt      = col_l_elt->next;
       parse_column_format(cfmt, (char *)col_l_elt->data);
       cfmt->visible   = prefs_is_column_visible(*hidden_pref->varp.string, cidx);
+      if (!prefs_is_column_fmt_visible(cols_hidden_fmt_list, cfmt)) {
+          cfmt->visible = FALSE;
+      }
       col_l_elt      = col_l_elt->next;
       *pref->varp.list = g_list_append(*pref->varp.list, cfmt);
       cidx++;
@@ -5074,6 +5079,87 @@ prefs_is_column_visible(const gchar *cols_hidden, int col)
 }
 
 /*
+ * Returns TRUE if the given column is visible (not hidden)
+ */
+static gboolean
+prefs_is_column_fmt_visible(const gchar *cols_hidden, fmt_data *cfmt)
+{
+    char *tok, *cols;
+    fmt_data cfmt_hidden;
+
+    /*
+     * Do we have a list of hidden columns?
+     */
+    if (cols_hidden) {
+        /*
+         * Yes - check the column against each of the ones in the
+         * list.
+         */
+        cols = g_strdup(cols_hidden);
+        for (tok = strtok(cols, ","); tok; tok = strtok(NULL, ",")) {
+            tok = g_strstrip(tok);
+
+            /*
+             * Parse this column format.
+             */
+            if (!parse_column_format(&cfmt_hidden, tok)) {
+                /*
+                 * It's not valid; ignore it.
+                 */
+                continue;
+            }
+
+            /*
+             * Does it match the column?
+             */
+            if (cfmt->fmt != cfmt_hidden.fmt) {
+                /* No. */
+                g_free(cfmt_hidden.custom_fields);
+                cfmt_hidden.custom_fields = NULL;
+                continue;
+            }
+            if (cfmt->fmt == COL_CUSTOM) {
+                /*
+                 * A custom column has to have the same custom field,
+                 * occurrence and resolved settings.
+                 */
+                if (cfmt_hidden.custom_fields && cfmt->custom_fields) {
+                    if (strcmp(cfmt->custom_fields,
+                               cfmt_hidden.custom_fields) != 0) {
+                        /* Different fields. */
+                        g_free(cfmt_hidden.custom_fields);
+                        cfmt_hidden.custom_fields = NULL;
+                        continue;
+                    }
+                    if ((cfmt->custom_occurrence != cfmt_hidden.custom_occurrence) ||
+                        (cfmt->resolved != cfmt_hidden.resolved)) {
+                        /* Different occurrences or resolved settings. */
+                        g_free(cfmt_hidden.custom_fields);
+                        cfmt_hidden.custom_fields = NULL;
+                        continue;
+                    }
+                }
+            }
+
+            /*
+             * OK, they match, so it's one of the hidden fields,
+             * hence not visible.
+             */
+            g_free(cfmt_hidden.custom_fields);
+            g_free(cols);
+            return FALSE;
+        }
+        g_free(cols);
+    }
+
+    /*
+     * No - either there are no hidden columns or this isn't one
+     * of them - so it is visible.
+     */
+    return TRUE;
+}
+
+/*
  * Returns TRUE if the given device should capture in monitor mode by default
  */
 gboolean
@@ -5636,6 +5722,10 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
         filter_label = NULL;
         /* Remember to save the new UAT to file. */
         prefs.filter_expressions_old = TRUE;
+    } else if (strcmp(pref_name, "gui.column.hidden") == 0) {
+        /* Use the old column hidden list (which is by format) */
+        g_free(cols_hidden_fmt_list);
+        cols_hidden_fmt_list = g_strdup(value);
     } else if (strcmp(pref_name, "gui.version_in_start_page") == 0) {
         /* Convert deprecated value to closest current equivalent */
         if (g_ascii_strcasecmp(value, "true") == 0) {
