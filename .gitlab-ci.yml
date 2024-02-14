@@ -176,7 +176,7 @@ Source Package:
     - build/packaging/source/git-export-release.sh -d .
     - cd build
     - ninja release_notes
-    - WIRESHARK_VERSION=$(git describe --tags)
+    - WIRESHARK_VERSION=$(git describe --tags --match "v*")
     - WIRESHARK_VERSION=${WIRESHARK_VERSION#v}
     - cp -v docbook/release-notes.html ../release-notes-${WIRESHARK_VERSION}.html
     - cp -v docbook/release-notes.txt ../release-notes-${WIRESHARK_VERSION}.txt
