@@ -1797,9 +1797,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 	else {
-		/* Reinitialize full_uri set in the previous (last) request. */
-		if (curr && curr->full_uri)
-			curr->full_uri = NULL;
+		/* Reinitialize full_uri that was set in the previous (last) request. */
+		curr->full_uri = NULL;
 	}
 	if (tree) {
 		proto_item *pi;
@@ -1821,7 +1820,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 			match_trans_t *match_trans = NULL;
 
-			if (curr && curr->response_code == 206 && curr->resp_has_range) {
+			if (curr->response_code == 206 && curr->resp_has_range) {
 				/* The conv_data->matches_table is only used for GET requests with ranges and
 				*  response_codes of 206 (Partial Content).
 				*/
@@ -1837,20 +1836,18 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					proto_item_set_generated(pi);
 				}
 			}
-			if (! match_trans
-			&& curr
+			if(!match_trans
+			&& !curr->resp_has_range
 			&& curr->req_framenum) {
-				if (!(curr && curr->resp_has_range)) {
-					pi = proto_tree_add_uint(http_tree, hf_http_request_in, tvb, 0, 0, curr->req_framenum);
+				pi = proto_tree_add_uint(http_tree, hf_http_request_in, tvb, 0, 0, curr->req_framenum);
+				proto_item_set_generated(pi);
+
+				if (! nstime_is_unset(&(curr->req_ts))) {
+					nstime_t delta;
+
+					nstime_delta(&delta, &pinfo->abs_ts, &(curr->req_ts));
+					pi = proto_tree_add_time(http_tree, hf_http_time, tvb, 0, 0, &delta);
 					proto_item_set_generated(pi);
-
-					if (! nstime_is_unset(&(curr->req_ts))) {
-						nstime_t delta;
-
-						nstime_delta(&delta, &pinfo->abs_ts, &(curr->req_ts));
-						pi = proto_tree_add_time(http_tree, hf_http_time, tvb, 0, 0, &delta);
-						proto_item_set_generated(pi);
-					}
 				}
 			}
 
@@ -1900,31 +1897,32 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			}
 			break;
 		case MEDIA_CONTAINER_HTTP_REQUEST:
+			int size = wmem_map_size(conv_data->matches_table);
+
 			hidden_item = proto_tree_add_boolean(http_tree,	hf_http_request, tvb, 0, 0, 1);
 			proto_item_set_hidden(hidden_item);
 
 			match_trans = NULL;
 
-			if (curr->req_has_range) {
-				int size = wmem_map_size(conv_data->matches_table);
-
-				if (size > 0) {
-					match_trans = (match_trans_t *)wmem_map_lookup(conv_data->matches_table,
-										GUINT_TO_POINTER(pinfo->num));
-					if (match_trans) {
-						pi = proto_tree_add_uint(http_tree, hf_http_response_in,
-										tvb, 0, 0, match_trans->resp_frame);
-						proto_item_set_generated(pi);
-					}
+			if (size > 0 && curr->req_has_range) {
+				match_trans = (match_trans_t *)wmem_map_lookup(conv_data->matches_table,
+									GUINT_TO_POINTER(pinfo->num));
+				if (match_trans) {
+					pi = proto_tree_add_uint(http_tree, hf_http_response_in,
+									tvb, 0, 0, match_trans->resp_frame);
+					proto_item_set_generated(pi);
 				}
 			}
-			if (! match_trans
-			&& curr
-			&& curr->res_framenum) {
-				pi = proto_tree_add_uint(http_tree, hf_http_response_in, tvb, 0, 0, curr->res_framenum);
-				proto_item_set_generated(pi);
+			else {
+				if(!match_trans
+				&& !curr->resp_has_range
+				&& curr->res_framenum) {
+					pi = proto_tree_add_uint(http_tree, hf_http_response_in, tvb, 0, 0, curr->res_framenum);
+					proto_item_set_generated(pi);
+
+				}
 			}
-			/* Apart from from the fact that the numbers are incorrect, there is no use
+			/* Apart from from the fact that the values are incorrect, there is no use
 			*  case for showing the number of a request among all requests.
 			pi = proto_tree_add_uint_format(http_tree, hf_http_request_number, tvb, 0, 0,
 					curr->number, "HTTP request %u/%u", curr->number, conv_data->req_res_num);
