@@ -705,6 +705,9 @@ QMenu * TrafficTree::createActionSubMenu(FilterAction::Action cur_action, QModel
                 case CONVERSATION_IP:
                     filter = QString("%1.stream eq %2").arg("ip").arg(conv_item->conv_id);
                     break;
+                case CONVERSATION_IPV6:
+                    filter = QString("%1.stream eq %2").arg("ipv6").arg(conv_item->conv_id);
+                    break;
                 case CONVERSATION_ETH:
                 default:
                     filter = QString("%1.stream eq %2").arg("eth").arg(conv_item->conv_id);

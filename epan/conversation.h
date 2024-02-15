@@ -102,6 +102,7 @@ typedef enum {
     CONVERSATION_QUIC,		/* QUIC */
     CONVERSATION_IDN,
     CONVERSATION_IP,		/* IP */
+    CONVERSATION_IPV6,		/* IPv6 */
     CONVERSATION_ETH     	/* ETHERNET */
 } conversation_type;
 

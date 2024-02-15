@@ -12,6 +12,7 @@
 
 #include <inttypes.h>
 #include <wsutil/inet_addr.h>
+#include <epan/conversation.h>
 
 #define IPv6_ADDR_SIZE          16
 #define IPv6_HDR_SIZE           40
@@ -71,5 +72,17 @@ struct ws_ip6_frag {
 #define IP6F_OFF_MASK           0xfff8 /* mask out offset from _offlg */
 #define IP6F_RESERVED_MASK      0x0006 /* reserved bits in ip6f_offlg */
 #define IP6F_MORE_FRAG          0x0001 /* more-fragments flag */
+
+struct ipv6_analysis {
+
+    /* Initial frame starting this conversation
+     */
+    guint32 initial_frame;
+
+    guint32 stream;
+};
+
+WS_DLL_PUBLIC struct ipv6_analysis *get_ipv6_conversation_data(conversation_t *conv,
+                                packet_info *pinfo);
 
 #endif

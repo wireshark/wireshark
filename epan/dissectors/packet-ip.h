@@ -75,6 +75,7 @@ typedef struct _ws_ip6
     guint8  ip6_hop;     /* hop limit */
     address ip6_src;     /* source address */
     address ip6_dst;     /* destination address */
+    guint32 ip6_stream;  /* track conversations */
 } ws_ip6;
 
 #define WS_IP6_PTR(p)         ((ws_ip6 *)(((p) && *(guint8 *)(p) == 6) ? (p) : NULL))

@@ -849,6 +849,7 @@ bool ConversationDataModel::showConversationId(int row) const
     if (conv_item && (conv_item->ctype == CONVERSATION_TCP ||
                       conv_item->ctype == CONVERSATION_UDP ||
                       conv_item->ctype == CONVERSATION_IP  ||
+                      conv_item->ctype == CONVERSATION_IPV6||
                       conv_item->ctype == CONVERSATION_ETH))
         return true;
     return false;

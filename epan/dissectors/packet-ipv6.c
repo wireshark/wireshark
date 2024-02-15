@@ -160,6 +160,7 @@ static int hf_ipv6_tclass;
 static int hf_ipv6_tclass_dscp;
 static int hf_ipv6_tclass_ecn;
 static int hf_ipv6_flow;
+static int hf_ipv6_stream;
 static int hf_ipv6_plen;
 static int hf_ipv6_nxt;
 static int hf_ipv6_hlim;
@@ -516,6 +517,8 @@ static gint ett_ipv6_dstopts_proto;
 
 static gint ett_geoip_info;
 
+static guint32 ipv6_stream_count;
+
 static expert_field ei_ipv6_routing_invalid_length;
 static expert_field ei_ipv6_routing_invalid_segleft;
 static expert_field ei_ipv6_routing_undecoded;
@@ -651,9 +654,9 @@ ipv6_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
 
     const ipv6_tap_info_t *ip6 = (const ipv6_tap_info_t *)vip;
 
-    add_conversation_table_data(hash, &ip6->ip6_src, &ip6->ip6_dst, 0, 0, 1,
-            pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts,
-            &ipv6_ct_dissector_info, CONVERSATION_NONE);
+    add_conversation_table_data_with_conv_id(hash, &ip6->ip6_src, &ip6->ip6_dst, 0, 0,
+            (conv_id_t)ip6->ip6_stream, 1, pinfo->fd->pkt_len,
+            &pinfo->rel_ts, &pinfo->abs_ts, &ipv6_ct_dissector_info, CONVERSATION_IPV6);
 
     return TAP_PACKET_REDRAW;
 }
@@ -3409,6 +3412,46 @@ export_pdu(tvbuff_t *tvb, packet_info *pinfo)
   }
 }
 
+static struct ipv6_analysis *
+init_ipv6_conversation_data(packet_info *pinfo)
+{
+    struct ipv6_analysis *ipv6d;
+
+    /* Initialize the ip protocol data structure to add to the ip conversation */
+    ipv6d=wmem_new0(wmem_file_scope(), struct ipv6_analysis);
+
+    ipv6d->initial_frame = pinfo->num;
+    ipv6d->stream = 0;
+    ipv6d->stream = ipv6_stream_count++;
+
+    return ipv6d;
+}
+
+struct ipv6_analysis *
+get_ipv6_conversation_data(conversation_t *conv, packet_info *pinfo)
+{
+  struct ipv6_analysis *ipv6d;
+
+  /* Did the caller supply the conversation pointer? */
+  if( conv==NULL ) {
+    return NULL;
+  }
+
+  /* Get the data for this conversation */
+  ipv6d=(struct ipv6_analysis *)conversation_get_proto_data(conv, proto_ipv6);
+
+  if (!ipv6d) {
+    ipv6d = init_ipv6_conversation_data(pinfo);
+    conversation_add_proto_data(conv, proto_ipv6, ipv6d);
+  }
+
+  if (!ipv6d) {
+    return NULL;
+  }
+
+  return ipv6d;
+}
+
 static int
 dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -3426,14 +3469,18 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     gboolean       save_fragmented;
     int            version;
     ws_ip6        *iph;
+    struct         ipv6_analysis *ipv6d=NULL;
 
     offset = 0;
+
+    iph = wmem_new0(pinfo->pool, ws_ip6);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPv6");
     col_clear(pinfo->cinfo, COL_INFO);
 
     ipv6_item = proto_tree_add_item(tree, proto_ipv6, tvb, offset, IPv6_HDR_SIZE, ENC_NA);
     ipv6_tree = proto_item_add_subtree(ipv6_item, ett_ipv6_proto);
+
 
     /* Validate IP version (6) */
     version = tvb_get_bits8(tvb, (offset + IP6H_CTL_VFC) * 8, 4);
@@ -3574,8 +3621,33 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                     "IPv6 payload length exceeds framing length (%d bytes)", reported_plen);
     }
 
+    /* conversation management */
+    conversation_t *conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IPV6, 0, 0, NO_PORT_X);
+    if(!conv) {
+      conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IPV6, 0, 0, NO_PORTS);
+    }
+    else {
+      /*
+       * while not strictly necessary because there is only 1
+       * conversation between 2 IPs, we still move the last frame
+       * indicator as being a usual practice.
+       */
+      if (!(pinfo->fd->visited)) {
+        if (pinfo->num > conv->last_frame) {
+          conv->last_frame = pinfo->num;
+        }
+      }
+    }
+
+    ipv6d = get_ipv6_conversation_data(conv, pinfo);
+    if(ipv6d) {
+      iph->ip6_stream = ipv6d->stream;
+
+      ipv6_item = proto_tree_add_uint(ipv6_tree, hf_ipv6_stream, tvb, 0, 0, ipv6d->stream);
+      proto_item_set_generated(ipv6_item);
+    }
+
     /* Fill in IP header fields for subdissectors */
-    iph = wmem_new0(pinfo->pool, ws_ip6);
     iph->ip6_ver = 6;
     iph->ip6_tc = ip6_tcls;
     iph->ip6_flw = ip6_flow;
@@ -3687,6 +3759,12 @@ ipv6_dissect_next(guint nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* Unknown protocol. */
     col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown IP Protocol: %s (%u)", ipprotostr(nxt), nxt);
     call_data_dissector(tvb, pinfo, tree);
+}
+
+static void
+ipv6_init(void)
+{
+    ipv6_stream_count = 0;
 }
 
 void
@@ -4112,6 +4190,12 @@ proto_register_ipv6(void)
             { "Embedded IPv4 Suffix", "ipv6.embed_ipv4_suffix",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 "IPv4-Embedded IPv6 Address Suffix", HFILL }
+        },
+
+        { &hf_ipv6_stream,
+            { "Stream index", "ipv6.stream",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
         },
 
         { &hf_geoip_country,
@@ -5403,6 +5487,8 @@ proto_register_ipv6(void)
         "NAT64 Prefixes",
         "A list of IPv6 prefixes used for NAT64s",
         nat64_prefix_uat);
+
+    register_init_routine(ipv6_init);
 
     ipv6_handle = register_dissector("ipv6", dissect_ipv6, proto_ipv6);
     reassembly_table_register(&ipv6_reassembly_table,
