@@ -7216,7 +7216,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 					result[--offset_r] = '\0'; /* Remove the added trailing ',' */
 				}
 				if (strstr(expr, UTF8_CHECK_MARK ",") == NULL) {
-					offset_e += protoo_strlcpy(expr+offset_r, UTF8_CHECK_MARK, size-offset_e);
+					offset_e += protoo_strlcpy(expr+offset_e, UTF8_CHECK_MARK, size-offset_e);
 				} else {
 					expr[--offset_e] = '\0'; /* Remove the added trailing ',' */
 				}
