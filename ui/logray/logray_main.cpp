@@ -800,11 +800,6 @@ int main(int argc, char *qt_argv[])
         in_file_type = open_info_name_to_type(ex_opt_get_next("read_format"));
     }
 
-#ifdef DEBUG_STARTUP_TIME
-    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling extcap_register_preferences, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
-#endif
-    splash_update(RA_EXTCAP, NULL, NULL);
-    extcap_register_preferences();
     splash_update(RA_PREFERENCES, NULL, NULL);
 #ifdef DEBUG_STARTUP_TIME
     ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling module preferences, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
@@ -818,6 +813,16 @@ int main(int argc, char *qt_argv[])
      * preferences to the capture options.
      */
     commandline_override_prefs(argc, argv, TRUE);
+
+    /* Register the extcap preferences. We do this after seeing if the
+     * capture_no_extcap preference is set in the configuration file
+     * or command line. This will re-read the extcap specific preferences.
+     */
+#ifdef DEBUG_STARTUP_TIME
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling extcap_register_preferences, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
+#endif
+    splash_update(RA_EXTCAP, NULL, NULL);
+    extcap_register_preferences();
 
     /* Some of the preferences affect the capture options. Apply those
      * before getting the other command line arguments, which can also

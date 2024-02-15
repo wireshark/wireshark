@@ -31,6 +31,7 @@
 #include <glib.h>
 
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
 
 #include "ui/iface_toolbar.h"
 
@@ -740,6 +741,12 @@ append_extcap_interface_list(GList *list)
 
 void extcap_register_preferences(void)
 {
+    /* Unconditionally register the extcap configuration file, so that
+     * it is copied if we copy the profile even if we're not going to
+     * read it because extcaps are disabled.
+     */
+    profile_register_persconffile("extcap");
+
     if (prefs.capture_no_extcap)
         return;
 
@@ -862,6 +869,7 @@ extcap_pref_for_argument(const gchar *ifname, struct _extcap_arg *arg)
 
 static gboolean cb_preference(extcap_callback_info_t cb_info)
 {
+    gboolean new_pref = false;
     GList *arguments = NULL;
     GList **il = (GList **) cb_info.data;
     module_t *dev_module = NULL;
@@ -894,7 +902,7 @@ static gboolean cb_preference(extcap_callback_info_t cb_info)
                     {
                         char *pref_name_for_prefs;
                         char *pref_title = wmem_strdup(wmem_epan_scope(), arg->display);
-
+                        new_pref = TRUE;
                         arg->pref_valptr = extcap_prefs_dynamic_valptr(pref_ifname, &pref_name_for_prefs);
                         /* Set an initial value if any (the string will be copied at registration) */
                         if (arg->default_complex)
@@ -945,7 +953,7 @@ static gboolean cb_preference(extcap_callback_info_t cb_info)
         extcap_free_arg_list(arguments);
     }
 
-    return TRUE;
+    return new_pref;
 }
 
 GList *
@@ -2154,6 +2162,7 @@ extcap_list_interfaces_cb(thread_pool_t *pool, void *data, char *output)
 static void
 extcap_load_interface_list(void)
 {
+    bool prefs_registered = false;
     if (prefs.capture_no_extcap)
         return;
 
@@ -2219,11 +2228,16 @@ extcap_load_interface_list(void)
                     .output = iface_info->output,
                     .data = NULL,
                 };
-                cb_preference(cb_info);
+                prefs_registered = cb_preference(cb_info);
             }
         }
         extcap_free_extcaps_info_array(infos, count);
         g_free(arg_version);
+    }
+
+    if (prefs_registered)
+    {
+        prefs_read_module("extcap");
     }
 }
 

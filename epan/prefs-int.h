@@ -264,6 +264,16 @@ WS_DLL_PUBLIC
 int
 read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fct, void *private_data);
 
+/** Given a module name, read the preferences associated with only that module.
+ * Checks for a file in the personal configuration directory named after the
+ * module first.
+ *
+ * @param name The preference module name, e.g. "extcap".
+ */
+WS_DLL_PUBLIC
+void
+prefs_read_module(const char *name);
+
 WS_DLL_PUBLIC
 gboolean
 prefs_pref_is_default(pref_t *pref);

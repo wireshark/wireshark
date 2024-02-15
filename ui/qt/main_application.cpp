@@ -470,6 +470,7 @@ void MainApplication::setConfigurationProfile(const gchar *profile_name, bool wr
      * they don't get reapplied later, e.g. when reloading Lua plugins)?
      */
     commandline_options_free();
+    extcap_register_preferences();
 
     /* Switching profile requires reloading the macro list. */
     reloadDisplayFilterMacros();

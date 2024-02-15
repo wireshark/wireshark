@@ -22,6 +22,7 @@
 #include <ui/simple_dialog.h>
 #include <ui/recent.h>
 #include <main_window.h>
+#include <extcap.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
 
@@ -252,6 +253,8 @@ void PreferencesDialog::on_buttonBox_accepted()
     // XXX - We should validate preferences as the user changes them, not here.
     // XXX - We're also too enthusiastic about setting must_redissect.
     prefs_modules_foreach_submodules(NULL, module_prefs_unstash, (gpointer)&redissect_flags);
+
+    extcap_register_preferences();
 
     if (redissect_flags & PREF_EFFECT_GUI_LAYOUT) {
         // Layout type changed, reset sizes

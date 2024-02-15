@@ -4520,6 +4520,52 @@ read_registry(void)
 }
 #endif
 
+void
+prefs_read_module(const char *module)
+{
+    int         err;
+    char        *pf_path;
+    FILE        *pf;
+
+    module_t *target_module = prefs_find_module(module);
+    if (!target_module) {
+        return;
+    }
+
+    /* Construct the pathname of the user's preferences file for the module. */
+    pf_path = get_persconffile_path(module, TRUE);
+
+    /* Read the user's preferences file, if it exists. */
+    if ((pf = ws_fopen(pf_path, "r")) == NULL && errno == ENOENT) {
+        g_free(pf_path);
+        /* Fall back to the user's generic preferences file. */
+        pf_path = get_persconffile_path(PF_NAME, TRUE);
+        pf = ws_fopen(pf_path, "r");
+    }
+
+    if (pf != NULL) {
+        /* We succeeded in opening it; read it. */
+        err = read_prefs_file(pf_path, pf, set_pref, target_module);
+        if (err != 0) {
+            /* We had an error reading the file; report it. */
+            report_warning("Error reading your preferences file \"%s\": %s.",
+                           pf_path, g_strerror(err));
+        } else
+            g_free(pf_path);
+        fclose(pf);
+    } else {
+        /* We failed to open it.  If we failed for some reason other than
+           "it doesn't exist", return the errno and the pathname, so our
+           caller can report the error. */
+        if (errno != ENOENT) {
+            report_warning("Can't open your preferences file \"%s\": %s.",
+                           pf_path, g_strerror(errno));
+        } else
+            g_free(pf_path);
+    }
+
+    return;
+}
 
 /* Read the preferences file, fill in "prefs", and return a pointer to it.
 
@@ -5690,7 +5736,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
 }
 
 static prefs_set_pref_e
-set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
+set_pref(gchar *pref_name, const gchar *value, void *private_data,
          gboolean return_range_errors)
 {
     guint    cval;
@@ -5700,10 +5746,12 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
     gchar    *dotp, *last_dotp;
     static gchar *filter_label = NULL;
     static gboolean filter_enabled = FALSE;
-    module_t *module, *containing_module;
+    module_t *module, *containing_module, *target_module;
     pref_t   *pref;
     int type;
     gboolean converted_pref = FALSE;
+
+    target_module = (module_t*)private_data;
 
     //The PRS_GUI field names are here for backwards compatibility
     //display filters have been converted to a UAT.
@@ -6147,6 +6195,11 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
                     return PREFS_SET_OK;
                 }
             return PREFS_SET_NO_SUCH_PREF;    /* no such preference */
+        }
+
+        if (target_module && target_module != containing_module) {
+            /* Ignore */
+            return PREFS_SET_OK;
         }
 
         type = pref->type;
@@ -7054,6 +7107,31 @@ write_prefs(char **pf_path_return)
                 ws_warning("Unable to save Display expressions: %s", err);
                 g_free(err);
             }
+        }
+
+        module_t *extcap_module = prefs_find_module("extcap");
+        if (extcap_module && !prefs.capture_no_extcap) {
+            char *ext_path = get_persconffile_path("extcap", TRUE);
+            FILE *extf;
+            if ((extf = ws_fopen(ext_path, "w")) == NULL) {
+                *pf_path_return = ext_path;
+                return errno;
+            }
+            g_free(ext_path);
+
+            fputs("# Extcap configuration file for Wireshark " VERSION ".\n"
+                  "#\n"
+                  "# This file is regenerated each time preferences are saved within\n"
+                  "# Wireshark. Making manual changes should be safe, however.\n"
+                  "# Preferences that have been commented out have not been\n"
+                  "# changed from their default value.\n", extf);
+
+            write_gui_pref_info.pf = extf;
+            write_gui_pref_info.is_gui_module = FALSE;
+
+            write_module_prefs(extcap_module, &write_gui_pref_info);
+
+            fclose(extf);
         }
     }
 
