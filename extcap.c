@@ -90,7 +90,11 @@ typedef struct _extcap_callback_info_t
     gchar ** err_str;
 } extcap_callback_info_t;
 
-/* Callback definition for extcap_foreach */
+/* Callback definition for extcap_run_one.
+ * N.B.: extcap_run_one does not use the return value, which is
+ * vestigial from extcap_foreach, which no longer exists.
+ * Now extcap operations are run in parallel in multiple threads.
+ */
 typedef gboolean(*extcap_cb_t)(extcap_callback_info_t info_structure);
 
 /** GThreadPool does not support pushing new work from a thread while waiting
@@ -941,7 +945,6 @@ static gboolean cb_preference(extcap_callback_info_t cb_info)
         extcap_free_arg_list(arguments);
     }
 
-    /* By returning false, extcap_foreach will break on first found */
     return TRUE;
 }
 
@@ -986,7 +989,6 @@ static gboolean cb_reload_preference(extcap_callback_info_t cb_info)
     }
     g_list_free(arguments);
 
-    /* By returning false, extcap_foreach will break on first found */
     return FALSE;
 }
 
