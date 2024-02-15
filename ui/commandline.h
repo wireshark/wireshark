@@ -12,6 +12,8 @@
 #ifndef __COMMANDLINE_H__
 #define __COMMANDLINE_H__
 
+#include "cfile.h" /* For search_direction */
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

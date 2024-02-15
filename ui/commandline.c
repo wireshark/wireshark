@@ -842,5 +842,5 @@ void commandline_options_reapply(void) {
 
 /* Free memory used to hold user-specified command line options */
 void commandline_options_free(void) {
-    g_slist_free_full(global_commandline_info.user_opts, g_free);
+    g_slist_free_full(g_steal_pointer(&global_commandline_info.user_opts), g_free);
 }

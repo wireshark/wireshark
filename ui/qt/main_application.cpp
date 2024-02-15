@@ -33,6 +33,7 @@
 #include "epan/decode_as.h"
 #include "epan/dfilter/dfilter-macro.h"
 
+#include "ui/commandline.h"
 #include "ui/decode_as_utils.h"
 #include "ui/preference_utils.h"
 #include "ui/iface_lists.h"
@@ -464,6 +465,11 @@ void MainApplication::setConfigurationProfile(const gchar *profile_name, bool wr
 
     /* Apply new preferences */
     readConfigurationFiles(true);
+
+    /* Should we reapply command line options now or drop them (so that
+     * they don't get reapplied later, e.g. when reloading Lua plugins)?
+     */
+    commandline_options_free();
 
     /* Switching profile requires reloading the macro list. */
     reloadDisplayFilterMacros();
