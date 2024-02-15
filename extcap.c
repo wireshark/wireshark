@@ -935,7 +935,11 @@ static gboolean cb_preference(extcap_callback_info_t cb_info)
         }
     }
 
-    *il = g_list_append(*il, arguments);
+    if (il) {
+        *il = g_list_append(*il, arguments);
+    } else {
+        extcap_free_arg_list(arguments);
+    }
 
     /* By returning false, extcap_foreach will break on first found */
     return TRUE;
@@ -2173,7 +2177,6 @@ extcap_load_interface_list(void)
         int minor = 0;
         guint count = 0;
         extcap_run_extcaps_info_t *infos;
-        GList *unused_arguments = NULL;
 
         _loaded_interfaces = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, extcap_free_interface_info);
         /* Cleanup lookup table */
@@ -2212,13 +2215,11 @@ extcap_load_interface_list(void)
                 extcap_callback_info_t cb_info = {
                     .ifname = iface_info->ifname,
                     .output = iface_info->output,
-                    .data = &unused_arguments,
+                    .data = NULL,
                 };
                 cb_preference(cb_info);
             }
         }
-        /* XXX rework cb_preference such that this unused list can be removed. */
-        extcap_free_if_configuration(unused_arguments, TRUE);
         extcap_free_extcaps_info_array(infos, count);
         g_free(arg_version);
     }
