@@ -1,6 +1,6 @@
 /** @file
  *
- * This code was taken directly from:
+ * This code is based upon:
  * https://forum.qt.io/topic/82609/remove-native-mac-menu-items-such-as-show-tab-bar
  *
  * Wireshark - Network traffic analyzer
@@ -20,6 +20,8 @@ class CocoaBridge
 
 public:
     static void cleanOSGeneratedMenuItems();
+
+    static void showInFinder(char const *file_path);
 
 };
 

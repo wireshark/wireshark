@@ -36,7 +36,9 @@
 #include <QUrl>
 #include <QScreen>
 
-#if !defined(Q_OS_WIN) && !defined(Q_OS_MAC) && defined(QT_DBUS_LIB)
+#if defined(Q_OS_MAC)
+#include <ui/macosx/cocoa_bridge.h>
+#elif !defined(Q_OS_WIN) && defined(QT_DBUS_LIB)
 #include <QtDBus/QDBusConnection>
 #include <QtDBus/QDBusMessage>
 #include <QtDBus/QDBusUnixFileDescriptor>
@@ -226,32 +228,8 @@ void desktop_show_in_folder(const QString file_path)
     arguments << "/select," << path + "";
     success = QProcess::startDetached(command, arguments);
 #elif defined(Q_OS_MAC)
-    //
-    // See
-    //
-    //    https://stackoverflow.com/questions/10722740/implementing-show-in-finder-button-in-objective-c
-    //
-    // and
-    //
-    //    https://stackoverflow.com/questions/7652928/launch-finder-window-with-specific-files-selected
-    //
-    // for a way to do this using Cocoa APIs, rather than running the
-    // osascript program to get it to do this with AppleScript.
-    //
-    QStringList script_args;
-    QString escaped_path = file_path;
-
-    escaped_path.replace('"', "\\\"");
-    script_args << "-e"
-               << QString("tell application \"Finder\" to reveal POSIX file \"%1\"")
-                                     .arg(escaped_path);
-    if (QProcess::execute("/usr/bin/osascript", script_args) == 0) {
-        success = true;
-        script_args.clear();
-        script_args << "-e"
-                   << "tell application \"Finder\" to activate";
-        QProcess::execute("/usr/bin/osascript", script_args);
-    }
+    CocoaBridge::showInFinder(file_path.toUtf8());
+    success = true;
 #elif defined(QT_DBUS_LIB)
     // First, try the FileManager1 DBus interface's "ShowItems" method.
     // https://www.freedesktop.org/wiki/Specifications/file-manager-interface/
