@@ -354,6 +354,8 @@ static int hf_media_loc_long;
 static int hf_media_loc_alt_type;
 static int hf_media_loc_alt_resolution;
 static int hf_media_loc_alt;
+static int hf_media_loc_ver;
+static int hf_media_loc_reserved;
 static int hf_media_loc_datum;
 static int hf_media_civic_lci_length;
 static int hf_media_civic_what;
@@ -974,6 +976,14 @@ static const value_string location_data_format[] = {
 static const value_string altitude_type[] = {
 	{ 1,	"Meters" },
 	{ 2,	"Floors" },
+	{ 0, NULL }
+};
+
+/* Datum Type */
+static const value_string datum_type_values[] = {
+	{ 1,	"WGS84" },
+	{ 2,	"NAD83 (Latitude, Longitude) + NAVD88" },
+	{ 3,	"NAD83 (Latitude, Longitude) + MLLW" },
 	{ 0, NULL }
 };
 
@@ -3433,7 +3443,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 1:	/* Coordinate-based LCI */
 		{
 			/*
-			 * See RFC 3825.
+			 * See RFC 6225 (obsoletes RFC 3825).
 			 * XXX - should this be handled by the BOOTP
 			 * dissector, and exported to us?
 			 */
@@ -3471,6 +3481,12 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(tree, hf_media_loc_alt, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 			offset += 4;
+
+			/* Get Ver */
+			proto_tree_add_item(tree, hf_media_loc_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+			/* Get reserved */
+			proto_tree_add_item(tree, hf_media_loc_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 			/* Get datum */
 			proto_tree_add_item(tree, hf_media_loc_datum, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -6068,9 +6084,17 @@ proto_register_lldp(void)
 			{ "Altitude", "lldp.media.loc.altitude", FT_UINT32, BASE_CUSTOM,
 			CF_FUNC(altitude_base), 0x0, NULL, HFILL }
 		},
+		{ &hf_media_loc_ver,
+			{ "Ver", "lldp.media.loc.ver", FT_UINT8, BASE_DEC,
+			NULL, 0xC0, NULL, HFILL }
+		},
+		{ &hf_media_loc_reserved,
+			{ "Reserved", "lldp.media.loc.reserved", FT_UINT8, BASE_DEC,
+			NULL, 0x38, NULL, HFILL }
+		},
 		{ &hf_media_loc_datum,
 			{ "Datum", "lldp.media.loc.datum", FT_UINT8, BASE_DEC,
-			NULL, 0x0, NULL, HFILL }
+			VALS(datum_type_values), 0x07, NULL, HFILL }
 		},
 		{ &hf_media_civic_lci_length,
 			{ "LCI Length", "lldp.media.civic.length", FT_UINT8, BASE_DEC,
