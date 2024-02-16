@@ -65,6 +65,7 @@ static int hf_vp9_pld_pid_bits;
 static int hf_vp9_pld_tid_bits;
 static int hf_vp9_pld_width_bits;
 static int hf_vp9_pld_height_bits;
+static int hf_vp9_pld_n_s_numbers;
 static int hf_vp9_pld_p_diff_bits;
 static int hf_vp9_pld_tl0picidx_bits;
 static int hf_vp9_pld_pg_extended_bits;
@@ -235,12 +236,18 @@ dissect_vp9(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data 
         V:   | N_S |Y|G|-|-|-|
              +-+-+-+-+-+-+-+-+
         */
+        proto_item* n_s_numbers_field;
         guint8 n_s = (tvb_get_guint8(tvb, offset) & (VP9_3_BITS_MASK)) >> 5;
         guint8 y = tvb_get_guint8(tvb, offset) & (VP9_1_BIT_MASK >> 3);
         guint8 g = tvb_get_guint8(tvb, offset) & (VP9_1_BIT_MASK >> 4);
+        guint8 number_of_spatial_layers = n_s + 1;
+
         proto_tree_add_item(vp9_descriptor_tree, hf_vp9_pld_n_s_bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+        n_s_numbers_field = proto_tree_add_uint(vp9_descriptor_tree, hf_vp9_pld_n_s_numbers, tvb, offset, 1, number_of_spatial_layers);
         proto_tree_add_item(vp9_descriptor_tree, hf_vp9_pld_y_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(vp9_descriptor_tree, hf_vp9_pld_g_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_item_set_generated(n_s_numbers_field);
+
         offset++;
 
         /*
@@ -255,7 +262,7 @@ dissect_vp9(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data 
              +-+-+-+-+-+-+-+-+              -/
         */
         guint8 spatial_layer = 0;
-        while (spatial_layer < (n_s + 1))
+        while (spatial_layer < number_of_spatial_layers)
         {
             if (y)
             {
@@ -395,9 +402,14 @@ void proto_register_vp9(void)
           NULL, VP9_1_BIT_MASK >> 7,
           NULL, HFILL}},
         {&hf_vp9_pld_n_s_bits,
-         {"Number of spatial layers", "vp9.pld.n_s",
+         {"Spatial layers minus 1", "vp9.pld.n_s",
           FT_UINT8, BASE_DEC,
           NULL, VP9_3_BITS_MASK,
+          NULL, HFILL}},
+        {&hf_vp9_pld_n_s_numbers,
+         {"Number of spatial layers", "vp9.pld.spatial_layers_number",
+          FT_UINT8, BASE_DEC,
+          NULL, 0,
           NULL, HFILL}},
         {&hf_vp9_pld_y_bit,
          {"Spatial layer's frame resolution present", "vp9.pld.y",
