@@ -6,8 +6,6 @@
 	<string>English</string>
 	<key>CFBundleExecutable</key>
 	<string>Logray</string>
-	<key>CFBundleGetInfoString</key>
-	<string>@LOG_PROJECT_VERSION@, Copyright 1998-2024 Wireshark Development Team</string>
 	<key>CFBundleIconFile</key>
 	<string>Logray.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -40,7 +38,7 @@
 	<key>CFBundleVersion</key>
 	<string>@LOG_PROJECT_VERSION@</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright 1998-2024 Wireshark Developers, GNU General Public License.</string>
+	<string>Copyright 1998-2024 the Wireshark developer community</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSHighResolutionCapable</key>
