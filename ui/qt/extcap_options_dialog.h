@@ -54,6 +54,7 @@ private:
     QString device_name;
     guint device_idx;
     QIcon defaultValueIcon_;
+    bool start_capture_on_close_;
 
     ExtcapArgumentList extcapArguments;
 

@@ -59,7 +59,8 @@ ExtcapOptionsDialog::ExtcapOptionsDialog(bool startCaptureOnClose, QWidget *pare
     ui(new Ui::ExtcapOptionsDialog),
     device_name(""),
     device_idx(0),
-    defaultValueIcon_(StockIcon("x-reset"))
+    defaultValueIcon_(StockIcon("x-reset")),
+    start_capture_on_close_(startCaptureOnClose)
 {
     ui->setupUi(this);
 
@@ -123,7 +124,14 @@ void ExtcapOptionsDialog::on_buttonBox_accepted()
         /* Starting a new capture with those values */
         prefs.extcap_save_on_start = ui->checkSaveOnStart->checkState() == Qt::Checked;
 
-        if (prefs.extcap_save_on_start)
+        /* If the button says "Save" instead of "Start", unconditionally
+         * save. XXX - Why not have both buttons? (#19199)
+         *
+         * XXX - If extcap_save_on_start is the only preference that has
+         * changed, or if it changed from true to false, we should write
+         * out a new preference file with its new value, but don't.
+         */
+        if (prefs.extcap_save_on_start || !start_capture_on_close_)
             storeValues();
 
         accept();
@@ -453,25 +461,17 @@ bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
             continue;
 
         if (call.length() <= 0) {
-            /* BOOLFLAG was cleared, make its value empty */
-            if ((*iter)->argument()->arg_type == EXTCAP_ARG_BOOLFLAG) {
-                *(*iter)->argument()->pref_valptr[0] = 0;
-            }
             continue;
         }
 
         if (value.compare((*iter)->defaultValue()) == 0) {
-            extcap_arg *arg = (*iter)->argument();
-
-            // If previous value is not default, set it to default value
-            if (arg->default_complex != NULL && arg->default_complex->_val != NULL) {
-                g_free(*arg->pref_valptr);
-                *arg->pref_valptr = g_strdup(arg->default_complex->_val);
-            } else {
-                // Set empty value if there is no default value
-                *arg->pref_valptr[0] = 0;
-            }
-            continue;
+            // What _does_ required and also has a default mean (And how is
+            // it different, if at all, from has a default and also placeholder
+            // text)? Will the extcap use the default if we don't pass the
+            // argument (so it's not really required)?
+            // To be safe we can pass the default explicitly.
+            if (!(*iter)->isRequired())
+                continue;
         }
 
         gchar * call_string = qstring_strdup(call);
@@ -480,14 +480,6 @@ bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
             value_string = qstring_strdup(value);
 
         g_hash_table_insert(ret_args, call_string, value_string);
-
-        // For current value we need strdup even it is empty
-        value_string = qstring_strdup(prefValue);
-        // Update current value with new value
-        // We use prefValue because for bool/boolflag it returns value
-        // even it is false
-        g_free(*(*iter)->argument()->pref_valptr);
-        *(*iter)->argument()->pref_valptr = value_string;
     }
 
     if (device->external_cap_args_settings != NULL)
