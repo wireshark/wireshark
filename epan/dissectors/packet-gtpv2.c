@@ -2258,9 +2258,14 @@ static void
 dissect_gtpv2_sv_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
     int offset = 0;
-    proto_tree_add_item(tree, hf_gtpv2_sv_sti, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_sv_ics, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_sv_emind, tvb, offset, 1, ENC_BIG_ENDIAN);
+    static int* const sv_flags[] = {
+        &hf_gtpv2_sv_sti,
+        &hf_gtpv2_sv_ics,
+        &hf_gtpv2_sv_emind,
+        NULL
+    };
+
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, sv_flags, ENC_NA);
     offset += 1;
     if (length > 1)
         proto_tree_add_item(tree, hf_gtpv2_teid_c_spare, tvb, offset, length-1, ENC_NA);
@@ -2786,9 +2791,13 @@ static void
 dissect_gtpv2_bearer_qos(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
     int offset = 0;
-    proto_tree_add_item(tree, hf_gtpv2_bearer_qos_pci,       tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_bearer_qos_pl,        tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_bearer_qos_pvi,       tvb, offset, 1, ENC_BIG_ENDIAN);
+    static int* const bearer_qos_oct1_flags[] = {
+        &hf_gtpv2_bearer_qos_pci,
+        &hf_gtpv2_bearer_qos_pl,
+        &hf_gtpv2_bearer_qos_pl,
+        NULL
+    };
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, bearer_qos_oct1_flags, ENC_BIG_ENDIAN);
     offset += 1;
     proto_tree_add_item(tree, hf_gtpv2_bearer_qos_label_qci, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -3835,11 +3844,15 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     pgw_tree = proto_tree_add_subtree(trigg_tree, tvb, offset + 8, 1, ett_gtpv2_tra_info_trigg_pgw, NULL, "PGW");
 
     /* MSC Server - 2 octets */
-    proto_tree_add_item(msc_server_tree, hf_gtpv2_tra_info_msc_momt_calls,  tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(msc_server_tree, hf_gtpv2_tra_info_msc_momt_sms,    tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(msc_server_tree, hf_gtpv2_tra_info_msc_lu_imsi_ad,  tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(msc_server_tree, hf_gtpv2_tra_info_msc_handovers,   tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(msc_server_tree, hf_gtpv2_tra_info_msc_ss,          tvb, offset, 1, ENC_BIG_ENDIAN);
+    static int* const tra_info_msc_flags[] = {
+        &hf_gtpv2_tra_info_msc_ss,
+        &hf_gtpv2_tra_info_msc_handovers,
+        &hf_gtpv2_tra_info_msc_lu_imsi_ad,
+        &hf_gtpv2_tra_info_msc_momt_sms,
+        &hf_gtpv2_tra_info_msc_momt_calls,
+        NULL
+    };
+    proto_tree_add_bitmask_list(msc_server_tree, tvb, offset, 1, tra_info_msc_flags, ENC_BIG_ENDIAN);
     bit_offset = offset << 3;
     proto_tree_add_bits_item(msc_server_tree, hf_gtpv2_spare_bits,          tvb, bit_offset, 3, ENC_BIG_ENDIAN);
     offset += 1;
@@ -3853,10 +3866,14 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     proto_tree_add_bits_item(mgw_tree, hf_gtpv2_spare_bits,                 tvb, bit_offset, 7, ENC_BIG_ENDIAN);
     offset += 1;
     /* SGSN - 2 octets */
-    proto_tree_add_item(sgsn_tree, hf_gtpv2_tra_info_sgsn_pdp_context,      tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sgsn_tree, hf_gtpv2_tra_info_sgsn_momt_sms,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sgsn_tree, hf_gtpv2_tra_info_sgsn_rau_gprs_ad,      tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sgsn_tree, hf_gtpv2_tra_info_sgsn_mbms,             tvb, offset, 1, ENC_BIG_ENDIAN);
+    static int* const tra_info_sgsn_flags[] = {
+        &hf_gtpv2_tra_info_sgsn_mbms,
+        &hf_gtpv2_tra_info_sgsn_rau_gprs_ad,
+        &hf_gtpv2_tra_info_sgsn_momt_sms,
+        &hf_gtpv2_tra_info_sgsn_pdp_context,
+        NULL
+    };
+    proto_tree_add_bitmask_list(sgsn_tree, tvb, offset, 1, tra_info_sgsn_flags, ENC_BIG_ENDIAN);
     bit_offset = offset << 3;
     proto_tree_add_bits_item(sgsn_tree, hf_gtpv2_spare_bits,                tvb, bit_offset, 4, ENC_BIG_ENDIAN);
     offset += 1;
@@ -3874,24 +3891,38 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     proto_tree_add_bits_item(bm_sc_tree, hf_gtpv2_spare_bits,               tvb, bit_offset, 7, ENC_BIG_ENDIAN);
     offset += 1;
     /* MME/SGW - 1 octet */
-    proto_tree_add_item(sgw_mme_tree, hf_gtpv2_tra_info_mme_sgw_ss,                 tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sgw_mme_tree, hf_gtpv2_tra_info_mme_sgw_sr,                 tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sgw_mme_tree, hf_gtpv2_tra_info_mme_sgw_iataud,             tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sgw_mme_tree, hf_gtpv2_tra_info_mme_sgw_ue_init_pdn_disc,   tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sgw_mme_tree, hf_gtpv2_tra_info_mme_sgw_bearer_act_mod_del, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sgw_mme_tree, hf_gtpv2_tra_info_mme_sgw_ho,                 tvb, offset, 1, ENC_BIG_ENDIAN);
+    static int* const tra_info_mme_flags[] = {
+        &hf_gtpv2_tra_info_mme_sgw_ho,
+        &hf_gtpv2_tra_info_mme_sgw_bearer_act_mod_del,
+        &hf_gtpv2_tra_info_mme_sgw_ue_init_pdn_disc,
+        &hf_gtpv2_tra_info_mme_sgw_iataud,
+        &hf_gtpv2_tra_info_mme_sgw_sr,
+        &hf_gtpv2_tra_info_mme_sgw_ss,
+        NULL
+    };
+    proto_tree_add_bitmask_list(sgw_mme_tree, tvb, offset, 1, tra_info_mme_flags, ENC_BIG_ENDIAN);
     bit_offset = offset << 3;
     proto_tree_add_bits_item(sgw_mme_tree, hf_gtpv2_spare_bits,                     tvb, bit_offset, 2, ENC_BIG_ENDIAN);
     offset += 1;
     /* PGW/SGW - 1 octet */
-    proto_tree_add_item(sgw_tree, hf_gtpv2_tra_info_sgw_pdn_con_creat,      tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sgw_tree, hf_gtpv2_tra_info_sgw_pdn_con_term,       tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sgw_tree, hf_gtpv2_tra_info_sgw_bearer_act_mod_del, tvb, offset, 1, ENC_BIG_ENDIAN);
+    static int* const tra_info_sgw_pdn_flags[] = {
+        &hf_gtpv2_tra_info_sgw_bearer_act_mod_del,
+        &hf_gtpv2_tra_info_sgw_pdn_con_term,
+        &hf_gtpv2_tra_info_sgw_pdn_con_creat,
+        NULL
+    };
+    proto_tree_add_bitmask_list(sgw_mme_tree, tvb, offset, 1, tra_info_sgw_pdn_flags, ENC_BIG_ENDIAN);
     bit_offset = (offset << 3) + 4;
     proto_tree_add_bits_item(sgw_tree, hf_gtpv2_spare_bits,                 tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pgw_tree, hf_gtpv2_tra_info_pgw_pdn_con_creat,      tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pgw_tree, hf_gtpv2_tra_info_pgw_pdn_con_term,       tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pgw_tree, hf_gtpv2_tra_info_pgw_bearer_act_mod_del, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    static int* const tra_info_pgw_flags[] = {
+        &hf_gtpv2_tra_info_pgw_pdn_con_creat,
+        &hf_gtpv2_tra_info_pgw_pdn_con_term,
+        &hf_gtpv2_tra_info_pgw_pdn_con_creat,
+        NULL
+    };
+    proto_tree_add_bitmask_list(pgw_tree, tvb, offset, 1, tra_info_pgw_flags, ENC_BIG_ENDIAN);
+
     bit_offset = offset << 3;
     proto_tree_add_bits_item(pgw_tree, hf_gtpv2_spare_bits,                 tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -3936,14 +3967,18 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     lenb_tree = proto_tree_add_subtree(interfaces_tree, tvb, offset + 11, 1, ett_gtpv2_tra_info_interfaces_lpdn_lenb, NULL, "eNB");
 
     /* MSC Server - 2 octets */
-    proto_tree_add_item(imsc_server_tree, hf_gtpv2_tra_info_lmsc_a,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(imsc_server_tree, hf_gtpv2_tra_info_lmsc_lu,        tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(imsc_server_tree, hf_gtpv2_tra_info_lmsc_mc,        tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(imsc_server_tree, hf_gtpv2_tra_info_lmsc_map_g,     tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(imsc_server_tree, hf_gtpv2_tra_info_lmsc_map_b,     tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(imsc_server_tree, hf_gtpv2_tra_info_lmsc_map_e,     tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(imsc_server_tree, hf_gtpv2_tra_info_lmsc_map_f,     tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(imsc_server_tree, hf_gtpv2_tra_info_lmsc_cap,       tvb, offset, 1, ENC_BIG_ENDIAN);
+    static int* const tra_info_lmsc_flags[] = {
+        &hf_gtpv2_tra_info_lmsc_cap,
+        &hf_gtpv2_tra_info_lmsc_map_f,
+        &hf_gtpv2_tra_info_lmsc_map_e,
+        &hf_gtpv2_tra_info_lmsc_map_b,
+        &hf_gtpv2_tra_info_lmsc_map_g,
+        &hf_gtpv2_tra_info_lmsc_mc,
+        &hf_gtpv2_tra_info_lmsc_lu,
+        &hf_gtpv2_tra_info_lmsc_a,
+        NULL
+    };
+    proto_tree_add_bitmask_list(imsc_server_tree, tvb, offset, 1, tra_info_lmsc_flags, ENC_BIG_ENDIAN);
     offset += 1;
     proto_tree_add_item(imsc_server_tree, hf_gtpv2_tra_info_lmsc_map_d,     tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(imsc_server_tree, hf_gtpv2_tra_info_lmsc_map_c,     tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3951,38 +3986,54 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     proto_tree_add_bits_item(imsc_server_tree, hf_gtpv2_spare_bits,         tvb, bit_offset, 6, ENC_BIG_ENDIAN);
     offset += 1;
     /* MGW - 1 octet */
-    proto_tree_add_item(lmgw_tree, hf_gtpv2_tra_info_lmgw_mc,               tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lmgw_tree, hf_gtpv2_tra_info_lmgw_nb_up,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lmgw_tree, hf_gtpv2_tra_info_lmgw_lu_up,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    static int* const tra_info_lmgw_flags[] = {
+        &hf_gtpv2_tra_info_lmgw_lu_up,
+        &hf_gtpv2_tra_info_lmgw_nb_up,
+        &hf_gtpv2_tra_info_lmgw_mc,
+        NULL
+    };
+    proto_tree_add_bitmask_list(lmgw_tree, tvb, offset, 1, tra_info_lmgw_flags, ENC_BIG_ENDIAN);
     bit_offset = offset << 3;
     proto_tree_add_bits_item(lmgw_tree, hf_gtpv2_spare_bits,                tvb, bit_offset, 5, ENC_BIG_ENDIAN);
     offset += 1;
     /* SGSN - 2 octets */
-    proto_tree_add_item(lsgsn_tree, hf_gtpv2_tra_info_lsgsn_gb,             tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lsgsn_tree, hf_gtpv2_tra_info_lsgsn_lu,             tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lsgsn_tree, hf_gtpv2_tra_info_lsgsn_gn,             tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lsgsn_tree, hf_gtpv2_tra_info_lsgsn_map_gr,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lsgsn_tree, hf_gtpv2_tra_info_lsgsn_map_gd,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lsgsn_tree, hf_gtpv2_tra_info_lsgsn_map_gf,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lsgsn_tree, hf_gtpv2_tra_info_lsgsn_gs,             tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lsgsn_tree, hf_gtpv2_tra_info_lsgsn_ge,             tvb, offset, 1, ENC_BIG_ENDIAN);
+    static int* const tra_info_lsgsn_flags[] = {
+        &hf_gtpv2_tra_info_lsgsn_ge,
+        &hf_gtpv2_tra_info_lsgsn_gs,
+        &hf_gtpv2_tra_info_lsgsn_map_gf,
+        &hf_gtpv2_tra_info_lsgsn_map_gd,
+        &hf_gtpv2_tra_info_lsgsn_map_gr,
+        &hf_gtpv2_tra_info_lsgsn_gn,
+        &hf_gtpv2_tra_info_lsgsn_lu,
+        &hf_gtpv2_tra_info_lsgsn_gb,
+        NULL
+    };
+    proto_tree_add_bitmask_list(lsgsn_tree, tvb, offset, 1, tra_info_lsgsn_flags, ENC_BIG_ENDIAN);
     offset += 1;
     bit_offset = offset << 3;
     proto_tree_add_bits_item(lsgsn_tree, hf_gtpv2_spare_bits,               tvb, bit_offset, 8, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* GGSN - 1 octet */
-    proto_tree_add_item(lggsn_tree, hf_gtpv2_tra_info_lggsn_gn,             tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lggsn_tree, hf_gtpv2_tra_info_lggsn_gi,             tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lggsn_tree, hf_gtpv2_tra_info_lggsn_gmb,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    static int* const tra_info_lggsn_flags[] = {
+        &hf_gtpv2_tra_info_lggsn_gmb,
+        & hf_gtpv2_tra_info_lggsn_gi,
+        & hf_gtpv2_tra_info_lggsn_gn,
+        NULL
+    };
+    proto_tree_add_bitmask_list(lggsn_tree, tvb, offset, 1, tra_info_lggsn_flags, ENC_BIG_ENDIAN);
     bit_offset = offset << 3;
     proto_tree_add_bits_item(lggsn_tree, hf_gtpv2_spare_bits,               tvb, bit_offset, 5, ENC_BIG_ENDIAN);
     offset += 1;
     /* RNC - 1 octet */
-    proto_tree_add_item(lrnc_tree, hf_gtpv2_tra_info_lrnc_lu,               tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lrnc_tree, hf_gtpv2_tra_info_lrnc_lur,              tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lrnc_tree, hf_gtpv2_tra_info_lrnc_lub,              tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lrnc_tree, hf_gtpv2_tra_info_lrnc_uu,               tvb, offset, 1, ENC_BIG_ENDIAN);
+    static int* const tra_info_lrnc_flags[] = {
+        &hf_gtpv2_tra_info_lrnc_uu,
+        &hf_gtpv2_tra_info_lrnc_lub,
+        &hf_gtpv2_tra_info_lrnc_lur,
+        &hf_gtpv2_tra_info_lrnc_lu,
+        NULL
+    };
+    proto_tree_add_bitmask_list(lrnc_tree, tvb, offset, 1, tra_info_lrnc_flags, ENC_BIG_ENDIAN);
     bit_offset = offset << 3;
     proto_tree_add_bits_item(lrnc_tree, hf_gtpv2_spare_bits,                tvb, bit_offset, 4, ENC_BIG_ENDIAN);
     offset += 1;
@@ -3992,36 +4043,52 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     proto_tree_add_bits_item(lbm_sc_tree, hf_gtpv2_spare_bits,              tvb, bit_offset, 7, ENC_BIG_ENDIAN);
     offset += 1;
     /* MME - 1 octet */
-    proto_tree_add_item(lmme_tree, hf_gtpv2_tra_info_lmme_s1_mme,           tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lmme_tree, hf_gtpv2_tra_info_lmme_s3,               tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lmme_tree, hf_gtpv2_tra_info_lmme_s6a,              tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lmme_tree, hf_gtpv2_tra_info_lmme_s10,              tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lmme_tree, hf_gtpv2_tra_info_lmme_s11,              tvb, offset, 1, ENC_BIG_ENDIAN);
+    static int* const tra_info_lmme_flags[] = {
+        &hf_gtpv2_tra_info_lmme_s11,
+        &hf_gtpv2_tra_info_lmme_s10,
+        &hf_gtpv2_tra_info_lmme_s6a,
+        &hf_gtpv2_tra_info_lmme_s3,
+        &hf_gtpv2_tra_info_lmme_s1_mme,
+        NULL
+    };
+    proto_tree_add_bitmask_list(lmme_tree, tvb, offset, 1, tra_info_lmme_flags, ENC_BIG_ENDIAN);
     bit_offset = offset << 3;
     proto_tree_add_bits_item(lmme_tree, hf_gtpv2_spare_bits,                tvb, bit_offset, 3, ENC_BIG_ENDIAN);
     offset += 1;
     /* SGW - 1 octet */
-    proto_tree_add_item(lsgw_tree, hf_gtpv2_tra_info_lsgw_s4,               tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lsgw_tree, hf_gtpv2_tra_info_lsgw_s5,               tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lsgw_tree, hf_gtpv2_tra_info_lsgw_s8b,              tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lsgw_tree, hf_gtpv2_tra_info_lsgw_s11,              tvb, offset, 1, ENC_BIG_ENDIAN);
+    static int* const tra_info_lsgw_flags[] = {
+        &hf_gtpv2_tra_info_lsgw_s11,
+        &hf_gtpv2_tra_info_lsgw_s8b,
+        &hf_gtpv2_tra_info_lsgw_s5,
+        &hf_gtpv2_tra_info_lsgw_s4,
+        NULL
+    };
+    proto_tree_add_bitmask_list(lsgw_tree, tvb, offset, 1, tra_info_lsgw_flags, ENC_BIG_ENDIAN);
     bit_offset = offset << 3;
     proto_tree_add_bits_item(lsgw_tree, hf_gtpv2_spare_bits,                tvb, bit_offset, 4, ENC_BIG_ENDIAN);
     offset += 1;
     /* PDN GW - 1 octet */
-    proto_tree_add_item(lpdn_gw_tree, hf_gtpv2_tra_info_lpdn_gw_s2a,        tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lpdn_gw_tree, hf_gtpv2_tra_info_lpdn_gw_s2b,        tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lpdn_gw_tree, hf_gtpv2_tra_info_lpdn_gw_s2c,        tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lpdn_gw_tree, hf_gtpv2_tra_info_lpdn_gw_s5,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lpdn_gw_tree, hf_gtpv2_tra_info_lpdn_gw_s6c,        tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lpdn_gw_tree, hf_gtpv2_tra_info_lpdn_gw_gx,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lpdn_gw_tree, hf_gtpv2_tra_info_lpdn_gw_s8b,        tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lpdn_gw_tree, hf_gtpv2_tra_info_lpdn_gw_sgi,        tvb, offset, 1, ENC_BIG_ENDIAN);
+    static int* const tra_info_lpdn_gw_flags[] = {
+        &hf_gtpv2_tra_info_lpdn_gw_sgi,
+        &hf_gtpv2_tra_info_lpdn_gw_s8b,
+        &hf_gtpv2_tra_info_lpdn_gw_gx,
+        &hf_gtpv2_tra_info_lpdn_gw_s6c,
+        &hf_gtpv2_tra_info_lpdn_gw_s5,
+        &hf_gtpv2_tra_info_lpdn_gw_s2c,
+        &hf_gtpv2_tra_info_lpdn_gw_s2b,
+        &hf_gtpv2_tra_info_lpdn_gw_s2a,
+        NULL
+    };
+    proto_tree_add_bitmask_list(lpdn_gw_tree, tvb, offset, 1, tra_info_lpdn_gw_flags, ENC_BIG_ENDIAN);
     offset += 1;
     /* eNB - 1 octet */
-    proto_tree_add_item(lenb_tree, hf_gtpv2_tra_info_lenb_s1_mme,           tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lenb_tree, hf_gtpv2_tra_info_lenb_x2,               tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lenb_tree, hf_gtpv2_tra_info_lenb_uu,               tvb, offset, 1, ENC_BIG_ENDIAN);
+    static int* const tra_info_lenb_flags[] = {
+        &hf_gtpv2_tra_info_lenb_uu,
+        &hf_gtpv2_tra_info_lenb_x2,
+        &hf_gtpv2_tra_info_lenb_s1_mme,
+        NULL
+    };
+    proto_tree_add_bitmask_list(lenb_tree, tvb, offset, 1, tra_info_lenb_flags, ENC_BIG_ENDIAN);
     bit_offset = offset << 3;
     proto_tree_add_bits_item(lenb_tree, hf_gtpv2_spare_bits,                tvb, bit_offset, 5, ENC_BIG_ENDIAN);
 
