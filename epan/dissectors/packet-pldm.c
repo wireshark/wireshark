@@ -502,10 +502,10 @@ static const value_string field_types_general[] = {
 
 /* Some details of frame seen passed info functions handling packet types.
    Not stored as per-packet data in frame...  */
-struct packet_data {
+typedef struct pldm_packet_data {
 	guint8 direction;
 	guint8 instance_id;
-};
+} pldm_packet_data;
 
 
 
@@ -572,19 +572,17 @@ static void ver2str(tvbuff_t *tvb, int offset, char *buf_ptr, size_t buffer_size
 
 
 static
-int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, void *data)
+int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pldm_packet_data *data)
 {
-	struct packet_data *d = (struct packet_data *)data;
 	static uint8_t pldmT = -1;
-	guint8 instID = d->instance_id;
-	guint8 request = d->direction;
+	guint8 instID = data->instance_id;
+	guint8 request = data->direction;
 	guint8 offset = 0;
-	guint8 pldm_cmd = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(p_tree, hf_pldm_base_commands, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	guint32 pldm_cmd, completion_code;
+	proto_tree_add_item_ret_uint(p_tree, hf_pldm_base_commands, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pldm_cmd);
 	offset += 1;
 	if (!request) { //completion code in response only
-		proto_tree_add_item(p_tree, hf_pldm_completion_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		guint8 completion_code = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item_ret_uint(p_tree, hf_pldm_completion_code, tvb, offset, 1, ENC_LITTLE_ENDIAN, &completion_code);
 		if (completion_code)
 			return tvb_captured_length(tvb);
 		offset += 1;
@@ -727,18 +725,15 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, void *da
 
 
 static
-int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, void *data)
+int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, const pldm_packet_data *data)
 {
-	struct packet_data *d = (struct packet_data *)data;
-	guint8 request = d->direction;
+	guint8 request = data->direction;
 	guint8 offset = 0;
-	guint8 pldm_cmd = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(p_tree, hf_pldm_platform_commands, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	guint32 pldm_cmd, completion_code;
+	proto_tree_add_item_ret_uint(p_tree, hf_pldm_platform_commands, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pldm_cmd);
 	offset += 1;
 	if (!request) { //completion code in response only
-		proto_tree_add_item(p_tree, hf_pldm_platform_completion_code, tvb, offset, 1,
-				ENC_LITTLE_ENDIAN);
-		guint8 completion_code = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item_ret_uint(p_tree, hf_pldm_platform_completion_code, tvb, offset, 1, ENC_LITTLE_ENDIAN, &completion_code);
 		if (completion_code)
 			return tvb_captured_length(tvb);
 		offset += 1;
@@ -768,17 +763,16 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 				offset += 1;
 				proto_tree_add_item(p_tree, hf_pldm_base_TID, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
-				proto_tree_add_item(p_tree, hf_event_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-				guint8 platform_event_message_class = tvb_get_guint8(tvb, offset);
+				guint32 platform_event_message_class;
+				proto_tree_add_item_ret_uint(p_tree, hf_event_class, tvb, offset, 1, ENC_LITTLE_ENDIAN, &platform_event_message_class);
 				offset += 1;
-				guint8 sensor_event_class;
+				guint32 sensor_event_class;
 				/* Event Data */
 				switch (platform_event_message_class) {
 					case 0x0: // SensorEvent(0x00)
 						proto_tree_add_item(p_tree, hf_sensor_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 						offset += 2;
-						proto_tree_add_item(p_tree, hf_sensor_event_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-						sensor_event_class = tvb_get_guint8(tvb, offset);
+						proto_tree_add_item_ret_uint(p_tree, hf_sensor_event_class, tvb, offset, 1, ENC_LITTLE_ENDIAN, &sensor_event_class);
 						offset += 1;
 						/* Sensor Event Class */
 						switch (sensor_event_class) {
@@ -799,9 +793,9 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 								offset += 1;
 								proto_tree_add_item(p_tree, hf_event_prev_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 								offset += 1;
-								proto_tree_add_item(p_tree, hf_sensor_data_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+								guint32 size;
+								proto_tree_add_item_ret_uint(p_tree, hf_sensor_data_size, tvb, offset, 1, ENC_LITTLE_ENDIAN, &size);
 								offset += 1;
-								guint8 size = tvb_get_guint8(tvb, offset);
 								switch (size) {
 									case 0:
 										proto_tree_add_item(p_tree, hf_sensor_value_u8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -832,21 +826,20 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 						break;
 					case 0x4: // PLDM PDR Repository Change Event
 						if (request) {
-							proto_tree_add_item(p_tree, hf_pdr_data_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-							guint8 pdr_data_format = tvb_get_guint8(tvb, offset);
+							guint32 pdr_data_format, num_change_record;
+							proto_tree_add_item_ret_uint(p_tree, hf_pdr_data_format, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pdr_data_format);
 							offset += 1;
-							proto_tree_add_item(p_tree, hf_pdr_num_change_recs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-							guint8 num_change_record = tvb_get_guint8(tvb, offset);
+							proto_tree_add_item_ret_uint(p_tree, hf_pdr_num_change_recs, tvb, offset, 1, ENC_LITTLE_ENDIAN, &num_change_record);
 							if (num_change_record>0) { // if pdr_data_format is refresh entire repo then num-change-record shall be 0
 								offset +=1;
-								for (gint i = 0; i < num_change_record; i++) {
+								for (guint32 i = 0; i < num_change_record; i++) {
 									proto_tree_add_item(p_tree, hf_pdr_repo_change_event_data_op, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 									offset +=1;
-									proto_tree_add_item(p_tree, hf_pdr_repo_change_rec_num_change_entries, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-									guint8 num_change_entries = tvb_get_guint8(tvb, offset);
+									guint32 num_change_entries;
+									proto_tree_add_item_ret_uint(p_tree, hf_pdr_repo_change_rec_num_change_entries, tvb, offset, 1, ENC_LITTLE_ENDIAN, &num_change_entries);
 									offset +=1;
-									for (gint j = 0; j < num_change_entries; j++) {
-										if (pdr_data_format == 1) { //pdr type enumeration  -- testing
+									for (guint32 j = 0; j < num_change_entries; j++) {
+										if (pdr_data_format == 1) { // pdr type enumeration
 											proto_tree_add_item(p_tree, hf_pdr_repo_change_event_record_pdr_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 										}
 										else if (pdr_data_format == 2) { // pdr Record handle enumeration
@@ -892,9 +885,9 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 				offset +=1;
 				proto_tree_add_item(p_tree, hf_pldm_sensor_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			} else {
-				proto_tree_add_item(p_tree, hf_sensor_composite_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-				guint8 sensor_comp_count = tvb_get_guint8(tvb, offset);
-                                for (gint i=0; i<sensor_comp_count; i++) { // statefield
+				guint32 sensor_comp_count;
+				proto_tree_add_item_ret_uint(p_tree, hf_sensor_composite_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &sensor_comp_count);
+				for (guint32 i=0; i<sensor_comp_count; i++) { // statefield
 					offset += 1;
 					proto_tree_add_item(p_tree, hf_sensor_present_op_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
@@ -913,8 +906,8 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 				proto_tree_add_item(p_tree, hf_event_rearm, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			}
 			else {
-				proto_tree_add_item(p_tree, hf_sensor_data_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-				guint8 size = tvb_get_guint8(tvb, offset);
+				guint32 size;
+				proto_tree_add_item_ret_uint(p_tree, hf_sensor_data_size, tvb, offset, 1, ENC_LITTLE_ENDIAN, &size);
 				offset += 1;
 				proto_tree_add_item(p_tree, hf_sensor_present_op_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
@@ -954,8 +947,8 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 			if (request) {
 				proto_tree_add_item(p_tree, hf_effecter_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
-				proto_tree_add_item(p_tree, hf_effecter_datasize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-				guint8 size = tvb_get_guint8(tvb, offset);
+				guint32 size;
+				proto_tree_add_item_ret_uint(p_tree, hf_effecter_datasize, tvb, offset, 1, ENC_LITTLE_ENDIAN, &size);
 				offset += 1;
 				switch (size) {
 					case 0:
@@ -985,8 +978,8 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 			if (request) {
 				proto_tree_add_item(p_tree, hf_effecter_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			} else {
-				proto_tree_add_item(p_tree, hf_effecter_datasize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-				guint8 size = tvb_get_guint8(tvb, offset);
+				guint32 size;
+				proto_tree_add_item_ret_uint(p_tree, hf_effecter_datasize, tvb, offset, 1, ENC_LITTLE_ENDIAN, &size);
 				offset += 1;
 				proto_tree_add_item(p_tree, hf_effecter_op_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
@@ -1031,9 +1024,9 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 			if (request) {
 				proto_tree_add_item(p_tree, hf_effecter_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
-				proto_tree_add_item(p_tree, hf_effecter_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-				guint8 effecter_comp_count = tvb_get_guint8(tvb, offset);
-				for (gint i=0; i < effecter_comp_count; i++) { // statefield
+				guint32 effecter_comp_count;
+				proto_tree_add_item_ret_uint(p_tree, hf_effecter_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &effecter_comp_count);
+				for (guint32 i=0; i < effecter_comp_count; i++) { // statefield
 					offset += 1;
 					proto_tree_add_item(p_tree, hf_effecter_set_request, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
@@ -1058,11 +1051,11 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 				offset += 4;
 				proto_tree_add_item(p_tree, hf_pdr_next_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
-				proto_tree_add_item(p_tree, hf_pdr_transfer_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-				guint8 transfer_flag = tvb_get_guint8(tvb, offset);
+				guint32 transfer_flag;
+				proto_tree_add_item_ret_uint(p_tree, hf_pdr_transfer_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN, &transfer_flag);
 				offset += 1;
-				proto_tree_add_item(p_tree, hf_pdr_response_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-				guint16 response_cnt = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+				guint32 response_cnt;
+				proto_tree_add_item_ret_uint(p_tree, hf_pdr_response_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &response_cnt);
 				offset += 2;
 				guint16 pdr_length = tvb_reported_length_remaining(tvb, offset);
 				if (response_cnt) {
@@ -1090,31 +1083,27 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 }
 
 static
-guint16 parse_fru_record_table(tvbuff_t *tvb, packet_info *pinfo,
+guint16 parse_fru_record_table(tvbuff_t *tvb, const packet_info *pinfo,
 	proto_tree *p_tree, guint16 offset)
 {
-	guint8 min_size = 8, field_len = 0, num_fields = 0, encoding = 0, record_type;
+	guint32 min_size = 8, field_len = 0, num_fields = 0, encoding = 0, record_type;
 	guint16 bytes_left = tvb_reported_length(tvb) - offset;
 	while (bytes_left >= min_size) {
 		// parse a FRU Record Data
 		proto_tree_add_item(p_tree, hf_fru_record_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
-		record_type = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(p_tree, hf_fru_record_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint(p_tree, hf_fru_record_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &record_type);
 		offset += 1;
-		num_fields = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(p_tree, hf_fru_record_num_fields, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint(p_tree, hf_fru_record_num_fields, tvb, offset, 1, ENC_LITTLE_ENDIAN, &num_fields);
 		offset += 1;
-		encoding = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(p_tree, hf_fru_record_encoding, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint(p_tree, hf_fru_record_encoding, tvb, offset, 1, ENC_LITTLE_ENDIAN, &encoding);
 		offset += 1;
 
 		for (guint8 i = 0; i < num_fields; i++) {
 			if (record_type == 1) { // General
 				proto_tree_add_item(p_tree, hf_fru_record_field_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
-				field_len = tvb_get_guint8(tvb, offset);
-				proto_tree_add_item(p_tree, hf_fru_record_field_len, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item_ret_uint(p_tree, hf_fru_record_field_len, tvb, offset, 1, ENC_LITTLE_ENDIAN, &field_len);
 				offset += 1;
 				switch (encoding) {
 					case 0x1:
@@ -1149,14 +1138,13 @@ guint16 parse_fru_record_table(tvbuff_t *tvb, packet_info *pinfo,
 };
 
 static
-int dissect_FRU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, void *data)
+int dissect_FRU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pldm_packet_data *data)
 {
-	struct packet_data *d = (struct packet_data *)data;
-	guint8 request = d->direction;
+	guint8 request = data->direction;
 	guint16 offset = 0;
-	guint8 pldm_cmd = tvb_get_guint8(tvb, offset);
+	guint32 pldm_cmd;
 	guint8 padding = 0;
-	proto_tree_add_item(p_tree, hf_pldm_FRU_commands, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(p_tree, hf_pldm_FRU_commands, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pldm_cmd);
 	offset += 1;
 	if (!request) {
 		guint8 completion_code = tvb_get_guint8(tvb, offset);
@@ -1168,92 +1156,93 @@ int dissect_FRU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, void *dat
 			case 0x84:
 			case 0x85:
 				proto_tree_add_item(p_tree, hf_fru_completion_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-			break;
+				break;
 			default:
 				proto_tree_add_item(p_tree, hf_pldm_completion_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		}
+
 		if (completion_code)
 			return tvb_captured_length(tvb);
 		offset += 1;
 	}
 	switch (pldm_cmd) {
-	case 0x01: // Get Fru record table metadata
-		if (!request) {
-			proto_tree_add_item(p_tree, hf_fru_major_ver, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-			offset += 1;
-			proto_tree_add_item(p_tree, hf_fru_minor_ver, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-			offset += 1;
-			proto_tree_add_item(p_tree, hf_fru_table_max_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-			offset += 4;
-			proto_tree_add_item(p_tree, hf_fru_table_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-			offset += 4;
-			proto_tree_add_item(p_tree, hf_fru_num_record_identifiers, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-			offset += 2;
-			proto_tree_add_item(p_tree, hf_fru_num_records, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-			offset += 2;
-			proto_tree_add_item(p_tree, hf_fru_table_crc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		}
-		break;
-	case 0x02: // Get Fru record table
-		if (request) {
-			proto_tree_add_item(p_tree, hf_fru_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-			offset += 4;
-			proto_tree_add_item(p_tree, hf_fru_transfer_op_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		} else {
-			proto_tree_add_item(p_tree, hf_fru_next_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-			offset += 4;
-			proto_tree_add_item(p_tree, hf_fru_transfer_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-			offset += 1;
-			offset = parse_fru_record_table(tvb, pinfo, p_tree, offset);//check
-			if (tvb_captured_length(tvb) != offset)
-				col_append_fstr(pinfo->cinfo, COL_INFO, "Unexpected bytes at end of FRU table");
-		}
-		break;
-	case 0x03: // Set Fru record table
-		if (request) {
-			proto_tree_add_item(p_tree, hf_fru_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-			offset += 4;
-			proto_tree_add_item(p_tree, hf_pldm_base_transferFlag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-			offset += 1;
-			offset = parse_fru_record_table(tvb, pinfo, p_tree, offset);//check
-			if (tvb_captured_length(tvb) != offset) {
-				padding = tvb_captured_length(tvb) - offset - 4;
-				offset += padding;
-				proto_tree_add_item(p_tree, hf_fru_record_crc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		case 0x01: // Get Fru record table metadata
+			if (!request) {
+				proto_tree_add_item(p_tree, hf_fru_major_ver, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+				offset += 1;
+				proto_tree_add_item(p_tree, hf_fru_minor_ver, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+				offset += 1;
+				proto_tree_add_item(p_tree, hf_fru_table_max_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+				offset += 4;
+				proto_tree_add_item(p_tree, hf_fru_table_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+				offset += 4;
+				proto_tree_add_item(p_tree, hf_fru_num_record_identifiers, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+				offset += 2;
+				proto_tree_add_item(p_tree, hf_fru_num_records, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+				offset += 2;
+				proto_tree_add_item(p_tree, hf_fru_table_crc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			}
-		} else {
-			proto_tree_add_item(p_tree, hf_fru_next_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		}
-		break;
-	case 0x04: // GetFruRecordByOption
-		if (request) {
-			proto_tree_add_item(p_tree, hf_fru_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-			offset += 4;
-			proto_tree_add_item(p_tree, hf_fru_table_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-			offset += 2;
-			proto_tree_add_item(p_tree, hf_fru_record_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-			offset += 2;
-			proto_tree_add_item(p_tree, hf_fru_record_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-			offset += 1;
-			proto_tree_add_item(p_tree, hf_fru_record_field_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-			offset +=1;
-			proto_tree_add_item(p_tree, hf_fru_transfer_op_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		} else {
-			proto_tree_add_item(p_tree, hf_fru_next_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-			offset += 4;
-			proto_tree_add_item(p_tree, hf_pldm_base_transferFlag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-			offset += 1;
-			offset = parse_fru_record_table(tvb, pinfo, p_tree, offset); // check
-			if (tvb_captured_length(tvb) != offset) {
-				padding = tvb_captured_length(tvb) - offset - 4;
-				offset += padding;
-				proto_tree_add_item(p_tree, hf_fru_record_crc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			break;
+		case 0x02: // Get Fru record table
+			if (request) {
+				proto_tree_add_item(p_tree, hf_fru_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+				offset += 4;
+				proto_tree_add_item(p_tree, hf_fru_transfer_op_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			} else {
+				proto_tree_add_item(p_tree, hf_fru_next_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+				offset += 4;
+				proto_tree_add_item(p_tree, hf_fru_transfer_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+				offset += 1;
+				offset = parse_fru_record_table(tvb, pinfo, p_tree, offset);//check
+				if (tvb_captured_length(tvb) != offset)
+					col_append_fstr(pinfo->cinfo, COL_INFO, "Unexpected bytes at end of FRU table");
 			}
-		}
-		break;
-	default:
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Unsupported or Invalid PLDM command");
-		break;
+			break;
+		case 0x03: // Set Fru record table
+			if (request) {
+				proto_tree_add_item(p_tree, hf_fru_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+				offset += 4;
+				proto_tree_add_item(p_tree, hf_pldm_base_transferFlag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+				offset += 1;
+				offset = parse_fru_record_table(tvb, pinfo, p_tree, offset);//check
+				if (tvb_captured_length(tvb) != offset) {
+					padding = tvb_captured_length(tvb) - offset - 4;
+					offset += padding;
+					proto_tree_add_item(p_tree, hf_fru_record_crc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+				}
+			} else {
+				proto_tree_add_item(p_tree, hf_fru_next_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			}
+			break;
+		case 0x04: // GetFruRecordByOption
+			if (request) {
+				proto_tree_add_item(p_tree, hf_fru_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+				offset += 4;
+				proto_tree_add_item(p_tree, hf_fru_table_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+				offset += 2;
+				proto_tree_add_item(p_tree, hf_fru_record_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+				offset += 2;
+				proto_tree_add_item(p_tree, hf_fru_record_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+				offset += 1;
+				proto_tree_add_item(p_tree, hf_fru_record_field_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+				offset +=1;
+				proto_tree_add_item(p_tree, hf_fru_transfer_op_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			} else {
+				proto_tree_add_item(p_tree, hf_fru_next_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+				offset += 4;
+				proto_tree_add_item(p_tree, hf_pldm_base_transferFlag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+				offset += 1;
+				offset = parse_fru_record_table(tvb, pinfo, p_tree, offset); // check
+				if (tvb_captured_length(tvb) != offset) {
+					padding = tvb_captured_length(tvb) - offset - 4;
+					offset += padding;
+					proto_tree_add_item(p_tree, hf_fru_record_crc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+				}
+			}
+			break;
+		default:
+			col_append_fstr(pinfo->cinfo, COL_INFO, "Unsupported or Invalid PLDM command");
+			break;
 	}
 
 	return tvb_captured_length(tvb);
@@ -1266,8 +1255,9 @@ static int dissect_pldm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	tvbuff_t *next_tvb;
-	guint len, direction;
-	guint8 instID, pldm_type, offset;
+	guint len;
+	guint32 direction;
+	guint32 instID, pldm_type, offset;
 	int reported_length;
 	len = tvb_reported_length(tvb);
 	if (len < PLDM_MIN_LENGTH) {
@@ -1280,30 +1270,28 @@ static int dissect_pldm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_item *ti = proto_tree_add_item(tree, proto_pldm, tvb, offset, -1, ENC_NA);
 		proto_tree *pldm_tree = proto_item_add_subtree(ti, ett_pldm);
 
-		proto_tree_add_item(pldm_tree, hf_pldm_msg_direction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		direction = tvb_get_bits8(tvb, offset * 8, 2);
+		proto_tree_add_item_ret_uint(pldm_tree, hf_pldm_msg_direction, tvb, offset, 1, ENC_LITTLE_ENDIAN, &direction);
 		proto_tree_add_item(pldm_tree, hf_pldm_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		proto_tree_add_item(pldm_tree, hf_pldm_instance_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		instID = tvb_get_guint8(tvb, offset);
-		instID = instID & 0x1F;
+		proto_tree_add_item_ret_uint(pldm_tree, hf_pldm_instance_id, tvb, offset, 1, ENC_LITTLE_ENDIAN, &instID);
 		offset += 1;
-		pldm_type = tvb_get_bits8(tvb, offset * 8 + 2, 6);
 		proto_tree_add_item(pldm_tree, hf_pldm_header_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		proto_tree_add_item(pldm_tree, hf_pldm_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint(pldm_tree, hf_pldm_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pldm_type);
 		offset += 1;
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		reported_length = tvb_reported_length_remaining(tvb, offset);
-		struct packet_data d = {direction, instID};
+
+		/* Handle specific packet type */
+		pldm_packet_data d = {direction, instID};
 		if (reported_length >= 1) {
 			switch (pldm_type) {
 				case 0:
-					dissect_base(next_tvb, pinfo, pldm_tree, (void *)&d);
+					dissect_base(next_tvb, pinfo, pldm_tree, &d);
 					break;
 				case 2:
-					dissect_platform(next_tvb, pinfo, pldm_tree, (void *)&d);
+					dissect_platform(next_tvb, pinfo, pldm_tree, &d);
 					break;
 				case 4:
-					dissect_FRU(next_tvb, pinfo, pldm_tree, (void *)&d);
+					dissect_FRU(next_tvb, pinfo, pldm_tree, &d);
 			}
 		}
 	}
