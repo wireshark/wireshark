@@ -19,14 +19,14 @@
 #define PLDM_MIN_LENGTH 4
 #define PLDM_MAX_TYPES 8
 
-#define POINTER_MOVE(rc, buffer, buffer_size)                                  \
-	do {                                                                         \
-		if (rc < 0)                                                                \
-			return;                                                                  \
-		if ((size_t)rc >= buffer_size)                                             \
-			return;                                                                  \
-		buffer += rc;                                                              \
-		buffer_size -= rc;                                                         \
+#define POINTER_MOVE(rc, buffer, buffer_size)       \
+	do {                                            \
+		if (rc < 0)                                 \
+			return;                                 \
+		if ((size_t)rc >= buffer_size)              \
+			return;                                 \
+		buffer += rc;                               \
+		buffer_size -= rc;                          \
 	} while (0);
 
 
@@ -91,7 +91,7 @@ static int hf_pdr_repo_change_event_record_pdr_type;
 static int hf_pdr_repo_change_event_record_pdr_record_handle;
 static int hf_result_status;
 
-/*GetStateSensorReadings*/
+/* GetStateSensorReadings */
 static int hf_sensor_rearm;
 static int hf_sensor_composite_count;
 static int hf_sensor_event_state;
@@ -100,11 +100,11 @@ static int hf_sensor_prev_event_state;
 static int hf_pldm_sensor_reserved;
 static int hf_sensor_rearm_none;
 
-/*GetSensorReading*/
+/* GetSensorReading */
 static int hf_event_rearm;
 static int hf_sensor_event_msg_enable;
 
-/*SetNumericEffecterValue*/
+/* SetNumericEffecterValue */
 static int hf_effecter_id;
 static int hf_effecter_count;
 static int hf_effecter_datasize;
@@ -115,7 +115,7 @@ static int hf_effecter_value_s16;
 static int hf_effecter_value_u32;
 static int hf_effecter_value_s32;
 
-/*GetNumericEffecterValue*/
+/* GetNumericEffecterValue */
 static int hf_effecter_op_state;
 static int hf_effecter_value_pnd_u8;
 static int hf_effecter_value_pnd_s8;
@@ -130,11 +130,11 @@ static int hf_effecter_value_pres_s16;
 static int hf_effecter_value_pres_u32;
 static int hf_effecter_value_pres_s32;
 
-/*SetStateEffecterStates*/
+/* SetStateEffecterStates */
 static int hf_effecter_set_request;
 static int hf_effecter_state;
 
-/*GetPDR*/
+/* GetPDR */
 static int hf_pdr_record_handle;
 static int hf_pdr_data_handle;
 static int hf_pdr_transfer_op_flag;
@@ -147,8 +147,8 @@ static int hf_pdr_response_count;
 static int hf_transfer_crc;
 static int hf_pdr_record_data;
 
-/*FRU definitions*/
-/*FRU specific completion code*/
+/* FRU definitions */
+/* FRU specific completion code */
 static int hf_fru_completion_code;
 static int hf_fru_major_ver;
 static int hf_fru_minor_ver;
@@ -181,7 +181,8 @@ static const value_string directions[] = {
 	{1, "reserved"},
 	{2, "request"},
 	{3, "async/unack"},
-	{0, NULL}};
+	{0, NULL}
+};
 
 static const value_string pldm_types[] = {
 	{0, "PLDM Messaging and Discovery"},
@@ -192,7 +193,8 @@ static const value_string pldm_types[] = {
 	{5, "PLDM for Firmware Update"},
 	{6, "PLDM for Redfish Device Enablement"},
 	{63, "OEM Specific"},
-	{0, NULL}};
+	{0, NULL}
+};
 
 static const value_string pldmBaseCmd[] = {
 	{1, "Set TID"},
@@ -204,7 +206,8 @@ static const value_string pldmBaseCmd[] = {
 	{7, "NegotiateTransferParameters"},
 	{8, "Multipart Send"},
 	{9, "Multipart Receive"},
-	{0, NULL}};
+	{0, NULL}
+};
 
 static const value_string pldmPlatformCmds[] = {
 	{4, "SetEventReceiver"},
@@ -215,14 +218,16 @@ static const value_string pldmPlatformCmds[] = {
 	{50, "GetNumericEffecterValue"},
 	{57, "SetStateEffecterStates"},
 	{81, "GetPDR"},
-	{0, NULL}};
+	{0, NULL}
+};
 
 static const value_string pldmFruCmds[] = {
 	{1, "GetFRURecordTableMetadata"},
 	{2, "GetFRURecordTable"},
 	{3, "SetFRURecordTable"},
 	{4, "GetFRURecordByOption"},
-	{0, NULL}};
+	{0, NULL}
+};
 
 static const value_string pldmBIOScmd[] = {
 	{1, "GetBIOSTable"},
@@ -231,19 +236,22 @@ static const value_string pldmBIOScmd[] = {
 	{8, "GetBIOSAttributeCurrentValueByHandle"},
 	{12, "GetDateTime"},
 	{13, "SetDateTime"},
-	{0, NULL}};
+	{0, NULL}
+};
 
 static const value_string transferOperationFlags[] = {
 	{0, "GetNextPart"},
 	{1, "GetFirstPart"},
-	{0, NULL}};
+	{0, NULL}
+};
 
 static const value_string transferFlags[] = {
 	{1, "Start"},
 	{2, "Middle"},
 	{4, "End"},
 	{5, "StartAndEnd"},
-	{0, NULL}};
+	{0, NULL}
+};
 
 static const value_string completion_codes[] = {
 	{0x0, "Success"},
@@ -253,7 +261,8 @@ static const value_string completion_codes[] = {
 	{0x4, "Not Ready"},
 	{0x5, "Unsupported PLDM command"},
 	{0x20, "Invalid PLDM type"},
-	{0, NULL}};
+	{0, NULL}
+};
 
 static const value_string platform_completion_codes[] = {
 	{0x0, "Success"},
@@ -269,27 +278,26 @@ static const value_string platform_completion_codes[] = {
 	{0x83, "PLDM Platform Invalid Record Change Number"},
 	{0x84, "PLDM Platform PDR Transfer Timeout"},
 	{0x85, "Repository update in progress"},
-	{0, NULL}};
-
-struct packet_data {
-	guint8 direction;
-	guint8 instance_id;
+	{0, NULL}
 };
 
-/*platform*/
+
+/* platform */
 
 static const value_string event_message_global_enable[] = {
 	{0, "Disable"},
 	{1, "Enable Async"},
 	{2, "Enable Polling"},
 	{3, "Enable Async Keep Alive"},
-	{0, NULL}};
+	{0, NULL}
+};
 
 static const value_string transport_protocols[] = {
 	{0, "MCTP"},
 	{1, "NC-SI/RBT"},
 	{2, "Vendor Specific"},
-	{0, NULL}};
+	{0, NULL}
+};
 
 static const value_string platform_event_message_classes[] = {
 	{0, "Sensor Event"},
@@ -299,30 +307,34 @@ static const value_string platform_event_message_classes[] = {
 	{4, "Pldm PDR Repository Change Event"},
 	{5, "Pldm Message Poll Event"},
 	{6, "Heartbeat Timer Elapsed Event"},
-	{0, NULL}};
+	{0, NULL}
+};
 
-static const value_string sensor_data_size[]={
+static const value_string sensor_data_size[] = {
 	{0, "uint8"},
 	{1, "sint8"},
 	{2, "uint16"},
 	{3, "sint16"},
 	{4, "uint32"},
 	{5, "sint32"},
-	{0, NULL}};
+	{0, NULL}
+};
 
-static const value_string pldm_pdr_repository_chg_event_data_format[]= {
+static const value_string pldm_pdr_repository_chg_event_data_format[] = {
 	{0, "Refresh Entire Repository"},
 	{1, "Format is PDR Types"},
 	{2, "Format is PDR Handles"},
-	{0, NULL}};
+	{0, NULL}
+};
 
 static const value_string sensor_platform_event_message_classes[] = {
 	{0, "Sensor Operational"},
 	{1, "State Sensor State"},
 	{2, "Numeric Sensor State"},
-	{0, NULL}};
+	{0, NULL}
+};
 
-static const value_string platform_sensor_operational_state[]= {
+static const value_string platform_sensor_operational_state[] = {
 	{0, "PLDM Sensor Enabled"},
 	{1, "PLDM Sensor Disabled"},
 	{2, "PLDM Sensor Unavailable"},
@@ -331,16 +343,18 @@ static const value_string platform_sensor_operational_state[]= {
 	{5, "PLDM Sensor Initializing"},
 	{6, "PLDM Sensor SHUTTING DOWN"},
 	{7, "PLDM Sensor Intest"},
-	{0, NULL}};
+	{0, NULL}
+};
 
-static const value_string pdr_repo_chg_event_data_operation[]= {
+static const value_string pdr_repo_chg_event_data_operation[] = {
 	{0, "PLDM Refresh all Records"},
 	{1, "PLDM Records Deleted"},
 	{2, "PLDM Records Added"},
 	{3, "PLDM Records Modified"},
-	{0, NULL}};
+	{0, NULL}
+};
 
-static const value_string platform_pdr_type[]={
+static const value_string platform_pdr_type[] = {
 	{1, "PLDM Terminus Locator PDR"},
 	{2, "PLDM Numeric Sensor PDR"},
 	{3, "PLDM Numeric Sensor Initialization PDR"},
@@ -364,9 +378,10 @@ static const value_string platform_pdr_type[]={
 	{21, "PLDM Compact Numeric Sensor PDR"},
 	{126, "PLDM OEM Device PDR"},
 	{127, "PLDM OEM PDR"},
-	{0, NULL}};
+	{0, NULL}
+};
 
-static const value_string pldm_sensor_event_states[]= {
+static const value_string pldm_sensor_event_states[] = {
 	{0, "PLDM Sensor Unknown"},
 	{1, "PLDM Sensor Normal"},
 	{2, "PLDM Sensor Warning"},
@@ -378,7 +393,8 @@ static const value_string pldm_sensor_event_states[]= {
 	{8, "PLDM Sensor Upper Warning"},
 	{9, "PLDM Sensor Upper Critical"},
 	{10, "PLDM Sensor Upper fatal"},
-	{0, NULL}};
+	{0, NULL}
+};
 
 static const value_string pldm_sensor_event_message_enable[] = {
 	{0, "PLDM NO Event Generation"},
@@ -386,7 +402,8 @@ static const value_string pldm_sensor_event_message_enable[] = {
 	{2, "PLDM Events Enabled"},
 	{3, "PLDM Operation Events Only Enabled"},
 	{4, "PLDM State Events Only Enabled"},
-	{0, NULL}};
+	{0, NULL}
+};
 
 static const value_string pldm_effecter_oper_state[] = {
 	{0, "Effecter Operational State Enabled Update Pending"},
@@ -398,29 +415,34 @@ static const value_string pldm_effecter_oper_state[] = {
 	{6, "Effecter Operational State Initializing"},
 	{7, "Effecter Operational State Shutting Down"},
 	{8, "Effecter Operational State Intest"},
-	{0, NULL}};
+	{0, NULL}
+};
 
-static const value_string transfer_op_flags [] = {
+static const value_string transfer_op_flags[] = {
 	{0, "Get Next Part"},
 	{1, "Get First Part"},
-	{0, NULL}};
+	{0, NULL}
+};
 
 static const value_string pldm_effecter_state_set_request[] = {
 	{0, "No Change"},
 	{1, "Request Set"},
-	{0, NULL}};
+	{0, NULL}
+};
 
-static const value_string pdr_transfer_flags[]={
+static const value_string pdr_transfer_flags[] = {
 	{0, "Start"},
 	{1, "Middle"},
 	{4, "End"},
 	{5, "Start and End"},
-	{0, NULL}};
+	{0, NULL}
+};
 
-static const value_string sensor_bool8[]={
+static const value_string sensor_bool8[] = {
 	{0x01, "True"},
 	{0x00, "False"},
-	{0, NULL}};
+	{0, NULL}
+};
 
 static const value_string result_status[] = {
 	{0, "No Logging"},
@@ -429,17 +451,19 @@ static const value_string result_status[] = {
 	{3, "Accepted for Logging"},
 	{4, "Logged"},
 	{5, "Logging Rejected"},
-	{0, NULL}};
+	{0, NULL}
+};
 
-/*FRU*/
-static const value_string FRU_completion_code[]={
+/* FRU */
+static const value_string FRU_completion_code[] = {
 	{0x80, "Invalid data transfer handle"},
 	{0x81, "Invalid transfer operation flag"},
 	{0x82, "Invalid transfer flag"},
 	{0x83, "No FRU table metadata"},
 	{0x84, "Invalid data integrity check"},
 	{0x85, "Fru data table unavailable"},
-	{0, NULL}};
+	{0, NULL}
+};
 
 static const value_string record_encoding[] = {
 	{1, "ASCII"},
@@ -447,12 +471,14 @@ static const value_string record_encoding[] = {
 	{3, "UTF16"},
 	{4, "UTF16-LE"},
 	{5, "UTF16-BE"},
-	{0, NULL}};
+	{0, NULL}
+};
 
 static const value_string record_types[] = {
 	{1, "General FRU Record"},
 	{254, "OEM FRU Record"},
-	{0, NULL}};
+	{0, NULL}
+};
 
 static const value_string field_types_general[] = {
 	{0x0, "Reserved"},
@@ -471,9 +497,20 @@ static const value_string field_types_general[] = {
 	{0xd, "Engineering Change Level"},
 	{0xe, "Other Information"},
 	{0xf, "Vendor IANA"},
-	{0, NULL}};
+	{0, NULL}
+};
 
-static int print_version_field(guint8 bcd, char *buffer, size_t buffer_size) {
+/* Some details of frame seen passed info functions handling packet types.
+   Not stored as per-packet data in frame...  */
+struct packet_data {
+	guint8 direction;
+	guint8 instance_id;
+};
+
+
+
+static int print_version_field(guint8 bcd, char *buffer, size_t buffer_size)
+{
 	int v;
 	if (bcd == 0xff)
 		return 0;
@@ -485,7 +522,8 @@ static int print_version_field(guint8 bcd, char *buffer, size_t buffer_size) {
 	return snprintf(buffer, buffer_size, "%02d", v);
 }
 
-static void ver2str(tvbuff_t *tvb, int offset, char *buf_ptr, size_t buffer_size) {
+static void ver2str(tvbuff_t *tvb, int offset, char *buf_ptr, size_t buffer_size)
+{
 	int rc;
 	guint8 major = tvb_get_guint8(tvb, offset);
 	offset += 1;
@@ -534,8 +572,8 @@ static void ver2str(tvbuff_t *tvb, int offset, char *buf_ptr, size_t buffer_size
 
 
 static
-int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree,
-		void *data) {
+int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, void *data)
+{
 	struct packet_data *d = (struct packet_data *)data;
 	static uint8_t pldmT = -1;
 	guint8 instID = d->instance_id;
@@ -544,9 +582,8 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree,
 	guint8 pldm_cmd = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(p_tree, hf_pldm_base_commands, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
-	if (!request) {//completion code in response only
-		proto_tree_add_item(p_tree, hf_pldm_completion_code, tvb, offset, 1,
-				ENC_LITTLE_ENDIAN);
+	if (!request) { //completion code in response only
+		proto_tree_add_item(p_tree, hf_pldm_completion_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		guint8 completion_code = tvb_get_guint8(tvb, offset);
 		if (completion_code)
 			return tvb_captured_length(tvb);
@@ -555,32 +592,25 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree,
 	switch (pldm_cmd) {
 		case 01: // SetTID
 			if (request) {
-				proto_tree_add_item(p_tree, hf_pldm_base_TID, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_pldm_base_TID, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			}
 			break;
 		case 02: // GetTID
 			if (!request) {
-				proto_tree_add_item(p_tree, hf_pldm_base_TID, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_pldm_base_TID, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			}
 			break;
 		case 03: // GetPLDMVersion
 			if (request) {
-				proto_tree_add_item(p_tree, hf_pldm_base_dataTransferHandle, tvb, offset, 4,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_pldm_base_dataTransferHandle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
-				proto_tree_add_item(p_tree, hf_pldm_base_transferOperationFlag, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_pldm_base_transferOperationFlag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
-				proto_tree_add_item(p_tree, hf_pldm_base_PLDMtype, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_pldm_base_PLDMtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			} else {
-				proto_tree_add_item(p_tree, hf_pldm_base_nextDataTransferHandle, tvb, offset, 4,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_pldm_base_nextDataTransferHandle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
-				proto_tree_add_item(p_tree, hf_pldm_base_transferFlag, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_pldm_base_transferFlag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 				char buffer[10];
 				ver2str( tvb, offset, buffer, 10);
@@ -590,15 +620,15 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree,
 			break;
 		case 04: // GetPLDMTypes
 			if (!request) {
-				guint8 flag_bit, curr_byte, supported_type;
+				guint8 flag_bit, curr_byte;
 				gint byte, bit;
-				for( byte=0; byte<8; byte++, offset+=1){ // loop for iterating throught last 8 bytes
+				for (byte=0; byte<8; byte++, offset+=1) { // loop for iterating over last 8 bytes
 					curr_byte = tvb_get_guint8(tvb, offset);
-					flag_bit = 1; // flag for checking the bits set in the current byte
-					for(bit=0; bit<8; bit++, flag_bit <<=1){
-						if(curr_byte & flag_bit){//set bit means type is supported
-							supported_type = byte*8+bit;//assigned value of supported type
-							proto_tree_add_uint(p_tree, hf_pldm_base_typesSupported, tvb, offset, 1, supported_type);
+					flag_bit = 1; // bit within current byte
+					for (bit=0; bit<8; bit++, flag_bit <<=1) {
+						if (curr_byte & flag_bit) { // type is supported
+							// Add bit position as value
+							proto_tree_add_uint(p_tree, hf_pldm_base_typesSupported, tvb, offset, 1, (byte*8)+bit);
 						}
 					}
 				}
@@ -606,25 +636,24 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree,
 			break;
 		case 05: // GetPLDMCommand
 			if (request) {
-				pldmT = tvb_get_guint8(tvb, offset); //reponse depends on this
+				pldmT = tvb_get_guint8(tvb, offset); // response depends on this
 				if (pldmT == 63)
-					pldmT = 7;//for oem-specific inorder to avoid array of size 64
-				if(instID > 31 || pldmT > 7){
+					pldmT = 7; // for oem-specific inorder to avoid array of size 64
+				if (instID > 31 || pldmT > 7) {
 					col_append_fstr(pinfo->cinfo, COL_INFO, "Invalid PLDM Inst ID or Type");
 					break;
-				}else {
+				} else {
 					pldmTypeMap = wmem_map_new(addr_resolv_scope, g_direct_hash, g_direct_equal);
 					wmem_map_insert(pldmTypeMap, GUINT_TO_POINTER(instID), GUINT_TO_POINTER(pldmT));
 				}
-				proto_tree_add_item(p_tree, hf_pldm_base_PLDMtype, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_pldm_base_PLDMtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 				char buffer[10];
 				ver2str(tvb, offset, buffer, 10);
 				proto_tree_add_string_format(p_tree, hf_pldm_base_typeVersion, tvb, offset, 4, buffer , "version : %s", buffer);
 			} else if (!request) {
 				int pldmTypeReceived = GPOINTER_TO_UINT(wmem_map_lookup(pldmTypeMap, GUINT_TO_POINTER(instID)));
-				switch(pldmTypeReceived){
+				switch (pldmTypeReceived) {
 					case 0:
 						{
 							guint8 byte = tvb_get_guint8(tvb, offset);
@@ -698,15 +727,15 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree,
 
 
 static
-int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree,
-		void *data) {
+int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, void *data)
+{
 	struct packet_data *d = (struct packet_data *)data;
 	guint8 request = d->direction;
 	guint8 offset = 0;
 	guint8 pldm_cmd = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(p_tree, hf_pldm_platform_commands, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
-	if (!request) {//completion code in response only
+	if (!request) { //completion code in response only
 		proto_tree_add_item(p_tree, hf_pldm_platform_completion_code, tvb, offset, 1,
 				ENC_LITTLE_ENDIAN);
 		guint8 completion_code = tvb_get_guint8(tvb, offset);
@@ -725,94 +754,74 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree,
 					p_tree, hf_transport_protocol_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &transport_protocol);
 				offset += 1;
 				if (transport_protocol_response != NULL && transport_protocol == 0) { // MCTP
-					proto_tree_add_item(p_tree, hf_event_receiver_addr_info, tvb, offset, 1,
-							ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(p_tree, hf_event_receiver_addr_info, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				}
-				if(event_msg_global_response != NULL && event_message_global == 3){
+				if (event_msg_global_response != NULL && event_message_global == 3) {
 					offset += 1;
-					proto_tree_add_item(p_tree, hf_heartbeat_timer, tvb, offset, 2,
-							ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(p_tree, hf_heartbeat_timer, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				}
 			}
 			break;
 		case 0x0a: // Platform Event Message command
 			if (request) {
-				proto_tree_add_item(p_tree, hf_pldm_platform_format_version, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_pldm_platform_format_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 				proto_tree_add_item(p_tree, hf_pldm_base_TID, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
-				proto_tree_add_item(p_tree, hf_event_class, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_event_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				guint8 platform_event_message_class = tvb_get_guint8(tvb, offset);
 				offset += 1;
 				guint8 sensor_event_class;
 				/* Event Data */
 				switch (platform_event_message_class) {
 					case 0x0: // SensorEvent(0x00)
-						proto_tree_add_item(p_tree, hf_sensor_id, tvb, offset, 2,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_sensor_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 						offset += 2;
-						proto_tree_add_item(p_tree, hf_sensor_event_class, tvb, offset, 1,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_sensor_event_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 						sensor_event_class = tvb_get_guint8(tvb, offset);
 						offset += 1;
 						/* Sensor Event Class */
-						switch (sensor_event_class){
+						switch (sensor_event_class) {
 							case 0x0: // Sensor Operational State
-								proto_tree_add_item(p_tree, hf_sensor_present_op_state, tvb, offset, 1,
-										ENC_LITTLE_ENDIAN);
+								proto_tree_add_item(p_tree, hf_sensor_present_op_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 								offset += 1;
-								proto_tree_add_item(p_tree, hf_sensor_prev_op_state, tvb, offset, 1,
-										ENC_LITTLE_ENDIAN);
+								proto_tree_add_item(p_tree, hf_sensor_prev_op_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 								break;
 							case 0x1: // State Sensor State
-								proto_tree_add_item(p_tree, hf_sensor_offset, tvb, offset, 1,
-										ENC_LITTLE_ENDIAN);
+								proto_tree_add_item(p_tree, hf_sensor_offset, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 								offset += 1;
-								proto_tree_add_item(p_tree, hf_event_state, tvb, offset, 1,
-										ENC_LITTLE_ENDIAN);
+								proto_tree_add_item(p_tree, hf_event_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 								offset += 1;
-								proto_tree_add_item(p_tree, hf_event_prev_state, tvb, offset, 1,
-										ENC_LITTLE_ENDIAN);
+								proto_tree_add_item(p_tree, hf_event_prev_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 								break;
-							case 0x2:// Numeric Sensor State
-								proto_tree_add_item(p_tree, hf_event_state, tvb, offset, 1,
-										ENC_LITTLE_ENDIAN);
+							case 0x2: // Numeric Sensor State
+								proto_tree_add_item(p_tree, hf_event_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 								offset += 1;
-								proto_tree_add_item(p_tree, hf_event_prev_state, tvb, offset, 1,
-										ENC_LITTLE_ENDIAN);
+								proto_tree_add_item(p_tree, hf_event_prev_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 								offset += 1;
-								proto_tree_add_item(p_tree, hf_sensor_data_size, tvb, offset, 1,
-										ENC_LITTLE_ENDIAN);
+								proto_tree_add_item(p_tree, hf_sensor_data_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 								offset += 1;
 								guint8 size = tvb_get_guint8(tvb, offset);
 								switch (size) {
 									case 0:
-										proto_tree_add_item(p_tree, hf_sensor_value_u8, tvb, offset, 1,
-												ENC_LITTLE_ENDIAN);
+										proto_tree_add_item(p_tree, hf_sensor_value_u8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 										break;
 									case 1:
-										proto_tree_add_item(p_tree, hf_sensor_value_s8, tvb, offset, 1,
-												ENC_LITTLE_ENDIAN);
+										proto_tree_add_item(p_tree, hf_sensor_value_s8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 										break;
 									case 2:
-										proto_tree_add_item(p_tree, hf_sensor_value_u16, tvb, offset, 2,
-												ENC_LITTLE_ENDIAN);
+										proto_tree_add_item(p_tree, hf_sensor_value_u16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 										break;
 									case 3:
-										proto_tree_add_item(p_tree, hf_sensor_value_s16, tvb, offset, 2,
-												ENC_LITTLE_ENDIAN);
+										proto_tree_add_item(p_tree, hf_sensor_value_s16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 										break;
 									case 4:
-										proto_tree_add_item(p_tree, hf_sensor_value_u32, tvb, offset, 4,
-												ENC_LITTLE_ENDIAN);
+										proto_tree_add_item(p_tree, hf_sensor_value_u32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 										break;
 									case 5:
-										proto_tree_add_item(p_tree, hf_sensor_value_s32, tvb, offset, 4,
-												ENC_LITTLE_ENDIAN);
+										proto_tree_add_item(p_tree, hf_sensor_value_s32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 										break;
-									default://Invalid
+									default: // Invalid
 										col_append_fstr(pinfo->cinfo, COL_INFO, "Invalid byte");
 								}
 								break;
@@ -823,31 +832,25 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree,
 						break;
 					case 0x4: // PLDM PDR Repository Change Event
 						if (request) {
-							proto_tree_add_item(p_tree, hf_pdr_data_format, tvb, offset, 1,
-									ENC_LITTLE_ENDIAN);
+							proto_tree_add_item(p_tree, hf_pdr_data_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 							guint8 pdr_data_format = tvb_get_guint8(tvb, offset);
 							offset += 1;
-							proto_tree_add_item(p_tree, hf_pdr_num_change_recs, tvb, offset, 1,
-									ENC_LITTLE_ENDIAN);
+							proto_tree_add_item(p_tree, hf_pdr_num_change_recs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 							guint8 num_change_record = tvb_get_guint8(tvb, offset);
-							if(num_change_record>0){//if pdr_data_format is refresh entire repo then num-change-record shall be 0
+							if (num_change_record>0) { // if pdr_data_format is refresh entire repo then num-change-record shall be 0
 								offset +=1;
-								for(gint i = 0; i < num_change_record; i++){
-									proto_tree_add_item(p_tree, hf_pdr_repo_change_event_data_op, tvb, offset, 1,
-											ENC_LITTLE_ENDIAN);
+								for (gint i = 0; i < num_change_record; i++) {
+									proto_tree_add_item(p_tree, hf_pdr_repo_change_event_data_op, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 									offset +=1;
-									proto_tree_add_item(p_tree, hf_pdr_repo_change_rec_num_change_entries, tvb, offset, 1,
-											ENC_LITTLE_ENDIAN);
+									proto_tree_add_item(p_tree, hf_pdr_repo_change_rec_num_change_entries, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 									guint8 num_change_entries = tvb_get_guint8(tvb, offset);
 									offset +=1;
-									for(gint j = 0; j < num_change_entries; j++){
-										if(pdr_data_format == 1){//pdr type enumeration  -- testing
-											proto_tree_add_item(p_tree, hf_pdr_repo_change_event_record_pdr_type, tvb, offset, 4,
-													ENC_LITTLE_ENDIAN);
+									for (gint j = 0; j < num_change_entries; j++) {
+										if (pdr_data_format == 1) { //pdr type enumeration  -- testing
+											proto_tree_add_item(p_tree, hf_pdr_repo_change_event_record_pdr_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 										}
-										else if(pdr_data_format == 2){// pdr Record handle enumeration
-											proto_tree_add_item(p_tree, hf_pdr_repo_change_event_record_pdr_record_handle, tvb, offset, 4,
-													ENC_LITTLE_ENDIAN);
+										else if (pdr_data_format == 2) { // pdr Record handle enumeration
+											proto_tree_add_item(p_tree, hf_pdr_repo_change_event_record_pdr_record_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 										}
 										offset+=4;
 									}
@@ -855,27 +858,24 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree,
 							}
 						}
 						break;
-					case 0x6://Heartbeat elapsed
-						if (request){
-							proto_tree_add_item(p_tree, hf_heartbeat_format_ver, tvb, offset, 1,
-									ENC_LITTLE_ENDIAN);
+					case 0x6: // Heartbeat elapsed
+						if (request) {
+							proto_tree_add_item(p_tree, hf_heartbeat_format_ver, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 							offset += 1;
-							proto_tree_add_item(p_tree, hf_heartbeat_sequence_num, tvb, offset, 1,
-									ENC_LITTLE_ENDIAN);
+							proto_tree_add_item(p_tree, hf_heartbeat_sequence_num, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 						}
 						break;
 					default:
 						col_append_fstr(pinfo->cinfo, COL_INFO, "Invalid platform message type");
-				}}
-			else{
-				proto_tree_add_item(p_tree, hf_result_status, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				}
+			}
+			else {
+				proto_tree_add_item(p_tree, hf_result_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			}
 			break;
 		case 0x21: // GetStateSensorReadings(33)
 			if (request) {
-				proto_tree_add_item(p_tree, hf_sensor_id, tvb, offset, 2,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_sensor_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
 				guint8 sensor_rearm = tvb_get_guint8(tvb, offset);
 				guint8 flag_bit = 1;
@@ -886,186 +886,142 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree,
 						proto_tree_add_uint(p_tree, hf_sensor_rearm, tvb, offset, 1, i);
 					}
 				}
-				if(cnt == 0){
-					proto_tree_add_item(p_tree, hf_sensor_rearm_none, tvb, offset, 1,
-							ENC_LITTLE_ENDIAN);
+				if (cnt == 0) {
+					proto_tree_add_item(p_tree, hf_sensor_rearm_none, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				}
 				offset +=1;
-				proto_tree_add_item(p_tree, hf_pldm_sensor_reserved, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_pldm_sensor_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			} else {
-				proto_tree_add_item(p_tree, hf_sensor_composite_count, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_sensor_composite_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				guint8 sensor_comp_count = tvb_get_guint8(tvb, offset);
-				for(gint i=0; i<sensor_comp_count; i++){ //statefield
+                                for (gint i=0; i<sensor_comp_count; i++) { // statefield
 					offset += 1;
-					proto_tree_add_item(p_tree, hf_sensor_present_op_state, tvb, offset, 1,
-							ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(p_tree, hf_sensor_present_op_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
-					proto_tree_add_item(p_tree, hf_sensor_present_event_state, tvb, offset, 1,
-							ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(p_tree, hf_sensor_present_event_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
-					proto_tree_add_item(p_tree, hf_sensor_prev_event_state, tvb, offset, 1,
-							ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(p_tree, hf_sensor_prev_event_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
-					proto_tree_add_item(p_tree, hf_sensor_event_state, tvb, offset, 1,
-							ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(p_tree, hf_sensor_event_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				}
 			}
 			break;
-		case 0x11://GetSensorReading(17)
-			if(request){
-				proto_tree_add_item(p_tree, hf_sensor_id, tvb, offset, 2,
-						ENC_LITTLE_ENDIAN);
+		case 0x11: // GetSensorReading(17)
+			if (request) {
+				proto_tree_add_item(p_tree, hf_sensor_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
-				proto_tree_add_item(p_tree, hf_event_rearm, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_event_rearm, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			}
-			else{
-				proto_tree_add_item(p_tree, hf_sensor_data_size, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+			else {
+				proto_tree_add_item(p_tree, hf_sensor_data_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				guint8 size = tvb_get_guint8(tvb, offset);
 				offset += 1;
-				proto_tree_add_item(p_tree, hf_sensor_present_op_state, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_sensor_present_op_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
-				proto_tree_add_item(p_tree, hf_sensor_event_msg_enable, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_sensor_event_msg_enable, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
-				proto_tree_add_item(p_tree, hf_sensor_present_event_state, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_sensor_present_event_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
-				proto_tree_add_item(p_tree, hf_sensor_prev_event_state, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_sensor_prev_event_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
-				proto_tree_add_item(p_tree, hf_sensor_event_state, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_sensor_event_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 				switch (size) {
 					case 0:
-						proto_tree_add_item(p_tree, hf_sensor_value_u8, tvb, offset, 1,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_sensor_value_u8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 						break;
 					case 1:
-						proto_tree_add_item(p_tree, hf_sensor_value_s8, tvb, offset, 1,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_sensor_value_s8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 						break;
 					case 2:
-						proto_tree_add_item(p_tree, hf_sensor_value_u16, tvb, offset, 2,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_sensor_value_u16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 						break;
 					case 3:
-						proto_tree_add_item(p_tree, hf_sensor_value_s16, tvb, offset, 2,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_sensor_value_s16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 						break;
 					case 4:
-						proto_tree_add_item(p_tree, hf_sensor_value_u32, tvb, offset, 4,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_sensor_value_u32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 						break;
 					case 5:
-						proto_tree_add_item(p_tree, hf_sensor_value_s32, tvb, offset, 4,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_sensor_value_s32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 						break;
-					default: //Invalid
+					default: // Invalid
 						col_append_fstr(pinfo->cinfo, COL_INFO, "Invalid byte");
 				}
 			}
 			break;
 		case 0x31: // SetNumericEffecterValue(49)
 			if (request) {
-				proto_tree_add_item(p_tree, hf_effecter_id, tvb, offset, 2,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_effecter_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
-				proto_tree_add_item(p_tree, hf_effecter_datasize, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_effecter_datasize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				guint8 size = tvb_get_guint8(tvb, offset);
 				offset += 1;
 				switch (size) {
 					case 0:
-						proto_tree_add_item(p_tree, hf_effecter_value_u8, tvb, offset, 1,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_effecter_value_u8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 						break;
 					case 1:
-						proto_tree_add_item(p_tree, hf_effecter_value_s8, tvb, offset, 1,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_effecter_value_s8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 						break;
 					case 2:
-						proto_tree_add_item(p_tree, hf_effecter_value_u16, tvb, offset, 2,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_effecter_value_u16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 						break;
 					case 3:
-						proto_tree_add_item(p_tree, hf_effecter_value_s16, tvb, offset, 2,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_effecter_value_s16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 						break;
 					case 4:
-						proto_tree_add_item(p_tree, hf_effecter_value_u32, tvb, offset, 4,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_effecter_value_u32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 						break;
 					case 5:
-						proto_tree_add_item(p_tree, hf_effecter_value_s32, tvb, offset, 4,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_effecter_value_s32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 						break;
-					default: //Invalid
+					default: // Invalid
 						col_append_fstr(pinfo->cinfo, COL_INFO, "Invalid byte");
 				}
 			}
 			break;
-		case 0x32: //GetNumericEffecterValue(50)
-			if(request){
-				proto_tree_add_item(p_tree, hf_effecter_id, tvb, offset, 2,
-						ENC_LITTLE_ENDIAN);
-			}else{
-				proto_tree_add_item(p_tree, hf_effecter_datasize, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+		case 0x32: // GetNumericEffecterValue(50)
+			if (request) {
+				proto_tree_add_item(p_tree, hf_effecter_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			} else {
+				proto_tree_add_item(p_tree, hf_effecter_datasize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				guint8 size = tvb_get_guint8(tvb, offset);
 				offset += 1;
-				proto_tree_add_item(p_tree, hf_effecter_op_state, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_effecter_op_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
-				switch(size){
+				switch (size) {
 					case 0:
-						proto_tree_add_item(p_tree, hf_effecter_value_pnd_u8, tvb, offset, 1,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_effecter_value_pnd_u8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 						offset += 1;
-						proto_tree_add_item(p_tree, hf_effecter_value_pres_u8, tvb, offset, 1,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_effecter_value_pres_u8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 						break;
 					case 1:
-						proto_tree_add_item(p_tree, hf_effecter_value_pnd_s8, tvb, offset, 1,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_effecter_value_pnd_s8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 						offset += 1;
-						proto_tree_add_item(p_tree, hf_effecter_value_pres_s8, tvb, offset, 1,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_effecter_value_pres_s8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 						break;
 					case 2:
-						proto_tree_add_item(p_tree, hf_effecter_value_pnd_u16, tvb, offset, 2,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_effecter_value_pnd_u16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 						offset += 2;
-						proto_tree_add_item(p_tree, hf_effecter_value_pres_u16, tvb, offset, 2,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_effecter_value_pres_u16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 						break;
 					case 3:
-						proto_tree_add_item(p_tree, hf_effecter_value_pnd_s16, tvb, offset, 2,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_effecter_value_pnd_s16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 						offset += 2;
-						proto_tree_add_item(p_tree, hf_effecter_value_pres_s16, tvb, offset, 2,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_effecter_value_pres_s16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 						break;
 					case 4:
-						proto_tree_add_item(p_tree, hf_effecter_value_pnd_u32, tvb, offset, 4,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_effecter_value_pnd_u32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 						offset += 4;
-						proto_tree_add_item(p_tree, hf_effecter_value_pres_u32, tvb, offset, 4,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_effecter_value_pres_u32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 						break;
 					case 5:
-						proto_tree_add_item(p_tree, hf_effecter_value_pnd_s32, tvb, offset, 4,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_effecter_value_pnd_s32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 						offset += 4;
-						proto_tree_add_item(p_tree, hf_effecter_value_pres_s32, tvb, offset, 4,
-								ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(p_tree, hf_effecter_value_pres_s32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 						break;
-					default: //Invalid
+					default: // Invalid
 						col_append_fstr(pinfo->cinfo, COL_INFO, "Invalid byte");
 				}
 
@@ -1073,77 +1029,61 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree,
 			break;
 		case 0x39: // SetStateEffecterStates(57)
 			if (request) {
-				proto_tree_add_item(p_tree, hf_effecter_id, tvb, offset, 2,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_effecter_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
-				proto_tree_add_item(p_tree, hf_effecter_count, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_effecter_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				guint8 effecter_comp_count = tvb_get_guint8(tvb, offset);
-				for(gint i=0; i < effecter_comp_count; i++){ //statefield
+				for (gint i=0; i < effecter_comp_count; i++) { // statefield
 					offset += 1;
-					proto_tree_add_item(p_tree, hf_effecter_set_request, tvb, offset, 1,
-							ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(p_tree, hf_effecter_set_request, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
-					proto_tree_add_item(p_tree, hf_effecter_state, tvb, offset, 1,
-							ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(p_tree, hf_effecter_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				}
 			}
 			break;
 		case 0x51: // GetPDR
 			if (request) {
-				proto_tree_add_item(p_tree, hf_pdr_record_handle, tvb, offset, 4,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_pdr_record_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
-				proto_tree_add_item(p_tree, hf_pdr_data_handle, tvb, offset, 4,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_pdr_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
-				proto_tree_add_item(p_tree, hf_pdr_transfer_op_flag, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_pdr_transfer_op_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
-				proto_tree_add_item(p_tree, hf_pdr_req_count, tvb, offset, 2,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_pdr_req_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
-				proto_tree_add_item(p_tree, hf_pdr_record_change_num, tvb, offset, 2,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_pdr_record_change_num, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
 			} else {
-				proto_tree_add_item(p_tree, hf_pdr_next_record_handle, tvb, offset, 4,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_pdr_next_record_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
-				proto_tree_add_item(p_tree, hf_pdr_next_data_handle, tvb, offset, 4,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_pdr_next_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
-				proto_tree_add_item(p_tree, hf_pdr_transfer_flag, tvb, offset, 1,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_pdr_transfer_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				guint8 transfer_flag = tvb_get_guint8(tvb, offset);
 				offset += 1;
-				proto_tree_add_item(p_tree, hf_pdr_response_count, tvb, offset, 2,
-						ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_pdr_response_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				guint16 response_cnt = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
 				offset += 2;
 				guint16 pdr_length = tvb_reported_length_remaining(tvb, offset);
 				if (response_cnt) {
-					if(pdr_length != response_cnt){
+					if (pdr_length != response_cnt) {
 						col_append_fstr(pinfo->cinfo, COL_INFO, "Corrupt PDR Record data");
 						break;
 					}
-					while(response_cnt > 0){
-						proto_tree_add_item(p_tree, hf_pdr_record_data, tvb, offset, 1,
-								ENC_LITTLE_ENDIAN );
+					while (response_cnt > 0) {
+						proto_tree_add_item(p_tree, hf_pdr_record_data, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 						offset += 1;
 						response_cnt -= 1;
 					}
 				}
 				if (transfer_flag == 0x4) {
 					// CRC only present if flag == end
-					proto_tree_add_item(p_tree, hf_transfer_crc, tvb, offset, 1,
-							ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(p_tree, hf_transfer_crc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				}
 			}
 			break;
 		default:
-			col_append_fstr(pinfo->cinfo, COL_INFO,
-					"Unsupported or Invalid PLDM command %x ", pldm_cmd);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "Unsupported or Invalid PLDM command %x ", pldm_cmd);
 			break;
 	}
 	return tvb_captured_length(tvb);
@@ -1151,67 +1091,56 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree,
 
 static
 guint16 parse_fru_record_table(tvbuff_t *tvb, packet_info *pinfo,
-                               proto_tree *p_tree, guint16 offset) {
+	proto_tree *p_tree, guint16 offset)
+{
 	guint8 min_size = 8, field_len = 0, num_fields = 0, encoding = 0, record_type;
 	guint16 bytes_left = tvb_reported_length(tvb) - offset;
 	while (bytes_left >= min_size) {
 		// parse a FRU Record Data
-		proto_tree_add_item(p_tree, hf_fru_record_id, tvb, offset, 2,
-							ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(p_tree, hf_fru_record_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 		record_type = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(p_tree, hf_fru_record_type, tvb, offset, 1,
-							ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(p_tree, hf_fru_record_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 		num_fields = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(p_tree, hf_fru_record_num_fields, tvb, offset, 1,
-							ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(p_tree, hf_fru_record_num_fields, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 		encoding = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(p_tree, hf_fru_record_encoding, tvb, offset, 1,
-							ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(p_tree, hf_fru_record_encoding, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		for (guint8 i = 0; i < num_fields; i++) {
 			if (record_type == 1) { // General
-				proto_tree_add_item(p_tree, hf_fru_record_field_type, tvb, offset, 1,
-									ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_fru_record_field_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 				field_len = tvb_get_guint8(tvb, offset);
-				proto_tree_add_item(p_tree, hf_fru_record_field_len, tvb, offset, 1,
-									ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_fru_record_field_len, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 				switch (encoding) {
 					case 0x1:
-					proto_tree_add_item(p_tree, hf_fru_record_field_value_string, tvb,
-										offset, field_len, ENC_ASCII);
-					break;
+						proto_tree_add_item(p_tree, hf_fru_record_field_value_string, tvb, offset, field_len, ENC_ASCII);
+						break;
 					case 0x2:
-					proto_tree_add_item(p_tree, hf_fru_record_field_value, tvb, offset,
-										field_len, ENC_UTF_8);
-					break;
+						proto_tree_add_item(p_tree, hf_fru_record_field_value, tvb, offset, field_len, ENC_UTF_8);
+						break;
 					case 0x3:
-					proto_tree_add_item(p_tree, hf_fru_record_field_value_uint16, tvb,
-										offset, field_len, ENC_UTF_16);
-					break;
+						proto_tree_add_item(p_tree, hf_fru_record_field_value_uint16, tvb, offset, field_len, ENC_UTF_16);
+						break;
 					case 0x4:
-					proto_tree_add_item(p_tree, hf_fru_record_field_value_uint16, tvb,
-										offset, field_len,
-										ENC_UTF_16 | ENC_LITTLE_ENDIAN);
-					break;
+						proto_tree_add_item(p_tree, hf_fru_record_field_value_uint16, tvb,
+											offset, field_len, ENC_UTF_16 | ENC_LITTLE_ENDIAN);
+						break;
 					case 0x5:
-					proto_tree_add_item(p_tree, hf_fru_record_field_value_uint16, tvb,
-										offset, field_len, ENC_UTF_16 | ENC_BIG_ENDIAN);
-					break;
+						proto_tree_add_item(p_tree, hf_fru_record_field_value_uint16, tvb,
+											offset, field_len, ENC_UTF_16 | ENC_BIG_ENDIAN);
+						break;
 					default:
-					col_append_fstr(pinfo->cinfo, COL_INFO,
-									"Unsupported or invalid FRU record encoding");
-					break;
+						col_append_fstr(pinfo->cinfo, COL_INFO, "Unsupported or invalid FRU record encoding");
+						break;
 				}
 				offset += field_len;
 			} else {
-				col_append_fstr(pinfo->cinfo, COL_INFO,
-									"Unsupported or OEM FRU record type");
+				col_append_fstr(pinfo->cinfo, COL_INFO, "Unsupported or OEM FRU record type");
 			}
 		}
 		bytes_left = tvb_reported_length(tvb) - offset;
@@ -1220,7 +1149,8 @@ guint16 parse_fru_record_table(tvbuff_t *tvb, packet_info *pinfo,
 };
 
 static
-int dissect_FRU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, void *data) {
+int dissect_FRU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, void *data)
+{
 	struct packet_data *d = (struct packet_data *)data;
 	guint8 request = d->direction;
 	guint16 offset = 0;
@@ -1230,19 +1160,17 @@ int dissect_FRU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, void *dat
 	offset += 1;
 	if (!request) {
 		guint8 completion_code = tvb_get_guint8(tvb, offset);
-		switch(completion_code){
-		case 0x80:
-		case 0x81:
-		case 0x82:
-		case 0x83:
-		case 0x84:
-		case 0x85:
-			proto_tree_add_item(p_tree, hf_fru_completion_code, tvb, offset, 1,
-							ENC_LITTLE_ENDIAN);
-		break;
-		default:
-			proto_tree_add_item(p_tree, hf_pldm_completion_code, tvb, offset, 1,
-							ENC_LITTLE_ENDIAN);
+		switch (completion_code) {
+			case 0x80:
+			case 0x81:
+			case 0x82:
+			case 0x83:
+			case 0x84:
+			case 0x85:
+				proto_tree_add_item(p_tree, hf_fru_completion_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			break;
+			default:
+				proto_tree_add_item(p_tree, hf_pldm_completion_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		}
 		if (completion_code)
 			return tvb_captured_length(tvb);
@@ -1251,113 +1179,89 @@ int dissect_FRU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, void *dat
 	switch (pldm_cmd) {
 	case 0x01: // Get Fru record table metadata
 		if (!request) {
-			proto_tree_add_item(p_tree, hf_fru_major_ver, tvb, offset, 1,
-								ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(p_tree, hf_fru_major_ver, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset += 1;
-			proto_tree_add_item(p_tree, hf_fru_minor_ver, tvb, offset, 1,
-								ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(p_tree, hf_fru_minor_ver, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset += 1;
-			proto_tree_add_item(p_tree, hf_fru_table_max_size, tvb, offset, 4,
-								ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(p_tree, hf_fru_table_max_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
-			proto_tree_add_item(p_tree, hf_fru_table_length, tvb, offset, 4,
-								ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(p_tree, hf_fru_table_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
-			proto_tree_add_item(p_tree, hf_fru_num_record_identifiers, tvb, offset, 2,
-								ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(p_tree, hf_fru_num_record_identifiers, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
-			proto_tree_add_item(p_tree, hf_fru_num_records, tvb, offset, 2,
-								ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(p_tree, hf_fru_num_records, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
-			proto_tree_add_item(p_tree, hf_fru_table_crc, tvb, offset, 4,
-								ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(p_tree, hf_fru_table_crc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		}
-	break;
+		break;
 	case 0x02: // Get Fru record table
 		if (request) {
-			proto_tree_add_item(p_tree, hf_fru_data_handle, tvb, offset, 4,
-								ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(p_tree, hf_fru_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
-			proto_tree_add_item(p_tree, hf_fru_transfer_op_flag, tvb, offset, 1,
-								ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(p_tree, hf_fru_transfer_op_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		} else {
-			proto_tree_add_item(p_tree, hf_fru_next_data_handle, tvb, offset, 4,
-								ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(p_tree, hf_fru_next_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
-			proto_tree_add_item(p_tree, hf_fru_transfer_flag, tvb, offset, 1,
-								ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(p_tree, hf_fru_transfer_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset += 1;
 			offset = parse_fru_record_table(tvb, pinfo, p_tree, offset);//check
 			if (tvb_captured_length(tvb) != offset)
-			col_append_fstr(pinfo->cinfo, COL_INFO,
-							"Unexpected bytes at end of FRU table");
+				col_append_fstr(pinfo->cinfo, COL_INFO, "Unexpected bytes at end of FRU table");
 		}
-	break;
+		break;
 	case 0x03: // Set Fru record table
 		if (request) {
-			proto_tree_add_item(p_tree, hf_fru_data_handle, tvb, offset, 4,
-								ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(p_tree, hf_fru_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
-			proto_tree_add_item(p_tree, hf_pldm_base_transferFlag, tvb, offset, 1,
-								ENC_LITTLE_ENDIAN);
-			offset += 1;
-			offset = parse_fru_record_table(tvb, pinfo, p_tree, offset);//check
-			if (tvb_captured_length(tvb) != offset) {
-			padding = tvb_captured_length(tvb) - offset - 4;
-			offset += padding;
-			proto_tree_add_item(p_tree, hf_fru_record_crc, tvb, offset, 4,
-								ENC_LITTLE_ENDIAN);
-			}
-		} else {
-			proto_tree_add_item(p_tree, hf_fru_next_data_handle, tvb, offset, 4,
-								ENC_LITTLE_ENDIAN);
-		}
-	break;
-	case 0x04://GetFruRecordByOption
-		if(request){
-			proto_tree_add_item(p_tree, hf_fru_data_handle, tvb, offset, 4,
-									ENC_LITTLE_ENDIAN);
-			offset += 4;
-			proto_tree_add_item(p_tree, hf_fru_table_handle, tvb, offset, 2,
-									ENC_LITTLE_ENDIAN);
-			offset += 2;
-			proto_tree_add_item(p_tree, hf_fru_record_id, tvb, offset, 2,
-									ENC_LITTLE_ENDIAN);
-			offset += 2;
-			proto_tree_add_item(p_tree, hf_fru_record_type, tvb, offset, 1,
-									ENC_LITTLE_ENDIAN);
-			offset += 1;
-			proto_tree_add_item(p_tree, hf_fru_record_field_type, tvb, offset, 1,
-									ENC_LITTLE_ENDIAN);
-			offset +=1;
-			proto_tree_add_item(p_tree, hf_fru_transfer_op_flag, tvb, offset, 1,
-								ENC_LITTLE_ENDIAN);
-		}else {
-			proto_tree_add_item(p_tree, hf_fru_next_data_handle, tvb, offset, 4,
-									ENC_LITTLE_ENDIAN);
-			offset += 4;
-			proto_tree_add_item(p_tree, hf_pldm_base_transferFlag, tvb, offset, 1,
-									ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(p_tree, hf_pldm_base_transferFlag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset += 1;
 			offset = parse_fru_record_table(tvb, pinfo, p_tree, offset);//check
 			if (tvb_captured_length(tvb) != offset) {
 				padding = tvb_captured_length(tvb) - offset - 4;
 				offset += padding;
-				proto_tree_add_item(p_tree, hf_fru_record_crc, tvb, offset, 4,
-									ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(p_tree, hf_fru_record_crc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			}
+		} else {
+			proto_tree_add_item(p_tree, hf_fru_next_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		}
+		break;
+	case 0x04: // GetFruRecordByOption
+		if (request) {
+			proto_tree_add_item(p_tree, hf_fru_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(p_tree, hf_fru_table_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+			proto_tree_add_item(p_tree, hf_fru_record_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+			proto_tree_add_item(p_tree, hf_fru_record_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(p_tree, hf_fru_record_field_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			offset +=1;
+			proto_tree_add_item(p_tree, hf_fru_transfer_op_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		} else {
+			proto_tree_add_item(p_tree, hf_fru_next_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(p_tree, hf_pldm_base_transferFlag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			offset += 1;
+			offset = parse_fru_record_table(tvb, pinfo, p_tree, offset); // check
+			if (tvb_captured_length(tvb) != offset) {
+				padding = tvb_captured_length(tvb) - offset - 4;
+				offset += padding;
+				proto_tree_add_item(p_tree, hf_fru_record_crc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			}
 		}
-	break;
+		break;
 	default:
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-						"Unsupported or Invalid PLDM command");
-	break;
+		col_append_fstr(pinfo->cinfo, COL_INFO, "Unsupported or Invalid PLDM command");
+		break;
 	}
+
 	return tvb_captured_length(tvb);
 }
 
 static int dissect_pldm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		void *data _U_) {
+                void *data _U_)
+{
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PLDM");
 	col_clear(pinfo->cinfo, COL_INFO);
 
@@ -1367,38 +1271,31 @@ static int dissect_pldm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int reported_length;
 	len = tvb_reported_length(tvb);
 	if (len < PLDM_MIN_LENGTH) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Packet length %u, minimum %u", len,
-				PLDM_MIN_LENGTH);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Packet length %u, minimum %u", len, PLDM_MIN_LENGTH);
 		return tvb_captured_length(tvb);
 	}
 	if (tree) {
-		/* first byte is the MCTP msg type, it is 01 for PLDM over MCTP */
+		/* First byte is the MCTP msg type, it is 01 for PLDM over MCTP */
 		offset = 1;
-		proto_item *ti =
-			proto_tree_add_item(tree, proto_pldm, tvb, offset, -1, ENC_NA);
+		proto_item *ti = proto_tree_add_item(tree, proto_pldm, tvb, offset, -1, ENC_NA);
 		proto_tree *pldm_tree = proto_item_add_subtree(ti, ett_pldm);
 
-		proto_tree_add_item(pldm_tree, hf_pldm_msg_direction, tvb, offset, 1,
-				ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(pldm_tree, hf_pldm_msg_direction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		direction = tvb_get_bits8(tvb, offset * 8, 2);
-		proto_tree_add_item(pldm_tree, hf_pldm_reserved, tvb, offset, 1,
-				ENC_LITTLE_ENDIAN);
-		proto_tree_add_item(pldm_tree, hf_pldm_instance_id, tvb, offset, 1,
-				ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(pldm_tree, hf_pldm_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(pldm_tree, hf_pldm_instance_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		instID = tvb_get_guint8(tvb, offset);
 		instID = instID & 0x1F;
 		offset += 1;
 		pldm_type = tvb_get_bits8(tvb, offset * 8 + 2, 6);
-		proto_tree_add_item(pldm_tree, hf_pldm_header_version, tvb, offset, 1,
-				ENC_LITTLE_ENDIAN);
-		proto_tree_add_item(pldm_tree, hf_pldm_type, tvb, offset, 1,
-				ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(pldm_tree, hf_pldm_header_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(pldm_tree, hf_pldm_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		reported_length = tvb_reported_length_remaining(tvb, offset);
 		struct packet_data d = {direction, instID};
 		if (reported_length >= 1) {
-			switch(pldm_type){
+			switch (pldm_type) {
 				case 0:
 					dissect_base(next_tvb, pinfo, pldm_tree, (void *)&d);
 					break;
@@ -1413,7 +1310,8 @@ static int dissect_pldm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return tvb_captured_length(tvb);
 }
 
-void proto_register_pldm(void) {
+void proto_register_pldm(void)
+{
 	static hf_register_info hf[] = {
 		{&hf_pldm_msg_direction,
 			{"PLDM Message Direction", "pldm.direction", FT_UINT8, BASE_DEC, VALS(directions),
@@ -1777,7 +1675,8 @@ void proto_register_pldm(void) {
 	register_dissector("pldm", dissect_pldm, proto_pldm);
 }
 
-void proto_reg_handoff_pldm(void) {
+void proto_reg_handoff_pldm(void)
+{
 	static dissector_handle_t pldm_handle;
 	pldm_handle = create_dissector_handle(dissect_pldm, proto_pldm);
 	dissector_add_uint("mctp.type", 1, pldm_handle);
