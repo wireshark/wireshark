@@ -151,6 +151,7 @@ beamformed
 beamformee
 beamformer
 beamforming
+bgpsec
 bgpspec
 bibliographic
 bibliography
@@ -763,6 +764,7 @@ heuristic
 heuristics
 hfarr
 hfill,
+hfinfo
 HI2Operations
 histogram
 hitachi
@@ -1315,6 +1317,7 @@ plaintext
 planar
 plano
 plixer
+plmnid
 plugin
 pluginize
 plugins
@@ -1401,6 +1404,7 @@ qsearch
 quadlet
 quadrature
 quadro
+quadruplet
 quadruplets
 quantifiers
 quantization
@@ -1602,6 +1606,7 @@ s7comm
 sabme
 sacch
 sanicap
+sanitization
 sanitize
 sanitizers
 sapgui
@@ -1941,6 +1946,7 @@ unchunked
 unciphered
 uncoloured
 uncomment
+uncommented
 uncompensated
 uncompress
 uncompressed
@@ -1964,6 +1970,7 @@ undeliverable
 underflow
 underrun
 undisposed
+undissectable
 undissected
 unduplicated
 unencoded

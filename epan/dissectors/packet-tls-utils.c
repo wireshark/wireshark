@@ -4190,7 +4190,7 @@ ssl_create_decoder(const SslCipherSuite *cipher_suite, gint cipher_algo,
     dec->compression = compression;
     if ((mode == MODE_STREAM && mk != NULL) || mode == MODE_CBC) {
         // AEAD ciphers use no MAC key, but stream and block ciphers do. Note
-        // the special case for NULL ciphers, even if there is insufficieny
+        // the special case for NULL ciphers, even if there is insufficiency
         // keying material (including MAC key), we will can still create
         // decoders since "decryption" is easy for such ciphers.
         dec->mac_key.data = dec->_mac_key_or_write_iv;

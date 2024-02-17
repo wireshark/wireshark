@@ -127,7 +127,7 @@ The following features are new (or have been significantly updated) since versio
 
   ** Any combination of the above also works.
 
-  ** Multifield columns are still available. For backwards compatiblity,
+  ** Multifield columns are still available. For backwards compatibility,
      `X or Y` is interpreted as a multifield column as before. To represent a
      logical test for the presence of multiple fields instead of concatenating
      values, use parenthesis, like `(tcp.options.timestamp or tcp.options.nop`.

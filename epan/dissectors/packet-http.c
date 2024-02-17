@@ -1841,7 +1841,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
-	/* Give the follw tap what we've currently dissected */
+	/* Give the follow tap what we've currently dissected */
 	if(have_tap_listener(http_follow_tap)) {
 		tap_queue_packet(http_follow_tap, pinfo, tvb_new_subset_length(tvb, orig_offset, offset-orig_offset));
 	}

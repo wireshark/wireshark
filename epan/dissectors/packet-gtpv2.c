@@ -5446,7 +5446,7 @@ dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
         case 2:
             /* BSS container */
             sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_gtpv2_bss_con, NULL, "BSS container");
-            /* The flags PFI, RP, SAPI and PHX in octet 6 indicate the corresponding type of paratemer */
+            /* The flags PFI, RP, SAPI and PHX in octet 6 indicate the corresponding type of parameter */
             proto_tree_add_item(sub_tree, hf_gtpv2_bss_container_phx, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_sapi_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_rp_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -9058,7 +9058,7 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 
         /* TODO: call IE dissector here */
         if (type == GTPV2_IE_RESERVED) {
-            /* Treat IE type zero specal as type zero is used to end the loop in the else branch */
+            /* Treat IE type zero special as type zero is used to end the loop in the else branch */
             expert_add_info(pinfo, ti, &ei_gtpv2_ie);
         } else {
             i = -1;

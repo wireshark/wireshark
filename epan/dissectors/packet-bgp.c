@@ -3640,7 +3640,7 @@ decode_bgp_nlri_op_dec_value(proto_tree *parent_tree, proto_item *parent_item, t
         decode_bgp_flow_spec_dec_operator(parent_tree, tvb, offset+cursor_op_val);
         if (first_loop == 0)
         {
-            /* If first operator we remoe a white space and or (||) is not relevant */
+            /* If first operator we remove a white space and or (||) is not relevant */
             /* BGP flow spec NLRI operator bitmask */
             proto_item_append_text(parent_item,"%s%s%s%s",
                  ((nlri_operator & BGPNLRI_FSPEC_AND_BIT) == 0) ? "" : "&& ",

@@ -1024,7 +1024,7 @@ stats_tree_get_displayname (gchar* fullname)
     gchar *sep;
 
     if (prefs.st_sort_showfullname) {
-        return buf; /* unmodifed */
+        return buf; /* unmodified */
     }
 
     sep = buf;

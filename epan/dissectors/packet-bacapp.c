@@ -7033,7 +7033,7 @@ bacapp_stats_tree_instanceid(stats_tree* st, packet_info* pinfo, epan_dissect_t*
 }
 
 
-/* register all BACnet Ststistic trees */
+/* register all BACnet Statistic trees */
 static void
 register_bacapp_stat_trees(void)
 {
@@ -9525,7 +9525,7 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         case 302: /* positive-access-rules */
             offset = fAccessRule(tvb, pinfo, tree, offset);
             break;
-        case 304: /* suppoprted-formats */
+        case 304: /* supported-formats */
             offset = fAuthenticationFactorFormat(tvb, pinfo, tree, offset);
             break;
         case 327: /* base-device-security-policy */
@@ -14590,10 +14590,10 @@ fAuthenticateRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         case 1: /* expected Invoke ID Unsigned8 OPTIONAL */
             proto_tree_add_item(tree, hf_bacapp_invoke_id, tvb, offset++, 1, ENC_BIG_ENDIAN);
             break;
-        case 2: /* Chararacter String OPTIONAL */
+        case 2: /* Character String OPTIONAL */
             offset = fCharacterString(tvb, pinfo, tree, offset, "operator Name: ");
             break;
-        case 3: /* Chararacter String OPTIONAL */
+        case 3: /* Character String OPTIONAL */
             offset = fCharacterString(tvb, pinfo, tree, offset, "operator Password: ");
             break;
         case 4: /* Boolean OPTIONAL */
