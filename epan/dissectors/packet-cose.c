@@ -1,8 +1,10 @@
 /* packet-cose.c
  * Routines for CBOR Object Signing and Encryption (COSE) dissection
  * References:
- *     RFC 8152: https://tools.ietf.org/html/rfc8152
  *     RFC 8949: https://tools.ietf.org/html/rfc8949
+ *     RFC 9052: https://tools.ietf.org/html/rfc9052
+ *     RFC 9053: https://tools.ietf.org/html/rfc9053
+ *     RFC 9360: https://tools.ietf.org/html/rfc9360
  *
  * Copyright 2019-2021, Brian Sipos <brian.sipos@gmail.com>
  *
@@ -190,6 +192,7 @@ static int hf_hdr_crit_list;
 static int hf_hdr_ctype_uint;
 static int hf_hdr_ctype_tstr;
 static int hf_hdr_kid;
+static int hf_hdr_kid_text;
 static int hf_hdr_iv;
 static int hf_hdr_piv;
 static int hf_hdr_x5bag;
@@ -242,6 +245,7 @@ static hf_register_info fields[] = {
     {&hf_hdr_ctype_uint, {"Content-Format", "cose.content-type.uint", FT_INT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_hdr_ctype_tstr, {"Content-Type", "cose.content-type.tstr", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_hdr_kid, {"Key identifier", "cose.kid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    {&hf_hdr_kid_text, {"As Text", "cose.kid.as_text", FT_STRING, BASE_NONE, NULL, 0x0, "The kid byte string interpreted as UTF-8 text", HFILL}},
     {&hf_hdr_iv, {"IV", "cose.iv", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_hdr_piv, {"Partial IV", "cose.piv", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
@@ -276,6 +280,7 @@ static int ett_prot_bstr;
 static int ett_unprot;
 static int ett_hdr_map;
 static int ett_hdr_label;
+static int ett_hdr_kid;
 static int ett_hdr_static_key;
 static int ett_hdr_ephem_key;
 static int ett_hdr_crit_list;
@@ -295,6 +300,7 @@ static int *ett[] = {
     &ett_unprot,
     &ett_hdr_map,
     &ett_hdr_label,
+    &ett_hdr_kid,
     &ett_hdr_static_key,
     &ett_hdr_ephem_key,
     &ett_hdr_crit_list,
@@ -357,6 +363,39 @@ void cose_param_key_free(gpointer ptr) {
         g_variant_unref(obj->label);
     }
     g_free(obj);
+}
+
+/** Get a specific item value (map key or value) from a header map.
+ * @param alloc The allocator for temporary data.
+ * @param tvb The buffer to read from.
+ * @param[in,out] offset The starting offset to read and advance.
+ * @return A pointer to the simple value or NULL.
+ */
+static GVariant * get_header_value(wmem_allocator_t *alloc, tvbuff_t *tvb, gint *offset) {
+    GVariant *result = NULL;
+
+    wscbor_chunk_t *chunk = wscbor_chunk_read(alloc, tvb, offset);
+    switch (chunk->type_major) {
+        case CBOR_TYPE_UINT:
+        case CBOR_TYPE_NEGINT: {
+            gint64 *label = wscbor_require_int64(alloc, chunk);
+            if (label) {
+                result = g_variant_new_int64(*label);
+            }
+            break;
+        }
+        case CBOR_TYPE_STRING: {
+            const char *label = wscbor_require_tstr(alloc, chunk);
+            if (label) {
+                result = g_variant_new_string(label);
+            }
+            break;
+        }
+        default:
+            break;
+    }
+    wscbor_chunk_free(chunk);
+    return result;
 }
 
 /** Dissect an ID-value pair within a context.
@@ -447,8 +486,7 @@ static gboolean dissect_header_pair(dissector_table_t dis_table, cose_header_con
 
 static void
 cose_header_context_cleanup(void *user_data) {
-
-    cose_header_context_t *ctx = (cose_header_context_t*)user_data;
+    cose_header_context_t *ctx = (cose_header_context_t *)user_data;
 
     if (ctx->principal) {
         g_variant_unref(ctx->principal);
@@ -459,14 +497,21 @@ cose_header_context_cleanup(void *user_data) {
     }
 }
 
+static void
+g_variant_cleanup(void *user_data) {
+    GVariant *var = (GVariant *)user_data;
+    g_variant_unref(var);
+}
+
 /** Dissect an entire header map, either for messages, recipients, or keys.
  *
  * @param dis_table The cose_param_key_t dissector table.
  * @param tvb The source data.
  * @param tree The parent of the header map.
  * @param[in,out] offset The data offset.
+ * @param principal_key The map key associated with a principal value to read first.
  */
-static void dissect_header_map(dissector_table_t dis_table, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset) {
+static void dissect_header_map(dissector_table_t dis_table, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset, GVariant *principal_key) {
     wscbor_chunk_t *chunk_hdr_map = wscbor_chunk_read(pinfo->pool, tvb, offset);
     wscbor_require_map(chunk_hdr_map);
     proto_item *item_hdr_map = proto_tree_get_parent(tree);
@@ -475,8 +520,26 @@ static void dissect_header_map(dissector_table_t dis_table, tvbuff_t *tvb, packe
         proto_tree *tree_hdr_map = proto_item_add_subtree(item_hdr_map, ett_hdr_map);
 
         cose_header_context_t *ctx = wmem_new0(pinfo->pool, cose_header_context_t);
-
         CLEANUP_PUSH(cose_header_context_cleanup, ctx);
+
+        // Peek ahead to principal key (and value) first
+        if (principal_key) {
+            gint peek_offset = *offset;
+            for (guint64 ix = 0; ix < chunk_hdr_map->head_value; ++ix) {
+                GVariant *key = get_header_value(pinfo->pool, tvb, &peek_offset);
+                if (key) {
+                    if (g_variant_equal(key, principal_key)) {
+                        ctx->principal = get_header_value(pinfo->pool, tvb, &peek_offset);
+                    }
+                    g_variant_unref(key);
+                    if (ctx->principal) {
+                        break;
+                    }
+                }
+                // ignore non-principal value entirely
+                wscbor_skip_next_item(pinfo->pool, tvb, &peek_offset);
+            }
+        }
 
         for (guint64 ix = 0; ix < chunk_hdr_map->head_value; ++ix) {
             if (!dissect_header_pair(dis_table, ctx, tvb, pinfo, tree_hdr_map, offset)) {
@@ -485,7 +548,6 @@ static void dissect_header_map(dissector_table_t dis_table, tvbuff_t *tvb, packe
         }
 
         CLEANUP_CALL_AND_POP;
-
         wmem_free(pinfo->pool, ctx);
     }
 
@@ -494,7 +556,12 @@ static void dissect_header_map(dissector_table_t dis_table, tvbuff_t *tvb, packe
 
 static int dissect_cose_msg_header_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     gint offset = 0;
-    dissect_header_map(table_header, tvb, pinfo, tree, &offset);
+    GVariant *alg_key = g_variant_new_int64(1);
+    CLEANUP_PUSH(g_variant_cleanup, alg_key);
+
+    dissect_header_map(table_header, tvb, pinfo, tree, &offset, alg_key);
+
+    CLEANUP_CALL_AND_POP;
     return offset;
 }
 
@@ -781,30 +848,17 @@ static int dissect_cose_msg_tagged(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     return -1;
 }
 
-static void dissect_value_alg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset, GVariant **value) {
+static void dissect_value_alg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset) {
     wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, offset);
     switch (chunk->type_major) {
         case CBOR_TYPE_UINT:
         case CBOR_TYPE_NEGINT: {
             gint64 *val = wscbor_require_int64(pinfo->pool, chunk);
             proto_tree_add_cbor_int64(tree, hf_hdr_alg_int, pinfo, tvb, chunk, val);
-            if (value && val) {
-                if (*value) {
-                    g_variant_unref(*value);
-                }
-                *value = g_variant_new_int64(*val);
-            }
             break;
         }
         case CBOR_TYPE_STRING: {
-            const char *val = wscbor_require_tstr(pinfo->pool, chunk);
             proto_tree_add_cbor_tstr(tree, hf_hdr_alg_tstr, pinfo, tvb, chunk);
-            if (value && val) {
-                if (*value) {
-                    g_variant_unref(*value);
-                }
-                *value = g_variant_new_string(val);
-            }
             break;
         }
         default:
@@ -823,7 +877,12 @@ static int dissect_header_salt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 static void dissect_value_cose_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset) {
-    dissect_header_map(table_keyparam, tvb, pinfo, tree, offset);
+    GVariant *kty_key = g_variant_new_int64(1);
+    CLEANUP_PUSH(g_variant_cleanup, kty_key);
+
+    dissect_header_map(table_keyparam, tvb, pinfo, tree, offset, kty_key);
+
+    CLEANUP_CALL_AND_POP;
 }
 
 static int dissect_header_static_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
@@ -842,12 +901,9 @@ static int dissect_header_ephem_key(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return offset;
 }
 
-static int dissect_header_alg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-    cose_header_context_t *ctx = (cose_header_context_t *)data;
+static int dissect_header_alg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     gint offset = 0;
-
-    dissect_value_alg(tvb, pinfo, tree, &offset, &(ctx->principal));
-
+    dissect_value_alg(tvb, pinfo, tree, &offset);
     return offset;
 }
 
@@ -908,8 +964,14 @@ static int dissect_header_kid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     gint offset = 0;
 
     wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
-    wscbor_require_bstr(pinfo->pool, chunk);
-    proto_tree_add_cbor_bstr(tree, hf_hdr_kid, pinfo, tvb, chunk);
+    tvbuff_t *val = wscbor_require_bstr(pinfo->pool, chunk);
+    proto_item *item_kid = proto_tree_add_cbor_bstr(tree, hf_hdr_kid, pinfo, tvb, chunk);
+
+    if (val && tvb_utf_8_isprint(val, 0, -1)) {
+        proto_tree *tree_kid = proto_item_add_subtree(item_kid, ett_hdr_kid);
+        proto_item *kid_text = proto_tree_add_item(tree_kid, hf_hdr_kid_text, val, 0, tvb_reported_length(val), ENC_UTF_8);
+        proto_item_set_generated(kid_text);
+    }
 
     return offset;
 }
@@ -1005,7 +1067,7 @@ static int dissect_header_x5t(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if (!wscbor_skip_if_errors(pinfo->pool, tvb, &offset, chunk_list)) {
         proto_tree *tree_list = proto_item_add_subtree(item_list, ett_hdr_x5t_list);
 
-        dissect_value_alg(tvb, pinfo, tree_list, &offset, NULL);
+        dissect_value_alg(tvb, pinfo, tree_list, &offset);
 
         wscbor_chunk_t *chunk_hash = wscbor_chunk_read(pinfo->pool, tvb, &offset);
         wscbor_require_bstr(pinfo->pool, chunk_hash);
@@ -1061,8 +1123,7 @@ static int dissect_cose_key_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     return offset;
 }
 
-static int dissect_keyparam_kty(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-    cose_header_context_t *ctx = (cose_header_context_t *)data;
+static int dissect_keyparam_kty(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     gint offset = 0;
 
     wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
@@ -1071,23 +1132,10 @@ static int dissect_keyparam_kty(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         case CBOR_TYPE_NEGINT: {
             gint64 *val = wscbor_require_int64(pinfo->pool, chunk);
             proto_tree_add_cbor_int64(tree, hf_keyparam_kty_int, pinfo, tvb, chunk, val);
-            if (val) {
-                if (ctx->principal) {
-                    g_variant_unref(ctx->principal);
-                }
-                ctx->principal = g_variant_new_int64(*val);
-            }
             break;
         }
         case CBOR_TYPE_STRING: {
-            const char *val = wscbor_require_tstr(pinfo->pool, chunk);
             proto_tree_add_cbor_tstr(tree, hf_keyparam_kty_tstr, pinfo, tvb, chunk);
-            if (val) {
-                if (ctx->principal) {
-                    g_variant_unref(ctx->principal);
-                }
-                ctx->principal = g_variant_new_string(val);
-            }
             break;
         }
         default:
@@ -1341,7 +1389,7 @@ void proto_reg_handoff_cose(void) {
     register_header_dissector(dissect_header_kid, g_variant_new_int64(4), "kid");
     register_header_dissector(dissect_header_iv, g_variant_new_int64(5), "IV");
     register_header_dissector(dissect_header_piv, g_variant_new_int64(6), "Partial IV");
-    // draft-ietf-cose-x509 header labels
+    // RFC 9360 header labels
     register_header_dissector(dissect_header_x5bag, g_variant_new_int64(32), "x5bag");
     register_header_dissector(dissect_header_x5chain, g_variant_new_int64(33), "x5chain");
     register_header_dissector(dissect_header_x5t, g_variant_new_int64(34), "x5t");

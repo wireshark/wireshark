@@ -1,7 +1,7 @@
 /* packet-cose.h
  * Definitions for CBOR Object Signing and Encryption (COSE) dissection
  * References:
- *     RFC 8152: https://tools.ietf.org/html/rfc8152
+ *     RFC 9052: https://tools.ietf.org/html/rfc9052
  *
  * Copyright 2019-2021, Brian Sipos <brian.sipos@gmail.com>
  *
