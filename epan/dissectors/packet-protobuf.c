@@ -756,7 +756,11 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         }
         if (sub_message_desc) {
             dissect_protobuf_message(tvb, offset, length, pinfo, pbf_as_hf ? pbf_tree : subtree, sub_message_desc,
-                hf_id_ptr ? *hf_id_ptr : -1, FALSE, dumper, wmem_packet_scope(), &buf);
+                                     hf_id_ptr ? *hf_id_ptr : -1,
+                                     FALSE,   // not top level
+                                     dumper,
+                                     wmem_packet_scope(),
+                                     &buf);
 
             if (buf) { /* append the value in string format to ti_field node */
                 proto_item_append_text(ti_field, "= %s", buf);
@@ -1374,7 +1378,7 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
 {
     proto_tree *message_tree;
     proto_item *ti_message, *ti;
-    const gchar* message_name = "<UNKNOWN> Message Type";
+    const gchar* message_name = "<UNKNOWN>";
     guint max_offset = offset + length;
     const PbwFieldDescriptor* field_desc;
     const PbwFieldDescriptor* prev_field_desc = NULL;
@@ -1433,10 +1437,14 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
     }
 
     if (is_top_level) {
-        col_clear(pinfo->cinfo, COL_PROTOCOL);
+        if (col_get_text(pinfo->cinfo, COL_PROTOCOL) && strlen(col_get_text(pinfo->cinfo, COL_PROTOCOL))) {
+            col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "/");
+        }
+        else {
+            col_clear(pinfo->cinfo, COL_PROTOCOL);
+            col_clear(pinfo->cinfo, COL_INFO);
+        }
         col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "PB(%s)", message_name);
-        /* Top-level info will get written into Info column. */
-        col_clear(pinfo->cinfo, COL_INFO);
     }
 
     /* support filtering with message name */
@@ -1623,7 +1631,12 @@ dissect_protobuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
          * should be used to free the GString to avoid a leak.
          */
         dissect_protobuf_message(tvb, offset, tvb_reported_length_remaining(tvb, offset), pinfo,
-            protobuf_tree, message_desc, -1, pinfo->ptype == PT_UDP, &dumper, NULL, NULL);
+                                 protobuf_tree, message_desc,
+                                 -1,  // no hf item
+                                 pinfo->ptype == PT_UDP, // is_top_level
+                                 &dumper,
+                                 NULL,  // scope
+                                 NULL); // retval
 
         DISSECTOR_ASSERT_HINT(json_dumper_finish(&dumper), "Bad json_dumper state");
         ti = proto_tree_add_item(tree, proto_protobuf_json_mapping, tvb, 0, -1, ENC_NA);
@@ -1648,7 +1661,12 @@ dissect_protobuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         }
     } else {
         dissect_protobuf_message(tvb, offset, tvb_reported_length_remaining(tvb, offset), pinfo,
-            protobuf_tree, message_desc, -1, pinfo->ptype == PT_UDP, NULL, NULL, NULL);
+                                 protobuf_tree, message_desc,
+                                 -1, // no hf item
+                                 TRUE,   // is_top_level
+                                 NULL,   // dumper
+                                 NULL,   // scope
+                                 NULL);  // retval
     }
 
     return tvb_captured_length(tvb);
@@ -2335,6 +2353,8 @@ proto_reg_handoff_protobuf(void)
     dissector_add_string("grpc_message_type", "application/grpc-web+proto", protobuf_handle);
     dissector_add_string("grpc_message_type", "application/grpc-web-text", protobuf_handle);
     dissector_add_string("grpc_message_type", "application/grpc-web-text+proto", protobuf_handle);
+
+    dissector_add_string("media_type", "application/x-protobuf", protobuf_handle);
 }
 
 /*
