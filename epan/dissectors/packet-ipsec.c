@@ -73,6 +73,7 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 #include <epan/uat.h>
 #include <wsutil/str_util.h>
 #include <wsutil/wsgcrypt.h>
+#include <wsutil/pint.h>
 
 #include "packet-ipsec.h"
 #include "packet-ip.h"
@@ -175,6 +176,8 @@ static dissector_table_t ip_dissector_table;
 #define IPSEC_SA_WILDCARDS_ANY '*'
 /* the maximum number of bytes (10)(including the terminating nul character(11)) */
 #define IPSEC_SPI_LEN_MAX 11
+#define IPSEC_SA_SN 32
+#define IPSEC_SA_ESN 64
 
 
 /* well-known algorithm number (in CPI), from RFC2409 */
@@ -265,6 +268,9 @@ typedef struct {
   gchar *authentication_key_string;
   gchar *authentication_key;
   gint authentication_key_length;
+
+  guint8 sn_length;
+  guint32 sn_upper;
 } uat_esp_sa_record_t;
 
 static uat_esp_sa_record_t *uat_esp_sa_records = NULL;
@@ -439,6 +445,8 @@ static void* uat_esp_sa_record_copy_cb(void* n, const void* o, size_t siz _U_) {
   new_rec->authentication_algo = old_rec->authentication_algo;
   new_rec->authentication_key_string = g_strdup(old_rec->authentication_key_string);
   new_rec->authentication_key = NULL;
+  new_rec->sn_length = old_rec->sn_length;
+  new_rec->sn_upper = old_rec->sn_upper;
 
   /* Parse keys as in an update */
   char *err = NULL;
@@ -475,6 +483,8 @@ UAT_VS_DEF(uat_esp_sa_records, encryption_algo, uat_esp_sa_record_t, guint8, 0, 
 UAT_CSTRING_CB_DEF(uat_esp_sa_records, encryption_key_string, uat_esp_sa_record_t)
 UAT_VS_DEF(uat_esp_sa_records, authentication_algo, uat_esp_sa_record_t, guint8, 0, "FIXX")
 UAT_CSTRING_CB_DEF(uat_esp_sa_records, authentication_key_string, uat_esp_sa_record_t)
+UAT_VS_DEF(uat_esp_sa_records, sn_length, uat_esp_sa_record_t, guint8, IPSEC_SA_SN, "32-bit")
+UAT_HEX_CB_DEF(uat_esp_sa_records, sn_upper, uat_esp_sa_record_t)
 
 
 /* Configure a new SA (programmatically, most likely from a private dissector).
@@ -521,6 +531,10 @@ void esp_sa_record_add_from_dissector(guint8 protocol, const gchar *srcIP, const
    record->authentication_key_string = g_strdup(authentication_key);
    record->authentication_key = NULL;
 
+   /* XXX - Should we change the function so private dissectors pass this in? */
+   record->sn_length = IPSEC_SA_SN;
+   record->sn_upper = 0;
+
    /* Parse keys */
    char *err = NULL;
    uat_esp_sa_record_update_cb(record, &err);
@@ -545,6 +559,7 @@ static gboolean g_esp_enable_authentication_check = FALSE;
 /* SPI state, key is just 32-bit SPI */
 typedef struct
 {
+    guint32  firstValidSN;
     guint32  previousSequenceNumber;
     guint32  previousFrameNum;
 } spi_status;
@@ -1120,7 +1135,9 @@ get_esp_sa(gint protocol_typ, gchar *src,  gchar *dst,  guint spi,
            gchar **authentication_key,
            guint *authentication_key_len,
            gcry_cipher_hd_t **cipher_hd,
-           gboolean **cipher_hd_created
+           gboolean **cipher_hd_created,
+           guint8 *sn_length,
+           guint32 *sn_upper
   )
 {
   gboolean found = FALSE;
@@ -1179,6 +1196,9 @@ get_esp_sa(gint protocol_typ, gchar *src,  gchar *dst,  guint spi,
          it opens the cipher_hd. */
       *cipher_hd = &record->cipher_hd;
       *cipher_hd_created = &record->cipher_hd_created;
+
+      *sn_length = record->sn_length;
+      *sn_upper = record->sn_upper;
     }
   }
 
@@ -1455,6 +1475,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 
   guint32 sequence_number;
+  guint8 sn_length = IPSEC_SA_SN;
+  guint32 sn_upper = 0;
 
   /*
    * load the top pane info. This should be overwritten by
@@ -1529,7 +1551,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if((sad_is_present = get_esp_sa(protocol_typ, ip_src, ip_dst, spi,
                                     &esp_encr_algo, &esp_auth_algo,
                                     &esp_encr_key, &esp_encr_key_len, &esp_auth_key, &esp_auth_key_len,
-                                    &cipher_hd, &cipher_hd_created)))
+                                    &cipher_hd, &cipher_hd_created, &sn_length, &sn_upper)))
     {
 
       switch(esp_auth_algo)
@@ -1591,6 +1613,29 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
       if(g_esp_enable_authentication_check)
       {
+        if (sn_length == IPSEC_SA_ESN && g_esp_do_sequence_analysis) {
+          spi_status *status = (spi_status*)wmem_map_lookup(esp_sequence_analysis_hash,
+                                                                GUINT_TO_POINTER((guint)spi));
+          /* We only support 2^32 - 1 frames (and only 2^31 - 1 in the Qt packet
+           * list), so at most we can overflow once. In a normal capture we
+           * expect half the frames to be from each direction, too. The proper
+           * method in RFC 4303 Appendix A involves storing valid sequence
+           * numbers at multiple points for subsequent passes to slide the window,
+           * but we shouldn't need to. */
+          if (status && status->firstValidSN) {
+            const guint32 window = 0x8000U;
+            if (status->firstValidSN >= window) {
+              if (sequence_number < (status->firstValidSN - window)) {
+                sn_upper++;
+              }
+            } else {
+              if (sequence_number >= (status->firstValidSN - window)) {
+                sn_upper--;
+              }
+            }
+          }
+        }
+
         switch(esp_auth_algo)
         {
         case IPSEC_AUTH_HMAC_SHA1_96:
@@ -1704,6 +1749,14 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
               gcry_md_setkey( md_hd, esp_auth_key, esp_auth_key_len );
 
               gcry_md_write (md_hd, tvb_get_ptr(tvb, 0, esp_packet_len - esp_icv_len), esp_packet_len - esp_icv_len);
+
+              if (sn_length == IPSEC_SA_ESN) {
+                guint8 sn_bytes[4];
+                phton32(sn_bytes, sn_upper);
+                for (int i = 0; i < 4; i++) {
+                  gcry_md_putc(md_hd, sn_bytes[i]);
+                }
+              }
 
               esp_icv_computed = gcry_md_read (md_hd, auth_algo_libgcrypt);
               if (esp_icv_computed == 0)
@@ -2121,7 +2174,15 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             /* Allocate buffer for ICV  */
             esp_icv = (guint8 *)tvb_memdup(pinfo->pool, tvb, esp_packet_len - esp_icv_len, esp_icv_len);
 
-            err = gcry_cipher_authenticate(*cipher_hd, tvb_get_ptr(tvb, 0, ESP_HEADER_LEN), ESP_HEADER_LEN);
+            if (sn_length == IPSEC_SA_SN) {
+              err = gcry_cipher_authenticate(*cipher_hd, tvb_get_ptr(tvb, 0, ESP_HEADER_LEN), ESP_HEADER_LEN);
+            } else {
+              guint8 *aad = wmem_alloc(pinfo->pool, ESP_HEADER_LEN + 4);
+              tvb_memcpy(tvb, aad, 0, 4);
+              phton32(&aad[4], sn_upper);
+              tvb_memcpy(tvb, &aad[ESP_HEADER_LEN], 4, ESP_HEADER_LEN);
+              err = gcry_cipher_authenticate(*cipher_hd, aad, ESP_HEADER_LEN + 4);
+            }
 
             if (err) {
               gcry_cipher_close(*cipher_hd);
@@ -2313,6 +2374,13 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       if (icv_correct) {
         proto_item_append_text(icv_item, " [correct]");
         good = TRUE;
+        if (sn_length == IPSEC_SA_ESN && g_esp_do_sequence_analysis) {
+          spi_status *status = (spi_status*)wmem_map_lookup(esp_sequence_analysis_hash,
+                                                                GUINT_TO_POINTER((guint)spi));
+          if (status && !status->firstValidSN) {
+            status->firstValidSN = sequence_number;
+          }
+        }
       } else {
         proto_item_append_text(icv_item, " [incorrect, should be %s]", esp_icv_expected);
         bad = TRUE;
@@ -2508,6 +2576,12 @@ proto_register_ipsec(void)
     { 0x00, NULL }
   };
 
+  static const value_string esp_sn_length_vals[] = {
+    { IPSEC_SA_SN,  "32-bit" },
+    { IPSEC_SA_ESN, "64-bit" },
+    { 0x00, NULL }
+  };
+
   static uat_field_t esp_uat_flds[] = {
       UAT_FLD_VS(uat_esp_sa_records, protocol, "Protocol", esp_proto_type_vals, "Protocol used"),
       UAT_FLD_CSTRING(uat_esp_sa_records, srcIP, "Src IP", "Source Address"),
@@ -2517,6 +2591,8 @@ proto_register_ipsec(void)
       UAT_FLD_CSTRING(uat_esp_sa_records, encryption_key_string, "Encryption Key", "Encryption Key"),
       UAT_FLD_VS(uat_esp_sa_records, authentication_algo, "Authentication", esp_authentication_type_vals, "Authentication algorithm"),
       UAT_FLD_CSTRING(uat_esp_sa_records, authentication_key_string, "Authentication Key", "Authentication Key"),
+      UAT_FLD_VS(uat_esp_sa_records, sn_length, "SN", esp_sn_length_vals, "Sequence Number length"),
+      UAT_FLD_HEX(uat_esp_sa_records, sn_upper, "ESN High Bits", "Extended Sequence Number upper 32 bits (hex)"),
       UAT_END_FIELDS
     };
 
@@ -2587,6 +2663,10 @@ proto_register_ipsec(void)
             NULL,                           /* post update callback */
             NULL,                           /* reset callback */
             esp_uat_flds);                  /* UAT field definitions */
+
+  static const char *esp_uat_defaults_[] = {
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "32-bit", "0" };
+  uat_set_default_values(esp_uat, esp_uat_defaults_);
 
   prefs_register_uat_preference(esp_module,
                                 "sa_table",
