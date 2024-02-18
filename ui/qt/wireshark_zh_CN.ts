@@ -3627,7 +3627,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show as</source>
-        <oldsource>Show data as</oldsource>
         <translation type="unfinished">显示为</translation>
     </message>
     <message>
@@ -13384,11 +13383,6 @@ a:hover {
         <translation>查找上一分组</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Selected</source>
-        <oldsource>&amp;Mark/Unmark Packet(s)</oldsource>
-        <translation type="unfinished">标记/取消标记 分组(&amp;M)</translation>
-    </message>
-    <message>
         <source>Mark All Displayed</source>
         <translation>标记所有显示的分组</translation>
     </message>
@@ -13415,11 +13409,6 @@ a:hover {
     <message>
         <source>Go to the previous marked packet</source>
         <translation>转到前一个已标记的分组</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Selected</source>
-        <oldsource>&amp;Ignore/Unignore Packet(s)</oldsource>
-        <translation type="unfinished">忽略/取消忽略 分组(&amp;I)</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -14086,7 +14075,15 @@ a:hover {
         <translation>查找上一个(&amp;v)</translation>
     </message>
     <message>
+        <source>&amp;Mark/Unmark Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Mark or unmark each selected packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

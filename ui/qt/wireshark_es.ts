@@ -3609,8 +3609,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Show as</source>
-        <oldsource>Show data as</oldsource>
-        <translation type="unfinished">Mostrar datos como</translation>
+        <translation type="unfinished">Mostrar como</translation>
     </message>
     <message>
         <source>No delta times</source>
@@ -13342,11 +13341,6 @@ a:hover {
         <translation>Busca el paquete anterior</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Selected</source>
-        <oldsource>&amp;Mark/Unmark Packet(s)</oldsource>
-        <translation type="unfinished">&amp;Marcar/Desmarcar paquete</translation>
-    </message>
-    <message>
         <source>Mark All Displayed</source>
         <translation>Marcar todos los mostrados</translation>
     </message>
@@ -13373,11 +13367,6 @@ a:hover {
     <message>
         <source>Go to the previous marked packet</source>
         <translation>Va al paquete marcado anterior</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Selected</source>
-        <oldsource>&amp;Ignore/Unignore Packet(s)</oldsource>
-        <translation type="unfinished">&amp;Ignorar/No ignorar paquete</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -14044,8 +14033,16 @@ a:hover {
         <translation>Buscar ant&amp;erior</translation>
     </message>
     <message>
+        <source>&amp;Mark/Unmark Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Mark or unmark each selected packet</source>
         <translation>Marca o desmarca cada paquete seleccionado</translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Selected</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Ignore or unignore each selected packet</source>

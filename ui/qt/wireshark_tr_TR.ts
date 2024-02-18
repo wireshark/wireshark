@@ -3631,8 +3631,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show as</source>
-        <oldsource>Show data as</oldsource>
-        <translation type="unfinished">Verileri şu şekilde göster</translation>
+        <translation type="unfinished">Olarak göstermek</translation>
     </message>
     <message>
         <source>No delta times</source>
@@ -13447,11 +13446,6 @@ a:üzerine gelin{
         <translation>Önceki paketi bul</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Selected</source>
-        <oldsource>&amp;Mark/Unmark Packet(s)</oldsource>
-        <translation type="unfinished">&amp;Paketi İşaretle/İşaretini Kaldır</translation>
-    </message>
-    <message>
         <source>Mark All Displayed</source>
         <translation>Tüm Görüntülenenleri İşaretle</translation>
     </message>
@@ -13478,11 +13472,6 @@ a:üzerine gelin{
     <message>
         <source>Go to the previous marked packet</source>
         <translation>Önceki işaretli pakete git</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Selected</source>
-        <oldsource>&amp;Ignore/Unignore Packet(s)</oldsource>
-        <translation type="unfinished">&amp;Paketi Yoksay/Yoksaymaktan vazgeç</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -14149,8 +14138,16 @@ a:üzerine gelin{
         <translation>Öncekini Bu&amp;l</translation>
     </message>
     <message>
+        <source>&amp;Mark/Unmark Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Mark or unmark each selected packet</source>
         <translation>Seçilen her paketi işaretleyin veya işaretini kaldırın</translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Selected</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Ignore or unignore each selected packet</source>

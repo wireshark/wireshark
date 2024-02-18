@@ -3662,7 +3662,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show as</source>
-        <oldsource>Show data as</oldsource>
         <translation type="unfinished">Pokaż jako</translation>
     </message>
     <message>
@@ -13441,11 +13440,6 @@ a:hover {
         <translation>Znajdź poprzedni pakiet</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Selected</source>
-        <oldsource>&amp;Mark/Unmark Packet(s)</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Mark All Displayed</source>
         <translation>Zaznacz wszystkie wyświetlane</translation>
     </message>
@@ -13472,11 +13466,6 @@ a:hover {
     <message>
         <source>Go to the previous marked packet</source>
         <translation>Idź do poprzedniego zaznaczonego pakietu</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Selected</source>
-        <oldsource>&amp;Ignore/Unignore Packet(s)</oldsource>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -14143,7 +14132,15 @@ a:hover {
         <translation>Znajdź poprzedni…</translation>
     </message>
     <message>
+        <source>&amp;Mark/Unmark Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Mark or unmark each selected packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

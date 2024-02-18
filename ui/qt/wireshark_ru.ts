@@ -3665,8 +3665,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show as</source>
-        <oldsource>Show data as</oldsource>
-        <translation type="unfinished">Отобразить данные в виде</translation>
+        <translation type="unfinished">Отображать как</translation>
     </message>
     <message>
         <source>No delta times</source>
@@ -13515,11 +13514,6 @@ a:hover {
         <translation>Найти предыдущий пакет</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Selected</source>
-        <oldsource>&amp;Mark/Unmark Packet(s)</oldsource>
-        <translation type="unfinished">&amp;Установить/снять отметку пакета (пакетов)</translation>
-    </message>
-    <message>
         <source>Mark All Displayed</source>
         <translation>Отметить всё отображаемое</translation>
     </message>
@@ -13546,11 +13540,6 @@ a:hover {
     <message>
         <source>Go to the previous marked packet</source>
         <translation>Перейти к предыдущему отмеченному пакету</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Selected</source>
-        <oldsource>&amp;Ignore/Unignore Packet(s)</oldsource>
-        <translation type="unfinished">&amp;Игнорировать/отменить игнорирование пакета</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -14217,8 +14206,16 @@ a:hover {
         <translation>Найти пр&amp;едыдущий</translation>
     </message>
     <message>
+        <source>&amp;Mark/Unmark Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Mark or unmark each selected packet</source>
         <translation>Установить или снять отметку всех выбранных пакетов</translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Selected</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Ignore or unignore each selected packet</source>

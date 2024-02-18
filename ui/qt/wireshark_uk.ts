@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Copy to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Скопіювати до буферу обміну</translation>
     </message>
     <message>
         <source>Authors</source>
@@ -81,11 +81,11 @@
     </message>
     <message>
         <source>About Logray</source>
-        <translation type="unfinished"></translation>
+        <translation>Про Logray</translation>
     </message>
     <message>
         <source>Logray</source>
-        <translation type="unfinished"></translation>
+        <translation>Logray</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -145,14 +145,14 @@
     </message>
     <message>
         <source>Can&apos;t assign %1 to %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо призначити %1 до %2.</translation>
     </message>
 </context>
 <context>
     <name>AdvancedPrefsModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Ім&apos;я</translation>
     </message>
     <message>
         <source>Status</source>
@@ -178,7 +178,7 @@
     <name>AuthorListModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Ім&apos;я</translation>
     </message>
     <message>
         <source>Email</source>
@@ -233,15 +233,15 @@
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Позначити/Зняти позначку з рядка</translation>
     </message>
     <message>
         <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Позначити/зняти позначку з клітинки</translation>
     </message>
     <message>
         <source>Save Table Image</source>
@@ -256,171 +256,171 @@
     <name>BluetoothDeviceDialog</name>
     <message>
         <source>Bluetooth Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Пристрій Bluetooth</translation>
     </message>
     <message>
         <source>BD_ADDR</source>
-        <translation type="unfinished">BD_ADDR</translation>
+        <translation>BD_ADDR</translation>
     </message>
     <message>
         <source>OUI</source>
-        <translation type="unfinished">УІО (OUI)</translation>
+        <translation>OUI</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Ім&apos;я</translation>
     </message>
     <message>
         <source>Class of Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Клас пристрою</translation>
     </message>
     <message>
         <source>LMP Version</source>
-        <translation type="unfinished">Версія LMP</translation>
+        <translation>Версія LMP</translation>
     </message>
     <message>
         <source>LMP Subversion</source>
-        <translation type="unfinished">Підверсія LMP</translation>
+        <translation>Підверсія LMP</translation>
     </message>
     <message>
         <source>Manufacturer</source>
-        <translation type="unfinished">Виробник</translation>
+        <translation>Виробник</translation>
     </message>
     <message>
         <source>HCI Version</source>
-        <translation type="unfinished">Версія HCI</translation>
+        <translation>Версія HCI</translation>
     </message>
     <message>
         <source>HCI Revision</source>
-        <translation type="unfinished">Ревізія HCI</translation>
+        <translation>Ревізія HCI</translation>
     </message>
     <message>
         <source>Scan</source>
-        <translation type="unfinished"></translation>
+        <translation>Сканувати</translation>
     </message>
     <message>
         <source>Authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>Аутентифікація</translation>
     </message>
     <message>
         <source>Encryption</source>
-        <translation type="unfinished"></translation>
+        <translation>Шифрування</translation>
     </message>
     <message>
         <source>ACL MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>ACL MTU</translation>
     </message>
     <message>
         <source>ACL Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Всього пакетів ACL</translation>
     </message>
     <message>
         <source>SCO MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>SCO MTU</translation>
     </message>
     <message>
         <source>SCO Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Всього пакетів SCO</translation>
     </message>
     <message>
         <source>LE ACL MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>LE ACL MTU</translation>
     </message>
     <message>
         <source>LE ACL Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Всього пакетів LE ACL</translation>
     </message>
     <message>
         <source>LE ISO MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>LE ISO MTU</translation>
     </message>
     <message>
         <source>LE ISO Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Всього пакетів LE ISO</translation>
     </message>
     <message>
         <source>Inquiry Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Режим запитів</translation>
     </message>
     <message>
         <source>Page Timeout</source>
-        <translation type="unfinished"></translation>
+        <translation>Таймаут сторінки</translation>
     </message>
     <message>
         <source>Simple Pairing Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Простий режим парування</translation>
     </message>
     <message>
         <source>Voice Setting</source>
-        <translation type="unfinished"></translation>
+        <translation>Налаштування голосу</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Значення</translation>
+        <translation>Значення</translation>
     </message>
     <message>
         <source>Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Зміни</translation>
     </message>
     <message>
         <source>%1 changes</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 зміни</translation>
     </message>
     <message>
         <source>Copy Cell</source>
-        <translation type="unfinished">Скопіювати Клітинку</translation>
+        <translation>Копіювати клітинку</translation>
     </message>
     <message>
         <source>Copy Rows</source>
-        <translation type="unfinished">Скопіювати Рядки</translation>
+        <translation>Копіювати рядки</translation>
     </message>
     <message>
         <source>Copy All</source>
-        <translation type="unfinished">Скопіювати Все</translation>
+        <translation>Копіювати все</translation>
     </message>
     <message>
         <source>Save as image</source>
-        <translation type="unfinished">Зберегти як зображення</translation>
+        <translation>Зберегти як зображення</translation>
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Позначити/Зняти позначку з рядка</translation>
     </message>
     <message>
         <source>Ctrl+M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Позначити/зняти позначку з клітинки</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Невідомо</translation>
+        <translation>Невідомий</translation>
     </message>
     <message>
         <source>Bluetooth Device - %1%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Пристрій Bluetooth - %1%2</translation>
     </message>
     <message>
         <source>enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>ввімкнено</translation>
     </message>
     <message>
         <source>disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>вимкнено</translation>
     </message>
     <message>
         <source>%1 ms (%2 slots)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 мс (%2 слоти)</translation>
     </message>
     <message>
         <source>Save Table Image</source>
-        <translation type="unfinished">Зберегти Зображення Таблиці</translation>
+        <translation>Зберегти зображення таблиці</translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
-        <translation type="unfinished">Зображення PNG (*.png)</translation>
+        <translation>Зображення PNG (*.png)</translation>
     </message>
 </context>
 <context>
@@ -471,11 +471,11 @@
     </message>
     <message>
         <source>Show information steps</source>
-        <translation type="unfinished"></translation>
+        <translation>Показати кроки інформації</translation>
     </message>
     <message>
         <source>%1 items; Right click for more option; Double click for device details</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 елементів; Клацніть правою кнопкою миші для отримання додаткових опцій; Подвійний клік для отримання деталей пристрою</translation>
     </message>
     <message>
         <source>Copy Cell</source>
@@ -495,19 +495,19 @@
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Позначити/Зняти позначку з рядка</translation>
     </message>
     <message>
         <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Позначити/зняти позначку з клітинки</translation>
     </message>
     <message>
         <source>true</source>
-        <translation type="unfinished"></translation>
+        <translation>істина</translation>
     </message>
     <message>
         <source>Save Table Image</source>
@@ -546,7 +546,7 @@
     </message>
     <message>
         <source>Subevent</source>
-        <translation type="unfinished"></translation>
+        <translation>Підподія</translation>
     </message>
     <message>
         <source>Status</source>
@@ -562,7 +562,7 @@
     </message>
     <message>
         <source>Occurrence</source>
-        <translation type="unfinished"></translation>
+        <translation>Випадок</translation>
     </message>
     <message>
         <source>Link Control Commands</source>
@@ -654,11 +654,11 @@
     </message>
     <message>
         <source>Results filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Фільтр результатів:</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished">Фільтр відображення:</translation>
+        <translation>Фільтр відображення:</translation>
     </message>
     <message>
         <source>All Interfaces</source>
@@ -686,19 +686,19 @@
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Позначити/Зняти позначку з рядка</translation>
     </message>
     <message>
         <source>Ctrl+M</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Позначити/зняти позначку з клітинки</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Невідомо</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Adapter %1</source>
@@ -1911,7 +1911,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Невідомо</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3636,7 +3636,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show as</source>
-        <oldsource>Show data as</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8566,7 +8565,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Невідомо</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>UE Id</source>
@@ -8668,7 +8667,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Authentication</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Аутентифікація</translation>
     </message>
     <message>
         <source>Null authentication</source>
@@ -9876,7 +9875,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Невідомо</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12148,7 +12147,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Невідомо</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13304,11 +13303,6 @@ a:hover {
         <translation>Знайти попередній пакет</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Selected</source>
-        <oldsource>&amp;Mark/Unmark Packet(s)</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Mark All Displayed</source>
         <translation>Позначити Всі Відображені</translation>
     </message>
@@ -13335,11 +13329,6 @@ a:hover {
     <message>
         <source>Go to the previous marked packet</source>
         <translation>Перейти до попереднього позначеного пакету</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Selected</source>
-        <oldsource>&amp;Ignore/Unignore Packet(s)</oldsource>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -14006,7 +13995,15 @@ a:hover {
         <translation>Знайти Поп&amp;ередній</translation>
     </message>
     <message>
+        <source>&amp;Mark/Unmark Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Mark or unmark each selected packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

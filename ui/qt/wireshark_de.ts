@@ -1875,11 +1875,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Breite</translation>
     </message>
     <message>
         <source>Alignment</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausrichtung</translation>
     </message>
     <message>
         <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
@@ -1917,23 +1917,23 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>ColumnTypeDelegate</name>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished">Links</translation>
+        <translation>Links</translation>
     </message>
     <message>
         <source>Center</source>
-        <translation type="unfinished"></translation>
+        <translation>Zentriert</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished">Rechts</translation>
+        <translation>Rechts</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Unbekannt</translation>
+        <translation>Unbekannt</translation>
     </message>
 </context>
 <context>
@@ -3650,20 +3650,19 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Show as</source>
-        <oldsource>Show data as</oldsource>
-        <translation type="unfinished">Daten anzeigen als</translation>
+        <translation>Anzeigen als</translation>
     </message>
     <message>
         <source>No delta times</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Delta-Zeiten</translation>
     </message>
     <message>
         <source>Turn delta times</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta-Zeiten umdrehen</translation>
     </message>
     <message>
         <source>All delta times</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Delta-Zeiten</translation>
     </message>
     <message>
         <source>Stream</source>
@@ -6681,11 +6680,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Selected Event: %1 %2 </source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte Ereignisse: %1 %2 </translation>
     </message>
     <message>
         <source>Events: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ereignisse: %1</translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
@@ -6718,7 +6717,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>No Events</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Ereignisse</translation>
     </message>
     <message>
         <source>From Zip File...</source>
@@ -13483,11 +13482,6 @@ a:hover {
         <translation>Vorheriges Paket finden</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Selected</source>
-        <oldsource>&amp;Mark/Unmark Packet(s)</oldsource>
-        <translation type="unfinished">Paket &amp;markieren</translation>
-    </message>
-    <message>
         <source>Mark All Displayed</source>
         <translation>Alle angezeigte Pakete markieren</translation>
     </message>
@@ -13514,11 +13508,6 @@ a:hover {
     <message>
         <source>Go to the previous marked packet</source>
         <translation>Zum vorherigen markierten Paket gehen</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Selected</source>
-        <oldsource>&amp;Ignore/Unignore Packet(s)</oldsource>
-        <translation type="unfinished">Paket &amp;ignorieren bzw. zurücksetzen</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -14185,8 +14174,16 @@ a:hover {
         <translation>Vorheriges finden</translation>
     </message>
     <message>
+        <source>&amp;Mark/Unmark Selected</source>
+        <translation>Ausgewählte &amp;markieren</translation>
+    </message>
+    <message>
         <source>Mark or unmark each selected packet</source>
         <translation>Jedes ausgewählte Paket markieren bzw. Markierung rückgängig machen</translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Selected</source>
+        <translation>Ausgewählte &amp;ignorieren</translation>
     </message>
     <message>
         <source>Ignore or unignore each selected packet</source>

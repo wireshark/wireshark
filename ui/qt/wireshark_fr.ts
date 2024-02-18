@@ -3646,8 +3646,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Show as</source>
-        <oldsource>Show data as</oldsource>
-        <translation type="unfinished">Afficher les données comme</translation>
+        <translation type="unfinished">Montrer comme</translation>
     </message>
     <message>
         <source>No delta times</source>
@@ -13437,11 +13436,6 @@ a:hover {
         <translation>Trouver le paquet précédent</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Selected</source>
-        <oldsource>&amp;Mark/Unmark Packet(s)</oldsource>
-        <translation type="unfinished">&amp;Marquer/Démarquer le(s) paquet(s)</translation>
-    </message>
-    <message>
         <source>Mark All Displayed</source>
         <translation>Marquer tout comme Affichées</translation>
     </message>
@@ -13468,11 +13462,6 @@ a:hover {
     <message>
         <source>Go to the previous marked packet</source>
         <translation>Aller au paquet précédent marqué</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Selected</source>
-        <oldsource>&amp;Ignore/Unignore Packet(s)</oldsource>
-        <translation type="unfinished">&amp;Ignorer/Annuler le(s) paquet(s)</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -14139,8 +14128,16 @@ a:hover {
         <translation>Trouver Pré&amp;cédent</translation>
     </message>
     <message>
+        <source>&amp;Mark/Unmark Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Mark or unmark each selected packet</source>
         <translation>Marquer ou décocher chaque paquet sélectionné</translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Selected</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Ignore or unignore each selected packet</source>

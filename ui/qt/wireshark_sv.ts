@@ -3648,8 +3648,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Show as</source>
-        <oldsource>Show data as</oldsource>
-        <translation type="unfinished">Visa data som</translation>
+        <translation type="unfinished">Visa som</translation>
     </message>
     <message>
         <source>No delta times</source>
@@ -13481,11 +13480,6 @@ a:hover {
         <translation>Sök efter föregående paket</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Selected</source>
-        <oldsource>&amp;Mark/Unmark Packet(s)</oldsource>
-        <translation type="unfinished">&amp;Markera/avmarkera paket</translation>
-    </message>
-    <message>
         <source>Mark All Displayed</source>
         <translation>Markera alla visade</translation>
     </message>
@@ -13512,11 +13506,6 @@ a:hover {
     <message>
         <source>Go to the previous marked packet</source>
         <translation>Gå till föregående märkta paket</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Selected</source>
-        <oldsource>&amp;Ignore/Unignore Packet(s)</oldsource>
-        <translation type="unfinished">&amp;Ignorera/avignorera paket</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -14183,8 +14172,16 @@ a:hover {
         <translation>Sök f&amp;öregående</translation>
     </message>
     <message>
+        <source>&amp;Mark/Unmark Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Mark or unmark each selected packet</source>
         <translation>Markera eller avmarkera varje valt paket</translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Selected</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Ignore or unignore each selected packet</source>

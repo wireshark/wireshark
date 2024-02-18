@@ -19,6 +19,10 @@ Wireshark 4.3.0 Release Notes
   Plugin registration API was refactored. Plugin authors must update
   their plugins as described below.
 
+  Custom columns can be defined using any valid field expression, such
+  as display filter functions, slices, arithmetic calculations, logical
+  tests, raw byte addressing, and the layer modifier.
+
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
 
@@ -90,11 +94,50 @@ Wireshark 4.3.0 Release Notes
        is advisable to check that the "dfilter_macros" (old) and
        "dmacros" (new) files in the profile directory are consistent.
 
+     • Custom columns can be defined using any valid field expression:
+
+        • Display filter functions, like `len(tcp.payload)`, including
+       nested functions like `min(len(tcp.payload), len(udp.payload)`
+       and newly defined functions using the plugin system mentioned
+       above. Issue 15990[1] Issue 16181[2]
+
+        • Arithmetic calculations, like `ip.len * 8` or `tcp.srcport +
+       tcp.dstport`. Issue 7752[3]
+
+        • Slices, like `tcp.payload[4:4]`. Issue 10154[4]
+
+        • The layer operator, like `ip.proto#1` to return the proto
+       field in the first IPv4 layer if there is tunneling. Issue
+       18588[5]
+
+        • Raw byte addressing, like `@ip`, useful to return the bytes of
+       a protocol or FT_NONE field, among others. Issue 19076[6]
+
+        • Logical tests, like `tcp.port == 443`, which produce a check
+       mark if the test matches (similar to protocol and none fields
+       without `@`.) This works with all logical operators, including
+       e.g. regular expression matching (`matches` or `~`.)
+
+        • Defined display filter macros.
+
+        • Any combination of the above also works.
+
+        • Multifield columns are still available. For backwards
+       compatiblity, `X or Y` is interpreted as a multifield column as
+       before. To represent a logical test for the presence of multiple
+       fields instead of concatenating values, use parenthesis, like
+       `(tcp.options.timestamp or tcp.options.nop`.
+
+        • Field references are not implemented, because there’s no sense
+       of a currently selected frame. "Resolved" column values (such as
+       host name resolution or value string lookup) are not supported
+       for any of the new expressions yet.
+
      • When selecting "Manage Interfaces" from "Capture Options",
        Wireshark only attempts to reconnect to rpcap (remote) hosts that
        were connected to in the last session, instead of every remote
        host that the current profile has ever connected to. Issue
-       17484[1]
+       17484[7]
 
      • Adding interfaces at startup is about twice as fast, and has many
        fewer UAC pop-ups when npcap is installed with access restricted
@@ -141,9 +184,9 @@ Wireshark 4.3.0 Release Notes
 
   New Protocol Support
 
-   EGNOS Message Server (EMS) file format, MAC NR Framed
-   (mac-nr-framed), RF4CE Network Layer (RF4CE), and RF4CE Profile
-   (RF4CE Profile)
+   Allied Telesis Resiliency Link (AT RL), EGNOS Message Server (EMS)
+   file format, MAC NR Framed (mac-nr-framed), RF4CE Network Layer
+   (RF4CE), and RF4CE Profile (RF4CE Profile)
 
   Updated Protocol Support
 
@@ -177,7 +220,7 @@ Wireshark 4.3.0 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[2] on the Wireshark web site.
+   be found on the download page[8] on the Wireshark web site.
 
  File Locations
 
@@ -192,32 +235,38 @@ Wireshark 4.3.0 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[3] and on the
+  Community support is available on Wireshark’s Q&A site[9] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[4].
+  for all of Wireshark’s mailing lists can be found on the web site[10].
 
-  Bugs and feature requests can be reported on the issue tracker[5].
+  Bugs and feature requests can be reported on the issue tracker[11].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[6].
+  SharkFest[12].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[7].
+  at wiresharkfoundation.org[13].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[8].
+  A complete FAQ is available on the Wireshark web site[14].
 
  References
 
-   1. https://gitlab.com/wireshark/wireshark/-/issues/17484
-   2. https://www.wireshark.org/download.html
-   3. https://ask.wireshark.org/
-   4. https://www.wireshark.org/lists/
-   5. https://gitlab.com/wireshark/wireshark/-/issues
-   6. https://sharkfest.wireshark.org
-   7. https://wiresharkfoundation.org
-   8. https://www.wireshark.org/faq.html
+   1. https://gitlab.com/wireshark/wireshark/-/issues/15990
+   2. https://gitlab.com/wireshark/wireshark/-/issues/16181
+   3. https://gitlab.com/wireshark/wireshark/-/issues/7752
+   4. https://gitlab.com/wireshark/wireshark/-/issues/10154
+   5. https://gitlab.com/wireshark/wireshark/-/issues/18588
+   6. https://gitlab.com/wireshark/wireshark/-/issues/19076
+   7. https://gitlab.com/wireshark/wireshark/-/issues/17484
+   8. https://www.wireshark.org/download.html
+   9. https://ask.wireshark.org/
+  10. https://www.wireshark.org/lists/
+  11. https://gitlab.com/wireshark/wireshark/-/issues
+  12. https://sharkfest.wireshark.org
+  13. https://wiresharkfoundation.org
+  14. https://www.wireshark.org/faq.html

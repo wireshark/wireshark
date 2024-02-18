@@ -81,11 +81,11 @@
     </message>
     <message>
         <source>About Logray</source>
-        <translation type="unfinished"></translation>
+        <translation>Lograyについて</translation>
     </message>
     <message>
         <source>Logray</source>
-        <translation type="unfinished"></translation>
+        <translation>Logray</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -1178,7 +1178,9 @@
         <source>Created by Logray %1
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Logray %1 によって作成されました
+
+</translation>
     </message>
 </context>
 <context>
@@ -1865,11 +1867,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation>幅</translation>
     </message>
     <message>
         <source>Alignment</source>
-        <translation type="unfinished"></translation>
+        <translation>揃え</translation>
     </message>
     <message>
         <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
@@ -1907,23 +1909,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColumnTypeDelegate</name>
     <message>
         <source>Default</source>
-        <translation type="unfinished">デフォルト</translation>
+        <translation>デフォルト</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished">左</translation>
+        <translation>左</translation>
     </message>
     <message>
         <source>Center</source>
-        <translation type="unfinished"></translation>
+        <translation>中央</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished">右</translation>
+        <translation>右</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">不明</translation>
+        <translation>不明</translation>
     </message>
 </context>
 <context>
@@ -3630,20 +3632,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show as</source>
-        <oldsource>Show data as</oldsource>
-        <translation type="unfinished">としてデータを表示</translation>
+        <translation>として表示</translation>
     </message>
     <message>
         <source>No delta times</source>
-        <translation type="unfinished"></translation>
+        <translation>デルタ時間なし</translation>
     </message>
     <message>
         <source>Turn delta times</source>
-        <translation type="unfinished"></translation>
+        <translation>ターンデルタ時間</translation>
     </message>
     <message>
         <source>All delta times</source>
-        <translation type="unfinished"></translation>
+        <translation>全デルタ時間</translation>
     </message>
     <message>
         <source>Stream</source>
@@ -6662,11 +6663,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Selected Event: %1 %2 </source>
-        <translation type="unfinished"></translation>
+        <translation>選択したイベント: %1 %2 </translation>
     </message>
     <message>
         <source>Events: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>イベント: %1</translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
@@ -6699,7 +6700,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No Events</source>
-        <translation type="unfinished"></translation>
+        <translation>イベントなし</translation>
     </message>
     <message>
         <source>From Zip File...</source>
@@ -12770,7 +12771,7 @@ a:hover {
     </message>
     <message>
         <source>You are sniffing the glue that holds your system together using Logray </source>
-        <translation type="unfinished"></translation>
+        <translation>あなたはLograyを使ってシステムを互いに繋ぐ膠をキャプチャしています</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -12778,7 +12779,7 @@ a:hover {
     </message>
     <message>
         <source>You are running Logray </source>
-        <translation type="unfinished"></translation>
+        <translation>Lograyを起動中です </translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -13450,11 +13451,6 @@ a:hover {
         <translation>前のパケットを検索します</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Selected</source>
-        <oldsource>&amp;Mark/Unmark Packet(s)</oldsource>
-        <translation type="unfinished">パケットをマーク/マーク解除(&amp;M)</translation>
-    </message>
-    <message>
         <source>Mark All Displayed</source>
         <translation>表示されているものをすべてマークします</translation>
     </message>
@@ -13481,11 +13477,6 @@ a:hover {
     <message>
         <source>Go to the previous marked packet</source>
         <translation>前にマークされたパケットに移動します</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Selected</source>
-        <oldsource>&amp;Ignore/Unignore Packet(s)</oldsource>
-        <translation type="unfinished">パケットを無視/無視を解除(&amp;I)</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -14105,7 +14096,7 @@ a:hover {
     </message>
     <message>
         <source>Display Filters</source>
-        <translation type="unfinished">表示フィルタ</translation>
+        <translation>表示フィルタ</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
@@ -14152,8 +14143,16 @@ a:hover {
         <translation>前を検索(&amp;v)</translation>
     </message>
     <message>
+        <source>&amp;Mark/Unmark Selected</source>
+        <translation>選択をマーク/マーク解除(&amp;M)</translation>
+    </message>
+    <message>
         <source>Mark or unmark each selected packet</source>
         <translation>各々の選択されたパケットをマーク/マーク解除します</translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Selected</source>
+        <translation>選択を無視/無視を解除(&amp;I)</translation>
     </message>
     <message>
         <source>Ignore or unignore each selected packet</source>

@@ -3631,8 +3631,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show as</source>
-        <oldsource>Show data as</oldsource>
-        <translation type="unfinished">다음 형식으로 표시:</translation>
+        <translation type="unfinished">다른 형식으로 표시</translation>
     </message>
     <message>
         <source>No delta times</source>
@@ -13447,11 +13446,6 @@ a:hover {
         <translation>이전 패킷 찾기</translation>
     </message>
     <message>
-        <source>&amp;Mark/Unmark Selected</source>
-        <oldsource>&amp;Mark/Unmark Packet(s)</oldsource>
-        <translation type="unfinished">패킷 마크/해제(&amp;M)</translation>
-    </message>
-    <message>
         <source>Mark All Displayed</source>
         <translation>표시된 모든 패킷 마크</translation>
     </message>
@@ -13478,11 +13472,6 @@ a:hover {
     <message>
         <source>Go to the previous marked packet</source>
         <translation>이전 마크한 패킷으로 이동</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Selected</source>
-        <oldsource>&amp;Ignore/Unignore Packet(s)</oldsource>
-        <translation type="unfinished">패킷 무시/해제(&amp;I)</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -14149,8 +14138,16 @@ a:hover {
         <translation>이전 찾기(&amp;V)</translation>
     </message>
     <message>
+        <source>&amp;Mark/Unmark Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Mark or unmark each selected packet</source>
         <translation>각 선택된 패킷 마크/해제</translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Selected</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Ignore or unignore each selected packet</source>
