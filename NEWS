@@ -1,4 +1,4 @@
-Wireshark 4.0.13 Release Notes
+Wireshark 4.0.14 Release Notes
 
  What is Wireshark?
 
@@ -41,34 +41,36 @@ Wireshark 4.0.13 Release Notes
  Prior Versions
 
   This document only describes the changes introduced in Wireshark
-  4.0.13. You can find release notes for prior versions at the following
+  4.0.14. You can find release notes for prior versions at the following
   locations:
 
-    • Wireshark 4.0.12[3]
+    • Wireshark 4.0.13[3]
 
-    • Wireshark 4.0.11[4]
+    • Wireshark 4.0.12[4]
 
-    • Wireshark 4.0.10[5]
+    • Wireshark 4.0.11[5]
 
-    • Wireshark 4.0.9[6]
+    • Wireshark 4.0.10[6]
 
-    • Wireshark 4.0.8[7]
+    • Wireshark 4.0.9[7]
 
-    • Wireshark 4.0.7[8]
+    • Wireshark 4.0.8[8]
 
-    • Wireshark 4.0.6[9]
+    • Wireshark 4.0.7[9]
 
-    • Wireshark 4.0.5[10]
+    • Wireshark 4.0.6[10]
 
-    • Wireshark 4.0.4[11]
+    • Wireshark 4.0.5[11]
 
-    • Wireshark 4.0.3[12]
+    • Wireshark 4.0.4[12]
 
-    • Wireshark 4.0.2[13]
+    • Wireshark 4.0.3[13]
 
-    • Wireshark 4.0.1[14]
+    • Wireshark 4.0.2[14]
 
-    • Wireshark 4.0.0[15]
+    • Wireshark 4.0.1[15]
+
+    • Wireshark 4.0.0[16]
 
  Getting Wireshark
 
@@ -80,7 +82,7 @@ Wireshark 4.0.13 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[16] on the Wireshark web site.
+   be found on the download page[17] on the Wireshark web site.
 
  File Locations
 
@@ -95,46 +97,47 @@ Wireshark 4.0.13 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[17] and on the
+  Community support is available on Wireshark’s Q&A site[18] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[18].
+  for all of Wireshark’s mailing lists can be found on the web site[19].
 
-  Bugs and feature requests can be reported on the issue tracker[19].
+  Bugs and feature requests can be reported on the issue tracker[20].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[20].
+  SharkFest[21].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[21].
+  at wiresharkfoundation.org[22].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[22].
+  A complete FAQ is available on the Wireshark web site[23].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
    2. https://gitlab.com/wireshark/wireshark/-/issues/18734
    3. https://www.wireshark.org/docs/relnotes/wireshark-4.0.12.html
-   4. https://www.wireshark.org/docs/relnotes/wireshark-4.0.11.html
-   5. https://www.wireshark.org/docs/relnotes/wireshark-4.0.10.html
-   6. https://www.wireshark.org/docs/relnotes/wireshark-4.0.9.html
-   7. https://www.wireshark.org/docs/relnotes/wireshark-4.0.8.html
-   8. https://www.wireshark.org/docs/relnotes/wireshark-4.0.7.html
-   9. https://www.wireshark.org/docs/relnotes/wireshark-4.0.6.html
-  10. https://www.wireshark.org/docs/relnotes/wireshark-4.0.5.html
-  11. https://www.wireshark.org/docs/relnotes/wireshark-4.0.4.html
-  12. https://www.wireshark.org/docs/relnotes/wireshark-4.0.3.html
-  13. https://www.wireshark.org/docs/relnotes/wireshark-4.0.2.html
-  14. https://www.wireshark.org/docs/relnotes/wireshark-4.0.1.html
-  15. https://www.wireshark.org/docs/relnotes/wireshark-4.0.0.html
-  16. https://www.wireshark.org/download.html
-  17. https://ask.wireshark.org/
-  18. https://www.wireshark.org/lists/
-  19. https://gitlab.com/wireshark/wireshark/-/issues
-  20. https://sharkfest.wireshark.org
-  21. https://wiresharkfoundation.org
-  22. https://www.wireshark.org/faq.html
+   4. https://www.wireshark.org/docs/relnotes/wireshark-4.0.12.html
+   5. https://www.wireshark.org/docs/relnotes/wireshark-4.0.11.html
+   6. https://www.wireshark.org/docs/relnotes/wireshark-4.0.10.html
+   7. https://www.wireshark.org/docs/relnotes/wireshark-4.0.9.html
+   8. https://www.wireshark.org/docs/relnotes/wireshark-4.0.8.html
+   9. https://www.wireshark.org/docs/relnotes/wireshark-4.0.7.html
+  10. https://www.wireshark.org/docs/relnotes/wireshark-4.0.6.html
+  11. https://www.wireshark.org/docs/relnotes/wireshark-4.0.5.html
+  12. https://www.wireshark.org/docs/relnotes/wireshark-4.0.4.html
+  13. https://www.wireshark.org/docs/relnotes/wireshark-4.0.3.html
+  14. https://www.wireshark.org/docs/relnotes/wireshark-4.0.2.html
+  15. https://www.wireshark.org/docs/relnotes/wireshark-4.0.1.html
+  16. https://www.wireshark.org/docs/relnotes/wireshark-4.0.0.html
+  17. https://www.wireshark.org/download.html
+  18. https://ask.wireshark.org/
+  19. https://www.wireshark.org/lists/
+  20. https://gitlab.com/wireshark/wireshark/-/issues
+  21. https://sharkfest.wireshark.org
+  22. https://wiresharkfoundation.org
+  23. https://www.wireshark.org/faq.html
