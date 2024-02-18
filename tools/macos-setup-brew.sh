@@ -108,7 +108,6 @@ ADDITIONAL_LIST=(
     libsmi
     libssh
     libxml2
-    lua@5.1
     lz4
     minizip
     opus
@@ -139,6 +138,10 @@ if (( ${#OPTIONS[@]} != 0 )); then
 fi
 
 install_formulae "${ACTUAL_LIST[@]}"
+
+if [ $INSTALL_OPTIONAL -ne 0 ] ; then
+    brew install lua@5.1 || printf "Lua 5.1 installation failed.\\n"
+fi
 
 if [ $INSTALL_DMG_DEPS -ne 0 ] ; then
     pip3 install dmgbuild
