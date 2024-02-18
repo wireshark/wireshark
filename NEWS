@@ -1,4 +1,4 @@
- Wireshark 3.6.21 Release Notes
+ Wireshark 3.6.22 Release Notes
 
  What is Wireshark?
 
@@ -41,50 +41,52 @@
  Prior Versions
 
   This document only describes the changes introduced in Wireshark
-  3.6.21. You can find release notes for prior versions at the following
+  3.6.22. You can find release notes for prior versions at the following
   locations:
 
-    • Wireshark 3.6.20[3]
+    • Wireshark 3.6.21[3]
 
-    • Wireshark 3.6.19[4]
+    • Wireshark 3.6.20[4]
 
-    • Wireshark 3.6.18[5]
+    • Wireshark 3.6.19[5]
 
-    • Wireshark 3.6.17[6]
+    • Wireshark 3.6.18[6]
 
-    • Wireshark 3.6.16[7]
+    • Wireshark 3.6.17[7]
 
-    • Wireshark 3.6.15[8]
+    • Wireshark 3.6.16[8]
 
-    • Wireshark 3.6.14[9]
+    • Wireshark 3.6.15[9]
 
-    • Wireshark 3.6.13[10]
+    • Wireshark 3.6.14[10]
 
-    • Wireshark 3.6.12[11]
+    • Wireshark 3.6.13[11]
 
-    • Wireshark 3.6.11[12]
+    • Wireshark 3.6.12[12]
 
-    • Wireshark 3.6.10[13]
+    • Wireshark 3.6.11[13]
 
-    • Wireshark 3.6.9[14]
+    • Wireshark 3.6.10[14]
 
-    • Wireshark 3.6.8[15]
+    • Wireshark 3.6.9[15]
 
-    • Wireshark 3.6.7[16]
+    • Wireshark 3.6.8[16]
 
-    • Wireshark 3.6.6[17]
+    • Wireshark 3.6.7[17]
 
-    • Wireshark 3.6.5[18]
+    • Wireshark 3.6.6[18]
 
-    • Wireshark 3.6.4[19]
+    • Wireshark 3.6.5[19]
 
-    • Wireshark 3.6.3[20]
+    • Wireshark 3.6.4[20]
 
-    • Wireshark 3.6.2[21]
+    • Wireshark 3.6.3[21]
 
-    • Wireshark 3.6.1[22]
+    • Wireshark 3.6.2[22]
 
-    • Wireshark 3.6.0[23]
+    • Wireshark 3.6.1[23]
+
+    • Wireshark 3.6.0[24]
 
  Getting Wireshark
 
@@ -96,7 +98,7 @@
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[24] on the Wireshark web site.
+   be found on the download page[25] on the Wireshark web site.
 
  File Locations
 
@@ -111,50 +113,51 @@
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[25] and on the
+  Community support is available on Wireshark’s Q&A site[26] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[26].
+  for all of Wireshark’s mailing lists can be found on the web site[27].
 
-  Bugs and feature requests can be reported on the issue tracker[27].
+  Bugs and feature requests can be reported on the issue tracker[28].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[28].
+  at wiresharkfoundation.org[29].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[29].
+  A complete FAQ is available on the Wireshark web site[30].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
    2. https://gitlab.com/wireshark/wireshark/-/issues/18734
    3. https://www.wireshark.org/docs/relnotes/wireshark-3.6.20.html
-   4. https://www.wireshark.org/docs/relnotes/wireshark-3.6.19.html
-   5. https://www.wireshark.org/docs/relnotes/wireshark-3.6.18.html
-   6. https://www.wireshark.org/docs/relnotes/wireshark-3.6.17.html
-   7. https://www.wireshark.org/docs/relnotes/wireshark-3.6.16.html
-   8. https://www.wireshark.org/docs/relnotes/wireshark-3.6.15.html
-   9. https://www.wireshark.org/docs/relnotes/wireshark-3.6.14.html
-  10. https://www.wireshark.org/docs/relnotes/wireshark-3.6.13.html
-  11. https://www.wireshark.org/docs/relnotes/wireshark-3.6.12.html
-  12. https://www.wireshark.org/docs/relnotes/wireshark-3.6.11.html
-  13. https://www.wireshark.org/docs/relnotes/wireshark-3.6.10.html
-  14. https://www.wireshark.org/docs/relnotes/wireshark-3.6.9.html
-  15. https://www.wireshark.org/docs/relnotes/wireshark-3.6.8.html
-  16. https://www.wireshark.org/docs/relnotes/wireshark-3.6.7.html
-  17. https://www.wireshark.org/docs/relnotes/wireshark-3.6.6.html
-  18. https://www.wireshark.org/docs/relnotes/wireshark-3.6.5.html
-  19. https://www.wireshark.org/docs/relnotes/wireshark-3.6.4.html
-  20. https://www.wireshark.org/docs/relnotes/wireshark-3.6.3.html
-  21. https://www.wireshark.org/docs/relnotes/wireshark-3.6.2.html
-  22. https://www.wireshark.org/docs/relnotes/wireshark-3.6.1.html
-  23. https://www.wireshark.org/docs/relnotes/wireshark-3.6.0.html
-  24. https://www.wireshark.org/download.html
-  25. https://ask.wireshark.org/
-  26. https://www.wireshark.org/lists/
-  27. https://gitlab.com/wireshark/wireshark/-/issues
-  28. https://wiresharkfoundation.org
-  29. https://www.wireshark.org/faq.html
+   4. https://www.wireshark.org/docs/relnotes/wireshark-3.6.20.html
+   5. https://www.wireshark.org/docs/relnotes/wireshark-3.6.19.html
+   6. https://www.wireshark.org/docs/relnotes/wireshark-3.6.18.html
+   7. https://www.wireshark.org/docs/relnotes/wireshark-3.6.17.html
+   8. https://www.wireshark.org/docs/relnotes/wireshark-3.6.16.html
+   9. https://www.wireshark.org/docs/relnotes/wireshark-3.6.15.html
+  10. https://www.wireshark.org/docs/relnotes/wireshark-3.6.14.html
+  11. https://www.wireshark.org/docs/relnotes/wireshark-3.6.13.html
+  12. https://www.wireshark.org/docs/relnotes/wireshark-3.6.12.html
+  13. https://www.wireshark.org/docs/relnotes/wireshark-3.6.11.html
+  14. https://www.wireshark.org/docs/relnotes/wireshark-3.6.10.html
+  15. https://www.wireshark.org/docs/relnotes/wireshark-3.6.9.html
+  16. https://www.wireshark.org/docs/relnotes/wireshark-3.6.8.html
+  17. https://www.wireshark.org/docs/relnotes/wireshark-3.6.7.html
+  18. https://www.wireshark.org/docs/relnotes/wireshark-3.6.6.html
+  19. https://www.wireshark.org/docs/relnotes/wireshark-3.6.5.html
+  20. https://www.wireshark.org/docs/relnotes/wireshark-3.6.4.html
+  21. https://www.wireshark.org/docs/relnotes/wireshark-3.6.3.html
+  22. https://www.wireshark.org/docs/relnotes/wireshark-3.6.2.html
+  23. https://www.wireshark.org/docs/relnotes/wireshark-3.6.1.html
+  24. https://www.wireshark.org/docs/relnotes/wireshark-3.6.0.html
+  25. https://www.wireshark.org/download.html
+  26. https://ask.wireshark.org/
+  27. https://www.wireshark.org/lists/
+  28. https://gitlab.com/wireshark/wireshark/-/issues
+  29. https://wiresharkfoundation.org
+  30. https://www.wireshark.org/faq.html
