@@ -19,6 +19,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
+#include <wsutil/str_util.h>
+#include <wsutil/utf8_entities.h>
 #include "packet-kerberos.h"
 #include "packet-tls-utils.h"
 #include "packet-tn3270.h"
@@ -273,6 +275,34 @@ telnet_get_session(packet_info *pinfo)
     conversation_add_proto_data(conversation, proto_telnet, telnet_info);
   }
   return telnet_info;
+}
+
+/* Record some data/negotiation/subnegotiation in the "Info" column. */
+static void
+add_telnet_info_str(packet_info *pinfo, guint *num_items, const char *str)
+{
+  const guint max_info_items = 5; /* Arbitrary limit so the column doesn't end up too wide. */
+
+  if (*num_items == 0) {
+    /* Replace the default info text. */
+    col_add_str(pinfo->cinfo, COL_INFO, str);
+  } else if (*num_items < max_info_items) {
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, str);
+  } else if (*num_items == max_info_items) {
+    /* Too many to display.  Finish with an ellipsis. */
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, UTF8_HORIZONTAL_ELLIPSIS);
+  }
+  (*num_items)++;
+}
+
+/* Record in the "Info" column that a number of Telnet data bytes arrived. */
+static void
+add_telnet_data_bytes_str(packet_info *pinfo, guint *num_items, guint len)
+{
+  char str[30];
+
+  snprintf(str, sizeof str, "%u byte%s data", len, plurality(len, "", "s"));
+  add_telnet_info_str(pinfo, num_items, str);
 }
 
 static void
@@ -1999,7 +2029,7 @@ telnet_suboption_name(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int* 
 }
 
 static int
-telnet_command(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
+telnet_command(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset, guint *num_info_items)
 {
   int    offset = start_offset;
   guchar optcode;
@@ -2041,6 +2071,9 @@ telnet_command(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, int s
   }
 
   proto_item_set_text(cmd_item, "%s", optname);
+  if (optcode != TN_SE) {
+    add_telnet_info_str(pinfo, num_info_items, optname);
+  }
 
   if (optcode == TN_SB) {
     offset = telnet_sub_option(pinfo, subopt_tree, subopt_item, tvb, start_offset);
@@ -2136,9 +2169,10 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
   guint       is_tn5250 = 0;
   int         data_len;
   gint        iac_offset;
+  guint       num_info_items = 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TELNET");
-  col_set_str(pinfo->cinfo, COL_INFO, "Telnet Data ...");
+  col_set_str(pinfo->cinfo, COL_INFO, "Telnet Data" UTF8_HORIZONTAL_ELLIPSIS);
 
   is_tn3270 = find_tn3270_conversation(pinfo);
   is_tn5250 = find_tn5250_conversation(pinfo);
@@ -2159,6 +2193,7 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
        */
       data_len = iac_offset - offset;
       if (data_len > 0) {
+        add_telnet_data_bytes_str(pinfo, &num_info_items, data_len);
         if (is_tn3270) {
           next_tvb = tvb_new_subset_length(tvb, offset, data_len);
           call_dissector(tn3270_handle, next_tvb, pinfo, telnet_tree);
@@ -2171,7 +2206,7 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
       /*
        * Now interpret the command.
        */
-      offset = telnet_command(pinfo, telnet_tree, tvb, iac_offset);
+      offset = telnet_command(pinfo, telnet_tree, tvb, iac_offset, &num_info_items);
     } else {
       /* get more data if tn3270 */
       if (is_tn3270 || is_tn5250) {
@@ -2184,7 +2219,10 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
        * is the last of the data in the packet.
        * Add it to the tree, a line at a time, and then quit.
        */
-      telnet_add_text(telnet_tree, tvb, offset, len);
+      if (len > 0) {
+        add_telnet_data_bytes_str(pinfo, &num_info_items, len);
+        telnet_add_text(telnet_tree, tvb, offset, len);
+      }
       break;
     }
   }
