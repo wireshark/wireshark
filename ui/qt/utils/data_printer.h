@@ -33,6 +33,7 @@ public:
         DP_PrintableText,
         DP_CString,
         DP_GoLiteral,
+        DP_CArray,
         DP_MimeData,
         DP_Base64
     };
