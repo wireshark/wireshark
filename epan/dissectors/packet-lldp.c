@@ -1457,7 +1457,7 @@ get_latitude_or_longitude(gchar *buf, int option, guint64 unmasked_value)
 	gboolean isNegative = get2sComplementAbsoluteValue(&absolute_value, variableBitSize);
 
 	// Get unsigned integer 8-bit value
-	guint32 integerPortion = absolute_value >> fractionnalBitSize;
+	guint32 integerPortion = (guint32)(absolute_value >> fractionnalBitSize);
 
 	// Get fractionnal 25-bit value
 	const guint numberOfDigitToDisplay = 4;
@@ -1531,15 +1531,6 @@ altitude_base(gchar *buf, guint32 unmasked_value) {
 	// the altitude resolution (AltRes) value encodes the number of
 	// high-order altitude bits that should be considered valid.
 	// Values above 30 (decimal) are undefined and reserved.
-	//
-	// The encoded altitude of 000000000000000010000110110011 decodes to
-	// 33.69921875.  The encoded uncertainty of 15 gives a value of 64;
-	// therefore, the final uncertainty is 33.69921875 +/- 64 (or the range
-	// from -30.30078125 to 97.69921875).
-	// The amount of altitude uncertainty can be determined by the following
-	// formula, where x is the encoded integer value:
-	//      Uncertainty = 2 ^ ( 21 - x )
-	//                  = 2 ^ ( 21 - 15 ) = 2 ^ 6 = 64
 
 	const guint variableBitSize = 30;
 	const guint fractionnalBitSize = 8;
@@ -1552,7 +1543,7 @@ altitude_base(gchar *buf, guint32 unmasked_value) {
 	gboolean isNegative = get2sComplementAbsoluteValue(&absolute_value, variableBitSize);
 
 	// Get unsigned integer 8-bit value
-	guint32 integerPortion = absolute_value >> fractionnalBitSize;
+	guint32 integerPortion = (guint32)(absolute_value >> fractionnalBitSize);
 
 	// Get fractionnal 8-bit value
 	const guint numberOfDigitToDisplay = 4;
@@ -1575,6 +1566,67 @@ altitude_base(gchar *buf, guint32 unmasked_value) {
 		fractionnalBitSize, masked_value & fractionalMask
 	);
 }
+
+static void
+latitude_or_longitude_resolution(gchar *buf, guint8 value) {
+	// formula, where x is the encoded integer value:
+	//      Uncertainty = 2 ^ ( 8 - x )
+
+	gint32 masked_value = value & 0x3F;
+	double resolution = 1.0;
+	gint32 i = 8 - masked_value;
+	while(i > 0){
+		resolution *= 2.0;
+		i--;
+	}
+	while(i < 0){
+		resolution /= 2.0;
+		i++;
+	}
+
+	const char *err_str = "";
+	if(masked_value > 34){
+		err_str = "[Error: value > 34] ";
+	} else if(masked_value < 2){
+		err_str = "[Warning: value < 2] ";
+	}
+
+	snprintf(buf, ITEM_LABEL_LENGTH, "%s%lE degrees (%" PRIi32 ")", err_str, resolution, masked_value);
+}
+
+static void
+altitude_resolution(gchar *buf, guint8 value) {
+	// The encoded altitude of 000000000000000010000110110011 decodes to
+	// 33.69921875.  The encoded uncertainty of 15 gives a value of 64;
+	// therefore, the final uncertainty is 33.69921875 +/- 64 (or the range
+	// from -30.30078125 to 97.69921875).
+	// The amount of altitude uncertainty can be determined by the following
+	// formula, where x is the encoded integer value:
+	//      Uncertainty = 2 ^ ( 21 - x )
+	//                  = 2 ^ ( 21 - 15 ) = 2 ^ 6 = 64
+
+	gint32 masked_value = value & 0x3F;
+	double resolution = 1.0;
+	gint32 i = 21 - masked_value;
+	while(i > 0){
+		resolution *= 2.0;
+		i--;
+	}
+	while(i < 0){
+		resolution /= 2.0;
+		i++;
+	}
+
+	const char *err_str = "";
+	if(masked_value > 30){
+		err_str = "[Error: value > 34] ";
+	} else if(masked_value < 2){
+		err_str = "[Warning: value < 2] ";
+	}
+
+	snprintf(buf, ITEM_LABEL_LENGTH, "%s%lf (%" PRIi32 ")", err_str, resolution, masked_value);
+}
+
 
 /* Dissect Chassis Id TLV (Mandatory) */
 static gint32
@@ -5989,16 +6041,16 @@ proto_register_lldp(void)
 			VALS(location_data_format), 0x0, NULL, HFILL }
 		},
 		{ &hf_media_loc_lat_resolution,
-			{ "Latitude Resolution", "lldp.media.loc.lat_resolution", FT_UINT8, BASE_DEC,
-			NULL, 0xFC, NULL, HFILL }
+			{ "Latitude Resolution", "lldp.media.loc.lat_resolution", FT_UINT8, BASE_CUSTOM,
+			CF_FUNC(latitude_or_longitude_resolution), 0xFC, NULL, HFILL }
 		},
 		{ &hf_media_loc_lat,
 			{ "Latitude", "lldp.media.loc.latitude", FT_UINT40, BASE_CUSTOM,
 			CF_FUNC(latitude_base), 0x0, NULL, HFILL }
 		},
 		{ &hf_media_loc_long_resolution,
-			{ "Longitude Resolution", "lldp.media.loc.long_resolution", FT_UINT8, BASE_DEC,
-			NULL, 0xFC, NULL, HFILL }
+			{ "Longitude Resolution", "lldp.media.loc.long_resolution", FT_UINT8, BASE_CUSTOM,
+			CF_FUNC(latitude_or_longitude_resolution), 0xFC, NULL, HFILL }
 		},
 		{ &hf_media_loc_long,
 			{ "Longitude", "lldp.media.loc.longitude", FT_UINT40, BASE_CUSTOM,
@@ -6009,8 +6061,8 @@ proto_register_lldp(void)
 			VALS(altitude_type), 0xF0, "Unknown", HFILL }
 		},
 		{ &hf_media_loc_alt_resolution,
-			{ "Altitude Resolution", "lldp.media.loc.alt_resolution", FT_UINT16, BASE_DEC,
-			NULL, 0x0FC0, NULL, HFILL }
+			{ "Altitude Resolution", "lldp.media.loc.alt_resolution", FT_UINT16, BASE_CUSTOM,
+			CF_FUNC(altitude_resolution), 0x0FC0, NULL, HFILL }
 		},
 		{ &hf_media_loc_alt,
 			{ "Altitude", "lldp.media.loc.altitude", FT_UINT32, BASE_CUSTOM,
