@@ -1355,6 +1355,77 @@ media_power_base(gchar *buf, guint32 value) {
 	snprintf(buf, ITEM_LABEL_LENGTH, "%u mW", value * 100);
 }
 
+// Get absolute 2's complement value
+// Returns true if the value is negative (so if
+// it returns false, there is no conversion).
+//  bitSize: number of bits of the variable.
+static gboolean
+get2sComplementAbsoluteValue(guint64 * value, guint bitSize){
+	const guint64 signMask = G_GINT64_CONSTANT(0x1) << (bitSize - 1);
+	
+	guint64 signedMask = G_GINT64_CONSTANT(0x1) << bitSize;
+	signedMask--;
+	signedMask = ~signedMask;
+	
+	if(*value & signMask){
+		*value |= signedMask; // sign propagation
+		
+		// Convert to absolute value
+		*value = ~(*value);
+		(*value)++;
+		return TRUE;
+	}
+	return FALSE;
+}
+
+static guint64
+getUint64MaskedValue(guint64 value, guint bitSize){
+	guint64 mask = G_GINT64_CONSTANT(0x1) << bitSize;
+	mask--;
+	return value & mask;
+}
+
+static guint64
+pow10_uint64(gint exponent){
+	guint64 val = 1;
+
+	while(exponent > 0){
+		val *= 10;
+		exponent--;
+	}
+
+	while(exponent < 0){
+		val /= 10;
+		exponent++;
+	}
+	return val;
+}
+
+// Decode uint fractionnal variable
+static guint64
+convertFractionalToFixedSizeDecimal(guint64 value, guint fractionnalBitSize, guint numberOfDigitToDisplay){
+	const guint64 resolution = G_GINT64_CONSTANT(0x1) << fractionnalBitSize;
+	// => 0x02000000 for 25-bits
+	// => 0x00000100 for 8-bits
+
+	const guint64 fractionnalPortionMask = resolution - 1;
+	value &= fractionnalPortionMask;
+
+	// Maximum value for numberOfDigitToDisplay is :
+	// log10(G_GINT64_CONSTANT(0xFFFFFFFFFFFFFFFF) / fractionnalPortionMask);
+	// => if result is stored in 32-bits, numberOfDigitToDisplay max = 9
+	const guint64 displayMultiplier = pow10_uint64(numberOfDigitToDisplay);
+	value *= displayMultiplier;
+	guint64 moduloValue = value % resolution;
+	value /= resolution;
+    if(moduloValue >= (resolution/2)){
+        value++; // rounded value
+    }
+
+	return value;
+}
+
+
 /* Calculate Latitude and Longitude string */
 /*
 	Parameters:
@@ -1364,54 +1435,57 @@ media_power_base(gchar *buf, guint32 value) {
 static void
 get_latitude_or_longitude(gchar *buf, int option, guint64 unmasked_value)
 {
-	guint64 value = unmasked_value & G_GINT64_CONSTANT(0x03FFFFFFFF);
-	guint64 tempValue = value;
-	gboolean negativeNum = FALSE;
-	guint32 integerPortion = 0;
-	const char *direction;
-
 	/* The latitude and longitude are 34 bit fixed point value consisting
 	   of 9 bits of integer and 25 bits of fraction.
 	   When option is equal to 0, positive numbers are represent a location
 	   north of the equator and negative (2s complement) numbers are south of the equator.
 	   When option is equal to 1, positive values are east of the prime
 	   meridian and negative (2s complement) numbers are west of the prime meridian.
+	   Longitude values outside the range of -180 to 180 decimal degrees or latitude values
+	   outside the range of -90 to 90 degrees MUST be considered invalid.
 	*/
+	const guint variableBitSize = 34;
+	const guint fractionnalBitSize = 25;
 
-	if (value & G_GINT64_CONSTANT(0x0000000200000000))
-	{
-		/* Have a negative number (2s complement) */
-		negativeNum = TRUE;
+	guint64 masked_value = getUint64MaskedValue(unmasked_value, variableBitSize); // get 34-bit value
 
-		tempValue = ~value;
-		tempValue += 1;
-	}
+	// Get absoluste value of a 34-bit 2's variable
+	// => value is 33-bit
+	guint64 absolute_value = masked_value;
+	gboolean isNegative = get2sComplementAbsoluteValue(&absolute_value, variableBitSize);
+	
+	// Get unsigned integer 8-bit value
+	guint32 integerPortion = absolute_value >> fractionnalBitSize;
 
-	/* Get the integer portion */
-	integerPortion = (guint32)((tempValue & G_GINT64_CONSTANT(0x00000003FE000000)) >> 25);
+	// Get fractionnal 25-bit value
+	const guint numberOfDigitToDisplay = 4;
+	guint64 fixedSizeDecimal = convertFractionalToFixedSizeDecimal(absolute_value, fractionnalBitSize, numberOfDigitToDisplay);
 
-	/* Calculate decimal portion (using 25 bits for fraction) */
-	tempValue = (tempValue & G_GINT64_CONSTANT(0x0000000001FFFFFF))/33554432;
-
-	if (option == 0)
-	{
-		/* Latitude - north/south directions */
-		if (negativeNum)
+	const char *direction;
+	if (option == 0){
+		// Latitude - north/south directions
+		if (isNegative){
 			direction = "South";
-		else
+		} else {
 			direction = "North";
-	}
-	else
-	{
-		/* Longitude - east/west directions */
-		if (negativeNum)
+		}
+	} else {
+		// Longitude - east/west directions
+		if (isNegative){
 			direction = "West";
-		else
+		} else {
 			direction = "East";
+		}
 	}
 
-	snprintf(buf, ITEM_LABEL_LENGTH, "%u.%04" PRIu64 " degrees %s (0x%010" PRIX64 ")",
-	    integerPortion, tempValue, direction, value);
+	const guint64 fractionalMask = (G_GINT64_CONSTANT(0x1) << fractionnalBitSize) - 1;
+
+	// %04 correspond to numberOfDigitToDisplay
+	snprintf(buf, ITEM_LABEL_LENGTH, "%u.%04" PRIu64 " degrees %s (0x%010" PRIX64 " - %u-bit integer part 0x%04" PRIX64 " / %u-bit fractional part 0x%08" PRIX64 ")",
+	    integerPortion, fixedSizeDecimal, direction, masked_value,
+		variableBitSize - fractionnalBitSize, masked_value >> fractionnalBitSize,
+		fractionnalBitSize, masked_value & fractionalMask
+	);
 }
 
 static void
@@ -1422,6 +1496,74 @@ latitude_base(gchar *buf, guint64 value) {
 static void
 longitude_base(gchar *buf, guint64 value) {
 	get_latitude_or_longitude(buf, 1, value);
+}
+
+static void
+altitude_base(gchar *buf, guint32 unmasked_value) {
+	// RFC6225
+	// Altitude: A 30-bit value defined by the AType field.
+ 	// In some cases, the altitude of the location might not be provided.
+	// An Altitude Type value of zero indicates that the altitude is not
+	// given to the client.  In this case, the Altitude and Altitude
+	// Uncertainty fields can contain any value and MUST be ignored.
+	//
+	// If the Altitude Type has a value of one, altitude is measured in
+	// meters, in relation to the zero set by the vertical datum.  For AType
+	// = 1, the altitude value is expressed as a 30-bit, fixed-point, two's
+	// complement integer with 22 integer bits and 8 fractional bits.
+	//
+	// A value of two for Altitude Type indicates that the altitude value is
+	// measured in floors.  Since altitude in meters may not be known within
+	// a building, a floor indication may be more useful.  For AType = 2,
+	// the altitude value is expressed as a 30-bit, fixed-point, two's
+	// complement integer with 22 integer bits and 8 fractional bits.
+	//
+	// the altitude resolution (AltRes) value encodes the number of
+	// high-order altitude bits that should be considered valid.
+	// Values above 30 (decimal) are undefined and reserved.
+	//
+	// The encoded altitude of 000000000000000010000110110011 decodes to
+	// 33.69921875.  The encoded uncertainty of 15 gives a value of 64;
+	// therefore, the final uncertainty is 33.69921875 +/- 64 (or the range
+	// from -30.30078125 to 97.69921875).
+	// The amount of altitude uncertainty can be determined by the following
+	// formula, where x is the encoded integer value:
+	//      Uncertainty = 2 ^ ( 21 - x )
+	//                  = 2 ^ ( 21 - 15 ) = 2 ^ 6 = 64
+
+	const guint variableBitSize = 30;
+	const guint fractionnalBitSize = 8;
+
+	guint64 masked_value = getUint64MaskedValue(unmasked_value, variableBitSize); // get 30-bit value
+
+	// Get absoluste value of a 30-bit 2's variable
+	// => value is 29-bit
+	guint64 absolute_value = masked_value;
+	gboolean isNegative = get2sComplementAbsoluteValue(&absolute_value, variableBitSize);
+	
+	// Get unsigned integer 8-bit value
+	guint32 integerPortion = absolute_value >> fractionnalBitSize;
+
+	// Get fractionnal 8-bit value
+	const guint numberOfDigitToDisplay = 4;
+	guint64 fixedSizeDecimal = convertFractionalToFixedSizeDecimal(absolute_value, fractionnalBitSize, numberOfDigitToDisplay);
+
+	const char * sign;
+	if (isNegative){
+		sign = "-";
+	} else {
+		sign = "+";
+	}
+
+
+	const guint64 fractionalMask = (G_GINT64_CONSTANT(0x1) << fractionnalBitSize) - 1;
+	
+	// %04 correspond to numberOfDigitToDisplay
+	snprintf(buf, ITEM_LABEL_LENGTH, "%s%u.%04" PRIu64 " (0x%08" PRIX64 " - %u-bit integer part 0x%06" PRIX64 " / %u-bit fractional part 0x%02" PRIX64 ")",
+	    sign, integerPortion, fixedSizeDecimal, masked_value,
+		variableBitSize - fractionnalBitSize, masked_value >> fractionnalBitSize,
+		fractionnalBitSize, masked_value & fractionalMask
+	);
 }
 
 /* Dissect Chassis Id TLV (Mandatory) */
@@ -5861,8 +6003,8 @@ proto_register_lldp(void)
 			NULL, 0x0FC0, NULL, HFILL }
 		},
 		{ &hf_media_loc_alt,
-			{ "Altitude", "lldp.media.loc.altitude", FT_UINT32, BASE_DEC,
-			NULL, 0x3FFFFFFF, NULL, HFILL }
+			{ "Altitude", "lldp.media.loc.altitude", FT_UINT32, BASE_CUSTOM,
+			CF_FUNC(altitude_base), 0x0, NULL, HFILL }
 		},
 		{ &hf_media_loc_datum,
 			{ "Datum", "lldp.media.loc.datum", FT_UINT8, BASE_DEC,
