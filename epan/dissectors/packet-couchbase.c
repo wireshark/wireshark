@@ -155,6 +155,7 @@ static bool is_request_magic(guint8 magic) {
 #define STATUS_OPAQUE_NO_MATCH    0x0b
 #define STATUS_EWOULDTHROTTLE     0x0c
 #define STATUS_ECONFIGONLY        0x0d
+#define STATUS_NOT_LOCKED         0x0e
 #define STATUS_AUTH_STALE         0x1f
 #define STATUS_AUTH_ERROR         0x20
 #define STATUS_AUTH_CONTINUE      0x21
@@ -728,6 +729,7 @@ static const value_string status_vals[] = {
   { STATUS_OPAQUE_NO_MATCH,   "Opaque does not match" },
   { STATUS_EWOULDTHROTTLE,    "Command would have been throttled" },
   { STATUS_ECONFIGONLY,       "Command can't be executed in config-only bucket" },
+  { STATUS_NOT_LOCKED,        "Unlock request for an unlocked document" },
   { STATUS_AUTH_STALE,        "Authentication context is stale. Should reauthenticate." },
   { STATUS_AUTH_ERROR,        "Authentication error"    },
   { STATUS_AUTH_CONTINUE,     "Authentication continue" },
@@ -1114,15 +1116,21 @@ static const value_string feature_vals[] = {
   {0x19, "SubdocReplaceBodyWithXattr"},
   {0x1a, "ReportUnitUsage"},
   {0x1b, "NonBlockingThrottlingMode"},
+  {0x1c, "SubdocReplicaRead"},
+  {0x1d, "GetClusterConfigWithKnownVersion"},
+  {0x1e, "DedupeNotMyVbucketClustermap"},
+  {0x1f, "ClustermapChangeNotificationBrief"},
+  {0x20, "SubdocAllowsAccessOnMultipleXattrKeys"},
   {0, NULL}
 };
 
 static const value_string dcp_system_event_id_vals [] = {
     {0, "CreateCollection"},
     {1, "DropCollection"},
-    {2, "FlushCollection"},
+    {2, "Unused"},
     {3, "CreateScope"},
     {4, "DropScope"},
+    {5, "ModifyCollection"},
     {0, NULL}
 };
 
