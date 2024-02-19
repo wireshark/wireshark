@@ -217,6 +217,7 @@ typedef struct _e_prefs {
   gboolean     ignore_dup_frames;
   guint        ignore_dup_frames_cache_entries;
   gboolean     filter_expressions_old;  /* TRUE if old filter expressions preferences were loaded. */
+  gboolean     cols_hide_new; /* TRUE if the new (index-based) gui.column.hide preference was loaded. */
   gboolean     gui_update_enabled;
   software_update_channel_e gui_update_channel;
   gint         gui_update_interval;

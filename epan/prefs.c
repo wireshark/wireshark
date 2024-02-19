@@ -2543,7 +2543,7 @@ static void custom_pref_no_cb(pref_t* pref _U_) {}
 /*
  * Column preference functions
  */
-#define PRS_COL_HIDDEN_OBS               "column.hidden"
+#define PRS_COL_HIDDEN_FMT               "column.hidden"
 #define PRS_COL_HIDDEN                   "column.hide"
 #define PRS_COL_FMT                      "column.format"
 #define PRS_COL_NUM                      "column.number"
@@ -2555,6 +2555,12 @@ column_hidden_set_cb(pref_t* pref, const gchar* value, unsigned int* changed_fla
     GList       *clp;
     fmt_data    *cfmt;
     pref_t  *format_pref;
+
+    /*
+     * Prefer the new preference to the old format-based preference if we've
+     * read it. (We probably could just compare the string to NULL and "".)
+     */
+    prefs.cols_hide_new = TRUE;
 
     (*changed_flags) |= prefs_set_string_value(pref, value, pref_current);
 
@@ -2626,6 +2632,91 @@ column_hidden_is_default_cb(pref_t* pref)
     return is_default;
 }
 
+static prefs_set_pref_e
+column_hidden_fmt_set_cb(pref_t* pref, const gchar* value, unsigned int* changed_flags)
+{
+    GList       *clp;
+    fmt_data    *cfmt;
+    pref_t  *format_pref;
+
+    (*changed_flags) |= prefs_set_string_value(pref, value, pref_current);
+
+    /*
+     * Set the "visible" flag for the existing columns; we need to
+     * do this if we set PRS_COL_HIDDEN_FMT but don't set PRS_COL_FMT
+     * after setting it (which might be the case if, for example, we
+     * set PRS_COL_HIDDEN_FMT on the command line; it shouldn't happen
+     * when reading the configuration file because we write (both of)
+     * the hidden column prefs before the column format prefs.)
+     */
+    format_pref = prefs_find_preference(gui_column_module, PRS_COL_FMT);
+    for (clp = *format_pref->varp.list; clp != NULL; clp = clp->next) {
+      cfmt = (fmt_data *)clp->data;
+      cfmt->visible = prefs_is_column_fmt_visible(*pref->varp.string, cfmt);
+    }
+
+    return PREFS_SET_OK;
+}
+
+static const char *
+column_hidden_fmt_type_name_cb(void)
+{
+    return "Packet list hidden column formats (deprecated)";
+}
+
+static char *
+column_hidden_fmt_type_description_cb(void)
+{
+    return g_strdup("List all column formats to hide in the packet list. Deprecated in favor of the index-based preference.");
+}
+
+static char *
+column_hidden_fmt_to_str_cb(pref_t* pref, gboolean default_val)
+{
+    GString     *cols_hidden;
+    GList       *clp;
+    fmt_data    *cfmt;
+    pref_t  *format_pref;
+
+    if (default_val)
+        return g_strdup(pref->default_val.string);
+
+    cols_hidden = g_string_new("");
+    format_pref = prefs_find_preference(gui_column_module, PRS_COL_FMT);
+    clp = (format_pref) ? *format_pref->varp.list : NULL;
+    while (clp) {
+        char *prefs_fmt;
+        cfmt = (fmt_data *) clp->data;
+        if ((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_fields)) {
+            prefs_fmt = ws_strdup_printf("%s:%s:%d:%c",
+                    col_format_to_string(cfmt->fmt),
+                    cfmt->custom_fields,
+                    cfmt->custom_occurrence,
+                    cfmt->resolved ? 'R' : 'U');
+        } else {
+            prefs_fmt = g_strdup(col_format_to_string(cfmt->fmt));
+        }
+        if (!cfmt->visible) {
+            if (cols_hidden->len)
+                g_string_append (cols_hidden, ",");
+            g_string_append(cols_hidden, prefs_fmt);
+        }
+        g_free(prefs_fmt);
+        clp = clp->next;
+    }
+
+    return g_string_free (cols_hidden, FALSE);
+}
+
+static gboolean
+column_hidden_fmt_is_default_cb(pref_t* pref)
+{
+    char *cur_hidden_str = column_hidden_fmt_to_str_cb(pref, FALSE);
+    gboolean is_default = g_strcmp0(cur_hidden_str, pref->default_val.string) == 0;
+
+    g_free(cur_hidden_str);
+    return is_default;
+}
 
 /* Number of columns "preference".  This is only used internally and is not written to the
  * preference file
@@ -2784,7 +2875,11 @@ column_format_set_cb(pref_t* pref, const gchar* value, unsigned int* changed_fla
     /* They're all valid; process them. */
     free_col_info(*pref->varp.list);
     *pref->varp.list = NULL;
-    hidden_pref = prefs_find_preference(gui_column_module, PRS_COL_HIDDEN);
+    if (prefs.cols_hide_new) {
+      hidden_pref = prefs_find_preference(gui_column_module, PRS_COL_HIDDEN);
+    } else {
+      hidden_pref = prefs_find_preference(gui_column_module, PRS_COL_HIDDEN_FMT);
+    }
     ws_assert(hidden_pref != NULL); /* Should never happen */
     col_num_pref = prefs_find_preference(gui_column_module, PRS_COL_NUM);
     ws_assert(col_num_pref != NULL); /* Should never happen */
@@ -2797,9 +2892,10 @@ column_format_set_cb(pref_t* pref, const gchar* value, unsigned int* changed_fla
       cfmt->title    = g_strdup((gchar *)col_l_elt->data);
       col_l_elt      = col_l_elt->next;
       parse_column_format(cfmt, (char *)col_l_elt->data);
-      cfmt->visible   = prefs_is_column_visible(*hidden_pref->varp.string, cidx);
-      if (!prefs_is_column_fmt_visible(cols_hidden_fmt_list, cfmt)) {
-          cfmt->visible = FALSE;
+      if (prefs.cols_hide_new) {
+        cfmt->visible   = prefs_is_column_visible(*hidden_pref->varp.string, cidx);
+      } else {
+        cfmt->visible   = prefs_is_column_fmt_visible(*hidden_pref->varp.string, cfmt);
       }
       col_l_elt      = col_l_elt->next;
       *pref->varp.list = g_list_append(*pref->varp.list, cfmt);
@@ -3201,7 +3297,6 @@ prefs_register_modules(void)
     /* For reading older preference files with "column." preferences */
     prefs_register_module_alias("column", gui_column_module);
 
-    prefs_register_obsolete_preference(gui_column_module, PRS_COL_HIDDEN_OBS);
 
     custom_cbs.free_cb = free_string_like_preference;
     custom_cbs.reset_cb = reset_string_like_preference;
@@ -3213,6 +3308,16 @@ prefs_register_modules(void)
     register_string_like_preference(gui_column_module, PRS_COL_HIDDEN, "Packet list hidden columns",
         "List all column indices (1-indexed) to hide in the packet list",
         &cols_hidden_list, PREF_CUSTOM, &custom_cbs, FALSE);
+
+    custom_cbs.set_cb = column_hidden_fmt_set_cb;
+    custom_cbs.type_name_cb = column_hidden_fmt_type_name_cb;
+    custom_cbs.type_description_cb = column_hidden_fmt_type_description_cb;
+    custom_cbs.is_default_cb = column_hidden_fmt_is_default_cb;
+    custom_cbs.to_str_cb = column_hidden_fmt_to_str_cb;
+
+    register_string_like_preference(gui_column_module, PRS_COL_HIDDEN_FMT, "Packet list hidden column formats (deprecated)",
+        "List all column formats to hide in the packet list; deprecated in favor of the index-based preference",
+        &cols_hidden_fmt_list, PREF_CUSTOM, &custom_cbs, FALSE);
 
     custom_cbs.free_cb = column_format_free_cb;
     custom_cbs.reset_cb = column_format_reset_cb;
@@ -5770,10 +5875,6 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data,
         filter_label = NULL;
         /* Remember to save the new UAT to file. */
         prefs.filter_expressions_old = TRUE;
-    } else if (strcmp(pref_name, "gui.column.hidden") == 0) {
-        /* Use the old column hidden list (which is by format) */
-        g_free(cols_hidden_fmt_list);
-        cols_hidden_fmt_list = g_strdup(value);
     } else if (strcmp(pref_name, "gui.version_in_start_page") == 0) {
         /* Convert deprecated value to closest current equivalent */
         if (g_ascii_strcasecmp(value, "true") == 0) {
