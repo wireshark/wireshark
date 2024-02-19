@@ -19,16 +19,6 @@
 #define PLDM_MIN_LENGTH 4
 #define PLDM_MAX_TYPES 8
 
-#define POINTER_MOVE(rc, buffer, buffer_size)       \
-	do {                                            \
-		if (rc < 0)                                 \
-			return;                                 \
-		if ((size_t)rc >= buffer_size)              \
-			return;                                 \
-		buffer += rc;                               \
-		buffer_size -= rc;                          \
-	} while (0);
-
 
 static int proto_pldm;
 static int ett_pldm;
@@ -508,66 +498,66 @@ typedef struct pldm_packet_data {
 } pldm_packet_data;
 
 
-
+/* Return number of characters written */
 static int print_version_field(guint8 bcd, char *buffer, size_t buffer_size)
 {
 	int v;
 	if (bcd == 0xff)
+		// No value to write
 		return 0;
 	if (((bcd) & 0xf0) == 0xf0) {
+		// First nibble all set, so get value from 2nd nibble - show as bcd
 		v = (bcd) & 0x0f;
 		return snprintf(buffer, buffer_size, "%d", v);
 	}
+	// Get one char from each nibble by printing as 2-digit number
 	v = (((bcd) >> 4) * 10) + ((bcd) & 0x0f);
 	return snprintf(buffer, buffer_size, "%02d", v);
 }
 
-static void ver2str(tvbuff_t *tvb, int offset, char *buf_ptr, size_t buffer_size)
+static char* ver2str(tvbuff_t *tvb, int offset)
 {
-	int rc;
+	#define VER_BUF_LEN 12
+	static char buffer[VER_BUF_LEN];
+	char* buf_ptr = &buffer[0];
+
 	guint8 major = tvb_get_guint8(tvb, offset);
-	offset += 1;
-	guint8 minor = tvb_get_guint8(tvb, offset);
-	offset += 1;
-	guint8 update = tvb_get_guint8(tvb, offset);
-	offset += 1;
-	guint8 alpha = tvb_get_guint8(tvb, offset);
+	guint8 minor = tvb_get_guint8(tvb, offset+1);
+	guint8 update = tvb_get_guint8(tvb, offset+2);
+	guint8 alpha = tvb_get_guint8(tvb, offset+3);
 
 	// major, minor and update fields are all BCD encoded
+	uint8_t c_offset = 0;
+
+	// Major
 	if (major != 0xff) {
-		rc = print_version_field(major, buf_ptr, buffer_size);
-		POINTER_MOVE(rc, buf_ptr, buffer_size);
-		rc = snprintf(buf_ptr, buffer_size, ".");
-		POINTER_MOVE(rc, buf_ptr, buffer_size);
+		c_offset += print_version_field(major, buf_ptr+c_offset, VER_BUF_LEN-c_offset);
+		c_offset += snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, ".");
 	} else {
-		rc = snprintf(buf_ptr, buffer_size, "-");
-		POINTER_MOVE(rc, buf_ptr, buffer_size);
+		c_offset += snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, "-");
 	}
+	// Minor
 	if (minor != 0xff) {
-		rc = print_version_field(minor, buf_ptr, buffer_size);
-		POINTER_MOVE(rc, buf_ptr, buffer_size);
+		c_offset += print_version_field(minor, buf_ptr+c_offset, VER_BUF_LEN-c_offset);
 	} else {
-		rc = snprintf(buf_ptr, buffer_size, "-");
-		POINTER_MOVE(rc, buf_ptr, buffer_size);
+		c_offset += snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, "-");
 	}
+	// Update
 	if (update != 0xff) {
-		rc = snprintf(buf_ptr, buffer_size, ".");
-		POINTER_MOVE(rc, buf_ptr, buffer_size);
-		rc = print_version_field(update, buf_ptr, buffer_size);
-		POINTER_MOVE(rc, buf_ptr, buffer_size);
+		c_offset += snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, ".");
+		c_offset += print_version_field(update, buf_ptr+c_offset, VER_BUF_LEN);
 	} else {
-		rc = snprintf(buf_ptr, buffer_size, "-");
-		POINTER_MOVE(rc, buf_ptr, buffer_size);
+		c_offset += snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, "-");
 	}
+	// Alpha
 	if (alpha != 0x00) {
-		rc = snprintf(buf_ptr, buffer_size, "%c", alpha);
-		POINTER_MOVE(rc, buf_ptr, buffer_size);
+		c_offset += snprintf(buf_ptr+c_offset, VER_BUF_LEN, "%c", alpha);
 	} else {
-		rc = snprintf(buf_ptr, buffer_size, ".");
-		POINTER_MOVE(rc, buf_ptr, buffer_size);
-		rc = snprintf(buf_ptr, buffer_size, "-");
-		POINTER_MOVE(rc, buf_ptr, buffer_size);
+		c_offset += snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, ".");
+		snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, "-");
 	}
+
+	return buf_ptr;
 }
 
 
@@ -610,9 +600,9 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pl
 				offset += 4;
 				proto_tree_add_item(p_tree, hf_pldm_base_transferFlag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
-				char buffer[10];
-				ver2str( tvb, offset, buffer, 10);
-				proto_tree_add_string_format(p_tree, hf_pldm_base_typeVersion, tvb, offset, 4, buffer, "version : %s", buffer);
+				const char *version_string = ver2str(tvb, offset);
+				proto_tree_add_string_format_value(p_tree, hf_pldm_base_typeVersion, tvb, offset, 4,
+				                                   version_string, "%s", version_string);
 				// possibly more than one entry
 			}
 			break;
@@ -646,9 +636,9 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pl
 				}
 				proto_tree_add_item(p_tree, hf_pldm_base_PLDMtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
-				char buffer[10];
-				ver2str(tvb, offset, buffer, 10);
-				proto_tree_add_string_format(p_tree, hf_pldm_base_typeVersion, tvb, offset, 4, buffer , "version : %s", buffer);
+				const char *version_string = ver2str(tvb, offset);
+				proto_tree_add_string_format_value(p_tree, hf_pldm_base_typeVersion, tvb, offset, 4,
+				                                   version_string, "%s", version_string);
 			} else if (!request) {
 				int pldmTypeReceived = GPOINTER_TO_UINT(wmem_map_lookup(pldmTypeMap, GUINT_TO_POINTER(instID)));
 				switch (pldmTypeReceived) {
