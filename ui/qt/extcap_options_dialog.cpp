@@ -59,8 +59,7 @@ ExtcapOptionsDialog::ExtcapOptionsDialog(bool startCaptureOnClose, QWidget *pare
     ui(new Ui::ExtcapOptionsDialog),
     device_name(""),
     device_idx(0),
-    defaultValueIcon_(StockIcon("x-reset")),
-    start_capture_on_close_(startCaptureOnClose)
+    defaultValueIcon_(StockIcon("x-reset"))
 {
     ui->setupUi(this);
 
@@ -68,10 +67,11 @@ ExtcapOptionsDialog::ExtcapOptionsDialog(bool startCaptureOnClose, QWidget *pare
 
     ui->checkSaveOnStart->setCheckState(prefs.extcap_save_on_start ? Qt::Checked : Qt::Unchecked);
 
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Start"));
     if (startCaptureOnClose) {
-        ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Start"));
-    } else {
-        ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Save"));
+        // This dialog was spawned because the user wanted to start a capture
+        // immediately but a mandatory parameter was not configured.
+        ui->buttonBox->button(QDialogButtonBox::Save)->hide();
     }
 }
 
@@ -116,26 +116,6 @@ ExtcapOptionsDialog * ExtcapOptionsDialog::createForDevice(QString &dev_name, bo
 ExtcapOptionsDialog::~ExtcapOptionsDialog()
 {
     delete ui;
-}
-
-void ExtcapOptionsDialog::on_buttonBox_accepted()
-{
-    if (saveOptionToCaptureInfo()) {
-        /* Starting a new capture with those values */
-        prefs.extcap_save_on_start = ui->checkSaveOnStart->checkState() == Qt::Checked;
-
-        /* If the button says "Save" instead of "Start", unconditionally
-         * save. XXX - Why not have both buttons? (#19199)
-         *
-         * XXX - If extcap_save_on_start is the only preference that has
-         * changed, or if it changed from true to false, we should write
-         * out a new preference file with its new value, but don't.
-         */
-        if (prefs.extcap_save_on_start || !start_capture_on_close_)
-            storeValues();
-
-        accept();
-    }
 }
 
 void ExtcapOptionsDialog::anyValueChanged()
@@ -403,12 +383,6 @@ void ExtcapOptionsDialog::updateWidgets()
     }
 }
 
-// Not sure why we have to do this manually.
-void ExtcapOptionsDialog::on_buttonBox_rejected()
-{
-    reject();
-}
-
 void ExtcapOptionsDialog::on_buttonBox_helpRequested()
 {
     interface_t *device;
@@ -491,8 +465,41 @@ bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
 void ExtcapOptionsDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
     /* Only the save button has the ActionRole */
-    if (ui->buttonBox->buttonRole(button) == QDialogButtonBox::ResetRole)
+    switch (ui->buttonBox->buttonRole(button)) {
+    case QDialogButtonBox::ResetRole:
         resetValues();
+        break;
+    case QDialogButtonBox::RejectRole:
+    case QDialogButtonBox::DestructiveRole:
+        /* entries are only saved if saveOptionToCaptureInfo() is called,
+         * so do nothing. */
+        reject();
+        break;
+    case QDialogButtonBox::AcceptRole:
+        if (saveOptionToCaptureInfo()) {
+            /* Starting a new capture with those values */
+            prefs.extcap_save_on_start = ui->checkSaveOnStart->checkState() == Qt::Checked;
+
+            /* XXX - If extcap_save_on_start is the only preference that has
+             * changed, or if it changed from true to false, we should write
+             * out a new preference file with its new value, but don't.
+             */
+            if (ui->buttonBox->standardButton(button) == QDialogButtonBox::Save) {
+                storeValues();
+                /* Reject the dialog, because we don't want to start a capture. */
+                reject();
+            } else {
+                /* Start */
+                if (prefs.extcap_save_on_start) {
+                    storeValues();
+                }
+                accept();
+            }
+        }
+        break;
+    default:
+        break;
+    }
 }
 
 void ExtcapOptionsDialog::resetValues()

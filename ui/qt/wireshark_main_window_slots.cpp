@@ -3965,12 +3965,10 @@ void WiresharkMainWindow::showExtcapOptionsDialog(QString &device_name, bool sta
     if (extcap_options_dialog) {
         extcap_options_dialog->setModal(true);
         extcap_options_dialog->setAttribute(Qt::WA_DeleteOnClose);
-        if (startCaptureOnClose) {
-            connect(extcap_options_dialog, SIGNAL(finished(int)),
-                        this, SLOT(extcap_options_finished(int)));
-        }
+        connect(extcap_options_dialog, SIGNAL(finished(int)),
+                    this, SLOT(extcap_options_finished(int)));
 #ifdef HAVE_LIBPCAP
-        if (capture_options_dialog_ && startCaptureOnClose) {
+        if (capture_options_dialog_) {
             /* Allow capture options dialog to close */
             connect(extcap_options_dialog, SIGNAL(accepted()),
                     capture_options_dialog_, SLOT(accept()));

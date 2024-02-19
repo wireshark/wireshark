@@ -40,8 +40,6 @@ public:
     ExtcapValueList loadValuesFor(int argNum, QString call, QString parent = "");
 
 private Q_SLOTS:
-    void on_buttonBox_accepted();
-    void on_buttonBox_rejected();
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_buttonBox_helpRequested();
     void updateWidgets();
@@ -54,7 +52,6 @@ private:
     QString device_name;
     guint device_idx;
     QIcon defaultValueIcon_;
-    bool start_capture_on_close_;
 
     ExtcapArgumentList extcapArguments;
 
