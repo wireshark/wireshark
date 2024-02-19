@@ -34,6 +34,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
 #include <epan/conversation.h>
 #include <epan/conversation_table.h>
 #include <epan/conversation_filter.h>
@@ -154,72 +155,11 @@ typedef struct {
 	wmem_map_t *rpt_acks;
 	/** Map from report ID (guint64) to wmem_list_t of frame info (ltp_frame_info_t*) */
 	wmem_map_t *rpt_datas;
+	/** Map from cancel segment type (guint64) to wmem_list_t of frame info (ltp_frame_info_t*) */
+	wmem_map_t *cancels;
+	/** Map from cancel segment type (guint64) to wmem_list_t of frame info (ltp_frame_info_t*) */
+	wmem_map_t *cancel_acks;
 } ltp_session_data_t;
-
-/** Add a cross-reference value source.
- * @param map The map to add to.
- * @param ref_num The cross-reference value.
- * @param pinfo The source frame of the value.
- */
-static void
-ltp_ref_src(wmem_map_t *map, guint64 ref_num, const packet_info *pinfo)
-{
-	wmem_list_t *found = wmem_map_lookup(map, &ref_num);
-	if (!found)
-	{
-		guint64 *key = wmem_new(wmem_file_scope(), guint64);
-		*key = ref_num;
-		found = wmem_list_new(wmem_file_scope());
-		wmem_map_insert(map, key, found);
-	}
-
-	if (wmem_list_find_custom(found, pinfo, ltp_frame_info_find_pinfo))
-	{
-		return;
-	}
-	ltp_frame_info_t *val = ltp_frame_info_new(pinfo);
-	wmem_list_append(found, val);
-}
-
-/** Show cross-reference value sources as tree items.
- * @param map The map to search in.
- * @param ref_num The cross-reference value.
- * @param pinfo The frame using the reference (to avoid duplicates).
- * @param tree The tree to show references under.
- * @param hf_ref The field index to add source frame numbers.
- * @param hf_time The field index to report time differences.
- */
-static void
-ltp_ref_use(wmem_map_t *map, guint64 ref_num, const packet_info *pinfo, proto_tree *tree, int hf_ref, int hf_time)
-{
-	const wmem_list_t *found = wmem_map_lookup(map, &ref_num);
-	if (!found)
-	{
-		return;
-	}
-
-	for (wmem_list_frame_t *it = wmem_list_head(found); it != NULL;
-		it = wmem_list_frame_next(it))
-	{
-		const ltp_frame_info_t *frame_refd = wmem_list_frame_data(it);
-		if (frame_refd->frame_num == pinfo->num)
-		{
-			continue;
-		}
-		PROTO_ITEM_SET_GENERATED(
-			proto_tree_add_uint(tree, hf_ref, NULL, 0, 0, frame_refd->frame_num)
-		);
-
-		if (hf_time > 0)
-		{
-			nstime_t td;
-			nstime_delta(&td, &(pinfo->abs_ts), &(frame_refd->abs_ts));
-			PROTO_ITEM_SET_GENERATED(
-					proto_tree_add_time(tree, hf_time, NULL, 0, 0, &td)
-			);
-		}
-	}
-}
 
 /// Tap info for single segment
 typedef struct {
@@ -264,12 +204,12 @@ static int hf_ltp_data_clid;
 static int hf_ltp_data_offset;
 static int hf_ltp_data_length;
 static int hf_ltp_data_chkp;
-static int hf_ltp_data_chkp_rpt;
+static int hf_ltp_data_chkp_rpt_ref;
+static int hf_ltp_data_chkp_rpt_time;
 static int hf_ltp_data_rpt;
 static int hf_ltp_data_rpt_ref;
 static int hf_ltp_data_rpt_time;
 static int hf_ltp_data_sda_clid;
-static int hf_ltp_partial_packet;
 static int hf_ltp_data_clidata;
 static int hf_ltp_data_retrans;
 static int hf_ltp_data_clm_rpt;
@@ -280,8 +220,10 @@ static int hf_ltp_block_bundle_cnt;
 
 /* LTP Report Segment variable */
 static int hf_ltp_rpt_sno;
-static int hf_ltp_rpt_sno_ack;
-static int hf_ltp_rpt_sno_data;
+static int hf_ltp_rpt_sno_ack_ref;
+static int hf_ltp_rpt_sno_ack_time;
+static int hf_ltp_rpt_sno_data_ref;
+static int hf_ltp_rpt_sno_data_time;
 static int hf_ltp_rpt_chkp;
 static int hf_ltp_rpt_chkp_ref;
 static int hf_ltp_rpt_chkp_time;
@@ -296,18 +238,27 @@ static int hf_ltp_rpt_clm_fst;
 static int hf_ltp_rpt_clm_lst;
 static int hf_ltp_rpt_clm_ref;
 static int hf_ltp_rpt_gap;
+static int hf_ltp_rpt_gap_fst;
+static int hf_ltp_rpt_gap_lst;
 static int hf_ltp_rpt_gap_ref;
 static int hf_ltp_rpt_gap_total;
 
 /* LTP Report Ack Segment Variable */
 static int hf_ltp_rpt_ack_sno;
-static int hf_ltp_rpt_ack_dupe;
+static int hf_ltp_rpt_ack_dupe_ref;
 static int hf_ltp_rpt_ack_ref;
 static int hf_ltp_rpt_ack_time;
-static int hf_ltp_cancel_ack;
 
 /* LTP Session Management Segment Variable */
 static int hf_ltp_cancel_code;
+static int hf_ltp_cancel_dupe_ref;
+static int hf_ltp_cancel_ref;
+static int hf_ltp_cancel_time;
+
+static int hf_ltp_cancel_ack;
+static int hf_ltp_cancel_ack_dupe_ref;
+static int hf_ltp_cancel_ack_ref;
+static int hf_ltp_cancel_ack_time;
 
 /* LTP Header Extension Segment */
 static int hf_ltp_hdr_extn_tag;
@@ -335,6 +286,13 @@ static expert_field ei_ltp_mal_reception_claim;
 static expert_field ei_ltp_sdnv_length;
 static expert_field ei_ltp_sno_larger_than_ccsds;
 static expert_field ei_ltp_report_async;
+static expert_field ei_ltp_data_chkp_norpt;
+static expert_field ei_ltp_data_rptno_norpt;
+static expert_field ei_ltp_rpt_noack;
+static expert_field ei_ltp_rpt_nochkp;
+static expert_field ei_ltp_rpt_ack_norpt;
+static expert_field ei_ltp_cancel_noack;
+static expert_field ei_ltp_cancel_ack_nocancel;
 
 static dissector_handle_t bundle_handle;
 
@@ -442,6 +400,90 @@ static const fragment_items ltp_frag_items = {
 	"LTP fragments"
 };
 
+/** Add a cross-reference value source.
+ * @param map The map to add to.
+ * @param ref_num The cross-reference value.
+ * @param pinfo The source frame of the value.
+ */
+static void
+ltp_ref_src(wmem_map_t *map, guint64 ref_num, const packet_info *pinfo)
+{
+	wmem_list_t *found = wmem_map_lookup(map, &ref_num);
+	if (!found)
+	{
+		guint64 *key = wmem_new(wmem_file_scope(), guint64);
+		*key = ref_num;
+		found = wmem_list_new(wmem_file_scope());
+		wmem_map_insert(map, key, found);
+	}
+
+	if (wmem_list_find_custom(found, pinfo, ltp_frame_info_find_pinfo))
+	{
+		return;
+	}
+	ltp_frame_info_t *val = ltp_frame_info_new(pinfo);
+	wmem_list_append(found, val);
+}
+
+/** Show cross-reference value sources as tree items.
+ * @param map The map to search in.
+ * @param ref_num The cross-reference value.
+ * @param pinfo The frame using the reference (to avoid duplicates).
+ * @param tree The tree to show references under.
+ * @param hf_ref The field index to add source frame numbers.
+ * @param hf_time The field index to report time differences.
+ * @param tap Non-null if this use is an acknowledgement of an earlier segment and should
+ * be later in time than the referenced segment.
+ */
+static void
+ltp_ref_use(wmem_map_t *map, guint64 ref_num, packet_info *pinfo, proto_tree *tree, int hf_ref, expert_field *ei_notfound, int hf_time, ltp_tap_info_t *tap)
+{
+	const wmem_list_t *found = wmem_map_lookup(map, &ref_num);
+	if (!found)
+	{
+		if (ei_notfound)
+		{
+			expert_add_info(pinfo, proto_tree_get_parent(tree), ei_notfound);
+		}
+		return;
+	}
+
+	for (wmem_list_frame_t *it = wmem_list_head(found); it != NULL;
+		it = wmem_list_frame_next(it))
+	{
+		const ltp_frame_info_t *frame_refd = wmem_list_frame_data(it);
+		if (frame_refd->frame_num == pinfo->num)
+		{
+			continue;
+		}
+		PROTO_ITEM_SET_GENERATED(
+			proto_tree_add_uint(tree, hf_ref, NULL, 0, 0, frame_refd->frame_num)
+		);
+
+		// tap is present for responses, where the other frame is earlier
+		const nstime_t *ta, *tb;
+		if (tap)
+		{
+			tb = &(pinfo->abs_ts);
+			ta = &(frame_refd->abs_ts);
+		}
+		else
+		{
+			tb = &(frame_refd->abs_ts);
+			ta = &(pinfo->abs_ts);
+		}
+		nstime_t td;
+		nstime_delta(&td, tb, ta);
+
+		if (hf_time >= 0)
+		{
+			PROTO_ITEM_SET_GENERATED(
+				proto_tree_add_time(tree, hf_time, NULL, 0, 0, &td)
+			);
+		}
+	}
+}
+
 static proto_item *
 add_sdnv64_to_tree(proto_tree *tree, tvbuff_t *tvb, packet_info* pinfo, int offset, int hf_sdnv, guint64 *retval, gint *lenretval)
 {
@@ -494,10 +536,11 @@ ltp_data_seg_find_report(gpointer key _U_, gpointer value, gpointer user_data)
 }
 
 static int
-dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int frame_offset,int ltp_type,
-		int *data_len, ltp_tap_info_t *tap)
+dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int frame_offset,
+		     int *data_len, ltp_tap_info_t *tap)
 {
 	ltp_session_data_t *session = tap->session;
+	int ltp_type = tap->seg_type;
 	guint64 client_id;
 	guint64 data_offset;
 	guint64 data_length;
@@ -604,7 +647,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 		{
 			proto_tree *tree_chkp_sno = proto_item_add_subtree(ti, ett_frame_ref);
 			ltp_ref_src(session->checkpoints, chkp_sno, pinfo);
-			ltp_ref_use(session->chkp_acks, chkp_sno, pinfo, tree_chkp_sno, hf_ltp_data_chkp_rpt, -1);
+			ltp_ref_use(session->chkp_acks, chkp_sno, pinfo, tree_chkp_sno, hf_ltp_data_chkp_rpt_ref, &ei_ltp_data_chkp_norpt, hf_ltp_data_chkp_rpt_time, NULL);
 		}
 
 		/* report serial number - 32 bits per CCSDS */
@@ -620,10 +663,10 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 		} else {
 			return 0;
 		}
-		if (ltp_analyze_sequence && session)
+		if (ltp_analyze_sequence && session && (rpt_sno != 0))
 		{
 			ltp_ref_src(session->rpt_datas, rpt_sno, pinfo);
-			ltp_ref_use(session->reports, rpt_sno, pinfo, proto_item_add_subtree(ti, ett_frame_ref), hf_ltp_data_rpt_ref, hf_ltp_data_rpt_time);
+			ltp_ref_use(session->reports, rpt_sno, pinfo, proto_item_add_subtree(ti, ett_frame_ref), hf_ltp_data_rpt_ref, &ei_ltp_data_rptno_norpt, hf_ltp_data_rpt_time, tap);
 		}
 	}
 	const gboolean is_green = (ltp_type >= 4) && (ltp_type <= 7);
@@ -648,20 +691,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 		}
 	}
 
-	proto_tree_add_item(ltp_data_tree, hf_ltp_data_clidata, tvb, frame_offset, -1, ENC_NA);
-
-	if (segment_size >= tvb_captured_length(tvb)) {
-		/* did not capture the entire packet */
-		/* XXX: expert info instead? Distinguish between segment_size
-		 * >= reported_length (i.e., bogus reported data_length) and
-		 * too short capture? */
-		proto_tree_add_string(ltp_data_tree, hf_ltp_partial_packet, tvb, 0, 0, "<increase capture size?>");
-		/* data_len is subtracted from the return value to set the
-		 * header length, so report the number of data bytes available.
-		 */
-		*data_len = tvb_captured_length_remaining(tvb, frame_offset);
-		return tvb_captured_length(tvb);
-	}
+	proto_tree_add_item(ltp_data_tree, hf_ltp_data_clidata, tvb, frame_offset, (int) data_length, ENC_NA);
 
 	col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
 			"range %" G_GINT64_MODIFIER "u-%" G_GINT64_MODIFIER "u",
@@ -789,6 +819,13 @@ ltp_check_reception_gap(proto_tree *ltp_rpt_tree, packet_info *pinfo,
 
 		const guint64 gap_fst = prec_lst + 1;
 		const guint64 gap_lst = next_fst - 1;
+		PROTO_ITEM_SET_GENERATED(
+			proto_tree_add_uint64(gap_tree, hf_ltp_rpt_gap_fst, NULL, 0, 0, gap_fst)
+		);
+		PROTO_ITEM_SET_GENERATED(
+			proto_tree_add_uint64(gap_tree, hf_ltp_rpt_gap_lst, NULL, 0, 0, gap_lst)
+		);
+
 		wmem_list_t *found = wmem_itree_find_intervals(session->data_segs, pinfo->pool, gap_fst, gap_lst);
 		for (wmem_list_frame_t *it = wmem_list_head(found); it != NULL;
 			it = wmem_list_frame_next(it))
@@ -848,21 +885,23 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 	{
 		proto_tree *tree_rpt_sno = proto_item_add_subtree(item_rpt_sno, ett_frame_ref);
 		ltp_ref_src(session->reports, rpt_sno, pinfo);
-		ltp_ref_use(session->rpt_acks, rpt_sno, pinfo, tree_rpt_sno, hf_ltp_rpt_sno_ack, -1);
-		ltp_ref_use(session->rpt_datas, rpt_sno, pinfo, tree_rpt_sno, hf_ltp_rpt_sno_data, -1);
+		ltp_ref_use(session->rpt_acks, rpt_sno, pinfo, tree_rpt_sno, hf_ltp_rpt_sno_ack_ref, &ei_ltp_rpt_noack, hf_ltp_rpt_sno_ack_time, NULL);
+		ltp_ref_use(session->rpt_datas, rpt_sno, pinfo, tree_rpt_sno, hf_ltp_rpt_sno_data_ref, NULL, hf_ltp_rpt_sno_data_time, NULL);
 	}
 
 	item_chkp_sno = add_sdnv64_to_tree(ltp_rpt_tree, tvb, pinfo, frame_offset + segment_offset, hf_ltp_rpt_chkp, &chkp_sno, &chkp_sno_size);
 	segment_offset += chkp_sno_size;
 	if (ltp_analyze_sequence && session)
 	{
-		proto_tree *tree_chkp_sno = proto_item_add_subtree(item_chkp_sno, ett_frame_ref);
-		ltp_ref_src(session->chkp_acks, chkp_sno, pinfo);
-		ltp_ref_use(session->checkpoints, chkp_sno, pinfo, tree_chkp_sno, hf_ltp_rpt_chkp_ref, hf_ltp_rpt_chkp_time);
-
 		if (chkp_sno == 0)
 		{
 			expert_add_info(pinfo, item_chkp_sno, &ei_ltp_report_async);
+		}
+		else
+		{
+			proto_tree *tree_chkp_sno = proto_item_add_subtree(item_chkp_sno, ett_frame_ref);
+			ltp_ref_src(session->chkp_acks, chkp_sno, pinfo);
+			ltp_ref_use(session->checkpoints, chkp_sno, pinfo, tree_chkp_sno, hf_ltp_rpt_chkp_ref, &ei_ltp_rpt_nochkp, hf_ltp_rpt_chkp_time, tap);
 		}
 	}
 
@@ -1017,8 +1056,8 @@ dissect_report_ack_segment(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pin
 	{
 		proto_tree *tree_rpt_sno = proto_item_add_subtree(item_rpt_sno, ett_frame_ref);
 		ltp_ref_src(session->rpt_acks, rpt_sno, pinfo);
-		ltp_ref_use(session->rpt_acks, rpt_sno, pinfo, tree_rpt_sno, hf_ltp_rpt_ack_dupe, -1);
-		ltp_ref_use(session->reports, rpt_sno, pinfo, tree_rpt_sno, hf_ltp_rpt_ack_ref, hf_ltp_rpt_ack_time);
+		ltp_ref_use(session->rpt_acks, rpt_sno, pinfo, tree_rpt_sno, hf_ltp_rpt_ack_dupe_ref, NULL, -1, NULL);
+		ltp_ref_use(session->reports, rpt_sno, pinfo, tree_rpt_sno, hf_ltp_rpt_ack_ref, &ei_ltp_rpt_ack_norpt, hf_ltp_rpt_ack_time, tap);
 	}
 
 	return segment_offset;
@@ -1026,22 +1065,45 @@ dissect_report_ack_segment(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pin
 
 
 static int
-dissect_cancel_segment(proto_tree * ltp_tree, tvbuff_t *tvb, int frame_offset, ltp_tap_info_t *tap _U_){
-	guint8 reason_code;
-
-	proto_tree *ltp_cancel_tree;
+dissect_cancel_segment(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pinfo, int frame_offset, ltp_tap_info_t *tap){
+	ltp_session_data_t *session = tap->session;
 
 	/* The cancel segment has only one byte, which contains the reason code. */
-	reason_code = tvb_get_guint8(tvb,frame_offset);
+	guint8 reason_code = tvb_get_guint8(tvb,frame_offset);
 
 	/* Creating tree for the cancel segment */
-	ltp_cancel_tree = proto_tree_add_subtree(ltp_tree, tvb,frame_offset, 1, ett_session_mgmt, NULL, "Cancel Segment");
+	proto_tree *tree_cancel = proto_tree_add_subtree(ltp_tree, tvb,frame_offset, 1, ett_session_mgmt, NULL, "Cancel Segment");
 
-	proto_tree_add_uint_format_value(ltp_cancel_tree, hf_ltp_cancel_code, tvb, frame_offset, 1, reason_code,
-			"%x (%s)", reason_code, val_to_str_const(reason_code,ltp_cancel_codes,"Reserved"));
+	proto_tree_add_uint(tree_cancel, hf_ltp_cancel_code, tvb, frame_offset, 1, reason_code);
+
+	if (ltp_analyze_sequence && session)
+	{
+		const guint64 cancel_type = tap->seg_type;
+		ltp_ref_src(session->cancels, cancel_type, pinfo);
+		ltp_ref_use(session->cancels, cancel_type, pinfo, tree_cancel, hf_ltp_cancel_dupe_ref, NULL, -1, NULL);
+		ltp_ref_use(session->cancel_acks, cancel_type, pinfo, tree_cancel, hf_ltp_cancel_ref, &ei_ltp_cancel_noack, hf_ltp_cancel_time, NULL);
+	}
+
 	return 1;
 }
 
+
+static int
+dissect_cancel_ack_segment(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pinfo, int frame_offset _U_, ltp_tap_info_t *tap){
+	ltp_session_data_t *session = tap->session;
+	proto_item *item_ack = proto_tree_add_item(ltp_tree, hf_ltp_cancel_ack, tvb, 0, 0, ENC_NA);
+	proto_tree *tree_ack = proto_item_add_subtree(item_ack, ett_session_mgmt);
+
+	if (ltp_analyze_sequence && session)
+	{
+		const guint64 cancel_type = tap->seg_type - 1;
+		ltp_ref_src(session->cancel_acks, cancel_type, pinfo);
+		ltp_ref_use(session->cancel_acks, cancel_type, pinfo, tree_ack, hf_ltp_cancel_ack_dupe_ref, NULL, -1, NULL);
+		ltp_ref_use(session->cancels, cancel_type, pinfo, tree_ack, hf_ltp_cancel_ack_ref, &ei_ltp_cancel_ack_nocancel, hf_ltp_cancel_ack_time, tap);
+	}
+
+	return 0;
+}
 
 static int
 dissect_header_extn(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pinfo, int frame_offset,int hdr_extn_cnt){
@@ -1116,7 +1178,6 @@ dissect_ltp_segment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	gint    hdr_extn_cnt;
 	gint    trl_extn_cnt;
 
-	ltp_session_id_t sess_id;
 	int engine_id_size;
 	int session_num_size;
 	const char *sess_name;
@@ -1128,7 +1189,7 @@ dissect_ltp_segment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	proto_item *ltp_session_item = NULL;
 
 	/* Check that there's enough data */
-	if(tvb_captured_length(tvb) < LTP_MIN_DATA_BUFFER){
+	if(tvb_reported_length(tvb) < LTP_MIN_DATA_BUFFER){
 		return 0;
 	}
 
@@ -1152,19 +1213,18 @@ dissect_ltp_segment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	ltp_session_tree = proto_tree_add_subtree(ltp_header_tree, tvb, frame_offset, 0, ett_hdr_session, NULL, "Session ID");
 	ltp_session_item = proto_tree_get_parent(ltp_session_tree);
 
-	add_sdnv64_to_tree(ltp_session_tree, tvb, pinfo, frame_offset, hf_ltp_session_orig, &sess_id.orig_eng_id, &engine_id_size);
+	add_sdnv64_to_tree(ltp_session_tree, tvb, pinfo, frame_offset, hf_ltp_session_orig, &(tap->sess_id.orig_eng_id), &engine_id_size);
 	frame_offset += engine_id_size;
 
-	add_sdnv64_to_tree(ltp_session_tree, tvb, pinfo, frame_offset, hf_ltp_session_no, &sess_id.sess_num, &session_num_size);
+	add_sdnv64_to_tree(ltp_session_tree, tvb, pinfo, frame_offset, hf_ltp_session_no, &(tap->sess_id.sess_num), &session_num_size);
 	frame_offset += session_num_size;
 
 	proto_item_set_end(ltp_session_item, tvb, frame_offset);
-	tap->sess_id = sess_id;
 
 	sess_name = wmem_strdup_printf(
 		wmem_file_scope(),
 		"%" PRId64 "/%" PRIu64,
-		sess_id.orig_eng_id, sess_id.sess_num
+		tap->sess_id.orig_eng_id, tap->sess_id.sess_num
 	);
 	tap->sess_name = sess_name;
 	PROTO_ITEM_SET_GENERATED(
@@ -1176,14 +1236,14 @@ dissect_ltp_segment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	proto_item_append_text(ti,", Session: %s", sess_name);
 	p_add_proto_data(pinfo->pool, pinfo, proto_ltp, pinfo->curr_layer_num, (void *)sess_name);
 
-	if (ltp_analyze_sequence)
+	if (tree && ltp_analyze_sequence)
 	{
 		// LTP sessions exist independently of network addresses and transport ports
 		conversation_element_t *conv_key = wmem_alloc_array(pinfo->pool, conversation_element_t, 3);
 		conv_key[0].type = CE_UINT64;
-		conv_key[0].uint64_val = sess_id.orig_eng_id;
+		conv_key[0].uint64_val = tap->sess_id.orig_eng_id;
 		conv_key[1].type = CE_UINT64;
-		conv_key[1].uint64_val = sess_id.sess_num;
+		conv_key[1].uint64_val = tap->sess_id.sess_num;
 		conv_key[2].type = CE_CONVERSATION_TYPE;
 		conv_key[2].conversation_type_val = CONVERSATION_LTP;
 
@@ -1203,6 +1263,8 @@ dissect_ltp_segment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 			session->reports = wmem_map_new(wmem_file_scope(), g_int64_hash, g_int64_equal);
 			session->rpt_acks = wmem_map_new(wmem_file_scope(), g_int64_hash, g_int64_equal);
 			session->rpt_datas = wmem_map_new(wmem_file_scope(), g_int64_hash, g_int64_equal);
+			session->cancels = wmem_map_new(wmem_file_scope(), g_int64_hash, g_int64_equal);
+			session->cancel_acks = wmem_map_new(wmem_file_scope(), g_int64_hash, g_int64_equal);
 
 			conversation_add_proto_data(convo, proto_ltp, session);
 		}
@@ -1229,35 +1291,35 @@ dissect_ltp_segment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 	/* Call sub routines to handle the segment content*/
 	if((ltp_type >= 0) && (ltp_type < 8)){
-		segment_offset = dissect_data_segment(ltp_tree,tvb,pinfo,frame_offset,ltp_type, &data_len, tap);
+		segment_offset = dissect_data_segment(ltp_tree, tvb, pinfo, frame_offset, &data_len, tap);
 		if(segment_offset == 0){
 			col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 			return 0;
 		}
 	}
 	else if(ltp_type == 8){
-		segment_offset = dissect_report_segment(tvb, pinfo, ltp_tree,frame_offset, tap);
+		segment_offset = dissect_report_segment(tvb, pinfo, ltp_tree, frame_offset, tap);
 		if(segment_offset == 0){
 			col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 			return 0;
 		}
 	}
 	else if(ltp_type == 9){
-		segment_offset = dissect_report_ack_segment(ltp_tree,tvb, pinfo, frame_offset, tap);
+		segment_offset = dissect_report_ack_segment(ltp_tree, tvb, pinfo, frame_offset, tap);
 		if(segment_offset == 0){
 			col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 			return 0;
 		}
 	}
 	else if(ltp_type == 12 || ltp_type == 14){
-		segment_offset = dissect_cancel_segment(ltp_tree,tvb,frame_offset, tap);
+		segment_offset = dissect_cancel_segment(ltp_tree, tvb, pinfo, frame_offset, tap);
 		if(segment_offset == 0){
 			col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 			return 0;
 		}
 	}
 	else if(ltp_type == 13 || ltp_type == 15){
-		proto_tree_add_string(ltp_tree, hf_ltp_cancel_ack, tvb, 0, 0, "(No Data)");
+		segment_offset = dissect_cancel_ack_segment(ltp_tree, tvb, pinfo, frame_offset, tap);
 	}
 	frame_offset += segment_offset;
 
@@ -1273,7 +1335,10 @@ dissect_ltp_segment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	proto_item_set_len(ti, trl_start - data_len);
 	proto_tree_set_appendix(ltp_tree, tvb, trl_start, frame_offset - trl_start);
 	tap->seg_size = frame_len;
-	tap_queue_packet(ltp_tap, pinfo, tap);
+	if (tree)
+	{
+		tap_queue_packet(ltp_tap, pinfo, tap);
+	}
 
 	/* Return the amount of data this dissector was able to dissect */
 	return frame_len;
@@ -1297,6 +1362,42 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		offset += sublen;
 	}
 	return offset;
+}
+
+static gboolean
+dissect_ltp_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	const int packet_len = tvb_reported_length(tvb);
+	if (packet_len <= LTP_MIN_DATA_BUFFER)
+	{
+		return FALSE;
+	}
+
+	int offset = 0;
+	TRY {
+		// unlike dissect_ltp() this requires the entire datagram to be dissected
+		while (offset < packet_len)
+		{
+			const int sublen = dissect_ltp_segment(tvb, offset, pinfo, NULL);
+			if (sublen == 0)
+			{
+				offset = 0;
+				break;
+			}
+			offset += sublen;
+		}
+	}
+	CATCH_BOUNDS_ERRORS {
+		offset = 0;
+	}
+	ENDTRY;
+	if (offset != packet_len)
+	{
+		return FALSE;
+	}
+
+	dissect_ltp(tvb, pinfo, tree, data);
+	return TRUE;
 }
 
 /// Conversation address for the session receiver
@@ -1610,7 +1711,7 @@ proto_register_ltp(void)
 	  },
 	  {&hf_ltp_data_offset,
 		  {"Offset","ltp.data.offset",
-		  FT_UINT64,BASE_DEC,NULL, 0x0, NULL, HFILL}
+		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_data_length,
 		  {"Length","ltp.data.length",
@@ -1620,9 +1721,13 @@ proto_register_ltp(void)
 		  {"Checkpoint serial number","ltp.data.chkp",
 		  FT_UINT64,BASE_DEC,NULL, 0x0, NULL, HFILL}
 	  },
-	  {&hf_ltp_data_chkp_rpt,
+	  {&hf_ltp_data_chkp_rpt_ref,
 		  {"Checkpoint report segment in frame","ltp.data.chkp.rpt",
-		  FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}
+		  FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_NONE), 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_data_chkp_rpt_time,
+		  {"Time to checkpoint report segment","ltp.data.chkp.rpt.time",
+		  FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_data_rpt,
 		  {"Report serial number","ltp.data.rpt",
@@ -1630,7 +1735,7 @@ proto_register_ltp(void)
 	  },
 	  {&hf_ltp_data_rpt_ref,
 		  {"Response to report segment in frame","ltp.data.rpt.ref",
-		  FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}
+		  FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_NONE), 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_data_rpt_time,
 		  {"Time since report","ltp.data.rpt.time",
@@ -1669,13 +1774,21 @@ proto_register_ltp(void)
 		  {"Report serial number","ltp.rpt.sno",
 		  FT_UINT64,BASE_DEC,NULL, 0x0, NULL, HFILL}
 	  },
-	  {&hf_ltp_rpt_sno_ack,
+	  {&hf_ltp_rpt_sno_ack_ref,
 		  {"Report ack segment in frame","ltp.rpt.sno.ack",
-		  FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}
+		  FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_NONE), 0x0, NULL, HFILL}
 	  },
-	  {&hf_ltp_rpt_sno_data,
+	  {&hf_ltp_rpt_sno_ack_time,
+		  {"Time to report ack segment","ltp.rpt.sno.ack.time",
+		  FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_rpt_sno_data_ref,
 		  {"Responding data segment in frame","ltp.rpt.sno.data",
-		  FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}
+		  FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_NONE), 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_rpt_sno_data_time,
+		  {"Time to checkpoint data segment","ltp.rpt.sno.data.time",
+		  FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_rpt_chkp,
 		  {"Checkpoint serial number","ltp.rpt.chkp",
@@ -1734,6 +1847,14 @@ proto_register_ltp(void)
 		  {"Reception gap","ltp.rpt.gap",
 		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL}
 	  },
+	  {&hf_ltp_rpt_gap_fst,
+		  {"First block index","ltp.rpt.gap.first",
+		  FT_UINT64,BASE_DEC,NULL, 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_rpt_gap_lst,
+		  {"Last block index","ltp.rpt.gap.last",
+		  FT_UINT64,BASE_DEC,NULL, 0x0, NULL, HFILL}
+	  },
 	  {&hf_ltp_rpt_gap_ref,
 		  {"Data segment in frame","ltp.rpt.gap.ref",
 		  FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_NONE), 0x0,
@@ -1747,12 +1868,12 @@ proto_register_ltp(void)
 		  {"Report serial number","ltp.rpt.ack.sno",
 		  FT_UINT64,BASE_DEC,NULL, 0x0, NULL, HFILL}
 	  },
-	  {&hf_ltp_rpt_ack_dupe,
+	  {&hf_ltp_rpt_ack_dupe_ref,
 		  {"Same ack report number in frame","ltp.rpt.ack.sno.dupe",
-		  FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_NONE), 0x0, NULL, HFILL}
+		  FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RETRANS_PREV), 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_rpt_ack_ref,
-		  {"Report segment in frame","ltp.rpt.ack.sno.ref",
+		  {"Response to report segment in frame","ltp.rpt.ack.sno.ref",
 		  FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_ACK), 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_rpt_ack_time,
@@ -1761,7 +1882,35 @@ proto_register_ltp(void)
 	  },
 	  {&hf_ltp_cancel_code,
 		  {"Cancel code","ltp.cancel.code",
-		  FT_UINT8,BASE_HEX,NULL, 0x0, NULL, HFILL}
+		  FT_UINT8,BASE_HEX, VALS(ltp_cancel_codes), 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_cancel_dupe_ref,
+		  {"Same session cancel in frame","ltp.cancel.dupe.ref",
+		  FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RETRANS_PREV), 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_cancel_ref,
+		  {"Acknowledgement segment in frame", "ltp.cancel.ack.ref",
+		  FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_NONE), 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_cancel_time,
+		  {"Time to cancel ack","ltp.cancel.ack.time",
+		  FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_cancel_ack,
+		  {"Cancel Ack", "ltp.cancel_ack",
+		  FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_cancel_ack_dupe_ref,
+		  {"Same acknowledgement in frame","ltp.cancel_ack.dupe.ref",
+		  FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RETRANS_PREV), 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_cancel_ack_ref,
+		  {"Response to cancel segment in frame", "ltp.cancel_ack.cancel.ref",
+		  FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_ACK), 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_cancel_ack_time,
+		  {"Time since cancel","ltp.cancel_ack.cancel.time",
+		  FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_hdr_extn_tag,
 		  {"Extension tag","ltp.hdr.extn.tag",
@@ -1831,14 +1980,6 @@ proto_register_ltp(void)
 	  {&hf_ltp_data_sda_clid,
 		  {"Client service ID", "ltp.data.sda.client.id",
 		  FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
-	  },
-	  {&hf_ltp_partial_packet,
-		  {"<partial packet>", "ltp.partial_packet",
-		  FT_STRINGZPAD, BASE_NONE, NULL, 0x0, NULL, HFILL}
-	  },
-	  {&hf_ltp_cancel_ack,
-		  {"<Cancel Ack>", "ltp.cancel_ack",
-		  FT_STRINGZPAD, BASE_NONE, NULL, 0x0, NULL, HFILL}
 	  }
 	};
 
@@ -1865,7 +2006,14 @@ proto_register_ltp(void)
 		{ &ei_ltp_mal_reception_claim, { "ltp.mal_reception_claim", PI_MALFORMED, PI_ERROR, "Reception claim count impossibly large", EXPFILL }},
 		{ &ei_ltp_sdnv_length, { "ltp.sdnv_length_invalid", PI_PROTOCOL, PI_ERROR, "SDNV length error", EXPFILL }},
 		{ &ei_ltp_sno_larger_than_ccsds, { "ltp.serial_number_too_large", PI_PROTOCOL, PI_WARN, "Serial number larger than CCSDS specification", EXPFILL }},
-		{ &ei_ltp_report_async, { "ltp.report_async", PI_SEQUENCE, PI_CHAT, "Report segment not sent in response to a data checkpoint", EXPFILL }}
+		{ &ei_ltp_report_async, { "ltp.report_async", PI_SEQUENCE, PI_CHAT, "Report segment not sent in response to a data checkpoint", EXPFILL }},
+		{ &ei_ltp_data_chkp_norpt, { "ltp.data_chkp_norpt", PI_SEQUENCE, PI_CHAT, "Data with checkpoint has no corresponding report segment", EXPFILL }},
+		{ &ei_ltp_data_rptno_norpt, { "ltp.data_rptno_norpt", PI_SEQUENCE, PI_CHAT, "Data with report serial has no corresponding report segment", EXPFILL }},
+		{ &ei_ltp_rpt_noack, { "ltp.rpt_noack", PI_SEQUENCE, PI_CHAT, "Report segment has no corresponding acknowledgement", EXPFILL }},
+		{ &ei_ltp_rpt_nochkp, { "ltp.rpt_nochkp", PI_SEQUENCE, PI_CHAT, "Report segment has no corresponding checkpoint data segment", EXPFILL }},
+		{ &ei_ltp_rpt_ack_norpt, { "ltp.rpt_ack_norpt", PI_SEQUENCE, PI_CHAT, "Report has no report acknowledgement segment", EXPFILL }},
+		{ &ei_ltp_cancel_noack, { "ltp.cancel_noack", PI_SEQUENCE, PI_CHAT, "Cancel segment has no cancel acknowledgement segment", EXPFILL }},
+		{ &ei_ltp_cancel_ack_nocancel, { "ltp.cancel_ack_nocancel", PI_SEQUENCE, PI_CHAT, "Cancel acknowledgement has no corresponding cancel segment", EXPFILL }}
 	};
 
 	expert_module_t* expert_ltp;
@@ -1922,6 +2070,7 @@ proto_reg_handoff_ltp(void)
 
 	dissector_add_uint_with_preference("udp.port", LTP_PORT, ltp_handle);
 	dissector_add_uint_with_preference("dccp.port", LTP_PORT, ltp_handle);
+	heur_dissector_add("udp", dissect_ltp_heur_udp, "LTP over UDP", "ltp_udp", proto_ltp, HEURISTIC_DISABLE);
 
 	stats_tree_register("ltp", "ltp", "LTP", ST_SORT_COL_COUNT, ltp_stats_tree_packet, ltp_stats_tree_init, NULL);
 }
