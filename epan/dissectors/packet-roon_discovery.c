@@ -44,6 +44,7 @@ static int hf_roon_disco_name;
 static int hf_roon_disco_os_version;
 static int hf_roon_disco_protocol_version;
 static int hf_roon_disco_protocol_hash;
+static int hf_roon_disco_query_service_id;
 static int hf_roon_disco_raat_version;
 static int hf_roon_disco_service_id;
 static int hf_roon_disco_tcp_port;
@@ -86,6 +87,7 @@ static const roon_map roon_disco_string_fields[] = {
     { "os_version"       , "OS Version"       , &hf_roon_disco_os_version }       ,
     { "protocol_hash"    , "Protocol Hash"    , &hf_roon_disco_protocol_hash }    ,
     { "protocol_version" , "Protocol Version" , &hf_roon_disco_protocol_version } ,
+    { "query_service_id" , "Query ServiceID"  , &hf_roon_disco_query_service_id } ,
     { "raat_version"     , "RAAT Version"     , &hf_roon_disco_raat_version }     ,
     { "service_id"       , "ServiceID"        , &hf_roon_disco_service_id }       ,
     { "tcp_port"         , "TCP Port"         , &hf_roon_disco_tcp_port }         ,
@@ -289,6 +291,10 @@ proto_register_roon_discover(void)
 
         { &hf_roon_disco_protocol_version,
           { "Protocol Version", "roon_disco.protocol_version",
+              FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+
+        { &hf_roon_disco_query_service_id,
+          { "Query ServiceID", "roon_disco.query_service_id",
               FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
 
         { &hf_roon_disco_raat_version,
