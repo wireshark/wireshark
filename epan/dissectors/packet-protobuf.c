@@ -158,6 +158,8 @@ static gboolean preload_protos = FALSE;
 /* Show protobuf as JSON similar to https://developers.google.com/protocol-buffers/docs/proto3#json */
 static gboolean display_json_mapping = FALSE;
 static gboolean use_utc_fmt = FALSE;
+static const char* default_message_type = "";
+
 
 #define add_default_value_policy_vals_ENUM_VAL_T_LIST(XXX) \
     XXX(ADD_DEFAULT_VALUE_NONE,      0, "none", "None") \
@@ -1660,6 +1662,12 @@ dissect_protobuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             g_free(json_str);
         }
     } else {
+        /* If still have no schema and default is configured, try to use that */
+        if (!message_desc && strlen(default_message_type)) {
+            message_desc = pbw_DescriptorPool_FindMessageTypeByName(pbw_pool,
+                                                                    default_message_type);
+        }
+
         dissect_protobuf_message(tvb, offset, tvb_reported_length_remaining(tvb, offset), pinfo,
                                  protobuf_tree, message_desc,
                                  -1, // no hf item
@@ -2319,6 +2327,11 @@ proto_register_protobuf(void)
         "Try to show all possible field types for each undefined field.",
         "Try to show all possible field types for each undefined field according to wire type.",
         &show_all_possible_field_types);
+
+    prefs_register_string_preference(protobuf_module, "default_type",
+                                     "Message type to use if none set",
+                                     "Can be useful e.g. if dissector called through media type",
+                                     &default_message_type);
 
     prefs_register_static_text_preference(protobuf_module, "field_dissector_table_note",
         "Subdissector can register itself in \"protobuf_field\" dissector table for parsing"
