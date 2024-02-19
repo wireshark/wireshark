@@ -138,6 +138,7 @@ The filter language has the following functions:
     len(field)          - returns the byte length of a string or bytes field
     count(field)        - returns the number of field occurrences in a frame
     string(field)       - converts a non-string field to string
+    vals(field)         - converts a field value to its value string
     dec(field)          - converts an unsigned integer to a decimal string
     hex(field)          - converts an unsigned integer to a hexadecimal string
     max(f1,...,fn)      - return the maximum value
@@ -157,7 +158,19 @@ byte fields. For example:
 
     string(frame.number) matches "[13579]$"
 
-gives you all the odd packets.
+gives you all the odd packets. Note that the "matches" operator implicitly
+converts types of their value string representation; to match against the
+decimal representation of an integer field use string().
+
+vals() converts an integer or boolean field value to a string using the
+field's associated value string, if it has one. This produces strings
+similar to those seen in custom columns. The resultant string can also
+be used with other operators. E.g.:
+
+    vals(pfcp.msg_type) contains "Request"
+
+would match all packets which have a PFCP request, even if that request is not
+matched with a response.
 
 dec() and hex() convert unsigned integer fields to decimal or hexadecimal
 representation. Currently dec() and string() give same result for an unsigned
@@ -538,6 +551,40 @@ can be convenient:
 
     frame[4] == 0xff
     frame[1:4] contains 0x02
+
+An integer or boolean field that has a value string can be compared to
+to one of the strings that corresponds with a value.
+As with stringlike fields and comparisons, it is possible to perform
+the comparison with an unquoted literal, though this is deprecated and
+will not work if the literal contains a space (as with "Modify Bearer
+Response" above). Double quotes are recommended.
+
+If there is a unique reverse mapping from the string literal into a
+numeric value, the string is converted into that number and the
+comparison function is applied using arithmetic rules. If the mapping
+is not unique, then equality and inequality can be tested, but not the
+ordered comparisons.
+
+This is in contrast to the `string()` and `vals()` function, which
+convert the field value to a string and applies string (lexicographic)
+comparisons, as well as work with all operators that take strings.
+Therefore the following two filters give the same result:
+
+    gtpv2.message_type <= 35
+    gtpv2.message_type <= "Modify Bearer Response"
+
+whereas
+
+    vals(gtpv2.message_type) <= "Modify Bearer Response"
+
+matches all messages whose value string precedes "Modify Bearer Response"
+in lexicographical order, and
+
+    string(gtpv2.message_type) <= "35"
+
+matches all messages such that the message type comes before "35" in
+lexicographical order, i.e. would also match "170" (the message type
+for "Release Access Bearers Request.")
 
 === Bitwise operators
 

@@ -81,7 +81,9 @@ The following features are new (or have been significantly updated) since versio
      Check the wireshark-filter(5) manpage for more information.
 
   ** Added new display filter functions to convert unsigned integer types to
-     decimal or hexadecimal. Check the wireshark-filter(5) manpage for more information.
+     decimal or hexadecimal, and convert fields with value strings into the
+     associated string for their value (used to produce results similar to
+     custom columns). Check the wireshark-filter(5) manpage for more information.
 
   ** Display filter macros can be written with a semicolon after the macro
      name before the argument list, e.g. `${mymacro;arg1;...;argN}`, instead

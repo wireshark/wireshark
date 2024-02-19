@@ -334,6 +334,18 @@ dfw_append_length(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 	return reg_val;
 }
 
+/* returns register number that the value string result will be in. */
+static dfvm_value_t *
+dfw_append_value_string(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
+{
+	GSList *params;
+
+	params = sttype_function_params(node);
+	ws_assert(params);
+	ws_assert(g_slist_length(params) == 1);
+	return gen_entity(dfw, params->data, jumps_ptr);
+}
+
 /* returns register number that the functions's result will be in. */
 static dfvm_value_t *
 dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
@@ -351,6 +363,11 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 	if (strcmp(func->name, "len") == 0) {
 		/* Replace len() function call with DFVM_LENGTH instruction. */
 		return dfw_append_length(dfw, node, jumps_ptr);
+	}
+
+	if (strcmp(func->name, "vals") == 0) {
+		/* Replace vals() function call with DFVM_VALUE_STRING instruction. */
+		return dfw_append_value_string(dfw, node, jumps_ptr);
 	}
 
 	/* Create the new DFVM instruction */

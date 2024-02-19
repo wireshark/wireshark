@@ -1367,6 +1367,11 @@ mk_value_string(dfilter_t *df, dfvm_value_t *vs_arg, dfvm_value_t *from_arg, dfv
 			fvalue_set_string(new_fv, str);
 			df_cell_append(to_rp, new_fv);
 		}
+		/* XXX - If there's no match we could have a NULL result
+		 * as now (and return false), or use a string like "Unknown"
+		 * the way columns do. We could fall back to a string
+		 * representation of the value if BASE_SPECIAL_VALS if set.
+		 */
 	}
 
 	return !df_cell_is_empty(to_rp);
