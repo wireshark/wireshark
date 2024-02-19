@@ -25,13 +25,13 @@ static int hf_sysex_message_eox;
 
 static int ett_sysex;
 
+static dissector_table_t sysex_manufacturer_dissector_table;
+
 static dissector_handle_t sysex_digitech_handle;
 
 static expert_field ei_sysex_message_start_byte;
 static expert_field ei_sysex_message_end_byte;
 static expert_field ei_sysex_undecoded;
-
-#define SYSEX_MANUFACTURER_DOD 0x000010
 
 /* Manufacturer and Extended Manufacturer IDs as of April 2019
  * https://www.midi.org/specifications-old/item/manufacturer-id-numbers
@@ -684,16 +684,8 @@ dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
     if (manufacturer_payload_len > 0)
     {
         tvbuff_t *payload_tvb = tvb_new_subset_length(tvb, offset, manufacturer_payload_len);
-        switch (three_byte_manufacturer_id)
-        {
-            case SYSEX_MANUFACTURER_DOD:
-            {
-                offset += call_dissector(sysex_digitech_handle, payload_tvb, pinfo, parent_tree);
-                break;
-            }
-            default:
-                break;
-        }
+
+        offset += dissector_try_uint(sysex_manufacturer_dissector_table, three_byte_manufacturer_id, payload_tvb, pinfo, parent_tree);
     }
 
     if (offset < data_len - 1)
@@ -746,6 +738,9 @@ proto_register_sysex(void)
     proto_register_subtree_array(sysex_subtrees, array_length(sysex_subtrees));
     expert_sysex = expert_register_protocol(proto_sysex);
     expert_register_field_array(expert_sysex, ei, array_length(ei));
+
+    sysex_manufacturer_dissector_table = register_dissector_table("sysex.manufacturer",
+        "SysEx manufacturer", proto_sysex, FT_UINT24, BASE_HEX);
 
     register_dissector("sysex", dissect_sysex_command, proto_sysex);
 }
