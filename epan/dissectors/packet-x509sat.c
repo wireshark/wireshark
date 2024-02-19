@@ -2718,6 +2718,7 @@ void proto_reg_handoff_x509sat(void) {
   register_ber_oid_dissector("2.5.4.65", dissect_DirectoryString_PDU, proto_x509sat, "id-at-pseudonym");
   register_ber_oid_dissector("2.5.4.66", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-communuicationsService");
   register_ber_oid_dissector("2.5.4.67", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-communuicationsNetwork");
+  register_ber_oid_dissector("2.5.4.97", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-organizationIdentifier");
   register_ber_oid_dissector("2.5.13.8", dissect_SyntaxNumericString_PDU, proto_x509sat, "id-mr-numericStringMatch");
   register_ber_oid_dissector("2.5.13.11", dissect_CaseIgnoreListMatch_PDU, proto_x509sat, "id-mr-caseIgnoreListMatch");
   register_ber_oid_dissector("2.5.13.16", dissect_BitString_PDU, proto_x509sat, "id-mr-bitStringMatch");
