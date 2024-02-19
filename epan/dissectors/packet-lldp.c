@@ -1362,14 +1362,14 @@ media_power_base(gchar *buf, guint32 value) {
 static gboolean
 get2sComplementAbsoluteValue(guint64 * value, guint bitSize){
 	const guint64 signMask = G_GINT64_CONSTANT(0x1) << (bitSize - 1);
-	
+
 	guint64 signedMask = G_GINT64_CONSTANT(0x1) << bitSize;
 	signedMask--;
 	signedMask = ~signedMask;
-	
+
 	if(*value & signMask){
 		*value |= signedMask; // sign propagation
-		
+
 		// Convert to absolute value
 		*value = ~(*value);
 		(*value)++;
@@ -1446,6 +1446,8 @@ get_latitude_or_longitude(gchar *buf, int option, guint64 unmasked_value)
 	*/
 	const guint variableBitSize = 34;
 	const guint fractionnalBitSize = 25;
+	const guint64 maxlatitude = (G_GINT64_CONSTANT(0x1) << fractionnalBitSize) * G_GINT64_CONSTANT(90);   // 90 degrees
+	const guint64 maxlongitude = (G_GINT64_CONSTANT(0x1) << fractionnalBitSize) * G_GINT64_CONSTANT(180); // 180 degrees
 
 	guint64 masked_value = getUint64MaskedValue(unmasked_value, variableBitSize); // get 34-bit value
 
@@ -1453,7 +1455,7 @@ get_latitude_or_longitude(gchar *buf, int option, guint64 unmasked_value)
 	// => value is 33-bit
 	guint64 absolute_value = masked_value;
 	gboolean isNegative = get2sComplementAbsoluteValue(&absolute_value, variableBitSize);
-	
+
 	// Get unsigned integer 8-bit value
 	guint32 integerPortion = absolute_value >> fractionnalBitSize;
 
@@ -1462,12 +1464,16 @@ get_latitude_or_longitude(gchar *buf, int option, guint64 unmasked_value)
 	guint64 fixedSizeDecimal = convertFractionalToFixedSizeDecimal(absolute_value, fractionnalBitSize, numberOfDigitToDisplay);
 
 	const char *direction;
+	const char *err_str = "";
 	if (option == 0){
 		// Latitude - north/south directions
 		if (isNegative){
 			direction = "South";
 		} else {
 			direction = "North";
+		}
+		if(absolute_value > maxlatitude){
+			err_str = "[Error: value > 90 degrees] ";
 		}
 	} else {
 		// Longitude - east/west directions
@@ -1476,13 +1482,17 @@ get_latitude_or_longitude(gchar *buf, int option, guint64 unmasked_value)
 		} else {
 			direction = "East";
 		}
+		if(absolute_value > maxlongitude){
+			err_str = "[Error: value > 180 degrees] ";
+		}
 	}
 
 	const guint64 fractionalMask = (G_GINT64_CONSTANT(0x1) << fractionnalBitSize) - 1;
 
 	// %04 correspond to numberOfDigitToDisplay
-	snprintf(buf, ITEM_LABEL_LENGTH, "%u.%04" PRIu64 " degrees %s (0x%010" PRIX64 " - %u-bit integer part 0x%04" PRIX64 " / %u-bit fractional part 0x%08" PRIX64 ")",
-	    integerPortion, fixedSizeDecimal, direction, masked_value,
+	snprintf(buf, ITEM_LABEL_LENGTH, "%s%u.%04" PRIu64 " degrees %s (0x%010" PRIX64 " - %u-bit integer part 0x%04" PRIX64 " / %u-bit fractional part 0x%08" PRIX64 ")",
+	    err_str,
+		integerPortion, fixedSizeDecimal, direction, masked_value,
 		variableBitSize - fractionnalBitSize, masked_value >> fractionnalBitSize,
 		fractionnalBitSize, masked_value & fractionalMask
 	);
@@ -1502,7 +1512,7 @@ static void
 altitude_base(gchar *buf, guint32 unmasked_value) {
 	// RFC6225
 	// Altitude: A 30-bit value defined by the AType field.
- 	// In some cases, the altitude of the location might not be provided.
+	// In some cases, the altitude of the location might not be provided.
 	// An Altitude Type value of zero indicates that the altitude is not
 	// given to the client.  In this case, the Altitude and Altitude
 	// Uncertainty fields can contain any value and MUST be ignored.
@@ -1540,7 +1550,7 @@ altitude_base(gchar *buf, guint32 unmasked_value) {
 	// => value is 29-bit
 	guint64 absolute_value = masked_value;
 	gboolean isNegative = get2sComplementAbsoluteValue(&absolute_value, variableBitSize);
-	
+
 	// Get unsigned integer 8-bit value
 	guint32 integerPortion = absolute_value >> fractionnalBitSize;
 
@@ -1557,7 +1567,7 @@ altitude_base(gchar *buf, guint32 unmasked_value) {
 
 
 	const guint64 fractionalMask = (G_GINT64_CONSTANT(0x1) << fractionnalBitSize) - 1;
-	
+
 	// %04 correspond to numberOfDigitToDisplay
 	snprintf(buf, ITEM_LABEL_LENGTH, "%s%u.%04" PRIu64 " (0x%08" PRIX64 " - %u-bit integer part 0x%06" PRIX64 " / %u-bit fractional part 0x%02" PRIX64 ")",
 	    sign, integerPortion, fixedSizeDecimal, masked_value,
