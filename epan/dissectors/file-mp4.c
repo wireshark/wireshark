@@ -577,6 +577,7 @@ dissect_mp4_hdlr_body(tvbuff_t *tvb, gint offset, gint len _U_,
 
 
 static gint
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_mp4_dref_body(tvbuff_t *tvb, gint offset, gint len _U_,
         packet_info *pinfo, guint depth, proto_tree *tree)
 {
@@ -633,6 +634,7 @@ dissect_mp4_url_body(tvbuff_t *tvb, gint offset, gint len,
 
 
 static gint
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_mp4_stsd_body(tvbuff_t *tvb, gint offset, gint len,
         packet_info *pinfo, guint depth, proto_tree *tree)
 {
@@ -926,6 +928,7 @@ dissect_mp4_sidx_body(tvbuff_t *tvb, gint offset, gint len _U_,
 /* dissect a box, return its (standard or extended) length or 0 for error
    depth is the recursion level of the parent box */
 static gint
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_mp4_box(guint32 parent_box_type _U_, guint depth,
         tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
 {
