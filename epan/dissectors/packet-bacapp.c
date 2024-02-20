@@ -45,7 +45,7 @@ static int bacapp_tap;
 #define BACAPP_SEGMENT_NAK 0x02
 #define BACAPP_SENT_BY 0x01
 
-#define BACAPP_MAX_RECURSION_DEPTH 100 // Arbitrary
+#define BACAPP_MAX_RECURSION_DEPTH 50 // Arbitrary
 
 /**
  * dissect_bacapp ::= CHOICE {
@@ -8315,6 +8315,7 @@ fAddressBinding(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
 }
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fActionCommand(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 tag_match)
 {
     guint       lastoffset = 0, len;
@@ -8379,6 +8380,7 @@ fActionCommand(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset
       }
 */
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fActionList(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint       lastoffset = 0, len;
@@ -8416,6 +8418,7 @@ fActionList(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 }
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fPropertyAccessResult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
   guint       lastoffset = 0;
@@ -9101,6 +9104,7 @@ fListOfGroupMembers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
 }
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint8  tag_no, tag_info;
@@ -9121,11 +9125,11 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     }
 
     unsigned recursion_depth = p_get_proto_depth(pinfo, proto_bacapp);
-    if (++recursion_depth >= BACAPP_MAX_RECURSION_DEPTH) {
+    if (recursion_depth > BACAPP_MAX_RECURSION_DEPTH) {
         proto_tree_add_expert(tree, pinfo, &ei_bacapp_max_recursion_depth_reached, tvb, 0, 0);
         return offset;
     }
-    p_set_proto_depth(pinfo, proto_bacapp, recursion_depth);
+    p_set_proto_depth(pinfo, proto_bacapp, recursion_depth + 1);
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
         lastoffset = offset;
@@ -9885,11 +9889,12 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
 cleanup:
     recursion_depth = p_get_proto_depth(pinfo, proto_bacapp);
-    p_set_proto_depth(pinfo, proto_bacapp, recursion_depth - 1);
+    p_set_proto_depth(pinfo, proto_bacapp, recursion_depth);
     return offset;
 }
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fPropertyValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 tag_info)
 {
     guint8  tag_no;
@@ -9913,6 +9918,7 @@ fPropertyValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset
 
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fPropertyIdentifierValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 tagoffset)
 {
     guint   lastoffset = offset;
@@ -9930,6 +9936,7 @@ fPropertyIdentifierValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 }
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fBACnetPropertyValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint   lastoffset = 0;
@@ -11066,6 +11073,7 @@ BACnetDeviceObjectPropertyValue ::= SEQUENCE {
       }
 */
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fDeviceObjectPropertyValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint   lastoffset = 0;
@@ -11133,6 +11141,7 @@ BACnetDeviceObjectPropertyReference ::= SEQUENCE {
       }
 */
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fDeviceObjectPropertyReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint   lastoffset = 0;
@@ -11169,6 +11178,7 @@ fDeviceObjectPropertyReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint       lastoffset = offset;
@@ -11756,6 +11766,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 }
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fEventParameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint       lastoffset = offset;
@@ -12580,6 +12591,7 @@ fXyColor(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint offset, cons
 }
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fTimerStateChangeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint   lastoffset = 0;
@@ -13227,6 +13239,7 @@ fAcknowledgeAlarmInfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 }
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fAuditNotificationInfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint   len, lastoffset = 0;
@@ -13357,6 +13370,7 @@ fAuditNotificationInfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 }
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fAuditLogRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint       lastoffset = 0;
@@ -13407,6 +13421,7 @@ fAuditLogRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
 }
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fEventLogRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint       lastoffset = 0;
@@ -13452,6 +13467,7 @@ fEventLogRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
 }
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fLogRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint   lastoffset = 0;
@@ -13532,6 +13548,7 @@ fLogRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 }
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fLogMultipleRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint   lastoffset = 0;
@@ -13625,6 +13642,7 @@ fLogMultipleRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
 
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fConfirmedEventNotificationRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint   lastoffset = 0;
@@ -15009,6 +15027,7 @@ fObjectPropertyValue(tvbuff_t *tvb, proto_tree *tree, guint offset)
 #endif
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fPriorityArray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     char  i = 1, ar[256];
@@ -15398,6 +15417,7 @@ fReadAccessSpecification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 }
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 fReadAccessResult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint       lastoffset = 0, len;
