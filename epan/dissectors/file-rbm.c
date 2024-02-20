@@ -20,8 +20,11 @@
 */
 
 #include "config.h"
-#include <epan/packet.h>
+
 #include <epan/expert.h>
+#include <epan/packet.h>
+#include <epan/proto_data.h>
+
 #include <file-rbm.h>
 #include <wiretap/ruby_marshal.h>
 
@@ -79,6 +82,8 @@ void proto_reg_handoff_rbm(void);
 static dissector_handle_t rbm_file_handle;
 
 #define BETWEEN(v, b1, b2) (((v) >= (b1)) && ((v) <= (b2)))
+
+#define MAX_RECURSION_DEPTH 10 // Arbitrarily chosen.
 
 static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** type, gchar** value);
 
@@ -193,6 +198,7 @@ static void dissect_rbm_string_data(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 	dissect_rbm_string_data_trailer(tvb, pinfo, tree, offset, label, prefix, "", value_str);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_rbm_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value_str)
 {
 	gint32 value;
@@ -219,6 +225,7 @@ static void dissect_rbm_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
 		*value_str = wmem_strdup_printf(pinfo->pool, "%d", value);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_rbm_hash(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value_str)
 {
 	gint32 value;
@@ -318,6 +325,7 @@ static void dissect_rbm_struct_data(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 		*value_str = wmem_strdup_printf(pinfo->pool, "%d", value);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_rbm_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value)
 {
 	dissect_rbm_string_data(tvb, pinfo, tree, offset, "String", "", value);
@@ -326,6 +334,7 @@ static void dissect_rbm_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
 	dissect_rbm_object(tvb, pinfo, tree, offset, NULL, NULL);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_rbm_regex(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value)
 {
 	dissect_rbm_string_data_trailer(tvb, pinfo, tree, offset, "Regexp", "/", "/", value);
@@ -341,6 +350,7 @@ static void dissect_rbm_class(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
 	dissect_rbm_string_data(tvb, pinfo, tree, offset, "Class", "", value_str);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_rbm_userclass(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value)
 {
 	rbm_set_info(pinfo, "UserClass");
@@ -352,6 +362,7 @@ static void dissect_rbm_symbol(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
 	dissect_rbm_string_data(tvb, pinfo, tree, offset, "Symbol", ":", value_str);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_rbm_variable(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value_str)
 {
 	gint offset_start = *offset;
@@ -365,12 +376,14 @@ static void dissect_rbm_module(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
 	dissect_rbm_string_data(tvb, pinfo, tree, offset, "Module", "", value_str);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_rbm_struct(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value)
 {
 	dissect_rbm_struct_data(tvb, pinfo, tree, offset, value);
 	dissect_rbm_hash(tvb, pinfo, tree, offset, NULL);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_rbm_drb(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset)
 {
 	gint offset_start = *offset;
@@ -380,6 +393,7 @@ static void dissect_rbm_drb(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
 	proto_item_set_len(drb_tree, *offset - offset_start);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_rbm_rubyobject(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset)
 {
 	gint offset_start = *offset;
@@ -397,6 +411,7 @@ static void dissect_rbm_rubyobject(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 	proto_item_set_len(obj_tree, *offset - offset_start);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_rbm_extended(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset)
 {
 	gint offset_start = *offset;
@@ -407,6 +422,7 @@ static void dissect_rbm_extended(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
 	proto_item_set_len(ext_tree, *offset - offset_start);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ptree, guint* offset, gchar** type, gchar** value)
 {
 	guint8 subtype = tvb_get_guint8(tvb, *offset);
@@ -419,6 +435,10 @@ static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* pt
 
 	proto_tree_add_item(tree, hf_rbm_type, tvb, *offset, 1, ENC_NA);
 	*offset += 1;
+
+	unsigned recursion_depth = p_get_proto_depth(pinfo, proto_rbm);
+	DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+	p_set_proto_depth(pinfo, proto_rbm, recursion_depth + 1);
 
 	switch (subtype) {
 		case '0':
@@ -509,6 +529,8 @@ static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* pt
 		*type = type_local;
 	if (value)
 		*value = value_local;
+
+	p_set_proto_depth(pinfo, proto_rbm, recursion_depth);
 }
 
 static gboolean dissect_rbm_header(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset)
@@ -532,6 +554,7 @@ static gboolean dissect_rbm_header(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 	return TRUE;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void dissect_rbm_inline(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** type, gchar** value)
 {
 	if (!dissect_rbm_header(tvb, pinfo, tree, offset))
