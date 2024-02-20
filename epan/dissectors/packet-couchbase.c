@@ -18,7 +18,7 @@
  * Copyright 2009, Stig Bjorlykke <stig@bjorlykke.org>
  *
  * Routines for Memcache Textual Protocol
- * http://code.sixapart.com/svn/memcached/trunk/server/doc/protocol.txt
+ * https://github.com/memcached/memcached/blob/master/doc/protocol.txt
  *
  * Copyright 2009, Rama Chitta <rama@gear6.com>
  *
