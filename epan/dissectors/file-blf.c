@@ -445,6 +445,8 @@ void proto_register_file_blf(void);
 void proto_reg_handoff_file_blf(void);
 static int dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset);
 
+#define MAX_RECURSION_DEPTH 10 // Arbitrarily chosen.
+
 #define MAGIC_NUMBER_SIZE 4
 static const guint8 blf_file_magic[MAGIC_NUMBER_SIZE] = { 'L', 'O', 'G', 'G' };
 static const guint8 blf_lobj_magic[MAGIC_NUMBER_SIZE] = { 'L', 'O', 'B', 'J' };
@@ -495,6 +497,7 @@ dissect_blf_api_version(proto_tree *tree, int hf, tvbuff_t *tvb, gint offset, gi
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset_orig) {
     proto_item    *ti_root = NULL;
     proto_item    *ti = NULL;
@@ -883,6 +886,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
     gint offset_orig = offset;
 
@@ -890,7 +894,11 @@ dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gin
         if (tvb_memeql(tvb, offset, blf_lobj_magic, MAGIC_NUMBER_SIZE) != 0) {
             offset += 1;
         } else {
+            unsigned recursion_depth = p_get_proto_depth(pinfo, proto_isis_lsp);
+            DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+            p_set_proto_depth(pinfo, proto_isis_lsp, recursion_depth + 1);
             int bytes_parsed = dissect_blf_lobj(tvb, pinfo, tree, offset);
+            p_set_proto_depth(pinfo, proto_isis_lsp, recursion_depth);
             if (bytes_parsed <= 0) {
                 return 0;
             } else {
