@@ -98,8 +98,8 @@ UAT_RANGE_CB_DEF(uat_plen_records, packet_range, uat_plen_record_t)
 /* ip host stats_tree -- basic test */
 static int st_node_ipv4 = -1;
 static int st_node_ipv6 = -1;
-static const gchar *st_str_ipv4 = "IPv4 Statistics/All Addresses";
-static const gchar *st_str_ipv6 = "IPv6 Statistics/All Addresses";
+static const gchar *st_str_ipv4 = "IPv4 Statistics" STATS_TREE_MENU_SEPARATOR "All Addresses";
+static const gchar *st_str_ipv6 = "IPv6 Statistics" STATS_TREE_MENU_SEPARATOR "All Addresses";
 
 static void ipv4_hosts_stats_tree_init(stats_tree *st) {
 	st_node_ipv4 = stats_tree_create_node(st, st_str_ipv4, 0, STAT_DT_INT, TRUE);
@@ -129,8 +129,8 @@ static int st_node_ipv4_src = -1;
 static int st_node_ipv4_dst = -1;
 static int st_node_ipv6_src = -1;
 static int st_node_ipv6_dst = -1;
-static const gchar *st_str_ipv4_srcdst = "IPv4 Statistics/Source and Destination Addresses";
-static const gchar *st_str_ipv6_srcdst = "IPv6 Statistics/Source and Destination Addresses";
+static const gchar *st_str_ipv4_srcdst = "IPv4 Statistics" STATS_TREE_MENU_SEPARATOR "Source and Destination Addresses";
+static const gchar *st_str_ipv6_srcdst = "IPv6 Statistics" STATS_TREE_MENU_SEPARATOR "Source and Destination Addresses";
 static const gchar *st_str_ipv4_src = "Source IPv4 Addresses";
 static const gchar *st_str_ipv4_dst = "Destination IPv4 Addresses";
 static const gchar *st_str_ipv6_src = "Source IPv6 Addresses";
@@ -183,8 +183,8 @@ static tap_packet_status ipv6_srcdst_stats_tree_packet(stats_tree *st, packet_in
 /* packet type stats_tree -- test pivot node */
 static int st_node_ipv4_ptype = -1;
 static int st_node_ipv6_ptype = -1;
-static const gchar *st_str_ipv4_ptype = "IPv4 Statistics/IP Protocol Types";
-static const gchar *st_str_ipv6_ptype = "IPv6 Statistics/IP Protocol Types";
+static const gchar *st_str_ipv4_ptype = "IPv4 Statistics" STATS_TREE_MENU_SEPARATOR "IP Protocol Types";
+static const gchar *st_str_ipv6_ptype = "IPv6 Statistics" STATS_TREE_MENU_SEPARATOR "IP Protocol Types";
 
 static void ipv4_ptype_stats_tree_init(stats_tree *st) {
 	st_node_ipv4_ptype = stats_tree_create_pivot(st, st_str_ipv4_ptype, 0);
@@ -212,8 +212,8 @@ static tap_packet_status ipv6_ptype_stats_tree_packet(stats_tree *st, packet_inf
 */
 static int st_node_ipv4_dsts = -1;
 static int st_node_ipv6_dsts = -1;
-static const gchar *st_str_ipv4_dsts = "IPv4 Statistics/Destinations and Ports";
-static const gchar *st_str_ipv6_dsts = "IPv6 Statistics/Destinations and Ports";
+static const gchar *st_str_ipv4_dsts = "IPv4 Statistics" STATS_TREE_MENU_SEPARATOR "Destinations and Ports";
+static const gchar *st_str_ipv6_dsts = "IPv6 Statistics" STATS_TREE_MENU_SEPARATOR "Destinations and Ports";
 
 static void ipv4_dsts_stats_tree_init(stats_tree *st) {
 	st_node_ipv4_dsts = stats_tree_create_node(st, st_str_ipv4_dsts, 0, STAT_DT_INT, TRUE);
@@ -246,8 +246,8 @@ static tap_packet_status ipv6_dsts_stats_tree_packet(stats_tree *st, packet_info
 
 static int st_node_ipv4_src_ttls = -1;
 static int st_node_ipv6_src_ttls = -1;
-static const gchar* st_str_ipv4_src_ttls = "IPv4 Statistics/Source TTLs";
-static const gchar* st_str_ipv6_src_ttls = "IPv6 Statistics/Source Hop Limits";
+static const gchar* st_str_ipv4_src_ttls = "IPv4 Statistics" STATS_TREE_MENU_SEPARATOR "Source TTLs";
+static const gchar* st_str_ipv6_src_ttls = "IPv6 Statistics" STATS_TREE_MENU_SEPARATOR "Source Hop Limits";
 
 static void ipv4_src_ttl_stats_tree_init(stats_tree* st) {
 	st_node_ipv4_src_ttls = stats_tree_create_node(st, st_str_ipv4_src_ttls, 0, STAT_DT_INT, TRUE);

@@ -648,7 +648,7 @@ f5_udp_conv_filter(packet_info *pinfo, void *user_data _U_)
 
 static int st_node_tmmpktdist              = -1; /**< Tree for packet counts */
 static int st_node_tmmbytedist             = -1; /**< Tree for byte counts (excludes trailer) */
-static const gchar *st_str_tmmdist         = "F5/tmm Distribution";
+static const gchar *st_str_tmmdist         = "F5" STATS_TREE_MENU_SEPARATOR "tmm Distribution";
 static const gchar *st_str_tmmdist_pkts    = "tmm Packet Distribution";
 static const gchar *st_str_tmmdist_bytes   = "tmm Byte Distribution (excludes trailer)";
 static const gchar *st_str_tmm_dir_in      = "direction in";
@@ -659,7 +659,7 @@ static const gchar *st_str_tmm_flow_none   = "flow none";
 
 static int st_node_virtpktdist             = -1; /**< Tree for packet counts */
 static int st_node_virtbytedist            = -1; /**< Tree for packet counts (excludes trailer) */
-static const gchar *st_str_virtdist        = "F5/Virtual Server Distribution";
+static const gchar *st_str_virtdist        = "F5" STATS_TREE_MENU_SEPARATOR "Virtual Server Distribution";
 static const gchar *st_str_virtdist_pkts   = "Virtual Server Packet Distribution";
 static const gchar *st_str_virtdist_bytes  = "Virtual Server Byte Distribution (excludes trailer)";
 static const gchar *st_str_virtdist_noflow = "No flow";
