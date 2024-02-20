@@ -6260,22 +6260,22 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_error_metric,
             { "Error metric", "isis.lsp.error_metric",
-              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
               NULL, HFILL }
         },
         { &hf_isis_lsp_expense_metric,
             { "Expense metric", "isis.lsp.expense_metric",
-              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
               NULL, HFILL }
         },
         { &hf_isis_lsp_delay_metric,
             { "Delay metric", "isis.lsp.delay_metric",
-              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
               NULL, HFILL }
         },
         { &hf_isis_lsp_default_metric,
             { "Default metric", "isis.lsp.default_metric",
-              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
               NULL, HFILL }
         },
         { &hf_isis_lsp_ip_reachability_default_metric_ie,
