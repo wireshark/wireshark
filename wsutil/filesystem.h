@@ -349,7 +349,14 @@ WS_DLL_PUBLIC int test_for_directory(const char *);
 WS_DLL_PUBLIC int test_for_fifo(const char *);
 
 /*
- * Check, if file is existing.
+ * Given a pathname, return true if the attempt to "stat()" the file
+ * succeeds, and it turns out to be a regular file. "stat()" follows
+ * links, so returns true if the pathname is a link to a regular file.
+ */
+WS_DLL_PUBLIC bool test_for_regular_file(const char *);
+
+/*
+ * Check if a file exists.
  */
 WS_DLL_PUBLIC bool file_exists(const char *fname);
 

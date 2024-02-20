@@ -221,6 +221,21 @@ test_for_fifo(const char *path)
         return 0;
 }
 
+bool
+test_for_regular_file(const char *path)
+{
+    ws_statb64 statb;
+
+    if (!path) {
+        return false;
+    }
+
+    if (ws_stat64(path, &statb) != 0)
+        return false;
+
+    return S_ISREG(statb.st_mode);
+}
+
 #ifdef ENABLE_APPLICATION_BUNDLE
 /*
  * Directory of the application bundle in which we're contained,
@@ -2020,7 +2035,7 @@ copy_persconffile_profile(const char *toname, const char *fromname, bool from_gl
             from_file = ws_strdup_printf ("%s%s%s", from_dir, G_DIR_SEPARATOR_S, filename);
             to_file = ws_strdup_printf ("%s%s%s", to_dir, G_DIR_SEPARATOR_S, filename);
 
-            if (file_exists(from_file) && !copy_file_binary_mode(from_file, to_file)) {
+            if (test_for_regular_file(from_file) && !copy_file_binary_mode(from_file, to_file)) {
                 *pf_filename_return = g_strdup(filename);
                 g_free (from_file);
                 g_free (to_file);
