@@ -1411,18 +1411,18 @@ pow10_uint64(gint exponent){
 	return val;
 }
 
-// Decode uint fractionnal variable
+// Decode uint fractional variable
 static guint64
-convertFractionalToFixedSizeDecimal(guint64 value, guint fractionnalBitSize, guint numberOfDigitToDisplay){
-	const guint64 resolution = G_GINT64_CONSTANT(0x1) << fractionnalBitSize;
+convertFractionalToFixedSizeDecimal(guint64 value, guint fractionalBitSize, guint numberOfDigitToDisplay){
+	const guint64 resolution = G_GINT64_CONSTANT(0x1) << fractionalBitSize;
 	// => 0x02000000 for 25-bits
 	// => 0x00000100 for 8-bits
 
-	const guint64 fractionnalPortionMask = resolution - 1;
-	value &= fractionnalPortionMask;
+	const guint64 fractionalPortionMask = resolution - 1;
+	value &= fractionalPortionMask;
 
 	// Maximum value for numberOfDigitToDisplay is :
-	// log10(G_GINT64_CONSTANT(0xFFFFFFFFFFFFFFFF) / fractionnalPortionMask);
+	// log10(G_GINT64_CONSTANT(0xFFFFFFFFFFFFFFFF) / fractionalPortionMask);
 	// => if result is stored in 32-bits, numberOfDigitToDisplay max = 9
 	const guint64 displayMultiplier = pow10_uint64(numberOfDigitToDisplay);
 	value *= displayMultiplier;
@@ -1455,23 +1455,23 @@ get_latitude_or_longitude(gchar *buf, int option, guint64 unmasked_value)
 	   outside the range of -90 to 90 degrees MUST be considered invalid.
 	*/
 	const guint variableBitSize = 34;
-	const guint fractionnalBitSize = 25;
-	const guint64 maxlatitude = (G_GINT64_CONSTANT(0x1) << fractionnalBitSize) * G_GINT64_CONSTANT(90);   // 90 degrees
-	const guint64 maxlongitude = (G_GINT64_CONSTANT(0x1) << fractionnalBitSize) * G_GINT64_CONSTANT(180); // 180 degrees
+	const guint fractionalBitSize = 25;
+	const guint64 maxlatitude = (G_GINT64_CONSTANT(0x1) << fractionalBitSize) * G_GINT64_CONSTANT(90);   // 90 degrees
+	const guint64 maxlongitude = (G_GINT64_CONSTANT(0x1) << fractionalBitSize) * G_GINT64_CONSTANT(180); // 180 degrees
 
 	guint64 masked_value = getUint64MaskedValue(unmasked_value, variableBitSize); // get 34-bit value
 
-	// Get absoluste value of a 34-bit 2's variable
+	// Get absolute value of a 34-bit 2's variable
 	// => value is 33-bit
 	guint64 absolute_value = masked_value;
 	gboolean isNegative = get2sComplementAbsoluteValue(&absolute_value, variableBitSize);
 
 	// Get unsigned integer 8-bit value
-	guint32 integerPortion = (guint32)(absolute_value >> fractionnalBitSize);
+	guint32 integerPortion = (guint32)(absolute_value >> fractionalBitSize);
 
-	// Get fractionnal 25-bit value
+	// Get fractional 25-bit value
 	const guint numberOfDigitToDisplay = 4;
-	guint64 fixedSizeDecimal = convertFractionalToFixedSizeDecimal(absolute_value, fractionnalBitSize, numberOfDigitToDisplay);
+	guint64 fixedSizeDecimal = convertFractionalToFixedSizeDecimal(absolute_value, fractionalBitSize, numberOfDigitToDisplay);
 
 	const char *direction;
 	const char *err_str = "";
@@ -1497,14 +1497,14 @@ get_latitude_or_longitude(gchar *buf, int option, guint64 unmasked_value)
 		}
 	}
 
-	const guint64 fractionalMask = (G_GINT64_CONSTANT(0x1) << fractionnalBitSize) - 1;
+	const guint64 fractionalMask = (G_GINT64_CONSTANT(0x1) << fractionalBitSize) - 1;
 
 	// %04 correspond to numberOfDigitToDisplay
 	snprintf(buf, ITEM_LABEL_LENGTH, "%s%u.%04" PRIu64 " degrees %s (0x%010" PRIX64 " - %u-bit integer part 0x%04" PRIX64 " / %u-bit fractional part 0x%08" PRIX64 ")",
 	    err_str,
 		integerPortion, fixedSizeDecimal, direction, masked_value,
-		variableBitSize - fractionnalBitSize, masked_value >> fractionnalBitSize,
-		fractionnalBitSize, masked_value & fractionalMask
+		variableBitSize - fractionalBitSize, masked_value >> fractionalBitSize,
+		fractionalBitSize, masked_value & fractionalMask
 	);
 }
 
@@ -1543,21 +1543,21 @@ altitude_base(gchar *buf, guint32 unmasked_value) {
 	// Values above 30 (decimal) are undefined and reserved.
 
 	const guint variableBitSize = 30;
-	const guint fractionnalBitSize = 8;
+	const guint fractionalBitSize = 8;
 
 	guint64 masked_value = getUint64MaskedValue(unmasked_value, variableBitSize); // get 30-bit value
 
-	// Get absoluste value of a 30-bit 2's variable
+	// Get absolute value of a 30-bit 2's variable
 	// => value is 29-bit
 	guint64 absolute_value = masked_value;
 	gboolean isNegative = get2sComplementAbsoluteValue(&absolute_value, variableBitSize);
 
 	// Get unsigned integer 8-bit value
-	guint32 integerPortion = (guint32)(absolute_value >> fractionnalBitSize);
+	guint32 integerPortion = (guint32)(absolute_value >> fractionalBitSize);
 
-	// Get fractionnal 8-bit value
+	// Get fractional 8-bit value
 	const guint numberOfDigitToDisplay = 4;
-	guint64 fixedSizeDecimal = convertFractionalToFixedSizeDecimal(absolute_value, fractionnalBitSize, numberOfDigitToDisplay);
+	guint64 fixedSizeDecimal = convertFractionalToFixedSizeDecimal(absolute_value, fractionalBitSize, numberOfDigitToDisplay);
 
 	const char * sign;
 	if (isNegative){
@@ -1567,13 +1567,13 @@ altitude_base(gchar *buf, guint32 unmasked_value) {
 	}
 
 
-	const guint64 fractionalMask = (G_GINT64_CONSTANT(0x1) << fractionnalBitSize) - 1;
+	const guint64 fractionalMask = (G_GINT64_CONSTANT(0x1) << fractionalBitSize) - 1;
 
 	// %04 correspond to numberOfDigitToDisplay
 	snprintf(buf, ITEM_LABEL_LENGTH, "%s%u.%04" PRIu64 " (0x%08" PRIX64 " - %u-bit integer part 0x%06" PRIX64 " / %u-bit fractional part 0x%02" PRIX64 ")",
 	    sign, integerPortion, fixedSizeDecimal, masked_value,
-		variableBitSize - fractionnalBitSize, masked_value >> fractionnalBitSize,
-		fractionnalBitSize, masked_value & fractionalMask
+		variableBitSize - fractionalBitSize, masked_value >> fractionalBitSize,
+		fractionalBitSize, masked_value & fractionalMask
 	);
 }
 
@@ -1775,7 +1775,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			idType="IA";
 			strPtr = tvb_format_stringzpad(pinfo->pool, tvb, offset, (dataLen - 1));
 			break;
-		case 6: /* Interfae name */
+		case 6: /* Interface name */
 			idType="IN";
 			strPtr = tvb_format_stringzpad(pinfo->pool, tvb, offset, (dataLen - 1));
 			break;
@@ -4330,7 +4330,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			} /* switch (identifier) */
 			break;
 		default: /* unknown group */
-			/* indentifier considered also unknown */
+			/* identifier considered also unknown */
 			proto_item_append_text(identifier_proto_item, "Unknown");
 			proto_tree_add_item(tree, hf_hytec_unknown_identifier_content, tvb, offset, -1, ENC_NA);
 		} /* switch (group) */
@@ -4450,7 +4450,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			} /* switch (identifier) */
 			break;
 		default: /* unknown group */
-			/* indentifier considered also unknown */
+			/* identifier considered also unknown */
 			proto_item_append_text(identifier_proto_item, "Unknown");
 			proto_tree_add_item(tree, hf_hytec_unknown_identifier_content, tvb, offset, -1, ENC_NA);
 		} /* switch (group) */

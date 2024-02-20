@@ -4181,7 +4181,7 @@ dissect_lsp_srv6_locator_entry(tvbuff_t *tvb, packet_info* pinfo,
         return (-1);
     }
 
-    /* (1) Detrmine the length of each SRv6 locator entry, first */
+    /* (1) Determine the length of each SRv6 locator entry, first */
     /* Loc Size */
     bit_length = tvb_get_guint8(tvb, offset+6);
     if (bit_length <= 0 || bit_length > 128) {

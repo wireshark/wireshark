@@ -596,7 +596,7 @@ proto_init(GSList *register_all_plugin_protocols_list,
 	/* Initialize the ftype subsystem */
 	ftypes_initialize();
 
-	/* Initialize the addres type subsystem */
+	/* Initialize the address type subsystem */
 	address_types_initialize();
 
 	/* Register one special-case FT_TEXT_ONLY field for use when

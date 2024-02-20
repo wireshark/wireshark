@@ -10698,7 +10698,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			}
 
 			if (first_operation == 0)
-				/* Seperator between operation text */
+				/* Separator between operation text */
 				col_append_str(pinfo->cinfo, COL_INFO, " |");
 
 			if (wmem_strbuf_get_len(op_summary[summary_counter].optext) > 0)
@@ -11245,7 +11245,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 			}
 
 			if (first_operation == 0)
-				/* Seperator between operation text */
+				/* Separator between operation text */
 				col_append_str(pinfo->cinfo, COL_INFO, " |");
 
 			if (wmem_strbuf_get_len(op_summary[summary_counter].optext) > 0)

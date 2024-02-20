@@ -782,7 +782,7 @@ lowpan_context_insert(guint8 cid, guint16 pan, guint8 plen, ws_in6_addr *prefix,
     data = wmem_new(NULL, lowpan_context_data);
     data->frame = frame;
     data->plen = plen;
-    memset(&data->prefix, 0, sizeof(ws_in6_addr)); /* Ensure zero paddeding */
+    memset(&data->prefix, 0, sizeof(ws_in6_addr)); /* Ensure zero padding */
     lowpan_pfxcpy(&data->prefix, prefix, plen);
     g_hash_table_insert(lowpan_context_table, pkey, data);
 } /* lowpan_context_insert */

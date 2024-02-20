@@ -556,7 +556,7 @@ void ExtcapOptionsDialog::resetValues()
 
         }
 
-        /* Values are stored when dialog is commited, just check validity*/
+        /* Values are stored when dialog is committed, just check validity */
         anyValueChanged();
     }
 }

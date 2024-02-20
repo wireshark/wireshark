@@ -2338,7 +2338,7 @@ static void format_field_values(output_fields_t* fields, gpointer field_index, g
     if (NULL == value)
         return;
 
-    /* Unwrap change made to disambiguiate zero / null */
+    /* Unwrap change made to disambiguate zero / null */
     indx = GPOINTER_TO_UINT(field_index) - 1;
 
     if (fields->field_values[indx] == NULL) {
@@ -2376,7 +2376,7 @@ static void format_field_values(output_fields_t* fields, gpointer field_index, g
         }
         break;
     case 'a':
-        /* print the value of all accurrences of the field */
+        /* print the value of all occurrences of the field */
         break;
     default:
         ws_assert_not_reached();

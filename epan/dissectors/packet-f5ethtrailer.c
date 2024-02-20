@@ -328,7 +328,7 @@ static gint hf_fi_session;
 
 /* Wireshark preference to show RST cause in info column */
 static gboolean rstcause_in_info = TRUE;
-/** Wireshark prefrence to look at all trailer bytes for f5ethtrailer */
+/** Wireshark preference to look at all trailer bytes for f5ethtrailer */
 static gboolean pref_walk_trailer = FALSE;
 /* Wireshark preference to enable/disable the population of other dissectors'
  * fields.*/

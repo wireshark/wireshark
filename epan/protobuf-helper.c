@@ -35,7 +35,7 @@ pbw_reinit_DescriptorPool(PbwDescriptorPool** pool, const char** directories, pb
     pbl_reinit_descriptor_pool((pbl_descriptor_pool_t**) pool, directories, (pbl_report_error_cb_t) error_cb);
 }
 
-/* load a proto file, return 0 if successed */
+/* load a proto file, return 0 if succeeds */
 int
 pbw_load_proto_file(PbwDescriptorPool* pool, const char* filename) {
     if (pbl_add_proto_file_to_be_parsed((pbl_descriptor_pool_t*) pool, filename)) {

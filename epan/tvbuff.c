@@ -4621,7 +4621,7 @@ tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gi
 			break;
 		}
 		if ((len == 1) && (odd == TRUE )){
-			/* Last octet, skipp last high nibble incase of odd number of digits*/
+			/* Last octet, skip last high nibble incase of odd number of digits */
 			break;
 		}
 		digit_str[i] = dgt->out[octet & 0x0f];

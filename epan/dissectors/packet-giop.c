@@ -554,7 +554,6 @@ static const value_string target_address_discriminant_vals[] = {
   };
 Bug fix:
 https://gitlab.com/wireshark/wireshark/-/issues/2800
-http://ethereal.netmirror.org/lists/ethereal-users/200303/msg00135.html
 */
 static const value_string response_flags_vals[] = {
   { 0x0, "SyncScope NONE or WITH_TRANSPORT" },
@@ -1468,7 +1467,7 @@ static void insert_in_objkey_hash(GHashTable *hash, const guint8 *obj, guint32 l
   new_objkey_key->objkey = (guint8 *) wmem_memdup(wmem_file_scope(), obj, len);        /* copy from object and allocate ptr */
 
   objkey_val = wmem_new(wmem_file_scope(), struct giop_object_val);
-  objkey_val->repo_id = wmem_strdup(wmem_file_scope(), repoid); /* duplicate and store Respository ID string */
+  objkey_val->repo_id = wmem_strdup(wmem_file_scope(), repoid); /* duplicate and store Repository ID string */
   objkey_val->src = src;                   /* where IOR came from */
 
 
@@ -1560,7 +1559,7 @@ static void read_IOR_strings_from_file(const gchar *name, int max_iorlen) {
   int       ior_val_len;        /* length after unstringifying. */
   FILE     *fp;
   guint8   *out = NULL;         /* ptr to unstringified IOR */
-  tvbuff_t *tvb;                /* temp tvbuff for dissectin IORs */
+  tvbuff_t *tvb;                /* temp tvbuff for dissecting IORs */
   int       my_offset = 0;
   gboolean  stream_is_big_endian;
 
@@ -2305,7 +2304,7 @@ static void dissect_data_for_typecode_with_params(tvbuff_t *tvb, packet_info *pi
     parameter = wmem_list_frame_next(parameter); // get struct name
     // get count
 
-    // concatinating the struct name properly over strbuf
+    // concatenating the struct name properly over strbuf
     strbuf = wmem_strbuf_new(pinfo->pool, "struct ");
     wmem_strbuf_append(strbuf, wmem_list_frame_data(parameter));
     mysubtree = proto_tree_add_subtree(tree, tvb, *offset, -1,
