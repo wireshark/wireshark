@@ -769,7 +769,6 @@ dissect_goose_GOOSEpdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 static dissector_handle_t goose_handle = NULL;
-static dissector_handle_t ositp_handle = NULL;
 
 
 #define OSI_SPDU_TUNNELED 0xA0 /* Tunneled */
@@ -1062,41 +1061,6 @@ dissect_rgoose_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	dissect_rgoose(tvb, pinfo, parent_tree, data);
 	return TRUE;
 }
-
-static gboolean
-dissect_cltp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
-				  void *data _U_)
-{
-	guint8 li, tpdu, spdu;
-
-	/* First, check do we have at least 2 bytes (length + tpdu) */
-	if (tvb_captured_length(tvb) < 2) {
-		return FALSE;
-	}
-
-	li = tvb_get_guint8(tvb, 0);
-
-	/* Is it OSI on top of the UDP? */
-	tpdu = (tvb_get_guint8(tvb, 1) & 0xF0) >> 4;
-	if (tpdu != 0x4) {
-		return FALSE;
-	}
-
-	/* Check do we have SPDU ID byte, too */
-	if (tvb_captured_length(tvb) < (guint) (li + 2)) {
-		return FALSE;
-	}
-
-	/* And let's see if it is GOOSE SPDU */
-	spdu = tvb_get_guint8(tvb, li + 1);
-	if (spdu != OSI_SPDU_GOOSE) {
-		return FALSE;
-	}
-
-	call_dissector(ositp_handle, tvb, pinfo, parent_tree);
-	return TRUE;
-}
-
 
 /*--- proto_register_goose -------------------------------------------*/
 void proto_register_goose(void) {
@@ -1529,10 +1493,6 @@ void proto_reg_handoff_goose(void) {
 
 	dissector_add_uint("ethertype", ETHERTYPE_IEC61850_GOOSE, goose_handle);
 
-	ositp_handle = find_dissector_add_dependency("ositp", proto_goose);
-
-	heur_dissector_add("udp", dissect_cltp_heur,
-		"CLTP over UDP", "cltp_udp", proto_goose, HEURISTIC_ENABLE);
 	heur_dissector_add("cltp", dissect_rgoose_heur,
 		"R-GOOSE (GOOSE over CLTP)", "rgoose_cltp", proto_goose, HEURISTIC_ENABLE);
 }

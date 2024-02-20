@@ -2175,6 +2175,94 @@ static gint dissect_ositp_inactive(tvbuff_t *tvb, packet_info *pinfo,
   return dissect_ositp_internal(tvb, pinfo, tree, TRUE);
 }
 
+static gboolean
+test_cltp_var_part(tvbuff_t *tvb)
+{
+  int offset = 0;
+  guint8 li;
+  while (tvb_captured_length_remaining(tvb, offset)) {
+    if (tvb_captured_length_remaining(tvb, offset) < 2) {
+      return FALSE;
+    }
+    switch (tvb_get_guint8(tvb, offset++)) {
+    /* These are the only 3 legal parameters for CLTP per RFC 1240 and X.234 */
+    case VP_SRC_TSAP:
+    case VP_DST_TSAP:
+    case VP_CHECKSUM: // Not required as redundant with UDP checksum, per RFC 1240
+      break;
+    default:
+      return FALSE;
+    }
+    li = tvb_get_guint8(tvb, offset++);
+    if (li == 255) {
+      return FALSE;
+    }
+    if (tvb_captured_length_remaining(tvb, offset) < li) {
+      return FALSE;
+    }
+    offset += li;
+  }
+  return TRUE;
+}
+
+static gboolean
+dissect_cltp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
+				  void *data)
+{
+  guint8 li, tpdu, spdu;
+  int offset = 0;
+
+  /* RFC 1240: OSI Connectionless Transport Services on top of UDP
+   * was made Historic by RFC 2556, which noted that "at this time
+   * there do not seem to be any implementations" and recommended
+   * TPKT (RFC 2126, ISO Transport Service on top of TCP) instead.
+   */
+
+  /* First, check do we have at least 2 bytes (length + tpdu) */
+  if (tvb_captured_length(tvb) < 2) {
+    return FALSE;
+  }
+
+  li = tvb_get_guint8(tvb, offset++);
+
+  /* LI must include TPDU, and 255 is reserved */
+  if (li == 0 || li == 255) {
+    return FALSE;
+  }
+
+  /* Is it OSI on top of the UDP? */
+  tpdu = (tvb_get_guint8(tvb, offset++) & 0xF0) >> 4;
+  if (tpdu != UD_TPDU) {
+    return FALSE;
+  }
+
+  /* LI includes TPDU */
+  li--;
+
+  if (!test_cltp_var_part(tvb_new_subset_length(tvb, offset, li))) {
+    return FALSE;
+  }
+  offset += li;
+
+  /* Since R-GOOSE is the only known user of CLTP over UDP, just
+   * check for that.
+   */
+
+  /* Check do we have SPDU ID byte, too */
+  if (tvb_captured_length_remaining(tvb, offset) < 1) {
+    return FALSE;
+  }
+
+  /* And let's see if it is GOOSE SPDU */
+  spdu = tvb_get_guint8(tvb, offset);
+  if (spdu != 0xA1) {
+    return FALSE;
+  }
+
+  dissect_ositp(tvb, pinfo, parent_tree, data);
+  return TRUE;
+}
+
 static void
 cotp_reassemble_init(void)
 {
@@ -2429,6 +2517,13 @@ proto_reg_handoff_cotp(void)
   rdp_cc_handle = find_dissector("rdp_cc");
 
   proto_clnp = proto_get_id_by_filter_name("clnp");
+
+  /* Actual implementations of R-GOOSE seem to use UDP port 102, registered
+   * for ISO-TSAP, cf. TPKT. Perhaps we should just register ositp_handle
+   * to UDP port 102 instead of having a heuristic dissector?
+   */
+  heur_dissector_add("udp", dissect_cltp_heur, "CLTP over UDP",
+        "cltp_udp", proto_cltp, HEURISTIC_ENABLE);
 }
 
 /*
