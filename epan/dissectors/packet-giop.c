@@ -2183,6 +2183,7 @@ static void set_new_alignment(int *offset, int delta, int  alignment) {
  *
  * data_name is allowed to be NULL or empty string
  */
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_data_for_typecode_with_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                       proto_item *item, gint *offset,
                                       gboolean stream_is_big_endian, guint32 boundary,
@@ -2220,11 +2221,11 @@ static void dissect_data_for_typecode_with_params(tvbuff_t *tvb, packet_info *pi
   const gchar *buf = NULL;            /* ptr to string buffer */
 
   unsigned recursion_depth = p_get_proto_depth(pinfo, proto_giop);
-  if (++recursion_depth >= GIOP_MAX_RECURSION_DEPTH) {
+  if (recursion_depth > GIOP_MAX_RECURSION_DEPTH) {
     proto_tree_add_expert(tree, pinfo, &ei_giop_max_recursion_depth_reached, tvb, 0, 0);
     return;
   }
-  p_set_proto_depth(pinfo, proto_giop, recursion_depth);
+  p_set_proto_depth(pinfo, proto_giop, recursion_depth + 1);
 
   /* Grab the data according to data type */
 
@@ -2483,7 +2484,7 @@ static void dissect_data_for_typecode_with_params(tvbuff_t *tvb, packet_info *pi
     expert_add_info_format(pinfo, item, &ei_giop_unknown_typecode_datatype, "Unknown typecode data type %u", data_type);
     break;
   }
-  p_set_proto_depth(pinfo, proto_giop, recursion_depth - 1);
+  p_set_proto_depth(pinfo, proto_giop, recursion_depth);
 }
 
 /*
@@ -2546,6 +2547,7 @@ static void dissect_tk_objref_params(tvbuff_t *tvb, proto_tree *tree, gint *offs
 }
 
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_tk_struct_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset,
                                      gboolean stream_is_big_endian, guint32 boundary,
                                      MessageHeader * header, wmem_list_t *params) {
@@ -2606,6 +2608,7 @@ static void dissect_tk_struct_params(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 }
 
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_tk_union_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item* item,
                                     gint *offset, gboolean stream_is_big_endian, guint32 boundary,
                                     MessageHeader * header) {
@@ -2716,6 +2719,7 @@ static void dissect_tk_enum_params(tvbuff_t *tvb, proto_tree *tree, gint *offset
 }
 
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_tk_sequence_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset,
                                        gboolean stream_is_big_endian, guint32 boundary,
                                        MessageHeader * header, wmem_list_t *params) {
@@ -2748,6 +2752,7 @@ static void dissect_tk_sequence_params(tvbuff_t *tvb, packet_info *pinfo, proto_
 }
 
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_tk_array_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset,
                                     gboolean stream_is_big_endian, guint32 boundary,
                                     MessageHeader * header, wmem_list_t *params) {
@@ -2787,6 +2792,7 @@ static void dissect_tk_array_params(tvbuff_t *tvb, packet_info *pinfo, proto_tre
  * dissection of nested (complex) types. Those are saved into a nested linked
  * list which can be handed into dissect_data_for_typecode_with_params
  */
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_tk_alias_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset,
                                     gboolean stream_is_big_endian, guint32 boundary,
                                     MessageHeader * header, wmem_list_t *params) {
@@ -2822,6 +2828,7 @@ static void dissect_tk_alias_params(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 }
 
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_tk_except_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset,
                                      gboolean stream_is_big_endian, guint32 boundary,
                                      MessageHeader * header) {
@@ -2868,6 +2875,7 @@ static void dissect_tk_except_params(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_tk_value_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset,
                                     gboolean stream_is_big_endian, guint32 boundary,
                                     MessageHeader * header) {
@@ -2928,6 +2936,7 @@ static void dissect_tk_value_params(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 }
 
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_tk_value_box_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset,
                                         gboolean stream_is_big_endian, guint32 boundary,
                                         MessageHeader * header) {
@@ -3087,6 +3096,7 @@ guint32 get_CDR_encap_info(tvbuff_t *tvb, proto_tree *tree, gint *offset,
  * followed by the encoded value.
  */
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void get_CDR_any(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item,
                  gint *offset, gboolean stream_is_big_endian, int boundary,
                  MessageHeader * header ) {
@@ -3627,6 +3637,7 @@ guint32 get_CDR_string(tvbuff_t *tvb, const gchar **seq, int *offset, gboolean s
  *
  * It returns a guint32 representing a TCKind value.
  */
+// NOLINTNEXTLINE(misc-no-recursion)
 guint32 get_CDR_typeCode(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
                          gint *offset, gboolean stream_is_big_endian,
                          int boundary, MessageHeader * header ) {
@@ -3638,6 +3649,7 @@ guint32 get_CDR_typeCode(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
 }
 
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static guint32 get_CDR_typeCode_with_params(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
                          gint *offset, gboolean stream_is_big_endian,
                          int boundary, MessageHeader * header,
@@ -3650,6 +3662,14 @@ static guint32 get_CDR_typeCode_with_params(tvbuff_t *tvb, packet_info* pinfo, p
   proto_item *ti;
 
   val = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary); /* get TCKind enum */
+
+  unsigned recursion_depth = p_get_proto_depth(pinfo, proto_giop);
+  if (recursion_depth > GIOP_MAX_RECURSION_DEPTH) {
+    proto_tree_add_expert(tree, pinfo, &ei_giop_max_recursion_depth_reached, tvb, 0, 0);
+    return val;
+  }
+  p_set_proto_depth(pinfo, proto_giop, recursion_depth + 1);
+
   ti = proto_tree_add_uint(tree, hf_giop_TCKind, tvb, *offset-4, 4, val);
   proto_tree *params_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_typecode_parameters, NULL, "TypeCode-Parameters");
 
@@ -3764,6 +3784,8 @@ static guint32 get_CDR_typeCode_with_params(tvbuff_t *tvb, packet_info* pinfo, p
     expert_add_info_format(pinfo, ti, &ei_giop_unknown_tckind, "Unknown TCKind %u", val);
     break;
   } /* val */
+
+  p_set_proto_depth(pinfo, proto_giop, recursion_depth);
 
   return val;
 }
