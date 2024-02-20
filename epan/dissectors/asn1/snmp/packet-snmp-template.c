@@ -1222,6 +1222,7 @@ static const true_false_string tfs_snmp_engineid_conform = {
 #define SNMP_ENGINEID_FORMAT_MACADDRESS 0x03
 #define SNMP_ENGINEID_FORMAT_TEXT 0x04
 #define SNMP_ENGINEID_FORMAT_OCTETS 0x05
+#define SNMP_ENGINEID_FORMAT_LOCAL 0x06
 
 static const value_string snmp_engineid_format_vals[] = {
 	{ SNMP_ENGINEID_FORMAT_IPV4,	"IPv4 address" },
@@ -1229,6 +1230,7 @@ static const value_string snmp_engineid_format_vals[] = {
 	{ SNMP_ENGINEID_FORMAT_MACADDRESS,	"MAC address" },
 	{ SNMP_ENGINEID_FORMAT_TEXT,	"Text, administratively assigned" },
 	{ SNMP_ENGINEID_FORMAT_OCTETS,	"Octets, administratively assigned" },
+	{ SNMP_ENGINEID_FORMAT_LOCAL,   "Local engine" },
 	{ 0,	NULL }
 };
 
@@ -1333,6 +1335,8 @@ dissect_snmp_engineid(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int o
 				len_remain=0;
 			}
 			break;
+		case SNMP_ENGINEID_FORMAT_LOCAL:
+			break;
 		case 128:
 			/* most common enterprise-specific format: (ucd|net)-snmp random */
 			if ((enterpriseid==2021)||(enterpriseid==8072)) {
@@ -1359,7 +1363,7 @@ dissect_snmp_engineid(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int o
 		case SNMP_ENGINEID_FORMAT_OCTETS:
 		default:
 			/* max. 27 bytes, administratively assigned or unknown format */
-			if (len_remain<=27) {
+			if (len_remain>0 && len_remain<=27) {
 				proto_tree_add_item(tree, hf_snmp_engineid_data, tvb, offset, len_remain, ENC_NA);
 				offset+=len_remain;
 				len_remain=0;
