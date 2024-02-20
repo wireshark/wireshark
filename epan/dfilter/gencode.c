@@ -19,8 +19,6 @@
 #include "ftypes/ftypes.h"
 #include <wsutil/ws_assert.h>
 
-// NOLINT(misc-no-recursion)
-
 static void
 fixup_jumps(void *data, void *user_data);
 

@@ -31,8 +31,6 @@
 
 #include <ftypes/ftypes.h>
 
-// NOLINT(misc-no-recursion)
-
 #define FAIL(dfw, node, ...) \
 	do {								\
 		ws_noisy("Semantic check failed here.");		\

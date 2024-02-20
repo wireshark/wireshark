@@ -13,8 +13,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-// NOLINT(misc-no-recursion)
-
 #define ISSPACE(X) isspace((unsigned char)(X))
 #define ISDIGIT(X) isdigit((unsigned char)(X))
 #define ISALNUM(X) isalnum((unsigned char)(X))

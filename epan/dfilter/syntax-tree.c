@@ -18,8 +18,6 @@
 #include "sttype-function.h"
 #include "dfilter-int.h"
 
-// NOLINT(misc-no-recursion)
-
 /* Keep track of sttype_t's via their sttype_id_t number */
 static sttype_t* type_list[STTYPE_NUM_TYPES];
 

@@ -1,0 +1,10 @@
+InheritParentConfig: true
+
+# We don't want to do any checks in this directory yet so hack around
+# the fact that Clang-Tidy won't let us disable all checks.
+# https://stackoverflow.com/a/58379342/82195
+Checks:
+  - '-*'
+  - 'misc-definitions-in-headers'
+CheckOptions:
+  - { key: 'HeaderFileExtensions', value: 'DISABLED' }

@@ -49,8 +49,6 @@
 
 #include "path_config.h"
 
-// NOLINT(misc-no-recursion)
-
 #define PROFILES_DIR    "profiles"
 #define PLUGINS_DIR_NAME    "plugins"
 #define EXTCAP_DIR_NAME     "extcap"

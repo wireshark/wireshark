@@ -30,8 +30,6 @@
 #include <wsutil/file_util.h>
 #include <wsutil/wslog.h>
 
-// NOLINT(misc-no-recursion)
-
 /* linked list of Lua plugins */
 typedef struct _wslua_plugin {
     gchar       *name;            /**< plugin name */
