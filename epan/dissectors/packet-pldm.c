@@ -518,7 +518,7 @@ static int print_version_field(guint8 bcd, char *buffer, size_t buffer_size)
 static char* ver2str(tvbuff_t *tvb, int offset)
 {
 	#define VER_BUF_LEN 12
-	static char buffer[VER_BUF_LEN];
+	static char buffer[VER_BUF_LEN+1];
 	char* buf_ptr = &buffer[0];
 
 	guint8 major = tvb_get_guint8(tvb, offset);
@@ -545,13 +545,13 @@ static char* ver2str(tvbuff_t *tvb, int offset)
 	// Update
 	if (update != 0xff) {
 		c_offset += snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, ".");
-		c_offset += print_version_field(update, buf_ptr+c_offset, VER_BUF_LEN);
+		c_offset += print_version_field(update, buf_ptr+c_offset, VER_BUF_LEN-c_offset);
 	} else {
 		c_offset += snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, "-");
 	}
 	// Alpha
 	if (alpha != 0x00) {
-		c_offset += snprintf(buf_ptr+c_offset, VER_BUF_LEN, "%c", alpha);
+		c_offset += snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, "%c", alpha);
 	} else {
 		c_offset += snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, ".");
 		snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, "-");
