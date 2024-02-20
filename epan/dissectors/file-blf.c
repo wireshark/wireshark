@@ -22,7 +22,9 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
 #include <epan/expert.h>
+
 #include <wiretap/blf.h>
 
 static int proto_blf;
@@ -894,11 +896,11 @@ dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gin
         if (tvb_memeql(tvb, offset, blf_lobj_magic, MAGIC_NUMBER_SIZE) != 0) {
             offset += 1;
         } else {
-            unsigned recursion_depth = p_get_proto_depth(pinfo, proto_isis_lsp);
+            unsigned recursion_depth = p_get_proto_depth(pinfo, proto_blf);
             DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-            p_set_proto_depth(pinfo, proto_isis_lsp, recursion_depth + 1);
+            p_set_proto_depth(pinfo, proto_blf, recursion_depth + 1);
             int bytes_parsed = dissect_blf_lobj(tvb, pinfo, tree, offset);
-            p_set_proto_depth(pinfo, proto_isis_lsp, recursion_depth);
+            p_set_proto_depth(pinfo, proto_blf, recursion_depth);
             if (bytes_parsed <= 0) {
                 return 0;
             } else {
