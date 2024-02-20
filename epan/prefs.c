@@ -4640,8 +4640,8 @@ prefs_read_module(const char *module)
     /* Construct the pathname of the user's preferences file for the module. */
     pf_path = get_persconffile_path(module, TRUE);
 
-    /* Read the user's preferences file, if it exists. */
-    if ((pf = ws_fopen(pf_path, "r")) == NULL && errno == ENOENT) {
+    /* Read the user's module preferences file, if it exists and is not a dir. */
+    if (!test_for_regular_file(pf_path) || ((pf = ws_fopen(pf_path, "r")) == NULL)) {
         g_free(pf_path);
         /* Fall back to the user's generic preferences file. */
         pf_path = get_persconffile_path(PF_NAME, TRUE);
@@ -7215,24 +7215,28 @@ write_prefs(char **pf_path_return)
             char *ext_path = get_persconffile_path("extcap", TRUE);
             FILE *extf;
             if ((extf = ws_fopen(ext_path, "w")) == NULL) {
-                *pf_path_return = ext_path;
-                return errno;
+                if (errno != EISDIR) {
+                    ws_warning("Unable to save extcap preferences \"%s\": %s",
+                        ext_path, g_strerror(errno));
+                }
+                g_free(ext_path);
+            } else {
+                g_free(ext_path);
+
+                fputs("# Extcap configuration file for Wireshark " VERSION ".\n"
+                      "#\n"
+                      "# This file is regenerated each time preferences are saved within\n"
+                      "# Wireshark. Making manual changes should be safe, however.\n"
+                      "# Preferences that have been commented out have not been\n"
+                      "# changed from their default value.\n", extf);
+
+                write_gui_pref_info.pf = extf;
+                write_gui_pref_info.is_gui_module = FALSE;
+
+                write_module_prefs(extcap_module, &write_gui_pref_info);
+
+                fclose(extf);
             }
-            g_free(ext_path);
-
-            fputs("# Extcap configuration file for Wireshark " VERSION ".\n"
-                  "#\n"
-                  "# This file is regenerated each time preferences are saved within\n"
-                  "# Wireshark. Making manual changes should be safe, however.\n"
-                  "# Preferences that have been commented out have not been\n"
-                  "# changed from their default value.\n", extf);
-
-            write_gui_pref_info.pf = extf;
-            write_gui_pref_info.is_gui_module = FALSE;
-
-            write_module_prefs(extcap_module, &write_gui_pref_info);
-
-            fclose(extf);
         }
     }
 
