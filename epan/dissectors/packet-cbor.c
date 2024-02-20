@@ -338,6 +338,7 @@ dissect_cbor_negative_integer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbo
 
 #define CBOR_MAX_RECURSION_DEPTH 10 // Arbitrary
 static gboolean
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_cbor_byte_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gint *offset, guint8 type_minor)
 {
 	guint64  length;
@@ -393,14 +394,14 @@ dissect_cbor_byte_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tre
 			}
 
 			unsigned recursion_depth = p_get_proto_depth(pinfo, proto_cbor);
-			if (++recursion_depth >= CBOR_MAX_RECURSION_DEPTH) {
+			if (recursion_depth > CBOR_MAX_RECURSION_DEPTH) {
 				proto_tree_add_expert(subtree, pinfo, &ei_cbor_max_recursion_depth_reached, tvb, 0, 0);
 				return FALSE;
 			}
-			p_set_proto_depth(pinfo, proto_cbor, recursion_depth);
+			p_set_proto_depth(pinfo, proto_cbor, recursion_depth + 1);
 
 			gboolean recursed = dissect_cbor_byte_string(tvb, pinfo, subtree, offset, eof_type & 0x1f);
-			p_set_proto_depth(pinfo, proto_cbor, recursion_depth - 1);
+			p_set_proto_depth(pinfo, proto_cbor, recursion_depth);
 
 			if (!recursed) {
 				return FALSE;
@@ -433,6 +434,7 @@ dissect_cbor_byte_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tre
 }
 
 static gboolean
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_cbor_text_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gint *offset, guint8 type_minor)
 {
 	const guint8 *value = NULL;
@@ -489,14 +491,14 @@ dissect_cbor_text_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tre
 			}
 
 			unsigned recursion_depth = p_get_proto_depth(pinfo, proto_cbor);
-			if (++recursion_depth >= CBOR_MAX_RECURSION_DEPTH) {
+			if (recursion_depth > CBOR_MAX_RECURSION_DEPTH) {
 				proto_tree_add_expert(subtree, pinfo, &ei_cbor_max_recursion_depth_reached, tvb, 0, 0);
 				return FALSE;
 			}
-			p_set_proto_depth(pinfo, proto_cbor, recursion_depth);
+			p_set_proto_depth(pinfo, proto_cbor, recursion_depth + 1);
 
 			gboolean recursed = dissect_cbor_text_string(tvb, pinfo, subtree, offset, eof_type & 0x1f);
-			p_set_proto_depth(pinfo, proto_cbor, recursion_depth - 1);
+			p_set_proto_depth(pinfo, proto_cbor, recursion_depth);
 
 			if (!recursed) {
 				return FALSE;
@@ -529,6 +531,7 @@ dissect_cbor_text_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tre
 }
 
 static gboolean
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_cbor_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gint *offset, guint8 type_minor)
 {
 	guint64  length = 0;
@@ -604,6 +607,7 @@ dissect_cbor_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gin
 }
 
 static gboolean
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_cbor_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gint *offset, guint8 type_minor)
 {
 	guint64     length = 0;
@@ -683,6 +687,7 @@ dissect_cbor_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gint 
 }
 
 static gboolean
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_cbor_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gint *offset, guint8 type_minor)
 {
 	guint64          tag = 0;
@@ -843,6 +848,7 @@ dissect_cbor_float_simple_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cb
 
 
 static gboolean
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_cbor_main_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gint *offset)
 {
 	guint8      type;
