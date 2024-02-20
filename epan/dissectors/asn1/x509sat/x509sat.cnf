@@ -183,7 +183,7 @@ DirectoryString        B "2.5.4.65"   "id-at-pseudonym"
 ObjectIdentifier       B "2.5.4.66" "id-at-communuicationsService"
 ObjectIdentifier       B "2.5.4.67" "id-at-communuicationsNetwork"
 
-ObjectIdentifier       B "2.5.4.97"   "id-at-organizationIdentifier"
+DirectoryString        B "2.5.4.97" "id-at-organizationIdentifier"
 
 SyntaxNumericString	   B "2.5.13.8" "id-mr-numericStringMatch"
 CaseIgnoreListMatch	   B "2.5.13.11" "id-mr-caseIgnoreListMatch"
