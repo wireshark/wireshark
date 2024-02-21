@@ -313,7 +313,7 @@ dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             if (len > 8)
                 proto_tree_add_int(tpncp_tree, hf_tpncp_cid, tvb, 12, 4, cid);
             offset += 16;
-            if (tpncp_events_info_db[id].size && len > 12) {
+            if (id < MAX_TPNCP_DB_SIZE && tpncp_events_info_db[id].size && len > 12) {
                 event_tree = proto_tree_add_subtree_format(
                     tree, tvb, offset, -1, ett_tpncp_body, NULL,
                     "TPNCP Event: %s (%d)",
@@ -330,7 +330,7 @@ dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         if (try_val_to_str(id, tpncp_commands_id_vals)) {
             proto_tree_add_uint(tpncp_tree, hf_tpncp_command_id, tvb, 8, 4, id);
             offset += 12;
-            if (tpncp_commands_info_db[id].size && len > 8) {
+            if (id < MAX_TPNCP_DB_SIZE && tpncp_commands_info_db[id].size && len > 8) {
                 command_tree = proto_tree_add_subtree_format(
                     tree, tvb, offset, -1, ett_tpncp_body, NULL,
                     "TPNCP Command: %s (%d)",
@@ -812,6 +812,10 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
 
         is_address_family = FALSE;
         if (current_data_id != data_id) { /* new data */
+            if (data_id >= MAX_TPNCP_DB_SIZE) {
+                report_failure("ERROR! The data_id %d is too large.", data_id);
+                continue;
+            }
             if (registered_struct_ids[data_id] == TRUE) {
                 report_failure(
                     "ERROR! The data_id %d already registered. Cannot register two identical events/command",
