@@ -56,7 +56,7 @@ unset(_lua_append_versions)
 # this is a function only to have all the variables inside go away automatically
 function(_lua_get_versions)
   set(LUA_VERSIONS5 ${LUA_FIND_VERSIONS})
-  list(FILTER LUA_VERSIONS5 INCLUDE REGEX "5\.[21]")
+  list(FILTER LUA_VERSIONS5 INCLUDE REGEX "5\.[4321]")
   set(_lua_append_versions ${LUA_VERSIONS5})
   message(STATUS "Considering the following Lua versions: ${_lua_append_versions}")
 

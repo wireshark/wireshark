@@ -1392,7 +1392,7 @@ if(FETCH_lua)
 	# Download and build lua
 	include(${CMAKE_SOURCE_DIR}/cmake/external/lua52/Lua52.cmake)
 else()
-	set(LUA_FIND_VERSIONS "5.2;5.1" CACHE STRING "Lua versions valid for the build (as a list)")
+	set(LUA_FIND_VERSIONS "5.4;5.3;5.2;5.1" CACHE STRING "Lua versions valid for the build (as a list)")
 	ws_find_package(Lua ENABLE_LUA HAVE_LUA)
 endif()
 
