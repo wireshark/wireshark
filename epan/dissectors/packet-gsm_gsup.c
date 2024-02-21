@@ -79,6 +79,7 @@ enum osmo_gsup_iei {
 	OSMO_GSUP_ACCESS_POINT_NAME_IE		= 0x12,
 	OSMO_GSUP_PDP_QOS_IE			= 0x13,
 	OSMO_GSUP_CHARG_CHAR_IE			= 0x14,
+	OSMO_GSUP_PCO_IE			= 0x15,
 	OSMO_GSUP_RAND_IE			= 0x20,
 	OSMO_GSUP_SRES_IE			= 0x21,
 	OSMO_GSUP_KC_IE				= 0x22,
@@ -343,6 +344,7 @@ static const value_string gsup_iei_types[] = {
 	{ OSMO_GSUP_ACCESS_POINT_NAME_IE, "Access Point Name (APN)" },
 	{ OSMO_GSUP_PDP_QOS_IE,		"PDP Quality of Service (QoS)" },
 	{ OSMO_GSUP_CHARG_CHAR_IE,	"Charging Character" },
+	{ OSMO_GSUP_PCO_IE,		"Protocol Configuration Options" },
 	{ OSMO_GSUP_RAND_IE,		"RAND" },
 	{ OSMO_GSUP_SRES_IE,		"SRES" },
 	{ OSMO_GSUP_KC_IE,		"Kc" },
@@ -721,6 +723,7 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 		gint apn_len;
 		guint32 ui32;
 		guint8 i;
+		tvbuff_t *subset_tvb;
 
 		tag = tvb_get_guint8(tvb, offset);
 		offset++;
@@ -815,6 +818,23 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 			break;
 		case OSMO_GSUP_CHARG_CHAR_IE:
 			proto_tree_add_item(att_tree, hf_gsup_charg_char, tvb, offset, len, ENC_ASCII);
+			break;
+		case OSMO_GSUP_PCO_IE:
+			switch (msg_type) {
+			case OSMO_GSUP_MSGT_EPDG_TUNNEL_REQUEST:
+				/* PCO options as MS to network direction */
+				pinfo->link_dir = P2P_DIR_UL;
+				break;
+			case OSMO_GSUP_MSGT_EPDG_TUNNEL_ERROR:
+			case OSMO_GSUP_MSGT_EPDG_TUNNEL_RESULT:
+				/* PCO options as Network to MS direction: */
+				pinfo->link_dir = P2P_DIR_DL;
+				break;
+			default:
+				break;
+			}
+			subset_tvb = tvb_new_subset_length(tvb, offset, len);
+			de_sm_pco(subset_tvb, att_tree, pinfo, 0, len, NULL, 0);
 			break;
 		case OSMO_GSUP_CAUSE_IE:
 			proto_tree_add_item(att_tree, hf_gsup_cause, tvb, offset, len, ENC_NA);
