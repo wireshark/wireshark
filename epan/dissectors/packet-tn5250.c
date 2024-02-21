@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/proto_data.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include "packet-tn5250.h"
@@ -39,6 +40,8 @@ typedef struct tn5250_conv_info_t {
 #define NEGATIVE_RESPONSE2 0x100301
 #define NEGATIVE_RESPONSE3 0x100501
 #define NEGATIVE_RESPONSE4 0x100502
+
+#define MAX_RECURSION_DEPTH 10 // Arbitrarily chosen.
 
 static const value_string vals_tn5250_negative_responses[] = {
   { 0x08110200,  "The Cancel key of a printer was pressed when it was not in an error state"},
@@ -4917,6 +4920,7 @@ dissect_tn5250_data_until_next_command(proto_tree *tn5250_tree, tvbuff_t *tvb, g
 #endif
 
 static guint32
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_outbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *tvb, gint offset)
 {
   gint command_code;
@@ -4964,7 +4968,11 @@ dissect_outbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *t
       break;
     case RESTORE_SCREEN:
       while (tvb_reported_length_remaining(tvb, offset) > 0) {
+        unsigned recursion_depth = p_get_proto_depth(pinfo, proto_tn5250);
+        DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+        p_set_proto_depth(pinfo, proto_tn5250, recursion_depth + 1);
         offset += dissect_outbound_stream(cc_tree, pinfo, tvb, offset);
+        p_set_proto_depth(pinfo, proto_tn5250, recursion_depth);
       }
       break;
     case WRITE_ERROR_CODE_TO_WINDOW:
