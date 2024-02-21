@@ -680,6 +680,15 @@ static int hf_smb2_query_info_flags;
 static int hf_smb2_query_info_flag_restart_scan;
 static int hf_smb2_query_info_flag_return_single_entry;
 static int hf_smb2_query_info_flag_index_specified;
+static int hf_smb2_fscc_refs_snapshot_mgmt_operation;
+static int hf_smb2_fscc_refs_snapshot_mgmt_namelen;
+static int hf_smb2_fscc_refs_snapshot_mgmt_input_buffer_len;
+static int hf_smb2_fscc_refs_snapshot_mgmt_reserved;
+static int hf_smb2_fscc_refs_snapshot_mgmt_name;
+static int hf_smb2_fscc_refs_snapshot_query_delta_buffer_startvcn;
+static int hf_smb2_fscc_refs_snapshot_query_delta_buffer_flags;
+static int hf_smb2_fscc_refs_snapshot_query_delta_buffer_reserved;
+static int hf_smb2_flush_reserved2;
 
 static gint ett_smb2;
 static gint ett_smb2_olb;
@@ -798,6 +807,7 @@ static gint ett_smb2_comp_payload;
 static gint ett_smb2_comp_pattern_v1;
 static gint ett_smb2_query_info_flags;
 static gint ett_smb2_server_notification;
+static gint ett_smb2_fscc_refs_snapshot_query_delta_buffer;
 
 static expert_field ei_smb2_invalid_length;
 static expert_field ei_smb2_bad_response;
@@ -1250,6 +1260,35 @@ static const value_string server_notification_types[] = {
 	{ NOTIFY_SESSION_CLOSED, "SmbNotifySessionClosed" },
 	{ 0, NULL }
 };
+
+#define REFS_STREAM_SNAPSHOT_OPERATION_INVALID				0x00000000
+#define REFS_STREAM_SNAPSHOT_OPERATION_CREATE				0x00000001
+#define REFS_STREAM_SNAPSHOT_OPERATION_LIST					0x00000002
+#define REFS_STREAM_SNAPSHOT_OPERATION_QUERY_DELTAS			0x00000003
+#define REFS_STREAM_SNAPSHOT_OPERATION_REVERT				0x00000004
+#define REFS_STREAM_SNAPSHOT_OPERATION_SET_SHADOW_BTREE 	0x00000005
+#define REFS_STREAM_SNAPSHOT_OPERATION_CLEAR_SHADOW_BTREE 	0x00000006
+
+static const value_string refs_stream_snapshot_operation_types[] = {
+	{ REFS_STREAM_SNAPSHOT_OPERATION_INVALID, "Invalid" },
+	{ REFS_STREAM_SNAPSHOT_OPERATION_CREATE, "Create" },
+	{ REFS_STREAM_SNAPSHOT_OPERATION_LIST, "List" },
+	{ REFS_STREAM_SNAPSHOT_OPERATION_QUERY_DELTAS, "Query Deltas" },
+	{ REFS_STREAM_SNAPSHOT_OPERATION_REVERT, "Revert" },
+	{ REFS_STREAM_SNAPSHOT_OPERATION_SET_SHADOW_BTREE, "Set Shadow Btree" },
+	{ REFS_STREAM_SNAPSHOT_OPERATION_CLEAR_SHADOW_BTREE, "Clear Shadow Btree" },
+	{ 0, NULL }
+};
+
+#define FILE_FULL_EA_INFORMATION_FLAG_NONE		0x00000000
+#define FILE_FULL_EA_INFORMATION_FLAG_NEED_EA 	0x00000001
+
+static const value_string file_full_ea_information_flags[] = {
+	{ FILE_FULL_EA_INFORMATION_FLAG_NONE, "None" },
+	{ FILE_FULL_EA_INFORMATION_FLAG_NEED_EA, "Need EA" },
+	{ 0, NULL }
+};
+
 
 static int dissect_windows_sockaddr_storage(tvbuff_t *, packet_info *, proto_tree *, int, int);
 static void dissect_smb2_error_data(tvbuff_t *, packet_info *, proto_tree *, int, int, smb2_info_t *);
@@ -2290,6 +2329,7 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x00090350, "FSCTL_STORAGE_QOS_CONTROL"},                    /* dissector implemented */
 	{0x00090364, "FSCTL_SVHDX_ASYNC_TUNNEL_REQUEST"},             /* dissector implemented */
 	{0x00090380, "FSCTL_SET_INTEGRITY_INFORMATION_EX"},	      	/* dissector implemented */
+	{0x00090440, "FSCTL_REFS_STREAM_SNAPSHOT_MANAGEMENT"},		/* dissector implemented */
 	{0x000940B3, "FSCTL_ENUM_USN_DATA"},
 	{0x000940B7, "FSCTL_SECURITY_ID_CHECK"},
 	{0x000940BB, "FSCTL_READ_USN_JOURNAL"},
@@ -6339,9 +6379,13 @@ dissect_smb2_flush_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 6, ENC_NA);
-	offset += 6;
+	/* reserved1 */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
+	offset += 2;
+
+	/* reserved2 */
+	proto_tree_add_item(tree, hf_smb2_flush_reserved2, tvb, offset, 4, ENC_NA);
+	offset += 4;
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
@@ -6361,8 +6405,8 @@ dissect_smb2_flush_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		if (!continue_dissection) return offset;
 	}
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, ENC_NA);
+	/* reserved bytes */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	return offset;
@@ -6438,8 +6482,8 @@ dissect_smb2_lock_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 		if (!continue_dissection) return offset;
 	}
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, ENC_NA);
+	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	return offset;
@@ -7765,6 +7809,61 @@ dissect_smb2_FSCTL_SET_INTEGRITY_INFORMATION_EX(tvbuff_t *tvb, packet_info *pinf
 }
 
 static int
+dissect_smb2_FSCTL_REFS_STREAM_SNAPSHOT_MANAGEMENT_Query_Delta(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_tree *sub_tree;
+
+	sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_smb2_fscc_refs_snapshot_query_delta_buffer, NULL, "Query Delta Buffer");
+
+	proto_tree_add_item(sub_tree, hf_smb2_fscc_refs_snapshot_query_delta_buffer_startvcn, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	proto_tree_add_item(sub_tree, hf_smb2_fscc_refs_snapshot_query_delta_buffer_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(sub_tree, hf_smb2_fscc_refs_snapshot_query_delta_buffer_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	return offset;
+}
+
+static int
+dissect_smb2_FSCTL_REFS_STREAM_SNAPSHOT_MANAGEMENT(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean data_in)
+{
+	guint32 operation;
+	guint32 name_len;
+	guint32 input_buffer_len;
+
+	/* There is no in data */
+	if (!data_in) {
+		return offset;
+	}
+
+	proto_tree_add_item_ret_uint(tree, hf_smb2_fscc_refs_snapshot_mgmt_operation, tvb, offset, 4, ENC_LITTLE_ENDIAN, &operation);
+	offset += 4;
+
+	proto_tree_add_item_ret_uint(tree, hf_smb2_fscc_refs_snapshot_mgmt_namelen, tvb, offset, 2, ENC_LITTLE_ENDIAN, &name_len);
+	offset += 2;
+
+	proto_tree_add_item_ret_uint(tree, hf_smb2_fscc_refs_snapshot_mgmt_input_buffer_len, tvb, offset, 2, ENC_LITTLE_ENDIAN, &input_buffer_len);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_smb2_fscc_refs_snapshot_mgmt_reserved, tvb, offset, 16, ENC_NA);
+	offset += 16;
+
+	if (name_len) {
+		proto_tree_add_item(tree, hf_smb2_fscc_refs_snapshot_mgmt_name, tvb, offset, name_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+		offset += name_len;
+	}
+
+	if (operation == REFS_STREAM_SNAPSHOT_OPERATION_QUERY_DELTAS) {
+		offset += dissect_smb2_FSCTL_REFS_STREAM_SNAPSHOT_MANAGEMENT_Query_Delta(tvb, pinfo, tree, offset);
+	}
+
+	return offset;
+}
+
+static int
 dissect_smb2_FSCTL_SET_OBJECT_ID(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
 {
 
@@ -8148,6 +8247,9 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 		break;
 	case 0x00090380:
 		dissect_smb2_FSCTL_SET_INTEGRITY_INFORMATION_EX(tvb, pinfo, tree, 0, data_in);
+		break;
+	case 0x00090440:
+		dissect_smb2_FSCTL_REFS_STREAM_SNAPSHOT_MANAGEMENT(tvb, pinfo, tree, 0, data_in);
 		break;
 	default:
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, 0, tvb_captured_length(tvb), ENC_NA);
@@ -12663,7 +12765,7 @@ proto_register_smb2(void)
 
 		{ &hf_smb2_ea_flags,
 			{ "EA Flags", "smb2.ea.flags", FT_UINT8, BASE_HEX,
-			NULL, 0, NULL, HFILL }
+			VALS(file_full_ea_information_flags), 0, NULL, HFILL }
 		},
 
 		{ &hf_smb2_ea_name_len,
@@ -14426,6 +14528,51 @@ proto_register_smb2(void)
 		{ &hf_smb2_notification_type,
 			{ "Notification Type", "smb2.notification.type", FT_UINT32, BASE_HEX,
 			VALS(server_notification_types), 0, NULL, HFILL } },
+
+		{
+			&hf_smb2_fscc_refs_snapshot_mgmt_operation,
+			{ "Operation", "smb2.refs.snapshot.mgmt.op", FT_UINT32, BASE_HEX,
+			VALS(refs_stream_snapshot_operation_types), 0, NULL, HFILL }},
+
+		{
+			&hf_smb2_fscc_refs_snapshot_mgmt_namelen,
+			{ "Name Length", "smb2.refs.snapshot.mgmt.namelen", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{
+			&hf_smb2_fscc_refs_snapshot_mgmt_input_buffer_len,
+			{ "Input Buffer Length", "smb2.refs.snapshot.mgmt.input_buffer_len", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{
+			&hf_smb2_fscc_refs_snapshot_mgmt_reserved,
+			{ "Reserved", "smb2.refs.snapshot.mgmt.reserved", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+
+		{
+			&hf_smb2_fscc_refs_snapshot_mgmt_name,
+			{ "Name", "smb2.refs.snapshot.mgmt.name", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+
+		{
+			&hf_smb2_fscc_refs_snapshot_query_delta_buffer_startvcn,
+			{ "Starting VCN", "smb2.refs.snapshot.query.delta_buffer.startvcn", FT_UINT64, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{
+			&hf_smb2_fscc_refs_snapshot_query_delta_buffer_flags,
+			{ "Flags", "smb2.refs.snapshot.query.delta_buffer.flags", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{
+			&hf_smb2_fscc_refs_snapshot_query_delta_buffer_reserved,
+			{ "Reserved", "smb2.refs.snapshot.query.delta_buffer.reserved", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_flush_reserved2,
+			{ "Reserved2", "smb2.flush.reserved2", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+
 	};
 
 	static gint *ett[] = {
@@ -14546,6 +14693,7 @@ proto_register_smb2(void)
 		&ett_smb2_comp_payload,
 		&ett_smb2_query_info_flags,
 		&ett_smb2_server_notification,
+		&ett_smb2_fscc_refs_snapshot_query_delta_buffer,
 	};
 
 	static ei_register_info ei[] = {
