@@ -3415,7 +3415,9 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolea
 
         /* XXX: What if this is padding (or anything else) that is falsely
          * detected as a SH packet after the TLS handshake in Initial frames
-         * but before the TLS handshake in the Handshake frames? Then the check
+         * but before the TLS handshake in the Handshake frames? The most
+         * likely case is padding that starts with a byte that looks like
+         * a short header when a 0 length DCID is being used. Then the check
          * above won't fail and we will retrieve the wrong TLS information,
          * including ALPN.
          */
@@ -4456,7 +4458,7 @@ quic_extract_header(tvbuff_t *tvb, guint8 *long_packet_type, guint32 *version,
 }
 
 /**
- * Sanity check on (coalasced) packet.
+ * Sanity check on (coalesced) packet.
  * https://tools.ietf.org/html/draft-ietf-quic-transport-32#section-12.2
  * "Senders MUST NOT coalesce QUIC packets with different connection IDs
  *  into a single UDP datagram"
@@ -4515,20 +4517,52 @@ check_dcid_on_coalesced_packet(tvbuff_t *tvb, const quic_datagram *dgram_info,
         return false;
     }
 
-    /* If the first QUIC packet in the frame is an Initial or 0-RTT packet,
-     * then subsequent packets cannot be Short Header packets because the
-     * 1-RTT keys have not been negotiated yet on this connection.
-     * (Initial packets can be coalesced with with 0-RTT or Handshake
-     * long header packets, and it might be possible for Handshake long
-     * header packets to be coalesced with 1-RTT packets.)
+    const quic_packet_info_t *last_packet = &dgram_info->first_packet;
+    while (last_packet->next) {
+        last_packet = last_packet->next;
+    }
+    /* We should not see any Short Header (1-RTT) packets before the 1-RTT keys
+     * have been negotiated. Under normal circumstances, that means that if the
+     * last QUIC packet in the frame before this one is an Initial packet or a
+     * 0-RTT packet, then this cannot be a SH packet but instead is presumably
+     * padding data.
      */
-    if (dgram_info->first_packet.packet_type == QUIC_LPT_INITIAL ||
-        dgram_info->first_packet.packet_type == QUIC_LPT_0RTT) {
+    if (last_packet->packet_type == QUIC_LPT_INITIAL ||
+        last_packet->packet_type == QUIC_LPT_0RTT) {
         if ((first_byte & 0x80) == 0) {
             return false;
         }
     }
 
+#if 0
+    /* XXX - That seems almost certainly true for Initial packets, but due
+     * to packet loss, 0-RTT packets might get resent and interleaved with
+     * Handshake packets, see
+     * https://www.rfc-editor.org/rfc/rfc9001#section-4.1.4
+     * If we have a connection, perhaps on the first pass we should check:
+     */
+    if (conn && ((first_byte & 0x80) == 0)) {
+        quic_ciphers ciphers = !from_server ? &conn->client_handshake_ciphers : &conn->server_handshake_ciphers;
+        if (!quic_are_ciphers_initialized(ciphers)) {
+            return false;
+        }
+    }
+    /* But on the second pass the ciphers would already be initialized from
+     * later frames so we would need to remember the result from the first pass.
+     * Or, instead of the DISSECTOR_ASSERT(quic_packet); below, we just assume
+     * that if there's no quic packet that's because this failed here.
+     *
+     * However, this other solution has issues if the Server Handshake is
+     * fragmented, the server sends 1-RTT data (as "0.5-RTT" data) after the
+     * last Handshake fragment, but then is forced to resend an earlier
+     * Handshake fragment due to not getting an ACK. We need to recognize the
+     * 1-RTT data when it's first sent, not when the Handshake is reassembled.
+     * (Or at least store it as potential 1-RTT to handle later, even if it
+     * turns out to be padding.)
+     */
+#endif
+
+    /* Compare the DCID. Note this doesn't help with a 0 length DCID. */
     return quic_connection_equal(&dcid, first_packet_dcid);
 }
 
@@ -4597,16 +4631,6 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     do {
-        if (!quic_packet) {
-            quic_packet = &dgram_info->first_packet;
-        } else if (!PINFO_FD_VISITED(pinfo)) {
-            quic_packet->next = wmem_new0(wmem_file_scope(), quic_packet_info_t);
-            quic_packet = quic_packet->next;
-        } else {
-            quic_packet = quic_packet->next;
-            DISSECTOR_ASSERT(quic_packet);
-        }
-
         /* Ensure that coalesced QUIC packets end up separated. */
         if (offset > 0) {
             quic_ti = proto_tree_add_item(tree, proto_quic, tvb, offset, -1, ENC_NA);
@@ -4619,6 +4643,16 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             expert_add_info_format(pinfo, quic_tree, &ei_quic_coalesced_padding_data,
                                    "(Random) padding data appended to the datagram");
             break;
+        }
+
+        if (!quic_packet) {
+            quic_packet = &dgram_info->first_packet;
+        } else if (!PINFO_FD_VISITED(pinfo)) {
+            quic_packet->next = wmem_new0(wmem_file_scope(), quic_packet_info_t);
+            quic_packet = quic_packet->next;
+        } else {
+            quic_packet = quic_packet->next;
+            DISSECTOR_ASSERT(quic_packet);
         }
 
         tvbuff_t *next_tvb = quic_get_message_tvb(tvb, offset, &first_packet_dcid);
