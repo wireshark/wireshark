@@ -538,6 +538,8 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 	}
 	else if (hfinfo->display & BASE_VAL64_STRING) {
 		const val64_string *vals = (const val64_string *)hfinfo->strings;
+		if (hfinfo->display & BASE_EXT_STRING)
+			vals = VAL64_STRING_EXT_VS_P((const val64_string_ext *) vals);
 
 		while (vals->strptr != NULL && count <= 1) {
 			if (g_ascii_strcasecmp(s, vals->strptr) == 0) {
