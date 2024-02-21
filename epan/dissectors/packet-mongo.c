@@ -319,6 +319,7 @@ dissect_fullcollectionname(tvbuff_t *tvb, guint offset, proto_tree *tree)
 #define BSON_MAX_NESTING 100
 #define BSON_MAX_DOC_SIZE (16 * 1000 * 1000)
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_bson_document(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int hf_mongo_doc)
 {
   gint32 document_length;
@@ -702,6 +703,7 @@ dissect_mongo_op_commandreply(tvbuff_t *tvb, packet_info *pinfo, guint offset, p
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_mongo_op_compressed(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, guint *effective_opcode)
 {
   guint opcode = 0;
@@ -896,9 +898,14 @@ dissect_mongo_op_msg(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_opcode_types(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *mongo_tree, guint opcode, guint *effective_opcode)
 {
     *effective_opcode = opcode;
+
+    unsigned recursion_depth = p_get_proto_depth(pinfo, proto_mongo);
+    DISSECTOR_ASSERT(recursion_depth <= BSON_MAX_NESTING);
+    p_set_proto_depth(pinfo, proto_mongo, recursion_depth + 1);
 
     switch(opcode){
     case OP_REPLY:
@@ -941,6 +948,8 @@ dissect_opcode_types(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree
       /* No default Action */
       break;
     }
+
+    p_set_proto_depth(pinfo, proto_mongo, recursion_depth);
 
     return offset;
 }
