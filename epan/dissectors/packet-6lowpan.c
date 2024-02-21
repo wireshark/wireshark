@@ -241,6 +241,10 @@ void proto_reg_handoff_6lowpan(void);
 
 /* 6LoWPAN interface identifier length. */
 #define LOWPAN_IFC_ID_LEN               8
+
+/* Arbitrarily chosen. */
+#define MAX_RECURSION_DEPTH 10
+
 /* Protocol fields handles. */
 static int proto_6lowpan = -1;
 static int hf_6lowpan_pattern = -1;
@@ -1861,6 +1865,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
  *---------------------------------------------------------------
  */
 static tvbuff_t *
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dgram_size, const guint8 *siid, const guint8 *diid)
 {
     ieee802154_hints_t  *hints;
@@ -2299,6 +2304,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
  *---------------------------------------------------------------
  */
 static struct lowpan_nhdr *
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint dgram_size, const guint8 *siid, const guint8 *diid)
 {
     gint                length;
@@ -2329,7 +2335,12 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         offset += 1;
 
         /* Decode the remainder of the packet using IPHC encoding. */
+        unsigned recursion_depth = p_get_proto_depth(pinfo, proto_6lowpan);
+        DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+        p_set_proto_depth(pinfo, proto_6lowpan, recursion_depth + 1);
         iphc_tvb = dissect_6lowpan_iphc(tvb_new_subset_remaining(tvb, offset), pinfo, tree, dgram_size, siid, diid);
+        p_set_proto_depth(pinfo, proto_6lowpan, recursion_depth);
+
         if (!iphc_tvb) return NULL;
 
         /* Create the next header structure for the tunneled IPv6 header. */
@@ -2460,7 +2471,11 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
              * There are more LOWPAN_NHC structures to parse. Call ourself again
              * recursively to parse them and build the linked list.
              */
+            unsigned recursion_depth = p_get_proto_depth(pinfo, proto_6lowpan);
+            DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+            p_set_proto_depth(pinfo, proto_6lowpan, recursion_depth + 1);
             nhdr->next = dissect_6lowpan_iphc_nhc(tvb, pinfo, tree, offset, dgram_size - nhdr->reported, siid, diid);
+            p_set_proto_depth(pinfo, proto_6lowpan, recursion_depth);
         }
         else if (ipv6_ext.ip6e_nxt != IP_PROTO_NONE) {
             /* Create another next header structure for the remaining payload. */
