@@ -183,6 +183,10 @@ enum osmo_gsup_message_type {
 	OSMO_GSUP_MSGT_E_ABORT					= 0x4b,
 
 	OSMO_GSUP_MSGT_E_ROUTING_ERROR				= 0x4e,
+
+	OSMO_GSUP_MSGT_EPDG_TUNNEL_REQUEST			= 0x50,
+	OSMO_GSUP_MSGT_EPDG_TUNNEL_ERROR			= 0x51,
+	OSMO_GSUP_MSGT_EPDG_TUNNEL_RESULT			= 0x52,
 };
 
 #define OSMO_GSUP_IS_MSGT_REQUEST(msgt) (((msgt) & 0b00000011) == 0b00)
@@ -422,6 +426,9 @@ static const value_string gsup_msg_types[] = {
 	{ OSMO_GSUP_MSGT_E_CLOSE,			"E Close"},
 	{ OSMO_GSUP_MSGT_E_ABORT,			"E Abort"},
 	{ OSMO_GSUP_MSGT_E_ROUTING_ERROR,		"E Routing Error"},
+	{ OSMO_GSUP_MSGT_EPDG_TUNNEL_REQUEST,		"ePDG Tunnel Request"},
+	{ OSMO_GSUP_MSGT_EPDG_TUNNEL_ERROR,		"ePDG Tunnel Error"},
+	{ OSMO_GSUP_MSGT_EPDG_TUNNEL_RESULT,		"ePDG Tunnel Result"},
 	{ 0, NULL }
 };
 
