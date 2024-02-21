@@ -176,9 +176,13 @@ WSLUA_METHOD Tvb_bytes(lua_State* L) {
 #define WSLUA_OPTARG_Tvb_bytes_LENGTH 3 /* The length (in octets) of the range. Defaults to until the end of the <<lua_class_Tvb,`Tvb`>>. */
     Tvb tvb = checkTvb(L,1);
     GByteArray* ba;
+#if LUA_VERSION_NUM >= 503
+    int offset = (int)luaL_optinteger(L, WSLUA_OPTARG_Tvb_bytes_OFFSET, 0);
+    int len = (int)luaL_optinteger(L, WSLUA_OPTARG_Tvb_bytes_LENGTH, -1);
+#else
     int offset = luaL_optint(L, WSLUA_OPTARG_Tvb_bytes_OFFSET, 0);
     int len = luaL_optint(L,WSLUA_OPTARG_Tvb_bytes_LENGTH,-1);
-
+#endif
     if (tvb->expired) {
         luaL_error(L,"expired tvb");
         return 0;

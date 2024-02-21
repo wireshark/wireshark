@@ -338,7 +338,11 @@ WSLUA_METHOD File_seek(lua_State* L) {
     static const char *const modenames[] = {"set", "cur", "end", NULL};
     File f = checkFile(L,1);
     int op = luaL_checkoption(L, 2, "cur", modenames);
+#if LUA_VERSION_NUM >= 503
+    gint64 offset = (gint64)luaL_optinteger(L, 3, 0);
+#else
     gint64 offset = (gint64) luaL_optlong(L, 3, 0);
+#endif
     int err;
 
 
