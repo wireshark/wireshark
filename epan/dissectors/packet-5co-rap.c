@@ -256,6 +256,7 @@ get_data_size(tvbuff_t *tvb, guint32 first_index, guint32 *p_header_len) {
 /* Recursive function !!                                                     */
 /*****************************************************************************/
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_frame(tvbuff_t *tvb, packet_info* pinfo, proto_tree* fiveco_frame_tree, FCOSConvDevices *types_models_p,
                 guint32 frame_index, guint32 frame_size, guint32 *sub_index_p)
 {
