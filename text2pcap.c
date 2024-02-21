@@ -480,6 +480,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
 
         case 'P':
             hdr_export_pdu = TRUE;
+            wtap_encap_type = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
             info->payload = ws_optarg;
             break;
 
