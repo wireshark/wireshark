@@ -140,7 +140,7 @@ fi
 install_formulae "${ACTUAL_LIST[@]}"
 
 if [ $INSTALL_OPTIONAL -ne 0 ] ; then
-    brew install lua@5.1 || printf "Lua 5.1 installation failed.\\n"
+    brew install lua@5.3 || printf "Lua 5.3 installation failed.\\n"
 fi
 
 if [ $INSTALL_DMG_DEPS -ne 0 ] ; then
