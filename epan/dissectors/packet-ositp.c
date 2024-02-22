@@ -1179,7 +1179,9 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 } /* ositp_decode_DT */
 
 static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
-                           packet_info *pinfo, proto_tree *tree)
+                           packet_info *pinfo, proto_tree *tree,
+                           gboolean uses_inactive_subset,
+                           gboolean *subdissector_found)
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
@@ -1188,6 +1190,7 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   guint       tpdu_nr;
   tvbuff_t   *next_tvb;
   guint       tpdu_len;
+  heur_dtbl_entry_t *hdtbl_entry;
 
   /* ED TPDUs have user data, so they run to the end of the containing PDU */
   tpdu_len = tvb_reported_length_remaining(tvb, offset);
@@ -1367,11 +1370,28 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   offset += li;
 
   /*
-   * XXX - hand this to subdissectors but tell them that this is
-   * in an ED packet?
+   * Tell subdissectors that this is in an ED packet?
    */
   next_tvb = tvb_new_subset_remaining(tvb, offset);
-  call_data_dissector(next_tvb, pinfo, tree);
+  if (uses_inactive_subset) {
+    if (dissector_try_heuristic(cotp_is_heur_subdissector_list, next_tvb,
+                                pinfo, tree, &hdtbl_entry, NULL)) {
+      *subdissector_found = TRUE;
+    } else {
+      /* Fill in other Dissectors using inactive subset here */
+      call_data_dissector(next_tvb, pinfo, tree);
+    }
+  } else {
+    /*
+     * ED TPDUs are never fragmented
+     */
+    if (dissector_try_heuristic(cotp_heur_subdissector_list, next_tvb, pinfo,
+                                tree, &hdtbl_entry, NULL)) {
+      *subdissector_found = TRUE;
+    } else {
+      call_data_dissector(next_tvb, pinfo, tree);
+    }
+  }
 
   offset += tvb_captured_length_remaining(tvb, offset);
      /* we dissected all of the containing PDU */
@@ -2112,7 +2132,8 @@ static gint dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
                                      uses_inactive_subset, &subdissector_found);
         break;
       case ED_TPDU :
-        new_offset = ositp_decode_ED(tvb, offset, li, tpdu, pinfo, tree);
+        new_offset = ositp_decode_ED(tvb, offset, li, tpdu, pinfo, tree,
+                                     uses_inactive_subset, &subdissector_found);
         break;
       case RJ_TPDU :
         new_offset = ositp_decode_RJ(tvb, offset, li, tpdu, cdt, pinfo, tree);
