@@ -12,6 +12,7 @@
  * Copyright 2017, Adam Wujek <adam.wujek@cern.ch>
  * Copyright 2022, Dr. Lars Voelker <lars.voelker@technica-engineering.de>
  * Copyright 2023, Adam Wujek <dev_public@wujek.eu> for CERN
+ * Copyright 2024, Patrik Thunström <patrik.thunstroem@technica-engineering.de>
  *
  * Revisions:
  * - Markus Seehofer 09.08.2005 <mseehofe@nt.hirschmann.de>
@@ -37,6 +38,9 @@
  *   - Added analysis support
  * - Adam Wujek 28.08.2023 <dev_public@wujek.eu>
  *   - Added support for L1Sync
+ * - Patrik Thunström 27.01.2024 <patrik.thunstroem@technica-engineering.de>
+ *   - Improvements/corrections for cumulativeScaledRateOffset
+
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -1634,7 +1638,8 @@ static int hf_ptp_as_fu_tlv_tlvtype;
 static int hf_ptp_as_fu_tlv_lengthfield;
 static int hf_ptp_as_fu_tlv_organization_id;
 static int hf_ptp_as_fu_tlv_organization_subtype;
-static int hf_ptp_as_fu_tlv_cumulative_offset;
+static int hf_ptp_as_fu_tlv_cumulative_scaled_rate_offset;
+static int hf_ptp_as_fu_tlv_cumulative_rate_ratio; /* Remove scale and offset from above */
 static int hf_ptp_as_fu_tlv_gm_base_indicator;
 static int hf_ptp_as_fu_tlv_last_gm_phase_change;
 static int hf_ptp_as_fu_tlv_scaled_last_gm_freq_change;
@@ -2928,6 +2933,8 @@ dissect_ptp_v2_timetstamp(tvbuff_t *tvb, guint16 *cur_offset, proto_tree *tree,
 static void
 dissect_follow_up_tlv(tvbuff_t *tvb, proto_tree *ptp_tree)
 {
+    proto_item  *ti = NULL;
+    gint32 scaled_rate = 0;
     /* There are TLV's to be processed */
     guint16 tlv_length = tvb_get_ntohs(tvb, PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_LENGTHFIELD_OFFSET);
 
@@ -2947,8 +2954,13 @@ dissect_follow_up_tlv(tvbuff_t *tvb, proto_tree *ptp_tree)
     proto_tree_add_item(ptp_tlv_tree, hf_ptp_as_fu_tlv_organization_subtype, tvb,
                         PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_ORGANIZATIONSUBTYPE_OFFSET, 3, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(ptp_tlv_tree, hf_ptp_as_fu_tlv_cumulative_offset, tvb,
-                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_CUMULATIVESCALEDRATEOFFSET_OFFSET, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_int(ptp_tlv_tree, hf_ptp_as_fu_tlv_cumulative_scaled_rate_offset, tvb,
+                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_CUMULATIVESCALEDRATEOFFSET_OFFSET, 4, ENC_BIG_ENDIAN, &scaled_rate);
+
+    // The cumulative scaled rate offset is (rateRatio - 1.0) * 2^41
+    ti = proto_tree_add_double(ptp_tlv_tree, hf_ptp_as_fu_tlv_cumulative_rate_ratio, tvb,
+                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_CUMULATIVESCALEDRATEOFFSET_OFFSET, 4, 1.0 + ((double) scaled_rate / (UINT64_C(1) << 41)));
+    proto_item_set_generated(ti);
 
     proto_tree_add_item(ptp_tlv_tree, hf_ptp_as_fu_tlv_gm_base_indicator, tvb,
                         PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_GMTIMEBASEINDICATOR_OFFSET, 2, ENC_BIG_ENDIAN);
@@ -6738,9 +6750,14 @@ proto_register_ptp(void)
             FT_INT24, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
-        { &hf_ptp_as_fu_tlv_cumulative_offset,
+        { &hf_ptp_as_fu_tlv_cumulative_scaled_rate_offset,
           { "cumulativeScaledRateOffset", "ptp.as.fu.cumulativeScaledRateOffset",
-            FT_UINT32, BASE_DEC, NULL, 0x00,
+            FT_INT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_as_fu_tlv_cumulative_rate_ratio,
+          { "cumulativeRateRatio", "ptp.as.fu.cumulativeRateRatio",
+            FT_DOUBLE, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_as_fu_tlv_gm_base_indicator,
