@@ -140,6 +140,7 @@ private:
     bool tail_at_end_;
     bool columns_changed_;
     bool set_column_visibility_;
+    bool set_style_sheet_;
     QModelIndex frozen_current_row_;
     QModelIndexList frozen_selected_rows_;
     QVector<int> selection_history_;

@@ -204,6 +204,7 @@ PacketList::PacketList(QWidget *parent) :
     tail_at_end_(0),
     columns_changed_(false),
     set_column_visibility_(false),
+    set_style_sheet_(false),
     frozen_current_row_(QModelIndex()),
     frozen_selected_rows_(QModelIndexList()),
     cur_history_(-1),
@@ -358,11 +359,27 @@ void PacketList::colorsChanged()
     }
 
     // Set the style sheet
+    set_style_sheet_ = true;
     if(prefs.gui_packet_list_hover_style) {
         setStyleSheet(active_style + inactive_style + hover_style);
     } else {
         setStyleSheet(active_style + inactive_style);
     }
+    set_style_sheet_ = false;
+#if \
+    ( \
+    (QT_VERSION >= QT_VERSION_CHECK(6, 5, 4) && QT_VERSION < QT_VERSION_CHECK(6, 6, 0)) \
+    || (QT_VERSION >= QT_VERSION_CHECK(6, 6, 1)) \
+    )
+    // https://bugreports.qt.io/browse/QTBUG-122109
+    // Affects Qt 6.5.4 and later, 6.6.1 and later.
+    // When setting the style sheet, all visible sections are set
+    // to the new minimum DefaultSectionSize (even if it hasn't
+    // changed.) So make sure the new widths aren't saved to recent
+    // and then restore from recent.
+    applyRecentColumnWidths();
+    setColumnVisibility();
+#endif
 }
 
 QString PacketList::joinSummaryRow(QStringList col_parts, int row, SummaryCopyType type)
@@ -1786,7 +1803,7 @@ void PacketList::columnVisibilityTriggered()
 
 void PacketList::sectionResized(int col, int, int new_width)
 {
-    if (isVisible() && !columns_changed_ && !set_column_visibility_ && new_width > 0) {
+    if (isVisible() && !columns_changed_ && !set_column_visibility_ && !set_style_sheet_ && new_width > 0) {
         // Column 1 gets an invalid value (32 on macOS) when we're not yet
         // visible.
         //
