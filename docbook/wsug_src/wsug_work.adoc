@@ -956,6 +956,8 @@ The display filter language has a number of functions to convert fields, see
 |len     |Returns the byte length of a string or bytes field.
 |count   |Returns the number of field occurrences in a frame.
 |string  |Converts a non-string field to a string.
+|dec     |Converts an unsigned integer field to a decimal string.
+|hex     |Converts an unsigned integer field to a hexadecimal string.
 |max     |Return the maximum value for the arguments.
 |min     |Return the minimum value for the arguments.
 |abs     |Return the absolute value for the argument.

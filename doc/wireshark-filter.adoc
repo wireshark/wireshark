@@ -138,6 +138,8 @@ The filter language has the following functions:
     len(field)          - returns the byte length of a string or bytes field
     count(field)        - returns the number of field occurrences in a frame
     string(field)       - converts a non-string field to string
+    dec(field)          - converts an unsigned integer to a decimal string
+    hex(field)          - converts an unsigned integer to a hexadecimal string
     max(f1,...,fn)      - return the maximum value
     min(f1,...,fn)      - return the minimum value
     abs(field)          - return the absolute value of numeric fields
@@ -156,6 +158,11 @@ byte fields. For example:
     string(frame.number) matches "[13579]$"
 
 gives you all the odd packets.
+
+dec() and hex() convert unsigned integer fields to decimal or hexadecimal
+representation. Currently dec() and string() give same result for an unsigned
+integer, but it is possible that in the future string() will use the native
+base of the field.
 
 max() and min() take any number of arguments and returns one value, respectively
 the largest/smallest. The arguments must all have the same type.

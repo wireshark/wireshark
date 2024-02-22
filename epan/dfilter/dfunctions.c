@@ -165,6 +165,69 @@ df_func_string(GSList *stack, uint32_t arg_count _U_, df_cell_t *retval)
     return true;
 }
 
+/* dfilter functions: dec(), hex(), */
+static bool
+df_func_base(GSList *stack, uint32_t arg_count _U_, df_cell_t *retval, int base)
+{
+    GPtrArray *arg1;
+    fvalue_t *arg_fvalue;
+    fvalue_t *new_ft_string;
+    char     *s;
+
+    ws_assert(arg_count == 1);
+    arg1 = stack->data;
+    if (arg1 == NULL)
+        return false;
+
+    for (unsigned i = 0; i < arg1->len; i++) {
+        arg_fvalue = arg1->pdata[i];
+
+        if (FT_IS_UINT(fvalue_type_ftenum(arg_fvalue))) {
+            s = fvalue_to_string_repr(NULL, arg_fvalue, FTREPR_DFILTER, base);
+            /* Ensure we have an allocated string here */
+            if (!s)
+                s = wmem_strdup(NULL, "");
+        } else {
+            /* XXX - We have, unfortunately, some field abbreviations which are
+             * re-used with incompatible types, some of which support different
+             * bases and some which don't.
+             */
+            s = wmem_strdup(NULL, "");
+        }
+
+        new_ft_string = fvalue_new(FT_STRING);
+        fvalue_set_string(new_ft_string, s);
+        wmem_free(NULL, s);
+        df_cell_append(retval, new_ft_string);
+    }
+
+    return true;
+}
+
+static bool
+df_func_hex(GSList *stack, uint32_t arg_count _U_, df_cell_t *retval)
+{
+    return df_func_base(stack, arg_count, retval, BASE_HEX);
+}
+
+static bool
+df_func_dec(GSList *stack, uint32_t arg_count _U_, df_cell_t *retval)
+{
+    return df_func_base(stack, arg_count, retval, BASE_DEC);
+}
+
+#if 0
+// XXX - BASE_OCT isn't handled by fvalue_to_string_repr; it probably
+// should at least for FTREPR_DISPLAY (the filter language doesn't
+// support it due to possible notation confusion, I assume.)
+// Add that first before offering it.
+static bool
+df_func_oct(GSList *stack, uint32_t arg_count _U_, df_cell_t *retval)
+{
+    return df_func_base(stack, arg_count, retval, BASE_OCT);
+}
+#endif
+
 static bool
 df_func_compare(GSList *stack, uint32_t arg_count, df_cell_t *retval,
                     bool (*fv_cmp)(const fvalue_t *a, const fvalue_t *b))
@@ -410,6 +473,34 @@ ul_semcheck_string(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftype 
     dfunc_fail(dfw, param, "Only fields can be used as parameter for %s()", func_name);
 }
 
+static ftenum_t
+ul_semcheck_base(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftype _U_,
+                            GSList *param_list, df_loc_t func_loc _U_)
+{
+    header_field_info *hfinfo;
+
+    ws_assert(g_slist_length(param_list) == 1);
+    stnode_t *param = param_list->data;
+
+    resolve_unparsed(dfw, param, true);
+
+    if (stnode_type_id(param) == STTYPE_FIELD) {
+        dfw->field_count++;
+        hfinfo = sttype_field_hfinfo(param);
+        /* FT_CHAR also supports BASE_, but for what sort of escaped
+         * values to use for non-printable ASCII. BASE_HEX uses hex,
+         * all other bases will use octal.
+         * That's a little confusing, so don't support it for now.
+         * More useful might be to display all possible values as
+         * HEX or DEC, i.e. convert to a FT_UINT8 first. */
+        if (FT_IS_UINT(hfinfo->type)) {
+            return FT_STRING;
+        }
+        dfunc_fail(dfw, param, "Base conversion for field \"%s\" is not supported", hfinfo->abbrev);
+    }
+    dfunc_fail(dfw, param, "Only fields can be used as parameter for %s()", func_name);
+}
+
 /* Check arguments are all the same type and they can be compared. */
 static ftenum_t
 ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftype,
@@ -460,6 +551,9 @@ df_functions[] = {
     { "len",    NULL,           1, 1, FT_UINT32, ul_semcheck_can_length },
     { "count",  df_func_count,  1, 1, FT_UINT32, ul_semcheck_is_field },
     { "string", df_func_string, 1, 1, FT_STRING, ul_semcheck_string },
+    { "dec",    df_func_dec,    1, 1, FT_STRING, ul_semcheck_base },
+    { "hex",    df_func_hex,    1, 1, FT_STRING, ul_semcheck_base },
+    //{ "oct",    df_func_oct,    1, 1, FT_STRING, ul_semcheck_base },
     { "max",    df_func_max,    1, 0, FT_NONE, ul_semcheck_compare },
     { "min",    df_func_min,    1, 0, FT_NONE, ul_semcheck_compare },
     { "abs",    df_func_abs,    1, 1, FT_NONE, ul_semcheck_absolute_value },

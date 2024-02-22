@@ -77,6 +77,9 @@ The following features are new (or have been significantly updated) since versio
   ** Added new display filter functions to test various IP address properties.
      Check the wireshark-filter(5) manpage for more information.
 
+  ** Added new display filter functions to convert unsigned integer types to
+     decimal or hexadecimal. Check the wireshark-filter(5) manpage for more information.
+
   ** Display filter macros can be written with a semicolon after the macro
      name before the argument list, e.g. `${mymacro;arg1;...;argN}`, instead
      of `${mymacro:arg1;...;argN}`. The version with semicolons works better
