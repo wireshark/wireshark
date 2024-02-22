@@ -19,10 +19,6 @@
  * Copyright 1998 Gerald Combs
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
- *
- * Specification reference:
- * RFC 5050
- * https://tools.ietf.org/html/rfc5050
  */
 
 /*
@@ -53,16 +49,38 @@
 #include "packet-bpv6.h"
 #include "packet-tcpcl.h"
 
-void proto_register_tcpclv3(void);
-void proto_reg_handoff_tcpclv3(void);
+void proto_register_tcpcl(void);
+void proto_reg_handoff_tcpcl(void);
 
+/// Contact header magic bytes
 static const char magic[] = {'d', 't', 'n', '!'};
+/// Minimum size of contact header for any version
+static const guint minimum_chdr_size = 6;
+
+/// Options for missing contact header handling
+enum AllowContactHeaderMissing {
+    CHDRMSN_DISABLE,
+    CHDRMSN_V3FIRST,
+    CHDRMSN_V3ONLY,
+    CHDRMSN_V4FIRST,
+    CHDRMSN_V4ONLY,
+};
+
+static const enum_val_t chdr_missing_choices[] = {
+    {"disabled", "Disabled", CHDRMSN_DISABLE},
+    {"v4first", "Try TCPCLv4 first", CHDRMSN_V4FIRST},
+    {"v4only", "Only TCPCLv4", CHDRMSN_V4ONLY},
+    {"v3first", "Try TCPCLv3 first", CHDRMSN_V3FIRST},
+    {"v3only", "Only TCPCLv3", CHDRMSN_V3ONLY},
+    {NULL, NULL, 0},
+};
 
 static int proto_tcpcl;
 static int proto_tcpcl_exts;
 /// Protocol column name
 static const char *const proto_name_tcpcl = "TCPCL";
 
+static gint tcpcl_chdr_missing = CHDRMSN_V4FIRST;
 static gboolean tcpcl_desegment_transfer = TRUE;
 static gboolean tcpcl_analyze_sequence = TRUE;
 static gboolean tcpcl_decode_bundle = TRUE;
@@ -256,7 +274,7 @@ static hf_register_info hf_tcpcl[] = {
     {&hf_chdr_related, {"Related Header", "tcpcl.contact_hdr.related", FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_tcpclv3_mhdr,
-     {"TCPCLv3 Header", "tcpcl.mhdr",
+     {"TCPCLv3 Message", "tcpcl.mhdr",
       FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     {&hf_tcpclv3_pkt_type,
@@ -532,6 +550,7 @@ static expert_field ei_invalid_version;
 static expert_field ei_mismatch_version;
 static expert_field ei_chdr_duplicate;
 static expert_field ei_length_clamped;
+static expert_field ei_chdr_missing;
 
 static expert_field ei_tcpclv3_eid_length;
 static expert_field ei_tcpclv3_invalid_msg_type;
@@ -566,6 +585,7 @@ static ei_register_info ei_tcpcl[] = {
     {&ei_mismatch_version, { "tcpcl.mismatch_contact_version", PI_PROTOCOL, PI_ERROR, "Protocol version mismatch", EXPFILL}},
     {&ei_chdr_duplicate, { "tcpcl.contact_duplicate", PI_SEQUENCE, PI_ERROR, "Duplicate Contact Header", EXPFILL}},
     {&ei_length_clamped, { "tcpcl.length_clamped", PI_UNDECODED, PI_ERROR, "Length too large for Wireshark to handle", EXPFILL}},
+    {&ei_chdr_missing, { "tcpcl.contact_missing", PI_ASSUMPTION, PI_NOTE, "Contact Header is missing, TCPCL version is implied", EXPFILL}},
 
     {&ei_tcpclv3_eid_length, { "tcpcl.eid_length_invalid", PI_PROTOCOL, PI_ERROR, "Invalid EID Length", EXPFILL }},
     {&ei_tcpclv3_invalid_msg_type, { "tcpcl.unknown_message_type", PI_UNDECODED, PI_ERROR, "Message type is unknown", EXPFILL}},
@@ -853,12 +873,24 @@ tcpcl_dissect_ctx_t * tcpcl_dissect_ctx_get(tvbuff_t *tvb, packet_info *pinfo, c
     }
 
     ctx->is_contact = (
-        !(ctx->tx_peer->chdr_seen)
-        || tcpcl_frame_loc_equal(ctx->tx_peer->chdr_seen, ctx->cur_loc)
+        !(ctx->tx_peer->chdr_missing)
+        && (
+            !(ctx->tx_peer->chdr_seen)
+            || tcpcl_frame_loc_equal(ctx->tx_peer->chdr_seen, ctx->cur_loc)
+        )
     );
 
     return ctx;
 }
+
+static void set_chdr_missing(tcpcl_peer_t *peer, guint8 version) {
+    peer->chdr_missing = TRUE;
+    peer->version = version;
+    // assumed parameters
+    peer->segment_mru = G_MAXUINT64;
+    peer->transfer_mru = G_MAXUINT64;
+}
+
 
 static void try_negotiate(tcpcl_dissect_ctx_t *ctx, packet_info *pinfo) {
     if (!(ctx->convo->contact_negotiated)
@@ -1222,9 +1254,12 @@ get_v3_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
         }
         offset += bytecount;
         break;
+
+    default:
+        // no known message
+        return 0;
     }
 
-    /* This probably isn't a TCPCL/Bundle packet, so just stop dissection */
     return offset - orig_offset;
 }
 
@@ -1482,7 +1517,8 @@ static guint get_v4_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
             break;
         }
         default:
-            break;
+            // no known message
+            return 0;
     }
     return offset - init_offset;
 }
@@ -1856,15 +1892,18 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     wmem_strbuf_finalize(suffix_text);
 
     if (tcpcl_analyze_sequence) {
-        if (!(ctx->tx_peer->sess_init_seen)) {
-            expert_add_info(pinfo, item_msg, &ei_tcpclv4_sess_init_missing);
-        }
-        else {
-            // This message is before SESS_INIT (but is not the SESS_INIT)
-            const gint cmp_sess_init = tcpcl_frame_loc_compare(ctx->cur_loc, ctx->tx_peer->sess_init_seen, NULL);
-            if (((msgtype == TCPCLV4_MSGTYPE_SESS_INIT) && (cmp_sess_init < 0))
-                || ((msgtype != TCPCLV4_MSGTYPE_SESS_INIT) && (cmp_sess_init <= 0))) {
+        if (!(ctx->tx_peer->chdr_missing)) {
+            // assume the capture is somewhere in the middle
+            if (!(ctx->tx_peer->sess_init_seen)) {
                 expert_add_info(pinfo, item_msg, &ei_tcpclv4_sess_init_missing);
+            }
+            else {
+                // This message is before SESS_INIT (but is not the SESS_INIT)
+                const gint cmp_sess_init = tcpcl_frame_loc_compare(ctx->cur_loc, ctx->tx_peer->sess_init_seen, NULL);
+                if (((msgtype == TCPCLV4_MSGTYPE_SESS_INIT) && (cmp_sess_init < 0))
+                    || ((msgtype != TCPCLV4_MSGTYPE_SESS_INIT) && (cmp_sess_init <= 0))) {
+                    expert_add_info(pinfo, item_msg, &ei_tcpclv4_sess_init_missing);
+                }
             }
         }
     }
@@ -1891,6 +1930,97 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
+/** Function to extract a message length, or zero if not valid.
+ * This will call set_chdr_missing() if valid.
+ */
+typedef guint (*chdr_missing_check)(packet_info *, tvbuff_t *, int offset, tcpcl_dissect_ctx_t *);
+
+/** Inspect a single segment to determine if this looks like a TLS record set.
+ */
+static guint chdr_missing_tls(packet_info *pinfo, tvbuff_t *tvb, int offset,
+                              tcpcl_dissect_ctx_t *ctx) {
+    if (ctx->convo->session_tls_start) {
+        // already in a TLS context
+        return 0;
+    }
+
+    // similar heuristics to is_sslv3_or_tls() from packet-tls.c
+    if (tvb_captured_length(tvb) < 5) {
+        return 0;
+    }
+    guint8 rectype = tvb_get_guint8(tvb, offset);
+    offset += 1;
+    guint16 recvers = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    offset += 2;
+    guint16 reclen = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    switch(rectype) {
+        // These overlap with TCPCLV3_DATA_SEGMENT but have invalid flags
+        // They are valid but unallocated v4 message type codes
+        case SSL_ID_ALERT:
+        case SSL_ID_HANDSHAKE:
+        case SSL_ID_APP_DATA:
+        case SSL_ID_HEARTBEAT:
+            break;
+        default:
+            return 0;
+    }
+    if ((recvers & 0xFF00) != 0x0300) {
+        return 0;
+    }
+    if (reclen == 0 || reclen >= TLS_MAX_RECORD_LENGTH + 2048) {
+        return 0;
+    }
+
+    // post-STARTTLS
+    ctx->convo->session_use_tls = TRUE;
+    ctx->convo->session_tls_start = tcpcl_frame_loc_clone(wmem_file_scope(), ctx->cur_loc);
+    ssl_starttls_post_ack(tls_handle, pinfo, tcpcl_handle);
+
+    return tvb_reported_length(tvb);
+
+}
+
+static guint chdr_missing_v3(packet_info *pinfo, tvbuff_t *tvb, int offset,
+                             tcpcl_dissect_ctx_t *ctx) {
+    guint sublen = get_v3_msg_len(pinfo, tvb, offset, ctx);
+    if (sublen > 0) {
+        set_chdr_missing(ctx->tx_peer, 3);
+    }
+    return sublen;
+}
+
+static guint chdr_missing_v4(packet_info *pinfo, tvbuff_t *tvb, int offset,
+                             tcpcl_dissect_ctx_t *ctx) {
+    guint sublen = get_v4_msg_len(pinfo, tvb, offset, ctx);
+    if (sublen > 0) {
+        set_chdr_missing(ctx->tx_peer, 4);
+    }
+    return sublen;
+}
+
+static const chdr_missing_check chdr_missing_v3first[] = {
+    &chdr_missing_tls,
+    &chdr_missing_v3,
+    &chdr_missing_v4,
+    NULL
+};
+static const chdr_missing_check chdr_missing_v3only[] = {
+    &chdr_missing_v3,
+    NULL
+};
+static const chdr_missing_check chdr_missing_v4first[] = {
+    &chdr_missing_tls,
+    &chdr_missing_v4,
+    &chdr_missing_v3,
+    NULL
+};
+static const chdr_missing_check chdr_missing_v4only[] = {
+    &chdr_missing_v4,
+    NULL
+};
+
 static guint get_message_len(packet_info *pinfo, tvbuff_t *tvb, int ext_offset, void *data _U_) {
     tcpcl_dissect_ctx_t *ctx = tcpcl_dissect_ctx_get(tvb, pinfo, ext_offset);
     if (!ctx) {
@@ -1900,7 +2030,45 @@ static guint get_message_len(packet_info *pinfo, tvbuff_t *tvb, int ext_offset, 
     guint offset = ext_offset;
 
     if (ctx->is_contact) {
+        if (tvb_memeql(tvb, offset, magic, sizeof(magic)) != 0) {
+            // Optional heuristic dissection of a message
+            const chdr_missing_check *checks = NULL;
+            switch (tcpcl_chdr_missing) {
+                case CHDRMSN_V3FIRST:
+                    checks = chdr_missing_v3first;
+                    break;
+                case CHDRMSN_V3ONLY:
+                    checks = chdr_missing_v3only;
+                    break;
+                case CHDRMSN_V4FIRST:
+                    checks = chdr_missing_v4first;
+                    break;
+                case CHDRMSN_V4ONLY:
+                    checks = chdr_missing_v4only;
+                    break;
+            }
+            if (checks) {
+                for (const chdr_missing_check *chk = checks; *chk; ++chk) {
+                    guint sublen = (**chk)(pinfo, tvb, offset, ctx);
+                    if (sublen > 0) {
+                        return sublen;
+                    }
+                }
+                // no match
+                return 0;
+            }
+            else {
+                // require the contact header
+                const guint available = tvb_captured_length(tvb) - offset;
+                if (available < sizeof(magic) + 1) {
+                    return DESEGMENT_ONE_MORE_SEGMENT;
+                }
+                // sufficient size available but no match
+                return 0;
+            }
+        }
         offset += sizeof(magic);
+
         guint8 version = tvb_get_guint8(tvb, offset);
         offset += 1;
         if (version == 3) {
@@ -1968,19 +2136,21 @@ static gint dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         tree_tcpcl = proto_item_add_subtree(item_tcpcl, ett_proto_tcpcl);
     }
 
+    if (ctx->tx_peer->chdr_missing) {
+        expert_add_info(pinfo, item_tcpcl, &ei_chdr_missing);
+    }
     if (ctx->is_contact) {
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Contact Header");
 
         proto_item *item_chdr = proto_tree_add_item(tree_tcpcl, hf_chdr_tree, tvb, offset, -1, ENC_NA);
         proto_tree *tree_chdr = proto_item_add_subtree(item_chdr, ett_chdr);
 
-        const void *magic_data = tvb_memdup(wmem_packet_scope(), tvb, offset, sizeof(magic));
-        proto_item *item_magic = proto_tree_add_bytes(tree_chdr, hf_chdr_magic, tvb, offset, 4, magic_data);
-        offset += sizeof(magic);
-        if (memcmp(magic_data, magic, sizeof(magic)) != 0) {
+        proto_item *item_magic = proto_tree_add_item(tree_chdr, hf_chdr_magic, tvb, offset, sizeof(magic), ENC_SEP_NONE);
+        if (tvb_memeql(tvb, offset, magic, sizeof(magic)) != 0) {
             expert_add_info(pinfo, item_magic, &ei_invalid_magic);
-            return offset;
+            return 0;
         }
+        offset += sizeof(magic);
 
         ctx->tx_peer->version = tvb_get_guint8(tvb, offset);
         proto_item *item_version = proto_tree_add_uint(tree_chdr, hf_chdr_version, tvb, offset, 1, ctx->tx_peer->version);
@@ -2122,6 +2292,24 @@ dissect_tcpcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     return buflen;
 }
 
+static gboolean
+dissect_tcpcl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    if (tvb_reported_length(tvb) < minimum_chdr_size) {
+        return FALSE;
+    }
+    if (tvb_memeql(tvb, 0, magic, sizeof(magic)) != 0) {
+        return FALSE;
+    }
+
+    // treat the rest of the connection as TCPCL
+    conversation_t *convo = find_or_create_conversation(pinfo);
+    conversation_set_dissector(convo, tcpcl_handle);
+
+    dissect_tcpcl(tvb, pinfo, tree, data);
+    return TRUE;
+}
+
 static int dissect_xferext_transferlen(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
     int offset = 0;
     tcpcl_dissect_ctx_t *ctx = tcpcl_dissect_ctx_get(tvb, pinfo, offset);
@@ -2164,11 +2352,15 @@ static void reinit_tcpcl(void) {
 }
 
 void
-proto_register_tcpclv3(void)
+proto_register_tcpcl(void)
 {
     expert_module_t *expert_tcpcl;
 
-    proto_tcpcl = proto_register_protocol("DTN TCP Convergence Layer Protocol", "TCPCL", "tcpcl");
+    proto_tcpcl = proto_register_protocol(
+        "DTN TCP Convergence Layer Protocol",
+        "TCPCL",
+        "tcpcl"
+    );
 
     proto_tcpcl_exts = proto_register_protocol_in_name_only(
         "TCPCL Extension Subdissectors",
@@ -2188,11 +2380,22 @@ proto_register_tcpclv3(void)
     xfer_ext_dissectors = register_dissector_table("tcpcl.v4.xfer_ext", "TCPCLv4 Transfer Extension", proto_tcpcl, FT_UINT16, BASE_HEX);
 
     module_t *module_tcpcl = prefs_register_protocol(proto_tcpcl, reinit_tcpcl);
+    prefs_register_enum_preference(
+        module_tcpcl,
+        "allow_chdr_missing",
+        "Allow missing Contact Header",
+        "Whether the TCPCL dissector should use heuristic "
+        "dissection of messages in the absence of a Contact Header "
+        "(if the capture misses the start of session).",
+        &tcpcl_chdr_missing,
+        chdr_missing_choices,
+        FALSE
+    );
     prefs_register_bool_preference(
         module_tcpcl,
         "analyze_sequence",
         "Analyze message sequences",
-        "Whether the TCPCLv4 dissector should analyze the sequencing of "
+        "Whether the TCPCL dissector should analyze the sequencing of "
         "the messages within each session.",
         &tcpcl_analyze_sequence
     );
@@ -2200,8 +2403,8 @@ proto_register_tcpclv3(void)
         module_tcpcl,
         "desegment_transfer",
         "Reassemble the segments of each transfer",
-        "Whether the TCPCLv4 dissector should combine the sequential segments "
-        "of a transfer into the full bundle being transferred."
+        "Whether the TCPCL dissector should combine the sequential segments "
+        "of a transfer into the full bundle being transfered."
         "To use this option, you must also enable "
         "\"Allow subdissectors to reassemble TCP streams\" "
         "in the TCP protocol settings.",
@@ -2211,8 +2414,7 @@ proto_register_tcpclv3(void)
         module_tcpcl,
         "decode_bundle",
         "Decode bundle data",
-        "If enabled, the bundle will be decoded as BPv7 content. "
-        "Otherwise, it is assumed to be plain CBOR.",
+        "If enabled, the transfer bundle will be decoded.",
         &tcpcl_decode_bundle
     );
 
@@ -2224,12 +2426,13 @@ proto_register_tcpclv3(void)
 }
 
 void
-proto_reg_handoff_tcpclv3(void)
+proto_reg_handoff_tcpcl(void)
 {
     tls_handle = find_dissector_add_dependency("tls", proto_tcpcl);
     bundle_handle = find_dissector("bundle");
 
     dissector_add_uint_with_preference("tcp.port", BUNDLE_PORT, tcpcl_handle);
+    heur_dissector_add("tcp", dissect_tcpcl_heur, "TCPCL over TCP", "tcpcl_tcp", proto_tcpcl, HEURISTIC_ENABLE);
 
     /* Packaged extensions */
     {

@@ -146,6 +146,8 @@ typedef struct {
     /// Port for the this peer
     guint32 port;
 
+    /// True if a contact header was not seen at the start of connection
+    gboolean chdr_missing;
     /// Frame number in which the contact header starts
     tcpcl_frame_loc_t *chdr_seen;
     /// TCPCL version seen from this peer
