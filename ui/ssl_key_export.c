@@ -26,7 +26,7 @@ ssl_session_key_count(void)
 {
     int count = 0;
     ssl_master_key_map_t *mk_map = tls_get_master_key_map(FALSE);
-    if (!mk_map)
+    if (!mk_map || !mk_map->used_crandom)
         return count;
 
     GHashTableIter iter;
