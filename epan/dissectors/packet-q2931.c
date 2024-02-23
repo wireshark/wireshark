@@ -249,9 +249,9 @@ static const value_string msg_action_ind_vals[] = {
 
 static const value_string coding_std_vals[] = {
 	{ 0x00, "ITU-T standardized coding" },
-	{ 0x20, "ISO/IEC standard" },
-	{ 0x40, "National standard" },
-	{ 0x60, "Standard defined for the network" },
+	{ 0x01, "ISO/IEC standard" },
+	{ 0x02, "National standard" },
+	{ 0x03, "Standard defined for the network" },
 	{ 0,    NULL }
 };
 

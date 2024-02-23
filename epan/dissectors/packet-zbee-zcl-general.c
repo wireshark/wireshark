@@ -2106,8 +2106,8 @@ proto_reg_handoff_zbee_zcl_groups(void)
 #define ZBEE_ZCL_ATTR_ID_SCENES_LAST_CONFIGURED_BY              0x0005  /* Last Configured By */
 
 /* Scene Name Support */
-#define ZBEE_ZCL_SCENES_NAME_SUPPORTED                          0x80  /* Scene Names Supported */
 #define ZBEE_ZCL_SCENES_NAME_NOT_SUPPORTED                      0x00  /* Scene Names Not Supported */
+#define ZBEE_ZCL_SCENES_NAME_SUPPORTED                          0x01  /* Scene Names Supported */
 
 /* Copy Mode */
 #define ZBEE_ZCL_SCENES_COPY_SPECIFIED                          0x00  /* Copy Specified Scenes */

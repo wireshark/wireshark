@@ -329,6 +329,7 @@ comunicaciones
 concatenate
 concatenated
 concatenates
+concatenating
 concatenation
 concentrator
 concurrent
@@ -648,6 +649,7 @@ extpfx
 extractors
 extrainformation
 eyesdn
+f5eth
 facch
 failover
 falco
@@ -661,6 +663,7 @@ featureful
 fhandle
 fiber
 fileset
+filsfils
 firefox
 firewall
 fixme
@@ -1158,6 +1161,7 @@ noauth
 nodeid
 nofcs
 nokia
+nolintnextline
 nominals
 non3gpp
 nonask
@@ -1481,6 +1485,7 @@ redirection
 redirector
 redirects
 redissecting
+redissection
 redist
 redistributable
 redistributables
@@ -1490,6 +1495,7 @@ reentry
 reestablishing
 reestablishment
 refactored
+refactoring
 referer
 referrer
 regex
@@ -1521,6 +1527,7 @@ reprogrammable
 reprogramming
 republish
 requester
+requesters
 requestor
 requeue
 reregister
@@ -1554,6 +1561,7 @@ resynchronize
 resynchronized
 retarder
 retrans
+retranslated
 retransmission
 retransmissions
 retransmit
@@ -1611,6 +1619,7 @@ sanitize
 sanitizers
 sapgui
 satisfiable
+saturates
 savvius
 scalability
 scalable
@@ -1638,6 +1647,7 @@ semiautomatic
 sendto
 separability
 separators
+seqlen
 seqno
 seqnr
 seqnum
@@ -1718,6 +1728,7 @@ spoofing
 spooled
 sqlwarn
 srbid
+srcip
 srcport
 srtcp
 srvcc
@@ -1748,6 +1759,7 @@ subband
 subcarrier
 subcarriers
 subchannel
+subchannelization
 subcode
 subdevice
 subdissector
@@ -1856,6 +1868,7 @@ timezone
 tipcv
 tobago
 toggled
+toggles
 toggling
 toolbar
 toolongfragment
@@ -2040,6 +2053,7 @@ unresolvable
 unresponded
 unroutable
 unsaved
+unscaled
 unsecure
 unsegmented
 unsequenced
@@ -2116,6 +2130,7 @@ viavi
 virtex
 virtio
 virtualization
+virtualized
 vlans
 vmware
 vnode
@@ -2155,6 +2170,7 @@ wowlan
 wpcap
 wrepl
 writable
+wsbuglink
 wsbuild
 wscale
 wscbor
@@ -2182,18 +2198,3 @@ zeroes
 zigbee
 zugtyp
 zürich
-nolintnextline
-wsbuglink
-srcip
-saturates
-toggles
-retranslated
-subchannelization
-redissection
-f5eth
-requesters
-concatenating
-virtualized
-filsfils
-seqlen
-refactoring

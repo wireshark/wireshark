@@ -305,6 +305,8 @@ static const value_string lorawan_ftypenames[] = {
 	{ LORAWAN_MAC_FTYPE_CONFIRMEDDATADOWN,		"Confirmed Data Down" },
 	{ LORAWAN_MAC_FTYPE_RFU,			"RFU" },
 	{ LORAWAN_MAC_FTYPE_PROPRIETARY,		"Proprietary" },
+	// TODO: having this here makes no sense.
+	//  It's value doesn't fit into 3 bits, and is only ever looked up with a hardcoded key...
 	{ LORAWAN_MAC_BEACON, 				"Class-B Beacon" },
 	{ 0, NULL }
 };
