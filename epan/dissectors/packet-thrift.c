@@ -1054,7 +1054,7 @@ dissect_thrift_t_bool(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     return dissect_thrift_raw_bool(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, NULL);
 }
 
-int
+static int
 dissect_thrift_raw_i8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, dissector_t raw_dissector)
 {
     /* Get the current state of dissection. */
@@ -1095,7 +1095,7 @@ dissect_thrift_t_i8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     return dissect_thrift_raw_i8(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, NULL);
 }
 
-int
+static int
 dissect_thrift_raw_i16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, dissector_t raw_dissector)
 {
     /* Get the current state of dissection. */
@@ -1144,7 +1144,7 @@ dissect_thrift_t_i16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     return dissect_thrift_raw_i16(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, NULL);
 }
 
-int
+static int
 dissect_thrift_raw_i32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, dissector_t raw_dissector)
 {
     /* Get the current state of dissection. */
@@ -1193,7 +1193,7 @@ dissect_thrift_t_i32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     return dissect_thrift_raw_i32(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, NULL);
 }
 
-int
+static int
 dissect_thrift_raw_i64(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, dissector_t raw_dissector)
 {
     /* Get the current state of dissection. */
@@ -1242,7 +1242,7 @@ dissect_thrift_t_i64(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     return dissect_thrift_raw_i64(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, NULL);
 }
 
-int
+static int
 dissect_thrift_raw_double(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, dissector_t raw_dissector)
 {
     /* Get the current state of dissection. */
@@ -1286,7 +1286,7 @@ dissect_thrift_t_double(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     return dissect_thrift_raw_double(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, NULL);
 }
 
-int
+static int
 dissect_thrift_raw_uuid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, dissector_t raw_dissector)
 {
     /* Get the current state of dissection. */
@@ -1328,7 +1328,7 @@ dissect_thrift_t_uuid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     return dissect_thrift_raw_uuid(tvb, pinfo, tree, offset, thrift_opt, is_field, field_id, hf_id, NULL);
 }
 
-int
+static int
 dissect_thrift_raw_binary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, guint encoding, dissector_t raw_dissector)
 {
     /* Get the current state of dissection. */
