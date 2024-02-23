@@ -357,6 +357,7 @@ sub is_proto_dup_allowed {
 	if (($_[0] eq "tn3270") && (index($_[1], "tn3270e") >= 0)) {return 1;}
 	if (($_[0] eq "usb") && (index($_[1], "usb") >= 0)) {return 1;}
 	if (($_[0] eq "xml") && (index($_[1], "xml") >= 0)) {return 1;}
+	if (($_[0] eq "dns") && (index($_[1], "dnscrypt") >= 0)) {return 1;}
 
 	return 0;
 }

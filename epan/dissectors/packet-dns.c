@@ -485,6 +485,17 @@ static int hf_dns_dso_tlv_keepalive_interval;
 static int hf_dns_dso_tlv_retrydelay_retrydelay;
 static int hf_dns_dso_tlv_encpad_padding;
 
+static int hf_dns_dnscrypt;
+static int hf_dns_dnscrypt_magic;
+static int hf_dns_dnscrypt_esversion;
+static int hf_dns_dnscrypt_protocol_version;
+static int hf_dns_dnscrypt_signature;
+static int hf_dns_dnscrypt_resolver_pk;
+static int hf_dns_dnscrypt_client_magic;
+static int hf_dns_dnscrypt_serial_number;
+static int hf_dns_dnscrypt_ts_start;
+static int hf_dns_dnscrypt_ts_end;
+
 static gint ett_dns;
 static gint ett_dns_qd;
 static gint ett_dns_rr;
@@ -503,6 +514,7 @@ static gint ett_dns_dso;
 static gint ett_dns_dso_tlv;
 static gint ett_dns_svcb;
 static gint ett_dns_extraneous;
+static gint ett_dns_dnscrypt;
 
 static expert_field ei_dns_a_class_undecoded;
 static expert_field ei_dns_opt_bad_length;
@@ -2014,6 +2026,15 @@ static const value_string dns_cert_type_vals[] = {
   { 0,                   NULL }
 };
 
+#define XSALSA20_POLY1305  0x0001
+#define XCHACHA20_POLY1305 0x0002
+
+static const value_string esversions[] = {
+  { XSALSA20_POLY1305,   "XSalsa20Poly1305" },
+  { XCHACHA20_POLY1305,  "XChacha20Poly1305" },
+  { 0,  NULL }
+};
+
 /**
  *   Compute the key id of a KEY RR depending of the algorithm used.
  */
@@ -2060,6 +2081,58 @@ dissect_dns_svcparam_base64(proto_tree *param_tree, proto_item *param_item, int 
   proto_tree_add_bytes_format_value(param_tree, hf_id, tvb, offset, length, NULL, "%s", str);
   proto_item_append_text(param_item, "=%s", str);
   g_free(str);
+}
+
+static void
+add_timestamp(proto_tree *tree, int hf_id, tvbuff_t *tvb, int offset)
+{
+    time_t date = tvb_get_ntohl(tvb, offset);
+    nstime_t tv= {0, 0};
+    tv.secs = (time_t)(date);
+    proto_tree_add_time(tree, hf_id, tvb, offset, 4, &tv);
+}
+
+/* The client begins a DNSCrypt session by sending a regular unencrypted
+   TXT DNS query to the resolver IP address
+     https://dnscrypt.info/protocol/
+     https://www.ietf.org/archive/id/draft-denis-dprive-dnscrypt-01.html
+     https://github.com/DNSCrypt/dnscrypt-proxy/blob/master/dnscrypt-proxy/dnscrypt_certs.go
+*/
+static void
+dissect_dnscrypt(proto_tree *tree, tvbuff_t *tvb, int offset, guint length)
+{
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+
+    sub_item = proto_tree_add_item(tree, hf_dns_dnscrypt, tvb, offset, length, ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item, ett_dns_dnscrypt);
+
+    proto_tree_add_item(sub_tree, hf_dns_dnscrypt_magic, tvb, offset, 4, ENC_ASCII);
+    offset+= 4;
+
+    proto_tree_add_item(sub_tree, hf_dns_dnscrypt_esversion, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+= 2;
+
+    proto_tree_add_item(sub_tree, hf_dns_dnscrypt_protocol_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+= 2;
+
+    proto_tree_add_item(sub_tree, hf_dns_dnscrypt_signature, tvb, offset, 64, ENC_NA);
+    offset+= 64;
+
+    proto_tree_add_item(sub_tree, hf_dns_dnscrypt_resolver_pk, tvb, offset, 32, ENC_NA);
+    offset+= 32;
+
+    proto_tree_add_item(sub_tree, hf_dns_dnscrypt_client_magic, tvb, offset, 8, ENC_NA);
+    offset+= 8;
+
+    proto_tree_add_item(sub_tree, hf_dns_dnscrypt_serial_number, tvb, offset, 4, ENC_NA);
+    offset+= 4;
+
+    add_timestamp(sub_tree, hf_dns_dnscrypt_ts_start, tvb, offset);
+    offset += 4;
+
+    add_timestamp(sub_tree, hf_dns_dnscrypt_ts_end, tvb, offset);
+    offset += 4;
 }
 
 static int
@@ -2531,6 +2604,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int rr_len = data_len;
       int txt_offset;
       int txt_len;
+      const bool is_dnscrypt_name = (strstr(name, "2.dnscrypt-cert.") != NULL);
+      #define DNSCRYPT_CERT_MAGIC 0x444E5343
 
       txt_offset = cur_offset;
       while (rr_len != 0) {
@@ -2538,7 +2613,14 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         proto_tree_add_item(rr_tree, hf_dns_txt_length, tvb, txt_offset, 1, ENC_BIG_ENDIAN);
         txt_offset += 1;
         rr_len     -= 1;
-        proto_tree_add_item(rr_tree, hf_dns_txt, tvb, txt_offset, txt_len, is_mdns ? ENC_UTF_8|ENC_NA : ENC_ASCII|ENC_NA);
+        if(  is_dnscrypt_name
+          && txt_len == 124
+          && rr_len >= txt_len
+          && tvb_get_guint32(tvb, txt_offset, ENC_BIG_ENDIAN) == DNSCRYPT_CERT_MAGIC){
+          dissect_dnscrypt(rr_tree, tvb, txt_offset, txt_len);
+        } else {
+            proto_tree_add_item(rr_tree, hf_dns_txt, tvb, txt_offset, txt_len, is_mdns ? ENC_UTF_8|ENC_NA : ENC_ASCII|ENC_NA);
+        }
         txt_offset +=  txt_len;
         rr_len     -= txt_len;
       }
@@ -6606,6 +6688,40 @@ proto_register_dns(void)
       { "Padding", "dns.dso.tlv.encpad.padding",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+
+    { &hf_dns_dnscrypt,
+      { "DNSCrypt", "dns.dnscrypt",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_dns_dnscrypt_magic,
+      { "Magic", "dns.dnscrypt.magic",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_dns_dnscrypt_esversion,
+      { "ES Version", "dns.dnscrypt.esversion",
+        FT_UINT16, BASE_HEX, VALS(esversions), 0,
+        NULL, HFILL }},
+    { &hf_dns_dnscrypt_protocol_version,
+      { "Protocol Version", "dns.dnscrypt.protocol_version",
+        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_dns_dnscrypt_signature,
+      { "Signature", "dns.dnscrypt.signature",
+        FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    { &hf_dns_dnscrypt_resolver_pk,
+      { "Resolver PK", "dns.dnscrypt.resolver_public_key",
+        FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    { &hf_dns_dnscrypt_client_magic,
+      { "Client Magic", "dns.dnscrypt.client_magic",
+        FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    { &hf_dns_dnscrypt_serial_number,
+      { "Serial Number", "dns.dnscrypt.serial_number",
+        FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    {&hf_dns_dnscrypt_ts_start,
+      { "Valid From", "dns.dnscrypt.valid_from",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL}},
+    {&hf_dns_dnscrypt_ts_end,
+      { "Valid To", "dns.dnscrypt.valid_to",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL}},
   };
 
   static ei_register_info ei[] = {
