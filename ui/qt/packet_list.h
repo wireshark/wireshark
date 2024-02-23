@@ -156,7 +156,6 @@ private:
     void drawCurrentPacket();
     void applyRecentColumnWidths();
     void scrollViewChanged(bool at_end);
-    void colorsChanged();
     QString joinSummaryRow(QStringList col_parts, int row, SummaryCopyType type);
 
 signals:
@@ -190,6 +189,7 @@ public slots:
     void recolorPackets();
     void redrawVisiblePackets();
     void redrawVisiblePacketsDontSelectCurrent();
+    void colorsChanged();
     void columnsChanged();
     void fieldsChanged(capture_file *cf);
     void preferencesChanged();

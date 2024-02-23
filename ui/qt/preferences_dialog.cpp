@@ -313,6 +313,10 @@ void PreferencesDialog::on_buttonBox_accepted()
 
     mainApp->setMonospaceFont(prefs.gui_font_name);
 
+    if (redissect_flags & (PREF_EFFECT_GUI_COLOR)) {
+        mainApp->queueAppSignal(MainApplication::ColorsChanged);
+    }
+
     if (redissect_flags & PREF_EFFECT_FIELDS) {
         mainApp->queueAppSignal(MainApplication::FieldsChanged);
     }

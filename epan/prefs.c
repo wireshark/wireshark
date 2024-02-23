@@ -3358,7 +3358,8 @@ prefs_register_modules(void)
 
     /* User Interface : Colors */
     gui_color_module = prefs_register_subtree(gui_module, "Colors", "Colors", NULL);
-    prefs_set_module_effect_flags(gui_color_module, gui_effect_flags);
+    unsigned gui_color_effect_flags = gui_effect_flags | PREF_EFFECT_GUI_COLOR;
+    prefs_set_module_effect_flags(gui_color_module, gui_color_effect_flags);
 
     prefs_register_color_preference(gui_color_module, "active_frame.fg", "Foreground color for an active selected item",
         "Foreground color for an active selected item", &prefs.gui_active_fg);
@@ -3635,10 +3636,15 @@ prefs_register_modules(void)
                                     "Show column definition in packet list header",
                                     &prefs.gui_packet_header_column_definition);
 
+    /* packet_list_hover_style affects the colors, not the layout.
+     * It's in the layout module to group it with the other packet list
+     * preferences for the user's benefit with the dialog.
+     */
     prefs_register_bool_preference(gui_layout_module, "packet_list_hover_style.enabled",
                                    "Enable Packet List mouse-over colorization",
                                    "Enable Packet List mouse-over colorization",
                                    &prefs.gui_packet_list_hover_style);
+    prefs_set_effect_flags_by_name(gui_layout_module, "packet_list_hover_style.enabled", gui_color_effect_flags);
 
     prefs_register_bool_preference(gui_layout_module, "show_selected_packet.enabled",
                                    "Show selected packet in the Status Bar",

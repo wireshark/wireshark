@@ -56,6 +56,7 @@ public:
 
     enum AppSignal {
         CaptureFilterListChanged,
+        ColorsChanged,
         ColumnsChanged,
         DisplayFilterListChanged,
         FieldsChanged,
@@ -204,6 +205,7 @@ signals:
     void displayFilterListChanged();
     void filterExpressionsChanged();
     void packetDissectionChanged();
+    void colorsChanged();
     void preferencesChanged();
     void addressResolutionChanged();
     void columnDataChanged();

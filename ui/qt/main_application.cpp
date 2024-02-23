@@ -503,6 +503,7 @@ void MainApplication::setConfigurationProfile(const gchar *profile_name, bool wr
     emit freezePacketList(true);
 
     emit columnsChanged();
+    emit colorsChanged();
     emit preferencesChanged();
     emit recentPreferencesRead();
     emit filterExpressionsChanged();
@@ -869,6 +870,9 @@ void MainApplication::emitAppSignal(AppSignal signal)
         break;
     case FieldsChanged:
         emit fieldsChanged();
+        break;
+    case ColorsChanged:
+        emit colorsChanged();
         break;
     case FreezePacketList:
         emit freezePacketList(false);

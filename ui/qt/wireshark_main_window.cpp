@@ -591,6 +591,8 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
             packet_list_, SLOT(freezePacketList(bool)));
     connect(mainApp, SIGNAL(columnsChanged()),
             packet_list_, SLOT(columnsChanged()));
+    connect(mainApp, SIGNAL(colorsChanged()),
+            packet_list_, SLOT(colorsChanged()));
     connect(mainApp, SIGNAL(preferencesChanged()),
             packet_list_, SLOT(preferencesChanged()));
     connect(mainApp, SIGNAL(recentPreferencesRead()),
