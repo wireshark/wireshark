@@ -4231,8 +4231,8 @@ proto_register_sccp(void)
                                  "  This may affect TCAP's ability to recognize which messages belong to which TCAP session.",
                                  &set_addresses);
 
-  prefs_register_string_preference(sccp_module, "default_payload", "Default Payload",
-                                   "The protocol which should be used to dissect the payload if nothing else has claimed it",
+  prefs_register_dissector_preference(sccp_module, "default_payload", "Default Payload",
+                                   "The dissector which should be used to dissect the payload if nothing else has claimed it",
                                    &default_payload);
 
   prefs_register_bool_preference(sccp_module, "dt1_ignore_length", "Dissect data past 255 byte limit",
