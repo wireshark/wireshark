@@ -23,6 +23,7 @@
 #include "packet-isup.h"
 #include "packet-per.h"
 #include "packet-ber.h"
+#include "packet-e212.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -64,6 +65,7 @@ static int hf_rnsap_transportLayerAddress_nsap;
 static int ett_rnsap;
 static int ett_rnsap_transportLayerAddress;
 static int ett_rnsap_transportLayerAddress_nsap;
+static int ett_rnsap_IMSI;
 
 #include "packet-rnsap-ett.c"
 
@@ -261,6 +263,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap,
     &ett_rnsap_transportLayerAddress,
     &ett_rnsap_transportLayerAddress_nsap,
+    &ett_rnsap_IMSI,
 #include "packet-rnsap-ettarr.c"
   };
 
