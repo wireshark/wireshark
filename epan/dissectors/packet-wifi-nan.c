@@ -69,6 +69,8 @@ static expert_field ei_nan_elem_len_invalid;
 static expert_field ei_nan_unknown_attr_id;
 static expert_field ei_nan_unknown_op_class;
 static expert_field ei_nan_unknown_beacon_type;
+static expert_field ei_nan_invalid_channel_num_for_op_class;
+static expert_field ei_nan_invalid_channel_count;
 
 static gint ett_nan;
 static gint ett_attributes;
@@ -119,6 +121,7 @@ static gint ett_availability_op_class;
 static gint ett_device_capability_extension;
 static gint ett_nan_pairing_bootstrapping_type_status;
 static gint ett_nan_pairing_bootstrapping_method;
+static gint ett_nan_cipher_suite_capabilities;
 
 static int hf_nan_attribute_type;
 static int hf_nan_attribute_len;
@@ -229,10 +232,13 @@ static int hf_nan_attr_device_cap_supported_bands_24ghz;
 static int hf_nan_attr_device_cap_supported_bands_reserved_36ghz;
 static int hf_nan_attr_device_cap_supported_bands_5ghz;
 static int hf_nan_attr_device_cap_supported_bands_reserved_60ghz;
+static int hf_nan_attr_device_cap_supported_bands_reserved_45ghz;
+static int hf_nan_attr_device_cap_supported_bands_6ghz;
 static int hf_nan_attr_device_cap_op_mode;
-static int hf_nan_attr_device_cap_op_mode_phy;
-static int hf_nan_attr_device_cap_op_mode_vht8080;
-static int hf_nan_attr_device_cap_op_mode_vht160;
+static int hf_nan_attr_device_cap_op_mode_phy_vht;
+static int hf_nan_attr_device_cap_op_mode_phy_he;
+static int hf_nan_attr_device_cap_op_mode_phy_he_vht8080;
+static int hf_nan_attr_device_cap_op_mode_phy_he_vht160;
 static int hf_nan_attr_device_cap_op_mode_reserved_paging_ndl;
 static int hf_nan_attr_device_cap_antennas;
 static int hf_nan_attr_device_cap_antennas_tx;
@@ -243,6 +249,7 @@ static int hf_nan_attr_device_cap_capabilities_dfs_master;
 static int hf_nan_attr_device_cap_capabilities_extended_key_id;
 static int hf_nan_attr_device_cap_capabilities_simul_ndp_reception;
 static int hf_nan_attr_device_cap_capabilities_ndpe_attr_support;
+static int hf_nan_attr_device_cap_capabilities_s3_capable;
 static int hf_nan_attr_ndp_type;
 static int hf_nan_attr_ndp_initiator;
 static int hf_nan_attr_ndp_id;
@@ -251,6 +258,7 @@ static int hf_nan_attr_ndp_ctrl_security_pres;
 static int hf_nan_attr_ndp_ctrl_publish_id_pres;
 static int hf_nan_attr_ndp_ctrl_responder_ndi_pres;
 static int hf_nan_attr_ndp_ctrl_sepcific_info_pres;
+static int hf_nan_attr_ndpe_ctrl_gtk_requried;
 static int hf_nan_attr_ndp_control;
 static int hf_nan_attr_ndp_responder_ndi;
 static int hf_nan_attr_ndp_specific_info;
@@ -282,6 +290,8 @@ static int hf_nan_attr_availability_entry_entries_channel_bitmap;
 static int hf_nan_attr_availability_entry_entries_primary_channel_bitmap;
 static int hf_nan_attr_availability_entry_entries_aux_channel_bitmap;
 static int hf_nan_attr_availability_entry_entries_channel_set;
+static int hf_nan_attr_availability_entry_entries_start_channel_number;
+static int hf_nan_attr_availability_entry_entries_number_of_ch_included;
 static int hf_nan_attr_availability_entry_entries_start_freq;
 static int hf_nan_attr_availability_entry_entries_bandwidth;
 static int hf_nan_attr_ndc_id;
@@ -333,6 +343,10 @@ static int hf_nan_attr_ranging_setup_ftm_max_burst_duration;
 static int hf_nan_attr_ranging_setup_ftm_format_bw;
 static int hf_nan_attr_ftm_range_report;
 static int hf_nan_attr_cipher_suite_capabilities;
+static int hf_nan_attr_cipher_suite_capabilities_ndtksa_nmtksa_reply_counters;
+static int hf_nan_attr_cipher_suite_capabilities_gtksa_igtksa_bigtksa_support;
+static int hf_nan_attr_cipher_suite_capabilities_gtksa_reply_counters;
+static int hf_nan_attr_cipher_suite_capabilities_igtksa_bigtksa_cipher;
 static int hf_nan_attr_cipher_suite_id;
 static int hf_nan_attr_security_context_identifier;
 static int hf_nan_attr_security_context_identifier_len;
@@ -517,9 +531,14 @@ static const true_false_string device_cap_map_id_apply_to_flags = {
     "All maps"
 };
 
-static const true_false_string device_cap_op_mode_phy_flags = {
+static const true_false_string device_cap_op_mode_phy_flags_vht = {
     "VHT",
-    "HT only"
+    "HT"
+};
+
+static const true_false_string device_cap_op_mode_phy_flags_he = {
+    "HE",
+    "HE Not Supported"
 };
 
 static const true_false_string availability_entry_entries_type_flags = {
@@ -595,7 +614,9 @@ static const range_string availability_entry_entries_band_type[] = {
     { 3, 3, "Reserved (for 3.6 GHz)" },
     { 4, 4, "4.9 and 5 GHz" },
     { 5, 5, "Reserved (for 60 GHz)" },
-    { 6, 255, "Reserved" },
+    { 6, 6, "Reserved (for 45 GHz)" },
+    { 7, 7, "6 Ghz" },
+    { 8, 255, "Reserved" },
     { 0, 0, NULL }
 };
 
@@ -708,7 +729,7 @@ static const value_string unaligned_sch_ulw_type[] = {
 
 static const range_string security_context_iden_type[] = {
     { 0, 0, "Reserved" },
-    { 1, 1, "PMKID" },
+    { 1, 1, "ND-PMKID" },
     { 2, 255, "Reserved" },
     { 0, 0, NULL }
 };
@@ -755,10 +776,38 @@ static const value_string nan_pairing_bootstrapping_pairing_bootstrapping_status
     { 0, NULL } /* Reserved for other value */
 };
 
+static const value_string cipher_suite_capabilities_nd_nm_tksa_replay_counters[] = {
+    { 0, "4 ND-TKSA and NM-TKSA (if applicable) replay counters" },
+    { 1, "16 ND-TKSA and NM-TKSA (if applicable) replay counters" },
+    { 0, NULL }
+};
+
+static const value_string cipher_suite_capabilities_group_and_integrity_sa_support[] = {
+    { 0, "GTKSA, IGTKSA, BIGTKSA are not supported" },
+    { 1, "GTKSA and IGTKSA are supported, and BIGTKSA is not supported" },
+    { 1, "GTKSA, IGTKSA, and BIGTKSA are supported" },
+    { 3, "Reserved" },
+    { 0, NULL }
+};
+
+static const value_string cipher_suite_capabilities_gtksa_replay_counters[] = {
+    { 0, "4 GTKSA replay counters" },
+    { 1, "16 GTKSA replay counters" },
+    { 0, NULL }
+};
+
+static const value_string cipher_suite_capabilities_integrity_sa_ciphers[] = {
+    { 0, "NCS-BIP-128 (BIP-CMAC-128)" },
+    { 1, "NCS-BIP_256 (BIP-GMAC-256)" },
+    { 0, NULL }
+};
+
+#define PACKET_WIFI_NAN_MAX_CHANNEL_SET_LEN (64)
+
 typedef struct _range_channel_set {
     guint32    value_min;
     guint32    value_max;
-    const gint channel_set[16];
+    const gint channel_set[PACKET_WIFI_NAN_MAX_CHANNEL_SET_LEN];
 } range_channel_set;
 
 static const gint *
@@ -777,6 +826,19 @@ rval_to_channel_set(const guint32 val, const range_channel_set* ra)
         }
     }
     return NULL;
+}
+
+static unsigned int channel_number_valid(const guint8 channel_number, const gint *const channel_set)
+{
+    for (unsigned int i = 0; i < PACKET_WIFI_NAN_MAX_CHANNEL_SET_LEN; i++)
+    {
+        if (channel_set[i] == channel_number)
+        {
+            return i;
+        }
+    }
+
+    return PACKET_WIFI_NAN_MAX_CHANNEL_SET_LEN;
 }
 
 // TODO: this table corresponds to the 802.11 global operating classes.
@@ -826,7 +888,14 @@ static const range_channel_set op_class_channel[] = {
     {128, 128, {42, 58, 106, 122, 138, 155}},
     {129, 129, {50, 114}},
     {130, 130, {42, 58, 106, 122, 138, 155}},
-    {131, 179, {-1}},
+    {131, 131, {1, 5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61, 65, 69, 73, 77, 81, 85, 89, 93, 97, 101, 105, 109, 113, 117, 121, 125, 129, 133, 137, 141, 145, 149, 153, 157, 161, 165, 169, 173, 177, 181, 185, 189, 193, 197, 201, 205, 209, 213, 217, 221, 225, 229, 233}},
+    {132, 132, {3, 11, 19, 27, 35, 43, 51, 59, 67, 75, 83, 91, 99, 107, 115, 123, 131, 139, 147, 155, 163, 171, 179, 187, 195, 203, 211, 219, 227}},
+    {133, 133, {7, 23, 39, 55, 71, 87, 103, 119, 135, 151, 167, 183, 199, 215}},
+    {134, 134, {15, 47, 79, 111, 143, 175, 207}},
+    {135, 135, {7, 23, 39, 55, 71, 87, 103, 119, 135, 151, 167, 183, 199, 215}},
+    {137, 137, {31, 63, 95, 127, 159, 191}},
+    {138, 179, {-1}},
+    {137, 179, {-1}},
     {180, 180, {1, 2, 3, 4, 5, 6}},
     {181, 191, {-1}},
     {192, 254, {-2}},
@@ -870,7 +939,14 @@ static const range_string op_channel_spacing[] = {
     {128, 128, "80"},
     {129, 129, "160"},
     {130, 130, "80"},
-    {131, 179, "Reserved"},
+    {131, 131, "20"},
+    {132, 132, "40"},
+    {133, 133, "80"},
+    {134, 134, "160"},
+    {135, 135, "80"},
+    {136, 136, "20"},
+    {137, 137, "320"},
+    {138, 179, "Reserved"},
     {180, 180, "2160"},
     {181, 191, "Reserved"},
     {255, 255, "Reserved"},
@@ -898,7 +974,10 @@ static const range_string op_starting_freq[] = {
     {112, 113, "5"},
     {114, 114, "5.0025"},
     {115, 130, "5"},
-    {131, 179, "Reserved"},
+    {131, 135, "5.950"},
+    {136, 136, "5.925"},
+    {137, 137, "5.950"},
+    {138, 179, "Reserved"},
     {180, 180, "56.16"},
     {181, 191, "Reserved"},
     {255, 255, "Reserved"},
@@ -1374,13 +1453,16 @@ dissect_attr_device_capability(proto_tree* attr_tree, tvbuff_t* tvb, gint offset
         &hf_nan_attr_device_cap_supported_bands_reserved_36ghz,
         &hf_nan_attr_device_cap_supported_bands_5ghz,
         &hf_nan_attr_device_cap_supported_bands_reserved_60ghz,
+        &hf_nan_attr_device_cap_supported_bands_reserved_45ghz,
+        &hf_nan_attr_device_cap_supported_bands_6ghz,
         NULL
     };
     static int* const device_cap_op_mode_fields[] = {
-        &hf_nan_attr_device_cap_op_mode_phy,
-        &hf_nan_attr_device_cap_op_mode_vht8080,
-        &hf_nan_attr_device_cap_op_mode_vht160,
+        &hf_nan_attr_device_cap_op_mode_phy_vht,
+        &hf_nan_attr_device_cap_op_mode_phy_he_vht8080,
+        &hf_nan_attr_device_cap_op_mode_phy_he_vht160,
         &hf_nan_attr_device_cap_op_mode_reserved_paging_ndl,
+        &hf_nan_attr_device_cap_op_mode_phy_he,
         NULL
     };
     static int* const device_cap_antennas_fields[] = {
@@ -1393,6 +1475,7 @@ dissect_attr_device_capability(proto_tree* attr_tree, tvbuff_t* tvb, gint offset
         &hf_nan_attr_device_cap_capabilities_extended_key_id,
         &hf_nan_attr_device_cap_capabilities_simul_ndp_reception,
         &hf_nan_attr_device_cap_capabilities_ndpe_attr_support,
+        &hf_nan_attr_device_cap_capabilities_s3_capable,
         NULL
     };
 
@@ -1494,6 +1577,7 @@ dissect_attr_ndpe(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, guint16 att
         &hf_nan_attr_ndp_ctrl_security_pres,
         &hf_nan_attr_ndp_ctrl_publish_id_pres,
         &hf_nan_attr_ndp_ctrl_responder_ndi_pres,
+        &hf_nan_attr_ndpe_ctrl_gtk_requried,
         NULL
     };
 
@@ -1667,37 +1751,83 @@ dissect_attr_availability(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, gui
                 proto_tree_add_item(op_class_tree, hf_nan_attr_availability_entry_entries_bandwidth, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 wmem_strbuf_t* str;
                 str = wmem_strbuf_new(pinfo->pool, "");
-                for(unsigned i_bitmap = 0; i_bitmap < 16; ++i_bitmap)
+                if (op_class < 131)
                 {
-                    if (bitmap & (1u << i_bitmap))
+                    for(unsigned i_bitmap = 0; i_bitmap < 16; ++i_bitmap)
                     {
-
-                        const gint *channel_set = rval_to_channel_set(op_class, op_class_channel);
-                        if (channel_set == NULL)
+                        if (bitmap & (1u << i_bitmap))
                         {
-                            expert_add_info(pinfo, channel_tree, &ei_nan_unknown_op_class);
-                            break;
-                        }
-                        gint channel = channel_set[i_bitmap];
 
-                        switch (channel)
-                        {
-                        // TODO: replace these magic numbers (or use 802.11 dissector for this)
-                        case -3:
-                            wmem_strbuf_append_printf(str, "%s", "Derived from regulation ");
-                            break;
-                        case -2:
-                            wmem_strbuf_append_printf(str, "%s", "Vendor Specific ");
-                            break;
-                        case -1:
-                            wmem_strbuf_append_printf(str, "%s", "Reserved ");
-                            break;
-                        default:
-                            wmem_strbuf_append_printf(str, "%d ", channel);
+                            const gint *channel_set = rval_to_channel_set(op_class, op_class_channel);
+                            if (channel_set == NULL)
+                            {
+                                expert_add_info(pinfo, channel_tree, &ei_nan_unknown_op_class);
+                                break;
+                            }
+                            gint channel = channel_set[i_bitmap];
+
+                            switch (channel)
+                            {
+                            // TODO: replace these magic numbers (or use 802.11 dissector for this)
+                            case -3:
+                                wmem_strbuf_append_printf(str, "%s", "Derived from regulation ");
+                                break;
+                            case -2:
+                                wmem_strbuf_append_printf(str, "%s", "Vendor Specific ");
+                                break;
+                            case -1:
+                                wmem_strbuf_append_printf(str, "%s", "Reserved ");
+                                break;
+                            default:
+                                wmem_strbuf_append_printf(str, "%d ", channel);
+                            }
                         }
                     }
+
+                    proto_tree_add_string(channel_tree, hf_nan_attr_availability_entry_entries_channel_set, tvb, offset + 1, 2, wmem_strbuf_finalize(str));
                 }
-                proto_tree_add_string(channel_tree, hf_nan_attr_availability_entry_entries_channel_set, tvb, offset + 1, 2, wmem_strbuf_finalize(str));
+                else
+                {
+                    /* This is the new and standard rules for mapping channels for 6G channels introduced in NAN R4.
+                     * Some vendors may have already implemetned a different approach to support NAN 6G before
+                     * the introduction of standard 6G NAN operation. And hence, in this case, the availability
+                     * may not be correct. */
+                    guint8 start_ch_number = bitmap & 0xff;
+                    guint8 number_of_chs = (bitmap & 0xff00) >> 8;
+
+                    const gint *channel_set_higher_op_class = rval_to_channel_set(op_class, op_class_channel);
+                    if (channel_set_higher_op_class)
+                    {
+                        unsigned int start_ch_number_idx = channel_number_valid(start_ch_number, channel_set_higher_op_class);
+                        if (start_ch_number_idx == PACKET_WIFI_NAN_MAX_CHANNEL_SET_LEN)
+                        {
+                            /* The given channel number does not belong to this operating class */
+                            expert_add_info(pinfo, channel_tree, &ei_nan_invalid_channel_num_for_op_class);
+                        }
+
+                        if (!number_of_chs || number_of_chs > PACKET_WIFI_NAN_MAX_CHANNEL_SET_LEN)
+                        {
+                            /* Number of channel should at least be one and should not exceed the maximum */
+                            expert_add_info(pinfo, channel_tree, &ei_nan_invalid_channel_count);
+                        }
+
+                        guint8 number_of_chs_max =
+                            (number_of_chs + start_ch_number_idx < PACKET_WIFI_NAN_MAX_CHANNEL_SET_LEN) ?
+                            (number_of_chs + start_ch_number_idx) : PACKET_WIFI_NAN_MAX_CHANNEL_SET_LEN;
+                        for (guint8 num_ch = start_ch_number_idx; num_ch < number_of_chs_max; num_ch++)
+                        {
+                            wmem_strbuf_append_printf(str, "%d ", channel_set_higher_op_class[num_ch]);
+                        }
+                    }
+                    else
+                    {
+                        expert_add_info(pinfo, channel_tree, &ei_nan_unknown_op_class);
+                    }
+                    proto_tree_add_item(channel_tree, hf_nan_attr_availability_entry_entries_start_channel_number, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(channel_tree, hf_nan_attr_availability_entry_entries_number_of_ch_included, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
+
+                    proto_tree_add_string(channel_tree, hf_nan_attr_availability_entry_entries_channel_set, tvb, offset + 1, 2, wmem_strbuf_finalize(str));
+                }
                 proto_tree_add_item(channel_tree,
                     hf_nan_attr_availability_entry_entries_primary_channel_bitmap, tvb,
                     offset + 3, 1, ENC_LITTLE_ENDIAN);
@@ -2252,7 +2382,13 @@ dissect_attr_cipher_suite_info(proto_tree* attr_tree, tvbuff_t* tvb, gint offset
 
     guint sub_offset = offset + 3;
     guint dissected_len = 0;
-    proto_tree_add_item(attr_tree, hf_nan_attr_cipher_suite_capabilities, tvb, sub_offset, 1, ENC_BIG_ENDIAN);
+
+    proto_tree* caps_tree = proto_tree_add_subtree(attr_tree, tvb, sub_offset, 1, ett_nan_cipher_suite_capabilities, NULL, "Capabilities");
+    proto_tree_add_item(caps_tree, hf_nan_attr_cipher_suite_capabilities_ndtksa_nmtksa_reply_counters, tvb, sub_offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(caps_tree, hf_nan_attr_cipher_suite_capabilities_gtksa_igtksa_bigtksa_support, tvb, sub_offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(caps_tree, hf_nan_attr_cipher_suite_capabilities_gtksa_reply_counters, tvb, sub_offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(caps_tree, hf_nan_attr_cipher_suite_capabilities_igtksa_bigtksa_cipher, tvb, sub_offset, 1, ENC_LITTLE_ENDIAN);
+
     sub_offset++;
     dissected_len++;
 
@@ -3524,6 +3660,20 @@ proto_register_nan(void)
             FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL
             }
         },
+        { &hf_nan_attr_device_cap_supported_bands_reserved_45ghz,
+            {
+            "Reserved (for 45 GHz)",
+            "wifi_nan.device_cap.supported_bands.reserved_45ghz",
+            FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_device_cap_supported_bands_6ghz,
+            {
+            "6GHz",
+            "wifi_nan.device_cap.supported_bands.6ghz",
+            FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL
+            }
+        },
         { &hf_nan_attr_device_cap_op_mode,
             {
             "Operation Mode",
@@ -3531,23 +3681,30 @@ proto_register_nan(void)
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
-        { &hf_nan_attr_device_cap_op_mode_phy,
+        { &hf_nan_attr_device_cap_op_mode_phy_vht,
             {
-            "PHY Mode",
-            "wifi_nan.device_cap.op_mode.phy",
-            FT_BOOLEAN, 8, TFS(&device_cap_op_mode_phy_flags), 0x01, NULL, HFILL
+            "PHY Mode (VHT/HT)",
+            "wifi_nan.device_cap.op_mode.phy.vht",
+            FT_BOOLEAN, 8, TFS(&device_cap_op_mode_phy_flags_vht), 0x01, NULL, HFILL
             }
         },
-        { &hf_nan_attr_device_cap_op_mode_vht8080,
+        { &hf_nan_attr_device_cap_op_mode_phy_he,
             {
-            "VHT 80+80",
+            "PHY Mode (HE)",
+            "wifi_nan.device_cap.op_mode.phy.he",
+            FT_BOOLEAN, 8, TFS(&device_cap_op_mode_phy_flags_he), 0x10, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_device_cap_op_mode_phy_he_vht8080,
+            {
+            "HE/VHT 80+80",
             "wifi_nan.device_cap.op_mode.vht8080",
             FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL
             }
         },
-        { &hf_nan_attr_device_cap_op_mode_vht160,
+        { &hf_nan_attr_device_cap_op_mode_phy_he_vht160,
             {
-            "VHT 160",
+            "HE/VHT 160",
             "wifi_nan.device_cap.op_mode.vht160",
             FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL
             }
@@ -3622,6 +3779,13 @@ proto_register_nan(void)
             FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL
             }
         },
+        { &hf_nan_attr_device_cap_capabilities_s3_capable,
+            {
+            "S3 Capable",
+            "wifi_nan.device_cap.capabilities.s3_capable",
+            FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL
+            }
+        },
         { &hf_nan_attr_ndp_type,
              {
              "Type",
@@ -3668,6 +3832,13 @@ proto_register_nan(void)
              {
              "Responder NDI Present",
              "wifi_nan.ndp.ctrl.responder_ndi_pres",
+             FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL
+             }
+        },
+        { &hf_nan_attr_ndpe_ctrl_gtk_requried,
+             {
+             "GTK Required",
+             "wifi_nan.ndp.ctrl.gtk_required",
              FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL
              }
         },
@@ -3893,6 +4064,20 @@ proto_register_nan(void)
             "Channel Bitmap - Channel Set",
             "wifi_nan.ava.chan.set",
             FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_availability_entry_entries_start_channel_number,
+            {
+            "Start Channel Number",
+            "wifi_nan.availability.entry.entries.channel.start_channel_number",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_availability_entry_entries_number_of_ch_included,
+            {
+            "Number of Channels Included",
+            "wifi_nan.availability.entry.entries.channel.num_of_channel",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_entries_start_freq,
@@ -4252,6 +4437,34 @@ proto_register_nan(void)
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
+        { &hf_nan_attr_cipher_suite_capabilities_ndtksa_nmtksa_reply_counters,
+            {
+            "ND-TKSA and NM-TKSA Reply Counters",
+            "wifi_nan.cipher_suite.capabilities.reply_counters.ndtksa",
+            FT_UINT8, BASE_HEX, VALS(cipher_suite_capabilities_nd_nm_tksa_replay_counters), 0x01, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_cipher_suite_capabilities_gtksa_igtksa_bigtksa_support,
+            {
+            "GTKSA, IGTKSA, and BIGTKSA Support",
+            "wifi_nan.cipher_suite.capabilities.group_key_support",
+            FT_UINT8, BASE_HEX, VALS(cipher_suite_capabilities_group_and_integrity_sa_support), 0x06, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_cipher_suite_capabilities_gtksa_reply_counters,
+            {
+            "GTKSA Reply Counters",
+            "wifi_nan.cipher_suite.capabilities.reply_counters.gtksa",
+            FT_UINT8, BASE_HEX, VALS(cipher_suite_capabilities_gtksa_replay_counters), 0x08, NULL, HFILL
+            }
+        },
+        { &hf_nan_attr_cipher_suite_capabilities_igtksa_bigtksa_cipher,
+            {
+            "IGTKSA and BIGTKSA Cipher",
+            "wifi_nan.cipher_suite.capabilities.integrity_key_cipher",
+            FT_UINT8, BASE_HEX, VALS(cipher_suite_capabilities_integrity_sa_ciphers), 0x10, NULL, HFILL
+            }
+        },
         { &hf_nan_attr_cipher_suite_id,
             {
             "Cipher Suite ID",
@@ -4569,7 +4782,8 @@ proto_register_nan(void)
         &ett_ie_tree,
         &ett_device_capability_extension,
         &ett_nan_pairing_bootstrapping_type_status,
-        &ett_nan_pairing_bootstrapping_method
+        &ett_nan_pairing_bootstrapping_method,
+        &ett_nan_cipher_suite_capabilities
     };
 
     static ei_register_info ei[] = {
@@ -4602,6 +4816,22 @@ proto_register_nan(void)
             "wifi_nan.expert.unknown_beacon_type",
             PI_PROTOCOL, PI_WARN,
             "Unknown beacon type - Beacon type detection error",
+            EXPFILL
+            }
+        },
+        { &ei_nan_invalid_channel_num_for_op_class,
+            {
+            "wifi_nan.expert.invalid_ch_num",
+            PI_PROTOCOL, PI_WARN,
+            "Invalid Channel number for given operation class",
+            EXPFILL
+            }
+        },
+        { &ei_nan_invalid_channel_count,
+            {
+            "wifi_nan.expert.invalid_ch_count",
+            PI_PROTOCOL, PI_WARN,
+            "Invalid Channel count",
             EXPFILL
             }
         },
