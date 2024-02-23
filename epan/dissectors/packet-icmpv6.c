@@ -1419,6 +1419,8 @@ static const value_string ext_echo_reply_state_str[] = {
 #define ND_OPT_PREF64_SL          0xFFF8
 #define ND_OPT_PREF64_PLC         0x0007
 
+#define MAX_RECURSION_DEPTH 10 // Arbitrarily chosen.
+
 static const value_string pref64_plc_str[] = {
     { 0, "96 bits prefix length"},
     { 1, "64 bits prefix length"},
@@ -1706,6 +1708,7 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
 } /* transaction_end() */
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *icmp6opt_tree;
@@ -1715,6 +1718,10 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
     int         opt_offset;
     tvbuff_t   *opt_tvb;
     guint       used_bytes;
+
+    unsigned recursion_depth = p_get_proto_depth(pinfo, proto_icmpv6);
+    DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+    p_set_proto_depth(pinfo, proto_icmpv6, recursion_depth + 1);
 
     while ((int)tvb_reported_length(tvb) > offset) {
         /* there are more options */
@@ -1742,6 +1749,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
         if(opt_len == 0){
             expert_add_info_format(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length, "Invalid option length (Zero)");
+            p_set_proto_depth(pinfo, proto_icmpv6, recursion_depth);
             return opt_offset;
         }
 
@@ -2752,6 +2760,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
         /* Close the ) to option root label */
         proto_item_append_text(ti, ")");
     }
+    p_set_proto_depth(pinfo, proto_icmpv6, recursion_depth);
     return offset;
 }
 
