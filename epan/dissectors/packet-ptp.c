@@ -6757,7 +6757,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_as_fu_tlv_cumulative_rate_ratio,
           { "cumulativeRateRatio", "ptp.as.fu.cumulativeRateRatio",
-            FT_DOUBLE, BASE_DEC, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_as_fu_tlv_gm_base_indicator,
