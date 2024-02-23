@@ -4638,7 +4638,9 @@ prefs_read_module(const char *module)
     }
 
     /* Construct the pathname of the user's preferences file for the module. */
-    pf_path = get_persconffile_path(module, TRUE);
+    char *pf_name = wmem_strdup_printf(NULL, "%s.cfg", module);
+    pf_path = get_persconffile_path(pf_name, TRUE);
+    wmem_free(NULL, pf_name);
 
     /* Read the user's module preferences file, if it exists and is not a dir. */
     if (!test_for_regular_file(pf_path) || ((pf = ws_fopen(pf_path, "r")) == NULL)) {
@@ -7212,7 +7214,7 @@ write_prefs(char **pf_path_return)
 
         module_t *extcap_module = prefs_find_module("extcap");
         if (extcap_module && !prefs.capture_no_extcap) {
-            char *ext_path = get_persconffile_path("extcap", TRUE);
+            char *ext_path = get_persconffile_path("extcap.cfg", TRUE);
             FILE *extf;
             if ((extf = ws_fopen(ext_path, "w")) == NULL) {
                 if (errno != EISDIR) {

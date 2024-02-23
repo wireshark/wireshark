@@ -266,7 +266,7 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
 
 /** Given a module name, read the preferences associated with only that module.
  * Checks for a file in the personal configuration directory named after the
- * module first.
+ * module with a ".cfg" extension added first.
  *
  * @param name The preference module name, e.g. "extcap".
  */

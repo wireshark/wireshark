@@ -745,7 +745,7 @@ void extcap_register_preferences(void)
      * it is copied if we copy the profile even if we're not going to
      * read it because extcaps are disabled.
      */
-    profile_register_persconffile("extcap");
+    profile_register_persconffile("extcap.cfg");
 
     if (prefs.capture_no_extcap)
         return;
