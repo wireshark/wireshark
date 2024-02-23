@@ -279,15 +279,33 @@ void FollowStreamDialog::findText(bool go_back)
     if (ui->leFind->text().isEmpty()) return;
 
     bool found;
+
+    QTextDocument::FindFlags options;
+    if (ui->caseCheckBox->isChecked()) {
+        options |= QTextDocument::FindCaseSensitively;
+    }
     if (use_regex_find_) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
+        // https://bugreports.qt.io/browse/QTBUG-88721
+        // QPlainTextEdit::find() searches case-insensitively unless
+        // QTextDocument::FindCaseSensitively is explicitly given.
+        // This *does* apply to QRegularExpression (overriding
+        // CaseInsensitiveOption), but not QRegExp.
+        //
+        // QRegularExpression and QRegExp do not support Perl's /i, but
+        // the former at least does support the mode modifiers (?i) and
+        // (?-i), which can override QTextDocument::FindCaseSensitively.
+        //
+        // To make matters worse, while the QTextDocument::find() documentation
+        // is correct, QPlainTextEdit::find() claims that QRegularExpression
+        // works like QRegExp, which is incorrect.
         QRegularExpression regex(ui->leFind->text(), QRegularExpression::UseUnicodePropertiesOption);
 #else
-        QRegExp regex(ui->leFind->text());
+        QRegExp regex(ui->leFind->text(), (options & QTextDocument::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
 #endif
-        found = ui->teStreamContent->find(regex);
+        found = ui->teStreamContent->find(regex, options);
     } else {
-        found = ui->teStreamContent->find(ui->leFind->text());
+        found = ui->teStreamContent->find(ui->leFind->text(), options);
     }
 
     if (found) {

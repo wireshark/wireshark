@@ -117,6 +117,13 @@
       <widget class="FindLineEdit" name="leFind"/>
      </item>
      <item>
+      <widget class="QCheckBox" name="caseCheckBox">
+       <property name="text">
+        <string>Case sensitive</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="bFind">
        <property name="text">
         <string>Find &amp;Next</string>
