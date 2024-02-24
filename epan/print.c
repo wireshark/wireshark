@@ -1635,13 +1635,17 @@ static gchar *csv_massage_str(const gchar *source, const gchar *exceptions)
     return csv_str;
 }
 
-static void csv_write_str(const char *str, char sep, FILE *fh)
+static void csv_write_str(const char *str, char sep, FILE *fh, gboolean print_separator)
 {
     gchar *csv_str;
 
     /* Do not escape the UTF-8 right arrow character */
     csv_str = csv_massage_str(str, UTF8_RIGHTWARDS_ARROW);
-    fprintf(fh, "\"%s\"%c", csv_str, sep);
+    if (print_separator) {
+        fprintf(fh, "%c\"%s\"", sep, csv_str);
+    } else {
+        fprintf(fh, "\"%s\"", csv_str);
+    }
     g_free(csv_str);
 }
 
@@ -1649,26 +1653,36 @@ void
 write_csv_column_titles(column_info *cinfo, FILE *fh)
 {
     gint i;
+    gboolean print_separator = FALSE;
+    // Avoid printing separator for first column
 
-    for (i = 0; i < cinfo->num_cols - 1; i++) {
+    for (i = 0; i < cinfo->num_cols; i++) {
         if (!get_column_visible(i))
             continue;
-        csv_write_str(cinfo->columns[i].col_title, ',', fh);
+        csv_write_str(cinfo->columns[i].col_title, ',', fh, print_separator);
+        print_separator = TRUE;
     }
-    csv_write_str(cinfo->columns[i].col_title, '\n', fh);
+    if (print_separator) { // Only add line break if anything was output
+        fprintf(fh, "\n");
+    }
 }
 
 void
 write_csv_columns(epan_dissect_t *edt, FILE *fh)
 {
     gint i;
+    gboolean print_separator = FALSE;
+    // Avoid printing separator for first column
 
-    for (i = 0; i < edt->pi.cinfo->num_cols - 1; i++) {
+    for (i = 0; i < edt->pi.cinfo->num_cols; i++) {
         if (!get_column_visible(i))
             continue;
-        csv_write_str(get_column_text(edt->pi.cinfo, i), ',', fh);
+        csv_write_str(get_column_text(edt->pi.cinfo, i), ',', fh, print_separator);
+        print_separator = TRUE;
     }
-    csv_write_str(get_column_text(edt->pi.cinfo,i), '\n', fh);
+    if (print_separator) { // Only add line break if anything was output
+        fprintf(fh, "\n");
+    }
 }
 
 void
