@@ -618,6 +618,8 @@ WS_DLL_PUBLIC dissector_handle_t find_dissector_add_dependency(const char *name,
 /** Get a dissector name from handle. */
 WS_DLL_PUBLIC const char *dissector_handle_get_dissector_name(const dissector_handle_t handle);
 
+WS_DLL_PUBLIC const char *dissector_handle_get_pref_suffix(const dissector_handle_t handle);
+
 /** Create an anonymous, unregistered dissector handle. Unregistered means that
  * other dissectors can't find the dissector through this API. The typical use
  * case is dissectors added to dissector tables that shouldn't be called by other

@@ -69,6 +69,15 @@ public:
     DecodeAsModel(QObject *parent, capture_file *cf = NULL);
     virtual ~DecodeAsModel();
 
+    struct UIntEntry {
+        QByteArray table;
+        uint32_t    key;
+        QByteArray pref_name;
+
+        UIntEntry(const char* t, uint32_t k, const char* pref_suffix) :
+            table(t), key(k), pref_name(t) { pref_name.append(pref_suffix); }
+    };
+
     enum DecodeAsColumn {
         colTable = 0, // aka "Field" (or dissector table like "TCP Port")
         colSelector, // the actual table value (e.g., port number 80)
@@ -112,7 +121,7 @@ protected:
 private:
     capture_file *cap_file_;
     QList<DecodeAsItem *> decode_as_items_;
-    QList<QPair<const char *, uint32_t> > changed_uint_entries_;
+    QList<UIntEntry> changed_uint_entries_;
     QList<QPair<const char *, const char *> > changed_string_entries_;
 };
 

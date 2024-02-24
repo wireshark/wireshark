@@ -292,8 +292,7 @@ unsigned pref_stash(pref_t *pref, void *unused);
 typedef struct pref_unstash_data
 {
     /* Used to set prefs_changed member to true if the preference
-       differs from its stashed values. Also used by "decode as" types
-       to look up dissector short name */
+       differs from its stashed values. */
     module_t *module;
     /* Qt uses stashed values to then "applies" them
       during unstash.  Use this flag for that behavior */

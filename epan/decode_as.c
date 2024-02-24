@@ -247,7 +247,10 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
                     if (handle != NULL) {
                         proto_name = proto_get_protocol_filter_name(dissector_handle_get_protocol_index(handle));
                         module = prefs_find_module(proto_name);
-                        pref_value = prefs_find_preference(module, values[0]);
+                        // values[0] is the dissector table
+                        char *pref_name = ws_strdup_printf("%s%s", values[0], dissector_handle_get_pref_suffix(handle));
+                        pref_value = prefs_find_preference(module, pref_name);
+                        g_free(pref_name);
                         if (pref_value != NULL) {
                             gboolean replace = FALSE;
                             if (g_hash_table_lookup(processed_entries, proto_name) == NULL) {

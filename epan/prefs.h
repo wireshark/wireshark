@@ -754,10 +754,12 @@ void prefs_register_custom_preference(module_t *module, const char *name,
  * @param var pointer to the storage location that is updated when the
  *                    field is changed in the preference dialog box.
  * @param max_value the maximum allowed value for a range (0 is the minimum)
+ * @param dissector_table the name of the dissector table
+ * @param dissector_description the handle description
  */
 void prefs_register_decode_as_range_preference(module_t *module, const char *name,
     const char *title, const char *description, range_t **var,
-    uint32_t max_value);
+    uint32_t max_value, const char *dissector_table, const char *dissector_description);
 
 /**
  * Register a preference with an password (password is never stored).
