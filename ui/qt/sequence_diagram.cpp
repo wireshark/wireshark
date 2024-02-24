@@ -149,8 +149,6 @@ void SequenceDiagram::setData(_seq_analysis_info *sainfo)
     double cur_key = 0.0;
     QVector<double> key_ticks, val_ticks;
     QVector<QString> key_labels, val_labels, com_labels;
-    QFontMetrics com_fm(comment_axis_->tickLabelFont());
-    int elide_w = com_fm.height() * max_comment_em_width_;
     char* addr_str;
 
     for (GList *cur = g_queue_peek_nth_link(sainfo->items, 0); cur; cur = gxx_list_next(cur)) {
@@ -165,7 +163,7 @@ void SequenceDiagram::setData(_seq_analysis_info *sainfo)
             key_ticks.append(cur_key);
             key_labels.append(sai->time_str);
 
-            com_labels.append(com_fm.elidedText(sai->comment, Qt::ElideRight, elide_w));
+            com_labels.append(elidedComment(sai->comment));
 
             cur_key++;
         }
@@ -209,6 +207,21 @@ _seq_analysis_item *SequenceDiagram::itemForPosY(int ypos)
         return data_->value(key_pos).value;
     }
     return NULL;
+}
+
+bool SequenceDiagram::inComment(QPoint pos) const
+{
+    return pos.x() >= (comment_axis_->axisRect()->right()
+                        + comment_axis_->padding()
+                        + comment_axis_->tickLabelPadding()
+                        + comment_axis_->offset());
+}
+
+QString SequenceDiagram::elidedComment(const QString &text) const
+{
+    QFontMetrics com_fm(comment_axis_->tickLabelFont());
+    int elide_w = com_fm.height() * max_comment_em_width_;
+    return com_fm.elidedText(text, Qt::ElideRight, elide_w);
 }
 
 double SequenceDiagram::selectTest(const QPointF &pos, bool, QVariant *) const

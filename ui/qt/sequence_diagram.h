@@ -53,6 +53,8 @@ public:
 
     // non-property methods:
     struct _seq_analysis_item *itemForPosY(int ypos);
+    bool inComment(QPoint pos) const;
+    QString elidedComment(const QString &text) const;
 
     // reimplemented virtual methods:
     virtual void clearData() { data_->clear(); }

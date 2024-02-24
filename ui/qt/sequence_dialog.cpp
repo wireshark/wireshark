@@ -225,6 +225,23 @@ void SequenceDialog::updateWidgets()
     WiresharkDialog::updateWidgets();
 }
 
+bool SequenceDialog::event(QEvent *event)
+{
+    if (event->type() == QEvent::ToolTip) {
+        QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+        seq_analysis_item_t *sai = seq_diagram_->itemForPosY(helpEvent->pos().y());
+        if (sai && seq_diagram_->inComment(helpEvent->pos()) && (sai->comment != seq_diagram_->elidedComment(sai->comment))) {
+            QToolTip::showText(helpEvent->globalPos(), sai->comment);
+        } else {
+            QToolTip::hideText();
+            event->ignore();
+        }
+
+        return true;
+    }
+    return QWidget::event(event);
+}
+
 void SequenceDialog::showEvent(QShowEvent *)
 {
     QTimer::singleShot(0, this, SLOT(fillDiagram()));

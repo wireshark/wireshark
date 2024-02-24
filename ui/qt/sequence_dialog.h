@@ -54,6 +54,7 @@ public:
     void enableVoIPFeatures();
 
 protected:
+    bool event(QEvent *event);
     void showEvent(QShowEvent *event);
     void resizeEvent(QResizeEvent *event);
     void keyPressEvent(QKeyEvent *event);
