@@ -605,6 +605,12 @@ dissect_thrift_field_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Create the field header sub-tree if requested only. */
     if (tree != NULL) {
+        guint nested_count = p_get_proto_depth(pinfo, proto_thrift);
+        if (nested_count >= thrift_opt->nested_type_depth) {
+            expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_thrift_too_many_subtypes);
+            return THRIFT_REQUEST_REASSEMBLY;
+        }
+
         header->fh_tree = proto_tree_add_subtree_format(tree, tvb, header->type_offset, *offset - header->type_offset, ett_thrift_field, NULL,
                 "Field Header #%" PRId64, header->field_id);
         if (thrift_opt->tprotocol & PROTO_THRIFT_COMPACT) {
@@ -1237,6 +1243,7 @@ dissect_thrift_t_string_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* Simple dispatch function for lists, sets, maps, and structs internal elements to avoid code duplication. */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_t_member(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, const thrift_member_t *elt)
 {
     switch (elt->type) {
@@ -1293,6 +1300,7 @@ dissect_thrift_t_member(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
  * so it's easy to use the same code and handle the additional elements only when necessary.
  */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_b_linear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, gint ett_id, const thrift_member_t *key, const thrift_member_t *val, thrift_type_enum_t expected)
 {
     proto_item *container_pi = NULL;
@@ -1300,6 +1308,7 @@ dissect_thrift_b_linear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     proto_tree *sub_tree;
     gint32 key_type, val_type;
     gint32 length;
+    guint nested_count = p_get_proto_depth(pinfo, proto_thrift);
 
     /* Get the current state of dissection. */
     DISSECTOR_ASSERT(thrift_opt);
@@ -1312,6 +1321,11 @@ dissect_thrift_b_linear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     }
 
     /* Create the sub-tree. */
+    if (nested_count >= thrift_opt->nested_type_depth) {
+        expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_thrift_too_many_subtypes);
+        return THRIFT_REQUEST_REASSEMBLY;
+    }
+    p_set_proto_depth(pinfo, proto_thrift, nested_count + 1);
     container_pi = proto_tree_add_item(tree, hf_id, tvb, offset, -1, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(container_pi, ett_id);
     ABORT_SUBDISSECTION_ON_ISSUE(offset);
@@ -1386,6 +1400,7 @@ dissect_thrift_b_linear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     if (container_pi && offset > 0) {
         proto_item_set_end(container_pi, tvb, offset);
     }
+    p_set_proto_depth(pinfo, proto_thrift, nested_count);
     return offset;
 }
 
@@ -1394,6 +1409,7 @@ dissect_thrift_b_linear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
  * this prevents code duplication.
  */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_c_list_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, gint ett_id, const thrift_member_t *elt, gboolean is_list)
 {
     proto_item *container_pi;
@@ -1408,6 +1424,7 @@ dissect_thrift_c_list_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     int hf_num_item = hf_thrift_num_set_item;
     int hf_pos_item = hf_thrift_num_set_pos;
     thrift_type_enum_t expected = DE_THRIFT_T_SET;
+    guint nested_count = p_get_proto_depth(pinfo, proto_thrift);
 
     if (is_list) {
         hf_num_item = hf_thrift_num_list_item;
@@ -1430,6 +1447,11 @@ dissect_thrift_c_list_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     }
 
     /* Create the sub-tree. */
+    if (nested_count >= thrift_opt->nested_type_depth) {
+        expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_thrift_too_many_subtypes);
+        return THRIFT_REQUEST_REASSEMBLY;
+    }
+    p_set_proto_depth(pinfo, proto_thrift, nested_count + 1);
     container_pi = proto_tree_add_item(tree, hf_id, tvb, offset, -1, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(container_pi, ett_id);
 
@@ -1490,10 +1512,12 @@ dissect_thrift_c_list_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     if (container_pi && offset > 0) {
         proto_item_set_end(container_pi, tvb, offset);
     }
+    p_set_proto_depth(pinfo, proto_thrift, nested_count);
     return offset;
 }
 
 int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_t_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, gint ett_id, const thrift_member_t *elt)
 {
     int result;
@@ -1510,6 +1534,7 @@ dissect_thrift_t_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 }
 
 int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_t_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, gint ett_id, const thrift_member_t *elt)
 {
     int result;
@@ -1526,6 +1551,7 @@ dissect_thrift_t_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 }
 
 int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_t_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, gint ett_id, const thrift_member_t *key, const thrift_member_t *value)
 {
     int result;
@@ -1544,6 +1570,7 @@ dissect_thrift_t_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
         gint32 len_offset = offset;
         thrift_compact_type_enum_t ktype, vtype;
         guint64 varint;
+        guint nested_count = p_get_proto_depth(pinfo, proto_thrift);
 
         /* Dissect field header if necessary. */
         if (is_field) {
@@ -1576,12 +1603,18 @@ dissect_thrift_t_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
         }
 
         /* Create the sub-tree. */
+        if (nested_count >= thrift_opt->nested_type_depth) {
+            expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_thrift_too_many_subtypes);
+            return THRIFT_REQUEST_REASSEMBLY;
+        }
+        p_set_proto_depth(pinfo, proto_thrift, nested_count + 1);
         container_pi = proto_tree_add_item(tree, hf_id, tvb, len_offset, -1, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(container_pi, ett_id);
 
         if (container_len == 0) {
             proto_item_set_end(container_pi, tvb, offset);
             proto_item_append_text(container_pi, " (Empty)");
+            p_set_proto_depth(pinfo, proto_thrift, nested_count);
             return offset;
         }
 
@@ -1628,6 +1661,7 @@ dissect_thrift_t_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
             proto_item_set_end(container_pi, tvb, offset);
         }
         result = offset;
+        p_set_proto_depth(pinfo, proto_thrift, nested_count);
     }
 
     if (is_field) {
@@ -1643,6 +1677,7 @@ dissect_thrift_t_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_t_struct_expert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, gint ett_id, const thrift_member_t *seq, expert_field* ei)
 {
     thrift_field_header_t field_header;
@@ -1650,6 +1685,7 @@ dissect_thrift_t_struct_expert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_item *type_pi = NULL;
 
     gboolean enable_subtree = (ett_id != DISABLE_SUBTREE) || (hf_id != DISABLE_SUBTREE);
+    guint nested_count = p_get_proto_depth(pinfo, proto_thrift);
 
     /* Get the current state of dissection. */
     DISSECTOR_ASSERT(thrift_opt);
@@ -1670,6 +1706,11 @@ dissect_thrift_t_struct_expert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* Create the sub-tree, if not explicitly refused. */
     if (enable_subtree) {
         /* Add the struct to the tree. */
+        if (nested_count >= thrift_opt->nested_type_depth) {
+            expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_thrift_too_many_subtypes);
+            return THRIFT_REQUEST_REASSEMBLY;
+        }
+        p_set_proto_depth(pinfo, proto_thrift, nested_count--);
         type_pi = proto_tree_add_item(tree, hf_id, tvb, offset, -1, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(type_pi, ett_id);
     } else {
@@ -1763,6 +1804,7 @@ dissect_thrift_t_struct_expert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     if (is_field) {
         thrift_opt->previous_field_id = field_id;
     }
+    p_set_proto_depth(pinfo, proto_thrift, nested_count);
     return offset;
 }
 /*=====END SUB-DISSECTION=====*/
@@ -1841,6 +1883,7 @@ dissect_thrift_binary_binary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_binary_linear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt, thrift_type_enum_t expected)
 {
     /*  Binary protocol list and set (5 bytes + elements):
@@ -1868,6 +1911,7 @@ dissect_thrift_binary_linear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     int hf_num_item = -1;
     int hf_vtype = hf_thrift_type;
     int min_len = TBP_THRIFT_LINEAR_LEN;
+    guint nested_count = p_get_proto_depth(pinfo, proto_thrift);
 
     /* Set the different hf_id & ett depending on effective type. */
     switch (expected) {
@@ -1895,6 +1939,11 @@ dissect_thrift_binary_linear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     ABORT_ON_INCOMPLETE_PDU(min_len);
 
     /* Create the sub-tree. */
+    if (nested_count >= thrift_opt->nested_type_depth) {
+        expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_thrift_too_many_subtypes);
+        return THRIFT_REQUEST_REASSEMBLY;
+    }
+    p_set_proto_depth(pinfo, proto_thrift, nested_count + 1);
     container_pi = proto_tree_add_item(tree, hf_container, tvb, *offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(container_pi, ett);
 
@@ -1925,28 +1974,33 @@ dissect_thrift_binary_linear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
     proto_item_set_end(container_pi, tvb, *offset);
 
+    p_set_proto_depth(pinfo, proto_thrift, nested_count);
     return *offset;
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_binary_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt)
 {
     return dissect_thrift_binary_linear(tvb, pinfo, tree, offset, thrift_opt, DE_THRIFT_T_LIST);
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_binary_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt)
 {
     return dissect_thrift_binary_linear(tvb, pinfo, tree, offset, thrift_opt, DE_THRIFT_T_SET);
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_binary_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt)
 {
     return dissect_thrift_binary_linear(tvb, pinfo, tree, offset, thrift_opt, DE_THRIFT_T_MAP);
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_binary_fields(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt)
 {
     /*
@@ -1992,6 +2046,7 @@ dissect_thrift_binary_fields(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_binary_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt)
 {
     /* This function only creates the "Struct" sub-tree
@@ -1999,8 +2054,14 @@ dissect_thrift_binary_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
      */
     proto_tree *sub_tree;
     proto_item *pi;
+    guint nested_count = p_get_proto_depth(pinfo, proto_thrift);
 
     ABORT_ON_INCOMPLETE_PDU(TBP_THRIFT_STRUCT_LEN);
+    if (nested_count >= thrift_opt->nested_type_depth) {
+        expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_thrift_too_many_subtypes);
+        return THRIFT_REQUEST_REASSEMBLY;
+    }
+    p_set_proto_depth(pinfo, proto_thrift, nested_count + 1);
     pi = proto_tree_add_item(tree, hf_thrift_struct, tvb, *offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(pi, ett_thrift_struct);
 
@@ -2009,19 +2070,14 @@ dissect_thrift_binary_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     } else {
         proto_item_set_end(pi, tvb, *offset);
     }
+    p_set_proto_depth(pinfo, proto_thrift, nested_count);
     return *offset;
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_binary_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt, proto_tree *header_tree, int type, proto_item *type_pi)
 {
-    guint nested_count = p_get_proto_depth(pinfo, proto_thrift);
-    if (++nested_count > thrift_opt->nested_type_depth) {
-        expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_thrift_too_many_subtypes);
-        return THRIFT_REQUEST_REASSEMBLY;
-    }
-    p_set_proto_depth(pinfo, proto_thrift, nested_count);
-
     switch (type) {
     case DE_THRIFT_T_BOOL:
         ABORT_ON_INCOMPLETE_PDU(TBP_THRIFT_BOOL_LEN);
@@ -2089,7 +2145,6 @@ dissect_thrift_binary_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         return THRIFT_REQUEST_REASSEMBLY;
     }
 
-    p_set_proto_depth(pinfo, proto_thrift, --nested_count);
     return *offset;
 }
 /*=====END BINARY GENERIC DISSECTION=====*/
@@ -2156,6 +2211,7 @@ dissect_thrift_compact_binary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_compact_list_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt, gboolean is_list)
 {
     /*  Compact protocol list/set (short form, 1 byte):
@@ -2183,6 +2239,7 @@ dissect_thrift_compact_list_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     int hf_container = hf_thrift_set;
     int hf_num_item = hf_thrift_num_set_item;
     int hf_pos_item = hf_thrift_num_set_pos;
+    guint nested_count = p_get_proto_depth(pinfo, proto_thrift);
     ABORT_ON_INCOMPLETE_PDU(TBP_THRIFT_TYPE_LEN);
 
     /* Set the different hf_id & ett depending on effective type. */
@@ -2194,6 +2251,11 @@ dissect_thrift_compact_list_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
 
     /* Create the sub-tree. */
+    if (nested_count >= thrift_opt->nested_type_depth) {
+        expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_thrift_too_many_subtypes);
+        return THRIFT_REQUEST_REASSEMBLY;
+    }
+    p_set_proto_depth(pinfo, proto_thrift, nested_count + 1);
     container_pi = proto_tree_add_item(tree, hf_container, tvb, *offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(container_pi, ett);
 
@@ -2244,22 +2306,26 @@ dissect_thrift_compact_list_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
     proto_item_set_end(container_pi, tvb, *offset);
 
+    p_set_proto_depth(pinfo, proto_thrift, nested_count);
     return *offset;
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_compact_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt)
 {
     return dissect_thrift_compact_list_set(tvb, pinfo, tree, offset, thrift_opt, TRUE);
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_compact_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt)
 {
     return dissect_thrift_compact_list_set(tvb, pinfo, tree, offset, thrift_opt, FALSE);
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_compact_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt)
 {
     /* Compact protocol map header (1 byte, empty map):
@@ -2284,9 +2350,15 @@ dissect_thrift_compact_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     guint32 types, ktype, vtype;
     gint32 container_len, len_len, i;
     guint64 varint;
+    guint nested_count = p_get_proto_depth(pinfo, proto_thrift);
 
     ABORT_ON_INCOMPLETE_PDU(TCP_THRIFT_MIN_VARINT_LEN);
     /* Create the sub-tree. */
+    if (nested_count >= thrift_opt->nested_type_depth) {
+        expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_thrift_too_many_subtypes);
+        return THRIFT_REQUEST_REASSEMBLY;
+    }
+    p_set_proto_depth(pinfo, proto_thrift, nested_count + 1);
     container_pi = proto_tree_add_item(tree, hf_thrift_map, tvb, *offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(container_pi, ett_thrift_map);
 
@@ -2338,10 +2410,12 @@ dissect_thrift_compact_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     }
     proto_item_set_end(container_pi, tvb, *offset);
 
+    p_set_proto_depth(pinfo, proto_thrift, nested_count);
     return *offset;
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_compact_fields(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt)
 {
     /*
@@ -2395,6 +2469,7 @@ dissect_thrift_compact_fields(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_compact_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt)
 {
     /* This function only creates the "Struct" sub-tree
@@ -2402,8 +2477,14 @@ dissect_thrift_compact_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
      */
     proto_tree *sub_tree;
     proto_item *pi;
+    guint nested_count = p_get_proto_depth(pinfo, proto_thrift);
 
     ABORT_ON_INCOMPLETE_PDU(TCP_THRIFT_STRUCT_LEN);
+    if (nested_count >= thrift_opt->nested_type_depth) {
+        expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_thrift_too_many_subtypes);
+        return THRIFT_REQUEST_REASSEMBLY;
+    }
+    p_set_proto_depth(pinfo, proto_thrift, nested_count + 1);
     pi = proto_tree_add_item(tree, hf_thrift_struct, tvb, *offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(pi, ett_thrift_struct);
 
@@ -2412,6 +2493,7 @@ dissect_thrift_compact_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     } else {
         proto_item_set_end(pi, tvb, *offset);
     }
+    p_set_proto_depth(pinfo, proto_thrift, nested_count);
     return *offset;
 }
 
@@ -2422,15 +2504,9 @@ dissect_thrift_compact_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  * the bool type which is encoded in the same way as BOOL_FALSE (2).
  */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_compact_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt, proto_tree *header_tree, int type, proto_item *type_pi)
 {
-    guint nested_count = p_get_proto_depth(pinfo, proto_thrift);
-    if (++nested_count > thrift_opt->nested_type_depth) {
-        expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_thrift_too_many_subtypes);
-        return THRIFT_REQUEST_REASSEMBLY;
-    }
-    p_set_proto_depth(pinfo, proto_thrift, nested_count);
-
     switch (type) {
     case DE_THRIFT_C_BOOL_FALSE:
         ABORT_ON_INCOMPLETE_PDU(TBP_THRIFT_BOOL_LEN);
@@ -2504,7 +2580,6 @@ dissect_thrift_compact_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return THRIFT_REQUEST_REASSEMBLY;
     }
 
-    p_set_proto_depth(pinfo, proto_thrift, --nested_count);
     return *offset;
 }
 /*=====END COMPACT GENERIC DISSECTION=====*/
