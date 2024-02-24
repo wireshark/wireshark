@@ -325,7 +325,10 @@ void PreferencesDialog::on_buttonBox_accepted()
         /* Redissect all the packets, and re-evaluate the display filter. */
         mainApp->queueAppSignal(MainApplication::PacketDissectionChanged);
     }
-    mainApp->queueAppSignal(MainApplication::PreferencesChanged);
+
+    if (redissect_flags) {
+        mainApp->queueAppSignal(MainApplication::PreferencesChanged);
+    }
 
     if (redissect_flags & PREF_EFFECT_GUI_LAYOUT) {
         mainApp->queueAppSignal(MainApplication::RecentPreferencesRead);

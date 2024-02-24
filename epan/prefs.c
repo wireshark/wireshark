@@ -6614,6 +6614,9 @@ void
 prefs_set_effect_flags(pref_t *pref, unsigned int flags)
 {
     if (pref != NULL) {
+        if (flags == 0) {
+            ws_error("Setting \"%s\" preference effect flags to 0", pref->name);
+        }
         pref->effect_flags = flags;
     }
 }
@@ -6637,6 +6640,9 @@ void
 prefs_set_module_effect_flags(module_t * module, unsigned int flags)
 {
     if (module != NULL) {
+        if (flags == 0) {
+            ws_error("Setting module \"%s\" preference effect flags to 0", module->name);
+        }
         module->effect_flags = flags;
     }
 }
