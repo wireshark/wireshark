@@ -1265,7 +1265,22 @@ dissect_thrift_raw_double(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
     thrift_opt->use_std_dissector = TRUE;
     if (raw_dissector != NULL) {
-        tvbuff_t* sub_tvb = tvb_new_subset_length(tvb, offset, TBP_THRIFT_DOUBLE_LEN);
+        tvbuff_t* sub_tvb;
+        if (thrift_opt->tprotocol & PROTO_THRIFT_COMPACT) {
+            /* Create a sub-tvbuff_t in big endian format as documented. */
+            guint8 *data = wmem_alloc(wmem_packet_scope(), TBP_THRIFT_DOUBLE_LEN);
+            data[0] = tvb_get_guint8(tvb, offset + 7);
+            data[1] = tvb_get_guint8(tvb, offset + 6);
+            data[2] = tvb_get_guint8(tvb, offset + 5);
+            data[3] = tvb_get_guint8(tvb, offset + 4);
+            data[4] = tvb_get_guint8(tvb, offset + 3);
+            data[5] = tvb_get_guint8(tvb, offset + 2);
+            data[6] = tvb_get_guint8(tvb, offset + 1);
+            data[7] = tvb_get_guint8(tvb, offset);
+            sub_tvb = tvb_new_child_real_data(tvb, data, TBP_THRIFT_DOUBLE_LEN, TBP_THRIFT_DOUBLE_LEN);
+        } else {
+            sub_tvb = tvb_new_subset_length(tvb, offset, TBP_THRIFT_DOUBLE_LEN);
+        }
         thrift_opt->use_std_dissector = FALSE;
         raw_dissector(sub_tvb, pinfo, tree, thrift_opt);
     }
