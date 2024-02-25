@@ -2200,14 +2200,23 @@ pref_unstash(pref_t *pref, gpointer unstash_data_p)
                 if (sub_dissectors != NULL) {
                     handle = dissector_table_get_dissector_handle(sub_dissectors, unstash_data->module->title);
                     if (handle != NULL) {
-                        /* Delete all of the old values from the dissector table */
+                        /* Set the current handle to NULL for all the old values
+                         * in the dissector table. If there isn't an initial
+                         * handle, this actually deletes the entry. (If there
+                         * is an initial entry, keep it around so that the
+                         * user can see the original value.)
+                         *
+                         * XXX - If there's an initial handle which is not this,
+                         * reset it instead? At least this leaves the initial
+                         * handle visible in the Decode As table.
+                         */
                         for (i = 0; i < (*pref->varp.range)->nranges; i++) {
                             for (j = (*pref->varp.range)->ranges[i].low; j < (*pref->varp.range)->ranges[i].high; j++) {
-                                dissector_delete_uint(pref->name, j, handle);
+                                dissector_change_uint(pref->name, j, NULL);
                                 decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER(j), NULL, NULL);
                             }
 
-                            dissector_delete_uint(pref->name, (*pref->varp.range)->ranges[i].high, handle);
+                            dissector_change_uint(pref->name, (*pref->varp.range)->ranges[i].high, NULL);
                             decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER((*pref->varp.range)->ranges[i].high), NULL, NULL);
                         }
                     }

@@ -1480,6 +1480,15 @@ dissector_change_uint(const char *name, const guint32 pattern, dissector_handle_
 	 */
 	dtbl_entry = find_uint_dtbl_entry(sub_dissectors, pattern);
 	if (dtbl_entry != NULL) {
+		/*
+		 * If there's no initial value, and the user said not
+		 * to decode it, just remove the entry to save memory.
+		 */
+		if (handle == NULL && dtbl_entry->initial == NULL) {
+			g_hash_table_remove(sub_dissectors->hash_table,
+					    GUINT_TO_POINTER(pattern));
+			return;
+		}
 		dtbl_entry->current = handle;
 		return;
 	}
@@ -1804,6 +1813,15 @@ dissector_change_string(const char *name, const gchar *pattern,
 	 */
 	dtbl_entry = find_string_dtbl_entry(sub_dissectors, pattern);
 	if (dtbl_entry != NULL) {
+		/*
+		 * If there's no initial value, and the user said not
+		 * to decode it, just remove the entry to save memory.
+		 */
+		if (handle == NULL && dtbl_entry->initial == NULL) {
+			g_hash_table_remove(sub_dissectors->hash_table,
+					    pattern);
+			return;
+		}
 		dtbl_entry->current = handle;
 		return;
 	}
