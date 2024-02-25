@@ -43,10 +43,10 @@
 why not using existing ses, pres and acse dissectors ?
     ATN upper layers are derived from OSI standards for session,
     presentation and application but the encoding differs
-    (it's PER instead of BER encoding to save bandwith).
+    (it's PER instead of BER encoding to save bandwidth).
     Session and presentation use the "null" encoding option,
     meaning that they are only present at connection establishment
-    and ommitted otherwise.
+    and omitted otherwise.
     Instead of adapting existing dissectors it seemed simpler and cleaner
     to implement everything the new atn-ulcs dissector.
 
@@ -363,7 +363,7 @@ dissect_atn_ulcs_T_pdv_list_presentation_data_values_arbitrary(tvbuff_t *tvb _U_
         NULL);
 
     if (tvb_usr) {
-      /* call appropiate dissector for bitstring data */
+      /* call appropriate dissector for bitstring data */
       switch(ulcs_context_value){
           case  1: /* ACSE PDU*/
               atn_ulcs_tree = proto_tree_add_subtree(

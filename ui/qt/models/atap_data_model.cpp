@@ -724,7 +724,7 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
             /* Qt guarantees that this roundtrip conversion compares equally,
              * so filtering with equality will work as expected.
              * XXX: Perhaps the UNFORMATTED_DISPLAYDATA role shoud be split
-             * into one used for raw data export and comparisions with each
+             * into one used for raw data export and comparisons with each
              * other, and another for comparing with filters?
              */
             return role == Qt::DisplayRole ? rounded + "%" : QVariant(rounded.toDouble());

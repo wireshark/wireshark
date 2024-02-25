@@ -4234,7 +4234,7 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		 */
 		if (si->status != 0) {
 			/*
-			 * Not sucessful means either more req/rsp
+			 * Not successful means either more req/rsp
 			 * processing is required or we reached an
 			 * error, so update hash.
 			 */
@@ -6911,7 +6911,7 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 out:
 	if (have_tap_listener(smb2_eo_tap) && (data_tvb_len == length)) {
-		if (si->saved && si->eo_file_info) { /* without this data we don't know wich file this belongs to */
+		if (si->saved && si->eo_file_info) { /* without this data we don't know which file this belongs to */
 			feed_eo_smb2(tvb,pinfo,si,dataoffset,length,off);
 		}
 	}
@@ -8562,7 +8562,7 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += MIN(olb.len, data_tvb_len);
 
 	if (have_tap_listener(smb2_eo_tap) && (data_tvb_len == olb.len)) {
-		if (si->saved && si->eo_file_info) { /* without this data we don't know wich file this belongs to */
+		if (si->saved && si->eo_file_info) { /* without this data we don't know which file this belongs to */
 			feed_eo_smb2(tvb,pinfo,si,olb.off,olb.len,si->saved->file_offset);
 		}
 	}

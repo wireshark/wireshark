@@ -3171,7 +3171,7 @@ upper_transport_init_routine(void)
     reassembly_table_register(&upper_transport_reassembly_table, &upper_transport_reassembly_table_functions);
 }
 
-/* A BT Mesh dissector is not realy useful without decryption as all packets are encrypted. Just leave a stub dissector outside of */
+/* A BT Mesh dissector is not really useful without decryption as all packets are encrypted. Just leave a stub dissector outside of */
 
 /* BT Mesh s1 function */
 static gboolean

@@ -38,10 +38,10 @@
 why not using existing ses, pres and acse dissectors ?
     ATN upper layers are derived from OSI standards for session,
     presentation and application but the encoding differs
-    (it's PER instead of BER encoding to save bandwith).
+    (it's PER instead of BER encoding to save bandwidth).
     Session and presentation use the "null" encoding option,
     meaning that they are only present at connection establishment
-    and ommitted otherwise.
+    and omitted otherwise.
     Instead of adapting existing dissectors it seemed simpler and cleaner
     to implement everything the new atn-ulcs dissector.
 

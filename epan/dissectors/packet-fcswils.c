@@ -495,13 +495,13 @@ get_zoneobj_len(tvbuff_t *tvb, gint offset)
      * id (id_len bytes)
      */
     objtype = tvb_get_guint8(tvb, offset);
-    len = 4 + ZONENAME_LEN(tvb, offset+4); /* length upto num_of_mbrs field */
+    len = 4 + ZONENAME_LEN(tvb, offset+4); /* length up to num_of_mbrs field */
     numrec = tvb_get_ntohl(tvb, offset+len); /* gets us num of zone mbrs */
 
     len += 4;                   /* + num_mbrs */
     for (i = 0; i < numrec; i++) {
         if (objtype == FC_SWILS_ZONEOBJ_ZONESET) {
-            len += 4 + ZONENAME_LEN(tvb, offset+4+len); /* length upto num_of_mbrs field */
+            len += 4 + ZONENAME_LEN(tvb, offset+4+len); /* length up to num_of_mbrs field */
             numrec1 = tvb_get_ntohl(tvb, offset+len);
 
             len += 4;

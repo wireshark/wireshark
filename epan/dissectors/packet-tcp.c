@@ -1731,7 +1731,7 @@ mptcp_convert_dsn(guint64 dsn, mptcp_meta_flow_t *meta, enum mptcp_dsn_conversio
     *result = dsn;
 
     /* if relative is set then we need the 64 bits version anyway
-     * we assume no wrapping was done on the 32 lsb so this may be wrong for elphant flows
+     * we assume no wrapping was done on the 32 lsb so this may be wrong for elephant flows
      */
     if(conv == DSN_CONV_32_TO_64 || relative) {
 

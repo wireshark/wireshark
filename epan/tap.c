@@ -180,7 +180,7 @@ register_tap(const char *name)
 	int i=0;
 
 	if(tap_dissector_list){
-		/* Check if we allready have the name registered, if it is return the tap_id of that tap.
+		/* Check if we already have the name registered, if it is return the tap_id of that tap.
 		 * After the for loop tdl_prev will point to the last element of the list, add the new one there.
 		 */
 		for (i = 1, tdl = tap_dissector_list; tdl; i++, tdl_prev = tdl, tdl = tdl->next) {
@@ -205,7 +205,7 @@ register_tap(const char *name)
 }
 
 
-/* Everytime the dissector has finished dissecting a packet (and all
+/* Every time the dissector has finished dissecting a packet (and all
    subdissectors have returned) and if the dissector has been made "tappable"
    it will push some data to everyone tapping this layer by a call
    to tap_queue_packet().

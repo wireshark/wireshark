@@ -2947,7 +2947,7 @@ dissect_ndr_wchar_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* ndr pointer handling */
 /* Should we re-read the size of the list ?
- * Instead of re-calculating the size everytime, use the stored value unless this
+ * Instead of re-calculating the size every time, use the stored value unless this
  * flag is set which means: re-read the size of the list
  */
 static gboolean must_check_size = FALSE;

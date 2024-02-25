@@ -21,7 +21,7 @@ void proto_register_fcip(void);
 void proto_reg_handoff_fcip(void);
 
 #define FCIP_ENCAP_HEADER_LEN                    28
-#define FCIP_MIN_HEADER_LEN                      16 /* upto frame len field */
+#define FCIP_MIN_HEADER_LEN                      16 /* up to frame len field */
 #define FCIP_IS_SF(pflags)                       ((pflags & 0x1) == 0x1)
 #define FCIP_IS_CH(pflags)                       ((pflags & 0x80) == 0x80)
 

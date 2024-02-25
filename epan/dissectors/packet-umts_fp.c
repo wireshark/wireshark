@@ -5228,7 +5228,7 @@ heur_dissect_fp_edch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 /* This method can frame UDP streams containing FP packets but dissection of those packets will */
 /* fail since the FP conversation info is never attached */
-/* Usefull for DCH streams containing CS data and don't have their own heuristic method */
+/* Useful for DCH streams containing CS data and don't have their own heuristic method */
 static gboolean
 heur_dissect_fp_unknown_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {

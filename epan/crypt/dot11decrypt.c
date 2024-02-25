@@ -256,7 +256,7 @@ Dot11DecryptFtDerivePtk(
  * @param action [IN] Tdls Action code (response or confirm)
  *
  * @return
- *  DOT11DECRYPT_RET_SUCCESS if Key has been sucessfully derived (and MIC verified)
+ *  DOT11DECRYPT_RET_SUCCESS if Key has been successfully derived (and MIC verified)
  *  DOT11DECRYPT_RET_UNSUCCESS otherwise
  */
 static int
@@ -503,7 +503,7 @@ Dot11DecryptDecryptKeyData(PDOT11DECRYPT_CONTEXT ctx,
         memcpy(decrypted_data, data, key_bytes_len);
         g_free(data);
     } else {
-        /* Ideally AKM from EAPOL message 2 of 4 should be used to determine Key-wrap algoritm to use */
+        /* Ideally AKM from EAPOL message 2 of 4 should be used to determine Key-wrap algorithm to use */
         /* Though fortunately IEEE802.11-2016 Table 12-8 state that all AKMs use "NIST AES Key Wrap"  */
         /* algorithm so no AKM lookup is needed. */
 
@@ -2043,7 +2043,7 @@ Dot11DecryptRsnaMicCheck(
         algo = GCRY_MD_SHA1;
         hmac = true;
     } else {
-        /* Mic check algoritm determined by AKM type */
+        /* Mic check algorithm determined by AKM type */
         if (Dot11DecryptGetIntegrityAlgoFromAkm(akm, &algo, &hmac)) {
             ws_warning("Unknown Mic check algo");
             return DOT11DECRYPT_RET_UNSUCCESS;

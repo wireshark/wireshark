@@ -123,7 +123,7 @@ ATTRIBUTE	Related_ICID				98	string
 
 #
 #  Commented out because they cannot be used.
-#  [wireshark: The following values are actualy handled by
+#  [wireshark: The following values are actually handled by
 #  packet-radius_packetcable.c]
 #
 #VALUE	CableLabs-Event-Message		Reserved		0

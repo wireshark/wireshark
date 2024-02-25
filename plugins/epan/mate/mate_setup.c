@@ -177,7 +177,7 @@ extern gboolean add_hfid(mate_config* mc, header_field_info*  hfi, gchar* how, G
 
 #if 0
 /*
- * XXX - where is this suposed to be used?
+ * XXX - where is this supposed to be used?
  */
 extern gchar* add_ranges(mate_config* mc, gchar* range,GPtrArray* range_ptr_arr) {
 	gchar**  ranges;

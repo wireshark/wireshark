@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Contributers:
+ * Contributors:
  * Kyle J. Harms <kyle.j.harms@boeing.com>
  * Brian M. Ames <bmames@apk.net>
  */

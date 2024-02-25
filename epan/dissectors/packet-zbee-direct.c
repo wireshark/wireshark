@@ -1280,7 +1280,7 @@ static int dissect_zb_direct_formation(tvbuff_t    *tvb,
 }
 
 /**
- * Dissector for Commisioning Status.
+ * Dissector for Commissioning Status.
  *
  * @param  tvb     pointer to buffer containing raw packet
  * @param  pinfo   pointer to packet information fields

@@ -144,7 +144,7 @@ extern void delete_giop_user_module(giop_sub_dissector_t *sub, gchar *name,
  * - Pseudo Object Types
  *
  *
- * Altough some of these look redundant, I have separated them
+ * Although some of these look redundant, I have separated them
  * out for all CDR types, to assist in auto generation of
  * IDL dissectors later, see idl2wrs -- FS
  *

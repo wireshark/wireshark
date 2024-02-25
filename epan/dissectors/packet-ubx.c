@@ -334,7 +334,7 @@ static const value_string UBX_SBAS_TESTBED[] = {
 /* UTC standard identifier */
 static const value_string UBX_UTC_STD_ID[] = {
     {0, "Information not available"},
-    {1, "Communications Research Labratory (CRL), Tokyo, Japan"},
+    {1, "Communications Research Laboratory (CRL), Tokyo, Japan"},
     {2, "National Institute of Standards and Technology (NIST)"},
     {3, "U.S. Naval Observatory (USNO)"},
     {4, "International Bureau of Weights and Measures (BIPM)"},

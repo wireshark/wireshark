@@ -1108,7 +1108,7 @@ dissect_adwin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 		dissect_UDPR1(tvb, pinfo, adwin_tree, adwin_debug_tree, &info_string);
 		break;
 	case UDPH2_LENGTH: /* to the best of my knowledge, this struct
-			    * has never been used publically! */
+			    * has never been used publicly! */
 		/* dissect_UDPH2(tvb, pinfo, adwin_tree, adwin_debug_tree); */
 		info_string = wmem_strdup(pinfo->pool, "UDPH2 - UNUSED");
 		break;

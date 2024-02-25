@@ -62,7 +62,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
         NULL);
 
     if (tvb_usr) {
-      /* call appropiate dissector for bitstring data */
+      /* call appropriate dissector for bitstring data */
       switch(ulcs_context_value){
           case  1: /* ACSE PDU*/
               atn_ulcs_tree = proto_tree_add_subtree(

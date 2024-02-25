@@ -25,7 +25,7 @@
 
 
 /* Described in:
- * 3GPP TS 36.322 Evolved Universal Terrestial Radio Access (E-UTRA)
+ * 3GPP TS 36.322 Evolved Universal Terrestrial Radio Access (E-UTRA)
  * Radio Link Control (RLC) Protocol specification v14.0.0
  */
 

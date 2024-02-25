@@ -2002,7 +2002,7 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint l
             email_addr = (((oct & 0x38) >> 3) == 0x02) ? TRUE : FALSE;
 
             /*
-             * do not change to ...add_item() with VALS in hf defintion because this parameter is
+             * do not change to ...add_item() with VALS in hf definition because this parameter is
              * used below in the 'else' with a different string array
              */
             proto_tree_add_uint_format_value(tree, hf_ansi_637_trans_addr_param_ton, tvb, offset, 1,

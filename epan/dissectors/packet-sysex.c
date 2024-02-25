@@ -460,7 +460,7 @@ static const value_string sysex_extended_manufacturer_id_vals[] = {
     {0x002019, "MA Lighting Technology"},
     {0x00201A, "Fatar SRL c/o Music Industries"},
     {0x00201B, "QSC Audio Products Inc."},
-    {0x00201C, "Artisan Clasic Organ Inc."},
+    {0x00201C, "Artisan Classic Organ Inc."},
     {0x00201D, "Orla Spa"},
     {0x00201E, "Pinnacle Audio (Klark Teknik PLC)"},
     {0x00201F, "TC Electronics"},

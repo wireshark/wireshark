@@ -163,7 +163,7 @@ typedef struct {
      *	    Each client can have many hosts, each host can be multi-homed,
      *	    and each host can be running many processes talking to the
      *	    server.  Each packet needs to be uniquely numbered, so that the
-     *	    server can recognize as interchangable all of the (re)transmissions
+     *	    server can recognize as interchangeable all of the (re)transmissions
      *	    of a single report (rid) from a client process (pid) on a single
      *	    host (hid), and the client can know which transmission (tid)
      *	    produced a given server response to maintain the client's RTT

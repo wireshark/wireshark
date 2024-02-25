@@ -491,7 +491,7 @@ typedef struct _SslSession {
     gboolean client_cid_len_present;
     guint8  server_cid_len;
     gboolean server_cid_len_present;
-    gboolean deprecated_cid; /* Set when handshake is using the deprecated CID extention type */
+    gboolean deprecated_cid; /* Set when handshake is using the deprecated CID extension type */
 } SslSession;
 
 /* RFC 5246, section 8.1 says that the master secret is always 48 bytes */

@@ -400,7 +400,7 @@ struct mptcp_analysis {
 	mptcp_meta_flow_t meta_flow[2];
 
 	guint32 stream; /* Keep track of unique mptcp stream (per MP_CAPABLE handshake) */
-	guint8 hmac_algo;  /* hmac decided after negociation */
+	guint8 hmac_algo;  /* hmac decided after negotiation */
 	wmem_list_t* subflows;	/* List of subflows (tcp_analysis) */
 
 	/* identifier of the tcp stream that saw the initial 3WHS with MP_CAPABLE option */

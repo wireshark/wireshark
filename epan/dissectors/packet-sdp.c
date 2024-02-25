@@ -1757,7 +1757,7 @@ dissect_sdp_media_attribute_fmtp(proto_tree *tree, packet_info *pinfo, tvbuff_t 
         decode_sdp_fmtp(fmtp_tree, tvb, pinfo, offset, tokenlen,
                         media_format, transport_info, rtp_dyn_payload);
 
-        /* Move offset past "; " and onto firts char */
+        /* Move offset past "; " and onto first char */
         offset = next_offset + 1;
     }
 }

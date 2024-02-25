@@ -790,7 +790,7 @@ static const value_string cell_disc_vals[] = {
 };
 
 /*
- * Not strictly A-interface info, but put here to avoid file polution
+ * Not strictly A-interface info, but put here to avoid file pollution
  *
  * Title                3GPP2                   Other
  *

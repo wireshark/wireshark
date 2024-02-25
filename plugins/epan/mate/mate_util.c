@@ -883,7 +883,7 @@ extern AVPL* new_avpl_from_avpl(const gchar* name, AVPL* avpl, gboolean copy_avp
 
 /**
 * match_avp:
- * @param src an src to be compared agains an "op" avp
+ * @param src an src to be compared against an "op" avp
  * @param op the "op" avp that will be matched against the src avp
  *
  * Checks whether or not two avp's match.
@@ -1117,7 +1117,7 @@ extern AVPL* new_avpl_pairs_match(const gchar* name, AVPL* src, AVPL* op, gboole
  * new_avpl_from_match:
  * @param mode The matching method, one of AVPL_STRICT, AVPL_LOOSE, AVPL_EVERY.
  * @param name the name of the resulting avpl
- * @param src the data AVPL to be matched agains a condition AVPL
+ * @param src the data AVPL to be matched against a condition AVPL
  * @param op the conditions AVPL that will be matched against the data AVPL
  *
  * Matches the conditions AVPL against the original AVPL according to the mode.

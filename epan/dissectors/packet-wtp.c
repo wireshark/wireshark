@@ -637,7 +637,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * for packets other than the last packet?)
      *
      * Try calling a subdissector only if:
-     *    - The WTP payload is ressembled in this very packet,
+     *    - The WTP payload is resembled in this very packet,
      *    - The WTP payload is not fragmented across packets.
      */
     dataOffset = offCur + cbHeader + vHeader;

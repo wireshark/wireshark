@@ -100,7 +100,7 @@ WS_DLL_PUBLIC GList* get_tap_names(void);
  */
 WS_DLL_PUBLIC int find_tap_id(const char *name);
 
-/** Everytime the dissector has finished dissecting a packet (and all
+/** Every time the dissector has finished dissecting a packet (and all
  *  subdissectors have returned) and if the dissector has been made "tappable"
  *  it will push some data to everyone tapping this layer by a call
  *  to tap_queue_packet().

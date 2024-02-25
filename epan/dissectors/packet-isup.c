@@ -6586,7 +6586,7 @@ dissect_isup_conference_treatment_indicators_parameter(tvbuff_t *parameter_tvb, 
  * 0                 3      Display information (IA5 characters)
  * etc.
  * - end - quote -
- * Assuming octet 2 and onwards is pased here - just output text ?
+ * Assuming octet 2 and onwards is passed here - just output text ?
  */
 static void
 dissect_isup_display_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item _U_)

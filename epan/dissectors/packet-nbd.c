@@ -254,7 +254,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 		nbd_trans=(nbd_transaction_t *)wmem_tree_lookup32_array(nbd_info->acked_pdus, hkey);
 	}
-	/* The bloody handles are reused !!! eventhough they are 64 bits.
+	/* The bloody handles are reused !!! even though they are 64 bits.
 	 * So we must verify we got the "correct" one
 	 */
 	if( (magic==NBD_RESPONSE_MAGIC)

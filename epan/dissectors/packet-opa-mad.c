@@ -1173,7 +1173,7 @@ static gint hf_opa_sa_ServiceGID;
 static gint hf_opa_sa_MGID;
 static gint hf_opa_sa_PortGID;
 
-/* Attribute Specfic Fields */
+/* Attribute Specific Fields */
 static gint hf_opa_Notice;
 static gint hf_opa_Notice_IsGeneric;
 static gint hf_opa_Notice_Type;

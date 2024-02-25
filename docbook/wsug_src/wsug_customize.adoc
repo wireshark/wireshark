@@ -707,7 +707,7 @@ These preferences allow you to define the layout of the GUI once a capture file 
 image::images/ws-pref-appearance-layout.png[{screenshot-attrs}]
 
 Make sure that you have at least one pane configured to contain the Packet list.
-Three panes can be active at the same time and they can be layed out as shown in the top layer.
+Three panes can be active at the same time and they can be laid out as shown in the top layer.
 The exact sizes of these panes can be changed as needed once a capture file is opened.
 
 Selecting _Show packet list separator_ causes the packet list entries to be slightly set apart, which may improve readability at the cost of the amount of packets shown in the packet list.

@@ -439,7 +439,7 @@ void InterfaceFrame::on_interfaceTree_doubleClicked(const QModelIndex &index)
     interfaces << device_name;
 
     /* We trust the string here. If this interface is really extcap, the string is
-     * being checked immediatly before the dialog is being generated */
+     * being checked immediately before the dialog is being generated */
     if (extcap_string.length() > 0)
     {
         /* this checks if configuration is required and not yet provided or saved via prefs */
@@ -471,7 +471,7 @@ void InterfaceFrame::on_interfaceTree_clicked(const QModelIndex &index)
         QString extcap_string = source_model_.getColumnContent(realIndex.row(), IFTREE_COL_EXTCAP_PATH).toString();
 
         /* We trust the string here. If this interface is really extcap, the string is
-         * being checked immediatly before the dialog is being generated */
+         * being checked immediately before the dialog is being generated */
         if (extcap_string.length() > 0)
         {
             /* this checks if configuration is required and not yet provided or saved via prefs */

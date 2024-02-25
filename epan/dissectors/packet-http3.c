@@ -380,7 +380,7 @@ typedef struct _http3_header_field_def {
  * - encoded points to the location of the encoded field in the *original* packet TVB.
  * - decoded points to the formatted header string, which is allocated in a cache map,
  *   to conserve memory.
- * The decoded fields are used to create an auxillary TVB which will
+ * The decoded fields are used to create an auxiliary TVB which will
  * be used for dissection of decoded header values.
  */
 typedef struct _http3_header_field {

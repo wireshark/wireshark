@@ -1455,7 +1455,7 @@ proto_register_sapms(void)
 		{ &hf_sapms_diagport,
 			{ "Diag Port", "sapms.diag_port", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-		/* MS_DP_ADM fiels */
+		/* MS_DP_ADM fields */
 		{ &hf_sapms_dp_adm_dp_version,
 			{ "Dispatcher Version", "sapms.dp_adm.version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 

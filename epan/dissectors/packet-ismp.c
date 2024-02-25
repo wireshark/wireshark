@@ -31,7 +31,7 @@ static int hf_ismp_seq_num;
 static int hf_ismp_code_length;
 static int hf_ismp_auth_data;
 
-/* Enterasys/Cabletron Dicovery Protocol fields*/
+/* Enterasys/Cabletron Discovery Protocol fields*/
 static int hf_ismp_edp;
 static int hf_ismp_edp_version;
 static int hf_ismp_edp_module_ip;

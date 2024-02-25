@@ -15254,7 +15254,7 @@ add_ff_action_unprotected_dmg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
  * Table 8-53g IEEE Std 802.11ac-2013 amendment.
  *
  * The irregular use of case statements in this function is to improve
- * readability in what is otherwise a large funtion that does very little.
+ * readability in what is otherwise a large function that does very little.
  */
 static inline int
 vht_compressed_skip_scidx(guint8 nchan_width, guint8 ng, int scidx)

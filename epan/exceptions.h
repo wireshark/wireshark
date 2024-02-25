@@ -407,7 +407,7 @@
 	ws_assert(except_state == EXCEPT_CAUGHT);    \
 	/* we can't use except_rethrow here, as that pops a catch block \
 	 * off the stack, and we don't want to do that, because we want to \
-	 * excecute the FINALLY {} block first.     \
+	 * execute the FINALLY {} block first.     \
 	 * except_throw doesn't provide an interface to rethrow an existing \
 	 * exception; however, longjmping back to except_try_push() has the \
 	 * desired effect.			    \

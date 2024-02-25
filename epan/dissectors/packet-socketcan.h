@@ -20,7 +20,7 @@
  *
  * CANFD_FDF is in that field. and always set, as well as being present
  * but *never* set in what's at the location corresponding to that field
- * in a CAN classic frame, so we can distingish between CAN classic and
+ * in a CAN classic frame, so we can distinguish between CAN classic and
  * CAN FD frames by testing that bit.
  */
 #define CANFD_BRS 0x01 /* Bit Rate Switch (second bitrate for payload data) */

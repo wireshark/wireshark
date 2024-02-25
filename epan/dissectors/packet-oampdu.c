@@ -1224,7 +1224,7 @@ dissect_cablelabs_event_notification(tvbuff_t *tvb, proto_tree *tree, guint8 byt
  *    Maintenance slow protocol defined in IEEE 802.3 clause 57 (The OAMPDUs
  *    common part is defined in section 57.4).
  *
- *    Only the 6 folowing codes are currently defined in the 2004 version of this
+ *    Only the 6 following codes are currently defined in the 2004 version of this
  *    protocol:
 
  *       OAMPDU_INFORMATION:        0x0

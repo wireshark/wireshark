@@ -21,7 +21,7 @@
  * TODO: -- FS
  * 1. heuristic giop dissector table [started]
  * 2. GUI options, see 20
- * 3. Remove unneccessary reply_status in heuristic dissector calls (now
+ * 3. Remove unnecessary reply_status in heuristic dissector calls (now
  *    part of MessageHeader) [done]
  * 4. get_CDR_xxx should be passed an alignment offset value
  *    rather than GIOP_HEADER_SIZE, as alignment can also change in a

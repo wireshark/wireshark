@@ -686,7 +686,7 @@ f5eth_tmmdist_stats_tree_init(stats_tree *st)
 
 /*-----------------------------------------------------------------------------------------------*/
 /**
- * @brief Per-packet tmm distrubution statistics
+ * @brief Per-packet tmm distribution statistics
  *
  * @attention This is an interface function to be called from the rest of wireshark.
  *

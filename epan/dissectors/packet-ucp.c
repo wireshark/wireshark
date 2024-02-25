@@ -804,7 +804,7 @@ ucp_mktime(const gint len, const char *datestr)
 
 /*!
  * Scanning routines to add standard types (byte, int, string, data)
- * to the protocol-tree. Each field is seperated with a slash ('/').
+ * to the protocol-tree. Each field is separated with a slash ('/').
  *
  * \param       tree    The protocol tree to add to
  * \param       tvb     Buffer containing the data

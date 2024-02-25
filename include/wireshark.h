@@ -21,7 +21,7 @@
  * Other public headers provided here should be minimal, with stable interfaces
  * and have only global declarations.
  *
- * Everytime this header changes everything must be rebuilt so consider carefully
+ * Every time this header changes everything must be rebuilt so consider carefully
  * if the other project headers included here should really have global scope.
  *
  * See README.developer for a more in-depth guide.

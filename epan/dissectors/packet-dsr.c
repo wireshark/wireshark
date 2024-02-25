@@ -73,7 +73,7 @@ static int hf_dsr_opt_srcrt_reserved;
 static int hf_dsr_opt_srcrt_salvage;
 static int hf_dsr_opt_srcrt_segsleft;
 static int hf_dsr_opt_srcrt_address;
-/* Flow State Extentions */
+/* Flow State Extensions */
 /* Timout option fields */
 static int hf_dsr_fs_opt_timeout_timeout;
 /* Flow ID / destination option fields */
@@ -114,7 +114,7 @@ static gint ett_dsr_srcrt_hoplist;
 #define DSR_OPT_TYPE_SRCRT 96
 #define DSR_OPT_TYPE_PAD1 224
 #define DSR_OPT_TYPE_PADN 0
-/* DSR Flow State extention types */
+/* DSR Flow State extension types */
 #define DSR_FS_OPT_TYPE_TIMEOUT 128
 #define DSR_FS_OPT_TYPE_DESTFLOWID 129
 /* Route error types */

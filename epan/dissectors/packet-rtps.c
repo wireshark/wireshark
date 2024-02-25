@@ -3373,7 +3373,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
                   offset = dissect_user_defined(tree, tvb, offset, encoding, encoding_version, NULL,
                       result->member_type_id, result->member_name, EXTENSIBILITY_INVALID, offset, 0, 0, show);
                 } else {
-                    /* the hashmap uses the type_id to index the objects. substracting -2 here to lookup the discriminator
+                    /* the hashmap uses the type_id to index the objects. subtracting -2 here to lookup the discriminator
                         related to the type_id that identifies an union */
                     key = type_id + HASHMAP_DISCRIMINATOR_CONSTANT;
                     result = (union_member_mapping *)wmem_map_lookup(union_member_mappings, &(key));
@@ -6610,7 +6610,7 @@ static const char* rtps_util_add_topic_info(proto_tree *tree, packet_info* pinfo
  *
  * @param[in] tree a chunk of data in the tvb and return a new tvb with the uncompressed data
  * @param[in] tvb
- * @param[in] offset offset at the begining of the compressed data.
+ * @param[in] offset offset at the beginning of the compressed data.
  * @param[in] size in bytes from the initial offset to the end of the serialized data
  * @param[in] compressed_size size in bytes of the compressed chunk in the tvb.
  * @param[out] True if it tries to uncompress the data. In environment where Zlib is not available this will be false. This is used for
@@ -6654,7 +6654,7 @@ tvbuff_t *rtps_util_get_uncompressed_tvb_zlib(
 * @param[in] tree
 * @param[in] packet info.
 * @param[in] tvb
-* @param[in] offset at the begining of the encapsulation options.
+* @param[in] offset at the beginning of the encapsulation options.
 * @param[out] encapsulation_options_out If not null it will contain the encapsulation options
 * @param[out] compression_option_out If not null it will contain the compression option
 * @param[out] padding_bytes_out If not null it will contain the padding bytes
@@ -9666,7 +9666,7 @@ static void dissect_parametrized_serialized_data(proto_tree *tree, tvbuff_t *tvb
   * @param[in] tree
   * @param[in] packet info.
   * @param[in] tvb
-  * @param[in] offset offset at the begining of the encapsulation id.
+  * @param[in] offset offset at the beginning of the encapsulation id.
   * @param[in] size in bytes from the initial offset to the end of the serialized data
   * @param[in] uncompress_if_compressed true for uncompressing if the data should be uncompressed.
   * @param[out] encapsulation_id_out If not null it will contain the encapsultaion_id
@@ -9675,7 +9675,7 @@ static void dissect_parametrized_serialized_data(proto_tree *tree, tvbuff_t *tvb
   * @param[out] extended_compression_options_out If not null it will contain the extended compression options
   * @param[out] extended_header_bits_out If not null it will contain the extended header bits
   * @param[out] is_compressed_out If not null it will indicate if the serielized data is compressed
-  * @param[out] uncompressed_ok_out If not null it will indicate if the serizlized data has been succesfully uncompressed
+  * @param[out] uncompressed_ok_out If not null it will indicate if the serizlized data has been successfully uncompressed
   * @param[out] uncompressed_tvb_out If not null it will contain the uncompressed tvb pointer. If the seriaized data is not uncompressed it will return NULL.
   * @param[out] compressed_data_tree_out If not null it will contain the subtree of the uncompressed data.
   *
@@ -13636,7 +13636,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   if ((majorRev != 1) && (majorRev != 2))
     return FALSE;
 
-  /* Save the begining of the RTPS message */
+  /* Save the beginning of the RTPS message */
   rtps_root.tvb = tvb;
   rtps_root.tvb_offset = offset;
   rtps_root.tvb_len = tvb_reported_length_remaining(tvb, offset);

@@ -2404,7 +2404,7 @@ netlogon_dissect_VALIDATION(tvbuff_t *tvb, int offset,
  * IDL      [in][ref] LOGON_LEVEL *logonlevel,
  * IDL      [in] short ValidationLevel,
  * IDL      [out][ref] VALIDATION *validation,
- * IDL      [out][ref] boolean Authorative
+ * IDL      [out][ref] boolean Authoritative
  * IDL      [in][out] unsigned long ExtraFlags
  * IDL );
  */
@@ -2477,7 +2477,7 @@ netlogon_dissect_netrlogonsamlogonflags_reply(tvbuff_t *tvb, int offset,
  * IDL      [in][ref] LOGON_LEVEL *logonlevel,
  * IDL      [in] short ValidationLevel,
  * IDL      [out][ref] VALIDATION *validation,
- * IDL      [out][ref] boolean Authorative
+ * IDL      [out][ref] boolean Authoritative
  * IDL );
  */
 static int

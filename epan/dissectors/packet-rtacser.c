@@ -32,7 +32,7 @@
  * and the TCP/IP header(s) maintained from the original conversation.  The application data from the
  * message will follow as per a standard Wireshark packet.
  *
- * Serial-based pcap capture files were orignally stored using "User 0" DLT type 147 to specify a
+ * Serial-based pcap capture files were originally stored using "User 0" DLT type 147 to specify a
  * user-defined dissector for pcap data but this format was later modified to specify a custom DLT type
  * known as LINKTYPE_RTAC_SERIAL (DLT 250). The pcap file data portion contains a standard 12-byte serial
  * header followed by the application payload data from actual rx/tx activity on the line.  Some useful

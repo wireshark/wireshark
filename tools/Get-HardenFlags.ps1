@@ -16,7 +16,7 @@
 #   on all the binaries in the distribution, and then filters
 #   for the NXCOMPAT and DYNAMICBASE flags.
 
-# This script will probably fail for the forseeable future.
+# This script will probably fail for the foreseeable future.
 #
 # Many of our third-party libraries are compiled using MinGW-w64. Its version
 # of `ld` doesn't enable the dynamicbase, nxcompat, or high-entropy-va flags

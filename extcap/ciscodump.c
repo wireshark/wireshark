@@ -222,7 +222,7 @@ static int read_output_bytes(ssh_channel channel, int bytes, char* outbuf)
 /* Reads input to buffer and parses EOL
  *   If line is NULL, just received count of characters in len is calculated
  * It returns:
- *   READ_LINE_ERROR - any ssh error occured
+ *   READ_LINE_ERROR - any ssh error occurred
  *   READ_LINE_EOLN - EOLN found, line/len contains \0 terminated string
  *   READ_LINE_TIMEOUT - reading ended with timeout, line/len contains \0 terminate prompt
  *   READ_LINE_TOO_LONG - buffer is full with no EOLN nor PROMPT found, line is filled with NOT \0 terminated data
@@ -264,7 +264,7 @@ static int ssh_channel_read_line_timeout(ssh_channel channel, char *line, int *l
 
 /* Reads input to buffer and parses EOL or prompt_str PROMPT
  * It returns:
- *   READ_PROMPT_ERROR - any ssh error occured
+ *   READ_PROMPT_ERROR - any ssh error occurred
  *   READ_PROMPT_EOLN - EOLN found, line/len contains \0 terminated string
  *   READ_PROMPT_PROMPT - reading ended and it ends with PROMPT, line/len contains \0 terminate prompt
  *   READ_PROMPT_TOO_LONG - buffer is full with no EOLN nor PROMPT found, line is filled with NOT \0 terminated data

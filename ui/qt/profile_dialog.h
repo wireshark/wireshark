@@ -40,8 +40,8 @@ public:
     /**
      * @brief Select the profile with the given name.
      *
-     * If the profile name is empty, the currently selected profile will be choosen instead.
-     * If the choosen profile is invalid, the first row will be choosen.
+     * If the profile name is empty, the currently selected profile will be chosen instead.
+     * If the chosen profile is invalid, the first row will be chosen.
      *
      * @param profile the name of the profile to be selected
      */

@@ -1212,7 +1212,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     return tvb_captured_length(tvb);
 }
 
-/* Establish our beachead */
+/* Establish our beachhead */
 
 void
 proto_register_ppi(void)

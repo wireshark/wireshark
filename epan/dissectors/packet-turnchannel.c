@@ -1,5 +1,5 @@
 /* packet-turnchannel.c
- * Routines for TURN channel dissection (TURN negociation is handled
+ * Routines for TURN channel dissection (TURN negotiation is handled
  * in the STUN2 dissector
  * Copyright 2008, 8x8 Inc. <petithug@8x8.com>
  *

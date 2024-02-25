@@ -1062,7 +1062,7 @@ wg_session_update_address(wg_session_t *session, packet_info *pinfo, gboolean se
 
 /* Finds an initiation message based on the given Receiver ID that was not
  * previously associated with a responder message. Returns the session if a
- * matching initation message can be found or NULL otherwise.
+ * matching initiation message can be found or NULL otherwise.
  */
 static wg_session_t *
 wg_sessions_lookup_initiation(packet_info *pinfo, guint32 receiver_id)

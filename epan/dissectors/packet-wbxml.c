@@ -7248,7 +7248,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 			/* Move to end of buffer */
 			off = tvb_len;
 			break;
-		} else { /* Known atribute token */
+		} else { /* Known attribute token */
 			const char* s;
 			if (peek & 0x80) { /* attrValue */
 				if (map != NULL) {

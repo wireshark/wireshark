@@ -16,7 +16,7 @@
  *
  * Added new functions to packet-pn-dcp.c. The profinet plug-in will now save
  * the information (Stationname, -type, -id)  of "Ident OK" frames. Those
- * informations will later be used for detailled dissection of cyclic PNIO RTC1
+ * informations will later be used for detailed dissection of cyclic PNIO RTC1
  * dataframes.
  *
  * The declaration of the new added structures are within packet-pn.h to

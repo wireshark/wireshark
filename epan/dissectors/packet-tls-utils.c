@@ -8605,7 +8605,7 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         offset++;
 
         if (ssl) {
-            /* save the authorative SID for later use in ChangeCipherSpec.
+            /* save the authoritative SID for later use in ChangeCipherSpec.
              * (D)TLS restricts the SID to 32 chars, it does not make sense to
              * save more, so ignore larger ones. */
             if (from_server && sessid_length <= 32) {

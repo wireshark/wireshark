@@ -63,10 +63,10 @@ static const value_string sapigs_function_lst[] = {
 	{ 30, "ZIPPER"},		/* ZIP provide file(s) */
 	{ 31, "IMGCONV"},		/* Image converter */
 	{ 32, "RSPOCONNECTOR"},		/* Remote Spool Connector */
-	{ 33, "XMLCHART"},		/* Chart generator throught xml input */
-	{ 34, "CHART"},			/* Chart generator throught ABAP Table input */
+	{ 33, "XMLCHART"},		/* Chart generator through xml input */
+	{ 34, "CHART"},			/* Chart generator through ABAP Table input */
 	{ 35, "BWGIS"},			/* BW Geographic Information System */
-	{ 36, "SAPGISXML"},		/* old SAP GIS throught xml input */
+	{ 36, "SAPGISXML"},		/* old SAP GIS through xml input */
 	/* NULL */
 	{ 0, NULL}
 };
@@ -231,7 +231,7 @@ dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			data_offset += offset;
 			/* Definition tables */
 			is_table = (gchar *)tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
-			/* if the 4 next char is VERS, we are at the begining of one definition table */
+			/* if the 4 next char is VERS, we are at the beginning of one definition table */
 			while(strncmp("VERS", is_table, 4) == 0){
 				/* Build a tree for Tables */
 				sapigs_tables = proto_tree_add_item(sapigs_tree, hf_sapigs_tables, tvb, offset, 336, ENC_NA);

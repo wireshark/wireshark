@@ -1137,7 +1137,7 @@ typedef int (* dissect_function_t)( bool,
 /*
  * Dissect Multiple Choice Message
  * This function is used to decode a message, when several encoding may be used.
- * For exemple, in the last MAP version, the Cancel Location is defined like this:
+ * For example, in the last MAP version, the Cancel Location is defined like this:
  * CancelLocationArg ::= [3] IMPLICIT SEQUENCE
  * But in the previous MAP version, it was a CHOICE between a SEQUENCE and an IMSI
  * As ASN1 encoders (or software) still uses the old encoding, this function allows

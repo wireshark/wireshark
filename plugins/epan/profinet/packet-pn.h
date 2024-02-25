@@ -13,7 +13,7 @@
  *
  * Added new structures to packet-pn.h to transfer the gained data of
  * packet-pn-dcp.c and packet-dcerpc-pn-io.c to packet-pn-rtc-one.c for
- * detailled dissection of cyclic PNIO RTC1 dataframes.
+ * detailed dissection of cyclic PNIO RTC1 dataframes.
  *
  */
 

@@ -677,7 +677,7 @@ dissect_fmp_Hiervolume(tvbuff_t *tvb, int offset, proto_tree * tree)
     offset = dissect_rpc_uint32(tvb, tree, hf_fmp_cookie, offset);
 
     /* hierarchical description of volume.  Each volume describes a
-       piece of the entire hierarchy and is guarenteed to only refer to
+       piece of the entire hierarchy and is guaranteed to only refer to
        volumes that have already been described by the data structure up
        to this point in time.  In some extreme cases, the number of
        volumes and their descriptions may be to large to fit in a single

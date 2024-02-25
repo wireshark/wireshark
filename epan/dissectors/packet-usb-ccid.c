@@ -212,7 +212,7 @@ static int * const bStatus_fields[] = {
 #define RDR_PC_ESCAPE          0x83
 #define RDR_PC_DATA_CLOCK      0x84
 
-/* Standardised Interupt IN message types */
+/* Standardised Interrupt IN message types */
 #define RDR_PC_NOTIF_SLOT_CHNG 0x50
 #define RDR_PC_HWERROR         0x51
 
@@ -250,7 +250,7 @@ static const value_string ccid_opcode_vals[] = {
     {RDR_PC_ESCAPE          , "RDR_to_PC_Escape"},
     {RDR_PC_DATA_CLOCK      , "RDR_to_PC_DataRateAndClockFrequency"},
 
-    /* Standardised Interupt IN message types */
+    /* Standardised Interrupt IN message types */
     {RDR_PC_NOTIF_SLOT_CHNG , "RDR_to_PC_NotifySlotChange"},
     {RDR_PC_HWERROR         , "RDR_to_PC_HardwareError"},
 
@@ -282,7 +282,7 @@ static const value_string ccid_messagetypes_vals[] = {
     {RDR_PC_ESCAPE          , "Reader to PC: Escape"},
     {RDR_PC_DATA_CLOCK      , "Reader to PC: Data Rate and Clock Frequency"},
 
-    /* Standardised Interupt IN message types */
+    /* Standardised Interrupt IN message types */
     {RDR_PC_NOTIF_SLOT_CHNG , "Reader to PC: Notify Slot Change"},
     {RDR_PC_HWERROR         , "Reader to PC: Hardware Error"},
 
@@ -685,7 +685,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
         break;
 
-    /*Interupt IN*/
+    /*Interrupt IN*/
     case RDR_PC_NOTIF_SLOT_CHNG:
         proto_tree_add_bitmask(ccid_tree, tvb, 1,
             hf_ccid_bmSlotICCState, ett_ccid_slot_change, bmSlotICCStateb0_fields,

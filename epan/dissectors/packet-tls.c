@@ -2087,7 +2087,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
      * if we don't already have a version set for this conversation,
      * but this message's version is authoritative (i.e., it's
      * not client_hello, then save the version to the conversation
-     * structure and print the column version. If the message is not authorative
+     * structure and print the column version. If the message is not authoritative
      * (i.e. it is a Client Hello), then this version will still be used for
      * display purposes only (it will not be stored in the conversation).
      */

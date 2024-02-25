@@ -29,7 +29,7 @@
  * Copyright 2015, Adrian Simionov <daniel.simionov@gmail.com>
  * Copyright 2003, Brian Wheeler <brian.wheeler[AT]arrisi.com>
  *
- * Routines for Intial Ranging Request Message dissection
+ * Routines for Initial Ranging Request Message dissection
  * Copyright 2003, Brian Wheeler <brian.wheeler[AT]arrisi.com>
  *
  * Routines for Baseline Privacy Key Management Attributes dissection
@@ -40,7 +40,7 @@
  * Copyright 2014, Adrian Simionov <adrian.simionov@arrisi.com>
  * Copyright 2007, Bruno Verstuyft <bruno.verstuyft@excentis.com>
  *
- * Routines for DOCSIS 3.0 Bonded Intial Ranging Request Message dissection.
+ * Routines for DOCSIS 3.0 Bonded Initial Ranging Request Message dissection.
  * Copyright 2009, Geoffrey Kimball <gekimbal[AT]cisco.com>
  *
  * Routines for Type 35 UCD - DOCSIS 3.0 only - Message dissection

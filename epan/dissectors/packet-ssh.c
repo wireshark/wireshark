@@ -4566,7 +4566,7 @@ ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
         }else if(msg_code==SSH_MSG_CHANNEL_WINDOW_ADJUST){
                 proto_tree_add_item(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                proto_tree_add_item(msg_type_tree, hf_ssh_channel_window_adjust, packet_tvb, offset, 4, ENC_BIG_ENDIAN);         // TODO: maintain count of transfered bytes and window size
+                proto_tree_add_item(msg_type_tree, hf_ssh_channel_window_adjust, packet_tvb, offset, 4, ENC_BIG_ENDIAN);         // TODO: maintain count of transferred bytes and window size
                 offset += 4;
         }else if(msg_code==SSH_MSG_CHANNEL_DATA){
                 proto_item *ti = proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &recipient_channel);

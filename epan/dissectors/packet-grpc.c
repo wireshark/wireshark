@@ -229,7 +229,7 @@ dissect_body_data(proto_tree *grpc_tree, packet_info *pinfo, tvbuff_t *tvb, cons
     * the grpc message information might be used by the other Lua dissector in the future.
     * The grpc message information format is:
     *   http2_content_type "," http2_path "," ("request" / "response")
-    * Acording to grpc wire format guide, it will be:
+    * According to grpc wire format guide, it will be:
     *   "application/grpc" [("+proto" / "+json" / {custom})] "," "/" service-name "/" method-name "/" "," ("request" / "response")
     * For example:
     *   application/grpc,/helloworld.Greeter/SayHello,request

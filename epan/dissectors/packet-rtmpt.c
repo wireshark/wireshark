@@ -2064,7 +2064,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                 }
 
                 if (!tf) {
-                        /* No preceeding data, get header data starting at current position */
+                        /* No preceding data, get header data starting at current position */
                         id = tvb_get_guint8(tvb, offset);
 
                         if (id == RTMPT_MAGIC && seq+offset == RTMPT_HANDSHAKE_OFFSET_1) {

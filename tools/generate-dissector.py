@@ -144,7 +144,7 @@ def print_header():
 def print_trailer(args):
     print("")
     print("The skeleton for the dissector of the " + args.protoshortname + " protocol has been generated.")
-    print("Please review/extend it to match your specific criterias.")
+    print("Please review/extend it to match your specific criteria.")
     print("")
 
 

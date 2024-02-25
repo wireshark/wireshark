@@ -1658,7 +1658,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
         asn_tree = proto_tree_add_subtree(tree, tvb, offset, len, ett_cops_asn1, NULL, "Contents:");
 
         /*
-         * XXX: LAZYNESS WARNING:
+         * XXX: LAZINESS WARNING:
          * We are assuming that for the first element in the sequence
          * that describes an entry subid==1, and, that the subsequent elements
          * use ++subid; This is true for all IETF's PIBs (and good sense
@@ -1690,7 +1690,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 
             if (oid_info) {
                 /*
-                 * XXX: LAZYNESS WARNING:
+                 * XXX: LAZINESS WARNING:
                  * We are assuming that the value of the sequenced item is of
                  * the right class, the right type and the right length.
                  * We should check that to avoid throwing a Malformed packet and

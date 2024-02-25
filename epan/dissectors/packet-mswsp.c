@@ -5682,7 +5682,7 @@ static int dissect_CPMGetRows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 		 * GetRows response needs information from GetRow & SetBindings
 		 * requests
 		 */
-		/* find the preceeding SetBinding data */
+		/* find the preceding SetBinding data */
 		guint32 num_rows = 0;
 		proto_item *ti;
 		proto_tree *pad_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_mswsp_pad, &ti, "Padding");

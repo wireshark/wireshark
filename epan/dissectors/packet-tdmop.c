@@ -16,7 +16,7 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 
-/*Using of ethertype 0x0808(assigned to Frame Realy ARP) was implemented in hardware, when ethertype was not assigned*/
+/*Using of ethertype 0x0808(assigned to Frame Relay ARP) was implemented in hardware, when ethertype was not assigned*/
 #define ETHERTYPE_TDMOP       0
 
 #define MAX_DCHANNEL_LEN      128

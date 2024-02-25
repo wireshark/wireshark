@@ -3986,7 +3986,7 @@ static int hf_c15ch_tone_tone_control_tone_type;
 
       max_num_digits is used in a call to proto_tree_add_string().
 
-    offset_from_digits_to_consume: This number is substracted from first_offset to give the location
+    offset_from_digits_to_consume: This number is subtracted from first_offset to give the location
         where the num_digits field was read e.g.
         offset_from_digits_to_consume == 1 if length is given in one byte just before digits
         offset_from_digits_to_consume == 4 if length is given in four bytes just before digits

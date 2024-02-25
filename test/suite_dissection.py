@@ -823,7 +823,7 @@ class TestDissectQuic:
         # multiple packets, fragmented in multiple out of order packets,
         # retried, retried with overlap from the original packets, and retried
         # with one of the original packets missing (but all data there.)
-        # Include -zexpert just to be sure that nothing Warn or higher occured.
+        # Include -zexpert just to be sure that nothing Warn or higher occurred.
         # Note level expert infos may be expected with the overlaps and
         # retransmissions.
         stdout = subprocess.check_output([cmd_tshark,

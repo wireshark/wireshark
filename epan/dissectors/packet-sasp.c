@@ -345,7 +345,7 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     {
         expert_add_info_format(pinfo, hti, &ei_msg_type_invalid,
             "Invalid SASP Header Type [0x%04x]", hdr_type);
-        /* XXX: The folowing should actually happen automatically ? */
+        /* XXX: The following should actually happen automatically ? */
         col_set_str(pinfo->cinfo, COL_INFO, "[Malformed: Invalid SASP Header Type]");
         return tvb_reported_length(tvb);
     }

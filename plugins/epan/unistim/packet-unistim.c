@@ -292,7 +292,7 @@ dissect_payload(proto_tree *overall_unistim_tree,tvbuff_t *tvb, gint offset, pac
          break;
    }
 
-   /* Handle UFTP seperately because it is significantly different
+   /* Handle UFTP separately because it is significantly different
       than standard UNISTIM */
    while (tvb_reported_length_remaining(tvb, offset) > 0)
       offset = dissect_unistim_message(unistim_tree,pinfo,tvb,offset);

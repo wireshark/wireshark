@@ -21,7 +21,7 @@
  * For example:
  *    application/grpc,/helloworld.Greeter/SayHello,request
  * In this format, we will try to get real protobuf message type by method (service-name.method-name)
- * and in/out type (request / reponse).
+ * and in/out type (request / response).
  * For other dissectors can specifies message type directly, like:
  *    "message," message_type_name
  * For example:
@@ -1561,12 +1561,12 @@ dissect_protobuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         /* The data_str has two formats:
         * (1) Come from GRPC dissector like:
         *    http2_content_type "," http2_path "," ("request" / "response")
-        * Acording to grpc wire format guide, it will be:
+        * According to grpc wire format guide, it will be:
         *    "application/grpc" ["+proto"] "," "/" service-name "/" method-name "," ("request" / "response")
         * For example:
         *    application/grpc,/helloworld.Greeter/SayHello,request
         * In this format, we will try to get real protobuf message type by method (service-name.method-name)
-        * and in/out type (request / reponse).
+        * and in/out type (request / response).
         * (2) Come from other dissector which specifies message type directly, like:
         *    "message," message_type_name
         * For example:

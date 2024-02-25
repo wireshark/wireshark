@@ -30,7 +30,7 @@ static dissector_handle_t ath_handle;
  *
  *     - UDP heartbeats to maintain a status of all the members of the cluster
  *
- *     - TCP RMI to send data accross members
+ *     - TCP RMI to send data across members
  *
  * This dissector is about UDP heartbeats, that we will call ATH, standing for
  *   Apache Tribes Heartbeat. Tribes is the name of the clustering libraries

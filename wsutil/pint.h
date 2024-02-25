@@ -52,7 +52,7 @@
  */
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER) && !defined(__INTEL_LLVM_COMPILER) && !defined(__clang__)
 /* Intel and clang-cl both define _MSC_VER when compiling on Windows for
- * greater compatiblity (just as they define __GNUC__ on other platforms).
+ * greater compatibility (just as they define __GNUC__ on other platforms).
  * However, at least on some versions, while including the MSVC <stdlib.h>
  * provides access to the _byteswap_ intrinsics, they are not actually
  * optimized into a single x86 BSWAP function, unlike the gcc-style intrinsics

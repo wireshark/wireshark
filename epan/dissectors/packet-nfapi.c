@@ -8563,7 +8563,7 @@ static int dissect_nfapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 	msg_id = tvb_get_ntohs(tvb, 2);
 	message_str = val_to_str_const(msg_id, message_id_vals, "Unknown");
 
-	// Flag if this is a vendor extention message, could do it for P4, 5, 7
+	// Flag if this is a vendor extension message, could do it for P4, 5, 7
 	if (msg_id >= 0x0300 && msg_id <= 0x03FF)
 	{
 		col_append_fstr(pinfo->cinfo, COL_INFO, "Vendor Extension");

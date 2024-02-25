@@ -72,7 +72,7 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_WOL
-#define ETHERTYPE_WOL			0x0842	/* Wake on LAN. Not offically registered. */
+#define ETHERTYPE_WOL			0x0842	/* Wake on LAN. Not officially registered. */
 #endif
 
 #ifndef ETHERTYPE_WMX_M2M

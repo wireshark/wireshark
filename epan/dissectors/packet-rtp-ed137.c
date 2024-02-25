@@ -1199,7 +1199,7 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         if (RTP_ED137A_extended_information(ext_value)) {
 
             /* Loop over all additional feature blocks */
-            /* The shortest header lenght is 2, anything shorter is padding */
+            /* The shortest header length is 2, anything shorter is padding */
             while ( hdr_extension_len >= 2 ) {
                 proto_item *ti3;
                 proto_tree *rtp_hext_tree3;
@@ -1227,7 +1227,7 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                     tvbuff_t   *newtvb;
                     guint32     ft_table_key;
 
-                    /* join 4 bit type and 4 bit lenght to 8 bit key */
+                    /* join 4 bit type and 4 bit length to 8 bit key */
                     ft_table_key = MAKE_KEY( ft_type, ft_len );
 
                     /* pass interpretation of header extension to a registered subdissector */

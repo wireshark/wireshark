@@ -354,7 +354,7 @@ WSLUA_ATTRIBUTE_FUNC_SETTER(Listener,packet);
 
 
 /* WSLUA_ATTRIBUTE Listener_draw WO A function that will be called once every few seconds to redraw the GUI objects;
-            in TShark this funtion is called only at the very end of the capture file.
+            in TShark this function is called only at the very end of the capture file.
 
     When later called by Wireshark, the `draw` function will not be given any arguments.
 

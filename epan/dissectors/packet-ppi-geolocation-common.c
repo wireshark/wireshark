@@ -16,7 +16,7 @@
 
 /*
  * input: a unsigned 32-bit (native endian) value between 0 and 3600000000 (inclusive)
- * output: a signed floating point value betwen -180.0000000 and + 180.0000000, inclusive)
+ * output: a signed floating point value between -180.0000000 and + 180.0000000, inclusive)
  */
 gdouble ppi_fixed3_7_to_gdouble(guint32 in) {
     gint32 remapped_in = in - (180 * 10000000);

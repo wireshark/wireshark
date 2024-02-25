@@ -1,5 +1,5 @@
 /*
-XXX all this offset>>3 and calculations of bytes in the tvb everytime
+XXX all this offset>>3 and calculations of bytes in the tvb every time
 we put something in the tree is just silly.  should be replaced with some
 proper helper routines
 */

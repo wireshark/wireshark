@@ -144,7 +144,7 @@ static const fragment_items openvpn_frag_items = {
 /* we check the leading 4 byte of a suspected hmac for 0x00 bytes,
    if more than 1 byte out of the 4 provided contains 0x00, the
    hmac is considered not valid, which suggests that no tls auth is used.
-   unfortunatly there is no other way to detect tls auth on the fly */
+   unfortunately there is no other way to detect tls auth on the fly */
 static gboolean
 check_for_valid_hmac(guint32 hmac)
 {

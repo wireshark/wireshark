@@ -678,7 +678,7 @@ before_object(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 		}
 
 		if (data->prev_item_type_raw == JSON_MARK_TYPE_MEMBER_NAME) {
-			/* this is an object value of an member, add the "{" just after the memeber name */
+			/* this is an object value of an member, add the "{" just after the member name */
 			ti_raw = data->prev_item_raw;
 			proto_item_append_text(ti_raw, " {");
 		} else {
@@ -903,7 +903,7 @@ before_array(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *
 		}
 
 		if (data->prev_item_type_raw == JSON_MARK_TYPE_MEMBER_NAME) {
-			/* this is an array value of an member, add the "[" just after the memeber name */
+			/* this is an array value of an member, add the "[" just after the member name */
 			ti_raw = data->prev_item_raw;
 			proto_item_append_text(ti_raw, " [");
 		} else {

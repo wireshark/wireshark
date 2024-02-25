@@ -1117,7 +1117,7 @@ void LograyMainWindow::saveWindowGeometry()
 // Our event loop becomes nested whenever we call update_progress_dlg, which
 // includes several places in file.c. The GTK+ UI stays out of trouble by
 // showing a modal progress dialog. We attempt to do the equivalent below by
-// disabling parts of the main window. At a minumum the ProgressFrame in the
+// disabling parts of the main window. At a minimum the ProgressFrame in the
 // main status bar must remain accessible.
 //
 // We might want to do this any time the main status bar progress frame is

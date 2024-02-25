@@ -16,7 +16,7 @@
  * networks, contact kiltedtaco@xxxxxxxxx */
 
 /* 2008-08-05 : Added support for aggregate frames.
- * AP mode, NWID and sat mode fiels identification were
+ * AP mode, NWID and sat mode fields identification were
  * taken from http://aphopper.sourceforge.net/turbocell.html
  * everything else is based on (educated) guesses.
 */

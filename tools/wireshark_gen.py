@@ -1412,7 +1412,7 @@ class wireshark_gen_C:
 
         self.getCDR(st, sname + "_" + un.identifier())
 
-        # Depending on what kind of discriminant I come accross (enum,integer,char,
+        # Depending on what kind of discriminant I come across (enum,integer,char,
         # short, boolean), make sure I cast the return value of the get_XXX accessor
         # to an appropriate value. Omniidl idlast.CaseLabel.value() accessor will
         # return an integer, or an Enumerator object that is then converted to its

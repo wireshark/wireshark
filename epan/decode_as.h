@@ -56,7 +56,7 @@ be passed to the dissector table to change the dissection output.
 typedef struct decode_as_value_s {
     build_label_func label_func;            /**< function pointer to the function used to create the label*/
     guint num_values;                       /**< Number of values */
-    build_valid_func* build_values;         /**< Function used to build the value to go into the table. Retreive from current frame */
+    build_valid_func* build_values;         /**< Function used to build the value to go into the table. Retrieve from current frame */
 } decode_as_value_t;
 
 /**

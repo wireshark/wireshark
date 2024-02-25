@@ -1040,7 +1040,7 @@ static guint16 dissect_mausb_mgmt_pkt_ep_handle( proto_tree *tree, tvbuff_t *tvb
 
         size_ep_des = mausb_get_size_ep_des(tvb, offset);
         size_field = proto_tree_add_item(tree, hf_mausb_mgmt_ep_des_size, tvb,
-            offset, 2, ENC_LITTLE_ENDIAN); /* really 6 bits over a byte boundry */
+            offset, 2, ENC_LITTLE_ENDIAN); /* really 6 bits over a byte boundary */
         offset += 1;
 
         /* Padding to DWORD */
@@ -1331,7 +1331,7 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
         break;
 
 
-    /* Managment packets with no additional data */
+    /* Management packets with no additional data */
     case DevResetReq:
     case DevResetResp:
     case UpdateDevResp:
@@ -1750,7 +1750,7 @@ proto_register_mausb(void)
             }
         },
 
-        /* Managment Packets Only */
+        /* Management Packets Only */
         { &hf_mausb_token,
             { "Token", "mausb.token", FT_UINT16, BASE_DEC,
               NULL, MAUSB_TOKEN_MASK, NULL, HFILL

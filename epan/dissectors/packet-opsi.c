@@ -49,7 +49,7 @@ typedef struct {
 	guint16		 attribute_type;	/* attribute code */
 	const char	*tree_text;             /* text for fold out */
 	gint		*tree_id;               /* id for add_item */
-	int             *hf_type_attribute;	/* id for seach option */
+	int             *hf_type_attribute;	/* id for search option */
 	void		(*dissect)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item,
 				   int* hfValue, int offset, int length);
 } opsi_attribute_handle_t;

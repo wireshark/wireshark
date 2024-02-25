@@ -3074,7 +3074,7 @@ static const value_string usb_hid_battery_system_usage_page_vals[] = {
     {0x88, "iDevicename"},
     {0x89, "iDeviceChemistery"},
     {0x8A, "ManufacturerData"},
-    {0x8B, "Rechargable"},
+    {0x8B, "Rechargeable"},
     {0x8C, "WarningCapacityLimit"},
     {0x8D, "CapacityGranularity1"},
     {0x8E, "CapacityGranularity2"},

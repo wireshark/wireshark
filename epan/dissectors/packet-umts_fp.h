@@ -247,7 +247,7 @@ typedef struct fp_info
     gboolean hsdhsch_macfdlow_is_mux[MAX_NUM_HSDHSCH_MACDFLOW];
     enum   fp_rlc_mode hsdsch_rlc_mode;
     enum   fp_link_type link_type;
-    guint urnti;         /*Used for tracking a "sequence" over diffrent transport channels*/
+    guint urnti;         /*Used for tracking a "sequence" over different transport channels*/
 
     gboolean reset_frag; /*Used to indicate that a stream has been reconfigured, hence we need to reset the fragtable*/
 } fp_info;

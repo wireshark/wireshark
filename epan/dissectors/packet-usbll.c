@@ -1858,7 +1858,7 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
                 transfer->first_packet = pinfo->num;
                 transfer->offset = 0;
                 transfer->type = USBLL_EP_CONTROL;
-                transfer->from_host = TRUE; /* SETUP is always from host to sevice */
+                transfer->from_host = TRUE; /* SETUP is always from host to service */
 
                 if (requested_length > 0)
                 {

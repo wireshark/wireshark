@@ -3276,7 +3276,7 @@ load_afi_safi_data(packet_info *pinfo) {
  * A real BGP speaker would rely on the BGP Additional Path in the BGP Open messages.
  * But it is not suitable for a packet analyse because the BGP sessions are not supposed to
  * restart very often, and Open messages from both sides of the session would be needed
- * to determine the result of the capability negociation.
+ * to determine the result of the capability negotiation.
  * Code inspired from the decode_prefix4 function
  */
 static int
@@ -13475,7 +13475,7 @@ proto_register_bgp(void)
       { &hf_bgp_evpn_nlri_ipv6_gtw,
         { "IPv6 Gateway address", "bgp.evpn.nlri.ipv6.gtw_addr", FT_IPv6,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
-     /* segment routing extentions to link state */
+     /* segment routing extensions to link state */
      /* Node Attributes TLVs */
       { &hf_bgp_ls_sr_tlv_capabilities,
         { "SR Capabilities", "bgp.ls.sr.tlv.capabilities", FT_NONE,

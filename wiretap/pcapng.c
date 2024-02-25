@@ -1719,7 +1719,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
              *
              * Dealing with base-2 time stamps is a bit of a mess,
              * thanks to humans counting with their fingers rather
-             * than their hands, and it applies to mroe files than
+             * than their hands, and it applies to more files than
              * pcapng files, e.g. ERF files.)
              */
             if (time_units_per_second >= 1000000000)
@@ -4500,7 +4500,7 @@ compute_options_size(wtap_block_t block, compute_option_size_func compute_option
 
     /*
      * Compute the total size of all the options in the block.
-     * This always suceeds, so we don't check the return value.
+     * This always succeeds, so we don't check the return value.
      */
     compute_options_size.size = 0;
     compute_options_size.compute_option_size = compute_option_size;

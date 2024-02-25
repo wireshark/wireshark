@@ -412,7 +412,7 @@ uint_to_str_back_len(char *ptr, uint32_t value, int len)
 
 	new_ptr = uint_to_str_back(ptr, value);
 
-	/* substract from len number of generated characters */
+	/* subtract from len number of generated characters */
 	len -= (int)(ptr - new_ptr);
 
 	/* pad remaining with '0' */
@@ -432,7 +432,7 @@ uint64_to_str_back_len(char *ptr, uint64_t value, int len)
 
 	new_ptr = uint64_to_str_back(ptr, value);
 
-	/* substract from len number of generated characters */
+	/* subtract from len number of generated characters */
 	len -= (int)(ptr - new_ptr);
 
 	/* pad remaining with '0' */

@@ -906,7 +906,7 @@ if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
 	case 1:
 	/* gsm-0408 */
 		/* As per comment abowe Individual IE:(s) will be found here in TLV format
-		 * Unfortunatly a branch for each IE must be made to call the apropriate
+		 * Unfortunately a branch for each IE must be made to call the appropriate
 		 * function
 		 */
 		 /* Get tag */
@@ -988,7 +988,7 @@ MAP interfaces
 	case 1:
 	/* gsm-0408 */
 		/* As per comment abowe Individual IE:(s) will be found here in TLV format
-		 * Unfortunatly a branch for each IE must be made to call the apropriate
+		 * Unfortunately a branch for each IE must be made to call the appropriate
 		 * function
 		 */
 		 /* Get tag */

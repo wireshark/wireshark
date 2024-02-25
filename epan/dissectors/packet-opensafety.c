@@ -570,7 +570,7 @@ static gboolean findSafetyFrame ( packet_info *pinfo, tvbuff_t *message_tvb, gui
                  *  bit is set */
                 if ( ( b_ID != 0xFF ) && ( b_ID & 0x80 ) )
                 {
-                    /* The rem_length value might be poluted, due to the else statement of
+                    /* The rem_length value might be polluted, due to the else statement of
                      * above if-decision (frame at end position detection). Therefore we
                      * calculate it here again, to have a sane value */
                     rem_length = tvb_reported_length_remaining(message_tvb, ctr);
@@ -2120,7 +2120,7 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
             break;
 
         /* Resetting packet, to ensure, that findSafetyFrame starts with a fresh frame.
-         * As only packet_scope is used, this will not polute memory too much and get's
+         * As only packet_scope is used, this will not pollute memory too much and get's
          * cleared with the next packet anyway  */
         packet = wmem_new0(pinfo->pool, opensafety_packet_info);
 

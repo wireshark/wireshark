@@ -155,7 +155,7 @@ typedef enum {
   SMTP_AUTH_STATE_PLAIN_REQ,          /* Received AUTH PLAIN request from server */
   SMTP_AUTH_STATE_PLAIN_RSP,          /* Received AUTH PLAIN response from client */
   SMTP_AUTH_STATE_NTLM_REQ,           /* Received ntlm negotiate request from client */
-  SMTP_AUTH_STATE_NTLM_CHALLANGE,     /* Received ntlm challange request from server */
+  SMTP_AUTH_STATE_NTLM_CHALLANGE,     /* Received ntlm challenge request from server */
   SMTP_AUTH_STATE_NTLM_RSP,           /* Received ntlm auth request from client */
   SMTP_AUTH_STATE_SUCCESS,            /* Password received, authentication successful, start decoding */
   SMTP_AUTH_STATE_FAILED              /* authentication failed, no decoding */
@@ -187,7 +187,7 @@ struct smtp_session_state {
   guint32  user_pass_cmd_frame; /* AUTH command contains username and password */
   guint32  user_pass_frame;     /* Frame contains username and password */
   guint32  ntlm_req_frame;      /* Frame containing NTLM request */
-  guint32  ntlm_cha_frame;      /* Frame containing NTLM challange. */
+  guint32  ntlm_cha_frame;      /* Frame containing NTLM challenge. */
   guint32  ntlm_rsp_frame;      /* Frame containing NTLM response. */
 };
 

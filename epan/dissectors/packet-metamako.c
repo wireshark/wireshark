@@ -246,7 +246,7 @@ dissect_metamako(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
   /* Loop through the trailer bytes, trying to find a valid trailer.
    * When:
    *   i == 0, we assume there IS NO trailing FCS
-   *   i == 1, we assume ther IS a trailing FCS
+   *   i == 1, we assume there IS a trailing FCS
    */
   for (i = i_start; i < i_end && !trailer_valid; i++) {
     has_fcs = i == 1;

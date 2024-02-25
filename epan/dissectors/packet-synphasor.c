@@ -469,7 +469,7 @@ static const value_string      data_statb03to00names[] = {
 	{   0, NULL				}
 };
 
-/* strings to decode the commands (CMD Field) acording Table 15, p.26
+/* strings to decode the commands (CMD Field) according Table 15, p.26
 *  0000 0000 0000 0001  -  Turn off transmission of data frames
 *  0000 0000 0000 0010  -  Turn on transmission of data frames
 *  0000 0000 0000 0011  -  Send HDR frame

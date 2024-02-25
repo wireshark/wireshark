@@ -3656,7 +3656,7 @@ uninstall_all() {
 }
 
 # This script is meant to be run in the source root.  The following
-# code will attempt to get you there, but is not perfect (particulary
+# code will attempt to get you there, but is not perfect (particularly
 # if someone copies the script).
 
 topdir="$( pwd )/$( dirname $0 )/.."

@@ -109,7 +109,7 @@ static const value_string mount3_mountstat3[] =
  * 3 of the protocol.
  * Though not formally defined in the standard, we use the same
  * value-to-string mappings as version 3 since we believe that this mapping
- * is consistant with most v1 and v2 implementations.
+ * is consistent with most v1 and v2 implementations.
  */
 static int
 dissect_fhstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rpc_call_info_value* civ)

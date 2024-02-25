@@ -5848,7 +5848,7 @@ int Configtable_insert(struct config *data)
       newnp->from = &(array.ht[h]);
       array.ht[h] = newnp;
     }
-    /* free(x4a->tbl); // This code was originall written for 16-bit machines.
+    /* free(x4a->tbl); // This code was originally written for 16-bit machines.
     ** on modern machines, don't worry about freeing this trival amount of
     ** memory. */
     *x4a = array;

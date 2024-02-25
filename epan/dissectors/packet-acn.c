@@ -14,7 +14,7 @@
 
  /*
     Todo:
-      Add reading of DDL files so we can futher explode DMP packets
+      Add reading of DDL files so we can further explode DMP packets
       For some of the Set/Get properties where we have a range of data
       it would be better to show the block of data rather and
       address-data pair on each line...

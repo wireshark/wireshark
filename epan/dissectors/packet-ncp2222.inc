@@ -1430,14 +1430,14 @@ static const value_string nds_reply_errors[] = {
     { 0xffffe880, "(-6016) Error Returning Partial Results" },
     { 0xffffe87f, "(-6017) No Such Schema" },
     { 0xffffe87e, "(-6018) Serial Number Mismatch" },
-    { 0xffffe87d, "(-6019) Bad Referal Database Serial Number" },
-    { 0xffffe87c, "(-6020) Bad Referal Serial Number" },
+    { 0xffffe87d, "(-6019) Bad Referral Database Serial Number" },
+    { 0xffffe87c, "(-6020) Bad Referral Serial Number" },
     { 0xffffe87b, "(-6021) Invalid File Sequence" },
-    { 0xffffe87a, "(-6022) Error Referal Trans Gap" },
-    { 0xffffe879, "(-6023) Bad Referal File Number" },
-    { 0xffffe878, "(-6024) Referal File Not Found" },
+    { 0xffffe87a, "(-6022) Error Referral Trans Gap" },
+    { 0xffffe879, "(-6023) Bad Referral File Number" },
+    { 0xffffe878, "(-6024) Referral File Not Found" },
     { 0xffffe877, "(-6025) Error Backup Active" },
-    { 0xffffe876, "(-6026) Referal Device Full" },
+    { 0xffffe876, "(-6026) Referral Device Full" },
     { 0xffffe875, "(-6027) Unsupported Version" },
     { 0xffffe874, "(-6028) Error Must Wait Checkpoint" },
     { 0xffffe873, "(-6029) Attribute Maintenance in Progress" },
@@ -5313,7 +5313,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
          * over 256 referrals.
          */
         if (number_of_referrals > 256) {
-            proto_tree_add_expert_format(ntree, pinfo, &ei_ncp_invalid_offset, tvb, 0, 0, "Bad referal at offset: %u", ioffset);
+            proto_tree_add_expert_format(ntree, pinfo, &ei_ncp_invalid_offset, tvb, 0, 0, "Bad referral at offset: %u", ioffset);
             THROW(ReportedBoundsError);
             break;
         }
@@ -7023,7 +7023,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, uint32_t nw_connection, uint8_t se
                 }
                 else
                 {
-                    /* This is either a beggining or middle fragment on second dissection */
+                    /* This is either a beginning or middle fragment on second dissection */
                     frag_tvb = tvb_new_subset_remaining(tvb, 0);
                     if (request_value->nds_frag)
                     {

@@ -1871,7 +1871,7 @@ typedef struct _fix_field {
 
     static const  value_string BidType_val[] = {
         { 1, "NON DISCLOSED STYLE" },
-        { 2, "DISCLOSED SYTLE" },
+        { 2, "DISCLOSED STYLE" },
         { 3, "NO BIDDING PROCESS" },
         { 0, NULL }
     };
@@ -2066,7 +2066,7 @@ typedef struct _fix_field {
         { 12, "EXECUTING TRADER" },
         { 13, "ORDER ORIGINATION FIRM" },
         { 14, "GIVEUP CLEARING FIRM" },
-        { 15, "CORRESPONDANT CLEARING FIRM" },
+        { 15, "CORRESPONDENT CLEARING FIRM" },
         { 16, "EXECUTING SYSTEM" },
         { 17, "CONTRA FIRM" },
         { 18, "CONTRA CLEARING FIRM" },

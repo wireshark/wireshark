@@ -8832,7 +8832,7 @@ dissect_rnsap_L3_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 	switch (pdata->ProcedureCode) {
 
 	case RNSAP_ID_DOWNLINKSIGNALLINGTRANSFER:
-		/* TODO: seperate into Iur and Iur-g cases: */
+		/* TODO: separate into Iur and Iur-g cases: */
 		/* For the Iur-g interface, L3 message is a GERAN-RRC message for which a dissector does not currently exist */
 		/* For the Iur interface, L3 message is a UMTS RRC DL-CCCH message */
 		parameter_handle = rrc_dl_ccch_handle;

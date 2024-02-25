@@ -565,7 +565,7 @@ DIAG_ON(cast-function-type)
 				 * trusted at all?
 				 *
 				 * As for the Windows Server 2022 entry,
-				 * is that just becuase that script doesn't
+				 * is that just because that script doesn't
 				 * bother checking for "workstation" vs.
 				 * "server"?
 				 */
@@ -760,7 +760,7 @@ DIAG_ON(cast-function-type)
 		 * The first line parser reads the first line of the file.
 		 * If a string is passed to it, it constructs a distribution
 		 * name string by concatenating the parameter, a space,
-		 * and the contents of that line (iwth the newline removed),
+		 * and the contents of that line (with the newline removed),
 		 * otherwise it constructs it from the contents of the line.
 		 *
 		 * Fall back on just "Linux" if nothing works.

@@ -206,7 +206,7 @@ guint32 eo_row_count = 0;
  * FTP is complex in that there's no guarantee that the file transmission
  * was completely captured. It might be possible to infer a successful
  * transfer with either the "SIZE" command or with a 226 response code
- * (indicating that the STOR or RETR command was succesful), but there
+ * (indicating that the STOR or RETR command was successful), but there
  * is no guarantee that either of these are present. As such, this
  * implementation takes a best-effort approach of simply appending
  * all associated ftp-data packets to the export objects entry.

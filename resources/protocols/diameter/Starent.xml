@@ -912,7 +912,7 @@
 	<enum name="intra-ggsn-handoff" code="510"/>
 	<enum name="WSG-Auth-failed" code="511"/>
 	<enum name="Gtp-non-existent-pdp-context" code="512"/>
-	<enum name="sgsn-cancel-loc-inital-attach" code="513"/>
+	<enum name="sgsn-cancel-loc-initial-attach" code="513"/>
 	<enum name="Local-fallback-timeout" code="514"/>
 	<enum name="sgsn-nrspca-actv-rej-by-sgsn" code="515"/>
 	<enum name="sgsn-nrspca-actv-rej-by-ms" code="516"/>
@@ -1965,7 +1965,7 @@
 
 	<avp name="SN-Subscriber-Acct-Mode" code="192" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
 	<type type-name="Unsigned32"/>
-	<enum name="flow-based-auxilliary" code="0"/>
+	<enum name="flow-based-auxiliary" code="0"/>
 	<enum name="flow-based-all" code="1"/>
 	<enum name="flow-based-none" code="2"/>
 	<enum name="session-based" code="3"/>

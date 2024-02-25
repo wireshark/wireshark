@@ -200,7 +200,7 @@ for uuids in uuids_sources:
             # if not a few exceptional cases (see above)
             if uuid["uuid"] not in [0x001E, 0x001F, 0x1102, 0x1104, 0x1105, 0x1106, 0x1107, 0x1200, 0x2B8C]:
                 # Parse through the names and look for capital letters; when
-                # not preceeded by another capital letter or one of break_chars, insert a space
+                # not preceded by another capital letter or one of break_chars, insert a space
                 break_chars = [" ", "-", "+", "/", "(", ".", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
                 was_break = True # fake space at beginning of string
                 was_upper = False

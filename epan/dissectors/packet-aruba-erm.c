@@ -78,7 +78,7 @@
  *
  * Radiotap (type 6):
  *
- * As part of 802.11ax developement, Aruba has added radiotap capture
+ * As part of 802.11ax development, Aruba has added radiotap capture
  * encapsulation. This new format can be used with any model of AP
  * be it 11ax, 11ac or 11n.
  * Note: type 6 is _only_ supported in ArubaOS 8.6 and higher.

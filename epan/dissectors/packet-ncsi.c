@@ -1284,7 +1284,7 @@ proto_register_ncsi(void)
             NULL, HFILL },
         },
 
-        /* Get Verison ID */
+        /* Get Version ID */
         { &hf_ncsi_ver,
           { "NC-SI version", "ncsi.ver",
             FT_STRING, BASE_NONE, NULL, 0,

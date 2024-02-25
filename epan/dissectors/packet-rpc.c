@@ -52,7 +52,7 @@
  *	RFC 5531, "Appendix C: Current Number Assignments" defines AUTH_RSA.
  *	AUTH_RSA is not implemented for any known RPC-protocols. The Gluster
  *	protocols (ab)use AUTH_RSA for their own AUTH-flavor. AUTH_RSA is
- *	therefore dissected as the inofficial AUTH_GLUSTER.
+ *	therefore dissected as the unofficial AUTH_GLUSTER.
  */
 void proto_register_rpc(void);
 void proto_reg_handoff_rpc(void);

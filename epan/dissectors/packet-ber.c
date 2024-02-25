@@ -1793,7 +1793,7 @@ dissect_ber_octet_string_wcb(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tr
     if (func && out_tvb && (tvb_reported_length(out_tvb) > 0)) {
         if (hf_id > 0)
             tree = proto_item_add_subtree(actx->created_item, ett_ber_octet_string);
-        /* TODO Should hf_id2 be pased as last parameter???*/
+        /* TODO Should hf_id2 be passed as last parameter???*/
         func(FALSE, out_tvb, 0, actx, tree, -1);
     }
     return offset;

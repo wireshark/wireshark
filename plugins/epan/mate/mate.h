@@ -267,7 +267,7 @@ struct _mate_pdu {
 
 	AVPL* avpl;
 
-	guint32 frame; /* wich frame I belog to? */
+	guint32 frame; /* which frame I belong to? */
 	mate_pdu* next_in_frame; /* points to the next pdu in this frame */
 	float rel_time; /* time since start of capture  */
 

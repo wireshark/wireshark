@@ -229,7 +229,7 @@ void ColoringRulesDialog::updateHint(QModelIndex idx)
 
     if (errors_.count() > 0) {
         //take the list of QModelIndexes and sort them so first color rule error is displayed
-        //This isn't the most efficent algorithm, but the list shouldn't be large to matter
+        //This isn't the most efficient algorithm, but the list shouldn't be large to matter
         QList<QModelIndex> keys = errors_.keys();
 
         //list is not guaranteed to be sorted, so force it

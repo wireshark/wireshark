@@ -208,7 +208,7 @@
 /**
  * This structure represents a SID, or Sender ID, in the system.
  * This is allocated as global memory, and must be freed. SIDs
- * are Object IDs, and can be displayed in hex but preferrably
+ * are Object IDs, and can be displayed in hex but preferably
  * using the OID output format. Even though the OID contains
  * a length, we prefix this buffer with a length (which must
  * be less than 255 by the definition of a SID.
@@ -3301,7 +3301,7 @@ typedef struct _tcp_session_data
     dof_transport_session common;
 
     /* This flag is used to determine that an entire TCP session is NOT OpenDOF.
-     * Because of TCP/IP negotation in the DPS it is easy to confuse arbitrary
+     * Because of TCP/IP negotiation in the DPS it is easy to confuse arbitrary
      * protocols as OpenDOF. Once it is determined that it is not then this
      * flag can be set, which will turn off all the OpenDOF dissectors.
      */
@@ -4557,7 +4557,7 @@ static guint8 parseAttribute(struct parseCtx *ctx)
 {
     if (parseAttributeID(ctx) == 0)
     {
-        /* seperated by ':' */
+        /* separated by ':' */
         if (PARSECTX_READ_CHAR_OID(ctx) == ':' && PARSECTX_CHECK_LEN(ctx, 1) == 0)
         {
             guint8 *length = PARSECTX_GET_CURRENT_POS_BUF(ctx);
@@ -4590,7 +4590,7 @@ static guint8 parseAttributes(struct parseCtx *ctx)
             if (parseAttribute(ctx) != 0)
                 return 1;
 
-            /* multiple seperated by '|' */
+            /* multiple separated by '|' */
             if (PARSECTX_PEEK_CHAR_OID(ctx) == '|' && PARSECTX_PEEK_NEXT_CHAR_OID(ctx) != ')')
             {
                 PARSECTX_OR_AT_POS_BUF(ctx, avpID, 0x80); /* set that there is a next attribute */
@@ -4612,7 +4612,7 @@ static guint8 parseFormatOID(struct parseCtx *ctx)
         /* Get class id */
         if (parseOIDClass(ctx) == 0)
         {
-            /* seperated by ':' */
+            /* separated by ':' */
             if (PARSECTX_READ_CHAR_OID(ctx) == ':' && PARSECTX_CHECK_LEN(ctx, 1) == 0)
             {
                 guint8 *length = PARSECTX_GET_CURRENT_POS_BUF(ctx);
@@ -9603,7 +9603,7 @@ static int dissect_tep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             }
 
 
-            /* Whether or not this can be decrypted, the security mode infomation
+            /* Whether or not this can be decrypted, the security mode information
             * should be kept with the session.
             */
             {

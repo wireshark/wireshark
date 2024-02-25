@@ -3458,7 +3458,7 @@ dissect_struct_lov_mds_md(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
         offset += 16;
     }
 
-    /* This may happend when, server is just returning the stripe
+    /* This may happen when, server is just returning the stripe
        count, but not the stripe data (ie default stripe_count on a
        directory) */
     if (data_len-(offset-old_offset) != stripe_count*24)
@@ -4662,7 +4662,7 @@ dissect_struct_llog_log_hdr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
     /*      * Note: llh_bitmap size is variable because llog chunk size could be */
     /*      * bigger than LLOG_MIN_CHUNK_SIZE, i.e. sizeof(llog_log_hdr) > 8192 */
     /*      * bytes, and the real size is stored in llh_hdr.lrh_len, which means */
-    /*      * llh_tail should only be refered by LLOG_HDR_TAIL(). */
+    /*      * llh_tail should only be referred by LLOG_HDR_TAIL(). */
     /*      * But this structure is also used by client/server llog interface */
     /*      * (see llog_client.c), it will be kept in its original way to avoid */
     /*      * compatibility issue. *\/ */

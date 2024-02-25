@@ -18,7 +18,7 @@
 #include "wmem_allocator.h"
 #include "wmem_allocator_block.h"
 
-/* This has turned into a very interesting excercise in algorithms and data
+/* This has turned into a very interesting exercise in algorithms and data
  * structures.
  *
  * HISTORY

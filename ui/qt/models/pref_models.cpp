@@ -544,7 +544,7 @@ Qt::ItemFlags AdvancedPrefsModel::flags(const QModelIndex &index) const
 
     Qt::ItemFlags flags = QAbstractItemModel::flags(index);
     if (item->getPref() == NULL) {
-        /* Base modules aren't changable */
+        /* Base modules aren't changeable */
         flags &= ~(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     } else {
         flags |= Qt::ItemIsEditable;

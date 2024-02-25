@@ -937,7 +937,7 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 
 	/* There can be multiple reception claims in the same report segment */
 	for(guint64 ix = 0; ix < rcpt_clm_cnt; ix++){
-		/* Peek at the offset to see if there is a preceeding gap */
+		/* Peek at the offset to see if there is a preceding gap */
 		tvb_get_varint(tvb, frame_offset + segment_offset, FT_VARINT_MAX_LEN, &offset, ENC_VARINT_SDNV);
 		clm_fst = lower_bound + offset;
 		ltp_check_reception_gap(ltp_rpt_tree, pinfo, session, clm_lst, clm_fst, &gap_count, &gap_total);

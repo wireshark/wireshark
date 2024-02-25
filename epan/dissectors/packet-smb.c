@@ -7720,7 +7720,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		}
 
 		/* OS
-		 * Eventhough this field should honour the unicode flag
+		 * Even though this field should honour the unicode flag
 		 * some ms clients gets this wrong.
 		 * At least XP SP1 sends this in ASCII
 		 * even when the unicode flag is on.
@@ -7746,7 +7746,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		 * suspect that, in practice, nobody ever looks at that field
 		 * because the bug didn't appear to get fixed until NT 5.0....
 		 *
-		 * Eventhough this field should honour the unicode flag
+		 * Even though this field should honour the unicode flag
 		 * some ms clients gets this wrong.
 		 * At least XP SP1 sends this in ASCII
 		 * even when the unicode flag is on.

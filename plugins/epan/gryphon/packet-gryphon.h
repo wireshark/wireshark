@@ -66,7 +66,7 @@
 #define CMD_SET_TIME            0x0b    /* set time */
 
 /* SD-type specific commands: should start at 0x40, global uniqueness  */
-/* is prefered, but not mandatory. */
+/* is preferred, but not mandatory. */
 
 /* SD_CARD command types: */
 

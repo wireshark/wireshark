@@ -66,7 +66,7 @@
  * Additional interpretation of field Chain Position.
  * Show the chain position in the interface list.
  * Support for new format of fw monitor file
- * writen by option -u | -s for UUID/SUUID.
+ * written by option -u | -s for UUID/SUUID.
  * NOTICE: First paket will have UUID == 0 !
  *
  * SPDX-License-Identifier: GPL-2.0-or-later

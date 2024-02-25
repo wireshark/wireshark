@@ -100,7 +100,7 @@ typedef enum {
   /* Reserve 0 (== GPOINTER_TO_UINT(NULL)) for no PGSQL detected */
   PGSQL_AUTH_STATE_NONE = 1,           /* No authentication seen or used */
   PGSQL_AUTH_SASL_REQUESTED,           /* Server sends SASL auth request with supported SASL mechanisms*/
-  PGSQL_AUTH_SASL_CONTINUE,            /* Server and/or client send further SASL challange-response messages */
+  PGSQL_AUTH_SASL_CONTINUE,            /* Server and/or client send further SASL challenge-response messages */
   PGSQL_AUTH_GSSAPI_SSPI_DATA,         /* GSSAPI/SSPI in use */
   PGSQL_AUTH_SSL_REQUESTED,            /* Client sends SSL encryption request */
   PGSQL_AUTH_GSSENC_REQUESTED,         /* Client sends GSSAPI encryption request */

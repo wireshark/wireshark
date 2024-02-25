@@ -6692,7 +6692,7 @@ static const value_string nas_eps_esm_bearer_id_vals[] = {
 
 /*
  * EPS session management messages.
- * A plain NAS message is pased to this function
+ * A plain NAS message is passed to this function
  */
 static void
 dissect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)

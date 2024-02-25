@@ -2218,7 +2218,7 @@ void proto_register_awdl(void)
       }
     },
 
-    /* Service Reponse */
+    /* Service Response */
     { &hf_awdl_dns_name_len,
       { "Name Length", "awdl.dns.name.len",
         FT_UINT16, BASE_DEC, NULL, 0x0,

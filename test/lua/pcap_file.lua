@@ -145,7 +145,7 @@ local function read(file, capture, frame)
     local position = file:seek()
 
     if not read_common("read", file, capture, frame) then
-        -- this isnt' actually an error, because it might just mean we reached end-of-file
+        -- this isn't' actually an error, because it might just mean we reached end-of-file
         -- so let's test for that (read(0) is a special case in Lua, see Lua docs)
         if file:read(0) ~= nil then
             dprint("read: failed to call read_common")

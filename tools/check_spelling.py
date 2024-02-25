@@ -53,6 +53,9 @@ from spellchecker import SpellChecker
 spell = SpellChecker()
 spell.word_frequency.load_text_file('./tools/wireshark_words.txt')
 
+# TODO: this should include the full list from Wikipedia page as used by Darius's script
+spell.word_frequency.remove_words([ 'futher', 'extention'])
+
 
 # Track words that were not found.
 missing_words = []
@@ -233,6 +236,8 @@ class File:
                 if self.numberPlusUnits(word):
                     continue
 
+                if word == "extension":
+                    print('checking', word)
                 if len(word) > 4 and spell.unknown([word]) and not self.checkMultiWords(word) and not self.wordBeforeId(word):
                     print(self.file, value_index, '/', num_values, '"' + original + '"', bcolors.FAIL + word + bcolors.ENDC,
                           ' -> ', '?')

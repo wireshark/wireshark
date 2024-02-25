@@ -236,7 +236,7 @@ dissect_stcsig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	proto_tree_add_item(stcsig_tree, hf_stcsig_iv, stcsig_tvb, 0, 1, ENC_NA);
 	ti = proto_tree_add_item(stcsig_tree, hf_stcsig_streamid, stcsig_tvb, 1, 4, ENC_BIG_ENDIAN);
 	stcsig_streamid_tree = proto_item_add_subtree(ti, ett_stcsig_streamid);
-	/* This subtree is mostly an optical hierachy, auto expand it */
+	/* This subtree is mostly an optical hierarchy, auto expand it */
 	tree_expanded_set(ett_stcsig_streamid, TRUE);
 	proto_tree_add_item(stcsig_streamid_tree, hf_stcsig_csp, stcsig_tvb, 1, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(stcsig_streamid_tree, hf_stcsig_streamtype, stcsig_tvb, 3, 1, ENC_NA);

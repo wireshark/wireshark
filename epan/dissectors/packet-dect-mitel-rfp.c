@@ -14,7 +14,7 @@
 
 /*
  * This is a proprietary protocol deveolped by Mitel for communication
- * inbetween the DECT system management Software (OMM) and the DECT
+ * between the DECT system management Software (OMM) and the DECT
  * base station (RFPs)
  */
 

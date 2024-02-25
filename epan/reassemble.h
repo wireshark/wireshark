@@ -366,7 +366,7 @@ fragment_add_seq_802_11(reassembly_table *table, tvbuff_t *tvb,
  *
  * @note Out of order fragments will not be reassembled correctly.
  * Dissectors atop a reliable protocol like TCP may rely on the lower
- * level dissector reordering out or order segments (if the appropraite
+ * level dissector reordering out or order segments (if the appropriate
  * out of order reassembly preference is enabled), but other dissectors
  * will have to handle out of order fragments themselves, if possible.
  */

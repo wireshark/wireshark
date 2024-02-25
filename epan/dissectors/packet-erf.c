@@ -772,7 +772,7 @@ static erf_state_t erf_state;
 
 /*
  * XXX: These header_field_info are used as templates for dynamically building
- * per-section fields for each tag, as well as appropiate value_string arrays.
+ * per-section fields for each tag, as well as appropriate value_string arrays.
  * We abuse the abbrev field to store the short name of the tags.
  */
 static const erf_meta_hf_template_t erf_meta_tags[] = {
@@ -1963,7 +1963,7 @@ dissect_host_id_source_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
   if (fnum != G_MAXUINT32) {
     fnum_current = fnum;
   } else {
-    /* XXX: Possibly undesireable side effect: first metadata record links to next */
+    /* XXX: Possibly undesirable side effect: first metadata record links to next */
     fnum_current = fnum_next;
   }
 

@@ -819,7 +819,7 @@ static int lua_load_plugins(const char *dirname, register_cb cb, gpointer client
                 continue;
             }
 
-            /* skip files starting wih . */
+            /* skip files starting with . */
             if (name[0] == '.') {
                 g_free(filename);
                 continue;

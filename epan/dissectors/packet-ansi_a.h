@@ -42,7 +42,7 @@ WS_DLL_PUBLIC const ext_value_string_t ansi_a_ios401_bsmap_strings[];
 WS_DLL_PUBLIC const ext_value_string_t ansi_a_ios401_dtap_strings[];
 
 /*
- * Not strictly A-interface info, but put here to avoid file polution
+ * Not strictly A-interface info, but put here to avoid file pollution
  *
  * Title                3GPP2                   Other
  *

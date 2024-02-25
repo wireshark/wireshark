@@ -289,7 +289,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* data
 				length = tvb_captured_length_remaining(tvb, stx_start+1);    /* find out how much message remains      */
 				if (etx_start)
 					length = (etx_start - stx_start - 1);       /* and the data part is the rest...       */
-										    /* whatever preceeds the ETX if it exists */
+										    /* whatever precedes the ETX if it exists */
 				data_ptr = tvb_get_string_enc(pinfo->pool, tvb, stx_start+1, length, ENC_ASCII);	/* copy the string for dissecting */
 				proto_tree_add_string_format(uts_tree, hf_data, tvb, stx_start + 1, length, data_ptr,
 							     "Text (%d byte%s)", length, plurality(length, "", "s"));

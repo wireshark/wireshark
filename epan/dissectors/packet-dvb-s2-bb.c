@@ -1733,7 +1733,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         user_packet_length >>= 3;
         /* UPL should be *at least* MP2T_PACKET_SIZE, depending on npd (1 byte)
          * and issy (2 or 3 bytes). The fields are overdetermined (something
-         * addressed in -C2 and -T2's High Efficency Mode for TS), so how to
+         * addressed in -C2 and -T2's High Efficiency Mode for TS), so how to
          * process in the case of inconsistency is a judgment call. The
          * approach here is to disable anything for which there is insufficent
          * room, but not to enable anything marked as inactive.

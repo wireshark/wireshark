@@ -918,7 +918,7 @@ fragment_truncate(reassembly_table *table, const packet_info *pinfo,
 	fragment_item *fd_i, *prev_fd = NULL;
 	for (fd_i = fd_head->next; fd_i && (fd_i->offset < tot_len); fd_i = fd_i->next) {
 		fd_i->flags &= ~(FD_TOOLONGFRAGMENT|FD_MULTIPLETAILS);
-		/* Check for the split point occuring in the middle of the
+		/* Check for the split point occurring in the middle of the
 		 * fragment. */
                 if (fd_i->offset + fd_i->len > tot_len) {
 			fd_i->len = tot_len - fd_i->offset;

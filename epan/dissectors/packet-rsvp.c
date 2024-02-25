@@ -646,7 +646,7 @@ static int rsvp_tap;
 
 /*
  * All RSVP packets belonging to a particular flow  belong to the same
- * conversation. The following structure definitions are for auxillary
+ * conversation. The following structure definitions are for auxiliary
  * structures which have all the relevant flow information to make up the
  * RSVP five-tuple. Note that the values of the five-tuple are determined
  * from the session object and sender template/filter spec for PATH/RESV

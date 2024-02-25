@@ -10471,7 +10471,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
                             hf_pn_io_number_of_io_data_objects, &u16NumberOfIODataObjectsInAPI);
 
         /* Set global Variant for Number of IO Data Objects */
-        /* Notice: Handle Input & Output seperate!!! */
+        /* Notice: Handle Input & Output separate!!! */
         if (!PINFO_FD_VISITED(pinfo)) {
             /* Get current conversation endpoints using MAC addresses */
             conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);

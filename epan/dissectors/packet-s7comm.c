@@ -512,7 +512,7 @@ const value_string s7comm_item_return_valuenames[] = {
     { 0,                                        NULL }
 };
 /**************************************************************************
- * Block Types, used when blocktype is transfered as string
+ * Block Types, used when blocktype is transferred as string
  */
 #define S7COMM_BLOCKTYPE_OB                 0x3038      /* '08' */
 #define S7COMM_BLOCKTYPE_CMOD               0x3039      /* '09' */
@@ -6503,7 +6503,7 @@ s7comm_decode_ud_data(tvbuff_t *tvb,
     gchar str_fragadd[32];
 
     /* The first 4 bytes of the data part of a userdata telegram are the same for all types.
-     * This is also the minumum length of the data part.
+     * This is also the minimum length of the data part.
      */
     if (dlength >= 4) {
         item = proto_tree_add_item(tree, hf_s7comm_data, tvb, offset, dlength, ENC_NA);

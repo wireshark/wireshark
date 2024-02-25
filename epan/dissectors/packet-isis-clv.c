@@ -413,7 +413,7 @@ isis_dissect_te_router_id_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tv
  * Name: isis_dissect_nlpid_clv()
  *
  * Description:
- *    Take apart a NLPID packet and display it.  The NLPID (for intergrated
+ *    Take apart a NLPID packet and display it.  The NLPID (for integrated
  *    ISIS, contains n network layer protocol IDs that the box supports.
  *    We max out at 256 entries.
  *

@@ -62,11 +62,11 @@ sub AllocOutVar($$$$$$$)
 		$l = $nl if ($nl->{TYPE} eq "ARRAY");
 	} elsif
 
-	# we don't support multi-dimentional arrays yet
+	# we don't support multi-dimensional arrays yet
 	($l->{TYPE} eq "ARRAY") {
 		my $nl = GetNextLevel($e, $l);
 		if ($nl->{TYPE} eq "ARRAY") {
-			fatal($e->{ORIGINAL},"multi-dimentional [out] arrays are not supported!");
+			fatal($e->{ORIGINAL},"multi-dimensional [out] arrays are not supported!");
 		}
 	} else {
 		# neither pointer nor array, no need to alloc something.

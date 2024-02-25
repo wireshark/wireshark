@@ -7,8 +7,8 @@
  * In association with Telos Technology Inc.
  *
  *
- * Added the GPRS Mobility Managment Protocol and
- * the GPRS Session Managment Protocol
+ * Added the GPRS Mobility Management Protocol and
+ * the GPRS Session Management Protocol
  *   Copyright 2004, Rene Pilz <rene.pilz [AT] ftw.com>
  *   In association with Telecommunications Research Center
  *   Vienna (ftw.)Betriebs-GmbH within the Project Metawin.
@@ -6879,7 +6879,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             return len;
         }
         /*
-         * eventhough we don't know if a TI should be in the message yet
+         * even though we don't know if a TI should be in the message yet
          * we rely on the TI/SKIP indicator to be 0 to avoid taking this
          * octet
          */

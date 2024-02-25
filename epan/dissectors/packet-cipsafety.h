@@ -16,7 +16,7 @@
 
 #include "packet-enip.h"
 
-/* Classes that have class-specfic dissectors */
+/* Classes that have class-specific dissectors */
 #define CI_CLS_SAFETY_SUPERVISOR   0x39    /* Safety Supervisor */
 #define CI_CLS_SAFETY_VALIDATOR    0x3A    /* Safety Validator */
 

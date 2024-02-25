@@ -6400,7 +6400,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data,
             break;
 
         case PREF_PASSWORD:
-            /* Read value is everytime empty */
+            /* Read value is every time empty */
             containing_module->prefs_changed_flags |= prefs_set_string_value(pref, "", pref_current);
             break;
 

@@ -25,7 +25,7 @@
  *                       - Multiple SOD Read/Write dissection
  *                       - Include AInv message type
  *                       - Straighten text formatting
- *                       - Remove unneccessary if(tree) checks
+ *                       - Remove unnecessary if(tree) checks
  *
  * Copyright (c) 2017: Karlsruhe Institute of Technology (KIT)
  *                     Institute for Anthropomatics and Robotics (IAR)
@@ -1858,7 +1858,7 @@ epl_address_equal(gconstpointer a, gconstpointer b)
 /* FIXME
  * PDO Mappings store object/subobjct pointers and thus need to be
  * updated after a profile change. We purge them by resetting the
- * memory pool. As PDO Mappings are refereneced via Conversations,
+ * memory pool. As PDO Mappings are referenced via Conversations,
  * we need to fix up those too. I didn't figure out how to clear
  * conversations yet, so till now, we keep a variable to tell us
  * if we have dangling pointers. Courtesy of Peter Wu.
@@ -6551,7 +6551,7 @@ device_profile_parse_uat(void)
 	wmem_map_foreach(epl_profiles_by_device, drop_profiles, NULL);
 
 	/* PDO Mappings will have stale pointers after a profile change
-	 * so we reset the memory pool. As PDO Mappings are refereneced
+	 * so we reset the memory pool. As PDO Mappings are referenced
 	 * via Conversations, we need to fixup those too to avoid a use
 	 * after free, preferably by clearing them.
 	 * This generation++ is a temporary workaround
@@ -6643,7 +6643,7 @@ nodeid_profile_parse_uat(void)
 
 
 	/* PDO Mappings will have stale pointers after a profile change
-	 * so we reset the memory pool. As PDO Mappings are refereneced
+	 * so we reset the memory pool. As PDO Mappings are referenced
 	 * via Conversations, we need to fixup those too to avoid a use
 	 * after free, preferably by clearing them.
 	 * This generation++ is a temporary workaround

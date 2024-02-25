@@ -1267,7 +1267,7 @@ VALUE	SN-Subscriber-Accounting	GTPP			2
 VALUE	SN-Subscriber-Acct-Interim	Normal			0
 VALUE	SN-Subscriber-Acct-Interim	Suppress		1
 
-VALUE	SN-Subscriber-Acct-Mode		flow-based-auxilliary	0
+VALUE	SN-Subscriber-Acct-Mode		flow-based-auxiliary	0
 VALUE	SN-Subscriber-Acct-Mode		flow-based-all		1
 VALUE	SN-Subscriber-Acct-Mode		flow-based-none		2
 VALUE	SN-Subscriber-Acct-Mode		session-based		3

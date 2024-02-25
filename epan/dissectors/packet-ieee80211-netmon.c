@@ -175,7 +175,7 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
     /*
      * Furthermore, we may see frames with the A-MSDU Present flag set
-     * in the QoS Control field but that have a regular frame, nto a
+     * in the QoS Control field but that have a regular frame, not a
      * sequence of A-MSDUs, in the payload.
      */
     phdr.no_a_msdus = TRUE;
@@ -339,7 +339,7 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
   /*
    * ullTimestamp?
    *
-   * If so, should this check the presense flag in flags?
+   * If so, should this check the presence flag in flags?
    */
   phdr.has_tsf_timestamp = TRUE;
   phdr.tsf_timestamp = tvb_get_letoh64(tvb, offset);

@@ -3350,7 +3350,7 @@ static const value_string q708_ispc_point_name[] = {
 	{  6335, "Dominguez Hills (1), CA" },
 	{  6336, "Dominguez Hills (2), CA" },
 	{  6337, "Irving (1), TX" },
-	{  6338, "Sacremento, CA" },
+	{  6338, "Sacramento, CA" },
 	{  6339, "Tampa, FL" },
 	{  6340, "Fort Worth" },
 	{  6341, "Dallas, TX" },
@@ -3367,7 +3367,7 @@ static const value_string q708_ispc_point_name[] = {
 	{  6352, "New York City, NY" },
 	{  6353, "Los Angeles, CA" },
 	{  6354, "Tampa, FL" },
-	{  6355, "Sacremento, CA" },
+	{  6355, "Sacramento, CA" },
 	{  6356, "Wentzville, MO" },
 	{  6357, "Dallas (5), TX" },
 	{  6358, "Caparra, PR" },
@@ -14105,7 +14105,7 @@ static value_string_ext q708_sanc_areas_ext = VALUE_STRING_EXT_INIT(q708_sanc_ar
 /*
  * International signalling point codes (i.e. PCs with ni = 0) are allocated by the ITU,
  * according to the processes described in Q.708. ITU keeps a database of all registered
- * ISPCs which is publically available, with updates being provided in the operational
+ * ISPCs which is publicly available, with updates being provided in the operational
  * bulletins. This function takes an ISPC and analyzes it according to these tables.
  */
 void

@@ -1472,7 +1472,7 @@ dissect_thread_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                     offset += tlv_len;
                 }
                 else {
-                    //Need to only take 16 bytes for the IPv6 adress
+                    //Need to only take 16 bytes for the IPv6 address
                     for (int i = 0; i < (tlv_len / 16); i++)
                     {
                         proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_ipv6_addr, tvb, offset, 16, ENC_NA);
@@ -1696,7 +1696,7 @@ dissect_thread_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     offset += tlv_len;
                 }
                 else {
-                    //Need to only take 16 bytes for the IPv6 adress
+                    //Need to only take 16 bytes for the IPv6 address
                     for (int i = 0; i < (tlv_len / 16); i++)
                     {
                         proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_ipv6_addr, tvb, offset, 16, ENC_NA);

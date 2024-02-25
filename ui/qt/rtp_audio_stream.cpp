@@ -843,7 +843,7 @@ void RtpAudioStream::stopPlaying()
     if (audio_output_) {
         if (audio_output_->state() == QAudio::StoppedState) {
             // Looks like "delayed" QTBUG-6548
-            // It may happen that stream is stopped, but no signal emited
+            // It may happen that stream is stopped, but no signal emitted
             // Probably triggered by some issue in sound system which is not
             // handled by Qt correctly
             outputStateChanged(QAudio::StoppedState);

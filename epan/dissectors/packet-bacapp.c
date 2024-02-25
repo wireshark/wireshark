@@ -6541,7 +6541,7 @@ BACnetVendorIdentifiers [] = {
     { 1268, "Lion Controls Co., LTD" },
     { 1269, "Sinux" },
     { 1270, "Avnet Inc." },
-    { 1271, "Somfy Activites SA" },
+    { 1271, "Somfy Activities SA" },
     { 1272, "Amico" },
     { 1273, "SageGlass" },
     { 1274, "AuVerte" },

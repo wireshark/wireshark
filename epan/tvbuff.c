@@ -2159,7 +2159,7 @@ static const guint8 bit_mask8[] = {
 };
 
 
-/* Get a variable ammount of bits
+/* Get a variable amount of bits
  *
  * Return a byte array with bit limited data.
  * When encoding is ENC_BIG_ENDIAN, the data is aligned to the left.

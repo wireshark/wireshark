@@ -4127,7 +4127,7 @@
 { &hf_x11_xf86vidmode_SetViewPort_x, { "x", "x11.xf86vidmode.SetViewPort.x", FT_UINT32, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},
 { &hf_x11_xf86vidmode_SetViewPort_y, { "y", "x11.xf86vidmode.SetViewPort.y", FT_UINT32, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},
 { &hf_x11_xf86vidmode_GetDotClocks_screen, { "screen", "x11.xf86vidmode.GetDotClocks.screen", FT_UINT16, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},
-{ &hf_x11_xf86vidmode_GetDotClocks_reply_flags_mask_Programable, { "Programable", "x11.xf86vidmode.GetDotClocks.reply.flags.Programable", FT_BOOLEAN, 32, NULL, 1U << 0, NULL, HFILL }},
+{ &hf_x11_xf86vidmode_GetDotClocks_reply_flags_mask_Programable, { "Programmable", "x11.xf86vidmode.GetDotClocks.reply.flags.Programmable", FT_BOOLEAN, 32, NULL, 1U << 0, NULL, HFILL }},
 { &hf_x11_xf86vidmode_GetDotClocks_reply_flags, { "flags", "x11.xf86vidmode.GetDotClocks.reply.flags", FT_UINT32, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},
 { &hf_x11_xf86vidmode_GetDotClocks_reply_clocks, { "clocks", "x11.xf86vidmode.GetDotClocks.reply.clocks", FT_UINT32, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},
 { &hf_x11_xf86vidmode_GetDotClocks_reply_maxclocks, { "maxclocks", "x11.xf86vidmode.GetDotClocks.reply.maxclocks", FT_UINT32, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},

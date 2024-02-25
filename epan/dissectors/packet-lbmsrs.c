@@ -767,7 +767,7 @@ static gboolean check_lbmsrs_packet(tvbuff_t *tvb, guint offset)
     offset += rsocket_frame_len_field_size;
 
     /*check the length*/
-    /*rsocket data maybe split accross multiple packets*/
+    /*rsocket data maybe split across multiple packets*/
     guint32 tvb_length = tvb_captured_length(tvb);
 
     if (tvb_length < (offset - start_offset + rsocket_stream_id_field_size))
@@ -896,7 +896,7 @@ static gboolean check_lbmsrs_packet(tvbuff_t *tvb, guint offset)
 static guint get_rsocket_frame_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     /*get the rsocket frame length (3-byte long field)*/
-    /*offset argument points to the begining of the Rsocket PDU*/
+    /*offset argument points to the beginning of the Rsocket PDU*/
     guint32 rsocket_frame_len = tvb_get_guint24(tvb, offset, ENC_BIG_ENDIAN);
 
     /*return total RSocket PDU size*/

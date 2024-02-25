@@ -14,7 +14,7 @@
  * File uses Frame as piece of information. One Frame match audio of one
  * decoded packet or audio silence in between them. Frame holds information
  * about frame type (audio/silence), its length and realtime position and
- * sample possition (where decoded audio is really stored, with gaps omitted).
+ * sample position (where decoded audio is really stored, with gaps omitted).
  *
  * There are three stages of the object use
  * - writing data by frames during decoding of the stream

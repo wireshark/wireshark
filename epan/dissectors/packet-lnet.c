@@ -791,7 +791,7 @@ dissect_lnet_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         if (msg_filler_length > 72)
             goto out;
         */
-        /*  +24 : ksock_message take 24bytes, and allready in offset  */
+        /*  +24 : ksock_message take 24bytes, and already in offset  */
     }
 
     if (msg_filler_length > 0) {

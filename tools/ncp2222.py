@@ -3,7 +3,7 @@
 """
 Creates C code from a table of NCP type 0x2222 packet types.
 (And 0x3333, which are the replies, but the packets are more commonly
-refered to as type 0x2222; the 0x3333 replies are understood to be
+referred to as type 0x2222; the 0x3333 replies are understood to be
 part of the 0x2222 "family")
 
 The data-munging code was written by Gilbert Ramirez.

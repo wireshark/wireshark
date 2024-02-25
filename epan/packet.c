@@ -342,7 +342,7 @@ init_dissection(void)
 {
 	/*
 	 * Reinitialize resolution information. Don't leak host entries from
-	 * one file to another (e.g. embarassing-host-name.example.com from
+	 * one file to another (e.g. embarrassing-host-name.example.com from
 	 * file1.pcapng into a name resolution block in file2.pcapng).
 	 */
 	host_name_lookup_reset();
@@ -916,7 +916,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 	/*
 	 * can_desegment is set to 2 by anyone which offers the
 	 * desegmentation api/service.
-	 * Then everytime a subdissector is called it is decremented
+	 * Then every time a subdissector is called it is decremented
 	 * by one.
 	 * Thus only the subdissector immediately on top of whoever
 	 * offers this service can use it.
@@ -2972,7 +2972,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 	guint              saved_tree_count = tree ? tree->tree_data->count : 0;
 
 	/* can_desegment is set to 2 by anyone which offers this api/service.
-	   then everytime a subdissector is called it is decremented by one.
+	   then every time a subdissector is called it is decremented by one.
 	   thus only the subdissector immediately ontop of whoever offers this
 	   service can use it.
 	   We save the current value of "can_desegment" for the
@@ -3572,7 +3572,7 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 	DISSECTOR_ASSERT(heur_dtbl_entry);
 
 	/* can_desegment is set to 2 by anyone which offers this api/service.
-	   then everytime a subdissector is called it is decremented by one.
+	   then every time a subdissector is called it is decremented by one.
 	   thus only the subdissector immediately ontop of whoever offers this
 	   service can use it.
 	   We save the current value of "can_desegment" for the

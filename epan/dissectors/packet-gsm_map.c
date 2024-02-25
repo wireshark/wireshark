@@ -3985,7 +3985,7 @@ MAP interfaces
 	case 1:
 	/* gsm-0408 */
 		/* As per comment abowe Individual IE:(s) will be found here in TLV format
-		 * Unfortunatly a branch for each IE must be made to call the apropriate
+		 * Unfortunately a branch for each IE must be made to call the appropriate
 		 * function
 		 */
 		 /* Get tag */
@@ -18042,7 +18042,7 @@ if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
 	case 1:
 	/* gsm-0408 */
 		/* As per comment abowe Individual IE:(s) will be found here in TLV format
-		 * Unfortunatly a branch for each IE must be made to call the apropriate
+		 * Unfortunately a branch for each IE must be made to call the appropriate
 		 * function
 		 */
 		 /* Get tag */
@@ -22388,7 +22388,7 @@ typedef int (* dissect_function_t)( bool,
 /*
  * Dissect Multiple Choice Message
  * This function is used to decode a message, when several encoding may be used.
- * For exemple, in the last MAP version, the Cancel Location is defined like this:
+ * For example, in the last MAP version, the Cancel Location is defined like this:
  * CancelLocationArg ::= [3] IMPLICIT SEQUENCE
  * But in the previous MAP version, it was a CHOICE between a SEQUENCE and an IMSI
  * As ASN1 encoders (or software) still uses the old encoding, this function allows

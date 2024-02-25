@@ -343,7 +343,7 @@ extern void add_ether_byip(const guint ip, const guint8 *eth);
 /** Translates a string representing a hostname or dotted-decimal IPv4 address
  *  into a numeric IPv4 address value in network byte order. If compiled with
  *  c-ares, the request will wait a maximum of 250ms for the request to finish.
- *  Otherwise the wait time will be system-dependent, ususally much longer.
+ *  Otherwise the wait time will be system-dependent, usually much longer.
  *  Immediately returns FALSE for hostnames if network name resolution is
  *  disabled.
  *

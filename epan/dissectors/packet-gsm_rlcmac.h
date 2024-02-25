@@ -1123,7 +1123,7 @@ typedef struct
 
   guint8 Exist_A5_bits;
   A5_bits_t A5_bits;
-  /*-- zero means that the same values apply for parameters as in the immediately preceeding Access capabilities field within this IE
+  /*-- zero means that the same values apply for parameters as in the immediately preceding Access capabilities field within this IE
   *-- The presence of the A5 bits is mandatory in the 1st Access capabilies struct within this IE.
   */
 
@@ -1134,7 +1134,7 @@ typedef struct
 
   guint8 Exist_Multislot_capability;
   Multislot_capability_t Multislot_capability;
-  /* -- zero means that the same values apply for multislot parameters as in the immediately preceeding Access capabilities field within this IE.
+  /* -- zero means that the same values apply for multislot parameters as in the immediately preceding Access capabilities field within this IE.
    * -- The presence of the Multislot capability struct is mandatory in the 1st Access capabilites struct within this IE.
    */
   /* -------- Rel 99 additions */
@@ -2868,7 +2868,7 @@ typedef struct
   SI13_PBCCH_Location_t SI13_PBCCH_Location;
 } Cell_Selection_t;
 
-/* Neigbour cell list as used in PSI3 and PSI3bis */
+/* Neighbour cell list as used in PSI3 and PSI3bis */
 typedef struct
 {
   guint8 FREQ_DIFF_LENGTH;

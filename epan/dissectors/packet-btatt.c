@@ -11984,7 +11984,7 @@ proto_register_btatt(void)
     module_t         *module;
     expert_module_t  *expert_btatt;
 
-    //src_port will be filled wiht handle
+    //src_port will be filled with handle
     //dst_port will be filled with opcode
     reassembly_table_register(&msg_reassembly_table,
         &addresses_ports_reassembly_table_functions);

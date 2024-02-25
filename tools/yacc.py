@@ -1459,7 +1459,7 @@ class Grammar(object):
         self.Precedence   = {}      # Precedence rules for each terminal. Contains tuples of the
                                     # form ('right',level) or ('nonassoc', level) or ('left',level)
 
-        self.UsedPrecedence = set() # Precedence rules that were actually used by the grammer.
+        self.UsedPrecedence = set() # Precedence rules that were actually used by the grammar.
                                     # This is only used to provide error checking and to generate
                                     # a warning about unused precedence rules.
 

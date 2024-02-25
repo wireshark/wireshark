@@ -1530,7 +1530,7 @@ proto_register_bitcoin(void)
         NULL, HFILL }
     },
     { &hf_msg_version_addr_me,
-      { "Address of emmitting node", "bitcoin.version.addr_me",
+      { "Address of emitting node", "bitcoin.version.addr_me",
         FT_NONE, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },

@@ -238,7 +238,7 @@ Extension         ::=   SEQUENCE {
 --                                                invalidityDate |
 --                                                certificateIssuer }
 --
---          information object classes used in the defintion
+--          information object classes used in the definition
 --                     of certificates and CRLs
 --
 -- Parameterized Type SIGNED
@@ -499,7 +499,7 @@ RelativeDistinguishedName       ::= SET OF AttributeTypeAndValue
 --id-at-dnQualifier       OBJECT IDENTIFIER       ::=     {id-at 46}
 --
 -- Directory string type, used extensively in Name types
---Make it a PrintableString  will amke it look prettier
+--Make it a PrintableString  will make it look prettier
 DirectoryString ::= PrintableString
 --DirectoryString { INTEGER:maxSize } ::= CHOICE {
 --        teletexString           TeletexString (SIZE (1..maxSize)),

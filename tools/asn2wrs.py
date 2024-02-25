@@ -5978,7 +5978,7 @@ def p_Reference_1 (t):
 
 def p_Reference_2 (t):
     '''Reference : LCASE_IDENT_ASSIGNED
-                 | identifier '''  # instead of valuereference wich causes reduce/reduce conflict
+                 | identifier '''  # instead of valuereference which causes reduce/reduce conflict
     t[0] = Value_Ref(val=t[1])
 
 def p_AssignmentList_1 (t):
@@ -6019,7 +6019,7 @@ def p_DefinedValue_1(t):
     t[0] = t[1]
 
 def p_DefinedValue_2(t):
-    '''DefinedValue : identifier '''  # instead of valuereference wich causes reduce/reduce conflict
+    '''DefinedValue : identifier '''  # instead of valuereference which causes reduce/reduce conflict
     t[0] = Value_Ref(val=t[1])
 
 # 13.6
@@ -6045,7 +6045,7 @@ def p_ValueAssignment (t):
     'ValueAssignment : LCASE_IDENT ValueType ASSIGNMENT Value'
     t[0] = ValueAssignment(ident = t[1], typ = t[2], val = t[4])
 
-# only "simple" types are supported to simplify grammer
+# only "simple" types are supported to simplify grammar
 def p_ValueType (t):
     '''ValueType : type_ref
                  | BooleanType

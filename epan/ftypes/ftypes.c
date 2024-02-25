@@ -127,7 +127,7 @@ same_ftype(const enum ftenum ftype)
 		case FT_REL_OID:
 			return FT_OID;
 
-		/* XXX: the folowing are unique for now */
+		/* XXX: the following are unique for now */
 		case FT_IPv4:
 		case FT_IPv6:
 

@@ -1,6 +1,6 @@
 /* packet-sctp.h
  *
- * Defintion of SCTP specific structures used by tap listeners.
+ * Definition of SCTP specific structures used by tap listeners.
  *
  * Copyright 2004 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
